@@ -18,7 +18,6 @@ I tried to keep the notations such that the names of types which are (expected t
 
 *)
 
-
 (* IMPORTANT: for those who may want to add to these files. There are some rules which have to be followed in creating new definitions and theorems which at the moment are not tracked by the proof checker.
 
 1. The current system of Coq is not completely compatible with the univalent semantics. The problem (the only one as far as I know) lies in the way the universe levels (u-levels) are assigned to the objects defined by the inductive definitions of the form
@@ -43,6 +42,8 @@ where the u-level of UU (which at the moment can be UU0, UU1 or UU2) is lower th
 
 
 *)
+
+
 
 
 
