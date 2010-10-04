@@ -1,0 +1,3 @@
+The files with the extension .v in this directory are Coq source files (currently v8.2) which contain the basic definitions and results of the Univalent Foundations of Mathematics. Some info about the univalent foundations can be found on my web page ( http://www.math.ias.edu/~vladimir/Site3/home.html ).  
+
+The files u0.v u1.v and u2.v are identical except for their names and are supposed to be kept this way.  The reson for this arrangement is explained at the beginning of u012.v.  The Makefile copies u0.v to u1.v and u2.v and then compiles u0 u1 u2 u01 and u12 using coqc  creating (or updating)  the Coq object files with the extension .vo which are needed for u012. The later file is not compiled by Makefile. 

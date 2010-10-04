@@ -1,5 +1,4 @@
 (* The work on the file started on  Feb. 16, 2010 *)
-(* This is a snapshop of work in progress from Sep. 14, 2010. *)
 
   
 (* The files u0.v, u1.v, u2.v, u01.v, u12.v and u012.v contain the definitions and theorems which form the "basics" of the foundations and a new approach to the type-theoretic formalization of mathematics. These foundations are inspired by the univalent model of type theory which interprets types as homotopy types (objects of the homotopy category which is defined using the standard set theory), Martin-Lof equality as paths spaces and universes as bases of universal ("univalent") fibrations.
@@ -16,7 +15,32 @@ The file u012 contains the results which require a three-levels universe hierarc
 
 I tried to keep the notations such that the names of types which are (expected to be) a property in the sense of being of level 1 start with "is" but I have not been very consistent about it. After functional extensionality is proved there follows a series of theorems which assert that different types of the form "is..." (iscontr, isweq etc.) are actuallly properties.
 
-So far none of the developments use Prop. 
+
+*)
+
+
+(* IMPORTANT: for those who may want to add to these files. There are some rules which have to be followed in creating new definitions and theorems which at the moment are not tracked by the proof checker.
+
+1. The current system of Coq is not completely compatible with the univalent semantics. The problem (the only one as far as I know) lies in the way the universe levels (u-levels) are assigned to the objects defined by the inductive definitions of the form
+
+Inductive Ind (...)...(...): A -> Type := ...
+
+
+The current u-level assignemet takes into account the u-levels of the constructors but not the u-level of A. To ensure compatibility with the univalent model the u-level of Ind should be no less than the u-level of A. The u-levels of the parameters (the types appearing in (...)...(...) ) do not matter. 
+
+A particular case of this problem is the "singleton elimination" rule which provides a good example of this incompatibility. The inductive definition of the identity types which uses one of the points as a parametr has A=:T (the underlying type) but since no mention of T appears in the constructor the system considers that there are no u-level restrictions on the resulting object and in particular that it can be placed in Prop while still having the full Ind_rect elimninator (see elimination, singleton elimination in the Index to the Refernce Manual). 
+
+Since in the present approach the universe management is made explicit as explained above the one has:
+
+RULE 1 Do not use inductive definitions of the form 
+
+Inductive Ind (...)...(...): A -> UU := ...
+
+where the u-level of UU (which at the moment can be UU0, UU1 or UU2) is lower than the level of the universe to which A types.
+
+
+2. While it does not lead directly to any contradictions the shape of the foundations suggests very strongly that we should completely avoid the use of the universes Prop and Set. Instead we should use the the conditions isaprop and isaset which are applicable to the types of any of the type universes.  
+
 
 *)
 
