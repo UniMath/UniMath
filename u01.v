@@ -115,14 +115,233 @@ Proof. intros. set (f:= (fun x:X => pathsspacetriple Y (f1 x) (f2 x) (e x))).  s
 
 
 
-(* More results on h-levels. *)
+(* More results on types of h-level 1 (propositions). *)
+
+
+Lemma iscontrtounit (T:UU0) :iscontr (T -> unit).
+Proof. intros. set (cntr:= (fun t:T => tt)). split with cntr. intros. assert (e: forall f1: T -> unit, forall t:T,  paths _ (f1 t) tt). intros. induction (f1 t0). apply idpath. apply (funextfun T unit t cntr (e t)). Defined. 
+
+
+Theorem isapropneg (X:UU0): isaprop (X -> empty).
+Proof. intro. unfold isaprop. unfold isofhlevel.  
+assert (is1:forall (f g: X -> empty), forall x:X, paths _ (f x) (g x)). intros.  apply initmap. apply (f x). 
+assert (is2: forall (f g:X -> empty), paths _ f g). intros.  apply (funextfun _ _ f g (is1 f g)). apply (isaprop2 _ is2). Defined.
+
+Lemma isapropaninvprop (X:UU0): isaninvprop X -> isaprop X.
+Proof. intros. 
+assert (is1: isaprop (dneg X)). apply (isapropneg (neg X)). 
+apply (hlevelweqb (S O) _ _ (adjev X) X0 is1). Defined. 
+
+
+Theorem isaninvpropneg (X:UU0): isaninvprop (neg X).
+Proof. intros. 
+set (f:= adjev (neg X)). set (g:= negf _ _ (adjev X)). set (is1:= isapropneg X). set (is2:= isapropneg (dneg X)). apply (isweqimplimpl _ _ f g is1 is2).  Defined.
+
+
+Theorem isapropxornotx (X:UU0): (isaprop X) -> (isaprop (coprod X (X-> empty))).
+Proof. intros. 
+assert (forall (x x': X), paths _ x x'). apply (isaprop2' _ X0).  
+assert (forall (x x': coprod X (X -> empty)), paths _ x x'). intros.  
+induction x. induction t. induction x'.  induction t. apply (maponpaths _ _ (fun x:X => ii1 _ _ x) _ _ (X1 x x0)).    
+apply (initmap _ (x0 x)). induction x'. induction t.  apply (initmap _ (x x0)). 
+assert (e: paths _ x x0). apply (isaprop2' _ (isapropneg X) x x0). apply (maponpaths _ _ (fun f: X -> empty => ii2 _ _ f) _ _ e).
+apply (isaprop2 _ X2).  Defined. 
+
+
+Theorem isaninv1 (X:UU0): isdecprop X  -> isaninvprop X.
+Proof. unfold isaninvprop. intros. rename X0 into is.  set (is1:= pr21 _ _ is). set (is2:= pr22 _ _ is). simpl in is2. 
+assert (adjevinv: dneg X -> X). intros.  induction is2. induction t. assumption. induction (X0 x). 
+assert (is3: isaprop (dneg X)). apply (isapropneg (X -> empty)). apply (isweqimplimpl _ _ (adjev X) adjevinv is1 is3). Defined. 
+
+
+
+
+
+
+
+
+
+
+
+(* Coprojections i.e. functions which are weakly equivalent to functions of the form ii1: X -> coprod X Y *)
+
+
+Definition locsplit (X:UU0)(Y:UU0)(f:X -> Y):= forall y:Y, coprod (hfiber _ _ f y) (hfiber _ _ f y -> empty).
+
+Definition dnegimage (X:UU0)(Y:UU0)(f:X -> Y):= total2 Y (fun y:Y => dneg(hfiber _ _ f y)).
+
+Definition xtodnegimage (X:UU0)(Y:UU0)(f:X -> Y): X -> dnegimage _ _ f:= fun x:X => tpair _ _ (f x) ((adjev _) (hfiberpair _ _ f (f x) x (idpath _ (f x)))). 
+
+Definition locsplitsec (X:UU0)(Y:UU0)(f:X->Y)(ls: locsplit _ _ f): dnegimage _ _ f -> X := fun u: _ =>
+match u with
+tpair y psi =>
+match (ls y) with 
+tpair true z => pr21 _ _ z|
+tpair false phi => initmap _ (psi phi)
+end
+end.
+
+
+Definition locsplitsecissec  (X:UU0)(Y:UU0)(f:X->Y)(ls: locsplit _ _ f)(u:dnegimage _ _ f): paths _ (xtodnegimage _ _ f (locsplitsec _ _ f ls u)) u.
+Proof. intros.  set (p:= xtodnegimage _ _ f). set (s:= locsplitsec _ _ f ls).  
+assert (paths _ (pr21 _ _ (p (s u))) (pr21 _ _ u)). unfold p. unfold xtodnegimage. unfold s. unfold locsplitsec. simpl. induction u. set (lst:= ls t). induction lst. induction t0. simpl. apply (pr22 _ _ x0). induction (x x0). 
+
+
+
+
+Definition negimage (X:UU0)(Y:UU0)(f:X -> Y):= total2 Y (fun y:Y => neg(hfiber _ _ f y)).
+
+Definition imsum (X:UU0)(Y:UU0)(f:X -> Y): coprod (dnegimage _ _ f) (negimage _ _ f) -> Y:= fun u:_ =>
+match y with
+tpair true z => pr21 _ _ z|
+tpair false z => pr21 _ _ z
+end.
+
+
+ 
+
+
+
+
+
+
+(* Some results on types with an isolated point. *)
+
+
+Definition isisolated (X:UU0)(x:X):= forall x':X, coprod (paths _ x x') (paths _ x x' -> empty).
+
+
+Definition complement (X:UU0)(x:X):= total2 X (fun x':X => (paths _ x x' -> empty)).
+Definition complementpair (X:UU0)(x:X):= tpair X (fun x':X => (paths _ x x' -> empty)).
+
+
+Definition recompl (X:UU0)(x:X): coprod (complement X x) unit -> X := fun u:_ =>
+match u with
+tpair true x0 => pr21 _ _ x0|
+tpair false tt => x
+end.
+
+Definition recomplinv (X:UU0)(x:X)(is: isisolated X x): X -> coprod (complement X x) unit:=
+fun x':X => match (is x') with
+tpair true e => ii2 _ _ tt|
+tpair false phi => ii1 _ _ (complementpair _ _ x' phi)
+end.
+
+
+Theorem isweqrecompl (X:UU0)(x:X)(is:isisolated X x): isweq _ _ (recompl X x).
+Proof. intros. set (f:= recompl X x). set (g:= recomplinv X x is). unfold recomplinv in g. simpl in g. 
+assert (egf: forall u: coprod  (complement X x) unit, paths _ (g (f u)) u). intro. induction u. induction t. unfold f. unfold recompl. induction x0.  unfold g. simpl. induction (is t). induction t0.  induction (x0 x1). 
+assert (e: paths _ x1 x0). apply (isaprop2' _ (isapropneg (paths _ x t))). induction e.  apply idpath. 
+unfold f. unfold g. simpl. induction x0. induction (is x). induction t. apply idpath. induction (x0 (idpath _ x)).
+assert (efg: forall x':X, paths _ (f (g x')) x'). intro.   induction (is x'). induction t. induction x0. unfold f. unfold g. simpl. unfold recompl. simpl.  induction (is x).  induction t. simpl. apply idpath. induction (x0 (idpath _ x)).  unfold f. unfold g. simpl. unfold recompl. simpl.  induction (is x').  induction t. induction (x0 x1). simpl. apply idpath.
+apply (gradth _ _ f g egf efg). Defined.
+
+
+Lemma isolatedtoisolated (X:UU0)(Y:UU0)(f:X -> Y)(is1:isweq _ _ f)(x:X)(is2: isisolated _ x): isisolated _ (f x).
+Proof.  intros. unfold isisolated. intro. rename x' into y.  set (g:=invmap _ _ f is1). set (x':= g y). induction (is2 x').  induction t. apply (ii1 _ _ (pathsweq1' _ _ f is1 x y x0)). 
+assert (phi: paths _ (f x) y -> empty). 
+assert (psi: (paths _ x (g y) -> empty) -> (paths _ (f x) y -> empty)). intro. intro.  apply (X0  (pathsweq1 _ _ f is1 x y X1)). apply (psi x0). apply (ii2 _ _ phi). Defined.
+
+
+Definition maponcomplements (X:UU0)(Y:UU0)(f:X -> Y)(is1: isweq _ _ f)(x:X)(is2: isisolated _ x): complement X x -> complement Y (f x).
+Proof. intros. set (Q:= fun y:Y => (paths _ (f x) y -> empty)). set (map1:= fpmap _ _ f Q).
+assert (isw1: isweq _ _ map1). apply  isweqfpmap. assumption.   
+assert (mp: forall x':X, (paths _ x x' -> empty) -> (paths _ (f x) (f x') -> empty)). intro. intro. intro. apply (X1 (pathsweq2 _ _ f is1 _ _ X2)). set (map2:= totalfun X (fun x':X => (paths _ x x' -> empty)) (fun x':X => Q (f x')) mp).
+assert (isw2: forall x':X, isweq _ _ (mp x')). intro. 
+assert (mpinv: (paths Y (f x) (f x') -> empty)->(paths X x x' -> empty)). apply (noneql1 X Y f x x').  apply (isweqimplimpl _ _ (mp x') mpinv (isapropneg _) (isapropneg _)).
+assert (isw3: isweq _ _ map2). apply (isweqfibtototal _ _ _ mp isw2). 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(* Finite Sets *)
+
+
+
+Fixpoint standardnel(n:nat):UU0:= match n with
+O => empty|
+S m => coprod (standardnel m) unit
+end. 
+
+
+Definition isofnel (n:nat)(X:UU0):UU1 := forall PP:UU0->UU0, (forall Y:UU0, isaprop (PP Y)) -> (PP (standardnel n)) -> (PP X). 
+
+Lemma isapropisofnel (n:nat)(X:UU0): u1.isaprop (isofnel n X).
+Proof. intros. 
+assert (is1: forall PP:UU0->UU0, isaprop ( (forall Y:UU0, isaprop (PP Y)) -> (PP (standardnel n)) -> (PP X))).
+intro. assert (is2: forall a: (forall Y:UU0, isaprop (PP Y)), forall b:  (PP (standardnel n)), isaprop (PP X)). intros. apply (a X). apply (u1.
+
+
+
+
+
+
+
+Lemma isofnel1 (n n':nat)(X:UU0): isonel
+
+Definition fset := u1.total2 UU0 (fun X:UU0 => (u1.total2 nat (fun n:nat => isofnel n X))).
+
+Definition fcurry (X:fset): UU0 := u1.pr21 _ _ X.
+
+Definition numofel (X:fset): nat:= u1.pr21 _ _ (u1.pr22 _ _ X). 
+
+Definition isfset (X:UU0) :UU1 := u1.total2 nat (fun n:nat => isofnel n X).
+ 
+
+Theorem isapropisfset (X:UU0): u1.isaprop (isfset X).
+Proof. intros. unfold isfset. set (P:= fun n:nat => isofnel n X). set (f:= fun  
+
+
+
+
+
+(* Some other constructions *)
 
 Lemma ifcontrthenunit: forall T:UU0, (iscontr T) -> u1.paths _ T unit. 
 Proof. intros.  apply isweqcontrtounit in X. apply weqtopaths in X. assumption. Defined. 
 
 
-Lemma iscontrtounit (T:UU0) :iscontr (T -> unit).
-Proof. intros. set (cntr:= (fun t:T => tt)). split with cntr. intros. assert (e: forall f1: T -> unit, forall t:T,  paths _ (f1 t) tt). intros. induction (f1 t0). apply idpath. apply (funextfun T unit t cntr (e t)). Defined. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(* End of the file u01.v *)
 
 
 

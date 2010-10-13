@@ -120,4 +120,28 @@ Proof. intros. set (cntr:= (fun t:T => tt)). split with cntr. intros. assert (e:
 
 
 
+Theorem isapropneg (X:UU0): isaprop (X -> empty).
+Proof. intro. unfold isaprop. unfold isofhlevel.  
+assert (is1:forall (f g: X -> empty), forall x:X, paths _ (f x) (g x)). intros.  apply initmap. apply (f x). 
+assert (is2: forall (f g:X -> empty), paths _ f g). intros.  apply (funextfun _ _ f g (is1 f g)). apply (isaprop2 _ is2). Defined.
+
+
+Theorem isapropxornotx (X:UU): (isaprop X) -> (isaprop (coprod X (X-> empty))).
+Proof. intros. 
+assert (forall (x x': X), paths _ x x'). apply (isaprop2' _ X0).  
+assert (forall (x x': coprod X (X -> empty)), paths _ x x'). intros.  
+induction x. induction t. induction x'.  induction t. apply (maponpaths _ _ (fun x:X => ii1 _ _ x) _ _ (X1 x x0)).    
+apply (initmap _ (x0 x)). induction x'. induction t.  apply (initmap _ (x x0)). 
+assert (e: paths _ x x0). apply (isaprop2' _ (isapropneg X) x x0). apply (maponpaths _ _ (fun f: X -> empty => ii2 _ _ f) _ _ e).
+apply (isaprop2 _ X2).  Defined. 
+
+
+
+
+
+(* End of the file u12.v *)
+
+
+
+
 

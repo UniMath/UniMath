@@ -1,7 +1,11 @@
 
   
 Definition UU:=Type.
+
 Inductive empty:UU := .
+Definition initmap (X:UU) : empty -> X.
+Proof. intros.  induction X0. Defined. 
+
 Inductive unit:UU := tt:unit.
 Inductive bool:UU := true:bool | false:bool.
 Inductive nat:UU := O:nat | S: nat -> nat.
@@ -138,6 +142,12 @@ Proof. intros. induction x. apply idpath. Defined.
 
 
 
+Definition dirprod (X:UU)(Y:UU):= total2 X (fun x:X => Y).
+Definition dirprodpair (X:UU)(Y:UU):= tpair X (fun x:X => Y).
+
+
+
+
 
 (* Pairwise disjoint union. *)
 
@@ -195,7 +205,7 @@ induction e2.  assumption.  Defined.
 Lemma contrl1' (X:UU)(Y:UU)(f:X -> Y)(g: Y-> X)(efg: forall y:Y, paths Y (f(g y)) y): iscontr X -> iscontr Y.
 Proof. intros. set (efg' := fun y:Y => pathsinv0 _ _ _ (efg y)).  apply contrl1 with X f g. assumption. assumption. Defined.
 
-Lemma ifcontrthenconnected (X:UU)(is: iscontr X)(x:X)(x':X): paths _ x x'.
+Lemma contrl2 (X:UU)(is: iscontr X)(x:X)(x':X): paths _ x x'.
 Proof. intros. unfold iscontr in is.  induction is. set (e:= x0 x). set (e':= pathsinv0 _ _ _ (x0 x')). apply (pathscomp0 _ _ _ _ e e'). Defined. 
 
 
@@ -293,6 +303,9 @@ Proof. intros. unfold invmap. simpl. unfold isweq in  is1. apply (pr22 _ _  (pr2
 
 
 Definition pathsweq1 (X: UU)(Y:UU)(f:X-> Y)(is1: isweq _ _ f): forall x:X, forall y:Y, paths _ (f x) y -> paths _ x (invmap _ _ f is1 y):= pathssec1 _ _ f (invmap _ _ f is1) (weqgf _ _ f is1).
+
+Definition pathsweq1' (X:UU)(Y:UU)(f:X -> Y)(is1: isweq _ _ f): forall x:X, forall y:Y, paths _ x (invmap _ _ f is1 y) -> paths _ (f x) y:=
+fun x:X => fun y:Y => fun e:_ => pathscomp0 _ _ _ _ (maponpaths _ _ f _ _ e) (weqfg _ _ f is1 y).
 
 
 Definition pathsweq2 (X: UU)(Y:UU)(f:X-> Y)(is1: isweq _ _ f): forall x:X, forall x':X, paths _ (f x) (f x') -> paths _ x x':= pathssec2 _ _ f (invmap _ _ f is1) (weqgf _ _ f is1).
@@ -488,6 +501,76 @@ Proof. intros. set (gf:= fun x:X => g (f x)). assert (int1: isweq _ _ gf). apply
 Theorem twooutof3c (X:UU)(Y:UU)(Z:UU)(f:X->Y)(g:Y->Z)(isf: isweq _ _ f)(isg: isweq _ _ g):isweq _ _  (fun x:X => g(f x)).
 Proof. intros. set (gf:= fun x:X => g (f x)). set (invf:= invmap _ _ f isf). set (invg:= invmap _ _ g isg). set (invgf:= fun z:Z => invf (invg z)). assert (egfinvgf: forall x:X, paths _ (invgf (gf x)) x). unfold gf. unfold invgf.  intro.  assert (int1: paths _ (invf (invg (g (f x))))  (invf (f x))). apply (maponpaths _ _ invf _ _ (weqgf _ _ g isg (f x))). assert (int2: paths _ (invf (f x)) x). apply weqgf.  induction int1. assumption. 
 assert (einvgfgf: forall z:Z, paths _ (gf (invgf z)) z).  unfold gf. unfold invgf. intro. assert (int1: paths _ (g (f (invf (invg z)))) (g (invg z))). apply (maponpaths _ _ g _ _ (weqfg _ _ f isf (invg z))).   assert (int2: paths _ (g (invg z)) z). apply (weqfg _ _ g isg z). induction int1. assumption. apply (gradth _ _ gf invgf egfinvgf einvgfgf). Defined. 
+
+
+
+(* Theorem saying that if a fibration has only one non-empty fiber then the total space is weakly equivalent to this fiber. *)
+
+
+
+Theorem onefiber (X:UU)(P:X -> UU)(x:X)(c: forall x':X, coprod (paths _ x x') (P x' -> empty)):
+isweq _ _ (fun p: P x => tpair X P x p).
+Proof. intros.  
+
+set (f:= fun p: P x => tpair _ _ x p). 
+
+set (cx := c x). 
+set (cnew:=  fun x':X  =>
+match cx with 
+tpair true x0 =>
+match c x' with 
+tpair true ee => tpair _ _ true (pathscomp0 _ _ _ _ (pathsinv0 _ _ _ x0) ee)|
+tpair false phi => tpair _ _ false phi
+end |
+tpair false phi => c x'
+end).
+
+set (g:= fun pp: total2 X P => 
+match (cnew (pr21 _ _ pp)) with
+tpair  true e => transportb X P _ _ e (pr22 _ _ pp) |
+tpair  false phi =>  initmap _ (phi (pr22 _ _ pp))
+end).
+
+
+assert (efg: forall pp: total2 X P, paths _ (f (g pp)) pp).  intro. induction pp. set (cnewt:= cnew t).  unfold g. unfold f. simpl. change (cnew t) with cnewt. induction cnewt.  induction t0. apply (pathsinv0 _ _ _ (pr21 _ _ (pr22 _ _ (constr1 X P t x (pathsinv0 _ _ _ x1))) x0)). induction (x1 x0). 
+
+ 
+set (cnewx:= cnew x). 
+assert (e1: paths _ (cnew x) cnewx). apply idpath. 
+unfold cnew in cnewx. change (c x) with cx in cnewx.  
+induction cx. induction t. 
+assert (e: paths _ (cnewx) (ii1 _ _ (idpath _ x))).  apply (maponpaths _ _ (ii1 (paths X x x) (P x -> empty)) _ _ (pathsinv0l1 _ _ _ x0)). 
+
+
+
+
+assert (egf: forall p: P x, paths _ (g (f p)) p).  intro. simpl in g. unfold g.  unfold f.   simpl.   
+
+set (ff:= fun cc:coprod (paths X x x) (P x -> empty) => 
+match cc with
+     | tpair t phi =>
+         match
+           t as t0
+           return
+             (match t0 with
+              | true => paths X x x
+              | false => P x -> empty
+              end -> P x)
+         with
+         | true => fun phi0 : paths X x x => transportb X P x x phi0 p
+         | false => fun phi0 : P x -> empty => initmap (P x) (phi0 p)
+         end phi
+     end). 
+assert (ee: paths _ (ff (cnewx)) (ff (ii1 (paths X x x) (P x -> empty) (idpath X x)))).  apply (maponpaths _ _ ff _ _ e). 
+assert (eee: paths _  (ff (ii1 (paths X x x) (P x -> empty) (idpath X x))) p). apply idpath.  fold (ff (cnew x)). 
+assert (e2: paths _ (ff (cnew x)) (ff cnewx)). apply (maponpaths _ _ ff _ _ e1). 
+apply (pathscomp0 _ _ _ _ (pathscomp0 _ _ _ _ e2 ee) eee).
+apply (gradth _ _ f g egf efg).
+
+unfold isweq.  intro. induction y. set (ct:= c t). induction ct. induction t0. induction x2.  induction (x0 x1). induction (x2 x1). Defined. 
+
+
+
 
 
 
@@ -789,7 +872,7 @@ Theorem isweqhfiberfp (X:UU)(Y:UU)(f:X -> Y)(P:Y-> UU)(yp: total2 Y P): isweq _ 
 Proof. intros. set (int1:= hfibergfr _ _ _ (hffpmap2 _ _ f P) (fun u: (total2 (total2 Y P) (fun u:total2 Y P => hfiber _ _ f (pr21 _ _ u))) => (pr21 _ _ u)) yp). assert (is1: isweq _ _ int1). apply fibseqcor1. apply isweqhff. set (phi:= fibmap2 (total2 Y P) (fun u:total2 Y P => hfiber _ _ f (pr21 _ _ u)) yp). assert (is2: isweq _ _ phi). apply (fib2 (total2 Y P) (fun u:total2 Y P => hfiber _ _ f (pr21 _ _ u)) yp). apply (twooutof3c _ _ _ int1 phi is1 is2).   Defined. 
 
 
-Corollary isweqfp (X:UU)(Y:UU)(f:X -> Y)(P:Y-> UU): isweq _ _ f -> isweq _ _ (fpmap _ _ f P).
+Corollary isweqfpmap (X:UU)(Y:UU)(f:X -> Y)(P:Y-> UU): isweq _ _ f -> isweq _ _ (fpmap _ _ f P).
 Proof. intros. unfold isweq.   intro. unfold isweq in X0.  set (h:=hfiberfpmap _ _ f P y). assert (isweq _ _ h). apply isweqhfiberfp. assert (is: iscontr (hfiber X Y f (pr21 _ _ y))). apply X0. apply (iscontrxifiscontry _ _  h X1 is). Defined. 
 
 
@@ -819,7 +902,15 @@ Corollary  hlevelweqb (n:nat)(X:UU)(Y:UU)(f:X -> Y)(is: isweq _ _ f): (isofhleve
 Proof. intros.  apply (hlevelretract n _ _ (invmap _ _ f is) f (weqgf _ _ f is)). assumption. Defined. 
 
 
+
+
+(* Basics about types of h-level 1 - "propositions". *)
+
+
 Definition isaprop (X:UU): UU := isofhlevel (S O) X. 
+
+
+
 
 Lemma isaprop1 (X:UU): (isaprop X) -> X -> (iscontr X).
 Proof. intros. unfold iscontr. split with X1. intro.  unfold isaprop in X0.  unfold isofhlevel in X0.  set (is:= X0 t X1). apply (pr21 _ _ is). 
@@ -827,23 +918,72 @@ Defined.
 
 
 Lemma isweqimplimpl (X:UU)(Y:UU)(f:X->Y)(g:Y->X)(isx: isaprop X)(isy: isaprop Y): isweq _ _ f.
-Proof. intros. assert (isx0: forall x:X, paths _ (g (f x)) x). intro.  assert (iscontr X). apply (isaprop1 X isx x).  apply (ifcontrthenconnected X X0 (g (f x)) x). assert (isy0: forall y:Y, paths _ (f (g y)) y). intro. assert (iscontr Y). apply (isaprop1 Y isy y). apply (ifcontrthenconnected Y X0 (f (g y)) y). apply (gradth _ _ f g isx0 isy0).  Defined. 
+Proof. intros. assert (isx0: forall x:X, paths _ (g (f x)) x). intro.  assert (iscontr X). apply (isaprop1 X isx x).  apply (contrl2 X X0 (g (f x)) x). assert (isy0: forall y:Y, paths _ (f (g y)) y). intro. assert (iscontr Y). apply (isaprop1 Y isy y). apply (contrl2 Y X0 (f (g y)) y). apply (gradth _ _ f g isx0 isy0).  Defined. 
 
 Theorem isapropempty: isaprop empty.
 Proof. unfold isaprop. unfold isofhlevel. intros. induction x. Defined. 
+
 
 Theorem isapropunit: isaprop unit.
 Proof. unfold isaprop. intros. unfold isofhlevel. intros. 
 assert (c:paths unit x x'). induction x. induction x'. eapply idpath.
 assert (forall g:paths unit x x', paths _ g c). intros. assert (e:paths (paths unit x x') c c).   apply idpath. induction c. induction x. apply unitl3. apply (iscontrpair _ c X). Defined.  
 
-
 Theorem ifcontrthenaprop (X:UU): (iscontr X) -> (isaprop X).
 Proof. intros. set (f:= fun x:X => tt). assert (is: isweq _ _ f). apply isweqcontrtounit.  assumption. apply (hlevelweqb (S O) X unit f is).  apply isapropunit. Defined. 
 
 
+Lemma isaprop2 (X:UU): (forall (x x':X), paths _ x x') -> isaprop X.
+Proof. intros. unfold isaprop. unfold isofhlevel.  intro.  
+assert (is: iscontr X).  split with x. intro.  apply (X0 t x). assert (is1: isaprop X).  apply ifcontrthenaprop. assumption.   
+unfold isaprop in is1. unfold isofhlevel in is1.  apply (is1 x). Defined. 
+
+Lemma isaprop2' (X:UU): (isaprop X) -> (forall (x x':X), paths _ x x'). 
+Proof. intros. unfold isaprop in X0. unfold isofhlevel in X0.   apply (pr21 _ _ (X0 x x')). Defined. 
+
+
+(* Basics about "decidable" and "involutionary" propositions. Continued in u01.v after the proof of functional extensionality for functions. *)
+
+
+Definition isdecprop (X:UU):= dirprod (isaprop X) (coprod X (X -> empty)).
+
+Definition neg (X:UU):= X -> empty.
+
+Definition negf (X:UU)(Y:UU)(f:X -> Y): (neg Y) -> (neg X):= fun phi:Y -> empty => fun x:X => phi (f x).
+
+Definition dneg (X:UU):= (X-> empty)->empty.
+
+Definition dnegf (X:UU)(Y:UU)(f:X->Y): (dneg X) -> (dneg Y):= negf _ _ (negf _ _ f).
+
+Definition adjev (X:UU): X -> (dneg X):= fun x:X => fun phi:X -> empty => phi x. 
+
+Definition isaninvprop (X:UU):= isweq _ _  (adjev X).
+
+Definition invimpl (X:UU)(is: isaninvprop X): (dneg X) -> X:= invmap _ _ (adjev X) is. 
+
+
+
+
+
+
+
+
+
+
+
+
+(* Theorem saying that a type of h-level n is also of h-level n+1 *)
+
+
+
 Theorem hlevelsincl (n:nat) (T:UU) : isofhlevel n T -> isofhlevel (S n) T.
 Proof. intro.   induction n. intro. apply (ifcontrthenaprop T). intro.  intro. change (forall t1 t2:T, isofhlevel (S n) (paths _ t1 t2)). intros. change (forall t1 t2 : T, isofhlevel n (paths _ t1 t2)) in X. set (XX := X t1 t2). apply (IHn _ XX).  Defined.
+
+
+
+
+(* Basics about types of h-level 2 - "sets". *)
+
 
 
 
@@ -855,76 +995,12 @@ Proof. intros. unfold isaset. unfold isofhlevel. intros.   induction x0. set (is
 Lemma isaset2 (X:UU): (isaset X) -> (forall x:X, iscontr (paths _ x x)).
 Proof. intros. unfold isaset in X0. unfold isofhlevel in X0.  change (forall (x x' : X) (x0 x'0 : paths X x x'), iscontr (paths (paths X x x') x0 x'0))  with (forall (x x':X),  isaprop (paths _ x x')) in X0.  apply (isaprop1 _ (X0 x x) (idpath _ x)). Defined.
 
-(** to move up **)
-
-Definition initmap (X:UU) : empty -> X.
-Proof. intros.  induction X0. Defined. 
 
 
-Theorem onefiber (X:UU)(P:X -> UU)(x:X)(c: forall x':X, coprod (paths _ x x') (P x' -> empty)):
-isweq _ _ (fun p: P x => tpair X P x p).
-Proof. intros.  
+Definition isdeceq (X:UU): UU :=  forall (x x':X), coprod (paths _ x x') (paths _ x x' -> empty).
 
-set (f:= fun p: P x => tpair _ _ x p). 
-
-set (cx := c x). 
-set (cnew:=  fun x':X  =>
-match cx with 
-tpair true x0 =>
-match c x' with 
-tpair true ee => tpair _ _ true (pathscomp0 _ _ _ _ (pathsinv0 _ _ _ x0) ee)|
-tpair false phi => tpair _ _ false phi
-end |
-tpair false phi => c x'
-end).
-
-set (g:= fun pp: total2 X P => 
-match (cnew (pr21 _ _ pp)) with
-tpair  true e => transportb X P _ _ e (pr22 _ _ pp) |
-tpair  false phi =>  initmap _ (phi (pr22 _ _ pp))
-end).
-
-
-assert (efg: forall pp: total2 X P, paths _ (f (g pp)) pp).  intro. induction pp. set (cnewt:= cnew t).  unfold g. unfold f. simpl. change (cnew t) with cnewt. induction cnewt.  induction t0. apply (pathsinv0 _ _ _ (pr21 _ _ (pr22 _ _ (constr1 X P t x (pathsinv0 _ _ _ x1))) x0)). induction (x1 x0). 
-
- 
-set (cnewx:= cnew x). 
-assert (e1: paths _ (cnew x) cnewx). apply idpath. 
-unfold cnew in cnewx. change (c x) with cx in cnewx.  
-induction cx. induction t. 
-assert (e: paths _ (cnewx) (ii1 _ _ (idpath _ x))).  apply (maponpaths _ _ (ii1 (paths X x x) (P x -> empty)) _ _ (pathsinv0l1 _ _ _ x0)). 
-
-
-
-
-assert (egf: forall p: P x, paths _ (g (f p)) p).  intro. simpl in g. unfold g.  unfold f.   simpl.   
-
-set (ff:= fun cc:coprod (paths X x x) (P x -> empty) => 
-match cc with
-     | tpair t phi =>
-         match
-           t as t0
-           return
-             (match t0 with
-              | true => paths X x x
-              | false => P x -> empty
-              end -> P x)
-         with
-         | true => fun phi0 : paths X x x => transportb X P x x phi0 p
-         | false => fun phi0 : P x -> empty => initmap (P x) (phi0 p)
-         end phi
-     end). 
-assert (ee: paths _ (ff (cnewx)) (ff (ii1 (paths X x x) (P x -> empty) (idpath X x)))).  apply (maponpaths _ _ ff _ _ e). 
-assert (eee: paths _  (ff (ii1 (paths X x x) (P x -> empty) (idpath X x))) p). apply idpath.  fold (ff (cnew x)). 
-assert (e2: paths _ (ff (cnew x)) (ff cnewx)). apply (maponpaths _ _ ff _ _ e1). 
-apply (pathscomp0 _ _ _ _ (pathscomp0 _ _ _ _ e2 ee) eee).
-apply (gradth _ _ f g egf efg).
-
-unfold isweq.  intro. induction y. set (ct:= c t). induction ct. induction t0. induction x2.  induction (x0 x1). induction (x2 x1). Defined. 
-
-
-Theorem isasetifdec (X:UU): (forall (x x':X), coprod (paths _ x x') (paths _ x x' -> empty)) -> isaset X.
-Proof. intro. intro. 
+Theorem isasetifdeceq (X:UU): (isdeceq X) -> isaset X.
+Proof. intro. intro. unfold isdeceq in X0.  
 assert (l1: forall x:X, iscontr (paths _ x x)). intro.  set (f:= fun e: paths _ x x => coconusfromtpair _ x x e). 
 assert (is: isweq _ _ f). apply (onefiber X (fun x':X => paths _ x x') x (X0 x)).
 assert (is2: iscontr (coconusfromt _ x)). apply iscontrcoconusfromt. 
@@ -947,12 +1023,12 @@ Proof. intro.  apply (transportf _ curry _ _ X tt).  Defined.
 Corollary nopathsfalsetotrue: paths _ false true -> empty.
 Proof. intro. apply (transportb _ curry _ _ X tt). Defined. 
 
-Theorem isdecbool: forall x:bool, forall x':bool, coprod (paths _ x x') (paths _ x x' -> empty).
-Proof. intros. induction x. induction x'. apply (ii1 _ _ (idpath _ true)). apply (ii2 _ _ nopathstruetofalse). induction x'.  apply (ii2 _ _ nopathsfalsetotrue). apply (ii1 _ _ (idpath _ false)). Defined. 
+Theorem isdeceqbool: isdeceq bool.
+Proof. unfold isdeceq. intros. induction x. induction x'. apply (ii1 _ _ (idpath _ true)). apply (ii2 _ _ nopathstruetofalse). induction x'.  apply (ii2 _ _ nopathsfalsetotrue). apply (ii1 _ _ (idpath _ false)). Defined. 
 
 
 Theorem isasetbool: isaset bool.
-Proof. apply (isasetifdec _ isdecbool). Defined. 
+Proof. apply (isasetifdeceq _ isdeceqbool). Defined. 
 
 
 Lemma noneql1 (X Y: UU)(f:X -> Y)(x x':X): (paths _ (f x) (f x') -> empty) -> (paths _ x x' -> empty).
@@ -980,13 +1056,27 @@ end).
 intro. intro. intro. apply (noneql1 _ _ f (S x) (S x') X). Defined. 
  
 
-
-Theorem isdecnat:  forall x:nat, forall x':nat, coprod (paths _ x x') (paths _ x x' -> empty).
-Proof. intro. induction x. intro. induction x'. apply (ii1 _ _ (idpath _ O)). apply (ii2 _ _ (nopathsOtoSx x')). intro. induction x'. apply (ii2 _ _ (nopathsSxtoO x)). set (is:= IHx x').  induction is. induction t. apply (ii1 _ _ (maponpaths _ _ S _ _ x0)). apply (ii2 _ _ (noeqinjS _ _ x0)). Defined.
+Theorem isdeceqnat: isdeceq nat.
+Proof. unfold isdeceq. intro. induction x. intro. induction x'. apply (ii1 _ _ (idpath _ O)). apply (ii2 _ _ (nopathsOtoSx x')). intro. induction x'. apply (ii2 _ _ (nopathsSxtoO x)). set (is:= IHx x').  induction is. induction t. apply (ii1 _ _ (maponpaths _ _ S _ _ x0)). apply (ii2 _ _ (noeqinjS _ _ x0)). Defined.
 
 
 Theorem isasetnat: isaset nat.
-Proof.  apply (isasetifdec _ isdecnat). Defined. 
+Proof.  apply (isasetifdeceq _ isdeceqnat). Defined. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -994,6 +1084,30 @@ Proof.  apply (isasetifdec _ isdecnat). Defined.
 
 
 Definition isofhlevelf (n:nat)(X:UU)(Y:UU)(f:X -> Y): UU := forall y:Y, isofhlevel n (hfiber _ _ f y).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1030,7 +1144,7 @@ Definition foralltototal  (X:UU)(P:X->UU)(PP:forall x:X, P x -> UU):  (forall x:
 Proof. intros. split with (fun x:X => pr21 _ _ (X0 x)). apply (fun x:X => pr22 _ _ (X0 x)). Defined.
 
 Lemma lemmaeta1 (X:UU)(P:X->UU)(Q:(forall x:X, P x) -> UU)(s0: forall x:X, P x)(q: Q (fun x:X => (s0 x))): paths (total2 _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x)))) (tpair _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) s0 q) (tpair _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) (fun x:X => (s0 x)) q). 
-Proof. intros. set (ff:= fun tp:total2 _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) => tpair _ _ (fun x:X => pr21 _ _ tp x) (pr22 _ _ tp)). assert (isweq _ _ ff).  apply (isweqfp _ _ (fun s: forall x:X, P x => (fun x:X => (s x))) Q (isweqetacorrection X P)). assert (ee: paths _ (ff (tpair (forall x : X, P x)
+Proof. intros. set (ff:= fun tp:total2 _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) => tpair _ _ (fun x:X => pr21 _ _ tp x) (pr22 _ _ tp)). assert (isweq _ _ ff).  apply (isweqfpmap _ _ (fun s: forall x:X, P x => (fun x:X => (s x))) Q (isweqetacorrection X P)). assert (ee: paths _ (ff (tpair (forall x : X, P x)
         (fun s : forall x : X, P x => Q (fun x : X => s x)) s0 q)) (ff (tpair (forall x : X, P x)
         (fun s : forall x : X, P x => Q (fun x : X => s x))
         (fun x : X => s0 x) q))). apply idpath. 
@@ -1077,6 +1191,6 @@ Definition maponsec1 (X:UU)(Y:UU)(P:Y -> UU)(f:X-> Y): (forall y:Y, P y) -> (for
 
 
 
-(* Conjecture triv (T:UU): paths _ T T. *)
+(* End of the file u0.v *)
 
 

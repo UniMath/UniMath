@@ -15,6 +15,8 @@ The file u012 contains the results which require a three-levels universe hierarc
 
 I tried to keep the notations such that the names of types which are (expected to be) a property in the sense of being of level 1 start with "is" but I have not been very consistent about it. After functional extensionality is proved there follows a series of theorems which assert that different types of the form "is..." (iscontr, isweq etc.) are actuallly properties.
 
+Note: the univalence axiom is introduced in u01. In particular nothing in u0 depends on it. Moreover, the results of u012 use univalence axiom only through functional extensionality.
+
 
 *)
 
@@ -40,10 +42,7 @@ where the u-level of UU (which at the moment can be UU0, UU1 or UU2) is lower th
 
 2. While it does not lead directly to any contradictions the shape of the foundations suggests very strongly that we should completely avoid the use of the universes Prop and Set. Instead we should use the the conditions isaprop and isaset which are applicable to the types of any of the type universes.  
 
-
 *)
-
-
 
 
 
@@ -56,11 +55,14 @@ Definition UU2:=u2.UU.
 
 (* Theorem saying that if all members of a family are contractible then the space of sections of the family is contractible. *)
 
+
 Theorem funcontr (T:UU0) (P: T -> UU0) (is: forall t:T, iscontr (P t)): iscontr (forall t:T, P t).
 Proof. intros. assert (e: u1.paths _ P (fun t:T => unit)). apply (u12.funextfun _ _ P (fun t:T => unit) (fun t:T => ifcontrthenunit _ (is t))). assert (e': u1.paths _ (forall t:T, P t) (forall t:T, unit)). apply (u1.maponpaths _ _ (fun Q:T->UU0 => forall t:T, Q t) _ _ e).
 assert (int: iscontr (forall t:T, unit)). apply iscontrtounit. induction e'. assumption. Defined. 
 
-
+Corollary funcontrtwice (X:UU0)(P: X-> X -> UU0)(is: forall (x x':X), iscontr (P x x')): iscontr (forall (x x':X), P x x').
+Proof. intros. 
+assert (is1: forall x:X, iscontr (forall x':X, P x x')). intros. apply (funcontr _ _ (is x)). apply (funcontr _ _ is1). Defined. 
 
 
 (* Proof of the fact that the funextmap from paths _ s1 s2 to forall t:T, paths _ (s1 t) (s2 t) is q weak equivalence - a strong form 
@@ -81,7 +83,7 @@ assert (eetap: forall u:Y, paths _ (etap u) u). intro. unfold etap. destruct u. 
 
 set (ff:= fun fe: (total2 (forall t0 : T, P t0) (fun f : forall t0 : T, P t0 => forall t0 : T, paths (P t0) (f t0) (g t0))) => tpair _ (fun f : forall t0 : T, P t0 => forall t0 : T, paths (P t0) (f t0) (g t0)) (fun t0:T => (pr21 _ _ fe) t0) (pr22 _ _ fe)). 
 
-assert (isweqff: isweq _ _ ff). apply (isweqfp (forall t:T, P t) (forall t:T, P t) (fun f:forall t:T, P t => (fun t:T => f t)) (fun f: forall t:T, P t => forall t:T, paths (P t) (f t) (g t)) (isweqetacorrection T P)). 
+assert (isweqff: isweq _ _ ff). apply (isweqfpmap (forall t:T, P t) (forall t:T, P t) (fun f:forall t:T, P t => (fun t:T => f t)) (fun f: forall t:T, P t => forall t:T, paths (P t) (f t) (g t)) (isweqetacorrection T P)). 
 
 assert (ee: forall fe: (total2 (forall t0 : T, P t0) (fun f : forall t0 : T, P t0 => forall t0 : T, paths (P t0) (f t0) (g t0))), paths _ (ff (ff fe)) (ff fe)). intro. apply idpath.  assert (eee: forall fe: (total2 (forall t0 : T, P t0) (fun f : forall t0 : T, P t0 => forall t0 : T, paths (P t0) (f t0) (g t0))), paths _ (ff  fe) fe). intro. apply (pathsweq2 _ _ ff isweqff _ _ (ee fe)).  
 
@@ -220,7 +222,7 @@ Lemma maponsec1l2 (X:UU0)(P:X -> UU0)(f:X-> X)(h: forall x:X, paths _ (f x) x)(s
 Proof. intro. intro. intro. intro. intros.  
 
 set (map:= fun ff: total2 (X->X) (fun f0:X->X => forall x:X, paths _ (f0 x) x) => maponsec1l0 X P (pr21 _ _ ff) (pr22 _ _ ff) s x).
-assert (is1: iscontr (total2 (X->X) (fun f0:X->X => forall x:X, paths _ (f0 x) x))). apply funextweql1. assert (e: paths _ (tpair _  (fun f0:X->X => forall x:X, paths _ (f0 x) x) f h) (tpair _  (fun f0:X->X => forall x:X, paths _ (f0 x) x) (fun x0:X => x0) (fun x0:X => idpath _ x0))). apply ifcontrthenconnected.  assumption.  apply (maponpaths _ _ map _ _ e). Defined. 
+assert (is1: iscontr (total2 (X->X) (fun f0:X->X => forall x:X, paths _ (f0 x) x))). apply funextweql1. assert (e: paths _ (tpair _  (fun f0:X->X => forall x:X, paths _ (f0 x) x) f h) (tpair _  (fun f0:X->X => forall x:X, paths _ (f0 x) x) (fun x0:X => x0) (fun x0:X => idpath _ x0))). apply contrl2.  assumption.  apply (maponpaths _ _ map _ _ e). Defined. 
 
 
 Theorem isweqmaponsec1 (X:UU0)(Y:UU0)(P:Y -> UU0)(f:X-> Y)(is:isweq _ _ f):isweq _ _ (maponsec1 _ _ P f).
@@ -269,23 +271,27 @@ assert (is: forall t:T, isofhlevel n (paths _ (x t) (x' t))).  intro. apply (X t
 assert (is2: isofhlevel n (forall t:T, paths _ (x t) (x' t))). apply (IHn _ (fun t0:T => paths _ (x t0) (x' t0)) is).
 set (u:=funextmap _ P x x').  assert (is3:isweq _ _ u). apply isweqfunextmap.  set (v:= invmap _ _ u is3). assert (is4: isweq _ _ v). apply isweqinvmap. apply (hlevelweqf n _ _ v is4). assumption. Defined.
 
+Corollary impredtwice  (n:nat)(T:UU0)(P:T -> T -> UU0): (forall (t t':T), isofhlevel n (P t t')) -> (isofhlevel n (forall (t t':T), P t t')).
+Proof.  intros. assert (is1: forall t:T, isofhlevel n (forall t':T, P t t')). intro. apply (impred n _ _ (X t)). apply (impred n _ _ is1). Defined.
 
 
 (* Theorems saying that  (iscontr T) and (isweq f) are of h-level 1 (i.e. isaprop). *)
 
 
 
-Lemma unitl5: iscontr (iscontr unit).
-Proof. set (c:=unitiscontr). split with c. intro. induction t. unfold c. unfold unitiscontr. set (y:= (fun x0 : unit => unit_rect (fun x1 : unit => paths unit x1 tt) (idpath unit tt) x0)).  simpl in y. induction t.   assert (e: forall u: unit, paths _ (x u) (y u)). intro.  induction u. simpl. apply unitl3. assert (ee: paths _ x y). apply (funextsec _ (fun u:unit => paths _ u tt) x y e).  induction ee. 
+Theorem iscontriscontr: forall X:UU0, iscontr(X)->iscontr(iscontr(X)).
+Proof. intros. 
 
-assert (ee: paths _ x (fun x0 : unit =>
-         unit_rect (fun x1 : unit => paths unit x1 tt) (idpath unit tt) x0)).  assert (eee: forall t:unit, paths _ (x t) ( (fun x0 : unit =>
-         unit_rect (fun x1 : unit => paths unit x1 tt) (idpath unit tt) x0) t)). intro.  induction t. assert (e1:paths (paths unit tt tt) (x tt) (idpath _ tt)). apply unitl3. assert (e2: paths (paths unit tt tt)
-     (unit_rect (fun x1 : unit => paths unit x1 tt) (idpath unit tt) tt) (idpath _ tt)).  apply unitl3. induction e1. apply pathsinv0. assumption. apply funextsec. assumption.  induction ee.  apply idpath.  Defined. 
+assert (is0: forall (x x':X), paths _ x x'). apply contrl2. assumption.
 
+assert (is1: forall cntr:X, iscontr (forall x:X, paths _ x cntr)). intro. 
+assert (is2: forall x:X, iscontr (paths _ x cntr)). 
+assert (is2: isaprop X). apply ifcontrthenaprop. assumption.  
+unfold isaprop in is2. unfold isofhlevel in is2. intro. apply (is2 x cntr).
+apply funcontr. assumption. 
 
-Theorem iscontriscontr: forall T:UU0, iscontr(T)->iscontr(iscontr(T)).
-Proof. intros. apply ifcontrthenunit in X. assert (is: iscontr (iscontr unit)). apply unitl5. induction X.  assumption. Defined. 
+set (f:= pr21 X (fun cntr:X => forall x:X, paths _ x cntr)). 
+assert (isweq _ _ f).  apply trivfib1. assumption. change (total2 X (fun cntr : X => forall x : X, paths X x cntr)) with (iscontr X) in X1.  apply (iscontrxifiscontry _ _ f X1). assumption.  Defined. 
 
 
 
@@ -312,6 +318,33 @@ assert (is1:
          | O => iscontr X1
          | S m => forall x0 x'0 : X1, isofhlevel m (paths X1 x0 x'0)
          end) n (paths X x x')))). intro.  apply (impred (S O) _ _ (X0 x)). apply (impred (S O) _ _ is1). Defined. 
+
+Corollary isapropisaprop (X:UU0) : isaprop (isaprop X).
+Proof. intro. apply (isapropisofhlevel (S O)). Defined. 
+
+
+Corollary isapropisaset (X:UU0): isaprop (isaset X).
+Proof. intro. apply (isapropisofhlevel (S (S O))). Defined.
+
+
+Theorem isapropisdeceq (X:UU0): isaprop (isdeceq X).
+Proof. intro. unfold isdeceq.
+assert (forall u u':isdeceq X, paths _ u u'). intros. 
+assert (forall x x':X, isaprop (coprod (paths X x x') (paths X x x' -> empty))). intros.  assert (is0:isaprop (paths _ x x')). assert (is1: isaset X). apply (isasetifdeceq _ u).  set (is2:= is1 x x'). simpl in is2. unfold isaprop. unfold isofhlevel. assumption. 
+apply (isapropxornotx _ is0). assert (isaprop (isdeceq X)). apply impredtwice. assumption. apply (isaprop2' _ X1 u u'). apply (isaprop2 _ X0). Defined.
+   
+
+
+
+Inductive isfin1 : UU0 -> UU1 := isfin1a: isfin1 empty | isfin1b: forall X:UU0, (isfin1 X) -> (isfin1 (coprod X unit)).
+
+Print isfin1_rect.
+
+Definition nel (X:UU0)(isf:isfin1 X): nat.
+Proof. intros. induction isf. apply O. apply (S IHisf). Defined.
+
+Print nel.
+
 
 
 
@@ -362,6 +395,12 @@ Definition idpweq (X: ptype):pweq X X:= pweqpair _ _ (idpfun X) (pidisweq X).
 
 Definition peqweqmap (X:ptype)(Y:ptype): u1.paths _ X Y -> pweq X Y.
 Proof. intros.  induction X0. apply idpweq. Defined. 
+
+
+
+
+
+(* End of the file u012.v *)
 
 
 
