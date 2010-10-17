@@ -269,13 +269,13 @@ Proof. intro. induction n. intros.  apply (funcontr T P X). intros. unfold isofh
 
 assert (is: forall t:T, isofhlevel n (paths _ (x t) (x' t))).  intro. apply (X t (x t) (x' t)).  
 assert (is2: isofhlevel n (forall t:T, paths _ (x t) (x' t))). apply (IHn _ (fun t0:T => paths _ (x t0) (x' t0)) is).
-set (u:=funextmap _ P x x').  assert (is3:isweq _ _ u). apply isweqfunextmap.  set (v:= invmap _ _ u is3). assert (is4: isweq _ _ v). apply isweqinvmap. apply (hlevelweqf n _ _ v is4). assumption. Defined.
+set (u:=funextmap _ P x x').  assert (is3:isweq _ _ u). apply isweqfunextmap.  set (v:= invmap _ _ u is3). assert (is4: isweq _ _ v). apply isweqinvmap. apply (isofhlevelweqf n _ _ v is4). assumption. Defined.
 
 Corollary impredtwice  (n:nat)(T:UU0)(P:T -> T -> UU0): (forall (t t':T), isofhlevel n (P t t')) -> (isofhlevel n (forall (t t':T), P t t')).
 Proof.  intros. assert (is1: forall t:T, isofhlevel n (forall t':T, P t t')). intro. apply (impred n _ _ (X t)). apply (impred n _ _ is1). Defined.
 
 
-(* Theorems saying that  (iscontr T) and (isweq f) are of h-level 1 (i.e. isaprop). *)
+(* Theorems saying that  (iscontr T), (isweq f) etc. are of h-level 1 (i.e. isaprop). *)
 
 
 
@@ -331,19 +331,10 @@ Theorem isapropisdeceq (X:UU0): isaprop (isdeceq X).
 Proof. intro. unfold isdeceq.
 assert (forall u u':isdeceq X, paths _ u u'). intros. 
 assert (forall x x':X, isaprop (coprod (paths X x x') (paths X x x' -> empty))). intros.  assert (is0:isaprop (paths _ x x')). assert (is1: isaset X). apply (isasetifdeceq _ u).  set (is2:= is1 x x'). simpl in is2. unfold isaprop. unfold isofhlevel. assumption. 
-apply (isapropxornotx _ is0). assert (isaprop (isdeceq X)). apply impredtwice. assumption. apply (isaprop2' _ X1 u u'). apply (isaprop2 _ X0). Defined.
+apply (isapropxornotx _ is0). assert (isaprop (isdeceq X)). apply impredtwice. assumption. apply (proofirrelevance _ X1 u u'). apply (invproofirrelevance _ X0). Defined.
    
 
 
-
-Inductive isfin1 : UU0 -> UU1 := isfin1a: isfin1 empty | isfin1b: forall X:UU0, (isfin1 X) -> (isfin1 (coprod X unit)).
-
-Print isfin1_rect.
-
-Definition nel (X:UU0)(isf:isfin1 X): nat.
-Proof. intros. induction isf. apply O. apply (S IHisf). Defined.
-
-Print nel.
 
 
 
