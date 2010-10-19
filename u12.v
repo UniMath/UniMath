@@ -1,3 +1,5 @@
+
+
 Require Export u2.
 Require Export u1.
 
@@ -132,12 +134,12 @@ Proof. intro. apply (isapropneg (neg X)). Defined.
 
 Lemma isapropaninvprop (X:UU0): isaninvprop X -> isaprop X.
 Proof. intros. 
-apply (isofhlevelweqb (S O) _ _ (adjev X) X0 (isapropdneg X)). Defined. 
+apply (isofhlevelweqb (S O) _ _ (todneg X) X0 (isapropdneg X)). Defined. 
 
 
 Theorem isaninvpropneg (X:UU0): isaninvprop (neg X).
 Proof. intros. 
-set (f:= adjev (neg X)). set (g:= negf _ _ (adjev X)). set (is1:= isapropneg X). set (is2:= isapropneg (dneg X)). apply (isweqimplimpl _ _ f g is1 is2).  Defined.
+set (f:= todneg (neg X)). set (g:= negf _ _ (todneg X)). set (is1:= isapropneg X). set (is2:= isapropneg (dneg X)). apply (isweqimplimpl _ _ f g is1 is2).  Defined.
 
 
 Theorem isapropxornotx (X:UU0): (isaprop X) -> (isaprop (coprod X (X-> empty))).
@@ -153,7 +155,7 @@ apply (invproofirrelevance _ X2).  Defined.
 Theorem isaninv1 (X:UU0): isdecprop X  -> isaninvprop X.
 Proof. unfold isaninvprop. intros. rename X0 into is.  set (is1:= pr21 _ _ is). set (is2:= pr22 _ _ is). simpl in is2. 
 assert (adjevinv: dneg X -> X). intros.  induction is2.  assumption. induction (X0 y). 
-assert (is3: isaprop (dneg X)). apply (isapropneg (X -> empty)). apply (isweqimplimpl _ _ (adjev X) adjevinv is1 is3). Defined. 
+assert (is3: isaprop (dneg X)). apply (isapropneg (X -> empty)). apply (isweqimplimpl _ _ (todneg X) adjevinv is1 is3). Defined. 
 
 
 
@@ -173,7 +175,7 @@ Definition locsplit (X:UU0)(Y:UU0)(f:X -> Y):= forall y:Y, coprod (hfiber _ _ f 
 Definition dnegimage (X:UU0)(Y:UU0)(f:X -> Y):= total2 Y (fun y:Y => dneg(hfiber _ _ f y)).
 Definition dnegimageincl (X Y:UU0)(f:X -> Y):= pr21 Y (fun y:Y => dneg(hfiber _ _ f y)).
 
-Definition xtodnegimage (X:UU0)(Y:UU0)(f:X -> Y): X -> dnegimage _ _ f:= fun x:X => tpair _ _ (f x) ((adjev _) (hfiberpair _ _ f (f x) x (idpath _ (f x)))). 
+Definition xtodnegimage (X:UU0)(Y:UU0)(f:X -> Y): X -> dnegimage _ _ f:= fun x:X => tpair _ _ (f x) ((todneg _) (hfiberpair _ _ f (f x) x (idpath _ (f x)))). 
 
 Definition locsplitsec (X:UU0)(Y:UU0)(f:X->Y)(ls: locsplit _ _ f): dnegimage _ _ f -> X := fun u: _ =>
 match u with
@@ -358,11 +360,6 @@ assert (psi: (paths _ (g y) x -> empty) -> (paths _ y (f x) -> empty)). intro. i
 
 
 
-Fixpoint stn (n:nat):UU0:= match n with
-O => empty|
-S m => coprod (stn m) unit
-end. 
-
 
 Definition isofnel (n:nat)(X:UU0):UU0 := dneg (weq (stn n) X). 
 
@@ -396,7 +393,7 @@ apply (twooutof3c _ _ _ _ _ (twooutof3c _ _ _ _ _ is1 is2) is3). Defined.
 
 
 
-Theorem stnsnegth (n n':nat): (weq (stn n) (stn n')) -> paths _ n n'.
+Theorem stnsweqtoeq (n n':nat): (weq (stn n) (stn n')) -> paths _ n n'.
 Proof. intro. induction n. intro. induction n'.  intros. apply idpath. intro. apply (initmap _ (stnsnegl2  n' X)).  
  intro. induction n'. intros. set (int:= isdeceqnat (S n) O).  destruct int.  assumption. apply (initmap _ (stnsnegl1 n X)).  intro. 
 set (e:= IHn n' (stnsposl2 n n' X)). apply (maponpaths _ _ S _ _ e). Defined. 
@@ -408,21 +405,18 @@ Theorem isapropisfinite (X:UU0): isaprop (isfinite X).
 Proof. intros. assert (is1: (isfinite X) -> (iscontr (isfinite X))).  intro. unfold iscontr. split with X0.  intro. destruct X0.  destruct t.
 assert (c1: coprod (paths _ t t0) (neg (paths _ t t0))). apply isdeceqnat. destruct c1.  apply (invmaponpathsincl (isfinite X) nat (pr21 _ _) (isofhlevelfpr21 (S O) _ _  (fun n:nat => isapropdneg (weq (stn n) X))) (tpair nat (fun n : nat => isofnel n X) t x0) (tpair nat (fun n : nat => isofnel n X) t0 x) p).  
 assert (is1: dneg (dirprod (weq (stn t0) X) (weq (stn t) X))). apply (dneganddnegimpldneg _ _ x x0). 
-assert (is2: dneg (weq (stn t0) (stn t))). apply (dnegf _ _ (fun fg: dirprod (weq (stn t0) X) (weq (stn t) X) => weqcomp _ _ _ (pr21 _ _ fg) (weqinv _ _ (pr22 _ _ fg))) is1).   apply (initmap _ (dnegf _ _ (fun ee:_ => pathsinv0 _ _ _ (stnsnegth t0 t ee)) is2 n)). apply (iscontraprop1inv _ is1).  Defined.
+assert (is2: dneg (weq (stn t0) (stn t))). apply (dnegf _ _ (fun fg: dirprod (weq (stn t0) X) (weq (stn t) X) => weqcomp _ _ _ (pr21 _ _ fg) (weqinv _ _ (pr22 _ _ fg))) is1).   apply (initmap _ (dnegf _ _ (fun ee:_ => pathsinv0 _ _ _ (stnsweqtoeq t0 t ee)) is2 n)). apply (iscontraprop1inv _ is1).  Defined.
 
 
 
 
 
 
-Definition fset := u2.total2 UU0 (fun X:UU0 => (u2.total2 nat (fun n:nat => isofnel n X))).
+Definition fsets := u2.total2 UU0 (fun X:UU0 => isfinite X).
 
-Definition fcurry (X:fset): UU0 := u2.pr21 _ _ X.
+Definition fcurry (X:fsets): UU0 := u2.pr21 _ _ X.
 
-Definition numofel (X:fset): nat:= u2.pr21 _ _ (u2.pr22 _ _ X). 
-
-Definition isfset (X:UU0) :UU1 := u2.total2 nat (fun n:nat => isofnel n X).
- 
+Definition numofel (X:fsets): nat:= pr21 _ _ (u2.pr22 _ _ X). 
 
 
 

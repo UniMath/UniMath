@@ -1,14 +1,12 @@
 
-  
-Definition UU:=Type.
+Require Export uuu. 
 
-Inductive empty:UU := .
+
+Definition UU:=Type.
+Definition juuutouu:UUU -> UU:= fun T:_ => T.
+
 Definition initmap (X:UU) : empty -> X.
 Proof. intros.  induction X0. Defined. 
-
-Inductive unit:UU := tt:unit.
-Inductive bool:UU := true:bool | false:bool.
-Inductive nat:UU := O:nat | S: nat -> nat.
 
 
 
@@ -1072,6 +1070,142 @@ Proof. intros. unfold isweq.   intro. unfold isweq in X0.  set (h:=hfiberfpmap _
 
 
 
+
+
+
+(* Several simple lemmas which are used to compensate for the absence of eta-reduction in the current version of Coq. *)
+
+
+Axiom etacorrection: forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t), paths _ f (fun t:T => f t). 
+
+Lemma isweqetacorrection (T:UU)(P:T -> UU): isweq _ _ (fun f: forall t:T, P t => (fun t:T => f t)).
+Proof. intros.  apply (isweqhomot _ _ (fun f: forall t:T, P t => f) (fun f: forall t:T, P t => (fun t:T => f t)) (fun f: forall t:T, P t => etacorrection _ P f) (idisweq _)). Defined. 
+
+Lemma etacorrectiononpaths (T:UU)(P:T->UU)(s1:forall t:T, P t)(s2:forall t:T, P t): paths _ (fun t:T => s1 t) (fun t:T => s2 t)-> paths _ s1 s2. 
+Proof. intros. set (ec:= fun s:forall t:T, P t => (fun t:T => s t)). set (is:=isweqetacorrection T P). apply (pathsweq2 _ _ ec is s1 s2 X). Defined. 
+
+Definition etacor (X:UU)(Y:UU)(f:X -> Y):paths _ f (fun x:X => f x) := etacorrection X (fun T:X => Y) f.
+
+Lemma etacoronpaths (X:UU)(Y:UU)(f1:X->Y)(f2:X->Y):paths _ (fun x:X => f1 x) (fun x:X => f2 x) -> paths _ f1 f2. 
+Proof. intros. set (ec:= fun f:X->Y => (fun x:X => f x)). set (is:=isweqetacorrection X (fun x:X => Y)). apply (pathsweq2 _ _ ec is f1 f2 X0). Defined.
+
+
+(* Sections of "double fibration" P: T -> UU, PP: forall t:T, P t -> UU and pairs of sections. *)
+
+Definition totaltoforall (X:UU)(P:X->UU)(PP:forall x:X, P x -> UU): total2 (forall x: X, P x) (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)) -> forall x:X, total2 (P x) (PP x).
+Proof. intros. induction X0. split with (t x). apply (x0 x). Defined.
+
+
+Definition foralltototal  (X:UU)(P:X->UU)(PP:forall x:X, P x -> UU):  (forall x:X, total2 (P x) (PP x)) -> total2 (forall x: X, P x) (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)).
+Proof. intros. split with (fun x:X => pr21 _ _ (X0 x)). apply (fun x:X => pr22 _ _ (X0 x)). Defined.
+
+Lemma lemmaeta1 (X:UU)(P:X->UU)(Q:(forall x:X, P x) -> UU)(s0: forall x:X, P x)(q: Q (fun x:X => (s0 x))): paths (total2 _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x)))) (tpair _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) s0 q) (tpair _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) (fun x:X => (s0 x)) q). 
+Proof. intros. set (ff:= fun tp:total2 _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) => tpair _ _ (fun x:X => pr21 _ _ tp x) (pr22 _ _ tp)). assert (isweq _ _ ff).  apply (isweqfpmap _ _ (fun s: forall x:X, P x => (fun x:X => (s x))) Q (isweqetacorrection X P)). assert (ee: paths _ (ff (tpair (forall x : X, P x)
+        (fun s : forall x : X, P x => Q (fun x : X => s x)) s0 q)) (ff (tpair (forall x : X, P x)
+        (fun s : forall x : X, P x => Q (fun x : X => s x))
+        (fun x : X => s0 x) q))). apply idpath. 
+
+apply (pathsweq2 _ _ ff X0 _ _ ee). Defined. 
+
+
+
+Definition totaltoforalltototal(X:UU)(P:X->UU)(PP:forall x:X, P x -> UU)(ss:total2 (forall x: X, P x) (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)) ): paths _ (foralltototal _ _ _ (totaltoforall _ _ _ ss)) ss.
+Proof. intros.  induction ss. unfold foralltototal. unfold totaltoforall.  simpl. 
+set (et:= fun x:X => t x). 
+
+assert (paths _ (tpair (forall x0 : X, P x0) (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) t x) 
+(tpair (forall x0 : X, P x0) (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et x)). apply (lemmaeta1 X P (fun s: forall x:X, P x =>  forall x:X, PP x (s x)) t x).  
+
+assert (ee: paths 
+     (total2 (forall x0 : X, P x0)
+        (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)))
+     (tpair (forall x0 : X, P x0)
+        (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et
+        x)
+     (tpair (forall x0 : X, P x0)
+        (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et (fun x0 : X => x x0))). assert (eee: paths _ x (fun x0:X => x x0)). apply etacorrection. induction eee. apply idpath. induction ee. apply pathsinv0. assumption. Defined. 
+
+
+(* The construction of the second homotopy 
+
+Definition foralltototaltoforall(X:UU)(P:X->UU)(PP:forall x:X, P x -> UU)(ss: forall x:X, total2 (P x) (PP x)): paths _ (totaltoforall _ _ _ (foralltototal _ _ _ ss)) ss.
+
+whichn implies that foralltototal and totaltoforall are weak equivalences, is done in u012 since  it requires functional extensionality for sections (dependent functions). *)
+
+
+
+(* The maps between section spaces (dependent products) defined by a family of maps P x -> Q x and by the map Y -> X. *)
+
+Definition maponsec (X:UU)(P:X -> UU)(Q:X-> UU)(f: forall x:X, P x -> Q x): (forall x:X, P x) -> (forall x:X, Q x) := 
+fun s: forall x:X, P x => (fun x:X => (f x) (s x)).
+
+Definition maponsec1 (X:UU)(Y:UU)(P:Y -> UU)(f:X-> Y): (forall y:Y, P y) -> (forall x:X, P (f x)) := fun sy: forall y:Y, P y => (fun x:X => sy (f x)).
+
+
+
+(* Some basic construction related to the adjoint evaluation function X -> ((X -> Y) -> Y). *)
+
+
+Definition adjev (X Y:UU): X -> ((X -> Y)->Y) := fun x:X => fun f:_ => f x.
+
+Definition adjev2 (X Y:UU): (((X -> Y) -> Y) ->Y) -> (X -> Y)  := fun phi:_ => (fun x:X => phi (fun f:X -> Y => f x)).
+
+Definition adjevretract (X Y:UU): forall f: X-> Y, paths _ (adjev2 _ _ (adjev (X -> Y) Y f)) f.
+Proof. intros. unfold adjev2. unfold adjev. apply (pathsinv0 _ _ _ (etacorrection _ _ f)). Defined. 
+
+
+
+
+(* Basic results on negation and double negation. *)
+
+
+Definition neg (X:UU):= X -> empty.
+
+Definition negf (X:UU)(Y:UU)(f:X -> Y): (neg Y) -> (neg X):= fun phi:Y -> empty => fun x:X => phi (f x).
+
+Definition dneg (X:UU):= (X-> empty)->empty.
+
+Definition dnegf (X:UU)(Y:UU)(f:X->Y): (dneg X) -> (dneg Y):= negf _ _ (negf _ _ f).
+
+Definition todneg (X:UU): X -> (dneg X):= adjev X empty. 
+
+Definition negadjev (X:UU): dneg (neg X) -> neg X := negf _ _  (todneg X).
+
+Lemma dneganddnegl1 (X:UU)(Y:UU): dneg X -> dneg Y -> (X -> neg Y) -> empty.
+Proof. intros. assert (dneg X -> neg Y). apply (fun xx: dneg X => negadjev _ (dnegf _ _ X2 xx)).  apply (X1 (X3 X0)). Defined.
+
+Lemma dneganddnegimpldneg (X:UU)(Y:UU): dneg X -> dneg Y -> dneg (dirprod X Y).
+Proof. intros. unfold dneg. intro. set (X3:= fun x:X => fun y:Y => X2 (dirprodpair _ _ x y)). apply (dneganddnegl1 _ _ X0 X1 X3). Defined.
+
+
+
+
+
+Definition isaninvprop (X:UU):= isweq _ _  (todneg X).
+
+Definition invimpl (X:UU)(is: isaninvprop X): (dneg X) -> X:= invmap _ _ (todneg X) is. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (* Basics about h-levels. *)
 
 
@@ -1082,9 +1216,10 @@ S m => forall x:X, forall x':X, (isofhlevel m (paths _ x x'))
 end.
 
 
+
 Theorem hlevelretract (n:nat)(X:UU)(Y:UU)(p:X -> Y)(s:Y ->X)(eps: forall y:Y, paths _  (p (s y)) y): (isofhlevel n X) -> (isofhlevel n Y).
 Proof. intro. induction n. intros. apply (contrl1' _ _ p s eps X0). 
-intros. unfold isofhlevel. intros. unfold isofhlevel in X0. assert (is: isofhlevel n (paths _ (s x) (s x'))).  apply X0. set (s':= maponpaths _ _ s x x'). set (p':= pathssec2 _ _ s p eps x x'). set (eps':= pathssec3 _ _ s p eps x x'). apply (IHn _ _ p' s' eps' is). Defined. 
+intros. unfold isofhlevel. intros. unfold isofhlevel in X0. assert (is: isofhlevel n (paths _ (s x) (s x'))).  apply X0. set (s':= maponpaths _ _ s x x'). set (p':= pathssec2 _ _ s p eps x x'). set (eps':= pathssec3 _ _ s p eps x x').  apply (IHn _ _ p' s' eps' is). Defined. 
 
 Corollary  isofhlevelweqf (n:nat)(X:UU)(Y:UU)(f:X -> Y)(is: isweq _ _ f): (isofhlevel n X) -> (isofhlevel n Y).
 Proof. intros.  apply (hlevelretract n _ _ f (invmap _ _ f is) (weqfg _ _ f is)). assumption. Defined. 
@@ -1125,6 +1260,9 @@ Defined.
 
 Lemma iscontraprop1inv (X:UU): (X -> iscontr X) -> (isofhlevel (S O) X).
 Proof. intros. assert (X -> isofhlevel (S O) X). intro.  apply (hlevelsincl O _ (X0 X1)). apply (isofhlevelsn O _ X1). Defined.
+
+
+
 
 
 
@@ -1429,13 +1567,6 @@ unfold isweq.  intro. induction (y (g y0)). Defined.
 
 
 
-
-
-
-
-
-
-
 (* Basics about types of h-level 1 - "propositions". *)
 
 
@@ -1459,34 +1590,18 @@ unfold isaprop in is1. unfold isofhlevel in is1.  apply (is1 x). Defined.
 
 
 
-(* Basics about "decidable" and "involutionary" propositions. Continued in u01.v after the proof of functional extensionality for functions. *)
+(* Basics about "decidable"  propositions. Continued in u01.v after the proof of functional extensionality for functions. *)
 
 
 Definition isdecprop (X:UU):= dirprod (isaprop X) (coprod X (X -> empty)).
 
-Definition neg (X:UU):= X -> empty.
-
-Definition negf (X:UU)(Y:UU)(f:X -> Y): (neg Y) -> (neg X):= fun phi:Y -> empty => fun x:X => phi (f x).
-
-Definition dneg (X:UU):= (X-> empty)->empty.
-
-Definition dnegf (X:UU)(Y:UU)(f:X->Y): (dneg X) -> (dneg Y):= negf _ _ (negf _ _ f).
-
-Definition adjev (X:UU): X -> (dneg X):= fun x:X => fun phi:X -> empty => phi x.
-
-Definition negadjev (X:UU): dneg (neg X) -> neg X := negf _ _  (adjev X).
 
 
-Lemma dneganddnegl1 (X:UU)(Y:UU): dneg X -> dneg Y -> (X -> neg Y) -> empty.
-Proof. intros. assert (dneg X -> neg Y). apply (fun xx: dneg X => negadjev _ (dnegf _ _ X2 xx)).  apply (X1 (X3 X0)). Defined.
-
-Lemma dneganddnegimpldneg (X:UU)(Y:UU): dneg X -> dneg Y -> dneg (dirprod X Y).
-Proof. intros. unfold dneg. intro. set (X3:= fun x:X => fun y:Y => X2 (dirprodpair _ _ x y)). apply (dneganddnegl1 _ _ X0 X1 X3). Defined.
 
 
-Definition isaninvprop (X:UU):= isweq _ _  (adjev X).
 
-Definition invimpl (X:UU)(is: isaninvprop X): (dneg X) -> X:= invmap _ _ (adjev X) is. 
+
+
 
 
 
@@ -1623,83 +1738,18 @@ apply (isofhlevelff (S O) _ _ _ _ _ is2 (isofhlevelfweq (S (S O)) _ _ _ (isweqco
 
 
 
+(* Finite sets I. *)
+
+
+
+Fixpoint stn (n:nat):UU:= match n with
+O => empty|
+S m => coprod (stn m) unit
+end.
 
 
 
 
-
-
-
-
-
-
-(* Several simple lemmas which are used to compensate for the absence of eta-reduction in the current version of Coq. *)
-
-
-Axiom etacorrection: forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t), paths _ f (fun t:T => f t). 
-
-Lemma isweqetacorrection (T:UU)(P:T -> UU): isweq _ _ (fun f: forall t:T, P t => (fun t:T => f t)).
-Proof. intros.  apply (isweqhomot _ _ (fun f: forall t:T, P t => f) (fun f: forall t:T, P t => (fun t:T => f t)) (fun f: forall t:T, P t => etacorrection _ P f) (idisweq _)). Defined. 
-
-Lemma etacorrectiononpaths (T:UU)(P:T->UU)(s1:forall t:T, P t)(s2:forall t:T, P t): paths _ (fun t:T => s1 t) (fun t:T => s2 t)-> paths _ s1 s2. 
-Proof. intros. set (ec:= fun s:forall t:T, P t => (fun t:T => s t)). set (is:=isweqetacorrection T P). apply (pathsweq2 _ _ ec is s1 s2 X). Defined. 
-
-Definition etacor (X:UU)(Y:UU)(f:X -> Y):paths _ f (fun x:X => f x) := etacorrection X (fun T:X => Y) f.
-
-Lemma etacoronpaths (X:UU)(Y:UU)(f1:X->Y)(f2:X->Y):paths _ (fun x:X => f1 x) (fun x:X => f2 x) -> paths _ f1 f2. 
-Proof. intros. set (ec:= fun f:X->Y => (fun x:X => f x)). set (is:=isweqetacorrection X (fun x:X => Y)). apply (pathsweq2 _ _ ec is f1 f2 X0). Defined.
-
-
-(* Sections of "double fibration" P: T -> UU, PP: forall t:T, P t -> UU and pairs of sections. *)
-
-Definition totaltoforall (X:UU)(P:X->UU)(PP:forall x:X, P x -> UU): total2 (forall x: X, P x) (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)) -> forall x:X, total2 (P x) (PP x).
-Proof. intros. induction X0. split with (t x). apply (x0 x). Defined.
-
-
-Definition foralltototal  (X:UU)(P:X->UU)(PP:forall x:X, P x -> UU):  (forall x:X, total2 (P x) (PP x)) -> total2 (forall x: X, P x) (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)).
-Proof. intros. split with (fun x:X => pr21 _ _ (X0 x)). apply (fun x:X => pr22 _ _ (X0 x)). Defined.
-
-Lemma lemmaeta1 (X:UU)(P:X->UU)(Q:(forall x:X, P x) -> UU)(s0: forall x:X, P x)(q: Q (fun x:X => (s0 x))): paths (total2 _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x)))) (tpair _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) s0 q) (tpair _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) (fun x:X => (s0 x)) q). 
-Proof. intros. set (ff:= fun tp:total2 _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) => tpair _ _ (fun x:X => pr21 _ _ tp x) (pr22 _ _ tp)). assert (isweq _ _ ff).  apply (isweqfpmap _ _ (fun s: forall x:X, P x => (fun x:X => (s x))) Q (isweqetacorrection X P)). assert (ee: paths _ (ff (tpair (forall x : X, P x)
-        (fun s : forall x : X, P x => Q (fun x : X => s x)) s0 q)) (ff (tpair (forall x : X, P x)
-        (fun s : forall x : X, P x => Q (fun x : X => s x))
-        (fun x : X => s0 x) q))). apply idpath. 
-
-apply (pathsweq2 _ _ ff X0 _ _ ee). Defined. 
-
-
-
-Definition totaltoforalltototal(X:UU)(P:X->UU)(PP:forall x:X, P x -> UU)(ss:total2 (forall x: X, P x) (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)) ): paths _ (foralltototal _ _ _ (totaltoforall _ _ _ ss)) ss.
-Proof. intros.  induction ss. unfold foralltototal. unfold totaltoforall.  simpl. 
-set (et:= fun x:X => t x). 
-
-assert (paths _ (tpair (forall x0 : X, P x0) (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) t x) 
-(tpair (forall x0 : X, P x0) (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et x)). apply (lemmaeta1 X P (fun s: forall x:X, P x =>  forall x:X, PP x (s x)) t x).  
-
-assert (ee: paths 
-     (total2 (forall x0 : X, P x0)
-        (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)))
-     (tpair (forall x0 : X, P x0)
-        (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et
-        x)
-     (tpair (forall x0 : X, P x0)
-        (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et (fun x0 : X => x x0))). assert (eee: paths _ x (fun x0:X => x x0)). apply etacorrection. induction eee. apply idpath. induction ee. apply pathsinv0. assumption. Defined. 
-
-
-(* The construction of the second homotopy 
-
-Definition foralltototaltoforall(X:UU)(P:X->UU)(PP:forall x:X, P x -> UU)(ss: forall x:X, total2 (P x) (PP x)): paths _ (totaltoforall _ _ _ (foralltototal _ _ _ ss)) ss.
-
-whichn implies that foralltototal and totaltoforall are weak equivalences, is done in u012 since  it requires functional extensionality for sections (dependent functions). *)
-
-
-
-(* The maps between section spaces (dependent products) defined by a family of maps P x -> Q x and by the map Y -> X. *)
-
-Definition maponsec (X:UU)(P:X -> UU)(Q:X-> UU)(f: forall x:X, P x -> Q x): (forall x:X, P x) -> (forall x:X, Q x) := 
-fun s: forall x:X, P x => (fun x:X => (f x) (s x)).
-
-Definition maponsec1 (X:UU)(Y:UU)(P:Y -> UU)(f:X-> Y): (forall y:Y, P y) -> (forall x:X, P (f x)) := fun sy: forall y:Y, P y => (fun x:X => sy (f x)).
 
 
 

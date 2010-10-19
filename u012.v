@@ -1,21 +1,23 @@
 (* The work on the file started on  Feb. 16, 2010 *)
 
   
-(* The files u0.v, u1.v, u2.v, u01.v, u12.v and u012.v contain the definitions and theorems which form the "basics" of the foundations and a new approach to the type-theoretic formalization of mathematics. These foundations are inspired by the univalent model of type theory which interprets types as homotopy types (objects of the homotopy category which is defined using the standard set theory), Martin-Lof equality as paths spaces and universes as bases of universal ("univalent") fibrations.
+(* The files uuu.v, u0.v, u1.v, u2.v, u01.v, u12.v and u012.v contain the definitions and theorems which form the "basics" of the foundations and a new approach to the type-theoretic formalization of mathematics. These foundations are inspired by the univalent model of type theory which interprets types as homotopy types (objects of the homotopy category which is defined using the standard set theory), Martin-Lof equality as paths spaces and universes as bases of universal ("univalent") fibrations.
 
 The need to use several files and the distribution of the material among the files are dictated by the current situation with universe management in Coq. As of now there is no intended mechanism for an explicit control over the type universes by the user.  When the identifier "Type" is used the system creates a new universe connected to the previously created ones by a set of constraints which are automatically determined based on the context in which this particular instance of "Type" appears. If the resulting system of constraints becomes incompatible the system produces "Universe Inconsistency" message and does not allow further development. Since a new type universe is introduced essentially every time the identifier "Type" is used it soon becomes very difficult, in the case of a "Universe Inconsistency" situation, to analyze where the problem is and how to resolve it. 
 
-In this version of the foundations we use a trick which allows us to avoid the prolifiration of type universes and the corresponding constrains. The current proofs require us in some places (actually in one place only - theorem funcontr) to use the hierarchy which cocnists of three levels of universes Type0, Type1 and Type2 with the condition that Type0:Type1,  Type1:Type2 and Type0 is a subtype of Type1 which is a subtype of Type2.
+In this version of the foundations we use a trick which allows us to avoid the prolifiration of type universes and the corresponding constrains. The current proofs require us in some places (actually in one place only - theorem funcontr) to use the hierarchy which cocnists of four levels of universes UUU, UU0, UU1, and UU2 with the condition that each universe is a subtype of the next one and that UU0:UU1 and UU11:UU2.
 
-The files u0, u1, u2 contain the results which require only one universe level. These three files are identical. The universe in each of them is called UU. 
+The universe UUU is where the standard types empty, unit, bool and nat are kept. 
 
-The files u01 and u12 contain the results which require a two-levels universe hierarchy. The file u01 uses universes Type0:=u0.UU and Type1:=u1.UU while u12 uses universes Type1:=u1.UU and Type2:=u2.UU. In all other ways the files u01 and u12 are identical.
+The files u0, u1, u2 contain the results which require only one universe level besides UUU. These three files are identical. The universe in each of them is called UU. 
 
-The file u012 contains the results which require a three-levels universe hierarchy.   
+The files u01 and u12 contain the results which require a two-levels universe hierarchy besides UUU. Both files use universes UU0 and UU1 bu in u01 one has UU0=u0.UU and UU1:=u1.UU while in u12 UU0:=u1.UU and UU1:=u2.UU. In all other ways the files u01 and u12 are identical. When u01.v is edited it is thgen saved as u12.v after which "u1." is replaced by "u2." and "u0." is replaced by "u1." throughout the file. 
 
-I tried to keep the notations such that the names of types which are (expected to be) a property in the sense of being of level 1 start with "is" but I have not been very consistent about it. After functional extensionality is proved there follows a series of theorems which assert that different types of the form "is..." (iscontr, isweq etc.) are actuallly properties.
+The file u012 contains the results which require a three-levels universe hierarchy besides UUU.   
 
-Note: the univalence axiom is introduced in u01. In particular nothing in u0 depends on it. Moreover, the results of u012 use univalence axiom only through functional extensionality.
+I tried to keep the notations such that the names of types which are (expected to be) a property in the sense of being of h-level 1 start with "is" but I have not been very consistent about it. After functional extensionality is proved there follows a series of theorems which assert that different types of the form "is..." (iscontr, isweq etc.) are actuallly properties.
+
+Note: the univalence axiom is introduced in u01. In particular nothing in u0 depends on it. Moreover, the results of u012 use univalence axiom only through functional extensionality. There is an increasing number of theorems in "foundations" which have very short proofs if one assumes the univalence axiom by which are given much longer proofs where the use of the univalence axiom is restricted to its use through functional extensionality (in particular [isweqmaponsec1] in u012 and [stnsweqtoeq] in u01.  One hopes that eventually a mechnaical procedure for the replacement proofs using the univalence axiom directly by proofs which only use it in some computationally uninformative ways will be found.
 
 
 *)
@@ -202,7 +204,20 @@ apply (twooutof3c _ _ _ map2inv map1inv is2 is1). Defined.
 
 
 
+
+
+
+
+
+
 (* The map between section spaces (dependent products) defined by a family of maps P x -> Q x is a weak equivalence if all maps P x -> Q x are weak equivalences. *)
+
+
+
+
+
+
+
 
 
 Corollary isweqmaponsec (X:UU0)(P:X-> UU0)(Q:X -> UU0)(f: forall x:X, P x -> Q x)(isx: forall x:X, isweq _ _ (f x)): isweq _ _ (maponsec _ _ _ f). 
@@ -275,6 +290,16 @@ Corollary impredtwice  (n:nat)(T:UU0)(P:T -> T -> UU0): (forall (t t':T), isofhl
 Proof.  intros. assert (is1: forall t:T, isofhlevel n (forall t':T, P t t')). intro. apply (impred n _ _ (X t)). apply (impred n _ _ is1). Defined.
 
 
+
+
+
+
+
+
+
+
+
+
 (* Theorems saying that  (iscontr T), (isweq f) etc. are of h-level 1 (i.e. isaprop). *)
 
 
@@ -333,6 +358,16 @@ assert (forall u u':isdeceq X, paths _ u u'). intros.
 assert (forall x x':X, isaprop (coprod (paths X x x') (paths X x x' -> empty))). intros.  assert (is0:isaprop (paths _ x x')). assert (is1: isaset X). apply (isasetifdeceq _ u).  set (is2:= is1 x x'). simpl in is2. unfold isaprop. unfold isofhlevel. assumption. 
 apply (isapropxornotx _ is0). assert (isaprop (isdeceq X)). apply impredtwice. assumption. apply (proofirrelevance _ X1 u u'). apply (invproofirrelevance _ X0). Defined.
    
+
+
+
+
+
+(* We show that the types of finite sets defined relative to two universes are weakly equivalent. *)
+
+Definition jj01:UU0 -> UU1 := fun X :_ => X.
+Definition jj12:UU1 -> UU2 := fun X:_ => X.
+Definition jj02:UU0 -> UU2 := fun X:_ => X.
 
 
 
