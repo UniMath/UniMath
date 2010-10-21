@@ -47,7 +47,7 @@ where the u-level of UU (which at the moment can be UU0, UU1 or UU2) is lower th
 *)
 
 
-
+Unset Automatic Introduction.
 
 Require Export u12 u01.
 

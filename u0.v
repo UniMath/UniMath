@@ -1,5 +1,9 @@
+Unset Automatic Introduction.
 
 Require Export uuu. 
+
+
+
 
 
 Definition UU:=Type.
@@ -13,6 +17,8 @@ Proof. intros.  induction X0. Defined.
 
 
 Inductive paths (T:UU)(t:T): T -> UU := idpath: paths T t t.
+
+
 
 (** Operations on paths **)
 
@@ -139,12 +145,6 @@ end.
 
 Definition tppr (T:UU)(P:T -> UU)(x: total2 T P): paths _ x (tpair _ _ (pr21 _ _ x) (pr22 _ _ x)).
 Proof. intros. induction x. apply idpath. Defined. 
-
-
-
-Definition dirprod (X:UU)(Y:UU):= total2 X (fun x:X => Y).
-Definition dirprodpair (X:UU)(Y:UU):= tpair X (fun x:X => Y).
-
 
 
 
@@ -1067,79 +1067,51 @@ Proof. intros. unfold isweq.   intro. unfold isweq in X0.  set (h:=hfiberfpmap _
 
 
 
+(* The map between total spaces of families given by a map on the bases of families and on the members. *)
+
+
+Definition bandfmap (X Y:UU)(f: X -> Y) (P:X -> UU)(Q: Y -> UU)(fm: forall x:X, P x -> (Q (f x))): total2 X P -> total2 Y Q:= fun xp:_ =>
+match xp with
+tpair x p => tpair Y Q (f x) (fm x p)
+end.
+
+Theorem isweqbandfmap  (X Y:UU)(f: X -> Y) (P:X -> UU)(Q: Y -> UU)(fm: forall x:X, P x -> (Q (f x)))(isf: isweq _ _ f)(isfm: forall x:X, isweq _ _ (fm x)): isweq _ _ (bandfmap _ _ _ P Q fm).
+Proof. intros. set (f1:= totalfun _ P _ fm). set (is1:= isweqfibtototal X P (fun x:X => Q (f x)) fm isfm).  set (f2:= fpmap _ _ f Q).  set (is2:= isweqfpmap _ _ f Q isf). 
+assert (h: forall xp: total2 X P, paths _ (f2 (f1 xp)) (bandfmap _ _ f P Q fm xp)). intro. destruct xp. apply idpath. 
+apply (isweqhomot _ _ _ _ h (twooutof3c _ _ _ f1 f2 is1 is2)). Defined.
 
 
 
 
 
-
-(* Several simple lemmas which are used to compensate for the absence of eta-reduction in the current version of Coq. *)
-
-
-Axiom etacorrection: forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t), paths _ f (fun t:T => f t). 
-
-Lemma isweqetacorrection (T:UU)(P:T -> UU): isweq _ _ (fun f: forall t:T, P t => (fun t:T => f t)).
-Proof. intros.  apply (isweqhomot _ _ (fun f: forall t:T, P t => f) (fun f: forall t:T, P t => (fun t:T => f t)) (fun f: forall t:T, P t => etacorrection _ P f) (idisweq _)). Defined. 
-
-Lemma etacorrectiononpaths (T:UU)(P:T->UU)(s1:forall t:T, P t)(s2:forall t:T, P t): paths _ (fun t:T => s1 t) (fun t:T => s2 t)-> paths _ s1 s2. 
-Proof. intros. set (ec:= fun s:forall t:T, P t => (fun t:T => s t)). set (is:=isweqetacorrection T P). apply (pathsweq2 _ _ ec is s1 s2 X). Defined. 
-
-Definition etacor (X:UU)(Y:UU)(f:X -> Y):paths _ f (fun x:X => f x) := etacorrection X (fun T:X => Y) f.
-
-Lemma etacoronpaths (X:UU)(Y:UU)(f1:X->Y)(f2:X->Y):paths _ (fun x:X => f1 x) (fun x:X => f2 x) -> paths _ f1 f2. 
-Proof. intros. set (ec:= fun f:X->Y => (fun x:X => f x)). set (is:=isweqetacorrection X (fun x:X => Y)). apply (pathsweq2 _ _ ec is f1 f2 X0). Defined.
-
-
-(* Sections of "double fibration" P: T -> UU, PP: forall t:T, P t -> UU and pairs of sections. *)
-
-Definition totaltoforall (X:UU)(P:X->UU)(PP:forall x:X, P x -> UU): total2 (forall x: X, P x) (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)) -> forall x:X, total2 (P x) (PP x).
-Proof. intros. induction X0. split with (t x). apply (x0 x). Defined.
-
-
-Definition foralltototal  (X:UU)(P:X->UU)(PP:forall x:X, P x -> UU):  (forall x:X, total2 (P x) (PP x)) -> total2 (forall x: X, P x) (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)).
-Proof. intros. split with (fun x:X => pr21 _ _ (X0 x)). apply (fun x:X => pr22 _ _ (X0 x)). Defined.
-
-Lemma lemmaeta1 (X:UU)(P:X->UU)(Q:(forall x:X, P x) -> UU)(s0: forall x:X, P x)(q: Q (fun x:X => (s0 x))): paths (total2 _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x)))) (tpair _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) s0 q) (tpair _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) (fun x:X => (s0 x)) q). 
-Proof. intros. set (ff:= fun tp:total2 _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) => tpair _ _ (fun x:X => pr21 _ _ tp x) (pr22 _ _ tp)). assert (isweq _ _ ff).  apply (isweqfpmap _ _ (fun s: forall x:X, P x => (fun x:X => (s x))) Q (isweqetacorrection X P)). assert (ee: paths _ (ff (tpair (forall x : X, P x)
-        (fun s : forall x : X, P x => Q (fun x : X => s x)) s0 q)) (ff (tpair (forall x : X, P x)
-        (fun s : forall x : X, P x => Q (fun x : X => s x))
-        (fun x : X => s0 x) q))). apply idpath. 
-
-apply (pathsweq2 _ _ ff X0 _ _ ee). Defined. 
+(* Pairwise direct products. *)
 
 
 
-Definition totaltoforalltototal(X:UU)(P:X->UU)(PP:forall x:X, P x -> UU)(ss:total2 (forall x: X, P x) (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)) ): paths _ (foralltototal _ _ _ (totaltoforall _ _ _ ss)) ss.
-Proof. intros.  induction ss. unfold foralltototal. unfold totaltoforall.  simpl. 
-set (et:= fun x:X => t x). 
 
-assert (paths _ (tpair (forall x0 : X, P x0) (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) t x) 
-(tpair (forall x0 : X, P x0) (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et x)). apply (lemmaeta1 X P (fun s: forall x:X, P x =>  forall x:X, PP x (s x)) t x).  
-
-assert (ee: paths 
-     (total2 (forall x0 : X, P x0)
-        (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)))
-     (tpair (forall x0 : X, P x0)
-        (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et
-        x)
-     (tpair (forall x0 : X, P x0)
-        (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et (fun x0 : X => x x0))). assert (eee: paths _ x (fun x0:X => x x0)). apply etacorrection. induction eee. apply idpath. induction ee. apply pathsinv0. assumption. Defined. 
-
-
-(* The construction of the second homotopy 
-
-Definition foralltototaltoforall(X:UU)(P:X->UU)(PP:forall x:X, P x -> UU)(ss: forall x:X, total2 (P x) (PP x)): paths _ (totaltoforall _ _ _ (foralltototal _ _ _ ss)) ss.
-
-whichn implies that foralltototal and totaltoforall are weak equivalences, is done in u012 since  it requires functional extensionality for sections (dependent functions). *)
+Definition dirprod (X:UU)(Y:UU):= total2 X (fun x:X => Y).
+Definition dirprodpair (X:UU)(Y:UU):= tpair X (fun x:X => Y).
 
 
 
-(* The maps between section spaces (dependent products) defined by a family of maps P x -> Q x and by the map Y -> X. *)
 
-Definition maponsec (X:UU)(P:X -> UU)(Q:X-> UU)(f: forall x:X, P x -> Q x): (forall x:X, P x) -> (forall x:X, Q x) := 
-fun s: forall x:X, P x => (fun x:X => (f x) (s x)).
+Definition dirprodf (X Y X' Y':UU)(f:X-> Y)(f':X' -> Y'): dirprod X X' -> dirprod Y Y':= fun xx':_ => match xx' with tpair x x' => dirprodpair _ _ (f x) (f' x') end. 
 
-Definition maponsec1 (X:UU)(Y:UU)(P:Y -> UU)(f:X-> Y): (forall y:Y, P y) -> (forall x:X, P (f x)) := fun sy: forall y:Y, P y => (fun x:X => sy (f x)).
+ 
+Corollary isweqdirprodf (X Y X' Y':UU)(f:X-> Y)(f':X' -> Y')(is:isweq _ _ f)(is': isweq _ _ f'): isweq _ _ (dirprodf _ _ _ _ f f').
+Proof. intros.  apply (isweqbandfmap X Y f (fun x:X => X') (fun y:Y => Y') (fun x:X => f') is (fun x:X => is')). Defined. 
+
+
+Definition weqdirprod (X Y X' Y':UU)(w: weq X Y)(w': weq X' Y') : weq (dirprod X X') (dirprod Y Y').
+Proof. intros. destruct w. destruct w'. split with (dirprodf _ _ _ _ t t0).  apply isweqdirprodf. apply x.  apply x0.  Defined. 
+
+
+Definition weqtodirprodwithunit (X:UU): weq X (dirprod X unit).
+Proof. intros. set (f:=fun x:X => dirprodpair X unit x tt). split with f.  set (g:= fun xu:dirprod X unit => pr21 _ _ xu). 
+assert (egf: forall x:X, paths _ (g (f x)) x). intro. apply idpath.
+assert (efg: forall xu:_, paths _ (f (g xu)) xu). intro. destruct xu. destruct x. apply idpath.    
+apply (gradth _ _ f g egf efg). Defined.
+
 
 
 
@@ -1149,9 +1121,6 @@ Definition maponsec1 (X:UU)(Y:UU)(P:Y -> UU)(f:X-> Y): (forall y:Y, P y) -> (for
 Definition adjev (X Y:UU): X -> ((X -> Y)->Y) := fun x:X => fun f:_ => f x.
 
 Definition adjev2 (X Y:UU): (((X -> Y) -> Y) ->Y) -> (X -> Y)  := fun phi:_ => (fun x:X => phi (fun f:X -> Y => f x)).
-
-Definition adjevretract (X Y:UU): forall f: X-> Y, paths _ (adjev2 _ _ (adjev (X -> Y) Y f)) f.
-Proof. intros. unfold adjev2. unfold adjev. apply (pathsinv0 _ _ _ (etacorrection _ _ f)). Defined. 
 
 
 
@@ -1169,10 +1138,10 @@ Definition dnegf (X:UU)(Y:UU)(f:X->Y): (dneg X) -> (dneg Y):= negf _ _ (negf _ _
 
 Definition todneg (X:UU): X -> (dneg X):= adjev X empty. 
 
-Definition negadjev (X:UU): dneg (neg X) -> neg X := negf _ _  (todneg X).
+Definition dnegnegtoneg (X:UU): dneg (neg X) -> neg X := negf _ _  (todneg X).
 
 Lemma dneganddnegl1 (X:UU)(Y:UU): dneg X -> dneg Y -> (X -> neg Y) -> empty.
-Proof. intros. assert (dneg X -> neg Y). apply (fun xx: dneg X => negadjev _ (dnegf _ _ X2 xx)).  apply (X1 (X3 X0)). Defined.
+Proof. intros. assert (dneg X -> neg Y). apply (fun xx: dneg X => dnegnegtoneg _ (dnegf _ _ X2 xx)).  apply (X1 (X3 X0)). Defined.
 
 Lemma dneganddnegimpldneg (X:UU)(Y:UU): dneg X -> dneg Y -> dneg (dirprod X Y).
 Proof. intros. unfold dneg. intro. set (X3:= fun x:X => fun y:Y => X2 (dirprodpair _ _ x y)). apply (dneganddnegl1 _ _ X0 X1 X3). Defined.
@@ -1434,6 +1403,86 @@ apply (isofhlevelssn).  assumption. Defined.
 Inductive coprod (X Y:UU) := ii1: X -> coprod X Y | ii2: Y -> coprod X Y.
 
 
+Definition boolascoprod: weq (coprod unit unit) bool.
+Proof. set (f:= fun xx: coprod unit unit => match xx with ii1 t => true | ii2 t => false end). split with f. 
+set (g:= fun t:bool => match t with true => ii1 _ _ tt | false => ii2 _ _ tt end). 
+assert (egf: forall xx:_, paths _ (g (f xx)) xx). destruct xx. destruct u. apply idpath. destruct u. apply idpath. 
+assert (efg: forall t:_, paths _ (f (g t)) t). destruct t. apply idpath. apply idpath. 
+apply (gradth _ _ f g egf efg). Defined.  
+
+
+Definition coprodasstor (X Y Z:UU): coprod (coprod X Y) Z -> coprod X (coprod Y Z).
+Proof. intros. destruct X0.  destruct c.  apply (ii1 _ _ x). apply (ii2 _ _ (ii1 _ _ y)). apply (ii2 _ _ (ii2 _ _ z)). Defined.
+
+Definition coprodasstol (X Y Z: UU): coprod X (coprod Y Z) -> coprod (coprod X Y) Z.
+Proof. intros. destruct X0.  apply (ii1 _ _ (ii1 _ _ x)). destruct c.   apply (ii1 _ _ (ii2 _ _ y)). apply (ii2 _ _ z). Defined.
+
+Theorem isweqcoprodasstor (X Y Z:UU): isweq _ _ (coprodasstor X Y Z).
+Proof. intros. set (f:= coprodasstor X Y Z). set (g:= coprodasstol X Y Z).
+assert (egf: forall xyz:_, paths _ (g (f xyz)) xyz). intro. destruct xyz.  destruct c. apply idpath. apply idpath. apply idpath. 
+assert (efg: forall xyz:_, paths _ (f (g xyz)) xyz). intro.  destruct xyz.  apply idpath.  destruct c. apply idpath. apply idpath.
+apply (gradth _ _ f g egf efg). Defined. 
+
+Corollary isweqcoprodasstol (X Y Z:UU): isweq _ _ (coprodasstol X Y Z).
+Proof. intros. apply (isweqinvmap _ _ _ (isweqcoprodasstor X Y Z)). Defined.
+
+
+Definition coprodcomm (X Y:UU): coprod X Y -> coprod Y X := fun xy:_ => match xy with ii1 x => ii2 _ _ x | ii2 y => ii1 _ _ y end. 
+
+Theorem isweqcoprodcomm (X Y:UU): isweq _ _ (coprodcomm X Y).
+Proof. intros. set (f:= coprodcomm X Y). set (g:= coprodcomm Y X).
+assert (egf: forall xy:_, paths _ (g (f xy)) xy). intro. destruct xy. apply idpath. apply idpath.
+assert (efg: forall yx:_, paths _ (f (g yx)) yx). intro. destruct yx. apply idpath. apply idpath.
+apply (gradth _ _ f g egf efg). Defined. 
+
+Definition weqcoprodcomm (X Y:UU):= weqpair _ _ _ (isweqcoprodcomm X Y).
+
+Theorem isweqcoprodwithempty (X Y:UU)(nf:Y -> empty): isweq _ _ (ii1 X Y).
+Proof. intros. set (f:= ii1 X Y). set (g:= fun xy:coprod X Y => match xy with ii1 x => x | ii2 y => initmap _ (nf y) end).  
+assert (egf: forall x:X, paths _ (g (f x)) x). intro. apply idpath. 
+assert (efg: forall xy: coprod X Y, paths _ (f (g xy)) xy). intro. destruct xy. apply idpath. apply (initmap _ (nf y)).  
+apply (gradth _ _ f g egf efg). Defined.  
+
+
+
+Theorem isweqfromcoprodwithempty (X:UU): isweq _ _ (fun ex: coprod empty X => match ex with ii1 e => initmap _ e | ii2 x => x end).
+Proof. intros. set (f:=fun ex: coprod empty X => match ex with ii1 e => initmap _ e | ii2 x => x end). set (g:= ii2 empty X).
+assert (egf: forall ex:_, paths _ (g (f ex)) ex). intro. destruct ex.  destruct e. apply idpath.
+assert (efg: forall x:_, paths _ (f (g x)) x). intro. apply idpath. 
+apply (gradth _ _ f g egf efg). Defined.
+
+Definition weqfromcoprodwithempty (X:UU):= weqpair _ _ _ (isweqfromcoprodwithempty X). 
+
+
+Definition coprodf (X Y:UU)(X' Y':UU)(f: X -> X')(g: Y-> Y'): coprod X Y -> coprod X' Y' := fun xy: coprod X Y =>
+match xy with
+ii1 x => ii1 _ _ (f x)|
+ii2 y => ii2 _ _ (g y)
+end. 
+
+
+Theorem isweqcoprodf (X Y:UU)(X' Y':UU)(f: X -> X')(g: Y-> Y')(isf:isweq _ _ f)(isg: isweq _ _ g): isweq _ _ (coprodf _ _ _ _ f g).
+Proof. intros. set (finv:= invmap _ _ f isf). set (ginv:= invmap _ _ g isg). set (ff:=coprodf _ _ _ _ f g). set (gg:=coprodf _ _ _ _ finv ginv). 
+assert (egf: forall xy: coprod X Y, paths _ (gg (ff xy)) xy). intro. destruct xy. simpl. apply (maponpaths _ _ (ii1 X Y) _ _ (weqgf _ _ _ isf x)).     apply (maponpaths _ _ (ii2 X Y) _ _ (weqgf _ _ _ isg y)).
+assert (efg: forall xy': coprod X' Y', paths _ (ff (gg xy')) xy'). intro. destruct xy'. simpl.  apply (maponpaths _ _ (ii1 X' Y') _ _ (weqfg _ _ _ isf x)).     apply (maponpaths _ _ (ii2 X' Y') _ _ (weqfg _ _ _ isg y)). 
+apply (gradth _ _ ff gg egf efg). Defined. 
+
+
+
+Definition weqcoprod (X Y X' Y' :UU)(w1: weq X Y)(w2: weq X' Y'): weq (coprod X X') (coprod Y Y').
+Proof. intros. destruct w1. destruct w2. split with (coprodf _ _ _ _ t t0). apply (isweqcoprodf _ _ _ _ _ _ x x0).  Defined.
+
+
+
+
+Lemma negeqii1ii2 (X Y:UU)(x:X)(y:Y): neg (paths _ (ii1 _ _ x) (ii2 _ _ y)).
+Proof. intros. unfold neg. intro. set (dist:= fun xy: coprod X Y => match xy with ii1 x => unit | ii2 y => empty end). apply (transportf _ dist _ _ X0 tt). Defined.
+
+
+
+
+
+
 Definition coprodtobool (X Y:UU): coprod X Y -> bool:= fun xy:_ =>
 match xy with
 ii1 x => true|
@@ -1470,19 +1519,42 @@ assert (efg: forall xy: total2 bool (boolsumfun X Y), paths _ (f (g xy)) xy). in
 Corollary isweqboolsumtocoprod (X Y:UU): isweq _ _ (boolsumtocoprod X Y ).
 Proof. intros. apply (isweqinvmap _ _ _ (isweqcoprodtoboolsum X Y)). Defined.
 
-Definition coprodf (X Y:UU)(X' Y':UU)(f: X -> X')(g: Y-> Y'): coprod X Y -> coprod X' Y' := fun xy: coprod X Y =>
-match xy with
-ii1 x => ii1 _ _ (f x)|
-ii2 y => ii2 _ _ (g y)
-end. 
 
 
-Theorem isweqcoprodf (X Y:UU)(X' Y':UU)(f: X -> X')(g: Y-> Y')(isf:isweq _ _ f)(isg: isweq _ _ g): isweq _ _ (coprodf _ _ _ _ f g).
-Proof. intros. set (f1:= coprodtoboolsum X Y). set (f2:= totalfun bool (boolsumfun X Y) (boolsumfun X' Y') (fun t:bool => match t with true => f | false => g end)). set (f3:= boolsumtocoprod X' Y'). 
-assert (h: forall xy:coprod X Y, paths _ (f3 (f2 (f1 xy))) (coprodf _ _ _ _ f g xy)).  intro. destruct xy. apply idpath. apply idpath.
-assert (is1: isweq _ _ f2). apply (isweqfibtototal bool  (boolsumfun X Y) (boolsumfun X' Y') (fun t:bool => match t with true => f | false => g end) (fun t:bool => match t with true => isf | false => isg end)).
-assert (is2: isweq _ _ (fun xy: coprod X Y => f2 (f1 xy))). apply (twooutof3c _ _ _ _ _ (isweqcoprodtoboolsum X Y) is1).
-apply  (isweqhomot _ _ _ _ h (twooutof3c _ _ _ _ _  is2 (isweqboolsumtocoprod X' Y'))). Defined.
+
+(* Coproducts and direct products. *)
+
+
+Definition rdistrtocoprod (X Y Z:UU): dirprod X (coprod Y Z) -> coprod (dirprod X Y) (dirprod X Z).
+Proof. intros. destruct X0.  destruct x.   apply (ii1 _ _ (dirprodpair _ _ t y)). apply (ii2 _ _ (dirprodpair _ _ t z)). Defined.
+
+
+Definition rdistrtoprod (X Y Z:UU): coprod (dirprod X Y) (dirprod X Z) ->  dirprod X (coprod Y Z).
+Proof. intros. destruct X0.  destruct d. apply (dirprodpair _ _ t (ii1 _ _ x)). destruct d. apply (dirprodpair _ _ t (ii2 _ _ x)). Defined. 
+
+
+Theorem isweqrdistrtoprod (X Y Z:UU): isweq _ _ (rdistrtoprod X Y Z).
+Proof. intros. set (f:= rdistrtoprod X Y Z). set (g:= rdistrtocoprod X Y Z). 
+assert (egf: forall a:_, paths _ (g (f a)) a).  intro. destruct a. destruct d. apply idpath. destruct d. apply idpath. 
+assert (efg: forall a:_, paths _ (f (g a)) a). intro. destruct a. destruct x.  apply idpath. apply idpath.
+apply (gradth _ _ f g egf efg). Defined.
+
+
+Corollary isweqrdistrtocoprod (X Y Z:UU): isweq _ _ (rdistrtocoprod X Y Z).
+Proof. intros. apply (isweqinvmap _ _ _ (isweqrdistrtoprod X Y Z)). Defined.
+
+
+ 
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1597,6 +1669,28 @@ Definition isdecprop (X:UU):= dirprod (isaprop X) (coprod X (X -> empty)).
 
 
 
+(* Basics about function of h-level 1 (inclusions). *)
+
+
+Definition isincl (X Y:UU)(f:X -> Y):= isofhlevelf (S O) _ _ f.
+
+Lemma iscontrhfiberofincl (X:UU)(Y:UU)(f:X -> Y): isincl _ _ f -> (forall x:X, iscontr (hfiber _ _ f (f x))).
+Proof. intros. unfold isofhlevelf in X0. set (isy:= X0 (f x)).  apply (iscontraprop1 _ isy (hfiberpair _ _ f (f x) x (idpath _ (f x)))). Defined.
+
+
+Lemma isweqonpathsincl (X:UU)(Y:UU)(f:X -> Y)(is: isincl _ _ f)(x x':X): isweq _ _ (maponpaths _ _ f x x').
+Proof. intros. apply (isofhlevelfonpaths O _ _ f x x' is). Defined.
+
+
+Definition invmaponpathsincl (X Y:UU)(f:X -> Y) (is: isincl _ _ f)(x x':X): paths _ (f x) (f x') -> paths _ x x':= invmap _ _ (maponpaths _ _ f x x') (isweqonpathsincl _ _ f is x x').
+
+
+Lemma isinclweqonpaths (X Y:UU)(f:X -> Y): (forall x x':X, isweq _ _ (maponpaths _ _ f x x')) -> isincl _ _ f.
+Proof. intros.  apply (isofhlevelfsn O _ _ f X0). Defined.
+
+
+
+
 
 
 
@@ -1690,38 +1784,11 @@ Proof.  apply (isasetifdeceq _ isdeceqnat). Defined.
 
 
 
-(* Basics about function of h-level 1 (inclusions). *)
-
-Definition isincl (X Y:UU)(f:X -> Y):= isofhlevelf (S O) _ _ f.
-
-Lemma iscontrhfiberforincl (X:UU)(Y:UU)(f:X -> Y): isincl _ _ f -> (forall x:X, iscontr (hfiber _ _ f (f x))).
-Proof. intros. unfold isofhlevelf in X0. set (isy:= X0 (f x)).  apply (iscontraprop1 _ isy (hfiberpair _ _ f (f x) x (idpath _ (f x)))). Defined.
-
-
-Lemma isweqonpathsincl (X:UU)(Y:UU)(f:X -> Y)(is: isincl _ _ f)(x x':X): isweq _ _ (maponpaths _ _ f x x').
-Proof. intros. apply (isofhlevelfonpaths O _ _ f x x' is). Defined.
-
-
-Definition invmaponpathsincl (X Y:UU)(f:X -> Y) (is: isincl _ _ f)(x x':X): paths _ (f x) (f x') -> paths _ x x':= invmap _ _ (maponpaths _ _ f x x') (isweqonpathsincl _ _ f is x x').
-
-
-Lemma isinclweqonpaths (X Y:UU)(f:X -> Y): (forall x x':X, isweq _ _ (maponpaths _ _ f x x')) -> isincl _ _ f.
-Proof. intros.  apply (isofhlevelfsn O _ _ f X0). Defined.
-
-
-
-
-
-
 (* Pairwise coproducts. II. *)
 
 
 
-Lemma negeqii1ii2 (X Y:UU)(x:X)(y:Y): neg (paths _ (ii1 _ _ x) (ii2 _ _ y)).
-Proof. intros. unfold neg. intro. apply (nopathstruetofalse (maponpaths _ _ (coprodtobool _ _)  _ _ X0)).  Defined.
-
-
-Theorem isaninclii1 (X Y:UU): isofhlevelf (S O) _ _ (ii1 X Y).
+Theorem isaninclii1 (X Y:UU): isincl _ _ (ii1 X Y).
 Proof. intros. set (f:= ii1 X Y). set (g:= coprodtoboolsum X Y). set (gf:= fun x:X => (g (f x))). set (gf':= fun x:X => tpair _ (boolsumfun X Y) true x). 
 assert (h: forall x:X , paths _ (gf' x) (gf x)). intro. apply idpath. 
 assert (is1: isofhlevelf (S O) _ _ gf'). apply (isofhlevelfsnfib O bool (boolsumfun X Y) true (isasetbool true true)).
@@ -1729,12 +1796,14 @@ assert (is2: isofhlevelf (S O) _ _ gf). apply (isofhlevelfhomot (S O) _ _ gf' gf
 apply (isofhlevelff (S O) _ _ _ _ _ is2 (isofhlevelfweq (S (S O)) _ _ _ (isweqcoprodtoboolsum X Y))). Defined. 
 
 
-Theorem isaninclii2 (X Y:UU): isofhlevelf (S O) _ _ (ii2 X Y).
+Theorem isaninclii2 (X Y:UU): isincl _ _ (ii2 X Y).
 Proof. intros. set (f:= ii2 X Y). set (g:= coprodtoboolsum X Y). set (gf:= fun y:Y => (g (f y))). set (gf':= fun y:Y => tpair _ (boolsumfun X Y) false y). 
 assert (h: forall y:Y , paths _ (gf' y) (gf y)). intro. apply idpath. 
 assert (is1: isofhlevelf (S O) _ _ gf'). apply (isofhlevelfsnfib O bool (boolsumfun X Y) false (isasetbool false false)).
 assert (is2: isofhlevelf (S O) _ _ gf). apply (isofhlevelfhomot (S O) _ _ gf' gf h is1).  
 apply (isofhlevelff (S O) _ _ _ _ _ is2 (isofhlevelfweq (S (S O)) _ _ _ (isweqcoprodtoboolsum X Y))). Defined. 
+
+
 
 
 
@@ -1746,6 +1815,542 @@ Fixpoint stn (n:nat):UU:= match n with
 O => empty|
 S m => coprod (stn m) unit
 end.
+
+
+
+
+
+Definition isofnel (n:nat)(X:UU):UU := dneg (weq (stn n) X). 
+
+Definition isofnelstn (n:nat): isofnel n (stn n) := todneg _ (idweq (stn n)).
+
+Lemma emptyif0el (X:UU): isofnel O X -> (X -> empty).
+Proof. intro.  intro.
+assert (f: weq (stn O) X -> (X -> empty) ). intros.  apply (invmap _ _ _ (pr22 _ _ X1) X2). set (a:= dnegf _ _ f X0).  apply dnegnegtoneg. assumption. Defined.
+
+
+Lemma isof1elunit: isofnel (S O) unit.
+Proof. apply (todneg _ (weqfromcoprodwithempty unit)). Defined.
+
+
+Lemma isofsnel (n:nat)(X:UU): isofnel n X -> isofnel (S n) (coprod X unit).
+Proof. intros. 
+assert (f: weq (stn n) X -> weq (stn (S n)) (coprod X unit)).  intro.  split with (coprodf _ _ _ _ (pr21 _ _ X1) (fun t:_=> t)).  apply (isweqcoprodf _ _ _ _ _ _ (pr22 _ _ X1) (idisweq unit)). apply (dnegf _ _ f X0). Defined.
+
+
+    
+Lemma isofnelweqf (n:nat)(X Y:UU)(f:X -> Y)(is: isweq _ _ f): isofnel n X -> isofnel n Y.
+Proof. intros.  set (ff:= fun u:weq (stn n) X => weqcomp _ _ _ u (weqpair _ _ f is)). apply (dnegf _ _ ff X0). Defined.
+
+Lemma isof0elifempty (X:UU)(f:X -> empty) : isofnel O X.
+Proof. intros. assert (is1: isweq _ _ f). intro. apply initmap. assumption.   set (w1:= weqpair _ _ _ (isweqinvmap _ _ _ is1)). apply (todneg _ w1). Defined. 
+
+Lemma isof2elbool : isofnel (S (S O)) bool.
+Proof. apply (isofnelweqf _ _ _ _ (pr22 _ _ boolascoprod) (isofsnel (S O) unit isof1elunit)). Defined. 
+
+Lemma stnsnegl1 (n:nat): neg (weq (stn (S n)) (stn O)).
+Proof. unfold neg. intro. assert (lp: stn (S n)). apply (ii2 _ _ tt). intro.  apply (pr21 _ _ X lp). Defined.
+
+Lemma stnsnegl2 (n:nat): neg (weq (stn O) (stn (S n))).
+Proof. unfold neg. intro. assert (lp: stn (S n)). apply (ii2 _ _ tt). intro.  apply (pr21 _ _ (weqinv _ _ X) lp). Defined.
+
+
+Definition isfinite (X:UU):UU:= total2 nat (fun n:nat => isofnel n X).
+Definition isfinitepair(X:UU):= tpair nat (fun n:nat => isofnel n X).
+
+
+Definition isfinitestn (n:nat) := isfinitepair _ n (isofnelstn n). 
+
+Definition isfiniteempty := isfinitepair _ O (isof0elifempty empty (fun a:_ => a)).
+
+Definition isfiniteunit := isfinitepair _ (S O) (isof1elunit).
+
+Definition isfinitebool  := isfinitepair _ (S (S O)) (isof2elbool).
+
+
+
+Theorem isfiniteweqf (X Y:UU)(f:X -> Y)(is:isweq _ _ f) : isfinite X -> isfinite Y.
+Proof. intros.  unfold isfinite.   set (isx:= pr22 _ _ X0). simpl in isx. set (n:= pr21 _ _ X0). split with n. apply (isofnelweqf n _ _ f is isx). Defined.  
+
+
+
+Lemma isfinitecoprodwithapoint (X:UU): isfinite X -> isfinite (coprod X unit).
+Proof. intros.  destruct X0. split with (S t). apply (isofsnel t X x).  Defined.
+
+
+
+Theorem isfinitecoprod (X Y:UU) (isx: isfinite X)(isy: isfinite Y): isfinite (coprod X Y).
+Proof. intros. generalize X isx. clear X isx. destruct isy. generalize x. generalize Y.  clear x. clear Y. rename t into n. induction n. intros. 
+assert (isweq _ _ (ii1 X Y)). apply (isweqcoprodwithempty _ _ (emptyif0el _ x)). apply (isfiniteweqf _ _ _ X0 isx). intro. intro.  intro.
+intro. set (is5:= IHn (stn n) (isofnelstn n) (coprod X unit) (isfinitecoprodwithapoint _ isx)).          
+set (f1:= coprodasstor X unit (stn n)). set (f2:= coprodcomm unit (stn n)). set (f3:= coprodf _ _ _ _ (fun x:X => x) f2).
+set (is1:= isweqcoprodasstor X unit (stn n)). set (is2:= isweqcoprodcomm unit (stn n)). set (is3:=isweqcoprodf _ _ _ _ _ _ (idisweq X) is2). 
+set (f4:= fun xtty:_ => f3 (f1 xtty)). set (is4:=twooutof3c _ _ _ _ _ is1 is3).  
+assert (is6: isfinite  (coprod X (coprod (stn n) unit))). apply (isfiniteweqf _ _ _ is4 is5). 
+destruct is6.  
+
+assert (ff: dirprod (weq (stn (S n)) Y) (weq (stn t) (coprod X (stn (S n)))) -> weq (stn t) (coprod X Y)). intros.  destruct X0.  
+assert (weq1: weq (coprod X (stn (S n))) (coprod X Y)).   split with (coprodf _ _ _ _ (fun x:X => x) (pr21 _ _ t0)). apply (isweqcoprodf _ _ _ _ _ _ (idisweq X) (pr22 _ _ t0)). apply (weqcomp _ _ _  x1 weq1).  
+set (ist:= dneganddnegimpldneg _ _ x x0). set (istt:= dnegf _ _ ff ist).  
+split with t. apply istt. Defined.
+
+
+
+Theorem isfinitedirprod (X Y:UU)(isx: isfinite X)(isy: isfinite Y): isfinite (dirprod X Y). 
+Proof. intros. destruct isy. generalize x. generalize Y. clear x. clear Y.  induction t. intros. set (f:= fun xy: dirprod X Y => emptyif0el _ x (pr22 _ _ xy)).   apply (isfinitepair _ O (isof0elifempty _ f)). intro.  intro.  
+assert (f1: weq (stn (S t)) Y -> weq (coprod (dirprod X (stn t)) X) (dirprod X Y)).  intro.  
+assert (weq1: weq (coprod (dirprod X (stn t)) X) (coprod (dirprod X (stn t)) (dirprod X unit))). apply (weqcoprod _ _ _ _ (idweq  (dirprod X (stn t))) (weqtodirprodwithunit X)). 
+assert (weq2: weq (coprod (dirprod X (stn t)) (dirprod X unit)) (dirprod X (stn (S t)))). apply (weqpair _ _ (rdistrtoprod X (stn t) unit) (isweqrdistrtoprod X (stn t) unit)).
+assert (weq3: weq (dirprod X (stn (S t))) (dirprod X Y)). apply (weqdirprod _ _ _ _ (idweq X) X0).
+apply (weqcomp _ _ _ weq1 (weqcomp _ _ _ weq2 weq3)). 
+assert (is1: isfinite (dirprod X (stn t))). apply (IHt (stn t) (isofnelstn t)). 
+assert (is2: isfinite (coprod (dirprod X (stn t)) X)). apply (isfinitecoprod _ _ is1 isx). 
+set (is3:= dnegf _ _ f1 x).   
+
+destruct is2.  split with t0. 
+assert (ff: dirprod (weq (coprod (dirprod X (stn t)) X) (dirprod X Y)) (weq (stn t0) (coprod (dirprod X (stn t)) X)) -> weq (stn t0) (dirprod X Y)). intro. destruct X0. apply (weqcomp _ _ _ x1 t1).  apply (dnegf _ _ ff (dneganddnegimpldneg _ _ is3 x0)). Defined.
+
+
+
+
+
+
+
+
+
+(* Several simple lemmas which are used to compensate for the absence of eta-reduction in the current version of Coq. *)
+
+
+Axiom etacorrection: forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t), paths _ f (fun t:T => f t). 
+
+Lemma isweqetacorrection (T:UU)(P:T -> UU): isweq _ _ (fun f: forall t:T, P t => (fun t:T => f t)).
+Proof. intros.  apply (isweqhomot _ _ (fun f: forall t:T, P t => f) (fun f: forall t:T, P t => (fun t:T => f t)) (fun f: forall t:T, P t => etacorrection _ P f) (idisweq _)). Defined. 
+
+Lemma etacorrectiononpaths (T:UU)(P:T->UU)(s1:forall t:T, P t)(s2:forall t:T, P t): paths _ (fun t:T => s1 t) (fun t:T => s2 t)-> paths _ s1 s2. 
+Proof. intros. set (ec:= fun s:forall t:T, P t => (fun t:T => s t)). set (is:=isweqetacorrection T P). apply (pathsweq2 _ _ ec is s1 s2 X). Defined. 
+
+Definition etacor (X:UU)(Y:UU)(f:X -> Y):paths _ f (fun x:X => f x) := etacorrection X (fun T:X => Y) f.
+
+Lemma etacoronpaths (X:UU)(Y:UU)(f1:X->Y)(f2:X->Y):paths _ (fun x:X => f1 x) (fun x:X => f2 x) -> paths _ f1 f2. 
+Proof. intros. set (ec:= fun f:X->Y => (fun x:X => f x)). set (is:=isweqetacorrection X (fun x:X => Y)). apply (pathsweq2 _ _ ec is f1 f2 X0). Defined.
+
+
+(* Sections of "double fibration" P: T -> UU, PP: forall t:T, P t -> UU and pairs of sections. *)
+
+Definition totaltoforall (X:UU)(P:X->UU)(PP:forall x:X, P x -> UU): total2 (forall x: X, P x) (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)) -> forall x:X, total2 (P x) (PP x).
+Proof. intros. induction X0. split with (t x). apply (x0 x). Defined.
+
+
+Definition foralltototal  (X:UU)(P:X->UU)(PP:forall x:X, P x -> UU):  (forall x:X, total2 (P x) (PP x)) -> total2 (forall x: X, P x) (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)).
+Proof. intros. split with (fun x:X => pr21 _ _ (X0 x)). apply (fun x:X => pr22 _ _ (X0 x)). Defined.
+
+Lemma lemmaeta1 (X:UU)(P:X->UU)(Q:(forall x:X, P x) -> UU)(s0: forall x:X, P x)(q: Q (fun x:X => (s0 x))): paths (total2 _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x)))) (tpair _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) s0 q) (tpair _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) (fun x:X => (s0 x)) q). 
+Proof. intros. set (ff:= fun tp:total2 _ (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) => tpair _ _ (fun x:X => pr21 _ _ tp x) (pr22 _ _ tp)). assert (isweq _ _ ff).  apply (isweqfpmap _ _ (fun s: forall x:X, P x => (fun x:X => (s x))) Q (isweqetacorrection X P)). assert (ee: paths _ (ff (tpair (forall x : X, P x)
+        (fun s : forall x : X, P x => Q (fun x : X => s x)) s0 q)) (ff (tpair (forall x : X, P x)
+        (fun s : forall x : X, P x => Q (fun x : X => s x))
+        (fun x : X => s0 x) q))). apply idpath. 
+
+apply (pathsweq2 _ _ ff X0 _ _ ee). Defined. 
+
+
+
+Definition totaltoforalltototal(X:UU)(P:X->UU)(PP:forall x:X, P x -> UU)(ss:total2 (forall x: X, P x) (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)) ): paths _ (foralltototal _ _ _ (totaltoforall _ _ _ ss)) ss.
+Proof. intros.  induction ss. unfold foralltototal. unfold totaltoforall.  simpl. 
+set (et:= fun x:X => t x). 
+
+assert (paths _ (tpair (forall x0 : X, P x0) (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) t x) 
+(tpair (forall x0 : X, P x0) (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et x)). apply (lemmaeta1 X P (fun s: forall x:X, P x =>  forall x:X, PP x (s x)) t x).  
+
+assert (ee: paths 
+     (total2 (forall x0 : X, P x0)
+        (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)))
+     (tpair (forall x0 : X, P x0)
+        (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et
+        x)
+     (tpair (forall x0 : X, P x0)
+        (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et (fun x0 : X => x x0))). assert (eee: paths _ x (fun x0:X => x x0)). apply etacorrection. induction eee. apply idpath. induction ee. apply pathsinv0. assumption. Defined. 
+
+
+(* The construction of the second homotopy 
+
+Definition foralltototaltoforall(X:UU)(P:X->UU)(PP:forall x:X, P x -> UU)(ss: forall x:X, total2 (P x) (PP x)): paths _ (totaltoforall _ _ _ (foralltototal _ _ _ ss)) ss.
+
+whichn implies that foralltototal and totaltoforall are weak equivalences, is done in u012 since  it requires functional extensionality for sections (dependent functions). *)
+
+
+
+(* The maps between section spaces (dependent products) defined by a family of maps P x -> Q x and by the map Y -> X. *)
+
+Definition maponsec (X:UU)(P:X -> UU)(Q:X-> UU)(f: forall x:X, P x -> Q x): (forall x:X, P x) -> (forall x:X, Q x) := 
+fun s: forall x:X, P x => (fun x:X => (f x) (s x)).
+
+Definition maponsec1 (X:UU)(Y:UU)(P:Y -> UU)(f:X-> Y): (forall y:Y, P y) -> (forall x:X, P (f x)) := fun sy: forall y:Y, P y => (fun x:X => sy (f x)).
+
+
+(* A retract lemma *)
+
+
+Lemma adjevretract (X Y:UU): forall f: X-> Y, paths _ (adjev2 _ _ (adjev (X -> Y) Y f)) f.
+Proof. intros. unfold adjev2. unfold adjev. apply (pathsinv0 _ _ _ (etacorrection _ _ f)). Defined. 
+
+
+
+
+
+(* Here we introduce the second, after the etacorrection, "extensionality" axiom. *)
+
+
+Axiom ax1: forall X:UU, forall f g : X -> empty, paths _ f g.
+
+
+
+
+
+
+
+
+
+
+
+
+(* More results on types of h-level 1 (propositions). *)
+
+
+
+Theorem isapropneg (X:UU): isaprop (X -> empty).
+Proof. intro. apply (invproofirrelevance _ (ax1 _)). Defined.
+
+Corollary isapropdneg (X:UU): isaprop (dneg X).
+Proof. intro. apply (isapropneg (neg X)). Defined.
+
+Lemma isapropaninvprop (X:UU): isaninvprop X -> isaprop X.
+Proof. intros. 
+apply (isofhlevelweqb (S O) _ _ (todneg X) X0 (isapropdneg X)). Defined. 
+
+
+Theorem isaninvpropneg (X:UU): isaninvprop (neg X).
+Proof. intros. 
+set (f:= todneg (neg X)). set (g:= negf _ _ (todneg X)). set (is1:= isapropneg X). set (is2:= isapropneg (dneg X)). apply (isweqimplimpl _ _ f g is1 is2).  Defined.
+
+
+Theorem isapropxornotx (X:UU): (isaprop X) -> (isaprop (coprod X (X-> empty))).
+Proof. intros. 
+assert (forall (x x': X), paths _ x x'). apply (proofirrelevance _ X0).  
+assert (forall (x x': coprod X (X -> empty)), paths _ x x'). intros.  
+induction x.  induction x'.   apply (maponpaths _ _ (fun x:X => ii1 _ _ x) _ _ (X1 x x0)).    
+apply (initmap _ (y x)). induction x'.   apply (initmap _ (y x)). 
+assert (e: paths _ y y0). apply (proofirrelevance _ (isapropneg X) y y0). apply (maponpaths _ _ (fun f: X -> empty => ii2 _ _ f) _ _ e).
+apply (invproofirrelevance _ X2).  Defined. 
+
+
+Theorem isaninv1 (X:UU): isdecprop X  -> isaninvprop X.
+Proof. unfold isaninvprop. intros. rename X0 into is.  set (is1:= pr21 _ _ is). set (is2:= pr22 _ _ is). simpl in is2. 
+assert (adjevinv: dneg X -> X). intros.  induction is2.  assumption. induction (X0 y). 
+assert (is3: isaprop (dneg X)). apply (isapropneg (X -> empty)). apply (isweqimplimpl _ _ (todneg X) adjevinv is1 is3). Defined. 
+
+
+
+
+
+
+
+(* Coprojections i.e. functions which are weakly equivalent to functions of the form ii1: X -> coprod X Y 
+
+
+Definition locsplit (X:UU)(Y:UU)(f:X -> Y):= forall y:Y, coprod (hfiber _ _ f y) (hfiber _ _ f y -> empty).
+
+Definition dnegimage (X:UU)(Y:UU)(f:X -> Y):= total2 Y (fun y:Y => dneg(hfiber _ _ f y)).
+Definition dnegimageincl (X Y:UU)(f:X -> Y):= pr21 Y (fun y:Y => dneg(hfiber _ _ f y)).
+
+Definition xtodnegimage (X:UU)(Y:UU)(f:X -> Y): X -> dnegimage _ _ f:= fun x:X => tpair _ _ (f x) ((todneg _) (hfiberpair _ _ f (f x) x (idpath _ (f x)))). 
+
+Definition locsplitsec (X:UU)(Y:UU)(f:X->Y)(ls: locsplit _ _ f): dnegimage _ _ f -> X := fun u: _ =>
+match u with
+tpair y psi =>
+match (ls y) with 
+ii1 z => pr21 _ _ z|
+ii2 phi => initmap _ (psi phi)
+end
+end.
+
+
+Definition locsplitsecissec  (X Y:UU)(f:X->Y)(ls: locsplit _ _ f)(u:dnegimage _ _ f): paths _ (xtodnegimage _ _ f (locsplitsec _ _ f ls u)) u.
+Proof. intros.  set (p:= xtodnegimage _ _ f). set (s:= locsplitsec _ _ f ls).  
+assert (paths _ (pr21 _ _ (p (s u))) (pr21 _ _ u)). unfold p. unfold xtodnegimage. unfold s. unfold locsplitsec. simpl. induction u. set (lst:= ls t). induction lst.  simpl. apply (pr22 _ _ x0). induction (x y).  
+assert (is: isofhlevelf (S O) _ _ (dnegimageincl _ _ f)). apply (isofhlevelfpr21 (S O) _ _ (fun y:Y => isapropdneg (hfiber _ _ f y))).  
+assert (isw: isweq _ _ (maponpaths _ _ (dnegimageincl _ _ f) (p (s u)) u)). apply (isofhlevelfonpaths O _ _ _ _ _ is). 
+apply (invmap _ _ _ isw X0). Defined.
+
+
+
+Definition negimage (X:UU)(Y:UU)(f:X -> Y):= total2 Y (fun y:Y => neg(hfiber _ _ f y)).
+Definition negimageincl (X Y:UU)(f:X -> Y):= pr21 Y (fun y:Y => neg(hfiber _ _ f y)).
+
+
+Definition imsum (X:UU)(Y:UU)(f:X -> Y): coprod (dnegimage _ _ f) (negimage _ _ f) -> Y:= fun u:_ =>
+match u with
+ii1 z => pr21 _ _ z|
+ii2 z => pr21 _ _ z
+end.
+
+*)
+ 
+
+
+(* Some results on complements to a point *)
+
+
+Definition complement (X:UU)(x:X):= total2 X (fun x':X => neg (paths _ x' x)).
+Definition complementpair (X:UU)(x:X):= tpair X (fun x':X => neg (paths _ x' x)).
+
+
+Definition recompl (X:UU)(x:X): coprod (complement X x) unit -> X := fun u:_ =>
+match u with
+ii1 x0 => pr21 _ _ x0|
+ii2 tt => x
+end.
+
+Definition maponcomplementsincl (X:UU)(Y:UU)(f:X -> Y)(is: isofhlevelf (S O) _ _ f)(x:X): complement X x -> complement Y (f x):= fun x0':_ =>
+match x0' with
+tpair x' neqx => tpair _ _ (f x') (negf _ _ (invmaponpathsincl _ _ _ is x' x) neqx)
+end.
+
+Definition maponcomplementsweq (X Y:UU)(f:X -> Y)(is: isweq _ _ f)(x:X):= maponcomplementsincl _ _ f (isofhlevelfweq (S O) _ _ f is) x.
+
+
+Theorem isweqmaponcomplements (X Y:UU)(f:X -> Y)(is: isweq _ _ f)(x:X): isweq _ _ (maponcomplementsweq _ _ f is x).
+Proof. intros.  set (is1:= isofhlevelfweq (S O) _ _ f is).   set (map1:= totalfun X (fun x':X => neg (paths _ x' x)) (fun x':X => neg (paths _ (f x') (f x))) (fun x':X => negf _ _ (invmaponpathsincl _ _ _ is1 x' x))). set (map2:= fpmap _ _ f (fun y:Y => neg (paths _ y (f x)))). 
+assert (is2: forall x':X, isweq  _ _ (negf _ _ (invmaponpathsincl _ _ _ is1 x' x))). intro. 
+set (invimpl:= (negf _ _ (maponpaths _ _ f x' x))). apply (isweqimplimpl _ _ (negf _ _ (invmaponpathsincl _ _ _ is1 x' x)) (negf _ _ (maponpaths _ _ f x' x)) (isapropneg _) (isapropneg _)). 
+assert (is3: isweq _ _ map1). apply isweqfibtototal. assumption. 
+assert (is4: isweq _ _ map2). apply (isweqfpmap _ _ f  (fun y:Y => neg (paths _ y (f x))) is).
+assert (h: forall x0':_, paths _ (map2 (map1 x0')) (maponcomplementsweq _ _ f is x x0')). intro.  simpl. destruct x0'. simpl. apply idpath.
+apply (isweqhomot _ _ _ _ h (twooutof3c _ _ _ _ _ is3 is4)).
+Defined.
+
+
+
+
+
+
+(* Some results on types with an isolated point. *)
+
+
+Definition isisolated (X:UU)(x:X):= forall x':X, coprod (paths _ x' x) (paths _ x' x -> empty).
+
+
+
+
+Definition tocomplincoprod (X Y:UU)(x:X): coprod (complement X x) Y -> complement (coprod X Y) (ii1 _ _ x).
+Proof. intros. destruct X0.  split with (ii1 _ _ (pr21 _ _ c)). 
+
+assert (e: neg(paths _ (pr21 _ _ c) x)). apply (pr22 _ _ c). apply (negf _ _ (invmaponpathsincl _ _ (ii1 _ _) (isaninclii1 X Y) _ _) e). 
+split with (ii2 _ _ y). apply (negf _ _ (pathsinv0 _ _ _) (negeqii1ii2 X Y x y)). Defined.
+
+
+
+Definition fromcomplincoprod (X Y:UU)(x:X): complement (coprod X Y) (ii1 _ _ x) ->  coprod (complement X x) Y.
+Proof. intros. destruct X0.  destruct t. 
+assert (ne: neg (paths _ x1 x)). apply (negf _ _ (maponpaths _ _ (ii1 _ _) _ _) x0). apply (ii1 _ _ (complementpair _ _ x1 ne)). apply (ii2 _ _ y). Defined. 
+
+
+Theorem isweqtocomplincoprod (X Y:UU)(x:X): isweq _ _ (tocomplincoprod X Y x).
+Proof. intros. set (f:= tocomplincoprod X Y x). set (g:= fromcomplincoprod X Y x).
+assert (egf:forall nexy:_ , paths _ (g (f nexy)) nexy). intro. destruct nexy. destruct c. simpl. 
+assert (e: paths _ (negf (paths X t x) (paths (coprod X Y) (ii1 X Y t) (ii1 X Y x))
+              (maponpaths X (coprod X Y) (ii1 X Y) t x)
+              (negf (paths (coprod X Y) (ii1 X Y t) (ii1 X Y x))
+                 (paths X t x)
+                 (invmaponpathsincl X (coprod X Y) 
+                    (ii1 X Y) (isaninclii1 X Y) t x) x0)) x0). apply (isapropneg (paths X t x) _ _). 
+apply (maponpaths _ _ (fun ee: neg(paths X t x) => ii1 _ _ (complementpair X x t ee)) _ _ e). 
+apply idpath.
+assert (efg: forall neii1x:_, paths _ (f (g neii1x)) neii1x). intro.  destruct neii1x. destruct t.  simpl. 
+assert (e: paths _  (negf (paths (coprod X Y) (ii1 X Y x1) (ii1 X Y x)) 
+           (paths X x1 x)
+           (invmaponpathsincl X (coprod X Y) (ii1 X Y) (isaninclii1 X Y) x1 x)
+           (negf (paths X x1 x) (paths (coprod X Y) (ii1 X Y x1) (ii1 X Y x))
+              (maponpaths X (coprod X Y) (ii1 X Y) x1 x) x0)) x0). apply (isapropneg (paths _ _ _)  _ _).
+apply (maponpaths _ _ (fun ee: (neg (paths (coprod X Y) (ii1 X Y x1) (ii1 X Y x))) => (complementpair _ _ (ii1 X Y x1) ee)) _ _ e). 
+simpl. 
+assert (e: paths _ (negf (paths (coprod X Y) (ii2 X Y y) (ii1 X Y x))
+           (paths (coprod X Y) (ii1 X Y x) (ii2 X Y y))
+           (pathsinv0 (coprod X Y) (ii2 X Y y) (ii1 X Y x))
+           (negeqii1ii2 X Y x y)) x0). apply (isapropneg (paths _ _ _) _ _).
+apply (maponpaths  _ _ (fun ee: (neg (paths (coprod X Y) (ii2 X Y y) (ii1 X Y x))) => (complementpair _ _ (ii2 X Y y) ee)) _ _ e). 
+apply (gradth _ _ f g egf efg). Defined.
+
+
+
+
+
+Lemma disjointl1 (X:UU): isisolated (coprod X unit) (ii2 _ _ tt).
+Proof. intros.  unfold isisolated. intros.  destruct x'. apply (ii2 _ _ (negeqii1ii2 _ _ x tt)).  destruct u.  apply (ii1 _ _ (idpath _ _ )). Defined.
+
+
+Definition tocompltodisjoint (X:UU): X -> complement (coprod X unit) (ii2 _ _ tt) := fun x:_ => complementpair _ _ (ii1 _ _ x) (negeqii1ii2 _ _ x tt).
+
+Definition fromcompltodisjoint (X:UU): complement (coprod X unit) (ii2 _ _ tt) -> X.
+Proof. intros. destruct X0.  destruct t. assumption.  destruct u. apply (initmap _ (x (idpath _ (ii2 X _ tt)))). Defined.
+
+
+Lemma isweqtocompltodisjoint (X:UU): isweq _ _ (tocompltodisjoint X).
+Proof. intros. set (ff:= tocompltodisjoint X). set (gg:= fromcompltodisjoint X). 
+assert (egf: forall x:X, paths _ (gg (ff x)) x).  intro.  apply idpath.
+assert (efg: forall xx:_, paths _ (ff (gg xx)) xx). intro. destruct xx.  destruct t.   simpl.  unfold ff. unfold tocompltodisjoint. simpl. assert (ee: paths _  (negeqii1ii2 X unit x0 tt) x).  apply (proofirrelevance _ (isapropneg _) _ _). induction ee. apply idpath. destruct u.  simpl. apply (initmap _ (x (idpath _ _))). apply (gradth _ _ ff gg egf efg).  Defined. 
+
+Corollary isweqfromcompltodisjoint (X:UU): isweq _ _ (fromcompltodisjoint X).
+Proof. intros. apply (isweqinvmap _ _ _ (isweqtocompltodisjoint X)). Defined. 
+
+Definition recomplinv (X:UU)(x:X)(is: isisolated X x): X -> coprod (complement X x) unit:=
+fun x':X => match (is x') with
+ii1 e => ii2 _ _ tt|
+ii2 phi => ii1 _ _ (complementpair _ _ x' phi)
+end.
+
+
+
+Theorem isweqrecompl (X:UU)(x:X)(is:isisolated X x): isweq _ _ (recompl X x).
+Proof. intros. set (f:= recompl X x). set (g:= recomplinv X x is). unfold recomplinv in g. simpl in g. 
+
+assert (efg: forall x':X, paths _ (f (g x')) x'). intro.   induction (is x').   induction x0. unfold f. unfold g. simpl. unfold recompl. simpl.  induction (is x').  simpl. apply idpath. induction (y (idpath _ x')).  unfold f. unfold g. simpl. unfold recompl. simpl.  induction (is x').  induction (y x0). simpl. apply idpath. 
+
+
+assert (egf: forall u: coprod  (complement X x) unit, paths _ (g (f u)) u). unfold isisolated in is. intro. destruct (is (f u)). destruct u.    simpl. destruct c. simpl in p. destruct (x0 p). destruct u.   
+assert (e1: paths _  (g (f (ii2 (complement X x) unit tt))) (g x)). apply (maponpaths _ _ g _ _ p). 
+assert (e2: paths _ (g x) (ii2 (complement X x) unit tt)). unfold g.  destruct (is x).   apply idpath.  destruct (e (idpath _ x)). apply (pathscomp0 _ _ _ _ e1 e2). destruct u.  simpl. destruct c.  simpl. unfold isisolated in is.  unfold g.  destruct (is t). destruct (x0 p). simpl in g. 
+ unfold f. unfold recompl. simpl in e. 
+assert (ee: paths _ e0 x0). apply (proofirrelevance _ (isapropneg (paths _ t x))). induction ee.  apply idpath. 
+unfold f. unfold g. simpl. induction u. induction (is x).  apply idpath. induction (y (idpath _ x)).
+apply (gradth _ _ f g egf efg). Defined.
+
+
+Lemma isolatedtoisolated (X:UU)(Y:UU)(f:X -> Y)(is1:isweq _ _ f)(x:X)(is2: isisolated _ x): isisolated _ (f x).
+Proof.  intros. unfold isisolated. intro. rename x' into y.  set (g:=invmap _ _ f is1). set (x':= g y). induction (is2 x').  apply (ii1 _ _ (pathsinv0 _ _ _ (pathsweq1' _ _ f is1 x y (pathsinv0 _ _ _ x0)))). 
+assert (phi: paths _ y (f x)  -> empty). 
+assert (psi: (paths _ (g y) x -> empty) -> (paths _ y (f x) -> empty)). intro. intro.  apply (X0  (pathsinv0 _ _ _ (pathsweq1 _ _ f is1 x y (pathsinv0 _ _ _ X1)))). apply (psi y0). apply (ii2 _ _ phi). Defined.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(* Finite sets. II. *)
+
+
+ 
+Lemma stnsposl0 (n:nat): weq (stn n) (complement (stn (S n)) (ii2 _ _ tt)).
+Proof. intros. split with (tocompltodisjoint (stn n)). apply isweqtocompltodisjoint. Defined.
+
+Lemma stnsposl1 (n:nat)(x: stn (S n)): weq (stn n) (complement (stn (S n)) x).
+Proof. intro. induction n. intros. simpl in x.  destruct x.  apply (initmap _ e). simpl. destruct u. apply (stnsposl0 O). intro. simpl in x. destruct x. set  (g:=tocomplincoprod _ unit c).  set (f:= coprodf _ _ _ _ (pr21 _ _ (IHn c)) (fun t:unit => t)).  split with (fun x:_ => g (f x)). 
+assert (is1:isweq _ _ f). apply (isweqcoprodf _ _ _ _ _ _ (pr22 _ _ (IHn c)) (idisweq unit)). 
+assert (is2: isweq _ _ g). apply (isweqtocomplincoprod _ unit c). 
+apply (twooutof3c _ _ _ f g is1 is2). 
+destruct u. split with (tocompltodisjoint _). apply (isweqtocompltodisjoint _).  Defined.
+
+
+Theorem  isfinitecomplement (X:UU)(x:X)(is:isfinite X): isfinite (complement X x).
+Proof. intros. destruct is.  generalize X x0 x.  clear x0 x X.  induction t.  intros.  apply (initmap _ (emptyif0el _ x0 x)). intros.  split with t.  assert (f:weq (stn (S t)) X -> weq (stn t) (complement X x)). intro.  set (X0inv:= weqinv _ _ X0). set (w:= weqpair _ _ _ (isweqmaponcomplements _ _  _ (pr22 _ _ X0inv) x)). set (w2:= weqcomp _ _ _ w (weqinv _ _ (stnsposl1 t _))). apply (weqinv _ _ w2). apply (dnegf _ _ f x0). Defined. 
+
+
+Eval compute in pr21 _ _ (isfinitecomplement _ (dirprodpair _ _ true false) (isfinitedirprod _ _ (isfinitebool) (isfinitebool))).
+
+
+
+
+
+
+
+
+
+
+Lemma stnsposl2 (n n':nat): weq (stn (S n)) (stn (S n')) -> weq (stn n) (stn n').
+Proof. intros. destruct X. rename t into ff. rename x into is.    simpl in ff. set (int1:= complement (stn (S n')) (ff (ii2 _ _ tt))).
+set (f1:= tocompltodisjoint (stn n)).  
+set (f2:= maponcomplementsweq _ _ ff is (ii2 _ _ tt)).
+set (f3:= invmap _ _ _ (pr22 _ _ (stnsposl1 n' (ff (ii2 _ _ tt))))).
+assert (is1: isweq _ _ f1). apply isweqtocompltodisjoint. 
+assert (is2: isweq _ _ f2). apply isweqmaponcomplements.
+assert (is3: isweq _ _ f3). apply (isweqinvmap _ _ _ (pr22 _ _ (stnsposl1 n' (ff (ii2 _ _ tt))))).
+set (gg:= fun xx:_ => (f3 (f2 (f1 xx)))). split with gg.
+apply (twooutof3c _ _ _ _ _ (twooutof3c _ _ _ _ _ is1 is2) is3). Defined.
+
+
+
+Theorem stnsweqtoeq (n n':nat): (weq (stn n) (stn n')) -> paths _ n n'.
+Proof. intro. induction n. intro. induction n'.  intros. apply idpath. intro. apply (initmap _ (stnsnegl2  n' X)).  
+ intro. induction n'. intros. set (int:= isdeceqnat (S n) O).  destruct int.  assumption. apply (initmap _ (stnsnegl1 n X)).  intro. 
+set (e:= IHn n' (stnsposl2 n n' X)). apply (maponpaths _ _ S _ _ e). Defined. 
+
+
+Theorem isapropisfinite (X:UU): isaprop (isfinite X).
+Proof. intros. assert (is1: (isfinite X) -> (iscontr (isfinite X))).  intro. unfold iscontr. split with X0.  intro. destruct X0.  destruct t.
+assert (c1: coprod (paths _ t t0) (neg (paths _ t t0))). apply isdeceqnat. destruct c1.  apply (invmaponpathsincl (isfinite X) nat (pr21 _ _) (isofhlevelfpr21 (S O) _ _  (fun n:nat => isapropdneg (weq (stn n) X))) (tpair nat (fun n : nat => isofnel n X) t x0) (tpair nat (fun n : nat => isofnel n X) t0 x) p).  
+assert (is1: dneg (dirprod (weq (stn t0) X) (weq (stn t) X))). apply (dneganddnegimpldneg _ _ x x0). 
+assert (is2: dneg (weq (stn t0) (stn t))). apply (dnegf _ _ (fun fg: dirprod (weq (stn t0) X) (weq (stn t) X) => weqcomp _ _ _ (pr21 _ _ fg) (weqinv _ _ (pr22 _ _ fg))) is1).   apply (initmap _ (dnegf _ _ (fun ee:_ => pathsinv0 _ _ _ (stnsweqtoeq t0 t ee)) is2 n)). apply (iscontraprop1inv _ is1).  Defined.
+
+
+
+
+
+
+
+
+
+
+
+
+
+(*
+
+
+Eval compute in (pr21 _ _ (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))).
+
+
+Print empty_rect. 
+
+Lemma isof1elfrom0el (X Y:UU): isofnel O X -> isofnel (S O) (X -> Y).
+Proof. intros. unfold isofnel. intro.   simpl. 
+
+Theorem isfinitefunctions (X Y:UU)(isx: isfinite X)(isy: isfinite Y): isfinite (X -> Y).
+Proof. intros. destruct isx.  generalize Y isy X x. clear isy Y x X.  induction t.  intros. split with (S O). 
+
+
+
+
+*)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
