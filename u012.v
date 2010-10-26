@@ -225,7 +225,17 @@ Proof. intros. unfold isweq.  intro.
 assert (is1: iscontr (forall x:X, hfiber _ _ (f x) (y x))). assert (is2: forall x:X, iscontr (hfiber _ _ (f x) (y x))). unfold isweq in isx. intro. apply (isx x (y x)). apply funcontr. assumption. 
 apply (iscontrxifiscontry _ _ (hfibertoforall _ P Q f y) (isweqhfibertoforall _ P Q f y) is1). Defined. 
 
+
+
+
+
 (* The map between section spaces (dependent products) defined by a weak equivalence f: Y -> X of the bases is a weak equivalence. *)
+
+
+
+
+
+
 
 Definition maponsec1l0 (X:UU0)(P:X -> UU0)(f:X-> X)(h: forall x:X, paths _ (f x) x)(s: forall x:X, P x): (forall x:X, P x) := (fun x:X => transportf X P _ _ (h x) (s (f x))).
 

@@ -140,25 +140,12 @@ Definition numofeltot (X:fsets): nat:= pr21 _ _ (u1.pr22 _ _ X).
 
 
 
-Lemma iscontrtounit (T:UU) :iscontr (T -> unit).
+Lemma iscontrtounit (T:UU0) :iscontr (T -> unit).
 Proof. intros. set (cntr:= (fun t:T => tt)). split with cntr. intros. assert (e: forall f1: T -> unit, forall t:T,  paths _ (f1 t) tt). intros. induction (f1 t0). apply idpath. apply (funextfun T unit t cntr (e t)). Defined. 
 
 
 Lemma ifcontrthenunit: forall T:UU0, (iscontr T) -> u1.paths _ T unit. 
 Proof. intros.  apply isweqcontrtounit in X. apply weqtopaths in X. assumption. Defined. 
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
