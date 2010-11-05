@@ -1,0 +1,61 @@
+Fu012
+R771 u12 <> <> lib
+R775 u01 <> <> lib
+def 792 <> UU2
+R797 u2 <> UU def
+prf 946 <> iscontrtounit
+R963 u01 <> UU0 def
+R969 u0 <> iscontr def
+R983 Coq.Init.Datatypes <> unit ind
+R1029 Coq.Init.Datatypes <> tt constr
+R1029 Coq.Init.Datatypes <> tt constr
+R1106 u0 <> paths ind
+R1121 Coq.Init.Datatypes <> tt constr
+R1087 Coq.Init.Datatypes <> unit ind
+R1106 u0 <> paths ind
+R1121 Coq.Init.Datatypes <> tt constr
+R1087 Coq.Init.Datatypes <> unit ind
+R1159 u0 <> idpath constr
+R1159 u0 <> idpath constr
+R1174 u01 <> funextfun thm
+R1186 Coq.Init.Datatypes <> unit ind
+R1174 u01 <> funextfun thm
+R1186 Coq.Init.Datatypes <> unit ind
+prf 1224 <> ifcontrthenunit
+R1270 u1 <> paths ind
+R1283 Coq.Init.Datatypes <> unit ind
+R1256 u0 <> iscontr def
+R1250 u01 <> UU0 def
+R1312 u0 <> isweqcontrtounit thm
+R1312 u0 <> isweqcontrtounit thm
+R1341 u01 <> weqtopaths def
+R1341 u01 <> weqtopaths def
+prf 1391 <> funcontr
+R1403 u01 <> UU0 def
+R1417 u01 <> UU0 def
+R1439 u0 <> iscontr def
+R1455 u0 <> iscontr def
+R1508 u1 <> paths ind
+R1533 Coq.Init.Datatypes <> unit ind
+R1508 u1 <> paths ind
+R1533 Coq.Init.Datatypes <> unit ind
+R1548 u12 <> funextfun thm
+R1598 u012 <> ifcontrthenunit thm
+R1580 Coq.Init.Datatypes <> unit ind
+R1548 u12 <> funextfun thm
+R1598 u012 <> ifcontrthenunit thm
+R1580 Coq.Init.Datatypes <> unit ind
+R1638 u1 <> paths ind
+R1680 Coq.Init.Datatypes <> unit ind
+R1638 u1 <> paths ind
+R1680 Coq.Init.Datatypes <> unit ind
+R1695 u1 <> maponpaths def
+R1723 u01 <> UU0 def
+R1695 u1 <> maponpaths def
+R1723 u01 <> UU0 def
+R1768 u0 <> iscontr def
+R1789 Coq.Init.Datatypes <> unit ind
+R1768 u0 <> iscontr def
+R1789 Coq.Init.Datatypes <> unit ind
+R1803 u012 <> iscontrtounit thm
+R1803 u012 <> iscontrtounit thm
