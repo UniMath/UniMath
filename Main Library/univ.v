@@ -324,14 +324,8 @@ Proof. intros. unfold iscontr.  set (t0:= tpair _ (fun t':T => paths T t t') t (
 
 
 
-
-Definition coconusf (T1:UU) (T2:UU) (f:T1 -> T2):= total2 T1 (fun t1:T1 => coconusfromt T2  (f t1)).
-Definition coconusftriple (T1:UU) (T2:UU) (f:T1 -> T2) (t1:T1) (t2:T2) (e: paths _ (f t1) t2): coconusf _ _ f := tpair _ 
-(fun t1:T1 => coconusfromt T2  (f t1)) t1 (coconusfromtpair T2 (f t1) t2 e). 
-
-
-Definition pathsspace (T:UU) := coconusf _ _ (fun t:T => t).
-Definition pathsspacetriple (T:UU) (t1:T)(t2:T)(e: paths _ t1 t2): pathsspace T := coconusftriple _ _ (fun t:T => t) t1 t2 e. 
+Definition pathsspace (T:UU) := total2 T (fun t:T => coconusfromt _ t).
+Definition pathsspacetriple (T:UU) (t1:T)(t2:T)(e: paths _ t1 t2): pathsspace T := tpair _ _  t1 (coconusfromtpair _ _ t2 e). 
 
 Definition deltap (T:UU) : T -> pathsspace T := (fun t:T => pathsspacetriple _ t t (idpath _ t)). 
 
@@ -340,7 +334,6 @@ Definition deltap (T:UU) : T -> pathsspace T := (fun t:T => pathsspacetriple _ t
 
 Definition hfiber (X:UU)(Y:UU)(f:X -> Y)(y:Y) : UU := total2 X (fun pointover:X => paths Y (f pointover) y). 
 Definition hfiberpair  (X:UU)(Y:UU)(f:X -> Y)(y:Y) (x:X) (e: paths Y (f x) y): hfiber _ _ f y := tpair X  (fun pointover:X => paths Y (f pointover) y) x e.
-
 
 
 Lemma hfibertriangle1 (X Y:UU)(f:X -> Y)(y:Y)(xe1 xe2: hfiber _ _ f y)(e: paths _ xe1 xe2): paths _ (pr22 _ _ xe1) (pathscomp0 _ _ _ _ (maponpaths _ _ f _ _ (maponpaths (hfiber _ _ f y) X  (pr21 _ _ ) _ _ e)) (pr22 _ _ xe2)).
@@ -352,14 +345,15 @@ Proof. intros. destruct xe1. destruct xe2.   simpl in eee. simpl in ee. destruct
 
 
 Definition constr3 (X:UU)(Y:UU)(f:X -> Y)(y:Y) (x:X) (e1: paths _ (f x) y)(e2: paths _ (f x) y) (ee: paths _  e1 e2): paths _ (hfiberpair _ _ _ _ x e1) (hfiberpair _ _ _ _ x e2).
-Proof. intros. destruct ee. apply idpath.  Defined. 
+Proof. intros. destruct ee. apply idpath.  Defined.
 
 
+Definition coconusf (X Y:UU) (f: X -> Y):= total2 Y (fun y:_ => hfiber _ _ f y).
 
 
+Definition fromcoconusf (X Y:UU)(f: X -> Y) : coconusf _ _ f -> X := fun yxe:_ => pr21 _ _ (pr22 _ _ yxe).
 
-
-
+Definition tococonusf (X Y:UU)(f: X -> Y) : X -> coconusf _ _ f := fun x:_ => tpair _ _ (f x) (hfiberpair _ _ _ _ x (idpath _ _)).   
 
 
 (** ** Weak equivalences *)
@@ -574,6 +568,10 @@ Defined.
  
 
 
+(** *** Some basic weak equivalences *)
+
+
+
 Corollary isweqinvmap (X:UU)(Y:UU)(f:X->Y)(is:isweq _ _ f): isweq _ _ (invmap _ _ f is).
 Proof. intros. set (invf:= invmap _ _ f is). assert (efinvf: forall y:Y, paths _ (f (invf y)) y). apply weqfg. 
 assert (einvff: forall x:X, paths _ (invf (f x)) x). apply weqgf. apply (gradth _ _  invf f efinvf einvff). Defined. 
@@ -602,6 +600,25 @@ Proof. intros. set (f:= fun e:paths _ x x' => pathscomp0 _ _ _ _ e e'). set (g:=
 assert (egf: forall e:_ , paths _ (g (f e)) e).   intro. destruct e.  simpl. destruct e'.  simpl.  apply idpath.
 assert (efg: forall e'':_, paths _ (f (g e'')) e''). intro. destruct e''. simpl. destruct e'. simpl.   apply idpath. 
 apply (gradth _ _ f g egf efg). Defined. 
+
+
+
+
+Corollary  isweqfromcoconusf (X Y : UU)(f:X-> Y): isweq _ _ (fromcoconusf _ _ f).
+Proof. intros. set (ff:= fromcoconusf _ _ f). set (gg:= tococonusf _ _ f).
+assert (egf: forall yxe:_, paths _ (gg (ff yxe)) yxe). intro. destruct yxe.   destruct x. unfold gg. unfold tococonusf. unfold ff. unfold fromcoconusf.  simpl. destruct x. apply idpath.  
+assert (efg: forall x:_, paths _ (ff (gg x)) x). intro. apply idpath.
+apply (gradth _ _ _ _ egf efg). Defined.
+
+
+
+Corollary isweqdeltap (T:UU) : isweq _ _ (deltap T).
+Proof. intros. set (ff:=deltap T). set (gg:= fun z:pathsspace T => pr21 _ _ z). 
+assert (egf: forall t:T, paths _ (gg (ff t)) t). intro. apply idpath.
+assert (efg: forall tte: pathsspace T, paths _ (ff (gg tte)) tte). intro. destruct tte.  destruct x. destruct x. apply idpath. 
+apply (gradth _ _ _ _ egf efg). Defined. 
+
+
 
 
 
@@ -651,8 +668,6 @@ assert (einvgfgf: forall z:Z, paths _ (gf (invgf z)) z).  unfold gf. unfold invg
 
 
 Definition weqcomp (X Y Z:UU): (weq X Y) -> (weq Y Z) -> (weq X Z) := fun u: weq X Y => fun v: weq Y Z => weqpair _ _ (fun x:X => (pr21 _ _ v (pr21 _ _ u x))) (twooutof3c _ _ _ _ _ (pr22 _ _ u) (pr22 _ _ v)). 
-
-
 
 
 
@@ -878,14 +893,6 @@ apply (gradth _ _  (fibmap2 T P t) (fibmap1 T P t) e2 e1). Defined.
 Corollary trivfib1 (T:UU) (P:T -> UU) (is1: forall t:T, iscontr (P t)) : isweq _ _ (pr21 T P).
 Proof. intros. unfold isweq.  intro. set (isy:= is1 y). apply (iscontrxifiscontry _ _ (fibmap2 T P y) (isweqfibmap2 T P y)). assumption. Defined. 
 
-
-Corollary  coconusft1isweq (T1:UU)(T2:UU)(f:T1->T2): isweq (coconusf T1 T2 f) T1 (fun x:coconusf _ _ _ => pr21 _ _  x).
-Proof. intros. assert (l1: forall t1:T1, iscontr (coconusfromt T2  (f t1))). intros. apply  iscontrcoconusfromt. apply trivfib1.  assumption.  Defined. 
-
-
-Corollary isweqdeltap (T:UU) : isweq _ _ (deltap T).
-Proof. intros. set (g:= (fun z: pathsspace T => pr21 _ _ z)). 
-apply (twooutof3a _ _ _ (deltap T) g (idisweq T) (coconusft1isweq _ _ (fun t:T => t))). Defined.  
 
 
 Corollary familyfibseq (T:UU)(P:T->UU)(t:T): isfibseq (P t) (total2 T P) T (fun p: P t => tpair _ _ t p) (pr21 T P) t (fun p: P t => idpath _ t).
@@ -1240,9 +1247,6 @@ Proof. intros. set (f:=fun x:X => dirprodpair X unit x tt). split with f.  set (
 assert (egf: forall x:X, paths _ (g (f x)) x). intro. apply idpath.
 assert (efg: forall xu:_, paths _ (f (g xu)) xu). intro. destruct xu. destruct x. apply idpath.    
 apply (gradth _ _ f g egf efg). Defined.
-
-
-
 
 
 (** ** Basics on pairwise coproducts (disjoint unions).  *)
