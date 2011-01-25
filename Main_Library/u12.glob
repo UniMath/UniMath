@@ -1,0 +1,149 @@
+Fu12
+R138 u2 <> <> lib
+R157 u1 <> <> lib
+syndef 599 <> UU2
+R604 u2 <> UU def
+syndef 620 <> UU1
+R625 u1 <> UU def
+def 644 <> j12
+R655 u12 <> UU2 syndef
+R648 u12 <> UU1 syndef
+R667 u12 <> UU1 syndef
+def 689 <> j22
+R700 u12 <> UU2 syndef
+R693 u12 <> UU2 syndef
+R712 u12 <> UU2 syndef
+def 734 <> UU01inUU2
+R746 u12 <> j22 def
+R750 u12 <> UU1 syndef
+def 804 <> totype2
+R832 u12 <> UU2 syndef
+R821 u12 <> UU2 syndef
+R854 u12 <> totype2 def
+def 894 <> totype1
+R922 u12 <> UU1 syndef
+R911 u12 <> UU1 syndef
+R944 u12 <> totype1 def
+prf 1037 <> u1pathstou2paths
+R1096 u2 <> paths ind
+R1080 u1 <> paths ind
+R1066 u12 <> UU1 syndef
+R1149 u2 <> idpath constr
+R1149 u2 <> idpath constr
+prf 1178 <> u2pathstou1paths
+R1239 u1 <> paths ind
+R1220 u2 <> paths ind
+R1206 u12 <> UU1 syndef
+R1287 u1 <> idpath constr
+R1287 u1 <> idpath constr
+prf 1314 <> iswequ1pathstou2paths
+R1339 u12 <> UU1 syndef
+R1353 u2 <> isweq def
+R1367 u12 <> u1pathstou2paths thm
+R1416 u12 <> u1pathstou2paths thm
+R1416 u12 <> u1pathstou2paths thm
+R1451 u12 <> u2pathstou1paths thm
+R1451 u12 <> u2pathstou1paths thm
+R1503 u2 <> paths ind
+R1503 u2 <> paths ind
+R1562 u2 <> idpath constr
+R1562 u2 <> idpath constr
+R1599 u2 <> paths ind
+R1599 u2 <> paths ind
+R1657 u2 <> idpath constr
+R1657 u2 <> idpath constr
+R1675 u2 <> gradth thm
+R1675 u2 <> gradth thm
+R1723 u12 <> u1pathstou2paths thm
+prf 1770 <> u1iscontrtou2iscontr
+R1794 u12 <> UU1 syndef
+R1813 u2 <> iscontr def
+R1800 u1 <> iscontr def
+R1854 u1 <> pr21 def
+R1854 u1 <> pr21 def
+R1885 u1 <> contrl2 thm
+R1901 u1 <> pr21 def
+R1940 u1 <> paths ind
+R1885 u1 <> contrl2 thm
+R1901 u1 <> pr21 def
+R1940 u1 <> paths ind
+R1970 u12 <> u1pathstou2paths thm
+R1970 u12 <> u1pathstou2paths thm
+R2017 u12 <> u1iscontrtou2iscontr thm
+prf 2073 <> u2iscontrtou1iscontr
+R2097 u12 <> UU1 syndef
+R2119 u1 <> iscontr def
+R2103 u2 <> iscontr def
+R2157 u2 <> pr21 def
+R2157 u2 <> pr21 def
+R2190 u12 <> u2pathstou1paths thm
+R2190 u12 <> u2pathstou1paths thm
+R2222 u2 <> contrl2 thm
+R2222 u2 <> contrl2 thm
+R2264 u12 <> u2iscontrtou1iscontr thm
+prf 2321 <> u1isofhleveltou2isofhlevel
+R2351 Coq.Init.Datatypes <> nat ind
+R2358 u12 <> UU1 syndef
+R2382 u2 <> isofhlevel def
+R2364 u1 <> isofhlevel def
+R2442 u12 <> u1iscontrtou2iscontr thm
+R2442 u12 <> u1iscontrtou2iscontr thm
+R2522 u2 <> isofhlevelweqf thm
+R2574 u12 <> iswequ1pathstou2paths thm
+R2548 u12 <> u1pathstou2paths thm
+R2522 u2 <> isofhlevelweqf thm
+R2574 u12 <> iswequ1pathstou2paths thm
+R2548 u12 <> u1pathstou2paths thm
+R2648 u12 <> u1isofhleveltou2isofhlevel thm
+prf 2716 <> u2isofhleveltou1isofhlevel
+R2747 Coq.Init.Datatypes <> nat ind
+R2754 u12 <> UU1 syndef
+R2781 u1 <> isofhlevel def
+R2760 u2 <> isofhlevel def
+R2839 u12 <> u2iscontrtou1iscontr thm
+R2839 u12 <> u2iscontrtou1iscontr thm
+R2896 u2 <> isofhlevel def
+R2913 u2 <> paths ind
+R2896 u2 <> isofhlevel def
+R2913 u2 <> paths ind
+R2964 u2 <> isofhlevelweqb thm
+R2991 u12 <> iswequ1pathstou2paths thm
+R2964 u2 <> isofhlevelweqb thm
+R2991 u12 <> iswequ1pathstou2paths thm
+R3048 u12 <> u2isofhleveltou1isofhlevel thm
+def 3172 <> hProp1
+R3182 u2 <> total2 ind
+R3210 u1 <> isaprop def
+R3203 u12 <> UU1 syndef
+R3192 u12 <> UU1 syndef
+def 3234 <> hProp1pair
+R3247 u2 <> tpair constr
+R3275 u1 <> isaprop def
+R3268 u12 <> UU1 syndef
+R3257 u12 <> UU1 syndef
+def 3298 <> hp1touu1
+R3359 u12 <> UU1 syndef
+R3349 u12 <> hProp1 def
+R3310 u2 <> pr21 def
+R3337 u1 <> isaprop def
+R3330 u12 <> UU1 syndef
+R3319 u12 <> UU1 syndef
+R3373 u12 <> hp1touu1 def
+def 3412 <> hSet
+R3419 u2 <> total2 ind
+R3447 u1 <> isaset def
+R3440 u12 <> UU1 syndef
+R3429 u12 <> UU1 syndef
+def 3469 <> hSet0pair
+R3482 u2 <> tpair constr
+R3509 u1 <> isaset def
+R3502 u12 <> UU1 syndef
+R3491 u12 <> UU1 syndef
+def 3531 <> hstouu1
+R3587 u12 <> UU1 syndef
+R3579 u12 <> hSet def
+R3541 u2 <> pr21 def
+R3567 u1 <> isaset def
+R3560 u12 <> UU1 syndef
+R3549 u12 <> UU1 syndef
+R3601 u12 <> hstouu1 def
