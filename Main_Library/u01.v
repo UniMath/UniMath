@@ -1,4 +1,4 @@
-
+(* This file deals with the elementary constructions on hProp and hSet. It is different from u12.v *)
 
 (** ** Imports. *)
 

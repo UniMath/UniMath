@@ -1,3 +1,12 @@
+(* It is at the moment an experimental file. It's first part is about set-quotients of types as well as about the related material. In the second type the definitions related to finite sets from u0.v are re-written with the different version of "inhabited" construction which is introduced in this file. Since manipulations with this construction require the use of the axioms which stimulate the global impredicativity of hProp these definitions do not let Coq to compute things - the test computations which work on u0.v hang for these definitions. Evemtually instead of real axioms one should use a resizing axiom which will not creatre cproblems with the computation. 
+
+
+At the very end of the file are some experiments which are a part of my attempts to define a "weakly commutative simplex" in Coq. 
+
+*)
+
+
+
 
 Require Export u12 u01.
 
