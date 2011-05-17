@@ -1,14 +1,10 @@
-Add Rec LoadPath "../Main_Library/".
-
 
 (** This file contains the formulation of the univalence axiom and the proof that it implies functional extensionality for functions - Theorem funextfun. 
 
-This proof requires one to use some of the general definitions and results of the univalent approach both for the universe for which funextfun is being proved and for the universe which is one level higher.  
+This proof requires one to use some of the general definitions and results of the univalent approach both for the universe for which funextfun is being proved and for the universe which is one level higher.  Moreover, the proof of dependent extensionality (Theorem funcontr) which is given in the file u012.v requires funextfun for the universe one level higher than the one for which funcontr is being proved. 
 
-Since Coq8.3 does not have a support for explicit universe polymorphic definitions we have to explicitly repeat some of the definitions and constructions twice and some three times. This is done by creating three identical files with basic definitions and constructions u0.v u1.v and u2.v and two almost identical files univ01.v and univ12.v with the proofs of funextfun. The only difference between univ01.v and univ12.v is that the later is obtained from the former by the replacement of all occurences of [univ01.] by [univ12.], all occurences of [u1.] by [u2.] and all occurences of [u0.] by [u1.].
+Since Coq8.3 does not have a support for universe polymorphic definitions we have to explicitly repeat some of the definitions and constructions twice and some three times. This is done by creating three identical files with basic definitions and constructions u0.v u1.v and u2.v and two almost identical files u01.v and u12.v with the proofs of funextfun. The only difference between u01.v and u12.v is that the later is obtained from the former by the replacement of all occurences of [u01.] by [u12.], all occurences of [u1.] by [u2.], all occurences of [u0.] by [u1.] and the removal of this comment.  
 
-The new proof of functional extensionality for the dependent functions from the functional extensionality of usual functions given in u?.v makes itunnessesary to use three universe levels to deduce extensionality for dependent functions from the univalence axiom. 
-   
 *)
 
 
@@ -20,7 +16,6 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 Require Export u1.
 Require Export u0.
-
 
 
 (** Note: since the file u0.v is imported last, the current agreement in Coq implies that  [paths] is the same as [u0.paths], [weq] is the same as [u0.weq] etc. while to access identifiers from u1.v one has to write explicitly [u1.paths] etc. *)
@@ -40,8 +35,58 @@ Definition j11:UU1 -> UU1:= fun T:UU1 => T.
 
 Definition UU0inUU1:= j11 UU0.
 
-Identity Coercion totype1: UU0 >-> Sortclass.
-Identity Coercion totype2: UU1 >-> Sortclass.
+
+(** Coercion related settings. **)
+
+Definition totype0:= (fun X:UU0 => X): UU0 -> Type.
+Coercion totype0: UU0 >-> Sortclass.
+
+Definition totype1:= (fun X:UU1 => X): UU1 -> Type.
+Coercion totype1: UU1 >-> Sortclass.
+
+(** Some connections between u0 and u1 definitions. *)
+
+Theorem u1pathstou0paths : forall (X:UU0)(x x':X), u1.paths _ x x' -> paths _ x x'.
+Proof.  intros.  destruct X0. apply idpath. Defined.
+
+Theorem u0pathstou1paths: forall (X:UU0)(x x':X), paths _ x x' -> u1.paths _ x x'.
+Proof. intros. destruct X0. apply u1.idpath. Defined. 
+
+Theorem iswequ1pathstou0paths (X:UU0)(x x':X): u1.isweq _ _ (u1pathstou0paths _ x x').
+Proof. intros. set (f:=u1pathstou0paths _ x x'). set (g:= u0pathstou1paths _ x x').
+assert (egf: forall a:_,  u1.paths _ (g (f a)) a). intros. destruct a. simpl.  apply u1.idpath. 
+assert (efg: forall a:_, u1.paths _ (f (g a)) a). intros. destruct a. simpl. apply u1.idpath.
+apply (u1.gradth _ _ _ _ egf efg). Defined. 
+
+Coercion u1pathstou0paths: u1.paths >-> paths.
+
+Theorem u1iscontrtou0iscontr (X:UU0): u1.iscontr X -> iscontr X.
+Proof. intros. split with (u1.pr21 _ _ X0). 
+intro.  set (s:=u1.contrl2 X X0 t (u1.pr21 X (fun cntr : X => forall t0 : X, u1.paths X t0 cntr) X0)). apply (u1pathstou0paths X t _ s). Defined.
+
+Coercion  u1iscontrtou0iscontr: u1.iscontr >-> iscontr.
+
+
+Theorem u0iscontrtou1iscontr (X:UU0): iscontr X -> u1.iscontr X.
+Proof. intros. split with (pr21 _ _ X0). 
+ intro. apply (u0pathstou1paths _ t _). apply (contrl2 X X0 _ _ ). Defined.
+
+Coercion u0iscontrtou1iscontr: iscontr  >-> u1.iscontr.
+ 
+Theorem u1isofhleveltou0isofhlevel (n:nat)(X:UU0): u1.isofhlevel n X -> u0.isofhlevel n X.
+Proof. intro. induction n. intro.  apply u1iscontrtou0iscontr. intro. simpl. intro. intros. set (s:= X0 x x'). 
+set (s1:=u1.isofhlevelweqf n _ _  (u1pathstou0paths X x x') (iswequ1pathstou0paths X x x') s). apply (IHn _ s1).
+Defined.
+
+Coercion  u1isofhleveltou0isofhlevel: u1.isofhlevel >-> isofhlevel.
+
+
+Theorem u0isofhleveltou1isofhlevel  (n:nat)(X:UU0): isofhlevel n X -> u1.isofhlevel n X.
+Proof. intro. induction n.  intro.  apply u0iscontrtou1iscontr. intros. simpl. intros.  
+assert (s:u1.isofhlevel n (paths _ x x')). apply (IHn _ (X0 x x')). apply (u1.isofhlevelweqb n _ _ _ (iswequ1pathstou0paths _ x x') s). Defined.  
+
+Coercion u0isofhleveltou1isofhlevel: isofhlevel >-> u1.isofhlevel.
+
 
 
 
@@ -55,42 +100,20 @@ Identity Coercion totype2: UU1 >-> Sortclass.
 Definition eqweqmap (T1:UU0) (T2:UU0) : (u1.paths _ T1 T2) -> (weq T1 T2).
 Proof. intros. induction X. apply idweq. Defined. 
 
-Axiom univalenceaxiom: forall T1:UU0, forall T2:UU0, u1.isweq (u1.paths _ T1 T2) (weq T1 T2) (eqweqmap T1 T2).
+Axiom univalenceaxiom: forall T1:UU0, forall T2:UU0, u1.isweq (u1.paths Type T1 T2) (weq T1 T2) (eqweqmap T1 T2).
  
-Definition weqtopaths (T1:UU0)(T2:UU0)(w: weq T1 T2) : u1.paths _ T1 T2 := u1.invmap _ _ (eqweqmap T1 T2) (univalenceaxiom T1 T2) w.
+Definition weqtopaths (T1:UU0)(T2:UU0)(f:T1 -> T2)(is:isweq _ _ f): u1.paths _ T1 T2 := u1.invmap _ _ (eqweqmap T1 T2) (univalenceaxiom T1 T2) (weqpair _ _ f is).
 
 
-Definition weqpathsweq (T1:UU0)(T2:UU0)(w: weq T1 T2):u1.paths _ (eqweqmap _ _ (weqtopaths _ _ w)) w := u1.weqfg _ _ (eqweqmap T1 T2) (univalenceaxiom T1 T2) w.
+Definition weqpathsweq (T1:UU0)(T2:UU0)(f:T1 -> T2)(is:isweq _ _ f):u1.paths _ (eqweqmap _ _ (weqtopaths _ _ f is)) (weqpair _ _ f is) := u1.weqfg _ _ (eqweqmap T1 T2) (univalenceaxiom T1 T2) (weqpair _ _ f is).
 
 (** Conjecture: univalenceaxiom is equivalent to two axioms 
 
-[Axiom weqtopaths0 (T1:UU0)(T2:UU0)(w: weq T1 T2): paths1 _ T1 T2.]
+[Axiom weqtopaths0 (T1:UU0)(T2:UU0)(f:T1 -> T2)(is:isweq0 _ _ f): paths1 _ T1 T2.]
 
-[Axiom weqpathsweq0 (T1:UU0)(T2:UU0)(w: weq T1 T2):paths1 _ (eqweqmap0 _ _ (weqtopaths0 _ _ w)) (weqpair0 _ _ w).]
+[Axiom weqpathsweq0 (T1:UU0)(T2:UU0)(f:T1 -> T2)(is:isweq0 _ _ f):paths1 _ (eqweqmap0 _ _ (weqtopaths0 _ _ f is)) (weqpair0 _ _ f is).]
 
- *)
-
-Axiom weqtopaths0: forall (T1:UU0)(T2:UU0)(w:weq T1 T2), u1.paths _ T1 T2.
-
-Axiom weqpathsweq0: forall (T1:UU0)(T2:UU0)(w:weq T1 T2), u1.paths _ (eqweqmap _ _ (weqtopaths0 _ _ w)) w.
-
-Theorem univfromtwoaxioms: forall T1:UU0, forall T2:UU0, u1.isweq (u1.paths _ T1 T2) (weq T1 T2) (eqweqmap T1 T2).
-Proof. intros. set (P1:= fun XY: u1.dirprod UU0 UU0 => (match XY with u1.tpair X Y => u1.paths _ X Y end)). set (P2:= fun XY: u1.dirprod UU0 UU0 => match XY with u1.tpair X Y => weq X Y end). set (Z1:= u1.total2 _ P1). set (Z2:= u1.total2 _ P2). set (f:= (u1.totalfun _ _ _ (fun XY:u1.dirprod UU0 UU0 => (match XY with u1.tpair X Y => eqweqmap X Y end))): Z1 -> Z2). set (g:=  (u1.totalfun _ _ _ (fun XY:u1.dirprod UU0 UU0 => (match XY with u1.tpair X Y => weqtopaths0 X Y end))): Z2 -> Z1). set (s1:= (fun X Y :UU0 => fun w: weq X Y => u1.tpair _ P2 (u1.dirprodpair _ _ X Y) w)). set (efg:= (fun a:_ => match a as a' return (u1.paths _ (f (g a')) a') with u1.tpair (u1.tpair X Y) w => (u1.maponpaths _ _ (s1 X Y) _ _ (weqpathsweq0 X Y w)) end)). 
-
-set (h:= fun a1:Z1 => (u1.pr21 _ _ (u1.pr21 _ _ a1))).
-assert (egf0: forall a1:Z1, u1.paths (u1.dirprod UU0 UU0) (u1.pr21 _ _ (g (f a1))) (u1.pr21 _ _ a1)). intro. apply u1.idpath.  
-assert (egf1: forall a1 a1':Z1, u1.paths _ (u1.pr21 _ _ a1') (u1.pr21 _ _ a1) -> u1.paths _ a1' a1). intros.  set (X':= u1.maponpaths _ _ (u1.pr21 _ _ ) _ _ X). 
-assert (is: u1.isweq _ _ h).  apply (u1.isweqpr21pr21). apply (u1.pathsweq2 _ _ h is _ _ X').
-set (egf:= fun a1:_ => (egf1 _ _ (egf0 a1))). 
-set (is2:=u1.gradth _ _ _ _ egf efg). 
-apply (u1.isweqtotaltofib _ P1 P2  (fun XY:u1.dirprod UU0 UU0 => (match XY with u1.tpair X Y => eqweqmap X Y end)) is2 (u1.dirprodpair _ _ T1 T2)). Defined. 
-
-
-(** Conjecture: the pair [weqtopaths0] and [weatopathsweq0] is well defined up to a canonical equality. **)
-
-
-
-
+*)
 
 
 (** ** Transport theorem. 
@@ -105,27 +128,24 @@ Lemma isweqtransportb10 (X:UU1)(P:X -> UU0)(x:X)(x':X)(e:u1.paths _ x x'): isweq
 Proof. intros. apply (isweqtransportf10 _ _ _ _ (u1.pathsinv0 _ _ _ e)). Defined. 
 
 
-
-Lemma l1  (X0:UU0)(X0':UU0)(ee: u1.paths _ X0 X0')(P:UU0 -> UU0)(pp': P X0')(R: forall X:UU0, forall X':UU0, forall w: weq X X', P X' -> P X)(r: forall X:UU0, forall p:P X, paths _ (R X X (idweq X) p) p):paths _ (R X0 X0' (eqweqmap _ _ ee) pp') (u1.transportb UU0 P X0 X0' ee pp').
+Lemma l1  (X0:UU0)(X0':UU0)(ee: u1.paths _ X0 X0')(P:UU0 -> UU0)(pp': P X0')(R: forall X:UU0, forall X':UU0, forall u:X -> X', forall is: isweq X X' u, P X' -> P X)(r: forall X:UU0, forall p:P X, paths _ (R X X (fun x:X => x) (idisweq X) p) p):paths _ (R X0 X0' (pr21 _ _ (eqweqmap _ _ ee)) (pr22 _ _ (eqweqmap _ _ ee)) pp') (u1.transportb UU0 P X0 X0' ee pp').
 Proof. intro. intro. intro. intro. intro. induction ee. simpl. intro. intro. apply r. Defined.
 
 
-Theorem weqtransportb  (P:UU0 -> UU0)(R: forall (X X':UU0) (w: weq X X'), P X' -> P X)(r: forall X:UU0, forall p:P X, paths _ (R X X (idweq X) p) p): forall (X X':UU0) (w: weq X X') (p':P X'), paths _ (R X X' w p') (u1.transportb UU0  P X X' (weqtopaths _ _ w) p').  
-Proof. intros. set (uv:=weqtopaths _ _ w).   set (v:=eqweqmap _ _ uv). 
+Theorem weqtransportb  (P:UU0 -> UU0)(R: forall X:UU0, forall X':UU0, forall u:X -> X', forall is: isweq X X' u, P X' -> P X)(r: forall X:UU0, forall p:P X, paths _ (R X X (fun x:X => x) (idisweq X) p) p): forall X:UU0, forall X':UU0, forall u:X -> X', forall is: isweq X X' u,  forall p':P X', paths _ (R X X' u is p') (u1.transportb UU0  P X X' (weqtopaths _ _ u is) p').  
+Proof. intros. set (uis:=weqpair _ _ u is). set (uv:=weqtopaths _ _ u is).   set (v:=eqweqmap _ _ uv). 
 
-assert (e:u1.paths _ v w). unfold weqtopaths in uv.  apply (u1.weqfg  (u1.paths UU0 X X') (weq X X')  (eqweqmap X X') (univalenceaxiom X X') w).
+assert (e:u1.paths _ v uis). unfold weqtopaths in uv.  apply (u1.weqfg  (u1.paths UU0 X X') (weq X X')  (eqweqmap X X') (univalenceaxiom X X') uis).
 
-assert (ee:u1.paths _ (R X X' v p') (R X X' w p')). set (R':= fun vis:weq X X' => R X X' vis p'). assert (ee':u1.paths _ (R' v) (R' w)). apply (u1.maponpaths (weq X X') (P X) R' _ _ e). assumption.
+assert (ee:u1.paths _ (R X X' (pr21 _ _ v) (pr22 _ _ v) p') (R X X' u is p')). set (R':= fun vis:weq X X' => R X X' (pr21 _ _ vis) (pr22 _ _ vis) p'). assert (ee':u1.paths _ (R' v) (R' uis)). apply (u1.maponpaths (weq X X') (P X) R' _ _ e). assumption. 
 
 induction ee. apply l1. assumption. Defined.
 
+Corollary isweqweqtransportb (P:UU0 -> UU0)(R: forall X:UU0, forall X':UU0, forall u:X -> X', forall is: isweq X X' u, P X' -> P X)(r: forall X:UU0, forall p:P X, paths _ (R X X (fun x:X => x) (idisweq X) p) p): forall X:UU0, forall X':UU0, forall u:X -> X', forall is: isweq X X' u, isweq _ _ (fun p': P X' => R X X' u is p').
+Proof. intros. assert (e:forall p':P X', paths _ (R X X' u is p') (u1.transportb UU0 P X X' (weqtopaths _ _ u is) p')). apply weqtransportb. assumption. assert (ee :forall p':P X', paths _  (u1.transportb UU0 P X X' (weqtopaths _ _ u is) p') (R X X' u is p')). intro.  apply (pathsinv0 _ _ _ (e p')). clear e. 
 
-
-Corollary isweqweqtransportb (P:UU0 -> UU0)(R: forall (X X':UU0) (w: weq X X'), P X' -> P X)(r: forall X:UU0, forall p:P X, paths _ (R X X (idweq X) p) p): forall (X X':UU0)(w: weq X X'), isweq _ _ (fun p': P X' => R X X' w p').
-Proof. intros. assert (e:forall p':P X', paths _ (R X X' w p') (u1.transportb UU0 P X X' (weqtopaths _ _ w) p')). apply weqtransportb. assumption. assert (ee :forall p':P X', paths _  (u1.transportb UU0 P X X' (weqtopaths _ _ w) p') (R X X' w p')). intro.  apply (pathsinv0 _ _ _ (e p')). clear e. 
-
-assert (is1:isweq _ _ (u1.transportb UU0 P X X' (weqtopaths _ _ w))). apply isweqtransportb10.  
-apply (isweqhomot _ _ (u1.transportb UU0 P X X' (weqtopaths X X' w)) (fun p' : P X' => R X X' w p') ee is1).  Defined. 
+assert (is1:isweq _ _ (u1.transportb UU0 P X X' (weqtopaths _ _ u is))). apply isweqtransportb10.  
+apply (isweqhomot _ _ (u1.transportb UU0 P X X' (weqtopaths X X' u is)) (fun p' : P X' => R X X' u is p') ee is1).  Defined. 
 
 
 
@@ -136,12 +156,12 @@ apply (isweqhomot _ _ (u1.transportb UU0 P X X' (weqtopaths X X' w)) (fun p' : P
 
 
 
-Theorem isweqcompwithweq (X X':UU0)(w: weq X X')(Y:UU0): isweq _ _ (fun f:X'->Y => (fun x:X => f (w x))).
+Theorem isweqcompwithweq (X:UU0)(X':UU0)(u:X->X')(is:isweq _ _ u)(Y:UU0): isweq _ _ (fun f:X'->Y => (fun x:X => f (u x))).
 Proof. intros. 
 set (P:= fun X0:UU0 => (X0 -> Y)). 
-set (R:= fun X0:UU0 => (fun X0':UU0 => (fun w1:X0 -> X0' =>  (fun  f:P X0'  => (fun x:X0 => f (w1 x)))))). 
+set (R:= fun X0:UU0 => (fun X0':UU0 => (fun u0:X0 -> X0' => (fun is0:isweq _ _ u0 => (fun  f:P X0'  => (fun x:X0 => f (u0 x))))))). 
 set (r:= fun X0:UU0 => (fun f:X0 -> Y => pathsinv0 _ _ _ (etacor X0 Y f))).
-apply (isweqweqtransportb P R r X X' w). Defined.
+apply (isweqweqtransportb P R r X X' u is). Defined.
 
 
 
@@ -152,12 +172,12 @@ apply (isweqweqtransportb P R r X X' w). Defined.
 
 
 
-Lemma eqcor0 (X X':UU0)(w: weq X X')(Y:UU0)(f1 f2:X'->Y):  (paths _ (fun x:X => f1 (w x))  (fun x:X => f2 (w x))) -> paths _ f1 f2. 
-Proof. intros. apply (pathsweq2 _ _ (fun f:X'->Y => (fun x:X => f (w x))) (isweqcompwithweq _ _ w Y) f1 f2). assumption.  Defined. 
+Lemma eqcor0 (X:UU0)(X':UU0)(u:X->X')(is:isweq _ _ u)(Y:UU0)(f1:X'->Y)(f2:X'->Y):  (paths _ (fun x:X => f1 (u x))  (fun x:X => f2 (u x))) -> paths _ f1 f2. 
+Proof. intros. apply (pathsweq2 _ _ (fun f:X'->Y => (fun x:X => f (u x))) (isweqcompwithweq _ _ u is Y) f1 f2). assumption.  Defined. 
 
 
 Lemma apathpr1topr2 (T:UU0) : paths _ (fun z: pathsspace T => pr21 _ _ z) (fun z: pathsspace T => pr21 _ _ (pr22 _ _ z)).
-Proof. intro. apply (eqcor0 _ _  (weqpair _ _ (deltap T) (isweqdeltap T)) _ (fun z: pathsspace T => pr21 _ _ z) (fun z: pathsspace T => pr21 _ _ (pr22 _ _ z))  (idpath _ (fun t:T => t))). Defined.     
+Proof. intro. apply (eqcor0 _ _  (deltap T) (isweqdeltap T) _ (fun z: pathsspace T => pr21 _ _ z) (fun z: pathsspace T => pr21 _ _ (pr22 _ _ z))  (idpath _ (fun t:T => t))). Defined.     
 
 
 Theorem funextfun (X:UU0)(Y:UU0)(f1:X->Y)(f2:X->Y)(e: forall x:X, paths _ (f1 x) (f2 x)): paths _ f1 f2.
@@ -165,7 +185,64 @@ Proof. intros. set (f:= (fun x:X => pathsspacetriple Y (f1 x) (f2 x) (e x))).  s
 
 
 
-(* End of the file univ01.v *)
+
+
+(** * Types of properties and sets *)
+
+
+
+
+Definition hProp0:= (u1.total2 UU0 (fun X:UU0 => u0.isaprop X)).
+Definition hProp0pair:= u1.tpair  UU0 (fun X:UU0 => u0.isaprop X).
+Definition hPropcarrier0 := u1.pr21  UU0 (fun X:UU0 => u0.isaprop X): hProp0 -> UU0.
+Coercion hPropcarrier0: hProp0 >-> UU0.
+
+
+Definition hSet0:= u1.total2 UU0 (fun X:UU0 => u0.isaset X).
+Definition hSet0pair := u1.tpair UU0 (fun X:UU0 => u0.isaset X).
+Definition hSetcarrier0:= u1.pr21 UU0 (fun X:UU0 => u0.isaset X) : hSet0 -> UU0.
+Coercion hSetcarrier0: hSet0 >-> UU0.
+
+
+(** * Inhabited construction **)
+
+Definition isinhcomb0 (X:UU0) := forall P:hProp0, ((X->P)->P).
+
+
+
+(** * Relations **)
+
+
+Definition hrel0 (X:UU0) := forall x1 x2 : X, hProp0.
+
+Definition trans0 (X:UU0) (rel: hrel0 X):= forall x1 x2 x3 : X, forall (f1: rel  x1 x2) (f2: rel x2 x3), rel x1 x3.
+
+Definition refl0 (X:UU0)(rel:hrel0 X) := forall x:X, rel x x.
+
+Definition symm0 (X:UU0)(rel:hrel0 X):= forall x1 x2 : X, rel x1 x2 -> rel x2 x1.
+
+
+
+(** * Types of subsets **)
+
+
+
+Definition hsubtypes0 (X:UU0) := X -> hProp0.
+Definition hsubtypecarrier0 (X:UU0)(A:hsubtypes0 X):= u0.total2 X (fun x:X => A x).
+Coercion hsubtypecarrier0: hsubtypes0 >-> UU0.
+
+(** * Some types of level 1 and 2 in UU1 **)
+
+Theorem isapropisinh (X:UU0): u1.isaprop (isinh X).
+Proof. intro. unfold isinh. 
+assert (s1:forall (P:UU0)(is: isaprop P), isaprop ((X->P)->P)). intros. unfold isaprop. apply impredfun. assumption. 
+assert (s2: forall (P:UU0), isaprop (isaprop P -> (X->P) ->P)). intro. apply impredtech1. apply (s1 P). 
+assert (s3: forall (P:UU0), u1.isaprop (isaprop P -> (X-> P) -> P)). intro. apply (u0isofhleveltou1isofhlevel 1 _ (s2 P)). apply u1.impred. assumption.  Defined. 
+
+
+
+
+(* End of the file u01.v *)
 
 
 

@@ -2,28 +2,21 @@ Require Arith.
 Require Export u0.
 
 
-Set Print Universes.
 
-Inductive pathsu (T:Type): T -> T -> UU := idpathu:  forall t:T, pathsu _ t t. 
-
-Print pathsu.
+Inductive pathsu (T:Type): T -> T -> Type := idpathu:  forall t:T, pathsu _ t t. 
 
 
-(*Definition UU:=Type.*)
+Definition UU:=Type.
 
-Definition UU := Type .
+Definition unat:= nat: UU.
 
-Variable T : UU .
+Variable f: UU -> UU.
 
-Record T2 : UU := T2pair { p1 : T ; p2 : T }.
+Variable T:UU.
 
-Print T2.
+Variable t:T.
 
-Definition UU' := Type .
-
-Record UUBB : UU' := UUBBpair { TT : UU ; tt : TT } .
-
-Print UUBB.
+Variable a: f (pathsu _ t t).
 
 Variable b: pathsu _ UU UU.
 
