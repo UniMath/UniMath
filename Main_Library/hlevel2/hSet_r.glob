@@ -1,0 +1,276 @@
+FhSet_r
+R1096 hProp_r <> <> lib
+def 1188 <> hSet
+R1196 uu1 <> total2 rec
+R1225 uu0 <> isaset def
+R1218 uu1uu0 <> UU0 syndef
+R1207 uu1uu0 <> UU0 syndef
+def 1248 <> hSetpair
+R1261 uu1 <> tpair constr
+R1289 uu0 <> isaset def
+R1282 uu1uu0 <> UU0 syndef
+R1271 uu1uu0 <> UU0 syndef
+def 1312 <> hSettoUU
+R1370 uu1uu0 <> UU0 syndef
+R1362 hSet_r <> hSet def
+R1323 uu1 <> pr21 proj
+R1350 uu0 <> isaset def
+R1343 uu1uu0 <> UU0 syndef
+R1332 uu1uu0 <> UU0 syndef
+R1384 hSet_r <> hSettoUU def
+def 1518 <> hsubtypes
+R1531 uu1uu0 <> UU0 syndef
+R1545 hProp <> hProp def
+def 1566 <> carrier
+R1577 uu1uu0 <> UU0 syndef
+R1584 hSet_r <> hsubtypes def
+R1599 uu0 <> total2 rec
+R1636 hSet_r <> carrier def
+def 1684 <> carrierpair
+R1699 uu1uu0 <> UU0 syndef
+R1706 hSet_r <> hsubtypes def
+R1721 uu0 <> tpair constr
+def 1760 <> aux1
+R1768 uu1uu0 <> UU0 syndef
+R1778 hSet_r <> hsubtypes def
+def 1810 <> carrierincl
+R1825 uu1uu0 <> UU0 syndef
+R1832 hSet_r <> hsubtypes def
+R1875 hSet_r <> aux1 def
+R1860 hSet_r <> carrier def
+R1848 uu0 <> pr21 proj
+R1895 hSet_r <> carrierincl def
+def 2036 <> hrel
+R2044 uu1uu0 <> UU0 syndef
+R2070 hProp <> hProp def
+def 2089 <> isrefl
+R2099 uu1uu0 <> UU0 syndef
+R2106 hSet_r <> hrel def
+def 2148 <> issymm
+R2158 uu1uu0 <> UU0 syndef
+R2165 hSet_r <> hrel def
+def 2225 <> istrans
+R2236 uu1uu0 <> UU0 syndef
+R2245 hSet_r <> hrel def
+def 2334 <> iseqrel
+R2345 uu1uu0 <> UU0 syndef
+R2352 hSet_r <> hrel def
+R2362 uu0 <> dirprod def
+R2384 uu0 <> dirprod def
+R2406 hSet_r <> istrans def
+R2393 hSet_r <> issymm def
+R2371 hSet_r <> isrefl def
+prf 2428 <> isapropiseqrel
+R2447 uu1uu0 <> UU0 syndef
+R2454 hSet_r <> hrel def
+R2463 uu0 <> isaprop def
+R2472 hSet_r <> iseqrel def
+R2523 uu0 <> isofhleveldirprod thm
+R2523 uu0 <> isofhleveldirprod thm
+R2548 uu0 <> impred thm
+R2548 uu0 <> impred thm
+R2570 uu1 <> pr22 proj
+R2570 uu1 <> pr22 proj
+R2600 uu0 <> isofhleveldirprod thm
+R2600 uu0 <> isofhleveldirprod thm
+R2625 uu0 <> impredtwice thm
+R2625 uu0 <> impredtwice thm
+R2652 uu0 <> impred thm
+R2652 uu0 <> impred thm
+R2674 uu1 <> pr22 proj
+R2674 uu1 <> pr22 proj
+R2704 uu0 <> impred thm
+R2704 uu0 <> impred thm
+R2726 uu0 <> impred thm
+R2726 uu0 <> impred thm
+R2747 uu0 <> impred thm
+R2747 uu0 <> impred thm
+R2769 uu0 <> impred thm
+R2769 uu0 <> impred thm
+R2790 uu0 <> impred thm
+R2790 uu0 <> impred thm
+R2814 uu1 <> pr22 proj
+R2814 uu1 <> pr22 proj
+def 2966 <> iseqclass
+R2979 uu1uu0 <> UU0 syndef
+R2986 hSet_r <> hrel def
+R2997 hSet_r <> hsubtypes def
+R3012 uu0 <> dirprod def
+R3044 uu0 <> dirprod def
+R3021 hProp <> ishinh def
+R3029 hSet_r <> carrier def
+def 3170 <> eqax0
+R3179 uu1uu0 <> UU0 syndef
+R3186 hSet_r <> hrel def
+R3196 hSet_r <> hsubtypes def
+R3242 hProp <> ishinh def
+R3250 hSet_r <> carrier def
+R3222 hSet_r <> iseqclass def
+R3211 uu0 <> pr21 proj
+def 3276 <> eqax1
+R3285 uu1uu0 <> UU0 syndef
+R3292 hSet_r <> hrel def
+R3302 hSet_r <> hsubtypes def
+R3370 hSet_r <> iseqclass def
+R3345 uu0 <> pr21 proj
+R3355 uu0 <> pr22 proj
+R3326 hSet_r <> iseqclass def
+def 3456 <> eqax2
+R3465 uu1uu0 <> UU0 syndef
+R3472 hSet_r <> hrel def
+R3482 hSet_r <> hsubtypes def
+R3550 hSet_r <> iseqclass def
+R3525 uu0 <> pr22 proj
+R3535 uu0 <> pr22 proj
+R3506 hSet_r <> iseqclass def
+prf 3630 <> isapropiseqclass
+R3651 uu1uu0 <> UU0 syndef
+R3658 hSet_r <> hrel def
+R3668 hSet_r <> hsubtypes def
+R3682 uu0 <> isaprop def
+R3692 hSet_r <> iseqclass def
+R3750 uu0 <> isofhleveldirprod thm
+R3750 uu0 <> isofhleveldirprod thm
+R3776 hProp_r <> isapropishinh thm
+R3791 hSet_r <> carrier def
+R3776 hProp_r <> isapropishinh thm
+R3791 hSet_r <> carrier def
+R3816 uu0 <> isofhleveldirprod thm
+R3816 uu0 <> isofhleveldirprod thm
+R3841 uu0 <> impredtwice thm
+R3841 uu0 <> impredtwice thm
+R3868 uu0 <> impred thm
+R3868 uu0 <> impred thm
+R3889 uu0 <> impred thm
+R3889 uu0 <> impred thm
+R3913 uu1 <> pr22 proj
+R3913 uu1 <> pr22 proj
+R3943 uu0 <> impredtwice thm
+R3943 uu0 <> impredtwice thm
+R3970 uu0 <> impred thm
+R3970 uu0 <> impred thm
+R3991 uu0 <> impred thm
+R3991 uu0 <> impred thm
+R4015 uu1 <> pr22 proj
+R4015 uu1 <> pr22 proj
+def 4233 <> image
+R4244 uu1uu0 <> UU0 syndef
+R4261 uu0 <> total2 rec
+R4282 hProp <> ishinh def
+R4290 uu0 <> hfiber def
+def 4319 <> imagepair
+R4336 uu1uu0 <> UU0 syndef
+R4355 uu0 <> tpair constr
+R4375 hProp <> ishinh def
+R4383 uu0 <> hfiber def
+def 4413 <> imageincl
+R4428 uu1uu0 <> UU0 syndef
+R4444 hSet_r <> image def
+R4464 uu0 <> pr21 proj
+def 4486 <> prtoimage
+R4503 uu1uu0 <> UU0 syndef
+R4528 hSet_r <> image def
+R4572 hSet_r <> imagepair def
+R4596 hProp <> hinhpr def
+R4606 uu0 <> hfiberpair def
+R4634 uu0 <> idpath constr
+R4572 hSet_r <> imagepair def
+R4596 hProp <> hinhpr def
+R4606 uu0 <> hfiberpair def
+R4634 uu0 <> idpath constr
+def 4673 <> issurjective
+R4691 uu1uu0 <> UU0 syndef
+R4720 hProp <> ishinh def
+R4728 uu0 <> hfiber def
+prf 4755 <> isapropissurjective
+R4780 uu1uu0 <> UU0 syndef
+R4798 uu0 <> isaprop def
+R4807 hSet_r <> issurjective def
+R4850 uu0 <> impred thm
+R4850 uu0 <> impred thm
+R4873 uu1 <> pr22 proj
+R4887 hProp_r <> ishinh_hprop def
+R4901 uu0 <> hfiber def
+R4873 uu1 <> pr22 proj
+R4887 hProp_r <> ishinh_hprop def
+R4901 uu0 <> hfiber def
+prf 4938 <> isinclimageincl
+R4959 uu1uu0 <> UU0 syndef
+R4975 uu0 <> isincl def
+R4987 hSet_r <> imageincl def
+R5026 uu0 <> isofhlevelfpr21 thm
+R5026 uu0 <> isofhlevelfpr21 thm
+R5056 hProp_r <> isapropishinh thm
+R5056 hProp_r <> isapropishinh thm
+prf 5088 <> issurjprtoimage
+R5111 uu1uu0 <> UU0 syndef
+R5131 hSet_r <> issurjective def
+R5149 hSet_r <> prtoimage def
+R5202 hSet_r <> prtoimage def
+R5202 hSet_r <> prtoimage def
+R5229 hSet_r <> imageincl def
+R5229 hSet_r <> imageincl def
+R5291 uu0 <> paths ind
+R5291 uu0 <> paths ind
+R5312 uu0 <> etacorrection prfax
+R5312 uu0 <> etacorrection prfax
+R5372 uu0 <> hfiber def
+R5342 uu0 <> hfiber def
+R5357 uu0 <> pr21 proj
+R5372 uu0 <> hfiber def
+R5342 uu0 <> hfiber def
+R5357 uu0 <> pr21 proj
+R5400 uu0 <> hfiberpair def
+R5426 uu0 <> idpath constr
+R5400 uu0 <> hfiberpair def
+R5426 uu0 <> idpath constr
+R5452 uu0 <> hfibersftogf def
+R5452 uu0 <> hfibersftogf def
+R5501 uu0 <> isweq def
+R5501 uu0 <> isweq def
+R5521 uu0 <> samehfibers thm
+R5521 uu0 <> samehfibers thm
+R5541 hSet_r <> isinclimageincl thm
+R5541 hSet_r <> isinclimageincl thm
+R5565 uu0 <> weqinv def
+R5565 uu0 <> weqinv def
+R5616 hProp <> ishinh def
+R5624 uu0 <> hfiber def
+R5639 uu0 <> pr21 proj
+R5660 hProp <> ishinh def
+R5668 uu0 <> hfiber def
+R5616 hProp <> ishinh def
+R5624 uu0 <> hfiber def
+R5639 uu0 <> pr21 proj
+R5660 hProp <> ishinh def
+R5668 uu0 <> hfiber def
+R5711 uu0 <> pr22 proj
+R5711 uu0 <> pr22 proj
+R5732 hProp <> hinhfunct def
+R5732 hProp <> hinhfunct def
+prf 5827 <> surjectionisepitosets
+R5856 uu1uu0 <> UU0 syndef
+R5890 hSet_r <> issurjective def
+R5915 uu0 <> isaset def
+R5986 uu0 <> paths ind
+R5939 uu0 <> paths ind
+R6062 hProp <> hProppair def
+R6073 uu0 <> paths ind
+R6062 hProp <> hProppair def
+R6073 uu0 <> paths ind
+R6178 uu0 <> paths ind
+R6160 uu0 <> hfiber def
+R6178 uu0 <> paths ind
+R6160 uu0 <> hfiber def
+R6275 hProp <> ishinh def
+R6283 uu0 <> paths ind
+R6275 hProp <> ishinh def
+R6283 uu0 <> paths ind
+R6315 hProp <> hinhfunct def
+R6315 hProp <> hinhfunct def
+R6396 hProp <> hinhuniv def
+R6430 hProp <> hProppair def
+R6406 uu0 <> paths ind
+R6396 hProp <> hinhuniv def
+R6430 hProp <> hProppair def
+R6406 uu0 <> paths ind

@@ -1,0 +1,56 @@
+FhProp_r
+R550 hProp <> <> lib
+prf 617 <> isapropishinh
+R636 uu1uu0 <> UU0 syndef
+R643 uu0 <> isaprop def
+R652 hProp <> ishinh def
+R684 uu0 <> impred thm
+R684 uu0 <> impred thm
+R707 uu0 <> impred thm
+R707 uu0 <> impred thm
+R731 uu1 <> pr22 proj
+R731 uu1 <> pr22 proj
+def 773 <> ishinh_hprop
+R791 uu1uu0 <> UU0 syndef
+R799 hProp <> hProppair def
+R821 hProp_r <> isapropishinh thm
+R810 hProp <> ishinh def
+R859 hProp_r <> ishinh_hprop def
+def 885 <> hexists
+R896 uu1uu0 <> UU0 syndef
+R910 hProp <> hProp def
+R919 hProp <> hProp def
+R928 hProp_r <> ishinh_hprop def
+R942 uu0 <> total2 rec
+prf 965 <> hinhuniv2
+R983 uu1uu0 <> UU0 syndef
+R1000 hProp <> ishinh def
+R1031 hProp <> ishinh def
+R1015 hProp <> ishinh def
+R1075 hProp <> hinhuniv def
+R1088 hProp_r <> ishinh_hprop def
+R1075 hProp <> hinhuniv def
+R1088 hProp_r <> ishinh_hprop def
+def 1157 <> hdisj
+R1170 hProp <> hProp def
+R1179 hProp <> hProp def
+R1189 hProp_r <> ishinh_hprop def
+R1203 uu0 <> coprod ind
+R1236 hProp_r <> hdisj def
+prf 1442 <> hconjtohdisj
+R1464 hProp <> hProp def
+R1508 hProp <> himpl def
+R1515 hProp_r <> hdisj def
+R1474 hProp <> hconj def
+R1493 hProp <> himpl def
+R1481 hProp <> himpl def
+R1569 hProp_r <> hdisj def
+R1569 hProp_r <> hdisj def
+R1612 uu0 <> coprod ind
+R1612 uu0 <> coprod ind
+R1699 uu0 <> pr22 proj
+R1699 uu0 <> pr22 proj
+R1734 hProp <> hinhuniv def
+R1744 uu0 <> coprod ind
+R1734 hProp <> hinhuniv def
+R1744 uu0 <> coprod ind

@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<link href="coqdoc.css" rel="stylesheet" type="text/css"/>
+<title>hProp</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library hProp</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a name="lab60"></a><h1 class="section">Generalities on hProp.</h1>
+
+
+<br/> <br/>
+In this file we introduce the hProp - an analog of Prop defined based on the univalent semantics. We further introduce the hProp version of the "inhabited" construction - i.e. for any <span class="inlinecode"> <span class="id" type="var">T</span> </span> in <span class="inlinecode"> <span class="id" type="var">UU0</span> </span> we construct an object  <span class="inlinecode"> <span class="id" type="var">ishinh</span> <span class="id" type="var">T</span> </span> and a function <span class="inlinecode"> <span class="id" type="var">hinhpr</span> : <span class="id" type="var">T</span> -&gt; <span class="id" type="var">ishinh</span> <span class="id" type="var">T</span> </span> which plays the role of <span class="inlinecode"> <span class="id" type="var">inhabits</span> </span> from the Coq standard library.  The semantic meaning of  <span class="inlinecode"> <span class="id" type="var">hinhpr</span> </span> is that it should be universal among functions from <span class="inlinecode"> <span class="id" type="var">T</span> </span>  to objects of hProp. Howevere, we can not prove that <span class="inlinecode"> <span class="id" type="var">ishinh</span>  <span class="id" type="var">T</span> </span> is in <span class="inlinecode"> <span class="id" type="var">hProp</span> </span>. While we can check that it is <span class="inlinecode"> <span class="id" type="var">uu1.isaprop</span> </span> we can not show that it lies in <span class="inlinecode"> <span class="id" type="var">UU0</span> </span>. To place <span class="inlinecode"> <span class="id" type="var">ishinh</span> <span class="id" type="var">_</span> </span> to <span class="inlinecode"> <span class="id" type="var">UU0</span> </span> requires global impredicativity of <span class="inlinecode"> <span class="id" type="var">hProp</span> </span>. In the future this should be proved using one of the "resizing axioms". At the moment we do all that is possible to do without resizing axioms in this file and then in the next file of the library collect the results and constructions for which this global impredicativity is necessary. The later file does not compile without a patch provided by Hugo Herbelin which turns off the universe consistency verification. We do however keep track of universes in our development "by hand" to ensure that when the resizing axioms will become available the current proofs will verify correctly.
+
+<br/> <br/>
+One can achieve similar results with a combination of usual axioms which imitate the resizing axioms, however unlike the usual axioms the resizing axioms do not affect the computation/normalization abilities of Coq which makes them the prefrred choice in this situation.
+
+<br/> <br/>
+Using the hinhabited construction we implement the intuitionistic logic on hProp. The part of the logic related to disjunction again requires us to know the global impredicativity of <span class="inlinecode"> <span class="id" type="var">hProp</span> </span> and is considered in the next file. 
+
+<br/> <br/>
+
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab61"></a><h3 class="section">Preambule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Add</span> <span class="id" type="var">Rec</span> <span class="id" type="var">LoadPath</span> "../Generalities".<br/>
+
+<br/>
+<span class="id" type="keyword">Unset</span> <span class="id" type="var">Automatic</span> <span class="id" type="var">Introduction</span>. </div>
+
+<div class="doc">
+This line has to be removed for the file to compile with Coq8.2 
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab62"></a><h3 class="section">Imports.</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Require</span> <span class="id" type="keyword">Export</span> <a class="idref" href="uu1uu0.html#"><span class="id" type="library">uu1uu0</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab63"></a><h3 class="section">Type of properties in <span class="inlinecode"> <span class="id" type="var">UU0</span> </span></h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="hProp"><span class="id" type="definition">hProp</span></a>:= (<span class="id" type="record">uu1.total2</span> <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> (<span class="id" type="keyword">fun</span> <span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> =&gt; <a class="idref" href="uu0.html#isaprop"><span class="id" type="definition">isaprop</span></a> <span class="id" type="var">X</span>)).<br/>
+<span class="id" type="keyword">Definition</span> <a name="hProppair"><span class="id" type="definition">hProppair</span></a>:= (<span class="id" type="constructor">uu1.tpair</span>  <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> (<span class="id" type="keyword">fun</span> <span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> =&gt; <a class="idref" href="uu0.html#isaprop"><span class="id" type="definition">isaprop</span></a> <span class="id" type="var">X</span>)).<br/>
+<span class="id" type="keyword">Definition</span> <a name="hptouu0"><span class="id" type="definition">hptouu0</span></a> := <span class="id" type="projection">uu1.pr21</span>  <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> (<span class="id" type="keyword">fun</span> <span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> =&gt; <a class="idref" href="uu0.html#isaprop"><span class="id" type="definition">isaprop</span></a> <span class="id" type="var">X</span>): <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a> -&gt; <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>.<br/>
+<span class="id" type="keyword">Coercion</span> <a class="idref" href="hProp.html#hptouu0"><span class="id" type="definition">hptouu0</span></a>: <span class="id" type="var">hProp</span> &gt;-&gt; <span class="id" type="var">UU0</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab64"></a><h3 class="section">Canonical structures of a type of h-level 1 on <span class="inlinecode"> <span class="id" type="var">iscontr</span> </span> and other standard constructions.</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="iscontr_hprop"><span class="id" type="definition">iscontr_hprop</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) := <a class="idref" href="hProp.html#hProppair"><span class="id" type="definition">hProppair</span></a> (<a class="idref" href="uu0.html#iscontr"><span class="id" type="definition">iscontr</span></a> <span class="id" type="var">X</span>) (<a class="idref" href="uu0.html#isapropiscontr"><span class="id" type="lemma">isapropiscontr</span></a> <span class="id" type="var">X</span>).<br/>
+<span class="id" type="var">Canonical</span> <span class="id" type="keyword">Structure</span> <a class="idref" href="hProp.html#iscontr_hprop"><span class="id" type="definition">iscontr_hprop</span></a>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="isofhlevel_hprop"><span class="id" type="definition">isofhlevel_hprop</span></a> ( <span class="id" type="var">n</span>: <a class="idref" href="http://coq.inria.fr/distrib/8.3pl2/stdlib/Coq.Init.Datatypes.html#nat"><span class="id" type="inductive">nat</span></a> ) ( <span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> ) := <a class="idref" href="hProp.html#hProppair"><span class="id" type="definition">hProppair</span></a> (<a class="idref" href="uu0.html#isofhlevel"><span class="id" type="definition">isofhlevel</span></a> <span class="id" type="var">n</span> <span class="id" type="var">X</span>) (<a class="idref" href="uu0.html#isapropisofhlevel"><span class="id" type="lemma">isapropisofhlevel</span></a> <span class="id" type="var">n</span> <span class="id" type="var">X</span>).<br/>
+<span class="id" type="var">Canonical</span> <span class="id" type="keyword">Structure</span> <a class="idref" href="hProp.html#isofhlevel_hprop"><span class="id" type="definition">isofhlevel_hprop</span></a>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="isaprop_hprop"><span class="id" type="definition">isaprop_hprop</span></a> ( <span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> ) := <a class="idref" href="hProp.html#hProppair"><span class="id" type="definition">hProppair</span></a> (<a class="idref" href="uu0.html#isaprop"><span class="id" type="definition">isaprop</span></a> <span class="id" type="var">X</span>) (<a class="idref" href="uu0.html#isapropisaprop"><span class="id" type="lemma">isapropisaprop</span></a> <span class="id" type="var">X</span>).<br/>
+<span class="id" type="var">Canonical</span> <span class="id" type="keyword">Structure</span> <a class="idref" href="hProp.html#isaprop_hprop"><span class="id" type="definition">isaprop_hprop</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab65"></a><h3 class="section">The <span class="inlinecode"> <span class="id" type="var">hProp</span> </span> version of the "inhabited" construction.</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="ishinh"><span class="id" type="definition">ishinh</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) := <span class="id" type="keyword">forall</span> <span class="id" type="var">P</span>: <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>, ((<span class="id" type="var">X</span>-&gt;<span class="id" type="var">P</span>)-&gt;<span class="id" type="var">P</span>).<br/>
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="uu1isapropishinh"><span class="id" type="lemma">uu1isapropishinh</span></a> (<span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) : <span class="id" type="definition">uu1.isaprop</span> (<a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">X</span>).<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">apply</span> <span class="id" type="lemma">uu1.impred</span>. <span class="id" type="tactic">intro</span> <span class="id" type="var">x</span>. <span class="id" type="tactic">apply</span> <span class="id" type="lemma">uu1.impred</span>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">apply</span> (<a class="idref" href="uu1uu0.html#u0isaproptou1isaprop"><span class="id" type="definition">u0isaproptou1isaprop</span></a> <span class="id" type="var">_</span> (<span class="id" type="projection">uu1.pr22</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">x</span>)). <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="hinhpr"><span class="id" type="definition">hinhpr</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>): <span class="id" type="var">X</span> -&gt; <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">X</span> := <span class="id" type="keyword">fun</span> <span class="id" type="var">x</span>:<span class="id" type="var">X</span> =&gt; <span class="id" type="keyword">fun</span> <span class="id" type="var">P</span>: <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>  =&gt; <a class="idref" href="uu0.html#adjev"><span class="id" type="definition">adjev</span></a> <span class="id" type="var">X</span> <span class="id" type="var">P</span> <span class="id" type="var">x</span>.<br/>
+<span class="id" type="keyword">Definition</span> <a name="hinhfunct"><span class="id" type="definition">hinhfunct</span></a> (<span class="id" type="var">X</span> <span class="id" type="var">Y</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">f</span>:<span class="id" type="var">X</span> -&gt; <span class="id" type="var">Y</span>) : <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">X</span> -&gt; <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">Y</span> := <span class="id" type="keyword">fun</span> <span class="id" type="var">inx1</span>: <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">X</span> =&gt; <span class="id" type="keyword">fun</span> <span class="id" type="var">P</span>:<span class="id" type="var">_</span> =&gt;  <span class="id" type="keyword">fun</span> <span class="id" type="var">yp</span>: <span class="id" type="var">Y</span> -&gt; <span class="id" type="var">P</span> =&gt; (<span class="id" type="var">inx1</span> <span class="id" type="var">P</span> (<span class="id" type="keyword">fun</span> <span class="id" type="var">x</span>: <span class="id" type="var">X</span> =&gt; <span class="id" type="var">yp</span> (<span class="id" type="var">f</span> <span class="id" type="var">x</span>))).<br/>
+<span class="id" type="keyword">Definition</span> <a name="hinhuniv"><span class="id" type="definition">hinhuniv</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">P</span>: <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a> ) : (<span class="id" type="var">X</span> -&gt; <span class="id" type="var">P</span>) -&gt; ((<a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">X</span>) -&gt; <span class="id" type="var">P</span>) := <span class="id" type="keyword">fun</span> <span class="id" type="var">xp</span>:<span class="id" type="var">_</span> =&gt; <span class="id" type="keyword">fun</span> <span class="id" type="var">inx1</span>:<span class="id" type="var">_</span> =&gt; <span class="id" type="var">inx1</span> <span class="id" type="var">P</span> <span class="id" type="var">xp</span>.<br/>
+<span class="id" type="keyword">Definition</span> <a name="hinhand"><span class="id" type="definition">hinhand</span></a> (<span class="id" type="var">X</span> <span class="id" type="var">Y</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">inx1</span>: <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">X</span>)(<span class="id" type="var">iny1</span>: <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">Y</span>) : <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> (<a class="idref" href="uu0.html#dirprod"><span class="id" type="definition">dirprod</span></a> <span class="id" type="var">X</span> <span class="id" type="var">Y</span>):= <span class="id" type="keyword">fun</span> <span class="id" type="var">P</span>:<span class="id" type="var">_</span>  =&gt; <a class="idref" href="uu0.html#ddualand"><span class="id" type="definition">ddualand</span></a> <span class="id" type="var">X</span> <span class="id" type="var">Y</span> <span class="id" type="var">P</span> (<span class="id" type="var">inx1</span> <span class="id" type="var">P</span>) (<span class="id" type="var">iny1</span> <span class="id" type="var">P</span>).<br/>
+<span class="id" type="keyword">Definition</span> <a name="hinhfunct2"><span class="id" type="definition">hinhfunct2</span></a> (<span class="id" type="var">X</span> <span class="id" type="var">Y</span> <span class="id" type="var">Z</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>): (<span class="id" type="var">X</span> -&gt; <span class="id" type="var">Y</span> -&gt; <span class="id" type="var">Z</span>) -&gt; (<a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">X</span> -&gt; <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">Y</span> -&gt; <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">Z</span>).<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span> <span class="id" type="var">X</span> <span class="id" type="var">Y</span> <span class="id" type="var">Z</span> <span class="id" type="var">X0</span> <span class="id" type="var">X1</span> <span class="id" type="var">X2</span>. <span class="id" type="tactic">apply</span> (<a class="idref" href="hProp.html#hinhfunct"><span class="id" type="definition">hinhfunct</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> (<span class="id" type="keyword">fun</span> <span class="id" type="var">xy</span>: <a class="idref" href="uu0.html#dirprod"><span class="id" type="definition">dirprod</span></a> <span class="id" type="var">X</span> <span class="id" type="var">Y</span> =&gt; <span class="id" type="var">X0</span> (<a class="idref" href="uu0.html#pr21"><span class="id" type="projection">pr21</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">xy</span>) (<a class="idref" href="uu0.html#pr22"><span class="id" type="projection">pr22</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">xy</span>)) (<a class="idref" href="hProp.html#hinhand"><span class="id" type="definition">hinhand</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">X1</span> <span class="id" type="var">X2</span>)). <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="hinhunivcor1"><span class="id" type="definition">hinhunivcor1</span></a> (<span class="id" type="var">P</span>:<a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>): <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">P</span> -&gt; <span class="id" type="var">P</span> := <a class="idref" href="hProp.html#hinhuniv"><span class="id" type="definition">hinhuniv</span></a> <span class="id" type="var">P</span> <span class="id" type="var">P</span> (<span class="id" type="keyword">fun</span> <span class="id" type="var">p</span>:<span class="id" type="var">P</span> =&gt; <span class="id" type="var">p</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab66"></a><h3 class="section">Intuitionistic logic on <span class="inlinecode"> <span class="id" type="var">hProp</span> </span>.</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="htrue"><span class="id" type="definition">htrue</span></a> : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a> := <a class="idref" href="hProp.html#hProppair"><span class="id" type="definition">hProppair</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.3pl2/stdlib/Coq.Init.Datatypes.html#unit"><span class="id" type="inductive">unit</span></a> <a class="idref" href="uu0.html#isapropunit"><span class="id" type="lemma">isapropunit</span></a>.<br/>
+<span class="id" type="var">Canonical</span> <span class="id" type="keyword">Structure</span> <a class="idref" href="hProp.html#htrue"><span class="id" type="definition">htrue</span></a>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="hfalse"><span class="id" type="definition">hfalse</span></a> : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a> := <a class="idref" href="hProp.html#hProppair"><span class="id" type="definition">hProppair</span></a> <a class="idref" href="uu0.html#empty"><span class="id" type="definition">empty</span></a> <a class="idref" href="uu0.html#isapropempty"><span class="id" type="lemma">isapropempty</span></a>.<br/>
+<span class="id" type="var">Canonical</span> <span class="id" type="keyword">Structure</span> <a class="idref" href="hProp.html#hfalse"><span class="id" type="definition">hfalse</span></a>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="hconj"><span class="id" type="definition">hconj</span></a> (<span class="id" type="var">P</span> <span class="id" type="var">Q</span> : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>) : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a> := <a class="idref" href="hProp.html#hProppair"><span class="id" type="definition">hProppair</span></a> (<a class="idref" href="uu0.html#dirprod"><span class="id" type="definition">dirprod</span></a> <span class="id" type="var">P</span> <span class="id" type="var">Q</span>) (<a class="idref" href="uu0.html#isofhleveldirprod"><span class="id" type="lemma">isofhleveldirprod</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/8.3pl2/stdlib/Coq.Init.Datatypes.html#S"><span class="id" type="constructor">S</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.3pl2/stdlib/Coq.Init.Datatypes.html#O"><span class="id" type="constructor">O</span></a>) <span class="id" type="var">_</span> <span class="id" type="var">_</span> (<span class="id" type="projection">uu1.pr22</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">P</span>) (<span class="id" type="projection">uu1.pr22</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">Q</span>)).<br/>
+<span class="id" type="var">Canonical</span> <span class="id" type="keyword">Structure</span> <a class="idref" href="hProp.html#hconj"><span class="id" type="definition">hconj</span></a>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="uu1hdisj"><span class="id" type="definition">uu1hdisj</span></a> (<span class="id" type="var">P</span> <span class="id" type="var">Q</span> : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>) :=  <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> (<a class="idref" href="uu0.html#coprod"><span class="id" type="inductive">coprod</span></a> <span class="id" type="var">P</span> <span class="id" type="var">Q</span>).<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="hneg"><span class="id" type="definition">hneg</span></a> (<span class="id" type="var">P</span>: <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>) : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>.<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">split</span> <span class="id" type="keyword">with</span> (<span class="id" type="var">P</span> -&gt; <a class="idref" href="uu0.html#empty"><span class="id" type="definition">empty</span></a>). <span class="id" type="tactic">apply</span> <a class="idref" href="uu0.html#impred"><span class="id" type="lemma">impred</span></a>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">apply</span> <a class="idref" href="uu0.html#isapropempty"><span class="id" type="lemma">isapropempty</span></a>. <span class="id" type="keyword">Defined</span>.<br/>
+<span class="id" type="var">Canonical</span> <span class="id" type="keyword">Structure</span> <a class="idref" href="hProp.html#hneg"><span class="id" type="definition">hneg</span></a>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="himpl"><span class="id" type="definition">himpl</span></a> (<span class="id" type="var">P</span> <span class="id" type="var">Q</span> : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>) : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>.<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span>. <span class="id" type="tactic">split</span> <span class="id" type="keyword">with</span> (<span class="id" type="var">P</span> -&gt; <span class="id" type="var">Q</span>). <span class="id" type="tactic">apply</span> <a class="idref" href="uu0.html#impred"><span class="id" type="lemma">impred</span></a>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">apply</span> (<span class="id" type="projection">uu1.pr22</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">Q</span>). <span class="id" type="keyword">Defined</span>.<br/>
+<span class="id" type="var">Canonical</span> <span class="id" type="keyword">Structure</span> <a class="idref" href="hProp.html#himpl"><span class="id" type="definition">himpl</span></a>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="hforall"><span class="id" type="definition">hforall</span></a> (<span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) (<span class="id" type="var">P</span>: <span class="id" type="var">X</span> -&gt; <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>) : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>.<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span>. <span class="id" type="tactic">split</span> <span class="id" type="keyword">with</span> (<span class="id" type="keyword">forall</span> <span class="id" type="var">x</span>:<span class="id" type="var">X</span>, <span class="id" type="var">P</span> <span class="id" type="var">x</span>). <span class="id" type="tactic">apply</span> <a class="idref" href="uu0.html#impred"><span class="id" type="lemma">impred</span></a>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">apply</span> (<span class="id" type="projection">uu1.pr22</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> (<span class="id" type="var">P</span> <span class="id" type="var">t</span>)). <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="hexists"><span class="id" type="definition">hexists</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) (<span class="id" type="var">P</span>: <span class="id" type="var">X</span> -&gt; <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>) := <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> (<a class="idref" href="uu0.html#total2"><span class="id" type="record">total2</span></a> <span class="id" type="var">X</span> <span class="id" type="var">P</span>).<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="wittohexists"><span class="id" type="definition">wittohexists</span></a> (<span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">P</span>: <span class="id" type="var">X</span> -&gt; <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>)(<span class="id" type="var">x</span>:<span class="id" type="var">X</span>)(<span class="id" type="var">is</span>: <span class="id" type="var">P</span> <span class="id" type="var">x</span>): <a class="idref" href="hProp.html#hexists"><span class="id" type="definition">hexists</span></a> <span class="id" type="var">X</span> <span class="id" type="var">P</span> := <a class="idref" href="hProp.html#hinhpr"><span class="id" type="definition">hinhpr</span></a> (<a class="idref" href="uu0.html#total2"><span class="id" type="record">total2</span></a> <span class="id" type="var">X</span> <span class="id" type="var">P</span>) (<a class="idref" href="uu0.html#tpair"><span class="id" type="constructor">tpair</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">x</span> <span class="id" type="var">is</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab67"></a><h3 class="section">The double negation version of <span class="inlinecode"> <span class="id" type="var">hinhabited</span> </span>.</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="isinhdneg"><span class="id" type="definition">isinhdneg</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> := <a class="idref" href="uu0.html#dneg"><span class="id" type="definition">dneg</span></a> <span class="id" type="var">X</span>.<br/>
+<span class="id" type="keyword">Definition</span> <a name="inhdnegpr"><span class="id" type="definition">inhdnegpr</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>): <span class="id" type="var">X</span> -&gt; <a class="idref" href="hProp.html#isinhdneg"><span class="id" type="definition">isinhdneg</span></a> <span class="id" type="var">X</span> := <a class="idref" href="uu0.html#todneg"><span class="id" type="definition">todneg</span></a> <span class="id" type="var">X</span>.<br/>
+<span class="id" type="keyword">Definition</span> <a name="inhdnegfunct"><span class="id" type="definition">inhdnegfunct</span></a> (<span class="id" type="var">X</span> <span class="id" type="var">Y</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">f</span>:<span class="id" type="var">X</span> -&gt; <span class="id" type="var">Y</span>): <a class="idref" href="hProp.html#isinhdneg"><span class="id" type="definition">isinhdneg</span></a> <span class="id" type="var">X</span> -&gt; <a class="idref" href="hProp.html#isinhdneg"><span class="id" type="definition">isinhdneg</span></a> <span class="id" type="var">Y</span> := <a class="idref" href="uu0.html#dnegf"><span class="id" type="definition">dnegf</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">f</span>.<br/>
+<span class="id" type="keyword">Definition</span> <a name="inhdneguniv"><span class="id" type="definition">inhdneguniv</span></a> (<span class="id" type="var">X</span>: <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">P</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">is</span>:<a class="idref" href="uu0.html#isweq"><span class="id" type="definition">isweq</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> (<a class="idref" href="uu0.html#todneg"><span class="id" type="definition">todneg</span></a> <span class="id" type="var">P</span>)): (<span class="id" type="var">X</span> -&gt; <span class="id" type="var">P</span>) -&gt; ((<a class="idref" href="hProp.html#isinhdneg"><span class="id" type="definition">isinhdneg</span></a> <span class="id" type="var">X</span>) -&gt; <span class="id" type="var">P</span>) := <span class="id" type="keyword">fun</span> <span class="id" type="var">xp</span>:<span class="id" type="var">_</span> =&gt; <span class="id" type="keyword">fun</span> <span class="id" type="var">inx0</span>:<span class="id" type="var">_</span> =&gt; (<a class="idref" href="uu0.html#invmap"><span class="id" type="definition">invmap</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">is</span> (<a class="idref" href="uu0.html#dnegf"><span class="id" type="definition">dnegf</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">xp</span> <span class="id" type="var">inx0</span>)).<br/>
+<span class="id" type="keyword">Definition</span> <a name="inhdnegand"><span class="id" type="definition">inhdnegand</span></a> (<span class="id" type="var">X</span> <span class="id" type="var">Y</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">inx0</span>: <a class="idref" href="hProp.html#isinhdneg"><span class="id" type="definition">isinhdneg</span></a> <span class="id" type="var">X</span>)(<span class="id" type="var">iny0</span>: <a class="idref" href="hProp.html#isinhdneg"><span class="id" type="definition">isinhdneg</span></a> <span class="id" type="var">Y</span>) : <a class="idref" href="hProp.html#isinhdneg"><span class="id" type="definition">isinhdneg</span></a> (<a class="idref" href="uu0.html#dirprod"><span class="id" type="definition">dirprod</span></a> <span class="id" type="var">X</span> <span class="id" type="var">Y</span>) := <a class="idref" href="uu0.html#dneganddnegimpldneg"><span class="id" type="definition">dneganddnegimpldneg</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">inx0</span> <span class="id" type="var">iny0</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="hinhimplinhdneg"><span class="id" type="definition">hinhimplinhdneg</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">inx1</span>: <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">X</span>): <a class="idref" href="hProp.html#isinhdneg"><span class="id" type="definition">isinhdneg</span></a> <span class="id" type="var">X</span> := <span class="id" type="var">inx1</span> <a class="idref" href="hProp.html#hfalse"><span class="id" type="definition">hfalse</span></a>.<br/>
+
+<br/>
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,192 @@
+FhProp
+R2025 uu1uu0 <> <> lib
+def 2091 <> hProp
+R2100 uu1 <> total2 rec
+R2129 uu0 <> isaprop def
+R2122 uu1uu0 <> UU0 syndef
+R2111 uu1uu0 <> UU0 syndef
+def 2153 <> hProppair
+R2166 uu1 <> tpair constr
+R2195 uu0 <> isaprop def
+R2188 uu1uu0 <> UU0 syndef
+R2177 uu1uu0 <> UU0 syndef
+def 2219 <> hptouu0
+R2279 uu1uu0 <> UU0 syndef
+R2270 hProp <> hProp def
+R2230 uu1 <> pr21 proj
+R2258 uu0 <> isaprop def
+R2251 uu1uu0 <> UU0 syndef
+R2240 uu1uu0 <> UU0 syndef
+R2293 hProp <> hptouu0 def
+def 2436 <> iscontr_hprop
+R2453 uu1uu0 <> UU0 syndef
+R2461 hProp <> hProppair def
+R2484 uu0 <> isapropiscontr thm
+R2472 uu0 <> iscontr def
+R2524 hProp <> iscontr_hprop def
+def 2552 <> isofhlevel_hprop
+R2574 Coq.Init.Datatypes <> nat ind
+R2586 uu1uu0 <> UU0 syndef
+R2595 hProp <> hProppair def
+R2623 uu0 <> isapropisofhlevel thm
+R2606 uu0 <> isofhlevel def
+R2667 hProp <> isofhlevel_hprop def
+def 2697 <> isaprop_hprop
+R2717 uu1uu0 <> UU0 syndef
+R2726 hProp <> hProppair def
+R2749 uu0 <> isapropisaprop thm
+R2737 uu0 <> isaprop def
+R2788 hProp <> isaprop_hprop def
+def 2888 <> ishinh
+R2898 uu1uu0 <> UU0 syndef
+R2916 hProp <> hProp def
+prf 2946 <> uu1isapropishinh
+R2968 uu1uu0 <> UU0 syndef
+R2975 uu1 <> isaprop def
+R2988 hProp <> ishinh def
+R3020 uu1 <> impred thm
+R3020 uu1 <> impred thm
+R3047 uu1 <> impred thm
+R3047 uu1 <> impred thm
+R3074 uu1uu0 <> u0isaproptou1isaprop def
+R3098 uu1 <> pr22 proj
+R3074 uu1uu0 <> u0isaproptou1isaprop def
+R3098 uu1 <> pr22 proj
+def 3141 <> hinhpr
+R3151 uu1uu0 <> UU0 syndef
+R3162 hProp <> ishinh def
+R3202 uu0 <> adjev def
+R3192 hProp <> hProp def
+def 3226 <> hinhfunct
+R3241 uu1uu0 <> UU0 syndef
+R3270 hProp <> ishinh def
+R3258 hProp <> ishinh def
+R3292 hProp <> ishinh def
+def 3378 <> hinhuniv
+R3390 uu1uu0 <> UU0 syndef
+R3398 hProp <> hProp def
+R3422 hProp <> ishinh def
+def 3489 <> hinhand
+R3502 uu1uu0 <> UU0 syndef
+R3513 hProp <> ishinh def
+R3529 hProp <> ishinh def
+R3541 hProp <> ishinh def
+R3549 uu0 <> dirprod def
+R3576 uu0 <> ddualand def
+def 3621 <> hinhfunct2
+R3639 uu1uu0 <> UU0 syndef
+R3687 hProp <> ishinh def
+R3675 hProp <> ishinh def
+R3663 hProp <> ishinh def
+R3735 hProp <> hinhfunct def
+R3806 hProp <> hinhand def
+R3791 uu0 <> pr22 proj
+R3777 uu0 <> pr21 proj
+R3758 uu0 <> dirprod def
+R3735 hProp <> hinhfunct def
+R3806 hProp <> hinhand def
+R3791 uu0 <> pr22 proj
+R3777 uu0 <> pr21 proj
+R3758 uu0 <> dirprod def
+def 3851 <> hinhunivcor1
+R3867 hProp <> hProp def
+R3875 hProp <> ishinh def
+R3892 hProp <> hinhuniv def
+def 3984 <> htrue
+R3992 hProp <> hProp def
+R4001 hProp <> hProppair def
+R4016 uu0 <> isapropunit thm
+R4011 Coq.Init.Datatypes <> unit ind
+R4049 hProp <> htrue def
+def 4068 <> hfalse
+R4077 hProp <> hProp def
+R4086 hProp <> hProppair def
+R4102 uu0 <> isapropempty thm
+R4096 uu0 <> empty def
+R4136 hProp <> hfalse def
+def 4157 <> hconj
+R4170 hProp <> hProp def
+R4179 hProp <> hProp def
+R4188 hProp <> hProppair def
+R4213 uu0 <> isofhleveldirprod thm
+R4259 uu1 <> pr22 proj
+R4242 uu1 <> pr22 proj
+R4232 Coq.Init.Datatypes <> S constr
+R4234 Coq.Init.Datatypes <> O constr
+R4199 uu0 <> dirprod def
+R4298 hProp <> hconj def
+def 4317 <> uu1hdisj
+R4333 hProp <> hProp def
+R4344 hProp <> ishinh def
+R4352 uu0 <> coprod ind
+def 4379 <> hneg
+R4388 hProp <> hProp def
+R4397 hProp <> hProp def
+R4435 uu0 <> empty def
+R4435 uu0 <> empty def
+R4449 uu0 <> impred thm
+R4449 uu0 <> impred thm
+R4470 uu0 <> isapropempty thm
+R4470 uu0 <> isapropempty thm
+R4513 hProp <> hneg def
+def 4531 <> himpl
+R4544 hProp <> hProp def
+R4553 hProp <> hProp def
+R4602 uu0 <> impred thm
+R4602 uu0 <> impred thm
+R4624 uu1 <> pr22 proj
+R4624 uu1 <> pr22 proj
+R4671 hProp <> himpl def
+def 4693 <> hforall
+R4706 uu1uu0 <> UU0 syndef
+R4720 hProp <> hProp def
+R4729 hProp <> hProp def
+R4787 uu0 <> impred thm
+R4787 uu0 <> impred thm
+R4810 uu1 <> pr22 proj
+R4810 uu1 <> pr22 proj
+def 4852 <> hexists
+R4863 uu1uu0 <> UU0 syndef
+R4877 hProp <> hProp def
+R4887 hProp <> ishinh def
+R4895 uu0 <> total2 rec
+def 4920 <> wittohexists
+R4938 uu1uu0 <> UU0 syndef
+R4951 hProp <> hProp def
+R4973 hProp <> hexists def
+R4988 hProp <> hinhpr def
+R5009 uu0 <> tpair constr
+R4996 uu0 <> total2 rec
+def 5101 <> isinhdneg
+R5114 uu1uu0 <> UU0 syndef
+R5121 uu1uu0 <> UU0 syndef
+R5128 uu0 <> dneg def
+def 5147 <> inhdnegpr
+R5160 uu1uu0 <> UU0 syndef
+R5171 hProp <> isinhdneg def
+R5186 uu0 <> todneg def
+def 5207 <> inhdnegfunct
+R5225 uu1uu0 <> UU0 syndef
+R5256 hProp <> isinhdneg def
+R5241 hProp <> isinhdneg def
+R5271 uu0 <> dnegf def
+def 5295 <> inhdneguniv
+R5311 uu1uu0 <> UU0 syndef
+R5318 uu1uu0 <> UU0 syndef
+R5326 uu0 <> isweq def
+R5337 uu0 <> todneg def
+R5363 hProp <> isinhdneg def
+R5412 uu0 <> invmap def
+R5429 uu0 <> dnegf def
+def 5461 <> inhdnegand
+R5477 uu1uu0 <> UU0 syndef
+R5488 hProp <> isinhdneg def
+R5507 hProp <> isinhdneg def
+R5522 hProp <> isinhdneg def
+R5533 uu0 <> dirprod def
+R5549 uu0 <> dneganddnegimpldneg def
+def 5597 <> hinhimplinhdneg
+R5616 uu1uu0 <> UU0 syndef
+R5627 hProp <> ishinh def
+R5638 hProp <> isinhdneg def
+R5658 hProp <> hfalse def

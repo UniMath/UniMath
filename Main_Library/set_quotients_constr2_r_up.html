@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<link href="coqdoc.css" rel="stylesheet" type="text/css"/>
+<title>set_quotients_constr2_r_up</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library set_quotients_constr2_r_up</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a name="lab98"></a><h1 class="section">Set quotients. Construction 2.</h1>
+
+
+<br/> <br/>
+****************** THIS FILE IS UNFINISHED ******************
+
+<br/> <br/>
+The following construction of the set quotient is based on the following idea. Let X be a set. Then we have the obvious "double evaluation map" from X to the product over all sets Y of the sets ((X -&gt; Y) -&gt; Y). This is always an inclusion and in particular X is isomorphic to the image of this map. Suppore now we have a relation (which need not be an equivalence relation) R on X. Then we know that (X/R -&gt; Y) is a subset of (X -&gt; Y) which consists of functions compatible with the relation even if we do not know what X/R is. Thus we may consider the image of X in the product over all Y of ((X/R -&gt; Y) -&gt;Y) and it must be isomorphic to X/R. This ideas are realized in the definitions given below. There are two advantages to this approach. One is that the relation need not be an equivalence relation. Another one is that it can be more easily generalized to the higher quotients of type.
+
+<br/> <br/>
+We also show that two constructions of set-quotients of types - the one given in set_quotients and the one given here agree up to an isomorphism (weak equivalence). 
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab99"></a><h3 class="section">Preambule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Add</span> <span class="id" type="var">Rec</span> <span class="id" type="var">LoadPath</span> "../Generalities".<br/>
+<span class="id" type="keyword">Add</span> <span class="id" type="var">Rec</span> <span class="id" type="var">LoadPath</span> "../hlevel1".<br/>
+
+<br/>
+<span class="id" type="keyword">Unset</span> <span class="id" type="var">Automatic</span> <span class="id" type="var">Introduction</span>. 
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab100"></a><h3 class="section">Imports.</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Require</span> <span class="id" type="keyword">Export</span> <a class="idref" href="set_quotients_r_up.html#"><span class="id" type="library">set_quotients_r_up</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab101"></a><h3 class="section">Functions compatible with a relation</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="compfun"><span class="id" type="definition">compfun</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">R</span>: <a class="idref" href="hSet_r.html#hrel"><span class="id" type="definition">hrel</span></a> <span class="id" type="var">X</span>)(<span class="id" type="var">S</span> : <a class="idref" href="hSet_r.html#hSet"><span class="id" type="definition">hSet</span></a>) : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> := <a class="idref" href="uu0.html#total2"><span class="id" type="record">total2</span></a> (<span class="id" type="var">X</span> -&gt; <span class="id" type="var">S</span>) (<span class="id" type="keyword">fun</span> <span class="id" type="var">F</span>: <span class="id" type="var">X</span> -&gt; <span class="id" type="var">S</span> =&gt; <span class="id" type="keyword">forall</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> : <span class="id" type="var">X</span>, <span class="id" type="var">R</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> -&gt; <a class="idref" href="uu0.html#paths"><span class="id" type="inductive">paths</span></a> <span class="id" type="var">_</span> (<span class="id" type="var">F</span> <span class="id" type="var">x</span> ) (<span class="id" type="var">F</span> <span class="id" type="var">x'</span>)).<br/>
+<span class="id" type="keyword">Definition</span> <a name="compfunpair"><span class="id" type="definition">compfunpair</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) (<span class="id" type="var">R</span>: <a class="idref" href="hSet_r.html#hrel"><span class="id" type="definition">hrel</span></a> <span class="id" type="var">X</span>)(<span class="id" type="var">S</span> : <a class="idref" href="hSet_r.html#hSet"><span class="id" type="definition">hSet</span></a>) := <a class="idref" href="uu0.html#tpair"><span class="id" type="constructor">tpair</span></a> (<span class="id" type="var">X</span> -&gt; <span class="id" type="var">S</span>) (<span class="id" type="keyword">fun</span> <span class="id" type="var">F</span>: <span class="id" type="var">X</span> -&gt; <span class="id" type="var">S</span> =&gt; <span class="id" type="keyword">forall</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> : <span class="id" type="var">X</span>, <span class="id" type="var">R</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> -&gt; <a class="idref" href="uu0.html#paths"><span class="id" type="inductive">paths</span></a> <span class="id" type="var">_</span> (<span class="id" type="var">F</span> <span class="id" type="var">x</span> ) (<span class="id" type="var">F</span> <span class="id" type="var">x'</span>)).<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="compevmap"><span class="id" type="definition">compevmap</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">R</span>: <a class="idref" href="hSet_r.html#hrel"><span class="id" type="definition">hrel</span></a> <span class="id" type="var">X</span>) : <span class="id" type="var">X</span> -&gt; <span class="id" type="keyword">forall</span> <span class="id" type="var">S</span>: <a class="idref" href="hSet_r.html#hSet"><span class="id" type="definition">hSet</span></a>, (<a class="idref" href="set_quotients_constr2_r_up.html#compfun"><span class="id" type="definition">compfun</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span> <span class="id" type="var">S</span>) -&gt; <span class="id" type="var">S</span> := <span class="id" type="keyword">fun</span> <span class="id" type="var">x</span>:<span class="id" type="var">X</span> =&gt; <span class="id" type="keyword">fun</span> <span class="id" type="var">S</span>:<span class="id" type="var">_</span> =&gt; <span class="id" type="keyword">fun</span> <span class="id" type="var">f</span>: <a class="idref" href="set_quotients_constr2_r_up.html#compfun"><span class="id" type="definition">compfun</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span> <span class="id" type="var">S</span> =&gt; <a class="idref" href="uu0.html#pr21"><span class="id" type="projection">pr21</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">f</span> <span class="id" type="var">x</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab102"></a><h3 class="section">The quotient set of a type by a relation.</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="setquot2"><span class="id" type="definition">setquot2</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">R</span>: <a class="idref" href="hSet_r.html#hrel"><span class="id" type="definition">hrel</span></a> <span class="id" type="var">X</span>) : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> := <a class="idref" href="hSet_r.html#image"><span class="id" type="definition">image</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> (<a class="idref" href="set_quotients_constr2_r_up.html#compevmap"><span class="id" type="definition">compevmap</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span>). 
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="setquot2pr"><span class="id" type="definition">setquot2pr</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">R</span>: <a class="idref" href="hSet_r.html#hrel"><span class="id" type="definition">hrel</span></a> <span class="id" type="var">X</span>) : <span class="id" type="var">X</span> -&gt; <a class="idref" href="set_quotients_constr2_r_up.html#setquot2"><span class="id" type="definition">setquot2</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span> := <span class="id" type="keyword">fun</span> <span class="id" type="var">x</span>:<span class="id" type="var">X</span> =&gt; <a class="idref" href="hSet_r.html#imagepair"><span class="id" type="definition">imagepair</span></a> <span class="id" type="var">X</span> <span class="id" type="var">_</span> (<a class="idref" href="set_quotients_constr2_r_up.html#compevmap"><span class="id" type="definition">compevmap</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span>) <span class="id" type="var">_</span> (<a class="idref" href="hProp.html#hinhpr"><span class="id" type="definition">hinhpr</span></a> <span class="id" type="var">_</span> (<a class="idref" href="uu0.html#hfiberpair"><span class="id" type="definition">hfiberpair</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> (<a class="idref" href="set_quotients_constr2_r_up.html#compevmap"><span class="id" type="definition">compevmap</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span>) (<a class="idref" href="set_quotients_constr2_r_up.html#compevmap"><span class="id" type="definition">compevmap</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span> <span class="id" type="var">x</span>) <span class="id" type="var">x</span> (<a class="idref" href="uu0.html#idpath"><span class="id" type="constructor">idpath</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> ))).<br/>
+
+<br/>
+<span class="id" type="keyword">Lemma</span> <a name="iscompsetquot2pr"><span class="id" type="lemma">iscompsetquot2pr</span></a> (<span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) (<span class="id" type="var">R</span> : <a class="idref" href="hSet_r.html#hrel"><span class="id" type="definition">hrel</span></a> <span class="id" type="var">X</span>) ( <span class="id" type="var">x</span> <span class="id" type="var">x'</span> : <span class="id" type="var">X</span>) (<span class="id" type="var">a</span>: <span class="id" type="var">R</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>) : <a class="idref" href="uu0.html#paths"><span class="id" type="inductive">paths</span></a> <span class="id" type="var">_</span> (<a class="idref" href="set_quotients_constr2_r_up.html#setquot2pr"><span class="id" type="definition">setquot2pr</span></a> <span class="id" type="var">_</span> <span class="id" type="var">R</span> <span class="id" type="var">x</span>) (<a class="idref" href="set_quotients_constr2_r_up.html#setquot2pr"><span class="id" type="definition">setquot2pr</span></a> <span class="id" type="var">_</span> <span class="id" type="var">R</span> <span class="id" type="var">x'</span>).<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span>.<br/>
+<span class="id" type="tactic">assert</span> (<span class="id" type="var">e1</span>: <a class="idref" href="uu0.html#paths"><span class="id" type="inductive">paths</span></a> <span class="id" type="var">_</span> (<a class="idref" href="set_quotients_constr2_r_up.html#compevmap"><span class="id" type="definition">compevmap</span></a> <span class="id" type="var">_</span> <span class="id" type="var">R</span> <span class="id" type="var">x</span>) (<a class="idref" href="set_quotients_constr2_r_up.html#compevmap"><span class="id" type="definition">compevmap</span></a> <span class="id" type="var">_</span> <span class="id" type="var">R</span> <span class="id" type="var">x'</span>)). <span class="id" type="tactic">apply</span> <a class="idref" href="uu1uu0.html#u1pathstou0paths"><span class="id" type="lemma">u1pathstou0paths</span></a>. <span class="id" type="tactic">apply</span> <span class="id" type="definition">uu1.funextsec</span>. <span class="id" type="tactic">intro</span> <span class="id" type="var">S</span>. <span class="id" type="tactic">apply</span> <span class="id" type="definition">uu1.funextsec</span>. <span class="id" type="tactic">intro</span> <span class="id" type="var">f</span>. <span class="id" type="tactic">unfold</span> <span class="id" type="var">compfun</span> <span class="id" type="keyword">in</span> <span class="id" type="var">f</span>. <span class="id" type="tactic">apply</span> <a class="idref" href="uu1uu0.html#u0pathstou1paths"><span class="id" type="lemma">u0pathstou1paths</span></a>. <span class="id" type="tactic">apply</span> (<a class="idref" href="uu0.html#pr22"><span class="id" type="projection">pr22</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">f</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> <span class="id" type="var">a</span>).<br/>
+<span class="id" type="tactic">apply</span> (<a class="idref" href="uu0.html#invmaponpathsincl"><span class="id" type="definition">invmaponpathsincl</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> (<a class="idref" href="hSet_r.html#isinclimageincl"><span class="id" type="lemma">isinclimageincl</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> (<a class="idref" href="set_quotients_constr2_r_up.html#compevmap"><span class="id" type="definition">compevmap</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span>) ) (<a class="idref" href="set_quotients_constr2_r_up.html#setquot2pr"><span class="id" type="definition">setquot2pr</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span> <span class="id" type="var">x</span>) (<a class="idref" href="set_quotients_constr2_r_up.html#setquot2pr"><span class="id" type="definition">setquot2pr</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span> <span class="id" type="var">x'</span>) <span class="id" type="var">e1</span>). <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Lemma</span> <a name="issurjsetquot2pr"><span class="id" type="lemma">issurjsetquot2pr</span></a> (<span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) (<span class="id" type="var">R</span> : <a class="idref" href="hSet_r.html#hrel"><span class="id" type="definition">hrel</span></a> <span class="id" type="var">X</span>) : <a class="idref" href="hSet_r.html#issurjective"><span class="id" type="definition">issurjective</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> (<a class="idref" href="set_quotients_constr2_r_up.html#setquot2pr"><span class="id" type="definition">setquot2pr</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span>).<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span>. <span class="id" type="tactic">apply</span> <a class="idref" href="hSet_r.html#issurjprtoimage"><span class="id" type="lemma">issurjprtoimage</span></a>. <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="setquot2univ"><span class="id" type="definition">setquot2univ</span></a> (<span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) (<span class="id" type="var">Y</span> : <a class="idref" href="hSet_r.html#hSet"><span class="id" type="definition">hSet</span></a>) (<span class="id" type="var">R</span>: <a class="idref" href="hSet_r.html#hrel"><span class="id" type="definition">hrel</span></a> <span class="id" type="var">X</span>) (<span class="id" type="var">F</span>: <span class="id" type="var">X</span> -&gt; <span class="id" type="var">Y</span> ) (<span class="id" type="var">iscomp</span> : <span class="id" type="keyword">forall</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> : <span class="id" type="var">X</span>, <span class="id" type="var">R</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> -&gt; <a class="idref" href="uu0.html#paths"><span class="id" type="inductive">paths</span></a> <span class="id" type="var">_</span> (<span class="id" type="var">F</span> <span class="id" type="var">x</span> ) (<span class="id" type="var">F</span> <span class="id" type="var">x'</span>)) : <a class="idref" href="set_quotients_constr2_r_up.html#setquot2"><span class="id" type="definition">setquot2</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span> -&gt; <span class="id" type="var">Y</span> := <span class="id" type="keyword">fun</span> <span class="id" type="var">q</span>:<span class="id" type="var">_</span> =&gt; (( <a class="idref" href="uu0.html#pr21"><span class="id" type="projection">pr21</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">q</span> <span class="id" type="var">Y</span> (<a class="idref" href="set_quotients_constr2_r_up.html#compfunpair"><span class="id" type="definition">compfunpair</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">Y</span> <span class="id" type="var">F</span> <span class="id" type="var">iscomp</span>))).<br/>
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="setquot2univcomm"><span class="id" type="lemma">setquot2univcomm</span></a>  (<span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) (<span class="id" type="var">Y</span> : <a class="idref" href="hSet_r.html#hSet"><span class="id" type="definition">hSet</span></a>) (<span class="id" type="var">R</span>: <a class="idref" href="hSet_r.html#hrel"><span class="id" type="definition">hrel</span></a> <span class="id" type="var">X</span>) (<span class="id" type="var">F</span>: <span class="id" type="var">X</span> -&gt; <span class="id" type="var">Y</span> ) (<span class="id" type="var">iscomp</span> : <span class="id" type="keyword">forall</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> : <span class="id" type="var">X</span>, <span class="id" type="var">R</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> -&gt; <a class="idref" href="uu0.html#paths"><span class="id" type="inductive">paths</span></a> <span class="id" type="var">_</span> (<span class="id" type="var">F</span> <span class="id" type="var">x</span> ) (<span class="id" type="var">F</span> <span class="id" type="var">x'</span>)) ( <span class="id" type="var">x</span> : <span class="id" type="var">X</span>) : <a class="idref" href="uu0.html#paths"><span class="id" type="inductive">paths</span></a> <span class="id" type="var">_</span> (<a class="idref" href="set_quotients_constr2_r_up.html#setquot2univ"><span class="id" type="definition">setquot2univ</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">F</span> <span class="id" type="var">iscomp</span> ( <a class="idref" href="set_quotients_constr2_r_up.html#setquot2pr"><span class="id" type="definition">setquot2pr</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span> <span class="id" type="var">x</span> )) (<span class="id" type="var">F</span> <span class="id" type="var">x</span>).<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span>. <span class="id" type="tactic">apply</span> <a class="idref" href="uu0.html#idpath"><span class="id" type="constructor">idpath</span></a>. <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="isasetsetquot2"><span class="id" type="lemma">isasetsetquot2</span></a> (<span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) (<span class="id" type="var">R</span>: <a class="idref" href="hSet_r.html#hrel"><span class="id" type="definition">hrel</span></a> <span class="id" type="var">X</span>) : <a class="idref" href="uu0.html#isaset"><span class="id" type="definition">isaset</span></a> (<a class="idref" href="set_quotients_constr2_r_up.html#setquot2"><span class="id" type="definition">setquot2</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span>).<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span>.<br/>
+<span class="id" type="tactic">assert</span> (<span class="id" type="var">is1</span>: <a class="idref" href="uu0.html#isaset"><span class="id" type="definition">isaset</span></a> ( <span class="id" type="keyword">forall</span> <span class="id" type="var">S</span>: <a class="idref" href="hSet_r.html#hSet"><span class="id" type="definition">hSet</span></a>, (<a class="idref" href="set_quotients_constr2_r_up.html#compfun"><span class="id" type="definition">compfun</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span> <span class="id" type="var">S</span>) -&gt; <span class="id" type="var">S</span> )). <span class="id" type="tactic">apply</span> (<a class="idref" href="uu1uu0.html#u1isasettou0isaset"><span class="id" type="lemma">u1isasettou0isaset</span></a>). <span class="id" type="tactic">apply</span> <span class="id" type="lemma">uu1.impred</span>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">apply</span> <span class="id" type="lemma">uu1.impred</span>. <span class="id" type="tactic">intro</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">apply</span> (<a class="idref" href="uu1uu0.html#u0isasettou1isaset"><span class="id" type="lemma">u0isasettou1isaset</span></a> <span class="id" type="var">t</span>). <span class="id" type="tactic">apply</span> (<span class="id" type="projection">uu1.pr22</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">t</span>).<br/>
+<span class="id" type="tactic">apply</span> (<a class="idref" href="uu0.html#isasetsubset"><span class="id" type="lemma">isasetsubset</span></a> <span class="id" type="var">_</span>  <span class="id" type="var">_</span>  <span class="id" type="var">_</span> <span class="id" type="var">is1</span> (<a class="idref" href="hSet_r.html#isinclimageincl"><span class="id" type="lemma">isinclimageincl</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> )). <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The previous results show that setquot2 as constructed is indeed the categorical quotient of X with respect to R. What we can not direcly show for this construction is that for  <span class="inlinecode"> (<span class="id" type="var">X</span> : <span class="id" type="var">UU0</span>) (<span class="id" type="var">R</span> : <span class="id" type="var">hrel</span> <span class="id" type="var">X</span>) ( <span class="id" type="var">x</span> <span class="id" type="var">x'</span> : <span class="id" type="var">X</span>) ( <span class="id" type="var">e</span>: <span class="id" type="var">paths</span> <span class="id" type="var">_</span> (<span class="id" type="var">setquot2pr</span> <span class="id" type="var">_</span> <span class="id" type="var">R</span> <span class="id" type="var">x</span>) (<span class="id" type="var">setquot2pr</span> <span class="id" type="var">_</span> <span class="id" type="var">R</span> <span class="id" type="var">x'</span>)) (<span class="id" type="var">is</span> : <span class="id" type="var">iseqrel</span> <span class="id" type="var">X</span> <span class="id" type="var">R</span>) </span> one has <span class="inlinecode"> <span class="id" type="var">R</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> </span>. For this we will need to define setquot2 in terms of equivalence classes and then show that the two constructions agree. 
+</div>
+<div class="code">
+
+<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="setquottosetquot2"><span class="id" type="definition">setquottosetquot2</span></a> (<span class="id" type="var">X</span>: <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) (<span class="id" type="var">R</span>: <a class="idref" href="hSet_r.html#hrel"><span class="id" type="definition">hrel</span></a> <span class="id" type="var">X</span>) (<span class="id" type="var">is</span>: <a class="idref" href="hSet_r.html#iseqrel"><span class="id" type="definition">iseqrel</span></a> <span class="id" type="var">_</span> <span class="id" type="var">R</span>) : <a class="idref" href="set_quotients_r_up.html#setquot"><span class="id" type="definition">setquot</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span> -&gt; <a class="idref" href="set_quotients_constr2_r_up.html#setquot2"><span class="id" type="definition">setquot2</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span>.<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span> <span class="id" type="var">X</span> <span class="id" type="var">R</span> <span class="id" type="var">is</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">apply</span> (<a class="idref" href="set_quotients_r_up.html#setquotuniv"><span class="id" type="lemma">setquotuniv</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span> (<a class="idref" href="hSet_r.html#hSetpair"><span class="id" type="definition">hSetpair</span></a> <span class="id" type="var">_</span> (<a class="idref" href="set_quotients_constr2_r_up.html#isasetsetquot2"><span class="id" type="lemma">isasetsetquot2</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span>)) (<a class="idref" href="set_quotients_constr2_r_up.html#setquot2pr"><span class="id" type="definition">setquot2pr</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span>) (<a class="idref" href="set_quotients_constr2_r_up.html#iscompsetquot2pr"><span class="id" type="lemma">iscompsetquot2pr</span></a> <span class="id" type="var">X</span> <span class="id" type="var">R</span>) <span class="id" type="var">X0</span>). <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

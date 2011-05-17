@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<link href="coqdoc.css" rel="stylesheet" type="text/css"/>
+<title>hProp_r</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library hProp_r</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a name="lab68"></a><h1 class="section">Generalities on <span class="inlinecode"> <span class="id" type="var">hProp</span> </span> requiring resizing.</h1>
+
+
+<br/> <br/>
+This is the addendum to the file hProp which contains results requiring the resizing axiom. At the moment one needs a Type in Type patch to compile it. The resizing axioms which we need here is as follows:
+
+<br/> <br/>
+RA1  if <span class="inlinecode"> <span class="id" type="var">X</span> : <span class="id" type="var">UU1</span> </span> and <span class="inlinecode"> <span class="id" type="var">uu1.isaprop</span> <span class="id" type="var">X</span> </span> are valid then  <span class="inlinecode"> <span class="id" type="var">X</span> : <span class="id" type="var">UU0</span> </span> is valid.   
+
+<br/> <br/>
+
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab69"></a><h3 class="section">Preambule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Add</span> <span class="id" type="var">Rec</span> <span class="id" type="var">LoadPath</span> "../Generalities".<br/>
+
+<br/>
+<span class="id" type="keyword">Unset</span> <span class="id" type="var">Automatic</span> <span class="id" type="var">Introduction</span>. </div>
+
+<div class="doc">
+This line has to be removed for the file to compile with Coq8.2 
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab70"></a><h3 class="section">Imports.</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Require</span> <span class="id" type="keyword">Export</span> <a class="idref" href="hProp.html#"><span class="id" type="library">hProp</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab71"></a><h3 class="section"><span class="inlinecode"> <span class="id" type="var">ishinh</span> </span> with values in <span class="inlinecode"> <span class="id" type="var">hProp</span> </span>.</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="isapropishinh"><span class="id" type="lemma">isapropishinh</span></a> (<span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) : <a class="idref" href="uu0.html#isaprop"><span class="id" type="definition">isaprop</span></a> (<a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">X</span>).<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">apply</span> <a class="idref" href="uu0.html#impred"><span class="id" type="lemma">impred</span></a>. <span class="id" type="tactic">intro</span> <span class="id" type="var">x</span>. <span class="id" type="tactic">apply</span> <a class="idref" href="uu0.html#impred"><span class="id" type="lemma">impred</span></a>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">apply</span> ((<span class="id" type="projection">uu1.pr22</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">x</span>)). <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="ishinh_hprop"><span class="id" type="definition">ishinh_hprop</span></a> (<span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) := <a class="idref" href="hProp.html#hProppair"><span class="id" type="definition">hProppair</span></a> (<a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">X</span>) (<a class="idref" href="hProp_r.html#isapropishinh"><span class="id" type="lemma">isapropishinh</span></a> <span class="id" type="var">X</span>).<br/>
+<span class="id" type="var">Canonical</span> <span class="id" type="keyword">Structure</span> <a class="idref" href="hProp_r.html#ishinh_hprop"><span class="id" type="definition">ishinh_hprop</span></a>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="hexists"><span class="id" type="definition">hexists</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) (<span class="id" type="var">P</span>: <span class="id" type="var">X</span> -&gt; <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>) : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a> := <a class="idref" href="hProp_r.html#ishinh_hprop"><span class="id" type="definition">ishinh_hprop</span></a> (<a class="idref" href="uu0.html#total2"><span class="id" type="record">total2</span></a> <span class="id" type="var">X</span> <span class="id" type="var">P</span>).<br/>
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="hinhuniv2"><span class="id" type="lemma">hinhuniv2</span></a> ( <span class="id" type="var">X</span> <span class="id" type="var">Y</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> ) ( <span class="id" type="var">f</span> : <span class="id" type="var">X</span> -&gt; <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">Y</span> ) : ( <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">X</span> ) -&gt; ( <a class="idref" href="hProp.html#ishinh"><span class="id" type="definition">ishinh</span></a> <span class="id" type="var">Y</span> ).<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span> <span class="id" type="var">X</span> <span class="id" type="var">Y</span> <span class="id" type="var">f</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">apply</span> ( <a class="idref" href="hProp.html#hinhuniv"><span class="id" type="definition">hinhuniv</span></a> <span class="id" type="var">X</span> ( <a class="idref" href="hProp_r.html#ishinh_hprop"><span class="id" type="definition">ishinh_hprop</span></a> <span class="id" type="var">Y</span> ) ). <span class="id" type="tactic">assumption</span>. <span class="id" type="tactic">assumption</span>. <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="hdisj"><span class="id" type="definition">hdisj</span></a> (<span class="id" type="var">P</span> <span class="id" type="var">Q</span> : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>) : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a> :=  <a class="idref" href="hProp_r.html#ishinh_hprop"><span class="id" type="definition">ishinh_hprop</span></a> (<a class="idref" href="uu0.html#coprod"><span class="id" type="inductive">coprod</span></a> <span class="id" type="var">P</span> <span class="id" type="var">Q</span>).<br/>
+<span class="id" type="var">Canonical</span> <span class="id" type="keyword">Structure</span> <a class="idref" href="hProp_r.html#hdisj"><span class="id" type="definition">hdisj</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab72"></a><h3 class="section">Proof of the only non-trivial axiom of intuitionistic logic for our constructions. For the full list of axioms see e.g.  http://plato.stanford.edu/entries/logic-intuitionistic/</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="hconjtohdisj"><span class="id" type="lemma">hconjtohdisj</span></a> (<span class="id" type="var">P</span> <span class="id" type="var">Q</span> <span class="id" type="var">R</span> : <a class="idref" href="hProp.html#hProp"><span class="id" type="definition">hProp</span></a>) :  <a class="idref" href="hProp.html#hconj"><span class="id" type="definition">hconj</span></a> (<a class="idref" href="hProp.html#himpl"><span class="id" type="definition">himpl</span></a> <span class="id" type="var">P</span> <span class="id" type="var">R</span>) (<a class="idref" href="hProp.html#himpl"><span class="id" type="definition">himpl</span></a> <span class="id" type="var">Q</span> <span class="id" type="var">R</span>) -&gt; (<a class="idref" href="hProp.html#himpl"><span class="id" type="definition">himpl</span></a> (<a class="idref" href="hProp_r.html#hdisj"><span class="id" type="definition">hdisj</span></a> <span class="id" type="var">P</span> <span class="id" type="var">Q</span>) <span class="id" type="var">R</span>).<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span> <span class="id" type="var">P</span> <span class="id" type="var">Q</span> <span class="id" type="var">R</span> <span class="id" type="var">X0</span>.<br/>
+<span class="id" type="tactic">assert</span> (<span class="id" type="var">s1</span>: (<a class="idref" href="hProp_r.html#hdisj"><span class="id" type="definition">hdisj</span></a> <span class="id" type="var">P</span> <span class="id" type="var">Q</span>) -&gt; <span class="id" type="var">R</span>). <span class="id" type="tactic">intro</span> <span class="id" type="var">X1</span>.<br/>
+<span class="id" type="tactic">assert</span> (<span class="id" type="var">s2</span>: (<a class="idref" href="uu0.html#coprod"><span class="id" type="inductive">coprod</span></a> <span class="id" type="var">P</span> <span class="id" type="var">Q</span>) -&gt; <span class="id" type="var">R</span>). <span class="id" type="tactic">intro</span> <span class="id" type="var">X2</span>. <span class="id" type="tactic">destruct</span> <span class="id" type="var">X2</span> <span class="id" type="keyword">as</span> [ <span class="id" type="var">XP</span> | <span class="id" type="var">XQ</span> ]. <span class="id" type="tactic">apply</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">assumption</span>. <span class="id" type="tactic">apply</span> (<a class="idref" href="uu0.html#pr22"><span class="id" type="projection">pr22</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">X0</span>). <span class="id" type="tactic">assumption</span>.<br/>
+<span class="id" type="tactic">apply</span> (<a class="idref" href="hProp.html#hinhuniv"><span class="id" type="definition">hinhuniv</span></a> (<a class="idref" href="uu0.html#coprod"><span class="id" type="inductive">coprod</span></a> <span class="id" type="var">P</span> <span class="id" type="var">Q</span>) <span class="id" type="var">R</span> <span class="id" type="var">s2</span>). <span class="id" type="tactic">assumption</span>. <span class="id" type="tactic">unfold</span> <span class="id" type="var">himpl</span>. <span class="id" type="tactic">assumption</span>. <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

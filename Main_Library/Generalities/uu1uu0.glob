@@ -1,0 +1,135 @@
+Fuu1uu0
+R566 uu1 <> <> lib
+R570 uu0 <> <> lib
+syndef 617 <> UU0
+R624 uu0 <> UU def
+syndef 642 <> UU1
+R650 uu1 <> UU def
+def 671 <> j01
+R682 uu1uu0 <> UU1 syndef
+R675 uu1uu0 <> UU0 syndef
+R694 uu1uu0 <> UU0 syndef
+def 716 <> j11
+R727 uu1uu0 <> UU1 syndef
+R720 uu1uu0 <> UU1 syndef
+R739 uu1uu0 <> UU1 syndef
+def 761 <> UU0inUU1
+R772 uu1uu0 <> j11 def
+R776 uu1uu0 <> UU0 syndef
+prf 853 <> u1pathstou0paths
+R916 uu0 <> paths ind
+R896 uu1 <> paths ind
+R882 uu1uu0 <> UU0 syndef
+R966 uu0 <> idpath constr
+R966 uu0 <> idpath constr
+prf 992 <> u0pathstou1paths
+R1050 uu1 <> paths ind
+R1034 uu0 <> paths ind
+R1020 uu1uu0 <> UU0 syndef
+R1112 uu1 <> idpath constr
+R1112 uu1 <> idpath constr
+prf 1143 <> iswequ1pathstou0paths
+R1168 uu1uu0 <> UU0 syndef
+R1182 uu1 <> isweq def
+R1197 uu1uu0 <> u1pathstou0paths thm
+R1246 uu1uu0 <> u1pathstou0paths thm
+R1246 uu1uu0 <> u1pathstou0paths thm
+R1281 uu1uu0 <> u0pathstou1paths thm
+R1281 uu1uu0 <> u0pathstou1paths thm
+R1333 uu1 <> paths ind
+R1333 uu1 <> paths ind
+R1393 uu1 <> idpath constr
+R1393 uu1 <> idpath constr
+R1431 uu1 <> paths ind
+R1431 uu1 <> paths ind
+R1490 uu1 <> idpath constr
+R1490 uu1 <> idpath constr
+R1509 uu1 <> gradth thm
+R1509 uu1 <> gradth thm
+R1558 uu1uu0 <> u1pathstou0paths thm
+prf 1606 <> u1iscontrtou0iscontr
+R1630 uu1uu0 <> UU0 syndef
+R1653 uu0 <> iscontr def
+R1636 uu1 <> iscontr def
+R1691 uu1 <> pr21 proj
+R1691 uu1 <> pr21 proj
+R1726 uu1 <> contrl2 thm
+R1746 uu1 <> pr21 proj
+R1789 uu1 <> paths ind
+R1726 uu1 <> contrl2 thm
+R1746 uu1 <> pr21 proj
+R1789 uu1 <> paths ind
+R1823 uu1uu0 <> u1pathstou0paths thm
+R1823 uu1uu0 <> u1pathstou0paths thm
+R1870 uu1uu0 <> u1iscontrtou0iscontr thm
+prf 1927 <> u0iscontrtou1iscontr
+R1951 uu1uu0 <> UU0 syndef
+R1970 uu1 <> iscontr def
+R1957 uu0 <> iscontr def
+R2017 uu0 <> pr21 proj
+R2017 uu0 <> pr21 proj
+R2047 uu1uu0 <> u0pathstou1paths thm
+R2047 uu1uu0 <> u0pathstou1paths thm
+R2079 uu0 <> contrl2 thm
+R2079 uu0 <> contrl2 thm
+R2118 uu1uu0 <> u0iscontrtou1iscontr thm
+prf 2176 <> u1isofhleveltou0isofhlevel
+R2206 Coq.Init.Datatypes <> nat ind
+R2213 uu1uu0 <> UU0 syndef
+R2241 uu0 <> isofhlevel def
+R2219 uu1 <> isofhlevel def
+R2301 uu1uu0 <> u1iscontrtou0iscontr thm
+R2301 uu1uu0 <> u1iscontrtou0iscontr thm
+R2381 uu1 <> isofhlevelweqf thm
+R2434 uu1uu0 <> iswequ1pathstou0paths thm
+R2408 uu1uu0 <> u1pathstou0paths thm
+R2381 uu1 <> isofhlevelweqf thm
+R2434 uu1uu0 <> iswequ1pathstou0paths thm
+R2408 uu1uu0 <> u1pathstou0paths thm
+R2506 uu1uu0 <> u1isofhleveltou0isofhlevel thm
+prf 2576 <> u0isofhleveltou1isofhlevel
+R2607 Coq.Init.Datatypes <> nat ind
+R2614 uu1uu0 <> UU0 syndef
+R2638 uu1 <> isofhlevel def
+R2620 uu0 <> isofhlevel def
+R2703 uu1uu0 <> u0iscontrtou1iscontr thm
+R2703 uu1uu0 <> u0iscontrtou1iscontr thm
+R2770 uu1 <> isofhlevel def
+R2788 uu0 <> paths ind
+R2770 uu1 <> isofhlevel def
+R2788 uu0 <> paths ind
+R2836 uu1 <> isofhlevelweqb thm
+R2864 uu1uu0 <> iswequ1pathstou0paths thm
+R2836 uu1 <> isofhlevelweqb thm
+R2864 uu1uu0 <> iswequ1pathstou0paths thm
+R2919 uu1uu0 <> u0isofhleveltou1isofhlevel thm
+def 2990 <> u0isaproptou1isaprop
+R3016 uu1uu0 <> UU0 syndef
+R3074 uu1 <> isaprop def
+R3061 uu0 <> isaprop def
+R3024 uu1uu0 <> u0isofhleveltou1isofhlevel thm
+R3052 Coq.Init.Datatypes <> S constr
+R3054 Coq.Init.Datatypes <> O constr
+R3098 uu1uu0 <> u0isaproptou1isaprop def
+def 3159 <> u1isaproptou0isaprop
+R3185 uu1uu0 <> UU0 syndef
+R3247 uu0 <> isaprop def
+R3230 uu1 <> isaprop def
+R3193 uu1uu0 <> u1isofhleveltou0isofhlevel thm
+R3221 Coq.Init.Datatypes <> S constr
+R3223 Coq.Init.Datatypes <> O constr
+R3267 uu1uu0 <> u1isaproptou0isaprop def
+prf 3325 <> u0isasettou1isaset
+R3348 uu1uu0 <> UU0 syndef
+R3367 uu1 <> isaset def
+R3355 uu0 <> isaset def
+R3448 uu1uu0 <> u0isofhleveltou1isofhlevel thm
+R3448 uu1uu0 <> u0isofhleveltou1isofhlevel thm
+R3508 uu1uu0 <> u0isasettou1isaset thm
+prf 3561 <> u1isasettou0isaset
+R3584 uu1uu0 <> UU0 syndef
+R3607 uu0 <> isaset def
+R3591 uu1 <> isaset def
+R3684 uu1uu0 <> u1isofhleveltou0isofhlevel thm
+R3684 uu1uu0 <> u1isofhleveltou0isofhlevel thm
+R3744 uu1uu0 <> u1isasettou0isaset thm

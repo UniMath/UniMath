@@ -1,0 +1,11 @@
+FhSet_r_up
+R324 hProp_r_up <> <> lib
+R336 hSet_r <> <> lib
+prf 355 <> isasethsubtypes
+R374 uu1uu0 <> UU0 syndef
+R380 uu0 <> isaset def
+R388 hSet_r <> hsubtypes def
+R438 uu0 <> impred thm
+R438 uu0 <> impred thm
+R459 hProp_r_up <> isasethProp thm
+R459 hProp_r_up <> isasethProp thm

@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<link href="coqdoc.css" rel="stylesheet" type="text/css"/>
+<title>uu1uu0</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library uu1uu0</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a name="lab55"></a><h1 class="section">Functions connecting the constructions from uu0 and uu1.</h1>
+
+
+<br/> <br/>
+ This file contains the definitions of functions related the constructions of uu0.v to constructiopns of uu1.v under the asumption that the universe UU0 := u0.UU
+ is a sub-universe of UU1 := uu1.UU . The need for this file should disappear when a better universe management is implemented in Coq. 
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab56"></a><h3 class="section">Preambule</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Add</span> <span class="id" type="var">Rec</span> <span class="id" type="var">LoadPath</span> "../Generalities".<br/>
+
+<br/>
+<span class="id" type="keyword">Unset</span> <span class="id" type="var">Automatic</span> <span class="id" type="var">Introduction</span>. 
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab57"></a><h3 class="section">Imports.</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Require</span> <span class="id" type="keyword">Export</span> <span class="id" type="library">uu1</span> <a class="idref" href="uu0.html#"><span class="id" type="library">uu0</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab58"></a><h3 class="section">Universe structure</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="var">Notation </span><a name="UU0"><span class="id" type="abbreviation">UU0</span></a>:= (<a class="idref" href="uu0.html#UU"><span class="id" type="definition">uu0.UU</span></a>).<br/>
+<span class="id" type="var">Notation </span><a name="UU1"><span class="id" type="abbreviation">UU1</span></a> := (<span class="id" type="definition">uu1.UU</span>).<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="j01"><span class="id" type="definition">j01</span></a>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> -&gt; <a class="idref" href="uu1uu0.html#UU1"><span class="id" type="abbreviation">UU1</span></a>:= <span class="id" type="keyword">fun</span> <span class="id" type="var">T</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a> =&gt; <span class="id" type="var">T</span>.<br/>
+<span class="id" type="keyword">Definition</span> <a name="j11"><span class="id" type="definition">j11</span></a>:<a class="idref" href="uu1uu0.html#UU1"><span class="id" type="abbreviation">UU1</span></a> -&gt; <a class="idref" href="uu1uu0.html#UU1"><span class="id" type="abbreviation">UU1</span></a>:= <span class="id" type="keyword">fun</span> <span class="id" type="var">T</span>:<a class="idref" href="uu1uu0.html#UU1"><span class="id" type="abbreviation">UU1</span></a> =&gt; <span class="id" type="var">T</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="UU0inUU1"><span class="id" type="definition">UU0inUU1</span></a>:= <a class="idref" href="uu1uu0.html#j11"><span class="id" type="definition">j11</span></a> <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab59"></a><h3 class="section">Some connections between uu0 and uu1 definitions.</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="u1pathstou0paths"><span class="id" type="lemma">u1pathstou0paths</span></a> : <span class="id" type="keyword">forall</span> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">x</span> <span class="id" type="var">x'</span>:<span class="id" type="var">X</span>), <span class="id" type="inductive">uu1.paths</span> <span class="id" type="var">_</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> -&gt; <a class="idref" href="uu0.html#paths"><span class="id" type="inductive">paths</span></a> <span class="id" type="var">_</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>.<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span>. <span class="id" type="tactic">destruct</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">apply</span> <a class="idref" href="uu0.html#idpath"><span class="id" type="constructor">idpath</span></a>. <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="u0pathstou1paths"><span class="id" type="lemma">u0pathstou1paths</span></a>: <span class="id" type="keyword">forall</span> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">x</span> <span class="id" type="var">x'</span>:<span class="id" type="var">X</span>), <a class="idref" href="uu0.html#paths"><span class="id" type="inductive">paths</span></a> <span class="id" type="var">_</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> -&gt; <span class="id" type="inductive">uu1.paths</span> <span class="id" type="var">_</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>.<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span> <span class="id" type="var">X</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">destruct</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">apply</span> <span class="id" type="constructor">uu1.idpath</span>. <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="iswequ1pathstou0paths"><span class="id" type="lemma">iswequ1pathstou0paths</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>)(<span class="id" type="var">x</span> <span class="id" type="var">x'</span>:<span class="id" type="var">X</span>): <span class="id" type="definition">uu1.isweq</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> (<a class="idref" href="uu1uu0.html#u1pathstou0paths"><span class="id" type="lemma">u1pathstou0paths</span></a> <span class="id" type="var">_</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>).<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span>. <span class="id" type="tactic">set</span> (<span class="id" type="var">f</span>:=<a class="idref" href="uu1uu0.html#u1pathstou0paths"><span class="id" type="lemma">u1pathstou0paths</span></a> <span class="id" type="var">_</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>). <span class="id" type="tactic">set</span> (<span class="id" type="var">g</span>:= <a class="idref" href="uu1uu0.html#u0pathstou1paths"><span class="id" type="lemma">u0pathstou1paths</span></a> <span class="id" type="var">_</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>).<br/>
+<span class="id" type="tactic">assert</span> (<span class="id" type="var">egf</span>: <span class="id" type="keyword">forall</span> <span class="id" type="var">a</span>:<span class="id" type="var">_</span>,  <span class="id" type="inductive">uu1.paths</span> <span class="id" type="var">_</span> (<span class="id" type="var">g</span> (<span class="id" type="var">f</span> <span class="id" type="var">a</span>)) <span class="id" type="var">a</span>). <span class="id" type="tactic">intros</span>. <span class="id" type="tactic">destruct</span> <span class="id" type="var">a</span>. <span class="id" type="tactic">simpl</span>. <span class="id" type="tactic">apply</span> <span class="id" type="constructor">uu1.idpath</span>.<br/>
+<span class="id" type="tactic">assert</span> (<span class="id" type="var">efg</span>: <span class="id" type="keyword">forall</span> <span class="id" type="var">a</span>:<span class="id" type="var">_</span>, <span class="id" type="inductive">uu1.paths</span> <span class="id" type="var">_</span> (<span class="id" type="var">f</span> (<span class="id" type="var">g</span> <span class="id" type="var">a</span>)) <span class="id" type="var">a</span>). <span class="id" type="tactic">intros</span>. <span class="id" type="tactic">destruct</span> <span class="id" type="var">a</span>. <span class="id" type="tactic">simpl</span>. <span class="id" type="tactic">apply</span> <span class="id" type="constructor">uu1.idpath</span>.<br/>
+<span class="id" type="tactic">apply</span> (<span class="id" type="lemma">uu1.gradth</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">egf</span> <span class="id" type="var">efg</span>). <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Coercion</span> <a class="idref" href="uu1uu0.html#u1pathstou0paths"><span class="id" type="lemma">u1pathstou0paths</span></a>: <span class="id" type="var">uu1.paths</span> &gt;-&gt; <span class="id" type="var">paths</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="u1iscontrtou0iscontr"><span class="id" type="lemma">u1iscontrtou0iscontr</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>): <span class="id" type="definition">uu1.iscontr</span> <span class="id" type="var">X</span> -&gt; <a class="idref" href="uu0.html#iscontr"><span class="id" type="definition">iscontr</span></a> <span class="id" type="var">X</span>.<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span>. <span class="id" type="tactic">split</span> <span class="id" type="keyword">with</span> (<span class="id" type="projection">uu1.pr21</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">X0</span>).<br/>
+<span class="id" type="tactic">intro</span>. <span class="id" type="tactic">set</span> (<span class="id" type="var">s</span>:=<span class="id" type="lemma">uu1.contrl2</span> <span class="id" type="var">X</span> <span class="id" type="var">X0</span> <span class="id" type="var">t</span> (<span class="id" type="projection">uu1.pr21</span> <span class="id" type="var">X</span> (<span class="id" type="keyword">fun</span> <span class="id" type="var">cntr</span> : <span class="id" type="var">X</span> =&gt; <span class="id" type="keyword">forall</span> <span class="id" type="var">t0</span> : <span class="id" type="var">X</span>, <span class="id" type="inductive">uu1.paths</span> <span class="id" type="var">X</span> <span class="id" type="var">t0</span> <span class="id" type="var">cntr</span>) <span class="id" type="var">X0</span>)). <span class="id" type="tactic">apply</span> (<a class="idref" href="uu1uu0.html#u1pathstou0paths"><span class="id" type="lemma">u1pathstou0paths</span></a> <span class="id" type="var">X</span> <span class="id" type="var">t</span> <span class="id" type="var">_</span> <span class="id" type="var">s</span>). <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Coercion</span>  <a class="idref" href="uu1uu0.html#u1iscontrtou0iscontr"><span class="id" type="lemma">u1iscontrtou0iscontr</span></a>: <span class="id" type="var">uu1.iscontr</span> &gt;-&gt; <span class="id" type="var">iscontr</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="u0iscontrtou1iscontr"><span class="id" type="lemma">u0iscontrtou1iscontr</span></a> (<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>): <a class="idref" href="uu0.html#iscontr"><span class="id" type="definition">iscontr</span></a> <span class="id" type="var">X</span> -&gt; <span class="id" type="definition">uu1.iscontr</span> <span class="id" type="var">X</span>.<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span> <span class="id" type="var">X</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">split</span> <span class="id" type="keyword">with</span> (<a class="idref" href="uu0.html#pr21"><span class="id" type="projection">pr21</span></a> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">X0</span>).<br/>
+&nbsp;<span class="id" type="tactic">intro</span>. <span class="id" type="tactic">apply</span> (<a class="idref" href="uu1uu0.html#u0pathstou1paths"><span class="id" type="lemma">u0pathstou1paths</span></a> <span class="id" type="var">_</span> <span class="id" type="var">t</span> <span class="id" type="var">_</span>). <span class="id" type="tactic">apply</span> (<a class="idref" href="uu0.html#contrl2"><span class="id" type="lemma">contrl2</span></a> <span class="id" type="var">X</span> <span class="id" type="var">X0</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> ). <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Coercion</span> <a class="idref" href="uu1uu0.html#u0iscontrtou1iscontr"><span class="id" type="lemma">u0iscontrtou1iscontr</span></a>: <span class="id" type="var">iscontr</span>  &gt;-&gt; <span class="id" type="var">uu1.iscontr</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="u1isofhleveltou0isofhlevel"><span class="id" type="lemma">u1isofhleveltou0isofhlevel</span></a> (<span class="id" type="var">n</span>:<a class="idref" href="http://coq.inria.fr/distrib/8.3pl2/stdlib/Coq.Init.Datatypes.html#nat"><span class="id" type="inductive">nat</span></a>)(<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>): <span class="id" type="definition">uu1.isofhlevel</span> <span class="id" type="var">n</span> <span class="id" type="var">X</span> -&gt; <a class="idref" href="uu0.html#isofhlevel"><span class="id" type="definition">isofhlevel</span></a> <span class="id" type="var">n</span> <span class="id" type="var">X</span>.<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">induction</span> <span class="id" type="var">n</span>. <span class="id" type="tactic">intro</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">apply</span> <a class="idref" href="uu1uu0.html#u1iscontrtou0iscontr"><span class="id" type="lemma">u1iscontrtou0iscontr</span></a>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">simpl</span>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">intros</span>. <span class="id" type="tactic">set</span> (<span class="id" type="var">s</span>:= <span class="id" type="var">X0</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>).<br/>
+<span class="id" type="tactic">set</span> (<span class="id" type="var">s1</span>:=<span class="id" type="lemma">uu1.isofhlevelweqf</span> <span class="id" type="var">n</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span>  (<a class="idref" href="uu1uu0.html#u1pathstou0paths"><span class="id" type="lemma">u1pathstou0paths</span></a> <span class="id" type="var">X</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>) (<a class="idref" href="uu1uu0.html#iswequ1pathstou0paths"><span class="id" type="lemma">iswequ1pathstou0paths</span></a> <span class="id" type="var">X</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>) <span class="id" type="var">s</span>). <span class="id" type="tactic">apply</span> (<span class="id" type="var">IHn</span> <span class="id" type="var">_</span> <span class="id" type="var">s1</span>).<br/>
+<span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Coercion</span>  <a class="idref" href="uu1uu0.html#u1isofhleveltou0isofhlevel"><span class="id" type="lemma">u1isofhleveltou0isofhlevel</span></a>: <span class="id" type="var">uu1.isofhlevel</span> &gt;-&gt; <span class="id" type="var">isofhlevel</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="u0isofhleveltou1isofhlevel"><span class="id" type="lemma">u0isofhleveltou1isofhlevel</span></a>  (<span class="id" type="var">n</span>:<a class="idref" href="http://coq.inria.fr/distrib/8.3pl2/stdlib/Coq.Init.Datatypes.html#nat"><span class="id" type="inductive">nat</span></a>)(<span class="id" type="var">X</span>:<a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>): <a class="idref" href="uu0.html#isofhlevel"><span class="id" type="definition">isofhlevel</span></a> <span class="id" type="var">n</span> <span class="id" type="var">X</span> -&gt; <span class="id" type="definition">uu1.isofhlevel</span> <span class="id" type="var">n</span> <span class="id" type="var">X</span>.<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intro</span>. <span class="id" type="tactic">induction</span> <span class="id" type="var">n</span>. <span class="id" type="tactic">intro</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">apply</span> <a class="idref" href="uu1uu0.html#u0iscontrtou1iscontr"><span class="id" type="lemma">u0iscontrtou1iscontr</span></a>. <span class="id" type="tactic">intro</span> <span class="id" type="var">X</span>. <span class="id" type="tactic">simpl</span>. <span class="id" type="tactic">intros</span> <span class="id" type="var">X0</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>.<br/>
+<span class="id" type="tactic">assert</span> (<span class="id" type="var">s</span>: <span class="id" type="definition">uu1.isofhlevel</span> <span class="id" type="var">n</span> (<a class="idref" href="uu0.html#paths"><span class="id" type="inductive">paths</span></a> <span class="id" type="var">_</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>)). <span class="id" type="tactic">apply</span> (<span class="id" type="var">IHn</span> <span class="id" type="var">_</span> (<span class="id" type="var">X0</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>)). <span class="id" type="tactic">apply</span> (<span class="id" type="lemma">uu1.isofhlevelweqb</span> <span class="id" type="var">n</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> <span class="id" type="var">_</span> (<a class="idref" href="uu1uu0.html#iswequ1pathstou0paths"><span class="id" type="lemma">iswequ1pathstou0paths</span></a> <span class="id" type="var">_</span> <span class="id" type="var">x</span> <span class="id" type="var">x'</span>) <span class="id" type="var">s</span>). <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Coercion</span> <a class="idref" href="uu1uu0.html#u0isofhleveltou1isofhlevel"><span class="id" type="lemma">u0isofhleveltou1isofhlevel</span></a>: <span class="id" type="var">isofhlevel</span> &gt;-&gt; <span class="id" type="var">uu1.isofhlevel</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="u0isaproptou1isaprop"><span class="id" type="definition">u0isaproptou1isaprop</span></a> (<span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) := <a class="idref" href="uu1uu0.html#u0isofhleveltou1isofhlevel"><span class="id" type="lemma">u0isofhleveltou1isofhlevel</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/8.3pl2/stdlib/Coq.Init.Datatypes.html#S"><span class="id" type="constructor">S</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.3pl2/stdlib/Coq.Init.Datatypes.html#O"><span class="id" type="constructor">O</span></a>) <span class="id" type="var">X</span> : <a class="idref" href="uu0.html#isaprop"><span class="id" type="definition">isaprop</span></a> <span class="id" type="var">X</span> -&gt; <span class="id" type="definition">uu1.isaprop</span> <span class="id" type="var">X</span>.<br/>
+<span class="id" type="keyword">Coercion</span> <a class="idref" href="uu1uu0.html#u0isaproptou1isaprop"><span class="id" type="definition">u0isaproptou1isaprop</span></a> : <span class="id" type="var">isaprop</span> &gt;-&gt; <span class="id" type="var">uu1.isaprop</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Definition</span> <a name="u1isaproptou0isaprop"><span class="id" type="definition">u1isaproptou0isaprop</span></a> (<span class="id" type="var">X</span> : <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) := <a class="idref" href="uu1uu0.html#u1isofhleveltou0isofhlevel"><span class="id" type="lemma">u1isofhleveltou0isofhlevel</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/8.3pl2/stdlib/Coq.Init.Datatypes.html#S"><span class="id" type="constructor">S</span></a> <a class="idref" href="http://coq.inria.fr/distrib/8.3pl2/stdlib/Coq.Init.Datatypes.html#O"><span class="id" type="constructor">O</span></a>) <span class="id" type="var">X</span> : <span class="id" type="definition">uu1.isaprop</span> <span class="id" type="var">X</span> -&gt; <a class="idref" href="uu0.html#isaprop"><span class="id" type="definition">isaprop</span></a> <span class="id" type="var">X</span>.<br/>
+<span class="id" type="keyword">Coercion</span> <a class="idref" href="uu1uu0.html#u1isaproptou0isaprop"><span class="id" type="definition">u1isaproptou0isaprop</span></a> : <span class="id" type="var">uu1.isaprop</span> &gt;-&gt; <span class="id" type="var">isaprop</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="u0isasettou1isaset"><span class="id" type="lemma">u0isasettou1isaset</span></a> (<span class="id" type="var">X</span>: <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) : <a class="idref" href="uu0.html#isaset"><span class="id" type="definition">isaset</span></a> <span class="id" type="var">X</span> -&gt; <span class="id" type="definition">uu1.isaset</span> <span class="id" type="var">X</span>.<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span> <span class="id" type="var">X</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">unfold</span> <span class="id" type="var">uu1.isaset</span>. <span class="id" type="tactic">unfold</span> <span class="id" type="var">isaset</span> <span class="id" type="keyword">in</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">apply</span> <a class="idref" href="uu1uu0.html#u0isofhleveltou1isofhlevel"><span class="id" type="lemma">u0isofhleveltou1isofhlevel</span></a>. <span class="id" type="tactic">assumption</span>. <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Coercion</span> <a class="idref" href="uu1uu0.html#u0isasettou1isaset"><span class="id" type="lemma">u0isasettou1isaset</span></a> : <span class="id" type="var">isaset</span> &gt;-&gt; <span class="id" type="var">uu1.isaset</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Theorem</span> <a name="u1isasettou0isaset"><span class="id" type="lemma">u1isasettou0isaset</span></a> (<span class="id" type="var">X</span>: <a class="idref" href="uu1uu0.html#UU0"><span class="id" type="abbreviation">UU0</span></a>) : <span class="id" type="definition">uu1.isaset</span> <span class="id" type="var">X</span> -&gt; <a class="idref" href="uu0.html#isaset"><span class="id" type="definition">isaset</span></a> <span class="id" type="var">X</span>.<br/>
+<span class="id" type="keyword">Proof</span>. <span class="id" type="tactic">intros</span> <span class="id" type="var">X</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">unfold</span> <span class="id" type="var">isaset</span>. <span class="id" type="tactic">unfold</span> <span class="id" type="var">uu1.isaset</span> <span class="id" type="keyword">in</span> <span class="id" type="var">X0</span>. <span class="id" type="tactic">apply</span> <a class="idref" href="uu1uu0.html#u1isofhleveltou0isofhlevel"><span class="id" type="lemma">u1isofhleveltou0isofhlevel</span></a>. <span class="id" type="tactic">assumption</span>. <span class="id" type="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" type="keyword">Coercion</span> <a class="idref" href="uu1uu0.html#u1isasettou0isaset"><span class="id" type="lemma">u1isasettou0isaset</span></a> : <span class="id" type="var">uu1.isaset</span> &gt;-&gt; <span class="id" type="var">isaset</span>.<br/>
+
+<br/>
+
+<br/>
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
