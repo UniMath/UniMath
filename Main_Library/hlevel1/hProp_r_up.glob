@@ -1,9 +1,0 @@
-FhProp_r_up
-R379 hProp_up <> <> lib
-prf 402 <> isasethProp
-R416 uu0 <> isaset def
-R423 hProp <> hProp def
-R444 uu1uu0 <> u1isasettou0isaset thm
-R465 hProp_up <> uu1isasethProp thm
-R444 uu1uu0 <> u1isasettou0isaset thm
-R465 hProp_up <> uu1isasethProp thm
