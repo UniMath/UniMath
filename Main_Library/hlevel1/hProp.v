@@ -19,11 +19,10 @@ Add Rec LoadPath "../Generalities".
 Unset Automatic Introduction. (** This line has to be removed for the file to compile with Coq8.2 *)
 
 
-
 (** *** Imports. *)
 
 
-Require Export uu1uu0.
+Require Export uu1uu0. 
 
 
 (** *** Type of properties in [ UU0 ] *)
@@ -33,8 +32,8 @@ Require Export uu1uu0.
 
 Definition hProp:= (uu1.total2 UU0 (fun X:UU0 => isaprop X)).
 Definition hProppair:= (uu1.tpair  UU0 (fun X:UU0 => isaprop X)).
-Definition hptouu0 := uu1.pr21  UU0 (fun X:UU0 => isaprop X): hProp -> UU0.
-Coercion hptouu0: hProp >-> UU0.
+Definition hptouu0 := uu1.pr21  UU0 (fun X:UU0 => isaprop X): hProp -> Type.
+Coercion hptouu0: hProp >-> Sortclass.
 
 
 (** *** Canonical structures of a type of h-level 1 on [ iscontr ] and other standard constructions. *)
@@ -49,6 +48,7 @@ Canonical Structure isofhlevel_hprop.
 
 Definition isaprop_hprop ( X : UU0 ) := hProppair (isaprop X) (isapropisaprop X).
 Canonical Structure isaprop_hprop.
+
 
 
 
@@ -74,7 +74,7 @@ Proof. intros X Y Z X0 X1 X2. apply (hinhfunct _ _ (fun xy: dirprod X Y => X0 (p
 
 
 Definition hinhunivcor1 (P:hProp): ishinh P -> P := hinhuniv P P (fun p:P => p).
-
+Notation hinhprinv := hinhunivcor1. 
 
 
 (** *** Intuitionistic logic on [ hProp ]. *)
@@ -106,7 +106,7 @@ Canonical Structure himpl.
 Definition hforall (X : UU0) (P: X -> hProp) : hProp.
 Proof. intros. split with (forall x:X, P x). apply impred. intro.  apply (uu1.pr22 _ _ (P t)). Defined.
 
-Definition hexists (X:UU0) (P: X -> hProp) := ishinh (total2 X P).
+Definition hexists ( X:UU0 ) (P: X -> hProp) := ishinh (total2 X P).
 
 Definition wittohexists (X : UU0)(P: X -> hProp)(x:X)(is: P x): hexists X P := hinhpr (total2 X P) (tpair _ _ x is).
 

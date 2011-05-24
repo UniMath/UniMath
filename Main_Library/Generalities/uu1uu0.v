@@ -16,13 +16,13 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 (** *** Imports. *)
 
 
-Require Export uu1 uu0.
+Require Export uuu uu1 uu0.
 
 
 (** *** Universe structure *)
 
-Notation UU0:= (uu0.UU).
-Notation UU1 := (uu1.UU).
+Notation UU0 := uu0.UU.
+Notation UU1 := uu1.UU.
 
 Definition j01:UU0 -> UU1:= fun T:UU0 => T. 
 Definition j11:UU1 -> UU1:= fun T:UU1 => T.

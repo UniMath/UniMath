@@ -487,7 +487,7 @@ Proof. intros. destruct isx.  generalize Y isy X x. clear isy Y x X.  induction 
 
 
 
-(* End of the file Finite_sets_UU0.v *)
+(* End of the file finite_sets.v *)
 
 
 
@@ -495,7 +495,7 @@ Proof. intros. destruct isx.  generalize Y isy X x. clear isy Y x X.  induction 
 
 (* 
 *** Local Variables: ***
-*** coq-prog-name: "/usr/local/bin/coqtop" ***
+*** coq-prog-name: "/opt/local/bin/coqtop" ***
 *** coq-prog-args: ("-emacs-U") ***
 *** End: ***
  *)

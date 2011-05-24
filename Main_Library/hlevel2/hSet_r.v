@@ -32,8 +32,20 @@ Require Export hProp_r.
 
 Definition hSet:= (uu1.total2 UU0 (fun X:UU0 => isaset X)).
 Definition hSetpair := (uu1.tpair UU0 (fun X:UU0 => isaset X)).
-Definition hSettoUU:= uu1.pr21 UU0 (fun X:UU0 => isaset X) : hSet -> UU0.
-Coercion hSettoUU: hSet >-> UU0.  
+Definition hSettoUU:= uu1.pr21 UU0 (fun X:UU0 => isaset X) : hSet -> Type.
+Coercion hSettoUU: hSet >-> Sortclass. 
+
+(** *** The canonical structure of an h-property on paths in an h-set. *)
+
+Definition paths_hprop ( X : hSet ) ( x y : X ) : hProp := hProppair ( paths _ x y ) ( uu1.pr22 _ _ X x y ) .
+Canonical Structure paths_hprop. 
+ 
+
+
+(** *** Canonical hSet structures on standard sets. *)
+
+Definition nat_set := hSetpair nat isasetnat.
+Canonical Structure nat_set . 
 
 
 
@@ -57,6 +69,19 @@ Definition aux1 (X:UU0)( A : hsubtypes X ) := X.
 Definition carrierincl (X:UU0)(A:hsubtypes X):= (pr21 _ _) : carrier X A -> aux1 X A.
 
 Coercion carrierincl : carrier >-> aux1.
+
+
+
+(** A single element of a set is a prop. *)
+
+
+Lemma isaprophsubtype ( X : hSet ) ( A : hsubtypes X ) ( is : forall ( x1 x2 : X ) , A x1 -> A x2 -> paths _ x1 x2 ) : isaprop ( total2 X A ) . 
+Proof. intros.  apply invproofirrelevance. intros x x' .  
+assert ( isincl _ _ ( pr21 _ _ : total2 X A -> X )).  apply isinclpr21. intro x0. apply ( uu1.pr22 _ _ ( A x0 )).  
+apply ( invmaponpathsincl _ X ( pr21 _ _ ) X0 ). destruct x as [ x0 is0 ]. destruct x' as [ x0' is0' ] . simpl. apply is. assumption. assumption. Defined. 
+
+
+
 
 
 (** *** Relations on types (or equivalently relations on the sets of connected components) *)
@@ -139,6 +164,15 @@ Proof. intros X Y Z f g1 g2 is1 is2 X0 y. set (P1:= hProppair (paths _ (g1 y) (g
 assert (s1: (hfiber X Y f y)-> paths _ (g1 y) (g2 y)). intro X1. destruct X1 as [t x ]. induction x. apply (X0 t). 
 assert (s2: ishinh (paths Z (g1 y) (g2 y))). apply (hinhfunct _ _ s1 (is1 y)).  
 set (is3:= is2 (g1 y) (g2 y)). simpl in is3. apply (hinhuniv (paths Z (g1 y) (g2 y)) (hProppair _ is3)). intro X1.  assumption. assumption. Defined. 
+
+
+
+
+
+
+
+
+
 
 
 
