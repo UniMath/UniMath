@@ -1,4 +1,4 @@
-(** * Introduction 
+(** * Introduction ( by Vladimir Voevodsky , Feb. 2010 - Jun. 2011 ) 
 
 This is the first of the group of files which contain the (current state of) the mathematical library for the proof assistant Coq based on the Univalent Foundations.
 This particular files contains only definitions and results which do not depend on the concept of equality and dependent sums.
@@ -27,10 +27,12 @@ RULE 1 Do not use inductive definitions of the form
 
 Inductive Ind (...)...(...): A -> UU := ...
 
-unless all the "arguments" of A can be typed to UU. 
+unless all the "arguments" of A can be typed to UU.
 
 
 2. While it does not lead directly to any contradictions the shape of the foundations suggests very strongly that at the moment it is best to completely avoid the use of the universes Prop and Set. Instead we should use the the conditions isaprop and isaset which are applicable to the types of any of the type universes.  
+
+Note on implicit arguments : In the latest version of my univalent library I started to systematically use implicit arguments.  The rules which I am using for assessing which arguments should be made implicit are somewhat different from the rules which the automatic Coq system for detection of implicit arguments is using. For example given arguments ( X : Type ) ( x : X ) , the Coq command Implicit Arguments would assign implicit ( although *not* strict implicit ) status to X . I do not consider X to be an implicit argument in this case due to the existence of subtyping for universes . On the other hand I do make the type argument of [ paths ] to be implicit because [ paths X X' ] is in fact independent from the universe in which X and X' are considered. 
 
 *)
 
@@ -41,33 +43,56 @@ unless all the "arguments" of A can be typed to UU.
 
 Unset Automatic Introduction.  (** This line has to be removed for the file to compile with Coq8.2 *)
 
-Definition UUU:= Type.
 
-Identity Coercion UUtoType:UUU >-> Sortclass.
+(** The empty type is introduced in Coq.Init.Datatypes by the line :
 
+Inductive Empty_set : Set := .
 
-(** We introduce our own definitions for unit (one point set), empty type and nat (the set of natural numbers) to be used throught the library. *)
-
-Inductive empty : UUU := .
-
-Inductive unit : UUU := tt : unit .
-
-Inductive nat : UUU := O : nat | S : nat -> nat .
-
-Inductive bool : UUU := true : bool | false : bool .
+*)
 
 
+Notation UUU := Set .
+Notation empty := Empty_set. 
 
+(** Idenity types are introduced in Coq.Init.Datatypes by the lines : 
 
-Inductive identity (A:Type) (a:A) : A -> Type :=
-  identity_refl : identity _ a a.
-Hint Resolve identity_refl: core.
+Inductive identity ( A:Type ) (a:A) : A -> Type := identity_refl : identity _ a a.
+Hint Resolve identity_refl : core. 
+
+*)
 
 Notation paths := identity .
 Notation idpath := identity_refl .
 
+(**  *** Dependent sums (fibrations) *)
 
-Check (paths nat O O) .
+Record total2 { T: Type } ( P: T -> Type ) := tpair { pr21_c : T ; pr22_c : P pr21_c }. 
+
+Definition pr21 { T: Type } { P : T -> Type } ( tp : total2 P ) := match tp with tpair t p => t end .
+Definition pr22 { T: Type } { P : T -> Type } ( tp : total2 P ) := match tp as a return P ( pr21 a ) with tpair t p => p end . 
+
+Implicit Arguments tpair [ T ] .
+(* Implicit Arguments pr21 [ T P ] .
+Implicit Arguments pr22 [ T P ] . *)
+
+
+(** One can not use a new record each time one needs it because the general theorems about this construction would not apply to new instances of "Record" due to the "generativity" of inductive definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
+
+
+(** [ sum A B ], written [ A + B ], is the disjoint sum of [A] and [B] . The lest and right inclusions are denoted by [ inl ] and [ inr ] in Coq.Init.Datatypes  *)
+
+Notation coprod := sum .
+
+Notation ii1fun := inl .
+Notation ii2fun := inr .
+
+Notation ii1 := inl .
+Notation ii2 := inr .
+Implicit Arguments ii1 [ A B ] .
+Implicit Arguments ii2 [ A B ] .
+
+
+Check (paths O O) .
 
 
 
