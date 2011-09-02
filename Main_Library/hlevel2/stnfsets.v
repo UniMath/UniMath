@@ -1,4 +1,4 @@
-(** * Standard finite sets . By Vladimir Voevodsky , started Apr. - Sep. 2011 .
+(** * Standard finite sets . Vladimir Voevodsky . Apr. - Sep. 2011 .
 
 This file contains main constructions related to the standard finite sets defined as the initial intervals of [ nat ] and their properties . *)
 
