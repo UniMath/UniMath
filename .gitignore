@@ -1,3 +1,4 @@
 *.vo
 *.glob
 *.v.d
+.gitignore

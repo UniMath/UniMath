@@ -1,4 +1,4 @@
-By Vladimir  Voevodsky Feb. 2009 - Sep. 2011 .
+By Vladimir  Voevodsky Feb. 2010 - Sep. 2011 .
 
 This is the current version (as of Sep. 2 , 2011) of the mathematical library for the proof assistant Coq based on the univalent semantics for the calculus of inductive constructions. The best way to see in detail what the files in these subdirectories are about is to generate the corresponding tables of content with coqdoc . Here we give a brief outline of the library structure .   
 
