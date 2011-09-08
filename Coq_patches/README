@@ -1,0 +1,15 @@
+This directory contains two patches for Coq-8.3pl2 written by Hugo Hereblin which are needed for proper compilation of the "Foundations" library. They are intended only as a temporary solution for the universe management issues in Coq which arise in connection with the univalent approach.
+
+The patches are to be applied in the home directory of Coq (before "make world") with the commands
+
+patch -p1 < inductive-indice-levels-matter-8.3.patch
+
+patch -p3 < patch.type-in-type
+
+The first of these patches changes the way the universe level of inductive types is computed for those definitions which do not specify [ Set ] or [ Prop ] as the target of the inductive construction explicitely. The new computation rule for the universe level takes into account not only the u-levels of the types occuring in the constructors but also the u-levels of types occuring in "pseudo-parametrs" i.e. in the [ forall ] expressions in the type of the inductive definition. For example, in the definition:
+
+[ Inductive Ind ( a1 : A1 ) : forall a2 : A2 , Type := ... ]
+
+The u-level of [ Ind ] will be the maximum of the u-level computed on the basis of types occuring in the constructors and the u-level of [ A2 ]. The u-level of [ A1 ] which the type of a parameter [ a1 ] ( as opposed to a pseudo-parameter [ a2 ] ) is not taken into account. 
+
+The second patch switches off the universe consistency checking in Coq which is a temporary measure which allows us to formalize interesting constructions such as [ ishinh ] and [ setquot ] without having the resizing rules. 

@@ -241,7 +241,7 @@ split with ( S x0 ) .  assert ( wi : weq ( hfiber fl true ) ( stn 1 ) ) . assert
 
 split with x0 .  assert ( g' : neg ( hfiber fl true ) ) . intro hf . destruct hf as [ j e ] .  assert ( ee : paths j ( lastelement 0 ) ) . apply ( proofirrelevance _ ( isapropifcontr iscontrstn1 ) _ _ ) .  destruct ( nopathstruetofalse ( pathscomp0 ( pathscomp0 ( pathsinv0 e ) ( maponpaths fl ee ) ) ni ) ) .  apply ( weqcomp w' ( weqcomp ( invweq ( weqii2withneg _ g' ) ) w0 )  )  .  Defined . 
 
-(** ** Weak equivalences between hfibers of functions from [ stn n ] over isolated points and [ stn x ] *)
+(** *** Weak equivalences between hfibers of functions from [ stn n ] over isolated points and [ stn x ] *)
 
 Theorem weqfromhfiberfromstn { n : nat } { X : UU0 } ( x : X ) ( is : isisolated X x ) ( f : stn n -> X ) : total2 ( fun x0 : nat => weq ( hfiber f x ) ( stn x0 ) ) .
 Proof . intros .  set ( t := weqfromdecsubsetofstn ( fun i : _ => eqbx X x is ( f i ) ) ) . split with ( pr21 t ) . apply ( weqcomp ( weqhfibertobhfiber f x is ) ( pr22 t ) ) .   Defined . 
