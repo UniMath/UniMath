@@ -57,7 +57,7 @@ Definition nelstructoncompl { X : UU0 } { n : nat } ( x : X ) ( sx : nelstruct (
 
 Definition nelstructoncoprod { X  Y : UU0 } { n m : nat } ( sx : nelstruct n X ) ( sy : nelstruct m Y ) : nelstruct ( n + m ) ( coprod X Y ) := weqcomp ( invweq ( weqfromcoprodofstn n m ) ) ( weqcoprodf sx sy ) .
 
-Definition nelstructontotal2 { X : UU0 } ( P : X -> UU0 ) ( f : X -> nat ) { n : nat } ( sx : nelstruct n X ) ( fs : forall x : X , nelstruct ( f x ) ( P x ) ) : nelstruct ( stnsum ( funcomp ( pr21 sx ) f ) ) ( total2 P )  := weqcomp ( invweq ( weqstnsum ( funcomp ( pr21 sx ) P ) ( funcomp ( pr21 sx ) f ) ( fun i : stn n => fs ( ( pr21 sx ) i ) ) ) )  ( weqfp sx P )  .  
+Definition nelstructontotal2 { X : UU0 } ( P : X -> UU0 ) ( f : X -> nat ) { n : nat } ( sx : nelstruct n X ) ( fs : forall x : X , nelstruct ( f x ) ( P x ) ) : nelstruct ( stnsum ( funcomp ( pr1 sx ) f ) ) ( total2 P )  := weqcomp ( invweq ( weqstnsum ( funcomp ( pr1 sx ) P ) ( funcomp ( pr1 sx ) f ) ( fun i : stn n => fs ( ( pr1 sx ) i ) ) ) )  ( weqfp sx P )  .  
 
 Definition nelstructondirprod { X Y : UU0 } { n m : nat } ( sx : nelstruct n X ) ( sy : nelstruct m Y ) : nelstruct ( n * m ) ( dirprod X Y ) := weqcomp ( invweq ( weqfromprodofstn n m ) ) ( weqdirprodf sx sy ) .
 
@@ -65,7 +65,7 @@ Definition nelstructondirprod { X Y : UU0 } { n m : nat } ( sx : nelstruct n X )
 
 Definition nelstructonfun { X Y : UU0 } { n m : nat } ( sx : nelstruct n X ) ( sy : nelstruct m Y ) : nelstruct ( natpower m n ) ( X -> Y ) := weqcomp ( invweq ( weqfromfunstntostn n m ) ) ( weqcomp ( weqbfun _ ( invweq sx ) ) ( weqffun _ sy ) )  .
 
-Definition nelstructonforall { X : UU0 } ( P : X -> UU0 ) ( f : X -> nat ) { n : nat } ( sx : nelstruct n X ) ( fs : forall x : X , nelstruct ( f x ) ( P x ) ) : nelstruct ( stnprod ( funcomp ( pr21 sx ) f ) ) ( forall x : X , P x )  := invweq ( weqcomp ( weqonsecbase P sx ) ( weqstnprod ( funcomp ( pr21 sx ) P ) ( funcomp ( pr21 sx ) f ) ( fun i : stn n => fs ( ( pr21 sx ) i ) ) ) )  . 
+Definition nelstructonforall { X : UU0 } ( P : X -> UU0 ) ( f : X -> nat ) { n : nat } ( sx : nelstruct n X ) ( fs : forall x : X , nelstruct ( f x ) ( P x ) ) : nelstruct ( stnprod ( funcomp ( pr1 sx ) f ) ) ( forall x : X , P x )  := invweq ( weqcomp ( weqonsecbase P sx ) ( weqstnprod ( funcomp ( pr1 sx ) P ) ( funcomp ( pr1 sx ) f ) ( fun i : stn n => fs ( ( pr1 sx ) i ) ) ) )  . 
 
 Definition nelstructonweq { X : UU0 } { n : nat } ( sx : nelstruct n X ) : nelstruct ( factorial n ) ( weq X X ) := weqcomp ( invweq ( weqfromweqstntostn n ) ) ( weqcomp ( weqbweq _ ( invweq sx ) ) ( weqfweq _ sx ) ) .
 
@@ -123,9 +123,9 @@ Definition fintructpair  ( X : UU0 )  := tpair ( fun n : nat => nelstruct n X ) 
 
 Definition finstructonstn ( n : nat ) : finstruct ( stn n ) := tpair _ n ( nelstructonstn n ) . 
 
-Definition finstructweqf { X Y : UU0 } ( w : weq X Y ) ( sx : finstruct X ) : finstruct Y := tpair _ ( pr21 sx ) ( nelstructweqf w ( pr22 sx ) ) .
+Definition finstructweqf { X Y : UU0 } ( w : weq X Y ) ( sx : finstruct X ) : finstruct Y := tpair _ ( pr1 sx ) ( nelstructweqf w ( pr2 sx ) ) .
 
-Definition finstructweqb { X Y : UU0 } ( w : weq X Y ) ( sy : finstruct Y ) : finstruct X :=  tpair _ ( pr21 sy ) ( nelstructweqb w ( pr22 sy ) ) .
+Definition finstructweqb { X Y : UU0 } ( w : weq X Y ) ( sy : finstruct Y ) : finstruct X :=  tpair _ ( pr1 sy ) ( nelstructweqb w ( pr2 sy ) ) .
 
 Definition finstructonempty : finstruct empty := tpair _ 0 nelstructonempty .
 
@@ -139,25 +139,25 @@ Definition finstructoncontr { X : UU0 } ( is : iscontr X ) : finstruct X := tpai
 
 Definition finstructonbool : finstruct bool := tpair _ 2 nelstructonbool .
 
-Definition finstructoncoprodwithunit { X : UU0 }  ( sx : finstruct X ) : finstruct ( coprod X unit ) :=  tpair _ ( S ( pr21 sx ) ) ( nelstructoncoprodwithunit ( pr22 sx ) ) .
+Definition finstructoncoprodwithunit { X : UU0 }  ( sx : finstruct X ) : finstruct ( coprod X unit ) :=  tpair _ ( S ( pr1 sx ) ) ( nelstructoncoprodwithunit ( pr2 sx ) ) .
 
 Definition finstructoncompl { X : UU0 } ( x : X ) ( sx : finstruct X ) : finstruct ( compl X x ) .
 Proof . intros . unfold finstruct .  unfold finstruct in sx . destruct sx as [ n w ] . destruct n as [ | n ] .  destruct ( negstn0 ( invweq w x ) ) . split with n .   apply ( nelstructoncompl x w ) .  Defined . 
 
-Definition finstructoncoprod { X  Y : UU0 } ( sx : finstruct X ) ( sy : finstruct Y ) : finstruct ( coprod X Y ) := tpair _ ( ( pr21 sx ) + ( pr21 sy ) ) ( nelstructoncoprod ( pr22 sx ) ( pr22 sy ) ) . 
+Definition finstructoncoprod { X  Y : UU0 } ( sx : finstruct X ) ( sy : finstruct Y ) : finstruct ( coprod X Y ) := tpair _ ( ( pr1 sx ) + ( pr1 sy ) ) ( nelstructoncoprod ( pr2 sx ) ( pr2 sy ) ) . 
 
-Definition finstructontotal2 { X : UU0 } ( P : X -> UU0 )   ( sx : finstruct X ) ( fs : forall x : X , finstruct ( P x ) ) : finstruct ( total2 P ) := tpair _ ( stnsum ( funcomp ( pr21 ( pr22 sx ) ) ( fun x : X =>  pr21 ( fs x ) ) ) ) ( nelstructontotal2 P ( fun x : X => pr21 ( fs x ) ) ( pr22 sx ) ( fun x : X => pr22 ( fs x ) ) ) . 
+Definition finstructontotal2 { X : UU0 } ( P : X -> UU0 )   ( sx : finstruct X ) ( fs : forall x : X , finstruct ( P x ) ) : finstruct ( total2 P ) := tpair _ ( stnsum ( funcomp ( pr1 ( pr2 sx ) ) ( fun x : X =>  pr1 ( fs x ) ) ) ) ( nelstructontotal2 P ( fun x : X => pr1 ( fs x ) ) ( pr2 sx ) ( fun x : X => pr2 ( fs x ) ) ) . 
 
-Definition finstructondirprod { X Y : UU0 } ( sx : finstruct X ) ( sy : finstruct Y ) : finstruct ( dirprod X Y ) := tpair _ ( ( pr21 sx ) * ( pr21 sy ) ) ( nelstructondirprod ( pr22 sx ) ( pr22 sy ) ) .
+Definition finstructondirprod { X Y : UU0 } ( sx : finstruct X ) ( sy : finstruct Y ) : finstruct ( dirprod X Y ) := tpair _ ( ( pr1 sx ) * ( pr1 sy ) ) ( nelstructondirprod ( pr2 sx ) ( pr2 sy ) ) .
 
-Definition finstructondecsubset { X : UU0 }  ( f : X -> bool ) ( sx : finstruct X ) : finstruct ( hfiber f true ) := tpair _ ( pr21 ( weqfromdecsubsetofstn ( funcomp ( pr21 ( pr22 sx ) ) f ) ) ) ( weqcomp ( invweq ( pr22 ( weqfromdecsubsetofstn ( funcomp ( pr21 ( pr22 sx ) ) f ) ) ) ) ( weqhfibersgwtog ( pr22 sx ) f true ) ) . 
+Definition finstructondecsubset { X : UU0 }  ( f : X -> bool ) ( sx : finstruct X ) : finstruct ( hfiber f true ) := tpair _ ( pr1 ( weqfromdecsubsetofstn ( funcomp ( pr1 ( pr2 sx ) ) f ) ) ) ( weqcomp ( invweq ( pr2 ( weqfromdecsubsetofstn ( funcomp ( pr1 ( pr2 sx ) ) f ) ) ) ) ( weqhfibersgwtog ( pr2 sx ) f true ) ) . 
 
 
-Definition finstructonfun { X Y : UU0 } ( sx : finstruct X ) ( sy : finstruct Y ) : finstruct ( X -> Y ) := tpair _ ( natpower ( pr21 sy ) ( pr21 sx ) ) ( nelstructonfun ( pr22 sx ) ( pr22 sy ) ) .
+Definition finstructonfun { X Y : UU0 } ( sx : finstruct X ) ( sy : finstruct Y ) : finstruct ( X -> Y ) := tpair _ ( natpower ( pr1 sy ) ( pr1 sx ) ) ( nelstructonfun ( pr2 sx ) ( pr2 sy ) ) .
 
-Definition finstructonforall { X : UU0 } ( P : X -> UU0 )  ( sx : finstruct X ) ( fs : forall x : X , finstruct ( P x ) ) : finstruct ( forall x : X , P x )  := tpair _ ( stnprod ( funcomp ( pr21 ( pr22 sx ) ) ( fun x : X =>  pr21 ( fs x ) ) ) ) ( nelstructonforall P ( fun x : X => pr21 ( fs x ) ) ( pr22 sx ) ( fun x : X => pr22 ( fs x ) ) ) . 
+Definition finstructonforall { X : UU0 } ( P : X -> UU0 )  ( sx : finstruct X ) ( fs : forall x : X , finstruct ( P x ) ) : finstruct ( forall x : X , P x )  := tpair _ ( stnprod ( funcomp ( pr1 ( pr2 sx ) ) ( fun x : X =>  pr1 ( fs x ) ) ) ) ( nelstructonforall P ( fun x : X => pr1 ( fs x ) ) ( pr2 sx ) ( fun x : X => pr2 ( fs x ) ) ) . 
 
-Definition finstructonweq { X : UU0 }  ( sx : finstruct X ) : finstruct ( weq X X ) := tpair _ ( factorial ( pr21 sx ) ) ( nelstructonweq ( pr22 sx ) ) .
+Definition finstructonweq { X : UU0 }  ( sx : finstruct X ) : finstruct ( weq X X ) := tpair _ ( factorial ( pr1 sx ) ) ( nelstructonweq ( pr2 sx ) ) .
 
 
 
@@ -167,7 +167,7 @@ Definition finstructonweq { X : UU0 }  ( sx : finstruct X ) : finstruct ( weq X 
 Definition isfinite  ( X : UU0 ) := ishinh ( finstruct X ) .
 
 Definition fincard { X : UU0 } ( is : isfinite X ) : nat .
-Proof . intros . set ( int := carrier ( fun n : nat => isofnel n X ) ) .  set ( f1  := ( fun nw : finstruct X => tpair  ( fun n : nat => isofnel n X ) ( pr21 nw ) ( hinhpr _ ( pr22 nw ) ) ) : finstruct X -> int ) .  assert ( isp : isaprop int ) . apply isapropsubtype .   intros x1 x2 is1 is2 . apply ( @hinhuniv2 ( nelstruct x1 X ) ( nelstruct x2 X ) ( hProppair _ ( isasetnat x1 x2 ) ) ) .  intros sx1 sx2 . apply ( weqtoeqstn x1 x2 ( weqcomp sx1 ( invweq sx2 ) ) ) .  apply is1 .  apply is2 .  apply ( @hinhuniv _ ( hProppair _ isp ) f1 ) .  apply is .  Defined . 
+Proof . intros . set ( int := carrier ( fun n : nat => isofnel n X ) ) .  set ( f1  := ( fun nw : finstruct X => tpair  ( fun n : nat => isofnel n X ) ( pr1 nw ) ( hinhpr _ ( pr2 nw ) ) ) : finstruct X -> int ) .  assert ( isp : isaprop int ) . apply isapropsubtype .   intros x1 x2 is1 is2 . apply ( @hinhuniv2 ( nelstruct x1 X ) ( nelstruct x2 X ) ( hProppair _ ( isasetnat x1 x2 ) ) ) .  intros sx1 sx2 . apply ( weqtoeqstn x1 x2 ( weqcomp sx1 ( invweq sx2 ) ) ) .  apply is1 .  apply is2 .  apply ( @hinhuniv _ ( hProppair _ isp ) f1 ) .  apply is .  Defined . 
 
 Theorem ischoicebasefiniteset { X : UU0 } ( is : isfinite X ) : ischoicebase X . 
 Proof . intros . apply ( @hinhuniv ( finstruct X ) ( ischoicebase X ) ) .  intro nw . destruct nw as [ n w ] .   apply ( ischoicebaseweqf w ( ischoicebasestn n ) ) .  apply is .  Defined . 
@@ -223,13 +223,13 @@ Definition isfiniteweq { X : UU0 } ( sx : isfinite X ) : isfinite ( weq X X ) :=
 
 (* The cardinality of finite sets using double negation and decidability of equality in nat. *)
 
-Definition carddneg  ( X : UU0 ) (is: isfinite X): nat:= pr21 (isfiniteimplisfinite0 X is).
+Definition carddneg  ( X : UU0 ) (is: isfinite X): nat:= pr1 (isfiniteimplisfinite0 X is).
 
 Definition preweq  ( X : UU0 ) (is: isfinite X): isofnel (carddneg X is) X.
-Proof. intros X is X0.  set (c:= carddneg X is). set (dnw:= pr22 (isfiniteimplisfinite0 X is)). simpl in dnw. change (pr21 nat (fun n : nat => isofnel0 n X) (isfiniteimplisfinite0 X is)) with c in dnw. 
+Proof. intros X is X0.  set (c:= carddneg X is). set (dnw:= pr2 (isfiniteimplisfinite0 X is)). simpl in dnw. change (pr1 nat (fun n : nat => isofnel0 n X) (isfiniteimplisfinite0 X is)) with c in dnw. 
 
 assert (f: dirprod (finitestruct X) (dneg (weq (stn c) X)) -> weq (stn c) X). intro H. destruct H as [ t x ].  destruct t as [ t x0 ]. 
-assert (dw: dneg (weq (stn t) (stn c))). set (ff:= fun ab:dirprod (weq (stn t) X)(weq (stn c) X) => weqcomp _ _ _ (pr21 ab) (invweq (pr22 ab))).  apply (dnegf _ _ ff (inhdnegand _ _ (todneg _ x0) x)). 
+assert (dw: dneg (weq (stn t) (stn c))). set (ff:= fun ab:dirprod (weq (stn t) X)(weq (stn c) X) => weqcomp _ _ _ (pr1 ab) (invweq (pr2 ab))).  apply (dnegf _ _ ff (inhdnegand _ _ (todneg _ x0) x)). 
 assert (e:paths t c). apply (stnsdnegweqtoeq _ _  dw). clear dnw. destruct e. assumption. unfold isofnel. 
 apply (hinhfun _ _ f (hinhand (finitestruct X) _ is (hinhpr _ dnw))). Defined. 
 
@@ -259,7 +259,7 @@ Eval compute in fincard (isfinitebool).
 
 
 
-(*Eval lazy in   (pr21 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))).*)
+(*Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))).*)
  
 
 

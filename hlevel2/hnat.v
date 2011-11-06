@@ -21,10 +21,9 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
-Require Export algebra1 . 
+Require Export algebra1d . 
 
 (** To up-stream files  *)
-
 
 
 
@@ -32,32 +31,24 @@ Require Export algebra1 .
 
 
 (** *** Basic properties of [ paths ] on [ nat ] and the proofs of [ isdeceq ] and [ isaset ] for [ nat ] .  *) 
+   
 
-Theorem nopathsOtoSx: forall x:nat, paths O (S x) -> empty.
-Proof. intro. 
-set (f:= fun n:nat => match n with 
-O => true|
-S m => false
-end). 
+Lemma negpaths0sx ( x : nat ) : neg ( paths O (S x) ) .
+Proof. intro. set (f:= fun n : nat => match n with O => true | S m => false end ) . apply ( negf ( @maponpaths _ _ f 0 ( S x ) ) nopathstruetofalse ) . Defined. 
 
-apply ( negf ( @maponpaths _ _ f 0 ( S x ) ) nopathstruetofalse ) . Defined. 
+Lemma negpathssx0 ( x : nat ) : neg ( paths (S x) O ) .
+Proof. intros x X. apply (negpaths0sx x (pathsinv0  X)). Defined. 
 
-Corollary nopathsSxtoO ( x : nat ) : paths (S x) O -> empty.
-Proof. intros x X. apply (nopathsOtoSx x (pathsinv0  X)). Defined. 
+Lemma invmaponpathsS ( n m : nat ) : paths ( S n ) ( S m ) -> paths n m .
+Proof. intros n m e . set ( f := fun n : nat => match n with O => O | S m => m end ) .   apply ( @maponpaths _ _ f ( S n ) ( S m ) e ) .  Defined.  
 
-Lemma noeqinjS ( x x':nat) :  (paths x x' -> empty) -> (paths (S x) (S x') -> empty).
-Proof. set (f:= fun n:nat => match n with 
-O => O|
-S m => m
-end). 
-
-intro. intro. intro X. apply ( negf ( @maponpaths _ _ f ( S x ) ( S x' ) ) X ) .  Defined. 
+Lemma noeqinjS ( x x' : nat ) : neg ( paths x x' ) -> neg ( paths (S x) (S x') ) .
+Proof. intros x x'. apply ( negf ( invmaponpathsS x x' ) ) .  Defined. 
  
+Definition isdeceqnat: isdeceq nat.
+Proof. unfold isdeceq.  intro x . induction x as [ | x IHx ] . intro x' .  destruct x'. apply ( ii1  ( idpath O ) ) . apply ( ii2  ( negpaths0sx x' ) ) . intro x' .  destruct x'.  apply ( ii2  (negpathssx0 x ) ) . destruct ( IHx x' ) as [ p | e ].   apply ( ii1 ( maponpaths S  p ) ) .  apply ( ii2 ( noeqinjS  _ _ e ) ) . Defined . 
 
-Theorem isdeceqnat: isdeceq nat.
-Proof. unfold isdeceq.  intro x . induction x as [ | x IHx ] . intro x' .  destruct x'. apply (ii1  (idpath O)). apply (ii2  (nopathsOtoSx x')). intro x' .  destruct x'.  apply (ii2  (nopathsSxtoO x)). destruct (IHx x') as [ p | e ].   apply (ii1  (maponpaths S  p)).  apply (ii2  (noeqinjS  _ _ e)). Defined. 
-
-Theorem isisolatedn ( n : nat ) : isisolated _ n .
+Definition isisolatedn ( n : nat ) : isisolated _ n .
 Proof. intro. unfold isisolated . intro x' . apply isdeceqnat . Defined. 
 
 Theorem isasetnat: isaset nat.
@@ -66,217 +57,329 @@ Proof.  apply (isasetifdeceq _ isdeceqnat). Defined.
 Definition natset : hSet := hSetpair _ isasetnat . 
 Canonical Structure natset . 
 
+Definition nateq ( x y : nat ) : hProp := hProppair ( paths x y ) ( isasetnat _ _  )  .
+Definition isdecrelnateq : isdecrel nateq  := fun a b => isdeceqnat a b .
+Definition natdeceq : decrel nat := decrelpair isdecrelnateq . 
+Canonical Structure natdeceq. 
 
-Definition  eqnat ( a b : nat ) : hProp := hProppair _ ( isasetnat a b ) . 
+Definition natbooleq := decreltobrel natdeceq .  
 
+Definition natneq ( x y : nat ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
+Definition isdecrelnatneq : isdecrel natneq  := isdecnegrel _ isdecrelnateq . 
+Definition natdecneq : decrel nat := decrelpair isdecrelnatneq . 
+Canonical Structure natdecneq.  
 
-
-(** *** Semi-boolean equality or [eqh] on [ nat ] . *)
-
-Fixpoint eqbnat (n m : nat ) : bool :=
-match n,m with
- | S n , S m => eqbnat n m
- | O , O => true
- | O , S m => false
- | S m , 0 => false
-end.
-
-
-Definition eqh ( n m : nat ) : hProp := hProppair ( paths ( eqbnat n m ) true ) ( isasetbool _ _ ) .
-
-Lemma isdecpropeqh ( n m : nat ) : isdecprop ( eqh n m ) .
-Proof. intros . apply ( isdecproppaths isdeceqbool ( eqbnat n m ) true  ) .  Defined . 
-
-
-Lemma isrefleqh ( n : nat ) : eqh n n .
-Proof. intro . induction n . simpl . apply idpath . simpl . assumption .  Defined . 
-
-
-Definition eqhtopaths ( n m : nat ) : eqh n m -> paths n m .
-Proof . intro n. induction n as [ | n IHn ] . intro m . destruct m as [ | m ] . intro . apply idpath .    intro X . simpl in X . destruct ( nopathsfalsetotrue X ) . intro m .  destruct m as [ | m ] .  intro X . simpl in X .  destruct ( nopathsfalsetotrue X ) . intro X .  set ( a := IHn m X ) .  apply ( maponpaths S a ) . Defined . 
-
-Definition pathstoeqh ( n m : nat ) : paths n m -> eqh n m .
-Proof. intros n m e . destruct e . simpl . apply isrefleqh . Defined.
-
-Definition weqeqhtopaths ( n m : nat ) : weq ( eqh n m ) ( paths n m ) .
-Proof. intros . assert ( is1 : isaprop ( eqh n m ) ) . apply ( pr22 ( eqh n m ) ) . assert ( is2 : isaprop ( paths n m ) ) . set ( a:= isasetnat n m ) .   simpl in a . assumption . 
-split with ( eqhtopaths _ _ ) . apply ( isweqimplimpl ( eqhtopaths _ _ ) ( pathstoeqh _ _ ) is1 is2 ) . Defined. 
-
-Definition neqh ( n m : nat ) : hProp :=  hProppair ( paths ( eqbnat n m ) false ) ( isasetbool _ _ ) .
-
-Lemma neqhtonegpaths ( n m : nat ) : neqh n m -> neg ( paths n m ) .
-Proof. intros n m ne . intro e .  destruct e . destruct ( nopathstruetofalse ( pathscomp0 ( pathsinv0 ( isrefleqh n ) ) ne ) ) .  Defined .
-
+Definition natboolneq := decreltobrel natdecneq .  
 
 (** *** [ S : nat -> nat ] is a decidable inclusion . *)
-
-Lemma invmaponpathsS ( n m : nat ) : paths ( S n ) ( S m ) -> paths n m .
-Proof. intros n m e . apply ( eqhtopaths n m ( pathstoeqh ( S n ) ( S m )  e ) ) . Defined.     
 
 Theorem isinclS : isincl S .
 Proof. apply ( isinclbetweensets S isasetnat isasetnat invmaponpathsS ) .  Defined .
 
 Theorem isdecinclS : isdecincl S .
-Proof. intro n . apply isdecpropif . apply ( isinclS n ) .  destruct n as [ | n ] .  assert ( nh : neg ( hfiber S 0 ) ) .  intro hf .  destruct hf as [ m e ] .  apply ( nopathsSxtoO _ e ) .  apply ( ii2 nh ) .  apply ( ii1 ( hfiberpair _ n ( idpath _ ) ) ) .  Defined . 
-
-
-
-
+Proof. intro n . apply isdecpropif . apply ( isinclS n ) .  destruct n as [ | n ] .  assert ( nh : neg ( hfiber S 0 ) ) .  intro hf .  destruct hf as [ m e ] .  apply ( negpathssx0 _ e ) .  apply ( ii2 nh ) .  apply ( ii1 ( hfiberpair _ n ( idpath _ ) ) ) .  Defined . 
 
 
 (** ** Inequalities on [ nat ] . *)
 
 
-(** *** Boolean "less or equal" or [ leb ] on [ nat ] . *)
+(** *** Boolean "less or equal" and "greater or equal" on [ nat ] . *)
 
-Fixpoint leb (n m : nat) : bool :=
-match n,m with
- | S n , S m => leb n m
- | O, _ => true
- | _, _ => false
+Fixpoint natgtb (n m : nat) : bool :=
+match n , m with
+ | S n , S m => natgtb n m
+ | O, _ => false
+ | _, _ => true
 end.
 
 
 
-(** *** Semi-boolean "less or equal" or [ leh ] and "greater" or [ gth ] on [ nat ] . 
+(** *** Semi-boolean "greater" on [ nat ] or [ natgth ]  
 
- Note that due to its definition [ leh ] automatically has the property that [ leh n m <-> leh ( S n ) ( S m ) ] .  *)
-
-
-
-Definition leh ( n m : nat ) : hProp := hProppair ( paths ( leb n m ) true ) ( isasetbool _ _ ) . 
-
-Lemma isdecpropleh ( n m : nat ) : isdecprop ( leh n m ) .
-Proof. intros . apply ( isdecproppaths isdeceqbool ( leb n m ) true  ) .  Defined . 
-
-Lemma lehtrans ( n m k : nat ) : leh n m -> leh m k -> leh n k .
-Proof. intro. induction n as [ | n IHn ] .  intros m k X X0 .  simpl.  apply idpath.
-intros m k X X0. destruct m as [ | m ] .  apply (fromempty (nopathsfalsetotrue X)). destruct k as [ | k ] .  apply (fromempty (nopathsfalsetotrue X0)). simpl. simpl in X . simpl in X0 . apply (IHn m k).   assumption . assumption . Defined. 
-Hint Resolve lehtrans : natarith .  
-
-Lemma lehrefl (n:nat): leh n n .
-Proof. intros. induction n as [ | n IHn ] . split .   simpl. assumption.  Defined. 
-Hint Resolve lehrefl : natarith .
-
-Definition lehpo : po nat := popair leh ( dirprodpair lehtrans lehrefl ). 
+1. Note that due to its definition [ natgth ] automatically has the property that [ natgth n m <-> natgth ( S n ) ( S m ) ] and the same applies to all other inequalities defined in this section.
+2. We choose "greater" as the root relation from which we define all other relations on [ nat ] because it is more natural to extend "greater" to integers and then to rationals than it is to extend "less".   *) 
 
 
+Definition natgth ( n m : nat ) := hProppair ( paths ( natgtb n m ) true ) ( isasetbool _ _ ) . 
 
-(* Lemma lehasymm ( n m : nat ) : leh n m -> leh m n -> paths n m .
-Proof. intro . induction n as [ | n IHn ] . intro . induction *)
+Lemma negnatgth0n ( n : nat ) : neg ( natgth 0 n ) .
+Proof. intro n . simpl . intro np . apply ( nopathsfalsetotrue np ) .  Defined . 
 
+Lemma natgthsnn ( n : nat ) : natgth ( S n ) n .
+Proof . intro . induction n as [ | n IHn ] . simpl . apply idpath .   apply IHn . Defined .
 
-Lemma lehnsn (n:nat): leh n (S n) .
-Proof. intro. induction n as [ | n IHn ] . apply ( idpath true ) .  assumption.  Defined. 
-Hint Resolve lehnsn : natarith . 
+Lemma natgthsn0 ( n : nat ) : natgth ( S n ) 0 .
+Proof . intro . simpl . apply idpath .  Defined . 
 
-Lemma neglehsnn (n:nat): neg ( leh ( S n ) n).
-Proof. intro. induction n as [ | n IHn ] .  simpl.  intro X. apply (nopathsfalsetotrue X). assumption.  Defined.
+Lemma negnatgth0tois0 ( n : nat ) ( ng : neg ( natgth n 0 ) ) : paths n 0 .
+Proof . intro. destruct n as [ | n ] . intro.   apply idpath.  intro ng .  destruct ( ng ( natgthsn0 _ ) ) . Defined . 
 
-Lemma lehimpllehs ( n m : nat ) : leh n m -> leh n ( S m ) .
-Proof. intros n m is . apply ( lehtrans n m ( S m ) is ( lehnsn m ) ) . Defined . 
+Lemma natneq0togth0 ( n : nat ) ( ne : neg ( paths n 0 ) ) : natgth n 0 .
+Proof . intros . destruct n as [ | n ] . destruct ( ne ( idpath _ ) ) .  apply natgthsn0 .  Defined . 
 
-Lemma lehsimplleh ( n m : nat ) : leh ( S n ) m -> leh n m .
-Proof.  intros n m is . apply ( lehtrans ( S n ) m ( S m ) is ( lehnsn m ) ) . Defined . 
+Lemma nat1gthtois0 ( n : nat ) ( g : natgth 1 n ) : paths n 0 .
+Proof . intro . destruct n as [ | n ] . intro . apply idpath . intro x .  destruct ( negnatgth0n n x ) .  Defined .
 
-Lemma leh0implis0 (n:nat) : leh n 0 -> paths n 0.
-Proof.  intro. destruct n as [ | n ] . intro.   apply idpath.  intro X. apply (fromempty (nopathsfalsetotrue X)). Defined. 
+Lemma istransnatgth ( n m k : nat ) : natgth n m -> natgth m k -> natgth n k .
+Proof. intro. induction n as [ | n IHn ] . intros m k g . destruct ( negnatgth0n _ g ) .  intro m . destruct m as [ | m ] . intros k g g' . destruct ( negnatgth0n _ g' ) . intro k . destruct k as [ | k ] . intros . apply natgthsn0 . apply ( IHn m k ) .  Defined. 
 
-Lemma neglehsn0 ( n : nat ) : neg ( leh ( S n ) 0 ) .
-Proof. intros n H . set ( int := leh0implis0 ( S n ) H ) .  simpl in H .  apply ( nopathsfalsetotrue H ) . Defined . 
+Lemma isirreflnatgth ( n : nat ) : neg ( natgth n n ) .
+Proof. intro . induction n as [ | n IHn ] . apply ( negnatgth0n 0 ) .  apply IHn .  Defined . 
 
-Lemma lehchoice ( n m : nat ) : leh n m -> coprod ( leh ( S n ) m ) ( paths n m ) .
-Proof . intros n m . revert n . induction m as [ | m IHm ] . intros n l . apply ( ii2 ( leh0implis0 _ l ) ) . intros n l . destruct n as [ | n ] .  apply ( ii1 ( idpath true ) ) .  destruct ( IHm n l )  as [ l' | e ] .  apply ( ii1 l' ) . apply ( ii2 ( maponpaths S e ) ) . Defined . 
+Lemma natgthtoneq ( n m : nat ) ( g : natgth n m ) : neg ( paths n m ) .
+Proof . intros . intro e . rewrite e in g . apply ( isirreflnatgth _ g ) . Defined .  
 
+Lemma isasymmnatgth ( n m : nat ) : natgth n m -> natgth m n -> empty .
+Proof. intros n m is is' . apply ( isirreflnatgth n ( istransnatgth _ _ _ is is' ) ) . Defined .  
 
-(** *** Semi-boolean "greater" or [ gth ] on [ nat ] and its properties . 
+Lemma isantisymmnegnatgth ( n m : nat ) : neg ( natgth n m ) -> neg ( natgth m n ) -> paths n m .
+Proof . intro n . induction n as [ | n IHn ] . intros m ng0m ngm0  .  apply ( pathsinv0 ( negnatgth0tois0 _ ngm0 ) ) . intro m . destruct m as [ | m ] . intros ngsn0 ng0sn . destruct ( ngsn0 ( natgthsn0 _ ) ) .  intros ng1 ng2 .   apply ( maponpaths S ( IHn m ng1 ng2 ) ) .  Defined .     
 
-Note that due to its definition [ gth ] automatically has the property that [ gth n m <-> gth ( S n ) ( S m ) ] . *) 
+Lemma isdecrelnatgth : isdecrel natgth .
+Proof. intros n m . apply ( isdeceqbool ( natgtb n m ) true ) .  Defined .
 
+Definition natgthdec := decrelpair isdecrelnatgth .
+Canonical Structure natgthdec .
 
-Definition gth ( n m : nat ) : hProp := hProppair ( paths ( leb n m ) false ) ( isasetbool _ _ ) . 
+Lemma isnegrelnatgth : isnegrel natgth .
+Proof . apply isdecreltoisnegrel . apply isdecrelnatgth . Defined . 
 
+Lemma iscoantisymmnatgth ( n m : nat ) : neg ( natgth n m ) -> coprod ( natgth m n ) ( paths n m ) .
+Proof . apply isantisymmnegtoiscoantisymm . apply isdecrelnatgth .  intros n m . apply isantisymmnegnatgth . Defined .  
 
-Lemma isdecpropgth ( n m : nat ) : isdecprop ( gth n m ) .
-Proof. intros . apply ( isdecproppaths isdeceqbool ( leb n m ) false  ) .  Defined .
-
-Lemma neggthnn ( n : nat ) : neg ( gth n n ) .
-Proof. intros n is . induction n as [ | n IHn ] .  apply ( nopathstruetofalse is ) . apply ( IHn is ) .  Defined .   
-
-Lemma gthtrans ( n m k : nat ) : gth n m -> gth m k -> gth n k .
-Proof. intro. induction n as [ | n IHn ] .  intros m k X X0. apply (fromempty (nopathstruetofalse X)).  intros m k X X0 .  destruct m as [ | m ] .  apply (fromempty (nopathstruetofalse X0 )).  destruct k as [ | k ] . apply ( idpath false ) . apply (IHn m k) . assumption . assumption . Defined. 
-
-Lemma gthasymm ( n m : nat ) : gth n m -> gth m n -> empty .
-Proof. intros n m is is' . apply ( neggthnn n ( gthtrans _ _ _ is is' ) ) . Defined .    
-
-Lemma gthsnn ( n : nat ) : gth ( S n ) n .
-Proof . intro n . induction n as [ | n IHn ] . apply ( idpath false ) . assumption . Defined .
-
-Lemma gthimplgths ( n m : nat ) : gth n m -> gth ( S n ) m .
-Proof. intros n m is . apply ( gthtrans ( S n ) n m ( gthsnn n ) is ) . Defined . 
-
-Lemma neggth0n ( n : nat ) : neg ( gth 0 n ) .
-Proof. intros n is . apply ( nopathstruetofalse is ) . Defined . 
-
-Lemma gthchoice ( n m : nat ) : gth n m -> coprod ( gth n ( S m ) ) ( paths n ( S m ) ) .
-Proof. intro n . induction n as [ | n IHn ] . intros m g .   destruct ( neggth0n _ g ) .  intro m .   destruct m as [ | m ] .  intro .  destruct n as [ | n ] . apply ( ii2 ( idpath _ ) ) .  apply ( ii1 ( idpath false ) ) .  intro g .  destruct ( IHn m g ) as [ g' | e ] . apply ( ii1 g' ) .    apply ( ii2 ( maponpaths S e ) ) .  Defined . 
+Lemma iscotransnatgth ( n m k : nat ) : natgth n k -> hdisj ( natgth n m ) ( natgth m k ) .
+Proof . intros x y z gxz .  destruct ( isdecrelnatgth x y ) as [ gxy | ngxy ] . apply ( hinhpr _ ( ii1 gxy ) ) . apply hinhpr .   apply ii2 .  destruct ( isdecrelnatgth y x ) as [ gyx | ngyx ] . apply ( istransnatgth _ _ _ gyx gxz ) .  set ( e := isantisymmnegnatgth _ _ ngxy ngyx ) . rewrite e in gxz .  apply gxz .  Defined .   
 
 
-(** *** Semi-boolean " greater or equal " or [ geh ] and " less " or [ lth] *)
-
-Definition geh ( n m : nat ) := leh m n .
-
-Definition lth ( n m : nat ) := gth m n .
-
-Lemma gehtrans ( n m k : nat ) : geh n m -> geh m k -> geh n k .
-Proof . intros n m k g1 g2 . apply ( lehtrans _ _ _ g2 g1 ) . Defined . 
-
-Definition gehpo : po nat := popair geh ( dirprodpair gehtrans lehrefl ). 
-
-Lemma lthtrans ( n m k  : nat ) : lth n m -> lth m k -> lth n k .
-Proof. intros n m k l1 l2 . apply ( gthtrans _ _ _ l2 l1 ) . Defined . 
-
-Lemma lth1implis0 ( n : nat ) : lth n 1 ->  paths n 0 .
-Proof. intros n l . destruct n as [ | n ] . apply idpath . destruct ( neggth0n n l ) .  Defined .   
 
 
-(** *** Lemmas including a combination of [ leh ] , [ gth ] , [ geh ] and [ lth ] . *)
+(** *** Semi-boolean "less" on [ nat ] or [ natlth ] *)
 
-Lemma neglehgth ( n m : nat ) : leh n m -> gth n m -> empty .
-Proof. intros n m is is' . apply ( nopathsfalsetotrue ( pathscomp0 ( pathsinv0 is' ) is ) ) .  Defined .   
+Definition natlth ( n m : nat ) := natgth m n .
 
-Lemma gthimplgeh ( n m : nat ) : gth n m -> geh n m .
-Proof. intros n m g . simpl .  destruct ( boolchoice ( leb m n ) ) . assumption  .  destruct ( gthasymm _ _ g i ) . Defined .
+Definition negnatlthn0 ( n : nat ) : neg ( natlth n 0 ) := negnatgth0n n .
 
-Lemma gehsnimplgth ( n m : nat ) : geh n ( S m ) -> gth n m .
-Proof. intro n . induction n as [ | n IHn ] .  intros m X . destruct ( neglehsn0 _ X ) .  intros m X . destruct m as [ | m ] . apply ( idpath false ) . apply ( IHn m X ) .  Defined . 
+Definition natlthnsn ( n : nat ) : natlth n ( S n ) := natgthsnn n . 
 
-Lemma gthimplgehsn ( n m : nat ) : gth n m -> geh n ( S m ) .
-Proof. intro n . induction n as [ | n IHn ] .  intros m X .  destruct ( neggth0n _ X ) . intros m X . destruct m as [ | m ] .  apply ( idpath true ) .  apply ( IHn m X ) .  Defined . 
+Definition negnat0lthtois0 ( n : nat ) ( nl : neg ( natlth 0 n ) ) : paths n 0 := negnatgth0tois0 n nl .
 
-Lemma lehsnimpllth ( n m : nat ) : leh ( S n ) m -> lth n m .
-Proof.  intros n m X . apply ( gehsnimplgth m n X ) . Defined . 
+Definition natneq0to0lth ( n : nat ) ( ne : neg ( paths n 0 ) ) : natlth 0 n := natneq0togth0 n ne .
 
-Lemma lthimpllehsn ( n m : nat ) : lth n m -> leh ( S n ) m .
-Proof. intros n m X . apply ( gthimplgehsn m n X ) . Defined . 
+Definition natlth1tois0 ( n : nat ) ( l : natlth n 1 ) : paths n 0 := nat1gthtois0 _ l . 
 
-Lemma gthgehtrans ( n m k : nat ) : gth n m -> geh m k -> gth n k .
-Proof. intro. induction n as [ | n IHn ] .  intros m k X X0. apply (fromempty (nopathstruetofalse X)).  intros m k X X0 .  destruct m as [ | m ] .  set ( e := leh0implis0 k X0 ) . rewrite e . apply ( idpath false ) .  destruct k as [ | k ] . apply ( idpath false ) . apply (IHn m k) . assumption . assumption . Defined. 
+Definition istransnatlth ( n m k  : nat ) : natlth n m -> natlth m k -> natlth n k := fun lnm lmk => istransnatgth _ _ _ lmk lnm . 
 
-Lemma gehgthtrans ( n m k : nat ) : geh n m -> gth m k -> gth n k .
-Proof. intro. induction n as [ | n IHn ] .  intros m k X X0. destruct m as [ | m ] .  apply (fromempty (nopathstruetofalse X0 ) ).  destruct ( neglehsn0 _ X ) .   intros m k X X0 .  destruct k as [ | k ] .   apply ( idpath false ) .  destruct m as [ | m ] .  apply (fromempty (nopathstruetofalse X0 ) ). apply (IHn m k) . assumption . assumption . Defined. 
+Definition isirreflnatlth ( n : nat ) : neg ( natlth n n ) := isirreflnatgth n . 
 
-Lemma lthlehtrans ( n m k : nat ) : lth n m -> leh m k -> lth n k .
-Proof . intros n m k l1 l2 . apply ( gehgthtrans k m n l2 l1 ) . Defined . 
+Lemma natlthtoneq ( n m : nat ) ( g : natlth n m ) : neg ( paths n m ) .
+Proof . intros . intro e . rewrite e in g . apply ( isirreflnatlth _ g ) . Defined .   
 
-Lemma lehlthtrans ( n m k : nat ) : leh n m -> lth m k -> lth n k .
-Proof . intros n m k l1 l2 . apply ( gthgehtrans k m n l2 l1 ) . Defined . 
+Definition isasymmnatlth ( n m : nat ) : natlth n m -> natlth m n -> empty := fun lnm lmn => isasymmnatgth _ _ lmn lnm .
+
+Definition isantisymmnegnattth  ( n m : nat ) : neg ( natlth n m ) -> neg ( natlth m n ) -> paths n m := fun nlnm nlmn => isantisymmnegnatgth _ _ nlmn nlnm .
+
+Definition isdecrelnatlth  : isdecrel natlth  := fun n m => isdecrelnatgth m n . 
+
+Definition natlthdec := decrelpair isdecrelnatlth .
+Canonical Structure natlthdec .
+
+Definition isnegrelnatlth : isnegrel natlth := fun n m => isnegrelnatgth m n .
+
+Definition iscoantisymmnatlth ( n m : nat ) : neg ( natlth n m ) -> coprod ( natlth m n ) ( paths n m ) .
+Proof . intros n m nlnm . destruct ( iscoantisymmnatgth m n nlnm ) as [ l | e ] . apply ( ii1 l ) . apply ( ii2 ( pathsinv0 e ) ) . Defined . 
+
+Definition iscotransnatlth ( n m k : nat ) : natlth n k -> hdisj ( natlth n m ) ( natlth m k ) . 
+Proof . intros n m k lnk . apply ( ( pr1 islogeqcommhdisj ) ( iscotransnatgth _ _ _ lnk ) )  .  Defined .      
 
 
-(** ** Some properties of [ plus ] on [ nat ] *)
+
+(** *** Semi-boolean "less or equal " on [ nat ] or [ natleh ] *)
+
+Definition natleh ( n m : nat ) := hProppair ( neg ( natgth n m ) ) ( isapropneg _ )  .
+
+Definition natleh0tois0 ( n : nat ) ( l : natleh n 0 ) : paths n 0 := negnatgth0tois0 _ l .
+
+Definition natleh0n ( n : nat ) : natleh 0 n := negnatgth0n _ .
+
+Definition negnatlehsn0 ( n : nat ) : neg ( natleh ( S n ) 0 ) := todneg _ ( natgthsn0 n ) . 
+
+Definition negnatlehsnn ( n : nat ) : neg ( natleh ( S n ) n ) := todneg _ ( natgthsnn _ ) . 
+
+Definition  istransnatleh ( n m k : nat ) : natleh n m -> natleh m k -> natleh n k .
+Proof. apply istransnegrel . unfold iscotrans. apply iscotransnatgth .  Defined.   
+
+Definition isreflnatleh ( n : nat ) : natleh n n := isirreflnatgth n .  
+
+Definition isantisymmnatleh ( n m : nat ) : natleh n m -> natleh m n -> paths n m := isantisymmnegnatgth n m .   
+
+Definition isdecrelnatleh : isdecrel natleh := isdecnegrel _ isdecrelnatgth . 
+
+Definition natlehdec := decrelpair isdecrelnatleh .
+Canonical Structure natlehdec .
+
+Definition isnegrelnatleh : isnegrel natleh .
+Proof . apply isdecreltoisnegrel . apply isdecrelnatleh . Defined . 
+
+Definition iscoasymmnatleh ( n m : nat ) ( nl : neg ( natleh n m ) ) : natleh m n := negf ( isasymmnatgth _ _ ) nl . 
+
+Definition istotalnatleh : istotal natleh . 
+Proof . intros x y . destruct ( isdecrelnatleh x y ) as [ lxy | lyx ] . apply ( hinhpr _ ( ii1 lxy ) ) . apply hinhpr .   apply ii2 . apply ( iscoasymmnatleh _ _ lyx ) .   Defined . 
 
 
-(** *** The structure of the additive ablelian unitary monoid on [ nat ] *) 
+
+(** *** Semi-boolean "greater or equal" on [ nat ] or [ natgeh ] . *)
+
+
+Definition natgeh ( n m : nat ) : hProp := hProppair ( neg ( natgth m n ) ) ( isapropneg _ ) .  
+
+Definition nat0gehtois0 ( n : nat ) ( g : natgeh 0 n ) : paths n 0 := natleh0tois0 _ g . 
+
+Definition natgehn0 ( n : nat ) : natgeh n 0 := natleh0n n .  
+
+Definition negnatgeh0sn ( n : nat ) : neg ( natgeh 0 ( S n ) ) := negnatlehsn0 n . 
+
+Definition negnatgehnsn ( n : nat ) : neg ( natgeh n ( S n ) ) := negnatlehsnn n . 
+
+Definition istransnatgeh ( n m k : nat ) : natgeh n m -> natgeh m k -> natgeh n k := fun gnm gmk => istransnatleh _ _ _ gmk gnm . 
+
+Definition isreflnatgeh ( n : nat ) : natgeh n n := isreflnatleh _ . 
+
+Definition isantisymmnatgeh ( n m : nat ) : natgeh n m -> natgeh m n -> paths n m := fun gnm gmn => isantisymmnatleh _ _ gmn gnm . 
+
+Definition isdecrelnatgeh : isdecrel natgeh := fun n m => isdecrelnatleh m n .
+
+Definition natgehdec := decrelpair isdecrelnatgeh .
+Canonical Structure natgehdec .
+
+Definition isnegrelnatgeh : isnegrel natgeh := fun n m => isnegrelnatleh m n . 
+
+Definition iscoasymmnatgeh ( n m : nat ) ( nl : neg ( natgeh n m ) ) : natgeh m n := iscoasymmnatleh _ _ nl . 
+
+Definition istotalnatgeh : istotal natgeh := fun n m => istotalnatleh m n .
+
+
+
+
+(** *** Simple implications between comparisons *)
+
+Definition natgthtogeh ( n m : nat ) : natgth n m -> natgeh n m .
+Proof. intros n m g . apply iscoasymmnatgeh . apply ( todneg _ g ) . Defined .
+
+Definition natlthtoleh ( n m : nat ) : natlth n m -> natleh n m := natgthtogeh _ _ . 
+
+Definition natlehtonegnatgth ( n m : nat ) : natleh n m -> neg ( natgth n m )  .
+Proof. intros n m is is' . apply ( is is' ) .  Defined . 
+
+Definition  natgthtonegnatleh ( n m : nat ) : natgth n m -> neg ( natleh n m ) := fun g l  => natlehtonegnatgth _ _ l g .   
+
+Definition natgehtonegnatlth ( n m : nat ) : natgeh n m -> neg ( natlth n m ) := fun gnm lnm => natlehtonegnatgth _ _ gnm lnm . 
+
+Definition natlthtonegnatgeh ( n m : nat ) : natlth n m -> neg ( natgeh n m ) := fun gnm lnm => natlehtonegnatgth _ _ lnm gnm .  
+
+Definition negnatlehtogth ( n m : nat ) : neg ( natleh n m ) -> natgth n m := isnegrelnatgth n m .   
+
+Definition negnatgehtolth ( n m : nat ) : neg ( natgeh n m ) -> natlth n m := isnegrelnatlth n m .
+
+Definition negnatgthtoleh ( n m : nat ) : neg ( natgth n m ) -> natleh n m .
+Proof . intros n m ng . destruct ( isdecrelnatleh n m ) as [ l | nl ] . apply l . destruct ( nl ng ) .  Defined . 
+
+Definition negnatlthtogeh ( n m : nat ) : neg ( natlth n m ) -> natgeh n m := fun nl => negnatgthtoleh _ _ nl . 
+
+
+
+(** *** Comparison alternatives *)
+
+
+Definition natgthorleh ( n m : nat ) : coprod ( natgth n m ) ( natleh n m ) .
+Proof . intros . apply ( isdecrelnatgth n m ) .  Defined . 
+
+Definition natlthorgeh ( n m : nat ) : coprod ( natlth n m ) ( natgeh n m ) := natgthorleh _ _ .
+
+Definition natneqchoice ( n m : nat ) ( ne : neg ( paths n m ) ) : coprod ( natgth n m ) ( natlth n m ) .
+Proof . intros . destruct ( natgthorleh n m ) as [ l | g ]  .   apply ( ii1 l ) .  destruct ( natlthorgeh n m ) as [ l' | g' ] . apply ( ii2 l' ) .  destruct ( ne ( isantisymmnatleh _ _ g g' ) ) . Defined . 
+
+Definition natlehchoice ( n m : nat ) ( l : natleh n m ) : coprod ( natlth n m ) ( paths n m ) .
+Proof .  intros . destruct ( natlthorgeh n m ) as [ l' | g ] .  apply ( ii1 l' ) . apply ( ii2 ( isantisymmnatleh _ _ l g ) ) . Defined . 
+
+Definition natgehchoice ( n m : nat ) ( g : natgeh n m ) : coprod ( natgth n m ) ( paths n m ) .
+Proof .  intros . destruct ( natgthorleh n m ) as [ g' | l ] .  apply ( ii1 g' ) . apply ( ii2 ( isantisymmnatleh _ _ l g ) ) .  Defined . 
+
+
+
+
+(** *** Mixed transitivities *)
+
+
+
+Lemma natgthgehtrans ( n m k : nat ) : natgth n m -> natgeh m k -> natgth n k .
+Proof. intros n m k gnm gmk . destruct ( natgehchoice m k gmk ) as [ g' | e ] . apply ( istransnatgth _ _ _ gnm g' ) .  rewrite e in gnm  .  apply gnm . Defined. 
+
+Lemma natgehgthtrans ( n m k : nat ) : natgeh n m -> natgth m k -> natgth n k .
+Proof. intros n m k gnm gmk . destruct ( natgehchoice n m gnm ) as [ g' | e ] . apply ( istransnatgth _ _ _ g' gmk ) .  rewrite e .  apply gmk . Defined. 
+
+Lemma natlthlehtrans ( n m k : nat ) : natlth n m -> natleh m k -> natlth n k .
+Proof . intros n m k l1 l2 . apply ( natgehgthtrans k m n l2 l1 ) . Defined . 
+
+Lemma natlehlthtrans ( n m k : nat ) : natleh n m -> natlth m k -> natlth n k .
+Proof . intros n m k l1 l2 . apply ( natgthgehtrans k m n l2 l1 ) . Defined . 
+
+
+
+(** *** Two comparisons and [ S ] *)
+
+Lemma natgthtogehsn ( n m : nat ) : natgth n m -> natgeh n ( S m ) .
+Proof. intro n . induction n as [ | n IHn ] .  intros m X .  destruct ( negnatgth0n _ X ) . intros m X . destruct m as [ | m ] .  apply ( natgehn0 n ) .  apply ( IHn m X ) .  Defined . 
+
+Lemma natlehsntolth ( n m : nat ) : natleh ( S n ) m -> natlth n m .
+Proof.  intros n m X . apply ( natlthlehtrans _ _ _ ( natlthnsn n ) X ) .  Defined . 
+
+Lemma natlthtolehsn ( n m : nat ) : natlth n m -> natleh ( S n ) m .
+Proof. intros n m X . apply ( natgthtogehsn m n X ) . Defined .
+
+Lemma natgehsntogth ( n m : nat ) : natgeh n ( S m ) -> natgth n m .
+Proof. intros n m X . apply ( natlehsntolth m n X ) .  Defined .  
+
+
+(** *** Comparsion alternatives and [ S ] *)
+
+
+Lemma natlehchoice2 ( n m : nat ) : natleh n m -> coprod ( natleh ( S n ) m ) ( paths n m ) .
+Proof . intros n m l . destruct ( natlehchoice n m l ) as [ l' | e ] .   apply ( ii1 ( natlthtolehsn _ _ l' ) ) . apply ( ii2 e ) .  Defined . 
+
+
+Lemma natgehchoice2 ( n m : nat ) : natgeh n m -> coprod ( natgeh n ( S m ) ) ( paths n m ) .
+Proof . intros n m g . destruct ( natgehchoice n m g ) as [ g' | e ] .   apply ( ii1 ( natgthtogehsn _ _ g' ) ) . apply ( ii2 e ) . Defined . 
+
+
+Lemma natgthchoice2 ( n m : nat ) : natgth n m -> coprod ( natgth n ( S m ) ) ( paths n ( S m ) ) .
+Proof.  intros n m g . destruct ( natgehchoice _ _ ( natgthtogehsn _ _ g ) ) as [ g' | e ] . apply ( ii1 g' ) .  apply ( ii2 e ) .  Defined . 
+
+
+Lemma natlthchoice2 ( n m : nat ) : natlth n m -> coprod ( natlth ( S n ) m ) ( paths ( S n ) m ) .
+Proof.  intros n m l . destruct ( natlehchoice _ _ ( natlthtolehsn _ _ l ) ) as [ l' | e ] . apply ( ii1 l' ) .  apply ( ii2 e ) .   Defined . 
+   
+
+
+
+
+
+
+
+(** ** Some properties of [ plus ] on [ nat ] 
+
+Addition is defined in Init/Peano.v by the following code 
+
+Fixpoint plus (n m:nat) : nat :=
+  match n with
+  | O => m
+  | S p => S (p + m)
+  end
+
+where "n + m" := (plus n m) : nat_scope.
+*)
+
+
+(** *** The structure of the additive ablelian monoid on [ nat ] *) 
 
 
 Lemma natplusl0 ( n : nat ) : paths ( 0 + n ) n .
@@ -286,50 +389,111 @@ Lemma natplusr0 ( n : nat ) : paths ( n + 0 ) n .
 Proof . intro . induction n as [ | n IH n ] . apply idpath .  simpl . apply ( maponpaths S IH ) . Defined .
 Hint Resolve natplusr0: natarith .
 
-Lemma plusnsm ( n m : nat ) : paths ( n + S m ) ( S n + m ) .
+Lemma natplusnsm ( n m : nat ) : paths ( n + S m ) ( S n + m ) .
 Proof. intro . simpl . induction n as [ | n IHn ] .  auto with natarith . simpl . intro . apply ( maponpaths S ( IHn m ) ) .  Defined . 
-Hint Resolve plusnsm : natarith .
+Hint Resolve natplusnsm : natarith .
 
 Lemma natpluscomm ( n m : nat ) : paths ( n + m ) ( m + n ) .
-Proof. intro. induction n as [ | n IHn ] . intro . auto with natarith .  intro .  set ( int := IHn ( S m ) ) . set ( int2 := pathsinv0 ( plusnsm n m ) ) . set ( int3 := pathsinv0 ( plusnsm m n ) ) .  set ( int4 := pathscomp0 int2 int  ) .  apply ( pathscomp0 int4 int3 ) . Defined . 
+Proof. intro. induction n as [ | n IHn ] . intro . auto with natarith .  intro .  set ( int := IHn ( S m ) ) . set ( int2 := pathsinv0 ( natplusnsm n m ) ) . set ( int3 := pathsinv0 ( natplusnsm m n ) ) .  set ( int4 := pathscomp0 int2 int  ) .  apply ( pathscomp0 int4 int3 ) . Defined . 
 Hint Resolve natpluscomm : natarith . 
 
 Lemma natplusassoc ( n m k : nat ) : paths ( ( n + m ) + k ) ( n + ( m + k ) ) .
 Proof . intro . induction n as [ | n IHn ] . auto with natarith . intros . simpl .  apply ( maponpaths S ( IHn m k ) ) . Defined. 
 Hint Resolve natplusassoc : natarith .
 
-Definition addabmonoidnat : abmonoid := abmonoidpair ( setwithbinoppair natset ( fun n m : nat => n + m ) ) ( dirprodpair ( dirprodpair natplusassoc ( @isunitalpair natset _ 0 ( dirprodpair natplusl0 natplusr0 ) ) ) natpluscomm ) .    
+Definition nataddabmonoid : abmonoid := abmonoidpair ( setwithbinoppair natset ( fun n m : nat => n + m ) ) ( dirprodpair ( dirprodpair natplusassoc ( @isunitalpair natset _ 0 ( dirprodpair natplusl0 natplusr0 ) ) ) natpluscomm ) .    
 
 
-(** *** The structure of a partially ordered by [ leh ] additive abelian unitary monoid on [ nat ] *) 
 
 
-Lemma lehmplusnm ( n m : nat ) : leh m ( n + m ) .
-Proof. intros . induction n as [ | n IHn ] . simpl . apply lehrefl . simpl .  apply ( lehtrans _ _ _ IHn ( lehnsn _ ) ) .  Defined . 
+(** *** Addition and comparisons  *)
 
-Lemma lehnplusnm ( n m : nat ) : leh n ( n + m ) .
-Proof. intros . rewrite ( natpluscomm n m ) .  apply ( lehmplusnm m n ) .  Defined . 
 
-Lemma neggthmplusnm ( n m : nat ) : neg ( gth m ( n + m ) ) .
-Proof. intros . intro g . apply ( neglehgth _ _ ( lehmplusnm n m ) g ) .  Defined . 
 
-Lemma neggthnplusnm ( n m : nat ) : neg ( gth n ( n + m ) ) .
-Proof. intros . intro g . apply ( neglehgth _ _ ( lehnplusnm n m ) g ) .  Defined . 
+(** [ natgth ] *)
 
-Lemma lehandplusl ( n m k : nat ) : leh n m -> leh ( k + n ) ( k + m ) .
+
+
+Definition natgthtogths ( n m : nat ) : natgth n m -> natgth ( S n ) m  .
+Proof. intros n m is . apply ( istransnatgth _ _ _ ( natgthsnn n ) is ) . Defined .
+
+Definition negnatgthmplusnm ( n m : nat ) : neg ( natgth m ( n + m ) ) .
+Proof. intros . induction n as [ | n IHn ] .  apply isirreflnatgth . apply ( istransnatleh _ _ _ IHn ( ( natlthtoleh _ _ ( natlthnsn _ ) ) ) ) .  Defined . 
+
+Definition negnatgthnplusnm ( n m : nat ) : neg ( natgth n ( n + m ) ) .
+Proof. intros . rewrite ( natpluscomm n m ) .  apply ( negnatgthmplusnm m n ) .  Defined . 
+
+Definition natgthandplusl ( n m k : nat ) : natgth n m -> natgth ( k + n ) ( k + m ) .
 Proof. intros n m k l . induction k as [ | k IHk ] . assumption .  assumption .  Defined . 
 
-Lemma lehandplusr ( n m k : nat ) : leh n m -> leh ( n + k ) ( m + k ) .
-Proof. intros . rewrite ( natpluscomm n k ) . rewrite ( natpluscomm m k ) . apply lehandplusl . assumption . Defined . 
+Definition natgthandplusr ( n m k : nat ) : natgth n m -> natgth ( n + k ) ( m + k ) .
+Proof. intros . rewrite ( natpluscomm n k ) . rewrite ( natpluscomm m k ) . apply natgthandplusl . assumption . Defined . 
 
-Lemma lehandpluslinv  ( n m k : nat ) : leh ( k + n ) ( k + m ) -> leh n m .
+Definition natgthandpluslinv  ( n m k : nat ) : natgth ( k + n ) ( k + m ) -> natgth n m  .
 Proof. intros n m k l . induction k as [ | k IHk ] . assumption .  apply ( IHk l ) . Defined .
 
-Lemma lehandplusrinv ( n m k : nat ) :  leh ( n + k ) ( m + k ) -> leh n m . 
-Proof. intros n m k l . rewrite ( natpluscomm n k ) in l . rewrite ( natpluscomm m k ) in l . apply ( lehandpluslinv _ _ _ l )  . Defined . 
-
-
+Definition natgthandplusrinv ( n m k : nat ) :  natgth ( n + k ) ( m + k ) -> natgth n m  . 
+Proof. intros n m k l . rewrite ( natpluscomm n k ) in l . rewrite ( natpluscomm m k ) in l . apply ( natgthandpluslinv _ _ _ l )  . Defined . 
  
+
+(** [ natlth ] *)
+
+
+Definition natlthtolths ( n m : nat ) : natlth n m -> natlth n ( S m ) := natgthtogths _ _ . 
+
+Definition negnatlthplusnmm ( n m : nat ) : neg ( natlth ( n + m ) m )  := negnatgthmplusnm _ _ .
+
+Definition negnatlthplusnmn ( n m : nat ) : neg ( natlth ( n + m ) n )  := negnatgthnplusnm _ _ .
+
+Definition natlthandplusl ( n m k : nat ) : natlth n m -> natlth ( k + n ) ( k + m )  := natgthandplusl _ _ _ . 
+
+Definition natlthandplusr ( n m k : nat ) : natlth n m -> natlth ( n + k ) ( m + k ) := natgthandplusr _ _ _ .
+
+Definition natlthandpluslinv  ( n m k : nat ) : natlth ( k + n ) ( k + m ) -> natlth n m := natgthandpluslinv _ _ _ .
+
+Definition natlthandplusrinv ( n m k : nat ) :  natlth ( n + k ) ( m + k ) -> natlth n m := natgthandplusrinv _ _ _ . 
+
+
+
+(** [ natleh ] *)
+
+
+Definition natlehtolehs ( n m : nat ) : natleh n m -> natleh n ( S m ) .  
+Proof . intros n m is . apply ( istransnatleh _ _ _ is ( natlthtoleh _ _ ( natlthnsn _ ) ) ) . Defined .
+
+Definition natlehmplusnm ( n m : nat ) : natleh m ( n + m )  := negnatlthplusnmm _ _  .
+
+Definition natlehnplusnm ( n m : nat ) : natleh n ( n + m ) := negnatlthplusnmn _ _  .
+
+Definition natlehandplusl ( n m k : nat ) : natleh n m -> natleh ( k + n ) ( k + m ) := negf ( natgthandpluslinv n m k )  . 
+
+Definition natlehandplusr ( n m k : nat ) : natleh n m -> natleh ( n + k ) ( m + k ) := negf ( natgthandplusrinv n m k )  . 
+
+Definition natlehandpluslinv  ( n m k : nat ) : natleh ( k + n ) ( k + m ) -> natleh n m := negf ( natgthandplusl n m k )  .  
+
+Definition natlehandplusrinv ( n m k : nat ) :  natleh ( n + k ) ( m + k ) -> natleh n m :=  negf ( natgthandplusr n m k ) . 
+
+
+
+
+(** [ natgeh ] *)
+
+
+Definition natgehtogehs ( n m : nat ) : natgeh n m -> natgeh ( S n ) m := natlehtolehs _ _  .
+ 
+Definition natgehplusnmm ( n m : nat ) : natgeh ( n + m ) m := negnatgthmplusnm _ _ .
+
+Definition natgehplusnmn ( n m : nat ) : natgeh ( n + m ) n := negnatgthnplusnm _ _  . 
+
+Definition natgehandplusl ( n m k : nat ) : natgeh n m -> natgeh ( k + n ) ( k + m ) := negf ( natgthandpluslinv m n k ) .  
+
+Definition natgehandplusr ( n m k : nat ) : natgeh n m -> natgeh ( n + k ) ( m + k ) := negf ( natgthandplusrinv m n k )  . 
+
+Definition natgehandpluslinv  ( n m k : nat ) : natgeh ( k + n ) ( k + m ) -> natgeh n m := negf ( natgthandplusl m n k )  . 
+
+Definition natgehandplusrinv ( n m k : nat ) :  natgeh ( n + k ) ( m + k ) -> natgeh n m :=  negf ( natgthandplusr m n k ) . 
+
+
 
 
 (** *** Cancellation properties of [ plus ] on [ nat ] *)
@@ -337,49 +501,75 @@ Proof. intros n m k l . rewrite ( natpluscomm n k ) in l . rewrite ( natpluscomm
 Lemma pathsitertoplus ( n m : nat ) : paths ( iteration S n m ) ( n + m ) .
 Proof. intros .  induction n as [ | n IHn ] . apply idpath . simpl .  apply ( maponpaths S IHn ) .  Defined .
 
-Lemma isinclplusn ( n : nat ) : isincl ( fun m : nat => m + n ) .
-Proof. intro . induction n as [ | n IHn ] . apply ( isofhlevelfhomot 1 _ _ ( fun m : nat => pathsinv0 ( natplusr0 m ) ) ) . apply ( isofhlevelfweq 1 ( idweq nat ) ) .  apply ( isofhlevelfhomot 1 _ _ ( fun m : nat => pathsinv0 ( plusnsm m n ) ) ) . simpl .   apply ( isofhlevelfgf 1 _ _ isinclS IHn ) .  Defined. 
+Lemma isinclnatplusr ( n : nat ) : isincl ( fun m : nat => m + n ) .
+Proof. intro . induction n as [ | n IHn ] . apply ( isofhlevelfhomot 1 _ _ ( fun m : nat => pathsinv0 ( natplusr0 m ) ) ) . apply ( isofhlevelfweq 1 ( idweq nat ) ) .  apply ( isofhlevelfhomot 1 _ _ ( fun m : nat => pathsinv0 ( natplusnsm m n ) ) ) . simpl .   apply ( isofhlevelfgf 1 _ _ isinclS IHn ) .  Defined. 
 
-Lemma iscontrhfiberplusn ( n m : nat ) ( is : geh m n ) : iscontr ( hfiber ( fun i : nat => i + n ) m ) .
-Proof. intros . apply iscontraprop1 .    apply isinclplusn . induction m as [ | m IHm ] . set ( e := leh0implis0 _ is ) .   split with 0 . apply e .  destruct ( lehchoice _ _ is ) as [ l | e ] .  set ( j := IHm l ) .  destruct j as [ j e' ] . split with ( S j ) .  simpl . apply ( maponpaths S e' ) .  split with 0 . simpl .  assumption .  Defined . 
+Lemma isinclnatplusl ( n : nat ) : isincl ( fun m : nat => n + m ) .
+Proof. intro .  apply ( isofhlevelfhomot 1 _ _ ( fun m : nat => natpluscomm m n ) ( isinclnatplusr n ) ) . Defined . 
 
-Lemma neghfiberplusn ( n m : nat ) ( is : lth m n ) : neg ( hfiber  ( fun i : nat => i + n ) m ) .
-Proof. intros. intro h . destruct h as [ i e ] . rewrite ( pathsinv0 e )  in is . destruct ( neglehgth _ _ ( lehmplusnm i n ) is ) .  Defined .    
+Lemma natplusrcan ( a b c : nat ) ( is : paths ( a + c ) ( b + c ) ) : paths a b .
+Proof . intros . apply ( invmaponpathsincl _ ( isinclnatplusr c ) a b ) . apply is . Defined .  
 
-Lemma isdecinclplusn ( n : nat ) : isdecincl ( fun i : nat => i + n ) .
-Proof. intros . intro m . apply isdecpropif . apply ( isinclplusn _ m ) . destruct ( boolchoice ( leb n m ) ) as [ i | ni ] . apply ( ii1 ( pr21 ( iscontrhfiberplusn n m i ) ) ) . apply ( ii2 ( neghfiberplusn n m ni ) ) .  Defined .  
-
-
-(** *** Some properties of [ minus ] on [ nat ] *)
-
-Lemma plusminusnmm ( n m : nat ) ( is : leh m n ) : paths ( ( n - m ) + m ) n .
-Proof . intro n . induction n as [ | n IH n] . intro m . intro lh . simpl . apply ( leh0implis0 _ lh ) . intro m . destruct m as [ | m ] . intro .   simpl . rewrite ( natplusr0 n ) .  apply idpath .  simpl . intro lh .  rewrite ( plusnsm ( n - m ) m ) . apply ( maponpaths S ( IH m lh ) ) .  Defined . 
+Lemma natpluslcan ( a b c : nat ) ( is : paths ( c + a ) ( c + b ) ) : paths a b .
+Proof . intros . rewrite ( natpluscomm _ _ ) in is . rewrite ( natpluscomm c b ) in is . apply ( natplusrcan a b c  is ) .  Defined .   
 
 
-(** *** [ plus ] and [ gth ] *)
+Lemma iscontrhfibernatplusr ( n m : nat ) ( is : natgeh m n ) : iscontr ( hfiber ( fun i : nat => i + n ) m ) .
+Proof. intros . apply iscontraprop1 .    apply isinclnatplusr . induction m as [ | m IHm ] . set ( e := natleh0tois0 _ is ) .   split with 0 . apply e .  destruct ( natlehchoice2 _ _ is ) as [ l | e ] .  set ( j := IHm l ) .  destruct j as [ j e' ] . split with ( S j ) .  simpl . apply ( maponpaths S e' ) .  split with 0 . simpl .  assumption .  Defined . 
 
-Lemma gthandplusl ( n m k : nat ) : gth n m -> gth ( k + n ) ( k + m ) .
-Proof. intros n m k l . induction k as [ | k IHk ] . assumption .  assumption .  Defined . 
+Lemma neghfibernatplusr ( n m : nat ) ( is : natlth m n ) : neg ( hfiber  ( fun i : nat => i + n ) m ) .
+Proof. intros. intro h . destruct h as [ i e ] . rewrite ( pathsinv0 e )  in is . destruct ( natlehtonegnatgth _ _ ( natlehmplusnm i n ) is ) .  Defined .    
 
-Lemma gthandplusr ( n m k : nat ) : gth n m -> gth ( n + k ) ( m + k ) .
-Proof. intros . rewrite ( natpluscomm n k ) . rewrite ( natpluscomm m k ) . apply gthandplusl . assumption . Defined . 
-
-Lemma gthandpluslinv  ( n m k : nat ) : gth ( k + n ) ( k + m ) -> gth n m .
-Proof. intros n m k l . induction k as [ | k IHk ] . assumption .  apply ( IHk l ) . Defined .
-
-Lemma gthandplusrinv ( n m k : nat ) :  gth ( n + k ) ( m + k ) -> gth n m . 
-Proof. intros n m k l . rewrite ( natpluscomm n k ) in l . rewrite ( natpluscomm m k ) in l . apply ( gthandpluslinv _ _ _ l )  . Defined . 
+Lemma isdecinclnatplusr ( n : nat ) : isdecincl ( fun i : nat => i + n ) .
+Proof. intros . intro m . apply isdecpropif . apply ( isinclnatplusr _ m ) . destruct ( natlthorgeh m n ) as [ ni | i ] .  apply ( ii2 ( neghfibernatplusr n m ni ) ) . apply ( ii1 ( pr1 ( iscontrhfibernatplusr n m i ) ) ) . Defined .  
 
 
 
 
-(** ** Some properties of [ mult ] on [ nat ] *)
+(** *** Some properties of [ minus ] on [ nat ] 
+
+Note : minus is defined in Init/Peano.v by the following code:
+
+Fixpoint minus (n m:nat) : nat :=
+  match n, m with
+  | O, _ => n
+  | S k, O => n
+  | S k, S l => k - l
+  end
+
+where "n - m" := (minus n m) : nat_scope.
+
+*)
+
+Lemma plusminusnmm ( n m : nat ) ( is : natgeh n m ) : paths ( ( n - m ) + m ) n .
+Proof . intro n . induction n as [ | n IH n] . intro m . intro lh . simpl . apply ( natleh0tois0 _ lh ) . intro m . destruct m as [ | m ] . intro .   simpl . rewrite ( natplusr0 n ) .  apply idpath .  simpl . intro lh .  rewrite ( natplusnsm ( n - m ) m ) . apply ( maponpaths S ( IH m lh ) ) .  Defined . 
+
+
+
+
+(** ** Some properties of [ mult ] on [ nat ] 
+
+Note : multiplication is defined in Init/Peano.v by the following code:
+
+Fixpoint mult (n m:nat) : nat :=
+  match n with
+  | O => 0
+  | S p => m + p * m
+  end
+
+where "n * m" := (mult n m) : nat_scope.
+
+*)
 
 (** *** Basic algebraic properties of [ mult ] on [ nat ] *)
 
-Lemma multn0 ( n : nat ) : paths ( n * 0 ) 0 .
+Lemma natmult0n ( n : nat ) : paths ( 0 * n ) 0 .
+Proof. intro n . apply idpath . Defined . 
+Hint Resolve natmult0n : natarith .
+
+Lemma natmultn0 ( n : nat ) : paths ( n * 0 ) 0 .
 Proof. intro n . induction n as [ | n IHn ] . apply idpath . simpl .   assumption .  Defined . 
-Hint Resolve multn0 : natarith .
+Hint Resolve natmultn0 : natarith .
 
 Lemma multsnm ( n m : nat ) : paths ( ( S n ) * m ) ( m + n * m ) .
 Proof. intros . apply idpath . Defined .
@@ -393,10 +583,10 @@ Lemma natmultcomm ( n m : nat ) : paths ( n * m ) ( m * n ) .
 Proof. intro . induction n as [ | n IHn ] . intro .  auto with natarith . intro m .  rewrite ( multsnm n m ) .  rewrite ( multnsm m n ) .  apply ( maponpaths ( fun x : _ => m + x ) ( IHn m ) ) .   Defined .
 
 Lemma natrdistr ( n m k : nat ) : paths ( ( n + m ) * k ) ( n * k + m * k ) .
-Proof . intro . induction n as [ | n IHn ] . auto with natarith .   simpl . intros . rewrite ( natplusassoc k ( n * k ) ( m * k ) ) .   apply ( maponpaths ( fun x : _ => k + x ) ( IHn m k ) ) .  Defined . 
+Proof . intros . induction n as [ | n IHn ] . auto with natarith .   simpl . rewrite ( natplusassoc k ( n * k ) ( m * k ) ) .   apply ( maponpaths ( fun x : _ => k + x ) ( IHn ) ) .  Defined . 
   
-Lemma natldistr ( n m k : nat ) : paths ( n * ( m + k ) ) ( n * m + n * k ) .
-Proof . intros n m . induction m as [ | m IHm ] . simpl . intro . rewrite ( multn0 n ) . auto with natarith .  simpl . intro . rewrite ( multnsm n ( m + k ) ) . rewrite ( multnsm n m ) .  rewrite ( natplusassoc _ _ _ ) .  apply ( maponpaths ( fun x : _ => n + x ) ( IHm k ) ) . Defined .
+Lemma natldistr ( m k n : nat ) : paths ( n * ( m + k ) ) ( n * m + n * k ) .
+Proof . intros m k n . induction m as [ | m IHm ] . simpl . rewrite ( natmultn0 n ) . auto with natarith .  simpl . rewrite ( multnsm n ( m + k ) ) . rewrite ( multnsm n m ) .  rewrite ( natplusassoc _ _ _ ) .  apply ( maponpaths ( fun x : _ => n + x ) ( IHm ) ) . Defined .
 
 Lemma natmultassoc ( n m k : nat ) : paths ( ( n * m ) * k ) ( n * ( m * k ) ) .
 Proof. intro . induction n as [ | n IHn ] . auto with natarith . intros . simpl . rewrite ( natrdistr m ( n * m ) k ) .  apply ( maponpaths ( fun x : _ => m * k + x ) ( IHn m k ) ) .   Defined . 
@@ -407,81 +597,240 @@ Hint Resolve natmultl1 : natarith .
 
 Lemma natmultr1 ( n : nat ) : paths ( n * 1 ) n .
 Proof. intro n . rewrite ( natmultcomm n 1 ) . auto with natarith . Defined . 
-Hint Resolve natmultr1 : natarith . 
+Hint Resolve natmultr1 : natarith .
+
+Definition natmultabmonoid : abmonoid :=  abmonoidpair ( setwithbinoppair natset ( fun n m : nat => n * m ) ) ( dirprodpair ( dirprodpair natmultassoc ( @isunitalpair natset _ 1 ( dirprodpair natmultl1 natmultr1 ) ) ) natmultcomm ) . 
+
+    
 
 
-Definition multabmonoidnat : abmonoid :=  abmonoidpair ( setwithbinoppair natset ( fun n m : nat => n * m ) ) ( dirprodpair ( dirprodpair natmultassoc ( @isunitalpair natset _ 1 ( dirprodpair natmultl1 natmultr1 ) ) ) natmultcomm ) .    
+(** *** [ nat ] as a commutative rig *)
+
+Definition natcommrig : commrig .
+Proof . split with ( setwith2binoppair natset ( dirprodpair  ( fun n m : nat => n + m ) ( fun n m : nat => n * m ) ) ) .  split . split . split with ( dirprodpair ( dirprodpair ( dirprodpair natplusassoc ( @isunitalpair natset _ 0 ( dirprodpair natplusl0 natplusr0 ) ) ) natpluscomm ) ( dirprodpair natmultassoc ( @isunitalpair natset _ 1 ( dirprodpair natmultl1 natmultr1 ) ) ) ) . apply ( dirprodpair natmult0n natmultn0 ) . apply ( dirprodpair natldistr natrdistr ) . unfold iscomm . apply natmultcomm . Defined .
 
 
+(** *** Cancellation properties of [ mult ] on [ nat ] *)
 
+Definition natneq0andmult ( n m : nat ) ( isn : natneq n 0 ) ( ism : natneq m 0 ) : natneq ( n * m ) 0 .
+Proof . intros . destruct n as [ | n ] . destruct ( isn ( idpath _ ) ) .  destruct m as [ | m ] .  destruct ( ism ( idpath _ ) ) . simpl . apply ( negpathssx0 ) .  Defined . 
 
+Definition natneq0andmultlinv ( n m : nat ) ( isnm : natneq ( n * m ) 0 ) : natneq n 0 := rigneq0andmultlinv natcommrig n m isnm . 
 
-(** *** Multiplication and comparisons ( [ leh ] [ gth ] etc . ) *)
-
-
-Lemma lehandmultl ( n m k : nat ) : leh n m -> leh ( k * n ) ( k * m ) .
-Proof. intros n m k l . induction k as [ | k IHk ] . auto with natarith. simpl . apply ( lehtrans _ _ _ ( lehandplusr n m ( k * n ) l ) ( lehandplusl ( k * n ) ( k * m ) m IHk ) ) .   Defined .  
-
-Lemma lehandmultr ( n m k : nat ) : leh n m -> leh ( n * k ) ( m * k ) .
-Proof . intros n m k l . rewrite ( natmultcomm n k ) . rewrite ( natmultcomm m k ) . apply ( lehandmultl n m k l ) . Defined .
-
-Lemma lehandmultlinv ( n m k : nat ) ( is : gth k 0 ) : leh ( k * n ) ( k * m ) -> leh n m .
-Proof . intro n . induction n as [ | n IHn ] . intros . apply ( idpath true ) .  intros  m k . destruct m as [ | m ] . intros g l .  rewrite ( multn0 k ) in l .   rewrite ( multnsm k n ) in l .  set ( l' := lehtrans _ _ _ ( lehnplusnm k ( k * n ) ) l ) .  destruct ( neglehgth _ _ l' g ) . intros g l .  rewrite ( multnsm k n ) in l .   rewrite ( multnsm k m ) in l .  set ( l' := lehandpluslinv _ _ _ l ) . apply ( IHn m k g l' ) .  Defined . 
-
-Lemma lehandmultrinv ( n m k : nat ) ( is : gth k 0 ) : leh ( n * k ) ( m * k ) -> leh n m .
-Proof.  intros n m k is l . rewrite ( natmultcomm n k ) in l . rewrite ( natmultcomm m k ) in l . apply ( lehandmultlinv n m k is l ) . Defined .
-
-Lemma lthandmultl ( n m k : nat ) ( is : gth k 0 ) : lth n m -> lth ( k * n ) ( k * m ) .
-Proof. intro n . induction n as [ | n IHn ] . intros m k is l . destruct m as [ | m ] .  destruct ( neggthnn _ l ) .  rewrite ( multn0 k ) .  rewrite ( multnsm k m ) . apply ( gehgthtrans _ _ _ ( lehnplusnm k ( k * m ) ) is ) . intro m .   destruct m as [ | m ] .  intros k g l . destruct ( neggth0n _ l ) .  intros k g l .  rewrite ( multnsm k n ) .  rewrite ( multnsm k m ) .  apply ( gthandplusl _ _ k ) .  apply ( IHn m k g l ) .  Defined . 
-
-Lemma lthandmultr ( n m k : nat ) ( is : gth k 0 ) : lth n m -> lth ( n * k ) ( m * k ) .
-Proof . intros n m k l . rewrite ( natmultcomm n k ) . rewrite ( natmultcomm m k ) . apply ( lthandmultl n m k l ) . Defined .
-
-Lemma lthandmultlinv ( n m k : nat ) ( is : gth k 0 ) : lth ( k * n ) ( k * m ) -> lth n m .
-Proof . intro n . induction n as [ | n IHn ] . intros m k is l . destruct m as [ | m ] .  destruct ( neggthnn _ l ) . simpl .  apply idpath .  intro m . destruct m as [ | m ] . intros k g l .  rewrite ( multn0 k ) in l .  destruct ( neggth0n _ l ) .  intros k g l .  rewrite ( multnsm k n ) in l .   rewrite ( multnsm k m ) in l .  set ( l' := gthandpluslinv _ _ _ l ) .   apply ( IHn m k g l' ) .  Defined . 
-
-Lemma lthandmultrinv ( n m k : nat ) ( is : gth k 0 ) : lth ( n * k ) ( m * k ) -> lth n m .
-Proof.  intros n m k is l . rewrite ( natmultcomm n k ) in l . rewrite ( natmultcomm m k ) in l . apply ( lthandmultlinv n m k is l ) . Defined .
+Definition natneq0andmultrinv ( n m : nat ) ( isnm : natneq ( n * m ) 0 ) : natneq m 0 := rigneq0andmultrinv natcommrig n m isnm .
 
 
 
+(** *** Multiplication and comparisons  *)
+
+
+(** [ natgth ] *)
+
+
+Definition natgthandmultl ( n m k : nat ) ( is : natneq k 0 ) : natgth n m -> natgth ( k * n ) ( k * m ) .
+Proof. intro n . induction n as [ | n IHn ] .  intros m k g g' . destruct ( negnatgth0n _ g' ) .  intro m . destruct m as [ | m ] . intros k g g' . rewrite ( natmultn0 k ) .  rewrite ( multnsm k n ) .  apply ( natgehgthtrans _ _ _ ( natgehplusnmn k ( k* n ) ) ( natneq0togth0 _ g ) ) .  intros k g g' . rewrite ( multnsm k n ) . rewrite ( multnsm k m ) . apply ( natgthandplusl _ _ _ ) . apply ( IHn m k g g' ) . Defined .  
+
+Definition natgthandmultr ( n m k : nat ) ( is : natneq k 0 ) : natgth n m -> natgth ( n * k ) ( m * k )  .
+Proof . intros n m k l . rewrite ( natmultcomm n k ) . rewrite ( natmultcomm m k ) . apply ( natgthandmultl n m k l ) . Defined .
+
+Definition natgthandmultlinv ( n m k : nat ) : natgth ( k * n ) ( k * m ) -> natgth n m .
+Proof . intro n . induction n as [ | n IHn ] . intros m k g . rewrite ( natmultn0 k ) in g . destruct ( negnatgth0n _ g ) .  intro m . destruct m as [ | m ] .  intros . apply ( natgthsn0 _ ) . intros k g . rewrite ( multnsm k n ) in g .  rewrite ( multnsm k m ) in g . apply ( IHn m k ( natgthandpluslinv _ _ k g ) ) .  Defined . 
+
+Definition natgthandmultrinv ( n m k : nat ) : natgth ( n * k ) ( m * k ) -> natgth n m .
+Proof.  intros n m k g . rewrite ( natmultcomm n k ) in g . rewrite ( natmultcomm m k ) in g . apply ( natgthandmultlinv n m k g ) . Defined .
+
+
+
+(** [ natlth ] *)
+
+
+Definition natlthandmultl ( n m k : nat ) ( is : natneq k 0 ) : natlth n m -> natlth ( k * n ) ( k * m )  := natgthandmultl _ _ _ is .
+
+Definition natlthandmultr ( n m k : nat ) ( is : natneq k 0 ) : natlth n m -> natlth ( n * k ) ( m * k ) := natgthandmultr _ _ _ is .
+
+Definition natlthandmultlinv ( n m k : nat ) : natlth ( k * n ) ( k * m ) -> natlth n m := natgthandmultlinv _ _ _  .
+
+Definition natlthandmultrinv ( n m k : nat ) : natlth ( n * k ) ( m * k ) -> natlth n m := natgthandmultrinv _ _ _ .
+
+
+(** [ natleh ] *)
+
+
+Definition natlehandmultl ( n m k : nat ) : natleh n m -> natleh ( k * n ) ( k * m ) := negf ( natgthandmultlinv _ _ _ ) .
+
+Definition natlehandmultr ( n m k : nat ) : natleh n m -> natleh ( n * k ) ( m * k ) := negf ( natgthandmultrinv _ _ _ ) .
+
+Definition natlehandmultlinv ( n m k : nat ) ( is : natneq k 0 ) : natleh ( k * n ) ( k * m ) -> natleh n m := negf ( natgthandmultl _ _ _ is )  .
+
+Definition natlehandmultrinv ( n m k : nat ) ( is : natneq k 0 ) : natleh ( n * k ) ( m * k ) -> natleh n m := negf ( natgthandmultr _ _ _ is ) .
+
+
+(** [ natgeh ] *)
+
+
+Definition natgehandmultl ( n m k : nat ) : natgeh n m -> natgeh ( k * n ) ( k * m ) := negf ( natgthandmultlinv _ _ _ ) .
+
+Definition natgehandmultr ( n m k : nat ) : natgeh n m -> natgeh ( n * k ) ( m * k )  := negf ( natgthandmultrinv _ _ _ ) .
+
+Definition natgehandmultlinv ( n m k : nat ) ( is : natneq k 0 ) : natgeh ( k * n ) ( k * m ) -> natgeh n m := negf ( natgthandmultl _ _ _ is )   .
+
+Definition natgehandmultrinv ( n m k : nat ) ( is : natneq k 0 ) : natgeh ( n * k ) ( m * k ) -> natgeh n m := negf ( natgthandmultr _ _ _ is )  .
 
 
 
 
-(** *** Division with a remainder on [ nat ] *)
 
 
-Definition natdivrem ( n m : nat ) ( is : gth m 0 ) : dirprod nat nat .
-Proof. intros . induction n as [ | n IHn ] . intros . apply ( dirprodpair 0 0 ) . destruct ( leb m ( S ( pr22 IHn ) ) )  . apply ( dirprodpair ( S ( pr21 IHn ) ) 0 ) .  apply ( dirprodpair ( pr21 IHn ) ( S ( pr22 IHn ) ) ) .  Defined . 
+(** *** Properties of comparisons in the terminology of  algebra1.v *)
 
-Definition natdiv ( n m : nat ) ( is : gth m 0 ) := pr21 ( natdivrem n m is ) .
-Definition natrem ( n m : nat ) ( is : gth m 0 ) := pr22 ( natdivrem n m is ) .
+Open Scope rig_scope.
 
-Lemma lthnatrem ( n m : nat ) ( is : gth m 0 ) : lth ( natrem n m is ) m .
-Proof. intro . destruct n as [ | n ] . unfold natrem . simpl . intros.  assumption .  unfold natrem . unfold natdivrem . simpl . intros m is . fold ( natdivrem n m is ) .  destruct ( boolchoice ( leb m (S (pr22 (natdivrem n m is))) ) ) as [ t | nt ] . rewrite t .  simpl .  assumption .   rewrite nt . simpl . assumption .  Defined . 
+(** [ natgth ] *)
+
+Lemma isplushrelnatgth : @isbinophrel nataddabmonoid natgth . 
+Proof . split . apply  natgthandplusl .  apply natgthandplusr .  Defined . 
+
+Lemma isinvplushrelnatgth : @isinvbinophrel nataddabmonoid natgth . 
+Proof . split . apply  natgthandpluslinv .  apply natgthandplusrinv .  Defined . 
+
+Lemma isinvmulthrelnatgth : @isinvbinophrel natmultabmonoid natgth . 
+Proof . split .  intros a b c r . apply ( natlthandmultlinv _ _ _ r ) .   intros a b c r .  apply ( natlthandmultrinv _ _ _ r ) .  Defined . 
+
+Lemma isrigmultgtnatgth : isrigmultgt natcommrig natgth .
+Proof . change ( forall a b c d : nat , natgth a b -> natgth c d -> natgth ( a * c + b * d ) ( a * d + b * c ) ) .  intro a . induction a as [ | a IHa ] . intros b c d rab rcd . destruct ( negnatgth0n _ rab ) . 
+
+intro b . induction b as [ | b IHb ] . intros c d rab rcd . rewrite ( natmult0n d ) .  rewrite ( natplusr0 _ ) .  rewrite ( natmult0n _ ) .        rewrite ( natplusr0 _ ) . apply ( natlthandmultl _ _ _ ( natgthtoneq _ _ rab ) rcd ) . intros c d rab rcd . simpl . set ( rer := ( abmonoidrer nataddabmonoid ) ) . simpl in rer .  rewrite ( rer _ _ d _ ) . rewrite ( rer _ _ c _ ) .  rewrite ( natpluscomm c d ) .  apply ( natlthandplusl (a * d + b * c)  (a * c + b * d) ( d + c ) ) . apply ( IHa _ _ _ rab rcd ) .  Defined . 
+
+Lemma isinvrigmultgtnatgth : isinvrigmultgt natcommrig natgth .
+Proof . set ( rer := abmonoidrer nataddabmonoid  ) .  simpl in rer .  apply isinvrigmultgtif . intros a b c d . generalize a b c . clear a b c .  induction d as [ | d IHd ] .  
+
+intros a b c g gab . change ( pr1 ( natgth ( a * c + b * 0 ) ( a * 0 + b * c ) ) ) in g .   destruct c as [ | c ] .  rewrite ( natmultn0 _ ) in g .  destruct ( isirreflnatgth _ g ) .  apply natgthsn0 .   
+
+intros a b c g gab .  destruct c as [ | c ] . change ( pr1 ( natgth ( a * 0 + b * S d ) ( a * S d + b * 0 ) ) ) in g . rewrite ( natmultn0 _ ) in g .  rewrite ( natmultn0 _ ) in g .  rewrite ( natplusl0 _ ) in g . rewrite ( natplusr0 _ ) in g .  set ( g' := natgthandmultrinv _ _ _ g ) .  destruct ( isasymmnatgth _ _ gab g' ) .  change ( pr1 ( natgth ( a * S c + b * S d ) ( a * S d + b * S c ) ) ) in g .  rewrite ( multnsm _ _ ) in g .   rewrite ( multnsm _ _ ) in g .  rewrite ( multnsm _ _ ) in g .  rewrite ( multnsm _ _ ) in g . rewrite ( rer _ ( a * c ) _ _ ) in g . rewrite ( rer _ ( a * d ) _ _ ) in g . set ( g' := natgthandpluslinv _ _ ( a + b ) g ) .  apply ( IHd a b c g' gab ) . Defined .  
 
 
-Theorem natdivremrule ( n m : nat ) ( is : gth m 0 ) : paths n ( ( natrem n m is ) + ( natdiv n m is ) * m ) .
-Proof. intro . induction n as [ | n IHn ] . simpl .  intros . apply idpath . intros m is . unfold natrem . unfold natdiv .  unfold natdivrem . simpl . fold  ( natdivrem n m is ) .   destruct ( boolchoice ( leb m ( S ( pr22 ( natdivrem n m is  ) ) ) ) ) as [ t | nt ] . 
-
-rewrite t . simpl . set ( is' := lthnatrem n m is ) . destruct ( gthchoice _ _ is' ) as [ h | e ] .    destruct ( neglehgth _ _ t h ) .  fold ( natdiv n m is ) . set ( e'' := maponpaths S ( IHn m is ) ) .  change (S (natrem n m is + natdiv n m is * m) ) with (  S ( natrem n m is ) + natdiv n m is * m ) in  e'' . rewrite ( pathsinv0 e ) in e'' . apply e'' . 
- 
-rewrite nt . simpl . apply ( maponpaths S ( IHn m is ) ) .  Defined .  
 
 
-Lemma lehmultnatdiv ( n m : nat ) ( is : gth m 0 ) :  leh ( mult ( natdiv n m is ) m ) n .
-Proof . intros . set ( e := natdivremrule n m is ) . set ( int := natdiv n m is * m ) . rewrite e . unfold int  .   apply ( lehmplusnm _ _ ) .  Defined . 
+
+(** [ natlth ] *)
+
+Lemma isplushrelnatlth : @isbinophrel nataddabmonoid natlth . 
+Proof . split . intros a b c . apply  ( natgthandplusl b a c ) . intros a b c . apply ( natgthandplusr b a c )  .  Defined . 
+
+Lemma isinvplushrelnatlth : @isinvbinophrel nataddabmonoid natlth . 
+Proof . split . intros a b c . apply  ( natgthandpluslinv b a c ) .  intros a b c . apply ( natgthandplusrinv b a c ) .  Defined . 
+
+Lemma isinvmulthrelnatlth : @isinvbinophrel natmultabmonoid natlth . 
+Proof . split . intros a b c r .  apply ( natlthandmultlinv  _ _ _ r ) .   intros a b c r .  apply ( natlthandmultrinv _ _ _ r ) .  Defined . 
+
+(** [ natleh ] *)
+
+Lemma isplushrelnatleh : @isbinophrel nataddabmonoid natleh . 
+Proof . split . apply natlehandplusl .  apply natlehandplusr . Defined . 
+
+Lemma isinvplushrelnatleh : @isinvbinophrel nataddabmonoid natleh . 
+Proof . split . apply natlehandpluslinv .  apply natlehandplusrinv . Defined . 
+
+Lemma ispartinvmulthrelnatleh : @ispartinvbinophrel natmultabmonoid ( fun x => natneq x 0 ) natleh . 
+Proof . split . intros a b c s r . apply ( natlehandmultlinv _ _ _ s r ) .   intros a b c s r .  apply ( natlehandmultrinv _ _ _ s r ) .  Defined . 
 
 
-Theorem natdivremunique ( m i j i' j' : nat ) ( lj : lth j m ) ( lj' : lth j' m ) ( e : paths ( j + i * m ) ( j' + i' * m ) ) : dirprod ( paths i i' ) ( paths j j' ) .
+(** [ natgeh ] *)
+
+Lemma isplushrelnatgeh : @isbinophrel nataddabmonoid natgeh . 
+Proof . split . intros a b c . apply ( natlehandplusl b a c ) .   intros a b c . apply ( natlehandplusr b a c ) . Defined . 
+
+Lemma isinvplushrelnatgeh : @isinvbinophrel nataddabmonoid natgeh . 
+Proof . split . intros a b c . apply ( natlehandpluslinv b a c ) .   intros a b c . apply ( natlehandplusrinv b a c ) . Defined . 
+
+Lemma ispartinvmulthrelnatgeh : @ispartinvbinophrel natmultabmonoid ( fun x => natneq x 0 ) natgeh . 
+Proof . split .  intros a b c s r . apply ( natlehandmultlinv _ _ _ s r ) .   intros a b c s r .  apply ( natlehandmultrinv _ _ _ s r ) .  Defined . 
+
+
+Close Scope rig_scope . 
+
+
+
+(** *** Submonoid of non-zero elements in [ nat ] *)
+
+Definition natnonzero : @subabmonoids natmultabmonoid . 
+Proof . split with ( fun a => natneq a 0 ) .  unfold issubmonoid .  split .  unfold issubsetwithbinop . intros a a' .  apply ( natneq0andmult _ _ ( pr2 a ) ( pr2 a' ) ) . apply ( ct ( natneq , 1 , 0 ) ) . Defined . 
+
+Lemma natnonzerocomm ( a b : natnonzero ) : paths ( @op natnonzero a b ) ( @op natnonzero b a ) . 
+Proof . intros . apply ( invmaponpathsincl _ ( isinclpr1carrier _ ) ( @op natnonzero a b ) ( @op natnonzero b a ) ) .  simpl . apply natmultcomm . Defined . 
+
+
+
+(** *** Division with a remainder on [ nat ] 
+
+For technical reasons it is more convenient to introduce divison with remainder for all pairs (n,m) including pairs of the form (n,0). *)
+
+
+Definition natdivrem ( n m : nat ) : dirprod nat nat .
+Proof. intros . induction n as [ | n IHn ] . intros . apply ( dirprodpair 0 0 ) . destruct ( natlthorgeh ( S ( pr2 IHn ) ) m )  . apply ( dirprodpair ( pr1 IHn ) ( S ( pr2 IHn ) ) ) .  apply ( dirprodpair ( S ( pr1 IHn ) ) 0 ) .   Defined . 
+
+Definition natdiv ( n m : nat )  := pr1 ( natdivrem n m ) .
+Definition natrem ( n m : nat )  := pr2 ( natdivrem n m ) .
+
+Lemma lthnatrem ( n m : nat ) ( is : natneq m 0 ) : natlth ( natrem n m ) m .
+Proof. intro . destruct n as [ | n ] . unfold natrem . simpl . intros.  apply ( natneq0togth0 _ is ) .  unfold natrem . intros m is . simpl .   destruct ( natlthorgeh (S (pr2 (natdivrem n m))) m )  as [ nt | t ] . simpl . apply nt . simpl .  apply ( natneq0togth0 _ is ) .   Defined . 
+
+
+Theorem natdivremrule ( n m : nat ) ( is : natneq m 0 ) : paths n ( ( natrem n m ) + ( natdiv n m ) * m ) .
+Proof. intro . induction n as [ | n IHn ] . simpl .  intros . apply idpath . intros m is .  unfold natrem . unfold natdiv . simpl .  destruct ( natlthorgeh ( S ( pr2 ( natdivrem n m  ) ) ) m )  as [ nt | t ] . 
+
+simpl .  apply ( maponpaths S ( IHn m is ) ) .
+
+simpl . set ( is' := lthnatrem n m is ) .  destruct ( natgthchoice2 _ _ is' ) as [ h | e ] .    destruct ( natlehtonegnatgth _ _ t h ) .  fold ( natdiv n m ) . set ( e'' := maponpaths S ( IHn m is ) ) .  change (S (natrem n m + natdiv n m * m) ) with (  S ( natrem n m ) + natdiv n m * m ) in  e'' . rewrite ( pathsinv0 e ) in e'' . apply e'' . 
+Defined . 
+
+Opaque natdivremrule . 
+
+
+Lemma natlehmultnatdiv ( n m : nat ) ( is : natneq m 0 ) :  natleh ( mult ( natdiv n m ) m ) n .
+Proof . intros . set ( e := natdivremrule n m ) . set ( int := ( natdiv n m ) * m ) . rewrite e . unfold int  .   apply ( natlehmplusnm _ _ ) .  apply is . Defined . 
+
+
+Theorem natdivremunique ( m i j i' j' : nat ) ( lj : natlth j m ) ( lj' : natlth j' m ) ( e : paths ( j + i * m ) ( j' + i' * m ) ) : dirprod ( paths i i' ) ( paths j j' ) .
 Proof. intros m i . induction i as [ | i IHi ] .
 
-intros j i' j' lj lj' .  intro e .  simpl in e . rewrite ( natplusr0 j ) in e .  rewrite e in lj .  destruct i' . simpl in e .  rewrite ( natplusr0 j' ) in e .  apply ( dirprodpair ( idpath _ ) e ) .  simpl in lj . rewrite ( natpluscomm m ( i' * m ) ) in lj . rewrite ( pathsinv0 ( natplusassoc _ _ _ ) ) in lj .  destruct ( neggthmplusnm _ _ lj ) .
+intros j i' j' lj lj' .  intro e .  simpl in e . rewrite ( natplusr0 j ) in e .  rewrite e in lj .  destruct i' . simpl in e .  rewrite ( natplusr0 j' ) in e .  apply ( dirprodpair ( idpath _ ) e ) .  simpl in lj . rewrite ( natpluscomm m ( i' * m ) ) in lj . rewrite ( pathsinv0 ( natplusassoc _ _ _ ) ) in lj .  destruct ( negnatgthmplusnm _ _ lj ) .
 
-intros j i' j' lj lj' e . destruct i' as [ | i' ] .  simpl in e .  rewrite ( natplusr0 j' ) in e . rewrite ( pathsinv0 e ) in lj' .   rewrite ( natpluscomm m ( i * m ) ) in lj' .  rewrite ( pathsinv0 ( natplusassoc _ _ _ ) ) in lj' .  destruct ( neggthmplusnm _ _ lj' ) .  
+intros j i' j' lj lj' e . destruct i' as [ | i' ] .  simpl in e .  rewrite ( natplusr0 j' ) in e . rewrite ( pathsinv0 e ) in lj' .   rewrite ( natpluscomm m ( i * m ) ) in lj' .  rewrite ( pathsinv0 ( natplusassoc _ _ _ ) ) in lj' .  destruct ( negnatgthmplusnm _ _ lj' ) .  
 
-simpl in e .  rewrite ( natpluscomm m ( i * m ) ) in e .  rewrite ( natpluscomm m ( i' * m ) ) in e .  rewrite ( pathsinv0 ( natplusassoc j _ _ ) ) in e .  rewrite ( pathsinv0 ( natplusassoc j' _ _ ) ) in e . set ( e' := invmaponpathsincl _ ( isinclplusn m ) _ _ e ) .  set ( ee := IHi j i' j' lj lj' e' ) .  apply ( dirprodpair ( maponpaths S ( pr21 ee ) ) ( pr22 ee )  ) .  Defined . 
+simpl in e .  rewrite ( natpluscomm m ( i * m ) ) in e .  rewrite ( natpluscomm m ( i' * m ) ) in e .  rewrite ( pathsinv0 ( natplusassoc j _ _ ) ) in e .  rewrite ( pathsinv0 ( natplusassoc j' _ _ ) ) in e . set ( e' := invmaponpathsincl _ ( isinclnatplusr m ) _ _ e ) .  set ( ee := IHi j i' j' lj lj' e' ) .  apply ( dirprodpair ( maponpaths S ( pr1 ee ) ) ( pr2 ee )  ) .  Defined . 
+
+Opaque natdivremunique .
+
+Lemma natdivremandmultl ( n m k : nat ) ( ism : natneq m 0 ) ( iskm : natneq ( k * m ) 0 ) : dirprod ( paths ( natdiv ( k * n ) ( k * m ) ) ( natdiv n m ) ) ( paths ( natrem ( k * n ) ( k * m ) ) ( k * ( natrem n m ) ) ) . 
+Proof . intros . set ( ak := natdiv ( k * n ) ( k * m ) ) . set ( bk := natrem ( k * n ) ( k * m ) ) . set ( a :=  natdiv n m ) . set ( b :=  natrem n m ) . assert ( e1 : paths ( bk + ak * ( k * m )  ) ( ( b * k ) + a * ( k * m ) ) ) . unfold ak. unfold bk .   rewrite ( pathsinv0 ( natdivremrule  ( k * n ) ( k * m ) iskm ) ) . rewrite ( natmultcomm k m ) .   rewrite ( pathsinv0 ( natmultassoc _ _ _ ) ) . rewrite ( pathsinv0 ( natrdistr _ _ _ ) ) .  unfold a . unfold b .  rewrite ( pathsinv0 ( natdivremrule  n m ism ) ) . apply ( natmultcomm k n ) . assert ( l1 := lthnatrem  n m ism ) . assert ( l1' := ( natlthandmultr _ _ _ ( natneq0andmultlinv _ _ iskm ) l1 ) )  .   rewrite ( natmultcomm m k ) in l1' . set ( int := natdivremunique _ _ _ _ _ ( lthnatrem ( k * n ) ( k * m ) iskm ) l1' e1 ) . 
+
+split with ( pr1 int ) . 
+
+rewrite ( natmultcomm k b ) . apply ( pr2 int ) .  Defined . 
+
+Opaque natdivremandmultl .
+
+
+Definition natdivandmultl ( n m k : nat ) ( ism : natneq m 0 ) ( iskm : natneq ( k * m ) 0 ) : paths ( natdiv ( k * n ) ( k * m ) ) ( natdiv n m ) := pr1 ( natdivremandmultl _ _ _ ism iskm ) .
+
+  
+Definition natremandmultl ( n m k : nat ) ( ism : natneq m 0 ) ( iskm : natneq ( k * m ) 0 ) : paths ( natrem ( k * n ) ( k * m ) ) ( k * ( natrem n m ) ) := pr2 ( natdivremandmultl _ _ _ ism iskm ) .
+
+
+Lemma natdivremandmultr ( n m k : nat ) ( ism : natneq m 0 ) ( ismk : natneq ( m * k ) 0 ) : dirprod ( paths ( natdiv ( n * k ) ( m * k ) ) ( natdiv n m ) ) ( paths ( natrem ( n * k ) ( m * k) ) ( ( natrem n m ) * k  ) ) . 
+Proof . intros . rewrite ( natmultcomm m k ) .   rewrite ( natmultcomm m k ) in ismk .  rewrite ( natmultcomm n k ) . rewrite ( natmultcomm ( natrem _ _ ) k ) .  apply ( natdivremandmultl _ _ _ ism ismk ) . Defined . 
+
+
+Opaque natdivremandmultr .
+
+
+Definition natdivandmultr ( n m k : nat ) ( ism : natneq m 0 ) ( ismk : natneq ( m * k ) 0 ) : paths ( natdiv ( n * k ) ( m * k ) ) ( natdiv n m ) := pr1 ( natdivremandmultr _ _ _ ism ismk ) .
+ 
+
+Definition natremandmultr ( n m k : nat ) ( ism : natneq m 0 ) ( ismk : natneq ( m * k ) 0 ) : paths ( natrem ( n * k ) ( m * k ) ) ( ( natrem n m ) * k ) := pr2 ( natdivremandmultr _ _ _ ism ismk ) .
+
+
 
 
 
@@ -504,36 +853,36 @@ S n' => ( S n' ) * ( factorial n' ) end .
 
 (** ** The order-preserving functions [ di i : nat -> nat ] whose image is the complement to one element [ i ] . *)
 
+
+
+
 Definition di ( i : nat ) ( x : nat ) : nat :=
-match leb i x with 
-false => x |
-true => S x 
+match natlthorgeh x i with 
+ii1 _ => x |
+ii2 _ => S x 
 end .
 
-Lemma lehdinsn ( i n : nat ) : leh ( di i n ) ( S n ) .
-Proof . intros . unfold di . destruct ( leb i n ) . apply lehrefl . apply lehnsn . Defined . 
 
-Lemma gehdinn ( i n : nat ) : geh ( di i n ) n .
-Proof. intros . unfold di . destruct ( leb i n ) .  apply lehnsn . apply lehrefl .   Defined . 
+Lemma natlehdinsn ( i n : nat ) : natleh ( di i n ) ( S n ) .
+Proof . intros . unfold di . destruct ( natlthorgeh n i ) . apply natlthtoleh . apply natlthnsn . apply isreflnatleh .  Defined . 
+
+Lemma natgehdinn ( i n : nat ) : natgeh ( di i n ) n .
+Proof. intros . unfold di . destruct ( natlthorgeh n i ) .  apply isreflnatleh .  apply natlthtoleh . apply natlthnsn .   Defined . 
 
 
 Lemma isincldi ( i : nat ) : isincl ( di i ) .
-Proof. intro .   apply ( isinclbetweensets ( di i ) isasetnat isasetnat ) . intros x x' . unfold di . intro e. destruct  ( boolchoice ( leb i x ) )  as [ nel | l ] . rewrite nel in e .    destruct  ( boolchoice ( leb i x' ) )  as [ nel' | l' ] . rewrite nel' in e . apply ( invmaponpathsS _ _ e ) .  rewrite l' in e . destruct e . set ( e' := gthimplgths _ _ l' ) . simpl in e' .   destruct ( nopathstruetofalse ( pathscomp0 ( pathsinv0 nel ) e' ) ) .  rewrite l in e . destruct  ( boolchoice ( leb i x' ) )  as [ nel' | l' ] .  rewrite nel' in e . rewrite e in l .  set ( e' := gthimplgths _ _  l ) . simpl in e' .  destruct ( nopathstruetofalse ( pathscomp0 ( pathsinv0 nel' ) e' ) ) .  rewrite l' in e .  assumption .  Defined . 
+Proof. intro .   apply ( isinclbetweensets ( di i ) isasetnat isasetnat ) . intros x x' . unfold di . intro e. destruct  ( natlthorgeh x i )  as [ l | nel ] .  destruct  ( natlthorgeh x' i )   as [ l' | nel' ] . apply e .  rewrite e in l .  set ( e' := natgthtogths _ _  l ) . destruct ( nel' e' ) .   destruct  ( natlthorgeh x' i )  as [ l' | nel' ] .  destruct e.  set ( e' := natgthtogths _ _ l' ) . destruct ( nel e' ) .  apply ( invmaponpathsS _ _ e ) . Defined . 
 
 
 Lemma neghfiberdi ( i : nat ) : neg ( hfiber ( di i ) i ) .
-Proof. intros i hf . unfold di in hf . destruct hf as [ j e ] .  destruct ( boolchoice ( leb i j ) ) as [ l | g ] . rewrite l in e .    destruct e . apply ( neglehsnn j l ) . rewrite g in e .  destruct e . assert ( e : paths ( leb ( S j ) ( S j ) ) true ) . apply lehrefl .  apply ( nopathstruetofalse ( pathscomp0 ( pathsinv0 e ) g ) ) .  Defined. 
+Proof. intros i hf . unfold di in hf . destruct hf as [ j e ] .  destruct ( natlthorgeh j i ) as [ l | g ] . destruct e . apply ( isirreflnatlth _ l) .  destruct e in g .  apply ( negnatgehnsn _ g ) .   Defined. 
 
 Lemma iscontrhfiberdi ( i j : nat ) ( ne : neg ( paths i j ) ) : iscontr ( hfiber ( di i ) j ) .
-Proof. intros . apply iscontraprop1 .   apply ( isincldi i j ) . destruct ( boolchoice ( leb i j ) ) as [ nel | l ]  . destruct j as [ | j ] . destruct i as [ | i ] . destruct ( ne ( idpath _ ) ) .  simpl in nel . destruct ( nopathsfalsetotrue nel ) .  split with j .  unfold di .   destruct ( boolchoice ( leb i j ) ) as [ nel' | l' ]  .  rewrite nel' .  apply idpath .  destruct ( gthchoice _ _ l' ) as [ h | h ] .  destruct ( nopathstruetofalse ( pathscomp0 ( pathsinv0 nel ) h ) ) .  destruct ( ne h ) . split with j . unfold di .  rewrite l .  apply idpath .   Defined . 
+Proof. intros . apply iscontraprop1 .   apply ( isincldi i j ) . destruct ( natlthorgeh j i ) as [ l | nel ]  .  split with j .  unfold di .   destruct ( natlthorgeh j i ) as [ l' | nel' ]  .  apply idpath .  destruct ( nel' l ) .   destruct ( natgehchoice2 _ _ nel ) as [ g | e ] . destruct j as [ | j ] . destruct ( negnatgeh0sn _ g ) .   split with j . unfold di .  destruct ( natlthorgeh j i ) as [ l' | g' ] .  destruct ( g l' ) .  apply idpath .  destruct ( ne ( pathsinv0 e ) ) . Defined . 
  
+
 Lemma isdecincldi ( i : nat ) : isdecincl ( di i ) .
-Proof. intro i . intro j . apply isdecpropif .   apply ( isincldi i j ) .  destruct ( boolchoice ( eqbnat i j ) ) as [ eq | neq ] . assert  ( e := eqhtopaths _ _ eq ) .   destruct e .  apply ( ii2 ( neghfiberdi i ) ) . apply ( ii1 ( pr21 ( iscontrhfiberdi i j ( neqhtonegpaths _ _ neq ) ) ) ) .   Defined .
-
-
-
-
-
+Proof. intro i . intro j . apply isdecpropif .   apply ( isincldi i j ) .  destruct ( isdeceqnat i j )  as [ eq | neq ] .    destruct eq .  apply ( ii2 ( neghfiberdi i ) ) . apply ( ii1 ( pr1 ( iscontrhfiberdi i j neq ) ) ) .   Defined .
 
 
 
@@ -542,7 +891,7 @@ Proof. intro i . intro j . apply isdecpropif .   apply ( isincldi i j ) .  destr
 
 (** ** Inductive types [ le ] with values in [ Type ] . 
 
-This part is included for illustration purposes only . In practice it is easier to work with [ leh ] than with [ le ] . 
+This part is included for illustration purposes only . In practice it is easier to work with [ natleh ] than with [ le ] . 
 
 *)
 
@@ -550,20 +899,18 @@ This part is included for illustration purposes only . In practice it is easier 
 
 Inductive leF { T : Type } ( F : T -> T ) ( t : T ) : T -> Type := leF_O : leF F t t | leF_S : forall t' : T , leF F t t' -> leF F t ( F t' ) .
 
-
-
 Lemma leFiter { T : UU } ( F : T -> T ) ( t : T ) ( n : nat ) : leF F t ( iteration F n t ) .
 Proof. intros .   induction n as [ | n IHn ] . apply leF_O . simpl . unfold funcomp . apply leF_S .  assumption .  Defined . 
 
 Lemma leFtototal2withnat { T : UU } ( F : T -> T ) ( t t' : T ) ( a : leF F t t' ) : total2 ( fun n : nat => paths ( iteration F n t ) t' ) .
-Proof. intros. induction a as [ | b H0 IH0 ] . split with O . apply idpath .  split with  ( S ( pr21 IH0 ) ) . simpl . apply ( @maponpaths _ _ F ( iteration F ( pr21 IH0 ) t ) b ) . apply ( pr22 IH0 ) .  Defined. 
+Proof. intros. induction a as [ | b H0 IH0 ] . split with O . apply idpath .  split with  ( S ( pr1 IH0 ) ) . simpl . apply ( @maponpaths _ _ F ( iteration F ( pr1 IH0 ) t ) b ) . apply ( pr2 IH0 ) .  Defined. 
 Lemma total2withnattoleF { T : UU } ( F : T -> T ) ( t t' : T ) ( a : total2 ( fun n : nat => paths ( iteration F n t ) t' ) ) : leF F t t' .
 Proof. intros .  destruct a as [ n e ] .  destruct e .  apply leFiter.  Defined . 
 
 
 Lemma leFtototal2withnat_l0 { T : UU } ( F : T -> T ) ( t : T ) ( n : nat ) : paths ( leFtototal2withnat F t _ (leFiter F t n)) ( tpair _  n ( idpath (iteration F n t) ) ) . 
 Proof . intros . induction n as [ | n IHn ] .   apply idpath . simpl .  
-set ( h := fun ne :  total2 ( fun n0 : nat => paths ( iteration F n0 t ) ( iteration F n t ) ) => tpair  ( fun n0 : nat => paths ( iteration F n0 t ) ( iteration F ( S n ) t ) ) ( S ( pr21 ne ) ) ( maponpaths F ( pr22 ne ) ) ) . apply ( @maponpaths _ _ h  _ _ IHn ) . Defined. 
+set ( h := fun ne :  total2 ( fun n0 : nat => paths ( iteration F n0 t ) ( iteration F n t ) ) => tpair  ( fun n0 : nat => paths ( iteration F n0 t ) ( iteration F ( S n ) t ) ) ( S ( pr1 ne ) ) ( maponpaths F ( pr2 ne ) ) ) . apply ( @maponpaths _ _ h  _ _ IHn ) . Defined. 
 
 
 Lemma isweqleFtototal2withnat { T : UU } ( F : T -> T ) ( t t' : T ) : isweq ( leFtototal2withnat F t t' ) .
@@ -584,51 +931,22 @@ Definition le_S := leF_S S .
 
 
 Theorem isaprople ( n m : nat ) : isaprop ( le n m ) .
-Proof. intros .  apply ( isofhlevelweqb 1 ( weqleFtototalwithnat S n m ) ) . apply invproofirrelevance .  intros x x' .  set ( i := @pr21 _ (fun n0 : nat => paths (iteration S n0 n) m) ) . assert ( is : isincl i ) . apply ( isinclpr21 _ ( fun n0 : nat => isasetnat (iteration S n0 n) m ) ) . apply ( invmaponpathsincl _  is ) .  destruct x as [ n1 e1 ] . destruct x' as [ n2 e2 ] . simpl .   set ( int1 := pathsinv0 ( pathsitertoplus n1 n ) ) . set ( int2 := pathsinv0 (pathsitertoplus n2 n ) ) . set ( ee1 := pathscomp0 int1 e1 ) . set ( ee2 := pathscomp0 int2 e2 ) . set ( e := pathscomp0 ee1 ( pathsinv0 ee2 ) ) .   apply ( invmaponpathsincl _ ( isinclplusn n ) n1 n2 e ) .    Defined . 
+Proof. intros .  apply ( isofhlevelweqb 1 ( weqleFtototalwithnat S n m ) ) . apply invproofirrelevance .  intros x x' .  set ( i := @pr1 _ (fun n0 : nat => paths (iteration S n0 n) m) ) . assert ( is : isincl i ) . apply ( isinclpr1 _ ( fun n0 : nat => isasetnat (iteration S n0 n) m ) ) . apply ( invmaponpathsincl _  is ) .  destruct x as [ n1 e1 ] . destruct x' as [ n2 e2 ] . simpl .   set ( int1 := pathsinv0 ( pathsitertoplus n1 n ) ) . set ( int2 := pathsinv0 (pathsitertoplus n2 n ) ) . set ( ee1 := pathscomp0 int1 e1 ) . set ( ee2 := pathscomp0 int2 e2 ) . set ( e := pathscomp0 ee1 ( pathsinv0 ee2 ) ) .   apply ( invmaponpathsincl _ ( isinclnatplusr n ) n1 n2 e ) .    Defined . 
 
-(** *** Comparison between [ le ] with values in [ Type ] and [ leh ] . *)
+(** *** Comparison between [ le ] with values in [ Type ] and [ natleh ] . *)
 
 
-Lemma letoleh ( n m : nat ) : le n m -> leh n m .
-Proof .  intros n m H . induction H as [ | m H0 IHH0 ] . apply lehrefl .  apply lehimpllehs .  assumption .  Defined . 
+Lemma letoleh ( n m : nat ) : le n m -> natleh n m .
+Proof .  intros n m H . induction H as [ | m H0 IHH0 ] . apply isreflnatleh .  apply natlehtolehs .  assumption .  Defined . 
 
-Lemma lehtole ( n m : nat ) : leh n m ->  le n m .
-Proof. intros n m H .  induction m .  assert ( int := leh0implis0 n H ) .   clear H . destruct int . apply le_n . 
- set ( int2 := lehchoice n ( S m ) H ) .  destruct int2 as [ isleh | iseq ] . apply ( le_S n m ( IHm isleh ) ) . destruct iseq .   apply le_n . Defined .
+Lemma natlehtole ( n m : nat ) : natleh n m ->  le n m .
+Proof. intros n m H .  induction m .  assert ( int := natleh0tois0 n H ) .   clear H . destruct int . apply le_n . 
+ set ( int2 := natlehchoice2 n ( S m ) H ) .  destruct int2 as [ isnatleh | iseq ] . apply ( le_S n m ( IHm isnatleh ) ) . destruct iseq .   apply le_n . Defined .
 
 Lemma isweqletoleh ( n m : nat ) : isweq ( letoleh n m ) .
-Proof. intros . set ( is1 := isaprople n m ) . set ( is2 := isasetbool ( leb n m ) true ) . apply ( isweqimplimpl ( letoleh n m ) ( lehtole n m ) is1 is2 ) .  Defined . 
+Proof. intros . set ( is1 := isaprople n m ) . set ( is2 := pr2 ( natleh n m )  ) . apply ( isweqimplimpl ( letoleh n m ) ( natlehtole n m ) is1 is2 ) .  Defined . 
 
 Definition weqletoleh ( n m : nat ) := weqpair _ ( isweqletoleh n m ) .
-
-Corollary isdecprople ( n m : nat ) : isdecprop ( le n m ) .
-Proof. intros . apply ( isdecpropweqb ( weqletoleh n m ) ( isdecpropleh n m ) ) . Defined . 
-
-
-
-
-
-(* (** Some properties of [ le ] . *)
-
-
-Lemma le0m ( m : nat ) : le 0 m .
-Proof. intro. induction m as [ | m IHm ] . apply  le_n . apply ( le_S _ _ ) . assumption . Defined. 
-
-Lemma negleSn0 ( n : nat ) : neg ( le ( S n ) 0 ) .
-Proof. intros n H . set ( int := letoleh _ _ H ) . apply ( neglehsn0 _ int ) . Defined .
-
-Lemma len0topaths ( n : nat ) : le n 0 -> paths n 0 .
-Proof. intros n H . set ( int :=letoleh n 0 H ) .    apply ( leh0implis0 n int ) .  Defined . 
-
-
-
-(** Some properties of [ minus ] on [ nat ] *)
-
-Lemma is0nminusn ( n : nat ) : paths 0 ( n - n ) .
-Proof. intro . induction n as [ | n IHn ] . apply idpath .  simpl .  assumption .  Defined . *)
-
-
-
 
 
 

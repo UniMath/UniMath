@@ -39,10 +39,10 @@ Axiom weqpathsweq0 : forall ( T1 T2 : UU ) ( w : weq T1 T2 ) ,  paths ( eqweqmap
 Theorem univfromtwoaxioms ( T1 T2 : UU ) : isweq ( @eqweqmap T1 T2 ).
 Proof. intros. set ( P1 := fun XY : dirprod UU UU => ( match XY with  tpair X Y =>  paths X Y end ) ) . set ( P2 := fun XY :  dirprod UU UU => match XY with  tpair X Y => weq X Y end ) . set ( Z1 := total2 P1 ). set ( Z2 := total2 P2 ). set ( f := totalfun _ _ ( fun XY :  dirprod UU UU => match XY with  tpair X Y => @eqweqmap X Y end ) : Z1 -> Z2 ) . set ( g := totalfun _ _ ( fun XY : dirprod UU UU => match XY with  tpair X Y => weqtopaths0 X Y end ) : Z2 -> Z1 ) . set ( s1 := fun X Y  : UU => fun w : weq X Y =>  tpair P2 (  dirprodpair X Y ) w ) . set ( efg := fun a => match a as a' return (  paths ( f ( g a' ) ) a' ) with  tpair ( tpair X Y ) w => ( maponpaths ( s1 X Y ) ( weqpathsweq0 X Y w ) ) end ) . 
 
-set ( h := fun a1 : Z1 =>  pr21 ( pr21 a1 ) ) .
-assert ( egf0 : forall a1 : Z1 ,  paths ( pr21 ( g ( f a1 ) ) ) (  pr21 a1 ) ). intro. apply  idpath.  
-assert ( egf1 : forall a1 a1' : Z1 ,  paths ( pr21 a1' ) (  pr21 a1 ) ->  paths a1' a1 ). intros.  set ( X' :=  maponpaths ( @pr21 _ _ ) X ). 
-assert ( is : isweq h ).  apply isweqpr21pr21 . apply ( invmaponpathsweq ( weqpair h is ) _ _ X' ).
+set ( h := fun a1 : Z1 =>  pr1 ( pr1 a1 ) ) .
+assert ( egf0 : forall a1 : Z1 ,  paths ( pr1 ( g ( f a1 ) ) ) (  pr1 a1 ) ). intro. apply  idpath.  
+assert ( egf1 : forall a1 a1' : Z1 ,  paths ( pr1 a1' ) (  pr1 a1 ) ->  paths a1' a1 ). intros.  set ( X' :=  maponpaths ( @pr1 _ _ ) X ). 
+assert ( is : isweq h ).  apply isweqpr1pr1 . apply ( invmaponpathsweq ( weqpair h is ) _ _ X' ).
 set ( egf := fun a1  => ( egf1 _ _ ( egf0 a1 ) ) ). 
 set ( is2 := gradth _ _ egf efg ). 
 apply ( isweqtotaltofib P1 P2  ( fun XY : dirprod UU UU => match XY with  tpair X Y => @eqweqmap X Y end ) is2 ( dirprodpair T1 T2 ) ). Defined. 
@@ -114,12 +114,12 @@ Lemma eqcor0 { X X' : UU } ( w :  weq X X' ) ( Y : UU ) ( f1 f2 : X' -> Y ) : pa
 Proof. intros. apply ( invmaponpathsweq ( weqpair _ ( isweqcompwithweq w Y ) ) f1 f2 ). assumption.  Defined. 
 
 
-Lemma apathpr1topr2 ( T : UU ) : paths ( fun z :  pathsspace T => pr21 z ) ( fun z : pathsspace T => pr21 ( pr22 z ) ).
-Proof. intro. apply ( eqcor0  ( weqpair _ ( isweqdeltap T ) ) _ ( fun z :  pathsspace T => pr21 z ) ( fun z :  pathsspace T => pr21 ( pr22 z ) ) ( idpath ( idfun T ) ) ) . Defined.     
+Lemma apathpr1topr ( T : UU ) : paths ( fun z :  pathsspace T => pr1 z ) ( fun z : pathsspace T => pr1 ( pr2 z ) ).
+Proof. intro. apply ( eqcor0  ( weqpair _ ( isweqdeltap T ) ) _ ( fun z :  pathsspace T => pr1 z ) ( fun z :  pathsspace T => pr1 ( pr2 z ) ) ( idpath ( idfun T ) ) ) . Defined.     
 
 
 Theorem funextfun { X Y : UU } ( f1 f2 : X -> Y ) ( e :  forall x : X , paths ( f1 x ) ( f2 x ) ) : paths f1 f2.
-Proof. intros. set ( f := fun x : X => pathsspacetriple Y ( e x ) ) .  set ( g1 := fun z : pathsspace Y => pr21 z ) . set ( g2 := fun z :  pathsspace Y => pr21 ( pr22 z ) ). assert ( e' : paths g1 g2 ). apply ( apathpr1topr2 Y ). assert ( ee : paths  ( fun x : X => f1 x ) ( fun x : X => f2 x ) ). change ( paths (fun x : X => g1 ( f x ) ) (fun x : X => g2 ( f x ) ) ) . destruct e' .  apply idpath .   apply etacoronpaths. apply ee . Defined. 
+Proof. intros. set ( f := fun x : X => pathsspacetriple Y ( e x ) ) .  set ( g1 := fun z : pathsspace Y => pr1 z ) . set ( g2 := fun z :  pathsspace Y => pr1 ( pr2 z ) ). assert ( e' : paths g1 g2 ). apply ( apathpr1topr Y ). assert ( ee : paths  ( fun x : X => f1 x ) ( fun x : X => f2 x ) ). change ( paths (fun x : X => g1 ( f x ) ) (fun x : X => g2 ( f x ) ) ) . destruct e' .  apply idpath .   apply etacoronpaths. apply ee . Defined. 
 
 (* End of the file funextfun.v *)    
 
