@@ -2,3 +2,6 @@
 *.glob
 *.v.d
 .gitignore
+doc
+TAGS
+Makefile.depends
