@@ -30,10 +30,8 @@ Require Import auxiliary_lemmas_HoTT.
 Require Import precategories.
 Require Import HLevel_n_is_of_hlevel_Sn.
 
-
-Notation "a == b" := (paths a b) (at level 70, no associativity).
-Notation "! p " := (pathsinv0 p) (at level 50).
-Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
+Require Import pathnotations.
+Import pathnotations.PathNotations.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 

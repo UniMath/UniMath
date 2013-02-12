@@ -24,15 +24,14 @@ Require Import uu0.
 Require Import hProp.
 Require Import hSet.
 
+Require Import pathnotations.
+Import pathnotations.PathNotations.
+
 Require Import auxiliary_lemmas_HoTT.
 
 Require Import precategories.
 Require Import category_hset.
 Require Import functors_transformations.
-
-Notation "a == b" := (paths a b) (at level 70, no associativity).
-Notation "! p " := (pathsinv0 p) (at level 50).
-Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
 
 (*Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).*)
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).

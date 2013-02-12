@@ -18,7 +18,8 @@ Require Import funextfun.
 
 (** As before, we use an infix notation for the path space. *)
 
-Notation "a == b" := (paths a b) (at level 70, no associativity).
+Require Import pathnotations.
+Import pathnotations.PathNotations.
 
 
 (** ** Weak equivalence between identity types in [HLevel] and [U] *)

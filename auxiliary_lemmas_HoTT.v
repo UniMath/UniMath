@@ -251,6 +251,30 @@ Proof.
   apply fiber_total_path_fibr.
 Defined.
 
+Theorem total_paths2_hProp_equiv {A : UU} (B : A -> hProp) 
+   (x y : total2 (fun x => B x)):
+
+  weq (x == y) (pr1 x == pr1 y).
+Proof.
+  set (t := total_paths_equiv B x y).
+  simpl in *.
+  set (t':= isweqpr1 
+     (fun p : pr1 x == pr1 y => transportf (fun x : A => B x) p (pr2 x) == pr2 y)).
+
+  simpl in *.
+  assert (H : forall z : pr1 x == pr1 y, 
+        iscontr (transportf (fun x : A => B x) z (pr2 x) == pr2 y)).
+  intro p.
+  set (H := pr2 (B (pr1 y))).
+  simpl in H.
+  apply (H _ (pr2 y)).
+  simpl in *.
+  set (Ht := t' H).
+  set (ht := tpair _ _ Ht).
+  
+  set (HHH := weqcomp t ht).
+  exact HHH.
+Defined.
 
 Theorem equal_transport_along_weq (A B : UU)  (f : weq A B) (a a' : A) :
       f a == f a' -> a == a'.

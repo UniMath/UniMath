@@ -29,9 +29,8 @@ Require Import hProp.
 Require Import hSet.
 Require Import auxiliary_lemmas_HoTT.
 
-Notation "a == b" := (paths a b) (at level 70, no associativity).
-Notation "! p " := (pathsinv0 p) (at level 50).
-Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
+Require Import pathnotations.
+Import pathnotations.PathNotations.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 

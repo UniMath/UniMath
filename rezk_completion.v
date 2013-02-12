@@ -23,6 +23,9 @@ Require Import uu0.
 Require Import hProp.
 Require Import hSet.
 
+Require Import pathnotations.
+Import pathnotations.PathNotations.
+
 Require Import auxiliary_lemmas_HoTT.
 
 Require Import precategories.
@@ -34,10 +37,6 @@ Require Import equivalences.
 Require Import whiskering.
 Require Import precomp_fully_faithful.
 Require Import precomp_ess_surj.
-
-Notation "a == b" := (paths a b) (at level 70, no associativity).
-Notation "! p " := (pathsinv0 p) (at level 50).
-Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
