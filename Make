@@ -1,0 +1,20 @@
+# -R . Rezk
+
+auxiliary_lemmas_HoTT.v
+category_hset.v
+equivalences.v
+functors_transformations.v
+funextfun.v
+HLevel_n_is_of_hlevel_Sn.v
+hProp.v
+hSet.v
+pathnotations.v
+precategories.v
+precomp_ess_surj.v
+precomp_fully_faithful.v
+rezk_completion.v
+sub_precategories.v
+uu0.v
+uuu.v
+whiskering.v
+yoneda.v
