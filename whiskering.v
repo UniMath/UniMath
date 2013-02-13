@@ -47,18 +47,21 @@ Definition functor_compose (A B C : precategory) (F : ob [A, B])
       (G : ob [B , C]) : ob [A , C] := 
    functor_composite _ _ _ F G.
 
+Definition functor_compose_2 (A B C : precategory) (F : ob [A, B])
+      (G : ob [B , C]) : functor A C := 
+   functor_composite _ _ _ F G.
 
 Notation "G 'O' F" := (functor_compose _ _ _ F G) (at level 25).
+Local Notation "G 'o' F" := (functor_compose_2 _ _ _ F G) (at level 25).
 
 (** * Whiskering: Composition of a natural transformation with a functor *)
 
 (** Prewhiskering *)
 
-Lemma is_nat_trans_pre_whisker (A B C : precategory) (F : ob [A, B])
-   (G H : ob [B, C]) (gamma : G --> H) : 
-  is_nat_trans (functor_composite _ _ _ F G ) 
-                         (functor_composite _ _ _ F H) 
-     (fun a : ob A => pr1 gamma ((pr1 F) a)).
+Lemma is_nat_trans_pre_whisker (A B C : precategory) (F : functor A B)
+   (G H : functor B C) (gamma : nat_trans G H) : 
+  is_nat_trans (G o F) (H o F) 
+     (fun a : ob A =>  gamma (F a)).
 Proof.
   unfold is_nat_trans.
   simpl.
@@ -68,8 +71,7 @@ Proof.
 Qed.
 
 Definition pre_whisker (A B C : precategory) (F : ob [A, B])
-   (G H : ob [B, C]) (gamma : G --> H) : 
-       G O F --> H O F.
+   (G H : ob [B, C]) (gamma : G --> H) : G O F --> H O F.
 Proof.
   exists (fun a => pr1 gamma (pr1 F a)).
   apply is_nat_trans_pre_whisker.
