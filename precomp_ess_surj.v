@@ -1,7 +1,8 @@
 
 (** **********************************************************
 
-Benedikt Ahrens and Chris Kapulkin
+Benedikt Ahrens, Chris Kapulkin, Mike Shulman
+
 january 2013
 
 
