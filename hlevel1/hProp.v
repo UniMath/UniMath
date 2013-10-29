@@ -21,8 +21,6 @@ One can achieve similar results with a combination of usual axioms which imitate
 
 (** Settings *)
 
-Add Rec LoadPath "../Generalities".
-
 Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
 
 (** Imports *)

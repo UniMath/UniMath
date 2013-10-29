@@ -7,8 +7,6 @@ This file contains the formulation of the univalence axiom and the proof that it
 
 (** *** Preamble. *)
 
-Add Rec LoadPath "../Generalities".
-
 (** *** Imports. *)
 
 Unset Automatic Introduction. (** This line has to be removed for the file to compile with Coq8.2 *)

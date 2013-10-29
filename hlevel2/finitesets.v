@@ -12,10 +12,6 @@ This file contains the definition and main properties of finite sets. At the end
 
 (** Settings *)
 
-Add Rec LoadPath "../Generalities".
-Add Rec LoadPath "../hlevel1".
-Add Rec LoadPath "../hlevel2".
-
 Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
 
 

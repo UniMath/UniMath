@@ -11,10 +11,6 @@ This file contains the formulations and proofs of general properties of natural 
 
 (** Settings *)
 
-Add Rec LoadPath "../Generalities".
-Add Rec LoadPath "../hlevel1".
-Add Rec LoadPath "../hlevel2".
-
 Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
 
 

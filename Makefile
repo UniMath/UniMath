@@ -2,7 +2,7 @@
 M=.
 P=Proof_of_Extensionality
 COQ = time coqc
-COQFLAGS = -opt -q
+COQFLAGS = -opt -q -I ../Generalities -I ../hlevel1
 # in this list, put the prerequisites earlier, so TAGS is in the right order
 VFILES :=					\
 	$M/Generalities/uuu.v			\
