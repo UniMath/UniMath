@@ -387,13 +387,3 @@ apply ( X n ( hinhpr _ ( tpair _ n ( dirprodpair ( isreflnatleh n ) l ) ) ) ) . 
 (* End of the file stnfsets.v *)
 
 
-
-
-
-(* 
-*** Local Variables: ***
-*** coq-prog-name: "/opt/local/bin/coqtop" ***
-*** coq-prog-args: ("-emacs-U") ***
-*** End: ***
- *)
-

@@ -287,14 +287,3 @@ Eval lazy in fincard ( isfiniteweq ( isfinitedirprod ( isfinitedirprod isfiniteb
 
 
 (* End of the file finitesets.v *)
-
-
-
-
-
-(* 
-*** Local Variables: ***
-*** coq-prog-name: "/opt/local/bin/coqtop" ***
-*** coq-prog-args: ("-emacs-U") ***
-*** End: ***
- *)

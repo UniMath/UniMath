@@ -952,14 +952,3 @@ Definition weqletoleh ( n m : nat ) := weqpair _ ( isweqletoleh n m ) .
 
 
 (* End of the file hnat.v *)
-
-
-
-
-
-(* 
-*** Local Variables: ***
-*** coq-prog-name: "/opt/local/bin/coqtop" ***
-*** coq-prog-args: ("-emacs-U") ***
-*** End: ***
- *)

@@ -1096,14 +1096,3 @@ Close Scope rng_scope .
 
 
 (* End of the file algebra1c.v *)
-
-
-
-
-
-(* 
-*** Local Variables: ***
-*** coq-prog-name: "/opt/local/bin/coqtop" ***
-*** coq-prog-args: ("-emacs-U") ***
-*** End: ***
- *)

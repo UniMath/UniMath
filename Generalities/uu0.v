@@ -3721,17 +3721,3 @@ end.
 
 
 (* End of the file uu0.v *)
-
-
-
-
-
-
-(* 
-*** Local Variables: ***
-*** coq-prog-name: "/opt/local/bin/coqtop" ***
-*** coq-prog-args: ("-emacs-U") ***
-*** End: ***
- *)
-
-

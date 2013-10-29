@@ -994,14 +994,3 @@ Proof . intros . split with ( setdirprod X Y ) . simpl . apply ( dirprodpair ( f
 
 
 (* End of the file algebra1a.v *)
-
-
-
-
-
-(* 
-*** Local Variables: ***
-*** coq-prog-name: "/opt/local/bin/coqtop" ***
-*** coq-prog-args: ("-emacs-U") ***
-*** End: ***
- *)

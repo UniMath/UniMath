@@ -1140,14 +1140,3 @@ Proof. intros X R is X0. apply (setquotuniv R (hSetpair _ (isasetsetquot2 R)) (s
 
 
 (* End of the file hSet.v *)
-
-
-
-
-
-(* 
-*** Local Variables: ***
-*** coq-prog-name: "/opt/local/bin/coqtop" ***
-*** coq-prog-args: ("-emacs-U") ***
-*** End: ***
- *)

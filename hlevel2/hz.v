@@ -861,14 +861,3 @@ Eval lazy in  ( hzabsval ( hzmult ( natnattohz 20 50 ) ( natnattohz 30 20 ) ) ) 
 
 
 (* End of the file hz.v *)
-
-
-
-
-
-(* 
-*** Local Variables: ***
-*** coq-prog-name: "/opt/local/bin/coqtop" ***
-*** coq-prog-args: ("-emacs-U") ***
-*** End: ***
- *)

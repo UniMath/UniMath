@@ -296,13 +296,3 @@ Proof . apply ( isasetifcontr iscontrtildehProp ) . Defined .
 
 
 (* End of the file hProp.v *)
-
-
-
-
-(* 
-*** Local Variables: ***
-*** coq-prog-name: "/opt/local/bin/coqtop" ***
-*** coq-prog-args: ("-emacs-U") ***
-*** End: ***
- *)

@@ -526,14 +526,3 @@ Opaque iscomptofldfrac .
 
 
 (* End of the file algebra1d.v *)
-
-
-
-
-
-(* 
-*** Local Variables: ***
-*** coq-prog-name: "/opt/local/bin/coqtop" ***
-*** coq-prog-args: ("-emacs-U") ***
-*** End: ***
- *)

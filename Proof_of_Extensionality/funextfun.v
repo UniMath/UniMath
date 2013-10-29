@@ -122,20 +122,3 @@ Theorem funextfun { X Y : UU } ( f1 f2 : X -> Y ) ( e :  forall x : X , paths ( 
 Proof. intros. set ( f := fun x : X => pathsspacetriple Y ( e x ) ) .  set ( g1 := fun z : pathsspace Y => pr1 z ) . set ( g2 := fun z :  pathsspace Y => pr1 ( pr2 z ) ). assert ( e' : paths g1 g2 ). apply ( apathpr1topr Y ). assert ( ee : paths  ( fun x : X => f1 x ) ( fun x : X => f2 x ) ). change ( paths (fun x : X => g1 ( f x ) ) (fun x : X => g2 ( f x ) ) ) . destruct e' .  apply idpath .   apply etacoronpaths. apply ee . Defined. 
 
 (* End of the file funextfun.v *)    
-
-
-
-
-
-
-
-(* 
-*** Local Variables: ***
-*** coq-prog-name: "/opt/local/bin/coqtop" ***
-*** coq-prog-args: ("-emacs-U") ***
-*** End: ***
- *)
-
-
-
-
