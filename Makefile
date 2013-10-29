@@ -1,24 +1,23 @@
 # -*- makefile-gmake -*-
-M=.
-P=Proof_of_Extensionality
-COQ = time coqc
+# e.g., put TIMER=time on the command line
+COQ = $(TIMER) coqc
 COQFLAGS = -opt -q -I ../Generalities -I ../hlevel1
 # in this list, put the prerequisites earlier, so TAGS is in the right order
 VFILES :=					\
-	$M/Generalities/uuu.v			\
-	$M/Generalities/uu0.v			\
-	$P/funextfun.v				\
-	$M/hlevel1/hProp.v			\
-	$M/hlevel2/hSet.v			\
-	$M/hlevel2/algebra1a.v			\
-	$M/hlevel2/algebra1b.v			\
-	$M/hlevel2/algebra1c.v			\
-	$M/hlevel2/algebra1d.v			\
-	$M/hlevel2/hnat.v			\
-	$M/hlevel2/stnfsets.v			\
-	$M/hlevel2/finitesets.v			\
-	$M/hlevel2/hz.v				\
-	$M/hlevel2/hq.v
+	Generalities/uuu.v			\
+	Generalities/uu0.v			\
+	Proof_of_Extensionality/funextfun.v	\
+	hlevel1/hProp.v				\
+	hlevel2/hSet.v				\
+	hlevel2/algebra1a.v			\
+	hlevel2/algebra1b.v			\
+	hlevel2/algebra1c.v			\
+	hlevel2/algebra1d.v			\
+	hlevel2/hnat.v				\
+	hlevel2/stnfsets.v			\
+	hlevel2/finitesets.v			\
+	hlevel2/hz.v				\
+	hlevel2/hq.v
 VOFILES := $(VFILES:.v=.vo)
 DOCFILES := doc/index.html
 %.glob %.vo: %.v
@@ -28,18 +27,18 @@ DOCFILES := doc/index.html
 all: TAGS $(VOFILES) $(DOCFILES)
 COQDEFS := -r "/^[[:space:]]*\(Inductive\|Record\|Definition\|Corollary\|Axiom\|Theorem\|Notation\|Fixpoint\|Let\|Hypothesis\|Lemma\)[[:space:]]+['[:alnum:]_]+/"
 TAGS : $(VFILES); etags --language=none $(COQDEFS) $^
-Makefile.depends:; find . -name \*.v | >$@ xargs coqdep -I $M/Generalities -I $M/hlevel1 -I $M/hlevel2 -I $P
+Makefile.depends:; find . -name \*.v | >$@ xargs coqdep -I Generalities -I hlevel1 -I hlevel2 -I Proof_of_Extensionality
 include Makefile.depends
-MADE_FILES += doc
-$(DOCFILES): $(VFILES); mkdir -p doc && cd doc && ( find ../$M ../$P -name \*.v | xargs coqdoc -toc )
+$(DOCFILES): $(VFILES); mkdir -p doc && cd doc && ( find .. -name \*.v | xargs coqdoc -toc )
+# don't bother removing Makefile.depends, because then make will complain about it
 clean:
-	rm -rf $(MADE_FILES)
-	find $M $P \( \
-		-name \*.aux -o \
-		-name \*.dvi -o \
-		-name \*.idx -o \
-		-name \*.log -o \
-		-name \*.glob -o \
-		-name \*.vo -o \
-		-name \*.pdf \
+	rm -rf doc TAGS
+	find . \(				\
+		-name \*.aux -o			\
+		-name \*.dvi -o			\
+		-name \*.idx -o			\
+		-name \*.log -o			\
+		-name \*.glob -o		\
+		-name \*.vo -o			\
+		-name \*.pdf			\
 		\) -print -delete
