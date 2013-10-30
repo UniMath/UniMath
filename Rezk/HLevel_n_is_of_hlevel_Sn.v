@@ -13,8 +13,8 @@
 *)
 
 Require Import auxiliary_lemmas_HoTT. 
-Require Import hProp.
-Require Import funextfun.
+Require Import Foundations.hProp.
+Require Import Foundations.funextfun.
 
 (** As before, we use an infix notation for the path space. *)
 

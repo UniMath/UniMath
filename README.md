@@ -3,23 +3,17 @@ rezk_completion
 
 Rezk completion
 
+Files used from V. Voevodsky's Foundations [1]:
 
+  - uuu.vo
+  - uu0.vo
+  - hProp.vo
+  - hSet.vo
+  - funextfun.vo
 
-Files taken from V. Voevodsky's Foundations [1]
-
-- uuu.v
-- uu0.v
-- hProp.v
-- hSet.v
-- funextfun.v
-
-The only change to these files was deletion of some "Add Recursive Loadpath..." instruction.
-
-
-
-
-
-
-
+They should be installed in the user-contrib/Foundations directory of coq, so
+coq can find them.  The repository at [2], branch vv-master, installs them
+there, but the repository at [1] has not been updated to do that.
 
 [1] https://github.com/vladimirias/Foundations
+[2] https://github.com/DanGrayson/Foundations2

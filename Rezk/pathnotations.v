@@ -1,5 +1,5 @@
 
-Require Import uu0.
+Require Import Foundations.uu0.
 
 Module Import PathNotations.
 

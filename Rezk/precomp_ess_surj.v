@@ -18,9 +18,9 @@ Contents : Precomposition with a fully faithful and
 ************************************************************)
 
 
-Require Import uu0.
-Require Import hProp.
-Require Import hSet.
+Require Import Foundations.uu0.
+Require Import Foundations.hProp.
+Require Import Foundations.hSet.
 
 Require Import pathnotations.
 Import pathnotations.PathNotations.
