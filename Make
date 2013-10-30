@@ -1,20 +1,24 @@
-# -R . Rezk
+# Choose (1) or (2) by commenting in/out and editing:
 
-auxiliary_lemmas_HoTT.v
-category_hset.v
-equivalences.v
-functors_transformations.v
-funextfun.v
-HLevel_n_is_of_hlevel_Sn.v
-hProp.v
-hSet.v
-pathnotations.v
-precategories.v
-precomp_ess_surj.v
-precomp_fully_faithful.v
-rezk_completion.v
-sub_precategories.v
-uu0.v
-uuu.v
-whiskering.v
-yoneda.v
+# (1) Use the Foundations files found here:
+      -R Foundations Foundations Foundations/funextfun.v Foundations/hProp.v Foundations/hSet.v Foundations/uu0.v Foundations/uuu.v
+
+# (2) or use the Foundations files found elsewhere:
+      # -R ../Foundations2/. Foundations
+#    (2a) and optionally (and aggressively) build, rebuild, clean, and document them:
+          # ../Foundations2/Generalities/uuu.v ../Foundations2/Generalities/uu0.v ../Foundations2/Proof_of_Extensionality/funextfun.v ../Foundations2/hlevel1/hProp.v ../Foundations2/hlevel2/hSet.v
+
+-R Rezk Rezk
+Rezk/auxiliary_lemmas_HoTT.v
+Rezk/category_hset.v
+Rezk/equivalences.v
+Rezk/functors_transformations.v
+Rezk/HLevel_n_is_of_hlevel_Sn.v
+Rezk/pathnotations.v
+Rezk/precategories.v
+Rezk/precomp_ess_surj.v
+Rezk/precomp_fully_faithful.v
+Rezk/rezk_completion.v
+Rezk/sub_precategories.v
+Rezk/whiskering.v
+Rezk/yoneda.v
