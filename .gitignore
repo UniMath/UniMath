@@ -1,5 +1,5 @@
 *.glob
 *.v.d
 *.vo
-html/*
-
+html
+TAGS

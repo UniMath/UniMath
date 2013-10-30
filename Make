@@ -1,17 +1,17 @@
--R Rezk RezkCompletion
-Rezk/auxiliary_lemmas_HoTT.v
-Rezk/category_hset.v
-Rezk/equivalences.v
-Rezk/functors_transformations.v
-Rezk/HLevel_n_is_of_hlevel_Sn.v
-Rezk/pathnotations.v
-Rezk/precategories.v
-Rezk/precomp_ess_surj.v
-Rezk/precomp_fully_faithful.v
-Rezk/rezk_completion.v
-Rezk/sub_precategories.v
-Rezk/whiskering.v
-Rezk/yoneda.v
+-R . RezkCompletion
+auxiliary_lemmas_HoTT.v
+category_hset.v
+equivalences.v
+functors_transformations.v
+HLevel_n_is_of_hlevel_Sn.v
+pathnotations.v
+precategories.v
+precomp_ess_surj.v
+precomp_fully_faithful.v
+rezk_completion.v
+sub_precategories.v
+whiskering.v
+yoneda.v
 
 -custom
   "etags --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Proposition\)[[:space:]]+\([[:alnum:]_]+\)/\2/' $^"

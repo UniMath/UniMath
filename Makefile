@@ -60,8 +60,8 @@ COQSRCLIBS:=-I $(COQLIB)/kernel -I $(COQLIB)/lib \
   -I $(COQLIB)/plugins/subtac/test \
   -I $(COQLIB)/plugins/syntax \
   -I $(COQLIB)/plugins/xml
-COQLIBS:= -R Rezk RezkCompletion
-COQDOCLIBS:=-R Rezk RezkCompletion
+COQLIBS:= -R . RezkCompletion
+COQDOCLIBS:=-R . RezkCompletion
 
 ##########################
 #                        #
@@ -96,22 +96,20 @@ PP:=-pp "$(CAMLP4BIN)$(CAMLP4)o -I $(CAMLLIB) -I . $(COQSRCLIBS) $(CAMLP4EXTEND)
 #                                 #
 ###################################
 
-VFILES:=Rezk/auxiliary_lemmas_HoTT.v\
-  Rezk/category_hset.v\
-  Rezk/equivalences.v\
-  Rezk/functors_transformations.v\
-  Rezk/HLevel_n_is_of_hlevel_Sn.v\
-  Rezk/pathnotations.v\
-  Rezk/precategories.v\
-  Rezk/precomp_ess_surj.v\
-  Rezk/precomp_fully_faithful.v\
-  Rezk/rezk_completion.v\
-  Rezk/sub_precategories.v\
-  Rezk/whiskering.v\
-  Rezk/yoneda.v
+VFILES:=auxiliary_lemmas_HoTT.v\
+  category_hset.v\
+  equivalences.v\
+  functors_transformations.v\
+  HLevel_n_is_of_hlevel_Sn.v\
+  pathnotations.v\
+  precategories.v\
+  precomp_ess_surj.v\
+  precomp_fully_faithful.v\
+  rezk_completion.v\
+  sub_precategories.v\
+  whiskering.v\
+  yoneda.v
 VOFILES:=$(VFILES:.v=.vo)
-VOFILES1:=$(patsubst Rezk/%,%,$(filter Rezk/%,$(VOFILES)))
-VOFILES0:=$(filter-out Rezk/%,$(VOFILES))
 GLOBFILES:=$(VFILES:.v=.glob)
 VIFILES:=$(VFILES:.v=.vi)
 GFILES:=$(VFILES:.v=.g)
@@ -194,13 +192,9 @@ opt:
 
 install:
 	mkdir -p $(COQLIB)/user-contrib
-	(cd Rezk; for i in $(VOFILES1); do \
+	(for i in $(VOFILES); do \
 	 install -d `dirname $(COQLIB)/user-contrib/RezkCompletion/$$i`; \
 	 install $$i $(COQLIB)/user-contrib/RezkCompletion/$$i; \
-	 done)
-	(for i in $(VOFILES0); do \
-	 install -d `dirname $(COQLIB)/user-contrib/$(INSTALLDEFAULTROOT)/$$i`; \
-	 install $$i $(COQLIB)/user-contrib/$(INSTALLDEFAULTROOT)/$$i; \
 	 done)
 
 clean:
