@@ -22,9 +22,9 @@ Precomposition with a fully faithful and
 
 ************************************************************)
 
-Require Import Foundations.uu0.
-Require Import Foundations.hProp.
-Require Import Foundations.hSet.
+Require Import Foundations.Generalities.uu0.
+Require Import Foundations.hlevel1.hProp.
+Require Import Foundations.hlevel2.hSet.
 
 Require Import pathnotations.
 Import pathnotations.PathNotations.

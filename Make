@@ -12,3 +12,8 @@ Rezk/rezk_completion.v
 Rezk/sub_precategories.v
 Rezk/whiskering.v
 Rezk/yoneda.v
+
+-custom
+  "etags --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Proposition\)[[:space:]]+\([[:alnum:]_]+\)/\2/' $^"
+  "$(VFILES)"
+  TAGS
