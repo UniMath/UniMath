@@ -2,6 +2,6 @@
 *.glob
 *.v.d
 .gitignore
-doc
 TAGS
 .#*
+html
