@@ -4,4 +4,4 @@
 .gitignore
 doc
 TAGS
-Makefile.depends
+.#*

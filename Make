@@ -1,0 +1,16 @@
+-o Make.makefile
+-R Foundations Foundations
+Foundations/uuu.v			
+Foundations/uu0.v			
+Foundations/funextfun.v	
+Foundations/hProp.v				
+Foundations/hSet.v				
+Foundations/algebra1a.v			
+Foundations/algebra1b.v			
+Foundations/algebra1c.v			
+Foundations/algebra1d.v			
+Foundations/hnat.v				
+Foundations/stnfsets.v			
+Foundations/finitesets.v			
+Foundations/hz.v				
+Foundations/hq.v
