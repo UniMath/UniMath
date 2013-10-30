@@ -1,16 +1,16 @@
 -o Make.makefile
--R Foundations Foundations
-Foundations/uuu.v			
-Foundations/uu0.v			
-Foundations/funextfun.v	
-Foundations/hProp.v				
-Foundations/hSet.v				
-Foundations/algebra1a.v			
-Foundations/algebra1b.v			
-Foundations/algebra1c.v			
-Foundations/algebra1d.v			
-Foundations/hnat.v				
-Foundations/stnfsets.v			
-Foundations/finitesets.v			
-Foundations/hz.v				
-Foundations/hq.v
+-R . Foundations
+Generalities/uuu.v			
+Generalities/uu0.v			
+Proof_of_Extensionality/funextfun.v	
+hlevel1/hProp.v				
+hlevel2/hSet.v				
+hlevel2/algebra1a.v			
+hlevel2/algebra1b.v			
+hlevel2/algebra1c.v			
+hlevel2/algebra1d.v			
+hlevel2/hnat.v				
+hlevel2/stnfsets.v			
+hlevel2/finitesets.v			
+hlevel2/hz.v				
+hlevel2/hq.v

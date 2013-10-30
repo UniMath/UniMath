@@ -60,8 +60,8 @@ COQSRCLIBS:=-I $(COQLIB)/kernel -I $(COQLIB)/lib \
   -I $(COQLIB)/plugins/subtac/test \
   -I $(COQLIB)/plugins/syntax \
   -I $(COQLIB)/plugins/xml
-COQLIBS:= -R Foundations Foundations
-COQDOCLIBS:=-R Foundations Foundations
+COQLIBS:= -R . Foundations
+COQDOCLIBS:=-R . Foundations
 
 ##########################
 #                        #
@@ -96,23 +96,21 @@ PP:=-pp "$(CAMLP4BIN)$(CAMLP4)o -I $(CAMLLIB) -I . $(COQSRCLIBS) $(CAMLP4EXTEND)
 #                                 #
 ###################################
 
-VFILES:=Foundations/uuu.v\
-  Foundations/uu0.v\
-  Foundations/funextfun.v\
-  Foundations/hProp.v\
-  Foundations/hSet.v\
-  Foundations/algebra1a.v\
-  Foundations/algebra1b.v\
-  Foundations/algebra1c.v\
-  Foundations/algebra1d.v\
-  Foundations/hnat.v\
-  Foundations/stnfsets.v\
-  Foundations/finitesets.v\
-  Foundations/hz.v\
-  Foundations/hq.v
+VFILES:=Generalities/uuu.v\
+  Generalities/uu0.v\
+  Proof_of_Extensionality/funextfun.v\
+  hlevel1/hProp.v\
+  hlevel2/hSet.v\
+  hlevel2/algebra1a.v\
+  hlevel2/algebra1b.v\
+  hlevel2/algebra1c.v\
+  hlevel2/algebra1d.v\
+  hlevel2/hnat.v\
+  hlevel2/stnfsets.v\
+  hlevel2/finitesets.v\
+  hlevel2/hz.v\
+  hlevel2/hq.v
 VOFILES:=$(VFILES:.v=.vo)
-VOFILES1:=$(patsubst Foundations/%,%,$(filter Foundations/%,$(VOFILES)))
-VOFILES0:=$(filter-out Foundations/%,$(VOFILES))
 GLOBFILES:=$(VFILES:.v=.glob)
 VIFILES:=$(VFILES:.v=.vi)
 GFILES:=$(VFILES:.v=.g)
@@ -186,13 +184,9 @@ opt:
 
 install:
 	mkdir -p $(COQLIB)/user-contrib
-	(cd Foundations; for i in $(VOFILES1); do \
+	(for i in $(VOFILES); do \
 	 install -d `dirname $(COQLIB)/user-contrib/Foundations/$$i`; \
 	 install $$i $(COQLIB)/user-contrib/Foundations/$$i; \
-	 done)
-	(for i in $(VOFILES0); do \
-	 install -d `dirname $(COQLIB)/user-contrib/$(INSTALLDEFAULTROOT)/$$i`; \
-	 install $$i $(COQLIB)/user-contrib/$(INSTALLDEFAULTROOT)/$$i; \
 	 done)
 
 clean:
