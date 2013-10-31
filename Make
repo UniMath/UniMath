@@ -1,3 +1,4 @@
+-o Make.makefile
 -R . RezkCompletion
 auxiliary_lemmas_HoTT.v
 category_hset.v
@@ -13,7 +14,3 @@ sub_precategories.v
 whiskering.v
 yoneda.v
 
--custom
-  "etags --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Proposition\)[[:space:]]+\([[:alnum:]_]+\)/\2/' $^"
-  "$(VFILES)"
-  TAGS
