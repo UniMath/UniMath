@@ -38,9 +38,9 @@ Contents :
 ************************************************************)
 
 
-Require Import uu0.
-Require Import hProp.
-Require Import hSet.
+Require Import Foundations.Generalities.uu0.
+Require Import Foundations.hlevel1.hProp.
+Require Import Foundations.hlevel2.hSet.
 
 Require Import pathnotations.
 Import pathnotations.PathNotations.

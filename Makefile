@@ -35,7 +35,7 @@ CAMLP4LIB:=$(shell $(CAMLP4BIN)$(CAMLP4) -where)
 #                        #
 ##########################
 
-OCAMLLIBS:=-I .
+OCAMLLIBS:=
 COQSRCLIBS:=-I $(COQLIB)/kernel -I $(COQLIB)/lib \
   -I $(COQLIB)/library -I $(COQLIB)/parsing \
   -I $(COQLIB)/pretyping -I $(COQLIB)/interp \
@@ -48,8 +48,6 @@ COQSRCLIBS:=-I $(COQLIB)/kernel -I $(COQLIB)/lib \
   -I $(COQLIB)/plugins/firstorder \
   -I $(COQLIB)/plugins/fourier \
   -I $(COQLIB)/plugins/funind \
-  -I $(COQLIB)/plugins/groebner \
-  -I $(COQLIB)/plugins/interface \
   -I $(COQLIB)/plugins/micromega \
   -I $(COQLIB)/plugins/nsatz \
   -I $(COQLIB)/plugins/omega \
@@ -62,8 +60,8 @@ COQSRCLIBS:=-I $(COQLIB)/kernel -I $(COQLIB)/lib \
   -I $(COQLIB)/plugins/subtac/test \
   -I $(COQLIB)/plugins/syntax \
   -I $(COQLIB)/plugins/xml
-COQLIBS:=-I . 
-COQDOCLIBS:=
+COQLIBS:= -R . RezkCompletion
+COQDOCLIBS:=-R . RezkCompletion
 
 ##########################
 #                        #
@@ -102,29 +100,23 @@ VFILES:=auxiliary_lemmas_HoTT.v\
   category_hset.v\
   equivalences.v\
   functors_transformations.v\
-  funextfun.v\
   HLevel_n_is_of_hlevel_Sn.v\
-  hProp.v\
-  hSet.v\
   pathnotations.v\
   precategories.v\
   precomp_ess_surj.v\
   precomp_fully_faithful.v\
   rezk_completion.v\
   sub_precategories.v\
-  uu0.v\
-  uuu.v\
   whiskering.v\
   yoneda.v
 VOFILES:=$(VFILES:.v=.vo)
-VOFILES0:=$(filter-out ,$(VOFILES))
 GLOBFILES:=$(VFILES:.v=.glob)
 VIFILES:=$(VFILES:.v=.vi)
 GFILES:=$(VFILES:.v=.g)
 HTMLFILES:=$(VFILES:.v=.html)
 GHTMLFILES:=$(VFILES:.v=.g.html)
 
-all: $(VOFILES) 
+all: $(VOFILES) TAGS
 spec: $(VIFILES)
 
 gallina: $(GFILES)
@@ -150,6 +142,15 @@ all-gal.pdf: $(VFILES)
 	$(COQDOC) -toc -pdf -g $(COQDOCLIBS) -o $@ `$(COQDEP) -sort -suffix .v $(VFILES)`
 
 
+
+###################
+#                 #
+# Custom targets. #
+#                 #
+###################
+
+TAGS: $(VFILES)
+	etags --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Proposition\)[[:space:]]+\([[:alnum:]_]+\)/\2/' $^
 
 ####################
 #                  #
@@ -191,15 +192,16 @@ opt:
 
 install:
 	mkdir -p $(COQLIB)/user-contrib
-	(for i in $(VOFILES0); do \
-	 install -d `dirname $(COQLIB)/user-contrib/$(INSTALLDEFAULTROOT)/$$i`; \
-	 install $$i $(COQLIB)/user-contrib/$(INSTALLDEFAULTROOT)/$$i; \
+	(for i in $(VOFILES); do \
+	 install -d `dirname $(COQLIB)/user-contrib/RezkCompletion/$$i`; \
+	 install $$i $(COQLIB)/user-contrib/RezkCompletion/$$i; \
 	 done)
 
 clean:
 	rm -f $(CMOFILES) $(CMIFILES) $(CMXFILES) $(CMXSFILES) $(OFILES) $(VOFILES) $(VIFILES) $(GFILES) $(MLFILES:.ml=.cmo) $(MLFILES:.ml=.cmx) *~
 	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(HTMLFILES) $(GHTMLFILES) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) $(VFILES:.v=.v.d)
 	- rm -rf html
+	- rm -f TAGS
 
 archclean:
 	rm -f *.cmx *.o
