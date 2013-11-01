@@ -5,8 +5,8 @@ Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
 
-Require Import pathnotations.
-Import pathnotations.PathNotations.
+Require Import RezkCompletion.pathnotations.
+Import RezkCompletion.pathnotations.PathNotations.
 
 
 (** Transport with the inverse *)

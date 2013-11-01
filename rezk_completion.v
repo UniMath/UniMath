@@ -24,20 +24,20 @@ Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-Require Import pathnotations.
-Import pathnotations.PathNotations.
+Require Import RezkCompletion.pathnotations.
+Import RezkCompletion.pathnotations.PathNotations.
 
-Require Import auxiliary_lemmas_HoTT.
+Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
-Require Import precategories.
-Require Import functors_transformations.
-Require Import category_hset.
-Require Import yoneda.
-Require Import sub_precategories.
-Require Import equivalences.
-Require Import whiskering.
-Require Import precomp_fully_faithful.
-Require Import precomp_ess_surj.
+Require Import RezkCompletion.precategories.
+Require Import RezkCompletion.functors_transformations.
+Require Import RezkCompletion.category_hset.
+Require Import RezkCompletion.yoneda.
+Require Import RezkCompletion.sub_precategories.
+Require Import RezkCompletion.equivalences.
+Require Import RezkCompletion.whiskering.
+Require Import RezkCompletion.precomp_fully_faithful.
+Require Import RezkCompletion.precomp_ess_surj.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 

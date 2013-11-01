@@ -26,14 +26,14 @@ Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-Require Import pathnotations.
-Import pathnotations.PathNotations.
+Require Import RezkCompletion.pathnotations.
+Import RezkCompletion.pathnotations.PathNotations.
 
-Require Import auxiliary_lemmas_HoTT.
+Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
-Require Import precategories.
-Require Import functors_transformations.
-Require Import whiskering.
+Require Import RezkCompletion.precategories.
+Require Import RezkCompletion.functors_transformations.
+Require Import RezkCompletion.whiskering.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 

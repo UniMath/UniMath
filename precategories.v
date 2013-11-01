@@ -30,8 +30,8 @@ Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 Require Import auxiliary_lemmas_HoTT.
 
-Require Import pathnotations.
-Import pathnotations.PathNotations.
+Require Import RezkCompletion.pathnotations.
+Import RezkCompletion.pathnotations.PathNotations.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 

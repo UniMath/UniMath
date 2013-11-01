@@ -12,14 +12,14 @@
    the type of types of hlevel n is itself of hlevel n+1.
 *)
 
-Require Import auxiliary_lemmas_HoTT. 
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.Proof_of_Extensionality.funextfun.
 
-(** As before, we use an infix notation for the path space. *)
+Require Import RezkCompletion.auxiliary_lemmas_HoTT. 
 
-Require Import pathnotations.
-Import pathnotations.PathNotations.
+(** As before, we use an infix notation for the path space. *)
+Require Import RezkCompletion.pathnotations.
+Import RezkCompletion.pathnotations.PathNotations.
 
 
 (** ** Weak equivalence between identity types in [HLevel] and [U] *)

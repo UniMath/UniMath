@@ -26,13 +26,13 @@ Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 Require Import Foundations.Proof_of_Extensionality.funextfun. 
 
-Require Import auxiliary_lemmas_HoTT.
+Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
-Require Import precategories.
-Require Import HLevel_n_is_of_hlevel_Sn.
+Require Import RezkCompletion.precategories.
+Require Import RezkCompletion.HLevel_n_is_of_hlevel_Sn.
 
-Require Import pathnotations.
-Import pathnotations.PathNotations.
+Require Import RezkCompletion.pathnotations.
+Import RezkCompletion.pathnotations.PathNotations.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
