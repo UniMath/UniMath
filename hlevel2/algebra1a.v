@@ -13,7 +13,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Require Export hSet .
+Require Export Foundations.hlevel2.hSet .
 
 
 (** To upstream files *)

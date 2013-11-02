@@ -16,7 +16,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports *)
 
-Require Export uuu.
+Require Export Foundations.Generalities.uuu.
 
 (** Universe structure *)
 

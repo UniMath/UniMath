@@ -17,7 +17,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Require Export hProp .
+Require Export Foundations.hlevel1.hProp .
 
 
 (** ** The type of sets i.e. of types of h-level 2 in [ UU ] *) 

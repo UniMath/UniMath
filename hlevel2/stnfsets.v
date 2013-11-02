@@ -16,10 +16,10 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 (** Imports. *)
 
 
-Require Export hnat .
+Require Export Foundations.hlevel2.hnat .
 
 
-(* To up-steram files *)
+(* To up-stream files *)
 
 
 

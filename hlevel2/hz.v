@@ -16,8 +16,8 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Require Export hnat .
-Require Export algebra1d .
+Require Export Foundations.hlevel2.hnat .
+Require Export Foundations.hlevel2.algebra1d .
 
 
 (** Upstream *)

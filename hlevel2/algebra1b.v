@@ -13,7 +13,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Require Export algebra1a .
+Require Export Foundations.hlevel2.algebra1a .
 
 
 (** To upstream files *)
