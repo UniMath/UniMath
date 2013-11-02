@@ -18,6 +18,8 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
+Add LoadPath ".." as Foundations.
+
 Require Export Foundations.hlevel1.hProp .
 Require Export Foundations.hlevel2.stnfsets .
 Require Export Foundations.hlevel2.hSet .  
