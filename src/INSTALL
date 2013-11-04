@@ -1,0 +1,17 @@
+# -*- makefile-gmake -*-
+
+To build and install:
+
+  coq_makefile -f Make-include.in
+  make
+  make install
+
+To make the documentation:
+
+  make html
+
+Or just use emacs' M-x compile command.
+
+# Local Variables:
+# compile-command: "if [ ! -f Make-include.mk ] ; then coq_makefile -f Make-include.in ; fi && make all install html "
+# End:

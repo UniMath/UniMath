@@ -1,0 +1,8 @@
+# -*- makefile-gmake -*-
+
+-o Make-include.mk
+-R . Ktheory
+
+# Local Variables:
+# compile-command: "coq_makefile -f Make-include.in"
+# End:
