@@ -11,7 +11,7 @@ This file contains results which form a basis of the univalent approach and whic
 
 (** Settings *)
 
-Add Rec LoadPath "../Generalities".
+(* Add Rec LoadPath "../Generalities". *)
 
 Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
 
@@ -587,7 +587,7 @@ Definition weqgradth { X Y : UU } (f:X->Y) (g:Y->X) (egf: forall x:X, paths (g (
 
 Corollary isweqinvmap { X Y : UU } ( w : weq X Y ) : isweq (invmap w ).
 Proof. intros. set (invf:= invmap w ). assert (efinvf: forall y:Y, paths ( w (invf y)) y). apply homotweqinvweq. 
-assert (einvff: forall x:X, paths (invf ( w x)) x). apply homotinvweqweq. apply ( weqgradth _ _ efinvf einvff ) . Defined. 
+assert (einvff: forall x:X, paths (invf ( w x)) x). apply homotinvweqweq. apply ( gradth _ _ efinvf einvff ) . Defined. 
 
 Definition invweq { X Y : UU } ( w : weq X Y ) : weq Y X := weqpair  (invmap w ) (isweqinvmap w ).
 
@@ -1069,7 +1069,11 @@ Proof . intros x e . rewrite e . unfold neg . apply nopathstruetofalse . Defined
 Definition falsetonegtrue ( x : bool ) : paths x false -> neg ( paths x true ) .
 Proof . intros x e . rewrite e . unfold neg . apply nopathsfalsetotrue . Defined .  
 
+Definition negtruetofalse (x : bool ) : neg ( paths x true ) -> paths x false .
+Proof. intros x ne. destruct (boolchoice x) as [t | f]. destruct (ne t). apply f. Defined. 
 
+Definition negfalsetotrue ( x : bool ) : neg ( paths x false ) -> paths x true . 
+Proof. intros x ne . destruct (boolchoice x) as [t | f].  apply t . destruct (ne f) . Defined. 
 
 
 
@@ -1604,7 +1608,7 @@ set ( w1 := weqhfpcomm f f' ) . assert ( h1 : forall z : Z , paths (  w1 ( comms
 
 Theorem fibseqstrtohfsqstr { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( z : Z ) ( hf : fibseqstr f g z ) : hfsqstr ( fun t : unit => z ) g ( fun x : X => tt ) f .
 Proof . intros . split with ( pr1 hf ) .  set ( ff := ezweq f g z hf ) . set ( ggff := commsqZtohfp ( fun t : unit => z ) g ( fun x : X => tt ) f ( pr1 hf )   ) .  set ( gg := weqhfibertohfp g z ) . 
-apply ( weqcomp ff gg ) .  Defined . 
+apply ( pr2 ( weqcomp ff gg ) ) .  Defined . 
 
 
 Theorem hfsqstrtofibseqstr  { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( z : Z ) ( hf :  hfsqstr ( fun t : unit => z ) g ( fun x : X => tt ) f ) : fibseqstr f g z .

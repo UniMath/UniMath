@@ -73,7 +73,7 @@ Definition isaset ( X : UU0 ) : hProp := hProppair _ ( isapropisaset X ) .
 
 Definition isisolated ( X : UU0 ) ( x : X ) : hProp := hProppair _ ( isapropisisolated X x ) .
 
-Definition isdeceq ( X : UU0 ) : hProp := hProppair _ ( isapropisdeceq X ) .   
+Definition isdecEq ( X : UU0 ) : hProp := hProppair _ ( isapropisdeceq X ) .   
 
 *)
 
@@ -91,7 +91,7 @@ Lemma isapropishinh ( X : UU0 ) : isaprop ( ishinh_UU X ).
 Proof. intro. apply impred . intro P . apply impred.  intro. apply ( pr2 P ) .  Defined . 
 
 Definition ishinh ( X : UU0 ) : hProp := hProppair ( ishinh_UU X ) ( isapropishinh X ) .
-Canonical Structure ishinh .  (** RR1 *)
+(* Canonical Structure ishinh .  (** RR1 *) *)
 
 
 Definition hinhpr ( X : UU0 ) : X -> ishinh X := fun x : X => fun P : hProp  => fun f : X -> P => f x .

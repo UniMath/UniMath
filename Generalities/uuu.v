@@ -34,19 +34,6 @@ Hint Resolve identity_refl : core . ]
 Notation paths := identity .
 Notation idpath := identity_refl .
 
-(** Dpendent sums.
-
-One can not use a new record each time one needs it because the general theorems about this construction would not apply to new instances of "Record" due to the "generativity" of inductive definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
-
-Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T ; pr2 : P pr1 }. 
-
-(* Definition pr1 { T: Type } { P : T -> Type } ( tp : total2 P ) := match tp with tpair t p => t end .
-Definition pr2 { T: Type } { P : T -> Type } ( tp : total2 P ) := match tp as a return P ( pr1 a ) with tpair t p => p end . *)
-
-Implicit Arguments tpair [ T ] .
-Implicit Arguments pr1 [ T P ] .
-Implicit Arguments pr2 [ T P ] .
-
 (** Coproducts . 
 
 The coproduct of two types is introduced in Coq.Init.Datatypes by the lines:
@@ -67,11 +54,27 @@ Implicit Arguments ii1 [ A B ] .
 Implicit Arguments ii2 [ A B ] .
 
 
+(** Dpendent sums. 
+
+One can not use a new record each time one needs it because the general theorems about this construction would not apply to new instances of "Record" due to the "generativity" of inductive definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
+
+Record total2 { T: Type } ( P: T -> Type ) := tpair : forall t : T , forall tp : P t , total2 P . 
+
+Definition pr1 { T: Type } { P : T -> Type } ( tp : total2 P ) : T := match tp with tpair t p => t end .
+Definition pr2 { T: Type } { P : T -> Type } ( tp : total2 P ) : P ( pr1 tp ) := match tp as a return P ( pr1 a ) with tpair t p => p end . 
+
+
+
+
+
+(*
+
 (** The phantom type family ( following George Gonthier ) *)
 
 Inductive Phant ( T : Type ) := phant : Phant T .
 
 
+*)
 
 (** The following command checks wheather the patch which modifies the universe level assignement for inductive types have been installed. With the patch it returns [ paths 0 0 : UUU ] . Without the patch it returns [ paths 0 0 : Prop ]. *)
 

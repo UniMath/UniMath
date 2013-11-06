@@ -1,6 +1,6 @@
-By Vladimir  Voevodsky Feb. 2010 - Nov. 2011 .
+By Vladimir  Voevodsky Feb. 2010 - Nov. 2013 .
 
-This is the current version (as of Nov. 6 , 2011) of the mathematical library for the proof assistant Coq based on the univalent semantics for the calculus of inductive constructions. The best way to see in detail what the files in these subdirectories are about is to generate the corresponding tables of content with coqdoc . Here we give a brief outline of the library structure .   
+This is the current version of the mathematical library for the proof assistant Coq based on the univalent semantics for the calculus of inductive constructions. The best way to see in detail what the files in these subdirectories are about is to generate the corresponding tables of content with coqdoc . Here we give a brief outline of the library structure .   
 
 Important : files in the library starting with hProp.v will not compile without a type_in_type patch which turns off the universe consistency checking . This is a temporary situation which will be corrected when better universe management is implememnted in Coq . We also use a patch which modifies the rule by which the universe level of inductive definitions is computed . If the later patch is applied correctly then the compilation of the first file uuu.v should produce a message of the form [ paths 0 0 : UUU ] . Without a patch the message will be [ paths 0 0 : Prop ] . 
 
