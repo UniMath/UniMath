@@ -2,6 +2,7 @@
 
 -o Make-include.mk
 -R . Ktheory
+Categories.v
 
 # Local Variables:
 # compile-command: "coq_makefile -f Make-include.in"
