@@ -31,7 +31,7 @@ Require Import Foundations.hlevel2.hSet.
 
 Add LoadPath "." as RezkCompletion.
 
-Require Import auxiliary_lemmas_HoTT.
+Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
 Require Import RezkCompletion.pathnotations.
 Import RezkCompletion.pathnotations.PathNotations.
