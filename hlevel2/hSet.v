@@ -39,13 +39,13 @@ Proof . intros . split with ( dirprod X Y ) . apply ( isofhleveldirprod 2 ) .  a
 (** [ hProp ] as a set *)
 
 Definition hPropset : hSet := tpair _ hProp isasethProp .  
-Canonical Structure hPropset. 
+(* Canonical Structure hPropset. *)
 
 
 (** Booleans as a set *)
 
 Definition boolset : hSet := hSetpair bool isasetbool .
-Canonical Structure boolset .  
+(* Canonical Structure boolset .  *)
 
 
 (** ** Types [ X ] which satisfy " weak " axiom of choice for all families [ P : X -> UU0 ] 
@@ -349,9 +349,9 @@ Proof . intros . apply isr .  Defined .
 
 (** *** Boolean representation of decidable equality *)
 
-Definition eqh { X : UU } ( is : isdeceq X ) : hrel X := fun x x' => eqset ( booleq is x x' ) true .
+Definition eqh { X : UU } ( is : isdeceq X ) : hrel X := fun x x' => hProppair ( paths ( booleq is x x' ) true ) ( isasetbool ( booleq is x x' ) true ) .
 
-Definition neqh { X : UU } ( is : isdeceq X ) : hrel X := fun x x' => eqset ( booleq is x x' ) false .
+Definition neqh { X : UU } ( is : isdeceq X ) : hrel X := fun x x' =>  hProppair ( paths ( booleq is x x' ) false ) ( isasetbool ( booleq is x x' ) false ) . 
 
 Lemma isrefleqh { X : UU } ( is : isdeceq X ) : isrefl ( eqh is ) . 
 Proof . intros .  unfold eqh .  unfold booleq . intro x .  destruct ( is x x ) as [ e | ne ] . simpl .  apply idpath .  destruct ( ne ( idpath x ) ) .  Defined . 
@@ -391,14 +391,19 @@ Definition negrtopaths { X : UU } ( R : decrel X ) ( x x' : X ) ( nr : neg ( R x
 Proof . unfold decreltobrel . intros .   destruct ( pr2 R x x' ) as [ r | nr' ] . destruct ( nr r ) . apply idpath. Defined .   
 
 
-(** The following construction of "ct" ( "canonical term" ) is inspired by the ideas of George Gonthier. The expression [ ct ( R , x , y ) ] where [ R ] is in [ hrel X ] for some [ X ] and has a canonical structure of a decidable relation and [ x, y ] are closed terms of type [ X ] such that [ R x y ] is inhabited is the term of type [ R x y ] which relizes the canonical term in [ isdecrel R x y ] . *) 
+(** The following construction of "ct" ( "canonical term" ) is inspired by the ideas of George Gonthier. The expression [ ct ( R , x , y ) ] where [ R ] is in [ hrel X ] for some [ X ] and has a canonical structure of a decidable relation and [ x, y ] are closed terms of type [ X ] such that [ R x y ] is inhabited is the term of type [ R x y ] which relizes the canonical term in [ isdecrel R x y ] .  
 
-Definition pathstor_comp { X : UU } ( R : decrel X ) ( x x' : X ) ( u : Phant ( ( pr1 R ) x x' ) ) ( e : paths ( decreltobrel R x x' ) true ) : R x x' .
+Definition pathstor_comp { X : UU } ( R : decrel X ) ( x x' : X ) ( e : paths ( decreltobrel R x x' ) true ) : R x x' .
 Proof . unfold decreltobrel . intros .  destruct ( pr2 R x x' ) as [ e' | ne ]  .  apply e' . destruct ( nopathsfalsetotrue e ) . Defined .  
 
-Notation " 'ct' ( R , x , y ) " := ( ( pathstor_comp _ x y ( phant ( R x y ) ) ( idpath true ) ) : R x y ) (at level 70 ) .
+Notation " 'ct' ( R , x , y ) " := ( ( pathstor_comp _ x y ( idpath true ) ) : R x y ) (at level 70 ) . 
 
+*)
 
+Definition ctlong { X : UU } ( R : hrel X ) ( is : isdecrel R ) ( x x' : X ) ( e : paths ( decreltobrel (decrelpair is ) x x' ) true ) : R x x' .
+Proof . unfold decreltobrel . intros .  simpl in e .  destruct ( is x x' ) as [ e' | ne ]  .  apply e' . destruct ( nopathsfalsetotrue e ) . Defined .  
+
+Notation " 'ct' ( R , is , x , y ) " := ( ctlong R is x y ( idpath true ) ) ( at level 70 ) .  
 
 (** **** Restriction of a relation to a subtype *)
 
@@ -850,7 +855,7 @@ Proof . intros . split . apply ( quotrelimpl is is' ( fun x0 x0' => pr1 ( lg x0 
 
 
 Definition quotdecrelint { X : UU0 } { R : hrel X } ( L : decrel X ) ( is : iscomprelrel R ( pr1 L ) )  : brel ( setquot R ) .
-Proof .    intros .  set ( f := decreltobrel L ) .  unfold brel . apply ( setquotuniv2 R _ f ) . intros x x' x0 x0' r r0. unfold f . unfold decreltobrel in * .  destruct ( pr2 L x x0' ) as [ l | nl ] . destruct ( pr2 L x' x0' ) as [ l' | nl' ] .  destruct ( pr2 L x x0 ) as [ l'' | nl'' ] . apply idpath .  set ( e := is x x' x0 x0' r r0 ) . destruct e . destruct ( nl'' l' ) .   destruct ( pr2 L x x0 ) as [ l'' | nl'' ] .  set ( e := is x x' x0 x0' r r0 ) . destruct e . destruct ( nl' l'' ) .  apply idpath . destruct ( pr2 L x x0 ) as [ l' | nl' ] . destruct ( pr2 L x' x0' ) as [ l'' | nl'' ] .  apply idpath .  set ( e := is x x' x0 x0' r r0 ) . destruct e . destruct ( nl'' l' ) . destruct ( pr2 L x' x0' ) as [ l'' | nl'' ] .  set ( e := is x x' x0 x0' r r0 ) . destruct e . destruct ( nl' l'' ) .    apply idpath . Defined .
+Proof .    intros .  set ( f := decreltobrel L ) .  unfold brel . apply ( setquotuniv2 R boolset f ) . intros x x' x0 x0' r r0. unfold f . unfold decreltobrel in * .  destruct ( pr2 L x x0' ) as [ l | nl ] . destruct ( pr2 L x' x0' ) as [ l' | nl' ] .  destruct ( pr2 L x x0 ) as [ l'' | nl'' ] . apply idpath .  set ( e := is x x' x0 x0' r r0 ) . destruct e . destruct ( nl'' l' ) .   destruct ( pr2 L x x0 ) as [ l'' | nl'' ] .  set ( e := is x x' x0 x0' r r0 ) . destruct e . destruct ( nl' l'' ) .  apply idpath . destruct ( pr2 L x x0 ) as [ l' | nl' ] . destruct ( pr2 L x' x0' ) as [ l'' | nl'' ] .  apply idpath .  set ( e := is x x' x0 x0' r r0 ) . destruct e . destruct ( nl'' l' ) . destruct ( pr2 L x' x0' ) as [ l'' | nl'' ] .  set ( e := is x x' x0 x0' r r0 ) . destruct e . destruct ( nl' l'' ) .    apply idpath . Defined .
 
 Definition quotdecrelintlogeq { X : UU0 } { R : eqrel X } ( L : decrel X ) ( is : iscomprelrel R ( pr1 L ) ) ( x x' : setquot R ) : breltodecrel ( quotdecrelint L is ) x x' <-> quotrel is x x' .
 Proof . intros X R L is . assert ( int : forall x x' , isaprop ( paths ( quotdecrelint L is x x' ) true  <-> ( quotrel is x x' ) ) ) .  intros x x' . apply isapropdirprod .    apply impred . intro . apply ( pr2 ( quotrel _ _ _ ) ) . apply impred . intro . apply isasetbool .  apply ( setquotuniv2prop R ( fun x x' => hProppair _ ( int x x' ) ) ) . intros x x' .   simpl . split .  apply ( pathstor L x x' ) . apply ( rtopaths L x x' ) . Defined .
@@ -885,7 +890,7 @@ Proof . intros X R P . assert ( int : isaset P ) . apply ( isasetsubset ( @pr1 _
 Definition weqsubquot { X : UU0 } ( R : eqrel X ) ( P : hsubtypes ( setquot R ) ) : weq P ( setquot ( resrel R ( funcomp ( setquotpr R ) P ) ) ) .
 Proof . intros . set ( f := fromsubquot R P ) . set ( g := tosubquot R P ) .  split with f .  assert ( int0 : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . apply isinclpr1carrier .
 
-assert ( egf : forall a , paths ( g ( f a ) ) a ) .  intros a .  destruct a as [ p isp ] . generalize isp . generalize p . clear isp . clear p .  assert ( int : forall p , isaprop ( forall isp : P p , paths (g (f {| pr1 := p; pr2 := isp |})) {| pr1 := p; pr2 := isp |} ) ) .  intro p . apply impred . intro . apply ( int0 _ _ ) . apply ( setquotunivprop _ ( fun a =>  hProppair _ ( int a ) ) ) .  simpl . intros x isp .  apply ( invmaponpathsincl _ ( isinclpr1carrier P ) _ _ ) .  apply idpath . 
+assert ( egf : forall a , paths ( g ( f a ) ) a ) .  intros a .  destruct a as [ p isp ] . generalize isp . generalize p . clear isp . clear p .  assert ( int : forall p , isaprop ( forall isp : P p , paths (g (f ( tpair _ p isp ))) ( tpair _ p isp )  ) ) .  intro p . apply impred . intro . apply ( int0 _ _ ) . apply ( setquotunivprop _ ( fun a =>  hProppair _ ( int a ) ) ) .  simpl . intros x isp .  apply ( invmaponpathsincl _ ( isinclpr1carrier P ) _ _ ) .  apply idpath . 
 
 assert ( efg : forall a , paths ( f ( g a ) ) a ) . assert ( int : forall a , isaprop ( paths ( f ( g a ) ) a ) ) . intro a . apply ( setproperty ( setquotinset (resrel R (funcomp (setquotpr R) P)) )  ) . set ( Q := reseqrel R (funcomp (setquotpr R) P) ) . apply ( setquotunivprop Q ( fun a : setquot (resrel R (funcomp (setquotpr R) P)) =>  hProppair _ ( int a ) ) ) .   intro a . simpl .  unfold f . unfold g . unfold fromsubquot . unfold tosubquot . simpl .  apply ( invmaponpathsincl _ ( isinclpr1 _ ( fun a => isapropiseqclass _ a ) ) ) .  apply idpath .  
 

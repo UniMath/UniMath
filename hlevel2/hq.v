@@ -67,14 +67,16 @@ Definition isasethq := setproperty hq .
 Definition hqeq ( x y : hq ) : hProp := hProppair ( paths x y ) ( isasethq _ _  )  .
 Definition isdecrelhqeq : isdecrel hqeq  := fun a b => isdeceqhq a b .
 Definition hqdeceq : decrel hq := decrelpair isdecrelhqeq . 
-Canonical Structure hqdeceq. 
+
+(* Canonical Structure hqdeceq. *) 
 
 Definition hqbooleq := decreltobrel hqdeceq .  
 
 Definition hqneq ( x y : hq ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
 Definition isdecrelhqneq : isdecrel hqneq  := isdecnegrel _ isdecrelhqeq . 
 Definition hqdecneq : decrel hq := decrelpair isdecrelhqneq . 
-Canonical Structure hqdecneq.  
+
+(* Canonical Structure hqdecneq. *) 
 
 Definition hqboolneq := decreltobrel hqdecneq .  
 
@@ -84,7 +86,7 @@ Open Local Scope hz_scope .
 
 Transparent hz .
 
-Eval lazy in ( hqbooleq ( hzhztohq ( natnattohz 4 0 ) ( tpair _ ( natnattohz 3 0 ) ( ct ( hzneq , ( natnattohz 3 0 ) , 0 ) ) ) )  ( hzhztohq ( natnattohz 13 1 ) ( tpair _ ( natnattohz 11 2 ) ( ct ( hzneq , ( natnattohz 11 2 ) , 0 ) ) ) ) ) . 
+Eval lazy in ( hqbooleq ( hzhztohq ( natnattohz 4 0 ) ( tpair _ ( natnattohz 3 0 ) ( ct ( hzneq , isdecrelhzneq, ( natnattohz 3 0 ) , 0 ) ) ) )  ( hzhztohq ( natnattohz 13 1 ) ( tpair _ ( natnattohz 11 2 ) ( ct ( hzneq , isdecrelhzneq , ( natnattohz 11 2 ) , 0 ) ) ) ) ) . 
 
 Opaque hz . 
 
@@ -176,7 +178,7 @@ Definition hqdiv ( x y : hq ) : hq := hqmult x ( hqmultinv y ) .
 (** *** Definitions and notations *)
 
 
-Definition hqgth : hrel hq := fldfracgt hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth ( ct ( hzgth , 1%hz , 0%hz ) ) hzneqchoice .
+Definition hqgth : hrel hq := fldfracgt hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth ( ct ( hzgth , isdecrelhzgth,  1%hz , 0%hz ) ) hzneqchoice .
 
 Definition hqlth : hrel hq := fun a b => hqgth b a .
 
@@ -194,28 +196,32 @@ Lemma isdecrelhqgth : isdecrel hqgth .
 Proof . apply isdecfldfracgt . exact isasymmhzgth .   apply isdecrelhzgth . Defined .
 
 Definition hqgthdec := decrelpair isdecrelhqgth .
-Canonical Structure hqgthdec .
+
+(* Canonical Structure hqgthdec . *)
 
 Definition isdecrelhqlth : isdecrel hqlth := fun x x' => isdecrelhqgth x' x . 
 
 Definition hqlthdec := decrelpair isdecrelhqlth .
-Canonical Structure hqlthdec .
+
+(* Canonical Structure hqlthdec . *)
 
 Definition isdecrelhqleh : isdecrel hqleh := isdecnegrel _ isdecrelhqgth .
 
 Definition hqlehdec := decrelpair isdecrelhqleh .
-Canonical Structure hqlehdec .
+
+(* Canonical Structure hqlehdec . *)
 
 Definition isdecrelhqgeh : isdecrel hqgeh := fun x x' => isdecrelhqleh x' x .
 
 Definition hqgehdec := decrelpair isdecrelhqgeh .
-Canonical Structure hqgehdec .
+
+(* Canonical Structure hqgehdec . *)
 
 (** Computation test *)
 
 Transparent hz .
 
-Eval lazy in ( decreltobrel hqgthdec ( hzhztohq ( natnattohz 5 0 ) ( tpair _ ( natnattohz 3 0 ) ( ct ( hzneq , ( natnattohz 3 0 ) , hzzero ) ) ) )  ( hzhztohq ( natnattohz 13 1 ) ( tpair _ ( natnattohz 11 2 ) ( ct ( hzneq , ( natnattohz 11 2 ) , hzzero ) ) ) ) ) . 
+Eval lazy in ( decreltobrel hqgthdec ( hzhztohq ( natnattohz 5 0 ) ( tpair _ ( natnattohz 3 0 ) ( ct ( hzneq , isdecrelhzneq , ( natnattohz 3 0 ) , hzzero ) ) ) )  ( hzhztohq ( natnattohz 13 1 ) ( tpair _ ( natnattohz 11 2 ) ( ct ( hzneq , isdecrelhzneq , ( natnattohz 11 2 ) , hzzero ) ) ) ) ) . 
 
 Opaque hz . 
 
@@ -397,7 +403,7 @@ Definition hqgthandplusrinv ( n m k : hq ) :  hqgth ( n + k ) ( m + k ) -> hqgth
 Proof. intros n m k l . rewrite ( hqpluscomm n k ) in l . rewrite ( hqpluscomm m k ) in l . apply ( hqgthandpluslinv _ _ _ l )  . Defined . 
 
 Lemma hqgthsnn ( n : hq ) : hqgth ( n + 1 ) n . 
-Proof . intro . set ( int := hqgthandplusl _ _ n ( ct ( hqgth , 1 , 0 ) ) ) . clearbody int . rewrite ( hqplusr0 n ) in int .   apply int . Defined . 
+Proof . intro . set ( int := hqgthandplusl _ _ n ( ct ( hqgth , isdecrelhqgth , 1 , 0 ) ) ) . clearbody int . rewrite ( hqplusr0 n ) in int .   apply int . Defined . 
 
 
 (** [ lth ] *)
@@ -670,7 +676,7 @@ Proof . intros . apply ( intdomrcan hq _ _ _ ne e ) . Defined .
 (** *** Positive rationals *)
 
 Definition hqpos : @subabmonoids hqmultabmonoid . 
-Proof . split with ( fun x => hqgth x 0 ) . split .  intros x1 x2 . apply ( isrngmulthqgth ) . apply ( pr2 x1 ) .  apply ( pr2 x2 ) .  apply ( ct ( hqgth , 1 , 0 ) ) . Defined . 
+Proof . split with ( fun x => hqgth x 0 ) . split .  intros x1 x2 . apply ( isrngmulthqgth ) . apply ( pr2 x1 ) .  apply ( pr2 x2 ) .  apply ( ct ( hqgth , isdecrelhqgth , 1 , 0 ) ) . Defined . 
 
 
 (** *** Canonical ring homomorphism from [ hz ] to [ hq ] *)
@@ -691,7 +697,7 @@ Definition hztohqandminus ( n m : hz ) : paths ( hztohq ( n - m )%hz ) ( hztohq 
 
 Definition hztohqandmult ( n m : hz ) : paths ( hztohq ( n * m )%hz ) ( hztohq n * hztohq m ) := isbinop2funtofldfrac hzintdom isdeceqhz n m . 
 
-Definition hztohqandgth ( n m : hz ) ( is : hzgth n m ) : hqgth ( hztohq n ) ( hztohq m ) := iscomptofldfrac hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth ( ct ( hzgth , 1 , 0 )%hz ) ( hzneqchoice ) ( isasymmhzgth ) n m is . 
+Definition hztohqandgth ( n m : hz ) ( is : hzgth n m ) : hqgth ( hztohq n ) ( hztohq m ) := iscomptofldfrac hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth ( ct ( hzgth , isdecrelhzgth , 1 , 0 )%hz ) ( hzneqchoice ) ( isasymmhzgth ) n m is . 
 
 Definition hztohqandlth ( n m : hz ) ( is : hzlth n m ) : hqlth ( hztohq n ) ( hztohq m ) := hztohqandgth m n is . 
 
@@ -716,7 +722,8 @@ unfold intpartint0 . simpl .  change ( paths ( natdiv ( hzabsval x1 ) ( hzabsval
 
 Opaque iscompintpartint0 .
 
-Definition intpart0 : hq -> nat := setquotuniv _ _ _ ( iscompintpartint0 ) .   
+Definition intpart0 : hq -> nat := setquotuniv ( eqrelabmonoidfrac hzmultabmonoid (intdomnonzerosubmonoid hzintdom) ) natset _ 
+     ( iscompintpartint0 ) .   
 
 Definition intpart ( x : hq ) : hz .
 Proof . intro . destruct ( hqlthorgeh x 0 ) as [ l | ge ] .  destruct ( isdeceqhq ( x + ( hztohq ( nattohz ( intpart0 x ) ) ) ) 0 ) as [ e | ne ] . 
