@@ -15,6 +15,8 @@
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.Proof_of_Extensionality.funextfun.
 
+Add LoadPath "." as RezkCompletion.
+
 Require Import RezkCompletion.auxiliary_lemmas_HoTT. 
 
 (** As before, we use an infix notation for the path space. *)
