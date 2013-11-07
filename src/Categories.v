@@ -4,16 +4,15 @@ Require Import Foundations.hlevel2.hSet.
 Local Notation "a --> b" := (precategory_morphisms a b) (at level 50).
 Local Notation "g 'o' f" := (precategories.compose f g) (at level 50).
 
+Ltac prop_logic := repeat ( apply impred ; intro ); apply isapropiscontr.
+
 Module Products.
   Module Finite.
     Definition isInitial {C:precategory} (a:ob C) : Type := forall (x:ob C), iscontr (a --> x).
 
     Lemma isaprop_isInitial {C:precategory} (a:ob C) : isaprop (isInitial a).
-    Proof.
-      apply impred.
-      intro x.
-      apply isapropiscontr.
-    Defined.
+
+    Proof. prop_logic. Defined.
 
     Definition hasInitial (C:precategory) := total2 (@isInitial C).
 
@@ -23,15 +22,8 @@ Module Products.
 
     Lemma isaprop_isBinaryProduct {C:precategory} {a b p : ob C} (f : p --> a) (g : p --> b) :
       isaprop (isBinaryProduct f g).
-    Proof.
-      apply impred.
-      intro p'.
-      apply impred.
-      intro f'.
-      apply impred.
-      intro g'.
-      apply isapropiscontr.
-    Defined.
+
+    Proof. prop_logic. Defined.
 
     Definition hasBinaryProducts (C:precategory) := 
       forall a b, 
