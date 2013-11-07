@@ -1,5 +1,3 @@
-Add LoadPath "." as RezkCompletion.
-
 (** **********************************************************
 
 Benedikt Ahrens, Chris Kapulkin, Mike Shulman
@@ -665,16 +663,12 @@ Lemma functor_full_img_essentially_surjective (A B : precategory)
      (F : functor A B) :
   essentially_surjective (functor_full_img F).
 Proof.
-  unfold essentially_surjective.
-  unfold functor_full_img.
   intro b.
   apply (pr2 b).
   intros [c h].  
   intros q Hq.
   apply Hq.
   exists c.
-  set (bla := iso_in_sub_from_iso _ _ (full_img_functor_obj F c) b h). 
-  exact bla.
+  apply iso_in_sub_from_iso.
+  apply h.
 Qed.
-    
-
