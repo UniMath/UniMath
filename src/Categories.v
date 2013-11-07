@@ -4,7 +4,7 @@ Require Import Foundations.hlevel2.hSet.
 Local Notation "a --> b" := (precategory_morphisms a b) (at level 50).
 Local Notation "b <-- a" := (precategory_morphisms a b) (at level 50).
 Local Notation "g 'o' f" := (precategories.compose f g) (at level 50).
-Local Notation "f ;;  g" := (precategories.compose f g) (at level 50).
+Local Notation "f 'oo'  g" := (precategories.compose f g) (at level 50).
 
 Ltac prop_logic := 
   simpl;
@@ -45,7 +45,7 @@ Module Products.
     Definition isBinaryCoproduct {C:precategory} {a b p : C} (f : p <-- a) (g : p <-- b) : hProp.
       prop (
           forall p' (f' : p' <-- a) (g' : p' <-- b),
-            iscontr ( total2 ( fun h => dirprod (f ;; h = f') (g ;; h = g')))).
+            iscontr ( total2 ( fun h => dirprod (f oo h = f') (g oo h = g')))).
     Defined.
 
     Definition BinaryProduct {C:precategory} (a b : C) := 
