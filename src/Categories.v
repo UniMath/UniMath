@@ -9,7 +9,6 @@ Local Notation "f ;;  g" := (precategories.compose f g) (at level 50).
 Ltac prop_logic := 
   simpl;
   repeat (try (apply isapropishinh); apply impred ; intro); 
-  try (apply isapropishinh);
   try (apply isapropiscontr).
 
 Ltac prop p := apply (hProppair p); prop_logic.
