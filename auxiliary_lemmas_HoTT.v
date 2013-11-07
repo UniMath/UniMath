@@ -1,5 +1,3 @@
-
-
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
@@ -318,9 +316,9 @@ Lemma pairofobuip (C C': hSet) (a b : C) (c d : C')
         (p q : dirprod (a == b) (c == d)) : p == q.
 Proof.
   assert (H : pr1 p == pr1 q).
-  apply uip. apply C.
+  apply uip. exact (pr2 C).
   apply (total2_paths H).
-  apply uip. apply C'.
+  apply uip. exact (pr2 C').
 Qed.
 
 Lemma isofhlevelonestep (A : UU) n: 

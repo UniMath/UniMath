@@ -1,4 +1,3 @@
-
 (** * [HLevel(n)] is of hlevel n+1 *)
 
 (** 
@@ -58,7 +57,7 @@ Lemma ident_is_prop : forall (P : UU -> hProp) (X X' : UU)
 Proof.
   intros P X X' pX pX' w.
   apply isapropifcontr.
-  apply (P X').
+  apply (pr2 (P X')).
 Defined.
 
 (** This helper lemma is an adaptation of an analogous lemma
@@ -99,7 +98,7 @@ Proof.
   simpl in H'.
   apply H'.
   intro z.
-  apply (P X').
+  apply (pr2 (P X')).
 Defined.
  
 (**  Composing [weq1] and [weq2] yields the desired 

@@ -45,7 +45,7 @@ Lemma isaset_set_fun_space (A B : hSet) : isaset (A -> B).
 Proof.
   change isaset with (isofhlevel 2).
   apply impred.
-  apply (fun _ => B).
+  apply (fun _ => (pr2 B)).
 Qed.
 
 Definition hset_fun_space (A B : hSet) : hSet := 
@@ -250,7 +250,7 @@ Lemma is_weq_precat_paths_to_iso_hset (A B : ob HSET):
    isweq (precat_paths_to_iso A B).
 Proof.
   rewrite hset_id_iso_weq_is.
-  apply (hset_id_iso_weq A B).
+  apply (pr2 (hset_id_iso_weq A B)).
 Qed.
 
 Lemma is_category_HSET : is_category HSET.

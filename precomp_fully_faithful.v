@@ -1,4 +1,3 @@
-
 (** **********************************************************
 
 Benedikt Ahrens, Chris Kapulkin, Mike Shulman
@@ -59,7 +58,7 @@ Proof.
   intro b.
 
   assert (Heq : isaprop (gamma b == delta b)). 
-    apply (F b --> G b).
+    apply (pr2 (_ --> _)).
 
   set (pb := p b (tpair (fun x => isaprop x) (gamma b == delta b) Heq)).
   

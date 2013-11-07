@@ -268,8 +268,9 @@ Lemma is_iso_inv_from_iso {C : precategory} (a b : ob C)
 Proof.
   exists (pr1 f).
   simpl; split; simpl.
-  apply (pr2 (pr2 f)).
-  apply (pr2 (pr2 f)).
+  unfold inv_from_iso.
+  apply (pr2 (pr2 (pr2 f))).
+  apply (pr1 (pr2 (pr2 f))).
 Qed.
 
 Definition iso_inv_from_iso {C : precategory} {a b : ob C}
@@ -642,8 +643,9 @@ Lemma isaset_setcategory_total_morphisms (C : setcategory) :
 Proof.
   change isaset with (isofhlevel 2).
   apply isofhleveltotal2.
-  apply isofhleveldirprod;
-  apply C.
+  apply isofhleveldirprod.
+  exact (pr2 C).
+  exact (pr2 C).
   exact (fun x => (pr2 (pr1 x --> pr2 x))).
 Qed.
 

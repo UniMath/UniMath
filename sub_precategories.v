@@ -1,3 +1,5 @@
+Add LoadPath "." as RezkCompletion.
+
 (** **********************************************************
 
 Benedikt Ahrens, Chris Kapulkin, Mike Shulman
@@ -145,7 +147,7 @@ Proof.
   apply (pr2 (a --> b)).
   intro f.
   apply isasetaprop.
-  apply (pr2 (sub_precategory_predicate_morphisms C' a b f)).
+  apply (pr2 (sub_precategory_predicate_morphisms _ _ _ _)).
 Qed.
 
 Definition sub_precategory_morphisms_set {C : precategory}(C':sub_precategories C)
@@ -198,7 +200,7 @@ split.
   intros a b c f g.
   exists (compose (pr1 f) (pr1 g)).
   apply (sub_precategory_comp).
-  apply f. apply g.
+  apply (pr2 f). apply (pr2 g).
 Defined.
 
 (** A useful lemma for equality in the sub-precategory. *)
@@ -212,7 +214,7 @@ Proof.
   destruct g as [g p'].
   apply (total2_paths H).
   simpl. apply proofirrelevance. 
-  apply (sub_precategory_predicate_morphisms C' a b g).
+  apply (pr2 (sub_precategory_predicate_morphisms C' a b g)).
 Qed.
 
 (*
@@ -326,7 +328,7 @@ Proof.
    simpl. apply functor_id.
   apply (total2_paths H).
   apply proofirrelevance.
-  apply htrue.
+  apply (pr2 htrue).
   
   intros a b c f g.
   set ( H := eq_in_sub_precategory D (full_img_sub_precategory F)).
@@ -436,7 +438,7 @@ Proof.
   rewrite H2.
   apply twooutof3c.
   apply H.
-  apply (H3).
+  apply (pr2 H3).
 Qed.
   
  
@@ -524,8 +526,8 @@ Proof.
 (*  destruct f as [f pp]. *)
   destruct gx; simpl in *.
   split; simpl.
-  apply (base_paths _ _ pr1).
-  apply (base_paths _ _ pr2).
+  apply (base_paths _ _ t).
+  apply (base_paths _ _ tp).
 Qed.
 
 Lemma iso_in_precat_is_iso_in_subcat (a b : ob (full_sub_precategory C'))
@@ -612,7 +614,7 @@ Lemma isweq_Id_in_sub_to_iso (a b : ob (full_sub_precategory C')):
 Proof.
   rewrite Id_in_sub_to_iso_equal_iso.
   apply twooutof3c.
-  apply (total_paths2_hProp_equiv C' a b).
+  apply (pr2 (total_paths2_hProp_equiv _ _ _)).
   apply H.
 Qed.
 

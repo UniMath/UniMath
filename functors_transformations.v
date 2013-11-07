@@ -95,13 +95,13 @@ Lemma isaprop_is_functor (C C' : precategory_data)
 Proof.
   apply isofhleveldirprod.
   apply impred; intro a.
-  apply (precategory_morphisms (C:=C')).
+  apply (pr2 (_ --> _)).
   apply impred; intro a.
   apply impred; intro b.
   apply impred; intro c.
   apply impred; intro f.
   apply impred; intro g.
-  apply (precategory_morphisms (C:=C')).
+  apply (pr2 (_ --> _)).
 Qed.
 
 Definition functor (C C' : precategory_data) := total2 (
@@ -147,7 +147,7 @@ Proof.
    intro b.
    apply impred.
    intro f.
-   apply (pr1 (pr1 G ) a --> pr1 (pr1 G) b).
+   apply (pr2 (_ --> _)).
    apply (@total2_paths2 (pr1 F == pr1 G)  
     (fun x : pr1 F == pr1 G => transportf _ x (pr2 F) == pr2 G)
           (base_paths F G p) (fiber_path_fibr p) (base_paths F G q) (fiber_path_fibr q) H').
@@ -582,7 +582,7 @@ Proof.
   apply impred; intro x.
   apply impred; intro x'.
   apply impred; intro f.
-  apply (precategory_morphisms (C:=C')).
+  apply (pr2 (_ --> _)).
 Qed.
 
 
@@ -596,7 +596,7 @@ Proof.
   change isaset with (isofhlevel 2).
   apply isofhleveltotal2.
   apply impred.
-  intro t. apply (F t --> F' t).
+  intro t. apply (pr2 (_ --> _)).
   intro x. 
   apply isasetaprop.
   apply isaprop_is_nat_trans.
@@ -777,10 +777,10 @@ Proof.
   simpl; split; simpl.
   apply nat_trans_eq.
   intro x; simpl.
-  apply (H).
+  apply (pr2 (H _)).
   apply nat_trans_eq.
   intro x; simpl.
-  apply (H).
+  apply (pr2 (pr2 (H _))).
 Qed.  
 
 Definition functor_iso_from_pointwise_iso (C C' : precategory)
@@ -837,7 +837,7 @@ Proof.
   apply isotoid.
   assumption.
   apply (functor_iso_pointwise_if_iso _ _ _ _ A).
-  apply A.
+  apply (pr2 A).
 Defined.
 
 
