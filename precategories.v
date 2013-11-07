@@ -44,11 +44,11 @@ Definition precategory_ob_mor := total2 (
 Definition precategory_ob_mor_pair (ob : UU)(mor : ob -> ob -> hSet) :
     precategory_ob_mor := tpair _ ob mor.
 
-Definition ob (C : precategory_ob_mor) : UU := @pr1 _ _ C.
-Coercion ob : precategory_ob_mor >-> UU.
+Definition ob (C : precategory_ob_mor) : Type := @pr1 _ _ C.
+Coercion ob : precategory_ob_mor >-> Sortclass.
 
 Definition precategory_morphisms { C : precategory_ob_mor } : 
-      ob C -> ob C -> hSet := pr2 C.
+       C ->  C -> hSet := pr2 C.
 
 (** We introduce notation for morphisms *)
 (** in order for this notation not to pollute subsequent files, 
@@ -66,17 +66,13 @@ Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
 Definition precategory_data := total2 (
    fun C : precategory_ob_mor =>
-     dirprod (forall c : ob C, 
-                precategory_morphisms c c) (* identities *) 
-             (forall a b c : ob C,
-                (*precategory_morphisms*) a --> b ->
-                (*precategory_morphisms*) b --> c ->
-                (*precategory_morphisms*) a --> c)).
+     dirprod (forall c : C, c --> c) (* identities *) 
+             (forall a b c : C,
+                 a --> b -> b --> c -> a --> c)).
 
 Definition precategory_data_pair (C : precategory_ob_mor)
-    (id : forall c : ob C, 
-                precategory_morphisms c c)
-    (comp: forall a b c : ob C,
+    (id : forall c : C, c --> c)
+    (comp: forall a b c : C,
          a --> b -> b --> c -> a --> c) : precategory_data :=
    tpair _ C (dirprodpair id comp).
 
@@ -86,11 +82,11 @@ Coercion precategory_ob_mor_from_precategory_data :
   precategory_data >-> precategory_ob_mor.
 
 Definition identity { C : precategory_data } :
-    forall c : ob C, c --> c := 
+    forall c : C, c --> c := 
          pr1 (pr2 C).
 
 Definition compose { C : precategory_data } 
-  { a b c : ob C } : 
+  { a b c : C } : 
     a --> b -> b --> c -> a --> c := pr2 (pr2 C) a b c.
 
 Local Notation "f ;; g" := (compose f g)(at level 50).
@@ -103,11 +99,11 @@ Local Notation "f ;; g" := (compose f g)(at level 50).
 *)
 
 Definition is_precategory (C : precategory_data) := 
-   dirprod (dirprod (forall (a b : ob C) (f : a --> b),
+   dirprod (dirprod (forall (a b : C) (f : a --> b),
                          identity a ;; f == f)
-                     (forall (a b : ob C) (f : a --> b),
+                     (forall (a b : C) (f : a --> b),
                          f ;; identity b == f))
-            (forall (a b c d : ob C) 
+            (forall (a b c d : C) 
                     (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) == (f ;; g) ;; h).
 
@@ -118,29 +114,29 @@ Definition precategory_data_from_precategory (C : precategory) :
 Coercion precategory_data_from_precategory : precategory >-> precategory_data.
 
 Definition id_left (C : precategory) : 
-   forall (a b : ob C) (f : a --> b),
+   forall (a b : C) (f : a --> b),
            identity a ;; f == f := pr1 (pr1 (pr2 C)).
 
 Definition id_right (C : precategory) :
-   forall (a b : ob C) (f : a --> b),
+   forall (a b : C) (f : a --> b),
            f ;; identity b == f := pr2 (pr1 (pr2 C)).
 
 Definition assoc (C : precategory) : 
-   forall (a b c d : ob C) 
+   forall (a b c d : C) 
           (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) == (f ;; g) ;; h := pr2 (pr2 C).
 
 (** Any equality on objects a and b induces a morphism from a to b *)
 
 Definition precategory_eq_morphism (C : precategory_data)
- (a b : ob C) (H : a == b) : a --> b.
+   (a b : C) (H : a == b) : a --> b.
 Proof.
   destruct H.
   exact (identity a).
 Defined.
 
 Definition precategory_eq_morphism_inv (C : precategory_data) 
-    (a b : ob C) (H : a == b) : b --> a.
+    (a b : C) (H : a == b) : b --> a.
 Proof.
   destruct H.
   exact (identity a).
@@ -172,7 +168,7 @@ Qed.
 
 (** ** Definition of isomorphisms *)
 
-Definition is_inverse_in_precat {C : precategory} {a b : ob C}
+Definition is_inverse_in_precat {C : precategory} {a b : C}
   (f : a --> b) (g : b --> a) := 
   dirprod (f ;; g == identity a)
           (g ;; f == identity b).
