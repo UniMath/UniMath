@@ -16,20 +16,24 @@ Ltac prop p := apply (hProppair p); prop_logic.
 Module Products.
   Module Finite.
 
-    Definition isInitial {C:precategory} (a:C) : hProp.
+    Definition isInitialObject {C:precategory} (a:C) : hProp.
       prop (forall (x:C), iscontr (a --> x)).
     Defined.
 
-    Definition isTerminal {C:precategory} (a:C) : hProp.
+    Definition isTerminalObject {C:precategory} (a:C) : hProp.
       prop (forall (x:C), iscontr (a <-- x)).
     Defined.
 
-    Definition hasInitial (C:precategory) : hProp.
-      prop (ishinh (total2 (fun a:C => isInitial a))).
+    Definition InitialObject (C:precategory) := total2 (fun a:C => isInitialObject a).
+
+    Definition TerminalObject (C:precategory) := total2 (fun a:C => isTerminalObject a).
+
+    Definition hasInitialObject (C:precategory) : hProp.
+      prop (ishinh (InitialObject C)).
     Defined.
 
-    Definition hasTerminal (C:precategory) : hProp.
-      prop (ishinh (total2 (fun a:C => isTerminal a))).
+    Definition hasTerminalObject (C:precategory) : hProp.
+      prop (ishinh (TerminalObject C)).
     Defined.
 
     Definition isBinaryProduct {C:precategory} {a b p : C} (f : p --> a) (g : p --> b) : hProp.
@@ -44,24 +48,24 @@ Module Products.
             iscontr ( total2 ( fun h => dirprod (f ;; h = f') (g ;; h = g')))).
     Defined.
 
+    Definition BinaryProduct {C:precategory} (a b : C) := 
+      total2 (fun p => 
+      total2 (fun f : p --> a => 
+      total2 (fun g : p --> b => 
+            isBinaryProduct f g))).
+
+    Definition BinaryCoproduct {C:precategory} (a b : C) := 
+      total2 (fun p => 
+      total2 (fun f : p <-- a => 
+      total2 (fun g : p <-- b => 
+            isBinaryCoproduct f g))).
+
     Definition hasBinaryProducts (C:precategory) : hProp.
-      prop (
-        forall a b : C, 
-          ishinh (
-              total2 (fun p => 
-              total2 (fun f : p --> a => 
-              total2 (fun g : p --> b => 
-                        isBinaryProduct f g))))).
+      prop (forall a b : C, ishinh (BinaryProduct a b)).
     Defined.
 
     Definition hasBinaryCoproducts (C:precategory) : hProp.
-      prop (
-        forall a b : C, 
-          ishinh (
-              total2 (fun p => 
-              total2 (fun f : p <-- a => 
-              total2 (fun g : p <-- b => 
-                        isBinaryCoproduct f g))))).
+      prop (forall a b : C, ishinh (BinaryCoproduct a b)).
     Defined.
 
   End Finite.
