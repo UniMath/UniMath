@@ -7,26 +7,6 @@ Require Import RezkCompletion.pathnotations.
 Import RezkCompletion.pathnotations.PathNotations.
 
 
-(** Transport with the inverse *)
-
-Lemma transport_to_the_left (A : UU) (B : A -> UU) (a a' : A)
-   (p : a == a') (x : B a) (x' : B a') :
-  transportf _ (!p) x' == x -> x' == transportf _ p x.
-Proof.
-  induction p.
-  apply (fun a => a).
-Qed.
-
-Lemma transport_to_the_right (A : UU) (B : A -> UU) (a a' : A)
-   (p : a == a') (x : B a) (x' : B a') :
-  x == transportf _ (!p) x' -> transportf _ p x == x' .
-Proof.
-  induction p.
-  apply (fun a => a).
-Qed.
-
-
-
 (** * Paths in total spaces are equivalent to pairs of paths *)
 
 (** some of the lemmas are proved for similar fibrations twice:
