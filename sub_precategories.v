@@ -524,7 +524,7 @@ Proof.
   destruct fp as [g gx]. simpl in *.
   exists g.
 (*  destruct f as [f pp]. *)
-  destruct gx; simpl in *.
+  destruct gx as [t tp]; simpl in *.
   split; simpl.
   apply (base_paths _ _ t).
   apply (base_paths _ _ tp).
