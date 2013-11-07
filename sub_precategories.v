@@ -667,14 +667,13 @@ Lemma functor_full_img_essentially_surjective (A B : precategory)
 Proof.
   unfold essentially_surjective.
   unfold functor_full_img.
-  simpl.
-  intros [d p].
-  apply p.
+  intro b.
+  apply (pr2 b).
   intros [c h].  
   intros q Hq.
   apply Hq.
   exists c.
-  set (bla := iso_in_sub_from_iso _ _ (full_img_functor_obj F c) {| pr1 := d; pr2 := p |} h).
+  set (bla := iso_in_sub_from_iso _ _ (full_img_functor_obj F c) b h). 
   exact bla.
 Qed.
     
