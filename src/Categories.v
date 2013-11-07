@@ -10,15 +10,23 @@ Ltac prop_logic :=
 
 Module Products.
   Module Finite.
-    Definition isInitial {C:precategory} (a: ob C) : Type := forall (x:ob C), iscontr (a --> x).
 
-    Lemma isaprop_isInitial {C:precategory} (a:ob C) : isaprop (isInitial a).
+    Definition isInitial {C:precategory} (a:C) : hProp.
+    Proof.
+      apply (hProppair (
+        forall (x:C), iscontr (a --> x))).
+      prop_logic.
+    Defined.
 
-    Proof. prop_logic. Defined.
+    Definition hasInitial (C:precategory) : hProp.
+    Proof.
+      apply (hProppair (
+        ishinh_UU (
+          total2 (fun a:C => isInitial a)))).
+      prop_logic.
+    Defined.
 
-    Definition hasInitial (C:precategory) := total2 (@isInitial C).
-
-    Definition isBinaryProduct {C:precategory} {a b p : ob C} (f : p --> a) (g : p --> b) : hProp.
+    Definition isBinaryProduct {C:precategory} {a b p : C} (f : p --> a) (g : p --> b) : hProp.
     Proof.
       apply (hProppair (
         forall p' (f' : p' --> a) (g' : p' --> b),
@@ -29,9 +37,9 @@ Module Products.
     Definition hasBinaryProducts (C:precategory) : hProp.
     Proof.
       apply (hProppair (
-        forall a b, 
+        forall a b : C, 
           ishinh_UU (
-              total2 (fun p : ob C => 
+              total2 (fun p => 
               total2 (fun f : p --> a => 
               total2 (fun g : p --> b => 
                         isBinaryProduct f g)))))).
