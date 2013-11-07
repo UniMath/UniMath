@@ -13,12 +13,16 @@ Ltac prop_logic :=
 
 Ltac prop p := apply (hProppair p); prop_logic.
 
+Global Opaque isapropiscontr isapropishinh.
+
 Module Products.
   Module Finite.
 
-    Definition isInitialObject {C:precategory} (a:C) : hProp.
-      prop (forall (x:C), iscontr (a --> x)).
-    Defined.
+    Lemma isaprop_isInitialObject {C:precategory} (a:C) : isaprop(forall (x:C), iscontr (a --> x)).
+      prop_logic.
+    Qed.
+
+    Definition isInitialObject {C:precategory} (a:C) := hProppair _ (isaprop_isInitialObject a) : hProp.
 
     Definition isTerminalObject {C:precategory} (a:C) : hProp.
       prop (forall (x:C), iscontr (a <-- x)).
