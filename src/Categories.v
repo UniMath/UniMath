@@ -12,17 +12,20 @@ Require Import RezkCompletion.precategories.
 Import RezkCompletion.pathnotations.PathNotations.
 Import Foundations.hlevel2.hSet.
 
-Local Notation "a --> b" := (precategory_morphisms a b) (at level 50).
 Local Notation "b <-- a" := (precategory_morphisms a b) (at level 50).
-Local Notation "g 'o' f" := (precategories.compose f g) (at level 50).
+Local Notation "a --> b" := (precategory_morphisms a b) (at level 50).
 Local Notation "f 'oo'  g" := (precategories.compose f g) (at level 50).
+Local Notation "g 'o' f" := (precategories.compose f g) (at level 50).
 
-(* compare to Foundations.uu0.pathscomp0 *)
 Definition pathscomp0' {T:UU} {a b c:T} : a == b -> b == c -> a == c.
-Proof. intros e1 e2. destruct e2. assumption. Defined.
+Proof. intros e1 e2. 
+  destruct e2. (* compare to Foundations.uu0.pathscomp0, which destructs e1, instead *)
+  assumption. 
+Defined.
 
-Ltac path_via x := apply (@pathscomp0 _ _ x).
-Ltac path_via' x := apply (@pathscomp0' _ _ x).
+Ltac path_via  x   := apply (@pathscomp0  _  _ x).
+Ltac path_via' x   := apply (@pathscomp0' _  _ x).
+Ltac path_via2 x y := apply (@pathscomp0  _  _ x _  _ (@pathscomp0 _  _ y _  _ _)).
 Ltac path_from f := apply (@maponpaths _ _ f).
 
 Ltac prop_logic := 
@@ -37,6 +40,8 @@ Definition mere (X:UU) := forall P:UU, isaprop P -> (X -> P) -> P.
 
 Lemma isaprop_mere (X:UU) : isaprop(mere X).
 Proof. prop_logic. Qed.
+
+Definition isiso {C:precategory} {a b:C} (f : a --> b) := total2 (is_inverse_in_precat f).
 
 (** ** products *)
 
@@ -75,6 +80,24 @@ Module Products.
 
   Lemma isaprop_isBinaryProduct {C:precategory} {a b p : C} (f : p --> a) (g : p --> b) : isaprop(isBinaryProduct f g).
   Proof. prop_logic. Qed.
+
+  Lemma binaryProductIsomorphy {C:precategory} {a b : C}
+     (p :C) (f : p --> a) (g : p --> b) (ip : isBinaryProduct f  g )
+     (p':C) (f': p'--> a) (g': p'--> b) (ip': isBinaryProduct f' g') :
+     total2 (fun h : p --> p' => dirprod (dirprod (f' o h == f) (g' o h == g)) (isiso h)).
+  Proof.
+    set (k := ip' _ f g).
+    set (k':= ip _ f' g').
+    exists (pr1 (pr1 k)).
+    split.
+    split.
+    exact (pr1 (pr2 (pr1 k))).
+    exact (pr2 (pr2 (pr1 k))).
+    exists (pr1 (pr1 k')).
+    split.
+    path_via (pr1 (pr1 (ip _ f g))).
+    admit. admit. admit.
+  Defined.
 
   Definition isBinaryProductProp {C:precategory} {a b p : C} (f : p --> a) (g : p --> b) :=
     hProppair (isBinaryProduct f g) (isaprop_isBinaryProduct _ _).
@@ -150,6 +173,29 @@ End Coproducts.
 Module DirectSums.
 
   Import Coproducts Products.
+
+  Record ZeroObject (C:precategory) := makeZeroObject { 
+      zero_object : C ; 
+      init : isInitialObject zero_object ; 
+      term : isTerminalObject zero_object }.
+  Implicit Arguments zero_object [C].
+  Implicit Arguments init [C].
+  Implicit Arguments term [C].
+
+  Lemma zeroObjectIsomorphy {C:precategory} (a b:ZeroObject C) : iso (zero_object a) (zero_object b).
+  Proof.
+    exact (initialObjectIsomorphy (zero_object a) (zero_object b) (init a) (init b)).
+  Defined.
+
+  Definition zeroMap {C:precategory} (zero:ZeroObject C) (a b:C) := pr1 (init zero b) o pr1 (term zero a) : a --> b.
+
+  Lemma zeroMapUniqueness {C:precategory} (x y:ZeroObject C) : forall a b:C, zeroMap x a b == zeroMap y a b.
+  Proof.
+    intros. unfold zeroMap. set (x0 := zero_object x). set (y0 := zero_object y). assert (h : x0 --> y0). exact (pr1 (init x y0)).
+    set (p := pr1 (init x b)). set (i := pr1 (term x a)). set (q := pr1 (init y b)). set (j := pr1 (term y a)).
+    path_via (q o (h o i)). path_via ((q o h) o i). path_from (fun r : x0 --> b => r o i). apply pathsinv0.
+    apply (pr2 (init _ _)). apply (assoc C). path_from (fun s : a --> y0 => q o s). apply (pr2 (term _ _)).
+  Defined.
 
   Definition isBinarySum {C:precategory} {a b s : C} (p : s --> a) (q : s --> b) (i : a --> s) (j : b --> s) :=
     dirprod (isBinaryProduct p q) (isBinaryCoproduct i j).
