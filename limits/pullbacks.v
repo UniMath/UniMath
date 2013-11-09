@@ -52,7 +52,27 @@ Proof.
   apply (pr1 (pr2 (pr2 (pr2 Pb)))).
 Qed.
 
-Definition helper {a b c : C}{f : b --> a} {g : c --> a} (Pb : Pullback f g) : 
+Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a} 
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) : e --> Pb :=
+   pr1 (pr1 (pr2 (pr2 (pr2 (pr2 Pb))) e h k H)).
+
+Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a} 
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) :
+   PullbackArrow Pb e h k H ;; PullbackPr1 Pb == k.
+Proof.
+  apply (pr1 (pr2 (pr1 (pr2 (pr2 (pr2 (pr2 Pb))) e h k H)))).
+Qed.
+
+Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a} 
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) :
+   PullbackArrow Pb e h k H ;; PullbackPr2 Pb == h.
+Proof.
+  apply (pr2 (pr2 (pr1 (pr2 (pr2 (pr2 (pr2 Pb))) e h k H)))).
+Qed.
+
+
+
+Definition identity_is_Pullback_input {a b c : C}{f : b --> a} {g : c --> a} (Pb : Pullback f g) : 
  total2 (fun hk : Pb --> Pb => 
    dirprod (hk ;; PullbackPr1 Pb == PullbackPr1 Pb)(hk ;; PullbackPr2 Pb == PullbackPr2 Pb)).
 Proof.
@@ -68,7 +88,7 @@ Lemma PullbackEndo_is_identity {a b c : C}{f : b --> a} {g : c --> a}
        identity Pb == k.
 Proof.
   set (H1 := tpair ((fun hk : Pb --> Pb => dirprod (hk ;; _ == _)(hk ;; _ == _))) k (dirprodpair kH1 kH2)).
-  assert (H2 : helper Pb == H1).
+  assert (H2 : identity_is_Pullback_input Pb == H1).
   apply proofirrelevance.
   apply isapropifcontr.
   apply (pr2 (pr2 (pr2 (pr2 Pb)))).
@@ -80,99 +100,41 @@ Proof.
   apply (base_paths _ _ H2).
 Qed.
 
-Definition isInitial (a : C) := forall b : C, iscontr (a --> b).
 
-Definition Initial := total2 (fun a => isInitial a).
-
-Definition InitialObject (O : Initial) : C := pr1 O.
-Coercion InitialObject : Initial >-> ob.
-
-Definition InitialArrow (O : Initial) (b : C) : O --> b :=  pr1 (pr2 O b).
-
-Lemma InitialEndo_is_identity (O : Initial) (f : O --> O) : identity O == f.
+Definition from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
+   (Pb Pb': Pullback f g) : Pb --> Pb'.
 Proof.
-  apply proofirrelevance.
-  apply isapropifcontr.
-  apply (pr2 O O).
-Qed.
+  apply (PullbackArrow Pb' Pb (PullbackPr2 _ ) (PullbackPr1 _)).
+  apply PullbackSqrCommutes.
+Defined.
 
-Lemma isiso_from_Initial_to_Initial (O O' : Initial) : 
-   is_isomorphism (InitialArrow O O').
+Lemma isiso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
+   (Pb Pb': Pullback f g) : 
+      is_isomorphism (from_Pullback_to_Pullback Pb Pb').
 Proof.
-  exists (InitialArrow O' O).
+  exists (from_Pullback_to_Pullback Pb' Pb).
   split; apply pathsinv0;
-   apply InitialEndo_is_identity.
+  apply PullbackEndo_is_identity;
+  rewrite <- assoc;
+  unfold from_Pullback_to_Pullback;
+  repeat rewrite PullbackArrow_PullbackPr1;
+  repeat rewrite PullbackArrow_PullbackPr2;
+  auto.
 Qed.
 
-Definition hasInitial := ishinh Initial.
 
 
 
-(*
-Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
-     total2 (fun dfg : total2 (fun d : C => dirprod (d --> c) (d --> b)) =>
-     total2 (fun H : pr1 (pr2 dfg) ;; g == pr2 (pr2 dfg) ;; f =>       
-           isPullback f g (pr1(pr2 dfg)) (pr2 (pr2 dfg)) H )).
-*)
+
 
 
 Section Universal_Unique.
 
 Hypothesis H : is_category C.
 
-(*
 
-Lemma isaset_Initial : isaset Initial.
-Proof.
-  apply isofhlevelonestep.
-  intros x y.
-  fold isaprop.
-  simpl.
-
-*)
-
-Lemma isaprop_Initial : isaprop Initial.
-Proof.
-  apply invproofirrelevance.
-  intros a a'.
-  apply total2_paths.
-
-End Initial_Unique.
+End Universal_Unique.
 
 
-
-
-(*
-Definition pb_corner {a b c : C} {f : b --> a} {g : c --> a}: 
-   pullback f g -> C := fun H => pr1 (pr1 H).
-*)
-
-(*
-Definition pb_pr1 {a b c : ob C} {f : b --> a} {g : c --> a}
-   (P : pullback f g) : pb_corner P --> b := pr2 (pr2 (pr1 P)).
-
-Definition pb_pr2 {a b c : ob C} {f : b --> a} {g : c --> a}
-   (P : pullback f g) : pb_corner P --> c := pr1 (pr2 (pr1 P)).
-
-Definition pb_square_comm {a b c : ob C}{f : b --> a} {g : c --> a}
-   (P : pullback f g) : pb_pr1 P ;; f == pb_pr2 P ;; g.
-Proof.
-  apply pathsinv0.
-  apply (pr1 (pr2 P)).
-Qed.
-
-(* TODO: opacify it by defining it by tactics *)
-Definition arrow_to_pb_corner {a b c : ob C} (f : b --> a) (g : c --> a) 
-  (P : pullback f g) e (h : e --> b) (k : e --> c) (H : h ;; f == k ;; g) :
-        e --> pb_corner P := 
-     pr1 (pr1 (pr2 (pr2 P) e h k H)).
-
-Definition from_pb_to_pb {a b c : ob C}(f : b --> a) (g : c --> a)
-  (P P' : pullback f g) : pb_corner P --> pb_corner P' :=
-  arrow_to_pb_corner f g P' (pb_corner P) 
-  (pb_pr1 P) (pb_pr2 P).
-  (pr1 (pr2 P _ _ _ _ )).
-   
-*)
 
 End def_pb.
