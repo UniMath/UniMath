@@ -36,10 +36,48 @@ Ltac prop_logic :=
 
 Global Opaque isapropiscontr isapropishinh.
 
-Definition mere (X:UU) := forall P:UU, isaprop P -> (X -> P) -> P.
+Definition has (X:UU) := forall P:UU, isaprop P -> (X -> P) -> P. (* compare with ishinh_UU *)
 
-Lemma isaprop_mere (X:UU) : isaprop(mere X).
+Lemma isaprop_has (X:UU) : isaprop(has X).
 Proof. prop_logic. Qed.
+
+Definition has2 (X:UU) := setquot (fun _ _ : X => htrue).
+Lemma isaprop_has2 (X:UU) : isaprop(has2 X).
+Proof.
+  intros [p i] [q j].
+  unfold hsubtypes in *.
+  assert(u : p == q).
+  apply funextfunax.  
+  unfold iseqclass in *.
+  admit.
+  admit.
+Defined.
+
+Lemma has_to_prop (X P:UU) : isaprop P -> (X -> P) -> (has X -> P).
+Proof.
+  intros i f h.  apply h.  assumption.  assumption.
+Defined.
+
+Lemma has_to_set (X S:UU) : isaset S -> forall f : X -> S, (forall x x' : X, f x == f x') -> (has X -> S).
+  intros i f e h.
+  assert (q : X -> has X -> S).
+  intro x.
+  set (P := total2 (fun s => f x == s)).
+  assert (c : iscontr P).
+  unfold iscontr.
+  admit.
+  assert (d : isaprop P).
+  apply isapropifcontr.
+  assumption.
+  assert (t : has X -> P).
+  apply has_to_prop.
+  assumption.
+  intro x'.
+  exact (tpair _ (f x') (e x x')).
+  intro h'.
+  exact (pr1 (t h')).
+  admit.
+Defined.
 
 Definition isiso {C:precategory} {a b:C} (f : a --> b) := total2 (is_inverse_in_precat f).
 
@@ -67,10 +105,10 @@ Module Products.
 
   Definition InitialObject (C:precategory) := total2 (fun a:C => isInitialObject a).
 
-  Definition hasInitialObject (C:precategory) := mere (InitialObject C).
+  Definition hasInitialObject (C:precategory) := has (InitialObject C).
 
   Definition hasInitialObjectProp (C:precategory) := 
-    hProppair (hasInitialObject C) (isaprop_mere _).
+    hProppair (hasInitialObject C) (isaprop_has _).
 
   (** *** binary products *)
 
@@ -108,7 +146,7 @@ Module Products.
                         total2 (fun g : p --> b => 
                                   isBinaryProduct f g))).
 
-  Definition hasBinaryProducts (C:precategory) := forall a b : C, mere (BinaryProduct a b).
+  Definition hasBinaryProducts (C:precategory) := forall a b : C, has (BinaryProduct a b).
 
   Lemma isaprop_hasBinaryProducts (C:precategory) : isaprop (hasBinaryProducts C).
   Proof. prop_logic. Qed.
@@ -137,10 +175,10 @@ Module Coproducts.
 
   Definition TerminalObject (C:precategory) := total2 (fun a:C => isTerminalObject a).
 
-  Definition hasTerminalObject (C:precategory) := mere (TerminalObject C).
+  Definition hasTerminalObject (C:precategory) := has (TerminalObject C).
 
   Definition hasTerminalObjectProp (C:precategory) := 
-    hProppair (hasTerminalObject C) (isaprop_mere _).
+    hProppair (hasTerminalObject C) (isaprop_has _).
 
   (** *** binary coproducts *)
 
@@ -160,7 +198,7 @@ Module Coproducts.
     total2 (fun g : p <-- b => 
           isBinaryCoproduct f g))).
 
-  Definition hasBinaryCoproducts (C:precategory) := forall a b : C, mere (BinaryCoproduct a b).
+  Definition hasBinaryCoproducts (C:precategory) := forall a b : C, has (BinaryCoproduct a b).
 
   Lemma isaprop_hasBinaryCoproducts (C:precategory) : isaprop (hasBinaryCoproducts C).
   Proof. prop_logic. Qed.
@@ -182,6 +220,8 @@ Module DirectSums.
   Implicit Arguments init [C].
   Implicit Arguments term [C].
 
+  Definition hasZeroObject (C:precategory) := has (ZeroObject C).
+
   Lemma zeroObjectIsomorphy {C:precategory} (a b:ZeroObject C) : iso (zero_object a) (zero_object b).
   Proof.
     exact (initialObjectIsomorphy (zero_object a) (zero_object b) (init a) (init b)).
@@ -195,8 +235,15 @@ Module DirectSums.
     set (p := pr1 (init x b)). set (i := pr1 (term x a)). set (q := pr1 (init y b)). set (j := pr1 (term y a)).
     path_via (q o (h o i)). path_via ((q o h) o i). path_from (fun r : x0 --> b => r o i). apply pathsinv0.
     apply (pr2 (init _ _)). apply (assoc C). path_from (fun s : a --> y0 => q o s). apply (pr2 (term _ _)).
-  Defined.
+  Qed.
 
+  Definition zeroMap2 {C:precategory} {mere_zero:hasZeroObject C} (a b:C) : a --> b.
+  Proof.
+    unfold hasZeroObject in mere_zero.
+    unfold has in mere_zero.
+    admit.
+  Defined.
+  
   Definition isBinarySum {C:precategory} {a b s : C} (p : s --> a) (q : s --> b) (i : a --> s) (j : b --> s) :=
     dirprod (isBinaryProduct p q) (isBinaryCoproduct i j).
   
@@ -212,6 +259,6 @@ Module DirectSums.
       }.
 
   Definition hasBinarySums (C:precategory) :=
-    forall a b : C, mere (BinarySum a b).
+    forall a b : C, has (BinarySum a b).
 
 End DirectSums.
