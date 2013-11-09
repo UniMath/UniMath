@@ -16,6 +16,7 @@ Local Notation "b <-- a" := (precategory_morphisms a b) (at level 50).
 Local Notation "a --> b" := (precategory_morphisms a b) (at level 50).
 Local Notation "f 'oo'  g" := (precategories.compose f g) (at level 50).
 Local Notation "g 'o' f" := (precategories.compose f g) (at level 50).
+Local Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 51).
 
 Definition pathscomp0' {T:UU} {a b c:T} : a == b -> b == c -> a == c.
 Proof. intros e1 e2. 
@@ -36,48 +37,114 @@ Ltac prop_logic :=
 
 Global Opaque isapropiscontr isapropishinh.
 
-Definition has (X:UU) := forall P:UU, isaprop P -> (X -> P) -> P. (* compare with ishinh_UU *)
+Definition squash (X:UU) := forall P:UU, isaprop P -> (X -> P) -> P. (* compare with ishinh_UU *)
 
-Lemma isaprop_has (X:UU) : isaprop(has X).
-Proof. prop_logic. Qed.
+Definition squash_dep (X:UU) := forall P:X -> UU, (forall x:X, isaprop (P x)) -> (forall x:X, P x) -> squash (total2 P).
 
-Definition has2 (X:UU) := setquot (fun _ _ : X => htrue).
-Lemma isaprop_has2 (X:UU) : isaprop(has2 X).
+Definition squash_element (X:UU) : X -> squash X.
 Proof.
-  intros [p i] [q j].
-  unfold hsubtypes in *.
-  assert(u : p == q).
-  apply funextfunax.  
-  unfold iseqclass in *.
-  admit.
-  admit.
+  intros x P i f.
+  apply f.
+  assumption.
 Defined.
 
-Lemma has_to_prop (X P:UU) : isaprop P -> (X -> P) -> (has X -> P).
+Definition squash_dep_element (X:UU) : X -> squash_dep X.
+Proof.
+  intros x P h s.
+  apply squash_element.
+  exists x.
+  apply s.
+Defined.
+
+Lemma isaprop_squash (X:UU) : isaprop (squash X).
+Proof. prop_logic. Qed.
+
+Lemma isaprop_squash_dep (X:UU) : isaprop (squash_dep X).
+Proof. 
+  apply (impred 1).
+  intro P.
+  apply impred.
+  intro is.
+  apply impred.  
+  intro s.  
+  apply isaprop_squash.
+Defined.
+
+Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
 Proof.
   intros i f h.  apply h.  assumption.  assumption.
 Defined.
 
-Lemma has_to_set (X S:UU) : isaset S -> forall f : X -> S, (forall x x' : X, f x == f x') -> (has X -> S).
-  intros i f e h.
-  assert (q : X -> has X -> S).
-  intro x.
-  set (P := total2 (fun s => f x == s)).
-  assert (c : iscontr P).
-  unfold iscontr.
-  admit.
-  assert (d : isaprop P).
-  apply isapropifcontr.
+Lemma lift_through_squash_dep {X:UU} {Q : squash_dep X -> UU} : 
+  (forall y : squash_dep X, isaprop (Q y)) 
+  -> (forall x:X, Q (squash_dep_element X x))
+  -> (forall y : squash_dep X, Q y).
+Proof.
+  intros is q y.
+  set (P := funcomp (squash_dep_element X) Q).
+  apply (y P).
+    intro x.
+    apply is.
+  apply q.
+  apply is.
+  intros [x p].
+  set (y' := squash_dep_element _ x).
+  assert(e : y' == y).
+  apply isaprop_squash_dep.
+  assert(t : Q y').
+  exact p.
+  apply (transportf _ e).  
   assumption.
-  assert (t : has X -> P).
-  apply has_to_prop.
-  assumption.
-  intro x'.
-  exact (tpair _ (f x') (e x x')).
-  intro h'.
-  exact (pr1 (t h')).
+Defined.
+
+Lemma squash_map_uniqueness {X P:UU} (is : isaprop P) (g g' : squash X -> P) : 
+  funcomp (squash_element X) g == funcomp (squash_element X) g' 
+  -> g == g'.
+Proof.
+  intro e.
+  apply funextfunax.
+  intro y.
   admit.
 Defined.
+
+Lemma isweq_factor_through_squash (X P:UU) (i : isaprop P) : isweq (@factor_through_squash X P i).
+Proof.
+  set ( comp := (fun k : squash X -> P => funcomp (squash_element X) k) ).
+  apply (gradth _ comp).
+  intro f.
+  apply funextfunax.
+  intro x.
+  apply idpath.
+  intro g.
+  apply funextfunax.
+  intro h.
+  admit.
+Defined.
+
+Definition squash_factoring {X Y:UU} (f : X -> Y) := total2 (fun g : squash X -> Y => f ~ funcomp (squash_element X) g).
+
+Definition isaprop_squash_factoring {X Y:UU} (f : X -> Y) : isaprop (squash_factoring f).
+Proof.
+  unfold isaprop.  
+  unfold isofhlevel.
+  intros [g h] [g' h'].
+  assert( t : g == g' ).
+  admit.
+  admit.
+Qed.
+
+Lemma squash_to_type (X Y:UU) : forall f : X -> Y, (forall x x' : X, f x == f x') -> squash_factoring f.
+  intros f e.
+  set ( h := factor_through_squash (isaprop_squash_factoring f) 
+                         (fun x => tpair (fun g : squash X -> Y => f ~ funcomp (squash_element X) g) 
+                                         (fun _ => f x) (fun x' => e x' x))
+           : squash X -> squash_factoring f ).
+  exists (fun r => (pr1 (h r)) r).
+  intro x.
+  unfold h.
+  admit.
+Defined.
+
 
 Definition isiso {C:precategory} {a b:C} (f : a --> b) := total2 (is_inverse_in_precat f).
 
@@ -105,10 +172,10 @@ Module Products.
 
   Definition InitialObject (C:precategory) := total2 (fun a:C => isInitialObject a).
 
-  Definition hasInitialObject (C:precategory) := has (InitialObject C).
+  Definition squashInitialObject (C:precategory) := squash (InitialObject C).
 
-  Definition hasInitialObjectProp (C:precategory) := 
-    hProppair (hasInitialObject C) (isaprop_has _).
+  Definition squashInitialObjectProp (C:precategory) := 
+    hProppair (squashInitialObject C) (isaprop_squash _).
 
   (** *** binary products *)
 
@@ -146,13 +213,13 @@ Module Products.
                         total2 (fun g : p --> b => 
                                   isBinaryProduct f g))).
 
-  Definition hasBinaryProducts (C:precategory) := forall a b : C, has (BinaryProduct a b).
+  Definition squashBinaryProducts (C:precategory) := forall a b : C, squash (BinaryProduct a b).
 
-  Lemma isaprop_hasBinaryProducts (C:precategory) : isaprop (hasBinaryProducts C).
+  Lemma isaprop_squashBinaryProducts (C:precategory) : isaprop (squashBinaryProducts C).
   Proof. prop_logic. Qed.
 
-  Definition hasBinaryProductsProp (C:precategory) := 
-    hProppair (hasBinaryProducts C) (isaprop_hasBinaryProducts _).
+  Definition squashBinaryProductsProp (C:precategory) := 
+    hProppair (squashBinaryProducts C) (isaprop_squashBinaryProducts _).
 
 End Products.
 
@@ -175,10 +242,10 @@ Module Coproducts.
 
   Definition TerminalObject (C:precategory) := total2 (fun a:C => isTerminalObject a).
 
-  Definition hasTerminalObject (C:precategory) := has (TerminalObject C).
+  Definition squashTerminalObject (C:precategory) := squash (TerminalObject C).
 
-  Definition hasTerminalObjectProp (C:precategory) := 
-    hProppair (hasTerminalObject C) (isaprop_has _).
+  Definition squashTerminalObjectProp (C:precategory) := 
+    hProppair (squashTerminalObject C) (isaprop_squash _).
 
   (** *** binary coproducts *)
 
@@ -198,13 +265,13 @@ Module Coproducts.
     total2 (fun g : p <-- b => 
           isBinaryCoproduct f g))).
 
-  Definition hasBinaryCoproducts (C:precategory) := forall a b : C, has (BinaryCoproduct a b).
+  Definition squashBinaryCoproducts (C:precategory) := forall a b : C, squash (BinaryCoproduct a b).
 
-  Lemma isaprop_hasBinaryCoproducts (C:precategory) : isaprop (hasBinaryCoproducts C).
+  Lemma isaprop_squashBinaryCoproducts (C:precategory) : isaprop (squashBinaryCoproducts C).
   Proof. prop_logic. Qed.
 
-  Definition hasBinaryCoproductsProp (C:precategory) := 
-    hProppair (hasBinaryCoproducts C) (isaprop_hasBinaryCoproducts _).
+  Definition squashBinaryCoproductsProp (C:precategory) := 
+    hProppair (squashBinaryCoproducts C) (isaprop_squashBinaryCoproducts _).
 
 End Coproducts.
 
@@ -220,7 +287,7 @@ Module DirectSums.
   Implicit Arguments init [C].
   Implicit Arguments term [C].
 
-  Definition hasZeroObject (C:precategory) := has (ZeroObject C).
+  Definition squashZeroObject (C:precategory) := squash (ZeroObject C).
 
   Lemma zeroObjectIsomorphy {C:precategory} (a b:ZeroObject C) : iso (zero_object a) (zero_object b).
   Proof.
@@ -237,10 +304,10 @@ Module DirectSums.
     apply (pr2 (init _ _)). apply (assoc C). path_from (fun s : a --> y0 => q o s). apply (pr2 (term _ _)).
   Qed.
 
-  Definition zeroMap2 {C:precategory} {mere_zero:hasZeroObject C} (a b:C) : a --> b.
+  Definition zeroMap2 {C:precategory} {mere_zero:squashZeroObject C} (a b:C) : a --> b.
   Proof.
-    unfold hasZeroObject in mere_zero.
-    unfold has in mere_zero.
+    unfold squashZeroObject in mere_zero.
+    unfold squash in mere_zero.
     admit.
   Defined.
   
@@ -258,7 +325,7 @@ Module DirectSums.
       is : isBinarySum p q i j
       }.
 
-  Definition hasBinarySums (C:precategory) :=
-    forall a b : C, has (BinarySum a b).
+  Definition squashBinarySums (C:precategory) :=
+    forall a b : C, squash (BinarySum a b).
 
 End DirectSums.
