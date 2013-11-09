@@ -62,7 +62,7 @@ Proof. prop_logic. Qed.
 Lemma isaprop_squash_dep (X:UU) : isaprop (squash_dep X).
 Proof. 
   apply (impred 1).
-  intro P.
+  intro S.
   apply impred.
   intro is.
   apply impred.  
@@ -81,8 +81,8 @@ Lemma lift_through_squash_dep {X:UU} {Q : squash_dep X -> UU} :
   -> (forall y : squash_dep X, Q y).
 Proof.
   intros is q y.
-  set (P := funcomp (squash_dep_element X) Q).
-  apply (y P).
+  set (S := funcomp (squash_dep_element X) Q).
+  apply (y S).
     intro x.
     apply is.
   apply q.
@@ -121,14 +121,23 @@ Proof.
   apply (isaprop_squash_dep X).
 Defined.
 
-Lemma squash_map_uniqueness {X P:UU} (is : isaprop P) (g g' : squash X -> P) : 
-  funcomp (squash_element X) g == funcomp (squash_element X) g' 
+Lemma squash_dep_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash_dep X -> S) : 
+  funcomp (squash_dep_element X) g ~ funcomp (squash_dep_element X) g' 
+  -> g ~ g'.
+Proof.
+  intros h.
+  set ( Q := fun y => g y == g' y ).
+  assert ( iq : forall y, isaprop (Q y) ).
+    intros y. apply ip.
+  intros y.
+  apply (lift_through_squash_dep iq h).
+Defined.
+
+Lemma squash_dep_map_epi {X S:UU} (ip : isaset S) (g g' : squash_dep X -> S) : 
+  funcomp (squash_dep_element X) g == funcomp (squash_dep_element X) g' 
   -> g == g'.
 Proof.
-  intro e.
-  apply funextfunax.
-  intro y.
-  admit.
+  exact (fun e => funextfunax _ _ _ _ (squash_dep_map_uniqueness ip _ _ (fun x => maponpaths (fun q : X -> S => q x) e))).
 Defined.
 
 Lemma isweq_factor_through_squash (X P:UU) (i : isaprop P) : isweq (@factor_through_squash X P i).
