@@ -97,6 +97,30 @@ Proof.
   assumption.
 Defined.
 
+Lemma factor_through_squash_dep {X Q:UU} : isaprop Q -> (X -> Q) -> (squash_dep X -> Q).
+Proof.
+  intros is q y.
+  unfold squash_dep in y.
+  apply (y (fun _ => Q)).
+  intros x.
+  assumption.
+  assumption.
+  assumption.
+  intros [_ q'].
+  assumption.
+Defined.
+
+Lemma squashes_agree {X:UU} : weq (squash X) (squash_dep X).
+Proof.
+  unfold weq.
+  exists (factor_through_squash (isaprop_squash_dep X) (squash_dep_element X)).
+  apply (gradth _ (factor_through_squash_dep (isaprop_squash X) (squash_element X))).
+  intro x.
+  apply (isaprop_squash X).
+  intro y.
+  apply (isaprop_squash_dep X).
+Defined.
+
 Lemma squash_map_uniqueness {X P:UU} (is : isaprop P) (g g' : squash X -> P) : 
   funcomp (squash_element X) g == funcomp (squash_element X) g' 
   -> g == g'.
