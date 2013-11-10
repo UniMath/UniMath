@@ -2,6 +2,7 @@
 
 -o Make-include.mk
 -R . Ktheory
+Utilities.v
 Categories.v
 
 # Local Variables:
