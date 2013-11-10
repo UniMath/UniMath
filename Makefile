@@ -10,13 +10,16 @@
 #   To do all of the above:
 #     make everything
 
+#   To make the file src/TAGS :
+#     make TAGS
+
 #   To remove most of the files made:
 #     make clean
 
 #   To remove all of the files made:
 #     make distclean
 
-all clean install html: src/Make-include.mk
+all clean install html TAGS: src/Make-include.mk
 	$(MAKE) -C src $@
 everything: all html install
 distclean: clean
