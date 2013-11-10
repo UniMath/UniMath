@@ -33,6 +33,9 @@ Proof. trivial. Defined.
 Lemma isaprop_hlevel1 {X:UU} : isofhlevel 1 X -> isaprop X.
 Proof. trivial. Defined.
 
+Lemma isaprop_hProp (X:hProp) : isaprop X.
+Proof. exact (pr2 X). Defined.
+
 Lemma hlevel2_isaset {X:UU} : isaset X -> isofhlevel 2 X.
 Proof. trivial. Defined.
 
@@ -47,13 +50,16 @@ Proof. exact (pr2 X). Defined.
 Definition squash (X:UU) := forall P:UU, isaprop P -> (X -> P) -> P. (* compare with ishinh_UU *)
 
 Definition squash_element (X:UU) : X -> squash X.
-Proof. intros x P. auto. Defined.
+Proof. intros x P iP f. exact (f x). Defined.
 
 Lemma isaprop_squash (X:UU) : isaprop (squash X).
 Proof. prop_logic. Qed.
 
 Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
 Proof. intros i f h.  apply h.  assumption.  assumption. Defined.
+
+Lemma factor_through_squash_hProp {X:UU} : forall Q:hProp, (X -> Q) -> (squash X -> Q).
+Proof. intros [Q i] f h. apply h. assumption. assumption. Defined.
 
 Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
 Proof. intro is. apply isaset_hlevel2. apply impredfun. assumption. Defined.    
@@ -166,6 +172,9 @@ Proof.
   intro y.
   apply (isaprop_squash_dep X).
 Defined.
+
+(* now that we know the two squashes agree, we should figure out how to eliminate
+   squash_dep in favor of squash *)
 
 Lemma squash_dep_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash_dep X -> S) : 
   funcomp (squash_dep_element X) g ~ funcomp (squash_dep_element X) g' 

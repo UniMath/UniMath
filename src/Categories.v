@@ -188,7 +188,7 @@ Module DirectSums.
 
   Lemma zeroMap {C:precategory} : hasZeroObject C -> forall a b:C, a --> b.
   Proof.
-    apply (squash_to_set _ (forall a b:C, a --> b) (fun w : ZeroObject C => zeroMap' w)).
+    apply (squash_to_set _ (forall a b:C, a --> b) zeroMap').
       apply isaset_hlevel2.
       apply impred.
       intro a. apply impred.
@@ -196,6 +196,24 @@ Module DirectSums.
     exact zeroMapsUniqueness.
   Defined.
   
+  Lemma zpres {C:precategory} (h:hasZeroObject C) : forall (a b c:C) (f:b-->c), f  o  zeroMap h a b == zeroMap h a c. 
+  Proof.
+    intros.
+    set (eqn := paths (f o zeroMap h a b) (zeroMap h a c) ).
+    assert( i : isaprop eqn). apply isaset_hSet.
+    apply (@factor_through_squash (ZeroObject C)). assumption.
+     intro zero.
+     assert( e : h == squash_element _ zero ). apply isaprop_squash.
+     Focus.
+     (* rewrite e in eqn. *)
+
+
+
+     admit.
+    assumption.
+  Qed.
+
+  (* the following definition is not right yet *)
   Definition isBinarySum {C:precategory} {a b s : C} (p : s --> a) (q : s --> b) (i : a --> s) (j : b --> s) :=
     dirprod (isBinaryProduct p q) (isBinaryCoproduct i j).
   
