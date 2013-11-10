@@ -69,7 +69,8 @@ Proof. intros i p. exists p. intros p'. apply i. Defined.
 
 (** ** show that squashing is a set-quotient *)
 
-Lemma squash_to_set (X Y:UU) : forall f : X -> Y, isaset Y -> (forall x x' : X, f x == f x') -> squash X -> Y.
+Lemma squash_to_set (X Y:UU) : forall f : X -> Y, 
+  isaset Y -> (forall x x' : X, f x == f x') -> squash X -> Y.
 Proof.
   intros f is e.
   set (L := fun y:Y => forall x:X, f x == y).
