@@ -136,5 +136,4 @@ Hypothesis H : is_category C.
 End Universal_Unique.
 
 
-
 End def_pb.

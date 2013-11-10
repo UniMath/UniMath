@@ -1,5 +1,6 @@
 *.glob
 *.v.d
 *.vo
+*.v#
 html
 TAGS
