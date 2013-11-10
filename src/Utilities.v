@@ -27,12 +27,6 @@ Ltac path_via' x   := apply (@pathscomp0' _  _ x).
 Ltac path_via2 x y := apply (@pathscomp0  _  _ x _  _ (@pathscomp0 _  _ y _  _ _)).
 Ltac path_from f := apply (@maponpaths _ _ f).
 
-Lemma hlevel1_isaprop {X:UU} : isaprop X -> isofhlevel 1 X.
-Proof. trivial. Defined.
-
-Lemma isaprop_hlevel1 {X:UU} : isofhlevel 1 X -> isaprop X.
-Proof. trivial. Defined.
-
 Lemma isaprop_hProp (X:hProp) : isaprop X.
 Proof. exact (pr2 X). Defined.
 
@@ -85,7 +79,7 @@ Proof.
    intros t. apply hlevel2_isaset. apply isasetaprop. apply is.
   assert(g : X -> P). intros x. exists (f x). intros x'. apply e.
   assert(m : X -> forall y:Y, isaprop (L y)).
-   intros a z. apply isaprop_hlevel1. apply impred.
+   intros a z. apply impred.
    intros t. apply is.
   assert(h : X -> isaprop P).
    intros a [r i] [s j].
