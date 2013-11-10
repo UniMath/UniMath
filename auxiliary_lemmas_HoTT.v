@@ -94,13 +94,6 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma total_path_reconstruction_UU {B : UU -> hProp} {x y : total2 (fun x => B x)} 
- (p : x == y) : total2_paths_UU  _ (fiber_path_UU p) == p.
-Proof.
-  induction p.
-  destruct x.
-  apply idpath.
-Defined.
 
 Lemma total_path_reconstruction {A : UU} {B : A -> hProp} {x y : total2 (fun x => B x)} 
  (p : x == y) : total2_paths  _ (fiber_path p) == p.
@@ -109,6 +102,15 @@ Proof.
   destruct x.
   apply idpath.
 Defined.
+
+Lemma total_path_reconstruction_UU {B : UU -> hProp} {x y : total2 (fun x => B x)} 
+ (p : x == y) : total2_paths_UU  _ (fiber_path_UU p) == p.
+Proof.
+  induction p.
+  destruct x.
+  apply idpath.
+Defined.
+
 
 Lemma total_path_reconstruction_fibr {A : UU} {B : A -> UU} {x y : total2 (fun x => B x)} 
  (p : x == y) : total2_paths  _ (fiber_path_fibr p) == p.
