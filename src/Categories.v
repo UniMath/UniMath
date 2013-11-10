@@ -254,23 +254,23 @@ Module Products.
   Lemma isaprop_isBinaryProduct {C:precategory} {a b p : C} (f : p --> a) (g : p --> b) : isaprop(isBinaryProduct f g).
   Proof. prop_logic. Qed.
 
-  Lemma binaryProductIsomorphy {C:precategory} {a b : C}
-     (p :C) (f : p --> a) (g : p --> b) (ip : isBinaryProduct f  g )
-     (p':C) (f': p'--> a) (g': p'--> b) (ip': isBinaryProduct f' g') :
-     total2 (fun h : p --> p' => dirprod (dirprod (f' o h == f) (g' o h == g)) (isiso h)).
-  Proof.
-    set (k := ip' _ f g).
-    set (k':= ip _ f' g').
-    exists (pr1 (pr1 k)).
-    split.
-    split.
-    exact (pr1 (pr2 (pr1 k))).
-    exact (pr2 (pr2 (pr1 k))).
-    exists (pr1 (pr1 k')).
-    split.
-    path_via (pr1 (pr1 (ip _ f g))).
-    admit. admit. admit.
-  Defined.
+  (* Lemma binaryProductIsomorphy {C:precategory} {a b : C} *)
+  (*    (p :C) (f : p --> a) (g : p --> b) (ip : isBinaryProduct f  g ) *)
+  (*    (p':C) (f': p'--> a) (g': p'--> b) (ip': isBinaryProduct f' g') : *)
+  (*    total2 (fun h : p --> p' => dirprod (dirprod (f' o h == f) (g' o h == g)) (isiso h)). *)
+  (* Proof. *)
+  (*   set (k := ip' _ f g). *)
+  (*   set (k':= ip _ f' g'). *)
+  (*   exists (pr1 (pr1 k)). *)
+  (*   split. *)
+  (*   split. *)
+  (*   exact (pr1 (pr2 (pr1 k))). *)
+  (*   exact (pr2 (pr2 (pr1 k))). *)
+  (*   exists (pr1 (pr1 k')). *)
+  (*   split. *)
+  (*   path_via (pr1 (pr1 (ip _ f g))). *)
+  (*   admit. admit. admit. *)
+  (* Defined. *)
 
   Definition isBinaryProductProp {C:precategory} {a b p : C} (f : p --> a) (g : p --> b) :=
     hProppair (isBinaryProduct f g) (isaprop_isBinaryProduct _ _).
@@ -372,12 +372,12 @@ Module DirectSums.
     apply (pr2 (init _ _)). apply (assoc C). path_from (fun s : a --> y0 => q o s). apply (pr2 (term _ _)).
   Qed.
 
-  Definition zeroMap2 {C:precategory} {mere_zero:squashZeroObject C} (a b:C) : a --> b.
-  Proof.
-    unfold squashZeroObject in mere_zero.
-    unfold squash in mere_zero.
-    admit.
-  Defined.
+  (* Definition zeroMap2 {C:precategory} {mere_zero:squashZeroObject C} (a b:C) : a --> b. *)
+  (* Proof. *)
+  (*   unfold squashZeroObject in mere_zero. *)
+  (*   unfold squash in mere_zero. *)
+  (*   admit. *)
+  (* Defined. *)
   
   Definition isBinarySum {C:precategory} {a b s : C} (p : s --> a) (q : s --> b) (i : a --> s) (j : b --> s) :=
     dirprod (isBinaryProduct p q) (isBinaryCoproduct i j).
