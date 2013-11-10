@@ -30,9 +30,6 @@ Ltac path_from f := apply (@maponpaths _ _ f).
 Lemma isaprop_hProp (X:hProp) : isaprop X.
 Proof. exact (pr2 X). Defined.
 
-Lemma hlevel2_isaset {X:UU} : isaset X -> isofhlevel 2 X.
-Proof. trivial. Defined.
-
 Lemma isaset_hlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
 Proof. trivial. Defined.
 
@@ -73,10 +70,9 @@ Proof.
   set (L := fun y:Y => forall x:X, f x == y).
   set (P := total2 L).
   assert(ip : isaset P).
-   apply isaset_hlevel2.
-   apply isofhleveltotal2. apply hlevel2_isaset. assumption.
+   apply isaset_hlevel2. apply isofhleveltotal2. assumption.
    intros y. apply impred.
-   intros t. apply hlevel2_isaset. apply isasetaprop. apply is.
+   intros t. apply isasetaprop. apply is.
   assert(g : X -> P). intros x. exists (f x). intros x'. apply e.
   assert(m : X -> forall y:Y, isaprop (L y)).
    intros a z. apply impred.
