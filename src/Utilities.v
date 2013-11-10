@@ -40,7 +40,7 @@ Proof. exact (pr2 X). Defined.
 
 Definition squash (X:UU) := forall P:UU, isaprop P -> (X -> P) -> P. (* compare with ishinh_UU *)
 
-Definition squash_element (X:UU) : X -> squash X.
+Definition squash_element {X:UU} : X -> squash X.
 Proof. intros x P iP f. exact (f x). Defined.
 
 Lemma isaprop_squash (X:UU) : isaprop (squash X).
@@ -156,7 +156,7 @@ Lemma squashes_agree {X:UU} : weq (squash X) (squash_dep X).
 Proof.
   unfold weq.
   exists (factor_through_squash (isaprop_squash_dep X) (squash_dep_element X)).
-  apply (gradth _ (factor_through_squash_dep (isaprop_squash X) (squash_element X))).
+  apply (gradth _ (factor_through_squash_dep (isaprop_squash X) (@squash_element X))).
   intro x.
   apply (isaprop_squash X).
   intro y.

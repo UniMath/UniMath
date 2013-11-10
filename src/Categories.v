@@ -203,7 +203,7 @@ Module DirectSums.
     assert( i : isaprop eqn). apply isaset_hSet.
     apply (@factor_through_squash (ZeroObject C)). assumption.
      intro zero.
-     assert( e : h == squash_element _ zero ). apply isaprop_squash.
+     assert( e : h == squash_element zero ). apply isaprop_squash.
      Focus.
      (* rewrite e in eqn. *)
 
