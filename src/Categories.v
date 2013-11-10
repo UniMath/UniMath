@@ -137,47 +137,70 @@ Lemma squash_dep_map_epi {X S:UU} (ip : isaset S) (g g' : squash_dep X -> S) :
   funcomp (squash_dep_element X) g == funcomp (squash_dep_element X) g' 
   -> g == g'.
 Proof.
-  exact (fun e => funextfunax _ _ _ _ (squash_dep_map_uniqueness ip _ _ (fun x => maponpaths (fun q : X -> S => q x) e))).
+  exact (fun e => funextfunax _ _ _ _ (squash_dep_map_uniqueness ip _ _ (fun x => maponpaths (fun q => q x) e))).
 Defined.
 
-Lemma isweq_factor_through_squash (X P:UU) (i : isaprop P) : isweq (@factor_through_squash X P i).
+Definition squash_dep_factoring {X Y:UU} (f : X -> Y) := total2 (fun g : squash_dep X -> Y => f == funcomp (squash_dep_element X) g).
+
+Lemma hlevel_of_set {X:UU} : isaset X -> isofhlevel 2 X.
 Proof.
-  set ( comp := (fun k : squash X -> P => funcomp (squash_element X) k) ).
-  apply (gradth _ comp).
-  intro f.
-  apply funextfunax.
-  intro x.
-  apply idpath.
-  intro g.
-  apply funextfunax.
-  intro h.
-  admit.
+  intros i x y p q.
+  apply i.
 Defined.
 
-Definition squash_factoring {X Y:UU} (f : X -> Y) := total2 (fun g : squash X -> Y => f ~ funcomp (squash_element X) g).
-
-Definition isaprop_squash_factoring {X Y:UU} (f : X -> Y) : isaprop (squash_factoring f).
+Lemma isaset_hlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
 Proof.
-  unfold isaprop.  
+  intros i x y p q.
+  apply i.
+Defined.
+
+Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
+Proof.
+  intro is.
+  apply isaset_hlevel2.
+  apply impredfun.
+  assumption.
+Defined.    
+
+Lemma pair_path {X:UU} {P:X->UU} {x x':X} {p: P x} {p' : P x'} (e : x == x') (e' : transportf P e p == p') : 
+  tpair P x p == tpair P x' p'.
+Proof.
+  destruct e. destruct e'. apply idpath.
+Defined.
+
+Lemma iscontr_if_inhab_prop {P:UU} : isaprop P -> P -> iscontr P.
+Proof.
+ intros i p.
+ exists p.
+ intros p'.
+ apply i.
+Defined.
+
+Definition isaprop_squash_dep_factoring {X Y:UU} (f : X -> Y) : isaset Y -> isaprop (squash_dep_factoring f).
+Proof.
+  intro is.
+  unfold isaprop.
   unfold isofhlevel.
   intros [g h] [g' h'].
-  assert( t : g == g' ).
-  admit.
+  assert ( t : g == g' ).
+    Focus 1.
+    apply squash_dep_map_epi.
+    assumption.
+    path_via f.
+    apply pathsinv0. assumption.
+    assumption.
+
   admit.
 Qed.
 
-Lemma squash_to_type (X Y:UU) : forall f : X -> Y, (forall x x' : X, f x == f x') -> squash_factoring f.
-  intros f e.
-  set ( h := factor_through_squash (isaprop_squash_factoring f) 
-                         (fun x => tpair (fun g : squash X -> Y => f ~ funcomp (squash_element X) g) 
-                                         (fun _ => f x) (fun x' => e x' x))
-           : squash X -> squash_factoring f ).
-  exists (fun r => (pr1 (h r)) r).
-  intro x.
-  unfold h.
+
+Lemma squash_to_set (X Y:UU) : forall f : X -> Y, isaset Y -> (forall x x' : X, f x == f x') -> squash_dep X -> Y.
+Proof.
+  intros f is e z.
+  unfold squash_dep in z.
+
   admit.
 Defined.
-
 
 Definition isiso {C:precategory} {a b:C} (f : a --> b) := total2 (is_inverse_in_precat f).
 
