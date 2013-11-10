@@ -88,7 +88,7 @@ Defined.
 
 
 
-Lemma total_path_reconstruction_fibr {A : UU} {B : A -> UU} {x y : total2 (fun x => B x)} 
+Lemma total_path_reconstruction {A : UU} {B : A -> UU} {x y : total2 (fun x => B x)} 
  (p : x == y) : total2_paths  _ (fiber_path p) == p.
 Proof.
   induction p.
@@ -124,18 +124,8 @@ Proof.
   apply idpath.
 Defined.
 
-(*
-Lemma base_total_path_fibr {A : UU} {B : A -> UU} {x y : total2 (fun x => B x)}
-  {p : pr1 x == pr1 y} (q : transportf _ p (pr2 x) == pr2 y) :
-  (base_paths _ _ (total2_paths _ q)) == p.
-Proof.
-  destruct x as [x H]. destruct y as [y K].
-  simpl in p. induction p. simpl in q. induction q.
-  apply idpath.
-Defined.
-*)
 
-Lemma fiber_total_path_fibr {A : UU} (B : A -> UU) (x y : total2 (fun x => B x))
+Lemma fiber_total_path {A : UU} (B : A -> UU) (x y : total2 (fun x => B x))
   (p : pr1 x == pr1 y) (q : transportf _ p (pr2 x) == pr2 y) :
   transportf (fun p' : pr1 x == pr1 y => transportf _ p' (pr2 x) == pr2 y)
   (base_total_path q)  (fiber_path (total2_paths _ q))
@@ -158,24 +148,9 @@ Proof.
 Defined.
 
 
-(*
-Lemma fiber_total_path {A : UU} (B : A -> hProp) (x y : total2 (fun x => B x))
-  (p : pr1 x == pr1 y) (q : transportf _ p (pr2 x) == pr2 y) :
-  transportf (fun p' : pr1 x == pr1 y => transportf _ p' (pr2 x) == pr2 y)
-  (base_total_path q)  (fiber_path (total2_paths _ q))
-  == q.
-Proof.
-  destruct x as [x H]. destruct y as [y K].
-  simpl in p. induction p. simpl in q. induction q.
-  apply idpath.
-Defined.
-*)
 
 
-
-
-(*
-Theorem total_paths_equiv {A : UU} (B : A -> hProp) (x y : total2 (fun x => B x)) :
+Theorem total_paths_equiv {A : UU} (B : A -> UU) (x y : total2 (fun x => B x)) :
   weq (x == y) (total2 (fun p : pr1 x == pr1 y => 
                             transportf _ p (pr2 x) == pr2 y )).
 Proof.
@@ -196,34 +171,10 @@ Proof.
       == pr2 y) H').
   apply fiber_total_path.
 Defined.
-*)
 
-Theorem total_paths_equiv {A : UU} (B : A -> UU) (x y : total2 (fun x => B x)) :
-  weq (x == y) (total2 (fun p : pr1 x == pr1 y => 
-                            transportf _ p (pr2 x) == pr2 y )).
-Proof.
-  exists (  fun r : x == y =>  
-               tpair (fun p : pr1 x == pr1 y => 
-             transportf _ p (pr2 x) == pr2 y) (base_paths _ _ r) (fiber_path r)).
-  apply (gradth _
-  (fun pq : total2 (fun p : pr1 x == pr1 y => transportf _ p (pr2 x) == pr2 y)
-          => total2_paths (pr1 pq) (pr2 pq))).
-  intro p.
-  simpl.
-  apply total_path_reconstruction_fibr.
-  intros [p q].
-  simpl.
-  set (H':= base_total_path q).
-  apply ( total2_paths2 
-    (B := fun p : pr1 x == pr1 y => transportf (fun x : A => B x) p (pr2 x) 
-      == pr2 y) H').
-  apply fiber_total_path_fibr.
-Defined.
 
 Theorem total_paths2_hProp_equiv {A : UU} (B : A -> hProp) 
-   (x y : total2 (fun x => B x)):
-
-  weq (x == y) (pr1 x == pr1 y).
+   (x y : total2 (fun x => B x)): weq (x == y) (pr1 x == pr1 y).
 Proof.
   set (t := total_paths_equiv B x y).
   simpl in *.
@@ -244,6 +195,7 @@ Proof.
   set (HHH := weqcomp t ht).
   exact HHH.
 Defined.
+
 
 Theorem equal_transport_along_weq (A B : UU)  (f : weq A B) (a a' : A) :
       f a == f a' -> a == a'.
