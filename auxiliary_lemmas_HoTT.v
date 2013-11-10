@@ -72,6 +72,13 @@ Proof.
 Defined.
 
 
+Definition fiber_path {A : UU} {B : A -> hProp} {u v : total2 (fun x => B x)}
+  (p : u == v) : transportf (fun x => B x) (base_paths _ _ p) (pr2 u) == pr2 v.
+Proof.
+  destruct p.
+  apply idpath.
+Defined.
+
 Definition fiber_path_UU {B : UU -> hProp} {u v : total2 (fun x => B x)}
   (p : u == v) : transportf (fun x => B x) (base_paths_UU _ _ p) (pr2 u) == pr2 v.
 Proof.
@@ -79,12 +86,6 @@ Proof.
   apply idpath.
 Defined.
 
-Definition fiber_path {A : UU} {B : A -> hProp} {u v : total2 (fun x => B x)}
-  (p : u == v) : transportf (fun x => B x) (base_paths _ _ p) (pr2 u) == pr2 v.
-Proof.
-  destruct p.
-  apply idpath.
-Defined.
 
 Definition fiber_path_fibr {A : UU} {B : A -> UU} {u v : total2 (fun x => B x)}
   (p : u == v) : transportf (fun x => B x) (base_paths _ _ p) (pr2 u) == pr2 v.
