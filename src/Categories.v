@@ -189,8 +189,7 @@ Module DirectSums.
   Lemma zeroMap {C:precategory} : hasZeroObject C -> forall a b:C, a --> b.
   Proof.
     apply (squash_to_set _ (forall a b:C, a --> b) zeroMap').
-      apply isaset_hlevel2.
-      apply impred.
+      apply (impred 2).
       intro a. apply impred.
       intro b. apply isaset_hSet.
     exact zeroMapsUniqueness.

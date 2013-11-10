@@ -30,8 +30,15 @@ Ltac path_from f := apply (@maponpaths _ _ f).
 Lemma isaprop_hProp (X:hProp) : isaprop X.
 Proof. exact (pr2 X). Defined.
 
-Lemma isaset_hlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
-Proof. trivial. Defined.
+(*
+
+The use of this lemma ahead of something like 'impred' can be avoided by
+providing 2 as first argument.
+
+    Lemma isaset_hlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
+    Proof. trivial. Defined.
+
+*)
 
 Lemma isaset_hSet (X:hSet) : isaset X.
 Proof. exact (pr2 X). Defined.
@@ -54,7 +61,7 @@ Lemma factor_through_squash_hProp {X:UU} : forall hQ:hProp, (X -> hQ) -> (squash
 Proof. intros [Q i] f h. apply h. assumption. Defined.
 
 Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
-Proof. intro is. apply isaset_hlevel2. apply impredfun. assumption. Defined.    
+Proof. intro is. apply (impredfun 2). assumption. Defined.    
 
 Lemma pair_path {X:UU} {P:X->UU} {x x':X} {p: P x} {p' : P x'} (e : x == x') (e' : transportf P e p == p') : tpair P x p == tpair P x' p'.
 Proof. destruct e. destruct e'. apply idpath. Defined.
@@ -67,20 +74,18 @@ Proof. intros i p. exists p. intros p'. apply i. Defined.
 Lemma squash_to_set (X Y:UU) : forall f : X -> Y, 
   isaset Y -> (forall x x' : X, f x == f x') -> squash X -> Y.
 
-(* from Voevodsky, for future work:
+(** from Voevodsky, for future work:
 
     I think one can get another proof using "isapropimeqclass" (hSet.v) with "R :=
     fun x1 x1 => unit". This Lemma will show that under your assumptions "Im f" is
-    a proposition. Therefore "X -> Im f" factors through "squash X".
-
-*)
+    a proposition. Therefore "X -> Im f" factors through "squash X". *)
 
 Proof.
   intros f is e.
   set (L := fun y:Y => forall x:X, f x == y).
   set (P := total2 L).
   assert(ip : isaset P).
-   apply isaset_hlevel2. apply isofhleveltotal2. assumption.
+   apply (isofhleveltotal2 2). assumption.
    intros y. apply impred.
    intros t. apply isasetaprop. apply is.
   assert(g : X -> P). intros x. exists (f x). intros x'. apply e.
