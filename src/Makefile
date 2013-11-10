@@ -2,5 +2,6 @@
 include Make-include.mk
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Proposition\)[[:space:]]+\([[:alnum:]_]+\)/\2/'
 TAGS : $(VFILES); etags $(COQDEFS) $^
+install:all
 clean:clean2
 clean2:; rm -f TAGS
