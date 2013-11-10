@@ -138,7 +138,7 @@ Proof.
             (fun x0 : ob C -> ob C' => 
             forall a b : ob C, a --> b -> x0 a --> x0 b) x)
             p (pr2 (pr1 F)) == pr2 (pr1 G)) _ 
-   (fiber_path_fibr (base_paths F G p)) _ (fiber_path_fibr (base_paths F G q))  H).
+   (fiber_path (base_paths F G p)) _ (fiber_path (base_paths F G q))  H).
    apply uip.
    change (isaset) with (isofhlevel 2).
    apply impred.
@@ -150,7 +150,7 @@ Proof.
    apply (pr2 (_ --> _)).
    apply (@total2_paths2 (pr1 F == pr1 G)  
     (fun x : pr1 F == pr1 G => transportf _ x (pr2 F) == pr2 G)
-          (base_paths F G p) (fiber_path_fibr p) (base_paths F G q) (fiber_path_fibr q) H').
+          (base_paths F G p) (fiber_path p) (base_paths F G q) (fiber_path q) H').
    apply uip.
    apply isasetaprop.
    apply isaprop_is_functor.
@@ -962,9 +962,9 @@ Proof.
   unfold functor_eq_from_functor_iso.
   unfold functor_eq.
   simpl.
-  rewrite base_total_path_fibr.
+  rewrite base_total_path.
   unfold pr1_functor_eq_from_functor_iso.
-  rewrite base_total_path_fibr.
+  rewrite base_total_path.
   unfold pr1_pr1_functor_eq_from_functor_iso.
   
   apply (equal_transport_along_weq _ _   (weqtoforallpaths _ _ _ )).
@@ -1002,9 +1002,9 @@ Proof.
   unfold functor_eq_from_functor_iso.
   simpl.
   unfold functor_eq.
-  rewrite base_total_path_fibr.
+  rewrite base_total_path.
   unfold pr1_functor_eq_from_functor_iso.
-  rewrite base_total_path_fibr.
+  rewrite base_total_path.
 
   pathvia (pr1 (idtoiso
      (isotoid D H (functor_iso_pointwise_if_iso C D F G gamma (pr2 gamma) a)))).

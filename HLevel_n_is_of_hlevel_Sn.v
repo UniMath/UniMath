@@ -43,7 +43,7 @@ Lemma weq1  (P : UU -> hProp) (X X' : UU) (pX : P X) (pX' : P X') :
    weq (tpair _ X pX == tpair (fun x => P x) X' pX')
        (total2 (fun w : X == X' => transportf (fun x => P x) w pX == pX')).
 Proof.
-  apply total_paths_equiv_fibr.
+  apply total_paths_equiv.
 Defined.
 
 (** This helper lemma is needed to show that our fibration 
@@ -60,23 +60,8 @@ Proof.
   apply (pr2 (P X')).
 Defined.
 
-(** This helper lemma is an adaptation of an analogous lemma
-    [isweqpr1] from Voevodsky's Foundations library.
-    Here, we prove it for predicates on path spaces in [U].
-*)
 
-(*
-Lemma isweqpr1_UU (X X' : UU) (B : X == X' -> hProp) 
-   (is1 : forall z , iscontr (B z)) : isweq (@pr1 _ B).
-Proof. 
-  intros. 
-  unfold isweq. 
-  intro y. 
-  set (isy := is1 y). 
-  apply (iscontrweqf (ezweqpr1 B y)). 
-  assumption. 
-Defined.
-*)
+
 
 (** We construct the equivalence [weq2] as a projection
     from a total space, which, by the previous lemma, is 

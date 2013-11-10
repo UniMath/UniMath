@@ -260,7 +260,7 @@ Definition Xkphi_transp (b : ob B) (t : X b) :
   transportf _ (Xphi b t) (kX t) a h ==  k b a h.
 Proof.
   set (p1 := base_paths _ _ (pr2 (iscontr_X b) t)).
-  set (p2 := fiber_path_fibr p1).
+  set (p2 := fiber_path p1).
   simpl in p2.
   unfold k.
   rewrite <- p2.

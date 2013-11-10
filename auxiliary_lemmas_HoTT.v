@@ -24,7 +24,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma total2_paths_UU  {B : UU -> hProp} {s s' : total2 (fun x => B x)} 
+Lemma total2_paths_UU  {B : UU -> UU} {s s' : total2 (fun x => B x)} 
     (p : pr1 s == pr1 s') 
     (q : transportf (fun x => B x) p (pr2 s) == pr2 s') : 
                s == s'.
@@ -47,7 +47,7 @@ Proof.
   apply (H p q).
 Defined.
 
-Lemma total2_paths2_UU {B : UU -> hProp} {A A': UU} {b : B A} 
+Lemma total2_paths2_UU {B : UU -> UU} {A A': UU} {b : B A} 
      {b' : B A'} (p : A == A') (q : transportf (fun x => B x) p b == b') : 
     tpair (fun x => B x) A b == tpair (fun x => B x) A' b'.
 Proof.
@@ -64,7 +64,7 @@ Proof.
   apply maponpaths.
 Defined.
 
-Lemma base_paths_UU {B : UU -> hProp}(a b : total2 B) :
+Lemma base_paths_UU {B : UU -> UU}(a b : total2 B) :
   a == b -> pr1 a == pr1 b.
 Proof.
   intro H.
@@ -72,7 +72,14 @@ Proof.
 Defined.
 
 
-Definition fiber_path_UU {B : UU -> hProp} {u v : total2 (fun x => B x)}
+Definition fiber_path {A : UU} {B : A -> UU} {u v : total2 (fun x => B x)}
+  (p : u == v) : transportf (fun x => B x) (base_paths _ _ p) (pr2 u) == pr2 v.
+Proof.
+  destruct p.
+  apply idpath.
+Defined.
+
+Definition fiber_path_UU {B : UU -> UU} {u v : total2 (fun x => B x)}
   (p : u == v) : transportf (fun x => B x) (base_paths_UU _ _ p) (pr2 u) == pr2 v.
 Proof.
   destruct p.
@@ -80,15 +87,17 @@ Proof.
 Defined.
 
 
-Definition fiber_path_fibr {A : UU} {B : A -> UU} {u v : total2 (fun x => B x)}
-  (p : u == v) : transportf (fun x => B x) (base_paths _ _ p) (pr2 u) == pr2 v.
+
+Lemma total_path_reconstruction_fibr {A : UU} {B : A -> UU} {x y : total2 (fun x => B x)} 
+ (p : x == y) : total2_paths  _ (fiber_path p) == p.
 Proof.
-  destruct p.
+  induction p.
+  destruct x.
   apply idpath.
 Defined.
 
 
-Lemma total_path_reconstruction_UU {B : UU -> hProp} {x y : total2 (fun x => B x)} 
+Lemma total_path_reconstruction_UU {B : UU -> UU} {x y : total2 (fun x => B x)} 
  (p : x == y) : total2_paths_UU  _ (fiber_path_UU p) == p.
 Proof.
   induction p.
@@ -96,17 +105,17 @@ Proof.
   apply idpath.
 Defined.
 
-
-Lemma total_path_reconstruction_fibr {A : UU} {B : A -> UU} {x y : total2 (fun x => B x)} 
- (p : x == y) : total2_paths  _ (fiber_path_fibr p) == p.
+Lemma base_total_path {A : UU} {B : A -> UU} {x y : total2 (fun x => B x)}
+  {p : pr1 x == pr1 y} (q : transportf _ p (pr2 x) == pr2 y) :
+  (base_paths _ _ (total2_paths _ q)) == p.
 Proof.
-  induction p.
-  destruct x.
+  destruct x as [x H]. destruct y as [y K].
+  simpl in p. induction p. simpl in q. induction q.
   apply idpath.
 Defined.
 
 
-Lemma base_total_path_UU {B : UU -> hProp} {x y : total2 (fun x => B x)}
+Lemma base_total_path_UU {B : UU -> UU} {x y : total2 (fun x => B x)}
   {p : pr1 x == pr1 y} (q : transportf _ p (pr2 x) == pr2 y) :
   (base_paths_UU _ _ (total2_paths_UU _ q)) == p.
 Proof.
@@ -115,15 +124,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma base_total_path {A : UU} {B : A -> hProp} {x y : total2 (fun x => B x)}
-  {p : pr1 x == pr1 y} (q : transportf _ p (pr2 x) == pr2 y) :
-  (base_paths _ _ (total2_paths _ q)) == p.
-Proof.
-  destruct x as [x H]. destruct y as [y K].
-  simpl in p. induction p. simpl in q. induction q.
-  apply idpath.
-Defined.
-
+(*
 Lemma base_total_path_fibr {A : UU} {B : A -> UU} {x y : total2 (fun x => B x)}
   {p : pr1 x == pr1 y} (q : transportf _ p (pr2 x) == pr2 y) :
   (base_paths _ _ (total2_paths _ q)) == p.
@@ -132,10 +133,20 @@ Proof.
   simpl in p. induction p. simpl in q. induction q.
   apply idpath.
 Defined.
+*)
 
+Lemma fiber_total_path_fibr {A : UU} (B : A -> UU) (x y : total2 (fun x => B x))
+  (p : pr1 x == pr1 y) (q : transportf _ p (pr2 x) == pr2 y) :
+  transportf (fun p' : pr1 x == pr1 y => transportf _ p' (pr2 x) == pr2 y)
+  (base_total_path q)  (fiber_path (total2_paths _ q))
+  == q.
+Proof.
+  destruct x as [x H]. destruct y as [y K].
+  simpl in p. induction p. simpl in q. induction q.
+  apply idpath.
+Defined.
 
-
-Lemma fiber_total_path_UU (B : UU -> hProp) (x y : total2 (fun x => B x))
+Lemma fiber_total_path_UU (B : UU -> UU) (x y : total2 (fun x => B x))
   (p : pr1 x == pr1 y) (q : transportf _ p (pr2 x) == pr2 y) :
   transportf (fun p' : pr1 x == pr1 y => transportf _ p' (pr2 x) == pr2 y)
   (base_total_path_UU q)  (fiber_path_UU (total2_paths_UU _ q))
@@ -160,16 +171,7 @@ Proof.
 Defined.
 *)
 
-Lemma fiber_total_path_fibr {A : UU} (B : A -> UU) (x y : total2 (fun x => B x))
-  (p : pr1 x == pr1 y) (q : transportf _ p (pr2 x) == pr2 y) :
-  transportf (fun p' : pr1 x == pr1 y => transportf _ p' (pr2 x) == pr2 y)
-  (base_total_path_fibr q)  (fiber_path_fibr (total2_paths _ q))
-  == q.
-Proof.
-  destruct x as [x H]. destruct y as [y K].
-  simpl in p. induction p. simpl in q. induction q.
-  apply idpath.
-Defined.
+
 
 
 (*
@@ -196,13 +198,13 @@ Proof.
 Defined.
 *)
 
-Theorem total_paths_equiv_fibr {A : UU} (B : A -> UU) (x y : total2 (fun x => B x)) :
+Theorem total_paths_equiv {A : UU} (B : A -> UU) (x y : total2 (fun x => B x)) :
   weq (x == y) (total2 (fun p : pr1 x == pr1 y => 
                             transportf _ p (pr2 x) == pr2 y )).
 Proof.
   exists (  fun r : x == y =>  
                tpair (fun p : pr1 x == pr1 y => 
-             transportf _ p (pr2 x) == pr2 y) (base_paths _ _ r) (fiber_path_fibr r)).
+             transportf _ p (pr2 x) == pr2 y) (base_paths _ _ r) (fiber_path r)).
   apply (gradth _
   (fun pq : total2 (fun p : pr1 x == pr1 y => transportf _ p (pr2 x) == pr2 y)
           => total2_paths (pr1 pq) (pr2 pq))).
@@ -211,7 +213,7 @@ Proof.
   apply total_path_reconstruction_fibr.
   intros [p q].
   simpl.
-  set (H':= base_total_path_fibr q).
+  set (H':= base_total_path q).
   apply ( total2_paths2 
     (B := fun p : pr1 x == pr1 y => transportf (fun x : A => B x) p (pr2 x) 
       == pr2 y) H').
@@ -223,7 +225,7 @@ Theorem total_paths2_hProp_equiv {A : UU} (B : A -> hProp)
 
   weq (x == y) (pr1 x == pr1 y).
 Proof.
-  set (t := total_paths_equiv_fibr B x y).
+  set (t := total_paths_equiv B x y).
   simpl in *.
   set (t':= isweqpr1 
      (fun p : pr1 x == pr1 y => transportf (fun x : A => B x) p (pr2 x) == pr2 y)).
@@ -252,12 +254,14 @@ Defined.
 
 Definition equal_equalities_between_pairs (A : UU)(B : A -> UU)(x y : total2 (fun x => B x))
    (p q : x == y) : 
-  total_paths_equiv_fibr _ _ _ p == total_paths_equiv_fibr _ _ _ q -> p == q :=
+  total_paths_equiv _ _ _ p == total_paths_equiv _ _ _ q -> p == q :=
       equal_transport_along_weq _ _ _ _ _ .
 
 
-
-
+(** This helper lemma is an adaptation of an analogous lemma
+    [isweqpr1] from Voevodsky's Foundations library.
+    Here, we prove it for predicates on path spaces in [U].
+*)
 Lemma isweqpr1_UU (X X' : UU) ( B : (X == X') -> hProp ) 
    ( is1 : forall z , iscontr ( B z ) ) : isweq ( @pr1 _ B ) .
 Proof. 
