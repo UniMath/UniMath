@@ -72,13 +72,6 @@ Proof.
 Defined.
 
 
-Definition fiber_path {A : UU} {B : A -> hProp} {u v : total2 (fun x => B x)}
-  (p : u == v) : transportf (fun x => B x) (base_paths _ _ p) (pr2 u) == pr2 v.
-Proof.
-  destruct p.
-  apply idpath.
-Defined.
-
 Definition fiber_path_UU {B : UU -> hProp} {u v : total2 (fun x => B x)}
   (p : u == v) : transportf (fun x => B x) (base_paths_UU _ _ p) (pr2 u) == pr2 v.
 Proof.
@@ -94,14 +87,6 @@ Proof.
   apply idpath.
 Defined.
 
-
-Lemma total_path_reconstruction {A : UU} {B : A -> hProp} {x y : total2 (fun x => B x)} 
- (p : x == y) : total2_paths  _ (fiber_path p) == p.
-Proof.
-  induction p.
-  destruct x.
-  apply idpath.
-Defined.
 
 Lemma total_path_reconstruction_UU {B : UU -> hProp} {x y : total2 (fun x => B x)} 
  (p : x == y) : total2_paths_UU  _ (fiber_path_UU p) == p.
@@ -162,7 +147,7 @@ Proof.
 Defined.
 
 
-
+(*
 Lemma fiber_total_path {A : UU} (B : A -> hProp) (x y : total2 (fun x => B x))
   (p : pr1 x == pr1 y) (q : transportf _ p (pr2 x) == pr2 y) :
   transportf (fun p' : pr1 x == pr1 y => transportf _ p' (pr2 x) == pr2 y)
@@ -173,6 +158,7 @@ Proof.
   simpl in p. induction p. simpl in q. induction q.
   apply idpath.
 Defined.
+*)
 
 Lemma fiber_total_path_fibr {A : UU} (B : A -> UU) (x y : total2 (fun x => B x))
   (p : pr1 x == pr1 y) (q : transportf _ p (pr2 x) == pr2 y) :
@@ -186,7 +172,7 @@ Proof.
 Defined.
 
 
-
+(*
 Theorem total_paths_equiv {A : UU} (B : A -> hProp) (x y : total2 (fun x => B x)) :
   weq (x == y) (total2 (fun p : pr1 x == pr1 y => 
                             transportf _ p (pr2 x) == pr2 y )).
@@ -208,7 +194,7 @@ Proof.
       == pr2 y) H').
   apply fiber_total_path.
 Defined.
-
+*)
 
 Theorem total_paths_equiv_fibr {A : UU} (B : A -> UU) (x y : total2 (fun x => B x)) :
   weq (x == y) (total2 (fun p : pr1 x == pr1 y => 
@@ -237,7 +223,7 @@ Theorem total_paths2_hProp_equiv {A : UU} (B : A -> hProp)
 
   weq (x == y) (pr1 x == pr1 y).
 Proof.
-  set (t := total_paths_equiv B x y).
+  set (t := total_paths_equiv_fibr B x y).
   simpl in *.
   set (t':= isweqpr1 
      (fun p : pr1 x == pr1 y => transportf (fun x : A => B x) p (pr2 x) == pr2 y)).

@@ -43,7 +43,7 @@ Lemma weq1  (P : UU -> hProp) (X X' : UU) (pX : P X) (pX' : P X') :
    weq (tpair _ X pX == tpair (fun x => P x) X' pX')
        (total2 (fun w : X == X' => transportf (fun x => P x) w pX == pX')).
 Proof.
-  apply total_paths_equiv.
+  apply total_paths_equiv_fibr.
 Defined.
 
 (** This helper lemma is needed to show that our fibration 
