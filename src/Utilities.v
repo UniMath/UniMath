@@ -66,6 +66,15 @@ Proof. intros i p. exists p. intros p'. apply i. Defined.
 
 Lemma squash_to_set (X Y:UU) : forall f : X -> Y, 
   isaset Y -> (forall x x' : X, f x == f x') -> squash X -> Y.
+
+(* from Voevodsky, for future work:
+
+    I think one can get another proof using "isapropimeqclass" (hSet.v) with "R :=
+    fun x1 x1 => unit". This Lemma will show that under your assumptions "Im f" is
+    a proposition. Therefore "X -> Im f" factors through "squash X".
+
+*)
+
 Proof.
   intros f is e.
   set (L := fun y:Y => forall x:X, f x == y).
