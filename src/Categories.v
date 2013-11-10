@@ -142,64 +142,76 @@ Defined.
 
 Definition squash_dep_factoring {X Y:UU} (f : X -> Y) := total2 (fun g : squash_dep X -> Y => f == funcomp (squash_dep_element X) g).
 
-Lemma hlevel_of_set {X:UU} : isaset X -> isofhlevel 2 X.
-Proof.
-  intros i x y p q.
-  apply i.
-Defined.
+Lemma hlevel1_isaprop {X:UU} : isaprop X -> isofhlevel 1 X.
+Proof. trivial. Defined.
+
+Lemma isaprop_hlevel1 {X:UU} : isofhlevel 1 X -> isaprop X.
+Proof. trivial. Defined.
+
+Lemma hlevel2_isaset {X:UU} : isaset X -> isofhlevel 2 X.
+Proof. trivial. Defined.
 
 Lemma isaset_hlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
-Proof.
-  intros i x y p q.
-  apply i.
-Defined.
+Proof. trivial. Defined.
 
 Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
-Proof.
-  intro is.
-  apply isaset_hlevel2.
-  apply impredfun.
-  assumption.
-Defined.    
+Proof. intro is. apply isaset_hlevel2. apply impredfun. assumption. Defined.    
 
-Lemma pair_path {X:UU} {P:X->UU} {x x':X} {p: P x} {p' : P x'} (e : x == x') (e' : transportf P e p == p') : 
-  tpair P x p == tpair P x' p'.
-Proof.
-  destruct e. destruct e'. apply idpath.
-Defined.
+Lemma pair_path {X:UU} {P:X->UU} {x x':X} {p: P x} {p' : P x'} (e : x == x') (e' : transportf P e p == p') : tpair P x p == tpair P x' p'.
+Proof. destruct e. destruct e'. apply idpath. Defined.
 
 Lemma iscontr_if_inhab_prop {P:UU} : isaprop P -> P -> iscontr P.
-Proof.
- intros i p.
- exists p.
- intros p'.
- apply i.
-Defined.
-
-Definition isaprop_squash_dep_factoring {X Y:UU} (f : X -> Y) : isaset Y -> isaprop (squash_dep_factoring f).
-Proof.
-  intro is.
-  unfold isaprop.
-  unfold isofhlevel.
-  intros [g h] [g' h'].
-  assert ( t : g == g' ).
-    Focus 1.
-    apply squash_dep_map_epi.
-    assumption.
-    path_via f.
-    apply pathsinv0. assumption.
-    assumption.
-
-  admit.
-Qed.
-
+Proof. intros i p. exists p. intros p'. apply i. Defined.
 
 Lemma squash_to_set (X Y:UU) : forall f : X -> Y, isaset Y -> (forall x x' : X, f x == f x') -> squash_dep X -> Y.
 Proof.
-  intros f is e z.
-  unfold squash_dep in z.
-
-  admit.
+  intros f is e.
+  set (L := fun y:Y => forall x:X, f x == y).
+  set (P := total2 L).
+  assert(ip : isaset P).
+   apply isaset_hlevel2.
+   apply isofhleveltotal2.
+   apply hlevel2_isaset.
+   assumption.
+   intros y.
+   apply impred.
+   intros t.
+   apply hlevel2_isaset.
+   apply isasetaprop.
+   apply is.
+  assert(g : X -> P).
+   intros x.
+   exists (f x).
+   intros x'.
+   apply e.
+  assert(m : X -> forall y:Y, isaprop (L y)).
+   intros a z.
+   apply isaprop_hlevel1.
+   apply impred.
+   intros t.
+   apply is.
+  assert(h : X -> isaprop P).
+   intros a.   
+   intros [r i] [s j].
+   assert(k : r == s). path_via (f a). apply pathsinv0. apply i. apply j.
+   assert(l : tpair L r i == tpair L s j).
+   apply (pair_path k).
+   apply m.
+  assumption.
+  exists l.
+   intro t.
+   apply (ip _ _ t l).
+  assert(h' : squash_dep X -> isaprop P).
+   apply lift_through_squash_dep.
+   intro z.   
+   apply isapropisaprop.
+   assumption.
+  assert(k : squash_dep X -> P).
+   apply lift_through_squash_dep.
+   assumption.    
+  assumption.
+  intro z.
+   exact (pr1 (k z)).
 Defined.
 
 Definition isiso {C:precategory} {a b:C} (f : a --> b) := total2 (is_inverse_in_precat f).
