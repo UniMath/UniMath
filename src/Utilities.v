@@ -38,19 +38,20 @@ Proof. exact (pr2 X). Defined.
 
 (** * Squashing. *)
 
-Definition squash (X:UU) := forall P:UU, isaprop P -> (X -> P) -> P. (* compare with ishinh_UU *)
+Notation squash := ishinh_UU.
+(* Definition squash (X:UU) := forall P:UU, isaprop P -> (X -> P) -> P. (* compare with ishinh_UU *) *)
 
 Definition squash_element {X:UU} : X -> squash X.
-Proof. intros x P iP f. exact (f x). Defined.
+Proof. intros x P f. exact (f x). Defined.
 
 Lemma isaprop_squash (X:UU) : isaprop (squash X).
 Proof. prop_logic. Qed.
-
+ 
 Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
-Proof. intros i f h.  apply h.  assumption.  assumption. Defined.
+Proof. intros i f h. apply (h (hProppair _ i)). intro. apply f. assumption. Defined.
 
-Lemma factor_through_squash_hProp {X:UU} : forall Q:hProp, (X -> Q) -> (squash X -> Q).
-Proof. intros [Q i] f h. apply h. assumption. assumption. Defined.
+Lemma factor_through_squash_hProp {X:UU} : forall hQ:hProp, (X -> hQ) -> (squash X -> hQ).
+Proof. intros [Q i] f h. apply h. assumption. Defined.
 
 Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
 Proof. intro is. apply isaset_hlevel2. apply impredfun. assumption. Defined.    
@@ -123,33 +124,34 @@ Lemma lift_through_squash_dep {X:UU} {Q : squash_dep X -> UU} :
   -> (forall y : squash_dep X, Q y).
 Proof.
   intros is q y.
-  set (S := funcomp (squash_dep_element X) Q).
-  apply (y S).
-    intro x.
-    apply is.
-  apply q.
-  apply is.
-  intros [x p].
-  set (y' := squash_dep_element _ x).
-  assert(e : y' == y).
-  apply isaprop_squash_dep.
-  assert(t : Q y').
-  exact p.
-  apply (transportf _ e).  
-  assumption.
+  assert (t : hProppair (Q y) (is y)).
+    apply (y (funcomp (squash_dep_element X) Q)).
+        intro x. apply is.
+      apply q.
+    intros [x p].
+    set (y' := squash_dep_element _ x).
+    assert(e : y' == y).
+      apply isaprop_squash_dep.
+    assert(t : Q y').
+      exact p.
+    apply (transportf _ e t).  
+  exact t.
 Defined.
+
+Lemma foo {Q:UU} (is:isaprop Q) (q:Q) : hProppair Q is.
+Proof. assumption. Defined.
 
 Lemma factor_through_squash_dep {X Q:UU} : isaprop Q -> (X -> Q) -> (squash_dep X -> Q).
 Proof.
   intros is q y.
-  unfold squash_dep in y.
-  apply (y (fun _ => Q)).
-  intros x.
-  assumption.
-  assumption.
-  assumption.
-  intros [_ q'].
-  assumption.
+  assert (t : hProppair Q is).
+    apply (y (fun _ => Q)).
+        intros x.
+        assumption.
+      assumption.
+    intros [_ q'].
+    assumption.
+  exact t.
 Defined.
 
 Lemma squashes_agree {X:UU} : weq (squash X) (squash_dep X).
