@@ -39,24 +39,21 @@ Proof. trivial. Defined.
 Lemma isaset_hlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
 Proof. trivial. Defined.
 
+Lemma isaset_hSet (X:hSet) : isaset X.
+Proof. exact (pr2 X). Defined.
+
 (** * Squashing. *)
 
 Definition squash (X:UU) := forall P:UU, isaprop P -> (X -> P) -> P. (* compare with ishinh_UU *)
 
 Definition squash_element (X:UU) : X -> squash X.
-Proof.
-  intros x P i f.
-  apply f.
-  assumption.
-Defined.
+Proof. intros x P. auto. Defined.
 
 Lemma isaprop_squash (X:UU) : isaprop (squash X).
 Proof. prop_logic. Qed.
 
 Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
-Proof.
-  intros i f h.  apply h.  assumption.  assumption.
-Defined.
+Proof. intros i f h.  apply h.  assumption.  assumption. Defined.
 
 Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
 Proof. intro is. apply isaset_hlevel2. apply impredfun. assumption. Defined.    
@@ -77,49 +74,28 @@ Proof.
   set (P := total2 L).
   assert(ip : isaset P).
    apply isaset_hlevel2.
-   apply isofhleveltotal2.
-   apply hlevel2_isaset.
-   assumption.
-   intros y.
-   apply impred.
-   intros t.
-   apply hlevel2_isaset.
-   apply isasetaprop.
-   apply is.
-  assert(g : X -> P).
-   intros x.
-   exists (f x).
-   intros x'.
-   apply e.
+   apply isofhleveltotal2. apply hlevel2_isaset. assumption.
+   intros y. apply impred.
+   intros t. apply hlevel2_isaset. apply isasetaprop. apply is.
+  assert(g : X -> P). intros x. exists (f x). intros x'. apply e.
   assert(m : X -> forall y:Y, isaprop (L y)).
-   intros a z.
-   apply isaprop_hlevel1.
-   apply impred.
-   intros t.
-   apply is.
+   intros a z. apply isaprop_hlevel1. apply impred.
+   intros t. apply is.
   assert(h : X -> isaprop P).
-   intros a.   
-   intros [r i] [s j].
+   intros a [r i] [s j].
    assert(k : r == s). path_via (f a). apply pathsinv0. apply i. apply j.
    assert(l : tpair L r i == tpair L s j).
-   apply (pair_path k).
-   apply m.
-  assumption.
-  exists l.
-   intro t.
-   apply (ip _ _ t l).
+    apply (pair_path k). apply m. assumption.
+   exists l. intro t. apply (ip _ _ t l).
   assert(h' : squash X -> isaprop P).
-   apply factor_through_squash.
-   intro z.   
-   apply isapropisaprop.
+   apply factor_through_squash. intro z. apply isapropisaprop.
    assumption.
   assert(k : squash X -> P).
    intros z.
-   apply (@factor_through_squash X _ (h' z)).
-   assumption.    
-  assumption.
+   apply (@factor_through_squash X _ (h' z)). assumption.    
+   assumption.
   intro z.
-   exact (pr1 (k z)).
+  exact (pr1 (k z)).
 Defined.
 
 (** * Dependent squashing *)
@@ -207,7 +183,13 @@ Lemma squash_dep_map_epi {X S:UU} (ip : isaset S) (g g' : squash_dep X -> S) :
   funcomp (squash_dep_element X) g == funcomp (squash_dep_element X) g' 
   -> g == g'.
 Proof.
-  exact (fun e => funextfunax _ _ _ _ (squash_dep_map_uniqueness ip _ _ (fun x => maponpaths (fun q => q x) e))).
+  intro e.
+  apply funextfunax.
+  apply squash_dep_map_uniqueness.
+  assumption.
+  intro x.
+  path_from (fun q : X -> S => q x).
+  assumption.
 Defined.
 
 Definition squash_dep_factoring {X Y:UU} (f : X -> Y) := total2 (fun g : squash_dep X -> Y => f == funcomp (squash_dep_element X) g).

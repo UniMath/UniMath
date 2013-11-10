@@ -11,6 +11,8 @@
 Require Import RezkCompletion.precategories.
 Import RezkCompletion.pathnotations.PathNotations.
 Import Foundations.hlevel2.hSet.
+
+Add LoadPath "." as Ktheory.
 Require Import Ktheory.Utilities.
 
 Local Notation "b <-- a" := (precategory_morphisms a b) (at level 50).
@@ -159,29 +161,40 @@ Module DirectSums.
   Implicit Arguments init [C].
   Implicit Arguments term [C].
 
-  Definition squashZeroObject (C:precategory) := squash (ZeroObject C).
+  Definition hasZeroObject (C:precategory) := squash (ZeroObject C).
 
   Lemma zeroObjectIsomorphy {C:precategory} (a b:ZeroObject C) : iso (zero_object a) (zero_object b).
   Proof.
     exact (initialObjectIsomorphy (zero_object a) (zero_object b) (init a) (init b)).
   Defined.
 
-  Definition zeroMap {C:precategory} (zero:ZeroObject C) (a b:C) := pr1 (init zero b) o pr1 (term zero a) : a --> b.
+  Definition zeroMap' {C:precategory} (zero:ZeroObject C) (a b:C) := pr1 (init zero b) o pr1 (term zero a) : a --> b.
 
-  Lemma zeroMapUniqueness {C:precategory} (x y:ZeroObject C) : forall a b:C, zeroMap x a b == zeroMap y a b.
+  Lemma zeroMapUniqueness {C:precategory} (x y:ZeroObject C) : forall a b:C, zeroMap' x a b == zeroMap' y a b.
   Proof.
-    intros. unfold zeroMap. set (x0 := zero_object x). set (y0 := zero_object y). assert (h : x0 --> y0). exact (pr1 (init x y0)).
+    intros. unfold zeroMap'. set (x0 := zero_object x). set (y0 := zero_object y). assert (h : x0 --> y0). exact (pr1 (init x y0)).
     set (p := pr1 (init x b)). set (i := pr1 (term x a)). set (q := pr1 (init y b)). set (j := pr1 (term y a)).
     path_via (q o (h o i)). path_via ((q o h) o i). path_from (fun r : x0 --> b => r o i). apply pathsinv0.
     apply (pr2 (init _ _)). apply (assoc C). path_from (fun s : a --> y0 => q o s). apply (pr2 (term _ _)).
   Qed.
 
-  (* Definition zeroMap2 {C:precategory} {mere_zero:squashZeroObject C} (a b:C) : a --> b. *)
-  (* Proof. *)
-  (*   unfold squashZeroObject in mere_zero. *)
-  (*   unfold squash in mere_zero. *)
-  (*   admit. *)
-  (* Defined. *)
+  Corollary zeroMapsUniqueness {C:precategory} (x y:ZeroObject C) : zeroMap' x == zeroMap' y.
+  Proof.
+    apply funextsec.
+    intros t.
+    apply funextsec.
+    apply zeroMapUniqueness.
+  Defined.
+
+  Lemma zeroMap {C:precategory} : hasZeroObject C -> forall a b:C, a --> b.
+  Proof.
+    apply (squash_to_set _ (forall a b:C, a --> b) (fun w : ZeroObject C => zeroMap' w)).
+      apply isaset_hlevel2.
+      apply impred.
+      intro a. apply impred.
+      intro b. apply isaset_hSet.
+    exact zeroMapsUniqueness.
+  Defined.
   
   Definition isBinarySum {C:precategory} {a b s : C} (p : s --> a) (q : s --> b) (i : a --> s) (j : b --> s) :=
     dirprod (isBinaryProduct p q) (isBinaryCoproduct i j).
