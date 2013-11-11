@@ -196,13 +196,8 @@ Proof.
   apply id_right.
 Qed.
 
-Definition is_inverse_in_precat_hProp {C : precategory} 
-        {a b : ob C}
-  (f : a --> b) (g : b --> a) : hProp := 
-   hProppair _ (isaprop_is_inverse_in_precat C a b f g).
-
 Definition is_isomorphism {C : precategory} {a b : ob C}
-  (f : a --> b) := total2 (fun g => is_inverse_in_precat_hProp f g).
+  (f : a --> b) := total2 (fun g => is_inverse_in_precat f g).
 
 Lemma isaprop_is_isomorphism {C : precategory} {a b : ob C}
      (f : a --> b) : isaprop (is_isomorphism f).
