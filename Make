@@ -14,3 +14,10 @@ sub_precategories.v
 whiskering.v
 yoneda.v
 
+
+limits/initial.v
+limits/terminal.v
+limits/pullbacks.v
+
+topos/epis_monos.v
+

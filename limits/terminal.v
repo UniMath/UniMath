@@ -61,7 +61,16 @@ Proof.
   intro t ; apply isapropiscontr.
 Qed.
 
-End Terminal_Unique.
 
+
+
+
+
+
+
+
+
+
+End Terminal_Unique.
 
 End def_terminal.

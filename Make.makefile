@@ -110,7 +110,11 @@ VFILES:=auxiliary_lemmas_HoTT.v\
   rezk_completion.v\
   sub_precategories.v\
   whiskering.v\
-  yoneda.v
+  yoneda.v\
+  limits/initial.v\
+  limits/terminal.v\
+  limits/pullbacks.v\
+  topos/epis_monos.v
 VOFILES:=$(VFILES:.v=.vo)
 GLOBFILES:=$(VFILES:.v=.glob)
 VIFILES:=$(VFILES:.v=.vi)
