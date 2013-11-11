@@ -232,26 +232,29 @@ Proof.
 Qed.
 
 Definition weq_from_fully_faithful (C D : precategory) (F : functor C D) 
-      (HF : fully_faithful F) (a b : ob C) : 
+      (FF : fully_faithful F) (a b : ob C) : 
    weq (a --> b) (F a --> F b).
 Proof.
   exists (functor_on_morphisms F (a:=a) (b:=b)).
-  exact (HF a b).
+  exact (FF a b).
 Defined.
 
 
 Definition fully_faithful_inv_hom (C D : precategory) (F : functor C D) 
-      (HF : fully_faithful F) (a b : ob C) :
+      (FF : fully_faithful F) (a b : ob C) :
       F a --> F b -> a --> b :=
- invweq (weq_from_fully_faithful C D F HF a b).
+ invweq (weq_from_fully_faithful C D F FF a b).
+
+Local Notation "FF ^-1" := (fully_faithful_inv_hom _ _ _ FF _ _ ) (at level 20).
 
 Lemma fully_faithful_inv_identity (C D : precategory) (F : functor C D)
-      (HF : fully_faithful F) (a : ob C) : 
-    fully_faithful_inv_hom _ _ _ HF _ _ (identity (F a)) == identity _ .
+      (FF : fully_faithful F) (a : ob C) : 
+         FF^-1 (identity (F a)) == identity _.
+(*    fully_faithful_inv_hom _ _ _ HF _ _ (identity (F a)) == identity _ . *)
 Proof.
-  set (h' := equal_transport_along_weq _ _ (weq_from_fully_faithful _ _ _ HF a a)).
+  set (h' := equal_transport_along_weq _ _ (weq_from_fully_faithful _ _ _ FF a a)).
   apply h'.
-  set (HFFaa := homotweqinvweq (weq_from_fully_faithful _ _ _ HF a a)
+  set (HFFaa := homotweqinvweq (weq_from_fully_faithful _ _ _ FF a a)
                  (identity _ )).
   unfold fully_faithful_inv_hom.
   simpl in *. 
@@ -261,22 +264,24 @@ Qed.
 
 
 Lemma fully_faithful_inv_comp (C D : precategory) (F : functor C D)
-      (HF : fully_faithful F) (a b c : ob C) 
+      (FF : fully_faithful F) (a b c : ob C) 
       (f : F a --> F b) (g : F b --> F c) : 
-    fully_faithful_inv_hom _ _ _ HF _ _ (f ;; g) ==
+        FF^-1 (f ;; g) == FF^-1 f ;; FF^-1 g.
+(*    fully_faithful_inv_hom _ _ _ HF _ _ (f ;; g) ==
        fully_faithful_inv_hom _ _ _ HF _ _ f ;; 
            fully_faithful_inv_hom _ _ _ HF _ _ g.
+*)
 Proof.
-  set (h' := equal_transport_along_weq _ _ (weq_from_fully_faithful _ _ _ HF a c)).
+  set (h' := equal_transport_along_weq _ _ (weq_from_fully_faithful _ _ _ FF a c)).
   apply h'.
-  set (HFFac := homotweqinvweq (weq_from_fully_faithful _ _ _ HF a c)
+  set (HFFac := homotweqinvweq (weq_from_fully_faithful _ _ _ FF a c)
                  (f ;; g)).
   unfold fully_faithful_inv_hom.
   simpl in *.
   rewrite HFFac.
   rewrite functor_comp.
-  set (HFFab := homotweqinvweq (weq_from_fully_faithful _ _ _ HF a b) f).
-  set (HFFbc := homotweqinvweq (weq_from_fully_faithful _ _ _ HF b c) g).
+  set (HFFab := homotweqinvweq (weq_from_fully_faithful _ _ _ FF a b) f).
+  set (HFFbc := homotweqinvweq (weq_from_fully_faithful _ _ _ FF b c) g).
   simpl in *.
   rewrite HFFab.
   rewrite HFFbc.
@@ -287,20 +292,16 @@ Qed.
 
 (** *** Fully faithful functors reflect isos *)
 
-Lemma fully_faithful_reflects_iso_proof (C D : precategory)(F : functor C D) 
-        (HF : fully_faithful F)
-    (a b : ob C) (f : iso (F a) (F b)) : 
-     is_isomorphism (fully_faithful_inv_hom C D F HF a b f).
+Lemma inv_of_ff_inv_is_inv (C D : precategory) (F : functor C D)
+   (FF : fully_faithful F) (a b : C) (f : iso (F a) (F b)) :
+  is_inverse_in_precat ((FF ^-1) f) ((FF ^-1) (inv_from_iso f)).
 Proof.
-  exists (fully_faithful_inv_hom C D F HF b a (inv_from_iso f)).
-  simpl.
-  unfold fully_faithful_inv_hom.
+  unfold fully_faithful_inv_hom; simpl.
   split.
-(*  unfold weq_from_fully_faithful.*)
-  set (hhh := equal_transport_along_weq _ _ (weq_from_fully_faithful C D F HF a a)).
+  set (hhh := equal_transport_along_weq _ _ (weq_from_fully_faithful C D F FF a a)).
   apply hhh.
-  set (HFFab := homotweqinvweq (weq_from_fully_faithful C D F HF a b)).
-  set (HFFba := homotweqinvweq (weq_from_fully_faithful C D F HF b a)).
+  set (HFFab := homotweqinvweq (weq_from_fully_faithful C D F FF a b)).
+  set (HFFba := homotweqinvweq (weq_from_fully_faithful C D F FF b a)).
   simpl in *.
   rewrite functor_comp.
   rewrite HFFab.
@@ -308,21 +309,29 @@ Proof.
   rewrite functor_id.
   apply iso_inv_after_iso.
   
-  set (hhh := equal_transport_along_weq _ _ (weq_from_fully_faithful C D F HF b b)).
+  set (hhh := equal_transport_along_weq _ _ (weq_from_fully_faithful C D F FF b b)).
   apply hhh.
-  set (HFFab := homotweqinvweq (weq_from_fully_faithful C D F HF a b)).
-  set (HFFba := homotweqinvweq (weq_from_fully_faithful C D F HF b a)).
+  set (HFFab := homotweqinvweq (weq_from_fully_faithful C D F FF a b)).
+  set (HFFba := homotweqinvweq (weq_from_fully_faithful C D F FF b a)).
   simpl in *.
   rewrite functor_comp.
   rewrite HFFab.
   rewrite HFFba.
   rewrite functor_id.
-  set (Hff := pr2 (pr2 (pr2 f))).
-  simpl in *.
-  unfold inv_from_iso.
-  destruct f.
-  simpl. assumption.
+  apply iso_after_iso_inv.
 Qed.
+
+
+Lemma fully_faithful_reflects_iso_proof (C D : precategory)(F : functor C D) 
+        (FF : fully_faithful F)
+    (a b : ob C) (f : iso (F a) (F b)) : 
+     is_isomorphism (FF^-1 f).
+(*     is_isomorphism (fully_faithful_inv_hom C D F HF a b f). *)
+Proof.
+  exists (FF^-1 (inv_from_iso f)).
+  simpl;
+  apply inv_of_ff_inv_is_inv.
+Defined.
 
 Definition  iso_from_fully_faithful_reflection (C D : precategory)(F : functor C D) 
         (HF : fully_faithful F)
@@ -339,13 +348,9 @@ Lemma functor_on_iso_iso_from_fully_faithful_reflection (C D : precategory)
       functor_on_iso _ _  F a b
         (iso_from_fully_faithful_reflection _ _  F HF a b f) == f.
 Proof.
-  apply eq_iso.
-  simpl.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ HF a b)).
-  simpl in H3.
-  unfold fully_faithful_inv_hom. simpl.
-  rewrite H3.
-  apply idpath.
+  apply eq_iso. 
+  simpl;
+  apply (homotweqinvweq (weq_from_fully_faithful _ _ _ HF a b)).
 Qed.
 
 
@@ -364,20 +369,22 @@ Definition faithful {C D : precategory} (F : functor C D) :=
 Lemma isaprop_faithful (C D : precategory) (F : functor C D) : 
    isaprop (faithful F).
 Proof.
-  apply impred; intro c.
-  apply impred; intro b.
-  apply impred; intro f.
-  apply impred; intro g.
-  apply impred; intro H.
-  apply (pr2 (c --> b)).
+  repeat (apply impred; intro).
+  apply (pr2 (_ --> _)).
 Qed.
 
 (** ** Full functors *)
 
+
+(** Probably full should be squashed to a proposition.
+    Since we are only using it in conjunction with faithful, however,
+    this doesn't make a difference: we have that
+    [full F * faithful F] is a proposition.
+*)
+
+
 Definition full {C D : precategory} (F : functor C D) :=
    forall a b (g : F a --> F b), total2 (fun f : a --> b => #F f == g).
-
-
 
 
 
@@ -561,9 +568,7 @@ Lemma isaprop_is_nat_trans (C C' : precategory_data)
   (F F' : functor_data C C') (t : forall x : ob C, F x -->  F' x):
   isaprop (is_nat_trans F F' t).
 Proof.
-  apply impred; intro x.
-  apply impred; intro x'.
-  apply impred; intro f.
+  repeat (apply impred; intro).
   apply (pr2 (_ --> _)).
 Qed.
 
@@ -712,10 +717,9 @@ Lemma nat_trans_comp_pointwise (C C' : precategory)
         forall a, pr1 A a ;; pr1 A' a == pr1 B a.
 Proof.
   intros H' a.
-(*  simpl in *. *)
   pathvia (pr1 (A ;; A') a).
   apply idpath.
-  induction H'.
+  destruct H'.
   apply idpath.
 Defined.
   
@@ -748,14 +752,11 @@ Definition nat_trans_inv_from_pointwise_inv (C D : precategory)
     G --> F := tpair _ _ (is_nat_trans_inv_from_pointwise_inv _ _ _ _ _ H).
 
 
-Lemma functor_iso_if_pointwise_iso (C C' : precategory)
- (F G : ob [C, C']) (A : F --> G) : 
-   (forall a : ob C, is_isomorphism (pr1 A a)) ->  
-           is_isomorphism A .
+Lemma is_inverse_nat_trans_inv_from_pointwise_inv (C C' : precategory)
+    (F G : [C, C']) (A : F --> G)
+   (H : forall a : C, is_isomorphism (pr1 A a)) : 
+  is_inverse_in_precat A (nat_trans_inv_from_pointwise_inv C C' F G A H).
 Proof.
-  intro H.
-  simpl in *.
-  exists (nat_trans_inv_from_pointwise_inv _ _ _ _ _ H).
   simpl; split; simpl.
   apply nat_trans_eq.
   intro x; simpl.
@@ -764,6 +765,17 @@ Proof.
   intro x; simpl.
   apply (pr2 (pr2 (H _))).
 Qed.  
+
+
+Lemma functor_iso_if_pointwise_iso (C C' : precategory)
+ (F G : ob [C, C']) (A : F --> G) : 
+   (forall a : ob C, is_isomorphism (pr1 A a)) ->  
+           is_isomorphism A .
+Proof.
+  intro H.
+  exists (nat_trans_inv_from_pointwise_inv _ _ _ _ _ H).
+  simpl; apply is_inverse_nat_trans_inv_from_pointwise_inv.
+Defined.
 
 Definition functor_iso_from_pointwise_iso (C C' : precategory)
  (F G : ob [C, C']) (A : F --> G) 
@@ -801,13 +813,6 @@ Definition functor_iso_pointwise_if_iso (C C' : precategory)
        iso (pr1 F a) (pr1 G a) := 
   fun a => tpair _ _ (is_functor_iso_pointwise_if_iso C C' F G A H a).
  
-(*
-Lemma functor_iso_pointwise_if_iso_on_idtoiso (C C' : precategory)
-  (F G : ob [C, C']) (A : F == G) :
-    forall a : ob C,
-   precategory_fun_iso_pointwise_if_iso C C' F G (idtoiso F) a
-    ==  toforallpaths 
-  *)  
 
 Definition pr1_pr1_functor_eq_from_functor_iso (C D : precategory)
     (H : is_category D) (F G : ob [C , D]) :
