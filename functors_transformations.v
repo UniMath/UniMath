@@ -205,7 +205,7 @@ Proof.
   apply eq_iso.
   simpl.
   apply idpath.
-Qed.
+Defined.
   
 (** ** Functors preserve inverses *)
 
@@ -213,9 +213,7 @@ Lemma functor_on_inv_from_iso (C C' : precategory) (F : functor C C')
     (a b : ob C)(f : iso a b) :
       #F (inv_from_iso f) == inv_from_iso (functor_on_iso _ _ F _ _ f) .
 Proof.
-  set (H := functor_on_iso_inv _ _ F _ _ f).
-  set (H' := base_paths _ _ H). simpl in *.
-  apply H'.
+  apply idpath.
 Qed. 
 
 
@@ -256,7 +254,7 @@ Proof.
   set (HFFaa := homotweqinvweq (weq_from_fully_faithful _ _ _ HF a a)
                  (identity _ )).
   unfold fully_faithful_inv_hom.
-  simpl in *.
+  simpl in *. 
   rewrite HFFaa.
   rewrite functor_id; apply idpath.
 Qed.
