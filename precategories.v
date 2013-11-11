@@ -317,10 +317,10 @@ Qed.
 (** ** Properties of isomorphisms *)
 (** Stability under composition, inverses etc *)
 
-Lemma is_iso_comp_of_isos {C : precategory} {a b c : ob C}
-  (f : iso a b) (g : iso b c) : is_isomorphism (f ;; g).
+Lemma are_inverse_comp_of_inverses (C : precategory) (a b c : C)
+     (f : iso a b) (g : iso b c) :  
+  is_inverse_in_precat (f;; g) (inv_from_iso g;; inv_from_iso f).
 Proof.
-  exists (inv_from_iso g ;; inv_from_iso f).
   simpl; split; simpl;
   unfold inv_from_iso; simpl.
   destruct f as [f [f' Hf]]. simpl in *.
@@ -340,6 +340,14 @@ Proof.
   rewrite id_right.
   rewrite (pr2 Hg).
   apply idpath.
+Qed. 
+
+
+Lemma is_iso_comp_of_isos {C : precategory} {a b c : ob C}
+  (f : iso a b) (g : iso b c) : is_isomorphism (f ;; g).
+Proof.
+  exists (inv_from_iso g ;; inv_from_iso f). simpl.
+  apply are_inverse_comp_of_inverses.
 Defined. (* Qed. *)
 
 
@@ -373,23 +381,6 @@ Lemma iso_inv_of_iso_comp (C : precategory) (a b c : ob C)
 Proof.
   apply eq_iso. 
   reflexivity.
-(*  
-  simpl.
-  apply pathsinv0.
-  apply inv_iso_unique.
-  split; simpl.
-  pathvia (f ;; (g ;; inv_from_iso g) ;; inv_from_iso f).
-  repeat rewrite assoc. apply idpath.
-  rewrite iso_inv_after_iso.
-  rewrite id_right.
-  apply iso_inv_after_iso.
-  
-  pathvia ((inv_from_iso g;; (inv_from_iso f;; f);; g)).
-  repeat rewrite assoc. apply idpath.
-  rewrite iso_after_iso_inv.
-  rewrite id_right.
-  apply iso_after_iso_inv.
-*)
 Qed.
 
 Lemma iso_inv_of_iso_id (C : precategory) (a : ob C) :
@@ -407,14 +398,6 @@ Proof.
   apply eq_iso.
   reflexivity.
 Defined.
-(*
-  apply pathsinv0.
-  apply inv_iso_unique.
-  split; simpl.
-  apply iso_after_iso_inv.
-  apply iso_inv_after_iso.
-Qed.
-*)
 
 Lemma pre_comp_with_iso_is_inj (C : precategory) (a b c : ob C)
     (f : a --> b) (H : is_isomorphism f) (g h : b --> c) : f ;; g == f ;; h -> g == h.
@@ -501,8 +484,7 @@ Proof.
   unfold isotoid.
   set (Hw := homotweqinvweq (weqpair idtoiso (H a b))).
   simpl in Hw.
-  rewrite Hw.
-  apply idpath.
+  apply Hw.
 Qed.
 
 Lemma isotoid_idtoiso (C : precategory) (H : is_category C) (a b : ob C)
@@ -511,8 +493,7 @@ Proof.
   unfold isotoid.
   set (Hw := homotinvweqweq (weqpair idtoiso (H a b))).
   simpl in Hw.
-  rewrite Hw.
-  apply idpath.
+  apply Hw.
 Qed.
 
 (** ** Properties of [idtoiso] and [isotoid] *)
@@ -520,8 +501,8 @@ Qed.
 Definition double_transport' {C : precategory} {a a' b b' : ob C}
    (p : a == a') (q : b == b') (f : a --> b) : a' --> b'.
 Proof.
-  induction p.
-  induction q.
+  destruct p.
+  destruct q.
   exact f.
 Defined.
 
@@ -533,20 +514,17 @@ Lemma idtoiso_postcompose (C : precategory) (a b b' : ob C)
   (p : b == b') (f : a --> b) :
       f ;; idtoiso p == transportf (fun b => a --> b) p f.
 Proof.
-  induction p.
-  simpl.
-  rewrite id_right.
-  apply idpath.
+  destruct p.
+  apply id_right.
 Qed.
 
 Lemma idtoiso_postcompose_iso (C : precategory) (a b b' : ob C)
   (p : b == b') (f : iso a b) : 
     iso_comp f (idtoiso p) == transportf (fun b => iso a b) p f.
 Proof.
-  induction p.
+  destruct p.
   apply eq_iso.
   simpl.
-  rewrite transportf_idpath.
   apply id_right.
 Qed.
 
@@ -555,9 +533,7 @@ Lemma idtoiso_precompose (C : precategory) (a a' b : ob C)
   (p : a == a') (f : a --> b) : 
       (idtoiso (!p)) ;; f == transportf (fun a => a --> b) p f.
 Proof.
-  induction p.
-  simpl.
-  rewrite transportf_idpath.
+  destruct p.
   apply id_left.
 Qed.
 
@@ -565,12 +541,9 @@ Lemma double_transport_idtoiso (C : precategory) (a a' b b' : ob C)
   (p : a == a') (q : b == b')  (f : a --> b) : 
   double_transport p q f == inv_from_iso (idtoiso p) ;; f ;; idtoiso q.
 Proof.
-  induction p.
-  induction q.
-  simpl.
+  destruct p.
+  destruct q.
   rewrite id_right.
-  unfold inv_from_iso.
-  simpl.
   rewrite id_left.
   apply idpath.
 Qed.
@@ -578,11 +551,7 @@ Qed.
 Lemma idtoiso_inv (C : precategory) (a a' : ob C)
   (p : a == a') : idtoiso (!p) == iso_inv_from_iso (idtoiso p).
 Proof.
-  induction p.
-  apply eq_iso. 
-  simpl.
-  unfold inv_from_iso.
-  simpl.
+  destruct p. 
   apply idpath.
 Qed.
 
@@ -591,11 +560,10 @@ Lemma idtoiso_concat (C : precategory) (a a' a'' : ob C)
   (p : a == a') (q : a' == a'') :
   idtoiso (p @ q) == iso_comp (idtoiso p) (idtoiso q).
 Proof.
-  induction p.
-  induction q.
-  simpl.
+  destruct p.
+  destruct q.
   apply eq_iso.
-  simpl.
+  simpl;  
   rewrite id_left.
   apply idpath.
 Qed.
