@@ -228,7 +228,7 @@ Proof.
   apply (total2_paths H).
   apply proofirrelevance.
   apply isaprop_is_isomorphism.
-Qed.
+Defined.
 
 Definition morphism_from_iso (C : precategory)(a b : ob C) 
    (f : iso a b) : a --> b := pr1 f.
@@ -267,7 +267,7 @@ Proof.
   unfold inv_from_iso.
   apply (pr2 (pr2 (pr2 f))).
   apply (pr1 (pr2 (pr2 f))).
-Qed.
+Defined.
 
 Definition iso_inv_from_iso {C : precategory} {a b : ob C}
   (f : iso a b) : iso b a.
@@ -340,7 +340,7 @@ Proof.
   rewrite id_right.
   rewrite (pr2 Hg).
   apply idpath.
-Qed.
+Defined. (* Qed. *)
 
 
 Definition iso_comp {C : precategory} {a b c : ob C}
@@ -371,6 +371,10 @@ Lemma iso_inv_of_iso_comp (C : precategory) (a b c : ob C)
    (f : iso a b) (g : iso b c) :
    iso_inv_from_iso (iso_comp f g) == iso_comp (iso_inv_from_iso g) (iso_inv_from_iso f).
 Proof.
+  apply eq_iso. 
+  reflexivity.
+(*  
+  simpl.
   apply pathsinv0.
   apply inv_iso_unique.
   split; simpl.
@@ -385,14 +389,13 @@ Proof.
   rewrite iso_after_iso_inv.
   rewrite id_right.
   apply iso_after_iso_inv.
+*)
 Qed.
 
 Lemma iso_inv_of_iso_id (C : precategory) (a : ob C) :
    iso_inv_from_iso (identity_iso a) == identity_iso a.
 Proof.
-  apply pathsinv0.
-  apply inv_iso_unique.
-  split; simpl; rewrite id_left;
+  apply eq_iso.
   apply idpath.
 Qed.
 
@@ -401,13 +404,17 @@ Lemma iso_inv_iso_inv (C : precategory) (a b : ob C)
    (f : iso a b) : 
      iso_inv_from_iso (iso_inv_from_iso f) == f.
 Proof.
+  apply eq_iso.
+  reflexivity.
+Defined.
+(*
   apply pathsinv0.
   apply inv_iso_unique.
   split; simpl.
   apply iso_after_iso_inv.
   apply iso_inv_after_iso.
 Qed.
-
+*)
 
 Lemma pre_comp_with_iso_is_inj (C : precategory) (a b c : ob C)
     (f : a --> b) (H : is_isomorphism f) (g h : b --> c) : f ;; g == f ;; h -> g == h.
