@@ -155,7 +155,7 @@ Proof.
   intro y.
   set (ou := toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Ep)) y).
   apply ou.
-Qed.
+Defined.
 
 Definition weq_on_objects_from_equiv_of_cats (A B : precategory)
    (HA : is_category A) (HB : is_category B) (F : ob [A, B])
@@ -288,7 +288,6 @@ Defined.
 
 Definition rad_mor (b b' : ob B) (g : b --> b') : rad_ob b --> rad_ob b'.
 Proof.
-  
   set (epsgebs' := rad_eps b ;; g ;; iso_inv_from_iso (rad_eps b')).
   set (Gg := fully_faithful_inv_hom _ _ _ HF (rad_ob b) _ epsgebs').
   exact Gg.
@@ -496,7 +495,6 @@ Proof.
       (fully_faithful_inv_hom A B F HF a (rad_ob ((pr1 F) a))
      (iso_inv_from_iso (rad_eps ((pr1 F) a)))).
   apply H'.
-  
   intro b. apply (pr2 (rad_eps b)).
 Defined.
 
