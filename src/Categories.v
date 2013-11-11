@@ -195,21 +195,32 @@ Module DirectSums.
     exact zeroMapsUniqueness.
   Defined.
   
-  Lemma zpres {C:precategory} (h:hasZeroObject C) : forall (a b c:C) (f:b-->c), f  o  zeroMap h a b == zeroMap h a c. 
+  Lemma goal1 {C:precategory} (h h':hasZeroObject C) : forall (a b:C), zeroMap h a b == zeroMap h' a b. 
+  Proof. intros. path_from (fun h => zeroMap h a b). apply isaprop_squash. Qed.
+  
+  Lemma goal3 {C:precategory} (z:ZeroObject C) : forall (a b:C), zeroMap' z a b == zeroMap (squash_element z) a b. 
+  Proof. intros. apply idpath. Qed.
+  
+  Lemma goal4 {C:precategory} (z:ZeroObject C) (h:hasZeroObject C) : forall (a b:C), zeroMap' z a b == zeroMap h a b. 
+  Proof. intros. path_via (zeroMap (squash_element z) a b). apply idpath. apply goal1. Qed.
+
+  Lemma goal5 {C:precategory} (z:ZeroObject C) : forall (a b c:C) (f:b-->c), f  o  zeroMap' z a b == zeroMap' z a c. 
+  Proof. intros. admit. Qed.
+
+  Lemma goal2 {C:precategory} (h:hasZeroObject C) : forall (a b c:C) (f:b-->c), f  o  zeroMap h a b == zeroMap h a c. 
   Proof.
     intros.
-    set (eqn := paths (f o zeroMap h a b) (zeroMap h a c) ).
-    assert( i : isaprop eqn). apply isaset_hSet.
-    apply (@factor_through_squash (ZeroObject C)). assumption.
-     intro zero.
-     assert( e : h == squash_element zero ). apply isaprop_squash.
-     Focus.
-     (* rewrite e in eqn. *)
-
-
-
-     admit.
-    assumption.
+    assert( i : isaprop (paths (f o zeroMap h a b) (zeroMap h a c) )). apply isaset_hSet.
+    apply (@factor_through_squash (ZeroObject C) _ i).
+     intro z.
+     path_via (f  o  zeroMap' z a b).     
+     path_from (fun g : a --> b => f o g).
+     apply pathsinv0.
+     apply goal4.
+     path_via (zeroMap' z a c).
+     apply goal5.
+     apply goal4.
+    exact h.
   Qed.
 
   (* the following definition is not right yet *)
