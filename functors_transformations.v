@@ -96,11 +96,7 @@ Proof.
   apply isofhleveldirprod.
   apply impred; intro a.
   apply (pr2 (_ --> _)).
-  apply impred; intro a.
-  apply impred; intro b.
-  apply impred; intro c.
-  apply impred; intro f.
-  apply impred; intro g.
+  repeat (apply impred; intro).
   apply (pr2 (_ --> _)).
 Qed.
 
@@ -157,22 +153,7 @@ Proof.
 Defined.
 
 
-(*
-Definition functor_eq_eq_from_functor_ob_eq (C C' : precategory_data)
-   (F G : functor C C') (p q : F == G) 
-   (H : functor_ob_eq_from_functor_eq _ _ _ _ p == 
-         functor_ob_eq_from_functor_eq _ _ _ _ q) :
-    p == q.
-Proof.
-  assert (H' : base_paths _ _ p == base_paths _ _ q).
-  unfold base_paths.
-  unfold functor_ob_eq_from_functor_eq in H.
-  unfold base_paths in H.
-  simpl in *.
-  apply (total2_paths H).
-  simpl.
-*)
-  
+ 
 
 Definition functor_id (C C' : precategory_data)(F : functor C C'):
        forall a : ob C, #F (identity a) == identity (F a) := pr1 (pr2 F).
@@ -185,10 +166,11 @@ Definition functor_comp (C C' : precategory_data)
 
 (** ** Functors preserve isomorphisms *)
 
-Lemma functor_on_iso_is_iso (C C' : precategory) (F : functor C C')
-    (a b : ob C)(f : iso a b) : is_isomorphism (#F f).
+
+Lemma is_inverse_functor_image (C C' : precategory) (F : functor C C')
+    (a b : C) (f : iso a b):
+   is_inverse_in_precat (#F f) (#F (inv_from_iso f)).
 Proof.
-  exists (#F (inv_from_iso f)).
   simpl; split; simpl.
   rewrite <- functor_comp.
   rewrite iso_inv_after_iso.
@@ -198,6 +180,14 @@ Proof.
   rewrite (iso_after_iso_inv _ _ _ f).
   apply functor_id.
 Qed.
+
+
+Lemma functor_on_iso_is_iso (C C' : precategory) (F : functor C C')
+    (a b : ob C)(f : iso a b) : is_isomorphism (#F f).
+Proof.
+  exists (#F (inv_from_iso f)). 
+  simpl; apply is_inverse_functor_image.
+Defined.
 
 
 Definition functor_on_iso (C C' : precategory) (F : functor C C')
@@ -212,15 +202,9 @@ Lemma functor_on_iso_inv (C C' : precategory) (F : functor C C')
    functor_on_iso _ _ F _ _ (iso_inv_from_iso f) == 
        iso_inv_from_iso (functor_on_iso _ _ F _ _ f).
 Proof.
-  apply inv_iso_unique.
+  apply eq_iso.
   simpl.
-  split; simpl.
-  rewrite <- functor_comp.
-  rewrite iso_inv_after_iso.
-  apply functor_id.
-  rewrite <- functor_comp.
-  rewrite iso_after_iso_inv.
-  apply functor_id.
+  apply idpath.
 Qed.
   
 (** ** Functors preserve inverses *)
