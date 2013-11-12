@@ -11,6 +11,16 @@ Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
+
+Lemma transportf_idpath (X : UU) (P : X -> UU) (x : X)(z : P x) :
+   transportf _ (idpath x) z == z.
+Proof.
+  unfold transportf.
+  simpl.
+  apply idpath.
+Defined.
+
+
 (** lemmas taken from the HoTT library resp. the book *)
 
 

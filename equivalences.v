@@ -197,7 +197,6 @@ Proof.
   rewrite iso_inv_of_iso_id.
   apply eq_iso.
   simpl. 
-  rewrite transportf_idpath.
   rewrite functor_id.
   rewrite id_left.
   apply idpath.

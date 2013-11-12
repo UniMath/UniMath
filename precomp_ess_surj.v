@@ -189,7 +189,6 @@ Proof.
   intro w0.
   induction w0.
   simpl.
-  rewrite transportf_idpath.
   apply eq_iso. simpl.
   rewrite id_right.
   apply idpath.
@@ -281,8 +280,6 @@ Proof.
   generalize (Xphi b t).
   intro i.
   induction i.
-  rewrite transportf_idpath.
-  simpl.
   apply id_right.
 Qed.
   

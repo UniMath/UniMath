@@ -228,16 +228,6 @@ Defined.
 
 
 
-Lemma transportf_idpath (X : UU) (P : X -> UU) (x : X)(z : P x) :
-   transportf _ (idpath x) z == z.
-Proof.
-  unfold transportf.
-  simpl.
-  apply idpath.
-Defined.
-
-
-
 Lemma pairofobuip (C C': hSet) (a b : C) (c d : C') 
         (p q : dirprod (a == b) (c == d)) : p == q.
 Proof.
