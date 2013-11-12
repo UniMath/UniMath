@@ -28,5 +28,15 @@ Proof.
   destruct p. destruct yz. apply idpath.
 Defined.
 
-  :=
-  match p with idpath => z end.
+(*
+Definition transport_sigma' {A : UU} {B : A -> UU} {C : total2 (fun a => B a) -> UU}
+  {x1 x2 : A} (p : x1 == x2) 
+  (yz : total2 (fun y : B x1 => C (tpair (fun a => B a) x1 y) ))
+
+  : transportf (fun x => total2 (fun y : B x => C (tpair (fun a => B a) x y))) p yz
+    == tpair (fun y => C (tpair _ x2 y)) (transportf _ p  (pr1 yz)) 
+              (transportD _ _ p (pr1 yz) (pr2 yz)).
+Proof.
+  destruct p. destruct yz. apply idpath.
+Defined.
+*)

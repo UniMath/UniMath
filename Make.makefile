@@ -114,7 +114,8 @@ VFILES:=auxiliary_lemmas_HoTT.v\
   limits/initial.v\
   limits/terminal.v\
   limits/pullbacks.v\
-  topos/epis_monos.v
+  topos/epis_monos.v\
+  topos/aux_lemmas_HoTT.v
 VOFILES:=$(VFILES:.v=.vo)
 GLOBFILES:=$(VFILES:.v=.glob)
 VIFILES:=$(VFILES:.v=.vi)
