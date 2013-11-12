@@ -241,4 +241,16 @@ Module DirectSums.
   Definition squashBinarySums (C:precategory) :=
     forall a b : C, squash (BinarySum a b).
 
+(**
+
+  We are working toward definitions of "additive category" and "abelian
+  category" as properties of a category, rather than as an added structure.
+  That is the approach of Mac Lane in sections 18, 19, and 21 of :
+
+  Duality for groups
+  Bull. Amer. Math. Soc. Volume 56, Number 6 (1950), 485-516.
+  http://projecteuclid.org/DPubS/Repository/1.0/Disseminate?view=body&id=pdf_1&handle=euclid.bams/1183515045
+
+ *)
+
 End DirectSums.
