@@ -461,7 +461,8 @@ Coercion precat_from_cat : category >-> precategory.
 Lemma category_has_groupoid_ob (C : category) : 
   isofhlevel 3 (ob C).
 Proof.
-  apply isofhlevelonestep.
+  change (isofhlevel 3 C) with
+        (forall a b : C, isofhlevel 2 (a == b)).
   intros a b.
   apply (isofhlevelweqb _ (tpair _ _ (pr2 C a b))).
   apply isaset_iso.

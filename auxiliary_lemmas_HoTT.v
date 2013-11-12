@@ -237,11 +237,7 @@ Proof.
   apply uip. exact (pr2 C').
 Qed.
 
-Lemma isofhlevelonestep (A : UU) n: 
-  (forall x y : A, isofhlevel n (x == y)) -> isofhlevel (S n) A.
-Proof.
-  exact (fun x => x).
-Defined.
+
 
 
 
