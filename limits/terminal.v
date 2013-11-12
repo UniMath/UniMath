@@ -39,7 +39,7 @@ Proof.
   exists (TerminalArrow T' T).
   split; apply pathsinv0;
    apply TerminalEndo_is_identity.
-Qed.
+Defined.
 
 Definition iso_Terminals (T T' : Terminal) : iso T T' := 
    tpair _ (TerminalArrow T' T) (isiso_from_Terminal_to_Terminal T' T) .

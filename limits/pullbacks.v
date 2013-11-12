@@ -30,6 +30,9 @@ Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
      total2 (fun H : f' ;; g == g' ;; f =>
         isPullback f g f' g' H)))).
 
+Definition Pullbacks := forall (a b c : C)(f : b --> a)(g : c --> a),
+       Pullback f g.
+
 Definition hasPullbacks := forall (a b c : C) (f : b --> a) (g : c --> a),
          ishinh (Pullback f g).
 
@@ -108,11 +111,12 @@ Proof.
   apply PullbackSqrCommutes.
 Defined.
 
-Lemma isiso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
+
+Lemma are_inverses_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
    (Pb Pb': Pullback f g) : 
-      is_isomorphism (from_Pullback_to_Pullback Pb Pb').
+is_inverse_in_precat (from_Pullback_to_Pullback Pb Pb')
+  (from_Pullback_to_Pullback Pb' Pb).
 Proof.
-  exists (from_Pullback_to_Pullback Pb' Pb).
   split; apply pathsinv0;
   apply PullbackEndo_is_identity;
   rewrite <- assoc;
@@ -123,7 +127,18 @@ Proof.
 Qed.
 
 
+Lemma isiso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
+   (Pb Pb': Pullback f g) : 
+      is_isomorphism (from_Pullback_to_Pullback Pb Pb').
+Proof.
+  exists (from_Pullback_to_Pullback Pb' Pb).
+  apply are_inverses_from_Pullback_to_Pullback.
+Defined.
 
+
+Definition iso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
+   (Pb Pb': Pullback f g) : iso Pb Pb' :=
+  tpair _ _ (isiso_from_Pullback_to_Pullback Pb Pb').
 
 
 
@@ -131,6 +146,21 @@ Qed.
 Section Universal_Unique.
 
 Hypothesis H : is_category C.
+
+
+Lemma isaprop_Pullbacks: isaprop Pullbacks.
+Proof.
+  apply impred; intro a.
+  apply impred; intro b.
+  apply impred; intro c.
+  apply impred; intro f.
+  apply impred; intro g.
+  apply invproofirrelevance.
+  intros Pb Pb'.
+  apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
+  simpl.
+  
+
 
 
 End Universal_Unique.

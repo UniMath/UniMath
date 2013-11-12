@@ -39,7 +39,7 @@ Proof.
   exists (InitialArrow O' O).
   split; apply pathsinv0;
    apply InitialEndo_is_identity.
-Qed.
+Defined.
 
 Definition iso_Initials (O O' : Initial) : iso O O' := 
    tpair _ (InitialArrow O O') (isiso_from_Initial_to_Initial O O') .
