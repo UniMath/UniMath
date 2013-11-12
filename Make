@@ -18,6 +18,6 @@ yoneda.v
 limits/initial.v
 limits/terminal.v
 limits/pullbacks.v
+limits/aux_lemmas_HoTT.v
 
 topos/epis_monos.v
-topos/aux_lemmas_HoTT.v

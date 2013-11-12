@@ -10,6 +10,8 @@ Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
+Require Import RezkCompletion.limits.aux_lemmas_HoTT.
+
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 Local Notation "f ;; g" := (compose f g)(at level 50).
 
@@ -158,9 +160,23 @@ Proof.
   apply invproofirrelevance.
   intros Pb Pb'.
   apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
-  simpl.
+  assert (H' : pr1 (transportf
+  (fun x : C =>
+   total2
+     (fun f' : x --> c =>
+      total2
+        (fun g' : x --> b =>
+         total2 (fun H0 : f';; g == g';; f => isPullback f g f' g' H0))))
+  (isotoid C H (iso_from_Pullback_to_Pullback Pb Pb')) (pr2 Pb))  == pr1 (pr2 Pb')).
+  destruct Pb as [Pb Pbrest].
+  destruct Pb' as [Pb' Pbrest'].
+  simpl in *.
+  rewrite transport_sigma.
+  simpl in *.
+  destruct Pbrest as [pro1 Pbrest].
+  destruct Pbrest' as [pro1' Pbrest'].
+  simpl in *.
   
-
 
 
 End Universal_Unique.
