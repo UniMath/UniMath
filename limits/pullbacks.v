@@ -25,6 +25,14 @@ Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
    forall e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f ),
       iscontr (total2 (fun hk : e --> d => dirprod (hk ;; f' == k)(hk ;; g' == h))).
 
+Lemma isaprop_isPullback {a b c d : C} (f : b --> a) (g : c --> a)
+        (f' : d --> c) (g' : d --> b) (H : f' ;; g == g';; f) :
+       isaprop (isPullback f g f' g' H).
+Proof.
+  repeat (apply impred; intro).
+  apply isapropiscontr.
+Qed.
+
 Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
      total2 (fun pfg : total2 (fun p : C => dirprod (p --> c) (p --> b)) =>
          total2 (fun H : pr1 (pr2 pfg) ;; g == pr2 (pr2 pfg) ;; f =>
@@ -240,35 +248,33 @@ Proof.
   intros Pb Pb'.
   assert (H' : pr1 Pb == pr1 Pb').
   apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
-  Check (isotoid C H (iso_from_Pullback_to_Pullback Pb Pb')).
-  Check (pr2 (pr1 Pb)).
   rewrite transportf_dirprod.
-  Check (pr2 (pr1 Pb')).
-  Search  ( _ (isotoid _ _ _ ) == _ ).
-  rewrite <- (idtoiso_precompose _ _ _ _ (isotoid C H (iso_from_Pullback_to_Pullback Pb Pb'))  ).
-  rewrite 
-  simpl.
   rewrite transportf_isotoid.
   simpl.
-  assert (H' : pr1 (transportf
-  (fun x : C =>
-   total2
-     (fun f' : x --> c =>
-      total2
-        (fun g' : x --> b =>
-         total2 (fun H0 : f';; g == g';; f => isPullback f g f' g' H0))))
-  (isotoid C H (iso_from_Pullback_to_Pullback Pb Pb')) (pr2 Pb))  == pr1 (pr2 Pb')).
-  destruct Pb as [Pb Pbrest].
-  destruct Pb' as [Pb' Pbrest'].
+  change (inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb'))
+         with (from_Pullback_to_Pullback Pb' Pb).
+  rewrite transportf_isotoid.
+  change (inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb'))
+         with (from_Pullback_to_Pullback Pb' Pb).
+  destruct Pb as [Cone bla].
+  destruct Pb' as [Cone' bla'].
   simpl in *.
-  destruct 
-  rewrite transport_sigma.
+  destruct Cone as [p [h k]].
+  destruct Cone' as [p' [h' k']].
   simpl in *.
-  destruct Pbrest as [pro1 Pbrest].
-  destruct Pbrest' as [pro1' Pbrest'].
-  simpl in *.
+    unfold from_Pullback_to_Pullback.
+  rewrite PullbackArrow_PullbackPr2.
+  rewrite PullbackArrow_PullbackPr1.
+  apply idpath.
   
-
+  
+  apply (total2_paths H').
+  apply proofirrelevance.
+  apply isofhleveltotal2.
+  apply (pr2 (_ --> _)).
+  intros.
+  apply isaprop_isPullback.
+Qed.
 
 End Universal_Unique.
 
