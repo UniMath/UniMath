@@ -493,17 +493,9 @@ Qed.
 
 (** ** Properties of [idtoiso] and [isotoid] *)
 
-Definition double_transport' {C : precategory} {a a' b b' : ob C}
-   (p : a == a') (q : b == b') (f : a --> b) : a' --> b'.
-Proof.
-  destruct p.
-  destruct q.
-  exact f.
-Defined.
-
 Definition double_transport {C : precategory} {a a' b b' : ob C}
    (p : a == a') (q : b == b') (f : a --> b) : a' --> b' :=
-  transportf (fun TT => a' --> TT) q (transportf (fun SS => SS --> b) p f).
+  transportf (fun c => a' --> c) q (transportf (fun c => c --> b) p f).
 
 Lemma idtoiso_postcompose (C : precategory) (a b b' : ob C)
   (p : b == b') (f : a --> b) :

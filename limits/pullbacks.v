@@ -26,6 +26,85 @@ Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
       iscontr (total2 (fun hk : e --> d => dirprod (hk ;; f' == k)(hk ;; g' == h))).
 
 Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
+     total2 (fun pfg : total2 (fun p : C => dirprod (p --> c) (p --> b)) =>
+         total2 (fun H : pr1 (pr2 pfg) ;; g == pr2 (pr2 pfg) ;; f =>
+        isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
+
+Definition Pullbacks := forall (a b c : C)(f : b --> a)(g : c --> a),
+       Pullback f g.
+
+Definition hasPullbacks := forall (a b c : C) (f : b --> a) (g : c --> a),
+         ishinh (Pullback f g).
+
+
+Definition PullbackObject {a b c : C} {f : b --> a} {g : c --> a}: 
+   Pullback f g -> C := fun H => pr1 (pr1 H).
+Coercion PullbackObject : Pullback >-> ob.
+
+Definition PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a} 
+   (Pb : Pullback f g) : Pb --> c := pr1 (pr2 (pr1 Pb)).
+
+Definition PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a} 
+   (Pb : Pullback f g) : Pb --> b := pr2 (pr2 (pr1 Pb)).
+
+Definition PullbackSqrCommutes {a b c : C} {f : b --> a} {g : c --> a} 
+   (Pb : Pullback f g) : 
+    PullbackPr1 Pb ;; g == PullbackPr2 Pb ;; f . 
+Proof. 
+  apply (pr1 (pr2 Pb)).
+Qed.
+
+Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a} 
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) : e --> Pb :=
+   pr1 (pr1 (pr2 (pr2 Pb) e h k H)).
+
+Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a} 
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) :
+   PullbackArrow Pb e h k H ;; PullbackPr1 Pb == k.
+Proof.
+  apply (pr2 (pr1 (pr2 (pr2 Pb) e h k H))).
+Qed.
+
+Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a} 
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) :
+   PullbackArrow Pb e h k H ;; PullbackPr2 Pb == h.
+Proof.
+  apply (pr2 (pr2 (pr1 (pr2 (pr2 Pb) e h k H)))).
+Qed.
+
+
+
+Definition identity_is_Pullback_input {a b c : C}{f : b --> a} {g : c --> a} (Pb : Pullback f g) : 
+ total2 (fun hk : Pb --> Pb => 
+   dirprod (hk ;; PullbackPr1 Pb == PullbackPr1 Pb)(hk ;; PullbackPr2 Pb == PullbackPr2 Pb)).
+Proof.
+  exists (identity Pb).
+  apply (dirprodpair).
+  apply id_left.
+  apply id_left.
+Defined.
+
+Lemma PullbackEndo_is_identity {a b c : C}{f : b --> a} {g : c --> a}
+   (Pb : Pullback f g) (k : Pb --> Pb) (kH1 : k ;; PullbackPr1 Pb == PullbackPr1 Pb)
+                                       (kH2 : k ;; PullbackPr2 Pb == PullbackPr2 Pb) :
+       identity Pb == k.
+Proof.
+  set (H1 := tpair ((fun hk : Pb --> Pb => dirprod (hk ;; _ == _)(hk ;; _ == _))) k (dirprodpair kH1 kH2)).
+  assert (H2 : identity_is_Pullback_input Pb == H1).
+  apply proofirrelevance.
+  apply isapropifcontr.
+  apply (pr2 (pr2 Pb)).
+  apply PullbackSqrCommutes.
+(*  set (H:= pr2 (pr2 (pr2 (pr2 Pb)))).  simpl in H.
+  set (HH:= H Pb (PullbackPr2 Pb) (PullbackPr1 Pb) (PullbackSqrCommutes Pb)).
+  apply HH.
+*)
+  apply (base_paths _ _ H2).
+Qed.
+
+
+(*
+Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
      total2 (fun p =>
      total2 (fun f' : p --> c =>
      total2 (fun g' : p --> b =>
@@ -104,7 +183,7 @@ Proof.
 *)
   apply (base_paths _ _ H2).
 Qed.
-
+*)
 
 Definition from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
    (Pb Pb': Pullback f g) : Pb --> Pb'.
@@ -159,7 +238,15 @@ Proof.
   apply impred; intro g.
   apply invproofirrelevance.
   intros Pb Pb'.
+  assert (H' : pr1 Pb == pr1 Pb').
   apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
+  Check (isotoid C H (iso_from_Pullback_to_Pullback Pb Pb')).
+  Check (pr2 (pr1 Pb)).
+  rewrite transportf_dirprod.
+  Check (pr2 (pr1 Pb')).
+  Search  ( _ (isotoid _ _ _ ) == _ ).
+  rewrite transportf_isotoid.
+  simpl.
   assert (H' : pr1 (transportf
   (fun x : C =>
    total2
@@ -171,6 +258,7 @@ Proof.
   destruct Pb as [Pb Pbrest].
   destruct Pb' as [Pb' Pbrest'].
   simpl in *.
+  destruct 
   rewrite transport_sigma.
   simpl in *.
   destruct Pbrest as [pro1 Pbrest].

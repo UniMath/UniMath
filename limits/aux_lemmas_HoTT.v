@@ -9,6 +9,7 @@ Require Import RezkCompletion.pathnotations.
 Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
+Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 (** lemmas taken from the HoTT library resp. the book *)
 
@@ -20,13 +21,34 @@ Proof.  destruct p. exact z.
 Defined.
 
 
-Definition transport_sigma {A : UU} {B : A -> UU} {C : forall a:A, B a -> UU}
+Definition transportf_sigma {A : UU} {B : A -> UU} {C : forall a:A, B a -> UU}
   {x1 x2 : A} (p : x1 == x2) (yz : total2 (fun y : B x1 => C x1 y ))
   : transportf (fun x => total2 (fun y : B x => C x y)) p yz
     == tpair (fun y => C x2 y) (transportf _ p  (pr1 yz)) (transportD _ _ p (pr1 yz) (pr2 yz)).
 Proof.
   destruct p. destruct yz. apply idpath.
 Defined.
+
+Definition transportf_dirprod (A : UU) (B B' : A -> UU) (x x' : total2 (fun a => dirprod (B a) (B' a)))
+   (p : pr1 x == pr1 x') :
+  transportf (fun a => dirprod (B a) (B' a)) p (pr2 x) == 
+                            dirprodpair (transportf (fun a => B a) p (pr1 (pr2 x))) 
+                                        (transportf (fun a => B' a) p (pr2 (pr2 x))) .
+Proof.
+  destruct x as [t tp].
+  destruct x' as [t' tp'].
+  simpl in *.
+  destruct p.
+  simpl.
+  pathvia tp.
+  rewrite transportf_idpath. apply idpath. 
+  (* here apply transportf_idpath should work *)
+  repeat rewrite transportf_idpath.
+  apply tppr.
+Defined.
+  
+
+
 
 (*
 Definition transport_sigma' {A : UU} {B : A -> UU} {C : total2 (fun a => B a) -> UU}
