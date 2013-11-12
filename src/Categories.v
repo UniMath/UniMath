@@ -26,38 +26,22 @@ Definition isiso {C:precategory} {a b:C} (f : a --> b) := total2 (is_inverse_in_
 
 Module Products.
 
-  (** *** initial objects *)
+  (** *** terminal objects *)
 
-  Definition isInitialObject {C:precategory} (a:C) := forall (x:C), iscontr (a --> x).
+  Definition isTerminalObject {C:precategory} (a:C) := forall (x:C), iscontr (a <-- x).
 
-  Lemma initialObjectIsomorphy {C:precategory} (a b : C) : isInitialObject a -> isInitialObject b -> iso a b.
-  Proof.
-    intros maps_from_a_to maps_from_b_to. 
-    exists (center (maps_from_a_to b)). 
-    exists (center (maps_from_b_to a)).
-    split. 
-      path_via (center (maps_from_a_to a)). 
-        apply contraction.
-      apply pathsinv0. 
-      apply contraction. 
-    path_via (center (maps_from_b_to b)). 
-      apply contraction.
-    apply pathsinv0. 
-    apply contraction.
-  Defined.
-
-  Lemma isaprop_isInitialObject {C:precategory} (a:C) : isaprop(isInitialObject a).
+  Lemma isaprop_isTerminalObject {C:precategory} (a:C) : isaprop(isTerminalObject a).
   Proof. prop_logic. Qed.
 
-  Definition isInitialObjectProp {C:precategory} (a:C) := 
-    hProppair (isInitialObject a) (isaprop_isInitialObject a) : hProp.
+  Definition isTerminalObjectProp {C:precategory} (a:C) := 
+    hProppair (isTerminalObject a) (isaprop_isTerminalObject a) : hProp.
 
-  Definition InitialObject (C:precategory) := total2 (fun a:C => isInitialObject a).
+  Definition TerminalObject (C:precategory) := total2 (fun a:C => isTerminalObject a).
 
-  Definition squashInitialObject (C:precategory) := squash (InitialObject C).
+  Definition squashTerminalObject (C:precategory) := squash (TerminalObject C).
 
-  Definition squashInitialObjectProp (C:precategory) := 
-    hProppair (squashInitialObject C) (isaprop_squash _).
+  Definition squashTerminalObjectProp (C:precategory) := 
+    hProppair (squashTerminalObject C) (isaprop_squash _).
 
   (** *** binary products *)
 
@@ -94,22 +78,38 @@ Module Coproducts.
   (** This module is obtained from the module Products by copying and then reversing arrows from --> to <--,
    reversing composition from o to oo, and changing various words. *)
 
-  (** *** terminal objects *)
+  (** *** initial objects *)
 
-  Definition isTerminalObject {C:precategory} (a:C) := forall (x:C), iscontr (a <-- x).
+  Definition isInitialObject {C:precategory} (a:C) := forall (x:C), iscontr (a --> x).
 
-  Lemma isaprop_isTerminalObject {C:precategory} (a:C) : isaprop(isTerminalObject a).
+  Lemma initialObjectIsomorphy {C:precategory} (a b : C) : isInitialObject a -> isInitialObject b -> iso a b.
+  Proof.
+    intros maps_from_a_to maps_from_b_to. 
+    exists (center (maps_from_a_to b)). 
+    exists (center (maps_from_b_to a)).
+    split. 
+      path_via (center (maps_from_a_to a)). 
+        apply contraction.
+      apply pathsinv0. 
+      apply contraction. 
+    path_via (center (maps_from_b_to b)). 
+      apply contraction.
+    apply pathsinv0. 
+    apply contraction.
+  Defined.
+
+  Lemma isaprop_isInitialObject {C:precategory} (a:C) : isaprop(isInitialObject a).
   Proof. prop_logic. Qed.
 
-  Definition isTerminalObjectProp {C:precategory} (a:C) := 
-    hProppair (isTerminalObject a) (isaprop_isTerminalObject a) : hProp.
+  Definition isInitialObjectProp {C:precategory} (a:C) := 
+    hProppair (isInitialObject a) (isaprop_isInitialObject a) : hProp.
 
-  Definition TerminalObject (C:precategory) := total2 (fun a:C => isTerminalObject a).
+  Definition InitialObject (C:precategory) := total2 (fun a:C => isInitialObject a).
 
-  Definition squashTerminalObject (C:precategory) := squash (TerminalObject C).
+  Definition squashInitialObject (C:precategory) := squash (InitialObject C).
 
-  Definition squashTerminalObjectProp (C:precategory) := 
-    hProppair (squashTerminalObject C) (isaprop_squash _).
+  Definition squashInitialObjectProp (C:precategory) := 
+    hProppair (squashInitialObject C) (isaprop_squash _).
 
   (** *** binary coproducts *)
 
@@ -150,6 +150,7 @@ Module DirectSums.
   Implicit Arguments zero_object [C].
   Implicit Arguments init [C].
   Implicit Arguments term [C].
+  (* Coercion zero_object : ZeroObject >->  *)
 
   Lemma initMapUniqueness {C:precategory} (a:ZeroObject C) (b:C) (f:zero_object a-->b) : f == center (init a b).
   Proof. intros. exact (contraction (init a b) f). Defined.
