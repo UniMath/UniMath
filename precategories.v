@@ -155,7 +155,7 @@ Coercion precategory_from_setcategory : setcategory >-> precategory.
 Definition setcategory_objects_set (C : setcategory) : hSet :=
     hSetpair (ob C) (pr2 C).
 
-Lemma precategory_eq_morphism_pi (C : setcategory) (a b : ob C)
+Lemma setcategory_eq_morphism_pi (C : setcategory) (a b : ob C)
       (H H': a == b) : precategory_eq_morphism C a b H == 
                        precategory_eq_morphism C a b H'.
 Proof.
