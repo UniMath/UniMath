@@ -6,6 +6,8 @@ Require Import Foundations.hlevel2.hSet.
 
 Local Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 51).
 
+Definition pathReversal := @pathsinv0.
+
 (** * h-levels and paths *)
 
 Ltac prop_logic := 
@@ -22,31 +24,31 @@ Proof. intros e1 e2.
   assumption. 
 Defined.
 
-Ltac path_via  x   := apply (@pathscomp0  _  _ x).
-Ltac path_via' x   := apply (@pathscomp0' _  _ x).
-Ltac path_via2 x y := apply (@pathscomp0  _  _ x _  _ (@pathscomp0 _  _ y _  _ _)).
+Ltac intermediate  x   := apply (@pathscomp0  _  _ x).
+Ltac intermediate' x   := apply (@pathscomp0' _  _ x).
+Ltac intermediate2 x y := apply (@pathscomp0  _  _ x _  _ (@pathscomp0 _  _ y _  _ _)).
 Ltac path_from f := apply (@maponpaths _ _ f).
-
-Lemma isaprop_hProp (X:hProp) : isaprop X.
-Proof. exact (pr2 X). Defined.
 
 (*
 
 The use of this lemma ahead of something like 'impred' can be avoided by
 providing 2 as first argument.
 
-    Lemma isaset_hlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
+    Definition isaset_hlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
     Proof. trivial. Defined.
 
 *)
 
-Lemma isaset_hSet (X:hSet) : isaset X.
+Definition isaprop_hProp (X:hProp) : isaprop X.
 Proof. exact (pr2 X). Defined.
 
-Lemma center {T:UU} : iscontr T -> T.
+Definition isaset_hSet (X:hSet) : isaset X.
+Proof. exact (pr2 X). Defined.
+
+Definition the {T:UU} : iscontr T -> T.
 Proof. exact pr1. Defined.
 
-Lemma contraction {T:UU} (i:iscontr T) (t:T) : t == center i.
+Definition uniqueness {T:UU} (i:iscontr T) (t:T) : t == the i.
 Proof. exact (pr2 i t). Defined.
 
 (** * Squashing. *)
@@ -100,7 +102,7 @@ Proof.
    intros t. apply is.
   assert(h : X -> isaprop P).
    intros a [r i] [s j].
-   assert(k : r == s). path_via (f a). apply pathsinv0. apply i. apply j.
+   assert(k : r == s). intermediate (f a). apply pathsinv0. apply i. apply j.
    assert(l : tpair L r i == tpair L s j).
     apply (pair_path k). apply m. assumption.
    exists l. intro t. apply (ip _ _ t l).

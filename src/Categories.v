@@ -1,3 +1,5 @@
+(* -*- coding: utf-8-unix -*- *)
+
 (** * category theory 
 
   In this library we introduce the category theory needed for K-theory:
@@ -15,12 +17,12 @@ Import Foundations.hlevel2.hSet.
 Add LoadPath "." as Ktheory.
 Require Import Ktheory.Utilities.
 
-Local Notation "b <-- a" := (precategory_morphisms a b) (at level 50).
-Local Notation "a --> b" := (precategory_morphisms a b) (at level 50).
-Local Notation "f 'oo'  g" := (precategories.compose f g) (at level 50).
-Local Notation "g 'o' f" := (precategories.compose f g) (at level 50).
+Local Notation "b ← a" := (precategory_morphisms a b) (at level 50).
+Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
+Local Notation "f ;; g" := (precategories.compose f g) (at level 50).
+Local Notation "g ∘ f" := (precategories.compose f g) (at level 50).
 
-Definition isiso {C:precategory} {a b:C} (f : a --> b) := total2 (is_inverse_in_precat f).
+Definition isiso {C:precategory} {a b:C} (f : a → b) := total2 (is_inverse_in_precat f).
 
 (** ** products *)
 
@@ -28,7 +30,7 @@ Module Products.
 
   (** *** terminal objects *)
 
-  Definition isTerminalObject {C:precategory} (a:C) := forall (x:C), iscontr (a <-- x).
+  Definition isTerminalObject {C:precategory} (a:C) := forall (x:C), iscontr (a ← x).
 
   Lemma isaprop_isTerminalObject {C:precategory} (a:C) : isaprop(isTerminalObject a).
   Proof. prop_logic. Qed.
@@ -45,21 +47,21 @@ Module Products.
 
   (** *** binary products *)
 
-  Definition isBinaryProduct {C:precategory} {a b p : C} (f : p --> a) (g : p --> b) :=
-    forall p' (f' : p' --> a) (g' : p' --> b),
-      iscontr ( total2 ( fun h => dirprod (f o h == f') (g o h == g'))).
+  Definition isBinaryProduct {C:precategory} {a b p : C} (f : p → a) (g : p → b) :=
+    forall p' (f' : p' → a) (g' : p' → b),
+      iscontr ( total2 ( fun h => dirprod (f ∘ h == f') (g ∘ h == g'))).
 
-  Lemma isaprop_isBinaryProduct {C:precategory} {a b p : C} (f : p --> a) (g : p --> b) : isaprop(isBinaryProduct f g).
+  Lemma isaprop_isBinaryProduct {C:precategory} {a b p : C} (f : p → a) (g : p → b) : isaprop(isBinaryProduct f g).
   Proof. prop_logic. Qed.
 
-  Definition isBinaryProductProp {C:precategory} {a b p : C} (f : p --> a) (g : p --> b) :=
+  Definition isBinaryProductProp {C:precategory} {a b p : C} (f : p → a) (g : p → b) :=
     hProppair (isBinaryProduct f g) (isaprop_isBinaryProduct _ _).
 
   Definition BinaryProduct {C:precategory} (a b : C) := 
     total2 (fun p => 
-              total2 (fun f : p --> a => 
-                        total2 (fun g : p --> b => 
-                                  isBinaryProduct f g))).
+    total2 (fun f : p → a => 
+    total2 (fun g : p → b => 
+                    isBinaryProduct f g))).
 
   Definition squashBinaryProducts (C:precategory) := forall a b : C, squash (BinaryProduct a b).
 
@@ -75,27 +77,27 @@ End Products.
 
 Module Coproducts.
 
-  (** This module is obtained from the module Products by copying and then reversing arrows from --> to <--,
-   reversing composition from o to oo, and changing various words. *)
+  (** This module is obtained from the module Products by copying and then reversing arrows from → to ←,
+   reversing composition from ∘ to ;;, and changing various words. *)
 
   (** *** initial objects *)
 
-  Definition isInitialObject {C:precategory} (a:C) := forall (x:C), iscontr (a --> x).
+  Definition isInitialObject {C:precategory} (a:C) := forall (x:C), iscontr (a → x).
 
   Lemma initialObjectIsomorphy {C:precategory} (a b : C) : isInitialObject a -> isInitialObject b -> iso a b.
   Proof.
-    intros maps_from_a_to maps_from_b_to. 
-    exists (center (maps_from_a_to b)). 
-    exists (center (maps_from_b_to a)).
+    intros map_from_a_to map_from_b_to. 
+    exists (the (map_from_a_to b)). 
+    exists (the (map_from_b_to a)).
     split. 
-      path_via (center (maps_from_a_to a)). 
-        apply contraction.
-      apply pathsinv0. 
-      apply contraction. 
-    path_via (center (maps_from_b_to b)). 
-      apply contraction.
-    apply pathsinv0. 
-    apply contraction.
+      intermediate (the (map_from_a_to a)). 
+        apply uniqueness.
+      apply pathReversal. 
+      apply uniqueness. 
+    intermediate (the (map_from_b_to b)). 
+      apply uniqueness.
+    apply pathReversal. 
+    apply uniqueness.
   Defined.
 
   Lemma isaprop_isInitialObject {C:precategory} (a:C) : isaprop(isInitialObject a).
@@ -113,20 +115,20 @@ Module Coproducts.
 
   (** *** binary coproducts *)
 
-  Definition isBinaryCoproduct {C:precategory} {a b p : C} (f : p <-- a) (g : p <-- b) :=
-    forall p' (f' : p' <-- a) (g' : p' <-- b),
-      iscontr ( total2 ( fun h => dirprod (f oo h == f') (g oo h == g'))).
+  Definition isBinaryCoproduct {C:precategory} {a b p : C} (f : p ← a) (g : p ← b) :=
+    forall p' (f' : p' ← a) (g' : p' ← b),
+      iscontr ( total2 ( fun h => dirprod (f ;; h == f') (g ;; h == g'))).
 
-  Lemma isaprop_isBinaryCoproduct {C:precategory} {a b p : C} (f : p <-- a) (g : p <-- b) : isaprop(isBinaryCoproduct f g).
+  Lemma isaprop_isBinaryCoproduct {C:precategory} {a b p : C} (f : p ← a) (g : p ← b) : isaprop(isBinaryCoproduct f g).
   Proof. prop_logic. Qed.
 
-  Definition isBinaryCoproductProp {C:precategory} {a b p : C} (f : p <-- a) (g : p <-- b) :=
+  Definition isBinaryCoproductProp {C:precategory} {a b p : C} (f : p ← a) (g : p ← b) :=
     hProppair (isBinaryCoproduct f g) (isaprop_isBinaryCoproduct _ _).
 
   Definition BinaryCoproduct {C:precategory} (a b : C) := 
     total2 (fun p => 
-    total2 (fun f : p <-- a => 
-    total2 (fun g : p <-- b => 
+    total2 (fun f : p ← a => 
+    total2 (fun g : p ← b => 
           isBinaryCoproduct f g))).
 
   Definition squashBinaryCoproducts (C:precategory) := forall a b : C, squash (BinaryCoproduct a b).
@@ -152,8 +154,8 @@ Module DirectSums.
   Implicit Arguments term [C].
   (* Coercion zero_object : ZeroObject >->  *)
 
-  Lemma initMapUniqueness {C:precategory} (a:ZeroObject C) (b:C) (f:zero_object a-->b) : f == center (init a b).
-  Proof. intros. exact (contraction (init a b) f). Defined.
+  Lemma initMapUniqueness {C:precategory} (a:ZeroObject C) (b:C) (f:zero_object a→b) : f == the (init a b).
+  Proof. intros. exact (uniqueness (init a b) f). Defined.
 
   Definition hasZeroObject (C:precategory) := squash (ZeroObject C).
 
@@ -162,14 +164,14 @@ Module DirectSums.
     exact (initialObjectIsomorphy (zero_object a) (zero_object b) (init a) (init b)).
   Defined.
 
-  Definition zeroMap' {C:precategory} (zero:ZeroObject C) (a b:C) := center (init zero b) o center (term zero a) : a --> b.
+  Definition zeroMap' {C:precategory} (zero:ZeroObject C) (a b:C) := the (init zero b) ∘ the (term zero a) : a → b.
 
   Lemma zeroMapUniqueness {C:precategory} (x y:ZeroObject C) : forall a b:C, zeroMap' x a b == zeroMap' y a b.
   Proof.
-    intros. unfold zeroMap'. set (x0 := zero_object x). set (y0 := zero_object y). assert (h : x0 --> y0). exact (center (init x y0)).
-    set (p := center (init x b)). set (i := center (term x a)). set (q := center (init y b)). set (j := center (term y a)).
-    path_via (q o (h o i)). path_via ((q o h) o i). path_from (fun r : x0 --> b => r o i). apply pathsinv0.
-    apply (contraction (init _ _)). apply (assoc C). path_from (fun s : a --> y0 => q o s). apply (contraction (term _ _)).
+    intros. unfold zeroMap'. set (x0 := zero_object x). set (y0 := zero_object y). assert (h : x0 → y0). exact (the (init x y0)).
+    set (p := the (init x b)). set (i := the (term x a)). set (q := the (init y b)). set (j := the (term y a)).
+    intermediate (q ∘ (h ∘ i)). intermediate ((q ∘ h) ∘ i). path_from (fun r : x0 → b => r ∘ i). apply pathReversal.
+    apply (uniqueness (init _ _)). apply (assoc C). path_from (fun s : a → y0 => q ∘ s). apply (uniqueness (term _ _)).
   Qed.
 
   Corollary zeroMapsUniqueness {C:precategory} (x y:ZeroObject C) : zeroMap' x == zeroMap' y.
@@ -180,9 +182,9 @@ Module DirectSums.
     apply zeroMapUniqueness.
   Defined.
 
-  Lemma zeroMap {C:precategory} : hasZeroObject C -> forall a b:C, a --> b.
+  Lemma zeroMap {C:precategory} : hasZeroObject C -> forall a b:C, a → b.
   Proof.
-    apply (squash_to_set _ (forall a b:C, a --> b) zeroMap').
+    apply (squash_to_set _ (forall a b:C, a → b) zeroMap').
       apply (impred 2).
       intro a. apply impred.
       intro b. apply isaset_hSet.
@@ -196,74 +198,74 @@ Module DirectSums.
   Proof. intros. apply idpath. Qed.
   
   Lemma goal4 {C:precategory} (z:ZeroObject C) (h:hasZeroObject C) : forall (a b:C), zeroMap' z a b == zeroMap h a b. 
-  Proof. intros. path_via (zeroMap (squash_element z) a b). apply idpath. apply goal1. Qed.
+  Proof. intros. intermediate (zeroMap (squash_element z) a b). apply idpath. apply goal1. Qed.
 
-  Lemma goal5' {C:precategory} (z:ZeroObject C) : forall (b c:C) (f:b-->c), f  o  center (init z b) == center (init z c). 
-  Proof. intros. apply (contraction (init z c)). Defined.
+  Lemma goal5' {C:precategory} (z:ZeroObject C) : forall (b c:C) (f:b→c), f ∘ the (init z b) == the (init z c). 
+  Proof. intros. apply (uniqueness (init z c)). Defined.
 
-  Lemma goal10 {C:precategory} : forall (a b c:C) (f f':b-->c) (g:a-->b), f == f' -> f o g == f' o g.
+  Lemma goal10 {C:precategory} : forall (a b c:C) (f f':b→c) (g:a→b), f == f' -> f ∘ g == f' ∘ g.
   Proof. intros ? ? ? ? ? ? []. trivial. Defined.
 
-  Definition left_compose {C:precategory} {a b:C} (c:C) (g:a-->b) (f:b-->c) := f o g.
-  Definition right_compose {C:precategory} {c b:C} (f:b-->c) (a:C) (g:a-->b) := f o g.
+  Definition left_compose {C:precategory} {a b:C} (c:C) (g:a→b) (f:b→c) := f ∘ g.
+  Definition right_compose {C:precategory} {c b:C} (f:b→c) (a:C) (g:a→b) := f ∘ g.
 
-  Lemma goal10a {C:precategory} : forall (a b c:C) (f f':b-->c) (g:a-->b), f == f' -> f o g == f' o g.
+  Lemma goal10a {C:precategory} : forall (a b c:C) (f f':b→c) (g:a→b), f == f' -> f ∘ g == f' ∘ g.
   Proof. intros ? ? ? ? ? ? p. path_from (left_compose c g). trivial. Defined.
 
-  Lemma goal10' {C:precategory} : forall (a b c:C) (f:b-->c) (g g':a-->b), g == g' -> f o g == f o g'.
+  Lemma goal10' {C:precategory} : forall (a b c:C) (f:b→c) (g g':a→b), g == g' -> f ∘ g == f ∘ g'.
   Proof. intros ? ? ? ? ? ? []. apply idpath. Defined.
 
-  Lemma goal5 {C:precategory} (z:ZeroObject C) : forall (a b c:C) (f:b-->c), f  o  zeroMap' z a b == zeroMap' z a c. 
+  Lemma goal5 {C:precategory} (z:ZeroObject C) : forall (a b c:C) (f:b→c), f ∘ zeroMap' z a b == zeroMap' z a c. 
   Proof. intros. unfold zeroMap'.
-         path_via ((f o center (init z b)) o center (term z a)).
-         apply pathsinv0.
+         intermediate ((f ∘ the (init z b)) ∘ the (term z a)).
+         apply pathReversal.
          apply assoc.
          apply goal10.
          apply initMapUniqueness. Defined.
 
-  Lemma goal2 {C:precategory} (h:hasZeroObject C) : forall (a b c:C) (f:b-->c), f  o  zeroMap h a b == zeroMap h a c. 
+  Lemma goal2 {C:precategory} (h:hasZeroObject C) : forall (a b c:C) (f:b→c), f ∘ zeroMap h a b == zeroMap h a c. 
   Proof.
     intros.
-    assert( i : isaprop (paths (f o zeroMap h a b) (zeroMap h a c) )). apply isaset_hSet.
+    assert( i : isaprop (paths (f ∘ zeroMap h a b) (zeroMap h a c) )). apply isaset_hSet.
     apply (@factor_through_squash (ZeroObject C) _ i).
      intro z.
-     path_via (f  o  zeroMap' z a b).     
+     intermediate (f ∘ zeroMap' z a b).     
      path_from (right_compose f a).     
-     apply pathsinv0.
+     apply pathReversal.
      apply goal4.
-     path_via (zeroMap' z a c).
+     intermediate (zeroMap' z a c).
      apply goal5.
      apply goal4.
     exact h.
   Defined.
 
-  Lemma goal2' {C:precategory} (h:hasZeroObject C) : forall (a b c:C) (f:b-->c), f  o  zeroMap h a b == zeroMap h a c. 
+  Lemma goal2' {C:precategory} (h:hasZeroObject C) : forall (a b c:C) (f:b→c), f ∘ zeroMap h a b == zeroMap h a c. 
   Proof.                        (* the proof term here is bigger than that of goal2 *)
     intros.
-    assert( i : isaprop (paths (f o zeroMap h a b) (zeroMap h a c) )). apply isaset_hSet.
+    assert( i : isaprop (paths (f ∘ zeroMap h a b) (zeroMap h a c) )). apply isaset_hSet.
     apply (@factor_through_squash (ZeroObject C) _ i).
      intro z.
      assert( p : zeroMap' z a b == zeroMap h a b ). apply goal4. destruct p.
      assert( p : zeroMap' z a c == zeroMap h a c ). apply goal4. destruct p.
      unfold zeroMap'.
-     assert( p : (f o center (init z b)) o center (term z a) == f o (center (init z b) o center (term z a)) ). apply assoc. destruct p.
+     assert( p : (f ∘ the (init z b)) ∘ the (term z a) == f ∘ (the (init z b) ∘ the (term z a)) ). apply assoc. destruct p.
      apply goal10.
      apply initMapUniqueness.
     exact h.
   Defined.
 
   (* the following definition is not right yet *)
-  Definition isBinarySum {C:precategory} {a b s : C} (p : s --> a) (q : s --> b) (i : a --> s) (j : b --> s) :=
+  Definition isBinarySum {C:precategory} {a b s : C} (p : s → a) (q : s → b) (i : a → s) (j : b → s) :=
     dirprod (isBinaryProduct p q) (isBinaryCoproduct i j).
   
-  Lemma isaprop_isBinarySum {C:precategory} {a b s : C} (p : s --> a) (q : s --> b) (i : a --> s) (j : b --> s) :
+  Lemma isaprop_isBinarySum {C:precategory} {a b s : C} (p : s → a) (q : s → b) (i : a → s) (j : b → s) :
     isaprop (isBinarySum p q i j).
   Proof. prop_logic. Defined.
 
   Record BinarySum {C:precategory} (a b : C) := makeBinarySum {
       s ;
-      p : s --> a ; q : s --> b ;
-      i : a --> s ; j : b --> s ;
+      p : s → a ; q : s → b ;
+      i : a → s ; j : b → s ;
       is : isBinarySum p q i j
       }.
 
