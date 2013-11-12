@@ -245,6 +245,9 @@ Proof.
   rewrite transportf_dirprod.
   Check (pr2 (pr1 Pb')).
   Search  ( _ (isotoid _ _ _ ) == _ ).
+  rewrite <- (idtoiso_precompose _ _ _ _ (isotoid C H (iso_from_Pullback_to_Pullback Pb Pb'))  ).
+  rewrite 
+  simpl.
   rewrite transportf_isotoid.
   simpl.
   assert (H' : pr1 (transportf

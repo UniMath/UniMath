@@ -524,6 +524,18 @@ Proof.
   apply id_left.
 Qed.
 
+Lemma idtoiso_precompose_iso (C : precategory) (a a' b : ob C)
+  (p : a == a') (f : iso a b) : 
+      iso_comp (idtoiso (!p)) f == transportf (fun a => iso a b) p f.
+Proof.
+  destruct p.
+  apply eq_iso.
+  simpl.
+  apply id_left.
+Qed.
+
+
+
 Lemma double_transport_idtoiso (C : precategory) (a a' b b' : ob C) 
   (p : a == a') (q : b == b')  (f : a --> b) : 
   double_transport p q f == inv_from_iso (idtoiso p) ;; f ;; idtoiso q.
@@ -586,6 +598,16 @@ Proof.
   apply idpath.
 Qed.
 
+
+Lemma transportf_isotoid (C : precategory) (H : is_category C) 
+   (a a' b : ob C) (p : iso a a') (f : a --> b) : 
+ transportf (fun a0 : C => a0 --> b) (isotoid C H p) f == inv_from_iso p ;; f.
+Proof.
+  rewrite <- idtoiso_precompose.
+  rewrite idtoiso_inv.
+  rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
 
 (** ** Precategories in style of essentially algebraic cats *)
 (** Of course we later want SETS of objects, rather than types,
