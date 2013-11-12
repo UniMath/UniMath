@@ -212,9 +212,10 @@ Definition equal_equalities_between_pairs (A : UU)(B : A -> UU)(x y : total2 (fu
 
 (** This helper lemma is an adaptation of an analogous lemma
     [isweqpr1] from Voevodsky's Foundations library.
-    Here, we prove it for predicates on path spaces in [U].
+    Here, we prove it for predicates on path spaces in [UU].
 *)
-Lemma isweqpr1_UU (X X' : UU) ( B : (X == X') -> hProp ) 
+
+Lemma isweqpr1_UU (X X' : UU) ( B : (X == X') -> UU ) 
    ( is1 : forall z , iscontr ( B z ) ) : isweq ( @pr1 _ B ) .
 Proof. 
   intros. 

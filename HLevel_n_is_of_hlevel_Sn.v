@@ -78,8 +78,7 @@ Proof.
             (transportf (fun x : UU => P x) w pX)  == pX' )).
   set (H' := isweqpr1_UU X X'
         (fun w : X == X' => 
-     tpair _ (transportf (fun X => P X) w pX == pX') 
-             (ident_is_prop P X X' pX pX' w) )).
+      (transportf (fun X => P X) w pX == pX') )).
   simpl in H'.
   apply H'.
   intro z.
