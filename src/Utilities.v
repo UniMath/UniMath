@@ -43,6 +43,12 @@ providing 2 as first argument.
 Lemma isaset_hSet (X:hSet) : isaset X.
 Proof. exact (pr2 X). Defined.
 
+Lemma center {T:UU} : iscontr T -> T.
+Proof. exact pr1. Defined.
+
+Lemma contraction {T:UU} (i:iscontr T) (t:T) : t == center i.
+Proof. exact (pr2 i t). Defined.
+
 (** * Squashing. *)
 
 Notation squash := ishinh_UU.

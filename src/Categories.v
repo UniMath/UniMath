@@ -32,10 +32,18 @@ Module Products.
 
   Lemma initialObjectIsomorphy {C:precategory} (a b : C) : isInitialObject a -> isInitialObject b -> iso a b.
   Proof.
-    intros ia ib. exists (pr1 (ia b)). exists (pr1 (ib a)).
-    split. path_via (pr1 (ia a)). apply (pr2 (ia a)).
-    apply pathsinv0. apply (pr2 (ia a)). path_via (pr1 (ib b)). apply (pr2 (ib b)).
-    apply pathsinv0. apply (pr2 (ib b)).
+    intros maps_from_a_to maps_from_b_to. 
+    exists (center (maps_from_a_to b)). 
+    exists (center (maps_from_b_to a)).
+    split. 
+      path_via (center (maps_from_a_to a)). 
+        apply contraction.
+      apply pathsinv0. 
+      apply contraction. 
+    path_via (center (maps_from_b_to b)). 
+      apply contraction.
+    apply pathsinv0. 
+    apply contraction.
   Defined.
 
   Lemma isaprop_isInitialObject {C:precategory} (a:C) : isaprop(isInitialObject a).
@@ -59,24 +67,6 @@ Module Products.
 
   Lemma isaprop_isBinaryProduct {C:precategory} {a b p : C} (f : p --> a) (g : p --> b) : isaprop(isBinaryProduct f g).
   Proof. prop_logic. Qed.
-
-  (* Lemma binaryProductIsomorphy {C:precategory} {a b : C} *)
-  (*    (p :C) (f : p --> a) (g : p --> b) (ip : isBinaryProduct f  g ) *)
-  (*    (p':C) (f': p'--> a) (g': p'--> b) (ip': isBinaryProduct f' g') : *)
-  (*    total2 (fun h : p --> p' => dirprod (dirprod (f' o h == f) (g' o h == g)) (isiso h)). *)
-  (* Proof. *)
-  (*   set (k := ip' _ f g). *)
-  (*   set (k':= ip _ f' g'). *)
-  (*   exists (pr1 (pr1 k)). *)
-  (*   split. *)
-  (*   split. *)
-  (*   exact (pr1 (pr2 (pr1 k))). *)
-  (*   exact (pr2 (pr2 (pr1 k))). *)
-  (*   exists (pr1 (pr1 k')). *)
-  (*   split. *)
-  (*   path_via (pr1 (pr1 (ip _ f g))). *)
-  (*   admit. admit. admit. *)
-  (* Defined. *)
 
   Definition isBinaryProductProp {C:precategory} {a b p : C} (f : p --> a) (g : p --> b) :=
     hProppair (isBinaryProduct f g) (isaprop_isBinaryProduct _ _).
@@ -161,8 +151,8 @@ Module DirectSums.
   Implicit Arguments init [C].
   Implicit Arguments term [C].
 
-  Lemma initMapUniqueness {C:precategory} (a:ZeroObject C) (b:C) (f:zero_object a-->b) : f == pr1(init a b).
-  Proof. intros. apply (pr2(init a b)). Defined.
+  Lemma initMapUniqueness {C:precategory} (a:ZeroObject C) (b:C) (f:zero_object a-->b) : f == center (init a b).
+  Proof. intros. exact (contraction (init a b) f). Defined.
 
   Definition hasZeroObject (C:precategory) := squash (ZeroObject C).
 
@@ -171,14 +161,14 @@ Module DirectSums.
     exact (initialObjectIsomorphy (zero_object a) (zero_object b) (init a) (init b)).
   Defined.
 
-  Definition zeroMap' {C:precategory} (zero:ZeroObject C) (a b:C) := pr1 (init zero b) o pr1 (term zero a) : a --> b.
+  Definition zeroMap' {C:precategory} (zero:ZeroObject C) (a b:C) := center (init zero b) o center (term zero a) : a --> b.
 
   Lemma zeroMapUniqueness {C:precategory} (x y:ZeroObject C) : forall a b:C, zeroMap' x a b == zeroMap' y a b.
   Proof.
-    intros. unfold zeroMap'. set (x0 := zero_object x). set (y0 := zero_object y). assert (h : x0 --> y0). exact (pr1 (init x y0)).
-    set (p := pr1 (init x b)). set (i := pr1 (term x a)). set (q := pr1 (init y b)). set (j := pr1 (term y a)).
+    intros. unfold zeroMap'. set (x0 := zero_object x). set (y0 := zero_object y). assert (h : x0 --> y0). exact (center (init x y0)).
+    set (p := center (init x b)). set (i := center (term x a)). set (q := center (init y b)). set (j := center (term y a)).
     path_via (q o (h o i)). path_via ((q o h) o i). path_from (fun r : x0 --> b => r o i). apply pathsinv0.
-    apply (pr2 (init _ _)). apply (assoc C). path_from (fun s : a --> y0 => q o s). apply (pr2 (term _ _)).
+    apply (contraction (init _ _)). apply (assoc C). path_from (fun s : a --> y0 => q o s). apply (contraction (term _ _)).
   Qed.
 
   Corollary zeroMapsUniqueness {C:precategory} (x y:ZeroObject C) : zeroMap' x == zeroMap' y.
@@ -207,18 +197,24 @@ Module DirectSums.
   Lemma goal4 {C:precategory} (z:ZeroObject C) (h:hasZeroObject C) : forall (a b:C), zeroMap' z a b == zeroMap h a b. 
   Proof. intros. path_via (zeroMap (squash_element z) a b). apply idpath. apply goal1. Qed.
 
-  Lemma goal5' {C:precategory} (z:ZeroObject C) : forall (b c:C) (f:b-->c), f  o  pr1 (init z b) == pr1 (init z c). 
-  Proof. intros. apply (pr2 (init z c)). Defined.
+  Lemma goal5' {C:precategory} (z:ZeroObject C) : forall (b c:C) (f:b-->c), f  o  center (init z b) == center (init z c). 
+  Proof. intros. apply (contraction (init z c)). Defined.
 
   Lemma goal10 {C:precategory} : forall (a b c:C) (f f':b-->c) (g:a-->b), f == f' -> f o g == f' o g.
   Proof. intros ? ? ? ? ? ? []. trivial. Defined.
 
+  Definition left_compose {C:precategory} {a b:C} (c:C) (g:a-->b) (f:b-->c) := f o g.
+  Definition right_compose {C:precategory} {c b:C} (f:b-->c) (a:C) (g:a-->b) := f o g.
+
+  Lemma goal10a {C:precategory} : forall (a b c:C) (f f':b-->c) (g:a-->b), f == f' -> f o g == f' o g.
+  Proof. intros ? ? ? ? ? ? p. path_from (left_compose c g). trivial. Defined.
+
   Lemma goal10' {C:precategory} : forall (a b c:C) (f:b-->c) (g g':a-->b), g == g' -> f o g == f o g'.
-  Proof. intros ? ? ? ? ? ? []. trivial. Defined.
+  Proof. intros ? ? ? ? ? ? []. apply idpath. Defined.
 
   Lemma goal5 {C:precategory} (z:ZeroObject C) : forall (a b c:C) (f:b-->c), f  o  zeroMap' z a b == zeroMap' z a c. 
   Proof. intros. unfold zeroMap'.
-         path_via ((f o pr1 (init z b)) o pr1 (term z a)).
+         path_via ((f o center (init z b)) o center (term z a)).
          apply pathsinv0.
          apply assoc.
          apply goal10.
@@ -231,7 +227,7 @@ Module DirectSums.
     apply (@factor_through_squash (ZeroObject C) _ i).
      intro z.
      path_via (f  o  zeroMap' z a b).     
-     path_from (fun g : a --> b => f o g).
+     path_from (right_compose f a).     
      apply pathsinv0.
      apply goal4.
      path_via (zeroMap' z a c).
@@ -240,16 +236,8 @@ Module DirectSums.
     exact h.
   Defined.
 
-(* goal2 = 
-    fun (C : precategory) (h : hasZeroObject C) (a b c : C) (f : b --> c) =>
-    let i := isaset_hSet (a --> c) (f o zeroMap h a b) (zeroMap h a c) in
-    factor_through_squash i
-      (fun z : ZeroObject C =>
-       maponpaths (fun g : a --> b => f o g) (!goal4 z h a b) @
-       goal5 z a b c f @ goal4 z h a c) h *)
-
   Lemma goal2' {C:precategory} (h:hasZeroObject C) : forall (a b c:C) (f:b-->c), f  o  zeroMap h a b == zeroMap h a c. 
-  Proof.
+  Proof.                        (* the proof term here is bigger than that of goal2 *)
     intros.
     assert( i : isaprop (paths (f o zeroMap h a b) (zeroMap h a c) )). apply isaset_hSet.
     apply (@factor_through_squash (ZeroObject C) _ i).
@@ -257,52 +245,11 @@ Module DirectSums.
      assert( p : zeroMap' z a b == zeroMap h a b ). apply goal4. destruct p.
      assert( p : zeroMap' z a c == zeroMap h a c ). apply goal4. destruct p.
      unfold zeroMap'.
-     assert( p : (f o pr1 (init z b)) o pr1 (term z a) == f o (pr1 (init z b) o pr1 (term z a)) ). apply assoc. destruct p.
+     assert( p : (f o center (init z b)) o center (term z a) == f o (center (init z b) o center (term z a)) ). apply assoc. destruct p.
      apply goal10.
      apply initMapUniqueness.
     exact h.
   Defined.
-
-(* goal2' = 
-    fun (C : precategory) (h : hasZeroObject C) (a b c : C) (f : b --> c) =>
-    let i := isaset_hSet (a --> c) (f o zeroMap h a b) (zeroMap h a c) in
-    factor_through_squash i
-      (fun z : ZeroObject C =>
-       let p := goal4 z h a b in
-       let p0 := zeroMap h a b in
-       match
-         p in (paths _ y)
-         return
-           (isaprop (paths (f o y) (zeroMap h a c)) ->
-            paths (f o y) (zeroMap h a c))
-       with
-       | idpath =>
-           fun i0 : isaprop (paths (f o zeroMap' z a b) (zeroMap h a c)) =>
-           let p1 := goal4 z h a c in
-           let p2 := zeroMap h a c in
-           match
-             p1 in (paths _ y)
-             return
-               (isaprop (paths (f o zeroMap' z a b) y) ->
-                paths (f o zeroMap' z a b) y)
-           with
-           | idpath =>
-               fun _ : isaprop (paths (f o zeroMap' z a b) (zeroMap' z a c)) =>
-               let p3 :=
-                 assoc C a (zero_object z) b c (pr1 (term z a)) 
-                   (pr1 (init z b)) f in
-               let p4 := f o (pr1 (init z b) o pr1 (term z a)) in
-               match
-                 p3 in (paths _ y)
-                 return (paths y (pr1 (init z c) o pr1 (term z a)))
-               with
-               | idpath =>
-                   goal10 a (zero_object z) c (f o pr1 (init z b))
-                     (pr1 (init z c)) (pr1 (term z a))
-                     (initMapUniqueness z c (f o pr1 (init z b)))
-               end
-           end i0
-       end i) h *)
 
   (* the following definition is not right yet *)
   Definition isBinarySum {C:precategory} {a b s : C} (p : s --> a) (q : s --> b) (i : a --> s) (j : b --> s) :=
