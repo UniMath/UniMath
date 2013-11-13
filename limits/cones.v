@@ -328,8 +328,12 @@ Proof.
   
 *)
 
-Lemma helper (M N : CONE):
-  ConeConnect (idtoiso p) == idtoiso (base_path p).
+Lemma helper (M N : CONE) (p : M == N):
+  ConeConnect (pr1 (idtoiso p)) == idtoiso ((base_paths _ _ (base_paths _ _  p))).
+Proof.
+  destruct p.
+  apply idpath.
+Qed.
 
 Lemma bla2 (M N : CONE) : forall f : iso M N, idtoiso (isotoid_CONE f) == f.
 Proof.
@@ -337,6 +341,19 @@ Proof.
   apply eq_iso.
   simpl.
   apply Cone_Mor_eq.
+  rewrite helper.
+  unfold isotoid_CONE.
+  unfold Cone_eq.
+  rewrite base_total_path.
+  unfold isotoid_CONE_pr1.
+  rewrite base_total_path.
+  simpl.
+  rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
+  simpl.
+  
+  simpl.
   simpl.
   unfold isotoid_CONE.
   simpl.
