@@ -568,25 +568,21 @@ Proof.
   apply idpath.
 Qed.
 
-
 Lemma idtoiso_inj (C : precategory) (H : is_category C) (a a' : ob C)
    (p p' : a == a') : idtoiso p == idtoiso p' -> p == p'.
 Proof.
-  intro H'.
-  set (H'' := maponpaths (isotoid _ H )  H').
-  repeat rewrite isotoid_idtoiso in H''.
-  assumption.
+  apply invmaponpathsincl.
+  apply isinclweq.
+  apply H.
 Qed.
 
 Lemma isotoid_inj (C : precategory) (H : is_category C) (a a' : ob C)
    (f f' : iso a a') : isotoid _ H f == isotoid _ H f' -> f == f'.
 Proof.
-  intro H'.
-  set (H'' := maponpaths idtoiso H').
-  repeat rewrite idtoiso_isotoid in H''.
-  assumption.
+  apply invmaponpathsincl.
+  apply isinclweq.
+  apply isweqinvmap.
 Qed.
-
 
 Lemma isotoid_comp (C : precategory) (H : is_category C) (a b c : ob C)
   (e : iso a b) (f : iso b c) :
