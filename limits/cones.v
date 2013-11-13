@@ -29,6 +29,12 @@ Definition ConeMor (a : ConeData) (j : J) : ConeTop a --> F j := (pr2 a) j.
 Definition ConeProp (a : ConeData) :=
   forall j j' (f : j --> j'), ConeMor a j ;; #F f == ConeMor a j'.
 
+Lemma isaprop_ConeProp (a : ConeData) : isaprop (ConeProp a).
+Proof.
+  repeat (apply impred; intro).
+  apply (pr2 (_ --> _)).
+Qed.
+
 Definition Cone := total2 (fun a : ConeData => ConeProp a).
 
 Definition ConeData_from_Cone : Cone -> ConeData := fun a => pr1 a.
@@ -44,6 +50,13 @@ Proof.
   exact (pr2 a).
 Qed.
 
+Definition Cone_eq (a b : Cone) : pr1 a == pr1 b -> a == b.
+Proof.
+  intro H.
+  apply (total2_paths H).
+  apply proofirrelevance.
+  apply isaprop_ConeProp.
+Qed.
 
 Definition Cone_Mor (M N : Cone) := 
   total2 (fun f : ConeTop M --> ConeTop N =>
@@ -129,24 +142,94 @@ Proof.
   simpl; apply assoc.
 Qed.
   
-Definition CONE : precategory := tpair _ _ is_precategory_Cone.  
+Definition CONE : precategory := tpair _ _ is_precategory_Cone.
 
-Program Instance CONE_struct : Cat_struct Cone_Hom := {
-  mor_oid := Cone_Hom_oid;
-  id := Cone_id;
-  comp := Cone_comp
-}.
-Next Obligation.
+(*
+Definition Cone_Mor_from_iso (a b : CONE) (f : iso a b) : 
+         a --> b := pr1 f.
+Coercion Cone_Mor_from_iso : iso >-> hSet.
+*)
+
+
+(* this should not need the pr1 before f *)
+
+Definition iso_projects_from_CONE (a b : CONE) (f : iso a b) :
+  is_isomorphism (ConeConnect (pr1 f)).
 Proof.
-  unfold Proper; 
-  do 2 red.
-  simpl.
-  intros x y H x' y' H'.
-  rewrite H, H'.
-  cat.
-Qed.
+  exists (ConeConnect (inv_from_iso f)).
+  split; simpl.
+  apply (base_paths _ _ (pr1 (pr2 (pr2 f)))).
+  apply (base_paths _ _ (pr2 (pr2 (pr2 f)))).
+Defined.
 
-Definition CONE := Build_Cat CONE_struct.
+Definition ConeConnectIso {a b : CONE} (f : iso a b) :
+   iso (ConeTop (pr1 a)) (ConeTop (pr1 b)) := 
+ tpair _ _ (iso_projects_from_CONE a b f).
+
+
+
+Section CONE_category.
+
+Hypothesis H : is_category C.
+
+Definition isotoid_CONE (a b : CONE) : iso a b -> a == b.
+Proof.
+  intro f.
+  set (H' := total2_paths (isotoid _ H (ConeConnectIso f))).
+  apply Cone_eq.
+  apply H'; clear H'.
+
+  destruct a as [[A Amor] Ap].
+  simpl in *.
+  destruct b as [[B Bmor] Bp].
+  simpl in *.
+  clear H'.
+
+
+End Cone.
+
+  
+
+End Cone.
+Check CONE.
+
+Implicit Arguments CONE [J C].
+Implicit Arguments ConeConnect [J C].
+About CONE.
+
+
+(** isos in CONE yield isos in C *)
+
+(*
+Lemma ConeConnect_inv_from_iso (a b : CONE) (f : iso a b) :
+    ConeConnect (inv_from_iso f) == 
+*)     
+
+
+
+(* this should not need the pr1 before f *)
+
+Definition iso_projects_from_CONE (J C : precategory) (F : functor J C) 
+   (a b : CONE F) (f : iso a b) :
+  is_isomorphism (ConeConnect F (pr1 f)).
+Proof.
+  exists (ConeConnect (inv_from_iso f)).
+  split; simpl.
+  apply (base_paths _ _ (pr1 (pr2 (pr2 f)))).
+  apply (base_paths _ _ (pr2 (pr2 (pr2 f)))).
+Defined.
+
+Definition ConeConectIso (a b : CONE) (f : iso a b) :
+   iso (ConeTop a) (ConeTop b) := tpair _ _ (iso_projects_from_CONE a b f).
+
+Section CONE_category.
+
+Hypothesis H : is_category C.
+
+Definition isotoid_CONE (a b : CONE) : iso a b -> a == b.
+intro f.
+  apply (total2_paths (isotoid _ H (pr1 f))).
+
 
 End Cone.
 
