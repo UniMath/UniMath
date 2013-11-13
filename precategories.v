@@ -143,6 +143,14 @@ Proof.
 Defined.
 
 
+Lemma cancel_postcomposition (C : precategory_data) (a b c: C)
+   (f f' : a --> b) (g : b --> c) : f == f' -> f ;; g == f' ;; g.
+Proof.
+  intro H.
+  destruct H.
+  apply idpath.
+Defined.
+
 
 (** * Setcategories: Precategories whose objects form a set *)
 

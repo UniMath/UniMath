@@ -61,7 +61,6 @@ Proof.
   apply H.
   apply (eq_equalities_between_pairs _ _ _ _ _ _ H2).
   apply uip.
-  Search ( _ -> isaset _ ).
   apply isasetaprop.
   apply isaprop_ConeProp.
 Defined.
@@ -226,13 +225,18 @@ Proof.
   apply transportf_isotoid_dep'.
   apply funextsec.
   intro t.
-  pathvia (idtoiso (!isotoid C is_cat_C (ConeConnectIso f));; pr2 (pr1 a) t).
+  pathvia (idtoiso (isotoid C is_cat_C (iso_inv_from_iso (ConeConnectIso f)));;
+       pr2 (pr1 a) t).
+  apply cancel_postcomposition.
+  apply maponpaths. apply maponpaths.
   apply inv_isotoid.
-  rewrite idtoiso_isotoid.
+  pathvia (iso_inv_from_iso (ConeConnectIso f);; pr2 (pr1 a) t).
+  apply cancel_postcomposition.
+  set (H := idtoiso_isotoid _ is_cat_C _ _ (iso_inv_from_iso (ConeConnectIso f))).
+  simpl in *.
+  apply (base_paths _ _ H).
   simpl.
-  set (f' := inv_from_iso f).
-  simpl in f'.
-  apply (pr2 f').
+  apply (pr2 (inv_from_iso f)).
 Defined.
 
 Definition isotoid_CONE {a b : CONE} : iso a b -> a == b.
@@ -324,6 +328,8 @@ Proof.
   
 *)
 
+Lemma helper (M N : CONE):
+  ConeConnect (idtoiso p) == idtoiso (base_path p).
 
 Lemma bla2 (M N : CONE) : forall f : iso M N, idtoiso (isotoid_CONE f) == f.
 Proof.
@@ -339,6 +345,7 @@ Proof.
 
   unfold Cone_eq.
   simpl.
+
   
 
 
