@@ -595,6 +595,15 @@ Proof.
   apply idpath.
 Qed.
 
+Lemma isotoid_identity_iso (C : precategory) (H : is_category C) (a : C) :
+  isotoid _ H (identity_iso a) == idpath _ .
+Proof.
+  apply idtoiso_inj; try assumption.
+  rewrite idtoiso_isotoid;
+  apply idpath.
+Qed.
+
+
 Lemma inv_isotoid (C : precategory) (H : is_category C) (a b : C)
     (f : iso a b) : ! isotoid _ H f == isotoid _ H (iso_inv_from_iso f).
 Proof.
