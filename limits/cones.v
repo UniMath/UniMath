@@ -221,18 +221,13 @@ Definition isotoid_CONE_pr1 (a b : CONE) : iso a b -> pr1 a == pr1 b.
 Proof.
   intro f.
   apply (total2_paths (isotoid _ is_cat_C (ConeConnectIso f))).
+  pathvia ((fun c : J =>
+     idtoiso (!isotoid C is_cat_C (ConeConnectIso f));; pr2 (pr1 a) c)).
+  apply transportf_isotoid_dep'.
   apply funextsec.
   intro t.
-  simpl.
-  
-(*  destruct a as [[A Amor] Ap].
-  simpl in *.
-  destruct b as [[B Bmor] Bp].
-  simpl in *.
-*)
-  
-  rewrite transportf_isotoid_dep'.
-  rewrite inv_isotoid.
+  pathvia (idtoiso (!isotoid C is_cat_C (ConeConnectIso f));; pr2 (pr1 a) t).
+  apply inv_isotoid.
   rewrite idtoiso_isotoid.
   simpl.
   set (f' := inv_from_iso f).
@@ -302,6 +297,8 @@ Proof.
   apply lemma2.
 Qed.
 
+
+(*
 Lemma isotoid_CONE_inj (M N : CONE) (f g : iso M N) : 
     isotoid_CONE f == isotoid_CONE g -> f == g.
 Proof.
@@ -325,6 +322,7 @@ Proof.
   unfold isotoid_CONE in H.
   simpl in H.
   
+*)
 
 
 Lemma bla2 (M N : CONE) : forall f : iso M N, idtoiso (isotoid_CONE f) == f.
