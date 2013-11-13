@@ -137,12 +137,9 @@ Proof.
    (fiber_path (base_paths F G p)) _ (fiber_path (base_paths F G q))  H).
    apply uip.
    change (isaset) with (isofhlevel 2).
-   apply impred.
-   intro a.
-   apply impred.
-   intro b.
-   apply impred.
-   intro f.
+   apply impred; intro a.
+   apply impred; intro b.
+   apply impred; intro f.
    apply (pr2 (_ --> _)).
    apply (@total2_paths2 (pr1 F == pr1 G)  
     (fun x : pr1 F == pr1 G => transportf _ x (pr2 F) == pr2 G)

@@ -643,12 +643,10 @@ Lemma transportf_isotoid_dep' (J C : precategory)
  transportf (fun x : C => forall c, x --> F c) p f == fun c => idtoiso (!p) ;; f c.
 Proof.
   destruct p.
-  simpl.
   apply funextsec.
-  intro.
-  rewrite id_left.
-  apply idpath.
-Qed.
+  intro. simpl.
+  apply (! id_left _ _ _ _).
+Defined.
 
 
 (** ** Precategories in style of essentially algebraic cats *)

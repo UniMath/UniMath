@@ -27,6 +27,16 @@ Definition ConeData := total2 (
 Definition ConeTop (a : ConeData) : C := pr1 a.
 Definition ConeMor (a : ConeData) (j : J) : ConeTop a --> F j := (pr2 a) j.
 
+Lemma eq_ConeData_eq (a b : ConeData) (p q : a == b) :
+   base_paths _ _ p == base_paths _ _ q -> p == q.
+Proof.
+  intro H.
+  apply (eq_equalities_between_pairs _ _ _ _ _ _ H).
+  apply uip.
+  apply (impred 2); intro j.
+  apply (pr2 (_ --> _ )).
+Defined.
+
 Definition ConeProp (a : ConeData) :=
   forall j j' (f : j --> j'), ConeMor a j ;; #F f == ConeMor a j'.
 
@@ -38,7 +48,25 @@ Qed.
 
 Definition Cone := total2 (fun a : ConeData => ConeProp a).
 
+
 Definition ConeData_from_Cone : Cone -> ConeData := fun a => pr1 a.
+
+Lemma eq_Cone_eq (a b : Cone) (p q : a == b) :
+   base_paths _ _ (base_paths _ _ p) == 
+   base_paths _ _ (base_paths _ _ q) -> p == q.
+Proof.
+  intro H.
+  assert (H2 : base_paths _ _ p == base_paths _ _ q).
+  apply eq_ConeData_eq.
+  apply H.
+  apply (eq_equalities_between_pairs _ _ _ _ _ _ H2).
+  apply uip.
+  Search ( _ -> isaset _ ).
+  apply isasetaprop.
+  apply isaprop_ConeProp.
+Defined.
+
+
 Coercion ConeData_from_Cone : Cone >-> ConeData.
 
 Definition ConeProp_from_Cone (a : Cone) : ConeProp a := pr2 a.
@@ -167,7 +195,12 @@ Definition ConeConnectIso {a b : CONE} (f : iso a b) :
    iso (ConeTop (pr1 a)) (ConeTop (pr1 b)) := 
  tpair _ _ (iso_projects_from_CONE a b f).
 
-
+Lemma ConeConnectIso_identity_iso (a : CONE) :
+   ConeConnectIso (identity_iso a) == identity_iso _ .
+Proof.
+  apply eq_iso.
+  apply idpath.
+Qed.
 
 Section CONE_category.
 
@@ -178,15 +211,17 @@ Definition isotoid_CONE_pr1 (a b : CONE) : iso a b -> pr1 a == pr1 b.
 Proof.
   intro f.
   apply (total2_paths (isotoid _ is_cat_C (ConeConnectIso f))).
+  apply funextsec.
+  intro t.
+  simpl.
+  
 (*  destruct a as [[A Amor] Ap].
   simpl in *.
   destruct b as [[B Bmor] Bp].
   simpl in *.
 *)
+  
   rewrite transportf_isotoid_dep'.
-
-  apply funextsec.
-  intro t.
   rewrite inv_isotoid.
   rewrite idtoiso_isotoid.
   simpl.
@@ -214,12 +249,66 @@ Proof.
 Defined.
   
 
+Lemma lemma1 (M : CONE):
+  base_paths (pr1 M) (pr1 M)
+    (base_paths M M (Cone_eq M M (isotoid_CONE_pr1 M M (identity_iso M)))) ==
+  idpath (pr1 (pr1 M)).
+Proof.
+  pathvia (base_paths (pr1 M) (pr1 M) (isotoid_CONE_pr1 M M (identity_iso M))).
+  unfold Cone_eq.
+  apply maponpaths. 
+  apply base_total_path.
+  pathvia (isotoid C is_cat_C (ConeConnectIso (identity_iso M))).
+  unfold isotoid_CONE_pr1.
+  apply base_total_path.
+  pathvia (isotoid C is_cat_C (identity_iso (ConeTop (pr1 M)))).
+  apply maponpaths, ConeConnectIso_identity_iso.
+  apply isotoid_identity_iso.
+Defined.
+  
+Lemma lemma2 (M : CONE):
+base_paths (pr1 M) (pr1 M)
+      (base_paths M M (isotoid_CONE M M (identity_iso M))) ==
+    base_paths (pr1 M) (pr1 M) (idpath (pr1 M)).
+Proof.
+  pathvia (base_paths (pr1 M) (pr1 M) (isotoid_CONE_pr1 M M (identity_iso M))).
+  unfold Cone_eq.
+  apply maponpaths. 
+  apply base_total_path.
+  pathvia (isotoid C is_cat_C (ConeConnectIso (identity_iso M))).
+  unfold isotoid_CONE_pr1.
+  apply base_total_path.
+  pathvia (isotoid C is_cat_C (identity_iso (ConeTop (pr1 M)))).
+  apply maponpaths, ConeConnectIso_identity_iso.
+  apply isotoid_identity_iso.
+Defined.
+
+
 Lemma bla (M N : CONE) : forall p : M == N, isotoid_CONE _ _ (idtoiso p) == p.
 Proof.
   intro p.
   induction p.
+  apply eq_Cone_eq.
+  apply lemma2.
+Qed.
   apply eq_CONE_pr1.
   simpl.
+(*
+    assert (H : base_paths _ _ (base_paths M M (isotoid_CONE M M (identity_iso M))) == 
+              base_paths _ _ (idpath (pr1 M))).
+   admit.
+  set (H':= lemma1 M).
+*)
+  unfold isotoid_CONE.
+   simpl.
+
+  apply (eq_equalities_between_pairs  _ _ _ _ _  _  (lemma2 M)).
+  simpl.
+  
+  simpl.
+  unfold lemma2.
+  simpl.
+  
   assert (H : base_paths _ _ (base_paths M M (isotoid_CONE M M (identity_iso M))) == 
               base_paths _ _ (idpath (pr1 M))).
    simpl. unfold isotoid_CONE. unfold Cone_eq. 
@@ -227,7 +316,12 @@ Proof.
    unfold isotoid_CONE_pr1.
    simpl.
    rewrite base_total_path.
+   rewrite ConeConnectIso_identity_iso.
+   rewrite isotoid_identity_iso.
+   apply idpath.
+   apply (eq_equalities_between_pairs _  _ _ _ _ _ H).
    simpl.
+   rewrite fiber_base_path.
    unfold ConeConnectIso. simpl. 
    
    unfold 
