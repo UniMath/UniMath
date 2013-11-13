@@ -45,75 +45,91 @@ Proof.
 Qed.
 
 
-
-Section Cone_Homs.
-
-Variables M N : Cone.
-
+Definition Cone_Mor (M N : Cone) := 
+  total2 (fun f : ConeTop M --> ConeTop N =>
+        forall j : J, f ;; ConeMor N j == ConeMor M j).
 
 
-
-Class Cone_Hom_struct (f : morC M N) := {
-  cone_comm : forall j:obJ, f ;; cone_mor j == cone_mor j 
-}.
-
-Record Cone_Hom := {
-  cone_hom_carrier :> morC M N;
-  cone_hom_struct :> Cone_Hom_struct cone_hom_carrier
-}.
-
-Lemma Cone_Hom_equiv : @Equivalence Cone_Hom 
-         (fun A B => cone_hom_carrier A == cone_hom_carrier B).
+Lemma isaset_Cone_Mor (M N : Cone) : isaset (Cone_Mor M N).
 Proof.
-  split.
-  unfold Reflexive;
-  cat.
-  unfold Symmetric;
-  intros x y; 
-  apply hom_sym.
-  unfold Transitive;
-  intros x y z;
-  apply hom_trans.
+  apply (isofhleveltotal2 2).
+  apply (pr2 (_ --> _ )).
+  intros.
+  apply hlevelntosn.
+  apply impred.
+  intros.
+  apply (pr2 (_ --> _ )).
 Qed.
 
-Definition Cone_Hom_oid := Build_Setoid Cone_Hom_equiv.
+Definition ConeConnect {M N : Cone} (f : Cone_Mor M N) : 
+    ConeTop M --> ConeTop N := pr1 f.
 
-End Cone_Homs.
-
-Existing Instance cone_hom_struct.
-
-Section Cone_id_comp.
-
-Variable A : Cone.
-
-Program Definition Cone_id : Cone_Hom A A := 
-   Build_Cone_Hom (cone_hom_carrier := id _ ) _ .
-Next Obligation.
+Lemma Cone_Mor_eq (M N : Cone) (f g : Cone_Mor M N) : 
+   ConeConnect f == ConeConnect g -> f == g.
 Proof.
-  constructor.
-  cat.
+  intro H.
+  apply (total2_paths H).
+  apply proofirrelevance.
+  apply impred; intro; apply (pr2 (_ --> _)).
 Qed.
 
-Variables B D : Cone.
-Variable f : Cone_Hom A B.
-Variable g : Cone_Hom B D.
-
-Program Definition Cone_comp : Cone_Hom A D := 
-    Build_Cone_Hom (cone_hom_carrier := cone_hom_carrier f ;; 
-                                        cone_hom_carrier g) _ .
-Next Obligation.
+Lemma cone_mor_prop M N (f : Cone_Mor M N) : 
+    forall j : J, ConeConnect f ;; ConeMor N j == ConeMor M j.
 Proof.
-  constructor.
+  exact (pr2 f).
+Qed.
+
+Definition Cone_id (A : Cone) : Cone_Mor A A.
+Proof.
+  exists (identity _).
+  intros; apply id_left.
+Defined.
+
+
+Definition Cone_comp (A B D : Cone) (f : Cone_Mor A B)
+        (g : Cone_Mor B D) : Cone_Mor A D.
+Proof.
+  exists (ConeConnect f ;; ConeConnect g).
   intro j.
-  rewrite assoc.
-  rewrite (cone_comm j).
-  rewrite (cone_comm j).
-  cat.
+  (* make this proof opaque *)
+  rewrite <- assoc.
+  rewrite cone_mor_prop.
+  rewrite cone_mor_prop.
+  apply idpath.
+Defined.
+Check is_precategory.
+Print precategory_data.
+
+
+Definition Cone_precategory_ob_mor : precategory_ob_mor := 
+   precategory_ob_mor_pair Cone 
+   (fun a b => hSetpair (Cone_Mor a b) (isaset_Cone_Mor a b)).
+
+Definition Cone_precategory_data : precategory_data.
+Proof.
+  exists Cone_precategory_ob_mor.
+  exists Cone_id.
+  exact Cone_comp.
+Defined.
+
+Lemma is_precategory_Cone : is_precategory Cone_precategory_data.
+Proof.
+  repeat split; simpl.
+  
+  intros;
+  apply Cone_Mor_eq;
+  simpl; apply id_left.
+  
+  intros;
+  apply Cone_Mor_eq;
+  simpl; apply id_right.
+  
+  intros; 
+  apply Cone_Mor_eq;
+  simpl; apply assoc.
 Qed.
-
-End Cone_id_comp.
-
-Obligation Tactic := cat ; try apply assoc.
+  
+Definition CONE : precategory := tpair _ _ is_precategory_Cone.  
 
 Program Instance CONE_struct : Cat_struct Cone_Hom := {
   mor_oid := Cone_Hom_oid;
