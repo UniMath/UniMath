@@ -138,8 +138,6 @@ Proof.
   rewrite cone_mor_prop.
   apply idpath.
 Defined.
-Check is_precategory.
-Print precategory_data.
 
 
 Definition Cone_precategory_ob_mor : precategory_ob_mor := 
@@ -172,11 +170,6 @@ Qed.
   
 Definition CONE : precategory := tpair _ _ is_precategory_Cone.
 
-(*
-Definition Cone_Mor_from_iso (a b : CONE) (f : iso a b) : 
-         a --> b := pr1 f.
-Coercion Cone_Mor_from_iso : iso >-> hSet.
-*)
 
 
 (* this should not need the pr1 before f *)
@@ -302,31 +295,6 @@ Proof.
 Qed.
 
 
-(*
-Lemma isotoid_CONE_inj (M N : CONE) (f g : iso M N) : 
-    isotoid_CONE f == isotoid_CONE g -> f == g.
-Proof.
-  intro H.
-  apply ConeConnectIso_inj.
-  apply (isotoid_inj _ is_cat_C).
-  Check isotoid_CONE f.
-  Check isotoid C is_cat_C (ConeConnectIso f).
-  unfold isotoid_CONE in H.
-  Check isotoid C is_cat_C (ConeConnectIso f).
-  Check Cone_eq M N (isotoid_CONE_pr1 M N f).
-  unfold isotoid_CONE_pr1 in H.
-  simpl in H.
-  apply (base_paths _ _ H).
-  unfold isotoid_CONE in H.
-  unfold 
-  simpl in H.
-  simpl.
-  Check pr1 f.
-  apply (Cone_Mor_eq M N).
-  unfold isotoid_CONE in H.
-  simpl in H.
-  
-*)
 
 Lemma helper (M N : CONE) (p : M == N):
   ConeConnect (pr1 (idtoiso p)) == idtoiso ((base_paths _ _ (base_paths _ _  p))).
@@ -351,150 +319,20 @@ Proof.
   rewrite idtoiso_isotoid.
   apply idpath.
 Qed.
-  simpl.
-  
-  simpl.
-  simpl.
-  unfold isotoid_CONE.
-  simpl.
-  unfold isotoid_CONE_pr1.
-  simpl.
-
-  unfold Cone_eq.
-  simpl.
-
-  
 
 
-  apply eq_CONE_pr1.
-  simpl.
-(*
-    assert (H : base_paths _ _ (base_paths M M (isotoid_CONE M M (identity_iso M))) == 
-              base_paths _ _ (idpath (pr1 M))).
-   admit.
-  set (H':= lemma1 M).
-*)
-  unfold isotoid_CONE.
-   simpl.
+Lemma is_category_CONE : is_category CONE.
+Proof.
+  unfold is_category.
+  intros a b.
+  apply (gradth _  (@isotoid_CONE a b)).
+  apply bla.
+  apply bla2.
+Defined.
 
-  apply (eq_equalities_between_pairs  _ _ _ _ _  _  (lemma2 M)).
-  simpl.
-  
-  simpl.
-  unfold lemma2.
-  simpl.
-  
-  assert (H : base_paths _ _ (base_paths M M (isotoid_CONE M M (identity_iso M))) == 
-              base_paths _ _ (idpath (pr1 M))).
-   simpl. unfold isotoid_CONE. unfold Cone_eq. 
-   rewrite base_total_path.
-   unfold isotoid_CONE_pr1.
-   simpl.
-   rewrite base_total_path.
-   rewrite ConeConnectIso_identity_iso.
-   rewrite isotoid_identity_iso.
-   apply idpath.
-   apply (eq_equalities_between_pairs _  _ _ _ _ _ H).
-   simpl.
-   rewrite fiber_base_path.
-   unfold ConeConnectIso. simpl. 
-   
-   unfold 
-   simpl.
-   simpl.
-  set (H':= equal_transport_along_weq _ _ (total_paths_equiv _ M M )).
-  apply H'; clear H'.
-  simpl.
-  assert (H2 : base_paths M M (isotoid_CONE M M (identity_iso M)) == idpath (pr1 M)).
-  set (H'':= equal_transport_along_weq _ _ (total_paths_equiv _ (pr1 M) (pr1 M) )).
-  apply H''; clear H''.
-  simpl.
-  Focus 2.
-  apply (total2_paths2_UU _ H2).
-  
-  unfold isotoid_CONE.
-  simpl.
-  unfold Cone_eq.
-  simpl.
-  apply idpath.
-  simpl.
-            
-  
-  simpl.
-  
-  unfold isotoid_CONE.
-  simpl.
-  unfold Cone_eq.
-  simpl.
-  apply idpath.
+End CONE_category.
 
 End Cone.
-
-  
-
-End Cone.
-Check CONE.
 
 Implicit Arguments CONE [J C].
 Implicit Arguments ConeConnect [J C].
-About CONE.
-
-
-(** isos in CONE yield isos in C *)
-
-(*
-Lemma ConeConnect_inv_from_iso (a b : CONE) (f : iso a b) :
-    ConeConnect (inv_from_iso f) == 
-*)     
-
-
-
-(* this should not need the pr1 before f *)
-
-Definition iso_projects_from_CONE (J C : precategory) (F : functor J C) 
-   (a b : CONE F) (f : iso a b) :
-  is_isomorphism (ConeConnect F (pr1 f)).
-Proof.
-  exists (ConeConnect (inv_from_iso f)).
-  split; simpl.
-  apply (base_paths _ _ (pr1 (pr2 (pr2 f)))).
-  apply (base_paths _ _ (pr2 (pr2 (pr2 f)))).
-Defined.
-
-Definition ConeConectIso (a b : CONE) (f : iso a b) :
-   iso (ConeTop a) (ConeTop b) := tpair _ _ (iso_projects_from_CONE a b f).
-
-Section CONE_category.
-
-Hypothesis H : is_category C.
-
-Definition isotoid_CONE (a b : CONE) : iso a b -> a == b.
-intro f.
-  apply (total2_paths (isotoid _ H (pr1 f))).
-
-
-End Cone.
-
-(** a limit is a terminal object in (CONE A) *)
-
-
-
-Definition LIMIT A := Terminal (CONE A).
-
-(** easy access to interesting parts of a limit *)
-
-Section Limit_defs.
-
-Variable A : Functor J C.
-
-Hypothesis H : LIMIT A.
-
-Definition Limit : Cone A := Term (Terminal := H).
-
-Definition LimitVertex : obC := ConeTop Limit.
-
-Definition LimitMor (j : obJ) := cone_mor (ConeClass := Limit) j.
-
-End Limit_defs.
-
-End defs.
