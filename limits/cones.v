@@ -9,6 +9,7 @@ Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
+Require Import RezkCompletion.limits.aux_lemmas_HoTT.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 Local Notation "f ;; g" := (compose f g)(at level 50).
@@ -56,7 +57,7 @@ Proof.
   apply (total2_paths H).
   apply proofirrelevance.
   apply isaprop_ConeProp.
-Qed.
+Defined.
 
 Definition Cone_Mor (M N : Cone) := 
   total2 (fun f : ConeTop M --> ConeTop N =>
@@ -170,27 +171,93 @@ Definition ConeConnectIso {a b : CONE} (f : iso a b) :
 
 Section CONE_category.
 
-Hypothesis H : is_category C.
+Hypothesis is_cat_C : is_category C.
+
+
+Definition isotoid_CONE_pr1 (a b : CONE) : iso a b -> pr1 a == pr1 b.
+Proof.
+  intro f.
+  apply (total2_paths (isotoid _ is_cat_C (ConeConnectIso f))).
+(*  destruct a as [[A Amor] Ap].
+  simpl in *.
+  destruct b as [[B Bmor] Bp].
+  simpl in *.
+*)
+  rewrite transportf_isotoid_dep'.
+
+  apply funextsec.
+  intro t.
+  rewrite inv_isotoid.
+  rewrite idtoiso_isotoid.
+  simpl.
+  set (f' := inv_from_iso f).
+  simpl in f'.
+  apply (pr2 f').
+Defined.
 
 Definition isotoid_CONE (a b : CONE) : iso a b -> a == b.
 Proof.
   intro f.
-  set (H' := total2_paths (isotoid _ H (ConeConnectIso f))).
   apply Cone_eq.
-  apply H'; clear H'.
+  apply (isotoid_CONE_pr1 _ _ f).
+Defined.
 
-  destruct a as [[A Amor] Ap].
+
+Lemma eq_CONE_pr1 (M N : CONE) (p q : M == N) : base_paths _ _ p == base_paths _ _ q -> p == q.
+Proof.
+  intro H.
   simpl in *.
-  destruct b as [[B Bmor] Bp].
-  simpl in *.
-  rewrite transportf_isotoid_dep'.
-  apply funextsec.
-  intro t.
-  change (idtoiso (!isotoid C H (ConeConnectIso f));; Amor t)
-    with (inv_from_iso (ConeConnectIso f) ;; Amor t).
+  apply (eq_equalities_between_pairs _ _ _ _ _ _ H).
+  apply proofirrelevance.
+  apply isapropifcontr.
+  apply isaprop_ConeProp.
+Defined.
+  
+
+Lemma bla (M N : CONE) : forall p : M == N, isotoid_CONE _ _ (idtoiso p) == p.
+Proof.
+  intro p.
+  induction p.
+  apply eq_CONE_pr1.
   simpl.
-  clear H'.
-
+  assert (H : base_paths _ _ (base_paths M M (isotoid_CONE M M (identity_iso M))) == 
+              base_paths _ _ (idpath (pr1 M))).
+   simpl. unfold isotoid_CONE. unfold Cone_eq. 
+   rewrite base_total_path.
+   unfold isotoid_CONE_pr1.
+   simpl.
+   rewrite base_total_path.
+   simpl.
+   unfold ConeConnectIso. simpl. 
+   
+   unfold 
+   simpl.
+   simpl.
+  set (H':= equal_transport_along_weq _ _ (total_paths_equiv _ M M )).
+  apply H'; clear H'.
+  simpl.
+  assert (H2 : base_paths M M (isotoid_CONE M M (identity_iso M)) == idpath (pr1 M)).
+  set (H'':= equal_transport_along_weq _ _ (total_paths_equiv _ (pr1 M) (pr1 M) )).
+  apply H''; clear H''.
+  simpl.
+  Focus 2.
+  apply (total2_paths2_UU _ H2).
+  
+  unfold isotoid_CONE.
+  simpl.
+  unfold Cone_eq.
+  simpl.
+  apply idpath.
+  simpl.
+            
+  
+  simpl.
+  
+  unfold isotoid_CONE.
+  simpl.
+  unfold Cone_eq.
+  simpl.
+  apply idpath.
 
 End Cone.
 

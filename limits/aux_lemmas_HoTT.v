@@ -12,6 +12,23 @@ Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 
+Lemma eq_equalities_between_pairs (A : UU)(B : A -> UU)(x y : total2 (fun x => B x))
+    (p q : x == y) (H : base_paths _ _ p == base_paths _ _ q) 
+    (H2 : transportf (fun p : pr1 x == pr1 y =>  transportf _ p (pr2 x) == pr2 y )
+         H (fiber_path p) == fiber_path q) :  p == q.
+Proof.
+  apply equal_equalities_between_pairs.
+  set (H3 := total2_paths (B:=(fun p : pr1 x == pr1 y =>
+          transportf (fun x : A => B x) p (pr2 x) == pr2 y))
+          (s:=(total_paths_equiv B x y) p)
+          (s':=(total_paths_equiv B x y) q) H).
+   
+  apply H3.
+  assumption.
+Defined.
+
+
+
 Lemma transportf_idpath (X : UU) (P : X -> UU) (x : X)(z : P x) :
    transportf _ (idpath x) z == z.
 Proof.
