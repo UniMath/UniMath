@@ -202,6 +202,16 @@ Proof.
   apply idpath.
 Qed.
 
+Lemma ConeConnectIso_inj (a b : CONE) (f g : iso a b) :
+   ConeConnectIso f == ConeConnectIso g -> f == g.
+Proof.
+  intro H.
+  apply eq_iso; simpl in *.
+  apply Cone_Mor_eq.
+  apply (base_paths _ _ H).
+Qed.
+
+
 Section CONE_category.
 
 Hypothesis is_cat_C : is_category C.
@@ -230,7 +240,7 @@ Proof.
   apply (pr2 f').
 Defined.
 
-Definition isotoid_CONE (a b : CONE) : iso a b -> a == b.
+Definition isotoid_CONE {a b : CONE} : iso a b -> a == b.
 Proof.
   intro f.
   apply Cone_eq.
@@ -268,7 +278,7 @@ Defined.
   
 Lemma lemma2 (M : CONE):
 base_paths (pr1 M) (pr1 M)
-      (base_paths M M (isotoid_CONE M M (identity_iso M))) ==
+      (base_paths M M (isotoid_CONE (identity_iso M))) ==
     base_paths (pr1 M) (pr1 M) (idpath (pr1 M)).
 Proof.
   pathvia (base_paths (pr1 M) (pr1 M) (isotoid_CONE_pr1 M M (identity_iso M))).
@@ -284,13 +294,56 @@ Proof.
 Defined.
 
 
-Lemma bla (M N : CONE) : forall p : M == N, isotoid_CONE _ _ (idtoiso p) == p.
+Lemma bla (M N : CONE) : forall p : M == N, isotoid_CONE (idtoiso p) == p.
 Proof.
   intro p.
   induction p.
   apply eq_Cone_eq.
   apply lemma2.
 Qed.
+
+Lemma isotoid_CONE_inj (M N : CONE) (f g : iso M N) : 
+    isotoid_CONE f == isotoid_CONE g -> f == g.
+Proof.
+  intro H.
+  apply ConeConnectIso_inj.
+  apply (isotoid_inj _ is_cat_C).
+  Check isotoid_CONE f.
+  Check isotoid C is_cat_C (ConeConnectIso f).
+  unfold isotoid_CONE in H.
+  Check isotoid C is_cat_C (ConeConnectIso f).
+  Check Cone_eq M N (isotoid_CONE_pr1 M N f).
+  unfold isotoid_CONE_pr1 in H.
+  simpl in H.
+  apply (base_paths _ _ H).
+  unfold isotoid_CONE in H.
+  unfold 
+  simpl in H.
+  simpl.
+  Check pr1 f.
+  apply (Cone_Mor_eq M N).
+  unfold isotoid_CONE in H.
+  simpl in H.
+  
+
+
+Lemma bla2 (M N : CONE) : forall f : iso M N, idtoiso (isotoid_CONE f) == f.
+Proof.
+  intro f.
+  apply eq_iso.
+  simpl.
+  apply Cone_Mor_eq.
+  simpl.
+  unfold isotoid_CONE.
+  simpl.
+  unfold isotoid_CONE_pr1.
+  simpl.
+
+  unfold Cone_eq.
+  simpl.
+  
+
+
   apply eq_CONE_pr1.
   simpl.
 (*
