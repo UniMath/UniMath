@@ -595,6 +595,16 @@ Proof.
   apply idpath.
 Qed.
 
+Lemma inv_isotoid (C : precategory) (H : is_category C) (a b : C)
+    (f : iso a b) : ! isotoid _ H f == isotoid _ H (iso_inv_from_iso f).
+Proof.
+  apply idtoiso_inj; try assumption.
+  rewrite idtoiso_isotoid.
+  rewrite idtoiso_inv.
+  rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
+  
 
 Lemma transportf_isotoid (C : precategory) (H : is_category C) 
    (a a' b : ob C) (p : iso a a') (f : a --> b) : 
@@ -605,6 +615,32 @@ Proof.
   rewrite idtoiso_isotoid.
   apply idpath.
 Qed.
+
+Lemma transportf_isotoid_dep (C : precategory) 
+   (a a' : C) (p : a == a') (f : forall c, a --> c) :
+ transportf (fun x : C => forall c, x --> c) p f == fun c => idtoiso (!p) ;; f c.
+Proof.
+  destruct p.
+  simpl.
+  apply funextsec.
+  intro.
+  rewrite id_left.
+  apply idpath.
+Qed.
+
+Lemma transportf_isotoid_dep' (J C : precategory) 
+  (F : J -> C)
+   (a a' : C) (p : a == a') (f : forall c, a --> F c) :
+ transportf (fun x : C => forall c, x --> F c) p f == fun c => idtoiso (!p) ;; f c.
+Proof.
+  destruct p.
+  simpl.
+  apply funextsec.
+  intro.
+  rewrite id_left.
+  apply idpath.
+Qed.
+
 
 (** ** Precategories in style of essentially algebraic cats *)
 (** Of course we later want SETS of objects, rather than types,

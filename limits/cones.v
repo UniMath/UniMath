@@ -183,6 +183,12 @@ Proof.
   simpl in *.
   destruct b as [[B Bmor] Bp].
   simpl in *.
+  rewrite transportf_isotoid_dep'.
+  apply funextsec.
+  intro t.
+  change (idtoiso (!isotoid C H (ConeConnectIso f));; Amor t)
+    with (inv_from_iso (ConeConnectIso f) ;; Amor t).
+  simpl.
   clear H'.
 
 
