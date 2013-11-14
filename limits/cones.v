@@ -1,3 +1,6 @@
+
+(** following a discussion with Jason Gross *)
+
 Require Import Foundations.Generalities.uuu.
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
@@ -250,24 +253,7 @@ Proof.
   apply isaprop_ConeProp.
 Defined.
   
-
-Lemma lemma1 (M : CONE):
-  base_paths (pr1 M) (pr1 M)
-    (base_paths M M (Cone_eq M M (isotoid_CONE_pr1 M M (identity_iso M)))) ==
-  idpath (pr1 (pr1 M)).
-Proof.
-  pathvia (base_paths (pr1 M) (pr1 M) (isotoid_CONE_pr1 M M (identity_iso M))).
-  unfold Cone_eq.
-  apply maponpaths. 
-  apply base_total_path.
-  pathvia (isotoid C is_cat_C (ConeConnectIso (identity_iso M))).
-  unfold isotoid_CONE_pr1.
-  apply base_total_path.
-  pathvia (isotoid C is_cat_C (identity_iso (ConeTop (pr1 M)))).
-  apply maponpaths, ConeConnectIso_identity_iso.
-  apply isotoid_identity_iso.
-Defined.
-  
+ 
 Lemma lemma2 (M : CONE):
 base_paths (pr1 M) (pr1 M)
       (base_paths M M (isotoid_CONE (identity_iso M))) ==
