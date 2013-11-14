@@ -81,7 +81,7 @@ Lemma factor_dep_through_squash {X:UU} {Q:squash X->UU} :
   (forall h, Q h).
 Proof.
   intros ? ? i f ?.  apply (h (hProppair _ (i h))). 
-  intro x. destruct (squash_uniqueness x h).  exact (f x).
+  intro x. simpl. destruct (squash_uniqueness x h).  exact (f x).
 Defined.
 
 Lemma factor_through_squash_hProp {X:UU} : forall hQ:hProp, (X -> hQ) -> (squash X -> hQ).
