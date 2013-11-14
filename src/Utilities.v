@@ -115,7 +115,6 @@ Proof.
    apply (isofhleveltotal2 2). assumption.
    intros y. apply impred.
    intros t. apply isasetaprop. apply is.
-  assert(g : X -> P). intros x. exists (f x). intros x'. apply e.
   assert(m : X -> forall y:Y, isaprop (L y)).
    intros a z. apply impred.
    intros t. apply is.
@@ -123,117 +122,34 @@ Proof.
    intros a [r i] [s j].
    assert(k : r == s). intermediate (f a). apply pathsinv0. apply i. apply j.
    assert(l : tpair L r i == tpair L s j).
-    apply (pair_path k). apply m. assumption.
+    apply (pair_path k). apply m. exact a.
    exists l. intro t. apply (ip _ _ t l).
   assert(h' : squash X -> isaprop P).
    apply factor_through_squash. intro z. apply isapropisaprop.
    assumption.
   assert(k : squash X -> P).
    intros z.
-   apply (@factor_through_squash X _ (h' z)). assumption.    
-   assumption.
-  intro z.
-  exact (pr1 (k z)).
+   apply (@factor_through_squash X _ (h' z)).
+    (* X -> P *) intros x. exists (f x). intros x'. apply e.
+   exact z.
+  (* squash X -> Y *) intro z. apply (pr1 (k z)).
 Defined.
 
-(** * Dependent squashing *)
-
-Definition squash_dep (X:UU) := forall P:X -> UU, (forall x:X, isaprop (P x)) -> (forall x:X, P x) -> squash (total2 P).
-
-Definition squash_dep_element (X:UU) : X -> squash_dep X.
-Proof.
-  intros ? x P h s.
-  apply squash_element.
-  exists x.
-  apply s.
-Defined.
-
-Lemma isaprop_squash_dep (X:UU) : isaprop (squash_dep X).
-Proof. 
-  intro.
-  apply (impred 1).
-  intro S.
-  apply impred.
-  intro is.
-  apply impred.  
-  intro s.  
-  apply isaprop_squash.
-Defined.
-
-Lemma lift_through_squash_dep {X:UU} {Q : squash_dep X -> UU} : 
-  (forall y : squash_dep X, isaprop (Q y)) 
-  -> (forall x:X, Q (squash_dep_element X x))
-  -> (forall y : squash_dep X, Q y).
-Proof.
-  intros ? ? is q y.
-  assert (t : hProppair (Q y) (is y)).
-    apply (y (funcomp (squash_dep_element X) Q)).
-        intro x. apply is.
-      apply q.
-    intros [x p].
-    set (y' := squash_dep_element _ x).
-    assert(e : y' == y).
-      apply isaprop_squash_dep.
-    assert(t : Q y').
-      exact p.
-    apply (transportf _ e t).  
-  exact t.
-Defined.
-
-Lemma foo {Q:UU} (is:isaprop Q) (q:Q) : hProppair Q is.
-Proof. intros. assumption. Defined.
-
-Lemma factor_through_squash_dep {X Q:UU} : isaprop Q -> (X -> Q) -> (squash_dep X -> Q).
-Proof.
-  intros ? ? is q y.
-  assert (t : hProppair Q is).
-    apply (y (fun _ => Q)).
-        intros x.
-        assumption.
-      assumption.
-    intros [_ q'].
-    assumption.
-  exact t.
-Defined.
-
-Lemma squashes_agree {X:UU} : weq (squash X) (squash_dep X).
-Proof.
-  intros.
-  unfold weq.
-  exists (factor_through_squash (isaprop_squash_dep X) (squash_dep_element X)).
-  apply (gradth _ (factor_through_squash_dep (isaprop_squash X) (@squash_element X))).
-  intro x.
-  apply (isaprop_squash X).
-  intro y.
-  apply (isaprop_squash_dep X).
-Defined.
-
-(* now that we know the two squashes agree, we should figure out how to eliminate
-   squash_dep in favor of squash *)
-
-Lemma squash_dep_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash_dep X -> S) : 
-  funcomp (squash_dep_element X) g ~ funcomp (squash_dep_element X) g' 
-  -> g ~ g'.
+Lemma squash_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
+  funcomp squash_element g ~ funcomp squash_element g' -> g ~ g'.
 Proof.
   intros ? ? ? ? ? h.
   set ( Q := fun y => g y == g' y ).
-  assert ( iq : forall y, isaprop (Q y) ).
-    intros y. apply ip.
-  intros y.
-  apply (lift_through_squash_dep iq h).
+  unfold homot.
+  apply (@factor_dep_through_squash X). intros y. apply ip.
+  intro x. apply h.
 Defined.
 
-Lemma squash_dep_map_epi {X S:UU} (ip : isaset S) (g g' : squash_dep X -> S) : 
-  funcomp (squash_dep_element X) g == funcomp (squash_dep_element X) g' 
-  -> g == g'.
+Lemma squash_map_epi {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
+  funcomp squash_element g == funcomp squash_element g' -> g == g'.
 Proof.
   intros ? ? ? ? ? e.
   apply funextfunax.
-  apply squash_dep_map_uniqueness.
-  assumption.
-  intro x.
-  path_from (fun q : X -> S => q x).
-  assumption.
-Defined.
-
-Definition squash_dep_factoring {X Y:UU} (f : X -> Y) := total2 (fun g : squash_dep X -> Y => f == funcomp (squash_dep_element X) g).
+  apply squash_map_uniqueness. exact ip.
+  intro x. destruct e. apply idpath.
+Qed.
