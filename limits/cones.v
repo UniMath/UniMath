@@ -1,5 +1,5 @@
 
-(** following a discussion with Jason Gross *)
+(** following discussions with J. Gross, D. Grayson and V. Voevodsky *)
 
 Require Import Foundations.Generalities.uuu.
 Require Import Foundations.Generalities.uu0.
@@ -254,7 +254,7 @@ Proof.
 Defined.
   
  
-Lemma lemma2 (M : CONE):
+Lemma base_paths_isotoid_CONE (M : CONE):
 base_paths (pr1 M) (pr1 M)
       (base_paths M M (isotoid_CONE (identity_iso M))) ==
     base_paths (pr1 M) (pr1 M) (idpath (pr1 M)).
@@ -272,30 +272,30 @@ Proof.
 Defined.
 
 
-Lemma bla (M N : CONE) : forall p : M == N, isotoid_CONE (idtoiso p) == p.
+Lemma isotoid_CONE_idtoiso (M N : CONE) : forall p : M == N, isotoid_CONE (idtoiso p) == p.
 Proof.
   intro p.
   induction p.
   apply eq_Cone_eq.
-  apply lemma2.
+  apply base_paths_isotoid_CONE.
 Qed.
 
 
 
-Lemma helper (M N : CONE) (p : M == N):
+Lemma ConeConnect_idtoiso (M N : CONE) (p : M == N):
   ConeConnect (pr1 (idtoiso p)) == idtoiso ((base_paths _ _ (base_paths _ _  p))).
 Proof.
   destruct p.
   apply idpath.
 Qed.
 
-Lemma bla2 (M N : CONE) : forall f : iso M N, idtoiso (isotoid_CONE f) == f.
+Lemma idtoiso_isotoid_CONE (M N : CONE) : forall f : iso M N, idtoiso (isotoid_CONE f) == f.
 Proof.
   intro f.
   apply eq_iso.
   simpl.
   apply Cone_Mor_eq.
-  rewrite helper.
+  rewrite ConeConnect_idtoiso.
   unfold isotoid_CONE.
   unfold Cone_eq.
   rewrite base_total_path.
@@ -312,8 +312,8 @@ Proof.
   unfold is_category.
   intros a b.
   apply (gradth _  (@isotoid_CONE a b)).
-  apply bla.
-  apply bla2.
+  apply isotoid_CONE_idtoiso.
+  apply idtoiso_isotoid_CONE.
 Defined.
 
 End CONE_category.
