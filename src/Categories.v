@@ -25,7 +25,7 @@ Local Notation "g ∘ f" := (precategories.compose f g) (at level 50).
 Definition assoc' (C : precategory) : 
    forall (a b c d : C) 
           (f : a → b)(g : b → c) (h : c → d),
-                     (f ;; g) ;; h == f ;; (g ;; h).
+                     h ∘ (g ∘ f) == (h ∘ g) ∘ f.
 Proof. intros. apply pathReversal. apply assoc. Qed.
 
 Unset Automatic Introduction.

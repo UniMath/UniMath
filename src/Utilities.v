@@ -5,6 +5,7 @@ Import RezkCompletion.pathnotations.PathNotations.
 Require Import Foundations.hlevel2.hSet.
 
 Local Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 51).
+Local Notation "g ∘ f" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
 
 Unset Automatic Introduction.
 
@@ -55,7 +56,7 @@ Definition uniqueness {T:UU} (i:iscontr T) (t:T) : t == the i.
 Proof. intros. exact (pr2 i t). Defined.
 
 Definition uniqueness' {T:UU} (i:iscontr T) (t:T) : the i == t.
-Proof. intros. exact (pathReversal (pr2 i t)). Defined.
+Proof. intros. exact (! (pr2 i t)). Defined.
 
 (** * Squashing. *)
 
@@ -139,7 +140,7 @@ Proof.
 Defined.
 
 Lemma squash_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
-  funcomp squash_element g ~ funcomp squash_element g' -> g ~ g'.
+  g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
 Proof.
   intros ? ? ? ? ? h.
   set ( Q := fun y => g y == g' y ).
@@ -149,7 +150,7 @@ Proof.
 Defined.
 
 Lemma squash_map_epi {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
-  funcomp squash_element g == funcomp squash_element g' -> g == g'.
+  g ∘ squash_element == g'∘ squash_element -> g == g'.
 Proof.
   intros ? ? ? ? ? e.
   apply funextfunax.
