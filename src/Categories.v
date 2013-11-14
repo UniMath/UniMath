@@ -22,6 +22,12 @@ Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
 Local Notation "f ;; g" := (precategories.compose f g) (at level 50).
 Local Notation "g ∘ f" := (precategories.compose f g) (at level 50).
 
+Definition assoc' (C : precategory) : 
+   forall (a b c d : C) 
+          (f : a → b)(g : b → c) (h : c → d),
+                     (f ;; g) ;; h == f ;; (g ;; h).
+Proof. intros. apply pathReversal. apply assoc. Qed.
+
 Unset Automatic Introduction.
 
 Definition isiso {C:precategory} {a b:C} (f : a → b) := total2 (is_inverse_in_precat f).
@@ -95,12 +101,10 @@ Module Coproducts.
     split. 
       intermediate (the (map_from_a_to a)). 
         apply uniqueness.
-      apply pathReversal. 
-      apply uniqueness. 
+      apply uniqueness'. 
     intermediate (the (map_from_b_to b)). 
       apply uniqueness.
-    apply pathReversal. 
-    apply uniqueness.
+    apply uniqueness'.
   Defined.
 
   Lemma isaprop_isInitialObject {C:precategory} (a:C) : isaprop(isInitialObject a).
@@ -150,20 +154,20 @@ Module DirectSums.
 
   Record ZeroObject (C:precategory) := makeZeroObject { 
       zero_object : C ; 
-      init : isInitialObject zero_object ; 
-      term : isTerminalObject zero_object }.
+      map_from : isInitialObject zero_object ; 
+      map_to : isTerminalObject zero_object }.
   Implicit Arguments zero_object [C].
-  Implicit Arguments init [C].
-  Implicit Arguments term [C].
-  (* Coercion zero_object : ZeroObject >->  *)
+  Implicit Arguments map_from [C].
+  Implicit Arguments map_to [C].
+  Coercion zero_object : ZeroObject >-> ob.
 
-  Lemma initMapUniqueness {C:precategory} (a:ZeroObject C) (b:C) (f:zero_object a→b) : f == the (init a b).
-  Proof. intros. exact (uniqueness (init a b) f). Qed.
+  Lemma initMapUniqueness {C:precategory} (a:ZeroObject C) (b:C) (f:a→b) : f == the (map_from a b).
+  Proof. intros. exact (uniqueness (map_from a b) f). Qed.
 
-  Lemma initMapUniqueness2 {C:precategory} (a:ZeroObject C) (b:C) (f g:zero_object a→b) : f == g.
+  Lemma initMapUniqueness2 {C:precategory} (a:ZeroObject C) (b:C) (f g:a→b) : f == g.
   Proof.
    intros.
-   intermediate (the (init a b)).
+   intermediate (the (map_from a b)).
    apply initMapUniqueness.
    apply pathsinv0.
    apply initMapUniqueness.
@@ -171,23 +175,37 @@ Module DirectSums.
 
   Definition hasZeroObject (C:precategory) := squash (ZeroObject C).
 
-  Lemma zeroObjectIsomorphy {C:precategory} (a b:ZeroObject C) : iso (zero_object a) (zero_object b).
+  Lemma zeroObjectIsomorphy {C:precategory} (a b:ZeroObject C) : iso a b.
   Proof.
     intros.
-    exact (initialObjectIsomorphy (zero_object a) (zero_object b) (init a) (init b)).
+    exact (initialObjectIsomorphy a b (map_from a) (map_from b)).
   Defined.
 
-  Definition zeroMap' {C:precategory} (zero:ZeroObject C) (a b:C) := the (init zero b) ∘ the (term zero a) : a → b.
+  Definition zeroMap' {C:precategory} (o:ZeroObject C) (a b:C) := the (map_from o b) ∘ the (map_to o a) : a → b.
+
+  Lemma path_right_composition {C:precategory} : forall (a b c:C) (g:a→b) (f f':b→c), f == f' -> f ∘ g == f' ∘ g.
+  Proof. intros ? ? ? ? ? ? ? []. apply idpath. Qed.
+
+  Lemma path_left_composition {C:precategory} : forall (a b c:C) (f:b→c) (g g':a→b), g == g' -> f ∘ g == f ∘ g'.
+  Proof. intros ? ? ? ? ? ? ? []. apply idpath. Qed.
 
   Lemma zeroMapUniqueness {C:precategory} (x y:ZeroObject C) : forall a b:C, zeroMap' x a b == zeroMap' y a b.
   Proof.
-    intros. unfold zeroMap'. set (x0 := zero_object x). set (y0 := zero_object y). assert (h : x0 → y0). exact (the (init x y0)).
-    set (p := the (init x b)). set (i := the (term x a)). set (q := the (init y b)). set (j := the (term y a)).
-    intermediate (q ∘ (h ∘ i)). intermediate ((q ∘ h) ∘ i). path_from (fun r : x0 → b => r ∘ i). apply pathReversal.
-    apply (uniqueness (init _ _)). apply (assoc C). path_from (fun s : a → y0 => q ∘ s). apply (uniqueness (term _ _)).
+    intros.
+    set(i := the (map_to x a)).
+    set(h := the (map_from x y)).
+    set(q := the (map_from y b)).
+    intermediate (q ∘ (h ∘ i)). 
+      intermediate ((q ∘ h) ∘ i). 
+        apply path_right_composition.
+        apply uniqueness'.
+      apply assoc. 
+    apply path_left_composition.
+    apply uniqueness.
   Qed.
 
   Corollary zeroMapsUniqueness {C:precategory} (x y:ZeroObject C) : zeroMap' x == zeroMap' y.
+  (* probably will not be needed *)
   Proof.
     intros.
     apply funextsec.
@@ -198,29 +216,21 @@ Module DirectSums.
 
   Lemma zeroMap {C:precategory} : hasZeroObject C -> forall a b:C, a → b.
   Proof.
-    intros ?.
-    apply (squash_to_set _ (forall a b:C, a → b) zeroMap').
-      apply (impred 2).
-      intro a. apply impred.
-      intro b. apply isaset_hSet.
-    exact zeroMapsUniqueness.
+    intros.
+    generalize X. clear X.
+    apply (squash_to_set _ _ (fun z => zeroMap' z a b)).
+    apply isaset_hSet.    
+    intros. apply zeroMapUniqueness.
   Defined.
   
   Lemma goal3 {C:precategory} (z:ZeroObject C) (a b:C) : zeroMap' z a b == zeroMap (squash_element z) a b. 
   Proof. trivial. Qed.
 
-  Lemma path_right_composition {C:precategory} : forall (a b c:C) (f f':b→c) (g:a→b), f == f' -> f ∘ g == f' ∘ g.
-  Proof. intros ? ? ? ? ? ? ? []. trivial. Qed.
-
-  Lemma path_left_composition {C:precategory} : forall (a b c:C) (f:b→c) (g g':a→b), g == g' -> f ∘ g == f ∘ g'.
-  Proof. intros ? ? ? ? ? ? ? []. apply idpath. Qed.
-
   Lemma zeroMap'_left_composition {C:precategory} (z:ZeroObject C) : forall (a b c:C) (f:b→c), f ∘ zeroMap' z a b == zeroMap' z a c. 
   Proof.
    intros. unfold zeroMap'.
-   intermediate ((f ∘ the (init z b)) ∘ the (term z a)).
-     apply pathReversal.
-     apply assoc.
+   intermediate ((f ∘ the (map_from z b)) ∘ the (map_to z a)).
+     apply assoc'.
    apply path_right_composition.
    apply initMapUniqueness.
   Qed.

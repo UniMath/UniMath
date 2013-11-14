@@ -8,7 +8,7 @@ Local Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 51)
 
 Unset Automatic Introduction.
 
-Definition pathReversal := @pathsinv0.
+Notation pathReversal := pathsinv0.
 
 (** * h-levels and paths *)
 
@@ -53,6 +53,9 @@ Proof. intro. exact pr1. Defined.
 
 Definition uniqueness {T:UU} (i:iscontr T) (t:T) : t == the i.
 Proof. intros. exact (pr2 i t). Defined.
+
+Definition uniqueness' {T:UU} (i:iscontr T) (t:T) : the i == t.
+Proof. intros. exact (pathReversal (pr2 i t)). Defined.
 
 (** * Squashing. *)
 
@@ -120,7 +123,7 @@ Proof.
    intros t. apply is.
   assert(h : X -> isaprop P). Focus.
    intros a [r i] [s j].
-   assert(k : r == s). intermediate (f a). apply pathsinv0. apply i. apply j.
+   assert(k : r == s). intermediate (f a). apply pathReversal. apply i. apply j.
    assert(l : tpair L r i == tpair L s j).
     apply (pair_path k). apply m. exact a.
    exists l. intro t. apply (ip _ _ t l).
