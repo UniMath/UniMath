@@ -6,11 +6,14 @@ Require Import Foundations.hlevel2.hSet.
 
 Local Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 51).
 
+Unset Automatic Introduction.
+
 Definition pathReversal := @pathsinv0.
 
 (** * h-levels and paths *)
 
 Ltac prop_logic := 
+  intros;
   simpl;
   repeat (try (apply isapropdirprod); try (apply isapropishinh); apply impred ; intro); 
   try (apply isapropiscontr);
@@ -19,7 +22,7 @@ Ltac prop_logic :=
 Global Opaque isapropiscontr isapropishinh.
 
 Definition pathscomp0' {T:UU} {a b c:T} : a == b -> b == c -> a == c.
-Proof. intros e1 e2. 
+Proof. intros ? ? ? ? e1 e2. 
   destruct e2. (* compare to Foundations.uu0.pathscomp0, which destructs e1, instead *)
   assumption. 
 Defined.
@@ -40,16 +43,16 @@ providing 2 as first argument.
 *)
 
 Definition isaprop_hProp (X:hProp) : isaprop X.
-Proof. exact (pr2 X). Defined.
+Proof. intro. exact (pr2 X). Defined.
 
 Definition isaset_hSet (X:hSet) : isaset X.
-Proof. exact (pr2 X). Defined.
+Proof. intro. exact (pr2 X). Defined.
 
 Definition the {T:UU} : iscontr T -> T.
-Proof. exact pr1. Defined.
+Proof. intro. exact pr1. Defined.
 
 Definition uniqueness {T:UU} (i:iscontr T) (t:T) : t == the i.
-Proof. exact (pr2 i t). Defined.
+Proof. intros. exact (pr2 i t). Defined.
 
 (** * Squashing. *)
 
@@ -57,25 +60,25 @@ Notation squash := ishinh_UU.
 (* Definition squash (X:UU) := forall P:UU, isaprop P -> (X -> P) -> P. (* compare with ishinh_UU *) *)
 
 Definition squash_element {X:UU} : X -> squash X.
-Proof. intros x P f. exact (f x). Defined.
+Proof. intros ? x P f. exact (f x). Defined.
 
 Lemma isaprop_squash (X:UU) : isaprop (squash X).
 Proof. prop_logic. Qed.
  
 Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
-Proof. intros i f h. apply (h (hProppair _ i)). intro. apply f. assumption. Defined.
+Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro. apply f. assumption. Defined.
 
 Lemma factor_through_squash_hProp {X:UU} : forall hQ:hProp, (X -> hQ) -> (squash X -> hQ).
-Proof. intros [Q i] f h. apply h. assumption. Defined.
+Proof. intros ? [Q i] f h. apply h. assumption. Defined.
 
 Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
-Proof. intro is. apply (impredfun 2). assumption. Defined.    
+Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.    
 
 Lemma pair_path {X:UU} {P:X->UU} {x x':X} {p: P x} {p' : P x'} (e : x == x') (e' : transportf P e p == p') : tpair P x p == tpair P x' p'.
-Proof. destruct e. destruct e'. apply idpath. Defined.
+Proof. intros. destruct e. destruct e'. apply idpath. Defined.
 
 Lemma iscontr_if_inhab_prop {P:UU} : isaprop P -> P -> iscontr P.
-Proof. intros i p. exists p. intros p'. apply i. Defined.
+Proof. intros ? i p. exists p. intros p'. apply i. Defined.
 
 (** ** show that squashing is a set-quotient *)
 
@@ -89,7 +92,7 @@ Lemma squash_to_set (X Y:UU) : forall f : X -> Y,
     a proposition. Therefore "X -> Im f" factors through "squash X". *)
 
 Proof.
-  intros f is e.
+  intros ? ? ? is e.
   set (L := fun y:Y => forall x:X, f x == y).
   set (P := total2 L).
   assert(ip : isaset P).
@@ -123,7 +126,7 @@ Definition squash_dep (X:UU) := forall P:X -> UU, (forall x:X, isaprop (P x)) ->
 
 Definition squash_dep_element (X:UU) : X -> squash_dep X.
 Proof.
-  intros x P h s.
+  intros ? x P h s.
   apply squash_element.
   exists x.
   apply s.
@@ -131,6 +134,7 @@ Defined.
 
 Lemma isaprop_squash_dep (X:UU) : isaprop (squash_dep X).
 Proof. 
+  intro.
   apply (impred 1).
   intro S.
   apply impred.
@@ -145,7 +149,7 @@ Lemma lift_through_squash_dep {X:UU} {Q : squash_dep X -> UU} :
   -> (forall x:X, Q (squash_dep_element X x))
   -> (forall y : squash_dep X, Q y).
 Proof.
-  intros is q y.
+  intros ? ? is q y.
   assert (t : hProppair (Q y) (is y)).
     apply (y (funcomp (squash_dep_element X) Q)).
         intro x. apply is.
@@ -161,11 +165,11 @@ Proof.
 Defined.
 
 Lemma foo {Q:UU} (is:isaprop Q) (q:Q) : hProppair Q is.
-Proof. assumption. Defined.
+Proof. intros. assumption. Defined.
 
 Lemma factor_through_squash_dep {X Q:UU} : isaprop Q -> (X -> Q) -> (squash_dep X -> Q).
 Proof.
-  intros is q y.
+  intros ? ? is q y.
   assert (t : hProppair Q is).
     apply (y (fun _ => Q)).
         intros x.
@@ -178,6 +182,7 @@ Defined.
 
 Lemma squashes_agree {X:UU} : weq (squash X) (squash_dep X).
 Proof.
+  intros.
   unfold weq.
   exists (factor_through_squash (isaprop_squash_dep X) (squash_dep_element X)).
   apply (gradth _ (factor_through_squash_dep (isaprop_squash X) (@squash_element X))).
@@ -194,7 +199,7 @@ Lemma squash_dep_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash_dep X ->
   funcomp (squash_dep_element X) g ~ funcomp (squash_dep_element X) g' 
   -> g ~ g'.
 Proof.
-  intros h.
+  intros ? ? ? ? ? h.
   set ( Q := fun y => g y == g' y ).
   assert ( iq : forall y, isaprop (Q y) ).
     intros y. apply ip.
@@ -206,7 +211,7 @@ Lemma squash_dep_map_epi {X S:UU} (ip : isaset S) (g g' : squash_dep X -> S) :
   funcomp (squash_dep_element X) g == funcomp (squash_dep_element X) g' 
   -> g == g'.
 Proof.
-  intro e.
+  intros ? ? ? ? ? e.
   apply funextfunax.
   apply squash_dep_map_uniqueness.
   assumption.

@@ -22,6 +22,8 @@ Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
 Local Notation "f ;; g" := (precategories.compose f g) (at level 50).
 Local Notation "g ∘ f" := (precategories.compose f g) (at level 50).
 
+Unset Automatic Introduction.
+
 Definition isiso {C:precategory} {a b:C} (f : a → b) := total2 (is_inverse_in_precat f).
 
 (** ** products *)
@@ -86,6 +88,7 @@ Module Coproducts.
 
   Lemma initialObjectIsomorphy {C:precategory} (a b : C) : isInitialObject a -> isInitialObject b -> iso a b.
   Proof.
+    intros ? ? ?.
     intros map_from_a_to map_from_b_to. 
     exists (the (map_from_a_to b)). 
     exists (the (map_from_b_to a)).
@@ -161,6 +164,7 @@ Module DirectSums.
 
   Lemma zeroObjectIsomorphy {C:precategory} (a b:ZeroObject C) : iso (zero_object a) (zero_object b).
   Proof.
+    intros.
     exact (initialObjectIsomorphy (zero_object a) (zero_object b) (init a) (init b)).
   Defined.
 
@@ -176,6 +180,7 @@ Module DirectSums.
 
   Corollary zeroMapsUniqueness {C:precategory} (x y:ZeroObject C) : zeroMap' x == zeroMap' y.
   Proof.
+    intros.
     apply funextsec.
     intros t.
     apply funextsec.
@@ -184,6 +189,7 @@ Module DirectSums.
 
   Lemma zeroMap {C:precategory} : hasZeroObject C -> forall a b:C, a → b.
   Proof.
+    intros ?.
     apply (squash_to_set _ (forall a b:C, a → b) zeroMap').
       apply (impred 2).
       intro a. apply impred.
@@ -204,16 +210,16 @@ Module DirectSums.
   Proof. intros. apply (uniqueness (init z c)). Defined.
 
   Lemma goal10 {C:precategory} : forall (a b c:C) (f f':b→c) (g:a→b), f == f' -> f ∘ g == f' ∘ g.
-  Proof. intros ? ? ? ? ? ? []. trivial. Defined.
+  Proof. intros ? ? ? ? ? ? ? []. trivial. Defined.
 
   Definition left_compose {C:precategory} {a b:C} (c:C) (g:a→b) (f:b→c) := f ∘ g.
   Definition right_compose {C:precategory} {c b:C} (f:b→c) (a:C) (g:a→b) := f ∘ g.
 
   Lemma goal10a {C:precategory} : forall (a b c:C) (f f':b→c) (g:a→b), f == f' -> f ∘ g == f' ∘ g.
-  Proof. intros ? ? ? ? ? ? p. path_from (left_compose c g). trivial. Defined.
+  Proof. intros ? ? ? ? ? ? ? p. path_from (left_compose c g). trivial. Defined.
 
   Lemma goal10' {C:precategory} : forall (a b c:C) (f:b→c) (g g':a→b), g == g' -> f ∘ g == f ∘ g'.
-  Proof. intros ? ? ? ? ? ? []. apply idpath. Defined.
+  Proof. intros ? ? ? ? ? ? ? []. apply idpath. Defined.
 
   Lemma goal5 {C:precategory} (z:ZeroObject C) : forall (a b c:C) (f:b→c), f ∘ zeroMap' z a b == zeroMap' z a c. 
   Proof. intros. unfold zeroMap'.
@@ -223,9 +229,9 @@ Module DirectSums.
          apply goal10.
          apply initMapUniqueness. Defined.
 
-  Lemma goal2 {C:precategory} (h:hasZeroObject C) : forall (a b c:C) (f:b→c), f ∘ zeroMap h a b == zeroMap h a c. 
+  Lemma goal2 {C:precategory} (a b c:C) (f:b→c) (h:hasZeroObject C) : f ∘ zeroMap h a b == zeroMap h a c. 
   Proof.
-    intros.
+    intros ? ? ? ? ? h.
     assert( i : isaprop (paths (f ∘ zeroMap h a b) (zeroMap h a c) )). apply isaset_hSet.
     apply (@factor_through_squash (ZeroObject C) _ i).
      intro z.
@@ -236,21 +242,6 @@ Module DirectSums.
      intermediate (zeroMap' z a c).
      apply goal5.
      apply goal4.
-    exact h.
-  Defined.
-
-  Lemma goal2' {C:precategory} (h:hasZeroObject C) : forall (a b c:C) (f:b→c), f ∘ zeroMap h a b == zeroMap h a c. 
-  Proof.                        (* the proof term here is bigger than that of goal2 *)
-    intros.
-    assert( i : isaprop (paths (f ∘ zeroMap h a b) (zeroMap h a c) )). apply isaset_hSet.
-    apply (@factor_through_squash (ZeroObject C) _ i).
-     intro z.
-     assert( p : zeroMap' z a b == zeroMap h a b ). apply goal4. destruct p.
-     assert( p : zeroMap' z a c == zeroMap h a c ). apply goal4. destruct p.
-     unfold zeroMap'.
-     assert( p : (f ∘ the (init z b)) ∘ the (term z a) == f ∘ (the (init z b) ∘ the (term z a)) ). apply assoc. destruct p.
-     apply goal10.
-     apply initMapUniqueness.
     exact h.
   Defined.
 
