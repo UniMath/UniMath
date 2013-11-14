@@ -158,7 +158,7 @@ Module DirectSums.
   (* Coercion zero_object : ZeroObject >->  *)
 
   Lemma initMapUniqueness {C:precategory} (a:ZeroObject C) (b:C) (f:zero_object a→b) : f == the (init a b).
-  Proof. intros. exact (uniqueness (init a b) f). Defined.
+  Proof. intros. exact (uniqueness (init a b) f). Qed.
 
   Lemma initMapUniqueness2 {C:precategory} (a:ZeroObject C) (b:C) (f g:zero_object a→b) : f == g.
   Proof.
@@ -167,7 +167,7 @@ Module DirectSums.
    apply initMapUniqueness.
    apply pathsinv0.
    apply initMapUniqueness.
-  Defined.
+  Qed.
 
   Definition hasZeroObject (C:precategory) := squash (ZeroObject C).
 
@@ -206,39 +206,26 @@ Module DirectSums.
     exact zeroMapsUniqueness.
   Defined.
   
-  Lemma goal1 {C:precategory} (h h':hasZeroObject C) : forall (a b:C), zeroMap h a b == zeroMap h' a b. 
-  Proof. intros. path_from (fun h => zeroMap h a b). apply isaprop_squash. Qed.
-  
-  Lemma goal3 {C:precategory} (z:ZeroObject C) : forall (a b:C), zeroMap' z a b == zeroMap (squash_element z) a b. 
+  Lemma goal3 {C:precategory} (z:ZeroObject C) (a b:C) : zeroMap' z a b == zeroMap (squash_element z) a b. 
   Proof. trivial. Qed.
-  
-  Lemma goal4 {C:precategory} (z:ZeroObject C) (h:hasZeroObject C) : forall (a b:C), zeroMap' z a b == zeroMap h a b. 
-  Proof. intros. intermediate (zeroMap (squash_element z) a b). apply idpath. apply goal1. Qed.
 
-  Lemma goal5' {C:precategory} (z:ZeroObject C) : forall (b c:C) (f:b→c), f ∘ the (init z b) == the (init z c). 
-  Proof. intros. apply (uniqueness (init z c)). Defined.
+  Lemma path_right_composition {C:precategory} : forall (a b c:C) (f f':b→c) (g:a→b), f == f' -> f ∘ g == f' ∘ g.
+  Proof. intros ? ? ? ? ? ? ? []. trivial. Qed.
 
-  Lemma goal10 {C:precategory} : forall (a b c:C) (f f':b→c) (g:a→b), f == f' -> f ∘ g == f' ∘ g.
-  Proof. intros ? ? ? ? ? ? ? []. trivial. Defined.
+  Lemma path_left_composition {C:precategory} : forall (a b c:C) (f:b→c) (g g':a→b), g == g' -> f ∘ g == f ∘ g'.
+  Proof. intros ? ? ? ? ? ? ? []. apply idpath. Qed.
 
-  Definition left_compose {C:precategory} {a b:C} (c:C) (g:a→b) (f:b→c) := f ∘ g.
-  Definition right_compose {C:precategory} {c b:C} (f:b→c) (a:C) (g:a→b) := f ∘ g.
+  Lemma zeroMap'_left_composition {C:precategory} (z:ZeroObject C) : forall (a b c:C) (f:b→c), f ∘ zeroMap' z a b == zeroMap' z a c. 
+  Proof.
+   intros. unfold zeroMap'.
+   intermediate ((f ∘ the (init z b)) ∘ the (term z a)).
+     apply pathReversal.
+     apply assoc.
+   apply path_right_composition.
+   apply initMapUniqueness.
+  Qed.
 
-  Lemma goal10a {C:precategory} : forall (a b c:C) (f f':b→c) (g:a→b), f == f' -> f ∘ g == f' ∘ g.
-  Proof. intros ? ? ? ? ? ? ? p. path_from (left_compose c g). trivial. Defined.
-
-  Lemma goal10' {C:precategory} : forall (a b c:C) (f:b→c) (g g':a→b), g == g' -> f ∘ g == f ∘ g'.
-  Proof. intros ? ? ? ? ? ? ? []. apply idpath. Defined.
-
-  Lemma goal5 {C:precategory} (z:ZeroObject C) : forall (a b c:C) (f:b→c), f ∘ zeroMap' z a b == zeroMap' z a c. 
-  Proof. intros. unfold zeroMap'.
-         intermediate ((f ∘ the (init z b)) ∘ the (term z a)).
-         apply pathReversal.
-         apply assoc.
-         apply goal10.
-         apply initMapUniqueness. Defined.
-
-  Lemma goal2 {C:precategory} (a b c:C) (f:b→c) (h:hasZeroObject C) : f ∘ zeroMap h a b == zeroMap h a c. 
+  Lemma zeroMap_left_composition {C:precategory} (a b c:C) (f:b→c) (h:hasZeroObject C) : f ∘ zeroMap h a b == zeroMap h a c. 
   Proof.
     intros ? ? ? ? ?.
     apply (@factor_dep_through_squash (ZeroObject C)).
@@ -246,7 +233,7 @@ Module DirectSums.
     intro z.
     destruct (goal3 z a b).
     destruct (goal3 z a c).
-    apply goal5.
+    apply zeroMap'_left_composition.
   Qed.
 
   (* the following definition is not right yet *)
@@ -255,7 +242,7 @@ Module DirectSums.
   
   Lemma isaprop_isBinarySum {C:precategory} {a b s : C} (p : s → a) (q : s → b) (i : a → s) (j : b → s) :
     isaprop (isBinarySum p q i j).
-  Proof. prop_logic. Defined.
+  Proof. prop_logic. Qed.
 
   Record BinarySum {C:precategory} (a b : C) := makeBinarySum {
       s ;
@@ -280,3 +267,4 @@ Module DirectSums.
  *)
 
 End DirectSums.
+

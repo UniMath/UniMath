@@ -76,12 +76,12 @@ Lemma factor_through_squash_factors {X Q:UU} (i:isaprop Q) (f:X -> Q) (x:X)
 Proof. trivial. Defined.
 
 Lemma factor_dep_through_squash {X:UU} {Q:squash X->UU} : 
-  (forall y, isaprop (Q y)) -> 
+  (forall h, isaprop (Q h)) -> 
   (forall x, Q(squash_element x)) -> 
   (forall h, Q h).
 Proof.
-  intros ? ? i f ?.  apply (h (hProppair _ (i h))). 
-  intro x. simpl. destruct (squash_uniqueness x h).  exact (f x).
+  intros ? ? i f ?.  apply (h (hProppair (Q h) (i h))). 
+  intro x. simpl. destruct (squash_uniqueness x h). exact (f x).
 Defined.
 
 Lemma factor_through_squash_hProp {X:UU} : forall hQ:hProp, (X -> hQ) -> (squash X -> hQ).
@@ -112,27 +112,27 @@ Proof.
   set (L := fun y:Y => forall x:X, f x == y).
   set (P := total2 L).
   assert(ip : isaset P).
-   apply (isofhleveltotal2 2). assumption.
+   apply (isofhleveltotal2 2). exact is.
    intros y. apply impred.
    intros t. apply isasetaprop. apply is.
   assert(m : X -> forall y:Y, isaprop (L y)).
    intros a z. apply impred.
    intros t. apply is.
-  assert(h : X -> isaprop P).
+  assert(h : X -> isaprop P). Focus.
    intros a [r i] [s j].
    assert(k : r == s). intermediate (f a). apply pathsinv0. apply i. apply j.
    assert(l : tpair L r i == tpair L s j).
     apply (pair_path k). apply m. exact a.
    exists l. intro t. apply (ip _ _ t l).
   assert(h' : squash X -> isaprop P).
-   apply factor_through_squash. intro z. apply isapropisaprop.
-   assumption.
+   apply factor_through_squash. apply isapropisaprop.
+   exact h.
   assert(k : squash X -> P).
    intros z.
    apply (@factor_through_squash X _ (h' z)).
-    (* X -> P *) intros x. exists (f x). intros x'. apply e.
+    intros x. exists (f x). intros x'. apply e.
    exact z.
-  (* squash X -> Y *) intro z. apply (pr1 (k z)).
+  intro z. apply (pr1 (k z)).
 Defined.
 
 Lemma squash_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
