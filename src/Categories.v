@@ -160,6 +160,15 @@ Module DirectSums.
   Lemma initMapUniqueness {C:precategory} (a:ZeroObject C) (b:C) (f:zero_object a→b) : f == the (init a b).
   Proof. intros. exact (uniqueness (init a b) f). Defined.
 
+  Lemma initMapUniqueness2 {C:precategory} (a:ZeroObject C) (b:C) (f g:zero_object a→b) : f == g.
+  Proof.
+   intros.
+   intermediate (the (init a b)).
+   apply initMapUniqueness.
+   apply pathsinv0.
+   apply initMapUniqueness.
+  Defined.
+
   Definition hasZeroObject (C:precategory) := squash (ZeroObject C).
 
   Lemma zeroObjectIsomorphy {C:precategory} (a b:ZeroObject C) : iso (zero_object a) (zero_object b).
@@ -231,9 +240,9 @@ Module DirectSums.
 
   Lemma goal2 {C:precategory} (a b c:C) (f:b→c) (h:hasZeroObject C) : f ∘ zeroMap h a b == zeroMap h a c. 
   Proof.
-    intros ? ? ? ? ? h.
-    assert( i : isaprop (paths (f ∘ zeroMap h a b) (zeroMap h a c) )). apply isaset_hSet.
-    apply (@factor_through_squash (ZeroObject C) _ i).
+    intros ? ? ? ? ?.
+    apply (@factor_dep_through_squash (ZeroObject C)).
+      intro. apply isaset_hSet.
      intro z.
      intermediate (f ∘ zeroMap' z a b).     
      path_from (right_compose f a).     
@@ -242,7 +251,6 @@ Module DirectSums.
      intermediate (zeroMap' z a c).
      apply goal5.
      apply goal4.
-    exact h.
   Defined.
 
   (* the following definition is not right yet *)

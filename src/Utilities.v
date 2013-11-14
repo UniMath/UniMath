@@ -65,8 +65,20 @@ Proof. intros ? x P f. exact (f x). Defined.
 Lemma isaprop_squash (X:UU) : isaprop (squash X).
 Proof. prop_logic. Qed.
  
+Lemma squash_uniqueness {X:UU} (x:X) (h:squash X) : squash_element x == h.
+Proof. intros. apply isaprop_squash. Qed.
+
 Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
-Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro. apply f. assumption. Defined.
+Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Defined.
+
+Lemma factor_dep_through_squash {X:UU} {Q:squash X->UU} : 
+  (forall y, isaprop (Q y)) -> 
+  (forall x, Q(squash_element x)) -> 
+  (forall h, Q h).
+Proof.
+  intros ? ? i f ?.  apply (h (hProppair _ (i h))). 
+  intro x. destruct (squash_uniqueness x h).  exact (f x).
+Defined.
 
 Lemma factor_through_squash_hProp {X:UU} : forall hQ:hProp, (X -> hQ) -> (squash X -> hQ).
 Proof. intros ? [Q i] f h. apply h. assumption. Defined.
