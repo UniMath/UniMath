@@ -71,6 +71,10 @@ Proof. intros. apply isaprop_squash. Qed.
 Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
 Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Defined.
 
+Lemma factor_through_squash_factors {X Q:UU} (i:isaprop Q) (f:X -> Q) (x:X)
+   : factor_through_squash i f (squash_element x) == f x.
+Proof. trivial. Defined.
+
 Lemma factor_dep_through_squash {X:UU} {Q:squash X->UU} : 
   (forall y, isaprop (Q y)) -> 
   (forall x, Q(squash_element x)) -> 

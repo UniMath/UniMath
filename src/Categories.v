@@ -210,7 +210,7 @@ Module DirectSums.
   Proof. intros. path_from (fun h => zeroMap h a b). apply isaprop_squash. Qed.
   
   Lemma goal3 {C:precategory} (z:ZeroObject C) : forall (a b:C), zeroMap' z a b == zeroMap (squash_element z) a b. 
-  Proof. intros. apply idpath. Qed.
+  Proof. trivial. Qed.
   
   Lemma goal4 {C:precategory} (z:ZeroObject C) (h:hasZeroObject C) : forall (a b:C), zeroMap' z a b == zeroMap h a b. 
   Proof. intros. intermediate (zeroMap (squash_element z) a b). apply idpath. apply goal1. Qed.
@@ -243,15 +243,11 @@ Module DirectSums.
     intros ? ? ? ? ?.
     apply (@factor_dep_through_squash (ZeroObject C)).
       intro. apply isaset_hSet.
-     intro z.
-     intermediate (f ∘ zeroMap' z a b).     
-     path_from (right_compose f a).     
-     apply pathReversal.
-     apply goal4.
-     intermediate (zeroMap' z a c).
-     apply goal5.
-     apply goal4.
-  Defined.
+    intro z.
+    destruct (goal3 z a b).
+    destruct (goal3 z a c).
+    apply goal5.
+  Qed.
 
   (* the following definition is not right yet *)
   Definition isBinarySum {C:precategory} {a b s : C} (p : s → a) (q : s → b) (i : a → s) (j : b → s) :=
