@@ -123,11 +123,14 @@ Proof.
    intros a z. apply impred.
    intros t. apply is.
   assert(h : X -> isaprop P).
-   intros a [r i] [s j].
-   assert(k : r == s). intermediate (f a). apply pathReversal. apply i. apply j.
-   assert(l : tpair L r i == tpair L s j).
-    apply (pair_path k). apply m. exact a.
-   exists l. intro t. apply (ip _ _ t l).
+   intros a.
+   apply invproofirrelevance.
+   intros [r i] [s j].
+   assert(k : r == s). 
+     intermediate (f a). 
+     apply pathReversal; apply i.
+     apply j.
+   apply (pair_path k). apply m. exact a.
   assert(h' : squash X -> isaprop P).
    apply factor_through_squash. apply isapropisaprop.
    exact h.
