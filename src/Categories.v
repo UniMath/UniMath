@@ -21,6 +21,14 @@ Local Notation "b ← a" := (precategory_morphisms a b) (at level 50).
 Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
 Local Notation "f ;; g" := (precategories.compose f g) (at level 50).
 Local Notation "g ∘ f" := (precategories.compose f g) (at level 50).
+Local Notation car := pr1.
+Local Notation cadr := (fun x => pr1(pr2 x)).
+Local Notation caddr := (fun x => pr1(pr2 (pr2 x))).
+Local Notation cadddr := (fun x => pr1(pr2 (pr2 (pr2 x)))).
+Local Notation cdr := pr2.
+Local Notation cddr := (fun x => pr2(pr2 x)).
+Local Notation cdddr := (fun x => pr2(pr2 (pr2 x))).
+Local Notation cddddr := (fun x => pr2(pr2 (pr2 (pr2 x)))).
 
 Definition assoc' (C : precategory) : 
    forall (a b c d : C) 
@@ -152,13 +160,14 @@ Module DirectSums.
 
   Import Coproducts Products.
 
-  Record ZeroObject (C:precategory) := makeZeroObject { 
-      zero_object : C ; 
-      map_from : isInitialObject zero_object ; 
-      map_to : isTerminalObject zero_object }.
-  Implicit Arguments zero_object [C].
-  Implicit Arguments map_from [C].
-  Implicit Arguments map_to [C].
+  Definition ZeroObject (C:precategory) :=
+    total2 ( fun 
+               zero_object : C => dirprod (
+                             isInitialObject zero_object) (
+                             isTerminalObject zero_object) ).
+  Definition zero_object {C:precategory} (z:ZeroObject C) := car  z.
+  Definition map_from    {C:precategory} (z:ZeroObject C) := cadr z.
+  Definition map_to      {C:precategory} (z:ZeroObject C) := cddr z.
   Coercion zero_object : ZeroObject >-> ob.
 
   Lemma initMapUniqueness {C:precategory} (a:ZeroObject C) (b:C) (f:a→b) : f == the (map_from a b).
@@ -240,12 +249,14 @@ Module DirectSums.
     isaprop (isBinarySum p q i j).
   Proof. prop_logic. Qed.
 
-  Record BinarySum {C:precategory} (a b : C) := makeBinarySum {
-      s ;
-      p : s → a ; q : s → b ;
-      i : a → s ; j : b → s ;
-      is : isBinarySum p q i j
-      }.
+  Definition BinarySum {C:precategory} (a b : C) := 
+                    total2 (fun 
+      s          => total2 (fun 
+      p : s → a  => total2 (fun  
+      q : s → b  => total2 (fun 
+      i : a → s  => total2 (fun  
+      j : b → s  => 
+          isBinarySum p q i j ))))).
 
   Definition squashBinarySums (C:precategory) :=
     forall a b : C, squash (BinarySum a b).
