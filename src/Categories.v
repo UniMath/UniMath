@@ -181,7 +181,7 @@ Module DirectSums.
     exact (initialObjectIsomorphy a b (map_from a) (map_from b)).
   Defined.
 
-  Definition zeroMap' {C:precategory} (o:ZeroObject C) (a b:C) := the (map_from o b) ∘ the (map_to o a) : a → b.
+  Definition zeroMap' {C:precategory} (a b:C) (o:ZeroObject C) := the (map_from o b) ∘ the (map_to o a) : a → b.
 
   Lemma path_right_composition {C:precategory} : forall (a b c:C) (g:a→b) (f f':b→c), f == f' -> f ∘ g == f' ∘ g.
   Proof. intros ? ? ? ? ? ? ? []. apply idpath. Qed.
@@ -189,7 +189,7 @@ Module DirectSums.
   Lemma path_left_composition {C:precategory} : forall (a b c:C) (f:b→c) (g g':a→b), g == g' -> f ∘ g == f ∘ g'.
   Proof. intros ? ? ? ? ? ? ? []. apply idpath. Qed.
 
-  Lemma zeroMapUniqueness {C:precategory} (x y:ZeroObject C) : forall a b:C, zeroMap' x a b == zeroMap' y a b.
+  Lemma zeroMapUniqueness {C:precategory} (x y:ZeroObject C) : forall a b:C, zeroMap' a b x == zeroMap' a b y.
   Proof.
     intros.
     set(i := the (map_to x a)).
@@ -204,29 +204,15 @@ Module DirectSums.
     apply uniqueness.
   Qed.
 
-  Corollary zeroMapsUniqueness {C:precategory} (x y:ZeroObject C) : zeroMap' x == zeroMap' y.
-  (* probably will not be needed *)
+  Lemma zeroMap {C:precategory} (a b:C): hasZeroObject C  ->  a → b.
   Proof.
-    intros.
-    apply funextsec.
-    intros t.
-    apply funextsec.
-    apply zeroMapUniqueness.
-  Defined.
-
-  Lemma zeroMap {C:precategory} : hasZeroObject C -> forall a b:C, a → b.
-  Proof.
-    intros.
-    generalize X. clear X.
-    apply (squash_to_set _ _ (fun z => zeroMap' z a b)).
+    intros ? ? ?.
+    apply (squash_to_set (zeroMap' a b)).
     apply isaset_hSet.    
     intros. apply zeroMapUniqueness.
   Defined.
-  
-  Lemma goal3 {C:precategory} (z:ZeroObject C) (a b:C) : zeroMap' z a b == zeroMap (squash_element z) a b. 
-  Proof. trivial. Qed.
 
-  Lemma zeroMap'_left_composition {C:precategory} (z:ZeroObject C) : forall (a b c:C) (f:b→c), f ∘ zeroMap' z a b == zeroMap' z a c. 
+  Lemma zeroMap'_left_composition {C:precategory} (z:ZeroObject C) : forall (a b c:C) (f:b→c), f ∘ zeroMap' a b z == zeroMap' a c z. 
   Proof.
    intros. unfold zeroMap'.
    intermediate ((f ∘ the (map_from z b)) ∘ the (map_to z a)).
@@ -235,14 +221,14 @@ Module DirectSums.
    apply initMapUniqueness.
   Qed.
 
-  Lemma zeroMap_left_composition {C:precategory} (a b c:C) (f:b→c) (h:hasZeroObject C) : f ∘ zeroMap h a b == zeroMap h a c. 
+  Lemma zeroMap_left_composition {C:precategory} (a b c:C) (f:b→c) (h:hasZeroObject C) : f ∘ zeroMap a b h == zeroMap a c h. 
   Proof.
     intros ? ? ? ? ?.
-    apply (@factor_dep_through_squash (ZeroObject C)).
-      intro. apply isaset_hSet.
+    apply (@factor_dep_through_squash (ZeroObject C)). intro. apply isaset_hSet.
     intro z.
-    destruct (goal3 z a b).
-    destruct (goal3 z a c).
+    assert( g : forall (b:C), zeroMap' a b z == zeroMap a b (squash_element z) ). trivial.
+    destruct (g b).
+    destruct (g c).
     apply zeroMap'_left_composition.
   Qed.
 

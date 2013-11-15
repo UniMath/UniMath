@@ -102,8 +102,8 @@ Proof. intros ? i p. exists p. intros p'. apply i. Defined.
 
 (** ** show that squashing is a set-quotient *)
 
-Lemma squash_to_set (X Y:UU) : forall f : X -> Y, 
-  isaset Y -> (forall x x' : X, f x == f x') -> squash X -> Y.
+Lemma squash_to_set {X Y:UU} (f : X -> Y) :
+  isaset Y -> (forall x x', f x == f x') -> squash X -> Y.
 
 (** from Voevodsky, for future work:
 
@@ -122,7 +122,7 @@ Proof.
   assert(m : X -> forall y:Y, isaprop (L y)).
    intros a z. apply impred.
    intros t. apply is.
-  assert(h : X -> isaprop P). Focus.
+  assert(h : X -> isaprop P).
    intros a [r i] [s j].
    assert(k : r == s). intermediate (f a). apply pathReversal. apply i. apply j.
    assert(l : tpair L r i == tpair L s j).
@@ -139,6 +139,10 @@ Proof.
   intro z. apply (pr1 (k z)).
 Defined.
 
+Lemma squash_to_set_equal (X Y:UU) (f : X -> Y) (is : isaset Y) (eq: forall x x', f x == f x') :
+  forall x, squash_to_set f is eq (squash_element x) == f x.
+Proof. trivial. Defined.
+
 Lemma squash_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
   g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
 Proof.
@@ -147,7 +151,7 @@ Proof.
   unfold homot.
   apply (@factor_dep_through_squash X). intros y. apply ip.
   intro x. apply h.
-Defined.
+Qed.
 
 Lemma squash_map_epi {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
   g ∘ squash_element == g'∘ squash_element -> g == g'.
