@@ -10,9 +10,12 @@
 
   Using Qed, we make all proof irrelevant proofs opaque. *)
 
+Require Import Foundations.hlevel2.hSet.
+
 Require Import RezkCompletion.precategories.
-Import RezkCompletion.pathnotations.PathNotations.
-Import Foundations.hlevel2.hSet.
+Require Import RezkCompletion.yoneda.
+Import pathnotations.PathNotations.
+Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
 Add LoadPath "." as Ktheory.
 Require Import Ktheory.Utilities.
@@ -29,6 +32,7 @@ Local Notation cdr := pr2.
 Local Notation cddr := (fun x => pr2(pr2 x)).
 Local Notation cdddr := (fun x => pr2(pr2 (pr2 x))).
 Local Notation cddddr := (fun x => pr2(pr2 (pr2 (pr2 x)))).
+Notation "C '^op'" := (opp_precat C) (at level 3).
 
 Definition assoc' (C : precategory) : 
    forall (a b c d : C) 
@@ -48,6 +52,21 @@ Module Products.
 
   Definition isTerminalObject {C:precategory} (a:C) := forall (x:C), iscontr (a ← x).
 
+  Lemma terminalObjectIsomorphy {C:precategory} (a b : C) : isTerminalObject a -> isTerminalObject b -> iso a b.
+  Proof.
+    intros ? ? ?.
+    intros map_to_a_from_ map_to_b_from_. 
+    exists (the (map_to_b_from_ a)).
+    exists (the (map_to_a_from_ b)). 
+    split. 
+      intermediate (the (map_to_a_from_ a)). 
+        apply uniqueness.
+      apply uniqueness'. 
+    intermediate (the (map_to_b_from_ b)). 
+      apply uniqueness.
+    apply uniqueness'.
+  Defined.
+
   Lemma isaprop_isTerminalObject {C:precategory} (a:C) : isaprop(isTerminalObject a).
   Proof. prop_logic. Qed.
 
@@ -55,6 +74,19 @@ Module Products.
     hProppair (isTerminalObject a) (isaprop_isTerminalObject a) : hProp.
 
   Definition TerminalObject (C:precategory) := total2 (fun a:C => isTerminalObject a).
+  Definition terminalObject {C:precategory} (z:TerminalObject C) := car z.
+  Definition terminalProperty {C:precategory} (z:TerminalObject C) := cdr z.
+
+  Lemma isaprop_TerminalObject (C:category) : isaprop (TerminalObject C).
+  Proof.
+    intros.
+    apply invproofirrelevance.
+    intros a b.
+    apply (total2_paths 
+             (isotoid _ (pr2 C) 
+                      (terminalObjectIsomorphy _ _ (terminalProperty a) (terminalProperty b)))).
+    apply isaprop_isTerminalObject.
+  Qed.
 
   Definition squashTerminalObject (C:precategory) := squash (TerminalObject C).
 
@@ -156,12 +188,14 @@ Module Coproducts.
 
 End Coproducts.
 
+Module Coproducts' := Products.
+
+
 Module DirectSums.
 
   Import Coproducts Products.
 
-  Definition ZeroObject (C:precategory) :=
-    total2 ( fun 
+  Definition ZeroObject (C:precategory) := total2 ( fun 
                zero_object : C => dirprod (
                              isInitialObject zero_object) (
                              isTerminalObject zero_object) ).
