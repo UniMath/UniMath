@@ -1,47 +1,53 @@
 (* this file is just for experiments, and is not part of the development *)
 
 Require Import Foundations.Generalities.uu0.
+Require Import Foundations.hlevel2.stnfsets.
+Require Import Foundations.hlevel2.hSet.
+
 Require Import RezkCompletion.pathnotations. Import PathNotations.
+Require Import RezkCompletion.precategories.
 
-Module Type TU.
-  Variable T:UU. 
-  Variable U:T->UU.
-End TU.
+Require Import Ktheory.Utilities.
 
-Module Rec2 ( Import tu : TU ).
-  Record F := newF { t:T; u:U t }.
-  Lemma Feq (f f':F) (et : paths (t f) (t f')) (eu : paths (transportf U et (u f)) (u f')) : paths f f'.
-    destruct f as [a b].
-    destruct f' as [a' b'].
-    unfold t in et.
-    unfold u in eu.
-    destruct eu.
-    destruct et.
-    apply idpath.
-  Defined.
-  Check Feq.
-End Rec2.
+Module A.
 
-Print Module Rec2.
+  Module Type TU.
+    Variable T:UU. 
+    Variable U:T->UU.
+  End TU.
 
-Module nat_nat : TU.
-  Definition T := nat.
-  Definition U := (fun t:T => nat).
-End nat_nat.
+  Module Rec2 ( Import tu : TU ).
+    Record F := newF { t:T; u:U t }.
+    Lemma Feq (f f':F) (et : paths (t f) (t f')) (eu : paths (transportf U et (u f)) (u f')) : paths f f'.
+      destruct f as [a b].
+      destruct f' as [a' b'].
+      unfold t in et.
+      unfold u in eu.
+      destruct eu.
+      destruct et.
+      apply idpath.
+    Defined.
+    Check Feq.
+  End Rec2.
 
-Module bool_bool : TU.
-  Definition T := bool.
-  Definition U := (fun t:T => bool).
-End bool_bool.
+  Print Module Rec2.
 
-Module prod_nat_nat := Rec2 nat_nat.
-Module prod_bool_bool := Rec2 bool_bool.
+  Module nat_nat : TU.
+    Definition T := nat.
+    Definition U := (fun t:T => nat).
+  End nat_nat.
 
-Section B.
+  Module bool_bool : TU.
+    Definition T := bool.
+    Definition U := (fun t:T => bool).
+  End bool_bool.
 
-  Require Import RezkCompletion.precategories.
-  Import RezkCompletion.pathnotations.PathNotations.
-  Import Foundations.hlevel2.hSet.
+  Module prod_nat_nat := Rec2 nat_nat.
+  Module prod_bool_bool := Rec2 bool_bool.
+
+End A.
+
+Module B.
 
   Require Import Foundations.Proof_of_Extensionality.funextfun.
 

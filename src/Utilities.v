@@ -33,15 +33,13 @@ Ltac intermediate' x   := apply (@pathscomp0' _  _ x).
 Ltac intermediate2 x y := apply (@pathscomp0  _  _ x _  _ (@pathscomp0 _  _ y _  _ _)).
 Ltac path_from f := apply (@maponpaths _ _ f).
 
-(*
+Definition isaset_if_isofhlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
+(* The use of this lemma ahead of something like 'impred' can be avoided by
+   providing 2 as first argument. *)
+Proof. trivial. Defined.
 
-The use of this lemma ahead of something like 'impred' can be avoided by
-providing 2 as first argument.
-
-    Definition isaset_hlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
-    Proof. trivial. Defined.
-
-*)
+Definition isofhlevel2_if_isaset {X:UU} : isaset X -> isofhlevel 2 X.
+Proof. trivial. Defined.
 
 Definition isaprop_hProp (X:hProp) : isaprop X.
 Proof. intro. exact (pr2 X). Defined.

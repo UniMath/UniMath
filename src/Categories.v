@@ -188,7 +188,44 @@ Module Coproducts.
 
 End Coproducts.
 
-Module Coproducts' := Products.
+Module StandardCategories.
+
+  Definition path_groupoid (obj:UU) (iobj:isofhlevel 3 obj) : category.
+    intros.
+    set (mor := @paths obj).
+    assert(imor : forall i j : obj, isaset (mor i j)).
+      intros.
+      apply isaset_if_isofhlevel2.
+      unfold isofhlevel.
+      apply iobj.
+    set (morsets := fun i j : obj, hSetpair (mor i j) (imor i j)).
+    set (C := precategory_ob_mor_pair obj morsets).
+    set (identity := (fun i : ob C => idpath i) : forall i:ob C, i→i).
+    set (compose := (
+           fun i j k : ob C => 
+             fun f : i → j =>
+               fun g : j → k => f @ g)
+         : forall (i j k:ob C) (f:i→j) (g:j→k), i→k ).
+    set (D := precategory_data_pair C identity compose).
+    assert (left_identity :
+           forall i j : ob D,
+             forall f : i → j, identity j ∘ f == f).
+      intros. unfold precategories.compose. simpl. apply pathscomp0rid.
+    assert (right_identity :
+           forall i j : ob D,
+             forall f : i → j, f ∘ identity i == f). (* coq bug here? *)
+      intros. unfold precategories.compose. simpl. apply pathscomp0lid.
+
+    
+  Defined.
+
+  Definition cat_n (n:nat) := path_groupoid (stn n) (isasetstn n).
+    (* discrete category on n objects *)
+  
+  Defined.
+
+End StandardCategories.
+
 
 
 Module DirectSums.
