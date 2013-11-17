@@ -582,13 +582,13 @@ Qed.
 
 Definition Id_in_sub_to_iso (a b : ob (full_sub_precategory C')):
      a == b -> iso (pr1 a) (pr1 b) :=
-       funcomp (precat_paths_to_iso a b) (iso_from_iso_in_sub a b).
+       funcomp (@idtoiso _ a b) (iso_from_iso_in_sub a b).
 
 Lemma Id_in_sub_to_iso_equal_iso 
   (a b : ob (full_sub_precategory C')) :
     Id_in_sub_to_iso a b == 
 funcomp (total_paths2_hProp_equiv C' a b)
-        (precat_paths_to_iso (C:=C) (pr1 a) (pr1 b)).
+        (@idtoiso _ (pr1 a) (pr1 b)).
 Proof.
   apply funextfunax.
   intro p.
@@ -610,7 +610,7 @@ Qed.
 
 Lemma precat_paths_in_sub_as_3_maps
    (a b : ob (full_sub_precategory C')):
-     precat_paths_to_iso a b == funcomp (Id_in_sub_to_iso a b) 
+     @idtoiso _ a b == funcomp (Id_in_sub_to_iso a b) 
                                         (iso_in_sub_from_iso a b).
 Proof.
   apply funextfunax.
@@ -627,7 +627,7 @@ Qed.
 
 Lemma isweq_sub_precat_paths_to_iso 
   (a b : ob (full_sub_precategory C')) :
- isweq (precat_paths_to_iso a b).
+ isweq (@idtoiso _ a b).
 Proof.
   rewrite precat_paths_in_sub_as_3_maps.
   apply twooutof3c.

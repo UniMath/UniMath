@@ -222,7 +222,7 @@ Definition hset_id_iso_weq (A B : ob HSET) :
 *)
 
 Lemma hset_id_iso_weq_is (A B : ob HSET):
-    precat_paths_to_iso A B == pr1 (hset_id_iso_weq A B).
+    @idtoiso _ A B == pr1 (hset_id_iso_weq A B).
 Proof.
   apply funextfunax.
   intro p.
@@ -247,7 +247,7 @@ Defined.
 
 
 Lemma is_weq_precat_paths_to_iso_hset (A B : ob HSET):
-   isweq (precat_paths_to_iso A B).
+   isweq (@idtoiso _ A B).
 Proof.
   rewrite hset_id_iso_weq_is.
   apply (pr2 (hset_id_iso_weq A B)).

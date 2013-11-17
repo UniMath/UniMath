@@ -439,7 +439,7 @@ Qed.
 
 (** ** Definition of categories *)
 
-Definition precat_paths_to_iso {C : precategory} (a b : ob C):
+Definition idtoiso {C : precategory} {a b : ob C}:
       a == b -> iso a b.
 Proof.
   intro H.
@@ -447,10 +447,9 @@ Proof.
   exact (identity_iso a).
 Defined.
       
-Notation idtoiso := (precat_paths_to_iso _ _ ).
-
+(* use eta expanded version to force printing of object arguments *)
 Definition is_category (C : precategory) := forall (a b : ob C),
-    isweq (precat_paths_to_iso a b).
+    isweq (fun p : a == b => idtoiso p).
 
 Lemma isaprop_is_category (C : precategory) : isaprop (is_category C).
 Proof.

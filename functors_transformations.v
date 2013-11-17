@@ -1003,7 +1003,7 @@ Qed.
 
 Lemma isweq_idtoiso_functorcat (C D : precategory) (H : is_category D) 
     (F G : ob [C, D]) :
-   isweq (precat_paths_to_iso F G).
+   isweq (@idtoiso _ F G).
 Proof.
   apply (gradth _ (functor_eq_from_functor_iso H F G)).
   apply functor_eq_from_functor_iso_idtoiso.
