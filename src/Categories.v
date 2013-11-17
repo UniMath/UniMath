@@ -1,6 +1,6 @@
 (* -*- coding: utf-8-unix -*- *)
 
-Set Printing All.
+(* Set Printing All. *)
 
 (** * category theory 
 
@@ -208,8 +208,24 @@ Module StandardCategories.
     exact (compose f g).
   Defined.
 
-  Definition path_groupoid (obj:UU) (iobj:isofhlevel 3 obj) : category.
+  Definition precat_paths_to_mor {C : precategory} (a b : ob C):
+        a == b -> a → b.
+  Proof.
+    intros ? ? ? H.
+    destruct H.
+    exact (identity a).
+  Defined.
+
+  Lemma precat_paths_to_iso_mor {C : precategory} (a b : ob C) (e : a == b) :
+    pr1 (precat_paths_to_iso a b e) == precat_paths_to_mor a b e.
+  Proof.
     intros.
+    destruct e.
+    apply idpath.
+  Defined.
+
+  Definition path_groupoid (X:UU) : isofhlevel 3 X -> category.
+    intros obj iobj.
     set (mor := @paths obj).
     assert(imor : forall i j : obj, isaset (mor i j)).
       intros.
@@ -218,7 +234,8 @@ Module StandardCategories.
       apply iobj.
     set (morsets := fun i j : obj, hSetpair (mor i j) (imor i j)).
     set (C := precategory_ob_mor_pair obj morsets).
-    set (identity := (fun i : ob C => idpath i) : forall i:ob C, i→i).
+    unfold morsets in C. clear morsets.
+    set (identity := (fun i : ob C => idpath i) : forall i:ob C, mor i i).
     set (compose := (
            fun i j k : ob C => 
              fun f : mor i j =>
@@ -241,8 +258,19 @@ Module StandardCategories.
       split. split. 
       apply right_identity. apply left_identity. apply associativity.
     set (E := precategory_pair D iD).
+    clear right_identity. clear left_identity. clear associativity.
     assert(iE : is_category E).
-      admit.
+      unfold is_category.
+      intros.
+      apply (gradth _ (morphism_from_iso _ a b)).
+        intro. destruct x. apply idpath.
+      intro.
+      apply eq_iso.
+      intermediate (precat_paths_to_mor a b (pr1 y)).
+      apply precat_paths_to_iso_mor.
+      assert (k : forall e, precat_paths_to_mor a b e == e).
+        intro. destruct e. apply idpath.
+      apply k.      
     set (F := category_pair E iE).
     exact F.
   Defined.
@@ -250,7 +278,6 @@ Module StandardCategories.
   Definition cat_n (n:nat) : category.
     (* discrete category on n objects *)
     intro.
-    set (obj := stn n).
     apply (path_groupoid (stn n)).
     apply hlevelntosn.
     apply isasetstn.
