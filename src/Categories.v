@@ -290,6 +290,15 @@ Module StandardCategories.
     apply isasetstn.
   Defined.
 
+  Definition is_discrete_category (C:precategory) := forall (a b:C) (f:a→b), a==b.
+
+  Lemma is_discrete_cat_n (n:nat) : is_discrete_category (cat_n n).
+  Proof.
+    unfold is_discrete_category.
+    intros.
+    exact f.
+  Defined.
+
 End StandardCategories.
 
 
