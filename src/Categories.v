@@ -232,27 +232,34 @@ Module StandardCategories.
       apply isaset_if_isofhlevel2.
       unfold isofhlevel.
       apply iobj.
-    set (morsets := fun i j : obj, hSetpair (mor i j) (imor i j)).
-    set (C := precategory_ob_mor_pair obj morsets).
-    unfold morsets in C. clear morsets.
-    set (identity := (fun i : ob C => idpath i) : forall i:ob C, mor i i).
-    set (compose := (
-           fun i j k : ob C => 
+    set (C := precategory_ob_mor_pair 
+                obj 
+                (fun i j : obj, hSetpair (mor i j) (imor i j))).
+    set (identity' := (fun i : ob C => idpath i) : forall i:ob C, mor i i).
+    set (compose' := (
+           fun i j k : C => 
              fun f : mor i j =>
                fun g : mor j k => f @ g)
          : forall (i j k:ob C) (f:mor i j) (g:mor j k), mor i k ).
-    set (D := precategory_data_pair C identity compose).
-    assert (left_identity :
-           forall i j : ob D,
-             forall f : mor i j, compose _ _ _ f (identity j) == f).
-      intros. apply pathscomp0rid.
+    set (D := precategory_data_pair C identity' compose').
+    (*
+        Notice how the next two proofs differ, due to the way the identity is 
+        phrased.  The second one succeeds only because of a trivial
+        intermediate step, but avoiding it seems hard.
+     *)
     assert (right_identity :
-           forall i j : ob D,
-             forall f : mor i j, compose _ _ _ (identity i) f == f).
+           forall i j : D,
+             forall f : mor i j, compose' _ _ _ (identity' i) f == f).
       intros. apply idpath.
+    assert (left_identity :
+           forall i j : D,
+             forall f : i → j, compose f (identity j) == f).
+      intros.
+      intermediate (compose' _ _ _ f (identity' j)). trivial.
+      apply pathscomp0rid.
     assert (associativity : forall (a b c d : C) 
                     (f : mor a b)(g : mor b c) (h : mor c d),
-                     compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h).
+                     compose' _ _ _ f (compose' _ _ _ g h) == compose' _ _ _ (compose' _ _ _ f g) h).
       intros. destruct f. apply idpath.
     assert( iD : is_precategory D ).
       split. split. 
