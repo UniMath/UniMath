@@ -208,16 +208,15 @@ Module StandardCategories.
     exact (compose f g).
   Defined.
 
-  Definition precat_paths_to_mor {C : precategory} (a b : ob C):
-        a == b -> a → b.
+  Definition idtomor {C : precategory} (a b : ob C) : a == b -> a → b.
   Proof.
     intros ? ? ? H.
     destruct H.
     exact (identity a).
   Defined.
 
-  Lemma precat_paths_to_iso_mor {C : precategory} (a b : ob C) (e : a == b) :
-    pr1 (idtoiso e) == precat_paths_to_mor a b e.
+  Lemma eq_idtoiso_idtomor {C : precategory} (a b : ob C) (e : a == b) :
+    pr1 (idtoiso e) == idtomor _ _ e.
   Proof.
     intros.
     destruct e.
@@ -273,9 +272,9 @@ Module StandardCategories.
         intro. destruct x. apply idpath.
       intro.
       apply eq_iso.
-      intermediate (precat_paths_to_mor a b (pr1 y)).
-      apply precat_paths_to_iso_mor.
-      assert (k : forall e, precat_paths_to_mor a b e == e).
+      intermediate (idtomor a b (pr1 y)).
+      apply eq_idtoiso_idtomor.
+      assert (k : forall e, idtomor a b e == e).
         intro. destruct e. apply idpath.
       apply k.      
     set (F := category_pair E iE).
