@@ -1,5 +1,7 @@
 (* -*- coding: utf-8-unix -*- *)
 
+Set Printing All.
+
 (** * category theory 
 
   In this library we introduce the category theory needed for K-theory:
@@ -11,6 +13,7 @@
   Using Qed, we make all proof irrelevant proofs opaque. *)
 
 Require Import Foundations.hlevel2.hSet.
+Require Import Foundations.hlevel2.stnfsets.
 
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.yoneda.
@@ -39,6 +42,14 @@ Definition assoc' (C : precategory) :
           (f : a → b)(g : b → c) (h : c → d),
                      h ∘ (g ∘ f) == (h ∘ g) ∘ f.
 Proof. intros. apply pathReversal. apply assoc. Qed.
+
+Definition precategory_pair (C : precategory_data) (i : is_precategory C)
+  :  precategory
+  := tpair is_precategory C i.
+
+Definition category_pair (C : precategory) (i : is_category C)
+  :  category
+  := tpair is_category C i.
 
 Unset Automatic Introduction.
 
@@ -190,6 +201,13 @@ End Coproducts.
 
 Module StandardCategories.
 
+  Definition compose' { C : precategory_data } { a b c : C }
+    (g : b → c) (f : a → b) : a → c.
+  Proof.
+    intros.
+    exact (compose f g).
+  Defined.
+
   Definition path_groupoid (obj:UU) (iobj:isofhlevel 3 obj) : category.
     intros.
     set (mor := @paths obj).
@@ -203,25 +221,39 @@ Module StandardCategories.
     set (identity := (fun i : ob C => idpath i) : forall i:ob C, i→i).
     set (compose := (
            fun i j k : ob C => 
-             fun f : i → j =>
-               fun g : j → k => f @ g)
-         : forall (i j k:ob C) (f:i→j) (g:j→k), i→k ).
+             fun f : mor i j =>
+               fun g : mor j k => f @ g)
+         : forall (i j k:ob C) (f:mor i j) (g:mor j k), mor i k ).
     set (D := precategory_data_pair C identity compose).
     assert (left_identity :
            forall i j : ob D,
-             forall f : i → j, identity j ∘ f == f).
-      intros. unfold precategories.compose. simpl. apply pathscomp0rid.
+             forall f : mor i j, compose _ _ _ f (identity j) == f).
+      intros. apply pathscomp0rid.
     assert (right_identity :
            forall i j : ob D,
-             forall f : i → j, f ∘ identity i == f). (* coq bug here? *)
-      intros. unfold precategories.compose. simpl. apply pathscomp0lid.
-
-    
+             forall f : mor i j, compose _ _ _ (identity i) f == f).
+      intros. apply idpath.
+    assert (associativity : forall (a b c d : C) 
+                    (f : mor a b)(g : mor b c) (h : mor c d),
+                     compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h).
+      intros. destruct f. apply idpath.
+    assert( iD : is_precategory D ).
+      split. split. 
+      apply right_identity. apply left_identity. apply associativity.
+    set (E := precategory_pair D iD).
+    assert(iE : is_category E).
+      admit.
+    set (F := category_pair E iE).
+    exact F.
   Defined.
 
-  Definition cat_n (n:nat) := path_groupoid (stn n) (isasetstn n).
+  Definition cat_n (n:nat) : category.
     (* discrete category on n objects *)
-  
+    intro.
+    set (obj := stn n).
+    apply (path_groupoid (stn n)).
+    apply hlevelntosn.
+    apply isasetstn.
   Defined.
 
 End StandardCategories.
