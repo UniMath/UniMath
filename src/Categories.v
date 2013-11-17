@@ -293,16 +293,21 @@ Module StandardCategories.
   Definition is_identity {C:precategory} {a b:C} (f:a→b) :=
     total2 ( fun e : a == b => transportf (fun x => x→b) e f == identity b ).
 
-  Definition is_discrete_category (C:precategory) := 
-    forall (a b:C) (f:a→b), is_identity f.
+  Definition is_discrete_precategory (C:precategory) := 
+    dirprod
+    (forall (a b:C) (f:a→b), is_identity f)
+    (isaset (ob C)).
 
-  Lemma is_discrete_cat_n (n:nat) : is_discrete_category (cat_n n).
+  Lemma is_discrete_cat_n (n:nat) : is_discrete_precategory (cat_n n).
   Proof.
-    unfold is_discrete_category.
-    intros ? ? ? f.
-    exists f.
-    destruct f.
-    apply idpath.
+    intro.
+    split.
+      intros ? ? f.
+      exists f.
+      destruct f.
+      apply idpath.
+    simpl.
+    apply isasetstn.
   Defined.
 
 End StandardCategories.
