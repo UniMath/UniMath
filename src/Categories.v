@@ -290,18 +290,22 @@ Module StandardCategories.
     apply isasetstn.
   Defined.
 
-  Definition is_discrete_category (C:precategory) := forall (a b:C) (f:a→b), a==b.
+  Definition is_identity {C:precategory} {a b:C} (f:a→b) :=
+    total2 ( fun e : a == b => transportf (fun x => x→b) e f == identity b ).
+
+  Definition is_discrete_category (C:precategory) := 
+    forall (a b:C) (f:a→b), is_identity f.
 
   Lemma is_discrete_cat_n (n:nat) : is_discrete_category (cat_n n).
   Proof.
     unfold is_discrete_category.
-    intros.
-    exact f.
+    intros ? ? ? f.
+    exists f.
+    destruct f.
+    apply idpath.
   Defined.
 
 End StandardCategories.
-
-
 
 Module DirectSums.
 
