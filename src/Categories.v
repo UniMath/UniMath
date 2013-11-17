@@ -217,7 +217,7 @@ Module StandardCategories.
   Defined.
 
   Lemma precat_paths_to_iso_mor {C : precategory} (a b : ob C) (e : a == b) :
-    pr1 (precat_paths_to_iso a b e) == precat_paths_to_mor a b e.
+    pr1 (idtoiso e) == precat_paths_to_mor a b e.
   Proof.
     intros.
     destruct e.
@@ -311,6 +311,21 @@ Module StandardCategories.
   Defined.
 
 End StandardCategories.
+
+Module ConeLimits.
+
+  Require Import RezkCompletion.limits.cones.
+
+  Import Products.
+  Import StandardCategories.
+
+  Definition finite_product_structure (C:precategory) :=
+    forall (n:nat) F, TerminalObject (@CONE (cat_n n) C F).
+
+  Definition finite_coproduct_structure (C:precategory) :=
+    forall (n:nat) F, TerminalObject (@CONE (cat_n n) (C^op) F).
+
+End ConeLimits.
 
 Module DirectSums.
 
