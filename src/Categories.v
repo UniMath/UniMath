@@ -226,6 +226,10 @@ Module StandardCategories.
   Definition path_groupoid (X:UU) : isofhlevel 3 X -> category.
     intros obj iobj.
     set (mor := @paths obj).
+    (* Later we'll define a version of this with no hlevel assumption on X,
+       where [mor i j] will be defined with [pi0].  This version will still
+       be useful, because in it, each arrow is a path, rather than an
+       equivalence class of paths. *)
     assert(imor : forall i j : obj, isaset (mor i j)).
       intros.
       apply isaset_if_isofhlevel2.
@@ -241,11 +245,9 @@ Module StandardCategories.
                fun g : mor j k => f @ g)
          : forall (i j k:ob C) (f:mor i j) (g:mor j k), mor i k ).
     set (D := precategory_data_pair C identity' compose').
-    (*
-        Notice how the next two proofs differ, due to the way the identity is 
-        phrased.  The second one succeeds only because of a trivial
-        intermediate step, but avoiding it seems hard.
-     *)
+    (* Notice how the next two proofs differ, due to the way the identity is 
+       phrased.  The second one succeeds only because of a trivial
+       intermediate step, but avoiding it seems hard. Find out why. *)
     assert (right_identity :
            forall i j : D,
              forall f : mor i j, compose' _ _ _ (identity' i) f == f).
@@ -325,6 +327,30 @@ Module ConeLimits.
     forall (n:nat) F, TerminalObject (@CONE (cat_n n) (C^op) F).
 
 End ConeLimits.
+
+Module FibredCategories.
+
+  (* Make a fibered category over C and produce a terminal object in it
+     from a representation.  Use that to get uniqueness of representations. *)
+
+End FibredCategories.
+
+Module RepresentableFunctors.
+
+  Require Import RezkCompletion.functors_transformations.
+  Require Import RezkCompletion.category_hset.
+  Definition Representation {C} (F : [C^op, HSET])
+    := total2 (fun c => iso (yoneda _ c) F).
+  Definition representingObject {C} {F : [C^op, HSET]} (i : Representation F) 
+    := car i.
+  Definition representingIso {C} {F : [C^op, HSET]} (i : Representation F)
+    := cdr i.
+  Definition representingElement {C} {F : [C^op, HSET]} (i : Representation F)
+    := yoneda_map_1 _ _ _ (representingIso i).
+  Definition isRepresentatable {C} (F : [C^op, HSET])
+    := squash (Representation F).
+
+End RepresentableFunctors.
 
 Module DirectSums.
 
