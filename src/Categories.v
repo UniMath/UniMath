@@ -37,23 +37,52 @@ Local Notation cdddr := (fun x => pr2(pr2 (pr2 x))).
 Local Notation cddddr := (fun x => pr2(pr2 (pr2 (pr2 x)))).
 Notation "C '^op'" := (opp_precat C) (at level 3).
 
-Definition assoc' (C : precategory) : 
-   forall (a b c d : C) 
-          (f : a → b)(g : b → c) (h : c → d),
+Definition assoc' (C:precategory):
+   forall (a b c d:C) 
+          (f:a → b)(g:b → c) (h:c → d),
                      h ∘ (g ∘ f) == (h ∘ g) ∘ f.
 Proof. intros. apply pathReversal. apply assoc. Qed.
 
-Definition precategory_pair (C : precategory_data) (i : is_precategory C)
-  :  precategory
+Definition precategory_pair (C:precategory_data) (i:is_precategory C)
+ : precategory
   := tpair is_precategory C i.
 
-Definition category_pair (C : precategory) (i : is_category C)
-  :  category
+Definition category_pair (C:precategory) (i:is_category C)
+ : category
   := tpair is_category C i.
 
 Unset Automatic Introduction.
 
-Definition isiso {C:precategory} {a b:C} (f : a → b) := total2 (is_inverse_in_precat f).
+Definition isiso {C:precategory} {a b:C} (f:a → b) := total2 (is_inverse_in_precat f).
+
+Definition makePrecategory 
+     (obj : UU)
+     (mor : obj -> obj -> UU)
+     (imor : forall i j:obj, isaset (mor i j))
+     (identity : forall i:obj, mor i i)
+     (compose : forall (i j k:obj) (f:mor i j) (g:mor j k), mor i k)
+     (right_identity :
+         forall i j:obj,
+           forall f:mor i j, compose _ _ _ (identity i) f == f)
+     (left_identity :
+         forall i j:obj,
+           forall f:mor i j, compose _ _ _ f (identity j) == f)
+     (associativity :
+         forall (a b c d:obj) 
+                (f:mor a b) (g:mor b c) (h:mor c d),
+           compose _ _ _ f (compose _ _ _ g h)
+           == 
+           compose _ _ _ (compose _ _ _ f g) h)
+     : precategory.
+  intros.
+  apply (precategory_pair
+           (precategory_data_pair
+              (precategory_ob_mor_pair 
+                 obj 
+                 (fun i j:obj, hSetpair (mor i j) (imor i j))) identity compose)).
+    split. split. 
+    apply right_identity. apply left_identity. apply associativity.
+Defined.    
 
 (** ** products *)
 
@@ -63,7 +92,7 @@ Module Products.
 
   Definition isTerminalObject {C:precategory} (a:C) := forall (x:C), iscontr (a ← x).
 
-  Lemma terminalObjectIsomorphy {C:precategory} (a b : C) : isTerminalObject a -> isTerminalObject b -> iso a b.
+  Lemma terminalObjectIsomorphy {C:precategory} (a b:C):isTerminalObject a -> isTerminalObject b -> iso a b.
   Proof.
     intros ? ? ?.
     intros map_to_a_from_ map_to_b_from_. 
@@ -78,17 +107,17 @@ Module Products.
     apply uniqueness'.
   Defined.
 
-  Lemma isaprop_isTerminalObject {C:precategory} (a:C) : isaprop(isTerminalObject a).
+  Lemma isaprop_isTerminalObject {C:precategory} (a:C):isaprop(isTerminalObject a).
   Proof. prop_logic. Qed.
 
   Definition isTerminalObjectProp {C:precategory} (a:C) := 
-    hProppair (isTerminalObject a) (isaprop_isTerminalObject a) : hProp.
+    hProppair (isTerminalObject a) (isaprop_isTerminalObject a):hProp.
 
   Definition TerminalObject (C:precategory) := total2 (fun a:C => isTerminalObject a).
   Definition terminalObject {C:precategory} (z:TerminalObject C) := car z.
   Definition terminalProperty {C:precategory} (z:TerminalObject C) := cdr z.
 
-  Lemma isaprop_TerminalObject (C:category) : isaprop (TerminalObject C).
+  Lemma isaprop_TerminalObject (C:category):isaprop (TerminalObject C).
   Proof.
     intros.
     apply invproofirrelevance.
@@ -106,25 +135,25 @@ Module Products.
 
   (** *** binary products *)
 
-  Definition isBinaryProduct {C:precategory} {a b p : C} (f : p → a) (g : p → b) :=
-    forall p' (f' : p' → a) (g' : p' → b),
+  Definition isBinaryProduct {C:precategory} {a b p:C} (f:p → a) (g:p → b) :=
+    forall p' (f':p' → a) (g':p' → b),
       iscontr ( total2 ( fun h => dirprod (f ∘ h == f') (g ∘ h == g'))).
 
-  Lemma isaprop_isBinaryProduct {C:precategory} {a b p : C} (f : p → a) (g : p → b) : isaprop(isBinaryProduct f g).
+  Lemma isaprop_isBinaryProduct {C:precategory} {a b p:C} (f:p → a) (g:p → b):isaprop(isBinaryProduct f g).
   Proof. prop_logic. Qed.
 
-  Definition isBinaryProductProp {C:precategory} {a b p : C} (f : p → a) (g : p → b) :=
+  Definition isBinaryProductProp {C:precategory} {a b p:C} (f:p → a) (g:p → b) :=
     hProppair (isBinaryProduct f g) (isaprop_isBinaryProduct _ _).
 
-  Definition BinaryProduct {C:precategory} (a b : C) := 
+  Definition BinaryProduct {C:precategory} (a b:C) := 
     total2 (fun p => 
-    total2 (fun f : p → a => 
-    total2 (fun g : p → b => 
+    total2 (fun f:p → a => 
+    total2 (fun g:p → b => 
                     isBinaryProduct f g))).
 
-  Definition squashBinaryProducts (C:precategory) := forall a b : C, squash (BinaryProduct a b).
+  Definition squashBinaryProducts (C:precategory) := forall a b:C, squash (BinaryProduct a b).
 
-  Lemma isaprop_squashBinaryProducts (C:precategory) : isaprop (squashBinaryProducts C).
+  Lemma isaprop_squashBinaryProducts (C:precategory):isaprop (squashBinaryProducts C).
   Proof. prop_logic. Qed.
 
   Definition squashBinaryProductsProp (C:precategory) := 
@@ -143,7 +172,7 @@ Module Coproducts.
 
   Definition isInitialObject {C:precategory} (a:C) := forall (x:C), iscontr (a → x).
 
-  Lemma initialObjectIsomorphy {C:precategory} (a b : C) : isInitialObject a -> isInitialObject b -> iso a b.
+  Lemma initialObjectIsomorphy {C:precategory} (a b:C):isInitialObject a -> isInitialObject b -> iso a b.
   Proof.
     intros ? ? ?.
     intros map_from_a_to map_from_b_to. 
@@ -158,11 +187,11 @@ Module Coproducts.
     apply uniqueness'.
   Defined.
 
-  Lemma isaprop_isInitialObject {C:precategory} (a:C) : isaprop(isInitialObject a).
+  Lemma isaprop_isInitialObject {C:precategory} (a:C):isaprop(isInitialObject a).
   Proof. prop_logic. Qed.
 
   Definition isInitialObjectProp {C:precategory} (a:C) := 
-    hProppair (isInitialObject a) (isaprop_isInitialObject a) : hProp.
+    hProppair (isInitialObject a) (isaprop_isInitialObject a):hProp.
 
   Definition InitialObject (C:precategory) := total2 (fun a:C => isInitialObject a).
 
@@ -173,25 +202,25 @@ Module Coproducts.
 
   (** *** binary coproducts *)
 
-  Definition isBinaryCoproduct {C:precategory} {a b p : C} (f : p ← a) (g : p ← b) :=
-    forall p' (f' : p' ← a) (g' : p' ← b),
+  Definition isBinaryCoproduct {C:precategory} {a b p:C} (f:p ← a) (g:p ← b) :=
+    forall p' (f':p' ← a) (g':p' ← b),
       iscontr ( total2 ( fun h => dirprod (f ;; h == f') (g ;; h == g'))).
 
-  Lemma isaprop_isBinaryCoproduct {C:precategory} {a b p : C} (f : p ← a) (g : p ← b) : isaprop(isBinaryCoproduct f g).
+  Lemma isaprop_isBinaryCoproduct {C:precategory} {a b p:C} (f:p ← a) (g:p ← b):isaprop(isBinaryCoproduct f g).
   Proof. prop_logic. Qed.
 
-  Definition isBinaryCoproductProp {C:precategory} {a b p : C} (f : p ← a) (g : p ← b) :=
+  Definition isBinaryCoproductProp {C:precategory} {a b p:C} (f:p ← a) (g:p ← b) :=
     hProppair (isBinaryCoproduct f g) (isaprop_isBinaryCoproduct _ _).
 
-  Definition BinaryCoproduct {C:precategory} (a b : C) := 
+  Definition BinaryCoproduct {C:precategory} (a b:C) := 
     total2 (fun p => 
-    total2 (fun f : p ← a => 
-    total2 (fun g : p ← b => 
+    total2 (fun f:p ← a => 
+    total2 (fun g:p ← b => 
           isBinaryCoproduct f g))).
 
-  Definition squashBinaryCoproducts (C:precategory) := forall a b : C, squash (BinaryCoproduct a b).
+  Definition squashBinaryCoproducts (C:precategory) := forall a b:C, squash (BinaryCoproduct a b).
 
-  Lemma isaprop_squashBinaryCoproducts (C:precategory) : isaprop (squashBinaryCoproducts C).
+  Lemma isaprop_squashBinaryCoproducts (C:precategory):isaprop (squashBinaryCoproducts C).
   Proof. prop_logic. Qed.
 
   Definition squashBinaryCoproductsProp (C:precategory) := 
@@ -201,21 +230,21 @@ End Coproducts.
 
 Module StandardCategories.
 
-  Definition compose' { C : precategory_data } { a b c : C }
-    (g : b → c) (f : a → b) : a → c.
+  Definition compose' { C:precategory_data } { a b c:C }
+    (g:b → c) (f:a → b):a → c.
   Proof.
     intros.
     exact (compose f g).
   Defined.
 
-  Definition idtomor {C : precategory} (a b : ob C) : a == b -> a → b.
+  Definition idtomor {C:precategory} (a b:ob C):a == b -> a → b.
   Proof.
     intros ? ? ? H.
     destruct H.
     exact (identity a).
   Defined.
 
-  Lemma eq_idtoiso_idtomor {C : precategory} (a b : ob C) (e : a == b) :
+  Lemma eq_idtoiso_idtomor {C:precategory} (a b:ob C) (e:a == b) :
     pr1 (idtoiso e) == idtomor _ _ e.
   Proof.
     intros.
@@ -223,50 +252,39 @@ Module StandardCategories.
     apply idpath.
   Defined.
 
-  Definition path_groupoid (X:UU) : isofhlevel 3 X -> category.
+  Definition path_groupoid (X:UU):isofhlevel 3 X -> category.
     intros obj iobj.
     set (mor := @paths obj).
     (* Later we'll define a version of this with no hlevel assumption on X,
        where [mor i j] will be defined with [pi0].  This version will still
        be useful, because in it, each arrow is a path, rather than an
        equivalence class of paths. *)
-    assert(imor : forall i j : obj, isaset (mor i j)).
+    assert(imor:forall i j:obj, isaset (mor i j)).
       intros.
       apply isaset_if_isofhlevel2.
       unfold isofhlevel.
       apply iobj.
-    set (C := precategory_ob_mor_pair 
-                obj 
-                (fun i j : obj, hSetpair (mor i j) (imor i j))).
-    set (identity' := (fun i : ob C => idpath i) : forall i:ob C, mor i i).
-    set (compose' := (
-           fun i j k : C => 
-             fun f : mor i j =>
-               fun g : mor j k => f @ g)
-         : forall (i j k:ob C) (f:mor i j) (g:mor j k), mor i k ).
-    set (D := precategory_data_pair C identity' compose').
-    (* Notice how the next two proofs differ, due to the way the identity is 
-       phrased.  The second one succeeds only because of a trivial
-       intermediate step, but avoiding it seems hard. Find out why. *)
+    set (identity := (fun i:obj => idpath i):forall i:obj, mor i i).
+    set (compose := (
+           fun i j k:obj => 
+             fun f:mor i j =>
+               fun g:mor j k => f @ g)
+        :forall (i j k:obj) (f:mor i j) (g:mor j k), mor i k ).
     assert (right_identity :
-           forall i j : D,
-             forall f : mor i j, compose' _ _ _ (identity' i) f == f).
+           forall i j:obj,
+             forall f:mor i j, compose _ _ _ (identity i) f == f).
       intros. apply idpath.
     assert (left_identity :
-           forall i j : D,
-             forall f : i → j, compose f (identity j) == f).
-      intros.
-      intermediate (compose' _ _ _ f (identity' j)). trivial.
-      apply pathscomp0rid.
-    assert (associativity : forall (a b c d : C) 
-                    (f : mor a b)(g : mor b c) (h : mor c d),
-                     compose' _ _ _ f (compose' _ _ _ g h) == compose' _ _ _ (compose' _ _ _ f g) h).
+           forall i j:obj,
+             forall f:mor i j, compose _ _ _ f (identity j) == f).
+      intros. apply pathscomp0rid.
+    assert (associativity:forall (a b c d:obj) 
+                    (f:mor a b)(g:mor b c) (h:mor c d),
+                     compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h).
       intros. destruct f. apply idpath.
-    assert( iD : is_precategory D ).
-      split. split. 
-      apply right_identity. apply left_identity. apply associativity.
-    set (E := precategory_pair D iD).
-    clear right_identity. clear left_identity. clear associativity.
+    set (E := makePrecategory
+                obj mor imor identity compose 
+                right_identity left_identity associativity).
     assert(iE : is_category E).
       unfold is_category.
       intros.
@@ -276,14 +294,13 @@ Module StandardCategories.
       apply eq_iso.
       intermediate (idtomor a b (pr1 y)).
       apply eq_idtoiso_idtomor.
-      assert (k : forall e, idtomor a b e == e).
+      assert (k:forall e, idtomor a b e == e).
         intro. destruct e. apply idpath.
       apply k.      
-    set (F := category_pair E iE).
-    exact F.
+    exact (category_pair E iE).
   Defined.
 
-  Definition cat_n (n:nat) : category.
+  Definition cat_n (n:nat):category.
     (* discrete category on n objects *)
     intro.
     apply (path_groupoid (stn n)).
@@ -292,14 +309,14 @@ Module StandardCategories.
   Defined.
 
   Definition is_identity {C:precategory} {a b:C} (f:a→b) :=
-    total2 ( fun e : a == b => transportf (fun x => x→b) e f == identity b ).
+    total2 ( fun e:a == b => transportf (fun x => x→b) e f == identity b ).
 
   Definition is_discrete_precategory (C:precategory) := 
     dirprod
     (forall (a b:C) (f:a→b), is_identity f)
     (isaset (ob C)).
 
-  Lemma is_discrete_cat_n (n:nat) : is_discrete_precategory (cat_n n).
+  Lemma is_discrete_cat_n (n:nat):is_discrete_precategory (cat_n n).
   Proof.
     intro.
     split.
@@ -337,8 +354,8 @@ Module FibredCategories.
   Require Import RezkCompletion.category_hset.
 
   Module DebugMe.
-    Parameter C : precategory.
-    Parameter F : functor C^op HSET.
+    Parameter C:precategory.
+    Parameter F:functor C^op HSET.
     Parameter F': [C^op,HSET].
     (* F and F' should be of the same type, but they don't appear to be *)
     Definition obj  := total2 (fun c => pr1hSet (F c)).
@@ -346,26 +363,30 @@ Module FibredCategories.
     (* I should be able to eliminate all projections above, because of coercions *)
   End DebugMe.
 
-  Module GrothendieckConstruction.
-  End GrothendieckConstruction.
-
-
 End FibredCategories.
 
 Module RepresentableFunctors.
 
   Require Import RezkCompletion.functors_transformations.
   Require Import RezkCompletion.category_hset.
-  Definition Representation {C} (F : [C^op, HSET])
+  Definition Representation {C} (F:[C^op, HSET])
     := total2 (fun c => iso (yoneda _ c) F).
-  Definition representingObject {C} {F : [C^op, HSET]} (i : Representation F) 
+  Definition representingObject {C} {F:[C^op, HSET]} (i:Representation F) 
     := car i.
-  Definition representingIso {C} {F : [C^op, HSET]} (i : Representation F)
+  Definition representingIso {C} {F:[C^op, HSET]} (i:Representation F)
     := cdr i.
-  Definition representingElement {C} {F : [C^op, HSET]} (i : Representation F)
+  Definition representingElement {C} {F:[C^op, HSET]} (i:Representation F)
     := yoneda_map_1 _ _ _ (representingIso i).
-  Definition isRepresentatable {C} (F : [C^op, HSET])
+  Definition isRepresentatable {C} (F:[C^op, HSET])
     := squash (Representation F).
+  Definition precategoryOfElements {C} (F:[C^op, HSET]) : precategory.
+    (* this is also called the Grothendieck construction *)
+    intros.
+    destruct F as [[F aF] iF].
+    set (tF := fun c => pr1hSet (F c)).
+    set (obj := total2 tF).
+    admit.
+  Defined.
 
 End RepresentableFunctors.
 
