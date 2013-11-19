@@ -382,19 +382,19 @@ Module RepresentableFunctors.
     := yoneda_map_1 _ _ _ (representingIso i).
   Definition isRepresentatable {C} (F:[C^op, HSET])
     := squash (Representation F).
-  Definition precategoryOfElements {C} (F:[C^op, HSET]) : precategory.
+  Definition precategoryOfElements {C} (F:[C, HSET]) : precategory.
     (* the Grothendieck construction *)
     intros.
     destruct F as [[F aF] [iFid iFcomp]].
     set (tF := fun c : C => pr1hSet (F c)).
     set (obj := total2 tF).
     set (compat := fun a b:obj => 
-                     fun f : car a → car b => (aF _ _ f) (cdr b) == cdr a ).
+                     fun f : car a → car b => (aF _ _ f) (cdr a) == cdr b ).
     set (mor := fun a b:obj => total2 (compat a b)).
     assert (imor : forall i j:obj, isaset (mor i j)).
       intros [c x] [d y]. apply (isofhleveltotal2 2). 
         apply setproperty.
-      intros.  apply (isofhlevelsnprop 1). apply (pr2 (F c)).
+      intros.  apply (isofhlevelsnprop 1). apply (pr2 (F d)).
     set (id_compat 
          := (fun a => @maponpaths _ _ (evalat (cdr a)) _ (idfun _) (iFid (car a)))
          :  forall a:obj, compat a a (identity (car a))).
@@ -405,7 +405,12 @@ Module RepresentableFunctors.
     assert (compose_compat : 
               forall (i j k:obj) (f:mor i j) (g:mor j k),
                 compat i k (car g ∘ car f)).
-      admit.
+      unfold compat.
+      intros [c x] [d y] [e z] [f f'] [g g'].
+      simpl in f, g.
+      unfold compat in f', g'. simpl in f', g'.
+      destruct f', g'.
+      exact (maponpaths (evalat x) (iFcomp _ _ _ f g)).
     set (compo :=
            fun (i j k:obj) (f:mor i j) (g:mor j k)
                => tpair (compat i k) (pr1 g ∘ pr1 f) (compose_compat _ _ _ f g)
