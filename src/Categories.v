@@ -75,13 +75,15 @@ Definition makePrecategory
            compose _ _ _ (compose _ _ _ f g) h)
      : precategory.
   intros.
-  apply (precategory_pair
-           (precategory_data_pair
+  set (C := (precategory_data_pair
               (precategory_ob_mor_pair 
                  obj 
                  (fun i j:obj, hSetpair (mor i j) (imor i j))) identity compose)).
+  assert (iC : is_precategory C).
     split. split. 
     apply right_identity. apply left_identity. apply associativity.
+  set (D := precategory_pair C iC).
+  exact D.
 Defined.    
 
 (** ** products *)
@@ -368,6 +370,7 @@ End FibredCategories.
 Module RepresentableFunctors.
 
   Require Import RezkCompletion.functors_transformations.
+  Local Notation "# F" := (functor_on_morphisms F)(at level 3).
   Require Import RezkCompletion.category_hset.
   Definition Representation {C} (F:[C^op, HSET])
     := total2 (fun c => iso (yoneda _ c) F).
@@ -382,9 +385,29 @@ Module RepresentableFunctors.
   Definition precategoryOfElements {C} (F:[C^op, HSET]) : precategory.
     (* this is also called the Grothendieck construction *)
     intros.
-    destruct F as [[F aF] iF].
-    set (tF := fun c => pr1hSet (F c)).
+    destruct F as [[F aF] [iFid iFcomp]].
+    set (tF := fun c : C => pr1hSet (F c)).
     set (obj := total2 tF).
+    set (compat := fun a b:obj => 
+                     fun f : car a → car b => (aF _ _ f) (cdr b) == cdr a ).
+    set (mor := fun a b:obj => total2 (compat a b)).
+    assert (id_compat : forall a:obj, compat a a (identity (car a))).
+      intro.
+      unfold compat.
+      apply (@maponpaths _ _ (fun p => p (cdr a)) _ (idfun _)).
+        apply (iFid (car a)).
+    set (ident := 
+           fun a:obj => 
+             tpair (compat a a) (identity (pr1 a)) (id_compat a)
+             : mor a a).
+    assert (compose_compat : 
+              forall (i j k:obj) (f:mor i j) (g:mor j k),
+                compat i k (car g ∘ car f)).
+      admit.
+    set (compose :=
+           fun (i j k:obj) (f:mor i j) (g:mor j k)
+               => tpair (compat i k) (pr1 g ∘ pr1 f) (compose_compat _ _ _ f g)
+                 : mor i k).
     admit.
   Defined.
 
