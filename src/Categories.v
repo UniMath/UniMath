@@ -383,7 +383,7 @@ Module RepresentableFunctors.
   Definition isRepresentatable {C} (F:[C^op, HSET])
     := squash (Representation F).
   Definition precategoryOfElements {C} (F:[C^op, HSET]) : precategory.
-    (* this is also called the Grothendieck construction *)
+    (* the Grothendieck construction *)
     intros.
     destruct F as [[F aF] [iFid iFcomp]].
     set (tF := fun c : C => pr1hSet (F c)).
@@ -392,7 +392,9 @@ Module RepresentableFunctors.
                      fun f : car a → car b => (aF _ _ f) (cdr b) == cdr a ).
     set (mor := fun a b:obj => total2 (compat a b)).
     assert (imor : forall i j:obj, isaset (mor i j)).
-      admit.
+      intros [c x] [d y]. apply (isofhleveltotal2 2). 
+        apply setproperty.
+      intros.  apply (isofhlevelsnprop 1). apply (pr2 (F c)).
     set (id_compat 
          := (fun a => @maponpaths _ _ (evalat (cdr a)) _ (idfun _) (iFid (car a)))
          :  forall a:obj, compat a a (identity (car a))).
