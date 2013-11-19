@@ -61,10 +61,10 @@ Definition makePrecategory
      (imor : forall i j:obj, isaset (mor i j))
      (identity : forall i:obj, mor i i)
      (compose : forall (i j k:obj) (f:mor i j) (g:mor j k), mor i k)
-     (right_identity :
+     (right :
          forall i j:obj,
            forall f:mor i j, compose _ _ _ (identity i) f == f)
-     (left_identity :
+     (left :
          forall i j:obj,
            forall f:mor i j, compose _ _ _ f (identity j) == f)
      (associativity :
@@ -81,7 +81,7 @@ Definition makePrecategory
                  (fun i j:obj, hSetpair (mor i j) (imor i j))) identity compose)).
   assert (iC : is_precategory C).
     split. split. 
-    apply right_identity. apply left_identity. apply associativity.
+    apply right. apply left. apply associativity.
   set (D := precategory_pair C iC).
   exact D.
 Defined.    
@@ -272,11 +272,11 @@ Module StandardCategories.
              fun f:mor i j =>
                fun g:mor j k => f @ g)
         :forall (i j k:obj) (f:mor i j) (g:mor j k), mor i k ).
-    assert (right_identity :
+    assert (right :
            forall i j:obj,
              forall f:mor i j, compose _ _ _ (identity i) f == f).
       intros. apply idpath.
-    assert (left_identity :
+    assert (left :
            forall i j:obj,
              forall f:mor i j, compose _ _ _ f (identity j) == f).
       intros. apply pathscomp0rid.
@@ -286,7 +286,7 @@ Module StandardCategories.
       intros. destruct f. apply idpath.
     set (E := makePrecategory
                 obj mor imor identity compose 
-                right_identity left_identity associativity).
+                right left associativity).
     assert(iE : is_category E).
       unfold is_category.
       intros.
@@ -310,12 +310,12 @@ Module StandardCategories.
     apply isasetstn.
   Defined.
 
-  Definition is_identity {C:precategory} {a b:C} (f:a→b) :=
+  Definition is {C:precategory} {a b:C} (f:a→b) :=
     total2 ( fun e:a == b => transportf (fun x => x→b) e f == identity b ).
 
   Definition is_discrete_precategory (C:precategory) := 
     dirprod
-    (forall (a b:C) (f:a→b), is_identity f)
+    (forall (a b:C) (f:a→b), is f)
     (isaset (ob C)).
 
   Lemma is_discrete_cat_n (n:nat):is_discrete_precategory (cat_n n).
@@ -391,6 +391,8 @@ Module RepresentableFunctors.
     set (compat := fun a b:obj => 
                      fun f : car a → car b => (aF _ _ f) (cdr b) == cdr a ).
     set (mor := fun a b:obj => total2 (compat a b)).
+    assert (imor : forall i j:obj, isaset (mor i j)).
+      admit.
     set (id_compat 
          := (fun a => @maponpaths _ _ (evalat (cdr a)) _ (idfun _) (iFid (car a)))
          :  forall a:obj, compat a a (identity (car a))).
@@ -402,11 +404,26 @@ Module RepresentableFunctors.
               forall (i j k:obj) (f:mor i j) (g:mor j k),
                 compat i k (car g ∘ car f)).
       admit.
-    set (compose :=
+    set (compo :=
            fun (i j k:obj) (f:mor i j) (g:mor j k)
                => tpair (compat i k) (pr1 g ∘ pr1 f) (compose_compat _ _ _ f g)
                  : mor i k).
-    admit.
+    assert (right :
+         forall i j:obj,
+           forall f:mor i j, compo _ _ _ (ident i) f == f).
+      admit.
+    assert (left :
+         forall i j:obj,
+           forall f:mor i j, compo _ _ _ f (ident j) == f).
+      admit.
+    assert (assoc :
+         forall (a b c d:obj) 
+                (f:mor a b) (g:mor b c) (h:mor c d),
+           compo _ _ _ f (compo _ _ _ g h)
+           == 
+           compo _ _ _ (compo _ _ _ f g) h).
+      admit.
+    exact (makePrecategory obj mor imor ident compo right left assoc).
   Defined.
 
 End RepresentableFunctors.
