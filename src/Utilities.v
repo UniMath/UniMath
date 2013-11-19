@@ -11,6 +11,8 @@ Unset Automatic Introduction.
 
 Notation pathReversal := pathsinv0.
 
+Definition evalat {X Y:UU} (x:X) (f:X->Y) := f x : Y.
+
 (** * h-levels and paths *)
 
 Ltac prop_logic := 

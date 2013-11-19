@@ -391,11 +391,9 @@ Module RepresentableFunctors.
     set (compat := fun a b:obj => 
                      fun f : car a → car b => (aF _ _ f) (cdr b) == cdr a ).
     set (mor := fun a b:obj => total2 (compat a b)).
-    assert (id_compat : forall a:obj, compat a a (identity (car a))).
-      intro.
-      unfold compat.
-      apply (@maponpaths _ _ (fun p => p (cdr a)) _ (idfun _)).
-        apply (iFid (car a)).
+    set (id_compat 
+         := (fun a => @maponpaths _ _ (evalat (cdr a)) _ (idfun _) (iFid (car a)))
+         :  forall a:obj, compat a a (identity (car a))).
     set (ident := 
            fun a:obj => 
              tpair (compat a a) (identity (pr1 a)) (id_compat a)
