@@ -333,6 +333,23 @@ Module FibredCategories.
   (* Make a fibered category over C and produce a terminal object in it
      from a representation.  Use that to get uniqueness of representations. *)
 
+  Require Import RezkCompletion.functors_transformations.
+  Require Import RezkCompletion.category_hset.
+
+  Module DebugMe.
+    Parameter C : precategory.
+    Parameter F : functor C^op HSET.
+    Parameter F': [C^op,HSET].
+    (* F and F' should be of the same type, but they don't appear to be *)
+    Definition obj  := total2 (fun c => pr1hSet (F c)).
+    Definition obj' := total2 (fun c => pr1hSet ((pr1 F') c)).
+    (* I should be able to eliminate all projections above, because of coercions *)
+  End DebugMe.
+
+  Module GrothendieckConstruction.
+  End GrothendieckConstruction.
+
+
 End FibredCategories.
 
 Module RepresentableFunctors.
