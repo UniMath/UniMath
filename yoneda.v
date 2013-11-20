@@ -45,13 +45,13 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 (** * The opposite precategory of a precategory *)
 
-Definition opp_precat_op_mor (C : precategory_ob_mor) : precategory_ob_mor :=
+Definition opp_precat_ob_mor (C : precategory_ob_mor) : precategory_ob_mor :=
    tpair (fun ob : UU => ob -> ob -> hSet) (ob C) 
         (fun a b : ob C => hom C b a  ).
 
 Definition opp_precat_data (C : precategory_data) : precategory_data.
 Proof.
-  exists (opp_precat_op_mor C).
+  exists (opp_precat_ob_mor C).
   split.
   exact (fun c => identity c).
   simpl.
