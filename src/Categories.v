@@ -390,30 +390,27 @@ Module RepresentableFunctors.
     (* the Grothendieck construction *)
     intros.
     destruct F as [[F aF] [iFid iFcomp]].
-    set (tF := fun c : C => pr1hSet (F c)).
-    set (obj := total2 tF).
+    simpl in iFid, iFcomp.
+    set (obj := total2 (fun c : C => pr1hSet (F c))).
     set (compat := fun a b:obj => 
                      fun f : car a → car b => (aF _ _ f) (cdr a) == cdr b ).
     set (mor := fun a b:obj => total2 (compat a b)).
+    unfold compat in mor.
     assert (imor : forall i j:obj, isaset (mor i j)).
-      intros [c x] [d y]. apply (isofhleveltotal2 2). 
+      intros [i i'] [j j']. apply (isofhleveltotal2 2). 
         apply setproperty.
-      intros.  apply (isofhlevelsnprop 1). apply isaset_hSet.
+      intros f.  apply (isofhlevelsnprop 1). apply isaset_hSet.
     set (id_compat 
          := (fun a => @maponpaths _ _ (evalat (cdr a)) _ (idfun _) (iFid (car a)))
-         :  forall a:obj, compat a a (identity (car a))).
-    set (ident := 
-           fun a:obj => 
-             tpair (compat a a) (identity (pr1 a)) (id_compat a)
+         :  forall a, compat a a (identity (car a))).
+    set (ident 
+         := fun a
+            => tpair _ (identity (pr1 _)) (id_compat _)
              : mor a a).
     assert (compose_compat : 
-              forall (i j k:obj) (f:mor i j) (g:mor j k),
-                compat i k (car g ∘ car f)).
-      unfold compat.
-      intros [c x] [d y] [e z] [f f'] [g g'].
-      simpl in f, g.
-      unfold compat in f', g'. simpl in f', g'.
-      destruct f', g'.
+         forall (i j k:obj) (f:mor i j) (g:mor j k), compat i k (car g ∘ car f)).
+      intros [c x] j [e z] [f f'] [g g'].
+      simpl in f, g, f', g'. destruct f', g'.
       exact (maponpaths (evalat x) (iFcomp _ _ _ f g)).
     set (compo :=
            fun (i j k:obj) (f:mor i j) (g:mor j k)
@@ -422,29 +419,18 @@ Module RepresentableFunctors.
     assert (right :
          forall i j:obj,
            forall f:mor i j, compo _ _ _ (ident i) f == f).
-      unfold compo.
       intros [c x] [d y] [f f'].
-      unfold compat.
-      simpl.
-      simpl in f.
-      unfold compat in f'. simpl in f'.
-      destruct f'.
-      assert (p : f ∘ identity c == f).
-        apply (id_left C).
-      apply (@pair_path _ (fun g => aF _ _ g x == aF _ _ f x) _ _ _ _ p).
+      simpl in f, f'. destruct f'.
+      assert (p : f ∘ identity _ == f). apply (id_left C).
+      apply (@pair_path _ (fun g => aF _ _ g _ == aF _ _ f _) _ _ _ _ p).
       apply isaset_hSet.
     assert (left :
          forall i j:obj,
            forall f:mor i j, compo _ _ _ f (ident j) == f).
-      unfold compo.
       intros [c x] [d y] [f f'].
-      unfold compat. simpl.
-      simpl in f.
-      unfold compat in f'. simpl in f'.
-      destruct f'.
-      assert (p : identity d ∘ f == f).
-        apply (id_right C).
-      apply (@pair_path _ (fun g => aF _ _ g x == aF _ _ f x) _ _ _ _ p).
+      simpl in f, f'. destruct f'.
+      assert (p : identity _ ∘ f == f). apply (id_right C).
+      apply (@pair_path _ (fun g => aF _ _ g _ == aF _ _ f _) _ _ _ _ p).
       apply isaset_hSet.
     assert (assoc :
          forall (a b c d:obj) 
@@ -452,12 +438,7 @@ Module RepresentableFunctors.
            compo _ _ _ f (compo _ _ _ g h)
            == 
            compo _ _ _ (compo _ _ _ f g) h).
-      unfold compo.
-      intros [a a'] [b b'] [c c'] [d d'] [f f'] [g g'] [h h'].
-      unfold compat. simpl.
-      simpl in f, g, h.
-      unfold compat in f', g', h'. simpl in f', g', h'.
-      destruct f', g', h'.
+      intros ? ? ? ? [f f'] [g g'] [h h'].
       assert (p : (h ∘ g) ∘ f == h ∘ (g ∘ f)). apply (assoc C).
       apply (pair_path p). apply isaset_hSet.
     exact (makePrecategory obj mor imor ident compo right left assoc).
