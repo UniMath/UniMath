@@ -426,7 +426,7 @@ Module RepresentableFunctors.
       unfold compat in f'. simpl in f'.
       destruct f'.
       assert (p : f ∘ identity c == f).
-        admit.
+        apply (pr1 (pr1 (pr2 C))).
       apply (@pair_path _ (fun g => aF _ _ g x == aF _ _ f x) _ _ _ _ p).
       apply (pr2 (F d)).
     assert (left :
