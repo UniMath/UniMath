@@ -432,7 +432,17 @@ Module RepresentableFunctors.
     assert (left :
          forall i j:obj,
            forall f:mor i j, compo _ _ _ f (ident j) == f).
-      admit.
+      unfold compo.
+      intros [c x] [d y] [f f'].
+      unfold compat.
+      simpl.
+      simpl in f.
+      unfold compat in f'. simpl in f'.
+      destruct f'.
+      assert (p : identity d ∘ f == f).
+        apply (pr2 (pr1 (pr2 C))).
+      apply (@pair_path _ (fun g => aF _ _ g x == aF _ _ f x) _ _ _ _ p).
+      apply (pr2 (F d)).
     assert (assoc :
          forall (a b c d:obj) 
                 (f:mor a b) (g:mor b c) (h:mor c d),
