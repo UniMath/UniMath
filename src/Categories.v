@@ -284,14 +284,12 @@ Module StandardCategories.
            forall i j:obj,
              forall f:mor i j, compose _ _ _ f (identity j) == f).
       intros. apply pathscomp0rid.
-    assert (associativity:forall (a b c d:obj) 
+    assert (assoc:forall (a b c d:obj) 
                     (f:mor a b)(g:mor b c) (h:mor c d),
                      compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h).
       intros. destruct f. apply idpath.
-    set (E := makePrecategory
-                obj mor imor identity compose 
-                right left associativity ).
-    assert(iE : is_category E).
+    set (E := makePrecategory obj mor imor identity compose right left assoc ).
+    apply (category_pair E).
       unfold is_category.
       intros.
       apply (gradth _ (morphism_from_iso _ a b)).
@@ -303,7 +301,6 @@ Module StandardCategories.
       assert (k:forall e, idtomor a b e == e).
         intro. destruct e. apply idpath.
       apply k.      
-    exact (category_pair E iE).
   Defined.
 
   (** *** the discrete category on n objects *)
@@ -327,7 +324,7 @@ Module StandardCategories.
     assert (e : p == p'). apply is. destruct e.
     assert (d : q == q'). apply isaset_hSet. destruct d.
     trivial.
-  Defined.    
+  Qed.
 
   Definition is_discrete_precategory (C:precategory) := 
     dirprod
@@ -338,17 +335,13 @@ Module StandardCategories.
     isaprop (is_discrete_precategory C).
   Proof.
     intro.
-    apply isofhleveltotal2.
-      apply isapropisaset.
+    apply isofhleveltotal2. apply isapropisaset.
     intro is.
-    apply impred. intros.
-    apply impred. intros.
-    apply impred. intros.
-    apply isaprop_is_identity.
-    assumption.
-  Defined.
+    repeat (apply impred; intros).
+    exact (isaprop_is_identity _ is).
+  Qed.
 
-  Lemma is_discrete_cat_n (n:nat):is_discrete_precategory (cat_n n).
+  Lemma is_discrete_cat_n (n:nat) : is_discrete_precategory (cat_n n).
   Proof.
     intro.
     split.
@@ -358,7 +351,7 @@ Module StandardCategories.
     exists f.
     destruct f.
     apply idpath.
-  Defined.
+  Qed.
 
 End StandardCategories.
 
