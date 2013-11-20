@@ -23,6 +23,10 @@ Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Add LoadPath "." as Ktheory.
 Require Import Ktheory.Utilities.
 
+Unset Automatic Introduction.
+
+(** *** notation *)
+
 Local Notation "b ← a" := (precategory_morphisms a b) (at level 50).
 Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
 Local Notation "f ;; g" := (precategories.compose f g) (at level 50).
@@ -37,43 +41,25 @@ Local Notation cdddr := (fun x => pr2(pr2 (pr2 x))).
 Local Notation cddddr := (fun x => pr2(pr2 (pr2 (pr2 x)))).
 Notation "C '^op'" := (opp_precat C) (at level 3).
 
-Definition assoc' (C:precategory):
-   forall (a b c d:C) 
-          (f:a → b)(g:b → c) (h:c → d),
-                     h ∘ (g ∘ f) == (h ∘ g) ∘ f.
-Proof. intros. apply pathReversal. apply assoc. Qed.
-
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
- : precategory
-  := tpair is_precategory C i.
+  : precategory := tpair _ C i.
 
 Definition category_pair (C:precategory) (i:is_category C)
- : category
-  := tpair is_category C i.
+ : category := tpair _ C i.
 
-Unset Automatic Introduction.
-
-Definition isiso {C:precategory} {a b:C} (f:a → b) := total2 (is_inverse_in_precat f).
+(** *** make a precategory *)
 
 Definition makePrecategory 
-     (obj : UU)
-     (mor : obj -> obj -> UU)
-     (imor : forall i j:obj, isaset (mor i j))
-     (identity : forall i:obj, mor i i)
-     (compose : forall (i j k:obj) (f:mor i j) (g:mor j k), mor i k)
-     (right :
-         forall i j:obj,
-           forall f:mor i j, compose _ _ _ (identity i) f == f)
-     (left :
-         forall i j:obj,
-           forall f:mor i j, compose _ _ _ f (identity j) == f)
-     (associativity :
-         forall (a b c d:obj) 
-                (f:mor a b) (g:mor b c) (h:mor c d),
-           compose _ _ _ f (compose _ _ _ g h)
-           == 
-           compose _ _ _ (compose _ _ _ f g) h)
-     : precategory.
+    (obj : UU)
+    (mor : obj -> obj -> UU)
+    (imor : forall i j:obj, isaset (mor i j))
+    (identity : forall i:obj, mor i i)
+    (compose : forall (i j k:obj) (f:mor i j) (g:mor j k), mor i k)
+    (right : forall (i j:obj) (f:mor i j), compose _ _ _ (identity i) f == f)
+    (left  : forall (i j:obj) (f:mor i j), compose _ _ _ f (identity j) == f)
+    (associativity : forall (a b c d:obj) (f:mor a b) (g:mor b c) (h:mor c d),
+        compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h)
+    : precategory.
   intros.
   set (C := (precategory_data_pair
               (precategory_ob_mor_pair 
@@ -119,9 +105,9 @@ Module Products.
   Definition terminalObject {C:precategory} (z:TerminalObject C) := car z.
   Definition terminalProperty {C:precategory} (z:TerminalObject C) := cdr z.
 
-  Definition is_category_category (C:category) := cdr C.
+  Definition is_category_category (C:category) := cdr _ : is_category C.
 
-  Lemma isaprop_TerminalObject (C:category):isaprop (TerminalObject C).
+  Lemma isaprop_TerminalObject (C:category) : isaprop (TerminalObject C).
   Proof.
     intros.
     apply invproofirrelevance.
@@ -258,6 +244,8 @@ Module StandardCategories.
     apply idpath.
   Defined.
 
+  (** *** the path groupoid *)
+
   Definition path_groupoid (X:UU):isofhlevel 3 X -> category.
     intros obj iobj.
     set (mor := @paths obj).
@@ -306,8 +294,9 @@ Module StandardCategories.
     exact (category_pair E iE).
   Defined.
 
+  (** *** the discrete category on n objects *)
+
   Definition cat_n (n:nat):category.
-    (* discrete category on n objects *)
     intro.
     apply (path_groupoid (stn n)).
     apply hlevelntosn.
@@ -336,6 +325,8 @@ Module StandardCategories.
 
 End StandardCategories.
 
+(** ** limits via cones *)
+
 Module ConeLimits.
 
   Require Import RezkCompletion.limits.cones.
@@ -351,7 +342,9 @@ Module ConeLimits.
 
 End ConeLimits.
 
-Module FibredCategories.
+(** ** fibered categories *)
+
+Module FiberedCategories.
 
   (* Make a fibered category over C and produce a terminal object in it
      from a representation.  Use that to get uniqueness of representations. *)
@@ -369,7 +362,9 @@ Module FibredCategories.
     (* I should be able to eliminate all projections above, because of coercions *)
   End DebugMe.
 
-End FibredCategories.
+End FiberedCategories.
+
+(** ** representable functors *)
 
 Module RepresentableFunctors.
 
@@ -386,8 +381,10 @@ Module RepresentableFunctors.
     := yoneda_map_1 _ _ _ (representingIso i).
   Definition isRepresentatable {C} (F:[C^op, HSET])
     := squash (Representation F).
+
+  (** *** the Grothendieck construction *)
+
   Definition precategoryOfElements {C} (F:[C, HSET]) : precategory.
-    (* the Grothendieck construction *)
     intros.
     destruct F as [[F aF] [iFid iFcomp]].
     simpl in iFid, iFcomp.
@@ -435,6 +432,8 @@ Module RepresentableFunctors.
   Defined.
 
 End RepresentableFunctors.
+
+(** ** direct sums *)
 
 Module DirectSums.
 
@@ -504,7 +503,7 @@ Module DirectSums.
   Proof.
    intros. unfold zeroMap'.
    intermediate ((f ∘ the (map_from z b)) ∘ the (map_to z a)).
-     apply assoc'.
+     apply pathReversal. apply assoc.
    apply path_right_composition.
    apply initMapUniqueness.
   Qed.
@@ -541,15 +540,12 @@ Module DirectSums.
     forall a b : C, squash (BinarySum a b).
 
 (**
-
   We are working toward definitions of "additive category" and "abelian
   category" as properties of a category, rather than as an added structure.
   That is the approach of Mac Lane in sections 18, 19, and 21 of :
 
-  Duality for groups
-  Bull. Amer. Math. Soc. Volume 56, Number 6 (1950), 485-516.
-  http://projecteuclid.org/DPubS/Repository/1.0/Disseminate?view=body&id=pdf_1&handle=euclid.bams/1183515045
-
+  #<a href="http://projecteuclid.org/DPubS/Repository/1.0/Disseminate?view=body&id=pdf_1&handle=euclid.bams/1183515045">Duality for groups</a>#,
+  Bull. Amer. Math. Soc., Volume 56, Number 6 (1950), 485-516.
  *)
 
 End DirectSums.
