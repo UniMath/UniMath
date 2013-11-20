@@ -70,8 +70,6 @@ Definition makePrecategory
     (left  : forall (i j:obj) (f:mor i j), compose _ _ _ f (identity j) == f)
     (associativity : forall (a b c d:obj) (f:mor a b) (g:mor b c) (h:mor c d),
         compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h)
-    (associativity': forall (a b c d:obj) (f:mor a b) (g:mor b c) (h:mor c d),
-        compose _ _ _ (compose _ _ _ f g) h == compose _ _ _ f (compose _ _ _ g h))
     : precategory.
   intros.
   set (C := (precategory_data_pair
@@ -81,7 +79,7 @@ Definition makePrecategory
   assert (iC : is_precategory C).
     split. 
     split. apply right. apply left.
-    split. apply associativity. apply associativity'.
+    apply associativity.
   set (D := precategory_pair C iC).
   exact D.
 Defined.    
@@ -290,13 +288,9 @@ Module StandardCategories.
                     (f:mor a b)(g:mor b c) (h:mor c d),
                      compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h).
       intros. destruct f. apply idpath.
-    assert (associativity':forall (a b c d:obj) 
-                    (f:mor a b)(g:mor b c) (h:mor c d),
-                     compose _ _ _ (compose _ _ _ f g) h == compose _ _ _ f (compose _ _ _ g h)).
-      intros. destruct f. apply idpath.
     set (E := makePrecategory
                 obj mor imor identity compose 
-                right left associativity associativity').
+                right left associativity ).
     assert(iE : is_category E).
       unfold is_category.
       intros.
@@ -473,12 +467,7 @@ Module RepresentableFunctors.
       intros ? ? ? ? [f f'] [g g'] [h h'].
       assert (p : (h ∘ g) ∘ f == h ∘ (g ∘ f)). apply assoc.
       apply (pair_path p). apply isaset_hSet.
-    assert (assoc' : forall (a b c d:obj) (f:mor a b) (g:mor b c) (h:mor c d),
-        compo _ _ _ (compo _ _ _ f g) h == compo _ _ _ f (compo _ _ _ g h)).
-      intros ? ? ? ? [f f'] [g g'] [h h'].
-      assert (p : h ∘ (g ∘ f) == (h ∘ g) ∘ f). apply assoc'.
-      apply (pair_path p). apply isaset_hSet.
-    exact (makePrecategory obj mor imor ident compo right left assoc assoc').
+    exact (makePrecategory obj mor imor ident compo right left assoc).
   Defined.
 
 End RepresentableFunctors.
