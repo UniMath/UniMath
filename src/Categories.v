@@ -426,7 +426,7 @@ Module RepresentableFunctors.
       unfold compat in f'. simpl in f'.
       destruct f'.
       assert (p : f ∘ identity c == f).
-        apply (pr1 (pr1 (pr2 C))).
+        apply (id_left C).
       apply (@pair_path _ (fun g => aF _ _ g x == aF _ _ f x) _ _ _ _ p).
       apply (pr2 (F d)).
     assert (left :
@@ -434,22 +434,29 @@ Module RepresentableFunctors.
            forall f:mor i j, compo _ _ _ f (ident j) == f).
       unfold compo.
       intros [c x] [d y] [f f'].
-      unfold compat.
-      simpl.
+      unfold compat. simpl.
       simpl in f.
       unfold compat in f'. simpl in f'.
       destruct f'.
       assert (p : identity d ∘ f == f).
-        apply (pr2 (pr1 (pr2 C))).
+        apply (id_right C).
       apply (@pair_path _ (fun g => aF _ _ g x == aF _ _ f x) _ _ _ _ p).
-      apply (pr2 (F d)).
+      apply (pr2 (F _)).
     assert (assoc :
          forall (a b c d:obj) 
                 (f:mor a b) (g:mor b c) (h:mor c d),
            compo _ _ _ f (compo _ _ _ g h)
            == 
            compo _ _ _ (compo _ _ _ f g) h).
-      admit.
+      Focus.
+      unfold compo.
+      intros [a a'] [b b'] [c c'] [d d'] [f f'] [g g'] [h h'].
+      unfold compat. simpl.
+      simpl in f, g, h.
+      unfold compat in f', g', h'. simpl in f', g', h'.
+      destruct f', g', h'.
+      assert (p : (h ∘ g) ∘ f == h ∘ (g ∘ f)). apply (assoc C).
+      apply (pair_path p). apply (pr2 (F _)).
     exact (makePrecategory obj mor imor ident compo right left assoc).
   Defined.
 
