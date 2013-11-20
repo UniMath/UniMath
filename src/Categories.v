@@ -16,6 +16,8 @@ Require Import Foundations.hlevel2.hSet.
 Require Import Foundations.hlevel2.stnfsets.
 
 Require Import RezkCompletion.precategories.
+Require Import RezkCompletion.functors_transformations.
+Require Import RezkCompletion.category_hset.
 Require Import RezkCompletion.yoneda.
 Import pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
@@ -40,12 +42,21 @@ Local Notation cddr := (fun x => pr2(pr2 x)).
 Local Notation cdddr := (fun x => pr2(pr2 (pr2 x))).
 Local Notation cddddr := (fun x => pr2(pr2 (pr2 (pr2 x)))).
 Notation "C '^op'" := (opp_precat C) (at level 3).
+Notation SET := hset_precategory.
 
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := tpair _ C i.
 
 Definition category_pair (C:precategory) (i:is_category C)
  : category := tpair _ C i.
+
+Definition objectToFunctor {C D:precategory} : ob [C,D] -> functor C D.
+  intros ? ? F. exact F.
+Defined.
+
+Definition functorToObject {C D:precategory} : functor C D -> ob [C,D].
+  intros ? ? F. exact F.
+Defined.
 
 (** *** make a precategory *)
 
@@ -59,6 +70,8 @@ Definition makePrecategory
     (left  : forall (i j:obj) (f:mor i j), compose _ _ _ f (identity j) == f)
     (associativity : forall (a b c d:obj) (f:mor a b) (g:mor b c) (h:mor c d),
         compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h)
+    (associativity': forall (a b c d:obj) (f:mor a b) (g:mor b c) (h:mor c d),
+        compose _ _ _ (compose _ _ _ f g) h == compose _ _ _ f (compose _ _ _ g h))
     : precategory.
   intros.
   set (C := (precategory_data_pair
@@ -66,8 +79,9 @@ Definition makePrecategory
                  obj 
                  (fun i j:obj, hSetpair (mor i j) (imor i j))) identity compose)).
   assert (iC : is_precategory C).
-    split. split. 
-    apply right. apply left. apply associativity.
+    split. 
+    split. apply right. apply left.
+    split. apply associativity. apply associativity'.
   set (D := precategory_pair C iC).
   exact D.
 Defined.    
@@ -276,9 +290,13 @@ Module StandardCategories.
                     (f:mor a b)(g:mor b c) (h:mor c d),
                      compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h).
       intros. destruct f. apply idpath.
+    assert (associativity':forall (a b c d:obj) 
+                    (f:mor a b)(g:mor b c) (h:mor c d),
+                     compose _ _ _ (compose _ _ _ f g) h == compose _ _ _ f (compose _ _ _ g h)).
+      intros. destruct f. apply idpath.
     set (E := makePrecategory
                 obj mor imor identity compose 
-                right left associativity).
+                right left associativity associativity').
     assert(iE : is_category E).
       unfold is_category.
       intros.
@@ -303,24 +321,49 @@ Module StandardCategories.
     apply isasetstn.
   Defined.
 
-  Definition is {C:precategory} {a b:C} (f:a→b) :=
+  Definition is_identity {C:precategory} {a b:C} (f:a→b) :=
     total2 ( fun e:a == b => transportf (fun x => x→b) e f == identity b ).
+
+  Lemma isaprop_is_identity {C:precategory} {a b:C} (f:a→b) :
+    isaset (ob C) -> isaprop (is_identity f).
+  Proof.
+    intros ? ? ? ? is.
+    apply invproofirrelevance.
+    intros [p q] [p' q'].
+    assert (e : p == p'). apply is. destruct e.
+    assert (d : q == q'). apply isaset_hSet. destruct d.
+    trivial.
+  Defined.    
 
   Definition is_discrete_precategory (C:precategory) := 
     dirprod
-    (forall (a b:C) (f:a→b), is f)
-    (isaset (ob C)).
+    (isaset (ob C))
+    (forall (a b:C) (f:a→b), is_identity f).
+
+  Lemma isaprop_is_discrete_precategory (C:precategory) : 
+    isaprop (is_discrete_precategory C).
+  Proof.
+    intro.
+    apply isofhleveltotal2.
+      apply isapropisaset.
+    intro is.
+    apply impred. intros.
+    apply impred. intros.
+    apply impred. intros.
+    apply isaprop_is_identity.
+    assumption.
+  Defined.
 
   Lemma is_discrete_cat_n (n:nat):is_discrete_precategory (cat_n n).
   Proof.
     intro.
     split.
-      intros ? ? f.
-      exists f.
-      destruct f.
-      apply idpath.
-    simpl.
-    apply isasetstn.
+      simpl.
+      apply isasetstn.
+    intros ? ? f.
+    exists f.
+    destruct f.
+    apply idpath.
   Defined.
 
 End StandardCategories.
@@ -349,17 +392,17 @@ Module FiberedCategories.
   (* Make a fibered category over C and produce a terminal object in it
      from a representation.  Use that to get uniqueness of representations. *)
 
-  Require Import RezkCompletion.functors_transformations.
-  Require Import RezkCompletion.category_hset.
 
   Module DebugMe.
-    Parameter C:precategory.
-    Parameter F:functor C^op HSET.
-    Parameter F': [C^op,HSET].
+    Parameter C : precategory.
+    Parameter F : functor C^op SET.
+    Parameter F': [C^op,SET].
     (* F and F' should be of the same type, but they don't appear to be *)
     Definition obj  := total2 (fun c => pr1hSet (F c)).
     Definition obj' := total2 (fun c => pr1hSet ((pr1 F') c)).
     (* I should be able to eliminate all projections above, because of coercions *)
+
+    Definition obj'' := total2 (fun c => pr1hSet ((objectToFunctor F') c)).
   End DebugMe.
 
 End FiberedCategories.
@@ -368,23 +411,25 @@ End FiberedCategories.
 
 Module RepresentableFunctors.
 
-  Require Import RezkCompletion.functors_transformations.
-  Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-  Require Import RezkCompletion.category_hset.
-  Definition Representation {C} (F:[C^op, HSET])
+  (* Definition yoneda' (C : precategory) : functor C^op [C, SET] := *)
+  (*   yoneda (C^op). *)
+
+  Definition Representation {C} (F:[C^op, SET])
     := total2 (fun c => iso (yoneda _ c) F).
-  Definition representingObject {C} {F:[C^op, HSET]} (i:Representation F) 
+  (* Definition Representation' {C} (F:[C, SET]) *)
+  (*   := total2 (fun c => iso (yoneda _ c) F). *)
+  Definition representingObject {C} {F:[C^op, SET]} (i:Representation F) 
     := car i.
-  Definition representingIso {C} {F:[C^op, HSET]} (i:Representation F)
+  Definition representingIso {C} {F:[C^op, SET]} (i:Representation F)
     := cdr i.
-  Definition representingElement {C} {F:[C^op, HSET]} (i:Representation F)
+  Definition representingElement {C} {F:[C^op, SET]} (i:Representation F)
     := yoneda_map_1 _ _ _ (representingIso i).
-  Definition isRepresentatable {C} (F:[C^op, HSET])
+  Definition isRepresentatable {C} (F:[C^op, SET])
     := squash (Representation F).
 
   (** *** the Grothendieck construction *)
 
-  Definition precategoryOfElements {C} (F:[C, HSET]) : precategory.
+  Definition precategoryOfElements {C} (F:[C, SET]) : precategory.
     intros.
     destruct F as [[F aF] [iFid iFcomp]].
     simpl in iFid, iFcomp.
@@ -428,7 +473,12 @@ Module RepresentableFunctors.
       intros ? ? ? ? [f f'] [g g'] [h h'].
       assert (p : (h ∘ g) ∘ f == h ∘ (g ∘ f)). apply assoc.
       apply (pair_path p). apply isaset_hSet.
-    exact (makePrecategory obj mor imor ident compo right left assoc).
+    assert (assoc' : forall (a b c d:obj) (f:mor a b) (g:mor b c) (h:mor c d),
+        compo _ _ _ (compo _ _ _ f g) h == compo _ _ _ f (compo _ _ _ g h)).
+      intros ? ? ? ? [f f'] [g g'] [h h'].
+      assert (p : h ∘ (g ∘ f) == (h ∘ g) ∘ f). apply assoc'.
+      apply (pair_path p). apply isaset_hSet.
+    exact (makePrecategory obj mor imor ident compo right left assoc assoc').
   Defined.
 
 End RepresentableFunctors.
