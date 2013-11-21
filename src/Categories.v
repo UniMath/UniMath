@@ -84,6 +84,77 @@ Definition makePrecategory
   exact D.
 Defined.    
 
+(** *** opposite category of opposite category *)
+
+Lemma eta2 {X Y Z:UU} (f : X -> Y -> Z) : f == fun x => f x.
+  intros.
+  apply etacorrection.
+Defined.
+
+Lemma eta3 {X Y Z:UU} (f : X -> Y -> Z) (x:X) : f x == fun y => f x y.
+  intros.
+  apply etacorrection.
+Defined.
+
+Lemma eta4 {X Y Z:UU} (f : X -> Y -> Z) : f == fun x y => f x y.
+  intros.
+  intermediate (fun x => f x).
+  apply etacorrection.
+  apply funextfunax.
+  intro.
+  apply etacorrection.
+Defined.
+
+Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor)
+  : opp_precat_ob_mor (opp_precat_ob_mor C) == C.
+Proof.
+  intro.
+  destruct C as [ob mor].  
+  unfold opp_precat_ob_mor; simpl.
+  apply (pair_path (idpath _)).
+  unfold transportf; simpl; unfold idfun.
+  apply pathReversal.
+  intermediate (fun a => mor a).
+  apply etacorrection.
+  apply funextfunax.
+  intro.
+  apply etacorrection.
+Defined.
+
+Lemma opp_opp_precat_data (C : precategory_data) 
+   : opp_precat_data (opp_precat_data C) == C.
+Proof.
+  intro.
+  destruct C as [ob_mor [id co]].
+  unfold opp_precat_data; simpl.
+  apply (@pair_path _ 
+            (fun C : precategory_ob_mor =>
+               dirprod (forall c : C, c → c)
+                       (forall a b c : C, a → b -> b → c -> a → c)) 
+            _ _ _ _ (opp_opp_precat_ob_mor ob_mor)).
+  unfold opp_opp_precat_ob_mor.
+  admit.
+Defined.
+
+Lemma isaprop_is_precategory (C : precategory_data)
+  : isaprop (is_precategory C).
+Proof.
+  intro.
+  apply isofhleveltotal2.
+    apply isofhleveltotal2.
+      repeat (apply impred; intro); apply isaset_hSet.
+    intros _.
+    repeat (apply impred; intro); apply isaset_hSet.
+  intros _.    
+  repeat (apply impred; intro); apply isaset_hSet.
+Qed.
+
+Lemma opp_opp_precat (C : precategory) : C^op^op == C.
+Proof.
+  destruct C as [[ob_mor [id co]] q].
+  admit.
+Defined.
+
 (** ** products *)
 
 Module Products.
@@ -398,13 +469,8 @@ End FiberedCategories.
 
 Module RepresentableFunctors.
 
-  (* Definition yoneda' (C : precategory) : functor C^op [C, SET] := *)
-  (*   yoneda (C^op). *)
-
   Definition Representation {C} (F:[C^op, SET])
     := total2 (fun c => iso (yoneda _ c) F).
-  (* Definition Representation' {C} (F:[C, SET]) *)
-  (*   := total2 (fun c => iso (yoneda _ c) F). *)
   Definition representingObject {C} {F:[C^op, SET]} (i:Representation F) 
     := car i.
   Definition representingIso {C} {F:[C^op, SET]} (i:Representation F)
