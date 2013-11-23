@@ -6,6 +6,7 @@ Require Import Foundations.hlevel2.hSet.
 Require Import RezkCompletion.pathnotations.
 Import RezkCompletion.pathnotations.PathNotations.
 
+Definition propproperty ( X : hProp ) := pr2 X . 
 
 (** * Paths in total spaces are equivalent to pairs of paths *)
 

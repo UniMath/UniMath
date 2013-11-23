@@ -140,10 +140,10 @@ Lemma is_set_sub_precategory_morphisms {C : precategory}(C':sub_precategories C)
 Proof.
   change (isaset) with (isofhlevel 2).
   apply isofhleveltotal2.
-  apply pr2.
+  apply setproperty.
   intro f.
   apply isasetaprop. 
-  apply pr2.
+  apply propproperty.
 Qed.
 
 Definition sub_precategory_morphisms_set {C : precategory}(C':sub_precategories C)
@@ -321,7 +321,7 @@ Proof.
    apply functor_id.
   apply (total2_paths H).
   apply proofirrelevance.
-  apply pr2.
+  apply propproperty.
   
   intros a b c f g.
   set ( H := eq_in_sub_precategory D (full_img_sub_precategory F)).
