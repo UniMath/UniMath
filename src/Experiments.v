@@ -27,10 +27,10 @@ Module A.
       destruct et.
       apply idpath.
     Defined.
-    Check Feq.
+    (* Check Feq. *)
   End Rec2.
 
-  Print Module Rec2.
+  (* Print Module Rec2. *)
 
   Module nat_nat : TU.
     Definition T := nat.
