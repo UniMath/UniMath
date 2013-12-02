@@ -152,9 +152,6 @@ Proof.
   exact t.
 Defined.
 
-Lemma foo {Q:UU} (is:isaprop Q) (q:Q) : hProppair Q is.
-Proof. assumption. Defined.
-
 Lemma factor_through_squash_dep {X Q:UU} : isaprop Q -> (X -> Q) -> (squash_dep X -> Q).
 Proof.
   intros is q y.
@@ -208,3 +205,10 @@ Proof.
 Defined.
 
 Definition squash_dep_factoring {X Y:UU} (f : X -> Y) := total2 (fun g : squash_dep X -> Y => f == funcomp (squash_dep_element X) g).
+
+Lemma isaxiomfuncontr { X : UU } (P:X -> UU) : isaprop ((forall x:X, iscontr (P x)) -> iscontr (forall x:X, P x)).
+Proof.
+  apply impred; intro.
+  apply isapropiscontr.
+Defined.
+
