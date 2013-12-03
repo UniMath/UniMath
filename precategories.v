@@ -64,11 +64,12 @@ Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
     - composition
 *)
 
-Definition precategory_data := total2 (
-   fun C : precategory_ob_mor =>
+Definition precategory_id_comp (C : precategory_ob_mor) :=
      dirprod (forall c : C, c --> c) (* identities *) 
              (forall a b c : C,
-                 a --> b -> b --> c -> a --> c)).
+                 a --> b -> b --> c -> a --> c).
+
+Definition precategory_data := total2 precategory_id_comp.
 
 Definition precategory_data_pair (C : precategory_ob_mor)
     (id : forall c : C, c --> c)
