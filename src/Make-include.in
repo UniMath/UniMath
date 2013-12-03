@@ -5,6 +5,7 @@
 Utilities.v
 Categories.v
 Experiments.v
+EtaExpansion.v
 
 # Local Variables:
 # compile-command: "coq_makefile -f Make-include.in"
