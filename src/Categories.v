@@ -84,19 +84,25 @@ Definition makePrecategory
   exact D.
 Defined.    
 
-(** *** opposite category of opposite category *)
+(** * eta correction *)
 
-Lemma eta2 {X Y Z:UU} (f : X -> Y -> Z) : f == fun x => f x.
+Lemma etacorrectionrule: 
+  forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t),
+    etacorrection T P (fun t:T => f t) == idpath _.
+Proof.                           
   intros.
-  apply etacorrection.
+  admit.
 Defined.
 
-Lemma eta3 {X Y Z:UU} (f : X -> Y -> Z) (x:X) : f x == fun y => f x y.
+Lemma etacorrectionvalue: 
+  forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t), forall t:T,
+    maponpaths (fun f => f t) (etacorrection T P f) == idpath _.
+Proof.
   intros.
-  apply etacorrection.
+  admit.
 Defined.
 
-Lemma eta4 {X Y Z:UU} (f : X -> Y -> Z) : f == fun x y => f x y.
+Lemma etacor2 {X Y Z:UU} (f : X -> Y -> Z) : f == fun x y => f x y.
   intros.
   intermediate (fun x => f x).
   apply etacorrection.
@@ -105,33 +111,25 @@ Lemma eta4 {X Y Z:UU} (f : X -> Y -> Z) : f == fun x y => f x y.
   apply etacorrection.
 Defined.
 
+(** *** opposite category of opposite category *)
+
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor)
-  : opp_precat_ob_mor (opp_precat_ob_mor C) == C.
+  : C == opp_precat_ob_mor (opp_precat_ob_mor C).
 Proof.
   intro.
   destruct C as [ob mor].  
   unfold opp_precat_ob_mor; simpl.
   apply (pair_path (idpath _)).
-  unfold transportf; simpl; unfold idfun.
-  apply pathReversal.
-  intermediate (fun a => mor a).
-  apply etacorrection.
-  apply funextfunax.
-  intro.
-  apply etacorrection.
+  apply etacor2.
 Defined.
 
 Lemma opp_opp_precat_data (C : precategory_data) 
-   : opp_precat_data (opp_precat_data C) == C.
+   : C == opp_precat_data (opp_precat_data C).
 Proof.
   intro.
   destruct C as [ob_mor [id co]].
   unfold opp_precat_data; simpl.
-  apply (@pair_path _ 
-            (fun C : precategory_ob_mor =>
-               dirprod (forall c : C, c → c)
-                       (forall a b c : C, a → b -> b → c -> a → c)) 
-            _ _ _ _ (opp_opp_precat_ob_mor ob_mor)).
+  apply (@pair_path _ precategory_id_comp _ _ _ _ (opp_opp_precat_ob_mor ob_mor)).
   unfold opp_opp_precat_ob_mor.
   admit.
 Defined.
@@ -149,10 +147,11 @@ Proof.
   repeat (apply impred; intro); apply isaset_hSet.
 Qed.
 
-Lemma opp_opp_precat (C : precategory) : C^op^op == C.
+Lemma opp_opp_precat (C : precategory) : C == C^op^op.
 Proof.
-  destruct C as [[ob_mor [id co]] q].
-  admit.
+  destruct C as [data q].
+  apply (pair_path (opp_opp_precat_data data)).
+  apply isaprop_is_precategory.
 Defined.
 
 (** ** products *)

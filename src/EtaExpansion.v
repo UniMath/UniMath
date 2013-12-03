@@ -3,8 +3,9 @@
 Require Import RezkCompletion.pathnotations.
 Import RezkCompletion.pathnotations.PathNotations.
 Require Import Foundations.hlevel2.hSet.
+Unset Automatic Introduction.
 
-(** * e correction *)
+(** * eta correction *)
 
 Definition sections {T:UU} (P:T->UU) := forall t:T, P t.
 
@@ -23,7 +24,7 @@ Proof.
 Defined.
 
 Lemma funcomppathl {X Y Z:UU} (f:X->Y) {g g':Y->Z} (e:g==g') : funcomp f g == funcomp f g'.
-Proof. destruct e. trivial. Defined.
+Proof. intros. destruct e. trivial. Defined.
 
 Lemma funcomppathlfunctor {W X Y Z:UU} (b:W->X) (f:X->Y) {g g':Y->Z} (e:g==g') :
   funcomppathl b (funcomppathl f e) == funcomppathl (funcomp b f) e.
@@ -38,7 +39,7 @@ Lemma funcomppathlpathrev {X Y Z:UU} (f:X->Y) {g g':Y->Z} (e:g==g') :
 Proof. destruct e. trivial. Defined.
 
 Lemma funcomppathr {X Y Z:UU} {f f':X->Y} (e:f==f') (g:Y->Z) : funcomp f g == funcomp f' g.
-Proof. destruct e. trivial. Defined.
+Proof. intros. destruct e. trivial. Defined.
 
 Lemma funcomppathrfunctor {X Y Z W:UU} {f f':X->Y} (e:f==f') (g:Y->Z) (h:Z->W) :
   funcomppathr (funcomppathr e g) h == funcomppathr e (funcomp g h).
@@ -53,7 +54,7 @@ Lemma funcomppathrpathrev {X Y Z:UU} {f f':X->Y} (e:f==f') (g:Y->Z) :
 Proof. destruct e. trivial. Defined.
 
 Lemma funcomppaths {X Y Z:UU} {f f':X->Y} {g g':Y->Z} (p:f==f') (q:g==g') : funcomp f g == funcomp f' g'.
-Proof. destruct p, q. trivial. Defined.
+Proof. intros. destruct p, q. trivial. Defined.
 
 Lemma bar : forall (T:UU) (P:T -> UU) (e : idfun (sections P) == etaExpand P), funcomppathr e (etaExpand P) == funcomppathl (etaExpand P) e.
 Proof. destruct e. trivial. Defined.
@@ -98,13 +99,13 @@ Lemma etaExpansion : forall (T:UU) (P:T -> UU) (f:sections P) (eta:etatype), f =
 Proof. intros. apply (maponpaths (fun k => k f) (pr1 (eta _ _))). Defined.
 
 Lemma funcompidl {X Y:UU} (f:X->Y) (eta:etatype) : f == funcomp (idfun X) f.
-Proof. apply etaExpansion. assumption. Defined.
+Proof. intros. apply etaExpansion. assumption. Defined.
 
 Lemma funcompidl' {X Y:UU} (f:X->Y) : etaExpand _ f == funcomp (idfun X) f.
 Proof. trivial. Defined.
 
 Lemma funcompidr {X Y:UU} (f:X->Y) (eta:etatype) : f == funcomp f (idfun Y).
-Proof. apply etaExpansion. assumption. Defined.
+Proof. intros. apply etaExpansion. assumption. Defined.
 
 Lemma funcompidr' {X Y:UU} (f:X->Y) : etaExpand _ f == funcomp f (idfun Y).
 Proof. trivial. Defined.
@@ -117,7 +118,7 @@ Proof. trivial. Defined.
 
 Lemma isaprop_wma_inhab (X:UU) : (X -> isaprop X) -> isaprop X.
 Proof.
-  intro f.
+  intros ? f.
   apply invproofirrelevance.
   intros x y.
   apply (f x).
