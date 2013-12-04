@@ -19,6 +19,23 @@ Definition evalsecat {T:UU} {P:T->UU} (t:T) (f:sections P) := f t.
 
 (** * h-levels and paths *)
 
+Lemma isaprop_wma_inhab (X:UU) : (X -> isaprop X) -> isaprop X.
+Proof.
+  intros ? f.
+  apply invproofirrelevance.
+  intros x y.
+  apply (f x).
+Defined.
+
+Lemma isaprop_wma_inhab' (X:UU) : (X -> iscontr X) -> isaprop X.
+Proof.
+  intros ? f.
+  apply isaprop_wma_inhab.
+  intro x.
+  apply isapropifcontr.
+  apply (f x).
+Defined.
+
 Ltac prop_logic := 
   intros;
   simpl;
