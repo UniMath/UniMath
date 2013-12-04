@@ -11,7 +11,11 @@ Unset Automatic Introduction.
 
 Notation pathReversal := pathsinv0.
 
-Definition evalat {X Y:UU} (x:X) (f:X->Y) := f x : Y.
+Definition sections {T:UU} (P:T->UU) := forall t:T, P t.
+
+Definition evalat {T:UU} {U:UU} (t:T) (f:T->U) := f t.
+
+Definition evalsecat {T:UU} {P:T->UU} (t:T) (f:sections P) := f t.
 
 (** * h-levels and paths *)
 

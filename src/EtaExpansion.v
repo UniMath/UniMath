@@ -1,15 +1,58 @@
 (** * experimental file concerning eta reduction *)
 
+Require Import Ktheory.Utilities.
 Require Import RezkCompletion.pathnotations.
 Import RezkCompletion.pathnotations.PathNotations.
 Require Import Foundations.hlevel2.hSet.
 Unset Automatic Introduction.
+Require Import Ktheory.Utilities.
 
 (** * eta correction *)
 
-Definition sections {T:UU} (P:T->UU) := forall t:T, P t.
-
 Definition etaExpand {T:UU} (P:T->UU) (f:sections P) := fun t => f t.
+
+Lemma etacorrectionrule (T:UU) (P:T -> UU) (f:sections P) :
+    etacorrection _ _ (etaExpand _ f) == idpath _.
+Proof.                           
+  intros.
+  admit.
+Defined.
+
+Lemma etacorrectionrule' (T:UU) (P:T -> UU) (f:sections P) :
+    maponpaths (etaExpand P) (etacorrection _ _ f) == idpath (etaExpand _ f).
+Proof.
+  intros.
+  admit.
+Defined.
+
+Lemma etacorrectionvalue (T:UU) (P:T -> UU) (f:sections P) (t:T):
+    maponpaths (evalsecat t) (etacorrection _ _ f) == idpath (f t).
+Proof.
+  intros.
+  intermediate (maponpaths (evalsecat t) (maponpaths (etaExpand P) (etacorrection _ _ f))).
+    exact (! maponpathscomp (etaExpand P) (evalsecat t) (etacorrection _ _ f)).
+  intermediate (maponpaths (@evalsecat T P t) (idpath (etaExpand _ f))).
+    destruct (etacorrectionrule' T P f).
+    apply idpath.
+  apply idpath.
+Defined.
+
+Lemma etacorrection2: 
+  forall (T:UU) (U:UU) (V: T -> U -> UU) (f: (forall (t:T) (u:U), V t u)), 
+    f == (fun t u => f t u). 
+Proof.
+  intros.
+  intermediate (etaExpand _ f).
+  apply etacorrection.
+  apply funextsec.
+  intro.
+  apply etacorrection.
+Defined.
+
+Lemma etacor2 {X Y Z:UU} (f : X -> Y -> Z) : f == fun x y => f x y.
+  intros.
+  apply etacorrection2.
+Defined.
 
 Goal forall (T:UU) (P:T->UU) (f:sections P), etaExpand _ (etaExpand _ f) == etaExpand _ f.
 Proof.

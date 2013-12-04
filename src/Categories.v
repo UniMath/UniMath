@@ -24,6 +24,7 @@ Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
 Add LoadPath "." as Ktheory.
 Require Import Ktheory.Utilities.
+Require Import Ktheory.EtaExpansion.
 
 Unset Automatic Introduction.
 
@@ -84,33 +85,6 @@ Definition makePrecategory
   exact D.
 Defined.    
 
-(** * eta correction *)
-
-Lemma etacorrectionrule: 
-  forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t),
-    etacorrection T P (fun t:T => f t) == idpath _.
-Proof.                           
-  intros.
-  admit.
-Defined.
-
-Lemma etacorrectionvalue: 
-  forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t), forall t:T,
-    maponpaths (fun f => f t) (etacorrection T P f) == idpath _.
-Proof.
-  intros.
-  admit.
-Defined.
-
-Lemma etacor2 {X Y Z:UU} (f : X -> Y -> Z) : f == fun x y => f x y.
-  intros.
-  intermediate (fun x => f x).
-  apply etacorrection.
-  apply funextfunax.
-  intro.
-  apply etacorrection.
-Defined.
-
 (** *** opposite category of opposite category *)
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor)
@@ -122,6 +96,11 @@ Proof.
   apply (pair_path (idpath _)).
   apply etacor2.
 Defined.
+
+Definition etaExpand_precat_ob_mor (C : precategory_ob_mor) : precategory_ob_mor.
+  intro.
+  exact (precategory_ob_mor_pair (ob C) (fun a b => precategory_morphisms a b)).
+Defined.  
 
 Lemma opp_opp_precat_data (C : precategory_data) 
    : C == opp_precat_data (opp_precat_data C).
@@ -328,6 +307,32 @@ Module StandardCategories.
 
   (** *** the path groupoid *)
 
+  Lemma path_assoc (X:UU) (a b c d:X) 
+          (f : a == b) (g : b == c) (h : c == d)
+        : f @ (g @ h) == (f @ g) @ h.
+  Proof. intros. destruct f. apply idpath. Defined.
+
+  Lemma path_assoc_opaque (X:UU) (a b c d:X) 
+          (f : a == b) (g : b == c) (h : c == d)
+        : f @ (g @ h) == (f @ g) @ h.
+  Proof. intros. destruct f. apply idpath. Qed.
+
+  Definition is_groupoid (C : precategory) := 
+    forall (a b : ob C), isweq (fun p : a == b => idtomor a b p).
+
+  Lemma isaprop_is_groupoid (C : precategory) : isaprop (is_groupoid C).
+  Proof.
+    intro C. apply impred.
+    intro a. apply impred.
+    intro b. apply isapropisweq.
+  Qed.
+
+  Lemma is_category_groupoid (C : precategory) : is_groupoid C -> is_category C.
+  Proof.
+    unfold is_groupoid, is_category; intros ? ig ? ?.
+    admit.
+  Defined.
+
   Definition path_groupoid (X:UU):isofhlevel 3 X -> category.
     intros obj iobj.
     set (mor := @paths obj).
@@ -335,11 +340,6 @@ Module StandardCategories.
        where [mor i j] will be defined with [pi0].  This version will still
        be useful, because in it, each arrow is a path, rather than an
        equivalence class of paths. *)
-    assert(imor:forall i j:obj, isaset (mor i j)).
-      intros.
-      apply isaset_if_isofhlevel2.
-      unfold isofhlevel.
-      apply iobj.
     set (identity := (fun i:obj => idpath i):forall i:obj, mor i i).
     set (compose := (
            fun i j k:obj => 
@@ -357,8 +357,8 @@ Module StandardCategories.
     assert (assoc:forall (a b c d:obj) 
                     (f:mor a b)(g:mor b c) (h:mor c d),
                      compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h).
-      intros. destruct f. apply idpath.
-    set (E := makePrecategory obj mor imor identity compose right left assoc ).
+      apply path_assoc_opaque.
+    set (E := makePrecategory obj mor iobj identity compose right left assoc ).
     apply (category_pair E).
       unfold is_category.
       intros.
