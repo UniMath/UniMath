@@ -10,7 +10,10 @@ Import RezkCompletion.pathnotations.PathNotations.
 (** * trivial path lemmas, perhaps not needed *)
 
 Lemma funcomppathl {X Y Z:UU} (f:X->Y) {g g':Y->Z} (e:g==g') : funcomp f g == funcomp f g'.
-Proof. intros. destruct e. trivial. Defined.
+Proof. intros. exact (maponpaths (funcomp f) e). Defined.
+
+Lemma funcomppathr {X Y Z:UU} {f f':X->Y} (e:f==f') (g:Y->Z) : funcomp f g == funcomp f' g.
+Proof. intros. exact (maponpaths (fun f => funcomp f g) e).  Defined.
 
 Lemma funcomppathlfunctor {W X Y Z:UU} (b:W->X) (f:X->Y) {g g':Y->Z} (e:g==g') :
   funcomppathl b (funcomppathl f e) == funcomppathl (funcomp b f) e.
@@ -23,9 +26,6 @@ Proof. destruct e. trivial. Defined.
 Lemma funcomppathlpathrev {X Y Z:UU} (f:X->Y) {g g':Y->Z} (e:g==g') : 
   funcomppathl f (!e) == !funcomppathl f e.
 Proof. destruct e. trivial. Defined.
-
-Lemma funcomppathr {X Y Z:UU} {f f':X->Y} (e:f==f') (g:Y->Z) : funcomp f g == funcomp f' g.
-Proof. intros. destruct e. trivial. Defined.
 
 Lemma funcomppathrfunctor {X Y Z W:UU} {f f':X->Y} (e:f==f') (g:Y->Z) (h:Z->W) :
   funcomppathr (funcomppathr e g) h == funcomppathr e (funcomp g h).
@@ -98,11 +98,20 @@ Axiom etaleft :
   forall T:UU, forall P:T -> UU, 
     funcomppathl (etaExpand P) (etacorrectionfun _ _) == idpath (etaExpand P).
 
+Definition mapon2paths { T U : UU } ( f : T -> U ) { t t' : T } { e e': t == t' } ( p : e == e') : 
+  maponpaths f e == maponpaths f e'.
+Proof. intros .  exact (maponpaths (maponpaths f) p). Defined. 
+
 Lemma etacorrectionrule (T:UU) (P:T -> UU) (f:sections P) :
     etacorrection_follows _ _ (etaExpand _ f) == idpath _.
 Proof.                           
   intros.
-  admit.
+  intermediate (maponpaths (evalat f) (funcomppathl (etaExpand P) (etacorrectionfun T P))).
+    unfold etacorrection_follows, funcomppathl.
+    exact (! maponpathscomp (funcomp (etaExpand P)) (evalat f) (etacorrectionfun T P)).
+  intermediate (maponpaths (evalat f) (idpath (etaExpand P))).
+    exact (mapon2paths (evalat f) (etaleft T P)).
+  apply idpath.
 Defined.
 
 Lemma etacorrectionrule' (T:UU) (P:T -> UU) (f:sections P) :
