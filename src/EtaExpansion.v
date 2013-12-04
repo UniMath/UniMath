@@ -82,6 +82,14 @@ Qed.
 
 Axiom etacorrectionfun: forall T:UU, forall P:T -> UU, idfun (sections P) == etaExpand P.
 
+Lemma etacorrectionfun': forall T:UU, forall P:T -> UU, idfun (sections P) == etaExpand P.
+Proof.
+  intros.
+  apply funextsec; intro f.
+  apply funextsec; intro t.
+  apply idpath.
+Defined.
+
 (** the following lemma is the same as the axiom etacorrection in uu0.v *)
 Lemma etacorrection_follows : 
   forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t), paths f (fun t:T => f t). 
@@ -106,40 +114,25 @@ Lemma etacorrectionrule (T:UU) (P:T -> UU) (f:sections P) :
     etacorrection_follows _ _ (etaExpand _ f) == idpath _.
 Proof.                           
   intros.
-  exact 
-    ((! maponpathscomp (funcomp (etaExpand _)) (evalat f) (etacorrectionfun _ _))
-       @
-     (mapon2paths (evalat f) (etaleft _ _))).
+  exact (  (! maponpathscomp (funcomp (etaExpand _)) (evalat f) (etacorrectionfun _ _))
+         @ (mapon2paths (evalat f) (etaleft _ _))).
 Defined.
 
 Lemma etacorrectionrule' (T:UU) (P:T -> UU) (f:sections P) :
     maponpaths (etaExpand P) (etacorrection_follows _ _ f) == idpath (etaExpand _ f).
 Proof.
   intros.
-  intermediate (maponpaths (evalat f) (funcomppathr (etacorrectionfun T P) (etaExpand P))).
-    unfold funcomppathr, etacorrection_follows.
-    intermediate (maponpaths
-         (funcomp
-            (fun f0 : sections P -> sections P => funcomp f0 (etaExpand P))
-            (evalat f)) (etacorrectionfun T P)).
-      exact (maponpathscomp (evalat f) (etaExpand P) (etacorrectionfun T P)).
-    exact (! maponpathscomp
-             (fun f0 => funcomp f0 (etaExpand P))
-             (evalat f)
-             (etacorrectionfun T P) ).
-  exact (mapon2paths (evalat f) (etaright _ _)).
+  exact ( (maponpathscomp (evalat f) (etaExpand P) (etacorrectionfun _ _))
+      @   (! maponpathscomp (funcomp' (etaExpand P)) (evalat f) (etacorrectionfun _ _))
+      @   (mapon2paths (evalat f) (etaright _ _))).
 Defined.
 
 Lemma etacorrectionvalue (T:UU) (P:T -> UU) (f:sections P) (t:T):
     maponpaths (evalsecat t) (etacorrection_follows _ _ f) == idpath (f t).
 Proof.
   intros.
-  intermediate (maponpaths (evalsecat t) (maponpaths (etaExpand P) (etacorrection_follows _ _ f))).
-    exact (! maponpathscomp (etaExpand P) (evalsecat t) (etacorrection_follows _ _ f)).
-  intermediate (maponpaths (@evalsecat T P t) (idpath (etaExpand _ f))).
-    destruct (etacorrectionrule' T P f).
-    apply idpath.
-  apply idpath.
+  exact (    (! maponpathscomp (etaExpand P) (evalsecat t) (etacorrection_follows _ _ f))
+           @ (mapon2paths (evalsecat t) (etacorrectionrule' T P f))).
 Defined.
 
 Lemma etacorrection2: 

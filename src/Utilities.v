@@ -45,6 +45,9 @@ Ltac prop_logic :=
 
 Global Opaque isapropiscontr isapropishinh.
 
+(* funcomp' is like funcomp, but with the arguments in the other order *)
+Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
+
 Definition pathscomp0' {T:UU} {a b c:T} : a == b -> b == c -> a == c.
 Proof. intros ? ? ? ? e1 e2. 
   destruct e2. (* compare to Foundations.uu0.pathscomp0, which destructs e1, instead *)
