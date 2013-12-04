@@ -106,12 +106,10 @@ Lemma etacorrectionrule (T:UU) (P:T -> UU) (f:sections P) :
     etacorrection_follows _ _ (etaExpand _ f) == idpath _.
 Proof.                           
   intros.
-  intermediate (maponpaths (evalat f) (funcomppathl (etaExpand P) (etacorrectionfun T P))).
-    unfold etacorrection_follows, funcomppathl.
-    exact (! maponpathscomp (funcomp (etaExpand P)) (evalat f) (etacorrectionfun T P)).
-  intermediate (maponpaths (evalat f) (idpath (etaExpand P))).
-    exact (mapon2paths (evalat f) (etaleft T P)).
-  apply idpath.
+  exact 
+    ((! maponpathscomp (funcomp (etaExpand _)) (evalat f) (etacorrectionfun _ _))
+       @
+     (mapon2paths (evalat f) (etaleft _ _))).
 Defined.
 
 Lemma etacorrectionrule' (T:UU) (P:T -> UU) (f:sections P) :
