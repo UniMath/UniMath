@@ -50,6 +50,8 @@ Proof. destruct p, q. trivial. Defined.
 
 Definition etaExpand {T:UU} (P:T->UU) (f:sections P) := fun t => f t.
 
+Definition etaExpand2 {T U:UU} (V: T -> U -> UU) (f: forall t u, V t u) := fun t u => f t u.
+
 Goal forall (T:UU) (P:T->UU), funcomp (etaExpand P) (etaExpand P) == etaExpand P.
 Proof.
   (* just to demonstrate this judgmental equality *)
@@ -80,9 +82,11 @@ Proof.
   admit.
 Qed.
 
-Axiom etacorrectionfun: forall T:UU, forall P:T -> UU, idfun (sections P) == etaExpand P.
+Definition etacorrectiontype (T:UU) (P:T -> UU) := idfun (sections P) == etaExpand P.
 
-Lemma etacorrectionfun': forall T:UU, forall P:T -> UU, idfun (sections P) == etaExpand P.
+Axiom etacorrectionfun: forall T P, etacorrectiontype T P.
+
+Lemma etacorrectionfun': forall T P, etacorrectiontype T P.
 Proof.
   intros.
   apply funextsec; intro f.
@@ -101,6 +105,15 @@ Defined.
 Axiom etaright : 
   forall T:UU, forall P:T -> UU, 
     funcomppathr (etacorrectionfun _ _) (etaExpand P) == idpath (etaExpand P).
+
+Lemma etaright' : 
+  forall T:UU, forall P:T -> UU, 
+    funcomppathr (etacorrectionfun _ _) (etaExpand P) == idpath (etaExpand P).
+Proof.
+  intros.
+  (* try to prove it from functional extensionality *)
+  admit.
+Defined.
 
 Axiom etaleft :
   forall T:UU, forall P:T -> UU, 
@@ -135,9 +148,7 @@ Proof.
            @ (mapon2paths (evalsecat t) (etacorrectionrule' T P f))).
 Defined.
 
-Lemma etacorrection2: 
-  forall (T:UU) (U:UU) (V: T -> U -> UU) (f: (forall (t:T) (u:U), V t u)), 
-    f == (fun t u => f t u). 
+Lemma etacorrection2 (T U:UU) (V: T -> U -> UU) (f: forall t u, V t u) : f == etaExpand2 _ f. 
 Proof.
   intros.
   intermediate (etaExpand _ f).
@@ -148,6 +159,7 @@ Proof.
 Defined.
 
 Lemma etacor2 {X Y Z:UU} (f : X -> Y -> Z) : f == fun x y => f x y.
+Proof.
   intros.
   apply etacorrection2.
 Defined.
@@ -155,14 +167,19 @@ Defined.
 Lemma bar : forall (T:UU) (P:T -> UU) (e : idfun (sections P) == etaExpand P), funcomppathr e (etaExpand P) == funcomppathl (etaExpand P) e.
 Proof. destruct e. trivial. Defined.
 
-Definition etatype := forall (T:UU) (P:T -> UU),
+Definition etatype := forall T P,
   total2 (
-      fun e : idfun (sections P) == etaExpand P => 
+      fun e : etacorrectiontype T P => 
           dirprod
                 (funcomppathr e (etaExpand P) == idpath (etaExpand P))
                 (funcomppathl (etaExpand P) e == idpath (etaExpand P))).
 
-Lemma fixetatype : (forall (T:UU) (P:T -> UU), idfun (sections P) == etaExpand P) -> etatype.
+Notation "x ,, y" := (tpair _ x y) (at level 41, right associativity).
+
+Definition threeaxioms := 
+  (fun _ _ => etacorrectionfun _ _ ,, etaright _ _ ,, etaleft _ _) : etatype.
+
+Lemma fixetatype : (forall T P, etacorrectiontype T P) -> etatype.
 Proof.
   intros e T P.
   exists ( e T P @ !(funcomppathr (e T P) (etaExpand P)) ).
