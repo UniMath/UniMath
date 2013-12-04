@@ -27,8 +27,8 @@ Lemma funcomppathlpathrev {X Y Z:UU} (f:X->Y) {g g':Y->Z} (e:g==g') :
   funcomppathl f (!e) == !funcomppathl f e.
 Proof. destruct e. trivial. Defined.
 
-Lemma funcomppathrfunctor {X Y Z W:UU} {f f':X->Y} (e:f==f') (g:Y->Z) (h:Z->W) :
-  funcomppathr (funcomppathr e g) h == funcomppathr e (funcomp g h).
+Lemma funcomppathrfunctor {X Y Z W:UU} {f f':X->Y} (e:f==f') (g:Y->Z) (f0:Z->W) :
+  funcomppathr (funcomppathr e g) f0 == funcomppathr e (funcomp g f0).
 Proof. destruct e. trivial. Defined.
 
 Lemma funcomppathrpathcomp {X Y Z:UU} {f f' f'':X->Y} (e:f==f') (e':f'==f'') (g:Y->Z) : 
@@ -42,8 +42,8 @@ Proof. destruct e. trivial. Defined.
 Lemma funcomppaths {X Y Z:UU} {f f':X->Y} {g g':Y->Z} (p:f==f') (q:g==g') : funcomp f g == funcomp f' g'.
 Proof. intros. destruct p, q. trivial. Defined.
 
-Lemma funcomppathsquare {X:UU} {f g h k : X->X} (p : f==g) (q : h==k) :
-  funcomppathl f q @ funcomppathr p k == funcomppathr p h @ funcomppathl g q.
+Lemma funcomppathsquare {X:UU} {f g f0 k : X->X} (p : f==g) (q : f0==k) :
+  funcomppathl f q @ funcomppathr p k == funcomppathr p f0 @ funcomppathl g q.
 Proof. destruct p, q. trivial. Defined.
 
 (** * eta correction *)
@@ -116,7 +116,18 @@ Lemma etacorrectionrule' (T:UU) (P:T -> UU) (f:sections P) :
     maponpaths (etaExpand P) (etacorrection_follows _ _ f) == idpath (etaExpand _ f).
 Proof.
   intros.
-  admit.
+  intermediate (maponpaths (evalat f) (funcomppathr (etacorrectionfun T P) (etaExpand P))).
+    unfold funcomppathr, etacorrection_follows.
+    intermediate (maponpaths
+         (funcomp
+            (fun f0 : sections P -> sections P => funcomp f0 (etaExpand P))
+            (evalat f)) (etacorrectionfun T P)).
+      exact (maponpathscomp (evalat f) (etaExpand P) (etacorrectionfun T P)).
+    exact (! maponpathscomp
+             (fun f0 => funcomp f0 (etaExpand P))
+             (evalat f)
+             (etacorrectionfun T P) ).
+  exact (mapon2paths (evalat f) (etaright _ _)).
 Defined.
 
 Lemma etacorrectionvalue (T:UU) (P:T -> UU) (f:sections P) (t:T):
