@@ -96,11 +96,16 @@ Proof.
 Defined.
 
 (** the following lemma is the same as the axiom etacorrection in uu0.v *)
-Lemma etacorrection_follows : 
-  forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t), paths f (fun t:T => f t). 
+Lemma etacorrection_follows {T:UU} {P:T -> UU} (f: sections P): f == fun t:T => f t.
 Proof.
   intros.
   exact (ap (evalat f) (etacorrectionfun T P)).
+Defined.
+
+Lemma etacor1 {X Y:UU} (f : X -> Y) : f == fun x => f x.
+Proof.
+  intros.
+  apply etacorrection_follows.
 Defined.
 
 Axiom etaright : 
@@ -125,7 +130,7 @@ Definition mapon2paths { T U : UU } ( f : T -> U ) { t t' : T } { e e': t == t' 
 Proof. intros .  exact (ap (ap f) p). Defined. 
 
 Lemma etacorrectionrule (T:UU) (P:T -> UU) (f:sections P) :
-    etacorrection_follows _ _ (etaExpand _ f) == idpath _.
+    etacorrection_follows (etaExpand _ f) == idpath _.
 Proof.                           
   intros.
   exact (  (! maponpathscomp (funcomp (etaExpand _)) (evalat f) (etacorrectionfun _ _))
@@ -133,7 +138,7 @@ Proof.
 Defined.
 
 Lemma etacorrectionrule' (T:UU) (P:T -> UU) (f:sections P) :
-    ap (etaExpand P) (etacorrection_follows _ _ f) == idpath (etaExpand _ f).
+    ap (etaExpand P) (etacorrection_follows f) == idpath (etaExpand _ f).
 Proof.
   intros.
   exact ( (maponpathscomp (evalat f) (etaExpand P) (etacorrectionfun _ _))
@@ -142,10 +147,10 @@ Proof.
 Defined.
 
 Lemma etacorrectionvalue (T:UU) (P:T -> UU) (f:sections P) (t:T):
-    ap (evalsecat t) (etacorrection_follows _ _ f) == idpath (f t).
+    ap (evalsecat t) (etacorrection_follows f) == idpath (f t).
 Proof.
   intros.
-  exact (    (! maponpathscomp (etaExpand P) (evalsecat t) (etacorrection_follows _ _ f))
+  exact (    (! maponpathscomp (etaExpand P) (evalsecat t) (etacorrection_follows f))
            @ (mapon2paths (evalsecat t) (etacorrectionrule' T P f))).
 Defined.
 
