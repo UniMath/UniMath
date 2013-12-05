@@ -1,15 +1,33 @@
 (** * utilities concerning paths, hlevel, and logic *)
 
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
-Require Import Foundations.hlevel2.hSet.
-
-Local Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 51).
-Local Notation "g ∘ f" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
-
 Unset Automatic Introduction.
 
-Notation pathReversal := pathsinv0.
+Require Import RezkCompletion.pathnotations.
+Require Import Foundations.hlevel2.hSet.
+        Import RezkCompletion.pathnotations.PathNotations.
+
+Definition type_equality_to_function {X Y:UU} : (X==Y) -> X -> Y.
+  intros ? ? e x. destruct e. exact x.
+Defined.
+
+Definition transport {X:UU} (P:X->UU) {x x':X} (e:x==x'): P x -> P x'.
+  (* this is a replacement for transportf in uu0.v that pushes the path
+     forward to the universe before destroying it, to make it more likely
+     we can prove it's trivial *)
+  intros ? ? ? ? e p.
+  exact (type_equality_to_function (maponpaths P e) p).
+Defined.
+
+Module Import Notations.
+    Notation ap := maponpaths.
+    Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 51).
+    Notation "g ∘ f" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
+    Notation "f ;; g" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
+    Notation "x ,, y" := (tpair _ x y) (at level 41, right associativity).
+    (* funcomp' is like funcomp, but with the arguments in the other order *)
+    Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
+    Notation "p # x" := (transport _ p x) (right associativity, at level 65, only parsing).
+End Notations.
 
 Definition sections {T:UU} (P:T->UU) := forall t:T, P t.
 
@@ -45,19 +63,9 @@ Ltac prop_logic :=
 
 Global Opaque isapropiscontr isapropishinh.
 
-(* funcomp' is like funcomp, but with the arguments in the other order *)
-Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
-
-Definition pathscomp0' {T:UU} {a b c:T} : a == b -> b == c -> a == c.
-Proof. intros ? ? ? ? e1 e2. 
-  destruct e2. (* compare to Foundations.uu0.pathscomp0, which destructs e1, instead *)
-  assumption. 
-Defined.
-
 Ltac intermediate  x   := apply (@pathscomp0  _  _ x).
-Ltac intermediate' x   := apply (@pathscomp0' _  _ x).
 Ltac intermediate2 x y := apply (@pathscomp0  _  _ x _  _ (@pathscomp0 _  _ y _  _ _)).
-Ltac path_from f := apply (@maponpaths _ _ f).
+Ltac path_from f := apply (@ap _ _ f).
 
 Definition isaset_if_isofhlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
 (* The use of this lemma ahead of something like 'impred' can be avoided by
@@ -118,8 +126,8 @@ Proof. intros ? [Q i] f h. apply h. assumption. Defined.
 Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
 Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.    
 
-Lemma pair_path {X:UU} {P:X->UU} {x x':X} {p: P x} {p' : P x'} (e : x == x') (e' : transportf P e p == p') : tpair P x p == tpair P x' p'.
-  (* could also try to use total2_paths instead of this *)
+Lemma pair_path {X:UU} {P:X->UU} {x x':X} {p: P x} {p' : P x'} (e : x == x') (e' : transport _ e p == p') : x ,, p == x' ,, p'.
+  (* an alternative to this lemma is total2_paths *)
 Proof. intros. destruct e. destruct e'. apply idpath. Defined.
 
 Lemma iscontr_if_inhab_prop {P:UU} : isaprop P -> P -> iscontr P.
@@ -153,7 +161,7 @@ Proof.
    intros [r i] [s j].
    assert(k : r == s). 
      intermediate (f a). 
-     apply pathReversal; apply i.
+     apply pathsinv0; apply i.
      apply j.
    apply (pair_path k). apply m. exact a.
   assert(h' : squash X -> isaprop P).
@@ -196,3 +204,8 @@ Proof.
   apply impred; intro.
   apply isapropiscontr.
 Defined.
+
+(* compare this to functtransportf in uu0 *)
+Lemma functtransportf_universal {X:UU} {P:X->UU} {x x':X } (e:x==x') (p:P x) :
+  type_equality_to_function (ap P e) p == e # p.
+Proof.  intros. destruct e. apply idpath. Defined.   

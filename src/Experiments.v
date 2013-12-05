@@ -1,5 +1,15 @@
 (* this file is just for experiments, and is not part of the development *)
 
+(*
+Goal forall (T:UU) (X : T -> T -> UU) (t t':T) (e:t==t') , X t t'.
+  intros.
+  destruct (!e).                (* doesn't work *)
+  destruct e.                   (* replaces t' by t and eliminates e *)
+  rewrite -> e.                 (* replaces t by t' *)
+  rewrite    e.                 (* replaces t by t' *)
+  rewrite <- e.                 (* replaces t' by t *)
+*)
+
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel2.stnfsets.
 Require Import Foundations.hlevel2.hSet.
@@ -8,6 +18,7 @@ Require Import RezkCompletion.pathnotations. Import PathNotations.
 Require Import RezkCompletion.precategories.
 
 Require Import Ktheory.Utilities.
+        Import Ktheory.Utilities.Notations.
 
 Module A.
 
@@ -18,7 +29,7 @@ Module A.
 
   Module Rec2 ( Import tu : TU ).
     Record F := newF { t:T; u:U t }.
-    Lemma Feq (f f':F) (et : paths (t f) (t f')) (eu : paths (transportf U et (u f)) (u f')) : paths f f'.
+    Lemma Feq (f f':F) (et : paths (t f) (t f')) (eu : paths (et # u f) (u f')) : paths f f'.
       destruct f as [a b].
       destruct f' as [a' b'].
       unfold t in et.

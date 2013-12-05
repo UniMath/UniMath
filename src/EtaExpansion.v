@@ -1,19 +1,20 @@
 (** * experimental file concerning eta reduction *)
 
 Require Import Ktheory.Utilities.
-Require Import RezkCompletion.pathnotations.
 Require Import Foundations.hlevel2.hSet.
-Unset Automatic Introduction.
+Require Import RezkCompletion.pathnotations.
 Require Import Ktheory.Utilities.
-Import RezkCompletion.pathnotations.PathNotations.
+        Import RezkCompletion.pathnotations.PathNotations.
+        Import Ktheory.Utilities.Notations.
+Unset Automatic Introduction.
 
 (** * trivial path lemmas, perhaps not needed *)
 
 Lemma funcomppathl {X Y Z:UU} (f:X->Y) {g g':Y->Z} (e:g==g') : funcomp f g == funcomp f g'.
-Proof. intros. exact (maponpaths (funcomp f) e). Defined.
+Proof. intros. exact (ap (funcomp f) e). Defined.
 
 Lemma funcomppathr {X Y Z:UU} {f f':X->Y} (e:f==f') (g:Y->Z) : funcomp f g == funcomp f' g.
-Proof. intros. exact (maponpaths (fun f => funcomp f g) e).  Defined.
+Proof. intros. exact (ap (fun f => funcomp f g) e).  Defined.
 
 Lemma funcomppathlfunctor {W X Y Z:UU} (b:W->X) (f:X->Y) {g g':Y->Z} (e:g==g') :
   funcomppathl b (funcomppathl f e) == funcomppathl (funcomp b f) e.
@@ -99,7 +100,7 @@ Lemma etacorrection_follows :
   forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t), paths f (fun t:T => f t). 
 Proof.
   intros.
-  exact (maponpaths (evalat f) (etacorrectionfun T P)).
+  exact (ap (evalat f) (etacorrectionfun T P)).
 Defined.
 
 Axiom etaright : 
@@ -120,8 +121,8 @@ Axiom etaleft :
     funcomppathl (etaExpand P) (etacorrectionfun _ _) == idpath (etaExpand P).
 
 Definition mapon2paths { T U : UU } ( f : T -> U ) { t t' : T } { e e': t == t' } ( p : e == e') : 
-  maponpaths f e == maponpaths f e'.
-Proof. intros .  exact (maponpaths (maponpaths f) p). Defined. 
+  ap f e == ap f e'.
+Proof. intros .  exact (ap (ap f) p). Defined. 
 
 Lemma etacorrectionrule (T:UU) (P:T -> UU) (f:sections P) :
     etacorrection_follows _ _ (etaExpand _ f) == idpath _.
@@ -132,7 +133,7 @@ Proof.
 Defined.
 
 Lemma etacorrectionrule' (T:UU) (P:T -> UU) (f:sections P) :
-    maponpaths (etaExpand P) (etacorrection_follows _ _ f) == idpath (etaExpand _ f).
+    ap (etaExpand P) (etacorrection_follows _ _ f) == idpath (etaExpand _ f).
 Proof.
   intros.
   exact ( (maponpathscomp (evalat f) (etaExpand P) (etacorrectionfun _ _))
@@ -141,7 +142,7 @@ Proof.
 Defined.
 
 Lemma etacorrectionvalue (T:UU) (P:T -> UU) (f:sections P) (t:T):
-    maponpaths (evalsecat t) (etacorrection_follows _ _ f) == idpath (f t).
+    ap (evalsecat t) (etacorrection_follows _ _ f) == idpath (f t).
 Proof.
   intros.
   exact (    (! maponpathscomp (etaExpand P) (evalsecat t) (etacorrection_follows _ _ f))
@@ -174,8 +175,6 @@ Definition etatype := forall T P,
                 (funcomppathr e (etaExpand P) == idpath (etaExpand P))
                 (funcomppathl (etaExpand P) e == idpath (etaExpand P))).
 
-Notation "x ,, y" := (tpair _ x y) (at level 41, right associativity).
-
 Definition threeaxioms := 
   (fun _ _ => etacorrectionfun _ _ ,, etaright _ _ ,, etaleft _ _) : etatype.
 
@@ -205,7 +204,7 @@ Proof.
 Qed.
 
 Lemma etaExpansion : forall (T:UU) (P:T -> UU) (f:sections P) (eta:etatype), f == etaExpand P f.
-Proof. intros. apply (maponpaths (fun k => k f) (pr1 (eta _ _))). Defined.
+Proof. intros. apply (ap (fun k => k f) (pr1 (eta _ _))). Defined.
 
 Lemma funcompidl {X Y:UU} (f:X->Y) (eta:etatype) : f == funcomp (idfun X) f.
 Proof. intros. apply etaExpansion. assumption. Defined.
@@ -219,10 +218,10 @@ Proof. intros. apply etaExpansion. assumption. Defined.
 Lemma funcompidr' {X Y:UU} (f:X->Y) : etaExpand _ f == funcomp f (idfun Y).
 Proof. trivial. Defined.
 
-Lemma funcompidlpath {X Y:UU} {f f':X->Y} (p:f==f') : maponpaths (etaExpand _) p == funcomppathl (idfun X) p.
+Lemma funcompidlpath {X Y:UU} {f f':X->Y} (p:f==f') : ap (etaExpand _) p == funcomppathl (idfun X) p.
 Proof. trivial. Defined.
 
-Lemma funcompidrpath {X Y:UU} {f f':X->Y} (p:f==f') : maponpaths (etaExpand _) p == funcomppathr p (idfun Y).
+Lemma funcompidrpath {X Y:UU} {f f':X->Y} (p:f==f') : ap (etaExpand _) p == funcomppathr p (idfun Y).
 Proof. trivial. Defined.
 
 Lemma isaprop_etatype : isaprop (etatype).

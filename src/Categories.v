@@ -19,11 +19,12 @@ Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
 Require Import RezkCompletion.category_hset.
 Require Import RezkCompletion.yoneda.
-Import pathnotations.PathNotations.
+        Import pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
 Add LoadPath "." as Ktheory.
 Require Import Ktheory.Utilities.
+        Import Ktheory.Utilities.Notations.
 Require Import Ktheory.EtaExpansion.
 
 Unset Automatic Introduction.
@@ -87,29 +88,41 @@ Defined.
 
 (** *** opposite category of opposite category *)
 
-Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor)
-  : C == opp_precat_ob_mor (opp_precat_ob_mor C).
+Definition etaExpand_precat_ob_mor : precategory_ob_mor -> precategory_ob_mor.
+  intro C.
+  exact (precategory_ob_mor_pair (ob C) (fun a b => precategory_morphisms a b)).
+Defined.
+
+Goal forall (C : precategory_ob_mor), etaExpand_precat_ob_mor C == opp_precat_ob_mor (opp_precat_ob_mor C).
+(* verify that this proof is easy *)
+Proof. intros. apply idpath. Defined.
+
+Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C == opp_precat_ob_mor (opp_precat_ob_mor C).
 Proof.
   intro.
   destruct C as [ob mor].  
-  unfold opp_precat_ob_mor; simpl.
-  apply (pair_path (idpath _)).
-  apply etacor2.
+  exact (pair_path (idpath ob) (etacor2 mor)).
 Defined.
 
-Definition etaExpand_precat_ob_mor (C : precategory_ob_mor) : precategory_ob_mor.
-  intro.
-  exact (precategory_ob_mor_pair (ob C) (fun a b => precategory_morphisms a b)).
-Defined.  
+Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
+  idpath _ == ap precategory_id_comp (opp_opp_precat_ob_mor C).
+Proof.
+  (* this will follow from the computation rule for eta-correction *)
+  admit.
+Defined.
 
 Lemma opp_opp_precat_data (C : precategory_data) 
    : C == opp_precat_data (opp_precat_data C).
 Proof.
   intro.
-  destruct C as [ob_mor [id co]].
+  destruct C as [ob_mor id_co].
   unfold opp_precat_data; simpl.
   apply (@pair_path _ precategory_id_comp _ _ _ _ (opp_opp_precat_ob_mor ob_mor)).
-  unfold opp_opp_precat_ob_mor.
+  unfold transport.
+  destruct (opp_opp_precat_ob_mor_compute ob_mor); simpl.
+  unfold identity, compose; simpl.
+  destruct id_co as [id co]; simpl.
+
   admit.
 Defined.
 
@@ -495,7 +508,7 @@ Module RepresentableFunctors.
         apply setproperty.
       intros f.  apply (isofhlevelsnprop 1). apply isaset_hSet.
     set (id_compat 
-         := (fun a => @maponpaths _ _ (evalat (cdr a)) _ (idfun _) (iFid (car a)))
+         := (fun a => @ap _ _ (evalat (cdr a)) _ (idfun _) (iFid (car a)))
          :  forall a, compat a a (identity (car a))).
     set (ident := fun a => tpair _ (identity (pr1 _)) (id_compat _)
                            : mor a a).
@@ -503,7 +516,7 @@ Module RepresentableFunctors.
          forall (i j k:obj) (f:mor i j) (g:mor j k), compat i k (car g ∘ car f)).
       intros [c x] j [e z] [f f'] [g g'].
       simpl in f, g, f', g'. destruct f', g'.
-      exact (maponpaths (evalat x) (iFcomp _ _ _ f g)).
+      exact (ap (evalat x) (iFcomp _ _ _ f g)).
     set (compo :=
            fun (i j k:obj) (f:mor i j) (g:mor j k)
                => tpair (compat i k) (pr1 g ∘ pr1 f) (compose_compat _ _ _ f g)
@@ -600,7 +613,7 @@ Module DirectSums.
   Proof.
    intros. unfold zeroMap'.
    intermediate ((f ∘ the (map_from z b)) ∘ the (map_to z a)).
-     apply pathReversal. apply assoc.
+     apply pathsinv0. apply assoc.
    apply path_right_composition.
    apply initMapUniqueness.
   Qed.
