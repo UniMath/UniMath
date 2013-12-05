@@ -154,20 +154,12 @@ Proof.
            @ (mapon2paths (evalsecat t) (etacorrectionrule' T P f))).
 Defined.
 
-Lemma etacorrection2 (T U:UU) (V: T -> U -> UU) (f: forall t u, V t u) : f == etaExpand2 _ f. 
+Lemma etacorrection2 {T U:UU} {V: T -> U -> UU} (f: forall t u, V t u) : f == etaExpand2 _ f. 
 Proof.
   intros.
-  intermediate (etaExpand _ f).
-  apply etacorrection_follows.
-  apply funextsec.
-  intro.
-  apply etacorrection_follows.
-Defined.
-
-Lemma etacor2 {X Y Z:UU} (f : X -> Y -> Z) : f == fun x y => f x y.
-Proof.
-  intros.
-  apply etacorrection2.
+  apply funextsec; intro t.
+  apply funextsec; intro u.
+  apply idpath.
 Defined.
 
 Lemma bar : forall (T:UU) (P:T -> UU) (e : idfun (sections P) == etaExpand P), funcomppathr e (etaExpand P) == funcomppathl (etaExpand P) e.

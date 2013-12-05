@@ -101,13 +101,28 @@ Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C == opp_precat_ob_mor (o
 Proof.
   intro.
   destruct C as [ob mor].  
-  exact (pair_path (idpath ob) (etacor2 mor)).
+  exact (pair_path (idpath ob) (etacorrection2 mor)).
 Defined.
 
 Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
-  idpath _ == ap precategory_id_comp (opp_opp_precat_ob_mor C).
+  idpath _ == @maponpaths _ UU precategory_id_comp _ _ (opp_opp_precat_ob_mor C).
 Proof.
   (* this will follow from the computation rule for eta-correction *)
+  admit.
+Defined.
+
+Lemma foo_compute
+  (ob_mor : precategory_ob_mor)
+  (id : forall c : ob_mor, c → c)
+  (co : forall a b c : ob_mor, a → b -> b → c -> a → c):
+  (idpath _)
+    ==
+  (@maponpaths
+     _ UU
+     (fun _ : forall c : ob_mor, c → c => forall a b c : ob_mor, a → b -> b → c -> a → c)
+     _ _
+     (etacorrection_follows id)).
+Proof.
   admit.
 Defined.
 
@@ -118,14 +133,21 @@ Proof.
   destruct C as [ob_mor id_co].
   unfold opp_precat_data; simpl.
   apply (@pair_path _ precategory_id_comp _ _ _ _ (opp_opp_precat_ob_mor ob_mor)).
+  Set Printing All.
   unfold transport.
+  Check (opp_opp_precat_ob_mor_compute ob_mor).
   destruct (opp_opp_precat_ob_mor_compute ob_mor); simpl.
   unfold identity, compose; simpl.
   destruct id_co as [id co]; simpl.
   apply (pair_path (etacorrection_follows id)).
-  unfold transport.
-
-  admit.
+  unfold transport, sections.
+  destruct (foo_compute ob_mor id co); simpl.
+  apply funextsec; intro a.
+  apply funextsec; intro b.
+  apply funextsec; intro c.
+  apply funextsec; intro f.
+  apply funextsec; intro g.
+  apply idpath.
 Defined.
 
 Lemma isaprop_is_precategory (C : precategory_data)
