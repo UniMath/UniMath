@@ -157,9 +157,22 @@ Proof.
   apply idpath.
 Defined.
 
+Lemma lefteqright : forall (T:UU) (P:T -> UU) (e : idfun (sections P) == etaExpand P), funcomppathl (etaExpand P) e == funcomppathr e (etaExpand P).
+Proof. destruct e. trivial. Defined.
+
 Axiom etaleft :
   forall T:UU, forall P:T -> UU, 
     funcomppathl (etaExpand P) (etacorrectionfun _ _) == idpath (etaExpand P).
+
+Lemma etaleft' :
+  forall T:UU, forall P:T -> UU, 
+    funcomppathl (etaExpand P) (etacorrectionfun' _ _) == idpath (etaExpand P).
+Proof.
+  intros.
+  intermediate (funcomppathr (etacorrectionfun' _ _) (etaExpand P)).
+    apply lefteqright.
+  apply etaright'.
+Defined.
 
 Definition mapon2paths { T U : UU } ( f : T -> U ) { t t' : T } { e e': t == t' } ( p : e == e') : 
   ap f e == ap f e'.
@@ -198,42 +211,25 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma bar : forall (T:UU) (P:T -> UU) (e : idfun (sections P) == etaExpand P), funcomppathr e (etaExpand P) == funcomppathl (etaExpand P) e.
-Proof. destruct e. trivial. Defined.
-
 Definition etatype := forall T P,
-  total2 (
-      fun e : etacorrectiontype T P => 
-          dirprod
-                (funcomppathr e (etaExpand P) == idpath (etaExpand P))
-                (funcomppathl (etaExpand P) e == idpath (etaExpand P))).
+  total2 ( fun e : etacorrectiontype T P => 
+                   funcomppathr e (etaExpand P) == idpath (etaExpand P)).
 
-Definition threeaxioms := 
-  (fun _ _ => etacorrectionfun _ _ ,, etaright _ _ ,, etaleft _ _) : etatype.
+Definition twoaxioms := 
+  (fun _ _ => etacorrectionfun _ _ ,, etaright _ _) : etatype.
 
 Lemma fixetatype : (forall T P, etacorrectiontype T P) -> etatype.
 Proof.
   intros e T P.
-  exists ( e T P @ !(funcomppathr (e T P) (etaExpand P)) ).
   set (eta := e T P).
-  split.
-    assert (p : funcomppathr (funcomppathr eta (etaExpand P)) (etaExpand P) == funcomppathr eta (etaExpand P)).
-      apply funcomppathrfunctor.
-    rewrite <- funcomppathrpathcomp.    
-    rewrite funcomppathrpathrev.    
-    rewrite p.
-    apply pathsinv0r.
-  (* other half *)
-    assert (p : funcomppathl (etaExpand P) (funcomppathl (etaExpand P) eta) == funcomppathl (etaExpand P) eta).
-      apply funcomppathlfunctor.
-    rewrite <- funcomppathlpathcomp.
-    rewrite funcomppathlpathrev.    
-    rewrite bar.
-    (* rewrite p (* should have worked here, since it worked above *) *)
-    assert (foofoo : forall (X:UU) (x y:X) (q q':x==y) (t:q == q'), q' @ !q == idpath _).
-      intros. destruct q, t. trivial.
-    apply foofoo.
-    exact p.
+  exists ( eta @ !(funcomppathr eta (etaExpand P)) ).
+  assert (p : funcomppathr (funcomppathr eta (etaExpand P)) (etaExpand P)
+           == funcomppathr eta (etaExpand P)).
+  apply funcomppathrfunctor.
+  rewrite <- funcomppathrpathcomp.    
+  rewrite funcomppathrpathrev.    
+  rewrite p.
+  apply pathsinv0r.
 Qed.
 
 Lemma etaExpansion : forall (T:UU) (P:T -> UU) (f:sections P) (eta:etatype), f == etaExpand P f.
@@ -257,23 +253,35 @@ Proof. trivial. Defined.
 Lemma funcompidrpath {X Y:UU} {f f':X->Y} (p:f==f') : ap (etaExpand _) p == funcomppathr p (idfun Y).
 Proof. trivial. Defined.
 
-Lemma isaprop_etatype : isaprop (etatype).
+Lemma hfiberidfun {X:UU} (x:X) : iscontr (hfiber (idfun X) x).
 Proof.
-  apply isaprop_wma_inhab; intro eta0.
+  intros.
+  exists (tpair (fun x' => idfun X x' == x) x (idpath x)).
+  intros [x' p].
+  destruct p.
+  apply idpath.
+Defined.
+
+Lemma hfiberidfun' {X:UU} {f:X->X} (x:X) (q:idfun X == f): iscontr (hfiber f x).
+Proof.
+  intros.
+  destruct q.
+  apply hfiberidfun.
+Defined.
+
+Lemma isaprop_etatype : isaprop etatype.
   apply impred; intro T.
   apply impred; intro P.
   apply invproofirrelevance.
-  intros [eta [u v]] [eta' [u' v']].
+  intros [eta u] [eta' u'].
   assert (m : paths
         (funcomppathl (idfun (sections P)) eta' @ funcomppathr eta (etaExpand P))
         (funcomppathr eta (idfun (sections P)) @ funcomppathl (etaExpand P) eta')).
     exact (funcomppathsquare eta eta').
-  rewrite u, v', pathscomp0rid, pathscomp0rid in m.
-  rewrite <- funcompidrpath, <- funcompidlpath in m.
-  
-  assert( t : funcomppathl (idfun (sections P)) eta' == eta' ).
-    
-  admit. admit.
+  rewrite u, pathscomp0rid, <- funcompidrpath, <- funcompidlpath in m.
+    assert( t : funcomppathl (idfun (sections P)) eta' == eta' ).
+    admit. 
+  admit.
 Qed.
 
 Axiom eta : etatype.
