@@ -209,3 +209,15 @@ Defined.
 Lemma functtransportf_universal {X:UU} {P:X->UU} {x x':X } (e:x==x') (p:P x) :
   type_equality_to_function (ap P e) p == e # p.
 Proof.  intros. destruct e. apply idpath. Defined.   
+
+(* from Vladimir, possible useful for eta-correction: *)
+
+Definition fpmaphomotfun {X: UU} {P Q: X -> UU} (h: homot P Q) (xp: total2 P): total2 Q.
+Proof. intros ? ? ? ? [x p]. split with x.  destruct (h x). exact p. Defined.
+
+Definition fpmaphomothomot {X: UU} {P Q: X -> UU} (h1 h2: P ~ Q) (H: forall x: X, h1 x == h2 x) :
+  fpmaphomotfun h1 ~ fpmaphomotfun h2.
+Proof. intros. intros [x p].
+       apply (maponpaths (tpair _ x)).  
+       destruct (H x). apply idpath.  
+Defined.
