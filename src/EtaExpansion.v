@@ -132,10 +132,12 @@ Lemma funextsec_compute { T : UU } (P: T-> UU) (f : sections P) (t:T) :
   idpath _
   == 
   ap (evalsecat t) (funextsec P f (etaExpand P f) (fun t => idpath (f t))).
+  (* this is a warm-up for the lemma below *)
 Proof.
-  intros ? ? f.
+  intros ? ? f t.
   unfold funextsec.
-
+  intermediate (idpath (f t)).  (* cosmetic *)
+    apply idpath.
   admit.
 Defined.
 
@@ -147,11 +149,10 @@ Proof.
   (* try to prove it from functional extensionality *)
   apply funextfunpath; intro g.
   apply funextsecpath; intro t.
-  intermediate (idpath (g t)). (* cosmetic step *)
+  intermediate (idpath (g t)). (* cosmetic *)
     unfold funcomppathr.
     unfold etacorrectionfun'.
     (* Check (funextsec_compute P g t). *)
-
     admit.
   apply idpath.
 Defined.
