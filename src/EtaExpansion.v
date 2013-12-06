@@ -253,22 +253,6 @@ Proof. trivial. Defined.
 Lemma funcompidrpath {X Y:UU} {f f':X->Y} (p:f==f') : ap (etaExpand _) p == funcomppathr p (idfun Y).
 Proof. trivial. Defined.
 
-Lemma hfiberidfun {X:UU} (x:X) : iscontr (hfiber (idfun X) x).
-Proof.
-  intros.
-  exists (tpair (fun x' => idfun X x' == x) x (idpath x)).
-  intros [x' p].
-  destruct p.
-  apply idpath.
-Defined.
-
-Lemma hfiberidfun' {X:UU} {f:X->X} (x:X) (q:idfun X == f): iscontr (hfiber f x).
-Proof.
-  intros.
-  destruct q.
-  apply hfiberidfun.
-Defined.
-
 Lemma isaprop_etatype : isaprop etatype.
   apply impred; intro T.
   apply impred; intro P.
