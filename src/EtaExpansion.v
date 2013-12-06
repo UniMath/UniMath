@@ -74,7 +74,7 @@ Proof.
   exists (tpair (isleftinverse (etaExpand P)) (idfun _) q).
   intros [C p].
   unfold isleftinverse in p.
-  Check (! funcomppathl C q @ p : etaExpand _ C == (idfun (sections P))).
+  (* Check (! funcomppathl C q @ p : etaExpand _ C == (idfun (sections P))). *)
   (* almost ... *)
 
   admit.
@@ -109,7 +109,7 @@ Axiom etaright :
   forall T:UU, forall P:T -> UU, 
     funcomppathr (etacorrectionfun _ _) (etaExpand P) == idpath (etaExpand P).
 
-Lemma funextsecpath (X Y:UU) (f g:X->Y) (p q:f==g) :
+Lemma funextfunpath (X Y:UU) (f g:X->Y) (p q:f==g) :
   (forall x:X, ap (evalat x) p == ap (evalat x) q) -> p == q.
 Proof.
   intros ? ? ? ? ? ? e.
@@ -121,15 +121,39 @@ Proof.
   exact (e x).
 Defined.
 
+Lemma funextsecpath (X:UU) (P:X->UU) (f g:sections P) (p q:f==g) :
+  (forall x:X, ap (evalsecat x) p == ap (evalsecat x) q) -> p == q.
+Proof.
+  (* the proof will be similar to that of funextfunpath *)
+  admit.
+Defined.
+
+Lemma funextsec_compute { T : UU } (P: T-> UU) (f : sections P) (t:T) :
+  idpath _
+  == 
+  ap (evalsecat t) (funextsec P f (etaExpand P f) (fun t => idpath (f t))).
+Proof.
+  intros ? ? f.
+  unfold funextsec.
+
+  admit.
+Defined.
+
 Lemma etaright' : 
   forall T:UU, forall P:T -> UU, 
     funcomppathr (etacorrectionfun' _ _) (etaExpand P) == idpath (etaExpand P).
 Proof.
   intros.
   (* try to prove it from functional extensionality *)
-  apply funextsecpath; intro f.
+  apply funextfunpath; intro g.
+  apply funextsecpath; intro t.
+  intermediate (idpath (g t)). (* cosmetic step *)
+    unfold funcomppathr.
+    unfold etacorrectionfun'.
+    (* Check (funextsec_compute P g t). *)
 
-  admit.
+    admit.
+  apply idpath.
 Defined.
 
 Axiom etaleft :
