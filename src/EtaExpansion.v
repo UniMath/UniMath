@@ -40,9 +40,6 @@ Lemma funcomppathrpathrev {X Y Z:UU} {f f':X->Y} (e:f==f') (g:Y->Z) :
   funcomppathr (!e) g == ! funcomppathr e g.
 Proof. destruct e. trivial. Defined.
 
-Lemma funcomppaths {X Y Z:UU} {f f':X->Y} {g g':Y->Z} (p:f==f') (q:g==g') : funcomp f g == funcomp f' g'.
-Proof. intros. destruct p, q. trivial. Defined.
-
 Lemma funcomppathsquare {X:UU} {f g f0 k : X->X} (p : f==g) (q : f0==k) :
   funcomppathl f q @ funcomppathr p k == funcomppathr p f0 @ funcomppathl g q.
 Proof. destruct p, q. trivial. Defined.
@@ -112,12 +109,26 @@ Axiom etaright :
   forall T:UU, forall P:T -> UU, 
     funcomppathr (etacorrectionfun _ _) (etaExpand P) == idpath (etaExpand P).
 
+Lemma funextsecpath (X Y:UU) (f g:X->Y) (p q:f==g) :
+  (forall x:X, ap (evalat x) p == ap (evalat x) q) -> p == q.
+Proof.
+  intros ? ? ? ? ? ? e.
+  apply (invmaponpathsweq (
+             (fun (k : f == g) x => ap (evalat x) k) 
+               ,,
+             (isweqtoforallpaths _ f g))).
+  apply funextsec; intro x.
+  exact (e x).
+Defined.
+
 Lemma etaright' : 
   forall T:UU, forall P:T -> UU, 
-    funcomppathr (etacorrectionfun _ _) (etaExpand P) == idpath (etaExpand P).
+    funcomppathr (etacorrectionfun' _ _) (etaExpand P) == idpath (etaExpand P).
 Proof.
   intros.
   (* try to prove it from functional extensionality *)
+  apply funextsecpath; intro f.
+
   admit.
 Defined.
 
