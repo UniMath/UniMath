@@ -258,15 +258,12 @@ Lemma isaprop_etatype : isaprop etatype.
   apply impred; intro P.
   apply invproofirrelevance.
   intros [eta u] [eta' u'].
-  assert (m : paths
-        (  function_then_path (idfun (sections P)) eta' 
-         @ path_then_function eta (etaExpand P))
-        (  path_then_function eta (idfun (sections P)) 
-         @ function_then_path (etaExpand P) eta')).
-    exact (funcomppathsquare eta eta').
-  rewrite u, pathscomp0rid, <- funcompidrpath, <- funcompidlpath in m.
-    assert( t : function_then_path (idfun (sections P)) eta' == eta' ).
-    admit. 
+  unfold etacorrectiontype in *.
+  assert( eta == eta' ).
+    apply funextfunpath; intro f.
+    apply funextsecpath; intro x.
+    Check (ap (ap (evalsecat x)) (ap (ap (evalat f)) u)).
+    admit.
   admit.
 Qed.
 
