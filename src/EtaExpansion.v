@@ -10,38 +10,38 @@ Unset Automatic Introduction.
 
 (** * trivial path lemmas, perhaps not needed *)
 
-Lemma funcomppathl {X Y Z:UU} (f:X->Y) {g g':Y->Z} (e:g==g') : funcomp f g == funcomp f g'.
+Lemma function_then_path {X Y Z:UU} (f:X->Y) {g g':Y->Z} (e:g==g') : funcomp f g == funcomp f g'.
 Proof. intros. exact (ap (funcomp f) e). Defined.
 
-Lemma funcomppathr {X Y Z:UU} {f f':X->Y} (e:f==f') (g:Y->Z) : funcomp f g == funcomp f' g.
+Lemma path_then_function {X Y Z:UU} {f f':X->Y} (e:f==f') (g:Y->Z) : funcomp f g == funcomp f' g.
 Proof. intros. exact (ap (fun f => funcomp f g) e).  Defined.
 
-Lemma funcomppathlfunctor {W X Y Z:UU} (b:W->X) (f:X->Y) {g g':Y->Z} (e:g==g') :
-  funcomppathl b (funcomppathl f e) == funcomppathl (funcomp b f) e.
+Lemma function_then_pathfunctor {W X Y Z:UU} (b:W->X) (f:X->Y) {g g':Y->Z} (e:g==g') :
+  function_then_path b (function_then_path f e) == function_then_path (funcomp b f) e.
 Proof. destruct e. trivial. Defined.
 
-Lemma funcomppathlpathcomp {X Y Z:UU} (f:X->Y) {g g' g'':Y->Z} (e:g==g') (e':g'==g'') :
-  funcomppathl f e @ funcomppathl f e' == funcomppathl f (e @ e').
+Lemma function_then_pathpathcomp {X Y Z:UU} (f:X->Y) {g g' g'':Y->Z} (e:g==g') (e':g'==g'') :
+  function_then_path f e @ function_then_path f e' == function_then_path f (e @ e').
 Proof. destruct e. trivial. Defined.
 
-Lemma funcomppathlpathrev {X Y Z:UU} (f:X->Y) {g g':Y->Z} (e:g==g') : 
-  funcomppathl f (!e) == !funcomppathl f e.
+Lemma function_then_pathpathrev {X Y Z:UU} (f:X->Y) {g g':Y->Z} (e:g==g') : 
+  function_then_path f (!e) == !function_then_path f e.
 Proof. destruct e. trivial. Defined.
 
-Lemma funcomppathrfunctor {X Y Z W:UU} {f f':X->Y} (e:f==f') (g:Y->Z) (f0:Z->W) :
-  funcomppathr (funcomppathr e g) f0 == funcomppathr e (funcomp g f0).
+Lemma path_then_functionfunctor {X Y Z W:UU} {f f':X->Y} (e:f==f') (g:Y->Z) (f0:Z->W) :
+  path_then_function (path_then_function e g) f0 == path_then_function e (funcomp g f0).
 Proof. destruct e. trivial. Defined.
 
-Lemma funcomppathrpathcomp {X Y Z:UU} {f f' f'':X->Y} (e:f==f') (e':f'==f'') (g:Y->Z) : 
-  funcomppathr e g @ funcomppathr e' g == funcomppathr (e @ e') g.
+Lemma path_then_functionpathcomp {X Y Z:UU} {f f' f'':X->Y} (e:f==f') (e':f'==f'') (g:Y->Z) : 
+  path_then_function e g @ path_then_function e' g == path_then_function (e @ e') g.
 Proof. destruct e. trivial. Defined.
 
-Lemma funcomppathrpathrev {X Y Z:UU} {f f':X->Y} (e:f==f') (g:Y->Z) : 
-  funcomppathr (!e) g == ! funcomppathr e g.
+Lemma path_then_functionpathrev {X Y Z:UU} {f f':X->Y} (e:f==f') (g:Y->Z) : 
+  path_then_function (!e) g == ! path_then_function e g.
 Proof. destruct e. trivial. Defined.
 
 Lemma funcomppathsquare {X:UU} {f g f0 k : X->X} (p : f==g) (q : f0==k) :
-  funcomppathl f q @ funcomppathr p k == funcomppathr p f0 @ funcomppathl g q.
+  function_then_path f q @ path_then_function p k == path_then_function p f0 @ function_then_path g q.
 Proof. destruct p, q. trivial. Defined.
 
 (** * eta correction *)
@@ -69,12 +69,12 @@ Proof.
   apply isaprop_wma_inhab'.
   intros [C p].
   assert (q : etaExpand P == idfun _).
-    exact ((! funcomppathr p (etaExpand P)) @ p).
+    exact ((! path_then_function p (etaExpand P)) @ p).
   clear C p.
   exists (tpair (isleftinverse (etaExpand P)) (idfun _) q).
   intros [C p].
   unfold isleftinverse in p.
-  (* Check (! funcomppathl C q @ p : etaExpand _ C == (idfun (sections P))). *)
+  (* Check (! function_then_path C q @ p : etaExpand _ C == (idfun (sections P))). *)
   (* almost ... *)
 
   admit.
@@ -107,7 +107,7 @@ Defined.
 
 Axiom etaright : 
   forall T:UU, forall P:T -> UU, 
-    funcomppathr (etacorrectionfun _ _) (etaExpand P) == idpath (etaExpand P).
+    path_then_function (etacorrectionfun _ _) (etaExpand P) == idpath (etaExpand P).
 
 Lemma funextfunpath (X Y:UU) (f g:X->Y) (p q:f==g) :
   (forall x:X, ap (evalat x) p == ap (evalat x) q) -> p == q.
@@ -143,33 +143,33 @@ Defined.
 
 Lemma etaright' : 
   forall T:UU, forall P:T -> UU, 
-    funcomppathr (etacorrectionfun' _ _) (etaExpand P) == idpath (etaExpand P).
+    path_then_function (etacorrectionfun' _ _) (etaExpand P) == idpath (etaExpand P).
 Proof.
   intros.
   (* try to prove it from functional extensionality *)
   apply funextfunpath; intro g.
   apply funextsecpath; intro t.
   intermediate (idpath (g t)). (* cosmetic *)
-    unfold funcomppathr.
+    unfold path_then_function.
     unfold etacorrectionfun'.
     (* Check (funextsec_compute P g t). *)
     admit.
   apply idpath.
 Defined.
 
-Lemma lefteqright : forall (T:UU) (P:T -> UU) (e : idfun (sections P) == etaExpand P), funcomppathl (etaExpand P) e == funcomppathr e (etaExpand P).
+Lemma lefteqright : forall (T:UU) (P:T -> UU) (e : idfun (sections P) == etaExpand P), function_then_path (etaExpand P) e == path_then_function e (etaExpand P).
 Proof. destruct e. trivial. Defined.
 
 Axiom etaleft :
   forall T:UU, forall P:T -> UU, 
-    funcomppathl (etaExpand P) (etacorrectionfun _ _) == idpath (etaExpand P).
+    function_then_path (etaExpand P) (etacorrectionfun _ _) == idpath (etaExpand P).
 
 Lemma etaleft' :
   forall T:UU, forall P:T -> UU, 
-    funcomppathl (etaExpand P) (etacorrectionfun' _ _) == idpath (etaExpand P).
+    function_then_path (etaExpand P) (etacorrectionfun' _ _) == idpath (etaExpand P).
 Proof.
   intros.
-  intermediate (funcomppathr (etacorrectionfun' _ _) (etaExpand P)).
+  intermediate (path_then_function (etacorrectionfun' _ _) (etaExpand P)).
     apply lefteqright.
   apply etaright'.
 Defined.
@@ -212,8 +212,8 @@ Proof.
 Defined.
 
 Definition etatype := forall T P,
-  total2 ( fun e : etacorrectiontype T P => 
-                   funcomppathr e (etaExpand P) == idpath (etaExpand P)).
+  total2 ( fun ecor : etacorrectiontype T P => 
+                   path_then_function ecor (etaExpand P) == idpath (etaExpand P)).
 
 Definition twoaxioms := 
   (fun _ _ => etacorrectionfun _ _ ,, etaright _ _) : etatype.
@@ -222,12 +222,12 @@ Lemma fixetatype : (forall T P, etacorrectiontype T P) -> etatype.
 Proof.
   intros e T P.
   set (eta := e T P).
-  exists ( eta @ !(funcomppathr eta (etaExpand P)) ).
-  assert (p : funcomppathr (funcomppathr eta (etaExpand P)) (etaExpand P)
-           == funcomppathr eta (etaExpand P)).
-  apply funcomppathrfunctor.
-  rewrite <- funcomppathrpathcomp.    
-  rewrite funcomppathrpathrev.    
+  exists ( eta @ !(path_then_function eta (etaExpand P)) ).
+  assert (p : path_then_function (path_then_function eta (etaExpand P)) (etaExpand P)
+           == path_then_function eta (etaExpand P)).
+  apply path_then_functionfunctor.
+  rewrite <- path_then_functionpathcomp.    
+  rewrite path_then_functionpathrev.    
   rewrite p.
   apply pathsinv0r.
 Qed.
@@ -247,10 +247,10 @@ Proof. intros. apply etaExpansion. assumption. Defined.
 Lemma funcompidr' {X Y:UU} (f:X->Y) : etaExpand _ f == funcomp f (idfun Y).
 Proof. trivial. Defined.
 
-Lemma funcompidlpath {X Y:UU} {f f':X->Y} (p:f==f') : ap (etaExpand _) p == funcomppathl (idfun X) p.
+Lemma funcompidlpath {X Y:UU} {f f':X->Y} (p:f==f') : ap (etaExpand _) p == function_then_path (idfun X) p.
 Proof. trivial. Defined.
 
-Lemma funcompidrpath {X Y:UU} {f f':X->Y} (p:f==f') : ap (etaExpand _) p == funcomppathr p (idfun Y).
+Lemma funcompidrpath {X Y:UU} {f f':X->Y} (p:f==f') : ap (etaExpand _) p == path_then_function p (idfun Y).
 Proof. trivial. Defined.
 
 Lemma isaprop_etatype : isaprop etatype.
@@ -259,11 +259,13 @@ Lemma isaprop_etatype : isaprop etatype.
   apply invproofirrelevance.
   intros [eta u] [eta' u'].
   assert (m : paths
-        (funcomppathl (idfun (sections P)) eta' @ funcomppathr eta (etaExpand P))
-        (funcomppathr eta (idfun (sections P)) @ funcomppathl (etaExpand P) eta')).
+        (  function_then_path (idfun (sections P)) eta' 
+         @ path_then_function eta (etaExpand P))
+        (  path_then_function eta (idfun (sections P)) 
+         @ function_then_path (etaExpand P) eta')).
     exact (funcomppathsquare eta eta').
   rewrite u, pathscomp0rid, <- funcompidrpath, <- funcompidlpath in m.
-    assert( t : funcomppathl (idfun (sections P)) eta' == eta' ).
+    assert( t : function_then_path (idfun (sections P)) eta' == eta' ).
     admit. 
   admit.
 Qed.
