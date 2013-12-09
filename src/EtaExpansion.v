@@ -262,30 +262,37 @@ Lemma isaprop_etatype : isaprop etatype.
   assert( eta == eta' ).
     apply funextfunpath; intro f.
     apply funextsecpath; intro x.
-    Check (ap (ap (evalsecat x)) (ap (ap (evalat f)) u)).
+    (* Check (ap (ap (evalsecat x)) (ap (ap (evalat f)) u)). *)
     admit.
   admit.
 Qed.
 
 Axiom eta : etatype.
 
-Section Funext.
+Module Funext.
 
-  (** follow Funext's approach in http://homotopytypetheory.org/2011/12/19/strong-funext-from-weak/ *)
+  (** follow Lumsdaine's approach in http://homotopytypetheory.org/2011/12/19/strong-funext-from-weak/ *)
 
-  Variable A:UU.
-  Variable B:A->UU.
+  Parameter A:UU.
+  Parameter B:A->UU.
 
   Definition sec_homot (f g:sections B) := forall x, f x == g x.
 
-  Variable f:sections B.
+  Parameter f:sections B.
 
-  Let V := total2 (fun g => sec_homot f g).
-  Let W := forall x, total2 (fun y => f x == y).
+  Definition P := fun g => sec_homot f g.
+  Definition V := total2 P.
+  Definition W := forall x, total2 (fun y => f x == y).
+
+  Goal (fun g => P (etaExpand B g)) == P.
+    unfold etaExpand, P.
+    unfold sec_homot. (* we see that it's actually a definitional equality *)
+    apply idpath.
+  Defined.
 
   Lemma foo2 : iscontr W.
   Proof.
-    unfold W; clear W.
+    unfold W.
     apply funcontr; intro.
     exists (tpair (fun y : B x => f x == y) (f x) (idpath _)).
     intros [y h].
@@ -301,37 +308,36 @@ Section Funext.
   Definition s : V -> W :=
     fun v : V => match v with g,,h => fun x => g x,,h x end.
 
-  Definition etaExpandPair : V -> V.
+  Definition etaExpandV : V -> V.
     intros [g h].
-    exists (etaExpand _ g).
-    intro.
-    exact (h x).
+    exists (fun x => g x).
+    exact  (fun x => h x).
   Defined.
 
-  Lemma foo0 : forall v, r (s v) == etaExpandPair v.
+  Lemma foo0 : forall v, r (s v) == etaExpandV v.
   Proof.
     intros [g h].
     apply idpath.
   Defined.    
 
-  Lemma foo1 : forall v, etaExpandPair v == v.
+  Lemma foo1 : forall v, etaExpandV v == v.
   Proof.
     intros [g h].    
     apply (pair_path (!etacorrection1 g)).
     (* now we're stuck with a transport over an eta correction path *)
   Abort.
 
-  Lemma foo1 : forall v, etaExpandPair v == v.
+  Lemma foo1 : forall v, etaExpandV v == v.
   Proof.
     intros [g h].    
-    unfold etaExpandPair, etaExpand.
+    unfold etaExpandV, etaExpand.
     destruct (!etacorrection1 g). (* the goal is unaffected *)
   Abort.
 
-  Lemma foo1 : forall v, etaExpandPair v == v.
+  Lemma foo1 : forall v, etaExpandV v == v.
   Proof.
     intros [g h].    
-    unfold etaExpandPair, etaExpand.
+    unfold etaExpandV, etaExpand.
     revert h. destruct (!etacorrection1 g). (* this avoids transport *)
     intro h.  destruct (!etacorrection1 h).
     apply idpath.
@@ -340,7 +346,7 @@ Section Funext.
   Corollary foo3 : iscontr V.
     assert(c : forall v, r (s v) == v).
       intro.
-      intermediate (etaExpandPair v).
+      intermediate (etaExpandV v).
         destruct v as [g h].
         apply idpath.
       apply foo1.

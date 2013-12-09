@@ -127,7 +127,7 @@ Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
 Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.    
 
 Lemma pair_path {X:UU} {P:X->UU} {x x':X} {p: P x} {p' : P x'} (e : x == x') (e' : transport _ e p == p') : x ,, p == x' ,, p'.
-  (* an alternative to this lemma is total2_paths *)
+  (* compare with functtransportf in uu0.v *)
 Proof. intros. destruct e. destruct e'. apply idpath. Defined.
 
 Lemma iscontr_if_inhab_prop {P:UU} : isaprop P -> P -> iscontr P.
