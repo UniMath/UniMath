@@ -93,7 +93,7 @@ Proof.
 Defined.
 
 (** the following lemma is the same as the axiom etacorrection in uu0.v *)
-Lemma etacorrection_follows {T:UU} {P:T -> UU} (f: sections P): f == fun t:T => f t.
+Lemma etacorrection1 {T:UU} {P:T -> UU} (f: sections P): f == fun t:T => f t.
 Proof.
   intros.
   exact (ap (evalat f) (etacorrectionfun T P)).
@@ -102,7 +102,7 @@ Defined.
 Lemma etacor1 {X Y:UU} (f : X -> Y) : f == fun x => f x.
 Proof.
   intros.
-  apply etacorrection_follows.
+  apply etacorrection1.
 Defined.
 
 Axiom etaright : 
@@ -179,7 +179,7 @@ Definition mapon2paths { T U : UU } ( f : T -> U ) { t t' : T } { e e': t == t' 
 Proof. intros .  exact (ap (ap f) p). Defined. 
 
 Lemma etacorrectionrule (T:UU) (P:T -> UU) (f:sections P) :
-    etacorrection_follows (etaExpand _ f) == idpath _.
+    etacorrection1 (etaExpand _ f) == idpath _.
 Proof.                           
   intros.
   exact (  (! maponpathscomp (funcomp (etaExpand _)) (evalat f) (etacorrectionfun _ _))
@@ -187,7 +187,7 @@ Proof.
 Defined.
 
 Lemma etacorrectionrule' (T:UU) (P:T -> UU) (f:sections P) :
-    ap (etaExpand P) (etacorrection_follows f) == idpath (etaExpand _ f).
+    ap (etaExpand P) (etacorrection1 f) == idpath (etaExpand _ f).
 Proof.
   intros.
   exact ( (maponpathscomp (evalat f) (etaExpand P) (etacorrectionfun _ _))
@@ -196,10 +196,10 @@ Proof.
 Defined.
 
 Lemma etacorrectionvalue (T:UU) (P:T -> UU) (f:sections P) (t:T):
-    ap (evalsecat t) (etacorrection_follows f) == idpath (f t).
+    ap (evalsecat t) (etacorrection1 f) == idpath (f t).
 Proof.
   intros.
-  exact (    (! maponpathscomp (etaExpand P) (evalsecat t) (etacorrection_follows f))
+  exact (    (! maponpathscomp (etaExpand P) (evalsecat t) (etacorrection1 f))
            @ (mapon2paths (evalsecat t) (etacorrectionrule' T P f))).
 Defined.
 
@@ -268,3 +268,83 @@ Lemma isaprop_etatype : isaprop etatype.
 Qed.
 
 Axiom eta : etatype.
+
+Section Funext.
+
+  (** follow Funext's approach in http://homotopytypetheory.org/2011/12/19/strong-funext-from-weak/ *)
+
+  Variable A:UU.
+  Variable B:A->UU.
+
+  Definition sec_homot (f g:sections B) := forall x, f x == g x.
+
+  Variable f:sections B.
+
+  Let V := total2 (fun g => sec_homot f g).
+  Let W := forall x, total2 (fun y => f x == y).
+
+  Lemma foo2 : iscontr W.
+  Proof.
+    unfold W; clear W.
+    apply funcontr; intro.
+    exists (tpair (fun y : B x => f x == y) (f x) (idpath _)).
+    intros [y h].
+    destruct h.
+    apply idpath.
+  Defined.
+
+  Definition r : W -> V :=
+    (fun w => tpair (fun g => sec_homot f g)
+                    (fun x => pr1 (w x))
+                    (fun x => pr2 (w x))).
+
+  Definition s : V -> W :=
+    fun v : V => match v with g,,h => fun x => g x,,h x end.
+
+  Definition etaExpandPair : V -> V.
+    intros [g h].
+    exists (etaExpand _ g).
+    intro.
+    exact (h x).
+  Defined.
+
+  Lemma foo0 : forall v, r (s v) == etaExpandPair v.
+  Proof.
+    intros [g h].
+    apply idpath.
+  Defined.    
+
+  Lemma foo1 : forall v, etaExpandPair v == v.
+  Proof.
+    intros [g h].    
+    apply (pair_path (!etacorrection1 g)).
+    (* now we're stuck with a transport over an eta correction path *)
+  Abort.
+
+  Lemma foo1 : forall v, etaExpandPair v == v.
+  Proof.
+    intros [g h].    
+    unfold etaExpandPair, etaExpand.
+    destruct (!etacorrection1 g). (* the goal is unaffected *)
+  Abort.
+
+  Lemma foo1 : forall v, etaExpandPair v == v.
+  Proof.
+    intros [g h].    
+    unfold etaExpandPair, etaExpand.
+    revert h. destruct (!etacorrection1 g). (* this avoids transport *)
+    intro h.  destruct (!etacorrection1 h).
+    apply idpath.
+  Defined.
+
+  Corollary foo3 : iscontr V.
+    assert(c : forall v, r (s v) == v).
+      intro.
+      intermediate (etaExpandPair v).
+        destruct v as [g h].
+        apply idpath.
+      apply foo1.
+    exact (iscontrretract r s c foo2).
+  Defined.
+
+End Funext.

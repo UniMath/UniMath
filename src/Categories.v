@@ -122,7 +122,7 @@ Lemma foo_compute
   @maponpaths _ UU
      (fun _ : forall c : ob_mor, c → c => forall a b c : ob_mor, a → b -> b → c -> a → c)
      _ _
-     (etacorrection_follows id).
+     (etacorrection1 id).
 Proof.
   admit.
 Defined.
@@ -138,7 +138,7 @@ Proof.
   destruct (opp_opp_precat_ob_mor_compute ob_mor); simpl.
   unfold identity, compose; simpl.
   destruct id_co as [id co]; simpl.
-  apply (pair_path (etacorrection_follows id)).
+  apply (pair_path (etacorrection1 id)).
   unfold transport, sections.
   destruct (foo_compute ob_mor id co); simpl.
   apply funextsec; intro a.
