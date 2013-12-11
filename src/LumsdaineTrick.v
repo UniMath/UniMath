@@ -2,6 +2,7 @@ Unset Automatic Introduction.
 Require Import Foundations.hlevel2.hSet.
 Notation "a == b" := (paths a b) (at level 70, no associativity).
 Notation "! p " := (pathsinv0 p) (at level 50).
+Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
 
 Definition sections {T:UU} (P:T->UU) := forall t:T, P t.
 Definition etaExpand {T:UU} (P:T->UU) (f:sections P) := fun t => f t.
@@ -11,15 +12,15 @@ Parameter  B : A->UU.
 Parameter  C : sections B -> UU.
 Definition C' : sections B -> UU := fun g => C (etaExpand _ g).
 
-Definition D  := total2 C.
-Definition D' := total2 C'.
+Definition V  := total2 C.
+Definition V' := total2 C'.
 
 Goal (fun g => C' (etaExpand B g)) == C'.
   unfold C', etaExpand, sections. (* we see that it's actually a definitional equality *)
   apply idpath.
 Defined.
 
-Definition etaExpandE : D' -> D'.
+Definition etaExpandE : V' -> V'.
   intros [g h].
   exists (fun x => g x).
   exact  h.
@@ -30,6 +31,12 @@ Lemma pair_path {X:UU} {P:X->UU} {x x':X} {p: P x} {p' : P x'}
   tpair _ x p == tpair _ x' p'.
   (* compare with functtransportf in uu0.v *)
 Proof. intros. destruct e. destruct e'. apply idpath. Defined.
+
+Lemma pair_path_pr1 {X:UU} {P:X->UU} {xp xp' : total2 P} (h : xp == xp') : pr1 xp == pr1 xp'.
+Proof. intros. apply (maponpaths pr1 h). Defined.
+
+Lemma pair_path_pr2 {X:UU} {P:X->UU} {xp xp' : total2 P} (h : xp == xp') : transportf P (pair_path_pr1 h) (pr2 xp) == pr2 xp'.
+Proof. intros. destruct h. apply idpath. Defined.
 
 Module Attempt1.
 
@@ -103,5 +110,25 @@ Module Attempt4.
     intro h.
     apply idpath.
   Defined.                        (* success! *)
+
+  Lemma asdf : forall v:V', etaExpand _ (pr1 v) == pr1 (etaExpandE v).
+  Proof.                        (* not a definitional equality *)
+    intros [g h]. apply idpath. 
+  Defined.
+
+  Lemma transport_along_eta (g:sections B) (h:C' g) : transportf C' (!etacorrection A B g) h == h.
+  Proof.
+    intros.
+    set (v := tpair C' g h).
+    set (p := etaExpandE v).
+    unfold etaExpandE, v in p.
+    set (q := pair_path_pr2 (!pair_path (!etacorrection A B g) (idpath (transportf C' (!etacorrection A B g) h))
+            @
+          (foo1 v)
+          )).
+    unfold v, pr2 in q; simpl.
+    Check (q).
+  (* it should be possible to complete this proof *)
+  Abort.
 
 End Attempt4.
