@@ -360,7 +360,7 @@ Proof.
 Qed.
 
 Definition rad_eps_trans : nat_trans _ _ :=
-   tpair _ _ rad_eps_is_nat_trans.
+   tpair (is_nat_trans _ _ ) _ rad_eps_is_nat_trans.
 
 (** Eta is natural *)
 
@@ -412,7 +412,7 @@ Proof.
 Qed.
 
 Definition rad_eta_trans : nat_trans _ _ :=
-   tpair _ _ rad_eta_is_nat_trans.
+   tpair (is_nat_trans _ _ ) _ rad_eta_is_nat_trans.
 
 
 (** The data [rad], [eta], [eps] forms an adjunction *)
