@@ -63,12 +63,6 @@ Lemma is_precategory_hset_precategory_data :
   is_precategory hset_precategory_data.
 Proof.
   repeat split; simpl.
-  intros a b f.
-  apply funextfunax; intros;
-  apply idpath.
-  intros;
-  apply funextfunax; intros;
-  apply idpath.
 Qed.
 
 Definition hset_precategory : precategory := 
