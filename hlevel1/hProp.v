@@ -45,8 +45,8 @@ Require Export Foundations.Generalities.uu0 .
  
 Definition hProp := total2 ( fun X : UU => isaprop X ) .
 Definition hProppair ( X : UU ) ( is : isaprop X ) : hProp := tpair (fun X : UU => isaprop X ) X is .
-Definition hProppr1 := @pr1 _ _ : hProp -> Type .
-Coercion hProppr1: hProp >-> Sortclass.
+Definition hProptoType := @pr1 _ _ : hProp -> Type .
+Coercion hProptoType: hProp >-> Sortclass.
 
 (** ** The type [ tildehProp ] of pairs ( P , p : P ) where [ P : hProp ] *)
 

@@ -37,6 +37,7 @@ Definition stnpair ( n : nat ) := tpair ( fun m : nat => natlth m n ) .
 Definition stntonat ( n : nat ) : stn n -> nat := @pr1 _ _ .
 Coercion stntonat : stn >-> nat .
 
+Notation " 'stnel' ( i , j ) " := ( stnpair _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) ) ( at level 70 ) .
 
 Lemma isinclstntonat ( n : nat ) : isincl ( stntonat n ) .
 Proof. intro .  apply isinclpr1 .  intro x .  apply ( pr2 ( natlth x n ) ) .  Defined.
@@ -62,6 +63,10 @@ Proof . intro . apply weqpr1 . intro x .   apply iscontraprop1 .  apply ( isapro
 
 Corollary isasetstn ( n : nat ) : isaset ( stn n ) .
 Proof. intro . apply ( isasetifdeceq _ ( isdeceqstn n ) ) . Defined . 
+
+Definition stnposet ( i : nat ) : Poset .
+Proof. intro. unfold Poset . split with ( hSetpair ( stn i ) ( isasetstn i ) ) . unfold po. split with ( fun j1 j2 : stn i => natleh j1 j2 ) . split with ( fun j1 j2 j3 : stn i => istransnatleh j1 j2 j3 ) . exact ( fun j : stn i => isreflnatleh j ) . Defined. 
+
 
 Definition lastelement ( n : nat ) : stn ( S n ) .
 Proof. intro .   split with n .  apply ( natgthsnn ( S n ) ) .  Defined . 

@@ -246,6 +246,7 @@ Proof.  intros.  destruct e. apply idpath. Defined.
 
 
 
+
 (** ** First homotopy notions *)
 
 (** *** Homotopy between functions *)
@@ -332,6 +333,14 @@ Definition coconusf { X Y : UU } (f: X -> Y):= total2 (fun y:_ => hfiber f y).
 Definition fromcoconusf { X Y : UU } (f: X -> Y) : coconusf  f -> X := fun yxe:_ => pr1  (pr2 yxe).
 Definition tococonusf { X Y:UU } (f: X -> Y) : X -> coconusf  f := fun x:_ => tpair  _  (f x) (hfiberpair f x (idpath _ ) ).   
 
+
+(** Total spaces of families and homotopies *)
+
+Definition famhomotfun { X : UU } { P Q : X -> UU } ( h : homot P Q ) ( xp : total2 P ) : total2 Q . 
+Proof . intros. destruct xp as [ x p ] . split with x .  destruct ( h x ) . apply p .  Defined.
+
+Definition famhomothomothomot { X : UU } { P Q : X -> UU } ( h1 h2 : homot P Q ) ( H : forall x : X , paths ( h1 x ) ( h2 x ) ) : homot ( famhomotfun h1 ) ( famhomotfun h2 ) .
+Proof . intros .  intro xp .  destruct xp as [x p] . simpl . apply ( maponpaths ( fun q => tpair Q x q ) ) .  destruct ( H x ) . apply idpath .  Defined. 
 
 
 
