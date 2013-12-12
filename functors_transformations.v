@@ -865,10 +865,11 @@ Proof.
   unfold pr1weq, pr1 in H2; simpl.
   assert ( H3 := H2
               : paths (toforallpaths P f g (invmap (weqtoforallpaths P f g) h)) h).
-  Opaque weqtoforallpaths.      (* we can leave it opaque, because it proves a mere property *)
+  Opaque weqtoforallpaths.
   exact H3.
 Qed.
 
+Transparent weqtoforallpaths.
 
 Definition pr1_functor_eq_from_functor_iso (C D : precategory)
     (H : is_category D) (F G : ob [C , D]) :
