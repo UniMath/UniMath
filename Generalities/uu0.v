@@ -1867,7 +1867,7 @@ Proof. intros. apply isofhleveltotal2. assumption. intro. assumption. Defined.
 (** *** Basics about types of h-level 1 - "propositions" *)
 
 
-Definition isaprop  := isofhlevel (S O)  . 
+Definition isaprop  := isofhlevel (S O) . 
 
 Notation isapropunit := iscontrpathsinunit .
 
@@ -1940,14 +1940,8 @@ Theorem isapropempty: isaprop empty.
 Proof. unfold isaprop. unfold isofhlevel. intros x x' . destruct x. Defined. 
 
 
-Theorem isapropempty2 { X : UU } ( a : X -> empty ) : isaprop X .
+Theorem isapropifnegtrue { X : UU } ( a : X -> empty ) : isaprop X .
 Proof . intros . set ( w := weqpair _ ( isweqtoempty a ) ) . apply ( isofhlevelweqb 1 w isapropempty ) .  Defined .
-
-
-
-
-Lemma isapropifnegtrue { X : UU } ( X0 : neg X ) : isaprop X.
-Proof. intros X X0. assert (is:isweq X0). intro. apply (fromempty y).   apply (isofhlevelweqb (S O)  ( weqpair _ is ) isapropempty). Defined. 
 
 
 
@@ -2084,7 +2078,9 @@ apply ( isapropifcontr is4  ). Defined.
 
 (** *** Basics about types of h-level 2 - "sets" *)
 
-Definition isaset ( X : UU ) : UU := forall x x' : X , isaprop ( paths x x' ) . 
+Definition isaset ( X : UU ) : UU := forall x x' : X , isaprop ( paths x x' ) .
+
+(* Definition isaset := isofhlevel 2 . *)
 
 Notation isasetdirprod := ( isofhleveldirprod 2 ) .
 
@@ -2943,6 +2939,7 @@ Definition sectohfibertosec { X : UU } (P:X -> UU): forall a: forall x:X, P x, p
 
 Axiom funextfunax : forall (X Y:UU)(f g:X->Y),  (forall x:X, paths (f x) (g x)) -> (paths f g). 
 
+
 Lemma isweqlcompwithweq { X X' : UU} (w: weq X X') (Y:UU) : isweq (fun a:X'->Y => (fun x:X => a (w x))).
 Proof. intros. set (f:= (fun a:X'->Y => (fun x:X => a (w x)))). set (g := fun b:X-> Y => fun x':X' => b ( invweq  w x')). 
 set (egf:= (fun a:X'->Y => funextfunax X' Y (fun x':X' => (g (f a)) x') a (fun x': X' =>  maponpaths a  (homotweqinvweq w x')))).
@@ -3163,7 +3160,7 @@ Definition weqforalltohfiber  { X : UU } (P Q : X -> UU) (f: forall x:X, P x -> 
 
 
 
-(** *** The weqk equivalence  between section spaces (dependent products) defined by a family of weak equivalences  [ weq ( P x ) ( Q x ) ] *)
+(** *** The weak equivalence  between section spaces (dependent products) defined by a family of weak equivalences  [ weq ( P x ) ( Q x ) ] *)
 
 
 
@@ -3434,7 +3431,7 @@ Proof. intros. apply impred. intro.   assumption.  Defined.
 
 
 Theorem isapropneg2 ( X : UU ) { Y : UU } ( is : neg Y ) : isaprop ( X -> Y ) .
-Proof . intros .  apply impred . intro . apply ( isapropempty2 is ) . Defined .   
+Proof . intros .  apply impred . intro . apply ( isapropifnegtrue  is ) . Defined .   
 
 
 
@@ -3609,7 +3606,7 @@ Proof . intro . apply ( isofhlevelsnweqtohlevelsn 0 _ _ ( isapropempty ) ) . Def
 
 
 Theorem isapropweqtoempty2 ( X : UU ) { Y : UU } ( is : neg Y ) : isaprop ( weq X Y ) .
-Proof. intros . apply ( isofhlevelsnweqtohlevelsn 0 _ _ ( isapropempty2 is ) ) . Defined . 
+Proof. intros . apply ( isofhlevelsnweqtohlevelsn 0 _ _ ( isapropifnegtrue is ) ) . Defined . 
 
 
 (** *** Weak equivalences from an empty type *)
@@ -3618,7 +3615,7 @@ Theorem isapropweqfromempty ( X : UU ) : isaprop ( weq empty X ) .
 Proof . intro . apply ( isofhlevelsnweqfromhlevelsn 0 X _ ( isapropempty ) ) . Defined . 
 
 Theorem isapropweqfromempty2 ( X : UU ) { Y : UU } ( is : neg Y ) : isaprop ( weq Y X ) .
-Proof. intros .  apply ( isofhlevelsnweqfromhlevelsn 0 X _ ( isapropempty2 is ) ) .  Defined .
+Proof. intros .  apply ( isofhlevelsnweqfromhlevelsn 0 X _ ( isapropifnegtrue is ) ) .  Defined .
 
 
 

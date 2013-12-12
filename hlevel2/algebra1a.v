@@ -28,19 +28,19 @@ Require Export Foundations.hlevel2.hSet .
 
 (** **** General definitions *)
 
-Definition binop ( X : UU0 ) := X -> X -> X .
+Definition binop ( X : UU ) := X -> X -> X .
 
-Definition islcancelable { X : UU0 } ( opp : binop X ) ( x : X ) := isincl ( fun x0 : X => opp x x0 ) .
+Definition islcancelable { X : UU } ( opp : binop X ) ( x : X ) := isincl ( fun x0 : X => opp x x0 ) .
 
-Definition isrcancelable { X : UU0 } ( opp : binop X ) ( x : X ) := isincl ( fun x0 : X => opp x0 x ) .
+Definition isrcancelable { X : UU } ( opp : binop X ) ( x : X ) := isincl ( fun x0 : X => opp x0 x ) .
 
-Definition iscancelable { X : UU0 } ( opp : binop X ) ( x : X )  := dirprod ( islcancelable opp x ) ( isrcancelable opp x ) . 
+Definition iscancelable { X : UU } ( opp : binop X ) ( x : X )  := dirprod ( islcancelable opp x ) ( isrcancelable opp x ) . 
 
-Definition islinvertible { X : UU0 } ( opp : binop X ) ( x : X ) := isweq ( fun x0 : X => opp x x0 ) .
+Definition islinvertible { X : UU } ( opp : binop X ) ( x : X ) := isweq ( fun x0 : X => opp x x0 ) .
 
-Definition isrinvertible { X : UU0 } ( opp : binop X ) ( x : X ) := isweq ( fun x0 : X => opp x0 x ) .
+Definition isrinvertible { X : UU } ( opp : binop X ) ( x : X ) := isweq ( fun x0 : X => opp x0 x ) .
 
-Definition isinvertible { X : UU0 } ( opp : binop X ) ( x : X ) := dirprod ( islinvertible opp x ) ( isrinvertible opp x ) . 
+Definition isinvertible { X : UU } ( opp : binop X ) ( x : X ) := dirprod ( islinvertible opp x ) ( isrinvertible opp x ) . 
 
 
 
@@ -422,7 +422,7 @@ Definition isbinopfun { X Y : setwithbinop } ( f : X -> Y ) := forall x x' : X ,
 Lemma isapropisbinopfun { X Y : setwithbinop } ( f : X -> Y ) : isaprop ( isbinopfun f ) .
 Proof . intros . apply impred . intro x . apply impred . intro x' . apply ( setproperty Y ) . Defined .
 
-Definition binopfun ( X Y : setwithbinop ) : UU0 := total2 ( fun f : X -> Y => isbinopfun f ) .
+Definition binopfun ( X Y : setwithbinop ) : UU := total2 ( fun f : X -> Y => isbinopfun f ) .
 Definition binopfunpair { X Y : setwithbinop } ( f : X -> Y ) ( is : isbinopfun f ) : binopfun X Y := tpair _ f is . 
 Definition pr1binopfun ( X Y : setwithbinop ) : binopfun X Y -> ( X -> Y ) := @pr1 _ _ . 
 Coercion pr1binopfun : binopfun >-> Funclass . 
@@ -438,7 +438,7 @@ Opaque isbinopfuncomp .
 Definition binopfuncomp { X Y Z : setwithbinop } ( f : binopfun X Y ) ( g : binopfun Y Z ) : binopfun X Z := binopfunpair ( funcomp ( pr1 f ) ( pr1 g ) ) ( isbinopfuncomp f g ) . 
 
 
-Definition binopmono ( X Y : setwithbinop ) : UU0 := total2 ( fun f : incl X Y => isbinopfun ( pr1 f ) ) .
+Definition binopmono ( X Y : setwithbinop ) : UU := total2 ( fun f : incl X Y => isbinopfun ( pr1 f ) ) .
 Definition binopmonopair { X Y : setwithbinop } ( f : incl X Y ) ( is : isbinopfun f ) : binopmono X Y := tpair _  f is .
 Definition pr1binopmono ( X Y : setwithbinop ) : binopmono X Y -> incl X Y := @pr1 _ _ .
 Coercion pr1binopmono : binopmono >-> incl .
@@ -449,7 +449,7 @@ Coercion binopincltobinopfun : binopmono >-> binopfun .
 
 Definition binopmonocomp { X Y Z : setwithbinop } ( f : binopmono X Y ) ( g : binopmono Y Z ) : binopmono X Z := binopmonopair ( inclcomp ( pr1 f ) ( pr1 g ) ) ( isbinopfuncomp f g ) . 
 
-Definition binopiso ( X Y : setwithbinop ) : UU0 := total2 ( fun f : weq X Y => isbinopfun f ) .   
+Definition binopiso ( X Y : setwithbinop ) : UU := total2 ( fun f : weq X Y => isbinopfun f ) .   
 Definition binopisopair { X Y : setwithbinop } ( f : weq X Y ) ( is : isbinopfun f ) : binopiso X Y := tpair _  f is .
 Definition pr1binopiso ( X Y : setwithbinop ) : binopiso X Y -> weq X Y := @pr1 _ _ .
 Coercion pr1binopiso : binopiso >-> weq .
@@ -804,7 +804,7 @@ Definition istwobinopfun { X Y : setwith2binop } ( f : X -> Y ) := dirprod ( for
 Lemma isapropistwobinopfun { X Y : setwith2binop } ( f : X -> Y ) : isaprop ( istwobinopfun f ) .
 Proof . intros . apply isofhleveldirprod . apply impred . intro x . apply impred . intro x' . apply ( setproperty Y ) . apply impred . intro x . apply impred . intro x' . apply ( setproperty Y ) . Defined .
 
-Definition twobinopfun ( X Y : setwith2binop ) : UU0 := total2 ( fun f : X -> Y => istwobinopfun f ) .
+Definition twobinopfun ( X Y : setwith2binop ) : UU := total2 ( fun f : X -> Y => istwobinopfun f ) .
 Definition twobinopfunpair { X Y : setwith2binop } ( f : X -> Y ) ( is : istwobinopfun f ) : twobinopfun X Y := tpair _ f is . 
 Definition pr1twobinopfun ( X Y : setwith2binop ) : twobinopfun X Y -> ( X -> Y ) := @pr1 _ _ . 
 Coercion pr1twobinopfun : twobinopfun >-> Funclass .
@@ -827,7 +827,7 @@ Opaque istwobinopfuncomp .
 Definition twobinopfuncomp { X Y Z : setwith2binop } ( f : twobinopfun X Y ) ( g : twobinopfun Y Z ) : twobinopfun X Z := twobinopfunpair ( funcomp ( pr1 f ) ( pr1 g ) ) ( istwobinopfuncomp f g ) . 
 
 
-Definition twobinopmono ( X Y : setwith2binop ) : UU0 := total2 ( fun f : incl X Y => istwobinopfun f ) .
+Definition twobinopmono ( X Y : setwith2binop ) : UU := total2 ( fun f : incl X Y => istwobinopfun f ) .
 Definition twobinopmonopair { X Y : setwith2binop } ( f : incl X Y ) ( is : istwobinopfun f ) : twobinopmono X Y := tpair _  f is .
 Definition pr1twobinopmono ( X Y : setwith2binop ) : twobinopmono X Y -> incl X Y := @pr1 _ _ .
 Coercion pr1twobinopmono : twobinopmono >-> incl .
@@ -841,7 +841,7 @@ Definition binop2mono { X Y : setwith2binop } ( f : twobinopmono X Y ) : binopmo
 
 Definition twobinopmonocomp { X Y Z : setwith2binop } ( f : twobinopmono X Y ) ( g : twobinopmono Y Z ) : twobinopmono X Z := twobinopmonopair ( inclcomp ( pr1 f ) ( pr1 g ) ) ( istwobinopfuncomp f g ) . 
 
-Definition twobinopiso ( X Y : setwith2binop ) : UU0 := total2 ( fun f : weq X Y => istwobinopfun f ) .   
+Definition twobinopiso ( X Y : setwith2binop ) : UU := total2 ( fun f : weq X Y => istwobinopfun f ) .   
 Definition twobinopisopair { X Y : setwith2binop } ( f : weq X Y ) ( is : istwobinopfun f ) : twobinopiso X Y := tpair _  f is .
 Definition pr1twobinopiso ( X Y : setwith2binop ) : twobinopiso X Y -> weq X Y := @pr1 _ _ .
 Coercion pr1twobinopiso : twobinopiso >-> weq .

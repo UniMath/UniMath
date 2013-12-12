@@ -35,7 +35,7 @@ Opaque hz .
 Definition hq : fld := fldfrac hzintdom isdeceqhz .
 Definition hqaddabgr : abgr := rngaddabgr hq . 
 Definition hqmultabmonoid : abmonoid := rngmultabmonoid hq .
-Definition hqtype : UU0 := hq . 
+Definition hqtype : UU := hq . 
 
 Definition hzhztohq : hz -> ( intdomnonzerosubmonoid hzintdom ) -> hq := fun x a => setquotpr _ ( dirprodpair x a ) . 
 

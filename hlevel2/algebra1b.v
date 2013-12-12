@@ -62,7 +62,7 @@ Definition ismonoidfun { X Y : monoid } ( f : X -> Y ) := dirprod ( isbinopfun f
 Lemma isapropismonoidfun { X Y : monoid } ( f : X -> Y ) : isaprop ( ismonoidfun f ) .
 Proof . intros . apply isofhleveldirprod . apply isapropisbinopfun .  apply ( setproperty Y ) . Defined .
 
-Definition monoidfun ( X Y : monoid ) : UU0 := total2 ( fun f : X -> Y => ismonoidfun f ) .
+Definition monoidfun ( X Y : monoid ) : UU := total2 ( fun f : X -> Y => ismonoidfun f ) .
 Definition monoidfunconstr { X Y : monoid } { f : X -> Y } ( is : ismonoidfun f ) : monoidfun X Y := tpair _ f is . 
 Definition pr1monoidfun ( X Y : monoid ) : monoidfun X Y -> ( X -> Y ) := @pr1 _ _ . 
 
@@ -82,7 +82,7 @@ Opaque ismonoidfuncomp .
 Definition monoidfuncomp { X Y Z : monoid } ( f : monoidfun X Y ) ( g : monoidfun Y Z ) : monoidfun X Z := monoidfunconstr ( ismonoidfuncomp f g ) . 
 
 
-Definition monoidmono ( X Y : monoid ) : UU0 := total2 ( fun f : incl X Y => ismonoidfun f ) .
+Definition monoidmono ( X Y : monoid ) : UU := total2 ( fun f : incl X Y => ismonoidfun f ) .
 Definition monoidmonopair { X Y : monoid } ( f : incl X Y ) ( is : ismonoidfun f ) : monoidmono X Y := tpair _  f is .
 Definition pr1monoidmono ( X Y : monoid ) : monoidmono X Y -> incl X Y := @pr1 _ _ .
 Coercion pr1monoidmono : monoidmono >-> incl .
@@ -96,7 +96,7 @@ Coercion monoidmonotobinopmono : monoidmono >-> binopmono .
 Definition monoidmonocomp { X Y Z : monoid } ( f : monoidmono X Y ) ( g : monoidmono Y Z ) : monoidmono X Z := monoidmonopair ( inclcomp ( pr1 f ) ( pr1 g ) ) ( ismonoidfuncomp f g ) . 
 
 
-Definition monoidiso ( X Y : monoid ) : UU0 := total2 ( fun f : weq X Y => ismonoidfun f ) .   
+Definition monoidiso ( X Y : monoid ) : UU := total2 ( fun f : weq X Y => ismonoidfun f ) .   
 Definition monoidisopair { X Y : monoid } ( f : weq X Y ) ( is : ismonoidfun f ) : monoidiso X Y := tpair _  f is .
 Definition pr1monoidiso ( X Y : monoid ) : monoidiso X Y -> weq X Y := @pr1 _ _ .
 Coercion pr1monoidiso : monoidiso >-> weq .

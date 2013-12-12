@@ -155,7 +155,7 @@ Proof. set ( f := fun x : stn 1 => tt ) . apply weqcontrcontr .  split with ( la
 Corollary iscontrstn1 : iscontr ( stn 1 ) .
 Proof. apply iscontrifweqtounit . apply weqstn1tounit . Defined . 
 
-Lemma isinclfromstn1 { X : UU0 } ( f : stn 1 -> X ) ( is : isaset X ) : isincl f .
+Lemma isinclfromstn1 { X : UU } ( f : stn 1 -> X ) ( is : isaset X ) : isincl f .
 Proof. intros . apply ( isinclbetweensets f ( isasetstn 1 ) is ) . intros x x' e . apply ( invmaponpathsweq weqstn1tounit x x' ( idpath tt ) )  .  Defined .    
 
 Definition weqstn2tobool : weq ( stn 2 ) bool .
@@ -198,11 +198,11 @@ set ( jmn := pr1 ( iscontrhfibernatplusr n j ni ) ) .   destruct jmn as [ k e ] 
 Definition stnsum { n : nat } ( f : stn n -> nat ) : nat .
 Proof. intro n . induction n as [ | n IHn ] . intro. apply 0 . intro f . apply (  ( IHn ( fun i : stn n => f ( dni n ( lastelement n ) i ) ) ) + f ( lastelement n ) ) . Defined . 
 
-Theorem weqstnsum { n : nat } ( P : stn n -> UU0 ) ( f : stn n -> nat ) ( ww : forall i : stn n , weq ( stn ( f i ) )  ( P i ) ) : weq ( total2 P ) ( stn ( stnsum f ) ) .
+Theorem weqstnsum { n : nat } ( P : stn n -> UU ) ( f : stn n -> nat ) ( ww : forall i : stn n , weq ( stn ( f i ) )  ( P i ) ) : weq ( total2 P ) ( stn ( stnsum f ) ) .
 Proof . intro n . induction n as [ | n IHn ] . intros . simpl .  apply weqtoempty2 .  apply ( @pr1 _ _ ) .  apply negstn0 . intros .  simpl .  set ( a := stnsum (fun i : stn n => f (dni n (lastelement n) i)) ) . set ( b :=  f (lastelement n) ) . set ( w1 := invweq ( weqfp ( weqdnicoprod n ( lastelement n ) ) P ) ) . set ( w2 := weqcomp w1 ( weqtotal2overcoprod (fun x : coprod (stn n) unit => P ( weqdnicoprod n ( lastelement n )  x)) ) ) .  simpl in w2 . assert ( w3 : weq (total2 (fun x : stn n => P (dni n (lastelement n) x))) ( stn a ) ) .  assert ( int : forall x : stn n , weq  ( stn ( f ( dni n (lastelement n) x) ) ) ( P (dni n (lastelement n) x) ) ) .  intro x . apply ( ww ( dni n (lastelement n) x) ) .  apply ( IHn ( fun x : stn n => P (dni n (lastelement n) x)) ( fun x : stn n => f ( dni n (lastelement n) x ) ) int ) .  assert ( w4 : weq (total2 (fun _ : unit => P (lastelement n))) ( stn b) ) . apply ( weqcomp ( weqtotal2overunit (fun _ : unit => P (lastelement n)) ) ( invweq ( ww ( lastelement n ) ) ) ) .   apply ( weqcomp w2 ( weqcomp ( weqcoprodf w3 w4 ) ( weqfromcoprodofstn a b ) ) ) .  Defined . 
 
 
-Corollary weqstnsum2 { X : UU0 } ( n : nat ) ( f : stn n -> nat ) ( g : X -> stn n ) ( ww : forall i : stn n , weq ( stn ( f i ) ) ( hfiber g i ) ) : weq X ( stn ( stnsum f ) ) .
+Corollary weqstnsum2 { X : UU } ( n : nat ) ( f : stn n -> nat ) ( g : X -> stn n ) ( ww : forall i : stn n , weq ( stn ( f i ) ) ( hfiber g i ) ) : weq X ( stn ( stnsum f ) ) .
 Proof. intros . assert ( w : weq X ( total2 ( fun i : stn n => hfiber g i ) ) ) . apply weqtococonusf . apply ( weqcomp w ( weqstnsum ( fun i : stn n => hfiber g i ) f ww ) ) .   Defined . 
 
 
@@ -242,7 +242,7 @@ split with x0 .  assert ( g' : neg ( hfiber fl true ) ) . intro hf . destruct hf
 
 (** *** Weak equivalences between hfibers of functions from [ stn n ] over isolated points and [ stn x ] *)
 
-Theorem weqfromhfiberfromstn { n : nat } { X : UU0 } ( x : X ) ( is : isisolated X x ) ( f : stn n -> X ) : total2 ( fun x0 : nat => weq ( hfiber f x ) ( stn x0 ) ) .
+Theorem weqfromhfiberfromstn { n : nat } { X : UU } ( x : X ) ( is : isisolated X x ) ( f : stn n -> X ) : total2 ( fun x0 : nat => weq ( hfiber f x ) ( stn x0 ) ) .
 Proof . intros .  set ( t := weqfromdecsubsetofstn ( fun i : _ => eqbx X x is ( f i ) ) ) . split with ( pr1 t ) . apply ( weqcomp ( weqhfibertobhfiber f x is ) ( pr2 t ) ) .   Defined . 
 
 
@@ -265,7 +265,7 @@ intro m . set ( w1 := weqfromcoprodofstn 1 n ) . assert ( w2 : weq ( stn ( S n )
 Definition stnprod { n : nat } ( f : stn n -> nat ) : nat .
 Proof. intro n . induction n as [ | n IHn ] . intro. apply 1 . intro f . apply (  ( IHn ( fun i : stn n => f ( dni n ( lastelement n ) i ) ) ) * f ( lastelement n ) ) . Defined . 
 
-Theorem weqstnprod { n : nat } ( P : stn n -> UU0 ) ( f : stn n -> nat ) ( ww : forall i : stn n , weq ( stn ( f i ) )  ( P i ) ) : weq ( forall x : stn n , P x  ) ( stn ( stnprod f ) ) .
+Theorem weqstnprod { n : nat } ( P : stn n -> UU ) ( f : stn n -> nat ) ( ww : forall i : stn n , weq ( stn ( f i ) )  ( P i ) ) : weq ( forall x : stn n , P x  ) ( stn ( stnprod f ) ) .
 Proof . intro n . induction n as [ | n IHn ] . intros . simpl . apply ( weqcontrcontr ) .  apply ( iscontrsecoverempty2 _ ( negstn0 ) ) .   apply iscontrstn1 . intros .  set ( w1 := weqdnicoprod n ( lastelement n ) ) . set ( w2 := weqonsecbase P w1 ) .   set ( w3 := weqsecovercoprodtoprod ( fun x : _ => P ( w1 x ) ) ) .  set ( w4 := weqcomp w2 w3 ) .  set ( w5 := IHn ( fun x : stn n => P ( w1 ( ii1 x ) ) ) ( fun x : stn n => f ( w1 ( ii1 x ) ) ) ( fun i : stn n => ww ( w1 ( ii1 i ) ) ) ) . set ( w6 := weqcomp w4 ( weqdirprodf w5 ( weqsecoverunit _ ) ) ) .  simpl in w6 .  set ( w7 := weqcomp w6 ( weqdirprodf ( idweq _ ) ( invweq ( ww ( lastelement n ) ) ) ) ) .  apply ( weqcomp w7 ( weqfromprodofstn _ _ ) ) .   Defined . 
 
 
