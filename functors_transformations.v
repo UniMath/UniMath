@@ -851,7 +851,7 @@ Lemma toforallpaths_funextsec : forall (T : UU) (P : T -> UU) (f g : forall t : 
 Proof.
   intros T P f g h.
   Opaque weqtoforallpaths.
-  exact ((homotweqinvweq (weqtoforallpaths _ f g)) h : (pr1weq _ _ (tpair _ _ _) _) == _).
+  exact ((homotweqinvweq (weqtoforallpaths _ _ _)) h : (pr1weq _ _ (tpair _ _ _) _) == _).
 Qed.
 
 Transparent weqtoforallpaths.
