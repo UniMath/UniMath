@@ -25,7 +25,6 @@ Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Add LoadPath "." as Ktheory.
 Require Import Ktheory.Utilities.
         Import Ktheory.Utilities.Notations.
-Require Import Ktheory.EtaExpansion.
 
 Unset Automatic Introduction.
 
@@ -77,7 +76,7 @@ Definition makePrecategory
   set (C := (precategory_data_pair
               (precategory_ob_mor_pair 
                  obj 
-                 (fun i j:obj, hSetpair (mor i j) (imor i j))) identity compose)).
+                 (fun i j:obj => hSetpair (mor i j) (imor i j))) identity compose)).
   assert (iC : is_precategory C).
     split. 
     split. apply right. apply left.
@@ -100,52 +99,20 @@ Proof. intros. apply idpath. Defined.
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C == opp_precat_ob_mor (opp_precat_ob_mor C).
 Proof.
   intro.
+  unfold opp_precat_ob_mor.
   destruct C as [ob mor].  
-  exact (pair_path (idpath ob) (etacorrection2 mor)).
+  apply idpath.
 Defined.
 
 Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
-  idpath _
-  ==
-  @maponpaths _ UU precategory_id_comp _ _ (opp_opp_precat_ob_mor C).
-Proof.
-  (* this will follow from the computation rule for eta-correction *)
-  admit.
-Defined.
-
-Lemma foo_compute
-  (ob_mor : precategory_ob_mor)
-  (id : forall c : ob_mor, c → c)
-  (co : forall a b c : ob_mor, a → b -> b → c -> a → c):
-  idpath _
-  ==
-  @maponpaths _ UU
-     (fun _ : forall c : ob_mor, c → c => forall a b c : ob_mor, a → b -> b → c -> a → c)
-     _ _
-     (etacorrection1 id).
-Proof.
-  admit.
-Defined.
+  idpath _ == maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
+Proof. intros [ob mor]. apply idpath. Defined.
 
 Lemma opp_opp_precat_data (C : precategory_data) 
    : C == opp_precat_data (opp_precat_data C).
 Proof.
   intro.
-  destruct C as [ob_mor id_co].
-  unfold opp_precat_data; simpl.
-  apply (@pair_path _ precategory_id_comp _ _ _ _ (opp_opp_precat_ob_mor ob_mor)).
-  unfold transport.
-  destruct (opp_opp_precat_ob_mor_compute ob_mor); simpl.
-  unfold identity, compose; simpl.
-  destruct id_co as [id co]; simpl.
-  apply (pair_path (etacorrection1 id)).
-  unfold transport, sections.
-  destruct (foo_compute ob_mor id co); simpl.
-  apply funextsec; intro a.
-  apply funextsec; intro b.
-  apply funextsec; intro c.
-  apply funextsec; intro f.
-  apply funextsec; intro g.
+  destruct C as [[ob mor] [id co]].
   apply idpath.
 Defined.
 

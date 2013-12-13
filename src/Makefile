@@ -6,4 +6,4 @@ TAGS : $(VFILES); etags $(COQDEFS) $^
 install:all
 lc:; wc -l $(VFILES)
 clean:clean2
-clean2:; rm -f TAGS
+clean2:; rm -f TAGS *.d *.glob
