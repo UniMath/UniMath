@@ -850,27 +850,8 @@ Lemma toforallpaths_funextsec : forall (T : UU) (P : T -> UU) (f g : forall t : 
             toforallpaths _  _ _ (funextsec _ _ _ h) == h.
 Proof.
   intros T P f g h.
-(*  set (H':= homotweqinvweq (weqtoforallpaths _ f g)).
-  simpl in H'.
-  apply H'.
-*)
-  assert (H := (homotweqinvweq (weqtoforallpaths P f g)) h
-            : (weqtoforallpaths P f g) (invmap (weqtoforallpaths P f g) h) == h).
-  assert (H2 := H
-             : paths
-                 (pr1weq (paths f g)
-                         (forall t : T, paths (f t) (g t))
-                         (tpair
-                            (fun f0 : paths f g -> forall t : T, @paths (P t) (f t) (g t) => isweq f0)
-                            (toforallpaths P f g)
-                            (isweqtoforallpaths P f g))
-                         (invmap (weqtoforallpaths P f g) h))
-                 h).
-  unfold pr1weq, pr1 in H2; simpl.
-  assert ( H3 := H2
-              : paths (toforallpaths P f g (invmap (weqtoforallpaths P f g) h)) h).
-  Opaque weqtoforallpaths. (* we can leave it opaque, because it proves a mere property *)
-  exact H3.
+  Opaque weqtoforallpaths. 
+  exact ((homotweqinvweq (weqtoforallpaths _ f g)) h : (pr1weq _ _ (tpair _ _ _) _) == _).
 Qed.
 
 Transparent weqtoforallpaths.
