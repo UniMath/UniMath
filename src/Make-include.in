@@ -4,7 +4,6 @@
 -R . Ktheory
 Utilities.v
 Categories.v
-Experiments.v
 
 # Local Variables:
 # compile-command: "coq_makefile -f Make-include.in"
