@@ -850,10 +850,11 @@ Lemma toforallpaths_funextsec : forall (T : UU) (P : T -> UU) (f g : forall t : 
             toforallpaths _  _ _ (funextsec _ _ _ h) == h.
 Proof.
   intros T P f g h.
-  Opaque weqtoforallpaths.
-  exact ((homotweqinvweq (weqtoforallpaths _ _ _)) h : (pr1weq _ _ (tpair _ _ _) _) == _).
+  Opaque weqtoforallpaths. 
+  exact ((homotweqinvweq (weqtoforallpaths _ f g)) h : (pr1weq _ _ (tpair _ _ _) _) == _).
 Qed.
-  Transparent weqtoforallpaths.
+
+Transparent weqtoforallpaths.
 
 Definition pr1_functor_eq_from_functor_iso (C D : precategory)
     (H : is_category D) (F G : ob [C , D]) :

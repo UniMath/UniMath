@@ -41,4 +41,50 @@ Definition subobject_classifier :=
     total2 (fun TrueArrow : T --> Omega =>
            is_subobject_classifier Omega TrueArrow)).
 
+
+Section power_object.
+
+Variable OMEGA : subobject_classifier.
+
+
+(* NEED: products from pullbacks *)
+
+
+Let Omega : C := pr1 OMEGA.
+
+Definition is_power_object (b : C) (Pb : C)
+
+
+
 End subobject_classifier.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

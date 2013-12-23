@@ -424,7 +424,7 @@ Proof.
   apply idpath.
 
   rewrite H2.
-  apply (twooutof3c #F).
+  apply (twooutof3c #F H3).
   apply H.
   apply pr2.
 Qed.
@@ -601,7 +601,7 @@ Lemma isweq_Id_in_sub_to_iso (a b : ob (full_sub_precategory C')):
     isweq (Id_in_sub_to_iso a b).
 Proof.
   rewrite Id_in_sub_to_iso_equal_iso.
-  apply (twooutof3c (total_paths2_hProp_equiv _ _ _)).
+  apply (twooutof3c _ idtoiso).
   apply pr2.
   apply H.
 Qed.
@@ -630,7 +630,8 @@ Lemma isweq_sub_precat_paths_to_iso
  isweq (@idtoiso _ a b).
 Proof.
   rewrite precat_paths_in_sub_as_3_maps.
-  apply (twooutof3c (Id_in_sub_to_iso _ _)).      
+  match goal with | [ _ : _ |- isweq (funcomp ?f ?g)]
+      => apply (twooutof3c f g) end.
   apply isweq_Id_in_sub_to_iso.
   apply isweq_iso_in_sub_from_iso.
 Qed.

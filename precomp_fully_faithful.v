@@ -173,8 +173,7 @@ Proof.
   rewrite H1.
   rewrite H2.
   apply idpath.
-
-  refine (total2_paths2 Hgg' (proofirrelevance _ _ _ _)).
+  refine (total2_paths2 Hgg' (proofirrelevance _ _ _ _ )).
   apply impred. intro a.
   apply impred. intro a'.
   apply (pr2 (pr1 (F O H) a --> pr1 (G O H) a)).
