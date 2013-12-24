@@ -482,11 +482,11 @@ Module RepresentableFunctors.
     destruct F as [[F aF] [iFid iFcomp]].
     simpl in iFid, iFcomp.
     set (obj := total2 (fun c : C => pr1hSet (F c))).
-    set (compat := fun a b:obj => 
+    set (compat := fun a b : obj =>
                      fun f : car a → car b => (aF _ _ f) (cdr a) == cdr b ).
-    set (mor := fun a b:obj => total2 (compat a b)).
+    set (mor := fun a b => total2 (compat a b)).
     unfold compat in mor.
-    assert (imor : forall i j:obj, isaset (mor i j)).
+    assert (imor : forall i j, isaset (mor i j)).
       intros. apply (isofhleveltotal2 2). 
         apply setproperty.
       intros f.  apply (isofhlevelsnprop 1). apply isaset_hSet.
@@ -496,32 +496,31 @@ Module RepresentableFunctors.
     set (ident := fun a => tpair _ (identity (pr1 _)) (id_compat _)
                            : mor a a).
     assert (compose_compat : 
-         forall (i j k:obj) (f:mor i j) (g:mor j k), compat i k (car g ∘ car f)).
+         forall i j k (f:mor i j) (g:mor j k), compat i k (car g ∘ car f)).
       intros [c x] j [e z] [f f'] [g g'].
       simpl in f, g, f', g'. destruct f', g'.
       exact (ap (evalat x) (iFcomp _ _ _ f g)).
     set (compo :=
-           fun (i j k:obj) (f:mor i j) (g:mor j k)
+           fun i j k (f:mor i j) (g:mor j k)
                => tpair (compat i k) (pr1 g ∘ pr1 f) (compose_compat _ _ _ f g)
                  : mor i k).
-    assert (right : forall i j:obj, forall f:mor i j, compo _ _ _ (ident _) f == f).
+    assert (right : forall i j, forall f:mor i j, compo _ _ _ (ident _) f == f).
       intros [c x] [d y] [f f'].
       simpl in f, f'. destruct f'.
       assert (p : f ∘ identity _ == f). apply id_left.
       apply (@pair_path _ (fun g => aF _ _ g _ == aF _ _ f _) _ _ _ _ p).
       apply isaset_hSet.
-    assert (left : forall i j:obj, forall f:mor i j, compo _ _ _ f (ident _) == f).
+    assert (left : forall i j, forall f:mor i j, compo _ _ _ f (ident _) == f).
       intros [c x] [d y] [f f'].
       simpl in f, f'. destruct f'.
       assert (p : identity _ ∘ f == f). apply id_right.
       apply (@pair_path _ (fun g => aF _ _ g _ == aF _ _ f _) _ _ _ _ p).
       apply isaset_hSet.
-    assert (assoc : forall (a b c d:obj) (f:mor a b) (g:mor b c) (h:mor c d),
+    assert (asso : forall a b c d (f:mor a b) (g:mor b c) (h:mor c d),
         compo _ _ _ f (compo _ _ _ g h) == compo _ _ _ (compo _ _ _ f g) h).
       intros ? ? ? ? [f f'] [g g'] [h h'].
-      assert (p : (h ∘ g) ∘ f == h ∘ (g ∘ f)). apply assoc.
-      apply (pair_path p). apply isaset_hSet.
-    exact (makePrecategory obj mor imor ident compo right left assoc).
+      apply (pair_path (assoc _ _ _ _ _ f g h)). apply isaset_hSet.
+    exact (makePrecategory obj mor imor ident compo right left asso).
   Defined.
 
 End RepresentableFunctors.
