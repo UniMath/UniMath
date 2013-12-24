@@ -324,9 +324,9 @@ Module StandardCategories.
   Lemma morphism_from_iso_is_incl (C : precategory) (a b : ob C) :
     isincl (morphism_from_iso C a b).
   Proof.
-    unfold isincl, isofhlevelf, morphism_from_iso.
-    intros ? ? ? g.
-    exact (isofhlevelweqf 1 (ezmappr1 is_isomorphism g,,isweqezmappr1 is_isomorphism g) (isaprop_is_isomorphism g)).
+    intros. intro g.
+    apply (isofhlevelweqf _ (ezweqpr1 _ _)).
+    apply isaprop_is_isomorphism.
   Defined.
 
   Lemma is_category_groupoid (C : precategory) : is_groupoid C -> is_category C.
