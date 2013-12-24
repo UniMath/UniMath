@@ -34,11 +34,11 @@ Local Notation "b ← a" := (precategory_morphisms a b) (at level 50).
 Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
 Local Notation "f ;; g" := (precategories.compose f g) (at level 50).
 Local Notation "g ∘ f" := (precategories.compose f g) (at level 50).
-Local Notation car := pr1.
+Local Notation car := pr1 (only parsing).
 Local Notation cadr := (fun x => pr1(pr2 x)).
 Local Notation caddr := (fun x => pr1(pr2 (pr2 x))).
 Local Notation cadddr := (fun x => pr1(pr2 (pr2 (pr2 x)))).
-Local Notation cdr := pr2.
+Local Notation cdr := pr2 (only parsing).
 Local Notation cddr := (fun x => pr2(pr2 x)).
 Local Notation cdddr := (fun x => pr2(pr2 (pr2 x))).
 Local Notation cddddr := (fun x => pr2(pr2 (pr2 (pr2 x)))).
@@ -86,15 +86,6 @@ Definition makePrecategory
 Defined.    
 
 (** *** opposite category of opposite category *)
-
-Definition etaExpand_precat_ob_mor : precategory_ob_mor -> precategory_ob_mor.
-  intro C.
-  exact (precategory_ob_mor_pair (ob C) (fun a b => precategory_morphisms a b)).
-Defined.
-
-Goal forall (C : precategory_ob_mor), etaExpand_precat_ob_mor C == opp_precat_ob_mor (opp_precat_ob_mor C).
-(* verify that this proof is easy *)
-Proof. intros. apply idpath. Defined.
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C == opp_precat_ob_mor (opp_precat_ob_mor C).
 Proof.
@@ -287,13 +278,13 @@ End Coproducts.
 Module StandardCategories.
 
   Definition compose' { C:precategory_data } { a b c:C }
-    (g:b → c) (f:a → b):a → c.
+    (g:b → c) (f:a → b) : a → c.
   Proof.
     intros.
     exact (compose f g).
   Defined.
 
-  Definition idtomor {C:precategory} (a b:ob C):a == b -> a → b.
+  Definition idtomor {C:precategory} (a b:ob C) : a == b -> a → b.
   Proof.
     intros ? ? ? H.
     destruct H.
@@ -330,10 +321,23 @@ Module StandardCategories.
     intro b. apply isapropisweq.
   Qed.
 
+  Lemma morphism_from_iso_is_incl (C : precategory) (a b : ob C) :
+    isincl (morphism_from_iso C a b).
+  Proof.
+    unfold isincl, isofhlevelf, morphism_from_iso.
+    intros ? ? ? g.
+    exact (isofhlevelweqf 1 (ezmappr1 is_isomorphism g,,isweqezmappr1 is_isomorphism g) (isaprop_is_isomorphism g)).
+  Defined.
+
   Lemma is_category_groupoid (C : precategory) : is_groupoid C -> is_category C.
   Proof.
-    unfold is_groupoid, is_category; intros ? ig ? ?.
-    admit.
+    intros ? ig ? ?.
+    set (t := morphism_from_iso _ a b).
+    apply (isofhlevelff 0 idtoiso t).
+    assert (h : idtomor _ _ ~ funcomp idtoiso t). intro p. destruct p. apply idpath.
+    apply (isweqhomot _ _ h).
+    apply ig.
+    apply morphism_from_iso_is_incl.
   Defined.
 
   Definition path_groupoid (X:UU):isofhlevel 3 X -> category.
