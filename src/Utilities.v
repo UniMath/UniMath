@@ -43,7 +43,7 @@ Proof.
   apply invproofirrelevance.
   intros x y.
   apply (f x).
-Defined.
+Qed.
 
 Lemma isaprop_wma_inhab' (X:UU) : (X -> iscontr X) -> isaprop X.
 Proof.
@@ -52,7 +52,7 @@ Proof.
   intro x.
   apply isapropifcontr.
   apply (f x).
-Defined.
+Qed.
 
 Ltac prop_logic := 
   intros;
@@ -70,16 +70,16 @@ Ltac path_from f := apply (@ap _ _ f).
 Definition isaset_if_isofhlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
 (* The use of this lemma ahead of something like 'impred' can be avoided by
    providing 2 as first argument. *)
-Proof. trivial. Defined.
+Proof. trivial. Qed.
 
 Definition isofhlevel2_if_isaset {X:UU} : isaset X -> isofhlevel 2 X.
-Proof. trivial. Defined.
+Proof. trivial. Qed.
 
 Definition isaprop_hProp (X:hProp) : isaprop X.
-Proof. intro. exact (pr2 X). Defined.
+Proof. intro. exact (pr2 X). Qed.
 
 Definition isaset_hSet (X:hSet) : isaset X.
-Proof. intro. exact (pr2 X). Defined.
+Proof. intro. exact (pr2 X). Qed.
 
 Definition the {T:UU} : iscontr T -> T.
 Proof. intros ? is. exact (pr1 is). Defined.
@@ -93,7 +93,6 @@ Proof. intros. exact (! (pr2 i t)). Defined.
 (** * Squashing. *)
 
 Notation squash := ishinh_UU.
-(* Definition squash (X:UU) := forall P:UU, isaprop P -> (X -> P) -> P. (* compare with ishinh_UU *) *)
 
 Definition squash_element {X:UU} : X -> squash X.
 Proof. intros ? x P f. exact (f x). Defined.
@@ -210,8 +209,7 @@ Lemma functtransportf_universal {X:UU} {P:X->UU} {x x':X } (e:x==x') (p:P x) :
   type_equality_to_function (ap P e) p == e # p.
 Proof.  intros. destruct e. apply idpath. Defined.   
 
-(* from Vladimir, possible useful for eta-correction: *)
-
+(* from Vladimir, two lemmas, possibly useful for eta-correction: *)
 Definition fpmaphomotfun {X: UU} {P Q: X -> UU} (h: homot P Q) (xp: total2 P): total2 Q.
 Proof. intros ? ? ? ? [x p]. split with x.  destruct (h x). exact p. Defined.
 
