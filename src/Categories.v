@@ -329,7 +329,7 @@ Module StandardCategories.
     apply isaprop_is_isomorphism.
   Defined.
 
-  Lemma is_category_groupoid (C : precategory) : is_groupoid C -> is_category C.
+  Lemma is_category_groupoid {C : precategory} : is_groupoid C -> is_category C.
   Proof.
     intros ? ig ? ?.
     set (t := morphism_from_iso _ a b).
@@ -338,9 +338,9 @@ Module StandardCategories.
     apply (isweqhomot _ _ h).
     apply ig.
     apply morphism_from_iso_is_incl.
-  Defined.
+  Qed.
 
-  Definition path_groupoid (X:UU):isofhlevel 3 X -> category.
+  Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> precategory.
     intros obj iobj.
     set (mor := @paths obj).
     (* Later we'll define a version of this with no hlevel assumption on X,
@@ -365,19 +365,29 @@ Module StandardCategories.
                     (f:mor a b)(g:mor b c) (h:mor c d),
                      compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h).
       apply path_assoc_opaque.
-    set (E := makePrecategory obj mor iobj identity compose right left assoc ).
-    apply (category_pair E).
-      unfold is_category.
-      intros.
-      apply (gradth _ (morphism_from_iso _ a b)).
-        intro. destruct x. apply idpath.
-      intro.
-      apply eq_iso.
-      intermediate (idtomor a b (pr1 y)).
-      apply eq_idtoiso_idtomor.
-      assert (k:forall e, idtomor a b e == e).
-        intro. destruct e. apply idpath.
-      apply k.      
+    exact (makePrecategory obj mor iobj identity compose right left assoc).
+  Defined.
+
+  Lemma is_groupoid_path_pregroupoid (X:UU) (iobj:isofhlevel 3 X) :
+    is_groupoid (path_pregroupoid X iobj).
+  Proof.
+    intros ? ? a b.
+    assert (k : idfun (a == b) ~ idtomor a b). intro p. destruct p. apply idpath.
+    apply (isweqhomot _ _ k).
+    apply idisweq.
+  Qed.
+
+  Lemma is_category_path_pregropoid (X:UU) (i:isofhlevel 3 X) :
+    is_category (path_pregroupoid X i).
+  Proof.
+    intros.
+    apply is_category_groupoid, is_groupoid_path_pregroupoid.
+  Qed.
+
+  Definition path_groupoid (X:UU) : isofhlevel 3 X -> category.
+  Proof.
+    intros ? iobj.
+    apply (category_pair (path_pregroupoid X iobj)), is_category_path_pregropoid.
   Defined.
 
   (** *** the discrete category on n objects *)
