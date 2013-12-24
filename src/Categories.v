@@ -377,7 +377,7 @@ Module StandardCategories.
     apply idisweq.
   Qed.
 
-  Lemma is_category_path_pregropoid (X:UU) (i:isofhlevel 3 X) :
+  Lemma is_category_path_pregroupoid (X:UU) (i:isofhlevel 3 X) :
     is_category (path_pregroupoid X i).
   Proof.
     intros.
@@ -387,7 +387,7 @@ Module StandardCategories.
   Definition path_groupoid (X:UU) : isofhlevel 3 X -> category.
   Proof.
     intros ? iobj.
-    apply (category_pair (path_pregroupoid X iobj)), is_category_path_pregropoid.
+    apply (category_pair (path_pregroupoid X iobj)), is_category_path_pregroupoid.
   Defined.
 
   (** *** the discrete category on n objects *)
@@ -399,45 +399,24 @@ Module StandardCategories.
     apply isasetstn.
   Defined.
 
-  Definition is_identity {C:precategory} {a b:C} (f:a→b) :=
-    total2 ( fun e:a == b => transportf (fun x => x→b) e f == identity b ).
+  Definition is_discrete (C:precategory) := 
+    dirprod (isaset (ob C)) (is_groupoid C).
 
-  Lemma isaprop_is_identity {C:precategory} {a b:C} (f:a→b) :
-    isaset (ob C) -> isaprop (is_identity f).
-  Proof.
-    intros ? ? ? ? is.
-    apply invproofirrelevance.
-    intros [p q] [p' q'].
-    assert (e : p == p'). apply is. destruct e.
-    assert (d : q == q'). apply isaset_hSet. destruct d.
-    trivial.
-  Qed.
-
-  Definition is_discrete_precategory (C:precategory) := 
-    dirprod
-    (isaset (ob C))
-    (forall (a b:C) (f:a→b), is_identity f).
-
-  Lemma isaprop_is_discrete_precategory (C:precategory) : 
-    isaprop (is_discrete_precategory C).
+  Lemma isaprop_is_discrete (C:precategory) : 
+    isaprop (is_discrete C).
   Proof.
     intro.
     apply isofhleveltotal2. apply isapropisaset.
     intro is.
-    repeat (apply impred; intros).
-    exact (isaprop_is_identity _ is).
+    apply isaprop_is_groupoid.
   Qed.
 
-  Lemma is_discrete_cat_n (n:nat) : is_discrete_precategory (cat_n n).
+  Lemma is_discrete_cat_n (n:nat) : is_discrete (cat_n n).
   Proof.
     intro.
     split.
-      simpl.
       apply isasetstn.
-    intros ? ? f.
-    exists f.
-    destruct f.
-    apply idpath.
+    apply is_groupoid_path_pregroupoid.
   Qed.
 
 End StandardCategories.
@@ -663,4 +642,3 @@ Module DirectSums.
  *)
 
 End DirectSums.
-
