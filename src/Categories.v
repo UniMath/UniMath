@@ -493,7 +493,7 @@ Module RepresentableFunctors.
 
   (** *** the Grothendieck construction *)
 
-  Definition precategoryOfElements {C} (F:[C, SET]) : precategory.
+  Definition El_data {C} (F:[C, SET]) : precategory_data.
     intros.
     set (Fobj := caar F : C -> SET).
     set (Fmor := cdar F : forall a b : C, a → b -> Fobj a → Fobj b).
@@ -524,23 +524,32 @@ Module RepresentableFunctors.
            fun i j k (f:mor i j) (g:mor j k)
                => tpair (compat i k) (pr1 g ∘ pr1 f) (compose_compat _ _ _ f g)
                  : mor i k).
-    assert (right : forall i j, forall f:mor i j, compo _ _ _ (ident _) f == f).
-      intros [c x] [d y] [f f'].
+    exact (makePrecategoryData obj mor imor ident compo).
+  Defined.
+
+  Lemma El_okay {C} (F:[C, SET]) : is_precategory (El_data F).
+  Proof.
+    intros.
+    set (Fobj := caar F).
+    set (Fmor := cdar F).
+    split. split.
+    - intros [c x] [d y] [f f'].
       simpl in f, f'. destruct f'.
       assert (p : f ∘ identity _ == f). apply id_left.
       apply (@pair_path _ (fun g => Fmor _ _ g _ == Fmor _ _ f _) _ _ _ _ p).
       apply isaset_hSet.
-    assert (left : forall i j, forall f:mor i j, compo _ _ _ f (ident _) == f).
-      intros [c x] [d y] [f f'].
+    - intros [c x] [d y] [f f'].
       simpl in f, f'. destruct f'.
       assert (p : identity _ ∘ f == f). apply id_right.
       apply (@pair_path _ (fun g => Fmor _ _ g _ == Fmor _ _ f _) _ _ _ _ p).
       apply isaset_hSet.
-    assert (asso : forall a b c d (f:mor a b) (g:mor b c) (h:mor c d),
-        compo _ _ _ f (compo _ _ _ g h) == compo _ _ _ (compo _ _ _ f g) h).
-      intros ? ? ? ? [f f'] [g g'] [h h'].
+    - intros ? ? ? ? [f f'] [g g'] [h h'].
       apply (pair_path (assoc _ _ _ _ _ f g h)). apply isaset_hSet.
-    exact (makePrecategory obj mor imor ident compo right left asso).
+  Qed.
+
+  Definition El {C} (F:[C, SET]) : precategory.
+    intros.
+    exact (El_data F ,, El_okay F).
   Defined.
 
 End RepresentableFunctors.
