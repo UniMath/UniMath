@@ -63,7 +63,16 @@ Defined.
 
 (** *** make a precategory *)
 
-Definition makePrecategoryData
+Definition makePrecategory_ob_mor
+    (obj : UU)
+    (mor : obj -> obj -> UU)
+    (imor : forall i j:obj, isaset (mor i j))
+    : precategory_ob_mor.
+  intros.
+  exact (precategory_ob_mor_pair obj (fun i j:obj => hSetpair (mor i j) (imor i j))).
+Defined.    
+
+Definition makePrecategory_data
     (obj : UU)
     (mor : obj -> obj -> UU)
     (imor : forall i j:obj, isaset (mor i j))
@@ -71,10 +80,7 @@ Definition makePrecategoryData
     (compose : forall (i j k:obj) (f:mor i j) (g:mor j k), mor i k)
     : precategory_data.
   intros.
-  exact (precategory_data_pair
-              (precategory_ob_mor_pair 
-                 obj 
-                 (fun i j:obj => hSetpair (mor i j) (imor i j))) identity compose).
+  exact (precategory_data_pair (makePrecategory_ob_mor obj mor imor) identity compose).
 Defined.    
 
 Definition makePrecategory 
@@ -524,7 +530,7 @@ Module RepresentableFunctors.
            fun i j k (f:mor i j) (g:mor j k)
                => tpair (compat i k) (pr1 g ∘ pr1 f) (compose_compat _ _ _ f g)
                  : mor i k).
-    exact (makePrecategoryData obj mor imor ident compo).
+    exact (makePrecategory_data obj mor imor ident compo).
   Defined.
 
   Lemma El_okay {C} (F:[C, SET]) : is_precategory (El_data F).
