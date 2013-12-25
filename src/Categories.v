@@ -22,7 +22,7 @@ Require Import RezkCompletion.yoneda.
         Import pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
-Add LoadPath "." as Ktheory.
+(* Add LoadPath "." as Ktheory. *)
 Require Import Ktheory.Utilities.
         Import Ktheory.Utilities.Notations.
 
@@ -34,14 +34,16 @@ Local Notation "b ← a" := (precategory_morphisms a b) (at level 50).
 Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
 Local Notation "f ;; g" := (precategories.compose f g) (at level 50).
 Local Notation "g ∘ f" := (precategories.compose f g) (at level 50).
-Local Notation car := pr1 (only parsing).
-Local Notation cadr := (fun x => pr1(pr2 x)).
-Local Notation caddr := (fun x => pr1(pr2 (pr2 x))).
+Local Notation caar := (fun x => pr1(pr1 x)).
 Local Notation cadddr := (fun x => pr1(pr2 (pr2 (pr2 x)))).
-Local Notation cdr := pr2 (only parsing).
-Local Notation cddr := (fun x => pr2(pr2 x)).
-Local Notation cdddr := (fun x => pr2(pr2 (pr2 x))).
+Local Notation caddr := (fun x => pr1(pr2 (pr2 x))).
+Local Notation cadr := (fun x => pr1(pr2 x)).
+Local Notation car := pr1 (only parsing).
+Local Notation cdar := (fun x => pr2(pr1 x)).
 Local Notation cddddr := (fun x => pr2(pr2 (pr2 (pr2 x)))).
+Local Notation cdddr := (fun x => pr2(pr2 (pr2 x))).
+Local Notation cddr := (fun x => pr2(pr2 x)).
+Local Notation cdr := pr2 (only parsing).
 Notation "C '^op'" := (opp_precat C) (at level 3).
 Notation SET := hset_precategory.
 
@@ -61,6 +63,20 @@ Defined.
 
 (** *** make a precategory *)
 
+Definition makePrecategoryData
+    (obj : UU)
+    (mor : obj -> obj -> UU)
+    (imor : forall i j:obj, isaset (mor i j))
+    (identity : forall i:obj, mor i i)
+    (compose : forall (i j k:obj) (f:mor i j) (g:mor j k), mor i k)
+    : precategory_data.
+  intros.
+  exact (precategory_data_pair
+              (precategory_ob_mor_pair 
+                 obj 
+                 (fun i j:obj => hSetpair (mor i j) (imor i j))) identity compose).
+Defined.    
+
 Definition makePrecategory 
     (obj : UU)
     (mor : obj -> obj -> UU)
@@ -73,10 +89,10 @@ Definition makePrecategory
         compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h)
     : precategory.
   intros.
-  set (C := (precategory_data_pair
+  set (C := precategory_data_pair
               (precategory_ob_mor_pair 
                  obj 
-                 (fun i j:obj => hSetpair (mor i j) (imor i j))) identity compose)).
+                 (fun i j:obj => hSetpair (mor i j) (imor i j))) identity compose).
   assert (iC : is_precategory C).
     split. 
     split. apply right. apply left.
@@ -479,11 +495,15 @@ Module RepresentableFunctors.
 
   Definition precategoryOfElements {C} (F:[C, SET]) : precategory.
     intros.
-    destruct F as [[F aF] [iFid iFcomp]].
-    simpl in iFid, iFcomp.
-    set (obj := total2 (fun c : C => pr1hSet (F c))).
+    set (Fobj := caar F : C -> SET).
+    set (Fmor := cdar F : forall a b : C, a → b -> Fobj a → Fobj b).
+    set (iFid := cadr F : forall a : C, Fmor _ _ (identity a) == identity (Fobj a)).
+    set (iFcomp := cddr F :
+                     forall a b c (f : a → b) (g : b → c),
+                       Fmor _ _ (g ∘ f) == Fmor _ _ g ∘ Fmor _ _ f).
+    set (obj := total2 (fun c : C => pr1hSet (Fobj c))).
     set (compat := fun a b : obj =>
-                     fun f : car a → car b => (aF _ _ f) (cdr a) == cdr b ).
+                     fun f : car a → car b => Fmor _ _ f (cdr a) == cdr b ).
     set (mor := fun a b => total2 (compat a b)).
     unfold compat in mor.
     assert (imor : forall i j, isaset (mor i j)).
@@ -508,13 +528,13 @@ Module RepresentableFunctors.
       intros [c x] [d y] [f f'].
       simpl in f, f'. destruct f'.
       assert (p : f ∘ identity _ == f). apply id_left.
-      apply (@pair_path _ (fun g => aF _ _ g _ == aF _ _ f _) _ _ _ _ p).
+      apply (@pair_path _ (fun g => Fmor _ _ g _ == Fmor _ _ f _) _ _ _ _ p).
       apply isaset_hSet.
     assert (left : forall i j, forall f:mor i j, compo _ _ _ f (ident _) == f).
       intros [c x] [d y] [f f'].
       simpl in f, f'. destruct f'.
       assert (p : identity _ ∘ f == f). apply id_right.
-      apply (@pair_path _ (fun g => aF _ _ g _ == aF _ _ f _) _ _ _ _ p).
+      apply (@pair_path _ (fun g => Fmor _ _ g _ == Fmor _ _ f _) _ _ _ _ p).
       apply isaset_hSet.
     assert (asso : forall a b c d (f:mor a b) (g:mor b c) (h:mor c d),
         compo _ _ _ f (compo _ _ _ g h) == compo _ _ _ (compo _ _ _ f g) h).
