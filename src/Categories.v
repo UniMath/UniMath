@@ -515,7 +515,7 @@ Module RepresentableFunctors.
       * apply setproperty.
       * intros f.  apply (isofhlevelsnprop 1). apply isaset_hSet.
     - intro a.
-      exact (identity (pr1 _) ,, (apevalat (cdr a) (iFid (car a)))).
+      exact (identity (a _1) ,, (apevalat (a _2) (iFid (a _1)))).
     - intros ? ? ? f g.
       exact (      ((g _1) ∘ (f _1)),,
                    ((apevalat (i _2) (iFcomp _ _ _ (f _1) (g _1)))
@@ -529,21 +529,19 @@ Module RepresentableFunctors.
     set (Fobj := F _1 _1).
     set (Fmor := F _1 _2).
     split. split.
-    - intros [c x] [d y] [f f'].
-      simpl in f, f'. destruct f'.
-      assert (p : f ∘ identity _ == f). apply id_left.
-      apply (@pair_path _ (fun g => Fmor _ _ g _ == Fmor _ _ f _) _ _ _ _ p).
-      apply isaset_hSet.
-    - intros [c x] [d y] [f f'].
-      simpl in f, f'. destruct f'.
-      assert (p : identity _ ∘ f == f). apply id_right.
-      apply (@pair_path _ (fun g => Fmor _ _ g _ == Fmor _ _ f _) _ _ _ _ p).
-      apply isaset_hSet.
-    - intros ? ? ? ? f g h.
+    - intros a b [f f'].
+      exact (pair_path
+               (id_left _ _ _ f)
+               (the (isaset_hSet (Fobj (b _1)) _ _ _ _))).
+    - intros a b [f f'].
+      exact (pair_path
+               (id_right _ _ _ f)
+               (the (isaset_hSet (Fobj (b _1)) _ _ _ _))).
+    - intros ? ? ? ? f g h.     (* destructing f,g,h adds 1.75 seconds *)
       (* coq bug here? Changing "exact" to "apply" breaks the proof. *)
       exact (pair_path 
                (assoc _ _ _ _ _ (f _1) (g _1) (h _1))
-               (the (isaset_hSet _ _ _ _ _ ))
+               (the (isaset_hSet (Fobj (d _1)) _ _ _ _))
             ).
   Qed.
 
