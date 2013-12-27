@@ -32,14 +32,14 @@ Unset Automatic Introduction.
 
 Local Notation "b ← a" := (precategory_morphisms a b) (at level 50).
 Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
-Local Notation "f ;; g" := (precategories.compose f g) (at level 50).
-Local Notation "g ∘ f" := (precategories.compose f g) (at level 50).
-Local Notation caar := (fun x => pr1(pr1 x)).
+Local Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing).
+Local Notation "g ∘ f" := (precategories.compose f g) (at level 50, only parsing).
 Local Notation cadddr := (fun x => pr1(pr2 (pr2 (pr2 x)))).
 Local Notation caddr := (fun x => pr1(pr2 (pr2 x))).
 Local Notation cadr := (fun x => pr1(pr2 x)).
 Local Notation car := pr1 (only parsing).
-Local Notation cdar := (fun x => pr2(pr1 x)).
+Local Notation "x '_1'" := (pr1 x) (at level 80, only parsing).
+Local Notation "x '_2'" := (pr2 x) (at level 80, only parsing).
 Local Notation cddddr := (fun x => pr2(pr2 (pr2 (pr2 x)))).
 Local Notation cdddr := (fun x => pr2(pr2 (pr2 x))).
 Local Notation cddr := (fun x => pr2(pr2 x)).
@@ -501,43 +501,33 @@ Module RepresentableFunctors.
 
   Definition El_data {C} (F:[C, SET]) : precategory_data.
     intros.
-    set (Fobj := caar F : C -> SET).
-    set (Fmor := cdar F : forall a b : C, a → b -> Fobj a → Fobj b).
-    set (iFid := cadr F : forall a : C, Fmor _ _ (identity a) == identity (Fobj a)).
-    set (iFcomp := cddr F :
-                     forall a b c (f : a → b) (g : b → c),
-                       Fmor _ _ (g ∘ f) == Fmor _ _ g ∘ Fmor _ _ f).
+    set (Fobj := F _1 _1).
+    set (Fmor := F _1 _2).
+    set (iFid := F _2 _1).
+    set (iFcomp := F _2 _2).
     set (obj := total2 (fun c : C => pr1hSet (Fobj c))).
     set (compat := fun a b : obj =>
                      fun f : car a → car b => Fmor _ _ f (cdr a) == cdr b ).
     set (mor := fun a b => total2 (compat a b)).
-    unfold compat in mor.
-    assert (imor : forall i j, isaset (mor i j)).
-      intros. apply (isofhleveltotal2 2). 
-        apply setproperty.
-      intros f.  apply (isofhlevelsnprop 1). apply isaset_hSet.
-    set (id_compat 
-         := (fun a => @ap _ _ (evalat (cdr a)) _ (idfun _) (iFid (car a)))
-         :  forall a, compat a a (identity (car a))).
-    set (ident := fun a => tpair _ (identity (pr1 _)) (id_compat _)
-                           : mor a a).
-    assert (compose_compat : 
-         forall i j k (f:mor i j) (g:mor j k), compat i k (car g ∘ car f)).
-      intros [c x] j [e z] [f f'] [g g'].
-      simpl in f, g, f', g'. destruct f', g'.
-      exact (ap (evalat x) (iFcomp _ _ _ f g)).
-    set (compo :=
-           fun i j k (f:mor i j) (g:mor j k)
-               => tpair (compat i k) (pr1 g ∘ pr1 f) (compose_compat _ _ _ f g)
-                 : mor i k).
-    exact (makePrecategory_data obj mor imor ident compo).
+    apply (makePrecategory_data obj mor).
+    - intros.
+      apply (isofhleveltotal2 2). 
+      * apply setproperty.
+      * intros f.  apply (isofhlevelsnprop 1). apply isaset_hSet.
+    - intro a.
+      exact (identity (pr1 _) ,, (apevalat (cdr a) (iFid (car a)))).
+    - intros ? ? ? f g.
+      exact (      ((g _1) ∘ (f _1)),,
+                   ((apevalat (i _2) (iFcomp _ _ _ (f _1) (g _1)))
+                    @ 
+                    (ap (Fmor _ _ (g _1)) (f _2) @ (g _2)))).
   Defined.
 
   Lemma El_okay {C} (F:[C, SET]) : is_precategory (El_data F).
   Proof.
     intros.
-    set (Fobj := caar F).
-    set (Fmor := cdar F).
+    set (Fobj := F _1 _1).
+    set (Fmor := F _1 _2).
     split. split.
     - intros [c x] [d y] [f f'].
       simpl in f, f'. destruct f'.
@@ -549,8 +539,12 @@ Module RepresentableFunctors.
       assert (p : identity _ ∘ f == f). apply id_right.
       apply (@pair_path _ (fun g => Fmor _ _ g _ == Fmor _ _ f _) _ _ _ _ p).
       apply isaset_hSet.
-    - intros ? ? ? ? [f f'] [g g'] [h h'].
-      apply (pair_path (assoc _ _ _ _ _ f g h)). apply isaset_hSet.
+    - intros ? ? ? ? f g h.
+      (* coq bug here? Changing "exact" to "apply" breaks the proof. *)
+      exact (pair_path 
+               (assoc _ _ _ _ _ (f _1) (g _1) (h _1))
+               (the (isaset_hSet _ _ _ _ _ ))
+            ).
   Qed.
 
   Definition El {C} (F:[C, SET]) : precategory.

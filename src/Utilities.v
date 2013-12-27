@@ -33,6 +33,8 @@ Definition sections {T:UU} (P:T->UU) := forall t:T, P t.
 
 Definition evalat {T:UU} {U:UU} (t:T) (f:T->U) := f t.
 
+Definition apevalat {T:UU} {U:UU} (t:T) {f g:T->U} (p:f==g) := ap (evalat t) p.
+
 Definition evalsecat {T:UU} {P:T->UU} (t:T) (f:sections P) := f t.
 
 (** * h-levels and paths *)
