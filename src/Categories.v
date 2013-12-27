@@ -526,22 +526,20 @@ Module RepresentableFunctors.
   Lemma El_okay {C} (F:[C, SET]) : is_precategory (El_data F).
   Proof.
     intros.
-    set (Fobj := F _1 _1).
-    set (Fmor := F _1 _2).
     split. split.
-    - intros a b [f f'].
+    - intros a b [f f'].        (* destructing here is necessary.  Why? *)
       exact (pair_path
                (id_left _ _ _ f)
-               (the (isaset_hSet (Fobj (b _1)) _ _ _ _))).
+               (the (isaset_hSet _ _ _ _ _))).
     - intros a b [f f'].
       exact (pair_path
                (id_right _ _ _ f)
-               (the (isaset_hSet (Fobj (b _1)) _ _ _ _))).
+               (the (isaset_hSet _ _ _ _ _))).
     - intros ? ? ? ? f g h.     (* destructing f,g,h adds 1.75 seconds *)
       (* coq bug here? Changing "exact" to "apply" breaks the proof. *)
       exact (pair_path 
                (assoc _ _ _ _ _ (f _1) (g _1) (h _1))
-               (the (isaset_hSet (Fobj (d _1)) _ _ _ _))
+               (the (isaset_hSet _ _ _ _ _))
             ).
   Qed.
 
