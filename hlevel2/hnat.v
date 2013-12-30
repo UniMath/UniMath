@@ -17,9 +17,10 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
-(* Add LoadPath ".." as Foundations. *)
+Add LoadPath "../hlevel1" .
+Add LoadPath "../Generalities".
 
-Require Export Foundations.hlevel2.algebra1d . 
+Require Export algebra1d . 
 
 (** To up-stream files  *)
 

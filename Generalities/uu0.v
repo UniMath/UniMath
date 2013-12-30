@@ -17,14 +17,13 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (* Add LoadPath ".." as Foundations. *)
 
-Require Export Foundations.Generalities.uuu.
+Require Export "uuu".
 
 (** Universe structure *)
 
 Definition UU := Type .
 
 (* end of "Preambule". *)
-
 
 
 

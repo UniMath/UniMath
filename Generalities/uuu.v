@@ -65,8 +65,6 @@ Definition pr2 { T: Type } { P : T -> Type } ( tp : total2 P ) : P ( pr1 tp ) :=
 
 
 
-
-
 (*
 
 (** The phantom type family ( following George Gonthier ) *)

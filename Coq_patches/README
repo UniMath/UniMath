@@ -1,4 +1,4 @@
-This directory contains patches for Coq-8.3pl2 written by Hugo Hereblin and Dan Grayson which are needed for proper compilation of the "Foundations" library. 
+This directory contains patches for Coq-8.3pl2 written by Hugo Hereblin and Dan Grayson which are needed for proper compilation of the "Foundations" library. The source code for Coq-8.3pl2 can be found at http://coq.inria.fr/distrib/  .
 
 Hugo's patches "inductive-indice-levels-matter-8.3.patch" and "patch.type-in-type" are intended only as a temporary solution for the universe management issues in Coq which arise in connection with the univalent approach. 
 

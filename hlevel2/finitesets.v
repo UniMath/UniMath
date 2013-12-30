@@ -18,11 +18,10 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
-(* Add LoadPath ".." as Foundations. *)
+Add LoadPath "../hlevel1" .
+Add LoadPath "../Generalities".
 
-Require Export Foundations.hlevel1.hProp .
-Require Export Foundations.hlevel2.stnfsets .
-Require Export Foundations.hlevel2.hSet .  
+Require Export stnfsets .
 
 
 
@@ -262,7 +261,7 @@ Eval compute in fincard (isfinitebool).
 
 
 
-Eval lazy in fincard (isfinitecompl  true isfinitebool).
+Eval compute in fincard (isfinitecompl  true isfinitebool).
 
 Eval compute in fincard (isfinitedirprod  isfinitebool isfinitebool).
 

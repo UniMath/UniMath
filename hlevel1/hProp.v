@@ -25,9 +25,9 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports *)
 
-(* Add LoadPath ".." as Foundations. *)
+Add LoadPath "../Generalities" .
 
-Require Export Foundations.Generalities.uu0 . 
+Require Export "uu0" . 
 
 (** Universe structure *)
 
