@@ -31,3 +31,5 @@ Directory Proof_of_Extensionality/ contains the formulation of general Univalenc
 The easiest way to compile the library is by typing "make" in this directory. For this to work one should have GNU Make installed which is easly to find on the web. 
 
 Once the library is compiled the individual files of the library can be followed line-by-line in CoqIDE or Proof General. 
+
+By running "make install" one can install the compiled library to the /user-contrib/ directory of Coq.
