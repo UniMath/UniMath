@@ -22,7 +22,6 @@ Require Import RezkCompletion.yoneda.
         Import pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
-(* Add LoadPath "." as Ktheory. *)
 Require Import Ktheory.Utilities.
         Import Ktheory.Utilities.Notations.
 
