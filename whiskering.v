@@ -65,9 +65,8 @@ Lemma is_nat_trans_pre_whisker (A B C : precategory) (F : functor A B)
      (fun a : ob A =>  gamma (F a)).
 Proof.
   unfold is_nat_trans.
-  simpl.
-  intros x x' f.
-  rewrite  (nat_trans_ax _ _ gamma).
+  intros; simpl;
+  rewrite nat_trans_ax.
   apply idpath.
 Qed.
 
@@ -89,9 +88,9 @@ Lemma is_precat_fun_fun_post_whisker (B C D : precategory)
 Proof.
   unfold is_nat_trans.
   simpl in *.
-  intros x x' f.
+  intros;
   repeat rewrite <- functor_comp.
-  rewrite  (nat_trans_ax _ _ gamma).
+  rewrite (nat_trans_ax _ _ gamma).
   apply idpath.
 Qed.
 
@@ -121,11 +120,8 @@ Proof.
   apply nat_trans_eq.
   intro a. apply idpath.
   
-  intros K L M a b.
-  apply nat_trans_eq.
-  unfold pre_whisker.
-  intro x.
-  apply idpath.
+  intros; apply nat_trans_eq.
+  intro; apply idpath.
 Qed.
 
 Definition pre_composition_functor (A B C : precategory) (H : ob [A , B]) :

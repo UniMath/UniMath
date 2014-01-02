@@ -167,7 +167,7 @@ Proof.
 Defined.
 
    
-(** If [F] is fully faithful, then being essentially surjective 
+(** If the source precategory is a category, then being split essentially surjective 
      is a proposition *)
 
 
@@ -183,54 +183,34 @@ Proof.
   destruct x' as [a' f'].
   set (fminusf := iso_comp f (iso_inv_from_iso f')).
   set (g := iso_from_fully_faithful_reflection HF _ _ fminusf).
-  set (p := isotoid _ HA g).
-
   apply (total2_paths2 (B:=fun a' => iso ((pr1 F) a') b) (isotoid _ HA g)).
   pathvia (iso_comp (iso_inv_from_iso 
     (functor_on_iso _ _ F _ _ (idtoiso (isotoid _ HA g)))) f).
-  generalize (isotoid _ HA g).
-  intro p0.
-  induction p0.
-  simpl.
-  
-  rewrite <- functor_on_iso_inv.
-  rewrite iso_inv_of_iso_id.
-  apply eq_iso.
-  simpl. 
-  rewrite functor_id.
-  rewrite id_left.
-  apply idpath.
-  
- 
+    generalize (isotoid _ HA g).
+    intro p0; destruct p0.
+    rewrite <- functor_on_iso_inv.
+    rewrite iso_inv_of_iso_id.
+    apply eq_iso.
+    simpl; rewrite functor_id.
+    rewrite id_left.
+    apply idpath.
   rewrite idtoiso_isotoid.
-  unfold g.
-  unfold fminusf.
-  simpl.
-  clear p.
-  clear g.
-  clear fminusf.
+  unfold g; clear g.
+  unfold fminusf; clear fminusf.
   assert (HFg : functor_on_iso A B F a a'
         (iso_from_fully_faithful_reflection HF a a'
            (iso_comp f (iso_inv_from_iso f'))) == 
            iso_comp f (iso_inv_from_iso f')).
-  generalize (iso_comp f (iso_inv_from_iso f')).
-  intro h.
-  set (HH := weq_from_fully_faithful HF a a').
-  apply eq_iso.
-  simpl.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful HF a a')).
-  simpl in H3.
-  set (H' := HF a a').
-  unfold fully_faithful_inv_hom.
-  unfold invweq.
-  simpl.
-  rewrite H3.
-  apply idpath.
-  
+    generalize (iso_comp f (iso_inv_from_iso f')).
+    intro h.
+    apply eq_iso; simpl.
+    set (H3:= homotweqinvweq (weq_from_fully_faithful HF a a')).
+    simpl in H3. unfold fully_faithful_inv_hom.
+    unfold invweq; simpl.
+    rewrite H3; apply idpath.
   rewrite HFg.
   rewrite iso_inv_of_iso_comp.
-  apply eq_iso.
-  simpl.
+  apply eq_iso; simpl.
   repeat rewrite <- assoc.
   rewrite iso_after_iso_inv.
   rewrite id_right.
@@ -312,10 +292,10 @@ Lemma rad_is_functor : is_functor rad_functor_data.
 Proof.
   split; simpl.
   intro b.
-  unfold rad_mor. simpl.
-  rewrite id_right.
-  rewrite iso_inv_after_iso.
-  rewrite fully_faithful_inv_identity.
+  unfold rad_mor; simpl.
+  rewrite id_right,
+    iso_inv_after_iso,
+    fully_faithful_inv_identity.
   apply idpath.
   
   intros a b c f g.
@@ -323,11 +303,9 @@ Proof.
   rewrite <- fully_faithful_inv_comp.
   apply maponpaths.
   repeat rewrite <- assoc.
-  apply maponpaths.
-  apply maponpaths.
+  repeat apply maponpaths.
   rewrite assoc.
-  rewrite iso_after_iso_inv.
-  rewrite id_left.
+  rewrite iso_after_iso_inv, id_left.
   apply idpath.
 Qed.
 
@@ -347,15 +325,12 @@ Proof.
   unfold is_nat_trans.
   simpl.
   intros b b' g.
-  unfold rad_mor.
+  unfold rad_mor; unfold fully_faithful_inv_hom.
   set (H3 := homotweqinvweq (weq_from_fully_faithful HF (pr1 rad b) (pr1 rad b'))).
-  simpl in H3.
-  unfold fully_faithful_inv_hom.
-  simpl.
-  rewrite H3.
+  simpl in *.
+  rewrite H3; clear H3.
   repeat rewrite <- assoc.
-  rewrite iso_after_iso_inv.
-  rewrite id_right.
+  rewrite iso_after_iso_inv, id_right.
   apply idpath.
 Qed.
 
@@ -363,6 +338,13 @@ Definition rad_eps_trans : nat_trans _ _ :=
    tpair _ _ rad_eps_is_nat_trans.
 
 (** Eta is natural *)
+
+Ltac inv_functor x y :=
+   let H:=fresh in 
+   set (H:= homotweqinvweq (weq_from_fully_faithful HF x y));
+     simpl in H;
+     unfold fully_faithful_inv_hom; simpl;
+     rewrite H; clear H.
 
 Lemma rad_eta_is_nat_trans : is_nat_trans 
          (functor_identity A) (pr1 (rad O F)) 
@@ -372,39 +354,20 @@ Proof.
   simpl.
   intros a a' f.
   unfold rad_mor. simpl.
-  set (h' := equal_transport_along_weq _ _ 
+  apply (equal_transport_along_weq _ _ 
           (weq_from_fully_faithful HF a (rad_ob ((pr1 F) a')))).
-  apply h'.
-  simpl.
-  rewrite functor_comp.
-  rewrite functor_comp.
+  simpl; repeat rewrite functor_comp.
   unfold rad_eta.
   set (HHH := rad_eps_is_nat_trans (pr1 F a) (pr1 F a')).
-  simpl in HHH.
-  rewrite <- HHH.
-  clear h'.
-  clear HHH.
-
-
-  set (H3 := homotweqinvweq (weq_from_fully_faithful HF a' (rad_ob ((pr1 F) a')))).
-  simpl in H3.
-  unfold fully_faithful_inv_hom. simpl.
-  rewrite H3. clear H3.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful HF a (rad_ob ((pr1 F) a)))).
-  simpl in H3.
-  unfold fully_faithful_inv_hom. simpl.
-  rewrite H3. clear H3.
-  set (H3 := homotweqinvweq 
-      (weq_from_fully_faithful HF (rad_ob (pr1 F a)) (rad_ob ((pr1 F) a')))).
-  simpl in H3.
-  unfold fully_faithful_inv_hom. simpl.
-  rewrite H3.
+  simpl in HHH; rewrite <- HHH; clear HHH.
+  inv_functor a' (rad_ob ((pr1 F) a')).
+  inv_functor a (rad_ob ((pr1 F) a)).
+  inv_functor (rad_ob (pr1 F a)) (rad_ob ((pr1 F) a')).
   unfold rad_mor. simpl.
   repeat rewrite <- assoc.
   rewrite iso_inv_after_iso.
   rewrite id_right.
-  unfold fully_faithful_inv_hom; simpl.
-  rewrite H3.
+  inv_functor (rad_ob (pr1 F a)) (rad_ob ((pr1 F) a')).
   repeat rewrite assoc.
   rewrite iso_after_iso_inv. 
   rewrite id_left.
@@ -421,38 +384,19 @@ Lemma rad_form_adjunction : form_adjunction A B F rad rad_eta_trans rad_eps_tran
 Proof.
   split; simpl.
   intro a.
-  unfold rad_eta. 
-  set (H3 := homotweqinvweq 
-      (weq_from_fully_faithful HF a (rad_ob (pr1 F a)) )).
-  simpl in H3.
-  unfold fully_faithful_inv_hom. simpl.
-  rewrite H3.
+  unfold rad_eta.
+  inv_functor a (rad_ob (pr1 F a)).
   rewrite iso_after_iso_inv.
   apply idpath.
-  
-  intro b.
-  
-  set (h' := equal_transport_along_weq _ _ 
+
+  intro b.  
+  apply (equal_transport_along_weq _ _ 
           (weq_from_fully_faithful HF (rad_ob b) (rad_ob b))).
-       apply h'.
-  simpl.
-  rewrite functor_comp.
-  set (Heta := nat_trans_ax _ _ rad_eta_trans).
-  simpl in Heta.
+  simpl; rewrite functor_comp.
   unfold rad_eta.
-  unfold fully_faithful_inv_hom.
-  simpl.
-  set (H3 := homotweqinvweq 
-      (weq_from_fully_faithful HF (rad_ob b) (rad_ob (pr1 F (rad_ob b))) )).
-  simpl in H3.
-  rewrite H3. clear H3.
-  unfold rad_mor. unfold fully_faithful_inv_hom.
-  simpl.
-  set (H3 := homotweqinvweq 
-      (weq_from_fully_faithful HF (rad_ob (pr1 F (rad_ob b))) 
-                                        (rad_ob b))).
-  simpl in H3.
-  rewrite H3. clear H3.
+  inv_functor (rad_ob b) (rad_ob (pr1 F (rad_ob b))).
+  unfold rad_mor.
+  inv_functor (rad_ob (pr1 F (rad_ob b))) (rad_ob b).
   repeat rewrite assoc.
   rewrite iso_after_iso_inv.
   rewrite <- assoc.
