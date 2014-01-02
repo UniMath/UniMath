@@ -89,9 +89,9 @@ Lemma X_aux_type_center_of_contr_proof (b : ob B) (anot : ob A) (hnot : iso ((pr
     (f : pr1 t --> pr1 t'),
   #(pr1 H) f;; pr2 t' == pr2 t ->
   #(pr1 F) f;;
-  #(pr1 F) (fully_faithful_inv_hom A B H Hff (pr1 t') anot
+  #(pr1 F) (fully_faithful_inv_hom Hff (pr1 t') anot
      (pr2 t';; inv_from_iso hnot)) ==
-  #(pr1 F) (fully_faithful_inv_hom A B H Hff (pr1 t) anot (pr2 t;; inv_from_iso hnot)).
+  #(pr1 F) (fully_faithful_inv_hom Hff (pr1 t) anot (pr2 t;; inv_from_iso hnot)).
 Proof.
   intros t t' f.
   destruct t as [a h].
@@ -101,18 +101,17 @@ Proof.
   rewrite <- (functor_comp _ _ F).
   apply maponpaths.
   set (h2 := equal_transport_along_weq _ _
-          (weq_from_fully_faithful _ _ _ Hff a anot)).
+          (weq_from_fully_faithful Hff a anot)).
           apply h2. clear h2.
   simpl.
   rewrite functor_comp.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a' anot)).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a' anot)).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3.
-  (*rewrite H3.*)
   clear H3.
   rewrite assoc.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a anot)).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a anot)).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3; clear H3.
@@ -127,7 +126,7 @@ Definition X_aux_type_center_of_contr (b : ob B)
 Proof.
   set (cnot := pr1 F anot).
   set (g := fun (a : ob A)(h : iso (pr1 H a) b) =>
-              (iso_from_fully_faithful_reflection _ _ H Hff _ _  
+              (iso_from_fully_faithful_reflection Hff _ _  
                   (iso_comp h (iso_inv_from_iso hnot)))).
   set (knot := fun (a : ob A)(h : iso (pr1 H a) b) =>
                     functor_on_iso _ _ F _ _  (g a h)).
@@ -158,18 +157,18 @@ Proof.
   intro h.
   simpl in *.
   set (g := fun (a : ob A)(h : iso (pr1 H a) b) =>
-              (iso_from_fully_faithful_reflection _ _ H Hff _ _  
+              (iso_from_fully_faithful_reflection Hff _ _  
                   (iso_comp h (iso_inv_from_iso hnot)))).
 
-  set (gah := iso_from_fully_faithful_reflection _ _ H Hff _ _ 
+  set (gah := iso_from_fully_faithful_reflection Hff _ _ 
                   (iso_comp h (iso_inv_from_iso hnot))).
   set (qhelp := q1 (tpair _ a h)(tpair _ anot hnot) (gah)).
   simpl in *.
   assert (feedtoqhelp : 
         #(pr1 H)
-          (fully_faithful_inv_hom A B H Hff a anot (h;; inv_from_iso hnot));;
+          (fully_faithful_inv_hom Hff a anot (h;; inv_from_iso hnot));;
         hnot == h).
-    set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a anot)).
+    set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a anot)).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3.
@@ -183,7 +182,7 @@ Proof.
 (*  apply eq_iso. *)
   simpl.
   pathvia (iso_comp  (functor_on_iso A C F a anot
-     (iso_from_fully_faithful_reflection A B H Hff a anot
+     (iso_from_fully_faithful_reflection Hff a anot
         (iso_comp h (iso_inv_from_iso hnot)))) (idtoiso w) ).
   generalize w.
   intro w0.
@@ -203,11 +202,8 @@ Proof.
   apply (total2_paths Hpr1).
   apply proofirrelevance.
   
-  apply impred; intro t0.
-  apply impred; intro t'.
-  apply impred; intro f.
-  apply impred; intro g.
-  apply (pr2 (((pr1 F) (pr1 t0)) --> (pr1 (pr1 t)))).
+  repeat (apply impred; intro).
+  apply (pr2 (_ --> _)).
 Qed.
 
 
@@ -317,13 +313,13 @@ Lemma Y_inhab_proof (b b' : ob B) (f : b --> b') (a0 : ob A) (h0 : iso ((pr1 H) 
   #(pr1 H) l;; h' == h;; f ->
   #(pr1 F) l;; k b' a' h' ==
     k b a h;; ((inv_from_iso (k b a0 h0);;
-  #(pr1 F) (fully_faithful_inv_hom A B H Hff a0 a0' ((h0;; f);; inv_from_iso h0')));;
+  #(pr1 F) (fully_faithful_inv_hom Hff a0 a0' ((h0;; f);; inv_from_iso h0')));;
        k b' a0' h0').
 Proof.
   intros a h a' h' l alpha.
-  set (m := iso_from_fully_faithful_reflection _ _ H Hff _ _ 
+  set (m := iso_from_fully_faithful_reflection Hff _ _ 
                   (iso_comp h0 (iso_inv_from_iso h))).
-  set (m' := iso_from_fully_faithful_reflection _ _ H Hff _ _ 
+  set (m' := iso_from_fully_faithful_reflection Hff _ _ 
                   (iso_comp h0' (iso_inv_from_iso h'))).
   
   assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) == 
@@ -333,7 +329,7 @@ Proof.
   simpl in qb'.
   apply eq_iso; simpl.
   apply qb'. clear qb' qb. 
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0 a)).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0 a)).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3.
@@ -347,7 +343,7 @@ Proof.
   simpl in qb'.
   apply eq_iso; simpl.
   apply qb'. clear qb'. 
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0' a')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0' a')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3.
@@ -356,18 +352,18 @@ Proof.
   apply id_right.
   
   set (hfh := h0 ;; f ;; inv_from_iso h0').
-  set (l0 := fully_faithful_inv_hom _ _ H Hff _ _ hfh).
+  set (l0 := fully_faithful_inv_hom Hff _ _ hfh).
   set (g0 := inv_from_iso (k b a0 h0) ;; #(pr1 F) l0  ;; k b' a0' h0').
   
   assert (sssss : #(pr1 H) (l0 ;; m') == #(pr1 H) (m ;; l)).
   rewrite (functor_comp _ _ H).
   unfold m'. simpl.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0' a')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0' a')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
   unfold l0.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0 a0')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0 a0')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
@@ -380,7 +376,7 @@ Proof.
   rewrite iso_after_iso_inv. rewrite id_right.
   
   rewrite (functor_comp _ _ H).
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0 a)).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0 a)).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
@@ -397,7 +393,7 @@ Proof.
   apply iso_inv_on_right.
   rewrite assoc.
   apply iso_inv_on_left.
-  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful _ _ _ Hff a0 a' )).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful Hff a0 a' )).
   apply pathsinv0.
   apply sssss.
   
@@ -443,7 +439,7 @@ Definition Y_inhab (b b' : ob B) (f : b --> b')
       (a0 : ob A) (h0 : iso (pr1 H a0) b) (a0' : ob A) (h0' : iso (pr1 H a0') b') : Y b b' f.
 Proof.
   set (hfh := h0 ;; f ;; inv_from_iso h0').
-  set (l0 := fully_faithful_inv_hom _ _ H Hff _ _ hfh).
+  set (l0 := fully_faithful_inv_hom Hff _ _ hfh).
   set (g0 := inv_from_iso (k b a0 h0) ;; #(pr1 F) l0  ;; k b' a0' h0').
   exists g0.
   apply Y_inhab_proof.
@@ -463,11 +459,11 @@ Proof.
   rewrite <- assoc.
   apply iso_inv_on_right.
   set (hfh := h0 ;; f ;; inv_from_iso h0').
-  set (l0 := fully_faithful_inv_hom _ _ H Hff _ _ hfh).
+  set (l0 := fully_faithful_inv_hom Hff _ _ hfh).
   set (r1aioel := r1 a0 h0 a0' h0' l0).
   apply r1aioel.
   unfold l0.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0 a0')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0 a0')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
@@ -572,24 +568,24 @@ Proof.
   simpl; clear HHHH.
 
 
-  set (l0 := fully_faithful_inv_hom A B H Hff _ _ (h0 ;; f ;; inv_from_iso h0')).
-  set (l0' := fully_faithful_inv_hom A B H Hff _ _ (h0' ;; f' ;; inv_from_iso h0'')).
-  set (l0'' := fully_faithful_inv_hom A B H Hff _ _ (h0 ;; (f;; f') ;; inv_from_iso h0'')).
+  set (l0 := fully_faithful_inv_hom Hff _ _ (h0 ;; f ;; inv_from_iso h0')).
+  set (l0' := fully_faithful_inv_hom Hff _ _ (h0' ;; f' ;; inv_from_iso h0'')).
+  set (l0'' := fully_faithful_inv_hom Hff _ _ (h0 ;; (f;; f') ;; inv_from_iso h0'')).
 
   
   assert (L : l0 ;; l0' == l0'').
-  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful _ _ _ Hff a0 a0'')).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful Hff a0 a0'')).
   simpl.
   rewrite functor_comp.
   unfold l0'.
-  set (HFFaa := homotweqinvweq (weq_from_fully_faithful A B H Hff a0' a0'')).
+  set (HFFaa := homotweqinvweq (weq_from_fully_faithful Hff a0' a0'')).
   unfold fully_faithful_inv_hom.
   simpl in *.
   rewrite HFFaa.
   clear HFFaa.
   
   unfold l0.
-  set (HFFaa := homotweqinvweq (weq_from_fully_faithful A B H Hff a0 a0')).
+  set (HFFaa := homotweqinvweq (weq_from_fully_faithful Hff a0 a0')).
   unfold fully_faithful_inv_hom.
   simpl in *.
   rewrite HFFaa.
@@ -598,7 +594,7 @@ Proof.
   repeat rewrite assoc; apply idpath.
   rewrite iso_after_iso_inv. rewrite id_right.
   unfold l0''.
-  set (HFFaa := homotweqinvweq (weq_from_fully_faithful A B H Hff a0 a0'')).
+  set (HFFaa := homotweqinvweq (weq_from_fully_faithful Hff a0 a0'')).
   unfold fully_faithful_inv_hom.
   simpl in *.
   rewrite HFFaa.
@@ -615,9 +611,9 @@ Proof.
   
   intros a h a' h' l.
   intro alpha.
-  set (m := iso_from_fully_faithful_reflection _ _ H Hff _ _ 
+  set (m := iso_from_fully_faithful_reflection Hff _ _ 
                   (iso_comp h0 (iso_inv_from_iso h))).
-  set (m' := iso_from_fully_faithful_reflection _ _ H Hff _ _ 
+  set (m' := iso_from_fully_faithful_reflection Hff _ _ 
                   (iso_comp h0' (iso_inv_from_iso h'))).
   
   assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) == 
@@ -627,7 +623,7 @@ Proof.
   simpl in qb'.
   apply eq_iso; simpl.
   apply qb'. clear qb' qb. 
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0 a)).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0 a)).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3.
@@ -641,7 +637,7 @@ Proof.
   simpl in qb'.
   apply eq_iso; simpl.
   apply qb'. clear qb'. 
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0' a')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0' a')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3.
@@ -652,12 +648,12 @@ Proof.
   assert (sssss : #(pr1 H) (l0 ;; m') == #(pr1 H) (m ;; l)).
   rewrite (functor_comp _ _ H).
   unfold m'. simpl.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0' a')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0' a')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
   unfold l0.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0 a0')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0 a0')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
@@ -670,7 +666,7 @@ Proof.
   rewrite iso_after_iso_inv. rewrite id_right.
   
   rewrite (functor_comp _ _ H).
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0 a)).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0 a)).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
@@ -687,7 +683,7 @@ Proof.
   apply iso_inv_on_right.
   rewrite assoc.
   apply iso_inv_on_left.
-  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful _ _ _ Hff a0 a' )).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful Hff a0 a' )).
   apply pathsinv0.
   apply sssss.
   
@@ -751,9 +747,9 @@ Proof.
   
   intros a' h' a'' h'' l'.
   intro alpha.
-  set (m := iso_from_fully_faithful_reflection _ _ H Hff _ _ 
+  set (m := iso_from_fully_faithful_reflection Hff _ _ 
                   (iso_comp h0' (iso_inv_from_iso h'))).
-  set (m' := iso_from_fully_faithful_reflection _ _ H Hff _ _ 
+  set (m' := iso_from_fully_faithful_reflection Hff _ _ 
                   (iso_comp h0'' (iso_inv_from_iso h''))).
   
   assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b' a' h') == 
@@ -763,7 +759,7 @@ Proof.
   simpl in qb'.
   apply eq_iso; simpl.
   apply qb'. clear qb' qb. 
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0' a')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0' a')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3.
@@ -777,7 +773,7 @@ Proof.
   simpl in qb'.
   apply eq_iso; simpl.
   apply qb'. clear qb'. 
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0'' a'')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0'' a'')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3.
@@ -788,12 +784,12 @@ Proof.
   assert (sssss : #(pr1 H) (l0' ;; m') == #(pr1 H) (m ;; l')).
   rewrite (functor_comp _ _ H).
   unfold m'. simpl.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0'' a'')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0'' a'')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
   unfold l0'.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0' a0'')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0' a0'')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
@@ -806,7 +802,7 @@ Proof.
   rewrite iso_after_iso_inv. rewrite id_right.
   
   rewrite (functor_comp _ _ H).
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0' a')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0' a')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
@@ -823,7 +819,7 @@ Proof.
   apply iso_inv_on_right.
   rewrite assoc.
   apply iso_inv_on_left.
-  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful _ _ _ Hff a0' a'' )).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful Hff a0' a'' )).
   apply pathsinv0.
   apply sssss.
   
@@ -889,9 +885,9 @@ Proof.
 
   intros a h a'' h'' l.
   intro alpha.
-  set (m := iso_from_fully_faithful_reflection _ _ H Hff _ _ 
+  set (m := iso_from_fully_faithful_reflection Hff _ _ 
                   (iso_comp h0 (iso_inv_from_iso h))).
-  set (m' := iso_from_fully_faithful_reflection _ _ H Hff _ _ 
+  set (m' := iso_from_fully_faithful_reflection Hff _ _ 
                   (iso_comp h0'' (iso_inv_from_iso h''))).
   
   assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) == 
@@ -901,7 +897,7 @@ Proof.
   simpl in qb'.
   apply eq_iso; simpl.
   apply qb'. clear qb' qb. 
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0 a)).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0 a)).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3.
@@ -915,7 +911,7 @@ Proof.
   simpl in qb'.
   apply eq_iso; simpl.
   apply qb'. clear qb'. 
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0'' a'')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0'' a'')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3.
@@ -926,12 +922,12 @@ Proof.
   assert (sssss : #(pr1 H) (l0'' ;; m') == #(pr1 H) (m ;; l)).
   rewrite (functor_comp _ _ H).
   unfold m'. simpl.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0'' a'')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0'' a'')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
   unfold l0''.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0 a0'')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0 a0'')).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
@@ -944,7 +940,7 @@ Proof.
   rewrite iso_after_iso_inv. rewrite id_right.
   
   rewrite (functor_comp _ _ H).
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a0 a)).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a0 a)).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
@@ -963,7 +959,7 @@ Proof.
   rewrite assoc.
   apply iso_inv_on_left.
 
-  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful _ _ _ Hff a0 a'' )).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful Hff a0 a'' )).
   apply pathsinv0.
   apply sssss.
   
@@ -1054,8 +1050,8 @@ Lemma qF (a0 : ob A) :
   forall (t t' : total2 (fun a : ob A => iso ((pr1 H) a) ((pr1 H) a0)))
     (f : pr1 t --> pr1 t'),
   #(pr1 H) f;; pr2 t' == pr2 t ->
-  #(pr1 F) f;; #(pr1 F) (fully_faithful_inv_hom A B H Hff (pr1 t') a0 (pr2 t')) ==
-  #(pr1 F) (fully_faithful_inv_hom A B H Hff (pr1 t) a0 (pr2 t)).
+  #(pr1 F) f;; #(pr1 F) (fully_faithful_inv_hom Hff (pr1 t') a0 (pr2 t')) ==
+  #(pr1 F) (fully_faithful_inv_hom Hff (pr1 t) a0 (pr2 t)).
 Proof.
   simpl.
   intros [a h] [a' h'] f L.
@@ -1063,17 +1059,17 @@ Proof.
 
   rewrite <- (functor_comp A C F).
   apply maponpaths.
-  set (hhh':=equal_transport_along_weq _ _ (weq_from_fully_faithful A B H Hff a a0)
-                 (f;; fully_faithful_inv_hom A B H Hff a' a0 h')                      
-                 (fully_faithful_inv_hom A B H Hff a a0 h)  ).
+  set (hhh':=equal_transport_along_weq _ _ (weq_from_fully_faithful Hff a a0)
+                 (f;; fully_faithful_inv_hom Hff a' a0 h')                      
+                 (fully_faithful_inv_hom Hff a a0 h)  ).
   simpl in *.
   apply hhh'. clear hhh'.
-  set (HFFaa := homotweqinvweq (weq_from_fully_faithful _ _ H Hff a a0)).
+  set (HFFaa := homotweqinvweq (weq_from_fully_faithful Hff a a0)).
   unfold fully_faithful_inv_hom.
   simpl in *.
   rewrite HFFaa. clear HFFaa.
   rewrite functor_comp.
-  set (HFFaa := homotweqinvweq (weq_from_fully_faithful _ _ H Hff a' a0)).
+  set (HFFaa := homotweqinvweq (weq_from_fully_faithful Hff a' a0)).
   unfold fully_faithful_inv_hom.
   simpl in *.
   rewrite HFFaa. clear HFFaa.
@@ -1085,7 +1081,7 @@ Definition kFa (a0 : ob A) : forall a : ob A,
   iso ((pr1 H) a) ((pr1 H) a0) -> iso (pr1 F a) (pr1 F a0) := 
  fun (a : ob A) (h : iso ((pr1 H) a) ((pr1 H) a0)) =>
        functor_on_iso A C F a a0
-         (iso_from_fully_faithful_reflection A B H Hff a a0 h).
+         (iso_from_fully_faithful_reflection Hff a a0 h).
 
 Definition XtripleF (a0 : ob A) : X (pr1 H a0) :=
    tpair _ (tpair _ (pr1 F a0) (kFa a0)) (qF a0).
@@ -1150,25 +1146,25 @@ Proof.
   simpl.
   
   
-  assert (HH4 : fully_faithful_inv_hom A B H Hff a a0 h ;; f ==
-                     l ;; fully_faithful_inv_hom A B H Hff a' a0' h').
+  assert (HH4 : fully_faithful_inv_hom Hff a a0 h ;; f ==
+                     l ;; fully_faithful_inv_hom Hff a' a0' h').
                      
-  set (hhh':=equal_transport_along_weq _ _ (weq_from_fully_faithful A B H Hff a a0')).
+  set (hhh':=equal_transport_along_weq _ _ (weq_from_fully_faithful Hff a a0')).
   apply hhh'.
   simpl.
   repeat rewrite functor_comp.
-  set (HFFaa := homotweqinvweq (weq_from_fully_faithful _ _ H Hff a a0)).
+  set (HFFaa := homotweqinvweq (weq_from_fully_faithful Hff a a0)).
   unfold fully_faithful_inv_hom.
   simpl in *.
   rewrite HFFaa. clear HFFaa.
-  set (HFFaa := homotweqinvweq (weq_from_fully_faithful _ _ H Hff a' a0')).
+  set (HFFaa := homotweqinvweq (weq_from_fully_faithful Hff a' a0')).
   unfold fully_faithful_inv_hom.
   simpl in *.
   rewrite HFFaa. clear HFFaa.
   apply pathsinv0.
   apply alpha.
   
-  pathvia (#(pr1 F) (fully_faithful_inv_hom A B H Hff a a0 h;; f)).
+  pathvia (#(pr1 F) (fully_faithful_inv_hom Hff a a0 h;; f)).
   rewrite (functor_comp _ _ (F)).
   apply idpath.
   rewrite HH4.

@@ -182,7 +182,7 @@ Proof.
   destruct x as [a f].
   destruct x' as [a' f'].
   set (fminusf := iso_comp f (iso_inv_from_iso f')).
-  set (g := iso_from_fully_faithful_reflection _ _ _ HF _ _ fminusf).
+  set (g := iso_from_fully_faithful_reflection HF _ _ fminusf).
   set (p := isotoid _ HA g).
 
   apply (total2_paths2 (B:=fun a' => iso ((pr1 F) a') b) (isotoid _ HA g)).
@@ -210,15 +210,15 @@ Proof.
   clear g.
   clear fminusf.
   assert (HFg : functor_on_iso A B F a a'
-        (iso_from_fully_faithful_reflection A B F HF a a'
+        (iso_from_fully_faithful_reflection HF a a'
            (iso_comp f (iso_inv_from_iso f'))) == 
            iso_comp f (iso_inv_from_iso f')).
   generalize (iso_comp f (iso_inv_from_iso f')).
   intro h.
-  set (HH := weq_from_fully_faithful _ _ _ HF a a').
+  set (HH := weq_from_fully_faithful HF a a').
   apply eq_iso.
   simpl.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ HF a a')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful HF a a')).
   simpl in H3.
   set (H' := HF a a').
   unfold fully_faithful_inv_hom.
@@ -288,7 +288,7 @@ Defined.
 Definition rad_mor (b b' : ob B) (g : b --> b') : rad_ob b --> rad_ob b'.
 Proof.
   set (epsgebs' := rad_eps b ;; g ;; iso_inv_from_iso (rad_eps b')).
-  set (Gg := fully_faithful_inv_hom _ _ _ HF (rad_ob b) _ epsgebs').
+  set (Gg := fully_faithful_inv_hom HF (rad_ob b) _ epsgebs').
   exact Gg.
 Defined.
 
@@ -297,7 +297,7 @@ Defined.
 Definition rad_eta (a : ob A) : a --> rad_ob (pr1 F a).
 Proof.
   set (epsFa := inv_from_iso (rad_eps (pr1 F a))).
-  exact (fully_faithful_inv_hom  _ _ _ HF _ _ epsFa).
+  exact (fully_faithful_inv_hom HF _ _ epsFa).
 Defined.
 
 (** Above data specifies a functor *)
@@ -348,7 +348,7 @@ Proof.
   simpl.
   intros b b' g.
   unfold rad_mor.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ HF (pr1 rad b) (pr1 rad b'))).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful HF (pr1 rad b) (pr1 rad b'))).
   simpl in H3.
   unfold fully_faithful_inv_hom.
   simpl.
@@ -373,7 +373,7 @@ Proof.
   intros a a' f.
   unfold rad_mor. simpl.
   set (h' := equal_transport_along_weq _ _ 
-          (weq_from_fully_faithful _ _ _ HF a (rad_ob ((pr1 F) a')))).
+          (weq_from_fully_faithful HF a (rad_ob ((pr1 F) a')))).
   apply h'.
   simpl.
   rewrite functor_comp.
@@ -386,16 +386,16 @@ Proof.
   clear HHH.
 
 
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ HF a' (rad_ob ((pr1 F) a')))).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful HF a' (rad_ob ((pr1 F) a')))).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ HF a (rad_ob ((pr1 F) a)))).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful HF a (rad_ob ((pr1 F) a)))).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3. clear H3.
   set (H3 := homotweqinvweq 
-      (weq_from_fully_faithful _ _ _ HF (rad_ob (pr1 F a)) (rad_ob ((pr1 F) a')))).
+      (weq_from_fully_faithful HF (rad_ob (pr1 F a)) (rad_ob ((pr1 F) a')))).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3.
@@ -423,7 +423,7 @@ Proof.
   intro a.
   unfold rad_eta. 
   set (H3 := homotweqinvweq 
-      (weq_from_fully_faithful _ _ _ HF a (rad_ob (pr1 F a)) )).
+      (weq_from_fully_faithful HF a (rad_ob (pr1 F a)) )).
   simpl in H3.
   unfold fully_faithful_inv_hom. simpl.
   rewrite H3.
@@ -433,7 +433,7 @@ Proof.
   intro b.
   
   set (h' := equal_transport_along_weq _ _ 
-          (weq_from_fully_faithful _ _ _ HF (rad_ob b) (rad_ob b))).
+          (weq_from_fully_faithful HF (rad_ob b) (rad_ob b))).
        apply h'.
   simpl.
   rewrite functor_comp.
@@ -443,13 +443,13 @@ Proof.
   unfold fully_faithful_inv_hom.
   simpl.
   set (H3 := homotweqinvweq 
-      (weq_from_fully_faithful _ _ _ HF (rad_ob b) (rad_ob (pr1 F (rad_ob b))) )).
+      (weq_from_fully_faithful HF (rad_ob b) (rad_ob (pr1 F (rad_ob b))) )).
   simpl in H3.
   rewrite H3. clear H3.
   unfold rad_mor. unfold fully_faithful_inv_hom.
   simpl.
   set (H3 := homotweqinvweq 
-      (weq_from_fully_faithful _ _ _ HF (rad_ob (pr1 F (rad_ob b))) 
+      (weq_from_fully_faithful HF (rad_ob (pr1 F (rad_ob b))) 
                                         (rad_ob b))).
   simpl in H3.
   rewrite H3. clear H3.
@@ -489,9 +489,9 @@ Proof.
        a (rad_ob ((pr1 F) a))).
   simpl in *.
   set (H' := H (iso_inv_from_iso (rad_eps ((pr1 F) a)))).
-  change ((fully_faithful_inv_hom A B F HF a (rad_ob ((pr1 F) a))
+  change ((fully_faithful_inv_hom HF a (rad_ob ((pr1 F) a))
      (inv_from_iso (rad_eps ((pr1 F) a))))) with
-      (fully_faithful_inv_hom A B F HF a (rad_ob ((pr1 F) a))
+      (fully_faithful_inv_hom HF a (rad_ob ((pr1 F) a))
      (iso_inv_from_iso (rad_eps ((pr1 F) a)))).
   apply H'.
   intro b. apply (pr2 (rad_eps b)).
