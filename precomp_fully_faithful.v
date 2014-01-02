@@ -205,7 +205,7 @@ Proof.
                      (f : iso (H a) b),
                  gamma a == #F f ;; g ;; #G (inv_from_iso f)).
   intros a f.
-  set (k := iso_from_fully_faithful_reflection _ _ _ Hff _ _ 
+  set (k := iso_from_fully_faithful_reflection Hff _ _ 
              (iso_comp f (iso_inv_from_iso h))).
   set (GHk := functor_on_iso _ _ G _ _ 
                 (functor_on_iso _ _ H _ _ k)).
@@ -228,7 +228,7 @@ Proof.
   set (Hrp := base_paths _ _ Hr). simpl in Hrp.
   rewrite Hrp.
   rewrite functor_comp.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a anot)).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a anot)).
   simpl in H3. unfold fully_faithful_inv_hom.
   simpl. rewrite H3. clear H3.
   set (H4 := base_paths _ _ (iso_inv_iso_inv _ _ _ h)).
@@ -268,7 +268,7 @@ Proof.
   apply pb1. clear pb1.
   intro t; destruct t as [a' h'].
   
-  set (k := fully_faithful_inv_hom _ _ H Hff _ _ 
+  set (k := fully_faithful_inv_hom Hff _ _ 
              (h ;; (f ;; (iso_inv_from_iso h')))).
   
   set (gq := pr1 (iscontr_aux_space b)). 
@@ -342,7 +342,7 @@ Proof.
   rewrite (functor_comp _ _ G).
   set (P := nat_trans_ax _ _ gamma _ _ k). simpl in *.
       unfold k in P. simpl in P.
-  set (H3 := homotweqinvweq (weq_from_fully_faithful _ _ _ Hff a a')).
+  set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a a')).
   simpl in H3. 
   unfold fully_faithful_inv_hom in P. simpl in P.
   rewrite H3 in P.
@@ -413,6 +413,7 @@ Lemma pre_composition_with_ess_surj_and_fully_faithful_is_full :
 Proof.
   unfold full.
   intros F G gamma.
+  apply hinhpr.
   exists (delta F G gamma).
   apply pdelta_preimage.
 Defined.
