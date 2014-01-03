@@ -13,6 +13,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 Add LoadPath "../Generalities".
 
+Require Export "uuu".
 Require Export "uu0".
 
 

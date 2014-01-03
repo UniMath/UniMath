@@ -19,7 +19,15 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 Add LoadPath "../hlevel1" .
 Add LoadPath "../Generalities".
 
-Require Export hnat .
+Require Export "uuu".
+Require Export "uu0" . 
+Require Export "hProp" .
+Require Export "hSet" .
+Require Export "algebra1a" .
+Require Export "algebra1b" .
+Require Export "algebra1c" .
+Require Export "algebra1d" . 
+Require Export "hnat" .
 
 
 

@@ -16,7 +16,10 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 Add LoadPath "../hlevel1" .
 Add LoadPath "../Generalities".
 
-Require Export hSet .
+Require Export "uuu".
+Require Export "uu0" . 
+Require Export "hProp" .
+Require Export "hSet" .
 
 
 (** To upstream files *)
