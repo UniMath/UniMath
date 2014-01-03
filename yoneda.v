@@ -134,21 +134,18 @@ Lemma is_nat_trans_yoneda_morphisms_data (C : precategory)
   is_nat_trans (yoneda_objects C c) (yoneda_objects C c') 
     (yoneda_morphisms_data C c c' f).
 Proof.
-  unfold is_nat_trans.
-  simpl. unfold yoneda_morphisms_data.
-  simpl.
+  unfold is_nat_trans; simpl. 
+  unfold yoneda_morphisms_data; simpl.
   intros d d' g.
   apply funextsec; simpl in *.
-  unfold yoneda_objects_ob. simpl.
-  unf.
-  intro h.
+  unfold yoneda_objects_ob; simpl.
+  unf; intro; 
   apply  ( ! assoc _ _ _ _ _ _ _ _  ).
 Qed.
 
 Definition yoneda_morphisms (C : precategory) (c c' : ob C)
    (f : hom C c c') : nat_trans (yoneda_objects C c) (yoneda_objects C c') :=
    tpair _ _ (is_nat_trans_yoneda_morphisms_data C c c' f).
-
 
 
 Definition yoneda_functor_data (C : precategory): 
@@ -163,23 +160,14 @@ Lemma is_functor_yoneda (C : precategory) :
 Proof.
   unfold is_functor.
   repeat split; simpl.
-  intro a.
-  apply nat_trans_eq.
-  simpl.
+  intro a; apply nat_trans_eq; simpl.
   unfold yoneda_morphisms_data, yoneda_objects_ob.
-  simpl. unf.
-  intro c.
-  apply funextsec.
-  intro f.
+  intro c; apply funextsec; intro f.
   apply id_right.
   intros a b c f g.
   apply nat_trans_eq.
-  unf.
   unfold yoneda_morphisms_data, yoneda_objects_ob.
-  simpl. unf.
-  intro d.
-  apply funextsec.
-  intro h.
+  simpl; intro d; apply funextsec; intro h.
   apply assoc.
 Qed.
 
@@ -204,20 +192,14 @@ Lemma yoneda_map_2_ax (C : precategory)(c : ob C)
   is_nat_trans (pr1 (yoneda C c)) F 
          (fun (d : ob C) (f : hom (C ^op) c d) => #F f x).
 Proof.
- intros a b f.
-  simpl in *.
+  intros a b f; simpl in *.
   apply funextsec.
-  unf. simpl.
-  unfold yoneda_objects_ob. simpl.
-  intro g.
+  unfold yoneda_objects_ob; intro g.
   set (H:= @functor_comp _ _ F  _ _  b g).
-  unfold functor_comp in H.
-  unfold opp_precat_data in H.
-  simpl in H.
-  unf.
-  set (H':= H f).
-  set (H2 := toforallpaths _ _ _  H' x).
-  apply H2.
+  unfold functor_comp in H;
+  unfold opp_precat_data in H;
+  simpl in *.
+  apply (toforallpaths _ _ _ (H f) x).
 Qed.
 
 Definition yoneda_map_2 (C : precategory)(c : ob C)
@@ -234,24 +216,14 @@ Lemma yoneda_map_1_2 (C : precategory)(c : ob C)
   (alpha : hom _ (yoneda C c) F) :
       yoneda_map_2 _ _ _ (yoneda_map_1 _ _ _ alpha) == alpha.
 Proof.
-  simpl in *.
-  apply nat_trans_eq.
-  intro a'. simpl.
-  apply funextsec.
-  intro f.
+  simpl in *; apply nat_trans_eq; intro a'; simpl.
+  apply funextsec; intro f.
   unfold yoneda_map_1.
-  simpl.
   pathvia ((alpha c ;; #F f) (identity c)).
-  apply idpath.
-  set (H':= nat_trans_ax _ _ alpha  c a' f). simpl in H'.
-  simpl in *.
-  rewrite <- H'.
-  clear H'. 
-  unf. simpl.
-  unfold yoneda_objects_ob in f.
-  set (H' := id_right C a' c f ).
-  apply maponpaths.
-  apply H'.
+    apply idpath.
+  rewrite <- nat_trans_ax.
+  unf; apply maponpaths.
+  apply (id_right C a' c f ).
 Qed.
 
 
@@ -272,15 +244,11 @@ Lemma yoneda_iso_sets (C : precategory) (c : ob C)
 Proof.
   exists (yoneda_map_2 C c F).
   repeat split; simpl.
-  apply funextsec.
-  intro alpha.
-  unf.
-  simpl.
+  apply funextsec; intro alpha.
+  unf; simpl.
   apply (yoneda_map_1_2 C c F).
-  apply funextsec.
-  intro x.
-  unf.
-  rewrite (functor_id _ _ F).
+  apply funextsec; intro x.
+  unf; rewrite (functor_id _ _ F).
   apply idpath.
 Qed.
 
@@ -289,26 +257,19 @@ Qed.
 
 Lemma yoneda_fully_faithful (C : precategory) : fully_faithful (yoneda C).
 Proof.
-  intros a b.
-  simpl.
+  intros a b; simpl.
   set (H := yoneda_map_2 C b (yoneda C a)).
   set (H' := yoneda_map_2 C a (yoneda C b)).
   assert (eximio : yoneda_morphisms C a b == yoneda_map_2 C a (yoneda C b)).
-  apply funextsec.
-  intro f.
-  simpl.
-  apply nat_trans_eq.
-  simpl. intro c.
-  apply funextsec.
-  intro g.
-  apply idpath.
+    apply funextsec; intro f.
+    apply nat_trans_eq; intro c; simpl.
+    apply funextsec; intro g.
+    apply idpath.
   rewrite eximio.
   apply (gradth _ 
       (yoneda_map_1 C a (pr1 (yoneda C) b))).
-      intro bla.
-      apply yoneda_map_2_1.
-  intro y.
-  apply yoneda_map_1_2.
+    intro; apply yoneda_map_2_1.
+  intro; apply yoneda_map_1_2.
 Qed.
 
 
