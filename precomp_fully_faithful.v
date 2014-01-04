@@ -69,7 +69,7 @@ Proof.
   apply (p b (tpair (fun x => isaprop x) (gamma b == delta b) Heq)).
   simpl in *; clear Heq.
   intros [a f].
-  apply (pre_comp_with_iso_is_inj C (pr1 F (pr1 H a)) (pr1 F b) (pr1 G b) (# F f)
+  apply (pre_comp_with_iso_is_inj C (F (H a)) (F b) (G b) (# F f)
          (functor_on_iso_is_iso _ _ _ _ _ f)).
   repeat rewrite nat_trans_ax.
   change (gamma (H a)) with (pr1 gamma ((pr1 H) a)).
@@ -85,7 +85,7 @@ Section precomp_with_ess_surj_ff_functor_is_full.
 (** Section variables *)
 
 Variables A B C : precategory.
-Variable H : [A, B].
+Variable H : functor A B.
 Hypothesis p : essentially_surjective H.
 Hypothesis Hff : fully_faithful H.
 
@@ -107,9 +107,9 @@ Variable gamma : F O H --> G O H.
 
 
 Lemma isaprop_aux_space (b : ob B) : 
-    isaprop (total2 (fun g : F b --> pr1 G b => 
-      forall a : ob A, forall f : iso (pr1 H a) b,
-           pr1 gamma a == #(pr1 F) f ;; g ;; #(pr1 G) (inv_from_iso f))).
+    isaprop (total2 (fun g : F b --> G b => 
+      forall a : A, forall f : iso (H a) b,
+           pr1 gamma a == #F f ;; g ;; #G (inv_from_iso f))).
 Proof.
   apply invproofirrelevance.
   intros x x'.
