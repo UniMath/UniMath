@@ -61,7 +61,7 @@ Section precomp_w_ess_surj_ff_is_ess_surj.
 
 Variables A B C : precategory.
 Hypothesis Ccat : is_category C.
-Variable H : ob [A, B].
+Variable H : functor A B.
 Hypothesis p : essentially_surjective H.
 Hypothesis fH : fully_faithful H.
 
@@ -75,34 +75,34 @@ Section essentially_surjective.
 (** Given a functor [F] from [A] to [C], we construct [G] such that
        [F == G O H] *)
 
-Variable F : ob [A, C].
+Variable F : functor A C.
 
 Section preimage.
 
 (** The type [X b] will be contractible, and [G] is defined as 
      the first component of its center. *)
 
-Let X (b : ob B) := total2 (
+Let X (b : B) := total2 (
  fun ck : 
-  total2 (fun c : ob C =>
-                forall a : ob A,
-                     iso (pr1 H a) b -> iso (pr1 F a) c) =>
-    forall t t' : total2 (fun a : ob A => iso (pr1 H a) b),
+  total2 (fun c : C =>
+                forall a : A,
+                     iso (H a) b -> iso (F a) c) =>
+    forall t t' : total2 (fun a : A => iso (H a) b),
           forall f : pr1 t --> pr1 t',
-             (#(pr1 H) f ;; pr2 t' == pr2 t -> 
-                    #(pr1 F) f ;; pr2 ck (pr1 t') (pr2 t') == pr2 ck (pr1 t) (pr2 t))).
+             (#H f ;; pr2 t' == pr2 t -> 
+                    #F f ;; pr2 ck (pr1 t') (pr2 t') == pr2 ck (pr1 t) (pr2 t))).
 
-Definition kX {b : ob B} (t : X b) := (pr2 (pr1 t)).
+Definition kX {b : B} (t : X b) := (pr2 (pr1 t)).
 
 (** The following is the third component of the center of [X b] *)
 
-Lemma X_aux_type_center_of_contr_proof (b : ob B) (anot : ob A) (hnot : iso ((pr1 H) anot) b) :
-  forall (t t' : total2 (fun a : ob A => iso ((pr1 H) a) b))
+Lemma X_aux_type_center_of_contr_proof (b : B) (anot : A) (hnot : iso (H anot) b) :
+  forall (t t' : total2 (fun a : ob A => iso (H a) b))
     (f : pr1 t --> pr1 t'),
-  #(pr1 H) f;; pr2 t' == pr2 t ->
-  #(pr1 F) f;;
-  #(pr1 F) (fH^-1 (pr2 t';; inv_from_iso hnot)) ==
-  #(pr1 F) (fH^-1 (pr2 t;; inv_from_iso hnot)).
+  #H f;; pr2 t' == pr2 t ->
+  #F f;;
+  #F (fH^-1 (pr2 t';; inv_from_iso hnot)) ==
+  #F (fH^-1 (pr2 t;; inv_from_iso hnot)).
 Proof.
   intros t t' f.
   destruct t as [a h].
@@ -124,23 +124,23 @@ Qed.
 
 (** The center of [X b] *)
 
-Definition X_aux_type_center_of_contr (b : ob B) 
-    (anot : ob A)(hnot : iso (pr1 H anot) b) : X b.
+Definition X_aux_type_center_of_contr (b : B) 
+    (anot : A)(hnot : iso (H anot) b) : X b.
 Proof.
-  set (cnot := pr1 F anot).
-  set (g := fun (a : ob A)(h : iso (pr1 H a) b) =>
+  set (cnot := F anot).
+  set (g := fun (a : A)(h : iso (H a) b) =>
               (fH^-i (iso_comp h (iso_inv_from_iso hnot)))).
-  set (knot := fun (a : ob A)(h : iso (pr1 H a) b) =>
+  set (knot := fun (a : A)(h : iso (H a) b) =>
                     functor_on_iso _ _ F _ _  (g a h)).
   simpl in *.
-  exists (tpair _ (pr1 F anot) knot).
+  exists (tpair _ (F anot) knot).
   simpl.
   apply X_aux_type_center_of_contr_proof.
 Defined.
 
 (** Any inhabitant of [X b] is equal to the center of [X b]. *)
 
-Lemma X_aux_type_contr_eq (b : ob B) (anot : ob A) (hnot : iso (pr1 H anot) b) : 
+Lemma X_aux_type_contr_eq (b : B) (anot : A) (hnot : iso (H anot) b) : 
    forall t : X b, t == X_aux_type_center_of_contr b anot hnot.
 Proof.
   intro t.
@@ -159,7 +159,7 @@ Proof.
   simpl in *.
 
   assert (feedtoqhelp : 
-        #(pr1 H) (fH^-1 (h;; inv_from_iso hnot));; hnot == h).
+        #H (fH^-1 (h;; inv_from_iso hnot));; hnot == h).
     inv_functor fH a anot.
     rewrite <- assoc.
     rewrite iso_after_iso_inv.
@@ -191,14 +191,12 @@ Qed.
 
 (** Putting everything together: [X b] is contractible. *)
 
-Definition iscontr_X : forall b : ob B, iscontr (X b).
+Definition iscontr_X : forall b : B, iscontr (X b).
 Proof.
   intro b.
   assert (HH : isaprop (iscontr (X b))).
   apply isapropiscontr.
-  set (pbH := p b (tpair (fun x => isaprop x) (iscontr (X b)) HH)).
-  simpl in *.
-  apply pbH; clear pbH HH.
+  apply (p b (tpair (fun x => isaprop x) (iscontr (X b)) HH)).
   intro t.
   exists (X_aux_type_center_of_contr b (pr1 t) (pr2 t)).
   apply (X_aux_type_contr_eq b (pr1 t) (pr2 t)).
@@ -209,20 +207,19 @@ Qed.
 
 (** *** [G] on objects *)
 
-Definition Go : ob B -> ob C :=
-   fun b : ob B =>
-      pr1 (pr1 (pr1 (iscontr_X b))).
+Definition Go : B -> C :=
+   fun b : B => pr1 (pr1 (pr1 (iscontr_X b))).
 
-Let k (b : ob B) : 
-     forall a : ob A, iso ((pr1 H) a) b -> iso ((pr1 F) a) (Go b) := 
+Let k (b : B) : 
+     forall a : A, iso (H a) b -> iso (F a) (Go b) := 
               pr2 (pr1 (pr1 (iscontr_X b))).
 
-Let q (b : ob B) := pr2 (pr1 (iscontr_X b)).
+Let q (b : B) := pr2 (pr1 (iscontr_X b)).
  
 
 (** Given any inhabitant of [X b], its first component is equal to [Go b]. *)
 
-Definition Xphi (b : ob B) (t : X b) : pr1 (pr1 t) == Go b.
+Definition Xphi (b : B) (t : X b) : pr1 (pr1 t) == Go b.
 Proof.
   set (p1 := pr2 (iscontr_X b) t).
   exact (base_paths _ _ (base_paths _ _ p1)).
@@ -231,8 +228,8 @@ Defined.
 (** Given any inhabitant [t : X b], its second component is equal to [k b],
        modulo transport along [Xphi b t]. *)
 
-Definition Xkphi_transp (b : ob B) (t : X b) : 
-     forall a : ob A, forall h : iso ((pr1 H) a) b, (* -> iso ((pr1 F) a) (Go b) *)
+Definition Xkphi_transp (b : B) (t : X b) : 
+     forall a : A, forall h : iso (H a) b, 
   transportf _ (Xphi b t) (kX t) a h ==  k b a h.
 Proof.
   unfold k.
@@ -244,8 +241,8 @@ Qed.
 (** Similarly to the lemma before, the second component of [t] is the same 
     as [k b], modulo postcomposition with an isomorphism. *)
 
-Definition Xkphi_idtoiso (b : ob B) (t : X b) :
-    forall a : ob A, forall h : iso (pr1 H a) b,
+Definition Xkphi_idtoiso (b : B) (t : X b) :
+    forall a : A, forall h : iso (H a) b,
    k b a h ;; idtoiso (!Xphi b t) == kX t a h.
 Proof.
   intros a h.
@@ -270,24 +267,23 @@ transportf (fun c' : ob C => forall a : ob A, iso (pr1 H a) b ->
 (** [G f] will be defined as the first component of the center of
      contraction of [Y f]. *)
 
-Let Y {b b' : ob B} (f : b --> b') :=
+Let Y {b b' : B} (f : b --> b') :=
   total2 (fun g : Go b --> Go b' =>
-      forall a : ob A,
-        forall h : iso (pr1 H a) b,
-          forall a' : ob A,
-            forall h' : iso (pr1 H a') b',
+      forall a : A,
+        forall h : iso (H a) b,
+          forall a' : A,
+            forall h' : iso (H a') b',
               forall l : a --> a',
-                #(pr1 H) l ;; h' == h ;; f -> #(pr1 F) l ;; k b' a' h' == k b a h ;; g).
+                #H l ;; h' == h ;; f -> #F l ;; k b' a' h' == k b a h ;; g).
 
-Lemma Y_inhab_proof (b b' : ob B) (f : b --> b') (a0 : ob A) (h0 : iso ((pr1 H) a0) b)
-    (a0' : ob A) (h0' : iso ((pr1 H) a0') b') :
-  forall (a : ob A) (h : iso ((pr1 H) a) b) (a' : ob A) (h' : iso ((pr1 H) a') b')
+Lemma Y_inhab_proof (b b' : B) (f : b --> b') (a0 : A) (h0 : iso (H a0) b)
+    (a0' : A) (h0' : iso (H a0') b') :
+  forall (a : A) (h : iso (H a) b) (a' : A) (h' : iso (H a') b')
     (l : a --> a'),
-  #(pr1 H) l;; h' == h;; f ->
-  #(pr1 F) l;; k b' a' h' ==
+  #H l;; h' == h;; f ->
+  #F l;; k b' a' h' ==
     k b a h;; ((inv_from_iso (k b a0 h0);;
-  #(pr1 F) (fully_faithful_inv_hom fH a0 a0' ((h0;; f);; inv_from_iso h0')));;
-       k b' a0' h0').
+  #F (fH^-1 ((h0;; f);; inv_from_iso h0')));; k b' a0' h0').
 Proof.
   intros a h a' h' l alpha.
   set (m := fH^-i (iso_comp h0 (iso_inv_from_iso h))).
@@ -365,21 +361,21 @@ Qed.
 
 (** The center of [Y b b' f]. *)
 
-Definition Y_inhab (b b' : ob B) (f : b --> b')
-      (a0 : ob A) (h0 : iso (pr1 H a0) b) (a0' : ob A) (h0' : iso (pr1 H a0') b') : Y b b' f.
+Definition Y_inhab (b b' : B) (f : b --> b')
+      (a0 : A) (h0 : iso (H a0) b) (a0' : A) (h0' : iso (H a0') b') : Y b b' f.
 Proof.
   set (hfh := h0 ;; f ;; inv_from_iso h0').
   set (l0 := fH^-1 hfh).
-  set (g0 := inv_from_iso (k b a0 h0) ;; #(pr1 F) l0  ;; k b' a0' h0').
+  set (g0 := inv_from_iso (k b a0 h0) ;; #F l0  ;; k b' a0' h0').
   exists g0.
   apply Y_inhab_proof.
 Defined.
 
 (** Any inhabitant of [Y b b' f] is equal to the center. *)
 
-Lemma Y_contr_eq (b b' : ob B) (f : b --> b')
-     (a0 : ob A) (h0 : iso (pr1 H a0) b)
-     (a0' : ob A) (h0' : iso (pr1 H a0') b') :
+Lemma Y_contr_eq (b b' : B) (f : b --> b')
+     (a0 : A) (h0 : iso (H a0) b)
+     (a0' : A) (h0' : iso (H a0') b') :
   forall t : Y b b' f, t == Y_inhab b b' f a0 h0 a0' h0'.
 Proof.
   intro t.
@@ -405,7 +401,7 @@ Qed.
 
 (** The type [Y b b' f] is contractible. *)
 
-Definition Y_iscontr  (b b' : ob B) (f : b --> b') : 
+Definition Y_iscontr  (b b' : B) (f : b --> b') : 
    iscontr (Y b b' f).
 Proof.
   assert (HH : isaprop (iscontr (Y b b' f))).
@@ -439,11 +435,11 @@ Proof.
   split; simpl.
   intro b.
   
-  assert (PR2 : forall (a : ob A) (h : iso ((pr1 H) a) b) (a' : ob A) 
-          (h' : iso ((pr1 H) a') b)
+  assert (PR2 : forall (a : A) (h : iso (H a) b) (a' : A) 
+          (h' : iso (H a') b)
     (l : a --> a'),
-  #(pr1 H) l;; h' == h;; identity b ->
-  #(pr1 F) l;; k b a' h' == k b a h;; identity (Go b)).
+  #H l;; h' == h;; identity b ->
+  #F l;; k b a' h' == k b a h;; identity (Go b)).
     intros a h a' h' l LL.
     rewrite id_right.
     apply (q b (tpair _ a h) (tpair _ a' h') l).
@@ -496,12 +492,11 @@ Proof.
     repeat rewrite assoc; apply idpath.
   
   
-  assert (PR2 : forall (a : ob A) (h : iso ((pr1 H) a) b)(a' : ob A)
-          (h' : iso ((pr1 H) a') b')
-            (l : a --> a'),
-           #(pr1 H) l;; h' == h;; f ->
-           #(pr1 F) l;; k b' a' h' ==
-            k b a h;; ((inv_from_iso (k b a0 h0);; #(pr1 F) l0);; k b' a0' h0') ).
+  assert (PR2 : forall (a : A) (h : iso (H a) b)(a' : A)
+          (h' : iso (H a') b') (l : a --> a'),
+           #H l;; h' == h;; f ->
+           #F l;; k b' a' h' ==
+            k b a h;; ((inv_from_iso (k b a0 h0);; #F l0);; k b' a0' h0') ).
     intros a h a' h' l.
     intro alpha.
     set (m := fH^-i (iso_comp h0 (iso_inv_from_iso h))).
@@ -577,9 +572,9 @@ Proof.
     rewrite star4.
     apply idpath.
   
-  assert (HGf : G f == inv_from_iso (k b a0 h0) ;; #(pr1 F) l0 ;; k b' a0' h0'). 
+  assert (HGf : G f == inv_from_iso (k b a0 h0) ;; #F l0 ;; k b' a0' h0'). 
     set (Gbrtilde :=
-           tpair _ (inv_from_iso (k b a0 h0) ;; #(pr1 F) l0 ;; k b' a0' h0') PR2 : Y b b' f).
+           tpair _ (inv_from_iso (k b a0 h0) ;; #F l0 ;; k b' a0' h0') PR2 : Y b b' f).
     set (H' := pr2 (Y_iscontr b b' f) Gbrtilde).
     set (H'' := base_paths _ _ H').
     simpl in H'.
@@ -587,12 +582,11 @@ Proof.
     apply idpath.
   
   clear PR2.
-  assert (PR2 : forall (a : ob A) (h : iso ((pr1 H) a) b') (a' : ob A) 
-            (h' : iso ((pr1 H) a') b'')
-                (l : a --> a'),
-         #(pr1 H) l;; h' == h;; f' ->
-           #(pr1 F) l;; k b'' a' h' ==
-         k b' a h;; ((inv_from_iso (k b' a0' h0');; #(pr1 F) l0');; k b'' a0'' h0'')).
+  assert (PR2 : forall (a : A) (h : iso (H a) b') (a' : A) 
+            (h' : iso (H a') b'') (l : a --> a'),
+         #H l;; h' == h;; f' ->
+           #F l;; k b'' a' h' ==
+         k b' a h;; ((inv_from_iso (k b' a0' h0');; #F l0');; k b'' a0'' h0'')).
     intros a' h' a'' h'' l'.
     intro alpha.
     set (m := fH^-i (iso_comp h0' (iso_inv_from_iso h'))).
@@ -665,12 +659,11 @@ Proof.
     apply idpath.
   
   clear PR2.
-  assert (PR2 : forall (a : ob A) (h : iso ((pr1 H) a) b) (a' : ob A) 
-             (h' : iso ((pr1 H) a') b'')
-                (l : a --> a'),
-          #(pr1 H) l;; h' == h;; (f;; f') ->
-          #(pr1 F) l;; k b'' a' h' ==
-           k b a h;; ((inv_from_iso (k b a0 h0);; #(pr1 F) l0'');; k b'' a0'' h0'')).
+  assert (PR2 : forall (a : A) (h : iso (H a) b) (a' : A) 
+             (h' : iso (H a') b'') (l : a --> a'),
+          #H l;; h' == h;; (f;; f') ->
+          #F l;; k b'' a' h' ==
+           k b a h;; ((inv_from_iso (k b a0 h0);; #F l0'');; k b'' a0'' h0'')).
     intros a h a'' h'' l.
     intro alpha.
     set (m := fH^-i (iso_comp h0 (iso_inv_from_iso h))).
@@ -731,16 +724,16 @@ Proof.
     rewrite star4.
     apply idpath.
   assert (HGff' : G (f ;; f') == 
-       inv_from_iso (k b a0 h0) ;; #(pr1 F) l0'' ;; k b'' a0'' h0''). 
+       inv_from_iso (k b a0 h0) ;; #F l0'' ;; k b'' a0'' h0''). 
     set (Gbrtilde :=
-           tpair _ (inv_from_iso (k b a0 h0) ;; #(pr1 F) l0'' ;; k b'' a0'' h0'') PR2 : 
+           tpair _ (inv_from_iso (k b a0 h0) ;; #F l0'' ;; k b'' a0'' h0'') PR2 : 
                Y b b'' (f ;; f')).
     rewrite <- (pr2 (Y_iscontr b b'' (f ;; f')) Gbrtilde).
     apply idpath.
   clear PR2.
   rewrite HGf, HGf'.
-  pathvia (inv_from_iso (k b a0 h0);; #(pr1 F) l0;; (k b' a0' h0';;
-              inv_from_iso (k b' a0' h0'));; #(pr1 F) l0';; k b'' a0'' h0'').
+  pathvia (inv_from_iso (k b a0 h0);; #F l0;; (k b' a0' h0';;
+              inv_from_iso (k b' a0' h0'));; #F l0';; k b'' a0'' h0'').
     rewrite iso_inv_after_iso, id_right.
     rewrite HGff'. 
     repeat rewrite <- assoc.
@@ -765,12 +758,12 @@ Definition GG : ob [B, C] := tpair _ preimage_functor_data
      first component is [F a]. 
    This allows to prove [G (H a) == F a]. *)
 
-Lemma qF (a0 : ob A) :
-  forall (t t' : total2 (fun a : ob A => iso ((pr1 H) a) ((pr1 H) a0)))
+Lemma qF (a0 : A) :
+  forall (t t' : total2 (fun a : ob A => iso (H a) (H a0)))
     (f : pr1 t --> pr1 t'),
-  #(pr1 H) f;; pr2 t' == pr2 t ->
-  #(pr1 F) f;; #(pr1 F) (fully_faithful_inv_hom fH (pr1 t') a0 (pr2 t')) ==
-  #(pr1 F) (fully_faithful_inv_hom fH (pr1 t) a0 (pr2 t)).
+  #H f;; pr2 t' == pr2 t ->
+  #F f;; #F (fH^-1 (pr2 t')) ==
+  #F (fH^-1  (pr2 t)).
 Proof.
   simpl.
   intros [a h] [a' h'] f L.
@@ -778,8 +771,7 @@ Proof.
   rewrite <- (functor_comp A C F).
   apply maponpaths.
   apply (equal_transport_along_weq _ _ (weq_from_fully_faithful fH a a0)
-                 (f;; fully_faithful_inv_hom fH a' a0 h')                      
-                 (fully_faithful_inv_hom fH a a0 h)  ).
+                 (f;; fH^-1 h') (fH^-1 h)  ).
   inv_functor fH a a0.
   rewrite functor_comp.
   inv_functor fH a' a0.
@@ -787,14 +779,14 @@ Proof.
 Qed.
 
 
-Definition kFa (a0 : ob A) : forall a : ob A, 
-  iso ((pr1 H) a) ((pr1 H) a0) -> iso (pr1 F a) (pr1 F a0) := 
- fun (a : ob A) (h : iso ((pr1 H) a) ((pr1 H) a0)) =>
+Definition kFa (a0 : A) : forall a : A, 
+  iso (H a) (H a0) -> iso (F a) (F a0) := 
+ fun (a : A) (h : iso (H a) (H a0)) =>
        functor_on_iso A C F a a0
          (iso_from_fully_faithful_reflection fH a a0 h).
 
-Definition XtripleF (a0 : ob A) : X (pr1 H a0) :=
-   tpair _ (tpair _ (pr1 F a0) (kFa a0)) (qF a0).
+Definition XtripleF (a0 : A) : X (H a0) :=
+   tpair _ (tpair _ (F a0) (kFa a0)) (qF a0).
 
 
 Lemma phi (a0 : ob A) : pr1 (pr1 (GG O H)) a0 == pr1 (pr1 F) a0.
@@ -825,11 +817,11 @@ Proof.
   rewrite <- idtoiso_precompose.
   rewrite idtoiso_inv.
   rewrite <- assoc.
-  assert (PSIf : forall (a : ob A) (h : iso ((pr1 H) a) ((pr1 H) a0)) (a' : ob A)
-  (h' : iso ((pr1 H) a') ((pr1 H) a0')) (l : a --> a'),
-         #(pr1 H) l;; h' == h;; #(pr1 H) f ->
-         #(pr1 F) l;; k ((pr1 H) a0') a' h' ==
-         k ((pr1 H) a0) a h;;
+  assert (PSIf : forall (a : A) (h : iso (H a) (H a0)) (a' : A)
+  (h' : iso (H a') (H a0')) (l : a --> a'),
+         #H l;; h' == h;; #H f ->
+         #F l;; k (H a0') a' h' ==
+         k (H a0) a h;;
          ((idtoiso (phi a0);; #(pr1 F) f);; inv_from_iso (idtoiso (phi a0')))).
     intros a h a' h' l alpha.
     rewrite assoc.
@@ -853,10 +845,10 @@ Proof.
     rewrite (functor_comp _ _ F).
     apply idpath.
   set (Ybla := tpair _ (idtoiso (phi a0) ;; # (pr1 F) f ;; inv_from_iso (idtoiso (phi a0')))
-                    PSIf : Y _ _ (#(pr1 H) f)).
+                    PSIf : Y _ _ (#H f)).
   set (Ycontr := pr2 (Y_iscontr _ _ (#(pr1 H) f)) Ybla).
   set (Ycontr2 := base_paths _ _ Ycontr); simpl in *.
-  change (G (#H f)) with (G (#(pr1 H) f)).
+  change (G (#H f)) with (G (#(pr1 H) f)). 
   rewrite <- Ycontr2.
   repeat rewrite assoc.
   rewrite iso_after_iso_inv, id_left.
