@@ -52,7 +52,7 @@ Definition functor_compose_2 (A B C : precategory) (F : ob [A, B])
       (G : ob [B , C]) : functor A C := 
    functor_composite _ _ _ F G.
 
-Notation "G 'O' F" := (functor_compose _ _ _ F G) (at level 25).
+Local Notation "G 'O' F" := (functor_compose _ _ _ F G) (at level 25).
 Local Notation "G 'o' F" := (functor_compose_2 _ _ _ F G) (at level 25).
 
 (** * Whiskering: Composition of a natural transformation with a functor *)

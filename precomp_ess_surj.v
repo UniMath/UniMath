@@ -40,6 +40,7 @@ Notation "[ C , D ]" := (functor_precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "FF ^-1" := (fully_faithful_inv_hom FF _ _ ) (at level 20).
 Local Notation "F '^-i'" := (iso_from_fully_faithful_reflection F _ _) (at level 20).
+Local Notation "G 'O' F" := (functor_compose _ _ _ F G) (at level 25).
 
 Ltac simp_rew lem := let H:=fresh in
      assert (H:= lem); simpl in *; rewrite H; clear H.
