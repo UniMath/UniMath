@@ -1,19 +1,30 @@
-rezk_completion
+Rezk Completion
 ===============
 
-Rezk completion
+This Coq library mechanizes the Rezk completion as described in
+http://arxiv.org/abs/1303.0584
 
-Files used from V. Voevodsky's Foundations [1]:
+It builds upon V. Voevodsky's Foundations library, available on
+http://arxiv.org/abs/1401.0053
 
-  - uuu.vo
-  - uu0.vo
-  - hProp.vo
-  - hSet.vo
-  - funextfun.vo
+## Requirements
 
-They should be installed in the user-contrib/Foundations directory of coq, so
-coq can find them.  The repository at [2], branch vv-master, installs them
-there, but the repository at [1] has not been updated to do that.
+### Coq
 
-[1] https://github.com/vladimirias/Foundations
-[2] https://github.com/DanGrayson/Foundations2
+The library compiles under Coq8.3pl5, patched according to the instructions given in 
+http://arxiv.org/abs/1401.0053. 
+Lower patch levels of Coq8.3, e.g., Coq8.3pl2, are likely to work as well.
+
+### Libraries
+
+Files used from V. Voevodsky's Foundations:
+
+  - uuu.v
+  - uu0.v
+  - hProp.v
+  - hSet.v
+  - funextfun.v
+
+They should be installed in the user-contrib/Foundations directory of Coq, so
+Coq can find them. 
+
