@@ -228,7 +228,7 @@ Proof.
   apply isapropisweq.
 Qed.
 
-Definition weq_from_fully_faithful (C D : precategory) (F : functor C D) 
+Definition weq_from_fully_faithful {C D : precategory}{F : functor C D}
       (FF : fully_faithful F) (a b : ob C) : 
    weq (a --> b) (F a --> F b).
 Proof.
@@ -237,25 +237,22 @@ Proof.
 Defined.
 
 
-Definition fully_faithful_inv_hom (C D : precategory) (F : functor C D) 
+Definition fully_faithful_inv_hom {C D : precategory}{F : functor C D} 
       (FF : fully_faithful F) (a b : ob C) :
       F a --> F b -> a --> b :=
- invweq (weq_from_fully_faithful C D F FF a b).
+ invweq (weq_from_fully_faithful FF a b).
 
-Local Notation "FF ^-1" := (fully_faithful_inv_hom _ _ _ FF _ _ ) (at level 20).
+Local Notation "FF ^-1" := (fully_faithful_inv_hom FF _ _ ) (at level 20).
 
 Lemma fully_faithful_inv_identity (C D : precategory) (F : functor C D)
       (FF : fully_faithful F) (a : ob C) : 
          FF^-1 (identity (F a)) == identity _.
-(*    fully_faithful_inv_hom _ _ _ HF _ _ (identity (F a)) == identity _ . *)
 Proof.
-  set (h' := equal_transport_along_weq _ _ (weq_from_fully_faithful _ _ _ FF a a)).
-  apply h'.
-  set (HFFaa := homotweqinvweq (weq_from_fully_faithful _ _ _ FF a a)
-                 (identity _ )).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful FF a a)).
   unfold fully_faithful_inv_hom.
+  set (HFaa:=homotweqinvweq (weq_from_fully_faithful FF a a)(identity _ )).
   simpl in *. 
-  rewrite HFFaa.
+  rewrite HFaa.
   rewrite functor_id; apply idpath.
 Qed.
 
@@ -264,24 +261,19 @@ Lemma fully_faithful_inv_comp (C D : precategory) (F : functor C D)
       (FF : fully_faithful F) (a b c : ob C) 
       (f : F a --> F b) (g : F b --> F c) : 
         FF^-1 (f ;; g) == FF^-1 f ;; FF^-1 g.
-(*    fully_faithful_inv_hom _ _ _ HF _ _ (f ;; g) ==
-       fully_faithful_inv_hom _ _ _ HF _ _ f ;; 
-           fully_faithful_inv_hom _ _ _ HF _ _ g.
-*)
 Proof.
-  set (h' := equal_transport_along_weq _ _ (weq_from_fully_faithful _ _ _ FF a c)).
-  apply h'.
-  set (HFFac := homotweqinvweq (weq_from_fully_faithful _ _ _ FF a c)
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful FF a c)).
+  set (HFFac := homotweqinvweq (weq_from_fully_faithful FF a c)
                  (f ;; g)).
   unfold fully_faithful_inv_hom.
   simpl in *.
-  rewrite HFFac.
+  rewrite HFFac; clear HFFac.
   rewrite functor_comp.
-  set (HFFab := homotweqinvweq (weq_from_fully_faithful _ _ _ FF a b) f).
-  set (HFFbc := homotweqinvweq (weq_from_fully_faithful _ _ _ FF b c) g).
+  set (HFFab := homotweqinvweq (weq_from_fully_faithful FF a b) f).
+  set (HFFbc := homotweqinvweq (weq_from_fully_faithful FF b c) g).
   simpl in *.
-  rewrite HFFab.
-  rewrite HFFbc.
+  rewrite HFFab; clear HFFab.
+  rewrite HFFbc; clear HFFbc.
   apply idpath.
 Qed.
 
@@ -295,21 +287,19 @@ Lemma inv_of_ff_inv_is_inv (C D : precategory) (F : functor C D)
 Proof.
   unfold fully_faithful_inv_hom; simpl.
   split.
-  set (hhh := equal_transport_along_weq _ _ (weq_from_fully_faithful C D F FF a a)).
-  apply hhh.
-  set (HFFab := homotweqinvweq (weq_from_fully_faithful C D F FF a b)).
-  set (HFFba := homotweqinvweq (weq_from_fully_faithful C D F FF b a)).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful FF a a)).
+  set (HFFab := homotweqinvweq (weq_from_fully_faithful FF a b)).
+  set (HFFba := homotweqinvweq (weq_from_fully_faithful FF b a)).
   simpl in *.
   rewrite functor_comp.
-  rewrite HFFab.
-  rewrite HFFba.
+  rewrite HFFab; clear HFFab.
+  rewrite HFFba; clear HFFba.
   rewrite functor_id.
   apply iso_inv_after_iso.
   
-  set (hhh := equal_transport_along_weq _ _ (weq_from_fully_faithful C D F FF b b)).
-  apply hhh.
-  set (HFFab := homotweqinvweq (weq_from_fully_faithful C D F FF a b)).
-  set (HFFba := homotweqinvweq (weq_from_fully_faithful C D F FF b a)).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful FF b b)).
+  set (HFFab := homotweqinvweq (weq_from_fully_faithful FF a b)).
+  set (HFFba := homotweqinvweq (weq_from_fully_faithful FF b a)).
   simpl in *.
   rewrite functor_comp.
   rewrite HFFab.
@@ -323,19 +313,18 @@ Lemma fully_faithful_reflects_iso_proof (C D : precategory)(F : functor C D)
         (FF : fully_faithful F)
     (a b : ob C) (f : iso (F a) (F b)) : 
      is_isomorphism (FF^-1 f).
-(*     is_isomorphism (fully_faithful_inv_hom C D F HF a b f). *)
 Proof.
   exists (FF^-1 (inv_from_iso f)).
   simpl;
   apply inv_of_ff_inv_is_inv.
 Defined.
 
-Definition  iso_from_fully_faithful_reflection (C D : precategory)(F : functor C D) 
+Definition  iso_from_fully_faithful_reflection {C D : precategory}{F : functor C D} 
         (HF : fully_faithful F)
     (a b : ob C) (f : iso (F a) (F b)) : 
       iso a b.
 Proof.
-  exists (fully_faithful_inv_hom C D F HF a b f).
+  exists (fully_faithful_inv_hom HF a b f).
   apply fully_faithful_reflects_iso_proof.
 Defined.
 
@@ -343,11 +332,11 @@ Lemma functor_on_iso_iso_from_fully_faithful_reflection (C D : precategory)
       (F : functor C D) (HF : fully_faithful F) (a b : ob C)
    (f : iso (F a) (F b)) :
       functor_on_iso _ _  F a b
-        (iso_from_fully_faithful_reflection _ _  F HF a b f) == f.
+        (iso_from_fully_faithful_reflection HF a b f) == f.
 Proof.
   apply eq_iso. 
   simpl;
-  apply (homotweqinvweq (weq_from_fully_faithful _ _ _ HF a b)).
+  apply (homotweqinvweq (weq_from_fully_faithful HF a b)).
 Qed.
 
 
@@ -373,15 +362,8 @@ Qed.
 (** ** Full functors *)
 
 
-(** Probably full should be squashed to a proposition.
-    Since we are only using it in conjunction with faithful, however,
-    this doesn't make a difference: we have that
-    [full F * faithful F] is a proposition.
-*)
-
-
 Definition full {C D : precategory} (F : functor C D) :=
-   forall a b (g : F a --> F b), total2 (fun f : a --> b => #F f == g).
+   forall a b (g : F a --> F b), ishinh (total2 (fun f : a --> b => #F f == g)).
 
 
 
@@ -399,14 +381,15 @@ Proof.
   split; simpl.
   unfold full. 
   intros a b f.
-  exists (fully_faithful_inv_hom _ _ _ H _ _ f).
-  set (HFFaa := homotweqinvweq (weq_from_fully_faithful _ _ _ H a b)).
+  apply hinhpr.
+  exists (fully_faithful_inv_hom H _ _ f).
+  set (HFFaa := homotweqinvweq (weq_from_fully_faithful H a b)).
   simpl in HFFaa.
   apply HFFaa.
   
   unfold faithful.
   intros a b f g Heq.
-  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful C D F H a b)).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful H a b)).
   simpl. assumption.
 Qed.
 
@@ -416,18 +399,22 @@ Proof.
   intros [Hfull Hfaith].
   intros a b g.
   unfold full in Hfull.
-  exists (Hfull a b g).
+  set (Hfull_f :=  Hfull a b g).
+  assert (H : isaprop (iscontr (hfiber #F g))).
+     apply isapropiscontr.
+  apply (Hfull_f (hProppair (iscontr (hfiber #F g)) H)).
+  simpl. intro X. exists X.
   unfold hfiber.
   intro t.
   unfold faithful in Hfaith.
-  assert (X : pr1 t == pr1 (Hfull a b g)).
+  assert (HX : pr1 t == pr1 X).
   apply Hfaith.
   rewrite (pr2 t). 
-  set (H':= pr2 (Hfull a b g)).
+  set (H':= pr2 X).
   simpl in H'.
   rewrite H'. apply idpath.
   simpl in *.
-  apply (total2_paths  X).
+  apply (total2_paths HX).
   apply proofirrelevance.
   apply (pr2 (F a --> F b)).
 Qed.
@@ -435,29 +422,10 @@ Qed.
 Lemma isaprop_full_and_faithful (C D : precategory) (F : functor C D) :
    isaprop (full_and_faithful F).
 Proof.
-  apply isofhlevelsn.
-  intro H.
   apply isofhleveldirprod.
-  apply impred; intro b.
-  apply impred; intro c.
-  apply impred; intro g.
-  apply invproofirrelevance.
-  intros f f'.
-  assert (HH : pr1 f == pr1 f').
-  
-  set (HF := full_and_faithful_implies_fully_faithful _ _ _ H).
-  set (h' := equal_transport_along_weq _ _
-          (weq_from_fully_faithful _ _ _ HF b c)).
-       apply h'.
-       simpl.
-  rewrite (pr2 f).
-  rewrite (pr2 f').
-  apply idpath.
-  
-  apply (total2_paths HH).
-  apply proofirrelevance.
-  apply (pr2 (F b --> F c)).
-  
+  repeat (apply impred; intro).
+  simpl. repeat (apply impred; intro).
+  apply isapropishinh.
   apply isaprop_faithful.
 Qed.
   
@@ -495,16 +463,13 @@ Lemma functor_composite_ob_mor {C C' C'' : precategory}
     (fun a => F' (F a))
                (fun (a b : ob C) f => #F' (#F f))).
 Proof.
-  split;
-  simpl.
+  split; simpl.
   intro a.
-  rewrite functor_id.
-  rewrite functor_id.
-  apply (idpath _).
+  repeat rewrite functor_id.
+  apply idpath.
   
-  intros a b c f g.
-  rewrite functor_comp.
-  rewrite functor_comp.
+  intros.
+  repeat rewrite functor_comp.
   apply idpath.
 Qed.
 
@@ -521,13 +486,9 @@ Lemma functor_identity_ob_mor (C : precategory) :
     (fun a => a)
                (fun (a b : ob C) f => f)).
 Proof.
-  split;
-  simpl.
-  intro a.
-  apply (idpath _).
-  
-  intros a b c f g.
-  apply idpath.
+  split; simpl.
+  intros; apply idpath.
+  intros; apply idpath.
 Qed.
 
 Definition functor_identity (C : precategory) :
@@ -539,18 +500,11 @@ Proof.
                (fun (a b : ob C) f => f)).
   apply  (functor_identity_ob_mor C).
 Defined.
-
-
-    
+   
 
 
 (** * Natural transformations *)
 
-(*
-Definition functor_fun_data {C C' : precategory_data}
-  (F F' : precategory_ob_mor_fun C C') :=
-     forall x : ob C, F x --> F' x.
-*)
 
 (** ** Definition of natural transformations *)
 
@@ -636,7 +590,7 @@ Lemma is_nat_trans_id {C C' : precategory}
   (F : functor_data C C') : is_nat_trans F F
      (fun c : ob C => identity (F c)).
 Proof.
-  intros c c' f.
+  intros ? ? ? .
   rewrite id_left.
   rewrite id_right.
   apply idpath.
@@ -654,7 +608,7 @@ Lemma is_nat_trans_comp {C C' : precategory}
   (b : nat_trans G H): is_nat_trans F H
      (fun x : ob C => a x ;; b x).
 Proof.
-  intros c c' f.
+  intros ? ? ? .
   rewrite assoc.
   rewrite nat_trans_ax.
   rewrite <- assoc.
@@ -791,10 +745,6 @@ Proof.
   set (R := pr1 H).
   simpl in *.
   exists (R a).
-(*  exists (pr1 H a).
-  destruct H as [A' [H1 H2]].
-  simpl in A'. exists (A' a).
-*)
   unfold is_inverse_in_precat in *; simpl; split.
   set (H1' := nat_trans_eq_pointwise _ _ _ _ _ _ (pr1 (pr2 H))).
   simpl in H1'.
@@ -862,22 +812,12 @@ Definition pr1_functor_eq_from_functor_iso (C D : precategory)
 Proof.
   intro A.
   apply (total2_paths (pr1_pr1_functor_eq_from_functor_iso C D H F G A)).
-  simpl in *.
   unfold pr1_pr1_functor_eq_from_functor_iso.
-  simpl in *.
-  apply funextsec.
-  intro a.
-  apply funextsec.
-  intro b.
-  apply funextsec.
-  intro f.
+  apply funextsec; intro a.
+  apply funextsec; intro b.
+  apply funextsec; intro f.
   rewrite transport_of_functor_map_is_pointwise.
-  rewrite toforallpaths_funextsec.
-  set (H':= double_transport_idtoiso D _ _ _ _  
-         (isotoid D H (functor_iso_pointwise_if_iso C D F G A (pr2 A) a))
-         (isotoid D H (functor_iso_pointwise_if_iso C D F G A (pr2 A) b))
-          (pr2 (pr1 F) a b f)).
-          unfold double_transport in H'. 
+  rewrite toforallpaths_funextsec.  
   pathvia ((inv_from_iso
         (idtoiso
            (isotoid D H
@@ -886,8 +826,12 @@ Proof.
      idtoiso
        (isotoid D H
           (functor_iso_pointwise_if_iso C D F G A (pr2 A) b))).
-  apply H'.
-  clear H'.
+    set (H':= double_transport_idtoiso D _ _ _ _  
+         (isotoid D H (functor_iso_pointwise_if_iso C D F G A (pr2 A) a))
+         (isotoid D H (functor_iso_pointwise_if_iso C D F G A (pr2 A) b))
+          (pr2 (pr1 F) a b f)).
+      unfold double_transport in H'. 
+      apply H'; clear H'.
   rewrite idtoiso_isotoid.
   rewrite idtoiso_isotoid.
   destruct A as [A Aiso].
@@ -931,8 +875,7 @@ idtoiso
      (base_paths (pr1 F) (pr1 G) (base_paths F G p)) a).
 Proof.
   induction p.
-  simpl.
-  apply eq_iso. simpl. apply idpath.
+  apply eq_iso. apply idpath.
 Qed.
 
 
@@ -941,55 +884,42 @@ Lemma functor_eq_from_functor_iso_idtoiso (C D : precategory)
     (F G : ob [C, D]) (p : F == G) :
   functor_eq_from_functor_iso H F G (idtoiso p) == p.
 Proof.
-  simpl.
-  apply functor_eq_eq_from_functor_ob_eq.
+  simpl; apply functor_eq_eq_from_functor_ob_eq.
   unfold functor_eq_from_functor_iso.
   unfold functor_eq.
-  simpl.
   rewrite base_total_path.
   unfold pr1_functor_eq_from_functor_iso.
   rewrite base_total_path.
   unfold pr1_pr1_functor_eq_from_functor_iso.
-  
   apply (equal_transport_along_weq _ _   (weqtoforallpaths _ _ _ )).
-  
   simpl.
   rewrite toforallpaths_funextsec.
-  simpl.
-  apply funextsec.
-  intro a. 
+  apply funextsec; intro a. 
   rewrite idtoiso_compute_pointwise.
-  
-  rewrite isotoid_idtoiso.
-  apply idpath.
+  apply isotoid_idtoiso.
 Qed.
 
 Lemma idtoiso_functor_eq_from_functor_iso (C D : precategory)
     (H : is_category D)
     (F G : ob [C, D]) (gamma : iso F G) :
-        idtoiso  (functor_eq_from_functor_iso H F G gamma) == gamma.
+        idtoiso (functor_eq_from_functor_iso H F G gamma) == gamma.
 Proof.
   apply eq_iso.
-  simpl.
-  apply nat_trans_eq.
-  intro a.
-  set (H':= idtoiso_compute_pointwise C D F G (functor_eq_from_functor_iso H F G gamma) a).
+  simpl; apply nat_trans_eq; intro a.
+  assert (H':= idtoiso_compute_pointwise C D F G (functor_eq_from_functor_iso H F G gamma) a).
   simpl in *.
-  set (H2 := maponpaths (@pr1 _ _ ) H').
-  simpl in H2.
   pathvia (pr1
        (idtoiso
           (toforallpaths (fun _ : ob C => D) (pr1 (pr1 F)) (pr1 (pr1 G))
              (base_paths (pr1 F) (pr1 G)
                 (base_paths F G (functor_eq_from_functor_iso H F G gamma))) a))).
-  apply H2. clear H2.
+      assert (H2 := maponpaths (@pr1 _ _ ) H').
+      simpl in H2. apply H2. 
   unfold functor_eq_from_functor_iso.
-  simpl.
   unfold functor_eq.
   rewrite base_total_path.
   unfold pr1_functor_eq_from_functor_iso.
   rewrite base_total_path.
-
   pathvia (pr1 (idtoiso
      (isotoid D H (functor_iso_pointwise_if_iso C D F G gamma (pr2 gamma) a)))).
   apply maponpaths.
@@ -1008,7 +938,7 @@ Proof.
   apply (gradth _ (functor_eq_from_functor_iso H F G)).
   apply functor_eq_from_functor_iso_idtoiso.
   apply idtoiso_functor_eq_from_functor_iso.
-Qed.
+Defined.
 
 Lemma is_category_functor_category (C D : precategory) (H : is_category D) :
    is_category [C, D].

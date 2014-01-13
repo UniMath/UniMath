@@ -94,6 +94,7 @@ Notation HSET := hset_precategory.
 Lemma hset_iso_is_equiv (A B : ob HSET) 
    (f : iso A B) : isweq (pr1 f).
 Proof.
+
   destruct f as [f fax]; simpl in *.
   apply (gradth _ (pr1 fax)).
   destruct fax as [g [eta eps]]; simpl in *.
@@ -106,7 +107,7 @@ Proof.
   simpl in *.
   intro x.
   apply (toforallpaths _ _ _ eps).
-Qed.
+Defined.
   
 
 Lemma hset_iso_equiv (A B : ob HSET) : iso A B -> weq (pr1 A) (pr1 B).
@@ -125,17 +126,14 @@ Lemma hset_equiv_is_iso (A B : hSet)
            is_isomorphism (C:=HSET) (pr1 f).
 Proof.
   exists (invmap f).
-  simpl.
-  set (H := homotweqinvweq f).
-  set (H':= homotinvweqweq f).
   split; simpl.
   apply funextfunax; intro x; simpl in *.
-  unfold compose, identity; simpl.
-  apply H'.
+  unfold compose, identity; simpl. 
+  apply homotinvweqweq.
   apply funextfunax; intro x; simpl in *.
   unfold compose, identity; simpl.
-  apply H.
-Qed.
+  apply homotweqinvweq.
+Defined.
 
 Lemma hset_equiv_iso (A B : ob HSET) : weq (pr1 A) (pr1 B) -> iso A B.
 Proof.
@@ -151,22 +149,10 @@ Defined.
 Lemma hset_iso_equiv_is_equiv (A B : ob HSET) : isweq (hset_iso_equiv A B).
 Proof.
   apply (gradth _ (hset_equiv_iso A B)).
-  intro f.
-  assert (H : pr1 (hset_equiv_iso A B (hset_iso_equiv A B f)) ==
-              pr1 f).
-  simpl. 
-  apply idpath.
-  apply (total2_paths H).
-  apply proofirrelevance.
-  apply isaprop_is_isomorphism.
-  intro g.
-  assert (H : pr1 (hset_iso_equiv A B (hset_equiv_iso A B g)) == 
-              pr1 g).
-  simpl. 
-  apply idpath.
-  apply (total2_paths H).
-  apply proofirrelevance.
-  apply isapropisweq.
+  intro; apply eq_iso; reflexivity.  
+  intro; apply total2_paths_hProp.
+    intro; apply isapropisweq.
+    reflexivity.
 Qed.
 
 Definition hset_iso_equiv_weq (A B : ob HSET) : weq (iso A B) (weq (pr1 A) (pr1 B)).
@@ -179,21 +165,11 @@ Lemma hset_equiv_iso_is_equiv (A B : ob HSET) : isweq (hset_equiv_iso A B).
 Proof.
   apply (gradth _ (hset_iso_equiv A B)).
   intro f.
-  assert (H : pr1 (hset_iso_equiv A B (hset_equiv_iso A B f)) ==
-              pr1 f).
-  simpl. 
-  apply idpath.
-  apply (total2_paths H).
-  apply proofirrelevance.
-  apply isapropisweq.
-  intro g.
-  assert (H : pr1 (hset_equiv_iso A B (hset_iso_equiv A B g)) == 
-              pr1 g).
-  simpl. 
-  apply idpath.
-  apply (total2_paths H).
-  apply proofirrelevance.
-  apply isaprop_is_isomorphism.
+  apply total2_paths_hProp. 
+    apply isapropisweq.
+    reflexivity.
+  intro; apply eq_iso.
+  reflexivity.
 Qed.
 
 Definition hset_equiv_iso_weq (A B : ob HSET) :
@@ -225,24 +201,12 @@ Lemma hset_id_iso_weq_is (A B : ob HSET):
     @idtoiso _ A B == pr1 (hset_id_iso_weq A B).
 Proof.
   apply funextfunax.
-  intro p.
-  elim p.
-  simpl.
-  assert (H : pr1 (identity_iso A) ==
-              pr1 (hset_equiv_iso A A (pr1 (UA_for_HLevels 2 A A) (idpath A)))).
-  
-             simpl.
-  simpl in *.
-  apply funextfun.
-  unfold identity. simpl.
+  intro p; elim p.
+  apply eq_iso; simpl.
+  apply funextfun;
   intro x; 
-  simpl. clear p.
-  destruct A as [A As].
-  simpl. apply idpath.
-  
-  apply (total2_paths H).
-  apply proofirrelevance.
-  apply isaprop_is_isomorphism.
+  destruct A. 
+  apply idpath.
 Defined.
 
 
@@ -251,13 +215,13 @@ Lemma is_weq_precat_paths_to_iso_hset (A B : ob HSET):
 Proof.
   rewrite hset_id_iso_weq_is.
   apply (pr2 (hset_id_iso_weq A B)).
-Qed.
+Defined.
 
 Lemma is_category_HSET : is_category HSET.
 Proof.
   unfold is_category.
   apply is_weq_precat_paths_to_iso_hset.
-Qed.
+Defined.
 
 
 
