@@ -423,7 +423,9 @@ Lemma isaprop_full_and_faithful (C D : precategory) (F : functor C D) :
    isaprop (full_and_faithful F).
 Proof.
   apply isofhleveldirprod.
-  repeat (apply impred; intro).
+  apply impred; intro.
+  apply impred; intro.
+  apply impred; intro.
   simpl. repeat (apply impred; intro).
   apply isapropishinh.
   apply isaprop_faithful.
