@@ -14,6 +14,7 @@ Definition propproperty ( X : hProp ) := pr2 X .
     once we consider fibrations over a type in universe [UU], 
     once we consider fibrations over the universe [UU] itself *)
 
+
 Lemma total2_paths {A : UU} {B : A -> UU} {s s' : total2 (fun x => B x)} 
     (p : pr1 s == pr1 s') 
     (q : transportf (fun x => B x) p (pr2 s) == pr2 s') : 
@@ -23,6 +24,16 @@ Proof.
   simpl in p; destruct p.
   simpl in q; destruct q.
   apply idpath.
+Defined.
+
+
+Lemma total2_paths_hProp (A : UU) (B : A -> UU) (is : forall a, isaprop (B a))
+    (s s' : total2 (fun x => B x)) : pr1 s == pr1 s' -> s == s'.
+Proof.
+  intro h.
+  apply (total2_paths h).
+  apply proofirrelevance.
+  apply is.
 Defined.
 
 Lemma total2_paths_UU  {B : UU -> UU} {s s' : total2 (fun x => B x)} 

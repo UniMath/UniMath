@@ -48,12 +48,9 @@ Definition functor_compose (A B C : precategory) (F : ob [A, B])
       (G : ob [B , C]) : ob [A , C] := 
    functor_composite _ _ _ F G.
 
-Definition functor_compose_2 (A B C : precategory) (F : ob [A, B])
-      (G : ob [B , C]) : functor A C := 
-   functor_composite _ _ _ F G.
 
-Notation "G 'O' F" := (functor_compose _ _ _ F G) (at level 25).
-Local Notation "G 'o' F" := (functor_compose_2 _ _ _ F G) (at level 25).
+Local Notation "G 'O' F" := (functor_compose _ _ _ F G) (at level 25).
+Local Notation "G 'o' F" := (functor_compose _ _ _ F G : functor _ _ ) (at level 25).
 
 (** * Whiskering: Composition of a natural transformation with a functor *)
 
@@ -65,9 +62,8 @@ Lemma is_nat_trans_pre_whisker (A B C : precategory) (F : functor A B)
      (fun a : ob A =>  gamma (F a)).
 Proof.
   unfold is_nat_trans.
-  simpl.
-  intros x x' f.
-  rewrite  (nat_trans_ax _ _ gamma).
+  intros; simpl;
+  rewrite nat_trans_ax.
   apply idpath.
 Qed.
 
@@ -81,17 +77,17 @@ Defined.
 (** Postwhiskering *)
 
 Lemma is_precat_fun_fun_post_whisker (B C D : precategory) 
-   (G H : ob [B, C]) (gamma : G --> H) 
-        (K : ob [C, D]): 
+   (G H : functor B C) (gamma : nat_trans G  H) 
+        (K : functor C D): 
   is_nat_trans (functor_composite _ _ _ G K) 
                          (functor_composite _ _ _ H K) 
-     (fun a : ob B => # (pr1 K) (pr1 gamma  a)).
+     (fun b : B => #K (gamma b)).
 Proof.
   unfold is_nat_trans.
   simpl in *.
-  intros x x' f.
+  intros;
   repeat rewrite <- functor_comp.
-  rewrite  (nat_trans_ax _ _ gamma).
+  rewrite (nat_trans_ax _ _ gamma).
   apply idpath.
 Qed.
 
@@ -99,7 +95,7 @@ Definition post_whisker (B C D : precategory)
    (G H : ob [B, C]) (gamma : G --> H) 
         (K : ob [C, D]) : K O G --> K O H.
 Proof.
-  exists (fun a : ob B => # (pr1 K) (pr1 gamma  a)).
+  exists (fun a : ob B => #(pr1 K) (pr1 gamma  a)).
   apply is_precat_fun_fun_post_whisker.
 Defined.
 
@@ -113,7 +109,7 @@ Proof.
   exact (fun a b gamma => pre_whisker _ _ _ H _ _ gamma).
 Defined.
 
-Lemma pre_composition_is_functor (A B C : precategory) (H : ob [A, B]) :
+Lemma pre_composition_is_functor (A B C : precategory) (H : [A, B]) :
     is_functor (pre_composition_functor_data A B C H).
 Proof.
   split; simpl.
@@ -121,14 +117,11 @@ Proof.
   apply nat_trans_eq.
   intro a. apply idpath.
   
-  intros K L M a b.
-  apply nat_trans_eq.
-  unfold pre_whisker.
-  intro x.
-  apply idpath.
+  intros; apply nat_trans_eq.
+  intro; apply idpath.
 Qed.
 
-Definition pre_composition_functor (A B C : precategory) (H : ob [A , B]) :
+Definition pre_composition_functor (A B C : precategory) (H : [A , B]) :
       functor [B, C] [A, C].
 Proof.
   exists (pre_composition_functor_data A B C H).
