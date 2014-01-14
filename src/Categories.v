@@ -496,7 +496,7 @@ Module RepresentableFunctors.
   Definition isRepresentatable {C} (F:[C^op, SET])
     := squash (Representation F).
 
-  (** *** the Grothendieck construction *)
+  (** *** the category of elements of a functor *)
 
   Definition El_data {C} (F:[C, SET]) : precategory_data.
     intros.
@@ -545,6 +545,21 @@ Module RepresentableFunctors.
   Definition El {C} (F:[C, SET]) : precategory.
     intros.
     exact (El_data F ,, El_okay F).
+  Defined.
+
+  Definition El_pr1_data {C} (F:[C, SET]) : functor_data (El F) C.
+    intros.
+    exists pr1.
+    intros x x'.
+    apply pr1.    
+  Defined.
+
+  Definition El_pr1 {C} (F:[C, SET]) : functor (El F) C.
+    intros.
+    exists (El_pr1_data _).
+    split.
+    - intros. reflexivity.
+    - intros. reflexivity.
   Defined.
 
 End RepresentableFunctors.
