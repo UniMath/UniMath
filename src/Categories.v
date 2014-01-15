@@ -33,6 +33,7 @@ Local Notation "b ← a" := (precategory_morphisms a b) (at level 50).
 Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
 Local Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing).
 Local Notation "g ∘ f" := (precategories.compose f g) (at level 50, only parsing).
+Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation cadddr := (fun x => pr1(pr2 (pr2 (pr2 x)))).
 Local Notation caddr := (fun x => pr1(pr2 (pr2 x))).
 Local Notation cadr := (fun x => pr1(pr2 x)).
@@ -560,6 +561,39 @@ Module RepresentableFunctors.
     split.
     - intros. reflexivity.
     - intros. reflexivity.
+  Defined.
+
+  Definition reflects_isos {C D : precategory} (F : functor C D) :=
+    forall c c' (f : c → c'), is_isomorphism (#F f) -> is_isomorphism f.
+
+  Lemma isaprop_reflects_isos {C D : precategory} (F : functor C D)
+        : isaprop (reflects_isos F).
+  Proof.
+    intros.
+    apply impred; intros c.
+    apply impred; intros c'.
+    apply impred; intros f.
+    apply impred; intros _.
+    apply isaprop_is_isomorphism.
+  Qed.
+
+  Lemma El_pr1_reflects_isos {C} (F:[C, SET]) : reflects_isos (El_pr1 F).
+  Proof.
+    intros.
+    intros [c x] [d y] [f i] [f' j]; simpl in *.
+    assert (i' : #F f' y == x).
+    - rewrite <- i.
+      set (l := functor_comp _ _ F _ _ _ f f').
+      set (m := apevalat x l).
+      unfold evalat, compose, hset_precategory_ob_mor, hset_precategory_data,
+             functor_data_from_functor,
+             functor_on_morphisms, hset_precategory_ob_mor,
+             hset_fun_space, hSetpair in *; 
+        simpl in *;
+      rewrite <- m;
+      clear m l.
+      admit.
+    - admit.
   Defined.
 
 End RepresentableFunctors.
