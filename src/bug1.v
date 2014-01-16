@@ -65,3 +65,10 @@ Definition C := makePrecategory o m is id (@co) rg lf ass.
 Definition C':= makePrecategory o m' is' id' (@co') rg' lf' ass'.
 
 Definition funny (c:C) (c':C') := RezkCompletion.precategories.iso c c'. (* ! *)
+
+Goal unit.
+  Set Printing All.
+  set (m := funny).
+  unfold funny in m; simpl in m. (* see see that m includes nothing about C' *)
+  exact tt.
+Qed.  
