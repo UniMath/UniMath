@@ -580,7 +580,16 @@ Module RepresentableFunctors.
   Lemma El_pr1_reflects_isos {C} (F:[C, SET]) : reflects_isos (El_pr1 F).
   Proof.
     intros.
-    intros [c x] [d y] [f i] [f' j]; simpl in *.
+    simpl in F.                 (* why do we need this? *)
+    intros cx dy fi iso_f.
+    set (c := cx _1).
+    set (x := cx _2).
+    set (d := dy _1).
+    set (y := dy _2).
+    set (f := fi _1).
+    set (i := fi _2).
+    set (f' := iso_f _1).
+    set (j := iso_f _2).
     assert (i' : #F f' y == x).
     - intermediate (#F f' (#F f x)).
       + exact (ap (#F f') (!i)).
@@ -594,7 +603,9 @@ Module RepresentableFunctors.
     - exists (f' ,, i').
       split.
       + (* Why wouldn't "apply (pair_path (j _1))" work here? *)
-        exact (pair_path (j _1) (the (isaset_hSet _ _ _ _ _))).
+        exact (pair_path 
+                 (j _1) 
+                 (the (isaset_hSet (F c) (#F (identity c) x) x _ _))).
       + exact (pair_path (j _2) (the (isaset_hSet _ _ _ _ _))).
   Qed.
 
