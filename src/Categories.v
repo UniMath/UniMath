@@ -579,21 +579,23 @@ Module RepresentableFunctors.
 
   Lemma El_pr1_reflects_isos {C} (F:[C, SET]) : reflects_isos (El_pr1 F).
   Proof.
-    (* Why is this trivial proof so slow? *)
     intros.
     intros [c x] [d y] [f i] [f' j]; simpl in *.
     assert (i' : #F f' y == x).
-    - rewrite <- i.
-      intermediate (#F (f' ∘ f) x).
-      + exact (apevalat x (!functor_comp _ _ F _ _ _ f f')).
-      + intermediate (#F (identity c) x).
-        * exact (apevalat x (ap #F (j _1))).
-        * exact (apevalat x (functor_id _ _ F c)).
-   - exists (f' ,, i').
-     split.
-     + (* Why wouldn't "apply (pair_path (j _1))" work here? *)
-       exact (pair_path (j _1) (the (isaset_hSet _ _ _ _ _))).
-     + exact (pair_path (j _2) (the (isaset_hSet _ _ _ _ _))).
+    - intermediate (#F f' (#F f x)).
+      + exact (ap (#F f') (!i)).
+      + intermediate (#F (f' ∘ f) x).
+        * exact (apevalat x (!functor_comp _ _ F _ _ _ f f')).
+        * { 
+            intermediate (#F (identity c) x).
+            - exact (apevalat x (ap #F (j _1))).
+            - exact (apevalat x (functor_id _ _ F c)).
+          }
+    - exists (f' ,, i').
+      split.
+      + (* Why wouldn't "apply (pair_path (j _1))" work here? *)
+        exact (pair_path (j _1) (the (isaset_hSet _ _ _ _ _))).
+      + exact (pair_path (j _2) (the (isaset_hSet _ _ _ _ _))).
   Qed.
 
 End RepresentableFunctors.
