@@ -72,3 +72,5 @@ Goal unit.
   unfold funny in m; simpl in m. (* see see that m includes nothing about C' *)
   exact tt.
 Qed.  
+
+Definition funny' (c:C) (c':o) := RezkCompletion.precategories.iso c c'. (* ! *)
