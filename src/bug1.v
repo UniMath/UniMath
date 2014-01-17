@@ -12,10 +12,9 @@ Here is the code that shows the problem.
 
 *)
 
+Require Import Foundations.hlevel2.hSet.
 Require Import RezkCompletion.precategories.
         Import pathnotations.PathNotations.
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel2.hSet.
 
 (* make two precategories with the same objects *)
 Parameter o : Type.

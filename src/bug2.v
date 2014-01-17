@@ -5,3 +5,4 @@ Parameter n': X -> X -> X.
 Definition S := setwithbinoppair X n.
 Definition S':= setwithbinoppair X n'.
 Definition weird (s:S) (s':S') := op s s'.
+Check weird.

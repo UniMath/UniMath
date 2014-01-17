@@ -12,18 +12,15 @@
 
   Using Qed, we make all proof irrelevant proofs opaque. *)
 
-Require Import Foundations.hlevel2.hSet.
-Require Import Foundations.hlevel2.stnfsets.
+Require Import Foundations.hlevel2.hSet Foundations.hlevel2.stnfsets.
 
-Require Import RezkCompletion.precategories.
-Require Import RezkCompletion.functors_transformations.
-Require Import RezkCompletion.category_hset.
-Require Import RezkCompletion.yoneda.
-        Import pathnotations.PathNotations.
-Require Import RezkCompletion.auxiliary_lemmas_HoTT.
+Require Import 
+        RezkCompletion.precategories RezkCompletion.functors_transformations 
+        RezkCompletion.category_hset RezkCompletion.yoneda RezkCompletion.auxiliary_lemmas_HoTT.
+Import pathnotations.PathNotations.
 
 Require Import Ktheory.Utilities.
-        Import Ktheory.Utilities.Notations.
+Import Ktheory.Utilities.Notations.
 
 Unset Automatic Introduction.
 
@@ -114,19 +111,19 @@ Proof.
   intro.
   unfold opp_precat_ob_mor.
   destruct C as [ob mor].  
-  apply idpath.
+  reflexivity.
 Defined.
 
 Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
   idpath _ == maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
-Proof. intros [ob mor]. apply idpath. Defined.
+Proof. intros [ob mor]. reflexivity. Defined.
 
 Lemma opp_opp_precat_data (C : precategory_data) 
    : C == opp_precat_data (opp_precat_data C).
 Proof.
   intro.
   destruct C as [[ob mor] [id co]].
-  apply idpath.
+  reflexivity.
 Defined.
 
 Lemma isaprop_is_precategory (C : precategory_data)
@@ -144,20 +141,24 @@ Qed.
 
 Lemma opp_opp_precat (C : precategory) : C == C^op^op.
 Proof.
-  destruct C as [data q].
+  (* If any pair x were judgmentally equal to the pair (pr1 x, pr2 x),
+   then the two categories would be judgmentally equal, and we could
+   apply reflexivity here.  (Eta equivalence is already present in coq 8.4,
+   and we depend on that.) *)
+  intros [data ispre].
   apply (pair_path (opp_opp_precat_data data)).
   apply isaprop_is_precategory.
 Defined.
 
 (** ** products *)
 
-Module Products.
+Module TerminalObjects.
 
   (** *** terminal objects *)
 
   Definition isTerminalObject {C:precategory} (a:C) := forall (x:C), iscontr (a ← x).
 
-  Lemma terminalObjectIsomorphy {C:precategory} (a b:C):isTerminalObject a -> isTerminalObject b -> iso a b.
+  Lemma theTerminalObjectIsomorphy {C:precategory} (a b:C):isTerminalObject a -> isTerminalObject b -> iso a b.
   Proof.
     intros ? ? ?.
     intros map_to_a_from_ map_to_b_from_. 
@@ -179,10 +180,10 @@ Module Products.
     hProppair (isTerminalObject a) (isaprop_isTerminalObject a):hProp.
 
   Definition TerminalObject (C:precategory) := total2 (fun a:C => isTerminalObject a).
-  Definition terminalObject {C:precategory} (z:TerminalObject C) := car z.
-  Definition terminalProperty {C:precategory} (z:TerminalObject C) := cdr z.
+  Definition theTerminalObject {C:precategory} (z:TerminalObject C) := car z.
+  Definition theTerminalProperty {C:precategory} (z:TerminalObject C) := cdr z.
 
-  Definition is_category_category (C:category) := cdr _ : is_category C.
+  Definition theUnivalenceProperty (C:category) := cdr _ : is_category C.
 
   Lemma isaprop_TerminalObject (C:category) : isaprop (TerminalObject C).
   Proof.
@@ -190,10 +191,10 @@ Module Products.
     apply invproofirrelevance.
     intros a b.
     apply (total2_paths 
-             (isotoid _ (is_category_category _) 
-                      (terminalObjectIsomorphy _ _      
-                         (terminalProperty a)
-                         (terminalProperty b)))).
+             (isotoid _ (theUnivalenceProperty _) 
+                      (theTerminalObjectIsomorphy _ _      
+                         (theTerminalProperty a)
+                         (theTerminalProperty b)))).
     apply isaprop_isTerminalObject.
   Qed.
 
@@ -201,6 +202,10 @@ Module Products.
 
   Definition squashTerminalObjectProp (C:precategory) := 
     hProppair (squashTerminalObject C) (isaprop_squash _).
+
+End TerminalObjects.
+
+Module Products.
 
   (** *** binary products *)
 
@@ -318,7 +323,7 @@ Module StandardCategories.
   Proof.
     intros.
     destruct e.
-    apply idpath.
+    reflexivity.
   Defined.
 
   (** *** the path groupoid *)
@@ -326,12 +331,12 @@ Module StandardCategories.
   Lemma path_assoc (X:UU) (a b c d:X) 
           (f : a == b) (g : b == c) (h : c == d)
         : f @ (g @ h) == (f @ g) @ h.
-  Proof. intros. destruct f. apply idpath. Defined.
+  Proof. intros. destruct f. reflexivity. Defined.
 
   Lemma path_assoc_opaque (X:UU) (a b c d:X) 
           (f : a == b) (g : b == c) (h : c == d)
         : f @ (g @ h) == (f @ g) @ h.
-  Proof. intros. destruct f. apply idpath. Qed.
+  Proof. intros. destruct f. reflexivity. Qed.
 
   Definition is_groupoid (C : precategory) := 
     forall (a b : ob C), isweq (fun p : a == b => idtomor a b p).
@@ -356,7 +361,7 @@ Module StandardCategories.
     intros ? ig ? ?.
     set (t := morphism_from_iso _ a b).
     apply (isofhlevelff 0 idtoiso t).
-    assert (h : idtomor _ _ ~ funcomp idtoiso t). intro p. destruct p. apply idpath.
+    assert (h : idtomor _ _ ~ funcomp idtoiso t). intro p. destruct p. reflexivity.
     apply (isweqhomot _ _ h).
     apply ig.
     apply morphism_from_iso_is_incl.
@@ -378,7 +383,7 @@ Module StandardCategories.
     assert (right :
            forall i j:obj,
              forall f:mor i j, compose _ _ _ (identity i) f == f).
-      intros. apply idpath.
+      intros. reflexivity.
     assert (left :
            forall i j:obj,
              forall f:mor i j, compose _ _ _ f (identity j) == f).
@@ -394,7 +399,7 @@ Module StandardCategories.
     is_groupoid (path_pregroupoid X iobj).
   Proof.
     intros ? ? a b.
-    assert (k : idfun (a == b) ~ idtomor a b). intro p. destruct p. apply idpath.
+    assert (k : idfun (a == b) ~ idtomor a b). intro p. destruct p. reflexivity.
     apply (isweqhomot _ _ k).
     apply idisweq.
   Qed.
@@ -448,9 +453,7 @@ End StandardCategories.
 Module ConeLimits.
 
   Require Import RezkCompletion.limits.cones.
-
-  Import Products.
-  Import StandardCategories.
+  Import TerminalObjects Products StandardCategories.
 
   Definition finite_product_structure (C:precategory) :=
     forall (n:nat) F, TerminalObject (@CONE (cat_n n) C F).
@@ -485,17 +488,6 @@ End FiberedCategories.
 (** ** representable functors *)
 
 Module RepresentableFunctors.
-
-  Definition Representation {C} (F:[C^op, SET])
-    := total2 (fun c => iso (yoneda _ c) F).
-  Definition representingObject {C} {F:[C^op, SET]} (i:Representation F) 
-    := car i.
-  Definition representingIso {C} {F:[C^op, SET]} (i:Representation F)
-    := cdr i.
-  Definition representingElement {C} {F:[C^op, SET]} (i:Representation F)
-    := yoneda_map_1 _ _ _ (representingIso i).
-  Definition isRepresentatable {C} (F:[C^op, SET])
-    := squash (Representation F).
 
   (** *** the category of elements of a functor *)
 
@@ -582,32 +574,48 @@ Module RepresentableFunctors.
     intros.
     simpl in F.                 (* why do we need this? *)
     intros cx dy fi iso_f.
-    set (c := cx _1).
-    set (x := cx _2).
-    set (d := dy _1).
-    set (y := dy _2).
-    set (f := fi _1).
-    set (i := fi _2).
-    set (f' := iso_f _1).
-    set (j := iso_f _2).
+    set (c := cx _1). set (x := cx _2).
+    set (d := dy _1). set (y := dy _2).
+    set (f := fi _1). set (i := fi _2).
+    set (f' := iso_f _1). set (j := iso_f _2).
     assert (i' : #F f' y == x).
-    - intermediate (#F f' (#F f x)).
-      + exact (ap (#F f') (!i)).
-      + intermediate (#F (f' ∘ f) x).
-        * exact (apevalat x (!functor_comp _ _ F _ _ _ f f')).
-        * { 
-            intermediate (#F (identity c) x).
-            - exact (apevalat x (ap #F (j _1))).
-            - exact (apevalat x (functor_id _ _ F c)).
-          }
-    - exists (f' ,, i').
+    { intermediate (#F f' (#F f x)).
+      { exact (ap (#F f') (!i)). }
+      { intermediate (#F (f' ∘ f) x).
+        { exact (apevalat x (!functor_comp _ _ F _ _ _ f f')). }
+        { intermediate (#F (identity c) x).
+          { exact (apevalat x (ap #F (j _1))). }
+          { exact (apevalat x (functor_id _ _ F c)). }}}}
+    { exists (f' ,, i').
       split.
-      + (* Why wouldn't "apply (pair_path (j _1))" work here? *)
-        exact (pair_path 
-                 (j _1) 
-                 (the (isaset_hSet (F c) (#F (identity c) x) x _ _))).
-      + exact (pair_path (j _2) (the (isaset_hSet _ _ _ _ _))).
+      { (* Why wouldn't "apply (pair_path (j _1))" work here? *)
+        exact (pair_path (j _1) (the (isaset_hSet _ _ _ _ _))). }
+      { exact (pair_path (j _2) (the (isaset_hSet _ _ _ _ _))). }}
   Qed.
+
+  Definition foo {C:precategory} (c:C) : ob [ C^op^op, SET ] == ob [ C, SET ].
+    (* this surprisingly simplifies the next definition *)
+    reflexivity.
+  Defined.
+
+  Definition Representation {C} (F:[C, SET]) 
+    := total2 (fun c => iso (yoneda C^op c) F).
+    (* here  
+        F : [C, SET]
+      but 
+        iso (yoneda C^op c) : [C^op^op, SET]
+      so one might not expect the definition above to be well-typed.  But
+      by coercion magic, an expression 
+        iso x y
+      will be well typed if x:C where C is a precategory, and y:ob C'===ob C, 
+      and then the operations of C' will be ignored.  Here === denotes
+      judgmental equality.
+     *)
+  Definition isRepresentatable {C} (F:[C, SET]) := squash (Representation F).
+  Definition representingObject {C} {F:[C, SET]} (i:Representation F) := car i.
+  Definition representingIso {C} {F:[C, SET]} (i:Representation F) := cdr i.
+  Definition representingElement {C} {F:[C, SET]} (i:Representation F)
+    := yoneda_map_1 _ _ _ (representingIso i).
 
 End RepresentableFunctors.
 
@@ -615,7 +623,7 @@ End RepresentableFunctors.
 
 Module DirectSums.
 
-  Import Coproducts Products.
+  Import Coproducts Products TerminalObjects.
 
   Definition ZeroObject (C:precategory) := total2 ( fun 
                zero_object : C => dirprod (
@@ -649,10 +657,10 @@ Module DirectSums.
   Definition zeroMap' {C:precategory} (a b:C) (o:ZeroObject C) := the (map_from o b) ∘ the (map_to o a) : a → b.
 
   Lemma path_right_composition {C:precategory} : forall (a b c:C) (g:a→b) (f f':b→c), f == f' -> f ∘ g == f' ∘ g.
-  Proof. intros ? ? ? ? ? ? ? []. apply idpath. Qed.
+  Proof. intros ? ? ? ? ? ? ? []. reflexivity. Qed.
 
   Lemma path_left_composition {C:precategory} : forall (a b c:C) (f:b→c) (g g':a→b), g == g' -> f ∘ g == f ∘ g'.
-  Proof. intros ? ? ? ? ? ? ? []. apply idpath. Qed.
+  Proof. intros ? ? ? ? ? ? ? []. reflexivity. Qed.
 
   Lemma zeroMapUniqueness {C:precategory} (x y:ZeroObject C) : forall a b:C, zeroMap' a b x == zeroMap' a b y.
   Proof.
