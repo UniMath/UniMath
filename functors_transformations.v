@@ -100,10 +100,10 @@ Proof.
   apply (pr2 (_ --> _)).
 Qed.
 
-Definition functor (C C' : precategory_data) := total2 (
+Definition functor (C C' : precategory) := total2 (
    fun F : functor_data C C' => is_functor F).
 
-Lemma functor_eq (C C' : precategory_data) (F F': functor C C'):
+Lemma functor_eq (C C' : precategory) (F F': functor C C'):
     pr1 F == pr1 F' -> F == F'.
 Proof.
   intro H.
@@ -112,12 +112,12 @@ Proof.
   apply isaprop_is_functor.
 Defined.
 
-Definition functor_data_from_functor (C C': precategory_data)
+Definition functor_data_from_functor (C C': precategory)
      (F : functor C C') : functor_data C C' := pr1 F.
 Coercion functor_data_from_functor : functor >-> functor_data.
 
 
-Definition functor_eq_eq_from_functor_ob_eq (C C' : precategory_data)
+Definition functor_eq_eq_from_functor_ob_eq (C C' : precategory)
    (F G : functor C C') (p q : F == G) 
    (H : base_paths _ _ (base_paths _ _  p) == 
          base_paths _ _ (base_paths _ _ q)) :
@@ -152,10 +152,10 @@ Defined.
 
  
 
-Definition functor_id (C C' : precategory_data)(F : functor C C'):
+Definition functor_id (C C' : precategory)(F : functor C C'):
        forall a : ob C, #F (identity a) == identity (F a) := pr1 (pr2 F).
 
-Definition functor_comp (C C' : precategory_data)
+Definition functor_comp (C C' : precategory)
       (F : functor C C'):
        forall a b c : ob C, forall f : a --> b,
                  forall g : b --> c, 
@@ -580,7 +580,7 @@ Qed.
 
 (** ** Functor category [[C, D]] *)
 
-Definition functor_precategory_ob_mor (C C' : precategory_data): 
+Definition functor_precategory_ob_mor (C C' : precategory): 
   precategory_ob_mor := precategory_ob_mor_pair 
    (functor C C') (fun F F' : functor C C' =>
                               hSetpair (nat_trans F F') 
