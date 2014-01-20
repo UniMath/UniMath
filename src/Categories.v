@@ -31,8 +31,8 @@ Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
 Local Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing).
 Local Notation "g ∘ f" := (precategories.compose f g) (at level 50, only parsing).
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Local Notation "x .1" := (pr1 x) (at level 80, only parsing).
-Local Notation "x .2" := (pr2 x) (at level 80, only parsing).
+Local Notation "x .1" := (pr1 x) (at level 3, only parsing).
+Local Notation "x .2" := (pr2 x) (at level 3, only parsing).
 Notation "C '^op'" := (opp_precat C) (at level 3).
 Notation SET := hset_precategory.
 
@@ -437,11 +437,14 @@ Module RepresentableFunctors.
   (** *** the category of elements of a functor *)
 
   Definition El_data {C} (F:ob [C, SET]) : precategory_data.
-    intros.
-    set (Fobj := F.1.1).
-    set (Fmor := F.1.2).
-    set (iFid := F.2.1).
-    set (iFcomp := F.2.2).
+    intros C F.
+    (* destruct F as [F1 F2]. *)
+    set (F1 := F.1).
+    set (F2 := F.2).
+    set (Fobj := F1.1).
+    set (Fmor := F1.2).
+    set (iFid := F2.1).
+    set (iFcomp := F2.2).
     set (obj := total2 (fun c : ob C => pr1hSet (Fobj c))).
     set (compat := fun a b : obj =>
                      fun f : pr1 a → pr1 b => Fmor _ _ f (pr2 a) == pr2 b ).
@@ -464,7 +467,10 @@ Module RepresentableFunctors.
   Proof.
     intros.
     split. split.
-    - intros a b [f f'].        (* destructing here is necessary.  Why? *)
+    - 
+      intros a b. 
+      Check a.1 : ob C.
+      intros [f f'].        (* destructing here is necessary.  Why? *)
       exact (pair_path
                (id_left _ _ _ f)
                (the (isaset_hSet _ _ _ _ _))).

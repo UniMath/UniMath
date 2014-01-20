@@ -66,14 +66,28 @@ Definition C':= makePrecategory o m' is' id' (@co') rg' lf' ass'.
 Definition funny (c:C) (c':C') := RezkCompletion.precategories.iso c c'. (* ! *)
 
 Goal unit.
-  Set Printing All.
   set (m := funny).
   unfold funny in m; simpl in m. (* see see that m includes nothing about C' *)
   exact tt.
 Qed.  
 
+(* Here's a seemingly simple solution: *)
+
 Record Obj (C:precategory) := enclose { release : ob C }.
 Arguments release {C} o.
+
+Check @release : forall C : precategory, Obj C -> C.
+
+Lemma foo {C:precategory} (c c':Obj C) : c == c' -> release c == release c'. 
+  intros [].
+  reflexivity.
+Defined.
+
+Lemma bar {C:precategory} (c c':ob C) : enclose _ c == enclose _ c' -> c == c'. 
+  intro p.
+  exact (maponpaths release p).
+Defined.
+
 Definition iso' {C:precategory} (c c':Obj C) := @iso C (release c) (release c').
 Definition funny'   (c:ob  C) (c':ob  C') := iso c c'. (* succeeds, but confusing *)
 Definition funny''  (c:Obj C) (c':Obj C ) := iso' c c.
@@ -81,3 +95,4 @@ Definition funny''  (c:Obj C) (c':Obj C ) := iso' c c.
 Definition funny''' (c:Obj C) (c':Obj C') := iso' c c'. (* doesn't succeed, good *)
 *)
 
+Definition Obj2 (C:precategory) (c:ob C) := c.
