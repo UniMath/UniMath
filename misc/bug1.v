@@ -72,4 +72,12 @@ Goal unit.
   exact tt.
 Qed.  
 
-Definition funny' (c:C) (c':o) := RezkCompletion.precategories.iso c c'. (* ! *)
+Record Obj (C:precategory) := enclose { release : ob C }.
+Arguments release {C} o.
+Definition iso' {C:precategory} (c c':Obj C) := @iso C (release c) (release c').
+Definition funny'   (c:ob  C) (c':ob  C') := iso c c'. (* succeeds, but confusing *)
+Definition funny''  (c:Obj C) (c':Obj C ) := iso' c c.
+(*
+Definition funny''' (c:Obj C) (c':Obj C') := iso' c c'. (* doesn't succeed, good *)
+*)
+
