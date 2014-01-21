@@ -475,7 +475,7 @@ Module RepresentableFunctors.
                (the (isaset_hSet _ _ _ _ _))).
     - intros ? ? ? ? f g h.     (* destructing f,g,h adds 1.75 seconds *)
       (* coq bug here? Changing "exact" to "apply" breaks the proof. *)
-      exact (pair_path 
+      apply (pair_path 
                (assoc _ _ _ _ _ (f:1) (g:1) (h:1))
                (the (isaset_hSet _ _ _ _ _))
             ).
