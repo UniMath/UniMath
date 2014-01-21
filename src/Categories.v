@@ -465,13 +465,13 @@ Module RepresentableFunctors.
     intros.
     split. split.
     - 
-      intros a b [f f'].
+      intros a b f.
       exact (pair_path
-               (id_left _ _ _ f)
+               (id_left _ _ _ f:1)
                (the (isaset_hSet _ _ _ _ _))).
-    - intros a b [f f'].
+    - intros a b f.
       exact (pair_path
-               (id_right _ _ _ f)
+               (id_right _ _ _ f:1)
                (the (isaset_hSet _ _ _ _ _))).
     - intros ? ? ? ? f g h.     (* destructing f,g,h adds 1.75 seconds *)
       (* coq bug here? Changing "exact" to "apply" breaks the proof. *)
