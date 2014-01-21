@@ -20,6 +20,7 @@ Defined.
 
 Module Import Notations.
     Notation ap := maponpaths.
+    (* see table 3.1 in the coq manual for parsing levels *)
     Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 70).
     Notation "g ∘ f" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
     Notation "f ;; g" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
