@@ -20,10 +20,10 @@ Defined.
 
 Module Import Notations.
     Notation ap := maponpaths.
-    Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 51).
+    Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 70).
     Notation "g ∘ f" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
     Notation "f ;; g" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
-    Notation "x ,, y" := (tpair _ x y) (at level 41, right associativity).
+    Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
     (* funcomp' is like funcomp, but with the arguments in the other order *)
     Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
     Notation "p # x" := (transport _ p x) (right associativity, at level 65, only parsing).

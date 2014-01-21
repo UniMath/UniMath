@@ -31,8 +31,8 @@ Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
 Local Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing).
 Local Notation "g ∘ f" := (precategories.compose f g) (at level 50, only parsing).
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Local Notation "x .1" := (pr1 x) (at level 3, only parsing).
-Local Notation "x .2" := (pr2 x) (at level 3, only parsing).
+Local Notation "x :1" := (pr1 x) (at level 3, only parsing).
+Local Notation "x :2" := (pr2 x) (at level 3, only parsing).
 Notation "C '^op'" := (opp_precat C) (at level 3).
 Notation SET := hset_precategory.
 
@@ -438,16 +438,13 @@ Module RepresentableFunctors.
 
   Definition El_data {C} (F:ob [C, SET]) : precategory_data.
     intros C F.
-    (* destruct F as [F1 F2]. *)
-    set (F1 := F.1).
-    set (F2 := F.2).
-    set (Fobj := F1.1).
-    set (Fmor := F1.2).
-    set (iFid := F2.1).
-    set (iFcomp := F2.2).
+    set (Fobj := F:1:1).
+    set (Fmor := F:1:2).
+    set (iFid := F:2:1).
+    set (iFcomp := F:2:2).
     set (obj := total2 (fun c : ob C => pr1hSet (Fobj c))).
     set (compat := fun a b : obj =>
-                     fun f : pr1 a → pr1 b => Fmor _ _ f (pr2 a) == pr2 b ).
+                     fun f : pr1 a → pr1 b => Fmor _ _ f a:2 == b:2 ).
     set (mor := fun a b => total2 (compat a b)).
     apply (makePrecategory_data obj mor).
     - intros.
@@ -455,12 +452,12 @@ Module RepresentableFunctors.
       * apply setproperty.
       * intros f.  apply (isofhlevelsnprop 1). apply isaset_hSet.
     - intro a.
-      exact (identity (a.1) ,, (apevalat (a.2) (iFid (a.1)))).
+      exact (identity a:1 ,, (apevalat a:2 (iFid a:1))).
     - intros ? ? ? f g.
-      exact (      ((g.1) ∘ (f.1)),,
-                   ((apevalat (i.2) (iFcomp _ _ _ (f.1) (g.1)))
+      exact (      g:1 ∘ f:1,,
+                   ((apevalat i:2 (iFcomp _ _ _ f:1 g:1))
                     @ 
-                    (ap (Fmor _ _ (g.1)) (f.2) @ (g.2)))).
+                    (ap (Fmor _ _ g:1) f:2 @ g:2))).
   Defined.
 
   Lemma El_okay {C} (F:ob [C, SET]) : is_precategory (El_data F).
@@ -468,9 +465,7 @@ Module RepresentableFunctors.
     intros.
     split. split.
     - 
-      intros a b. 
-      Check a.1 : ob C.
-      intros [f f'].        (* destructing here is necessary.  Why? *)
+      intros a b [f f'].
       exact (pair_path
                (id_left _ _ _ f)
                (the (isaset_hSet _ _ _ _ _))).
@@ -481,7 +476,7 @@ Module RepresentableFunctors.
     - intros ? ? ? ? f g h.     (* destructing f,g,h adds 1.75 seconds *)
       (* coq bug here? Changing "exact" to "apply" breaks the proof. *)
       exact (pair_path 
-               (assoc _ _ _ _ _ (f.1) (g.1) (h.1))
+               (assoc _ _ _ _ _ (f:1) (g:1) (h:1))
                (the (isaset_hSet _ _ _ _ _))
             ).
   Qed.
@@ -525,23 +520,23 @@ Module RepresentableFunctors.
     intros.
     simpl in F.                 (* why do we need this? *)
     intros cx dy fi iso_f.
-    set (c := cx.1). set (x := cx.2).
-    set (d := dy.1). set (y := dy.2).
-    set (f := fi.1). set (i := fi.2).
-    set (f' := iso_f.1). set (j := iso_f.2).
+    set (c := cx:1). set (x := cx:2).
+    set (d := dy:1). set (y := dy:2).
+    set (f := fi:1). set (i := fi:2).
+    set (f' := iso_f:1). set (j := iso_f:2).
     assert (i' : #F f' y == x).
     { intermediate (#F f' (#F f x)).
       { exact (ap (#F f') (!i)). }
       { intermediate (#F (f' ∘ f) x).
         { exact (apevalat x (!functor_comp _ _ F _ _ _ f f')). }
         { intermediate (#F (identity c) x).
-          { exact (apevalat x (ap #F (j.1))). }
+          { exact (apevalat x (ap #F (j:1))). }
           { exact (apevalat x (functor_id _ _ F c)). }}}}
     { exists (f' ,, i').
       split.
-      { (* Why wouldn't "apply (pair_path (j.1))" work here? *)
-        exact (pair_path (j.1) (the (isaset_hSet _ _ _ _ _))). }
-      { exact (pair_path (j.2) (the (isaset_hSet _ _ _ _ _))). }}
+      { (* Why wouldn't "apply (pair_path (j:1))" work here? *)
+        exact (pair_path (j:1) (the (isaset_hSet _ _ _ _ _))). }
+      { exact (pair_path (j:2) (the (isaset_hSet _ _ _ _ _))). }}
   Qed.
 
   Definition foo (C:precategory) (c:ob C) : ob [ C^op^op, SET ] == ob [ C, SET ].
