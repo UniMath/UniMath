@@ -438,9 +438,9 @@ Module RepresentableFunctors.
 
   Definition El_data {C} (F:ob [C, SET]) : precategory_data.
     intros C F.
-    (* destruct F as [F1 F2]. *)
-    set (F1 := F.1).
-    set (F2 := F.2).
+    destruct F as [F1 F2].
+    (* set (F1 := F.1). *)
+    (* set (F2 := F.2). *)
     set (Fobj := F1.1).
     set (Fmor := F1.2).
     set (iFid := F2.1).
