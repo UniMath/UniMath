@@ -59,7 +59,7 @@ Definition PullbackSqrCommutes {a b c : C} {f : b --> a} {g : c --> a}
    (Pb : Pullback f g) : 
     PullbackPr1 Pb ;; g == PullbackPr2 Pb ;; f . 
 Proof. 
-  apply (pr1 (pr2 Pb)).
+  exact (pr1 (pr2 Pb)).
 Qed.
 
 Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a} 
@@ -70,14 +70,14 @@ Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a}
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) :
    PullbackArrow Pb e h k H ;; PullbackPr1 Pb == k.
 Proof.
-  apply (pr2 (pr1 (pr2 (pr2 Pb) e h k H))).
+  exact (pr1 (pr2 (pr1 (pr2 (pr2 Pb) e h k H)))).
 Qed.
 
 Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a} 
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) :
    PullbackArrow Pb e h k H ;; PullbackPr2 Pb == h.
 Proof.
-  apply (pr2 (pr2 (pr1 (pr2 (pr2 Pb) e h k H)))).
+  exact (pr2 (pr2 (pr1 (pr2 (pr2 Pb) e h k H)))).
 Qed.
 
 
@@ -103,10 +103,6 @@ Proof.
   apply isapropifcontr.
   apply (pr2 (pr2 Pb)).
   apply PullbackSqrCommutes.
-(*  set (H:= pr2 (pr2 (pr2 (pr2 Pb)))).  simpl in H.
-  set (HH:= H Pb (PullbackPr2 Pb) (PullbackPr1 Pb) (PullbackSqrCommutes Pb)).
-  apply HH.
-*)
   apply (base_paths _ _ H2).
 Qed.
 
