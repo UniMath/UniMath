@@ -62,22 +62,30 @@ Proof.
   exact (pr1 (pr2 Pb)).
 Qed.
 
+Definition isPullback_Pullback {a b c : C} {f : b --> a}{g : c --> a} 
+   (P : Pullback f g) : 
+  isPullback f g (PullbackPr1 P) (PullbackPr2 P) (PullbackSqrCommutes P).
+Proof.
+  exact (pr2 (pr2 P)).
+Qed.
+Coercion isPullback_Pullback : Pullback >-> isPullback.
+
 Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a} 
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) : e --> Pb :=
-   pr1 (pr1 (pr2 (pr2 Pb) e h k H)).
+   pr1 (pr1 (isPullback_Pullback Pb e h k H)).
 
 Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a} 
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) :
    PullbackArrow Pb e h k H ;; PullbackPr1 Pb == k.
 Proof.
-  exact (pr1 (pr2 (pr1 (pr2 (pr2 Pb) e h k H)))).
+  exact (pr1 (pr2 (pr1 (isPullback_Pullback Pb e h k H)))).
 Qed.
 
 Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a} 
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) :
    PullbackArrow Pb e h k H ;; PullbackPr2 Pb == h.
 Proof.
-  exact (pr2 (pr2 (pr1 (pr2 (pr2 Pb) e h k H)))).
+  exact (pr2 (pr2 (pr1 (isPullback_Pullback Pb e h k H)))).
 Qed.
 
 
