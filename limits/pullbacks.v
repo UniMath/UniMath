@@ -68,7 +68,7 @@ Definition isPullback_Pullback {a b c : C} {f : b --> a}{g : c --> a}
   isPullback f g (PullbackPr1 P) (PullbackPr2 P) (PullbackSqrCommutes P).
 Proof.
   exact (pr2 (pr2 P)).
-Qed.
+Defined.
 Coercion isPullback_Pullback : Pullback >-> isPullback.
 
 Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a} 
@@ -287,6 +287,9 @@ End Universal_Unique.
 Section product_from_pullback.
 
 Variable T : Terminal C.
+
+
+
 Variable P : Pullbacks.
 
 Definition ProductCone (c d : C) := 

@@ -30,25 +30,27 @@ Variable C : precategory.
 
 Variable T : Terminal C.
 
-(* first draft, need pullback *)
-Definition is_subobject_classifier (Omega : C) (TrueArrow : T --> Omega) :=
+Definition isSubobjectClassifier (Omega : C) (TrueArrow : T --> Omega) :=
     forall (s b : C) (m : mono C s b), iscontr (
       total2 (fun phi : b --> Omega =>
-      total2 (fun H : TerminalArrow C T s ;; TrueArrow == m ;; phi => True))).
+      total2 (fun H : m ;; phi == TerminalArrow C T s ;; TrueArrow  => 
+                    isPullback C TrueArrow phi m (TerminalArrow _ _ s) H))).
 
 
-Definition subobject_classifier :=  
+Definition SubobjectClassifier :=  
     total2 (fun Omega : C => 
     total2 (fun TrueArrow : T --> Omega =>
-           is_subobject_classifier Omega TrueArrow)).
+           isSubobjectClassifier Omega TrueArrow)).
+Definition Omega (S : SubobjectClassifier) : C := pr1 S.
 
+(* todo : prove unicity of subobject classifer *)
 
 Section power_object.
 
-Variable OMEGA : subobject_classifier.
+Variable OMEGA : SubobjectClassifier.
+Variable Pb : Pullbacks C.
 
 
-(* NEED: products from pullbacks *)
 
 
 Let Omega : C := pr1 OMEGA.
