@@ -30,6 +30,7 @@ Variable C : precategory.
 
 Variable T : Terminal C.
 
+(* first draft, need pullback *)
 Definition is_subobject_classifier (Omega : C) (TrueArrow : T --> Omega) :=
     forall (s b : C) (m : mono C s b), iscontr (
       total2 (fun phi : b --> Omega =>

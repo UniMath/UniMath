@@ -11,6 +11,7 @@ Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
 Require Import RezkCompletion.limits.aux_lemmas_HoTT.
+Require Import RezkCompletion.limits.terminal.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 Local Notation "f ;; g" := (compose f g)(at level 50).
@@ -281,6 +282,36 @@ Proof.
 Qed.
 
 End Universal_Unique.
+
+
+Section product_from_pullback.
+
+Variable T : Terminal C.
+Variable P : Pullbacks.
+
+Definition ProductCone (c d : C) := 
+     P (TerminalObject _ T) c d (TerminalArrow _ _ c) (TerminalArrow _ _ d).
+
+Definition Product (c d : C) : C := PullbackObject (ProductCone c d).
+
+(* todo: change the order... *)
+Definition ProductPr1 (c d : C) : Product c d --> c  :=
+     PullbackPr2 (ProductCone c d).
+Definition ProductPr2 (c d : C) : Product c d --> d  :=
+     PullbackPr1 (ProductCone c d).
+
+Definition ProductArrow (a c d : C)(f : a --> c) (g : a --> d) : a --> Product c d.
+Proof.
+  apply (PullbackArrow (P _ _ _ _ _ ) _ f g).
+  apply proofirrelevance.
+  apply isapropifcontr.
+  apply (pr2 T a).
+Defined.
+
+(* todo: prove some laws about pre- and postcomposition with [ProductArrow] *)
+
+End product_from_pullback.
+
 
 
 End def_pb.
