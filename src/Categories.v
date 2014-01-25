@@ -1,4 +1,4 @@
-(* -*- coding: utf-8-unix -*- *)
+﻿(* -*- coding: utf-8-with-signature -*- *)
 
 (* Set Printing All. *)
 
@@ -27,7 +27,9 @@ Unset Automatic Introduction.
 (** *** notation *)
 
 Local Notation "b ← a" := (precategory_morphisms a b) (at level 50).
+Local Notation Hom := precategory_morphisms.
 Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
+Local Notation "a ==> b" := (functor a b) (at level 50).
 Local Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing).
 Local Notation "g ∘ f" := (precategories.compose f g) (at level 50, only parsing).
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
@@ -333,7 +335,7 @@ Module RepresentableFunctors.
 
   (** *** the category of elements of a functor *)
 
-  Definition El_data {C} (F:ob [C, SET]) : precategory_data.
+  Definition El_data {C} (F:C==>SET) : precategory_data.
     intros C F.
     set (Fobj := F:1:1).
     set (Fmor := F:1:2).
@@ -357,12 +359,11 @@ Module RepresentableFunctors.
                     (ap (Fmor _ _ g:1) f:2 @ g:2))).
   Defined.
 
-  Lemma El_okay {C} (F:ob [C, SET]) : is_precategory (El_data F).
+  Lemma El_okay {C} (F:C==>SET) : is_precategory (El_data F).
   Proof.
     intros.
     split. split.
-    - 
-      intros a b [f f'].
+    - intros a b [f f'].
       exact (pair_path
                (id_left _ _ _ f)
                (the (isaset_hSet _ _ _ _ _))).
@@ -377,19 +378,19 @@ Module RepresentableFunctors.
             ).
   Qed.
 
-  Definition El {C} (F:[C, SET]) : precategory.
+  Definition El {C} (F:C==>SET) : precategory.
     intros.
     exact (El_data F ,, El_okay F).
   Defined.
 
-  Definition El_pr1_data {C} (F:[C, SET]) : functor_data (El F) C.
+  Definition El_pr1_data {C} (F:C==>SET) : functor_data (El F) C.
     intros.
     exists pr1.
     intros x x'.
     apply pr1.    
   Defined.
 
-  Definition El_pr1 {C} (F:[C, SET]) : functor (El F) C.
+  Definition El_pr1 {C} (F:C==>SET) : El F ==> C.
     intros.
     exists (El_pr1_data _).
     split.
@@ -397,10 +398,10 @@ Module RepresentableFunctors.
     - intros. reflexivity.
   Defined.
 
-  Definition reflects_isos {C D : precategory} (F : functor C D) :=
+  Definition reflects_isos {C D} (F:C==>D) :=
     forall c c' (f : c → c'), is_isomorphism (#F f) -> is_isomorphism f.
 
-  Lemma isaprop_reflects_isos {C D : precategory} (F : functor C D)
+  Lemma isaprop_reflects_isos {C D} (F:C==>D)
         : isaprop (reflects_isos F).
   Proof.
     intros.
@@ -434,24 +435,33 @@ Module RepresentableFunctors.
       { exact (pair_path j:2 (the (isaset_hSet _ _ _ _ _))). }}
   Qed.
 
-  Goal forall (C:precategory) (c:ob C), ob [ C^op^op, SET ] == ob [ C, SET ].
-    (* a non-obvious definitional equality *)
-    reflexivity.
-  Defined.
+  Import TerminalObjects.
 
-  Definition Representation' {C} (F:ob [C, SET]) 
-    := total2 (fun c:ob C => @iso [C,SET] (yoneda C^op c) F).
-    (* here  
-        F : [C, SET]
-      but 
-        yoneda C^op c : [C^op^op, SET]
-      but [C, SET] and [C^op^op, SET] share the same objects, as seen above,
-      so the definition is well-typed.
-     *)
-  Definition isRepresentatable {C} (F:ob [C, SET]) := squash (Representation' F).
-  Definition representingObject {C} {F:ob [C, SET]} (i:Representation' F) := pr1 i.
-  Definition representingIso {C} {F:ob [C, SET]} (i:Representation' F) := pr2 i.
-  Definition representingElement {C} {F:ob [C, SET]} (i:Representation' F)
-    := yoneda_map_1 C^op _ _ (representingIso i).
+  Definition Representation {C} (F:C==>SET) := TerminalObject (El F).
+  Definition Representable {C} (F:C==>SET) := squash (Representation F).
+  Definition representingElement {C} (F:C==>SET) (r:Representation F) := 
+    pr1 r : El F.
 
 End RepresentableFunctors.
+
+Module InitialObjects.
+
+  Definition unitset : hSet := tpair isaset unit isasetunit.
+
+  Definition unitFunctor_data (C:precategory) : functor_data C SET.
+    intros.
+    exists (fun c => unitset).
+    intros.
+    exact (idfun _).
+  Defined.
+
+  Definition unitFunctor (C:precategory) : C ==> SET.
+    intros.
+    exists (unitFunctor_data C).
+    split.
+    - intros a.
+      admit.
+    - admit.
+  Defined.
+
+End InitialObjects.

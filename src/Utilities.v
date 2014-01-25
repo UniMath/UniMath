@@ -66,9 +66,9 @@ Ltac prop_logic :=
 
 Global Opaque isapropiscontr isapropishinh.
 
-Ltac intermediate  x   := apply (@pathscomp0  _  _ x).
+Ltac intermediate  x   := apply @pathscomp0 with (b := x).
 Ltac intermediate2 x y := apply (@pathscomp0  _  _ x _  _ (@pathscomp0 _  _ y _  _ _)).
-Ltac path_from f := apply (@ap _ _ f).
+Ltac path_from f := apply (ap f).
 
 Definition isaset_if_isofhlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
 (* The use of this lemma ahead of something like 'impred' can be avoided by
