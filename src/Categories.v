@@ -184,6 +184,59 @@ Module PrimitiveTerminalObjects.
 
 End PrimitiveTerminalObjects.
 
+Module PrimitiveInitialObjects.
+
+  (** *** initial objects *)
+
+  Definition isInitialObject {C:precategory} (a:ob C) := forall (x:ob C), iscontr (x ← a).
+
+  Lemma theInitialObjectIsomorphy {C:precategory} (a b:ob C):isInitialObject a -> isInitialObject b -> iso a b.
+  Proof.
+    intros ? ? ?.
+    intros map_to_a_from_ map_to_b_from_. 
+    exists (the (map_to_a_from_ b)). 
+    exists (the (map_to_b_from_ a)).
+    split. 
+      intermediate (the (map_to_a_from_ a)). 
+        apply uniqueness.
+      apply uniqueness'. 
+    intermediate (the (map_to_b_from_ b)). 
+      apply uniqueness.
+    apply uniqueness'.
+  Defined.
+
+  Lemma isaprop_isInitialObject {C:precategory} (a:ob C):isaprop(isInitialObject a).
+  Proof. prop_logic. Qed.
+
+  Definition isInitialObjectProp {C:precategory} (a:ob C) := 
+    hProppair (isInitialObject a) (isaprop_isInitialObject a):hProp.
+
+  Definition InitialObject (C:precategory) := total2 (fun a:ob C => isInitialObject a).
+  Definition theInitialObject {C:precategory} (z:InitialObject C) := pr1 z.
+  Definition theInitialProperty {C:precategory} (z:InitialObject C) := pr2 z.
+
+  Definition theUnivalenceProperty (C:category) := pr2 _ : is_category C.
+
+  Lemma isaprop_InitialObject (C:category) : isaprop (InitialObject C).
+  Proof.
+    intros.
+    apply invproofirrelevance.
+    intros a b.
+    apply (total2_paths 
+             (isotoid _ (theUnivalenceProperty _) 
+                      (theInitialObjectIsomorphy _ _      
+                         (theInitialProperty a)
+                         (theInitialProperty b)))).
+    apply isaprop_isInitialObject.
+  Qed.
+
+  Definition squashInitialObject (C:precategory) := squash (InitialObject C).
+
+  Definition squashInitialObjectProp (C:precategory) := 
+    hProppair (squashInitialObject C) (isaprop_squash _).
+
+End PrimitiveInitialObjects.
+
 Module StandardCategories.
 
   Definition compose' { C:precategory_data } { a b c:ob C }
@@ -401,11 +454,13 @@ Module RepresentableFunctors.
     { exists (f' ,, i'). split.
       { exact (pair_path j:1 (the (isaset_hSet _ _ _ _ _))). }
       { exact (pair_path j:2 (the (isaset_hSet _ _ _ _ _))). }} Qed.
-  Import PrimitiveTerminalObjects.
-  Definition Representation {C} (F:C==>SET) := TerminalObject (El F).
+  Import PrimitiveInitialObjects.
+  Definition Representation {C} (F:C==>SET) := InitialObject (El F).
   Definition Representable {C} (F:C==>SET) := squash (Representation F).
-  Definition representingElement {C} (F:C==>SET) (r:Representation F) := 
+  Definition representingElement {C} {F:C==>SET} (r:Representation F) := 
     pr1 r : El F.
+  Definition representingObject {C} {F:C==>SET} (r:Representation F) := 
+    pr1 (representingElement r) : ob C .
 End RepresentableFunctors.
 
 Module TerminalObjects.
@@ -418,7 +473,15 @@ Module TerminalObjects.
     intros. exists (unitFunctor_data C).
     split. reflexivity. reflexivity. Defined.
   Definition InitialObject (C:precategory) := Representation (unitFunctor C).
+  Definition initialObject {C} (i:InitialObject C) : ob C.
+    intros C i. exact (representingObject i). Defined.
+  Definition initialArrow {C} (i:InitialObject C) (c:ob C) : initialObject i → c.
+    intros C [[i []] p] c. exact (pr1 (the (p (c,,tt)))). Defined.
   Definition TerminalObject (C:precategory) := Representation (unitFunctor C^op).
+  Definition terminalObject {C} (t:InitialObject C) : ob C.
+    intros C t. exact (representingObject t). Defined.
+  Definition terminalArrow {C} (t:TerminalObject C) (c:ob C) : c → terminalObject t.
+    intros C [[i []] p] c. exact (pr1 (the (p (c,,tt)))). Defined.      
 End TerminalObjects.
 
 Module BinaryProducts.
@@ -439,3 +502,7 @@ Module BinaryProducts.
   Definition Coproduct C (c d:Ob C) := Representation (hom2 C c d).
   Definition Product C (c d:Ob C) := Representation (hom2 C^op c d).
 End BinaryProducts.
+
+Module ZeroObjects.
+  Import TerminalObjects.
+End ZeroObjects.
