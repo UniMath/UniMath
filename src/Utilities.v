@@ -132,6 +132,9 @@ Lemma pair_path {X:UU} {P:X->UU} {x x':X} {p: P x} {p' : P x'} (e : x == x') (e'
   (* compare with functtransportf in uu0.v *)
 Proof. intros. destruct e. destruct e'. apply idpath. Defined.
 
+Lemma simple_pair_path {X Y:UU} {x x':X} {y y':Y} (p : x == x') (q : y == y') : x ,, y == x' ,, y'.
+Proof. intros. destruct p. destruct q. apply idpath. Defined.
+
 Lemma iscontr_if_inhab_prop {P:UU} : isaprop P -> P -> iscontr P.
 Proof. intros ? i p. exists p. intros p'. apply i. Defined.
 

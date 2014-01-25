@@ -37,6 +37,7 @@ Local Notation "x :1" := (pr1 x) (at level 3, only parsing).
 Local Notation "x :2" := (pr2 x) (at level 3, only parsing).
 Notation "C '^op'" := (opp_precat C) (at level 3).
 Notation SET := hset_precategory.
+Definition Ob (C:precategory) : Type := ob C.
 
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := tpair _ C i.
@@ -130,7 +131,7 @@ Proof.
   apply isaprop_is_precategory.
 Defined.
 
-Module TerminalObjects.
+Module PrimitiveTerminalObjects.
 
   (** *** terminal objects *)
 
@@ -181,7 +182,7 @@ Module TerminalObjects.
   Definition squashTerminalObjectProp (C:precategory) := 
     hProppair (squashTerminalObject C) (isaprop_squash _).
 
-End TerminalObjects.
+End PrimitiveTerminalObjects.
 
 Module StandardCategories.
 
@@ -332,9 +333,7 @@ End StandardCategories.
 (** ** representable functors *)
 
 Module RepresentableFunctors.
-
   (** *** the category of elements of a functor *)
-
   Definition El_data {C} (F:C==>SET) : precategory_data.
     intros C F.
     set (Fobj := F:1:1).
@@ -346,76 +345,46 @@ Module RepresentableFunctors.
                      fun f : pr1 a → pr1 b => Fmor _ _ f a:2 == b:2 ).
     set (mor := fun a b => total2 (compat a b)).
     apply (makePrecategory_data obj mor).
-    - intros.
-      apply (isofhleveltotal2 2). 
+    - intros. apply (isofhleveltotal2 2). 
       * apply setproperty.
       * intros f.  apply (isofhlevelsnprop 1). apply isaset_hSet.
-    - intro a.
-      exact (identity a:1 ,, (apevalat a:2 (iFid a:1))).
+    - intro a. exact (identity a:1 ,, (apevalat a:2 (iFid a:1))).
     - intros ? ? ? f g.
       exact (      g:1 ∘ f:1,,
                    ((apevalat i:2 (iFcomp _ _ _ f:1 g:1))
                     @ 
-                    (ap (Fmor _ _ g:1) f:2 @ g:2))).
-  Defined.
-
+                    (ap (Fmor _ _ g:1) f:2 @ g:2))). Defined.
   Lemma El_okay {C} (F:C==>SET) : is_precategory (El_data F).
   Proof.
-    intros.
-    split. split.
+    intros. split. split.
     - intros a b [f f'].
-      exact (pair_path
-               (id_left _ _ _ f)
-               (the (isaset_hSet _ _ _ _ _))).
+      exact (pair_path (id_left _ _ _ f) (the (isaset_hSet _ _ _ _ _))).
     - intros a b [f f'].
-      exact (pair_path
-               (id_right _ _ _ f)
-               (the (isaset_hSet _ _ _ _ _))).
+      exact (pair_path (id_right _ _ _ f) (the (isaset_hSet _ _ _ _ _))).
     - intros ? ? ? ? f g h.     (* destructing f,g,h adds 1.75 seconds *)
       exact (pair_path 
                (assoc _ _ _ _ _ f:1 g:1 h:1)
-               (the (isaset_hSet _ _ _ _ _))
-            ).
-  Qed.
-
+               (the (isaset_hSet _ _ _ _ _))). Qed.
   Definition El {C} (F:C==>SET) : precategory.
     intros.
-    exact (El_data F ,, El_okay F).
-  Defined.
-
+    exact (El_data F ,, El_okay F). Defined.
   Definition El_pr1_data {C} (F:C==>SET) : functor_data (El F) C.
     intros.
     exists pr1.
     intros x x'.
-    apply pr1.    
-  Defined.
-
+    apply pr1. Defined.
   Definition El_pr1 {C} (F:C==>SET) : El F ==> C.
-    intros.
-    exists (El_pr1_data _).
-    split.
-    - intros. reflexivity.
-    - intros. reflexivity.
-  Defined.
-
+    intros. exists (El_pr1_data _).
+    split. - intros. reflexivity. - intros. reflexivity. Defined.
   Definition reflects_isos {C D} (F:C==>D) :=
     forall c c' (f : c → c'), is_isomorphism (#F f) -> is_isomorphism f.
-
-  Lemma isaprop_reflects_isos {C D} (F:C==>D)
-        : isaprop (reflects_isos F).
+  Lemma isaprop_reflects_isos {C D} (F:C==>D) : isaprop (reflects_isos F).
   Proof.
-    intros.
-    apply impred; intros c.
-    apply impred; intros c'.
-    apply impred; intros f.
-    apply impred; intros _.
-    apply isaprop_is_isomorphism.
-  Qed.
-
+    intros. apply impred; intros. apply impred; intros. apply impred; intros.
+    apply impred; intros. apply isaprop_is_isomorphism. Qed.
   Lemma El_pr1_reflects_isos {C} (F:[C, SET]) : reflects_isos (El_pr1 F).
   Proof.
-    intros.
-    simpl in F.                 (* why do we need this? *)
+    intros. simpl in F.         (* why do we need this? *)
     intros cx dy fi iso_f.
     set (c := cx:1). set (x := cx:2).
     set (d := dy:1). set (y := dy:2).
@@ -429,39 +398,44 @@ Module RepresentableFunctors.
         { intermediate (#F (identity c) x).
           { exact (apevalat x (ap #F j:1)). }
           { exact (apevalat x (functor_id _ _ F c)). }}}}
-    { exists (f' ,, i').
-      split.
+    { exists (f' ,, i'). split.
       { exact (pair_path j:1 (the (isaset_hSet _ _ _ _ _))). }
-      { exact (pair_path j:2 (the (isaset_hSet _ _ _ _ _))). }}
-  Qed.
-
-  Import TerminalObjects.
-
+      { exact (pair_path j:2 (the (isaset_hSet _ _ _ _ _))). }} Qed.
+  Import PrimitiveTerminalObjects.
   Definition Representation {C} (F:C==>SET) := TerminalObject (El F).
   Definition Representable {C} (F:C==>SET) := squash (Representation F).
   Definition representingElement {C} (F:C==>SET) (r:Representation F) := 
     pr1 r : El F.
-
 End RepresentableFunctors.
 
-Module InitialObjects.
-
+Module TerminalObjects.
+  Import RepresentableFunctors.
   Definition unitset : hSet := tpair isaset unit isasetunit.
+  Definition unitFunctor_data C : functor_data C SET.
+    intros. exists (fun _ => unitset).
+    intros. exact (idfun _). Defined.
+  Definition unitFunctor C : C ==> SET.
+    intros. exists (unitFunctor_data C).
+    split. reflexivity. reflexivity. Defined.
+  Definition InitialObject (C:precategory) := Representation (unitFunctor C).
+  Definition TerminalObject (C:precategory) := Representation (unitFunctor C^op).
+End TerminalObjects.
 
-  Definition unitFunctor_data (C:precategory) : functor_data C SET.
-    intros.
-    exists (fun c => unitset).
-    intros.
-    exact (idfun _).
-  Defined.
-
-  Definition unitFunctor (C:precategory) : C ==> SET.
-    intros.
-    exists (unitFunctor_data C).
-    split.
-    - intros a.
-      admit.
-    - admit.
-  Defined.
-
-End InitialObjects.
+Module BinaryProducts.
+  Import RepresentableFunctors.
+  Definition hom2_set (C:precategory) (c d:ob C) : ob C -> SET.
+    intros ? ? ? x. exact (setdirprod (Hom c x) (Hom d x)). Defined.
+  Definition hom2_map (C:precategory) (c d x y:ob C) (f : x → y) :
+      pr1hSet (hom2_set C c d x) -> pr1hSet (hom2_set C c d y).
+    intros ? ? ? ? ? ? [g h]. exact (f ∘ g ,, f ∘ h). Defined.
+  Definition hom2_data (C:precategory) (c d:ob C) : functor_data C SET.
+    intros.  exact (hom2_set C c d,, hom2_map C c d). Defined.
+  Definition hom2 (C:precategory) (c d:ob C) : C ==> SET.
+    intros. exists (hom2_data C c d). split.
+    { intros a. apply funextfunax; intros [f g]. apply simple_pair_path.
+      { apply id_right. } { apply id_right. } }
+    { intros x y z p q. apply funextfunax; intros [f g]; apply simple_pair_path.
+      { apply assoc. } { apply assoc. }} Defined.
+  Definition Coproduct C (c d:Ob C) := Representation (hom2 C c d).
+  Definition Product C (c d:Ob C) := Representation (hom2 C^op c d).
+End BinaryProducts.
