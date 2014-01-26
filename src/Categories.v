@@ -224,9 +224,7 @@ Module ZeroObjects.
     apply initMapUniqueness. apply pathsinv0. apply initMapUniqueness. Qed.
   Definition hasZeroObject (C:precategory) := squash (ZeroObject C).
   Definition haszero_opp (C:precategory) : hasZeroObject C -> hasZeroObject C^op.
-    admit.
-  Defined.
-
+    intros C. exact (hinhfun (zero_opp C)). Defined.
   Lemma zeroObjectIsomorphy {C:precategory} (a b:ZeroObject C) : iso a b.
   Proof. intros. 
          exact (theInitialObjectIsomorphy C a b (map_from a) (map_from b)). Defined.
@@ -506,6 +504,33 @@ Module BinaryProducts.
   Definition Coproduct C (c d:Ob C) := Representation (hom2 C c d).
   Definition Product C (c d:Ob C) := Representation (hom2 C^op c d).
 End BinaryProducts.
+
+Module FiniteProducts.
+  Definition dirprodn {n:nat} (X:stn n -> Type) : Type := sections X.
+  Definition setdirprodn {n:nat} (X:stn n -> hSet) : hSet.
+    intros.
+    exists (dirprodn (funcomp X set_to_type)).
+    apply (impred 2); intros i.  apply (pr2 (X i)). Defined.    
+  Definition homn_set n (C:precategory) (c:stn n -> ob C) : ob C -> SET.
+    intros ? ? ? x. exact (setdirprodn (fun i => Hom (c i) x)). Defined.
+  Definition homn_map n (C:precategory) (c:stn n -> ob C) (x y:ob C) (f : x → y) :
+      set_to_type (homn_set n C c x) -> set_to_type (homn_set n C c y).
+    intros ? ? ? ? ? ? g j; unfold funcomp.
+    exact (f ∘ (g j)). Defined.
+  Definition homn_data n (C:precategory) (c:stn n -> ob C) : functor_data C SET.
+    intros.  exact (homn_set n C c,, homn_map n C c). Defined.
+  Definition homn n (C:precategory) (c:stn n -> ob C) : C ==> SET.
+    intros. exists (homn_data n C c). split.
+    { intros a. apply funextfunax; intros f.  apply funextsec; intros i.
+      apply id_right. }
+    { intros x y z p q. apply funextfunax; intros f. apply funextsec; intros i.
+      apply assoc. } Defined.
+  Import RepresentableFunctors.
+  Definition Coproductn n (C:precategory) (c:stn n -> ob C) :=
+    Representation (homn n C c).
+  Definition Productn n (C:precategory) (c:stn n -> ob C) :=
+    Representation (homn n C^op c).
+End FiniteProducts.
 
 Module Kernels.
   Import RepresentableFunctors.

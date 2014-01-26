@@ -39,6 +39,7 @@ TAGS : $(VFILES); etags $(COQDEFS) $^
 install:all
 everything: all TAGS html install
 lc:; wc -l $(VFILES)
+wc:; wc -w $(VFILES)
 clean:clean2
 clean2:; rm -f TAGS *.d *.glob N*.cmi N*.cmx N*.cmxs N*.native N*.o
 distclean: clean; rm -f Make-include.mk Make-include.mk.bak
