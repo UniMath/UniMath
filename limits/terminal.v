@@ -26,11 +26,16 @@ Coercion TerminalObject : Terminal >-> ob.
 
 Definition TerminalArrow (T : Terminal) (b : C) : b --> T :=  pr1 (pr2 T b).
 
-Lemma TerminalEndo_is_identity (T : Terminal) (f : T --> T) : identity T == f.
+Lemma ArrowsToTerminal (T : Terminal) (b : C) (f g : b --> T) : f == g.
 Proof.
   apply proofirrelevance.
   apply isapropifcontr.
-  apply (pr2 T T).
+  apply (pr2 T _).
+Qed.
+
+Lemma TerminalEndo_is_identity (T : Terminal) (f : T --> T) : identity T == f.
+Proof.
+  apply ArrowsToTerminal.
 Qed.
 
 Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) : 
@@ -60,15 +65,6 @@ Proof.
   apply impred.
   intro t ; apply isapropiscontr.
 Qed.
-
-
-
-
-
-
-
-
-
 
 
 End Terminal_Unique.

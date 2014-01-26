@@ -22,21 +22,21 @@ Variable C : precategory.
 
 
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
-        (f' : d --> c) (g' : d --> b) (H : f' ;; g == g';; f) : UU :=
-   forall e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f ),
-      iscontr (total2 (fun hk : e --> d => dirprod (hk ;; f' == k)(hk ;; g' == h))).
+        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f == p2;; g) : UU :=
+   forall e (h : e --> b) (k : e --> c)(H : h ;; f == k ;; g ),
+      iscontr (total2 (fun hk : e --> d => dirprod (hk ;; p1 == h)(hk ;; p2 == k))).
 
 Lemma isaprop_isPullback {a b c d : C} (f : b --> a) (g : c --> a)
-        (f' : d --> c) (g' : d --> b) (H : f' ;; g == g';; f) :
-       isaprop (isPullback f g f' g' H).
+        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f == p2 ;; g) :
+       isaprop (isPullback f g p1 p2 H).
 Proof.
   repeat (apply impred; intro).
   apply isapropiscontr.
 Qed.
 
 Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
-     total2 (fun pfg : total2 (fun p : C => dirprod (p --> c) (p --> b)) =>
-         total2 (fun H : pr1 (pr2 pfg) ;; g == pr2 (pr2 pfg) ;; f =>
+     total2 (fun pfg : total2 (fun p : C => dirprod (p --> b) (p --> c)) =>
+         total2 (fun H : pr1 (pr2 pfg) ;; f == pr2 (pr2 pfg) ;; g =>
         isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
 
 Definition Pullbacks := forall (a b c : C)(f : b --> a)(g : c --> a),
@@ -51,14 +51,14 @@ Definition PullbackObject {a b c : C} {f : b --> a} {g : c --> a}:
 Coercion PullbackObject : Pullback >-> ob.
 
 Definition PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a} 
-   (Pb : Pullback f g) : Pb --> c := pr1 (pr2 (pr1 Pb)).
+   (Pb : Pullback f g) : Pb --> b := pr1 (pr2 (pr1 Pb)).
 
 Definition PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a} 
-   (Pb : Pullback f g) : Pb --> b := pr2 (pr2 (pr1 Pb)).
+   (Pb : Pullback f g) : Pb --> c := pr2 (pr2 (pr1 Pb)).
 
 Definition PullbackSqrCommutes {a b c : C} {f : b --> a} {g : c --> a} 
    (Pb : Pullback f g) : 
-    PullbackPr1 Pb ;; g == PullbackPr2 Pb ;; f . 
+    PullbackPr1 Pb ;; f == PullbackPr2 Pb ;; g . 
 Proof. 
   exact (pr1 (pr2 Pb)).
 Qed.
@@ -68,23 +68,23 @@ Definition isPullback_Pullback {a b c : C} {f : b --> a}{g : c --> a}
   isPullback f g (PullbackPr1 P) (PullbackPr2 P) (PullbackSqrCommutes P).
 Proof.
   exact (pr2 (pr2 P)).
-Defined.
+Qed.
 Coercion isPullback_Pullback : Pullback >-> isPullback.
 
 Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a} 
-   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) : e --> Pb :=
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f == k ;; g) : e --> Pb :=
    pr1 (pr1 (isPullback_Pullback Pb e h k H)).
 
 Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a} 
-   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) :
-   PullbackArrow Pb e h k H ;; PullbackPr1 Pb == k.
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f == k ;; g) :
+   PullbackArrow Pb e h k H ;; PullbackPr1 Pb == h.
 Proof.
   exact (pr1 (pr2 (pr1 (isPullback_Pullback Pb e h k H)))).
 Qed.
 
 Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a} 
-   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : k ;; g == h ;; f) :
-   PullbackArrow Pb e h k H ;; PullbackPr2 Pb == h.
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f == k ;; g) :
+   PullbackArrow Pb e h k H ;; PullbackPr2 Pb == k.
 Proof.
   exact (pr2 (pr2 (pr1 (isPullback_Pullback Pb e h k H)))).
 Qed.
@@ -201,7 +201,7 @@ Qed.
 Definition from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
    (Pb Pb': Pullback f g) : Pb --> Pb'.
 Proof.
-  apply (PullbackArrow Pb' Pb (PullbackPr2 _ ) (PullbackPr1 _)).
+  apply (PullbackArrow Pb' Pb (PullbackPr1 _ ) (PullbackPr2 _)).
   apply PullbackSqrCommutes.
 Defined.
 
@@ -283,7 +283,7 @@ Qed.
 
 End Universal_Unique.
 
-
+(*
 Section product_from_pullback.
 
 Variable T : Terminal C.
@@ -314,7 +314,7 @@ Defined.
 (* todo: prove some laws about pre- and postcomposition with [ProductArrow] *)
 
 End product_from_pullback.
-
+*)
 
 
 End def_pb.
