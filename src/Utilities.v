@@ -81,8 +81,10 @@ Proof. trivial. Qed.
 Definition isaprop_hProp (X:hProp) : isaprop X.
 Proof. intro. exact (pr2 X). Qed.
 
+(* (* use setproperty instead *)
 Definition isaset_hSet (X:hSet) : isaset X.
 Proof. intro. exact (pr2 X). Qed.
+*)
 
 Definition the {T:UU} : iscontr T -> T.
 Proof. intros ? is. exact (pr1 is). Defined.
@@ -96,6 +98,7 @@ Proof. intros. exact (! (pr2 i t)). Defined.
 (** * Squashing. *)
 
 Notation squash := ishinh_UU.
+Notation squash_fun := hinhfun.
 
 Definition squash_element {X:UU} : X -> squash X.
 Proof. intros ? x P f. exact (f x). Defined.
