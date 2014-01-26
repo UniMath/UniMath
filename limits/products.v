@@ -29,7 +29,6 @@ Definition ProductCone (c d : C) :=
             fun p1p2 : dirprod (p --> c) (p --> d) =>
              isProductCone c d p (pr1 p1p2) (pr2 p1p2))).
 
-
 Definition Products := forall (c d : C), ProductCone c d.
 Definition hasProducts := ishinh Products.
 
@@ -65,10 +64,79 @@ Proof.
   exact (pr2 (pr2 (pr1 (isProductCone_ProductCone P _ f g)))).
 Qed.
 
+Lemma ProductArrowUnique (c d : C) (P : ProductCone c d) (x : C)
+    (f : x --> c) (g : x --> d) (k : x --> ProductObject P) :
+    k ;; ProductPr1 P == f -> k ;; ProductPr2 P == g ->
+      k == ProductArrow P f g.
+Proof.
+  intros H1 H2.
+  set (H := tpair (fun h => dirprod _ _ ) k (dirprodpair H1 H2)).
+  set (H' := (pr2 (isProductCone_ProductCone P _ f g)) H).
+  apply (base_paths _ _ H').
+Qed.
 
 
+Lemma ProductArrowEta (c d : C) (P : ProductCone c d) (x : C)
+    (f : x --> ProductObject P) : 
+    f == ProductArrow P (f ;; ProductPr1 P) (f ;; ProductPr2 P).
+Proof.
+  apply ProductArrowUnique;
+  apply idpath.
+Qed.
+  
+
+Definition ProductOfArrows {c d : C} (Pcd : ProductCone c d) {a b : C}
+    (Pab : ProductCone a b) (f : a --> c) (g : b --> d) : 
+          ProductObject Pab --> ProductObject Pcd :=
+    ProductArrow Pcd (ProductPr1 Pab ;; f) (ProductPr2 Pab ;; g).
+
+Lemma ProductOfArrowsPr1 {c d : C} (Pcd : ProductCone c d) {a b : C}
+    (Pab : ProductCone a b) (f : a --> c) (g : b --> d) : 
+    ProductOfArrows Pcd Pab f g ;; ProductPr1 Pcd == ProductPr1 Pab ;; f.
+Proof.
+  unfold ProductOfArrows.
+  rewrite ProductPr1Commutes.
+  apply idpath.
+Qed.
+
+Lemma ProductOfArrowsPr2 {c d : C} (Pcd : ProductCone c d) {a b : C}
+    (Pab : ProductCone a b) (f : a --> c) (g : b --> d) : 
+    ProductOfArrows Pcd Pab f g ;; ProductPr2 Pcd == ProductPr2 Pab ;; g.
+Proof.
+  unfold ProductOfArrows.
+  rewrite ProductPr2Commutes.
+  apply idpath.
+Qed.
 
 
+Lemma postcompWithProductArrow {c d : C} (Pcd : ProductCone c d) {a b : C}
+    (Pab : ProductCone a b) (f : a --> c) (g : b --> d) 
+    {x : C} (k : x --> a) (h : x --> b) : 
+        ProductArrow Pab k h ;; ProductOfArrows Pcd Pab f g == 
+         ProductArrow Pcd (k ;; f) (h ;; g).
+Proof.
+  apply ProductArrowUnique.
+  - rewrite <- assoc, ProductOfArrowsPr1.
+    rewrite assoc, ProductPr1Commutes.
+    apply idpath.
+  - rewrite <- assoc, ProductOfArrowsPr2.
+    rewrite assoc, ProductPr2Commutes.
+    apply idpath.
+Qed.
+
+
+Lemma precompWithProductArrow {c d : C} (Pcd : ProductCone c d) {a : C}
+    (f : a --> c) (g : a --> d) {x : C} (k : x --> a)  : 
+       k ;; ProductArrow Pcd f g  == ProductArrow Pcd (k ;; f) (k ;; g).
+Proof.
+  apply ProductArrowUnique.
+  -  rewrite <- assoc, ProductPr1Commutes;
+     apply idpath.
+  -  rewrite <- assoc, ProductPr2Commutes;
+     apply idpath.
+Qed.
+
+End product_def.
 
 
 
