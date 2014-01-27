@@ -464,10 +464,15 @@ Module RepresentableFunctors.
     pr1 (representingPair r) : ob C .
   Definition representingElement {C} {X:C==>SET} (r:Representation X) := 
     pr2 (representingPair r) : set_to_type (X (representingObject r)).
-  Lemma representingIso {C} (X:C==>SET) (r:Representation X) : 
-    forall d:ob C, 
-      isweq (fun p : Hom (representingObject r) d => (#X p) (representingElement r)).
+  Definition representingMap {C} {X:C==>SET} (r:Representation X) (d:ob C) :
+    Hom (representingObject r) d -> set_to_type (X d).
+  Proof. intros ? ? ? ? p. exact (#X p (representingElement r)). Defined.
+  Lemma representingMap_isweq {C} {X:C==>SET} (r:Representation X) (d:ob C) :
+    isweq (representingMap r d).
   Proof. intros. intros y. exact (representingInitiality r (d,,y)). Qed.
+  Definition representingIso {C} (X:C==>SET) (r:Representation X) (d:ob C) 
+    := weqpair (representingMap r d) (representingMap_isweq r d) 
+       : weq (representingObject r → d) (set_to_type (X d)).
 End RepresentableFunctors.
 
 Module TerminalObjects.
@@ -516,37 +521,36 @@ Module FiniteProducts.
     intros.
     exists (dirprodn (funcomp X set_to_type)).
     apply (impred 2); intros i.  apply (pr2 (X i)). Defined.    
-  Definition homn_set n (C:precategory) (c:stn n -> ob C) : ob C -> SET.
+  Definition homn_set (C:precategory) {n} (c:stn n -> ob C) : ob C -> SET.
     intros ? ? ? x. exact (setdirprodn (fun i => Hom (c i) x)). Defined.
-  Definition homn_map n (C:precategory) (c:stn n -> ob C) (x y:ob C) (f : x → y) :
-      set_to_type (homn_set n C c x) -> set_to_type (homn_set n C c y).
+  Definition homn_map (C:precategory) {n} (c:stn n -> ob C) (x y:ob C) (f : x → y) :
+      set_to_type (homn_set C c x) -> set_to_type (homn_set C c y).
     intros ? ? ? ? ? ? g j; unfold funcomp.
     exact (f ∘ (g j)). Defined.
-  Definition homn_data n (C:precategory) (c:stn n -> ob C) : functor_data C SET.
-    intros.  exact (homn_set n C c,, homn_map n C c). Defined.
-  Definition homn n (C:precategory) (c:stn n -> ob C) : C ==> SET.
-    intros. exists (homn_data n C c). split.
+  Definition homn_data (C:precategory) {n} (c:stn n -> ob C) : functor_data C SET.
+    intros.  exact (homn_set C c,, homn_map C c). Defined.
+  Definition homn (C:precategory) {n} (c:stn n -> ob C) : C ==> SET.
+    intros. exists (homn_data C c). split.
     { intros a. apply funextfunax; intros f.  apply funextsec; intros i.
       apply id_right. }
     { intros x y z p q. apply funextfunax; intros f. apply funextsec; intros i.
       apply assoc. } Defined.
   Import RepresentableFunctors.
-  Definition Coproductn n (C:precategory) (c:stn n -> ob C) :=
-    Representation (homn n C c).
-  Definition Productn n (C:precategory) (c:stn n -> ob C) :=
-    Representation (homn n C^op c).
+  Definition Coproduct (C:precategory) {n} (c:stn n -> ob C) :=
+    Representation (homn C c).
+  Definition Product (C:precategory) {n} (c:stn n -> ob C) :=
+    Representation (homn C^op c).
 End FiniteProducts.
 
 Module Kernels.
   Import RepresentableFunctors.
   Import ZeroObjects.
-  Definition zerocomp_type (C:precategory)(z:hasZeroObject C)(c d:ob C)(f:c → d) :
+  Definition zerocomp_type {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
     ob C -> Type.
   Proof. intros ? ? ? ? ? x.
     exact (total2( fun g : Hom d x => g ∘ f == zeroMap c x z)). Defined.
-  Definition zerocomp_type_isaset 
-             (C:precategory)(z:hasZeroObject C)(c d:ob C)(f:c → d) :
-    forall x:ob C, isaset (zerocomp_type C z c d f x).
+  Definition zerocomp_type_isaset {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
+    forall x:ob C, isaset (zerocomp_type z f x).
   Proof. intros ? ? ? ? ? x.
     apply (isofhleveltotal2 2).
     { apply setproperty. }
@@ -555,40 +559,56 @@ Module Kernels.
       { apply hlevelntosn.  apply setproperty. }
       exact (t _ _).            (* why doesn't apply t work here? *)
       } Qed.  
-  Definition zerocomp_set (C:precategory) (z:hasZeroObject C) (c d:ob C) (f:c → d) :
+  Definition zerocomp_set {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
     ob C -> SET.
   Proof. intros ? ? ? ? ? x.
-    exact (zerocomp_type C z c d f x,, zerocomp_type_isaset C z c d f x). Defined.
-  Definition zerocomp_map
-             (C:precategory) (z:hasZeroObject C) (c d:ob C) (f:c → d) (x y:ob C) :
+    exact (zerocomp_type z f x,, zerocomp_type_isaset z f x). Defined.
+  Definition zerocomp_map {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
+    forall x y:ob C,
     x → y 
     ->
-    set_to_type (zerocomp_set C z c d f x) -> set_to_type (zerocomp_set C z c d f y).
+    set_to_type (zerocomp_set z f x) -> set_to_type (zerocomp_set z f y).
   Proof. intros ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc.  rewrite s.
          apply zeroMap_left_composition. Defined.
-  Definition zerocomp_data (C:precategory) (z:hasZeroObject C) (c d:ob C) (f:c → d) :
+  Definition zerocomp_data {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
     functor_data C SET.
   Proof. intros. 
-         exact (zerocomp_set C z c d f,, zerocomp_map C z c d f). Defined.
-  Definition zerocomp C (z:hasZeroObject C) (c d:ob C) (f:c → d) : C ==> SET.
-    intros. exists (zerocomp_data C z c d f). split.
+         exact (zerocomp_set z f,, zerocomp_map z f). Defined.
+  Definition zerocomp {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) : C ==> SET.
+    intros. exists (zerocomp_data z f). split.
     { intros x. apply funextfunax; intros [r rf0].
       apply pair_path with (e := id_right _ _ _ r). apply setproperty. }
     { intros w x y t u. apply funextfunax. intros [r rf0].
       apply pair_path with (e := assoc _ _ _ _ _ r t u).
       apply setproperty. } Defined.
   Import RepresentableFunctors.
-  Definition Cokernel C (z:hasZeroObject C) (c d:ob C) (f:c → d) :=
-    Representation (zerocomp C z c d f).
+  Definition Cokernel {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :=
+    Representation (zerocomp z f).
   Definition Kernel C (z:hasZeroObject C) (c d:ob C) (f:c → d) :=
-    Representation (zerocomp C^op (haszero_opp C z) d c f).
+    Representation (zerocomp (haszero_opp C z) f).
 End Kernels.
 
 Module Matrices.
   Import FiniteProducts.
-  (* Lemma to_matrix (C:precategory)  *)
-  
-
+  Import RepresentableFunctors.
+  (* the representing map is the matrix *)
+  Definition to_matrix_row {C:precategory}
+             {n} {b:stn n -> ob C} (B : Coproduct C b)
+             {d:ob C} (p : Hom (representingObject B) d) :
+    forall j, Hom (b j) d.
+  Proof. intros ? ? ? B. exact (representingMap B). Defined.
+  Definition to_matrix_col {C:precategory}
+             {n} {d:stn n -> ob C} (D : Product C d)
+             {b:ob C} (p : Hom b (representingObject D)) :
+    forall i, Hom b (d i).
+  Proof. intros ? ? ? r. exact (representingMap r). Defined.
+  Definition to_matrix 
+             {C:precategory} 
+             {m} {d:stn m -> ob C} (D : Product C d)
+             {n} {b:stn n -> ob C} (B : Coproduct C b)
+             (p : Hom (representingObject B) (representingObject D)) :
+    forall i j, Hom (b j) (d i).
+  Proof. intros. exact (to_matrix_col D (to_matrix_row B p j) i). Defined.
 End Matrices.
 
 Module DirectSums.
