@@ -12,7 +12,7 @@
 
   Using Qed, we make all proof irrelevant proofs opaque. *)
 
-Require Import Foundations.hlevel2.hSet Foundations.hlevel2.stnfsets.
+Require Import Foundations.hlevel2.hSet.
 
 Require Import 
         RezkCompletion.precategories RezkCompletion.functors_transformations 
@@ -45,6 +45,8 @@ Definition precategory_pair (C:precategory_data) (i:is_precategory C)
 
 Definition category_pair (C:precategory) (i:is_category C)
  : category := tpair _ C i.
+
+Definition theUnivalenceProperty (C:category) := pr2 _ : is_category C.
 
 (** *** make a precategory *)
 
@@ -153,7 +155,6 @@ Module PrimitiveTerminalObjects. (** *** terminal objects *)
     total2 (fun a:ob C => isTerminalObject C a).
   Definition theTerminalObject {C:precategory} (z:TerminalObject C) := pr1 z.
   Definition theTerminalProperty {C:precategory} (z:TerminalObject C) := pr2 z.
-  Definition theUnivalenceProperty (C:category) := pr2 _ : is_category C.
   Lemma isaprop_TerminalObject (C:category) : isaprop (TerminalObject C).
   Proof. intros. apply invproofirrelevance. intros a b.
     apply (total2_paths 
@@ -188,7 +189,6 @@ Module PrimitiveInitialObjects. (** *** initial objects *)
     total2 (fun a:ob C => isInitialObject C a).
   Definition theInitialObject {C:precategory} (z:InitialObject C) := pr1 z.
   Definition theInitialProperty {C:precategory} (z:InitialObject C) := pr2 z.
-  Definition theUnivalenceProperty (C:category) : is_category C := pr2 _.
   Lemma isaprop_InitialObject (C:category) : isaprop (InitialObject C).
   Proof. intros. apply invproofirrelevance. intros a b.
     apply (total2_paths 
@@ -357,6 +357,8 @@ Module StandardCategories.
 
   (** *** the discrete category on n objects *)
 
+  Require Import Foundations.hlevel2.stnfsets.
+
   Definition cat_n (n:nat):category.
     intro.
     apply (path_groupoid (stn n)).
@@ -496,85 +498,85 @@ Module TerminalObjects.
     intros C [[i []] p] c. exact (pr1 (the (p (c,,tt)))). Defined.      
 End TerminalObjects.
 
-Module FiniteProducts.
-  Definition tuple n (X:Type) := stn n -> X.
-  Definition dirprodtuple {n} (X:tuple n Type) : Type := sections X.
-  Definition setdirprodtuple {n} (X:tuple n hSet) : hSet.
-    intros. exists (dirprodtuple (funcomp X set_to_type)).
+Module Products.
+  Definition setProduct {I} (X:I -> hSet) : hSet.
+    intros. exists (sections (funcomp X set_to_type)).
     apply (impred 2); intros i. apply (pr2 (X i)). Defined.    
-  Definition homtuple_set (C:precategory) {n} (c:tuple n (ob C)) : ob C -> SET.
-    intros ? ? ? x. exact (setdirprodtuple (fun i => Hom (c i) x)). Defined.
-  Definition homtuple_map
-             (C:precategory) {n} (c:tuple n (ob C)) (x y:ob C) (f : x → y) :
-      set_to_type (homtuple_set C c x) -> set_to_type (homtuple_set C c y).
+  Definition HomFamily_set (C:precategory) {I} (c:I -> ob C) : ob C -> SET.
+    intros ? ? ? x. exact (setProduct (fun i => Hom (c i) x)). Defined.
+  Definition HomFamily_map
+             (C:precategory) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :
+      set_to_type (HomFamily_set C c x) -> set_to_type (HomFamily_set C c y).
     intros ? ? ? ? ? ? g j; unfold funcomp.
     exact (f ∘ (g j)). Defined.
-  Definition homtuple_data 
-             (C:precategory) {n} (c:tuple n (ob C)) : functor_data C SET.
-    intros.  exact (homtuple_set C c,, homtuple_map C c). Defined.
-  Definition homtuple (C:precategory) {n} (c:tuple n (ob C)) : C ==> SET.
-    intros. exists (homtuple_data C c). split.
+  Definition HomFamily_data 
+             (C:precategory) {I} (c:I -> ob C) : functor_data C SET.
+    intros.  exact (HomFamily_set C c,, HomFamily_map C c). Defined.
+  Definition HomFamily (C:precategory) {I} (c:I -> ob C) : C ==> SET.
+    intros. exists (HomFamily_data C c). split.
     { intros a. apply funextfunax; intros f.  apply funextsec; intros i.
       apply id_right. }
     { intros x y z p q. apply funextfunax; intros f. apply funextsec; intros i.
       apply assoc. } Defined.
   Import RepresentableFunctors.
-  Definition Coproduct (C:precategory) {n} (c:tuple n (ob C)) :=
-    Representation (homtuple C c).
-  Definition Product (C:precategory) {n} (c:tuple n (ob C)) :=
-    Representation (homtuple C^op c).
-  Definition coproductObject {C:precategory} {n} {c:tuple n (ob C)} (r:Coproduct C c)
+  Definition Coproduct (C:precategory) {I} (c:I -> ob C) :=
+    Representation (HomFamily C c).
+  Definition Product (C:precategory) {I} (c:I -> ob C) :=
+    Representation (HomFamily C^op c).
+  Definition coproductObject {C:precategory} {I} {c:I -> ob C} (r:Coproduct C c)
              : ob C := representingObject r.
-  Definition productObject {C:precategory} {n} {c:tuple n (ob C)} (r:Product C c)
+  Definition productObject {C:precategory} {I} {c:I -> ob C} (r:Product C c)
              (* the representing object of r is in C^op, so here we convert it *)
              : ob C := representingObject r.
   Coercion coproductObject : Coproduct >-> ob.
   Coercion productObject : Product >-> ob.
   Definition coprod_in
-             {C:precategory} {n} {b:tuple n (ob C)} (B:Coproduct C b) i :
+             {C:precategory} {I} {b:I -> ob C} (B:Coproduct C b) i :
      Hom (b i) B.
   Proof. intros. exact (representingElement B i). Defined.
   Definition prod_pr
-             {C:precategory} {n} {b:tuple n (ob C)} (B:Product C b) i :
+             {C:precategory} {I} {b:I -> ob C} (B:Product C b) i :
      Hom B (b i).
   Proof. intros. exact (representingElement B i). Defined.
-End FiniteProducts.
+End Products.
 
 Module Matrices.
-  Import FiniteProducts.
+  Import Products.
   Import RepresentableFunctors.
   (* the representing map is the matrix *)
-  Definition to_row {C:precategory} {n} {b:tuple n C} (B:Coproduct C b) {d:ob C} :
+  Definition to_row {C:precategory} {I} {b:I -> C} (B:Coproduct C b) {d:ob C} :
     weq (Hom B d) (forall j, Hom (b j) d).
   Proof. intros ? ? ? ?. exact (representingIso B). Defined.
-  Definition from_row {C:precategory} {n} {b:tuple n C} (B:Coproduct C b) {d:ob C} :
+  Definition from_row {C:precategory} {I} {b:I -> C} (B:Coproduct C b) {d:ob C} :
     weq (forall j, Hom (b j) d) (Hom B d).
   Proof. intros. apply invweq. apply to_row. Defined.
-  Definition to_col {C:precategory} {n} {d:tuple n C} (D:Product C d) {b:ob C} :
+  Definition to_col {C:precategory} {I} {d:I -> C} (D:Product C d) {b:ob C} :
     weq (Hom b D) (forall i, Hom b (d i)).
   Proof. intros ? ? ? ?. exact (representingIso D). Defined.
-  Definition from_col {C:precategory} {n} {d:tuple n C} (D:Product C d) {b:ob C} :
+  Definition from_col {C:precategory} {I} {d:I -> C} (D:Product C d) {b:ob C} :
     weq (forall i, Hom b (d i)) (Hom b D).
   Proof. intros. apply invweq. apply to_col. Defined.
   Definition to_matrix {C:precategory} 
-             {m} {d:tuple m C} (D:Product C d)
-             {n} {b:tuple n C} (B:Coproduct C b) :
+             {I} {d:I -> C} (D:Product C d)
+             {J} {b:J -> C} (B:Coproduct C b) :
              Hom B D -> forall i j, Hom (b j) (d i).
   Proof. intros ? ? ? ? ? ? ? p ? ?. exact (to_row B (to_col D p i) j). Defined.
   Definition to_matrix' {C:precategory} 
-             {m} {d:tuple m C} (D:Product C d)
-             {n} {b:tuple n C} (B:Coproduct C b) :
+             {I} {d:I -> C} (D:Product C d)
+             {J} {b:J -> C} (B:Coproduct C b) :
              Hom B D -> forall i j, Hom (b j) (d i).
   Proof. intros ? ? ? ? ? ? ? p ? ?. exact (to_col D (to_row B p j) i). Defined.
   Lemma to_matrix_equal {C:precategory} 
-             {m} {d:tuple m C} (D:Product C d)
-             {n} {b:tuple n C} (B:Coproduct C b) :
+             {I} {d:I -> C} (D:Product C d)
+             {J} {b:J -> C} (B:Coproduct C b) :
     forall p i j, to_matrix D B p i j == to_matrix' D B p i j.
   Proof. intros. exact (assoc _ _ _ _ _ (coprod_in B j) p (prod_pr D i)). Defined.
 End Matrices.
 
 Module DirectSums.
-  Import FiniteProducts.
+  Require Import Foundations.hlevel2.finitesets.
+  Definition fSet := total2 isfinite.
+  Import Products.
 
 
 End DirectSums.
