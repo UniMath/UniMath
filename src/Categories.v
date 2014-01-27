@@ -389,12 +389,12 @@ End StandardCategories.
 Module RepresentableFunctors.
   (** ** representable functors *)
   (** *** the category of elements of a functor *)
-  Definition El_data {C} (F:C==>SET) : precategory_data.
-    intros C F.
-    set (Fobj := F:1:1).
-    set (Fmor := F:1:2).
-    set (iFid := F:2:1).
-    set (iFcomp := F:2:2).
+  Definition El_data {C} (X:C==>SET) : precategory_data.
+    intros C X.
+    set (Fobj := X:1:1).
+    set (Fmor := X:1:2).
+    set (iFid := X:2:1).
+    set (iFcomp := X:2:2).
     set (obj := total2 (fun c : ob C => set_to_type (Fobj c))).
     set (compat := fun a b : obj =>
                      fun f : pr1 a → pr1 b => Fmor _ _ f a:2 == b:2 ).
@@ -409,7 +409,7 @@ Module RepresentableFunctors.
                    ((apevalat i:2 (iFcomp _ _ _ f:1 g:1))
                     @ 
                     (ap (Fmor _ _ g:1) f:2 @ g:2))). Defined.
-  Lemma El_okay {C} (F:C==>SET) : is_precategory (El_data F).
+  Lemma El_okay {C} (X:C==>SET) : is_precategory (El_data X).
   Proof.
     intros. split. split.
     - intros a b [f f'].
@@ -420,49 +420,54 @@ Module RepresentableFunctors.
       exact (pair_path 
                (assoc _ _ _ _ _ f:1 g:1 h:1)
                (the (setproperty _ _ _ _ _))). Qed.
-  Definition El {C} (F:C==>SET) : precategory.
-    intros.
-    exact (El_data F ,, El_okay F). Defined.
-  Definition El_pr1_data {C} (F:C==>SET) : functor_data (El F) C.
-    intros.
-    exists pr1.
-    intros x x'.
-    apply pr1. Defined.
-  Definition El_pr1 {C} (F:C==>SET) : El F ==> C.
+  Definition El {C} (X:C==>SET) : precategory.
+    intros. exact (El_data X ,, El_okay X). Defined.
+  Definition El_pr1_data {C} (X:C==>SET) : functor_data (El X) C.
+    intros. exists pr1. intros x x'. exact pr1. Defined.
+  Definition El_pr1 {C} (X:C==>SET) : El X ==> C.
     intros. exists (El_pr1_data _).
-    split. - intros. reflexivity. - intros. reflexivity. Defined.
-  Definition reflects_isos {C D} (F:C==>D) :=
-    forall c c' (f : c → c'), is_isomorphism (#F f) -> is_isomorphism f.
-  Lemma isaprop_reflects_isos {C D} (F:C==>D) : isaprop (reflects_isos F).
+    split. { intros. reflexivity. } { intros. reflexivity. } Defined.
+  Definition reflects_isos {C D} (X:C==>D) :=
+    forall c c' (f : c → c'), is_isomorphism (#X f) -> is_isomorphism f.
+  Lemma isaprop_reflects_isos {C D} (X:C==>D) : isaprop (reflects_isos X).
   Proof.
     intros. apply impred; intros. apply impred; intros. apply impred; intros.
     apply impred; intros. apply isaprop_is_isomorphism. Qed.
-  Lemma El_pr1_reflects_isos {C} (F:[C, SET]) : reflects_isos (El_pr1 F).
+  Lemma El_pr1_reflects_isos {C} (X:[C, SET]) : reflects_isos (El_pr1 X).
   Proof.
-    intros. simpl in F.         (* why do we need this? *)
+    intros. simpl in X.         (* why do we need this? *)
     intros cx dy fi iso_f.
     set (c := cx:1). set (x := cx:2).
     set (d := dy:1). set (y := dy:2).
     set (f := fi:1). set (i := fi:2).
     set (f' := iso_f:1). set (j := iso_f:2).
-    assert (i' : #F f' y == x).
-    { intermediate (#F f' (#F f x)).
-      { exact (ap (#F f') (!i)). }
-      { intermediate (#F (f' ∘ f) x).
-        { exact (apevalat x (!functor_comp _ _ F _ _ _ f f')). }
-        { intermediate (#F (identity c) x).
-          { exact (apevalat x (ap #F j:1)). }
-          { exact (apevalat x (functor_id _ _ F c)). }}}}
+    assert (i' : #X f' y == x).
+    { intermediate (#X f' (#X f x)).
+      { exact (ap (#X f') (!i)). }
+      { intermediate (#X (f' ∘ f) x).
+        { exact (apevalat x (!functor_comp _ _ X _ _ _ f f')). }
+        { intermediate (#X (identity c) x).
+          { exact (apevalat x (ap #X j:1)). }
+          { exact (apevalat x (functor_id _ _ X c)). }}}}
     { exists (f' ,, i'). split.
       { exact (pair_path j:1 (the (setproperty _ _ _ _ _))). }
       { exact (pair_path j:2 (the (setproperty _ _ _ _ _))). }} Qed.
   Import PrimitiveInitialObjects.
-  Definition Representation {C} (F:C==>SET) := InitialObject (El F).
-  Definition Representable {C} (F:C==>SET) := squash (Representation F).
-  Definition representingElement {C} {F:C==>SET} (r:Representation F) := 
-    pr1 r : El F.
-  Definition representingObject {C} {F:C==>SET} (r:Representation F) := 
-    pr1 (representingElement r) : ob C .
+  Definition Representation {C} (X:C==>SET) := InitialObject (El X).
+  Definition Representable {C} (X:C==>SET) := squash (Representation X).
+  Definition representingPair {C} {X:C==>SET} (r:Representation X) := 
+    pr1 r : El X.
+  Definition representingInitiality {C} {X:C==>SET} (r:Representation X) : 
+    isInitialObject (El X) (representingPair r).
+  Proof. intros. exact (pr2 r). Qed.
+  Definition representingObject {C} {X:C==>SET} (r:Representation X) :=
+    pr1 (representingPair r) : ob C .
+  Definition representingElement {C} {X:C==>SET} (r:Representation X) := 
+    pr2 (representingPair r) : set_to_type (X (representingObject r)).
+  Lemma representingIso {C} (X:C==>SET) (r:Representation X) : 
+    forall d:ob C, 
+      isweq (fun p : Hom (representingObject r) d => (#X p) (representingElement r)).
+  Proof. intros. intros y. exact (representingInitiality r (d,,y)). Qed.
 End RepresentableFunctors.
 
 Module TerminalObjects.
@@ -579,35 +584,16 @@ Module Kernels.
     Representation (zerocomp C^op (haszero_opp C z) d c f).
 End Kernels.
 
-Module DirectSums.
-  (** ** direct sums *)
-
-  Import ZeroObjects.
-
-(*
-
-  (* the following definition is not right yet *)
-  Definition isBinarySum {C:precategory} {a b s : ob C}
-             (p : s → a) (q : s → b) (i : a → s) (j : b → s) :=
-    dirprod (isBinaryProduct p q) (isBinaryCoproduct i j).
+Module Matrices.
+  Import FiniteProducts.
+  (* Lemma to_matrix (C:precategory)  *)
   
-  Lemma isaprop_isBinarySum {C:precategory} {a b s : ob C} (p : s → a) (q : s → b) (i : a → s) (j : b → s) :
-    isaprop (isBinarySum p q i j).
-  Proof. prop_logic. Qed.
 
-  Definition BinarySum {C:precategory} (a b : ob C) := 
-                    total2 (fun 
-      s          => total2 (fun 
-      p : s → a  => total2 (fun  
-      q : s → b  => total2 (fun 
-      i : a → s  => total2 (fun  
-      j : b → s  => 
-          isBinarySum p q i j ))))).
+End Matrices.
 
-  Definition squashBinarySums (C:precategory) :=
-    forall a b : ob C, squash (BinarySum a b).
+Module DirectSums.
+  Import FiniteProducts.
 
-*)
 
 End DirectSums.
 
