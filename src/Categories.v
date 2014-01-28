@@ -590,6 +590,20 @@ Module Matrices.
   Proof. intros. exact (assoc _ _ _ _ _ (coprod_in B j) p (prod_pr D i)). Qed.
 End Matrices.
 
+Module FiniteSets.
+  Require Import Foundations.hlevel2.finitesets.
+  Definition fSet := total2 isfinite.
+  Definition fSet_to_type (X:fSet) : Type := pr1 X.
+  Coercion fSet_to_type : fSet >-> Sortclass.
+  Lemma fSet_isdeceq (I:fSet) : isdeceq I.
+  Proof. intros [I i]; simpl. apply @factor_through_squash with (X := finstruct I).
+         { apply isapropisdeceq. }
+         { intros [n [f j]]. apply @isdeceqweqf with (X := stn n).
+           { exists f. assumption. }
+           { apply isdeceqstn. } }
+         { assumption. } Qed.
+End FiniteSets.
+
 Module DirectSums.
   Import Products ZeroObjects.
   Definition identity_matrix {C:precategory} (h:hasZeroObject C)
@@ -606,17 +620,7 @@ Module DirectSums.
              := total2 (fun 
                    BD : dirprod (Coproduct C d) (Product C d) =>
                         is_isomorphism (identity_map h dec (pr1 BD) (pr2 BD))).
-  Require Import Foundations.hlevel2.finitesets.
-  Definition fSet := total2 isfinite.
-  Definition fSet_to_type (X:fSet) : Type := pr1 X.
-  Coercion fSet_to_type : fSet >-> Sortclass.
-  Lemma fSet_isdeceq (I:fSet) : isdeceq I.
-  Proof. intros [I i]; simpl. apply @factor_through_squash with (X := finstruct I).
-         { apply isapropisdeceq. }
-         { intros [n [f j]]. apply @isdeceqweqf with (X := stn n).
-           { exists f. assumption. }
-           { apply isdeceqstn. } }
-         { assumption. } Qed.
+  Import FiniteSets.
   Definition FiniteDirectSum {C:precategory} (h:hasZeroObject C) {I:fSet} (d:I -> C)
     := DirectSum h d (fSet_isdeceq I).
 End DirectSums.
@@ -671,14 +675,26 @@ Module Magma.
   Require Import Foundations.hlevel2.algebra1a.
   Definition zero : setwithbinop.
     exists hSet.unit. exact (fun _ _ => tt). Defined.
+  Definition product {I:Type} (X:I->setwithbinop) : setwithbinop.
+    intros.
+    assert (is : isaset (sections X)). apply (impred 2); intros i. apply pr2.
+    exists (sections X,,is).
+    exact (fun v w i => op (v i) (w i)).
+  Defined.
 End Magma.
 
 Module Monoid.
   Require Import Foundations.hlevel2.algebra1b.
   Definition zero : monoid.
-    exists Magma.zero. split. intros x y z. exact (idpath _).
-    exists tt. split. intros []. exact (idpath _). intros []. exact (idpath _).
+    exists Magma.zero. split. intros x y z. reflexivity.
+    exists tt. split. intros []. reflexivity. intros []. reflexivity.
   Defined.
+  Definition product {I:Type} (X:I->monoid) : monoid.
+    intros. exists (Magma.product X). split.
+    intros a b c. apply funextsec; intro. apply assocax.
+    exists (fun i => unel (X i)). split.
+    intros a. apply funextsec; intro. apply lunax.
+    intros a. apply funextsec; intro. apply runax. Defined.
 End Monoid.
 
 Module Gr.
@@ -686,13 +702,31 @@ Module Gr.
   Definition zero : gr.
     exists Monoid.zero. exists (pr2 Monoid.zero). exists (idfun unit).
     split. intro x. apply (idpath _). intro x. apply (idpath _). Defined.
+  Definition product {I:Type} (X:I->gr) : gr.
+    intros. 
+    set (Y := Monoid.product X). exists (pr1monoid Y). exists (pr2 Y).
+    exists (fun y i => grinv (X i) (y i)).
+    split.
+    intro y. apply funextsec; intro i. apply grlinvax.
+    intro y. apply funextsec; intro i. apply grrinvax.
+  Defined.    
 End Gr.
 
 Module Abgr.
   Require Import Foundations.hlevel2.algebra1b.
+  Definition commax (G:abgr) := pr2 (pr2 G).
   Definition zero : abgr.
     exists Gr.zero. split. exact (pr2 Gr.zero). intros x y. apply (idpath _).
   Defined.
+  Require Import Foundations.hlevel2.hz.
+  Definition Z : abgr := hzaddabgr.
+  Import FiniteSets.
+  Definition product {I:Type} (X:I->abgr) : abgr.
+    intros. exists (pr1 (Gr.product X)).
+    split. exact (pr2 (Gr.product X)).
+    intros a b. apply funextsec; intro i. apply commax. Defined.
+  Definition free (I:fSet) : abgr.
+    intros. exact (product (fun _:I => Z)). Defined.
 End Abgr.
 
 Module Ab.
