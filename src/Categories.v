@@ -546,39 +546,79 @@ Module Matrices.
   (* the representing map is the matrix *)
   Definition to_row {C:precategory} {I} {b:I -> C} (B:Coproduct C b) {d:ob C} :
     weq (Hom B d) (forall j, Hom (b j) d).
-  Proof. intros ? ? ? ?. exact (representingIso B). Defined.
+  Proof. intros. exact (representingIso B d). Defined.
   Definition from_row {C:precategory} {I} {b:I -> C} (B:Coproduct C b) {d:ob C} :
     weq (forall j, Hom (b j) d) (Hom B d).
   Proof. intros. apply invweq. apply to_row. Defined.
   Definition to_col {C:precategory} {I} {d:I -> C} (D:Product C d) {b:ob C} :
     weq (Hom b D) (forall i, Hom b (d i)).
-  Proof. intros ? ? ? ?. exact (representingIso D). Defined.
+  Proof. intros. exact (representingIso D b). Defined.
   Definition from_col {C:precategory} {I} {d:I -> C} (D:Product C d) {b:ob C} :
     weq (forall i, Hom b (d i)) (Hom b D).
   Proof. intros. apply invweq. apply to_col. Defined.
   Definition to_matrix {C:precategory} 
              {I} {d:I -> C} (D:Product C d)
              {J} {b:J -> C} (B:Coproduct C b) :
-             Hom B D -> forall i j, Hom (b j) (d i).
-  Proof. intros ? ? ? ? ? ? ? p ? ?. exact (to_row B (to_col D p i) j). Defined.
+             weq (Hom B D) (forall i j, Hom (b j) (d i)).
+  Proof. intros. apply @weqcomp with (Y := forall i, Hom B (d i)).
+         { apply to_col. }
+         { apply weqonseqfibers; intro i. apply to_row. } Defined.
+  Definition from_matrix {C:precategory} 
+             {I} {d:I -> C} (D:Product C d)
+             {J} {b:J -> C} (B:Coproduct C b) :
+             weq (forall i j, Hom (b j) (d i)) (Hom B D).
+  Proof. intros. apply invweq. apply to_matrix. Defined.
   Definition to_matrix' {C:precategory} 
              {I} {d:I -> C} (D:Product C d)
              {J} {b:J -> C} (B:Coproduct C b) :
-             Hom B D -> forall i j, Hom (b j) (d i).
-  Proof. intros ? ? ? ? ? ? ? p ? ?. exact (to_col D (to_row B p j) i). Defined.
+             weq (Hom B D) (forall j i, Hom (b j) (d i)).
+  Proof. intros. apply @weqcomp with (Y := forall j, Hom (b j) D).
+         { apply to_row. }
+         { apply weqonseqfibers; intro i. apply to_col. } Defined.
+  Definition from_matrix' {C:precategory} 
+             {I} {d:I -> C} (D:Product C d)
+             {J} {b:J -> C} (B:Coproduct C b) :
+             weq (forall j i, Hom (b j) (d i)) (Hom B D).
+  Proof. intros. apply invweq. apply to_matrix'. Defined.
   Lemma to_matrix_equal {C:precategory} 
              {I} {d:I -> C} (D:Product C d)
              {J} {b:J -> C} (B:Coproduct C b) :
-    forall p i j, to_matrix D B p i j == to_matrix' D B p i j.
-  Proof. intros. exact (assoc _ _ _ _ _ (coprod_in B j) p (prod_pr D i)). Defined.
+    forall p i j, to_matrix D B p i j == to_matrix' D B p j i.
+  Proof. intros. exact (assoc _ _ _ _ _ (coprod_in B j) p (prod_pr D i)). Qed.
 End Matrices.
 
 Module DirectSums.
+  Import Products ZeroObjects.
+  Definition identity_matrix {C:precategory} (h:hasZeroObject C)
+             {I} {d:I -> C} (dec : isdeceq I) : forall i j, Hom (d j) (d i).
+  Proof. intros. destruct (dec i j) as [ [] | _ ].
+         { apply identity. } { apply zeroMap. apply h. } Defined.
+  Definition identity_map {C:precategory} (h:hasZeroObject C)
+             {I} {d:I -> C} (dec : isdeceq I) (B:Coproduct C d) (D:Product C d)
+             : Hom B D.
+  Proof. intros. apply Matrices.from_matrix. apply identity_matrix.  
+         assumption. assumption. Defined.
+  Definition DirectSum {C:precategory} (h:hasZeroObject C)
+             {I} (d:I -> C) (dec : isdeceq I) 
+             := total2 (fun 
+                   BD : dirprod (Coproduct C d) (Product C d) =>
+                        is_isomorphism (identity_map h dec (pr1 BD) (pr2 BD))).
   Require Import Foundations.hlevel2.finitesets.
   Definition fSet := total2 isfinite.
-  Import Products.
-
-
+  Definition fSet_to_type (X:fSet) : Type := pr1 X.
+  Coercion fSet_to_type : fSet >-> Sortclass.
+  Lemma fSet_isdeceq (I:fSet) : isdeceq I.
+  Proof. intros [I i]; simpl.
+         apply @factor_through_squash with (X := finstruct I).
+         { apply isapropisdeceq. }
+         { intros [n [f j]].
+           apply @isdeceqweqf with (X := stn n).
+           { exists f. assumption. }
+           { apply isdeceqstn. } }
+         { assumption. } Qed.
+  Definition FiniteDirectSum {C:precategory} (h:hasZeroObject C)
+             {I:fSet} (d:I -> C) := 
+    DirectSum h d (fSet_isdeceq I).
 End DirectSums.
 
 Module Kernels.
