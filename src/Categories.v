@@ -435,7 +435,7 @@ Module RepresentableFunctors.
   Proof.
     intros. apply impred; intros. apply impred; intros. apply impred; intros.
     apply impred; intros. apply isaprop_is_isomorphism. Qed.
-  Lemma El_pr1_reflects_isos {C} (X:[C, SET]) : reflects_isos (El_pr1 X).
+  Lemma El_pr1_reflects_isos {C} (X:ob [C, SET]) : reflects_isos (El_pr1 X).
   Proof.
     intros. simpl in X.         (* why do we need this? *)
     intros cx dy fi iso_f.
@@ -458,7 +458,7 @@ Module RepresentableFunctors.
   Definition Representation {C} (X:C==>SET) := InitialObject (El X).
   Definition Representable {C} (X:C==>SET) := squash (Representation X).
   Definition representingPair {C} {X:C==>SET} (r:Representation X) := 
-    pr1 r : El X.
+    pr1 r : ob (El X).
   Definition representingInitiality {C} {X:C==>SET} (r:Representation X) : 
     isInitialObject (El X) (representingPair r).
   Proof. intros. exact (pr2 r). Qed.
@@ -505,7 +505,7 @@ Module Products.
   Definition setProduct {I} (X:I -> hSet) : hSet.
     intros. exists (sections (funcomp X set_to_type)).
     apply (impred 2); intros i. apply (pr2 (X i)). Defined.    
-  Definition HomFamily_set (C:precategory) {I} (c:I -> ob C) : ob C -> SET.
+  Definition HomFamily_set (C:precategory) {I} (c:I -> ob C) : ob C -> ob SET.
     intros ? ? ? x. exact (setProduct (fun i => Hom (c i) x)). Defined.
   Definition HomFamily_map
              (C:precategory) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :
@@ -547,45 +547,45 @@ Module Matrices.
   Import Products.
   Import RepresentableFunctors.
   (* the representing map is the matrix *)
-  Definition to_row {C:precategory} {I} {b:I -> C} (B:Coproduct C b) {d:ob C} :
+  Definition to_row {C:precategory} {I} {b:I -> ob C} (B:Coproduct C b) {d:ob C} :
     weq (Hom B d) (forall j, Hom (b j) d).
   Proof. intros. exact (representingIso B d). Defined.
-  Definition from_row {C:precategory} {I} {b:I -> C} (B:Coproduct C b) {d:ob C} :
+  Definition from_row {C:precategory} {I} {b:I -> ob C} (B:Coproduct C b) {d:ob C} :
     weq (forall j, Hom (b j) d) (Hom B d).
   Proof. intros. apply invweq. apply to_row. Defined.
-  Definition to_col {C:precategory} {I} {d:I -> C} (D:Product C d) {b:ob C} :
+  Definition to_col {C:precategory} {I} {d:I -> ob C} (D:Product C d) {b:ob C} :
     weq (Hom b D) (forall i, Hom b (d i)).
   Proof. intros. exact (representingIso D b). Defined.
-  Definition from_col {C:precategory} {I} {d:I -> C} (D:Product C d) {b:ob C} :
+  Definition from_col {C:precategory} {I} {d:I -> ob C} (D:Product C d) {b:ob C} :
     weq (forall i, Hom b (d i)) (Hom b D).
   Proof. intros. apply invweq. apply to_col. Defined.
   Definition to_matrix {C:precategory} 
-             {I} {d:I -> C} (D:Product C d)
-             {J} {b:J -> C} (B:Coproduct C b) :
+             {I} {d:I -> ob C} (D:Product C d)
+             {J} {b:J -> ob C} (B:Coproduct C b) :
              weq (Hom B D) (forall i j, Hom (b j) (d i)).
   Proof. intros. apply @weqcomp with (Y := forall i, Hom B (d i)).
          { apply to_col. }
          { apply weqonseqfibers; intro i. apply to_row. } Defined.
   Definition from_matrix {C:precategory} 
-             {I} {d:I -> C} (D:Product C d)
-             {J} {b:J -> C} (B:Coproduct C b) :
+             {I} {d:I -> ob C} (D:Product C d)
+             {J} {b:J -> ob C} (B:Coproduct C b) :
              weq (forall i j, Hom (b j) (d i)) (Hom B D).
   Proof. intros. apply invweq. apply to_matrix. Defined.
   Definition to_matrix' {C:precategory} 
-             {I} {d:I -> C} (D:Product C d)
-             {J} {b:J -> C} (B:Coproduct C b) :
+             {I} {d:I -> ob C} (D:Product C d)
+             {J} {b:J -> ob C} (B:Coproduct C b) :
              weq (Hom B D) (forall j i, Hom (b j) (d i)).
   Proof. intros. apply @weqcomp with (Y := forall j, Hom (b j) D).
          { apply to_row. }
          { apply weqonseqfibers; intro i. apply to_col. } Defined.
   Definition from_matrix' {C:precategory} 
-             {I} {d:I -> C} (D:Product C d)
-             {J} {b:J -> C} (B:Coproduct C b) :
+             {I} {d:I -> ob C} (D:Product C d)
+             {J} {b:J -> ob C} (B:Coproduct C b) :
              weq (forall j i, Hom (b j) (d i)) (Hom B D).
   Proof. intros. apply invweq. apply to_matrix'. Defined.
   Lemma to_matrix_equal {C:precategory} 
-             {I} {d:I -> C} (D:Product C d)
-             {J} {b:J -> C} (B:Coproduct C b) :
+             {I} {d:I -> ob C} (D:Product C d)
+             {J} {b:J -> ob C} (B:Coproduct C b) :
     forall p i j, to_matrix D B p i j == to_matrix' D B p j i.
   Proof. intros. exact (assoc _ _ _ _ _ (coprod_in B j) p (prod_pr D i)). Qed.
 End Matrices.
@@ -607,21 +607,22 @@ End FiniteSets.
 Module DirectSums.
   Import Products ZeroObjects.
   Definition identity_matrix {C:precategory} (h:hasZeroObject C)
-             {I} {d:I -> C} (dec : isdeceq I) : forall i j, Hom (d j) (d i).
+             {I} {d:I -> ob C} (dec : isdeceq I) : forall i j, Hom (d j) (d i).
   Proof. intros. destruct (dec i j) as [ [] | _ ].
          { apply identity. } { apply zeroMap. apply h. } Defined.
   Definition identity_map {C:precategory} (h:hasZeroObject C)
-             {I} {d:I -> C} (dec : isdeceq I) (B:Coproduct C d) (D:Product C d)
+             {I} {d:I -> ob C} (dec : isdeceq I) (B:Coproduct C d) (D:Product C d)
              : Hom B D.
   Proof. intros. apply Matrices.from_matrix. apply identity_matrix.  
          assumption. assumption. Defined.
   Definition DirectSum {C:precategory} (h:hasZeroObject C)
-             {I} (d:I -> C) (dec : isdeceq I) 
+             {I} (d:I -> ob C) (dec : isdeceq I) 
              := total2 (fun 
                    BD : dirprod (Coproduct C d) (Product C d) =>
                         is_isomorphism (identity_map h dec (pr1 BD) (pr2 BD))).
   Import FiniteSets.
-  Definition FiniteDirectSum {C:precategory} (h:hasZeroObject C) {I:fSet} (d:I -> C)
+  Definition FiniteDirectSum {C:precategory} (h:hasZeroObject C) 
+             {I:fSet} (d:I -> ob C)
     := DirectSum h d (fSet_isdeceq I).
 End DirectSums.
 
@@ -643,7 +644,7 @@ Module Kernels.
       exact (t _ _).            (* why doesn't apply t work here? *)
       } Qed.  
   Definition zerocomp_set {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
-    ob C -> SET.
+    ob C -> ob SET.
   Proof. intros ? ? ? ? ? x.
     exact (zerocomp_type z f x,, zerocomp_type_isaset z f x). Defined.
   Definition zerocomp_map {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
@@ -738,7 +739,7 @@ Module Abgr.
     intros. exact (product (fun _:I => Z)). Defined.
 End Abgr.
 
-Module Ab.
+Module Ab.                      (* the category of abelian groups *)
   Require Import Foundations.hlevel2.algebra1a Foundations.hlevel2.algebra1b.
   Definition ob_mor : precategory_ob_mor.
     exists abgr. intros G H. exists (monoidfun G H). exact (isasetmonoidfun G H).
@@ -752,10 +753,14 @@ Module Ab.
     intros a b [f i]. apply (pair_path (idpath _)). apply isapropismonoidfun.
     intros a b c d f g h. apply (pair_path (idpath _)). apply isapropismonoidfun.
   Defined.
-  Definition zero : ob cat := Abgr.zero.
+  Import Products.
   Definition productObject {I} (X:I->ob cat) : ob cat := Abgr.product X.
   Definition productProj {I} (X:I->ob cat) (i:I) : Hom (productObject X) (X i)
      := Abgr.productProj X i.
+  Definition product {I} (X:I->ob cat) (i:I) : Product cat X.
+    intros. exists (productObject X,, productProj X).
+    admit.
+  Defined.
 End Ab.
 
 (**
