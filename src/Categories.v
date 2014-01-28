@@ -298,41 +298,25 @@ Module StandardCategories.
     apply (isofhlevelweqf _ (ezweqpr1 _ _)). apply isaprop_is_isomorphism. Qed.
   Lemma is_category_groupoid {C : precategory} : is_groupoid C -> is_category C.
   Proof. intros ? ig ? ?.
-    set (t := morphism_from_iso _ a b).
-    apply (isofhlevelff 0 idtoiso t).
-    assert (h : idtomor _ _ ~ funcomp idtoiso t). intro p. destruct p. reflexivity.
-    apply (isweqhomot _ _ h).
-    apply ig.
-    apply morphism_from_iso_is_incl.
+    refine (isofhlevelff 0 idtoiso (morphism_from_iso _ _ _) _ _).
+    { refine (isweqhomot (idtomor _ _) _ _ _).
+      { intro p. destruct p. reflexivity. }
+      apply ig. }
+      apply morphism_from_iso_is_incl.
   Qed.
   Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> precategory.
-    intros obj iobj.
-    set (mor := @paths obj).
     (* Later we'll define a version of this with no hlevel assumption on X,
        where [mor i j] will be defined with [pi0].  This version will still
        be useful, because in it, each arrow is a path, rather than an
        equivalence class of paths. *)
-    set (identity := (fun i:obj => idpath i):forall i:obj, mor i i).
-    set (compose := (
-           fun i j k:obj => 
-             fun f:mor i j =>
-               fun g:mor j k => f @ g)
-        :forall (i j k:obj) (f:mor i j) (g:mor j k), mor i k ).
-    assert (right :
-           forall i j:obj,
-             forall f:mor i j, compose _ _ _ (identity i) f == f).
-      intros. reflexivity.
-    assert (left :
-           forall i j:obj,
-             forall f:mor i j, compose _ _ _ f (identity j) == f).
-      intros. apply pathscomp0rid.
-    assert (assoc:forall (a b c d:obj) 
-                    (f:mor a b)(g:mor b c) (h:mor c d),
-                     compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h).
-      apply path_assoc_opaque.
-    exact (makePrecategory obj mor iobj identity compose right left assoc).
+    intros obj iobj.
+    refine (makePrecategory obj _ iobj _ _ _ _ _).
+    { intros. reflexivity. }
+    { intros. exact (f @ g). }
+    { intros. reflexivity. }
+    { intros. apply pathscomp0rid. }
+    { intros. apply path_assoc_opaque. }
   Defined.
-
   Lemma is_groupoid_path_pregroupoid (X:UU) (iobj:isofhlevel 3 X) :
     is_groupoid (path_pregroupoid X iobj).
   Proof.
@@ -341,7 +325,6 @@ Module StandardCategories.
     apply (isweqhomot _ _ k).
     apply idisweq.
   Qed.
-
   Lemma is_category_path_pregroupoid (X:UU) (i:isofhlevel 3 X) :
     is_category (path_pregroupoid X i).
   Proof.
@@ -483,8 +466,8 @@ End hSet.
 
 Module TerminalObjects.
   Definition unitFunctor_data C : functor_data C SET.
-    intros. exists (fun _ => hSet.unit).
-    intros. exact (idfun _). Defined.
+    intros. refine (tpair _ _ _).
+    intros. exact hSet.unit. intros. exact (idfun _). Defined.
   Definition unitFunctor C : C ==> SET.
     intros. exists (unitFunctor_data C).
     split. reflexivity. reflexivity. Defined.
