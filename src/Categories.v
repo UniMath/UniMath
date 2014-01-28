@@ -477,10 +477,13 @@ Module RepresentableFunctors.
        : weq (representingObject r → d) (set_to_type (X d)).
 End RepresentableFunctors.
 
+Module hSet.
+  Definition unit : hSet := tpair isaset unit isasetunit.
+End hSet.
+
 Module TerminalObjects.
-  Definition unitset : hSet := tpair isaset unit isasetunit.
   Definition unitFunctor_data C : functor_data C SET.
-    intros. exists (fun _ => unitset).
+    intros. exists (fun _ => hSet.unit).
     intros. exact (idfun _). Defined.
   Definition unitFunctor C : C ==> SET.
     intros. exists (unitFunctor_data C).
@@ -608,17 +611,14 @@ Module DirectSums.
   Definition fSet_to_type (X:fSet) : Type := pr1 X.
   Coercion fSet_to_type : fSet >-> Sortclass.
   Lemma fSet_isdeceq (I:fSet) : isdeceq I.
-  Proof. intros [I i]; simpl.
-         apply @factor_through_squash with (X := finstruct I).
+  Proof. intros [I i]; simpl. apply @factor_through_squash with (X := finstruct I).
          { apply isapropisdeceq. }
-         { intros [n [f j]].
-           apply @isdeceqweqf with (X := stn n).
+         { intros [n [f j]]. apply @isdeceqweqf with (X := stn n).
            { exists f. assumption. }
            { apply isdeceqstn. } }
          { assumption. } Qed.
-  Definition FiniteDirectSum {C:precategory} (h:hasZeroObject C)
-             {I:fSet} (d:I -> C) := 
-    DirectSum h d (fSet_isdeceq I).
+  Definition FiniteDirectSum {C:precategory} (h:hasZeroObject C) {I:fSet} (d:I -> C)
+    := DirectSum h d (fSet_isdeceq I).
 End DirectSums.
 
 Module Kernels.
@@ -656,9 +656,9 @@ Module Kernels.
   Definition zerocomp {C} (z:hasZeroObject C) {c d:ob C} (f:c → d):C ==> SET.
     intros. exists (zerocomp_data z f). split.
     { intros x. apply funextfunax; intros [r rf0].
-      apply pair_path with (e := id_right _ _ _ r). apply setproperty. }
+      apply (pair_path (id_right _ _ _ r)). apply setproperty. }
     { intros w x y t u. apply funextfunax. intros [r rf0].
-      apply pair_path with (e := assoc _ _ _ _ _ r t u).
+      apply (pair_path (assoc _ _ _ _ _ r t u)).
       apply setproperty. } Defined.
   Import RepresentableFunctors.
   Definition Cokernel {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :=
@@ -666,6 +666,51 @@ Module Kernels.
   Definition Kernel C (z:hasZeroObject C) (c d:ob C) (f:c → d) :=
     Representation (zerocomp (haszero_opp C z) f).
 End Kernels.
+
+Module Magma.
+  Require Import Foundations.hlevel2.algebra1a.
+  Definition zero : setwithbinop.
+    exists hSet.unit. exact (fun _ _ => tt). Defined.
+End Magma.
+
+Module Monoid.
+  Require Import Foundations.hlevel2.algebra1b.
+  Definition zero : monoid.
+    exists Magma.zero. split. intros x y z. exact (idpath _).
+    exists tt. split. intros []. exact (idpath _). intros []. exact (idpath _).
+  Defined.
+End Monoid.
+
+Module Gr.
+  Require Import Foundations.hlevel2.algebra1b.
+  Definition zero : gr.
+    exists Monoid.zero. exists (pr2 Monoid.zero). exists (idfun unit).
+    split. intro x. apply (idpath _). intro x. apply (idpath _). Defined.
+End Gr.
+
+Module Abgr.
+  Require Import Foundations.hlevel2.algebra1b.
+  Definition zero : abgr.
+    exists Gr.zero. split. exact (pr2 Gr.zero). intros x y. apply (idpath _).
+  Defined.
+End Abgr.
+
+Module Ab.
+  Require Import Foundations.hlevel2.algebra1a Foundations.hlevel2.algebra1b.
+  Definition ob_mor : precategory_ob_mor.
+    exists abgr. intros G H. exists (monoidfun G H). exact (isasetmonoidfun G H).
+  Defined.
+  Definition data : precategory_data.
+    exists ob_mor. split. intro G. exists (idfun (G : abgr)). split. 
+    split. reflexivity. intros a b c.  exact monoidfuncomp. Defined.
+  Definition cat : precategory.
+    exists data. split; simpl. split; simpl.
+    intros a b [f i]. apply (pair_path (idpath _)). apply isapropismonoidfun.
+    intros a b [f i]. apply (pair_path (idpath _)). apply isapropismonoidfun.
+    intros a b c d f g h. apply (pair_path (idpath _)). apply isapropismonoidfun.
+  Defined.
+  Definition zero : ob cat := Abgr.zero.
+End Ab.
 
 (**
   We are working toward definitions of "additive category" and "abelian
