@@ -675,12 +675,14 @@ Module Magma.
   Require Import Foundations.hlevel2.algebra1a.
   Definition zero : setwithbinop.
     exists hSet.unit. exact (fun _ _ => tt). Defined.
-  Definition product {I:Type} (X:I->setwithbinop) : setwithbinop.
+  Definition product {I} (X:I->setwithbinop) : setwithbinop.
     intros.
     assert (is : isaset (sections X)). apply (impred 2); intros i. apply pr2.
     exists (sections X,,is).
     exact (fun v w i => op (v i) (w i)).
   Defined.
+  Definition productProj {I} (X:I->setwithbinop) (i:I) : binopfun (product X) (X i).
+    intros. exists (fun y => y i). intros a b. reflexivity. Defined.
 End Magma.
 
 Module Monoid.
@@ -689,12 +691,15 @@ Module Monoid.
     exists Magma.zero. split. intros x y z. reflexivity.
     exists tt. split. intros []. reflexivity. intros []. reflexivity.
   Defined.
-  Definition product {I:Type} (X:I->monoid) : monoid.
+  Definition product {I} (X:I->monoid) : monoid.
     intros. exists (Magma.product X). split.
     intros a b c. apply funextsec; intro. apply assocax.
     exists (fun i => unel (X i)). split.
     intros a. apply funextsec; intro. apply lunax.
     intros a. apply funextsec; intro. apply runax. Defined.
+  Definition productProj {I} (X:I->monoid) (i:I) : monoidfun (product X) (X i).
+    intros. exists (pr1 (Magma.productProj X i)). split. 
+    exact (pr2 (Magma.productProj X i)). simpl. reflexivity. Defined.
 End Monoid.
 
 Module Gr.
@@ -702,7 +707,7 @@ Module Gr.
   Definition zero : gr.
     exists Monoid.zero. exists (pr2 Monoid.zero). exists (idfun unit).
     split. intro x. apply (idpath _). intro x. apply (idpath _). Defined.
-  Definition product {I:Type} (X:I->gr) : gr.
+  Definition product {I} (X:I->gr) : gr.
     intros. 
     set (Y := Monoid.product X). exists (pr1monoid Y). exists (pr2 Y).
     exists (fun y i => grinv (X i) (y i)).
@@ -710,6 +715,8 @@ Module Gr.
     intro y. apply funextsec; intro i. apply grlinvax.
     intro y. apply funextsec; intro i. apply grrinvax.
   Defined.    
+  Definition productProj {I} (X:I->gr) (i:I) : monoidfun (product X) (X i).
+    intros. apply (Monoid.productProj X i). Defined.
 End Gr.
 
 Module Abgr.
@@ -721,10 +728,12 @@ Module Abgr.
   Require Import Foundations.hlevel2.hz.
   Definition Z : abgr := hzaddabgr.
   Import FiniteSets.
-  Definition product {I:Type} (X:I->abgr) : abgr.
+  Definition product {I} (X:I->abgr) : abgr.
     intros. exists (pr1 (Gr.product X)).
     split. exact (pr2 (Gr.product X)).
     intros a b. apply funextsec; intro i. apply commax. Defined.
+  Definition productProj {I} (X:I->abgr) (i:I) : monoidfun (product X) (X i).
+    intros. apply (Gr.productProj X i). Defined.
   Definition free (I:fSet) : abgr.
     intros. exact (product (fun _:I => Z)). Defined.
 End Abgr.
@@ -744,6 +753,9 @@ Module Ab.
     intros a b c d f g h. apply (pair_path (idpath _)). apply isapropismonoidfun.
   Defined.
   Definition zero : ob cat := Abgr.zero.
+  Definition productObject {I} (X:I->ob cat) : ob cat := Abgr.product X.
+  Definition productProj {I} (X:I->ob cat) (i:I) : Hom (productObject X) (X i)
+     := Abgr.productProj X i.
 End Ab.
 
 (**
