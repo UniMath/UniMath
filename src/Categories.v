@@ -412,6 +412,13 @@ Module RepresentableFunctors.
   Definition El_pr1 {C} (X:C==>SET) : El X ==> C.
     intros. exists (El_pr1_data _).
     split. { intros. reflexivity. } { intros. reflexivity. } Defined.
+  Definition El_make_ob {C} (X:C==>SET) 
+             (c:ob C) (x:set_to_type (X c)) : ob (El X).
+    intros. exact (c,,x). Defined.
+  Definition El_make_mor {C} (X:C==>SET) (r s : ob (El X)) 
+             (f : Hom (El_pr1 X r) (El_pr1 X s))
+             (i : #X f (pr2 r) == pr2 s) : Hom r s.
+    intros. exact (f,,i). Defined.
   Definition reflects_isos {C D} (X:C==>D) :=
     forall c c' (f : c → c'), is_isomorphism (#X f) -> is_isomorphism f.
   Lemma isaprop_reflects_isos {C D} (X:C==>D) : isaprop (reflects_isos X).
@@ -662,11 +669,14 @@ Module Magma.
   Definition product {I} (X:I->setwithbinop) : setwithbinop.
     intros.
     assert (is : isaset (sections X)). apply (impred 2); intros i. apply pr2.
-    exists (sections X,,is).
-    exact (fun v w i => op (v i) (w i)).
-  Defined.
+    exists (sections X,,is). exact (fun v w i => op (v i) (w i)). Defined.
   Definition productProj {I} (X:I->setwithbinop) (i:I) : binopfun (product X) (X i).
     intros. exists (fun y => y i). intros a b. reflexivity. Defined.
+  Definition productFun {I} (X:I->setwithbinop) 
+             (T:setwithbinop) (g: forall i, binopfun T (X i))
+             : binopfun T (product X).
+    intros. exists (fun t i => g i t).
+    intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
 End Magma.
 
 Module Monoid.
@@ -684,6 +694,12 @@ Module Monoid.
   Definition productProj {I} (X:I->monoid) (i:I) : monoidfun (product X) (X i).
     intros. exists (pr1 (Magma.productProj X i)). split. 
     exact (pr2 (Magma.productProj X i)). simpl. reflexivity. Defined.
+  Definition productFun {I} (X:I->monoid) 
+             (T:monoid) (g: forall i, monoidfun T (X i))
+             : monoidfun T (product X).
+    intros.  exists (pr1 (Magma.productFun X T g)). 
+    exists (pr2 (Magma.productFun X T g)). apply funextsec; intro i.
+    apply (pr2 (pr2 (g i))). Defined.
 End Monoid.
 
 Module Gr.
@@ -701,6 +717,10 @@ Module Gr.
   Defined.    
   Definition productProj {I} (X:I->gr) (i:I) : monoidfun (product X) (X i).
     intros. apply (Monoid.productProj X i). Defined.
+  Definition productFun {I} (X:I->gr) 
+             (T:gr) (g: forall i, monoidfun T (X i))
+             : monoidfun T (product X).
+    intros. exact (Monoid.productFun X T g). Defined.
 End Gr.
 
 Module Abgr.
@@ -718,7 +738,11 @@ Module Abgr.
     intros a b. apply funextsec; intro i. apply commax. Defined.
   Definition productProj {I} (X:I->abgr) (i:I) : monoidfun (product X) (X i).
     intros. apply (Gr.productProj X i). Defined.
-  Definition free (I:fSet) : abgr.
+  Definition productFun {I} (X:I->abgr) 
+             (T:abgr) (g: forall i, monoidfun T (X i))
+             : monoidfun T (product X).
+    intros. exact (Gr.productFun X T g). Defined.
+  Definition power (I:Type) (X:abgr) : abgr.
     intros. exact (product (fun _:I => Z)). Defined.
 End Abgr.
 
@@ -740,8 +764,21 @@ Module Ab.                      (* the category of abelian groups *)
   Definition productObject {I} (X:I->ob cat) : ob cat := Abgr.product X.
   Definition productProj {I} (X:I->ob cat) (i:I) : Hom (productObject X) (X i)
      := Abgr.productProj X i.
-  Definition product {I} (X:I->ob cat) (i:I) : Product cat X.
-    intros. exists (productObject X,, productProj X).
+  Definition productMor {I} (X:I->ob cat) 
+             (T:ob cat) (g: forall i, @Hom cat T (X i))
+             : @Hom cat T (productObject X).
+    intros. exists (pr1 (Abgr.productFun X T g)).
+    exact (pr2 (Abgr.productFun X T g)). Defined.
+  Import PrimitiveInitialObjects RepresentableFunctors.
+  Definition product {I} (X:I->ob cat) : Product cat X.
+    intros.
+    set (P := productObject X).
+    set (p := productProj X).
+    exists (P,,p).
+    intros [T g].
+    simpl in g.
+    unfold funcomp in g.
+    simpl in g.
     admit.
   Defined.
 End Ab.
