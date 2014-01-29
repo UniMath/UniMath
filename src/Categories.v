@@ -797,39 +797,31 @@ Module Ab.                      (* the category of abelian groups *)
   Definition productProj {I} (X:I->ob cat) (i:I) : Hom (productObject X) (X i)
      := Abgr.productProj X i.
   Definition productMor {I} (X:I->ob cat) 
-             (T:ob cat) (g: forall i, @Hom cat T (X i))
-             : @Hom cat T (productObject X).
+             (T:ob cat) (g: forall i, Hom T (X i))
+             : Hom T (productObject X).
     intros. exists (pr1 (Abgr.productFun X T g)).
     exact (pr2 (Abgr.productFun X T g)). Defined.
   Definition productEqn {I} (X:I->ob cat) 
-             (T:ob cat) (g: forall i, @Hom cat T (X i))
+             (T:ob cat) (g: forall i, Hom T (X i))
              : forall i, productProj X i ∘ productMor X T g == g i.
     intros. exact (Abgr.productEqn X T g i). Qed.
   Definition productUniqueness {I} (X:I->ob cat) 
-             (T:ob cat) (h h' : @Hom cat T (productObject X)) : 
+             (T:ob cat) (h h' : Hom T (productObject X)) : 
         (forall i, productProj X i ∘ h == productProj X i ∘ h') -> h == h'.
     intros ? ? ? ? ?. apply Abgr.productUniqueness. Qed.
   Import PrimitiveInitialObjects RepresentableFunctors.
   Definition product {I} (X:I->ob cat) : Product cat X.
     intros.
-    set (P := productObject X).
-    set (p := productProj X).
-    exists (P,,p).
-    intros [T g].
     set (E := El (HomFamily cat^op X)).
-    assert ( k' : @Hom E (P,,p) (T,,g) ).
-      exists (productMor X T g).
-      apply funextsec; intro i.
-      exact (productEqn X T g i).
-    exists k'.
-    intros k.
+    set (Q := (productObject X,,productProj X) : ob E).
+    exists Q. intros T.
+    assert ( k' : Hom Q T ).
+      exists (productMor X (pr1 T) (pr2 T)).
+      apply funextsec; intro i. exact (productEqn X (pr1 T) (pr2 T) i).
+    exists k'. intros k.
     apply El_mor_equality.
-    exact (productUniqueness 
-             X T (pr1 k) (pr1 k')
-             (fun i => 
-                    (ap (fun f => f i) (pr2 k)) 
-                  @ 
-                  ! (ap (fun f => f i) (pr2 k')))).
+    exact (productUniqueness X (pr1 T) (pr1 k) (pr1 k')
+             (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
   Defined.
 End Ab.
 
