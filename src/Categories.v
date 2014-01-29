@@ -664,6 +664,10 @@ End Kernels.
 
 Module Magma.
   Require Import Foundations.hlevel2.algebra1a.
+  Definition binopfun_equality (G H : setwithbinop) (p q : binopfun G H)
+             (v : pr1 p == pr1 q) : p == q.
+    intros ? ? [p i] [q j] v. simpl in v. destruct v.
+    destruct (pr1 (isapropisbinopfun p i j)). reflexivity. Qed.
   Definition zero : setwithbinop.
     exists hSet.unit. exact (fun _ _ => tt). Defined.
   Definition product {I} (X:I->setwithbinop) : setwithbinop.
@@ -677,10 +681,18 @@ Module Magma.
              : binopfun T (product X).
     intros. exists (fun t i => g i t).
     intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
+  Definition productEqn {I} (X:I->setwithbinop) 
+             (T:setwithbinop) (g: forall i, binopfun T (X i))
+             : forall i, binopfuncomp (productFun X T g) (productProj X i) == g i.
+    intros. apply binopfun_equality. reflexivity. Qed.
 End Magma.
 
 Module Monoid.
   Require Import Foundations.hlevel2.algebra1b.
+  Definition monoidfun_equality (G H : monoid) (p q : monoidfun G H)
+             (v : pr1 p == pr1 q) : p == q.
+    intros ? ? [p i] [q j] v. simpl in v. destruct v.
+    destruct (pr1 (isapropismonoidfun p i j)). reflexivity. Qed.
   Definition zero : monoid.
     exists Magma.zero. split. intros x y z. reflexivity.
     exists tt. split. intros []. reflexivity. intros []. reflexivity.
@@ -700,6 +712,10 @@ Module Monoid.
     intros.  exists (pr1 (Magma.productFun X T g)). 
     exists (pr2 (Magma.productFun X T g)). apply funextsec; intro i.
     apply (pr2 (pr2 (g i))). Defined.
+  Definition productEqn {I} (X:I->monoid) 
+             (T:monoid) (g: forall i, monoidfun T (X i))
+             : forall i, monoidfuncomp (productFun X T g) (productProj X i) == g i.
+    intros. apply monoidfun_equality. reflexivity. Qed.
 End Monoid.
 
 Module Gr.
@@ -721,6 +737,10 @@ Module Gr.
              (T:gr) (g: forall i, monoidfun T (X i))
              : monoidfun T (product X).
     intros. exact (Monoid.productFun X T g). Defined.
+  Definition productEqn {I} (X:I->gr) 
+             (T:gr) (g: forall i, monoidfun T (X i))
+             : forall i, monoidfuncomp (productFun X T g) (productProj X i) == g i.
+    intros. apply Monoid.monoidfun_equality. reflexivity. Qed.
 End Gr.
 
 Module Abgr.
@@ -742,6 +762,10 @@ Module Abgr.
              (T:abgr) (g: forall i, monoidfun T (X i))
              : monoidfun T (product X).
     intros. exact (Gr.productFun X T g). Defined.
+  Definition productEqn {I} (X:I->abgr) 
+             (T:abgr) (g: forall i, monoidfun T (X i))
+             : forall i, monoidfuncomp (productFun X T g) (productProj X i) == g i.
+    intros. apply Monoid.monoidfun_equality. reflexivity. Qed.
   Definition power (I:Type) (X:abgr) : abgr.
     intros. exact (product (fun _:I => Z)). Defined.
 End Abgr.
@@ -769,6 +793,10 @@ Module Ab.                      (* the category of abelian groups *)
              : @Hom cat T (productObject X).
     intros. exists (pr1 (Abgr.productFun X T g)).
     exact (pr2 (Abgr.productFun X T g)). Defined.
+  Definition productEqn {I} (X:I->ob cat) 
+             (T:ob cat) (g: forall i, @Hom cat T (X i))
+             : forall i, productProj X i ∘ productMor X T g == g i.
+    intros. exact (Abgr.productEqn X T g i). Qed.
   Import PrimitiveInitialObjects RepresentableFunctors.
   Definition product {I} (X:I->ob cat) : Product cat X.
     intros.
