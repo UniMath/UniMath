@@ -788,9 +788,9 @@ Module Ab.                      (* the category of abelian groups *)
     split. reflexivity. intros a b c.  exact monoidfuncomp. Defined.
   Definition cat : precategory.
     exists data. split; simpl. split; simpl.
-    intros a b [f i]. apply (pair_path (idpath _)). apply isapropismonoidfun.
-    intros a b [f i]. apply (pair_path (idpath _)). apply isapropismonoidfun.
-    intros a b c d f g h. apply (pair_path (idpath _)). apply isapropismonoidfun.
+    - intros. apply Monoid.monoidfun_equality. reflexivity.
+    - intros. apply Monoid.monoidfun_equality. reflexivity.
+    - intros. apply Monoid.monoidfun_equality. reflexivity.
   Defined.
   Import Products.
   Definition productObject {I} (X:I->ob cat) : ob cat := Abgr.product X.
