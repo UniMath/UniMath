@@ -777,19 +777,19 @@ Module Abgr.
       split. exact (pr2 (Gr.Product.make X)).
       intros a b. apply funextsec; intro i. apply commax. Defined.
     Definition Proj {I} (X:I->abgr) (i:I) : Hom (make X) (X i).
-      intros. exact (Gr.Product.Proj X i). Defined.
+      exact @Gr.Product.Proj. Defined.
     Definition Map {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i))
              : Hom T (make X).
-      intros. exact (Gr.Product.Fun X T g). Defined.
+      exact @Gr.Product.Fun. Defined.
     Definition Eqn {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i))
              : forall i, Proj X i ∘ Map X T g == g i.
-      intros. apply Monoid.funEquality. reflexivity. Qed.
+      exact @Gr.Product.Eqn. Qed.
     Definition UniqueMap {I} (X:I->abgr) (T:abgr) (h h' : Hom T (make X)) :
          (forall i, Proj X i ∘ h == Proj X i ∘ h') -> h == h'.
       intros ? ? ? ? ? e.
       apply Monoid.funEquality.
       apply funextfunax; intro t; apply funextsec; intro i.
-      exact (ap (evalat t) (ap pr1 (e i))).
+      exact (apevalat t (ap pr1 (e i))).
     Qed.
   End Product.
   Definition power (I:Type) (X:abgr) : abgr.
@@ -815,21 +815,20 @@ Module Ab.                      (* the category of abelian groups *)
   Defined.
   Module Product.
     Definition Object {I} (X:I->ob Precat) : ob Precat := Abgr.Product.make X.
-    Definition Proj {I} (X:I->ob Precat) (i:I) : Hom (Object X) (X i)
-       := Abgr.Product.Proj X i.
+    Definition Proj {I} (X:I->ob Precat) (i:I) : Hom (Object X) (X i).
+      exact @Abgr.Product.Proj. Defined.
     Definition Mor {I} (X:I->ob Precat) 
                (T:ob Precat) (g: forall i, Hom T (X i))
                : Hom T (Object X).
-      intros. exists (pr1 (Abgr.Product.Map X T g)).
-      exact (pr2 (Abgr.Product.Map X T g)). Defined.
+      exact @Abgr.Product.Map. Defined.
     Definition Eqn {I} (X:I->ob Precat) 
                (T:ob Precat) (g: forall i, Hom T (X i))
                : forall i, Proj X i ∘ Mor X T g == g i.
-      intros. exact (Abgr.Product.Eqn X T g i). Qed.
+      exact @Abgr.Product.Eqn. Qed.
     Definition Uniqueness {I} (X:I->ob Precat) 
                (T:ob Precat) (h h' : Hom T (Object X)) : 
           (forall i, Proj X i ∘ h == Proj X i ∘ h') -> h == h'.
-      intros ? ? ? ? ?. apply Abgr.Product.UniqueMap. Qed.
+      exact @Abgr.Product.UniqueMap. Qed.
     Import PrimitiveInitialObjects.
     Definition make {I} (X:I->ob Precat) : Product.type Precat X.
       intros.
@@ -837,7 +836,7 @@ Module Ab.                      (* the category of abelian groups *)
       exists Q. intros T.
       assert ( k' : Hom Q T ).
         exists (Mor X (pr1 T) (pr2 T)).
-        apply funextsec; intro i. exact (Eqn X (pr1 T) (pr2 T) i).
+        apply funextsec. exact (Eqn X (pr1 T) (pr2 T)).
       exists k'. intros k.
       apply El.mor_equality.
       exact (Uniqueness X (pr1 T) (pr1 k) (pr1 k')
