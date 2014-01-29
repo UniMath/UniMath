@@ -302,7 +302,7 @@ Module StandardCategories.
     intro a. apply impred. intro b. apply isapropisweq. Qed.
   Lemma morphism_from_iso_is_incl (C : precategory) (a b : ob C) :
     isincl (morphism_from_iso C a b).
-  Proof. intros. intro g.
+  Proof. intros ? ? ? g.
     apply (isofhlevelweqf _ (ezweqpr1 _ _)). apply isaprop_is_isomorphism. Qed.
   Lemma is_category_groupoid {C : precategory} : is_groupoid C -> is_category C.
   Proof. intros ? ig ? ?.
@@ -329,7 +329,7 @@ Module StandardCategories.
     is_groupoid (path_pregroupoid X iobj).
   Proof.
     intros ? ? a b.
-    assert (k : idfun (a == b) ~ idtomor a b). intro p. destruct p. reflexivity.
+    assert (k : idfun (a == b) ~ idtomor a b). { intro p. destruct p. reflexivity. }
     apply (isweqhomot _ _ k).
     apply idisweq.
   Qed.
@@ -540,26 +540,22 @@ Module Product.
   End Coercions.
 End Product.
 
-Import Product.Coercions.
-
 Module Coproduct.
   Definition make (C:precategory) {I} (c:I -> ob C) :=
     Representation.Data (HomFamily.precat C c).
-  Definition coproductObject {C:precategory} {I} {c:I -> ob C} (r:make C c)
+  Definition Object {C:precategory} {I} {c:I -> ob C} (r:make C c)
              : ob C := Representation.Object r.
-  Definition coprod_in
-             {C:precategory} {I} {b:I -> ob C} (B:make C b) i :
-     Hom (b i) (coproductObject B).
+  Definition In {C:precategory} {I} {b:I -> ob C} (B:make C b) i :
+       Hom (b i) (Object B).
   Proof. intros. exact (Representation.Element B i). Defined.
   Module Coercions.
-    Coercion coproductObject : make >-> ob.
+    Coercion Object : make >-> ob.
   End Coercions.
 End Coproduct.
 
-Import Coproduct.Coercions.
-
 Module Matrices.
   (* the representing map is the matrix *)
+  Import Coproduct.Coercions Product.Coercions.
   Definition to_row {C:precategory} {I} {b:I -> ob C} 
              (B:Coproduct.make C b) {d:ob C} :
     weq (Hom B d) (forall j, Hom (b j) d).
@@ -605,12 +601,11 @@ Module Matrices.
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
     forall p i j, to_matrix D B p i j == to_matrix' D B p j i.
   Proof. intros. 
-         exact (assoc _ _ _ _ _ 
-                      (Coproduct.coprod_in B j) p (Product.Proj D i)). Qed.
+         exact (assoc _ _ _ _ _ (Coproduct.In B j) p (Product.Proj D i)). Qed.
 End Matrices.
 
 Module DirectSums.
-  Import ZeroObjects FiniteSet.Coercions.
+  Import ZeroObjects FiniteSet.Coercions Coproduct.Coercions Product.Coercions.
   Definition identity_matrix {C:precategory} (h:hasZeroObject C)
              {I} {d:I -> ob C} (dec : isdeceq I) : forall i j, Hom (d j) (d i).
   Proof. intros. destruct (dec i j) as [ [] | _ ].
@@ -618,7 +613,7 @@ Module DirectSums.
   Definition identity_map {C:precategory} (h:hasZeroObject C)
              {I} {d:I -> ob C} (dec : isdeceq I) 
              (B:Coproduct.make C d) (D:Product.type C d)
-             : Hom B D.
+        : Hom B D.
   Proof. intros. apply Matrices.from_matrix. apply identity_matrix.  
          assumption. assumption. Defined.
   Definition DirectSum {C:precategory} (h:hasZeroObject C)
@@ -729,7 +724,7 @@ Module Monoid.
                : Hom T (make X).
       intros.  exists (pr1 (Magma.Product.Fun X T g)). 
       exists (pr2 (Magma.Product.Fun X T g)). apply funextsec; intro i.
-      apply (pr2 (pr2 (g i))). Defined.
+      exact (pr2 (pr2 (g i))). Defined.
     Definition Eqn {I} (X:I->monoid) 
                (T:monoid) (g: forall i, Hom T (X i))
                : forall i, Proj X i ∘ Fun X T g == g i.
@@ -743,7 +738,7 @@ Module Gr.
   Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
   Definition zero : gr.
     exists Monoid.zero. exists (pr2 Monoid.zero). exists (idfun unit).
-    split. intro x. apply (idpath _). intro x. apply (idpath _). Defined.
+    split. intro x. reflexivity. intro x. reflexivity. Defined.
   Module Product.
     Definition make {I} (X:I->gr) : gr.
       intros. set (Y := Monoid.Product.make X). exists (pr1monoid Y). exists (pr2 Y).
@@ -752,7 +747,7 @@ Module Gr.
       - intro y. apply funextsec; intro i. apply grrinvax.
     Defined.    
     Definition Proj {I} (X:I->gr) (i:I) : Hom (make X) (X i).
-      intros. apply (Monoid.Product.Proj X i). Defined.
+      intros. exact (Monoid.Product.Proj X i). Defined.
     Definition Fun {I} (X:I->gr) (T:gr) (g: forall i, Hom T (X i))
                : Hom T (make X).
       intros. exact (Monoid.Product.Fun X T g). Defined.
@@ -768,7 +763,7 @@ Module Abgr.
   Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
   Definition commax (G:abgr) := pr2 (pr2 G).
   Definition zero : abgr.
-    exists Gr.zero. split. exact (pr2 Gr.zero). intros x y. apply (idpath _).
+    exists Gr.zero. split. exact (pr2 Gr.zero). intros x y. reflexivity.
   Defined.
   Require Import Foundations.hlevel2.hz.
   Definition Z : abgr := hzaddabgr.
@@ -778,7 +773,7 @@ Module Abgr.
       split. exact (pr2 (Gr.Product.make X)).
       intros a b. apply funextsec; intro i. apply commax. Defined.
     Definition Proj {I} (X:I->abgr) (i:I) : Hom (make X) (X i).
-      intros. apply (Gr.Product.Proj X i). Defined.
+      intros. exact (Gr.Product.Proj X i). Defined.
     Definition Map {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i))
              : Hom T (make X).
       intros. exact (Gr.Product.Fun X T g). Defined.
