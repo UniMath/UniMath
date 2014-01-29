@@ -31,12 +31,14 @@ Module Import Notations.
 End Notations.
 
 Definition sections {T:UU} (P:T->UU) := forall t:T, P t.
-
 Definition evalat {T:UU} {U:UU} (t:T) (f:T->U) := f t.
-
-Definition apevalat {T:UU} {U:UU} (t:T) {f g:T->U} (p:f==g) := ap (evalat t) p.
-
+Definition apevalat {T:UU} {U:UU} (t:T) {f g:T->U}
+  : f == g -> f t == g t
+  := ap (evalat t).
 Definition evalsecat {T:UU} {P:T->UU} (t:T) (f:sections P) := f t.
+Definition apevalsecat {T:UU} {P:T->UU} (t:T) {f g:sections P}
+  : f == g -> f t == g t
+  := ap (evalsecat t).
 
 (** * h-levels and paths *)
 

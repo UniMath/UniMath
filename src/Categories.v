@@ -394,17 +394,15 @@ Module RepresentableFunctors.
                    ((apevalat i:2 (iFcomp _ _ _ f:1 g:1))
                     @ 
                     (ap (Fmor _ _ g:1) f:2 @ g:2))). Defined.
+  Lemma El_mor_equality {C} (X:C==>SET) (x y : ob (El_data X)) (f g : x → y) :
+        pr1 f == pr1 g -> f == g.
+  Proof. intros ? ? ? ? [f i] [g j] p. simpl in p. destruct p.
+         destruct (the (setproperty _ _ _ i j)). reflexivity. Qed.
   Lemma El_okay {C} (X:C==>SET) : is_precategory (El_data X).
-  Proof.
-    intros. split. split.
-    - intros a b [f f'].
-      exact (pair_path (id_left _ _ _ f) (the (setproperty _ _ _ _ _))).
-    - intros a b [f f'].
-      exact (pair_path (id_right _ _ _ f) (the (setproperty _ _ _ _ _))).
-    - intros ? ? ? ? f g h.     (* destructing f,g,h adds 1.75 seconds *)
-      exact (pair_path 
-               (assoc _ _ _ _ _ f:1 g:1 h:1)
-               (the (setproperty _ _ _ _ _))). Qed.
+  Proof. intros. split. split.
+         - intros. apply El_mor_equality. apply id_left.
+         - intros. apply El_mor_equality. apply id_right.
+         - intros. apply El_mor_equality. apply assoc. Qed.
   Definition El {C} (X:C==>SET) : precategory.
     intros. exact (El_data X ,, El_okay X). Defined.
   Definition El_pr1_data {C} (X:C==>SET) : functor_data (El X) C.
@@ -766,6 +764,16 @@ Module Abgr.
              (T:abgr) (g: forall i, monoidfun T (X i))
              : forall i, monoidfuncomp (productFun X T g) (productProj X i) == g i.
     intros. apply Monoid.monoidfun_equality. reflexivity. Qed.
+  Definition productUniqueness {I} (X:I->abgr) 
+             (T:abgr) (h h' : monoidfun T (product X)) :
+          (forall i, monoidfuncomp h (productProj X i)
+                  == monoidfuncomp h' (productProj X i))
+            -> h == h'.
+    intros ? ? ? ? ? e.
+    apply Monoid.monoidfun_equality.
+    apply funextfunax; intro t; apply funextsec; intro i.
+    exact (ap (evalat t) (ap pr1 (e i))).
+  Qed.
   Definition power (I:Type) (X:abgr) : abgr.
     intros. exact (product (fun _:I => Z)). Defined.
 End Abgr.
@@ -797,6 +805,10 @@ Module Ab.                      (* the category of abelian groups *)
              (T:ob cat) (g: forall i, @Hom cat T (X i))
              : forall i, productProj X i ∘ productMor X T g == g i.
     intros. exact (Abgr.productEqn X T g i). Qed.
+  Definition productUniqueness {I} (X:I->ob cat) 
+             (T:ob cat) (h h' : @Hom cat T (productObject X)) : 
+        (forall i, productProj X i ∘ h == productProj X i ∘ h') -> h == h'.
+    intros ? ? ? ? ?. apply Abgr.productUniqueness. Qed.
   Import PrimitiveInitialObjects RepresentableFunctors.
   Definition product {I} (X:I->ob cat) : Product cat X.
     intros.
@@ -804,10 +816,20 @@ Module Ab.                      (* the category of abelian groups *)
     set (p := productProj X).
     exists (P,,p).
     intros [T g].
-    simpl in g.
-    unfold funcomp in g.
-    simpl in g.
-    admit.
+    set (E := El (HomFamily cat^op X)).
+    assert ( k' : @Hom E (P,,p) (T,,g) ).
+      exists (productMor X T g).
+      apply funextsec; intro i.
+      exact (productEqn X T g i).
+    exists k'.
+    intros k.
+    apply El_mor_equality.
+    exact (productUniqueness 
+             X T (pr1 k) (pr1 k')
+             (fun i => 
+                    (ap (fun f => f i) (pr2 k)) 
+                  @ 
+                  ! (ap (fun f => f i) (pr2 k')))).
   Defined.
 End Ab.
 
