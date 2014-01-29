@@ -466,113 +466,10 @@ End Representation.
 
 Module hSet.
   Definition unit : hSet := tpair isaset unit isasetunit.
-End hSet.
-
-Module TerminalObjects.
-  Definition unitFunctor_data C : functor_data C SET.
-    intros. refine (tpair _ _ _).
-    intros. exact hSet.unit. intros. exact (idfun _). Defined.
-  Definition unitFunctor C : C ==> SET.
-    intros. exists (unitFunctor_data C).
-    split. reflexivity. reflexivity. Defined.
-  Definition InitialObject (C:precategory) := Representation.Data (unitFunctor C).
-  Definition initialObject {C} (i:InitialObject C) : ob C.
-    intros C i. exact (Representation.Object i). Defined.
-  Definition initialArrow {C} (i:InitialObject C) (c:ob C) : initialObject i → c.
-    intros C [[i []] p] c. exact (pr1 (the (p (c,,tt)))). Defined.
-  Definition TerminalObject (C:precategory) := Representation.Data (unitFunctor C^op).
-  Definition terminalObject {C} (t:InitialObject C) : ob C.
-    intros C t. exact (Representation.Object t). Defined.
-  Definition terminalArrow {C} (t:TerminalObject C) (c:ob C) : c → terminalObject t.
-    intros C [[i []] p] c. exact (pr1 (the (p (c,,tt)))). Defined.      
-End TerminalObjects.
-
-Module Products.
-  Definition setProduct {I} (X:I -> hSet) : hSet.
+  Definition Product {I} (X:I -> hSet) : hSet.
     intros. exists (sections (funcomp X set_to_type)).
     apply (impred 2); intros i. apply (pr2 (X i)). Defined.    
-  Definition HomFamily_set (C:precategory) {I} (c:I -> ob C) : ob C -> ob SET.
-    intros ? ? ? x. exact (setProduct (fun i => Hom (c i) x)). Defined.
-  Definition HomFamily_map
-             (C:precategory) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :
-      set_to_type (HomFamily_set C c x) -> set_to_type (HomFamily_set C c y).
-    intros ? ? ? ? ? ? g j; unfold funcomp.
-    exact (f ∘ (g j)). Defined.
-  Definition HomFamily_data 
-             (C:precategory) {I} (c:I -> ob C) : functor_data C SET.
-    intros.  exact (HomFamily_set C c,, HomFamily_map C c). Defined.
-  Definition HomFamily (C:precategory) {I} (c:I -> ob C) : C ==> SET.
-    intros. exists (HomFamily_data C c). split.
-    { intros a. apply funextfunax; intros f.  apply funextsec; intros i.
-      apply id_right. }
-    { intros x y z p q. apply funextfunax; intros f. apply funextsec; intros i.
-      apply assoc. } Defined.
-  Definition Coproduct (C:precategory) {I} (c:I -> ob C) :=
-    Representation.Data (HomFamily C c).
-  Definition Product (C:precategory) {I} (c:I -> ob C) :=
-    Representation.Data (HomFamily C^op c).
-  Definition coproductObject {C:precategory} {I} {c:I -> ob C} (r:Coproduct C c)
-             : ob C := Representation.Object r.
-  Definition productObject {C:precategory} {I} {c:I -> ob C} (r:Product C c)
-             (* the representing object of r is in C^op, so here we convert it *)
-             : ob C := Representation.Object r.
-  Coercion coproductObject : Coproduct >-> ob.
-  Coercion productObject : Product >-> ob.
-  Definition coprod_in
-             {C:precategory} {I} {b:I -> ob C} (B:Coproduct C b) i :
-     Hom (b i) B.
-  Proof. intros. exact (Representation.Element B i). Defined.
-  Definition prod_pr
-             {C:precategory} {I} {b:I -> ob C} (B:Product C b) i :
-     Hom B (b i).
-  Proof. intros. exact (Representation.Element B i). Defined.
-End Products.
-
-Module Matrices.
-  Import Products.
-  (* the representing map is the matrix *)
-  Definition to_row {C:precategory} {I} {b:I -> ob C} (B:Coproduct C b) {d:ob C} :
-    weq (Hom B d) (forall j, Hom (b j) d).
-  Proof. intros. exact (Representation.Iso B d). Defined.
-  Definition from_row {C:precategory} {I} {b:I -> ob C} (B:Coproduct C b) {d:ob C} :
-    weq (forall j, Hom (b j) d) (Hom B d).
-  Proof. intros. apply invweq. apply to_row. Defined.
-  Definition to_col {C:precategory} {I} {d:I -> ob C} (D:Product C d) {b:ob C} :
-    weq (Hom b D) (forall i, Hom b (d i)).
-  Proof. intros. exact (Representation.Iso D b). Defined.
-  Definition from_col {C:precategory} {I} {d:I -> ob C} (D:Product C d) {b:ob C} :
-    weq (forall i, Hom b (d i)) (Hom b D).
-  Proof. intros. apply invweq. apply to_col. Defined.
-  Definition to_matrix {C:precategory} 
-             {I} {d:I -> ob C} (D:Product C d)
-             {J} {b:J -> ob C} (B:Coproduct C b) :
-             weq (Hom B D) (forall i j, Hom (b j) (d i)).
-  Proof. intros. apply @weqcomp with (Y := forall i, Hom B (d i)).
-         { apply to_col. }
-         { apply weqonseqfibers; intro i. apply to_row. } Defined.
-  Definition from_matrix {C:precategory} 
-             {I} {d:I -> ob C} (D:Product C d)
-             {J} {b:J -> ob C} (B:Coproduct C b) :
-             weq (forall i j, Hom (b j) (d i)) (Hom B D).
-  Proof. intros. apply invweq. apply to_matrix. Defined.
-  Definition to_matrix' {C:precategory} 
-             {I} {d:I -> ob C} (D:Product C d)
-             {J} {b:J -> ob C} (B:Coproduct C b) :
-             weq (Hom B D) (forall j i, Hom (b j) (d i)).
-  Proof. intros. apply @weqcomp with (Y := forall j, Hom (b j) D).
-         { apply to_row. }
-         { apply weqonseqfibers; intro i. apply to_col. } Defined.
-  Definition from_matrix' {C:precategory} 
-             {I} {d:I -> ob C} (D:Product C d)
-             {J} {b:J -> ob C} (B:Coproduct C b) :
-             weq (forall j i, Hom (b j) (d i)) (Hom B D).
-  Proof. intros. apply invweq. apply to_matrix'. Defined.
-  Lemma to_matrix_equal {C:precategory} 
-             {I} {d:I -> ob C} (D:Product C d)
-             {J} {b:J -> ob C} (B:Coproduct C b) :
-    forall p i j, to_matrix D B p i j == to_matrix' D B p j i.
-  Proof. intros. exact (assoc _ _ _ _ _ (coprod_in B j) p (prod_pr D i)). Qed.
-End Matrices.
+End hSet.
 
 Module FiniteSet.
   Require Import Foundations.hlevel2.finitesets.
@@ -590,21 +487,144 @@ Module FiniteSet.
          { assumption. } Qed.
 End FiniteSet.
 
+Module TerminalObjects.
+  Definition unitFunctor_data C : functor_data C SET.
+    intros. refine (tpair _ _ _).
+    intros. exact hSet.unit. intros. exact (idfun _). Defined.
+  Definition unitFunctor C : C ==> SET.
+    intros. exists (unitFunctor_data C).
+    split. reflexivity. reflexivity. Defined.
+  Definition InitialObject (C:precategory) := Representation.Data (unitFunctor C).
+  Definition initialObject {C} (i:InitialObject C) : ob C.
+    intros C i. exact (Representation.Object i). Defined.
+  Definition initialArrow {C} (i:InitialObject C) (c:ob C) : initialObject i → c.
+    intros C [[i []] p] c. exact (pr1 (the (p (c,,tt)))). Defined.
+  Definition TerminalObject (C:precategory) 
+    := Representation.Data (unitFunctor C^op).
+  Definition terminalObject {C} (t:InitialObject C) : ob C.
+    intros C t. exact (Representation.Object t). Defined.
+  Definition terminalArrow {C} (t:TerminalObject C) (c:ob C) : c → terminalObject t.
+    intros C [[i []] p] c. exact (pr1 (the (p (c,,tt)))). Defined.      
+End TerminalObjects.
+
+Module HomFamily.
+  Definition set (C:precategory) {I} (c:I -> ob C) : ob C -> ob SET.
+    intros ? ? ? x. exact (hSet.Product (fun i => Hom (c i) x)). Defined.
+  Definition map
+             (C:precategory) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :
+      set_to_type (HomFamily.set C c x) -> set_to_type (HomFamily.set C c y).
+    intros ? ? ? ? ? ? g j; unfold funcomp.
+    exact (f ∘ (g j)). Defined.
+  Definition data 
+             (C:precategory) {I} (c:I -> ob C) : functor_data C SET.
+    intros.  exact (HomFamily.set C c,, HomFamily.map C c). Defined.
+  Definition precat (C:precategory) {I} (c:I -> ob C) : C ==> SET.
+    intros. exists (HomFamily.data C c). split.
+    { intros a. apply funextfunax; intros f.  apply funextsec; intros i.
+      apply id_right. }
+    { intros x y z p q. apply funextfunax; intros f. apply funextsec; intros i.
+      apply assoc. } Defined.
+End HomFamily.
+
+Module Product.
+  Definition type (C:precategory) {I} (c:I -> ob C) :=
+    Representation.Data (HomFamily.precat C^op c).
+  Definition Object {C:precategory} {I} {c:I -> ob C} (r:type C c)
+             (* the representing object of r is in C^op, so here we convert it *)
+             : ob C := Representation.Object r.
+  Definition Proj {C:precategory} {I} {b:I -> ob C} (B:type C b) i :
+     Hom (Object B) (b i).
+  Proof. intros. exact (Representation.Element B i). Defined.
+  Module Coercions.
+    Coercion Object : type >-> ob.
+  End Coercions.
+End Product.
+
+Import Product.Coercions.
+
+Module Coproduct.
+  Definition make (C:precategory) {I} (c:I -> ob C) :=
+    Representation.Data (HomFamily.precat C c).
+  Definition coproductObject {C:precategory} {I} {c:I -> ob C} (r:make C c)
+             : ob C := Representation.Object r.
+  Definition coprod_in
+             {C:precategory} {I} {b:I -> ob C} (B:make C b) i :
+     Hom (b i) (coproductObject B).
+  Proof. intros. exact (Representation.Element B i). Defined.
+  Module Coercions.
+    Coercion coproductObject : make >-> ob.
+  End Coercions.
+End Coproduct.
+
+Import Coproduct.Coercions.
+
+Module Matrices.
+  (* the representing map is the matrix *)
+  Definition to_row {C:precategory} {I} {b:I -> ob C} 
+             (B:Coproduct.make C b) {d:ob C} :
+    weq (Hom B d) (forall j, Hom (b j) d).
+  Proof. intros. exact (Representation.Iso B d). Defined.
+  Definition from_row {C:precategory} {I} {b:I -> ob C} 
+             (B:Coproduct.make C b) {d:ob C} :
+    weq (forall j, Hom (b j) d) (Hom B d).
+  Proof. intros. apply invweq. apply to_row. Defined.
+  Definition to_col {C:precategory} {I} {d:I -> ob C} 
+             (D:Product.type C d) {b:ob C} :
+    weq (Hom b D) (forall i, Hom b (d i)).
+  Proof. intros. exact (Representation.Iso D b). Defined.
+  Definition from_col {C:precategory} {I} {d:I -> ob C} 
+             (D:Product.type C d) {b:ob C} :
+    weq (forall i, Hom b (d i)) (Hom b D).
+  Proof. intros. apply invweq. apply to_col. Defined.
+  Definition to_matrix {C:precategory} 
+             {I} {d:I -> ob C} (D:Product.type C d)
+             {J} {b:J -> ob C} (B:Coproduct.make C b) :
+             weq (Hom B D) (forall i j, Hom (b j) (d i)).
+  Proof. intros. apply @weqcomp with (Y := forall i, Hom B (d i)).
+         { apply to_col. }
+         { apply weqonseqfibers; intro i. apply to_row. } Defined.
+  Definition from_matrix {C:precategory} 
+             {I} {d:I -> ob C} (D:Product.type C d)
+             {J} {b:J -> ob C} (B:Coproduct.make C b) :
+             weq (forall i j, Hom (b j) (d i)) (Hom B D).
+  Proof. intros. apply invweq. apply to_matrix. Defined.
+  Definition to_matrix' {C:precategory} 
+             {I} {d:I -> ob C} (D:Product.type C d)
+             {J} {b:J -> ob C} (B:Coproduct.make C b) :
+             weq (Hom B D) (forall j i, Hom (b j) (d i)).
+  Proof. intros. apply @weqcomp with (Y := forall j, Hom (b j) D).
+         { apply to_row. }
+         { apply weqonseqfibers; intro i. apply to_col. } Defined.
+  Definition from_matrix' {C:precategory} 
+             {I} {d:I -> ob C} (D:Product.type C d)
+             {J} {b:J -> ob C} (B:Coproduct.make C b) :
+             weq (forall j i, Hom (b j) (d i)) (Hom B D).
+  Proof. intros. apply invweq. apply to_matrix'. Defined.
+  Lemma to_matrix_equal {C:precategory} 
+             {I} {d:I -> ob C} (D:Product.type C d)
+             {J} {b:J -> ob C} (B:Coproduct.make C b) :
+    forall p i j, to_matrix D B p i j == to_matrix' D B p j i.
+  Proof. intros. 
+         exact (assoc _ _ _ _ _ 
+                      (Coproduct.coprod_in B j) p (Product.Proj D i)). Qed.
+End Matrices.
+
 Module DirectSums.
-  Import Products ZeroObjects FiniteSet.Coercions.
+  Import ZeroObjects FiniteSet.Coercions.
   Definition identity_matrix {C:precategory} (h:hasZeroObject C)
              {I} {d:I -> ob C} (dec : isdeceq I) : forall i j, Hom (d j) (d i).
   Proof. intros. destruct (dec i j) as [ [] | _ ].
          { apply identity. } { apply zeroMap. apply h. } Defined.
   Definition identity_map {C:precategory} (h:hasZeroObject C)
-             {I} {d:I -> ob C} (dec : isdeceq I) (B:Coproduct C d) (D:Product C d)
+             {I} {d:I -> ob C} (dec : isdeceq I) 
+             (B:Coproduct.make C d) (D:Product.type C d)
              : Hom B D.
   Proof. intros. apply Matrices.from_matrix. apply identity_matrix.  
          assumption. assumption. Defined.
   Definition DirectSum {C:precategory} (h:hasZeroObject C)
              {I} (d:I -> ob C) (dec : isdeceq I) 
              := total2 (fun 
-                   BD : dirprod (Coproduct C d) (Product C d) =>
+                   BD : dirprod (Coproduct.make C d) (Product.type C d) =>
                         is_isomorphism (identity_map h dec (pr1 BD) (pr2 BD))).
   Definition FiniteDirectSum {C:precategory} (h:hasZeroObject C) 
              {I:FiniteSet.Data} (d:I -> ob C)
@@ -663,25 +683,29 @@ Module Magma.
     destruct (pr1 (isapropisbinopfun p i j)). reflexivity. Qed.
   Definition zero : setwithbinop.
     exists hSet.unit. exact (fun _ _ => tt). Defined.
-  Definition product {I} (X:I->setwithbinop) : setwithbinop.
-    intros.
-    assert (is : isaset (sections X)). apply (impred 2); intros i. apply pr2.
-    exists (sections X,,is). exact (fun v w i => op (v i) (w i)). Defined.
-  Definition productProj {I} (X:I->setwithbinop) (i:I) : binopfun (product X) (X i).
-    intros. exists (fun y => y i). intros a b. reflexivity. Defined.
-  Definition productFun {I} (X:I->setwithbinop) 
-             (T:setwithbinop) (g: forall i, binopfun T (X i))
-             : binopfun T (product X).
-    intros. exists (fun t i => g i t).
-    intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
-  Definition productEqn {I} (X:I->setwithbinop) 
-             (T:setwithbinop) (g: forall i, binopfun T (X i))
-             : forall i, binopfuncomp (productFun X T g) (productProj X i) == g i.
-    intros. apply funEquality. reflexivity. Qed.
+  Module Product.
+    Definition make {I} (X:I->setwithbinop) : setwithbinop.
+      intros.
+      assert (is : isaset (sections X)). apply (impred 2); intros i. apply pr2.
+      exists (sections X,,is). exact (fun v w i => op (v i) (w i)). Defined.
+    Definition Proj {I} (X:I->setwithbinop) (i:I) : binopfun (make X) (X i).
+      intros. exists (fun y => y i). intros a b. reflexivity. Defined.
+    Definition Fun {I} (X:I->setwithbinop) 
+               (T:setwithbinop) (g: forall i, binopfun T (X i))
+               : binopfun T (make X).
+      intros. exists (fun t i => g i t).
+      intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
+    Definition Eqn {I} (X:I->setwithbinop) 
+               (T:setwithbinop) (g: forall i, binopfun T (X i))
+               : forall i, binopfuncomp (Fun X T g) (Proj X i) == g i.
+      intros. apply funEquality. reflexivity. Qed.
+  End Product.
 End Magma.
 
 Module Monoid.
   Require Import Foundations.hlevel2.algebra1b.
+  Local Notation Hom := monoidfun.
+  Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
   Definition funEquality G H (p q : monoidfun G H) :
              pr1 p == pr1 q -> p == q.
     intros ? ? [p i] [q j] v. simpl in v. destruct v.
@@ -690,86 +714,87 @@ Module Monoid.
     exists Magma.zero. split. intros x y z. reflexivity.
     exists tt. split. intros []. reflexivity. intros []. reflexivity.
   Defined.
-  Definition product {I} (X:I->monoid) : monoid.
-    intros. exists (Magma.product X). split.
-    intros a b c. apply funextsec; intro. apply assocax.
-    exists (fun i => unel (X i)). split.
-    intros a. apply funextsec; intro. apply lunax.
-    intros a. apply funextsec; intro. apply runax. Defined.
-  Definition productProj {I} (X:I->monoid) (i:I) : monoidfun (product X) (X i).
-    intros. exists (pr1 (Magma.productProj X i)). split. 
-    exact (pr2 (Magma.productProj X i)). simpl. reflexivity. Defined.
-  Definition productFun {I} (X:I->monoid) 
-             (T:monoid) (g: forall i, monoidfun T (X i))
-             : monoidfun T (product X).
-    intros.  exists (pr1 (Magma.productFun X T g)). 
-    exists (pr2 (Magma.productFun X T g)). apply funextsec; intro i.
-    apply (pr2 (pr2 (g i))). Defined.
-  Definition productEqn {I} (X:I->monoid) 
-             (T:monoid) (g: forall i, monoidfun T (X i))
-             : forall i, monoidfuncomp (productFun X T g) (productProj X i) == g i.
-    intros. apply funEquality. reflexivity. Qed.
+  Module Product.
+    Definition make {I} (X:I->monoid) : monoid.
+      intros. exists (Magma.Product.make X). split.
+      intros a b c. apply funextsec; intro. apply assocax.
+      exists (fun i => unel (X i)). split.
+      intros a. apply funextsec; intro. apply lunax.
+      intros a. apply funextsec; intro. apply runax. Defined.
+    Definition Proj {I} (X:I->monoid) (i:I) : Hom (make X) (X i).
+      intros. exists (pr1 (Magma.Product.Proj X i)). split. 
+      exact (pr2 (Magma.Product.Proj X i)). simpl. reflexivity. Defined.
+    Definition Fun {I} (X:I->monoid) 
+               (T:monoid) (g: forall i, Hom T (X i))
+               : Hom T (make X).
+      intros.  exists (pr1 (Magma.Product.Fun X T g)). 
+      exists (pr2 (Magma.Product.Fun X T g)). apply funextsec; intro i.
+      apply (pr2 (pr2 (g i))). Defined.
+    Definition Eqn {I} (X:I->monoid) 
+               (T:monoid) (g: forall i, Hom T (X i))
+               : forall i, Proj X i ∘ Fun X T g == g i.
+      intros. apply funEquality. reflexivity. Qed.
+  End Product.
 End Monoid.
 
 Module Gr.
   Require Import Foundations.hlevel2.algebra1b.
+  Local Notation Hom := monoidfun.
+  Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
   Definition zero : gr.
     exists Monoid.zero. exists (pr2 Monoid.zero). exists (idfun unit).
     split. intro x. apply (idpath _). intro x. apply (idpath _). Defined.
-  Definition product {I} (X:I->gr) : gr.
-    intros. 
-    set (Y := Monoid.product X). exists (pr1monoid Y). exists (pr2 Y).
-    exists (fun y i => grinv (X i) (y i)).
-    split.
-    intro y. apply funextsec; intro i. apply grlinvax.
-    intro y. apply funextsec; intro i. apply grrinvax.
-  Defined.    
-  Definition productProj {I} (X:I->gr) (i:I) : monoidfun (product X) (X i).
-    intros. apply (Monoid.productProj X i). Defined.
-  Definition productFun {I} (X:I->gr) 
-             (T:gr) (g: forall i, monoidfun T (X i))
-             : monoidfun T (product X).
-    intros. exact (Monoid.productFun X T g). Defined.
-  Definition productEqn {I} (X:I->gr) 
-             (T:gr) (g: forall i, monoidfun T (X i))
-             : forall i, monoidfuncomp (productFun X T g) (productProj X i) == g i.
-    intros. apply Monoid.funEquality. reflexivity. Qed.
+  Module Product.
+    Definition make {I} (X:I->gr) : gr.
+      intros. set (Y := Monoid.Product.make X). exists (pr1monoid Y). exists (pr2 Y).
+      exists (fun y i => grinv (X i) (y i)). split.
+      - intro y. apply funextsec; intro i. apply grlinvax.
+      - intro y. apply funextsec; intro i. apply grrinvax.
+    Defined.    
+    Definition Proj {I} (X:I->gr) (i:I) : Hom (make X) (X i).
+      intros. apply (Monoid.Product.Proj X i). Defined.
+    Definition Fun {I} (X:I->gr) (T:gr) (g: forall i, Hom T (X i))
+               : Hom T (make X).
+      intros. exact (Monoid.Product.Fun X T g). Defined.
+    Definition Eqn {I} (X:I->gr) (T:gr) (g: forall i, Hom T (X i))
+               : forall i, Proj X i ∘ Fun X T g == g i.
+      intros. apply Monoid.funEquality. reflexivity. Qed.
+  End Product.
 End Gr.
 
 Module Abgr.
   Require Import Foundations.hlevel2.algebra1b.
+  Local Notation Hom := monoidfun.
+  Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
   Definition commax (G:abgr) := pr2 (pr2 G).
   Definition zero : abgr.
     exists Gr.zero. split. exact (pr2 Gr.zero). intros x y. apply (idpath _).
   Defined.
   Require Import Foundations.hlevel2.hz.
   Definition Z : abgr := hzaddabgr.
-  Definition product {I} (X:I->abgr) : abgr.
-    intros. exists (pr1 (Gr.product X)).
-    split. exact (pr2 (Gr.product X)).
-    intros a b. apply funextsec; intro i. apply commax. Defined.
-  Definition productProj {I} (X:I->abgr) (i:I) : monoidfun (product X) (X i).
-    intros. apply (Gr.productProj X i). Defined.
-  Definition productFun {I} (X:I->abgr) 
-             (T:abgr) (g: forall i, monoidfun T (X i))
-             : monoidfun T (product X).
-    intros. exact (Gr.productFun X T g). Defined.
-  Definition productEqn {I} (X:I->abgr) 
-             (T:abgr) (g: forall i, monoidfun T (X i))
-             : forall i, monoidfuncomp (productFun X T g) (productProj X i) == g i.
-    intros. apply Monoid.funEquality. reflexivity. Qed.
-  Definition productUniqueness {I} (X:I->abgr) 
-             (T:abgr) (h h' : monoidfun T (product X)) :
-          (forall i, monoidfuncomp h (productProj X i)
-                  == monoidfuncomp h' (productProj X i))
-            -> h == h'.
-    intros ? ? ? ? ? e.
-    apply Monoid.funEquality.
-    apply funextfunax; intro t; apply funextsec; intro i.
-    exact (ap (evalat t) (ap pr1 (e i))).
-  Qed.
+  Module Product.
+    Definition make {I} (X:I->abgr) : abgr.
+      intros. exists (pr1 (Gr.Product.make X)).
+      split. exact (pr2 (Gr.Product.make X)).
+      intros a b. apply funextsec; intro i. apply commax. Defined.
+    Definition Proj {I} (X:I->abgr) (i:I) : Hom (make X) (X i).
+      intros. apply (Gr.Product.Proj X i). Defined.
+    Definition Map {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i))
+             : Hom T (make X).
+      intros. exact (Gr.Product.Fun X T g). Defined.
+    Definition Eqn {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i))
+             : forall i, Proj X i ∘ Map X T g == g i.
+      intros. apply Monoid.funEquality. reflexivity. Qed.
+    Definition UniqueMap {I} (X:I->abgr) (T:abgr) (h h' : Hom T (make X)) :
+         (forall i, Proj X i ∘ h == Proj X i ∘ h') -> h == h'.
+      intros ? ? ? ? ? e.
+      apply Monoid.funEquality.
+      apply funextfunax; intro t; apply funextsec; intro i.
+      exact (ap (evalat t) (ap pr1 (e i))).
+    Qed.
+  End Product.
   Definition power (I:Type) (X:abgr) : abgr.
-    intros. exact (product (fun _:I => Z)). Defined.
+    intros. exact (Product.make (fun _:I => Z)). Defined.
 End Abgr.
 
 Module Ab.                      (* the category of abelian groups *)
@@ -789,37 +814,37 @@ Module Ab.                      (* the category of abelian groups *)
     - intros. apply MorEquality. reflexivity.
     - intros. apply MorEquality. reflexivity.
   Defined.
-  Import Products.
-  Definition productObject {I} (X:I->ob Precat) : ob Precat := Abgr.product X.
-  Definition productProj {I} (X:I->ob Precat) (i:I) : Hom (productObject X) (X i)
-     := Abgr.productProj X i.
-  Definition productMor {I} (X:I->ob Precat) 
-             (T:ob Precat) (g: forall i, Hom T (X i))
-             : Hom T (productObject X).
-    intros. exists (pr1 (Abgr.productFun X T g)).
-    exact (pr2 (Abgr.productFun X T g)). Defined.
-  Definition productEqn {I} (X:I->ob Precat) 
-             (T:ob Precat) (g: forall i, Hom T (X i))
-             : forall i, productProj X i ∘ productMor X T g == g i.
-    intros. exact (Abgr.productEqn X T g i). Qed.
-  Definition productUniqueness {I} (X:I->ob Precat) 
-             (T:ob Precat) (h h' : Hom T (productObject X)) : 
-        (forall i, productProj X i ∘ h == productProj X i ∘ h') -> h == h'.
-    intros ? ? ? ? ?. apply Abgr.productUniqueness. Qed.
-  Import PrimitiveInitialObjects.
-  Definition product {I} (X:I->ob Precat) : Product Precat X.
-    intros.
-    set (Q := El.make_ob (HomFamily Precat^op X)
-                         (productObject X) (productProj X)).
-    exists Q. intros T.
-    assert ( k' : Hom Q T ).
-      exists (productMor X (pr1 T) (pr2 T)).
-      apply funextsec; intro i. exact (productEqn X (pr1 T) (pr2 T) i).
-    exists k'. intros k.
-    apply El.mor_equality.
-    exact (productUniqueness X (pr1 T) (pr1 k) (pr1 k')
-             (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
-  Defined.
+  Module Product.
+    Definition Object {I} (X:I->ob Precat) : ob Precat := Abgr.Product.make X.
+    Definition Proj {I} (X:I->ob Precat) (i:I) : Hom (Object X) (X i)
+       := Abgr.Product.Proj X i.
+    Definition Mor {I} (X:I->ob Precat) 
+               (T:ob Precat) (g: forall i, Hom T (X i))
+               : Hom T (Object X).
+      intros. exists (pr1 (Abgr.Product.Map X T g)).
+      exact (pr2 (Abgr.Product.Map X T g)). Defined.
+    Definition Eqn {I} (X:I->ob Precat) 
+               (T:ob Precat) (g: forall i, Hom T (X i))
+               : forall i, Proj X i ∘ Mor X T g == g i.
+      intros. exact (Abgr.Product.Eqn X T g i). Qed.
+    Definition Uniqueness {I} (X:I->ob Precat) 
+               (T:ob Precat) (h h' : Hom T (Object X)) : 
+          (forall i, Proj X i ∘ h == Proj X i ∘ h') -> h == h'.
+      intros ? ? ? ? ?. apply Abgr.Product.UniqueMap. Qed.
+    Import PrimitiveInitialObjects.
+    Definition make {I} (X:I->ob Precat) : Product.type Precat X.
+      intros.
+      set (Q := El.make_ob (HomFamily.precat Precat^op X) (Object X) (Proj X)).
+      exists Q. intros T.
+      assert ( k' : Hom Q T ).
+        exists (Mor X (pr1 T) (pr2 T)).
+        apply funextsec; intro i. exact (Eqn X (pr1 T) (pr2 T) i).
+      exists k'. intros k.
+      apply El.mor_equality.
+      exact (Uniqueness X (pr1 T) (pr1 k) (pr1 k')
+               (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
+    Defined.
+  End Product.
 End Ab.
 
 (**
