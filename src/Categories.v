@@ -48,6 +48,14 @@ Definition category_pair (C:precategory) (i:is_category C)
 
 Definition theUnivalenceProperty (C:category) := pr2 _ : is_category C.
 
+Definition reflects_isos {C D} (X:C==>D) :=
+  forall c c' (f : c → c'), is_isomorphism (#X f) -> is_isomorphism f.
+
+Lemma isaprop_reflects_isos {C D} (X:C==>D) : isaprop (reflects_isos X).
+Proof.
+  intros. apply impred; intros. apply impred; intros. apply impred; intros.
+  apply impred; intros. apply isaprop_is_isomorphism. Qed.
+
 (** *** make a precategory *)
 
 Definition makePrecategory_ob_mor
@@ -371,10 +379,9 @@ Module StandardCategories.
 
 End StandardCategories.
 
-Module RepresentableFunctors.
-  (** ** representable functors *)
+Module El.
   (** *** the category of elements of a functor *)
-  Definition El_data {C} (X:C==>SET) : precategory_data.
+  Definition cat_data {C} (X:C==>SET) : precategory_data.
     intros C X.
     set (Fobj := X:1:1).
     set (Fmor := X:1:2).
@@ -394,76 +401,68 @@ Module RepresentableFunctors.
                    ((apevalat i:2 (iFcomp _ _ _ f:1 g:1))
                     @ 
                     (ap (Fmor _ _ g:1) f:2 @ g:2))). Defined.
-  Lemma El_mor_equality {C} (X:C==>SET) (x y : ob (El_data X)) (f g : x → y) :
+  Lemma mor_equality {C} (X:C==>SET) (x y : ob (cat_data X)) (f g : x → y) :
         pr1 f == pr1 g -> f == g.
   Proof. intros ? ? ? ? [f i] [g j] p. simpl in p. destruct p.
          destruct (the (setproperty _ _ _ i j)). reflexivity. Qed.
-  Lemma El_okay {C} (X:C==>SET) : is_precategory (El_data X).
+  Lemma isPrecategory {C} (X:C==>SET) : is_precategory (cat_data X).
   Proof. intros. split. split.
-         - intros. apply El_mor_equality. apply id_left.
-         - intros. apply El_mor_equality. apply id_right.
-         - intros. apply El_mor_equality. apply assoc. Qed.
-  Definition El {C} (X:C==>SET) : precategory.
-    intros. exact (El_data X ,, El_okay X). Defined.
-  Definition El_pr1_data {C} (X:C==>SET) : functor_data (El X) C.
-    intros. exists pr1. intros x x'. exact pr1. Defined.
-  Definition El_pr1 {C} (X:C==>SET) : El X ==> C.
-    intros. exists (El_pr1_data _).
-    split. { intros. reflexivity. } { intros. reflexivity. } Defined.
-  Definition El_make_ob {C} (X:C==>SET) 
-             (c:ob C) (x:set_to_type (X c)) : ob (El X).
+         - intros. apply mor_equality. apply id_left.
+         - intros. apply mor_equality. apply id_right.
+         - intros. apply mor_equality. apply assoc. Qed.
+  Definition cat {C} (X:C==>SET) : precategory.
+    intros. exact (cat_data X ,, isPrecategory X). Defined.
+  Definition make_ob {C} (X:C==>SET) 
+             (c:ob C) (x:set_to_type (X c)) : ob (cat X).
     intros. exact (c,,x). Defined.
-  Definition El_make_mor {C} (X:C==>SET) (r s : ob (El X)) 
-             (f : Hom (El_pr1 X r) (El_pr1 X s))
+  Definition make_mor {C} (X:C==>SET) (r s : ob (cat X)) 
+             (f : Hom (pr1 r) (pr1 s))
              (i : #X f (pr2 r) == pr2 s) : Hom r s.
     intros. exact (f,,i). Defined.
-  Definition reflects_isos {C D} (X:C==>D) :=
-    forall c c' (f : c → c'), is_isomorphism (#X f) -> is_isomorphism f.
-  Lemma isaprop_reflects_isos {C D} (X:C==>D) : isaprop (reflects_isos X).
-  Proof.
-    intros. apply impred; intros. apply impred; intros. apply impred; intros.
-    apply impred; intros. apply isaprop_is_isomorphism. Qed.
-  Lemma El_pr1_reflects_isos {C} (X:ob [C, SET]) : reflects_isos (El_pr1 X).
-  Proof.
-    intros. simpl in X.         (* why do we need this? *)
-    intros cx dy fi iso_f.
-    set (c := cx:1). set (x := cx:2).
-    set (d := dy:1). set (y := dy:2).
-    set (f := fi:1). set (i := fi:2).
-    set (f' := iso_f:1). set (j := iso_f:2).
-    assert (i' : #X f' y == x).
-    { intermediate (#X f' (#X f x)).
-      { exact (ap (#X f') (!i)). }
-      { intermediate (#X (f' ∘ f) x).
-        { exact (apevalat x (!functor_comp _ _ X _ _ _ f f')). }
-        { intermediate (#X (identity c) x).
-          { exact (apevalat x (ap #X j:1)). }
-          { exact (apevalat x (functor_id _ _ X c)). }}}}
-    { exists (f' ,, i'). split.
-      { exact (pair_path j:1 (the (setproperty _ _ _ _ _))). }
-      { exact (pair_path j:2 (the (setproperty _ _ _ _ _))). }} Qed.
+  Module pr1.
+    Definition fun_data {C} (X:C==>SET) : functor_data (cat X) C.
+      intros. exists pr1. intros x x'. exact pr1. Defined.
+    Definition func {C} (X:C==>SET) : cat X ==> C.
+      intros. exists (fun_data _).
+      split. { intros. reflexivity. } { intros. reflexivity. } Defined.
+    Lemma func_reflects_isos {C} (X:C==>SET) : reflects_isos (func X).
+    Proof. intros ? ? [c x] [d y] [f i] [f' j].
+      assert (i' : #X f' y == x).
+      { intermediate (#X f' (#X f x)).
+        { exact (ap (#X f') (!i)). }
+        { intermediate (#X (f' ∘ f) x).
+          { exact (apevalat x (!functor_comp _ _ X _ _ _ f f')). }
+          { intermediate (#X (identity c) x).
+            { exact (apevalat x (ap #X j:1)). }
+            { exact (apevalat x (functor_id _ _ X c)). }}}}
+      { exists (f' ,, i'). split.
+        { apply mor_equality.  exact (j:1). }
+        { apply mor_equality.  exact (j:2). } } Qed.
+  End pr1.
+End El.
+
+Module Representation.
   Import PrimitiveInitialObjects.
-  Definition Representation {C} (X:C==>SET) := InitialObject (El X).
-  Definition Representable {C} (X:C==>SET) := squash (Representation X).
-  Definition representingPair {C} {X:C==>SET} (r:Representation X) := 
-    pr1 r : ob (El X).
-  Definition representingInitiality {C} {X:C==>SET} (r:Representation X) : 
-    isInitialObject (El X) (representingPair r).
+  Definition Data {C} (X:C==>SET) := InitialObject (El.cat X).
+  Definition Property {C} (X:C==>SET) := squash (Data X).
+  Definition Pair {C} {X:C==>SET} (r:Data X) := pr1 r : ob (El.cat X).
+  Definition IsInitial {C} {X:C==>SET} (r:Data X) : 
+    isInitialObject (El.cat X) (Pair r).
   Proof. intros. exact (pr2 r). Qed.
-  Definition representingObject {C} {X:C==>SET} (r:Representation X) :=
-    pr1 (representingPair r) : ob C .
-  Definition representingElement {C} {X:C==>SET} (r:Representation X) := 
-    pr2 (representingPair r) : set_to_type (X (representingObject r)).
-  Definition representingMap {C} {X:C==>SET} (r:Representation X) (d:ob C) :
-    Hom (representingObject r) d -> set_to_type (X d).
-  Proof. intros ? ? ? ? p. exact (#X p (representingElement r)). Defined.
-  Lemma representingMap_isweq {C} {X:C==>SET} (r:Representation X) (d:ob C) :
-    isweq (representingMap r d).
-  Proof. intros. intros y. exact (representingInitiality r (d,,y)). Qed.
-  Definition representingIso {C} {X:C==>SET} (r:Representation X) (d:ob C) 
-    := weqpair (representingMap r d) (representingMap_isweq r d) 
-       : weq (representingObject r → d) (set_to_type (X d)).
-End RepresentableFunctors.
+  Definition Object {C} {X:C==>SET} (r:Data X) :=
+    pr1 (Pair r) : ob C .
+  Definition Element {C} {X:C==>SET} (r:Data X) := 
+    pr2 (Pair r) : set_to_type (X (Object r)).
+  Definition Map {C} {X:C==>SET} (r:Data X) (d:ob C) :
+    Hom (Object r) d -> set_to_type (X d).
+  Proof. intros ? ? ? ? p. exact (#X p (Element r)). Defined.
+  Lemma MapIsweq {C} {X:C==>SET} (r:Data X) (d:ob C) :
+    isweq (Map r d).
+  Proof. intros. intros y. exact (IsInitial r (d,,y)). Qed.
+  Definition Iso {C} {X:C==>SET} (r:Data X) (d:ob C) 
+    := weqpair (Map r d) (MapIsweq r d) 
+       : weq (Object r → d) (set_to_type (X d)).
+End Representation.
 
 Module hSet.
   Definition unit : hSet := tpair isaset unit isasetunit.
@@ -476,15 +475,14 @@ Module TerminalObjects.
   Definition unitFunctor C : C ==> SET.
     intros. exists (unitFunctor_data C).
     split. reflexivity. reflexivity. Defined.
-  Import RepresentableFunctors.
-  Definition InitialObject (C:precategory) := Representation (unitFunctor C).
+  Definition InitialObject (C:precategory) := Representation.Data (unitFunctor C).
   Definition initialObject {C} (i:InitialObject C) : ob C.
-    intros C i. exact (representingObject i). Defined.
+    intros C i. exact (Representation.Object i). Defined.
   Definition initialArrow {C} (i:InitialObject C) (c:ob C) : initialObject i → c.
     intros C [[i []] p] c. exact (pr1 (the (p (c,,tt)))). Defined.
-  Definition TerminalObject (C:precategory) := Representation (unitFunctor C^op).
+  Definition TerminalObject (C:precategory) := Representation.Data (unitFunctor C^op).
   Definition terminalObject {C} (t:InitialObject C) : ob C.
-    intros C t. exact (representingObject t). Defined.
+    intros C t. exact (Representation.Object t). Defined.
   Definition terminalArrow {C} (t:TerminalObject C) (c:ob C) : c → terminalObject t.
     intros C [[i []] p] c. exact (pr1 (the (p (c,,tt)))). Defined.      
 End TerminalObjects.
@@ -509,41 +507,39 @@ Module Products.
       apply id_right. }
     { intros x y z p q. apply funextfunax; intros f. apply funextsec; intros i.
       apply assoc. } Defined.
-  Import RepresentableFunctors.
   Definition Coproduct (C:precategory) {I} (c:I -> ob C) :=
-    Representation (HomFamily C c).
+    Representation.Data (HomFamily C c).
   Definition Product (C:precategory) {I} (c:I -> ob C) :=
-    Representation (HomFamily C^op c).
+    Representation.Data (HomFamily C^op c).
   Definition coproductObject {C:precategory} {I} {c:I -> ob C} (r:Coproduct C c)
-             : ob C := representingObject r.
+             : ob C := Representation.Object r.
   Definition productObject {C:precategory} {I} {c:I -> ob C} (r:Product C c)
              (* the representing object of r is in C^op, so here we convert it *)
-             : ob C := representingObject r.
+             : ob C := Representation.Object r.
   Coercion coproductObject : Coproduct >-> ob.
   Coercion productObject : Product >-> ob.
   Definition coprod_in
              {C:precategory} {I} {b:I -> ob C} (B:Coproduct C b) i :
      Hom (b i) B.
-  Proof. intros. exact (representingElement B i). Defined.
+  Proof. intros. exact (Representation.Element B i). Defined.
   Definition prod_pr
              {C:precategory} {I} {b:I -> ob C} (B:Product C b) i :
      Hom B (b i).
-  Proof. intros. exact (representingElement B i). Defined.
+  Proof. intros. exact (Representation.Element B i). Defined.
 End Products.
 
 Module Matrices.
   Import Products.
-  Import RepresentableFunctors.
   (* the representing map is the matrix *)
   Definition to_row {C:precategory} {I} {b:I -> ob C} (B:Coproduct C b) {d:ob C} :
     weq (Hom B d) (forall j, Hom (b j) d).
-  Proof. intros. exact (representingIso B d). Defined.
+  Proof. intros. exact (Representation.Iso B d). Defined.
   Definition from_row {C:precategory} {I} {b:I -> ob C} (B:Coproduct C b) {d:ob C} :
     weq (forall j, Hom (b j) d) (Hom B d).
   Proof. intros. apply invweq. apply to_row. Defined.
   Definition to_col {C:precategory} {I} {d:I -> ob C} (D:Product C d) {b:ob C} :
     weq (Hom b D) (forall i, Hom b (d i)).
-  Proof. intros. exact (representingIso D b). Defined.
+  Proof. intros. exact (Representation.Iso D b). Defined.
   Definition from_col {C:precategory} {I} {d:I -> ob C} (D:Product C d) {b:ob C} :
     weq (forall i, Hom b (d i)) (Hom b D).
   Proof. intros. apply invweq. apply to_col. Defined.
@@ -615,7 +611,6 @@ Module DirectSums.
 End DirectSums.
 
 Module Kernels.
-  Import RepresentableFunctors.
   Import ZeroObjects.
   Definition zerocomp_type {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
     ob C -> Type.
@@ -653,11 +648,10 @@ Module Kernels.
     { intros w x y t u. apply funextfunax. intros [r rf0].
       apply (pair_path (assoc _ _ _ _ _ r t u)).
       apply setproperty. } Defined.
-  Import RepresentableFunctors.
   Definition Cokernel {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :=
-    Representation (zerocomp z f).
+    Representation.Data (zerocomp z f).
   Definition Kernel C (z:hasZeroObject C) (c d:ob C) (f:c → d) :=
-    Representation (zerocomp (haszero_opp C z) f).
+    Representation.Data (zerocomp (haszero_opp C z) f).
 End Kernels.
 
 Module Magma.
@@ -809,17 +803,17 @@ Module Ab.                      (* the category of abelian groups *)
              (T:ob cat) (h h' : Hom T (productObject X)) : 
         (forall i, productProj X i ∘ h == productProj X i ∘ h') -> h == h'.
     intros ? ? ? ? ?. apply Abgr.productUniqueness. Qed.
-  Import PrimitiveInitialObjects RepresentableFunctors.
+  Import PrimitiveInitialObjects.
   Definition product {I} (X:I->ob cat) : Product cat X.
     intros.
-    set (E := El (HomFamily cat^op X)).
-    set (Q := (productObject X,,productProj X) : ob E).
+    set (Q := El.make_ob (HomFamily cat^op X)
+                         (productObject X) (productProj X)).
     exists Q. intros T.
     assert ( k' : Hom Q T ).
       exists (productMor X (pr1 T) (pr2 T)).
       apply funextsec; intro i. exact (productEqn X (pr1 T) (pr2 T) i).
     exists k'. intros k.
-    apply El_mor_equality.
+    apply El.mor_equality.
     exact (productUniqueness X (pr1 T) (pr1 k) (pr1 k')
              (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
   Defined.
