@@ -70,9 +70,9 @@ Defined.
 Definition makePrecategory_data
     (obj : UU)
     (mor : obj -> obj -> UU)
-    (imor : forall i j:obj, isaset (mor i j))
-    (identity : forall i:obj, mor i i)
-    (compose : forall (i j k:obj) (f:mor i j) (g:mor j k), mor i k)
+    (imor : forall i j, isaset (mor i j))
+    (identity : forall i, mor i i)
+    (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
     : precategory_data.
   intros.
   exact (precategory_data_pair (makePrecategory_ob_mor obj mor imor) identity compose).
@@ -81,12 +81,12 @@ Defined.
 Definition makePrecategory 
     (obj : UU)
     (mor : obj -> obj -> UU)
-    (imor : forall i j:obj, isaset (mor i j))
-    (identity : forall i:obj, mor i i)
-    (compose : forall (i j k:obj) (f:mor i j) (g:mor j k), mor i k)
-    (right : forall (i j:obj) (f:mor i j), compose _ _ _ (identity i) f == f)
-    (left  : forall (i j:obj) (f:mor i j), compose _ _ _ f (identity j) == f)
-    (associativity : forall (a b c d:obj) (f:mor a b) (g:mor b c) (h:mor c d),
+    (imor : forall i j, isaset (mor i j))
+    (identity : forall i, mor i i)
+    (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
+    (right : forall i j (f:mor i j), compose _ _ _ (identity i) f == f)
+    (left  : forall i j (f:mor i j), compose _ _ _ f (identity j) == f)
+    (associativity : forall a b c d (f:mor a b) (g:mor b c) (h:mor c d),
         compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h)
     : precategory.
   intros.
@@ -574,22 +574,24 @@ Module Matrices.
   Proof. intros. exact (assoc _ _ _ _ _ (coprod_in B j) p (prod_pr D i)). Qed.
 End Matrices.
 
-Module FiniteSets.
+Module FiniteSet.
   Require Import Foundations.hlevel2.finitesets.
-  Definition fSet := total2 isfinite.
-  Definition fSet_to_type (X:fSet) : Type := pr1 X.
-  Coercion fSet_to_type : fSet >-> Sortclass.
-  Lemma fSet_isdeceq (I:fSet) : isdeceq I.
+  Definition Data := total2 isfinite.
+  Definition ToType (X:Data) : Type := pr1 X.
+  Module Import Coercions.
+    Coercion ToType : Data >-> Sortclass.
+  End Coercions.
+  Lemma Isdeceq (I:Data) : isdeceq I.
   Proof. intros [I i]; simpl. apply @factor_through_squash with (X := finstruct I).
          { apply isapropisdeceq. }
          { intros [n [f j]]. apply @isdeceqweqf with (X := stn n).
            { exists f. assumption. }
            { apply isdeceqstn. } }
          { assumption. } Qed.
-End FiniteSets.
+End FiniteSet.
 
 Module DirectSums.
-  Import Products ZeroObjects.
+  Import Products ZeroObjects FiniteSet.Coercions.
   Definition identity_matrix {C:precategory} (h:hasZeroObject C)
              {I} {d:I -> ob C} (dec : isdeceq I) : forall i j, Hom (d j) (d i).
   Proof. intros. destruct (dec i j) as [ [] | _ ].
@@ -604,10 +606,9 @@ Module DirectSums.
              := total2 (fun 
                    BD : dirprod (Coproduct C d) (Product C d) =>
                         is_isomorphism (identity_map h dec (pr1 BD) (pr2 BD))).
-  Import FiniteSets.
   Definition FiniteDirectSum {C:precategory} (h:hasZeroObject C) 
-             {I:fSet} (d:I -> ob C)
-    := DirectSum h d (fSet_isdeceq I).
+             {I:FiniteSet.Data} (d:I -> ob C)
+    := DirectSum h d (FiniteSet.Isdeceq I).
 End DirectSums.
 
 Module Kernels.
@@ -656,7 +657,7 @@ End Kernels.
 
 Module Magma.
   Require Import Foundations.hlevel2.algebra1a.
-  Definition binopfun_equality (G H : setwithbinop) (p q : binopfun G H)
+  Definition funEquality (G H : setwithbinop) (p q : binopfun G H)
              (v : pr1 p == pr1 q) : p == q.
     intros ? ? [p i] [q j] v. simpl in v. destruct v.
     destruct (pr1 (isapropisbinopfun p i j)). reflexivity. Qed.
@@ -676,13 +677,13 @@ Module Magma.
   Definition productEqn {I} (X:I->setwithbinop) 
              (T:setwithbinop) (g: forall i, binopfun T (X i))
              : forall i, binopfuncomp (productFun X T g) (productProj X i) == g i.
-    intros. apply binopfun_equality. reflexivity. Qed.
+    intros. apply funEquality. reflexivity. Qed.
 End Magma.
 
 Module Monoid.
   Require Import Foundations.hlevel2.algebra1b.
-  Definition monoidfun_equality (G H : monoid) (p q : monoidfun G H)
-             (v : pr1 p == pr1 q) : p == q.
+  Definition funEquality G H (p q : monoidfun G H) :
+             pr1 p == pr1 q -> p == q.
     intros ? ? [p i] [q j] v. simpl in v. destruct v.
     destruct (pr1 (isapropismonoidfun p i j)). reflexivity. Qed.
   Definition zero : monoid.
@@ -707,7 +708,7 @@ Module Monoid.
   Definition productEqn {I} (X:I->monoid) 
              (T:monoid) (g: forall i, monoidfun T (X i))
              : forall i, monoidfuncomp (productFun X T g) (productProj X i) == g i.
-    intros. apply monoidfun_equality. reflexivity. Qed.
+    intros. apply funEquality. reflexivity. Qed.
 End Monoid.
 
 Module Gr.
@@ -732,7 +733,7 @@ Module Gr.
   Definition productEqn {I} (X:I->gr) 
              (T:gr) (g: forall i, monoidfun T (X i))
              : forall i, monoidfuncomp (productFun X T g) (productProj X i) == g i.
-    intros. apply Monoid.monoidfun_equality. reflexivity. Qed.
+    intros. apply Monoid.funEquality. reflexivity. Qed.
 End Gr.
 
 Module Abgr.
@@ -743,7 +744,6 @@ Module Abgr.
   Defined.
   Require Import Foundations.hlevel2.hz.
   Definition Z : abgr := hzaddabgr.
-  Import FiniteSets.
   Definition product {I} (X:I->abgr) : abgr.
     intros. exists (pr1 (Gr.product X)).
     split. exact (pr2 (Gr.product X)).
@@ -757,14 +757,14 @@ Module Abgr.
   Definition productEqn {I} (X:I->abgr) 
              (T:abgr) (g: forall i, monoidfun T (X i))
              : forall i, monoidfuncomp (productFun X T g) (productProj X i) == g i.
-    intros. apply Monoid.monoidfun_equality. reflexivity. Qed.
+    intros. apply Monoid.funEquality. reflexivity. Qed.
   Definition productUniqueness {I} (X:I->abgr) 
              (T:abgr) (h h' : monoidfun T (product X)) :
           (forall i, monoidfuncomp h (productProj X i)
                   == monoidfuncomp h' (productProj X i))
             -> h == h'.
     intros ? ? ? ? ? e.
-    apply Monoid.monoidfun_equality.
+    apply Monoid.funEquality.
     apply funextfunax; intro t; apply funextsec; intro i.
     exact (ap (evalat t) (ap pr1 (e i))).
   Qed.
@@ -774,39 +774,42 @@ End Abgr.
 
 Module Ab.                      (* the category of abelian groups *)
   Require Import Foundations.hlevel2.algebra1a Foundations.hlevel2.algebra1b.
-  Definition ob_mor : precategory_ob_mor.
+  Definition ObMor : precategory_ob_mor.
     exists abgr. intros G H. exists (monoidfun G H). exact (isasetmonoidfun G H).
   Defined.
-  Definition data : precategory_data.
-    exists ob_mor. split. intro G. exists (idfun (G : abgr)). split. 
+  Definition Data : precategory_data.
+    exists ObMor. split. intro G. exists (idfun (G : abgr)). split. 
     split. reflexivity. intros a b c.  exact monoidfuncomp. Defined.
-  Definition cat : precategory.
-    exists data. split; simpl. split; simpl.
-    - intros. apply Monoid.monoidfun_equality. reflexivity.
-    - intros. apply Monoid.monoidfun_equality. reflexivity.
-    - intros. apply Monoid.monoidfun_equality. reflexivity.
+  Definition MorEquality G H (p q : @Hom Data G H) :
+       pr1 p == pr1 q -> p == q.
+    intros. apply Monoid.funEquality. assumption. Qed.
+  Definition Precat : precategory.
+    exists Data. split; simpl. split; simpl.
+    - intros. apply MorEquality. reflexivity.
+    - intros. apply MorEquality. reflexivity.
+    - intros. apply MorEquality. reflexivity.
   Defined.
   Import Products.
-  Definition productObject {I} (X:I->ob cat) : ob cat := Abgr.product X.
-  Definition productProj {I} (X:I->ob cat) (i:I) : Hom (productObject X) (X i)
+  Definition productObject {I} (X:I->ob Precat) : ob Precat := Abgr.product X.
+  Definition productProj {I} (X:I->ob Precat) (i:I) : Hom (productObject X) (X i)
      := Abgr.productProj X i.
-  Definition productMor {I} (X:I->ob cat) 
-             (T:ob cat) (g: forall i, Hom T (X i))
+  Definition productMor {I} (X:I->ob Precat) 
+             (T:ob Precat) (g: forall i, Hom T (X i))
              : Hom T (productObject X).
     intros. exists (pr1 (Abgr.productFun X T g)).
     exact (pr2 (Abgr.productFun X T g)). Defined.
-  Definition productEqn {I} (X:I->ob cat) 
-             (T:ob cat) (g: forall i, Hom T (X i))
+  Definition productEqn {I} (X:I->ob Precat) 
+             (T:ob Precat) (g: forall i, Hom T (X i))
              : forall i, productProj X i ∘ productMor X T g == g i.
     intros. exact (Abgr.productEqn X T g i). Qed.
-  Definition productUniqueness {I} (X:I->ob cat) 
-             (T:ob cat) (h h' : Hom T (productObject X)) : 
+  Definition productUniqueness {I} (X:I->ob Precat) 
+             (T:ob Precat) (h h' : Hom T (productObject X)) : 
         (forall i, productProj X i ∘ h == productProj X i ∘ h') -> h == h'.
     intros ? ? ? ? ?. apply Abgr.productUniqueness. Qed.
   Import PrimitiveInitialObjects.
-  Definition product {I} (X:I->ob cat) : Product cat X.
+  Definition product {I} (X:I->ob Precat) : Product Precat X.
     intros.
-    set (Q := El.make_ob (HomFamily cat^op X)
+    set (Q := El.make_ob (HomFamily Precat^op X)
                          (productObject X) (productProj X)).
     exists Q. intros T.
     assert ( k' : Hom Q T ).
