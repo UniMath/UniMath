@@ -30,7 +30,6 @@ total2
       dirprod (fg;; PullbackPr1 C (Pb T c d (TerminalArrow C T c) (TerminalArrow C T d)) == f)
         (fg;; PullbackPr2 C (Pb T c d (TerminalArrow C T c) (TerminalArrow C T d)) == g)).
 Proof.
- Check PullbackArrow.
   unfold Pullbacks in Pb.
   exists (PullbackArrow _ (Pb _ _ _ (TerminalArrow C T c)(TerminalArrow C T d)) _ f g
        (ArrowsToTerminal _ _ _ _ _)).
@@ -46,15 +45,22 @@ Lemma isProductCone_PullbackCone (c d : C):
             (PullbackObject _ (Pb _ _ _ (TerminalArrow C T c)(TerminalArrow C T d)))
    (PullbackPr1 _ _  ) (PullbackPr2 _ _ ).
 Proof.
-  unfold isProductCone.
   intros a f g.
   exists (UnivProductFromPullback c d a f g).
   intro t.
-  apply proofirrelevance.
-  apply isapropifcontr.
-  apply (isPullback_Pullback).
-  apply ArrowsToTerminal.
+  apply proofirrelevance,
+        isapropifcontr,
+        isPullback_Pullback,
+        ArrowsToTerminal.
 Qed.
+
+Definition ProductCone_PullbackCone (c d : C) : ProductCone _ c d.
+Proof.
+  exists
+  (tpair _ (PullbackObject _ (Pb _ _ _ (TerminalArrow C T c)(TerminalArrow C T d)))
+               (dirprodpair  (PullbackPr1 _ _  ) (PullbackPr2 _ _ ))).
+ exact (isProductCone_PullbackCone c d).
+Defined.
 
 End product_from_pullback.
 

@@ -25,23 +25,23 @@ Definition isProductCone (c d p: C) (p1 : p --> c) (p2 : p --> d) :=
                                                  (fg ;; p2 == g))).
 
 Definition ProductCone (c d : C) := 
-   total2 (fun p : C => total2 (
-            fun p1p2 : dirprod (p --> c) (p --> d) =>
-             isProductCone c d p (pr1 p1p2) (pr2 p1p2))).
+   total2 (fun pp1p2 : total2 (fun p : C => dirprod (p --> c) (p --> d)) =>
+             isProductCone c d (pr1 pp1p2) (pr1 (pr2 pp1p2)) (pr2 (pr2 pp1p2))).
+
 
 Definition Products := forall (c d : C), ProductCone c d.
 Definition hasProducts := ishinh Products.
 
-Definition ProductObject {c d : C} (P : ProductCone c d) : C := pr1 P.
+Definition ProductObject {c d : C} (P : ProductCone c d) : C := pr1 (pr1 P).
 Definition ProductPr1 {c d : C} (P : ProductCone c d): ProductObject P --> c :=
-   pr1 (pr1 (pr2 P)).
+  pr1 (pr2 (pr1 P)).
 Definition ProductPr2 {c d : C} (P : ProductCone c d) : ProductObject P --> d :=
-   pr2 (pr1 (pr2 P)).
+   pr2 (pr2 (pr1 P)).
 
 Definition isProductCone_ProductCone {c d : C} (P : ProductCone c d) : 
    isProductCone c d (ProductObject P) (ProductPr1 P) (ProductPr2 P).
 Proof.
-  exact (pr2 (pr2 P)).
+  exact (pr2 P).
 Defined.
 
 Definition ProductArrow {c d : C} (P : ProductCone c d) {a : C} (f : a --> c) (g : a --> d) : 
