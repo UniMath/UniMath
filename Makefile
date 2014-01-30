@@ -5,6 +5,7 @@ ifeq ("$(VERSION)","8.4")
 OTHERFLAGS += -indices-matter
 # compiling uu0 takes 32 seconds with sharing and 20 seconds with no-sharing, using a patched coq 8.4
 OTHERFLAGS += -no-sharing
+OTHERFLAGS += -no-native-compiler
 # OTHERFLAGS += -verbose
 else
 endif
