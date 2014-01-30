@@ -28,20 +28,39 @@ Unset Automatic Introduction.
 
 Local Notation set_to_type := pr1hSet.
 Local Notation "b ← a" := (precategory_morphisms a b) (at level 50).
-Local Notation Hom := precategory_morphisms.
 Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
 Local Notation "a ==> b" := (functor a b) (at level 50).
 Local Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing).
 Local Notation "g ∘ f" := (precategories.compose f g) (at level 50, only parsing).
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Local Notation "x :1" := (pr1 x) (at level 3, only parsing).
-Local Notation "x :2" := (pr2 x) (at level 3, only parsing).
 Notation "C '^op'" := (opp_precat C) (at level 3).
 Notation SET := hset_precategory.
+
+Definition equality_proof_irrelevance (X:hSet) (x y:X) (p q:x==y) : p==q.
+Proof. intros. destruct (the (setproperty _ _ _ p q)). reflexivity. Qed.
+
 Definition Ob (C:precategory) : Type := ob C.
 
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := tpair _ C i.
+Module Precategory.
+  Definition obj (C:precategory) : Type :=
+    ob (
+        precategory_ob_mor_from_precategory_data (
+            precategory_data_from_precategory C)).
+  Definition mor {C:precategory} : ob C -> ob C -> hSet :=
+    pr2 (
+        precategory_ob_mor_from_precategory_data (
+            precategory_data_from_precategory C)).
+End Precategory.
+Local Notation Hom := Precategory.mor.
+
+Module Functor.
+  Definition obj {C D} (F:functor C D) := pr1 (pr1 F).
+  Definition mor {C D} (F:functor C D) := pr2 (pr1 F).
+  Definition identity {C D} (F:functor C D) := pr1 (pr2 F).
+  Definition compose {C D} (F:functor C D) := pr2 (pr2 F).
+End Functor.
 
 Definition category_pair (C:precategory) (i:is_category C)
  : category := tpair _ C i.
@@ -125,22 +144,15 @@ Defined.
 Lemma isaprop_is_precategory (C : precategory_data)
   : isaprop (is_precategory C).
 Proof.
-  intro.
-  apply isofhleveltotal2.
-    apply isofhleveltotal2.
-      repeat (apply impred; intro); apply setproperty.
-    intros _.
-    repeat (apply impred; intro); apply setproperty.
-  intros _.    
-  repeat (apply impred; intro); apply setproperty.
-Qed.
+  intro. apply isofhleveltotal2.
+  { apply isofhleveltotal2. { repeat (apply impred; intro); apply setproperty. }
+    intros _. repeat (apply impred; intro); apply setproperty. }
+  intros _. repeat (apply impred; intro); apply setproperty. Qed.
 
 Lemma opp_opp_precat (C : precategory) : C == C^op^op.
 Proof.
-  intros [data ispre].
-  apply (pair_path (opp_opp_precat_data data)).
-  apply isaprop_is_precategory.
-Defined.
+  intros [data ispre]. apply (pair_path (opp_opp_precat_data data)).
+  apply isaprop_is_precategory. Defined.
 
 Module PrimitiveTerminalObjects. (** *** terminal objects *)
   Definition isTerminalObject (C:precategory) (a:ob C) := 
@@ -383,28 +395,31 @@ Module El.
   (** *** the category of elements of a functor *)
   Definition cat_data {C} (X:C==>SET) : precategory_data.
     intros C X.
-    set (Fobj := X:1:1).
-    set (Fmor := X:1:2).
-    set (iFid := X:2:1).
-    set (iFcomp := X:2:2).
+    set (Fobj := Functor.obj X).
+    set (Fmor := Functor.mor X).
+    set (iFid := Functor.identity X).
+    set (iFcomp := Functor.compose X).
     set (obj := total2 (fun c : ob C => set_to_type (Fobj c))).
     set (compat := fun a b : obj =>
-                     fun f : pr1 a → pr1 b => Fmor _ _ f a:2 == b:2 ).
+                     fun f : pr1 a → pr1 b => Fmor _ _ f (pr2 a) == (pr2 b) ).
     set (mor := fun a b => total2 (compat a b)).
     apply (makePrecategory_data obj mor).
     - intros. apply (isofhleveltotal2 2). 
       * apply setproperty.
       * intros f.  apply (isofhlevelsnprop 1). apply setproperty.
-    - intro a. exact (identity a:1 ,, (apevalat a:2 (iFid a:1))).
+    - intro a. exact (identity (pr1 a),, (apevalat (pr2 a) (iFid (pr1 a)))).
     - intros ? ? ? f g.
-      exact (      g:1 ∘ f:1,,
-                   ((apevalat i:2 (iFcomp _ _ _ f:1 g:1))
+      exact (      pr1 g ∘ pr1 f,,
+                   ((apevalat (pr2 i) (iFcomp _ _ _ (pr1 f) (pr1 g)))
                     @ 
-                    (ap (Fmor _ _ g:1) f:2 @ g:2))). Defined.
+                    (ap (Fmor _ _ (pr1 g)) (pr2 f) @ (pr2 g)))). Defined.
+  Definition get_mor {C} {X:C==>SET} {x y : ob (cat_data X)} (f : x → y) :=
+        pr1 f.
   Lemma mor_equality {C} (X:C==>SET) (x y : ob (cat_data X)) (f g : x → y) :
-        pr1 f == pr1 g -> f == g.
+        get_mor f == get_mor g -> f == g.
   Proof. intros ? ? ? ? [f i] [g j] p. simpl in p. destruct p.
-         destruct (the (setproperty _ _ _ i j)). reflexivity. Qed.
+         assert (k : i==j). { apply equality_proof_irrelevance. }
+         destruct k. reflexivity. Qed.
   Lemma isPrecategory {C} (X:C==>SET) : is_precategory (cat_data X).
   Proof. intros. split. split.
          - intros. apply mor_equality. apply id_left.
@@ -412,6 +427,8 @@ Module El.
          - intros. apply mor_equality. apply assoc. Qed.
   Definition cat {C} (X:C==>SET) : precategory.
     intros. exact (cat_data X ,, isPrecategory X). Defined.
+  Definition get_ob {C} {X:C==>SET} (x:ob (cat X)) := pr1 x.
+  Definition get_el {C} {X:C==>SET} (x:ob (cat X)) := pr2 x.
   Definition make_ob {C} (X:C==>SET) 
              (c:ob C) (x:set_to_type (X c)) : ob (cat X).
     intros. exact (c,,x). Defined.
@@ -433,11 +450,11 @@ Module El.
         { intermediate (#X (f' ∘ f) x).
           { exact (apevalat x (!functor_comp _ _ X _ _ _ f f')). }
           { intermediate (#X (identity c) x).
-            { exact (apevalat x (ap #X j:1)). }
+            { exact (apevalat x (ap #X (pr1 j))). }
             { exact (apevalat x (functor_id _ _ X c)). }}}}
       { exists (f' ,, i'). split.
-        { apply mor_equality.  exact (j:1). }
-        { apply mor_equality.  exact (j:2). } } Qed.
+        { apply mor_equality.  exact (pr1 j). }
+        { apply mor_equality.  exact (pr2 j). } } Qed.
   End pr1.
 End El.
 
@@ -510,13 +527,11 @@ End TerminalObjects.
 Module HomFamily.
   Definition set (C:precategory) {I} (c:I -> ob C) : ob C -> ob SET.
     intros ? ? ? x. exact (hSet.Product (fun i => Hom (c i) x)). Defined.
-  Definition map
-             (C:precategory) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :
+  Definition map (C:precategory) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :
       set_to_type (HomFamily.set C c x) -> set_to_type (HomFamily.set C c y).
     intros ? ? ? ? ? ? g j; unfold funcomp.
     exact (f ∘ (g j)). Defined.
-  Definition data 
-             (C:precategory) {I} (c:I -> ob C) : functor_data C SET.
+  Definition data (C:precategory) {I} (c:I -> ob C) : functor_data C SET.
     intros.  exact (HomFamily.set C c,, HomFamily.map C c). Defined.
   Definition precat (C:precategory) {I} (c:I -> ob C) : C ==> SET.
     intros. exists (HomFamily.data C c). split.
@@ -798,13 +813,15 @@ End Abgr.
 
 Module Ab.                      (* the category of abelian groups *)
   Require Import Foundations.hlevel2.algebra1a Foundations.hlevel2.algebra1b.
-  Definition ObMor : precategory_ob_mor.
-    exists abgr. intros G H. exists (monoidfun G H). exact (isasetmonoidfun G H).
-  Defined.
+  Definition Ob := abgr.
+  Identity Coercion Ob_to_abgr : Ob >-> abgr.
+  Definition Mor : Ob -> Ob -> hSet.
+    intros G H. exists (monoidfun G H). exact (isasetmonoidfun G H). Defined.
+  Definition ObMor : precategory_ob_mor := Ob,,Mor.
   Definition Data : precategory_data.
     exists ObMor. split. intro G. exists (idfun (G : abgr)). split. 
     split. reflexivity. intros a b c.  exact monoidfuncomp. Defined.
-  Definition MorEquality G H (p q : @Hom Data G H) :
+  Definition MorEquality G H (p q : Mor G H) :
        pr1 p == pr1 q -> p == q.
     intros. apply Monoid.funEquality. assumption. Qed.
   Definition Precat : precategory.
@@ -835,8 +852,9 @@ Module Ab.                      (* the category of abelian groups *)
       set (Q := El.make_ob (HomFamily.precat Precat^op X) (Object X) (Proj X)).
       exists Q. intros T.
       assert ( k' : Hom Q T ).
-        exists (Mor X (pr1 T) (pr2 T)).
-        apply funextsec. exact (Eqn X (pr1 T) (pr2 T)).
+      { destruct T as [T_ob T_el].
+        exists (Mor X T_ob T_el). simpl.
+        apply funextsec. exact (Abgr.Product.Eqn X T_ob T_el). }
       exists k'. intros k.
       apply El.mor_equality.
       exact (Uniqueness X (pr1 T) (pr1 k) (pr1 k')
