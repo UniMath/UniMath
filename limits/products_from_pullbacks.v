@@ -26,12 +26,12 @@ Variable T : Terminal C.
 
 Definition UnivProductFromPullback (c d a : C) (f : a --> c) (g : a --> d):
 total2
-     (fun fg : a --> Pb T c d (TerminalArrow C T c) (TerminalArrow C T d) =>
-      dirprod (fg;; PullbackPr1 C (Pb T c d (TerminalArrow C T c) (TerminalArrow C T d)) == f)
-        (fg;; PullbackPr2 C (Pb T c d (TerminalArrow C T c) (TerminalArrow C T d)) == g)).
+     (fun fg : a --> Pb T c d (TerminalArrow c) (TerminalArrow d) =>
+      dirprod (fg;; PullbackPr1 C (Pb T c d (TerminalArrow c) (TerminalArrow d)) == f)
+        (fg;; PullbackPr2 C (Pb T c d (TerminalArrow c) (TerminalArrow d)) == g)).
 Proof.
   unfold Pullbacks in Pb.
-  exists (PullbackArrow _ (Pb _ _ _ (TerminalArrow C T c)(TerminalArrow C T d)) _ f g
+  exists (PullbackArrow _ (Pb _ _ _ (TerminalArrow c)(TerminalArrow d)) _ f g
        (ArrowsToTerminal _ _ _ _ _)).
   split. 
   apply PullbackArrow_PullbackPr1 .
@@ -42,7 +42,7 @@ Defined.
 
 Lemma isProductCone_PullbackCone (c d : C):
    isProductCone C c d 
-            (PullbackObject _ (Pb _ _ _ (TerminalArrow C T c)(TerminalArrow C T d)))
+            (PullbackObject _ (Pb _ _ _ (TerminalArrow c)(TerminalArrow (T:=T) d)))
    (PullbackPr1 _ _  ) (PullbackPr2 _ _ ).
 Proof.
   intros a f g.
@@ -57,12 +57,21 @@ Qed.
 Definition ProductCone_PullbackCone (c d : C) : ProductCone _ c d.
 Proof.
   exists
-  (tpair _ (PullbackObject _ (Pb _ _ _ (TerminalArrow C T c)(TerminalArrow C T d)))
+  (tpair _ (PullbackObject _ (Pb _ _ _ (TerminalArrow c)(TerminalArrow (T:=T) d)))
                (dirprodpair  (PullbackPr1 _ _  ) (PullbackPr2 _ _ ))).
  exact (isProductCone_PullbackCone c d).
 Defined.
 
+Definition ProductsFromPullbacks : Products C := ProductCone_PullbackCone.
+
+
+Arguments ProductObject [C] c d {_}.
+Local Notation "c 'x' d" := (ProductObject  c d )(at level 5).
+Check (fun c d : C => c x d).
+
 End product_from_pullback.
+
+
 
 
 

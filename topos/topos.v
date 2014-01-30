@@ -33,9 +33,8 @@ Variable T : Terminal C.
 Definition isSubobjectClassifier (Omega : C) (TrueArrow : T --> Omega) :=
     forall (s b : C) (m : mono C s b), iscontr (
       total2 (fun phi : b --> Omega =>
-      total2 (fun H : m ;; phi == TerminalArrow C T s ;; TrueArrow  => 
-                    isPullback C TrueArrow phi m (TerminalArrow _ _ s) H))).
-
+      total2 (fun H : m ;; phi == TerminalArrow s ;; TrueArrow  => 
+                    isPullback C phi TrueArrow m (TerminalArrow s) H))).
 
 Definition SubobjectClassifier :=  
     total2 (fun Omega : C => 

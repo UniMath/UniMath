@@ -140,7 +140,19 @@ End product_def.
 
 
 
+Section test.
 
+Variable C : precategory.
+Variable H : Products C.
+
+About ProductObject.
+Arguments ProductObject [C] c d {_}.
+About ProductObject.
+Local Notation "c 'x' d" := (ProductObject  c d )(at level 5).
+
+Check (fun c d : C => c x d).
+
+End test.
 
 
 
