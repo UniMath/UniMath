@@ -820,7 +820,8 @@ Module Ab.                      (* the category of abelian groups *)
     Definition Mor {I} (X:I->ob Precat) 
                (T:ob Precat) (g: forall i, Hom T (X i))
                : Hom T (Object X).
-      exact @Abgr.Product.Map. Defined.
+      intros. exists (pr1 (Abgr.Product.Map X T g)).
+      exact (pr2 (Abgr.Product.Map X T g)). Defined.
     Definition Eqn {I} (X:I->ob Precat) 
                (T:ob Precat) (g: forall i, Hom T (X i))
                : forall i, Proj X i ∘ Mor X T g == g i.
