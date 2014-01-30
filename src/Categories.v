@@ -854,7 +854,7 @@ Module Ab.                      (* the category of abelian groups *)
       assert ( k' : Hom Q T ).
       { destruct T as [T_ob T_el].
         exists (Mor X T_ob T_el). simpl.
-        apply funextsec. exact (Abgr.Product.Eqn X T_ob T_el). }
+        apply funextsec. exact (Eqn X T_ob T_el). }
       exists k'. intros k.
       apply El.mor_equality.
       exact (Uniqueness X (pr1 T) (pr1 k) (pr1 k')
