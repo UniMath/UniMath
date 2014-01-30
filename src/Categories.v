@@ -832,36 +832,24 @@ Module Ab.                      (* the category of abelian groups *)
   Defined.
   Module Product.
     Definition Object {I} (X:I->ob Precat) : ob Precat := Abgr.Product.make X.
-    Definition Proj {I} (X:I->ob Precat) (i:I) : Hom (Object X) (X i).
-      exact @Abgr.Product.Proj. Defined.
-    Definition Mor {I} (X:I->ob Precat) 
-               (T:ob Precat) (g: forall i, Hom T (X i))
-               : Hom T (Object X).
-      exact @Abgr.Product.Map. Defined.
-    Definition Eqn {I} (X:I->ob Precat) 
-               (T:ob Precat) (g: forall i, Hom T (X i))
-               : forall i, Proj X i ∘ Mor X T g == g i.
-      exact @Abgr.Product.Eqn. Qed.
-    Definition Uniqueness {I} (X:I->ob Precat) 
-               (T:ob Precat) (h h' : Hom T (Object X)) : 
-          (forall i, Proj X i ∘ h == Proj X i ∘ h') -> h == h'.
-      exact @Abgr.Product.UniqueMap. Qed.
     Import PrimitiveInitialObjects.
     Definition make {I} (X:I->ob Precat) : Product.type Precat X.
       intros.
-      set (Q := El.make_ob (HomFamily.precat Precat^op X) (Object X) (Proj X)).
+      set (Q := El.make_ob (HomFamily.precat Precat^op X) (Object X) (Abgr.Product.Proj X)).
       exists Q. intros T.
       assert ( k' : Hom Q T ).
       { destruct T as [T_ob T_el].
-        exists (Mor X T_ob T_el). simpl.
+        exists (Abgr.Product.Map X T_ob T_el). simpl.
         apply funextsec. exact (Abgr.Product.Eqn X T_ob T_el). }
       exists k'. intros k.
       apply El.mor_equality.
-      exact (Uniqueness X (pr1 T) (pr1 k) (pr1 k')
+      exact (Abgr.Product.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
                (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
     Defined.
   End Product.
 End Ab.
+
+Set Printing All.
 
 (**
   We are working toward definitions of "additive category" and "abelian
