@@ -152,10 +152,10 @@ Defined.
 
  
 
-Definition functor_id (C C' : precategory)(F : functor C C'):
+Definition functor_id {C C' : precategory}(F : functor C C'):
        forall a : ob C, #F (identity a) == identity (F a) := pr1 (pr2 F).
 
-Definition functor_comp (C C' : precategory)
+Definition functor_comp {C C' : precategory}
       (F : functor C C'):
        forall a b c : ob C, forall f : a --> b,
                  forall g : b --> c, 

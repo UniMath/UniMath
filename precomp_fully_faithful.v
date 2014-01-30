@@ -269,14 +269,14 @@ Proof.
   rewrite Hb.
   repeat rewrite <- assoc.
   simpl in *.
-  rewrite <- (functor_comp _ _ G _ _ _ h f).
+  rewrite <- functor_comp.
   pathvia (inv_from_iso (functor_on_iso B C F (H a) b h);;
        (gamma a;; #G (h;; f ;; iso_inv_from_iso h' ;; h')) ).
     repeat rewrite <- assoc.
     simpl. rewrite iso_after_iso_inv, id_right.
     apply idpath.
   repeat rewrite precategory_assoc.
-  rewrite (functor_comp _ _ G).
+  rewrite functor_comp.
   set (k := Hff^-1
              (h ;; (f ;; (iso_inv_from_iso h')))).
   assert (P := nat_trans_ax _ _ gamma _ _ k). simpl in *.
@@ -293,9 +293,9 @@ Proof.
   set (H5 := base_paths _ _ H4). simpl in H5.
   rewrite <- H5.
   repeat rewrite assoc.
-  rewrite <- (functor_comp _ _ F).
+  rewrite <- functor_comp.
   repeat rewrite assoc.
-  rewrite iso_after_iso_inv, id_left, (functor_comp _ _ F),
+  rewrite iso_after_iso_inv, id_left, functor_comp,
       functor_on_inv_from_iso.
   apply pathsinv0.
   rewrite Hb'.
@@ -320,12 +320,12 @@ Proof.
   change (gamma a) with (pr1 gamma a). 
   pathvia ((#F (identity (H a));; pr1 tr);;
        #G (inv_from_iso (identity_iso (H a)))).
-  rewrite (functor_id _ _ F).
+  rewrite functor_id.
   rewrite id_left.
   set (P := iso_inv_of_iso_id _ (H a)).
   set (Pr := base_paths _ _ P); simpl in Pr.
   rewrite Pr. clear Pr P. simpl in *.
-  rewrite (functor_id _ _ G) .
+  rewrite functor_id.
   rewrite id_right.
   apply idpath.
   

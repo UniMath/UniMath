@@ -195,7 +195,7 @@ Proof.
   intros a b f; simpl in *.
   apply funextsec.
   unfold yoneda_objects_ob; intro g.
-  set (H:= @functor_comp _ _ F  _ _  b g).
+  set (H:= functor_comp F  _ _  b g).
   unfold functor_comp in H;
   unfold opp_precat_data in H;
   simpl in *.
@@ -232,7 +232,7 @@ Lemma yoneda_map_2_1 (C : precategory) (c : C)
    yoneda_map_1 _ _ _ (yoneda_map_2 _ _ _ x) == x.
 Proof.
   simpl.
-  rewrite (functor_id _ _ F).
+  rewrite (functor_id F).
   apply idpath.
 Qed.
 
@@ -248,7 +248,7 @@ Proof.
   unf; simpl.
   apply (yoneda_map_1_2 C c F).
   apply funextsec; intro x.
-  unf; rewrite (functor_id _ _ F).
+  unf; rewrite (functor_id F).
   apply idpath.
 Qed.
 
