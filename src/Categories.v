@@ -45,11 +45,27 @@ Definition Ob (C:precategory) : Type := ob C.
 
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := tpair _ C i.
-Local Notation Hom := RezkCompletion.precategories.mor.
+Module Precategory.
+  Definition obmor (C:precategory) : precategory_ob_mor := 
+        precategory_ob_mor_from_precategory_data (
+            precategory_data_from_precategory C).
+  Definition obj (C:precategory) : Type :=
+    ob (
+        precategory_ob_mor_from_precategory_data (
+            precategory_data_from_precategory C)).
+  Definition mor {C:precategory} : ob C -> ob C -> hSet :=
+    pr2 (
+        precategory_ob_mor_from_precategory_data (
+            precategory_data_from_precategory C)).
+End Precategory.
+Local Notation Hom := Precategory.mor.
 
 Module Functor.
+  Definition obmor {C D} (F:functor C D) := pr1 F.
   Definition obj {C D} (F:functor C D) := pr1 (pr1 F).
   Definition mor {C D} (F:functor C D) := pr2 (pr1 F).
+  Definition identity {C D} (F:functor C D) := functor_id F.
+  Definition compose {C D} (F:functor C D) := functor_comp F.
 End Functor.
 
 Definition category_pair (C:precategory) (i:is_category C)
@@ -280,7 +296,7 @@ Module ZeroObjects.
 End ZeroObjects.
 
 Module StandardCategories.
-  Definition compose' { C:precategory_data } { a b c:obj C }
+  Definition compose' { C:precategory_data } { a b c:ob C }
     (g:b → c) (f:a → b) : a → c.
   Proof. intros. exact (compose f g). Defined.
   Definition idtomor {C:precategory} (a b:ob C) : a == b -> a → b.
@@ -387,8 +403,8 @@ Module El.
     intros C X.
     set (Fobj := Functor.obj X).
     set (Fmor := Functor.mor X).
-    set (iFid := functor_id _ _ X).
-    set (iFcomp := functor_comp _ _ X).
+    set (iFid := functor_id X).
+    set (iFcomp := functor_comp X).
     set (obj := total2 (fun c : ob C => set_to_type (Fobj c))).
     set (compat := fun a b : obj =>
                      fun f : pr1 a → pr1 b => Fmor _ _ f (pr2 a) == (pr2 b) ).
@@ -403,9 +419,9 @@ Module El.
                    ((apevalat (pr2 i) (iFcomp _ _ _ (pr1 f) (pr1 g)))
                     @ 
                     (ap (Fmor _ _ (pr1 g)) (pr2 f) @ (pr2 g)))). Defined.
-  Definition get_mor {C} {X:C==>SET} {x y:obj (cat_data X)} (f:x → y) :=
+  Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) :=
         pr1 f.
-  Lemma mor_equality {C} (X:C==>SET) (x y:obj (cat_data X)) (f g:x → y) :
+  Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x → y) :
         get_mor f == get_mor g -> f == g.
   Proof. intros ? ? ? ? [f i] [g j] p. simpl in p. destruct p.
          assert (k : i==j). { apply equality_proof_irrelevance. }
@@ -427,7 +443,7 @@ Module El.
              (i : #X f (pr2 r) == pr2 s) : Hom r s.
     intros. exact (f,,i). Defined.
   Module pr1.
-    Definition fun_data {C} (X:C==>SET) : functor_data (obmor (cat X)) (obmor C).
+    Definition fun_data {C} (X:C==>SET) : functor_data (Precategory.obmor (cat X)) (Precategory.obmor C).
       intros. exists pr1. intros x x'. exact pr1. Defined.
     Definition func {C} (X:C==>SET) : cat X ==> C.
       intros. exists (fun_data _).
@@ -438,10 +454,10 @@ Module El.
       { intermediate (#X f' (#X f x)).
         { exact (ap (#X f') (!i)). }
         { intermediate (#X (f' ∘ f) x).
-          { exact (apevalat x (!functor_comp _ _ X _ _ _ f f')). }
+          { exact (apevalat x (!functor_comp X _ _ _ f f')). }
           { intermediate (#X (identity c) x).
             { exact (apevalat x (ap #X (pr1 j))). }
-            { exact (apevalat x (functor_id _ _ X c)). }}}}
+            { exact (apevalat x (functor_id X c)). }}}}
       { exists (f' ,, i'). split.
         { apply mor_equality.  exact (pr1 j). }
         { apply mor_equality.  exact (pr2 j). } } Qed.
@@ -495,7 +511,8 @@ Module FiniteSet.
 End FiniteSet.
 
 Module TerminalObjects.
-  Definition unitFunctor_data (C:precategory) : functor_data (obmor C) (obmor SET).
+  Definition unitFunctor_data (C:precategory) 
+       : functor_data (Precategory.obmor C) (Precategory.obmor SET).
     intros. refine (tpair _ _ _).
     intros. exact hSet.unit. intros. exact (idfun _). Defined.
   Definition unitFunctor C : C ==> SET.
@@ -521,7 +538,8 @@ Module HomFamily.
       set_to_type (HomFamily.set C c x) -> set_to_type (HomFamily.set C c y).
     intros ? ? ? ? ? ? g j; unfold funcomp.
     exact (f ∘ (g j)). Defined.
-  Definition data (C:precategory) {I} (c:I -> ob C) : functor_data (obmor C) (obmor SET).
+  Definition data (C:precategory) {I} (c:I -> ob C)
+       : functor_data (Precategory.obmor C) (Precategory.obmor SET).
     intros.  exact (HomFamily.set C c,, HomFamily.map C c). Defined.
   Definition precat (C:precategory) {I} (c:I -> ob C) : C ==> SET.
     intros. exists (HomFamily.data C c). split.
@@ -659,7 +677,7 @@ Module Kernels.
   Proof. intros ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc.  rewrite s.
          apply zeroMap_left_composition. Defined.
   Definition zerocomp_data {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
-    functor_data (obmor C) (obmor SET).
+    functor_data (Precategory.obmor C) (Precategory.obmor SET).
   Proof. intros. 
          exact (zerocomp_set z f,, zerocomp_map z f). Defined.
   Definition zerocomp {C} (z:hasZeroObject C) {c d:ob C} (f:c → d):C ==> SET.
