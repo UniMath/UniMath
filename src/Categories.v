@@ -1,4 +1,4 @@
-﻿(* -*- coding: utf-8-with-signature -*- *)
+(* -*- coding: utf-8 -*- *)
 
 (* Set Printing All. *)
 
@@ -448,10 +448,10 @@ Module El.
       { intermediate (#X f' (#X f x)).
         { exact (ap (#X f') (!i)). }
         { intermediate (#X (f' ∘ f) x).
-          { exact (apevalat x (!functor_comp _ _ X _ _ _ f f')). }
+          { exact (apevalat x (!functor_comp X _ _ _ f f')). }
           { intermediate (#X (identity c) x).
             { exact (apevalat x (ap #X (pr1 j))). }
-            { exact (apevalat x (functor_id _ _ X c)). }}}}
+            { exact (apevalat x (functor_id X c)). }}}}
       { exists (f' ,, i'). split.
         { apply mor_equality.  exact (pr1 j). }
         { apply mor_equality.  exact (pr2 j). } } Qed.

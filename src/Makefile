@@ -1,7 +1,7 @@
 # -*- makefile-gmake -*-
 include Make-include.mk
 OTHERFLAGS += -no-native-compiler
-OTHERFLAGS += -no-sharing
+# OTHERFLAGS += -no-sharing
 OTHERFLAGS += -indices-matter
 
 TIME=gnu
