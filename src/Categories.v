@@ -1,4 +1,4 @@
-﻿(* -*- coding: utf-8-with-signature -*- *)
+(* -*- coding: utf-8 -*- *)
 
 (* Set Printing All. *)
 
@@ -211,18 +211,30 @@ Module PrimitiveInitialObjects. (** *** initial objects *)
   Proof. prop_logic. Qed.
   Definition isInitialObjectProp (C:precategory) (a:ob C) := 
     hProppair (isInitialObject C a) (isaprop_isInitialObject C a) : hProp.
-  Definition InitialObject (C:precategory) := 
-    total2 (fun a:ob C => isInitialObject C a).
-  Definition theInitialObject {C:precategory} (z:InitialObject C) := pr1 z.
-  Definition theInitialProperty {C:precategory} (z:InitialObject C) := pr2 z.
-  Lemma isaprop_InitialObject (C:category) : isaprop (InitialObject C).
+  Record InitialObject (C:precategory) := make_InitialObject {
+       theInitialObject : ob C ;
+       theInitialProperty : isInitialObject C theInitialObject }.
+  Definition InitialObject_total (C:precategory) := total2 (fun a:ob C => isInitialObject C a).
+  Definition unpack {C:precategory} : InitialObject_total C -> InitialObject C
+    := fun X => make_InitialObject C (pr1 X) (pr2 X).
+  Definition pack {C:precategory} : InitialObject C -> InitialObject_total C
+    := fun Y => (theInitialObject _ Y,,theInitialProperty _ Y).
+  Definition h {C:precategory} (X:InitialObject_total C) : pack (unpack X) == X
+    := match X as t return (pack (unpack t) == t) with X1,, X2 => idpath (X1,, X2) end.
+  Definition k {C:precategory} (Y:InitialObject C) : unpack (pack Y) == Y
+    := match Y as i return (unpack (pack i) == i) 
+       with make_InitialObject Y1 Y2 => idpath _ end.
+  Lemma unpack_weq (C:precategory) : weq (InitialObject_total C) (InitialObject C).
+  Proof. intros. exists unpack. intros Y. exists (pack Y,,k Y). intros [X m].
+         destruct m. set (H := h X). destruct H. reflexivity. Qed.
+  Lemma isaprop_InitialObject' (C:category) : isaprop (InitialObject_total C).
   Proof. intros. apply invproofirrelevance. intros a b.
-    apply (total2_paths 
-             (isotoid _ (theUnivalenceProperty C) 
-                      (theInitialObjectIsomorphy C _ _
-                         (theInitialProperty a)
-                         (theInitialProperty b)))).
+    apply (total2_paths (isotoid _ (theUnivalenceProperty C) 
+                                 (theInitialObjectIsomorphy C _ _ (pr2 a) (pr2 b)))).
     apply isaprop_isInitialObject. Qed.
+  Lemma isaprop_InitialObject (C:category) : isaprop (InitialObject C).
+    intros. apply isofhlevelweqf with (X := InitialObject_total C).
+    apply unpack_weq. apply isaprop_InitialObject'. Qed.
   Definition squashInitialObject (C:precategory) := squash (InitialObject C).
   Definition squashInitialObjectProp (C:precategory) := 
     hProppair (squashInitialObject C) (isaprop_squash _).
@@ -468,10 +480,10 @@ Module Representation.
   Import PrimitiveInitialObjects.
   Definition Data {C} (X:C==>SET) := InitialObject (El.cat X).
   Definition Property {C} (X:C==>SET) := squash (Data X).
-  Definition Pair {C} {X:C==>SET} (r:Data X) := pr1 r : ob (El.cat X).
+  Definition Pair {C} {X:C==>SET} (r:Data X) := theInitialObject _ r : ob (El.cat X).
   Definition IsInitial {C} {X:C==>SET} (r:Data X) : 
     isInitialObject (El.cat X) (Pair r).
-  Proof. intros. exact (pr2 r). Qed.
+  Proof. intros. exact (theInitialProperty _ r). Qed.
   Definition Object {C} {X:C==>SET} (r:Data X) :=
     pr1 (Pair r) : ob C .
   Definition Element {C} {X:C==>SET} (r:Data X) := 
@@ -829,8 +841,7 @@ Module Ab.                      (* the category of abelian groups *)
   Definition Data : precategory_data.
     exists ObMor. split. intro G. exists (idfun (G : abgr)). split. 
     split. reflexivity. intros a b c.  exact monoidfuncomp. Defined.
-  Definition MorEquality G H (p q : Mor G H) :
-       pr1 p == pr1 q -> p == q.
+  Definition MorEquality G H (p q : Mor G H) : pr1 p == pr1 q -> p == q.
     intros. apply Monoid.funEquality. assumption. Qed.
   Definition Precat : precategory.
     exists Data. split; simpl. split; simpl.

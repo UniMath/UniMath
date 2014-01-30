@@ -26,8 +26,10 @@ OTHERFLAGS += -time
 else
 COQC = : compiling $*.v ; $(TIMECMD) $(COQBIN)coqc
 endif
-topten: OTHERFLAGS += -time
-topten: all
+
+.PHONY: topten all everything install lc wc clean clean2 distclean
+all:topten
+topten: $(VOFILES)
 	@find . -name \*.timing | while read x ;							\
 	 do if [ -f "$$x" ] ;										\
 	    then grep '^Chars' "$$x" | 									\
