@@ -103,7 +103,7 @@ Defined.
 (** Postcomposition is, too, but that's not of our concern for now. *)
 
 Definition pre_composition_functor_data (A B C : precategory)
-      (H : ob [A, B]) : functor_data [B,C] [A,C].
+      (H : ob [A, B]) : functor_data (obmor [B,C]) (obmor [A,C]).
 Proof.
   exists (fun G => G O H).
   exact (fun a b gamma => pre_whisker _ _ _ H _ _ gamma).

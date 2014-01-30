@@ -38,14 +38,16 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 (** * Definition of a precategory *)
 
+Section precat_def.
+
 Definition precategory_ob_mor := total2 (
   fun ob : UU => ob -> ob -> hSet).
 
 Definition precategory_ob_mor_pair (ob : UU)(mor : ob -> ob -> hSet) :
     precategory_ob_mor := tpair _ ob mor.
 
-Definition ob (C : precategory_ob_mor) : Type := @pr1 _ _ C.
-Coercion ob : precategory_ob_mor >-> Sortclass.
+Definition obj (C : precategory_ob_mor) : Type := @pr1 _ _ C.
+Local Coercion obj : precategory_ob_mor >-> Sortclass.
 
 Definition precategory_morphisms { C : precategory_ob_mor } : 
        C ->  C -> hSet := pr2 C.
@@ -112,7 +114,7 @@ Definition precategory := total2 is_precategory.
 
 Definition precategory_data_from_precategory (C : precategory) : 
        precategory_data := pr1 C.
-Coercion precategory_data_from_precategory : precategory >-> precategory_data.
+Local Coercion precategory_data_from_precategory : precategory >-> precategory_data.
 
 Definition id_left (C : precategory) : 
    forall (a b : C) (f : a --> b),
@@ -127,16 +129,36 @@ Definition assoc (C : precategory) :
           (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) == (f ;; g) ;; h := pr2 (pr2 C).
 
+End precat_def.
+
+
+Definition obmor (C : precategory) : precategory_ob_mor :=
+  (precategory_ob_mor_from_precategory_data (
+            precategory_data_from_precategory C)).
+
+Definition ob (C:precategory) : Type :=
+   obj (obmor C).
+
+Definition mor {C:precategory} : ob C -> ob C -> hSet :=
+   pr2 (obmor C).
+
+
+Local Notation "a --> b" := (mor a b)(at level 50).
+Local Notation "f ;; g" := (compose f g)(at level 50).
+
+Coercion ob : precategory >-> Sortclass.
+Identity Coercion bla : ob >-> obj.
+
 (** Any equality on objects a and b induces a morphism from a to b *)
 
-Definition precategory_eq_morphism (C : precategory_data)
+Definition precategory_eq_morphism (C : precategory)
    (a b : C) (H : a == b) : a --> b.
 Proof.
   destruct H.
   exact (identity a).
 Defined.
 
-Definition precategory_eq_morphism_inv (C : precategory_data) 
+Definition precategory_eq_morphism_inv (C : precategory) 
     (a b : C) (H : a == b) : b --> a.
 Proof.
   destruct H.
@@ -144,7 +166,7 @@ Proof.
 Defined.
 
 
-Lemma cancel_postcomposition (C : precategory_data) (a b c: C)
+Lemma cancel_postcomposition (C : precategory) (a b c: C)
    (f f' : a --> b) (g : b --> c) : f == f' -> f ;; g == f' ;; g.
 Proof.
   intro H.
@@ -663,11 +685,12 @@ Defined.
 *)
        
 Definition total_morphisms (C : precategory_ob_mor) := total2 (
-   fun ab : dirprod (ob C)(ob C) =>
+   fun ab : dirprod (obj C)(obj C) =>
         precategory_morphisms (pr1 ab) (pr2 ab)).
 
 Lemma isaset_setcategory_total_morphisms (C : setcategory) : 
-   isaset (total_morphisms C).
+   isaset (total_morphisms (precategory_ob_mor_from_precategory_data 
+                   (precategory_data_from_precategory (pr1 C)))).
 Proof.
   change isaset with (isofhlevel 2).
   apply isofhleveltotal2.
@@ -681,21 +704,26 @@ Definition setcategory_total_morphisms_set (C : setcategory) : hSet :=
     hSetpair _ (isaset_setcategory_total_morphisms C).
 
 Definition precategory_source (C : precategory_ob_mor) : 
-     total_morphisms C -> ob C := 
+     total_morphisms C -> obj C := 
      fun abf => pr1 (pr1 abf).
 
 Definition precategory_target (C : precategory_ob_mor) : 
-     total_morphisms C -> ob C := 
+     total_morphisms C -> obj C := 
      fun abf => pr2 (pr1 abf).
 
 Definition precategory_total_id (C : precategory_data) : 
-      ob C -> total_morphisms C :=
+      obj C -> total_morphisms C :=
       fun c => tpair _ (dirprodpair c c) (identity c).
 
-Definition precategory_total_comp'' (C : precategory_data) : 
-      forall f g : total_morphisms C,
-        precategory_target C f == precategory_source C g ->
-         total_morphisms C.
+Definition precategory_total_comp'' (C : precategory) : 
+      forall f g : total_morphisms (precategory_ob_mor_from_precategory_data 
+                                      (precategory_data_from_precategory C)),
+        precategory_target (precategory_ob_mor_from_precategory_data 
+                            (precategory_data_from_precategory C)) f == 
+        precategory_source (precategory_ob_mor_from_precategory_data 
+                            (precategory_data_from_precategory C)) g ->
+         total_morphisms (precategory_ob_mor_from_precategory_data 
+                            (precategory_data_from_precategory C)).
 Proof.
   intros f g H.
   destruct f as [[a b] f]. simpl in *.
@@ -706,7 +734,7 @@ Proof.
   exists (dirprodpair a c). simpl.
   exact ((f ;; precategory_eq_morphism C b b' H) ;; g).
 Defined.
-
+(*
 Definition precategory_total_comp (C : precategory_data) : 
       forall f g : total_morphisms C,
         precategory_target C f == precategory_source C g ->
@@ -714,6 +742,6 @@ Definition precategory_total_comp (C : precategory_data) :
   fun f g H => 
      tpair _ (dirprodpair (pr1 (pr1 f))(pr2 (pr1 g)))
         ((pr2 f ;; precategory_eq_morphism _ _ _ H) ;; pr2 g).
-
+*)
 
 

@@ -59,7 +59,7 @@ Local Notation "F '^-i'" := (iso_from_fully_faithful_reflection F _ _) (at level
 (** * Precomposition with an essentially surjective functor is faithful. *)
 
 Lemma pre_composition_with_ess_surj_is_faithful (A B C : precategory) 
-      (H : [A, B]) (p : essentially_surjective H) : 
+      (H : functor A B) (p : essentially_surjective H) : 
            faithful (pre_composition_functor A B C H).
 Proof.
   intros F G gamma delta ex.
@@ -70,7 +70,9 @@ Proof.
     apply (pr2 (_ --> _)).
   apply (p b (tpair (fun x => isaprop x) (gamma b == delta b) Heq)).
   simpl in *; clear Heq.
-  intros [a f].
+  intros [a f]. 
+  unfold ob in F; simpl in F.
+  unfold ob in G. simpl in G.
   apply (pre_comp_with_iso_is_inj C (F (H a)) (F b) (G b) (# F f)
          (functor_on_iso_is_iso _ _ _ _ _ f)).
   repeat rewrite nat_trans_ax.

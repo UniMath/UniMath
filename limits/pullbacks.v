@@ -13,7 +13,7 @@ Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.limits.aux_lemmas_HoTT.
 Require Import RezkCompletion.limits.terminal.
 
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
+Local Notation "a --> b" := (mor a b)(at level 50).
 Local Notation "f ;; g" := (compose f g)(at level 50).
 
 Section def_pb.
@@ -168,7 +168,9 @@ Proof.
     + apply (pr2 (_ --> _)).
     + intros; apply isaprop_isPullback.
   - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))). 
-    rewrite transportf_dirprod, transportf_isotoid.
+    rewrite transportf_dirprod.
+    Print transportf_isotoid. 
+    rewrite transportf_isotoid.
     change (inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb'))
          with (from_Pullback_to_Pullback Pb' Pb).
     rewrite transportf_isotoid.

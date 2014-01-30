@@ -34,7 +34,7 @@ Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.category_hset.
 Require Import RezkCompletion.functors_transformations.
 
-(*Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).*)
+Local Notation "a --> b" := (mor a b)(at level 50).
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).
 Local Notation "f ;; g" := (compose f g)(at level 50).
 Notation "[ C , D ]" := (functor_precategory C D).
@@ -46,8 +46,8 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 (** * The opposite precategory of a precategory *)
 
 Definition opp_precat_ob_mor (C : precategory_ob_mor) : precategory_ob_mor :=
-   tpair (fun ob : UU => ob -> ob -> hSet) (ob C) 
-        (fun a b : ob C => hom C b a  ).
+   tpair (fun ob : UU => ob -> ob -> hSet) (obj C) 
+        (fun a b : obj C => hom C b a  ).
 
 Definition opp_precat_data (C : precategory_data) : precategory_data.
 Proof.
@@ -66,7 +66,8 @@ Ltac unf := unfold identity,
                    precategory_morphisms;
                    simpl.
 
-Lemma is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C).
+Lemma is_precat_opp_precat_data (C : precategory) : 
+   is_precategory (opp_precat_data (precategory_data_from_precategory C)).
 Proof.
   repeat split; simpl.
   intros. unf.
@@ -79,7 +80,7 @@ Proof.
 Qed.
 
 Definition opp_precat (C : precategory) : precategory := 
-  tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
+  tpair _ (opp_precat_data (precategory_data_from_precategory C)) (is_precat_opp_precat_data C).
 
 Notation "C '^op'" := (opp_precat C) (at level 3).
 
@@ -89,15 +90,18 @@ Notation "C '^op'" := (opp_precat C) (at level 3).
 (** ** On objects *)
 
 Definition yoneda_objects_ob (C : precategory) (c : C)
-          (d : C) := hom C d c.
+          (d : C) := d --> c.
 
 Definition yoneda_objects_mor (C : precategory) (c : C)
-    (d d' : C) (f : hom C d  d') :
+    (d d' : C) (f : hom _ d  d') :
    yoneda_objects_ob C c d' -> yoneda_objects_ob C c d :=
     fun g => f ;; g.
 
 Definition yoneda_ob_functor_data (C : precategory) (c : C) :
-    functor_data (C^op) HSET.
+    functor_data (precategory_ob_mor_from_precategory_data 
+                     (precategory_data_from_precategory C^op)) 
+            (precategory_ob_mor_from_precategory_data 
+                     (precategory_data_from_precategory HSET)).
 Proof.
   exists (yoneda_objects_ob C c).
   intros a b f g. unfold yoneda_objects_ob in *. simpl in *.
@@ -125,12 +129,12 @@ Definition yoneda_objects (C : precategory) (c : C) :
 (** ** On morphisms *)
 
 Definition yoneda_morphisms_data (C : precategory)(c c' : C) 
-    (f : hom C c c') : forall a : ob C^op, 
+    (f : hom _ c c') : forall a : ob C^op, 
          hom _ (yoneda_objects C c a) ( yoneda_objects C c' a) := 
             fun a g => g ;; f.
 
 Lemma is_nat_trans_yoneda_morphisms_data (C : precategory) 
-     (c c' : ob C) (f : hom C c c') :
+     (c c' : ob C) (f : hom _ c c') :
   is_nat_trans (yoneda_objects C c) (yoneda_objects C c') 
     (yoneda_morphisms_data C c c' f).
 Proof.
@@ -144,12 +148,15 @@ Proof.
 Qed.
 
 Definition yoneda_morphisms (C : precategory) (c c' : C)
-   (f : hom C c c') : nat_trans (yoneda_objects C c) (yoneda_objects C c') :=
+   (f : hom _ c c') : nat_trans (yoneda_objects C c) (yoneda_objects C c') :=
    tpair _ _ (is_nat_trans_yoneda_morphisms_data C c c' f).
 
 
 Definition yoneda_functor_data (C : precategory): 
-   functor_data C [C^op , HSET] := 
+   functor_data (precategory_ob_mor_from_precategory_data 
+                     (precategory_data_from_precategory C)) 
+                (precategory_ob_mor_from_precategory_data 
+                     (precategory_data_from_precategory [C^op , HSET])) := 
    tpair _ (yoneda_objects C) (yoneda_morphisms C).
 
 
@@ -189,8 +196,10 @@ Definition yoneda_map_1 (C : precategory)(c : C)
 
 Lemma yoneda_map_2_ax (C : precategory)(c : C)
        (F : functor C^op HSET) (x : pr1 (F c)) :
-  is_nat_trans (pr1 (yoneda C c)) F 
-         (fun (d : C) (f : hom (C ^op) c d) => #F f x).
+  is_nat_trans ((yoneda C c)) F 
+         (fun (d : C) (f : hom 
+                (precategory_ob_mor_from_precategory_data 
+                     (precategory_data_from_precategory (C^op))) c d) => #F f x).
 Proof.
   intros a b f; simpl in *.
   apply funextsec.

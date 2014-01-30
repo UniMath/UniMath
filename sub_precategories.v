@@ -48,7 +48,7 @@ Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
 
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
+Local Notation "a --> b" := (mor a b)(at level 50).
 Local Notation "f ;; g" := (compose f g)(at level 50).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
@@ -186,7 +186,7 @@ Proof.
   exists (sub_precategory_ob_mor C C').
   split.
     intro c.
-    exists (identity (C:=C) (pr1 c)).
+    exists (identity (C:=pr1 C) (pr1 c)).
     apply sub_precategory_id.
     apply (pr2 c).
   intros a b c f g.
@@ -252,12 +252,12 @@ Definition precategory_object_in_subcat {C : precategory} {C':sub_precategories 
 Definition precategory_morphisms_in_subcat {C : precategory} {C':sub_precategories C}
    {a b : ob C'}(f : pr1 a --> pr1 b)
    (p : sub_precategory_predicate_morphisms C' (pr1 a) (pr1 b) (f)) :
-       precategory_morphisms (C:=C') a b := tpair _ f p.
+       precategory_morphisms (C:=obmor C') a b := tpair _ f p.
 
 (** ** Functor from a sub-precategory to the ambient precategory *)
 
 Definition sub_precategory_inclusion_data (C : precategory) (C':sub_precategories C):
-  functor_data C' C. 
+  functor_data (obmor C') (obmor C). 
 Proof.
   exists (@pr1 _ _ ). 
   intros a b. 
@@ -296,7 +296,7 @@ Proof.
 Defined.
 
 Definition full_img_functor_data {C D : precategory}(F : functor C D) :
-  functor_data C (full_img_sub_precategory F).
+  functor_data (obmor C) (obmor (full_img_sub_precategory F)).
 Proof.
   exists (full_img_functor_obj F).
   intros a b f.

@@ -33,7 +33,7 @@ Require Import RezkCompletion.whiskering.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
+Local Notation "a --> b" := (mor a b)(at level 50).
 (*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
 Local Notation "f ;; g" := (compose f g)(at level 50).
 Notation "[ C , D ]" := (functor_precategory C D).
@@ -419,7 +419,7 @@ Qed.
 
 (** We now have the data necessary to define the functor [G]. *)
 
-Definition preimage_functor_data : functor_data B C.
+Definition preimage_functor_data : functor_data (obmor B) (obmor C).
 Proof.
   exists Go.
   intros b b' f.
@@ -811,9 +811,20 @@ Proof.
   apply funextsec; intro a0;
   apply funextsec; intro a0';
   apply funextsec; intro f.
+  change (obj (precategory_data_from_precategory A)) with (ob A).
+  change (obj (precategory_data_from_precategory C)) with (ob C).
   rewrite transport_of_functor_map_is_pointwise.
   unfold extphi.
   rewrite toforallpaths_funextsec.
+
+  change (transportf (fun TT : C => precategory_morphisms (pr1 (pr1 F) a0) TT) 
+  (phi a0')
+  (transportf (fun SS : C => precategory_morphisms SS (pr1 (pr1 (GG O H)) a0')) 
+     (phi a0) (pr2 (pr1 (GG O H)) a0 a0' f))) with
+   (transportf (fun TT : C => (pr1 (pr1 F) a0) --> TT) 
+      (phi a0')
+     (transportf (fun SS : C =>  SS --> (pr1 (pr1 (GG O H)) a0')) 
+          (phi a0) (pr2 (pr1 (GG O H)) a0 a0' f))).
   rewrite <- idtoiso_postcompose.
   rewrite <- idtoiso_precompose.
   rewrite idtoiso_inv.
