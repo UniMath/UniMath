@@ -182,8 +182,8 @@ Definition yoneda (C : precategory) : functor C [C^op, HSET] :=
 
 Definition yoneda_map_1 (C : precategory)(c : C)
    (F : functor C^op HSET) :
-       hom _ (yoneda C c) F -> pr1(F c) := 
-   fun h => pr1 h c (identity c).
+       hom _ (yoneda C c) F -> pr1 (F c) := 
+   fun h =>  pr1 h c (identity c).
 
 
 
@@ -236,7 +236,6 @@ Proof.
   apply idpath.
 Qed.
 
-
 Lemma yoneda_iso_sets (C : precategory) (c : C)
    (F : functor C^op HSET) : 
    is_isomorphism (C:=HSET) (a := hom _ ((yoneda C) c) F) (b := F c)
@@ -250,7 +249,7 @@ Proof.
   apply funextsec; intro x.
   unf; rewrite (functor_id F).
   apply idpath.
-Qed.
+Defined.
 
 
 (** ** The Yoneda embedding is fully faithful *)
@@ -258,18 +257,16 @@ Qed.
 Lemma yoneda_fully_faithful (C : precategory) : fully_faithful (yoneda C).
 Proof.
   intros a b; simpl.
-  set (H := yoneda_map_2 C b (yoneda C a)).
-  set (H' := yoneda_map_2 C a (yoneda C b)).
   assert (eximio : yoneda_morphisms C a b == yoneda_map_2 C a (yoneda C b)).
-    apply funextsec; intro f.
+  - apply funextsec; intro f.
     apply nat_trans_eq; intro c; simpl.
     apply funextsec; intro g.
     apply idpath.
-  rewrite eximio.
-  apply (gradth _ 
+  - rewrite eximio.
+    apply (gradth _ 
       (yoneda_map_1 C a (pr1 (yoneda C) b))).
     intro; apply yoneda_map_2_1.
-  intro; apply yoneda_map_1_2.
+    intro; apply yoneda_map_1_2.
 Qed.
 
 
