@@ -6,6 +6,13 @@ Require Import RezkCompletion.pathnotations.
 Require Import Foundations.hlevel2.hSet.
         Import RezkCompletion.pathnotations.PathNotations.
 
+Set Default Timeout 50.
+
+Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
+  let T := type of x in
+  let G := match goal with |- ?G => constr:(G) end in
+  exact ((@id G : T -> G) x).
+
 Definition type_equality_to_function {X Y:UU} : (X==Y) -> X -> Y.
   intros ? ? e x. destruct e. exact x.
 Defined.

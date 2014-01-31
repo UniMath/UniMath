@@ -617,7 +617,7 @@ Module Matrices.
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
     forall p i j, to_matrix D B p i j == to_matrix' D B p j i.
-  Proof. intros. exact (assoc _ _ _ _ _ (Coproduct.In B j) p (Product.Proj D i)). Qed.
+  Proof. intros. exact_op (assoc _ _ _ _ _ (Coproduct.In B j) p (Product.Proj D i)). Qed.
 End Matrices.
 
 Module DirectSums.
@@ -831,7 +831,7 @@ Module Ab.                      (* the category of abelian groups *)
       assert ( k' : Hom Q T ).
       { destruct T as [T_ob T_el].
         exists (Abgr.Product.Map X T_ob T_el). simpl.
-        apply funextsec. exact (Abgr.Product.Eqn X T_ob T_el). }
+        apply funextsec. exact_op (Abgr.Product.Eqn X T_ob T_el). }
       exists k'. intros k. apply El.mor_equality.
       exact (Abgr.Product.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
                (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
