@@ -855,18 +855,18 @@ Module Ab.                      (* the category of abelian groups *)
       { destruct T as [T_ob T_el].
         exists (Mor X T_ob T_el). simpl.
         apply funextsec. 
+        Time Timeout 50 (
+           let x := constr:(Eqn X T_ob T_el) in
+           let T := type of x in
+           let G := match goal with |- ?G => constr:(G) end in
+           unify T G
+        ). admit.
         (* Time ( *)
-        (*    let x := constr:(Eqn X T_ob T_el) in *)
-        (*    let T := type of X in *)
-        (*    let G := match goal with |- ?G => constr:(G) end in *)
-        (*    unify T G *)
-        (* ). *)
-        Time (
-             let x := constr:(Eqn X T_ob T_el) in
-             let T := type of x in
-             let G := match goal with |- ?G => constr:(G) end in
-             idtac
-          ). admit.
+        (*      let x := constr:(Eqn X T_ob T_el) in *)
+        (*      let T := type of x in *)
+        (*      let G := match goal with |- ?G => constr:(G) end in *)
+        (*      idtac *)
+        (*   ). admit. *)
         (* admit. *)
         (* Time Timeout 50 abstract (simpl; admit). *)
         (* Time Timeout 50 abstract (simpl; exact (Eqn X T_ob T_el)). *)
