@@ -12,6 +12,8 @@
 
   Using Qed, we make all proof irrelevant proofs opaque. *)
 
+Ltac quick_exact x := let T := type of x in change T; exact x. (* from Jason Gross *)
+
 Require Import Foundations.hlevel2.hSet.
 
 Require Import 
@@ -855,52 +857,14 @@ Module Ab.                      (* the category of abelian groups *)
       { destruct T as [T_ob T_el].
         exists (Mor X T_ob T_el). simpl.
         apply funextsec. 
-
-        Time (
-            let x := constr:(Eqn X T_ob T_el) in
-            let T := type of x in
-            change T
-          ).
-        Time admit. 
-
-        (* Time ( *)
-        (*     let x := constr:(Eqn X T_ob T_el) in *)
-        (*     let T := type of x in *)
-        (*     change T *)
-        (*   ). *)
-        (* Time Timeout 50 exact (Eqn X T_ob T_el). *)
-
-        (* Time Timeout 50 ( *)
-        (*    let x := constr:(Eqn X T_ob T_el) in *)
-        (*    let T := type of x in *)
-        (*    let G := match goal with |- ?G => constr:(G) end in *)
-        (*    unify T G *)
-        (* ). admit. *)
-
-        (* Time ( *)
-        (*      let x := constr:(Eqn X T_ob T_el) in *)
-        (*      let T := type of x in *)
-        (*      let G := match goal with |- ?G => constr:(G) end in *)
-        (*      idtac *)
-        (*   ). admit. *)
-
-        (* admit. *)
-
-        (* Time Timeout 50 abstract (simpl; admit). *)
-
-        (* Time Timeout 50 abstract (simpl; exact (Eqn X T_ob T_el)). *)
-
-        (* simpl. Time Timeout 50 abstract exact (Eqn X T_ob T_el). *)
-
-        (* Time Timeout 50 exact (Eqn X T_ob T_el).  *)
+        (* Time Timeout 50 exact (Eqn X T_ob T_el). (* 4.648 secs, sharing off *) *)
+        Time Timeout 50 quick_exact (Eqn X T_ob T_el). (* 2.357 secs, sharing off *)
       }
-      admit.
-      (* abstract ( *)
-      (* exists k'; intros k; *)
-      (* apply El.mor_equality; *)
-      (* exact (Uniqueness X (pr1 T) (pr1 k) (pr1 k') *)
-      (*          (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))) ). *)
-    Time Defined.
+      exists k'. intros k.
+      apply El.mor_equality.
+      exact (Uniqueness X (pr1 T) (pr1 k) (pr1 k')
+               (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
+    Time Defined.               (* 2.738 secs after exact; 2.357 after quick_exact *)
   End Product.
 End Ab.
 
