@@ -34,6 +34,21 @@ Proof.
   apply isapropiscontr.
 Qed.
 
+Lemma PullbackArrowUnique {a b c d : C} (f : b --> a) (g : c --> a)
+        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f == p2;; g) 
+     (P : isPullback f g p1 p2 H) e (h : e --> b) (k : e --> c)
+     (Hcomm : h ;; f == k ;; g)
+     (w : e --> d)
+     (H1 : w ;; p1 == h) (H2 : w ;; p2 == k) :
+     w == (pr1 (pr1 (P e h k Hcomm))).
+Proof.
+  set (T := tpair (fun hk : e --> d => dirprod (hk ;; p1 == h)(hk ;; p2 == k)) 
+                    w (dirprodpair H1 H2)).
+  set (T' := pr2 (P e h k Hcomm) T).
+  exact (base_paths _ _ T').
+Qed.
+
+
 Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
      total2 (fun pfg : total2 (fun p : C => dirprod (p --> b) (p --> c)) =>
          total2 (fun H : pr1 (pr2 pfg) ;; f == pr2 (pr2 pfg) ;; g =>
@@ -149,6 +164,70 @@ Definition iso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
    (Pb Pb': Pullback f g) : iso Pb Pb' :=
   tpair _ _ (isiso_from_Pullback_to_Pullback Pb Pb').
 
+
+(** pullback lemma *)
+
+Section pullback_lemma.
+
+Variables a b c d e x : C.
+Variables (f : b --> a) (g : c --> a) (h : e --> b) (k : e --> c)
+          (i : d --> b) (j : x --> e) (m : x --> d).
+Hypothesis H1 : h ;; f == k ;; g.
+Hypothesis H2 : m ;; i == j ;; h.
+Hypothesis P1 : isPullback _ _ _ _ H1.
+Hypothesis P2 : isPullback _ _ _ _ H2.
+
+Lemma glueSquares : m ;; (i ;; f) == (j ;; k) ;; g.
+Proof.
+  rewrite assoc.
+  rewrite H2.
+  repeat rewrite <- assoc.
+  rewrite H1.
+  apply idpath.
+Qed.
+
+Lemma isPullbackGluedSquare : isPullback (i ;; f) g m (j ;; k) glueSquares.
+Proof.
+  unfold isPullback.
+  intros y p q.
+  intro Hrt.
+  assert (ex : (p;; i);; f == q;; g).
+   { rewrite <- Hrt.
+     rewrite assoc; apply idpath.
+   }
+  set (rt := P1 _ (p ;; i) q ex).
+  set (Ppiq := pr1 (pr1 (rt))).
+  assert (owiej : p ;; i == Ppiq ;; h).
+   { apply pathsinv0. apply (pr1 (pr2 (pr1 rt))). }
+  set (rt' := P2 _ p Ppiq owiej).
+  set (awe := pr1 (pr1 rt')).
+  assert (Hawe1 : awe ;; m == p).
+   { exact (pr1 (pr2 (pr1 rt'))). }
+  assert (Hawe2 : awe ;; (j ;; k) == q).
+   { rewrite assoc.
+     set (X := pr2 (pr2 (pr1 rt'))). simpl in X.
+           unfold awe. rewrite X.
+           exact (pr2 (pr2 (pr1 rt))). 
+   }
+  exists (tpair _ awe (dirprodpair Hawe1 Hawe2)).
+  intro t.
+  apply total2_paths_hProp.
+  - intro a0. apply isapropdirprod;
+    apply (pr2 (_ --> _)).
+  - simpl. destruct t as [t [Ht1 Ht2]].
+    simpl in *.
+    apply PullbackArrowUnique.
+    + assumption.
+    + apply PullbackArrowUnique.
+      * rewrite <- Ht1.
+        repeat rewrite <- assoc.
+        rewrite H2.
+        apply idpath.
+      * rewrite <- assoc.
+        assumption.
+Qed.
+
+End pullback_lemma.
 
 Section Universal_Unique.
 
