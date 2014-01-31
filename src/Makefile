@@ -1,8 +1,11 @@
 # -*- makefile-gmake -*-
 include Make-include.mk
 OTHERFLAGS += -no-native-compiler
-# OTHERFLAGS += -no-sharing
+ifneq ("$(SHARING)","yes")
+OTHERFLAGS += -no-sharing
+endif
 OTHERFLAGS += -indices-matter
+OTHERFLAGS += -verbose
 
 TIME=gnu
 ifeq ($(TIME),gnu)
@@ -19,7 +22,7 @@ endif
 endif
 endif
 
-COQTIME = yes
+# COQTIME = yes
 ifeq ("$(COQTIME)","yes")
 COQC = : compiling $*.v ; >$*.timing $(TIMECMD) $(COQBIN)coqc
 OTHERFLAGS += -time
@@ -45,3 +48,7 @@ wc:; wc -w $(VFILES)
 clean:clean2
 clean2:; rm -f TAGS *.d *.glob N*.cmi N*.cmx N*.cmxs N*.native N*.o
 distclean: clean; rm -f Make-include.mk Make-include.mk.bak
+Categories.vo:always
+all:showtail
+always:
+.PHONY:always

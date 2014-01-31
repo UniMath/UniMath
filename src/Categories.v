@@ -854,11 +854,31 @@ Module Ab.                      (* the category of abelian groups *)
       assert ( k' : Hom Q T ).
       { destruct T as [T_ob T_el].
         exists (Mor X T_ob T_el). simpl.
-        apply funextsec. exact (Eqn X T_ob T_el). }
-      exists k'. intros k.
-      apply El.mor_equality.
-      exact (Uniqueness X (pr1 T) (pr1 k) (pr1 k')
-               (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
+        apply funextsec. 
+        (* Time ( *)
+        (*    let x := constr:(Eqn X T_ob T_el) in *)
+        (*    let T := type of X in *)
+        (*    let G := match goal with |- ?G => constr:(G) end in *)
+        (*    unify T G *)
+        (* ). *)
+        Time (
+             let x := constr:(Eqn X T_ob T_el) in
+             let T := type of x in
+             let G := match goal with |- ?G => constr:(G) end in
+             idtac
+          ). admit.
+        (* admit. *)
+        (* Time Timeout 50 abstract (simpl; admit). *)
+        (* Time Timeout 50 abstract (simpl; exact (Eqn X T_ob T_el)). *)
+        (* simpl. Time Timeout 50 abstract exact (Eqn X T_ob T_el). *)
+        (* Time Timeout 50 exact (Eqn X T_ob T_el).  *)
+      }
+      admit.
+      (* abstract ( *)
+      (* exists k'; intros k; *)
+      (* apply El.mor_equality; *)
+      (* exact (Uniqueness X (pr1 T) (pr1 k) (pr1 k') *)
+      (*          (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))) ). *)
     Defined.
   End Product.
 End Ab.
