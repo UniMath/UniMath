@@ -4,6 +4,7 @@ OTHERFLAGS += -no-native-compiler
 # OTHERFLAGS += -no-sharing
 # OTHERFLAGS += -verbose
 OTHERFLAGS += -indices-matter
+# OTHERFLAGS += -init-file coqrc
 
 TIME=gnu
 ifeq ($(TIME),gnu)

@@ -409,26 +409,24 @@ Module El.
   (** *** the category of elements of a functor *)
   Definition cat_data {C} (X:C==>SET) : precategory_data.
     intros C X.
-    set (Fobj := Functor.obj X).
-    set (Fmor := Functor.mor X).
-    set (iFid := functor_id X).
-    set (iFcomp := functor_comp X).
-    set (obj := total2 (fun c : ob C => set_to_type (Fobj c))).
-    set (compat := fun a b : obj =>
-                     fun f : pr1 a → pr1 b => Fmor _ _ f (pr2 a) == (pr2 b) ).
-    set (mor := fun a b => total2 (compat a b)).
-    apply (makePrecategory_data obj mor).
-    - intros. apply (isofhleveltotal2 2). 
-      * apply setproperty.
-      * intros f.  apply (isofhlevelsnprop 1). apply setproperty.
-    - intro a. exact (identity (pr1 a),, (apevalat (pr2 a) (iFid (pr1 a)))).
+    set (obj := total2 (fun c : ob C => set_to_type ((Functor.obj X) c))).
+    apply (makePrecategory_data 
+             obj 
+             (fun a b : obj => 
+                total2 (fun f : pr1 a → pr1 b => 
+                          (Functor.mor X) _ _ f (pr2 a) == (pr2 b)))).
+    - abstract (
+          intros; apply (isofhleveltotal2 2);
+          [ apply setproperty |
+            intros f;  apply (isofhlevelsnprop 1); apply setproperty])
+      using cat_data_isaset.
+    - intro a. exact (identity (pr1 a),, (apevalat (pr2 a) ((functor_id X) (pr1 a)))).
     - intros ? ? ? f g.
       exact (      pr1 g ∘ pr1 f,,
-                   ((apevalat (pr2 i) (iFcomp _ _ _ (pr1 f) (pr1 g)))
+                   ((apevalat (pr2 i) ((functor_comp X) _ _ _ (pr1 f) (pr1 g)))
                     @ 
-                    (ap (Fmor _ _ (pr1 g)) (pr2 f) @ (pr2 g)))). Defined.
-  Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) :=
-        pr1 f.
+                    (ap ((Functor.mor X) _ _ (pr1 g)) (pr2 f) @ (pr2 g)))). Defined.
+  Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr1 f.
   Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x → y) :
         get_mor f == get_mor g -> f == g.
   Proof. intros ? ? ? ? [f i] [g j] p. simpl in p. destruct p.
@@ -477,22 +475,17 @@ Module Representation.
   Definition Data {C} (X:C==>SET) := InitialObject (El.cat X).
   Definition Property {C} (X:C==>SET) := squash (Data X).
   Definition Pair {C} {X:C==>SET} (r:Data X) := theInitialObject _ r : ob (El.cat X).
-  Definition IsInitial {C} {X:C==>SET} (r:Data X) : 
-    isInitialObject (El.cat X) (Pair r).
+  Definition IsInitial {C} {X:C==>SET} (r:Data X) : isInitialObject (El.cat X) (Pair r).
   Proof. intros. exact (theInitialProperty _ r). Qed.
-  Definition Object {C} {X:C==>SET} (r:Data X) :=
-    pr1 (Pair r) : ob C .
-  Definition Element {C} {X:C==>SET} (r:Data X) := 
-    pr2 (Pair r) : set_to_type (X (Object r)).
-  Definition Map {C} {X:C==>SET} (r:Data X) (d:ob C) :
-    Hom (Object r) d -> set_to_type (X d).
+  Definition Object {C} {X:C==>SET} (r:Data X) := pr1 (Pair r) : ob C .
+  Definition Element {C} {X:C==>SET} (r:Data X) := pr2 (Pair r) : set_to_type (X (Object r)).
+  Definition Map {C} {X:C==>SET} (r:Data X) (d:ob C) : Hom (Object r) d -> set_to_type (X d).
   Proof. intros ? ? ? ? p. exact (#X p (Element r)). Defined.
-  Lemma MapIsweq {C} {X:C==>SET} (r:Data X) (d:ob C) :
-    isweq (Map r d).
+  Lemma MapIsweq {C} {X:C==>SET} (r:Data X) (d:ob C) : isweq (Map r d).
   Proof. intros. intros y. exact (IsInitial r (d,,y)). Qed.
   Definition Iso {C} {X:C==>SET} (r:Data X) (d:ob C) 
-    := weqpair (Map r d) (MapIsweq r d) 
-       : weq (Object r → d) (set_to_type (X d)).
+       := weqpair (Map r d) (MapIsweq r d) 
+        : weq (Object r → d) (set_to_type (X d)).
 End Representation.
 
 Module hSet.
@@ -563,8 +556,7 @@ Module Product.
   Definition Object {C:precategory} {I} {c:I -> ob C} (r:type C c)
              (* the representing object of r is in C^op, so here we convert it *)
              : ob C := Representation.Object r.
-  Definition Proj {C:precategory} {I} {b:I -> ob C} (B:type C b) i :
-     Hom (Object B) (b i).
+  Definition Proj {C:precategory} {I} {b:I -> ob C} (B:type C b) i : Hom (Object B) (b i).
   Proof. intros. exact (Representation.Element B i). Defined.
   Module Coercions.
     Coercion Object : type >-> ob.
@@ -587,20 +579,16 @@ End Coproduct.
 Module Matrices.
   (* the representing map is the matrix *)
   Import Coproduct.Coercions Product.Coercions.
-  Definition to_row {C:precategory} {I} {b:I -> ob C} 
-             (B:Coproduct.make C b) {d:ob C} :
+  Definition to_row {C:precategory} {I} {b:I -> ob C} (B:Coproduct.make C b) {d:ob C} :
     weq (Hom B d) (forall j, Hom (b j) d).
   Proof. intros. exact (Representation.Iso B d). Defined.
-  Definition from_row {C:precategory} {I} {b:I -> ob C} 
-             (B:Coproduct.make C b) {d:ob C} :
+  Definition from_row {C:precategory} {I} {b:I -> ob C} (B:Coproduct.make C b) {d:ob C} :
     weq (forall j, Hom (b j) d) (Hom B d).
   Proof. intros. apply invweq. apply to_row. Defined.
-  Definition to_col {C:precategory} {I} {d:I -> ob C} 
-             (D:Product.type C d) {b:ob C} :
+  Definition to_col {C:precategory} {I} {d:I -> ob C} (D:Product.type C d) {b:ob C} :
     weq (Hom b D) (forall i, Hom b (d i)).
   Proof. intros. exact (Representation.Iso D b). Defined.
-  Definition from_col {C:precategory} {I} {d:I -> ob C} 
-             (D:Product.type C d) {b:ob C} :
+  Definition from_col {C:precategory} {I} {d:I -> ob C} (D:Product.type C d) {b:ob C} :
     weq (forall i, Hom b (d i)) (Hom b D).
   Proof. intros. apply invweq. apply to_col. Defined.
   Definition to_matrix {C:precategory} 
@@ -608,8 +596,7 @@ Module Matrices.
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
              weq (Hom B D) (forall i j, Hom (b j) (d i)).
   Proof. intros. apply @weqcomp with (Y := forall i, Hom B (d i)).
-         { apply to_col. }
-         { apply weqonseqfibers; intro i. apply to_row. } Defined.
+         { apply to_col. } { apply weqonseqfibers; intro i. apply to_row. } Defined.
   Definition from_matrix {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
@@ -620,8 +607,7 @@ Module Matrices.
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
              weq (Hom B D) (forall j i, Hom (b j) (d i)).
   Proof. intros. apply @weqcomp with (Y := forall j, Hom (b j) D).
-         { apply to_row. }
-         { apply weqonseqfibers; intro i. apply to_col. } Defined.
+         { apply to_row. } { apply weqonseqfibers; intro i. apply to_col. } Defined.
   Definition from_matrix' {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
@@ -631,8 +617,7 @@ Module Matrices.
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
     forall p i j, to_matrix D B p i j == to_matrix' D B p j i.
-  Proof. intros. 
-         exact (assoc _ _ _ _ _ (Coproduct.In B j) p (Product.Proj D i)). Qed.
+  Proof. intros. exact (assoc _ _ _ _ _ (Coproduct.In B j) p (Product.Proj D i)). Qed.
 End Matrices.
 
 Module DirectSums.
@@ -679,7 +664,7 @@ Module Kernels.
     exact (zerocomp_type z f x,, zerocomp_type_isaset z f x). Defined.
   Definition zerocomp_map {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
     forall x y:ob C,
-    x → y 
+    Hom x y 
     ->
     set_to_type (zerocomp_set z f x) -> set_to_type (zerocomp_set z f y).
   Proof. intros ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc.  rewrite s.
@@ -720,13 +705,11 @@ Module Magma.
       exists (sections X,,i1 X). exact (fun v w i => v i * w i). Defined.
     Definition Proj {I} (X:I->setwithbinop) : forall i:I, Hom (make X) (X i).
       intros. exists (fun y => y i). intros a b. reflexivity. Defined.
-    Definition Fun {I} (X:I->setwithbinop) 
-               (T:setwithbinop) (g: forall i, Hom T (X i))
+    Definition Fun {I} (X:I->setwithbinop) (T:setwithbinop) (g: forall i, Hom T (X i))
                : Hom T (make X).
       intros. exists (fun t i => g i t).
       intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
-    Definition Eqn {I} (X:I->setwithbinop) 
-               (T:setwithbinop) (g: forall i, Hom T (X i))
+    Definition Eqn {I} (X:I->setwithbinop) (T:setwithbinop) (g: forall i, Hom T (X i))
                : forall i, Proj X i ∘ Fun X T g == g i.
       intros. apply funEquality. reflexivity. Qed.
   End Product.
@@ -754,14 +737,12 @@ Module Monoid.
     Definition Proj {I} (X:I->monoid) (i:I) : Hom (make X) (X i).
       intros. exists (pr1 (Magma.Product.Proj X i)). split. 
       exact (pr2 (Magma.Product.Proj X i)). simpl. reflexivity. Defined.
-    Definition Fun {I} (X:I->monoid) 
-               (T:monoid) (g: forall i, Hom T (X i))
+    Definition Fun {I} (X:I->monoid) (T:monoid) (g: forall i, Hom T (X i))
                : Hom T (make X).
       intros.  exists (pr1 (Magma.Product.Fun X T g)). 
       exists (pr2 (Magma.Product.Fun X T g)). apply funextsec; intro i.
       exact (pr2 (pr2 (g i))). Defined.
-    Definition Eqn {I} (X:I->monoid) 
-               (T:monoid) (g: forall i, Hom T (X i))
+    Definition Eqn {I} (X:I->monoid) (T:monoid) (g: forall i, Hom T (X i))
                : forall i, Proj X i ∘ Fun X T g == g i.
       intros. apply funEquality. reflexivity. Qed.
   End Product.
@@ -779,12 +760,10 @@ Module Gr.
       intros. set (Y := Monoid.Product.make X). exists (pr1monoid Y). exists (pr2 Y).
       exists (fun y i => grinv (X i) (y i)). split.
       - intro y. apply funextsec; intro i. apply grlinvax.
-      - intro y. apply funextsec; intro i. apply grrinvax.
-    Defined.    
+      - intro y. apply funextsec; intro i. apply grrinvax. Defined.    
     Definition Proj {I} (X:I->gr) (i:I) : Hom (make X) (X i).
       intros. exact (Monoid.Product.Proj X i). Defined.
-    Definition Fun {I} (X:I->gr) (T:gr) (g: forall i, Hom T (X i))
-               : Hom T (make X).
+    Definition Fun {I} (X:I->gr) (T:gr) (g: forall i, Hom T (X i)) : Hom T (make X).
       intros. exact (Monoid.Product.Fun X T g). Defined.
     Definition Eqn {I} (X:I->gr) (T:gr) (g: forall i, Hom T (X i))
                : forall i, Proj X i ∘ Fun X T g == g i.
@@ -809,8 +788,7 @@ Module Abgr.
       intros a b. apply funextsec; intro i. apply commax. Defined.
     Definition Proj {I} (X:I->abgr) (i:I) : Hom (make X) (X i).
       exact @Gr.Product.Proj. Defined.
-    Definition Map {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i))
-             : Hom T (make X).
+    Definition Map {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i)) : Hom T (make X).
       exact @Gr.Product.Fun. Defined.
     Definition Eqn {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i))
              : forall i, Proj X i ∘ Map X T g == g i.
@@ -820,8 +798,7 @@ Module Abgr.
       intros ? ? ? ? ? e.
       apply Monoid.funEquality.
       apply funextfunax; intro t; apply funextsec; intro i.
-      exact (apevalat t (ap pr1 (e i))).
-    Qed.
+      exact (apevalat t (ap pr1 (e i))). Qed.
   End Product.
   Definition power (I:Type) (X:abgr) : abgr.
     intros. exact (Product.make (fun _:I => Z)). Defined.
@@ -843,8 +820,7 @@ Module Ab.                      (* the category of abelian groups *)
     exists Data. split; simpl. split; simpl.
     - intros. apply MorEquality. reflexivity.
     - intros. apply MorEquality. reflexivity.
-    - intros. apply MorEquality. reflexivity.
-  Defined.
+    - intros. apply MorEquality. reflexivity. Defined.
   Module Product.
     Definition Object {I} (X:I->ob Precat) : ob Precat := Abgr.Product.make X.
     Import PrimitiveInitialObjects.
@@ -856,11 +832,9 @@ Module Ab.                      (* the category of abelian groups *)
       { destruct T as [T_ob T_el].
         exists (Abgr.Product.Map X T_ob T_el). simpl.
         apply funextsec. exact (Abgr.Product.Eqn X T_ob T_el). }
-      exists k'. intros k.
-      apply El.mor_equality.
+      exists k'. intros k. apply El.mor_equality.
       exact (Abgr.Product.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
-               (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
-    Defined.
+               (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
   End Product.
 End Ab.
 
