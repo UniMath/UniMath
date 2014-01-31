@@ -1,9 +1,5 @@
 (* -*- coding: utf-8 -*- *)
 
-(* Set Printing All. *)
-
-Set Printing Width 97.
-
 (** * category theory 
 
   In this library we introduce the category theory needed for K-theory:
