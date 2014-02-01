@@ -53,6 +53,14 @@ Definition apevalsecat {T:UU} {P:T->UU} (t:T) {f g:sections P}
   : f == g -> f t == g t
   := ap (evalsecat t).
 
+(** * decidability *)
+
+Definition not X := X -> empty.
+Definition decidable X := coprod X (not X).
+Definition LEM := forall P, isaprop P -> decidable P.
+Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
+Proof. intros X lem is x y. exact (lem (x==y) (is x y)). Qed.
+
 (** * h-levels and paths *)
 
 Lemma isaprop_wma_inhab (X:UU) : (X -> isaprop X) -> isaprop X.
@@ -109,6 +117,13 @@ Proof. intros. exact (pr2 i t). Defined.
 
 Definition uniqueness' {T:UU} (i:iscontr T) (t:T) : the i == t.
 Proof. intros. exact (! (pr2 i t)). Defined.
+
+Definition equality_proof_irrelevance {X:hSet} {x y:X} (p q:x==y) : p==q.
+Proof. intros. destruct (the (setproperty _ _ _ p q)). reflexivity. Qed.
+
+Definition equality_proof_irrelevance' {X:Type} {x y:X} (p q:x==y) : 
+  isaset X -> p==q.
+Proof. intros ? ? ? ? ? is. apply is. Defined.
 
 (** * Squashing. *)
 
