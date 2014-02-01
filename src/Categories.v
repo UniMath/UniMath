@@ -153,89 +153,91 @@ Proof.
   intros [data ispre]. apply (pair_path (opp_opp_precat_data data)).
   apply isaprop_is_precategory. Defined.
 
-Module PrimitiveTerminalObjects. (** *** terminal objects *)
-  Definition isTerminalObject (C:precategory) (a:ob C) := 
-    forall (x:ob C), iscontr (a ← x).
-  Lemma theTerminalObjectIsomorphy (C:precategory) (a b:ob C) :
-    isTerminalObject C a -> isTerminalObject C b -> @iso C a b.
-  Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
-    exists (the (map_to_b_from_ a)).
-    exists (the (map_to_a_from_ b)). 
-    split. { intermediate (the (map_to_a_from_ a)). 
-             apply uniqueness. apply uniqueness'. }
-           { intermediate (the (map_to_b_from_ b)). 
-             apply uniqueness. apply uniqueness'. } Defined.
-  Lemma isaprop_isTerminalObject (C:precategory) (a:ob C) :
-    isaprop(isTerminalObject C a).
-  Proof. prop_logic. Qed.
-  Definition isTerminalObjectProp (C:precategory) (a:ob C) := 
-    hProppair (isTerminalObject C a) (isaprop_isTerminalObject C a) : hProp.
-  Definition TerminalObject (C:precategory) := 
-    total2 (fun a:ob C => isTerminalObject C a).
-  Definition theTerminalObject {C:precategory} (z:TerminalObject C) := pr1 z.
-  Definition theTerminalProperty {C:precategory} (z:TerminalObject C) := pr2 z.
-  Lemma isaprop_TerminalObject (C:category) : isaprop (TerminalObject C).
-  Proof. intros. apply invproofirrelevance. intros a b.
-    apply (total2_paths 
-             (isotoid _ (theUnivalenceProperty C) 
-                      (theTerminalObjectIsomorphy C _ _      
-                         (theTerminalProperty a)
-                         (theTerminalProperty b)))).
-    apply isaprop_isTerminalObject. Qed.
-  Definition squashTerminalObject (C:precategory) := squash (TerminalObject C).
-  Definition squashTerminalObjectProp (C:precategory) := 
-    hProppair (squashTerminalObject C) (isaprop_squash _).
-End PrimitiveTerminalObjects.
+Module Primitive.
+  Module TerminalObject. (** *** terminal objects *)
+    Definition isTerminalObject (C:precategory) (a:ob C) := 
+      forall (x:ob C), iscontr (a ← x).
+    Lemma theTerminalObjectIsomorphy (C:precategory) (a b:ob C) :
+      isTerminalObject C a -> isTerminalObject C b -> @iso C a b.
+    Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
+      exists (the (map_to_b_from_ a)).
+      exists (the (map_to_a_from_ b)). 
+      split. { intermediate (the (map_to_a_from_ a)). 
+               apply uniqueness. apply uniqueness'. }
+             { intermediate (the (map_to_b_from_ b)). 
+               apply uniqueness. apply uniqueness'. } Defined.
+    Lemma isaprop_isTerminalObject (C:precategory) (a:ob C) :
+      isaprop(isTerminalObject C a).
+    Proof. prop_logic. Qed.
+    Definition isTerminalObjectProp (C:precategory) (a:ob C) := 
+      hProppair (isTerminalObject C a) (isaprop_isTerminalObject C a) : hProp.
+    Definition TerminalObject (C:precategory) := 
+      total2 (fun a:ob C => isTerminalObject C a).
+    Definition theTerminalObject {C:precategory} (z:TerminalObject C) := pr1 z.
+    Definition theTerminalProperty {C:precategory} (z:TerminalObject C) := pr2 z.
+    Lemma isaprop_TerminalObject (C:category) : isaprop (TerminalObject C).
+    Proof. intros. apply invproofirrelevance. intros a b.
+      apply (total2_paths 
+               (isotoid _ (theUnivalenceProperty C) 
+                        (theTerminalObjectIsomorphy C _ _      
+                           (theTerminalProperty a)
+                           (theTerminalProperty b)))).
+      apply isaprop_isTerminalObject. Qed.
+    Definition squashTerminalObject (C:precategory) := squash (TerminalObject C).
+    Definition squashTerminalObjectProp (C:precategory) := 
+      hProppair (squashTerminalObject C) (isaprop_squash _).
+  End TerminalObject.
 
-Module PrimitiveInitialObjects. (** *** initial objects *)
-  Definition isInitialObject (C:precategory) (a:ob C) :=
-    forall (x:ob C), iscontr (x ← a).
-  Lemma theInitialObjectIsomorphy (C:precategory) (a b:ob C) :
-    isInitialObject C a -> isInitialObject C b -> @iso C a b.
-  Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
-    exists (the (map_to_a_from_ b)). 
-    exists (the (map_to_b_from_ a)).
-    split. { intermediate (the (map_to_a_from_ a)). 
-             apply uniqueness. apply uniqueness'. }
-           { intermediate (the (map_to_b_from_ b)). 
-             apply uniqueness. apply uniqueness'. } Defined.
-  Lemma isaprop_isInitialObject (C:precategory) (a:ob C) :
-    isaprop(isInitialObject C a).
-  Proof. prop_logic. Qed.
-  Definition isInitialObjectProp (C:precategory) (a:ob C) := 
-    hProppair (isInitialObject C a) (isaprop_isInitialObject C a) : hProp.
-  Record InitialObject (C:precategory) := make_InitialObject {
-       theInitialObject : ob C ;
-       theInitialProperty : isInitialObject C theInitialObject }.
-  Definition InitialObject_total (C:precategory) := total2 (fun a:ob C => isInitialObject C a).
-  Definition unpack {C:precategory} : InitialObject_total C -> InitialObject C
-    := fun X => make_InitialObject C (pr1 X) (pr2 X).
-  Definition pack {C:precategory} : InitialObject C -> InitialObject_total C
-    := fun Y => (theInitialObject _ Y,,theInitialProperty _ Y).
-  Definition h {C:precategory} (X:InitialObject_total C) : pack (unpack X) == X
-    := match X as t return (pack (unpack t) == t) with X1,, X2 => idpath (X1,, X2) end.
-  Definition k {C:precategory} (Y:InitialObject C) : unpack (pack Y) == Y
-    := match Y as i return (unpack (pack i) == i) 
-       with make_InitialObject Y1 Y2 => idpath _ end.
-  Lemma unpack_weq (C:precategory) : weq (InitialObject_total C) (InitialObject C).
-  Proof. intros. exists unpack. intros Y. exists (pack Y,,k Y). intros [X m].
-         destruct m. set (H := h X). destruct H. reflexivity. Qed.
-  Lemma isaprop_InitialObject' (C:category) : isaprop (InitialObject_total C).
-  Proof. intros. apply invproofirrelevance. intros a b.
-    apply (total2_paths (isotoid _ (theUnivalenceProperty C) 
-                                 (theInitialObjectIsomorphy C _ _ (pr2 a) (pr2 b)))).
-    apply isaprop_isInitialObject. Qed.
-  Lemma isaprop_InitialObject (C:category) : isaprop (InitialObject C).
-    intros. apply isofhlevelweqf with (X := InitialObject_total C).
-    apply unpack_weq. apply isaprop_InitialObject'. Qed.
-  Definition squashInitialObject (C:precategory) := squash (InitialObject C).
-  Definition squashInitialObjectProp (C:precategory) := 
-    hProppair (squashInitialObject C) (isaprop_squash _).
-End PrimitiveInitialObjects.
+  Module InitialObject.
+    Definition isInitialObject (C:precategory) (a:ob C) :=
+      forall (x:ob C), iscontr (x ← a).
+    Lemma theInitialObjectIsomorphy (C:precategory) (a b:ob C) :
+      isInitialObject C a -> isInitialObject C b -> @iso C a b.
+    Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
+      exists (the (map_to_a_from_ b)). 
+      exists (the (map_to_b_from_ a)).
+      split. { intermediate (the (map_to_a_from_ a)). 
+               apply uniqueness. apply uniqueness'. }
+             { intermediate (the (map_to_b_from_ b)). 
+               apply uniqueness. apply uniqueness'. } Defined.
+    Lemma isaprop_isInitialObject (C:precategory) (a:ob C) :
+      isaprop(isInitialObject C a).
+    Proof. prop_logic. Qed.
+    Definition isInitialObjectProp (C:precategory) (a:ob C) := 
+      hProppair (isInitialObject C a) (isaprop_isInitialObject C a) : hProp.
+    Record InitialObject (C:precategory) := make_InitialObject {
+         theInitialObject : ob C ;
+         theInitialProperty : isInitialObject C theInitialObject }.
+    Definition InitialObject_total (C:precategory) := total2 (fun a:ob C => isInitialObject C a).
+    Definition unpack {C:precategory} : InitialObject_total C -> InitialObject C
+      := fun X => make_InitialObject C (pr1 X) (pr2 X).
+    Definition pack {C:precategory} : InitialObject C -> InitialObject_total C
+      := fun Y => (theInitialObject _ Y,,theInitialProperty _ Y).
+    Definition h {C:precategory} (X:InitialObject_total C) : pack (unpack X) == X
+      := match X as t return (pack (unpack t) == t) with X1,, X2 => idpath (X1,, X2) end.
+    Definition k {C:precategory} (Y:InitialObject C) : unpack (pack Y) == Y
+      := match Y as i return (unpack (pack i) == i) 
+         with make_InitialObject Y1 Y2 => idpath _ end.
+    Lemma unpack_weq (C:precategory) : weq (InitialObject_total C) (InitialObject C).
+    Proof. intros. exists unpack. intros Y. exists (pack Y,,k Y). intros [X m].
+           destruct m. set (H := h X). destruct H. reflexivity. Qed.
+    Lemma isaprop_InitialObject' (C:category) : isaprop (InitialObject_total C).
+    Proof. intros. apply invproofirrelevance. intros a b.
+      apply (total2_paths (isotoid _ (theUnivalenceProperty C) 
+                                   (theInitialObjectIsomorphy C _ _ (pr2 a) (pr2 b)))).
+      apply isaprop_isInitialObject. Qed.
+    Lemma isaprop_InitialObject (C:category) : isaprop (InitialObject C).
+      intros. apply isofhlevelweqf with (X := InitialObject_total C).
+      apply unpack_weq. apply isaprop_InitialObject'. Qed.
+    Definition squashInitialObject (C:precategory) := squash (InitialObject C).
+    Definition squashInitialObjectProp (C:precategory) := 
+      hProppair (squashInitialObject C) (isaprop_squash _).
+  End InitialObject.
+End Primitive.
 
-Module ZeroObjects.
-  Import PrimitiveTerminalObjects.
-  Import PrimitiveInitialObjects.
+Module ZeroObject.
+  Import Primitive.TerminalObject.
+  Import Primitive.InitialObject.
   Definition ZeroObject (C:precategory) := total2 ( fun 
                z : ob C => dirprod (
                    isInitialObject C z) (
@@ -298,7 +300,7 @@ Module ZeroObjects.
     assert (g : forall (b:ob C), zeroMap' a b z == zeroMap a b (squash_element z)).
     { trivial. }
     destruct (g b). destruct (g c). apply zeroMap'_left_composition. Qed.
-End ZeroObjects.
+End ZeroObject.
 
 Module StandardCategories.
   Definition compose' { C:precategory_data } { a b c:ob C }
@@ -402,7 +404,7 @@ Module StandardCategories.
 
 End StandardCategories.
 
-Module El.
+Module Elements.
   (** *** the category of elements of a functor *)
   Definition cat_data {C} (X:C==>SET) : precategory_data.
     intros C X.
@@ -446,7 +448,8 @@ Module El.
              (i : #X f (pr2 r) == pr2 s) : Hom r s.
     intros. exact (f,,i). Defined.
   Module pr1.
-    Definition fun_data {C} (X:C==>SET) : functor_data (Precategory.obmor (cat X)) (Precategory.obmor C).
+    Definition fun_data {C} (X:C==>SET) : 
+        functor_data (Precategory.obmor (cat X)) (Precategory.obmor C).
       intros. exists pr1. intros x x'. exact pr1. Defined.
     Definition func {C} (X:C==>SET) : cat X ==> C.
       intros. exists (fun_data _).
@@ -465,18 +468,22 @@ Module El.
         { apply mor_equality.  exact (pr1 j). }
         { apply mor_equality.  exact (pr2 j). } } Qed.
   End pr1.
-End El.
+End Elements.
 
 Module Representation.
-  Import PrimitiveInitialObjects.
-  Definition Data {C} (X:C==>SET) := InitialObject (El.cat X).
+  Import Primitive.InitialObject.
+  Definition Data {C} (X:C==>SET) := InitialObject (Elements.cat X).
   Definition Property {C} (X:C==>SET) := squash (Data X).
-  Definition Pair {C} {X:C==>SET} (r:Data X) := theInitialObject _ r : ob (El.cat X).
-  Definition IsInitial {C} {X:C==>SET} (r:Data X) : isInitialObject (El.cat X) (Pair r).
+  Definition Pair {C} {X:C==>SET} (r:Data X) : ob (Elements.cat X)
+    := theInitialObject _ r.
+  Definition IsInitial {C} {X:C==>SET} (r:Data X) : 
+    isInitialObject (Elements.cat X) (Pair r).
   Proof. intros. exact (theInitialProperty _ r). Qed.
   Definition Object {C} {X:C==>SET} (r:Data X) := pr1 (Pair r) : ob C .
-  Definition Element {C} {X:C==>SET} (r:Data X) := pr2 (Pair r) : set_to_type (X (Object r)).
-  Definition Map {C} {X:C==>SET} (r:Data X) (d:ob C) : Hom (Object r) d -> set_to_type (X d).
+  Definition Element {C} {X:C==>SET} (r:Data X) : set_to_type (X (Object r))
+    := pr2 (Pair r).
+  Definition Map {C} {X:C==>SET} (r:Data X) (d:ob C) : 
+    Hom (Object r) d -> set_to_type (X d).
   Proof. intros ? ? ? ? p. exact (#X p (Element r)). Defined.
   Lemma MapIsweq {C} {X:C==>SET} (r:Data X) (d:ob C) : isweq (Map r d).
   Proof. intros. intros y. exact (IsInitial r (d,,y)). Qed.
@@ -508,7 +515,7 @@ Module FiniteSet.
          { assumption. } Qed.
 End FiniteSet.
 
-Module TerminalObjects.
+Module TerminalObject.
   Definition unitFunctor_data (C:precategory) 
        : functor_data (Precategory.obmor C) (Precategory.obmor SET).
     intros. refine (tpair _ _ _).
@@ -527,7 +534,7 @@ Module TerminalObjects.
     intros C t. exact (Representation.Object t). Defined.
   Definition terminalArrow {C} (t:TerminalObject C) (c:ob C) : c → terminalObject t.
     intros C [[i []] p] c. exact (pr1 (the (p (c,,tt)))). Defined.      
-End TerminalObjects.
+End TerminalObject.
 
 Module HomFamily.
   Definition set (C:precategory) {I} (c:I -> ob C) : ob C -> ob SET.
@@ -553,7 +560,8 @@ Module Product.
   Definition Object {C:precategory} {I} {c:I -> ob C} (r:type C c)
              (* the representing object of r is in C^op, so here we convert it *)
              : ob C := Representation.Object r.
-  Definition Proj {C:precategory} {I} {b:I -> ob C} (B:type C b) i : Hom (Object B) (b i).
+  Definition Proj {C:precategory} {I} {b:I -> ob C} (B:type C b) i : 
+    Hom (Object B) (b i).
   Proof. intros. exact (Representation.Element B i). Defined.
   Module Coercions.
     Coercion Object : type >-> ob.
@@ -573,19 +581,22 @@ Module Coproduct.
   End Coercions.
 End Coproduct.
 
-Module Matrices.
+Module Matrix.
   (* the representing map is the matrix *)
   Import Coproduct.Coercions Product.Coercions.
-  Definition to_row {C:precategory} {I} {b:I -> ob C} (B:Coproduct.make C b) {d:ob C} :
+  Definition to_row {C:precategory} {I} {b:I -> ob C} 
+             (B:Coproduct.make C b) {d:ob C} :
     weq (Hom B d) (forall j, Hom (b j) d).
   Proof. intros. exact (Representation.Iso B d). Defined.
-  Definition from_row {C:precategory} {I} {b:I -> ob C} (B:Coproduct.make C b) {d:ob C} :
+  Definition from_row {C:precategory} {I} {b:I -> ob C} 
+             (B:Coproduct.make C b) {d:ob C} :
     weq (forall j, Hom (b j) d) (Hom B d).
   Proof. intros. apply invweq. apply to_row. Defined.
   Definition to_col {C:precategory} {I} {d:I -> ob C} (D:Product.type C d) {b:ob C} :
     weq (Hom b D) (forall i, Hom b (d i)).
   Proof. intros. exact (Representation.Iso D b). Defined.
-  Definition from_col {C:precategory} {I} {d:I -> ob C} (D:Product.type C d) {b:ob C} :
+  Definition from_col {C:precategory} {I} {d:I -> ob C} 
+             (D:Product.type C d) {b:ob C} :
     weq (forall i, Hom b (d i)) (Hom b D).
   Proof. intros. apply invweq. apply to_col. Defined.
   Definition to_matrix {C:precategory} 
@@ -614,11 +625,12 @@ Module Matrices.
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
     forall p i j, to_matrix D B p i j == to_matrix' D B p j i.
-  Proof. intros. exact_op (assoc _ _ _ _ _ (Coproduct.In B j) p (Product.Proj D i)). Qed.
-End Matrices.
+  Proof. intros. 
+         exact_op (assoc _ _ _ _ _ (Coproduct.In B j) p (Product.Proj D i)). Qed.
+End Matrix.
 
-Module DirectSums.
-  Import ZeroObjects FiniteSet.Coercions Coproduct.Coercions Product.Coercions.
+Module DirectSum.
+  Import ZeroObject FiniteSet.Coercions Coproduct.Coercions Product.Coercions.
   Definition identity_matrix {C:precategory} (h:hasZeroObject C)
              {I} {d:I -> ob C} (dec : isdeceq I) : forall i j, Hom (d j) (d i).
   Proof. intros. destruct (dec i j) as [ [] | _ ].
@@ -627,7 +639,7 @@ Module DirectSums.
              {I} {d:I -> ob C} (dec : isdeceq I) 
              (B:Coproduct.make C d) (D:Product.type C d)
         : Hom B D.
-  Proof. intros. apply Matrices.from_matrix. apply identity_matrix.  
+  Proof. intros. apply Matrix.from_matrix. apply identity_matrix.  
          assumption. assumption. Defined.
   Definition DirectSum {C:precategory} (h:hasZeroObject C)
              {I} (d:I -> ob C) (dec : isdeceq I) 
@@ -637,10 +649,10 @@ Module DirectSums.
   Definition FiniteDirectSum {C:precategory} (h:hasZeroObject C) 
              {I:FiniteSet.Data} (d:I -> ob C)
     := DirectSum h d (FiniteSet.Isdeceq I).
-End DirectSums.
+End DirectSum.
 
-Module Kernels.
-  Import ZeroObjects.
+Module Kernel.
+  Import ZeroObject.
   Definition zerocomp_type {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
     ob C -> Type.
   Proof. intros ? ? ? ? ? x.
@@ -681,7 +693,7 @@ Module Kernels.
     Representation.Data (zerocomp z f).
   Definition Kernel C (z:hasZeroObject C) (c d:ob C) (f:c → d) :=
     Representation.Data (zerocomp (haszero_opp C z) f).
-End Kernels.
+End Kernel.
 
 Module Magma.
   Require Import Foundations.hlevel2.algebra1a.
@@ -702,11 +714,13 @@ Module Magma.
       exists (sections X,,i1 X). exact (fun v w i => v i * w i). Defined.
     Definition Proj {I} (X:I->setwithbinop) : forall i:I, Hom (make X) (X i).
       intros. exists (fun y => y i). intros a b. reflexivity. Defined.
-    Definition Fun {I} (X:I->setwithbinop) (T:setwithbinop) (g: forall i, Hom T (X i))
+    Definition Fun {I} (X:I->setwithbinop) (T:setwithbinop) 
+                       (g: forall i, Hom T (X i))
                : Hom T (make X).
       intros. exists (fun t i => g i t).
       intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
-    Definition Eqn {I} (X:I->setwithbinop) (T:setwithbinop) (g: forall i, Hom T (X i))
+    Definition Eqn {I} (X:I->setwithbinop) (T:setwithbinop) 
+                       (g: forall i, Hom T (X i))
                : forall i, Proj X i ∘ Fun X T g == g i.
       intros. apply funEquality. reflexivity. Qed.
   End Product.
@@ -760,7 +774,7 @@ Module Monoid.
   End Product.
 End Monoid.
 
-Module Gr.
+Module Group.
   Require Import Foundations.hlevel2.algebra1b.
   Local Notation Hom := monoidfun.
   Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
@@ -781,30 +795,32 @@ Module Gr.
                : forall i, Proj X i ∘ Fun X T g == g i.
       intros. apply Monoid.funEquality. reflexivity. Qed.
   End Product.
-End Gr.
+End Group.
 
-Module Abgr.
+(** * abelian groups *)
+Module AbelianGroup.
   Require Import Foundations.hlevel2.algebra1b.
   Local Notation Hom := monoidfun.
   Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
   Definition commax (G:abgr) := pr2 (pr2 G).
   Definition zero : abgr.
-    exists Gr.zero. split. exact (pr2 Gr.zero). intros x y. reflexivity.
+    exists Group.zero. split. exact (pr2 Group.zero). intros x y. reflexivity.
   Defined.
   Require Import Foundations.hlevel2.hz.
   Definition Z : abgr := hzaddabgr.
   Module Product.
     Definition make {I} (X:I->abgr) : abgr.
-      intros. exists (pr1 (Gr.Product.make X)).
-      split. exact (pr2 (Gr.Product.make X)).
+      intros. exists (pr1 (Group.Product.make X)).
+      split. exact (pr2 (Group.Product.make X)).
       intros a b. apply funextsec; intro i. apply commax. Defined.
     Definition Proj {I} (X:I->abgr) (i:I) : Hom (make X) (X i).
-      exact @Gr.Product.Proj. Defined.
-    Definition Map {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i)) : Hom T (make X).
-      exact @Gr.Product.Fun. Defined.
+      exact @Group.Product.Proj. Defined.
+    Definition Map {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i)) :
+        Hom T (make X).
+      exact @Group.Product.Fun. Defined.
     Definition Eqn {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i))
              : forall i, Proj X i ∘ Map X T g == g i.
-      exact @Gr.Product.Eqn. Qed.
+      exact @Group.Product.Eqn. Qed.
     Definition UniqueMap {I} (X:I->abgr) (T:abgr) (h h' : Hom T (make X)) :
          (forall i, Proj X i ∘ h == Proj X i ∘ h') -> h == h'.
       intros ? ? ? ? ? e.
@@ -814,41 +830,45 @@ Module Abgr.
   End Product.
   Definition power (I:Type) (X:abgr) : abgr.
     intros. exact (Product.make (fun _:I => Z)). Defined.
-End Abgr.
-
-Module Ab.                      (* the category of abelian groups *)
-  Require Import Foundations.hlevel2.algebra1a Foundations.hlevel2.algebra1b.
-  Definition Ob := abgr.
-  Identity Coercion Ob_to_abgr : Ob >-> abgr.
-  Definition Mor : Ob -> Ob -> hSet.
-    intros G H. exists (monoidfun G H). exact (isasetmonoidfun G H). Defined.
-  Definition ObMor : precategory_ob_mor := Ob,,Mor.
-  Definition Data : precategory_data.
-    exists ObMor. split. intro G. exists (idfun (G : abgr)). split. 
-    split. reflexivity. intros a b c.  exact monoidfuncomp. Defined.
-  Definition MorEquality G H (p q : Mor G H) : pr1 p == pr1 q -> p == q.
-    intros. apply Monoid.funEquality. assumption. Qed.
-  Definition Precat : precategory.
-    exists Data. split; simpl. split; simpl.
-    - intros. apply MorEquality. reflexivity.
-    - intros. apply MorEquality. reflexivity.
-    - intros. apply MorEquality. reflexivity. Defined.
-  Module Product.
-    Definition Object {I} (X:I->ob Precat) : ob Precat := Abgr.Product.make X.
-    Import PrimitiveInitialObjects.
-    Definition make {I} (X:I->ob Precat) : Product.type Precat X.
-      intros.
-      set (Q := El.make_ob (HomFamily.precat Precat^op X) (Object X) (Abgr.Product.Proj X)).
-      exists Q. intros T.
-      assert ( k' : Hom Q T ).
-      { destruct T as [T_ob T_el].
-        exists (Abgr.Product.Map X T_ob T_el). simpl.
-        apply funextsec. exact_op (Abgr.Product.Eqn X T_ob T_el). }
-      exists k'. intros k. apply El.mor_equality.
-      exact (Abgr.Product.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
-               (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
-  End Product.
-End Ab.
+  (** ** the category of abelian groups *)
+  Module Category.
+    Require Import Foundations.hlevel2.algebra1a Foundations.hlevel2.algebra1b.
+    Local Notation Hom := Precategory.mor.
+    Definition Ob := abgr.
+    Identity Coercion Ob_to_abgr : Ob >-> abgr.
+    Definition Mor : Ob -> Ob -> hSet.
+      intros G H. exists (monoidfun G H). exact (isasetmonoidfun G H). Defined.
+    Definition ObMor : precategory_ob_mor := Ob,,Mor.
+    Definition Data : precategory_data.
+      exists ObMor. split. intro G. exists (idfun (G : abgr)). split. 
+      split. reflexivity. intros a b c.  exact monoidfuncomp. Defined.
+    Definition MorEquality G H (p q : Mor G H) : pr1 p == pr1 q -> p == q.
+      intros. apply Monoid.funEquality. assumption. Qed.
+    Definition Precat : precategory.
+      exists Data. split; simpl. split; simpl.
+      - intros. apply MorEquality. reflexivity.
+      - intros. apply MorEquality. reflexivity.
+      - intros. apply MorEquality. reflexivity. Defined.
+    Module Product.
+      Definition Object {I} (X:I->ob Precat) : ob Precat
+        := AbelianGroup.Product.make X.
+      Import Primitive.InitialObject.
+      Definition make {I} (X:I->ob Precat) : Product.type Precat X.
+        intros.
+        set (Q := Elements.make_ob (HomFamily.precat Precat^op X) (Object X)
+                                   (AbelianGroup.Product.Proj X)).
+        exists Q. intros T.
+        assert ( k' : Hom Q T ).
+        { destruct T as [T_ob T_el].
+          exists (AbelianGroup.Product.Map X T_ob T_el). simpl.
+          apply funextsec. exact_op (AbelianGroup.Product.Eqn X T_ob T_el). }
+        exists k'. intros k. apply Elements.mor_equality.
+        exact (AbelianGroup.Product.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
+                 (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
+      Defined.
+    End Product.
+  End Category.
+End AbelianGroup.
 
 (**
   We are working toward definitions of "additive category" and "abelian
