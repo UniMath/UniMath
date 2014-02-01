@@ -34,8 +34,12 @@ Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Notation "C '^op'" := (opp_precat C) (at level 3).
 Notation SET := hset_precategory.
 
-Definition equality_proof_irrelevance (X:hSet) (x y:X) (p q:x==y) : p==q.
+Definition equality_proof_irrelevance {X:hSet} {x y:X} (p q:x==y) : p==q.
 Proof. intros. destruct (the (setproperty _ _ _ p q)). reflexivity. Qed.
+
+Definition equality_proof_irrelevance' {X:Type} {x y:X} (p q:x==y) : 
+  isaset X -> p==q.
+Proof. intros ? ? ? ? ? is. apply is. Defined.
 
 Definition Ob (C:precategory) : Type := ob C.
 
@@ -745,6 +749,23 @@ Module Monoid.
     Definition Eqn {I} (X:I->monoid) (T:monoid) (g: forall i, Hom T (X i))
                : forall i, Proj X i ∘ Fun X T g == g i.
       intros. apply funEquality. reflexivity. Qed.
+    Lemma issurjective_projection {I} (X:I->monoid) (i:I) :
+      isdeceq I -> issurjective (Proj X i).
+    (* reminder: by 'isasetifdeceq', I is a set, too *)
+    Proof.
+      intros ? ? ? d xi. 
+      apply hinhpr. 
+      unfold isdeceq in d.
+      set (x := fun j => two_cases (d i j)
+                                   (fun p => transport X p xi)
+                                   (fun _ => unel (X j))).
+      exists x. simpl. unfold x. destruct (d i i) as [q|r].
+      { simpl. assert (e : idpath i == q).
+        { apply equality_proof_irrelevance'. exact (isasetifdeceq I d). }
+        destruct e.
+        reflexivity. }
+      { simpl.  destruct (r (idpath i)). } 
+    Defined.
   End Product.
 End Monoid.
 

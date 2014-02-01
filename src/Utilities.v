@@ -8,6 +8,12 @@ Require Import Foundations.hlevel2.hSet.
 
 Set Default Timeout 50.
 
+Definition two_cases {X Y T} : coprod X Y -> (X->T) -> (Y->T) -> T.
+  intros ? ? ? [x|y] f g.
+  exact (f x).
+  exact (g y).
+Defined.
+
 Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
   let T := type of x in
   let G := match goal with |- ?G => constr:(G) end in
