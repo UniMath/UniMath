@@ -31,6 +31,9 @@ Definition transport {X:UU} (P:X->UU) {x x':X} (e:x==x'): P x -> P x'.
   exact (type_equality_to_function (maponpaths P e) p).
 Defined.
 
+Lemma transport_idpath {X:UU} (P:X->UU) {x:X} (p:P x) : transport P (idpath x) p == p.
+Proof. intros. reflexivity. Defined.
+
 Module Import Notations.
     Notation ap := maponpaths.
     (* see table 3.1 in the coq manual for parsing levels *)
@@ -124,6 +127,39 @@ Proof. intros. destruct (the (setproperty _ _ _ p q)). reflexivity. Qed.
 Definition equality_proof_irrelevance' {X:Type} {x y:X} (p q:x==y) : 
   isaset X -> p==q.
 Proof. intros ? ? ? ? ? is. apply is. Defined.
+
+Definition path_start {X} {x x':X} (p:x == x') := x.
+Definition path_end {X} {x x':X} (p:x == x') := x'.
+
+Module AdjointEquivalence.
+  Record data X Y := make {
+         f : X -> Y; g : Y -> X;
+         p : forall y, f(g y) == y;
+         q : forall x, g(f x) == x;
+         h : forall x, ap f (q x) == p(f x) }.
+End AdjointEquivalence.
+
+Lemma helper {X Y} {f:X->Y} x x' (w:x==x') (t:f x==f x) :
+              transport (fun x' => f x' == f x) w (idpath (f x)) == ap f (!w).
+Proof. intros ? ? k. destruct w. reflexivity. Qed.
+
+Definition proj2 {X:UU} {P:X->UU} {w w':total2 P} (p : w == w') :
+  transport P (ap pr1 p) (pr2 w) == pr2 w'.
+Proof. intros. destruct p. reflexivity. Defined.
+
+Definition weq_to_AdjointEquivalence X Y : weq X Y -> AdjointEquivalence.data X Y.
+  intros ? ? [f r].
+  set (g := fun y => hfiberpr1 f y (the (r y))).
+  set (p := fun y => pr2 (pr1 (r y))).
+  set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
+  set (q := fun x => ap pr1 (L x)).
+  set (q' := fun x => !q x).  
+  exact (AdjointEquivalence.make
+           X Y f g p q'
+           (fun x => 
+              !(helper x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x)))
+               @ (proj2 (L x)))).
+Defined.
 
 (** * Squashing. *)
 
