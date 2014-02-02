@@ -79,7 +79,7 @@ Proof.
 Definition makePrecategory_ob_mor
     (obj : UU)
     (mor : obj -> obj -> UU)
-    (imor : forall i j:obj, isaset (mor i j))
+    (imor : ∀ i j:obj, isaset (mor i j))
     : precategory_ob_mor.
   intros.
   exact (precategory_ob_mor_pair obj (fun i j:obj => hSetpair (mor i j) (imor i j))).
@@ -88,8 +88,8 @@ Defined.
 Definition makePrecategory_data
     (obj : UU)
     (mor : obj -> obj -> UU)
-    (imor : forall i j, isaset (mor i j))
-    (identity : forall i, mor i i)
+    (imor : ∀ i j, isaset (mor i j))
+    (identity : ∀ i, mor i i)
     (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
     : precategory_data.
   intros.
@@ -156,7 +156,7 @@ Proof.
 Module Primitive.
   Module TerminalObject. (** *** terminal objects *)
     Definition isTerminalObject (C:precategory) (a:ob C) := 
-      forall (x:ob C), iscontr (a ← x).
+      ∀ x:ob C, iscontr (a ← x).
     Lemma theTerminalObjectIsomorphy (C:precategory) (a b:ob C) :
       isTerminalObject C a -> isTerminalObject C b -> @iso C a b.
     Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
@@ -190,7 +190,7 @@ Module Primitive.
 
   Module InitialObject.
     Definition isInitialObject (C:precategory) (a:ob C) :=
-      forall (x:ob C), iscontr (x ← a).
+      ∀ x:ob C, iscontr (x ← a).
     Lemma theInitialObjectIsomorphy (C:precategory) (a b:ob C) :
       isInitialObject C a -> isInitialObject C b -> @iso C a b.
     Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
@@ -297,7 +297,7 @@ Module ZeroObject.
   Proof. intros ? ? ? ? ?.
     apply (@factor_dep_through_squash (ZeroObject C)). intro. apply setproperty.
     intro z.
-    assert (g : forall (b:ob C), zeroMap' a b z == zeroMap a b (squash_element z)).
+    assert (g : ∀ b:ob C, zeroMap' a b z == zeroMap a b (squash_element z)).
     { trivial. }
     destruct (g b). destruct (g c). apply zeroMap'_left_composition. Qed.
 End ZeroObject.
@@ -321,7 +321,7 @@ Module StandardCategories.
         : f @ (g @ h) == (f @ g) @ h.
   Proof. intros. destruct f. reflexivity. Qed.
   Definition is_groupoid (C : precategory) := 
-    forall (a b : ob C), isweq (fun p : a == b => idtomor a b p).
+    ∀ a b : ob C, isweq (fun p : a == b => idtomor a b p).
   Lemma isaprop_is_groupoid (C : precategory) : isaprop (is_groupoid C).
   Proof. intro. apply impred.
     intro a. apply impred. intro b. apply isapropisweq. Qed.
@@ -586,45 +586,45 @@ Module Matrix.
   Import Coproduct.Coercions Product.Coercions.
   Definition to_row {C:precategory} {I} {b:I -> ob C} 
              (B:Coproduct.make C b) {d:ob C} :
-    weq (Hom B d) (forall j, Hom (b j) d).
+    weq (Hom B d) (∀ j, Hom (b j) d).
   Proof. intros. exact (Representation.Iso B d). Defined.
   Definition from_row {C:precategory} {I} {b:I -> ob C} 
              (B:Coproduct.make C b) {d:ob C} :
-    weq (forall j, Hom (b j) d) (Hom B d).
+    weq (∀ j, Hom (b j) d) (Hom B d).
   Proof. intros. apply invweq. apply to_row. Defined.
   Definition to_col {C:precategory} {I} {d:I -> ob C} (D:Product.type C d) {b:ob C} :
-    weq (Hom b D) (forall i, Hom b (d i)).
+    weq (Hom b D) (∀ i, Hom b (d i)).
   Proof. intros. exact (Representation.Iso D b). Defined.
   Definition from_col {C:precategory} {I} {d:I -> ob C} 
              (D:Product.type C d) {b:ob C} :
-    weq (forall i, Hom b (d i)) (Hom b D).
+    weq (∀ i, Hom b (d i)) (Hom b D).
   Proof. intros. apply invweq. apply to_col. Defined.
   Definition to_matrix {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
-             weq (Hom B D) (forall i j, Hom (b j) (d i)).
-  Proof. intros. apply @weqcomp with (Y := forall i, Hom B (d i)).
+             weq (Hom B D) (∀ i j, Hom (b j) (d i)).
+  Proof. intros. apply @weqcomp with (Y := ∀ i, Hom B (d i)).
          { apply to_col. } { apply weqonseqfibers; intro i. apply to_row. } Defined.
   Definition from_matrix {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
-             weq (forall i j, Hom (b j) (d i)) (Hom B D).
+             weq (∀ i j, Hom (b j) (d i)) (Hom B D).
   Proof. intros. apply invweq. apply to_matrix. Defined.
   Definition to_matrix' {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
-             weq (Hom B D) (forall j i, Hom (b j) (d i)).
-  Proof. intros. apply @weqcomp with (Y := forall j, Hom (b j) D).
+             weq (Hom B D) (∀ j i, Hom (b j) (d i)).
+  Proof. intros. apply @weqcomp with (Y := ∀ j, Hom (b j) D).
          { apply to_row. } { apply weqonseqfibers; intro i. apply to_col. } Defined.
   Definition from_matrix' {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
-             weq (forall j i, Hom (b j) (d i)) (Hom B D).
+             weq (∀ j i, Hom (b j) (d i)) (Hom B D).
   Proof. intros. apply invweq. apply to_matrix'. Defined.
   Lemma to_matrix_equal {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Coproduct.make C b) :
-    forall p i j, to_matrix D B p i j == to_matrix' D B p j i.
+    ∀ p i j, to_matrix D B p i j == to_matrix' D B p j i.
   Proof. intros. 
          exact_op (assoc _ _ _ _ _ (Coproduct.In B j) p (Product.Proj D i)). Qed.
 End Matrix.
@@ -632,7 +632,7 @@ End Matrix.
 Module DirectSum.
   Import ZeroObject FiniteSet.Coercions Coproduct.Coercions Product.Coercions.
   Definition identity_matrix {C:precategory} (h:hasZeroObject C)
-             {I} {d:I -> ob C} (dec : isdeceq I) : forall i j, Hom (d j) (d i).
+             {I} {d:I -> ob C} (dec : isdeceq I) : ∀ i j, Hom (d j) (d i).
   Proof. intros. destruct (dec i j) as [ [] | _ ].
          { apply identity. } { apply zeroMap. apply h. } Defined.
   Definition identity_map {C:precategory} (h:hasZeroObject C)
@@ -658,7 +658,7 @@ Module Kernel.
   Proof. intros ? ? ? ? ? x.
     exact (total2( fun g:Hom d x => g ∘ f == zeroMap c x z)). Defined.
   Definition zerocomp_type_isaset {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
-    forall x:ob C, isaset (zerocomp_type z f x).
+    ∀ x:ob C, isaset (zerocomp_type z f x).
   Proof. intros ? ? ? ? ? x.
     apply (isofhleveltotal2 2).
     { apply setproperty. }
@@ -672,7 +672,7 @@ Module Kernel.
   Proof. intros ? ? ? ? ? x.
     exact (zerocomp_type z f x,, zerocomp_type_isaset z f x). Defined.
   Definition zerocomp_map {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
-    forall x y:ob C,
+    ∀ x y:ob C,
     Hom x y 
     ->
     set_to_type (zerocomp_set z f x) -> set_to_type (zerocomp_set z f y).
@@ -712,16 +712,16 @@ Module Magma.
     Definition make {I} (X:I->setwithbinop) : setwithbinop.
       intros.
       exists (sections X,,i1 X). exact (fun v w i => v i * w i). Defined.
-    Definition Proj {I} (X:I->setwithbinop) : forall i:I, Hom (make X) (X i).
+    Definition Proj {I} (X:I->setwithbinop) : ∀ i:I, Hom (make X) (X i).
       intros. exists (fun y => y i). intros a b. reflexivity. Defined.
     Definition Fun {I} (X:I->setwithbinop) (T:setwithbinop) 
-                       (g: forall i, Hom T (X i))
+                       (g: ∀ i, Hom T (X i))
                : Hom T (make X).
       intros. exists (fun t i => g i t).
       intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
     Definition Eqn {I} (X:I->setwithbinop) (T:setwithbinop) 
-                       (g: forall i, Hom T (X i))
-               : forall i, Proj X i ∘ Fun X T g == g i.
+                       (g: ∀ i, Hom T (X i))
+               : ∀ i, Proj X i ∘ Fun X T g == g i.
       intros. apply funEquality. reflexivity. Qed.
   End Product.
 End Magma.
@@ -748,13 +748,13 @@ Module Monoid.
     Definition Proj {I} (X:I->monoid) (i:I) : Hom (make X) (X i).
       intros. exists (pr1 (Magma.Product.Proj X i)). split. 
       exact (pr2 (Magma.Product.Proj X i)). simpl. reflexivity. Defined.
-    Definition Fun {I} (X:I->monoid) (T:monoid) (g: forall i, Hom T (X i))
+    Definition Fun {I} (X:I->monoid) (T:monoid) (g: ∀ i, Hom T (X i))
                : Hom T (make X).
       intros.  exists (pr1 (Magma.Product.Fun X T g)). 
       exists (pr2 (Magma.Product.Fun X T g)). apply funextsec; intro i.
       exact (pr2 (pr2 (g i))). Defined.
-    Definition Eqn {I} (X:I->monoid) (T:monoid) (g: forall i, Hom T (X i))
-               : forall i, Proj X i ∘ Fun X T g == g i.
+    Definition Eqn {I} (X:I->monoid) (T:monoid) (g: ∀ i, Hom T (X i))
+               : ∀ i, Proj X i ∘ Fun X T g == g i.
       intros. apply funEquality. reflexivity. Qed.
     Lemma issurjective_projection {I} (X:I->monoid) (i:I) :
       isdeceq I -> issurjective (Proj X i).
@@ -789,10 +789,10 @@ Module Group.
       - intro y. apply funextsec; intro i. apply grrinvax. Defined.    
     Definition Proj {I} (X:I->gr) (i:I) : Hom (make X) (X i).
       intros. exact (Monoid.Product.Proj X i). Defined.
-    Definition Fun {I} (X:I->gr) (T:gr) (g: forall i, Hom T (X i)) : Hom T (make X).
+    Definition Fun {I} (X:I->gr) (T:gr) (g: ∀ i, Hom T (X i)) : Hom T (make X).
       intros. exact (Monoid.Product.Fun X T g). Defined.
-    Definition Eqn {I} (X:I->gr) (T:gr) (g: forall i, Hom T (X i))
-               : forall i, Proj X i ∘ Fun X T g == g i.
+    Definition Eqn {I} (X:I->gr) (T:gr) (g: ∀ i, Hom T (X i))
+               : ∀ i, Proj X i ∘ Fun X T g == g i.
       intros. apply Monoid.funEquality. reflexivity. Qed.
   End Product.
 End Group.
@@ -815,14 +815,14 @@ Module AbelianGroup.
       intros a b. apply funextsec; intro i. apply commax. Defined.
     Definition Proj {I} (X:I->abgr) (i:I) : Hom (make X) (X i).
       exact @Group.Product.Proj. Defined.
-    Definition Map {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i)) :
+    Definition Map {I} (X:I->abgr) (T:abgr) (g: ∀ i, Hom T (X i)) :
         Hom T (make X).
       exact @Group.Product.Fun. Defined.
-    Definition Eqn {I} (X:I->abgr) (T:abgr) (g: forall i, Hom T (X i))
-             : forall i, Proj X i ∘ Map X T g == g i.
+    Definition Eqn {I} (X:I->abgr) (T:abgr) (g: ∀ i, Hom T (X i))
+             : ∀ i, Proj X i ∘ Map X T g == g i.
       exact @Group.Product.Eqn. Qed.
     Definition UniqueMap {I} (X:I->abgr) (T:abgr) (h h' : Hom T (make X)) :
-         (forall i, Proj X i ∘ h == Proj X i ∘ h') -> h == h'.
+         (∀ i, Proj X i ∘ h == Proj X i ∘ h') -> h == h'.
       intros ? ? ? ? ? e.
       apply Monoid.funEquality.
       apply funextfunax; intro t; apply funextsec; intro i.
