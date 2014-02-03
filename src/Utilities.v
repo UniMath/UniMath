@@ -112,11 +112,6 @@ Proof. trivial. Qed.
 Definition isaprop_hProp (X:hProp) : isaprop X.
 Proof. intro. exact (pr2 X). Qed.
 
-(* (* use setproperty instead *)
-Definition isaset_hSet (X:hSet) : isaset X.
-Proof. intro. exact (pr2 X). Qed.
-*)
-
 Definition the {T:UU} : iscontr T -> T.
 Proof. intros ? is. exact (pr1 is). Defined.
 

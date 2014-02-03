@@ -244,6 +244,8 @@ Module ZeroObject.
                    isTerminalObject C z) ).
   Definition zero_opp (C:precategory) : ZeroObject C -> ZeroObject C^op.
     intros C [z [i t]]. exact (z ,, (t ,, i)). Defined.
+  Definition zero_opp' (C:precategory) : ZeroObject C^op -> ZeroObject C.
+    intros ? X. exact (zero_opp C^op X). Defined.
   Definition zero_object {C:precategory} (z:ZeroObject C) : ob C := pr1  z.
   Definition map_from    {C:precategory} (z:ZeroObject C) := pr1(pr2 z).
   Definition map_to      {C:precategory} (z:ZeroObject C) := pr2(pr2 z).
@@ -271,11 +273,9 @@ Module ZeroObject.
   Proof. intros ? ? ? ? ? ? ? []. reflexivity. Qed.
   Lemma zeroMapUniqueness {C:precategory} (x y:ZeroObject C) (a b:ob C) :
     zeroMap' a b x == zeroMap' a b y.
-  Proof. intros.
-    set(i := the (map_to x a)).
-    set(h := the (map_from x y)). 
-    set(q := the (map_from y b)).
-    intermediate (q ∘ (h ∘ i)). 
+  Proof. intros. set(i := the (map_to x a)).
+    set(h := the (map_from x y)). set(q := the (map_from y b)).
+    intermediate (q ∘ (h ∘ i)).
     { intermediate ((q ∘ h) ∘ i). 
       { apply path_right_composition. apply uniqueness'. }
       { apply assoc. }}
@@ -335,8 +335,7 @@ Module StandardCategories.
     { refine (isweqhomot (idtomor _ _) _ _ _).
       { intro p. destruct p. reflexivity. }
       apply ig. }
-      apply morphism_from_iso_is_incl.
-  Qed.
+      apply morphism_from_iso_is_incl. Qed.
   Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> precategory.
     (* Later we'll define a version of this with no hlevel assumption on X,
        where [mor i j] will be defined with [pi0].  This version will still
@@ -352,56 +351,30 @@ Module StandardCategories.
   Defined.
   Lemma is_groupoid_path_pregroupoid (X:UU) (iobj:isofhlevel 3 X) :
     is_groupoid (path_pregroupoid X iobj).
-  Proof.
-    intros ? ? a b.
+  Proof. intros ? ? a b.
     assert (k : idfun (a == b) ~ idtomor a b). { intro p. destruct p. reflexivity. }
-    apply (isweqhomot _ _ k).
-    apply idisweq.
-  Qed.
+    apply (isweqhomot _ _ k). apply idisweq. Qed.
   Lemma is_category_path_pregroupoid (X:UU) (i:isofhlevel 3 X) :
     is_category (path_pregroupoid X i).
-  Proof.
-    intros.
-    apply is_category_groupoid, is_groupoid_path_pregroupoid.
+  Proof. intros. apply is_category_groupoid. apply is_groupoid_path_pregroupoid.
   Qed.
-
   Definition path_groupoid (X:UU) : isofhlevel 3 X -> category.
-  Proof.
-    intros ? iobj.
-    apply (category_pair (path_pregroupoid X iobj)), is_category_path_pregroupoid.
-  Defined.
+  Proof. intros ? iobj. apply (category_pair (path_pregroupoid X iobj)). 
+    apply is_category_path_pregroupoid. Defined.
 
   (** *** the discrete category on n objects *)
-
   Require Import Foundations.hlevel2.stnfsets.
-
   Definition cat_n (n:nat):category.
-    intro.
-    apply (path_groupoid (stn n)).
-    apply hlevelntosn.
-    apply isasetstn.
-  Defined.
-
+    intro. apply (path_groupoid (stn n)). apply hlevelntosn.
+    apply isasetstn. Defined.
   Definition is_discrete (C:precategory) := 
     dirprod (isaset (ob C)) (is_groupoid C).
-
   Lemma isaprop_is_discrete (C:precategory) : 
     isaprop (is_discrete C).
-  Proof.
-    intro.
-    apply isofhleveltotal2. apply isapropisaset.
-    intro is.
-    apply isaprop_is_groupoid.
-  Qed.
-
+  Proof. intro. apply isofhleveltotal2. apply isapropisaset.
+    intro is. apply isaprop_is_groupoid. Qed.
   Lemma is_discrete_cat_n (n:nat) : is_discrete (cat_n n).
-  Proof.
-    intro.
-    split.
-      apply isasetstn.
-    apply is_groupoid_path_pregroupoid.
-  Qed.
-
+  Proof. intro. split. apply isasetstn. apply is_groupoid_path_pregroupoid. Qed.
 End StandardCategories.
 
 Module Elements.
@@ -419,12 +392,12 @@ Module Elements.
           [ apply setproperty |
             intros f;  apply (isofhlevelsnprop 1); apply setproperty])
       using cat_data_isaset.
-    - intro a. exact (identity (pr1 a),, (apevalat (pr2 a) ((functor_id X) (pr1 a)))).
+    - intro a. 
+      exact (identity (pr1 a),, (apevalat (pr2 a) ((functor_id X) (pr1 a)))).
     - intros ? ? ? f g.
-      exact (      pr1 g ∘ pr1 f,,
-                   ((apevalat (pr2 i) ((functor_comp X) _ _ _ (pr1 f) (pr1 g)))
-                    @ 
-                    (ap ((Functor.mor X) _ _ (pr1 g)) (pr2 f) @ (pr2 g)))). Defined.
+      exact (pr1 g ∘ pr1 f,,
+             (  (apevalat (pr2 i) ((functor_comp X) _ _ _ (pr1 f) (pr1 g)))
+              @ (ap ((Functor.mor X) _ _ (pr1 g)) (pr2 f) @ (pr2 g)))). Defined.
   Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr1 f.
   Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x → y) :
         get_mor f == get_mor g -> f == g.
@@ -672,9 +645,7 @@ Module Kernel.
   Proof. intros ? ? ? ? ? x.
     exact (zerocomp_type z f x,, zerocomp_type_isaset z f x). Defined.
   Definition zerocomp_map {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
-    ∀ x y:ob C,
-    Hom x y 
-    ->
+    ∀ x y:ob C, Hom x y ->
     set_to_type (zerocomp_set z f x) -> set_to_type (zerocomp_set z f y).
   Proof. intros ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc.  rewrite s.
          apply zeroMap_left_composition. Defined.
@@ -714,13 +685,11 @@ Module Magma.
       exists (sections X,,i1 X). exact (fun v w i => v i * w i). Defined.
     Definition Proj {I} (X:I->setwithbinop) : ∀ i:I, Hom (make X) (X i).
       intros. exists (fun y => y i). intros a b. reflexivity. Defined.
-    Definition Fun {I} (X:I->setwithbinop) (T:setwithbinop) 
-                       (g: ∀ i, Hom T (X i))
+    Definition Fun {I} (X:I->setwithbinop) (T:setwithbinop) (g: ∀ i, Hom T (X i))
                : Hom T (make X).
       intros. exists (fun t i => g i t).
       intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
-    Definition Eqn {I} (X:I->setwithbinop) (T:setwithbinop) 
-                       (g: ∀ i, Hom T (X i))
+    Definition Eqn {I} (X:I->setwithbinop) (T:setwithbinop) (g: ∀ i, Hom T (X i))
                : ∀ i, Proj X i ∘ Fun X T g == g i.
       intros. apply funEquality. reflexivity. Qed.
   End Product.
@@ -730,8 +699,7 @@ Module Monoid.
   Require Import Foundations.hlevel2.algebra1b.
   Local Notation Hom := monoidfun (only parsing).
   Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
-  Definition funEquality G H (p q : monoidfun G H) :
-             pr1 p == pr1 q -> p == q.
+  Definition funEquality G H (p q : monoidfun G H) : pr1 p == pr1 q -> p == q.
     intros ? ? [p i] [q j] v. simpl in v. destruct v.
     destruct (pr1 (isapropismonoidfun p i j)). reflexivity. Qed.
   Definition zero : monoid.
@@ -823,9 +791,8 @@ Module AbelianGroup.
       exact @Group.Product.Eqn. Qed.
     Definition UniqueMap {I} (X:I->abgr) (T:abgr) (h h' : Hom T (make X)) :
          (∀ i, Proj X i ∘ h == Proj X i ∘ h') -> h == h'.
-      intros ? ? ? ? ? e.
-      apply Monoid.funEquality.
-      apply funextfunax; intro t; apply funextsec; intro i.
+      intros ? ? ? ? ? e. apply Monoid.funEquality.
+      apply funextfunax; intro t. apply funextsec; intro i.
       exact (apevalat t (ap pr1 (e i))). Qed.
   End Product.
   Definition power (I:Type) (X:abgr) : abgr.
