@@ -55,8 +55,11 @@ FOUNDATIONS_DIR := ../../Foundations2
 REZK_COMPLETION_DIR := ../../RezkCompletion
 FOUNDATIONS_FILES = $(shell cd $(FOUNDATIONS_DIR) && make show-vfiles)
 REZK_COMPLETION_FILES = $(shell cd $(REZK_COMPLETION_DIR) && make show-vfiles)
+HTML_DIR = html
 html-all:
-	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d html		\
+	rm -rf $(HTML_DIR)
+	mkdir $(HTML_DIR)
+	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d $(HTML_DIR)	\
 		-R $(FOUNDATIONS_DIR) Foundations				\
 		-R $(REZK_COMPLETION_DIR) RezkCompletion			\
 		$(VFILES) $(FOUNDATIONS_FILES) $(REZK_COMPLETION_FILES) 
