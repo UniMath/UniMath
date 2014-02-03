@@ -49,3 +49,14 @@ wc:; wc -w $(VFILES)
 clean:clean2
 clean2:; rm -f TAGS *.d *.glob N*.cmi N*.cmx N*.cmxs N*.native N*.o
 distclean: clean; rm -f Make-include.mk Make-include.mk.bak
+
+# override this on your system with the correct settings on the command line:
+FOUNDATIONS_DIR := ../../Foundations2
+REZK_COMPLETION_DIR := ../../RezkCompletion
+FOUNDATIONS_FILES = $(shell cd $(FOUNDATIONS_DIR) && make show-vfiles)
+REZK_COMPLETION_FILES = $(shell cd $(REZK_COMPLETION_DIR) && make show-vfiles)
+html-all:
+	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d html		\
+		-R $(FOUNDATIONS_DIR) Foundations				\
+		-R $(REZK_COMPLETION_DIR) RezkCompletion			\
+		$(VFILES) $(FOUNDATIONS_FILES) $(REZK_COMPLETION_FILES) 
