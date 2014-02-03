@@ -44,14 +44,9 @@ Module Import Notations.
     (* funcomp' is like funcomp, but with the arguments in the other order *)
     Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
     Notation "p # x" := (transport _ p x) (right associativity, at level 65, only parsing).
-    Notation "∀ x : t , P" := (forall x:t, P) (at level 200, x ident). 
-    Notation "∀ x y : t , P" := (forall x y:t, P) (at level 200, x ident, y ident). 
-    Notation "∀ x , P" := (forall x, P) (at level 200, x ident). 
-    Notation "∀ x y , P" := (forall x y, P) (at level 200, x ident, y ident). 
-    Notation "∀ x y z , P" := (forall x y z, P) (at level 200, x ident, y ident, z ident). 
 End Notations.
 
-Definition sections {T:UU} (P:T->UU) := ∀ t:T, P t.
+Definition sections {T:UU} (P:T->UU) := forall t:T, P t.
 Definition evalat {T:UU} {U:UU} (t:T) (f:T->U) := f t.
 Definition apevalat {T:UU} {U:UU} (t:T) {f g:T->U}
   : f == g -> f t == g t
@@ -65,7 +60,7 @@ Definition apevalsecat {T:UU} {P:T->UU} (t:T) {f g:sections P}
 
 Definition not X := X -> empty.
 Definition decidable X := coprod X (not X).
-Definition LEM := ∀ P, isaprop P -> decidable P.
+Definition LEM := forall P, isaprop P -> decidable P.
 Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
 Proof. intros X lem is x y. exact (lem (x==y) (is x y)). Qed.
 
@@ -94,6 +89,8 @@ Ltac prop_logic :=
   repeat (try (apply isapropdirprod); try (apply isapropishinh); apply impred ; intro); 
   try (apply isapropiscontr);
   try assumption.
+
+Definition propProperty (P:hProp) := pr2 P : isaprop (pr1 P).
 
 Global Opaque isapropiscontr isapropishinh.
 
@@ -134,9 +131,9 @@ Definition path_end {X} {x x':X} (p:x == x') := x'.
 Module AdjointEquivalence.
   Record data X Y := make {
          f : X -> Y; g : Y -> X;
-         p : ∀ y, f(g y) == y;
-         q : ∀ x, g(f x) == x;
-         h : ∀ x, ap f (q x) == p(f x) }.
+         p : forall y, f(g y) == y;
+         q : forall x, g(f x) == x;
+         h : forall x, ap f (q x) == p(f x) }.
 End AdjointEquivalence.
 
 Lemma helper {X Y} {f:X->Y} x x' (w:x==x') (t:f x==f x) :
@@ -165,6 +162,13 @@ Defined.
 
 Notation squash := ishinh_UU.
 Notation squash_fun := hinhfun.
+Lemma squash_fun2 {X Y Z} : (X -> Y -> Z) -> (squash X -> squash Y -> squash Z).
+Proof. intros ? ? ? f x y P h.
+  exact (y P 
+           (x (hProppair 
+                 (Y -> P) 
+                 (impred 1 _ (fun _ => propProperty P))) 
+              (fun a b => h (f a b)))). Qed.
 
 Definition squash_element {X:UU} : X -> squash X.
 Proof. intros ? x P f. exact (f x). Defined.
@@ -183,15 +187,15 @@ Lemma factor_through_squash_factors {X Q:UU} (i:isaprop Q) (f:X -> Q) (x:X)
 Proof. trivial. Defined.
 
 Lemma factor_dep_through_squash {X:UU} {Q:squash X->UU} : 
-  (∀ h, isaprop (Q h)) -> 
-  (∀ x, Q(squash_element x)) -> 
-  (∀ h, Q h).
+  (forall h, isaprop (Q h)) -> 
+  (forall x, Q(squash_element x)) -> 
+  (forall h, Q h).
 Proof.
   intros ? ? i f ?.  apply (h (hProppair (Q h) (i h))). 
   intro x. simpl. destruct (squash_uniqueness x h). exact (f x).
 Defined.
 
-Lemma factor_through_squash_hProp {X:UU} : ∀ hQ:hProp, (X -> hQ) -> (squash X -> hQ).
+Lemma factor_through_squash_hProp {X:UU} : forall hQ:hProp, (X -> hQ) -> (squash X -> hQ).
 Proof. intros ? [Q i] f h. apply h. assumption. Defined.
 
 Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
@@ -210,7 +214,7 @@ Proof. intros ? i p. exists p. intros p'. apply i. Defined.
 (** ** show that squashing is a set-quotient *)
 
 Lemma squash_to_set {X Y:UU} (f : X -> Y) :
-  isaset Y -> (∀ x x', f x == f x') -> squash X -> Y.
+  isaset Y -> (forall x x', f x == f x') -> squash X -> Y.
 
 (** from Voevodsky, for future work:
 
@@ -220,13 +224,13 @@ Lemma squash_to_set {X Y:UU} (f : X -> Y) :
 
 Proof.
   intros ? ? ? is e.
-  set (L := fun y:Y => ∀ x:X, f x == y).
+  set (L := fun y:Y => forall x:X, f x == y).
   set (P := total2 L).
   assert(ip : isaset P).
    apply (isofhleveltotal2 2). exact is.
    intros y. apply impred.
    intros t. apply isasetaprop. apply is.
-  assert(m : X -> ∀ y:Y, isaprop (L y)).
+  assert(m : X -> forall y:Y, isaprop (L y)).
    intros a z. apply impred.
    intros t. apply is.
   assert(h : X -> isaprop P).
@@ -249,8 +253,8 @@ Proof.
   intro z. apply (pr1 (k z)).
 Defined.
 
-Lemma squash_to_set_equal (X Y:UU) (f : X -> Y) (is : isaset Y) (eq: ∀ x x', f x == f x') :
-  ∀ x, squash_to_set f is eq (squash_element x) == f x.
+Lemma squash_to_set_equal (X Y:UU) (f : X -> Y) (is : isaset Y) (eq: forall x x', f x == f x') :
+  forall x, squash_to_set f is eq (squash_element x) == f x.
 Proof. trivial. Defined.
 
 Lemma squash_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
@@ -272,7 +276,7 @@ Proof.
   intro x. destruct e. apply idpath.
 Qed.
 
-Lemma isaxiomfuncontr { X : UU } (P:X -> UU) : isaprop ((∀ x:X, iscontr (P x)) -> iscontr (∀ x:X, P x)).
+Lemma isaxiomfuncontr { X : UU } (P:X -> UU) : isaprop ((forall x:X, iscontr (P x)) -> iscontr (forall x:X, P x)).
 Proof.
   intros.
   apply impred; intro.
@@ -288,7 +292,7 @@ Proof.  intros. destruct e. apply idpath. Defined.
 Definition fpmaphomotfun {X: UU} {P Q: X -> UU} (h: homot P Q) (xp: total2 P): total2 Q.
 Proof. intros ? ? ? ? [x p]. split with x.  destruct (h x). exact p. Defined.
 
-Definition fpmaphomothomot {X: UU} {P Q: X -> UU} (h1 h2: P ~ Q) (H: ∀ x: X, h1 x == h2 x) :
+Definition fpmaphomothomot {X: UU} {P Q: X -> UU} (h1 h2: P ~ Q) (H: forall x: X, h1 x == h2 x) :
   fpmaphomotfun h1 ~ fpmaphomotfun h2.
 Proof. intros. intros [x p].
        apply (maponpaths (tpair _ x)).  
