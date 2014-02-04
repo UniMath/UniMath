@@ -680,7 +680,8 @@ Module Magma.
       exists (sections X,,i1 X). exact (fun v w i => v i * w i). Defined.
     Definition Proj {I} (X:I->setwithbinop) : forall i:I, Hom (make X) (X i).
       intros. exists (fun y => y i). intros a b. reflexivity. Defined.
-    Definition Fun {I} (X:I->setwithbinop) (T:setwithbinop) (g: forall i, Hom T (X i))
+    Definition Fun {I} (X:I->setwithbinop) (T:setwithbinop)
+               (g: forall i, Hom T (X i))
                : Hom T (make X).
       intros. exists (fun t i => g i t).
       intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
@@ -695,7 +696,13 @@ Module Monoid.
   Local Notation Hom := monoidfun (only parsing).
   Local Notation "x * y" := ( op x y ). 
   Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
-  Definition funEquality G H (p q : monoidfun G H) : pr1 p == pr1 q -> p == q.
+  Definition unitproperty {G H} (p:Hom G H) : p (unel G) == unel H 
+    := pr2 (pr2 p).
+  Definition multproperty {G H} (p:Hom G H) (g g':G) : p(g * g') == p g * p g'
+    := pr1 (pr2 p) g g'.
+  Definition multpath {G:monoid} {g g' h h':G} : g==g' -> h==h' -> g*h==g'*h'.
+    intros ? ? ? ? ? p q. destruct p. destruct q. reflexivity. Qed.
+  Definition funEquality G H (p q : Hom G H) : pr1 p == pr1 q -> p == q.
     intros ? ? [p i] [q j] v. simpl in v. destruct v.
     destruct (pr1 (isapropismonoidfun p i j)). reflexivity. Qed.
   Definition zero : monoid.
@@ -704,25 +711,66 @@ Module Monoid.
   Defined.
   Module Presentation.
     (** * monoids by generators and relations *)
-    Inductive combinations (G:monoid) : Type :=
-      | in0 : combinations G
-      | in1 : G -> combinations G 
-      | in2 : combinations G -> combinations G -> combinations G.
-    Fixpoint eval (G:monoid) (c:combinations G) : G.
-      intros ? [|g|c c']. apply unel. exact g. exact (eval _ c * eval _ c'). 
-    Defined.
-    Definition isinimage {X} {G:monoid} (f:X->G) (g:G) := ishinh (hfiber (eval G) g).
-    Definition image {X} {G:monoid} (f:X->G) := total2 (isinimage f).
+    Inductive word (X:Type) : Type :=
+      | word0 : word X
+      | word1 : X -> word X 
+      | word2 : word X -> word X -> word X.
+    Fixpoint eval {X} {G:monoid} (f:X->G) (c:word X) : G.
+      intros ? ? ? [|x|w w']. { apply unel. } { exact (f x). }
+      { exact (eval X G f w * eval X G f w'). } Defined.
+    Fixpoint evalcomp {X} {G:monoid} (f:X->G) (c:word X) {G'} (p:Hom G G') : 
+      p (eval f c) == eval (funcomp f p) c.
+    Proof. intros. destruct c as [|g|w w'].
+           { apply unitproperty. }
+           { reflexivity. }
+           { simpl. 
+             set (a := evalcomp _ _ f w _ p). set (a' := evalcomp _ _ f w' _ p).
+             unfold funcomp in *; simpl in *. destruct a. destruct a'.
+             apply multproperty. } Qed.
+    Definition isinimage {X} {G:monoid} (f:X->G) (g:G) := ishinh (hfiber (eval f) g).
     Lemma issubmonoid_image {X} {G:monoid} (f:X->G) : issubmonoid (isinimage f).
     Proof. intros ? ? ?. split.
            { intros [g i] [h j]; simpl.
              apply (@squash_fun2
-                      (hfiber (eval G) g) (hfiber (eval G) h)
-                      (hfiber (eval G) (g * h))).
-             { intros [c p] [d q]. exists (in2 G c d); simpl.
+                      (hfiber (eval f) g) (hfiber (eval f) h)
+                      (hfiber (eval f) (g * h))).
+             { intros [c p] [d q]. exists (word2 X c d); simpl.
                destruct p. destruct q. reflexivity. }
              { exact i. } { exact j. } }
-           { apply hinhpr. exists (in0 G). reflexivity. } Qed.
+           { apply hinhpr. exists (word0 X). reflexivity. } Qed.
+    Definition monoid_closure {X} {G:monoid} (f:X->G) : @submonoids G
+      := submonoidpair (isinimage f) (issubmonoid_image f).
+    Definition reln X := dirprod (word X) (word X).
+    (* follow Voevodsky's development of setquot2 in Foundations/hlevel2/hSet.v *)
+    Definition iscomprelfun {X} {G:monoid} (f:X->G) (r:reln X) : Type.
+    Proof. intros ? ? ? ?. exact ( eval f (pr1 r) == eval f (pr2 r)). Defined.
+    Definition square {X} {a b c d:X} (p:a==b) : a==c -> b==d -> c==d.
+      intros ? ? ? ? ? ? q r. exact (!q @ p @ r). Defined.
+    Lemma iscomprelfuncomp {X} {G H:monoid} (f:X->G) (r:reln X) (p:Hom G H)
+               : iscomprelfun f r -> iscomprelfun (funcomp f (pr1 p)) r.
+    Proof. intros ? ? ? ? ? ? is.
+           apply (square (ap p is)). { apply evalcomp. } { apply evalcomp. } Qed.
+    Definition iscompfamrelfun {X T} (R:T->reln X) {G:monoid} (f:X->G) : Type.
+      intros. exact (forall t, iscomprelfun f (R t)). Defined.
+    Lemma iscompfamrelfuncomp {X T} (R:T->reln X) {G H:monoid} 
+               (f:X->G) (p:Hom G H)
+               : iscompfamrelfun R f -> iscompfamrelfun R (funcomp f (pr1 p)).
+      intros ? ? ? ? ? ? ? is t. apply iscomprelfuncomp. exact (is t). Qed.
+    Definition compfun {X T} (R:T->reln X) (G:monoid) :=
+      total2 (fun f:X->G => iscompfamrelfun R f).
+    Definition compfunpair {X T} (R:T->reln X) {G:monoid} 
+               (f:X->G) (is:iscompfamrelfun R f) 
+    : compfun R G 
+      := tpair _ f is.
+    Definition pr1compfun {X T} (R:T->reln X) G (f:compfun R G) : X->G := pr1 f.
+    Coercion pr1compfun : compfun >-> Funclass .   
+    Definition compevmapset {X T} (R:T->reln X) : 
+      X -> forall G:monoid, compfun R G -> G := 
+      fun x G f => pr1 f x.
+    Definition compfuncomp {X T} (R:T->reln X) {G H} 
+               (f:compfun R G) (p: monoidfun G H) : compfun R H.
+    Proof. intros. exists (funcomp f p). 
+           apply iscompfamrelfuncomp. exact (pr2 f). Defined.
   End Presentation.
   Module Product.
     Definition make {I} (X:I->monoid) : monoid.
