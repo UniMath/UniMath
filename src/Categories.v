@@ -736,31 +736,68 @@ Module Monoid.
     | word1 : X -> word X 
     | word2 : word X -> word X -> word X.
   Arguments word0 {X}.
-  Arguments word1 {X} w.
+  Arguments word1 {X} x.
   Arguments word2 {X} v w.
   Definition reln X := dirprod (word X) (word X).
   Module Presentation.
     (** * monoids by generators and relations *)
-    Inductive MonoidReln {X I} (R:I->reln X) : Type :=
-      | from_R : I -> MonoidReln R
-      | left_unit : word X -> MonoidReln R
-      | right_unit : word X -> MonoidReln R
-      | assoc : word X -> word X -> word X -> MonoidReln R.
-    Fixpoint to_reln {X I} (R:I->reln X) (r : MonoidReln R) : reln X.
-    Proof. intros. destruct r as [i|w|w|u v w].
-           { exact (R i). }
-           { exact ( word2 word0 w ,, w ). }
-           { exact ( word2 w word0 ,, w ). }
-           { exact ( word2 (word2 u v) w ,, word2 u (word2 v w) ). }
+    Record adequate_eqrel {X I} (R:I->reln X) (r : hrel (word X)) := 
+      build_adequate_eqrel {
+          base : forall i, r (pr1 (R i)) (pr2 (R i)) ;
+          reflex : forall w, r w w;
+          symm : forall v w, r v w -> r w v;
+          trans : forall u v w, r u v -> r v w -> r u w;
+          left_compat : forall u v w:word X, r v w -> r (word2 u v) (word2 u w);
+          right_compat: forall u v w:word X, r u v -> r (word2 u w) (word2 v w);
+          left_unit : forall w:word X, r (word2 word0 w) w;
+          right_unit : forall w:word X, r (word2 w word0) w;
+          assoc : forall u v w:word X, r (word2 (word2 u v) w) (word2 u (word2 v w))
+          }.
+    Definition monrel {X I} (R:I->reln X) : hrel (word X).
+      intros ? ? ? v w.
+      exists (forall r: hrel (word X), adequate_eqrel R r -> r v w).
+      abstract (apply impred; intro r; apply impred; intros _; apply propproperty).
     Defined.
-    Coercion to_reln : MonoidReln >-> reln.
-    Definition monoid_hrel {X I} (R:I->reln X) : hrel (word X).
-      intros ? ? ? v w. exact (ishinh (hfiber (to_reln R) (v,,w))). Defined.
-    Definition monoid_by_gen_rel {X I} (R:I->reln X) : setwithbinop.
-      intros. apply (setwithbinoppair (setquotinset (monoid_hrel R))).
-      intros v w.
-      admit.
-    Defined.
+    Lemma monrel_iseqrel {X I} (R:I->reln X) : iseqrel (monrel R).
+    Proof. intros. split. split.
+      { intros u v w p q r ra. apply (trans R r ra) with (v := v).
+        { apply (p r ra). } { apply (q r ra). } }
+      { intros w r ra. apply (reflex R r ra). }
+      { intros v w p r ra. apply (symm R r ra). apply (p r ra). } Qed.
+    (** **** the underlying set of the monoid with generators X and relations R *)
+    Definition funset X (Y:hSet) : hSet := hSetpair (X->Y) (impredfun 2 _ _ (pr2 Y)).
+    Definition mongenrelset {X I} (R:I->reln X) : hSet 
+      := setquotinset (monrel R).
+    Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
+               (f:X->Y->Z) : Type
+      := dirprod (forall x x', RX x x' -> forall y, f x y == f x' y)
+                (forall y y', RY y y' -> forall x, f x y == f x y').
+    Definition iscomprelrelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y) (RZ:eqrel Z) 
+               (f:X->Y->Z) : Type
+      := dirprod (forall x x' y, RX x x' -> RZ (f x y) (f x' y))
+                (forall x y y', RY y y' -> RZ (f x y) (f x y')).
+    Lemma setquotuniv_equal { X : UU } ( R : hrel X ) ( Y : hSet ) 
+          ( f f' : X -> Y ) (p : f == f')
+          ( is : iscomprelfun R f ) ( is' : iscomprelfun R f' )
+    : setquotuniv R Y f is == setquotuniv R Y f' is'.
+    Proof. intros. destruct p. apply funextfunax; intro c.
+           assert(ip : isaprop (iscomprelfun R f)). { 
+             apply impred; intro x; apply impred; intro x'.
+             apply impred; intro p. apply setproperty. }
+           assert( q : is == is' ). { apply ip. }
+	   destruct q. reflexivity. Qed.
+    Definition setquotuniv2 {X Y} (RX:hrel X) (RY:hrel Y) 
+               {Z:hSet} (f:X->Y->Z) (is:iscomprelfun2 RX RY f) :
+      setquot RX -> setquot RY -> Z.
+    Proof. intros ? ? ? ? ? ? ? x''.
+           refine (setquotuniv RX (funset (setquot RY) Z) _ _ _).
+           { simpl. intro x. apply (setquotuniv RY Z (f x)).
+             intros y y' e. unfold iscomprelfun2 in is.
+             apply (pr2 is). assumption. }
+           { intros x x' e.
+             assert( p : f x == f x' ). 
+             { apply funextfunax; intro y. apply (pr1 is). assumption. }
+           apply setquotuniv_equal. assumption. } assumption. Defined.
   End Presentation.
   Module Presentation2.
     (** * monoids by generators and relations, approach #2 *)
