@@ -9,10 +9,7 @@ Require Import Foundations.hlevel2.hSet.
 Set Default Timeout 50.
 
 Definition two_cases {X Y T} : coprod X Y -> (X->T) -> (Y->T) -> T.
-  intros ? ? ? [x|y] f g.
-  exact (f x).
-  exact (g y).
-Defined.
+  intros ? ? ? [x|y] f g. exact (f x). exact (g y). Defined.
 
 Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
   let T := type of x in
@@ -67,36 +64,19 @@ Proof. intros X lem is x y. exact (lem (x==y) (is x y)). Qed.
 (** * h-levels and paths *)
 
 Lemma isaprop_wma_inhab (X:UU) : (X -> isaprop X) -> isaprop X.
-Proof.
-  intros ? f.
-  apply invproofirrelevance.
-  intros x y.
-  apply (f x).
-Qed.
-
+Proof. intros ? f. apply invproofirrelevance. intros x y. apply (f x). Qed.
 Lemma isaprop_wma_inhab' (X:UU) : (X -> iscontr X) -> isaprop X.
-Proof.
-  intros ? f.
-  apply isaprop_wma_inhab.
-  intro x.
-  apply isapropifcontr.
-  apply (f x).
-Qed.
+Proof. intros ? f. apply isaprop_wma_inhab. intro x. apply isapropifcontr. 
+       apply (f x). Qed.
 
 Ltac prop_logic := 
-  intros;
-  simpl;
-  repeat (try (apply isapropdirprod); try (apply isapropishinh); apply impred ; intro); 
-  try (apply isapropiscontr);
-  try assumption.
+  intros; simpl;
+  repeat (try (apply isapropdirprod);try (apply isapropishinh);apply impred ;intro); 
+  try (apply isapropiscontr); try assumption.
 
 Definition propProperty (P:hProp) := pr2 P : isaprop (pr1 P).
 
-Global Opaque isapropiscontr isapropishinh.
-
-Ltac intermediate  x   := apply @pathscomp0 with (b := x).
-Ltac intermediate2 x y := apply (@pathscomp0  _  _ x _  _ (@pathscomp0 _  _ y _  _ _)).
-Ltac path_from f := apply (ap f).
+Ltac intermediate x := apply @pathscomp0 with (b := x).
 
 Definition isaset_if_isofhlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
 (* The use of this lemma ahead of something like 'impred' can be avoided by

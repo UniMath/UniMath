@@ -208,13 +208,15 @@ Module Primitive.
     Record InitialObject (C:precategory) := make_InitialObject {
          theInitialObject : ob C ;
          theInitialProperty : isInitialObject C theInitialObject }.
-    Definition InitialObject_total (C:precategory) := total2 (fun a:ob C => isInitialObject C a).
+    Definition InitialObject_total (C:precategory) := 
+      total2 (fun a:ob C => isInitialObject C a).
     Definition unpack {C:precategory} : InitialObject_total C -> InitialObject C
       := fun X => make_InitialObject C (pr1 X) (pr2 X).
     Definition pack {C:precategory} : InitialObject C -> InitialObject_total C
       := fun Y => (theInitialObject _ Y,,theInitialProperty _ Y).
     Definition h {C:precategory} (X:InitialObject_total C) : pack (unpack X) == X
-      := match X as t return (pack (unpack t) == t) with X1,, X2 => idpath (X1,, X2) end.
+      := match X as t return (pack (unpack t) == t) 
+         with X1,, X2 => idpath (X1,, X2) end.
     Definition k {C:precategory} (Y:InitialObject C) : unpack (pack Y) == Y
       := match Y as i return (unpack (pack i) == i) 
          with make_InitialObject Y1 Y2 => idpath _ end.
@@ -224,7 +226,7 @@ Module Primitive.
     Lemma isaprop_InitialObject' (C:category) : isaprop (InitialObject_total C).
     Proof. intros. apply invproofirrelevance. intros a b.
       apply (total2_paths (isotoid _ (theUnivalenceProperty C) 
-                                   (theInitialObjectIsomorphy C _ _ (pr2 a) (pr2 b)))).
+                            (theInitialObjectIsomorphy C _ _ (pr2 a) (pr2 b)))).
       apply isaprop_isInitialObject. Qed.
     Lemma isaprop_InitialObject (C:category) : isaprop (InitialObject C).
       intros. apply isofhlevelweqf with (X := InitialObject_total C).
@@ -700,8 +702,28 @@ Module Monoid.
     := pr2 (pr2 p).
   Definition multproperty {G H} (p:Hom G H) (g g':G) : p(g * g') == p g * p g'
     := pr1 (pr2 p) g g'.
-  Definition multpath {G:monoid} {g g' h h':G} : g==g' -> h==h' -> g*h==g'*h'.
-    intros ? ? ? ? ? p q. destruct p. destruct q. reflexivity. Qed.
+  Definition functionmonoid (X:Type) (G:monoid) : monoid.
+    intros.
+    set (M := X->G).
+    assert(is2 : isaset M). apply (impred 2); intro x. exact (pr2 (pr1 (pr1 G))).
+    exists (setwithbinoppair (hSetpair M is2) (fun (f g:M) x => f x * g x)).
+    split. 
+    { intros p q r. apply funextfunax; intro x. apply (pr1(pr2 G)). }
+    { exists (fun _:X => unel G). split. 
+     { intro p. apply funextfunax; intro x. exact (pr1 (pr2 (pr2 (pr2 G))) _). }
+     { intro p. apply funextfunax; intro x. exact (pr2 (pr2 (pr2 (pr2 G))) _). }}
+  Defined.
+  Definition sectionsmonoid {X:Type} (G:X->monoid) : monoid.
+    intros.
+    set (M := sections G).
+    assert(is2 : isaset M). apply (impred 2); intro x. exact (pr2 (pr1 (pr1 (G x)))).
+    exists (setwithbinoppair (hSetpair M is2) (fun (f g:M) x => f x * g x)).
+    split. 
+    { intros p q r. apply funextsec; intro x. apply (pr1(pr2 (G x))). }
+    { exists (fun x:X => unel (G x)). split. 
+     { intro p. apply funextsec; intro x. exact (pr1 (pr2 (pr2 (pr2 (G x)))) _). }
+     { intro p. apply funextsec; intro x. exact (pr2 (pr2 (pr2 (pr2 (G x)))) _). }}
+  Defined.
   Definition funEquality G H (p q : Hom G H) : pr1 p == pr1 q -> p == q.
     intros ? ? [p i] [q j] v. simpl in v. destruct v.
     destruct (pr1 (isapropismonoidfun p i j)). reflexivity. Qed.
@@ -744,12 +766,10 @@ Module Monoid.
     (* follow Voevodsky's development of setquot2 in Foundations/hlevel2/hSet.v *)
     Definition iscomprelfun {X} {G:monoid} (f:X->G) (r:reln X) : Type.
     Proof. intros ? ? ? ?. exact ( eval f (pr1 r) == eval f (pr2 r)). Defined.
-    Definition square {X} {a b c d:X} (p:a==b) : a==c -> b==d -> c==d.
-      intros ? ? ? ? ? ? q r. exact (!q @ p @ r). Defined.
     Lemma iscomprelfuncomp {X} {G H:monoid} (f:X->G) (r:reln X) (p:Hom G H)
                : iscomprelfun f r -> iscomprelfun (funcomp f (pr1 p)) r.
-    Proof. intros ? ? ? ? ? ? is.
-           apply (square (ap p is)). { apply evalcomp. } { apply evalcomp. } Qed.
+    Proof. intros ? ? ? ? ? ? is. refine (! _ @ ap p is @ _).
+           apply evalcomp. apply evalcomp. Qed.
     Definition iscompfamrelfun {X T} (R:T->reln X) {G:monoid} (f:X->G) : Type.
       intros. exact (forall t, iscomprelfun f (R t)). Defined.
     Lemma iscompfamrelfuncomp {X T} (R:T->reln X) {G H:monoid} 
@@ -759,18 +779,26 @@ Module Monoid.
     Definition compfun {X T} (R:T->reln X) (G:monoid) :=
       total2 (fun f:X->G => iscompfamrelfun R f).
     Definition compfunpair {X T} (R:T->reln X) {G:monoid} 
-               (f:X->G) (is:iscompfamrelfun R f) 
-    : compfun R G 
+               (f:X->G) (is:iscompfamrelfun R f) : compfun R G 
       := tpair _ f is.
     Definition pr1compfun {X T} (R:T->reln X) G (f:compfun R G) : X->G := pr1 f.
-    Coercion pr1compfun : compfun >-> Funclass .   
-    Definition compevmapset {X T} (R:T->reln X) : 
-      X -> forall G:monoid, compfun R G -> G := 
-      fun x G f => pr1 f x.
+    Coercion pr1compfun: compfun >-> Funclass.  
+    Definition bigmonoid0 {X T} (R:T->reln X) 
+      := sectionsmonoid (fun G => functionmonoid (compfun R G) G) : monoid.
+    Definition compevmapset {X T} (R:T->reln X) : X -> bigmonoid0 R := 
+      fun x G f => f x.
     Definition compfuncomp {X T} (R:T->reln X) {G H} 
                (f:compfun R G) (p: monoidfun G H) : compfun R H.
     Proof. intros. exists (funcomp f p). 
            apply iscompfamrelfuncomp. exact (pr2 f). Defined.
+    Definition monoidgenrelset {X T} (R:T->reln X) 
+      := monoid_closure (compevmapset R). 
+    Lemma isaset_image {X Y} {f:X->Y} : isaset Y -> isaset (image f).
+    Proof. intros ? ? ? is. apply (isasetsubset _ is (isinclpr1image _ )). Qed.
+    Lemma isasetmonoidgenrel {X T} (R:T->reln X) : isaset (monoidgenrelset R).
+    Proof. intros. apply isaset_image. apply (impred 2); intros G.
+           apply (impred 2); intros _. apply setproperty. Qed.
+    (* Lemma monoidgenrel {X T} (R:T->reln X) : monoid. *)
   End Presentation.
   Module Product.
     Definition make {I} (X:I->monoid) : monoid.
