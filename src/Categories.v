@@ -693,83 +693,7 @@ Module Magma.
   End Product.
 End Magma.
 
-Module Monoid.
-  Require Import Foundations.hlevel2.algebra1b.
-  Local Notation Hom := monoidfun (only parsing).
-  Local Notation "x * y" := ( op x y ). 
-  Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
-  Definition unitproperty {G H} (p:Hom G H) : p (unel G) == unel H 
-    := pr2 (pr2 p).
-  Definition multproperty {G H} (p:Hom G H) (g g':G) : p(g * g') == p g * p g'
-    := pr1 (pr2 p) g g'.
-  Definition functionmonoid (X:Type) (G:monoid) : monoid.
-    intros.
-    set (M := X->G).
-    assert(is2 : isaset M). apply (impred 2); intro x. exact (pr2 (pr1 (pr1 G))).
-    exists (setwithbinoppair (hSetpair M is2) (fun (f g:M) x => f x * g x)).
-    split. 
-    { intros p q r. apply funextfunax; intro x. apply (pr1(pr2 G)). }
-    { exists (fun _:X => unel G). split. 
-     { intro p. apply funextfunax; intro x. exact (pr1 (pr2 (pr2 (pr2 G))) _). }
-     { intro p. apply funextfunax; intro x. exact (pr2 (pr2 (pr2 (pr2 G))) _). }}
-  Defined.
-  Definition sectionsmonoid {X:Type} (G:X->monoid) : monoid.
-    intros.
-    set (M := sections G).
-    assert(is2 : isaset M). apply (impred 2); intro x. exact (pr2 (pr1 (pr1 (G x)))).
-    exists (setwithbinoppair (hSetpair M is2) (fun (f g:M) x => f x * g x)).
-    split. 
-    { intros p q r. apply funextsec; intro x. apply (pr1(pr2 (G x))). }
-    { exists (fun x:X => unel (G x)). split. 
-     { intro p. apply funextsec; intro x. exact (pr1 (pr2 (pr2 (pr2 (G x)))) _). }
-     { intro p. apply funextsec; intro x. exact (pr2 (pr2 (pr2 (pr2 (G x)))) _). }}
-  Defined.
-  Definition funEquality G H (p q : Hom G H) : pr1 p == pr1 q -> p == q.
-    intros ? ? [p i] [q j] v. simpl in v. destruct v.
-    destruct (pr1 (isapropismonoidfun p i j)). reflexivity. Qed.
-  Definition zero : monoid.
-    exists Magma.zero. split. intros x y z. reflexivity.
-    exists tt. split. intros []. reflexivity. intros []. reflexivity.
-  Defined.
-  Inductive word (X:Type) : Type :=
-    | word0 : word X
-    | word1 : X -> word X 
-    | word2 : word X -> word X -> word X.
-  Arguments word0 {X}.
-  Arguments word1 {X} x.
-  Arguments word2 {X} v w.
-  Definition reln X := dirprod (word X) (word X).
-  Module Presentation.
-    (** * monoids by generators and relations *)
-    Record adequate_eqrel {X I} (R:I->reln X) (r : hrel (word X)) := 
-      build_adequate_eqrel {
-          base : forall i, r (pr1 (R i)) (pr2 (R i)) ;
-          reflex : forall w, r w w;
-          symm : forall v w, r v w -> r w v;
-          trans : forall u v w, r u v -> r v w -> r u w;
-          left_compat : forall u v w:word X, r v w -> r (word2 u v) (word2 u w);
-          right_compat: forall u v w:word X, r u v -> r (word2 u w) (word2 v w);
-          left_unit : forall w:word X, r (word2 word0 w) w;
-          right_unit : forall w:word X, r (word2 w word0) w;
-          assoc : forall u v w:word X, r (word2 (word2 u v) w) (word2 u (word2 v w))
-          }.
-    Definition monrel0 {X I} (R:I->reln X) : hrel (word X).
-      intros ? ? ? v w.
-      exists (forall r: hrel (word X), adequate_eqrel R r -> r v w).
-      abstract (apply impred; intro r; apply impred; intros _; apply propproperty).
-    Defined.
-    Lemma monrel_iseqrel {X I} (R:I->reln X) : iseqrel (monrel0 R).
-    Proof. intros. split. split.
-      { intros u v w p q r ra. apply (trans R r ra) with (v := v).
-        { apply (p r ra). } { apply (q r ra). } }
-      { intros w r ra. apply (reflex R r ra). }
-      { intros v w p r ra. apply (symm R r ra). apply (p r ra). } Qed.
-    Definition monrel {X I} (R:I->reln X) : eqrel (word X).
-      intros. exact (monrel0 R,, monrel_iseqrel R). Defined.
-    Definition funset X (Y:hSet) : hSet := hSetpair (X->Y) (impredfun 2 _ _ (pr2 Y)).
-    (** **** the underlying set of the monoid with generators X and relations R *)
-    Definition mongenrelset {X I} (R:I->reln X) : hSet 
-      := setquotinset (monrel R).
+Module QuotientSet.
     Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
                (f:X->Y->Z) : Type
       := dirprod (forall x x', RX x x' -> forall y, f x y == f x' y)
@@ -814,23 +738,115 @@ Module Monoid.
                (x:X) (y:Y) :
       setquotfun2 f is (setquotpr RX x) (setquotpr RY y) ==
       setquotpr RZ (f x y).
-    Proof. intros. reflexivity. Defined.
+    Proof. intros. reflexivity. (* it computes! *) Defined.
+End QuotientSet.
+
+Module Monoid.
+  Require Import Foundations.hlevel2.algebra1b.
+  Local Notation Hom := monoidfun (only parsing).
+  Local Notation "x * y" := ( op x y ). 
+  Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
+  Definition unitproperty {G H} (p:Hom G H) : p (unel G) == unel H 
+    := pr2 (pr2 p).
+  Definition multproperty {G H} (p:Hom G H) (g g':G) : p(g * g') == p g * p g'
+    := pr1 (pr2 p) g g'.
+  Definition functionmonoid (X:Type) (G:monoid) : monoid.
+    intros.
+    set (M := X->G).
+    assert(is2 : isaset M). apply (impred 2); intro x. exact (pr2 (pr1 (pr1 G))).
+    exists (setwithbinoppair (hSetpair M is2) (fun (f g:M) x => f x * g x)).
+    split. 
+    { intros p q r. apply funextfunax; intro x. apply (pr1(pr2 G)). }
+    { exists (fun _:X => unel G). split. 
+     { intro p. apply funextfunax; intro x. exact (pr1 (pr2 (pr2 (pr2 G))) _). }
+     { intro p. apply funextfunax; intro x. exact (pr2 (pr2 (pr2 (pr2 G))) _). }}
+  Defined.
+  Definition sectionsmonoid {X:Type} (G:X->monoid) : monoid.
+    intros.
+    set (M := sections G).
+    assert(is2 : isaset M). apply (impred 2); intro x. exact (pr2 (pr1 (pr1 (G x)))).
+    exists (setwithbinoppair (hSetpair M is2) (fun (f g:M) x => f x * g x)).
+    split. 
+    { intros p q r. apply funextsec; intro x. apply (pr1(pr2 (G x))). }
+    { exists (fun x:X => unel (G x)). split. 
+     { intro p. apply funextsec; intro x. exact (pr1 (pr2 (pr2 (pr2 (G x)))) _). }
+     { intro p. apply funextsec; intro x. exact (pr2 (pr2 (pr2 (pr2 (G x)))) _). }}
+  Defined.
+  Definition funEquality G H (p q : Hom G H) : pr1 p == pr1 q -> p == q.
+    intros ? ? [p i] [q j] v. simpl in v. destruct v.
+    destruct (pr1 (isapropismonoidfun p i j)). reflexivity. Qed.
+  Definition zero : monoid.
+    exists Magma.zero. split. intros x y z. reflexivity.
+    exists tt. split. intros []. reflexivity. intros []. reflexivity.
+  Defined.
+  Inductive word X : Type :=
+    | word0 : word X
+    | word1 : X -> word X 
+    | word2 : word X -> word X -> word X.
+  Arguments word0 {X}.
+  Arguments word1 {X} x.
+  Arguments word2 {X} v w.
+  Definition reln X := dirprod (word X) (word X).
+  Module Presentation.
+    (** * monoids by generators and relations *)
+    Record monopover X := 
+      make_monopover {
+          elem : Type;
+          op0 : elem;
+          op1 : X -> elem;
+          op2 : elem -> elem -> elem }.
+    Arguments elem {X} M : rename.
+    Arguments op0 {X M} : rename.
+    Arguments op1 {X M} x : rename.
+    Arguments op2 {X M} v w : rename.
+    Coercion elem : monopover >-> Sortclass.
+    Definition wordop X := make_monopover X (word X) word0 word1 word2.
+    Fixpoint evalmapword {X} (w:word X) (Y:monopover X) : elem Y.
+      intros ? [|x|w w'] Y.
+      { exact op0. } { exact (op1 x). }
+      { exact (op2 (evalmapword X w Y) (evalmapword X w' Y)). }
+    Defined.
+    Record adequate_eqrel {X I} (R:I->reln X) (W:monopover X) (r : hrel W) := 
+      build_adequate_eqrel {
+          base: forall i, r (evalmapword (pr1 (R i)) W) (evalmapword (pr2 (R i)) W) ;
+          reflex : forall w, r w w;
+          symm : forall v w, r v w -> r w v;
+          trans : forall u v w, r u v -> r v w -> r u w;
+          left_compat : forall u v w:W, r v w -> r (op2 u v) (op2 u w);
+          right_compat: forall u v w:W, r u v -> r (op2 u w) (op2 v w);
+          left_unit : forall w:W, r (op2 op0 w) w;
+          right_unit : forall w:W, r (op2 w op0) w;
+          assoc : forall u v w:W, r (op2 (op2 u v) w) (op2 u (op2 v w))
+          }.
+    Definition monrel0 {X I} (R:I->reln X) : hrel (word X).
+      intros ? ? ? v w.
+      exists (forall r: hrel (word X), adequate_eqrel R (wordop X) r -> r v w).
+      abstract (apply impred; intro r; apply impred; intros _; apply propproperty).
+    Defined.
+    Lemma monrel_iseqrel {X I} (R:I->reln X) : iseqrel (monrel0 R).
+    Proof. intros. split. split.
+      { intros u v w p q r ra. apply (trans R (wordop X) r ra) with (v := v).
+        { apply (p r ra). } { apply (q r ra). } }
+      { intros w r ra. apply (reflex R (wordop X) r ra). }
+      { intros v w p r ra. apply (symm R (wordop X) r ra). apply (p r ra). } Qed.
+    Definition monrel {X I} (R:I->reln X) : eqrel (word X).
+      intros. exact (monrel0 R,, monrel_iseqrel R). Defined.
+    (** **** the underlying set of the monoid with generators X and relations R *)
+    Definition mongenrelset {X I} (R:I->reln X) : hSet := setquotinset (monrel R).
     Definition mongenrelbinop {X I} (R:I->reln X) : binop (mongenrelset R).
-      intros. refine (setquotfun2 word2 _). split.
-      { intros x x' y p r ra. exact (right_compat R r ra x x' y (p r ra)). }
-      { intros x y y' p r ra. exact ( left_compat R r ra x y y' (p r ra)). }
+      intros. refine (QuotientSet.setquotfun2 word2 _). split.
+      { intros x x' y p r ra. exact (right_compat R (wordop X) r ra x x' y (p r ra)). }
+      { intros x y y' p r ra. exact ( left_compat R (wordop X) r ra x y y' (p r ra)). }
     Defined.
     Definition mongenrel_setwithbinop {X I} (R:I->reln X) : setwithbinop
                := setwithbinoppair (mongenrelset R) (mongenrelbinop R).
     Lemma isassoc_mongenrelbinop {X I} (R:I->reln X) : isassoc(mongenrelbinop R).
-    Proof. intros. intros u' v' w'. isaprop_goal ig. { apply setproperty. }
-	   set (e := monrel R).
- 	   apply (unsquash (issurjsetquotpr e u') ig); intros [u i]; simpl.
- 	   apply (unsquash (issurjsetquotpr e v') ig); intros [v j]; simpl.
- 	   apply (unsquash (issurjsetquotpr e w') ig); intros [w k]; simpl.
-           assert(a : e (word2 (word2 u v) w) (word2 u (word2 v w))).
-           { intros r ra.  exact (assoc R r ra u v w). }
-           admit. Qed.
+    Proof. intros. set (e := monrel R). intros u' v' w'. 
+           isaprop_goal ig. { apply setproperty. } set (lift := issurjsetquotpr e).
+ 	   apply (unsquash (lift u') ig); intros [u i]; destruct i; simpl.
+ 	   apply (unsquash (lift v') ig); intros [v j]; destruct j; simpl.
+ 	   apply (unsquash (lift w') ig); intros [w k]; destruct k; simpl.
+           exact (iscompsetquotpr e _ _ (fun r ra => assoc R (wordop X) r ra u v w)). Qed.
   End Presentation.
   Module Presentation2.
     (** * monoids by generators and relations, approach #2 *)
