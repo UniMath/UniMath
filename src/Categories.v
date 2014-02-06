@@ -800,7 +800,7 @@ Module Monoid.
              assert( p : f x == f x' ). 
              { apply funextfunax; intro y. apply (pr1 is). assumption. }
            apply setquotuniv_equal. assumption. } assumption. Defined.
-    Definition setquotfun2 {X Y Z} (RX:hrel X) (RY:hrel Y) (RZ:eqrel Z)
+    Definition setquotfun2 {X Y Z} {RX:hrel X} {RY:hrel Y} {RZ:eqrel Z}
                (f:X->Y->Z) (is:iscomprelrelfun2 RX RY RZ f) :
       setquot RX -> setquot RY -> setquot RZ.
     Proof. intros ? ? ? ? ? ? ? ?.
@@ -809,15 +809,28 @@ Module Monoid.
            { intros ? ? p ?. apply iscompsetquotpr. exact (pr1 is x x' y p). }
            { intros ? ? p ?. apply iscompsetquotpr. exact (pr2 is x y y' p). }
     Defined.
+    Lemma setquotfun2_equal {X Y Z} (RX:eqrel X) (RY:eqrel Y) (RZ:eqrel Z)
+               (f:X->Y->Z) (is:iscomprelrelfun2 RX RY RZ f)
+               (x:X) (y:Y) :
+      setquotfun2 f is (setquotpr RX x) (setquotpr RY y) ==
+      setquotpr RZ (f x y).
+    Proof. intros. reflexivity. Defined.
     Definition mongenrelbinop {X I} (R:I->reln X) : binop (mongenrelset R).
-      intros. refine (setquotfun2 (monrel R) (monrel R) (monrel R) word2 _). split.
+      intros. refine (setquotfun2 word2 _). split.
       { intros x x' y p r ra. exact (right_compat R r ra x x' y (p r ra)). }
       { intros x y y' p r ra. exact ( left_compat R r ra x y y' (p r ra)). }
     Defined.
     Definition mongenrel_setwithbinop {X I} (R:I->reln X) : setwithbinop
                := setwithbinoppair (mongenrelset R) (mongenrelbinop R).
     Lemma isassoc_mongenrelbinop {X I} (R:I->reln X) : isassoc(mongenrelbinop R).
-    Proof. intros. intros u v w. admit. Qed.
+    Proof. intros. intros u' v' w'. isaprop_goal ig. { apply setproperty. }
+	   set (e := monrel R).
+ 	   apply (unsquash (issurjsetquotpr e u') ig); intros [u i]; simpl.
+ 	   apply (unsquash (issurjsetquotpr e v') ig); intros [v j]; simpl.
+ 	   apply (unsquash (issurjsetquotpr e w') ig); intros [w k]; simpl.
+           assert(a : e (word2 (word2 u v) w) (word2 u (word2 v w))).
+           { intros r ra.  exact (assoc R r ra u v w). }
+           admit. Qed.
   End Presentation.
   Module Presentation2.
     (** * monoids by generators and relations, approach #2 *)

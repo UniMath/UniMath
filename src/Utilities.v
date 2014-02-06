@@ -191,6 +191,15 @@ Proof. intros. destruct p. destruct q. apply idpath. Defined.
 Lemma iscontr_if_inhab_prop {P:UU} : isaprop P -> P -> iscontr P.
 Proof. intros ? i p. exists p. intros p'. apply i. Defined.
 
+Ltac goal x :=
+  let G := match goal with |- ?G => constr:(G) end in
+  set (x := G).
+Ltac isaprop_goal x :=
+  let G := match goal with |- ?G => constr:(G) end in
+  assert (x : isaprop(G)).
+Definition unsquash {R : hProp -> Type} (S:forall P:hProp, R P) 
+           {P} (i:isaprop P) := S (hProppair P i).
+
 (** ** show that squashing is a set-quotient *)
 
 Lemma squash_to_set {X Y:UU} (f : X -> Y) :
