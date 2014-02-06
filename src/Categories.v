@@ -753,19 +753,21 @@ Module Monoid.
           right_unit : forall w:word X, r (word2 w word0) w;
           assoc : forall u v w:word X, r (word2 (word2 u v) w) (word2 u (word2 v w))
           }.
-    Definition monrel {X I} (R:I->reln X) : hrel (word X).
+    Definition monrel0 {X I} (R:I->reln X) : hrel (word X).
       intros ? ? ? v w.
       exists (forall r: hrel (word X), adequate_eqrel R r -> r v w).
       abstract (apply impred; intro r; apply impred; intros _; apply propproperty).
     Defined.
-    Lemma monrel_iseqrel {X I} (R:I->reln X) : iseqrel (monrel R).
+    Lemma monrel_iseqrel {X I} (R:I->reln X) : iseqrel (monrel0 R).
     Proof. intros. split. split.
       { intros u v w p q r ra. apply (trans R r ra) with (v := v).
         { apply (p r ra). } { apply (q r ra). } }
       { intros w r ra. apply (reflex R r ra). }
       { intros v w p r ra. apply (symm R r ra). apply (p r ra). } Qed.
-    (** **** the underlying set of the monoid with generators X and relations R *)
+    Definition monrel {X I} (R:I->reln X) : eqrel (word X).
+      intros. exact (monrel0 R,, monrel_iseqrel R). Defined.
     Definition funset X (Y:hSet) : hSet := hSetpair (X->Y) (impredfun 2 _ _ (pr2 Y)).
+    (** **** the underlying set of the monoid with generators X and relations R *)
     Definition mongenrelset {X I} (R:I->reln X) : hSet 
       := setquotinset (monrel R).
     Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
@@ -798,6 +800,26 @@ Module Monoid.
              assert( p : f x == f x' ). 
              { apply funextfunax; intro y. apply (pr1 is). assumption. }
            apply setquotuniv_equal. assumption. } assumption. Defined.
+    Definition setquotfun2 {X Y Z} (RX:hrel X) (RY:hrel Y) (RZ:eqrel Z)
+               (f:X->Y->Z) (is:iscomprelrelfun2 RX RY RZ f) :
+      setquot RX -> setquot RY -> setquot RZ.
+    Proof. intros ? ? ? ? ? ? ? ?.
+           set (f' := fun x y => setquotpr RZ (f x y) : setquotinset RZ).
+           apply (setquotuniv2 RX RY f'). split.
+           { intros ? ? p ?. apply iscompsetquotpr. exact (pr1 is x x' y p). }
+           { intros ? ? p ?. apply iscompsetquotpr. exact (pr2 is x y y' p). }
+    Defined.
+    Definition mongenrelbinop {X I} (R:I->reln X) : binop (mongenrelset R).
+      intros. unfold mongenrelset. simpl.
+      refine (setquotfun2 (monrel0 R) (monrel0 R) (monrel R) word2 _).
+      split.
+      { intros ? ? ? p. unfold monrel; intros r ra.
+        exact (right_compat _ _ ra _ _ _ (p _ ra)). }
+      { intros ? ? ? p. unfold monrel; intros r ra.
+        exact (left_compat _ _ ra _ _ _ (p _ ra)). }
+    Defined.
+    Definition mongenrel_setwithbinop {X I} (R:I->reln X) : setwithbinop
+               := setwithbinoppair (mongenrelset R) (mongenrelbinop R).
   End Presentation.
   Module Presentation2.
     (** * monoids by generators and relations, approach #2 *)
