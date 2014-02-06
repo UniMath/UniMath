@@ -810,16 +810,14 @@ Module Monoid.
            { intros ? ? p ?. apply iscompsetquotpr. exact (pr2 is x y y' p). }
     Defined.
     Definition mongenrelbinop {X I} (R:I->reln X) : binop (mongenrelset R).
-      intros. unfold mongenrelset. simpl.
-      refine (setquotfun2 (monrel0 R) (monrel0 R) (monrel R) word2 _).
-      split.
-      { intros ? ? ? p. unfold monrel; intros r ra.
-        exact (right_compat _ _ ra _ _ _ (p _ ra)). }
-      { intros ? ? ? p. unfold monrel; intros r ra.
-        exact (left_compat _ _ ra _ _ _ (p _ ra)). }
+      intros. refine (setquotfun2 (monrel R) (monrel R) (monrel R) word2 _). split.
+      { intros x x' y p r ra. exact (right_compat R r ra x x' y (p r ra)). }
+      { intros x y y' p r ra. exact ( left_compat R r ra x y y' (p r ra)). }
     Defined.
     Definition mongenrel_setwithbinop {X I} (R:I->reln X) : setwithbinop
                := setwithbinoppair (mongenrelset R) (mongenrelbinop R).
+    Lemma isassoc_mongenrelbinop {X I} (R:I->reln X) : isassoc(mongenrelbinop R).
+    Proof. intros. intros u v w. admit. Qed.
   End Presentation.
   Module Presentation2.
     (** * monoids by generators and relations, approach #2 *)
