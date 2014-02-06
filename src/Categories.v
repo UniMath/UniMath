@@ -801,34 +801,47 @@ Module Monoid.
     Arguments op2 {X M} v w : rename.
     Coercion elem : monopover >-> Sortclass.
     Definition wordop X := make_monopover X (word X) word0 word1 word2.
-    Fixpoint evalmapword {X} (w:word X) (Y:monopover X) : elem Y.
+    Fixpoint evalword {X} (w:word X) (Y:monopover X) : elem Y.
       intros ? [|x|w w'] Y.
       { exact op0. } { exact (op1 x). }
-      { exact (op2 (evalmapword X w Y) (evalmapword X w' Y)). }
+      { exact (op2 (evalword X w Y) (evalword X w' Y)). }
     Defined.
     Record adequate_eqrel {X I} (R:I->reln X) (W:monopover X) (r : hrel W) := 
       build_adequate_eqrel {
-          base: forall i, r (evalmapword (pr1 (R i)) W) (evalmapword (pr2 (R i)) W) ;
+          base: forall i, r (evalword (pr1 (R i)) W) (evalword (pr2 (R i)) W) ;
           reflex : forall w, r w w;
           symm : forall v w, r v w -> r w v;
           trans : forall u v w, r u v -> r v w -> r u w;
-          left_compat : forall u v w:W, r v w -> r (op2 u v) (op2 u w);
-          right_compat: forall u v w:W, r u v -> r (op2 u w) (op2 v w);
-          left_unit : forall w:W, r (op2 op0 w) w;
-          right_unit : forall w:W, r (op2 w op0) w;
-          assoc : forall u v w:W, r (op2 (op2 u v) w) (op2 u (op2 v w))
+          left_compat : forall u v w, r v w -> r (op2 u v) (op2 u w);
+          right_compat: forall u v w, r u v -> r (op2 u w) (op2 v w);
+          left_unit : forall w, r (op2 op0 w) w;
+          right_unit : forall w, r (op2 w op0) w;
+          assoc : forall u v w, r (op2 (op2 u v) w) (op2 u (op2 v w))
           }.
     Definition monrel0 {X I} (R:I->reln X) : hrel (word X).
       intros ? ? ? v w.
       exists (forall r: hrel (word X), adequate_eqrel R (wordop X) r -> r v w).
       abstract (apply impred; intro r; apply impred; intros _; apply propproperty).
     Defined.
+    Lemma monrel_adequate {X I} (R:I->reln X) : 
+      adequate_eqrel R (wordop X) (monrel0 R).
+    Proof. intros.
+           refine (build_adequate_eqrel _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+           { intros ? r ra. apply base. exact ra. }
+           { intros ? r ra. apply (reflex R). exact ra. }
+           { intros ? ? p r ra. apply (symm R). exact ra. exact (p r ra). }
+           { intros ? ? ? p q r ra. apply (trans R) with (v:=v).
+             exact ra. exact (p r ra). exact (q r ra). }
+           { intros ? ? ? p r ra. apply (left_compat R). exact ra. exact (p r ra). }
+           { intros ? ? ? p r ra. apply (right_compat R). exact ra. exact (p r ra). }
+           { intros ? r ra. apply (left_unit R). exact ra. }
+           { intros ? r ra. apply (right_unit R). exact ra. }
+           { exact (fun u v w r ra => assoc R (wordop X) r ra u v w). } Qed.
     Lemma monrel_iseqrel {X I} (R:I->reln X) : iseqrel (monrel0 R).
     Proof. intros. split. split.
-      { intros u v w p q r ra. apply (trans R (wordop X) r ra) with (v := v).
-        { apply (p r ra). } { apply (q r ra). } }
-      { intros w r ra. apply (reflex R (wordop X) r ra). }
-      { intros v w p r ra. apply (symm R (wordop X) r ra). apply (p r ra). } Qed.
+      { exact (trans _ _ _ (monrel_adequate R)). }
+      { exact (reflex _ _ _ (monrel_adequate R)). }
+      { exact (symm _ _ _ (monrel_adequate R)). } Qed.
     Definition monrel {X I} (R:I->reln X) : eqrel (word X).
       intros. exact (monrel0 R,, monrel_iseqrel R). Defined.
     (** **** the underlying set of the monoid with generators X and relations R *)
@@ -847,6 +860,25 @@ Module Monoid.
  	   apply (unsquash (lift v') ig); intros [v j]; destruct j; simpl.
  	   apply (unsquash (lift w') ig); intros [w k]; destruct k; simpl.
            exact (iscompsetquotpr e _ _ (fun r ra => assoc R (wordop X) r ra u v w)). Qed.
+    Definition mongenrel_monopover {X I} (R:I->reln X) : monopover X.
+      intros. refine (make_monopover X (mongenrelset R) _ _ _).
+      { exact (setquotpr _ word0). }
+      { exact (fun x => setquotpr _ (word1 x)). }
+      { exact (mongenrelbinop _). } Defined.
+    Lemma mongenrel_adequate {X I} (R:I->reln X) : 
+      adequate_eqrel R (mongenrel_monopover R) eqset.
+    Proof. intros.
+           refine (build_adequate_eqrel _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+           admit.
+           admit.
+           admit.
+           admit.
+           admit.
+           admit.
+           admit.
+           admit.
+           { apply isassoc_mongenrelbinop. (* much faster to prove it in a lemma *) }
+    Qed.
   End Presentation.
   Module Presentation2.
     (** * monoids by generators and relations, approach #2 *)
