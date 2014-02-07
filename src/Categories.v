@@ -804,19 +804,19 @@ Module Monoid.
     Arguments op2 {X M} v w : rename.
     Coercion elem : Premonoid >-> Sortclass.
     Definition wordop X := make_preMonoid X (word X) word0 word1 word2.
-    Fixpoint evalword {X} (Y:Premonoid X) (w:word X) : elem Y.
+    Fixpoint evalword0 {X} (Y:Premonoid X) (w:word X) : elem Y.
       intros ? Y [|x|v w]. { exact op0. } { exact (op1 x). }
-      { exact (op2 (evalword X Y v) (evalword X Y w)). } Defined.
+      { exact (op2 (evalword0 X Y v) (evalword0 X Y w)). } Defined.
     (** eta expansion principle for words *)
-    Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v == v.
+    Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword0 (wordop X) v == v.
     Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
            { simpl. assert (p := !reassemble _ _ R v). destruct p.
                     assert (q := !reassemble _ _ R w). destruct q.
                     reflexivity. } Qed.
     (** ** adequate relations over R *)
     Record AdequateRelation {X I} (R:I->reln X) (W:Premonoid X) (r : hrel W) := 
-      build_AdequateRelation {
-          base: forall i, r (evalword W (pr1 (R i))) (evalword W (pr2 (R i))) ;
+      make_AdequateRelation {
+          base: forall i, r (evalword0 W (pr1 (R i))) (evalword0 W (pr2 (R i))) ;
           reflex : forall w, r w w;
           symm : forall v w, r v w -> r w v;
           trans : forall u v w, r u v -> r v w -> r u w;
@@ -841,7 +841,7 @@ Module Monoid.
     Defined.
     Lemma adequacy {X I} (R:I->reln X) : 
       AdequateRelation R (wordop X) (smallestAdequateRelation0 R).
-    Proof. intros. refine (build_AdequateRelation _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+    Proof. intros. refine (make_AdequateRelation _ _ _ _ _ _ _ _ _ _ _ _ _ _).
            { intros ? r ra. apply base. exact ra. }
            { intros ? r ra. apply (reflex R). exact ra. }
            { intros ? ? p r ra. apply (symm R). exact ra. exact (p r ra). }
@@ -854,7 +854,7 @@ Module Monoid.
            { exact (fun u v w r ra => assoc R (wordop X) r ra u v w). } Qed.
     Definition smallestAdequateRelation {X I} (R:I->reln X) : eqrel (word X).
       intros. exact (adequacy_to_eqrel R _ _ (adequacy R)). Defined.
-    (** **** the underlying set of the monoid with generators X and relations R *)
+    (** *** the underlying set of the monoid with generators X and relations R *)
     Definition universalPremonoid0 {X I} (R:I->reln X) : hSet := 
       setquotinset (smallestAdequateRelation R).
     Lemma op2_compatibility {X I} (R:I->reln X) : 
@@ -864,22 +864,18 @@ Module Monoid.
     Proof. intros. split.
       { intros x x' y p r ra. exact (right_compat R (wordop X) r ra x x' y (p r ra)). }
       { intros x y y' p r ra. exact ( left_compat R (wordop X) r ra x y y' (p r ra)). } Qed.
+    (** *** the multiplication on on it *)
     Definition univ_binop {X I} (R:I->reln X) : binop (universalPremonoid0 R).
       intros. refine (QuotientSet.setquotfun2 word2 _). apply op2_compatibility. Defined.
     Definition univ_setwithbinop {X I} (R:I->reln X) : setwithbinop
                := setwithbinoppair (universalPremonoid0 R) (univ_binop R).
-    Lemma isassoc_univ_binop {X I} (R:I->reln X) : isassoc(univ_binop R).
-    Proof. intros. set (e := smallestAdequateRelation R). intros u' v' w'. 
-           isaprop_goal ig. { apply setproperty. } set (lift := issurjsetquotpr e).
- 	   apply (unsquash (lift u') ig); intros [u i]; destruct i; simpl.
- 	   apply (unsquash (lift v') ig); intros [v j]; destruct j; simpl.
- 	   apply (unsquash (lift w') ig); intros [w k]; destruct k; simpl.
-           exact (iscompsetquotpr e _ _ (fun r ra => assoc R (wordop X) r ra u v w)). Qed.
+    (** *** the universal premonoid *)
     Definition universalPremonoid {X I} (R:I->reln X) : Premonoid X.
       intros. refine (make_preMonoid X (universalPremonoid0 R) _ _ _).
       { exact (setquotpr _ word0). }
       { exact (fun x => setquotpr _ (word1 x)). }
       { exact (univ_binop _). } Defined.
+    (** *** identities for the universal premonoid *)
     Lemma is_left_unit_univ_binop {X I} (R:I->reln X) : 
       forall w : universalPremonoid0 R, ((univ_binop _) (setquotpr _ word0) w) == w.
     Proof. intros ? ? ? w'. set (lift := issurjsetquotpr (smallestAdequateRelation R)).
@@ -894,15 +890,23 @@ Module Monoid.
       apply (unsquash (lift w') ig); intros [w i]; destruct i; simpl.
       exact (iscompsetquotpr (smallestAdequateRelation R) _ _ 
                              (fun r ra => right_unit R (wordop X) r ra w)). Qed.
+    Lemma isassoc_univ_binop {X I} (R:I->reln X) : isassoc(univ_binop R).
+    Proof. intros. set (e := smallestAdequateRelation R). intros u' v' w'. 
+           isaprop_goal ig. { apply setproperty. } set (lift := issurjsetquotpr e).
+ 	   apply (unsquash (lift u') ig); intros [u i]; destruct i; simpl.
+ 	   apply (unsquash (lift v') ig); intros [v j]; destruct j; simpl.
+ 	   apply (unsquash (lift w') ig); intros [w k]; destruct k; simpl.
+           exact (iscompsetquotpr e _ _ (fun r ra => assoc R (wordop X) r ra u v w)). Qed.
+    (** *** adequacy under equality *)
     Fixpoint reassemble_pr {X I} (R:I->reln X) (v:word X) : 
-      evalword (universalPremonoid R) v == setquotpr _ v.
+      evalword0 (universalPremonoid R) v == setquotpr _ v.
     Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
            { simpl. assert (p := ! reassemble_pr _ _ R v). destruct p.
                     assert (q := ! reassemble_pr _ _ R w). destruct q.
                     reflexivity. } Qed.
     Lemma pr_eval_compat {X I} (R:I->reln X) (w:word X) :
-      setquotpr (smallestAdequateRelation R) (evalword (wordop X) w) 
-      == evalword (universalPremonoid R) w.
+      setquotpr (smallestAdequateRelation R) (evalword0 (wordop X) w) 
+      == evalword0 (universalPremonoid R) w.
     Proof. intros. destruct w as [|x|v w]. { reflexivity. } { reflexivity. } 
       { assert (p := !reassemble R (word2 v w)). destruct p. 
         exact (!reassemble_pr R (word2 v w)). } Qed.
@@ -910,17 +914,39 @@ Module Monoid.
     Lemma quotient_adequacy {X I} (R:I->reln X) : 
       AdequateRelation R (universalPremonoid R) eqset.
     Proof. intros. assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
-           refine (build_AdequateRelation _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+           refine (make_AdequateRelation _ _ _ _ _ _ _ _ _ _ _ _ _ _).
            { intros. simpl. exact (!pr_eval_compat R (pr1 (R i)) @ 
                       iscompsetquotpr (smallestAdequateRelation R)
-                                      (evalword (wordop X) (pr1 (R i)))
-                                      (evalword (wordop X) (pr2 (R i))) 
+                                      (evalword0 (wordop X) (pr1 (R i)))
+                                      (evalword0 (wordop X) (pr2 (R i))) 
                                       (fun r ra => base R (wordop X) r ra i)
                       @ pr_eval_compat R (pr2 (R i)) ). }
            { reflexivity. } { intros ? ? []. reflexivity. } { intros ? ? ? [] []. reflexivity. }
            { intros ? ? ? []. reflexivity. } { intros ? ? ? []. reflexivity. }
            { apply is_left_unit_univ_binop. } { apply is_right_unit_univ_binop. }
            { apply isassoc_univ_binop. } Qed.
+    (** *** monoids over X modulo R *)
+    Definition to_premonoid {X I} (R:I->reln X) (M:monoid) (el:X->M) : Premonoid X.
+      intros. exact {| elem := M; op0 := unel _; op1 := el; op2 := op |}. Defined.
+    Record Monoid {X I} (R:I->reln X) := 
+      make_Monoid {
+          m_base : monoid;
+          m_elem : X -> m_base;
+          m_reln : forall i, evalword0 (to_premonoid R m_base m_elem) (pr1 (R i)) ==
+                             evalword0 (to_premonoid R m_base m_elem) (pr2 (R i)) }.
+    (** *** the universal monoid over X modulo R *)
+    Definition universalMonoid0 {X I} (R:I->reln X) : monoid.
+      intros. 
+      { exists (univ_setwithbinop R). split.
+        { exact (assoc _ _ _ (quotient_adequacy R)). }
+        { exists (setquotpr _ word0). split. 
+          { exact (left_unit _ _ _ (quotient_adequacy R)). }
+          { exact (right_unit _ _ _ (quotient_adequacy R)). } } } Defined.
+    Arguments make_Monoid {X I} R _ _ _.
+    Definition universalMonoid {X I} (R:I->reln X) : Monoid R :=
+      make_Monoid R (universalMonoid0 R) 
+           (fun x => setquotpr (smallestAdequateRelation R) (word1 x)) 
+           (fun i => base R (universalPremonoid R) eqset (quotient_adequacy R) i).
   End Presentation.
   Module Presentation2.
     (** * monoids by generators and relations, approach #2 *)
