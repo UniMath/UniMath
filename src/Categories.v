@@ -806,6 +806,14 @@ Module Monoid.
       { exact op0. } { exact (op1 x). }
       { exact (op2 (evalword X w Y) (evalword X w' Y)). }
     Defined.
+    Lemma evalword_equal0 {X I} (R:I->reln X) (v w:wordop X) : word2 v w == op2 v w.
+    Proof. intros. reflexivity. Qed.
+    Fixpoint evalword_equal1 {X I} (R:I->reln X) (v:wordop X) : evalword v (wordop X) == v.
+    Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
+           { simpl. 
+             assert (p := !evalword_equal1 _ _ R v). destruct p.
+             assert (q := !evalword_equal1 _ _ R w). destruct q.
+             reflexivity. } Qed.
     Record adequate_eqrel {X I} (R:I->reln X) (W:monopover X) (r : hrel W) := 
       build_adequate_eqrel {
           base: forall i, r (evalword (pr1 (R i)) W) (evalword (pr2 (R i)) W) ;
@@ -846,11 +854,21 @@ Module Monoid.
       intros. exact (monrel0 R,, monrel_iseqrel R). Defined.
     (** **** the underlying set of the monoid with generators X and relations R *)
     Definition mongenrelset {X I} (R:I->reln X) : hSet := setquotinset (monrel R).
-    Definition mongenrelbinop {X I} (R:I->reln X) : binop (mongenrelset R).
-      intros. refine (QuotientSet.setquotfun2 word2 _). split.
+    Lemma mongencomp {X I} (R:I->reln X) : 
+      QuotientSet.iscomprelrelfun2 (monrel R) (monrel R) (monrel R) word2.    
+    Proof. intros. split.
       { intros x x' y p r ra. exact (right_compat R (wordop X) r ra x x' y (p r ra)). }
-      { intros x y y' p r ra. exact ( left_compat R (wordop X) r ra x y y' (p r ra)). }
-    Defined.
+      { intros x y y' p r ra. exact ( left_compat R (wordop X) r ra x y y' (p r ra)). } Qed.
+
+
+    Lemma mongencomp2 {X I} (R:I->reln X) (v w:word X) : 
+      setquotpr (monrel R) (word2 v w) ==
+      QuotientSet.setquotfun2 word2 (mongencomp R) 
+                              (setquotpr (monrel R) v)
+                              (setquotpr (monrel R) w).
+    Proof. intros. reflexivity. Qed.
+    Definition mongenrelbinop {X I} (R:I->reln X) : binop (mongenrelset R).
+      intros. refine (QuotientSet.setquotfun2 word2 _). apply mongencomp. Defined.
     Definition mongenrel_setwithbinop {X I} (R:I->reln X) : setwithbinop
                := setwithbinoppair (mongenrelset R) (mongenrelbinop R).
     Lemma isassoc_mongenrelbinop {X I} (R:I->reln X) : isassoc(mongenrelbinop R).
@@ -865,18 +883,49 @@ Module Monoid.
       { exact (setquotpr _ word0). }
       { exact (fun x => setquotpr _ (word1 x)). }
       { exact (mongenrelbinop _). } Defined.
+    Lemma mongencomp5 {X I} (R:I->reln X) (v w:word X) : 
+      evalword (word2 v w) (mongenrel_monopover R)
+      == 
+      mongenrelbinop R 
+                     (evalword v (mongenrel_monopover R)) 
+                     (evalword w (mongenrel_monopover R)).
+    Proof. intros. reflexivity. Qed.
+    Fixpoint mongencomp4 {X I} (R:I->reln X) (v:word X) : 
+      evalword v (mongenrel_monopover R) == setquotpr _ v.
+    Proof. intros ? ? ? [|x|v w].
+           { reflexivity. } { reflexivity. }
+           { simpl.
+             assert (p := ! mongencomp4 _ _ R v). destruct p.
+             assert (q := ! mongencomp4 _ _ R w). destruct q.
+             reflexivity. } Qed.
+    Lemma evalcompat {X I} (R:I->reln X) (w:word X) :
+      setquotpr (monrel R) (evalword w (wordop X)) == evalword w (mongenrel_monopover R).
+    Proof.
+      intros. destruct w as [|x|v w].
+      { reflexivity. } { reflexivity. } 
+      { refine (_ @ 
+                  QuotientSet.setquotfun2_equal
+                     (monrel R) (monrel R) (monrel R)
+                     word2 (mongencomp R) v w
+                  @ _ ).
+        { assert (p := !evalword_equal1 R (word2 v w)). destruct p. reflexivity. }
+        { exact (!mongencomp4 R (word2 v w)). } } Qed.
     Lemma mongenrel_adequate {X I} (R:I->reln X) : 
       adequate_eqrel R (mongenrel_monopover R) eqset.
     Proof. intros.
            refine (build_adequate_eqrel _ _ _ _ _ _ _ _ _ _ _ _ _ _).
-           admit.
-           admit.
-           admit.
-           admit.
-           admit.
-           admit.
-           admit.
-           admit.
+           { intros. simpl. 
+             refine (!_ @ 
+                      iscompsetquotpr (monrel R) _ _ (fun r ra => base R (wordop X) r ra i)
+                      @ _ ). 
+             { apply evalcompat. } { apply evalcompat. } }
+           { admit. }
+           { admit. }
+           { admit. }
+           { admit. }
+           { admit. }
+           { admit. }
+           { admit. }
            { apply isassoc_mongenrelbinop. (* much faster to prove it in a lemma *) }
     Qed.
   End Presentation.
