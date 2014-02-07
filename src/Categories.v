@@ -924,10 +924,10 @@ Module Monoid.
                       @ _ ). 
              { apply evalcompat. } { apply evalcompat. } }
            { reflexivity. }
-           { intros ? ?. exact pathsinv0. }
-           { intros ? ? ?. exact pathscomp0. }
-           { intros ? ? ? p. destruct p. reflexivity. }
-           { intros ? ? ? q. destruct q. reflexivity. }
+           { intros ? ? []. reflexivity. }
+           { intros ? ? ? [] []. reflexivity. }
+           { intros ? ? ? []. reflexivity. }
+           { intros ? ? ? []. reflexivity. }
            { apply is_left_unit_mongenrelbinop. }
            { apply is_right_unit_mongenrelbinop. }
            { apply isassoc_mongenrelbinop. } Qed.
