@@ -806,8 +806,6 @@ Module Monoid.
       { exact op0. } { exact (op1 x). }
       { exact (op2 (evalword X w Y) (evalword X w' Y)). }
     Defined.
-    Lemma evalword_equal0 {X I} (R:I->reln X) (v w:wordop X) : word2 v w == op2 v w.
-    Proof. intros. reflexivity. Qed.
     Fixpoint evalword_equal1 {X I} (R:I->reln X) (v:wordop X) : evalword v (wordop X) == v.
     Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
            { simpl. 
@@ -906,13 +904,8 @@ Module Monoid.
     Proof.
       intros. destruct w as [|x|v w].
       { reflexivity. } { reflexivity. } 
-      { refine (_ @ 
-                  QuotientSet.setquotfun2_equal
-                     (monrel R) (monrel R) (monrel R)
-                     word2 (mongencomp R) v w
-                  @ _ ).
-        { assert (p := !evalword_equal1 R (word2 v w)). destruct p. reflexivity. }
-        { exact (!mongencomp4 R (word2 v w)). } } Qed.
+      { assert (p := !evalword_equal1 R (word2 v w)). destruct p. 
+        exact (!mongencomp4 R (word2 v w)). } Qed.
     Lemma mongenrel_adequate {X I} (R:I->reln X) : 
       adequate_eqrel R (mongenrel_monopover R) eqset.
     Proof. intros.
