@@ -51,6 +51,7 @@ clean2:; rm -f TAGS *.d *.glob N*.cmi N*.cmx N*.cmxs N*.native N*.o
 distclean: clean; rm -f Make-include.mk Make-include.mk.bak
 
 # override this on your system with the correct settings on the command line:
+COQ_DIR = ../../DanGrayson-coq
 FOUNDATIONS_DIR := ../../Foundations2
 REZK_COMPLETION_DIR := ../../RezkCompletion
 FOUNDATIONS_FILES = $(shell cd $(FOUNDATIONS_DIR) && make show-vfiles)
@@ -63,3 +64,9 @@ html-all:
 		-R $(FOUNDATIONS_DIR) Foundations				\
 		-R $(REZK_COMPLETION_DIR) RezkCompletion			\
 		$(VFILES) $(FOUNDATIONS_FILES) $(REZK_COMPLETION_FILES) 
+describe:
+	@ for i in $(COQ_DIR) $(FOUNDATIONS_DIR) $(REZK_COMPLETION_DIR) ; do \
+	    ( cd $$i && echo ======= $$i ; set -x ; \
+	    git remote -vv && \
+	    git describe --dirty --long --always --abbrev=40 --all ) ;\
+	done
