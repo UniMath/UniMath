@@ -859,14 +859,6 @@ Module Monoid.
     Proof. intros. split.
       { intros x x' y p r ra. exact (right_compat R (wordop X) r ra x x' y (p r ra)). }
       { intros x y y' p r ra. exact ( left_compat R (wordop X) r ra x y y' (p r ra)). } Qed.
-
-
-    Lemma mongencomp2 {X I} (R:I->reln X) (v w:word X) : 
-      setquotpr (monrel R) (word2 v w) ==
-      QuotientSet.setquotfun2 word2 (mongencomp R) 
-                              (setquotpr (monrel R) v)
-                              (setquotpr (monrel R) w).
-    Proof. intros. reflexivity. Qed.
     Definition mongenrelbinop {X I} (R:I->reln X) : binop (mongenrelset R).
       intros. refine (QuotientSet.setquotfun2 word2 _). apply mongencomp. Defined.
     Definition mongenrel_setwithbinop {X I} (R:I->reln X) : setwithbinop
@@ -883,13 +875,24 @@ Module Monoid.
       { exact (setquotpr _ word0). }
       { exact (fun x => setquotpr _ (word1 x)). }
       { exact (mongenrelbinop _). } Defined.
-    Lemma mongencomp5 {X I} (R:I->reln X) (v w:word X) : 
-      evalword (word2 v w) (mongenrel_monopover R)
-      == 
-      mongenrelbinop R 
-                     (evalword v (mongenrel_monopover R)) 
-                     (evalword w (mongenrel_monopover R)).
-    Proof. intros. reflexivity. Qed.
+    Lemma is_left_unit_mongenrelbinop {X I} (R:I->reln X) : 
+      forall w : mongenrelset R, ((mongenrelbinop _) (setquotpr _ word0) w) == w.
+    Proof.
+      intros ? ? ? w'. 
+      set (lift := issurjsetquotpr (monrel R)).
+      isaprop_goal ig. { apply setproperty. } 
+      apply (unsquash (lift w') ig); intros [w i]; destruct i; simpl.
+      exact (iscompsetquotpr (monrel R) _ _ (fun r ra => left_unit R (wordop X) r ra w)).
+    Qed.
+    Lemma is_right_unit_mongenrelbinop {X I} (R:I->reln X) : 
+      forall w : mongenrelset R, ((mongenrelbinop _) w (setquotpr _ word0)) == w.
+    Proof.
+      intros ? ? ? w'. 
+      set (lift := issurjsetquotpr (monrel R)).
+      isaprop_goal ig. { apply setproperty. } 
+      apply (unsquash (lift w') ig); intros [w i]; destruct i; simpl.
+      exact (iscompsetquotpr (monrel R) _ _ (fun r ra => right_unit R (wordop X) r ra w)).
+    Qed.
     Fixpoint mongencomp4 {X I} (R:I->reln X) (v:word X) : 
       evalword v (mongenrel_monopover R) == setquotpr _ v.
     Proof. intros ? ? ? [|x|v w].
@@ -913,21 +916,21 @@ Module Monoid.
     Lemma mongenrel_adequate {X I} (R:I->reln X) : 
       adequate_eqrel R (mongenrel_monopover R) eqset.
     Proof. intros.
+           assert (lift := issurjsetquotpr (monrel R)).
            refine (build_adequate_eqrel _ _ _ _ _ _ _ _ _ _ _ _ _ _).
            { intros. simpl. 
              refine (!_ @ 
                       iscompsetquotpr (monrel R) _ _ (fun r ra => base R (wordop X) r ra i)
                       @ _ ). 
              { apply evalcompat. } { apply evalcompat. } }
-           { admit. }
-           { admit. }
-           { admit. }
-           { admit. }
-           { admit. }
-           { admit. }
-           { admit. }
-           { apply isassoc_mongenrelbinop. (* much faster to prove it in a lemma *) }
-    Qed.
+           { reflexivity. }
+           { intros ? ?. exact pathsinv0. }
+           { intros ? ? ?. exact pathscomp0. }
+           { intros ? ? ? p. destruct p. reflexivity. }
+           { intros ? ? ? q. destruct q. reflexivity. }
+           { apply is_left_unit_mongenrelbinop. }
+           { apply is_right_unit_mongenrelbinop. }
+           { apply isassoc_mongenrelbinop. } Qed.
   End Presentation.
   Module Presentation2.
     (** * monoids by generators and relations, approach #2 *)
@@ -985,10 +988,7 @@ Module Monoid.
     Proof. intros. exists (funcomp f p). 
            apply iscompfamrelfuncomp. exact (pr2 f). Defined.
     Definition monoidgenrel {X I} (R:I->reln X) := monoid_closure (compevmapset R). 
-    Definition monoidgenrel_map {X I} (R:I->reln X) : compfun R (monoidgenrel R).
-      intros. unfold compfun.
-      admit.                    (* this approach is too fussy *)
-    Defined.
+    (* this approach is too fussy *)
   End Presentation2.
   Module Product.
     Definition make {I} (X:I->monoid) : monoid.
