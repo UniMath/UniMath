@@ -43,6 +43,10 @@ Module Import Notations.
     Notation "p # x" := (transport _ p x) (right associativity, at level 65, only parsing).
 End Notations.
 
+Definition apfun {X Y} {f f':X->Y} (p:f==f') {x x'} (q:x==x') : f x == f' x'.
+  intros. destruct p. destruct q. reflexivity. Defined.
+Definition aptwice {X Y Z} (f:X->Y->Z) {a a' b b'} (p:a==a') (q:b==b') : f a b == f a' b'.
+  intros. exact (apfun (ap f p) q). Defined.
 Definition sections {T:UU} (P:T->UU) := forall t:T, P t.
 Definition evalat {T:UU} {U:UU} (t:T) (f:T->U) := f t.
 Definition apevalat {T:UU} {U:UU} (t:T) {f g:T->U}
