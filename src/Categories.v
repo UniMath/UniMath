@@ -953,25 +953,22 @@ Module Monoid.
       (to_premonoid R 
                     (universalMonoid0 R)
                     (fun x : X => setquotpr (smallestAdequateRelation R) (word1 x))). 
-    Definition universalMonoid2 {X I} (R:I->reln X) (i:I) : 
+    Lemma universalMonoid2 {X I} (R:I->reln X) (w:word X) : 
+      setquotpr (smallestAdequateRelation R) w == evalword (universalMonoid1 R) w.
+    Proof. intros.
+      exact (! (ap (setquotpr (smallestAdequateRelation R)) (reassemble R w))
+             @ pr_eval_compat R w). Qed.
+    Definition universalMonoid3 {X I} (R:I->reln X) (i:I) : 
       evalword (universalMonoid1 R) (pr1 (R i)) ==
       evalword (universalMonoid1 R) (pr2 (R i)).
     Proof. intros.
-           exact (!pr_eval_compat R (pr1 (R i)) @
-                      iscompsetquotpr (smallestAdequateRelation R)
-                                      (evalword (wordop X) (pr1 (R i)))
-                                      (evalword (wordop X) (pr2 (R i)))
-                                      (fun r ra => transport 
-                                                     _ (!aptwice r 
-                                                         (reassemble R (pr1 (R i)))
-                                                         (reassemble R (pr2 (R i)))) 
-                                                     (base _ _ ra i))
-                     @ pr_eval_compat R (pr2 (R i)) ). 
-    Qed.
+           exact (! universalMonoid2 R (pr1 (R i))
+                  @ iscompsetquotpr (smallestAdequateRelation R) _ _ (fun r ra => base _ _ ra i)
+                  @ universalMonoid2 R (pr2 (R i))). Qed.
     Definition universalMonoid {X I} (R:I->reln X) : Monoid R :=
       make_Monoid R (universalMonoid0 R) 
                   (fun x => setquotpr (smallestAdequateRelation R) (word1 x)) 
-                  (universalMonoid2 R).
+                  (universalMonoid3 R).
     Definition universality {X I} (R:I->reln X) (M:Monoid R) : MonoidMap (universalMonoid R) M.
       intros ? ? ? [N f p].
       refine (make_MonoidMap _ _ _ _ _ _ _).
