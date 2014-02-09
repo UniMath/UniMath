@@ -929,12 +929,12 @@ Module Monoid.
       AdequateRelation R
           (fun v w  => eqset (evalword (to_premonoid' M) v)
                              (evalword (to_premonoid' M) w)).
-    Proof. intros. 
-           (* refine (make_AdequateRelation _ _ _ _ _ _ _ _ _ _ _ _ _ _). *)
-           (* { intros. simpl. *)
-             (* exact (m_reln R M i). *)
-
-           admit.
+    Proof. intros. refine (make_AdequateRelation _ _ _ _ _ _ _ _ _ _ _ _ _).
+           { intros. simpl. exact (m_reln R M i). } { reflexivity. }
+           { intros ? ?. exact pathsinv0. } { intros ? ? ?. exact pathscomp0. }
+           { intros ? ? ? p. simpl. destruct p. reflexivity. }
+           { intros ? ? ? p. simpl. destruct p. reflexivity. }
+           { intros. apply lunax. } { intros. apply runax. } { intros. apply assocax. }
     Defined.
     Record MonoidMap {X I} {R:I->reln X} (M N:Monoid R) :=
       make_MonoidMap {
