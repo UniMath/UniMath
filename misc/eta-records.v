@@ -1,4 +1,5 @@
-Set Primitive Projections.      (* turns on eta for primitive records *)
+Set Primitive Projections.
+Set Printing All.
 Parameter T : Type.
 Parameter P : T -> Type.
 
@@ -12,7 +13,8 @@ Module A.
   Definition X := total2 P.
   Parameter x : X.
   Definition x' : X := tpair _ (pr1 x) (pr2 x).
-  Goal x = x'.
+  Print x'.
+  Goal x = x'.                  (* @tpair T P (@pr1 T P x) (@pr2 T P x) -- can be bulky *)
     (* reflexivity. (* fails *) *)
     admit.
   Defined.
@@ -24,6 +26,7 @@ Module B.
   Definition X := total2 P.
   Parameter x : X.
   Definition x' : X := tpair _ (pr1 x) (pr2 x).
+  Print x'.                     (* @tpair T P (pr1 x) (pr2 x)   ! *)
   Goal x = x'.
     reflexivity.                (* ! *)
   Defined.
