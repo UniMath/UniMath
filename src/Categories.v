@@ -972,17 +972,29 @@ Module Monoid.
       make_Monoid R (universalMonoid0 R) 
                   (fun x => setquotpr (smallestAdequateRelation R) (word1 x)) 
                   (universalMonoid3 R).
+    Definition universality00 {X I} {R:I->reln X} (M:Monoid R) : word X -> M :=
+      evalword (to_premonoid R (m_base M) (m_elem M)).
+    Definition universality0 {X I} {R:I->reln X} (M:Monoid R) : universalMonoid0 R -> M.
+    Proof. intros ? ? ? ?. 
+      apply (setquotuniv _ _ (universality00 M)).
+      exact (fun _ _ r => r (Monoid_to_hrel M) (monoid_adequacy R M)).
+    Defined.
+    Definition universality1 {X I} (R:I->reln X) (M:Monoid R) (v w:universalMonoid0 R) :
+      universality0 M (v * w) == universality0 M v * universality0 M w.
+    Proof. intros. simpl in v,w.
+        admit.
+    Qed.
+    Definition universality2 {X I} (R:I->reln X) (M:Monoid R) : monoidfun (universalMonoid R) M.
+      intros.
+      { exists (universality0 M).
+        split.
+        { intros v w. apply universality1. }
+        { admit. } }
+    Defined.
     Definition universality {X I} (R:I->reln X) (M:Monoid R) : MonoidMap (universalMonoid R) M.
       intros ? ? ? M.
-      refine (make_MonoidMap _ _ _ _ _ _ _).
-      { simpl. refine ( _,,_ ).
-        { simpl. refine (setquotuniv _ _ _ _).
-          { exact (evalword (to_premonoid R (m_base M) (m_elem M))). }
-          { exact (fun v w r => r (Monoid_to_hrel M) (monoid_adequacy R M)). } } 
-        split.
-        { intros v w. admit. }
-        { admit. } }
-      { admit. }
+      apply (make_MonoidMap X I R (universalMonoid R) M (universality2 R M)).
+      { intros x. admit. }
     Defined.
   End Presentation.
   Module Presentation2.
@@ -992,11 +1004,8 @@ Module Monoid.
       { exact (eval X G f w * eval X G f w'). } Defined.
     Fixpoint evalcomp {X} {G:monoid} (f:X->G) (c:word X) {G'} (p:Hom G G') : 
       p (eval f c) == eval (funcomp f p) c.
-    Proof. intros. destruct c as [|g|w w'].
-           { apply unitproperty. }
-           { reflexivity. }
-           { simpl. 
-             set (a := evalcomp _ _ f w _ p). set (a' := evalcomp _ _ f w' _ p).
+    Proof. intros. destruct c as [|g|w w']. { apply unitproperty. } { reflexivity. }
+           { simpl. set (a := evalcomp _ _ f w _ p). set (a' := evalcomp _ _ f w' _ p).
              unfold funcomp in *; simpl in *. destruct a. destruct a'.
              apply multproperty. } Qed.
     Definition isinimage {X} {G:monoid} (f:X->G) (g:G) := ishinh (hfiber (eval f) g).
@@ -1007,8 +1016,7 @@ Module Monoid.
                       (hfiber (eval f) g) (hfiber (eval f) h)
                       (hfiber (eval f) (g * h))).
              { intros [c p] [d q]. exists (word2 c d); simpl.
-               destruct p. destruct q. reflexivity. }
-             { exact i. } { exact j. } }
+               destruct p. destruct q. reflexivity. } { exact i. } { exact j. } }
            { apply hinhpr. exists word0. reflexivity. } Qed.
     Definition monoid_closure {X} {G:monoid} (f:X->G) : @submonoids G
       := submonoidpair (isinimage f) (issubmonoid_image f).
