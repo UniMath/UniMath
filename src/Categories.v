@@ -930,20 +930,38 @@ Module Monoid.
     Coercion m_base : Monoid >-> monoid.
     Definition to_premonoid' {X I} {R:I->reln X} (M:Monoid R) : Premonoid X :=
       to_premonoid R (m_base M) (m_elem M).
+    Definition universality00 {X I} {R:I->reln X} (M:Monoid R) : word X -> M :=
+      evalword (to_premonoid' M).
     Definition Monoid_to_hrel {X I} {R:I->reln X} (M:Monoid R) : hrel (word X) :=
-      fun v w  => eqset (evalword (to_premonoid' M) v) (evalword (to_premonoid' M) w).
+      fun v w  => eqset (universality00 M v) (universality00 M w).
     Lemma monoid_adequacy {X I} (R:I->reln X) (M:Monoid R) :
       AdequateRelation R (Monoid_to_hrel M).
     Proof. intros. refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _).
            { exact (fun i => m_reln R M i). } { reflexivity. }
            { intros ? ?. exact pathsinv0. } { intros ? ? ?. exact pathscomp0. }
-           { intros ? ? ? p. unfold Monoid_to_hrel in p; simpl. destruct p. reflexivity. }
-           { intros ? ? ? p. unfold Monoid_to_hrel in p; simpl. destruct p. reflexivity. }
+           { intros ? ? ? p. simpl in p; simpl. 
+             unfold universality00,evalword in *. destruct p. reflexivity. }
+           { intros ? ? ? p. simpl in p; simpl. 
+             unfold universality00,evalword in *. destruct p. reflexivity. }
            { intros. apply lunax. } { intros. apply runax. } { intros. apply assocax. } Qed.
     Record MonoidMap {X I} {R:I->reln X} (M N:Monoid R) :=
       make_MonoidMap {
           map_base : Hom M N;
           map_elem : forall x, map_base (m_elem M x) == m_elem N x }.
+    Arguments map_base {X I R M N} m.
+    Arguments map_elem {X I R M N} m x.
+    Coercion map_base : MonoidMap >-> monoidfun.
+    Fixpoint MonoidMap_compat {X I} {R:I->reln X} (M N:Monoid R) (f:MonoidMap M N) (w:word X) :
+      map_base f (universality00 M w) == universality00 N w.
+    Proof. intros.
+           destruct w as [|x|v w].
+           { exact (pr2 (pr2 (map_base f))). }
+           { exact (map_elem f x). }
+           { exact ((pr1 (pr2 (map_base f))) (universality00 M v) (universality00 M w)
+                    @ aptwice (fun r s => r * s) 
+                              (MonoidMap_compat _ _ _ _ _ f v) 
+                              (MonoidMap_compat _ _ _ _ _ f w)). }
+    Qed.
     (** *** the universal monoid over X modulo R *)
     Definition universalMonoid0 {X I} (R:I->reln X) : monoid.
       intros. 
@@ -972,8 +990,6 @@ Module Monoid.
       make_Monoid R (universalMonoid0 R) 
                   (fun x => setquotpr (smallestAdequateRelation R) (word1 x)) 
                   (universalMonoid3 R).
-    Definition universality00 {X I} {R:I->reln X} (M:Monoid R) : word X -> M :=
-      evalword (to_premonoid R (m_base M) (m_elem M)).
     Definition universality0 {X I} {R:I->reln X} (M:Monoid R) : universalMonoid0 R -> M.
     Proof. intros ? ? ? ?. 
       apply (setquotuniv _ _ (universality00 M)).
@@ -990,11 +1006,22 @@ Module Monoid.
     Definition universality2 {X I} (R:I->reln X) (M:Monoid R) : monoidfun (universalMonoid R) M.
       intros. exists (universality0 M).
         split. { intros v w. apply universality1. } { reflexivity. } Defined.
-    Definition universality {X I} (R:I->reln X) (M:Monoid R) : MonoidMap (universalMonoid R) M.
+    Definition universality3 {X I} (R:I->reln X) (M:Monoid R) : MonoidMap (universalMonoid R) M.
       exact (fun X I R M => 
                make_MonoidMap 
                  X I R (universalMonoid R) M 
                  (universality2 R M) (fun x => idpath _)). Defined.
+    Lemma universality4 {X I} (R:I->reln X) (M:Monoid R)
+          (f g : MonoidMap (universalMonoid R) M) : f==g.
+    Proof. intros.
+           assert( pr1 (map_base f) == pr1 (map_base g) ).
+           { apply funextfunax; intro v.
+           set (lift := issurjsetquotpr (smallestAdequateRelation R)).
+           isaprop_goal ig. { apply setproperty. }
+           apply (unsquash (lift v) ig); intros [v' j]; destruct j; simpl.
+           (* use MonoidMap_compat ? *)
+           admit. } admit.
+    Qed.
   End Presentation.
   Module Presentation2.
     (** * monoids by generators and relations, approach #2 *)
