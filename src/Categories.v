@@ -981,21 +981,20 @@ Module Monoid.
     Defined.
     Definition universality1 {X I} (R:I->reln X) (M:Monoid R) (v w:universalMonoid0 R) :
       universality0 M (v * w) == universality0 M v * universality0 M w.
-    Proof. intros. simpl in v,w.
-        admit.
-    Qed.
+    Proof. intros.
+           set (lift := issurjsetquotpr (smallestAdequateRelation R)).
+           isaprop_goal ig. { apply setproperty. }
+           apply (unsquash (lift v) ig); intros [v' j]; destruct j; simpl.
+           apply (unsquash (lift w) ig); intros [w' k]; destruct k; simpl.
+           reflexivity. Qed.
     Definition universality2 {X I} (R:I->reln X) (M:Monoid R) : monoidfun (universalMonoid R) M.
-      intros.
-      { exists (universality0 M).
-        split.
-        { intros v w. apply universality1. }
-        { admit. } }
-    Defined.
+      intros. exists (universality0 M).
+        split. { intros v w. apply universality1. } { reflexivity. } Defined.
     Definition universality {X I} (R:I->reln X) (M:Monoid R) : MonoidMap (universalMonoid R) M.
-      intros ? ? ? M.
-      apply (make_MonoidMap X I R (universalMonoid R) M (universality2 R M)).
-      { intros x. admit. }
-    Defined.
+      exact (fun X I R M => 
+               make_MonoidMap 
+                 X I R (universalMonoid R) M 
+                 (universality2 R M) (fun x => idpath _)). Defined.
   End Presentation.
   Module Presentation2.
     (** * monoids by generators and relations, approach #2 *)
