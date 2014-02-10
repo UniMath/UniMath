@@ -918,84 +918,89 @@ Module Monoid.
     (** *** monoids over X modulo R *)
     Definition to_premonoid {X I} (R:I->reln X) (M:monoid) (el:X->M) : Premonoid X.
       intros. exact {| elem := M; op0 := unel _; op1 := el; op2 := op |}. Defined.
-    Record Monoid {X I} (R:I->reln X) := 
-      make_Monoid {
+    Record MarkedMonoid {X I} (R:I->reln X) := 
+      make_MarkedMonoid {
           m_base : monoid;
           m_elem : X -> m_base;
           m_reln : forall i, evalword (to_premonoid R m_base m_elem) (lhs (R i)) ==
                              evalword (to_premonoid R m_base m_elem) (rhs (R i)) }.
-    Arguments make_Monoid {X I} R _ _ _.
+    Arguments make_MarkedMonoid {X I} R _ _ _.
     Arguments m_base {X I R} _.
     Arguments m_elem {X I R} _ x.
-    Coercion m_base : Monoid >-> monoid.
-    Definition to_premonoid' {X I} {R:I->reln X} (M:Monoid R) : Premonoid X :=
+    Coercion m_base : MarkedMonoid >-> monoid.
+    Definition to_premonoid' {X I} {R:I->reln X} (M:MarkedMonoid R) : Premonoid X :=
       to_premonoid R (m_base M) (m_elem M).
-    Definition universality00 {X I} {R:I->reln X} (M:Monoid R) : word X -> M :=
+    Definition evalwordMM {X I} {R:I->reln X} (M:MarkedMonoid R) : word X -> M :=
       evalword (to_premonoid' M).
-    Definition Monoid_to_hrel {X I} {R:I->reln X} (M:Monoid R) : hrel (word X) :=
-      fun v w  => eqset (universality00 M v) (universality00 M w).
-    Lemma monoid_adequacy {X I} (R:I->reln X) (M:Monoid R) :
-      AdequateRelation R (Monoid_to_hrel M).
+    Definition MarkedMonoid_to_hrel {X I} {R:I->reln X} (M:MarkedMonoid R) : hrel (word X) :=
+      fun v w  => eqset (evalwordMM M v) (evalwordMM M w).
+    Lemma monoid_adequacy {X I} (R:I->reln X) (M:MarkedMonoid R) :
+      AdequateRelation R (MarkedMonoid_to_hrel M).
     Proof. intros. refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _).
            { exact (fun i => m_reln R M i). } { reflexivity. }
            { intros ? ?. exact pathsinv0. } { intros ? ? ?. exact pathscomp0. }
            { intros ? ? ? p. simpl in p; simpl. 
-             unfold universality00,evalword in *. destruct p. reflexivity. }
+             unfold evalwordMM,evalword in *. destruct p. reflexivity. }
            { intros ? ? ? p. simpl in p; simpl. 
-             unfold universality00,evalword in *. destruct p. reflexivity. }
+             unfold evalwordMM,evalword in *. destruct p. reflexivity. }
            { intros. apply lunax. } { intros. apply runax. } { intros. apply assocax. } Qed.
-    Record MonoidMap {X I} {R:I->reln X} (M N:Monoid R) :=
-      make_MonoidMap {
+    Record MarkedMonoidMap {X I} {R:I->reln X} (M N:MarkedMonoid R) :=
+      make_MarkedMonoidMap {
           map_base : Hom M N;
           map_elem : forall x, map_base (m_elem M x) == m_elem N x }.
     Arguments map_base {X I R M N} m.
     Arguments map_elem {X I R M N} m x.
-    Coercion map_base : MonoidMap >-> monoidfun.
-    Fixpoint MonoidMap_compat {X I} {R:I->reln X} (M N:Monoid R) (f:MonoidMap M N) (w:word X) :
-      map_base f (universality00 M w) == universality00 N w.
+    Coercion map_base : MarkedMonoidMap >-> monoidfun.
+    Fixpoint MarkedMonoidMap_compat {X I} {R:I->reln X}
+             {M N:MarkedMonoid R} (f:MarkedMonoidMap M N) (w:word X) :
+      map_base f (evalwordMM M w) == evalwordMM N w.
     Proof. intros.
            destruct w as [|x|v w].
            { exact (pr2 (pr2 (map_base f))). }
            { exact (map_elem f x). }
-           { exact ((pr1 (pr2 (map_base f))) (universality00 M v) (universality00 M w)
+           { exact ((pr1 (pr2 (map_base f))) (evalwordMM M v) (evalwordMM M w)
                     @ aptwice (fun r s => r * s) 
-                              (MonoidMap_compat _ _ _ _ _ f v) 
-                              (MonoidMap_compat _ _ _ _ _ f w)). }
+                              (MarkedMonoidMap_compat _ _ _ _ _ f v) 
+                              (MarkedMonoidMap_compat _ _ _ _ _ f w)). }
     Qed.
-    (** *** the universal monoid over X modulo R *)
-    Definition universalMonoid0 {X I} (R:I->reln X) : monoid.
+    Lemma MarkedMonoidMap_compat2 {X I} {R:I->reln X} 
+             {M N:MarkedMonoid R} (f g:MarkedMonoidMap M N) (w:word X) :
+      map_base f (evalwordMM M w) == map_base g (evalwordMM M w).
+    Proof. intros. exact (MarkedMonoidMap_compat f w @ !MarkedMonoidMap_compat g w). Qed.
+    (** *** the universal marked monoid over X modulo R *)
+    Definition universalMarkedMonoid0 {X I} (R:I->reln X) : monoid.
       intros. 
       { exists (univ_setwithbinop R). split.
         { exact (isassoc_univ_binop R). }
         { exists (setquotpr _ word0). split. 
           { exact (is_left_unit_univ_binop R). }
           { exact (is_right_unit_univ_binop R). } } } Defined.
-    Definition universalMonoid1 {X I} (R:I->reln X) : Premonoid X :=
+    Definition universalMarkedMonoid1 {X I} (R:I->reln X) : Premonoid X :=
       (to_premonoid R 
-                    (universalMonoid0 R)
+                    (universalMarkedMonoid0 R)
                     (fun x : X => setquotpr (smallestAdequateRelation R) (word1 x))). 
-    Lemma universalMonoid2 {X I} (R:I->reln X) (w:word X) : 
-      setquotpr (smallestAdequateRelation R) w == evalword (universalMonoid1 R) w.
+    Lemma universalMarkedMonoid2 {X I} (R:I->reln X) (w:word X) : 
+      setquotpr (smallestAdequateRelation R) w == evalword (universalMarkedMonoid1 R) w.
     Proof. intros.
       exact (! (ap (setquotpr (smallestAdequateRelation R)) (reassemble R w))
              @ pr_eval_compat R w). Qed.
-    Definition universalMonoid3 {X I} (R:I->reln X) (i:I) : 
-      evalword (universalMonoid1 R) (lhs (R i)) ==
-      evalword (universalMonoid1 R) (rhs (R i)).
+    Definition universalMarkedMonoid3 {X I} (R:I->reln X) (i:I) : 
+      evalword (universalMarkedMonoid1 R) (lhs (R i)) ==
+      evalword (universalMarkedMonoid1 R) (rhs (R i)).
     Proof. intros.
-           exact (! universalMonoid2 R (lhs (R i))
+           exact (! universalMarkedMonoid2 R (lhs (R i))
                   @ iscompsetquotpr (smallestAdequateRelation R) _ _ (fun r ra => base _ _ ra i)
-                  @ universalMonoid2 R (rhs (R i))). Qed.
-    Definition universalMonoid {X I} (R:I->reln X) : Monoid R :=
-      make_Monoid R (universalMonoid0 R) 
+                  @ universalMarkedMonoid2 R (rhs (R i))). Qed.
+    Definition universalMarkedMonoid {X I} (R:I->reln X) : MarkedMonoid R :=
+      make_MarkedMonoid R (universalMarkedMonoid0 R) 
                   (fun x => setquotpr (smallestAdequateRelation R) (word1 x)) 
-                  (universalMonoid3 R).
-    Definition universality0 {X I} {R:I->reln X} (M:Monoid R) : universalMonoid0 R -> M.
+                  (universalMarkedMonoid3 R).
+    Definition universality0 {X I} {R:I->reln X} (M:MarkedMonoid R) : universalMarkedMonoid0 R -> M.
     Proof. intros ? ? ? ?. 
-      apply (setquotuniv _ _ (universality00 M)).
-      exact (fun _ _ r => r (Monoid_to_hrel M) (monoid_adequacy R M)).
+      apply (setquotuniv _ _ (evalwordMM M)).
+      exact (fun _ _ r => r (MarkedMonoid_to_hrel M) (monoid_adequacy R M)).
     Defined.
-    Definition universality1 {X I} (R:I->reln X) (M:Monoid R) (v w:universalMonoid0 R) :
+    Definition universality1 {X I} (R:I->reln X) (M:MarkedMonoid R) (v w:universalMarkedMonoid0 R) :
       universality0 M (v * w) == universality0 M v * universality0 M w.
     Proof. intros.
            set (lift := issurjsetquotpr (smallestAdequateRelation R)).
@@ -1003,25 +1008,27 @@ Module Monoid.
            apply (unsquash (lift v) ig); intros [v' j]; destruct j; simpl.
            apply (unsquash (lift w) ig); intros [w' k]; destruct k; simpl.
            reflexivity. Qed.
-    Definition universality2 {X I} (R:I->reln X) (M:Monoid R) : monoidfun (universalMonoid R) M.
-      intros. exists (universality0 M).
+    Definition universality2 {X I} {R:I->reln X} (M:MarkedMonoid R) : 
+      monoidfun (universalMarkedMonoid R) M.
+    Proof. intros. exists (universality0 M).
         split. { intros v w. apply universality1. } { reflexivity. } Defined.
-    Definition universality3 {X I} (R:I->reln X) (M:Monoid R) : MonoidMap (universalMonoid R) M.
-      exact (fun X I R M => 
-               make_MonoidMap 
-                 X I R (universalMonoid R) M 
-                 (universality2 R M) (fun x => idpath _)). Defined.
-    Lemma universality4 {X I} (R:I->reln X) (M:Monoid R)
-          (f g : MonoidMap (universalMonoid R) M) : f==g.
-    Proof. intros.
-           assert( pr1 (map_base f) == pr1 (map_base g) ).
+    (** * universality of the universal marked monoid *)
+    Theorem iscontrMarkedMonoidMap {X I} {R:I->reln X} (M:MarkedMonoid R) :
+          iscontr (MarkedMonoidMap (universalMarkedMonoid R) M).
+    Proof. intros. assert (g := make_MarkedMonoidMap X I R (universalMarkedMonoid R) M 
+                                               (universality2 M) (fun x => idpath _)).
+           exists g. intros f. assert(j : pr1 (map_base f) == pr1 (map_base g) ).
            { apply funextfunax; intro v.
-           set (lift := issurjsetquotpr (smallestAdequateRelation R)).
-           isaprop_goal ig. { apply setproperty. }
-           apply (unsquash (lift v) ig); intros [v' j]; destruct j; simpl.
-           (* use MonoidMap_compat ? *)
-           admit. } admit.
-    Qed.
+             set (lift := issurjsetquotpr (smallestAdequateRelation R)).
+             isaprop_goal ig. { apply setproperty. }
+             apply (unsquash (lift v) ig); intros [w j]; destruct j; simpl.
+             exact ((ap f (universalMarkedMonoid2 R w)) 
+                  @ MarkedMonoidMap_compat2 f g w @ !(ap g (universalMarkedMonoid2 R w))). }
+           destruct f as [[f fm] ft], g as [[g gm] gt]. 
+           simpl in j. destruct j.
+           assert(d : fm == gm). { apply isapropismonoidfun. } destruct d.
+           assert(k : ft == gt). { apply funextsec; intro x. apply setproperty. } destruct k. 
+           reflexivity. Qed.
   End Presentation.
   Module Presentation2.
     (** * monoids by generators and relations, approach #2 *)

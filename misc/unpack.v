@@ -115,3 +115,40 @@ Module Unpack.
   Proof. intros. exists pack. intros Y. exists (unpack Y,,k Y). intros [X m].
          destruct m. assert (H := h X). destruct H. reflexivity. Qed.
 End Unpack.
+
+Module Isaprop.
+  Require Import Foundations.Generalities.uu0. (* Global Set Asymmetric Patterns. will persist *)
+  Notation "a == b" := (paths a b) (at level 70, no associativity).
+  Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
+  Variable A:Type.
+  Variable B:A->Type.
+  Variable C:forall a,B a->Type.
+  Variable D:forall a b, C a b->Type.
+  Record foo := make { fa:A; fb:B fa; fc:C fa fb; fd:D fa fb fc }.
+  Lemma isap (ia:isaprop A)
+             (ib:forall a, isaprop(B a))
+             (ic:forall a b, isaprop(C a b))
+             (id:forall a b c, isaprop(D a b c)) : isaprop foo.
+  Proof. apply invproofirrelevance.
+         intros x y.
+         destruct x as [xa xb xc xd], y as [ya yb yc yd].
+         destruct (proofirrelevance _ ia xa ya).
+         destruct (proofirrelevance _ (ib xa) xb yb).
+         destruct (proofirrelevance _ (ic xa xb) xc yc).
+         destruct (proofirrelevance _ (id xa xb xc) xd yd).
+         reflexivity.
+  Defined.
+  Lemma isas (ia:isaset A)
+             (ib:forall a, isaset(B a))
+             (ic:forall a b, isaset(C a b))
+             (id:forall a b c, isaset(D a b c)) : isaset foo.
+  Proof. intros.
+         intros x y.
+         apply invproofirrelevance.
+         intros p q.
+         destruct x as [xa xb xc xd], y as [ya yb yc yd].
+         set (r := maponpaths fa p). simpl in r.
+         set (s := maponpaths fa q). simpl in s.
+         set (t := pr1 (ia xa ya r s)); simpl in t.
+   Abort.
+End Isaprop.
