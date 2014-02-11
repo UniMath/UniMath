@@ -758,12 +758,12 @@ Module Monoid.
     exists tt. split. intros []. reflexivity. intros []. reflexivity.
   Defined.
   Inductive word X : Type :=
-    | word0 : word X
-    | word1 : X -> word X 
-    | word2 : word X -> word X -> word X.
-  Arguments word0 {X}.
-  Arguments word1 {X} x.
-  Arguments word2 {X} v w.
+    | word_unit : word X
+    | word_gen : X -> word X 
+    | word_op : word X -> word X -> word X.
+  Arguments word_unit {X}.
+  Arguments word_gen {X} x.
+  Arguments word_op {X} v w.
   Record reln X := make_reln { lhs : word X; rhs : word X }.
   Arguments lhs {X} r.
   Arguments rhs {X} r.
@@ -782,7 +782,7 @@ Module Monoid.
     Arguments op0 {X M} : rename.
     Arguments op1 {X M} x : rename.
     Arguments op2 {X M} v w : rename.
-    Definition wordop X := make_preMonoid X (word X) word0 word1 word2.
+    Definition wordop X := make_preMonoid X (word X) word_unit word_gen word_op.
     Fixpoint evalword {X} (Y:MarkedPremonoid X) (w:word X) : elem Y.
       intros ? Y [|x|v w]. { exact op0. } { exact (op1 x). }
       { exact (op2 (evalword X Y v) (evalword X Y w)). } Defined.
@@ -802,11 +802,11 @@ Module Monoid.
           reflex : forall w, r w w;
           symm : forall v w, r v w -> r w v;
           trans : forall u v w, r u v -> r v w -> r u w;
-          left_compat : forall u v w, r v w -> r (word2 u v) (word2 u w);
-          right_compat: forall u v w, r u v -> r (word2 u w) (word2 v w);
-          left_unit : forall w, r (word2 word0 w) w;
-          right_unit : forall w, r (word2 w word0) w;
-          assoc : forall u v w, r (word2 (word2 u v) w) (word2 u (word2 v w)) }.
+          left_compat : forall u v w, r v w -> r (word_op u v) (word_op u w);
+          right_compat: forall u v w, r u v -> r (word_op u w) (word_op v w);
+          left_unit : forall w, r (word_op word_unit w) w;
+          right_unit : forall w, r (word_op w word_unit) w;
+          assoc : forall u v w, r (word_op (word_op u v) w) (word_op u (word_op v w)) }.
     Arguments make_AdequateRelation {X I} R r _ _ _ _ _ _ _ _ _.
     Arguments base {X I R r} _ _.
     Definition adequacy_to_eqrel {X I} (R:I->reln X) (r : hrel (word X)) :
@@ -844,31 +844,31 @@ Module Monoid.
     Lemma op2_compatibility {X I} (R:I->reln X) : 
       QuotientSet.iscomprelrelfun2
         (smallestAdequateRelation R) (smallestAdequateRelation R) (smallestAdequateRelation R)
-        word2.    
+        word_op.    
     Proof. intros. split.
       { intros x x' y p r ra. exact (right_compat R r ra x x' y (p r ra)). }
       { intros x y y' p r ra. exact ( left_compat R r ra x y y' (p r ra)). } Qed.
     (** *** the multiplication on on it *)
     Definition univ_binop {X I} (R:I->reln X) : binop (universalMarkedPremonoid0 R).
-      intros. refine (QuotientSet.setquotfun2 word2 _). apply op2_compatibility. Defined.
+      intros. refine (QuotientSet.setquotfun2 word_op _). apply op2_compatibility. Defined.
     Definition univ_setwithbinop {X I} (R:I->reln X) : setwithbinop
                := setwithbinoppair (universalMarkedPremonoid0 R) (univ_binop R).
     (** *** the universal premonoid *)
     Definition universalMarkedPremonoid {X I} (R:I->reln X) : MarkedPremonoid X.
       intros. refine (make_preMonoid X (universalMarkedPremonoid0 R) _ _ _).
-      { exact (setquotpr _ word0). }
-      { exact (fun x => setquotpr _ (word1 x)). }
+      { exact (setquotpr _ word_unit). }
+      { exact (fun x => setquotpr _ (word_gen x)). }
       { exact (univ_binop _). } Defined.
     (** *** identities for the universal premonoid *)
     Lemma is_left_unit_univ_binop {X I} (R:I->reln X) : 
-      forall w : universalMarkedPremonoid0 R, ((univ_binop _) (setquotpr _ word0) w) == w.
+      forall w : universalMarkedPremonoid0 R, ((univ_binop _) (setquotpr _ word_unit) w) == w.
     Proof. intros ? ? ? w'. assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
       isaprop_goal ig. { apply setproperty. } 
       apply (unsquash (lift w') ig); intros [w i]; destruct i; simpl.
       exact (iscompsetquotpr (smallestAdequateRelation R) _ _ 
                              (fun r ra => left_unit R r ra w)). Qed.
     Lemma is_right_unit_univ_binop {X I} (R:I->reln X) : 
-      forall w : universalMarkedPremonoid0 R, ((univ_binop _) w (setquotpr _ word0)) == w.
+      forall w : universalMarkedPremonoid0 R, ((univ_binop _) w (setquotpr _ word_unit)) == w.
     Proof. intros ? ? ? w'. assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
       isaprop_goal ig. { apply setproperty. } 
       apply (unsquash (lift w') ig); intros [w i]; destruct i; simpl.
@@ -892,8 +892,8 @@ Module Monoid.
       setquotpr (smallestAdequateRelation R) (evalword (wordop X) w) 
       == evalword (universalMarkedPremonoid R) w.
     Proof. intros. destruct w as [|x|v w]. { reflexivity. } { reflexivity. } 
-      { assert (p := !reassemble R (word2 v w)). destruct p. 
-        exact (!reassemble_pr R (word2 v w)). } Qed.
+      { assert (p := !reassemble R (word_op v w)). destruct p. 
+        exact (!reassemble_pr R (word_op v w)). } Qed.
     (** *** monoids over X modulo R *)
     Definition toMarkedPremonoid {X I} (R:I->reln X) (M:monoid) (el:X->M) : MarkedPremonoid X.
       intros. exact {| elem := M; op0 := unel _; op1 := el; op2 := op |}. Defined.
@@ -953,13 +953,13 @@ Module Monoid.
       intros. 
       { exists (univ_setwithbinop R). split.
         { exact (isassoc_univ_binop R). }
-        { exists (setquotpr _ word0). split. 
+        { exists (setquotpr _ word_unit). split. 
           { exact (is_left_unit_univ_binop R). }
           { exact (is_right_unit_univ_binop R). } } } Defined.
     Definition universalMarkedMonoid1 {X I} (R:I->reln X) : MarkedPremonoid X :=
       (toMarkedPremonoid R 
                     (universalMarkedMonoid0 R)
-                    (fun x : X => setquotpr (smallestAdequateRelation R) (word1 x))). 
+                    (fun x : X => setquotpr (smallestAdequateRelation R) (word_gen x))). 
     Lemma universalMarkedMonoid2 {X I} (R:I->reln X) (w:word X) : 
       setquotpr (smallestAdequateRelation R) w == evalword (universalMarkedMonoid1 R) w.
     Proof. intros.
@@ -974,7 +974,7 @@ Module Monoid.
                   @ universalMarkedMonoid2 R (rhs (R i))). Qed.
     Definition universalMarkedMonoid {X I} (R:I->reln X) : MarkedMonoid R :=
       make_MarkedMonoid R (universalMarkedMonoid0 R) 
-                  (fun x => setquotpr (smallestAdequateRelation R) (word1 x)) 
+                  (fun x => setquotpr (smallestAdequateRelation R) (word_gen x)) 
                   (universalMarkedMonoid3 R).
     Definition universality0 {X I} {R:I->reln X} (M:MarkedMonoid R) : 
       universalMarkedMonoid0 R -> M.
