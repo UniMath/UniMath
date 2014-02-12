@@ -1406,6 +1406,38 @@ Module AbelianGroup.
       exact ((ap f (universalMarkedAbelianGroup2 R w)) 
            @ MarkedAbelianGroupMap_compat2 f g w @ !(ap g (universalMarkedAbelianGroup2 R w))).
     Defined.
+    Fixpoint agreement_on_gens0 {X I} {R:I->reln X} {M:abgr}
+          (f g:Hom (universalMarkedAbelianGroup R) M)
+          (p:forall i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) ==
+                     g (setquotpr (smallestAdequateRelation R) (word_gen i)))
+          (w:word X) :
+            pr1 f (setquotpr (smallestAdequateRelation R) w) ==
+            pr1 g (setquotpr (smallestAdequateRelation R) w).
+    Proof. intros. 
+           destruct w as [|x|w|v w].
+           { intermediate (unel M). exact (unitproperty f). exact (!unitproperty g). }
+           { apply p. }
+           { refine (_ @ (ap (grinv M) (agreement_on_gens0 _ _ _ _ f g p w)) @ !_).
+             (* compare duplication with the proof of MarkedAbelianGroupMap_compat *)
+             { refine (_ @ monoidfuninvtoinv f _). reflexivity. }
+             { refine (_ @ monoidfuninvtoinv g _). reflexivity. } }
+           { set (q := agreement_on_gens0 _ _ _ _ f g p v).
+             set (r := agreement_on_gens0 _ _ _ _ f g p w).
+             set (t := aptwice (fun r s => r + s) q r); simpl in t.
+             refine (_ @ t @ !_).
+             { exact (Monoid.multproperty f (setquotpr (smallestAdequateRelation R) v)
+                     (setquotpr (smallestAdequateRelation R) w)). }
+             { exact (Monoid.multproperty g (setquotpr (smallestAdequateRelation R) v)
+                     (setquotpr (smallestAdequateRelation R) w)). } } Qed.
+    Lemma agreement_on_gens {X I} {R:I->reln X} {M:abgr}
+          (f g:Hom (universalMarkedAbelianGroup R) M) :
+          (forall i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) ==
+                     g (setquotpr (smallestAdequateRelation R) (word_gen i))) 
+            -> f == g.
+      intros ? ? ? ? ? ? p. apply Monoid.funEquality.
+      apply funextfunax; intro t; simpl in t. 
+      apply (surjectionisepitosets _ _ _ (issurjsetquotpr _)).
+      { apply setproperty. } { apply agreement_on_gens0. assumption. } Qed.
   End Presentation.
   Module Product.
     Definition make {I} (G:I->abgr) : abgr.
@@ -1459,13 +1491,8 @@ Module AbelianGroup.
       intros. apply Monoid.funEquality. reflexivity. Qed.
     Definition UniqueMap {I} (G:I->abgr) (T:abgr) (h h' : Hom (make G) T) :
          (forall i, h ∘ Incl G i == h' ∘ Incl G i) -> h == h'.
-      intros ? ? ? ? ? e. apply Monoid.funEquality.
-      apply funextfunax; intro t; simpl in t.
-      apply (surjectionisepitosets _ _ _ (issurjsetquotpr _)).
-      { apply setproperty. }
-      { intro w.
-        admit.
-        }
+      intros ? ? ? ? ? e. apply (agreement_on_gens h h').
+      { intros [i g]. exact (ap (evalat g) (ap pr1 (e i))). }
     Qed.
   End Sum.
   Definition power (I:Type) (X:abgr) : abgr.
