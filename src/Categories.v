@@ -1211,50 +1211,48 @@ Module AbelianGroup.
       { exact (univ_inverse _). }
       { exact (univ_binop _). } Defined.
     (** *** identities for the universal preabelian group *)
-    Lemma is_left_unit_univ_binop {X I} (R:I->reln X) : 
-      forall w : universalMarkedPreAbelianGroup0 R, ((univ_binop _) (setquotpr _ word_unit) w) == w.
-    Proof. intros ? ? ? w'. assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
-      isaprop_goal ig. { apply setproperty. } 
-      apply (unsquash (lift w') ig); intros [w i]; destruct i; simpl.
+    Lemma lift {X I} (R:I->reln X) : issurjective (setquotpr (smallestAdequateRelation R)).
+    Proof. intros. exact (issurjsetquotpr (smallestAdequateRelation R)). Qed.
+    Lemma is_left_unit_univ_binop {X I} (R:I->reln X) (w:universalMarkedPreAbelianGroup0 R) :
+      ((univ_binop _) (setquotpr _ word_unit) w) == w.
+    Proof. intros ? ? ? w'. isaprop_goal ig. { apply setproperty. } 
+      apply (unsquash (lift R w') ig); intros [w i]; destruct i; simpl.
       exact (iscompsetquotpr (smallestAdequateRelation R) _ _ 
                              (fun r ra => left_unit R r ra w)). Qed.
-    Lemma is_right_unit_univ_binop {X I} (R:I->reln X) : 
-      forall w : universalMarkedPreAbelianGroup0 R, ((univ_binop _) w (setquotpr _ word_unit)) == w.
-    Proof. intros ? ? ? w'. assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
-      isaprop_goal ig. { apply setproperty. } 
-      apply (unsquash (lift w') ig); intros [w i]; destruct i; simpl.
+    Lemma is_right_unit_univ_binop {X I} (R:I->reln X) (w:universalMarkedPreAbelianGroup0 R) :
+      ((univ_binop _) w (setquotpr _ word_unit)) == w.
+    Proof. intros ? ? ? w'. isaprop_goal ig. { apply setproperty. } 
+      apply (unsquash (lift R w') ig); intros [w i]; destruct i; simpl.
       exact (iscompsetquotpr (smallestAdequateRelation R) _ _ 
                              (fun r ra => right_unit R r ra w)). Qed.
     Lemma isassoc_univ_binop {X I} (R:I->reln X) : isassoc(univ_binop R).
     Proof. intros. set (e := smallestAdequateRelation R). intros u' v' w'. 
-           isaprop_goal ig. { apply setproperty. } assert (lift := issurjsetquotpr e).
- 	   apply (unsquash (lift u') ig); intros [u i]; destruct i; simpl.
- 	   apply (unsquash (lift v') ig); intros [v j]; destruct j; simpl.
- 	   apply (unsquash (lift w') ig); intros [w k]; destruct k; simpl.
+           isaprop_goal ig. { apply setproperty. } 
+ 	   apply (unsquash (lift R u') ig); intros [u i]; destruct i; simpl.
+ 	   apply (unsquash (lift R v') ig); intros [v j]; destruct j; simpl.
+ 	   apply (unsquash (lift R w') ig); intros [w k]; destruct k; simpl.
            exact (iscompsetquotpr e _ _ (fun r ra => assoc R r ra u v w)). Qed.
     Lemma is_left_inverse_univ_binop {X I} (R:I->reln X) :
       forall w:setquot (smallestAdequateRelation0 R),
         univ_binop R (univ_inverse R w) w ==
         setquotpr (smallestAdequateRelation R) word_unit.
-    Proof. intros. assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
-      isaprop_goal ig. { apply setproperty. } 
-      apply (unsquash (lift w) ig); intros [v i]; destruct i; simpl.
+    Proof. intros. isaprop_goal ig. { apply setproperty. } 
+      apply (unsquash (lift R w) ig); intros [v i]; destruct i; simpl.
       exact (iscompsetquotpr (smallestAdequateRelation R) _ _ 
                              (fun r ra => left_inverse R r ra v)). Qed.
     Lemma is_right_inverse_univ_binop {X I} (R:I->reln X) :
       forall w:setquot (smallestAdequateRelation0 R),
         univ_binop R w (univ_inverse R w) ==
         setquotpr (smallestAdequateRelation R) word_unit.
-    Proof. intros. assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
-      isaprop_goal ig. { apply setproperty. } 
-      apply (unsquash (lift w) ig); intros [v i]; destruct i; simpl.
+    Proof. intros. isaprop_goal ig. { apply setproperty. } 
+      apply (unsquash (lift R w) ig); intros [v i]; destruct i; simpl.
       exact (iscompsetquotpr (smallestAdequateRelation R) _ _ 
                              (fun r ra => right_inverse R r ra v)). Qed.
     Lemma iscomm_univ_binop {X I} (R:I->reln X) : iscomm(univ_binop R).
     Proof. intros. set (e := smallestAdequateRelation R). intros v' w'. 
-           isaprop_goal ig. { apply setproperty. } assert (lift := issurjsetquotpr e).
- 	   apply (unsquash (lift v') ig); intros [v j]; destruct j; simpl.
- 	   apply (unsquash (lift w') ig); intros [w k]; destruct k; simpl.
+           isaprop_goal ig. { apply setproperty. }
+ 	   apply (unsquash (lift R v') ig); intros [v j]; destruct j; simpl.
+ 	   apply (unsquash (lift R w') ig); intros [w k]; destruct k; simpl.
            exact (iscompsetquotpr e _ _ (fun r ra => comm R r ra v w)). Qed.
     Fixpoint reassemble_pr {X I} (R:I->reln X) (v:word X) : 
       evalword (universalMarkedPreAbelianGroup R) v == setquotpr _ v.
@@ -1383,8 +1381,8 @@ Module AbelianGroup.
            { apply p. }
            { refine (_ @ (ap (grinv M) (agreement_on_gens0 _ _ _ _ f g p w)) @ !_).
              (* compare duplication with the proof of MarkedAbelianGroupMap_compat *)
-             { refine (_ @ monoidfuninvtoinv f _). reflexivity. }
-             { refine (_ @ monoidfuninvtoinv g _). reflexivity. } }
+             { refine (_ @ monoidfuninvtoinv f _). reflexivity. (* ?? *) }
+             { refine (_ @ monoidfuninvtoinv g _). reflexivity. (* ?? *) } }
            { set (q := agreement_on_gens0 _ _ _ _ f g p v).
              set (r := agreement_on_gens0 _ _ _ _ f g p w).
              set (t := aptwice (fun r s => r + s) q r); simpl in t.
@@ -1411,10 +1409,9 @@ Module AbelianGroup.
     Definition universality1 {X I} (R:I->reln X) 
                              (M:MarkedAbelianGroup R) (v w:universalMarkedAbelianGroup0 R) :
       universality0 M (v + w) == universality0 M v + universality0 M w.
-    Proof. intros. assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
-      isaprop_goal ig. { apply setproperty. }
-      apply (unsquash (lift v) ig); intros [v' j]; destruct j; simpl.
-      apply (unsquash (lift w) ig); intros [w' k]; destruct k; simpl.
+    Proof. intros. isaprop_goal ig. { apply setproperty. }
+      apply (unsquash (lift R v) ig); intros [v' j]; destruct j; simpl.
+      apply (unsquash (lift R w) ig); intros [w' k]; destruct k; simpl.
       reflexivity. Qed.
     Definition universality2 {X I} {R:I->reln X} (M:MarkedAbelianGroup R) : 
       monoidfun (universalMarkedAbelianGroup R) M.
@@ -1430,9 +1427,8 @@ Module AbelianGroup.
                              (universality2 M) (fun x => idpath _)).
       exists g. intros f. apply MarkedAbelianGroupMapEquality.
       apply Monoid.funEquality. apply funextfunax; intro v.
-      assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
       isaprop_goal ig. { apply setproperty. }
-      apply (unsquash (lift v) ig); intros [w j]; destruct j; simpl.
+      apply (unsquash (lift R v) ig); intros [w j]; destruct j; simpl.
       exact ((ap f (universalMarkedAbelianGroup2 R w)) 
            @ MarkedAbelianGroupMap_compat2 f g w @ !(ap g (universalMarkedAbelianGroup2 R w))).
     Defined.
