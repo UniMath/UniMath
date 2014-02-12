@@ -539,15 +539,15 @@ Module Product.
 End Product.
 
 Module Coproduct.
-  Definition make (C:precategory) {I} (c:I -> ob C) :=
+  Definition type (C:precategory) {I} (c:I -> ob C) :=
     Representation.Data (HomFamily.precat C c).
-  Definition Object {C:precategory} {I} {c:I -> ob C} (r:make C c)
+  Definition Object {C:precategory} {I} {c:I -> ob C} (r:type C c)
              : ob C := Representation.Object r.
-  Definition In {C:precategory} {I} {b:I -> ob C} (B:make C b) i :
+  Definition In {C:precategory} {I} {b:I -> ob C} (B:type C b) i :
        Hom (b i) (Object B).
   Proof. intros. exact (Representation.Element B i). Defined.
   Module Coercions.
-    Coercion Object : make >-> ob.
+    Coercion Object : type >-> ob.
   End Coercions.
 End Coproduct.
 
@@ -555,11 +555,11 @@ Module Matrix.
   (* the representing map is the matrix *)
   Import Coproduct.Coercions Product.Coercions.
   Definition to_row {C:precategory} {I} {b:I -> ob C} 
-             (B:Coproduct.make C b) {d:ob C} :
+             (B:Coproduct.type C b) {d:ob C} :
     weq (Hom B d) (forall j, Hom (b j) d).
   Proof. intros. exact (Representation.Iso B d). Defined.
   Definition from_row {C:precategory} {I} {b:I -> ob C} 
-             (B:Coproduct.make C b) {d:ob C} :
+             (B:Coproduct.type C b) {d:ob C} :
     weq (forall j, Hom (b j) d) (Hom B d).
   Proof. intros. apply invweq. apply to_row. Defined.
   Definition to_col {C:precategory} {I} {d:I -> ob C} (D:Product.type C d) {b:ob C} :
@@ -571,29 +571,29 @@ Module Matrix.
   Proof. intros. apply invweq. apply to_col. Defined.
   Definition to_matrix {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Coproduct.make C b) :
+             {J} {b:J -> ob C} (B:Coproduct.type C b) :
              weq (Hom B D) (forall i j, Hom (b j) (d i)).
   Proof. intros. apply @weqcomp with (Y := forall i, Hom B (d i)).
          { apply to_col. } { apply weqonseqfibers; intro i. apply to_row. } Defined.
   Definition from_matrix {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Coproduct.make C b) :
+             {J} {b:J -> ob C} (B:Coproduct.type C b) :
              weq (forall i j, Hom (b j) (d i)) (Hom B D).
   Proof. intros. apply invweq. apply to_matrix. Defined.
   Definition to_matrix' {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Coproduct.make C b) :
+             {J} {b:J -> ob C} (B:Coproduct.type C b) :
              weq (Hom B D) (forall j i, Hom (b j) (d i)).
   Proof. intros. apply @weqcomp with (Y := forall j, Hom (b j) D).
          { apply to_row. } { apply weqonseqfibers; intro i. apply to_col. } Defined.
   Definition from_matrix' {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Coproduct.make C b) :
+             {J} {b:J -> ob C} (B:Coproduct.type C b) :
              weq (forall j i, Hom (b j) (d i)) (Hom B D).
   Proof. intros. apply invweq. apply to_matrix'. Defined.
   Lemma to_matrix_equal {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Coproduct.make C b) :
+             {J} {b:J -> ob C} (B:Coproduct.type C b) :
     forall p i j, to_matrix D B p i j == to_matrix' D B p j i.
   Proof. intros. 
          exact_op (assoc _ _ _ _ _ (Coproduct.In B j) p (Product.Proj D i)). Qed.
@@ -607,14 +607,14 @@ Module DirectSum.
          { apply identity. } { apply zeroMap. apply h. } Defined.
   Definition identity_map {C:precategory} (h:hasZeroObject C)
              {I} {d:I -> ob C} (dec : isdeceq I) 
-             (B:Coproduct.make C d) (D:Product.type C d)
+             (B:Coproduct.type C d) (D:Product.type C d)
         : Hom B D.
   Proof. intros. apply Matrix.from_matrix. apply identity_matrix.  
          assumption. assumption. Defined.
   Definition DirectSum {C:precategory} (h:hasZeroObject C)
              {I} (d:I -> ob C) (dec : isdeceq I) 
              := total2 (fun 
-                   BD : dirprod (Coproduct.make C d) (Product.type C d) =>
+                   BD : dirprod (Coproduct.type C d) (Product.type C d) =>
                         is_isomorphism (identity_map h dec (pr1 BD) (pr2 BD))).
   Definition FiniteDirectSum {C:precategory} (h:hasZeroObject C) 
              {I:FiniteSet.Data} (d:I -> ob C)
@@ -1534,6 +1534,24 @@ Module AbelianGroup.
                  (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
       Defined.
     End Product.
+    Module Sum.
+      Definition Object {I} (X:I->ob Precat) : ob Precat
+        := AbelianGroup.Sum.make X.
+      Import Primitive.InitialObject.
+      Definition make {I} (X:I->ob Precat) : Coproduct.type Precat X.
+        intros.
+        set (Q := Elements.make_ob (HomFamily.precat Precat X) (Object X)
+                                   (AbelianGroup.Sum.Incl X)).
+        exists Q. intros T.
+        assert ( k' : Hom Q T ).
+        { destruct T as [T_ob T_el].
+          exists (AbelianGroup.Sum.Map X T_ob T_el). simpl.
+          apply funextsec. exact_op (AbelianGroup.Sum.Eqn X T_ob T_el). }
+        exists k'. intros k. apply Elements.mor_equality.
+        exact (AbelianGroup.Sum.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
+                 (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
+      Defined.
+    End Sum.
   End Category.
 End AbelianGroup.
 
