@@ -538,7 +538,7 @@ Module Product.
   End Coercions.
 End Product.
 
-Module Coproduct.
+Module Sum.                     (* coproducts *)
   Definition type (C:precategory) {I} (c:I -> ob C) :=
     Representation.Data (HomFamily.precat C c).
   Definition Object {C:precategory} {I} {c:I -> ob C} (r:type C c)
@@ -549,17 +549,17 @@ Module Coproduct.
   Module Coercions.
     Coercion Object : type >-> ob.
   End Coercions.
-End Coproduct.
+End Sum.
 
 Module Matrix.
   (* the representing map is the matrix *)
-  Import Coproduct.Coercions Product.Coercions.
+  Import Sum.Coercions Product.Coercions.
   Definition to_row {C:precategory} {I} {b:I -> ob C} 
-             (B:Coproduct.type C b) {d:ob C} :
+             (B:Sum.type C b) {d:ob C} :
     weq (Hom B d) (forall j, Hom (b j) d).
   Proof. intros. exact (Representation.Iso B d). Defined.
   Definition from_row {C:precategory} {I} {b:I -> ob C} 
-             (B:Coproduct.type C b) {d:ob C} :
+             (B:Sum.type C b) {d:ob C} :
     weq (forall j, Hom (b j) d) (Hom B d).
   Proof. intros. apply invweq. apply to_row. Defined.
   Definition to_col {C:precategory} {I} {d:I -> ob C} (D:Product.type C d) {b:ob C} :
@@ -571,50 +571,50 @@ Module Matrix.
   Proof. intros. apply invweq. apply to_col. Defined.
   Definition to_matrix {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Coproduct.type C b) :
+             {J} {b:J -> ob C} (B:Sum.type C b) :
              weq (Hom B D) (forall i j, Hom (b j) (d i)).
   Proof. intros. apply @weqcomp with (Y := forall i, Hom B (d i)).
          { apply to_col. } { apply weqonseqfibers; intro i. apply to_row. } Defined.
   Definition from_matrix {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Coproduct.type C b) :
+             {J} {b:J -> ob C} (B:Sum.type C b) :
              weq (forall i j, Hom (b j) (d i)) (Hom B D).
   Proof. intros. apply invweq. apply to_matrix. Defined.
   Definition to_matrix' {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Coproduct.type C b) :
+             {J} {b:J -> ob C} (B:Sum.type C b) :
              weq (Hom B D) (forall j i, Hom (b j) (d i)).
   Proof. intros. apply @weqcomp with (Y := forall j, Hom (b j) D).
          { apply to_row. } { apply weqonseqfibers; intro i. apply to_col. } Defined.
   Definition from_matrix' {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Coproduct.type C b) :
+             {J} {b:J -> ob C} (B:Sum.type C b) :
              weq (forall j i, Hom (b j) (d i)) (Hom B D).
   Proof. intros. apply invweq. apply to_matrix'. Defined.
   Lemma to_matrix_equal {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Coproduct.type C b) :
+             {J} {b:J -> ob C} (B:Sum.type C b) :
     forall p i j, to_matrix D B p i j == to_matrix' D B p j i.
   Proof. intros. 
-         exact_op (assoc _ _ _ _ _ (Coproduct.In B j) p (Product.Proj D i)). Qed.
+         exact_op (assoc _ _ _ _ _ (Sum.In B j) p (Product.Proj D i)). Qed.
 End Matrix.
 
 Module DirectSum.
-  Import ZeroObject FiniteSet.Coercions Coproduct.Coercions Product.Coercions.
+  Import ZeroObject FiniteSet.Coercions Sum.Coercions Product.Coercions.
   Definition identity_matrix {C:precategory} (h:hasZeroObject C)
              {I} {d:I -> ob C} (dec : isdeceq I) : forall i j, Hom (d j) (d i).
   Proof. intros. destruct (dec i j) as [ [] | _ ].
          { apply identity. } { apply zeroMap. apply h. } Defined.
   Definition identity_map {C:precategory} (h:hasZeroObject C)
              {I} {d:I -> ob C} (dec : isdeceq I) 
-             (B:Coproduct.type C d) (D:Product.type C d)
+             (B:Sum.type C d) (D:Product.type C d)
         : Hom B D.
   Proof. intros. apply Matrix.from_matrix. apply identity_matrix.  
          assumption. assumption. Defined.
   Definition DirectSum {C:precategory} (h:hasZeroObject C)
              {I} (d:I -> ob C) (dec : isdeceq I) 
              := total2 (fun 
-                   BD : dirprod (Coproduct.type C d) (Product.type C d) =>
+                   BD : dirprod (Sum.type C d) (Product.type C d) =>
                         is_isomorphism (identity_map h dec (pr1 BD) (pr2 BD))).
   Definition FiniteDirectSum {C:precategory} (h:hasZeroObject C) 
              {I:FiniteSet.Data} (d:I -> ob C)
@@ -1371,41 +1371,6 @@ Module AbelianGroup.
       make_MarkedAbelianGroup R (universalMarkedAbelianGroup0 R) 
                   (fun x => setquotpr (smallestAdequateRelation R) (word_gen x)) 
                   (universalMarkedAbelianGroup3 R).
-    Definition universality0 {X I} {R:I->reln X} (M:MarkedAbelianGroup R) : 
-      universalMarkedAbelianGroup0 R -> M.
-    Proof. intros ? ? ? ?. 
-      apply (setquotuniv _ _ (evalwordMM M)).
-      exact (fun _ _ r => r (MarkedAbelianGroup_to_hrel M) (abelian_group_adequacy R M)).
-    Defined.
-    Definition universality1 {X I} (R:I->reln X) 
-                             (M:MarkedAbelianGroup R) (v w:universalMarkedAbelianGroup0 R) :
-      universality0 M (v + w) == universality0 M v + universality0 M w.
-    Proof. intros.
-           assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
-           isaprop_goal ig. { apply setproperty. }
-           apply (unsquash (lift v) ig); intros [v' j]; destruct j; simpl.
-           apply (unsquash (lift w) ig); intros [w' k]; destruct k; simpl.
-           reflexivity. Qed.
-    Definition universality2 {X I} {R:I->reln X} (M:MarkedAbelianGroup R) : 
-      monoidfun (universalMarkedAbelianGroup R) M.
-    Proof. intros. exists (universality0 M).
-        split. { intros v w. apply universality1. } { reflexivity. } Defined.
-    (** * universality of the universal marked abelian group *)
-    Local Arguments pr1monoidfun {X Y} f x.
-    Theorem iscontrMarkedAbelianGroupMap {X I} {R:I->reln X} (M:MarkedAbelianGroup R) :
-          iscontr (MarkedAbelianGroupMap (universalMarkedAbelianGroup R) M).
-    Proof. intros. 
-      assert (g := make_MarkedAbelianGroupMap X I R 
-                             (universalMarkedAbelianGroup R) M 
-                             (universality2 M) (fun x => idpath _)).
-      exists g. intros f. apply MarkedAbelianGroupMapEquality.
-      apply Monoid.funEquality. apply funextfunax; intro v.
-      assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
-      isaprop_goal ig. { apply setproperty. }
-      apply (unsquash (lift v) ig); intros [w j]; destruct j; simpl.
-      exact ((ap f (universalMarkedAbelianGroup2 R w)) 
-           @ MarkedAbelianGroupMap_compat2 f g w @ !(ap g (universalMarkedAbelianGroup2 R w))).
-    Defined.
     Fixpoint agreement_on_gens0 {X I} {R:I->reln X} {M:abgr}
           (f g:Hom (universalMarkedAbelianGroup R) M)
           (p:forall i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) ==
@@ -1413,8 +1378,7 @@ Module AbelianGroup.
           (w:word X) :
             pr1 f (setquotpr (smallestAdequateRelation R) w) ==
             pr1 g (setquotpr (smallestAdequateRelation R) w).
-    Proof. intros. 
-           destruct w as [|x|w|v w].
+    Proof. intros. destruct w as [|x|w|v w].
            { intermediate (unel M). exact (unitproperty f). exact (!unitproperty g). }
            { apply p. }
            { refine (_ @ (ap (grinv M) (agreement_on_gens0 _ _ _ _ f g p w)) @ !_).
@@ -1438,6 +1402,40 @@ Module AbelianGroup.
       apply funextfunax; intro t; simpl in t. 
       apply (surjectionisepitosets _ _ _ (issurjsetquotpr _)).
       { apply setproperty. } { apply agreement_on_gens0. assumption. } Qed.
+    Definition universality0 {X I} {R:I->reln X} (M:MarkedAbelianGroup R) : 
+      universalMarkedAbelianGroup0 R -> M.
+    Proof. intros ? ? ? ?. 
+      apply (setquotuniv _ _ (evalwordMM M)).
+      exact (fun _ _ r => r (MarkedAbelianGroup_to_hrel M) (abelian_group_adequacy R M)).
+    Defined.
+    Definition universality1 {X I} (R:I->reln X) 
+                             (M:MarkedAbelianGroup R) (v w:universalMarkedAbelianGroup0 R) :
+      universality0 M (v + w) == universality0 M v + universality0 M w.
+    Proof. intros. assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
+      isaprop_goal ig. { apply setproperty. }
+      apply (unsquash (lift v) ig); intros [v' j]; destruct j; simpl.
+      apply (unsquash (lift w) ig); intros [w' k]; destruct k; simpl.
+      reflexivity. Qed.
+    Definition universality2 {X I} {R:I->reln X} (M:MarkedAbelianGroup R) : 
+      monoidfun (universalMarkedAbelianGroup R) M.
+    Proof. intros. exists (universality0 M).
+        split. { intros v w. apply universality1. } { reflexivity. } Defined.
+    (** * universality of the universal marked abelian group *)
+    Local Arguments pr1monoidfun {X Y} f x.
+    Theorem iscontrMarkedAbelianGroupMap {X I} {R:I->reln X} (M:MarkedAbelianGroup R) :
+          iscontr (MarkedAbelianGroupMap (universalMarkedAbelianGroup R) M).
+    Proof. intros. 
+      assert (g := make_MarkedAbelianGroupMap X I R 
+                             (universalMarkedAbelianGroup R) M 
+                             (universality2 M) (fun x => idpath _)).
+      exists g. intros f. apply MarkedAbelianGroupMapEquality.
+      apply Monoid.funEquality. apply funextfunax; intro v.
+      assert (lift := issurjsetquotpr (smallestAdequateRelation R)).
+      isaprop_goal ig. { apply setproperty. }
+      apply (unsquash (lift v) ig); intros [w j]; destruct j; simpl.
+      exact ((ap f (universalMarkedAbelianGroup2 R w)) 
+           @ MarkedAbelianGroupMap_compat2 f g w @ !(ap g (universalMarkedAbelianGroup2 R w))).
+    Defined.
   End Presentation.
   Module Product.
     Definition make {I} (G:I->abgr) : abgr.
@@ -1458,7 +1456,7 @@ Module AbelianGroup.
       apply funextfunax; intro t. apply funextsec; intro i.
       exact (apevalat t (ap pr1 (e i))). Qed.
   End Product.
-  Module Sum.                   (* (coproduct) *)
+  Module Sum.                   (* coproducts *)
     Import Presentation.
     Definition X {I} (G:I->abgr) := total2 G. (* the generators *)
     Inductive J {I} (G:I->abgr) : Type := (* index set for the relations *)
@@ -1516,6 +1514,7 @@ Module AbelianGroup.
       - intros. apply MorEquality. reflexivity.
       - intros. apply MorEquality. reflexivity.
       - intros. apply MorEquality. reflexivity. Defined.
+    (** *** products *)
     Module Product.
       Definition Object {I} (X:I->ob Precat) : ob Precat
         := AbelianGroup.Product.make X.
@@ -1524,33 +1523,30 @@ Module AbelianGroup.
         intros.
         set (Q := Elements.make_ob (HomFamily.precat Precat^op X) (Object X)
                                    (AbelianGroup.Product.Proj X)).
-        exists Q. intros T.
-        assert ( k' : Hom Q T ).
+        exists Q. intros T. assert ( k' : Hom Q T ).
         { destruct T as [T_ob T_el].
           exists (AbelianGroup.Product.Map X T_ob T_el). simpl.
           apply funextsec. exact_op (AbelianGroup.Product.Eqn X T_ob T_el). }
         exists k'. intros k. apply Elements.mor_equality.
         exact (AbelianGroup.Product.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
-                 (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
-      Defined.
+                 (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
     End Product.
+    (** *** sums (coproducts) *)
     Module Sum.
       Definition Object {I} (X:I->ob Precat) : ob Precat
         := AbelianGroup.Sum.make X.
       Import Primitive.InitialObject.
-      Definition make {I} (X:I->ob Precat) : Coproduct.type Precat X.
+      Definition make {I} (X:I->ob Precat) : Sum.type Precat X.
         intros.
         set (Q := Elements.make_ob (HomFamily.precat Precat X) (Object X)
                                    (AbelianGroup.Sum.Incl X)).
-        exists Q. intros T.
-        assert ( k' : Hom Q T ).
+        exists Q. intros T. assert ( k' : Hom Q T ).
         { destruct T as [T_ob T_el].
           exists (AbelianGroup.Sum.Map X T_ob T_el). simpl.
           apply funextsec. exact_op (AbelianGroup.Sum.Eqn X T_ob T_el). }
         exists k'. intros k. apply Elements.mor_equality.
         exact (AbelianGroup.Sum.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
-                 (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))).
-      Defined.
+                 (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
     End Sum.
   End Category.
 End AbelianGroup.
