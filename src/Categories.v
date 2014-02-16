@@ -140,14 +140,6 @@ Proof.
   reflexivity.
 Defined.
 
-Lemma isaprop_is_precategory (C : precategory_data)
-  : isaprop (is_precategory C).
-Proof.
-  intro. apply isofhleveltotal2.
-  { apply isofhleveltotal2. { repeat (apply impred; intro); apply setproperty. }
-    intros _. repeat (apply impred; intro); apply setproperty. }
-  intros _. repeat (apply impred; intro); apply setproperty. Qed.
-
 Lemma opp_opp_precat (C : precategory) : C == C^op^op.
 Proof.
   intros [data ispre]. apply (pair_path (opp_opp_precat_data data)).
