@@ -295,11 +295,6 @@ Module StandardCategories.
   Definition compose' { C:precategory_data } { a b c:ob C }
     (g:b → c) (f:a → b) : a → c.
   Proof. intros. exact (compose f g). Defined.
-  Definition idtomor {C:precategory} (a b:ob C) : a == b -> a → b.
-  Proof. intros ? ? ? H. destruct H. exact (identity a). Defined.
-  Lemma eq_idtoiso_idtomor {C:precategory} (a b:ob C) (e:a == b) :
-    pr1 (idtoiso e) == idtomor _ _ e.
-  Proof. intros. destruct e. reflexivity. Defined.
   (** *** the path groupoid *)
   Lemma path_assoc (X:UU) (a b c d:X) 
           (f : a == b) (g : b == c) (h : c == d)
