@@ -2,8 +2,13 @@
 
 -o Make-include.mk
 -R . Ktheory
-Utilities.v
+
+# This list of files should be in reverse order, because coq_makefile will reverse it
+# before giving it to etags, and the order of files recorded by it matters for
+# tags-search.
+
 Categories.v
+Utilities.v
 
 # Local Variables:
 # compile-command: "coq_makefile -f Make-include.in"
