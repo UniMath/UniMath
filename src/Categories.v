@@ -1014,7 +1014,9 @@ Module Monoid.
       intros. apply funEquality. reflexivity. Qed.
     Lemma issurjective_projection {I} (X:I->monoid) (i:I) :
       isdeceq I -> issurjective (Proj X i).
-    (* reminder: by 'isasetifdeceq', I is a set, too *)
+    (** Reminder: by [isasetifdeceq], I is a set, too.
+        We should strengthen this lemma by assuming [isaset I] instead of
+        [isdeceq I]. *)
     Proof. intros ? ? ? decide_equality xi. apply hinhpr. 
       exists (fun j => two_cases (decide_equality i j)
                   (fun p => transport X p xi) (fun _ => unel (X j))).
@@ -1366,18 +1368,19 @@ Module AbelianGroup.
     Proof. intros. destruct w as [|x|w|v w].
            { intermediate (unel M). exact (unitproperty f). exact (!unitproperty g). }
            { apply p. }
-           { refine (_ @ (ap (grinv M) (agreement_on_gens0 _ _ _ _ f g p w)) @ !_).
-             (* compare duplication with the proof of MarkedAbelianGroupMap_compat *)
-             { refine (_ @ monoidfuninvtoinv f _). reflexivity. (* ?? *) }
-             { refine (_ @ monoidfuninvtoinv g _). reflexivity. (* ?? *) } }
-           { set (q := agreement_on_gens0 _ _ _ _ f g p v).
-             set (r := agreement_on_gens0 _ _ _ _ f g p w).
-             set (t := aptwice (fun r s => r + s) q r); simpl in t.
-             refine (_ @ t @ !_).
-             { exact (Monoid.multproperty f (setquotpr (smallestAdequateRelation R) v)
-                     (setquotpr (smallestAdequateRelation R) w)). }
-             { exact (Monoid.multproperty g (setquotpr (smallestAdequateRelation R) v)
-                     (setquotpr (smallestAdequateRelation R) w)). } } Qed.
+           (* compare duplication with the proof of MarkedAbelianGroupMap_compat *)
+           { refine (monoidfuninvtoinv f (setquotpr (smallestAdequateRelation R) w)
+               @ _ @ ! monoidfuninvtoinv g (setquotpr (smallestAdequateRelation R) w)).
+             apply (ap (grinv M)). apply agreement_on_gens0. assumption. }
+           { refine (
+                 Monoid.multproperty f (setquotpr (smallestAdequateRelation R) v)
+                     (setquotpr (smallestAdequateRelation R) w)
+               @ _ @ !
+                 Monoid.multproperty g (setquotpr (smallestAdequateRelation R) v)
+                     (setquotpr (smallestAdequateRelation R) w)).
+             apply (aptwice (fun r s => r + s)).
+             { apply agreement_on_gens0. assumption. }
+             { apply agreement_on_gens0. assumption. } } Qed.
     Lemma agreement_on_gens {X I} {R:I->reln X} {M:abgr}
           (f g:Hom (universalMarkedAbelianGroup R) M) :
           (forall i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) ==
@@ -1445,6 +1448,9 @@ Module AbelianGroup.
     Inductive J {I} (G:I->abgr) : Type := (* index set for the relations *)
       | J_zero : I -> J G                 (* (i,0) ~ 0 *)
       | J_sum : total2 (fun i => dirprod (G i) (G i)) -> J G. (* (i,g)+(i,h) ~ (i,g+h) *)
+    (* We could replace this with:
+       Definition J {I} (G:I->abgr) := coprod I (total2 (fun i => dirprod (G i) (G i))).
+       *)
     Definition R {I} (G:I->abgr) : J G -> reln (X G).
       intros ? ? [i|[i [g h]]].
       { exact (make_reln (word_gen (i,,0)) (word_unit)). }
