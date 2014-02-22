@@ -53,6 +53,24 @@ Module Precategory.
 End Precategory.
 Local Notation Hom := Precategory.mor.
 
+Lemma iso_comp_right_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
+  isweq (fun f : Hom b c => f ∘ h).
+Proof. intros. apply (gradth (fun f => f ∘ h) (fun g  => g ∘ inv_from_iso h)).
+       { intros f. refine (_ @ ap (fun m => f ∘ m) (pr2 (pr2 (pr2 h))) @ _).
+         { apply assoc. } { apply id_left. } }
+       { intros g. refine (_ @ ap (fun m => g ∘ m) (pr1 (pr2 (pr2 h))) @ _).
+         { apply assoc. } { apply id_left. } }
+Qed.
+
+Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
+  isweq (fun f : Hom c a => h ∘ f).
+Proof. intros. apply (gradth (fun f => h ∘ f) (fun g  => inv_from_iso h ∘ g)).
+       { intros f. refine (_ @ ap (fun m => m ∘ f) (pr1 (pr2 (pr2 h))) @ _).
+         { apply pathsinv0. apply assoc. } { apply id_right. } }
+       { intros g. refine (_ @ ap (fun m => m ∘ g) (pr2 (pr2 (pr2 h))) @ _).
+         { apply pathsinv0. apply assoc. } { apply id_right. } }
+Qed.
+
 Module Functor.
   Definition obmor {C D} (F:functor C D) := pr1 F.
   Definition obj {C D} (F:functor C D) := pr1 (pr1 F).
@@ -662,7 +680,18 @@ Module DirectSum.
                            (fun i => id ∘ Sum.In B i) _ _ _).
     { intros. exact (Matrix.from_matrix_entry_assoc D B (identity_matrix h d dec) i j). }
     { intros. exact (pr2 (Representation.Iso D c)). }
-    { intros. admit. }
+    { intros. 
+      (* Why doesn't this work?:
+      rewrite <- (fun (f : Hom D c) (i : I) => assoc _ _ _ _ _ (Sum.In B i) id f). *)
+      assert (b : (fun (f : Hom D c) (i : I) => (f ∘ id) ∘ Sum.In B i)
+               == (fun (f : Hom D c) (i : I) => f ∘ (id ∘ Sum.In B i))).
+      { apply funextfunax. intros f. apply funextsec. intros i. apply assoc. }
+        rewrite <- (ap isweq b).
+        set (F := (fun (g : Hom B c) (i : I) => g ∘ Sum.In B i)).
+        assert (iF := pr2 (Representation.Iso B c) : isweq F).
+        set (G := (fun (f : Hom D c) => f ∘ id)).
+        assert (iG := iso_comp_right_isweq (id,,is) c : isweq G).
+        exact ( twooutof3c G F iG iF). }
   Defined.
 End DirectSum.
 
