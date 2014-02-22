@@ -53,23 +53,34 @@ Module Precategory.
 End Precategory.
 Local Notation Hom := Precategory.mor.
 
+Lemma iso_set_isweq {X Y:hSet} (f:X->Y) (g:Y->X) :
+  (forall x, g(f x) == x) ->
+  (forall y, f(g y) == y) ->
+  isweq f.
+Proof.
+  intros ? ? ? ? p q y.
+  refine ((g y,,_),,_).
+  - exact (q y).
+  - intros [x e]. induction e. refine (pair_path (! p x) _).
+    apply setproperty.
+Defined.  
+
 Lemma iso_comp_right_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
   isweq (fun f : Hom b c => f ∘ h).
-Proof. intros. apply (gradth (fun f => f ∘ h) (fun g  => g ∘ inv_from_iso h)).
+Proof. intros. apply (iso_set_isweq (fun f => f ∘ h) (fun g  => g ∘ inv_from_iso h)).
        { intros f. refine (_ @ ap (fun m => f ∘ m) (pr2 (pr2 (pr2 h))) @ _).
          { apply assoc. } { apply id_left. } }
        { intros g. refine (_ @ ap (fun m => g ∘ m) (pr1 (pr2 (pr2 h))) @ _).
-         { apply assoc. } { apply id_left. } }
-Qed.
+         { apply assoc. } { apply id_left. } } Qed.
+
+Definition opp_iso {C:precategory} {a b:ob C} : @iso C a b -> @iso C^op b a.
+  intros ? ? ? f.
+  exact (pr1 f,,pr1 (pr2 f),,pr2 (pr2 (pr2 f)),,pr1 (pr2 (pr2 f))).
+Defined.
 
 Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
   isweq (fun f : Hom c a => h ∘ f).
-Proof. intros. apply (gradth (fun f => h ∘ f) (fun g  => inv_from_iso h ∘ g)).
-       { intros f. refine (_ @ ap (fun m => m ∘ f) (pr1 (pr2 (pr2 h))) @ _).
-         { apply pathsinv0. apply assoc. } { apply id_right. } }
-       { intros g. refine (_ @ ap (fun m => m ∘ g) (pr2 (pr2 (pr2 h))) @ _).
-         { apply pathsinv0. apply assoc. } { apply id_right. } }
-Qed.
+Proof. intros. apply (@iso_comp_right_isweq C^op b a (opp_iso h)). Qed.
 
 Module Functor.
   Definition obmor {C D} (F:functor C D) := pr1 F.
@@ -678,9 +689,6 @@ Module DirectSum.
     { intros. exact (Matrix.from_matrix_entry_assoc D B (identity_matrix h d dec) i j). }
     { intros. exact (pr2 (Representation.Iso D c)). }
     { intros. 
-      (* Why doesn't this work?: 
-         rewrite <- assoc.
-       *)
       assert (b : (fun (f : Hom D c) (i : I) => (f ∘ id) ∘ Sum.In B i)
                == (fun (f : Hom D c) (i : I) => f ∘ (id ∘ Sum.In B i))).
       { apply funextfunax; intros f. apply funextsec; intros i. apply assoc. }
