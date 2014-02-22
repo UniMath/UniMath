@@ -670,28 +670,25 @@ Module DirectSum.
   Definition makeDirectSum {C:precategory} (h:hasZeroObject C)
              {I} (dec : isdeceq I) (d:I -> ob C) 
              (B:Sum.type C d) (D:Product.type C d)
-             (is: is_isomorphism (identity_map h dec B D)) 
-  : DirectSum h.
-  Proof.
-    intros.
-    set (id := identity_map h dec B D).
+             (is: is_isomorphism (identity_map h dec B D)) : DirectSum h.
+  Proof. intros. set (id := identity_map h dec B D).
     refine (make_DirectSum C h I dec d D
                            (fun i => Product.Proj D i)
                            (fun i => id ∘ Sum.In B i) _ _ _).
     { intros. exact (Matrix.from_matrix_entry_assoc D B (identity_matrix h d dec) i j). }
     { intros. exact (pr2 (Representation.Iso D c)). }
     { intros. 
-      (* Why doesn't this work?:
-      rewrite <- (fun (f : Hom D c) (i : I) => assoc _ _ _ _ _ (Sum.In B i) id f). *)
+      (* Why doesn't this work?: 
+         rewrite <- assoc.
+       *)
       assert (b : (fun (f : Hom D c) (i : I) => (f ∘ id) ∘ Sum.In B i)
                == (fun (f : Hom D c) (i : I) => f ∘ (id ∘ Sum.In B i))).
-      { apply funextfunax. intros f. apply funextsec. intros i. apply assoc. }
-        rewrite <- (ap isweq b).
-        set (F := (fun (g : Hom B c) (i : I) => g ∘ Sum.In B i)).
-        assert (iF := pr2 (Representation.Iso B c) : isweq F).
-        set (G := (fun (f : Hom D c) => f ∘ id)).
-        assert (iG := iso_comp_right_isweq (id,,is) c : isweq G).
-        exact ( twooutof3c G F iG iF). }
+      { apply funextfunax; intros f. apply funextsec; intros i. apply assoc. }
+      destruct b.
+      exact (twooutof3c (fun f => f ∘ id) 
+                        (fun g i => g ∘ Sum.In B i)
+                        (iso_comp_right_isweq (id,,is) c)
+                        (pr2 (Representation.Iso B c))). }
   Defined.
 End DirectSum.
 
@@ -718,7 +715,7 @@ Module Kernel.
   Definition zerocomp_map {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
     forall x y:ob C, Hom x y ->
     set_to_type (zerocomp_set z f x) -> set_to_type (zerocomp_set z f y).
-  Proof. intros ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc.  rewrite s.
+  Proof. intros ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc. rewrite s.
          apply zeroMap_left_composition. Defined.
   Definition zerocomp_data {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
     functor_data (Precategory.obmor C) (Precategory.obmor SET).
