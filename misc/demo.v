@@ -11,11 +11,7 @@ Definition fiber {X Y} (f:X->Y) (y:Y) := { x:X & f x == y }.
 
 Definition isweq {X Y} (f:X->Y) := forall y, iscontr (fiber f y).
 
-Definition isaprop X := forall (x y:X), iscontr (x == y). 
-
-Definition isaset X := forall (x y:X), isaprop (x == y). 
-
-Definition idfun X := fun (x:X) => x.
+Definition idfun X (x:X) := x.
 
 Lemma idfun_isweq X : isweq (idfun X).
 Proof. intros.
@@ -30,13 +26,16 @@ Proof. intros.
          exact (idpath _).
 Qed.
 
-Definition weq X Y := {f:X->Y & isweq f}.
+Definition weq X Y := { f:X->Y & isweq f }.
 
-Definition phi X Y : (X==Y) -> (weq X Y).
+Notation "X <~> Y" := (weq X Y) (at level 70).
+
+Definition phi X Y : X==Y -> X<~>Y.
   intros X Y p.
   induction p.
-  refine (existT _ (idfun X) _).
-  exact (idfun_isweq X).
+  refine (existT _ _ _).
+  - exact (idfun X).
+  - exact (idfun_isweq X).
 Defined.
 
 Axiom univalence : forall X Y, isweq (phi X Y).
