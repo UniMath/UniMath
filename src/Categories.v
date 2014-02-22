@@ -146,7 +146,8 @@ Proof.
   apply isaprop_is_precategory. Defined.
 
 Module Primitive.
-  Module TerminalObject. (** *** terminal objects *)
+  (** *** terminal objects *)
+  Module TerminalObject.
     Definition isTerminalObject (C:precategory) (a:ob C) := 
       forall x:ob C, iscontr (a ← x).
     Lemma theTerminalObjectIsomorphy (C:precategory) (a b:ob C) :
@@ -180,6 +181,7 @@ Module Primitive.
       hProppair (squashTerminalObject C) (isaprop_squash _).
   End TerminalObject.
 
+  (** *** initial objects *)
   Module InitialObject.
     Definition isInitialObject (C:precategory) (a:ob C) :=
       forall x:ob C, iscontr (x ← a).
@@ -549,6 +551,10 @@ Module Matrix.
              (B:Sum.type C b) {d:ob C} :
     weq (forall j, Hom (b j) d) (Hom B d).
   Proof. intros. apply invweq. apply to_row. Defined.
+  Lemma from_row_entry {C:precategory} {I} {b:I -> ob C} 
+             (B:Sum.type C b) {d:ob C} (f : forall j, Hom (b j) d) :
+    forall j, from_row B f ∘ Sum.In B j == f j.
+  Proof. intros. exact (apevalsecat j (homotweqinvweq (to_row B) f)). Qed.
   Definition to_col {C:precategory} {I} {d:I -> ob C} (D:Product.type C d) {b:ob C} :
     weq (Hom b D) (forall i, Hom b (d i)).
   Proof. intros. exact (Representation.Iso D b). Defined.
@@ -556,6 +562,10 @@ Module Matrix.
              (D:Product.type C d) {b:ob C} :
     weq (forall i, Hom b (d i)) (Hom b D).
   Proof. intros. apply invweq. apply to_col. Defined.
+  Lemma from_col_entry {C:precategory} {I} {b:I -> ob C} 
+             (D:Product.type C b) {d:ob C} (f : forall i, Hom d (b i)) :
+    forall i, Product.Proj D i ∘ from_col D f == f i.
+  Proof. intros. exact (apevalsecat i (homotweqinvweq (to_row D) f)). Qed.
   Definition to_matrix {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Sum.type C b) :
@@ -567,6 +577,18 @@ Module Matrix.
              {J} {b:J -> ob C} (B:Sum.type C b) :
              weq (forall i j, Hom (b j) (d i)) (Hom B D).
   Proof. intros. apply invweq. apply to_matrix. Defined.
+  Lemma from_matrix_entry {C:precategory} 
+             {I} {d:I -> ob C} (D:Product.type C d)
+             {J} {b:J -> ob C} (B:Sum.type C b)
+             (f : forall i j, Hom (b j) (d i)) :
+    forall i j, (Product.Proj D i ∘ from_matrix D B f) ∘ Sum.In B j == f i j.
+  Proof. intros. exact (apevalsecat j (apevalsecat i (homotweqinvweq (to_matrix D B) f))). Qed.
+  Lemma from_matrix_entry_assoc {C:precategory} 
+             {I} {d:I -> ob C} (D:Product.type C d)
+             {J} {b:J -> ob C} (B:Sum.type C b)
+             (f : forall i j, Hom (b j) (d i)) :
+    forall i j, Product.Proj D i ∘ (from_matrix D B f ∘ Sum.In B j) == f i j.
+  Proof. intros. refine ( !_ @ from_matrix_entry D B f i j ). apply assoc. Qed.
   Definition to_matrix' {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Sum.type C b) :
@@ -578,6 +600,18 @@ Module Matrix.
              {J} {b:J -> ob C} (B:Sum.type C b) :
              weq (forall j i, Hom (b j) (d i)) (Hom B D).
   Proof. intros. apply invweq. apply to_matrix'. Defined.
+  Lemma from_matrix_entry' {C:precategory} 
+             {I} {d:I -> ob C} (D:Product.type C d)
+             {J} {b:J -> ob C} (B:Sum.type C b)
+             (f : forall j i, Hom (b j) (d i)) :
+    forall j i, Product.Proj D i ∘ (from_matrix' D B f ∘ Sum.In B j) == f j i.
+  Proof. intros. exact (apevalsecat i (apevalsecat j (homotweqinvweq (to_matrix' D B) f))). Qed.
+  Lemma from_matrix_entry_assoc' {C:precategory} 
+             {I} {d:I -> ob C} (D:Product.type C d)
+             {J} {b:J -> ob C} (B:Sum.type C b)
+             (f : forall j i, Hom (b j) (d i)) :
+    forall j i, (Product.Proj D i ∘ from_matrix' D B f) ∘ Sum.In B j == f j i.
+  Proof. intros. refine ( _ @ from_matrix_entry' D B f j i ). apply assoc. Qed.
   Lemma to_matrix_equal {C:precategory} 
              {I} {d:I -> ob C} (D:Product.type C d)
              {J} {b:J -> ob C} (B:Sum.type C b) :
@@ -587,9 +621,13 @@ Module Matrix.
 End Matrix.
 
 Module DirectSum.
+  (** *** direct sums
+
+      Recall that X is a family of objects in a category, and the map from the 
+      sum to the product is an isomorphism, then the sum is called a direct sum. *)
   Import ZeroObject FiniteSet.Coercions Sum.Coercions Product.Coercions.
   Definition identity_matrix {C:precategory} (h:hasZeroObject C)
-             {I} {d:I -> ob C} (dec : isdeceq I) : forall i j, Hom (d j) (d i).
+             {I} (d:I -> ob C) (dec : isdeceq I) : forall i j, Hom (d j) (d i).
   Proof. intros. destruct (dec i j) as [ [] | _ ].
          { apply identity. } { apply zeroMap. apply h. } Defined.
   Definition identity_map {C:precategory} (h:hasZeroObject C)
@@ -598,14 +636,34 @@ Module DirectSum.
         : Hom B D.
   Proof. intros. apply Matrix.from_matrix. apply identity_matrix.  
          assumption. assumption. Defined.
-  Definition DirectSum {C:precategory} (h:hasZeroObject C)
-             {I} (d:I -> ob C) (dec : isdeceq I) 
-             := total2 (fun 
-                   BD : dirprod (Sum.type C d) (Product.type C d) =>
-                        is_isomorphism (identity_map h dec (pr1 BD) (pr2 BD))).
-  Definition FiniteDirectSum {C:precategory} (h:hasZeroObject C) 
-             {I:FiniteSet.Data} (d:I -> ob C)
-    := DirectSum h d (FiniteSet.Isdeceq I).
+  Record DirectSum {C:precategory} (h:hasZeroObject C) := 
+    (* we express this without using addition of morphisms *)
+    make_DirectSum {
+        ds_I;
+        ds_dec : isdeceq ds_I;
+        ds_c : ds_I -> ob C;
+        ds : C;
+        ds_pr : forall i, Hom ds (ds_c i);
+        ds_in : forall i, Hom (ds_c i) ds;
+        ds_id : forall i j, ds_pr i ∘ ds_in j == identity_matrix h ds_c ds_dec i j;
+        ds_isprod : forall c, isweq (fun f : Hom c ds => fun i => ds_pr i ∘ f);
+        ds_issum  : forall c, isweq (fun f : Hom ds c => fun i => f ∘ ds_in i)
+      }.
+  Definition makeDirectSum {C:precategory} (h:hasZeroObject C)
+             {I} (dec : isdeceq I) (d:I -> ob C) 
+             (B:Sum.type C d) (D:Product.type C d)
+             (is: is_isomorphism (identity_map h dec B D)) 
+  : DirectSum h.
+  Proof.
+    intros.
+    set (id := identity_map h dec B D).
+    refine (make_DirectSum C h I dec d D
+                           (fun i => Product.Proj D i)
+                           (fun i => id ∘ Sum.In B i) _ _ _).
+    { intros. exact (Matrix.from_matrix_entry_assoc D B (identity_matrix h d dec) i j). }
+    { intros. exact (pr2 (Representation.Iso D c)). }
+    { intros. admit. }
+  Defined.
 End DirectSum.
 
 Module Kernel.
@@ -803,7 +861,7 @@ Module Monoid.
     (** ** the smallest adequate relation over R 
            It is defined as the intersection of all the adequate relations.
            Later we'll have to deal with the "resizing" to resolve issues
-           withe universes. *)
+           with universes. *)
     Definition smallestAdequateRelation0 {X I} (R:I->reln X) : hrel (word X).
       intros ? ? ? v w.
       exists (forall r: hrel (word X), AdequateRelation R r -> r v w).
@@ -1503,7 +1561,7 @@ Module AbelianGroup.
       - intros. apply MorEquality. reflexivity.
       - intros. apply MorEquality. reflexivity.
       - intros. apply MorEquality. reflexivity. Defined.
-    (** *** products *)
+    (** *** products in the category of abelian groups *)
     Module Product.
       Definition Object {I} (X:I->ob Precat) : ob Precat
         := AbelianGroup.Product.make X.
@@ -1520,7 +1578,7 @@ Module AbelianGroup.
         exact (AbelianGroup.Product.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
                  (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
     End Product.
-    (** *** sums (coproducts) *)
+    (** *** sums (coproducts) in the category of abelian groups *)
     Module Sum.
       Definition Object {I} (X:I->ob Precat) : ob Precat
         := AbelianGroup.Sum.make X.
@@ -1537,6 +1595,10 @@ Module AbelianGroup.
         exact (AbelianGroup.Sum.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
                  (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
     End Sum.
+    Module DirectSum.
+      (** *** finite direct sums in the category of abelian groups *)
+      
+    End DirectSum.
   End Category.
 End AbelianGroup.
 
