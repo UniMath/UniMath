@@ -188,19 +188,21 @@ Proof. intros. destruct p. destruct q. apply idpath. Defined.
 Lemma iscontr_if_inhab_prop {P:UU} : isaprop P -> P -> iscontr P.
 Proof. intros ? i p. exists p. intros p'. apply i. Defined.
 
-Ltac goal x :=
-  let G := match goal with |- ?G => constr:(G) end in
-  set (x := G).
 Ltac isaprop_goal x :=
   let G := match goal with |- ?G => constr:(G) end in
   assert (x : isaprop(G)).
-Definition unsquash {R : hProp -> Type} (S:forall P:hProp, R P) 
-           {P} (i:isaprop P) := S (hProppair P i).
+
+Ltac isaset_goal x :=
+  let G := match goal with |- ?G => constr:(G) end in
+  assert (x : isaset(G)).
+
+Definition squash_to_prop {X Y:UU} : squash X -> isaprop Y -> (X -> Y) -> Y.
+  intros ? ? h is f. exact (h (Y,,is) f). Defined.
 
 (** ** show that squashing is a set-quotient *)
 
-Lemma squash_to_set {X Y:UU} (f : X -> Y) :
-  isaset Y -> (forall x x', f x == f x') -> squash X -> Y.
+Definition squash_to_set {X Y:UU} (h:squash X) (is:isaset Y)
+  (f:X->Y) (e:forall x x', f x == f x') : Y.
 
 (** from Voevodsky, for future work:
 
@@ -209,7 +211,7 @@ Lemma squash_to_set {X Y:UU} (f : X -> Y) :
     a proposition. Therefore "X -> Im f" factors through "squash X". *)
 
 Proof.
-  intros ? ? ? is e.
+  intros. generalize h; clear h.
   set (L := fun y:Y => forall x:X, f x == y).
   set (P := total2 L).
   assert(ip : isaset P).
@@ -240,7 +242,7 @@ Proof.
 Defined.
 
 Lemma squash_to_set_equal (X Y:UU) (f : X -> Y) (is : isaset Y) (eq: forall x x', f x == f x') :
-  forall x, squash_to_set f is eq (squash_element x) == f x.
+  forall x, squash_to_set (squash_element x) is f eq == f x.
 Proof. trivial. Defined.
 
 Lemma squash_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
