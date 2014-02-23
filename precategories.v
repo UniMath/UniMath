@@ -445,6 +445,30 @@ Proof.
   apply idpath.
 Qed.
 
+(** ***  *)
+Lemma iso_set_isweq {X Y:hSet} (f:X->Y) (g:Y->X) :
+  (forall x, g(f x) == x) ->
+  (forall y, f(g y) == y) ->
+  isweq f.
+Proof.
+  intros p q y.
+  refine (tpair _ (tpair _ (g y) _) _).
+  - exact (q y).
+  - intros [x e]. induction e.
+    apply (total2_paths2 (! p x)).
+    apply setproperty.
+Defined.
+
+Lemma iso_comp_right_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
+  isweq (fun f : b --> c => h ;; f).
+Proof. intros. apply (iso_set_isweq (fun f => h ;; f) (fun g => inv_from_iso h ;; g)).
+       { intros f. refine (_ @ maponpaths (fun m => m ;; f) (pr2 (pr2 (pr2 h))) @ _).
+         { apply assoc. } { apply id_left. } }
+       { intros g. refine (_ @ maponpaths (fun m => m ;; g) (pr1 (pr2 (pr2 h))) @ _).
+         { apply assoc. } { apply id_left. } } Qed.
+
+
+
 (** * Categories (aka saturated precategories) *)
 
 (** ** Definition of categories *)
