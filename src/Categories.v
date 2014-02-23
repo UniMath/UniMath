@@ -62,8 +62,7 @@ Proof.
   refine ((g y,,_),,_).
   - exact (q y).
   - intros [x e]. induction e. refine (pair_path (! p x) _).
-    apply setproperty.
-Defined.  
+    apply setproperty. Qed.
 
 Lemma iso_comp_right_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
   isweq (fun f : Hom b c => f ∘ h).
@@ -569,8 +568,13 @@ Module Sum.                     (* coproducts *)
   End Coercions.
 End Sum.
 
-Module Matrix.
-  (* the representing map is the matrix *)
+(** ** raw matrices
+
+       Raw matrices of a map are formed from a product decomposition of
+       the target or from a sum decomposition of the source.  We call
+       them "raw" to distinguish them from matrices formed from direct
+       sum decompositions. *)
+Module RawMatrix.
   Import Sum.Coercions Product.Coercions.
   Definition to_row {C:precategory} {I} {b:I -> ob C} 
              (B:Sum.type C b) {d:ob C} :
@@ -618,36 +622,7 @@ Module Matrix.
              (f : forall i j, Hom (b j) (d i)) :
     forall i j, Product.Proj D i ∘ (from_matrix D B f ∘ Sum.In B j) == f i j.
   Proof. intros. refine ( !_ @ from_matrix_entry D B f i j ). apply assoc. Qed.
-  Definition to_matrix' {C:precategory} 
-             {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Sum.type C b) :
-             weq (Hom B D) (forall j i, Hom (b j) (d i)).
-  Proof. intros. apply @weqcomp with (Y := forall j, Hom (b j) D).
-         { apply to_row. } { apply weqonseqfibers; intro i. apply to_col. } Defined.
-  Definition from_matrix' {C:precategory} 
-             {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Sum.type C b) :
-             weq (forall j i, Hom (b j) (d i)) (Hom B D).
-  Proof. intros. apply invweq. apply to_matrix'. Defined.
-  Lemma from_matrix_entry' {C:precategory} 
-             {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Sum.type C b)
-             (f : forall j i, Hom (b j) (d i)) :
-    forall j i, Product.Proj D i ∘ (from_matrix' D B f ∘ Sum.In B j) == f j i.
-  Proof. intros. exact (apevalsecat i (apevalsecat j (homotweqinvweq (to_matrix' D B) f))). Qed.
-  Lemma from_matrix_entry_assoc' {C:precategory} 
-             {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Sum.type C b)
-             (f : forall j i, Hom (b j) (d i)) :
-    forall j i, (Product.Proj D i ∘ from_matrix' D B f) ∘ Sum.In B j == f j i.
-  Proof. intros. refine ( _ @ from_matrix_entry' D B f j i ). apply assoc. Qed.
-  Lemma to_matrix_equal {C:precategory} 
-             {I} {d:I -> ob C} (D:Product.type C d)
-             {J} {b:J -> ob C} (B:Sum.type C b) :
-    forall p i j, to_matrix D B p i j == to_matrix' D B p j i.
-  Proof. intros. 
-         exact_op (assoc _ _ _ _ _ (Sum.In B j) p (Product.Proj D i)). Qed.
-End Matrix.
+End RawMatrix.
 
 Module DirectSum.
   (** *** direct sums
@@ -663,30 +638,24 @@ Module DirectSum.
              {I} {d:I -> ob C} (dec : isdeceq I) 
              (B:Sum.type C d) (D:Product.type C d)
         : Hom B D.
-  Proof. intros. apply Matrix.from_matrix. apply identity_matrix.  
+  Proof. intros. apply RawMatrix.from_matrix. apply identity_matrix.  
          assumption. assumption. Defined.
-  Record DirectSum {C:precategory} (h:hasZeroObject C) := 
-    (* we express this without using addition of morphisms *)
+  Record DirectSum {C:precategory} (h:hasZeroObject C) I (dec : isdeceq I) (c : I -> ob C) := 
     make_DirectSum {
-        ds_I;
-        ds_dec : isdeceq ds_I;
-        ds_c : ds_I -> ob C;
         ds : C;
-        ds_pr : forall i, Hom ds (ds_c i);
-        ds_in : forall i, Hom (ds_c i) ds;
-        ds_id : forall i j, ds_pr i ∘ ds_in j == identity_matrix h ds_c ds_dec i j;
+        ds_pr : forall i, Hom ds (c i);
+        ds_in : forall i, Hom (c i) ds;
+        ds_id : forall i j, ds_pr i ∘ ds_in j == identity_matrix h c dec i j;
         ds_isprod : forall c, isweq (fun f : Hom c ds => fun i => ds_pr i ∘ f);
-        ds_issum  : forall c, isweq (fun f : Hom ds c => fun i => f ∘ ds_in i)
-      }.
-  Definition makeDirectSum {C:precategory} (h:hasZeroObject C)
-             {I} (dec : isdeceq I) (d:I -> ob C) 
+        ds_issum  : forall c, isweq (fun f : Hom ds c => fun i => f ∘ ds_in i) }.
+  Definition toDirectSum {C:precategory} (h:hasZeroObject C) {I} (dec : isdeceq I) (d:I -> ob C) 
              (B:Sum.type C d) (D:Product.type C d)
-             (is: is_isomorphism (identity_map h dec B D)) : DirectSum h.
+             (is: is_isomorphism (identity_map h dec B D)) : DirectSum h I dec d.
   Proof. intros. set (id := identity_map h dec B D).
     refine (make_DirectSum C h I dec d D
                            (fun i => Product.Proj D i)
                            (fun i => id ∘ Sum.In B i) _ _ _).
-    { intros. exact (Matrix.from_matrix_entry_assoc D B (identity_matrix h d dec) i j). }
+    { intros. exact (RawMatrix.from_matrix_entry_assoc D B (identity_matrix h d dec) i j). }
     { intros. exact (pr2 (Representation.Iso D c)). }
     { intros. 
       assert (b : (fun (f : Hom D c) (i : I) => (f ∘ id) ∘ Sum.In B i)
@@ -698,6 +667,10 @@ Module DirectSum.
                         (iso_comp_right_isweq (id,,is) c)
                         (pr2 (Representation.Iso B c))). }
   Defined.
+  Definition FiniteDirectSums (C:precategory) := total2 (fun 
+               h:hasZeroObject C => 
+               forall (I:FiniteSet.Data) (d:I -> ob C), 
+                 DirectSum h I (FiniteSet.Isdeceq I) d).
 End DirectSum.
 
 Module Kernel.
@@ -836,6 +809,18 @@ Module Monoid.
     exists Magma.zero. split. intros x y z. reflexivity.
     exists tt. split. intros []. reflexivity. intros []. reflexivity.
   Defined.
+  Definition zero_map (A B:monoid) : Hom A B.
+    intros. exists (fun _ => unel B).
+    { split. - intros x y. apply pathsinv0. apply lunax.
+             - reflexivity. } Defined.
+  Lemma zero_is_initial (A:monoid) : iscontr (Hom zero A).
+  Proof. intros. exists (zero_map zero A).
+         intros [f e]. apply funEquality; simpl.
+         apply funextfunax. intro t. induction t. exact (pr2 e). Defined.
+  Lemma zero_is_final (A:monoid) : iscontr (Hom A zero).
+  Proof. intros. exists (zero_map A zero).
+         intros [f e]. apply funEquality; simpl.
+         apply funextfunax; intro a. induction (f a). reflexivity. Defined.
   Inductive word X : Type :=
     | word_unit : word X
     | word_gen : X -> word X 
