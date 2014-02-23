@@ -1111,6 +1111,52 @@ Module Monoid.
   End Product.
 End Monoid.
 
+Module AbelianMonoid.
+  Require Import Foundations.hlevel2.algebra1b.
+  Local Notation "x * y" := ( op x y ). 
+  Require Import Foundations.hlevel2.finitesets.
+  Definition incl n : stn n -> stn (S n).
+    intros n [i l]. exists i.
+    apply (natlthlehtrans i n (S n)). { assumption. } { exact (natlehnsn n). }
+  Defined.
+  Definition last n : stn (S n).
+    intros. exists n. apply natlthnsn. Defined.
+  Fixpoint finiteOperation0 (X:abmonoid) n : (stn n->X) -> X.
+  Proof.
+    (* return (...((x0*x1)*x2)*...)  *)
+    intros ? [n|].
+    { exact (unel _). }
+    { intros ? x. 
+      exact ((finiteOperation0 _ n (fun i => x (incl n i))) * x (last n)). }
+  Defined.
+  Lemma split0 (X:abmonoid) n (x:stn (S n)->X) :
+       finiteOperation0 X (S n) x 
+    == finiteOperation0 X n (funcomp (incl n) x) * x (last n).
+  Proof. intros. reflexivity. Qed.
+  Lemma same_n {I m n} (f:nelstruct m I) (g:nelstruct n I) : m == n.
+  Proof. intros. apply weqtoeqstn. exact (weqcomp f (invweq g)). Qed.
+  Fixpoint uniqueness0 (X:abmonoid) I (x:I->X) n : forall (f g:nelstruct n I),
+       finiteOperation0 X n (funcomp (pr1 f) x) 
+    == finiteOperation0 X n (funcomp (pr1 g) x).
+  Proof. intros ? ? ? n [f f'] [g g']. destruct n.
+         { reflexivity. }
+         { intros. simpl.                   
+                   
+                   admit. }
+  Qed.
+  Definition finiteOperation1 (X:abmonoid) I : finstruct I -> (I->X) -> X.
+    intros ? ? [n f] x.
+    apply (finiteOperation0 X n).
+    intros i. exact (x (pr1 f i)).
+  Defined.
+  Definition finiteOperation {I} (is:isfinite I) (X:abmonoid) (x:I->X) : X.
+    intros. refine (squash_to_set is _ _ _); clear is. 
+    { apply setproperty. }
+    { intros fs. apply (finiteOperation1 X I fs x). }
+    { intros [m f] [n g]. assert (e := same_n f g). destruct e. apply uniqueness0. }
+  Defined.
+End AbelianMonoid.
+
 Module Group.
   Require Import Foundations.hlevel2.algebra1b.
   Local Notation Hom := monoidfun.
