@@ -297,12 +297,10 @@ Module ZeroObject.
   Proof. intros ? ? ? ? ? ? ? []. reflexivity. Qed.
   Lemma zeroMapUniqueness {C:precategory} (x y:ZeroObject C) (a b:ob C) :
     zeroMap' a b x == zeroMap' a b y.
-  Proof. intros. set(i := the (map_to x a)).
-    set(h := the (map_from x y)). set(q := the (map_from y b)).
+  Proof. intros. set (i := the (map_to x a)).
+    set (h := the (map_from x y)). set (q := the (map_from y b)).
     intermediate (q ∘ (h ∘ i)).
-    { intermediate ((q ∘ h) ∘ i). 
-      { apply path_right_composition. apply uniqueness'. }
-      { apply assoc. }}
+    { rewrite <- assoc. apply path_right_composition. apply uniqueness'. }
     { apply path_left_composition. apply uniqueness. } Qed.
   Lemma zeroMap {C:precategory} (a b:ob C): hasZeroObject C  ->  a → b.
   Proof. intros ? ? ? h. 
