@@ -1,7 +1,7 @@
 Unset Automatic Introduction.
 
 Inductive identity {X} (x:X) : X -> Type := 
-  idpath : identity x x.
+  id : identity x x.
 
 Notation "x == y" := (identity x y) (at level 70).
 
@@ -9,36 +9,34 @@ Definition iscontr X := { x:X & forall y, x == y }.
 
 Definition fiber {X Y} (f:X->Y) (y:Y) := { x:X & f x == y }.
 
-Definition isweq {X Y} (f:X->Y) := forall y, iscontr (fiber f y).
+Definition isequiv {X Y} (f:X->Y) := forall y, iscontr (fiber f y).
 
-Definition idfun X (x:X) := x.
-
-Lemma idfun_isweq X : isweq (idfun X).
+Lemma idfun_isequiv X : isequiv (fun x:X => x).
 Proof. intros.
-       unfold isweq.
+       unfold isequiv.
        intros.
        unfold iscontr.
        refine (existT _ _ _).
        - unfold fiber.
-         refine (existT _ y _).
-         exact (idpath y).
+         refine (existT _ _ _).
+         + exact y.
+         + exact (id y).
        - intro p. 
-         induction p as [x e]. 
-         unfold idfun in e.
-         induction e. 
-         exact (idpath _).
+         induction p. 
+         induction p. 
+         exact (id _).
 Qed.
 
-Definition weq X Y := { f:X->Y & isweq f }.
+Definition equiv X Y := { f:X->Y & isequiv f }.
 
-Notation "X ~~ Y" := (weq X Y) (at level 70).
+Notation "X ~~ Y" := (equiv X Y) (at level 70).
 
 Definition phi X Y : X==Y -> X~~Y.
   intros X Y p.
   induction p.
   refine (existT _ _ _).
-  - exact (idfun X).
-  - exact (idfun_isweq X).
+  - exact (fun x:X => x).
+  - exact (idfun_isequiv X).
 Defined.
 
-Axiom univalence : forall X Y, isweq (phi X Y).
+Axiom univalence : forall X Y, isequiv (phi X Y).
