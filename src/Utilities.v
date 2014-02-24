@@ -2,6 +2,7 @@
 
 Unset Automatic Introduction.
 
+Require RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.pathnotations.
 Require Import Foundations.hlevel2.hSet.
         Import RezkCompletion.pathnotations.PathNotations.
@@ -178,9 +179,7 @@ Proof. intros ? [Q i] f h. apply h. assumption. Defined.
 Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
 Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.    
 
-Lemma pair_path {X:UU} {P:X->UU} {x x':X} {p: P x} {p' : P x'} (e : x == x') (e' : transport _ e p == p') : x ,, p == x' ,, p'.
-  (* compare with functtransportf in uu0.v *)
-Proof. intros. destruct e. destruct e'. apply idpath. Defined.
+Notation pair_path := RezkCompletion.auxiliary_lemmas_HoTT.total2_paths2.
 
 Lemma simple_pair_path {X Y:UU} {x x':X} {y y':Y} (p : x == x') (q : y == y') : x ,, y == x' ,, y'.
 Proof. intros. destruct p. destruct q. apply idpath. Defined.
