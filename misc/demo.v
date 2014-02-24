@@ -28,9 +28,9 @@ Qed.
 
 Definition weq X Y := { f:X->Y & isweq f }.
 
-Notation "X <~> Y" := (weq X Y) (at level 70).
+Notation "X -~- Y" := (weq X Y) (at level 70).
 
-Definition phi X Y : X==Y -> X<~>Y.
+Definition phi X Y : X==Y -> X-~-Y.
   intros X Y p.
   induction p.
   refine (existT _ _ _).
