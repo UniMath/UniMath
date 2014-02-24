@@ -821,6 +821,9 @@ Module Monoid.
     Arguments op1 {X M} x : rename.
     Arguments op2 {X M} v w : rename.
     Definition wordop X := make_preMonoid X (word X) word_unit word_gen word_op.
+    Definition evalword' {X} (Y:MarkedPremonoid X) (w:word X) : elem Y.
+      intros ? Y w. induction w as [|x|_ x _ y].
+      { exact op0. } { exact (op1 x). } { exact (op2 x y). } Defined.
     Fixpoint evalword {X} (Y:MarkedPremonoid X) (w:word X) : elem Y.
       intros ? Y [|x|v w]. { exact op0. } { exact (op1 x). }
       { exact (op2 (evalword X Y v) (evalword X Y w)). } Defined.
@@ -828,9 +831,9 @@ Module Monoid.
         hrel (word X) :=
       fun v w => (evalword M v == evalword M w) ,, is _ _.
     (** eta expansion principle for words *)
-    Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v == v.
-    Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
-           { exact (aptwice word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
+    Lemma reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v == v.
+    Proof. intros. induction v as [|x|v v' w w']. 
+           { reflexivity. } { reflexivity. } { exact (aptwice word_op v' w'). } Qed.
     (** ** adequate relations over R *)
     Record AdequateRelation {X I} (R:I->reln X) (r : hrel (word X)) := 
       make_AdequateRelation {
@@ -917,12 +920,11 @@ Module Monoid.
  	   apply (squash_to_prop (lift v') ig); intros [v j]; destruct j.
  	   apply (squash_to_prop (lift w') ig); intros [w []].
            exact (iscompsetquotpr e _ _ (fun r ra => assoc R r ra u v w)). Qed.
-    Fixpoint reassemble_pr {X I} (R:I->reln X) (v:word X) : 
+    Lemma reassemble_pr {X I} (R:I->reln X) (v:word X) : 
       evalword (universalMarkedPremonoid R) v == setquotpr _ v.
-    Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
-           { simpl. assert (p := ! reassemble_pr _ _ R v). destruct p.
-                    assert (q := ! reassemble_pr _ _ R w). destruct q.
-                    reflexivity. } Qed.
+    Proof. intros. induction v as [|x|v v' w w']. { reflexivity. } { reflexivity. }
+           { simpl. assert (p := ! v'); destruct p; clear v'.
+                    assert (q := ! w'); destruct q; clear w'. reflexivity. } Qed.
     Lemma pr_eval_compat {X I} (R:I->reln X) (w:word X) :
       setquotpr (smallestAdequateRelation R) (evalword (wordop X) w) 
       == evalword (universalMarkedPremonoid R) w.
@@ -969,16 +971,14 @@ Module Monoid.
            destruct f as [f ft], g as [g gt]; simpl in j. destruct j.
            assert(k : ft == gt). { apply funextsec; intro x. apply setproperty. } destruct k. 
            reflexivity. Qed.
-    Fixpoint MarkedMonoidMap_compat {X I} {R:I->reln X}
+    Lemma MarkedMonoidMap_compat {X I} {R:I->reln X}
              {M N:MarkedMonoid R} (f:MarkedMonoidMap M N) (w:word X) :
       map_base f (evalwordMM M w) == evalwordMM N w.
-    Proof. intros. destruct w as [|x|v w].
+    Proof. intros. induction w as [|x|v v' w w'].
            { exact (unitproperty f). }
            { exact (map_mark f x). }
            { exact (multproperty f (evalwordMM M v) (evalwordMM M w)
-                    @ aptwice (fun r s => r * s) 
-                              (MarkedMonoidMap_compat _ _ _ _ _ f v) 
-                              (MarkedMonoidMap_compat _ _ _ _ _ f w)). } Qed.
+                    @ aptwice (fun r s => r * s) v' w'). } Qed.
     Lemma MarkedMonoidMap_compat2 {X I} {R:I->reln X} 
              {M N:MarkedMonoid R} (f g:MarkedMonoidMap M N) (w:word X) :
       map_base f (evalwordMM M w) == map_base g (evalwordMM M w).
@@ -1093,29 +1093,31 @@ Module AbelianMonoid.
   Defined.
   Definition last n : stn (S n).
     intros. exists n. apply natlthnsn. Defined.
-  Fixpoint finiteOperation0 (X:abmonoid) n : (stn n->X) -> X.
-  Proof.
-    (* return (...((x0*x1)*x2)*...)  *)
-    intros ? [n|].
-    { exact (unel _). }
-    { intros ? x. 
-      exact ((finiteOperation0 _ n (fun i => x (incl n i))) * x (last n)). }
-  Defined.
+  Definition finiteOperation0 (X:abmonoid) n (x:stn n->X) : X.
+  Proof. (* return (...((x0*x1)*x2)*...)  *)
+    intros. induction n as [|n x'].
+    { exact (unel _). } { exact ((x' (funcomp (incl n) x)) * x (last n)). } Defined.
   Lemma split0 (X:abmonoid) n (x:stn (S n)->X) :
        finiteOperation0 X (S n) x 
     == finiteOperation0 X n (funcomp (incl n) x) * x (last n).
   Proof. intros. reflexivity. Qed.
   Lemma same_n {I m n} (f:nelstruct m I) (g:nelstruct n I) : m == n.
   Proof. intros. apply weqtoeqstn. exact (weqcomp f (invweq g)). Qed.
-  Fixpoint uniqueness0 (X:abmonoid) I (x:I->X) n : forall (f g:nelstruct n I),
+  Lemma uniqueness0 (X:abmonoid) n : forall I (f g:nelstruct n I) (x:I->X),
        finiteOperation0 X n (funcomp (pr1 f) x) 
     == finiteOperation0 X n (funcomp (pr1 g) x).
-  Proof. intros ? ? ? n [f f'] [g g']. destruct n.
+  Proof. intros ? ?. induction n as [|n IH].
          { reflexivity. }
          { intros. simpl.
-                   
-                   admit. }
-  Qed.
+           assert (dec : decidable ( pr1 f (last n) == pr1 g (last n) )).
+           { apply (isdeceqweqf f). apply isdeceqstn. }
+           destruct dec as [e|b].
+           { apply (aptwice (fun x y => x*y)).
+             { 
+               
+               admit. }
+             { exact (ap x e). } }
+           { admit. } } Qed.
   Definition finiteOperation1 (X:abmonoid) I : finstruct I -> (I->X) -> X.
     intros ? ? [n f] x.
     apply (finiteOperation0 X n).
