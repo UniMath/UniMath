@@ -17,20 +17,23 @@ Lemma idfun_isweq X : isweq (idfun X).
 Proof. intros.
        unfold isweq.
        intros.
+       unfold iscontr.
        refine (existT _ _ _).
-       - refine (existT _ y _).
+       - unfold fiber.
+         refine (existT _ y _).
          exact (idpath y).
        - intro p. 
          induction p as [x e]. 
+         unfold idfun in e.
          induction e. 
          exact (idpath _).
 Qed.
 
 Definition weq X Y := { f:X->Y & isweq f }.
 
-Notation "X -~- Y" := (weq X Y) (at level 70).
+Notation "X ~~ Y" := (weq X Y) (at level 70).
 
-Definition phi X Y : X==Y -> X-~-Y.
+Definition phi X Y : X==Y -> X~~Y.
   intros X Y p.
   induction p.
   refine (existT _ _ _).
