@@ -108,6 +108,16 @@ Definition is_precategory (C : precategory_data) :=
                     (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) == (f ;; g) ;; h).
 
+
+Lemma isaprop_is_precategory (C : precategory_data)
+  : isaprop (is_precategory C).
+Proof.
+  apply isofhleveltotal2.
+  { apply isofhleveltotal2. { repeat (apply impred; intro); apply setproperty. }
+    intros _. repeat (apply impred; intro); apply setproperty. }
+  intros _. repeat (apply impred; intro); apply setproperty. 
+Qed.
+
 Definition precategory := total2 is_precategory.
 
 Definition precategory_data_from_precategory (C : precategory) : 
@@ -129,14 +139,14 @@ Definition assoc (C : precategory) :
 
 (** Any equality on objects a and b induces a morphism from a to b *)
 
-Definition precategory_eq_morphism (C : precategory_data)
+Definition idtomor {C : precategory_data}
    (a b : C) (H : a == b) : a --> b.
 Proof.
   destruct H.
   exact (identity a).
 Defined.
 
-Definition precategory_eq_morphism_inv (C : precategory_data) 
+Definition idtomor_inv {C : precategory}
     (a b : C) (H : a == b) : b --> a.
 Proof.
   destruct H.
@@ -165,12 +175,11 @@ Definition setcategory_objects_set (C : setcategory) : hSet :=
     hSetpair (ob C) (pr2 C).
 
 Lemma setcategory_eq_morphism_pi (C : setcategory) (a b : ob C)
-      (H H': a == b) : precategory_eq_morphism C a b H == 
-                       precategory_eq_morphism C a b H'.
+      (e e': a == b) : idtomor _ _ e == idtomor _ _ e'.
 Proof.
-  assert (h : H == H').
+  assert (h : e == e').
   apply uip. apply (pr2 C).
-  apply (maponpaths (precategory_eq_morphism C a b) h).
+  apply (maponpaths (idtomor _ _ ) h).
 Qed.
 
 (** * Isomorphisms in a precategory *)
@@ -438,6 +447,30 @@ Proof.
   apply idpath.
 Qed.
 
+(** ***  *)
+Lemma iso_set_isweq {X Y:hSet} (f:X->Y) (g:Y->X) :
+  (forall x, g(f x) == x) ->
+  (forall y, f(g y) == y) ->
+  isweq f.
+Proof.
+  intros p q y.
+  refine (tpair _ (tpair _ (g y) _) _).
+  - exact (q y).
+  - intros [x e]. induction e.
+    apply (total2_paths2 (! p x)).
+    apply setproperty.
+Defined.
+
+Lemma iso_comp_right_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
+  isweq (fun f : b --> c => h ;; f).
+Proof. intros. apply (iso_set_isweq (fun f => h ;; f) (fun g => inv_from_iso h ;; g)).
+       { intros f. refine (_ @ maponpaths (fun m => m ;; f) (pr2 (pr2 (pr2 h))) @ _).
+         { apply assoc. } { apply id_left. } }
+       { intros g. refine (_ @ maponpaths (fun m => m ;; g) (pr1 (pr2 (pr2 h))) @ _).
+         { apply assoc. } { apply id_left. } } Qed.
+
+
+
 (** * Categories (aka saturated precategories) *)
 
 (** ** Definition of categories *)
@@ -453,6 +486,12 @@ Defined.
 (* use eta expanded version to force printing of object arguments *)
 Definition is_category (C : precategory) := forall (a b : ob C),
     isweq (fun p : a == b => idtoiso p).
+
+Lemma eq_idtoiso_idtomor {C:precategory} (a b:ob C) (e:a == b) :
+    pr1 (idtoiso e) == idtomor _ _ e.
+Proof. 
+  destruct e; reflexivity. 
+Defined.
 
 Lemma isaprop_is_category (C : precategory) : isaprop (is_category C).
 Proof.
@@ -699,23 +738,23 @@ Definition precategory_total_comp'' (C : precategory_data) :
         precategory_target C f == precategory_source C g ->
          total_morphisms C.
 Proof.
-  intros f g H.
+  intros f g e.
   destruct f as [[a b] f]. simpl in *.
   destruct g as [[b' c] g]. simpl in *.
-  unfold precategory_target in H; simpl in H.
-  unfold precategory_source in H; simpl in H. 
+  unfold precategory_target in e; simpl in e.
+  unfold precategory_source in e; simpl in e. 
   simpl.
   exists (dirprodpair a c). simpl.
-  exact ((f ;; precategory_eq_morphism C b b' H) ;; g).
+  exact ((f ;; idtomor _ _ e) ;; g).
 Defined.
 
 Definition precategory_total_comp (C : precategory_data) : 
       forall f g : total_morphisms C,
         precategory_target C f == precategory_source C g ->
          total_morphisms C := 
-  fun f g H => 
+  fun f g e => 
      tpair _ (dirprodpair (pr1 (pr1 f))(pr2 (pr1 g)))
-        ((pr2 f ;; precategory_eq_morphism _ _ _ H) ;; pr2 g).
+        ((pr2 f ;; idtomor _ _ e) ;; pr2 g).
 
 
 

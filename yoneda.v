@@ -37,8 +37,9 @@ Require Import RezkCompletion.functors_transformations.
 (*Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).*)
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).
 Local Notation "f ;; g" := (compose f g)(at level 50).
-Notation "[ C , D ]" := (functor_precategory C D).
+Local Notation "[ C , D ]" := (functor_precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -81,8 +82,16 @@ Qed.
 Definition opp_precat (C : precategory) : precategory := 
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
 
-Notation "C '^op'" := (opp_precat C) (at level 3).
+Local Notation "C '^op'" := (opp_precat C) (at level 3).
 
+Definition opp_iso {C:precategory} {a b:ob C} : @iso C a b -> @iso C^op b a.
+  intro f.
+  exact (pr1 f,,pr1 (pr2 f),,pr2 (pr2 (pr2 f)),,pr1 (pr2 (pr2 f))).
+Defined.
+
+Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
+  isweq (fun f : hom _ c a => f ;; h).
+Proof. intros. apply (@iso_comp_right_isweq C^op b a (opp_iso h)). Qed.
 
 (** * Yoneda functor *)
 
