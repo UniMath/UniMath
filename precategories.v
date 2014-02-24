@@ -221,7 +221,6 @@ Proof.
   apply pairofobuip.
 Qed.
 
-
 Definition iso {C : precategory} (a b :ob C) := total2
     (fun f : a --> b => is_isomorphism f).
 
@@ -280,6 +279,9 @@ Proof.
   apply is_iso_inv_from_iso.
 Defined.
 
+Definition iso_inv_from_is_iso {C : precategory} {a b : ob C}
+  (f : a --> b) (H : is_isomorphism f) : iso b a :=
+  iso_inv_from_iso (tpair _ f H).
 
 Definition iso_inv_after_iso (C : precategory) (a b : ob C)
    (f : iso a b) : f;; inv_from_iso f == identity _ :=

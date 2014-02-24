@@ -72,61 +72,85 @@ Definition are_adjoints (A B : precategory) (F : ob [A, B])
 Definition is_left_adjoint (A B : precategory) (F : ob [A, B]) : UU :=
    total2 (fun G : ob [B, A] => are_adjoints A B F G).
 
-Definition right_adjoint (A B : precategory) (F : ob [A, B]) 
-      (H : is_left_adjoint _ _ F) : ob [B, A] := pr1 H.
+Definition right_adjoint {A B : precategory} {F : ob [A, B]} 
+      (H : is_left_adjoint _ _ F) : functor B A := pr1 H.
 
-Definition eta_from_left_adjoint (A B : precategory) (F : ob [A, B]) 
+Definition eta_from_left_adjoint {A B : precategory} {F : ob [A, B]} 
       (H : is_left_adjoint _ _ F) : 
   nat_trans (functor_identity A) (pr1 (pr1 H O F)) := pr1 (pr1 (pr2 H)).
 
 
-Definition eps_from_left_adjoint (A B : precategory) (F : ob [A, B]) 
+Definition eps_from_left_adjoint {A B : precategory} {F : functor A B} 
       (H : is_left_adjoint _ _ F)  : 
  nat_trans (pr1 (F O pr1 H)) (functor_identity B)
    := pr2 (pr1 (pr2 H)).
 
 
-Definition triangle_id_left_ad (A B : precategory) (F : ob [A, B]) 
+Definition triangle_id_left_ad (A B : precategory) (F : functor A B) 
       (H : is_left_adjoint _ _ F) :
   forall (a : ob A),
-       #(pr1 F) (pr1 (pr1 (pr1 (pr2 H))) a);;
-       pr1 (pr2 (pr1 (pr2 H))) ((pr1 F) a) ==
-       identity ((pr1 F) a) := pr1 (pr2 (pr2 H)).
+       #F (eta_from_left_adjoint H a);;
+       eps_from_left_adjoint H (F a) 
+       == 
+      identity (F a) 
+   := pr1 (pr2 (pr2 H)).
 
 Definition triangle_id_right_ad (A B : precategory) (F : ob [A, B]) 
       (H : is_left_adjoint _ _ F) :
   forall b : ob B,
-        pr1 (pr1 (pr1 (pr2 H))) ((pr1 (pr1 H)) b);;
-        #(pr1 (pr1 H)) (pr1 (pr2 (pr1 (pr2 H))) b) ==
-        identity ((pr1 (pr1 H)) b) := pr2 (pr2 (pr2 H)).
+         eta_from_left_adjoint H (right_adjoint H b);;
+        #(right_adjoint H) (eps_from_left_adjoint H b) ==
+        identity (right_adjoint H b) := pr2 (pr2 (pr2 H)).
 
 (** * Equivalence of (pre)categories *)
 
-Definition equivalence_of_precats (A B : precategory)(F : ob [A, B]) : UU :=
+Definition equivalence_of_precats {A B : precategory}(F : ob [A, B]) : UU :=
    total2 (fun H : is_left_adjoint _ _ F =>
      dirprod (forall a, is_isomorphism 
-                    (eta_from_left_adjoint A B F H a))
+                    (eta_from_left_adjoint H a))
              (forall b, is_isomorphism
-                    (eps_from_left_adjoint A B F H b))
+                    (eps_from_left_adjoint H b))
              ).
 
+Definition equivalence_inv {A B : precategory}
+  {F : [A, B]} (HF : equivalence_of_precats F) : functor B A :=
+    right_adjoint (pr1 HF).
 
-Definition eta_iso_from_equivalence_of_precats (A B : precategory)
-  (F : ob [A, B]) (HF : equivalence_of_precats _ _ F) : 
+Local Notation "HF ^^-1" := (equivalence_inv HF)(at level 3).
+
+Definition eta_pointwise_iso_from_equivalence {A B : precategory}
+  {F : functor A B} (HF : equivalence_of_precats F) : 
+    forall a, iso a (HF^^-1 (F a)).
+  intro a.
+  exists (eta_from_left_adjoint (pr1 HF) a).
+  exact (pr1 (pr2 HF) a).
+Defined.
+
+Definition eps_pointwise_iso_from_equivalence {A B : precategory}
+  {F : functor A B} (HF : equivalence_of_precats F) : 
+    forall b, iso (F (HF^^-1 b)) b.
+  intro b.
+  exists (eps_from_left_adjoint (pr1 HF) b).
+  exact (pr2 (pr2 HF) b).
+Defined.
+
+
+Definition eta_iso_from_equivalence_of_precats {A B : precategory}
+  {F : ob [A, B]} (HF : equivalence_of_precats F) : 
        iso (C:=[A, A]) (functor_identity A) 
-                              (right_adjoint _ _ _ (pr1 HF) O F).
+                              (right_adjoint (pr1 HF) O F).
 Proof.
-  exists (eta_from_left_adjoint _ _ _ (pr1 HF)).
+  exists (eta_from_left_adjoint (pr1 HF)).
   apply functor_iso_if_pointwise_iso.
   apply (pr1 (pr2 HF)).
 Defined.
 
-Definition eps_iso_from_equivalence_of_precats (A B : precategory)
-  (F : ob [A, B]) (HF : equivalence_of_precats _ _ F) : 
-       iso (C:=[B, B]) (F O right_adjoint _ _ _ (pr1 HF))
+Definition eps_iso_from_equivalence_of_precats {A B : precategory}
+  {F : ob [A, B]} (HF : equivalence_of_precats F) : 
+       iso (C:=[B, B]) (F O right_adjoint (pr1 HF))
                 (functor_identity B).
 Proof.
-  exists (eps_from_left_adjoint _ _ _ (pr1 HF)).
+  exists (eps_from_left_adjoint (pr1 HF)).
   apply functor_iso_if_pointwise_iso.
   apply (pr2 (pr2 HF)).
 Defined.
@@ -137,17 +161,17 @@ Defined.
 
 Lemma equiv_of_cats_is_weq_of_objects (A B : precategory)
    (HA : is_category A) (HB : is_category B) (F : ob [A, B])
-   (HF : equivalence_of_precats A B F) : 
+   (HF : equivalence_of_precats F) : 
      isweq (pr1 (pr1 F)).
 Proof.
-  set (G := right_adjoint _ _ _ (pr1 HF)).
-  set (et := eta_iso_from_equivalence_of_precats _ _ _ HF).
-  set (ep := eps_iso_from_equivalence_of_precats _ _ _ HF).
+  set (G := right_adjoint (pr1 HF)).
+  set (et := eta_iso_from_equivalence_of_precats HF).
+  set (ep := eps_iso_from_equivalence_of_precats HF).
   set (AAcat := is_category_functor_category A _ HA).
   set (BBcat := is_category_functor_category B _ HB).
   set (Et := isotoid _ AAcat et).
   set (Ep := isotoid _ BBcat ep).
-  apply (gradth _ (fun b => pr1 (right_adjoint A B F (pr1 HF)) b)).
+  apply (gradth _ (fun b => pr1 (right_adjoint (pr1 HF)) b)).
   intro a.
   set (ou := toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Et)) a).
   simpl in ou.
@@ -159,7 +183,7 @@ Defined.
 
 Definition weq_on_objects_from_equiv_of_cats (A B : precategory)
    (HA : is_category A) (HB : is_category B) (F : ob [A, B])
-   (HF : equivalence_of_precats A B F) : weq 
+   (HF : equivalence_of_precats F) : weq 
           (ob A) (ob B).
 Proof.
   exists (pr1 (pr1 F)).
@@ -423,7 +447,7 @@ Defined.
     remains to show that [eta], [eps] are isos
 *)
 
-Lemma rad_equivalence_of_precats : equivalence_of_precats _ _ F.
+Lemma rad_equivalence_of_precats : equivalence_of_precats F.
 Proof.
   exists rad_is_left_adjoint.
   split; simpl.
