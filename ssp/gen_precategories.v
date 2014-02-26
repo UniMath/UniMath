@@ -515,7 +515,7 @@ Definition nat_trans_ax {C C' : precategory_data}
     #F f ;; a x' == a x ;; #F' f := pr2 a.
 
 
-(*
+
 Lemma nat_trans_eq {C D: precategory} {F G : functor C D}
    (a b : nat_trans F G) : 
   (forall x, a x == b x) -> a == b.
@@ -525,6 +525,11 @@ Proof.
   destruct a as [a aax];
   destruct b as [b bax]; simpl in *.
   unfold is_nat_trans in *; simpl in *.
+  generalize (funextsec (fun x : C => F x --> G x) a b H).
+  intro p.
+  destruct p. clear H. simpl.
+  rewrite transportf_idpath.
+  simpl.
   Check (funextsec (fun x : C => F x --> G x) a b H).
   Search (transportf _ == _ ).
 *)
