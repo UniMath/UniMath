@@ -153,22 +153,31 @@ Definition postcompose_with {C : precategory} {b c : ob C} (g : b --> c) :
       forall {a}, a --> b -> a --> c :=
    fun a f =>  f ;; g.
 
-Definition is_left_equivalence {C : precategory} {b c : ob C} (g : b --> c) :=
+Definition is_leq {C : precategory} {b c : ob C} (g : b --> c) :=
      forall a : ob C, isweq (postcompose_with g (a:=a)).
 
 (** being a left equivalence is a proposition *)
-Lemma isaprop_is_left_equivalence {C : precategory} {b c : ob C} (g : b --> c) :
-   isaprop (is_left_equivalence g).
+Lemma isaprop_is_leq {C : precategory} {b c : ob C} (g : b --> c) :
+   isaprop (is_leq g).
 Proof.
   apply impred;
   intro t; apply isapropisweq.
 Qed.
 
-Definition left_equivalence {C : precategory} (b c : ob C) : UU :=
-   total2 (fun g : b --> c => is_left_equivalence g).
+Definition leq {C : precategory} (b c : ob C) : UU :=
+   total2 (fun g : b --> c => is_leq g).
+Definition morphism_from_leq (C : precategory)(a b : ob C)
+   (f : leq a b) : a --> b := pr1 f.
+Coercion morphism_from_leq : leq >-> precategory_morphisms.
 
-Lemma identity_is_left_equivalence {C : precategory} (a : ob C) : 
-     is_left_equivalence (identity a).
+Lemma eq_leq {C : precategory} (b c : ob C) (f g : leq b c) :
+   pr1 f == pr1 g -> f == g.
+Proof.
+  apply total2_paths_hProp.
+  apply isaprop_is_leq.
+Defined.
+
+Lemma id_is_leq {C : precategory} (a : ob C) : is_leq (identity a).
 Proof.
   intro b.
   apply (gradth _ (fun x => x)).
@@ -176,8 +185,8 @@ Proof.
   - intro g; apply id_right.
 Qed.
 
-Definition identity_left_equivalence {C : precategory} (a : ob C) : 
-   left_equivalence a a := tpair _ _ (identity_is_left_equivalence a).
+Definition id_leq {C : precategory} (a : ob C) : leq a a := 
+        tpair _ _ (id_is_leq a).
 
 Lemma postcompose_with_composition_ext {C : precategory} (b c d: ob C)
    (f : b --> c) (g : c --> d) :
@@ -197,16 +206,199 @@ Proof.
 Defined.
 
 
-Lemma is_left_identity_composition {C : precategory} (b c d: ob C)
+Lemma is_leq_composition {C : precategory} (b c d: ob C)
    (f : b --> c) (g : c --> d) :
-   is_left_equivalence f -> is_left_equivalence g -> 
-        is_left_equivalence (f ;; g).
+   is_leq f -> is_leq g ->  is_leq (f ;; g).
 Proof.
-  unfold is_left_equivalence; intros Hf Hg a.
+  intros Hf Hg a.
   rewrite postcompose_with_composition.
   apply twooutof3c; auto.
 Qed.
-   
+
+Definition leq_comp {C : precategory} {b c d: ob C}
+   (f : leq b c) (g : leq c d) : leq b d :=
+  tpair _ (f ;; g) (is_leq_composition _ _ _ f g (pr2 f) (pr2 g)).
+
+Definition idtoleq {C : precategory} {c d : ob C} (p : c == d) : leq c d.
+Proof.
+  destruct p; exact (id_leq _ ).
+Defined.
+
+Definition is_category (C : precategory) := forall (a b : ob C),
+    isweq (fun p : a == b => idtoleq p).
+
+Lemma isaprop_is_category (C : precategory) : isaprop (is_category C).
+Proof.
+  apply impred; intro a.
+  apply impred; intro b.
+  apply isapropisweq.
+Qed.
+
+
+(** ** Univalent categories *)
+
+Definition leqtoid (C : precategory) (H : is_category C) {a b : ob C}:
+      leq a b -> a == b := invmap (weqpair _ (H a b)).
+
+Lemma idtoleq_leqtoid (C : precategory) (H : is_category C) (a b : ob C) (f : leq a b) : 
+       idtoleq (leqtoid _ H f) == f.
+Proof.
+  apply (homotweqinvweq (weqpair idtoleq (H a b))).
+Qed.
+
+Lemma lefteqtoid_idtolefteq (C : precategory) (H : is_category C) (a b : ob C) (p : a == b) : 
+   leqtoid _ H (idtoleq p) == p.
+Proof.
+  apply (homotinvweqweq (weqpair idtoleq (H a b))).
+Qed.
+
+(** more properties of leq *)
+
+Lemma idtoleq_postcompose (C : precategory) (a b b' : ob C)
+  (p : b == b') (f : a --> b) :
+      f ;; idtoleq p == transportf (fun b => a --> b) p f.
+Proof.
+  destruct p.
+  apply id_right.
+Qed.
+
+Lemma idtoiso_postcompose_iso (C : precategory) (a b b' : ob C)
+  (p : b == b') (f : leq a b) :
+    leq_comp f (idtoleq p) == transportf (fun b => leq a b) p f.
+Proof.
+  destruct p.
+  apply eq_leq.
+  simpl.
+  apply id_right.
+Qed.
+
+Lemma idtoiso_precompose (C : precategory) (a a' b : ob C)
+  (p : a == a') (f : a --> b) :
+      (idtoiso (!p)) ;; f == transportf (fun a ⇒ a --> b) p f.
+Proof.
+  destruct p.
+  apply id_left.
+Qed.
+
+Lemma idtoiso_precompose_iso (C : precategory) (a a' b : ob C)
+  (p : a == a') (f : iso a b) :
+      iso_comp (idtoiso (!p)) f == transportf (fun a ⇒ iso a b) p f.
+Proof.
+  destruct p.
+  apply eq_iso.
+  simpl.
+  apply id_left.
+Qed.
+
+Lemma double_transport_idtoiso (C : precategory) (a a' b b' : ob C)
+  (p : a == a') (q : b == b') (f : a --> b) :
+  double_transport p q f == inv_from_iso (idtoiso p) ;; f ;; idtoiso q.
+Proof.
+  destruct p.
+  destruct q.
+  rewrite id_right.
+  rewrite id_left.
+  apply idpath.
+Qed.
+
+Lemma idtoiso_inv (C : precategory) (a a' : ob C)
+  (p : a == a') : idtoiso (!p) == iso_inv_from_iso (idtoiso p).
+Proof.
+  destruct p.
+  apply idpath.
+Qed.
+
+Lemma idtoiso_concat (C : precategory) (a a' a'' : ob C)
+  (p : a == a') (q : a' == a'') :
+  idtoiso (p @ q) == iso_comp (idtoiso p) (idtoiso q).
+Proof.
+  destruct p.
+  destruct q.
+  apply eq_iso.
+  simpl;
+  rewrite id_left.
+  apply idpath.
+Qed.
+
+Lemma idtoiso_inj (C : precategory) (H : is_category C) (a a' : ob C)
+   (p p' : a == a') : idtoiso p == idtoiso p' → p == p'.
+Proof.
+  apply invmaponpathsincl.
+  apply isinclweq.
+  apply H.
+Qed.
+
+Lemma isotoid_inj (C : precategory) (H : is_category C) (a a' : ob C)
+   (f f' : iso a a') : isotoid _ H f == isotoid _ H f' → f == f'.
+Proof.
+  apply invmaponpathsincl.
+  apply isinclweq.
+  apply isweqinvmap.
+Qed.
+
+Lemma isotoid_comp (C : precategory) (H : is_category C) (a b c : ob C)
+  (e : iso a b) (f : iso b c) :
+  isotoid _ H (iso_comp e f) == isotoid _ H e @ isotoid _ H f.
+Proof.
+  apply idtoiso_inj.
+    assumption.
+  rewrite idtoiso_concat.
+  repeat rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
+
+Lemma isotoid_identity_iso (C : precategory) (H : is_category C) (a : C) :
+  isotoid _ H (identity_iso a) == idpath _ .
+Proof.
+  apply idtoiso_inj; try assumption.
+  rewrite idtoiso_isotoid;
+  apply idpath.
+Qed.
+
+Lemma inv_isotoid (C : precategory) (H : is_category C) (a b : C)
+    (f : iso a b) : ! isotoid _ H f == isotoid _ H (iso_inv_from_iso f).
+Proof.
+  apply idtoiso_inj; try assumption.
+  rewrite idtoiso_isotoid.
+  rewrite idtoiso_inv.
+  rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
+
+Lemma transportf_isotoid (C : precategory) (H : is_category C)
+   (a a' b : ob C) (p : iso a a') (f : a --> b) :
+ transportf (fun a0 : C ⇒ a0 --> b) (isotoid C H p) f == inv_from_iso p ;; f.
+Proof.
+  rewrite <- idtoiso_precompose.
+  rewrite idtoiso_inv.
+  rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
+
+Lemma transportf_isotoid_dep (C : precategory)
+   (a a' : C) (p : a == a') (f : ∀ c, a --> c) :
+ transportf (fun x : C ⇒ ∀ c, x --> c) p f == fun c ⇒ idtoiso (!p) ;; f c.
+Proof.
+  destruct p.
+  simpl.
+  apply funextsec.
+  intro.
+  rewrite id_left.
+  apply idpath.
+Qed.
+
+Lemma transportf_isotoid_dep' (J C : precategory)
+  (F : J → C)
+   (a a' : C) (p : a == a') (f : ∀ c, a --> F c) :
+ transportf (fun x : C ⇒ ∀ c, x --> F c) p f == fun c ⇒ idtoiso (!p) ;; f c.
+Proof.
+  destruct p.
+  apply funextsec.
+  intro. simpl.
+  apply (! id_left _ _ _ _).
+Defined.
+
+
   
 (** for producing the inverse, we seem to need that
  - a "natural transformation" alpha : F -> G : C -> UU
@@ -232,6 +424,8 @@ Qed.
 
 Definition UUcat : precategory := tpair _ _ is_precategory_UUcat.
   
+(** TODO: UUcat is univalent *)
+
 
 (** ** Functors *)
 
@@ -316,6 +510,23 @@ Definition nat_trans_ax {C C' : precategory_data}
   (F F' : functor_data C C') (a : nat_trans F F') :
   forall (x x' : ob C)(f : x --> x'),
     #F f ;; a x' == a x ;; #F' f := pr2 a.
+
+
+
+Lemma nat_trans_eq {C D: precategory} {F G : functor C D}
+   (a b : nat_trans F G) : 
+  (forall x, a x == b x) -> a == b.
+Proof.
+  intro H.
+  apply (total2_paths (funextsec _ _ _ H)).
+  destruct a as [a aax];
+  destruct b as [b bax]; simpl in *.
+  unfold is_nat_trans in *; simpl in *.
+  Check (funextsec (fun x : C => F x --> G x) a b H).
+  Search (transportf _ == _ ).
+*)
+  
+
 
 (** ** opposite category *)
 
