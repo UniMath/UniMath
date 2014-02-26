@@ -265,6 +265,12 @@ Proof. reflexivity. (* verify computation is definitional *) Qed.
 Definition bool_map {Y} (y y':Y) : bool -> Y.
 Proof. intros ? ? ? v. destruct v. { exact y. } { exact y'. } Defined.
 
+Goal forall Y (y y':Y) (v:bool), bool_map y y' true == y.
+  reflexivity. Qed.
+
+Goal forall Y (y y':Y) (v:bool), bool_map y y' false == y'.
+  reflexivity. Qed.
+
 Definition funext X Y (f g:X->Y) (e:forall x, f x==g x) : f == g.
 Proof. intros.
        set (q := fun (h:squash bool) (x:X) => interval_ind Y (bool_map (f x) (g x)) (e x) h).
