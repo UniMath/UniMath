@@ -88,7 +88,8 @@ endif
 #                    #
 ######################
 
-VFILES:=topos/epis_monos.v\
+VFILES:=ssp/gen_precategories.v\
+  topos/epis_monos.v\
   limits/products.v\
   limits/cones.v\
   limits/aux_lemmas_HoTT.v\

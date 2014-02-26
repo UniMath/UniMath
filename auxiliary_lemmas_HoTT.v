@@ -250,7 +250,12 @@ Proof.
 Qed.
 
 
-
+Lemma fun_eq_fun_eq_pointwise (A B : UU) (f g : A -> B) : 
+     f == g -> forall a, f a == g a.
+Proof.
+  destruct 1.
+  exact (fun a => idpath _).
+Defined.
 
 
 

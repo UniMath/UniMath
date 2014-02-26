@@ -24,3 +24,11 @@ limits/cones.v
 limits/products.v
 
 topos/epis_monos.v
+
+
+ssp/gen_precategories.v
+
+
+
+
+
