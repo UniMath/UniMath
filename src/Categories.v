@@ -330,9 +330,9 @@ Module StandardCategories.
        equivalence class of paths. *)
     intros obj iobj.
     refine (makePrecategory obj _ iobj _ _ _ _ _).
-    { intros. reflexivity. }
+    { reflexivity. }
     { intros. exact (f @ g). }
-    { intros. reflexivity. }
+    { reflexivity. }
     { intros. apply pathscomp0rid. }
     { intros. apply path_assoc_opaque. }
   Defined.
@@ -413,7 +413,7 @@ Module Elements.
       intros. exists pr1. intros x x'. exact pr1. Defined.
     Definition func {C} (X:C==>SET) : cat X ==> C.
       intros. exists (fun_data _).
-      split. { intros. reflexivity. } { intros. reflexivity. } Defined.
+      split. { reflexivity. } { reflexivity. } Defined.
     Lemma func_reflects_isos {C} (X:C==>SET) : reflects_isos (func X).
     Proof. intros ? ? [c x] [d y] [f i] [f' j].
       assert (i' : #X f' y == x).
@@ -763,7 +763,7 @@ Module QuotientSet.
                (x:X) (y:Y) :
       setquotfun2 f is (setquotpr RX x) (setquotpr RY y) ==
       setquotpr RZ (f x y).
-    Proof. intros. reflexivity. (* it computes! *) Defined.
+    Proof. reflexivity. (* it computes! *) Defined.
 End QuotientSet.
 
 Module Monoid.
@@ -1099,12 +1099,12 @@ Module AbelianMonoid.
   Goal forall (X:abmonoid) n (x:stn (S n)->X),
        finiteOperation0 X (S n) x 
     == finiteOperation0 X n (funcomp (incl n) x) * x (lastelement n).
-  Proof. intros. reflexivity. Qed.
+  Proof. reflexivity. Qed.
   Lemma same_n {I m n} (f:nelstruct m I) (g:nelstruct n I) : m == n.
   Proof. intros. apply weqtoeqstn. exact (weqcomp f (invweq g)). Qed.
   Lemma fun_assoc {W X Y Z} (f:W->X) (g:X->Y) (h:Y->Z) :
     funcomp (funcomp f g) h == funcomp f (funcomp g h).
-  Proof. intros. reflexivity. Defined.
+  Proof. reflexivity. Defined.
   Lemma uniqueness0 (X:abmonoid) n : forall I (f g:nelstruct n I) (x:I->X),
        finiteOperation0 X n (funcomp (pr1 f) x) 
     == finiteOperation0 X n (funcomp (pr1 g) x).
