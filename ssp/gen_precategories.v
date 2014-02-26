@@ -262,7 +262,7 @@ Proof.
   apply id_right.
 Qed.
 
-Lemma idtoiso_postcompose_iso (C : precategory) (a b b' : ob C)
+Lemma idtoleq_postcompose_leq (C : precategory) (a b b' : ob C)
   (p : b == b') (f : leq a b) :
     leq_comp f (idtoleq p) == transportf (fun b => leq a b) p f.
 Proof.
@@ -272,24 +272,23 @@ Proof.
   apply id_right.
 Qed.
 
-Lemma idtoiso_precompose (C : precategory) (a a' b : ob C)
+Lemma idtoleq_precompose (C : precategory) (a a' b : ob C)
   (p : a == a') (f : a --> b) :
-      (idtoiso (!p)) ;; f == transportf (fun a ⇒ a --> b) p f.
+      (idtoleq (!p)) ;; f == transportf (fun a => a --> b) p f.
 Proof.
   destruct p.
   apply id_left.
 Qed.
 
-Lemma idtoiso_precompose_iso (C : precategory) (a a' b : ob C)
-  (p : a == a') (f : iso a b) :
-      iso_comp (idtoiso (!p)) f == transportf (fun a ⇒ iso a b) p f.
+Lemma idtoleq_precompose_leq (C : precategory) (a a' b : ob C)
+  (p : a == a') (f : leq a b) :
+      leq_comp (idtoleq (!p)) f == transportf (fun a => leq a b) p f.
 Proof.
-  destruct p.
-  apply eq_iso.
-  simpl.
+  destruct p; apply eq_leq.
   apply id_left.
 Qed.
 
+(*
 Lemma double_transport_idtoiso (C : precategory) (a a' b b' : ob C)
   (p : a == a') (q : b == b') (f : a --> b) :
   double_transport p q f == inv_from_iso (idtoiso p) ;; f ;; idtoiso q.
@@ -300,63 +299,67 @@ Proof.
   rewrite id_left.
   apply idpath.
 Qed.
+*)
 
+(*
 Lemma idtoiso_inv (C : precategory) (a a' : ob C)
   (p : a == a') : idtoiso (!p) == iso_inv_from_iso (idtoiso p).
 Proof.
   destruct p.
   apply idpath.
 Qed.
+*)
 
-Lemma idtoiso_concat (C : precategory) (a a' a'' : ob C)
+Lemma idtoleq_concat (C : precategory) (a a' a'' : ob C)
   (p : a == a') (q : a' == a'') :
-  idtoiso (p @ q) == iso_comp (idtoiso p) (idtoiso q).
+  idtoleq (p @ q) == leq_comp (idtoleq p) (idtoleq q).
 Proof.
-  destruct p.
+  destruct p;
   destruct q.
-  apply eq_iso.
+  apply eq_leq.
   simpl;
   rewrite id_left.
   apply idpath.
 Qed.
 
-Lemma idtoiso_inj (C : precategory) (H : is_category C) (a a' : ob C)
-   (p p' : a == a') : idtoiso p == idtoiso p' → p == p'.
+Lemma idtoleq_inj (C : precategory) (H : is_category C) (a a' : ob C)
+   (p p' : a == a') : idtoleq p == idtoleq p' -> p == p'.
 Proof.
   apply invmaponpathsincl.
   apply isinclweq.
   apply H.
 Qed.
 
-Lemma isotoid_inj (C : precategory) (H : is_category C) (a a' : ob C)
-   (f f' : iso a a') : isotoid _ H f == isotoid _ H f' → f == f'.
+Lemma leqtoid_inj (C : precategory) (H : is_category C) (a a' : ob C)
+   (f f' : leq a a') : leqtoid _ H f == leqtoid _ H f' -> f == f'.
 Proof.
   apply invmaponpathsincl.
   apply isinclweq.
   apply isweqinvmap.
 Qed.
 
-Lemma isotoid_comp (C : precategory) (H : is_category C) (a b c : ob C)
-  (e : iso a b) (f : iso b c) :
-  isotoid _ H (iso_comp e f) == isotoid _ H e @ isotoid _ H f.
+Lemma leqtoid_comp (C : precategory) (H : is_category C) (a b c : ob C)
+  (e : leq a b) (f : leq b c) :
+  leqtoid _ H (leq_comp e f) == leqtoid _ H e @ leqtoid _ H f.
 Proof.
-  apply idtoiso_inj.
+  apply idtoleq_inj.
     assumption.
-  rewrite idtoiso_concat.
-  repeat rewrite idtoiso_isotoid.
+  rewrite idtoleq_concat.
+  repeat rewrite idtoleq_leqtoid.
   apply idpath.
 Qed.
 
-Lemma isotoid_identity_iso (C : precategory) (H : is_category C) (a : C) :
-  isotoid _ H (identity_iso a) == idpath _ .
+Lemma leqtoid_identity_leq (C : precategory) (H : is_category C) (a : C) :
+  leqtoid _ H (id_leq a) == idpath _ .
 Proof.
-  apply idtoiso_inj; try assumption.
-  rewrite idtoiso_isotoid;
+  apply idtoleq_inj; try assumption.
+  rewrite idtoleq_leqtoid;
   apply idpath.
 Qed.
 
-Lemma inv_isotoid (C : precategory) (H : is_category C) (a b : C)
-    (f : iso a b) : ! isotoid _ H f == isotoid _ H (iso_inv_from_iso f).
+(*
+Lemma inv_leqtoid (C : precategory) (H : is_category C) (a b : C)
+    (f : leq a b) : ! leqtoid _ H f == leqtoid _ H (iso_inv_from_iso f).
 Proof.
   apply idtoiso_inj; try assumption.
   rewrite idtoiso_isotoid.
@@ -364,7 +367,9 @@ Proof.
   rewrite idtoiso_isotoid.
   apply idpath.
 Qed.
+*)
 
+(*
 Lemma transportf_isotoid (C : precategory) (H : is_category C)
    (a a' b : ob C) (p : iso a a') (f : a --> b) :
  transportf (fun a0 : C ⇒ a0 --> b) (isotoid C H p) f == inv_from_iso p ;; f.
@@ -374,23 +379,21 @@ Proof.
   rewrite idtoiso_isotoid.
   apply idpath.
 Qed.
+*)
 
 Lemma transportf_isotoid_dep (C : precategory)
-   (a a' : C) (p : a == a') (f : ∀ c, a --> c) :
- transportf (fun x : C ⇒ ∀ c, x --> c) p f == fun c ⇒ idtoiso (!p) ;; f c.
+   (a a' : C) (p : a == a') (f : forall c, a --> c) :
+ transportf (fun x : C => forall c, x --> c) p f == fun c => idtoleq (!p) ;; f c.
 Proof.
   destruct p.
-  simpl.
   apply funextsec.
-  intro.
-  rewrite id_left.
+  intro; rewrite id_left.
   apply idpath.
 Qed.
 
-Lemma transportf_isotoid_dep' (J C : precategory)
-  (F : J → C)
-   (a a' : C) (p : a == a') (f : ∀ c, a --> F c) :
- transportf (fun x : C ⇒ ∀ c, x --> F c) p f == fun c ⇒ idtoiso (!p) ;; f c.
+Lemma transportf_isotoid_dep' (J C : precategory) (F : J -> C)
+   (a a' : C) (p : a == a') (f : forall c, a --> F c) :
+ transportf (fun x : C => forall c, x --> F c) p f == fun c => idtoleq (!p) ;; f c.
 Proof.
   destruct p.
   apply funextsec.
@@ -512,7 +515,7 @@ Definition nat_trans_ax {C C' : precategory_data}
     #F f ;; a x' == a x ;; #F' f := pr2 a.
 
 
-
+(*
 Lemma nat_trans_eq {C D: precategory} {F G : functor C D}
    (a b : nat_trans F G) : 
   (forall x, a x == b x) -> a == b.
