@@ -17,18 +17,20 @@ Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification th
   let G := match goal with |- ?G => constr:(G) end in
   exact ((@id G : T -> G) x).
 
-Module Import Notations.
-    Notation ap := maponpaths.
-    (* see table 3.1 in the coq manual for parsing levels *)
-    Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 70).
-    Notation "g ∘ f" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
-    Notation "f ;; g" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
-    Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
-    (* funcomp' is like funcomp, but with the arguments in the other order *)
-    Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
-    Notation transport := transportf.
-    Notation "p # x" := (transport _ p x) (right associativity, at level 65, only parsing).
-End Notations.
+Module Import Notation.
+  Notation set_to_type := Foundations.hlevel2.hSet.pr1hSet.
+  Notation pair_path := RezkCompletion.auxiliary_lemmas_HoTT.total2_paths2.
+  Notation ap := maponpaths.
+  (* see table 3.1 in the coq manual for parsing levels *)
+  Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 70).
+  Notation "g ∘ f" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
+  Notation "f ;; g" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
+  Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
+  (* funcomp' is like funcomp, but with the arguments in the other order *)
+  Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
+  Notation transport := transportf.
+  Notation "p # x" := (transport _ p x) (right associativity, at level 65, only parsing).
+End Notation.
 
 Lemma transport_idpath {X:UU} (P:X->UU) {x y:X} (p:x==y) (u:P x) : 
   transport P p u == transport (idfun _) (ap P p) u.
@@ -179,8 +181,6 @@ Proof. intros ? [Q i] f h. apply h. assumption. Defined.
 Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
 Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.    
 
-Notation pair_path := RezkCompletion.auxiliary_lemmas_HoTT.total2_paths2.
-
 Lemma simple_pair_path {X Y:UU} {x x':X} {y y':Y} (p : x == x') (q : y == y') : x ,, y == x' ,, y'.
 Proof. intros. destruct p. destruct q. apply idpath. Defined.
 
@@ -256,6 +256,7 @@ Proof. intros ? ? ? h. set (P := total2 (fun y => y == f true)).
          { destruct v. { reflexivity. } { exact (!e). } } } Defined.
 
 Definition interval_path : squash_element true == squash_element false.
+(* depends on [funextfunax] *)
 Proof. apply isaprop_squash. Defined.
 
 Goal forall Y (f : bool -> Y) (e:f true == f false) (v:bool), 
@@ -272,6 +273,8 @@ Goal forall Y (y y':Y) (v:bool), bool_map y y' false == y'.
   reflexivity. Qed.
 
 Definition funext X Y (f g:X->Y) (e:forall x, f x==g x) : f == g.
+(* same as [funextfunax]; the proof is circular, but the interesting bit is
+   that one can regard it as following from [interval_path] *)
 Proof. intros.
        set (q := fun (h:squash bool) (x:X) => interval_ind Y (bool_map (f x) (g x)) (e x) h).
        exact (ap q interval_path). Defined.

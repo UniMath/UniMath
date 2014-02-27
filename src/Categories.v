@@ -6,147 +6,148 @@
 
   - products, coproducts, direct sums, finite direct sums
   - additive categories, matrices
-  - exact categories
+  - exact categories *)
 
-  Using Qed, we make all proof irrelevant proofs opaque. *)
+Module Categories.
+  Unset Automatic Introduction.
+  Require Import Ktheory.Utilities.
+  Require Import RezkCompletion.precategories 
+                 RezkCompletion.yoneda
+                 RezkCompletion.category_hset
+                 RezkCompletion.functors_transformations
+                 .
+  Require Import Foundations.hlevel2.hSet.
+  Import RezkCompletion.pathnotations.PathNotations
+         Ktheory.Utilities.Notation.
+  Definition precategory_pair (C:precategory_data) (i:is_precategory C)
+    : precategory := tpair _ C i.
+  Module Precategory.
+    Definition obmor (C:precategory) : precategory_ob_mor := 
+          precategory_ob_mor_from_precategory_data (
+              precategory_data_from_precategory C).
+    Definition obj (C:precategory) : Type :=
+      ob (
+          precategory_ob_mor_from_precategory_data (
+              precategory_data_from_precategory C)).
+    Definition mor {C:precategory} : ob C -> ob C -> hSet :=
+      pr2 (
+          precategory_ob_mor_from_precategory_data (
+              precategory_data_from_precategory C)).
+  End Precategory.
+  Module Functor.
+    Definition obmor {C D} (F:functor C D) := pr1 F.
+    Definition obj {C D} (F:functor C D) := pr1 (pr1 F).
+    Definition mor {C D} (F:functor C D) := pr2 (pr1 F).
+    Definition identity {C D} (F:functor C D) := functor_id F.
+    Definition compose {C D} (F:functor C D) := functor_comp F.
+  End Functor.
+  Module Import Notation.
+    Notation Hom := Precategory.mor.
+    Notation "b ← a" := (precategory_morphisms a b) (at level 50).
+    Notation "a → b" := (precategory_morphisms a b) (at level 50).
+    Notation "a ==> b" := (functor a b) (at level 50).
+    Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing).
+    Notation "g ∘ f" := (precategories.compose f g) (at level 50, only parsing).
+    Notation "# F" := (functor_on_morphisms F) (at level 3).
+    Notation "C '^op'" := (opp_precat C) (at level 3).
+    Notation SET := hset_precategory.
+  End Notation.
 
-Require Import Foundations.hlevel2.hSet.
+  Definition category_pair (C:precategory) (i:is_category C)
+   : category := tpair _ C i.
 
-Require Import 
-        RezkCompletion.precategories RezkCompletion.functors_transformations 
-        RezkCompletion.category_hset RezkCompletion.yoneda RezkCompletion.auxiliary_lemmas_HoTT.
-Import pathnotations.PathNotations.
+  Definition theUnivalenceProperty (C:category) := pr2 _ : is_category C.
 
-Require Import Ktheory.Utilities.
-Import Ktheory.Utilities.Notations.
+  Definition reflects_isos {C D} (X:C==>D) :=
+    forall c c' (f : c → c'), is_isomorphism (#X f) -> is_isomorphism f.
 
-Unset Automatic Introduction.
+  Lemma isaprop_reflects_isos {C D} (X:C==>D) : isaprop (reflects_isos X).
+  Proof.
+    intros. apply impred; intros. apply impred; intros. apply impred; intros.
+    apply impred; intros. apply isaprop_is_isomorphism. Qed.
 
-(** *** notation *)
+  (** *** make a precategory *)
 
-Local Notation set_to_type := pr1hSet.
-Local Notation "b ← a" := (precategory_morphisms a b) (at level 50).
-Local Notation "a → b" := (precategory_morphisms a b) (at level 50).
-Local Notation "a ==> b" := (functor a b) (at level 50).
-Local Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing).
-Local Notation "g ∘ f" := (precategories.compose f g) (at level 50, only parsing).
-Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Notation "C '^op'" := (opp_precat C) (at level 3).
-Notation SET := hset_precategory.
+  Definition makePrecategory_ob_mor
+      (obj : UU)
+      (mor : obj -> obj -> UU)
+      (imor : forall i j:obj, isaset (mor i j))
+      : precategory_ob_mor.
+    intros.
+    exact (precategory_ob_mor_pair obj (fun i j:obj => hSetpair (mor i j) (imor i j))).
+  Defined.    
 
-Definition Ob (C:precategory) : Type := ob C.
+  Definition makePrecategory_data
+      (obj : UU)
+      (mor : obj -> obj -> UU)
+      (imor : forall i j, isaset (mor i j))
+      (identity : forall i, mor i i)
+      (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
+      : precategory_data.
+    intros.
+    exact (precategory_data_pair (makePrecategory_ob_mor obj mor imor) identity compose).
+  Defined.    
 
-Definition precategory_pair (C:precategory_data) (i:is_precategory C)
-  : precategory := tpair _ C i.
-Module Precategory.
-  Definition obmor (C:precategory) : precategory_ob_mor := 
-        precategory_ob_mor_from_precategory_data (
-            precategory_data_from_precategory C).
-  Definition obj (C:precategory) : Type :=
-    ob (
-        precategory_ob_mor_from_precategory_data (
-            precategory_data_from_precategory C)).
-  Definition mor {C:precategory} : ob C -> ob C -> hSet :=
-    pr2 (
-        precategory_ob_mor_from_precategory_data (
-            precategory_data_from_precategory C)).
-End Precategory.
-Local Notation Hom := Precategory.mor.
+  Definition makePrecategory 
+      (obj : UU)
+      (mor : obj -> obj -> UU)
+      (imor : forall i j, isaset (mor i j))
+      (identity : forall i, mor i i)
+      (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
+      (right : forall i j (f:mor i j), compose _ _ _ (identity i) f == f)
+      (left  : forall i j (f:mor i j), compose _ _ _ f (identity j) == f)
+      (associativity : forall a b c d (f:mor a b) (g:mor b c) (h:mor c d),
+          compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h)
+      : precategory.
+    intros.
+    apply (precategory_pair 
+             (precategory_data_pair
+                (precategory_ob_mor_pair 
+                   obj
+                   (fun i j:obj => hSetpair (mor i j) (imor i j)))
+                identity
+                compose)).
+      split. split. exact right. exact left. exact associativity.
+  Defined.    
 
-Module Functor.
-  Definition obmor {C D} (F:functor C D) := pr1 F.
-  Definition obj {C D} (F:functor C D) := pr1 (pr1 F).
-  Definition mor {C D} (F:functor C D) := pr2 (pr1 F).
-  Definition identity {C D} (F:functor C D) := functor_id F.
-  Definition compose {C D} (F:functor C D) := functor_comp F.
-End Functor.
+  (** *** opposite category of opposite category *)
 
-Definition category_pair (C:precategory) (i:is_category C)
- : category := tpair _ C i.
+  Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C == opp_precat_ob_mor (opp_precat_ob_mor C).
+  Proof.
+    intro.
+    unfold opp_precat_ob_mor.
+    destruct C as [ob mor].  
+    reflexivity.
+  Defined.
 
-Definition theUnivalenceProperty (C:category) := pr2 _ : is_category C.
+  Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
+    idpath _ == maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
+  Proof. intros [ob mor]. reflexivity. Defined.
 
-Definition reflects_isos {C D} (X:C==>D) :=
-  forall c c' (f : c → c'), is_isomorphism (#X f) -> is_isomorphism f.
+  Lemma opp_opp_precat_data (C : precategory_data) 
+     : C == opp_precat_data (opp_precat_data C).
+  Proof.
+    intro.
+    destruct C as [[ob mor] [id co]].
+    reflexivity.
+  Defined.
 
-Lemma isaprop_reflects_isos {C D} (X:C==>D) : isaprop (reflects_isos X).
-Proof.
-  intros. apply impred; intros. apply impred; intros. apply impred; intros.
-  apply impred; intros. apply isaprop_is_isomorphism. Qed.
+  Lemma opp_opp_precat (C : precategory) : C == C^op^op.
+  Proof.
+    intros [data ispre]. apply (pair_path (opp_opp_precat_data data)).
+    apply isaprop_is_precategory. Defined.
 
-(** *** make a precategory *)
-
-Definition makePrecategory_ob_mor
-    (obj : UU)
-    (mor : obj -> obj -> UU)
-    (imor : forall i j:obj, isaset (mor i j))
-    : precategory_ob_mor.
-  intros.
-  exact (precategory_ob_mor_pair obj (fun i j:obj => hSetpair (mor i j) (imor i j))).
-Defined.    
-
-Definition makePrecategory_data
-    (obj : UU)
-    (mor : obj -> obj -> UU)
-    (imor : forall i j, isaset (mor i j))
-    (identity : forall i, mor i i)
-    (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
-    : precategory_data.
-  intros.
-  exact (precategory_data_pair (makePrecategory_ob_mor obj mor imor) identity compose).
-Defined.    
-
-Definition makePrecategory 
-    (obj : UU)
-    (mor : obj -> obj -> UU)
-    (imor : forall i j, isaset (mor i j))
-    (identity : forall i, mor i i)
-    (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
-    (right : forall i j (f:mor i j), compose _ _ _ (identity i) f == f)
-    (left  : forall i j (f:mor i j), compose _ _ _ f (identity j) == f)
-    (associativity : forall a b c d (f:mor a b) (g:mor b c) (h:mor c d),
-        compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h)
-    : precategory.
-  intros.
-  apply (precategory_pair 
-           (precategory_data_pair
-              (precategory_ob_mor_pair 
-                 obj
-                 (fun i j:obj => hSetpair (mor i j) (imor i j)))
-              identity
-              compose)).
-    split. split. exact right. exact left. exact associativity.
-Defined.    
-
-(** *** opposite category of opposite category *)
-
-Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C == opp_precat_ob_mor (opp_precat_ob_mor C).
-Proof.
-  intro.
-  unfold opp_precat_ob_mor.
-  destruct C as [ob mor].  
-  reflexivity.
-Defined.
-
-Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
-  idpath _ == maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
-Proof. intros [ob mor]. reflexivity. Defined.
-
-Lemma opp_opp_precat_data (C : precategory_data) 
-   : C == opp_precat_data (opp_precat_data C).
-Proof.
-  intro.
-  destruct C as [[ob mor] [id co]].
-  reflexivity.
-Defined.
-
-Lemma opp_opp_precat (C : precategory) : C == C^op^op.
-Proof.
-  intros [data ispre]. apply (pair_path (opp_opp_precat_data data)).
-  apply isaprop_is_precategory. Defined.
+End Categories.
 
 Module Primitive.
   (** *** terminal objects *)
+  Unset Automatic Introduction.
+  Require Import
+          Ktheory.Utilities
+          RezkCompletion.precategories
+          RezkCompletion.auxiliary_lemmas_HoTT
+          Foundations.hlevel2.hSet.
+  Import Categories.Notation.
   Module TerminalObject.
     Definition isTerminalObject (C:precategory) (a:ob C) := 
       forall x:ob C, iscontr (a ← x).
@@ -171,7 +172,7 @@ Module Primitive.
     Lemma isaprop_TerminalObject (C:category) : isaprop (TerminalObject C).
     Proof. intros. apply invproofirrelevance. intros a b.
       apply (total2_paths 
-               (isotoid _ (theUnivalenceProperty C) 
+               (isotoid _ (Categories.theUnivalenceProperty C) 
                         (theTerminalObjectIsomorphy C _ _      
                            (theTerminalProperty a)
                            (theTerminalProperty b)))).
@@ -183,6 +184,7 @@ Module Primitive.
 
   (** *** initial objects *)
   Module InitialObject.
+    Import RezkCompletion.pathnotations.PathNotations Ktheory.Utilities.Notation.
     Definition isInitialObject (C:precategory) (a:ob C) :=
       forall x:ob C, iscontr (x ← a).
     Lemma theInitialObjectIsomorphy (C:precategory) (a b:ob C) :
@@ -219,7 +221,7 @@ Module Primitive.
            destruct m. set (H := h X). destruct H. reflexivity. Qed.
     Lemma isaprop_InitialObject' (C:category) : isaprop (InitialObject_total C).
     Proof. intros. apply invproofirrelevance. intros a b.
-      apply (total2_paths (isotoid _ (theUnivalenceProperty C) 
+      apply (total2_paths (isotoid _ (Categories.theUnivalenceProperty C) 
                             (theInitialObjectIsomorphy C _ _ (pr2 a) (pr2 b)))).
       apply isaprop_isInitialObject. Qed.
     Lemma isaprop_InitialObject (C:category) : isaprop (InitialObject C).
@@ -232,8 +234,12 @@ Module Primitive.
 End Primitive.
 
 Module ZeroObject.
-  Import Primitive.TerminalObject.
-  Import Primitive.InitialObject.
+  Unset Automatic Introduction.
+  Require Import RezkCompletion.precategories Foundations.hlevel2.hSet
+                 Ktheory.Utilities.
+  Import Utilities.Notation Categories.Notation
+         pathnotations.PathNotations
+         Primitive.TerminalObject Primitive.InitialObject.
   Definition ZeroObject (C:precategory) := total2 ( fun 
                z : ob C => dirprod (
                    isInitialObject C z) (
@@ -295,6 +301,12 @@ Module ZeroObject.
 End ZeroObject.
 
 Module StandardCategories.
+  Unset Automatic Introduction.
+  Require Import RezkCompletion.precategories
+                 Foundations.hlevel2.hSet.
+  Import RezkCompletion.pathnotations.PathNotations
+         Utilities.Notation
+         Categories.Notation.
   Definition compose' { C:precategory_data } { a b c:ob C }
     (g:b → c) (f:a → b) : a → c.
   Proof. intros. exact (compose f g). Defined.
@@ -329,7 +341,7 @@ Module StandardCategories.
        be useful, because in it, each arrow is a path, rather than an
        equivalence class of paths. *)
     intros obj iobj.
-    refine (makePrecategory obj _ iobj _ _ _ _ _).
+    refine (Categories.makePrecategory obj _ iobj _ _ _ _ _).
     { reflexivity. }
     { intros. exact (f @ g). }
     { reflexivity. }
@@ -346,7 +358,7 @@ Module StandardCategories.
   Proof. intros. apply is_category_groupoid. apply is_groupoid_path_pregroupoid.
   Qed.
   Definition path_groupoid (X:UU) : isofhlevel 3 X -> category.
-  Proof. intros ? iobj. apply (category_pair (path_pregroupoid X iobj)). 
+  Proof. intros ? iobj. apply (Categories.category_pair (path_pregroupoid X iobj)). 
     apply is_category_path_pregroupoid. Defined.
 
   (** *** the discrete category on n objects *)
@@ -366,14 +378,22 @@ End StandardCategories.
 
 Module Elements.
   (** *** the category of elements of a functor *)
+  Unset Automatic Introduction.
+  Require Import RezkCompletion.precategories
+          	 RezkCompletion.functors_transformations 
+                 Foundations.hlevel2.hSet 
+                 Ktheory.Utilities.
+  Import Utilities.Notation
+         Categories.Notation
+         pathnotations.PathNotations.
   Definition cat_data {C} (X:C==>SET) : precategory_data.
     intros C X.
-    set (obj := total2 (fun c : ob C => set_to_type ((Functor.obj X) c))).
-    apply (makePrecategory_data 
+    set (obj := total2 (fun c : ob C => set_to_type ((Categories.Functor.obj X) c))).
+    apply (Categories.makePrecategory_data 
              obj 
              (fun a b : obj => 
                 total2 (fun f : pr1 a → pr1 b => 
-                          (Functor.mor X) _ _ f (pr2 a) == (pr2 b)))).
+                          (Categories.Functor.mor X) _ _ f (pr2 a) == (pr2 b)))).
     - abstract (
           intros; apply (isofhleveltotal2 2);
           [ apply setproperty |
@@ -384,7 +404,7 @@ Module Elements.
     - intros ? ? ? f g.
       exact (pr1 g ∘ pr1 f,,
              (  (apevalat (pr2 i) ((functor_comp X) _ _ _ (pr1 f) (pr1 g)))
-              @ (ap ((Functor.mor X) _ _ (pr1 g)) (pr2 f) @ (pr2 g)))). Defined.
+              @ (ap ((Categories.Functor.mor X) _ _ (pr1 g)) (pr2 f) @ (pr2 g)))). Defined.
   Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr1 f.
   Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x → y) :
         get_mor f == get_mor g -> f == g.
@@ -409,12 +429,12 @@ Module Elements.
     intros. exact (f,,i). Defined.
   Module pr1.
     Definition fun_data {C} (X:C==>SET) : 
-        functor_data (Precategory.obmor (cat X)) (Precategory.obmor C).
+        functor_data (Categories.Precategory.obmor (cat X)) (Categories.Precategory.obmor C).
       intros. exists pr1. intros x x'. exact pr1. Defined.
     Definition func {C} (X:C==>SET) : cat X ==> C.
       intros. exists (fun_data _).
       split. { reflexivity. } { reflexivity. } Defined.
-    Lemma func_reflects_isos {C} (X:C==>SET) : reflects_isos (func X).
+    Lemma func_reflects_isos {C} (X:C==>SET) : Categories.reflects_isos (func X).
     Proof. intros ? ? [c x] [d y] [f i] [f' j].
       assert (i' : #X f' y == x).
       { intermediate (#X f' (#X f x)).
@@ -431,9 +451,16 @@ Module Elements.
 End Elements.
 
 Module Representation.
+  Unset Automatic Introduction.
+  Require Import
+          Foundations.hlevel2.hSet
+	  RezkCompletion.precategories
+	  RezkCompletion.functors_transformations. 
+  Import Utilities.Notation
+         Categories.Notation.
   Import Primitive.InitialObject.
   Definition Data {C} (X:C==>SET) := InitialObject (Elements.cat X).
-  Definition Property {C} (X:C==>SET) := squash (Data X).
+  Definition Property {C} (X:C==>SET) := Utilities.squash (Data X).
   Definition Pair {C} {X:C==>SET} (r:Data X) : ob (Elements.cat X)
     := theInitialObject _ r.
   Definition IsInitial {C} {X:C==>SET} (r:Data X) : 
@@ -453,14 +480,19 @@ Module Representation.
 End Representation.
 
 Module hSet.
+  Unset Automatic Introduction.
+  Require Import Foundations.hlevel2.hSet.
+  Import Ktheory.Utilities.Notation.
   Definition unit : hSet := tpair isaset unit isasetunit.
   Definition Product {I} (X:I -> hSet) : hSet.
-    intros. exists (sections (funcomp X set_to_type)).
+    intros. exists (Utilities.sections (funcomp X set_to_type)).
     apply (impred 2); intros i. apply (pr2 (X i)). Defined.    
 End hSet.
 
 Module FiniteSet.
-  Require Import Foundations.hlevel2.finitesets.
+  Unset Automatic Introduction.
+  Require Import Foundations.hlevel2.finitesets
+          Ktheory.Utilities.
   Definition Data := total2 isfinite.
   Definition ToType (X:Data) : Type := pr1 X.
   Module Import Coercions.
@@ -476,8 +508,16 @@ Module FiniteSet.
 End FiniteSet.
 
 Module TerminalObject.
+  Unset Automatic Introduction.
+  Require Import 
+          Foundations.hlevel2.hSet
+	  RezkCompletion.precategories
+  	  RezkCompletion.functors_transformations 
+          Ktheory.Utilities
+          .
+  Import Utilities.Notation Categories.Notation.
   Definition unitFunctor_data (C:precategory) 
-       : functor_data (Precategory.obmor C) (Precategory.obmor SET).
+       : functor_data (Categories.Precategory.obmor C) (Categories.Precategory.obmor SET).
     intros. refine (tpair _ _ _).
     intros. exact hSet.unit. intros. exact (idfun _). Defined.
   Definition unitFunctor C : C ==> SET.
@@ -497,6 +537,13 @@ Module TerminalObject.
 End TerminalObject.
 
 Module HomFamily.
+  Unset Automatic Introduction.
+  Require Import 
+  	  Foundations.hlevel2.hSet
+	  RezkCompletion.precategories
+	  RezkCompletion.functors_transformations
+          Ktheory.Utilities.
+  Import Utilities.Notation Categories.Notation.
   Definition set (C:precategory) {I} (c:I -> ob C) : ob C -> ob SET.
     intros ? ? ? x. exact (hSet.Product (fun i => Hom (c i) x)). Defined.
   Definition map (C:precategory) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :
@@ -504,7 +551,7 @@ Module HomFamily.
     intros ? ? ? ? ? ? g j; unfold funcomp.
     exact (f ∘ (g j)). Defined.
   Definition data (C:precategory) {I} (c:I -> ob C)
-       : functor_data (Precategory.obmor C) (Precategory.obmor SET).
+       : functor_data (Categories.Precategory.obmor C) (Categories.Precategory.obmor SET).
     intros.  exact (HomFamily.set C c,, HomFamily.map C c). Defined.
   Definition precat (C:precategory) {I} (c:I -> ob C) : C ==> SET.
     intros. exists (HomFamily.data C c). split.
@@ -515,6 +562,13 @@ Module HomFamily.
 End HomFamily.
 
 Module Product.
+  Unset Automatic Introduction.
+  Require Import 
+  	  Foundations.hlevel2.hSet
+	  RezkCompletion.precategories
+	  RezkCompletion.functors_transformations
+          Ktheory.Utilities.
+  Import Utilities.Notation Categories.Notation.
   Definition type (C:precategory) {I} (c:I -> ob C) :=
     Representation.Data (HomFamily.precat C^op c).
   Definition Object {C:precategory} {I} {c:I -> ob C} (r:type C c)
@@ -529,6 +583,13 @@ Module Product.
 End Product.
 
 Module Sum.                     (* coproducts *)
+  Unset Automatic Introduction.
+  Require Import 
+  	  Foundations.hlevel2.hSet
+	  RezkCompletion.precategories
+	  RezkCompletion.functors_transformations
+          Ktheory.Utilities.
+  Import Utilities.Notation Categories.Notation.
   Definition type (C:precategory) {I} (c:I -> ob C) :=
     Representation.Data (HomFamily.precat C c).
   Definition Object {C:precategory} {I} {c:I -> ob C} (r:type C c)
@@ -548,6 +609,13 @@ End Sum.
        them "raw" to distinguish them from matrices formed from direct
        sum decompositions. *)
 Module RawMatrix.
+  Unset Automatic Introduction.
+  Require Import 
+  	  Foundations.hlevel2.hSet
+	  RezkCompletion.precategories
+	  RezkCompletion.functors_transformations
+          Ktheory.Utilities.
+  Import RezkCompletion.pathnotations.PathNotations Utilities.Notation Categories.Notation.
   Import Sum.Coercions Product.Coercions.
   Definition to_row {C:precategory} {I} {b:I -> ob C} 
              (B:Sum.type C b) {d:ob C} :
@@ -602,7 +670,17 @@ Module DirectSum.
 
       Recall that X is a family of objects in a category, and the map from the 
       sum to the product is an isomorphism, then the sum is called a direct sum. *)
-  Import ZeroObject FiniteSet.Coercions Sum.Coercions Product.Coercions.
+  Unset Automatic Introduction.
+  Require Import 
+  	  Foundations.hlevel2.hSet
+	  RezkCompletion.precategories
+	  RezkCompletion.functors_transformations.
+  Import RezkCompletion.pathnotations.PathNotations 
+  	 Ktheory.Utilities.Notation
+	 Categories.Notation
+         ZeroObject 
+         FiniteSet.Coercions 
+         Sum.Coercions Product.Coercions.
   Definition identity_matrix {C:precategory} (h:hasZeroObject C)
              {I} (d:I -> ob C) (dec : isdeceq I) : forall i j, Hom (d j) (d i).
   Proof. intros. destruct (dec i j) as [ [] | _ ].
@@ -647,7 +725,15 @@ Module DirectSum.
 End DirectSum.
 
 Module Kernel.
-  Import ZeroObject.
+  Unset Automatic Introduction.
+  Require Import 
+  	  Foundations.hlevel2.hSet
+	  RezkCompletion.precategories
+	  RezkCompletion.functors_transformations. 
+  Import RezkCompletion.pathnotations.PathNotations 
+  	 Ktheory.Utilities.Notation
+	 Categories.Notation
+         ZeroObject.
   Definition zerocomp_type {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
     ob C -> Type.
   Proof. intros ? ? ? ? ? x.
@@ -672,7 +758,7 @@ Module Kernel.
   Proof. intros ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc. rewrite s.
          apply zeroMap_left_composition. Defined.
   Definition zerocomp_data {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
-    functor_data (Precategory.obmor C) (Precategory.obmor SET).
+    functor_data (Categories.Precategory.obmor C) (Categories.Precategory.obmor SET).
   Proof. intros. 
          exact (zerocomp_set z f,, zerocomp_map z f). Defined.
   Definition zerocomp {C} (z:hasZeroObject C) {c d:ob C} (f:c → d):C ==> SET.
@@ -689,7 +775,10 @@ Module Kernel.
 End Kernel.
 
 Module Magma.
-  Require Import Foundations.hlevel2.algebra1a.
+  Unset Automatic Introduction.
+  Require Import Foundations.hlevel2.algebra1a
+          Ktheory.Utilities.
+  Import RezkCompletion.pathnotations.PathNotations Ktheory.Utilities.Notation.
   Local Notation "x * y" := (op x y). 
   Local Notation "g ∘ f" := (binopfuncomp f g) (at level 50, only parsing).
   Local Notation Hom := binopfun.
@@ -719,55 +808,63 @@ Module Magma.
 End Magma.
 
 Module QuotientSet.
-    Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
-               (f:X->Y->Z) : Type
-      := dirprod (forall x x', RX x x' -> forall y, f x y == f x' y)
-                (forall y y', RY y y' -> forall x, f x y == f x y').
-    Definition iscomprelrelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y) (RZ:eqrel Z) 
-               (f:X->Y->Z) : Type
-      := dirprod (forall x x' y, RX x x' -> RZ (f x y) (f x' y))
-                (forall x y y', RY y y' -> RZ (f x y) (f x y')).
-    Lemma setquotuniv_equal { X : UU } ( R : hrel X ) ( Y : hSet ) 
-          ( f f' : X -> Y ) (p : f == f')
-          ( is : iscomprelfun R f ) ( is' : iscomprelfun R f' )
-    : setquotuniv R Y f is == setquotuniv R Y f' is'.
-    Proof. intros. destruct p. apply funextfunax; intro c.
-           assert(ip : isaprop (iscomprelfun R f)). { 
-             apply impred; intro x; apply impred; intro x'.
-             apply impred; intro p. apply setproperty. }
-           assert( q : is == is' ). { apply ip. }
-	   destruct q. reflexivity. Qed.
-    Definition setquotuniv2 {X Y} (RX:hrel X) (RY:hrel Y) 
-               {Z:hSet} (f:X->Y->Z) (is:iscomprelfun2 RX RY f) :
-      setquot RX -> setquot RY -> Z.
-    Proof. intros ? ? ? ? ? ? ? x''.
-           refine (setquotuniv RX (funset (setquot RY) Z) _ _ _).
-           { simpl. intro x. apply (setquotuniv RY Z (f x)).
-             intros y y' e. unfold iscomprelfun2 in is.
-             apply (pr2 is). assumption. }
-           { intros x x' e.
-             assert( p : f x == f x' ). 
-             { apply funextfunax; intro y. apply (pr1 is). assumption. }
-           apply setquotuniv_equal. assumption. } assumption. Defined.
-    Definition setquotfun2 {X Y Z} {RX:hrel X} {RY:hrel Y} {RZ:eqrel Z}
-               (f:X->Y->Z) (is:iscomprelrelfun2 RX RY RZ f) :
-      setquot RX -> setquot RY -> setquot RZ.
-    Proof. intros ? ? ? ? ? ? ? ?.
-           set (f' := fun x y => setquotpr RZ (f x y) : setquotinset RZ).
-           apply (setquotuniv2 RX RY f'). split.
-           { intros ? ? p ?. apply iscompsetquotpr. exact (pr1 is x x' y p). }
-           { intros ? ? p ?. apply iscompsetquotpr. exact (pr2 is x y y' p). }
-    Defined.
-    Lemma setquotfun2_equal {X Y Z} (RX:eqrel X) (RY:eqrel Y) (RZ:eqrel Z)
-               (f:X->Y->Z) (is:iscomprelrelfun2 RX RY RZ f)
-               (x:X) (y:Y) :
-      setquotfun2 f is (setquotpr RX x) (setquotpr RY y) ==
-      setquotpr RZ (f x y).
-    Proof. reflexivity. (* it computes! *) Defined.
+  Unset Automatic Introduction.
+  Require Import 
+  	  Foundations.hlevel2.hSet
+          Ktheory.Utilities.
+  Import RezkCompletion.pathnotations.PathNotations.
+  Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
+             (f:X->Y->Z) : Type
+    := dirprod (forall x x', RX x x' -> forall y, f x y == f x' y)
+              (forall y y', RY y y' -> forall x, f x y == f x y').
+  Definition iscomprelrelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y) (RZ:eqrel Z) 
+             (f:X->Y->Z) : Type
+    := dirprod (forall x x' y, RX x x' -> RZ (f x y) (f x' y))
+              (forall x y y', RY y y' -> RZ (f x y) (f x y')).
+  Lemma setquotuniv_equal { X : UU } ( R : hrel X ) ( Y : hSet ) 
+        ( f f' : X -> Y ) (p : f == f')
+        ( is : iscomprelfun R f ) ( is' : iscomprelfun R f' )
+  : setquotuniv R Y f is == setquotuniv R Y f' is'.
+  Proof. intros. destruct p. apply funextfunax; intro c.
+         assert(ip : isaprop (iscomprelfun R f)). { 
+           apply impred; intro x; apply impred; intro x'.
+           apply impred; intro p. apply setproperty. }
+         assert( q : is == is' ). { apply ip. }
+         destruct q. reflexivity. Qed.
+  Definition setquotuniv2 {X Y} (RX:hrel X) (RY:hrel Y) 
+             {Z:hSet} (f:X->Y->Z) (is:iscomprelfun2 RX RY f) :
+    setquot RX -> setquot RY -> Z.
+  Proof. intros ? ? ? ? ? ? ? x''.
+         refine (setquotuniv RX (funset (setquot RY) Z) _ _ _).
+         { simpl. intro x. apply (setquotuniv RY Z (f x)).
+           intros y y' e. unfold iscomprelfun2 in is.
+           apply (pr2 is). assumption. }
+         { intros x x' e.
+           assert( p : f x == f x' ). 
+           { apply funextfunax; intro y. apply (pr1 is). assumption. }
+         apply setquotuniv_equal. assumption. } assumption. Defined.
+  Definition setquotfun2 {X Y Z} {RX:hrel X} {RY:hrel Y} {RZ:eqrel Z}
+             (f:X->Y->Z) (is:iscomprelrelfun2 RX RY RZ f) :
+    setquot RX -> setquot RY -> setquot RZ.
+  Proof. intros ? ? ? ? ? ? ? ?.
+         set (f' := fun x y => setquotpr RZ (f x y) : setquotinset RZ).
+         apply (setquotuniv2 RX RY f'). split.
+         { intros ? ? p ?. apply iscompsetquotpr. exact (pr1 is x x' y p). }
+         { intros ? ? p ?. apply iscompsetquotpr. exact (pr2 is x y y' p). }
+  Defined.
+  Lemma setquotfun2_equal {X Y Z} (RX:eqrel X) (RY:eqrel Y) (RZ:eqrel Z)
+             (f:X->Y->Z) (is:iscomprelrelfun2 RX RY RZ f)
+             (x:X) (y:Y) :
+    setquotfun2 f is (setquotpr RX x) (setquotpr RY y) ==
+    setquotpr RZ (f x y).
+  Proof. reflexivity. (* it computes! *) Defined.
 End QuotientSet.
 
 Module Monoid.
-  Require Import Foundations.hlevel2.algebra1b.
+  Unset Automatic Introduction.
+  Require Import Foundations.hlevel2.algebra1b
+          Ktheory.Utilities.
+  Import RezkCompletion.pathnotations.PathNotations Ktheory.Utilities.Notation. 
   Local Notation Hom := monoidfun (only parsing).
   Local Notation "x * y" := ( op x y ). 
   Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
@@ -810,6 +907,7 @@ Module Monoid.
     (** ** premonoids over X
            A pre-monoid over X modulo an adequate relation over R will be a
            monoid M equipped with a map X -> M that respects the relations R. *)
+    Require Import RezkCompletion.auxiliary_lemmas_HoTT.
     Record MarkedPremonoid X := 
       make_preMonoid {
           elem :> Type;
@@ -1084,14 +1182,16 @@ Module Monoid.
 End Monoid.
 
 Module AbelianMonoid.
-  Require Import Foundations.hlevel2.algebra1b.
+  Unset Automatic Introduction.
+  Require Import Foundations.hlevel2.algebra1b
+                 Foundations.hlevel2.finitesets
+                 Ktheory.Utilities.
+  Import RezkCompletion.pathnotations.PathNotations Utilities.Notation.
   Local Notation "x * y" := ( op x y ). 
-  Require Import Foundations.hlevel2.finitesets.
   Definition incl n : stn n -> stn (S n).
     intros n [i l]. exists i.
     apply (natlthlehtrans i n (S n)). { assumption. } { exact (natlehnsn n). }
   Defined.
-  Require Import Foundations.hlevel2.finitesets.
   Definition finiteOperation0 (X:abmonoid) n (x:stn n->X) : X.
   Proof. (* return (...((x0*x1)*x2)*...)  *)
     intros. induction n as [|n x'].
@@ -1138,7 +1238,9 @@ Module AbelianMonoid.
 End AbelianMonoid.
 
 Module Group.
+  Unset Automatic Introduction.
   Require Import Foundations.hlevel2.algebra1b.
+  Import RezkCompletion.pathnotations.PathNotations.
   Local Notation Hom := monoidfun.
   Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
   Definition zero : gr.
@@ -1165,7 +1267,13 @@ End Group.
 
 (** * abelian groups *)
 Module AbelianGroup.
-  Require Import Foundations.hlevel2.algebra1b.
+  Unset Automatic Introduction.
+  Require Import Foundations.hlevel2.algebra1b
+                 Foundations.hlevel2.hz
+                 RezkCompletion.auxiliary_lemmas_HoTT
+                 Ktheory.Utilities.
+  Import RezkCompletion.pathnotations.PathNotations
+         Ktheory.Utilities.Notation. 
   Local Notation Hom := monoidfun.
   Local Notation "0" := (unel _).
   Local Notation "x + y" := ( op x y ). 
@@ -1174,7 +1282,6 @@ Module AbelianGroup.
   Definition zero : abgr.
     exists Group.zero. split. exact (pr2 Group.zero). intros x y. reflexivity.
   Defined.
-  Require Import Foundations.hlevel2.hz.
   Definition Z : abgr := hzaddabgr.
   Definition unitproperty {G H:abgr} (p:Hom G H) : p (unel G) == unel H
     := pr2 (pr2 p).
@@ -1591,8 +1698,9 @@ Module AbelianGroup.
     intros. exact (Product.make (fun _:I => Z)). Defined.
   (** ** the category of abelian groups *)
   Module Category.
-    Require Import Foundations.hlevel2.algebra1a Foundations.hlevel2.algebra1b.
-    Local Notation Hom := Precategory.mor.
+    Import Categories.Notation.
+    Require Import Foundations.hlevel2.algebra1b
+                   RezkCompletion.precategories.
     Definition Ob := abgr.
     Identity Coercion Ob_to_abgr : Ob >-> abgr.
     Definition Mor : Ob -> Ob -> hSet.
