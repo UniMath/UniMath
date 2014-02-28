@@ -152,7 +152,7 @@ Definition pathsdirprod { X Y : UU } { x1 x2 : X } { y1 y2 : Y } ( ex : paths x1
 Proof . intros . destruct ex . destruct ey . apply idpath . Defined . 
 
 
-(** *** The function [ maponpaths ] between paths types defined by a function between abmbient paths and its behavior relative to [ pathscomp0 ] and [ pathsinv0 ] *)
+(** *** The function [ maponpaths ] between paths types defined by a function between abmbient types and its behavior relative to [ pathscomp0 ] and [ pathsinv0 ] *)
 
 Definition maponpaths { T1 T2 : UU } ( f : T1 -> T2 ) { t1 t2 : T1 } ( e: paths t1 t2 ) : paths ( f t1 ) ( f t2 ) .
 Proof. intros .  destruct e . apply idpath. Defined. 
