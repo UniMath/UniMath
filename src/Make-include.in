@@ -7,7 +7,27 @@
 # before giving it to etags, and the order of files recorded by it matters for
 # tags-search.
 
-Categories.v
+AbelianGroup.v
+Group.v
+AbelianMonoid.v
+Monoid.v
+QuotientSet.v
+Magma.v
+Kernel.v
+DirectSum.v
+RawMatrix.v
+Sum.v
+Product.v
+HomFamily.v
+TerminalObject.v
+FiniteSet.v
+Sets.v
+Representation.v
+Elements.v
+StandardCategories.v
+ZeroObject.v
+Primitive.v
+Precategories.v
 Utilities.v
 
 # Local Variables:
