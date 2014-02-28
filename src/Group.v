@@ -363,4 +363,8 @@ Module Product.
              : forall i, Proj X i ∘ Fun X T g == g i.
     intros. apply Monoid.funEquality. reflexivity. Qed.
 End Product.
-
+Module Free.
+  Import Presentation.
+  Definition make (X:Type) : gr := @universalMarkedGroup X empty fromempty.
+End Free.
+Definition ZZ := Free.make unit.

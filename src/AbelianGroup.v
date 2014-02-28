@@ -371,6 +371,11 @@ Module Presentation.
          @ MarkedAbelianGroupMap_compat2 f g w @ !(ap g (universalMarkedAbelianGroup2 R w))).
   Defined.
 End Presentation.
+Module Free.
+  Import Presentation.
+  Definition make (X:Type) : abgr := @universalMarkedAbelianGroup X empty fromempty.
+End Free.
+Definition ZZ := Free.make unit.
 Module Product.
   Definition make {I} (G:I->abgr) : abgr.
     intros. exists (pr1 (Group.Product.make G)).
