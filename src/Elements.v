@@ -30,21 +30,22 @@ Proof. intros ? ? ? ? [f i] [g j] p. simpl in p. destruct p.
        assert (k : i==j). { apply equality_proof_irrelevance. }
        destruct k. reflexivity. Qed.
 Lemma isPrecategory {C} (X:C==>SET) : is_precategory (cat_data X).
-Proof. intros. split. split.
-       - intros. apply mor_equality. apply id_left.
-       - intros. apply mor_equality. apply id_right.
-       - intros. apply mor_equality. apply assoc. Qed.
+Proof. intros. split. 
+       { split. 
+         { intros. apply mor_equality. apply id_left. }
+         { intros. apply mor_equality. apply id_right. } }
+       { intros. apply mor_equality. apply assoc. } Qed.
 Definition cat {C} (X:C==>SET) : precategory.
   intros. exact (cat_data X ,, isPrecategory X). Defined.
 Definition get_ob {C} {X:C==>SET} (x:ob (cat X)) := pr1 x.
 Definition get_el {C} {X:C==>SET} (x:ob (cat X)) := pr2 x.
-Definition make_ob {C} (X:C==>SET) 
-           (c:ob C) (x:set_to_type (X c)) : ob (cat X).
-  intros. exact (c,,x). Defined.
+Definition make_ob {C} (X:C==>SET) (c:ob C) (x:set_to_type (X c)) : ob (cat X)
+  := (c,,x).
 Definition make_mor {C} (X:C==>SET) (r s : ob (cat X)) 
            (f : Hom (pr1 r) (pr1 s))
-           (i : #X f (pr2 r) == pr2 s) : Hom r s.
-  intros. exact (f,,i). Defined.
+           (i : #X f (pr2 r) == pr2 s) : Hom r s
+  := (f,,i).
+
 Module pr1.
   Definition fun_data {C} (X:C==>SET) : 
       functor_data (Precategories.Precategory.obmor (cat X)) (Precategories.Precategory.obmor C).
