@@ -9,24 +9,20 @@ Import Utilities.Notation
        Precategories.Notation
        pathnotations.PathNotations.
 Definition cat_data {C} (X:C==>SET) : precategory_data.
-  intros C X.
-  set (obj := total2 (fun c : ob C => set_to_type ((Precategories.Functor.obj X) c))).
-  apply (Precategories.makePrecategory_data 
-           obj 
-           (fun a b : obj => 
-              total2 (fun f : pr1 a → pr1 b => 
-                        (Precategories.Functor.mor X) _ _ f (pr2 a) == (pr2 b)))).
-  - abstract (
+  intros. refine (Precategories.makePrecategory_data _ _ _ _ _).
+  { exact (total2 (fun c : ob C => set_to_type (X c))). }
+  { exact (fun a b => total2 (fun f : pr1 a → pr1 b => #X f (pr2 a) == (pr2 b))). }
+  { abstract (
         intros; apply (isofhleveltotal2 2);
         [ apply setproperty |
           intros f;  apply (isofhlevelsnprop 1); apply setproperty])
-    using cat_data_isaset.
-  - intro a. 
-    exact (identity (pr1 a),, (apevalat (pr2 a) ((functor_id X) (pr1 a)))).
-  - intros ? ? ? f g.
+    using cat_data_isaset. }
+  { intro a. 
+    exact (identity (pr1 a),, (apevalat (pr2 a) ((functor_id X) (pr1 a)))). }
+  { intros ? ? ? f g.
     exact (pr1 g ∘ pr1 f,,
            (  (apevalat (pr2 i) ((functor_comp X) _ _ _ (pr1 f) (pr1 g)))
-            @ (ap ((Precategories.Functor.mor X) _ _ (pr1 g)) (pr2 f) @ (pr2 g)))). Defined.
+            @ (ap (#X (pr1 g)) (pr2 f) @ (pr2 g)))). } Defined.
 Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr1 f.
 Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x → y) :
       get_mor f == get_mor g -> f == g.
