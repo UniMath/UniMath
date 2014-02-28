@@ -95,21 +95,14 @@ Definition makePrecategory
            (precategory_data_pair
               (precategory_ob_mor_pair 
                  obj
-                 (fun i j:obj => hSetpair (mor i j) (imor i j)))
-              identity
-              compose)).
-    split. split. exact right. exact left. exact associativity.
-Defined.    
+                 (fun i j => hSetpair (mor i j) (imor i j)))
+              identity compose)
+           ((right,,left),,associativity)). Defined.    
 
 (** *** opposite category of opposite category *)
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C == opp_precat_ob_mor (opp_precat_ob_mor C).
-Proof.
-  intro.
-  unfold opp_precat_ob_mor.
-  destruct C as [ob mor].  
-  reflexivity.
-Defined.
+Proof. intros [ob mor]. reflexivity. Defined.
 
 Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
   idpath _ == maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
@@ -117,13 +110,8 @@ Proof. intros [ob mor]. reflexivity. Defined.
 
 Lemma opp_opp_precat_data (C : precategory_data) 
    : C == opp_precat_data (opp_precat_data C).
-Proof.
-  intro.
-  destruct C as [[ob mor] [id co]].
-  reflexivity.
-Defined.
+Proof. intros [[ob mor] [id co]]. reflexivity. Defined.
 
 Lemma opp_opp_precat (C : precategory) : C == C^op^op.
-Proof.
-  intros [data ispre]. apply (pair_path (opp_opp_precat_data data)).
-  apply isaprop_is_precategory. Defined.
+Proof. intros [data ispre]. apply (pair_path (opp_opp_precat_data data)).
+       apply isaprop_is_precategory. Defined.
