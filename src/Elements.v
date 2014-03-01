@@ -39,6 +39,7 @@ Definition cat {C} (X:C==>SET) : precategory.
   intros. exact (cat_data X ,, isPrecategory X). Defined.
 Definition get_ob {C} {X:C==>SET} (x:ob (cat X)) := pr1 x.
 Definition get_el {C} {X:C==>SET} (x:ob (cat X)) := pr2 x.
+Definition get_eqn {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr2 f.
 Definition make_ob {C} (X:C==>SET) (c:ob C) (x:set_to_type (X c)) : ob (cat X)
   := (c,,x).
 Definition make_mor {C} (X:C==>SET) (r s : ob (cat X)) 
@@ -48,18 +49,25 @@ Definition make_mor {C} (X:C==>SET) (r s : ob (cat X))
 
 (** *** functoriality of the construction of the category of elements *)
 
-Definition cat_on_nat_trans {C} (X Y:C==>SET) (p:nat_trans X Y) :
+Definition cat_on_nat_trans_data {C} {X Y:C==>SET} (p:nat_trans X Y) :
+  functor_data (cat X) (cat Y).
+Proof. intros. 
+  exists (fun a => pr1 a,, p (pr1 a) (pr2 a)).
+  exact (fun b c f => pr1 f,,
+          ! (apevalat (pr2 b) (pr2 p (pr1 b) (pr1 c) (pr1 f)))
+          @ ap ((pr1 p) (pr1 c)) (pr2 f)). Defined.
+
+Lemma cat_on_nat_trans_is_nat_trans {C} {X Y:C==>SET} (p:nat_trans X Y) :
+  is_functor (cat_on_nat_trans_data p).
+Proof. intros. split.
+  { intros. apply mor_equality. reflexivity. }
+  { intros. apply mor_equality. reflexivity. } Qed.
+
+Definition cat_on_nat_trans {C} {X Y:C==>SET} (p:nat_trans X Y) :
   cat X ==> cat Y.
-Proof. intros. refine (_,,_).
-       { refine (_,,_).
-         { intros a. exact (pr1 a,, p (pr1 a) (pr2 a)). }
-         { intros b c f. 
-           exact (pr1 f,,
-                      ! (apevalat (pr2 b) (pr2 p (pr1 b) (pr1 c) (pr1 f)))
-                      @ ap ((pr1 p) (pr1 c)) (pr2 f)). } }
-       { refine (_,,_).
-         { intros. apply mor_equality. reflexivity. }
-         { intros. apply mor_equality. reflexivity. } } Defined.
+Proof. 
+  intros. 
+  exact (cat_on_nat_trans_data p,, cat_on_nat_trans_is_nat_trans p). Defined.
 
 (** *** properties of projection to the original category *)
 
