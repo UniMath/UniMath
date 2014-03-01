@@ -7,17 +7,8 @@ Require Import Foundations.hlevel2.algebra1b
                Ktheory.Utilities.
 Import RezkCompletion.pathnotations.PathNotations Utilities.Notation.
 Require Ktheory.QuotientSet Ktheory.Monoid.
-Local Notation "x + y" := ( op x y ). 
-Definition mult {X:abmonoid} (n:nat) (x:X) : X.
-  intros. induction n. exact (unel _). exact (x + IHn). Defined.
-Local Notation "n * x" := ( mult n x ). 
-Lemma mult_one (n:nat) : n * (1 : nataddabmonoid) == n.
-Proof. intro. induction n. { reflexivity. } { exact (ap S IHn). } Qed.
+Open Scope addmonoid_scope.
 Local Notation Hom := monoidfun.
-Lemma mult_fun {X Y:abmonoid} (f:Hom X Y) (n:nat) (x:X) : f(n*x) == n*f x.
-Proof. intros. induction n. { exact (Monoid.unitproperty f). }
-       { refine (Monoid.multproperty f x (n*x) @ _).
-         { simpl. simpl in IHn. destruct IHn. reflexivity. } } Qed.
 Definition incl n : stn n -> stn (S n).
   intros n [i l]. exists i.
   apply (natlthlehtrans i n (S n)). { assumption. } { exact (natlehnsn n). }
@@ -367,6 +358,23 @@ Definition NN := Free.make unit.
 
 Module NN_agreement.
   Import Presentation.
+  Definition mult {X:abmonoid} (n:nat) (x:X) : X.
+    intros. induction n. exact (unel _). exact (x + IHn). Defined.
+  Local Notation "n * x" := ( mult n x ). 
+  Lemma mult_one (n:nat) : n * (1 : nataddabmonoid) == n.
+  Proof. intro. induction n. { reflexivity. } { exact (ap S IHn). } Qed.
+  Lemma mult_fun {X Y:abmonoid} (f:Hom X Y) (n:nat) (x:X) : f(n*x) == n*f x.
+  Proof. intros. induction n. { exact (Monoid.unitproperty f). }
+         { refine (Monoid.multproperty f x (n*x) @ _).
+           { simpl. simpl in IHn. destruct IHn. reflexivity. } } Qed.
+  Lemma uniq_fun {X:abmonoid} (f g:Hom nataddabmonoid X) :
+    f 1 == g 1 -> homot f g.
+  Proof. intros ? ? ? e n.
+         induction n.
+         { exact (Monoid.unitproperty f @ !Monoid.unitproperty g). }
+         { exact (Monoid.multproperty f 1 n 
+                @ aptwice (fun x y => x+y) e IHn 
+                @ !Monoid.multproperty g 1 n). } Qed.
   Definition weq_NN_nataddabmonoid : weq NN nataddabmonoid.
   Proof.
     set (X := unit).
@@ -384,7 +392,13 @@ Module NN_agreement.
         intermediate (m*(1:nataddabmonoid)).
         { reflexivity. }
         { apply mult_one. } } }
-    intros [w w'].
-    admit.
+    intros [w w']; simpl in w'.
+    assert (k : w == m*one).
+    { apply (squash_to_prop (lift R w)).
+      { apply setproperty. }
+      { intros [v v'].
+        admit. } }
+    apply (pair_path k).
+    apply setproperty.
   Defined.
 End NN_agreement.
