@@ -46,6 +46,23 @@ Definition make_mor {C} (X:C==>SET) (r s : ob (cat X))
            (i : #X f (pr2 r) == pr2 s) : Hom r s
   := (f,,i).
 
+(** *** functoriality of the construction of the category of elements *)
+
+Definition cat_on_nat_trans {C} (X Y:C==>SET) (p:nat_trans X Y) :
+  cat X ==> cat Y.
+Proof. intros. refine (_,,_).
+       { refine (_,,_).
+         { intros a. exact (pr1 a,, p (pr1 a) (pr2 a)). }
+         { intros b c f. 
+           exact (pr1 f,,
+                      ! (apevalat (pr2 b) (pr2 p (pr1 b) (pr1 c) (pr1 f)))
+                      @ ap ((pr1 p) (pr1 c)) (pr2 f)). } }
+       { refine (_,,_).
+         { intros. apply mor_equality. reflexivity. }
+         { intros. apply mor_equality. reflexivity. } } Defined.
+
+(** *** properties of projection to the original category *)
+
 Module pr1.
   Definition fun_data {C} (X:C==>SET) : 
       functor_data (Precategories.Precategory.obmor (cat X)) (Precategories.Precategory.obmor C).
