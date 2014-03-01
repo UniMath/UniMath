@@ -8,7 +8,16 @@ Require Import Foundations.hlevel2.algebra1b
 Import RezkCompletion.pathnotations.PathNotations Utilities.Notation.
 Require Ktheory.QuotientSet Ktheory.Monoid.
 Local Notation "x + y" := ( op x y ). 
+Definition mult {X:abmonoid} (n:nat) (x:X) : X.
+  intros. induction n. exact (unel _). exact (x + IHn). Defined.
+Local Notation "n * x" := ( mult n x ). 
+Lemma mult_one (n:nat) : n * (1 : nataddabmonoid) == n.
+Proof. intro. induction n. { reflexivity. } { exact (ap S IHn). } Qed.
 Local Notation Hom := monoidfun.
+Lemma mult_fun {X Y:abmonoid} (f:Hom X Y) (n:nat) (x:X) : f(n*x) == n*f x.
+Proof. intros. induction n. { exact (Monoid.unitproperty f). }
+       { refine (Monoid.multproperty f x (n*x) @ _).
+         { simpl. simpl in IHn. destruct IHn. reflexivity. } } Qed.
 Definition incl n : stn n -> stn (S n).
   intros n [i l]. exists i.
   apply (natlthlehtrans i n (S n)). { assumption. } { exact (natlehnsn n). }
@@ -355,3 +364,27 @@ Module Free.
   Definition make (X:Type) : abmonoid := @universalMarkedAbelianMonoid X empty fromempty.
 End Free.
 Definition NN := Free.make unit.
+
+Module NN_agreement.
+  Import Presentation.
+  Definition weq_NN_nataddabmonoid : weq NN nataddabmonoid.
+  Proof.
+    set (X := unit).
+    set (I := empty).
+    set (R := fromempty : I->reln X).
+    set (one := setquotpr (smallestAdequateRelation R) (word_gen tt) : NN).
+    set (markednat := 
+           make_MarkedAbelianMonoid R nataddabmonoid (fun _ => 1) fromemptysec).
+    exists (map_base (the (iscontrMarkedAbelianMonoidMap markednat))).
+    intros m.
+    refine (_,,_).
+    { refine (_,,_).
+      { exact (m * one). }
+      { refine (mult_fun (universality2 markednat) m one @ _).
+        intermediate (m*(1:nataddabmonoid)).
+        { reflexivity. }
+        { apply mult_one. } } }
+    intros [w w'].
+    admit.
+  Defined.
+End NN_agreement.

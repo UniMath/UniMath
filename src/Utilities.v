@@ -50,6 +50,9 @@ Definition apfun {X Y} {f f':X->Y} (p:f==f') {x x'} (q:x==x') : f x == f' x'.
   intros. destruct q. exact (apevalat x p). Defined.
 Definition aptwice {X Y Z} (f:X->Y->Z) {a a' b b'} (p:a==a') (q:b==b') : f a b == f a' b'.
   intros. exact (apfun (ap f p) q). Defined.
+Definition fromemptysec { X : empty -> UU } (nothing:empty) : X nothing.
+(* compare with [fromempty] in u00 *)
+Proof. intros X H.  destruct H. Defined. 
 
 (** * decidability *)
 
