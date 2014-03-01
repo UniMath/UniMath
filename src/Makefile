@@ -6,7 +6,7 @@ OTHERFLAGS += -no-native-compiler
 OTHERFLAGS += -indices-matter
 # OTHERFLAGS += -init-file coqrc
 
-TIME=gnu
+TIME=
 ifeq ($(TIME),gnu)
 TIMECMD = \time -f "%U sec, %M bytes: $*"
 else
