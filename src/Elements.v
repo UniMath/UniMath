@@ -1,26 +1,23 @@
 (** *** the category of elements of a functor *)
 Unset Automatic Introduction.
-Require Import RezkCompletion.precategories
+Require Export RezkCompletion.precategories
                RezkCompletion.functors_transformations 
                Foundations.hlevel2.hSet 
                Ktheory.Utilities.
-Require Ktheory.Precategories.
-Import Utilities.Notation
+Require Export Ktheory.Precategories.
+Export Utilities.Notation
        Precategories.Notation
        pathnotations.PathNotations.
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
-  intros.
-  exists (total2 (fun c : ob C => set_to_type (X c))).
-  refine (fun a b => total2 (fun f : pr1 a → pr1 b => #X f (pr2 a) == (pr2 b)),,_).
-  { abstract (
+  intros. exists (total2 (fun c : ob C => set_to_type (X c))).
+  intros a b. exists (total2 (fun f : pr1 a → pr1 b => #X f (pr2 a) == (pr2 b))).
+  abstract (
         intros; apply (isofhleveltotal2 2);
         [ apply setproperty |
           intros f;  apply (isofhlevelsnprop 1); apply setproperty])
-    using cat_data_isaset. } Defined.
+    using cat_data_isaset. Defined.
 Definition cat_data {C} (X:C==>SET) : precategory_data.
-  intros. 
-  exists (cat_ob_mor X).
-  split.
+  intros. exists (cat_ob_mor X). split.
   { intro a. 
     exact (identity (pr1 a),, (apevalat (pr2 a) ((functor_id X) (pr1 a)))). }
   { intros a b c f g.
@@ -34,7 +31,7 @@ Proof. intros ? ? ? ? [f i] [g j] p. simpl in p. destruct p.
        assert (k : i==j). { apply equality_proof_irrelevance. }
        destruct k. reflexivity. Qed.
 Lemma isPrecategory {C} (X:C==>SET) : is_precategory (cat_data X).
-Proof. intros. split. 
+Proof. intros. split.
        { split. 
          { intros. apply mor_equality. apply id_left. }
          { intros. apply mor_equality. apply id_right. } }

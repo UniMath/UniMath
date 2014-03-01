@@ -1,11 +1,5 @@
 Unset Automatic Introduction.
-Require Import
-        Foundations.hlevel2.hSet
-        RezkCompletion.precategories
-        RezkCompletion.functors_transformations. 
-Require Ktheory.Utilities Ktheory.Precategories 
-        Ktheory.Primitive Ktheory.Elements.
-Import Utilities.Notation Precategories.Notation.
+Require Export Ktheory.Primitive Ktheory.Elements.
 Import Primitive.InitialObject.
 Definition Data {C} (X:C==>SET) := InitialObject (Elements.cat X).
 Definition Property {C} (X:C==>SET) := Utilities.squash (Data X).
