@@ -192,7 +192,7 @@ Proof.
       rewrite <- assoc.
       change (iso_inv_from_iso GHk ;; GHk) with (inv_from_iso GHk ;; GHk).
       rewrite iso_after_iso_inv, id_right.
-      simp_rew (nat_trans_ax _ _ gamma).
+      simp_rew (nat_trans_ax gamma).
       apply idpath.
     unfold GHk.
     rewrite <- functor_on_iso_inv.
@@ -279,7 +279,7 @@ Proof.
   rewrite functor_comp.
   set (k := Hff^-1
              (h ;; (f ;; (iso_inv_from_iso h')))).
-  assert (P := nat_trans_ax _ _ gamma _ _ k). simpl in *.
+  assert (P := nat_trans_ax gamma _ _ k). simpl in *.
       unfold k in P. simpl in P.
   set (H3 := homotweqinvweq (weq_from_fully_faithful Hff a a')).
   simpl in H3. 

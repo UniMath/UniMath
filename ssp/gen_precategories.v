@@ -515,7 +515,7 @@ Definition nat_trans_ax {C C' : precategory_data}
     #F f ;; a x' == a x ;; #F' f := pr2 a.
 
 
-
+(*
 Lemma nat_trans_eq {C D: precategory} {F G : functor C D}
    (a b : nat_trans F G) : 
   (forall x, a x == b x) -> a == b.
