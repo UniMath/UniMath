@@ -18,10 +18,9 @@ Definition interval_map Y (f : bool -> Y) (e:f true == f false) :
 Proof. 
   intros ? ? ? h.
   set (q := fun y => y == f false).
-  exact (@pr1 _ q
-            (h (hProppair (coconustot Y (f false))
+  exact (pr1 (h (hProppair (coconustot Y (f false))
                           (isapropifcontr (iscontrcoconustot _ _)))
-               (fun v => 
+                (fun v => 
                   tpair _ (f v)
                         (bool_rect (funcomp f q) e (idpath _) v)))).
 Defined.
