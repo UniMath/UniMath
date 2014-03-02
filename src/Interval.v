@@ -21,19 +21,17 @@ Proof. intros ? ? ? h.
        intro v. apply (tpair _ (f v)). 
        { destruct v. { reflexivity. } { exact (!e). } } Defined.
 
-(* verify some computations are definitional *)
+(* verify a computation is definitional *)
 Goal forall Y (f : bool -> Y) (e:f true == f false) (v:bool), 
        interval_map Y f e (hinhpr _ v) == f v.
-  reflexivity. Qed.
-Goal forall Y (y y':Y) (v:bool), bool_map y y' true == y.
-  reflexivity. Qed.
-Goal forall Y (y y':Y) (v:bool), bool_map y y' false == y'.
   reflexivity. Qed.
 
 (** ** use the interval to prove functional extensionality for sections
 
-       Notice that [interval_path] above depends on [funextfunax],
-       so we don't get something for nothing. *)
+       Notice that [ishinh] depends on [funextfunax],
+       so we don't get something for nothing, but this is
+       a quick way of deducing [funextsec] from [funextfunax]. *)
+
 Definition funextsec2 X (Y:X->Type) (f g:forall x,Y x) :
            (forall x, f x==g x) -> f == g.
 Proof. intros ? ? ? ? e.
