@@ -7,6 +7,7 @@ Require Import Foundations.hlevel2.algebra1b
                Ktheory.Utilities.
 Import RezkCompletion.pathnotations.PathNotations Utilities.Notation.
 Require Ktheory.QuotientSet Ktheory.Monoid.
+Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.
 Local Notation Hom := monoidfun.
 Definition incl n : stn n -> stn (S n).
@@ -393,12 +394,16 @@ Module NN_agreement.
         { reflexivity. }
         { apply mult_one. } } }
     intros [w w']; simpl in w'.
-    assert (k : w == m*one).
+    refine (pair_path _ _).
     { apply (squash_to_prop (lift R w)).
       { apply setproperty. }
       { intros [v v'].
-        admit. } }
-    apply (pair_path k).
+        rewrite <- v'; rewrite <- v' in w'.
+        clear v' w.
+        induction v.
+        { admit. }
+        { admit. }
+        { admit. } } }
     apply setproperty.
   Defined.
 End NN_agreement.

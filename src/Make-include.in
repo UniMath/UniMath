@@ -29,6 +29,7 @@ ZeroObject.v
 Primitive.v
 Precategories.v
 Utilities.v
+Interval.v
 
 # Local Variables:
 # compile-command: "coq_makefile -f Make-include.in"

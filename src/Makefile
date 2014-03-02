@@ -1,6 +1,6 @@
 # -*- makefile-gmake -*-
 include Make-include.mk
-OTHERFLAGS += -no-native-compiler
+# OTHERFLAGS += -no-native-compiler
 # OTHERFLAGS += -no-sharing
 # OTHERFLAGS += -verbose
 OTHERFLAGS += -indices-matter

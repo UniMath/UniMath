@@ -247,41 +247,6 @@ Goal forall (X Y:UU) (f : X -> Y) (is : isaset Y) (eq: forall x x', f x == f x')
        forall x, f x == squash_to_set (squash_element x) is f eq.
 Proof. reflexivity. (* verify computation is definitional *) Defined.
 
-Definition interval_ind Y (f : bool -> Y) (e:f true == f false) :
-  squash bool -> Y.
-Proof. intros ? ? ? h. set (P := total2 (fun y => y == f true)). 
-       { apply (@pr1 _ (fun y => y == f true)).
-         generalize h; clear h. apply factor_through_squash.
-         { apply isapropifcontr. 
-           { unfold iscontr. refine (tpair _ (tpair _ (f true) (idpath _)) _).
-             { intros p. induction p as [y r]. destruct r. reflexivity. } } }
-         intro v. apply (tpair _ (f v)). 
-         { destruct v. { reflexivity. } { exact (!e). } } } Defined.
-
-Definition interval_path : squash_element true == squash_element false.
-(* depends on [funextfunax] *)
-Proof. apply isaprop_squash. Defined.
-
-Goal forall Y (f : bool -> Y) (e:f true == f false) (v:bool), 
-       interval_ind Y f e (squash_element v) == f v.
-Proof. reflexivity. (* verify computation is definitional *) Qed.
-
-Definition bool_map {Y} (y y':Y) : bool -> Y.
-Proof. intros ? ? ? v. destruct v. { exact y. } { exact y'. } Defined.
-
-Goal forall Y (y y':Y) (v:bool), bool_map y y' true == y.
-  reflexivity. Qed.
-
-Goal forall Y (y y':Y) (v:bool), bool_map y y' false == y'.
-  reflexivity. Qed.
-
-Definition funext X Y (f g:X->Y) (e:forall x, f x==g x) : f == g.
-(* same as [funextfunax]; the proof is circular, but the interesting bit is
-   that one can regard it as following from [interval_path] *)
-Proof. intros.
-       set (q := fun (h:squash bool) (x:X) => interval_ind Y (bool_map (f x) (g x)) (e x) h).
-       exact (ap q interval_path). Defined.
-
 Lemma squash_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
   g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
 Proof.
