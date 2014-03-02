@@ -5,7 +5,7 @@ Require Import Foundations.hlevel1.hProp.
 Notation "a == b" := (paths a b) (at level 70, no associativity).
 Notation "! p " := (pathsinv0 p) (at level 50).
 
-Definition bool_map {Y} := bool_rect (fun _ => Y).
+Definition bool_map {Y} := bool_rect (fun _ => Y) : Y -> Y -> bool -> Y.
 
 Definition interval := ishinh bool.
 Definition left := hinhpr _ true.
@@ -13,13 +13,12 @@ Definition right := hinhpr _ false.
 Definition interval_path : left == right.
 Proof. apply (pr2 (ishinh _)). Defined.
 
-Definition interval_map Y (f : bool -> Y) (e:f true == f false) :
-  interval -> Y.
+Definition interval_map Y (f : bool -> Y) : f true == f false -> interval -> Y.
 Proof. 
-  intros ? ? ? h.
+  intros ? ? e h.
   set (q := fun y => y == f false).
   exact (pr1 (h (hProppair (coconustot Y (f false))
-                          (isapropifcontr (iscontrcoconustot _ _)))
+                           (isapropifcontr (iscontrcoconustot _ _)))
                 (fun v => 
                   tpair _ (f v)
                         (bool_rect (funcomp f q) e (idpath _) v)))).
