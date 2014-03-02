@@ -15,11 +15,16 @@ Proof. apply (pr2 (ishinh _)). Defined.
 
 Definition interval_map Y (f : bool -> Y) (e:f true == f false) :
   interval -> Y.
-Proof. intros ? ? ? h.
-       apply (@pr1 _ (fun y => y == f true)).
-       apply (h (hProppair _ (isapropifcontr (iscontrcoconustot _ _)))).
-       intro v. apply (tpair _ (f v)). 
-       { destruct v. { reflexivity. } { exact (!e). } } Defined.
+Proof. 
+  intros ? ? ? h.
+  set (q := fun y => y == f false).
+  exact (@pr1 _ q
+            (h (hProppair (coconustot Y (f false))
+                          (isapropifcontr (iscontrcoconustot _ _)))
+               (fun v => 
+                  tpair _ (f v)
+                        (bool_rect (funcomp f q) e (idpath _) v)))).
+Defined.
 
 (* verify a computation is definitional *)
 Goal forall Y (f : bool -> Y) (e:f true == f false) (v:bool), 
