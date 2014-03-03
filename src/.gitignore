@@ -2,3 +2,5 @@ Make-include.mk
 Make-include.mk.bak
 html
 TAGS
+Ktheory-doc.*
+html-all

@@ -1,4 +1,5 @@
 # -*- makefile-gmake -*-
+everything: TAGS all topten doc
 include Make-include.mk
 # OTHERFLAGS += -no-native-compiler
 # OTHERFLAGS += -no-sharing
@@ -30,7 +31,6 @@ COQC = : compiling $*.v ; $(TIMECMD) $(COQBIN)coqc
 endif
 
 .PHONY: topten all everything install lc wc clean clean2 distclean
-all:topten
 topten: $(VOFILES)
 	@find . -name \*.timing | while read x ;							\
 	 do if [ -f "$$x" ] ;										\
@@ -43,7 +43,6 @@ COQDOC := $(COQDOC) -utf8
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\2/'
 TAGS : $(VFILES); etags $(COQDEFS) $^
 install:all
-everything: all TAGS html install
 lc:; wc -l $(VFILES)
 wc:; wc -w $(VFILES)
 clean:clean2
@@ -56,14 +55,27 @@ FOUNDATIONS_DIR := ../../Foundations2
 REZK_COMPLETION_DIR := ../../RezkCompletion
 FOUNDATIONS_FILES = $(shell cd $(FOUNDATIONS_DIR) && make show-vfiles)
 REZK_COMPLETION_FILES = $(shell cd $(REZK_COMPLETION_DIR) && make show-vfiles)
-HTML_DIR = html
-html-all:
+ALL_FILES = $(VFILES) $(REZK_COMPLETION_FILES) $(FOUNDATIONS_FILES)
+HTML_DIR = html-all
+BASE = Ktheory-doc
+doc: all $(HTML_DIR) $(BASE).pdf
+$(HTML_DIR): $(ALL_FILES)
 	rm -rf $(HTML_DIR)
 	mkdir $(HTML_DIR)
-	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d $(HTML_DIR)	\
+	$(COQDOC) -toc $(COQDOCFLAGS) --html $(COQDOCLIBS) -d $(HTML_DIR)	\
 		-R $(FOUNDATIONS_DIR) Foundations				\
 		-R $(REZK_COMPLETION_DIR) RezkCompletion			\
-		$(VFILES) $(FOUNDATIONS_FILES) $(REZK_COMPLETION_FILES) 
+		$(ALL_FILES) 
+$(BASE).tex: $(ALL_FILES)
+	rm -f $(BASE).*
+	$(COQDOC) -toc $(COQDOCFLAGS) --latex $(COQDOCLIBS) -d $(HTML_DIR)	\
+		-o $(BASE).tex							\
+		-R $(FOUNDATIONS_DIR) Foundations				\
+		-R $(REZK_COMPLETION_DIR) RezkCompletion			\
+		$(ALL_FILES)
+$(BASE).pdf : $(BASE).tex
+	pdflatex $^
+	pdflatex $^
 describe:
 	@ for i in $(COQ_DIR) $(FOUNDATIONS_DIR) $(REZK_COMPLETION_DIR) ; do \
 	    ( cd $$i && echo ======= $$i ; set -x ; \
