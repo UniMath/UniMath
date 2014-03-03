@@ -11,6 +11,7 @@ Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.
 Local Notation Hom := monoidfun.
 Definition incl n : stn n -> stn (S n).
+  (* use dni instead *)
   intros n [i l]. exists i.
   apply (natlthlehtrans i n (S n)). { assumption. } { exact (natlehnsn n). }
 Defined.
@@ -42,8 +43,8 @@ Proof. intros ? ?. induction n as [|n IH].
              assert (g' := nelstructoncompl (pr1 g (lastelement n)) g).
              destruct e.
              Check IH _ f' g' (pr1compl _ _ _).
-
-                                       admit. }
+             (* try using weqcutonweq, dni, dnitocompl, weqdnicompl, weqdnicoprod, ... *)
+             admit. }
            { exact (ap x e). } }
          { admit. } } Qed.
 Definition finiteOperation1 (X:abmonoid) I : finstruct I -> (I->X) -> X.

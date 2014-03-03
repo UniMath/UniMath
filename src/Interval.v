@@ -34,12 +34,10 @@ Defined.
 
 (** We verify some computations. *)
 
-Goal forall Y (y y':Y) (e:y == y') (v:bool), 
-       interval_map e left == y.
+Goal forall Y (y y':Y) (e:y == y'), interval_map e left == y.
   reflexivity. Qed.
 
-Goal forall Y (y y':Y) (e:y == y') (v:bool), 
-       interval_map e right == y'.
+Goal forall Y (y y':Y) (e:y == y'), interval_map e right == y'.
   reflexivity. Qed.
 
 Goal forall Y (y y':Y) (e:y == y'), 

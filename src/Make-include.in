@@ -7,6 +7,7 @@
 # before giving it to etags, and the order of files recorded by it matters for
 # tags-search.
 
+Interval.v
 AbelianGroup.v
 Group.v
 AbelianMonoid.v
@@ -29,7 +30,6 @@ ZeroObject.v
 Primitive.v
 Precategories.v
 Utilities.v
-Interval.v
 
 # Local Variables:
 # compile-command: "coq_makefile -f Make-include.in"
