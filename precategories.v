@@ -124,6 +124,11 @@ Definition precategory_data_from_precategory (C : precategory) :
        precategory_data := pr1 C.
 Coercion precategory_data_from_precategory : precategory >-> precategory_data.
 
+Lemma eq_precategory : forall C D : precategory, 
+    precategory_data_from_precategory C == precategory_data_from_precategory D -> C == D.
+Proof.
+  
+
 Definition id_left (C : precategory) : 
    forall (a b : C) (f : a --> b),
            identity a ;; f == f := pr1 (pr1 (pr2 C)).
