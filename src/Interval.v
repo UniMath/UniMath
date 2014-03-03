@@ -32,12 +32,16 @@ Proof.
                         (bool_rect (funcomp f q) e (idpath _) v)))).
 Defined.
 
-(** We verify some computations. *)
+(** We verify some computations are judgmental. *)
 
 Goal forall Y (y y':Y) (e:y == y'), interval_map e left == y.
 Proof. reflexivity. Qed.
 
 Goal forall Y (y y':Y) (e:y == y'), interval_map e right == y'.
+Proof. reflexivity. Qed.
+
+Goal forall Y (y y':Y) (e:y == y'), 
+       funcomp (hinhpr _) (interval_map e) == bool_map y y'.
 Proof. reflexivity. Qed.
 
 (* next task, for completeness:
