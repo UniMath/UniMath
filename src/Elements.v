@@ -1,4 +1,5 @@
 (** *** the category of elements of a functor *)
+
 Unset Automatic Introduction.
 Require Export RezkCompletion.precategories
                RezkCompletion.functors_transformations 

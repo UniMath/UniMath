@@ -1,5 +1,7 @@
 (* -*- coding: utf-8 -*- *)
+
 (** *** terminal objects *)
+
 Unset Automatic Introduction.
 Require Import
         Ktheory.Utilities
@@ -43,6 +45,7 @@ Module TerminalObject.
 End TerminalObject.
 
 (** *** initial objects *)
+
 Module InitialObject.
   Import RezkCompletion.pathnotations.PathNotations Ktheory.Utilities.Notation.
   Definition isInitialObject (C:precategory) (a:ob C) :=

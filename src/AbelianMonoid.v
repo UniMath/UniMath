@@ -58,8 +58,8 @@ Definition finiteOperation {I} (is:isfinite I) (X:abmonoid) (x:I->X) : X.
   { intros [m f] [n g]. assert (e := same_n f g). destruct e. apply uniqueness0. }
 Defined.
 
+(** * abelian monoids by generators and relations *)
 Module Presentation.
-  (** * abelian monoids by generators and relations *)
   Inductive word X : Type :=
     | word_unit : word X
     | word_gen : X -> word X 
@@ -89,11 +89,15 @@ Module Presentation.
              (M:MarkedPreAbelianMonoid X) (is:isaset (elem M)) : 
       hrel (word X) :=
     fun v w => (evalword M v == evalword M w) ,, is _ _.
+
   (** eta expansion principle for words *)
+
   Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v == v.
   Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
          { exact (aptwice word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
+
   (** ** adequate relations over R *)
+
   Record AdequateRelation {X I} (R:I->reln X) (r : hrel (word X)) := 
     make_AdequateRelation {
         base: forall i, r (lhs (R i)) (rhs (R i));
@@ -114,10 +118,12 @@ Module Presentation.
   Proof. intros ? ? ? ? ra. exists r.
          abstract ( split; [ split; [ exact (trans R r ra) | exact (reflex R r ra) ] |
                              exact (symm R r ra)]). Defined.
+
   (** ** the smallest adequate relation over R 
          It is defined as the intersection of all the adequate relations.
          Later we'll have to deal with the "resizing" to resolve issues
          withe universes. *)
+
   Definition smallestAdequateRelation0 {X I} (R:I->reln X) : hrel (word X).
     intros ? ? ? v w.
     exists (forall r: hrel (word X), AdequateRelation R r -> r v w).
@@ -139,7 +145,9 @@ Module Presentation.
   Qed.
   Definition smallestAdequateRelation {X I} (R:I->reln X) : eqrel (word X).
     intros. exact (adequacy_to_eqrel R _ (adequacy R)). Defined.
+
   (** *** the underlying set of the abelian group with generators X and relations R *)
+
   Definition universalMarkedPreAbelianMonoid0 {X I} (R:I->reln X) : hSet := 
     setquotinset (smallestAdequateRelation R).
   Lemma op2_compatibility {X I} (R:I->reln X) : 
@@ -149,18 +157,24 @@ Module Presentation.
   Proof. intros. split.
     { intros x x' y p r ra. exact (right_compat R r ra x x' y (p r ra)). }
     { intros x y y' p r ra. exact ( left_compat R r ra x y y' (p r ra)). } Qed.
+
   (** *** the multiplication on on it *)
+
   Definition univ_binop {X I} (R:I->reln X) : binop (universalMarkedPreAbelianMonoid0 R).
     intros. refine (QuotientSet.setquotfun2 word_op _). apply op2_compatibility. Defined.
   Definition univ_setwithbinop {X I} (R:I->reln X) : setwithbinop
              := setwithbinoppair (universalMarkedPreAbelianMonoid0 R) (univ_binop R).
+
   (** *** the universal pre-Abelian group *)
+
   Definition universalMarkedPreAbelianMonoid {X I} (R:I->reln X) : MarkedPreAbelianMonoid X.
     intros. refine (make_preAbelianMonoid X (universalMarkedPreAbelianMonoid0 R) _ _ _).
     { exact (setquotpr _ word_unit). }
     { exact (fun x => setquotpr _ (word_gen x)). }
     { exact (univ_binop _). } Defined.
+
   (** *** identities for the universal preabelian group *)
+
   Lemma lift {X I} (R:I->reln X) : issurjective (setquotpr (smallestAdequateRelation R)).
   Proof. intros. exact (issurjsetquotpr (smallestAdequateRelation R)). Qed.
   Lemma is_left_unit_univ_binop {X I} (R:I->reln X) (w:universalMarkedPreAbelianMonoid0 R) :
@@ -200,7 +214,9 @@ Module Presentation.
   Proof. intros. destruct w as [|x|v w]. { reflexivity. } { reflexivity. } 
     { assert (p := !reassemble R (word_op v w)). destruct p. 
       exact (!reassemble_pr R (word_op v w)). } Qed.
+
   (** *** abelian groups over X modulo R *)
+
   Definition toMarkedPreAbelianMonoid {X I} (R:I->reln X) (M:abmonoid) (el:X->M) : 
       MarkedPreAbelianMonoid X.
     intros. exact {| elem := M; op0 := unel _; op1 := el; op2 := op |}.
@@ -259,7 +275,9 @@ Module Presentation.
     map_base f (evalwordMM M w) == map_base g (evalwordMM M w).
   Proof. intros. 
          exact (MarkedAbelianMonoidMap_compat f w @ !MarkedAbelianMonoidMap_compat g w). Qed.
+
   (** *** the universal marked abelian group over X modulo R *)
+
   Definition universalMarkedAbelianMonoid0 {X I} (R:I->reln X) : abmonoid.
     intros. 
     { exists (univ_setwithbinop R). split.
@@ -335,7 +353,9 @@ Module Presentation.
     monoidfun (universalMarkedAbelianMonoid R) M.
   Proof. intros. exists (universality0 M).
       split. { intros v w. apply universality1. } { reflexivity. } Defined.
+
   (** * universality of the universal marked abelian group *)
+
   Local Arguments pr1monoidfun {X Y} f x.
   Theorem iscontrMarkedAbelianMonoidMap {X I} {R:I->reln X} (M:MarkedAbelianMonoid R) :
         iscontr (MarkedAbelianMonoidMap (universalMarkedAbelianMonoid R) M).

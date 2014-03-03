@@ -32,6 +32,7 @@ Proof.
 Defined.
 
 (** We verify that a computation is definitional. *)
+
 Goal forall Y (f : bool -> Y) (e:f true == f false) (v:bool), 
        interval_map Y f e (hinhpr _ v) == f v.
   reflexivity. Qed.

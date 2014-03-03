@@ -4,6 +4,7 @@
        the target or from a sum decomposition of the source.  We call
        them "raw" to distinguish them from matrices formed from direct
        sum decompositions. *)
+
 Unset Automatic Introduction.
 Require Import 
         Foundations.hlevel2.hSet

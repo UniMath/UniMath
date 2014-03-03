@@ -10,7 +10,9 @@ Import RezkCompletion.pathnotations.PathNotations
 Definition compose' { C:precategory_data } { a b c:ob C }
   (g:b → c) (f:a → b) : a → c.
 Proof. intros. exact (compose f g). Defined.
+
 (** *** the path groupoid *)
+
 Lemma path_assoc (X:UU) (a b c d:X) 
         (f : a == b) (g : b == c) (h : c == d)
       : f @ (g @ h) == (f @ g) @ h.
@@ -62,6 +64,7 @@ Proof. intros ? iobj. apply (Precategories.category_pair (path_pregroupoid X iob
   apply is_category_path_pregroupoid. Defined.
 
 (** *** the discrete category on n objects *)
+
 Require Import Foundations.hlevel2.stnfsets.
 Definition cat_n (n:nat):category.
   intro. apply (path_groupoid (stn n)). apply hlevelntosn.
