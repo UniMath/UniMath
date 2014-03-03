@@ -44,8 +44,7 @@ Goal forall Y (y y':Y) (e:y == y'),
        maponpaths (interval_map e) interval_path == e.
   intros.
   destruct e.
-  admit.
-Defined.
+Abort.
 
 (** ** Functional extensionality for sections using the interval *)
 
