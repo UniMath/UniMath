@@ -542,13 +542,13 @@ Proof.
   apply isaprop_is_nat_trans.
 Qed.
 
-Definition nat_trans_data (C C' : precategory_data)
- (F F' : functor_data C C')(a : nat_trans F F') :
+Definition nat_trans_data {C C' : precategory_data}
+ {F F' : functor_data C C'}(a : nat_trans F F') :
    forall x : ob C, F x --> F' x := pr1 a.
 Coercion nat_trans_data : nat_trans >-> Funclass.
 
 Definition nat_trans_ax {C C' : precategory_data}
-  (F F' : functor_data C C') (a : nat_trans F F') :
+  {F F' : functor_data C C'} (a : nat_trans F F') :
   forall (x x' : ob C)(f : x --> x'),
     #F f ;; a x' == a x ;; #F' f := pr2 a.
 
@@ -843,7 +843,7 @@ Proof.
        (A a ;; #G f)).
   rewrite <- assoc.
   apply maponpaths.
-  apply (nat_trans_ax _ _ A).
+  apply (nat_trans_ax A).
   rewrite assoc.
 
   unfold functor_iso_pointwise_if_iso.

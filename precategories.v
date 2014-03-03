@@ -459,11 +459,9 @@ Lemma iso_set_isweq {X Y:hSet} (f:X->Y) (g:Y->X) :
   isweq f.
 Proof.
   intros p q y.
-  refine (tpair _ (tpair _ (g y) _) _).
-  - exact (q y).
-  - intros [x e]. induction e.
-    apply (total2_paths2 (! p x)).
-    apply setproperty.
+  apply (tpair _ (tpair _ (g y) (q y))).
+  intros [x e]. induction e.
+  exact (total2_paths2 (! p x) (pr1 (setproperty _ _ _ _ _))).
 Defined.
 
 Lemma iso_comp_right_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
@@ -472,7 +470,8 @@ Proof. intros. apply (iso_set_isweq (fun f => h ;; f) (fun g => inv_from_iso h ;
        { intros f. refine (_ @ maponpaths (fun m => m ;; f) (pr2 (pr2 (pr2 h))) @ _).
          { apply assoc. } { apply id_left. } }
        { intros g. refine (_ @ maponpaths (fun m => m ;; g) (pr1 (pr2 (pr2 h))) @ _).
-         { apply assoc. } { apply id_left. } } Qed.
+         { apply assoc. } { apply id_left. } } 
+Qed.
 
 
 

@@ -516,25 +516,6 @@ Definition nat_trans_ax {C C' : gprecategory_data}
 
 
 
-Lemma nat_trans_eq {C D: gprecategory} {F G : functor C D}
-   (a b : nat_trans F G) : 
-  (forall x, a x == b x) -> a == b.
-Proof.
-  intro H.
-  apply (total2_paths (funextsec _ _ _ H)).
-  destruct a as [a aax];
-  destruct b as [b bax]; simpl in *.
-  unfold is_nat_trans in *; simpl in *.
-  generalize (funextsec (fun x : C => F x --> G x) a b H).
-  intro p.
-  destruct p. clear H. simpl.
-  rewrite transportf_idpath.
-  simpl.
-  Check (funextsec (fun x : C => F x --> G x) a b H).
-  Search (transportf _ == _ ).
-*)
-  
-
 
 (** ** opposite category *)
 
