@@ -35,26 +35,24 @@ Defined.
 (** We verify some computations. *)
 
 Goal forall Y (y y':Y) (e:y == y'), interval_map e left == y.
-  reflexivity. Qed.
+Proof. reflexivity. Qed.
 
 Goal forall Y (y y':Y) (e:y == y'), interval_map e right == y'.
-  reflexivity. Qed.
+Proof. reflexivity. Qed.
+
+(* next task, for completeness:
 
 Goal forall Y (y y':Y) (e:y == y'), 
        maponpaths (interval_map e) interval_path == e.
-  intros.
-  destruct e.
-Abort.
+
+*)
 
 (** ** Functional extensionality for sections using the interval *)
 
 Definition funextsec2 X (Y:X->Type) (f g:forall x,Y x) :
            (forall x, f x==g x) -> f == g.
-Proof. 
-  intros ? ? ? ? e.
-  exact (maponpaths
-           (fun h x => interval_map (e x) h)
-           interval_path). Defined.
+Proof. intros ? ? ? ? e.
+  exact (maponpaths (fun h x => interval_map (e x) h) interval_path). Defined.
 
 (**    Notice that [ishinh] depends on [funextfunax],
        so we don't get something for nothing, but this is
