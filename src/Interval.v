@@ -16,8 +16,8 @@ Definition bool_map {Y} := bool_rect (fun _ => Y) : Y -> Y -> bool -> Y.
 We define the interval as the propositional truncation of [bool]. *)
 
 Definition interval := ishinh bool.
-Definition left := hinhpr _ true.
-Definition right := hinhpr _ false.
+Definition left := hinhpr _ true : interval.
+Definition right := hinhpr _ false : interval.
 Definition interval_path : left == right.
 Proof. apply (pr2 (ishinh _)). Defined.
 Definition interval_map {Y} {y y':Y} : y == y' -> interval -> Y.
