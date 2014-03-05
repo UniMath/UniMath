@@ -9,7 +9,7 @@ Require Import Ktheory.Utilities.
 Require RezkCompletion.precategories.
 Import Utilities.Notation.
 
-Goal forall X Y (f:weq X Y), eqweqmap (funextfun.weqtopaths f) == f.
+Goal forall X Y (f:weq X Y), eqweqmap (weqtopaths f) == f.
 Proof. intros.
        (* an example that shows how computation can get stuck on an axiom: *)
        compute. 
@@ -98,12 +98,15 @@ Proof. intros ? ? ? ? i.
          apply funextsec; intro x. apply iX. }
        destruct p. reflexivity. Defined.
 
+Definition cast {T U:Type} (p:T==U) (t:T) : U.
+Proof. intros. destruct p. exact t. Defined.
+
 Definition B {G:gr} {X Y:action G} (f:weq X Y) (ie:is_equivariant (pr1 f)) : 
   X == Y.
-Proof. intros. set (e := weqtopaths f).
-
-admit.
-Defined.
+Proof. intros. set (p := weqtopaths f).
+       assert (ip := cast (!ap is_equivariant (ap pr1 (weqpathsweq f))) ie
+                  : is_equivariant (eqweqmap p)).
+       exact (action_eq p ip). Defined.
 
 Lemma is_connected_classifying_space (G:gr) : isconnected(Torsor G).
 Proof.                          (* this uses univalence *)
