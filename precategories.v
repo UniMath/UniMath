@@ -127,8 +127,12 @@ Coercion precategory_data_from_precategory : precategory >-> precategory_data.
 Lemma eq_precategory : forall C D : precategory, 
     precategory_data_from_precategory C == precategory_data_from_precategory D -> C == D.
 Proof.
+  intros C D H.
+  apply total2_paths_hProp.
+  - apply isaprop_is_precategory.
+  - apply H.
+Defined.
   
-
 Definition id_left (C : precategory) : 
    forall (a b : C) (f : a --> b),
            identity a ;; f == f := pr1 (pr1 (pr2 C)).
@@ -453,20 +457,11 @@ Proof.
 Qed.
 
 (** ***  *)
-Lemma iso_set_isweq {X Y:hSet} (f:X->Y) (g:Y->X) :
-  (forall x, g(f x) == x) ->
-  (forall y, f(g y) == y) ->
-  isweq f.
-Proof.
-  intros p q y.
-  apply (tpair _ (tpair _ (g y) (q y))).
-  intros [x e]. induction e.
-  exact (total2_paths2 (! p x) (pr1 (setproperty _ _ _ _ _))).
-Defined.
 
 Lemma iso_comp_right_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
   isweq (fun f : b --> c => h ;; f).
-Proof. intros. apply (iso_set_isweq (fun f => h ;; f) (fun g => inv_from_iso h ;; g)).
+Proof. 
+  intros. apply (gradth _ (fun g => inv_from_iso h ;; g)).
        { intros f. refine (_ @ maponpaths (fun m => m ;; f) (pr2 (pr2 (pr2 h))) @ _).
          { apply assoc. } { apply id_left. } }
        { intros g. refine (_ @ maponpaths (fun m => m ;; g) (pr1 (pr2 (pr2 h))) @ _).
