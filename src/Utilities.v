@@ -10,6 +10,9 @@ Require Import Foundations.hlevel2.hSet.
 
 Set Default Timeout 50.
 
+Definition cast {T U:Type} (p:T==U) (t:T) : U.
+Proof. intros. destruct p. exact t. Defined.
+
 Definition two_cases {X Y T} : coprod X Y -> (X->T) -> (Y->T) -> T.
   exact (fun X Y T xy f g => sum_rect (fun _ => T) f g xy). Defined.
 
