@@ -4,6 +4,7 @@ Unset Automatic Introduction.
 
 Require RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.pathnotations.
+Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import Foundations.hlevel2.hSet.
         Import RezkCompletion.pathnotations.PathNotations.
 
@@ -18,13 +19,13 @@ Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification th
   exact ((@id G : T -> G) x).
 
 Module Import Notation.
-  Notation set_to_type := Foundations.hlevel2.hSet.pr1hSet.
-  Notation pair_path := RezkCompletion.auxiliary_lemmas_HoTT.total2_paths2.
+  Notation set_to_type := hSet.pr1hSet.
+  Notation pair_path := auxiliary_lemmas_HoTT.total2_paths2.
   Notation ap := maponpaths.
   (* see table 3.1 in the coq manual for parsing levels *)
-  Notation "f ~ g" := (Foundations.Generalities.uu0.homot f g) (at level 70).
-  Notation "g ∘ f" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
-  Notation "f ;; g" := (Foundations.Generalities.uu0.funcomp f g) (at level 50).
+  Notation "f ~ g" := (uu0.homot f g) (at level 70).
+  Notation "g ∘ f" := (uu0.funcomp f g) (at level 50).
+  Notation "f ;; g" := (uu0.funcomp f g) (at level 50).
   Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
   (* funcomp' is like funcomp, but with the arguments in the other order *)
   Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
@@ -201,7 +202,17 @@ Ltac isaset_goal x :=
 Definition squash_to_prop {X Y:UU} : squash X -> isaprop Y -> (X -> Y) -> Y.
   intros ? ? h is f. exact (h (Y,,is) f). Defined.
 
-(** ** show that squashing is a set-quotient *)
+(** ** Connected types *)
+
+Definition isconnected X := forall (x y:X), ishinh (x==y).
+
+Lemma base_connected X (t:X) : (forall y:X, ishinh (t==y)) -> isconnected X.
+Proof. intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
+       apply (squash_to_prop a). apply propproperty. clear a. intros a.
+       apply (squash_to_prop b). apply propproperty. clear b. intros b.
+       apply hinhpr. exact (!a@b). Defined.
+
+(** ** Show that squashing is a set-quotient *)
 
 Definition squash_to_set {X Y:UU} (h:squash X) (is:isaset Y)
   (f:X->Y) (e:forall x x', f x == f x') : Y.

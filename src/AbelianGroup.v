@@ -396,7 +396,7 @@ Module Presentation.
 End Presentation.
 Module Free.
   Import Presentation.
-  Definition make (X:Type) : abgr := @universalMarkedAbelianGroup X empty fromempty.
+  Definition make (X:Type) := @universalMarkedAbelianGroup X empty fromempty.
 End Free.
 Definition ZZ := Free.make unit.
 Module Product.

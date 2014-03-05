@@ -356,7 +356,7 @@ Defined.
 End Presentation.
 Module Free.
   Import Presentation.
-  Definition make (X:Type) : monoid := @universalMarkedMonoid X empty fromempty.
+  Definition make (X:Type) := @universalMarkedMonoid X empty fromempty.
 End Free.
 Definition NN := Free.make unit.
 Module Product.

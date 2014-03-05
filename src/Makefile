@@ -1,5 +1,5 @@
 # -*- makefile-gmake -*-
-everything: TAGS all topten doc
+everything: TAGS all topten html-all
 include Make-include.mk
 # OTHERFLAGS += -no-native-compiler
 # OTHERFLAGS += -no-sharing
@@ -46,7 +46,7 @@ install:all
 lc:; wc -l $(VFILES)
 wc:; wc -w $(VFILES)
 clean:clean2
-clean2:; rm -f TAGS *.d *.glob N*.cmi N*.cmx N*.cmxs N*.native N*.o
+clean2::; rm -f TAGS *.d *.glob N*.cmi N*.cmx N*.cmxs N*.native N*.o 
 distclean: clean; rm -f Make-include.mk Make-include.mk.bak
 
 # override this on your system with the correct settings on the command line:
@@ -56,19 +56,19 @@ REZK_COMPLETION_DIR := ../../RezkCompletion
 FOUNDATIONS_FILES = $(shell cd $(FOUNDATIONS_DIR) && make show-vfiles)
 REZK_COMPLETION_FILES = $(shell cd $(REZK_COMPLETION_DIR) && make show-vfiles)
 ALL_FILES = $(VFILES) $(REZK_COMPLETION_FILES) $(FOUNDATIONS_FILES)
-HTML_DIR = html-all
 BASE = Ktheory-doc
-doc: all $(HTML_DIR) $(BASE).pdf
-$(HTML_DIR): $(ALL_FILES)
-	rm -rf $(HTML_DIR)
-	mkdir $(HTML_DIR)
-	$(COQDOC) -toc $(COQDOCFLAGS) --html $(COQDOCLIBS) -d $(HTML_DIR)	\
+doc: all html-all $(BASE).pdf
+html-all: $(ALL_FILES)
+	rm -rf html-all
+	mkdir html-all
+	$(COQDOC) -toc $(COQDOCFLAGS) --html $(COQDOCLIBS) -d html-all	\
 		-R $(FOUNDATIONS_DIR) Foundations				\
 		-R $(REZK_COMPLETION_DIR) RezkCompletion			\
 		$(ALL_FILES) 
+clean2::; rm -rf html-all
 $(BASE).tex: $(ALL_FILES)
 	rm -f $(BASE).*
-	$(COQDOC) -toc $(COQDOCFLAGS) --latex $(COQDOCLIBS) -d $(HTML_DIR)	\
+	$(COQDOC) -toc $(COQDOCFLAGS) --latex $(COQDOCLIBS) -d html-all	\
 		-o $(BASE).tex							\
 		-R $(FOUNDATIONS_DIR) Foundations				\
 		-R $(REZK_COMPLETION_DIR) RezkCompletion			\
@@ -76,6 +76,7 @@ $(BASE).tex: $(ALL_FILES)
 $(BASE).pdf : $(BASE).tex
 	pdflatex $^
 	pdflatex $^
+clean2::; rm -rf $(BASE).*
 describe:
 	@ for i in $(COQ_DIR) $(FOUNDATIONS_DIR) $(REZK_COMPLETION_DIR) ; do \
 	    ( cd $$i && echo ======= $$i ; set -x ; \

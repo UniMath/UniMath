@@ -387,6 +387,8 @@ Module Product.
 End Product.
 Module Free.
   Import Presentation.
-  Definition make (X:Type) : gr := @universalMarkedGroup X empty fromempty.
+  Definition make (X:Type) := @universalMarkedGroup X empty fromempty.
 End Free.
 Definition ZZ := Free.make unit.
+Require Foundations.hlevel2.hz.
+Definition hZZ := hz.hzaddabgr:gr. (* isomorphic to ZZ *)

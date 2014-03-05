@@ -231,6 +231,8 @@ Module Presentation.
   Arguments make_MarkedAbelianMonoid {X I} R _ _ _.
   Arguments m_base {X I R} _.
   Arguments m_mark {X I R} _ x.
+  Arguments m_reln {X I R} _ i.
+  Definition relations {X I} {R:I->reln X} (M:MarkedAbelianMonoid R) := R.
   Definition toMarkedPreAbelianMonoid' {X I} {R:I->reln X} (M:MarkedAbelianMonoid R) : MarkedPreAbelianMonoid X :=
     toMarkedPreAbelianMonoid R (m_base M) (m_mark M).
   Definition evalwordMM {X I} {R:I->reln X} (M:MarkedAbelianMonoid R) : word X -> M :=
@@ -240,7 +242,7 @@ Module Presentation.
   Lemma abelian_group_adequacy {X I} (R:I->reln X) (M:MarkedAbelianMonoid R) :
     AdequateRelation R (MarkedAbelianMonoid_to_hrel M).
   Proof. intros. refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _ _).
-         { exact (fun i => m_reln R M i). } { reflexivity. }
+         { exact (fun i => m_reln M i). } { reflexivity. }
          { intros ? ?. exact pathsinv0. } { intros ? ? ?. exact pathscomp0. }
          { intros ? ? ? p. simpl in p; simpl. 
            unfold evalwordMM,evalword in *. destruct p. reflexivity. }
@@ -374,7 +376,7 @@ Module Presentation.
 End Presentation.
 Module Free.
   Import Presentation.
-  Definition make (X:Type) : abmonoid := @universalMarkedAbelianMonoid X empty fromempty.
+  Definition make (X:Type) := @universalMarkedAbelianMonoid X empty fromempty.
 End Free.
 Definition NN := Free.make unit.
 
@@ -399,32 +401,29 @@ Module NN_agreement.
                 @ !Monoid.multproperty g 1 n). } Qed.
   Definition weq_NN_nataddabmonoid : weq NN nataddabmonoid.
   Proof.
-    set (X := unit).
-    set (I := empty).
-    set (R := fromempty : I->reln X).
-    set (one := setquotpr (smallestAdequateRelation R) (word_gen tt) : NN).
+    set (R := Presentation.relations NN).
+    set (one := Presentation.m_mark NN tt).
     set (markednat := 
            make_MarkedAbelianMonoid R nataddabmonoid (fun _ => 1) fromemptysec).
     exists (map_base (the (iscontrMarkedAbelianMonoidMap markednat))).
-    intros m.
-    refine (_,,_).
-    { refine (_,,_).
-      { exact (m * one). }
-      { refine (mult_fun (universality2 markednat) m one @ _).
-        intermediate (m*(1:nataddabmonoid)).
-        { reflexivity. }
-        { apply mult_one. } } }
-    intros [w w']; simpl in w'.
-    refine (pair_path _ _).
-    { apply (squash_to_prop (lift R w)).
+    refine (gradth _ _ _ _).
+    { intros m. { exact (m * one). } }
+    { intros w.
+      apply (squash_to_prop (lift R w)).
       { apply setproperty. }
       { intros [v v'].
-        rewrite <- v'; rewrite <- v' in w'.
+        rewrite <- v'.
         clear v' w.
+        Close Scope multmonoid_scope.
+        Open Scope addmonoid_scope.
+        Close Scope multmonoid.
+        Open Scope addmonoid.
         induction v.
         { admit. }
         { admit. }
         { admit. } } }
-    apply setproperty.
-  Defined.
+    { intros m.
+      admit.
+      }
+    Defined.
 End NN_agreement.
