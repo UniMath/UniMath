@@ -7,6 +7,7 @@ Require RezkCompletion.pathnotations.
 Import pathnotations.PathNotations. 
 Require Import Ktheory.Utilities.
 Require RezkCompletion.precategories.
+Require RezkCompletion.auxiliary_lemmas_HoTT.
 Import Utilities.Notation.
 
 Goal forall X Y (f:weq X Y), eqweqmap (weqtopaths f) == f.
@@ -53,10 +54,15 @@ Definition equivariant_map {G:gr} (X Y:action G) := total2 (@is_equivariant _ X 
 
 Definition mult_map {G:gr} {X:action G} (x:X) := fun g => act_mult _ g x.
 
-Definition is_torsor (G:gr) (X:action G) := 
+Definition is_torsor {G:gr} (X:action G) := 
   dirprod (ishinh X) (forall x:X, isweq (mult_map x)).
 
-Definition Torsor (G:gr) := total2 (is_torsor G).
+Lemma is_torsor_isaprop {G:gr} (X:action G) : isaprop (is_torsor X).
+Proof. intros. apply isofhleveldirprod.
+       { apply auxiliary_lemmas_HoTT.propproperty. }
+       { apply impred; intro x. apply isapropisweq. } Qed.
+
+Definition Torsor (G:gr) := total2 (@is_torsor G).
 Definition underlying_action {G:gr} (X:Torsor G) := pr1 X.
 Coercion underlying_action : Torsor >-> action.
 
@@ -74,9 +80,13 @@ Defined.
 Definition univ_function {G:gr} (X:Torsor G) (x:X) : trivialTorsor G -> X.
 Proof. intros ? ? ?. apply mult_map. assumption. Defined.
 
+Definition univ_function_is_equivariant {G:gr} (X:Torsor G) (x:X) : 
+  is_equivariant (univ_function X x).
+Proof. intros. intros g h. apply act_assoc. Defined.
+
 Definition univ_map {G:gr} (X:Torsor G) (x:X) : equivariant_map (trivialTorsor G) X.
 Proof. intros ? ? ?. exists (univ_function X x).
-       intros g h. apply act_assoc. Defined.
+       apply univ_function_is_equivariant. Defined.
 
 Definition triviality_isomorphism {G:gr} (X:Torsor G) (x:X) :
   weq (trivialTorsor G) X.
@@ -108,14 +118,19 @@ Proof. intros. set (p := weqtopaths f).
                   : is_equivariant (eqweqmap p)).
        exact (action_eq p ip). Defined.
 
+Definition C {G:gr} {X Y:Torsor G} (f:weq X Y) (ie:is_equivariant (pr1 f)) : 
+  X == Y.
+Proof. intros. assert (p := B f ie).
+       destruct X as [X iX]. destruct Y as [Y iY].
+       simpl in p. destruct p.
+       assert(p : iX == iY). { apply is_torsor_isaprop. }
+       destruct p. reflexivity. Defined.
+
 Lemma is_connected_classifying_space (G:gr) : isconnected(Torsor G).
-Proof.                          (* this uses univalence *)
+Proof.
   intros ?. apply (base_connected (trivialTorsor _)).
   intros X. apply (squash_to_prop (pr1 (pr2 X))). 
   { apply pr2. }
-  { intros x. apply hinhpr. assert (q : pr1(trivialTorsor G) == pr1 X).
-    { assert (r : act_set(pr1(trivialTorsor G)) == act_set(pr1 X)).
-      { apply A. apply weqtopaths. 
-        apply triviality_isomorphism. exact x. }
-      admit. }
-    { admit. } } Defined.
+  { intros x. apply hinhpr. 
+    apply (C (triviality_isomorphism X x)).
+    apply univ_function_is_equivariant. } Defined.
