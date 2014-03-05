@@ -17,14 +17,6 @@ Proof. intros.
        (* "reflexivity" would not work here *) 
        apply weqpathsweq. Defined.
 
-Definition A {X Y:hSet} (e:set_to_type X==set_to_type Y) : X==Y.
-Proof. intros [X i] [Y j] ?.
-       apply (pair_path e (pr1 (isapropisaset Y (e#i) j))). Defined.       
-
-Definition A' {X Y:hSet} (e:set_to_type X==set_to_type Y) : 
-  ap set_to_type (A e) == e.
-Proof. intros [X i] [Y j] e. apply pair_path_comp1. Defined.
-
 (* verify transport on idpath computes *)
 Goal forall X (P:X->Type) (x:X) (p:P x), idpath x # p == p.
 Proof. reflexivity. Defined.
@@ -51,6 +43,12 @@ Proof. intros. apply impred; intro g. apply impred; intro x.
        apply setproperty. Defined.               
 
 Definition equivariant_map {G:gr} (X Y:action G) := total2 (@is_equivariant _ X Y).
+Definition equivariant_map_to_function {G:gr} {X Y:action G}
+  (f:equivariant_map X Y) := pr1 f.
+Coercion equivariant_map_to_function : equivariant_map >-> Funclass.
+
+Definition equivariant_weq {G:gr} (X Y:action G) := 
+  total2 (fun f:weq X Y => is_equivariant f).
 
 Definition mult_map {G:gr} {X:action G} (x:X) := fun g => act_mult _ g x.
 
@@ -89,8 +87,10 @@ Proof. intros ? ? ?. exists (univ_function X x).
        apply univ_function_is_equivariant. Defined.
 
 Definition triviality_isomorphism {G:gr} (X:Torsor G) (x:X) :
-  weq (trivialTorsor G) X.
-Proof. intros. exists (univ_function X x). apply (pr2 (pr2 X)). Defined.
+  equivariant_weq (trivialTorsor G) X.
+Proof. intros. 
+       exact ((univ_function X x,,pr2 (pr2 X) _),,
+              univ_function_is_equivariant _ _). Defined.
 
 Definition action_eq {G:gr} {X Y:action G} (p: (X:Type) == (Y:Type)) :
   is_equivariant (eqweqmap p) -> X == Y.
@@ -111,26 +111,20 @@ Proof. intros ? ? ? ? i.
 Definition cast {T U:Type} (p:T==U) (t:T) : U.
 Proof. intros. destruct p. exact t. Defined.
 
-Definition B {G:gr} {X Y:action G} (f:weq X Y) (ie:is_equivariant (pr1 f)) : 
-  X == Y.
-Proof. intros. set (p := weqtopaths f).
+Definition eqweq_to_id {G:gr} {X Y:action G} : equivariant_weq X Y -> X == Y.
+Proof. intros ? ? ? f. destruct f as [f ie]. set (p := weqtopaths f).
        assert (ip := cast (!ap is_equivariant (ap pr1 (weqpathsweq f))) ie
                   : is_equivariant (eqweqmap p)).
        exact (action_eq p ip). Defined.
 
-Definition C {G:gr} {X Y:Torsor G} (f:weq X Y) (ie:is_equivariant (pr1 f)) : 
-  X == Y.
-Proof. intros. assert (p := B f ie).
-       destruct X as [X iX]. destruct Y as [Y iY].
-       simpl in p. destruct p.
+Definition torsor_eqweq_to_id {G:gr} {X Y:Torsor G} : equivariant_weq X Y -> X == Y.
+Proof. intros ? ? ? f. assert (p := eqweq_to_id f). destruct X as [X iX]. 
+       destruct Y as [Y iY]. simpl in p. destruct p.
        assert(p : iX == iY). { apply is_torsor_isaprop. }
        destruct p. reflexivity. Defined.
 
 Lemma is_connected_classifying_space (G:gr) : isconnected(Torsor G).
-Proof.
-  intros ?. apply (base_connected (trivialTorsor _)).
-  intros X. apply (squash_to_prop (pr1 (pr2 X))). 
-  { apply pr2. }
-  { intros x. apply hinhpr. 
-    apply (C (triviality_isomorphism X x)).
-    apply univ_function_is_equivariant. } Defined.
+Proof. intros ?. apply (base_connected (trivialTorsor _)).
+  intros X. apply (squash_to_prop (pr1 (pr2 X))). { apply pr2. }
+  intros x. apply hinhpr. apply (torsor_eqweq_to_id (triviality_isomorphism X x)). 
+Defined.
