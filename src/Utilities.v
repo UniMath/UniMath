@@ -206,7 +206,7 @@ Definition squash_to_prop {X Y:UU} : squash X -> isaprop Y -> (X -> Y) -> Y.
 
 Definition isconnected X := forall (x y:X), ishinh (x==y).
 
-Lemma base_connected X (t:X) : (forall y:X, ishinh (t==y)) -> isconnected X.
+Lemma base_connected {X} (t:X) : (forall y:X, ishinh (t==y)) -> isconnected X.
 Proof. intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
        apply (squash_to_prop a). apply propproperty. clear a. intros a.
        apply (squash_to_prop b). apply propproperty. clear b. intros b.

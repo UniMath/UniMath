@@ -9,6 +9,7 @@
 
 Interval.v
 AbelianGroup.v
+GroupAction.v
 Group.v
 AbelianMonoid.v
 Monoid.v

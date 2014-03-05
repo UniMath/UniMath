@@ -2,6 +2,7 @@
 
 Unset Automatic Introduction.
 Require Import Foundations.hlevel2.algebra1b.
+Require Foundations.Proof_of_Extensionality.funextfun.
 Require RezkCompletion.pathnotations.
 Import pathnotations.PathNotations. 
 Require Import Ktheory.Utilities.
@@ -15,6 +16,7 @@ Record type (G:gr) :=
       act_unit : forall x, act_mult (unel _) x == x;
       act_assoc : forall g h x, act_mult (op g h) x == act_mult g (act_mult h x)
     }.
+Arguments act_set {G} _.
 Arguments act_mult {G} {_} g x.
 
 Local Notation action := type.
@@ -55,7 +57,31 @@ Definition triviality_isomorphism {G:gr} (X:Torsor G) (x:X) :
   weq (trivialTorsor G) X.
 Proof. intros. exists (univ_function X x). apply (pr2 (pr2 X)). Defined.
 
-Lemma is_connected_classifying_space (G:gr) : is_connected(Torsor G).
-Proof.
-  intros ? X Y.
-Abort.
+Definition A {X Y:hSet} (f:pr1hSet X==pr1hSet Y) : X==Y.
+Proof. intros [X i] [Y j] e.
+       apply (pair_path e (pr1 (isapropisaset Y (e#i) j))). Defined.       
+
+Definition B {G:gr} {X Y:action G} 
+           (f:act_set X->act_set Y)
+           (is:isweq f)
+           (ie:is_equivariant f) : 
+  X == Y.
+Proof. intros.
+       destruct X as [Xs Xm Xu Xa].
+       destruct Y as [Ys Ym Yu Ya].
+       simpl in f.
+       set (e := funextfun.weqtopaths0 _ _ (weqpair f is)).
+admit.
+Defined.
+
+Lemma is_connected_classifying_space (G:gr) : isconnected(Torsor G).
+Proof.                          (* this uses univalence *)
+  intros ?. apply (base_connected (trivialTorsor _)).
+  intros X. apply (squash_to_prop (pr1 (pr2 X))). 
+  { apply pr2. }
+  { intros x. apply hinhpr. assert (q : pr1(trivialTorsor G) == pr1 X).
+    { assert (r : act_set(pr1(trivialTorsor G)) == act_set(pr1 X)).
+      { apply A. apply funextfun.weqtopaths0. 
+        apply triviality_isomorphism. exact x. }
+      admit. }
+    { admit. } } Defined.
