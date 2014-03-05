@@ -33,10 +33,33 @@ Module Import Notation.
   Notation "p # x" := (transport _ p x) (right associativity, at level 65, only parsing).
 End Notation.
 
+Definition app {X} {P:X->Type} {x x':X} {e e':x==x'} (q:e==e') (p:P x) : 
+   e#p==e'#p.
+Proof. intros. destruct q. reflexivity. Defined.
+
+(** ** Projections from pair types *)
+
+Definition pr2_pair {X:UU} {P:X->UU} {w w':total2 P} (p : w == w') :
+  transport P (ap pr1 p) (pr2 w) == pr2 w'.
+Proof. intros. destruct p. reflexivity. Defined.
+
+Definition pair_path_comp1 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
+           (p:x==x') (q:p#y==y') : ap pr1 (pair_path p q) == p.
+Proof. intros. destruct p. destruct q. reflexivity. Defined.
+
+Definition pair_path_comp2 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
+           (p:x==x') (q:p#y==y') :
+  ! app (pair_path_comp1 p q) y @ pr2_pair (pair_path p q) == q.
+Proof. intros. destruct p, q. reflexivity. Defined.
+
+(** ** Transport *)
+
 Lemma transport_idpath {X:UU} (P:X->UU) {x y:X} (p:x==y) (u:P x) : 
   transport P p u == transport (idfun _) (ap P p) u.
 (* same as HoTT.PathGroupoids.transport_idmap_ap *)
 Proof. intros. destruct p. reflexivity. Defined.
+
+(** ** Sections *)
 
 Definition sections {T:UU} (P:T->UU) := forall t:T, P t.
 Definition evalat {T:UU} {U:UU} (t:T) (f:T->U) := f t.
@@ -124,10 +147,6 @@ Lemma helper {X Y} {f:X->Y} x x' (w:x==x') (t:f x==f x) :
               transport (fun x' => f x' == f x) w (idpath (f x)) == ap f (!w).
 Proof. intros ? ? k. destruct w. reflexivity. Qed.
 
-Definition proj2 {X:UU} {P:X->UU} {w w':total2 P} (p : w == w') :
-  transport P (ap pr1 p) (pr2 w) == pr2 w'.
-Proof. intros. destruct p. reflexivity. Defined.
-
 Definition weq_to_AdjointEquivalence X Y : weq X Y -> AdjointEquivalence.data X Y.
   intros ? ? [f r].
   set (g := fun y => hfiberpr1 f y (the (r y))).
@@ -139,7 +158,7 @@ Definition weq_to_AdjointEquivalence X Y : weq X Y -> AdjointEquivalence.data X 
            X Y f g p q'
            (fun x => 
               !(helper x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x)))
-               @ (proj2 (L x)))).
+               @ (pr2_pair (L x)))).
 Defined.
 
 (** * Squashing. *)
