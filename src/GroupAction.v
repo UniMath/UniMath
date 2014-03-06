@@ -1,3 +1,5 @@
+(* -*- coding: utf-8 *)
+
 (** * Group actions *)
 
 Unset Automatic Introduction.
@@ -52,6 +54,8 @@ Definition EquivariantEquiv {G:gr} (X Y:Action G) :=
 Definition underlyingEquiv {G:gr} {X Y:Action G} (p:EquivariantEquiv X Y) := pr1 p.
 Definition underlyingEquivariantMap {G:gr} {X Y:Action G} (p:EquivariantEquiv X Y) := 
   pr1weq _ _ (pr1 p),, pr2 p.
+Definition idEquivariantEquiv {G:gr} (X:Action G) : EquivariantEquiv X X.
+Proof. intros. exists (idweq _). intros g x. reflexivity. Defined.
 Definition composeEquivariantEquiv {G:gr} {X Y Z:Action G}
            (p:EquivariantEquiv X Y) (q:EquivariantEquiv Y Z) : EquivariantEquiv X Z.
 Proof. intros ? ? ? ? [p i] [q j]. exists (weqcomp p q).
@@ -135,21 +139,31 @@ Proof. intros. exists (fun h => op h g). apply (gradth _ (fun h => op h (grinv G
        { exact (fun h => assocax _ _ _ _ @ ap (op _) (grlinvax _ _) @ runax _ _). }
 Defined.
 
-Lemma trivialTorsorEquiv_unit (G:gr) : trivialTorsorEquiv G (unel _) == idweq _.
-Proof. intros. refine (pair_path _ _).
-       { apply funextsec; intro x; simpl. exact (runax G x). }
-       { apply isapropisweq. } Defined.
+Definition trivialTorsorAuto (G:gr) (g:G) : 
+  EquivariantEquiv (trivialTorsor G) (trivialTorsor G).
+Proof. intros. exists (trivialTorsorEquiv G g).
+       intros h x. simpl.  exact (assocax _ h x g). Defined.
 
-Lemma trivialTorsorEquiv_mult (G:gr) (g h:G) :
-  weqcomp (trivialTorsorEquiv G g) (trivialTorsorEquiv G h) 
-  == (trivialTorsorEquiv G (op g h)).
+Lemma trivialTorsorAuto_unit (G:gr) : 
+  trivialTorsorAuto G (unel _) == idEquivariantEquiv _.
 Proof. intros. refine (pair_path _ _).
-       { apply funextsec; intro x; simpl. exact (assocax _ x g h). }
-       { apply isapropisweq. } Defined.
+       { refine (pair_path _ _).
+         { apply funextsec; intro x; simpl. exact (runax G x). }
+         { apply isapropisweq. } }
+       { apply is_equivariant_isaprop. } Defined.
+
+Lemma trivialTorsorAuto_mult (G:gr) (g h:G) :
+  composeEquivariantEquiv (trivialTorsorAuto G g) (trivialTorsorAuto G h) 
+  == (trivialTorsorAuto G (op g h)).
+Proof. intros. refine (pair_path _ _).
+       { refine (pair_path _ _).
+         { apply funextsec; intro x; simpl. exact (assocax _ x g h). }
+         { apply isapropisweq. } }
+       { apply is_equivariant_isaprop. } Defined.
 
 (** *** Applications of univalence *)
 
-Definition torsor_eqweq_to_id {G:gr} {X Y:Torsor G} : EquivariantEquiv X Y -> X == Y.
+Definition torsor_eqweq_to_path {G:gr} {X Y:Torsor G} : EquivariantEquiv X Y -> X == Y.
 Proof. intros ? ? ? f. assert (p := eqweq_to_id f). destruct X as [X iX]. 
        destruct Y as [Y iY]. simpl in p. destruct p.
        assert(p : iX == iY). { apply is_torsor_isaprop. }
@@ -159,7 +173,7 @@ Lemma torsor_type_connectedness (G:gr) : isconnected(Torsor G).
 Proof. intros. apply (base_connected (trivialTorsor _)).
   intros X. apply (squash_to_prop (torsor_nonempty X)). 
   { apply auxiliary_lemmas_HoTT.propproperty. }
-  intros x. apply hinhpr. apply (torsor_eqweq_to_id (triviality_isomorphism X x)). 
+  intros x. apply hinhpr. apply (torsor_eqweq_to_path (triviality_isomorphism X x)). 
 Defined.
 
 Definition PointedType := total2 (fun X => X).
@@ -168,5 +182,8 @@ Definition underlyingType (X:PointedType) := pr1 X.
 Coercion underlyingType : PointedType >-> Sortclass.
 Definition basepoint (X:PointedType) := pr2 X.
 Definition loopSpace (X:PointedType) := basepoint X == basepoint X.
+Notation Ω := loopSpace.
 Definition ClassifyingSpace G := pointedType (Torsor G) (trivialTorsor G).
 Local Notation B := ClassifyingSpace.
+Definition toBG (G:gr) : G -> Ω (B G).
+Proof. intros G g. exact (torsor_eqweq_to_path (trivialTorsorAuto G g)). Defined.
