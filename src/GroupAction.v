@@ -99,11 +99,13 @@ Proof. intros. apply isofhleveldirprod.
        { apply impred; intro x. apply isapropisweq. } Qed.
 
 Definition Torsor (G:gr) := total2 (@is_torsor G).
-Definition underlyingAction {G:gr} (X:Torsor G) := pr1 X.
+Definition underlyingAction {G:gr} (X:Torsor G) := pr1 X : Action G.
+Coercion underlyingAction : Torsor >-> Action.
 Definition is_torsor_prop {G:gr} (X:Torsor G) := pr2 X.
 Definition torsor_nonempty {G:gr} (X:Torsor G) := pr1 (is_torsor_prop X).
 Definition torsor_splitting {G:gr} (X:Torsor G) := pr2 (is_torsor_prop X).
-Coercion underlyingAction : Torsor >-> Action.
+Definition PointedTorsor (G:gr) := total2 (fun X:Torsor G => X).
+Definition underlyingTorsor {G:gr} (X:PointedTorsor G) := pr1 X.
 
 Definition trivialTorsor (G:gr) : Torsor G.
 Proof. 
@@ -115,6 +117,9 @@ Proof.
            (fun g => assocax _ g x (grinv _ x) @ ap (op g) (grrinvax G x) @ runax _ g)
            (fun g => assocax _ g (grinv _ x) x @ ap (op g) (grlinvax G x) @ runax _ g)).
 Defined.
+
+Definition pointedTrivialTorsor (G:gr) : PointedTorsor G.
+Proof. intros. exists (trivialTorsor G). exact (unel G). Defined.
 
 Definition univ_function {G:gr} (X:Torsor G) (x:X) : trivialTorsor G -> X.
 Proof. intros ? ? ?. apply mult_map. assumption. Defined.
@@ -187,3 +192,7 @@ Definition ClassifyingSpace G := pointedType (Torsor G) (trivialTorsor G).
 Local Notation B := ClassifyingSpace.
 Definition toBG (G:gr) : G -> Ω (B G).
 Proof. intros G g. exact (torsor_eqweq_to_path (trivialTorsorAuto G g)). Defined.
+Local Notation E := PointedTorsor.
+Local Notation π := underlyingTorsor.
+Goal forall (G:gr), E G -> B G.
+  intros G. exact π. Qed.
