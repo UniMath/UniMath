@@ -52,6 +52,7 @@ Proof. intros ? ? ? ? [p i] [q j]. exists (funcomp p q).
 Definition EquivariantEquiv {G:gr} (X Y:Action G) := 
   total2 (fun f:weq X Y => is_equivariant f).
 Definition underlyingEquiv {G:gr} {X Y:Action G} (p:EquivariantEquiv X Y) := pr1 p.
+Coercion underlyingEquiv : EquivariantEquiv >-> weq.
 Definition underlyingEquivariantMap {G:gr} {X Y:Action G} (p:EquivariantEquiv X Y) := 
   pr1weq _ _ (pr1 p),, pr2 p.
 Definition idEquivariantEquiv {G:gr} (X:Action G) : EquivariantEquiv X X.
@@ -105,7 +106,9 @@ Definition is_torsor_prop {G:gr} (X:Torsor G) := pr2 X.
 Definition torsor_nonempty {G:gr} (X:Torsor G) := pr1 (is_torsor_prop X).
 Definition torsor_splitting {G:gr} (X:Torsor G) := pr2 (is_torsor_prop X).
 Definition PointedTorsor (G:gr) := total2 (fun X:Torsor G => X).
-Definition underlyingTorsor {G:gr} (X:PointedTorsor G) := pr1 X.
+Definition underlyingTorsor {G:gr} (X:PointedTorsor G) := pr1 X : Torsor G.
+Coercion underlyingTorsor : PointedTorsor >-> Torsor.
+Definition underlyingPoint {G:gr} (X:PointedTorsor G) := pr2 X : X.
 
 Definition trivialTorsor (G:gr) : Torsor G.
 Proof. 
@@ -123,6 +126,10 @@ Proof. intros. exists (trivialTorsor G). exact (unel G). Defined.
 
 Definition univ_function {G:gr} (X:Torsor G) (x:X) : trivialTorsor G -> X.
 Proof. intros ? ? ?. apply mult_map. assumption. Defined.
+
+Definition univ_function_pointed {G:gr} (X:Torsor G) (x:X) :
+  univ_function X x (unel _) == x.
+Proof. intros. apply act_unit. Defined.
 
 Definition univ_function_is_equivariant {G:gr} (X:Torsor G) (x:X) : 
   is_equivariant (univ_function X x).
@@ -174,11 +181,36 @@ Proof. intros ? ? ? f. assert (p := eqweq_to_id f). destruct X as [X iX].
        assert(p : iX == iY). { apply is_torsor_isaprop. }
        destruct p. reflexivity. Defined.
 
-Lemma torsor_type_connectedness (G:gr) : isconnected(Torsor G).
+Definition PointedEquivariantEquiv {G:gr} (X Y:PointedTorsor G) 
+           := total2 (fun
+                         f:EquivariantEquiv X Y => 
+                         f (underlyingPoint X) == underlyingPoint Y).
+
+Definition pointed_triviality_isomorphism {G:gr} (X:PointedTorsor G) :
+  PointedEquivariantEquiv (pointedTrivialTorsor G) X.
+Proof. intros ? [X x]. exists (triviality_isomorphism X x).
+       simpl. apply univ_function_pointed. Defined.       
+
+Definition pointed_torsor_eqweq_to_path {G:gr} {X Y:PointedTorsor G} : 
+  PointedEquivariantEquiv X Y -> X == Y.
+Proof. intros ? [X x] [Y y] [f i]; simpl in f, i.
+       set (p := torsor_eqweq_to_path f).
+       apply (pair_path p).
+       admit.
+Defined.
+
+Lemma isconnectedTorsor (G:gr) : isconnected(Torsor G).
 Proof. intros. apply (base_connected (trivialTorsor _)).
   intros X. apply (squash_to_prop (torsor_nonempty X)). 
   { apply auxiliary_lemmas_HoTT.propproperty. }
-  intros x. apply hinhpr. apply (torsor_eqweq_to_path (triviality_isomorphism X x)). 
+  intros x. apply hinhpr. exact (torsor_eqweq_to_path (triviality_isomorphism X x)). 
+Defined.
+
+Lemma iscontrPointedTorsor (G:gr) : iscontr(PointedTorsor G).
+Proof. intros. exists (pointedTrivialTorsor G). intros [X x].
+       apply pathsinv0.
+       apply pointed_torsor_eqweq_to_path.
+       apply pointed_triviality_isomorphism.
 Defined.
 
 Definition PointedType := total2 (fun X => X).

@@ -34,6 +34,11 @@ Module Import Notation.
   Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
   Notation transport := transportf.
   Notation "p # x" := (transport _ p x) (right associativity, at level 65, only parsing).
+
+  (* I can't get this one to work.  See 12.1.3 in the reference manual. *)
+  Notation "'Σ' ( x : X ) , Y" := (total2 (fun (x:X) => Y)) 
+                                  (at level 0, x at level 99).
+
 End Notation.
 
 Definition app {X} {P:X->Type} {x x':X} {e e':x==x'} (q:e==e') (p:P x) : 
