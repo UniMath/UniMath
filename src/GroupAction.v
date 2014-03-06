@@ -32,13 +32,31 @@ Definition is_equivariant_isaprop {G:gr} {X Y:Action G} (f:X->Y) :
 Proof. intros. apply impred; intro g. apply impred; intro x. 
        apply setproperty. Defined.               
 
-Definition equivariant_map {G:gr} (X Y:Action G) := total2 (@is_equivariant _ X Y).
-Definition equivariant_map_to_function {G:gr} {X Y:Action G}
-  (f:equivariant_map X Y) := pr1 f.
-Coercion equivariant_map_to_function : equivariant_map >-> Funclass.
+Definition is_equivariant_comp {G:gr} {X Y Z:Action G} 
+           (p:X->Y) (i:is_equivariant p)
+           (q:Y->Z) (j:is_equivariant q) : is_equivariant (funcomp p q).
+Proof. intros. intros g x. exact (ap q (i g x) @ j g (p x)). Defined.
 
-Definition equivariant_weq {G:gr} (X Y:Action G) := 
+Definition EquivariantMap {G:gr} (X Y:Action G) := total2 (@is_equivariant _ X Y).
+Definition underlyingFunction {G:gr} {X Y:Action G} (f:EquivariantMap X Y) := pr1 f.
+Definition equivariantProperty {G:gr} {X Y:Action G} (f:EquivariantMap X Y) := pr2 f.
+Coercion underlyingFunction : EquivariantMap >-> Funclass.
+
+Definition composeEquivariantMap {G:gr} (X Y Z:Action G)
+           (p:EquivariantMap X Y) (q:EquivariantMap Y Z) : EquivariantMap X Z.
+Proof. intros ? ? ? ? [p i] [q j]. exists (funcomp p q).
+       apply is_equivariant_comp. assumption. assumption. Defined.
+
+Definition EquivariantEquiv {G:gr} (X Y:Action G) := 
   total2 (fun f:weq X Y => is_equivariant f).
+Definition underlyingEquiv {G:gr} {X Y:Action G} (p:EquivariantEquiv X Y) := pr1 p.
+Definition underlyingEquivariantMap {G:gr} {X Y:Action G} (p:EquivariantEquiv X Y) := 
+  pr1weq _ _ (pr1 p),, pr2 p.
+Definition composeEquivariantEquiv {G:gr} {X Y Z:Action G}
+           (p:EquivariantEquiv X Y) (q:EquivariantEquiv Y Z) : EquivariantEquiv X Z.
+Proof. intros ? ? ? ? [p i] [q j]. exists (weqcomp p q).
+       destruct p as [p p'], q as [q q']; simpl.
+       apply is_equivariant_comp. exact i. exact j. Defined.
 
 Definition mult_map {G:gr} {X:Action G} (x:X) := fun g => act_mult _ g x.
 
@@ -60,7 +78,7 @@ Proof. intros ? ? ? ? i.
          apply funextsec; intro x. apply iX. }
        destruct p. reflexivity. Defined.
 
-Definition eqweq_to_id {G:gr} {X Y:Action G} : equivariant_weq X Y -> X == Y.
+Definition eqweq_to_id {G:gr} {X Y:Action G} : EquivariantEquiv X Y -> X == Y.
 Proof. intros ? ? ? f. destruct f as [f ie]. set (p := weqtopaths f).
        exact (action_eq p 
                 (cast (!ap is_equivariant (ap (pr1weq _ _) (weqpathsweq f))) ie
@@ -77,11 +95,11 @@ Proof. intros. apply isofhleveldirprod.
        { apply impred; intro x. apply isapropisweq. } Qed.
 
 Definition Torsor (G:gr) := total2 (@is_torsor G).
-Definition underlying_action {G:gr} (X:Torsor G) := pr1 X.
+Definition underlyingAction {G:gr} (X:Torsor G) := pr1 X.
 Definition is_torsor_prop {G:gr} (X:Torsor G) := pr2 X.
 Definition torsor_nonempty {G:gr} (X:Torsor G) := pr1 (is_torsor_prop X).
 Definition torsor_splitting {G:gr} (X:Torsor G) := pr2 (is_torsor_prop X).
-Coercion underlying_action : Torsor >-> Action.
+Coercion underlyingAction : Torsor >-> Action.
 
 Definition trivialTorsor (G:gr) : Torsor G.
 Proof. 
@@ -101,19 +119,37 @@ Definition univ_function_is_equivariant {G:gr} (X:Torsor G) (x:X) :
   is_equivariant (univ_function X x).
 Proof. intros. intros g h. apply act_assoc. Defined.
 
-Definition univ_map {G:gr} (X:Torsor G) (x:X) : equivariant_map (trivialTorsor G) X.
+Definition univ_map {G:gr} (X:Torsor G) (x:X) : EquivariantMap (trivialTorsor G) X.
 Proof. intros ? ? ?. exists (univ_function X x).
        apply univ_function_is_equivariant. Defined.
 
 Definition triviality_isomorphism {G:gr} (X:Torsor G) (x:X) :
-  equivariant_weq (trivialTorsor G) X.
+  EquivariantEquiv (trivialTorsor G) X.
 Proof. intros. exact ((univ_function X x,, 
                        torsor_splitting X x),,
                        univ_function_is_equivariant X x). Defined.
 
+Definition trivialTorsorEquiv (G:gr) (g:G) : weq (trivialTorsor G) (trivialTorsor G).
+Proof. intros. exists (fun h => op h g). apply (gradth _ (fun h => op h (grinv G g))).
+       { exact (fun h => assocax _ _ _ _ @ ap (op _) (grrinvax _ _) @ runax _ _). }
+       { exact (fun h => assocax _ _ _ _ @ ap (op _) (grlinvax _ _) @ runax _ _). }
+Defined.
+
+Lemma trivialTorsorEquiv_unit (G:gr) : trivialTorsorEquiv G (unel _) == idweq _.
+Proof. intros. refine (pair_path _ _).
+       { apply funextsec; intro x; simpl. exact (runax G x). }
+       { apply isapropisweq. } Defined.
+
+Lemma trivialTorsorEquiv_mult (G:gr) (g h:G) :
+  weqcomp (trivialTorsorEquiv G g) (trivialTorsorEquiv G h) 
+  == (trivialTorsorEquiv G (op g h)).
+Proof. intros. refine (pair_path _ _).
+       { apply funextsec; intro x; simpl. exact (assocax _ x g h). }
+       { apply isapropisweq. } Defined.
+
 (** *** Applications of univalence *)
 
-Definition torsor_eqweq_to_id {G:gr} {X Y:Torsor G} : equivariant_weq X Y -> X == Y.
+Definition torsor_eqweq_to_id {G:gr} {X Y:Torsor G} : EquivariantEquiv X Y -> X == Y.
 Proof. intros ? ? ? f. assert (p := eqweq_to_id f). destruct X as [X iX]. 
        destruct Y as [Y iY]. simpl in p. destruct p.
        assert(p : iX == iY). { apply is_torsor_isaprop. }
@@ -125,3 +161,12 @@ Proof. intros. apply (base_connected (trivialTorsor _)).
   { apply auxiliary_lemmas_HoTT.propproperty. }
   intros x. apply hinhpr. apply (torsor_eqweq_to_id (triviality_isomorphism X x)). 
 Defined.
+
+Definition PointedType := total2 (fun X => X).
+Definition pointedType X x := X,,x : PointedType.
+Definition underlyingType (X:PointedType) := pr1 X.
+Coercion underlyingType : PointedType >-> Sortclass.
+Definition basepoint (X:PointedType) := pr2 X.
+Definition loopSpace (X:PointedType) := basepoint X == basepoint X.
+Definition ClassifyingSpace G := pointedType (Torsor G) (trivialTorsor G).
+Local Notation B := ClassifyingSpace.
