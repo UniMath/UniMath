@@ -46,7 +46,7 @@ install:all
 lc:; wc -l $(VFILES)
 wc:; wc -w $(VFILES)
 clean:clean2
-clean2::; rm -f TAGS *.d *.glob N*.cmi N*.cmx N*.cmxs N*.native N*.o 
+clean2::; rm -f TAGS *.d *.glob N*.cmi N*.cmx N*.cmxs N*.native N*.o coqdoc.sty
 distclean: clean; rm -f Make-include.mk Make-include.mk.bak
 
 # override this on your system with the correct settings on the command line:
@@ -57,7 +57,7 @@ FOUNDATIONS_FILES = $(shell cd $(FOUNDATIONS_DIR) && make show-vfiles)
 REZK_COMPLETION_FILES = $(shell cd $(REZK_COMPLETION_DIR) && make show-vfiles)
 ALL_FILES = $(VFILES) $(REZK_COMPLETION_FILES) $(FOUNDATIONS_FILES)
 BASE = Ktheory-doc
-doc: all html-all $(BASE).pdf
+doc: all html-all # $(BASE).pdf
 html-all: $(ALL_FILES)
 	rm -rf html-all
 	mkdir html-all
@@ -66,7 +66,7 @@ html-all: $(ALL_FILES)
 		-R $(REZK_COMPLETION_DIR) RezkCompletion			\
 		$(ALL_FILES) 
 clean2::; rm -rf html-all
-$(BASE).tex: $(ALL_FILES)
+coqdoc.sty $(BASE).tex: $(ALL_FILES)
 	rm -f $(BASE).*
 	$(COQDOC) -toc $(COQDOCFLAGS) --latex $(COQDOCLIBS) -d html-all	\
 		-o $(BASE).tex							\

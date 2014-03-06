@@ -67,6 +67,20 @@ Definition mult_map {G:gr} {X:Action G} (x:X) := fun g => act_mult _ g x.
 
 (** *** Applications of univalence *)
 
+Definition pr1_eqweqmap { X Y } ( e: X==Y ) : 
+  pr1 (eqweqmap e) == cast e.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition pr1_eqweqmap2 { X Y } ( e: X==Y ) : 
+  pr1 (eqweqmap e) == transportf (fun T:Type => T) e.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition weqpath_transport {X Y} (w:weq X Y) (x:X) :
+  transportf (fun X => X) (weqtopaths w) x == w x.
+Proof. intros. 
+       exact (apevalat x (!pr1_eqweqmap2 (weqtopaths w) @ ap pr1 (weqpathsweq w))).
+Defined.
+
 Definition action_eq {G:gr} {X Y:Action G} (p: (X:Type) == (Y:Type)) :
   is_equivariant (eqweqmap p) -> X == Y.
 Proof. intros ? ? ? ? i.
@@ -196,6 +210,7 @@ Definition pointed_torsor_eqweq_to_path {G:gr} {X Y:PointedTorsor G} :
 Proof. intros ? [X x] [Y y] [f i]; simpl in f, i.
        set (p := torsor_eqweq_to_path f).
        apply (pair_path p).
+       (* apply (weqpath_transport f). *)
        admit.
 Defined.
 

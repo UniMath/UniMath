@@ -10,9 +10,6 @@ Require Import Foundations.hlevel2.hSet.
 
 Set Default Timeout 50.
 
-Definition cast {T U:Type} (p:T==U) (t:T) : U.
-Proof. intros. destruct p. exact t. Defined.
-
 Definition two_cases {X Y T} : coprod X Y -> (X->T) -> (Y->T) -> T.
   exact (fun X Y T xy f g => sum_rect (fun _ => T) f g xy). Defined.
 
@@ -36,10 +33,18 @@ Module Import Notation.
   Notation "p # x" := (transport _ p x) (right associativity, at level 65, only parsing).
 
   (* I can't get this one to work.  See 12.1.3 in the reference manual. *)
+  (* Also, coqdoc doesn't like it (or Ω), since it expects \textSigma to be defined *)
   Notation "'Σ' ( x : X ) , Y" := (total2 (fun (x:X) => Y)) 
                                   (at level 0, x at level 99).
 
 End Notation.
+
+Definition cast {T U:Type} : T==U -> T->U.
+Proof. intros ? ? p t. destruct p. exact t. Defined.
+
+Definition transport_type_path {X Y:Type} (p:X==Y) (x:X) : 
+  transportf (fun T:Type => T) p x == cast p x.
+Proof. intros. destruct p. reflexivity. Defined.
 
 Definition app {X} {P:X->Type} {x x':X} {e e':x==x'} (q:e==e') (p:P x) : 
    e#p==e'#p.
