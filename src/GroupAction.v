@@ -9,7 +9,7 @@ Require RezkCompletion.pathnotations.
 Import pathnotations.PathNotations. 
 Require Import Ktheory.Utilities.
 Require RezkCompletion.precategories.
-Require RezkCompletion.auxiliary_lemmas_HoTT.
+Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Import Utilities.Notation.
 
 (** ** Definitions *)
@@ -70,9 +70,15 @@ Definition is_equivariant_isaprop {G:gr} {X Y:SetWithAction G} (f:X->Y) :
 Proof. intros. apply impred; intro g. apply impred; intro x. 
        apply setproperty. Defined.               
 
+Definition hSet_identity (X Y:hSet) : weq (X==Y) (pr1hSet X==pr1hSet Y).
+Proof. intros. apply weqonpathsincl. apply isinclpr1; intro T.
+       apply isapropisaset. Defined.
+
 (** The following fact is fundamental: it shows that our definition of
-    [is_equivariant] captures all of the structure.  A similar fact will
-    be in other cases: groups, rings, monoids, etc. *)
+    [is_equivariant] captures all of the structure.  The proof reduces to the
+    showing that if G acts on a set X in two ways, and the identity function is
+    equivariant, then the two ways are equal.  A similar fact will be in other
+    cases: groups, rings, monoids, etc. *)
 
 Definition is_equivariant_identity {G:gr} {X Y:SetWithAction G}
            (p:ac_set X == ac_set Y) :
@@ -138,8 +144,7 @@ Definition mult_map {G:gr} {X:SetWithAction G} (x:X) := fun g => g*x.
 
 (** compare the following two definitions with [transport_type_path] *)
 
-Definition pr1_eqweqmap { X Y } ( e: X==Y ) : 
-  pr1 (eqweqmap e) == cast e.
+Definition pr1_eqweqmap { X Y } ( e: X==Y ) : cast e == pr1 (eqweqmap e).
 Proof. intros. destruct e. reflexivity. Defined.
 
 Definition pr1_eqweqmap2 { X Y } ( e: X==Y ) : 
@@ -151,7 +156,7 @@ Definition weqpath_transport {X Y} (w:weq X Y) (x:X) :
 Proof. intros. exact (!pr1_eqweqmap2 _ @ ap pr1 (weqpathsweq w)). Defined.
 
 Definition weqpath_cast {X Y} (w:weq X Y) (x:X) : cast (weqtopaths w) == w.
-Proof. intros. exact (!pr1_eqweqmap _ @ ap pr1 (weqpathsweq w)). Defined.
+Proof. intros. exact (pr1_eqweqmap _ @ ap pr1 (weqpathsweq w)). Defined.
 
 Definition action_eq {G:gr} {X Y:SetWithAction G} (p: ac_type X == ac_type Y) :
   is_equivariant (eqweqmap p) -> X == Y.
@@ -178,11 +183,11 @@ Proof. intros ? ? ? f. destruct f as [f ie]. set (p := weqtopaths f).
 
 Lemma id_to_eqweq {G:gr} {X Y:SetWithAction G} : weq (X==Y) (EquivariantEquiv X Y).
 Proof. intros.
-       refine (weqcomp (auxiliary_lemmas_HoTT.total_paths_equiv (ActionStructure G) X Y) _).
-       (* exists path_to_EquivariantEquiv. *)
-
-
-       admit.
+       refine (weqcomp (total_paths_equiv (ActionStructure G) X Y) _).
+       refine (weqbandf _ _ _ _).
+       { refine (weqcomp (hSet_identity _ _) (weqpair (@eqweqmap (pr1 X) (pr1 Y)) (univalenceaxiom _ _))). }
+       simpl. intro p. refine (weqcomp (is_equivariant_identity p) _).
+       exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap set_to_type p)))).
 Defined.
 
 (** ** Torsors *)
@@ -192,7 +197,7 @@ Definition is_torsor {G:gr} (X:SetWithAction G) :=
 
 Lemma is_torsor_isaprop {G:gr} (X:SetWithAction G) : isaprop (is_torsor X).
 Proof. intros. apply isofhleveldirprod.
-       { apply auxiliary_lemmas_HoTT.propproperty. }
+       { apply propproperty. }
        { apply impred; intro x. apply isapropisweq. } Qed.
 
 Definition Torsor (G:gr) := total2 (@is_torsor G).
@@ -305,7 +310,7 @@ Defined.
 Lemma isconnectedTorsor (G:gr) : isconnected(Torsor G).
 Proof. intros. apply (base_connected (trivialTorsor _)).
   intros X. apply (squash_to_prop (torsor_nonempty X)). 
-  { apply auxiliary_lemmas_HoTT.propproperty. }
+  { apply propproperty. }
   intros x. apply hinhpr. exact (torsor_eqweq_to_path (triviality_isomorphism X x)). 
 Defined.
 
