@@ -25,9 +25,11 @@ Record Action (G:gr) :=
     }.
 Arguments act_set {G} _.
 Arguments act_mult {G} _ g x.
+Local Notation "g * x" := (act_mult _ g x).
+Definition ac_type {G:gr} (X:Action G) := set_to_type (act_set X).
 
 Definition is_equivariant {G:gr} {X Y:Action G} (f:X->Y) :=
-  forall g x, f (act_mult X g x) == act_mult Y g (f x).
+  forall g x, f (g*x) == g*(f x).
 
 Definition is_equivariant_isaprop {G:gr} {X Y:Action G} (f:X->Y) : 
   isaprop (is_equivariant f).
@@ -51,19 +53,22 @@ Proof. intros ? ? ? ? [p i] [q j]. exists (funcomp p q).
 
 Definition EquivariantEquiv {G:gr} (X Y:Action G) := 
   total2 (fun f:weq X Y => is_equivariant f).
-Definition underlyingEquiv {G:gr} {X Y:Action G} (p:EquivariantEquiv X Y) := pr1 p.
+Definition underlyingEquiv {G:gr} {X Y:Action G} (e:EquivariantEquiv X Y) := pr1 e.
 Coercion underlyingEquiv : EquivariantEquiv >-> weq.
-Definition underlyingEquivariantMap {G:gr} {X Y:Action G} (p:EquivariantEquiv X Y) := 
-  pr1weq _ _ (pr1 p),, pr2 p.
+Definition underlyingEquivariantMap {G:gr} {X Y:Action G} (e:EquivariantEquiv X Y) := 
+  pr1weq _ _ (pr1 e),, pr2 e.
 Definition idEquivariantEquiv {G:gr} (X:Action G) : EquivariantEquiv X X.
 Proof. intros. exists (idweq _). intros g x. reflexivity. Defined.
 Definition composeEquivariantEquiv {G:gr} {X Y Z:Action G}
-           (p:EquivariantEquiv X Y) (q:EquivariantEquiv Y Z) : EquivariantEquiv X Z.
-Proof. intros ? ? ? ? [p i] [q j]. exists (weqcomp p q).
-       destruct p as [p p'], q as [q q']; simpl.
+           (e:EquivariantEquiv X Y) (f:EquivariantEquiv Y Z) : EquivariantEquiv X Z.
+Proof. intros ? ? ? ? [e i] [f j]. exists (weqcomp e f).
+       destruct e as [e e'], f as [f f']; simpl.
        apply is_equivariant_comp. exact i. exact j. Defined.
+Definition path_to_EquivariantEquiv {G:gr} {X Y:Action G} (e:X==Y) :
+  EquivariantEquiv X Y.
+Proof. intros. destruct e. exact (idEquivariantEquiv X). Defined.
 
-Definition mult_map {G:gr} {X:Action G} (x:X) := fun g => act_mult _ g x.
+Definition mult_map {G:gr} {X:Action G} (x:X) := fun g => g*x.
 
 (** *** Applications of univalence *)
 
@@ -81,11 +86,11 @@ Proof. intros.
        exact (apevalat x (!pr1_eqweqmap2 (weqtopaths w) @ ap pr1 (weqpathsweq w))).
 Defined.
 
-Definition action_eq {G:gr} {X Y:Action G} (p: (X:Type) == (Y:Type)) :
+Definition action_eq {G:gr} {X Y:Action G} (p: ac_type X == ac_type Y) :
   is_equivariant (eqweqmap p) -> X == Y.
 Proof. intros ? ? ? ? i.
-       destruct X as [[X iX] Xm Xu Xa]; destruct Y as [[Y iY] Ym Yu Ya];
-       simpl in Xu, Yu, Xa, Ya, p. destruct p.
+       destruct X as [[X iX] Xm Xu Xa]; destruct Y as [[Y iY] Ym Yu Ya].
+       unfold ac_type in p. simpl in Xu, Yu, Xa, Ya, p. destruct p.
        simpl in i. assert (p := pr1 (isapropisaset _ iX iY)). destruct p.
        assert (p : Xm == Ym).
        { apply funextfunax; intro g. apply funextfunax; intro x; simpl in x.
@@ -98,6 +103,7 @@ Proof. intros ? ? ? ? i.
        destruct p. reflexivity. Defined.
 
 Definition eqweq_to_id {G:gr} {X Y:Action G} : EquivariantEquiv X Y -> X == Y.
+(* this theorem is not strong enough: it should produce an equivalence *)
 Proof. intros ? ? ? f. destruct f as [f ie]. set (p := weqtopaths f).
        exact (action_eq p 
                 (cast (!ap is_equivariant (ap (pr1weq _ _) (weqpathsweq f))) ie
@@ -114,15 +120,26 @@ Proof. intros. apply isofhleveldirprod.
        { apply impred; intro x. apply isapropisweq. } Qed.
 
 Definition Torsor (G:gr) := total2 (@is_torsor G).
-Definition underlyingAction {G:gr} (X:Torsor G) := pr1 X : Action G.
+Definition underlyingAction {G} (X:Torsor G) := pr1 X : Action G.
 Coercion underlyingAction : Torsor >-> Action.
-Definition is_torsor_prop {G:gr} (X:Torsor G) := pr2 X.
-Definition torsor_nonempty {G:gr} (X:Torsor G) := pr1 (is_torsor_prop X).
-Definition torsor_splitting {G:gr} (X:Torsor G) := pr2 (is_torsor_prop X).
+Definition is_torsor_prop {G} (X:Torsor G) := pr2 X.
+Definition torsor_nonempty {G} (X:Torsor G) := pr1 (is_torsor_prop X).
+Definition torsor_splitting {G} (X:Torsor G) := pr2 (is_torsor_prop X).
+Definition torsor_mult_weq {G} (X:Torsor G) (x:X) := 
+  weqpair (mult_map x) (torsor_splitting X x) : weq G X.
 Definition PointedTorsor (G:gr) := total2 (fun X:Torsor G => X).
-Definition underlyingTorsor {G:gr} (X:PointedTorsor G) := pr1 X : Torsor G.
+Definition underlyingTorsor {G} (X:PointedTorsor G) := pr1 X : Torsor G.
 Coercion underlyingTorsor : PointedTorsor >-> Torsor.
-Definition underlyingPoint {G:gr} (X:PointedTorsor G) := pr2 X : X.
+Definition underlyingPoint {G} (X:PointedTorsor G) := pr2 X : X.
+
+Lemma is_quotient {G} (X:Torsor G) (y x:X) : iscontr (total2 (fun g => g*x == y)).
+Proof. intros. exact (pr2 (is_torsor_prop X) x y). Defined.
+
+Definition quotient {G} (X:Torsor G) (y x:X) := pr1 (the (is_quotient X y x)) : G.
+Local Notation "y / x" := (quotient _ y x).
+
+Lemma quotient_eq {G} (X:Torsor G) (y x:X) : (y/x)*x == y.
+Proof. intros. exact (pr2 (the (is_quotient X y x))). Defined.
 
 Definition trivialTorsor (G:gr) : Torsor G.
 Proof. 
@@ -149,15 +166,10 @@ Definition univ_function_is_equivariant {G:gr} (X:Torsor G) (x:X) :
   is_equivariant (univ_function X x).
 Proof. intros. intros g h. apply act_assoc. Defined.
 
-Definition univ_map {G:gr} (X:Torsor G) (x:X) : EquivariantMap (trivialTorsor G) X.
-Proof. intros ? ? ?. exists (univ_function X x).
-       apply univ_function_is_equivariant. Defined.
-
 Definition triviality_isomorphism {G:gr} (X:Torsor G) (x:X) :
   EquivariantEquiv (trivialTorsor G) X.
-Proof. intros. exact ((univ_function X x,, 
-                       torsor_splitting X x),,
-                       univ_function_is_equivariant X x). Defined.
+Proof. intros. 
+       exact (torsor_mult_weq X x,, univ_function_is_equivariant X x). Defined.
 
 Definition trivialTorsorEquiv (G:gr) (g:G) : weq (trivialTorsor G) (trivialTorsor G).
 Proof. intros. exists (fun h => op h g). apply (gradth _ (fun h => op h (grinv G g))).

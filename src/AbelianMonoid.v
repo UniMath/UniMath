@@ -53,7 +53,8 @@ Definition finiteOperation1 (X:abmonoid) I : finstruct I -> (I->X) -> X.
   intros i. exact (x (pr1 f i)).
 Defined.
 Definition finiteOperation {I} (is:isfinite I) (X:abmonoid) (x:I->X) : X.
-  intros. refine (squash_to_set is _ _ _); clear is. 
+  intros. generalize is; clear is.
+  refine (squash_to_set _ _ _). 
   { apply setproperty. }
   { intros fs. apply (finiteOperation1 X I fs x). }
   { intros [m f] [n g]. assert (e := same_n f g). destruct e. apply uniqueness0. }

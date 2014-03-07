@@ -18,6 +18,13 @@ Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification th
   let G := match goal with |- ?G => constr:(G) end in
   exact ((@id G : T -> G) x).
 
+Definition paths_from {X} (x:X) := coconusfromt X x.
+Definition paths_to {X} (x:X) := coconustot X x.
+Definition iscontr_paths_to {X} (x:X) : iscontr (paths_to x).
+Proof. apply iscontrcoconustot. Defined.
+Definition iscontr_paths_from {X} (x:X) : iscontr (paths_from x).
+Proof. apply iscontrcoconusfromt. Defined.
+
 Module Import Notation.
   Notation set_to_type := hSet.pr1hSet.
   Notation pair_path := auxiliary_lemmas_HoTT.total2_paths2.
@@ -64,6 +71,11 @@ Definition pair_path_comp2 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
            (p:x==x') (q:p#y==y') :
   ! app (pair_path_comp1 p q) y @ pr2_pair (pair_path p q) == q.
 Proof. intros. destruct p, q. reflexivity. Defined.
+
+(** ** Maps from pair types *)
+
+Definition from_total2 {X} {P:X->Type} {Y} : (forall x, P x->Y) -> total2 P -> Y.
+Proof. intros ? ? ? f [x p]. exact (f x p). Defined.
 
 (** ** Transport *)
 
@@ -246,49 +258,40 @@ Proof. intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
 
 (** ** Show that squashing is a set-quotient *)
 
-Definition squash_to_set {X Y:UU} (h:squash X) (is:isaset Y)
-  (f:X->Y) (e:forall x x', f x == f x') : Y.
+Definition squash_to_set {X Y} (is:isaset Y)
+  (f:X->Y) (e:forall x x', f x == f x') : squash X -> Y.
 
-(** from Voevodsky, for future work:
+(** Note: the hypothesis that Y is a set cannot be removed.  Consider,
+    for example, the inclusion map f for the vertices of a triangle,
+    and let e be given by the edges and reflexivity. *)
 
-    I think one can get another proof using "isapropimeqclass" (hSet.v) with "R :=
+(** From Voevodsky, for future work:
+
+    "I think one can get another proof using "isapropimeqclass" (hSet.v) with "R :=
     fun x1 x1 => unit". This Lemma will show that under your assumptions "Im f" is
-    a proposition. Therefore "X -> Im f" factors through "squash X". *)
+    a proposition. Therefore "X -> Im f" factors through "squash X"." *)
 
-Proof.
-  intros. generalize h; clear h.
-  set (L := fun y:Y => forall x:X, f x == y).
-  set (P := total2 L).
-  assert(ip : isaset P).
-   apply (isofhleveltotal2 2). exact is.
-   intros y. apply impred.
-   intros t. apply isasetaprop. apply is.
-  assert(m : X -> forall y:Y, isaprop (L y)).
-   intros a z. apply impred.
-   intros t. apply is.
-  assert(h : X -> isaprop P).
-   intros a.
-   apply invproofirrelevance.
-   intros [r i] [s j].
-   assert(k : r == s). 
-     intermediate (f a). 
-     apply pathsinv0; apply i.
-     apply j.
-   apply (pair_path k). apply m. exact a.
-  assert(h' : squash X -> isaprop P).
-   apply factor_through_squash. apply isapropisaprop.
-   exact h.
-  assert(k : squash X -> P).
-   intros z.
-   apply (@factor_through_squash X _ (h' z)).
-    intros x. exists (f x). intros x'. apply e.
-   exact z.
-  intro z. apply (pr1 (k z)).
-Defined.
-
-Goal forall (X Y:UU) (f : X -> Y) (is : isaset Y) (eq: forall x x', f x == f x'),
-       forall x, f x == squash_to_set (squash_element x) is f eq.
-Proof. reflexivity. (* verify computation is definitional *) Defined.
+Proof. intros ? ? ? ? ?. 
+  set (isnullF := fun y:Y => forall x:X, f x == y). set (nullF := total2 isnullF).
+  assert(ip : isaset nullF).
+   { apply (isofhleveltotal2 2). 
+     { exact is. }
+     { intros y. apply impred; intros t. apply isasetaprop. apply is. } }
+  assert(m : X -> forall y:Y, isaprop (isnullF y)).
+  { intros a z. apply impred; intros t. apply is. }
+  assert(h : X -> isaprop nullF).
+  { intros a. apply invproofirrelevance. intros [r i] [s j].
+    assert(k : r == s). 
+    { intermediate (f a). apply pathsinv0; apply i. apply j. }
+    apply (pair_path k). apply m. exact a. }
+  assert(h' : squash X -> isaprop nullF).
+  { apply factor_through_squash. apply isapropisaprop. exact h. }
+  assert(k : squash X -> nullF).
+  { intros z.
+    apply (@factor_through_squash X _ (h' z)).
+    { intros x. exists (f x). intros x'. apply e. }
+    { exact z. } }
+  intro z. exact (pr1 (k z)). Defined.
 
 Lemma squash_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
   g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.

@@ -47,8 +47,8 @@ Proof. intros. set (i := the (map_to x a)).
   { rewrite <- assoc. apply path_right_composition. apply uniqueness'. }
   { apply path_left_composition. apply uniqueness. } Qed.
 Lemma zeroMap {C:precategory} (a b:ob C): hasZeroObject C  ->  a → b.
-Proof. intros ? ? ? h. 
-       refine (squash_to_set h _ _ _); clear h.
+Proof. intros ? ? ?. 
+       refine (squash_to_set _ _ _).
        { apply setproperty. }
        { apply zeroMap'. }
        { intros. apply zeroMapUniqueness. } Defined.
