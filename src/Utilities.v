@@ -38,12 +38,6 @@ Module Import Notation.
   Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
   Notation transport := transportf.
   Notation "p # x" := (transport _ p x) (right associativity, at level 65, only parsing).
-
-  (* I can't get this one to work.  See 12.1.3 in the reference manual. *)
-  (* Also, coqdoc doesn't like it (or Ω), since it expects \textSigma to be defined *)
-  Notation "'Σ' ( x : X ) , Y" := (total2 (fun (x:X) => Y)) 
-                                  (at level 0, x at level 99).
-
 End Notation.
 
 Definition cast {T U:Type} : T==U -> T->U.
@@ -79,7 +73,7 @@ Proof. intros ? ? ? f [x p]. exact (f x p). Defined.
 
 (** ** Transport *)
 
-Lemma transport_idpath {X:UU} (P:X->UU) {x y:X} (p:x==y) (u:P x) : 
+Lemma transport_idfun {X:UU} (P:X->UU) {x y:X} (p:x==y) (u:P x) : 
   transport P p u == transport (idfun _) (ap P p) u.
 (* same as HoTT.PathGroupoids.transport_idmap_ap *)
 Proof. intros. destruct p. reflexivity. Defined.

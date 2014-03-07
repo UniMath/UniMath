@@ -16,61 +16,102 @@ Import Utilities.Notation.
 
 Definition action_op G X := G -> X -> X.
 
-Record Action (G:gr) :=
+Record ActionStructure (G:gr) (X:hSet) :=
   make {
-      act_set :> hSet;
-      act_mult : action_op G act_set;
+      act_mult : action_op G X;
       act_unit : forall x, act_mult (unel _) x == x;
       act_assoc : forall g h x, act_mult (op g h) x == act_mult g (act_mult h x)
     }.
-Arguments act_set {G} _.
-Arguments act_mult {G} _ g x.
-Local Notation "g * x" := (act_mult _ g x).
-Definition ac_type {G:gr} (X:Action G) := set_to_type (act_set X).
+Arguments act_mult {G _} _ g x.
+Local Notation "g * x" := (act_mult (pr2 _) g x).
 
-Definition is_equivariant {G:gr} {X Y:Action G} (f:X->Y) :=
+Lemma isaset_ActionStructure (G:gr) (X:hSet) : isaset (ActionStructure G X).
+Proof. intros. intros [Xm Xu Xa] [Ym Yu Ya] p q. admit.
+Qed.
+
+Definition SetWithAction (G:gr) := total2 (ActionStructure G). 
+Definition makeSetWithAction {G:gr} (X:hSet) (ac:ActionStructure G X) :=
+  X,,ac : SetWithAction G.
+
+Definition ac_set {G:gr} (X:SetWithAction G) := pr1 X.
+Coercion ac_set : SetWithAction >-> hSet.
+Definition ac_type {G:gr} (X:SetWithAction G) := pr1hSet (ac_set X).
+
+Definition is_equivariant {G:gr} {X Y:SetWithAction G} (f:X->Y) := 
   forall g x, f (g*x) == g*(f x).
 
-Definition is_equivariant_isaprop {G:gr} {X Y:Action G} (f:X->Y) : 
+Definition is_equivariant_isaprop {G:gr} {X Y:SetWithAction G} (f:X->Y) : 
   isaprop (is_equivariant f).
 Proof. intros. apply impred; intro g. apply impred; intro x. 
        apply setproperty. Defined.               
 
-Definition is_equivariant_comp {G:gr} {X Y Z:Action G} 
+(** The following fact is fundamental: it shows that our definition of
+    [is_equivariant] captures all of the structure.  A similar fact will
+    be in other cases: groups, rings, monoids, etc. *)
+
+Definition is_equivariant_identity {G:gr} {X Y:SetWithAction G}
+           (p:ac_set X == ac_set Y) :
+  weq (transportf (ActionStructure G) p (pr2 X) == pr2 Y)
+      (is_equivariant (cast (ap pr1hSet p))).
+Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
+       simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
+       refine (weqpair _ _).
+       { intros p g x. simpl in x. simpl. 
+         exact (apevalat x (apevalat g (ap act_mult p))). }
+       refine (gradth _ _ _ _).
+       { unfold cast; simpl.
+         intro i.
+         (* compare with [action_eq] below, which we are trying to replace *)
+         assert (p:Xm == Ym).
+         { apply funextfunax; intro g. apply funextfunax; intro x; simpl in x.
+           exact (i g x). } 
+         destruct p. clear i. assert (p:Xu == Yu).
+         { apply funextsec; intro x; simpl in x. apply setproperty. }
+         destruct p. assert (p:Xa == Ya).
+         { apply funextsec; intro g. apply funextsec; intro h.
+           apply funextsec; intro x. apply setproperty. }
+         destruct p. reflexivity. }
+       { intro p. apply isaset_ActionStructure. }
+       { intro is. apply is_equivariant_isaprop. }
+Defined.
+
+Definition is_equivariant_comp {G:gr} {X Y Z:SetWithAction G} 
            (p:X->Y) (i:is_equivariant p)
            (q:Y->Z) (j:is_equivariant q) : is_equivariant (funcomp p q).
 Proof. intros. intros g x. exact (ap q (i g x) @ j g (p x)). Defined.
 
-Definition EquivariantMap {G:gr} (X Y:Action G) := total2 (@is_equivariant _ X Y).
-Definition underlyingFunction {G:gr} {X Y:Action G} (f:EquivariantMap X Y) := pr1 f.
-Definition equivariantProperty {G:gr} {X Y:Action G} (f:EquivariantMap X Y) := pr2 f.
+Definition EquivariantMap {G:gr} (X Y:SetWithAction G) := total2 (@is_equivariant _ X Y).
+Definition underlyingFunction {G:gr} {X Y:SetWithAction G} (f:EquivariantMap X Y) := pr1 f.
+Definition equivariantProperty {G:gr} {X Y:SetWithAction G} (f:EquivariantMap X Y) := pr2 f.
 Coercion underlyingFunction : EquivariantMap >-> Funclass.
 
-Definition composeEquivariantMap {G:gr} (X Y Z:Action G)
+Definition composeEquivariantMap {G:gr} (X Y Z:SetWithAction G)
            (p:EquivariantMap X Y) (q:EquivariantMap Y Z) : EquivariantMap X Z.
 Proof. intros ? ? ? ? [p i] [q j]. exists (funcomp p q).
        apply is_equivariant_comp. assumption. assumption. Defined.
 
-Definition EquivariantEquiv {G:gr} (X Y:Action G) := 
+Definition EquivariantEquiv {G:gr} (X Y:SetWithAction G) := 
   total2 (fun f:weq X Y => is_equivariant f).
-Definition underlyingEquiv {G:gr} {X Y:Action G} (e:EquivariantEquiv X Y) := pr1 e.
+Definition underlyingEquiv {G:gr} {X Y:SetWithAction G} (e:EquivariantEquiv X Y) := pr1 e.
 Coercion underlyingEquiv : EquivariantEquiv >-> weq.
-Definition underlyingEquivariantMap {G:gr} {X Y:Action G} (e:EquivariantEquiv X Y) := 
+Definition underlyingEquivariantMap {G:gr} {X Y:SetWithAction G} (e:EquivariantEquiv X Y) := 
   pr1weq _ _ (pr1 e),, pr2 e.
-Definition idEquivariantEquiv {G:gr} (X:Action G) : EquivariantEquiv X X.
+Definition idEquivariantEquiv {G:gr} (X:SetWithAction G) : EquivariantEquiv X X.
 Proof. intros. exists (idweq _). intros g x. reflexivity. Defined.
-Definition composeEquivariantEquiv {G:gr} {X Y Z:Action G}
+Definition composeEquivariantEquiv {G:gr} {X Y Z:SetWithAction G}
            (e:EquivariantEquiv X Y) (f:EquivariantEquiv Y Z) : EquivariantEquiv X Z.
 Proof. intros ? ? ? ? [e i] [f j]. exists (weqcomp e f).
        destruct e as [e e'], f as [f f']; simpl.
        apply is_equivariant_comp. exact i. exact j. Defined.
-Definition path_to_EquivariantEquiv {G:gr} {X Y:Action G} (e:X==Y) :
+Definition path_to_EquivariantEquiv {G:gr} {X Y:SetWithAction G} (e:X==Y) :
   EquivariantEquiv X Y.
 Proof. intros. destruct e. exact (idEquivariantEquiv X). Defined.
 
-Definition mult_map {G:gr} {X:Action G} (x:X) := fun g => g*x.
+Definition mult_map {G:gr} {X:SetWithAction G} (x:X) := fun g => g*x.
 
 (** *** Applications of univalence *)
+
+(** compare the following two definitions with [transport_type_path] *)
 
 Definition pr1_eqweqmap { X Y } ( e: X==Y ) : 
   pr1 (eqweqmap e) == cast e.
@@ -81,47 +122,55 @@ Definition pr1_eqweqmap2 { X Y } ( e: X==Y ) :
 Proof. intros. destruct e. reflexivity. Defined.
 
 Definition weqpath_transport {X Y} (w:weq X Y) (x:X) :
-  transportf (fun X => X) (weqtopaths w) x == w x.
-Proof. intros. 
-       exact (apevalat x (!pr1_eqweqmap2 (weqtopaths w) @ ap pr1 (weqpathsweq w))).
-Defined.
+  transportf (fun T => T) (weqtopaths w) == pr1 w.
+Proof. intros. exact (!pr1_eqweqmap2 _ @ ap pr1 (weqpathsweq w)). Defined.
 
-Definition action_eq {G:gr} {X Y:Action G} (p: ac_type X == ac_type Y) :
+Definition weqpath_cast {X Y} (w:weq X Y) (x:X) : cast (weqtopaths w) == w.
+Proof. intros. exact (!pr1_eqweqmap _ @ ap pr1 (weqpathsweq w)). Defined.
+
+Definition action_eq {G:gr} {X Y:SetWithAction G} (p: ac_type X == ac_type Y) :
   is_equivariant (eqweqmap p) -> X == Y.
 Proof. intros ? ? ? ? i.
-       destruct X as [[X iX] Xm Xu Xa]; destruct Y as [[Y iY] Ym Yu Ya].
+       destruct X as [[X iX] [Xm Xu Xa]]; destruct Y as [[Y iY] [Ym Yu Ya]].
        unfold ac_type in p. simpl in Xu, Yu, Xa, Ya, p. destruct p.
        simpl in i. assert (p := pr1 (isapropisaset _ iX iY)). destruct p.
-       assert (p : Xm == Ym).
+       assert (p:Xm == Ym).
        { apply funextfunax; intro g. apply funextfunax; intro x; simpl in x.
          exact (i g x). } 
-       destruct p. clear i. assert (p : Xu == Yu).
+       destruct p. clear i. assert (p:Xu == Yu).
        { apply funextsec; intro x; simpl in x. apply iX. }
        destruct p. assert (p:Xa == Ya).
        { apply funextsec; intro g. apply funextsec; intro h.
          apply funextsec; intro x. apply iX. }
        destruct p. reflexivity. Defined.
 
-Definition eqweq_to_id {G:gr} {X Y:Action G} : EquivariantEquiv X Y -> X == Y.
+Definition eqweq_to_id {G:gr} {X Y:SetWithAction G} : EquivariantEquiv X Y -> X == Y.
 (* this theorem is not strong enough: it should produce an equivalence *)
 Proof. intros ? ? ? f. destruct f as [f ie]. set (p := weqtopaths f).
        exact (action_eq p 
                 (cast (!ap is_equivariant (ap (pr1weq _ _) (weqpathsweq f))) ie
           : is_equivariant (eqweqmap p))). Defined.
 
+Lemma id_to_eqweq {G:gr} {X Y:SetWithAction G} : weq (X==Y) (EquivariantEquiv X Y).
+Proof. intros.
+       refine (weqcomp (auxiliary_lemmas_HoTT.total_paths_equiv (ActionStructure G) X Y) _).
+       (* exists path_to_EquivariantEquiv. *)
+       admit.
+Defined.
+
 (** ** Torsors *)
 
-Definition is_torsor {G:gr} (X:Action G) := 
+Definition is_torsor {G:gr} (X:SetWithAction G) := 
   dirprod (ishinh X) (forall x:X, isweq (mult_map x)).
 
-Lemma is_torsor_isaprop {G:gr} (X:Action G) : isaprop (is_torsor X).
+Lemma is_torsor_isaprop {G:gr} (X:SetWithAction G) : isaprop (is_torsor X).
 Proof. intros. apply isofhleveldirprod.
        { apply auxiliary_lemmas_HoTT.propproperty. }
        { apply impred; intro x. apply isapropisweq. } Qed.
 
 Definition Torsor (G:gr) := total2 (@is_torsor G).
-Definition underlyingAction {G} (X:Torsor G) := pr1 X : Action G.
-Coercion underlyingAction : Torsor >-> Action.
+Definition underlyingAction {G} (X:Torsor G) := pr1 X : SetWithAction G.
+Coercion underlyingAction : Torsor >-> SetWithAction.
 Definition is_torsor_prop {G} (X:Torsor G) := pr2 X.
 Definition torsor_nonempty {G} (X:Torsor G) := pr1 (is_torsor_prop X).
 Definition torsor_splitting {G} (X:Torsor G) := pr2 (is_torsor_prop X).
@@ -143,7 +192,7 @@ Proof. intros. exact (pr2 (the (is_quotient X y x))). Defined.
 
 Definition trivialTorsor (G:gr) : Torsor G.
 Proof. 
-  intros. exists (make G G op (lunax G) (assocax G)).
+  intros. exists (makeSetWithAction G (make G G op (lunax G) (assocax G))).
   exact (hinhpr _ (unel G),, 
          fun x => precategories.iso_set_isweq 
            (fun g => op g x) 
