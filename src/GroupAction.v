@@ -25,9 +25,34 @@ Record ActionStructure (G:gr) (X:hSet) :=
 Arguments act_mult {G _} _ g x.
 Local Notation "g * x" := (act_mult (pr2 _) g x).
 
+Module Pack.
+  Definition ActionStructure' (G:gr) (X:hSet) := total2 ( fun
+         act_mult : action_op G X => total2 ( fun
+         act_unit : forall x, act_mult (unel _) x == x => 
+      (* act_assoc : *) forall g h x, act_mult (op g h) x == act_mult g (act_mult h x))).
+  Definition pack {G:gr} {X:hSet} : ActionStructure' G X -> ActionStructure G X
+    := fun ac => make G X (pr1 ac) (pr1 (pr2 ac)) (pr2 (pr2 ac)).
+  Definition unpack {G:gr} {X:hSet} : ActionStructure G X -> ActionStructure' G X
+    := fun ac => (act_mult ac,,(act_unit _ _ ac,,act_assoc _ _ ac)).
+  Definition h {G:gr} {X:hSet} (ac:ActionStructure' G X) : unpack (pack ac) == ac
+    := match ac as t return (unpack (pack t) == t)
+       with (act_mult,,(act_unit,,act_assoc)) => idpath (act_mult,,(act_unit,,act_assoc)) end.
+  Definition k {G:gr} {X:hSet} (ac:ActionStructure G X) : pack (unpack ac) == ac
+    := match ac as i return (pack (unpack i) == i)
+       with make act_mult act_unit act_assoc => idpath _ end.
+  Lemma weq (G:gr) (X:hSet) : weq (ActionStructure' G X) (ActionStructure G X).
+  Proof. intros. exists pack. intros ac. exists (unpack ac,,k ac). intros [ac' m].
+         destruct m. assert (H := h ac'). destruct H. reflexivity. Qed.
+End Pack.
+
 Lemma isaset_ActionStructure (G:gr) (X:hSet) : isaset (ActionStructure G X).
-Proof. intros. intros [Xm Xu Xa] [Ym Yu Ya] p q. admit.
-Qed.
+Proof. intros. apply (isofhlevelweqf 2 (Pack.weq G X)).
+       apply isofhleveltotal2.
+       { apply impred; intro g. apply impred; intro x. apply setproperty. }
+       intro op. apply isofhleveltotal2.
+       { apply impred; intro x. apply hlevelntosn. apply setproperty. }
+       intro un. apply impred; intro g. apply impred; intro h. apply impred; intro x. 
+       apply hlevelntosn. apply setproperty. Qed.
 
 Definition SetWithAction (G:gr) := total2 (ActionStructure G). 
 Definition makeSetWithAction {G:gr} (X:hSet) (ac:ActionStructure G X) :=
@@ -155,6 +180,8 @@ Lemma id_to_eqweq {G:gr} {X Y:SetWithAction G} : weq (X==Y) (EquivariantEquiv X 
 Proof. intros.
        refine (weqcomp (auxiliary_lemmas_HoTT.total_paths_equiv (ActionStructure G) X Y) _).
        (* exists path_to_EquivariantEquiv. *)
+
+
        admit.
 Defined.
 

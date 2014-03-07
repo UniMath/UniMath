@@ -1,4 +1,4 @@
-Module Unpack4.
+Module Unpack4a.
   Inductive paths {A : Type} (a : A) : A -> Type := idpath : paths a a.
   Arguments idpath {A a} , [A] a.
   Notation "x == y" := (paths x y) (at level 70, no associativity).
@@ -85,9 +85,9 @@ Module Unpack4.
   Definition proj2' {X} {P:X->Type} {w w':sigT P} (p:w==w') :
     transport P (ap' (@pr1 X P) p) (pr2 w) == pr2 w'.
   Proof. destruct p. reflexivity. Defined.
-End Unpack4.
+End Unpack4a.
 
-Module Unpack.
+Module Unpack4.
   Require Import Foundations.Generalities.uu0. (* Global Set Asymmetric Patterns. will persist *)
   Notation "a == b" := (paths a b) (at level 70, no associativity).
   Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
@@ -114,7 +114,7 @@ Module Unpack.
   Lemma pack_weq : weq bar foo.
   Proof. intros. exists pack. intros Y. exists (unpack Y,,k Y). intros [X m].
          destruct m. assert (H := h X). destruct H. reflexivity. Qed.
-End Unpack.
+End Unpack4.
 
 Module Isaprop.
   Require Import Foundations.Generalities.uu0. (* Global Set Asymmetric Patterns. will persist *)
