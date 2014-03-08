@@ -172,7 +172,7 @@ Definition torsor_splitting {G} (X:Torsor G) := pr2 (is_torsor_prop X).
 Definition torsor_mult_weq {G} (X:Torsor G) (x:X) := 
   weqpair (mult_map x) (torsor_splitting X x) : weq G X.
 
-Lemma underlyingAction_incl (G:gr) :
+Lemma underlyingAction_incl {G:gr} :
   isincl (underlyingAction : Torsor G -> Action G).
 Proof. intros. apply isinclpr1; intro X. apply is_torsor_isaprop. Defined.
 
@@ -284,7 +284,15 @@ Proof. intros ? [X x]. exists (triviality_isomorphism X x).
 
 Definition PointedTorsor_univalence {G:gr} {X Y:PointedTorsor G} : 
   weq (X==Y) (PointedActionIso X Y).
-Proof. admit.
+Proof. intros.
+       refine (weqcomp (total_paths_equiv _ X Y) _). 
+       refine (weqbandf _ _ _ _).
+       { intros. 
+         exact (weqcomp (weqonpathsincl underlyingAction underlyingAction_incl X Y)
+                        Action_univalence). }
+       Set Printing Coercions.
+       destruct X as [X x], Y as [Y y]; simpl; intro p.
+       admit.
 Defined.
 
 Definition ClassifyingSpace G := pointedType (Torsor G) (trivialTorsor G).
@@ -313,3 +321,5 @@ Definition circle := B ℤ.
 
 Theorem loops_circle : weq (Ω circle) ℤ.
 Proof. apply loopsBG. Defined.
+
+(** Next goal: the induction principle for the circle. *)
