@@ -120,6 +120,14 @@ Definition EquivariantEquiv {G:gr} (X Y:SetWithAction G) :=
   total2 (fun f:weq X Y => is_equivariant f).
 Definition underlyingEquiv {G:gr} {X Y:SetWithAction G} (e:EquivariantEquiv X Y) := pr1 e.
 Coercion underlyingEquiv : EquivariantEquiv >-> weq.
+Lemma underlyingEquiv_incl {G:gr} {X Y:SetWithAction G} :
+  isincl (underlyingEquiv : EquivariantEquiv X Y -> weq X Y).
+Proof. intros. apply isinclpr1; intro f. apply is_equivariant_isaprop. Defined.
+Lemma underlyingEquiv_injectivity {G:gr} {X Y:SetWithAction G}
+      (e f:EquivariantEquiv X Y) :
+  weq (e == f) (underlyingEquiv e == underlyingEquiv f).
+Proof. intros. apply weqonpathsincl. apply underlyingEquiv_incl. Defined.
+
 Definition underlyingEquivariantMap {G:gr} {X Y:SetWithAction G} (e:EquivariantEquiv X Y) := 
   pr1weq _ _ (pr1 e),, pr2 e.
 Definition idEquivariantEquiv {G:gr} (X:SetWithAction G) : EquivariantEquiv X X.
@@ -219,13 +227,16 @@ Definition trivialTorsorAuto (G:gr) (g:G) :
 Proof. intros. exists (trivialTorsorEquiv G g).
        intros h x. simpl.  exact (assocax _ h x g). Defined.
 
+Lemma pr1weq_injectivity {X Y} (f g:weq X Y) : weq (f==g) (pr1weq _ _ f==pr1weq _ _ g).
+Proof. intros. apply weqonpathsincl. apply isinclpr1weq.  Defined.
+
 Definition autos (G:gr) : weq G (EquivariantEquiv (trivialTorsor G) (trivialTorsor G)).
-Proof. intros.
-       exists (trivialTorsorAuto G).
-       refine (gradth _ _ _ _).
-       { intro f. exact (f (unel G)). }
-       { intro g; simpl. exact (lunax _ g). }
-       { intro f; simpl. admit. } Defined.
+Proof. intros. exists (trivialTorsorAuto G). refine (gradth _ _ _ _).
+       { intro f. exact (f (unel G)). } { intro g; simpl. exact (lunax _ g). }
+       { intro f; simpl. apply (invweq (underlyingEquiv_injectivity _ _)); simpl.
+         apply (invweq (pr1weq_injectivity _ _)). apply funextfunax; intro g.
+         simpl. exact ((! (pr2 f) g (unel G)) @ (ap (pr1 f) (runax G g))).
+       } Defined.
 
 Lemma trivialTorsorAuto_unit (G:gr) : 
   trivialTorsorAuto G (unel _) == idEquivariantEquiv _.
@@ -268,26 +279,29 @@ Definition pointed_torsor_id_to_eqweq {G:gr} {X Y:PointedTorsor G} :
 Proof. admit.
 Defined.
 
-Lemma isconnectedTorsor (G:gr) : isconnected(Torsor G).
-Proof. intros. apply (base_connected (trivialTorsor _)).
-  intros X. apply (squash_to_prop (torsor_nonempty X)). { apply propproperty. }
-  intros x. apply hinhpr. exact (torsor_eqweq_to_path (triviality_isomorphism X x)). 
-Defined.
-
-Lemma iscontrPointedTorsor (G:gr) : iscontr(PointedTorsor G).
-Proof. intros. exists (pointedTrivialTorsor G). intros [X x].
-       apply pathsinv0. apply (invweq pointed_torsor_id_to_eqweq).
-       apply pointed_triviality_isomorphism. Defined.
-
 Definition ClassifyingSpace G := pointedType (Torsor G) (trivialTorsor G).
 Local Notation E := PointedTorsor.
 Local Notation B := ClassifyingSpace.
 Definition π {G:gr} := underlyingTorsor : E G -> B G.
 
-Theorem loopsB (G:gr) : weq (Ω (B G)) G.
-Proof. intros. refine (weqcomp _ (invweq (autos G))). 
-       apply torsor_id_to_eqweq. Defined.
+Lemma isconnBG (G:gr) : isconnected (B G).
+Proof. intros. apply (base_connected (trivialTorsor _)).
+  intros X. apply (squash_to_prop (torsor_nonempty X)). { apply propproperty. }
+  intros x. apply hinhpr. exact (torsor_eqweq_to_path (triviality_isomorphism X x)). 
+Defined.
+
+Lemma iscontrEG (G:gr) : iscontr (E G).
+Proof. intros. exists (pointedTrivialTorsor G). intros [X x].
+       apply pathsinv0. apply (invweq pointed_torsor_id_to_eqweq).
+       apply pointed_triviality_isomorphism. Defined.
+
+Theorem loopsBG (G:gr) : weq (Ω (B G)) G.
+Proof. intros. refine (weqcomp torsor_id_to_eqweq _). 
+       apply invweq. apply autos. Defined.
 
 Require Import Foundations.hlevel2.hz.
 Definition ℤ := hzaddabgr.
 Definition circle := B ℤ.
+
+Theorem loops_circle : weq (Ω circle) ℤ.
+Proof. apply loopsBG. Defined.
