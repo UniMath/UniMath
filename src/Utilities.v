@@ -1,4 +1,4 @@
-(** * utilities concerning paths, hlevel, and logic *)
+(** * Utilities concerning paths, hlevel, and logic *)
 
 Unset Automatic Introduction.
 
@@ -51,7 +51,7 @@ Definition app {X} {P:X->Type} {x x':X} {e e':x==x'} (q:e==e') (p:P x) :
    e#p==e'#p.
 Proof. intros. destruct q. reflexivity. Defined.
 
-(** ** Projections from pair types *)
+(** * Projections from pair types *)
 
 Definition pr2_pair {X:UU} {P:X->UU} {w w':total2 P} (p : w == w') :
   transport P (ap pr1 p) (pr2 w) == pr2 w'.
@@ -78,7 +78,7 @@ Lemma transport_idfun {X:UU} (P:X->UU) {x y:X} (p:x==y) (u:P x) :
 (* same as HoTT.PathGroupoids.transport_idmap_ap *)
 Proof. intros. destruct p. reflexivity. Defined.
 
-(** ** Sections *)
+(** * Sections *)
 
 Definition sections {T:UU} (P:T->UU) := forall t:T, P t.
 Definition evalat {T:UU} {U:UU} (t:T) (f:T->U) := f t.
@@ -97,7 +97,7 @@ Definition fromemptysec { X : empty -> UU } (nothing:empty) : X nothing.
 (* compare with [fromempty] in u00 *)
 Proof. intros X H.  destruct H. Defined. 
 
-(** * decidability *)
+(** * Decidability *)
 
 Definition not X := X -> empty.
 Definition decidable X := coprod X (not X).
@@ -244,16 +244,6 @@ Ltac isaset_goal x :=
 Definition squash_to_prop {X Y:UU} : squash X -> isaprop Y -> (X -> Y) -> Y.
   intros ? ? h is f. exact (h (Y,,is) f). Defined.
 
-(** ** Connected types *)
-
-Definition isconnected X := forall (x y:X), ishinh (x==y).
-
-Lemma base_connected {X} (t:X) : (forall y:X, ishinh (t==y)) -> isconnected X.
-Proof. intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
-       apply (squash_to_prop a). apply propproperty. clear a. intros a.
-       apply (squash_to_prop b). apply propproperty. clear b. intros b.
-       apply hinhpr. exact (!a@b). Defined.
-
 (** ** Show that squashing is a set-quotient *)
 
 Definition squash_to_set {X Y} (is:isaset Y)
@@ -324,7 +314,17 @@ Definition fpmaphomothomot {X: UU} {P Q: X -> UU} (h1 h2: P ~ Q) (H: forall x: X
 Proof. intros. intros [x p]. apply (maponpaths (tpair _ x)).  
        destruct (H x). apply idpath. Defined.
 
-(** ** Applications of univalence *)
+(** * Connected types *)
+
+Definition isconnected X := forall (x y:X), ishinh (x==y).
+
+Lemma base_connected {X} (t:X) : (forall y:X, ishinh (t==y)) -> isconnected X.
+Proof. intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
+       apply (squash_to_prop a). apply propproperty. clear a. intros a.
+       apply (squash_to_prop b). apply propproperty. clear b. intros b.
+       apply hinhpr. exact (!a@b). Defined.
+
+(** * Applications of univalence *)
 
 (** Compare the following two definitions with [transport_type_path]. *)
 
@@ -344,12 +344,13 @@ Proof. intros. exact (!pr1_eqweqmap2 _ @ ap pr1 (weqpathsweq w)). Defined.
 Definition weqpath_cast {X Y} (w:weq X Y) (x:X) : cast (weqtopaths w) == w.
 Proof. intros. exact (pr1_eqweqmap _ @ ap pr1 (weqpathsweq w)). Defined.
 
-(** ** Pointed types *)
+(** * Pointed types *)
 
 Definition PointedType := total2 (fun X => X).
 Definition pointedType X x := X,,x : PointedType.
 Definition underlyingType (X:PointedType) := pr1 X.
 Coercion underlyingType : PointedType >-> Sortclass.
 Definition basepoint (X:PointedType) := pr2 X.
-Definition loopSpace (X:PointedType) := basepoint X == basepoint X.
+Definition loopSpace (X:PointedType) := 
+  pointedType (basepoint X == basepoint X) (idpath _).
 Notation Ω := loopSpace.

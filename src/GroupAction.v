@@ -62,7 +62,13 @@ Coercion ac_set : Action >-> hSet.
 Definition ac_type {G:gr} (X:Action G) := pr1hSet (ac_set X).
 Definition ac_str {G:gr} (X:Action G) := pr2 X : ActionStructure G (ac_set X).
 Definition ac_mult {G:gr} (X:Action G) := act_mult (pr2 X).
-Local Notation "g * x" := (ac_mult _ g x).
+Delimit Scope action_scope with action.
+Local Notation "g * x" := (ac_mult _ g x) : action_scope.
+Open Scope action_scope.
+Definition ac_assoc {G:gr} (X:Action G) := act_assoc _ _ (pr2 X) : forall g h x, (op g h)*x == g*(h*x).
+
+Definition right_mult {G:gr} {X:Action G} (x:X) := fun g => g*x.
+Definition left_mult {G:gr} {X:Action G} (g:G) := fun x:X => g*x.
 
 Definition is_equivariant {G:gr} {X Y:Action G} (f:X->Y) := 
   forall g x, f (g*x) == g*(f x).
@@ -73,7 +79,7 @@ Proof. intros. apply impred; intro g. apply impred; intro x.
        apply setproperty. Defined.               
 
 (** The following fact is fundamental: it shows that our definition of
-    [is_equivariant] captures all of the structure.  The proof reduces to the
+    [is_equivariant] captures all of the structure.  The proof reduces to
     showing that if G acts on a set X in two ways, and the identity function is
     equivariant, then the two actions are equal.  A similar fact will hold in
     other cases: groups, rings, monoids, etc. *)
@@ -153,10 +159,8 @@ Defined.
 
 (** ** Torsors *)
 
-Definition mult_map {G:gr} {X:Action G} (x:X) := fun g => g*x.
-
 Definition is_torsor {G:gr} (X:Action G) := 
-  dirprod (ishinh X) (forall x:X, isweq (mult_map x)).
+  dirprod (ishinh X) (forall x:X, isweq (right_mult x)).
 
 Lemma is_torsor_isaprop {G:gr} (X:Action G) : isaprop (is_torsor X).
 Proof. intros. apply isofhleveldirprod. { apply propproperty. }
@@ -170,7 +174,7 @@ Definition is_torsor_prop {G} (X:Torsor G) := pr2 X.
 Definition torsor_nonempty {G} (X:Torsor G) := pr1 (is_torsor_prop X).
 Definition torsor_splitting {G} (X:Torsor G) := pr2 (is_torsor_prop X).
 Definition torsor_mult_weq {G} (X:Torsor G) (x:X) := 
-  weqpair (mult_map x) (torsor_splitting X x) : weq G X.
+  weqpair (right_mult x) (torsor_splitting X x) : weq G X.
 
 Lemma underlyingAction_incl {G:gr} :
   isincl (underlyingAction : Torsor G -> Action G).
@@ -189,10 +193,20 @@ Lemma is_quotient {G} (X:Torsor G) (y x:X) : iscontr (total2 (fun g => g*x == y)
 Proof. intros. exact (pr2 (is_torsor_prop X) x y). Defined.
 
 Definition quotient {G} (X:Torsor G) (y x:X) := pr1 (the (is_quotient X y x)) : G.
-Local Notation "y / x" := (quotient _ y x).
+Local Notation "y / x" := (quotient _ y x) : action_scope.
 
-Lemma quotient_eq {G} (X:Torsor G) (y x:X) : (y/x)*x == y.
-Proof. intros. exact (pr2 (the (is_quotient X y x))). Defined.
+Lemma quotient_times {G} (X:Torsor G) (y x:X) : (y/x)*x == y.
+Proof. intros. exact (pr2 (the (is_quotient _ y x))). Defined.
+
+Lemma quotient_uniqueness {G} (X:Torsor G) (y x:X) (g:G) : g*x == y -> g == y/x.
+Proof. intros ? ? ? ? ? e. 
+       exact (ap pr1 (uniqueness (is_quotient _ y x) (g,,e))). Defined.
+
+Lemma quotient_product {G} (X:Torsor G) (z y x:X) : op (z/y) (y/x) == z/x.
+Proof. intros. apply quotient_uniqueness.
+       exact (ac_assoc _ _ _ _ 
+            @ ap (left_mult (z/y)) (quotient_times _ y x)
+            @ quotient_times _ z y). Defined.
 
 Definition trivialTorsor (G:gr) : Torsor G.
 Proof. 
@@ -209,7 +223,7 @@ Definition pointedTrivialTorsor (G:gr) : PointedTorsor G.
 Proof. intros. exists (trivialTorsor G). exact (unel G). Defined.
 
 Definition univ_function {G:gr} (X:Torsor G) (x:X) : trivialTorsor G -> X.
-Proof. intros ? ? ?. apply mult_map. assumption. Defined.
+Proof. intros ? ? ?. apply right_mult. assumption. Defined.
 
 Definition univ_function_pointed {G:gr} (X:Torsor G) (x:X) :
   univ_function X x (unel _) == x.
@@ -314,10 +328,62 @@ Proof. intros. refine (weqcomp Torsor_univalence _).
        apply invweq. apply autos. Defined.
 
 Require Import Foundations.hlevel2.hz.
-Definition ℤ := hzaddabgr.
+Notation ℕ := nat.
+Notation ℤ := hzaddabgr.
 Definition circle := B ℤ.
 
 Theorem loops_circle : weq (Ω circle) ℤ.
 Proof. apply loopsBG. Defined.
 
-(** Next goal: the induction principle for the circle. *)
+(** * Powers of paths *) 
+
+Definition path_power_nat {Y} {y:Y} (l:y==y) (n:ℕ) : y==y.
+Proof. intros. induction n as [|n p]. 
+       { exact (idpath _). } { exact (p@l). }
+Defined.
+
+Local Notation "l ^ n" := (path_power_nat l n) : paths_nat_scope.
+Open Scope paths_nat_scope.
+
+Goal forall Y (y:Y) (l:y==y), l^0 == idpath _.
+Proof. intros. reflexivity. Qed.
+
+Goal forall Y (y:Y) (l:y==y), l^1 == l.
+Proof. intros. reflexivity. Qed.
+
+Goal forall Y (y:Y) (l:y==y), l^2 == l@l.
+Proof. intros. reflexivity. Qed.
+
+Goal forall Y (y:Y) (l:y==y), l^3 == (l@l)@l.
+Proof. intros. reflexivity. Qed.
+
+Open Scope hz_scope.
+
+Definition path_power {Y} {y:Y} (l:y==y) (n:ℤ) : y==y.
+Proof. intros. assert (m := path_power_nat l (hzabsval n)).
+       destruct (hzlthorgeh n 0). { exact (!m). } { exact m. } Defined.
+
+Delimit Scope paths_scope with paths.
+Open Scope paths_scope.
+Local Notation "l ^ n" := (path_power l n) : paths_scope.
+
+(* Next goal: the induction principle for the circle. *)
+
+Definition F {T:Torsor ℤ} {Y} {y:Y} (l:y==y) (t:T) : Y.
+Proof. intros. exact y. Defined.
+
+Definition F' {T:Torsor ℤ} {Y} {y:Y} (l:y==y) (t u:T) : F l t == F l u.
+Proof. intros ? ? ? ? t u. exact (l^(t/u)). Defined.
+
+Definition G {T:Torsor ℤ} Y (y:Y) (l:y==y) : T -> squash T -> Y.
+Proof. intros ? ? ? ? t u'.
+       set (f := F' l t).
+
+
+       admit.
+Defined.
+
+Definition H (T:Torsor ℤ) Y (y:Y) (l:y==y) : squash T -> squash T -> Y.
+Proof. intros ? ? ? ? t u.
+       admit.
+Defined.

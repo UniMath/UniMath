@@ -83,3 +83,4 @@ describe:
 	    git remote -vv && \
 	    git describe --dirty --long --always --abbrev=40 --all ) ;\
 	done
+publish:html-all;rsync -av html-all/. u00:public_html/Ktheory/.

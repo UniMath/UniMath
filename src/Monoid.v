@@ -385,8 +385,10 @@ Module Product.
       [isdeceq I]. *)
 
   Proof. intros ? ? ? decide_equality xi. apply hinhpr. 
-    exists (fun j => two_cases (decide_equality i j)
-                (fun p => transport X p xi) (fun _ => unel (X j))).
+    refine (_,,_).
+    { intro j. destruct (decide_equality i j) as [p|_].
+      { exact (transport X p xi). }
+      { exact (unel (X j)). } }
     simpl. destruct (decide_equality i i) as [q|r]; simpl.
     { assert (e : idpath i == q).
       { apply equality_proof_irrelevance'. apply isasetifdeceq. assumption. }
