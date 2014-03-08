@@ -334,29 +334,29 @@ Definition True := hProppair unit (isapropifcontr iscontrunit).
 
 Definition squash_to_set {X Y} (is:isaset Y)
   (f:X->Y) (e:forall x x', f x == f x') : squash X -> Y.
+Proof. intros ? ? ? ? ? h. apply (NullHomotopy_center f).
+  refine (factor_through_squash _ _ h).
+  { apply isaprop_NullHomotopy. exact is. exact h. }
+  intros x. exists (f x). intros x'. apply e. Defined.
 
-(** Note: the hypothesis that Y is a set cannot be removed.  Consider,
+(** Note: the hypothesis above that Y is a set cannot be removed.  Consider,
     for example, the inclusion map f for the vertices of a triangle,
     and let e be given by the edges and reflexivity. *)
 
-(** From Voevodsky, for future work:
+(** From Voevodsky, an idea for another proof of squash_to_set:
 
     "I think one can get another proof using "isapropimeqclass" (hSet.v) with "R :=
     fun x1 x1 => unit". This Lemma will show that under your assumptions "Im f" is
-    a proposition. Therefore "X -> Im f" factors through "squash X"." *)
+    a proposition. Therefore "X -> Im f" factors through "squash X"." 
 
-(*
+    Here is a start.
+
 Proof. intros ? ? ? ? ?. 
        set (R := (fun _ _ => True) : hrel X).
        assert (ic : iscomprelfun R f). { intros x x' _. exact (e x x'). }
        assert (im := isapropimeqclass R (hSetpair Y is) f ic).
-(* ? *)
 Defined.
 *)
-
-Proof. intros ? ? ? ? ? h. apply (NullHomotopy_center f).
-  refine (factor_through_squash (isaprop_NullHomotopy is f h) _ h). clear h.
-  intros x'. exists (f x'). intros x. apply e. Defined.
 
 Lemma squash_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
   g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
