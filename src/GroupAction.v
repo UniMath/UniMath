@@ -367,23 +367,9 @@ Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
 Local Notation "l ^ n" := (path_power l n) : paths_scope.
 
-(* Next goal: the induction principle for the circle. *)
+(** * The induction principle for the circle. *)
 
-Definition F {T:Torsor ℤ} {Y} {y:Y} (l:y==y) (t:T) : Y.
-Proof. intros. exact y. Defined.
-
-Definition F' {T:Torsor ℤ} {Y} {y:Y} (l:y==y) (t u:T) : F l t == F l u.
-Proof. intros ? ? ? ? t u. exact (l^(t/u)). Defined.
-
-Definition G {T:Torsor ℤ} Y (y:Y) (l:y==y) : T -> squash T -> Y.
-Proof. intros ? ? ? ? t u'.
-       set (f := F' l t).
-
-
-       admit.
-Defined.
-
-Definition H (T:Torsor ℤ) Y (y:Y) (l:y==y) : squash T -> squash T -> Y.
-Proof. intros ? ? ? ? t u.
-       admit.
-Defined.
+Definition G {T:Torsor ℤ} {Y} {y:Y} (l:y==y) : squash(dirprod T T) -> Y.
+Proof. intros ? ? ? ?. 
+  exact (cone_squash_map _ 
+           (total2_rect _ _ (fun _ => y == y) (fun t u => l^(t/u)))). Defined.

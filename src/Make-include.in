@@ -7,7 +7,6 @@
 # before giving it to etags, and the order of files recorded by it matters for
 # tags-search.
 
-Interval.v
 AbelianGroup.v
 GroupAction.v
 Group.v

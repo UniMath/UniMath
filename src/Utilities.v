@@ -19,11 +19,17 @@ Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification th
   exact ((@id G : T -> G) x).
 
 Definition paths_from {X} (x:X) := coconusfromt X x.
+Definition point_to {X} {x:X} : paths_from x -> X := pr1.
 Definition paths_to {X} (x:X) := coconustot X x.
+Definition point_from {X} {x:X} : paths_to x -> X := pr1.
 Definition iscontr_paths_to {X} (x:X) : iscontr (paths_to x).
 Proof. apply iscontrcoconustot. Defined.
+Definition paths_to_prop {X} (x:X) := 
+  hProppair (paths_to x) (isapropifcontr (iscontr_paths_to x)).
 Definition iscontr_paths_from {X} (x:X) : iscontr (paths_from x).
 Proof. apply iscontrcoconusfromt. Defined.
+Definition paths_from_prop {X} (x:X) := 
+  hProppair (paths_from x) (isapropifcontr (iscontr_paths_from x)).
 
 Module Import Notation.
   Notation set_to_type := hSet.pr1hSet.
@@ -196,11 +202,63 @@ Proof. intros ? ? ? f x y P h.
                  (impred 1 _ (fun _ => propProperty P))) 
               (fun a b => h (f a b)))). Qed.
 
-Definition squash_element {X:UU} : X -> squash X.
+Definition squash_element {X} : X -> squash X.
 Proof. intros ? x P f. exact (f x). Defined.
 
 Lemma isaprop_squash (X:UU) : isaprop (squash X).
 Proof. prop_logic. Qed.
+
+Lemma squash_path {X} (x y:X) : squash_element x == squash_element y.
+Proof. intros. apply isaprop_squash. Defined.
+
+(** We can get a map from 'squash X' to any type 'Y' provided paths
+    are given that allow us to map first into a cone in 'Y'.  *)
+
+Definition cone_squash_map {X Y} {y:Y} (f:X->Y) (e:forall x:X, f x == y) : 
+  squash X -> Y.
+Proof. intros ? ? ? ? ? h. 
+       exact (point_from (h (paths_to_prop y) (fun x => f x,,e x))). Defined.
+
+Goal forall X Y (y:Y) (f:X->Y) (e:forall m:X, f m == y),
+       f == funcomp squash_element (cone_squash_map f e).
+Proof. reflexivity. Qed.
+
+Definition interval := squash bool.
+Definition left := hinhpr _ true : interval.
+Definition right := hinhpr _ false : interval.
+Definition interval_path : left == right := squash_path true false.
+Definition interval_map {Y} {y y':Y} : y == y' -> interval -> Y.
+Proof. intros ? ? ? e.
+       set (f := fun t:bool => if t then y else y').
+       exact (cone_squash_map f
+                (bool_rect (funcomp f (fun y => y == f false)) e (idpath _))).
+Defined.
+Goal forall Y (y y':Y) (e:y == y'), 
+       funcomp (hinhpr _) (interval_map e) == bool_rect (fun _ => Y) y y'.
+Proof. reflexivity. Qed.
+
+(** ** An easy proof of functional extensionality for sections using the interval *)
+
+Definition funextsec2 X (Y:X->Type) (f g:forall x,Y x) :
+           (forall x, f x==g x) -> f == g.
+Proof. intros ? ? ? ? e.
+       exact (maponpaths (fun h x => interval_map (e x) h) interval_path).
+Defined.
+
+(** * The real line *)
+Require Import Foundations.hlevel2.hz.
+Notation ℤ := hz.hzaddabgr.
+Definition line := squash ℤ.
+Notation ℝ := line.
+Definition line_vertex : ℤ -> ℝ := squash_element.
+Definition line_path (m n:ℤ) : line_vertex m == line_vertex n := squash_path m n.
+Definition line_map {Y} {y:Y} (f:forall m:ℤ, Y) (e:forall m:ℤ, f m == y) :
+  line -> Y := cone_squash_map f e.
+Goal forall Y (y:Y) (f:forall m:ℤ, Y) (e:forall m:ℤ, f m == y),
+       forall n, line_map f e (line_vertex n) == f n.
+Proof. reflexivity. Qed.
+
+(** ** Factoring maps through squash *)
  
 Lemma squash_uniqueness {X:UU} (x:X) (h:squash X) : squash_element x == h.
 Proof. intros. apply isaprop_squash. Qed.
@@ -208,9 +266,9 @@ Proof. intros. apply isaprop_squash. Qed.
 Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
 Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Defined.
 
-Lemma factor_through_squash_factors {X Q:UU} (i:isaprop Q) (f:X -> Q) (x:X)
-   : factor_through_squash i f (squash_element x) == f x.
-Proof. trivial. Defined.
+Goal forall X Q (i:isaprop Q) (f:X -> Q) (x:X),
+   factor_through_squash i f (squash_element x) == f x.
+Proof. reflexivity. Defined.
 
 Lemma factor_dep_through_squash {X:UU} {Q:squash X->UU} : 
   (forall h, isaprop (Q h)) -> 
