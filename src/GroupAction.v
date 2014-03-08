@@ -337,12 +337,12 @@ Proof. apply loopsBG. Defined.
 
 (** * Powers of paths *) 
 
-Definition path_power_nat {Y} {y:Y} (l:y==y) (n:ℕ) : y==y.
+Definition loop_power_nat {Y} {y:Y} (l:y==y) (n:ℕ) : y==y.
 Proof. intros. induction n as [|n p]. 
        { exact (idpath _). } { exact (p@l). }
 Defined.
 
-Local Notation "l ^ n" := (path_power_nat l n) : paths_nat_scope.
+Local Notation "l ^ n" := (loop_power_nat l n) : paths_nat_scope.
 Open Scope paths_nat_scope.
 
 Goal forall Y (y:Y) (l:y==y), l^0 == idpath _.
@@ -359,13 +359,13 @@ Proof. intros. reflexivity. Qed.
 
 Open Scope hz_scope.
 
-Definition path_power {Y} {y:Y} (l:y==y) (n:ℤ) : y==y.
-Proof. intros. assert (m := path_power_nat l (hzabsval n)).
+Definition loop_power {Y} {y:Y} (l:y==y) (n:ℤ) : y==y.
+Proof. intros. assert (m := loop_power_nat l (hzabsval n)).
        destruct (hzlthorgeh n 0). { exact (!m). } { exact m. } Defined.
 
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
-Local Notation "l ^ n" := (path_power l n) : paths_scope.
+Local Notation "l ^ n" := (loop_power l n) : paths_scope.
 
 (** * The induction principle for the circle. *)
 

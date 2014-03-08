@@ -211,12 +211,41 @@ Proof. prop_logic. Qed.
 Lemma squash_path {X} (x y:X) : squash_element x == squash_element y.
 Proof. intros. apply isaprop_squash. Defined.
 
+Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
+Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Defined.
+
+Definition null_homotopy_to {X Y} (f:X->Y) (y:Y) := forall x:X, f x == y.
+
+Definition NullHomotopy {X Y} (f:X->Y) := total2 (null_homotopy_to f).
+
+Definition NullHomotopy_center {X Y} (f:X->Y) : NullHomotopy f -> Y := pr1.
+
+Lemma isaset_NullHomotopy {X} {Y} (i:isaset Y) (f:X->Y) :
+  isaset (NullHomotopy f).
+Proof. intros. apply (isofhleveltotal2 2). { apply i. }
+       intros y. apply impred; intros x. apply isasetaprop. apply i. Defined.
+
+Lemma isaprop_NullHomotopy_0 {X} {Y} (is:isaset Y) (f:X->Y) :
+  X -> isaprop (NullHomotopy f).
+Proof. intros ? ? ? ?.
+  assert(m : X -> forall y:Y, isaprop (null_homotopy_to f y)).
+  { intros _ y. apply impred; intros x. apply is. }
+  intros x. apply invproofirrelevance. intros [r i] [s j].
+  assert(k : r == s). 
+  { intermediate (f x). apply pathsinv0; apply i. apply j. }
+  apply (pair_path k). apply m. exact x. Defined.
+
+Lemma isaprop_NullHomotopy {X} {Y} (is:isaset Y) (f:X->Y) :
+  squash X -> isaprop (NullHomotopy f).
+Proof. intros ? ? ? ?. apply factor_through_squash. apply isapropisaprop. 
+       apply isaprop_NullHomotopy_0. exact is. Defined.
+
 (** We can get a map from 'squash X' to any type 'Y' provided paths
     are given that allow us to map first into a cone in 'Y'.  *)
 
-Definition cone_squash_map {X Y} {y:Y} (f:X->Y) (e:forall x:X, f x == y) : 
-  squash X -> Y.
-Proof. intros ? ? ? ? ? h. 
+Definition cone_squash_map {X Y} {y:Y} (f:X->Y) : 
+  null_homotopy_to f y -> squash X -> Y.
+Proof. intros ? ? ? ? e h. 
        exact (point_from (h (paths_to_prop y) (fun x => f x,,e x))). Defined.
 
 Goal forall X Y (y:Y) (f:X->Y) (e:forall m:X, f m == y),
@@ -263,9 +292,6 @@ Proof. reflexivity. Qed.
 Lemma squash_uniqueness {X:UU} (x:X) (h:squash X) : squash_element x == h.
 Proof. intros. apply isaprop_squash. Qed.
 
-Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
-Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Defined.
-
 Goal forall X Q (i:isaprop Q) (f:X -> Q) (x:X),
    factor_through_squash i f (squash_element x) == f x.
 Proof. reflexivity. Defined.
@@ -304,6 +330,8 @@ Definition squash_to_prop {X Y:UU} : squash X -> isaprop Y -> (X -> Y) -> Y.
 
 (** ** Show that squashing is a set-quotient *)
 
+Definition True := hProppair unit (isapropifcontr iscontrunit).
+
 Definition squash_to_set {X Y} (is:isaset Y)
   (f:X->Y) (e:forall x x', f x == f x') : squash X -> Y.
 
@@ -317,27 +345,18 @@ Definition squash_to_set {X Y} (is:isaset Y)
     fun x1 x1 => unit". This Lemma will show that under your assumptions "Im f" is
     a proposition. Therefore "X -> Im f" factors through "squash X"." *)
 
+(*
 Proof. intros ? ? ? ? ?. 
-  set (isnullF := fun y:Y => forall x:X, f x == y). set (nullF := total2 isnullF).
-  assert(ip : isaset nullF).
-   { apply (isofhleveltotal2 2). 
-     { exact is. }
-     { intros y. apply impred; intros t. apply isasetaprop. apply is. } }
-  assert(m : X -> forall y:Y, isaprop (isnullF y)).
-  { intros a z. apply impred; intros t. apply is. }
-  assert(h : X -> isaprop nullF).
-  { intros a. apply invproofirrelevance. intros [r i] [s j].
-    assert(k : r == s). 
-    { intermediate (f a). apply pathsinv0; apply i. apply j. }
-    apply (pair_path k). apply m. exact a. }
-  assert(h' : squash X -> isaprop nullF).
-  { apply factor_through_squash. apply isapropisaprop. exact h. }
-  assert(k : squash X -> nullF).
-  { intros z.
-    apply (@factor_through_squash X _ (h' z)).
-    { intros x. exists (f x). intros x'. apply e. }
-    { exact z. } }
-  intro z. exact (pr1 (k z)). Defined.
+       set (R := (fun _ _ => True) : hrel X).
+       assert (ic : iscomprelfun R f). { intros x x' _. exact (e x x'). }
+       assert (im := isapropimeqclass R (hSetpair Y is) f ic).
+(* ? *)
+Defined.
+*)
+
+Proof. intros ? ? ? ? ? h. apply (NullHomotopy_center f).
+  refine (factor_through_squash (isaprop_NullHomotopy is f h) _ h). clear h.
+  intros x'. exists (f x'). intros x. apply e. Defined.
 
 Lemma squash_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
   g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
