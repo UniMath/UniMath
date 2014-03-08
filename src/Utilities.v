@@ -154,6 +154,10 @@ Definition funset X (Y:hSet) : hSet := hSetpair (X->Y) (impredfun 2 _ _ (pr2 Y))
 Definition path_start {X} {x x':X} (p:x == x') := x.
 Definition path_end {X} {x x':X} (p:x == x') := x'.
 
+Definition pr1hSet_injectivity (X Y:hSet) : weq (X==Y) (pr1hSet X==pr1hSet Y).
+Proof. intros. apply weqonpathsincl. apply isinclpr1; intro T.
+       apply isapropisaset. Defined.
+
 Module AdjointEquivalence.
   Record data X Y := make {
          f : X -> Y; g : Y -> X;
@@ -319,3 +323,33 @@ Definition fpmaphomothomot {X: UU} {P Q: X -> UU} (h1 h2: P ~ Q) (H: forall x: X
   fpmaphomotfun h1 ~ fpmaphomotfun h2.
 Proof. intros. intros [x p]. apply (maponpaths (tpair _ x)).  
        destruct (H x). apply idpath. Defined.
+
+(** ** Applications of univalence *)
+
+(** Compare the following two definitions with [transport_type_path]. *)
+
+Require Import Foundations.Proof_of_Extensionality.funextfun.
+
+Definition pr1_eqweqmap { X Y } ( e: X==Y ) : cast e == pr1 (eqweqmap e).
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition pr1_eqweqmap2 { X Y } ( e: X==Y ) : 
+  pr1 (eqweqmap e) == transportf (fun T:Type => T) e.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition weqpath_transport {X Y} (w:weq X Y) (x:X) :
+  transportf (fun T => T) (weqtopaths w) == pr1 w.
+Proof. intros. exact (!pr1_eqweqmap2 _ @ ap pr1 (weqpathsweq w)). Defined.
+
+Definition weqpath_cast {X Y} (w:weq X Y) (x:X) : cast (weqtopaths w) == w.
+Proof. intros. exact (pr1_eqweqmap _ @ ap pr1 (weqpathsweq w)). Defined.
+
+(** ** Pointed types *)
+
+Definition PointedType := total2 (fun X => X).
+Definition pointedType X x := X,,x : PointedType.
+Definition underlyingType (X:PointedType) := pr1 X.
+Coercion underlyingType : PointedType >-> Sortclass.
+Definition basepoint (X:PointedType) := pr2 X.
+Definition loopSpace (X:PointedType) := basepoint X == basepoint X.
+Notation Ω := loopSpace.
