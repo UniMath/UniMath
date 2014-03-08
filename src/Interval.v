@@ -60,4 +60,8 @@ Proof. intros ? ? ? ? e.
 
 (**    Notice that [ishinh] depends on [funextfunax],
        so we don't get something for nothing, but this is
-       a quick way of deducing [funextsec] from [funextfunax]. *)
+       a quick way of deducing [funextsec] from [funextfunax]. 
+
+       The proof above depends also on eta-reduction.  Without it,
+       the conclusion must be weakened to (fun x => f x) == (fun x => g x)
+*)

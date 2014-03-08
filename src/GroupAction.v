@@ -290,10 +290,8 @@ Proof. intros.
        { intros. 
          exact (weqcomp (weqonpathsincl underlyingAction underlyingAction_incl X Y)
                         Action_univalence). }
-       Set Printing Coercions.
-       destruct X as [X x], Y as [Y y]; simpl; intro p.
-       admit.
-Defined.
+       destruct X as [X x], Y as [Y y]; simpl. intro p. destruct p; simpl.
+       exact (idweq _). Defined.
 
 Definition ClassifyingSpace G := pointedType (Torsor G) (trivialTorsor G).
 Local Notation E := PointedTorsor.
