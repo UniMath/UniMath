@@ -258,11 +258,10 @@ Definition left := hinhpr _ true : interval.
 Definition right := hinhpr _ false : interval.
 Definition interval_path : left == right := squash_path true false.
 Definition interval_map {Y} {y y':Y} : y == y' -> interval -> Y.
-Proof. intros ? ? ? e.
-       set (f := fun t:bool => if t then y else y').
-       exact (cone_squash_map f
-                (bool_rect (funcomp f (fun y => y == f false)) e (idpath _))).
-Defined.
+Proof. intros ? ? ? e. set (f := fun t:bool => if t then y else y').
+       refine (cone_squash_map f _). exact (f false).
+       intros v. induction v. { exact e. } { reflexivity. } Defined.
+
 Goal forall Y (y y':Y) (e:y == y'), 
        funcomp (hinhpr _) (interval_map e) == bool_rect (fun _ => Y) y y'.
 Proof. reflexivity. Qed.
