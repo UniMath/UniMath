@@ -337,7 +337,7 @@ Module Presentation.
                    g (setquotpr (smallestAdequateRelation R) (word_gen i))) 
           -> f == g.
     intros ? ? ? ? ? ? p. apply Monoid.funEquality.
-    apply funextfunax; intro t; simpl in t. 
+    apply funextsec; intro t; simpl in t. 
     apply (surjectionisepitosets _ _ _ (issurjsetquotpr _)).
     { apply setproperty. } { apply agreement_on_gens0. assumption. } Qed.
   Definition universality0 {X I} {R:I->reln X} (M:MarkedAbelianMonoid R) : 
@@ -368,7 +368,7 @@ Module Presentation.
                            (universalMarkedAbelianMonoid R) M 
                            (universality2 M) (fun x => idpath _)).
     exists g. intros f. apply MarkedAbelianMonoidMapEquality.
-    apply Monoid.funEquality. apply funextfunax; intro v.
+    apply Monoid.funEquality. apply funextsec; intro v.
     isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R v) ig); intros [w []].
     exact ((ap f (universalMarkedAbelianMonoid2 R w)) 

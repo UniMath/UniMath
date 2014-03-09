@@ -19,7 +19,7 @@ Definition data (C:precategory) {I} (c:I -> ob C)
   intros.  exact (HomFamily.set C c,, HomFamily.map C c). Defined.
 Definition precat (C:precategory) {I} (c:I -> ob C) : C ==> SET.
   intros. exists (HomFamily.data C c). split.
-  { intros a. apply funextfunax; intros f.  apply funextsec; intros i.
+  { intros a. apply funextsec; intros f.  apply funextsec; intros i.
     apply id_right. }
-  { intros x y z p q. apply funextfunax; intros f. apply funextsec; intros i.
+  { intros x y z p q. apply funextsec; intros f. apply funextsec; intros i.
     apply assoc. } Defined.

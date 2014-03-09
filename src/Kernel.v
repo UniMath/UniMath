@@ -38,9 +38,9 @@ Proof. intros.
        exact (zerocomp_set z f,, zerocomp_map z f). Defined.
 Definition zerocomp {C} (z:hasZeroObject C) {c d:ob C} (f:c → d):C ==> SET.
   intros. exists (zerocomp_data z f). split.
-  { intros x. apply funextfunax; intros [r rf0].
+  { intros x. apply funextsec; intros [r rf0].
     apply (pair_path (id_right _ _ _ r)). apply setproperty. }
-  { intros w x y t u. apply funextfunax. intros [r rf0].
+  { intros w x y t u. apply funextsec. intros [r rf0].
     apply (pair_path (assoc _ _ _ _ _ r t u)).
     apply setproperty. } Defined.
 Definition Cokernel {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :=

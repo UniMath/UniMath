@@ -13,14 +13,6 @@ Proof. intros. exact (compose f g). Defined.
 
 (** *** the path groupoid *)
 
-Lemma path_assoc (X:UU) (a b c d:X) 
-        (f : a == b) (g : b == c) (h : c == d)
-      : f @ (g @ h) == (f @ g) @ h.
-Proof. intros. destruct f. reflexivity. Defined.
-Lemma path_assoc_opaque (X:UU) (a b c d:X) 
-        (f : a == b) (g : b == c) (h : c == d)
-      : f @ (g @ h) == (f @ g) @ h.
-Proof. intros. destruct f. reflexivity. Qed.
 Definition is_groupoid (C : precategory) := 
   forall a b : ob C, isweq (fun p : a == b => idtomor a b p).
 Lemma isaprop_is_groupoid (C : precategory) : isaprop (is_groupoid C).
@@ -48,7 +40,7 @@ Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> precategory.
   { intros. exact (f @ g). }
   { reflexivity. }
   { intros. apply pathscomp0rid. }
-  { intros. apply path_assoc_opaque. }
+  { intros. apply Utilities.path_assoc_opaque. }
 Defined.
 Lemma is_groupoid_path_pregroupoid (X:UU) (iobj:isofhlevel 3 X) :
   is_groupoid (path_pregroupoid X iobj).

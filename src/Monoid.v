@@ -27,11 +27,11 @@ Definition zero_map (A B:monoid) : Hom A B.
 Lemma zero_is_initial (A:monoid) : iscontr (Hom zero A).
 Proof. intros. exists (zero_map zero A).
        intros [f e]. apply funEquality; simpl.
-       apply funextfunax. intro t. induction t. exact (pr2 e). Defined.
+       apply funextsec. intro t. induction t. exact (pr2 e). Defined.
 Lemma zero_is_final (A:monoid) : iscontr (Hom A zero).
 Proof. intros. exists (zero_map A zero).
        intros [f e]. apply funEquality; simpl.
-       apply funextfunax; intro a. induction (f a). reflexivity. Defined.
+       apply funextsec; intro a. induction (f a). reflexivity. Defined.
 Inductive word X : Type :=
   | word_unit : word X
   | word_gen : X -> word X 
@@ -316,7 +316,7 @@ Defined.
                    g (setquotpr (smallestAdequateRelation R) (word_gen i))) 
           -> f == g.
     intros ? ? ? ? ? ? p. apply funEquality.
-    apply funextfunax; intro t; simpl in t. 
+    apply funextsec; intro t; simpl in t. 
     apply (surjectionisepitosets _ _ _ (issurjsetquotpr _)).
     { apply setproperty. } { apply agreement_on_gens0. assumption. } Qed.
   Definition universality0 {X I} {R:I->reln X} (M:MarkedMonoid R) : 
@@ -347,7 +347,7 @@ Defined.
                            (universalMarkedMonoid R) M 
                            (universality2 M) (fun x => idpath _)).
     exists g. intros f. apply MarkedMonoidMapEquality.
-    apply funEquality. apply funextfunax; intro v.
+    apply funEquality. apply funextsec; intro v.
     isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R v) ig); intros [w []].
     exact ((ap f (universalMarkedMonoid2 R w)) 

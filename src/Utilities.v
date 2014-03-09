@@ -8,6 +8,16 @@ Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import Foundations.hlevel2.hSet.
         Import RezkCompletion.pathnotations.PathNotations.
 
+(* this lemma must be somewhere in Foundations *)
+Lemma path_assoc (X:UU) (a b c d:X) 
+        (f : a == b) (g : b == c) (h : c == d)
+      : f @ (g @ h) == (f @ g) @ h.
+Proof. intros. destruct f. reflexivity. Defined.
+Lemma path_assoc_opaque (X:UU) (a b c d:X) 
+        (f : a == b) (g : b == c) (h : c == d)
+      : f @ (g @ h) == (f @ g) @ h.
+Proof. intros. destruct f. reflexivity. Qed.
+
 Set Default Timeout 50.
 
 Definition two_cases {X Y T} : coprod X Y -> (X->T) -> (Y->T) -> T.
@@ -193,6 +203,7 @@ Defined.
 (** * Squashing. *)
 
 Notation squash := ishinh_UU.
+Notation nonempty := ishinh.
 Notation squash_fun := hinhfun.
 Lemma squash_fun2 {X Y Z} : (X -> Y -> Z) -> (squash X -> squash Y -> squash Z).
 Proof. intros ? ? ? f x y P h.
@@ -205,6 +216,9 @@ Proof. intros ? ? ? f x y P h.
 Definition squash_element {X} : X -> squash X.
 Proof. intros ? x P f. exact (f x). Defined.
 
+Definition squash_to_prop {X Y:UU} : squash X -> isaprop Y -> (X -> Y) -> Y.
+  intros ? ? h is f. exact (h (Y,,is) f). Defined.
+
 Lemma isaprop_squash (X:UU) : isaprop (squash X).
 Proof. prop_logic. Qed.
 
@@ -214,18 +228,58 @@ Proof. intros. apply isaprop_squash. Defined.
 Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
 Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Defined.
 
-Definition null_homotopy_to {X Y} (f:X->Y) (y:Y) := forall x:X, f x == y.
-
-Definition NullHomotopy {X Y} (f:X->Y) := total2 (null_homotopy_to f).
+Definition nullHomotopy {X Y} (f:X->Y) (y:Y) := forall x:X, f x == y.
+Definition NullHomotopy {X Y} (f:X->Y) := total2 (nullHomotopy f).
 Definition NullHomotopy_center {X Y} (f:X->Y) : NullHomotopy f -> Y := pr1.
-Definition NullHomotopy_path {X Y} (f:X->Y) (r:NullHomotopy f) := pr2 r.
+Definition NullHomotopy_path {X Y} {f:X->Y} (r:NullHomotopy f) := pr2 r.
+Definition guidedNullHomotopy {X Y} (f:X->Y) (e:forall x x', f x==f x') :=
+  fun h:NullHomotopy f =>
+    forall x x', e x x' == NullHomotopy_path h x @ ! NullHomotopy_path h x'.
+Definition GuidedNullHomotopy {X Y} (f:X->Y) (e:forall x x', f x==f x') :=
+  total2 (guidedNullHomotopy f e).
+Definition toNullHomotopy {X Y} {f:X->Y} {e:forall x x', f x==f x'} :
+  GuidedNullHomotopy f e -> NullHomotopy f := pr1.
+Definition GuidedNullHomotopy_center {X Y} {f:X->Y} {e:forall x x', f x==f x'}
+           (h:GuidedNullHomotopy f e) :=
+  NullHomotopy_center _ (toNullHomotopy h).
+Definition GuidedNullHomotopy_path {X Y} {f:X->Y} {e:forall x x', f x==f x'}
+           (h:GuidedNullHomotopy f e) :=
+  NullHomotopy_path (toNullHomotopy h).
+
+Definition nullHomotopy_transport {X Y} {f:X->Y} {y:Y} (h : nullHomotopy f y)
+           {y':Y} (p:y==y') (x:X) : (p # h) x == h x @ p.
+Proof. intros. destruct p. apply pathsinv0. apply pathscomp0rid. Defined.
+
+Lemma isapropGuidedNullHomotopy {X Y} (f:X->Y) (e:forall x x', f x==f x') :
+  nonempty X -> isaprop (GuidedNullHomotopy f e).
+Proof. intros ? ? ? ? sx.
+       apply (squash_to_prop sx); clear sx; intro x0. { apply isapropisaprop. } 
+       apply invproofirrelevance; intros [[y h] g] [[y' h'] g'].
+       set (p := ! h x0 @ h' x0 : y == y').
+       refine (pair_path _ _).
+       { refine (pair_path _ _).
+         { exact p. }
+         { apply funextsec; intro x.
+           intermediate (h x @ p).
+           { apply nullHomotopy_transport. }
+           unfold p.
+           intermediate ((h x @ ! h x0) @ h' x0).
+           { apply path_assoc. }
+           unfold guidedNullHomotopy in g,g'; simpl in g,g'.
+           rewrite <- (g x x0).
+           rewrite (g' x x0).
+           rewrite <- path_assoc.
+           rewrite pathsinv0l.
+           apply pathscomp0rid. } }
+       admit.
+Defined.
 
 Lemma isaset_NullHomotopy {X Y} (i:isaset Y) (f:X->Y) : isaset (NullHomotopy f).
 Proof. intros. apply (isofhleveltotal2 2). { apply i. }
        intros y. apply impred; intros x. apply isasetaprop. apply i. Defined.
 
-Lemma isaprop_null_homotopy_to {X Y} (is:isaset Y) (f:X->Y) (y:Y) :
-  isaprop (null_homotopy_to f y).
+Lemma isaprop_nullHomotopy {X Y} (is:isaset Y) (f:X->Y) (y:Y) :
+  isaprop (nullHomotopy f y).
 Proof. intros ? ? ? ? ?. apply impred; intros x. apply is. Defined.
 
 Lemma isaprop_NullHomotopy_0 {X} {Y} (is:isaset Y) (f:X->Y) : 
@@ -234,7 +288,7 @@ Lemma isaprop_NullHomotopy_0 {X} {Y} (is:isaset Y) (f:X->Y) :
     equivalent to Y. *)
 Proof. intros ? ? ? ? x. apply invproofirrelevance. intros [r i] [s j].
   refine (pair_path _ _). { exact (!i x @ j x). } 
-  { apply (isaprop_null_homotopy_to is). } Defined.
+  { apply (isaprop_nullHomotopy is). } Defined.
 
 Lemma isaprop_NullHomotopy {X} {Y} (is:isaset Y) (f:X->Y) :
   squash X -> isaprop (NullHomotopy f).
@@ -244,13 +298,13 @@ Proof. intros ? ? ? ?. apply factor_through_squash. apply isapropisaprop.
 (** We can get a map from 'squash X' to any type 'Y' provided paths
     are given that allow us to map first into a cone in 'Y'.  *)
 
-Definition cone_squash_map {X Y} {y:Y} (f:X->Y) : 
-  null_homotopy_to f y -> squash X -> Y.
+Definition cone_squash_map {X Y} (f:X->Y) (y:Y) : 
+  nullHomotopy f y -> squash X -> Y.
 Proof. intros ? ? ? ? e h. 
        exact (point_from (h (paths_to_prop y) (fun x => f x,,e x))). Defined.
 
 Goal forall X Y (y:Y) (f:X->Y) (e:forall m:X, f m == y),
-       f == funcomp squash_element (cone_squash_map f e).
+       f == funcomp squash_element (cone_squash_map f y e).
 Proof. reflexivity. Qed.
 
 Definition interval := squash bool.
@@ -259,7 +313,7 @@ Definition right := hinhpr _ false : interval.
 Definition interval_path : left == right := squash_path true false.
 Definition interval_map {Y} {y y':Y} : y == y' -> interval -> Y.
 Proof. intros ? ? ? e. set (f := fun t:bool => if t then y else y').
-       refine (cone_squash_map f _). exact (f false).
+       refine (cone_squash_map f (f false) _).
        intros v. induction v. { exact e. } { reflexivity. } Defined.
 
 Goal forall Y (y y':Y) (e:y == y'), 
@@ -282,7 +336,7 @@ Notation ℝ := line.
 Definition line_vertex : ℤ -> ℝ := squash_element.
 Definition line_path (m n:ℤ) : line_vertex m == line_vertex n := squash_path m n.
 Definition line_map {Y} {y:Y} (f:forall m:ℤ, Y) (e:forall m:ℤ, f m == y) :
-  line -> Y := cone_squash_map f e.
+  line -> Y := cone_squash_map f y e.
 Goal forall Y (y:Y) (f:forall m:ℤ, Y) (e:forall m:ℤ, f m == y),
        forall n, line_map f e (line_vertex n) == f n.
 Proof. reflexivity. Qed.
@@ -325,9 +379,6 @@ Ltac isaset_goal x :=
   let G := match goal with |- ?G => constr:(G) end in
   assert (x : isaset(G)).
 
-Definition squash_to_prop {X Y:UU} : squash X -> isaprop Y -> (X -> Y) -> Y.
-  intros ? ? h is f. exact (h (Y,,is) f). Defined.
-
 (** ** Show that squashing is a set-quotient *)
 
 Definition True := hProppair unit (isapropifcontr iscontrunit).
@@ -339,8 +390,13 @@ Proof. intros ? ? ? ? ? h. apply (NullHomotopy_center f).
   { apply isaprop_NullHomotopy. exact is. exact h. }
   intros x. exists (f x). intros x'. apply e. Defined.
 
-(** Note: the hypothesis above that Y is a set cannot be removed.  Consider,
-    for example, the inclusion map f for the vertices of a triangle,
+(** Verify that the map factors judgmentally. *)
+Goal forall X Y (is:isaset Y) (f:X->Y) (e:forall x x', f x == f x'),
+       f == funcomp squash_element (squash_to_set is f e).
+Proof. reflexivity. Qed.
+
+(** Note: the hypothesis in [squash_to_set] that Y is a set cannot be removed.
+    Consider, for example, the inclusion map f for the vertices of a triangle,
     and let e be given by the edges and reflexivity. *)
 
 (** From Voevodsky, an idea for another proof of squash_to_set:
@@ -372,7 +428,7 @@ Lemma squash_map_epi {X S:UU} (ip : isaset S) (g g' : squash X -> S) :
   g ∘ squash_element == g'∘ squash_element -> g == g'.
 Proof.
   intros ? ? ? ? ? e.
-  apply funextfunax.
+  apply funextsec.
   apply squash_map_uniqueness. exact ip.
   intro x. destruct e. apply idpath.
 Qed.
@@ -393,9 +449,9 @@ Proof. intros. intros [x p]. apply (maponpaths (tpair _ x)).
 
 (** * Connected types *)
 
-Definition isconnected X := forall (x y:X), ishinh (x==y).
+Definition isconnected X := forall (x y:X), nonempty (x==y).
 
-Lemma base_connected {X} (t:X) : (forall y:X, ishinh (t==y)) -> isconnected X.
+Lemma base_connected {X} (t:X) : (forall y:X, nonempty (t==y)) -> isconnected X.
 Proof. intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
        apply (squash_to_prop a). apply propproperty. clear a. intros a.
        apply (squash_to_prop b). apply propproperty. clear b. intros b.

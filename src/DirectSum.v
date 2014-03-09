@@ -46,7 +46,7 @@ Proof. intros. set (id := identity_map h dec B D).
   { intros. 
     assert (b : (fun (f : Hom D c) (i : I) => (f ∘ id) ∘ Sum.In B i)
              == (fun (f : Hom D c) (i : I) => f ∘ (id ∘ Sum.In B i))).
-    { apply funextfunax; intros f. apply funextsec; intros i. apply assoc. }
+    { apply funextsec; intros f. apply funextsec; intros i. apply assoc. }
     destruct b.
     exact (twooutof3c (fun f => f ∘ id) 
                       (fun g i => g ∘ Sum.In B i)

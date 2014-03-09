@@ -96,7 +96,7 @@ Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
        { unfold cast; simpl.
          intro i.
          assert (p:Xm==Ym).
-         { apply funextfunax; intro g. apply funextfunax; intro x; simpl in x.
+         { apply funextsec; intro g. apply funextsec; intro x; simpl in x.
            exact (i g x). } 
          destruct p. clear i. assert (p:Xu==Yu).
          { apply funextsec; intro x; simpl in x. apply setproperty. }
@@ -160,7 +160,7 @@ Defined.
 (** ** Torsors *)
 
 Definition is_torsor {G:gr} (X:Action G) := 
-  dirprod (ishinh X) (forall x:X, isweq (right_mult x)).
+  dirprod (nonempty X) (forall x:X, isweq (right_mult x)).
 
 Lemma is_torsor_isaprop {G:gr} (X:Action G) : isaprop (is_torsor X).
 Proof. intros. apply isofhleveldirprod. { apply propproperty. }
@@ -256,7 +256,7 @@ Definition autos (G:gr) : weq G (ActionIso (trivialTorsor G) (trivialTorsor G)).
 Proof. intros. exists (trivialTorsorAuto G). refine (gradth _ _ _ _).
        { intro f. exact (f (unel G)). } { intro g; simpl. exact (lunax _ g). }
        { intro f; simpl. apply (invweq (underlyingIso_injectivity _ _)); simpl.
-         apply (invweq (pr1weq_injectivity _ _)). apply funextfunax; intro g.
+         apply (invweq (pr1weq_injectivity _ _)). apply funextsec; intro g.
          simpl. exact ((! (pr2 f) g (unel G)) @ (ap (pr1 f) (runax G g))).
        } Defined.
 
@@ -343,25 +343,10 @@ Proof. intros. induction n as [|n p].
 Defined.
 
 Local Notation "l ^ n" := (loop_power_nat l n) : paths_nat_scope.
-Open Scope paths_nat_scope.
-
-Goal forall Y (y:Y) (l:y==y), l^0 == idpath _.
-Proof. intros. reflexivity. Qed.
-
-Goal forall Y (y:Y) (l:y==y), l^1 == l.
-Proof. intros. reflexivity. Qed.
-
-Goal forall Y (y:Y) (l:y==y), l^2 == l@l.
-Proof. intros. reflexivity. Qed.
-
-Goal forall Y (y:Y) (l:y==y), l^3 == (l@l)@l.
-Proof. intros. reflexivity. Qed.
-
-Open Scope hz_scope.
 
 Definition loop_power {Y} {y:Y} (l:y==y) (n:ℤ) : y==y.
 Proof. intros. assert (m := loop_power_nat l (hzabsval n)).
-       destruct (hzlthorgeh n 0). { exact (!m). } { exact m. } Defined.
+       destruct (hzlthorgeh n 0%hz). { exact (!m). } { exact m. } Defined.
 
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
@@ -370,6 +355,15 @@ Local Notation "l ^ n" := (loop_power l n) : paths_scope.
 (** * The induction principle for the circle. *)
 
 Definition G {T:Torsor ℤ} {Y} {y:Y} (l:y==y) : squash(dirprod T T) -> Y.
+Proof. intros ? ? ? ?. refine (cone_squash_map (fun _ => y) y _).
+       intros [t u]. exact (l^(t/u)). Defined.       
+
+Definition H {T:Torsor ℤ} {Y} {y:Y} (l:y==y) : squash T -> Y.
 Proof. intros ? ? ? ?. 
-  exact (cone_squash_map _ 
-           (total2_rect _ _ (fun _ => y == y) (fun t u => l^(t/u)))). Defined.
+
+
+
+
+
+       admit.
+Defined.

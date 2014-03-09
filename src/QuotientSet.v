@@ -17,7 +17,7 @@ Lemma setquotuniv_equal { X : UU } ( R : hrel X ) ( Y : hSet )
       ( f f' : X -> Y ) (p : f == f')
       ( is : iscomprelfun R f ) ( is' : iscomprelfun R f' )
 : setquotuniv R Y f is == setquotuniv R Y f' is'.
-Proof. intros. destruct p. apply funextfunax; intro c.
+Proof. intros. destruct p. apply funextsec; intro c.
        assert(ip : isaprop (iscomprelfun R f)). { 
          apply impred; intro x; apply impred; intro x'.
          apply impred; intro p. apply setproperty. }
@@ -33,7 +33,7 @@ Proof. intros ? ? ? ? ? ? ? x''.
          apply (pr2 is). assumption. }
        { intros x x' e.
          assert( p : f x == f x' ). 
-         { apply funextfunax; intro y. apply (pr1 is). assumption. }
+         { apply funextsec; intro y. apply (pr1 is). assumption. }
        apply setquotuniv_equal. assumption. } assumption. Defined.
 Definition setquotfun2 {X Y Z} {RX:hrel X} {RY:hrel Y} {RZ:eqrel Z}
            (f:X->Y->Z) (is:iscomprelrelfun2 RX RY RZ f) :

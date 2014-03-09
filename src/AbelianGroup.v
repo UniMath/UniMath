@@ -356,7 +356,7 @@ Module Presentation.
                    g (setquotpr (smallestAdequateRelation R) (word_gen i))) 
           -> f == g.
     intros ? ? ? ? ? ? p. apply Monoid.funEquality.
-    apply funextfunax; intro t; simpl in t. 
+    apply funextsec; intro t; simpl in t. 
     apply (surjectionisepitosets _ _ _ (issurjsetquotpr _)).
     { apply setproperty. } { apply agreement_on_gens0. assumption. } Qed.
   Definition universality0 {X I} {R:I->reln X} (M:MarkedAbelianGroup R) : 
@@ -387,7 +387,7 @@ Module Presentation.
                            (universalMarkedAbelianGroup R) M 
                            (universality2 M) (fun x => idpath _)).
     exists g. intros f. apply MarkedAbelianGroupMapEquality.
-    apply Monoid.funEquality. apply funextfunax; intro v.
+    apply Monoid.funEquality. apply funextsec; intro v.
     isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R v) ig); intros [w []].
     exact ((ap f (universalMarkedAbelianGroup2 R w)) 
@@ -415,7 +415,7 @@ Module Product.
   Definition UniqueMap {I} (G:I->abgr) (T:abgr) (h h' : Hom T (make G)) :
        (forall i, Proj G i ∘ h == Proj G i ∘ h') -> h == h'.
     intros ? ? ? ? ? e. apply Monoid.funEquality.
-    apply funextfunax; intro t. apply funextsec; intro i.
+    apply funextsec; intro t. apply funextsec; intro i.
     exact (apevalat t (ap pr1 (e i))). Qed.
 End Product.
 Module Sum.                   (* coproducts *)
@@ -487,18 +487,18 @@ Module Category.
 
   Module Product.
     Definition Object {I} (X:I->ob Precat) : ob Precat
-      := AbelianGroup.Product.make X.
+      := Product.make X.
     Import Primitive.InitialObject.
     Definition make {I} (X:I->ob Precat) : Product.type Precat X.
       intros.
       set (Q := Elements.make_ob (HomFamily.precat Precat^op X) (Object X)
-                                 (AbelianGroup.Product.Proj X)).
+                                 (Product.Proj X)).
       exists Q. intros T. assert ( k' : Hom Q T ).
       { destruct T as [T_ob T_el].
-        exists (AbelianGroup.Product.Map X T_ob T_el). simpl.
-        apply funextsec. exact_op (AbelianGroup.Product.Eqn X T_ob T_el). }
+        exists (Product.Map X T_ob T_el). simpl.
+        apply funextsec. exact_op (Product.Eqn X T_ob T_el). }
       exists k'. intros k. apply Elements.mor_equality.
-      exact (AbelianGroup.Product.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
+      exact (Product.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
                (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
   End Product.
 
@@ -506,18 +506,18 @@ Module Category.
 
   Module Sum.
     Definition Object {I} (X:I->ob Precat) : ob Precat
-      := AbelianGroup.Sum.make X.
+      := Sum.make X.
     Import Primitive.InitialObject.
     Definition make {I} (X:I->ob Precat) : Sum.type Precat X.
       intros.
       set (Q := Elements.make_ob (HomFamily.precat Precat X) (Object X)
-                                 (AbelianGroup.Sum.Incl X)).
+                                 (Sum.Incl X)).
       exists Q. intros T. assert ( k' : Hom Q T ).
       { destruct T as [T_ob T_el].
-        exists (AbelianGroup.Sum.Map X T_ob T_el). simpl.
-        apply funextsec. exact_op (AbelianGroup.Sum.Eqn X T_ob T_el). }
+        exists (Sum.Map X T_ob T_el). simpl.
+        apply funextsec. exact_op (Sum.Eqn X T_ob T_el). }
       exists k'. intros k. apply Elements.mor_equality.
-      exact (AbelianGroup.Sum.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
+      exact (Sum.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
                (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
   End Sum.
 
