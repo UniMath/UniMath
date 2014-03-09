@@ -217,23 +217,24 @@ Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Define
 Definition null_homotopy_to {X Y} (f:X->Y) (y:Y) := forall x:X, f x == y.
 
 Definition NullHomotopy {X Y} (f:X->Y) := total2 (null_homotopy_to f).
-
 Definition NullHomotopy_center {X Y} (f:X->Y) : NullHomotopy f -> Y := pr1.
+Definition NullHomotopy_path {X Y} (f:X->Y) (r:NullHomotopy f) := pr2 r.
 
-Lemma isaset_NullHomotopy {X} {Y} (i:isaset Y) (f:X->Y) :
-  isaset (NullHomotopy f).
+Lemma isaset_NullHomotopy {X Y} (i:isaset Y) (f:X->Y) : isaset (NullHomotopy f).
 Proof. intros. apply (isofhleveltotal2 2). { apply i. }
        intros y. apply impred; intros x. apply isasetaprop. apply i. Defined.
 
-Lemma isaprop_NullHomotopy_0 {X} {Y} (is:isaset Y) (f:X->Y) :
+Lemma isaprop_null_homotopy_to {X Y} (is:isaset Y) (f:X->Y) (y:Y) :
+  isaprop (null_homotopy_to f y).
+Proof. intros ? ? ? ? ?. apply impred; intros x. apply is. Defined.
+
+Lemma isaprop_NullHomotopy_0 {X} {Y} (is:isaset Y) (f:X->Y) : 
   X -> isaprop (NullHomotopy f).
-Proof. intros ? ? ? ?.
-  assert(m : X -> forall y:Y, isaprop (null_homotopy_to f y)).
-  { intros _ y. apply impred; intros x. apply is. }
-  intros x. apply invproofirrelevance. intros [r i] [s j].
-  assert(k : r == s). 
-  { intermediate (f x). apply pathsinv0; apply i. apply j. }
-  apply (pair_path k). apply m. exact x. Defined.
+(** The point of X is needed, for when X is empty, then NullHomotopy f is
+    equivalent to Y. *)
+Proof. intros ? ? ? ? x. apply invproofirrelevance. intros [r i] [s j].
+  refine (pair_path _ _). { exact (!i x @ j x). } 
+  { apply (isaprop_null_homotopy_to is). } Defined.
 
 Lemma isaprop_NullHomotopy {X} {Y} (is:isaset Y) (f:X->Y) :
   squash X -> isaprop (NullHomotopy f).
