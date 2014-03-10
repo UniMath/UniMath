@@ -17,13 +17,9 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Add LoadPath "../hlevel1" .
-Add LoadPath "../Generalities".
+Add LoadPath "../../" .
 
-
-Require Export "uuu".
-Require Export "uu0" . 
-Require Export "hProp" .
+Require Export Foundations.hlevel1.hProp .
 
 
 
@@ -900,7 +896,11 @@ Proof . intros . set ( f := fromsubquot R P ) . set ( g := tosubquot R P ) .  sp
 
 assert ( egf : forall a , paths ( g ( f a ) ) a ) .  intros a .  destruct a as [ p isp ] . generalize isp . generalize p . clear isp . clear p .  assert ( int : forall p , isaprop ( forall isp : P p , paths (g (f ( tpair _ p isp ))) ( tpair _ p isp )  ) ) .  intro p . apply impred . intro . apply ( int0 _ _ ) . apply ( setquotunivprop _ ( fun a =>  hProppair _ ( int a ) ) ) .  simpl . intros x isp .  apply ( invmaponpathsincl _ ( isinclpr1carrier P ) _ _ ) .  apply idpath . 
 
-assert ( efg : forall a , paths ( f ( g a ) ) a ) . assert ( int : forall a , isaprop ( paths ( f ( g a ) ) a ) ) . intro a . apply ( setproperty ( setquotinset (resrel R (funcomp (setquotpr R) P)) )  ) . set ( Q := reseqrel R (funcomp (setquotpr R) P) ) . apply ( setquotunivprop Q ( fun a : setquot (resrel R (funcomp (setquotpr R) P)) =>  hProppair _ ( int a ) ) ) .   intro a . simpl .  unfold f . unfold g . unfold fromsubquot . unfold tosubquot . simpl .  apply ( invmaponpathsincl _ ( isinclpr1 _ ( fun a => isapropiseqclass _ a ) ) ) .  apply idpath .  
+assert ( efg : forall a , paths ( f ( g a ) ) a ) . assert ( int : forall a , isaprop ( paths ( f ( g a ) ) a ) ) . intro a . apply ( setproperty ( setquotinset (resrel R (funcomp (setquotpr R) P)) )  ) . set ( Q := reseqrel R (funcomp (setquotpr R) P) ) . apply ( setquotunivprop Q ( fun a : setquot (resrel R (funcomp (setquotpr R) P)) =>  hProppair _ ( int a ) ) ) .   intro a . simpl .  unfold f . unfold g . unfold fromsubquot . unfold tosubquot . 
+
+(* Compilations hangs here if the next command is "simpl." in 8.4-8.5-trunk *)
+
+  apply ( invmaponpathsincl _ ( isinclpr1 _ ( fun a => isapropiseqclass _ a ) ) ) .  apply idpath .  
 
 apply ( gradth _ _ egf efg ) . Defined .
 

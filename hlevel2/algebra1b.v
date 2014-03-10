@@ -13,14 +13,9 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Add LoadPath "../hlevel1" .
-Add LoadPath "../Generalities".
+Add LoadPath "../../" .
 
-Require Export "uuu".
-Require Export "uu0" . 
-Require Export "hProp" .
-Require Export "hSet" .
-Require Export "algebra1a" .
+Require Export Foundations.hlevel2.algebra1a .
 
 
 (** To upstream files *)
@@ -492,8 +487,14 @@ Proof . intros . set ( assoc := ( assocax X ) : isassoc ( @op X ) ) . unfold isa
 
 Opaque ispartbinopabmonoidfracrelint . 
 
+(* ??? Coq 8.4-8.5 trunk hangs here on the following line: 
+
+Axiom ispartlbinopabmonoidfracrel : forall ( X : abmonoid ) ( A : @subabmonoids X ) { L : hrel X } ( is : ispartbinophrel A L ) ( aa aa' : A ) ( z z' : abmonoidfrac X A ) ( l : abmonoidfracrel X A is z z' ) , abmonoidfracrel X A is ( ( prabmonoidfrac X A ( pr1 aa ) aa' ) + z ) ( ( prabmonoidfrac X A ( pr1 aa ) aa' ) + z' ) .
+
+*)
+
 Lemma ispartlbinopabmonoidfracrel ( X : abmonoid ) ( A : @subabmonoids X ) { L : hrel X } ( is : ispartbinophrel A L ) ( aa aa' : A ) ( z z' : abmonoidfrac X A ) ( l : abmonoidfracrel X A is z z' ) : abmonoidfracrel X A is ( ( prabmonoidfrac X A ( pr1 aa ) aa' ) + z ) ( ( prabmonoidfrac X A ( pr1 aa ) aa' ) + z' ) .
-Proof . intros X A L is aa aa' . set ( assoc := ( assocax X ) : isassoc ( @op X ) ) . unfold isassoc in assoc .  set ( comm := commax X ) .  unfold iscomm in comm . set ( rer := abmonoidrer X ) . assert ( int : forall z z' , isaprop ( abmonoidfracrel X A is z z' -> abmonoidfracrel X A is (prabmonoidfrac X A (pr1 aa) aa' + z) (prabmonoidfrac X A (pr1 aa) aa' + z') ) ) . intros z z' . apply impred . intro . apply ( pr2 ( abmonoidfracrel _ _ _ _ _ ) ) .  apply ( setquotuniv2prop _ ( fun z z' => hProppair _ ( int z z' ) ) ) . intros xa1 xa2 .  change ( abmonoidfracrelint X A L xa1 xa2 -> abmonoidfracrelint X A L ( @op ( abmonoiddirprod X A ) ( dirprodpair ( pr1 aa ) aa' ) xa1 ) (  @op ( abmonoiddirprod X A ) ( dirprodpair ( pr1 aa ) aa' ) xa2 ) ) . unfold abmonoidfracrelint .  simpl . apply hinhfun . intro t2l .  set ( a := pr1 aa ) . set ( a' := pr1 aa' ) . set ( c0a := pr1 t2l ) . set ( l := pr2 t2l ) .  set ( c0 := pr1 c0a ) .  set ( x1 := pr1 xa1 ) . set ( a1 := pr1 ( pr2 xa1 ) ) .  set ( x2 := pr1 xa2 ) . set ( a2 := pr1 ( pr2 xa2 ) ) . split with c0a .  
+Proof . intros X A L is aa aa' . set ( assoc := ( assocax X ) : isassoc ( @op X ) ) . unfold isassoc in assoc .  set ( comm := commax X ) .  unfold iscomm in comm . set ( rer := abmonoidrer X ) . assert ( int : forall z z' , isaprop ( abmonoidfracrel X A is z z' -> abmonoidfracrel X A is (prabmonoidfrac X A (pr1 aa) aa' + z) (prabmonoidfrac X A (pr1 aa) aa' + z') ) ) . intros z z' . apply impred . intro . apply ( pr2 ( abmonoidfracrel _ _ _ _ _ ) ) .  apply ( setquotuniv2prop _ ( fun z z' => hProppair _ ( int z z' ) ) ) . intros xa1 xa2 .  change ( abmonoidfracrelint X A L xa1 xa2 -> abmonoidfracrelint X A L ( @op ( abmonoiddirprod X A ) ( dirprodpair ( pr1 aa ) aa' ) xa1 ) (  @op ( abmonoiddirprod X A ) ( dirprodpair ( pr1 aa ) aa' ) xa2 ) ) . unfold abmonoidfracrelint .  simpl . apply hinhfun . intro t2l .  set ( a := pr1 aa ) . set ( a' := pr1 aa' ) . set ( c0a := pr1 t2l ) . set ( l := pr2 t2l ) .  set ( c0 := pr1 c0a ) .  set ( x1 := pr1 xa1 ) . set ( a1 := pr1 ( pr2 xa1 ) ) .  set ( x2 := pr1 xa2 ) . set ( a2 := pr1 ( pr2 xa2 ) ) . split with c0a .   
 
 change ( L ( a + x1 + ( a' + a2 ) + c0 ) ( a + x2 + ( a' + a1 ) + c0 ) ) . rewrite ( rer _ x1 a' _ ) . rewrite ( rer _ x2 a' _ ) .  rewrite ( assoc _ ( x1 + a2 ) c0 ) .  rewrite ( assoc _ ( x2 + a1 ) c0 ) . apply ( ( pr1 is ) _ _ _ ( pr2 ( @op A aa aa' ) ) ) . apply l . Defined . 
 
@@ -669,9 +670,9 @@ Definition invongrquot { X : gr } ( R : @binopeqrel X ) : setquot R -> setquot R
 Lemma isinvongrquot { X : gr } ( R : @binopeqrel X ) : isinv ( @op ( setwithbinopquot R ) ) ( setquotpr R ( unel X ) ) ( invongrquot R ) . 
 Proof . intros . split .
 
-unfold islinv .  apply ( setquotunivprop R ( fun x : setwithbinopquot R, eqset (@op ( setwithbinopquot R ) (invongrquot R x) x) (setquotpr R (unel X)) ) ) .  intro x . apply ( @maponpaths _ _ ( setquotpr R ) ( @op X ( grinv X x ) x ) ( unel X ) ) .  apply ( grlinvax X ) . 
+unfold islinv .  apply ( setquotunivprop R ( fun x : setwithbinopquot R => eqset (@op ( setwithbinopquot R ) (invongrquot R x) x) (setquotpr R (unel X)) ) ) .  intro x . apply ( @maponpaths _ _ ( setquotpr R ) ( @op X ( grinv X x ) x ) ( unel X ) ) .  apply ( grlinvax X ) . 
 
-unfold isrinv .  apply ( setquotunivprop R ( fun x : setwithbinopquot R, eqset (@op ( setwithbinopquot R ) x (invongrquot R x) ) (setquotpr R (unel X)) ) ) .  intro x . apply ( @maponpaths _ _ ( setquotpr R ) ( @op X x ( grinv X x ) ) ( unel X ) ) .  apply ( grrinvax X ) . Defined .
+unfold isrinv .  apply ( setquotunivprop R ( fun x : setwithbinopquot R => eqset (@op ( setwithbinopquot R ) x (invongrquot R x) ) (setquotpr R (unel X)) ) ) .  intro x . apply ( @maponpaths _ _ ( setquotpr R ) ( @op X x ( grinv X x ) ) ( unel X ) ) .  apply ( grrinvax X ) . Defined .
 
 Opaque isinvongrquot . 
 

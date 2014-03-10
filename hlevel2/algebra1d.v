@@ -13,16 +13,9 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Add LoadPath "../hlevel1" .
-Add LoadPath "../Generalities".
+Add LoadPath "../.." .
 
-Require Export "uuu".
-Require Export "uu0" . 
-Require Export "hProp" .
-Require Export "hSet" .
-Require Export "algebra1a" .
-Require Export "algebra1b" .
-Require Export "algebra1c" .
+Require Export Foundations.hlevel2.algebra1c .
 
 
 (** To upstream files *)

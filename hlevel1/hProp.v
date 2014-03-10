@@ -25,10 +25,9 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports *)
 
-Add LoadPath "../Generalities" .
+Add LoadPath "../../" .
 
-Require Export "uuu".
-Require Export "uu0" . 
+Require Export Foundations.Generalities.uu0.
 
 (** Universe structure *)
 
@@ -267,7 +266,7 @@ Proof. intros. apply proofirrelevance . apply (isapropweqtoprop P P' (pr2 P')). 
 Theorem univfromtwoaxiomshProp (P P':hProp): isweq (@eqweqmaphProp P P').
 Proof. intros. 
 
-set (P1:= fun XY: dirprod hProp hProp => (match XY with tpair X Y =>  paths X Y end)). set (P2:= fun XY:  dirprod hProp hProp => match XY with  tpair X Y => weq X Y end). set (Z1:=  total2 P1). set (Z2:=  total2 P2). set (f:= ( totalfun _ _ (fun XY: dirprod hProp hProp => (match XY with  tpair X Y => @eqweqmaphProp X Y end))): Z1 -> Z2). set (g:=  ( totalfun _ _ (fun XY: dirprod hProp hProp => (match XY with  tpair X Y => @weqtopathshProp X Y end))): Z2 -> Z1). set (s1:= (fun X Y :hProp => fun w: weq X Y =>  tpair P2 ( dirprodpair X Y) w)). set (efg:= (fun a:_ => match a as a' return (paths (f (g a')) a') with  tpair ( tpair X Y) w => ( maponpaths (s1 X Y) (@weqpathsweqhProp X Y w)) end)). 
+set (P1:= fun XY: dirprod hProp hProp => (match XY with tpair _ X Y =>  paths X Y end)). set (P2:= fun XY:  dirprod hProp hProp => match XY with  tpair _ X Y => weq X Y end). set (Z1:=  total2 P1). set (Z2:=  total2 P2). set (f:= ( totalfun _ _ (fun XY: dirprod hProp hProp => (match XY with  tpair _ X Y => @eqweqmaphProp X Y end))): Z1 -> Z2). set (g:=  ( totalfun _ _ (fun XY: dirprod hProp hProp => (match XY with  tpair _ X Y => @weqtopathshProp X Y end))): Z2 -> Z1). set (s1:= (fun X Y :hProp => fun w: weq X Y =>  tpair P2 ( dirprodpair X Y) w)). set (efg:= (fun a:_ => match a as a' return (paths (f (g a')) a') with  tpair _ ( tpair _ X Y) w => ( maponpaths (s1 X Y) (@weqpathsweqhProp X Y w)) end)). 
 
 set (h:= fun a1:Z1 => (pr1 ( pr1 a1))).
 assert (egf0: forall a1:Z1,  paths ( pr1 (g (f a1))) ( pr1 a1)). intro. apply  idpath.  
@@ -275,7 +274,7 @@ assert (egf1: forall a1 a1':Z1,  paths ( pr1 a1') ( pr1 a1) -> paths a1' a1). in
 assert (is:  isweq h). apply ( isweqpr1pr1 hProp ). apply ( invmaponpathsweq ( weqpair h is ) _ _ X').
 set (egf:= fun a1:_ => (egf1 _ _ (egf0 a1))). 
 set (is2:= gradth _ _ egf efg). 
-apply ( isweqtotaltofib P1 P2  (fun XY: dirprod hProp hProp => (match XY with  tpair X Y => @eqweqmaphProp X Y end)) is2 ( dirprodpair P P')). Defined. 
+apply ( isweqtotaltofib P1 P2  (fun XY: dirprod hProp hProp => (match XY with  tpair _ X Y => @eqweqmaphProp X Y end)) is2 ( dirprodpair P P')). Defined. 
 
 Definition weqeqweqhProp ( P P' : hProp ) := weqpair _ ( univfromtwoaxiomshProp P P' ) .
 

@@ -15,18 +15,9 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
-Add LoadPath "../hlevel1" .
-Add LoadPath "../Generalities".
+Add LoadPath "../../" .
 
-Require Export "uuu".
-Require Export "uu0" . 
-Require Export "hProp" .
-Require Export "hSet" .
-Require Export "algebra1a" .
-Require Export "algebra1b" .
-Require Export "algebra1c" .
-Require Export "algebra1d" . 
-Require Export "hnat" .
+Require Export Foundations.hlevel2.hnat .
 
 
 (* To up-stream files *)
@@ -80,7 +71,7 @@ Proof. intro. unfold Poset . split with ( hSetpair ( stn i ) ( isasetstn i ) ) .
 Definition lastelement ( n : nat ) : stn ( S n ) .
 Proof. intro .   split with n .  apply ( natgthsnn ( S n ) ) .  Defined . 
 
-Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : stn m -> stn n := fun x : stn m => match x with tpair i is => stnpair _ i ( natlthlehtrans i m n is isnatleh ) end .  
+Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : stn m -> stn n := fun x : stn m => match x with tpair _ i is => stnpair _ i ( natlthlehtrans i m n is isnatleh ) end .  
 
 
 
@@ -228,7 +219,7 @@ Proof .  intros . destruct ( natgthorleh m 0 ) as [ is | i ] .
 
 assert ( i1 : forall i j : nat , natlth i n -> natlth j m ->  natlth ( j + i * m ) ( n * m ) ).  intros i j li lj . apply ( natlthlehtrans ( j + i * m ) ( ( S i ) * m ) ( n * m ) ( natgthandplusr m j ( i * m ) lj ) ( natlehandmultr ( S i ) n m ( natgthtogehsn _ _ li ) ) ) .     
 
-set ( f := fun ij : dirprod ( stn n ) ( stn m ) => match ij with tpair i j => stnpair ( n * m ) ( j + i * m ) ( i1 i j ( pr2 i ) ( pr2 j ) ) end ) .  split with f . 
+set ( f := fun ij : dirprod ( stn n ) ( stn m ) => match ij with tpair _ i j => stnpair ( n * m ) ( j + i * m ) ( i1 i j ( pr2 i ) ( pr2 j ) ) end ) .  split with f . 
 
 assert ( isinf : isincl f ) . apply isinclbetweensets . apply ( isofhleveldirprod 2 _ _ ( isasetstn n ) ( isasetstn m ) ) .  apply ( isasetstn ( n * m ) ) . intros ij ij' e .  destruct ij as [ i j ] . destruct ij' as [ i' j' ] .  destruct i as [ i li ] . destruct i' as [ i' li' ] .  destruct j as [ j lj ] . destruct j' as [ j' lj' ] . simpl in e . assert ( e' := maponpaths ( stntonat ( n * m ) ) e )  .   simpl in e' .
 assert ( eei : paths i i' ) . apply ( pr1 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ) .    

@@ -16,19 +16,10 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Add LoadPath "../hlevel1" .
+Add LoadPath "../.." .
 Add LoadPath "../Generalities".
 
-Require Export "uuu".
-Require Export "uu0" . 
-Require Export "hProp" .
-Require Export "hSet" .
-Require Export "algebra1a" .
-Require Export "algebra1b" .
-Require Export "algebra1c" .
-Require Export "algebra1d" . 
-Require Export "hnat" .
-Require Export "hz" .
+Require Export Foundations.hlevel2.hz .
 
 Opaque hz . 
 

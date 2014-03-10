@@ -13,13 +13,9 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Add LoadPath "../hlevel1" .
-Add LoadPath "../Generalities".
+Add LoadPath "../../" .
 
-Require Export "uuu".
-Require Export "uu0" . 
-Require Export "hProp" .
-Require Export "hSet" .
+Require Export Foundations.hlevel2.hSet .
 
 
 (** To upstream files *)
@@ -124,13 +120,13 @@ Definition grrinvax_is { X : hSet } { opp : binop X } ( is : isgrop opp ) := pr2
 
 
 Lemma isweqrmultingr_is { X : hSet } { opp : binop X } ( is : isgrop opp ) ( x0 : X ) : isrinvertible opp x0 .
-Proof . intros .  destruct is as [ is istr ] . set ( f := fun x : X => opp x x0 ) . set ( g := fun x : X , opp x ( ( pr1 istr ) x0 ) ) .  destruct is as [ assoc isun0 ] . destruct istr as [ inv0 axs ] .   destruct isun0 as [ un0 unaxs ] .  simpl in * |-  . 
+Proof . intros .  destruct is as [ is istr ] . set ( f := fun x : X => opp x x0 ) . set ( g := fun x : X => opp x ( ( pr1 istr ) x0 ) ) .  destruct is as [ assoc isun0 ] . destruct istr as [ inv0 axs ] .   destruct isun0 as [ un0 unaxs ] .  simpl in * |-  . 
 assert ( egf : forall x : _ , paths ( g ( f x ) ) x ) . intro x . unfold f . unfold g . destruct ( pathsinv0 ( assoc x x0 ( inv0 x0 ) ) ) .  assert ( e := pr2 axs x0 ) .   simpl in e . rewrite e . apply ( pr2 unaxs x ) .  
 assert ( efg : forall x : _ , paths ( f ( g x ) ) x ) . intro x .  unfold f . unfold g . destruct ( pathsinv0 ( assoc x ( inv0 x0 ) x0 ) ) . assert ( e := pr1 axs x0 ) . simpl in e . rewrite e . apply ( pr2 unaxs x ) .  
 apply ( gradth _ _ egf efg ) . Defined .  
 
 Lemma isweqlmultingr_is { X : hSet } { opp : binop X } ( is : isgrop opp )  ( x0 : X ) : islinvertible opp x0 .
-Proof . intros .   destruct is as [ is istr ] .  set ( f := fun x : X => opp x0 x ) . set ( g := fun x : X , opp ( ( pr1 istr ) x0 ) x ) .  destruct is as [ assoc isun0 ] . destruct istr as [ inv0 axs ] .  destruct isun0 as [ un0 unaxs ] .  simpl in * |-  . 
+Proof . intros .   destruct is as [ is istr ] .  set ( f := fun x : X => opp x0 x ) . set ( g := fun x : X => opp ( ( pr1 istr ) x0 ) x ) .  destruct is as [ assoc isun0 ] . destruct istr as [ inv0 axs ] .  destruct isun0 as [ un0 unaxs ] .  simpl in * |-  . 
 assert ( egf : forall x : _ , paths ( g ( f x ) ) x ) . intro x . unfold f . unfold g . destruct ( assoc ( inv0 x0 ) x0 x  ) . assert ( e := pr1 axs x0 ) . simpl in e . rewrite e . apply ( pr1 unaxs x ) .  
 assert ( efg : forall x : _ , paths ( f ( g x ) ) x ) . intro x . unfold f . unfold g . destruct ( assoc x0 ( inv0 x0 ) x  ) . assert ( e := pr2 axs x0 ) . simpl in e . rewrite e . apply ( pr1 unaxs x ) .  
 apply ( gradth _ _ egf efg ) . Defined .  
@@ -774,7 +770,11 @@ Proof .  intros .  unfold isbinophrel .   split . assert ( int : forall a b c : 
 (** **** Direct products *)
 
 Definition setwithbinopdirprod ( X Y : setwithbinop ) : setwithbinop .
-Proof . intros . split with ( setdirprod X Y ) . unfold binop .  simpl . apply ( fun xy xy' : _ => dirprodpair ( op ( pr1 xy ) ( pr1 xy' ) ) ( op ( pr2 xy ) ( pr2 xy' ) ) ) . Defined .  
+Proof . intros . split with ( setdirprod X Y ) . unfold binop .  simpl . 
+
+(* ??? in 8.4-8.5-trunk the following apply generates an error message if the type of xy and xy' is left as _ despite the fact that the type of goal is dirprod X Y -> dirprod X Y -> .. *)
+
+apply ( fun xy xy' : dirprod X Y => dirprodpair ( op ( pr1 xy ) ( pr1 xy' ) ) ( op ( pr2 xy ) ( pr2 xy' ) ) ) . Defined .  
 
 
 
@@ -987,7 +987,11 @@ simpl . apply ( dirprodpair qtop1 qtop2 )  . Defined .
 (** **** Direct products *)
 
 Definition setwith2binopdirprod ( X Y : setwith2binop ) : setwith2binop .
-Proof . intros . split with ( setdirprod X Y ) . simpl . apply ( dirprodpair ( fun xy xy' : _ => dirprodpair ( op1 ( pr1 xy ) ( pr1 xy' ) ) ( op1 ( pr2 xy ) ( pr2 xy' ) ) ) ( fun xy xy' : _ => dirprodpair ( op2 ( pr1 xy ) ( pr1 xy' ) ) ( op2 ( pr2 xy ) ( pr2 xy' ) ) ) ) . Defined .  
+Proof . intros . split with ( setdirprod X Y ) . simpl .
+
+(* ??? same issue as with setwithbinopdirpro above *)
+
+apply ( dirprodpair ( fun xy xy' : dirprod X Y => dirprodpair ( op1 ( pr1 xy ) ( pr1 xy' ) ) ( op1 ( pr2 xy ) ( pr2 xy' ) ) ) ( fun xy xy' :  dirprod X Y  => dirprodpair ( op2 ( pr1 xy ) ( pr1 xy' ) ) ( op2 ( pr2 xy ) ( pr2 xy' ) ) ) ) . Defined .  
 
 
 

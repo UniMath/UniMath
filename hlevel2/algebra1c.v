@@ -13,15 +13,9 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Add LoadPath "../hlevel1" .
-Add LoadPath "../Generalities".
+Add LoadPath "../.." .
 
-Require Export "uuu".
-Require Export "uu0" . 
-Require Export "hProp" .
-Require Export "hSet" .
-Require Export "algebra1a" .
-Require Export "algebra1b" .
+Require Export Foundations.hlevel2.algebra1b .
 
 
 (** To upstream files *)
@@ -609,7 +603,7 @@ Opaque rigtorngop2comp .
 Definition rigtorngop2 ( X : rig ) : binop ( rigtorngcarrier X ) := setquotfun2 ( eqrelrigtorng X ) ( eqrelrigtorng X ) ( rigtorngop2int X ) ( rigtorngop2comp X ) . 
 
 Lemma rigtorngassoc2 ( X : rig ) : isassoc ( rigtorngop2 X ) .
-Proof . intro . unfold isassoc .  apply ( setquotuniv3prop ( eqrelrigtorng X ) ( fun x x' x'' : rigtorngcarrier X, eqset (rigtorngop2 X (rigtorngop2 X x x') x'') (rigtorngop2 X x (rigtorngop2 X x' x'')) ) ) . intros x x' x'' . change ( paths ( setquotpr (eqrelrigtorng X)  ( rigtorngop2int X ( rigtorngop2int X x x' ) x'' ) ) ( setquotpr (eqrelrigtorng X)  ( rigtorngop2int X x ( rigtorngop2int X x' x'' ) ) ) ) . 
+Proof . intro . unfold isassoc .  apply ( setquotuniv3prop ( eqrelrigtorng X ) ( fun x x' x'' : rigtorngcarrier X => eqset (rigtorngop2 X (rigtorngop2 X x x') x'') (rigtorngop2 X x (rigtorngop2 X x' x'')) ) ) . intros x x' x'' . change ( paths ( setquotpr (eqrelrigtorng X)  ( rigtorngop2int X ( rigtorngop2int X x x' ) x'' ) ) ( setquotpr (eqrelrigtorng X)  ( rigtorngop2int X x ( rigtorngop2int X x' x'' ) ) ) ) . 
 apply ( maponpaths ( setquotpr ( eqrelrigtorng X ) ) ) . unfold rigtorngop2int . simpl .  set ( rd := rigrdistr X ) . set ( ld := rigldistr X ) . set ( cm1 := rigcomm1 X ) .  set ( as1 := rigassoc1 X ) . set ( as2 := rigassoc2 X ) . set ( rr := abmonoidoprer ( rigop1axs X ) ) .  apply pathsdirprod .  
 
 rewrite ( rd _ _ ( pr1 x'' ) ) . rewrite ( rd _ _ ( pr2 x'' ) ) . rewrite ( ld _ _ ( pr1 x ) ) . rewrite ( ld _ _ ( pr2 x ) ) . destruct ( as2 ( pr1 x ) ( pr1 x' ) ( pr1 x'' ) ) . destruct ( as2 ( pr1 x ) ( pr2 x' ) ( pr2 x'' ) ) .   destruct ( as2 ( pr2 x ) ( pr1 x' ) ( pr2 x'' ) ) . destruct ( as2 ( pr2 x ) ( pr2 x' ) ( pr1 x'' ) ) . destruct ( cm1 ( pr2 x * pr2 x' * pr1 x'' ) ( pr2 x * pr1 x' * pr2 x'' ) ) . rewrite ( rr _ ( pr2 x * pr2 x' * pr1 x'' ) (pr1 x * pr2 x' * pr2 x'' ) _ ) .  apply idpath . 
@@ -621,7 +615,7 @@ Opaque rigtorngassoc2 .
 Definition rigtorngunel2 ( X : rig ) : rigtorngcarrier X := setquotpr ( eqrelrigtorng X ) ( rigtorngunel2int X ) .   
 
 Lemma rigtornglunit2 ( X : rig ) : islunit ( rigtorngop2 X ) ( rigtorngunel2 X ) . 
-Proof . intro . unfold islunit .  apply ( setquotunivprop ( eqrelrigtorng X ) ( fun x : rigtorngcarrier X, eqset (rigtorngop2 X (rigtorngunel2 X) x) x ) ) .  intro x .  change ( paths ( setquotpr (eqrelrigtorng X ) ( rigtorngop2int X ( rigtorngunel2int X ) x ) ) ( setquotpr (eqrelrigtorng X) x ) ) . apply ( maponpaths ( setquotpr ( eqrelrigtorng X ) ) ) . unfold rigtorngop2int . simpl . destruct x as [ x1 x2 ] .  simpl . set ( lu2 := riglunax2 X ) .  set ( ru1 := rigrunax1 X ) .  set ( m0x := rigmult0x X ) . apply pathsdirprod . 
+Proof . intro . unfold islunit .  apply ( setquotunivprop ( eqrelrigtorng X ) ( fun x : rigtorngcarrier X => eqset (rigtorngop2 X (rigtorngunel2 X) x) x ) ) .  intro x .  change ( paths ( setquotpr (eqrelrigtorng X ) ( rigtorngop2int X ( rigtorngunel2int X ) x ) ) ( setquotpr (eqrelrigtorng X) x ) ) . apply ( maponpaths ( setquotpr ( eqrelrigtorng X ) ) ) . unfold rigtorngop2int . simpl . destruct x as [ x1 x2 ] .  simpl . set ( lu2 := riglunax2 X ) .  set ( ru1 := rigrunax1 X ) .  set ( m0x := rigmult0x X ) . apply pathsdirprod . 
 
 rewrite ( lu2 x1 ) . rewrite ( m0x x2 ) . apply ( ru1 x1 ) . 
 rewrite ( lu2 x2 ) . rewrite ( m0x x1 ) . apply ( ru1 x2 ) .  Defined . 
@@ -630,7 +624,7 @@ Opaque rigtornglunit2 .
 
 
 Lemma rigtorngrunit2 ( X : rig ) : isrunit ( rigtorngop2 X ) ( rigtorngunel2 X ) . 
-Proof . intro . unfold isrunit .  apply ( setquotunivprop ( eqrelrigtorng X ) ( fun x : rigtorngcarrier X, eqset (rigtorngop2 X x (rigtorngunel2 X)) x ) ) .  intro x .  change ( paths ( setquotpr (eqrelrigtorng X ) ( rigtorngop2int X x ( rigtorngunel2int X ) ) ) ( setquotpr (eqrelrigtorng X) x ) ) . apply ( maponpaths ( setquotpr ( eqrelrigtorng X ) ) ) . unfold rigtorngop2int . simpl . destruct x as [ x1 x2 ] .  simpl . set ( ru2 := rigrunax2 X ) .  set ( ru1 := rigrunax1 X ) .  set ( lu1 := riglunax1 X ) . set ( mx0 := rigmultx0 X ) . apply pathsdirprod . 
+Proof . intro . unfold isrunit .  apply ( setquotunivprop ( eqrelrigtorng X ) ( fun x : rigtorngcarrier X => eqset (rigtorngop2 X x (rigtorngunel2 X)) x ) ) .  intro x .  change ( paths ( setquotpr (eqrelrigtorng X ) ( rigtorngop2int X x ( rigtorngunel2int X ) ) ) ( setquotpr (eqrelrigtorng X) x ) ) . apply ( maponpaths ( setquotpr ( eqrelrigtorng X ) ) ) . unfold rigtorngop2int . simpl . destruct x as [ x1 x2 ] .  simpl . set ( ru2 := rigrunax2 X ) .  set ( ru1 := rigrunax1 X ) .  set ( lu1 := riglunax1 X ) . set ( mx0 := rigmultx0 X ) . apply pathsdirprod . 
 
 rewrite ( ru2 x1 ) . rewrite ( mx0 x2 ) . apply ( ru1 x1 ) . 
 rewrite ( ru2 x2 ) . rewrite ( mx0 x1 ) . apply ( lu1 x2 ) .  Defined . 
@@ -644,7 +638,7 @@ Definition rigtorngisunital ( X : rig ) : isunital ( rigtorngop2 X ) := tpair _ 
 Definition rigtorngismonoidop2 ( X : rig ) : ismonoidop ( rigtorngop2 X ) := dirprodpair ( rigtorngassoc2 X ) ( rigtorngisunital X ) . 
 
 Lemma rigtorngldistr ( X : rig ) : isldistr ( rigtorngop1 X ) ( rigtorngop2 X ) . 
-Proof . intro . unfold isldistr .  apply ( setquotuniv3prop ( eqrelrigtorng X ) ( fun x x' x'' : rigtorngcarrier X, eqset (rigtorngop2 X x'' (rigtorngop1 X x x')) (rigtorngop1 X (rigtorngop2 X x'' x) (rigtorngop2 X x'' x')) ) ) . intros x x' x'' . change ( paths ( setquotpr (eqrelrigtorng X ) ( rigtorngop2int X x'' ( rigtorngop1int X x x' ) ) ) ( setquotpr (eqrelrigtorng X ) ( rigtorngop1int X ( rigtorngop2int X x'' x ) ( rigtorngop2int X x'' x' ) ) ) ) . apply ( maponpaths ( setquotpr ( eqrelrigtorng X ) ) ) .  unfold rigtorngop1int . unfold rigtorngop2int . simpl . set ( ld := rigldistr X ) .  set ( cm1 := rigcomm1 X ) . set ( rr := abmonoidoprer ( rigop1axs X ) ) .   apply pathsdirprod .  
+Proof . intro . unfold isldistr .  apply ( setquotuniv3prop ( eqrelrigtorng X ) ( fun x x' x'' : rigtorngcarrier X => eqset (rigtorngop2 X x'' (rigtorngop1 X x x')) (rigtorngop1 X (rigtorngop2 X x'' x) (rigtorngop2 X x'' x')) ) ) . intros x x' x'' . change ( paths ( setquotpr (eqrelrigtorng X ) ( rigtorngop2int X x'' ( rigtorngop1int X x x' ) ) ) ( setquotpr (eqrelrigtorng X ) ( rigtorngop1int X ( rigtorngop2int X x'' x ) ( rigtorngop2int X x'' x' ) ) ) ) . apply ( maponpaths ( setquotpr ( eqrelrigtorng X ) ) ) .  unfold rigtorngop1int . unfold rigtorngop2int . simpl . set ( ld := rigldistr X ) .  set ( cm1 := rigcomm1 X ) . set ( rr := abmonoidoprer ( rigop1axs X ) ) .   apply pathsdirprod .  
 
 rewrite ( ld _ _ ( pr1 x'' ) ) . rewrite ( ld _ _ ( pr2 x'' ) ) . apply ( rr _ ( pr1 x'' * pr1 x' ) (pr2 x'' * pr2 x ) _ ) . 
 rewrite ( ld _ _ ( pr1 x'' ) ) . rewrite ( ld _ _ ( pr2 x'' ) ) . apply ( rr _ (pr1 x'' * pr2 x' ) ( pr2 x'' * pr1 x ) _ ) . Defined . 
@@ -653,7 +647,7 @@ Opaque rigtorngldistr .
 
 
 Lemma rigtorngrdistr ( X : rig ) : isrdistr ( rigtorngop1 X ) ( rigtorngop2 X ) . 
-Proof . intro . unfold isrdistr .  apply ( setquotuniv3prop ( eqrelrigtorng X ) ( fun x x' x'' : rigtorngcarrier X, eqset (rigtorngop2 X (rigtorngop1 X x x') x'' ) (rigtorngop1 X (rigtorngop2 X x x'' ) (rigtorngop2 X x' x'' )) ) ) . intros x x' x'' . change ( paths ( setquotpr (eqrelrigtorng X ) ( rigtorngop2int X ( rigtorngop1int X x x' ) x'' ) ) ( setquotpr (eqrelrigtorng X ) ( rigtorngop1int X ( rigtorngop2int X x x'' ) ( rigtorngop2int X x' x'' ) ) ) ) . apply ( maponpaths ( setquotpr ( eqrelrigtorng X ) ) ) .  unfold rigtorngop1int . unfold rigtorngop2int . simpl . set ( rd := rigrdistr X ) .  set ( cm1 := rigcomm1 X ) . set ( rr := abmonoidoprer ( rigop1axs X ) ) .   apply pathsdirprod .  
+Proof . intro . unfold isrdistr .  apply ( setquotuniv3prop ( eqrelrigtorng X ) ( fun x x' x'' : rigtorngcarrier X => eqset (rigtorngop2 X (rigtorngop1 X x x') x'' ) (rigtorngop1 X (rigtorngop2 X x x'' ) (rigtorngop2 X x' x'' )) ) ) . intros x x' x'' . change ( paths ( setquotpr (eqrelrigtorng X ) ( rigtorngop2int X ( rigtorngop1int X x x' ) x'' ) ) ( setquotpr (eqrelrigtorng X ) ( rigtorngop1int X ( rigtorngop2int X x x'' ) ( rigtorngop2int X x' x'' ) ) ) ) . apply ( maponpaths ( setquotpr ( eqrelrigtorng X ) ) ) .  unfold rigtorngop1int . unfold rigtorngop2int . simpl . set ( rd := rigrdistr X ) .  set ( cm1 := rigcomm1 X ) . set ( rr := abmonoidoprer ( rigop1axs X ) ) .   apply pathsdirprod .  
 
 rewrite ( rd _ _ ( pr1 x'' ) ) . rewrite ( rd _ _ ( pr2 x'' ) ) . apply ( rr _ ( pr1 x' * pr1 x'' ) (pr2 x * pr2 x'' ) _ ) . 
 rewrite ( rd _ _ ( pr1 x'' ) ) . rewrite ( rd _ _ ( pr2 x'' ) ) . apply ( rr _ (pr1 x' * pr2 x'' ) ( pr2 x * pr1 x'' ) _ ) . Defined . 
@@ -812,7 +806,7 @@ Definition commrngdirprod ( X Y : commrng ) := commrngpair ( setwith2binopdirpro
 Open Scope rig_scope . 
 
 Lemma commrigtocommrngcomm2 ( X : commrig ) : iscomm ( rigtorngop2 X ) .
-Proof . intro . unfold iscomm .   apply ( setquotuniv2prop ( eqrelrigtorng X ) ( fun x x' : rigtorngcarrier X, eqset (rigtorngop2 X x x' ) (rigtorngop2 X x' x ) ) ) . intros x x' . change ( paths ( setquotpr (eqrelrigtorng X)  ( rigtorngop2int X x x' ) ) ( setquotpr (eqrelrigtorng X)  ( rigtorngop2int X x' x ) ) ) . 
+Proof . intro . unfold iscomm .   apply ( setquotuniv2prop ( eqrelrigtorng X ) ( fun x x' : rigtorngcarrier X => eqset (rigtorngop2 X x x' ) (rigtorngop2 X x' x ) ) ) . intros x x' . change ( paths ( setquotpr (eqrelrigtorng X)  ( rigtorngop2int X x x' ) ) ( setquotpr (eqrelrigtorng X)  ( rigtorngop2int X x' x ) ) ) . 
 apply ( maponpaths ( setquotpr ( eqrelrigtorng X ) ) ) . unfold rigtorngop2int . set ( cm1 := rigcomm1 X ) . set ( cm2 := rigcomm2 X ) .  apply pathsdirprod .  
 
 rewrite ( cm2 ( pr1 x ) ( pr1 x' ) ) . rewrite ( cm2 ( pr2 x ) ( pr2 x' ) ) .   apply idpath . 
