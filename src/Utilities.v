@@ -232,47 +232,10 @@ Definition nullHomotopy {X Y} (f:X->Y) (y:Y) := forall x:X, f x == y.
 Definition NullHomotopy {X Y} (f:X->Y) := total2 (nullHomotopy f).
 Definition NullHomotopy_center {X Y} (f:X->Y) : NullHomotopy f -> Y := pr1.
 Definition NullHomotopy_path {X Y} {f:X->Y} (r:NullHomotopy f) := pr2 r.
-Definition guidedNullHomotopy {X Y} (f:X->Y) (e:forall x x', f x==f x') :=
-  fun h:NullHomotopy f =>
-    forall x x', e x x' == NullHomotopy_path h x @ ! NullHomotopy_path h x'.
-Definition GuidedNullHomotopy {X Y} (f:X->Y) (e:forall x x', f x==f x') :=
-  total2 (guidedNullHomotopy f e).
-Definition toNullHomotopy {X Y} {f:X->Y} {e:forall x x', f x==f x'} :
-  GuidedNullHomotopy f e -> NullHomotopy f := pr1.
-Definition GuidedNullHomotopy_center {X Y} {f:X->Y} {e:forall x x', f x==f x'}
-           (h:GuidedNullHomotopy f e) :=
-  NullHomotopy_center _ (toNullHomotopy h).
-Definition GuidedNullHomotopy_path {X Y} {f:X->Y} {e:forall x x', f x==f x'}
-           (h:GuidedNullHomotopy f e) :=
-  NullHomotopy_path (toNullHomotopy h).
 
 Definition nullHomotopy_transport {X Y} {f:X->Y} {y:Y} (h : nullHomotopy f y)
            {y':Y} (p:y==y') (x:X) : (p # h) x == h x @ p.
 Proof. intros. destruct p. apply pathsinv0. apply pathscomp0rid. Defined.
-
-Lemma isapropGuidedNullHomotopy {X Y} (f:X->Y) (e:forall x x', f x==f x') :
-  nonempty X -> isaprop (GuidedNullHomotopy f e).
-Proof. intros ? ? ? ? sx.
-       apply (squash_to_prop sx); clear sx; intro x0. { apply isapropisaprop. } 
-       apply invproofirrelevance; intros [[y h] g] [[y' h'] g'].
-       set (p := ! h x0 @ h' x0 : y == y').
-       refine (pair_path _ _).
-       { refine (pair_path _ _).
-         { exact p. }
-         { apply funextsec; intro x.
-           intermediate (h x @ p).
-           { apply nullHomotopy_transport. }
-           unfold p.
-           intermediate ((h x @ ! h x0) @ h' x0).
-           { apply path_assoc. }
-           unfold guidedNullHomotopy in g,g'; simpl in g,g'.
-           rewrite <- (g x x0).
-           rewrite (g' x x0).
-           rewrite <- path_assoc.
-           rewrite pathsinv0l.
-           apply pathscomp0rid. } }
-       admit.
-Defined.
 
 Lemma isaset_NullHomotopy {X Y} (i:isaset Y) (f:X->Y) : isaset (NullHomotopy f).
 Proof. intros. apply (isofhleveltotal2 2). { apply i. }
@@ -381,8 +344,6 @@ Ltac isaset_goal x :=
 
 (** ** Show that squashing is a set-quotient *)
 
-Definition True := hProppair unit (isapropifcontr iscontrunit).
-
 Definition squash_to_set {X Y} (is:isaset Y)
   (f:X->Y) (e:forall x x', f x == f x') : squash X -> Y.
 Proof. intros ? ? ? ? ? h. apply (NullHomotopy_center f).
@@ -406,6 +367,8 @@ Proof. reflexivity. Qed.
     a proposition. Therefore "X -> Im f" factors through "squash X"." 
 
     Here is a start.
+
+Definition True := hProppair unit (isapropifcontr iscontrunit).
 
 Proof. intros ? ? ? ? ?. 
        set (R := (fun _ _ => True) : hrel X).
