@@ -1,0 +1,15 @@
+*.glob
+*.v.d
+*.vo
+*.v#
+*.*.bak
+html
+TAGS
+N*.cmi
+N*.cmx
+N*.cmxs
+N*.native
+N*.o
+*.timing
+*.aux
+
