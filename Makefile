@@ -21,6 +21,6 @@ install:all
 lc:; wc -l $(VFILES)
 wc:; wc -w $(VFILES)
 clean:clean2
-clean2:
+clean2:; find . \( -name .\*.aux \) -delete
 describe:; git describe --dirty --long --always --abbrev=40 --all
 
