@@ -387,7 +387,7 @@ Module Product.
   Proof. intros ? ? ? decide_equality xi. apply hinhpr. 
     refine (_,,_).
     { intro j. destruct (decide_equality i j) as [p|_].
-      { exact (transport X p xi). }
+      { exact (transportf X p xi). }
       { exact (unel (X j)). } }
     simpl. destruct (decide_equality i i) as [q|r]; simpl.
     { assert (e : idpath i == q).

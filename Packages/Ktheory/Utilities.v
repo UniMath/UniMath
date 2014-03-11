@@ -52,8 +52,7 @@ Module Import Notation.
   Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
   (* funcomp' is like funcomp, but with the arguments in the other order *)
   Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
-  Notation transport := transportf.
-  Notation "p # x" := (transport _ p x) (right associativity, at level 65, only parsing).
+  Notation "p # x" := (transportf _ p x) (right associativity, at level 65, only parsing).
 End Notation.
 
 Definition cast {T U:Type} : T==U -> T->U.
@@ -70,7 +69,7 @@ Proof. intros. destruct q. reflexivity. Defined.
 (** * Projections from pair types *)
 
 Definition pr2_pair {X:UU} {P:X->UU} {w w':total2 P} (p : w == w') :
-  transport P (ap pr1 p) (pr2 w) == pr2 w'.
+  transportf P (ap pr1 p) (pr2 w) == pr2 w'.
 Proof. intros. destruct p. reflexivity. Defined.
 
 Definition pair_path_comp1 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
@@ -90,7 +89,7 @@ Proof. intros ? ? ? f [x p]. exact (f x p). Defined.
 (** ** Transport *)
 
 Lemma transport_idfun {X:UU} (P:X->UU) {x y:X} (p:x==y) (u:P x) : 
-  transport P p u == transport (idfun _) (ap P p) u.
+  transportf P p u == transportf (idfun _) (ap P p) u.
 (* same as HoTT.PathGroupoids.transport_idmap_ap *)
 Proof. intros. destruct p. reflexivity. Defined.
 
@@ -183,7 +182,7 @@ Module AdjointEquivalence.
 End AdjointEquivalence.
 
 Lemma helper {X Y} {f:X->Y} x x' (w:x==x') (t:f x==f x) :
-              transport (fun x' => f x' == f x) w (idpath (f x)) == ap f (!w).
+              transportf (fun x' => f x' == f x) w (idpath (f x)) == ap f (!w).
 Proof. intros ? ? k. destruct w. reflexivity. Qed.
 
 Definition weq_to_AdjointEquivalence X Y : weq X Y -> AdjointEquivalence.data X Y.
