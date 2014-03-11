@@ -42,7 +42,6 @@ Proof. intros ? ?. induction n as [|n IH].
              assert (f' := nelstructoncompl (pr1 f (lastelement n)) f).
              assert (g' := nelstructoncompl (pr1 g (lastelement n)) g).
              destruct e.
-             Check IH _ f' g' (pr1compl _ _ _).
              (* try using weqcutonweq, dni, dnitocompl, weqdnicompl, weqdnicoprod, ... *)
              admit. }
            { exact (ap x e). } }
