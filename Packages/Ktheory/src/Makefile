@@ -47,7 +47,6 @@ lc:; wc -l $(VFILES)
 wc:; wc -w $(VFILES)
 clean:clean2
 clean2::; rm -f TAGS *.d *.glob N*.cmi N*.cmx N*.cmxs N*.native N*.o coqdoc.sty
-distclean: clean; rm -f Make-include.mk Make-include.mk.bak
 
 # override this on your system with the correct settings on the command line:
 COQ_DIR = ../../DanGrayson-coq

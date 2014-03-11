@@ -354,16 +354,85 @@ Local Notation "l ^ n" := (loop_power l n) : paths_scope.
 
 (** * The induction principle for the circle. *)
 
-Definition G {T:Torsor ℤ} {Y} {y:Y} (l:y==y) : squash(dirprod T T) -> Y.
-Proof. intros ? ? ? ?. refine (cone_squash_map (fun _ => y) y _).
-       intros [t u]. exact (l^(t/u)). Defined.       
+Module N.
+  Local Notation "h [ n ]" :=(NullHomotopy_path h n) (at level 0).
+  Definition stable {Y} (f:ℕ->Y) := forall n, f n==f(S n).
+  Definition stableNullHomotopy {Y} (f:ℕ->Y) (s:stable f) (h:NullHomotopy f) :=
+      forall n, s n == h[n] @ ! h[S n].
+  Definition StableNullHomotopy {Y} (f:ℕ->Y) (s:stable f) :=
+    total2 (stableNullHomotopy f s).
+  Definition toNullHomotopy {Y} {f:ℕ->Y} {s:stable f} :
+    StableNullHomotopy f s -> NullHomotopy f := pr1.
+  Definition StableNullHomotopy_center {Y} {f:ℕ->Y} {s:stable f}
+             (h:StableNullHomotopy f s) :=
+    NullHomotopy_center _ (toNullHomotopy h).
+  Definition StableNullHomotopy_path {Y} {f:ℕ->Y} {s:stable f}
+             (h:StableNullHomotopy f s) n := (toNullHomotopy h)[n].
+  Definition triv {Y} (f:ℕ->Y) (s:stable f) : StableNullHomotopy f s.
+  Proof. intros.
+         admit.
+  Defined.
 
-Definition H {T:Torsor ℤ} {Y} {y:Y} (l:y==y) : squash T -> Y.
-Proof. intros ? ? ? ?. 
+End N.
+
+Module BZ.
+
+  Local Notation "n + x" := (ac_mult _ n x) : action_scope.
+  Local Notation "n - m" := (quotient _ n m) : action_scope.
 
 
+  Definition one := 1%hz : ℤ.
+  Definition stable {T:Torsor ℤ} {Y} (f:T->Y) := forall t, f t==f(one+t).
+  Definition stableComp {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
+    forall t t', f t==f t'.
+  Proof. intros. unfold stable in s.
+         set (n := t' - t).
+         destruct (hzlthorgeh n 0%hz).
+         { admit. }
+         { assert (r := quotient_times _ t' t : n + t == t').
+           set (m := hzabsval n).
+           assert (k := hzabsvalgeh0 h).
+           intermediate (f (n+t)).
+           { intermediate (f ((nattohz m : ℤ)+t)).
+             { induction m.
+               { assert (w : 0%hz == nattohz 0). { reflexivity. }
+                 destruct w.
+                 admit. }
+               admit. }
+             admit. }
+           admit. }
+  Defined.
 
+  Definition stableNullHomotopy {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f)
+             (h:NullHomotopy f) :=
+      forall t, s t == NullHomotopy_path h t @ ! NullHomotopy_path h (one+t).
+  Definition StableNullHomotopy {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :=
+    total2 (stableNullHomotopy f s).
+  Definition toNullHomotopy {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f} :
+    StableNullHomotopy f s -> NullHomotopy f := pr1.
+  Definition StableNullHomotopy_center {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
+             (h:StableNullHomotopy f s) :=
+    NullHomotopy_center _ (toNullHomotopy h).
+  Definition StableNullHomotopy_path {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
+             (h:StableNullHomotopy f s) :=
+    NullHomotopy_path (toNullHomotopy h).
 
+  Definition makeStableNullHomotopy {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
+    T -> StableNullHomotopy f s.
+  Proof. intros ? ? ? ? t0.
+         admit.
+  Defined.
 
-       admit.
-Defined.
+  Lemma isapropStableNullHomotopy {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
+    iscontr (StableNullHomotopy f s).
+  Proof. intros ? ? ? ?.
+         apply (squash_to_prop (torsor_nonempty T)); intro t0. { apply isapropiscontr. } 
+         admit.
+  Defined.
+
+  Definition H {T:Torsor ℤ} {Y} {y:Y} (l:y==y) : squash T -> Y.
+  Proof. intros ? ? ? ?. 
+         admit.
+  Defined.
+
+End BZ.
