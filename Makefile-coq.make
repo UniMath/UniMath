@@ -103,10 +103,8 @@ VFILES:=Packages/Foundations/Generalities/uuu.v\
   Packages/Foundations/hlevel2/hz.v\
   Packages/Foundations/hlevel2/hq.v\
   Packages/RezkCompletion/pathnotations.v\
-  Packages/RezkCompletion/ssp/gen_precategories.v\
   Packages/RezkCompletion/auxiliary_lemmas_HoTT.v\
   Packages/RezkCompletion/precategories.v\
-  Packages/RezkCompletion/topos/epis_monos.v\
   Packages/RezkCompletion/limits/aux_lemmas_HoTT.v\
   Packages/RezkCompletion/limits/terminal.v\
   Packages/RezkCompletion/limits/products.v\

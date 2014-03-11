@@ -14,8 +14,6 @@ functors_transformations.v
 limits/products.v
 limits/terminal.v
 limits/aux_lemmas_HoTT.v
-topos/epis_monos.v
 precategories.v
 auxiliary_lemmas_HoTT.v
-ssp/gen_precategories.v
 pathnotations.v
