@@ -78,7 +78,7 @@ Module InitialObject.
        with X1,, X2 => idpath (X1,, X2) end.
   Definition k {C:precategory} (Y:InitialObject C) : unpack (pack Y) == Y
     := match Y as i return (unpack (pack i) == i) 
-       with make_InitialObject Y1 Y2 => idpath _ end.
+       with make_InitialObject _ Y1 Y2 => idpath _ end.
   Lemma unpack_weq (C:precategory) : weq (InitialObject_total C) (InitialObject C).
   Proof. intros. exists unpack. intros Y. exists (pack Y,,k Y). intros [X m].
          destruct m. set (H := h X). destruct H. reflexivity. Qed.

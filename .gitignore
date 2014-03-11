@@ -1,2 +1,4 @@
 .*.aux
 /Makefile-coq.make.bak
+/TAGS
+html

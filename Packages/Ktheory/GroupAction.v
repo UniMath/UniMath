@@ -38,7 +38,7 @@ Module Pack.
        with (act_mult,,(act_unit,,act_assoc)) => idpath (act_mult,,(act_unit,,act_assoc)) end.
   Definition k {G:gr} {X:hSet} (ac:ActionStructure G X) : pack (unpack ac) == ac
     := match ac as i return (pack (unpack i) == i)
-       with make act_mult act_unit act_assoc => idpath _ end.
+       with make _ _ act_mult act_unit act_assoc => idpath _ end.
   Lemma weq (G:gr) (X:hSet) : weq (ActionStructure' G X) (ActionStructure G X).
   Proof. intros. exists pack. intros ac. exists (unpack ac,,k ac). intros [ac' m].
          destruct m. assert (H := h ac'). destruct H. reflexivity. Qed.
@@ -212,7 +212,7 @@ Definition trivialTorsor (G:gr) : Torsor G.
 Proof. 
   intros. exists (makeAction G (make G G op (lunax G) (assocax G))).
   exact (hinhpr _ (unel G),, 
-         fun x => precategories.iso_set_isweq 
+         fun x => gradth 
            (fun g => op g x) 
            (fun g => op g (grinv _ x))
            (fun g => assocax _ g x (grinv _ x) @ ap (op g) (grrinvax G x) @ runax _ g)

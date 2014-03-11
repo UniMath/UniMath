@@ -293,7 +293,7 @@ Definition rngaddabgr ( X : rng ) : abgr := abgrpair ( setwithbinoppair X op1 ) 
 Definition rngmultmonoid ( X : rng ) : monoid := monoidpair  ( setwithbinoppair X op2 ) ( rngop2axs X ) .
 
 Notation "x + y" := ( op1 x y ) : rng_scope .
-Notation "x - y" := ( op1 x ( rnginv1 y ) ) .
+Notation "x - y" := ( op1 x ( rnginv1 y ) ) : rng_scope .
 Notation "x * y" := ( op2 x y ) : rng_scope . 
 Notation "0" := ( rngunel1 ) : rng_scope .   
 Notation "1" := ( rngunel2 ) : rng_scope .
