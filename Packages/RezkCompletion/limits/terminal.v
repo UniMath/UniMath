@@ -72,25 +72,16 @@ End Terminal_Unique.
 End def_terminal.
 
 
+(*
 Section test.
 Variable C : precategory.
 Variable T : Terminal C.
 
-About TerminalObject.
-
 Arguments TerminalObject [C]{_}.
-
-About TerminalObject.
-
-Check (fun a => a --> T).
-
-About TerminalArrow.
-
 Arguments TerminalArrow [C]{T} b.
 
-Check (fun a : C => TerminalArrow a).
-
 End test.
+*)
 
 Arguments TerminalObject [C]{_}.
 Arguments TerminalArrow [C]{T} b.
