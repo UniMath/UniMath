@@ -327,6 +327,19 @@ Theorem loopsBG (G:gr) : weq (Ω (B G)) G.
 Proof. intros. refine (weqcomp Torsor_univalence _). 
        apply invweq. apply autos. Defined.
 
+(** Theorem [loopsBG] also follows from the main theorem of the RezkCompletion
+    package.  To see that, regard G as a category with one object.  Consider a
+    merely representable functor F : G^op -> Set.  Let X be F of the object *.
+    Apply F to the arrows to get an action of G on X.  Try to prove that X is a
+    torsor.  Since being a torsor is a mere property, we may assume F is
+    actually representable.  There is only one object *, so F is isomorphic to
+    h_*.  Apply h_* to * and we get Hom(*,*), which is G, regarded as a G-set.
+    That's a torsor.  So the Rezk completion RCG is equivalent to BG, the type
+    of G-torsors.  Now the theorem also says there is an equivalence G -> RCG.
+    So RCG is connected and its loop space is G.
+
+    A formalization of that argument should be added eventually. *)
+
 Require Import Foundations.hlevel2.hz.
 Notation ℕ := nat.
 Notation ℤ := hzaddabgr.
