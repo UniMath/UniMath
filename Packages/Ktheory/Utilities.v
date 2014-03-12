@@ -277,10 +277,11 @@ Definition interval_map {Y} {y y':Y} : y == y' -> interval -> Y.
 Proof. intros ? ? ? e. set (f := fun t:bool => if t then y else y').
        refine (cone_squash_map f (f false) _).
        intros v. induction v. { exact e. } { reflexivity. } Defined.
-
-Goal forall Y (y y':Y) (e:y == y'), 
-       funcomp (hinhpr _) (interval_map e) == bool_rect (fun _ => Y) y y'.
-Proof. reflexivity. Qed.
+Definition path' {X} (x y:X) :=
+  total2 (fun f : interval -> X => dirprod (f left == x) (f right == y)).
+Definition path_to_path' {Y} {y y':Y} : y == y' -> path' y y'.
+Proof. intros ? ? ? e. exists (interval_map e).
+       split. { reflexivity. } { reflexivity. } Defined.
 
 (** ** An easy proof of functional extensionality for sections using the interval *)
 
@@ -449,3 +450,8 @@ Definition basepoint (X:PointedType) := pr2 X.
 Definition loopSpace (X:PointedType) := 
   pointedType (basepoint X == basepoint X) (idpath _).
 Notation Ω := loopSpace.
+(*
+Local Variables:
+compile-command: make -C ../.. Packages/Ktheory/Utilities.vo
+End:
+*)
