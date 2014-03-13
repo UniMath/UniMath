@@ -235,41 +235,46 @@ Proof. intros. apply isaprop_squash. Defined.
 Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
 Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Defined.
 
-Definition nullHomotopy {X Y} (f:X->Y) (y:Y) := forall x:X, f x == y.
-Definition NullHomotopy {X Y} (f:X->Y) := total2 (nullHomotopy f).
-Definition NullHomotopy_center {X Y} (f:X->Y) : NullHomotopy f -> Y := pr1.
-Definition NullHomotopy_path {X Y} {f:X->Y} (r:NullHomotopy f) := pr2 r.
+Definition nullHomotopyTo {X Y} (f:X->Y) (y:Y) := forall x:X, f x == y.
+Definition NullHomotopyTo {X Y} (f:X->Y) := total2 (nullHomotopyTo f).
+Definition NullHomotopyTo_center {X Y} (f:X->Y) : NullHomotopyTo f -> Y := pr1.
+Definition NullHomotopyTo_path {X Y} {f:X->Y} (r:NullHomotopyTo f) := pr2 r.
 
-Definition nullHomotopy_transport {X Y} {f:X->Y} {y:Y} (h : nullHomotopy f y)
+Definition nullHomotopyFrom {X Y} (f:X->Y) (y:Y) := forall x:X, y == f x.
+Definition NullHomotopyFrom {X Y} (f:X->Y) := total2 (nullHomotopyFrom f).
+Definition NullHomotopyFrom_center {X Y} (f:X->Y) : NullHomotopyFrom f -> Y := pr1.
+Definition NullHomotopyFrom_path {X Y} {f:X->Y} (r:NullHomotopyFrom f) := pr2 r.
+
+Definition nullHomotopyTo_transport {X Y} {f:X->Y} {y:Y} (h : nullHomotopyTo f y)
            {y':Y} (p:y==y') (x:X) : (p # h) x == h x @ p.
 Proof. intros. destruct p. apply pathsinv0. apply pathscomp0rid. Defined.
 
-Lemma isaset_NullHomotopy {X Y} (i:isaset Y) (f:X->Y) : isaset (NullHomotopy f).
+Lemma isaset_NullHomotopyTo {X Y} (i:isaset Y) (f:X->Y) : isaset (NullHomotopyTo f).
 Proof. intros. apply (isofhleveltotal2 2). { apply i. }
        intros y. apply impred; intros x. apply isasetaprop. apply i. Defined.
 
-Lemma isaprop_nullHomotopy {X Y} (is:isaset Y) (f:X->Y) (y:Y) :
-  isaprop (nullHomotopy f y).
+Lemma isaprop_nullHomotopyTo {X Y} (is:isaset Y) (f:X->Y) (y:Y) :
+  isaprop (nullHomotopyTo f y).
 Proof. intros ? ? ? ? ?. apply impred; intros x. apply is. Defined.
 
-Lemma isaprop_NullHomotopy_0 {X} {Y} (is:isaset Y) (f:X->Y) : 
-  X -> isaprop (NullHomotopy f).
-(** The point of X is needed, for when X is empty, then NullHomotopy f is
+Lemma isaprop_NullHomotopyTo_0 {X} {Y} (is:isaset Y) (f:X->Y) : 
+  X -> isaprop (NullHomotopyTo f).
+(** The point of X is needed, for when X is empty, then NullHomotopyTo f is
     equivalent to Y. *)
 Proof. intros ? ? ? ? x. apply invproofirrelevance. intros [r i] [s j].
   refine (pair_path _ _). { exact (!i x @ j x). } 
-  { apply (isaprop_nullHomotopy is). } Defined.
+  { apply (isaprop_nullHomotopyTo is). } Defined.
 
-Lemma isaprop_NullHomotopy {X} {Y} (is:isaset Y) (f:X->Y) :
-  squash X -> isaprop (NullHomotopy f).
+Lemma isaprop_NullHomotopyTo {X} {Y} (is:isaset Y) (f:X->Y) :
+  squash X -> isaprop (NullHomotopyTo f).
 Proof. intros ? ? ? ?. apply factor_through_squash. apply isapropisaprop. 
-       apply isaprop_NullHomotopy_0. exact is. Defined.
+       apply isaprop_NullHomotopyTo_0. exact is. Defined.
 
 (** We can get a map from 'squash X' to any type 'Y' provided paths
     are given that allow us to map first into a cone in 'Y'.  *)
 
 Definition cone_squash_map {X Y} (f:X->Y) (y:Y) : 
-  nullHomotopy f y -> squash X -> Y.
+  nullHomotopyTo f y -> squash X -> Y.
 Proof. intros ? ? ? ? e h. 
        exact (point_from (h (paths_to_prop y) (fun x => f x,,e x))). Defined.
 
@@ -349,9 +354,9 @@ Ltac isaset_goal x :=
 
 Definition squash_to_set {X Y} (is:isaset Y)
   (f:X->Y) (e:forall x x', f x == f x') : squash X -> Y.
-Proof. intros ? ? ? ? ? h. apply (NullHomotopy_center f).
+Proof. intros ? ? ? ? ? h. apply (NullHomotopyTo_center f).
   refine (factor_through_squash _ _ h).
-  { apply isaprop_NullHomotopy. exact is. exact h. }
+  { apply isaprop_NullHomotopyTo. exact is. exact h. }
   intros x. exists (f x). intros x'. apply e. Defined.
 
 (** Verify that the map factors judgmentally. *)
@@ -455,6 +460,6 @@ Definition loopSpace (X:PointedType) :=
 Notation Ω := loopSpace.
 (*
 Local Variables:
-compile-command: make -C ../.. Packages/Ktheory/Utilities.vo
+compile-command: "make -C ../.. Packages/Ktheory/Utilities.vo"
 End:
 *)

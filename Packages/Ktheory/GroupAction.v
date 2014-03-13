@@ -368,24 +368,56 @@ Local Notation "l ^ n" := (loop_power l n) : paths_scope.
 (** * The induction principle for the circle. *)
 
 Module N.
-  Local Notation "h [ n ]" :=(NullHomotopy_path h n) (at level 0).
+  Local Notation "h [ n ]" :=(NullHomotopyFrom_path h n) (at level 0).
   Definition stable {Y} (f:ℕ->Y) := forall n, f n==f(S n).
-  Definition stableNullHomotopy {Y} (f:ℕ->Y) (s:stable f) (h:NullHomotopy f) :=
-      forall n, s n == h[n] @ ! h[S n].
-  Definition StableNullHomotopy {Y} (f:ℕ->Y) (s:stable f) :=
-    total2 (stableNullHomotopy f s).
-  Definition toNullHomotopy {Y} {f:ℕ->Y} {s:stable f} :
-    StableNullHomotopy f s -> NullHomotopy f := pr1.
-  Definition StableNullHomotopy_center {Y} {f:ℕ->Y} {s:stable f}
-             (h:StableNullHomotopy f s) :=
-    NullHomotopy_center _ (toNullHomotopy h).
-  Definition StableNullHomotopy_path {Y} {f:ℕ->Y} {s:stable f}
-             (h:StableNullHomotopy f s) n := (toNullHomotopy h)[n].
-  Definition triv {Y} (f:ℕ->Y) (s:stable f) : StableNullHomotopy f s.
+  Definition stableNullHomotopyFrom {Y} (f:ℕ->Y) (s:stable f) (h:NullHomotopyFrom f) :=
+      forall n, h[S n] == h[n] @ s n.
+  Definition StableNullHomotopyFrom {Y} (f:ℕ->Y) (s:stable f) :=
+    total2 (stableNullHomotopyFrom f s).
+  Definition toNullHomotopyFrom {Y} {f:ℕ->Y} {s:stable f} :
+    StableNullHomotopyFrom f s -> NullHomotopyFrom f := pr1.
+  Definition StableNullHomotopyFrom_center {Y} {f:ℕ->Y} {s:stable f}
+             (h:StableNullHomotopyFrom f s) :=
+    NullHomotopyFrom_center _ (toNullHomotopyFrom h).
+  Definition StableNullHomotopyFrom_path {Y} {f:ℕ->Y} {s:stable f}
+             (h:StableNullHomotopyFrom f s) n := (toNullHomotopyFrom h)[n].
+  Definition triv1 {Y} {f:ℕ->Y} (s:stable f) : nullHomotopyFrom f (f 0).
+  Proof. intros. intro n. induction n.
+         { reflexivity. } { refine (_@s n). assumption. } Defined.
+  Definition triv2 {Y} {f:ℕ->Y} (s:stable f) : 
+    stableNullHomotopyFrom f s (f 0,, triv1 s).
+  Proof. intros. intro n. reflexivity. Defined.
+  Definition triv {Y} {f:ℕ->Y} (s:stable f) : StableNullHomotopyFrom f s.
+  Proof. intros. exact ((f 0,,triv1 s),,triv2 s).
+  Defined.
+  Definition tr {X} {x y:X} (v: paths' y x) : v # v == idpath y.
+  Proof. intros. destruct v. reflexivity. Defined.
+  Definition tra {Y} {f:ℕ->Y} {y y':Y} (h:nullHomotopyFrom f y) (p:y==y') n :
+    (p # h) n == !p @ h n.
+  Proof. intros. destruct p. reflexivity. Defined.
+  Definition tra' {Y} {f:ℕ->Y} {y y':Y} (h:nullHomotopyFrom f y) (p:y==y') n :
+    (p # h) n == p # (h n : paths' _ _).
+  Proof. intros. destruct p. reflexivity. Defined.
+  Definition Triv1 {Y} {f:ℕ->Y} (s:stable f) 
+             {y} (h:nullHomotopyFrom f y) (t:stableNullHomotopyFrom f s (y,,h)):
+    (y,, h) == (f 0,, triv1 s).
   Proof. intros.
+         apply (pair_path (h 0)).
+         apply funextsec; intro n.
+         intermediate (! h 0 @ h n).
+         { apply tra. }
+         { induction n. 
+           { apply pathsinv0l. }
+           { refine (_ @ ap (fun q => q @ s n) IHn); clear IHn.
+             refine (ap (fun q => !h 0@q) (t n) @ _); simpl.
+             apply path_assoc. } } Defined.
+  Definition ic {Y} {f:ℕ->Y} (s:stable f) : iscontr (StableNullHomotopyFrom f s).
+  Proof. intros.
+         exists (triv s).
+         intros [[y h] t]. 
+         apply (pair_path (Triv1 s h t)).
          admit.
   Defined.
-
 End N.
 
 Module BZ.
@@ -416,28 +448,28 @@ Module BZ.
            admit. }
   Defined.
 
-  Definition stableNullHomotopy {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f)
-             (h:NullHomotopy f) :=
-      forall t, s t == NullHomotopy_path h t @ ! NullHomotopy_path h (one+t).
-  Definition StableNullHomotopy {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :=
-    total2 (stableNullHomotopy f s).
-  Definition toNullHomotopy {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f} :
-    StableNullHomotopy f s -> NullHomotopy f := pr1.
-  Definition StableNullHomotopy_center {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
-             (h:StableNullHomotopy f s) :=
-    NullHomotopy_center _ (toNullHomotopy h).
-  Definition StableNullHomotopy_path {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
-             (h:StableNullHomotopy f s) :=
-    NullHomotopy_path (toNullHomotopy h).
+  Definition stableNullHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f)
+             (h:NullHomotopyTo f) :=
+      forall t, s t == NullHomotopyTo_path h t @ ! NullHomotopyTo_path h (one+t).
+  Definition StableNullHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :=
+    total2 (stableNullHomotopyTo f s).
+  Definition toNullHomotopyTo {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f} :
+    StableNullHomotopyTo f s -> NullHomotopyTo f := pr1.
+  Definition StableNullHomotopyTo_center {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
+             (h:StableNullHomotopyTo f s) :=
+    NullHomotopyTo_center _ (toNullHomotopyTo h).
+  Definition StableNullHomotopyTo_path {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
+             (h:StableNullHomotopyTo f s) :=
+    NullHomotopyTo_path (toNullHomotopyTo h).
 
-  Definition makeStableNullHomotopy {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
-    T -> StableNullHomotopy f s.
+  Definition makeStableNullHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
+    T -> StableNullHomotopyTo f s.
   Proof. intros ? ? ? ? t0.
          admit.
   Defined.
 
-  Lemma isapropStableNullHomotopy {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
-    iscontr (StableNullHomotopy f s).
+  Lemma isapropStableNullHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
+    iscontr (StableNullHomotopyTo f s).
   Proof. intros ? ? ? ?.
          apply (squash_to_prop (torsor_nonempty T)); intro t0. { apply isapropiscontr. } 
          admit.
@@ -449,3 +481,9 @@ Module BZ.
   Defined.
 
 End BZ.
+
+(*
+Local Variables:
+compile-command: "make -C ../.. Packages/Ktheory/GroupAction.vo"
+End:
+*)
