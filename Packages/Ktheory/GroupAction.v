@@ -416,6 +416,10 @@ Module N.
          exists (triv s).
          intros [[y h] t]. 
          apply (pair_path (Triv1 s h t)).
+         unfold triv2; simpl.
+         apply funextsec; intro n.
+
+
          admit.
   Defined.
 End N.
