@@ -28,10 +28,14 @@ Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification th
   let G := match goal with |- ?G => constr:(G) end in
   exact ((@id G : T -> G) x).
 
-Definition paths_from {X} (x:X) := coconusfromt X x.
+Definition paths_from {X} (x:X) := total2 (paths x).
 Definition point_to {X} {x:X} : paths_from x -> X := pr1.
-Definition paths_to {X} (x:X) := coconustot X x.
+Definition paths_from_path {X} {x:X} (w:paths_from x) := pr2 w.
+Definition paths' {X} (x:X) := fun y => paths y x.
+Definition idpath' {X} (x:X) := idpath x : paths' x x.
+Definition paths_to {X} (x:X) := total2 (paths' x).
 Definition point_from {X} {x:X} : paths_to x -> X := pr1.
+Definition paths_to_path {X} {x:X} (w:paths_to x) := pr2 w.
 Definition iscontr_paths_to {X} (x:X) : iscontr (paths_to x).
 Proof. apply iscontrcoconustot. Defined.
 Definition paths_to_prop {X} (x:X) := 
@@ -54,6 +58,10 @@ Module Import Notation.
   Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
   Notation "p # x" := (transportf _ p x) (right associativity, at level 65, only parsing).
 End Notation.
+
+Definition pair_path2 {A:UU} {B:A->UU} {a a1 a2} {b1:B a1} {b2:B a2}
+           (p:a1==a) (q:a2==a) (e:p#b1 == q#b2) : a1,,b1 == a2,,b2.
+Proof. intros. destruct p,q; compute in e. destruct e. reflexivity. Defined.
 
 Definition cast {T U:Type} : T==U -> T->U.
 Proof. intros ? ? p t. destruct p. exact t. Defined.
@@ -277,11 +285,6 @@ Definition interval_map {Y} {y y':Y} : y == y' -> interval -> Y.
 Proof. intros ? ? ? e. set (f := fun t:bool => if t then y else y').
        refine (cone_squash_map f (f false) _).
        intros v. induction v. { exact e. } { reflexivity. } Defined.
-Definition path' {X} (x y:X) :=
-  total2 (fun f : interval -> X => dirprod (f left == x) (f right == y)).
-Definition path_to_path' {Y} {y y':Y} : y == y' -> path' y y'.
-Proof. intros ? ? ? e. exists (interval_map e).
-       split. { reflexivity. } { reflexivity. } Defined.
 
 (** ** An easy proof of functional extensionality for sections using the interval *)
 
