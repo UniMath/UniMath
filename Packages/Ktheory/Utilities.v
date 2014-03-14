@@ -9,11 +9,11 @@ Require Import Foundations.hlevel2.hSet.
         Import RezkCompletion.pathnotations.PathNotations.
 
 (* this lemma must be somewhere in Foundations *)
-Lemma path_assoc (X:UU) (a b c d:X) 
+Lemma path_assoc {X} {a b c d:X}
         (f : a == b) (g : b == c) (h : c == d)
       : f @ (g @ h) == (f @ g) @ h.
 Proof. intros. destruct f. reflexivity. Defined.
-Lemma path_assoc_opaque (X:UU) (a b c d:X) 
+Lemma path_assoc_opaque {X} {a b c d:X} 
         (f : a == b) (g : b == c) (h : c == d)
       : f @ (g @ h) == (f @ g) @ h.
 Proof. intros. destruct f. reflexivity. Qed.
@@ -56,10 +56,11 @@ Module Import Notation.
   Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
   (* funcomp' is like funcomp, but with the arguments in the other order *)
   Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
-  Notation "p # x" := (transportf _ p x) (right associativity, at level 65, only parsing).
+  Notation "p # x" := (transportf _ p x) (right associativity, at level 65).
+  Notation "p #' x" := (transportb _ p x) (right associativity, at level 65).
 End Notation.
 
-Definition pair_path2 {A:UU} {B:A->UU} {a a1 a2} {b1:B a1} {b2:B a2}
+Definition pair_path2 {A} {B:A->UU} {a a1 a2} {b1:B a1} {b2:B a2}
            (p:a1==a) (q:a2==a) (e:p#b1 == q#b2) : a1,,b1 == a2,,b2.
 Proof. intros. destruct p,q; compute in e. destruct e. reflexivity. Defined.
 
@@ -76,7 +77,7 @@ Proof. intros. destruct q. reflexivity. Defined.
 
 (** * Projections from pair types *)
 
-Definition pr2_pair {X:UU} {P:X->UU} {w w':total2 P} (p : w == w') :
+Definition pr2_pair {X} {P:X->UU} {w w':total2 P} (p : w == w') :
   transportf P (ap pr1 p) (pr2 w) == pr2 w'.
 Proof. intros. destruct p. reflexivity. Defined.
 
@@ -96,20 +97,21 @@ Proof. intros ? ? ? f [x p]. exact (f x p). Defined.
 
 (** ** Transport *)
 
-Lemma transport_idfun {X:UU} (P:X->UU) {x y:X} (p:x==y) (u:P x) : 
+Lemma transport_idfun {X} (P:X->UU) {x y:X} (p:x==y) (u:P x) : 
   transportf P p u == transportf (idfun _) (ap P p) u.
 (* same as HoTT.PathGroupoids.transport_idmap_ap *)
 Proof. intros. destruct p. reflexivity. Defined.
 
 (** * Sections *)
 
-Definition sections {T:UU} (P:T->UU) := forall t:T, P t.
-Definition evalat {T:UU} {U:UU} (t:T) (f:T->U) := f t.
-Definition apevalat {T:UU} {U:UU} (t:T) {f g:T->U}
+Definition sections {T} (P:T->UU) := forall t:T, P t.
+Definition homotsec {T} {P:T->UU} (f g:sections P) := forall t, f t == g t.
+Definition evalat {T} {U} (t:T) (f:T->U) := f t.
+Definition apevalat {T} {U} (t:T) {f g:T->U}
   : f == g -> f t == g t
   := ap (evalat t).
-Definition evalsecat {T:UU} {P:T->UU} (t:T) (f:sections P) := f t.
-Definition apevalsecat {T:UU} {P:T->UU} (t:T) {f g:sections P}
+Definition evalsecat {T} {P:T->UU} (t:T) (f:sections P) := f t.
+Definition apevalsecat {T} {P:T->UU} (t:T) {f g:sections P}
   : f == g -> f t == g t
   := ap (evalsecat t).
 Definition apfun {X Y} {f f':X->Y} (p:f==f') {x x'} (q:x==x') : f x == f' x'.
@@ -130,9 +132,9 @@ Proof. intros X lem is x y. exact (lem (x==y) (is x y)). Qed.
 
 (** * h-levels and paths *)
 
-Lemma isaprop_wma_inhab (X:UU) : (X -> isaprop X) -> isaprop X.
+Lemma isaprop_wma_inhab X : (X -> isaprop X) -> isaprop X.
 Proof. intros ? f. apply invproofirrelevance. intros x y. apply (f x). Qed.
-Lemma isaprop_wma_inhab' (X:UU) : (X -> iscontr X) -> isaprop X.
+Lemma isaprop_wma_inhab' X : (X -> iscontr X) -> isaprop X.
 Proof. intros ? f. apply isaprop_wma_inhab. intro x. apply isapropifcontr. 
        apply (f x). Qed.
 
@@ -145,24 +147,24 @@ Definition propProperty (P:hProp) := pr2 P : isaprop (pr1 P).
 
 Ltac intermediate x := apply @pathscomp0 with (b := x).
 
-Definition isaset_if_isofhlevel2 {X:UU} : isofhlevel 2 X -> isaset X.
+Definition isaset_if_isofhlevel2 {X} : isofhlevel 2 X -> isaset X.
 (* The use of this lemma ahead of something like 'impred' can be avoided by
    providing 2 as first argument. *)
 Proof. trivial. Qed.
 
-Definition isofhlevel2_if_isaset {X:UU} : isaset X -> isofhlevel 2 X.
+Definition isofhlevel2_if_isaset {X} : isaset X -> isofhlevel 2 X.
 Proof. trivial. Qed.
 
 Definition isaprop_hProp (X:hProp) : isaprop X.
 Proof. intro. exact (pr2 X). Qed.
 
-Definition the {T:UU} : iscontr T -> T.
+Definition the {T} : iscontr T -> T.
 Proof. intros ? is. exact (pr1 is). Defined.
 
-Definition uniqueness {T:UU} (i:iscontr T) (t:T) : t == the i.
+Definition uniqueness {T} (i:iscontr T) (t:T) : t == the i.
 Proof. intros. exact (pr2 i t). Defined.
 
-Definition uniqueness' {T:UU} (i:iscontr T) (t:T) : the i == t.
+Definition uniqueness' {T} (i:iscontr T) (t:T) : the i == t.
 Proof. intros. exact (! (pr2 i t)). Defined.
 
 Definition equality_proof_irrelevance {X:hSet} {x y:X} (p q:x==y) : p==q.
@@ -223,16 +225,16 @@ Proof. intros ? ? ? f x y P h.
 Definition squash_element {X} : X -> squash X.
 Proof. intros ? x P f. exact (f x). Defined.
 
-Definition squash_to_prop {X Y:UU} : squash X -> isaprop Y -> (X -> Y) -> Y.
+Definition squash_to_prop {X Y} : squash X -> isaprop Y -> (X -> Y) -> Y.
   intros ? ? h is f. exact (h (Y,,is) f). Defined.
 
-Lemma isaprop_squash (X:UU) : isaprop (squash X).
+Lemma isaprop_squash X : isaprop (squash X).
 Proof. prop_logic. Qed.
 
 Lemma squash_path {X} (x y:X) : squash_element x == squash_element y.
 Proof. intros. apply isaprop_squash. Defined.
 
-Lemma factor_through_squash {X Q:UU} : isaprop Q -> (X -> Q) -> (squash X -> Q).
+Lemma factor_through_squash {X Q} : isaprop Q -> (X -> Q) -> (squash X -> Q).
 Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Defined.
 
 Definition nullHomotopyTo {X Y} (f:X->Y) (y:Y) := forall x:X, f x == y.
@@ -314,14 +316,14 @@ Proof. reflexivity. Qed.
 
 (** ** Factoring maps through squash *)
  
-Lemma squash_uniqueness {X:UU} (x:X) (h:squash X) : squash_element x == h.
+Lemma squash_uniqueness {X} (x:X) (h:squash X) : squash_element x == h.
 Proof. intros. apply isaprop_squash. Qed.
 
 Goal forall X Q (i:isaprop Q) (f:X -> Q) (x:X),
    factor_through_squash i f (squash_element x) == f x.
 Proof. reflexivity. Defined.
 
-Lemma factor_dep_through_squash {X:UU} {Q:squash X->UU} : 
+Lemma factor_dep_through_squash {X} {Q:squash X->UU} : 
   (forall h, isaprop (Q h)) -> 
   (forall x, Q(squash_element x)) -> 
   (forall h, Q h).
@@ -330,16 +332,16 @@ Proof.
   intro x. simpl. destruct (squash_uniqueness x h). exact (f x).
 Defined.
 
-Lemma factor_through_squash_hProp {X:UU} : forall hQ:hProp, (X -> hQ) -> (squash X -> hQ).
+Lemma factor_through_squash_hProp {X} : forall hQ:hProp, (X -> hQ) -> (squash X -> hQ).
 Proof. intros ? [Q i] f h. apply h. assumption. Defined.
 
-Lemma funspace_isaset {X Y:UU} : isaset Y -> isaset (X -> Y).
+Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
 Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.    
 
-Lemma simple_pair_path {X Y:UU} {x x':X} {y y':Y} (p : x == x') (q : y == y') : x ,, y == x' ,, y'.
+Lemma simple_pair_path {X Y} {x x':X} {y y':Y} (p : x == x') (q : y == y') : x ,, y == x' ,, y'.
 Proof. intros. destruct p. destruct q. apply idpath. Defined.
 
-Lemma iscontr_if_inhab_prop {P:UU} : isaprop P -> P -> iscontr P.
+Lemma iscontr_if_inhab_prop {P} : isaprop P -> P -> iscontr P.
 Proof. intros ? i p. exists p. intros p'. apply i. Defined.
 
 Ltac isaprop_goal x :=
@@ -385,7 +387,7 @@ Proof. intros ? ? ? ? ?.
 Defined.
 *)
 
-Lemma squash_map_uniqueness {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
+Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : squash X -> S) : 
   g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
 Proof.
   intros ? ? ? ? ? h.
@@ -395,7 +397,7 @@ Proof.
   intro x. apply h.
 Qed.
 
-Lemma squash_map_epi {X S:UU} (ip : isaset S) (g g' : squash X -> S) : 
+Lemma squash_map_epi {X S} (ip : isaset S) (g g' : squash X -> S) : 
   g ∘ squash_element == g'∘ squash_element -> g == g'.
 Proof.
   intros ? ? ? ? ? e.
@@ -460,6 +462,6 @@ Definition loopSpace (X:PointedType) :=
 Notation Ω := loopSpace.
 (*
 Local Variables:
-compile-command: "make -C ../.. Packages/Ktheory/Utilities.vo"
+compile-command: "make -C ../.. TAGS Packages/Ktheory/Utilities.vo"
 End:
 *)

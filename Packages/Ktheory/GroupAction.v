@@ -82,7 +82,8 @@ Proof. intros. apply impred; intro g. apply impred; intro x.
     [is_equivariant] captures all of the structure.  The proof reduces to
     showing that if G acts on a set X in two ways, and the identity function is
     equivariant, then the two actions are equal.  A similar fact will hold in
-    other cases: groups, rings, monoids, etc. *)
+    other cases: groups, rings, monoids, etc.  Refer to section 9.8 of the HoTT
+    book, on the "structure identity principle", a term coined by Peter Aczel. *)
 
 Definition is_equivariant_identity {G:gr} {X Y:Action G}
            (p:ac_set X == ac_set Y) :
@@ -381,15 +382,16 @@ Module N.
     NullHomotopyFrom_center _ (toNullHomotopyFrom h).
   Definition StableNullHomotopyFrom_path {Y} {f:ℕ->Y} {s:stable f}
              (h:StableNullHomotopyFrom f s) n := (toNullHomotopyFrom h)[n].
-  Definition triv1 {Y} {f:ℕ->Y} (s:stable f) : nullHomotopyFrom f (f 0).
+  Definition h_triv {Y} {f:ℕ->Y} (s:stable f) {y:Y} (h0:y==f 0) :
+    nullHomotopyFrom f y.
   Proof. intros. intro n. induction n.
-         { reflexivity. } { refine (_@s n). assumption. } Defined.
-  Definition triv2 {Y} {f:ℕ->Y} (s:stable f) : 
-    stableNullHomotopyFrom f s (f 0,, triv1 s).
+         { assumption. } { refine (_@s n). assumption. } Defined.
+  Definition t_triv {Y} {f:ℕ->Y} (s:stable f) {y:Y} (h0:y==f 0) : 
+    stableNullHomotopyFrom f s (y,, h_triv s h0).
   Proof. intros. intro n. reflexivity. Defined.
-  Definition triv {Y} {f:ℕ->Y} (s:stable f) : StableNullHomotopyFrom f s.
-  Proof. intros. exact ((f 0,,triv1 s),,triv2 s).
-  Defined.
+  Definition triv {Y} {f:ℕ->Y} (s:stable f) {y:Y} (h0:y==f 0) :
+    StableNullHomotopyFrom f s.
+  Proof. intros. exact ((y,,h_triv s h0),,t_triv s h0). Defined.
   Definition tr {X} {x y:X} (v: paths' y x) : v # v == idpath y.
   Proof. intros. destruct v. reflexivity. Defined.
   Definition tra {Y} {f:ℕ->Y} {y y':Y} (h:nullHomotopyFrom f y) (p:y==y') n :
@@ -398,29 +400,64 @@ Module N.
   Definition tra' {Y} {f:ℕ->Y} {y y':Y} (h:nullHomotopyFrom f y) (p:y==y') n :
     (p # h) n == p # (h n : paths' _ _).
   Proof. intros. destruct p. reflexivity. Defined.
-  Definition Triv1 {Y} {f:ℕ->Y} (s:stable f) 
-             {y} (h:nullHomotopyFrom f y) (t:stableNullHomotopyFrom f s (y,,h)):
-    (y,, h) == (f 0,, triv1 s).
+
+  Definition F {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
+    stableNullHomotopyFrom f s (y,,h) -> forall n, h(S n) == h_triv s (h 0) (S n).
+  Proof. intros ? ? ? ? ? t. intro n. induction n. 
+         { exact (t 0). } { exact (t (S n) @ ap (fun q => q @ s (S n)) IHn). } 
+  Defined.
+  Definition F' {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
+     (forall n, h(S n) == h_triv s (h 0) (S n)) -> stableNullHomotopyFrom f s (y,,h).
+  Proof. intros ? ? ? ? ? t n. simpl. 
+         { destruct n.
+           { exact (t 0). }
+           { exact (t (S n) @ ! ap (fun q => q @ s (S n)) (t n)). } }
+  Defined.
+         
+  Lemma u {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
+  Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
+
+  Lemma A {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
+    isweq (F s h).
   Proof. intros.
-         apply (pair_path (h 0)).
-         apply funextsec; intro n.
-         intermediate (! h 0 @ h n).
-         { apply tra. }
-         { induction n. 
-           { apply pathsinv0l. }
-           { refine (_ @ ap (fun q => q @ s n) IHn); clear IHn.
-             refine (ap (fun q => !h 0@q) (t n) @ _); simpl.
-             apply path_assoc. } } Defined.
+         apply (gradth _ (F' s h)).
+         { intro t.
+           apply funextsec; intro n.
+           induction n.
+           { reflexivity. }
+           { unfold F,F'; simpl. 
+             refine (!path_assoc _ _ _ @ _ ).
+             refine (ap (fun q => t (S n) @ q) (pathsinv0r _) @ _).
+             apply pathscomp0rid. } }
+         { intro t.
+           apply funextsec; intro n.
+           induction n.
+           { reflexivity. }
+           { unfold F, F'; simpl.
+             refine (!path_assoc _ _ _ @ _ ).
+             refine (_ @ pathscomp0rid _ ).
+             apply (ap (fun q => t (S n) @ q)).
+             apply u.
+             apply (ap (ap (fun q : y == f (S n) => q @ s (S n)))).
+             admit. } }
+  Defined.
+
   Definition ic {Y} {f:ℕ->Y} (s:stable f) : iscontr (StableNullHomotopyFrom f s).
   Proof. intros.
-         exists (triv s).
+         exists (triv s (idpath _)).
          intros [[y h] t]. 
-         apply (pair_path (Triv1 s h t)).
-         unfold triv2; simpl.
-         apply funextsec; intro n.
-
-
          admit.
+         (* apply (pair_path (F s h t)). *)
+         (* apply funextsec; intro n. *)
+         (* set (a := F s h t); set (b := t n); simpl in a,b. *)
+         (* unfold t_triv; simpl. *)
+         (* intermediate (idpath (h_triv s (S n))). *)
+         (* {  *)
+           
+           
+         (*   (* Check F s h t # t n. *) *)
+         (*   admit. } *)
+         (* { reflexivity. } *)
   Defined.
 End N.
 
@@ -440,7 +477,7 @@ Module BZ.
          { admit. }
          { assert (r := quotient_times _ t' t : n + t == t').
            set (m := hzabsval n).
-           assert (k := hzabsvalgeh0 h).
+           assert (F := hzabsvalgeh0 h).
            intermediate (f (n+t)).
            { intermediate (f ((nattohz m : ℤ)+t)).
              { induction m.
