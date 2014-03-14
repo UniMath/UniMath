@@ -419,28 +419,18 @@ Module N.
 
   Lemma A {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
     isweq (F s h).
-  Proof. intros.
-         apply (gradth _ (F' s h)).
-         { intro t.
-           apply funextsec; intro n.
-           induction n.
+  Proof. intros. apply (gradth _ (F' s h)).
+         { intro t. apply funextsec; intro n. induction n.
            { reflexivity. }
-           { unfold F,F'; simpl. 
-             refine (!path_assoc _ _ _ @ _ ).
+           { unfold F,F'; simpl. refine (!path_assoc _ _ _ @ _ ).
              refine (ap (fun q => t (S n) @ q) (pathsinv0r _) @ _).
              apply pathscomp0rid. } }
-         { intro t.
-           apply funextsec; intro n.
-           induction n.
+         { intro t. apply funextsec; intro n. induction n.
            { reflexivity. }
-           { unfold F, F'; simpl.
-             refine (!path_assoc _ _ _ @ _ ).
-             refine (_ @ pathscomp0rid _ ).
-             apply (ap (fun q => t (S n) @ q)).
-             apply u.
-             apply (ap (ap (fun q : y == f (S n) => q @ s (S n)))).
-             admit. } }
-  Defined.
+           { unfold F, F'; simpl. refine (!path_assoc _ _ _ @ _ ).
+             refine (_ @ pathscomp0rid _ ). apply (ap (fun q => t (S n) @ q)).
+             apply u. apply (ap (ap (fun q : y == f (S n) => q @ s (S n)))).
+             apply IHn. } } Defined.
 
   Definition ic {Y} {f:ℕ->Y} (s:stable f) : iscontr (StableNullHomotopyFrom f s).
   Proof. intros.
