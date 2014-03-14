@@ -391,31 +391,29 @@ Module N.
   Proof. intros ? ? ? ? ? t ?. induction n. 
          { exact (t 0). } { exact (t (S n) @ ap (fun q => q @ s (S n)) IHn). } 
   Defined.
+
   Definition F' {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
      (forall n, h(S n) == h_triv s (h 0) n) -> stableNullHomotopyFrom f s (y,,h).
   Proof. intros ? ? ? ? ? t ?. simpl. 
-         { destruct n.
+         { induction n.
            { exact (t 0). }
-           { exact (t (S n) @ ! ap (fun q => q @ s (S n)) (t n)). } }
-  Defined.
-         
+           { exact (t (S n) @ ! ap post_cat (t n)). } } Defined.
+
   Lemma u {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
   Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
 
   Lemma A {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
     isweq (F s h).
-  Proof. intros. apply (gradth _ (F' s h)).
+  Proof. intros. apply (gradth _ (F' _ _)).
          { intro t. apply funextsec; intro n. induction n.
            { reflexivity. }
-           { unfold F,F'; simpl. refine (!path_assoc _ _ _ @ _ ).
-             refine (ap (fun q => t (S n) @ q) (pathsinv0r _) @ _).
-             apply pathscomp0rid. } }
+           { unfold F,F'; simpl. refine (!path_assoc _ _ _ @ _).
+             refine (ap pre_cat (pathsinv0r _) @ _). apply pathscomp0rid. } }
          { intro t. apply funextsec; intro n. induction n.
            { reflexivity. }
-           { unfold F, F'; simpl. refine (!path_assoc _ _ _ @ _ ).
-             refine (_ @ pathscomp0rid _ ). apply (ap (fun q => t (S n) @ q)).
-             apply u. apply (ap (ap (fun q : y == f (S n) => q @ s (S n)))).
-             apply IHn. } } Defined.
+           { unfold F, F'; simpl. refine (!path_assoc _ _ _ @ _).
+             refine (_ @ pathscomp0rid _). apply (ap pre_cat). apply u. 
+             apply (ap (ap post_cat)). assumption. } } Defined.
 
   Definition ic {Y} {f:ℕ->Y} (s:stable f) : iscontr (StableNullHomotopyFrom f s).
   Proof. 

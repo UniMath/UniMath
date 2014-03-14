@@ -132,6 +132,11 @@ Proof. intros X lem is x y. exact (lem (x==y) (is x y)). Qed.
 
 (** * h-levels and paths *)
 
+Definition post_cat {X} {x y z:X} {q:y==z} : x==y -> x==z.
+Proof. intros ? ? ? ? p q. exact (pathscomp0 q p). Defined.
+Definition pre_cat {X} {x y z:X} {q:x==y} : y==z -> x==z.
+Proof. intros ? ? ? ? p q. exact (pathscomp0 p q). Defined.
+
 Lemma isaprop_wma_inhab X : (X -> isaprop X) -> isaprop X.
 Proof. intros ? f. apply invproofirrelevance. intros x y. apply (f x). Qed.
 Lemma isaprop_wma_inhab' X : (X -> iscontr X) -> isaprop X.
