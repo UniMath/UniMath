@@ -383,32 +383,17 @@ Module N.
   Definition StableNullHomotopyFrom_path {Y} {f:ℕ->Y} {s:stable f}
              (h:StableNullHomotopyFrom f s) n := (toNullHomotopyFrom h)[n].
   Definition h_triv {Y} {f:ℕ->Y} (s:stable f) {y:Y} (h0:y==f 0) :
-    nullHomotopyFrom f y.
-  Proof. intros. intro n. induction n.
-         { assumption. } { refine (_@s n). assumption. } Defined.
-  Definition t_triv {Y} {f:ℕ->Y} (s:stable f) {y:Y} (h0:y==f 0) : 
-    stableNullHomotopyFrom f s (y,, h_triv s h0).
-  Proof. intros. intro n. reflexivity. Defined.
-  Definition triv {Y} {f:ℕ->Y} (s:stable f) {y:Y} (h0:y==f 0) :
-    StableNullHomotopyFrom f s.
-  Proof. intros. exact ((y,,h_triv s h0),,t_triv s h0). Defined.
-  Definition tr {X} {x y:X} (v: paths' y x) : v # v == idpath y.
-  Proof. intros. destruct v. reflexivity. Defined.
-  Definition tra {Y} {f:ℕ->Y} {y y':Y} (h:nullHomotopyFrom f y) (p:y==y') n :
-    (p # h) n == !p @ h n.
-  Proof. intros. destruct p. reflexivity. Defined.
-  Definition tra' {Y} {f:ℕ->Y} {y y':Y} (h:nullHomotopyFrom f y) (p:y==y') n :
-    (p # h) n == p # (h n : paths' _ _).
-  Proof. intros. destruct p. reflexivity. Defined.
-
+    forall n, y == f (S n).
+  Proof. intros. induction n.
+         { exact (h0 @ s 0). } { exact (IHn @ s (S n)). } Defined.
   Definition F {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
-    stableNullHomotopyFrom f s (y,,h) -> forall n, h(S n) == h_triv s (h 0) (S n).
-  Proof. intros ? ? ? ? ? t. intro n. induction n. 
+    stableNullHomotopyFrom f s (y,,h) -> forall n, h(S n) == h_triv s (h 0) n.
+  Proof. intros ? ? ? ? ? t ?. induction n. 
          { exact (t 0). } { exact (t (S n) @ ap (fun q => q @ s (S n)) IHn). } 
   Defined.
   Definition F' {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
-     (forall n, h(S n) == h_triv s (h 0) (S n)) -> stableNullHomotopyFrom f s (y,,h).
-  Proof. intros ? ? ? ? ? t n. simpl. 
+     (forall n, h(S n) == h_triv s (h 0) n) -> stableNullHomotopyFrom f s (y,,h).
+  Proof. intros ? ? ? ? ? t ?. simpl. 
          { destruct n.
            { exact (t 0). }
            { exact (t (S n) @ ! ap (fun q => q @ s (S n)) (t n)). } }
@@ -433,21 +418,9 @@ Module N.
              apply IHn. } } Defined.
 
   Definition ic {Y} {f:ℕ->Y} (s:stable f) : iscontr (StableNullHomotopyFrom f s).
-  Proof. intros.
-         exists (triv s (idpath _)).
-         intros [[y h] t]. 
-         admit.
-         (* apply (pair_path (F s h t)). *)
-         (* apply funextsec; intro n. *)
-         (* set (a := F s h t); set (b := t n); simpl in a,b. *)
-         (* unfold t_triv; simpl. *)
-         (* intermediate (idpath (h_triv s (S n))). *)
-         (* {  *)
-           
-           
-         (*   (* Check F s h t # t n. *) *)
-         (*   admit. } *)
-         (* { reflexivity. } *)
+  Proof. 
+
+    admit.
   Defined.
 End N.
 
