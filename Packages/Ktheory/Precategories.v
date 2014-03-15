@@ -113,5 +113,5 @@ Lemma opp_opp_precat_data (C : precategory_data)
 Proof. intros [[ob mor] [id co]]. reflexivity. Defined.
 
 Lemma opp_opp_precat (C : precategory) : C == C^op^op.
-Proof. intros [data ispre]. apply (pair_path (opp_opp_precat_data data)).
+Proof. intros [data ispre]. apply (pair_path_props (opp_opp_precat_data data)).
        apply isaprop_is_precategory. Defined.

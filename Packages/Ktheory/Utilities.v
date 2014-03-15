@@ -47,7 +47,6 @@ Definition paths_from_prop {X} (x:X) :=
 
 Module Import Notation.
   Notation set_to_type := hSet.pr1hSet.
-  Notation pair_path := auxiliary_lemmas_HoTT.total2_paths2.
   Notation ap := maponpaths.
   (* see table 3.1 in the coq manual for parsing levels *)
   Notation "f ~ g" := (uu0.homot f g) (at level 70).
@@ -59,6 +58,12 @@ Module Import Notation.
   Notation "p # x" := (transportf _ p x) (right associativity, at level 65).
   Notation "p #' x" := (transportb _ p x) (right associativity, at level 65).
 End Notation.
+
+(* We prefer [pair_path_props] to [total2_paths2]. *)
+Definition pair_path_props {X:UU} {P:X->UU} {x y:X} {p:P x} {q:P y} :
+  x==y -> (forall z, isaprop (P z)) -> x,,p==y,,q.
+Proof. intros ? ? ? ? ? ? e is. 
+       exact (total2_paths2 e (pr1 (is _ _ _))). Defined.
 
 Definition weqdirprodcomm' X Y : weq (dirprod X Y) (dirprod Y X).
 Proof. (* replace the proof of [weqdirprodcomm] eventually *)
@@ -88,15 +93,6 @@ Proof. intros. destruct q. reflexivity. Defined.
 Definition pr2_pair {X} {P:X->UU} {w w':total2 P} (p : w == w') :
   transportf P (ap pr1 p) (pr2 w) == pr2 w'.
 Proof. intros. destruct p. reflexivity. Defined.
-
-Definition pair_path_comp1 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
-           (p:x==x') (q:p#y==y') : ap pr1 (pair_path p q) == p.
-Proof. intros. destruct p. destruct q. reflexivity. Defined.
-
-Definition pair_path_comp2 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
-           (p:x==x') (q:p#y==y') :
-  ! app (pair_path_comp1 p q) y @ pr2_pair (pair_path p q) == q.
-Proof. intros. destruct p, q. reflexivity. Defined.
 
 (** ** Maps from pair types *)
 
@@ -283,8 +279,8 @@ Lemma isaprop_NullHomotopyTo_0 {X} {Y} (is:isaset Y) (f:X->Y) :
 (** The point of X is needed, for when X is empty, then NullHomotopyTo f is
     equivalent to Y. *)
 Proof. intros ? ? ? ? x. apply invproofirrelevance. intros [r i] [s j].
-  refine (pair_path _ _). { exact (!i x @ j x). } 
-  { apply (isaprop_nullHomotopyTo is). } Defined.
+       apply (pair_path_props (!i x @ j x)).
+       apply (isaprop_nullHomotopyTo is). Defined.
 
 Lemma isaprop_NullHomotopyTo {X} {Y} (is:isaset Y) (f:X->Y) :
   squash X -> isaprop (NullHomotopyTo f).
@@ -357,7 +353,8 @@ Proof. intros ? [Q i] f h. apply h. assumption. Defined.
 Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
 Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.    
 
-Lemma simple_pair_path {X Y} {x x':X} {y y':Y} (p : x == x') (q : y == y') : x ,, y == x' ,, y'.
+Lemma simple_pair_path {X Y} {x x':X} {y y':Y} (p : x == x') (q : y == y') :
+  x,,y == x',,y'.
 Proof. intros. destruct p. destruct q. apply idpath. Defined.
 
 Lemma iscontr_if_inhab_prop {P} : isaprop P -> P -> iscontr P.

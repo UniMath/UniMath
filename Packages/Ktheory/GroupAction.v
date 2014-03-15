@@ -263,20 +263,20 @@ Proof. intros. exists (trivialTorsorAuto G). refine (gradth _ _ _ _).
 
 Lemma trivialTorsorAuto_unit (G:gr) : 
   trivialTorsorAuto G (unel _) == idActionIso _.
-Proof. intros. refine (pair_path _ _).
-       { refine (pair_path _ _).
+Proof. intros. refine (pair_path_props _ _).
+       { refine (pair_path_props _ _).
          { apply funextsec; intro x; simpl. exact (runax G x). }
          { apply isapropisweq. } }
-       { apply is_equivariant_isaprop. } Defined.
+       { intro k. apply is_equivariant_isaprop. } Defined.
 
 Lemma trivialTorsorAuto_mult (G:gr) (g h:G) :
   composeActionIso (trivialTorsorAuto G g) (trivialTorsorAuto G h) 
   == (trivialTorsorAuto G (op g h)).
-Proof. intros. refine (pair_path _ _).
-       { refine (pair_path _ _).
+Proof. intros. refine (pair_path_props _ _).
+       { refine (pair_path_props _ _).
          { apply funextsec; intro x; simpl. exact (assocax _ x g h). }
          { apply isapropisweq. } }
-       { apply is_equivariant_isaprop. } Defined.
+       { intro k. apply is_equivariant_isaprop. } Defined.
 
 (** ** Applications of univalence *)
 

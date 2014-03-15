@@ -39,10 +39,11 @@ Proof. intros.
 Definition zerocomp {C} (z:hasZeroObject C) {c d:ob C} (f:c → d):C ==> SET.
   intros. exists (zerocomp_data z f). split.
   { intros x. apply funextsec; intros [r rf0].
-    apply (pair_path (id_right _ _ _ r)). apply setproperty. }
+    apply (Utilities.pair_path_props (id_right _ _ _ r)). 
+    intro g. apply setproperty. }
   { intros w x y t u. apply funextsec. intros [r rf0].
-    apply (pair_path (assoc _ _ _ _ _ r t u)).
-    apply setproperty. } Defined.
+    apply (Utilities.pair_path_props (assoc _ _ _ _ _ r t u)).
+    intro g. apply setproperty. } Defined.
 Definition Cokernel {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :=
   Representation.Data (zerocomp z f).
 Definition Kernel C (z:hasZeroObject C) (c d:ob C) (f:c → d) :=
