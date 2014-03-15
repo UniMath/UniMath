@@ -432,8 +432,6 @@ Module N.
   Definition H' {Y} {f:ℕ->Y} (s:stable f) {y} : y==f 0 -> SHomotopy' f s y.
   Proof. intros ? ? ? ? h0. unfold SHomotopy'. exists (h_triv s h0).
          intro n. reflexivity. Defined.
-
-
   Lemma D {Y} {f:ℕ->Y} (s:stable f) {y} : weq (SHomotopy' f s y) (y==f 0).
   Proof. intros ? ? ? ?. exists (H _). apply (gradth _ (H' _)).
          { intros [h t]; simpl.
