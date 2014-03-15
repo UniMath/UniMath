@@ -60,6 +60,14 @@ Module Import Notation.
   Notation "p #' x" := (transportb _ p x) (right associativity, at level 65).
 End Notation.
 
+Definition weqdirprodcomm' X Y : weq (dirprod X Y) (dirprod Y X).
+Proof. (* replace the proof of [weqdirprodcomm] eventually *)
+       intros. refine (_,,gradth _ _ _ _).
+       { intros [x y]. exact (y,,x). }
+       { intros [y x]. exact (x,,y). }
+       { intros [x y]. reflexivity. }
+       { intros [y x]. reflexivity. } Defined.
+
 Definition pair_path2 {A} {B:A->UU} {a a1 a2} {b1:B a1} {b2:B a2}
            (p:a1==a) (q:a2==a) (e:p#b1 == q#b2) : a1,,b1 == a2,,b2.
 Proof. intros. destruct p,q; compute in e. destruct e. reflexivity. Defined.
