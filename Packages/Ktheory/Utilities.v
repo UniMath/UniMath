@@ -95,13 +95,6 @@ Proof. intros. destruct p, q. reflexivity. Defined.
 Definition from_total2 {X} {P:X->Type} {Y} : (forall x, P x->Y) -> total2 P -> Y.
 Proof. intros ? ? ? f [x p]. exact (f x p). Defined.
 
-(** ** Transport *)
-
-Lemma transport_idfun {X} (P:X->UU) {x y:X} (p:x==y) (u:P x) : 
-  transportf P p u == transportf (idfun _) (ap P p) u.
-(* same as HoTT.PathGroupoids.transport_idmap_ap *)
-Proof. intros. destruct p. reflexivity. Defined.
-
 (** * Sections *)
 
 Definition sections {T} (P:T->UU) := forall t:T, P t.
@@ -121,6 +114,19 @@ Definition aptwice {X Y Z} (f:X->Y->Z) {a a' b b'} (p:a==a') (q:b==b') : f a b =
 Definition fromemptysec { X : empty -> UU } (nothing:empty) : X nothing.
 (* compare with [fromempty] in u00 *)
 Proof. intros X H.  destruct H. Defined. 
+
+(** ** Transport *)
+
+Lemma transport_idfun {X} (P:X->UU) {x y:X} (p:x==y) (u:P x) : 
+  transportf P p u == transportf (idfun _) (ap P p) u.
+(* same as HoTT.PathGroupoids.transport_idmap_ap *)
+Proof. intros. destruct p. reflexivity. Defined.
+
+Lemma transport_functions {X} {Y:X->Type} {Z:forall x (y:Y x), Type}
+      {f f':sections Y} (p:f==f') (z:forall x, Z x (f x)) x :
+    (transportf (fun f => forall x, Z x (f x)) p z) x ==
+    transportf (Z x) (toforallpaths _ _ _ p x) (z x).
+Proof. intros. destruct p. reflexivity. Defined.
 
 (** * Decidability *)
 

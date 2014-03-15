@@ -369,51 +369,85 @@ Local Notation "l ^ n" := (loop_power l n) : paths_scope.
 (** * The induction principle for the circle. *)
 
 Module N.
-  Local Notation "h [ n ]" :=(NullHomotopyFrom_path h n) (at level 0).
   Definition stable {Y} (f:ℕ->Y) := forall n, f n==f(S n).
-  Definition stableNullHomotopyFrom {Y} (f:ℕ->Y) (s:stable f) (h:NullHomotopyFrom f) :=
-      forall n, h[S n] == h[n] @ s n.
-  Definition StableNullHomotopyFrom {Y} (f:ℕ->Y) (s:stable f) :=
-    total2 (stableNullHomotopyFrom f s).
-  Definition toNullHomotopyFrom {Y} {f:ℕ->Y} {s:stable f} :
-    StableNullHomotopyFrom f s -> NullHomotopyFrom f := pr1.
-  Definition StableNullHomotopyFrom_center {Y} {f:ℕ->Y} {s:stable f}
-             (h:StableNullHomotopyFrom f s) :=
-    NullHomotopyFrom_center _ (toNullHomotopyFrom h).
-  Definition StableNullHomotopyFrom_path {Y} {f:ℕ->Y} {s:stable f}
-             (h:StableNullHomotopyFrom f s) n := (toNullHomotopyFrom h)[n].
-  Definition h_triv {Y} {f:ℕ->Y} (s:stable f) {y:Y} (h0:y==f 0) :
-    forall n, y == f (S n).
-  Proof. intros. induction n.
-         { exact (h0 @ s 0). } { exact (IHn @ s (S n)). } Defined.
+  Definition sHomotopy {Y} (f:ℕ->Y) (s:stable f) y (h:nullHomotopyFrom f y) :=
+      forall n, h(S n) == h n @ s n.
+  Definition SHomotopy {Y} (f:ℕ->Y) (s:stable f) y := total2 (sHomotopy f s y).
+  Definition h_triv {Y} {f:ℕ->Y} (s:stable f) {y:Y} (h0:y==f 0) : nullHomotopyFrom f y.
+  Proof. intros. intro n. induction n. { exact (h0). } { exact (IHn @ s _). } Defined.
+  Definition sHomotopy' {Y} (f:ℕ->Y) (s:stable f) y (h:nullHomotopyFrom f y) :=
+      forall n, h(S n) == h_triv s (h 0) (S n).
+  Definition SHomotopy' {Y} (f:ℕ->Y) (s:stable f) y := total2 (sHomotopy' f s y).
   Definition F {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
-    stableNullHomotopyFrom f s (y,,h) -> forall n, h(S n) == h_triv s (h 0) n.
+    sHomotopy f s y h -> sHomotopy' f s y h.
   Proof. intros ? ? ? ? ? t ?. induction n. 
          { exact (t 0). } { exact (t (S n) @ ap post_cat IHn). } Defined.
   Definition F' {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
-     (forall n, h(S n) == h_triv s (h 0) n) -> stableNullHomotopyFrom f s (y,,h).
+     sHomotopy' f s y h -> sHomotopy f s y h.
   Proof. intros ? ? ? ? ? t ?. simpl. 
          { induction n.
            { exact (t 0). } { exact (t (S n) @ ! ap post_cat (t n)). } } Defined.
   Lemma u {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
   Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
-  Lemma A {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
-    isweq (F s h).
-  Proof. intros. apply (gradth _ (F' _ _)).
-         { intro t. apply funextsec; intro n. induction n.
-           { reflexivity. }
+  Lemma A {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) : 
+    weq (sHomotopy f s y h) (sHomotopy' f s y h).
+  Proof. intros. exists (F s h). apply (gradth _ (F' s h)).
+         { intro t. apply funextsec; intro n. induction n. { reflexivity. }
            { unfold F,F'; simpl. refine (!path_assoc _ _ _ @ _).
              refine (ap pre_cat (pathsinv0r _) @ _). apply pathscomp0rid. } }
-         { intro t. apply funextsec; intro n. induction n.
-           { reflexivity. }
+         { intro t. apply funextsec; intro n. induction n. { reflexivity. }
            { unfold F, F'; simpl. refine (!path_assoc _ _ _ @ _).
              refine (_ @ pathscomp0rid _). apply (ap pre_cat). apply u. 
              apply (ap (ap post_cat)). assumption. } } Defined.
-  Definition ic {Y} {f:ℕ->Y} (s:stable f) : iscontr (StableNullHomotopyFrom f s).
-  Proof. 
-
-    admit.
+  (** The proof above works only by accident; there ought to be a better way. *)
+  Lemma B {Y} {f:ℕ->Y} (s:stable f) {y} : weq (SHomotopy f s y) (SHomotopy' f s y).
+  Proof. intros. apply weqfibtototal; intro h. apply A. Defined.
+  Definition sHomotopy'' {Y} (f:ℕ->Y) (s:stable f) 
+       y (h0:y==f 0) (h:nullHomotopyFrom f y) := forall n, h n == h_triv s h0 n.
+  Definition SHomotopy'' {Y} (f:ℕ->Y) (s:stable f) y := 
+    total2 (fun h0:y==f 0 => total2 (sHomotopy'' f s y h0)).
+  Definition G {Y} {f:ℕ->Y} (s:stable f) {y} : 
+    SHomotopy' f s y -> SHomotopy'' f s y.
+  Proof. intros ? ? ? ? [h t]. unfold sHomotopy' in t. unfold SHomotopy''.
+         exists (h 0). exists h. intro n. induction n.
+         { reflexivity. } { apply t. } Defined.
+  Definition G' {Y} {f:ℕ->Y} (s:stable f) {y} : 
+    SHomotopy'' f s y -> SHomotopy' f s y.
+  Proof. intros ? ? ? ? [h0 [h t]]. unfold SHomotopy'. unfold sHomotopy'' in t.
+         exists h. intro n. 
+         refine (t (S n) @ _); simpl. apply (ap post_cat). 
+         exact (ap (fun q => h_triv s q n) (!t 0)). Defined.
+  Lemma C {Y} {f:ℕ->Y} (s:stable f) {y} : weq (SHomotopy' f s y) (SHomotopy'' f s y).
+  Proof. intros. exists (G _). apply (gradth _ (G' _)).
+         { intros [h t]. simpl.
+           apply (pair_path (idpath _)); unfold transportf; simpl; unfold idfun.
+           apply funextsec; intro n.
+           apply pathscomp0rid. }
+         { intros [h0 [h t]]. simpl.
+           apply (pair_path (t 0)).
+           admit. }
   Defined.
+  Definition H {Y} {f:ℕ->Y} (s:stable f) {y} : SHomotopy' f s y -> y==f 0.
+  Proof. intros ? ? ? ? [h t]. exact (h 0). Defined.
+  Definition H' {Y} {f:ℕ->Y} (s:stable f) {y} : y==f 0 -> SHomotopy' f s y.
+  Proof. intros ? ? ? ? h0. unfold SHomotopy'. exists (h_triv s h0).
+         intro n. reflexivity. Defined.
+
+
+  Lemma D {Y} {f:ℕ->Y} (s:stable f) {y} : weq (SHomotopy' f s y) (y==f 0).
+  Proof. intros ? ? ? ?. exists (H _). apply (gradth _ (H' _)).
+         { intros [h t]; simpl.
+           unfold H'.
+           refine (pair_path _ _).
+           { apply funextsec; intro n.
+             unfold sHomotopy' in t.
+             induction n.
+             { reflexivity. }
+             { exact (! t n). } }
+           { apply funextsec; intro n.
+             admit.             (* ?? *)
+         } }
+         { intro h0. reflexivity. } Defined.
 End N.
 
 Module BZ.
@@ -444,28 +478,28 @@ Module BZ.
            admit. }
   Defined.
 
-  Definition stableNullHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f)
+  Definition sHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f)
              (h:NullHomotopyTo f) :=
       forall t, s t == NullHomotopyTo_path h t @ ! NullHomotopyTo_path h (one+t).
-  Definition StableNullHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :=
-    total2 (stableNullHomotopyTo f s).
+  Definition SHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :=
+    total2 (sHomotopyTo f s).
   Definition toNullHomotopyTo {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f} :
-    StableNullHomotopyTo f s -> NullHomotopyTo f := pr1.
-  Definition StableNullHomotopyTo_center {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
-             (h:StableNullHomotopyTo f s) :=
+    SHomotopyTo f s -> NullHomotopyTo f := pr1.
+  Definition SHomotopyTo_center {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
+             (h:SHomotopyTo f s) :=
     NullHomotopyTo_center _ (toNullHomotopyTo h).
-  Definition StableNullHomotopyTo_path {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
-             (h:StableNullHomotopyTo f s) :=
+  Definition SHomotopyTo_path {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
+             (h:SHomotopyTo f s) :=
     NullHomotopyTo_path (toNullHomotopyTo h).
 
-  Definition makeStableNullHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
-    T -> StableNullHomotopyTo f s.
+  Definition makeSHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
+    T -> SHomotopyTo f s.
   Proof. intros ? ? ? ? t0.
          admit.
   Defined.
 
-  Lemma isapropStableNullHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
-    iscontr (StableNullHomotopyTo f s).
+  Lemma isapropSHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
+    iscontr (SHomotopyTo f s).
   Proof. intros ? ? ? ?.
          apply (squash_to_prop (torsor_nonempty T)); intro t0. { apply isapropiscontr. } 
          admit.
