@@ -402,30 +402,46 @@ Module N.
   (** The proof above works only by accident; there ought to be a better way. *)
   Lemma B {Y} {f:ℕ->Y} (s:stable f) {y} : weq (SHomotopy f s y) (SHomotopy' f s y).
   Proof. intros. apply weqfibtototal; intro h. apply A. Defined.
+
+  Definition isolate0 {P:ℕ->Type} : 
+    weq (forall n, P n) (dirprod (P 0) (forall n, P (S n))).
+  Proof. intros.
+         refine (_,,_).
+         { intro f. split. { exact (f 0). } { intro n. apply f. } }
+         { refine (gradth _ _ _ _).
+           { intros [f0 f']. induction n. { exact f0. } { apply f'. } }
+           { intro f. apply funextsec; intro n.
+             induction n. { reflexivity. } { reflexivity. } }
+           { intros [f0 f']. reflexivity. } } Defined.
+
   Definition sHomotopy'' {Y} (f:ℕ->Y) (s:stable f) 
-       y (h0:y==f 0) (h:nullHomotopyFrom f y) := forall n, h n == h_triv s h0 n.
+       y (h0:y==f 0) (h:forall n, y==f(S n)) := forall n, h n == h_triv s h0 (S n).
   Definition SHomotopy'' {Y} (f:ℕ->Y) (s:stable f) y := 
     total2 (fun h0:y==f 0 => total2 (sHomotopy'' f s y h0)).
   Definition G {Y} {f:ℕ->Y} (s:stable f) {y} : 
     SHomotopy' f s y -> SHomotopy'' f s y.
   Proof. intros ? ? ? ? [h t]. unfold sHomotopy' in t. unfold SHomotopy''.
-         exists (h 0). exists h. intro n. induction n.
-         { reflexivity. } { apply t. } Defined.
+         exists (h 0). exists (fun n => h (S n)). exact t. Defined.
   Definition G' {Y} {f:ℕ->Y} (s:stable f) {y} : 
     SHomotopy'' f s y -> SHomotopy' f s y.
   Proof. intros ? ? ? ? [h0 [h t]]. unfold SHomotopy'. unfold sHomotopy'' in t.
-         exists h. intro n. 
-         refine (t (S n) @ _); simpl. apply (ap post_cat). 
-         exact (ap (fun q => h_triv s q n) (!t 0)). Defined.
+         refine (_,,_).
+         { intro n. induction n. { exact h0. } { exact (h n). } }
+         { exact t. } Defined.
+
   Lemma C {Y} {f:ℕ->Y} (s:stable f) {y} : weq (SHomotopy' f s y) (SHomotopy'' f s y).
   Proof. intros. exists (G _). apply (gradth _ (G' _)).
-         { intros [h t]. simpl.
-           apply (pair_path (idpath _)); unfold transportf; simpl; unfold idfun.
-           apply funextsec; intro n.
-           apply pathscomp0rid. }
-         { intros [h0 [h t]]. simpl.
-           apply (pair_path (t 0)).
-           admit. }
+         { intro h.
+           unfold SHomotopy',sHomotopy' in h.
+           set (h0 := pr1 h 0).
+           destruct h as [h t]; simpl; simpl in h0.
+           refine (pair_path _ _).
+           { apply funextsec; intro n. induction n. reflexivity. reflexivity. }
+           { apply funextsec; intro n.
+             set (t0 := t : forall n : ℕ, h (S n) == h_triv s h0 (S n)).
+
+             admit. } }
+         { intros [h0 [h t]]; simpl. reflexivity. }
   Defined.
   Definition H {Y} {f:ℕ->Y} (s:stable f) {y} : SHomotopy' f s y -> y==f 0.
   Proof. intros ? ? ? ? [h t]. exact (h 0). Defined.
