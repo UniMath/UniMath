@@ -448,6 +448,40 @@ Module N.
   Lemma C {Y} {f:ℕ->Y} (s:stable f) {y} : weq (SHomotopy' f s y) (SHomotopy'' f s y).
   Proof. intros. apply isolate0_weq. Defined.
 
+  Definition SHomotopy''' {Y} (f:ℕ->Y) (s:stable f) y := total2 (fun 
+               h0:y==f 0 => total2 (fun
+               h:forall n:ℕ, y == f (S n) => 
+                 forall n:ℕ, h n == h_triv s h0 (S n))).
+
+  Lemma D {Y} {f:ℕ->Y} (s:stable f) {y} : 
+    weq (SHomotopy'' f s y) (SHomotopy''' f s y).
+  Proof. intros. apply weqtotal2asstor. Defined.
+
+  Definition SHomotopy'''' {Y} (f:ℕ->Y) (s:stable f) y := total2 (fun 
+               h0:y==f 0 => total2 (fun
+               h:forall n:ℕ, y == f (S n) => 
+                 h == fun n => h_triv s h0 (S n))).
+  
+  Lemma E {Y} {f:ℕ->Y} (s:stable f) {y} : 
+    weq (SHomotopy''' f s y) (SHomotopy'''' f s y).
+  Proof. intros. apply weqfibtototal; intro h0. apply weqfibtototal; intro h.
+         apply weqfunextsec. Defined.
+
+  Lemma G {Y} {f:ℕ->Y} (s:stable f) {y} : 
+    weq (SHomotopy'''' f s y) (y==f 0).
+  Proof. intros. exists pr1. apply isweqpr1; intro h0. apply iscontrcoconustot.
+  Defined.
+
+  Local Notation "f @@ g" := (weqcomp f g) (left associativity, at level 50).
+
+  Lemma H {Y} {f:ℕ->Y} (s:stable f) : 
+    weq (total2 (SHomotopy f s)) (paths_to (f 0)).
+  Proof. intros. apply weqfibtototal; intro y.
+         refine (B s @@ C s @@ D s @@ E s @@ G s). Defined.
+
+  Theorem finally {Y} {f:ℕ->Y} (s:stable f) : iscontr (total2 (SHomotopy f s)).
+  Proof. intros. apply (iscontrweqb (H s)). apply iscontrcoconustot. Defined.
+
   (* ... *)
 
 End N.
