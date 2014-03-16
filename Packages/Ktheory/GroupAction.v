@@ -366,21 +366,18 @@ Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
 Local Notation "l ^ n" := (loop_power l n) : paths_scope.
 
-(** * The induction principle for the circle. *)
+(** * The induction principle for the half line. *)
 
-Module N.
-  Definition stable {Y} (f:ℕ->Y) := forall n, f n==f(S n).
-  Definition sHomotopy {Y} (f:ℕ->Y) (s:stable f) y (h:nullHomotopyFrom f y) :=
-      forall n, h(S n) == h n @ s n.
-  Definition SHomotopy {Y} (f:ℕ->Y) (s:stable f) y := total2 (sHomotopy f s y).
-  Definition GuidedHomotopy {Y} (f:ℕ->Y) (s:stable f) := total2 (SHomotopy f s).
+Module Halfline.
 
-  Definition h_triv {Y} {f:ℕ->Y} (s:stable f) {y:Y} (h0:y==f 0) : nullHomotopyFrom f y.
-  Proof. intros. intro n. induction n. { exact (h0). } { exact (IHn @ s _). } Defined.
+  Definition target_paths {Y} (f:ℕ->Y) := forall n, f n==f(S n).
 
-  Definition g_triv {Y} {f:ℕ->Y} (s:stable f) (n0:ℕ) : GuidedHomotopy f s.
-  Proof. intros. exists (f n0). exists (h_triv s (! h_triv s (idpath _) n0)).
-         intro n. reflexivity. Defined.
+  Definition gHomotopy {Y} (f:ℕ->Y) (s:target_paths f) y (h:nullHomotopyFrom f y) :=
+    forall n, h(S n) == h n @ s n.
+
+  Definition GHomotopy {Y} (f:ℕ->Y) (s:target_paths f) y := total2 (gHomotopy f s y).
+
+  Definition GuidedHomotopy {Y} (f:ℕ->Y) (s:target_paths f) := total2 (GHomotopy f s).
 
   Definition isolate0 {P:ℕ->Type} : 
     weq (forall n, P n) (dirprod (P 0) (forall n, P (S n))).
@@ -412,18 +409,21 @@ Module N.
                      (total2 (isolate0fam' P Z))).
          apply weqfp. Defined.
 
-  Definition sHomotopy' {Y} (f:ℕ->Y) (s:stable f) y :=
+  Definition h_triv {Y} {f:ℕ->Y} (s:target_paths f) {y:Y} (h0:y==f 0) : nullHomotopyFrom f y.
+  Proof. intros. intro n. induction n. { exact (h0). } { exact (IHn @ s _). } Defined.
+
+  Definition gHomotopy' {Y} (f:ℕ->Y) (s:target_paths f) y :=
     isolate0fam (fun n => y == f n) (fun n h0 hSn => hSn == h_triv s h0 (S n)).
 
-  Definition SHomotopy' {Y} (f:ℕ->Y) (s:stable f) y := total2 (sHomotopy' f s y).
+  Definition GHomotopy' {Y} (f:ℕ->Y) (s:target_paths f) y := total2 (gHomotopy' f s y).
 
-  Definition F {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
-    sHomotopy f s y h -> sHomotopy' f s y h.
+  Definition F {Y} {f:ℕ->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) :
+    gHomotopy f s y h -> gHomotopy' f s y h.
   Proof. intros ? ? ? ? ? t ?. induction n. 
          { exact (t 0). } { exact (t (S n) @ ap post_cat IHn). } Defined.
 
-  Definition F' {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) :
-     sHomotopy' f s y h -> sHomotopy f s y h.
+  Definition F' {Y} {f:ℕ->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) :
+     gHomotopy' f s y h -> gHomotopy f s y h.
   Proof. intros ? ? ? ? ? t ?. simpl. 
          { induction n.
            { exact (t 0). } { exact (t (S n) @ ! ap post_cat (t n)). } } Defined.
@@ -431,8 +431,8 @@ Module N.
   Lemma u {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
   Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
 
-  Lemma A {Y} {f:ℕ->Y} (s:stable f) {y} (h:nullHomotopyFrom f y) : 
-    weq (sHomotopy f s y h) (sHomotopy' f s y h).
+  Lemma A {Y} {f:ℕ->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) : 
+    weq (gHomotopy f s y h) (gHomotopy' f s y h).
   Proof. intros. exists (F s h). apply (gradth _ (F' s h)).
          { intro t. apply funextsec; intro n. induction n. { reflexivity. }
            { unfold F,F'; simpl. refine (!path_assoc _ _ _ @ _).
@@ -443,126 +443,102 @@ Module N.
              apply (ap (ap post_cat)). assumption. } } Defined.
   (** The proof above works only by accident; there ought to be a better way. *)
 
-  Lemma B {Y} {f:ℕ->Y} (s:stable f) {y} : weq (SHomotopy f s y) (SHomotopy' f s y).
+  Lemma B {Y} {f:ℕ->Y} (s:target_paths f) {y} : weq (GHomotopy f s y) (GHomotopy' f s y).
   Proof. intros. apply weqfibtototal; intro h. apply A. Defined.
 
-  Definition SHomotopy'' {Y} (f:ℕ->Y) (s:stable f) y := 
+  Definition GHomotopy'' {Y} (f:ℕ->Y) (s:target_paths f) y := 
     total2 (isolate0fam' (fun n => y == f n)
                          (fun n h0 hSn => hSn == h_triv s h0 (S n))).
 
-  Lemma C {Y} {f:ℕ->Y} (s:stable f) {y} : weq (SHomotopy' f s y) (SHomotopy'' f s y).
+  Lemma C {Y} {f:ℕ->Y} (s:target_paths f) {y} : weq (GHomotopy' f s y) (GHomotopy'' f s y).
   Proof. intros. apply isolate0_weq. Defined.
 
-  Definition SHomotopy''' {Y} (f:ℕ->Y) (s:stable f) y := total2 (fun 
+  Definition GHomotopy''' {Y} (f:ℕ->Y) (s:target_paths f) y := total2 (fun 
                h0:y==f 0 => total2 (fun
                h:forall n:ℕ, y == f (S n) => 
                  forall n:ℕ, h n == h_triv s h0 (S n))).
 
-  Lemma D {Y} {f:ℕ->Y} (s:stable f) {y} : 
-    weq (SHomotopy'' f s y) (SHomotopy''' f s y).
+  Lemma D {Y} {f:ℕ->Y} (s:target_paths f) {y} : 
+    weq (GHomotopy'' f s y) (GHomotopy''' f s y).
   Proof. intros. apply weqtotal2asstor. Defined.
 
-  Definition SHomotopy'''' {Y} (f:ℕ->Y) (s:stable f) y := total2 (fun 
+  Definition GHomotopy'''' {Y} (f:ℕ->Y) (s:target_paths f) y := total2 (fun 
                h0:y==f 0 => total2 (fun
                h:forall n:ℕ, y == f (S n) => 
                  h == fun n => h_triv s h0 (S n))).
   
-  Lemma E {Y} {f:ℕ->Y} (s:stable f) {y} : 
-    weq (SHomotopy''' f s y) (SHomotopy'''' f s y).
+  Lemma E {Y} {f:ℕ->Y} (s:target_paths f) {y} : 
+    weq (GHomotopy''' f s y) (GHomotopy'''' f s y).
   Proof. intros. apply weqfibtototal; intro h0. apply weqfibtototal; intro h.
          apply weqfunextsec. Defined.
 
-  Lemma G {Y} {f:ℕ->Y} (s:stable f) {y} : 
-    weq (SHomotopy'''' f s y) (y==f 0).
+  Lemma G {Y} {f:ℕ->Y} (s:target_paths f) {y} : 
+    weq (GHomotopy'''' f s y) (y==f 0).
   Proof. intros. exists pr1. apply isweqpr1; intro h0. apply iscontrcoconustot.
   Defined.
 
   Local Notation "f @@ g" := (weqcomp f g) (left associativity, at level 50).
 
-  Lemma H {Y} {f:ℕ->Y} (s:stable f) : 
-    weq (total2 (SHomotopy f s)) (paths_to (f 0)).
+  Lemma H {Y} {f:ℕ->Y} (s:target_paths f) : 
+    weq (total2 (GHomotopy f s)) (paths_to (f 0)).
   Proof. intros. apply weqfibtototal; intro y.
          exact (B s @@ C s @@ D s @@ E s @@ G s). Defined.
 
-  Theorem finally {Y} {f:ℕ->Y} (s:stable f) : iscontr (GuidedHomotopy f s).
+  Theorem finally {Y} {f:ℕ->Y} (s:target_paths f) : iscontr (GuidedHomotopy f s).
   Proof. intros. apply (iscontrweqb (H s)). apply iscontrcoconustot. Defined.
 
   (** ** construction of the half line *)
 
   Definition halfline := squash ℕ.
 
-  Definition halfline_map_0 {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
-     SHomotopy f s (f n).
-  Proof. intros. induction n.
-         { exists (h_triv s (idpath _)). intro n. reflexivity. }
-         { exact (s n#IHn). } Defined.
-
-  Definition halfline_map_1 {Y} {f:ℕ->Y} (s:stable f) : ℕ -> GuidedHomotopy f s.
-  Proof. intros ? ? ? n. exact (f n,, halfline_map_0 s n). Defined.
-
-  Definition halfline_map_1_path {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
-    total2(fun p : halfline_map_1 s n == halfline_map_1 s (S n) =>
-               ap pr1 p == s n).
-  Proof. intros. exists (total2_paths2 (s n) (idpath _)).
-         apply total2_paths2_comp1. Defined.
-
-  Definition halfline_map_2 {Y} {f:ℕ->Y} (s:stable f) : 
+  Definition map {Y} {f:ℕ->Y} (s:target_paths f) : 
     halfline -> GuidedHomotopy f s.
-  Proof. intros ? ? ? r. 
-         { apply (squash_to_prop r).
-           { apply isapropifcontr. apply finally. } 
-           { intro n. exact (f n,,halfline_map_0 s n). } } Defined.
+  Proof. intros ? ? ? r. apply (squash_to_prop r).
+         { apply isapropifcontr. apply finally. } 
+         { intro n. exists (f n). induction n.
+           { exists (h_triv s (idpath _)). intro n. reflexivity. }
+           { exact (s n#IHn). } } Defined.           
 
-  Definition halfline_map_2_path {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
-    total2(fun p : halfline_map_2 s (squash_element n)
-                   ==
-                   halfline_map_2 s (squash_element (S n)) =>
-               ap pr1 p == s n).
-  Proof. intros. exact (halfline_map_1_path s n). Defined.
-
-  Definition halfline_map_2_path_check {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
-    forall p : halfline_map_2 s (squash_element n)
-               ==
-               halfline_map_2 s (squash_element (S n)),
+  Definition map_path_check {Y} {f:ℕ->Y} (s:target_paths f) (n:ℕ) :
+    forall p : map s (squash_element n) ==
+               map s (squash_element (S n)),
       ap pr1 p == s n.
-  Proof. intros.
-         assert( q := halfline_map_2_path s n).
-         destruct q as [q e].
-         assert (u : p==q).
-         { apply (hlevelntosn 1 _ (hlevelntosn 0 _ (finally s))). }
-         destruct u. exact e. Defined.
-
-  Definition halfline_map_2_path_check' {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
-      ap pr1 (ap (halfline_map_2 s) (squash_path n (S n))) == s n.
-  Proof. intros. apply halfline_map_2_path_check. Defined.
+  Proof. intros. 
+         set (q := total2_paths2 (s n) (idpath _) 
+                   : map s (squash_element n) == map s (squash_element (S n))).
+         assert (u : q==p). 
+         { apply (hlevelntosn 1). apply (hlevelntosn 0). apply finally. }
+         destruct u. apply total2_paths2_comp1. Defined.
 
   (** ** universal property for the half line *)
 
-  Definition halfline_map {Y} {f:ℕ->Y} (s:stable f) : halfline -> Y.
-  Proof. intros ? ? ? r. exact (pr1 (halfline_map_2 s r)). Defined.
+  Definition halfline_map {Y} {target_points:ℕ->Y} (s:target_paths target_points) : 
+    halfline -> Y.
+  Proof. intros ? ? ? r. exact (pr1 (map s r)). Defined.
 
-  Definition check_values {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
-    halfline_map s (squash_element n) == f n.
+  Definition check_values {Y} {target_points:ℕ->Y} 
+             (s:target_paths target_points) (n:ℕ) :
+    halfline_map s (squash_element n) == target_points n.
   Proof. reflexivity. Defined.
 
-  Definition check_paths {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
+  Definition check_paths {Y} {target_points:ℕ->Y} 
+             (s:target_paths target_points) (n:ℕ) :
     ap (halfline_map s) (squash_path n (S n)) == s n.
-  Proof. intros. refine (_ @ halfline_map_2_path_check' s n).
+  Proof. intros. refine (_ @ map_path_check s n _).
          apply pathsinv0. apply maponpathscomp. Defined.
 
-End N.
+End Halfline.
 
 Module BZ.
 
   Local Notation "n + x" := (ac_mult _ n x) : action_scope.
   Local Notation "n - m" := (quotient _ n m) : action_scope.
 
-
   Definition one := 1%hz : ℤ.
-  Definition stable {T:Torsor ℤ} {Y} (f:T->Y) := forall t, f t==f(one+t).
-  Definition stableComp {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
+  Definition target_paths {T:Torsor ℤ} {Y} (f:T->Y) := forall t, f t==f(one+t).
+  Definition stableComp {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
     forall t t', f t==f t'.
-  Proof. intros. unfold stable in s.
+  Proof. intros. unfold target_paths in s.
          set (n := t' - t).
          destruct (hzlthorgeh n 0%hz).
          { admit. }
@@ -578,38 +554,6 @@ Module BZ.
                admit. }
              admit. }
            admit. }
-  Defined.
-
-  Definition sHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f)
-             (h:NullHomotopyTo f) :=
-      forall t, s t == NullHomotopyTo_path h t @ ! NullHomotopyTo_path h (one+t).
-  Definition SHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :=
-    total2 (sHomotopyTo f s).
-  Definition toNullHomotopyTo {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f} :
-    SHomotopyTo f s -> NullHomotopyTo f := pr1.
-  Definition SHomotopyTo_center {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
-             (h:SHomotopyTo f s) :=
-    NullHomotopyTo_center _ (toNullHomotopyTo h).
-  Definition SHomotopyTo_path {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
-             (h:SHomotopyTo f s) :=
-    NullHomotopyTo_path (toNullHomotopyTo h).
-
-  Definition makeSHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
-    T -> SHomotopyTo f s.
-  Proof. intros ? ? ? ? t0.
-         admit.
-  Defined.
-
-  Lemma isapropSHomotopyTo {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
-    iscontr (SHomotopyTo f s).
-  Proof. intros ? ? ? ?.
-         apply (squash_to_prop (torsor_nonempty T)); intro t0. { apply isapropiscontr. } 
-         admit.
-  Defined.
-
-  Definition H {T:Torsor ℤ} {Y} {y:Y} (l:y==y) : squash T -> Y.
-  Proof. intros ? ? ? ?. 
-         admit.
   Defined.
 
 End BZ.
