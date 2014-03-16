@@ -487,6 +487,8 @@ Module N.
   Theorem finally {Y} {f:ℕ->Y} (s:stable f) : iscontr (GuidedHomotopy f s).
   Proof. intros. apply (iscontrweqb (H s)). apply iscontrcoconustot. Defined.
 
+  (** ** construction of the half line *)
+
   Definition halfline := squash ℕ.
 
   Definition halfline_map_0 {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
@@ -511,6 +513,31 @@ Module N.
            { apply isapropifcontr. apply finally. } 
            { intro n. exact (f n,,halfline_map_0 s n). } } Defined.
 
+  Definition halfline_map_2_path {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
+    total2(fun p : halfline_map_2 s (squash_element n)
+                   ==
+                   halfline_map_2 s (squash_element (S n)) =>
+               ap pr1 p == s n).
+  Proof. intros. exact (halfline_map_1_path s n). Defined.
+
+  Definition halfline_map_2_path_check {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
+    forall p : halfline_map_2 s (squash_element n)
+               ==
+               halfline_map_2 s (squash_element (S n)),
+      ap pr1 p == s n.
+  Proof. intros.
+         assert( q := halfline_map_2_path s n).
+         destruct q as [q e].
+         assert (u : p==q).
+         { apply (hlevelntosn 1 _ (hlevelntosn 0 _ (finally s))). }
+         destruct u. exact e. Defined.
+
+  Definition halfline_map_2_path_check' {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
+      ap pr1 (ap (halfline_map_2 s) (squash_path n (S n))) == s n.
+  Proof. intros. apply halfline_map_2_path_check. Defined.
+
+  (** ** universal property for the half line *)
+
   Definition halfline_map {Y} {f:ℕ->Y} (s:stable f) : halfline -> Y.
   Proof. intros ? ? ? r. exact (pr1 (halfline_map_2 s r)). Defined.
 
@@ -520,12 +547,8 @@ Module N.
 
   Definition check_paths {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
     ap (halfline_map s) (squash_path n (S n)) == s n.
-  Proof. intros. 
-
-
-
-         admit.
-  Defined.
+  Proof. intros. refine (_ @ halfline_map_2_path_check' s n).
+         apply pathsinv0. apply maponpathscomp. Defined.
 
 End N.
 

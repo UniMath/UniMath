@@ -23,4 +23,4 @@ wc:; wc -w $(VFILES)
 clean:clean2
 clean2:; find . \( -name .\*.aux \) -delete
 describe:; git describe --dirty --long --always --abbrev=40 --all
-
+publish-dan:html; rsync -ai html/. u00:public_html/Ktheory/.
