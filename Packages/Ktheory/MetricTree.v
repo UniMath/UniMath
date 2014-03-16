@@ -10,7 +10,9 @@ Import Utilities.Notation.
 (** ** Definitions *)
 
 Local Notation "m <= n" := (natleh m n).
+Local Notation "m >= n" := (natgeh m n).
 Local Notation "m > n" := (natgth m n).
+Local Notation "m < n" := (natlth m n).
 Local Notation "x != y" := (not (x == y)) (at level 40).
 
 Record Tree := 
@@ -69,15 +71,31 @@ Proof. intros. apply (hz.hzabsvalintcomp (m,,n) (S m,,S n)). simpl.
        rewrite natplusnsm. reflexivity. Qed.
 
 Definition nat_dist_anti m n : nat_dist m n == 0 -> m == n.
-Proof. intros. 
-
+Proof. intros ? ?. unfold nat_dist, hz.hzabsvalint; simpl.
+       induction (natgthorleh m n).
+       { intro b. apply fromempty. apply (natgthtoneq (m-n) 0).
+         apply minusgth0. assumption. assumption. }
+       { intro c.
+         destruct (isdeceqnat m n) as [i|j].
+         { assumption. }
+         { destruct (natlehchoice m n b) as [r|s].
+           { apply fromempty. apply (natlthtoneq 0 (n-m)). apply minusgth0.
+             assumption. apply pathsinv0. assumption. }
+           { assumption. } } }
 Defined.
 
 Definition nat_tree : Tree.
 Proof. refine (make nat nat_dist _ _ _ _ _).
        { intro m.
          induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
-       { 
-                      
+       { apply nat_dist_anti. }
+       admit.
+       admit.
+       admit.
+Defined.                      
 
-         
+(*
+Local Variables:
+compile-command: "make -C ../.. TAGS Packages/Ktheory/Utilities.vo"
+End:
+*)
