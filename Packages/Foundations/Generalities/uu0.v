@@ -760,7 +760,7 @@ Proof . intros . apply weqtotal2asstor . Defined .
 Definition weqdirprodasstol ( X Y Z : UU ) : weq  ( dirprod X ( dirprod Y Z ) ) ( dirprod ( dirprod X Y ) Z ) := invweq ( weqdirprodasstor X Y Z ) .
 
 Definition weqdirprodcomm X Y : weq (dirprod X Y) (dirprod Y X).
-Proof. intros. refine (tpair _ _ (gradth _ _ _ _)).
+Proof. intros. refine (weqpair _ (gradth _ _ _ _)).
        { intros xy. exact (dirprodpair (pr2 xy) (pr1 xy)). }
        { intros yx. exact (dirprodpair (pr2 yx) (pr1 yx)). }
        { intros [x y]. reflexivity. }
