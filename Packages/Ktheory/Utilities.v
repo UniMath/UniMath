@@ -94,6 +94,15 @@ Definition pr2_pair {X} {P:X->UU} {w w':total2 P} (p : w == w') :
   transportf P (ap pr1 p) (pr2 w) == pr2 w'.
 Proof. intros. destruct p. reflexivity. Defined.
 
+Definition total2_paths2_comp1 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
+           (p:x==x') (q:p#y==y') : ap pr1 (total2_paths2 p q) == p.
+Proof. intros. destruct p. destruct q. reflexivity. Defined.
+
+Definition total2_paths2_comp2 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
+           (p:x==x') (q:p#y==y') :
+  ! app (total2_paths2_comp1 p q) y @ pr2_pair (total2_paths2 p q) == q.
+Proof. intros. destruct p, q. reflexivity. Defined.
+
 (** ** Maps from pair types *)
 
 Definition from_total2 {X} {P:X->Type} {Y} : (forall x, P x->Y) -> total2 P -> Y.

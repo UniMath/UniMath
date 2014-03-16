@@ -373,16 +373,22 @@ Module N.
   Definition sHomotopy {Y} (f:ℕ->Y) (s:stable f) y (h:nullHomotopyFrom f y) :=
       forall n, h(S n) == h n @ s n.
   Definition SHomotopy {Y} (f:ℕ->Y) (s:stable f) y := total2 (sHomotopy f s y).
+  Definition GuidedHomotopy {Y} (f:ℕ->Y) (s:stable f) := total2 (SHomotopy f s).
+
   Definition h_triv {Y} {f:ℕ->Y} (s:stable f) {y:Y} (h0:y==f 0) : nullHomotopyFrom f y.
   Proof. intros. intro n. induction n. { exact (h0). } { exact (IHn @ s _). } Defined.
+
+  Definition g_triv {Y} {f:ℕ->Y} (s:stable f) (n0:ℕ) : GuidedHomotopy f s.
+  Proof. intros. exists (f n0). exists (h_triv s (! h_triv s (idpath _) n0)).
+         intro n. reflexivity. Defined.
 
   Definition isolate0 {P:ℕ->Type} : 
     weq (forall n, P n) (dirprod (P 0) (forall n, P (S n))).
   Proof. intros.
          refine (_,,_).
-         { intro f. split. { exact (f 0). } { intro n. apply f. } }
+         { intro f. split. { exact (f 0). } { intro n. exact (f (S n)). } }
          { refine (gradth _ _ _ _).
-           { intros [f0 f']. induction n. { exact f0. } { apply f'. } }
+           { intros [f0 f']. induction n. { exact f0. } { exact (f' n). } }
            { intro f. apply funextsec; intro n.
              induction n. { reflexivity. } { reflexivity. } }
            { intros [f0 f']. reflexivity. } } Defined.
@@ -440,10 +446,9 @@ Module N.
   Lemma B {Y} {f:ℕ->Y} (s:stable f) {y} : weq (SHomotopy f s y) (SHomotopy' f s y).
   Proof. intros. apply weqfibtototal; intro h. apply A. Defined.
 
-  Definition sHomotopy'' {Y} (f:ℕ->Y) (s:stable f) y :=
-    isolate0fam' (fun n => y == f n) (fun n h0 hSn => hSn == h_triv s h0 (S n)).
-
-  Definition SHomotopy'' {Y} (f:ℕ->Y) (s:stable f) y := total2 (sHomotopy'' f s y).
+  Definition SHomotopy'' {Y} (f:ℕ->Y) (s:stable f) y := 
+    total2 (isolate0fam' (fun n => y == f n)
+                         (fun n h0 hSn => hSn == h_triv s h0 (S n))).
 
   Lemma C {Y} {f:ℕ->Y} (s:stable f) {y} : weq (SHomotopy' f s y) (SHomotopy'' f s y).
   Proof. intros. apply isolate0_weq. Defined.
@@ -477,12 +482,50 @@ Module N.
   Lemma H {Y} {f:ℕ->Y} (s:stable f) : 
     weq (total2 (SHomotopy f s)) (paths_to (f 0)).
   Proof. intros. apply weqfibtototal; intro y.
-         refine (B s @@ C s @@ D s @@ E s @@ G s). Defined.
+         exact (B s @@ C s @@ D s @@ E s @@ G s). Defined.
 
-  Theorem finally {Y} {f:ℕ->Y} (s:stable f) : iscontr (total2 (SHomotopy f s)).
+  Theorem finally {Y} {f:ℕ->Y} (s:stable f) : iscontr (GuidedHomotopy f s).
   Proof. intros. apply (iscontrweqb (H s)). apply iscontrcoconustot. Defined.
 
-  (* ... *)
+  Definition halfline := squash ℕ.
+
+  Definition halfline_map_0 {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
+     SHomotopy f s (f n).
+  Proof. intros. induction n.
+         { exists (h_triv s (idpath _)). intro n. reflexivity. }
+         { exact (s n#IHn). } Defined.
+
+  Definition halfline_map_1 {Y} {f:ℕ->Y} (s:stable f) : ℕ -> GuidedHomotopy f s.
+  Proof. intros ? ? ? n. exact (f n,, halfline_map_0 s n). Defined.
+
+  Definition halfline_map_1_path {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
+    total2(fun p : halfline_map_1 s n == halfline_map_1 s (S n) =>
+               ap pr1 p == s n).
+  Proof. intros. exists (total2_paths2 (s n) (idpath _)).
+         apply total2_paths2_comp1. Defined.
+
+  Definition halfline_map_2 {Y} {f:ℕ->Y} (s:stable f) : 
+    halfline -> GuidedHomotopy f s.
+  Proof. intros ? ? ? r. 
+         { apply (squash_to_prop r).
+           { apply isapropifcontr. apply finally. } 
+           { intro n. exact (f n,,halfline_map_0 s n). } } Defined.
+
+  Definition halfline_map {Y} {f:ℕ->Y} (s:stable f) : halfline -> Y.
+  Proof. intros ? ? ? r. exact (pr1 (halfline_map_2 s r)). Defined.
+
+  Definition check_values {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
+    halfline_map s (squash_element n) == f n.
+  Proof. reflexivity. Defined.
+
+  Definition check_paths {Y} {f:ℕ->Y} (s:stable f) (n:ℕ) :
+    ap (halfline_map s) (squash_path n (S n)) == s n.
+  Proof. intros. 
+
+
+
+         admit.
+  Defined.
 
 End N.
 
