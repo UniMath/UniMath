@@ -10,6 +10,7 @@ Import Utilities.Notation.
 (** ** Definitions *)
 
 Local Notation "m <= n" := (natleh m n).
+Local Notation "m > n" := (natgth m n).
 Local Notation "x != y" := (not (x == y)) (at level 40).
 
 Record Tree := 
@@ -26,15 +27,15 @@ Record Tree :=
                                      (mt_dist y z == 1))) }.
       
 Lemma mt_path_refl (T:Tree) (x y:T) : x==y -> mt_dist _ x y == 0.
-Proof. intros ? ? ? e. destruct e. apply mt_refl. Defined.
+Proof. intros ? ? ? e. destruct e. apply mt_refl. Qed.
 
 Lemma tree_deceq (T:Tree) : isdeceq T.
 Proof. intros. intros t u. induction (isdeceqnat (mt_dist T t u) 0).
        { apply inl. apply mt_anti. assumption. }
-       { apply inr. intro e. apply b. destruct e. apply mt_refl. } Defined.
+       { apply inr. intro e. apply b. destruct e. apply mt_refl. } Qed.
 
-Corollary tree_isaset (T:Tree) : isaset T.       
-Proof. intros. apply isasetifdeceq. apply tree_deceq. Defined.
+Corollary tree_isaset (T:Tree) : isaset T.
+Proof. intros. apply isasetifdeceq. apply tree_deceq. Qed.
 
 Definition step (T:Tree) (x z:T) (ne:x!=z) : T := pr1 (the (mt_step _ x z ne)).
 
@@ -58,3 +59,25 @@ Proof. intros ? ? ? ? ?.
              destruct y as [[y [i j]] r]; simpl.
              apply invmaponpathsS. exact (i@H). } } }
        intro. apply (d_ind (mt_dist _ x z)). reflexivity. Defined.
+
+Definition nat_dist : nat -> nat -> nat.
+Proof. intros m n. exact (hz.hzabsvalint (m,,n)). Defined.
+
+Definition nat_dist_S m n : nat_dist (S m) (S n) == nat_dist m n.
+Proof. intros. apply (hz.hzabsvalintcomp (m,,n) (S m,,S n)). simpl.
+       apply squash_element. exists 0. rewrite 2!natplusr0.
+       rewrite natplusnsm. reflexivity. Qed.
+
+Definition nat_dist_anti m n : nat_dist m n == 0 -> m == n.
+Proof. intros. 
+
+Defined.
+
+Definition nat_tree : Tree.
+Proof. refine (make nat nat_dist _ _ _ _ _).
+       { intro m.
+         induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
+       { 
+                      
+
+         
