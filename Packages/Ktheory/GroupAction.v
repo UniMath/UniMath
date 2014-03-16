@@ -82,7 +82,8 @@ Proof. intros. apply impred; intro g. apply impred; intro x.
     [is_equivariant] captures all of the structure.  The proof reduces to
     showing that if G acts on a set X in two ways, and the identity function is
     equivariant, then the two actions are equal.  A similar fact will hold in
-    other cases: groups, rings, monoids, etc. *)
+    other cases: groups, rings, monoids, etc.  Refer to section 9.8 of the HoTT
+    book, on the "structure identity principle", a term coined by Peter Aczel. *)
 
 Definition is_equivariant_identity {G:gr} {X Y:Action G}
            (p:ac_set X == ac_set Y) :
@@ -262,20 +263,20 @@ Proof. intros. exists (trivialTorsorAuto G). refine (gradth _ _ _ _).
 
 Lemma trivialTorsorAuto_unit (G:gr) : 
   trivialTorsorAuto G (unel _) == idActionIso _.
-Proof. intros. refine (pair_path _ _).
-       { refine (pair_path _ _).
+Proof. intros. refine (pair_path_props _ _).
+       { refine (pair_path_props _ _).
          { apply funextsec; intro x; simpl. exact (runax G x). }
          { apply isapropisweq. } }
-       { apply is_equivariant_isaprop. } Defined.
+       { intro k. apply is_equivariant_isaprop. } Defined.
 
 Lemma trivialTorsorAuto_mult (G:gr) (g h:G) :
   composeActionIso (trivialTorsorAuto G g) (trivialTorsorAuto G h) 
   == (trivialTorsorAuto G (op g h)).
-Proof. intros. refine (pair_path _ _).
-       { refine (pair_path _ _).
+Proof. intros. refine (pair_path_props _ _).
+       { refine (pair_path_props _ _).
          { apply funextsec; intro x; simpl. exact (assocax _ x g h). }
          { apply isapropisweq. } }
-       { apply is_equivariant_isaprop. } Defined.
+       { intro k. apply is_equivariant_isaprop. } Defined.
 
 (** ** Applications of univalence *)
 
@@ -327,6 +328,19 @@ Theorem loopsBG (G:gr) : weq (Ω (B G)) G.
 Proof. intros. refine (weqcomp Torsor_univalence _). 
        apply invweq. apply autos. Defined.
 
+(** Theorem [loopsBG] also follows from the main theorem of the RezkCompletion
+    package.  To see that, regard G as a category with one object.  Consider a
+    merely representable functor F : G^op -> Set.  Let X be F of the object *.
+    Apply F to the arrows to get an action of G on X.  Try to prove that X is a
+    torsor.  Since being a torsor is a mere property, we may assume F is
+    actually representable.  There is only one object *, so F is isomorphic to
+    h_*.  Apply h_* to * and we get Hom(*,*), which is G, regarded as a G-set.
+    That's a torsor.  So the Rezk completion RCG is equivalent to BG, the type
+    of G-torsors.  Now the theorem also says there is an equivalence G -> RCG.
+    So RCG is connected and its loop space is G.
+
+    A formalization of that argument should be added eventually. *)
+
 Require Import Foundations.hlevel2.hz.
 Notation ℕ := nat.
 Notation ℤ := hzaddabgr.
@@ -352,48 +366,193 @@ Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
 Local Notation "l ^ n" := (loop_power l n) : paths_scope.
 
-(** * The induction principle for the circle. *)
+(** * The induction principle for the half line. *)
 
-Module N.
-  Local Notation "h [ n ]" :=(NullHomotopy_path h n) (at level 0).
-  Definition stable {Y} (f:ℕ->Y) := forall n, f n==f(S n).
-  Definition stableNullHomotopy {Y} (f:ℕ->Y) (s:stable f) (h:NullHomotopy f) :=
-      forall n, s n == h[n] @ ! h[S n].
-  Definition StableNullHomotopy {Y} (f:ℕ->Y) (s:stable f) :=
-    total2 (stableNullHomotopy f s).
-  Definition toNullHomotopy {Y} {f:ℕ->Y} {s:stable f} :
-    StableNullHomotopy f s -> NullHomotopy f := pr1.
-  Definition StableNullHomotopy_center {Y} {f:ℕ->Y} {s:stable f}
-             (h:StableNullHomotopy f s) :=
-    NullHomotopy_center _ (toNullHomotopy h).
-  Definition StableNullHomotopy_path {Y} {f:ℕ->Y} {s:stable f}
-             (h:StableNullHomotopy f s) n := (toNullHomotopy h)[n].
-  Definition triv {Y} (f:ℕ->Y) (s:stable f) : StableNullHomotopy f s.
-  Proof. intros.
-         admit.
+Module Halfline.
+
+  Definition target_paths {Y} (f:ℕ->Y) := forall n, f n==f(S n).
+
+  Definition gHomotopy {Y} (f:ℕ->Y) (s:target_paths f) y (h:nullHomotopyFrom f y) :=
+    forall n, h(S n) == h n @ s n.
+
+  Definition GHomotopy {Y} (f:ℕ->Y) (s:target_paths f) y := total2 (gHomotopy f s y).
+
+  Definition GuidedHomotopy {Y} (f:ℕ->Y) (s:target_paths f) := total2 (GHomotopy f s).
+
+  Definition isolate_0_in_nat : weq (coprod unit ℕ) ℕ.
+  Proof. refine (_,,gradth _ _ _ _).
+         { intro m. induction m as [|m]. { exact 0. } { exact (S m). } }
+         { intro n. induction n. { exact (inl tt). } { exact (inr n). } }
+         { intro n. induction n as [[]|n]. { reflexivity. } { reflexivity. } }
+         { intro n. induction n. { reflexivity. } { reflexivity. } }
   Defined.
 
-End N.
+  Definition isolate0 {P:ℕ->Type} : 
+    weq (forall n, P n) (dirprod (P 0) (forall n, P (S n))).
+  Proof. intros. intermediate_weq (forall n, P (isolate_0_in_nat n)).
+         { apply weqonsecbase. }
+         intermediate_weq (dirprod (forall t, P (isolate_0_in_nat (inl t))) (forall n, P (isolate_0_in_nat (inr n)))).
+         { apply weqsecovercoprodtoprod. }
+         apply weqdirprodf. { apply weqsecoverunit. } { apply idweq. }
+  Defined.
+
+  Definition isolate0fam (P:ℕ->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
+    forall (f:forall n, P n), Type.
+  Proof. intros. exact (forall n, Z n (f 0) (f (S n))). Defined.
+
+  Definition isolate0fam' (P:ℕ->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
+    forall (f:dirprod (P 0) (forall n, P (S n))), Type.
+  Proof. intros. exact (forall n, Z n (pr1 f) (pr2 f n)). Defined.
+
+  Definition check_refl (P:ℕ->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
+    funcomp isolate0 (isolate0fam' P Z) == isolate0fam P Z.
+  Proof. reflexivity. Defined.
+
+  Definition isolate0_weq (P:ℕ->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
+    weq (total2 (isolate0fam P Z)) (total2 (isolate0fam' P Z)).
+  Proof. intros. 
+         change (weq (total2 (funcomp isolate0 (isolate0fam' P Z)))
+                     (total2 (isolate0fam' P Z))).
+         apply weqfp. Defined.
+
+  Definition h_triv {Y} {f:ℕ->Y} (s:target_paths f) {y:Y} (h0:y==f 0) : nullHomotopyFrom f y.
+  Proof. intros. intro n. induction n. { exact (h0). } { exact (IHn @ s _). } Defined.
+
+  Definition gHomotopy' {Y} (f:ℕ->Y) (s:target_paths f) y :=
+    isolate0fam (fun n => y == f n) (fun n h0 hSn => hSn == h_triv s h0 (S n)).
+
+  Definition GHomotopy' {Y} (f:ℕ->Y) (s:target_paths f) y := total2 (gHomotopy' f s y).
+
+  Definition F {Y} {f:ℕ->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) :
+    gHomotopy f s y h -> gHomotopy' f s y h.
+  Proof. intros ? ? ? ? ? t ?. induction n. 
+         { exact (t 0). } { exact (t (S n) @ ap post_cat IHn). } Defined.
+
+  Definition F' {Y} {f:ℕ->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) :
+     gHomotopy' f s y h -> gHomotopy f s y h.
+  Proof. intros ? ? ? ? ? t ?. simpl. 
+         { induction n.
+           { exact (t 0). } { exact (t (S n) @ ! ap post_cat (t n)). } } Defined.
+
+  Lemma u {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
+  Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
+
+  Lemma A {Y} {f:ℕ->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) : 
+    weq (gHomotopy f s y h) (gHomotopy' f s y h).
+  Proof. intros. exists (F s h). apply (gradth _ (F' s h)).
+         { intro t. apply funextsec; intro n. induction n. { reflexivity. }
+           { unfold F,F'; simpl. refine (!path_assoc _ _ _ @ _).
+             refine (ap pre_cat (pathsinv0r _) @ _). apply pathscomp0rid. } }
+         { intro t. apply funextsec; intro n. induction n. { reflexivity. }
+           { unfold F, F'; simpl. refine (!path_assoc _ _ _ @ _).
+             refine (_ @ pathscomp0rid _). apply (ap pre_cat). apply u. 
+             apply (ap (ap post_cat)). assumption. } } Defined.
+  (** The proof above works only by accident; there ought to be a better way. *)
+
+  Lemma B {Y} {f:ℕ->Y} (s:target_paths f) {y} : weq (GHomotopy f s y) (GHomotopy' f s y).
+  Proof. intros. apply weqfibtototal; intro h. apply A. Defined.
+
+  Definition GHomotopy'' {Y} (f:ℕ->Y) (s:target_paths f) y := 
+    total2 (isolate0fam' (fun n => y == f n)
+                         (fun n h0 hSn => hSn == h_triv s h0 (S n))).
+
+  Lemma C {Y} {f:ℕ->Y} (s:target_paths f) {y} : weq (GHomotopy' f s y) (GHomotopy'' f s y).
+  Proof. intros. apply isolate0_weq. Defined.
+
+  Definition GHomotopy''' {Y} (f:ℕ->Y) (s:target_paths f) y := total2 (fun 
+               h0:y==f 0 => total2 (fun
+               h:forall n:ℕ, y == f (S n) => 
+                 forall n:ℕ, h n == h_triv s h0 (S n))).
+
+  Lemma D {Y} {f:ℕ->Y} (s:target_paths f) {y} : 
+    weq (GHomotopy'' f s y) (GHomotopy''' f s y).
+  Proof. intros. apply weqtotal2asstor. Defined.
+
+  Definition GHomotopy'''' {Y} (f:ℕ->Y) (s:target_paths f) y := total2 (fun 
+               h0:y==f 0 => total2 (fun
+               h:forall n:ℕ, y == f (S n) => 
+                 h == fun n => h_triv s h0 (S n))).
+  
+  Lemma E {Y} {f:ℕ->Y} (s:target_paths f) {y} : 
+    weq (GHomotopy''' f s y) (GHomotopy'''' f s y).
+  Proof. intros. apply weqfibtototal; intro h0. apply weqfibtototal; intro h.
+         apply weqfunextsec. Defined.
+
+  Lemma G {Y} {f:ℕ->Y} (s:target_paths f) {y} : 
+    weq (GHomotopy'''' f s y) (y==f 0).
+  Proof. intros. exists pr1. apply isweqpr1; intro h0. apply iscontrcoconustot.
+  Defined.
+
+  Local Notation "f @@ g" := (weqcomp f g) (left associativity, at level 50).
+
+  Lemma H {Y} {f:ℕ->Y} (s:target_paths f) : 
+    weq (total2 (GHomotopy f s)) (paths_to (f 0)).
+  Proof. intros. apply weqfibtototal; intro y.
+         exact (B s @@ C s @@ D s @@ E s @@ G s). Defined.
+
+  Theorem finally {Y} {f:ℕ->Y} (s:target_paths f) : iscontr (GuidedHomotopy f s).
+  Proof. intros. apply (iscontrweqb (H s)). apply iscontrcoconustot. Defined.
+
+  (** ** construction of the half line *)
+
+  Definition halfline := squash ℕ.
+
+  Definition map {Y} {f:ℕ->Y} (s:target_paths f) : 
+    halfline -> GuidedHomotopy f s.
+  Proof. intros ? ? ? r. apply (squash_to_prop r).
+         { apply isapropifcontr. apply finally. } 
+         { intro n. exists (f n). induction n.
+           { exists (h_triv s (idpath _)). intro n. reflexivity. }
+           { exact (s n#IHn). } } Defined.           
+
+  Definition map_path_check {Y} {f:ℕ->Y} (s:target_paths f) (n:ℕ) :
+    forall p : map s (squash_element n) ==
+               map s (squash_element (S n)),
+      ap pr1 p == s n.
+  Proof. intros. 
+         set (q := total2_paths2 (s n) (idpath _) 
+                   : map s (squash_element n) == map s (squash_element (S n))).
+         assert (u : q==p). 
+         { apply (hlevelntosn 1). apply (hlevelntosn 0). apply finally. }
+         destruct u. apply total2_paths2_comp1. Defined.
+
+  (** ** universal property for the half line *)
+
+  Definition halfline_map {Y} {target_points:ℕ->Y} (s:target_paths target_points) : 
+    halfline -> Y.
+  Proof. intros ? ? ? r. exact (pr1 (map s r)). Defined.
+
+  Definition check_values {Y} {target_points:ℕ->Y} 
+             (s:target_paths target_points) (n:ℕ) :
+    halfline_map s (squash_element n) == target_points n.
+  Proof. reflexivity. Defined.
+
+  Definition check_paths {Y} {target_points:ℕ->Y} 
+             (s:target_paths target_points) (n:ℕ) :
+    ap (halfline_map s) (squash_path n (S n)) == s n.
+  Proof. intros. refine (_ @ map_path_check s n _).
+         apply pathsinv0. apply maponpathscomp. Defined.
+
+End Halfline.
 
 Module BZ.
 
   Local Notation "n + x" := (ac_mult _ n x) : action_scope.
   Local Notation "n - m" := (quotient _ n m) : action_scope.
 
-
   Definition one := 1%hz : ℤ.
-  Definition stable {T:Torsor ℤ} {Y} (f:T->Y) := forall t, f t==f(one+t).
-  Definition stableComp {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
+  Definition target_paths {T:Torsor ℤ} {Y} (f:T->Y) := forall t, f t==f(one+t).
+  Definition stableComp {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
     forall t t', f t==f t'.
-  Proof. intros. unfold stable in s.
+  Proof. intros. unfold target_paths in s.
          set (n := t' - t).
          destruct (hzlthorgeh n 0%hz).
          { admit. }
          { assert (r := quotient_times _ t' t : n + t == t').
            set (m := hzabsval n).
-           assert (k := hzabsvalgeh0 h).
-           intermediate (f (n+t)).
-           { intermediate (f ((nattohz m : ℤ)+t)).
+           assert (F := hzabsvalgeh0 h).
+           intermediate_path (f (n+t)).
+           { intermediate_path (f ((nattohz m : ℤ)+t)).
              { induction m.
                { assert (w : 0%hz == nattohz 0). { reflexivity. }
                  destruct w.
@@ -403,36 +562,10 @@ Module BZ.
            admit. }
   Defined.
 
-  Definition stableNullHomotopy {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f)
-             (h:NullHomotopy f) :=
-      forall t, s t == NullHomotopy_path h t @ ! NullHomotopy_path h (one+t).
-  Definition StableNullHomotopy {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :=
-    total2 (stableNullHomotopy f s).
-  Definition toNullHomotopy {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f} :
-    StableNullHomotopy f s -> NullHomotopy f := pr1.
-  Definition StableNullHomotopy_center {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
-             (h:StableNullHomotopy f s) :=
-    NullHomotopy_center _ (toNullHomotopy h).
-  Definition StableNullHomotopy_path {T:Torsor ℤ} {Y} {f:T->Y} {s:stable f}
-             (h:StableNullHomotopy f s) :=
-    NullHomotopy_path (toNullHomotopy h).
-
-  Definition makeStableNullHomotopy {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
-    T -> StableNullHomotopy f s.
-  Proof. intros ? ? ? ? t0.
-         admit.
-  Defined.
-
-  Lemma isapropStableNullHomotopy {T:Torsor ℤ} {Y} (f:T->Y) (s:stable f) :
-    iscontr (StableNullHomotopy f s).
-  Proof. intros ? ? ? ?.
-         apply (squash_to_prop (torsor_nonempty T)); intro t0. { apply isapropiscontr. } 
-         admit.
-  Defined.
-
-  Definition H {T:Torsor ℤ} {Y} {y:Y} (l:y==y) : squash T -> Y.
-  Proof. intros ? ? ? ?. 
-         admit.
-  Defined.
-
 End BZ.
+
+(*
+Local Variables:
+compile-command: "make -C ../.. Packages/Ktheory/GroupAction.vo"
+End:
+*)

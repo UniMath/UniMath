@@ -83,11 +83,11 @@ Module pr1.
   Lemma func_reflects_isos {C} (X:C==>SET) : Precategories.reflects_isos (func X).
   Proof. intros ? ? [c x] [d y] [f i] [f' j].
     assert (i' : #X f' y == x).
-    { intermediate (#X f' (#X f x)).
+    { intermediate_path (#X f' (#X f x)).
       { exact (ap (#X f') (!i)). }
-      { intermediate (#X (f' ∘ f) x).
+      { intermediate_path (#X (f' ∘ f) x).
         { exact (apevalat x (!functor_comp X _ _ _ f f')). }
-        { intermediate (#X (identity c) x).
+        { intermediate_path (#X (identity c) x).
           { exact (apevalat x (ap #X (pr1 j))). }
           { exact (apevalat x (functor_id X c)). }}}}
     { exists (f' ,, i'). split.
