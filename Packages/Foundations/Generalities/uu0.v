@@ -3257,7 +3257,9 @@ assert (egf: forall sy: (forall y:Y, P y), paths  (invmapp (map sy)) sy). intro.
 
 apply (gradth  map invmapp egf efg). Defined. 
 
-Definition weqonsecbase { X Y : UU } ( P : Y -> UU ) ( f : weq X Y ) := weqpair _ ( isweqmaponsec1 P f ) .  
+Definition weqonsecbase { X Y : UU } ( P : Y -> UU ) ( f : weq X Y ) 
+  : weq (forall y : Y, P y) (forall x : X, P (f x))
+  := weqpair _ ( isweqmaponsec1 P f ) .  
 
 
 (** *** Composition of functions with a weak equivalence on the left *)
