@@ -18,9 +18,9 @@ Module TerminalObject.
   Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
     exists (the (map_to_b_from_ a)).
     exists (the (map_to_a_from_ b)). 
-    split. { intermediate (the (map_to_a_from_ a)). 
+    split. { intermediate_path (the (map_to_a_from_ a)). 
              apply uniqueness. apply uniqueness'. }
-           { intermediate (the (map_to_b_from_ b)). 
+           { intermediate_path (the (map_to_b_from_ b)). 
              apply uniqueness. apply uniqueness'. } Defined.
   Lemma isaprop_isTerminalObject (C:precategory) (a:ob C) :
     isaprop(isTerminalObject C a).
@@ -55,9 +55,9 @@ Module InitialObject.
   Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
     exists (the (map_to_a_from_ b)). 
     exists (the (map_to_b_from_ a)).
-    split. { intermediate (the (map_to_a_from_ a)). 
+    split. { intermediate_path (the (map_to_a_from_ a)). 
              apply uniqueness. apply uniqueness'. }
-           { intermediate (the (map_to_b_from_ b)). 
+           { intermediate_path (the (map_to_b_from_ b)). 
              apply uniqueness. apply uniqueness'. } Defined.
   Lemma isaprop_isInitialObject (C:precategory) (a:ob C) :
     isaprop(isInitialObject C a).

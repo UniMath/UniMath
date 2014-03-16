@@ -335,7 +335,7 @@ Module Presentation.
           pr1 f (setquotpr (smallestAdequateRelation R) w) ==
           pr1 g (setquotpr (smallestAdequateRelation R) w).
   Proof. intros. destruct w as [|x|w|v w].
-         { intermediate (unel M). exact (unitproperty f). exact (!unitproperty g). }
+         { intermediate_path (unel M). exact (unitproperty f). exact (!unitproperty g). }
          { apply p. }
          (* compare duplication with the proof of MarkedAbelianGroupMap_compat *)
          { refine (monoidfuninvtoinv f (setquotpr (smallestAdequateRelation R) w)

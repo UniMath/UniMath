@@ -379,16 +379,22 @@ Module Halfline.
 
   Definition GuidedHomotopy {Y} (f:ℕ->Y) (s:target_paths f) := total2 (GHomotopy f s).
 
+  Definition isolate_0_in_nat : weq (coprod unit ℕ) ℕ.
+  Proof. refine (_,,gradth _ _ _ _).
+         { intro m. induction m as [|m]. { exact 0. } { exact (S m). } }
+         { intro n. induction n. { exact (inl tt). } { exact (inr n). } }
+         { intro n. induction n as [[]|n]. { reflexivity. } { reflexivity. } }
+         { intro n. induction n. { reflexivity. } { reflexivity. } }
+  Defined.
+
   Definition isolate0 {P:ℕ->Type} : 
     weq (forall n, P n) (dirprod (P 0) (forall n, P (S n))).
-  Proof. intros.
-         refine (_,,_).
-         { intro f. split. { exact (f 0). } { intro n. exact (f (S n)). } }
-         { refine (gradth _ _ _ _).
-           { intros [f0 f']. induction n. { exact f0. } { exact (f' n). } }
-           { intro f. apply funextsec; intro n.
-             induction n. { reflexivity. } { reflexivity. } }
-           { intros [f0 f']. reflexivity. } } Defined.
+  Proof. intros. intermediate_weq (forall n, P (isolate_0_in_nat n)).
+         { apply weqonsecbase. }
+         intermediate_weq (dirprod (forall t, P (isolate_0_in_nat (inl t))) (forall n, P (isolate_0_in_nat (inr n)))).
+         { apply weqsecovercoprodtoprod. }
+         apply weqdirprodf. { apply weqsecoverunit. } { apply idweq. }
+  Defined.
 
   Definition isolate0fam (P:ℕ->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
     forall (f:forall n, P n), Type.
@@ -545,8 +551,8 @@ Module BZ.
          { assert (r := quotient_times _ t' t : n + t == t').
            set (m := hzabsval n).
            assert (F := hzabsvalgeh0 h).
-           intermediate (f (n+t)).
-           { intermediate (f ((nattohz m : ℤ)+t)).
+           intermediate_path (f (n+t)).
+           { intermediate_path (f ((nattohz m : ℤ)+t)).
              { induction m.
                { assert (w : 0%hz == nattohz 0). { reflexivity. }
                  destruct w.

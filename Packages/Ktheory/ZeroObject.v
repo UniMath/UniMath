@@ -23,7 +23,7 @@ Lemma initMapUniqueness {C:precategory} (a:ZeroObject C) (b:ob C) (f:a→b) :
 Proof. intros. exact (uniqueness (map_from a b) f). Qed.
 Lemma initMapUniqueness2 {C:precategory} (a:ZeroObject C) (b:ob C) (f g:a→b) :
   f == g.
-Proof. intros. intermediate (the (map_from a b)).
+Proof. intros. intermediate_path (the (map_from a b)).
   apply initMapUniqueness. apply pathsinv0. apply initMapUniqueness. Qed.
 Definition hasZeroObject (C:precategory) := squash (ZeroObject C).
 Definition haszero_opp (C:precategory) : hasZeroObject C -> hasZeroObject C^op.
@@ -43,7 +43,7 @@ Lemma zeroMapUniqueness {C:precategory} (x y:ZeroObject C) (a b:ob C) :
   zeroMap' a b x == zeroMap' a b y.
 Proof. intros. set (i := the (map_to x a)).
   set (h := the (map_from x y)). set (q := the (map_from y b)).
-  intermediate (q ∘ (h ∘ i)).
+  intermediate_path (q ∘ (h ∘ i)).
   { rewrite <- assoc. apply path_right_composition. apply uniqueness'. }
   { apply path_left_composition. apply uniqueness. } Qed.
 Lemma zeroMap {C:precategory} (a b:ob C): hasZeroObject C  ->  a → b.
@@ -56,7 +56,7 @@ Lemma zeroMap'_left_composition {C:precategory}
       (z:ZeroObject C) (a b c:ob C) (f:b→c) :
   f ∘ zeroMap' a b z == zeroMap' a c z. 
 Proof. intros. unfold zeroMap'. 
-       intermediate ((f ∘ the (map_from z b)) ∘ the (map_to z a)).
+       intermediate_path ((f ∘ the (map_from z b)) ∘ the (map_to z a)).
        { apply pathsinv0. apply assoc. }
        { apply path_right_composition. apply initMapUniqueness. } Qed.
 Lemma zeroMap_left_composition {C:precategory} 

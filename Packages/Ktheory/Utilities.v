@@ -65,14 +65,6 @@ Definition pair_path_props {X:UU} {P:X->UU} {x y:X} {p:P x} {q:P y} :
 Proof. intros ? ? ? ? ? ? e is. 
        exact (total2_paths2 e (pr1 (is _ _ _))). Defined.
 
-Definition weqdirprodcomm' X Y : weq (dirprod X Y) (dirprod Y X).
-Proof. (* replace the proof of [weqdirprodcomm] eventually *)
-       intros. refine (_,,gradth _ _ _ _).
-       { intros [x y]. exact (y,,x). }
-       { intros [y x]. exact (x,,y). }
-       { intros [x y]. reflexivity. }
-       { intros [y x]. reflexivity. } Defined.
-
 Definition pair_path2 {A} {B:A->UU} {a a1 a2} {b1:B a1} {b2:B a2}
            (p:a1==a) (q:a2==a) (e:p#b1 == q#b2) : a1,,b1 == a2,,b2.
 Proof. intros. destruct p,q; compute in e. destruct e. reflexivity. Defined.
@@ -169,7 +161,9 @@ Ltac prop_logic :=
 
 Definition propProperty (P:hProp) := pr2 P : isaprop (pr1 P).
 
-Ltac intermediate x := apply @pathscomp0 with (b := x).
+Ltac intermediate_path x := apply @pathscomp0 with (b := x).
+
+Ltac intermediate_weq y := apply @weqcomp with (Y := y).
 
 Definition isaset_if_isofhlevel2 {X} : isofhlevel 2 X -> isaset X.
 (* The use of this lemma ahead of something like 'impred' can be avoided by
@@ -209,10 +203,10 @@ Proof. intros. apply weqonpathsincl. apply isinclpr1; intro T.
 
 Module AdjointEquivalence.
   Record data X Y := make {
-         f : X -> Y; g : Y -> X;
-         p : forall y, f(g y) == y;
-         q : forall x, g(f x) == x;
-         h : forall x, ap f (q x) == p(f x) }.
+           f :> X -> Y; g : Y -> X;
+           p : forall y, f(g y) == y;
+           q : forall x, g(f x) == x;
+           h : forall x, ap f (q x) == p(f x) }.
 End AdjointEquivalence.
 
 Lemma helper {X Y} {f:X->Y} x x' (w:x==x') (t:f x==f x) :
@@ -226,12 +220,45 @@ Definition weq_to_AdjointEquivalence X Y : weq X Y -> AdjointEquivalence.data X 
   set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
   set (q := fun x => ap pr1 (L x)).
   set (q' := fun x => !q x).  
-  exact (AdjointEquivalence.make
-           X Y f g p q'
-           (fun x => 
-              !(helper x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x)))
-               @ (pr2_pair (L x)))).
+  refine (AdjointEquivalence.make X Y f g p q' _).
+  intro x.
+  exact ( !(helper x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x)))
+               @ (pr2_pair (L x))).
 Defined.
+
+Definition AdjointEquivalence_to_weq X Y : AdjointEquivalence.data X Y -> weq X Y.
+Proof. intros ? ? [f g p q h]. exists f. unfold isweq. intro y.
+       exists (g y,,p y). intros [x r]. destruct r. 
+       apply (total2_paths2 (!q x)). refine (_ @ h x). generalize (q x); intro qx.
+       destruct qx. reflexivity. Defined.
+
+Module AdjointEquivalence'.
+  Record data X Y := make {
+         f :> X -> Y; g : Y -> X;
+         p : forall y, f(g y) == y;
+         q : forall x, x == g(f x);
+         h : forall x y (r:f x == y), 
+             transportf (fun x':X => f x'==y) (q x @ ap g r) r == p y }.
+End AdjointEquivalence'.
+
+Definition AdjointEquivalence_to_weq' X Y : AdjointEquivalence'.data X Y -> weq X Y.
+Proof. intros ? ? a. destruct a. exists f. unfold isweq. intro y.
+       exists (g y,,p y). 
+       intros [x r]. exact (total2_paths2 (q x @ ap g r) (h x y r)). Defined.
+
+(* Definition weqfunsrc {X Y} {P:Y->Type} (w:AdjointEquivalence'.data X Y) :  *)
+(*   AdjointEquivalence'.data  *)
+(*     (forall y, P y)  *)
+(*     (forall x, P (AdjointEquivalence'.f _ _ w x)). *)
+(* Proof. intros ? ? ? [f g p q h]; simpl. *)
+(*        refine (AdjointEquivalence'.make _ _ _ _ _ _ _). *)
+(*        { intros G x. exact (G (f x)). } *)
+(*        { intros F y. exact (p y # F (g y)). } *)
+(*        { intros F.  *)
+(*          (* Unset Printing Implicits. Unset Printing Notations. *) *)
+(*          apply funextsec; intro x. *)
+
+(* Defined. *)
 
 (** * Squashing. *)
 
