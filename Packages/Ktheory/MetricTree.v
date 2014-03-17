@@ -21,8 +21,8 @@ Record Tree :=
       mt_dist: mt_set -> mt_set -> nat;
       mt_refl: forall x, mt_dist x x == 0;
       mt_anti: forall x y, mt_dist x y == 0 -> x == y;
-      mt_symm: forall x y, mt_dist x y == mt_dist y x;
-      mt_trans: forall x y z, mt_dist x z <= mt_dist x y + mt_dist y z;
+      (* mt_symm: forall x y, mt_dist x y == mt_dist y x; *)
+      (* mt_trans: forall x y z, mt_dist x z <= mt_dist x y + mt_dist y z; *)
       mt_step: forall x z, x!=z -> iscontr
                  (total2 (fun y => dirprod 
                                      (S (mt_dist x y) == mt_dist x z)
@@ -84,14 +84,82 @@ Proof. intros ? ?. unfold nat_dist, hz.hzabsvalint; simpl.
            { assumption. } } }
 Defined.
 
+Lemma minusSS m n : m >= n -> S (m - S n) == m - n.
+Proof. admit. Defined.
+
+Lemma minusxx m : m - m == 0.
+Proof. admit. Defined.
+
+Lemma minusSxx m : S m - m == 1.
+Proof. admit. Defined.
+
+Lemma natminusminus n m : m <= n -> n - (n - m) == m.
+Proof. admit. Defined.
+
 Definition nat_tree : Tree.
-Proof. refine (make nat nat_dist _ _ _ _ _).
+Proof. refine (make nat nat_dist _ (* _ _ *) _ _).
        { intro m.
          induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
        { apply nat_dist_anti. }
-       admit.
-       admit.
-       admit.
+       (*
+       { intros m n. unfold nat_dist,hz.hzabsvalint; simpl.
+         induction (natgthorleh m n) as [i|j].
+         { induction (natgthorleh n m) as [r|s].
+           { apply fromempty. 
+             apply (natgthtonegnatleh m n).
+             { assumption. } { apply natlthtoleh. assumption. } }
+           { reflexivity. } }
+         { induction (natgthorleh n m) as [r|s].
+           { reflexivity. }
+           { assert (p:m==n).
+             { apply isantisymmnatleh. { assumption. } { assumption. } }
+             destruct p. reflexivity. } } } 
+         { admit. }
+        *)
+       { intros m n e.
+         assert (d := natneqchoice _ _ e). clear e.
+         destruct d.
+         { refine ((S n,,_),,_).
+           { split.
+             { unfold nat_dist,hz.hzabsvalint; simpl.
+               induction (natgthorleh m (S n)) as [i|j].
+               { induction (natgthorleh m n) as [_|s].
+                 { clear i. apply minusSS. apply natgthtogeh. assumption. }
+                 { apply fromempty. clear i. apply (natgthtonegnatleh m n h s). } }
+               { induction (natgthorleh m n) as [_|s].
+                 { assert (u : S n == m). 
+                   { assert (w := natgthtogehsn m n h); clear h.
+                     apply (isantisymmnatgeh (S n) m).
+                     { assumption. } { assumption. } } 
+                   destruct u. clear h j. rewrite minusxx. rewrite minusSxx.
+                   reflexivity. }
+                 { apply fromempty; clear j. apply (natgthtonegnatleh m n h s). }}}
+             { unfold nat_dist,hz.hzabsvalint; simpl.
+               destruct (natgthorleh (S n) n) as [_|j].
+               { clear h. induction n. { reflexivity. } { apply IHn. } } 
+               { apply fromempty. clear h. exact (j (natgthsnn n)). }}}
+           { intros [k [i j]]; simpl. 
+             apply pair_path_props.
+             { admit. }
+             intro. apply isofhleveltotal2.
+             { apply isasetnat. }
+             { intro t. apply isasetnat. } } }
+         { refine ((n - 1,,_),,_).
+           { split.
+             { admit. }
+             { unfold nat_dist,hz.hzabsvalint; simpl.
+               destruct (natgthorleh (n - 1) n) as [i|j].
+               { apply fromempty; clear h. exact (natminuslehn n 1 i). }
+               { clear j. apply (natminusminus n 1).
+                 assert (i := natleh0n m).
+                 assert (j := natlehlthtrans _ _ _ i h); clear h i.
+                 exact (natlthtolehsn _ _ j). }}}
+           { intros [k [i j]]; simpl. 
+             apply pair_path_props.
+             { admit. }
+             intro. apply isofhleveltotal2.
+             { apply isasetnat. }
+             { intro t. apply isasetnat. } } } }
 Defined.                      
 
 (*
