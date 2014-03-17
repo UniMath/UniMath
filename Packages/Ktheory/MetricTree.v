@@ -21,8 +21,8 @@ Record Tree :=
       mt_dist: mt_set -> mt_set -> nat;
       mt_refl: forall x, mt_dist x x == 0;
       mt_anti: forall x y, mt_dist x y == 0 -> x == y;
-      (* mt_symm: forall x y, mt_dist x y == mt_dist y x; *)
-      (* mt_trans: forall x y z, mt_dist x z <= mt_dist x y + mt_dist y z; *)
+      mt_symm: forall x y, mt_dist x y == mt_dist y x;
+      mt_trans: forall x y z, mt_dist x z <= mt_dist x y + mt_dist y z;
       mt_step: forall x z, x!=z -> iscontr
                  (total2 (fun y => dirprod 
                                      (S (mt_dist x y) == mt_dist x z)
@@ -63,29 +63,29 @@ Proof. intros ? ? ? ? ?.
        intro. apply (d_ind (mt_dist _ x z)). reflexivity. Defined.
 
 Definition nat_dist : nat -> nat -> nat.
-Proof. intros m n. exact (hz.hzabsvalint (m,,n)). Defined.
+Proof. intros m n. exact ((m-n)+(n-m)). Defined.
 
 Definition nat_dist_S m n : nat_dist (S m) (S n) == nat_dist m n.
-Proof. intros. apply (hz.hzabsvalintcomp (m,,n) (S m,,S n)). simpl.
-       apply squash_element. exists 0. rewrite 2!natplusr0.
-       rewrite natplusnsm. reflexivity. Qed.
+Proof. reflexivity. Defined.
+
+Lemma plusmn0n0 m n : m + n == 0 -> n == 0.
+Proof. intros ? ? i. assert (a := natlehmplusnm m n). rewrite i in a.
+       apply natleh0tois0. assumption. Qed.
+
+Lemma plusmn0m0 m n : m + n == 0 -> m == 0.
+Proof. intros ? ? i. assert (a := natlehnplusnm m n). rewrite i in a.
+       apply natleh0tois0. assumption. Qed.
+
+Lemma natminus0le {m n} : m-n == 0 -> n >= m.
+Proof. intros ? ? i j. assert (a := minusgth0 m n j); clear j.
+       rewrite i in a; clear i. exact (negnatgth0n 0 a). Defined.
 
 Definition nat_dist_anti m n : nat_dist m n == 0 -> m == n.
-Proof. intros ? ?. unfold nat_dist, hz.hzabsvalint; simpl.
-       induction (natgthorleh m n).
-       { intro b. apply fromempty. apply (natgthtoneq (m-n) 0).
-         apply minusgth0. assumption. assumption. }
-       { intro c.
-         destruct (isdeceqnat m n) as [i|j].
-         { assumption. }
-         { destruct (natlehchoice m n b) as [r|s].
-           { apply fromempty. apply (natlthtoneq 0 (n-m)). apply minusgth0.
-             assumption. apply pathsinv0. assumption. }
-           { assumption. } } }
-Qed.
-
-Lemma minus0 m : m - 0 == m.
-Proof. admit. Defined.
+Proof. intros ? ? i. apply isantisymmnatgeh. 
+       { apply natminus0le. 
+         apply (plusmn0n0 (m-n) (n-m)). assumption. }
+       { apply natminus0le. 
+         apply (plusmn0m0 (m-n) (n-m)). assumption. } Qed.
 
 Lemma minusxx m : m - m == 0.
 Proof. intro. induction m. reflexivity. simpl. assumption. Qed.
@@ -98,51 +98,41 @@ Proof. intros ? ? i. assert (b := plusminusnmm m (n-m)).
        rewrite natpluscomm in b. rewrite (minusplusnmm _ _ i) in b.
        exact b. Qed.
 
+Lemma natplusminus m n k : k==m+n -> k-n==m.
+Proof. intros ? ? ? i. rewrite i. apply plusminusnmm. Defined.
+
 Lemma minusSS m n : m > n -> S (m - S n) == m - n.
 Proof. intros ? ? i.
        assert (t := natminusminus m (S n) (natgthtogehsn _ _ i)).
+       set (k := m - S n).
+       rewrite (idpath _ : m - S n == k) in t.
        admit. Qed.
 
 Definition nat_tree : Tree.
-Proof. refine (make nat nat_dist _ (* _ _ *) _ _).
+Proof. refine (make nat nat_dist _ _ _ _ _).
        { intro m.
          induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
        { apply nat_dist_anti. }
-       (*
-       { intros m n. unfold nat_dist,hz.hzabsvalint; simpl.
-         induction (natgthorleh m n) as [i|j].
-         { induction (natgthorleh n m) as [r|s].
-           { apply fromempty. 
-             apply (natgthtonegnatleh m n).
-             { assumption. } { apply natlthtoleh. assumption. } }
-           { reflexivity. } }
-         { induction (natgthorleh n m) as [r|s].
-           { reflexivity. }
-           { assert (p:m==n).
-             { apply isantisymmnatleh. { assumption. } { assumption. } }
-             destruct p. reflexivity. } } } 
-         { admit. }
-        *)
+       { intros m n. apply natpluscomm. } 
+       { admit. }
        { intros m n e.
          assert (d := natneqchoice _ _ e). clear e.
          destruct d.
          { refine ((S n,,_),,_).
            { split.
-             { unfold nat_dist,hz.hzabsvalint; simpl.
-               induction (natgthorleh m (S n)) as [i|j].
+             { induction (natgthorleh m (S n)) as [i|j].
                { induction (natgthorleh m n) as [_|s].
-                 { clear i. apply minusSS. assumption. }
+                 { clear i. admit. }
                  { apply fromempty. clear i. apply (natgthtonegnatleh m n h s). } }
                { induction (natgthorleh m n) as [_|s].
                  { assert (u : S n == m). 
                    { assert (w := natgthtogehsn m n h); clear h.
                      apply (isantisymmnatgeh (S n) m).
                      { assumption. } { assumption. } } 
-                   destruct u. clear h j. rewrite minusxx. rewrite minusSxx.
-                   reflexivity. }
+                   destruct u. clear h j. 
+                   admit. }
                  { apply fromempty; clear j. apply (natgthtonegnatleh m n h s). }}}
-             { unfold nat_dist,hz.hzabsvalint; simpl.
-               destruct (natgthorleh (S n) n) as [_|j].
+             { destruct (natgthorleh (S n) n) as [_|j].
                { clear h. induction n. { reflexivity. } { apply IHn. } } 
                { apply fromempty. clear h. exact (j (natgthsnn n)). }}}
            { intros [k [i j]]; simpl. 
@@ -157,10 +147,7 @@ Proof. refine (make nat nat_dist _ (* _ _ *) _ _).
              { unfold nat_dist,hz.hzabsvalint; simpl.
                destruct (natgthorleh (n - 1) n) as [i|j].
                { apply fromempty; clear h. exact (natminuslehn n 1 i). }
-               { clear j. apply (natminusminus n 1).
-                 assert (i := natleh0n m).
-                 assert (j := natlehlthtrans _ _ _ i h); clear h i.
-                 exact (natlthtolehsn _ _ j). }}}
+               { clear j. admit. }}}
            { intros [k [i j]]; simpl. 
              apply pair_path_props.
              { admit. }
@@ -171,6 +158,6 @@ Defined.
 
 (*
 Local Variables:
-compile-command: "make -C ../.. TAGS Packages/Ktheory/Utilities.vo"
+compile-command: "make -C ../.. TAGS Packages/Ktheory/MetricTree.vo"
 End:
 *)
