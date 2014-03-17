@@ -82,19 +82,26 @@ Proof. intros ? ?. unfold nat_dist, hz.hzabsvalint; simpl.
            { apply fromempty. apply (natlthtoneq 0 (n-m)). apply minusgth0.
              assumption. apply pathsinv0. assumption. }
            { assumption. } } }
-Defined.
+Qed.
 
-Lemma minusSS m n : m >= n -> S (m - S n) == m - n.
+Lemma minus0 m : m - 0 == m.
 Proof. admit. Defined.
 
 Lemma minusxx m : m - m == 0.
-Proof. admit. Defined.
+Proof. intro. induction m. reflexivity. simpl. assumption. Qed.
 
 Lemma minusSxx m : S m - m == 1.
-Proof. admit. Defined.
+Proof. intro. induction m. reflexivity. assumption. Qed.
 
 Lemma natminusminus n m : m <= n -> n - (n - m) == m.
-Proof. admit. Defined.
+Proof. intros ? ? i. assert (b := plusminusnmm m (n-m)).
+       rewrite natpluscomm in b. rewrite (minusplusnmm _ _ i) in b.
+       exact b. Qed.
+
+Lemma minusSS m n : m > n -> S (m - S n) == m - n.
+Proof. intros ? ? i.
+       assert (t := natminusminus m (S n) (natgthtogehsn _ _ i)).
+       admit. Qed.
 
 Definition nat_tree : Tree.
 Proof. refine (make nat nat_dist _ (* _ _ *) _ _).
@@ -124,7 +131,7 @@ Proof. refine (make nat nat_dist _ (* _ _ *) _ _).
              { unfold nat_dist,hz.hzabsvalint; simpl.
                induction (natgthorleh m (S n)) as [i|j].
                { induction (natgthorleh m n) as [_|s].
-                 { clear i. apply minusSS. apply natgthtogeh. assumption. }
+                 { clear i. apply minusSS. assumption. }
                  { apply fromempty. clear i. apply (natgthtonegnatleh m n h s). } }
                { induction (natgthorleh m n) as [_|s].
                  { assert (u : S n == m). 
