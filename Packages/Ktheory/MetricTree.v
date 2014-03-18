@@ -199,6 +199,73 @@ Proof. intros ? ? ? ? j.
        { apply nat_dist_between_le. exact s. exact j. }
 Defined.
 
+Definition natleorle m n : coprod (m<=n) (n<=m).
+Proof. intros.
+       induction (natgthorleh m n) as [r|s].
+       { apply ii2. apply natlthtoleh. exact r. }
+       { apply ii1. exact s. } Defined.
+
+Definition nat_dist_trans x y z : nat_dist x z <= nat_dist x y + nat_dist y z.
+Proof. intros. induction (natleorle x y) as [r|s].
+       { rewrite (nat_dist_le _ _ r).
+         induction (natleorle y z) as [t|u].
+         { assert (u := istransnatgeh _ _ _ t r). rewrite (nat_dist_le _ _ t).
+           rewrite (nat_dist_le _ _ u). apply (natlehandplusrinv _ _ x).
+           rewrite (minusplusnmm _ _ u). rewrite (natpluscomm _ x).
+           rewrite <- natplusassoc. rewrite (natpluscomm x).
+           rewrite (minusplusnmm _ _ r). rewrite (natpluscomm y).
+           rewrite (minusplusnmm _ _ t). apply isirreflnatgth. }
+         { rewrite (nat_dist_ge _ _ u).
+           induction (natleorle x z) as [p|q].
+           { rewrite (nat_dist_le _ _ p). apply (natlehandplusrinv _ _ x).
+             rewrite (minusplusnmm _ _ p). rewrite natpluscomm.
+             rewrite <- natplusassoc. rewrite (natpluscomm x).
+             rewrite (minusplusnmm _ _ r). apply (natlehandplusrinv _ _ z).
+             rewrite natplusassoc. rewrite (minusplusnmm _ _ u).
+             apply (istransnatleh _ (y+z)).
+             { apply natlehandplusr. exact u. }
+             { apply natlehandplusl. exact u. } }
+           { rewrite (nat_dist_ge _ _ q). apply (natlehandplusrinv _ _ z).
+             rewrite (minusplusnmm _ _ q). rewrite natplusassoc.                              
+             rewrite (minusplusnmm _ _ u). rewrite natpluscomm.
+             apply (natlehandplusrinv _ _ x). rewrite natplusassoc.                              
+             rewrite (minusplusnmm _ _ r). apply (istransnatleh _ (x+y)).
+             { apply natlehandplusl. assumption. }
+             { apply natlehandplusr. assumption. } } } }
+       { rewrite (nat_dist_ge _ _ s).
+         induction (natleorle z y) as [u|t].
+         { assert (w := istransnatleh _ _ _ u s). rewrite (nat_dist_ge _ _ w).
+           rewrite (nat_dist_ge _ _ u). apply (natlehandplusrinv _ _ z).
+           rewrite (minusplusnmm _ _ w). rewrite natplusassoc.                              
+           rewrite (minusplusnmm _ _ u). rewrite (minusplusnmm _ _ s). 
+           apply isirreflnatgth. }
+         { rewrite (nat_dist_le _ _ t).
+           induction (natleorle x z) as [p|q].
+           { rewrite (nat_dist_le _ _ p). apply (natlehandplusrinv _ _ x).
+             rewrite (minusplusnmm _ _ p). apply (natlehandpluslinv _ _ y).
+             rewrite (natplusassoc (x-y)). rewrite <- (natplusassoc y).
+             rewrite (natpluscomm y (x-y)). rewrite (minusplusnmm _ _ s).                              
+             apply (natlehandplusrinv _ _ y). rewrite (natplusassoc x).
+             rewrite (natplusassoc _ x y). rewrite (natpluscomm x y).
+             rewrite <- (natplusassoc _ y x). rewrite (minusplusnmm _ _ t).
+             rewrite (natpluscomm z x). rewrite <- (natplusassoc x).
+             rewrite (natplusassoc y). rewrite (natpluscomm z y).
+             rewrite <- (natplusassoc y). apply (natlehandplusr _ _ z).
+             apply (istransnatleh _ (x+y)).
+             { apply natlehandplusr. assumption. } 
+             { apply natlehandplusl. assumption. } }
+           { rewrite (nat_dist_ge _ _ q). apply (natlehandplusrinv _ _ z).
+             rewrite (minusplusnmm _ _ q). apply (natlehandpluslinv _ _ y).
+             rewrite (natplusassoc (x-y)). rewrite <- (natplusassoc y).
+             rewrite (natpluscomm y (x-y)). rewrite (minusplusnmm _ _ s).                              
+             apply (natlehandplusrinv _ _ y). rewrite (natplusassoc x).
+             rewrite (natplusassoc _ z y). rewrite (natpluscomm z y).
+             rewrite <- (natplusassoc _ y z). rewrite (minusplusnmm _ _ t).
+             rewrite (natpluscomm y x). rewrite (natplusassoc x).
+             apply natlehandplusl. apply (istransnatleh _ (z+y)).
+             { apply natlehandplusr. assumption. } 
+             { apply natlehandplusl. assumption. } } } } Defined.
+
 Lemma plusmn0n0 m n : m + n == 0 -> n == 0.
 Proof. intros ? ? i. assert (a := natlehmplusnm m n). rewrite i in a.
        apply natleh0tois0. assumption. Qed.
@@ -238,7 +305,7 @@ Proof. refine (make nat nat_dist _ _ _ _ _).
          induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
        { apply nat_dist_anti. }
        { apply nat_dist_symm. } 
-       { admit. }
+       { apply nat_dist_trans. }
        { intros m n e.
          assert (d := natneqchoice _ _ e). clear e.
          destruct d as [h|h].
