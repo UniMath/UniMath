@@ -86,6 +86,21 @@ Fixpoint nat_discern (m n:nat) : Type :=
     | S m, 0 => empty
     | 0, 0 => unit end.
 
+Lemma nat_discern_inj m n : nat_discern (S m) (S n) -> nat_discern m n.
+Proof. intros ? ? e. induction m.
+       { induction n. { exact tt. } { simpl in e. exact (fromempty e). } }
+       { induction n. { simpl in e. exact (fromempty e). } { simpl in e. exact e. } }
+Defined.
+
+Lemma nat_discern_isaprop m n : isaprop (nat_discern m n).
+Proof. intros m. induction m. 
+       { intros n. induction n.
+         { apply isapropifcontr. apply iscontrunit. }
+         { simpl. apply isapropempty. } }
+       { intros n. induction n. 
+         { simpl. apply isapropempty. }
+         { simpl. apply IHm. } } Defined.
+
 Fixpoint A m n : nat_dist m n == 0 -> nat_discern m n.
 Proof. intros ? ?.
        destruct m as [|m'].
@@ -106,6 +121,29 @@ Proof. intros ? ?.
          { simpl. exact fromempty. }
          { simpl. intro i. assert(b := B _ _ i); clear i. 
            destruct b. reflexivity. } } Defined.
+
+Fixpoint C m n : m == n -> nat_discern m n.
+Proof. intros ? ?.
+       destruct m as [|m'].
+       { destruct n as [|n'].
+         { intros _. exact tt. }
+         { simpl. apply negpaths0sx. } }
+       { destruct n as [|n'].
+         { simpl. intro e. exact (negpaths0sx m' (! e)). }
+         { simpl. intro i. apply C. apply invmaponpathsS. assumption. } } Defined.
+
+Lemma D m n : weq (m == n) (nat_discern m n).
+Proof. intros. refine (weqpair _ (gradth (C _ _) (B _ _) _ _)).
+       { intro e. destruct e. induction m.
+         { reflexivity. } { simpl. rewrite IHm. reflexivity. } }
+       { intro s. assert(t := B _ _ s). destruct t. 
+         induction m.
+         { destruct s. reflexivity. }
+         { assert (a := nat_discern_inj _ _ s).
+           assert (b := IHm a).
+           simpl.
+           admit. } } 
+Defined.
 
 Definition nat_dist_anti m n : nat_dist m n == 0 -> m == n.
 Proof. intros ? ? i. exact (B _ _ (A _ _ i)). Qed.
