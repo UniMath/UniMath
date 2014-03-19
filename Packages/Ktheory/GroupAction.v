@@ -537,6 +537,31 @@ End Halfline.
 
 Module BZ.
 
+  Definition isolate_0_in_ZZ : weq (coprod unit ℕ) ℤ.
+  Proof. refine (_,,gradth _ _ _ _).
+         { intro m.
+           destruct m as [|m].
+           { exact 0%hz. }
+           { set (q := natdiv m 2 + 1). set (r := natrem m 2); simpl in r.
+             destruct r as [|_].
+             { exact (natnattohz q 0). }
+             { exact (natnattohz 0 q). } } }
+         { admit. }
+         { admit. }
+         { admit. }
+  Defined.
+
+  Goal isolate_0_in_ZZ (inl tt) == natnattohz 0 0.
+    reflexivity. Defined.
+  Goal isolate_0_in_ZZ (inr 0) == natnattohz 1 0.
+    reflexivity. Defined.
+  Goal isolate_0_in_ZZ (inr 1) == natnattohz 0 1.
+    reflexivity. Defined.
+  Goal isolate_0_in_ZZ (inr 2) == natnattohz 2 0.
+    reflexivity. Defined.
+  Goal isolate_0_in_ZZ (inr 3) == natnattohz 0 2.
+    reflexivity. Defined.
+
   Local Notation "n + x" := (ac_mult _ n x) : action_scope.
   Local Notation "n - m" := (quotient _ n m) : action_scope.
 
