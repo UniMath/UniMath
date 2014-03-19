@@ -2,7 +2,8 @@ Rezk Completion
 ===============
 
 This Coq library mechanizes the Rezk completion as described in
-http://arxiv.org/abs/1303.0584
+http://arxiv.org/abs/1303.0584.
+It was written by Benedikt Ahrens, Chris Kapulkin and Mike Shulman.
 
 It builds upon V. Voevodsky's Foundations library, available on
 http://arxiv.org/abs/1401.0053.
@@ -27,7 +28,7 @@ The toplevel files contain the formalization of the Rezk Completion:
 * *precomp_ess_surj.v* Precomposition with a fully faithful and essentially surjective functor yields an essentially surjective functor
 * *rezk_completion.v* that puts the previous files together exhibiting the Rezk completion
 
-### The files in subdirectories
+### The subdirectories
 
 * *limits* --- definition of some limits and proof that they are unique in categories
 
@@ -35,13 +36,11 @@ The toplevel files contain the formalization of the Rezk Completion:
 
 ### Coq
 
-The library compiles under Coq8.3pl5, patched according to the instructions given in 
-http://arxiv.org/abs/1401.0053. 
-Lower patch levels of Coq8.3, e.g., Coq8.3pl2, are likely to work as well.
+See the toplevel README file to find out which version of Coq is required.
 
 ### Libraries
 
-Files used from V. Voevodsky's Foundations:
+Files used from V. Voevodsky's Foundations, available from the package *Foundations*:
 
   - uuu.v
   - uu0.v
