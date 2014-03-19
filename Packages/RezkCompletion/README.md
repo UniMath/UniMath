@@ -32,11 +32,12 @@ The toplevel files contain the formalization of the Rezk Completion:
 
 * *limits* --- definition of some limits and proof that they are unique in categories
 
+
 ## Requirements
 
-### Coq
-
-See the toplevel README file to find out which version of Coq is required.
+This package depends on the package *Foundations* which is also part of this repository. 
+There is hence no need to install extra stuff to use this package; we only list the precise dependencies
+for the sake of completeness.
 
 ### Libraries
 
