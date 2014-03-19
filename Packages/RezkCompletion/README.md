@@ -24,9 +24,9 @@ The toplevel files contain the formalization of the Rezk Completion:
 * *category_hset.v* --- definition of the precategory of sets and proof that it is a category
 * *yoneda.v* --- definition of Yoneda embedding and proof that it is fully faithful
 * *whiskering.v* --- definition of whiskering
-* *precomp_fully_faithful.v* Precomposition with a fully faithful and essentially surjective functor yields a fully faithful functor
-* *precomp_ess_surj.v* Precomposition with a fully faithful and essentially surjective functor yields an essentially surjective functor
-* *rezk_completion.v* that puts the previous files together exhibiting the Rezk completion
+* *precomp_fully_faithful.v* --- Precomposition with a fully faithful and essentially surjective functor yields a fully faithful functor
+* *precomp_ess_surj.v* --- Precomposition with a fully faithful and essentially surjective functor yields an essentially surjective functor
+* *rezk_completion.v* --- that puts the previous files together exhibiting the Rezk completion
 
 ### The subdirectories
 
