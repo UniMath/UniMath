@@ -124,6 +124,11 @@ Proof. intros ? ?. destruct m as [|m'].
          { simpl. intro f. apply fromempty. apply f. reflexivity. } 
          { simpl. apply nat_dist_le. } } Defined.
 
+Definition nat_dist_minus m n : m <= n -> nat_dist (n - m) n == m.
+Proof. intros ? ? e. set (k := n-m). assert(b := ! minusplusnmm n m e).
+       rewrite (idpath _ : n-m == k) in b. rewrite b.
+       rewrite nat_dist_symm. apply nat_dist_plus. Qed.
+
 Fixpoint nat_dist_gt m n : m > n -> S (nat_dist m (S n)) == nat_dist m n.
 Proof. intros ? ?. destruct m as [|m'].
        { unfold natgth; simpl. intro x. 
@@ -270,32 +275,31 @@ Proof. intros ? ? i. assert (a := natlthp1toleh m (n - 1)).
        assert (d := natlthtolehsn _ _ c). assert (e := minusplusnmm _ _ d).
        rewrite e in a. exact (a i). Defined.
 
-Lemma natminusS m n : m - (S n) == (m-n) - 1.
-Proof. intros. induction n.
-       { rewrite natminuseqn. reflexivity. } 
-       admit.
-Defined.
+Fixpoint natminusminusassoc m n k : (m-n)-k == m-(n+k).
+Proof. intros. destruct m. { reflexivity. }
+       { destruct n. { rewrite natminuseqn. reflexivity. }
+         { simpl. apply natminusminusassoc. } } Defined.
 
-Lemma natminusminusassoc m n k : (m-n)-k == m-(n+k).
-Proof. intros. induction k.
-       { rewrite <- plus_n_O. rewrite natminuseqn. reflexivity. }
-       { induction n.
-         { intros. rewrite natminuseqn. simpl. reflexivity. }
-         { intros.
-           admit. } } 
-Defined.
+Lemma natleplusminus m n k : m + k <= n -> k <= n - m.
+Proof. intros ? ? ? i.
+       
+       
+       admit. Defined.
+
+Definition natminusplusltcomm m n k : k <= n -> m <= n - k -> k <= n - m.
+Proof. intros ? ? ? i p.
+       assert (a := natlehandplusr m (n-k) k p); clear p.
+       assert (b := minusplusnmm n k i); clear i.
+       rewrite b in a; clear b. apply natleplusminus. exact a. Qed.
 
 Require Import MetricTree.
 
 Definition nat_tree : Tree.
 Proof. refine (make nat nat_dist _ _ _ _ _).
-       { intro m.
-         induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
-       { apply nat_dist_anti. }
-       { apply nat_dist_symm. } 
+       { intro m. induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
+       { apply nat_dist_anti. } { apply nat_dist_symm. } 
        { apply nat_dist_trans. }
-       { intros m n e.
-         assert (d := natneqchoice _ _ e). clear e.
+       { intros m n e. assert (d := natneqchoice _ _ e). clear e.
          destruct d as [h|h].
          { exists (S n).
            { split.
@@ -305,18 +309,21 @@ Proof. refine (make nat nat_dist _ _ _ _ _).
                { apply fromempty. clear h. exact (j (natgthsnn n)). }}} }
          { exists (n - 1).
            { split.
-             { assert (a := natltminus1 m n h).
-               assert (b := natlthtoleh m n h).
-               assert (c := nat_dist_le _ _ a).
-               assert (d := nat_dist_le _ _ b).
-               rewrite c, d.
-
-               admit. }
-             { unfold nat_dist,hz.hzabsvalint; simpl.
-               destruct (natgthorleh (n - 1) n) as [i|j].
-               { apply fromempty; clear h. exact (natminuslehn n 1 i). }
-               { clear j. admit. }}} } }
-Defined.                      
+             { assert (a := natltminus1 m n h). assert (b := natlthtoleh m n h).
+               assert (c := nat_dist_le _ _ a). assert (d := nat_dist_le _ _ b).
+               rewrite c, d; clear c d. rewrite natminusminusassoc. simpl.
+               change (1 + (n - (1+m)) == n - m). rewrite (natpluscomm 1 m).
+               rewrite <- natminusminusassoc. rewrite natpluscomm.
+               apply (minusplusnmm (n-m) 1).
+               apply (natminusplusltcomm m n 1).
+               { assert(e := natleh0n m). 
+                 assert(f := natlehlthtrans _ _ _ e h).
+                 exact (natlthtolehsn _ _ f). }
+               { exact a. } }
+             { assert (a := natleh0n m).
+               assert (b := natlehlthtrans _ _ _ a h).
+               assert (c := natlthtolehsn _ _ b).
+               exact (nat_dist_minus 1 n c). } } } } Defined.
 
 (*
 Local Variables:
