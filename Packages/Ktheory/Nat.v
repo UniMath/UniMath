@@ -269,6 +269,15 @@ Proof. intros ? ? i. assert (b := plusminusnmm m (n-m)).
 Lemma natplusminus m n k : k==m+n -> k-n==m.
 Proof. intros ? ? ? i. rewrite i. apply plusminusnmm. Defined.
 
+Lemma natleplusminus k m n : k + m <= n -> k <= n - m.
+Proof. intros ? ? ? i.
+       apply (natlehandplusrinv _ _ m).
+       rewrite minusplusnmm.
+       { exact i. }
+       { change (m <= n).
+         refine (istransnatleh m (k+m) n _ i); clear i.
+         apply natlehmplusnm. } Defined.
+
 Lemma natltminus1 m n : m < n -> m <= n - 1.
 Proof. intros ? ? i. assert (a := natlthp1toleh m (n - 1)).
        assert (b := natleh0n m). assert (c := natlehlthtrans _ _ _ b i).
@@ -280,17 +289,12 @@ Proof. intros. destruct m. { reflexivity. }
        { destruct n. { rewrite natminuseqn. reflexivity. }
          { simpl. apply natminusminusassoc. } } Defined.
 
-Lemma natleplusminus m n k : m + k <= n -> k <= n - m.
-Proof. intros ? ? ? i.
-       
-       
-       admit. Defined.
-
 Definition natminusplusltcomm m n k : k <= n -> m <= n - k -> k <= n - m.
 Proof. intros ? ? ? i p.
        assert (a := natlehandplusr m (n-k) k p); clear p.
        assert (b := minusplusnmm n k i); clear i.
-       rewrite b in a; clear b. apply natleplusminus. exact a. Qed.
+       rewrite b in a; clear b. apply natleplusminus. 
+       rewrite natpluscomm. exact a. Qed.
 
 Require Import MetricTree.
 
