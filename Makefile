@@ -1,12 +1,13 @@
 # -*- makefile-gmake -*-
-#################################
-
+ifeq ("$(shell test -f Makefile-configuration && echo yes)",yes)
+include Makefile-configuration
+endif
+include Makefile-coq.make
 # packages, listed in reverse order:
 PACKAGES = Ktheory RezkCompletion Foundations
-
-#################################
-
-include Makefile-coq.make
+ifeq ("$(BUILD_COQ)",yes)
+everything: build-coq
+endif
 everything: TAGS all html install
 OTHERFLAGS += -indices-matter
 Packages/Foundations/hlevel2/algebra1b.vo : OTHERFLAGS += -no-sharing
