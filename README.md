@@ -10,12 +10,12 @@ The "Packages" subdirectory contains the individual libraries of formalized math
 
 ## Usage
 
-You can compile all of the packages at once. Make sure you have installed the right version of Coq (see section "Requirements").
+You can compile all of the packages at once. Make sure you have installed the right version of Coq (see section [Requirements](#requirements)).
 After cloning the repository, change into the newly created directory and type call "make":
 
 ```bash
-$ git clone https://github.com/UnivalentMathematics/Foundations.git
-$ cd Foundations
+$ git clone https://github.com/UnivalentMathematics/UniMath.git
+$ cd UniMath
 $ make
 ```
 
