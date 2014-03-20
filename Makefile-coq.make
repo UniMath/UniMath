@@ -143,6 +143,7 @@ VFILES:=Packages/Foundations/Generalities/uuu.v\
   Packages/Ktheory/AbelianMonoid.v\
   Packages/Ktheory/Group.v\
   Packages/Ktheory/MetricTree.v\
+  Packages/Ktheory/Nat.v\
   Packages/Ktheory/GroupAction.v\
   Packages/Ktheory/AbelianGroup.v
 

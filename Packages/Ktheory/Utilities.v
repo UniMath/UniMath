@@ -46,6 +46,8 @@ Definition paths_from_prop {X} (x:X) :=
   hProppair (paths_from x) (isapropifcontr (iscontr_paths_from x)).
 
 Module Import Notation.
+  Notation "'not' X" := (X -> empty) (at level 35).
+  Notation "x != y" := (not (x == y)) (at level 40).
   Notation set_to_type := hSet.pr1hSet.
   Notation ap := maponpaths.
   (* see table 3.1 in the coq manual for parsing levels *)
@@ -58,6 +60,14 @@ Module Import Notation.
   Notation "p # x" := (transportf _ p x) (right associativity, at level 65).
   Notation "p #' x" := (transportb _ p x) (right associativity, at level 65).
 End Notation.
+
+Module Import NatNotation.
+  Require hnat.
+  Notation "m <= n" := (hnat.natleh m n).
+  Notation "m >= n" := (hnat.natgeh m n).
+  Notation "m > n" := (hnat.natgth m n).
+  Notation "m < n" := (hnat.natlth m n).
+End NatNotation.
 
 (* We prefer [pair_path_props] to [total2_paths2]. *)
 Definition pair_path_props {X:UU} {P:X->UU} {x y:X} {p:P x} {q:P y} :
@@ -135,7 +145,6 @@ Proof. intros. destruct p. reflexivity. Defined.
 
 (** * Decidability *)
 
-Definition not X := X -> empty.
 Definition decidable X := coprod X (not X).
 Definition LEM := forall P, isaprop P -> decidable P.
 Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.

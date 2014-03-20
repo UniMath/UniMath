@@ -1,5 +1,6 @@
 AbelianGroup.v
 GroupAction.v
+Nat.v
 MetricTree.v
 Group.v
 AbelianMonoid.v

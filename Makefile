@@ -51,3 +51,16 @@ always:
 ifeq ($(REMAKE_FILES),yes)
 Makefile-coq.in:always
 endif
+
+# building coq:
+export PATH := $(shell pwd)/sub/coq/bin:$(PATH)
+build-coq: sub/coq/configure sub/coq/config/coq_config.ml sub/coq/bin/coqc
+sub/coq/configure:
+	git submodule update --init sub/coq
+sub/coq/config/coq_config.ml: sub/coq/configure.ml
+	cd sub/coq && ./configure -coqide no -opt -no-native-compiler -with-doc no -annotate -debug -local
+sub/coq/bin/coqc:
+	make -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight
+type-coqc:
+	printenv PATH
+	type coqc

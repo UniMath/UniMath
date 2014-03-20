@@ -367,7 +367,6 @@ Open Scope paths_scope.
 Local Notation "l ^ n" := (loop_power l n) : paths_scope.
 
 (** * The induction principle for the half line. *)
-
 Module Halfline.
 
   Definition target_paths {Y} (f:ℕ->Y) := forall n, f n==f(S n).
@@ -534,6 +533,184 @@ Module Halfline.
          apply pathsinv0. apply maponpathscomp. Defined.
 
 End Halfline.
+
+
+(** * Try isolating the properties of nat that were used in the module above *)
+Module Halfline2.
+
+  Require Import MetricTree.
+
+  Parameter NN : Tree.
+
+  Parameter n0 : NN.
+
+  Definition target_paths {Y} (f:NN->Y) := forall m n, f m==f n.
+
+  Definition target_path_compat {Y} (f:NN->Y) (s:target_paths f) :=
+    forall m n p, s m n @ s n p == s m p.
+(*
+  Definition gHomotopy {Y} (f:NN->Y) (s:target_paths f) y (h:nullHomotopyFrom f y) :=
+    forall n (ne : n0 != n), h n == h (step NN ne) @ s (step NN ne) n.
+
+  Definition GHomotopy {Y} (f:NN->Y) (s:target_paths f) y := total2 (gHomotopy f s y).
+
+  Definition GuidedHomotopy {Y} (f:NN->Y) (s:target_paths f) := total2 (GHomotopy f s).
+
+  Definition isolate_0_in_nat : weq (coprod unit NN) NN.
+  Proof. refine (_,,gradth _ _ _ _).
+         { intro m. induction m as [|m]. { exact 0. } { exact (S m). } }
+         { intro n. induction n. { exact (inl tt). } { exact (inr n). } }
+         { intro n. induction n as [[]|n]. { reflexivity. } { reflexivity. } }
+         { intro n. induction n. { reflexivity. } { reflexivity. } }
+  Defined.
+
+  Definition isolate0 {P:NN->Type} : 
+    weq (forall n, P n) (dirprod (P 0) (forall n, P (S n))).
+  Proof. intros. intermediate_weq (forall n, P (isolate_0_in_nat n)).
+         { apply weqonsecbase. }
+         intermediate_weq (dirprod (forall t, P (isolate_0_in_nat (inl t))) (forall n, P (isolate_0_in_nat (inr n)))).
+         { apply weqsecovercoprodtoprod. }
+         apply weqdirprodf. { apply weqsecoverunit. } { apply idweq. }
+  Defined.
+
+  Definition isolate0fam (P:NN->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
+    forall (f:forall n, P n), Type.
+  Proof. intros. exact (forall n, Z n (f 0) (f (S n))). Defined.
+
+  Definition isolate0fam' (P:NN->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
+    forall (f:dirprod (P 0) (forall n, P (S n))), Type.
+  Proof. intros. exact (forall n, Z n (pr1 f) (pr2 f n)). Defined.
+
+  Definition check_refl (P:NN->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
+    funcomp isolate0 (isolate0fam' P Z) == isolate0fam P Z.
+  Proof. reflexivity. Defined.
+
+  Definition isolate0_weq (P:NN->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
+    weq (total2 (isolate0fam P Z)) (total2 (isolate0fam' P Z)).
+  Proof. intros. 
+         change (weq (total2 (funcomp isolate0 (isolate0fam' P Z)))
+                     (total2 (isolate0fam' P Z))).
+         apply weqfp. Defined.
+
+  Definition h_triv {Y} {f:NN->Y} (s:target_paths f) {y:Y} (h0:y==f 0) : nullHomotopyFrom f y.
+  Proof. intros. intro n. induction n. { exact (h0). } { exact (IHn @ s _). } Defined.
+
+  Definition gHomotopy' {Y} (f:NN->Y) (s:target_paths f) y :=
+    isolate0fam (fun n => y == f n) (fun n h0 hSn => hSn == h_triv s h0 (S n)).
+
+  Definition GHomotopy' {Y} (f:NN->Y) (s:target_paths f) y := total2 (gHomotopy' f s y).
+
+  Definition F {Y} {f:NN->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) :
+    gHomotopy f s y h -> gHomotopy' f s y h.
+  Proof. intros ? ? ? ? ? t ?. induction n. 
+         { exact (t 0). } { exact (t (S n) @ ap post_cat IHn). } Defined.
+
+  Definition F' {Y} {f:NN->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) :
+     gHomotopy' f s y h -> gHomotopy f s y h.
+  Proof. intros ? ? ? ? ? t ?. simpl. 
+         { induction n.
+           { exact (t 0). } { exact (t (S n) @ ! ap post_cat (t n)). } } Defined.
+
+  Lemma u {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
+  Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
+
+  Lemma A {Y} {f:NN->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) : 
+    weq (gHomotopy f s y h) (gHomotopy' f s y h).
+  Proof. intros. exists (F s h). apply (gradth _ (F' s h)).
+         { intro t. apply funextsec; intro n. induction n. { reflexivity. }
+           { unfold F,F'; simpl. refine (!path_assoc _ _ _ @ _).
+             refine (ap pre_cat (pathsinv0r _) @ _). apply pathscomp0rid. } }
+         { intro t. apply funextsec; intro n. induction n. { reflexivity. }
+           { unfold F, F'; simpl. refine (!path_assoc _ _ _ @ _).
+             refine (_ @ pathscomp0rid _). apply (ap pre_cat). apply u. 
+             apply (ap (ap post_cat)). assumption. } } Defined.
+  (** The proof above works only by accident; there ought to be a better way. *)
+
+  Lemma B {Y} {f:NN->Y} (s:target_paths f) {y} : weq (GHomotopy f s y) (GHomotopy' f s y).
+  Proof. intros. apply weqfibtototal; intro h. apply A. Defined.
+
+  Definition GHomotopy'' {Y} (f:NN->Y) (s:target_paths f) y := 
+    total2 (isolate0fam' (fun n => y == f n)
+                         (fun n h0 hSn => hSn == h_triv s h0 (S n))).
+
+  Lemma C {Y} {f:NN->Y} (s:target_paths f) {y} : weq (GHomotopy' f s y) (GHomotopy'' f s y).
+  Proof. intros. apply isolate0_weq. Defined.
+
+  Definition GHomotopy''' {Y} (f:NN->Y) (s:target_paths f) y := total2 (fun 
+               h0:y==f 0 => total2 (fun
+               h:forall n:NN, y == f (S n) => 
+                 forall n:NN, h n == h_triv s h0 (S n))).
+
+  Lemma D {Y} {f:NN->Y} (s:target_paths f) {y} : 
+    weq (GHomotopy'' f s y) (GHomotopy''' f s y).
+  Proof. intros. apply weqtotal2asstor. Defined.
+
+  Definition GHomotopy'''' {Y} (f:NN->Y) (s:target_paths f) y := total2 (fun 
+               h0:y==f 0 => total2 (fun
+               h:forall n:NN, y == f (S n) => 
+                 h == fun n => h_triv s h0 (S n))).
+  
+  Lemma E {Y} {f:NN->Y} (s:target_paths f) {y} : 
+    weq (GHomotopy''' f s y) (GHomotopy'''' f s y).
+  Proof. intros. apply weqfibtototal; intro h0. apply weqfibtototal; intro h.
+         apply weqfunextsec. Defined.
+
+  Lemma G {Y} {f:NN->Y} (s:target_paths f) {y} : 
+    weq (GHomotopy'''' f s y) (y==f 0).
+  Proof. intros. exists pr1. apply isweqpr1; intro h0. apply iscontrcoconustot.
+  Defined.
+
+  Local Notation "f @@ g" := (weqcomp f g) (left associativity, at level 50).
+
+  Lemma H {Y} {f:NN->Y} (s:target_paths f) : 
+    weq (total2 (GHomotopy f s)) (paths_to (f 0)).
+  Proof. intros. apply weqfibtototal; intro y.
+         exact (B s @@ C s @@ D s @@ E s @@ G s). Defined.
+
+  Theorem finally {Y} {f:NN->Y} (s:target_paths f) : iscontr (GuidedHomotopy f s).
+  Proof. intros. apply (iscontrweqb (H s)). apply iscontrcoconustot. Defined.
+
+  (** ** construction of the half line *)
+
+  Definition halfline := squash NN.
+
+  Definition map {Y} {f:NN->Y} (s:target_paths f) : 
+    halfline -> GuidedHomotopy f s.
+  Proof. intros ? ? ? r. apply (squash_to_prop r).
+         { apply isapropifcontr. apply finally. } 
+         { intro n. exists (f n). induction n.
+           { exists (h_triv s (idpath _)). intro n. reflexivity. }
+           { exact (s n#IHn). } } Defined.           
+
+  Definition map_path_check {Y} {f:NN->Y} (s:target_paths f) (n:NN) :
+    forall p : map s (squash_element n) ==
+               map s (squash_element (S n)),
+      ap pr1 p == s n.
+  Proof. intros. 
+         set (q := total2_paths2 (s n) (idpath _) 
+                   : map s (squash_element n) == map s (squash_element (S n))).
+         assert (u : q==p). 
+         { apply (hlevelntosn 1). apply (hlevelntosn 0). apply finally. }
+         destruct u. apply total2_paths2_comp1. Defined.
+
+  (** ** universal property for the half line *)
+
+  Definition halfline_map {Y} {target_points:NN->Y} (s:target_paths target_points) : 
+    halfline -> Y.
+  Proof. intros ? ? ? r. exact (pr1 (map s r)). Defined.
+
+  Definition check_values {Y} {target_points:NN->Y} 
+             (s:target_paths target_points) (n:NN) :
+    halfline_map s (squash_element n) == target_points n.
+  Proof. reflexivity. Defined.
+
+  Definition check_paths {Y} {target_points:NN->Y} 
+             (s:target_paths target_points) (n:NN) :
+    ap (halfline_map s) (squash_path n (S n)) == s n.
+  Proof. intros. refine (_ @ map_path_check s n _).
+         apply pathsinv0. apply maponpathscomp. Defined.
+*)
+End Halfline2.
 
 Module BZ.
 
