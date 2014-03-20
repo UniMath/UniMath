@@ -5,6 +5,7 @@ endif
 include Makefile-coq.make
 # packages, listed in reverse order:
 PACKAGES = Ktheory RezkCompletion Foundations
+BUILD_COQ ?= yes
 ifeq ("$(BUILD_COQ)",yes)
 everything: build-coq
 endif
