@@ -6,28 +6,50 @@ univalent point of view.
 
 ## Contents
 
-The "Packages" subdirectory contains the individual libraries of formalized mathematics. Please see the README in that subdirectory for more information about the contents.
+The "Packages" subdirectory contains various packages of formalized
+mathematics. Please see the file README (or README.md) in each package for more
+information about its contents.
 
-## Usage
+## Installation
 
-You can compile all of the packages at once. Make sure you have installed the right version of Coq (see section [Requirements](#requirements)).
-After cloning the repository, change into the newly created directory and type call "make":
+Prepare for installation by installing the OCAML compiler on your system.
+Under Mac OS X, the most convenient way to do that is with "Homebrew",
+available from http://brew.sh/, with the following command:
 
 ```bash
-$ git clone https://github.com/UnivalentMathematics/UniMath.git
+$ brew install objective-caml
+```
+
+To compile the coq formalizations (in all the packages), issue the following
+shell commands.
+
+```bash
+$ git clone https://github.com/UniMath/UniMath
 $ cd UniMath
 $ make
 ```
 
-You can have HTML documentation created by calling "make html"
+To create the documentation:
 ```bash
 $ make html
 ```
 
-## Requirements
+To make a TAGS file for use with emacs "etags" commands:
+```bash
+$ make TAGS
+```
 
-The right version of Coq is available from https://github.com/DanGrayson/coq 
-TODO: specify right version (maybe v8.4-patched)
-TODO: make the right version of Coq a git submodule
+To install UniMath in the "user-contrib" of coq:
+```bash
+$ make install
+```
 
+## Further details
 
+The correct version of coq is built and used automatically by the command
+"make".  If you wish to bypass the building of coq and use your own version,
+then follow the instructions in the file Makefile-configuration.template.  In
+order to use the resulting coq programs from the command line or from
+ProofGeneral (outside of "make") then add the full path to the directory
+./sub/coq/bin to your "PATH" environment variable, or set the emacs variable
+"coq-prog-name" in your emacs initialization file, ".emacs".
