@@ -331,6 +331,6 @@ Proof. refine (make nat nat_dist _ _ _ _ _).
 
 (*
 Local Variables:
-compile-command: "make -C ../.. TAGS Packages/Ktheory/Nat.vo"
+compile-command: "make -C ../.. TAGS UniMath/Ktheory/Nat.vo"
 End:
 *)

@@ -6,7 +6,7 @@ univalent point of view.
 
 ## Contents
 
-The "Packages" subdirectory contains various packages of formalized
+The "UniMath" subdirectory contains various packages of formalized
 mathematics. Please see the file README (or README.md) in each package for more
 information about its contents.
 
@@ -20,12 +20,18 @@ available from http://brew.sh/, with the following command:
 $ brew install objective-caml
 ```
 
-To compile the coq formalizations (in all the packages), issue the following
+To download UniMath and prepare for building it, issue the following
 shell commands.
 
 ```bash
 $ git clone https://github.com/UniMath/UniMath
 $ cd UniMath
+```
+
+To compile the coq formalizations (in all the packages), issue the following
+shell commands (in this directory).
+
+```bash
 $ make
 ```
 
@@ -39,7 +45,7 @@ To make a TAGS file for use with emacs "etags" commands:
 $ make TAGS
 ```
 
-To install UniMath in the "user-contrib" of coq:
+To install UniMath in the "user-contrib" of coq, for use by other developments:
 ```bash
 $ make install
 ```
@@ -48,8 +54,18 @@ $ make install
 
 The correct version of coq is built and used automatically by the command
 "make".  If you wish to bypass the building of coq and use your own version,
-then follow the instructions in the file Makefile-configuration.template.  In
-order to use the resulting coq programs from the command line or from
-ProofGeneral (outside of "make") then add the full path to the directory
+then follow the instructions in the file build/Makefile-configuration.template.
+In order to use the resulting coq programs from the command line or from
+ProofGeneral (outside of "make") then add the full path for the directory
 ./sub/coq/bin to your "PATH" environment variable, or set the emacs variable
 "coq-prog-name" in your emacs initialization file, ".emacs".
+
+The various *.v files are compiled by coq in such a way that the fully
+qualified name of each identifier begins with UniMath.  For example, the fully
+qualified name of "maponpaths" in uu0.v is
+"UniMath.Foundations.Generalities.uu0.maponpaths".
+
+The preferred way to interact with the coq code is with ProofGeneral, running
+in a modern version of emacs.  The file UniMath/.dir-locals.el will set the
+emacs variabley "coq-prog-args" appropriately.  In particular, it will add the
+directory UniMath to the path, using the "-R" option.

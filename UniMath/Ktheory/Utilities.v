@@ -523,6 +523,6 @@ Definition loopSpace (X:PointedType) :=
 Notation Ω := loopSpace.
 (*
 Local Variables:
-compile-command: "make -C ../.. TAGS Packages/Ktheory/Utilities.vo"
+compile-command: "make -C ../.. TAGS UniMath/Ktheory/Utilities.vo"
 End:
 *)

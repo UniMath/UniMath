@@ -613,6 +613,7 @@ Module AffineLine.
          { apply weqsecovercoprodtoprod. } apply weqdirprodf. 
          { apply weqsecoverunit. } { apply weqsecovercoprodtoprod. } Defined.
 
+(*
   Definition isolate0fam (P:T->Type) (t0:T) (Z:forall n, P 0 -> P (one + n) -> Type) :
     forall (f:forall n, P n), Type.
   Proof. intros. exact (forall n, Z n (f 0) (f (one + n))). Defined.
@@ -755,6 +756,6 @@ End AffineLine.
 
 (*
 Local Variables:
-compile-command: "make -C ../.. Packages/Ktheory/GroupAction.vo"
+compile-command: "make -C ../.. UniMath/Ktheory/GroupAction.vo"
 End:
 *)

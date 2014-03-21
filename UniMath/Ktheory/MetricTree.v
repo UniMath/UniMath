@@ -57,6 +57,6 @@ Proof. intros ? ? ? ? ?.
 
 (*
 Local Variables:
-compile-command: "make -C ../.. TAGS Packages/Ktheory/MetricTree.vo"
+compile-command: "make -C ../.. TAGS UniMath/Ktheory/MetricTree.vo"
 End:
 *)
