@@ -600,17 +600,20 @@ Module AffineLine.
          { admit. }
   Defined.
 
-(*
-  Definition isolate0 {P:T->Type} : 
-    weq (forall n, P n) (dirprod (P 0) (forall n, P (one + n))).
-  Proof. intros. intermediate_weq (forall n, P (isolate_t0_in_T n)).
+  Definition isolate0 {P:T->Type} (t0:T) : 
+    weq (forall n, P n) 
+        (dirprod (P t0) 
+                 (dirprod (forall n, P   (ℕtoℤ (S n) + t0))
+                          (forall n, P (- ℕtoℤ (S n) + t0)))).
+  Proof. intros. intermediate_weq (forall n, P (isolate_t0_in_T t0 n)).
          { apply weqonsecbase. }
-         intermediate_weq (dirprod (forall t, P (isolate_t0_in_T (inl t))) (forall n, P (isolate_t0_in_T (inr n)))).
-         { apply weqsecovercoprodtoprod. }
-         apply weqdirprodf. { apply weqsecoverunit. } { apply idweq. }
-  Defined.
+         intermediate_weq (
+           dirprod (forall t, P (isolate_t0_in_T t0 (inl t)))
+                   (forall w, P (isolate_t0_in_T t0 (inr w)))).
+         { apply weqsecovercoprodtoprod. } apply weqdirprodf. 
+         { apply weqsecoverunit. } { apply weqsecovercoprodtoprod. } Defined.
 
-  Definition isolate0fam (P:T->Type) (Z:forall n, P 0 -> P (one + n) -> Type) :
+  Definition isolate0fam (P:T->Type) (t0:T) (Z:forall n, P 0 -> P (one + n) -> Type) :
     forall (f:forall n, P n), Type.
   Proof. intros. exact (forall n, Z n (f 0) (f (one + n))). Defined.
 
