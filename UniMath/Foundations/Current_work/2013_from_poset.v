@@ -1,7 +1,5 @@
 Unset Automatic Introduction.
 
-Add LoadPath ".." .
-
 Require Export Foundations.hlevel2.finitesets.
 
 (* Standard finite posets and order preserving functions between them. *)  

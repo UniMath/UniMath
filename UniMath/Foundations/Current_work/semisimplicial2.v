@@ -1,7 +1,3 @@
-Add Rec LoadPath "../Foundations/Generalities".
-Add Rec LoadPath "../Foundations/hlevel1".
-Add Rec LoadPath "../Foundations/hlevel2".
-
 Require Export "../Foundations/hlevel2/finitesets" .
 
 Unset Automatic Introduction.
@@ -182,15 +178,3 @@ Check (restrn (pr1 X) 0 (isreflnatleh 0) (S 0) k s1 fn).
 
 
 (* End of the file semisimplicial.v *)
-
-
-
-
-
-(* 
-*** Local Variables: ***
-*** coq-prog-name: "/opt/local/bin/coqtop" ***
-*** coq-prog-args: ("-emacs-U") ***
-*** End: ***
- *)
-

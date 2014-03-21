@@ -1,5 +1,3 @@
-Add Rec LoadPath "..".
-
 Require Export Foundations.hlevel2.finitesets .
 
 Unset Automatic Introduction.
