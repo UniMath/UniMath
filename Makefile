@@ -47,16 +47,16 @@ publish-dan:html; rsync -ai html/. u00:public_html/Ktheory/.
 	done ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\
-	echo '# compile-command: "cd .. && coq_makefile -f .package-files > build/Makefile-coq.make"' ;\
+	echo '# compile-command: "sub/coq/bin/coq_makefile -f .package-files -o Makefile-coq.make.tmp && mv Makefile-coq.make.tmp build/Makefile-coq.make"' ;\
 	echo '# End:' ;\
 	) >$@
-# the '' above prevent emacs from mistaking the lines above as providing local variables when visiting this file
+# the '' above prevents emacs from mistaking the lines above as providing local variables when visiting this file
 always:
 ifeq ($(REMAKE_FILES),yes)
 .package-files:always
 endif
 build/Makefile-coq.make: .package-files
-	coq_makefile -f .package-files > build/Makefile-coq.make
+	coq_makefile -f .package-files -o Makefile-coq.make.tmp && mv Makefile-coq.make.tmp build/Makefile-coq.make
 
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)

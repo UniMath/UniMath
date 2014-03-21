@@ -65,5 +65,5 @@ UniMath/Foundations/Generalities/uu0.v
 UniMath/Foundations/Generalities/uuu.v
 
 # Local Variables:
-# compile-command: "cd .. && coq_makefile -f Makefile-coq.in -o build/Makefile-coq.make"
+# compile-command: "sub/coq/bin/coq_makefile -f .package-files -o Makefile-coq.make.tmp && mv Makefile-coq.make.tmp build/Makefile-coq.make"
 # End:
