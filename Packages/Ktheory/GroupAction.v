@@ -203,6 +203,13 @@ Lemma quotient_uniqueness {G} (X:Torsor G) (y x:X) (g:G) : g*x == y -> g == y/x.
 Proof. intros ? ? ? ? ? e. 
        exact (ap pr1 (uniqueness (is_quotient _ y x) (g,,e))). Defined.
 
+Lemma quotient_mult {G} (X:Torsor G) (g:G) (x:X) : (g*x)/x == g.
+Proof. intros. apply pathsinv0. apply quotient_uniqueness. reflexivity. Defined.
+
+Lemma quotient_1 {G} (X:Torsor G) (x:X) : x/x == 1%multmonoid.
+Proof. intros. apply pathsinv0. apply quotient_uniqueness. apply act_unit.
+Defined.
+
 Lemma quotient_product {G} (X:Torsor G) (z y x:X) : op (z/y) (y/x) == z/x.
 Proof. intros. apply quotient_uniqueness.
        exact (ac_assoc _ _ _ _ 
@@ -344,6 +351,7 @@ Proof. intros. refine (weqcomp Torsor_univalence _).
 Require Import Foundations.hlevel2.hz.
 Notation ℕ := nat.
 Notation ℤ := hzaddabgr.
+Definition ℕtoℤ (n:ℕ) : ℤ := nattohz n.
 Definition circle := B ℤ.
 
 Theorem loops_circle : weq (Ω circle) ℤ.
@@ -534,87 +542,116 @@ Module Halfline.
 
 End Halfline.
 
+Module AffineLine.
 
-(** * Try isolating the properties of nat that were used in the module above *)
-Module Halfline2.
+  Definition zero := ℕtoℤ 0.
+  Definition one := ℕtoℤ 1.
 
-  Require Import MetricTree.
+  Variable T : Torsor ℤ.
 
-  Parameter NN : Tree.
+  Local Notation "n + x" := (ac_mult _ (n%hz:ℤ) x) : action_scope.
+  Local Notation "n - m" := (quotient _ n m) : action_scope.
 
-  Parameter n0 : NN.
+  Definition target_paths {Y} (f:T->Y) := forall t, f t==f(one + t).
 
-  Definition target_paths {Y} (f:NN->Y) := forall m n, f m==f n.
+  Definition gHomotopy {Y} (f:T->Y) (s:target_paths f) y (h:nullHomotopyFrom f y) :=
+    forall n, h(one + n) == h n @ s n.
 
-  Definition target_path_compat {Y} (f:NN->Y) (s:target_paths f) :=
-    forall m n p, s m n @ s n p == s m p.
-(*
-  Definition gHomotopy {Y} (f:NN->Y) (s:target_paths f) y (h:nullHomotopyFrom f y) :=
-    forall n (ne : n0 != n), h n == h (step NN ne) @ s (step NN ne) n.
+  Definition GHomotopy {Y} (f:T->Y) (s:target_paths f) y := total2 (gHomotopy f s y).
 
-  Definition GHomotopy {Y} (f:NN->Y) (s:target_paths f) y := total2 (gHomotopy f s y).
+  Definition GuidedHomotopy {Y} (f:T->Y) (s:target_paths f) := total2 (GHomotopy f s).
 
-  Definition GuidedHomotopy {Y} (f:NN->Y) (s:target_paths f) := total2 (GHomotopy f s).
+  Definition ℕuℕ := coprod unit (coprod ℕ ℕ).
+  Definition p0 : ℕuℕ := inl tt.
+  Definition inj (n:ℕ) : ℕuℕ := inr (inl n).
+  Definition inj' (n:ℕ) : ℕuℕ := inr (inr n).
 
-  Definition isolate_0_in_nat : weq (coprod unit NN) NN.
-  Proof. refine (_,,gradth _ _ _ _).
-         { intro m. induction m as [|m]. { exact 0. } { exact (S m). } }
-         { intro n. induction n. { exact (inl tt). } { exact (inr n). } }
-         { intro n. induction n as [[]|n]. { reflexivity. } { reflexivity. } }
-         { intro n. induction n. { reflexivity. } { reflexivity. } }
+  Definition ℕuℕtoT (t0:T) (w:ℕuℕ) : T.
+  Proof. intros. destruct w as [[]|[m|m']]. 
+         { exact t0. }
+         { exact (ℕtoℤ(S m) + t0). } { exact (- ℕtoℤ(S m') + t0). } Defined.
+
+  Definition Ttoℕuℕ (t0 t:T) : ℕuℕ.
+  Proof. intros. set (z := t - t0). destruct (isdeceqhz z zero) as [i|ne].
+         { exact p0. }
+         { destruct (hzneqchoice _ _ ne).
+           { exact (inj (S (hzabsval z))). }
+           { exact (inj' (S (hzabsval z))). } } Defined.
+
+  Definition isolate_t0_in_T (t0:T) : weq ℕuℕ T.
+  Proof. intros. refine (ℕuℕtoT t0,,gradth _ (Ttoℕuℕ t0) _ _).
+         { intro w. induction w as [[]|p]. 
+           { simpl.
+             unfold Ttoℕuℕ.
+             destruct (isdeceqhz (t0 - t0) zero) as [i|ne].
+             { reflexivity. }
+             { destruct (hzneqchoice (t0 - t0) zero ne).
+               { apply fromempty; clear h. apply ne; clear ne.
+                 apply (quotient_1 _ t0). }
+               { apply fromempty; clear h. apply ne; clear ne.
+                 apply (quotient_1 _ t0). } } }
+           { destruct p as [n|n'].
+             { simpl. unfold Ttoℕuℕ. destruct (isdeceqhz (ℕtoℤ (S n) * t0 - t0) zero).
+               { apply fromempty. apply (negpathssx0 n).
+                 apply (invmaponpathsincl _ isinclnattohz (S n) 0).
+                 exact (! quotient_mult _ (ℕtoℤ (S n)) t0 @ i). }
+               { admit. } }
+             { admit. } } }
+         { admit. }
   Defined.
 
-  Definition isolate0 {P:NN->Type} : 
-    weq (forall n, P n) (dirprod (P 0) (forall n, P (S n))).
-  Proof. intros. intermediate_weq (forall n, P (isolate_0_in_nat n)).
+(*
+  Definition isolate0 {P:T->Type} : 
+    weq (forall n, P n) (dirprod (P 0) (forall n, P (one + n))).
+  Proof. intros. intermediate_weq (forall n, P (isolate_t0_in_T n)).
          { apply weqonsecbase. }
-         intermediate_weq (dirprod (forall t, P (isolate_0_in_nat (inl t))) (forall n, P (isolate_0_in_nat (inr n)))).
+         intermediate_weq (dirprod (forall t, P (isolate_t0_in_T (inl t))) (forall n, P (isolate_t0_in_T (inr n)))).
          { apply weqsecovercoprodtoprod. }
          apply weqdirprodf. { apply weqsecoverunit. } { apply idweq. }
   Defined.
 
-  Definition isolate0fam (P:NN->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
+  Definition isolate0fam (P:T->Type) (Z:forall n, P 0 -> P (one + n) -> Type) :
     forall (f:forall n, P n), Type.
-  Proof. intros. exact (forall n, Z n (f 0) (f (S n))). Defined.
+  Proof. intros. exact (forall n, Z n (f 0) (f (one + n))). Defined.
 
-  Definition isolate0fam' (P:NN->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
-    forall (f:dirprod (P 0) (forall n, P (S n))), Type.
+  Definition isolate0fam' (P:T->Type) (Z:forall n, P 0 -> P (one + n) -> Type) :
+    forall (f:dirprod (P 0) (forall n, P (one + n))), Type.
   Proof. intros. exact (forall n, Z n (pr1 f) (pr2 f n)). Defined.
 
-  Definition check_refl (P:NN->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
+  Definition check_refl (P:T->Type) (Z:forall n, P 0 -> P (one + n) -> Type) :
     funcomp isolate0 (isolate0fam' P Z) == isolate0fam P Z.
   Proof. reflexivity. Defined.
 
-  Definition isolate0_weq (P:NN->Type) (Z:forall n, P 0 -> P (S n) -> Type) :
+  Definition isolate0_weq (P:T->Type) (Z:forall n, P 0 -> P (one + n) -> Type) :
     weq (total2 (isolate0fam P Z)) (total2 (isolate0fam' P Z)).
   Proof. intros. 
          change (weq (total2 (funcomp isolate0 (isolate0fam' P Z)))
                      (total2 (isolate0fam' P Z))).
          apply weqfp. Defined.
 
-  Definition h_triv {Y} {f:NN->Y} (s:target_paths f) {y:Y} (h0:y==f 0) : nullHomotopyFrom f y.
+  Definition h_triv {Y} {f:T->Y} (s:target_paths f) {y:Y} (h0:y==f 0) : nullHomotopyFrom f y.
   Proof. intros. intro n. induction n. { exact (h0). } { exact (IHn @ s _). } Defined.
 
-  Definition gHomotopy' {Y} (f:NN->Y) (s:target_paths f) y :=
-    isolate0fam (fun n => y == f n) (fun n h0 hSn => hSn == h_triv s h0 (S n)).
+  Definition gHomotopy' {Y} (f:T->Y) (s:target_paths f) y :=
+    isolate0fam (fun n => y == f n) (fun n h0 hSn => hSn == h_triv s h0 (one + n)).
 
-  Definition GHomotopy' {Y} (f:NN->Y) (s:target_paths f) y := total2 (gHomotopy' f s y).
+  Definition GHomotopy' {Y} (f:T->Y) (s:target_paths f) y := total2 (gHomotopy' f s y).
 
-  Definition F {Y} {f:NN->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) :
+  Definition F {Y} {f:T->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) :
     gHomotopy f s y h -> gHomotopy' f s y h.
   Proof. intros ? ? ? ? ? t ?. induction n. 
-         { exact (t 0). } { exact (t (S n) @ ap post_cat IHn). } Defined.
+         { exact (t 0). } { exact (t (one + n) @ ap post_cat IHn). } Defined.
 
-  Definition F' {Y} {f:NN->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) :
+  Definition F' {Y} {f:T->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) :
      gHomotopy' f s y h -> gHomotopy f s y h.
   Proof. intros ? ? ? ? ? t ?. simpl. 
          { induction n.
-           { exact (t 0). } { exact (t (S n) @ ! ap post_cat (t n)). } } Defined.
+           { exact (t 0). } { exact (t (one + n) @ ! ap post_cat (t n)). } } Defined.
 
   Lemma u {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
   Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
 
-  Lemma A {Y} {f:NN->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) : 
+  Lemma A {Y} {f:T->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) : 
     weq (gHomotopy f s y h) (gHomotopy' f s y h).
   Proof. intros. exists (F s h). apply (gradth _ (F' s h)).
          { intro t. apply funextsec; intro n. induction n. { reflexivity. }
@@ -626,55 +663,55 @@ Module Halfline2.
              apply (ap (ap post_cat)). assumption. } } Defined.
   (** The proof above works only by accident; there ought to be a better way. *)
 
-  Lemma B {Y} {f:NN->Y} (s:target_paths f) {y} : weq (GHomotopy f s y) (GHomotopy' f s y).
+  Lemma B {Y} {f:T->Y} (s:target_paths f) {y} : weq (GHomotopy f s y) (GHomotopy' f s y).
   Proof. intros. apply weqfibtototal; intro h. apply A. Defined.
 
-  Definition GHomotopy'' {Y} (f:NN->Y) (s:target_paths f) y := 
+  Definition GHomotopy'' {Y} (f:T->Y) (s:target_paths f) y := 
     total2 (isolate0fam' (fun n => y == f n)
-                         (fun n h0 hSn => hSn == h_triv s h0 (S n))).
+                         (fun n h0 hSn => hSn == h_triv s h0 (one + n))).
 
-  Lemma C {Y} {f:NN->Y} (s:target_paths f) {y} : weq (GHomotopy' f s y) (GHomotopy'' f s y).
+  Lemma C {Y} {f:T->Y} (s:target_paths f) {y} : weq (GHomotopy' f s y) (GHomotopy'' f s y).
   Proof. intros. apply isolate0_weq. Defined.
 
-  Definition GHomotopy''' {Y} (f:NN->Y) (s:target_paths f) y := total2 (fun 
+  Definition GHomotopy''' {Y} (f:T->Y) (s:target_paths f) y := total2 (fun 
                h0:y==f 0 => total2 (fun
-               h:forall n:NN, y == f (S n) => 
-                 forall n:NN, h n == h_triv s h0 (S n))).
+               h:forall n:T, y == f (one + n) => 
+                 forall n:T, h n == h_triv s h0 (one + n))).
 
-  Lemma D {Y} {f:NN->Y} (s:target_paths f) {y} : 
+  Lemma D {Y} {f:T->Y} (s:target_paths f) {y} : 
     weq (GHomotopy'' f s y) (GHomotopy''' f s y).
   Proof. intros. apply weqtotal2asstor. Defined.
 
-  Definition GHomotopy'''' {Y} (f:NN->Y) (s:target_paths f) y := total2 (fun 
+  Definition GHomotopy'''' {Y} (f:T->Y) (s:target_paths f) y := total2 (fun 
                h0:y==f 0 => total2 (fun
-               h:forall n:NN, y == f (S n) => 
-                 h == fun n => h_triv s h0 (S n))).
+               h:forall n:T, y == f (one + n) => 
+                 h == fun n => h_triv s h0 (one + n))).
   
-  Lemma E {Y} {f:NN->Y} (s:target_paths f) {y} : 
+  Lemma E {Y} {f:T->Y} (s:target_paths f) {y} : 
     weq (GHomotopy''' f s y) (GHomotopy'''' f s y).
   Proof. intros. apply weqfibtototal; intro h0. apply weqfibtototal; intro h.
          apply weqfunextsec. Defined.
 
-  Lemma G {Y} {f:NN->Y} (s:target_paths f) {y} : 
+  Lemma G {Y} {f:T->Y} (s:target_paths f) {y} : 
     weq (GHomotopy'''' f s y) (y==f 0).
   Proof. intros. exists pr1. apply isweqpr1; intro h0. apply iscontrcoconustot.
   Defined.
 
   Local Notation "f @@ g" := (weqcomp f g) (left associativity, at level 50).
 
-  Lemma H {Y} {f:NN->Y} (s:target_paths f) : 
+  Lemma H {Y} {f:T->Y} (s:target_paths f) : 
     weq (total2 (GHomotopy f s)) (paths_to (f 0)).
   Proof. intros. apply weqfibtototal; intro y.
          exact (B s @@ C s @@ D s @@ E s @@ G s). Defined.
 
-  Theorem finally {Y} {f:NN->Y} (s:target_paths f) : iscontr (GuidedHomotopy f s).
+  Theorem finally {Y} {f:T->Y} (s:target_paths f) : iscontr (GuidedHomotopy f s).
   Proof. intros. apply (iscontrweqb (H s)). apply iscontrcoconustot. Defined.
 
   (** ** construction of the half line *)
 
-  Definition halfline := squash NN.
+  Definition halfline := squash T.
 
-  Definition map {Y} {f:NN->Y} (s:target_paths f) : 
+  Definition map {Y} {f:T->Y} (s:target_paths f) : 
     halfline -> GuidedHomotopy f s.
   Proof. intros ? ? ? r. apply (squash_to_prop r).
          { apply isapropifcontr. apply finally. } 
@@ -682,89 +719,36 @@ Module Halfline2.
            { exists (h_triv s (idpath _)). intro n. reflexivity. }
            { exact (s n#IHn). } } Defined.           
 
-  Definition map_path_check {Y} {f:NN->Y} (s:target_paths f) (n:NN) :
+  Definition map_path_check {Y} {f:T->Y} (s:target_paths f) (n:T) :
     forall p : map s (squash_element n) ==
-               map s (squash_element (S n)),
+               map s (squash_element (one + n)),
       ap pr1 p == s n.
   Proof. intros. 
          set (q := total2_paths2 (s n) (idpath _) 
-                   : map s (squash_element n) == map s (squash_element (S n))).
+                   : map s (squash_element n) == map s (squash_element (one + n))).
          assert (u : q==p). 
          { apply (hlevelntosn 1). apply (hlevelntosn 0). apply finally. }
          destruct u. apply total2_paths2_comp1. Defined.
 
   (** ** universal property for the half line *)
 
-  Definition halfline_map {Y} {target_points:NN->Y} (s:target_paths target_points) : 
+  Definition halfline_map {Y} {target_points:T->Y} (s:target_paths target_points) : 
     halfline -> Y.
   Proof. intros ? ? ? r. exact (pr1 (map s r)). Defined.
 
-  Definition check_values {Y} {target_points:NN->Y} 
-             (s:target_paths target_points) (n:NN) :
+  Definition check_values {Y} {target_points:T->Y} 
+             (s:target_paths target_points) (n:T) :
     halfline_map s (squash_element n) == target_points n.
   Proof. reflexivity. Defined.
 
-  Definition check_paths {Y} {target_points:NN->Y} 
-             (s:target_paths target_points) (n:NN) :
-    ap (halfline_map s) (squash_path n (S n)) == s n.
+  Definition check_paths {Y} {target_points:T->Y} 
+             (s:target_paths target_points) (n:T) :
+    ap (halfline_map s) (squash_path n (one + n)) == s n.
   Proof. intros. refine (_ @ map_path_check s n _).
          apply pathsinv0. apply maponpathscomp. Defined.
-*)
-End Halfline2.
+ *)
 
-Module BZ.
-
-  Definition isolate_0_in_ZZ : weq (coprod unit ℕ) ℤ.
-  Proof. refine (_,,gradth _ _ _ _).
-         { intro m.
-           destruct m as [|m].
-           { exact 0%hz. }
-           { set (q := natdiv m 2 + 1). set (r := natrem m 2); simpl in r.
-             destruct r as [|_].
-             { exact (natnattohz q 0). }
-             { exact (natnattohz 0 q). } } }
-         { admit. }
-         { admit. }
-         { admit. }
-  Defined.
-
-  Goal isolate_0_in_ZZ (inl tt) == natnattohz 0 0.
-    reflexivity. Defined.
-  Goal isolate_0_in_ZZ (inr 0) == natnattohz 1 0.
-    reflexivity. Defined.
-  Goal isolate_0_in_ZZ (inr 1) == natnattohz 0 1.
-    reflexivity. Defined.
-  Goal isolate_0_in_ZZ (inr 2) == natnattohz 2 0.
-    reflexivity. Defined.
-  Goal isolate_0_in_ZZ (inr 3) == natnattohz 0 2.
-    reflexivity. Defined.
-
-  Local Notation "n + x" := (ac_mult _ n x) : action_scope.
-  Local Notation "n - m" := (quotient _ n m) : action_scope.
-
-  Definition one := 1%hz : ℤ.
-  Definition target_paths {T:Torsor ℤ} {Y} (f:T->Y) := forall t, f t==f(one+t).
-  Definition stableComp {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
-    forall t t', f t==f t'.
-  Proof. intros. unfold target_paths in s.
-         set (n := t' - t).
-         destruct (hzlthorgeh n 0%hz).
-         { admit. }
-         { assert (r := quotient_times _ t' t : n + t == t').
-           set (m := hzabsval n).
-           assert (F := hzabsvalgeh0 h).
-           intermediate_path (f (n+t)).
-           { intermediate_path (f ((nattohz m : ℤ)+t)).
-             { induction m.
-               { assert (w : 0%hz == nattohz 0). { reflexivity. }
-                 destruct w.
-                 admit. }
-               admit. }
-             admit. }
-           admit. }
-  Defined.
-
-End BZ.
+End AffineLine.
 
 (*
 Local Variables:

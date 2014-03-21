@@ -32,11 +32,11 @@ Proof. intros. intros t u. induction (isdeceqnat (mt_dist T t u) 0).
 Corollary tree_isaset (T:Tree) : isaset T.
 Proof. intros. apply isasetifdeceq. apply tree_deceq. Qed.
 
-Definition step (T:Tree) (x z:T) (ne:x!=z) : T := pr1 (mt_step _ x z ne).
+Definition step (T:Tree) {x z:T} (ne:x!=z) : T := pr1 (mt_step _ x z ne).
 
 Definition tree_induction (T:Tree) (x:T) (P:T->Type)
            (p0 : P x)
-           (pn : forall z (ne:x!=z), P (step T x z ne) -> P z) :
+           (pn : forall z (ne:x!=z), P (step T ne) -> P z) :
   forall z, P z.
 Proof. intros ? ? ? ? ?.
        assert(d_ind : forall n z, mt_dist _ x z == n -> P z).
