@@ -45,10 +45,11 @@ To make a TAGS file for use with emacs "etags" commands:
 $ make TAGS
 ```
 
-To install UniMath in the "user-contrib" of coq, for use by other developments:
+To install UniMath in the "user-contrib" directory of coq, for use by other developments:
 ```bash
 $ make install
 ```
+The path to that directory from here, by default, is ./sub/coq/user-contrib/.
 
 ## Further details
 

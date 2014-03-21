@@ -1,4 +1,5 @@
 # -*- makefile-gmake -*-
+COQBIN?=$(shell pwd)/sub/coq/bin/
 ifeq ("$(shell test -f build/Makefile-configuration && echo yes)",yes)
 include build/Makefile-configuration
 endif
@@ -45,10 +46,11 @@ publish-dan:html; rsync -ai html/. u00:public_html/Ktheory/.
 	do sed "s=^=UniMath/$$i/=" < UniMath/$$i/.package/files ;\
 	done ;\
 	echo ;\
-	echo '# Local Variables:' ;\
+	echo '# Local ''Variables:' ;\
 	echo '# compile-command: "cd .. && coq_makefile -f .package-files > build/Makefile-coq.make"' ;\
 	echo '# End:' ;\
 	) >$@
+# the '' above prevent emacs from mistaking the lines above as providing local variables when visiting this file
 always:
 ifeq ($(REMAKE_FILES),yes)
 .package-files:always
@@ -57,7 +59,7 @@ build/Makefile-coq.make: .package-files
 	coq_makefile -f .package-files > build/Makefile-coq.make
 
 # building coq:
-export PATH := $(shell pwd)/sub/coq/bin:$(PATH)
+export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
 build-coq: sub/coq/configure sub/coq/config/coq_config.ml sub/coq/bin/coqc
 sub/coq/configure:
 	git submodule update --init sub/coq
@@ -65,6 +67,3 @@ sub/coq/config/coq_config.ml: sub/coq/configure.ml
 	cd sub/coq && ./configure -coqide no -opt -no-native-compiler -with-doc no -annotate -debug -local
 sub/coq/bin/coqc:
 	make -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight
-type-coqc:
-	printenv PATH
-	type coqc
