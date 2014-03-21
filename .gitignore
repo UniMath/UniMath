@@ -12,7 +12,7 @@
 *.vo
 .#*
 .*.aux
-/Makefile-coq.make.bak
+/build/Makefile-coq.make.bak
 /TAGS
 /html
 N*.cmi
@@ -20,4 +20,4 @@ N*.cmx
 N*.cmxs
 N*.native
 N*.o
-/Makefile-configuration
+/build/Makefile-configuration
