@@ -20,6 +20,11 @@ available from http://brew.sh/, with the following command:
 $ brew install objective-caml
 ```
 
+Under Ubuntu, you may install ocaml with
+```bash
+$ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra
+```
+
 To download UniMath and prepare for building it, issue the following
 shell commands.
 
