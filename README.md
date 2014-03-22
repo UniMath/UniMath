@@ -20,10 +20,17 @@ available from http://brew.sh/, with the following command:
 $ brew install objective-caml
 ```
 
-Under Ubuntu, you may install ocaml (and proofgeneral) with
+Under Ubuntu, you may install ocaml (and ProofGeneral) with
+
 ```bash
 $ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra proofgeneral proofgeneral-doc
 ```
+
+Under Mac OS X, you may obtain ProofGeneral from http://proofgeneral.inf.ed.ac.uk/.
+It comes with installation instructions.  Your version of emacs determines
+which version of ProofGeneral you need, roughly, so some experimentation may be
+required; you may even need the current development version if your emacs is
+recent.
 
 To download UniMath and prepare for building it, issue the following
 shell commands.
