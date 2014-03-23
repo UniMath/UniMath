@@ -39,6 +39,7 @@ Module Uniqueness.
              { exact (h n @ ap (IH n) IHn). } }
            { simpl.
 
+(*
 
   P : nat -> Type
   p0 : P 0
@@ -59,6 +60,7 @@ Module Uniqueness.
      #' 
      (idpath p0,, (fun n : nat => idpath (IH n (nat_rect P p0 IH n))))
 
+*)
 
   Abort.
 
