@@ -7,7 +7,7 @@ all: build-coq
 endif
 include build/Makefile-coq.make
 # packages, listed in reverse order:
-PACKAGES = Ktheory RezkCompletion Foundations
+PACKAGES = $(OTHER_PACKAGES) Ktheory RezkCompletion Foundations
 everything: TAGS all html install
 OTHERFLAGS += -indices-matter
 UniMath/Foundations/hlevel2/algebra1b.vo : OTHERFLAGS += -no-sharing
