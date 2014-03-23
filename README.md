@@ -82,3 +82,21 @@ The preferred way to interact with the coq code is with ProofGeneral, running
 in a modern version of emacs.  The file UniMath/.dir-locals.el will set the
 emacs variable "coq-prog-args" appropriately.  In particular, it will add the
 directory UniMath to the path, using the "-R" option.
+
+## Problems
+
+If you get error messages involving the command line option "-fno-defer-pop", you
+might be running Mac OS X 10.9 with an ocaml compiler installed by "brew".  In
+that case try
+
+```bash
+brew update
+brew upgrade objective-caml
+```
+
+If that doesn't work, try
+
+```bash
+brew remove objective-caml
+brew install objective-caml
+```
