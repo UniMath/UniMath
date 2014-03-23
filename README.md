@@ -67,7 +67,7 @@ The path to that directory from here, by default, is ./sub/coq/user-contrib/.
 
 The correct version of coq is built and used automatically by the command
 "make".  If you wish to bypass the building of coq and use your own version,
-then follow the instructions in the file build/Makefile-configuration.template.
+then follow the instructions in the file build/Makefile-configuration-template.
 In order to use the resulting coq programs from the command line or from
 ProofGeneral (outside of "make") then add the full path for the directory
 ./sub/coq/bin to your "PATH" environment variable, or set the emacs variable
