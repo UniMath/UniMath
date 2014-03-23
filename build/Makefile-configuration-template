@@ -1,6 +1,6 @@
 # -*- makefile-gmake -*-
 
-# To configure the makefile, copy this file (Makefile-configuration.template)
+# To configure the makefile, copy this file (Makefile-configuration-template)
 # to Makefile-configuration (in this directory) and then edit it.  Do not edit
 # this file, for it is just a template, and you might accidentally check it in.
 # The first thing to change, when editing this file, is to remove this comment.
@@ -13,6 +13,8 @@
 # it with ocamlc and gcc:
 BUILD_COQ = yes
 
+ifeq ($(BUILD_COQ),no)
 # The path to the coq binary "coqtop", including the final "/" (if nonempty), unless
 # it is on the PATH:
 COQBIN =
+endif

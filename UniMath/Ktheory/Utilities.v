@@ -20,9 +20,6 @@ Proof. intros. destruct f. reflexivity. Qed.
 
 Set Default Timeout 50.
 
-Definition two_cases {X Y T} : coprod X Y -> (X->T) -> (Y->T) -> T.
-  exact (fun X Y T xy f g => sum_rect (fun _ => T) f g xy). Defined.
-
 Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
   let T := type of x in
   let G := match goal with |- ?G => constr:(G) end in
@@ -139,7 +136,7 @@ Proof. intros. destruct p. reflexivity. Defined.
 
 Lemma transport_functions {X} {Y:X->Type} {Z:forall x (y:Y x), Type}
       {f f':sections Y} (p:f==f') (z:forall x, Z x (f x)) x :
-    (transportf (fun f => forall x, Z x (f x)) p z) x ==
+    transportf (fun f => forall x, Z x (f x)) p z x ==
     transportf (Z x) (toforallpaths _ _ _ p x) (z x).
 Proof. intros. destruct p. reflexivity. Defined.
 

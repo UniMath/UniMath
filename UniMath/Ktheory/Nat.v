@@ -8,6 +8,62 @@ Import PathNotations.
 Import Utilities.Notation.
 Import Utilities.NatNotation.
 
+Module Uniqueness.
+
+  Lemma total2_paths2' {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
+      {a2 : A} {b2 : B a2} (p : a1 == a2) 
+      (q : b1 == transportb (fun x => B x) p b2) : 
+      tpair (fun x => B x) a1 b1 == tpair (fun x => B x) a2 b2.
+  Proof. intros.
+         destruct p.
+         unfold transportb, pathsinv0, transportf in q; simpl in q.
+         unfold idfun in q.
+         destruct q.
+         reflexivity.
+  Defined.
+
+
+  Lemma uniqueness (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
+    iscontr (total2 (fun f : forall n, P n =>
+                       dirprod (f 0==p0)
+                               (forall n, f(S n)==IH n (f n)))).
+  Proof. intros.
+         refine ((nat_rect P p0 IH,,(_,,_)),,_).
+         { reflexivity. }
+         { reflexivity. }
+         { intros [f [h0 h]].
+           refine (total2_paths2' _ _).
+           { apply funextsec; intro n.
+             induction n.
+             { exact h0. }
+             { exact (h n @ ap (IH n) IHn). } }
+           { simpl.
+
+
+  P : nat -> Type
+  p0 : P 0
+  IH : forall n : nat, P n -> P (S n)
+  f : forall n : nat, P n
+  h0 : f 0 == p0
+  h : forall n : nat, f (S n) == IH n (f n)
+  ============================
+   h0,, h ==
+   funextsec 
+     P 
+     f 
+     (nat_rect P p0 IH)
+     (nat_rect
+          (fun m : nat => f m == nat_rect P p0 IH m)
+          h0
+          (fun (m : nat) (IHn : f m == nat_rect P p0 IH m) => h m @ ap (IH m) IHn))
+     #' 
+     (idpath p0,, (fun n : nat => idpath (IH n (nat_rect P p0 IH n))))
+
+
+  Abort.
+
+End Uniqueness.
+
 Fixpoint nat_dist (m n:nat) : nat :=
   match m , n with
     | S m, S n => nat_dist m n

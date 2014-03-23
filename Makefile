@@ -1,8 +1,6 @@
 # -*- makefile-gmake -*-
 COQBIN?=$(shell pwd)/sub/coq/bin/
-ifeq ("$(shell test -f build/Makefile-configuration && echo yes)",yes)
-include build/Makefile-configuration
-endif
+-include build/Makefile-configuration
 BUILD_COQ ?= yes
 ifeq ($(BUILD_COQ),yes)
 all: build-coq
@@ -59,6 +57,7 @@ build/Makefile-coq.make: .package-files
 	coq_makefile -f .package-files -o Makefile-coq.make.tmp && mv Makefile-coq.make.tmp build/Makefile-coq.make
 
 # building coq:
+ifeq ($(BUILD_COQ),yes)
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
 build-coq: sub/coq/configure sub/coq/config/coq_config.ml sub/coq/bin/coqc
 sub/coq/configure:
@@ -67,3 +66,4 @@ sub/coq/config/coq_config.ml: sub/coq/configure.ml
 	cd sub/coq && ./configure -coqide no -opt -no-native-compiler -with-doc no -annotate -debug -local
 sub/coq/bin/coqc:
 	make -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight
+endif

@@ -3,14 +3,9 @@
 (** * Group actions *)
 
 Unset Automatic Introduction.
-Require Import Foundations.hlevel2.algebra1b.
-Require Import Foundations.Proof_of_Extensionality.funextfun.
-Require RezkCompletion.pathnotations.
-Import pathnotations.PathNotations. 
-Require Import Ktheory.Utilities.
-Require RezkCompletion.precategories.
-Require Import RezkCompletion.auxiliary_lemmas_HoTT.
-Import Utilities.Notation.
+Require Import algebra1b funextfun Utilities auxiliary_lemmas_HoTT.
+Require pathnotations precategories.
+Import pathnotations.PathNotations Utilities.Notation.
 
 (** ** Definitions *)
 
@@ -446,7 +441,10 @@ Module Halfline.
 
   Lemma A {Y} {f:ℕ->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) : 
     weq (gHomotopy f s y h) (gHomotopy' f s y h).
-  Proof. intros. exists (F s h). apply (gradth _ (F' s h)).
+  Proof. intros. unfold gHomotopy', gHomotopy, isolate0fam.
+                 unfold nullHomotopyFrom in h.
+                 unfold target_paths in s.
+                 exists (F s h). apply (gradth _ (F' s h)).
          { intro t. apply funextsec; intro n. induction n. { reflexivity. }
            { unfold F,F'; simpl. refine (!path_assoc _ _ _ @ _).
              refine (ap pre_cat (pathsinv0r _) @ _). apply pathscomp0rid. } }
