@@ -22,6 +22,40 @@ Module Uniqueness.
          reflexivity.
   Defined.
 
+  (** ** double transport *)
+
+  Definition transportf2 {X} {Y:X->Type} (Z:forall x, Y x->Type)
+             {x x'} (p:x==x')
+             (y:Y x) (z:Z x y) : Z x' (p#y).
+  Proof. intros. destruct p. exact z. Defined.
+
+  Definition transportb2 {X} {Y:X->Type} (Z:forall x, Y x->Type)
+             {x x'} (p:x==x')
+             (y':Y x') (z':Z x' y') : Z x (p#'y').
+  Proof. intros. destruct p. exact z'. Defined.
+
+  (** ** transport a pair *)
+
+  Definition transportf_pair X (Y:X->Type) (Z:forall x, Y x->Type)
+             x x' (p:x==x') (y:Y x) (z:Z x y) :
+    transportf (fun x => total2 (Z x)) p (tpair (Z x) y z)
+    ==
+    tpair (Z x') (transportf Y p y) (transportf2 _ p y z).
+  Proof. intros. destruct p. reflexivity. Defined.
+
+  Definition transportb_pair X (Y:X->Type) (Z:forall x, Y x->Type)
+             x x' (p:x==x')
+             (y':Y x') (z':Z x' y') 
+             (z' : (Z x' y')) :
+    transportb (fun x => total2 (Z x)) p (tpair (Z x') y' z')
+    ==
+    tpair (Z x) (transportb Y p y') (transportb2 _ p y' z').
+  Proof. intros. destruct p. reflexivity. Defined.
+
+  (* Definition funextsec_compute T (P:T->Type) (s1 s2 : forall t, P t) *)
+  (*      (h : forall t, s1 t == s2 t)  *)
+  (*      (Q : (forall t, P t) -> Type) (q1:Q s1) : *)
+  (*   funextsec P s1 s2 h # q1. *)
 
   Lemma uniqueness (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     iscontr (total2 (fun f : forall n, P n =>
@@ -37,7 +71,12 @@ Module Uniqueness.
              induction n.
              { exact h0. }
              { exact (h n @ ap (IH n) IHn). } }
-           { simpl.
+           { 
+             Unset Printing Implicits. Unset Printing Notations.
+             simpl.
+
+             
+             
 
 (*
 
