@@ -14,40 +14,21 @@ Module Uniqueness.
         (f:forall n, P n) :
     weq (forall n, f n == nat_rect P p0 IH n)
         (dirprod (f 0==p0) (forall n, f(S n)==IH n (f n))).
-  Proof. intros.
-         refine (_,,gradth _ _ _ _).
+  Proof. intros. refine (_,,gradth _ _ _ _).
          { intros h. split.
            { exact (h 0). } { intros. exact (h (S n) @ ap (IH n) (! h n)). } }
          { intros [h0 h'] ?. induction n as [|n'].
            { exact h0. } { exact (h' n' @ ap (IH n') IHn'). } }
-         { simpl. intros h.
-           apply funextsec; intros n; simpl.
-           induction n.
-           { reflexivity. }
-           { simpl.
-             rewrite <- path_assoc.
-             refine (_ @ pathscomp0rid _).
-             apply (ap pre_cat).
-             rewrite <- maponpathscomp0.
-             intermediate_path (ap (IH n) (idpath (nat_rect P p0 IH n))).
-             { apply (ap (ap (IH n))).
-               apply path_inverse_to_right.
-               assumption. }
-             { reflexivity. } } }
-         { intros [h0 h'].
-           refine (total2_paths2 _ _).
-           { reflexivity. }
-           { unfold transportf; simpl; unfold idfun.
-             apply funextsec; intro n. 
-             refine (_ @ pathscomp0rid _).
-             rewrite <- path_assoc.
-             apply (ap pre_cat).
-             rewrite <- maponpathscomp0.
-             intermediate_path (ap (IH n) (idpath (f n))).
-             { apply (ap (ap (IH n))). 
-               apply path_inverse_to_right'.
-               reflexivity. }
-             { reflexivity. } } } Defined.
+         { simpl. intros h. apply funextsec; intros n; simpl. induction n.
+           { simpl. reflexivity. }
+           { simpl. rewrite <- path_assoc. refine (_ @ pathscomp0rid _).
+             rewrite <- maponpathscomp0. rewrite IHn. rewrite pathsinv0l.
+             simpl. reflexivity. } }
+         { intros [h0 h']. refine (total2_paths2 _ _).
+           { simpl. reflexivity. }
+           { apply funextsec; intro n. unfold transportf; simpl; unfold idfun.
+             rewrite <- path_assoc. rewrite <- maponpathscomp0. rewrite pathsinv0r. 
+             simpl. apply pathscomp0rid. } } Defined.
 
   Lemma uniqueness1 (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
         (f:forall n, P n) :
@@ -65,8 +46,7 @@ Module Uniqueness.
   Lemma uniqueness (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     iscontr (total2 (fun f:forall n, P n => 
                        dirprod (f 0==p0) (forall n, f(S n)==IH n (f n)))).
-  Proof. intros.
-         exact (iscontrweqf (uniqueness2 _ _ _) (iscontrcoconustot _ _)).
+  Proof. intros. exact (iscontrweqf (uniqueness2 _ _ _) (iscontrcoconustot _ _)).
   Defined.
 
   Lemma uniqueness3 (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
