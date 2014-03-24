@@ -148,7 +148,12 @@ VFILES:=UniMath/Foundations/Generalities/uuu.v\
   UniMath/Ktheory/GroupAction.v\
   UniMath/Ktheory/AffineLine.v\
   UniMath/Ktheory/Circle.v\
-  UniMath/Ktheory/AbelianGroup.v
+  UniMath/Ktheory/AbelianGroup.v\
+  UniMath/PAdics/z_mod_p.v\
+  UniMath/PAdics/padics.v\
+  UniMath/PAdics/lemmas.v\
+  UniMath/PAdics/frac.v\
+  UniMath/PAdics/fps.v
 
 -include $(addsuffix .d,$(VFILES))
 .SECONDARY: $(addsuffix .d,$(VFILES))

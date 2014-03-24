@@ -13,8 +13,10 @@
 # it with ocamlc and gcc:
 BUILD_COQ = yes
 
-ifeq ($(BUILD_COQ),no)
-# The path to the coq binary "coqtop", including the final "/" (if nonempty), unless
-# it is on the PATH:
+# When BUILD_COQ is "no", give the path to the coq binary "coqtop", including the
+# final "/" (if nonempty), unless it is on the PATH:
 COQBIN =
-endif
+
+# List here any packages you'd like to try to build on a test basis.
+# When the packages work, add them to the list in ../Makefile.
+PACKAGES =

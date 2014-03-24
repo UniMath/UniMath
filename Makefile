@@ -1,13 +1,17 @@
 # -*- makefile-gmake -*-
-COQBIN?=$(shell pwd)/sub/coq/bin/
 -include build/Makefile-configuration
+############################################
+# The packages, listed in reverse order by dependency:
+PACKAGES += Ktheory
+PACKAGES += RezkCompletion
+PACKAGES += Foundations
+############################################
 BUILD_COQ ?= yes
 ifeq ($(BUILD_COQ),yes)
+COQBIN=$(shell pwd)/sub/coq/bin/
 all: build-coq
 endif
-include build/Makefile-coq.make
-# packages, listed in reverse order:
-PACKAGES = $(OTHER_PACKAGES) Ktheory RezkCompletion Foundations
+include build/CoqMakefile.make
 everything: TAGS all html install
 OTHERFLAGS += -indices-matter
 UniMath/Foundations/hlevel2/algebra1b.vo : OTHERFLAGS += -no-sharing
@@ -31,7 +35,7 @@ clean:clean2
 clean2:; find . \( -name .\*.aux \) -delete
 describe:; git describe --dirty --long --always --abbrev=40 --all
 publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
-.coq_makefile_input: $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
+.coq_makefile_input: $(patsubst %, UniMath/%/.package/files, $(PACKAGES)) Makefile
 	@ echo making $@ ; ( \
 	echo '# -*- makefile-gmake -*-' ;\
 	echo ;\
@@ -45,12 +49,13 @@ publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
 	done ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\
-	echo '# compile-command: "sub/coq/bin/coq_makefile -f .coq_makefile_input -o Makefile-coq.make.tmp && mv Makefile-coq.make.tmp build/Makefile-coq.make"' ;\
+	echo '# compile-command: "sub/coq/bin/coq_makefile -f .coq_makefile_input -o CoqMakefile.make.tmp && mv CoqMakefile.make.tmp build/CoqMakefile.make"' ;\
 	echo '# End:' ;\
 	) >$@
 # the '' above prevents emacs from mistaking the lines above as providing local variables when visiting this file
-build/Makefile-coq.make: .coq_makefile_input
-	coq_makefile -f .coq_makefile_input -o Makefile-coq.make.tmp && mv Makefile-coq.make.tmp build/Makefile-coq.make
+build/CoqMakefile.make: .coq_makefile_input
+	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
+	mv .coq_makefile_output $@
 
 # building coq:
 ifeq ($(BUILD_COQ),yes)
