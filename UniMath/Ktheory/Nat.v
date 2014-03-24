@@ -52,56 +52,64 @@ Module Uniqueness.
     tpair (Z x) (transportb Y p y') (transportb2 _ p y' z').
   Proof. intros. destruct p. reflexivity. Defined.
 
-  (* Definition funextsec_compute T (P:T->Type) (s1 s2 : forall t, P t) *)
-  (*      (h : forall t, s1 t == s2 t)  *)
-  (*      (Q : (forall t, P t) -> Type) (q1:Q s1) : *)
-  (*   funextsec P s1 s2 h # q1. *)
+  Lemma uniqueness0 (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
+        (f:forall n, P n) :
+    weq (forall n, f n == nat_rect P p0 IH n)
+        (dirprod (f 0==p0) (forall n, f(S n)==IH n (f n))).
+  Proof. intros.
+         refine (_,,gradth _ _ _ _).
+         { intros h. split.
+           { exact (h 0). } { intros. exact (h (S n) @ ap (IH n) (! h n)). } }
+         { intros [h0 h'] ?. induction n as [|n'].
+           { exact h0. } { exact (h' n' @ ap (IH n') IHn'). } }
+         { simpl. intros h.
+           apply funextsec; intros n; simpl.
+           induction n.
+           { reflexivity. }
+           { simpl.
+             rewrite <- path_assoc.
+             refine (_ @ pathscomp0rid _).
+             apply (ap pre_cat).
+             rewrite <- maponpathscomp0.
+             intermediate_path (ap (IH n) (idpath (nat_rect P p0 IH n))).
+             { apply (ap (ap (IH n))).
+               apply path_inverse_to_right.
+               assumption. }
+             { reflexivity. } } }
+         { intros [h0 h'].
+           refine (total2_paths2 _ _).
+           { reflexivity. }
+           { unfold transportf; simpl; unfold idfun.
+             apply funextsec; intro n. 
+             refine (_ @ pathscomp0rid _).
+             rewrite <- path_assoc.
+             apply (ap pre_cat).
+             rewrite <- maponpathscomp0.
+             intermediate_path (ap (IH n) (idpath (f n))).
+             { apply (ap (ap (IH n))). 
+               apply path_inverse_to_right'.
+               reflexivity. }
+             { reflexivity. } } } Defined.
+
+  Lemma uniqueness1 (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
+        (f:forall n, P n) :
+    weq (f == nat_rect P p0 IH)
+        (dirprod (f 0==p0) (forall n, f(S n)==IH n (f n))).
+  Proof. intros.
+         exact (weqcomp (weqtoforallpaths _ _ _) (uniqueness0 _ _ _ _)). Defined.
+
+  Lemma uniqueness2 (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
+    weq (total2 (fun f:forall n, P n => f == nat_rect P p0 IH))
+        (total2 (fun f:forall n, P n => 
+                   dirprod (f 0==p0) (forall n, f(S n)==IH n (f n)))).
+  Proof. intros. apply weqfibtototal. intros f. apply uniqueness1. Defined.
 
   Lemma uniqueness (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
-    iscontr (total2 (fun f : forall n, P n =>
-                       dirprod (f 0==p0)
-                               (forall n, f(S n)==IH n (f n)))).
+    iscontr (total2 (fun f:forall n, P n => 
+                       dirprod (f 0==p0) (forall n, f(S n)==IH n (f n)))).
   Proof. intros.
-         refine ((nat_rect P p0 IH,,(_,,_)),,_).
-         { reflexivity. }
-         { reflexivity. }
-         { intros [f [h0 h]].
-           refine (total2_paths2' _ _).
-           { apply funextsec; intro n.
-             induction n.
-             { exact h0. }
-             { exact (h n @ ap (IH n) IHn). } }
-           { 
-             Unset Printing Implicits. Unset Printing Notations.
-             simpl.
-
-             
-             
-
-(*
-
-  P : nat -> Type
-  p0 : P 0
-  IH : forall n : nat, P n -> P (S n)
-  f : forall n : nat, P n
-  h0 : f 0 == p0
-  h : forall n : nat, f (S n) == IH n (f n)
-  ============================
-   h0,, h ==
-   funextsec 
-     P 
-     f 
-     (nat_rect P p0 IH)
-     (nat_rect
-          (fun m : nat => f m == nat_rect P p0 IH m)
-          h0
-          (fun (m : nat) (IHn : f m == nat_rect P p0 IH m) => h m @ ap (IH m) IHn))
-     #' 
-     (idpath p0,, (fun n : nat => idpath (IH n (nat_rect P p0 IH n))))
-
-*)
-
-  Abort.
+         exact (iscontrweqf (uniqueness2 _ _ _) (iscontrcoconustot _ _)).
+  Defined.
 
 End Uniqueness.
 

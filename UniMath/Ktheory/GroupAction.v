@@ -436,9 +436,6 @@ Module Halfline.
          { induction n.
            { exact (t 0). } { exact (t (S n) @ ! ap post_cat (t n)). } } Defined.
 
-  Lemma u {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
-  Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
-
   Lemma A {Y} {f:ℕ->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) : 
     weq (gHomotopy f s y h) (gHomotopy' f s y h).
   Proof. intros. unfold gHomotopy', gHomotopy, isolate0fam.
@@ -450,9 +447,10 @@ Module Halfline.
              refine (ap pre_cat (pathsinv0r _) @ _). apply pathscomp0rid. } }
          { intro t. apply funextsec; intro n. induction n. { reflexivity. }
            { unfold F, F'; simpl. refine (!path_assoc _ _ _ @ _).
-             refine (_ @ pathscomp0rid _). apply (ap pre_cat). apply u. 
+             refine (_ @ pathscomp0rid _). apply (ap pre_cat). apply path_inverse_to_right. 
              apply (ap (ap post_cat)). assumption. } } Defined.
-  (** The proof above works only by accident; there ought to be a better way. *)
+  (** The proof above works only by accident; there ought to be a better way.
+      Compare with the proof of [uniqueness0], which is essentially the same. *)
 
   Lemma B {Y} {f:ℕ->Y} (s:target_paths f) {y} : weq (GHomotopy f s y) (GHomotopy' f s y).
   Proof. intros. apply weqfibtototal; intro h. apply A. Defined.
@@ -517,9 +515,9 @@ Module Halfline.
   Proof. intros. 
          set (q := total2_paths2 (s n) (idpath _) 
                    : map s (squash_element n) == map s (squash_element (S n))).
-         assert (u : q==p). 
+         assert (path_inverse_to_right : q==p). 
          { apply (hlevelntosn 1). apply (hlevelntosn 0). apply finally. }
-         destruct u. apply total2_paths2_comp1. Defined.
+         destruct path_inverse_to_right. apply total2_paths2_comp1. Defined.
 
   (** ** universal property for the half line *)
 
@@ -559,28 +557,28 @@ Module AffineLine.
 
   Definition GuidedHomotopy {Y} (f:T->Y) (s:target_paths f) := total2 (GHomotopy f s).
 
-  Definition ℕuℕ := coprod unit (coprod ℕ ℕ).
-  Definition p0 : ℕuℕ := inl tt.
-  Definition inj (n:ℕ) : ℕuℕ := inr (inl n).
-  Definition inj' (n:ℕ) : ℕuℕ := inr (inr n).
+  Definition ℕpath_inverse_to_rightℕ := coprod unit (coprod ℕ ℕ).
+  Definition p0 : ℕpath_inverse_to_rightℕ := inl tt.
+  Definition inj (n:ℕ) : ℕpath_inverse_to_rightℕ := inr (inl n).
+  Definition inj' (n:ℕ) : ℕpath_inverse_to_rightℕ := inr (inr n).
 
-  Definition ℕuℕtoT (t0:T) (w:ℕuℕ) : T.
+  Definition ℕpath_inverse_to_rightℕtoT (t0:T) (w:ℕpath_inverse_to_rightℕ) : T.
   Proof. intros. destruct w as [[]|[m|m']]. 
          { exact t0. }
          { exact (ℕtoℤ(S m) + t0). } { exact (- ℕtoℤ(S m') + t0). } Defined.
 
-  Definition Ttoℕuℕ (t0 t:T) : ℕuℕ.
+  Definition Ttoℕpath_inverse_to_rightℕ (t0 t:T) : ℕpath_inverse_to_rightℕ.
   Proof. intros. set (z := t - t0). destruct (isdeceqhz z zero) as [i|ne].
          { exact p0. }
          { destruct (hzneqchoice _ _ ne).
            { exact (inj (S (hzabsval z))). }
            { exact (inj' (S (hzabsval z))). } } Defined.
 
-  Definition isolate_t0_in_T (t0:T) : weq ℕuℕ T.
-  Proof. intros. refine (ℕuℕtoT t0,,gradth _ (Ttoℕuℕ t0) _ _).
+  Definition isolate_t0_in_T (t0:T) : weq ℕpath_inverse_to_rightℕ T.
+  Proof. intros. refine (ℕpath_inverse_to_rightℕtoT t0,,gradth _ (Ttoℕpath_inverse_to_rightℕ t0) _ _).
          { intro w. induction w as [[]|p]. 
            { simpl.
-             unfold Ttoℕuℕ.
+             unfold Ttoℕpath_inverse_to_rightℕ.
              destruct (isdeceqhz (t0 - t0) zero) as [i|ne].
              { reflexivity. }
              { destruct (hzneqchoice (t0 - t0) zero ne).
@@ -589,7 +587,7 @@ Module AffineLine.
                { apply fromempty; clear h. apply ne; clear ne.
                  apply (quotient_1 _ t0). } } }
            { destruct p as [n|n'].
-             { simpl. unfold Ttoℕuℕ. destruct (isdeceqhz (ℕtoℤ (S n) * t0 - t0) zero).
+             { simpl. unfold Ttoℕpath_inverse_to_rightℕ. destruct (isdeceqhz (ℕtoℤ (S n) * t0 - t0) zero).
                { apply fromempty. apply (negpathssx0 n).
                  apply (invmaponpathsincl _ isinclnattohz (S n) 0).
                  exact (! quotient_mult _ (ℕtoℤ (S n)) t0 @ i). }
@@ -650,7 +648,7 @@ Module AffineLine.
          { induction n.
            { exact (t 0). } { exact (t (one + n) @ ! ap post_cat (t n)). } } Defined.
 
-  Lemma u {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
+  Lemma path_inverse_to_right {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
   Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
 
   Lemma A {Y} {f:T->Y} (s:target_paths f) {y} (h:nullHomotopyFrom f y) : 
@@ -661,7 +659,7 @@ Module AffineLine.
              refine (ap pre_cat (pathsinv0r _) @ _). apply pathscomp0rid. } }
          { intro t. apply funextsec; intro n. induction n. { reflexivity. }
            { unfold F, F'; simpl. refine (!path_assoc _ _ _ @ _).
-             refine (_ @ pathscomp0rid _). apply (ap pre_cat). apply u. 
+             refine (_ @ pathscomp0rid _). apply (ap pre_cat). apply path_inverse_to_right. 
              apply (ap (ap post_cat)). assumption. } } Defined.
   (** The proof above works only by accident; there ought to be a better way. *)
 
@@ -728,9 +726,9 @@ Module AffineLine.
   Proof. intros. 
          set (q := total2_paths2 (s n) (idpath _) 
                    : map s (squash_element n) == map s (squash_element (one + n))).
-         assert (u : q==p). 
+         assert (path_inverse_to_right : q==p). 
          { apply (hlevelntosn 1). apply (hlevelntosn 0). apply finally. }
-         destruct u. apply total2_paths2_comp1. Defined.
+         destruct path_inverse_to_right. apply total2_paths2_comp1. Defined.
 
   (** ** universal property for the half line *)
 

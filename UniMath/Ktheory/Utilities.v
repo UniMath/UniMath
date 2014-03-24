@@ -42,6 +42,12 @@ Proof. apply iscontrcoconusfromt. Defined.
 Definition paths_from_prop {X} (x:X) := 
   hProppair (paths_from x) (isapropifcontr (iscontr_paths_from x)).
 
+Definition path_inverse_to_right {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
+Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
+
+Definition path_inverse_to_right' {X} {x y:X} (p q:x==y) : p==q -> p@!q==idpath _.
+Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
+
 Module Import Notation.
   Notation "'not' X" := (X -> empty) (at level 35).
   Notation "x != y" := (not (x == y)) (at level 40).
