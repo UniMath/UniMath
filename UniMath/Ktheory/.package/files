@@ -1,5 +1,8 @@
 AbelianGroup.v
+Circle.v
+AffineLine.v
 GroupAction.v
+Halfline.v
 Nat.v
 MetricTree.v
 Group.v

@@ -561,7 +561,7 @@ Coercion underlyingType : PointedType >-> Sortclass.
 Definition basepoint (X:PointedType) := pr2 X.
 Definition loopSpace (X:PointedType) := 
   pointedType (basepoint X == basepoint X) (idpath _).
-Notation Ω := loopSpace.
+Definition Ω := loopSpace.
 (*
 Local Variables:
 compile-command: "make -C ../.. TAGS UniMath/Ktheory/Utilities.vo"

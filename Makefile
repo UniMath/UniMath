@@ -31,7 +31,7 @@ clean:clean2
 clean2:; find . \( -name .\*.aux \) -delete
 describe:; git describe --dirty --long --always --abbrev=40 --all
 publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
-.package-files: $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
+.coq_makefile_input: $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
 	@ echo making $@ ; ( \
 	echo '# -*- makefile-gmake -*-' ;\
 	echo ;\
@@ -45,16 +45,12 @@ publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
 	done ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\
-	echo '# compile-command: "sub/coq/bin/coq_makefile -f .package-files -o Makefile-coq.make.tmp && mv Makefile-coq.make.tmp build/Makefile-coq.make"' ;\
+	echo '# compile-command: "sub/coq/bin/coq_makefile -f .coq_makefile_input -o Makefile-coq.make.tmp && mv Makefile-coq.make.tmp build/Makefile-coq.make"' ;\
 	echo '# End:' ;\
 	) >$@
 # the '' above prevents emacs from mistaking the lines above as providing local variables when visiting this file
-always:
-ifeq ($(REMAKE_FILES),yes)
-.package-files:always
-endif
-build/Makefile-coq.make: .package-files
-	coq_makefile -f .package-files -o Makefile-coq.make.tmp && mv Makefile-coq.make.tmp build/Makefile-coq.make
+build/Makefile-coq.make: .coq_makefile_input
+	coq_makefile -f .coq_makefile_input -o Makefile-coq.make.tmp && mv Makefile-coq.make.tmp build/Makefile-coq.make
 
 # building coq:
 ifeq ($(BUILD_COQ),yes)
