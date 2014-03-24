@@ -72,6 +72,14 @@ Module Import NatNotation.
   Notation "m < n" := (hnat.natlth m n).
 End NatNotation.
 
+Lemma total2_paths2' {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
+    {a2 : A} {b2 : B a2} (p : a1 == a2) 
+    (q : b1 == transportb (fun x => B x) p b2) : 
+    tpair (fun x => B x) a1 b1 == tpair (fun x => B x) a2 b2.
+Proof. intros. destruct p.
+       unfold transportb, pathsinv0, transportf in q; simpl in q.
+       unfold idfun in q. destruct q. reflexivity. Defined.
+
 (* We prefer [pair_path_props] to [total2_paths2]. *)
 Definition pair_path_props {X:UU} {P:X->UU} {x y:X} {p:P x} {q:P y} :
   x==y -> (forall z, isaprop (P z)) -> x,,p==y,,q.
@@ -145,6 +153,36 @@ Lemma transport_functions {X} {Y:X->Type} {Z:forall x (y:Y x), Type}
     transportf (fun f => forall x, Z x (f x)) p z x ==
     transportf (Z x) (toforallpaths _ _ _ p x) (z x).
 Proof. intros. destruct p. reflexivity. Defined.
+
+  (** ** double transport *)
+
+  Definition transportf2 {X} {Y:X->Type} (Z:forall x, Y x->Type)
+             {x x'} (p:x==x')
+             (y:Y x) (z:Z x y) : Z x' (p#y).
+  Proof. intros. destruct p. exact z. Defined.
+
+  Definition transportb2 {X} {Y:X->Type} (Z:forall x, Y x->Type)
+             {x x'} (p:x==x')
+             (y':Y x') (z':Z x' y') : Z x (p#'y').
+  Proof. intros. destruct p. exact z'. Defined.
+
+  (** ** transport a pair *)
+
+  Definition transportf_pair X (Y:X->Type) (Z:forall x, Y x->Type)
+             x x' (p:x==x') (y:Y x) (z:Z x y) :
+    transportf (fun x => total2 (Z x)) p (tpair (Z x) y z)
+    ==
+    tpair (Z x') (transportf Y p y) (transportf2 _ p y z).
+  Proof. intros. destruct p. reflexivity. Defined.
+
+  Definition transportb_pair X (Y:X->Type) (Z:forall x, Y x->Type)
+             x x' (p:x==x')
+             (y':Y x') (z':Z x' y') 
+             (z' : (Z x' y')) :
+    transportb (fun x => total2 (Z x)) p (tpair (Z x') y' z')
+    ==
+    tpair (Z x) (transportb Y p y') (transportb2 _ p y' z').
+  Proof. intros. destruct p. reflexivity. Defined.
 
 (** * Decidability *)
 

@@ -10,48 +10,6 @@ Import Utilities.NatNotation.
 
 Module Uniqueness.
 
-  Lemma total2_paths2' {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
-      {a2 : A} {b2 : B a2} (p : a1 == a2) 
-      (q : b1 == transportb (fun x => B x) p b2) : 
-      tpair (fun x => B x) a1 b1 == tpair (fun x => B x) a2 b2.
-  Proof. intros.
-         destruct p.
-         unfold transportb, pathsinv0, transportf in q; simpl in q.
-         unfold idfun in q.
-         destruct q.
-         reflexivity.
-  Defined.
-
-  (** ** double transport *)
-
-  Definition transportf2 {X} {Y:X->Type} (Z:forall x, Y x->Type)
-             {x x'} (p:x==x')
-             (y:Y x) (z:Z x y) : Z x' (p#y).
-  Proof. intros. destruct p. exact z. Defined.
-
-  Definition transportb2 {X} {Y:X->Type} (Z:forall x, Y x->Type)
-             {x x'} (p:x==x')
-             (y':Y x') (z':Z x' y') : Z x (p#'y').
-  Proof. intros. destruct p. exact z'. Defined.
-
-  (** ** transport a pair *)
-
-  Definition transportf_pair X (Y:X->Type) (Z:forall x, Y x->Type)
-             x x' (p:x==x') (y:Y x) (z:Z x y) :
-    transportf (fun x => total2 (Z x)) p (tpair (Z x) y z)
-    ==
-    tpair (Z x') (transportf Y p y) (transportf2 _ p y z).
-  Proof. intros. destruct p. reflexivity. Defined.
-
-  Definition transportb_pair X (Y:X->Type) (Z:forall x, Y x->Type)
-             x x' (p:x==x')
-             (y':Y x') (z':Z x' y') 
-             (z' : (Z x' y')) :
-    transportb (fun x => total2 (Z x)) p (tpair (Z x') y' z')
-    ==
-    tpair (Z x) (transportb Y p y') (transportb2 _ p y' z').
-  Proof. intros. destruct p. reflexivity. Defined.
-
   Lemma uniqueness0 (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
         (f:forall n, P n) :
     weq (forall n, f n == nat_rect P p0 IH n)
