@@ -69,6 +69,27 @@ Module Uniqueness.
          exact (iscontrweqf (uniqueness2 _ _ _) (iscontrcoconustot _ _)).
   Defined.
 
+  Lemma uniqueness3 (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
+    weq (total2 (fun f:forall n, P n => 
+                       dirprod (f 0==p0) (forall n, f(S n)==IH n (f n))))
+        (@hfiber 
+           (total2 (fun f:forall n, P n => forall n, f(S n)==IH n (f n))) 
+           (P 0)
+           (fun fh => pr1 fh 0)
+           p0).
+  Proof. intros. refine (weqpair _ (gradth _ _ _ _)).
+         { intros [f [h0 h']]. exact ((f,,h'),,h0). }
+         { intros [[f h'] h0]. exact (f,,(h0,,h')). }
+         { intros [f [h0 h']]. reflexivity. }
+         { intros [[f h'] h0]. reflexivity. }
+  Defined.
+
+  Lemma uniqueness' (P:nat->Type) (IH:forall n, P n->P(S n)) :
+    weq (total2 (fun f:forall n, P n => forall n, f(S n)==IH n (f n))) (P 0).
+  Proof. intros. exists (fun f => pr1 f 0). intro p0.
+         apply (iscontrweqf (uniqueness3 _ _ _)). apply uniqueness.
+  Defined.
+
 End Uniqueness.
 
 Fixpoint nat_dist (m n:nat) : nat :=
