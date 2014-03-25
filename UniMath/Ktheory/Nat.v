@@ -10,7 +10,7 @@ Import Utilities.NatNotation.
 
 Module Uniqueness.
 
-  Lemma uniqueness0 (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
+  Lemma A (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
         (f:forall n, P n) :
     weq (forall n, f n == nat_rect P p0 IH n)
         (dirprod (f 0==p0) (forall n, f(S n)==IH n (f n))).
@@ -30,26 +30,26 @@ Module Uniqueness.
              rewrite <- path_assoc. rewrite <- maponpathscomp0. rewrite pathsinv0r. 
              simpl. apply pathscomp0rid. } } Defined.
 
-  Lemma uniqueness1 (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
+  Lemma B (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
         (f:forall n, P n) :
     weq (f == nat_rect P p0 IH)
         (dirprod (f 0==p0) (forall n, f(S n)==IH n (f n))).
   Proof. intros.
-         exact (weqcomp (weqtoforallpaths _ _ _) (uniqueness0 _ _ _ _)). Defined.
+         exact (weqcomp (weqtoforallpaths _ _ _) (A _ _ _ _)). Defined.
 
-  Lemma uniqueness2 (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
+  Lemma C (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     weq (total2 (fun f:forall n, P n => f == nat_rect P p0 IH))
         (total2 (fun f:forall n, P n => 
                    dirprod (f 0==p0) (forall n, f(S n)==IH n (f n)))).
-  Proof. intros. apply weqfibtototal. intros f. apply uniqueness1. Defined.
+  Proof. intros. apply weqfibtototal. intros f. apply B. Defined.
 
-  Lemma uniqueness (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
+  Lemma hNatRecursionUniq (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     iscontr (total2 (fun f:forall n, P n => 
                        dirprod (f 0==p0) (forall n, f(S n)==IH n (f n)))).
-  Proof. intros. exact (iscontrweqf (uniqueness2 _ _ _) (iscontrcoconustot _ _)).
+  Proof. intros. exact (iscontrweqf (C _ _ _) (iscontrcoconustot _ _)).
   Defined.
 
-  Lemma uniqueness3 (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
+  Lemma D (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     weq (total2 (fun f:forall n, P n => 
                        dirprod (f 0==p0) (forall n, f(S n)==IH n (f n))))
         (@hfiber 
@@ -64,10 +64,10 @@ Module Uniqueness.
          { intros [[f h'] h0]. reflexivity. }
   Defined.
 
-  Lemma uniqueness' (P:nat->Type) (IH:forall n, P n->P(S n)) :
+  Lemma hNatRecursionEquiv (P:nat->Type) (IH:forall n, P n->P(S n)) :
     weq (total2 (fun f:forall n, P n => forall n, f(S n)==IH n (f n))) (P 0).
   Proof. intros. exists (fun f => pr1 f 0). intro p0.
-         apply (iscontrweqf (uniqueness3 _ _ _)). apply uniqueness.
+         apply (iscontrweqf (D _ _ _)). apply hNatRecursionUniq.
   Defined.
 
 End Uniqueness.

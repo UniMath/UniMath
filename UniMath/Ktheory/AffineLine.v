@@ -5,79 +5,106 @@ Require Import algebra1b funextfun Utilities auxiliary_lemmas_HoTT GroupAction h
 Require pathnotations.
 Import pathnotations.PathNotations Utilities.Notation.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
-Notation ℕ := nat.
-Notation ℤ := hzaddabgr.
-Definition ℕtoℤ (n:ℕ) : ℤ := nattohz n.
+Notation NN := nat.
+Notation ZZ := hzaddabgr.
+Definition toZZ (n:NN) : ZZ := nattohz n.
+Definition zero := toZZ 0.
+Definition one := toZZ 1.
 
-Definition zero := ℕtoℤ 0.
-Definition one := ℕtoℤ 1.
+Open Scope hz_scope.
 
-Variable T : Torsor ℤ.
-
-Local Notation "n + x" := (ac_mult _ (n%hz:ℤ) x) : action_scope.
-Local Notation "n - m" := (quotient _ n m) : action_scope.
-
-Definition target_paths {Y} (f:T->Y) := forall t, f t==f(one + t).
-
-Definition gHomotopy {Y} (f:T->Y) (s:target_paths f) y (h:nullHomotopyFrom f y) :=
-  forall n, h(one + n) == h n @ s n.
-
-Definition GHomotopy {Y} (f:T->Y) (s:target_paths f) y := total2 (gHomotopy f s y).
-
-Definition GuidedHomotopy {Y} (f:T->Y) (s:target_paths f) := total2 (GHomotopy f s).
-
-Definition ℕpath_inverse_to_rightℕ := coprod unit (coprod ℕ ℕ).
-Definition p0 : ℕpath_inverse_to_rightℕ := inl tt.
-Definition inj (n:ℕ) : ℕpath_inverse_to_rightℕ := inr (inl n).
-Definition inj' (n:ℕ) : ℕpath_inverse_to_rightℕ := inr (inr n).
-
-Definition ℕpath_inverse_to_rightℕtoT (t0:T) (w:ℕpath_inverse_to_rightℕ) : T.
-Proof. intros. destruct w as [[]|[m|m']]. 
-       { exact t0. }
-       { exact (ℕtoℤ(S m) + t0). } { exact (- ℕtoℤ(S m') + t0). } Defined.
-
-Definition Ttoℕpath_inverse_to_rightℕ (t0 t:T) : ℕpath_inverse_to_rightℕ.
-Proof. intros. set (z := t - t0). destruct (isdeceqhz z zero) as [i|ne].
-       { exact p0. }
-       { destruct (hzneqchoice _ _ ne).
-         { exact (inj (S (hzabsval z))). }
-         { exact (inj' (S (hzabsval z))). } } Defined.
-
-Definition isolate_t0_in_T (t0:T) : weq ℕpath_inverse_to_rightℕ T.
-Proof. intros. refine (ℕpath_inverse_to_rightℕtoT t0,,gradth _ (Ttoℕpath_inverse_to_rightℕ t0) _ _).
-       { intro w. induction w as [[]|p]. 
-         { simpl.
-           unfold Ttoℕpath_inverse_to_rightℕ.
-           destruct (isdeceqhz (t0 - t0) zero) as [i|ne].
-           { reflexivity. }
-           { destruct (hzneqchoice (t0 - t0) zero ne).
-             { apply fromempty; clear h. apply ne; clear ne.
-               apply (quotient_1 _ t0). }
-             { apply fromempty; clear h. apply ne; clear ne.
-               apply (quotient_1 _ t0). } } }
-         { destruct p as [n|n'].
-           { simpl. unfold Ttoℕpath_inverse_to_rightℕ. 
-             destruct (isdeceqhz (ℕtoℤ (S n) * t0 - t0) zero).
-             { apply fromempty. apply (negpathssx0 n).
-               apply (invmaponpathsincl _ isinclnattohz (S n) 0).
-               exact (! quotient_mult _ (ℕtoℤ (S n)) t0 @ i). }
-             { admit. } }
-           { admit. } } }
-       { admit. }
+Lemma ZZRecursionUniq (P:ZZ->Type) (p0:P zero) 
+      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
+      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
+  iscontr (total2 (fun 
+          f:forall i, P i => dirprod 
+            (f zero==p0) (dirprod
+            (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
+            (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n)))))).
+Proof. intros.
+       admit.
 Defined.
 
-Definition isolate0 {P:T->Type} (t0:T) : 
-  weq (forall n, P n) 
-      (dirprod (P t0) 
-               (dirprod (forall n, P   (ℕtoℤ (S n) + t0))
-                        (forall n, P (- ℕtoℤ (S n) + t0)))).
-Proof. intros. intermediate_weq (forall n, P (isolate_t0_in_T t0 n)).
-       { apply weqonsecbase. }
-       intermediate_weq (
-         dirprod (forall t, P (isolate_t0_in_T t0 (inl t)))
-                 (forall w, P (isolate_t0_in_T t0 (inr w)))).
-       { apply weqsecovercoprodtoprod. } apply weqdirprodf. 
-       { apply weqsecoverunit. } { apply weqsecovercoprodtoprod. } Defined.
+Lemma A (P:ZZ->Type) (p0:P zero) 
+      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
+      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
+  weq (total2 (fun 
+          f:forall i, P i => dirprod 
+            (f zero==p0) (dirprod
+            (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
+            (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n))))))
+      (@hfiber
+         (total2 (fun 
+             f:forall i, P i => dirprod 
+               (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
+               (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n)))))
+         (P zero)
+         (fun fh => pr1 fh zero)
+         p0).
+Proof. intros.
+       refine (weqpair _ (gradth _ _ _ _)).
+       { intros [f [h0 h]]. exact ((f,,h),,h0). }
+       { intros [[f h] h0]. exact (f,,(h0,,h)). }
+       { intros [f [h0 h]]. reflexivity. }
+       { intros [[f h] h0]. reflexivity. } Defined.
+
+Lemma ZZRecursionEquiv (P:ZZ->Type) 
+      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
+      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
+  weq (total2 (fun 
+          f:forall i, P i => dirprod 
+            (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
+            (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n)))))
+      (P zero).
+Proof. intros. exists (fun f => pr1 f zero). intro p0.
+       apply (iscontrweqf (A _ _ _ _)). apply ZZRecursionUniq. Defined.
+
+Notation "n + x" := (ac_mult _ (n%hz:ZZ) x) : action_scope.
+Notation "n - m" := (quotient _ n m) : action_scope.
+Open Scope action_scope.
+
+Definition swequiv {X Y} (f:weq X Y) {x y} : y == f x -> invweq f y == x.
+Proof. intros ? ? ? ? ? p. exact (ap (invweq f) p @ homotinvweqweq f x). Defined.
+
+Definition swequiv' {X Y} (f:weq X Y) {x y} : invweq f y == x -> y == f x.
+Proof. intros ? ? ? ? ? p. exact (! homotweqinvweq f y @ ap f p). Defined.
+
+Definition ZZTorsorRecursionEquiv {T:Torsor ZZ} (P:T->Type) 
+      (IH:forall t, weq (P t) (P (one + t))) :
+  forall t,
+  weq (total2 (fun 
+          f:forall t, P t => 
+            forall t, f (one + t) == IH t (f t)))
+      (P t).
+Proof. intros.
+       exists (fun fh => pr1 fh t).
+       set (w := triviality_isomorphism T t).
+       set (P' := funcomp w P).
+       assert (k : forall n, w (toZZ (S n)) == one + w (toZZ n)).
+       { intros. simpl. rewrite nattohzandS. unfold right_mult, one. unfold toZZ.
+         rewrite nattohzand1. apply act_assoc. }
+       admit.
+Defined.
+
+Definition ZZTorsorRecursion {T:Torsor ZZ} (P:T->Type) 
+      (IH:forall t, weq (P t) (P (one + t)))
+      (t t':T) :
+  weq (P t) (P t').
+Proof. intros.
+       exact (weqcomp (invweq (ZZTorsorRecursionEquiv P IH t))
+                      (ZZTorsorRecursionEquiv P IH t')). Defined.  
+
+Definition target_paths {Y} {T:Torsor ZZ} (f:T->Y) := forall t, f t==f(one + t).
+
+Definition GHomotopy {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) := fun 
+        y:Y => total2 (fun 
+        h:nullHomotopyFrom f y => 
+          forall n, h(one + n) == h n @ s n).
+
+Definition GuidedHomotopy {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) := 
+  total2 (GHomotopy f s).
+
+
 
 (*
 Local Variables:
