@@ -13,6 +13,12 @@ Definition one := toZZ 1.
 
 Open Scope hz_scope.
 
+Lemma hzminusplus (x y:hz) : -(x+y) == (-x) + (-y).
+Proof. intros. apply (hzplusrcan _ _ (x+y)). rewrite hzlminus. 
+       rewrite (hzpluscomm (-x)). rewrite (hzplusassoc (-y)).
+       rewrite <- (hzplusassoc (-x)). rewrite hzlminus. rewrite hzplusl0.
+       rewrite hzlminus. reflexivity. Defined.
+
 Lemma ZZRecursionUniq (P:ZZ->Type) (p0:P zero) 
       (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
       (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
@@ -83,6 +89,12 @@ Proof. intros.
        assert (k : forall n, w (toZZ (S n)) == one + w (toZZ n)).
        { intros. simpl. rewrite nattohzandS. unfold right_mult, one. unfold toZZ.
          rewrite nattohzand1. apply act_assoc. }
+       assert (k': forall n, one + w (- toZZ (S n)) == w (- toZZ n)).
+       { intros; simpl. unfold one. unfold toZZ. rewrite nattohzand1.
+         rewrite nattohzandS. rewrite hzminusplus. unfold right_mult.
+         rewrite <- (ac_assoc _ one). rewrite <- (hzplusassoc one).
+         rewrite (hzpluscomm one). rewrite hzlminus. rewrite hzplusl0.
+         reflexivity. }
        admit.
 Defined.
 
