@@ -5,9 +5,8 @@ Require Import algebra1b funextfun Utilities auxiliary_lemmas_HoTT GroupAction h
 Require pathnotations.
 Import pathnotations.PathNotations Utilities.Notation.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
-Notation NN := nat.
-Notation ZZ := hzaddabgr.
-Definition toZZ (n:NN) : ZZ := nattohz n.
+Definition ZZ := hzaddabgr.
+Definition toZZ (n:nat) : ZZ := nattohz n.
 Definition zero := toZZ 0.
 Definition one := toZZ 1.
 
@@ -19,14 +18,25 @@ Proof. intros. apply (hzplusrcan _ _ (x+y)). rewrite hzlminus.
        rewrite <- (hzplusassoc (-x)). rewrite hzlminus. rewrite hzplusl0.
        rewrite hzlminus. reflexivity. Defined.
 
-Lemma ZZRecursionUniq (P:ZZ->Type) (p0:P zero) 
+Definition ZZRecursionData0 (P:ZZ->Type) (p0:P zero) 
       (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
-      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
-  iscontr (total2 (fun 
+      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) := fun 
           f:forall i, P i => dirprod 
             (f zero==p0) (dirprod
             (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
-            (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n)))))).
+            (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n)))).
+
+Definition ZZRecursionData (P:ZZ->Type)
+      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
+      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) := fun 
+             f:forall i, P i => dirprod 
+               (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
+               (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n))).
+
+Lemma ZZRecursionUniq (P:ZZ->Type) (p0:P zero) 
+      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
+      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
+  iscontr (total2 (ZZRecursionData0 P p0 IH IH')).
 Proof. intros.
        admit.
 Defined.
@@ -34,16 +44,9 @@ Defined.
 Lemma A (P:ZZ->Type) (p0:P zero) 
       (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
       (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
-  weq (total2 (fun 
-          f:forall i, P i => dirprod 
-            (f zero==p0) (dirprod
-            (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
-            (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n))))))
+  weq (total2 (ZZRecursionData0 P p0 IH IH'))
       (@hfiber
-         (total2 (fun 
-             f:forall i, P i => dirprod 
-               (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
-               (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n)))))
+         (total2 (ZZRecursionData P IH IH'))
          (P zero)
          (fun fh => pr1 fh zero)
          p0).
@@ -57,15 +60,12 @@ Proof. intros.
 Lemma ZZRecursionEquiv (P:ZZ->Type) 
       (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
       (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
-  weq (total2 (fun 
-          f:forall i, P i => dirprod 
-            (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
-            (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n)))))
+  weq (total2 (ZZRecursionData P IH IH'))
       (P zero).
 Proof. intros. exists (fun f => pr1 f zero). intro p0.
        apply (iscontrweqf (A _ _ _ _)). apply ZZRecursionUniq. Defined.
 
-Notation "n + x" := (ac_mult _ (n%hz:ZZ) x) : action_scope.
+Notation "n + x" := (ac_mult _ n x) : action_scope.
 Notation "n - m" := (quotient _ n m) : action_scope.
 Open Scope action_scope.
 
@@ -83,18 +83,33 @@ Definition ZZTorsorRecursionEquiv {T:Torsor ZZ} (P:T->Type)
             forall t, f (one + t) == IH t (f t)))
       (P t).
 Proof. intros.
-       exists (fun fh => pr1 fh t).
+       (* exists (fun fh => pr1 fh t). *)
        set (w := triviality_isomorphism T t).
-       set (P' := funcomp w P).
-       assert (k : forall n, w (toZZ (S n)) == one + w (toZZ n)).
+       assert (k1 : forall n, one + w (toZZ n) == w (toZZ (S n))).
        { intros. simpl. rewrite nattohzandS. unfold right_mult, one. unfold toZZ.
-         rewrite nattohzand1. apply act_assoc. }
-       assert (k': forall n, one + w (- toZZ (S n)) == w (- toZZ n)).
+         rewrite nattohzand1. apply pathsinv0. apply act_assoc. }
+       set (l1 := (fun n => eqweqmap (ap P (k1 n))) 
+                : forall n, weq (P(one + w (toZZ n))) (P(w(toZZ (S n))))).
+       assert (k2: forall n, one + w (- toZZ (S n)) == w (- toZZ n)).
        { intros; simpl. unfold one. unfold toZZ. rewrite nattohzand1.
          rewrite nattohzandS. rewrite hzminusplus. unfold right_mult.
          rewrite <- (ac_assoc _ one). rewrite <- (hzplusassoc one).
          rewrite (hzpluscomm one). rewrite hzlminus. rewrite hzplusl0.
          reflexivity. }
+       set (l2 := (fun n => eqweqmap (ap P (k2 n)))
+                   : forall n, weq (P(one + w (- toZZ (S n)))) (P(w(-toZZ n)))).
+       set (P' := fun i => P(w i)).
+       set (ih := fun n => weqcomp (IH (w (toZZ n))) (l1 n)).
+       set (ih':= fun n => invweq (weqcomp (IH (w (- toZZ (S n)))) (l2 n))).
+       assert (G := ZZRecursionEquiv P' ih ih'); simpl in G.
+       unfold P' in G; simpl in G.
+       assert( e : right_mult t zero == t ). { apply act_unit. }
+       rewrite e in G; clear e.
+       unfold ZZRecursionData in G.
+       refine (weqcomp _ G).
+       clear G ih ih' P'.
+       
+
        admit.
 Defined.
 
