@@ -76,11 +76,12 @@ Definition swequiv' {X Y} (f:weq X Y) {x y} : invweq f y == x -> y == f x.
 Proof. intros ? ? ? ? ? p. exact (! homotweqinvweq f y @ ap f p). Defined.
 
 Definition hzabsvalnat n : hzabsval (nattohz n) == n. (* move to uu0 *)
-Proof. intros.
-       refine (setquotunivcomm (binopeqrelabgrfrac (rigaddabmonoid natcommrig)) natset hzabsvalint hzabsvalintcomp _ @ _).
-       unfold hzabsvalint; simpl. destruct (natgthorleh n 0).
-       { apply natminuseqn. } { exact (! (natleh0tois0 _ h)). }
-Defined.
+Proof. intros. unfold hzabsval. unfold setquotuniv. simpl.
+       unfold hzabsvalint. simpl. destruct (natgthorleh n 0).
+       { apply natminuseqn. } { exact (! (natleh0tois0 _ h)). } Defined.
+
+Goal forall m n, - natnattohz m n == natnattohz n m.
+Proof. reflexivity. Defined.
 
 Definition negpos : weq ZZ (coprod nat nat). (* ZZ = (-inf,-1) + (0,inf) *)
 Proof. refine (weqpair _ (gradth _ _ _ _)).
@@ -88,15 +89,16 @@ Proof. refine (weqpair _ (gradth _ _ _ _)).
          { exact (inl (hzabsval i - 1)%nat). }
          { exact (inr (hzabsval i)). } }
        { intros [n'|n]. { exact (natnattohz 0 (S n')). } { exact (toZZ n). } }
-       { simpl. intro i. 
-         induction (hzlthorgeh i zero) as [e|e']; simpl.
-         { assert (a := hzabsvallth0 e).
-           admit. }
+       { simpl. intro i. induction (hzlthorgeh i zero) as [e|e']; simpl.
+         { assert (a := hzabsvallth0 e). assert (b := hzlthtoneq _ _ e).
+           assert (c := hzabsvalneq0 b). assert (d := natneq0togth0 _ c).
+           assert (f := natgthtogehsn _ _ d). assert (g := minusplusnmm _ _ f).
+           rewrite natpluscomm in g. simpl in g. rewrite g.
+           apply hzinvmaponpathsminus. exact a. }
          { exact (hzabsvalgeh0 e'). } }
        { intros [n'|n].
          { simpl. rewrite natminuseqn. reflexivity. }
-         { simpl. rewrite hzabsvalnat. reflexivity. } }
-Defined.
+         { simpl. rewrite hzabsvalnat. reflexivity. } } Defined.
 
 Definition ZZTorsorRecursionEquiv {T:Torsor ZZ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t))) :
