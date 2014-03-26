@@ -12,7 +12,7 @@ Definition one := toZZ 1.
 
 Open Scope hz_scope.
 
-Lemma hzminusplus (x y:hz) : -(x+y) == (-x) + (-y).
+Lemma hzminusplus (x y:hz) : -(x+y) == (-x) + (-y). (* move to u00 *)
 Proof. intros. apply (hzplusrcan _ _ (x+y)). rewrite hzlminus. 
        rewrite (hzpluscomm (-x)). rewrite (hzplusassoc (-y)).
        rewrite <- (hzplusassoc (-x)). rewrite hzlminus. rewrite hzplusl0.
@@ -75,6 +75,29 @@ Proof. intros ? ? ? ? ? p. exact (ap (invweq f) p @ homotinvweqweq f x). Defined
 Definition swequiv' {X Y} (f:weq X Y) {x y} : invweq f y == x -> y == f x.
 Proof. intros ? ? ? ? ? p. exact (! homotweqinvweq f y @ ap f p). Defined.
 
+Definition hzabsvalnat n : hzabsval (nattohz n) == n. (* move to uu0 *)
+Proof. intros.
+       refine (setquotunivcomm (binopeqrelabgrfrac (rigaddabmonoid natcommrig)) natset hzabsvalint hzabsvalintcomp _ @ _).
+       unfold hzabsvalint; simpl. destruct (natgthorleh n 0).
+       { apply natminuseqn. } { exact (! (natleh0tois0 _ h)). }
+Defined.
+
+Definition negpos : weq ZZ (coprod nat nat). (* ZZ = (-inf,-1) + (0,inf) *)
+Proof. refine (weqpair _ (gradth _ _ _ _)).
+       { intro i. induction (hzlthorgeh i zero).
+         { exact (inl (hzabsval i - 1)%nat). }
+         { exact (inr (hzabsval i)). } }
+       { intros [n'|n]. { exact (natnattohz 0 (S n')). } { exact (toZZ n). } }
+       { simpl. intro i. 
+         induction (hzlthorgeh i zero) as [e|e']; simpl.
+         { assert (a := hzabsvallth0 e).
+           admit. }
+         { exact (hzabsvalgeh0 e'). } }
+       { intros [n'|n].
+         { simpl. rewrite natminuseqn. reflexivity. }
+         { simpl. rewrite hzabsvalnat. reflexivity. } }
+Defined.
+
 Definition ZZTorsorRecursionEquiv {T:Torsor ZZ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t))) :
   forall t,
@@ -108,7 +131,14 @@ Proof. intros.
        unfold ZZRecursionData in G.
        refine (weqcomp _ G).
        clear G ih ih' P'.
-       
+       refine (weqbandf (weqonsecbase _ w) _ _ _).
+       intro f.
+       intermediate_weq (forall i, f (one + w i) == (IH (w i)) (f (w i))).
+       { exact (weqonsecbase _ w). }
+       change (set_to_type (trivialTorsor ZZ)) with (set_to_type ZZ).
+         
+
+         
 
        admit.
 Defined.
