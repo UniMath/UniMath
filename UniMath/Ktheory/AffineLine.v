@@ -12,7 +12,30 @@ Definition one := toZZ 1.
 
 Open Scope hz_scope.
 
-Lemma hzminusplus (x y:hz) : -(x+y) == (-x) + (-y). (* move to u00 *)
+Definition eta_pair {T} (P:T->Type) (w:total2 P) : 
+  tpair P (pr1 w) (pr2 w) == w.
+Proof. intros. destruct w. reflexivity. Defined.
+
+Definition eta_weqpair {X Y} (f:weq X Y) : 
+  weqpair (pr1 f) (pr2 f) == f.
+Proof. intros. apply eta_pair. Defined.
+
+Definition pathpath {X} {w x y z:X} : w==x -> y==z -> (w==y) == (x==z).
+Proof. intros ? ? ? ? ? p q.  destruct p,q. reflexivity. Defined.
+
+Definition weqonpaths2 {X Y} (w:weq X Y) {x x':X} {y y':Y} :
+  w x == y -> w x' == y' -> weq (x == x') (y == y').
+Proof. intros ? ? ? ? ? ? ? p q. destruct p,q. apply weqonpaths. Defined.
+
+Definition eqweqmap_ap {T} (P:T->Type) {t t':T} (e:t==t') (f:sections P) :
+  eqweqmap (ap P e) (f t) == f t'. (* move near eqweqmap *)
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition eqweqmap_ap' {T} (P:T->Type) {t t':T} (e:t==t') (f:sections P) :
+  invmap (eqweqmap (ap P e)) (f t') == f t. (* move near eqweqmap *)
+Proof. intros. destruct e. reflexivity. Defined.
+
+Lemma hzminusplus (x y:hz) : -(x+y) == (-x) + (-y). (* move to hz.v *)
 Proof. intros. apply (hzplusrcan _ _ (x+y)). rewrite hzlminus. 
        rewrite (hzpluscomm (-x)). rewrite (hzplusassoc (-y)).
        rewrite <- (hzplusassoc (-x)). rewrite hzlminus. rewrite hzplusl0.
@@ -75,12 +98,12 @@ Proof. intros ? ? ? ? ? p. exact (ap (invweq f) p @ homotinvweqweq f x). Defined
 Definition swequiv' {X Y} (f:weq X Y) {x y} : invweq f y == x -> y == f x.
 Proof. intros ? ? ? ? ? p. exact (! homotweqinvweq f y @ ap f p). Defined.
 
-Definition hzabsvalnat n : hzabsval (nattohz n) == n. (* move to uu0 *)
+Definition hzabsvalnat n : hzabsval (nattohz n) == n. (* move to hz.v *)
 Proof. intros. unfold hzabsval. unfold setquotuniv. simpl.
        unfold hzabsvalint. simpl. destruct (natgthorleh n 0).
        { apply natminuseqn. } { exact (! (natleh0tois0 _ h)). } Defined.
 
-Goal forall m n, - natnattohz m n == natnattohz n m.
+Goal forall m n, - natnattohz m n == natnattohz n m. (* move to hz.v as a lemma? *)
 Proof. reflexivity. Defined.
 
 Definition negpos : weq ZZ (coprod nat nat). (* ZZ = (-inf,-1) + (0,inf) *)
@@ -129,21 +152,29 @@ Proof. intros.
        assert (G := ZZRecursionEquiv P' ih ih'); simpl in G.
        unfold P' in G; simpl in G.
        assert( e : right_mult t zero == t ). { apply act_unit. }
-       rewrite e in G; clear e.
-       unfold ZZRecursionData in G.
-       refine (weqcomp _ G).
-       clear G ih ih' P'.
-       refine (weqbandf (weqonsecbase _ w) _ _ _).
-       intro f.
-       intermediate_weq (forall i, f (one + w i) == (IH (w i)) (f (w i))).
-       { exact (weqonsecbase _ w). }
+       rewrite e in G; clear e. unfold ZZRecursionData in G.
+       refine (weqcomp _ G). clear G ih ih' P'.
+       refine (weqbandf (weqonsecbase _ w) _ _ _). intro f.
+       refine (weqcomp (weqonsecbase _ w) _).
        change (set_to_type (trivialTorsor ZZ)) with (set_to_type ZZ).
-         
-
-         
-
-       admit.
-Defined.
+       refine (weqcomp (weqonsecbase _ (invweq negpos)) _).
+       refine (weqcomp (weqsecovercoprodtoprod _) _).
+       refine (weqcomp (weqdirprodcomm _ _) _). apply weqdirprodf.
+       { clear k2 l2. apply weqonseqfibers; intro n. simpl.
+         unfold invmap, negpos; simpl. unfold right_mult; simpl.
+         unfold maponsec1; simpl. refine (weqcomp (weqonpaths (l1 n) _ _) _).
+         apply eqweqmap. apply pathpath.
+         { unfold l1. rewrite eqweqmap_ap. reflexivity. }
+         { reflexivity. } }
+       { clear k1 l1. apply weqonseqfibers; intro n. simpl.
+         unfold invmap, negpos; simpl. unfold right_mult; simpl.
+         unfold maponsec1; simpl. 
+         refine (weqcomp (weqpair _ (isweqpathsinv0 _ _)) _).
+         refine (weqonpaths2 _ _ _).
+         { apply invweq. apply IH. }
+         { simpl. rewrite homotinvweqweq. reflexivity. }
+         { simpl. apply (ap (invmap (IH _))). rewrite eta_weqpair.
+           unfold l2; simpl. rewrite eqweqmap_ap'. reflexivity. } } Defined.
 
 Definition ZZTorsorRecursion {T:Torsor ZZ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t)))
