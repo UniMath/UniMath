@@ -30,6 +30,14 @@ Definition hz_normal_form (i:ZZ) :=
   coprod (total2 (fun n => natnattohz n 0 == i))
          (total2 (fun n => natnattohz 0 (S n) == i)).
 
+Definition hznf_pos n := _,, inl (n,,idpath _) : total2 hz_normal_form.
+
+Definition hznf_neg n := _,, inr (n,,idpath _) : total2 hz_normal_form.
+
+Definition hznf_zero := hznf_pos 0.
+
+Definition hznf_neg_one := hznf_neg 0.
+
 Definition hz_to_normal_form (i:ZZ) : hz_normal_form i.
 Proof. intros. destruct (hzlthorgeh i 0) as [r|s].
        { apply inr. assert (a := hzabsvallth0 r). assert (b := hzlthtoneq _ _ r).
@@ -71,18 +79,21 @@ Proof. apply isweqpr1; intro i.
          assert (e := invmaponpathsS _ _ d); clear d.
          apply (pair_path_props (!e)). intro k. apply setproperty. } Defined.
 
-Definition negpos : weq ZZ (coprod nat nat). (* ZZ = (-inf,-1) + (0,inf) *)
+Definition negpos_weq := weqpair _ negpos' : weq (total2 hz_normal_form) ZZ.
+
+Definition negpos : weq (coprod nat nat) ZZ. (* ZZ = (-inf,-1) + (0,inf) *)
 Proof. refine (weqpair _ (gradth _ _ _ _)).
-       { intro i. destruct (hz_to_normal_form i) as [[n p]|[m q]].
-         { exact (inr n). } { exact (inl m). } }
        { intros [n'|n]. 
          { exact (natnattohz 0 (S n')). } { exact (natnattohz n 0). } }
+       { intro i. destruct (hz_to_normal_form i) as [[n p]|[m q]].
+         { exact (inr n). } { exact (inl m). } }
+       { intros [n'|n].
+         { simpl. rewrite natminuseqn. reflexivity. }
+         { simpl. rewrite hzabsvalnat. reflexivity. } } 
        { simpl. intro i. 
          destruct (hz_to_normal_form i) as [[n p]|[m q]].
          { exact p. } { exact q. } }
-       { intros [n'|n].
-         { simpl. rewrite natminuseqn. reflexivity. }
-         { simpl. rewrite hzabsvalnat. reflexivity. } } Defined.
+Defined.
 
 Definition eta_pair {T} (P:T->Type) (w:total2 P) : 
   tpair P (pr1 w) (pr2 w) == w.
@@ -113,18 +124,36 @@ Proof. intros. apply (hzplusrcan _ _ (x+y)). rewrite hzlminus.
        rewrite <- (hzplusassoc (-x)). rewrite hzlminus. rewrite hzplusl0.
        rewrite hzlminus. reflexivity. Defined.
 
+Definition dirprod3 X Y Z := dirprod X (dirprod Y Z).
+
+Definition tuple3 {X Y Z} x y z := (x,,(y,,z)) : dirprod3 X Y Z.
+
+Definition paths3 {X Y Z} {x x':X} {y y':Y} {z z':Z} :
+  x==x' -> y==y' -> z==z' -> tuple3 x y z == tuple3 x' y' z'. 
+Proof. intros ? ? ? ? ? ? ? ? ? p q r. destruct p, q, r. reflexivity.
+Defined.       
+
+Definition dirprod4 W X Y Z := dirprod W (dirprod3 X Y Z).
+
+Definition tuple4 {W X Y Z} (w:W) x y z := (w,,tuple3 x y z) : dirprod4 W X Y Z.
+
+Definition paths4 {W X Y Z} {w w':W} {x x':X} {y y':Y} {z z':Z} :
+  w==w' -> x==x' -> y==y' -> z==z' -> tuple4 w x y z == tuple4 w' x' y' z'. 
+Proof. intros ? ? ? ? ? ? ? ? ? ? ? ? o p q r. destruct o, p, q, r. reflexivity.
+Defined.
+
 Definition ZZRecursionData0 (P:ZZ->Type) (p0:P zero) 
       (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
       (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) := fun 
-          f:forall i, P i => dirprod 
-            (f zero==p0) (dirprod
+          f:forall i, P i => dirprod3
+            (f zero==p0)
             (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
-            (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n)))).
+            (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n))).
 
 Definition ZZRecursionData (P:ZZ->Type)
       (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
       (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) := fun 
-             f:forall i, P i => dirprod 
+             f:forall i, P i => dirprod
                (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
                (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n))).
 
@@ -143,7 +172,40 @@ Lemma ZZRecursionUniq (P:ZZ->Type) (p0:P zero)
   iscontr (total2 (ZZRecursionData0 P p0 IH IH')).
 Proof. intros.
        unfold ZZRecursionData0.
-       (* use hNatRecursionEquiv and negpos' *)
+       (* use hNatRecursionEquiv *)
+       apply ( iscontrweqb (Y := total2 (fun f : forall w, P (negpos w) =>
+          dirprod4
+            (f (ii2 O) == p0)
+            (forall n : nat, f (ii2 (S n)) == IH n (f (ii2 n)))
+            (f (ii1 O) == IH' O (f (ii2 O)))
+            (forall n : nat, f (ii1 (S n)) == IH' (S n) (f (ii1 n)))))).
+       { apply (weqbandf (weqonsecbase _ negpos)). intro f.
+         refine (weqpair _ (gradth _ _ _ _)).
+         { intros [h0 [hp hn]]. refine (tuple4 _ _ _ _). 
+           { exact h0. } { exact hp. } 
+           { exact (hn O). } { intro n. exact (hn (S n)). } }
+         { intros [h0 [hp [h1' hn]]]. refine (tuple3 _ _ _).
+           { exact h0. } { exact hp. }
+           { intros [|n']. { exact h1'. } { exact (hn n'). } } }
+         { intros [h0 [hp hn]]. simpl. apply paths3. 
+           { reflexivity. } { reflexivity. }
+           { apply funextsec; intros [|n']; reflexivity; reflexivity. } }
+         { intros [h0 [h1' [hp hn]]]. reflexivity. } }
+       apply ( iscontrweqb (Y := total2 (
+         fun f : dirprod (forall n, P (negpos (ii1 n)))
+                         (forall n, P (negpos (ii2 n))) =>
+          dirprod4
+            (pr2 f O == p0)
+            (forall n : nat, pr2 f (S n) == IH n (pr2 f n))
+            (pr1 f O == IH' O (pr2 f O))
+            (forall n : nat, pr1 f (S n) == IH' (S n) (pr1 f n))))).
+       { apply (weqbandf (weqsecovercoprodtoprod (fun w => P (negpos w)))). 
+         intro f. apply idweq. }
+
+
+
+
+
        admit.
 Defined.
 
@@ -215,7 +277,7 @@ Proof. intros.
        refine (weqbandf (weqonsecbase _ w) _ _ _). intro f.
        refine (weqcomp (weqonsecbase _ w) _).
        change (set_to_type (trivialTorsor ZZ)) with (set_to_type ZZ).
-       refine (weqcomp (weqonsecbase _ (invweq negpos)) _).
+       refine (weqcomp (weqonsecbase _ negpos) _).
        refine (weqcomp (weqsecovercoprodtoprod _) _).
        refine (weqcomp (weqdirprodcomm _ _) _). apply weqdirprodf.
        { clear k2 l2. apply weqonseqfibers; intro n. simpl.
