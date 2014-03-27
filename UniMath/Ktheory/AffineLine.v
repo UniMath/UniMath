@@ -2,7 +2,7 @@
 
 Unset Automatic Introduction.
 Require Import algebra1b funextfun Utilities auxiliary_lemmas_HoTT GroupAction hz.
-Require pathnotations.
+Require pathnotations Nat.
 Import pathnotations.PathNotations Utilities.Notation Utilities.NatNotation.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Definition ZZ := hzaddabgr.
@@ -142,6 +142,19 @@ Definition paths4 {W X Y Z} {w w':W} {x x':X} {y y':Y} {z z':Z} :
 Proof. intros ? ? ? ? ? ? ? ? ? ? ? ? o p q r. destruct o, p, q, r. reflexivity.
 Defined.
 
+Definition total3 
+           {X} 
+           {Y:forall (x:X), Type}
+           (Z:forall (x:X) (y:Y x), Type) :=
+  total2 (fun x => total2 (Z x)).
+
+Definition total4
+           {X} 
+           {Y:forall (x:X), Type}
+           {Z:forall (x:X) (y:Y x), Type}
+           (B:forall (x:X) (y:Y x) (z:Z x y), Type) :=
+  total2 (fun x => total3 (B x)).
+
 Definition ZZRecursionData0 (P:ZZ->Type) (p0:P zero) 
       (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
       (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) := fun 
@@ -165,6 +178,14 @@ Proof. intros.
        { exact (p # nat_rect (fun n => P(toZZ n)) p0 IH n). } 
        { exact (q # nat_rect (fun n => P(- toZZ n)) p0 IH' (S m)). }
 Defined.
+
+Definition weq_total2_prod {X Y} (Z:Y->Type) :
+  weq (total2 (fun y => dirprod X (Z y))) (dirprod X (total2 Z)).
+Proof. intros. refine (weqpair _ (gradth _ _ _ _)).
+       { intros [y [x z]]. exact (x,,(y,,z)). }
+       { intros [x [y z]]. exact (y,,(x,,z)). }
+       { intros [y [x z]]. reflexivity. }
+       { intros [x [y z]]. reflexivity. } Defined.
 
 Lemma ZZRecursionUniq (P:ZZ->Type) (p0:P zero) 
       (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
@@ -201,12 +222,53 @@ Proof. intros.
             (forall n : nat, pr1 f (S n) == IH' (S n) (pr1 f n))))).
        { apply (weqbandf (weqsecovercoprodtoprod (fun w => P (negpos w)))). 
          intro f. apply idweq. }
-
-
-
-
-
-       admit.
+       apply ( iscontrweqb (Y := total2 (
+         fun f : dirprod (forall n, P (negpos (ii2 n)))
+                         (forall n, P (negpos (ii1 n))) =>
+          dirprod4
+            (pr1 f O == p0)
+            (forall n : nat, pr1 f (S n) == IH n (pr1 f n))
+            (pr2 f O == IH' O (pr1 f O))
+            (forall n : nat, pr2 f (S n) == IH' (S n) (pr2 f n))))).
+       { apply (weqbandf (weqdirprodcomm _ _)). intro f. apply idweq. }
+       apply ( iscontrweqb (Y := total2 ( fun 
+            f2 : forall n : nat, P (negpos (ii2 n)) => total2 (fun
+            f1 : forall n : nat, P (negpos (ii1 n)) => dirprod4
+                 (f2 O == p0)
+                 (forall n : nat, f2 (S n) == IH n (f2 n))
+                 (f1 O == IH' O (f2 O))
+                 (forall n : nat, f1 (S n) == IH' (S n) (f1 n)))))).
+       { apply weqtotal2asstor. }
+       apply ( iscontrweqb (Y := total2 ( fun 
+            f2 : forall n : nat, P (negpos (ii2 n)) => dirprod
+                 (f2 O == p0)
+                 (total2 (fun
+            f1 : forall n : nat, P (negpos (ii1 n)) => dirprod3
+                 (forall n : nat, f2 (S n) == IH n (f2 n))
+                 (f1 O == IH' O (f2 O))
+                 (forall n : nat, f1 (S n) == IH' (S n) (f1 n))))))).
+       { apply weqfibtototal; intro f2. apply weq_total2_prod. }
+       apply ( iscontrweqb (Y := total2 ( fun 
+            f2 : forall n : nat, P (negpos (ii2 n)) => dirprod3
+                 (f2 O == p0)
+                 (forall n : nat, f2 (S n) == IH n (f2 n))
+                 (total2 (fun
+            f1 : forall n : nat, P (negpos (ii1 n)) => dirprod
+                 (f1 O == IH' O (f2 O))
+                 (forall n : nat, f1 (S n) == IH' (S n) (f1 n))))))).
+       { apply weqfibtototal; intro f2. apply weqfibtototal; intro.
+         apply weq_total2_prod. }
+       apply ( iscontrweqb (Y := total2 ( fun 
+            f2 : forall n : nat, P (negpos (ii2 n)) => dirprod
+                 (f2 O == p0)
+                 (forall n : nat, f2 (S n) == IH n (f2 n))))).
+       { apply weqfibtototal; intro f2. apply weqfibtototal; intro h0.
+         apply weqpr1; intro ih2. 
+         exact (Nat.Uniqueness.hNatRecursionUniq
+                   (fun n => P (negpos (ii1 n))) 
+                   (IH' O (f2 O))
+                   (fun n => IH' (S n))). }
+       apply Nat.Uniqueness.hNatRecursionUniq.
 Defined.
 
 Lemma A (P:ZZ->Type) (p0:P zero) 
@@ -313,8 +375,6 @@ Definition GHomotopy {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) := fun
 
 Definition GuidedHomotopy {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) := 
   total2 (GHomotopy f s).
-
-
 
 (*
 Local Variables:
