@@ -17,12 +17,10 @@ Proof. intros. unfold hzabsval. unfold setquotuniv. simpl.
        unfold hzabsvalint. simpl. destruct (natgthorleh n 0).
        { apply natminuseqn. } { exact (! (natleh0tois0 _ h)). } Defined.
 
-Lemma hzsign_natnattohz m n :
-  - natnattohz m n == natnattohz n m. (* move to hz.v *)
+Lemma hzsign_natnattohz m n : - natnattohz m n == natnattohz n m. (* move to hz.v *)
 Proof. reflexivity. Defined.
 
-Lemma hzsign_nattohz m :
-  - nattohz m == natnattohz 0 m. (* move to hz.v *)
+Lemma hzsign_nattohz m : - nattohz m == natnattohz 0 m. (* move to hz.v *)
 Proof. reflexivity. Defined.
 
 Lemma hzsign_hzsign (i:hz) : - - i == i.
@@ -34,13 +32,24 @@ Definition hz_normal_form (i:ZZ) :=
 
 Definition hz_to_normal_form (i:ZZ) : hz_normal_form i.
 Proof. intros. destruct (hzlthorgeh i 0) as [r|s].
-       { apply inr.
-         assert (a := hzabsvallth0 r). assert (b := hzlthtoneq _ _ r).
+       { apply inr. assert (a := hzabsvallth0 r). assert (b := hzlthtoneq _ _ r).
          assert (c := hzabsvalneq0 b). assert (d := natneq0togth0 _ c).
          assert (f := natgthtogehsn _ _ d). assert (g := minusplusnmm _ _ f).
          rewrite natpluscomm in g. simpl in g. exists (hzabsval i - 1)%nat.
          rewrite g. apply hzinvmaponpathsminus. exact a. }
        { apply inl. exists (hzabsval i). exact (hzabsvalgeh0 s). } Defined.
+
+Lemma nattohz_inj {m n} : nattohz m == nattohz n -> m == n.
+Proof. exact (invmaponpathsincl _ isinclnattohz). Defined.
+
+Lemma hzdichot {m n} : neg (nattohz m == - nattohz (S n)).
+Proof. intros. intro e. assert (d := ap hzsign e); clear e.
+       rewrite hzsign_hzsign in d.
+       assert( f := ap (fun i => nattohz m + i) d); simpl in f; clear d.
+       change (nattohz m + - nattohz m) with (nattohz m - nattohz m) in f.
+       rewrite hzrminus in f. change (0 == nattohz (m + S n)) in f.
+       assert (g := nattohz_inj f); clear f. rewrite natpluscomm in g.
+       exact (negpaths0sx _ g). Defined.
 
 Definition negpos' : isweq (@pr1 _ hz_normal_form).
 Proof. apply isweqpr1; intro i.
@@ -50,12 +59,8 @@ Proof. apply isweqpr1; intro i.
        { apply (ap (@ii1 (total2 (fun n => natnattohz n 0 == i)) 
                          (total2 (fun n => natnattohz 0 (S n) == i)))).
          apply (proofirrelevance _ (isinclnattohz i)). }
-       { apply fromempty. assert (r := p@!q); clear p q.
-         
-                          
-                          
-                          admit. }
-       { apply fromempty. admit. }
+       { apply fromempty. assert (r := p@!q); clear p q. apply (hzdichot r). }
+       { apply fromempty. assert (r := q@!p); clear p q. apply (hzdichot r). }
        { apply (ap (@ii2 (total2 (fun n => natnattohz n 0 == i)) 
                          (total2 (fun n => natnattohz 0 (S n) == i)))).
          assert (p' := ap hzsign p). assert (q' := ap hzsign q).
@@ -128,8 +133,8 @@ Definition hz_rect (P:ZZ->Type) (p0:P zero)
       (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) : forall i, P i.
 Proof. intros.
        destruct (hz_to_normal_form i) as [[n p]|[m q]].
-       { rewrite <- p. exact (nat_rect (fun n => P(toZZ n)) p0 IH n). } 
-       { rewrite <- q. exact (nat_rect (fun n => P(- toZZ n)) p0 IH' (S m)). }
+       { exact (p # nat_rect (fun n => P(toZZ n)) p0 IH n). } 
+       { exact (q # nat_rect (fun n => P(- toZZ n)) p0 IH' (S m)). }
 Defined.
 
 Lemma ZZRecursionUniq (P:ZZ->Type) (p0:P zero) 
@@ -137,6 +142,8 @@ Lemma ZZRecursionUniq (P:ZZ->Type) (p0:P zero)
       (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
   iscontr (total2 (ZZRecursionData0 P p0 IH IH')).
 Proof. intros.
+       unfold ZZRecursionData0.
+       (* use hNatRecursionEquiv and negpos' *)
        admit.
 Defined.
 
