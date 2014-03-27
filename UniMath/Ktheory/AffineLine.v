@@ -3,7 +3,7 @@
 Unset Automatic Introduction.
 Require Import algebra1b funextfun Utilities auxiliary_lemmas_HoTT GroupAction hz.
 Require pathnotations.
-Import pathnotations.PathNotations Utilities.Notation.
+Import pathnotations.PathNotations Utilities.Notation Utilities.NatNotation.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Definition ZZ := hzaddabgr.
 Definition toZZ (n:nat) : ZZ := nattohz n.
@@ -11,6 +11,73 @@ Definition zero := toZZ 0.
 Definition one := toZZ 1.
 
 Open Scope hz_scope.
+
+Definition hzabsvalnat n : hzabsval (natnattohz n 0) == n. (* move to hz.v *)
+Proof. intros. unfold hzabsval. unfold setquotuniv. simpl.
+       unfold hzabsvalint. simpl. destruct (natgthorleh n 0).
+       { apply natminuseqn. } { exact (! (natleh0tois0 _ h)). } Defined.
+
+Lemma hzsign_natnattohz m n :
+  - natnattohz m n == natnattohz n m. (* move to hz.v *)
+Proof. reflexivity. Defined.
+
+Lemma hzsign_nattohz m :
+  - nattohz m == natnattohz 0 m. (* move to hz.v *)
+Proof. reflexivity. Defined.
+
+Lemma hzsign_hzsign (i:hz) : - - i == i.
+Proof. apply (grinvinv ZZ). Defined.
+
+Definition hz_normal_form (i:ZZ) :=
+  coprod (total2 (fun n => natnattohz n 0 == i))
+         (total2 (fun n => natnattohz 0 (S n) == i)).
+
+Definition hz_to_normal_form (i:ZZ) : hz_normal_form i.
+Proof. intros. destruct (hzlthorgeh i 0) as [r|s].
+       { apply inr.
+         assert (a := hzabsvallth0 r). assert (b := hzlthtoneq _ _ r).
+         assert (c := hzabsvalneq0 b). assert (d := natneq0togth0 _ c).
+         assert (f := natgthtogehsn _ _ d). assert (g := minusplusnmm _ _ f).
+         rewrite natpluscomm in g. simpl in g. exists (hzabsval i - 1)%nat.
+         rewrite g. apply hzinvmaponpathsminus. exact a. }
+       { apply inl. exists (hzabsval i). exact (hzabsvalgeh0 s). } Defined.
+
+Definition negpos' : isweq (@pr1 _ hz_normal_form).
+Proof. apply isweqpr1; intro i.
+       exists (hz_to_normal_form i).
+       generalize (hz_to_normal_form i) as s.
+       intros [[m p]|[m p]] [[n q]|[n q]].
+       { apply (ap (@ii1 (total2 (fun n => natnattohz n 0 == i)) 
+                         (total2 (fun n => natnattohz 0 (S n) == i)))).
+         apply (proofirrelevance _ (isinclnattohz i)). }
+       { apply fromempty. assert (r := p@!q); clear p q.
+         
+                          
+                          
+                          admit. }
+       { apply fromempty. admit. }
+       { apply (ap (@ii2 (total2 (fun n => natnattohz n 0 == i)) 
+                         (total2 (fun n => natnattohz 0 (S n) == i)))).
+         assert (p' := ap hzsign p). assert (q' := ap hzsign q).
+         change (- natnattohz O (S m)) with  (nattohz (S m)) in p'.
+         change (- natnattohz O (S n)) with  (nattohz (S n)) in q'.
+         assert (c := proofirrelevance _ (isinclnattohz (-i)) (S m,,p') (S n,,q')).
+         assert (d := ap pr1 c); simpl in d.
+         assert (e := invmaponpathsS _ _ d); clear d.
+         apply (pair_path_props (!e)). intro k. apply setproperty. } Defined.
+
+Definition negpos : weq ZZ (coprod nat nat). (* ZZ = (-inf,-1) + (0,inf) *)
+Proof. refine (weqpair _ (gradth _ _ _ _)).
+       { intro i. destruct (hz_to_normal_form i) as [[n p]|[m q]].
+         { exact (inr n). } { exact (inl m). } }
+       { intros [n'|n]. 
+         { exact (natnattohz 0 (S n')). } { exact (natnattohz n 0). } }
+       { simpl. intro i. 
+         destruct (hz_to_normal_form i) as [[n p]|[m q]].
+         { exact p. } { exact q. } }
+       { intros [n'|n].
+         { simpl. rewrite natminuseqn. reflexivity. }
+         { simpl. rewrite hzabsvalnat. reflexivity. } } Defined.
 
 Definition eta_pair {T} (P:T->Type) (w:total2 P) : 
   tpair P (pr1 w) (pr2 w) == w.
@@ -56,6 +123,15 @@ Definition ZZRecursionData (P:ZZ->Type)
                (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
                (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n))).
 
+Definition hz_rect (P:ZZ->Type) (p0:P zero) 
+      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
+      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) : forall i, P i.
+Proof. intros.
+       destruct (hz_to_normal_form i) as [[n p]|[m q]].
+       { rewrite <- p. exact (nat_rect (fun n => P(toZZ n)) p0 IH n). } 
+       { rewrite <- q. exact (nat_rect (fun n => P(- toZZ n)) p0 IH' (S m)). }
+Defined.
+
 Lemma ZZRecursionUniq (P:ZZ->Type) (p0:P zero) 
       (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
       (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
@@ -97,31 +173,6 @@ Proof. intros ? ? ? ? ? p. exact (ap (invweq f) p @ homotinvweqweq f x). Defined
 
 Definition swequiv' {X Y} (f:weq X Y) {x y} : invweq f y == x -> y == f x.
 Proof. intros ? ? ? ? ? p. exact (! homotweqinvweq f y @ ap f p). Defined.
-
-Definition hzabsvalnat n : hzabsval (nattohz n) == n. (* move to hz.v *)
-Proof. intros. unfold hzabsval. unfold setquotuniv. simpl.
-       unfold hzabsvalint. simpl. destruct (natgthorleh n 0).
-       { apply natminuseqn. } { exact (! (natleh0tois0 _ h)). } Defined.
-
-Goal forall m n, - natnattohz m n == natnattohz n m. (* move to hz.v as a lemma? *)
-Proof. reflexivity. Defined.
-
-Definition negpos : weq ZZ (coprod nat nat). (* ZZ = (-inf,-1) + (0,inf) *)
-Proof. refine (weqpair _ (gradth _ _ _ _)).
-       { intro i. induction (hzlthorgeh i zero).
-         { exact (inl (hzabsval i - 1)%nat). }
-         { exact (inr (hzabsval i)). } }
-       { intros [n'|n]. { exact (natnattohz 0 (S n')). } { exact (toZZ n). } }
-       { simpl. intro i. induction (hzlthorgeh i zero) as [e|e']; simpl.
-         { assert (a := hzabsvallth0 e). assert (b := hzlthtoneq _ _ e).
-           assert (c := hzabsvalneq0 b). assert (d := natneq0togth0 _ c).
-           assert (f := natgthtogehsn _ _ d). assert (g := minusplusnmm _ _ f).
-           rewrite natpluscomm in g. simpl in g. rewrite g.
-           apply hzinvmaponpathsminus. exact a. }
-         { exact (hzabsvalgeh0 e'). } }
-       { intros [n'|n].
-         { simpl. rewrite natminuseqn. reflexivity. }
-         { simpl. rewrite hzabsvalnat. reflexivity. } } Defined.
 
 Definition ZZTorsorRecursionEquiv {T:Torsor ZZ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t))) :
