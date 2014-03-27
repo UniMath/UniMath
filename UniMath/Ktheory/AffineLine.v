@@ -307,14 +307,14 @@ Proof. intros ? ? ? ? ? p. exact (! homotweqinvweq f y @ ap f p). Defined.
 
 Definition ZZTorsorRecursionEquiv {T:Torsor ZZ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t))) :
-  forall t,
+  forall t0,
   weq (total2 (fun 
           f:forall t, P t => 
             forall t, f (one + t) == IH t (f t)))
-      (P t).
+      (P t0).
 Proof. intros.
        (* exists (fun fh => pr1 fh t). *)
-       set (w := triviality_isomorphism T t).
+       set (w := triviality_isomorphism T t0).
        assert (k1 : forall n, one + w (toZZ n) == w (toZZ (S n))).
        { intros. simpl. rewrite nattohzandS. unfold right_mult, one. unfold toZZ.
          rewrite nattohzand1. apply pathsinv0. apply act_assoc. }
@@ -333,7 +333,7 @@ Proof. intros.
        set (ih':= fun n => invweq (weqcomp (IH (w (- toZZ (S n)))) (l2 n))).
        assert (G := ZZRecursionEquiv P' ih ih'); simpl in G.
        unfold P' in G; simpl in G.
-       assert( e : right_mult t zero == t ). { apply act_unit. }
+       assert( e : right_mult t0 zero == t0 ). { apply act_unit. }
        rewrite e in G; clear e. unfold ZZRecursionData in G.
        refine (weqcomp _ G). clear G ih ih' P'.
        refine (weqbandf (weqonsecbase _ w) _ _ _). intro f.
@@ -375,6 +375,18 @@ Definition GHomotopy {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) := fun
 
 Definition GuidedHomotopy {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) := 
   total2 (GHomotopy f s).
+
+Definition weq_pathscomp0 {X} x {y z:X} (p:y==z) : weq (x==y) (x==z).
+Proof. intros. exact (weqpair _ (isweqpathscomp0r _ p)). Defined.
+
+Lemma GuidedHomotopy_iscontr {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) :
+  iscontr (GuidedHomotopy f s).
+Proof. intros. apply (squash_to_prop (torsor_nonempty T)).
+       { apply isapropiscontr. }
+       intro t0. apply ( iscontrweqb (Y := total2 (fun y => y == f t0))).
+       { apply weqfibtototal; intro y.
+         exact (ZZTorsorRecursionEquiv _ (fun t => weq_pathscomp0 _ _) t0). }
+       apply iscontrcoconustot. Defined.
 
 (*
 Local Variables:
