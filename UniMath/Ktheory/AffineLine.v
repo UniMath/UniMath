@@ -376,17 +376,50 @@ Definition GHomotopy {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) := fun
 Definition GuidedHomotopy {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) := 
   total2 (GHomotopy f s).
 
-Definition weq_pathscomp0 {X} x {y z:X} (p:y==z) : weq (x==y) (x==z).
+Definition weq_pathscomp0r {X} x {y z:X} (p:y==z) : weq (x==y) (x==z).
 Proof. intros. exact (weqpair _ (isweqpathscomp0r _ p)). Defined.
 
-Lemma GuidedHomotopy_iscontr {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) :
+Lemma iscontrGuidedHomotopy {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) :
   iscontr (GuidedHomotopy f s).
 Proof. intros. apply (squash_to_prop (torsor_nonempty T)).
        { apply isapropiscontr. }
        intro t0. apply ( iscontrweqb (Y := total2 (fun y => y == f t0))).
        { apply weqfibtototal; intro y.
-         exact (ZZTorsorRecursionEquiv _ (fun t => weq_pathscomp0 _ _) t0). }
+         exact (ZZTorsorRecursionEquiv _ (fun t => weq_pathscomp0r _ _) t0). }
        apply iscontrcoconustot. Defined.
+
+Definition makeGuidedHomotopy {T:Torsor ZZ} {Y} (f:T->Y)
+           (s:target_paths f) {y:Y} t0 (h0:y==f t0) : 
+  GuidedHomotopy f s.
+Proof. intros. exact (y ,, 
+     invweq (ZZTorsorRecursionEquiv _ (fun t => weq_pathscomp0r _ _) t0) h0).
+Defined.
+
+Definition affine_line (T:Torsor ZZ) := squash T.
+
+Lemma iscontr_nonempty_prop {X} : nonempty X -> isaprop X -> iscontr X.
+Proof. admit. Defined.
+
+Lemma iscontr_affine_line (T:Torsor ZZ) : iscontr (affine_line T).
+Proof. intros. apply iscontraprop1. { apply isaprop_squash. }
+       exact (torsor_nonempty T). Defined.
+
+Definition map {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) : 
+  affine_line T -> GuidedHomotopy f s.
+Proof. intros ? ? ? ? t'. apply (squash_to_prop t').
+       { apply isapropifcontr. apply iscontrGuidedHomotopy. }
+       exact (fun t0 => makeGuidedHomotopy f s t0 (idpath (f t0))). Defined.
+
+Definition affine_line_map {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) : 
+  affine_line T -> Y.
+Proof. intros ? ? ? ? t'. exact (pr1 (map f s t')). Defined.
+
+Definition check_values {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f)
+           (t:T) : affine_line_map f s (squash_element t) == f t.
+Proof. reflexivity. Defined.
+
+Definition affine_line_value {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) : Y.
+Proof. intros. exact (affine_line_map f s (torsor_nonempty T)). Defined.
 
 (*
 Local Variables:
