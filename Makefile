@@ -11,7 +11,7 @@ ifeq ($(BUILD_COQ),yes)
 COQBIN=$(shell pwd)/sub/coq/bin/
 all: build-coq
 endif
-include build/CoqMakefile.make
+-include build/CoqMakefile.make
 everything: TAGS all html install
 OTHERFLAGS += -indices-matter
 UniMath/Foundations/hlevel2/algebra1b.vo : OTHERFLAGS += -no-sharing
@@ -35,7 +35,7 @@ clean:clean2
 clean2:; find . \( -name .\*.aux \) -delete
 describe:; git describe --dirty --long --always --abbrev=40 --all
 publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
-.coq_makefile_input: $(patsubst %, UniMath/%/.package/files, $(PACKAGES)) Makefile
+.coq_makefile_input: $(patsubst %, UniMath/%/.package/files, $(PACKAGES)) Makefile build/Makefile-configuration
 	@ echo making $@ ; ( \
 	echo '# -*- makefile-gmake -*-' ;\
 	echo ;\

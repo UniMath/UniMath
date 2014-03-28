@@ -22,13 +22,14 @@ Theorem iscontrGuidedHomotopy {Y} {f:ℕ->Y} (s:target_paths f) :
 Proof. intros. unfold GuidedHomotopy, nullHomotopyFrom.
        refine (@iscontrweqb _ (total2 (fun y => y==f 0)) _ _).
        { apply weqfibtototal. intro y. 
-         exact (Nat.Uniqueness.uniqueness' 
+         exact (Nat.Uniqueness.hNatRecursionEquiv 
                   (fun n => y == f n) (fun n hn => hn @ s n)). }
        { apply iscontrcoconustot. } Defined.
 
 Definition halfline := squash ℕ.
 
-Definition h_triv {Y} {f:ℕ->Y} (s:target_paths f) {y:Y} (h0:y==f 0) : nullHomotopyFrom f y.
+Definition makeNullHomotopy {Y} {f:ℕ->Y} (s:target_paths f) {y:Y} (h0:y==f 0) : 
+  nullHomotopyFrom f y.
 Proof. intros. intro n. induction n. { exact (h0). } { exact (IHn @ s _). } Defined.
 
 Definition map {Y} {f:ℕ->Y} (s:target_paths f) : 
@@ -36,16 +37,18 @@ Definition map {Y} {f:ℕ->Y} (s:target_paths f) :
 Proof. intros ? ? ? r. apply (squash_to_prop r).
        { apply isapropifcontr. apply iscontrGuidedHomotopy. } 
        { intro n. exists (f n). induction n.
-         { exists (h_triv s (idpath _)). intro n. reflexivity. }
+         { exists (makeNullHomotopy s (idpath _)). intro n. reflexivity. }
          { exact (transportf (gHomotopy f s) (s n) IHn). } } Defined.           
 
+Definition map_path {Y} {f:ℕ->Y} (s:target_paths f) : 
+  forall n, map s (squash_element n) == map s (squash_element (S n)).
+Proof. intros. apply (total2_paths2 (s n)). 
+       simpl. reflexivity. Defined.
+
 Definition map_path_check {Y} {f:ℕ->Y} (s:target_paths f) (n:ℕ) :
-  forall p : map s (squash_element n) ==
-             map s (squash_element (S n)),
+  forall p : map s (squash_element n) == map s (squash_element (S n)),
     ap pr1 p == s n.
-Proof. intros. 
-       set (q := total2_paths2 (s n) (idpath _) 
-                 : map s (squash_element n) == map s (squash_element (S n))).
+Proof. intros. set (q := map_path s n). 
        assert (path_inverse_to_right : q==p). 
        { apply (hlevelntosn 1). apply (hlevelntosn 0). apply iscontrGuidedHomotopy. }
        destruct path_inverse_to_right. apply total2_paths2_comp1. Defined.
