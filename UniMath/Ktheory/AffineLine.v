@@ -335,14 +335,6 @@ Proof. intros.
          reflexivity. }
        set (l2 := (fun n => eqweqmap (ap P (k2 n)))
                    : forall n, weq (P(one + w (- toZZ (S n)))) (P(w(-toZZ n)))).
-       set (P' := fun i => P(w i)).
-       set (ih := fun n => weqcomp (IH (w (toZZ n))) (l1 n)).
-       set (ih':= fun n => invweq (weqcomp (IH (w (- toZZ (S n)))) (l2 n))).
-       assert (G := ZZRecursionEquiv P' ih ih'); simpl in G.
-       unfold P' in G; simpl in G.
-       assert( e : right_mult t0 zero == t0 ). { apply act_unit. }
-       rewrite e in G; clear e. 
-       unfold ZZRecursionData in G.
        intermediate_weq' (total2
             (fun f : forall i : ZZ, P (right_mult t0 i) =>
              dirprod
@@ -353,8 +345,15 @@ Proof. intros.
                 f (- toZZ (S n)) ==
                 invmap (weqcomp (IH (right_mult t0 (- toZZ (S n)))) (l2 n))
                   (f (- toZZ n))))).
-       { exact G. }
-       clear G ih ih' P'.
+       { set (P' := fun i => P(w i)).
+         set (ih := fun n => weqcomp (IH (w (toZZ n))) (l1 n)).
+         set (ih':= fun n => invweq (weqcomp (IH (w (- toZZ (S n)))) (l2 n))).
+         assert (G := ZZRecursionEquiv P' ih ih'); simpl in G.
+         unfold P' in G; simpl in G.
+         assert( e : right_mult t0 zero == t0 ). { apply act_unit. }
+         rewrite e in G; clear e. 
+         unfold ZZRecursionData in G.
+         exact G. }
        refine (weqbandf (weqonsecbase _ w) _ _ _). intro f.
        intermediate_weq 
          (forall x : trivialTorsor ZZ, f (one + w x) == (IH (w x)) (f (w x))).
