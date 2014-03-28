@@ -358,6 +358,24 @@ Proof. intros.
          { simpl. apply (ap (invmap (IH _))). rewrite eta_weqpair.
            unfold l2; simpl. rewrite eqweqmap_ap'. reflexivity. } } Defined.
 
+Definition ZZTorsorRecursion_compute {T:Torsor ZZ} (P:T->Type) 
+      (IH:forall t, weq (P t) (P (one + t)))
+      (t:T) :
+  forall h, ZZTorsorRecursionEquiv P IH t h == pr1 h t.
+Proof. intros.
+       admit.
+Defined.
+
+Definition ZZTorsorRecursion_transition {T:Torsor ZZ} (P:T->Type) 
+      (IH:forall t, weq (P t) (P (one + t)))
+      (t:T) :
+  forall h,
+  (ZZTorsorRecursionEquiv P IH (one+t) h)
+  == 
+  IH t (ZZTorsorRecursionEquiv P IH t h).
+Proof. intros. rewrite 2!ZZTorsorRecursion_compute.
+       exact (pr2 h t). Defined.
+
 Definition ZZTorsorRecursion {T:Torsor ZZ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t)))
       (t t':T) :
@@ -391,15 +409,23 @@ Proof. intros. apply (squash_to_prop (torsor_nonempty T)).
 Definition makeGuidedHomotopy {T:Torsor ZZ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0) : 
   GuidedHomotopy f s.
-Proof. intros. exact (y ,, 
-     invweq (ZZTorsorRecursionEquiv _ (fun t => weq_pathscomp0r _ _) t0) h0).
-Defined.
+Proof. intros. exact (y ,, invweq (ZZTorsorRecursionEquiv 
+               (fun t : T => y == f t)
+               (fun t => weq_pathscomp0r y (s t))
+               t0) h0). Defined.
 
 Definition makeGuidedHomotopy_path {T:Torsor ZZ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0)
            {y':Y} (p:y'==y) :
   makeGuidedHomotopy f s t0 (p@h0) == makeGuidedHomotopy f s t0 h0.
 Proof. intros. apply (total2_paths2 p). destruct p. reflexivity. Defined.
+
+Definition makeGuidedHomotopy_path' {T:Torsor ZZ} {Y} (f:T->Y)
+           (s:target_paths f) {y:Y} t0 (h0:y==f t0) :
+  makeGuidedHomotopy f s t0 h0 == makeGuidedHomotopy f s (one+t0) (h0 @ s t0).
+Proof. intros. 
+       admit.
+Defined.
 
 Definition affine_line (T:Torsor ZZ) := squash T.
 
@@ -411,6 +437,7 @@ Definition map {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) :
   affine_line T -> GuidedHomotopy f s.
 Proof. intros ? ? ? ? t'. apply (squash_to_prop t').
        { apply isapropifcontr. apply iscontrGuidedHomotopy. }
+       (* try using transport as in Halfline.map *)
        exact (fun t0 => makeGuidedHomotopy f s t0 (idpath (f t0))). Defined.
 
 Definition map_path {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) : 

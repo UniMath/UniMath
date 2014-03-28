@@ -42,8 +42,8 @@ Proof. intros ? ? ? r. apply (squash_to_prop r).
 
 Definition map_path {Y} {f:ℕ->Y} (s:target_paths f) : 
   forall n, map s (squash_element n) == map s (squash_element (S n)).
-Proof. intros. apply (total2_paths2 (s n)). reflexivity. (* !! *)
-Defined.
+Proof. intros. apply (total2_paths2 (s n)). 
+       simpl. reflexivity. Defined.
 
 Definition map_path_check {Y} {f:ℕ->Y} (s:target_paths f) (n:ℕ) :
   forall p : map s (squash_element n) == map s (squash_element (S n)),
