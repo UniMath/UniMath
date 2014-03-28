@@ -154,6 +154,39 @@ Lemma transport_functions {X} {Y:X->Type} {Z:forall x (y:Y x), Type}
     transportf (Z x) (toforallpaths _ _ _ p x) (z x).
 Proof. intros. destruct p. reflexivity. Defined.
 
+Definition transport_funapp {T} {X Y:T->Type} 
+           (f:forall t, X t -> Y t) (x:forall t, X t)
+           {t t':T} (p:t==t') : 
+  transportf _ p ((f t)(x t)) 
+  == (transportf (fun t => X t -> Y t) p (f t)) (transportf _ p (x t)).
+Proof. intros. destruct p. reflexivity. Defined.
+
+Definition A {T} {Y} (P:T->Y->Type) {y y':Y} (k:forall t, P t y) (e:y==y') t :
+  transportf (fun y => P t y) e (k t)
+  == 
+  (transportf (fun y => forall t, P t y) e k) t.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition B {T} {Y} (f:T->Y) {y y':Y} (k:forall t, y==f t) (e:y==y') t :
+  transportf (fun y => y==f t) e (k t)
+  == 
+  (transportf (fun y => forall t, y==f t) e k) t.
+Proof. intros. exact (A _ k e t). Defined.
+
+Definition transport_invweq {T} {X Y:T->Type} (f:forall t, weq (X t) (Y t))
+           {t t':T} (p:t==t') : 
+  transportf (fun t => weq (Y t) (X t)) p (invweq (f t))
+  == 
+  invweq (transportf (fun t => weq (X t) (Y t)) p (f t)).
+Proof. intros. destruct p. reflexivity. Defined.
+
+Definition transport_invmap {T} {X Y:T->Type} (f:forall t, weq (X t) (Y t))
+           {t t':T} (p:t==t') : 
+  transportf (fun t => Y t -> X t) p (invmap (f t))
+  == 
+  invmap (transportf (fun t => weq (X t) (Y t)) p (f t)).
+Proof. intros. destruct p. reflexivity. Defined.
+
   (** ** double transport *)
 
   Definition transportf2 {X} {Y:X->Type} (Z:forall x, Y x->Type)
@@ -213,7 +246,11 @@ Definition propProperty (P:hProp) := pr2 P : isaprop (pr1 P).
 
 Ltac intermediate_path x := apply @pathscomp0 with (b := x).
 
-Ltac intermediate_weq y := apply @weqcomp with (Y := y).
+Ltac intermediate_weq Y' := apply @weqcomp with (Y := Y').
+
+Definition weqcomp' { X Y Z : UU } (w2 : weq Y Z) (w1 : weq X Y) := weqcomp w1 w2.
+
+Ltac intermediate_weq' Y' := apply @weqcomp' with (Y := Y').
 
 Definition isaset_if_isofhlevel2 {X} : isofhlevel 2 X -> isaset X.
 (* The use of this lemma ahead of something like 'impred' can be avoided by

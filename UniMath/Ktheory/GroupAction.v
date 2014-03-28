@@ -171,6 +171,9 @@ Definition torsor_nonempty {G} (X:Torsor G) := pr1 (is_torsor_prop X).
 Definition torsor_splitting {G} (X:Torsor G) := pr2 (is_torsor_prop X).
 Definition torsor_mult_weq {G} (X:Torsor G) (x:X) := 
   weqpair (right_mult x) (torsor_splitting X x) : weq G X.
+Definition torsor_update_nonempty {G} (X:Torsor G) (x:nonempty X) : Torsor G.
+Proof. intros ? X new. 
+       exact (underlyingAction X,,(new,,pr2(is_torsor_prop X))). Defined.
 
 Lemma underlyingAction_incl {G:gr} :
   isincl (underlyingAction : Torsor G -> Action G).

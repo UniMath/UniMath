@@ -7,6 +7,7 @@ Import pathnotations.PathNotations Utilities.Notation Utilities.NatNotation.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Definition ZZ := hzaddabgr.
 Definition toZZ (n:nat) : ZZ := nattohz n.
+Definition toZZneg (n:nat) : ZZ := natnattohz O n.
 Definition zero := toZZ 0.
 Definition one := toZZ 1.
 
@@ -313,7 +314,7 @@ Definition ZZTorsorRecursionEquiv {T:Torsor ZZ} (P:T->Type)
             forall t, f (one + t) == IH t (f t)))
       (P t0).
 Proof. intros.
-       (* exists (fun fh => pr1 fh t). *)
+       (* exists (fun fh => pr1 fh t0). intro q. unfold hfiber. *)
        set (w := triviality_isomorphism T t0).
        assert (k1 : forall n, one + w (toZZ n) == w (toZZ (S n))).
        { intros. simpl. rewrite nattohzandS. unfold right_mult, one. unfold toZZ.
@@ -334,24 +335,65 @@ Proof. intros.
        assert (G := ZZRecursionEquiv P' ih ih'); simpl in G.
        unfold P' in G; simpl in G.
        assert( e : right_mult t0 zero == t0 ). { apply act_unit. }
-       rewrite e in G; clear e. unfold ZZRecursionData in G.
-       refine (weqcomp _ G). clear G ih ih' P'.
+       rewrite e in G; clear e. 
+       unfold ZZRecursionData in G.
+       intermediate_weq' (total2
+            (fun f : forall i : ZZ, P (right_mult t0 i) =>
+             dirprod
+               (forall n : nat,
+                f (toZZ (S n)) ==
+                pr1 (l1 n) (pr1 (IH (right_mult t0 (toZZ n))) (f (toZZ n))))
+               (forall n : nat,
+                f (- toZZ (S n)) ==
+                invmap (weqcomp (IH (right_mult t0 (- toZZ (S n)))) (l2 n))
+                  (f (- toZZ n))))).
+       { exact G. }
+       clear G ih ih' P'.
        refine (weqbandf (weqonsecbase _ w) _ _ _). intro f.
-       refine (weqcomp (weqonsecbase _ w) _).
+       intermediate_weq 
+         (forall x : trivialTorsor ZZ, f (one + w x) == (IH (w x)) (f (w x))).
+       { exact (weqonsecbase _ w). }
        change (set_to_type (trivialTorsor ZZ)) with (set_to_type ZZ).
-       refine (weqcomp (weqonsecbase _ negpos) _).
-       refine (weqcomp (weqsecovercoprodtoprod _) _).
-       refine (weqcomp (weqdirprodcomm _ _) _). apply weqdirprodf.
+       intermediate_weq
+         (forall x : coprod nat nat,
+            f (one + w (negpos x)) == (IH (w (negpos x))) (f (w (negpos x)))).
+       { exact (weqonsecbase _ negpos). }
+       intermediate_weq
+            (dirprod
+                (forall x : nat,
+                 f (one + w (negpos (ii1 x))) ==
+                 (IH (w (negpos (ii1 x)))) (f (w (negpos (ii1 x)))))
+                (forall y : nat,
+                 f (one + w (negpos (ii2 y))) ==
+                 (IH (w (negpos (ii2 y)))) (f (w (negpos (ii2 y)))))).
+       { exact (weqsecovercoprodtoprod _). }
+       intermediate_weq
+         (dirprod
+            (forall y : nat,
+             f (one + w (negpos (ii2 y))) ==
+             (IH (w (negpos (ii2 y)))) (f (w (negpos (ii2 y)))))
+            (forall x : nat,
+             f (one + w (negpos (ii1 x))) ==
+             (IH (w (negpos (ii1 x)))) (f (w (negpos (ii1 x)))))).
+       { exact (weqdirprodcomm _ _). }
+       apply weqdirprodf.
        { clear k2 l2. apply weqonseqfibers; intro n. simpl.
          unfold invmap, negpos; simpl. unfold right_mult; simpl.
-         unfold maponsec1; simpl. refine (weqcomp (weqonpaths (l1 n) _ _) _).
+         unfold maponsec1; simpl. 
+         intermediate_weq 
+           ((l1 n) (f (one + (toZZ n + t0))) ==
+            (l1 n) ((IH (toZZ n + t0)) (f (toZZ n + t0)))).
+         { exact (weqonpaths (l1 n) _ _). }
          apply eqweqmap. apply pathpath.
          { unfold l1. rewrite eqweqmap_ap. reflexivity. }
          { reflexivity. } }
        { clear k1 l1. apply weqonseqfibers; intro n. simpl.
          unfold invmap, negpos; simpl. unfold right_mult; simpl.
          unfold maponsec1; simpl. 
-         refine (weqcomp (weqpair _ (isweqpathsinv0 _ _)) _).
+         intermediate_weq 
+           ((IH (toZZneg (S n) + t0))
+              (f (toZZneg (S n) + t0)) == f (one + (toZZneg (S n) + t0))).
+         { exact (weqpair _ (isweqpathsinv0 _ _)). }
          refine (weqonpaths2 _ _ _).
          { apply invweq. apply IH. }
          { simpl. rewrite homotinvweqweq. reflexivity. }
@@ -363,6 +405,7 @@ Definition ZZTorsorRecursion_compute {T:Torsor ZZ} (P:T->Type)
       (t:T) :
   forall h, ZZTorsorRecursionEquiv P IH t h == pr1 h t.
 Proof. intros.
+       (* reflexivity. *)
        admit.
 Defined.
 
@@ -435,16 +478,34 @@ Proof. intros. apply iscontraprop1. { apply isaprop_squash. }
 
 Definition map {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) : 
   affine_line T -> GuidedHomotopy f s.
-Proof. intros ? ? ? ? t'. apply (squash_to_prop t').
+Proof. intros ? ? ? ? t'. 
+       (* try to use transport as in Halfline.map *)
+       apply (squash_to_prop t').
        { apply isapropifcontr. apply iscontrGuidedHomotopy. }
-       (* try using transport as in Halfline.map *)
-       exact (fun t0 => makeGuidedHomotopy f s t0 (idpath (f t0))). Defined.
+       intro t; clear t'.
+       exact (makeGuidedHomotopy f s t (idpath _)). Defined.
+
+Definition affine_line_map {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) : 
+  affine_line T -> Y.
+Proof. intros ? ? ? ? t'. exact (pr1 (map f s t')). Defined.
+
+Definition check_values {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) t :
+  affine_line_map f s (squash_element t) == f t.
+Proof. intros. unfold affine_line_map, map, squash_element, squash_to_prop.
+       simpl. reflexivity. Defined.
 
 Definition map_path {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) : 
   forall t, map f s (squash_element t) == map f s (squash_element (one + t)).
-Proof. intros. 
-       apply (total2_paths2 (s t)).
-       admit.
+Proof. intros. refine (total2_paths2 _ _). 
+       { exact (s t). }
+       { simpl.
+         (* Set Printing All.  *)
+         Unset Printing Notations.
+         simpl.
+
+         
+         
+         admit. }
 Defined.
 
 Definition map_path_check {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) :
@@ -455,14 +516,6 @@ Proof. intros. set (q := map_path f s t). assert (k : q==p).
        { apply (hlevelntosn 1); apply (hlevelntosn 0). 
          apply iscontrGuidedHomotopy. }
        destruct k. apply total2_paths2_comp1. Defined.
-
-Definition affine_line_map {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) : 
-  affine_line T -> Y.
-Proof. intros ? ? ? ? t'. exact (pr1 (map f s t')). Defined.
-
-Definition check_values {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f)
-           (t:T) : affine_line_map f s (squash_element t) == f t.
-Proof. reflexivity. Defined.
 
 Definition check_paths {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) (t:T) :
   ap (affine_line_map f s) (squash_path t (one + t)) == s t.
