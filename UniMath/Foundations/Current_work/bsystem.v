@@ -182,7 +182,7 @@ Proof. intros . split with ( fun n => pr1 ( pretowerfunct_a g' f' g f h n ) ) . 
 
 
 
-
+   
 
 
 
