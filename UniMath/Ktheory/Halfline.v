@@ -40,13 +40,15 @@ Proof. intros ? ? ? r. apply (squash_to_prop r).
          { exists (makeNullHomotopy s (idpath _)). intro n. reflexivity. }
          { exact (transportf (gHomotopy f s) (s n) IHn). } } Defined.           
 
+Definition map_path {Y} {f:ℕ->Y} (s:target_paths f) : 
+  forall n, map s (squash_element n) == map s (squash_element (S n)).
+Proof. intros. apply (total2_paths2 (s n)). reflexivity. (* !! *)
+Defined.
+
 Definition map_path_check {Y} {f:ℕ->Y} (s:target_paths f) (n:ℕ) :
-  forall p : map s (squash_element n) ==
-             map s (squash_element (S n)),
+  forall p : map s (squash_element n) == map s (squash_element (S n)),
     ap pr1 p == s n.
-Proof. intros. 
-       set (q := total2_paths2 (s n) (idpath _) 
-                 : map s (squash_element n) == map s (squash_element (S n))).
+Proof. intros. set (q := map_path s n). 
        assert (path_inverse_to_right : q==p). 
        { apply (hlevelntosn 1). apply (hlevelntosn 0). apply iscontrGuidedHomotopy. }
        destruct path_inverse_to_right. apply total2_paths2_comp1. Defined.
