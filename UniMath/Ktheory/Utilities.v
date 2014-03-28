@@ -244,13 +244,15 @@ Ltac prop_logic :=
 
 Definition propProperty (P:hProp) := pr2 P : isaprop (pr1 P).
 
-Ltac intermediate_path x := apply @pathscomp0 with (b := x).
+Ltac intermediate_path x := apply (pathscomp0 (b := x)).
 
-Ltac intermediate_weq Y' := apply @weqcomp with (Y := Y').
+Ltac intermediate_weq Y' := apply (weqcomp (Y := Y')).
 
 Definition weqcomp' { X Y Z : UU } (w2 : weq Y Z) (w1 : weq X Y) := weqcomp w1 w2.
 
-Ltac intermediate_weq' Y' := apply @weqcomp' with (Y := Y').
+Ltac intermediate_weq' Y' := apply (weqcomp' (Y := Y')).
+
+Ltac intermediate_iscontr Y' := apply (iscontrweqb (Y := Y')).
 
 Definition isaset_if_isofhlevel2 {X} : isofhlevel 2 X -> isaset X.
 (* The use of this lemma ahead of something like 'impred' can be avoided by

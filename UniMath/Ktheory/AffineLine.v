@@ -213,56 +213,62 @@ Proof. intros.
            { reflexivity. } { reflexivity. }
            { apply funextsec; intros [|n']; reflexivity; reflexivity. } }
          { intros [h0 [h1' [hp hn]]]. reflexivity. } }
-       apply ( iscontrweqb (Y := total2 (
-         fun f : dirprod (forall n, P (negpos (ii1 n)))
-                         (forall n, P (negpos (ii2 n))) =>
-          dirprod4
-            (pr2 f O == p0)
-            (forall n : nat, pr2 f (S n) == IH n (pr2 f n))
-            (pr1 f O == IH' O (pr2 f O))
-            (forall n : nat, pr1 f (S n) == IH' (S n) (pr1 f n))))).
+       intermediate_iscontr (
+         total2 (
+             fun f : dirprod (forall n, P (negpos (ii1 n)))
+                             (forall n, P (negpos (ii2 n))) =>
+              dirprod4
+                (pr2 f O == p0)
+                (forall n : nat, pr2 f (S n) == IH n (pr2 f n))
+                (pr1 f O == IH' O (pr2 f O))
+                (forall n : nat, pr1 f (S n) == IH' (S n) (pr1 f n)))).
        { apply (weqbandf (weqsecovercoprodtoprod (fun w => P (negpos w)))). 
          intro f. apply idweq. }
-       apply ( iscontrweqb (Y := total2 (
-         fun f : dirprod (forall n, P (negpos (ii2 n)))
-                         (forall n, P (negpos (ii1 n))) =>
-          dirprod4
-            (pr1 f O == p0)
-            (forall n : nat, pr1 f (S n) == IH n (pr1 f n))
-            (pr2 f O == IH' O (pr1 f O))
-            (forall n : nat, pr2 f (S n) == IH' (S n) (pr2 f n))))).
+       intermediate_iscontr (
+         total2 (
+             fun f : dirprod (forall n, P (negpos (ii2 n)))
+                             (forall n, P (negpos (ii1 n))) =>
+              dirprod4
+                (pr1 f O == p0)
+                (forall n : nat, pr1 f (S n) == IH n (pr1 f n))
+                (pr2 f O == IH' O (pr1 f O))
+                (forall n : nat, pr2 f (S n) == IH' (S n) (pr2 f n)))).
        { apply (weqbandf (weqdirprodcomm _ _)). intro f. apply idweq. }
-       apply ( iscontrweqb (Y := total2 ( fun 
-            f2 : forall n : nat, P (negpos (ii2 n)) => total2 (fun
-            f1 : forall n : nat, P (negpos (ii1 n)) => dirprod4
-                 (f2 O == p0)
-                 (forall n : nat, f2 (S n) == IH n (f2 n))
-                 (f1 O == IH' O (f2 O))
-                 (forall n : nat, f1 (S n) == IH' (S n) (f1 n)))))).
+       intermediate_iscontr (
+         total2 ( fun 
+                f2 : forall n : nat, P (negpos (ii2 n)) => total2 (fun
+                f1 : forall n : nat, P (negpos (ii1 n)) => dirprod4
+                     (f2 O == p0)
+                     (forall n : nat, f2 (S n) == IH n (f2 n))
+                     (f1 O == IH' O (f2 O))
+                     (forall n : nat, f1 (S n) == IH' (S n) (f1 n))))).
        { apply weqtotal2asstor. }
-       apply ( iscontrweqb (Y := total2 ( fun 
+       intermediate_iscontr (
+         total2 ( fun 
             f2 : forall n : nat, P (negpos (ii2 n)) => dirprod
                  (f2 O == p0)
                  (total2 (fun
             f1 : forall n : nat, P (negpos (ii1 n)) => dirprod3
                  (forall n : nat, f2 (S n) == IH n (f2 n))
                  (f1 O == IH' O (f2 O))
-                 (forall n : nat, f1 (S n) == IH' (S n) (f1 n))))))).
+                 (forall n : nat, f1 (S n) == IH' (S n) (f1 n)))))).
        { apply weqfibtototal; intro f2. apply weq_total2_prod. }
-       apply ( iscontrweqb (Y := total2 ( fun 
+       intermediate_iscontr (
+         total2 ( fun 
             f2 : forall n : nat, P (negpos (ii2 n)) => dirprod3
                  (f2 O == p0)
                  (forall n : nat, f2 (S n) == IH n (f2 n))
                  (total2 (fun
             f1 : forall n : nat, P (negpos (ii1 n)) => dirprod
                  (f1 O == IH' O (f2 O))
-                 (forall n : nat, f1 (S n) == IH' (S n) (f1 n))))))).
+                 (forall n : nat, f1 (S n) == IH' (S n) (f1 n)))))).
        { apply weqfibtototal; intro f2. apply weqfibtototal; intro.
          apply weq_total2_prod. }
-       apply ( iscontrweqb (Y := total2 ( fun 
+       intermediate_iscontr (
+         total2 ( fun 
             f2 : forall n : nat, P (negpos (ii2 n)) => dirprod
                  (f2 O == p0)
-                 (forall n : nat, f2 (S n) == IH n (f2 n))))).
+                 (forall n : nat, f2 (S n) == IH n (f2 n)))).
        { apply weqfibtototal; intro f2. apply weqfibtototal; intro h0.
          apply weqpr1; intro ih2. 
          exact (Nat.Uniqueness.hNatRecursionUniq
