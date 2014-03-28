@@ -11,7 +11,7 @@ ifeq ($(BUILD_COQ),yes)
 COQBIN=$(shell pwd)/sub/coq/bin/
 all: build-coq
 endif
-include build/CoqMakefile.make
+-include build/CoqMakefile.make
 everything: TAGS all html install
 OTHERFLAGS += -indices-matter
 UniMath/Foundations/hlevel2/algebra1b.vo : OTHERFLAGS += -no-sharing
