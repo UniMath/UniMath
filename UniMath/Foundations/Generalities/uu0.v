@@ -3194,12 +3194,12 @@ Proof. intros. unfold isweq.  intro y.
 assert (is1: iscontr (forall x:X, hfiber  (f x) (y x))). assert (is2: forall x:X, iscontr (hfiber  (f x) (y x))). intro x. apply ( ( pr2 ( f x ) )  (y x)). apply funcontr. assumption. 
 apply (iscontrweqb  (weqhfibertoforall P Q f y) is1 ). Defined. 
 
-Definition weqonseqfibers { X : UU } (P Q : X-> UU) (f: forall x:X, weq ( P x ) ( Q x )) := weqpair _ ( isweqmaponsec P Q f ) .
+Definition weqonsecfibers { X : UU } (P Q : X-> UU) (f: forall x:X, weq ( P x ) ( Q x )) := weqpair _ ( isweqmaponsec P Q f ) .
 
 
 (** *** Composition of functions with a weak equivalence on the right *)
 
-Definition  weqffun ( X : UU ) { Y Z : UU } ( w : weq Y Z ) : weq ( X -> Y ) ( X -> Z ) := weqonseqfibers _ _ ( fun x : X => w ) . 
+Definition  weqffun ( X : UU ) { Y Z : UU } ( w : weq Y Z ) : weq ( X -> Y ) ( X -> Z ) := weqonsecfibers _ _ ( fun x : X => w ) . 
 
 
 
