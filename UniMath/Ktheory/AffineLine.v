@@ -19,10 +19,12 @@ Proof. intros. unfold hzabsval. unfold setquotuniv. simpl.
        { apply natminuseqn. } { exact (! (natleh0tois0 _ h)). } Defined.
 
 Lemma hzsign_natnattohz m n : - natnattohz m n == natnattohz n m. (* move to hz.v *)
-Proof. reflexivity. Defined.
+Proof. reflexivity.             (* don't change the proof *)
+Defined.
 
 Lemma hzsign_nattohz m : - nattohz m == natnattohz 0 m. (* move to hz.v *)
-Proof. reflexivity. Defined.
+Proof. reflexivity.             (* don't change the proof *)
+Defined.
 
 Lemma hzsign_hzsign (i:hz) : - - i == i.
 Proof. apply (grinvinv ZZ). Defined.
@@ -106,6 +108,10 @@ Proof. intros. apply eta_pair. Defined.
 
 Definition pathpath {X} {w x y z:X} : w==x -> y==z -> (w==y) == (x==z).
 Proof. intros ? ? ? ? ? p q.  destruct p,q. reflexivity. Defined.
+
+Definition weqonpaths1 {X} {x x' y y':X} : 
+  x == y -> x' == y' -> weq (x == x') (y == y').
+Proof. intros ? ? ? ? ? p q. destruct p,q. apply idweq. Defined.
 
 Definition weqonpaths2 {X Y} (w:weq X Y) {x x':X} {y y':Y} :
   w x == y -> w x' == y' -> weq (x == x') (y == y').
@@ -297,10 +303,77 @@ Proof. intros.
 Lemma ZZRecursionEquiv (P:ZZ->Type) 
       (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
       (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
-  weq (total2 (ZZRecursionData P IH IH'))
-      (P zero).
+  weq (total2 (ZZRecursionData P IH IH')) (P 0).
 Proof. intros. exists (fun f => pr1 f zero). intro p0.
        apply (iscontrweqf (A _ _ _ _)). apply ZZRecursionUniq. Defined.
+
+Lemma ZZRecursionEquiv_compute (P:ZZ->Type) 
+      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
+      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) 
+      (fh : total2 (ZZRecursionData P IH IH')) :
+  ZZRecursionEquiv P IH IH' fh == pr1 fh zero.
+Proof. reflexivity.             (* don't change the proof *)
+Defined.
+
+Definition ZZBiRecursionData (P:ZZ->Type) (IH :forall i, P(i) -> P(1+i)) := 
+  fun f:forall i, P i => forall i, f(1+i)==IH i (f i).
+
+Definition weqonsec {X Y} (P:X->Type) (Q:Y->Type)
+           (f:weq X Y) (g:forall x, weq (P x) (Q (f x))) :
+  weq (sections P) (sections Q).
+Proof. intros.
+       exact (weqcomp (weqonsecfibers P (fun x => Q(f x)) g)
+                      (invweq (weqonsecbase Q f))). Defined.
+
+Definition weq_transportf {X} (P:X->Type) {x y:X} (p:x==y) : weq (P x) (P y).
+Proof. intros. destruct p. apply idweq. Defined.
+
+Definition weq_transportf_comp {X} (P:X->Type) {x y:X} (p:x==y) (f:sections P) :
+  weq_transportf P p (f x) == f y.
+Proof. intros. destruct p. reflexivity. Defined.
+
+(* the next lemma is needed, perhaps because of an ambiguous coercion *)
+Definition change_pr1weq {X Y} (f:weq X Y) : pr1 f == pr1weq _ _ f.
+Proof. reflexivity. Defined.
+
+Definition ZZBiRecursionEquiv (P:ZZ->Type) (IH :forall i, weq (P i) (P(1+i))) :
+  weq (total2 (ZZBiRecursionData P IH)) (P 0).
+Proof. intros.
+       assert (k : forall n, one + toZZ n == toZZ (S n)).
+       { intro. rewrite nattohzandS. reflexivity. }
+       set (l := fun n : nat => weq_transportf P (k n)).
+       assert (k' : forall n, - toZZ n == one + (- toZZ (S n))).
+       { intros. unfold one, toZZ. rewrite nattohzand1.
+         rewrite nattohzandS. rewrite hzminusplus. rewrite <- (hzplusassoc one).
+         rewrite (hzpluscomm one). rewrite hzlminus. rewrite hzplusl0.
+         reflexivity. }
+       set (l' := fun n => weq_transportf P (k' n)).
+       set (ih := fun n => weqcomp (IH (toZZ n)) (l n)).
+       set (ih':= fun n => (weqcomp (l' n) (invweq (IH (- toZZ (S n)))))).
+       set (G := ZZRecursionEquiv P ih ih'). refine (weqcomp _ G).
+       apply weqfibtototal. intro f. unfold ZZRecursionData, ZZBiRecursionData.
+       refine (weqcomp (weqonsecbase _ negpos) _).
+       refine (weqcomp (weqsecovercoprodtoprod _) _).
+       refine (weqcomp (weqdirprodcomm _ _) _). apply weqdirprodf.
+       { apply weqonsecfibers; intro n. refine (weqonpaths2 _ _ _).
+         { change (negpos (ii2 n)) with (toZZ n). exact (l n). }
+         { unfold l. apply weq_transportf_comp. }
+         { reflexivity. } }
+       { apply weqonsecfibers; intro n. simpl.
+         refine (weqcomp (weqpair _ (isweqpathsinv0 _ _)) _).
+         refine (weqonpaths2 _ _ _).
+         { apply invweq. apply IH. }
+         { simpl. rewrite homotinvweqweq. reflexivity. }
+         { simpl. change (natnattohz 0 (S n)) with (- toZZ (S n)).
+           unfold l'. rewrite change_pr1weq. rewrite weq_transportf_comp.
+           reflexivity. } } Defined.
+
+Definition ZZBiRecursionEquiv_compute (P:ZZ->Type)
+           (IH :forall i, weq (P i) (P(1+i))) 
+      (fh : total2 (ZZBiRecursionData P IH)) :
+  ZZBiRecursionEquiv P IH fh == pr1 fh 0.
+Proof. reflexivity.             (* don't change the proof *)
+Defined.
 
 Notation "n + x" := (ac_mult _ n x) : action_scope.
 Notation "n - m" := (quotient _ n m) : action_scope.
@@ -311,6 +384,46 @@ Proof. intros ? ? ? ? ? p. exact (ap (invweq f) p @ homotinvweqweq f x). Defined
 
 Definition swequiv' {X Y} (f:weq X Y) {x y} : invweq f y == x -> y == f x.
 Proof. intros ? ? ? ? ? p. exact (! homotweqinvweq f y @ ap f p). Defined.
+
+Definition weqbandfrel {X Y T} 
+           (e:Y->T) (t:T) (f : weq X Y) 
+           (P:X -> Type) (Q: Y -> Type)
+           (g:forall x:X, weq (P x) (Q (f x))) :
+  weq (hfiber (fun xp:total2 P => e(f(pr1 xp))) t)
+      (hfiber (fun yq:total2 Q => e(  pr1 yq )) t).
+Proof. intros. refine (weqbandf (weqbandf f _ _ g) _ _ _).
+       intros [x p]. simpl. apply idweq. Defined.
+
+Definition weq_over_sections {S T} (w:weq S T) 
+           {s0:S} {t0:T} (k:w s0 == t0)
+           {P:T->Type} 
+           (p0:P t0) (pw0:P(w s0)) (l:k#pw0 == p0)
+           (H:sections P -> Type) 
+           (J:sections (funcomp w P) -> Type)
+           (g:forall f:sections P, weq (H f) (J (maponsec1 P w f))) :
+  weq (hfiber (fun fh:total2 H => pr1 fh t0) p0 )
+      (hfiber (fun fh:total2 J => pr1 fh s0) pw0).
+Proof. intros. refine (weqbandf _ _ _ _).
+       { refine (weqbandf _ _ _ _).
+         { exact (weqonsecbase P w). }
+         { unfold weqonsecbase; simpl. exact g. } }
+       { intros [f h]. simpl. unfold maponsec1; simpl.
+         destruct k, l; simpl. unfold transportf; simpl.
+         unfold idfun; simpl. apply idweq. } Defined.
+
+Definition transportbfinv {T} (P:T->Type) {t u:T} (e:t==u) (p:P t) : e#'e#p == p.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition transportfbinv {T} (P:T->Type) {t u:T} (e:t==u) (p:P u) : e#e#'p == p.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition eqweqmapap_inv {T} (P:T->Type) {t u:T} (e:t==u) (p:P u) :
+  (eqweqmap (ap P e)) ((eqweqmap (ap P (!e))) p) == p.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition eqweqmapap_inv' {T} (P:T->Type) {t u:T} (e:t==u) (p:P t) :
+  (eqweqmap (ap P (!e))) ((eqweqmap (ap P e)) p) == p.
+Proof. intros. destruct e. reflexivity. Defined.
 
 Definition ZZTorsorRecursionEquiv {T:Torsor ZZ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t))) :
@@ -350,8 +463,8 @@ Proof. intros.
          set (ih':= fun n => invweq (weqcomp (IH (w (- toZZ (S n)))) (l2 n))).
          assert (G := ZZRecursionEquiv P' ih ih'); simpl in G.
          unfold P' in G; simpl in G.
-         assert( e : right_mult t0 zero == t0 ). { apply act_unit. }
-         rewrite e in G; clear e. 
+         assert( e : right_mult t0 0 == t0 ). { apply act_unit. }
+         rewrite e in G; clear e.
          unfold ZZRecursionData in G.
          exact G. }
        refine (weqbandf (weqonsecbase _ w) _ _ _). intro f.
@@ -382,7 +495,7 @@ Proof. intros.
              (IH (w (negpos (ii1 x)))) (f (w (negpos (ii1 x)))))).
        { exact (weqdirprodcomm _ _). }
        apply weqdirprodf.
-       { clear k2 l2. apply weqonseqfibers; intro n. simpl.
+       { clear k2 l2. apply weqonsecfibers; intro n. simpl.
          unfold invmap, negpos; simpl. unfold right_mult; simpl.
          unfold maponsec1; simpl. 
          intermediate_weq 
@@ -392,7 +505,7 @@ Proof. intros.
          apply eqweqmap. apply pathpath.
          { unfold l1. rewrite eqweqmap_ap. reflexivity. }
          { reflexivity. } }
-       { clear k1 l1. apply weqonseqfibers; intro n. simpl.
+       { clear k1 l1. apply weqonsecfibers; intro n. simpl.
          unfold invmap, negpos; simpl. unfold right_mult; simpl.
          unfold maponsec1; simpl. 
          intermediate_weq 
@@ -405,13 +518,83 @@ Proof. intros.
          { simpl. apply (ap (invmap (IH _))). rewrite eta_weqpair.
            unfold l2; simpl. rewrite eqweqmap_ap'. reflexivity. } } Defined.
 
+Definition ZZTorsorRecursionEquiv_new {T:Torsor ZZ} (P:T->Type) 
+      (IH:forall t, weq (P t) (P (one + t))) :
+  forall t0,
+  weq (total2 (fun 
+          f:forall t, P t => 
+            forall t, f (one + t) == IH t (f t)))
+      (P t0).
+Proof. intros.
+       exists (fun fh => pr1 fh t0). intro q.
+       set (w := triviality_isomorphism T t0).
+       assert (k0 : forall i, one + w i == w (1+i)%hz).
+       { intros. simpl. unfold right_mult, ac_mult. rewrite act_assoc.
+         reflexivity. }
+       set (l0 := (fun i => eqweqmap (ap P (k0 i))) 
+               : forall i, weq (P(one + w i)) (P(w(1+i)%hz))).
+       assert (k1 : forall n, one + w (toZZ n) == w (toZZ (S n))).
+       { intros. simpl. rewrite nattohzandS. unfold right_mult, one. unfold toZZ.
+         rewrite nattohzand1. apply pathsinv0. apply act_assoc. }
+       set (l1 := (fun n => eqweqmap (ap P (k1 n))) 
+                : forall n, weq (P(one + w (toZZ n))) (P(w(toZZ (S n))))).
+       assert (k2: forall n, one + w (- toZZ (S n)) == w (- toZZ n)).
+       { intros; simpl. unfold one. unfold toZZ. rewrite nattohzand1.
+         rewrite nattohzandS. rewrite hzminusplus. unfold right_mult.
+         rewrite <- (ac_assoc _ one). rewrite <- (hzplusassoc one).
+         rewrite (hzpluscomm one). rewrite hzlminus. rewrite hzplusl0.
+         reflexivity. }
+       set (l2 := (fun n => eqweqmap (ap P (k2 n)))
+                   : forall n, weq (P(one + w (- toZZ (S n)))) (P(w(-toZZ n)))).
+       assert( e : right_mult t0 zero == t0 ). { apply act_unit. }
+       assert (k3 : P (right_mult t0 zero) == P t0). { rewrite e. reflexivity. }
+       set (H := fun f => forall t : T, f (one + t) == (IH t) (f t)).
+       set ( IH' := (fun i => weqcomp (IH (w i)) (l0 i))
+                    : forall i:ZZ, weq (P (w i)) (P (w(1+i)%hz))).
+       set (J := fun f => forall i : ZZ, f (1 + i)%hz == (IH' i) (f i)).
+       refine (iscontrweqb (@weq_over_sections ZZ T w 0 t0 e P q (e#'q) _ H J _) _).
+       { apply transportfbinv. }
+       { intro. apply invweq. unfold H,J,maponsec1. refine (weqonsec _ _ w _).
+         intro i.
+         refine (weqonpaths2 _ _ _).
+         { exact (invweq (l0 i)). }
+         { unfold l0. rewrite (k0 i). reflexivity. }
+         { unfold IH'. unfold weqcomp; simpl. 
+           change (pr1 (l0 i)) with (pr1weq _ _ (l0 i)). 
+           rewrite (homotinvweqweq (l0 i)). reflexivity. } }
+
+
+
+
+       
+       
+       intermediate_iscontr (
+         total2 (fun u : (total2
+            (fun f : forall i : ZZ, P (right_mult t0 i) =>
+             dirprod
+               (forall n : nat,
+                f (toZZ (S n)) ==
+                pr1 (l1 n) (pr1 (IH (right_mult t0 (toZZ n))) (f (toZZ n))))
+               (forall n : nat,
+                f (- toZZ (S n)) ==
+                invmap (weqcomp (IH (right_mult t0 (- toZZ (S n)))) (l2 n))
+                  (f (- toZZ n))))) => cast k3 (pr1 u 0) == q)).
+       admit.
+       admit.
+Defined.
+
 Definition ZZTorsorRecursion_compute {T:Torsor ZZ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t)))
       (t:T) :
   forall h, ZZTorsorRecursionEquiv P IH t h == pr1 h t.
-Proof. intros.
-       (* reflexivity. *)
-       admit.
+Proof. admit.
+Defined.
+
+Definition ZZTorsorRecursion_new_compute {T:Torsor ZZ} (P:T->Type) 
+      (IH:forall t, weq (P t) (P (one + t)))
+      (t:T) :
+  forall h, ZZTorsorRecursionEquiv_new P IH t h == pr1 h t.
+Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
 Definition ZZTorsorRecursion_transition {T:Torsor ZZ} (P:T->Type) 

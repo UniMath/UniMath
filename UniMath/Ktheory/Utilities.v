@@ -254,6 +254,11 @@ Ltac intermediate_weq' Y' := apply (weqcomp' (Y := Y')).
 
 Ltac intermediate_iscontr Y' := apply (iscontrweqb (Y := Y')).
 
+Lemma iscontrweqb' {X Y} (is:iscontr Y) (w:weq X Y) : iscontr X.
+Proof. intros. apply (iscontrweqb (Y:=Y)). assumption. assumption. Defined.
+
+Ltac intermediate_iscontr' Y' := apply (iscontrweqb' (Y := Y')).
+
 Definition isaset_if_isofhlevel2 {X} : isofhlevel 2 X -> isaset X.
 (* The use of this lemma ahead of something like 'impred' can be avoided by
    providing 2 as first argument. *)

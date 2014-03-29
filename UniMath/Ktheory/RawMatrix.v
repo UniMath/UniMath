@@ -42,7 +42,7 @@ Definition to_matrix {C:precategory}
            {J} {b:J -> ob C} (B:Sum.type C b) :
            weq (Hom B D) (forall i j, Hom (b j) (d i)).
 Proof. intros. apply @weqcomp with (Y := forall i, Hom B (d i)).
-       { apply to_col. } { apply weqonseqfibers; intro i. apply to_row. } Defined.
+       { apply to_col. } { apply weqonsecfibers; intro i. apply to_row. } Defined.
 Definition from_matrix {C:precategory} 
            {I} {d:I -> ob C} (D:Product.type C d)
            {J} {b:J -> ob C} (B:Sum.type C b) :
