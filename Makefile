@@ -35,7 +35,7 @@ clean:clean2
 clean2:; find . \( -name .\*.aux \) -delete
 describe:; git describe --dirty --long --always --abbrev=40 --all
 publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
-.coq_makefile_input: $(patsubst %, UniMath/%/.package/files, $(PACKAGES)) Makefile build/Makefile-configuration
+.coq_makefile_input: $(patsubst %, UniMath/%/.package/files, $(PACKAGES)) Makefile
 	@ echo making $@ ; ( \
 	echo '# -*- makefile-gmake -*-' ;\
 	echo ;\
