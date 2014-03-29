@@ -12,7 +12,7 @@ PACKAGES += Foundations
 ############################################
 BUILD_COQ ?= yes
 ifeq ($(BUILD_COQ),yes)
-COQBIN=$(shell pwd)/sub/coq/bin/
+COQBIN=sub/coq/bin/
 all: build-coq
 endif
 -include build/CoqMakefile.make
@@ -35,8 +35,6 @@ TAGS : $(VFILES); etags $(COQDEFS) $^
 install:all
 lc:; wc -l $(VFILES)
 wc:; wc -w $(VFILES)
-clean:clean2
-clean2:; find . \( -name .\*.aux \) -delete
 describe:; git describe --dirty --long --always --abbrev=40 --all
 publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
 .coq_makefile_input: $(patsubst %, UniMath/%/.package/files, $(PACKAGES)) $(MAKEFILES)
@@ -60,6 +58,16 @@ publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
 build/CoqMakefile.make: .coq_makefile_input
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output $@
+
+clean:clean2
+distclean:cleanconfig distclean_coq
+clean2:
+	rm -f .coq_makefile_output build/CoqMakefile.make
+	find UniMath \( -name .\*.aux \) -delete
+distclean_coq:
+	- $(MAKE) -C sub/coq distclean
+cleanconfig:
+	rm -f build/Makefile-configuration
 
 # building coq:
 ifeq ($(BUILD_COQ),yes)
