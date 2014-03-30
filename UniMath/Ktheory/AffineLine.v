@@ -291,10 +291,6 @@ Definition weq_transportf_comp {X} (P:X->Type) {x y:X} (p:x==y) (f:sections P) :
   weq_transportf P p (f x) == f y.
 Proof. intros. destruct p. reflexivity. Defined.
 
-(* the next lemma is needed, perhaps because of an ambiguous coercion *)
-Definition change_pr1weq {X Y} (f:weq X Y) : pr1 f == pr1weq _ _ f.
-Proof. reflexivity. Defined.
-
 Definition ℤBiRecursionEquiv (P:ℤ->Type) (IH :forall i, weq (P i) (P(1+i))) :
   weq (total2 (ℤBiRecursionData P IH)) (P 0).
 Proof. intros.
@@ -324,7 +320,7 @@ Proof. intros.
          { apply invweq. apply IH. }
          { simpl. rewrite homotinvweqweq. reflexivity. }
          { simpl. change (natnattohz 0 (S n)) with (- toℤ (S n)).
-           unfold l'. rewrite change_pr1weq. rewrite weq_transportf_comp.
+           unfold l'. rewrite weq_transportf_comp.
            reflexivity. } } Defined.
 
 Definition ℤBiRecursionEquiv_compute (P:ℤ->Type)
@@ -413,7 +409,7 @@ Proof. intros. exists (fun fh => pr1 fh t0). intro q.
          intro i. refine (weqonpaths2 _ _ _).
          { exact (invweq (l0 i)). }
          { unfold l0. rewrite (k0 i). reflexivity. }
-         { unfold IH'. unfold weqcomp; simpl. rewrite change_pr1weq.
+         { unfold IH'. unfold weqcomp; simpl.
            rewrite (homotinvweqweq (l0 i)). reflexivity. } }
        exact (pr2 (ℤBiRecursionEquiv (fun i => P(w i)) IH') (e #' q)).
 Defined.

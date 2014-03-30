@@ -449,15 +449,6 @@ Defined.
 (** ** The real line *)
 Require Import Foundations.hlevel2.hz.
 Notation ℤ := hz.hzaddabgr.
-Definition line := squash ℤ.
-Notation ℝ := line.
-Definition line_vertex : ℤ -> ℝ := squash_element.
-Definition line_path (m n:ℤ) : line_vertex m == line_vertex n := squash_path m n.
-Definition line_map {Y} {y:Y} (f:forall m:ℤ, Y) (e:forall m:ℤ, f m == y) :
-  line -> Y := cone_squash_map f y e.
-Goal forall Y (y:Y) (f:forall m:ℤ, Y) (e:forall m:ℤ, f m == y),
-       forall n, line_map f e (line_vertex n) == f n.
-Proof. reflexivity. Qed.
 
 (** ** Factoring maps through squash *)
  

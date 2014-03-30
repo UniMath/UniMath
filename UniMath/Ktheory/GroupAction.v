@@ -131,7 +131,7 @@ Lemma underlyingIso_injectivity {G:gr} {X Y:Action G}
 Proof. intros. apply weqonpathsincl. apply underlyingIso_incl. Defined.
 
 Definition underlyingActionMap {G:gr} {X Y:Action G} (e:ActionIso X Y) := 
-  pr1weq _ _ (pr1 e),, pr2 e.
+  pr1weq (pr1 e),, pr2 e.
 Definition idActionIso {G:gr} (X:Action G) : ActionIso X X.
 Proof. intros. exists (idweq _). intros g x. reflexivity. Defined.
 Definition composeActionIso {G:gr} {X Y Z:Action G}
@@ -255,7 +255,7 @@ Definition trivialTorsorAuto (G:gr) (g:G) :
 Proof. intros. exists (trivialTorsorEquiv G g).
        intros h x. simpl.  exact (assocax _ h x g). Defined.
 
-Lemma pr1weq_injectivity {X Y} (f g:weq X Y) : weq (f==g) (pr1weq _ _ f==pr1weq _ _ g).
+Lemma pr1weq_injectivity {X Y} (f g:weq X Y) : weq (f==g) (pr1weq f == pr1weq g).
 Proof. intros. apply weqonpathsincl. apply isinclpr1weq.  Defined.
 
 Definition autos (G:gr) : weq G (ActionIso (trivialTorsor G) (trivialTorsor G)).

@@ -796,17 +796,13 @@ Proof.
   apply idpath.
 Defined.
 
-
 Lemma toforallpaths_funextsec : forall (T : UU) (P : T -> UU) (f g : forall t : T, P t)
           (h : forall t : T, f t == g t), 
             toforallpaths _  _ _ (funextsec _ _ _ h) == h.
 Proof.
   intros T P f g h.
-  Opaque weqtoforallpaths. 
-  exact ((homotweqinvweq (weqtoforallpaths _ f g)) h : (pr1weq _ _ (tpair _ _ _) _) == _).
+  exact (homotweqinvweq (weqtoforallpaths _ f g) h).
 Qed.
-
-Transparent weqtoforallpaths.
 
 Definition pr1_functor_eq_from_functor_iso (C D : precategory)
     (H : is_category D) (F G : ob [C , D]) :
