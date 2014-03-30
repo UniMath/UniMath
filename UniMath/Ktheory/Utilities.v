@@ -101,7 +101,7 @@ Definition app {X} {P:X->Type} {x x':X} {e e':x==x'} (q:e==e') (p:P x) :
    e#p==e'#p.
 Proof. intros. destruct q. reflexivity. Defined.
 
-(** * Projections from pair types *)
+(** ** Projections from pair types *)
 
 Definition pr2_pair {X} {P:X->UU} {w w':total2 P} (p : w == w') :
   transportf P (ap pr1 p) (pr2 w) == pr2 w'.
@@ -121,7 +121,7 @@ Proof. intros. destruct p, q. reflexivity. Defined.
 Definition from_total2 {X} {P:X->Type} {Y} : (forall x, P x->Y) -> total2 P -> Y.
 Proof. intros ? ? ? f [x p]. exact (f x p). Defined.
 
-(** * Sections *)
+(** ** Sections *)
 
 Definition sections {T} (P:T->UU) := forall t:T, P t.
 Definition homotsec {T} {P:T->UU} (f g:sections P) := forall t, f t == g t.
@@ -217,14 +217,14 @@ Proof. intros. destruct p. reflexivity. Defined.
     tpair (Z x) (transportb Y p y') (transportb2 _ p y' z').
   Proof. intros. destruct p. reflexivity. Defined.
 
-(** * Decidability *)
+(** ** Decidability *)
 
 Definition decidable X := coprod X (not X).
 Definition LEM := forall P, isaprop P -> decidable P.
 Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
 Proof. intros X lem is x y. exact (lem (x==y) (is x y)). Qed.
 
-(** * h-levels and paths *)
+(** ** h-levels and paths *)
 
 Definition post_cat {X} {x y z:X} {q:y==z} : x==y -> x==z.
 Proof. intros ? ? ? ? p q. exact (pathscomp0 q p). Defined.
@@ -354,7 +354,7 @@ Proof. intros ? ? a. destruct a. exists f. unfold isweq. intro y.
 
 (* Defined. *)
 
-(** * Squashing. *)
+(** ** Squashing. *)
 
 Notation squash := ishinh_UU.
 Notation nonempty := ishinh.
@@ -446,7 +446,7 @@ Proof. intros ? ? ? ? e.
        exact (maponpaths (fun h x => interval_map (e x) h) interval_path).
 Defined.
 
-(** * The real line *)
+(** ** The real line *)
 Require Import Foundations.hlevel2.hz.
 Notation ℤ := hz.hzaddabgr.
 Definition line := squash ℤ.
@@ -566,7 +566,7 @@ Definition fpmaphomothomot {X: UU} {P Q: X -> UU} (h1 h2: P ~ Q) (H: forall x: X
 Proof. intros. intros [x p]. apply (maponpaths (tpair _ x)).  
        destruct (H x). apply idpath. Defined.
 
-(** * Connected types *)
+(** ** Connected types *)
 
 Definition isconnected X := forall (x y:X), nonempty (x==y).
 
@@ -576,7 +576,7 @@ Proof. intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
        apply (squash_to_prop b). apply propproperty. clear b. intros b.
        apply hinhpr. exact (!a@b). Defined.
 
-(** * Applications of univalence *)
+(** ** Applications of univalence *)
 
 (** Compare the following two definitions with [transport_type_path]. *)
 
@@ -596,7 +596,7 @@ Proof. intros. exact (!pr1_eqweqmap2 _ @ ap pr1 (weqpathsweq w)). Defined.
 Definition weqpath_cast {X Y} (w:weq X Y) (x:X) : cast (weqtopaths w) == w.
 Proof. intros. exact (pr1_eqweqmap _ @ ap pr1 (weqpathsweq w)). Defined.
 
-(** * Pointed types *)
+(** ** Pointed types *)
 
 Definition PointedType := total2 (fun X => X).
 Definition pointedType X x := X,,x : PointedType.
@@ -606,6 +606,28 @@ Definition basepoint (X:PointedType) := pr2 X.
 Definition loopSpace (X:PointedType) := 
   pointedType (basepoint X == basepoint X) (idpath _).
 Definition Ω := loopSpace.
+
+(** ** Direct products with several factors *)
+
+Definition dirprod3 X Y Z := dirprod X (dirprod Y Z).
+
+Definition tuple3 {X Y Z} x y z := (x,,(y,,z)) : dirprod3 X Y Z.
+
+Definition paths3 {X Y Z} {x x':X} {y y':Y} {z z':Z} :
+  x==x' -> y==y' -> z==z' -> tuple3 x y z == tuple3 x' y' z'. 
+Proof. intros ? ? ? ? ? ? ? ? ? p q r. destruct p, q, r. reflexivity.
+Defined.       
+
+Definition dirprod4 W X Y Z := dirprod W (dirprod3 X Y Z).
+
+Definition tuple4 {W X Y Z} (w:W) x y z := (w,,tuple3 x y z) : dirprod4 W X Y Z.
+
+Definition paths4 {W X Y Z} {w w':W} {x x':X} {y y':Y} {z z':Z} :
+  w==w' -> x==x' -> y==y' -> z==z' -> tuple4 w x y z == tuple4 w' x' y' z'. 
+Proof. intros ? ? ? ? ? ? ? ? ? ? ? ? o p q r. destruct o, p, q, r. reflexivity.
+Defined.
+
+
 (*
 Local Variables:
 compile-command: "make -C ../.. TAGS UniMath/Ktheory/Utilities.vo"

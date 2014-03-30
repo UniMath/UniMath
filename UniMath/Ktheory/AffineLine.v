@@ -1,15 +1,25 @@
-(** * Construction of affine lines *)
+(** * Construction of affine lines 
+
+ We show that the propositional truncation of a ℤ-torsor, where ℤ
+ is the additive group of the integers, behaves like an affine line.
+ It's a contractible type, but maps from it to another type Y are determined
+ by specifying where the points of T should go, and where the paths
+ joining consecutive points of T should go.
+
+ *)
+
+(** ** Preliminaries *)
 
 Unset Automatic Introduction.
 Require Import algebra1b funextfun Utilities auxiliary_lemmas_HoTT GroupAction hz.
 Require pathnotations Nat.
 Import pathnotations.PathNotations Utilities.Notation Utilities.NatNotation.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
-Definition ZZ := hzaddabgr.
-Definition toZZ (n:nat) : ZZ := nattohz n.
-Definition toZZneg (n:nat) : ZZ := natnattohz O n.
-Definition zero := toZZ 0.
-Definition one := toZZ 1.
+Definition ℤ := hzaddabgr.
+Definition toℤ (n:nat) : ℤ := nattohz n.
+Definition toℤneg (n:nat) : ℤ := natnattohz O n.
+Definition zero := toℤ 0.
+Definition one := toℤ 1.
 
 Open Scope hz_scope.
 
@@ -27,9 +37,9 @@ Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
 Lemma hzsign_hzsign (i:hz) : - - i == i.
-Proof. apply (grinvinv ZZ). Defined.
+Proof. apply (grinvinv ℤ). Defined.
 
-Definition hz_normal_form (i:ZZ) :=
+Definition hz_normal_form (i:ℤ) :=
   coprod (total2 (fun n => natnattohz n 0 == i))
          (total2 (fun n => natnattohz 0 (S n) == i)).
 
@@ -41,7 +51,7 @@ Definition hznf_zero := hznf_pos 0.
 
 Definition hznf_neg_one := hznf_neg 0.
 
-Definition hz_to_normal_form (i:ZZ) : hz_normal_form i.
+Definition hz_to_normal_form (i:ℤ) : hz_normal_form i.
 Proof. intros. destruct (hzlthorgeh i 0) as [r|s].
        { apply inr. assert (a := hzabsvallth0 r). assert (b := hzlthtoneq _ _ r).
          assert (c := hzabsvalneq0 b). assert (d := natneq0togth0 _ c).
@@ -82,9 +92,9 @@ Proof. apply isweqpr1; intro i.
          assert (e := invmaponpathsS _ _ d); clear d.
          apply (pair_path_props (!e)). intro k. apply setproperty. } Defined.
 
-Definition negpos_weq := weqpair _ negpos' : weq (total2 hz_normal_form) ZZ.
+Definition negpos_weq := weqpair _ negpos' : weq (total2 hz_normal_form) ℤ.
 
-Definition negpos : weq (coprod nat nat) ZZ. (* ZZ = (-inf,-1) + (0,inf) *)
+Definition negpos : weq (coprod nat nat) ℤ. (* ℤ = (-inf,-1) + (0,inf) *)
 Proof. refine (weqpair _ (gradth _ _ _ _)).
        { intros [n'|n]. 
          { exact (natnattohz 0 (S n')). } { exact (natnattohz n 0). } }
@@ -97,21 +107,6 @@ Proof. refine (weqpair _ (gradth _ _ _ _)).
          destruct (hz_to_normal_form i) as [[n p]|[m q]].
          { exact p. } { exact q. } }
 Defined.
-
-Definition eta_pair {T} (P:T->Type) (w:total2 P) : 
-  tpair P (pr1 w) (pr2 w) == w.
-Proof. intros. destruct w. reflexivity. Defined.
-
-Definition eta_weqpair {X Y} (f:weq X Y) : 
-  weqpair (pr1 f) (pr2 f) == f.
-Proof. intros. apply eta_pair. Defined.
-
-Definition pathpath {X} {w x y z:X} : w==x -> y==z -> (w==y) == (x==z).
-Proof. intros ? ? ? ? ? p q.  destruct p,q. reflexivity. Defined.
-
-Definition weqonpaths1 {X} {x x' y y':X} : 
-  x == y -> x' == y' -> weq (x == x') (y == y').
-Proof. intros ? ? ? ? ? p q. destruct p,q. apply idweq. Defined.
 
 Definition weqonpaths2 {X Y} (w:weq X Y) {x x':X} {y y':Y} :
   w x == y -> w x' == y' -> weq (x == x') (y == y').
@@ -131,60 +126,22 @@ Proof. intros. apply (hzplusrcan _ _ (x+y)). rewrite hzlminus.
        rewrite <- (hzplusassoc (-x)). rewrite hzlminus. rewrite hzplusl0.
        rewrite hzlminus. reflexivity. Defined.
 
-Definition dirprod3 X Y Z := dirprod X (dirprod Y Z).
+(** ** Recursion for ℤ *)
 
-Definition tuple3 {X Y Z} x y z := (x,,(y,,z)) : dirprod3 X Y Z.
-
-Definition paths3 {X Y Z} {x x':X} {y y':Y} {z z':Z} :
-  x==x' -> y==y' -> z==z' -> tuple3 x y z == tuple3 x' y' z'. 
-Proof. intros ? ? ? ? ? ? ? ? ? p q r. destruct p, q, r. reflexivity.
-Defined.       
-
-Definition dirprod4 W X Y Z := dirprod W (dirprod3 X Y Z).
-
-Definition tuple4 {W X Y Z} (w:W) x y z := (w,,tuple3 x y z) : dirprod4 W X Y Z.
-
-Definition paths4 {W X Y Z} {w w':W} {x x':X} {y y':Y} {z z':Z} :
-  w==w' -> x==x' -> y==y' -> z==z' -> tuple4 w x y z == tuple4 w' x' y' z'. 
-Proof. intros ? ? ? ? ? ? ? ? ? ? ? ? o p q r. destruct o, p, q, r. reflexivity.
-Defined.
-
-Definition total3 
-           {X} 
-           {Y:forall (x:X), Type}
-           (Z:forall (x:X) (y:Y x), Type) :=
-  total2 (fun x => total2 (Z x)).
-
-Definition total4
-           {X} 
-           {Y:forall (x:X), Type}
-           {Z:forall (x:X) (y:Y x), Type}
-           (B:forall (x:X) (y:Y x) (z:Z x y), Type) :=
-  total2 (fun x => total3 (B x)).
-
-Definition ZZRecursionData0 (P:ZZ->Type) (p0:P zero) 
-      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
-      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) := fun 
+Definition ℤRecursionData0 (P:ℤ->Type) (p0:P zero) 
+      (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
+      (IH':forall n, P(- toℤ n) -> P(- toℤ (S n))) := fun 
           f:forall i, P i => dirprod3
             (f zero==p0)
-            (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
-            (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n))).
+            (forall n, f(  toℤ (S n))==IH  n (f (  toℤ n)))
+            (forall n, f(- toℤ (S n))==IH' n (f (- toℤ n))).
 
-Definition ZZRecursionData (P:ZZ->Type)
-      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
-      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) := fun 
+Definition ℤRecursionData (P:ℤ->Type)
+      (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
+      (IH':forall n, P(- toℤ n) -> P(- toℤ (S n))) := fun 
              f:forall i, P i => dirprod
-               (forall n, f(  toZZ (S n))==IH  n (f (  toZZ n)))
-               (forall n, f(- toZZ (S n))==IH' n (f (- toZZ n))).
-
-Definition hz_rect (P:ZZ->Type) (p0:P zero) 
-      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
-      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) : forall i, P i.
-Proof. intros.
-       destruct (hz_to_normal_form i) as [[n p]|[m q]].
-       { exact (p # nat_rect (fun n => P(toZZ n)) p0 IH n). } 
-       { exact (q # nat_rect (fun n => P(- toZZ n)) p0 IH' (S m)). }
-Defined.
+               (forall n, f(  toℤ (S n))==IH  n (f (  toℤ n)))
+               (forall n, f(- toℤ (S n))==IH' n (f (- toℤ n))).
 
 Definition weq_total2_prod {X Y} (Z:Y->Type) :
   weq (total2 (fun y => dirprod X (Z y))) (dirprod X (total2 Z)).
@@ -194,12 +151,12 @@ Proof. intros. refine (weqpair _ (gradth _ _ _ _)).
        { intros [y [x z]]. reflexivity. }
        { intros [x [y z]]. reflexivity. } Defined.
 
-Lemma ZZRecursionUniq (P:ZZ->Type) (p0:P zero) 
-      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
-      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
-  iscontr (total2 (ZZRecursionData0 P p0 IH IH')).
+Lemma ℤRecursionUniq (P:ℤ->Type) (p0:P zero) 
+      (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
+      (IH':forall n, P(- toℤ n) -> P(- toℤ (S n))) :
+  iscontr (total2 (ℤRecursionData0 P p0 IH IH')).
 Proof. intros.
-       unfold ZZRecursionData0.
+       unfold ℤRecursionData0.
        (* use hNatRecursionEquiv *)
        apply ( iscontrweqb (Y := total2 (fun f : forall w, P (negpos w) =>
           dirprod4
@@ -284,12 +241,12 @@ Proof. intros.
        apply Nat.Uniqueness.hNatRecursionUniq.
 Defined.
 
-Lemma A (P:ZZ->Type) (p0:P zero) 
-      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
-      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
-  weq (total2 (ZZRecursionData0 P p0 IH IH'))
+Lemma A (P:ℤ->Type) (p0:P zero) 
+      (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
+      (IH':forall n, P(- toℤ n) -> P(- toℤ (S n))) :
+  weq (total2 (ℤRecursionData0 P p0 IH IH'))
       (@hfiber
-         (total2 (ZZRecursionData P IH IH'))
+         (total2 (ℤRecursionData P IH IH'))
          (P zero)
          (fun fh => pr1 fh zero)
          p0).
@@ -300,22 +257,24 @@ Proof. intros.
        { intros [f [h0 h]]. reflexivity. }
        { intros [[f h] h0]. reflexivity. } Defined.
 
-Lemma ZZRecursionEquiv (P:ZZ->Type) 
-      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
-      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) :
-  weq (total2 (ZZRecursionData P IH IH')) (P 0).
+Lemma ℤRecursionEquiv (P:ℤ->Type) 
+      (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
+      (IH':forall n, P(- toℤ n) -> P(- toℤ (S n))) :
+  weq (total2 (ℤRecursionData P IH IH')) (P 0).
 Proof. intros. exists (fun f => pr1 f zero). intro p0.
-       apply (iscontrweqf (A _ _ _ _)). apply ZZRecursionUniq. Defined.
+       apply (iscontrweqf (A _ _ _ _)). apply ℤRecursionUniq. Defined.
 
-Lemma ZZRecursionEquiv_compute (P:ZZ->Type) 
-      (IH :forall n, P(  toZZ n) -> P(  toZZ (S n)))
-      (IH':forall n, P(- toZZ n) -> P(- toZZ (S n))) 
-      (fh : total2 (ZZRecursionData P IH IH')) :
-  ZZRecursionEquiv P IH IH' fh == pr1 fh zero.
+Lemma ℤRecursionEquiv_compute (P:ℤ->Type) 
+      (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
+      (IH':forall n, P(- toℤ n) -> P(- toℤ (S n))) 
+      (fh : total2 (ℤRecursionData P IH IH')) :
+  ℤRecursionEquiv P IH IH' fh == pr1 fh zero.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
-Definition ZZBiRecursionData (P:ZZ->Type) (IH :forall i, P(i) -> P(1+i)) := 
+(** ** Bidirectional recursion for ℤ *)
+
+Definition ℤBiRecursionData (P:ℤ->Type) (IH :forall i, P(i) -> P(1+i)) := 
   fun f:forall i, P i => forall i, f(1+i)==IH i (f i).
 
 Definition weqonsec {X Y} (P:X->Type) (Q:Y->Type)
@@ -336,27 +295,27 @@ Proof. intros. destruct p. reflexivity. Defined.
 Definition change_pr1weq {X Y} (f:weq X Y) : pr1 f == pr1weq _ _ f.
 Proof. reflexivity. Defined.
 
-Definition ZZBiRecursionEquiv (P:ZZ->Type) (IH :forall i, weq (P i) (P(1+i))) :
-  weq (total2 (ZZBiRecursionData P IH)) (P 0).
+Definition ℤBiRecursionEquiv (P:ℤ->Type) (IH :forall i, weq (P i) (P(1+i))) :
+  weq (total2 (ℤBiRecursionData P IH)) (P 0).
 Proof. intros.
-       assert (k : forall n, one + toZZ n == toZZ (S n)).
+       assert (k : forall n, one + toℤ n == toℤ (S n)).
        { intro. rewrite nattohzandS. reflexivity. }
        set (l := fun n : nat => weq_transportf P (k n)).
-       assert (k' : forall n, - toZZ n == one + (- toZZ (S n))).
-       { intros. unfold one, toZZ. rewrite nattohzand1.
+       assert (k' : forall n, - toℤ n == one + (- toℤ (S n))).
+       { intros. unfold one, toℤ. rewrite nattohzand1.
          rewrite nattohzandS. rewrite hzminusplus. rewrite <- (hzplusassoc one).
          rewrite (hzpluscomm one). rewrite hzlminus. rewrite hzplusl0.
          reflexivity. }
        set (l' := fun n => weq_transportf P (k' n)).
-       set (ih := fun n => weqcomp (IH (toZZ n)) (l n)).
-       set (ih':= fun n => (weqcomp (l' n) (invweq (IH (- toZZ (S n)))))).
-       set (G := ZZRecursionEquiv P ih ih'). refine (weqcomp _ G).
-       apply weqfibtototal. intro f. unfold ZZRecursionData, ZZBiRecursionData.
+       set (ih := fun n => weqcomp (IH (toℤ n)) (l n)).
+       set (ih':= fun n => (weqcomp (l' n) (invweq (IH (- toℤ (S n)))))).
+       set (G := ℤRecursionEquiv P ih ih'). refine (weqcomp _ G).
+       apply weqfibtototal. intro f. unfold ℤRecursionData, ℤBiRecursionData.
        refine (weqcomp (weqonsecbase _ negpos) _).
        refine (weqcomp (weqsecovercoprodtoprod _) _).
        refine (weqcomp (weqdirprodcomm _ _) _). apply weqdirprodf.
        { apply weqonsecfibers; intro n. refine (weqonpaths2 _ _ _).
-         { change (negpos (ii2 n)) with (toZZ n). exact (l n). }
+         { change (negpos (ii2 n)) with (toℤ n). exact (l n). }
          { unfold l. apply weq_transportf_comp. }
          { reflexivity. } }
        { apply weqonsecfibers; intro n. simpl.
@@ -364,14 +323,14 @@ Proof. intros.
          refine (weqonpaths2 _ _ _).
          { apply invweq. apply IH. }
          { simpl. rewrite homotinvweqweq. reflexivity. }
-         { simpl. change (natnattohz 0 (S n)) with (- toZZ (S n)).
+         { simpl. change (natnattohz 0 (S n)) with (- toℤ (S n)).
            unfold l'. rewrite change_pr1weq. rewrite weq_transportf_comp.
            reflexivity. } } Defined.
 
-Definition ZZBiRecursionEquiv_compute (P:ZZ->Type)
+Definition ℤBiRecursionEquiv_compute (P:ℤ->Type)
            (IH :forall i, weq (P i) (P(1+i))) 
-      (fh : total2 (ZZBiRecursionData P IH)) :
-  ZZBiRecursionEquiv P IH fh == pr1 fh 0.
+      (fh : total2 (ℤBiRecursionData P IH)) :
+  ℤBiRecursionEquiv P IH fh == pr1 fh 0.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
@@ -425,12 +384,14 @@ Definition eqweqmapap_inv' {T} (P:T->Type) {t u:T} (e:t==u) (p:P t) :
   (eqweqmap (ap P (!e))) ((eqweqmap (ap P e)) p) == p.
 Proof. intros. destruct e. reflexivity. Defined.
 
-Definition GuidedSection {T:Torsor ZZ} 
+(** ** Bidirectional recursion for ℤ-torsors *)
+
+Definition GuidedSection {T:Torsor ℤ} 
            (P:T->Type) (IH:forall t, weq (P t) (P (one + t))) := fun 
      f:sections P => 
        forall t, f (one + t) == IH t (f t).
 
-Definition ZZTorsorRecursionEquiv {T:Torsor ZZ} (P:T->Type) 
+Definition ℤTorsorRecursionEquiv {T:Torsor ℤ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t))) :
   forall t0,
   weq (total2 (GuidedSection P IH)) (P t0).
@@ -444,9 +405,9 @@ Proof. intros. exists (fun fh => pr1 fh t0). intro q.
        assert( e : right_mult t0 zero == t0 ). { apply act_unit. }
        set (H := fun f => forall t : T, f (one + t) == (IH t) (f t)).
        set ( IH' := (fun i => weqcomp (IH (w i)) (l0 i))
-                    : forall i:ZZ, weq (P (w i)) (P (w(1+i)%hz))).
-       set (J := fun f => forall i : ZZ, f (1 + i)%hz == (IH' i) (f i)).
-       refine (iscontrweqb (@weq_over_sections ZZ T w 0 t0 e P q (e#'q) _ H J _) _).
+                    : forall i:ℤ, weq (P (w i)) (P (w(1+i)%hz))).
+       set (J := fun f => forall i : ℤ, f (1 + i)%hz == (IH' i) (f i)).
+       refine (iscontrweqb (@weq_over_sections ℤ T w 0 t0 e P q (e#'q) _ H J _) _).
        { apply transportfbinv. }
        { intro. apply invweq. unfold H,J,maponsec1. refine (weqonsec _ _ w _).
          intro i. refine (weqonpaths2 _ _ _).
@@ -454,122 +415,136 @@ Proof. intros. exists (fun fh => pr1 fh t0). intro q.
          { unfold l0. rewrite (k0 i). reflexivity. }
          { unfold IH'. unfold weqcomp; simpl. rewrite change_pr1weq.
            rewrite (homotinvweqweq (l0 i)). reflexivity. } }
-       exact (pr2 (ZZBiRecursionEquiv (fun i => P(w i)) IH') (e #' q)).
+       exact (pr2 (ℤBiRecursionEquiv (fun i => P(w i)) IH') (e #' q)).
 Defined.
 
-Definition ZZTorsorRecursion_compute {T:Torsor ZZ} (P:T->Type) 
+Definition ℤTorsorRecursion_compute {T:Torsor ℤ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t)))
       (t:T) :
-  forall h, ZZTorsorRecursionEquiv P IH t h == pr1 h t.
+  forall h, ℤTorsorRecursionEquiv P IH t h == pr1 h t.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
-Definition ZZTorsorRecursion_transition {T:Torsor ZZ} (P:T->Type) 
+Definition ℤTorsorRecursion_transition {T:Torsor ℤ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t)))
       (t:T) :
   forall h : total2 (GuidedSection P IH),
-  (ZZTorsorRecursionEquiv P IH (one+t) h)
+  (ℤTorsorRecursionEquiv P IH (one+t) h)
   == 
-  IH t (ZZTorsorRecursionEquiv P IH t h).
-Proof. intros. rewrite 2!ZZTorsorRecursion_compute. exact (pr2 h t). Defined.
+  IH t (ℤTorsorRecursionEquiv P IH t h).
+Proof. intros. rewrite 2!ℤTorsorRecursion_compute. exact (pr2 h t). Defined.
 
-Definition ZZTorsorRecursion_transition_inv {T:Torsor ZZ} (P:T->Type) 
+Definition ℤTorsorRecursion_transition_inv {T:Torsor ℤ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t)))
       (t:T) :
   forall h0,
-  invmap (ZZTorsorRecursionEquiv P IH t) h0
+  invmap (ℤTorsorRecursionEquiv P IH t) h0
   == 
-  invmap (ZZTorsorRecursionEquiv P IH (one+t)) (IH t h0).
+  invmap (ℤTorsorRecursionEquiv P IH (one+t)) (IH t h0).
 Proof. intros.
-       assert (a := ZZTorsorRecursion_transition P IH t
-                    (invmap (ZZTorsorRecursionEquiv P IH t) h0)).
+       assert (a := ℤTorsorRecursion_transition P IH t
+                    (invmap (ℤTorsorRecursionEquiv P IH t) h0)).
        rewrite homotweqinvweq in a. rewrite <- a.
        rewrite homotinvweqweq. reflexivity. Defined.
 
-Definition ZZTorsorRecursion {T:Torsor ZZ} (P:T->Type) 
+Definition ℤTorsorRecursion {T:Torsor ℤ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t)))
       (t t':T) :
   weq (P t) (P t').
 Proof. intros.
-       exact (weqcomp (invweq (ZZTorsorRecursionEquiv P IH t))
-                      (ZZTorsorRecursionEquiv P IH t')). Defined.  
+       exact (weqcomp (invweq (ℤTorsorRecursionEquiv P IH t))
+                      (ℤTorsorRecursionEquiv P IH t')). Defined.  
 
-Definition target_paths {Y} {T:Torsor ZZ} (f:T->Y) := forall t, f t==f(one + t).
+(** ** Guided null-homotopies from ℤ-torsors 
 
-Definition GHomotopy {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) := fun 
+ Let f be a map from a ℤ-torsor T to a type Y, and let s be a collection
+ of target paths, connecting the images under f of consecutive points of T.
+ 
+ A null-homotopy for f is a point y of Y, together with paths from
+ y to each point in the image of f.  We say that it is "guided" by s
+ if all the consecutive triangles commute.
+
+ The main fact is that the type of guided null-homotopies for f is
+ contractible.
+
+ *)
+
+Definition target_paths {Y} {T:Torsor ℤ} (f:T->Y) := forall t, f t==f(one + t).
+
+Definition GHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) := fun 
         y:Y => total2 (fun 
         h:nullHomotopyFrom f y => 
           forall n, h(one + n) == h n @ s n).
 
-Definition GuidedHomotopy {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) := 
+Definition GuidedHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) := 
   total2 (GHomotopy f s).
 
 Definition weq_pathscomp0r {X} x {y z:X} (p:y==z) : weq (x==y) (x==z).
 Proof. intros. exact (weqpair _ (isweqpathscomp0r _ p)). Defined.
 
-Lemma iscontrGuidedHomotopy {Y} {T:Torsor ZZ} (f:T->Y) (s:target_paths f) :
+Theorem iscontrGuidedHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) :
   iscontr (GuidedHomotopy f s).
 Proof. intros. apply (squash_to_prop (torsor_nonempty T)).
        { apply isapropiscontr. }
        intro t0. apply ( iscontrweqb (Y := total2 (fun y => y == f t0))).
        { apply weqfibtototal; intro y.
-         exact (ZZTorsorRecursionEquiv _ (fun t => weq_pathscomp0r _ _) t0). }
+         exact (ℤTorsorRecursionEquiv _ (fun t => weq_pathscomp0r _ _) t0). }
        apply iscontrcoconustot. Defined.
 
-Definition makeGuidedHomotopy {T:Torsor ZZ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0) : 
   GuidedHomotopy f s.
-Proof. intros. exact (y ,, invweq (ZZTorsorRecursionEquiv 
+Proof. intros. exact (y ,, invweq (ℤTorsorRecursionEquiv 
                (fun t : T => y == f t)
                (fun t => weq_pathscomp0r y (s t))
                t0) h0). Defined.
 
-Definition makeGuidedHomotopy1 {T:Torsor ZZ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy1 {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) (t0:T) : GuidedHomotopy f s.
 Proof. intros. exact (makeGuidedHomotopy f s t0 (idpath (f t0))). Defined.
 
-Definition makeGuidedHomotopy_path0 {T:Torsor ZZ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_path0 {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0 h0':y==f t0) (q:h0==h0') :
   makeGuidedHomotopy f s t0 h0 == makeGuidedHomotopy f s t0 h0'.
 Proof. intros. destruct q. reflexivity. Defined.
 
-Definition makeGuidedHomotopy_path0_comp {T:Torsor ZZ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_path0_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0 h0':y==f t0) (q:h0==h0') :
   ap pr1 (makeGuidedHomotopy_path0 f s t0 h0 h0' q) == idpath y.
 Proof. intros. destruct q. reflexivity. Defined.
 
-Definition makeGuidedHomotopy_path {T:Torsor ZZ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_path {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0)
            {y':Y} (p:y'==y) :
   makeGuidedHomotopy f s t0 (p@h0) == makeGuidedHomotopy f s t0 h0.
 Proof. intros. apply (total2_paths2 p). destruct p. reflexivity. Defined.
 
-Definition makeGuidedHomotopy_path_comp {T:Torsor ZZ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_path_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0)
            {y':Y} (p:y'==y) :
   ap pr1 (makeGuidedHomotopy_path f s t0 h0 p) == p.
 Proof. intros. apply total2_paths2_comp1. Defined.
 
-Definition makeGuidedHomotopy_path' {T:Torsor ZZ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_path' {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0) :
   makeGuidedHomotopy f s t0 h0 == makeGuidedHomotopy f s (one+t0) (h0 @ s t0).
 Proof. intros. apply (total2_paths2 (idpath y)).
        unfold transportf; simpl. unfold idfun; simpl.
        change (h0 @ s t0) with (weq_pathscomp0r y (s t0) h0).
-       exact (ZZTorsorRecursion_transition_inv 
+       exact (ℤTorsorRecursion_transition_inv 
                 _ (fun t : T => weq_pathscomp0r y (s t)) _ _).
 Defined.
 
-Definition makeGuidedHomotopy_path'_comp {T:Torsor ZZ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_path'_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0) :
   ap pr1 (makeGuidedHomotopy_path' f s t0 h0) == idpath y.
 Proof. intros. 
        exact (total2_paths2_comp1 
                 (idpath y)
-                (ZZTorsorRecursion_transition_inv 
+                (ℤTorsorRecursion_transition_inv 
                    _ (fun t => weq_pathscomp0r y (s t)) _ _)). Defined.
 
-Definition makeGuidedHomotopy_path'' {T:Torsor ZZ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_path'' {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) (t0:T) :
   makeGuidedHomotopy1 f s t0 == makeGuidedHomotopy1 f s (one + t0).
 Proof. intros.
@@ -589,7 +564,7 @@ Definition ap_natl {X Y} (f:X->Y)
   ap f (p @ q) == p' @ q'.
 Proof. intros. destruct r, s. apply maponpathscomp0. Defined.
 
-Definition makeGuidedHomotopy_path''_comp {T:Torsor ZZ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_path''_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) (t0:T) : 
   ap pr1 (makeGuidedHomotopy_path'' f s t0) == s t0.
 Proof. intros.
@@ -602,14 +577,8 @@ Proof. intros.
        assert (abc := ap_natl _ _ _ _ _ a bc).
        exact abc. Defined.
 
-Definition affine_line (T:Torsor ZZ) := squash T.
-
-Lemma iscontr_affine_line (T:Torsor ZZ) : iscontr (affine_line T).
-Proof. intros. apply iscontraprop1. { apply isaprop_squash. }
-       exact (torsor_nonempty T). Defined.
-
-Definition map {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) : 
-  affine_line T -> GuidedHomotopy f s.
+Definition map {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : 
+  squash T -> GuidedHomotopy f s.
 Proof. intros ? ? ? ? t'. 
        (* try to use transport as in Halfline.map *)
        apply (squash_to_prop t').
@@ -617,20 +586,11 @@ Proof. intros ? ? ? ? t'.
        intro t; clear t'.
        exact (makeGuidedHomotopy1 f s t). Defined.
 
-Definition affine_line_map {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) : 
-  affine_line T -> Y.
-Proof. intros ? ? ? ? t'. exact (pr1 (map f s t')). Defined.
-
-Definition check_values {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) t :
-  affine_line_map f s (squash_element t) == f t.
-Proof. intros. unfold affine_line_map, map, squash_element, squash_to_prop.
-       simpl. reflexivity. Defined.
-
-Definition map_path {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) : 
+Definition map_path {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : 
   forall t, map f s (squash_element t) == map f s (squash_element (one + t)).
 Proof. intros. exact (makeGuidedHomotopy_path'' f s t). Defined.
 
-Definition map_path_check {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) :
+Definition map_path_check {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
   forall t, forall p : map f s (squash_element t) ==
                        map f s (squash_element (one + t)),
     ap pr1 p == s t.
@@ -639,12 +599,34 @@ Proof. intros. set (q := map_path f s t). assert (k : q==p).
          apply iscontrGuidedHomotopy. }
        destruct k. exact (makeGuidedHomotopy_path''_comp f s t). Defined.
 
-Definition check_paths {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) (t:T) :
+(** ** The construction of the affine line *)
+
+Definition affine_line (T:Torsor ℤ) := squash T.
+
+Lemma iscontr_affine_line (T:Torsor ℤ) : iscontr (affine_line T).
+Proof. intros. apply iscontraprop1. { apply isaprop_squash. }
+       exact (torsor_nonempty T). Defined.
+
+Definition affine_line_map {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : 
+  affine_line T -> Y.
+Proof. intros ? ? ? ? t'. exact (pr1 (map f s t')). Defined.
+
+Definition check_values {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) t :
+  affine_line_map f s (squash_element t) == f t.
+Proof. reflexivity.              (* don't change the proof *)
+Defined.
+
+Definition check_paths {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) (t:T) :
   ap (affine_line_map f s) (squash_path t (one + t)) == s t.
 Proof. intros. refine (_ @ map_path_check f s t _).
        apply pathsinv0. apply maponpathscomp. Defined.
 
-Definition affine_line_value {T:Torsor ZZ} {Y} (f:T->Y) (s:target_paths f) : Y.
+(** ** The image of the mere point in an affine line 
+
+ A torsor is nonempty, so it merely has a point, as does the
+ corresponding affine line.  Here we name its image in Y. *)
+
+Definition affine_line_value {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : Y.
 Proof. intros. exact (affine_line_map f s (torsor_nonempty T)). Defined.
 
 (*
