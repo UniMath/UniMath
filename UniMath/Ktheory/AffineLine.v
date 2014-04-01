@@ -599,9 +599,15 @@ Proof. intros. set (q := map_path f s t). assert (k : q==p).
 
 Definition affine_line (T:Torsor ℤ) := squash T.
 
+Definition affine_line_point (T:Torsor ℤ) : affine_line T.
+Proof. intros. exact (torsor_nonempty T). Defined.
+
 Lemma iscontr_affine_line (T:Torsor ℤ) : iscontr (affine_line T).
 Proof. intros. apply iscontraprop1. { apply isaprop_squash. }
        exact (torsor_nonempty T). Defined.
+
+Lemma affine_line_path {T:Torsor ℤ} (t u:affine_line T) : t == u.
+Proof. intros. apply proofirrelevance. exact (iscontr_affine_line _). Defined.
 
 Definition affine_line_map {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : 
   affine_line T -> Y.
@@ -617,13 +623,23 @@ Definition check_paths {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) (t:T) :
 Proof. intros. refine (_ @ map_path_check f s t _).
        apply pathsinv0. apply maponpathscomp. Defined.
 
+Definition check_paths_any {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) (t:T)
+           (p : squash_element t == squash_element (one + t)) :
+  ap (affine_line_map f s) p == s t.
+Proof. intros. set (p' := squash_path t (one + t)).
+       assert (e : p' == p). { apply (hlevelntosn 1). apply isaprop_squash. }
+       destruct e. apply check_paths. Defined.
+
+Definition add_one {T:Torsor ℤ} : affine_line T -> affine_line T.
+Proof. intros ?. exact (squash_fun (fun t => one + t)). Defined.
+
 (** ** The image of the mere point in an affine line 
 
  A torsor is nonempty, so it merely has a point, as does the
  corresponding affine line.  Here we name its image in Y. *)
 
 Definition affine_line_value {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : Y.
-Proof. intros. exact (affine_line_map f s (torsor_nonempty T)). Defined.
+Proof. intros. exact (affine_line_map f s (affine_line_point T)). Defined.
 
 (*
 Local Variables:

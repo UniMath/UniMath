@@ -103,7 +103,7 @@ Proof. intros. destruct q. reflexivity. Defined.
 
 (** ** Projections from pair types *)
 
-Definition pr2_pair {X} {P:X->UU} {w w':total2 P} (p : w == w') :
+Definition ap_pr2 {X} {P:X->UU} {w w':total2 P} (p : w == w') :
   transportf P (ap pr1 p) (pr2 w) == pr2 w'.
 Proof. intros. destruct p. reflexivity. Defined.
 
@@ -113,7 +113,7 @@ Proof. intros. destruct p. destruct q. reflexivity. Defined.
 
 Definition total2_paths2_comp2 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
            (p:x==x') (q:p#y==y') :
-  ! app (total2_paths2_comp1 p q) y @ pr2_pair (total2_paths2 p q) == q.
+  ! app (total2_paths2_comp1 p q) y @ ap_pr2 (total2_paths2 p q) == q.
 Proof. intros. destruct p, q. reflexivity. Defined.
 
 (** ** Maps from pair types *)
@@ -198,6 +198,12 @@ Proof. intros. destruct p. reflexivity. Defined.
              {x x'} (p:x==x')
              (y':Y x') (z':Z x' y') : Z x (p#'y').
   Proof. intros. destruct p. exact z'. Defined.
+
+  Definition ap_pr1_pr2 {X} {P:X->UU} {Q:forall x, P x->Type}
+             {w w':total2 (fun x => total2 (Q x))}
+             (p : w == w') :
+    transportf P (ap pr1 p) (pr1 (pr2 w)) == pr1 (pr2 w').
+  Proof. intros. destruct p. reflexivity. Defined.
 
   (** ** transport a pair *)
 
@@ -317,7 +323,7 @@ Definition weq_to_AdjointEquivalence X Y : weq X Y -> AdjointEquivalence.data X 
   refine (AdjointEquivalence.make X Y f g p q' _).
   intro x.
   exact ( !(helper x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x)))
-               @ (pr2_pair (L x))).
+               @ (ap_pr2 (L x))).
 Defined.
 
 Definition AdjointEquivalence_to_weq X Y : AdjointEquivalence.data X Y -> weq X Y.
