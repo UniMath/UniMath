@@ -25,6 +25,7 @@ Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification th
   let G := match goal with |- ?G => constr:(G) end in
   exact ((@id G : T -> G) x).
 
+Definition confun T {Y} (y:Y) := fun _:T => y.
 Definition paths_from {X} (x:X) := total2 (paths x).
 Definition point_to {X} {x:X} : paths_from x -> X := pr1.
 Definition paths_from_path {X} {x:X} (w:paths_from x) := pr2 w.

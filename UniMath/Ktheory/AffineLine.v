@@ -499,29 +499,29 @@ Definition makeGuidedHomotopy1 {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) (t0:T) : GuidedHomotopy f s.
 Proof. intros. exact (makeGuidedHomotopy f s t0 (idpath (f t0))). Defined.
 
-Definition makeGuidedHomotopy_path0 {T:Torsor ℤ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_localPath {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0 h0':y==f t0) (q:h0==h0') :
   makeGuidedHomotopy f s t0 h0 == makeGuidedHomotopy f s t0 h0'.
 Proof. intros. destruct q. reflexivity. Defined.
 
-Definition makeGuidedHomotopy_path0_comp {T:Torsor ℤ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_localPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0 h0':y==f t0) (q:h0==h0') :
-  ap pr1 (makeGuidedHomotopy_path0 f s t0 h0 h0' q) == idpath y.
+  ap pr1 (makeGuidedHomotopy_localPath f s t0 h0 h0' q) == idpath y.
 Proof. intros. destruct q. reflexivity. Defined.
 
-Definition makeGuidedHomotopy_path {T:Torsor ℤ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_verticalPath {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0)
            {y':Y} (p:y'==y) :
   makeGuidedHomotopy f s t0 (p@h0) == makeGuidedHomotopy f s t0 h0.
 Proof. intros. apply (total2_paths2 p). destruct p. reflexivity. Defined.
 
-Definition makeGuidedHomotopy_path_comp {T:Torsor ℤ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_verticalPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0)
            {y':Y} (p:y'==y) :
-  ap pr1 (makeGuidedHomotopy_path f s t0 h0 p) == p.
+  ap pr1 (makeGuidedHomotopy_verticalPath f s t0 h0 p) == p.
 Proof. intros. apply total2_paths2_comp1. Defined.
 
-Definition makeGuidedHomotopy_path' {T:Torsor ℤ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_transPath {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0) :
   makeGuidedHomotopy f s t0 h0 == makeGuidedHomotopy f s (one+t0) (h0 @ s t0).
 Proof. intros. apply (total2_paths2 (idpath y)).
@@ -531,25 +531,25 @@ Proof. intros. apply (total2_paths2 (idpath y)).
                 _ (fun t : T => weq_pathscomp0r y (s t)) _ _).
 Defined.
 
-Definition makeGuidedHomotopy_path'_comp {T:Torsor ℤ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_transPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0) :
-  ap pr1 (makeGuidedHomotopy_path' f s t0 h0) == idpath y.
+  ap pr1 (makeGuidedHomotopy_transPath f s t0 h0) == idpath y.
 Proof. intros. 
        exact (total2_paths2_comp1 
                 (idpath y)
                 (ℤTorsorRecursion_transition_inv 
                    _ (fun t => weq_pathscomp0r y (s t)) _ _)). Defined.
 
-Definition makeGuidedHomotopy_path'' {T:Torsor ℤ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_diagonalPath {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) (t0:T) :
   makeGuidedHomotopy1 f s t0 == makeGuidedHomotopy1 f s (one + t0).
 Proof. intros.
-  assert (b := makeGuidedHomotopy_path' f s t0 (idpath(f t0))); simpl in b.
-  assert (c := makeGuidedHomotopy_path0 f s (one + t0) 
+  assert (b := makeGuidedHomotopy_transPath f s t0 (idpath(f t0))); simpl in b.
+  assert (c := makeGuidedHomotopy_localPath f s (one + t0) 
                  (s t0)
                  (s t0 @ idpath (f (one + t0)))
                  (! pathscomp0rid (s t0))).
-  assert (a := makeGuidedHomotopy_path f s (one+t0) (idpath(f(one + t0))) (s t0)) .
+  assert (a := makeGuidedHomotopy_verticalPath f s (one+t0) (idpath(f(one + t0))) (s t0)) .
   exact (b @ c @ a).
 Defined.
 
@@ -560,15 +560,15 @@ Definition ap_natl {X Y} (f:X->Y)
   ap f (p @ q) == p' @ q'.
 Proof. intros. destruct r, s. apply maponpathscomp0. Defined.
 
-Definition makeGuidedHomotopy_path''_comp {T:Torsor ℤ} {Y} (f:T->Y)
+Definition makeGuidedHomotopy_diagonalPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) (t0:T) : 
-  ap pr1 (makeGuidedHomotopy_path'' f s t0) == s t0.
+  ap pr1 (makeGuidedHomotopy_diagonalPath f s t0) == s t0.
 Proof. intros.
-       unfold makeGuidedHomotopy_path''.
-       assert (a := makeGuidedHomotopy_path'_comp f s t0 (idpath _)).
-       assert (b := makeGuidedHomotopy_path0_comp f s _ _
+       unfold makeGuidedHomotopy_diagonalPath.
+       assert (a := makeGuidedHomotopy_transPath_comp f s t0 (idpath _)).
+       assert (b := makeGuidedHomotopy_localPath_comp f s _ _
             (s t0 @ idpath _) (! pathscomp0rid _)).
-       assert (c := makeGuidedHomotopy_path_comp f s _ (idpath _) (s t0)).
+       assert (c := makeGuidedHomotopy_verticalPath_comp f s _ (idpath _) (s t0)).
        assert (bc := ap_natl _ _ _ _ _ b c).
        assert (abc := ap_natl _ _ _ _ _ a bc).
        exact abc. Defined.
@@ -584,7 +584,7 @@ Proof. intros ? ? ? ? t'.
 
 Definition map_path {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : 
   forall t, map f s (squash_element t) == map f s (squash_element (one + t)).
-Proof. intros. exact (makeGuidedHomotopy_path'' f s t). Defined.
+Proof. intros. exact (makeGuidedHomotopy_diagonalPath f s t). Defined.
 
 Definition map_path_check {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
   forall t, forall p : map f s (squash_element t) ==
@@ -593,7 +593,7 @@ Definition map_path_check {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
 Proof. intros. set (q := map_path f s t). assert (k : q==p). 
        { apply (hlevelntosn 1). apply (hlevelntosn 0). 
          apply iscontrGuidedHomotopy. }
-       destruct k. exact (makeGuidedHomotopy_path''_comp f s t). Defined.
+       destruct k. exact (makeGuidedHomotopy_diagonalPath_comp f s t). Defined.
 
 (** ** The construction of the affine line *)
 
