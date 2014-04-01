@@ -67,8 +67,9 @@ Lemma pr1_GH_isweq {Y} {y:Y} (l:y==y) : isweq (@pr1_GH Y y l).
 Proof. intros. apply isweqpr1. intros T. apply iscontrGuidedHomotopy.
 Defined.
 
-Definition makeGH {Y} {y:Y} (l:y==y) (T:Torsor ℤ) (t:T) {y':Y} (h:y'==y) :=
-  GHpair l T (makeGuidedHomotopy _ _ t h).
+Definition makeGH {Y} {y:Y} (l:y==y) (T:Torsor ℤ) (t:T) {y':Y} (h:y'==y) 
+           : GH l
+  := GHpair l T (makeGuidedHomotopy _ _ t h).
 
 (** ** Various paths in GH *)
 
@@ -110,14 +111,14 @@ Proof. intros ? ? ? t. destruct q. exact t. Defined.
 
 Definition makeGH_horizontalPath {Y} {y:Y} (l:y==y) {T T':Torsor ℤ} (q:T==T')
            (t:T) {y'} (h:y'==y)
-  : makeGH l T' (castTorsor q t) h == makeGH l T t h.
+  : makeGH l T t h == makeGH l T' (castTorsor q t) h.
 Proof. intros. destruct q. reflexivity. 
 (* compare with [makeGuidedHomotopy_horizontalPath] *)
 Defined.
 
 Definition makeGH_horizontalPath_comp1 {Y} {y:Y} (l:y==y) {T T':Torsor ℤ} (q:T==T')
            (t:T) {y'} (h:y'==y)
-  : ap pr1_GH (makeGH_horizontalPath l q t h) == !q.
+  : ap pr1_GH (makeGH_horizontalPath l q t h) == q.
 Proof. intros. destruct q. reflexivity. Defined.
 
 Definition makeGH_horizontalPath_comp2 {Y} {y:Y} (l:y==y) {T T':Torsor ℤ} (q:T==T')
@@ -142,16 +143,43 @@ Definition makeGH_transPath_comp2 {Y} {y:Y} (l:y==y) {T:Torsor ℤ} (t:T) {y'} (
   : ap pr12_GH (makeGH_transPath l t h) == idpath y'.
 Proof. intros. exact (GH_path3_comp2 l _). Defined.
 
-Definition makeGH_diagonalPath {Y} {y:Y} (l:y==y) {T:Torsor ℤ} (t:T) 
-           (q:T==T) (r:castTorsor q t == one + t) : unit.
+Definition makeGH1 {Y} {y:Y} (l:y==y) (T:Torsor ℤ) (t:T) : GH l
+  := makeGH l T t (idpath y).
+
+Definition makeGH_diagonalLoop {Y} {y:Y} (l:y==y) {T:Torsor ℤ} (t:T) 
+           (q:T==T) (r:castTorsor q t == one + t) : 
+  makeGH1 l T t == makeGH1 l T t.
 Proof. intros.
-       assert (p0:= makeGH_localPath l T (!r) (idpath l)).
+       assert (p2 := makeGH_transPath l t (idpath y)).
+       assert (p0:= makeGH_localPath l T (!r) (idpath l)); clear r.
        assert (ph := makeGH_horizontalPath l q t l).
        assert (p1 := makeGH_localPath l T (idpath t) (! pathscomp0rid l)).
        assert (pv := makeGH_verticalPath l t (idpath y) l).
-       assert (p := p0 @ ph @ p1 @ pv).
+       assert (p := p2 @ p0 @ !ph @ p1 @ pv); clear p2 p0 ph p1 pv.
+       exact p. Defined.
 
-       admit.
+Definition makeGH_diagonalLoop_comp1 {Y} {y:Y} (l:y==y) {T:Torsor ℤ} (t:T) 
+           (q:T==T) (r:castTorsor q t == one + t) : 
+  ap pr1_GH (makeGH_diagonalLoop l t q r) == !q.
+Proof. intros. unfold makeGH_diagonalLoop.
+       refine (ap_natl (makeGH_transPath_comp1 _ _ _) _).
+       refine (ap_natl (makeGH_localPath_comp1 _ _ _ _) _).
+       rewrite <- (pathscomp0rid (! q)).
+       refine (ap_natl' (makeGH_horizontalPath_comp1 _ _ _ _) _).
+       rewrite <- (pathscomp0rid (idpath T)).
+       refine (ap_natl (makeGH_localPath_comp1 _ _ _ _) _).
+       exact (makeGH_verticalPath_comp1 _ _ _ _).
+Defined.
+
+Definition makeGH_diagonalLoop_comp2 {Y} {y:Y} (l:y==y) {T:Torsor ℤ} (t:T) 
+           (q:T==T) (r:castTorsor q t == one + t) : 
+  ap pr12_GH (makeGH_diagonalLoop l t q r) == l.
+Proof. intros. unfold makeGH_diagonalLoop.
+       refine (ap_natl (makeGH_transPath_comp2 _ _ _) _).
+       refine (ap_natl (makeGH_localPath_comp2 _ _ _ _) _).
+       refine (ap_natl' (makeGH_horizontalPath_comp2 _ _ _ _) _).
+       refine (ap_natl (makeGH_localPath_comp2 _ _ _ _) _).
+       exact (makeGH_verticalPath_comp2 _ _ _ _).
 Defined.
 
 (** ** The universal property of the B ℤ *)

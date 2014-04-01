@@ -553,25 +553,29 @@ Proof. intros.
   exact (b @ c @ a).
 Defined.
 
-Definition ap_natl {X Y} (f:X->Y) 
-           {x x' x'':X} (p:x==x') (q:x'==x'')
-           (p':f x==f x') (q':f x'==f x'') 
+Definition ap_natl {X Y} {f:X->Y}
+           {x x' x'':X} {p:x==x'} {q:x'==x''}
+           {p':f x==f x'} {q':f x'==f x''}
            (r:ap f p == p') (s:ap f q == q') :
   ap f (p @ q) == p' @ q'.
 Proof. intros. destruct r, s. apply maponpathscomp0. Defined.
+
+Definition ap_natl' {X Y} {f:X->Y}
+           {x x' x'':X} {p:x'==x} {q:x'==x''}
+           {p':f x'==f x} {q':f x'==f x''}
+           (r:ap f p == p') (s:ap f q == q') :
+  ap f (!p @ q) == (!p') @ q'.
+Proof. intros. destruct r, s, p, q. reflexivity. Defined.
 
 Definition makeGuidedHomotopy_diagonalPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) (t0:T) : 
   ap pr1 (makeGuidedHomotopy_diagonalPath f s t0) == s t0.
 Proof. intros.
        unfold makeGuidedHomotopy_diagonalPath.
-       assert (a := makeGuidedHomotopy_transPath_comp f s t0 (idpath _)).
-       assert (b := makeGuidedHomotopy_localPath_comp f s _ _
-            (s t0 @ idpath _) (! pathscomp0rid _)).
-       assert (c := makeGuidedHomotopy_verticalPath_comp f s _ (idpath _) (s t0)).
-       assert (bc := ap_natl _ _ _ _ _ b c).
-       assert (abc := ap_natl _ _ _ _ _ a bc).
-       exact abc. Defined.
+       refine (ap_natl (makeGuidedHomotopy_transPath_comp _ _ _ _) _).
+       refine (ap_natl (makeGuidedHomotopy_localPath_comp _ _ _ _ _ _) _).
+       exact (makeGuidedHomotopy_verticalPath_comp _ _ _ _ _).
+Defined.
 
 Definition map {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : 
   squash T -> GuidedHomotopy f s.
