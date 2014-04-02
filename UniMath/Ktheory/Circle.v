@@ -18,11 +18,7 @@ Proof. apply loopsBG. Defined.
 Definition circle_loop := invmap loops_circle 1 : Ω (B ℤ).
 
 Lemma loop_compute t : castTorsor circle_loop t == one + t.
-Proof. intros.
-
-       admit.
-
-Defined.
+Proof. intros. exact (loopsBG_comp _ one t @ commax _ t one). Defined.
 
 (** * Powers of paths *) 
 
@@ -184,7 +180,7 @@ Proof. intros. unfold makeGH_diagonalLoop.
        exact (makeGH_verticalPath_comp2 _ _ _ _).
 Defined.
 
-(** ** The universal property of the B ℤ *)
+(** ** The universal property of the circle *)
 
 Definition circle_map {Y} {y:Y} (l:y==y) : B ℤ -> Y.
 Proof. intros ? ? ? T. simpl in T.
@@ -204,30 +200,9 @@ Proof. intros. apply check_paths_any. Defined.
 
 Definition circle_map_check_paths {Y} {y:Y} (l:y==y) : 
   ap (circle_map l) circle_loop == l.
-Proof. intros.
-       set (T := basepoint (B ℤ)); simpl in T.
-       set (t0 := 0).
-       set (n0 := pr1 (pr2 T)).
-       change (pr1 T) with (underlyingAction T) in n0.
-       change (pr1 (pr2 T)) with (squash_element 0) in n0.
-       set (f := fun t:T => y). 
-       set (s := fun t:T => l).
-       assert (a := AffineLine.check_paths_any f s t0).
-       change (s t0) with l in a.
-       assert (r := ! ap_pr1_pr2 circle_loop).
-       change (pr1 (pr2 (basepoint (B ℤ)))) with n0 in r.
-       set (r1 := path_end r).
-       change (pr1 (basepoint (B ℤ))) with (underlyingAction T) in r1.
-       unfold path_end in r1.
-       (* to do: identify r1, or redefine circle_loop so it makes that possible *)
-       
-
-       set (r2 := affine_line_map f s r1).
-       unfold affine_line_map,r1,map in r2. 
-
-
-       (* Check check_paths_any f s t0. *)
-
+Proof. intros. set (T := basepoint (B ℤ)); simpl in T. set (t0 := 0:T).
+       assert (c1 := makeGH_diagonalLoop_comp1 l _ _ (loop_compute t0)).
+       assert (c2 := makeGH_diagonalLoop_comp2 l _ _ (loop_compute t0)).
        admit.
 Defined.
 

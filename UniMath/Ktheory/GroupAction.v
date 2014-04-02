@@ -224,7 +224,7 @@ Definition torsor_update_nonempty {G} (X:Torsor G) (x:nonempty X) : Torsor G.
 Proof. intros ? X new. 
        exact (underlyingAction X,,(new,,pr2(is_torsor_prop X))). Defined.
 Definition castTorsor {G} {T T':Torsor G} (q:T==T') : T -> T'.
-Proof. intros ? ? ? ? t. destruct q. exact t. Defined.
+Proof. intros ? ? ? ?. exact (castAction (ap underlyingAction q)). Defined.
 
 Lemma underlyingAction_incl {G:gr} :
   isincl (underlyingAction : Torsor G -> Action G).
@@ -233,6 +233,20 @@ Proof. intros. apply isinclpr1; intro X. apply is_torsor_isaprop. Defined.
 Lemma underlyingAction_injectivity {G:gr} {X Y:Torsor G} :
       weq (X==Y) (underlyingAction X==underlyingAction Y).
 Proof. intros. apply weqonpathsincl. apply underlyingAction_incl. Defined.
+
+Definition underlyingAction_injectivity_comp {G:gr} {X Y:Torsor G} (p:X==Y) :
+  underlyingAction_injectivity p == ap underlyingAction p.
+Proof. reflexivity. Defined.
+
+Definition underlyingAction_injectivity_comp' {G:gr} {X Y:Torsor G} :
+     pr1weq (@underlyingAction_injectivity G X Y)
+  == @ap (Torsor G) (Action G) (@underlyingAction G) X Y.
+Proof. reflexivity. Defined.
+
+Definition underlyingAction_injectivity_inv_comp {G:gr} {X Y:Torsor G} 
+           (f:underlyingAction X==underlyingAction Y) :
+  ap underlyingAction (invmap underlyingAction_injectivity f) == f.
+Proof. intros. apply (homotweqinvweq underlyingAction_injectivity f). Defined.
 
 Definition PointedTorsor (G:gr) := total2 (fun X:Torsor G => X).
 Definition underlyingTorsor {G} (X:PointedTorsor G) := pr1 X : Torsor G.
@@ -350,6 +364,18 @@ Definition Torsor_univalence {G:gr} {X Y:Torsor G} : weq (X==Y) (ActionIso X Y).
 Proof. intros. refine (weqcomp underlyingAction_injectivity _).
        apply Action_univalence. Defined.
 
+Definition Torsor_univalence_comp {G:gr} {X Y:Torsor G} (p:X==Y) :
+   Torsor_univalence p == path_to_ActionIso (ap underlyingAction p).
+Proof. reflexivity. Defined.
+
+Definition Torsor_univalence_inv_comp_eval {G:gr} {X Y:Torsor G} 
+           (f:ActionIso X Y) (x:X) :
+  castTorsor (invmap Torsor_univalence f) x == f x.
+Proof. intros. unfold Torsor_univalence.
+       unfold castTorsor. rewrite invmapweqcomp. unfold weqcomp; simpl.
+       rewrite underlyingAction_injectivity_inv_comp.
+       apply Action_univalence_inv_comp_eval. Defined.
+
 Definition torsor_eqweq_to_path {G:gr} {X Y:Torsor G} : ActionIso X Y -> X == Y.
 Proof. intros ? ? ? f. exact ((invweq Torsor_univalence) f). Defined.
 
@@ -397,16 +423,9 @@ Proof. intros. apply invweq.
 
 Definition loopsBG_comp (G:gr) (g h:G) 
   : castTorsor (invmap (loopsBG G) g) h == (h*g)%multmonoid.
-Proof. intros.
-       set (a := invmap (loopsBG G) g).
-       assert (b : castTorsor a == autos _ g).
-       { unfold a. unfold loopsBG.
-         rewrite invinv.
-         unfold weqcomp. simpl.
-
-         admit. }
-       admit.
-Defined.
+Proof. intros. unfold loopsBG. rewrite invinv. unfold weqcomp; simpl.
+       rewrite (Torsor_univalence_inv_comp_eval (trivialTorsorAuto G g)).
+       reflexivity. Defined.
 
 (** Theorem [loopsBG] also follows from the main theorem of the RezkCompletion
     package.  To see that, regard G as a category with one object.  Consider a
