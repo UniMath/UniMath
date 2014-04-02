@@ -6,6 +6,8 @@ Unset Automatic Introduction.
 Require Import AffineLine algebra1b funextfun Utilities auxiliary_lemmas_HoTT GroupAction hz.
 Require pathnotations.
 Import pathnotations.PathNotations Utilities.Notation.
+Delimit Scope paths_scope with paths.
+Open Scope paths_scope.
 Local Notation "g + x" := (ac_mult _ g x) : action_scope.
 Notation ℕ := nat.
 Notation ℤ := hzaddabgr.
@@ -14,6 +16,13 @@ Theorem loops_circle : weq (Ω (B ℤ)) ℤ.
 Proof. apply loopsBG. Defined.
 
 Definition circle_loop := invmap loops_circle 1 : Ω (B ℤ).
+
+Lemma loop_compute t : castTorsor circle_loop t == one + t.
+Proof. intros.
+
+       admit.
+
+Defined.
 
 (** * Powers of paths *) 
 
@@ -27,8 +36,6 @@ Definition loop_power {Y} {y:Y} (l:y==y) (n:ℤ) : y==y.
 Proof. intros. assert (m := loop_power_nat l (hzabsval n)).
        destruct (hzlthorgeh n 0%hz). { exact (!m). } { exact m. } Defined.
 
-Delimit Scope paths_scope with paths.
-Open Scope paths_scope.
 Local Notation "l ^ n" := (loop_power l n) : paths_scope.
 
 (** ** The total space of guided homotopies over BZ *)
@@ -106,9 +113,6 @@ Definition makeGH_verticalPath_comp2 {Y} {y:Y} (l:y==y) {T:Torsor ℤ} (t:T)
   : ap pr12_GH (makeGH_verticalPath l t h p) == p.
 Proof. intros. destruct p. reflexivity. Defined.
 
-Definition castTorsor {T T':Torsor ℤ} (q:T==T') : T -> T'. (* move to GroupAction.v *)
-Proof. intros ? ? ? t. destruct q. exact t. Defined.
-
 Definition makeGH_horizontalPath {Y} {y:Y} (l:y==y) {T T':Torsor ℤ} (q:T==T')
            (t:T) {y'} (h:y'==y)
   : makeGH l T t h == makeGH l T' (castTorsor q t) h.
@@ -130,10 +134,8 @@ Definition makeGH_transPath {Y} {y:Y} (l:y==y) {T:Torsor ℤ} (t:T) {y'} (h:y'==
   : makeGH l T t h == makeGH l T (one+t) (h@l).
 Proof. intros. apply GH_path3.
        (* copied from the proof of [makeGuidedHomotopy_transPath] *)
-       unfold transportf; simpl. unfold idfun; simpl.
-       change (h @ l) with (weq_pathscomp0r y' l h).
        exact (ℤTorsorRecursion_transition_inv 
-                _ (fun t : T => weq_pathscomp0r y' l) _ _). Defined.
+                _ (fun t => weq_pathscomp0r y' l) _ _). Defined.
 
 Definition makeGH_transPath_comp1 {Y} {y:Y} (l:y==y) {T:Torsor ℤ} (t:T) {y'} (h:y'==y)
   : ap pr1_GH (makeGH_transPath l t h) == idpath T.

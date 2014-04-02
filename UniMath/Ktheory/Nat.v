@@ -24,11 +24,9 @@ Module Uniqueness.
            { simpl. rewrite <- path_assoc. refine (_ @ pathscomp0rid _).
              rewrite <- maponpathscomp0. rewrite IHn. rewrite pathsinv0l.
              simpl. reflexivity. } }
-         { intros [h0 h']. refine (total2_paths2 _ _).
-           { simpl. reflexivity. }
-           { apply funextsec; intro n. unfold transportf; simpl; unfold idfun.
-             rewrite <- path_assoc. rewrite <- maponpathscomp0. rewrite pathsinv0r. 
-             simpl. apply pathscomp0rid. } } Defined.
+         { intros [h0 h']. apply pair_path_in2. apply funextsec; intro n; simpl.
+           rewrite <- path_assoc. rewrite <- maponpathscomp0. rewrite pathsinv0r. 
+           apply pathscomp0rid. } Defined.
 
   Lemma B (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
         (f:forall n, P n) :

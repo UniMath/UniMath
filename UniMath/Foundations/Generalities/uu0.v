@@ -597,7 +597,7 @@ assert (einvff: forall x:X, paths (invf ( w x)) x). apply homotinvweqweq. apply 
 
 Definition invweq { X Y : UU } ( w : weq X Y ) : weq Y X := weqpair  (invmap w ) (isweqinvmap w ).
 
-Corollary invinv { X Y :UU } ( w : weq X Y ) ( x : X ) : paths  ( invweq ( invweq w ) x) (w x).
+Corollary invinv { X Y :UU } ( w : weq X Y ) ( x : X ) : paths  ( invmap ( invweq w ) x) (w x).
 Proof. intros. unfold invweq . unfold invmap . simpl . apply idpath . Defined .  
 
 

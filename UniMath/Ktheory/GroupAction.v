@@ -109,8 +109,11 @@ Definition is_equivariant_comp {G:gr} {X Y Z:Action G}
 Proof. intros. intros g x. exact (ap q (i g x) @ j g (p x)). Defined.
 
 Definition ActionMap {G:gr} (X Y:Action G) := total2 (@is_equivariant _ X Y).
+
 Definition underlyingFunction {G:gr} {X Y:Action G} (f:ActionMap X Y) := pr1 f.
+
 Definition equivariance {G:gr} {X Y:Action G} (f:ActionMap X Y) := pr2 f.
+
 Coercion underlyingFunction : ActionMap >-> Funclass.
 
 Definition composeActionMap {G:gr} (X Y Z:Action G)
@@ -120,11 +123,15 @@ Proof. intros ? ? ? ? [p i] [q j]. exists (funcomp p q).
 
 Definition ActionIso {G:gr} (X Y:Action G) := 
   total2 (fun f:weq (ac_set X) (ac_set Y) => is_equivariant f).
-Definition underlyingIso {G:gr} {X Y:Action G} (e:ActionIso X Y) := pr1 e.
+
+Definition underlyingIso {G:gr} {X Y:Action G} (e:ActionIso X Y) := pr1 e : weq X Y.
+
 Coercion underlyingIso : ActionIso >-> weq.
+
 Lemma underlyingIso_incl {G:gr} {X Y:Action G} :
   isincl (underlyingIso : ActionIso X Y -> weq X Y).
 Proof. intros. apply isinclpr1; intro f. apply is_equivariant_isaprop. Defined.
+
 Lemma underlyingIso_injectivity {G:gr} {X Y:Action G}
       (e f:ActionIso X Y) :
   weq (e == f) (underlyingIso e == underlyingIso f).
@@ -132,19 +139,26 @@ Proof. intros. apply weqonpathsincl. apply underlyingIso_incl. Defined.
 
 Definition underlyingActionMap {G:gr} {X Y:Action G} (e:ActionIso X Y) := 
   pr1weq (pr1 e),, pr2 e.
+
 Definition idActionIso {G:gr} (X:Action G) : ActionIso X X.
 Proof. intros. exists (idweq _). intros g x. reflexivity. Defined.
+
 Definition composeActionIso {G:gr} {X Y Z:Action G}
            (e:ActionIso X Y) (f:ActionIso Y Z) : ActionIso X Z.
 Proof. intros ? ? ? ? [e i] [f j]. exists (weqcomp e f).
        destruct e as [e e'], f as [f f']; simpl.
        apply is_equivariant_comp. exact i. exact j. Defined.
+
 Definition path_to_ActionIso {G:gr} {X Y:Action G} (e:X==Y) : ActionIso X Y.
 Proof. intros. destruct e. exact (idActionIso X). Defined.
 
+Definition castAction {G:gr} {X Y:Action G} (e:X==Y) : X -> Y.
+Proof. intros ? ? ? ? x. exact (path_to_ActionIso e x). Defined.
+
 (** ** Applications of univalence *)
 
-Lemma Action_univalence {G:gr} {X Y:Action G} : weq (X==Y) (ActionIso X Y).
+Definition Action_univalence_prelim {G:gr} {X Y:Action G} :
+  weq (X==Y) (ActionIso X Y).
 Proof. intros.
        refine (weqcomp (total_paths_equiv (ActionStructure G) X Y) _).
        refine (weqbandf _ _ _ _).
@@ -152,6 +166,41 @@ Proof. intros.
        simpl. intro p. refine (weqcomp (is_equivariant_identity p) _).
        exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap set_to_type p)))).
 Defined.
+
+Definition Action_univalence_prelim_comp {G:gr} {X Y:Action G} (p:X==Y) :
+   Action_univalence_prelim p == path_to_ActionIso p.
+Proof. intros. destruct p. apply pair_path_in2. apply funextsec; intro g.
+       apply funextsec; intro x. apply setproperty. Defined.
+
+Lemma path_to_ActionIso_isweq {G:gr} {X Y:Action G}  :
+   isweq (@path_to_ActionIso G X Y).
+Proof. intros. exact (isweqhomot Action_univalence_prelim
+                         path_to_ActionIso
+                         Action_univalence_prelim_comp
+                         (pr2 Action_univalence_prelim)). Qed.
+
+Definition Action_univalence {G:gr} {X Y:Action G} :
+  weq (X==Y) (ActionIso X Y).
+Proof. intros. exists path_to_ActionIso. apply path_to_ActionIso_isweq. Defined.
+
+Definition Action_univalence_comp {G:gr} {X Y:Action G} (p:X==Y) :
+   Action_univalence p == path_to_ActionIso p.
+Proof. reflexivity. Defined.
+
+Definition Action_univalence_inv {G:gr} {X Y:Action G} 
+  : weq (ActionIso X Y) (X==Y) := invweq Action_univalence.
+
+Definition Action_univalence_inv_comp {G:gr} {X Y:Action G} (f:ActionIso X Y) :
+  path_to_ActionIso (Action_univalence_inv f) == f.
+Proof. intros. 
+       unfold Action_univalence_inv, Action_univalence.
+       apply (homotweqinvweq Action_univalence f). Defined.
+
+Definition Action_univalence_inv_comp_eval {G:gr} {X Y:Action G} (f:ActionIso X Y) (x:X) :
+  castAction (Action_univalence_inv f) x == f x.
+Proof. intros. exact (apevalat x (ap pr1weq 
+                             (ap underlyingIso
+                                 (Action_univalence_inv_comp f)))). Defined.
 
 (** ** Torsors *)
 
@@ -174,6 +223,8 @@ Definition torsor_mult_weq {G} (X:Torsor G) (x:X) :=
 Definition torsor_update_nonempty {G} (X:Torsor G) (x:nonempty X) : Torsor G.
 Proof. intros ? X new. 
        exact (underlyingAction X,,(new,,pr2(is_torsor_prop X))). Defined.
+Definition castTorsor {G} {T T':Torsor G} (q:T==T') : T -> T'.
+Proof. intros ? ? ? ? t. destruct q. exact t. Defined.
 
 Lemma underlyingAction_incl {G:gr} :
   isincl (underlyingAction : Torsor G -> Action G).
@@ -266,6 +317,16 @@ Proof. intros. exists (trivialTorsorAuto G). refine (gradth _ _ _ _).
          simpl. exact ((! (pr2 f) g (unel G)) @ (ap (pr1 f) (runax G g))).
        } Defined.
 
+Definition autos_comp (G:gr) (g:G) : 
+  underlyingIso (autos G g) == trivialTorsorEquiv G g.
+Proof. reflexivity.             (* don't change the proof *)
+Defined.
+
+Definition autos_comp_apply (G:gr) (g h:G) : 
+  (autos _ g) h == (h * g)%multmonoid.
+Proof. reflexivity.             (* don't change the proof *)
+Defined.
+
 Lemma trivialTorsorAuto_unit (G:gr) : 
   trivialTorsorAuto G (unel _) == idActionIso _.
 Proof. intros. refine (pair_path_props _ _).
@@ -330,8 +391,22 @@ Proof. intros. exists (pointedTrivialTorsor G). intros [X x].
        apply pointed_triviality_isomorphism. Defined.
 
 Theorem loopsBG (G:gr) : weq (Ω (B G)) G.
-Proof. intros. refine (weqcomp Torsor_univalence _). 
-       apply invweq. apply autos. Defined.
+Proof. intros. apply invweq.
+       refine (weqcomp _ (invweq Torsor_univalence)). 
+       apply autos. Defined.
+
+Definition loopsBG_comp (G:gr) (g h:G) 
+  : castTorsor (invmap (loopsBG G) g) h == (h*g)%multmonoid.
+Proof. intros.
+       set (a := invmap (loopsBG G) g).
+       assert (b : castTorsor a == autos _ g).
+       { unfold a. unfold loopsBG.
+         rewrite invinv.
+         unfold weqcomp. simpl.
+
+         admit. }
+       admit.
+Defined.
 
 (** Theorem [loopsBG] also follows from the main theorem of the RezkCompletion
     package.  To see that, regard G as a category with one object.  Consider a

@@ -73,16 +73,21 @@ Module Import NatNotation.
   Notation "m < n" := (hnat.natlth m n).
 End NatNotation.
 
+Definition pair_path_in2 {X} {P:X->Type} {x:X} {p q:P x} (e:p==q) : x,,p==x,,q.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition pair_path_in2_comp1 {X} {P:X->Type} {x:X} {p q:P x} (e:p==q) : 
+  ap pr1 (pair_path_in2 e) == idpath x.
+Proof. intros. destruct e. reflexivity. Defined.
+
 Lemma total2_paths2' {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
     {a2 : A} {b2 : B a2} (p : a1 == a2) 
     (q : b1 == transportb (fun x => B x) p b2) : 
     tpair (fun x => B x) a1 b1 == tpair (fun x => B x) a2 b2.
-Proof. intros. destruct p.
-       unfold transportb, pathsinv0, transportf in q; simpl in q.
-       unfold idfun in q. destruct q. reflexivity. Defined.
+Proof. intros. destruct p. apply pair_path_in2. exact q. Defined.
 
 (* We prefer [pair_path_props] to [total2_paths2]. *)
-Definition pair_path_props {X:UU} {P:X->UU} {x y:X} {p:P x} {q:P y} :
+Definition pair_path_props {X} {P:X->Type} {x y:X} {p:P x} {q:P y} :
   x==y -> (forall z, isaprop (P z)) -> x,,p==y,,q.
 Proof. intros ? ? ? ? ? ? e is. 
        exact (total2_paths2 e (pr1 (is _ _ _))). Defined.
@@ -597,12 +602,21 @@ Proof. intros. exact (pr1_eqweqmap _ @ ap pr1 (weqpathsweq w)). Defined.
 (** ** Pointed types *)
 
 Definition PointedType := total2 (fun X => X).
+
 Definition pointedType X x := X,,x : PointedType.
+
 Definition underlyingType (X:PointedType) := pr1 X.
+
 Coercion underlyingType : PointedType >-> Sortclass.
+
 Definition basepoint (X:PointedType) := pr2 X.
+
 Definition loopSpace (X:PointedType) := 
   pointedType (basepoint X == basepoint X) (idpath _).
+
+Definition underlyingLoop {X:PointedType} (l:loopSpace X) : basepoint X == basepoint X.
+Proof. intros. exact l. Defined.
+
 Definition Ω := loopSpace.
 
 (** ** Direct products with several factors *)
