@@ -447,6 +447,10 @@ Proof. intros ? x P f. exact (f x). Defined.
 Definition squash_to_prop {X Y} : squash X -> isaprop Y -> (X -> Y) -> Y.
   intros ? ? h is f. exact (h (Y,,is) f). Defined.
 
+Definition squash_to_prop_compute {X Y} (x:X) (is:isaprop Y) (f:X->Y) :
+  squash_to_prop (squash_element x) is f == f x.
+Proof. reflexivity. Defined.
+
 Lemma isaprop_squash X : isaprop (squash X).
 Proof. prop_logic. Qed.
 
