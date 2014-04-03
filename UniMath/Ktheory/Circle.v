@@ -77,9 +77,22 @@ Defined.
 Definition pr1_GH_weq {Y} {y:Y} {l:y==y} : weq (GH l) (Torsor ℤ)
    := weqpair pr1_GH (pr1_GH_isweq l).
 
-Definition makeGH {Y} {y:Y} (l:y==y) (T:Torsor ℤ) (t:T) {y':Y} (h:y'==y) 
-           : GH l
+Definition makeGH {Y} {y:Y} (l:y==y) (T:Torsor ℤ) (t:T) {y':Y} (h:y'==y) : GH l
   := GHpair l T (makeGuidedHomotopy _ _ t h).
+
+Definition makeGH1 {Y} {y:Y} (l:y==y) (T:Torsor ℤ) (t:T) : GH l
+  := makeGH l T t (idpath y).
+
+Definition pr1_GH_weq_compute {Y} {y:Y} {l:y==y} :
+  let T0 := trivialTorsor ℤ in
+  let t0 := 0 : T0 in
+  let gh0 := makeGH1 l T0 t0 in 
+  let e := homotinvweqweq pr1_GH_weq gh0 in
+  let d := ap pr12_GH e in
+    d == idpath y.
+Proof. intros.
+       admit.
+Defined.
 
 (** ** Various paths in GH *)
 
@@ -148,9 +161,6 @@ Definition makeGH_transPath_comp2 {Y} {y:Y} (l:y==y) {T:Torsor ℤ} (t:T) {y'} (
   : ap pr12_GH (makeGH_transPath l t h) == idpath y'.
 Proof. intros. exact (GH_path3_comp2 l _). Defined.
 
-Definition makeGH1 {Y} {y:Y} (l:y==y) (T:Torsor ℤ) (t:T) : GH l
-  := makeGH l T t (idpath y).
-
 Definition makeGH_diagonalLoop {Y} {y:Y} (l:y==y) {T:Torsor ℤ} (t:T) 
            (q:T==T) (r:castTorsor q t == one + t) : 
   makeGH1 l T t == makeGH1 l T t.
@@ -199,22 +209,6 @@ Proof. reflexivity.              (* don't change the proof *)
     actual point that provides the accompanying proof of nonemptiness. *)
 Defined.
 
-Definition circle_map_check_values_understand {Y} {y:Y} (l:y==y) (T:Torsor ℤ) : 
-  circle_map l T == y.
-Proof. intros.
-       unfold circle_map, funcomp, invmap, pr12_GH.
-       simpl.
-       unfold pr1_GH_isweq.
-       simpl.
-       unfold iscontrGuidedHomotopy.
-       (** Not possible, but look at the goal.
-           It's stuck on [squash_to_prop (torsor_nonempty T0)].
-           If [torsor_nonempty T0] were explicitly obtained as
-           [squash_element t0] for some [t0], this would simplify
-           further: see [squash_to_prop_compute]. *)
-       admit.
-Defined.
-
 Definition loop_correspondence {T X Y}
            (f:weq T X) (g:T->Y)
            {t t':T} {l:t==t'}
@@ -223,39 +217,6 @@ Definition loop_correspondence {T X Y}
      ap (funcomp (invmap f) g) m @ ap g (homotinvweqweq f t') 
   == ap g (homotinvweqweq f t) @ n.
 Proof. intros. destruct ni, mi, l. simpl. rewrite pathscomp0rid. reflexivity.
-Defined.
-
-Definition loop_correspondence2 {X Y:Type} {P:X->Y->Type}
-           (h:X->Y)
-           {x0:X} (p0:P x0 (h x0)) 
-           (p:forall x, P x (h x))
-           (cntr:forall x, forall t:total2 (P x), t == tpair (P x) (h x) (p x)) : 
-  let y0 := h x0 in
-  let Q := fun x => total2 (P x) in
-  let T := total2 Q in
-  let is := fun x => @tpair (total2 (P x)) (fun cntr => forall t, t == cntr)
-                      (tpair (P x) (h x) (p x))
-                      (cntr x) in
-  let pr1_weq := weqpair pr1 (isweqpr1 _ is) : weq T X in
-  let t0 := invmap pr1_weq x0 in
-  let pr12 := fun t:T => pr1 (pr2 t) in
-  let x0' := pr1_weq t0 in
-  let h' := funcomp (invmap pr1_weq) pr12 in
-  let t0' := @tpair X Q x0 (@tpair Y (P x0) y0 p0) : T in
-  unit.
-Proof. intros. 
-       compute in t0.
-       Check idpath _ : pr1_weq t0 == x0.
-       Check idpath _ : pr1_weq t0 == x0.
-       compute in x0'.
-       Check idpath _ : pr12 t0 == y0.
-       Check idpath _ : h' x0 == y0.
-       Check idpath _ : pr1_weq t0' == x0.
-       Check idpath _ : pr12 t0' == y0.
-       (* Check idpath _ : invmap pr1_weq (pr1_weq t0') == t0'. *)
-
-
-       exact tt.
 Defined.
 
 Definition pathsinv0_to_right {X} {x y z:X} (p:y==x) (q:y==z) (r:x==z) :
@@ -284,41 +245,15 @@ Proof. reflexivity. Defined.
 Definition circle_map_check_paths {Y} {y:Y} (l:y==y) : 
   ap (circle_map l) (! circle_loop) == l.
 Proof. intros. set (T0 := basepoint (B ℤ)); simpl in T0. set (t0 := 0:T0).
-       assert (c1 := makeGH_diagonalLoop_comp1 l _ _ (loop_compute t0)).
+       assert (c1 := makeGH_diagonalLoop_comp1 l _ _ (loop_compute t0)
+                  : ap pr1_GH (makeGH_diagonalLoop l t0 circle_loop (loop_compute t0)) == ! circle_loop ).
        assert (c2 := makeGH_diagonalLoop_comp2 l _ _ (loop_compute t0)).
-       unfold circle_map.
        assert (c := loop_correspondence pr1_GH_weq pr12_GH c1 c2).
-       set (gh0 := makeGH1 l _ t0).
-       change (makeGH1 l _ t0) with gh0 in c.
-       (* to see that gh0 is an explicit triple T0,,y,,..., do this:
-       unfold makeGH1,makeGH,GHpair,makeGuidedHomotopy in gh0. *)
-       Check idpath _ : circle_map l T0 == y.
-       Check (fun T => pr22_GH (invmap pr1_GH_weq T)).
-       Check @loop_correspondence2
-             (Torsor ℤ)
-             Y 
-             (fun T => GHomotopy (confun T y) (confun T l))
-             (circle_map l)
-             T0 
-             (pr2 (pr2 (invmap pr1_GH_weq T0)))
-       .
-             (* (fun T => pr22_GH (invmap pr1_GH_weq T)) *)
-
-       set (e := homotinvweqweq pr1_GH_weq gh0).
-       Check ap pr1_GH e : T0 == T0.
-       Check e : _ == gh0.
-       (* Check e : gh0 == _. *)
-       set (d := ap pr12_GH e).
-       Check d : y == y.
-       assert (k : d == idpath y).
-       { 
-
-         
-         admit. }
-       unfold d,e in k. clear d e c1 c2.
-       rewrite k in c. clear k.
-       (* here we need a this hack! *)
-       assert (c' := c : ap (invmap pr1_GH_weq;; pr12_GH) (! circle_loop) @ idpath y == idpath y @ l).
+       assert (p := @pr1_GH_weq_compute Y y l
+           : ap pr12_GH (homotinvweqweq pr1_GH_weq (makeGH1 l T0 t0)) == idpath y).
+       rewrite p in c.
+       Time assert (c' := c : ap (invmap pr1_GH_weq;; pr12_GH) (! circle_loop) @ idpath y == idpath y @ l).
+       (* 6.6 secs, too slow *)
        rewrite pathscomp0rid in c'.
        exact c'.
 Defined. 

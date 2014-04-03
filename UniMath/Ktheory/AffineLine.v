@@ -475,6 +475,21 @@ Definition GHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) := fun
 Definition GuidedHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) := 
   total2 (GHomotopy f s).
 
+Definition GH_point {Y} {T:Torsor ℤ} {f:T->Y} {s:target_paths f} 
+           (yhp : GuidedHomotopy f s) := pr1 yhp : Y.
+
+Definition GH_homotopy {Y} {T:Torsor ℤ} {f:T->Y} {s:target_paths f}
+           (yhp : GuidedHomotopy f s) 
+     := pr1 (pr2 yhp) 
+     : let y := GH_point yhp in
+       nullHomotopyFrom f y.
+
+Definition GH_equations {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) 
+           (yhp : GuidedHomotopy f s) 
+     := pr2 (pr2 yhp) 
+     : let h := GH_homotopy yhp in
+       forall n, h(one + n) == h n @ s n.
+
 Definition weq_pathscomp0r {X} x {y z:X} (p:y==z) : weq (x==y) (x==z).
 Proof. intros. exact (weqpair _ (isweqpathscomp0r _ p)). Defined.
 
@@ -486,6 +501,27 @@ Proof. intros. apply (squash_to_prop (torsor_nonempty T)).
        { apply weqfibtototal; intro y.
          exact (ℤTorsorRecursionEquiv _ (fun t => weq_pathscomp0r _ _) t0). }
        apply iscontrcoconustot. Defined.
+
+Definition iscontrGuidedHomotopy_comp_1 {Y} :
+  let T := trivialTorsor ℤ in 
+  let t0 := 0 : T in
+    forall (f:T->Y) (s:target_paths f),
+      GH_point (the (iscontrGuidedHomotopy f s)) == f t0.
+Proof. reflexivity.             (* don't change the proof *)
+Defined.
+
+Definition iscontrGuidedHomotopy_comp_2 {Y} :
+  let T := trivialTorsor ℤ in 
+  let t0 := 0 : T in
+    forall (f:T->Y) (s:target_paths f),
+      GH_homotopy (the (iscontrGuidedHomotopy f s)) t0 == idpath (f t0).
+Proof. intros.
+       unfold the, iscontrGuidedHomotopy. unfold squash_to_prop, torsor_nonempty.
+       unfold is_torsor_prop.
+       unfold T.
+       admit.
+
+Defined.
 
 Definition makeGuidedHomotopy {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0) : 
