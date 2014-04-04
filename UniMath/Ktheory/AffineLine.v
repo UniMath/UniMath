@@ -582,30 +582,14 @@ Definition iscontrGuidedHomotopy_comp_2 {Y} :
         (GH_homotopy (the (iscontrGuidedHomotopy f s)) t0) ==
         (idpath (f t0)).
 Proof. intros.
-       set (a := iscontrweqb_compute 
+       assert (a2 := ap_pr2 (iscontrweqb_compute 
                       (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
                                      (fun y : Y =>
                                         ℤTorsorRecursionEquiv (fun t : T => y == f t)
                                                               (fun t : T => weq_pathscomp0r y (s t)) t0))
-                      (iscontrcoconustot Y (f t0))
-           : @identity (GuidedHomotopy f s) _ _ ).
-       set (a' := a @ (idpath _ :
-                         @identity (GuidedHomotopy f s)
-                         (invmap
-                            (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
-                                           (fun y : Y => ℤTorsorRecursionEquiv
-                                                           (fun t : T => y == f t)
-                                                           (fun t : T => weq_pathscomp0r y (s t)) t0))
-                            (the (iscontrcoconustot Y (f t0))))
-                         (invmap
-                            (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
-                                           (fun y : Y => ℤTorsorRecursionEquiv
-                                                           (fun t : T => y == f t)
-                                                           (fun t : T => weq_pathscomp0r y (s t)) t0))
-                            (f t0,,idpath (f t0))))).
-       unfold a in a'. clear a.
-       assert (a2 := ap_pr2 a' : @identity (GHomotopy f s (f t0)) _ _).
-       assert (a2' := (idpath _ :
+                      (iscontrcoconustot Y (f t0))) 
+                : @identity (GHomotopy f s (f t0)) _ _).
+       refine (apevalsecat t0 (ap pr1 ((idpath _ :
                          (pr2
                             (the
                                (iscontrweqb
@@ -615,9 +599,7 @@ Proof. intros.
                                                                           (fun t : T => weq_pathscomp0r y (s t)) t0))
                                   (iscontrcoconustot Y (f t0)))))
                            ==
-                         (path_start a2)) @ a2);
-         clear a2 a'.
-       refine (apevalsecat t0 (ap pr1 a2') @ _).
+                         (path_start a2)) @ a2)) @ _).
        refine (apevalsecat t0
                  (ap pr1
                      (compute_pr2_invmap_weqfibtototal
