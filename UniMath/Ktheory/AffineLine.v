@@ -10,8 +10,10 @@
 
 (** ** Preliminaries *)
 
-Require Import algebra1b funextfun Utilities GroupAction hz Integers.
-Require Ktheory.Nat.
+Require Ktheory.Nat pathnotations.
+Require Export hSet.
+Import pathnotations.PathNotations.
+Require Import Utilities algebra1b funextfun GroupAction hz Integers Nat.
 Import Utilities.Notation Utilities.NatNotation.
 
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
@@ -211,8 +213,7 @@ Definition GuidedSection {T:Torsor ℤ}
        forall t, f (one + t) == IH t (f t).
 
 Definition ℤTorsorRecursionEquiv {T:Torsor ℤ} (P:T->Type) 
-      (IH:forall t, weq (P t) (P (one + t))) :
-  forall t0,
+      (IH:forall t, weq (P t) (P (one + t))) (t0:T) :
   weq (total2 (GuidedSection P IH)) (P t0).
 Proof. intros. exists (fun fh => pr1 fh t0). intro q.
        set (w := triviality_isomorphism T t0).
@@ -238,18 +239,17 @@ Proof. intros. exists (fun fh => pr1 fh t0). intro q.
 Defined.
 
 Definition ℤTorsorRecursion_compute {T:Torsor ℤ} (P:T->Type) 
-      (IH:forall t, weq (P t) (P (one + t)))
-      (t:T) :
-  forall h, ℤTorsorRecursionEquiv P IH t h == pr1 h t.
+      (IH:forall t, weq (P t) (P (one + t))) t h :
+  ℤTorsorRecursionEquiv P IH t h == pr1 h t.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
 Definition ℤTorsorRecursion_inv_compute {T:Torsor ℤ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t)))
-      (t:T) h0 :
-  pr1 (invmap (ℤTorsorRecursionEquiv P IH t) h0) t == h0.
+      (t0:T) (h0:P t0) :
+  pr1 (invmap (ℤTorsorRecursionEquiv P IH t0) h0) t0 == h0.
 Proof. intros.
-       admit.
+       exact (! ℤTorsorRecursion_compute P IH t0 (invmap (ℤTorsorRecursionEquiv P IH t0) h0) @ homotweqinvweq (ℤTorsorRecursionEquiv P IH t0) h0).
 Defined.
 
 Definition ℤTorsorRecursion_transition {T:Torsor ℤ} (P:T->Type) 
