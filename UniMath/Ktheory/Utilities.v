@@ -362,6 +362,7 @@ Proof. intros ? ? ? ? ? is. apply is. Defined.
 
 Definition funset X (Y:hSet) : hSet := hSetpair (X->Y) (impredfun 2 _ _ (pr2 Y)).
 
+Definition path_type {X} {x x':X} (p:x == x') := X.
 Definition path_start {X} {x x':X} (p:x == x') := x.
 Definition path_end {X} {x x':X} (p:x == x') := x'.
 

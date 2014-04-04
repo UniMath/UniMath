@@ -489,8 +489,7 @@ Definition GH_point {Y} {T:Torsor ℤ} {f:T->Y} {s:target_paths f}
 Definition GH_homotopy {Y} {T:Torsor ℤ} {f:T->Y} {s:target_paths f}
            (yhp : GuidedHomotopy f s) 
      := pr1 (pr2 yhp) 
-     : let y := GH_point yhp in
-       nullHomotopyFrom f y.
+     : nullHomotopyFrom f (GH_point yhp).
 
 Definition GH_equations {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) 
            (yhp : GuidedHomotopy f s) 
@@ -580,68 +579,80 @@ Definition iscontrGuidedHomotopy_comp_2 {Y} :
   let T := trivialTorsor ℤ in 
   let t0 := 0 : T in
     forall (f:T->Y) (s:target_paths f),
-      GH_homotopy (the (iscontrGuidedHomotopy f s)) t0 == idpath (f t0).
+        (GH_homotopy (the (iscontrGuidedHomotopy f s)) t0) ==
+        (idpath (f t0)).
 Proof. intros.
-       unfold iscontrGuidedHomotopy. 
-       change (torsor_nonempty T) with (squash_element t0).
-       change 
-        (squash_to_prop (squash_element t0) (isapropiscontr (GuidedHomotopy f s))
-           (fun t1 : pr1 T =>
-            iscontrweqb
-              (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t1)
-                 (fun y : Y =>
-                  ℤTorsorRecursionEquiv (fun t : T => y == f t)
-                    (fun t : T => weq_pathscomp0r y (s t)) t1))
-              (iscontrcoconustot Y (f t1))))
-        with 
-        ( iscontrweqb
-              (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
-                 (fun y : Y =>
-                  ℤTorsorRecursionEquiv (fun t : T => y == f t)
-                    (fun t : T => weq_pathscomp0r y (s t)) t0))
-              (iscontrcoconustot Y (f t0))).
-       change (fun y:Y => (fun t : T => weq_pathscomp0r y (s t)) t0)
-              with
-              (fun y:Y => weq_pathscomp0r y (s t0)).
+       refine (
+           (idpath _ :
+              (@identity (f t0 == f t0)
+                         (GH_homotopy 
+                            (the 
+                               (squash_to_prop 
+                                  (torsor_nonempty T)
+                                  (isapropiscontr (GuidedHomotopy f s))
+                                  (fun t1 : pr1 T =>
+                                     iscontrweqb
+                                       (weqfibtototal 
+                                          (GHomotopy f s)
+                                          (fun y : Y => y == f t1)
+                                          (fun y : Y => ℤTorsorRecursionEquiv 
+                                                          (fun t : T => y == f t)
+                                                          (fun t : T => weq_pathscomp0r y (s t)) t1))
+                                       (iscontrcoconustot Y (f t1))))) 
+                            t0)
+
+                         (GH_homotopy (the ( iscontrweqb
+                                               (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
+                                                              (fun y : Y =>
+                                                                 ℤTorsorRecursionEquiv (fun t : T => y == f t)
+                                                                                       (fun t : T => weq_pathscomp0r y (s t)) t0))
+                                               (iscontrcoconustot Y (f t0)))) t0))) 
+             @ _).
        set (a := iscontrweqb_compute 
                       (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
                                      (fun y : Y =>
                                         ℤTorsorRecursionEquiv (fun t : T => y == f t)
                                                               (fun t : T => weq_pathscomp0r y (s t)) t0))
-                      (iscontrcoconustot Y (f t0))).
-       unfold GH_homotopy.
-       change (@total2 Y (@GHomotopy Y T f s))
-              with
-              (@GuidedHomotopy Y T f s) in *.
-       change (@the (@total2 Y (fun y : Y => @identity Y y (f t0)))
-                    (iscontrcoconustot Y (f t0)))
-       with (tpair (fun y : Y => @identity Y y (f t0)) (f t0) (idpath (f t0)))
-         in a.
-       Check idpath _ : idpath (f t0) == ap pr1 a.
-       (* Set Printing All. Show. *)
-       assert (a2 := ap_pr2 a).
-       change (ap pr1 a) with (idpath (f t0)) in a2.
-       rewrite (idpath_transportf) in a2.
-       assert (d := compute_pr2_invmap_weqfibtototal
-                  (fun y : Y =>
-                     ℤTorsorRecursionEquiv
-                       (fun t : T => y == f t)
-                       (fun t : T => weq_pathscomp0r y (s t)) t0)
-                  (f t0,, idpath (f t0))).
-       set (d2 := path_end d).
-       unfold path_end in d2.
-       simpl in d2.
-       set (e2 := pr1 d2 t0).
-       unfold d2 in e2.
-       set (e3 := ℤTorsorRecursion_inv_compute
-                  (fun t => f t0 == f t)
-                  (fun t => weq_pathscomp0r (f t0) (s t))
-                  t0 (idpath (f t0))).
-       refine (_ @ e3); clear e3.
-
-
-       (* rewrite a. *)
-       admit.
+                      (iscontrcoconustot Y (f t0))
+           : @identity (GuidedHomotopy f s) _ _ ).
+       set (a' := a @ (idpath _ :
+                         @identity (GuidedHomotopy f s)
+                         (invmap
+                            (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
+                                           (fun y : Y => ℤTorsorRecursionEquiv
+                                                           (fun t : T => y == f t)
+                                                           (fun t : T => weq_pathscomp0r y (s t)) t0))
+                            (the (iscontrcoconustot Y (f t0))))
+                         (invmap
+                            (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
+                                           (fun y : Y => ℤTorsorRecursionEquiv
+                                                           (fun t : T => y == f t)
+                                                           (fun t : T => weq_pathscomp0r y (s t)) t0))
+                            (f t0,,idpath (f t0))))).
+       unfold a in a'. clear a.
+       assert (a2 := ap_pr2 a' : @identity (GHomotopy f s (f t0)) _ _).
+       assert (a2' := (idpath _ :
+                         (pr2
+                            (the
+                               (iscontrweqb
+                                  (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
+                                                 (fun y : Y =>
+                                                    ℤTorsorRecursionEquiv (fun t : T => y == f t)
+                                                                          (fun t : T => weq_pathscomp0r y (s t)) t0))
+                                  (iscontrcoconustot Y (f t0)))))
+                           ==
+                         (path_start a2)) @ a2);
+         clear a2 a'.
+       refine (apevalsecat t0 (ap pr1 a2') @ _).
+       refine (apevalsecat t0
+                 (ap pr1
+                     (compute_pr2_invmap_weqfibtototal
+                        (fun y : Y =>
+                           ℤTorsorRecursionEquiv
+                             (fun t : T => y == f t)
+                             (fun t : T => weq_pathscomp0r y (s t)) t0)
+                        (f t0,, idpath (f t0)))) @ _).
+       exact (ℤTorsorRecursion_inv_compute _ _ _ _).
 Defined.
 
 Definition makeGuidedHomotopy {T:Torsor ℤ} {Y} (f:T->Y)
