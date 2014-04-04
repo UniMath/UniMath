@@ -582,32 +582,6 @@ Definition iscontrGuidedHomotopy_comp_2 {Y} :
         (GH_homotopy (the (iscontrGuidedHomotopy f s)) t0) ==
         (idpath (f t0)).
 Proof. intros.
-       refine (
-           (idpath _ :
-              (@identity (f t0 == f t0)
-                         (GH_homotopy 
-                            (the 
-                               (squash_to_prop 
-                                  (torsor_nonempty T)
-                                  (isapropiscontr (GuidedHomotopy f s))
-                                  (fun t1 : pr1 T =>
-                                     iscontrweqb
-                                       (weqfibtototal 
-                                          (GHomotopy f s)
-                                          (fun y : Y => y == f t1)
-                                          (fun y : Y => ℤTorsorRecursionEquiv 
-                                                          (fun t : T => y == f t)
-                                                          (fun t : T => weq_pathscomp0r y (s t)) t1))
-                                       (iscontrcoconustot Y (f t1))))) 
-                            t0)
-
-                         (GH_homotopy (the ( iscontrweqb
-                                               (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
-                                                              (fun y : Y =>
-                                                                 ℤTorsorRecursionEquiv (fun t : T => y == f t)
-                                                                                       (fun t : T => weq_pathscomp0r y (s t)) t0))
-                                               (iscontrcoconustot Y (f t0)))) t0))) 
-             @ _).
        set (a := iscontrweqb_compute 
                       (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
                                      (fun y : Y =>
