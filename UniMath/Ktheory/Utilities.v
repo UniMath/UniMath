@@ -1,31 +1,20 @@
 (** * Utilities concerning paths, hlevel, and logic *)
 
-Unset Automatic Introduction.
-
+Global Unset Automatic Introduction.
+Require Export hSet.
+Require Import funextfun.
 Require RezkCompletion.auxiliary_lemmas_HoTT.
-Require Import RezkCompletion.pathnotations.
-Require Import RezkCompletion.auxiliary_lemmas_HoTT.
-Require Import Foundations.hlevel2.hSet.
-        Import RezkCompletion.pathnotations.PathNotations.
-
-(* this lemma must be somewhere in Foundations *)
-Lemma path_assoc {X} {a b c d:X}
-        (f : a == b) (g : b == c) (h : c == d)
-      : f @ (g @ h) == (f @ g) @ h.
-Proof. intros. destruct f. reflexivity. Defined.
-Lemma path_assoc_opaque {X} {a b c d:X} 
-        (f : a == b) (g : b == c) (h : c == d)
-      : f @ (g @ h) == (f @ g) @ h.
-Proof. intros. destruct f. reflexivity. Qed.
+Require Export RezkCompletion.pathnotations.
+Require Export RezkCompletion.auxiliary_lemmas_HoTT.
+        Export RezkCompletion.pathnotations.PathNotations.
+Require Export Ktheory.Tactics.
 
 Set Default Timeout 50.
 
-Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
-  let T := type of x in
-  let G := match goal with |- ?G => constr:(G) end in
-  exact ((@id G : T -> G) x).
-
 Definition confun T {Y} (y:Y) := fun _:T => y.
+Definition path_type {X} {x x':X} (p:x == x') := X.
+Definition path_start {X} {x x':X} (p:x == x') := x.
+Definition path_end {X} {x x':X} (p:x == x') := x'.
 Definition paths_from {X} (x:X) := total2 (paths x).
 Definition point_to {X} {x:X} : paths_from x -> X := pr1.
 Definition paths_from_path {X} {x:X} (w:paths_from x) := pr2 w.
@@ -36,12 +25,22 @@ Definition point_from {X} {x:X} : paths_to x -> X := pr1.
 Definition paths_to_path {X} {x:X} (w:paths_to x) := pr2 w.
 Definition iscontr_paths_to {X} (x:X) : iscontr (paths_to x).
 Proof. apply iscontrcoconustot. Defined.
+Definition propProperty (P:hProp) := pr2 P : isaprop (pr1 P).
 Definition paths_to_prop {X} (x:X) := 
   hProppair (paths_to x) (isapropifcontr (iscontr_paths_to x)).
 Definition iscontr_paths_from {X} (x:X) : iscontr (paths_from x).
 Proof. apply iscontrcoconusfromt. Defined.
 Definition paths_from_prop {X} (x:X) := 
   hProppair (paths_from x) (isapropifcontr (iscontr_paths_from x)).
+
+Definition the {T} : iscontr T -> T.
+Proof. intros ? is. exact (pr1 is). Defined.
+
+Definition uniqueness {T} (i:iscontr T) (t:T) : t == the i.
+Proof. intros. exact (pr2 i t). Defined.
+
+Definition uniqueness' {T} (i:iscontr T) (t:T) : the i == t.
+Proof. intros. exact (! (pr2 i t)). Defined.
 
 Definition path_inverse_to_right {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
 Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
@@ -73,11 +72,58 @@ Module Import NatNotation.
   Notation "m < n" := (hnat.natlth m n).
 End NatNotation.
 
-Definition pair_path_in2 {X} {P:X->Type} {x:X} {p q:P x} (e:p==q) : x,,p==x,,q.
-Proof. intros. destruct e. reflexivity. Defined.
+Definition cast {T U:Type} : T==U -> T->U.
+Proof. intros ? ? p t. destruct p. exact t. Defined.
 
-Definition pair_path_in2_comp1 {X} {P:X->Type} {x:X} {p q:P x} (e:p==q) : 
-  ap pr1 (pair_path_in2 e) == idpath x.
+Definition transport_type_path {X Y:Type} (p:X==Y) (x:X) : 
+  transportf (fun T:Type => T) p x == cast p x.
+Proof. intros. destruct p. reflexivity. Defined.
+
+Definition app {X} {P:X->Type} {x x':X} {e e':x==x'} (q:e==e') (p:P x) : 
+   e#p==e'#p.
+Proof. intros. destruct q. reflexivity. Defined.
+
+(** ** Paths *)
+
+(* this lemma must be somewhere in Foundations *)
+Definition path_assoc {X} {a b c d:X}
+        (f : a == b) (g : b == c) (h : c == d)
+      : f @ (g @ h) == (f @ g) @ h.
+Proof. intros. destruct f. reflexivity. Defined.
+
+Definition path_assoc_opaque {X} {a b c d:X} 
+        (f : a == b) (g : b == c) (h : c == d)
+      : f @ (g @ h) == (f @ g) @ h.
+Proof. intros. destruct f. reflexivity. Qed.
+
+Definition pathsinv0_to_right {X} {x y z:X} (p:y==x) (q:y==z) (r:x==z) :
+  q == p @ r -> !p @ q == r.
+Proof. intros ? ? ? ? ? ? ? e. destruct p, q. exact e. Defined.
+
+Definition pathsinv0_to_right' {X} {x y:X} (p:y==x) (r:x==y) :
+  idpath _ == p @ r -> !p == r.
+Proof. intros ? ? ? ? ? e. destruct p. exact e. Defined.
+
+Definition pathsinv0_to_right'' {X} {x:X} (p:x==x) :
+  idpath _ == p -> !p == idpath _.
+Proof. intros ? ? ? e. apply pathsinv0_to_right'. rewrite pathscomp0rid.
+       exact e. Defined.
+
+(** ** Pairs *)
+
+Definition pr2_of_hfiberpair {X Y} {f:X->Y} {x:X} {y:Y} {e:f x==y} :
+  pr2 (hfiberpair f x e) == e.
+Proof. reflexivity. Defined.
+
+Definition pr2_of_pair {X} {P:X->Type} (x:X) (p:P x) : pr2 (@tpair X P x p) == p.
+Proof. reflexivity. Defined.
+
+Definition pr2_of_weqpair {X Y} (f:X->Y) (i:isweq f) : pr2 (weqpair f i) == i.
+Proof. reflexivity. Defined.
+
+(** ** Paths between pairs *)
+
+Definition pair_path_in2 {X} {P:X->Type} {x:X} {p q:P x} (e:p==q) : x,,p==x,,q.
 Proof. intros. destruct e. reflexivity. Defined.
 
 Lemma total2_paths2' {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
@@ -96,18 +142,15 @@ Definition pair_path2 {A} {B:A->UU} {a a1 a2} {b1:B a1} {b2:B a2}
            (p:a1==a) (q:a2==a) (e:p#b1 == q#b2) : a1,,b1 == a2,,b2.
 Proof. intros. destruct p,q; compute in e. destruct e. reflexivity. Defined.
 
-Definition cast {T U:Type} : T==U -> T->U.
-Proof. intros ? ? p t. destruct p. exact t. Defined.
-
-Definition transport_type_path {X Y:Type} (p:X==Y) (x:X) : 
-  transportf (fun T:Type => T) p x == cast p x.
-Proof. intros. destruct p. reflexivity. Defined.
-
-Definition app {X} {P:X->Type} {x x':X} {e e':x==x'} (q:e==e') (p:P x) : 
-   e#p==e'#p.
-Proof. intros. destruct q. reflexivity. Defined.
+Lemma simple_pair_path {X Y} {x x':X} {y y':Y} (p : x == x') (q : y == y') :
+  x,,y == x',,y'.
+Proof. intros. destruct p. destruct q. apply idpath. Defined.
 
 (** ** Projections from pair types *)
+
+Definition pair_path_in2_comp1 {X} {P:X->Type} {x:X} {p q:P x} (e:p==q) : 
+  ap pr1 (pair_path_in2 e) == idpath x.
+Proof. intros. destruct e. reflexivity. Defined.
 
 Definition ap_pr2 {X} {P:X->UU} {w w':total2 P} (p : w == w') :
   transportf P (ap pr1 p) (pr2 w) == pr2 w'.
@@ -127,18 +170,14 @@ Proof. intros. destruct p, q. reflexivity. Defined.
 Definition from_total2 {X} {P:X->Type} {Y} : (forall x, P x->Y) -> total2 P -> Y.
 Proof. intros ? ? ? f [x p]. exact (f x p). Defined.
 
-(** ** Sections *)
+(** ** Sections and functions *)
 
 Definition sections {T} (P:T->UU) := forall t:T, P t.
 Definition homotsec {T} {P:T->UU} (f g:sections P) := forall t, f t == g t.
-Definition evalat {T} {U} (t:T) (f:T->U) := f t.
-Definition apevalat {T} {U} (t:T) {f g:T->U}
+Definition evalat {T} {P:T->UU} (t:T) (f:sections P) := f t.
+Definition apevalat {T} {P:T->UU} (t:T) {f g:sections P}
   : f == g -> f t == g t
   := ap (evalat t).
-Definition evalsecat {T} {P:T->UU} (t:T) (f:sections P) := f t.
-Definition apevalsecat {T} {P:T->UU} (t:T) {f g:sections P}
-  : f == g -> f t == g t
-  := ap (evalsecat t).
 Definition apfun {X Y} {f f':X->Y} (p:f==f') {x x'} (q:x==x') : f x == f' x'.
   intros. destruct q. exact (apevalat x p). Defined.
 Definition aptwice {X Y Z} (f:X->Y->Z) {a a' b b'} (p:a==a') (q:b==b') : f a b == f a' b'.
@@ -167,17 +206,17 @@ Definition transport_funapp {T} {X Y:T->Type}
   == (transportf (fun t => X t -> Y t) p (f t)) (transportf _ p (x t)).
 Proof. intros. destruct p. reflexivity. Defined.
 
-Definition A {T} {Y} (P:T->Y->Type) {y y':Y} (k:forall t, P t y) (e:y==y') t :
+Definition helper_A {T} {Y} (P:T->Y->Type) {y y':Y} (k:forall t, P t y) (e:y==y') t :
   transportf (fun y => P t y) e (k t)
   == 
   (transportf (fun y => forall t, P t y) e k) t.
 Proof. intros. destruct e. reflexivity. Defined.
 
-Definition B {T} {Y} (f:T->Y) {y y':Y} (k:forall t, y==f t) (e:y==y') t :
+Definition helper_B {T} {Y} (f:T->Y) {y y':Y} (k:forall t, y==f t) (e:y==y') t :
   transportf (fun y => y==f t) e (k t)
   == 
   (transportf (fun y => forall t, y==f t) e k) t.
-Proof. intros. exact (A _ k e t). Defined.
+Proof. intros. exact (helper_A _ k e t). Defined.
 
 Definition transport_invweq {T} {X Y:T->Type} (f:forall t, weq (X t) (Y t))
            {t t':T} (p:t==t') : 
@@ -193,7 +232,21 @@ Definition transport_invmap {T} {X Y:T->Type} (f:forall t, weq (X t) (Y t))
   invmap (transportf (fun t => weq (X t) (Y t)) p (f t)).
 Proof. intros. destruct p. reflexivity. Defined.
 
-  (** ** double transport *)
+Definition ap_natl {X Y} {f:X->Y}
+           {x x' x'':X} {p:x==x'} {q:x'==x''}
+           {p':f x==f x'} {q':f x'==f x''}
+           (r:ap f p == p') (s:ap f q == q') :
+  ap f (p @ q) == p' @ q'.
+Proof. intros. destruct r, s. apply maponpathscomp0. Defined.
+
+Definition ap_natl' {X Y} {f:X->Y}
+           {x x' x'':X} {p:x'==x} {q:x'==x''}
+           {p':f x'==f x} {q':f x'==f x''}
+           (r:ap f p == p') (s:ap f q == q') :
+  ap f (!p @ q) == (!p') @ q'.
+Proof. intros. destruct r, s, p, q. reflexivity. Defined.
+
+  (** *** Double transport *)
 
   Definition transportf2 {X} {Y:X->Type} (Z:forall x, Y x->Type)
              {x x'} (p:x==x')
@@ -211,7 +264,7 @@ Proof. intros. destruct p. reflexivity. Defined.
     transportf P (ap pr1 p) (pr1 (pr2 w)) == pr1 (pr2 w').
   Proof. intros. destruct p. reflexivity. Defined.
 
-  (** ** transport a pair *)
+  (** *** Transport a pair *)
 
   Definition transportf_pair X (Y:X->Type) (Z:forall x, Y x->Type)
              x x' (p:x==x') (y:Y x) (z:Z x y) :
@@ -249,27 +302,25 @@ Lemma isaprop_wma_inhab' X : (X -> iscontr X) -> isaprop X.
 Proof. intros ? f. apply isaprop_wma_inhab. intro x. apply isapropifcontr. 
        apply (f x). Qed.
 
-Ltac prop_logic := 
-  intros; simpl;
-  repeat (try (apply isapropdirprod);try (apply isapropishinh);apply impred ;intro); 
-  try (apply isapropiscontr); try assumption.
+Definition isaset_if_isofhlevel2 {X} : isofhlevel 2 X -> isaset X.
+(* The use of this lemma ahead of something like 'impred' can be avoided by
+   providing 2 as first argument. *)
+Proof. trivial. Qed.
 
-Definition propProperty (P:hProp) := pr2 P : isaprop (pr1 P).
+Definition isofhlevel2_if_isaset {X} : isaset X -> isofhlevel 2 X.
+Proof. trivial. Qed.
 
-Ltac intermediate_path x := apply (pathscomp0 (b := x)).
+Definition isaprop_hProp (X:hProp) : isaprop X.
+Proof. intro. exact (pr2 X). Qed.
 
-Ltac intermediate_weq Y' := apply (weqcomp (Y := Y')).
+Definition equality_proof_irrelevance {X:hSet} {x y:X} (p q:x==y) : p==q.
+Proof. intros. destruct (the (setproperty _ _ _ p q)). reflexivity. Qed.
 
-Definition weqcomp' { X Y Z : UU } (w2 : weq Y Z) (w1 : weq X Y) := weqcomp w1 w2.
+Definition equality_proof_irrelevance' {X:Type} {x y:X} (p q:x==y) : 
+  isaset X -> p==q.
+Proof. intros ? ? ? ? ? is. apply is. Defined.
 
-Ltac intermediate_weq' Y' := apply (weqcomp' (Y := Y')).
-
-Ltac intermediate_iscontr Y' := apply (iscontrweqb (Y := Y')).
-
-Lemma iscontrweqb' {X Y} (is:iscontr Y) (w:weq X Y) : iscontr X.
-Proof. intros. apply (iscontrweqb (Y:=Y)). assumption. assumption. Defined.
-
-Ltac intermediate_iscontr' Y' := apply (iscontrweqb' (Y := Y')).
+(** ** Equivalences *)
 
 Definition weqcompidl {X Y} (f:weq X Y) : weqcomp (idweq X) f == f.
 Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
@@ -329,42 +380,81 @@ Proof. intros. apply (weqcompinjr (weqcomp f g)). rewrite weqcompinvl.
        rewrite weqcompinvl. rewrite weqcompidl. rewrite weqcompinvl. reflexivity.
 Defined.
 
+Definition weq_pathscomp0r {X} x {y z:X} (p:y==z) : weq (x==y) (x==z).
+Proof. intros. exact (weqpair _ (isweqpathscomp0r _ p)). Defined.
+
+Definition iscontrretract_compute {X Y} (p:X->Y) (s:Y->X) 
+           (eps:forall y : Y, p (s y) == y) (is:iscontr X) : 
+  the (iscontrretract p s eps is) == p (the is).
+Proof. intros. unfold iscontrretract. destruct is as [ctr uni].
+       simpl. reflexivity. Defined.
+
+Definition iscontrweqb_compute {X Y} (w:weq X Y) (is:iscontr Y) :
+  the (iscontrweqb w is) == invmap w (the is).
+Proof. intros. unfold iscontrweqb. rewrite iscontrretract_compute.
+       reflexivity. Defined.
+
+Definition compute_iscontrweqb_weqfibtototal_1 {T} {P Q:T->Type}
+           (f:forall t, weq (P t) (Q t)) 
+           (is:iscontr (total2 Q)) :
+  pr1 (the (iscontrweqb (weqfibtototal P Q f) is)) == pr1 (the is).
+Proof. intros. destruct is as [ctr uni]. reflexivity. Defined.
+
+Definition compute_pr1_invmap_weqfibtototal {T} {P Q:T->Type}
+           (f:forall t, weq (P t) (Q t)) 
+           (w:total2 Q) :
+  pr1 (invmap (weqfibtototal P Q f) w) == pr1 w.
+Proof. intros. reflexivity. Defined.
+
+Definition compute_pr2_invmap_weqfibtototal {T} {P Q:T->Type}
+           (f:forall t, weq (P t) (Q t)) 
+           (w:total2 Q) :
+  pr2 (invmap (weqfibtototal P Q f) w) == invmap (f (pr1 w)) (pr2 w).
+Proof. intros. reflexivity. Defined.
+
+Definition compute_iscontrweqb_weqfibtototal_3 {T} {P Q:T->Type}
+           (f:forall t, weq (P t) (Q t)) 
+           (is:iscontr (total2 Q)) :
+  ap pr1 (iscontrweqb_compute (weqfibtototal P Q f) is) 
+  ==
+  compute_iscontrweqb_weqfibtototal_1 f is.
+Proof. intros. destruct is as [ctr uni]. reflexivity. Defined.
+
+Definition iscontrcoconustot_comp {X} {x:X} :
+  the (iscontrcoconustot X x) == tpair _ x (idpath x).
+Proof. reflexivity. Defined.
+
+Definition funfibtototal {X} (P Q:X->Type) (f:forall x:X, P x -> Q x) :
+  total2 P -> total2 Q.
+Proof. intros ? ? ? ? [x p]. exact (x,,f x p). Defined.
+
+Definition weqfibtototal_comp {X} (P Q:X->Type) (f:forall x:X, weq (P x) (Q x)) :
+  invmap (weqfibtototal P Q f) == funfibtototal Q P (fun x => invmap (f x)).
+Proof. intros. apply funextsec; intros [x q]. reflexivity. Defined.
+
+Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
+  transportf P (idpath x) p == p.
+Proof. reflexivity. Defined.
+
+Definition transportbfinv {T} (P:T->Type) {t u:T} (e:t==u) (p:P t) : e#'e#p == p.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition transportfbinv {T} (P:T->Type) {t u:T} (e:t==u) (p:P u) : e#e#'p == p.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition eqweqmapap_inv {T} (P:T->Type) {t u:T} (e:t==u) (p:P u) :
+  (eqweqmap (ap P e)) ((eqweqmap (ap P (!e))) p) == p.
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition eqweqmapap_inv' {T} (P:T->Type) {t u:T} (e:t==u) (p:P t) :
+  (eqweqmap (ap P (!e))) ((eqweqmap (ap P e)) p) == p.
+Proof. intros. destruct e. reflexivity. Defined.
+
 Definition invmapweqcomp {X Y Z} (f:weq X Y) (g:weq Y Z) :
   invmap (weqcomp f g) == weqcomp (invweq g) (invweq f).
 Proof. intros. exact (ap pr1weq (invweqcomp f g)). Defined.
 
-Definition isaset_if_isofhlevel2 {X} : isofhlevel 2 X -> isaset X.
-(* The use of this lemma ahead of something like 'impred' can be avoided by
-   providing 2 as first argument. *)
-Proof. trivial. Qed.
-
-Definition isofhlevel2_if_isaset {X} : isaset X -> isofhlevel 2 X.
-Proof. trivial. Qed.
-
-Definition isaprop_hProp (X:hProp) : isaprop X.
-Proof. intro. exact (pr2 X). Qed.
-
-Definition the {T} : iscontr T -> T.
-Proof. intros ? is. exact (pr1 is). Defined.
-
-Definition uniqueness {T} (i:iscontr T) (t:T) : t == the i.
-Proof. intros. exact (pr2 i t). Defined.
-
-Definition uniqueness' {T} (i:iscontr T) (t:T) : the i == t.
-Proof. intros. exact (! (pr2 i t)). Defined.
-
-Definition equality_proof_irrelevance {X:hSet} {x y:X} (p q:x==y) : p==q.
-Proof. intros. destruct (the (setproperty _ _ _ p q)). reflexivity. Qed.
-
-Definition equality_proof_irrelevance' {X:Type} {x y:X} (p q:x==y) : 
-  isaset X -> p==q.
-Proof. intros ? ? ? ? ? is. apply is. Defined.
-
 Definition funset X (Y:hSet) : hSet := hSetpair (X->Y) (impredfun 2 _ _ (pr2 Y)).
-
-Definition path_type {X} {x x':X} (p:x == x') := X.
-Definition path_start {X} {x x':X} (p:x == x') := x.
-Definition path_end {X} {x x':X} (p:x == x') := x'.
 
 Definition pr1hSet_injectivity (X Y:hSet) : weq (X==Y) (pr1hSet X==pr1hSet Y).
 Proof. intros. apply weqonpathsincl. apply isinclpr1; intro T.
@@ -415,51 +505,9 @@ Proof. intros ? ? a. destruct a. exists f. unfold isweq. intro y.
        exists (g y,,p y). 
        intros [x r]. exact (total2_paths2 (q x @ ap g r) (h x y r)). Defined.
 
-(* Definition weqfunsrc {X Y} {P:Y->Type} (w:AdjointEquivalence'.data X Y) :  *)
-(*   AdjointEquivalence'.data  *)
-(*     (forall y, P y)  *)
-(*     (forall x, P (AdjointEquivalence'.f _ _ w x)). *)
-(* Proof. intros ? ? ? [f g p q h]; simpl. *)
-(*        refine (AdjointEquivalence'.make _ _ _ _ _ _ _). *)
-(*        { intros G x. exact (G (f x)). } *)
-(*        { intros F y. exact (p y # F (g y)). } *)
-(*        { intros F.  *)
-(*          (* Unset Printing Implicits. Unset Printing Notations. *) *)
-(*          apply funextsec; intro x. *)
-
 (* Defined. *)
 
-(** ** Squashing. *)
-
-Notation squash := ishinh_UU.
-Notation nonempty := ishinh.
-Notation squash_fun := hinhfun.
-Lemma squash_fun2 {X Y Z} : (X -> Y -> Z) -> (squash X -> squash Y -> squash Z).
-Proof. intros ? ? ? f x y P h.
-  exact (y P 
-           (x (hProppair 
-                 (Y -> P) 
-                 (impred 1 _ (fun _ => propProperty P))) 
-              (fun a b => h (f a b)))). Qed.
-
-Definition squash_element {X} : X -> squash X.
-Proof. intros ? x P f. exact (f x). Defined.
-
-Definition squash_to_prop {X Y} : squash X -> isaprop Y -> (X -> Y) -> Y.
-  intros ? ? h is f. exact (h (Y,,is) f). Defined.
-
-Definition squash_to_prop_compute {X Y} (x:X) (is:isaprop Y) (f:X->Y) :
-  squash_to_prop (squash_element x) is f == f x.
-Proof. reflexivity. Defined.
-
-Lemma isaprop_squash X : isaprop (squash X).
-Proof. prop_logic. Qed.
-
-Lemma squash_path {X} (x y:X) : squash_element x == squash_element y.
-Proof. intros. apply isaprop_squash. Defined.
-
-Lemma factor_through_squash {X Q} : isaprop Q -> (X -> Q) -> (squash X -> Q).
-Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Defined.
+(** ** Null homotopies *)
 
 Definition nullHomotopyTo {X Y} (f:X->Y) (y:Y) := forall x:X, f x == y.
 Definition NullHomotopyTo {X Y} (f:X->Y) := total2 (nullHomotopyTo f).
@@ -491,6 +539,38 @@ Proof. intros ? ? ? ? x. apply invproofirrelevance. intros [r i] [s j].
        apply (pair_path_props (!i x @ j x)).
        apply (isaprop_nullHomotopyTo is). Defined.
 
+(** ** Squashing *)
+
+Notation squash := ishinh_UU.
+Notation nonempty := ishinh.
+Notation squash_fun := hinhfun.
+Lemma squash_fun2 {X Y Z} : (X -> Y -> Z) -> (squash X -> squash Y -> squash Z).
+Proof. intros ? ? ? f x y P h.
+  exact (y P 
+           (x (hProppair 
+                 (Y -> P) 
+                 (impred 1 _ (fun _ => propProperty P))) 
+              (fun a b => h (f a b)))). Qed.
+
+Definition squash_element {X} : X -> squash X.
+Proof. intros ? x P f. exact (f x). Defined.
+
+Definition squash_to_prop {X Y} : squash X -> isaprop Y -> (X -> Y) -> Y.
+  intros ? ? h is f. exact (h (Y,,is) f). Defined.
+
+Definition squash_to_prop_compute {X Y} (x:X) (is:isaprop Y) (f:X->Y) :
+  squash_to_prop (squash_element x) is f == f x.
+Proof. reflexivity. Defined.
+
+Lemma isaprop_squash X : isaprop (squash X).
+Proof. prop_logic. Qed.
+
+Lemma squash_path {X} (x y:X) : squash_element x == squash_element y.
+Proof. intros. apply isaprop_squash. Defined.
+
+Lemma factor_through_squash {X Q} : isaprop Q -> (X -> Q) -> (squash X -> Q).
+Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Defined.
+
 Lemma isaprop_NullHomotopyTo {X} {Y} (is:isaset Y) (f:X->Y) :
   squash X -> isaprop (NullHomotopyTo f).
 Proof. intros ? ? ? ?. apply factor_through_squash. apply isapropisaprop. 
@@ -507,27 +587,6 @@ Proof. intros ? ? ? ? e h.
 Goal forall X Y (y:Y) (f:X->Y) (e:forall m:X, f m == y),
        f == funcomp squash_element (cone_squash_map f y e).
 Proof. reflexivity. Qed.
-
-Definition interval := squash bool.
-Definition left := hinhpr _ true : interval.
-Definition right := hinhpr _ false : interval.
-Definition interval_path : left == right := squash_path true false.
-Definition interval_map {Y} {y y':Y} : y == y' -> interval -> Y.
-Proof. intros ? ? ? e. set (f := fun t:bool => if t then y else y').
-       refine (cone_squash_map f (f false) _).
-       intros v. induction v. { exact e. } { reflexivity. } Defined.
-
-(** ** An easy proof of functional extensionality for sections using the interval *)
-
-Definition funextsec2 X (Y:X->Type) (f g:forall x,Y x) :
-           (forall x, f x==g x) -> f == g.
-Proof. intros ? ? ? ? e.
-       exact (maponpaths (fun h x => interval_map (e x) h) interval_path).
-Defined.
-
-(** ** The real line *)
-Require Import Foundations.hlevel2.hz.
-Notation ℤ := hz.hzaddabgr.
 
 (** ** Factoring maps through squash *)
  
@@ -553,20 +612,8 @@ Proof. intros ? [Q i] f h. apply h. assumption. Defined.
 Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
 Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.    
 
-Lemma simple_pair_path {X Y} {x x':X} {y y':Y} (p : x == x') (q : y == y') :
-  x,,y == x',,y'.
-Proof. intros. destruct p. destruct q. apply idpath. Defined.
-
 Lemma iscontr_if_inhab_prop {P} : isaprop P -> P -> iscontr P.
 Proof. intros ? i p. exists p. intros p'. apply i. Defined.
-
-Ltac isaprop_goal x :=
-  let G := match goal with |- ?G => constr:(G) end in
-  assert (x : isaprop(G)).
-
-Ltac isaset_goal x :=
-  let G := match goal with |- ?G => constr:(G) end in
-  assert (x : isaset(G)).
 
 (** ** Show that squashing is a set-quotient *)
 
@@ -659,12 +706,78 @@ Definition pr1_eqweqmap2 { X Y } ( e: X==Y ) :
   pr1 (eqweqmap e) == transportf (fun T:Type => T) e.
 Proof. intros. destruct e. reflexivity. Defined.
 
+Definition weqonsec {X Y} (P:X->Type) (Q:Y->Type)
+           (f:weq X Y) (g:forall x, weq (P x) (Q (f x))) :
+  weq (sections P) (sections Q).
+Proof. intros.
+       exact (weqcomp (weqonsecfibers P (fun x => Q(f x)) g)
+                      (invweq (weqonsecbase Q f))). Defined.
+
+Definition weq_transportf {X} (P:X->Type) {x y:X} (p:x==y) : weq (P x) (P y).
+Proof. intros. destruct p. apply idweq. Defined.
+
+Definition weq_transportf_comp {X} (P:X->Type) {x y:X} (p:x==y) (f:sections P) :
+  weq_transportf P p (f x) == f y.
+Proof. intros. destruct p. reflexivity. Defined.
+
+Definition weqonpaths2 {X Y} (w:weq X Y) {x x':X} {y y':Y} :
+  w x == y -> w x' == y' -> weq (x == x') (y == y').
+Proof. intros ? ? ? ? ? ? ? p q. destruct p,q. apply weqonpaths. Defined.
+
+Definition eqweqmap_ap {T} (P:T->Type) {t t':T} (e:t==t') (f:sections P) :
+  eqweqmap (ap P e) (f t) == f t'. (* move near eqweqmap *)
+Proof. intros. destruct e. reflexivity. Defined.
+
+Definition eqweqmap_ap' {T} (P:T->Type) {t t':T} (e:t==t') (f:sections P) :
+  invmap (eqweqmap (ap P e)) (f t') == f t. (* move near eqweqmap *)
+Proof. intros. destruct e. reflexivity. Defined.
+
 Definition weqpath_transport {X Y} (w:weq X Y) (x:X) :
   transportf (fun T => T) (weqtopaths w) == pr1 w.
 Proof. intros. exact (!pr1_eqweqmap2 _ @ ap pr1 (weqpathsweq w)). Defined.
 
 Definition weqpath_cast {X Y} (w:weq X Y) (x:X) : cast (weqtopaths w) == w.
 Proof. intros. exact (pr1_eqweqmap _ @ ap pr1 (weqpathsweq w)). Defined.
+
+Definition swequiv {X Y} (f:weq X Y) {x y} : y == f x -> invweq f y == x.
+Proof. intros ? ? ? ? ? p. exact (ap (invweq f) p @ homotinvweqweq f x). Defined.
+
+Definition swequiv' {X Y} (f:weq X Y) {x y} : invweq f y == x -> y == f x.
+Proof. intros ? ? ? ? ? p. exact (! homotweqinvweq f y @ ap f p). Defined.
+
+Definition weqbandfrel {X Y T} 
+           (e:Y->T) (t:T) (f : weq X Y) 
+           (P:X -> Type) (Q: Y -> Type)
+           (g:forall x:X, weq (P x) (Q (f x))) :
+  weq (hfiber (fun xp:total2 P => e(f(pr1 xp))) t)
+      (hfiber (fun yq:total2 Q => e(  pr1 yq )) t).
+Proof. intros. refine (weqbandf (weqbandf f _ _ g) _ _ _).
+       intros [x p]. simpl. apply idweq. Defined.
+
+Definition weq_over_sections {S T} (w:weq S T) 
+           {s0:S} {t0:T} (k:w s0 == t0)
+           {P:T->Type} 
+           (p0:P t0) (pw0:P(w s0)) (l:k#pw0 == p0)
+           (H:sections P -> Type) 
+           (J:sections (funcomp w P) -> Type)
+           (g:forall f:sections P, weq (H f) (J (maponsec1 P w f))) :
+  weq (hfiber (fun fh:total2 H => pr1 fh t0) p0 )
+      (hfiber (fun fh:total2 J => pr1 fh s0) pw0).
+Proof. intros. refine (weqbandf _ _ _ _).
+       { refine (weqbandf _ _ _ _).
+         { exact (weqonsecbase P w). }
+         { unfold weqonsecbase; simpl. exact g. } }
+       { intros [f h]. simpl. unfold maponsec1; simpl.
+         destruct k, l; simpl. unfold transportf; simpl.
+         unfold idfun; simpl. apply idweq. } Defined.
+
+Definition weq_total2_prod {X Y} (Z:Y->Type) :
+  weq (total2 (fun y => dirprod X (Z y))) (dirprod X (total2 Z)).
+Proof. intros. refine (weqpair _ (gradth _ _ _ _)).
+       { intros [y [x z]]. exact (x,,(y,,z)). }
+       { intros [x [y z]]. exact (y,,(x,,z)). }
+       { intros [y [x z]]. reflexivity. }
+       { intros [x [y z]]. reflexivity. } Defined.
 
 (** ** Pointed types *)
 
@@ -705,7 +818,6 @@ Definition paths4 {W X Y Z} {w w':W} {x x':X} {y y':Y} {z z':Z} :
   w==w' -> x==x' -> y==y' -> z==z' -> tuple4 w x y z == tuple4 w' x' y' z'. 
 Proof. intros ? ? ? ? ? ? ? ? ? ? ? ? o p q r. destruct o, p, q, r. reflexivity.
 Defined.
-
 
 (*
 Local Variables:

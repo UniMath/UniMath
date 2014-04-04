@@ -2,15 +2,16 @@
 
 (** * Natural numbers *)
 
-Unset Automatic Introduction.
 Require Import algebra1b hnat funextfun pathnotations auxiliary_lemmas_HoTT Utilities.
 Import PathNotations. 
 Import Utilities.Notation.
 Import Utilities.NatNotation.
 
+Definition ℕ := nat.
+
 Module Uniqueness.
 
-  Lemma A (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
+  Lemma helper_A (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
         (f:forall n, P n) :
     weq (forall n, f n == nat_rect P p0 IH n)
         (dirprod (f 0==p0) (forall n, f(S n)==IH n (f n))).
@@ -28,26 +29,26 @@ Module Uniqueness.
            rewrite <- path_assoc. rewrite <- maponpathscomp0. rewrite pathsinv0r. 
            apply pathscomp0rid. } Defined.
 
-  Lemma B (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
+  Lemma helper_B (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
         (f:forall n, P n) :
     weq (f == nat_rect P p0 IH)
         (dirprod (f 0==p0) (forall n, f(S n)==IH n (f n))).
   Proof. intros.
-         exact (weqcomp (weqtoforallpaths _ _ _) (A _ _ _ _)). Defined.
+         exact (weqcomp (weqtoforallpaths _ _ _) (helper_A _ _ _ _)). Defined.
 
-  Lemma C (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
+  Lemma helper_C (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     weq (total2 (fun f:forall n, P n => f == nat_rect P p0 IH))
         (total2 (fun f:forall n, P n => 
                    dirprod (f 0==p0) (forall n, f(S n)==IH n (f n)))).
-  Proof. intros. apply weqfibtototal. intros f. apply B. Defined.
+  Proof. intros. apply weqfibtototal. intros f. apply helper_B. Defined.
 
   Lemma hNatRecursionUniq (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     iscontr (total2 (fun f:forall n, P n => 
                        dirprod (f 0==p0) (forall n, f(S n)==IH n (f n)))).
-  Proof. intros. exact (iscontrweqf (C _ _ _) (iscontrcoconustot _ _)).
+  Proof. intros. exact (iscontrweqf (helper_C _ _ _) (iscontrcoconustot _ _)).
   Defined.
 
-  Lemma D (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
+  Lemma helper_D (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     weq (total2 (fun f:forall n, P n => 
                        dirprod (f 0==p0) (forall n, f(S n)==IH n (f n))))
         (@hfiber 
@@ -65,7 +66,7 @@ Module Uniqueness.
   Lemma hNatRecursionEquiv (P:nat->Type) (IH:forall n, P n->P(S n)) :
     weq (total2 (fun f:forall n, P n => forall n, f(S n)==IH n (f n))) (P 0).
   Proof. intros. exists (fun f => pr1 f 0). intro p0.
-         apply (iscontrweqf (D _ _ _)). apply hNatRecursionUniq.
+         apply (iscontrweqf (helper_D _ _ _)). apply hNatRecursionUniq.
   Defined.
 
 End Uniqueness.
@@ -109,26 +110,26 @@ Proof. intros m. apply iscontr_if_inhab_prop.
        { apply nat_discern_isaprop. }
        { induction m. { exact tt. } { simpl. exact IHm. } } Defined.
 
-Fixpoint A m n : nat_dist m n == 0 -> nat_discern m n.
+Fixpoint helper_A m n : nat_dist m n == 0 -> nat_discern m n.
 Proof. intros ? ?. destruct m as [|m'].
        { destruct n as [|n'].
          { intros _. exact tt. } { simpl. exact (negpathssx0 n'). } }
        { destruct n as [|n'].
-         { simpl. exact (negpathssx0 m'). } { simpl. exact (A m' n'). } } Defined.
+         { simpl. exact (negpathssx0 m'). } { simpl. exact (helper_A m' n'). } } Defined.
 
-Fixpoint B m n : nat_discern m n -> m == n.
+Fixpoint helper_B m n : nat_discern m n -> m == n.
 Proof. intros ? ?. destruct m as [|m'].
        { destruct n as [|n'].
          { intros _. reflexivity. } { simpl. exact fromempty. } }
        { destruct n as [|n'].
          { simpl. exact fromempty. }
-         { simpl. intro i. assert(b := B _ _ i); clear i. 
+         { simpl. intro i. assert(b := helper_B _ _ i); clear i. 
            destruct b. reflexivity. } } Defined.
 
-Goal forall m n (e:nat_discern m n), ap S (B m n e) == B (S m) (S n) e.
+Goal forall m n (e:nat_discern m n), ap S (helper_B m n e) == helper_B (S m) (S n) e.
 Proof. reflexivity. Defined.
 
-Fixpoint C m n : m == n -> nat_discern m n.
+Fixpoint helper_C m n : m == n -> nat_discern m n.
 Proof. intros ? ? e. destruct e.
        (* alternatively:
         destruct m. { exact tt. } { simpl. exact (the (nat_discern_iscontr _)). }  
@@ -136,23 +137,23 @@ Proof. intros ? ? e. destruct e.
        exact (cast (! nat_discern_unit m) tt).
 Defined.
 
-Lemma apSC m n (e:m==n) : C m n e == C (S m) (S n) (ap S e).
+Lemma apSC m n (e:m==n) : helper_C m n e == helper_C (S m) (S n) (ap S e).
 Proof. intros. apply proofirrelevance. apply nat_discern_isaprop. Defined.
 
-Definition D m n : isweq (B m n).
-Proof. intros. refine (gradth _ (C _ _) _ _).
-       { intro e. assert(p := ! B _ _ e). destruct p.
+Definition helper_D m n : isweq (helper_B m n).
+Proof. intros. refine (gradth _ (helper_C _ _) _ _).
+       { intro e. assert(p := ! helper_B _ _ e). destruct p.
          apply proofirrelevancecontr. apply nat_discern_iscontr. }
        { intro e. destruct e. induction m.
          { reflexivity. }
-         { exact (  ap (B (S m) (S m)) (! apSC _ _ (idpath m)) 
+         { exact (  ap (helper_B (S m) (S m)) (! apSC _ _ (idpath m)) 
                   @ ap (ap S) IHm). } } Defined.
 
 Definition E m n : weq (nat_discern m n) (m == n).
-Proof. intros. exact (weqpair (B _ _) (D _ _)). Defined.
+Proof. intros. exact (weqpair (helper_B _ _) (helper_D _ _)). Defined.
 
 Definition nat_dist_anti m n : nat_dist m n == 0 -> m == n.
-Proof. intros ? ? i. exact (B _ _ (A _ _ i)). Defined.
+Proof. intros ? ? i. exact (helper_B _ _ (helper_A _ _ i)). Defined.
 
 Fixpoint nat_dist_symm m n : nat_dist m n == nat_dist n m.
 Proof. intros ? ?. destruct m as [|m'].
@@ -393,6 +394,6 @@ Proof. refine (make nat nat_dist _ _ _ _ _).
 
 (*
 Local Variables:
-compile-command: "make -C ../.. TAGS UniMath/Ktheory/Nat.vo"
+compile-command: "make -helper_C ../.. TAGS UniMath/Ktheory/Nat.vo"
 End:
 *)

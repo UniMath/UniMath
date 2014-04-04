@@ -2,7 +2,6 @@
 
 (** * Metric trees *)
 
-Unset Automatic Introduction.
 Require Import algebra1b hnat funextfun pathnotations auxiliary_lemmas_HoTT Ktheory.Utilities.
 Import PathNotations Utilities.Notation Utilities.NatNotation.
 

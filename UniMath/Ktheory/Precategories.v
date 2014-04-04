@@ -1,6 +1,5 @@
 (* -*- coding: utf-8 -*- *)
 
-Unset Automatic Introduction.
 Require Import Ktheory.Utilities.
 Require Import RezkCompletion.precategories 
                RezkCompletion.yoneda

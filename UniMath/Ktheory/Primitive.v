@@ -2,7 +2,6 @@
 
 (** *** terminal objects *)
 
-Unset Automatic Introduction.
 Require Import
         Ktheory.Utilities
         Ktheory.Precategories

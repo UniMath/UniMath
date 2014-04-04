@@ -2,7 +2,6 @@
 
 (** * Group actions *)
 
-Unset Automatic Introduction.
 Require Import algebra1b funextfun Utilities auxiliary_lemmas_HoTT.
 Require pathnotations precategories.
 Import pathnotations.PathNotations Utilities.Notation.

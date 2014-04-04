@@ -1,6 +1,5 @@
 (* -*- coding: utf-8 -*- *)
 
-Unset Automatic Introduction.
 Require Import RezkCompletion.precategories Foundations.hlevel2.hSet Ktheory.Utilities.
 Require Ktheory.Precategories Ktheory.Primitive.
 Import Utilities.Notation Precategories.Notation

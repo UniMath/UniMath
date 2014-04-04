@@ -1,7 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
 (* sums (coproducts) *)
-Unset Automatic Introduction.
 Require Import 
         Foundations.hlevel2.hSet
         RezkCompletion.precategories

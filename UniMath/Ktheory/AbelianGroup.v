@@ -2,7 +2,6 @@
 
 (** * abelian groups *)
 
-Unset Automatic Introduction.
 Require Import Foundations.hlevel2.algebra1b
                Foundations.hlevel2.hz
                RezkCompletion.auxiliary_lemmas_HoTT
@@ -499,7 +498,7 @@ Module Category.
         apply funextsec. exact_op (Product.Eqn X T_ob T_el). }
       exists k'. intros k. apply Elements.mor_equality.
       exact (Product.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
-               (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
+               (fun i => (apevalat i (pr2 k)) @ ! (apevalat i (pr2 k')))). Defined.
   End Product.
 
   (** *** sums (coproducts) in the category of abelian groups *)
@@ -518,7 +517,7 @@ Module Category.
         apply funextsec. exact_op (Sum.Eqn X T_ob T_el). }
       exists k'. intros k. apply Elements.mor_equality.
       exact (Sum.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
-               (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
+               (fun i => (apevalat i (pr2 k)) @ ! (apevalat i (pr2 k')))). Defined.
   End Sum.
 
   (** *** finite direct sums in the category of abelian groups *)

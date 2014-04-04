@@ -10,121 +10,12 @@
 
 (** ** Preliminaries *)
 
-Unset Automatic Introduction.
-Require Import algebra1b funextfun Utilities auxiliary_lemmas_HoTT GroupAction hz.
-Require pathnotations Nat.
-Import pathnotations.PathNotations Utilities.Notation Utilities.NatNotation.
+Require Import algebra1b funextfun Utilities GroupAction hz Integers.
+Require Ktheory.Nat.
+Import Utilities.Notation Utilities.NatNotation.
+
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
-Definition ℤ := hzaddabgr.
-Definition toℤ (n:nat) : ℤ := nattohz n.
-Definition toℤneg (n:nat) : ℤ := natnattohz O n.
-Definition zero := toℤ 0.
-Definition one := toℤ 1.
-
 Open Scope hz_scope.
-
-Definition hzabsvalnat n : hzabsval (natnattohz n 0) == n. (* move to hz.v *)
-Proof. intros. unfold hzabsval. unfold setquotuniv. simpl.
-       unfold hzabsvalint. simpl. destruct (natgthorleh n 0).
-       { apply natminuseqn. } { exact (! (natleh0tois0 _ h)). } Defined.
-
-Lemma hzsign_natnattohz m n : - natnattohz m n == natnattohz n m. (* move to hz.v *)
-Proof. reflexivity.             (* don't change the proof *)
-Defined.
-
-Lemma hzsign_nattohz m : - nattohz m == natnattohz 0 m. (* move to hz.v *)
-Proof. reflexivity.             (* don't change the proof *)
-Defined.
-
-Lemma hzsign_hzsign (i:hz) : - - i == i.
-Proof. apply (grinvinv ℤ). Defined.
-
-Definition hz_normal_form (i:ℤ) :=
-  coprod (total2 (fun n => natnattohz n 0 == i))
-         (total2 (fun n => natnattohz 0 (S n) == i)).
-
-Definition hznf_pos n := _,, inl (n,,idpath _) : total2 hz_normal_form.
-
-Definition hznf_neg n := _,, inr (n,,idpath _) : total2 hz_normal_form.
-
-Definition hznf_zero := hznf_pos 0.
-
-Definition hznf_neg_one := hznf_neg 0.
-
-Definition hz_to_normal_form (i:ℤ) : hz_normal_form i.
-Proof. intros. destruct (hzlthorgeh i 0) as [r|s].
-       { apply inr. assert (a := hzabsvallth0 r). assert (b := hzlthtoneq _ _ r).
-         assert (c := hzabsvalneq0 b). assert (d := natneq0togth0 _ c).
-         assert (f := natgthtogehsn _ _ d). assert (g := minusplusnmm _ _ f).
-         rewrite natpluscomm in g. simpl in g. exists (hzabsval i - 1)%nat.
-         rewrite g. apply hzinvmaponpathsminus. exact a. }
-       { apply inl. exists (hzabsval i). exact (hzabsvalgeh0 s). } Defined.
-
-Lemma nattohz_inj {m n} : nattohz m == nattohz n -> m == n.
-Proof. exact (invmaponpathsincl _ isinclnattohz). Defined.
-
-Lemma hzdichot {m n} : neg (nattohz m == - nattohz (S n)).
-Proof. intros. intro e. assert (d := ap hzsign e); clear e.
-       rewrite hzsign_hzsign in d.
-       assert( f := ap (fun i => nattohz m + i) d); simpl in f; clear d.
-       change (nattohz m + - nattohz m) with (nattohz m - nattohz m) in f.
-       rewrite hzrminus in f. change (0 == nattohz (m + S n)) in f.
-       assert (g := nattohz_inj f); clear f. rewrite natpluscomm in g.
-       exact (negpaths0sx _ g). Defined.
-
-Definition negpos' : isweq (@pr1 _ hz_normal_form).
-Proof. apply isweqpr1; intro i.
-       exists (hz_to_normal_form i).
-       generalize (hz_to_normal_form i) as s.
-       intros [[m p]|[m p]] [[n q]|[n q]].
-       { apply (ap (@ii1 (total2 (fun n => natnattohz n 0 == i)) 
-                         (total2 (fun n => natnattohz 0 (S n) == i)))).
-         apply (proofirrelevance _ (isinclnattohz i)). }
-       { apply fromempty. assert (r := p@!q); clear p q. apply (hzdichot r). }
-       { apply fromempty. assert (r := q@!p); clear p q. apply (hzdichot r). }
-       { apply (ap (@ii2 (total2 (fun n => natnattohz n 0 == i)) 
-                         (total2 (fun n => natnattohz 0 (S n) == i)))).
-         assert (p' := ap hzsign p). assert (q' := ap hzsign q).
-         change (- natnattohz O (S m)) with  (nattohz (S m)) in p'.
-         change (- natnattohz O (S n)) with  (nattohz (S n)) in q'.
-         assert (c := proofirrelevance _ (isinclnattohz (-i)) (S m,,p') (S n,,q')).
-         assert (d := ap pr1 c); simpl in d.
-         assert (e := invmaponpathsS _ _ d); clear d.
-         apply (pair_path_props (!e)). intro k. apply setproperty. } Defined.
-
-Definition negpos_weq := weqpair _ negpos' : weq (total2 hz_normal_form) ℤ.
-
-Definition negpos : weq (coprod nat nat) ℤ. (* ℤ = (-inf,-1) + (0,inf) *)
-Proof. refine (weqpair _ (gradth _ _ _ _)).
-       { intros [n'|n]. 
-         { exact (natnattohz 0 (S n')). } { exact (natnattohz n 0). } }
-       { intro i. destruct (hz_to_normal_form i) as [[n p]|[m q]].
-         { exact (inr n). } { exact (inl m). } }
-       { intros [n'|n].
-         { simpl. rewrite natminuseqn. reflexivity. }
-         { simpl. rewrite hzabsvalnat. reflexivity. } } 
-       { simpl. intro i. 
-         destruct (hz_to_normal_form i) as [[n p]|[m q]].
-         { exact p. } { exact q. } }
-Defined.
-
-Definition weqonpaths2 {X Y} (w:weq X Y) {x x':X} {y y':Y} :
-  w x == y -> w x' == y' -> weq (x == x') (y == y').
-Proof. intros ? ? ? ? ? ? ? p q. destruct p,q. apply weqonpaths. Defined.
-
-Definition eqweqmap_ap {T} (P:T->Type) {t t':T} (e:t==t') (f:sections P) :
-  eqweqmap (ap P e) (f t) == f t'. (* move near eqweqmap *)
-Proof. intros. destruct e. reflexivity. Defined.
-
-Definition eqweqmap_ap' {T} (P:T->Type) {t t':T} (e:t==t') (f:sections P) :
-  invmap (eqweqmap (ap P e)) (f t') == f t. (* move near eqweqmap *)
-Proof. intros. destruct e. reflexivity. Defined.
-
-Lemma hzminusplus (x y:hz) : -(x+y) == (-x) + (-y). (* move to hz.v *)
-Proof. intros. apply (hzplusrcan _ _ (x+y)). rewrite hzlminus. 
-       rewrite (hzpluscomm (-x)). rewrite (hzplusassoc (-y)).
-       rewrite <- (hzplusassoc (-x)). rewrite hzlminus. rewrite hzplusl0.
-       rewrite hzlminus. reflexivity. Defined.
 
 (** ** Recursion for ℤ *)
 
@@ -142,14 +33,6 @@ Definition ℤRecursionData (P:ℤ->Type)
              f:forall i, P i => dirprod
                (forall n, f(  toℤ (S n))==IH  n (f (  toℤ n)))
                (forall n, f(- toℤ (S n))==IH' n (f (- toℤ n))).
-
-Definition weq_total2_prod {X Y} (Z:Y->Type) :
-  weq (total2 (fun y => dirprod X (Z y))) (dirprod X (total2 Z)).
-Proof. intros. refine (weqpair _ (gradth _ _ _ _)).
-       { intros [y [x z]]. exact (x,,(y,,z)). }
-       { intros [x [y z]]. exact (y,,(x,,z)). }
-       { intros [y [x z]]. reflexivity. }
-       { intros [x [y z]]. reflexivity. } Defined.
 
 Lemma ℤRecursionUniq (P:ℤ->Type) (p0:P zero) 
       (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
@@ -277,20 +160,6 @@ Defined.
 Definition ℤBiRecursionData (P:ℤ->Type) (IH :forall i, P(i) -> P(1+i)) := 
   fun f:forall i, P i => forall i, f(1+i)==IH i (f i).
 
-Definition weqonsec {X Y} (P:X->Type) (Q:Y->Type)
-           (f:weq X Y) (g:forall x, weq (P x) (Q (f x))) :
-  weq (sections P) (sections Q).
-Proof. intros.
-       exact (weqcomp (weqonsecfibers P (fun x => Q(f x)) g)
-                      (invweq (weqonsecbase Q f))). Defined.
-
-Definition weq_transportf {X} (P:X->Type) {x y:X} (p:x==y) : weq (P x) (P y).
-Proof. intros. destruct p. apply idweq. Defined.
-
-Definition weq_transportf_comp {X} (P:X->Type) {x y:X} (p:x==y) (f:sections P) :
-  weq_transportf P p (f x) == f y.
-Proof. intros. destruct p. reflexivity. Defined.
-
 Definition ℤBiRecursionEquiv (P:ℤ->Type) (IH :forall i, weq (P i) (P(1+i))) :
   weq (total2 (ℤBiRecursionData P IH)) (P 0).
 Proof. intros.
@@ -333,52 +202,6 @@ Defined.
 Notation "n + x" := (ac_mult _ n x) : action_scope.
 Notation "n - m" := (quotient _ n m) : action_scope.
 Open Scope action_scope.
-
-Definition swequiv {X Y} (f:weq X Y) {x y} : y == f x -> invweq f y == x.
-Proof. intros ? ? ? ? ? p. exact (ap (invweq f) p @ homotinvweqweq f x). Defined.
-
-Definition swequiv' {X Y} (f:weq X Y) {x y} : invweq f y == x -> y == f x.
-Proof. intros ? ? ? ? ? p. exact (! homotweqinvweq f y @ ap f p). Defined.
-
-Definition weqbandfrel {X Y T} 
-           (e:Y->T) (t:T) (f : weq X Y) 
-           (P:X -> Type) (Q: Y -> Type)
-           (g:forall x:X, weq (P x) (Q (f x))) :
-  weq (hfiber (fun xp:total2 P => e(f(pr1 xp))) t)
-      (hfiber (fun yq:total2 Q => e(  pr1 yq )) t).
-Proof. intros. refine (weqbandf (weqbandf f _ _ g) _ _ _).
-       intros [x p]. simpl. apply idweq. Defined.
-
-Definition weq_over_sections {S T} (w:weq S T) 
-           {s0:S} {t0:T} (k:w s0 == t0)
-           {P:T->Type} 
-           (p0:P t0) (pw0:P(w s0)) (l:k#pw0 == p0)
-           (H:sections P -> Type) 
-           (J:sections (funcomp w P) -> Type)
-           (g:forall f:sections P, weq (H f) (J (maponsec1 P w f))) :
-  weq (hfiber (fun fh:total2 H => pr1 fh t0) p0 )
-      (hfiber (fun fh:total2 J => pr1 fh s0) pw0).
-Proof. intros. refine (weqbandf _ _ _ _).
-       { refine (weqbandf _ _ _ _).
-         { exact (weqonsecbase P w). }
-         { unfold weqonsecbase; simpl. exact g. } }
-       { intros [f h]. simpl. unfold maponsec1; simpl.
-         destruct k, l; simpl. unfold transportf; simpl.
-         unfold idfun; simpl. apply idweq. } Defined.
-
-Definition transportbfinv {T} (P:T->Type) {t u:T} (e:t==u) (p:P t) : e#'e#p == p.
-Proof. intros. destruct e. reflexivity. Defined.
-
-Definition transportfbinv {T} (P:T->Type) {t u:T} (e:t==u) (p:P u) : e#e#'p == p.
-Proof. intros. destruct e. reflexivity. Defined.
-
-Definition eqweqmapap_inv {T} (P:T->Type) {t u:T} (e:t==u) (p:P u) :
-  (eqweqmap (ap P e)) ((eqweqmap (ap P (!e))) p) == p.
-Proof. intros. destruct e. reflexivity. Defined.
-
-Definition eqweqmapap_inv' {T} (P:T->Type) {t u:T} (e:t==u) (p:P t) :
-  (eqweqmap (ap P (!e))) ((eqweqmap (ap P e)) p) == p.
-Proof. intros. destruct e. reflexivity. Defined.
 
 (** ** Bidirectional recursion for ℤ-torsors *)
 
@@ -497,9 +320,6 @@ Definition GH_equations {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f)
      : let h := GH_homotopy yhp in
        forall n, h(one + n) == h n @ s n.
 
-Definition weq_pathscomp0r {X} x {y z:X} (p:y==z) : weq (x==y) (x==z).
-Proof. intros. exact (weqpair _ (isweqpathscomp0r _ p)). Defined.
-
 Theorem iscontrGuidedHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) :
   iscontr (GuidedHomotopy f s).
 Proof. intros. apply (squash_to_prop (torsor_nonempty T)).
@@ -517,64 +337,6 @@ Definition iscontrGuidedHomotopy_comp_1 {Y} :
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
-Definition iscontrretract_compute {X Y} (p:X->Y) (s:Y->X) 
-           (eps:forall y : Y, p (s y) == y) (is:iscontr X) : 
-  the (iscontrretract p s eps is) == p (the is).
-Proof. intros. unfold iscontrretract. destruct is as [ctr uni].
-       simpl. reflexivity. Defined.
-
-Definition iscontrweqb_compute {X Y} (w:weq X Y) (is:iscontr Y) :
-  the (iscontrweqb w is) == invmap w (the is).
-Proof. intros. unfold iscontrweqb. rewrite iscontrretract_compute.
-       reflexivity. Defined.
-
-Definition compute_iscontrweqb_weqfibtototal_1 {T} {P Q:T->Type}
-           (f:forall t, weq (P t) (Q t)) 
-           (is:iscontr (total2 Q)) :
-  pr1 (the (iscontrweqb (weqfibtototal P Q f) is)) == pr1 (the is).
-Proof. intros. destruct is as [ctr uni]. reflexivity. Defined.
-
-Definition compute_pr1_invmap_weqfibtototal {T} {P Q:T->Type}
-           (f:forall t, weq (P t) (Q t)) 
-           (w:total2 Q) :
-  pr1 (invmap (weqfibtototal P Q f) w) == pr1 w.
-Proof. intros. reflexivity. Defined.
-
-Definition compute_pr2_invmap_weqfibtototal {T} {P Q:T->Type}
-           (f:forall t, weq (P t) (Q t)) 
-           (w:total2 Q) :
-  pr2 (invmap (weqfibtototal P Q f) w) == invmap (f (pr1 w)) (pr2 w).
-Proof. intros. reflexivity. Defined.
-
-Definition compute_iscontrweqb_weqfibtototal_3 {T} {P Q:T->Type}
-           (f:forall t, weq (P t) (Q t)) 
-           (is:iscontr (total2 Q)) :
-  ap pr1 (iscontrweqb_compute (weqfibtototal P Q f) is) 
-  ==
-  compute_iscontrweqb_weqfibtototal_1 f is.
-Proof. intros. destruct is as [ctr uni]. reflexivity. Defined.
-
-Definition ap_pr2' {X} {P:X->UU} {w w':total2 P} (p : w == w') 
-           (q : pr1 w == pr1 w') (e : ap pr1 p == q) :
-  transportf P q (pr2 w) == pr2 w'.
-Proof. intros. destruct e. apply ap_pr2. Defined.
-
-Definition iscontrcoconustot_comp {X} {x:X} :
-  the (iscontrcoconustot X x) == tpair _ x (idpath x).
-Proof. reflexivity. Defined.
-
-Definition funfibtototal {X} (P Q:X->Type) (f:forall x:X, P x -> Q x) :
-  total2 P -> total2 Q.
-Proof. intros ? ? ? ? [x p]. exact (x,,f x p). Defined.
-
-Definition weqfibtototal_comp {X} (P Q:X->Type) (f:forall x:X, weq (P x) (Q x)) :
-  invmap (weqfibtototal P Q f) == funfibtototal Q P (fun x => invmap (f x)).
-Proof. intros. apply funextsec; intros [x q]. reflexivity. Defined.
-
-Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
-  transportf P (idpath x) p == p.
-Proof. reflexivity. Defined.
-
 Definition iscontrGuidedHomotopy_comp_2 {Y} :
   let T := trivialTorsor ℤ in 
   let t0 := 0 : T in
@@ -589,7 +351,7 @@ Proof. intros.
                                                               (fun t : T => weq_pathscomp0r y (s t)) t0))
                       (iscontrcoconustot Y (f t0))) 
                 : @identity (GHomotopy f s (f t0)) _ _).
-       refine (apevalsecat t0 (ap pr1 ((idpath _ :
+       refine (apevalat t0 (ap pr1 ((idpath _ :
                          (pr2
                             (the
                                (iscontrweqb
@@ -600,7 +362,7 @@ Proof. intros.
                                   (iscontrcoconustot Y (f t0)))))
                            ==
                          (path_start a2)) @ a2)) @ _).
-       refine (apevalsecat t0
+       refine (apevalat t0
                  (ap pr1
                      (compute_pr2_invmap_weqfibtototal
                         (fun y : Y =>
@@ -673,20 +435,6 @@ Proof. intros.
   assert (a := makeGuidedHomotopy_verticalPath f s (one+t0) (idpath(f(one + t0))) (s t0)) .
   exact (b @ c @ a).
 Defined.
-
-Definition ap_natl {X Y} {f:X->Y}
-           {x x' x'':X} {p:x==x'} {q:x'==x''}
-           {p':f x==f x'} {q':f x'==f x''}
-           (r:ap f p == p') (s:ap f q == q') :
-  ap f (p @ q) == p' @ q'.
-Proof. intros. destruct r, s. apply maponpathscomp0. Defined.
-
-Definition ap_natl' {X Y} {f:X->Y}
-           {x x' x'':X} {p:x'==x} {q:x'==x''}
-           {p':f x'==f x} {q':f x'==f x''}
-           (r:ap f p == p') (s:ap f q == q') :
-  ap f (!p @ q) == (!p') @ q'.
-Proof. intros. destruct r, s, p, q. reflexivity. Defined.
 
 Definition makeGuidedHomotopy_diagonalPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) (t0:T) : 

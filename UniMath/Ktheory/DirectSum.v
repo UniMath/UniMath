@@ -3,7 +3,6 @@
     Recall that X is a family of objects in a category, and the map from the 
     sum to the product is an isomorphism, then the sum is called a direct sum. *)
 
-Unset Automatic Introduction.
 Require Import 
         Foundations.hlevel2.hSet
         RezkCompletion.precategories

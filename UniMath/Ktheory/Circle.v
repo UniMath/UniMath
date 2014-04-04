@@ -2,15 +2,12 @@
 
 (** We will show that [B ℤ] has the universal property of the circle. *)
 
-Unset Automatic Introduction.
-Require Import AffineLine algebra1b funextfun Utilities auxiliary_lemmas_HoTT GroupAction hz.
-Require pathnotations.
-Import pathnotations.PathNotations Utilities.Notation.
+Require Import AffineLine algebra1b funextfun Utilities GroupAction hz Nat Integers.
+Import Utilities.Notation.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
+Open Scope action_scope.
 Local Notation "g + x" := (ac_mult _ g x) : action_scope.
-Notation ℕ := nat.
-Notation ℤ := hzaddabgr.
 
 Theorem loops_circle : weq (Ω (B ℤ)) ℤ.
 Proof. apply loopsBG. Defined.
@@ -221,29 +218,6 @@ Definition loop_correspondence {T X Y}
   == ap g (homotinvweqweq f t) @ n.
 Proof. intros. destruct ni, mi, l. simpl. rewrite pathscomp0rid. reflexivity.
 Defined.
-
-Definition pathsinv0_to_right {X} {x y z:X} (p:y==x) (q:y==z) (r:x==z) :
-  q == p @ r -> !p @ q == r.
-Proof. intros ? ? ? ? ? ? ? e. destruct p, q. exact e. Defined.
-
-Definition pathsinv0_to_right' {X} {x y:X} (p:y==x) (r:x==y) :
-  idpath _ == p @ r -> !p == r.
-Proof. intros ? ? ? ? ? e. destruct p. exact e. Defined.
-
-Definition pathsinv0_to_right'' {X} {x:X} (p:x==x) :
-  idpath _ == p -> !p == idpath _.
-Proof. intros ? ? ? e. apply pathsinv0_to_right'. rewrite pathscomp0rid.
-       exact e. Defined.
-
-Definition pr2_of_hfiberpair {X Y} {f:X->Y} {x:X} {y:Y} {e:f x==y} :
-  pr2 (hfiberpair f x e) == e.
-Proof. reflexivity. Defined.
-
-Definition pr2_of_pair {X} {P:X->Type} (x:X) (p:P x) : pr2 (@tpair X P x p) == p.
-Proof. reflexivity. Defined.
-
-Definition pr2_of_weqpair {X Y} (f:X->Y) (i:isweq f) : pr2 (weqpair f i) == i.
-Proof. reflexivity. Defined.
 
 Definition circle_map_check_paths {Y} {y:Y} (l:y==y) : 
   ap (circle_map l) (! circle_loop) == l.
