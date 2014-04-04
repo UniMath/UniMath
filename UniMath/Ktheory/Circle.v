@@ -91,6 +91,9 @@ Definition pr1_GH_weq_compute {Y} {y:Y} {l:y==y} :
   let d := ap pr12_GH e in
     d == idpath y.
 Proof. intros.
+       unfold pr1_GH_weq, pr1_GH_isweq in e.
+
+
        admit.
 Defined.
 

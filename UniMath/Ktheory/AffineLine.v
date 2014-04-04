@@ -421,6 +421,14 @@ Definition ℤTorsorRecursion_compute {T:Torsor ℤ} (P:T->Type)
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
+Definition ℤTorsorRecursion_inv_compute {T:Torsor ℤ} (P:T->Type) 
+      (IH:forall t, weq (P t) (P (one + t)))
+      (t:T) h0 :
+  pr1 (invmap (ℤTorsorRecursionEquiv P IH t) h0) t == h0.
+Proof. intros.
+       admit.
+Defined.
+
 Definition ℤTorsorRecursion_transition {T:Torsor ℤ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t)))
       (t:T) :
@@ -510,17 +518,130 @@ Definition iscontrGuidedHomotopy_comp_1 {Y} :
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
+Definition iscontrretract_compute {X Y} (p:X->Y) (s:Y->X) 
+           (eps:forall y : Y, p (s y) == y) (is:iscontr X) : 
+  the (iscontrretract p s eps is) == p (the is).
+Proof. intros. unfold iscontrretract. destruct is as [ctr uni].
+       simpl. reflexivity. Defined.
+
+Definition iscontrweqb_compute {X Y} (w:weq X Y) (is:iscontr Y) :
+  the (iscontrweqb w is) == invmap w (the is).
+Proof. intros. unfold iscontrweqb. rewrite iscontrretract_compute.
+       reflexivity. Defined.
+
+Definition compute_iscontrweqb_weqfibtototal_1 {T} {P Q:T->Type}
+           (f:forall t, weq (P t) (Q t)) 
+           (is:iscontr (total2 Q)) :
+  pr1 (the (iscontrweqb (weqfibtototal P Q f) is)) == pr1 (the is).
+Proof. intros. destruct is as [ctr uni]. reflexivity. Defined.
+
+Definition compute_pr1_invmap_weqfibtototal {T} {P Q:T->Type}
+           (f:forall t, weq (P t) (Q t)) 
+           (w:total2 Q) :
+  pr1 (invmap (weqfibtototal P Q f) w) == pr1 w.
+Proof. intros. reflexivity. Defined.
+
+Definition compute_pr2_invmap_weqfibtototal {T} {P Q:T->Type}
+           (f:forall t, weq (P t) (Q t)) 
+           (w:total2 Q) :
+  pr2 (invmap (weqfibtototal P Q f) w) == invmap (f (pr1 w)) (pr2 w).
+Proof. intros. reflexivity. Defined.
+
+Definition compute_iscontrweqb_weqfibtototal_3 {T} {P Q:T->Type}
+           (f:forall t, weq (P t) (Q t)) 
+           (is:iscontr (total2 Q)) :
+  ap pr1 (iscontrweqb_compute (weqfibtototal P Q f) is) 
+  ==
+  compute_iscontrweqb_weqfibtototal_1 f is.
+Proof. intros. destruct is as [ctr uni]. reflexivity. Defined.
+
+Definition ap_pr2' {X} {P:X->UU} {w w':total2 P} (p : w == w') 
+           (q : pr1 w == pr1 w') (e : ap pr1 p == q) :
+  transportf P q (pr2 w) == pr2 w'.
+Proof. intros. destruct e. apply ap_pr2. Defined.
+
+Definition iscontrcoconustot_comp {X} {x:X} :
+  the (iscontrcoconustot X x) == tpair _ x (idpath x).
+Proof. reflexivity. Defined.
+
+Definition funfibtototal {X} (P Q:X->Type) (f:forall x:X, P x -> Q x) :
+  total2 P -> total2 Q.
+Proof. intros ? ? ? ? [x p]. exact (x,,f x p). Defined.
+
+Definition weqfibtototal_comp {X} (P Q:X->Type) (f:forall x:X, weq (P x) (Q x)) :
+  invmap (weqfibtototal P Q f) == funfibtototal Q P (fun x => invmap (f x)).
+Proof. intros. apply funextsec; intros [x q]. reflexivity. Defined.
+
+Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
+  transportf P (idpath x) p == p.
+Proof. reflexivity. Defined.
+
 Definition iscontrGuidedHomotopy_comp_2 {Y} :
   let T := trivialTorsor ℤ in 
   let t0 := 0 : T in
     forall (f:T->Y) (s:target_paths f),
       GH_homotopy (the (iscontrGuidedHomotopy f s)) t0 == idpath (f t0).
 Proof. intros.
-       unfold the, iscontrGuidedHomotopy. unfold squash_to_prop, torsor_nonempty.
-       unfold is_torsor_prop.
-       unfold T.
-       admit.
+       unfold iscontrGuidedHomotopy. 
+       change (torsor_nonempty T) with (squash_element t0).
+       change 
+        (squash_to_prop (squash_element t0) (isapropiscontr (GuidedHomotopy f s))
+           (fun t1 : pr1 T =>
+            iscontrweqb
+              (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t1)
+                 (fun y : Y =>
+                  ℤTorsorRecursionEquiv (fun t : T => y == f t)
+                    (fun t : T => weq_pathscomp0r y (s t)) t1))
+              (iscontrcoconustot Y (f t1))))
+        with 
+        ( iscontrweqb
+              (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
+                 (fun y : Y =>
+                  ℤTorsorRecursionEquiv (fun t : T => y == f t)
+                    (fun t : T => weq_pathscomp0r y (s t)) t0))
+              (iscontrcoconustot Y (f t0))).
+       change (fun y:Y => (fun t : T => weq_pathscomp0r y (s t)) t0)
+              with
+              (fun y:Y => weq_pathscomp0r y (s t0)).
+       set (a := iscontrweqb_compute 
+                      (weqfibtototal (GHomotopy f s) (fun y : Y => y == f t0)
+                                     (fun y : Y =>
+                                        ℤTorsorRecursionEquiv (fun t : T => y == f t)
+                                                              (fun t : T => weq_pathscomp0r y (s t)) t0))
+                      (iscontrcoconustot Y (f t0))).
+       unfold GH_homotopy.
+       change (@total2 Y (@GHomotopy Y T f s))
+              with
+              (@GuidedHomotopy Y T f s) in *.
+       change (@the (@total2 Y (fun y : Y => @identity Y y (f t0)))
+                    (iscontrcoconustot Y (f t0)))
+       with (tpair (fun y : Y => @identity Y y (f t0)) (f t0) (idpath (f t0)))
+         in a.
+       Check idpath _ : idpath (f t0) == ap pr1 a.
+       (* Set Printing All. Show. *)
+       assert (a2 := ap_pr2 a).
+       change (ap pr1 a) with (idpath (f t0)) in a2.
+       rewrite (idpath_transportf) in a2.
+       assert (d := compute_pr2_invmap_weqfibtototal
+                  (fun y : Y =>
+                     ℤTorsorRecursionEquiv
+                       (fun t : T => y == f t)
+                       (fun t : T => weq_pathscomp0r y (s t)) t0)
+                  (f t0,, idpath (f t0))).
+       set (d2 := path_end d).
+       unfold path_end in d2.
+       simpl in d2.
+       set (e2 := pr1 d2 t0).
+       unfold d2 in e2.
+       set (e3 := ℤTorsorRecursion_inv_compute
+                  (fun t => f t0 == f t)
+                  (fun t => weq_pathscomp0r (f t0) (s t))
+                  t0 (idpath (f t0))).
+       refine (_ @ e3); clear e3.
 
+
+       (* rewrite a. *)
+       admit.
 Defined.
 
 Definition makeGuidedHomotopy {T:Torsor ℤ} {Y} (f:T->Y)
