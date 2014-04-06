@@ -122,11 +122,14 @@ Proof. intros.
                  (irr T0 (sec T0)
                       (makeGuidedHomotopy (fun _ : T0 => y) (confun T0 l) t0 (idpath y)))
                  @ _).
-       unfold irr, sec.
+       unfold sec.
        change (makeGuidedHomotopy (fun _ : T0 => y) (confun T0 l) t0 (idpath y))
        with (makeGuidedHomotopy2 (confun T0 y) (confun T0 l)).
-       clear t0.
-       admit.
+       set (p := makeGuidedHomotopy2 (confun T0 y) (confun T0 l)).
+       change (idpath y) with (ap pr1 (idpath p)).
+       apply (ap (ap pr1)).
+       apply irrel_paths.
+       apply irr.
 Defined.
 Arguments pr1_GH_weq_compute {_ _} _.
 
@@ -256,6 +259,8 @@ Proof. intros. assert (p := pr1_GH_weq_compute l).
          { apply pathsinv0.
            exact (ap (fun r => ap (circle_map l) (! circle_loop) @ r) p). } }
        { exact (ap (fun r => r @ l) p). } Defined. 
+
+Print Assumptions circle_map_check_paths.
 
 (*
 Local Variables:
