@@ -496,7 +496,7 @@ Proof. intros. set (q := map_path f s t). assert (k : q==p).
 
 (** ** From each torsor we get a guided homotopy *)
 
-Definition makeGuidedHomotopy2 {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : 
+Definition makeGuidedHomotopy2 (T:Torsor ℤ) {Y} (f:T->Y) (s:target_paths f) : 
   GuidedHomotopy f s.
 Proof. intros. exact (map f s (torsor_nonempty T)). Defined.
 

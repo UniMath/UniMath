@@ -11,27 +11,16 @@ Open Scope paths_scope.
 Open Scope action_scope.
 Local Notation "g + x" := (ac_mult _ g x) : action_scope.
 
-Theorem loops_circle : weq (Ω (B ℤ)) ℤ.
+Definition circle := B ℤ.
+
+Theorem loops_circle : weq (Ω circle) ℤ.
 Proof. apply loopsBG. Defined.
 
-Definition circle_loop := invmap loops_circle 1 : Ω (B ℤ).
+Definition circle_loop := ! invmap loops_circle 1 : Ω circle.
 
-Lemma loop_compute t : castTorsor circle_loop t == one + t.
-Proof. intros. exact (loopsBG_comp _ one t @ commax _ t one). Defined.
-
-(** * Powers of paths *) 
-
-Definition loop_power_nat {Y} {y:Y} (l:y==y) (n:ℕ) : y==y.
-Proof. intros. induction n as [|n p]. 
-       { exact (idpath _). } { exact (p@l). } Defined.
-
-Local Notation "l ^ n" := (loop_power_nat l n) : paths_nat_scope.
-
-Definition loop_power {Y} {y:Y} (l:y==y) (n:ℤ) : y==y.
-Proof. intros. assert (m := loop_power_nat l (hzabsval n)).
-       destruct (hzlthorgeh n 0%hz). { exact (!m). } { exact m. } Defined.
-
-Local Notation "l ^ n" := (loop_power l n) : paths_scope.
+Lemma loop_compute t : castTorsor (!circle_loop) t == one + t.
+Proof. intros. unfold circle_loop. rewrite pathsinv0inv0.
+       exact (loopsBG_comp _ one t @ commax _ t one). Defined.
 
 (** ** The total space of guided homotopies over BZ *)
 
@@ -69,14 +58,11 @@ Definition GH_path3_comp2 {Y} {y:Y} (l:y==y) {T:Torsor ℤ} {y':Y}
   ap pr12_GH (GH_path3 l u) == idpath y'.
 Proof. intros. destruct u. reflexivity. Defined.
 
-Definition irr {Y} {y:Y} {l:y==y} := fun T : Torsor ℤ => proofirrGuidedHomotopy T (confun T y) (confun T l).
-Definition sec {Y} {y:Y} {l:y==y} := fun T : Torsor ℤ => makeGuidedHomotopy2 (confun T y) (confun T l).
+Definition irr {Y} {y:Y} {l:y==y} (T:Torsor ℤ) := proofirrGuidedHomotopy T (confun T y) (confun T l).
+
+Definition sec {Y} {y:Y} {l:y==y} (T:Torsor ℤ) := makeGuidedHomotopy2 T (confun T y) (confun T l).
 
 Definition pr1_GH_weq {Y} {y:Y} {l:y==y} : weq (GH l) (Torsor ℤ) := weqpr1' irr sec.
-
-Definition homotinvweqweq_GH {Y} {y:Y} {l:y==y} (gh:GH l) :
-  invmap pr1_GH_weq (pr1 gh) == gh.
-Proof. intros. apply homotinvweqweq'. Defined.
 
 Definition homotinvweqweq_GH_comp {Y} {y:Y} {l:y==y}
            (T:Torsor ℤ) (gh:ZGuidedHomotopy l T) : 
@@ -100,12 +86,9 @@ Definition pr12_pair_path_in2 {Y} {y:Y} (l:y==y) (T:Torsor ℤ)
   ap pr12_GH (pair_path_in2 (ZGuidedHomotopy l) w) == ap pr1 w.
 Proof. intros. destruct w. reflexivity. Defined.
 
-Definition pr1_GH_weq_compute : 
+Definition pr1_GH_weq_compute {Y} {y:Y} (l:y==y) :
   let T0 := trivialTorsor ℤ in 
   let t0 := 0 : T0 in 
-  forall Y:Type, 
-  forall y:Y, 
-  forall l:y==y,
     @identity (y==y)
               (ap pr12_GH (homotinvweqweq' irr sec (makeGH1 l T0 t0)))
               (idpath y).
@@ -124,14 +107,11 @@ Proof. intros.
                  @ _).
        unfold sec.
        change (makeGuidedHomotopy (fun _ : T0 => y) (confun T0 l) t0 (idpath y))
-       with (makeGuidedHomotopy2 (confun T0 y) (confun T0 l)).
-       set (p := makeGuidedHomotopy2 (confun T0 y) (confun T0 l)).
-       change (idpath y) with (ap pr1 (idpath p)).
-       apply (ap (ap pr1)).
-       apply irrel_paths.
-       apply irr.
-Defined.
-Arguments pr1_GH_weq_compute {_ _} _.
+       with (sec (l:=l) T0).
+       change (makeGuidedHomotopy2 T0 (confun T0 y) (confun T0 l))
+       with (sec (l:=l) T0).
+       change (idpath y) with (ap pr1 (idpath (sec (l:=l) T0))).
+       apply (ap (ap pr1)). apply irrel_paths. apply irr. Defined.
 
 (** ** Various paths in GH *)
 
@@ -238,29 +218,37 @@ Defined.
 
 (** ** The universal property of the circle *)
 
-Definition circle_map {Y} {y:Y} (l:y==y) : B ℤ -> Y.
+(** *** The recursion principle (non-dependent functions) *)
+
+Definition circle_map {Y} {y:Y} (l:y==y) : circle -> Y.
 Proof. intros ? ? ?. exact (funcomp (invmap (@pr1_GH_weq _ _ l)) pr12_GH). Defined.
 
 Definition circle_map_check_values {Y} {y:Y} (l:y==y) : 
-  circle_map l (basepoint (B ℤ)) == y.
+  circle_map l (basepoint circle) == y.
 Proof. reflexivity.              (* don't change the proof *)
 (** This proof works because the trivial torsor has an
     actual point that provides the accompanying proof of nonemptiness. *)
 Defined.
 
 Definition circle_map_check_paths {Y} {y:Y} (l:y==y) : 
-  ap (circle_map l) (! circle_loop) == l.
+  ap (circle_map l) circle_loop == l.
 Proof. intros. assert (p := pr1_GH_weq_compute l).
        refine (_ @ loop_correspondence' irr sec pr12_GH 
                       (makeGH_diagonalLoop_comp1 l _ _ (loop_compute 0))
                       (makeGH_diagonalLoop_comp2 l _ _ (loop_compute 0)) @ _).
-       { intermediate_path (ap (circle_map l) (! circle_loop) @ idpath y).
+       { intermediate_path (ap (circle_map l) circle_loop @ idpath y).
          { apply pathsinv0. apply pathscomp0rid. }
-         { apply pathsinv0.
-           exact (ap (fun r => ap (circle_map l) (! circle_loop) @ r) p). } }
+         { apply pathsinv0. rewrite pathsinv0inv0.
+           exact (ap (fun r => ap (circle_map l) circle_loop @ r) p). } }
        { exact (ap (fun r => r @ l) p). } Defined. 
 
 Print Assumptions circle_map_check_paths.
+
+(** *** The induction principle (dependent functions) *)
+
+Definition circle_map' {Y:circle->Type} {y:Y (basepoint circle)} 
+           (l:circle_loop#y==y) : forall c:circle, Y c.
+Proof. intros. admit. Defined.
 
 (*
 Local Variables:

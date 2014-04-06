@@ -110,6 +110,29 @@ Definition pathsinv0_to_right'' {X} {x:X} (p:x==x) :
 Proof. intros ? ? ? e. apply pathsinv0_to_right'. rewrite pathscomp0rid.
        exact e. Defined.
 
+Definition loop_power_nat {Y} {y:Y} (l:y==y) (n:nat) : y==y.
+Proof. intros. induction n as [|n p]. 
+       { exact (idpath _). } { exact (p@l). } Defined.
+
+Definition post_cat {X} {x y z:X} {q:y==z} : x==y -> x==z.
+Proof. intros ? ? ? ? p q. exact (pathscomp0 q p). Defined.
+
+Definition pre_cat {X} {x y z:X} {q:x==y} : y==z -> x==z.
+Proof. intros ? ? ? ? p q. exact (pathscomp0 p q). Defined.
+
+Definition pathscomp0_linj {X} {x y z:X} {p:x==y} {q q':y==z} (r:p@q==p@q') : q==q'.
+Proof. intros. destruct p. exact r. Defined.
+
+Definition pathscomp0_rinj {X} {x y z:X} {p p':x==y} {q:y==z} (r:p@q==p'@q) : p==p'.
+Proof. intros. destruct q. exact (! pathscomp0rid p @ r @ pathscomp0rid p').
+Defined.                           
+
+Lemma irrel_paths {X} (irr:forall x y:X, x==y) {x y:X} (p q:x==y) : p==q.
+Proof. intros. 
+       assert (k : forall z:X, forall r:x==z, r @ irr z z == irr x z). 
+       { intros. destruct r. reflexivity. }
+       exact (pathscomp0_rinj (k y p @ !k y q)). Defined.
+
 (** ** Pairs *)
 
 Definition pr2_of_hfiberpair {X Y} {f:X->Y} {x:X} {y:Y} {e:f x==y} :
@@ -292,26 +315,9 @@ Proof. intros X lem is x y. exact (lem (x==y) (is x y)). Qed.
 
 (** ** h-levels and paths *)
 
-Definition post_cat {X} {x y z:X} {q:y==z} : x==y -> x==z.
-Proof. intros ? ? ? ? p q. exact (pathscomp0 q p). Defined.
-Definition pre_cat {X} {x y z:X} {q:x==y} : y==z -> x==z.
-Proof. intros ? ? ? ? p q. exact (pathscomp0 p q). Defined.
-
-Definition pathscomp0_linj {X} {x y z:X} {p:x==y} {q q':y==z} (r:p@q==p@q') : q==q'.
-Proof. intros. destruct p. exact r. Defined.
-
-Definition pathscomp0_rinj {X} {x y z:X} {p p':x==y} {q:y==z} (r:p@q==p'@q) : p==p'.
-Proof. intros. destruct q. exact (! pathscomp0rid p @ r @ pathscomp0rid p').
-Defined.                           
-
-Lemma irrel_paths {X} (irr:forall x y:X, x==y) {x y:X} (p q:x==y) : p==q.
-Proof. intros. 
-       assert (k : forall z:X, forall r:x==z, r @ irr z z == irr x z). 
-       { intros. destruct r. reflexivity. }
-       exact (pathscomp0_rinj (k y p @ !k y q)). Defined.
-
 Lemma isaprop_wma_inhab X : (X -> isaprop X) -> isaprop X.
 Proof. intros ? f. apply invproofirrelevance. intros x y. apply (f x). Qed.
+
 Lemma isaprop_wma_inhab' X : (X -> iscontr X) -> isaprop X.
 Proof. intros ? f. apply isaprop_wma_inhab. intro x. apply isapropifcontr. 
        apply (f x). Qed.
