@@ -2,7 +2,9 @@
 
 (** We will show that [B ℤ] has the universal property of the circle. *)
 
-Require Import AffineLine algebra1b funextfun Utilities GroupAction hz Nat Integers.
+Require Import AffineLine algebra1b funextfun GroupAction hz Nat Integers.
+Import pathnotations.PathNotations.
+Require Import Utilities.
 Import Utilities.Notation.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
@@ -67,12 +69,25 @@ Definition GH_path3_comp2 {Y} {y:Y} (l:y==y) {T:Torsor ℤ} {y':Y}
   ap pr12_GH (GH_path3 l u) == idpath y'.
 Proof. intros. destruct u. reflexivity. Defined.
 
-Lemma pr1_GH_isweq {Y} {y:Y} (l:y==y) : isweq (@pr1_GH Y y l).
-Proof. intros. apply isweqpr1. intros T. apply iscontrGuidedHomotopy.
-Defined.
+Definition irr {Y} {y:Y} {l:y==y} := fun T : Torsor ℤ => proofirrGuidedHomotopy T (confun T y) (confun T l).
+Definition sec {Y} {y:Y} {l:y==y} := fun T : Torsor ℤ => makeGuidedHomotopy2 (confun T y) (confun T l).
 
-Definition pr1_GH_weq {Y} {y:Y} {l:y==y} : weq (GH l) (Torsor ℤ)
-   := weqpair pr1_GH (pr1_GH_isweq l).
+Definition pr1_GH_weq {Y} {y:Y} {l:y==y} : weq (GH l) (Torsor ℤ) := weqpr1' irr sec.
+
+Definition homotinvweqweq_GH {Y} {y:Y} {l:y==y} (gh:GH l) :
+  invmap pr1_GH_weq (pr1 gh) == gh.
+Proof. intros. apply homotinvweqweq'. Defined.
+
+Definition homotinvweqweq_GH_comp {Y} {y:Y} {l:y==y}
+           (T:Torsor ℤ) (gh:ZGuidedHomotopy l T) : 
+  @identity (@identity (GH l)
+             (invweq (@pr1_GH_weq _ _ l) T) (T,,gh))
+            (homotinvweqweq' irr sec (T,,gh))
+            (@pair_path_in2 _ (ZGuidedHomotopy l) 
+                            _ (sec T) gh 
+                            (irr T (sec T) gh)).
+Proof. reflexivity.             (* don't change the proof *)
+Defined.
 
 Definition makeGH {Y} {y:Y} (l:y==y) (T:Torsor ℤ) (t:T) {y':Y} (h:y'==y) : GH l
   := GHpair l T (makeGuidedHomotopy _ _ t h).
@@ -80,19 +95,39 @@ Definition makeGH {Y} {y:Y} (l:y==y) (T:Torsor ℤ) (t:T) {y':Y} (h:y'==y) : GH 
 Definition makeGH1 {Y} {y:Y} (l:y==y) (T:Torsor ℤ) (t:T) : GH l
   := makeGH l T t (idpath y).
 
-Definition pr1_GH_weq_compute {Y} {y:Y} {l:y==y} :
-  let T0 := trivialTorsor ℤ in
-  let t0 := 0 : T0 in
-  let gh0 := makeGH1 l T0 t0 in 
-  let e := homotinvweqweq pr1_GH_weq gh0 in
-  let d := ap pr12_GH e in
-    d == idpath y.
+Definition pr12_pair_path_in2 {Y} {y:Y} (l:y==y) (T:Torsor ℤ)
+           {gh gh':ZGuidedHomotopy l T} (w : gh == gh') :
+  ap pr12_GH (pair_path_in2 (ZGuidedHomotopy l) w) == ap pr1 w.
+Proof. intros. destruct w. reflexivity. Defined.
+
+Definition pr1_GH_weq_compute : 
+  let T0 := trivialTorsor ℤ in 
+  let t0 := 0 : T0 in 
+  forall Y:Type, 
+  forall y:Y, 
+  forall l:y==y,
+    @identity (y==y)
+              (ap pr12_GH (homotinvweqweq' irr sec (makeGH1 l T0 t0)))
+              (idpath y).
 Proof. intros.
-       unfold pr1_GH_weq, pr1_GH_isweq in e.
-
-
+       unfold makeGH1,makeGH,GHpair.
+       refine (ap (ap pr12_GH)
+                  (homotinvweqweq_GH_comp 
+                     T0
+                     (makeGuidedHomotopy (fun _ : T0 => y)
+                                         (confun T0 l) t0 (idpath y)))
+                  @ _).
+       refine (pr12_pair_path_in2 
+                 l T0 
+                 (irr T0 (sec T0)
+                      (makeGuidedHomotopy (fun _ : T0 => y) (confun T0 l) t0 (idpath y)))
+                 @ _).
+       unfold irr, sec.
+       change (makeGuidedHomotopy (fun _ : T0 => y) (confun T0 l) t0 (idpath y))
+       with (makeGuidedHomotopy2 (confun T0 y) (confun T0 l)).
        admit.
 Defined.
+Arguments pr1_GH_weq_compute {_ _ _}.
 
 (** ** Various paths in GH *)
 
@@ -225,14 +260,15 @@ Proof. intros. set (T0 := basepoint (B ℤ)); simpl in T0. set (t0 := 0:T0).
        assert (c1 := makeGH_diagonalLoop_comp1 l _ _ (loop_compute t0)
                   : ap pr1_GH (makeGH_diagonalLoop l t0 circle_loop (loop_compute t0)) == ! circle_loop ).
        assert (c2 := makeGH_diagonalLoop_comp2 l _ _ (loop_compute t0)).
-       assert (c := loop_correspondence pr1_GH_weq pr12_GH c1 c2).
-       assert (p := @pr1_GH_weq_compute Y y l
-           : ap pr12_GH (homotinvweqweq pr1_GH_weq (makeGH1 l T0 t0)) == idpath y).
-       rewrite p in c.
-       Time assert (c' := c : ap (invmap pr1_GH_weq;; pr12_GH) (! circle_loop) @ idpath y == idpath y @ l).
-       (* 6.6 secs, too slow *)
-       rewrite pathscomp0rid in c'.
-       exact c'.
+       admit.
+       (* assert (c := loop_correspondence pr1_GH_weq pr12_GH c1 c2). *)
+       (* assert (p := @pr1_GH_weq_compute Y y l *)
+       (*     : ap pr12_GH (homotinvweqweq' irr sec (makeGH1 l T0 t0)) == idpath y). *)
+       (* rewrite p in c. *)
+       (* Time assert (c' := c : ap (invmap pr1_GH_weq;; pr12_GH) (! circle_loop) @ idpath y == idpath y @ l). *)
+       (* (* 6.6 secs, too slow *) *)
+       (* rewrite pathscomp0rid in c'. *)
+       (* exact c'. *)
 Defined. 
 
 (*

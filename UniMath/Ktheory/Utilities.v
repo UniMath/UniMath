@@ -123,7 +123,7 @@ Proof. reflexivity. Defined.
 
 (** ** Paths between pairs *)
 
-Definition pair_path_in2 {X} {P:X->Type} {x:X} {p q:P x} (e:p==q) : x,,p==x,,q.
+Definition pair_path_in2 {X} (P:X->Type) {x:X} {p q:P x} (e:p==q) : x,,p==x,,q.
 Proof. intros. destruct e. reflexivity. Defined.
 
 Lemma total2_paths2' {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
@@ -148,8 +148,8 @@ Proof. intros. destruct p. destruct q. apply idpath. Defined.
 
 (** ** Projections from pair types *)
 
-Definition pair_path_in2_comp1 {X} {P:X->Type} {x:X} {p q:P x} (e:p==q) : 
-  ap pr1 (pair_path_in2 e) == idpath x.
+Definition pair_path_in2_comp1 {X} (P:X->Type) {x:X} {p q:P x} (e:p==q) : 
+  ap pr1 (pair_path_in2 P e) == idpath x.
 Proof. intros. destruct e. reflexivity. Defined.
 
 Definition ap_pr2 {X} {P:X->UU} {w w':total2 P} (p : w == w') :
@@ -172,10 +172,10 @@ Proof. intros ? ? ? f [x p]. exact (f x p). Defined.
 
 (** ** Sections and functions *)
 
-Definition sections {T} (P:T->UU) := forall t:T, P t.
-Definition homotsec {T} {P:T->UU} (f g:sections P) := forall t, f t == g t.
-Definition evalat {T} {P:T->UU} (t:T) (f:sections P) := f t.
-Definition apevalat {T} {P:T->UU} (t:T) {f g:sections P}
+Definition Section {T} (P:T->UU) := forall t:T, P t.
+Definition homotsec {T} {P:T->UU} (f g:Section P) := forall t, f t == g t.
+Definition evalat {T} {P:T->UU} (t:T) (f:Section P) := f t.
+Definition apevalat {T} {P:T->UU} (t:T) {f g:Section P}
   : f == g -> f t == g t
   := ap (evalat t).
 Definition apfun {X Y} {f f':X->Y} (p:f==f') {x x'} (q:x==x') : f x == f' x'.
@@ -194,7 +194,7 @@ Lemma transport_idfun {X} (P:X->UU) {x y:X} (p:x==y) (u:P x) :
 Proof. intros. destruct p. reflexivity. Defined.
 
 Lemma transport_functions {X} {Y:X->Type} {Z:forall x (y:Y x), Type}
-      {f f':sections Y} (p:f==f') (z:forall x, Z x (f x)) x :
+      {f f':Section Y} (p:f==f') (z:forall x, Z x (f x)) x :
     transportf (fun f => forall x, Z x (f x)) p z x ==
     transportf (Z x) (toforallpaths _ _ _ p x) (z x).
 Proof. intros. destruct p. reflexivity. Defined.
@@ -505,7 +505,35 @@ Proof. intros ? ? a. destruct a. exists f. unfold isweq. intro y.
        exists (g y,,p y). 
        intros [x r]. exact (total2_paths2 (q x @ ap g r) (h x y r)). Defined.
 
-(* Defined. *)
+Definition totsec {X} {P:X->Type} : Section P -> X -> total2 P.
+Proof. intros ? ? s x. exact (x,,s x). Defined.
+
+Definition weqpr1' {X} {P:X->Type} (irr:forall x (p q:P x), p==q) (s:Section P) :
+  weq (total2 P) X.
+Proof. intros.
+       set (f := pr1 : total2 P -> X).
+       set (g := totsec s).
+       refine (weqpair f (gradth f g _ _)).
+       { intros [x p]. unfold g; simpl. apply pair_path_in2. apply irr. }
+       { reflexivity. } Defined.
+
+Definition homotinvweqweq' {X} {P:X->Type} 
+           (irr:forall x (p q:P x), p==q) (s:Section P) (w:total2 P) :
+  invmap (weqpr1' irr s) (weqpr1' irr s w) == w.
+Proof. intros ? ? ? ? [x p]. apply pair_path_in2. apply irr. Defined.
+
+Definition homotinvweqweq'_comp {X} {P:X->Type}
+           (irr:forall x (p q:P x), p==q) (s:Section P) 
+           (x:X) (p:P x) : 
+  let f := weqpr1' irr s in
+  let w := x,,p in
+  let w' := invweq f x in
+  @identity (w' == w)
+            (homotinvweqweq' irr s w)
+            (pair_path_in2 P (irr x (s x) (pr2 w))).
+Proof. (* a better proof of gradth would make [homotinvweqweq] work here instead *)
+       reflexivity.             (* don't change the proof *)
+Defined.
 
 (** ** Null homotopies *)
 
@@ -708,7 +736,7 @@ Proof. intros. destruct e. reflexivity. Defined.
 
 Definition weqonsec {X Y} (P:X->Type) (Q:Y->Type)
            (f:weq X Y) (g:forall x, weq (P x) (Q (f x))) :
-  weq (sections P) (sections Q).
+  weq (Section P) (Section Q).
 Proof. intros.
        exact (weqcomp (weqonsecfibers P (fun x => Q(f x)) g)
                       (invweq (weqonsecbase Q f))). Defined.
@@ -716,7 +744,7 @@ Proof. intros.
 Definition weq_transportf {X} (P:X->Type) {x y:X} (p:x==y) : weq (P x) (P y).
 Proof. intros. destruct p. apply idweq. Defined.
 
-Definition weq_transportf_comp {X} (P:X->Type) {x y:X} (p:x==y) (f:sections P) :
+Definition weq_transportf_comp {X} (P:X->Type) {x y:X} (p:x==y) (f:Section P) :
   weq_transportf P p (f x) == f y.
 Proof. intros. destruct p. reflexivity. Defined.
 
@@ -724,11 +752,11 @@ Definition weqonpaths2 {X Y} (w:weq X Y) {x x':X} {y y':Y} :
   w x == y -> w x' == y' -> weq (x == x') (y == y').
 Proof. intros ? ? ? ? ? ? ? p q. destruct p,q. apply weqonpaths. Defined.
 
-Definition eqweqmap_ap {T} (P:T->Type) {t t':T} (e:t==t') (f:sections P) :
+Definition eqweqmap_ap {T} (P:T->Type) {t t':T} (e:t==t') (f:Section P) :
   eqweqmap (ap P e) (f t) == f t'. (* move near eqweqmap *)
 Proof. intros. destruct e. reflexivity. Defined.
 
-Definition eqweqmap_ap' {T} (P:T->Type) {t t':T} (e:t==t') (f:sections P) :
+Definition eqweqmap_ap' {T} (P:T->Type) {t t':T} (e:t==t') (f:Section P) :
   invmap (eqweqmap (ap P e)) (f t') == f t. (* move near eqweqmap *)
 Proof. intros. destruct e. reflexivity. Defined.
 
@@ -758,9 +786,9 @@ Definition weq_over_sections {S T} (w:weq S T)
            {s0:S} {t0:T} (k:w s0 == t0)
            {P:T->Type} 
            (p0:P t0) (pw0:P(w s0)) (l:k#pw0 == p0)
-           (H:sections P -> Type) 
-           (J:sections (funcomp w P) -> Type)
-           (g:forall f:sections P, weq (H f) (J (maponsec1 P w f))) :
+           (H:Section P -> Type) 
+           (J:Section (funcomp w P) -> Type)
+           (g:forall f:Section P, weq (H f) (J (maponsec1 P w f))) :
   weq (hfiber (fun fh:total2 H => pr1 fh t0) p0 )
       (hfiber (fun fh:total2 J => pr1 fh s0) pw0).
 Proof. intros. refine (weqbandf _ _ _ _).

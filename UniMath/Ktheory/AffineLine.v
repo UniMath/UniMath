@@ -209,7 +209,7 @@ Open Scope action_scope.
 
 Definition GuidedSection {T:Torsor ℤ} 
            (P:T->Type) (IH:forall t, weq (P t) (P (one + t))) := fun 
-     f:sections P => 
+     f:Section P => 
        forall t, f (one + t) == IH t (f t).
 
 Definition ℤTorsorRecursionEquiv {T:Torsor ℤ} (P:T->Type) 
@@ -249,14 +249,16 @@ Definition ℤTorsorRecursion_inv_compute {T:Torsor ℤ} (P:T->Type)
       (t0:T) (h0:P t0) :
   pr1 (invmap (ℤTorsorRecursionEquiv P IH t0) h0) t0 == h0.
 Proof. intros.
-       exact (! ℤTorsorRecursion_compute P IH t0 (invmap (ℤTorsorRecursionEquiv P IH t0) h0) @ homotweqinvweq (ℤTorsorRecursionEquiv P IH t0) h0).
-Defined.
+       exact (! ℤTorsorRecursion_compute P IH t0 
+                (invmap (ℤTorsorRecursionEquiv P IH t0) h0) 
+                @ 
+                homotweqinvweq (ℤTorsorRecursionEquiv P IH t0) h0). Defined.
 
 Definition ℤTorsorRecursion_transition {T:Torsor ℤ} (P:T->Type) 
       (IH:forall t, weq (P t) (P (one + t)))
-      (t:T) :
-  forall h : total2 (GuidedSection P IH),
-  (ℤTorsorRecursionEquiv P IH (one+t) h)
+      (t:T)
+      (h:total2 (GuidedSection P IH)) :
+  ℤTorsorRecursionEquiv P IH (one+t) h
   == 
   IH t (ℤTorsorRecursionEquiv P IH t h).
 Proof. intros. rewrite 2!ℤTorsorRecursion_compute. exact (pr2 h t). Defined.
@@ -306,6 +308,11 @@ Definition GHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) := fun
 Definition GuidedHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) := 
   total2 (GHomotopy f s).
 
+Definition GH_to_cone {Y} {T:Torsor ℤ}
+           {f:T->Y} {s:target_paths f} (t:T)  :
+  GuidedHomotopy f s -> coconustot Y (f t).
+Proof. intros ? ? ? ? ? [y hp]. exact (y,,pr1 hp t). Defined.
+
 Definition GH_point {Y} {T:Torsor ℤ} {f:T->Y} {s:target_paths f} 
            (yhp : GuidedHomotopy f s) := pr1 yhp : Y.
 
@@ -320,20 +327,28 @@ Definition GH_equations {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f)
      : let h := GH_homotopy yhp in
        forall n, h(one + n) == h n @ s n.
 
-Theorem iscontrGuidedHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) :
+Theorem iscontrGuidedHomotopy {Y} (T:Torsor ℤ) (f:T->Y) (s:target_paths f) :
   iscontr (GuidedHomotopy f s).
 Proof. intros. apply (squash_to_prop (torsor_nonempty T)).
-       { apply isapropiscontr. }
-       intro t0. apply ( iscontrweqb (Y := total2 (fun y => y == f t0))).
+       { apply isapropiscontr. } intro t0. 
+       (* A better proof would construct the center explicitly now
+          using [makeGuidedHomotopy] below.  Or we could replace this theorem
+          by a corollary of it, with the new center. *)
+       apply ( iscontrweqb (Y := total2 (fun y => y == f t0))).
        { apply weqfibtototal; intro y.
          exact (ℤTorsorRecursionEquiv _ (fun t => weq_pathscomp0r _ _) t0). }
        apply iscontrcoconustot. Defined.
+
+Corollary proofirrGuidedHomotopy {Y} (T:Torsor ℤ) (f:T->Y) (s:target_paths f) :
+  forall v w : GuidedHomotopy f s, v==w.
+Proof. (* later give a more direct proof *)
+       intros. apply proofirrelevancecontr. apply iscontrGuidedHomotopy. Defined.
 
 Definition iscontrGuidedHomotopy_comp_1 {Y} :
   let T := trivialTorsor ℤ in 
   let t0 := 0 : T in
     forall (f:T->Y) (s:target_paths f),
-      GH_point (the (iscontrGuidedHomotopy f s)) == f t0.
+      GH_point (the (iscontrGuidedHomotopy T f s)) == f t0.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
@@ -341,7 +356,7 @@ Definition iscontrGuidedHomotopy_comp_2 {Y} :
   let T := trivialTorsor ℤ in 
   let t0 := 0 : T in
     forall (f:T->Y) (s:target_paths f),
-        (GH_homotopy (the (iscontrGuidedHomotopy f s)) t0) ==
+        (GH_homotopy (the (iscontrGuidedHomotopy T f s)) t0) ==
         (idpath (f t0)).
 Proof. intros.
        assert (a2 := ap_pr2 (iscontrweqb_compute 
@@ -372,6 +387,17 @@ Proof. intros.
                         (f t0,, idpath (f t0)))) @ _).
        exact (ℤTorsorRecursion_inv_compute _ _ _ _).
 Defined.
+
+Definition iscontrGuidedHomotopy_comp_3 {Y} :
+  let T := trivialTorsor ℤ in 
+  let t0 := 0 : T in
+    forall (f:T->Y) (s:target_paths f),
+      GH_to_cone t0 (the (iscontrGuidedHomotopy T f s)) == f t0,, idpath (f t0).
+Proof. intros.
+       
+
+       admit.
+Defined.       
 
 Definition makeGuidedHomotopy {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0) : 
@@ -419,7 +445,7 @@ Definition makeGuidedHomotopy_transPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
   ap pr1 (makeGuidedHomotopy_transPath f s t0 h0) == idpath y.
 Proof. intros. 
        unfold makeGuidedHomotopy_transPath.
-       exact (pair_path_in2_comp1
+       exact (pair_path_in2_comp1 _
                 (ℤTorsorRecursion_transition_inv 
                    _ (fun t => weq_pathscomp0r y (s t)) _ _)). Defined.
 
@@ -467,6 +493,12 @@ Proof. intros. set (q := map_path f s t). assert (k : q==p).
        { apply (hlevelntosn 1). apply (hlevelntosn 0). 
          apply iscontrGuidedHomotopy. }
        destruct k. exact (makeGuidedHomotopy_diagonalPath_comp f s t). Defined.
+
+(** ** From each torsor we get a guided homotopy *)
+
+Definition makeGuidedHomotopy2 {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : 
+  GuidedHomotopy f s.
+Proof. intros. exact (map f s (torsor_nonempty T)). Defined.
 
 (** ** The construction of the affine line *)
 
