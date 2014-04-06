@@ -61,8 +61,11 @@ Module Import Notation.
   Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
   (* funcomp' is like funcomp, but with the arguments in the other order *)
   Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
-  Notation "p # x" := (transportf _ p x) (right associativity, at level 65).
-  Notation "p #' x" := (transportb _ p x) (right associativity, at level 65).
+  Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
+  Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
+  Open Scope transport_scope.
+  Notation "{ x : X & P }" := (total2 (fun x:X => P)) : type_scope.
+  Notation "X ** Y" := (dirprod X Y) (right associativity, at level 80) : type_scope.
 End Notation.
 
 Module Import NatNotation.
@@ -197,20 +200,43 @@ Proof. intros ? ? ? f [x p]. exact (f x p). Defined.
 (** ** Sections and functions *)
 
 Definition Section {T} (P:T->UU) := forall t:T, P t.
+
 Definition homotsec {T} {P:T->UU} (f g:Section P) := forall t, f t == g t.
+
 Definition evalat {T} {P:T->UU} (t:T) (f:Section P) := f t.
+
 Definition apevalat {T} {P:T->UU} (t:T) {f g:Section P}
   : f == g -> f t == g t
   := ap (evalat t).
+
 Definition apfun {X Y} {f f':X->Y} (p:f==f') {x x'} (q:x==x') : f x == f' x'.
   intros. destruct q. exact (apevalat x p). Defined.
+
 Definition aptwice {X Y Z} (f:X->Y->Z) {a a' b b'} (p:a==a') (q:b==b') : f a b == f a' b'.
   intros. exact (apfun (ap f p) q). Defined.
+
 Definition fromemptysec { X : empty -> UU } (nothing:empty) : X nothing.
 (* compare with [fromempty] in u00 *)
 Proof. intros X H.  destruct H. Defined. 
 
+Definition ap_idpath {X Y} {f:X->Y} {x:X} : ap f (idpath x) == idpath (f x).
+Proof. intros. reflexivity. Defined.
+
 (** ** Transport *)
+
+Definition transport_fun_path {X Y} {f g:X->Y} {x x':X} {p:x==x'} {e:f x==g x} {e':f x'==g x'} :
+  e @ ap g p == ap f p @ e' -> 
+  transportf (fun x => f x == g x) p e == e'.
+Proof. intros ? ? ? ? ? ? ? ? ? k. destruct p. rewrite ap_idpath in k. rewrite ap_idpath in k.
+       rewrite pathscomp0rid in k. exact k. Defined.
+
+Definition transportf_pathsinv0 {X} (P:X->UU) {x y:X} (p:x==y) (u:P x) (v:P y) :
+  !p # v == u -> p # u == v.
+Proof. intros ? ? ? ? ? ? ? e. destruct p, e. reflexivity. Defined.
+
+Definition transportf_pathsinv0' {X} (P:X->UU) {x y:X} (p:x==y) (u:P x) (v:P y) :
+  p # u == v -> !p # v == u.
+Proof. intros ? ? ? ? ? ? ? e. destruct p, e. reflexivity. Defined.
 
 Lemma transport_idfun {X} (P:X->UU) {x y:X} (p:x==y) (u:P x) : 
   transportf P p u == transportf (idfun _) (ap P p) u.
@@ -841,7 +867,7 @@ Proof. intros. refine (weqbandf _ _ _ _).
          unfold idfun; simpl. apply idweq. } Defined.
 
 Definition weq_total2_prod {X Y} (Z:Y->Type) :
-  weq (total2 (fun y => dirprod X (Z y))) (dirprod X (total2 Z)).
+  weq (total2 (fun y => X ** Z y)) (X ** total2 Z).
 Proof. intros. refine (weqpair _ (gradth _ _ _ _)).
        { intros [y [x z]]. exact (x,,(y,,z)). }
        { intros [x [y z]]. exact (y,,(x,,z)). }
@@ -870,18 +896,14 @@ Definition Ω := loopSpace.
 
 (** ** Direct products with several factors *)
 
-Definition dirprod3 X Y Z := dirprod X (dirprod Y Z).
-
-Definition tuple3 {X Y Z} x y z := (x,,(y,,z)) : dirprod3 X Y Z.
+Definition tuple3 {X Y Z} x y z := (x,,(y,,z)) : X ** Y ** Z.
 
 Definition paths3 {X Y Z} {x x':X} {y y':Y} {z z':Z} :
   x==x' -> y==y' -> z==z' -> tuple3 x y z == tuple3 x' y' z'. 
 Proof. intros ? ? ? ? ? ? ? ? ? p q r. destruct p, q, r. reflexivity.
 Defined.       
 
-Definition dirprod4 W X Y Z := dirprod W (dirprod3 X Y Z).
-
-Definition tuple4 {W X Y Z} (w:W) x y z := (w,,tuple3 x y z) : dirprod4 W X Y Z.
+Definition tuple4 {W X Y Z} (w:W) x y z := (w,,tuple3 x y z) : W ** X ** Y ** Z.
 
 Definition paths4 {W X Y Z} {w w':W} {x x':X} {y y':Y} {z z':Z} :
   w==w' -> x==x' -> y==y' -> z==z' -> tuple4 w x y z == tuple4 w' x' y' z'. 

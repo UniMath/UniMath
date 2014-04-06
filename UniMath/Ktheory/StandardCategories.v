@@ -60,8 +60,7 @@ Require Import Foundations.hlevel2.stnfsets.
 Definition cat_n (n:nat):category.
   intro. apply (path_groupoid (stn n)). apply hlevelntosn.
   apply isasetstn. Defined.
-Definition is_discrete (C:precategory) := 
-  dirprod (isaset (ob C)) (is_groupoid C).
+Definition is_discrete (C:precategory) := isaset (ob C) ** is_groupoid C.
 Lemma isaprop_is_discrete (C:precategory) : 
   isaprop (is_discrete C).
 Proof. intro. apply isofhleveltotal2. apply isapropisaset.

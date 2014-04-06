@@ -27,10 +27,10 @@ Proof. intros. unfold circle_loop. rewrite pathsinv0inv0.
 Definition ZGuidedHomotopy {Y} {y:Y} (l:y==y) (T:Torsor ℤ) := 
   GuidedHomotopy (confun T y) (confun T l).
 
-Definition GH {Y} {y:Y} (l:y==y) := total2 (ZGuidedHomotopy l).
+Definition GH {Y} {y:Y} (l:y==y) := {T:Torsor ℤ & ZGuidedHomotopy l T}.
 
 Definition GHpair {Y} {y:Y} (l:y==y) (T:Torsor ℤ) (g:ZGuidedHomotopy l T) :=
-  tpair (ZGuidedHomotopy l) T g.
+  T,,g : GH l.
 
 Definition pr1_GH {Y} {y:Y} {l:y==y} := pr1 : GH l -> Torsor ℤ.
 
@@ -246,9 +246,19 @@ Print Assumptions circle_map_check_paths.
 
 (** *** The induction principle (dependent functions) *)
 
-Definition circle_map' {Y:circle->Type} {y:Y (basepoint circle)} 
+Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)} 
            (l:circle_loop#y==y) : forall c:circle, Y c.
 Proof. intros. admit. Defined.
+
+Lemma circle_map_check_paths' {Y} (f:circle->Y) : circle_map (ap f circle_loop) == f .
+Proof. intros. apply funextsec; intro T. generalize T; clear T.
+       refine (circle_map' _).
+       { reflexivity. }
+       { set (y := f (basepoint circle)). set (l := ap f circle_loop).
+         set (P := fun T : underlyingType circle => circle_map _ T == f T).
+         apply transport_fun_path. rewrite pathscomp0rid.
+         change (idpath y @ ap f circle_loop) with (ap f circle_loop).
+         exact (! circle_map_check_paths l). } Defined.         
 
 (*
 Local Variables:

@@ -204,7 +204,7 @@ Proof. intros. exact (apevalat x (ap pr1weq
 (** ** Torsors *)
 
 Definition is_torsor {G:gr} (X:Action G) := 
-  dirprod (nonempty X) (forall x:X, isweq (right_mult x)).
+  nonempty X ** forall x:X, isweq (right_mult x).
 
 Lemma is_torsor_isaprop {G:gr} (X:Action G) : isaprop (is_torsor X).
 Proof. intros. apply isofhleveldirprod. { apply propproperty. }

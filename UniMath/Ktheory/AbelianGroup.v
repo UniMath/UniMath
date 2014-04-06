@@ -422,9 +422,9 @@ Module Sum.                   (* coproducts *)
   Definition X {I} (G:I->abgr) := total2 G. (* the generators *)
   Inductive J {I} (G:I->abgr) : Type := (* index set for the relations *)
     | J_zero : I -> J G                 (* (i,0) ~ 0 *)
-    | J_sum : total2 (fun i => dirprod (G i) (G i)) -> J G. (* (i,g)+(i,h) ~ (i,g+h) *)
+    | J_sum : total2 (fun i => G i ** G i) -> J G. (* (i,g)+(i,h) ~ (i,g+h) *)
   (* We could replace this with:
-     Definition J {I} (G:I->abgr) := coprod I (total2 (fun i => dirprod (G i) (G i))).
+     Definition J {I} (G:I->abgr) := coprod I (total2 (fun i => G i ** G i)).
      *)
   Definition R {I} (G:I->abgr) : J G -> reln (X G).
     intros ? ? [i|[i [g h]]].

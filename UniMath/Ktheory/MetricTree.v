@@ -16,9 +16,8 @@ Record Tree :=
       mt_symm: forall x y, mt_dist x y == mt_dist y x;
       mt_trans: forall x y z, mt_dist x z <= mt_dist x y + mt_dist y z;
       mt_step: forall x z, x!=z ->
-                 total2 (fun y => dirprod 
-                                     (S (mt_dist x y) == mt_dist x z)
-                                     (mt_dist y z == 1)) }.
+                 total2 (fun y => (S (mt_dist x y) == mt_dist x z) **
+                                  (mt_dist y z == 1)) }.
       
 Lemma mt_path_refl (T:Tree) (x y:T) : x==y -> mt_dist _ x y == 0.
 Proof. intros ? ? ? e. destruct e. apply mt_refl. Qed.
