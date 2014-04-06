@@ -388,16 +388,16 @@ Proof. intros.
        exact (ℤTorsorRecursion_inv_compute _ _ _ _).
 Defined.
 
-Definition iscontrGuidedHomotopy_comp_3 {Y} :
-  let T := trivialTorsor ℤ in 
-  let t0 := 0 : T in
-    forall (f:T->Y) (s:target_paths f),
-      GH_to_cone t0 (the (iscontrGuidedHomotopy T f s)) == f t0,, idpath (f t0).
-Proof. intros.
+(* Definition iscontrGuidedHomotopy_comp_3 {Y} : *)
+(*   let T := trivialTorsor ℤ in  *)
+(*   let t0 := 0 : T in *)
+(*     forall (f:T->Y) (s:target_paths f), *)
+(*       GH_to_cone t0 (the (iscontrGuidedHomotopy T f s)) == f t0,, idpath (f t0). *)
+(* Proof. intros. *)
        
 
-       admit.
-Defined.       
+(*        admit. *)
+(* Defined.        *)
 
 Definition makeGuidedHomotopy {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y==f t0) : 

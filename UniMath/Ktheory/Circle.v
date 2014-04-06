@@ -125,6 +125,7 @@ Proof. intros.
        unfold irr, sec.
        change (makeGuidedHomotopy (fun _ : T0 => y) (confun T0 l) t0 (idpath y))
        with (makeGuidedHomotopy2 (confun T0 y) (confun T0 l)).
+       clear t0.
        admit.
 Defined.
 Arguments pr1_GH_weq_compute {_ _ _}.
@@ -254,21 +255,34 @@ Definition loop_correspondence {T X Y}
 Proof. intros. destruct ni, mi, l. simpl. rewrite pathscomp0rid. reflexivity.
 Defined.
 
+Definition loop_correspondence' {X Y} {P:X->Type} 
+           (irr:forall x (p q:P x), p==q) (sec:Section P)
+           (g:total2 P->Y)
+           {w w':total2 P} {l:w==w'}
+           {m:weqpr1' irr sec w==weqpr1' irr sec w'} (mi:ap (weqpr1' irr sec) l == m)
+           {n:g w==g w'} (ni:ap g l == n) : 
+     ap (funcomp (invmap (weqpr1' irr sec)) g) m @ ap g (homotinvweqweq' irr sec w') 
+  == ap g (homotinvweqweq' irr sec w) @ n.
+Proof. intros. destruct ni, mi, l. simpl. rewrite pathscomp0rid. reflexivity.
+Defined.
+
 Definition circle_map_check_paths {Y} {y:Y} (l:y==y) : 
   ap (circle_map l) (! circle_loop) == l.
 Proof. intros. set (T0 := basepoint (B ℤ)); simpl in T0. set (t0 := 0:T0).
        assert (c1 := makeGH_diagonalLoop_comp1 l _ _ (loop_compute t0)
                   : ap pr1_GH (makeGH_diagonalLoop l t0 circle_loop (loop_compute t0)) == ! circle_loop ).
        assert (c2 := makeGH_diagonalLoop_comp2 l _ _ (loop_compute t0)).
-       admit.
-       (* assert (c := loop_correspondence pr1_GH_weq pr12_GH c1 c2). *)
-       (* assert (p := @pr1_GH_weq_compute Y y l *)
-       (*     : ap pr12_GH (homotinvweqweq' irr sec (makeGH1 l T0 t0)) == idpath y). *)
-       (* rewrite p in c. *)
-       (* Time assert (c' := c : ap (invmap pr1_GH_weq;; pr12_GH) (! circle_loop) @ idpath y == idpath y @ l). *)
-       (* (* 6.6 secs, too slow *) *)
-       (* rewrite pathscomp0rid in c'. *)
-       (* exact c'. *)
+       assert (c := loop_correspondence' irr sec pr12_GH c1 c2).
+       change (invmap (weqpr1' irr sec);; pr12_GH)
+       with (circle_map l) in c.
+       assert (p := @pr1_GH_weq_compute Y y l
+                 : ap pr12_GH (homotinvweqweq' irr sec (makeGH1 l T0 t0)) == idpath y).
+       refine (_ @ c @ _).
+       { intermediate_path (ap (circle_map l) (! circle_loop) @ idpath y).
+         { apply pathsinv0. apply pathscomp0rid. }
+         { apply pathsinv0.
+           exact (ap (fun r => ap (circle_map l) (! circle_loop) @ r) p). } }
+       { exact (ap (fun r => r @ l) p). }
 Defined. 
 
 (*
