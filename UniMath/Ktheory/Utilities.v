@@ -535,6 +535,27 @@ Proof. (* a better proof of gradth would make [homotinvweqweq] work here instead
        reflexivity.             (* don't change the proof *)
 Defined.
 
+Definition loop_correspondence {T X Y}
+           (f:weq T X) (g:T->Y)
+           {t t':T} {l:t==t'}
+           {m:f t==f t'} (mi:ap f l == m)
+           {n:g t==g t'} (ni:ap g l == n) : 
+     ap (funcomp (invmap f) g) m @ ap g (homotinvweqweq f t') 
+  == ap g (homotinvweqweq f t) @ n.
+Proof. intros. destruct ni, mi, l. simpl. rewrite pathscomp0rid. reflexivity.
+Defined.
+
+Definition loop_correspondence' {X Y} {P:X->Type} 
+           (irr:forall x (p q:P x), p==q) (sec:Section P)
+           (g:total2 P->Y)
+           {w w':total2 P} {l:w==w'}
+           {m:weqpr1' irr sec w==weqpr1' irr sec w'} (mi:ap (weqpr1' irr sec) l == m)
+           {n:g w==g w'} (ni:ap g l == n) : 
+     ap (funcomp (invmap (weqpr1' irr sec)) g) m @ ap g (homotinvweqweq' irr sec w') 
+  == ap g (homotinvweqweq' irr sec w) @ n.
+Proof. intros. destruct ni, mi, l. simpl. rewrite pathscomp0rid. reflexivity.
+Defined.
+
 (** ** Null homotopies *)
 
 Definition nullHomotopyTo {X Y} (f:X->Y) (y:Y) := forall x:X, f x == y.
