@@ -62,7 +62,7 @@ Definition irr {Y} {y:Y} {l:y==y} (T:Torsor ℤ) := proofirrGuidedHomotopy T (co
 
 Definition sec {Y} {y:Y} {l:y==y} (T:Torsor ℤ) := makeGuidedHomotopy2 T (confun T y) (confun T l).
 
-Definition pr1_GH_weq {Y} {y:Y} {l:y==y} : weq (GH l) (Torsor ℤ) := weqpr1' irr sec.
+Definition pr1_GH_weq {Y} {y:Y} {l:y==y} : weq (GH l) (Torsor ℤ) := weqpr1_irr_sec irr sec.
 
 Definition homotinvweqweq_GH_comp {Y} {y:Y} {l:y==y}
            (T:Torsor ℤ) (gh:ZGuidedHomotopy l T) : 

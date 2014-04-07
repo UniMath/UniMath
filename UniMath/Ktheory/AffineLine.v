@@ -4,9 +4,7 @@
  is the additive group of the integers, behaves like an affine line.
  It's a contractible type, but maps from it to another type Y are determined
  by specifying where the points of T should go, and where the paths
- joining consecutive points of T should go.
-
- *)
+ joining consecutive points of T should go. *)
 
 (** ** Preliminaries *)
 

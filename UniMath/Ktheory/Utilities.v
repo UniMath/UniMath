@@ -366,6 +366,102 @@ Definition equality_proof_irrelevance' {X:Type} {x y:X} (p q:x==y) :
   isaset X -> p==q.
 Proof. intros ? ? ? ? ? is. apply is. Defined.
 
+(** ** Adjoint equivalences *)
+
+Module AdjointEquivalence.
+  Record data X Y := make {
+           f :> X -> Y; g : Y -> X;
+           p : forall y, f(g y) == y;
+           q : forall x, g(f x) == x;
+           h : forall x, ap f (q x) == p(f x) }.
+End AdjointEquivalence.
+
+Definition invequiv {X Y} : AdjointEquivalence.data X Y -> AdjointEquivalence.data Y X.
+Proof. intros ? ? [f g p q h].
+       refine (AdjointEquivalence.make Y X g f q p _).
+       intro y.
+       
+
+       admit.
+Defined.
+
+Lemma helper {X Y} {f:X->Y} x x' (w:x==x') (t:f x==f x) :
+              transportf (fun x' => f x' == f x) w (idpath (f x)) == ap f (!w).
+Proof. intros ? ? k. destruct w. reflexivity. Qed.
+
+Definition weq_to_AdjointEquivalence X Y : weq X Y -> AdjointEquivalence.data X Y.
+  intros ? ? [f r].
+  unfold isweq in r.
+  set (g := fun y => hfiberpr1 f y (the (r y))).
+  set (p := fun y => pr2 (pr1 (r y))).
+  simpl in p.
+  set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
+  set (q := fun x => ap pr1 (L x)).
+  set (q' := fun x => !q x).  
+  refine (AdjointEquivalence.make X Y f g p q' 
+             (fun x => 
+                 ! helper x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x))
+                 @ (ap_pr2 (L x)))).
+Defined.
+
+Definition homotinvweqweq_2 {X Y} (f:weq X Y) x : invweq f (f x) == x.
+Proof. intros ? ? [f r] ?.
+       unfold isweq in r.
+       set (g := fun y => hfiberpr1 f y (the (r y))).
+       set (p := fun y => pr2 (pr1 (r y))).
+       simpl in p.
+       set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
+       exact (! ap pr1 (L x)).
+Defined.
+
+Definition weq_to_AdjointEquivalence_inv X Y : weq X Y -> AdjointEquivalence.data Y X.
+  intros ? ? [f r].
+  unfold isweq in r.
+  set (g := fun y => hfiberpr1 f y (the (r y))).
+  set (p := fun y => pr2 (pr1 (r y))).
+  simpl in p.
+  set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
+  set (q := fun x => ap pr1 (L x)).
+  set (q' := fun x => !q x).  
+  refine (AdjointEquivalence.make Y X g f q' p _).
+  intro y.
+  admit.
+Defined.
+
+Definition AdjointEquivalence_to_weq X Y : AdjointEquivalence.data X Y -> weq X Y.
+Proof. intros ? ? [f g p q h]. exists f. unfold isweq. intro y.
+       exists (g y,,p y). intros [x []]. apply (total2_paths2 (!q x)). 
+       refine (_ @ h x). destruct (q x). reflexivity. Defined.
+
+Definition AdjointEquivalence_to_invweq X Y : AdjointEquivalence.data X Y -> weq Y X.
+Proof. intros ? ? [f g p q h]. exists g. unfold isweq. intro x.
+       exists (f x,,q x). intros [y []]. apply (total2_paths2 (!p y)). 
+       admit.
+Defined.
+
+Module AdjointEquivalence'.
+  Record data X Y := make {
+         f :> X -> Y; g : Y -> X;
+         p : forall y, f(g y) == y;
+         q : forall x, x == g(f x);
+         h : forall x y (r:f x == y), 
+             transportf (fun x':X => f x'==y) (q x @ ap g r) r == p y }.
+End AdjointEquivalence'.
+
+Definition AdjointEquivalence_to_weq' X Y : AdjointEquivalence'.data X Y -> weq X Y.
+Proof. intros ? ? a. destruct a. exists f. unfold isweq. intro y.
+       exists (g y,,p y). intros [x r]. 
+       exact (total2_paths2 (q x @ ap g r) (h x y r)). Defined.
+
+Definition invequiv' {X Y} : 
+  AdjointEquivalence'.data X Y -> AdjointEquivalence'.data Y X.
+Proof. intros ? ? [f g p q h].
+       refine (AdjointEquivalence'.make Y X g f (fun y => ! q y) (fun x => ! p x) _).
+       intros.
+       destruct r.
+       admit.
+Defined.
+
 (** ** Equivalences *)
 
 Definition weqcompidl {X Y} (f:weq X Y) : weqcomp (idweq X) f == f.
@@ -506,80 +602,74 @@ Definition pr1hSet_injectivity (X Y:hSet) : weq (X==Y) (pr1hSet X==pr1hSet Y).
 Proof. intros. apply weqonpathsincl. apply isinclpr1; intro T.
        apply isapropisaset. Defined.
 
-Module AdjointEquivalence.
-  Record data X Y := make {
-           f :> X -> Y; g : Y -> X;
-           p : forall y, f(g y) == y;
-           q : forall x, g(f x) == x;
-           h : forall x, ap f (q x) == p(f x) }.
-End AdjointEquivalence.
-
-Lemma helper {X Y} {f:X->Y} x x' (w:x==x') (t:f x==f x) :
-              transportf (fun x' => f x' == f x) w (idpath (f x)) == ap f (!w).
-Proof. intros ? ? k. destruct w. reflexivity. Qed.
-
-Definition weq_to_AdjointEquivalence X Y : weq X Y -> AdjointEquivalence.data X Y.
-  intros ? ? [f r].
-  set (g := fun y => hfiberpr1 f y (the (r y))).
-  set (p := fun y => pr2 (pr1 (r y))).
-  set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
-  set (q := fun x => ap pr1 (L x)).
-  set (q' := fun x => !q x).  
-  refine (AdjointEquivalence.make X Y f g p q' _).
-  intro x.
-  exact ( !(helper x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x)))
-               @ (ap_pr2 (L x))).
-Defined.
-
-Definition AdjointEquivalence_to_weq X Y : AdjointEquivalence.data X Y -> weq X Y.
-Proof. intros ? ? [f g p q h]. exists f. unfold isweq. intro y.
-       exists (g y,,p y). intros [x r]. destruct r. 
-       apply (total2_paths2 (!q x)). refine (_ @ h x). generalize (q x); intro qx.
-       destruct qx. reflexivity. Defined.
-
-Module AdjointEquivalence'.
-  Record data X Y := make {
-         f :> X -> Y; g : Y -> X;
-         p : forall y, f(g y) == y;
-         q : forall x, x == g(f x);
-         h : forall x y (r:f x == y), 
-             transportf (fun x':X => f x'==y) (q x @ ap g r) r == p y }.
-End AdjointEquivalence'.
-
-Definition AdjointEquivalence_to_weq' X Y : AdjointEquivalence'.data X Y -> weq X Y.
-Proof. intros ? ? a. destruct a. exists f. unfold isweq. intro y.
-       exists (g y,,p y). 
-       intros [x r]. exact (total2_paths2 (q x @ ap g r) (h x y r)). Defined.
-
 Definition totsec {X} {P:X->Type} : Section P -> X -> total2 P.
 Proof. intros ? ? s x. exact (x,,s x). Defined.
 
-Definition weqpr1' {X} {P:X->Type} (irr:forall x (p q:P x), p==q) (s:Section P) :
-  weq (total2 P) X.
+Definition weqpr1_irr_sec {X} {P:X->Type}
+           (irr:forall x (p q:P x), p==q) (sec:Section P) : weq (total2 P) X.
 Proof. intros.
-       set (f := pr1 : total2 P -> X).
-       set (g := totsec s).
-       refine (weqpair f (gradth f g _ _)).
-       { intros [x p]. unfold g; simpl. apply pair_path_in2. apply irr. }
-       { reflexivity. } Defined.
+       set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
+       apply AdjointEquivalence_to_weq.
+       refine (AdjointEquivalence.make _ _ _ _ _ _ _).
+       { exact pr1. } { intro x. exact (x,,sec x). } { intro x. reflexivity. }
+       { intros [x p]. simpl. apply pair_path_in2. apply irr. }
+       { intros [x p]. simpl. apply pair_path_in2_comp1. } Defined.
+
+Definition invweqpr1_irr_sec {X} {P:X->Type}
+           (irr:forall x (p q:P x), p==q) (sec:Section P) : weq X (total2 P).
+Proof. intros.
+       set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
+       apply AdjointEquivalence_to_weq.
+       refine (AdjointEquivalence.make _ _ _ _ _ _ _).
+       { intro x. exact (x,,sec x). } { exact pr1. }
+       { intros [x p]. simpl. apply pair_path_in2. apply irr. }
+       { intro x. reflexivity. }
+       { intro x'. simpl. rewrite (irrel_paths (irr _) (irr _ _ _) (idpath (sec x'))).
+         reflexivity. } Defined.
 
 Definition homotinvweqweq' {X} {P:X->Type} 
            (irr:forall x (p q:P x), p==q) (s:Section P) (w:total2 P) :
-  invmap (weqpr1' irr s) (weqpr1' irr s w) == w.
+  invmap (weqpr1_irr_sec irr s) (weqpr1_irr_sec irr s w) == w.
 Proof. intros ? ? ? ? [x p]. apply pair_path_in2. apply irr. Defined.
 
 Definition homotinvweqweq'_comp {X} {P:X->Type}
-           (irr:forall x (p q:P x), p==q) (s:Section P) 
+           (irr:forall x (p q:P x), p==q) (sec:Section P) 
            (x:X) (p:P x) : 
-  let f := weqpr1' irr s in
+  let f := weqpr1_irr_sec irr sec in
   let w := x,,p in
   let w' := invweq f x in
   @identity (w' == w)
-            (homotinvweqweq' irr s w)
-            (pair_path_in2 P (irr x (s x) (pr2 w))).
-Proof. (* a better proof of gradth would make [homotinvweqweq] work here instead *)
-       reflexivity.             (* don't change the proof *)
+            (homotinvweqweq' irr sec w)
+            (pair_path_in2 P (irr x (sec x) (pr2 w))).
+Proof. reflexivity.             (* don't change the proof *)
 Defined.
+
+Definition homotinvweqweq_comp {X} {P:X->Type}
+           (irr:forall x (p q:P x), p==q) (sec:Section P) 
+           (x:X) (p:P x) : 
+  let f := weqpr1_irr_sec irr sec in
+  let w := x,,p in
+  let w' := invweq f x in
+  @identity (w' == w)
+            (homotinvweqweq f w)
+            (pair_path_in2 P (irr x (sec x) (pr2 w))).
+Proof. admit.
+(*
+       reflexivity.             (* don't change the proof *)
+*)
+Defined.
+
+Definition homotinvweqweq_comp_3 {X} {P:X->Type}
+           (irr:forall x (p q:P x), p==q) (sec:Section P) 
+           (x:X) (p:P x) : 
+  let f := weqpr1_irr_sec irr sec in
+  let g := invweqpr1_irr_sec irr sec in
+  let w := x,,p in
+  let w' := g x in
+  @identity (w' == w)
+            (homotweqinvweq g w)    (* !! *)
+            (pair_path_in2 P (irr x (sec x) (pr2 w))).
+Proof. reflexivity. Defined.
 
 Definition loop_correspondence {T X Y}
            (f:weq T X) (g:T->Y)
@@ -595,9 +685,9 @@ Definition loop_correspondence' {X Y} {P:X->Type}
            (irr:forall x (p q:P x), p==q) (sec:Section P)
            (g:total2 P->Y)
            {w w':total2 P} {l:w==w'}
-           {m:weqpr1' irr sec w==weqpr1' irr sec w'} (mi:ap (weqpr1' irr sec) l == m)
+           {m:weqpr1_irr_sec irr sec w==weqpr1_irr_sec irr sec w'} (mi:ap (weqpr1_irr_sec irr sec) l == m)
            {n:g w==g w'} (ni:ap g l == n) : 
-     ap (funcomp (invmap (weqpr1' irr sec)) g) m @ ap g (homotinvweqweq' irr sec w') 
+     ap (funcomp (invmap (weqpr1_irr_sec irr sec)) g) m @ ap g (homotinvweqweq' irr sec w') 
   == ap g (homotinvweqweq' irr sec w) @ n.
 Proof. intros. destruct ni, mi, l. simpl. rewrite pathscomp0rid. reflexivity.
 Defined.
