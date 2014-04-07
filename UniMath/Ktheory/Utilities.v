@@ -43,12 +43,6 @@ Proof. intros. exact (pr2 i t). Defined.
 Definition uniqueness' {T} (i:iscontr T) (t:T) : the i == t.
 Proof. intros. exact (! (pr2 i t)). Defined.
 
-Definition path_inverse_to_right {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
-Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
-
-Definition path_inverse_to_right' {X} {x y:X} (p q:x==y) : p==q -> p@!q==idpath _.
-Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
-
 Module Import Notation.
   Notation "'not' X" := (X -> empty) (at level 35).
   Notation "x != y" := (not (x == y)) (at level 40).
@@ -75,6 +69,12 @@ Module Import NatNotation.
   Notation "m > n" := (hnat.natgth m n).
   Notation "m < n" := (hnat.natlth m n).
 End NatNotation.
+
+Definition path_inverse_to_right {X} {x y:X} (p q:x==y) : p==q -> !q@p==idpath _.
+Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
+
+Definition path_inverse_to_right' {X} {x y:X} (p q:x==y) : p==q -> p@!q==idpath _.
+Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
 
 Definition cast {T U:Type} : T==U -> T->U.
 Proof. intros ? ? p t. destruct p. exact t. Defined.
@@ -113,6 +113,14 @@ Definition pathsinv0_to_right'' {X} {x:X} (p:x==x) :
 Proof. intros ? ? ? e. apply pathsinv0_to_right'. rewrite pathscomp0rid.
        exact e. Defined.
 
+Definition path_inverse_from_right {X} {x y:X} (p q:x==y) : !q@p==idpath _ -> p==q.
+Proof. intros ? ? ? ? ? e. destruct q. exact e. Defined.
+
+Definition path_inverse_from_right' {X} {x y:X} (p q:x==y) : p@!q==idpath _ -> p==q.
+Proof. intros ? ? ? ? ? e. destruct q.
+       intermediate_path (p @ idpath x).
+       { apply pathsinv0. apply pathscomp0rid. } exact e. Defined.
+
 Definition loop_power_nat {Y} {y:Y} (l:y==y) (n:nat) : y==y.
 Proof. intros. induction n as [|n p]. 
        { exact (idpath _). } { exact (p@l). } Defined.
@@ -122,6 +130,11 @@ Proof. intros ? ? ? ? p q. exact (pathscomp0 q p). Defined.
 
 Definition pre_cat {X} {x y z:X} {q:x==y} : y==z -> x==z.
 Proof. intros ? ? ? ? p q. exact (pathscomp0 p q). Defined.
+
+Ltac ap_pre_post_cat := 
+  repeat rewrite path_assoc; repeat apply (ap post_cat); repeat rewrite <- path_assoc; 
+  repeat apply (ap pre_cat); repeat rewrite path_assoc; repeat rewrite maponpathsinv0; 
+  try reflexivity.
 
 Definition pathscomp0_linj {X} {x y z:X} {p:x==y} {q q':y==z} (r:p@q==p@q') : q==q'.
 Proof. intros. destruct p. exact r. Defined.
@@ -135,6 +148,33 @@ Proof. intros.
        assert (k : forall z:X, forall r:x==z, r @ irr z z == irr x z). 
        { intros. destruct r. reflexivity. }
        exact (pathscomp0_rinj (k y p @ !k y q)). Defined.
+
+Definition path_inv_rotate_lr {X} {a b c:X} (r:a==b) (p:b==c) (q:a==c) :
+  q == r @ p -> q @ !p == r.
+Proof. intros ? ? ? ? ? ? ? e. destruct p. destruct q. rewrite pathscomp0rid in e. 
+       exact e. Defined.
+
+Definition path_inv_rotate_rr {X} {a b c:X} (r:a==b) (p:b==c) (q:a==c) :
+  r @ p == q -> r == q @ !p.
+Proof. intros ? ? ? ? ? ? ? e. destruct p. destruct q. rewrite pathscomp0rid in e. 
+       exact e. Defined.
+
+Definition path_inv_rotate_ll {X} {a b c:X} (p:a==b) (r:b==c) (q:a==c) :
+  q == p @ r -> !p @ q == r.
+Proof. intros ? ? ? ? ? ? ? e. destruct p. destruct q. exact e. Defined.
+
+Definition path_inv_rotate_rl {X} {a b c:X} (p:a==b) (r:b==c) (q:a==c) :
+  p @ r == q -> r == !p @ q.
+Proof. intros ? ? ? ? ? ? ? e. destruct p. destruct q. exact e. Defined.
+
+Definition path_inv_rotate_2 {X} {a b c d:X} (p:a==b) (p':c==d) (q:a==c) (q':b==d) :
+  q @ p' == p @ q' -> p' @ ! q' == !q @ p.
+Proof. intros ? ? ? ? ? ? ? ? ?. destruct q,q'. simpl.
+       repeat rewrite pathscomp0rid. apply idfun. Defined.
+
+Definition path_comp_inv_inv {X} {a b c:X} (p:a==b) (q:b==c) :
+  ! q @ ! p == ! (p @ q).
+Proof. intros. destruct p,q. reflexivity. Defined.
 
 (** ** Pairs *)
 
@@ -282,6 +322,16 @@ Definition transport_invmap {T} {X Y:T->Type} (f:forall t, weq (X t) (Y t))
   invmap (transportf (fun t => weq (X t) (Y t)) p (f t)).
 Proof. intros. destruct p. reflexivity. Defined.
 
+Definition ap_fun_fun_natl {X Y Z} {g g':X->Y} {f f':Y->Z} 
+           (q:homot g g') (p:homot f f') x :
+  ap f (q x) @ p (g' x) == p (g x) @ ap f' (q x).
+Proof. intros. destruct (q x). simpl. rewrite pathscomp0rid. reflexivity. Defined.
+
+Definition ap_fun_fun_fun_natl {X Y Z W} {g g':X->Y}
+           (q:homot g g') (h:Y->Z) {f f':Z->W} (p:homot f f') x :
+  ap f (ap h (q x)) @ p (h (g' x)) == p (h (g x)) @ ap f' (ap h (q x)).
+Proof. intros. destruct (q x). simpl. rewrite pathscomp0rid. reflexivity. Defined.
+
 Definition ap_natl {X Y} {f:X->Y}
            {x x' x'':X} {p:x==x'} {q:x'==x''}
            {p':f x==f x'} {q':f x'==f x''}
@@ -368,6 +418,246 @@ Proof. intros ? ? ? ? ? is. apply is. Defined.
 
 (** ** Adjoint equivalences *)
 
+Section A.
+
+  Local Notation "p @' q" := (pathscomp0 p q)
+                             (only parsing, at level 61, left associativity).
+  Local Arguments idpath {_ _}.
+
+  Lemma other_adjoint {X Y} (f : X -> Y) (g : Y -> X)
+        (p : forall y : Y, f (g y) == y)
+        (q : forall x : X, g (f x) == x)
+        (h : forall x : X, ap f (q x) == p (f x)) :
+   forall y : Y, ap g (p y) == q (g y).
+  Proof. intros.
+         apply pathsinv0.
+         intermediate_path (idpath @' q (g y)). { reflexivity. }
+         intermediate_path (
+              !(ap g (p (f (g y))))
+              @' ap g (p (f (g y)))
+              @' q (g y)).
+         { rewrite pathsinv0l. reflexivity. }
+         intermediate_path (
+              !(ap g (ap f (q (g y))))
+              @' ap g (p (f (g y)))
+              @' q (g y)).
+         { rewrite (h (g y)). reflexivity. }
+         intermediate_path (
+              !(ap g (ap f (q (g y))))
+              @' ap g (p (f (g y)))
+              @' (idpath
+                  @' q (g y))).
+         { reflexivity. }
+         intermediate_path (
+              !(ap g (ap f (q (g y))))
+              @' ap g (p (f (g y)))
+              @' ((!q (g (f (g y))))
+                  @' q (g (f (g y)))
+                  @' q (g y))).
+         { rewrite pathsinv0l. reflexivity. }
+         intermediate_path (
+              !(ap g (ap f (q (g y))))
+              @' ap g (p (f (g y)))
+              @' ((!q (g (f (g y))))
+                  @' (idpath
+                      @' q (g (f (g y))))
+                  @' q (g y))).
+         { reflexivity. }
+         intermediate_path (
+              !(ap g (ap f (q (g y))))
+              @' ap g (p (f (g y)))
+              @' ((!q (g (f (g y))))
+                  @' (ap g (p (f (g y)))
+                      @' !(ap g (p (f (g y))))
+                      @' q (g (f (g y))))
+                  @' q (g y))).
+         { rewrite pathsinv0r. reflexivity. }
+         apply path_inverse_from_right.
+         intermediate_path (
+              !(ap g (p y))
+              @' !(ap g (ap f (q (g y))))
+              @' ap g (p (f (g y)))
+              @' !(q (g (f (g y))))
+              @' ap g (p (f (g y)))
+              @' !(ap g (p (f (g y))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. }
+         intermediate_path (
+              !(ap g (p y))
+              @' !(ap g (ap f (q (g y))))
+              @' !(q (g (f (g (f (g y))))))
+              @' ap (funcomp f g) (ap g (p (f (g y))))
+              @' ap g (p (f (g y)))
+              @' !(ap g (p (f (g y))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. rewrite <- (maponpathscomp f g). set (y' := f (g y)).
+           apply path_inv_rotate_lr. rewrite <- path_assoc.
+           apply path_inv_rotate_rl. apply pathsinv0.
+           assert (r := ap_fun_fun_fun_natl p g q y'); simpl in r.
+           rewrite (maponpathscomp f). rewrite (maponpathscomp g).
+           rewrite (maponpathscomp g (fun x : X => g (f x))) in r.
+           rewrite maponpathsidfun in r. exact r. }
+         intermediate_path (
+              !(ap g (p y))
+              @' !(ap g (ap f (q (g y))))
+              @' !(q (g (f (g (f (g y))))))
+              @' ap g (ap f (ap g (p (f (g y)))))
+              @' ap g (p (f (g y)))
+              @' !(ap g (p (f (g y))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. rewrite <- (maponpathscomp f g). reflexivity. }
+         intermediate_path (
+              !(ap g (p y))
+              @' !(ap g (ap f (q (g y))))
+              @' !(q (g (f (g (f (g y))))))
+              @' ap g (ap f (ap g (p (f (g y))))
+                           @' p (f (g y)))
+              @' !(ap g (p (f (g y))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. rewrite <- (maponpathscomp0 g).  reflexivity. }
+         intermediate_path (
+              !(ap g (p y))
+              @' !(ap g (ap f (q (g y))))
+              @' !(q (g (f (g (f (g y))))))
+              @' ap g
+                   (ap (funcomp g f) (p (f (g y)))
+                    @' p (f (g y)))
+              @' !(ap g (p (f (g y))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. rewrite <- (maponpathscomp g f). reflexivity. }
+         intermediate_path (
+              !(ap g (p y))
+              @' !(ap g (ap f (q (g y))))
+              @' !(q (g (f (g (f (g y))))))
+              @' ap g (p (f (g (f (g y))))
+                           @' p (f (g y)))
+              @' !(ap g (p (f (g y))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. rewrite <- (maponpathscomp g f). 
+           apply (ap (ap g)). generalize (f (g y)); clear y; intro y.
+           assert (r := ap_fun_fun_natl p p y); simpl in r.
+           assert (s := maponpathsidfun (p y)); unfold idfun in s.
+           rewrite s in r; clear s. rewrite (maponpathscomp g). exact r. }
+         intermediate_path (
+              !(ap g (p y))
+              @' !(ap g (ap f (q (g y))))
+              @' !(q (g (f (g (f (g y))))))
+              @' ap g (p (f (g (f (g y)))))
+              @' ap g (p (f (g y)))
+              @' !(ap g (p (f (g y))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. rewrite <- (maponpathscomp0 g). reflexivity. }
+         intermediate_path (
+              !(ap g (p y))
+              @' !(ap g (ap f (q (g y))))
+              @' !(q (g (f (g (f (g y))))))
+              @' ap g (p (f (g (f (g y)))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. repeat rewrite <- path_assoc. 
+           rewrite pathsinv0r. rewrite pathscomp0rid. reflexivity. }
+         intermediate_path (
+              ap g ((!p y)
+                        @' ap f (!q (g y)))
+              @' !(q (g (f (g (f (g y))))))
+              @' ap g (p (f (g (f (g y)))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. repeat rewrite <- maponpathsinv0.
+           rewrite <- (maponpathscomp0 g). reflexivity. }
+         intermediate_path (
+              !(q (g y))
+              @' ap (funcomp f g)
+                   (ap g ((!p y)
+                              @' ap f (!q (g y))))
+              @' ap g (p (f (g (f (g y)))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. repeat rewrite maponpathscomp0.
+           repeat rewrite <- (maponpathscomp f g).
+           repeat rewrite maponpathsinv0. repeat rewrite path_comp_inv_inv.
+           apply (ap pathsinv0).
+           assert (r := ! ap_fun_fun_fun_natl q (funcomp f g) q (g y)); simpl in r.
+           rewrite maponpathsidfun in r. repeat rewrite <- (maponpathscomp f g) in r.
+           unfold funcomp in r; simpl in r. repeat rewrite path_assoc.
+           rewrite r. ap_pre_post_cat. clear r.
+           assert (r := ! ap_fun_fun_fun_natl p g q y); simpl in r.
+           rewrite maponpathsidfun in r. rewrite (maponpathscomp f). 
+           rewrite (maponpathscomp g). rewrite (maponpathscomp g) in r.
+           exact r. }
+         intermediate_path (
+              !(q (g y))
+              @' ap g (ap (funcomp g f) ((!p y) @' ap f (!q (g y))))
+              @' ap g (p (f (g (f (g y)))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. rewrite <- (maponpathscomp g f).
+           rewrite <- (maponpathscomp f g). reflexivity. }
+         intermediate_path (
+              !(q (g y))
+              @' ap g (ap (funcomp g f) ((!p y) @' ap f (!q (g y)))
+                    @' p (f (g (f (g y)))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. rewrite <- maponpathscomp0. apply (ap (ap g)). 
+           reflexivity. }
+         intermediate_path (
+              !(q (g y))
+              @' ap g (p y
+                           @' ((!p y)
+                               @' ap f (!q (g y))))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. rewrite <- (maponpathscomp g f).
+           repeat rewrite maponpathscomp0. repeat rewrite maponpathsinv0.
+           repeat rewrite <- path_assoc. repeat apply path_inv_rotate_ll.
+           repeat rewrite path_assoc. repeat apply path_inv_rotate_rr.
+           apply pathsinv0. repeat rewrite <- (maponpathscomp0 g).
+           apply (ap (ap g)). rewrite h.
+           assert (r := ! ap_fun_fun_natl p p (f (g y))); simpl in r.
+           rewrite maponpathsidfun in r. unfold funcomp in *; simpl in *.
+           repeat rewrite <- (maponpathscomp g f) in r.
+           repeat rewrite (path_assoc _ _ (p y)). rewrite r.
+           repeat rewrite <- (path_assoc _ _ (p y)). apply (ap pre_cat). clear r.
+           assert (r := ap_fun_fun_natl p p y); simpl in r.
+           rewrite maponpathsidfun in r.
+           repeat rewrite <- (maponpathscomp g f) in r. exact r. }
+         intermediate_path (
+              (!q (g y))
+              @' ap g (ap f (!q (g y)))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. repeat rewrite <- maponpathsinv0.
+           apply (ap (ap g)). rewrite pathsinv0r. reflexivity. }
+         intermediate_path (
+              (!q (g y))
+              @' ap (funcomp f g) (!q (g y))
+              @' q (g (f (g y)))
+              @' q (g y)).
+         { ap_pre_post_cat. rewrite <- (maponpathscomp f g). 
+           reflexivity. }
+         intermediate_path (
+              (!q (g y))
+              @' q (g y)
+              @' (!q (g y))
+              @' q (g y)).
+         { ap_pre_post_cat. rewrite <- (maponpathscomp f g). 
+           apply path_inv_rotate_ll. repeat rewrite path_assoc.
+           apply path_inv_rotate_rr. 
+           assert (r := ! ap_fun_fun_natl q q (g y)); simpl in r.
+           rewrite maponpathsidfun in r. rewrite (maponpathscomp f g).
+           exact r. }
+         rewrite pathsinv0l. simpl. rewrite pathsinv0l. reflexivity. Qed.
+
+End A.
+
 Module AdjointEquivalence.
   Record data X Y := make {
            f :> X -> Y; g : Y -> X;
@@ -376,14 +666,10 @@ Module AdjointEquivalence.
            h : forall x, ap f (q x) == p(f x) }.
 End AdjointEquivalence.
 
-Definition invequiv {X Y} : AdjointEquivalence.data X Y -> AdjointEquivalence.data Y X.
-Proof. intros ? ? [f g p q h].
-       refine (AdjointEquivalence.make Y X g f q p _).
-       intro y.
-       
+Definition inverse {X Y} : AdjointEquivalence.data X Y -> AdjointEquivalence.data Y X.
+Proof. intros ? ? [f g p q h]. refine (AdjointEquivalence.make Y X g f q p _).
+       intro y. apply other_adjoint. assumption. Defined.
 
-       admit.
-Defined.
 
 Lemma helper {X Y} {f:X->Y} x x' (w:x==x') (t:f x==f x) :
               transportf (fun x' => f x' == f x) w (idpath (f x)) == ap f (!w).
