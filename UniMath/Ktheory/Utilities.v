@@ -89,6 +89,9 @@ Proof. intros. destruct q. reflexivity. Defined.
 
 (** ** Paths *)
 
+Definition pathscomp0lid: forall {X} {a b : X} (e1 : a == b), idpath _ @ e1 == e1.
+Proof. reflexivity. Defined.
+
 (* this lemma must be somewhere in Foundations *)
 Definition path_assoc {X} {a b c d:X}
         (f : a == b) (g : b == c) (h : c == d)
@@ -429,9 +432,7 @@ Section A.
         (q : forall x : X, g (f x) == x)
         (h : forall x : X, ap f (q x) == p (f x)) :
    forall y : Y, ap g (p y) == q (g y).
-  Proof. intros.
-         apply pathsinv0.
-         intermediate_path (idpath @' q (g y)). { reflexivity. }
+  Proof. intros. apply pathsinv0. 
          intermediate_path (
               !(ap g (p (f (g y))))
               @' ap g (p (f (g y)))
@@ -441,13 +442,8 @@ Section A.
               !(ap g (ap f (q (g y))))
               @' ap g (p (f (g y)))
               @' q (g y)).
-         { rewrite (h (g y)). reflexivity. }
-         intermediate_path (
-              !(ap g (ap f (q (g y))))
-              @' ap g (p (f (g y)))
-              @' (idpath
-                  @' q (g y))).
-         { reflexivity. }
+         { ap_pre_post_cat. apply (ap pathsinv0). apply (ap (ap g)).
+           set (y' := g y). apply pathsinv0. exact (h y'). }
          intermediate_path (
               !(ap g (ap f (q (g y))))
               @' ap g (p (f (g y)))
@@ -459,30 +455,13 @@ Section A.
               !(ap g (ap f (q (g y))))
               @' ap g (p (f (g y)))
               @' ((!q (g (f (g y))))
-                  @' (idpath
-                      @' q (g (f (g y))))
-                  @' q (g y))).
-         { reflexivity. }
-         intermediate_path (
-              !(ap g (ap f (q (g y))))
-              @' ap g (p (f (g y)))
-              @' ((!q (g (f (g y))))
                   @' (ap g (p (f (g y)))
                       @' !(ap g (p (f (g y))))
                       @' q (g (f (g y))))
                   @' q (g y))).
-         { rewrite pathsinv0r. reflexivity. }
+         { ap_pre_post_cat. apply path_inv_rotate_rr. reflexivity. }
          apply path_inverse_from_right.
-         intermediate_path (
-              !(ap g (p y))
-              @' !(ap g (ap f (q (g y))))
-              @' ap g (p (f (g y)))
-              @' !(q (g (f (g y))))
-              @' ap g (p (f (g y)))
-              @' !(ap g (p (f (g y))))
-              @' q (g (f (g y)))
-              @' q (g y)).
-         { ap_pre_post_cat. }
+         repeat rewrite path_assoc.
          intermediate_path (
               !(ap g (p y))
               @' !(ap g (ap f (q (g y))))
@@ -492,10 +471,11 @@ Section A.
               @' !(ap g (p (f (g y))))
               @' q (g (f (g y)))
               @' q (g y)).
-         { ap_pre_post_cat. rewrite <- (maponpathscomp f g). set (y' := f (g y)).
+         { ap_pre_post_cat. 
            apply path_inv_rotate_lr. rewrite <- path_assoc.
            apply path_inv_rotate_rl. apply pathsinv0.
-           assert (r := ap_fun_fun_fun_natl p g q y'); simpl in r.
+           rewrite <- (maponpathscomp f g). set (y' := f (g y)).
+           assert (r := ap_fun_fun_fun_natl p g q y'). simpl in r.
            rewrite (maponpathscomp f). rewrite (maponpathscomp g).
            rewrite (maponpathscomp g (fun x : X => g (f x))) in r.
            rewrite maponpathsidfun in r. exact r. }
@@ -513,8 +493,7 @@ Section A.
               !(ap g (p y))
               @' !(ap g (ap f (q (g y))))
               @' !(q (g (f (g (f (g y))))))
-              @' ap g (ap f (ap g (p (f (g y))))
-                           @' p (f (g y)))
+              @' ap g (ap f (ap g (p (f (g y)))) @' p (f (g y)))
               @' !(ap g (p (f (g y))))
               @' q (g (f (g y)))
               @' q (g y)).
@@ -523,9 +502,7 @@ Section A.
               !(ap g (p y))
               @' !(ap g (ap f (q (g y))))
               @' !(q (g (f (g (f (g y))))))
-              @' ap g
-                   (ap (funcomp g f) (p (f (g y)))
-                    @' p (f (g y)))
+              @' ap g (ap (funcomp g f) (p (f (g y))) @' p (f (g y)))
               @' !(ap g (p (f (g y))))
               @' q (g (f (g y)))
               @' q (g y)).
@@ -534,8 +511,7 @@ Section A.
               !(ap g (p y))
               @' !(ap g (ap f (q (g y))))
               @' !(q (g (f (g (f (g y))))))
-              @' ap g (p (f (g (f (g y))))
-                           @' p (f (g y)))
+              @' ap g (p (f (g (f (g y)))) @' p (f (g y)))
               @' !(ap g (p (f (g y))))
               @' q (g (f (g y)))
               @' q (g y)).
@@ -564,8 +540,7 @@ Section A.
          { ap_pre_post_cat. repeat rewrite <- path_assoc. 
            rewrite pathsinv0r. rewrite pathscomp0rid. reflexivity. }
          intermediate_path (
-              ap g ((!p y)
-                        @' ap f (!q (g y)))
+              ap g ((!p y) @' ap f (!q (g y)))
               @' !(q (g (f (g (f (g y))))))
               @' ap g (p (f (g (f (g y)))))
               @' q (g (f (g y)))
@@ -574,9 +549,7 @@ Section A.
            rewrite <- (maponpathscomp0 g). reflexivity. }
          intermediate_path (
               !(q (g y))
-              @' ap (funcomp f g)
-                   (ap g ((!p y)
-                              @' ap f (!q (g y))))
+              @' ap (funcomp f g) (ap g ((!p y) @' ap f (!q (g y))))
               @' ap g (p (f (g (f (g y)))))
               @' q (g (f (g y)))
               @' q (g y)).
@@ -610,9 +583,7 @@ Section A.
            reflexivity. }
          intermediate_path (
               !(q (g y))
-              @' ap g (p y
-                           @' ((!p y)
-                               @' ap f (!q (g y))))
+              @' ap g (p y @' ((!p y) @' ap f (!q (g y))))
               @' q (g (f (g y)))
               @' q (g y)).
          { ap_pre_post_cat. rewrite <- (maponpathscomp g f).
@@ -643,11 +614,7 @@ Section A.
               @' q (g y)).
          { ap_pre_post_cat. rewrite <- (maponpathscomp f g). 
            reflexivity. }
-         intermediate_path (
-              (!q (g y))
-              @' q (g y)
-              @' (!q (g y))
-              @' q (g y)).
+         intermediate_path ((!q (g y)) @' q (g y) @' (!q (g y)) @' q (g y)).
          { ap_pre_post_cat. rewrite <- (maponpathscomp f g). 
            apply path_inv_rotate_ll. repeat rewrite path_assoc.
            apply path_inv_rotate_rr. 

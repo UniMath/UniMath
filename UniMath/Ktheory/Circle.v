@@ -246,6 +246,8 @@ Print Assumptions circle_map_check_paths.
 
 (** *** The induction principle (dependent functions) *)
 
+(** (not proved yet) *)
+
 Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)} 
            (l:circle_loop#y==y) : forall c:circle, Y c.
 Proof. intros. admit. Defined.
