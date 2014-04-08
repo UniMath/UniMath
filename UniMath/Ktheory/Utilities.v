@@ -43,7 +43,7 @@ Proof. intros. exact (pr2 i t). Defined.
 Definition uniqueness' {T} (i:iscontr T) (t:T) : the i == t.
 Proof. intros. exact (! (pr2 i t)). Defined.
 
-Module Import Notation.
+Module Export Notation.
   Notation "'not' X" := (X -> empty) (at level 35).
   Notation "x != y" := (not (x == y)) (at level 40).
   Notation set_to_type := hSet.pr1hSet.
