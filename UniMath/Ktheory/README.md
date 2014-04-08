@@ -16,6 +16,13 @@ We start by introducing the category theory needed for K-theory:
   [Duality for groups](http://projecteuclid.org/DPubS/Repository/1.0/Disseminate?view=body&id=pdf_1&handle=euclid.bams/1183515045)
   Bull. Amer. Math. Soc., Volume 56, Number 6 (1950), 485-516.
 
+Acknowledgments
+===============
+
+I thank the Oswald Veblen Fund and the Bell Companies Fellowship for supporting
+my stay at the Institute for Advanced Study in 2013-2014, where I wrote this
+code.
+
 Licensing and copyright
 =======================
 
