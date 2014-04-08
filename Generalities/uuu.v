@@ -60,8 +60,8 @@ One can not use a new record each time one needs it because the general theorems
 
 Record total2 { T: Type } ( P: T -> Type ) := tpair : forall t : T , forall tp : P t , total2 P . 
 
-Definition pr1 { T: Type } { P : T -> Type } ( tp : total2 P ) : T := match tp with tpair _ t p => t end .
-Definition pr2 { T: Type } { P : T -> Type } ( tp : total2 P ) : P ( pr1 tp ) := match tp as a return P ( pr1 a ) with tpair _ t p => p end . 
+Definition pr1 { T: Type } { P : T -> Type } ( tp : total2 P ) : T := match tp with tpair t p => t end .
+Definition pr2 { T: Type } { P : T -> Type } ( tp : total2 P ) : P ( pr1 tp ) := match tp as a return P ( pr1 a ) with tpair t p => p end . 
 
 
 

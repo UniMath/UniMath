@@ -4,6 +4,8 @@
 *.vo
 *.glob
 *.v.d
-TAGS
+/TAGS
 .#*
-html
+/html
+.*.aux
+/Make.makefile.bak

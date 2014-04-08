@@ -15,7 +15,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports *)
 
-Add LoadPath "../../".
+Add LoadPath ".." as Foundations.
 
 Require Export Foundations.Generalities.uuu.
 
@@ -302,7 +302,7 @@ Definition pathsspacetriple ( T : UU ) { t1 t2 : T } (e: paths t1 t2): pathsspac
 
 Definition deltap ( T : UU ) : T -> pathsspace T := (fun t:T => pathsspacetriple T (idpath t)). 
 
-Definition pathsspace' ( T : UU ) := total2 (fun xy : dirprod T T => (match xy with tpair _ x y => paths x y end)).
+Definition pathsspace' ( T : UU ) := total2 (fun xy : dirprod T T => (match xy with tpair x y => paths x y end)).
 
 
 (** Homotopy fibers. *)
@@ -560,12 +560,12 @@ Proof. intros X Y f1 f2 h y X0.
 
 set (f:= (fun z:(hfiber  f1 y) =>
 match z with 
-(tpair _ x e) => hfiberpair  f2 x (pathscomp0   (h x) e)
+(tpair x e) => hfiberpair  f2 x (pathscomp0   (h x) e)
 end)). 
 
 set (g:= (fun z:(hfiber  f2 y) =>
 match z with
-(tpair _ x e) => hfiberpair  f1 x (pathscomp0   (pathsinv0 (h x)) e)
+(tpair x e) => hfiberpair  f1 x (pathscomp0   (pathsinv0 (h x)) e)
 end)). 
 
 assert (egf: forall z:(hfiber  f1 y), paths (g (f z)) z). intros. destruct z as [ x e ]. simpl .  apply ( hfibertriangle2 _ (hfiberpair f1 x (pathscomp0 (pathsinv0 (h x)) (pathscomp0 (h x) e))) ( hfiberpair f1 x e )  ( idpath x ) ) .   simpl . destruct e .   destruct ( h x ) . apply idpath .
@@ -1020,8 +1020,8 @@ end .
 
 Definition boolsumtocoprod (X Y:UU): (total2 (boolsumfun X Y)) -> coprod X Y := (fun xy:_ =>
 match xy with 
-tpair _ true x => ii1  x|
-tpair _ false y => ii2  y
+tpair true x => ii1  x|
+tpair false y => ii2  y
 end).
 
 
@@ -1151,7 +1151,7 @@ Proof . intros . split with ( d1 f g z fs y e ) . unfold d1 . change ( f ( invma
 Definition invezmap1 { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( z : Z ) ( ez : complxstr f g z ) ( y : Y ) : hfiber  f y -> paths (g y) z :=  
 fun xe: hfiber  f y =>
 match xe with
-tpair _ x e => pathscomp0 (maponpaths g  ( pathsinv0 e ) ) ( ez x )
+tpair x e => pathscomp0 (maponpaths g  ( pathsinv0 e ) ) ( ez x )
 end.
 
 Theorem isweqezmap1 { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( z : Z ) ( fs : fibseqstr f g z ) ( y : Y ) : isweq ( ezmap1 f g z fs y ) .
@@ -1184,8 +1184,8 @@ Definition fibseq2  { X Y Z : UU } (f:X -> Y) (g:Y->Z) (z:Z) ( fs : fibseqstr f 
 Definition ezmappr1 { Z : UU } ( P : Z -> UU ) ( z : Z ) : P z -> hfiber ( @pr1 Z P ) z := fun p : P z => tpair _ ( tpair _  z p ) ( idpath z ).
 
 Definition invezmappr1 { Z : UU } ( P : Z -> UU) ( z : Z ) : hfiber ( @pr1 Z P ) z  -> P z := fun te  : hfiber ( @pr1 Z P ) z =>
-match te with 
-tpair _ t e => transportf P e ( pr2 t ) 
+match te with
+tpair t e => transportf P e ( pr2 t ) 
 end.
 
 Definition isweqezmappr1 { Z : UU } ( P : Z -> UU ) ( z : Z ) : isweq ( ezmappr1 P z ).
@@ -1440,7 +1440,7 @@ apply ( gradth _ _ egf efg ) . Defined .
 
 Definition bandfmap { X Y : UU }(f: X -> Y) ( P : X -> UU)(Q: Y -> UU)(fm: forall x:X, P x -> (Q (f x))): total2 P -> total2 Q:= fun xp:_ =>
 match xp with
-tpair _ x p => tpair Q (f x) (fm x p)
+tpair x p => tpair Q (f x) (fm x p)
 end.
 
 Theorem isweqbandfmap { X Y : UU } (w : weq X Y ) (P:X -> UU)(Q: Y -> UU)( fw : forall x:X, weq ( P x) (Q (w x))) : isweq (bandfmap  _ P Q fw).
@@ -2173,7 +2173,7 @@ end.
 
 Definition maponcomplincl { X Y : UU } (f:X -> Y)(is: isincl f)(x:X): compl X x -> compl Y (f x):= fun x0':_ =>
 match x0' with
-tpair _ x' neqx => tpair _ (f x') (negf  (invmaponpathsincl  _ is x x' ) neqx)
+tpair x' neqx => tpair _ (f x') (negf  (invmaponpathsincl  _ is x x' ) neqx)
 end.
 
 Definition maponcomplweq { X Y : UU } (f : weq X Y ) (x:X):= maponcomplincl  f (isofhlevelfweq (S O) f ) x.
@@ -2937,7 +2937,7 @@ Proof. intros T P f g X t. destruct X. apply (idpath (f t)). Defined.
 
 Definition sectohfiber { X : UU } (P:X -> UU): (forall x:X, P x) -> (hfiber (fun f:_ => fun x:_ => pr1  (f x)) (fun x:X => x)) := (fun a : forall x:X, P x => tpair _ (fun x:_ => tpair _ x (a x)) (idpath (fun x:X => x))).
 
-Definition hfibertosec  { X : UU } (P:X -> UU):  (hfiber (fun f:_ => fun x:_ => pr1  (f x)) (fun x:X => x)) -> (forall x:X, P x):= fun se:_  => fun x:X => match se as se' return P x with tpair _ s e => (transportf P (toforallpaths (fun x:X => X)  (fun x:X => pr1 (s x)) (fun x:X => x) e x) (pr2  (s x))) end.
+Definition hfibertosec  { X : UU } (P:X -> UU):  (hfiber (fun f:_ => fun x:_ => pr1  (f x)) (fun x:X => x)) -> (forall x:X, P x):= fun se:_  => fun x:X => match se as se' return P x with tpair s e => (transportf P (toforallpaths (fun x:X => X)  (fun x:X => pr1 (s x)) (fun x:X => x) e x) (pr2  (s x))) end.
 
 Definition sectohfibertosec { X : UU } (P:X -> UU): forall a: forall x:X, P x, paths (hfibertosec _  (sectohfiber _ a)) a := fun a:_ => (pathsinv0 (etacorrection _ _ a)).
 
@@ -3081,7 +3081,7 @@ Definition weqfuntototaltototal ( X : UU ) { Y : UU } ( Q : Y -> UU ) : weq ( X 
 
 Definition funtoprodtoprod { X Y Z : UU } ( f : X -> dirprod Y Z ) : dirprod ( X -> Y ) ( X -> Z ) := dirprodpair ( fun x : X => pr1 ( f x ) ) ( fun x : X => ( pr2 ( f x ) ) ) .
 
-Definition prodtofuntoprod { X Y Z : UU } ( fg : dirprod ( X -> Y ) ( X -> Z ) ) : X -> dirprod Y Z := match fg with tpair _ f g => fun x : X => dirprodpair ( f x ) ( g x ) end .
+Definition prodtofuntoprod { X Y Z : UU } ( fg : dirprod ( X -> Y ) ( X -> Z ) ) : X -> dirprod Y Z := match fg with tpair f g => fun x : X => dirprodpair ( f x ) ( g x ) end .
 
 Theorem weqfuntoprodtoprod ( X Y Z : UU ) : weq ( X -> dirprod Y Z ) ( dirprod ( X -> Y ) ( X -> Z ) ) .
 Proof. intros. set ( f := @funtoprodtoprod X Y Z ) . set ( g := @prodtofuntoprod X Y Z ) . split with f . 
@@ -3321,7 +3321,7 @@ Proof. intros . set ( w := weqtoempty is ) . set ( w' := weqbfun X ( invweq w ) 
 
 Definition funfromcoprodtoprod { X Y Z : UU } ( f : coprod X Y -> Z ) : dirprod ( X -> Z ) ( Y -> Z ) := dirprodpair ( fun x : X => f ( ii1 x ) ) ( fun y : Y => f ( ii2 y ) ) .
 
-Definition prodtofunfromcoprod { X Y Z : UU } ( fg : dirprod ( X -> Z ) ( Y -> Z ) ) : coprod X Y -> Z := match fg with tpair _ f g => sumofmaps f g end .
+Definition prodtofunfromcoprod { X Y Z : UU } ( fg : dirprod ( X -> Z ) ( Y -> Z ) ) : coprod X Y -> Z := match fg with tpair f g => sumofmaps f g end .
 
 Theorem weqfunfromcoprodtoprod ( X Y Z : UU ) : weq ( coprod X Y -> Z ) ( dirprod ( X -> Z ) ( Y -> Z ) ) .
 Proof. intros . set ( f := @funfromcoprodtoprod X Y Z ) . set ( g := @prodtofunfromcoprod X Y Z ) . split with f . 

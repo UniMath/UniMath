@@ -1,3 +1,12 @@
+The current version of Coq required for compiling the Foundations is 8.4pl3,
+but it must be patched according to the instructions in the file
+coq-8.4-ufpatches.diff in this directory.
+
+Below are the old instructions for patching Coq, which may still be interesting,
+because they clarify the changes made to get coq to accept the proofs.
+
+================ old instructions ================
+
 This directory contains patches for Coq-8.3pl2 written by Hugo Hereblin and Dan Grayson which are needed for proper compilation of the "Foundations" library. The source code for Coq-8.3pl2 can be found at http://coq.inria.fr/distrib/  .
 
 Hugo's patches "inductive-indice-levels-matter-8.3.patch" and "patch.type-in-type" are intended only as a temporary solution for the universe management issues in Coq which arise in connection with the univalent approach. 
@@ -88,12 +97,3 @@ fuld-220:coq-8.3pl2_two_patches_and_Dan_3 vladimir$ sudo make install .
 
 
 (Note : install may give error messages because some of the files it wants to move are not created by this version of the compilation process. Just ignore it. )
-
- 
-
-
-
-
-
-
-

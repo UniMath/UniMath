@@ -1,0 +1,261 @@
+   This patch file allows coq 8.4 to compile an updated version of Voevodsky's
+   Foundations library, and is based on the patches he recommends using against
+   coq 8.3.  It should be applied against the source code of coq version
+   8.4pl3, available at
+
+      http://coq.inria.fr/distrib/8.4pl3/files/coq-8.4pl3.tar.gz
+
+   (Under Mac OS X, we recommend using homebrew from http://brew.sh to install
+   ocaml, which is required to compile coq.  Homebrew and the packages it
+   installs for you can be placed in an arbitrary location, such as in
+   $HOME/homebrew, where its files will not conflict with your other installations
+   of "coq".  To use it from there, you may add $HOME/homebrew/bin to your
+   PATH environment variable.)
+
+   Example commands (replace $HOME/local below if you wish, and replace /tmp/ by
+   the path to this file):
+
+   	wget http://coq.inria.fr/distrib/8.4pl3/files/coq-8.4pl3.tar.gz
+	tar xzf coq-8.4pl3.tar.gz
+	cd coq-8.4pl3
+	patch -p1 < /tmp/coq-8.4-ufpatches.diff
+	./configure -coqide no -opt -with-doc no -prefix $HOME/local
+	make
+	make install
+
+   (If you have curl but not wget, replace the wget command above with
+   	curl http://coq.inria.fr/distrib/8.4pl3/files/coq-8.4pl3.tar.gz -o coq-8.4pl3.tar.gz
+   ).
+
+   The commands above will make a directory called "coq-8.4pl3" in your current
+   directory, and the source code for coq will be there.
+
+   The files will be installed in your directory $HOME/local, and the programs
+   coqc, coqtop, etc., will be installed in $HOME/local/bin, which should be
+   added to your PATH environment variable (if you replace $HOME/local with
+   /usr/local, that will typically not be necessary).
+
+   Note: we've also patched coq so it accepts the option '-indices-matter', but it
+   has no effect on the running of the program, as the corresponding part of the patch
+   is unconditional.
+
+   Note: one place to get an updated version of Voevodsky's Foundations library usable
+   with the coq built by the instructions above is
+
+   	http://github.com/DanGrayson/Foundations2
+
+   The appropriate branch to use is "for-coq-8.4".  The commands to get it and
+   build it are:
+
+   	git clone http://github.com/DanGrayson/Foundations2
+	cd Foundations2
+	git checkout for-coq-8.4
+	make
+	make install
+
+   -- Dan Grayson
+
+   =============================================================================
+
+diff -ur coq-8.4pl3-pristine/configure coq-8.4pl3/configure
+--- a/configure	2013-12-21 03:03:14.000000000 -0500
++++ b/configure	2014-04-07 14:52:05.000000000 -0400
+@@ -111,7 +111,7 @@
+ coq_profile_flag=
+ coq_annotate_flag=
+ best_compiler=opt
+-cflags="-fno-defer-pop -Wall -Wno-unused"
++cflags="-Wall -Wno-unused"
+ natdynlink=yes
+ 
+ local=false
+diff -ur coq-8.4pl3-pristine/kernel/indtypes.ml coq-8.4pl3/kernel/indtypes.ml
+--- a/kernel/indtypes.ml	2013-12-21 03:03:14.000000000 -0500
++++ b/kernel/indtypes.ml	2014-04-07 14:39:19.000000000 -0400
+@@ -150,11 +150,15 @@
+   if Array.length lc >= 2 then sup type0_univ lev else lev
+ 
+ let inductive_levels arities inds =
+-  let levels = Array.map pi3 arities in
+-  let cstrs_levels = Array.map extract_level inds in
++  (* index levels matter patch applied *)
++  let levels = Array.map (fun (_,_,_,lev) -> lev) arities in
++  let arsign_levels = Array.map (fun (_,_,arlev,_) -> arlev) arities in
++  let inds_levels = Array.map extract_level inds in
++  (* Add the constraints coming from the real arguments *)
++  let inds_levels = array_map2 sup arsign_levels inds_levels in
+   (* Take the transitive closure of the system of constructors *)
+   (* level constraints and remove the recursive dependencies *)
+-  solve_constraints_system levels cstrs_levels
++  solve_constraints_system levels inds_levels
+ 
+ (* This (re)computes informations relevant to extraction and the sort of an
+    arity or type constructor; we do not to recompute universes constraints *)
+@@ -173,9 +177,14 @@
+   let level = max_inductive_sort (Array.map (fun j -> j.utj_type) jlc) in
+   (* compute *)
+   let info = small_unit (List.map (infos_and_sort env_ar_par) lc) in
+-
+   (info,lc'',level,cst)
+ 
++let rel_context_level env sign =
++  fst (List.fold_right
++    (fun (_,_,t as d) (lev,env) ->
++     sup (univ_of_sort (fst (infer_type env t)).utj_type) lev, push_rel d env)
++    sign (type0m_univ,env))
++
+ (* Type-check an inductive definition. Does not check positivity
+    conditions. *)
+ let typecheck_inductive env mie =
+@@ -205,10 +214,12 @@
+ 	 let lev =
+ 	   (* Decide that if the conclusion is not explicitly Type *)
+ 	   (* then the inductive type is not polymorphic *)
+-	   match kind_of_term ((strip_prod_assum arity.utj_val)) with
++	   match kind_of_term (strip_prod_assum arity.utj_val) with
+ 	   | Sort (Type u) -> Some u
+ 	   | _ -> None in
+-         (cst,env_ar',(id,full_arity,lev)::l))
++         let arsign, _ = dest_arity env_params arity.utj_val in
++         let arsign_lev = rel_context_level env_params arsign in
++         (cst,env_ar',(id,full_arity,arsign_lev,lev)::l))
+       (cst1,env,[])
+       mie.mind_entry_inds in
+ 
+@@ -253,18 +264,18 @@
+   (* Compute/check the sorts of the inductive types *)
+   let ind_min_levels = inductive_levels arities inds in
+   let inds, cst =
+-    array_fold_map2' (fun ((id,full_arity,ar_level),cn,info,lc,_) lev cst ->
++    array_fold_map2' (fun ((id,full_arity,arsign_level,ind_level),cn,info,lc,_) lev cst ->
+       let sign, s =
+         try dest_arity env full_arity
+         with NotArity -> raise (InductiveError (NotAnArity (env, full_arity)))
+       in
+       let status,cst = match s with
+-      | Type u when ar_level <> None (* Explicitly polymorphic *)
++      | Type u when ind_level <> None (* Explicitly polymorphic *)
+             && no_upper_constraints u cst ->
+ 	  (* The polymorphic level is a function of the level of the *)
+ 	  (* conclusions of the parameters *)
+           (* We enforce [u >= lev] in case [lev] has a strict upper *)
+-          (* constraints over [u] *)
++          (* constraint over [u] *)
+ 	  Inr (param_ccls, lev), enforce_geq u lev cst
+       | Type u (* Not an explicit occurrence of Type *) ->
+ 	  Inl (info,full_arity,s), enforce_geq u lev cst
+diff -ur coq-8.4pl3-pristine/kernel/inductive.ml coq-8.4pl3/kernel/inductive.ml
+--- a/kernel/inductive.ml	2013-12-21 03:03:14.000000000 -0500
++++ b/kernel/inductive.ml	2014-04-07 14:39:19.000000000 -0400
+@@ -201,13 +201,14 @@
+ 
+ (* The max of an array of universes *)
+ 
+-let cumulate_constructor_univ u = function
+-  | Prop Null -> u
+-  | Prop Pos -> sup type0_univ u
+-  | Type u' -> sup u u'
++  (* index levels matter patch applied *)
++let univ_of_sort = function
++  | Prop Pos -> type0m_univ
++  | Prop Null -> type0_univ
++  | Type u -> u
+ 
+ let max_inductive_sort =
+-  Array.fold_left cumulate_constructor_univ type0m_univ
++  Array.fold_left (fun u s -> sup u (univ_of_sort s)) type0m_univ
+ 
+ (************************************************************************)
+ (* Type of a constructor *)
+diff -ur coq-8.4pl3-pristine/kernel/inductive.mli coq-8.4pl3/kernel/inductive.mli
+--- a/kernel/inductive.mli	2013-12-21 03:03:14.000000000 -0500
++++ b/kernel/inductive.mli	2014-04-07 14:39:19.000000000 -0400
+@@ -94,6 +94,9 @@
+ val type_of_inductive_knowing_parameters : ?polyprop:bool ->
+   env -> one_inductive_body -> types array -> types
+ 
++  (* index levels matter patch applied *)
++val univ_of_sort : sorts -> universe
++
+ val max_inductive_sort : sorts array -> universe
+ 
+ val instantiate_universes : env -> rel_context ->
+diff -ur coq-8.4pl3-pristine/kernel/reduction.ml coq-8.4pl3/kernel/reduction.ml
+--- a/kernel/reduction.ml	2013-12-21 03:03:14.000000000 -0500
++++ b/kernel/reduction.ml	2014-04-07 14:39:19.000000000 -0400
+@@ -190,10 +190,8 @@
+         if c1 = c2 then cuniv else raise NotConvertible
+     | (Prop c1, Type u) when pb = CUMUL -> assert (is_univ_variable u); cuniv
+     | (Type u1, Type u2) ->
+-	assert (is_univ_variable u2);
+-	(match pb with
+-           | CONV -> enforce_eq u1 u2 cuniv
+-	   | CUMUL -> enforce_geq u2 u1 cuniv)
++	(* Type in Type patch applied *)
++	cuniv				
+     | (_, _) -> raise NotConvertible
+ 
+ 
+diff -ur coq-8.4pl3-pristine/pretyping/evd.ml coq-8.4pl3/pretyping/evd.ml
+--- a/pretyping/evd.ml	2013-12-21 03:03:14.000000000 -0500
++++ b/pretyping/evd.ml	2014-04-07 14:39:19.000000000 -0400
+@@ -532,21 +532,8 @@
+   Univ.is_univ_variable u || u = Univ.type0_univ
+ 
+ let set_leq_sort ({evars = (sigma, (us, sm))} as d) s1 s2 =
+-  match is_eq_sort s1 s2 with
+-  | None -> d
+-  | Some (u1, u2) ->
+-      match s1, s2 with
+-      | Prop c, Prop c' -> 
+-	  if c = Null && c' = Pos then d
+-	  else (raise (Univ.UniverseInconsistency (Univ.Le, u1, u2)))
+-     | Type u, Prop c -> 
+-	  if c = Pos then 
+-	    add_constraints d (Univ.enforce_geq Univ.type0_univ u Univ.empty_constraint)
+-	  else raise (Univ.UniverseInconsistency (Univ.Le, u1, u2))
+-      | _, Type u ->
+-	  if is_univ_var_or_set u then
+-	    add_constraints d (Univ.enforce_geq u2 u1 Univ.empty_constraint)
+-	  else raise (Univ.UniverseInconsistency (Univ.Le, u1, u2))
++  (* further patch for Type in Type *) 
++  d
+ 
+ let is_univ_level_var us u =
+   match Univ.universe_level u with
+diff -ur coq-8.4pl3-pristine/scripts/coqc.ml coq-8.4pl3/scripts/coqc.ml
+--- a/scripts/coqc.ml	2013-12-21 03:03:14.000000000 -0500
++++ b/scripts/coqc.ml	2014-04-07 14:39:19.000000000 -0400
+@@ -144,7 +144,7 @@
+     | ("-notactics"|"-debug"|"-nolib"|"-boot"
+       |"-batch"|"-nois"|"-noglob"|"-no-glob"
+       |"-q"|"-full"|"-profile"|"-just-parsing"|"-echo" |"-unsafe"|"-quiet"
+-      |"-silent"|"-m"|"-xml"|"-v7"|"-v8"|"-beautify"|"-strict-implicit"
++      |"-silent"|"-m"|"-xml"|"-v7"|"-v8"|"-beautify"|"-strict-implicit"|"-no-sharing"|"-indices-matter"
+       |"-dont-load-proofs"|"-load-proofs"|"-force-load-proofs"
+       |"-impredicative-set"|"-vm" as o) :: rem ->
+ 	parse (cfiles,o::args) rem
+diff -ur coq-8.4pl3-pristine/toplevel/coqtop.ml coq-8.4pl3/toplevel/coqtop.ml
+--- a/toplevel/coqtop.ml	2013-12-21 03:03:14.000000000 -0500
++++ b/toplevel/coqtop.ml	2014-04-07 14:39:19.000000000 -0400
+@@ -184,6 +184,8 @@
+     | "-byte" :: rem -> warning "option -byte deprecated, call with .byte suffix\n"; parse rem
+     | "-full" :: rem -> warning "option -full deprecated\n"; parse rem
+ 
++    | "-no-sharing" :: rem -> Closure.share := false; parse rem
++    | "-indices-matter" :: rem -> parse rem (* we've hard-wired this option on *)
+     | "-batch" :: rem -> set_batch_mode (); parse rem
+     | "-boot" :: rem -> boot := true; no_load_rc (); parse rem
+     | "-quality" :: rem -> term_quality := true; no_load_rc (); parse rem
+diff -ur coq-8.4pl3-pristine/toplevel/usage.ml coq-8.4pl3/toplevel/usage.ml
+--- a/toplevel/usage.ml	2013-12-21 03:03:14.000000000 -0500
++++ b/toplevel/usage.ml	2014-04-07 14:39:19.000000000 -0400
+@@ -69,6 +69,8 @@
+ \n  -xml                   export XML files either to the hierarchy rooted in\
+ \n                         the directory $COQ_XML_LIBRARY_ROOT (if set) or to\
+ \n                         stdout (if unset)\
++\n  -no-sharing            turn off sharing\
++\n  -indices-matter        levels of indices (and nonuniform parameters) contribute to the level of inductives (ALWAYS ON)\
+ \n  -quality               improve the legibility of the proof terms produced by\
+ \n                         some tactics\
+ \n  -h, --help             print this list of options\
