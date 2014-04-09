@@ -5,6 +5,11 @@
 # this file, for it is just a template, and you might accidentally check it in.
 # The first thing to change, when editing this file, is to remove this comment.
 
+# To remove the configurations, it is best to delete all the text in your copy
+# of this file, rather than removing the file, so the timestamp on the newly
+# empty file will trigger "make" to remake the files that depend on the
+# configuration.
+
 # The Boolean values are "yes" and "no".
 
 #############################################################################

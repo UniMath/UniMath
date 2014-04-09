@@ -1,6 +1,5 @@
 (* -*- coding: utf-8 -*- *)
 
-Unset Automatic Introduction.
 Require Import Foundations.hlevel2.algebra1a
         Ktheory.Utilities.
 Require Ktheory.Sets.
@@ -15,11 +14,11 @@ Definition funEquality G H (p q : Hom G H)
 Definition zero : setwithbinop.
   exists Sets.unit. exact (fun _ _ => tt). Defined.
 Module Product.
-  Lemma i1 {I} (X:I->setwithbinop) : isaset(sections X).
+  Lemma i1 {I} (X:I->setwithbinop) : isaset(Section X).
   Proof. intros. apply (impred 2); intros i. apply pr2. Qed.
   Definition make {I} (X:I->setwithbinop) : setwithbinop.
     intros.
-    exists (sections X,,i1 X). exact (fun v w i => v i * w i). Defined.
+    exists (Section X,,i1 X). exact (fun v w i => v i * w i). Defined.
   Definition Proj {I} (X:I->setwithbinop) : forall i:I, Hom (make X) (X i).
     intros. exists (fun y => y i). intros a b. reflexivity. Defined.
   Definition Fun {I} (X:I->setwithbinop) (T:setwithbinop)

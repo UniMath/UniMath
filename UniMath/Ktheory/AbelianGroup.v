@@ -2,7 +2,6 @@
 
 (** * abelian groups *)
 
-Unset Automatic Introduction.
 Require Import Foundations.hlevel2.algebra1b
                Foundations.hlevel2.hz
                RezkCompletion.auxiliary_lemmas_HoTT
@@ -423,9 +422,9 @@ Module Sum.                   (* coproducts *)
   Definition X {I} (G:I->abgr) := total2 G. (* the generators *)
   Inductive J {I} (G:I->abgr) : Type := (* index set for the relations *)
     | J_zero : I -> J G                 (* (i,0) ~ 0 *)
-    | J_sum : total2 (fun i => dirprod (G i) (G i)) -> J G. (* (i,g)+(i,h) ~ (i,g+h) *)
+    | J_sum : total2 (fun i => G i ** G i) -> J G. (* (i,g)+(i,h) ~ (i,g+h) *)
   (* We could replace this with:
-     Definition J {I} (G:I->abgr) := coprod I (total2 (fun i => dirprod (G i) (G i))).
+     Definition J {I} (G:I->abgr) := coprod I (total2 (fun i => G i ** G i)).
      *)
   Definition R {I} (G:I->abgr) : J G -> reln (X G).
     intros ? ? [i|[i [g h]]].
@@ -499,7 +498,7 @@ Module Category.
         apply funextsec. exact_op (Product.Eqn X T_ob T_el). }
       exists k'. intros k. apply Elements.mor_equality.
       exact (Product.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
-               (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
+               (fun i => (apevalat i (pr2 k)) @ ! (apevalat i (pr2 k')))). Defined.
   End Product.
 
   (** *** sums (coproducts) in the category of abelian groups *)
@@ -518,7 +517,7 @@ Module Category.
         apply funextsec. exact_op (Sum.Eqn X T_ob T_el). }
       exists k'. intros k. apply Elements.mor_equality.
       exact (Sum.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
-               (fun i => (apevalsecat i (pr2 k)) @ ! (apevalsecat i (pr2 k')))). Defined.
+               (fun i => (apevalat i (pr2 k)) @ ! (apevalat i (pr2 k')))). Defined.
   End Sum.
 
   (** *** finite direct sums in the category of abelian groups *)

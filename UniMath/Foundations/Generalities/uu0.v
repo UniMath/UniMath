@@ -367,7 +367,7 @@ destruct y0 as [x0 e0].    destruct t as [x1 e1].  destruct  e0.  destruct e1.  
 
 
 Definition weq ( X Y : UU )  : UU := total2 (fun f:X->Y => isweq f) .
-Definition pr1weq ( X Y : UU):= @pr1 _ _ : weq X Y -> (X -> Y).
+Definition pr1weq {X Y : UU} := @pr1 _ _ : weq X Y -> (X -> Y).
 Coercion pr1weq : weq >-> Funclass. 
 Definition weqpair { X Y : UU } (f:X-> Y) (is: isweq f) : weq X Y := tpair (fun f:X->Y => isweq f) f is. 
 Definition idweq (X:UU) : weq X X :=  tpair (fun f:X->X => isweq f) (fun x:X => x) ( idisweq X ) .
@@ -597,7 +597,7 @@ assert (einvff: forall x:X, paths (invf ( w x)) x). apply homotinvweqweq. apply 
 
 Definition invweq { X Y : UU } ( w : weq X Y ) : weq Y X := weqpair  (invmap w ) (isweqinvmap w ).
 
-Corollary invinv { X Y :UU } ( w : weq X Y ) ( x : X ) : paths  ( invweq ( invweq w ) x) (w x).
+Corollary invinv { X Y :UU } ( w : weq X Y ) ( x : X ) : paths  ( invmap ( invweq w ) x) (w x).
 Proof. intros. unfold invweq . unfold invmap . simpl . apply idpath . Defined .  
 
 
@@ -727,7 +727,7 @@ Proof. intros. set ( wf := weqpair f isf ) . set ( wg := weqpair _ isg ) .  set 
 assert (einvgfgf: forall z:Z, paths (gf (invgf z)) z).  unfold gf. unfold invgf. intro z. assert (int1: paths (g (f (invf (invg z)))) (g (invg z))). apply (maponpaths g (homotweqinvweq wf (invg z))).   assert (int2: paths (g (invg z)) z). apply (homotweqinvweq wg z). destruct int1. assumption. apply (gradth  gf invgf egfinvgf einvgfgf). Defined. 
 
 
-Definition weqcomp { X Y Z : UU } (w1 : weq X Y) (w2 : weq Y Z) : (weq X Z) :=  weqpair  (fun x:X => (pr1  w2 (pr1  w1 x))) (twooutof3c _ _ (pr2  w1) (pr2  w2)). 
+Definition weqcomp { X Y Z : UU } (w1 : weq X Y) (w2 : weq Y Z) : (weq X Z) :=  weqpair  (fun x:X => w2 (w1 x)) (twooutof3c _ _ (pr2  w1) (pr2  w2)). 
 
 
 
@@ -2015,7 +2015,7 @@ Coercion isinclweq : isweq >-> isincl .
 Lemma isofhlevelfsnincl (n:nat) { X Y : UU } (f:X -> Y)(is: isincl  f): isofhlevelf (S n)  f.
 Proof. intros. unfold isofhlevelf.  intro y . apply isofhlevelsnprop. apply (is y). Defined.  
 
-Definition weqtoincl ( X Y : UU ) : weq X Y -> incl X Y :=  fun w => inclpair ( pr1 w ) ( pr2 w ) .  
+Definition weqtoincl ( X Y : UU ) : weq X Y -> incl X Y :=  fun w => inclpair ( pr1weq w ) ( pr2 w ) .  
 Coercion weqtoincl : weq >-> incl . 
 
 Lemma isinclcomp { X Y Z : UU } ( f : incl X Y ) ( g : incl Y Z ) : isincl ( funcomp ( pr1 f ) ( pr1 g ) ) .
@@ -2188,7 +2188,7 @@ apply (isweqhomot _ _ h (twooutof3c _ _ is3 is4)).
 Defined.
 
 
-Definition weqoncompl { X Y : UU } (w: weq X Y) ( x : X ) : weq (compl X x) (compl Y (pr1  w x)):= weqpair  _ (isweqmaponcompl w x).
+Definition weqoncompl { X Y : UU } (w: weq X Y) ( x : X ) : weq (compl X x) (compl Y (w x)):= weqpair  _ (isweqmaponcompl w x).
 
 Definition homotweqoncomplcomp { X Y Z : UU } ( f : weq X Y ) ( g : weq Y Z ) ( x : X ) : homot ( weqcomp ( weqoncompl f x ) ( weqoncompl g ( f x ) ) ) ( weqoncompl  ( weqcomp f g ) x ) .
 Proof . intros . intro x' . destruct x' as [ x' nexx' ] . apply ( invmaponpathsincl _ ( isinclpr1compl Z _ ) _ _ ) . simpl .  apply idpath .    Defined . 
@@ -2999,7 +2999,7 @@ apply ( iscontrretract p s eps0). assumption. Defined.
 
 Theorem isweqtoforallpaths { T : UU } (P:T -> UU)( f g: forall t:T, P t) : isweq (toforallpaths P f g). 
 Proof. intros. set (tmap:= fun ff: total2 (fun f0: forall t:T, P t => paths f0 g) => tpair (fun f0:forall t:T, P t => forall t:T, paths (f0 t) (g t)) (pr1  ff) (toforallpaths P (pr1  ff) g (pr2  ff))). assert (is1: iscontr (total2 (fun f0: forall t:T, P t => paths f0 g))). apply (iscontrcoconustot _ g).   assert (is2:iscontr (total2 (fun f0:forall t:T, P t => forall t:T, paths (f0 t) (g t)))). apply funextweql1.  
-assert (X: isweq tmap).  apply (isweqcontrcontr  tmap is1 is2).  apply (isweqtotaltofib (fun f0: forall t:T, P t => paths f0 g) (fun f0:forall t:T, P t => forall t:T, paths (f0 t) (g t)) (fun f0:forall t:T, P t =>  (toforallpaths P f0 g)) X f).  Defined. 
+assert (X: isweq tmap).  apply (isweqcontrcontr  tmap is1 is2).  apply (isweqtotaltofib (fun f0: forall t:T, P t => paths f0 g) (fun f0:forall t:T, P t => forall t:T, paths (f0 t) (g t)) (fun f0:forall t:T, P t =>  (toforallpaths P f0 g)) X f).  Qed. 
 
 
 Theorem weqtoforallpaths { T : UU } (P:T -> UU)(f g : forall t:T, P t) : weq (paths f g) (forall t:T, paths (f t) (g t)) .
@@ -3194,12 +3194,12 @@ Proof. intros. unfold isweq.  intro y.
 assert (is1: iscontr (forall x:X, hfiber  (f x) (y x))). assert (is2: forall x:X, iscontr (hfiber  (f x) (y x))). intro x. apply ( ( pr2 ( f x ) )  (y x)). apply funcontr. assumption. 
 apply (iscontrweqb  (weqhfibertoforall P Q f y) is1 ). Defined. 
 
-Definition weqonseqfibers { X : UU } (P Q : X-> UU) (f: forall x:X, weq ( P x ) ( Q x )) := weqpair _ ( isweqmaponsec P Q f ) .
+Definition weqonsecfibers { X : UU } (P Q : X-> UU) (f: forall x:X, weq ( P x ) ( Q x )) := weqpair _ ( isweqmaponsec P Q f ) .
 
 
 (** *** Composition of functions with a weak equivalence on the right *)
 
-Definition  weqffun ( X : UU ) { Y Z : UU } ( w : weq Y Z ) : weq ( X -> Y ) ( X -> Z ) := weqonseqfibers _ _ ( fun x : X => w ) . 
+Definition  weqffun ( X : UU ) { Y Z : UU } ( w : weq Y Z ) : weq ( X -> Y ) ( X -> Z ) := weqonsecfibers _ _ ( fun x : X => w ) . 
 
 
 
@@ -3534,7 +3534,7 @@ Definition isapropisincl { X Y : UU } ( f : X -> Y ) := isapropisofhlevelf 1 f .
 (** ** Theorems saying that various [ pr1 ] maps are inclusions *)
 
 
-Theorem isinclpr1weq ( X Y : UU ) : isincl ( @pr1 _ ( fun f : X -> Y => isweq f ) ) .
+Theorem isinclpr1weq ( X Y : UU ) : isincl ( @pr1weq X Y ) .
 Proof. intros . apply isinclpr1 . intro f.   apply isapropisweq .  Defined . 
 
 Theorem isinclpr1isolated ( T : UU ) : isincl ( pr1isolated T ) .
@@ -3674,7 +3674,7 @@ Proof. intros .  unfold invcutonweq . simpl . unfold recompl . unfold coprodf . 
 Definition weqcutonweq ( T : UU ) ( t : T ) ( is : isisolated T t ) : weq ( weq T T ) ( dirprod ( isolated T ) ( weq ( compl T t ) ( compl T t ) ) ) .
 Proof . intros . set ( f := cutonweq t is  ) . set ( g := invcutonweq t is ) . split with f .
 
-assert ( egf : forall w : _ , paths ( g ( f w ) ) w ) . intro w . apply ( invmaponpathsincl _ ( isinclpr1weq _ _ ) _ _ ) . apply funextfun .  intro t' .  simpl .  unfold invmap .  simpl . unfold coprodf . unfold invrecompl . destruct ( is t' ) as [ ett' | nett' ] .   simpl . rewrite ( pathsinv0 ett' ) .  apply pathsfuntransposoft1 .   simpl . unfold funtranspos0 .  simpl .  destruct ( is ( w t ) ) as [ etwt | netwt ] .  destruct ( is ( w t' ) ) as [ etwt' | netwt' ] . destruct (negf (invmaponpathsincl w (isofhlevelfweq 1 w) t t') nett' (pathscomp0 (pathsinv0 etwt) etwt')) .  simpl . assert ( newtt'' := netwt' ) .  rewrite etwt in netwt' .  apply ( pathsfuntransposofnet1t2 t ( w t ) is _ ( w t' ) newtt'' netwt' ) .  simpl .   destruct ( is ( w t' ) ) as [ etwt' | netwt' ] . simpl . change ( w t' ) with ( pr1 w t' ) in etwt' . rewrite ( pathsinv0 etwt' ).  apply ( pathsfuntransposoft2 t ( w t ) is _ ) .  simpl . assert ( ne : neg ( paths ( w t ) ( w t' ) ) ) . apply ( negf ( invmaponpathsweq w _ _  ) nett' ) .  apply ( pathsfuntransposofnet1t2 t ( w t ) is _  ( w t' ) netwt' ne ) . 
+assert ( egf : forall w : _ , paths ( g ( f w ) ) w ) . intro w . apply ( invmaponpathsincl _ ( isinclpr1weq _ _ ) _ _ ) . apply funextfun .  intro t' .  simpl .  unfold invmap .  simpl . unfold coprodf . unfold invrecompl . destruct ( is t' ) as [ ett' | nett' ] .   simpl . rewrite ( pathsinv0 ett' ) .  apply pathsfuntransposoft1 .   simpl . unfold funtranspos0 .  simpl .  destruct ( is ( w t ) ) as [ etwt | netwt ] .  destruct ( is ( w t' ) ) as [ etwt' | netwt' ] . destruct (negf (invmaponpathsincl w (isofhlevelfweq 1 w) t t') nett' (pathscomp0 (pathsinv0 etwt) etwt')) .  simpl . assert ( newtt'' := netwt' ) .  rewrite etwt in netwt' .  apply ( pathsfuntransposofnet1t2 t ( w t ) is _ ( w t' ) newtt'' netwt' ) .  simpl .   destruct ( is ( w t' ) ) as [ etwt' | netwt' ] . simpl . rewrite ( pathsinv0 etwt' ).  apply ( pathsfuntransposoft2 t ( w t ) is _ ) .  simpl . assert ( ne : neg ( paths ( w t ) ( w t' ) ) ) . apply ( negf ( invmaponpathsweq w _ _  ) nett' ) .  apply ( pathsfuntransposofnet1t2 t ( w t ) is _  ( w t' ) netwt' ne ) . 
 
 assert ( efg : forall xw : _ , paths ( f ( g xw ) ) xw ) . intro . destruct xw as [ x w ] .  destruct x as [ t' is' ] .  simpl in w .  apply pathsdirprod .
 

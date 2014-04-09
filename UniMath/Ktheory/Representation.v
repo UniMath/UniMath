@@ -1,4 +1,3 @@
-Unset Automatic Introduction.
 Require Export Ktheory.Primitive Ktheory.Elements.
 Import Primitive.InitialObject.
 Definition Data {C} (X:C==>SET) := InitialObject (Elements.cat X).
