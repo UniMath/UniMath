@@ -1,4 +1,4 @@
-Univalent Mathematics coq files
+Univalent Mathematics Coq files
 ===============================
 
 Each subdirectory of this directory consists of a separate package, with
