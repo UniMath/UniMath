@@ -58,12 +58,12 @@ Implicit Arguments ii2 [ A B ] .
 
 One can not use a new record each time one needs it because the general theorems about this construction would not apply to new instances of "Record" due to the "generativity" of inductive definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
 
-Record total2 { T: Type } ( P: T -> Type ) := tpair : forall t : T , forall tp : P t , total2 P . 
+Set Primitive Projections.
 
-Definition pr1 { T: Type } { P : T -> Type } ( tp : total2 P ) : T := match tp with tpair _ t p => t end .
-Definition pr2 { T: Type } { P : T -> Type } ( tp : total2 P ) : P ( pr1 tp ) := match tp as a return P ( pr1 a ) with tpair _ t p => p end . 
-
-
+Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }.
+Arguments tpair {T} _ _ _.
+Arguments pr1 {_ _} _.
+Arguments pr2 {_ _} _.
 
 (*
 

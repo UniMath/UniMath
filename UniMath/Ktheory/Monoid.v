@@ -1,6 +1,5 @@
 (* -*- coding: utf-8 -*- *)
 
-Unset Automatic Introduction.
 Require Import Foundations.hlevel2.algebra1b
 	       RezkCompletion.auxiliary_lemmas_HoTT
                Ktheory.Utilities.

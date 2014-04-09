@@ -1,6 +1,5 @@
 (** * The induction principle for the half line. *)
 
-Unset Automatic Introduction.
 Require Import funextfun Utilities auxiliary_lemmas_HoTT.
 Require pathnotations precategories.
 Import pathnotations.PathNotations Utilities.Notation.

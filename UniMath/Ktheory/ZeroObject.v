@@ -1,15 +1,12 @@
 (* -*- coding: utf-8 -*- *)
 
-Unset Automatic Introduction.
 Require Import RezkCompletion.precategories Foundations.hlevel2.hSet Ktheory.Utilities.
 Require Ktheory.Precategories Ktheory.Primitive.
 Import Utilities.Notation Precategories.Notation
        pathnotations.PathNotations
        Primitive.TerminalObject Primitive.InitialObject.
-Definition ZeroObject (C:precategory) := total2 ( fun 
-             z : ob C => dirprod (
-                 isInitialObject C z) (
-                 isTerminalObject C z) ).
+Definition ZeroObject (C:precategory) := 
+  { z:ob C & isInitialObject C z ** isTerminalObject C z }.
 Definition zero_opp (C:precategory) : ZeroObject C -> ZeroObject C^op.
   intros C [z [i t]]. exact (z ,, (t ,, i)). Defined.
 Definition zero_opp' (C:precategory) : ZeroObject C^op -> ZeroObject C.

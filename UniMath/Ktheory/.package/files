@@ -25,4 +25,7 @@ StandardCategories.v
 ZeroObject.v
 Primitive.v
 Precategories.v
+Interval.v
 Utilities.v
+Tactics.v
+Integers.v
