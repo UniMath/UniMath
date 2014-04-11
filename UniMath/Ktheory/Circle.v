@@ -2,7 +2,7 @@
 
 (** We will show that [B ℤ] has the universal property of the circle. *)
 
-Require Import AffineLine algebra1b funextfun GroupAction hz Nat Integers.
+Require Import AffineLine algebra1b funextfun GroupAction hz Nat Integers Ktheory.Equivalences.
 Import pathnotations.PathNotations.
 Require Import Utilities.
 Import Utilities.Notation.

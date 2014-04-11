@@ -2,7 +2,7 @@
 
 (** * Group actions *)
 
-Require Import algebra1b funextfun Utilities auxiliary_lemmas_HoTT.
+Require Import algebra1b funextfun Utilities auxiliary_lemmas_HoTT Ktheory.Equivalences.
 Require pathnotations precategories.
 Import pathnotations.PathNotations Utilities.Notation.
 
