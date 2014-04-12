@@ -11,7 +11,7 @@
 Require Ktheory.Nat pathnotations.
 Require Export hSet.
 Import pathnotations.PathNotations.
-Require Import Utilities algebra1b funextfun GroupAction hz Integers Nat.
+Require Import Utilities algebra1b funextfun GroupAction hz Integers Nat Ktheory.Equivalences.
 Import Utilities.Notation Utilities.NatNotation.
 
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.

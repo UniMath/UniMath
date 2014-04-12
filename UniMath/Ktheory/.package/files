@@ -26,6 +26,7 @@ ZeroObject.v
 Primitive.v
 Precategories.v
 Interval.v
+Equivalences.v
 Utilities.v
 Tactics.v
 Integers.v
