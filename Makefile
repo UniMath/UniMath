@@ -1,7 +1,7 @@
 # -*- makefile-gmake -*-
-MAKEFILES += Makefile
+UMAKEFILES += Makefile
 ifeq ($(shell test -f build/Makefile-configuration && echo yes),yes)
-MAKEFILES += build/Makefile-configuration
+UMAKEFILES += build/Makefile-configuration
 include build/Makefile-configuration
 endif
 ############################################
@@ -37,7 +37,7 @@ lc:; wc -l $(VFILES)
 wc:; wc -w $(VFILES)
 describe:; git describe --dirty --long --always --abbrev=40 --all
 publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
-.coq_makefile_input: $(patsubst %, UniMath/%/.package/files, $(PACKAGES)) $(MAKEFILES)
+.coq_makefile_input: $(patsubst %, UniMath/%/.package/files, $(PACKAGES)) $(UMAKEFILES)
 	@ echo making $@ ; ( \
 	echo '# -*- makefile-gmake -*-' ;\
 	echo ;\
@@ -75,9 +75,8 @@ export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
 build-coq: sub/coq/configure sub/coq/config/coq_config.ml sub/coq/bin/coqc
 sub/coq/configure:
 	git submodule update --init sub/coq
-	mv sub/coq/Makefile sub/coq/Makefile-original
 sub/coq/config/coq_config.ml: sub/coq/configure.ml
 	cd sub/coq && ./configure -coqide no -opt -no-native-compiler -with-doc no -annotate -debug -local
 sub/coq/bin/coqc:
-	make -C sub/coq -f Makefile-original KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight
+	make -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight
 endif
