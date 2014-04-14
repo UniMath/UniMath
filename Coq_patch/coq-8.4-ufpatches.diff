@@ -7,13 +7,19 @@
 
    (Under Mac OS X, we recommend using homebrew from http://brew.sh to install
    ocaml, which is required to compile coq.  Homebrew and the packages it
-   installs for you can be placed in an arbitrary location, such as in
-   $HOME/homebrew, where its files will not conflict with your other installations
-   of "coq".  To use it from there, you may add $HOME/homebrew/bin to your
-   PATH environment variable.)
+   installs are normally placed in /usr/local, but they can be placed in an
+   arbitrary location, such as in $HOME/homebrew, where its files will not
+   conflict with your other installations of "coq".  To use it from there, you
+   may add $HOME/homebrew/bin to your PATH environment variable, by adding the
+   line
 
-   Example commands (replace $HOME/local below if you wish, and replace /tmp/ by
-   the path to this file):
+      export PATH=$HOME/homebrew/bin:$PATH
+
+   to your file $HOME/.profile .
+
+   The following commands will download, build, and install coq (replace
+   $HOME/local below by your desired install location, and replace /tmp/ by the
+   path to this file):
 
    	wget http://coq.inria.fr/distrib/8.4pl3/files/coq-8.4pl3.tar.gz
 	tar xzf coq-8.4pl3.tar.gz
@@ -39,17 +45,13 @@
    has no effect on the running of the program, as the corresponding part of the patch
    is unconditional.
 
-   Note: one place to get an updated version of Voevodsky's Foundations library usable
-   with the coq built by the instructions above is
+   Note: an updated version of Voevodsky's Foundations library usable with the
+   coq built by the instructions above is available from github.  The commands
+   to download it into a new directory called "Foundations" and to build it
+   are:
 
-   	http://github.com/DanGrayson/Foundations2
-
-   The appropriate branch to use is "for-coq-8.4".  The commands to get it and
-   build it are:
-
-   	git clone http://github.com/DanGrayson/Foundations2
-	cd Foundations2
-	git checkout for-coq-8.4
+   	git clone -b vv-master-for-coq8.4pl3patched git@github.com:UniMath/UniMath.git Foundations
+	cd Foundations
 	make
 	make install
 
