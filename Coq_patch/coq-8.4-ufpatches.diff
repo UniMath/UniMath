@@ -6,16 +6,16 @@
       http://coq.inria.fr/distrib/8.4pl3/files/coq-8.4pl3.tar.gz
 
    (Under Mac OS X, we recommend using homebrew from http://brew.sh to install
-   ocaml, which is required to compile coq.  Homebrew and the packages it
-   installs are normally placed in /usr/local, but they can be placed in an
-   arbitrary location, such as in $HOME/homebrew, where its files will not
-   conflict with your other installations of "coq".  To use it from there, you
-   may add $HOME/homebrew/bin to your PATH environment variable, by adding the
-   line
+   ocaml, which is required to compile coq.  Homebrew and the various packages
+   it can install for you are normally placed in /usr/local, but they can be
+   placed in an arbitrary alternative location, such as in $HOME/homebrew,
+   where its files will not conflict with your other installations of those
+   packages, if any.  To use it from there, you may add $HOME/homebrew/bin to
+   your PATH environment variable, by adding the line
 
       export PATH=$HOME/homebrew/bin:$PATH
 
-   to your file $HOME/.profile .
+   to your file $HOME/.profile ).
 
    The following commands will download, build, and install coq (replace
    $HOME/local below by your desired install location, and replace /tmp/ by the
