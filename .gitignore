@@ -9,3 +9,4 @@
 /html
 .*.aux
 /Make.makefile.bak
+.DS_store
