@@ -10,7 +10,7 @@ http://coq.inria.fr/distrib/8.4pl3/files/coq-8.4pl3.tar.gz
 
 2. To copy the file coq-8.4-ufpatches.diff from this directory to dircoqpatched. Then to cd to dircoqpatched and run the command 
 
-patch -p1 < /tmp/coq-8.4-ufpatches.diff
+patch -p1 < coq-8.4-ufpatches.diff
 
 4. To run the commands (from the same directory):
 
