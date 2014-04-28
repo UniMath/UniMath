@@ -42,27 +42,27 @@ with the date and time being the date when you ran make in dircoqpatched.
 
 *****
 
-The patch file in this directory was created by Dan Grayson by combining together several earlier patch files written by Dan Grayson and Hugo Herblin. The following description is from the earlier version where these patch files where separate: 
+The patch file in this directory was created by Dan Grayson by combining together several earlier patch files written by Dan Grayson and Hugo Herbelin. The following description is from the earlier version where these patch files where separate: 
 
 Hugo's patches "inductive-indice-levels-matter-8.3.patch" and "patch.type-in-type" are intended only as a temporary solution for the universe management issues in Coq which arise in connection with the univalent approach. 
 
-The first of these patches changes the way the universe level of inductive types is computed for those definitions which do not specify [ Set ] or [ Prop ] as the target of the inductive construction explicitely. The new computation rule for the universe level takes into account not only the u-levels of the types occuring in the constructors but also the u-levels of types occuring in "pseudo-parametrs" i.e. in the [ forall ] expressions in the type of the inductive definition. For example, in the definition:
+The first of these patches changes the way the universe level of inductive types is computed for those definitions which do not specify [ Set ] or [ Prop ] as the target of the inductive construction explicitly. The new computation rule for the universe level takes into account not only the universe levels of the types occurring in the constructors but also the universe levels of types occurring in "pseudo-parameters", i.e., in the [ forall ] expressions in the type of the inductive definition. For example, in the definition:
 
 [ Inductive Ind ( a1 : A1 ) : forall a2 : A2 , Type := ... ]
 
-The u-level of [ Ind ] will be the maximum of the u-level computed on the basis of types occuring in the constructors and the u-level of [ A2 ]. The u-level of [ A1 ] which the type of a parameter [ a1 ] ( as opposed to a pseudo-parameter [ a2 ] ) is not taken into account. 
+The universe level of [ Ind ] will be the maximum of the universe level computed on the basis of types occurring in the constructors and the universe level of [ A2 ]. The universe level of [ A1 ] which the type of a parameter [ a1 ] ( as opposed to a pseudo-parameter [ a2 ] ) is not taken into account. 
 
 The second patch switches off the universe consistency checking in Coq which is a temporary measure which allows us to formalize interesting constructions such as [ ishinh ] and [ setquot ] without having the resizing rules. 
 
 Dan's patches have the following functions (see also comments in the individual patches):
 
-1. "grayson-closedir-after-opendir.patch" imporoves the management of file openings/closing and eliminates in most cases the complaint that there arev too many open files (this has now been included in the standard Coq).
+1. "grayson-closedir-after-opendir.patch" improves the management of file openings/closing and eliminates in most cases the complaint that there are too many open files (this has now been included in the standard Coq).
 
-2. "grayson-fix-infinite-loop.patch" this is a temporary fix for a bug in the current version of Coq's "call by need" normnalization algorithm. The patch uses a flag previously installed in the source code to switch off some optimization features of the algorthim. The need for this patch has arised because of several cases when Coq process would hang after "Admitted". In practice the patch prevents hangings but makes compilation of some of the code slower. In particular, with this patch installed the current standard library file Cycllic31.v does not compile in a reasonable amount of time (see the suggestion of how to compile Coq without much of the standard library below). It also affect the time of compilation for some of the "computation tests" in the Foundations library increasing the compilation time by a factor of >5. Hopefully, the actuall bug will be located and removed in the next update. (This has not been fixed as of Apr. 2014 but the bahvior can now be controlled by the -no-sharing flag).  
+2. "fix-hanging-at-end-of-proof.patch" if I understand correctly, this is a temporary fix for a bug in the current version of Coq's "sharing" version of the normalization algorithm. The patch uses a flag previously installed in the source code to switch off some optimization features of the algorithm. The need for this patch arose because of several cases when Coq process would hang after "Admitted". In practice the patch prevents hangings but makes compilation of some of the code slower. In particular, with this patch installed the current standard library file Cycllic31.v does not compile in a reasonable amount of time (see the suggestion of how to compile Coq without much of the standard library below). It also affect the time of compilation for some of the "computation tests" in the Foundations library increasing the compilation time by a factor of >5. Hopefully, the actual bug will be located and removed in the next update. (This has not been fixed as of Apr. 2014 but the behavior can now be controlled by the -no-sharing flag).  
 
 3. "grayson-improved-abstraction-version2-8.3pl2.patch" this patch dramatically improves the behavior of the [destruct] tactic making it applicable in many the cases when dependencies are present. It is not creating any complicated proof terms but simply uses the eliminator for inductive definitions in a more intelligent way than the standard [ destruct ] (this has now been included in the standard Coq).
 
 
-4. "grayson-fix-infinite-loop.patch" fixes another hanging situation.   
+4. "grayson-fix-infinite-loop.patch" fixes another hanging situation by terminating a certain tactic involving nested quantified hypotheses after 10 attempts.
 
 *****
