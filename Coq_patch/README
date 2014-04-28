@@ -25,7 +25,7 @@ The binary files are now in dircoqpatched/bin/ .
 
 export PATH=dircoqpatched/bin:$PATH
 
-in the shell or by adding this command to the .profile file and (re-)starting the shell.
+in the shell or by adding this command to the .profile file and (re-)starting the shell.  Here it is important that dircoqpatched be the full path to the directory containing the sources.
 
 6. To test that things worked well one may type
 
@@ -42,11 +42,11 @@ with the date and time being the date when you ran make in dircoqpatched.
 
 *****
 
-The patch file in this directory was created by Dan Grayson by combining together several earlier patch files written by Dan Grayson and Hugo Herblin. The following description is from the earlier version where these patch files where separate: 
+The patch file in this directory was created by Dan Grayson by combining together several earlier patch files written by Dan Grayson and Hugo Herblin. The following description is from the earlier version where these patch files were separate: 
 
 Hugo's patches "inductive-indice-levels-matter-8.3.patch" and "patch.type-in-type" are intended only as a temporary solution for the universe management issues in Coq which arise in connection with the univalent approach. 
 
-The first of these patches changes the way the universe level of inductive types is computed for those definitions which do not specify [ Set ] or [ Prop ] as the target of the inductive construction explicitely. The new computation rule for the universe level takes into account not only the u-levels of the types occuring in the constructors but also the u-levels of types occuring in "pseudo-parametrs" i.e. in the [ forall ] expressions in the type of the inductive definition. For example, in the definition:
+The first of these patches changes the way the universe level of inductive types is computed for those definitions which do not specify [ Set ] or [ Prop ] as the target of the inductive construction explicitely. The new computation rule for the universe level takes into account not only the u-levels of the types occuring in the constructors but also the u-levels of types occuring in "pseudo-parameters" i.e. in the [ forall ] expressions in the type of the inductive definition. For example, in the definition:
 
 [ Inductive Ind ( a1 : A1 ) : forall a2 : A2 , Type := ... ]
 
@@ -61,7 +61,6 @@ Dan's patches have the following functions (see also comments in the individual 
 2. "grayson-fix-infinite-loop.patch" this is a temporary fix for a bug in the current version of Coq's "call by need" normnalization algorithm. The patch uses a flag previously installed in the source code to switch off some optimization features of the algorthim. The need for this patch has arised because of several cases when Coq process would hang after "Admitted". In practice the patch prevents hangings but makes compilation of some of the code slower. In particular, with this patch installed the current standard library file Cycllic31.v does not compile in a reasonable amount of time (see the suggestion of how to compile Coq without much of the standard library below). It also affect the time of compilation for some of the "computation tests" in the Foundations library increasing the compilation time by a factor of >5. Hopefully, the actuall bug will be located and removed in the next update. (This has not been fixed as of Apr. 2014 but the bahvior can now be controlled by the -no-sharing flag).  
 
 3. "grayson-improved-abstraction-version2-8.3pl2.patch" this patch dramatically improves the behavior of the [destruct] tactic making it applicable in many the cases when dependencies are present. It is not creating any complicated proof terms but simply uses the eliminator for inductive definitions in a more intelligent way than the standard [ destruct ] (this has now been included in the standard Coq).
-
 
 4. "grayson-fix-infinite-loop.patch" fixes another hanging situation.   
 
