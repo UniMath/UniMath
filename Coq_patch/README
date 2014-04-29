@@ -25,7 +25,7 @@ The binary files are now in dircoqpatched/bin/ .
 
 export PATH=dircoqpatched/bin:$PATH
 
-in the shell or by adding this command to the .profile file and (re-)starting the shell.
+in the shell or by adding this command to the .profile file and (re-)starting the shell.  Here it is important that dircoqpatched be the full path to the directory containing the sources.
 
 6. To test that things worked well one may type
 
@@ -61,7 +61,6 @@ Dan's patches have the following functions (see also comments in the individual 
 2. "fix-hanging-at-end-of-proof.patch" if I understand correctly, this is a temporary fix for a bug in the current version of Coq's "sharing" version of the normalization algorithm. The patch uses a flag previously installed in the source code to switch off some optimization features of the algorithm. The need for this patch arose because of several cases when Coq process would hang after "Admitted". In practice the patch prevents hangings but makes compilation of some of the code slower. In particular, with this patch installed the current standard library file Cycllic31.v does not compile in a reasonable amount of time (see the suggestion of how to compile Coq without much of the standard library below). It also affect the time of compilation for some of the "computation tests" in the Foundations library increasing the compilation time by a factor of >5. Hopefully, the actual bug will be located and removed in the next update. (This has not been fixed as of Apr. 2014 but the behavior can now be controlled by the -no-sharing flag).  
 
 3. "grayson-improved-abstraction-version2-8.3pl2.patch" this patch dramatically improves the behavior of the [destruct] tactic making it applicable in many the cases when dependencies are present. It is not creating any complicated proof terms but simply uses the eliminator for inductive definitions in a more intelligent way than the standard [ destruct ] (this has now been included in the standard Coq).
-
 
 4. "grayson-fix-infinite-loop.patch" fixes another hanging situation by terminating a certain tactic involving nested quantified hypotheses after 10 attempts.
 
