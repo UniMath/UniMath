@@ -34,6 +34,7 @@ COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|
 TAGS : $(VFILES); etags $(COQDEFS) $^
 install:all
 lc:; wc -l $(VFILES)
+lcp:; for i in $(PACKAGES) ; do echo ; echo ==== $$i ==== ; for f in $(VFILES) ; do echo "$$f" ; done | grep "UniMath/$$i" | xargs wc -l ; done
 wc:; wc -w $(VFILES)
 describe:; git describe --dirty --long --always --abbrev=40 --all
 publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
