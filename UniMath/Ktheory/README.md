@@ -15,6 +15,10 @@ That is the approach of Mac Lane in sections 18, 19, and 21 of
 [Duality for groups](http://projecteuclid.org/DPubS/Repository/1.0/Disseminate?view=body&id=pdf_1&handle=euclid.bams/1183515045),
 Bull. Amer. Math. Soc., Volume 56, Number 6 (1950), 485-516.
 
+For the definition of the notion of exact category, the following reference
+might be useful: 
+      Bühler, Theo, Exact categories, Expo. Math. 28 (2010), no. 1, 1–69.
+
 Acknowledgments
 ===============
 
