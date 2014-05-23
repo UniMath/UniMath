@@ -169,19 +169,19 @@ Proof. intros. induction n as [ | n IHn ] .
 
 refine ( tpair _ _ _ ) .  { exact g . } { exact h . }
 
-destruct IHn as [ fto hn ] . refine ( tpair _ _ _ ) . 
+refine ( tpair _ _ _ ) . 
 
-{ exact ( hfpfunct ( f' n ) ( pretowerpn pT' n ) ( pretowerpn pT n ) ( f' ( S n ) ) ( pretowerpbpr pT' g' n ) ( pretowerpbpr pT f n ) fto ( prehn f' n ) hn ) . } 
+{ exact ( hfpfunct ( f' n ) ( pretowerpn pT' n ) ( pretowerpn pT n ) ( f' ( S n ) ) ( pretowerpbpr pT' g' n ) ( pretowerpbpr pT f n ) ( pr1 IHn ) ( prehn f' n ) ( pr2 IHn ) ) . } 
 
 { exact ( fun z => idpath _ ) . } Defined. 
 
 
  
 Definition pretowerpbfunct { pT' pT : pretower } { X X' : Type } ( g' : X' -> pT' 0 ) ( f' : pretowerfun pT' pT ) ( g : X' -> X ) ( f : X -> pT 0 ) ( h : commsqstr g f g' ( f' 0 ) ) : pretowerfun ( pretowerpb pT' g' ) ( pretowerpb pT f ) . 
-Proof. intros . split with ( fun n => pr1 ( pretowerfunct_a g' f' g f h n ) ) . intro n . intro xze . destruct xze as [ [ x z ] e ] . apply idpath . exact ( hfpfunct_h_back  ( f' n ) ( pretowerpn pT' n ) ( pretowerpn pT n ) ( f' ( S n ) ) ( pretowerpbpr pT' g' n ) ( pretowerpbpr pT f n ) ( pr1 ( pretowerfunct_a g' f' g f h n ) ) ( prehn f' n ) ( pr2 ( pretowerfunct_a g' f' g f h n ) ) n ) . 
+Proof. intros . split with ( fun n => pr1 ( pretowerfunct_a g' f' g f h n ) ) . intro n . intro xze . apply idpath . Defined. 
 
 
-
+Definition doublepretowerpb_to ( pT : pretower ) { X X' : Type } ( g : X' -> X ) ( f : X -> pT 0 ) : pretowerfun ( pretowerpb ( pretowerpb pT f ) g ) ( pretowerpb pT ( funcomp g f ) ) . ??? 
 
 
 
@@ -191,12 +191,12 @@ Proof. intros .  induction n as [ | n IHn ] .
 
 { split with ( fun x => x ) . intro . apply idpath . }
 
-{ set ( fn := pretowerpbpr pT f n ) . set ( gn := pretowerpbpr ( pretowerpb pT f ) g n ) . set ( pn := pretowerpn pT n ) . destruct IHn as [ fto en ] . refine ( tpair _ _ _ ) .  
+{ set ( fn := pretowerpbpr pT f n ) . set ( gn := pretowerpbpr ( pretowerpb pT f ) g n ) . set ( pn := pretowerpn pT n ) . refine ( tpair _ _ _ ) .  
 
-  { intro xze .  set ( xze' := hfplhomot en ( pretowerpn pT n ) xze : hfp ( funcomp ( funcomp fto gn ) fn ) pn  ) .  unfold  pretowerpb . unfold pretowerpb .  simpl . change ( hfp gn ( hfpprl fn pn ) ) . apply doublehfp_to . 
- apply ( hfppru fto ( hfpprl ( funcomp gn fn ) pn ) ) .  apply doublehfp_to . apply xze' . }
+  { intro xze .  set ( xze' := hfplhomot ( pr2 IHn )  ( pretowerpn pT n ) xze : hfp ( funcomp ( funcomp ( pr1 IHn ) gn ) fn ) pn  ) .  unfold  pretowerpb . unfold pretowerpb .  simpl . change ( hfp gn ( hfpprl fn pn ) ) . apply doublehfp_to . 
+ apply ( hfppru ( pr1 IHn ) ( hfpprl ( funcomp gn fn ) pn ) ) .  apply doublehfp_to . apply xze' . }
 
-  { intro xze .  destruct xze as [ [ x z ] e ] . apply idpath . }} 
+  { intro xze . destruct xze as [ [ x z ] e ] . apply idpath . }} 
 
 Defined . 
 
@@ -204,9 +204,9 @@ Defined .
 Definition doublepretowerpb_from ( pT : pretower ) { X X' : Type } ( g : X' -> X ) ( f : X -> pT 0 ) : pretowerfun ( pretowerpb pT ( funcomp g f ) ) ( pretowerpb ( pretowerpb pT f ) g ) . 
 Proof. intros . refine ( pretowerfunconstr _ _ _ _ ) . 
 
-{ intro n .  exact ( pr1 ( pretowerpb_trans_a pT g f n ) ) . } 
+{ intro n .  exact ( pr1 ( doublepretowerpb_from_a pT g f n ) ) . } 
 
-{ intro n .  intro xze . destruct xze as [ [ x z ] e ] . simpl .  destruct ( pretowerpb_trans_a pT g f n ) . apply idpath . } 
+{ intro n .  intro xze . destruct xze as [ [ x z ] e ] . simpl .  apply idpath . } 
 
 Defined. 
 
