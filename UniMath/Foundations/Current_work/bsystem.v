@@ -19,7 +19,9 @@ Definition tohfiber { X Y : UU } ( f : X -> Y ) ( x : X ) : hfiber f ( f x ) := 
 
 (** To hfp *)
 
-Definition hfptriple { X X' Y:UU} (f:X -> Y) (f':X' -> Y) ( x : X ) ( x' : X' ) ( h : paths ( f' x' ) ( f x ) ) : hfp f f' := tpair ( fun xx' : dirprod X X'  => paths ( f' ( pr2 xx' ) ) ( f ( pr1 xx' ) ) )  ( dirprodpair x x' ) h . 
+Definition hfptriple { X X' Y:UU} (f:X -> Y) (f':X' -> Y) ( x : X ) ( x' : X' ) ( h : paths ( f' x' ) ( f x ) ) : hfp f f' := tpair ( fun xx' : dirprod X X'  => paths ( f' ( pr2 xx' ) ) ( f ( pr1 xx' ) ) )  ( dirprodpair x x' ) h .
+
+Definition tohfpfiber { X Y : UU } ( f : X -> Y ) ( x : X ) : hfp ( fromunit ( f x ) ) f := hfptriple ( fromunit ( f x ) )  f tt x ( idpath ( f x ) ) .  
 
 (** Functoriality of hfp. *)
 
@@ -98,6 +100,14 @@ Proof. intros . split with ( g' ( pr1 ze ) ) .    apply ( pathscomp0  ( h ( pr1 
 Definition hfibersg'tof  { X X' Y Z : UU } ( f : X -> Y ) ( f' : X' -> Y ) ( g : Z -> X ) ( g' : Z -> X' ) ( h : commsqstr g' f' g f ) ( x' : X' ) ( ze : hfiber g' x' ) : hfiber f ( f' x' )  .
 Proof. intros . split with ( g ( pr1 ze ) ) .    apply ( pathscomp0 ( pathsinv0 ( h ( pr1 ze ) ) ) ( maponpaths f' ( pr2 ze ) ) ) . Defined . 
 
+(** To uu0.v *)
+
+Definition pathstofun { X Y : UU } ( e : paths X Y ) : X -> Y .
+Proof. intros X Y e x. destruct e . apply x .  Defined.  
+
+Notation app1 := toforallpaths. 
+
+Implicit Arguments app1 [ T P f g ] . 
 
 
 
@@ -112,7 +122,9 @@ In its coinductive version a tower is essentially a rooted tree of infinite (cou
 
 (** *** Pre-towers of types - the sequence of functions definition. *)
 
-Definition pretower := total2 ( fun T : nat -> Type => forall n : nat , T ( S n ) -> T n ) . 
+Definition pretowerP := ( fun T : nat -> Type => forall n : nat , T ( S n ) -> T n ) .
+
+Definition pretower := total2 pretowerP . 
 
 Definition pretowerpair ( T : nat -> Type ) ( p : forall n : nat , T ( S n ) -> T n ) : pretower := tpair ( fun T : nat -> Type => forall n : nat , T ( S n ) -> T n ) T p . 
 
@@ -121,6 +133,40 @@ Definition preTn ( pT : pretower ) ( n : nat ) : Type := pr1 pT n .
 Coercion preTn : pretower >-> Funclass .  
 
 Definition pretowerpn ( pT : pretower ) ( n : nat ) : pT ( S n ) -> pT n := pr2 pT n . 
+
+
+
+
+
+
+
+
+(** Equalities of pre-towers *)
+
+
+Definition ptintpaths ( pT pT' : pretower ) : UU := total2 ( fun e : forall n : nat , paths ( pT n ) ( pT' n ) => forall n : nat , paths ( funcomp ( pathstofun ( pathsinv0 ( e ( S n ) ) ) ) ( funcomp ( pretowerpn pT n ) ( pathstofun ( e n ) ) ) ) ( pretowerpn pT' n ) ) . 
+
+Definition ptintpathstopaths_a ( pT : pretower ) ( ppT' : nat -> UU ) ( e : paths ( pr1 pT ) ppT' ) : paths ( transportf pretowerP e ( pr2 pT ) ) ( fun n : nat => ( funcomp ( pathstofun ( pathsinv0 ( app1 e ( S n ) ) ) ) ( funcomp ( pretowerpn pT n ) ( pathstofun ( app1 e n ) ) ) ) .  
+
+
+
+
+
+
+
+
+
+fun x' : ppT' ( S n ) => pathstofun ( app1 e n ) ( pretowerpn pT n ( pathstofun ( app1 ( pathsinv0 e ) ( S n ) ) x' ) ) ) . 
+Proof. intros. destruct e . apply idpath . Defined. 
+
+
+Definition pretowertransport ( pT : pretower ) ( ppT' : nat -> UU ) ( e : paths ( pr1 pT ) ppT' ) : paths ( transportf pretowerP e ( pr2 pT ) ) ( fun n : nat => fun x' : ppT' ( S n ) => pathstofun ( app1 e n ) ( pretowerpn pT n ( pathstofun ( app1 ( pathsinv0 e ) ( S n ) ) x' ) ) ) . 
+Proof. intros. destruct e . apply idpath . Defined. 
+
+
+
+
+
 
 
 (** Pre-tower functions. *)
@@ -142,11 +188,32 @@ Definition pretoweridfun ( T : pretower ) : pretowerfun T T := pretowerfunconstr
 Definition pretowerfuncomp { T T' T'' : pretower } ( f : pretowerfun T T' ) ( g : pretowerfun T' T'' ) : pretowerfun T T'' := pretowerfunconstr T T'' ( fun n => funcomp ( f n ) ( g n ) ) ( fun n => fun z => pathscomp0 ( prehn g n ( f ( S n ) z ) ) ( maponpaths ( g n ) ( prehn f n z ) ) ) . 
 
 
+
+
+
+
+
+
+
 (** Pre-tower shifts *)
 
 Definition pretoweroneshift ( pT : pretower )  : pretower := pretowerpair ( fun n => pT ( S n ) ) ( fun n => pretowerpn pT ( S n ) ) .   
 
 Definition pretowerfunoneshift { pT pT' : pretower } ( f : pretowerfun pT pT' ) : pretowerfun ( pretoweroneshift pT ) ( pretoweroneshift pT' ) := pretowerfunconstr   ( pretoweroneshift pT ) ( pretoweroneshift pT' ) ( fun n => f ( S n ) ) ( fun n => prehn f ( S n ) ) . 
+
+
+Definition prenshift ( n : nat ) ( pT : pretower ) : pretower .
+Proof. intros . induction n as [| n IHn] . exact pT . exact ( pretoweroneshift IHn ). Defined. 
+
+
+
+
+
+
+
+
+
+
 
 (** Pre-tower pull-backs *) 
 
@@ -169,46 +236,117 @@ Proof. intros. induction n as [ | n IHn ] .
 
 refine ( tpair _ _ _ ) .  { exact g . } { exact h . }
 
-destruct IHn as [ fto hn ] . refine ( tpair _ _ _ ) . 
+refine ( tpair _ _ _ ) . 
 
-{ exact ( hfpfunct ( f' n ) ( pretowerpn pT' n ) ( pretowerpn pT n ) ( f' ( S n ) ) ( pretowerpbpr pT' g' n ) ( pretowerpbpr pT f n ) fto ( prehn f' n ) hn ) . } 
+{ exact ( hfpfunct ( f' n ) ( pretowerpn pT' n ) ( pretowerpn pT n ) ( f' ( S n ) ) ( pretowerpbpr pT' g' n ) ( pretowerpbpr pT f n ) ( pr1 IHn ) ( prehn f' n ) ( pr2 IHn ) ) . } 
 
 { exact ( fun z => idpath _ ) . } Defined. 
 
 
- 
-Definition pretowerpbfunct { pT' pT : pretower } { X X' : Type } ( g' : X' -> pT' 0 ) ( f' : pretowerfun pT' pT ) ( g : X' -> X ) ( f : X -> pT 0 ) ( h : commsqstr g f g' ( f' 0 ) ) : pretowerfun ( pretowerpb pT' g' ) ( pretowerpb pT f ) . 
-Proof. intros . split with ( fun n => pr1 ( pretowerfunct_a g' f' g f h n ) ) . intro n . intro xze . destruct xze as [ [ x z ] e ] . apply idpath . exact ( hfpfunct_h_back  ( f' n ) ( pretowerpn pT' n ) ( pretowerpn pT n ) ( f' ( S n ) ) ( pretowerpbpr pT' g' n ) ( pretowerpbpr pT f n ) ( pr1 ( pretowerfunct_a g' f' g f h n ) ) ( prehn f' n ) ( pr2 ( pretowerfunct_a g' f' g f h n ) ) n ) . 
+Definition pretowerpbfunct { pT' pT : pretower } { X' X : Type } ( g' : X' -> pT' 0 ) ( f' : pretowerfun pT' pT ) ( g : X' -> X ) ( f : X -> pT 0 ) ( h : commsqstr g f g' ( f' 0 ) ) : pretowerfun ( pretowerpb pT' g' ) ( pretowerpb pT f ) . 
+Proof. intros . split with ( fun n => pr1 ( pretowerfunct_a g' f' g f h n ) ) . intro n . intro xze . apply idpath . Defined. 
 
 
+Definition doublepretowerpb_from ( pT : pretower ) { X X' : Type } ( g : X' -> X ) ( f : X -> pT 0 ) : pretowerfun ( pretowerpb ( pretowerpb pT f ) g ) ( pretowerpb pT ( funcomp g f ) ) := @pretowerpbfunct ( pretowerpb pT f ) pT X' X' g ( pretowerpbpr pT f ) ( idfun X' ) ( funcomp g f ) ( fun x' : X' => idpath ( f ( g x' ) ) ) .  
 
 
-
-
-
-Definition doublepretowerpb_from_a ( pT : pretower ) { X X' : Type } ( g : X' -> X ) ( f : X -> pT 0 ) ( n : nat ) : total2 ( fun fto : pretowerpb pT ( funcomp g f ) n -> pretowerpb ( pretowerpb pT f ) g n => homot ( pretowerpbpr pT ( funcomp g f ) n ) ( funcomp ( funcomp fto ( pretowerpbpr ( pretowerpb pT f ) g n ) ) ( pretowerpbpr pT f n ) ) ) .
+Definition doublepretowerpb_to_a ( pT : pretower ) { X X' : Type } ( g : X' -> X ) ( f : X -> pT 0 ) ( n : nat ) : total2 ( fun fto : pretowerpb pT ( funcomp g f ) n -> pretowerpb ( pretowerpb pT f ) g n => homot ( pretowerpbpr pT ( funcomp g f ) n ) ( funcomp ( funcomp fto ( pretowerpbpr ( pretowerpb pT f ) g n ) ) ( pretowerpbpr pT f n ) ) ) .
 Proof. intros .  induction n as [ | n IHn ] .
 
 { split with ( fun x => x ) . intro . apply idpath . }
 
-{ set ( fn := pretowerpbpr pT f n ) . set ( gn := pretowerpbpr ( pretowerpb pT f ) g n ) . set ( pn := pretowerpn pT n ) . destruct IHn as [ fto en ] . refine ( tpair _ _ _ ) .  
+{ set ( fn := pretowerpbpr pT f n ) . set ( gn := pretowerpbpr ( pretowerpb pT f ) g n ) . set ( pn := pretowerpn pT n ) . refine ( tpair _ _ _ ) .  
 
-  { intro xze .  set ( xze' := hfplhomot en ( pretowerpn pT n ) xze : hfp ( funcomp ( funcomp fto gn ) fn ) pn  ) .  unfold  pretowerpb . unfold pretowerpb .  simpl . change ( hfp gn ( hfpprl fn pn ) ) . apply doublehfp_to . 
- apply ( hfppru fto ( hfpprl ( funcomp gn fn ) pn ) ) .  apply doublehfp_to . apply xze' . }
+  { intro xze .  set ( xze' := hfplhomot ( pr2 IHn )  ( pretowerpn pT n ) xze : hfp ( funcomp ( funcomp ( pr1 IHn ) gn ) fn ) pn  ) .  unfold  pretowerpb . unfold pretowerpb .  simpl . change ( hfp gn ( hfpprl fn pn ) ) . apply doublehfp_to . 
+ apply ( hfppru ( pr1 IHn ) ( hfpprl ( funcomp gn fn ) pn ) ) .  apply doublehfp_to . apply xze' . }
 
-  { intro xze .  destruct xze as [ [ x z ] e ] . apply idpath . }} 
+  { intro xze . destruct xze as [ [ x z ] e ] . apply idpath . }} 
 
 Defined . 
 
 
-Definition doublepretowerpb_from ( pT : pretower ) { X X' : Type } ( g : X' -> X ) ( f : X -> pT 0 ) : pretowerfun ( pretowerpb pT ( funcomp g f ) ) ( pretowerpb ( pretowerpb pT f ) g ) . 
+Definition doublepretowerpb_to ( pT : pretower ) { X X' : Type } ( g : X' -> X ) ( f : X -> pT 0 ) : pretowerfun ( pretowerpb pT ( funcomp g f ) ) ( pretowerpb ( pretowerpb pT f ) g ) . 
 Proof. intros . refine ( pretowerfunconstr _ _ _ _ ) . 
 
-{ intro n .  exact ( pr1 ( pretowerpb_trans_a pT g f n ) ) . } 
+{ intro n .  exact ( pr1 ( doublepretowerpb_to_a pT g f n ) ) . } 
 
-{ intro n .  intro xze . destruct xze as [ [ x z ] e ] . simpl .  destruct ( pretowerpb_trans_a pT g f n ) . apply idpath . } 
+{ intro n .  intro xze . destruct xze as [ [ x z ] e ] . simpl .  apply idpath . } 
 
 Defined. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(** Pre-tower pull-backs and pre-tower shift *)
+
+
+(* Strict (substitutional) equality would simplify the proof of the following goal considerably since the equality which we are trying to prove is a strict one and after showing that the first components of the dependent pairs are equal it would be easy to show that the second components are equal as well. *)
+
+
+Definition pretowerbponeshift_aa { X X' Y Z : UU } ( f : X -> Y ) ( f' : X' -> Y ) ( g : Z -> Y ) ( e : paths X' X ) ( h : paths f' ( funcomp ( pathstofun e ) f ) ) : total2 ( fun esn : paths ( hfp f' g ) ( hfp f g ) => dirprod ( paths ( hfppru f' g ) ( funcomp ( pathstofun esn ) ( hfppru f g ) ) ) ( paths ( funcomp ( pathstofun ( pathsinv0 esn ) ) ( funcomp ( hfpprl f' g ) ( pathstofun e ) ) ) ( hfpprl f g ) ) )  . 
+Proof. intros . destruct e . simpl . change ( paths f' f ) in h . destruct h . split with ( idpath _ ) .  split with ( idpath _ ) . apply idpath . Defined. 
+
+
+Definition pretowerbponeshift_a ( pT : pretower ) { X : UU } ( f : X -> pT 0 ) ( n : nat ) : total2 ( fun en : paths ( pr1 ( pretowerpb_a ( pretoweroneshift pT ) ( hfppru f ( pretowerpn pT 0 ) ) n ) ) ( pr1 ( pretowerpb_a pT f ( S n ) ) ) => paths ( pr2 ( pretowerpb_a ( pretoweroneshift pT ) ( hfppru f ( pretowerpn pT 0 ) ) n ) ) ( funcomp ( pathstofun en )  ( pr2 ( pretowerpb_a pT f ( S n ) ) ) ) ) . 
+Proof. intros . induction n as [| n IHn]. 
+
+split with ( idpath _ ) . apply idpath . 
+
+simpl . split with (pr1 ( pretowerbponeshift_aa ( pr2 ( pretowerpb_a pT f ( S n ) ) ) ( pr2 ( pretowerpb_a ( pretoweroneshift pT ) ( hfppru f ( pretowerpn pT 0 ) ) n ) ) ( pretowerpn pT ( S n ) ) ( pr1 IHn ) ( pr2 IHn ) ) ) . 
+
+apply (pr1 (pr2 ( pretowerbponeshift_aa ( pr2 ( pretowerpb_a pT f ( S n ) ) ) ( pr2 ( pretowerpb_a ( pretoweroneshift pT ) ( hfppru f ( pretowerpn pT 0 ) ) n ) ) ( pretowerpn pT ( S n ) ) ( pr1 IHn ) ( pr2 IHn ) ) ) ). 
+
+Defined. 
+
+
+
+Definition pretowerbponeshift_a ( pT : pretower ) { X : UU } ( f : X -> pT 0 ) : paths ( fun n : nat => ( pretowerpb_a pT f ( S n ) ) ) ( pretowerpb_a ( pretoweroneshift pT ) ( hfppru f ( pretowerpn pT 0 ) ) ) .  
+Proof. intros . apply funextsec .  intro n . simpl .  induction n as [ | n IHn ] .  apply idpath .  
+
+set ( hfpff := ( fun n : nat => ( fun Zf : total2 ( fun Z : UU => ( Z -> pT n ) ) => tpair _ ( hfp ( pr2 Zf ) ( pretowerpn pT n ) ) ( hfppru ( pr2 Zf ) ( pretowerpn pT n ) ) ) ) : forall n : nat , ( total2 ( fun Z : UU => ( Z -> pT n ) ) -> total2 ( fun Z : UU => ( Z -> pT ( S n ) ) ) ) ) . 
+ 
+exact ( maponpaths ( hfpff ( S n ) ) IHn ) .
+
+Defined. 
+
+
+
+Definition pretowerbponeshift ( pT : pretower ) { X : UU } ( f : X -> pT 0 ) : paths ( pretoweroneshift ( pretowerpb pT f ) ) ( pretowerpb ( pretoweroneshift pT ) ( hfppru f ( pretowerpn pT 0 ) ) ) .  
+Proof. intros . unfold pretoweroneshift . unfold pretowerpb. simpl . 
+
+assert (int : paths (fun n : nat => hfp (pr2 (pretowerpb_a pT f n)) (pretowerpn pT n)) (fun n : nat =>
+         pr1
+           (pretowerpb_a
+              (pretowerpair (fun n0 : nat => pT (S n0))
+                 (fun n0 : nat => pretowerpn pT (S n0)))
+              (hfppru f (pretowerpn pT 0)) n)) ) . apply funextfun .  intro n .  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 (** Pre-tower fibers *)
@@ -220,55 +358,20 @@ Definition pretfib { pT : pretower } ( t : pT 0 ) : pretower := pretoweroneshift
 Definition pretfibj { pT : pretower } ( t : pT 0 ) : pretowerfun ( pretfib t ) ( pretoweroneshift pT ) := pretowerfunoneshift ( pretowerpbpr pT ( fromunit t ) ) . 
 
 
-(* To be removed:
-
-Definition pretfib_Tn_jn ( pT : pretower ) ( t : pT 0 ) ( n : nat ) : total2 ( fun pretfibn : Type => pretfibn -> pT ( S n ) ) .
-Proof . intros . induction n .  
-
-split with (hfiber ( pretowerpn pT O ) t ) .  exact pr1 . 
-
-split with ( hfp ( pr2 IHn ) ( pretowerpn pT ( S n ) ) ) . exact ( hfppru ( pr2 IHn ) ( pretowerpn pT ( S n ) ) ) . Defined. 
-
-Definition pretfib_Tn ( pT : pretower ) ( t : pT 0 ) ( n : nat ) : Type := pr1 ( pretfib_Tn_jn pT t n ) . 
-
-Definition pretfib_jn ( pT : pretower ) ( t : pT 0 ) ( n : nat ) : pretfib_Tn pT t n -> pT ( S n ) := pr2 (  pretfib_Tn_jn pT t n ) . 
-
-Definition pretfib_pn ( pT : pretower ) ( t : pT 0 ) ( n : nat ) : pretfib_Tn pT t ( S n ) -> pretfib_Tn pT t n .
-Proof. intros pT t n .  exact ( hfpprl ( pr2 ( pretfib_Tn_jn pT t n ) ) ( pretowerpn pT ( S n ) ) ) . Defined. 
-
-Definition pretfib { pT : pretower } ( t : pT 0 ) : pretower := pretowerpair ( pretfib_Tn pT t ) ( pretfib_pn pT t ) . 
-
-Lemma pr0pretfib ( pT : pretower ) ( t : pT 0 ) : paths ( pretfib t  0 ) ( hfiber ( pretowerpn pT O ) t ) . 
-Proof. intros. apply idpath .  Defined. 
-
-Definition pretowerfuntfib_a { pT pT' : pretower } ( f : pretowerfun pT pT' ) ( t : pT 0 ) ( n : nat ) : total2 ( fun funtfibn : ( pretfib t n ) -> ( pretfib ( f 0 t ) n ) => commsqstr ( f ( S n ) ) ( pretfibj ( f 0 t ) n ) ( pretfibj t n ) funtfibn ) .
-Proof. intros pT pT' f t n . induction n as [ | n IHn ] .  
-
-split with ( hfibersgtof' ( f 0 ) ( pretowerpn pT' 0 ) ( pretowerpn pT 0 ) ( f 1 ) ( prehn f 0 ) t ) . intro . About commsqstr .  apply idpath . ???
+Definition pretfibfunct { pT pT' : pretower } ( f : pretowerfun pT pT' ) ( t : pT 0 ) : pretowerfun ( pretfib t ) ( pretfib ( f 0 t ) ) .
+Proof. intros.  apply pretowerfunoneshift.  exact ( pretowerpbfunct ( fromunit t ) f ( idfun unit ) ( fromunit ( f 0 t ) ) ( fun _ : _ => idpath _ ) ) .  Defined. 
 
 
-split with ( hfpfunct ( f ( S n ) ) ( pretowerpn pT ( S n ) ) ( pretowerpn pT' ( S n ) ) ( f ( S ( S n ) ) )  ( pretfibj pT t n ) ( pretfibj pT' ( f 0 t ) n ) ( pr1 IHn ) ( prehn f ( S n ) ) ( pr2 IHn ) ) .  intro. apply idpath .  Defined. 
-
-*)
-
-Definition pretowerfuntfib { pT pT' : pretower } ( f : pretowerfun pT pT' ) ( t : pT 0 ) : pretowerfun ( pretfib t ) ( pretfib ( f 0 t ) ) .
-Proof. intros.  apply pretowerfunoneshift.  apply ( pretowerpb_trans pT ( fromunit t ) ???? . 
+Definition pretfibtopretoweroneshift ( pT : pretower ) ( t0 : pT 0 ) : pretowerfun ( pretfib t0 ) ( pretoweroneshift pT ) := pretowerfunoneshift ( pretowerpbpr pT ( fromunit t0 ) ) . 
 
 
-Definition pretfibtopretoweroneshift ( pT : pretower ) ( t0 : pT 0 ) : pretowerfun ( pretfib t0 ) ( pretoweroneshift pT ) := pretowerfunconstr ( pretfib t0 ) ( pretoweroneshift pT ) ( pretfibj pT t0 ) ( fun n => fun z => ( pr2 z ) ) .  
+Definition pretfibofpretoweroneshift ( pT : pretower ) ( t1 : pT 1 ) : pretowerfun ( @pretfib ( pretoweroneshift pT ) t1 ) ( @pretfib ( @pretfib pT ( pretowerpn pT 0 t1 ) ) ( tohfpfiber ( pretowerpn pT 0 ) t1 ) ) .
+Proof.   intros . ( refine ( tpair _ _ _ ) ) . 
 
-Definition pretfibofpretoweroneshift_a ( pT : pretower ) ( t1 : pT 1 ) ( n : nat ) ( t : @pretfib ( pretoweroneshift pT ) t1 n ) : @pretfib ( @pretfib pT ( pretowerpn pT 0 t1 ) ) ( tohfiber ( pretowerpn pT 0 ) t1 ) n . 
-Proof. intros .  induction n .  ???
-
-Definition pretfibofpretoweroneshift ( pT : pretower ) ( t1 : pT 1 ) : pretowerfun ( @pretfib ( pretoweroneshift pT ) t1 ) ( @pretfib ( @pretfib pT ( pretowerpn pT 0 t1 ) ) ( tohfiber ( pretowerpn pT 0 ) t1 ) ) .
-Proof.   intros . ???
+intro n .  
 
 
 
-
-
-Definition prenshift ( n : nat ) ( pT : pretower ) : pretower .
-Proof. intros . induction n as [| n IHn] . exact pT . exact ( pretoweroneshift IHn ). Defined. 
 
 
 
@@ -392,9 +495,19 @@ Definition fiberfloortotowerfloor { n : nat } { T : tower } ( tn : T n ) ( t' : 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 (** *** The type of functions berween towers *)
-
-
 
 
 Definition towerfunfiberfloor { T T' : tower } ( f : towerfun T T' ) { G : pr0 T } : @fiberfloor 0 _ G -> @fiberfloor 0 _ ( towerfunpr0 f G ) := towerfunpr0 ( towerfuntfib f G ) .
@@ -521,6 +634,54 @@ Definition Stildeops ( B : bsyscar ) ( Sop : Sops B ) := forall ( n m : nat ) ( 
 (* Operation deltaops : ( Gamma, x:T |- ) => ( Gamma, x : T |- x : T ) *)
 
 Definition deltaops ( B : bsyscar ) ( Top : Tops B ) := forall ( n : nat ) ( GT : towerfloor ( S n ) B ) , BT ( fiberfloortotowerfloor GT ( towerfunpr0 ( Top n GT ) ( pr2 GT )  ) ) .   
+
+
+
+
+
+
+(* To be removed:
+
+Definition pretfib_Tn_jn ( pT : pretower ) ( t : pT 0 ) ( n : nat ) : total2 ( fun pretfibn : Type => pretfibn -> pT ( S n ) ) .
+Proof . intros . induction n .  
+
+split with (hfiber ( pretowerpn pT O ) t ) .  exact pr1 . 
+
+split with ( hfp ( pr2 IHn ) ( pretowerpn pT ( S n ) ) ) . exact ( hfppru ( pr2 IHn ) ( pretowerpn pT ( S n ) ) ) . Defined. 
+
+Definition pretfib_Tn ( pT : pretower ) ( t : pT 0 ) ( n : nat ) : Type := pr1 ( pretfib_Tn_jn pT t n ) . 
+
+Definition pretfib_jn ( pT : pretower ) ( t : pT 0 ) ( n : nat ) : pretfib_Tn pT t n -> pT ( S n ) := pr2 (  pretfib_Tn_jn pT t n ) . 
+
+Definition pretfib_pn ( pT : pretower ) ( t : pT 0 ) ( n : nat ) : pretfib_Tn pT t ( S n ) -> pretfib_Tn pT t n .
+Proof. intros pT t n .  exact ( hfpprl ( pr2 ( pretfib_Tn_jn pT t n ) ) ( pretowerpn pT ( S n ) ) ) . Defined. 
+
+Definition pretfib { pT : pretower } ( t : pT 0 ) : pretower := pretowerpair ( pretfib_Tn pT t ) ( pretfib_pn pT t ) . 
+
+Lemma pr0pretfib ( pT : pretower ) ( t : pT 0 ) : paths ( pretfib t  0 ) ( hfiber ( pretowerpn pT O ) t ) . 
+Proof. intros. apply idpath .  Defined. 
+
+Definition pretowerfuntfib_a { pT pT' : pretower } ( f : pretowerfun pT pT' ) ( t : pT 0 ) ( n : nat ) : total2 ( fun funtfibn : ( pretfib t n ) -> ( pretfib ( f 0 t ) n ) => commsqstr ( f ( S n ) ) ( pretfibj ( f 0 t ) n ) ( pretfibj t n ) funtfibn ) .
+Proof. intros pT pT' f t n . induction n as [ | n IHn ] .  
+
+split with ( hfibersgtof' ( f 0 ) ( pretowerpn pT' 0 ) ( pretowerpn pT 0 ) ( f 1 ) ( prehn f 0 ) t ) . intro . About commsqstr .  apply idpath . ???
+
+
+split with ( hfpfunct ( f ( S n ) ) ( pretowerpn pT ( S n ) ) ( pretowerpn pT' ( S n ) ) ( f ( S ( S n ) ) )  ( pretfibj pT t n ) ( pretfibj pT' ( f 0 t ) n ) ( pr1 IHn ) ( prehn f ( S n ) ) ( pr2 IHn ) ) .  intro. apply idpath .  Defined. 
+
+*)
+
+(* To be erased *)
+
+Definition freefunctions : UU := total2 ( fun XY : dirprod UU UU => ( pr1 XY -> pr2 XY ) ) . 
+
+Definition freefunctionstriple { X Y : UU } ( f : X -> Y ) : freefunctions := tpair ( fun XY : dirprod UU UU => ( pr1 XY -> pr2 XY ) ) ( dirprodpair X Y ) f . 
+
+Definition ptsteps ( pT : pretower ) ( n : nat ) : freefunctions := freefunctionstriple ( pretowerpn pT n ) . 
+
+(* *)
+
+
 
 
 (* End of the file bsystems.v *)
