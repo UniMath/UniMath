@@ -1184,7 +1184,7 @@ Proof. intro i . intro j . apply isdecpropif .   apply ( isincldi i j ) .  destr
 
 
 
-(** ** Inductive types [ le ] with values in [ Type ] . 
+(** ** Inductive types [ le ] with values in [ UU ] . 
 
 This part is included for illustration purposes only . In practice it is easier to work with [ natleh ] than with [ le ] . 
 
@@ -1192,7 +1192,7 @@ This part is included for illustration purposes only . In practice it is easier 
 
 (** *** A generalization of [ le ] and its properties . *)
 
-Inductive leF { T : Type } ( F : T -> T ) ( t : T ) : T -> Type := leF_O : leF F t t | leF_S : forall t' : T , leF F t t' -> leF F t ( F t' ) .
+Inductive leF { T : UU } ( F : T -> T ) ( t : T ) : T -> UU := leF_O : leF F t t | leF_S : forall t' : T , leF F t t' -> leF F t ( F t' ) .
 
 Lemma leFiter { T : UU } ( F : T -> T ) ( t : T ) ( n : nat ) : leF F t ( iteration F n t ) .
 Proof. intros .   induction n as [ | n IHn ] . apply leF_O . simpl . unfold funcomp . apply leF_S .  assumption .  Defined . 
@@ -1217,9 +1217,9 @@ apply ( gradth _ _ egf efg ) . Defined.
 Definition weqleFtototalwithnat { T : UU } ( F : T -> T ) ( t t' : T ) : weq ( leF F t t' ) (  total2 ( fun n : nat => paths ( iteration F n t ) t' ) ) := weqpair _ ( isweqleFtototal2withnat F t t' ) .
 
 
-(** *** Inductive types [ le ] with values in [ Type ] are in [ hProp ] *)
+(** *** Inductive types [ le ] with values in [ UU ] are in [ hProp ] *)
 
-Definition le ( n : nat ) : nat -> Type := leF S n .
+Definition le ( n : nat ) : nat -> UU := leF S n .
 Definition le_n := leF_O S .
 Definition le_S := leF_S S . 
 
@@ -1228,7 +1228,7 @@ Definition le_S := leF_S S .
 Theorem isaprople ( n m : nat ) : isaprop ( le n m ) .
 Proof. intros .  apply ( isofhlevelweqb 1 ( weqleFtototalwithnat S n m ) ) . apply invproofirrelevance .  intros x x' .  set ( i := @pr1 _ (fun n0 : nat => paths (iteration S n0 n) m) ) . assert ( is : isincl i ) . apply ( isinclpr1 _ ( fun n0 : nat => isasetnat (iteration S n0 n) m ) ) . apply ( invmaponpathsincl _  is ) .  destruct x as [ n1 e1 ] . destruct x' as [ n2 e2 ] . simpl .   set ( int1 := pathsinv0 ( pathsitertoplus n1 n ) ) . set ( int2 := pathsinv0 (pathsitertoplus n2 n ) ) . set ( ee1 := pathscomp0 int1 e1 ) . set ( ee2 := pathscomp0 int2 e2 ) . set ( e := pathscomp0 ee1 ( pathsinv0 ee2 ) ) .   apply ( invmaponpathsincl _ ( isinclnatplusr n ) n1 n2 e ) .    Defined . 
 
-(** *** Comparison between [ le ] with values in [ Type ] and [ natleh ] . *)
+(** *** Comparison between [ le ] with values in [ UU ] and [ natleh ] . *)
 
 
 Lemma letoleh ( n m : nat ) : le n m -> natleh n m .
