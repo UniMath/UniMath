@@ -251,6 +251,10 @@ Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)}
            (l:circle_loop#y==y) : forall c:circle, Y c.
 Proof. (** (not proved yet) *) admit. Defined.
 
+(* One approach to the theorem above would be through the results of the paper
+ "Higher Inductive Types as Homotopy-Initial Algebras", by Kristina Sojakova,
+ http://arxiv.org/abs/1402.0761 *)
+
 Lemma circle_map_check_paths' {Y} (f:circle->Y) : circle_map (ap f circle_loop) == f .
 Proof. intros. apply funextsec; intro T. generalize T; clear T.
        refine (circle_map' _).

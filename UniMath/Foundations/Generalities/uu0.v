@@ -21,6 +21,8 @@ Require Export Foundations.Generalities.uuu.
 
 Definition UU := Type .
 
+Identity Coercion fromUUtoType : UU >-> Sortclass.
+
 (* end of "Preambule". *)
 
 
