@@ -44,8 +44,8 @@ Definition precategory_ob_mor := total2 (
 Definition precategory_ob_mor_pair (ob : UU)(mor : ob -> ob -> hSet) :
     precategory_ob_mor := tpair _ ob mor.
 
-Definition ob (C : precategory_ob_mor) : Type := @pr1 _ _ C.
-Coercion ob : precategory_ob_mor >-> Sortclass.
+Definition ob (C : precategory_ob_mor) : UU := @pr1 _ _ C.
+Coercion ob : precategory_ob_mor >-> UU.
 
 Definition precategory_morphisms { C : precategory_ob_mor } : 
        C ->  C -> hSet := pr2 C.
