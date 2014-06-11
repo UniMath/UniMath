@@ -28,7 +28,7 @@ previous section), the easiest way to compile the library is by typing
 
     make
 
-in the main directory (where this `README.md`) file is. The library takes about one coffee
+in the main directory (where this `README.md` file is). The library takes about one coffee
 break to compile.
 
 ## Installation
@@ -38,7 +38,8 @@ If you type
     make install
 
 the compiled library will be installed in the `user-contrib` directory of the version of
-Coq that was used for compilation.
+Coq that was used for compilation. This step is not necessary, you can browse the library
+in-place without installation.
 
 ## How to use the library
 
