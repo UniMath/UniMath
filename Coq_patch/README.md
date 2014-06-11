@@ -15,7 +15,7 @@ on OSX.
 
 You need the OCaml compiler version 4 or later. Again, check your package manager for availability or consult the [OCaml web page](http://ocaml.org/).
 
-## Instalation
+## Installation
 
 To generate the Coq binaries follow these steps:
 
@@ -50,13 +50,13 @@ To generate the Coq binaries follow these steps:
         ./configure -coqide no -opt -with-doc no -local
         make GOTO_STAGE=2 coqbinaries states
 
-    This will create a minimalistic installation of Coq sufficient for this library. To
+    This will create a minimal installation of Coq sufficient for this library. To
     get other "standard library" files which come with Coq use `make` instead of `make
     GOTO ...` above.
 
     The Coq binary files are now in `coq-8.4pl3-uf/bin/`.
     
-    If you are planning to generate the HMTL version of the Coq files (good idea),
+    If you are planning to generate the HTML version of the Coq files (good idea),
     you should also type
     
         make bin/coqdoc
@@ -79,7 +79,11 @@ To generate the Coq binaries follow these steps:
         The Coq Proof Assistant, version 8.4pl3 (April 2014)
         compiled on Apr 24 2014 18:25:32 with OCaml 4.01.0
 
-   with the date and time being the date when you ran make in dircoqpatched. 
+   with the date and time being the date when you ran `make`. You can also type
+   
+        which coqc
+        
+   to see the exact location of `coqc`. It should point to the version you compiled.
 
 ## Description of the Coq patch
 
@@ -120,13 +124,13 @@ Dan's patches have the following functions (see also comments in the individual 
    algorithm. The patch uses a flag previously installed in the source code to switch off
    some optimization features of the algorithm. The need for this patch arose because of
    several cases when Coq process would hang after `Admitted`. In practice the patch
-   prevents hangings but makes compilation of some of the code slower. In particular, with
+   prevents hanging but makes compilation of some of the code slower. In particular, with
    this patch installed the current standard library file `Cycllic31.v` does not compile
    in a reasonable amount of time (see the suggestion of how to compile Coq without much
    of the standard library below). It also affect the time of compilation for some of the
    "computation tests" in the Foundations library increasing the compilation time by a
    factor of >5. Hopefully, the actual bug will be located and removed in the next update.
-   (This has not been fixed as of Apr. 2014 but the behavior can now be controlled by the
+   (This has not been fixed as of April 2014 but the behavior can now be controlled by the
    `-no-sharing` flag).
 
 3. `grayson-improved-abstraction-version2-8.3pl2.patch` this patch dramatically improves
