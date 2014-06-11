@@ -5,6 +5,8 @@ By Vladimir Voevodsky February 2010 -- April 2014.
 This is the April 2014 version of the mathematical library for the proof assistant Coq
 based on the univalent semantics for the calculus of inductive constructions.
 
+This library is also available at https://github.com/UniMath/UniMath/tree/vv-master-for-coq8.4pl3patched
+
 ## Prerequisites
 
 To compile the library you have to first compile Coq 8.4pl3 patched with the patch file
