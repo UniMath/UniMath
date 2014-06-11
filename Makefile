@@ -35,10 +35,10 @@ Generalities/uu0.vo : Generalities/uu0.v Generalities/uuu.vo
 Generalities/uuu.vo : Generalities/uuu.v
 	cd Generalities/ && coqc -no-sharing -R . Foundations.Generalities uuu
 
-
 clean : 
 	rm -f Generalities/*.vo Proof_of_Extensionality/*.vo hlevel1/*.vo hlevel2/*.vo
 	rm -f Generalities/*.glob Proof_of_Extensionality/*.glob hlevel1/*.glob hlevel2/*.glob
+	rm -fr html
 
 
 
@@ -71,3 +71,9 @@ install :
 	 install -d `dirname $(COQLIB)/user-contrib/Foundations/$$i`; \
 	 install $$i $(COQLIB)/user-contrib/Foundations/$$i; \
 	 done)
+
+html:
+	mkdir -p html
+	coqdoc --html -d html -R . Foundations $(VFILES)
+
+.PHONY: html
