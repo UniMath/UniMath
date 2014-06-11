@@ -55,6 +55,11 @@ To generate the Coq binaries follow these steps:
     GOTO ...` above.
 
     The Coq binary files are now in `coq-8.4pl3-uf/bin/`.
+    
+    If you are planning to generate the HMTL version of the Coq files (good idea),
+    you should also type
+    
+        make bin/coqdoc
 
 5. Add `coq-8.4pl3-uf/bin/` to your `PATH` variable of the shell where coq will be called
    from. In a Bourne style shell this is done by
