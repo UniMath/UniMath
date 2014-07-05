@@ -70,7 +70,19 @@ Definition folds_iso_data_from_iso : folds_iso_data a b :=
 Lemma folds_iso_data_prop : folds_iso_prop folds_iso_data_from_iso.
 Proof.
   repeat split; intros.
-  - simpl. Search (forall _ _ : hProp, _  -> weq _ _ ).
+  - simpl. apply logeqweq. 
+    + intro H. apply comp_compose2. 
+      rewrite assoc. set (H2 := comp_compose2' H). rewrite H2.
+      apply idpath.
+    + intro H. apply comp_compose2.
+      unfold compose. simpl. unfold comp_func. unfold comp_contr. 
+       simpl.         simpl. apply comp_func_comp.
+
+
+
+
+
+weqimplimpl. unfold compose. simpl. unfold comp_func. Search (forall _ _ : hProp, _  -> weq _ _ ).
 (** * From precategories to FOLDS precategories *)
 
 Section from_precats_to_folds.

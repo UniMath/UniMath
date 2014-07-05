@@ -13,12 +13,13 @@ Require Import RezkCompletion.precategories.
 Require Import aux_lemmas.
 Require Import folds_precat.
 
+Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
+Local Notation "f ;; g" := (compose f g)(at level 50).
+
 
 (** * From precategories to FOLDS precategories *)
 
 Section from_precats_to_folds.
-
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
 
 Section data.
 
@@ -184,5 +185,30 @@ Proof.
     apply pathsinv0.
     apply path_to_ctr.
     apply idpath.
+Qed.
+
+
+
+Lemma comp_compose {C : precategory} {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h : a ⇒ c} :
+   f ;; g == h -> comp (C:=folds_precat_from_precat C) f g h.
+Proof.
+   apply (λ x, x).
+Qed.
+Lemma comp_compose' {C : precategory} {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h : a ⇒ c} :
+    comp (C:=folds_precat_from_precat C) f g h -> f ;; g == h.
+Proof.
+   apply (λ x, x).
+Qed.
+
+Lemma comp_compose2 {C : folds_precat} {a b c : C} {f : folds_morphisms a b} {g : folds_morphisms b c} {h : folds_morphisms a c} :
+   compose (C:=precat_from_folds C) f g == h -> comp f g h.
+Proof.
+  intro H; rewrite <- H. apply comp_func_comp. 
+Qed.
+
+Lemma comp_compose2' {C : folds_precat} {a b c : C} {f : folds_morphisms a b} {g : folds_morphisms b c} {h : folds_morphisms a c} :
+  comp f g h -> compose (C:=precat_from_folds C) f g == h.
+Proof.
+  intro H. apply pathsinv0. apply path_to_ctr. assumption. 
 Qed.
 
