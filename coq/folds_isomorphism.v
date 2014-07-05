@@ -1,4 +1,4 @@
-
+ 
 Require Import Utf8.
 
 Require Import Foundations.Generalities.uu0.
@@ -24,21 +24,53 @@ Section folds_iso_def.
 Variable C : folds_precat.
 
 Definition folds_iso_data (a b : C) : UU :=
-   dirprod (dirprod (∀ x : C, weq (x ⇒ a) (x ⇒ b)) 
-                    (∀ z : C, weq (a ⇒ z) (b ⇒ z))) 
+   dirprod (dirprod (∀ {x : C}, weq (x ⇒ a) (x ⇒ b)) 
+                    (∀ {z : C}, weq (a ⇒ z) (b ⇒ z))) 
            (weq (a ⇒ a) (b ⇒ b)).
 
-Definition ϕ1 {a b : C} (f : folds_iso_data a b) (x : C) : weq (x ⇒ a) (x ⇒ b) :=
+Definition ϕ1 {a b : C} (f : folds_iso_data a b) {x : C} : weq (x ⇒ a) (x ⇒ b) :=
       pr1 (pr1 f) x.
-Definition ϕ2 {a b : C} (f : folds_iso_data a b) (z : C) : weq (a ⇒ z) (b ⇒ z) :=
+Definition ϕ2 {a b : C} (f : folds_iso_data a b) {z : C} : weq (a ⇒ z) (b ⇒ z) :=
       pr2 (pr1 f) z.
 Definition ϕdot {a b : C} (f : folds_iso_data a b) : weq (a ⇒ a) (b ⇒ b) :=
       pr2 f.
 
 
+(* Notation "'T' f g h" := (comp f g h) (at level 4). *)
+Notation "a ≅ b" := (weq a b) (at level 40).
 
+Definition folds_iso_prop {a b : C} (i : folds_iso_data a b) :=
+ dirprod(
+    dirprod (dirprod (dirprod (∀ x y (f : x ⇒ y) (g : y ⇒ a) (h : x ⇒ a), comp f g h ≅ comp f (ϕ1 i g) (ϕ1 i h))  (* 5.3 *)
+                              (∀ x z (f : x ⇒ a) (g : a ⇒ z) (h : x ⇒ z), comp f g h ≅ comp (ϕ1 i f) (ϕ2 i g) h)) (* 5.4 *)
+                     (∀ z w (f : a ⇒ z) (g : z ⇒ w) (h : a ⇒ w), comp f g h ≅ comp (ϕ2 i f) g (ϕ2 i h)))          (* 5.5 *)
+            (dirprod (dirprod (∀ x (f : x ⇒ a) (g : a ⇒ a) (h : x ⇒ a), comp f g h ≅ comp (ϕ1 i f) (ϕdot i g) (ϕ1 i h))    (* 5.6 *)
+                              (∀ x (f : a ⇒ x) (g : x ⇒ a) (h : a ⇒ a), comp f g h ≅ comp (ϕ2 i f) (ϕ1 i g) (ϕdot i h)))   (* 5.7 *)
+                     (dirprod (∀ x (f : a ⇒ a) (g : a ⇒ x) (h : a ⇒ x), comp f g h ≅ comp (ϕdot i f) (ϕ2 i g) (ϕ2 i h))    (* 5.8 *)
+                              (∀ f g h : a ⇒ a, comp f g h ≅ comp (ϕdot i f) (ϕdot i g) (ϕdot i h))))                      (* 5.9 *)
+       )
+       (∀ f : a ⇒ a, id f ≅ id (ϕdot i f)).  (* 5.10 *)
+ 
+Definition isaprop_folds_iso_prop (a b : C) (i : folds_iso_data a b) : isaprop (folds_iso_prop i).
+Proof.
+  repeat (apply isapropdirprod);
+   repeat (apply impred; intro); apply isapropweqtoprop; apply pr2.
+Qed.
 
+Section from_iso_to_folds_iso.
 
+Variables a b : C.
+Variable f : iso (C:=precat_from_folds C) a b.
+
+Definition folds_iso_data_from_iso : folds_iso_data a b :=
+  dirprodpair (dirprodpair (iso_comp_left_weq f) 
+                           (iso_comp_right_weq (iso_inv_from_iso f))) 
+              (iso_conjug_weq f).
+
+Lemma folds_iso_data_prop : folds_iso_prop folds_iso_data_from_iso.
+Proof.
+  repeat split; intros.
+  - simpl. Search (forall _ _ : hProp, _  -> weq _ _ ).
 (** * From precategories to FOLDS precategories *)
 
 Section from_precats_to_folds.
