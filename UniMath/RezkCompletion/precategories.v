@@ -468,7 +468,23 @@ Proof.
          { apply assoc. } { apply id_left. } } 
 Qed.
 
+Definition iso_comp_right_weq {C:precategory} {a b:C} (h:iso a b) (c:C) : 
+ weq (b --> c) (a --> c) := weqpair _ (iso_comp_right_isweq h c).
 
+Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
+  isweq (fun f : c --> a => f ;; h).
+Proof. 
+  intros. apply (gradth _ (fun g => g ;; inv_from_iso h)).
+       { intros f. refine (_ @ maponpaths (fun m => f;;m) (pr1 (pr2 (pr2 h))) @ _).
+         { apply pathsinv0. apply assoc. }  { apply id_right. } }
+       { intros g. refine (_ @ maponpaths (fun m => g;;m) (pr2 (pr2 (pr2 h))) @ _).
+         { apply pathsinv0, assoc. } { apply id_right. } } 
+Qed.
+Definition iso_comp_left_weq {C:precategory} {a b:C} (h:iso a b) (c:C) : 
+ weq (c --> a) (c --> b) := weqpair _ (iso_comp_left_isweq h c).
+
+Definition iso_conjug_weq {C:precategory} {a b:C} (h:iso a b) : 
+ weq (a --> a) (b --> b) := weqcomp (iso_comp_left_weq h _ ) (iso_comp_right_weq (iso_inv_from_iso h) _ ).
 
 (** * Categories (aka saturated precategories) *)
 
