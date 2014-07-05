@@ -290,5 +290,10 @@ Lemma isasettildehProp : isaset tildehProp .
 Proof . apply ( isasetifcontr iscontrtildehProp ) . Defined .  
 
 
+(* ** Logical equivalence yields weak equivalence *)
+
+Definition logeqweq ( P Q : hProp ) : ( P -> Q ) -> ( Q -> P ) -> weq P Q := 
+  fun f g => weqimplimpl f g (pr2 P) (pr2 Q).
+
 
 (* End of the file hProp.v *)
