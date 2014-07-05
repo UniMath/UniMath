@@ -1,0 +1,6 @@
+# -R . Folds
+
+aux_lemmas.v
+folds_precat.v
+from_precats_to_folds_and_back.v
+

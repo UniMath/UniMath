@@ -129,7 +129,7 @@ Proof.
   intro t'.
   apply total2_paths_hProp.
   - intro; apply pr2.
-  - destruct t; destruct t'; simpl in *.
+  - destruct t as [t tp]; destruct t' as [t' tp']; simpl in *.
     apply (pr1 (pr2 (pr2 (pr2 C))) _ _ _ f g ); assumption.
 Defined.
 

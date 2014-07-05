@@ -10,8 +10,8 @@ Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
-Require Import RezkCompletion.FOLDS.aux_lemmas.
-Require Import RezkCompletion.FOLDS.folds_precat.
+Require Import aux_lemmas.
+Require Import folds_precat.
 
 
 (** * From precategories to FOLDS precategories *)
@@ -24,6 +24,7 @@ Section data.
 
 Variable C : precategory_data.
 
+(** identity as a predicate *)
 Definition id_pred {a : C} : a ⇒ a → hProp :=
    λ f, hProppair (f == identity _ ) (pr2 (a ⇒ a) _ _ ) .
 
@@ -32,6 +33,7 @@ Proof.
   apply idpath.
 Qed.
 
+(** composition as a predicate *)
 Definition comp_pred {a b c : C} : a ⇒ b → b ⇒ c → a ⇒ c → hProp :=
   λ f g fg, hProppair (compose f g == fg) (pr2 (_ ⇒ _ ) _ _ ).
 
@@ -48,6 +50,8 @@ Definition folds_id_comp_from_precat_data : folds_id_comp :=
 End data.
 
 Variable C : precategory.
+
+(** FOLDS precategory from precategory *)
 
 Definition folds_precat_from_precat : folds_precat.
 Proof.
@@ -84,6 +88,8 @@ End from_precats_to_folds.
 Section from_folds_to_precats.
 
 Variable C : folds_precat.
+
+(** precategory from FOLDS precategory *)
 
 Definition precat_from_folds_data : precategory_data :=
   tpair (λ C : precategory_ob_mor, precategory_id_comp C)
