@@ -75,7 +75,11 @@ Proof.
       rewrite assoc. set (H2 := comp_compose2' H). rewrite H2.
       apply idpath.
     + intro H. apply comp_compose2.
-      unfold compose. simpl. unfold comp_func. unfold comp_contr. 
+      unfold compose. simpl. 
+      set (H2 := comp_compose2' H).
+      rewrite assoc in H2.
+
+unfold comp_func. unfold comp_contr. 
        simpl.         simpl. apply comp_func_comp.
 
 
