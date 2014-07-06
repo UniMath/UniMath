@@ -75,9 +75,28 @@ Proof.
       rewrite assoc. set (H2 := comp_compose2' H). rewrite H2.
       apply idpath.
     + intro H. apply comp_compose2.
-      unfold compose. simpl. 
       set (H2 := comp_compose2' H).
       rewrite assoc in H2.
+      eapply post_comp_with_iso_is_inj. 
+      apply f. apply H2.
+  - simpl. apply logeqweq.
+    + intro H. apply comp_compose2.
+      apply pathsinv0. etransitivity.
+      * apply (pathsinv0 (comp_compose2' H)).
+      * transitivity (compose (compose (C:=precat_from_folds C)  f0 (compose f (inv_from_iso f))) g).   rewrite iso_inv_after_iso. rewrite id_right. apply idpath.
+        repeat rewrite assoc; apply idpath.
+    + intro H. apply comp_compose2.
+      set (H2 := comp_compose2' H). apply pathsinv0.
+      etransitivity. 
+      * apply (pathsinv0 H2).
+      * transitivity (compose (compose (C:=precat_from_folds C)  f0 (compose f (inv_from_iso f))) g).   
+        repeat rewrite assoc; apply idpath.
+        rewrite iso_inv_after_iso. rewrite id_right. apply idpath.
+  - 
+      
+rewrite assoc. f_equal.
+      rewrite assoc.
+      rewrite (comp_compose2' H).
 
 unfold comp_func. unfold comp_contr. 
        simpl.         simpl. apply comp_func_comp.
