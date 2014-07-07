@@ -92,8 +92,18 @@ Proof.
       * transitivity (compose (compose (C:=precat_from_folds C)  f0 (compose f (inv_from_iso f))) g).   
         repeat rewrite assoc; apply idpath.
         rewrite iso_inv_after_iso. rewrite id_right. apply idpath.
-  - 
-      
+  - simpl. apply logeqweq. 
+    + intro H. apply comp_compose2. 
+      rewrite <- assoc. rewrite (comp_compose2' H). apply idpath.
+    + intro H. apply comp_compose2.
+      set (H2:= comp_compose2' H).
+      rewrite <- assoc in H2.
+      set (H3:= pre_comp_with_iso_is_inj _  _ _ _ _ (is_iso_inv_from_iso _ _ f) _ _ H2). 
+      assumption.
+
+
+
+      apply (pr2 f).
 rewrite assoc. f_equal.
       rewrite assoc.
       rewrite (comp_compose2' H).
