@@ -100,9 +100,42 @@ Proof.
       rewrite <- assoc in H2.
       set (H3:= pre_comp_with_iso_is_inj _  _ _ _ _ (is_iso_inv_from_iso _ _ f) _ _ H2). 
       assumption.
-
-
-
+  - simpl; apply logeqweq. 
+    + intro H; apply comp_compose2.
+      rewrite <- (comp_compose2' H).
+      transitivity 
+  (compose (compose (C:=precat_from_folds C) f0 (compose (C:=precat_from_folds C) f (inv_from_iso f)))(compose (C:=precat_from_folds C) g  f)).
+      * repeat rewrite assoc; apply idpath.
+      * rewrite iso_inv_after_iso. rewrite id_right; apply assoc.
+    + intro H; apply comp_compose2.
+      set (H2 := comp_compose2' H).
+      repeat rewrite assoc in H2.
+      set (H3:= post_comp_with_iso_is_inj _  _ _ _ (pr2 f) _  _ _ H2). 
+      rewrite <- H3; clear H3 H2 H.
+      transitivity 
+   (compose (compose (C:=precat_from_folds C) f0 (compose (C:=precat_from_folds C) f (inv_from_iso f))) g).
+      * rewrite iso_inv_after_iso, id_right; apply idpath.
+      * repeat rewrite assoc; apply idpath.
+  -  simpl; apply logeqweq.
+    + intro H. apply comp_compose2.
+      repeat rewrite assoc; rewrite assoc4.
+      rewrite (comp_compose2' H).
+      apply pathsinv0, assoc.
+    + intro H; apply comp_compose2.
+      set (H2 := comp_compose2' H).
+      rewrite <- assoc in H2.
+      set (H3 := pre_comp_with_iso_is_inj _ _ _  _ _ ((is_iso_inv_from_iso  _ _ f)) _ _ H2).
+      rewrite assoc in H3.
+      set (H4:= post_comp_with_iso_is_inj _ _ _ _ (pr2 f) _ _ _ H3).
+      assumption.
+  - simpl. apply logeqweq.
+    
+    
+      set (h2 := pre
+      rewrite assoc at 2.
+      rewrite assoc.
+      apply f_equal.
+      rewrite assoc at 1.
       apply (pr2 f).
 rewrite assoc. f_equal.
       rewrite assoc.
