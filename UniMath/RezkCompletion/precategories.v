@@ -146,6 +146,13 @@ Definition assoc (C : precategory) :
           (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) == (f ;; g) ;; h := pr2 (pr2 C).
 
+Lemma assoc4 (C : precategory) (a b c d e : C) (f : a --> b) (g : b --> c) 
+       (h : c --> d) (i : d --> e) : 
+     ((f ;; g) ;; h) ;; i == f ;; (g ;; h) ;; i.
+Proof.
+  repeat rewrite assoc; apply idpath.
+Qed.
+
 (** Any equality on objects a and b induces a morphism from a to b *)
 
 Definition idtomor {C : precategory_data}
