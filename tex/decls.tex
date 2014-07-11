@@ -1,0 +1,735 @@
+\usepackage{amssymb,amsmath,stmaryrd,mathrsfs,mathpartir}
+
+%% Set this to true before loading if we're using the TAC style file.
+%% Note that eventually, TAC requires everything to be in one source file.
+\def\definetac{\newif\iftac}    % Can't define a \newif inside another \if!
+\ifx\tactrue\undefined
+  \definetac
+  %% Guess whether we're using TAC by whether \state is defined.
+  \ifx\state\undefined\tacfalse\else\tactrue\fi
+\fi
+
+% Similarly detect beamer
+\def\definebeamer{\newif\ifbeamer}
+\ifx\beamertrue\undefined
+  \definebeamer
+  %% Guess whether we're using Beamer by whether \uncover is defined.
+  \ifx\uncover\undefined\beamerfalse\else\beamertrue\fi
+\fi
+
+\iftac\else\usepackage{amsthm}\fi
+\usepackage[all,2cell]{xy}
+%\UseAllTwocells
+%\usepackage{tikz}
+%\usetikzlibrary{arrows}
+\ifbeamer\else
+  \usepackage{enumitem}
+  \usepackage{xcolor}
+  \definecolor{darkgreen}{rgb}{0,0.45,0} 
+  \usepackage[pagebackref,colorlinks,citecolor=darkgreen,linkcolor=darkgreen]{hyperref}
+  \usepackage{cleveref,aliascnt}
+\fi
+\usepackage{mathtools}          % for all sorts of things
+\usepackage{graphics}           % for \scalebox, used in \widecheck
+\usepackage{ifmtarg}            % used in \jd
+\usepackage{microtype}
+%\usepackage{color,epsfig}
+%\usepackage{fullpage}
+%\usepackage{eucal}
+%\usepackage{wasysym}
+%\usepackage{txfonts}            % for \invamp, or for the nice fonts
+\usepackage{braket}             % for \Set, etc.
+\let\setof\Set
+\usepackage{url}                % for citations to web sites
+\usepackage{xspace}             % put spaces after a \command in text
+%\usepackage{cite}               % compress and sort grouped citations (only use with numbered citations)
+
+%%% Set the fonts
+\usepackage{mathpazo}
+\usepackage[scaled=0.95]{helvet}
+\usepackage{courier}
+\linespread{1.05} % Palatino looks better with this
+
+\makeatletter
+\let\ea\expandafter
+
+%% Defining commands that are always in math mode.
+\def\mdef#1#2{\ea\ea\ea\gdef\ea\ea\noexpand#1\ea{\ea\ensuremath\ea{#2}\xspace}}
+\def\alwaysmath#1{\ea\ea\ea\global\ea\ea\ea\let\ea\ea\csname your@#1\endcsname\csname #1\endcsname
+  \ea\def\csname #1\endcsname{\ensuremath{\csname your@#1\endcsname}\xspace}}
+
+%% WIDECHECK
+\DeclareRobustCommand\widecheck[1]{{\mathpalette\@widecheck{#1}}}
+\def\@widecheck#1#2{%
+    \setbox\z@\hbox{\m@th$#1#2$}%
+    \setbox\tw@\hbox{\m@th$#1%
+       \widehat{%
+          \vrule\@width\z@\@height\ht\z@
+          \vrule\@height\z@\@width\wd\z@}$}%
+    \dp\tw@-\ht\z@
+    \@tempdima\ht\z@ \advance\@tempdima2\ht\tw@ \divide\@tempdima\thr@@
+    \setbox\tw@\hbox{%
+       \raise\@tempdima\hbox{\scalebox{1}[-1]{\lower\@tempdima\box
+\tw@}}}%
+    {\ooalign{\box\tw@ \cr \box\z@}}}
+
+%% SIMPLE COMMANDS FOR FONTS AND DECORATIONS
+
+\newcount\foreachcount
+
+\def\foreachletter#1#2#3{\foreachcount=#1
+  \ea\loop\ea\ea\ea#3\@alph\foreachcount
+  \advance\foreachcount by 1
+  \ifnum\foreachcount<#2\repeat}
+
+\def\foreachLetter#1#2#3{\foreachcount=#1
+  \ea\loop\ea\ea\ea#3\@Alph\foreachcount
+  \advance\foreachcount by 1
+  \ifnum\foreachcount<#2\repeat}
+
+% Script: \sA is \mathscr{A}
+\def\definescr#1{\ea\gdef\csname s#1\endcsname{\ensuremath{\mathscr{#1}}\xspace}}
+\foreachLetter{1}{27}{\definescr}
+% Calligraphic: \cA is \mathcal{A}
+\def\definecal#1{\ea\gdef\csname c#1\endcsname{\ensuremath{\mathcal{#1}}\xspace}}
+\foreachLetter{1}{27}{\definecal}
+% Bold: \bA is \mathbf{A}
+\def\definebold#1{\ea\gdef\csname b#1\endcsname{\ensuremath{\mathbf{#1}}\xspace}}
+\foreachLetter{1}{27}{\definebold}
+% Blackboard Bold: \lA is \mathbb{A}
+\def\definebb#1{\ea\gdef\csname l#1\endcsname{\ensuremath{\mathbb{#1}}\xspace}}
+\foreachLetter{1}{27}{\definebb}
+% Fraktur: \ka is \mathfrak{a} (except when it's \kappa, see below), \kA is \mathfrak{A}
+\def\definefrak#1{\ea\gdef\csname k#1\endcsname{\ensuremath{\mathfrak{#1}}\xspace}}
+\foreachletter{1}{27}{\definefrak}
+\foreachLetter{1}{27}{\definefrak}
+% Sans serif
+\def\definesf#1{\ea\gdef\csname i#1\endcsname{\ensuremath{\mathsf{#1}}\xspace}}
+\foreachletter{1}{6}{\definesf}
+\foreachletter{7}{14}{\definesf}
+\foreachletter{15}{27}{\definesf}
+\foreachLetter{1}{27}{\definesf}
+% Bar: \Abar is \overline{A}, \abar is \overline{a}
+\def\definebar#1{\ea\gdef\csname #1bar\endcsname{\ensuremath{\overline{#1}}\xspace}}
+\foreachLetter{1}{27}{\definebar}
+\foreachletter{1}{8}{\definebar} % \hbar is something else!
+\foreachletter{9}{15}{\definebar} % \obar is something else!
+\foreachletter{16}{27}{\definebar}
+% Tilde: \Atil is \widetilde{A}, \atil is \widetilde{a}
+\def\definetil#1{\ea\gdef\csname #1til\endcsname{\ensuremath{\widetilde{#1}}\xspace}}
+\foreachLetter{1}{27}{\definetil}
+\foreachletter{1}{27}{\definetil}
+% Hats: \Ahat is \widehat{A}, \ahat is \widehat{a}
+\def\definehat#1{\ea\gdef\csname #1hat\endcsname{\ensuremath{\widehat{#1}}\xspace}}
+\foreachLetter{1}{27}{\definehat}
+\foreachletter{1}{27}{\definehat}
+% Checks: \Achk is \widecheck{A}, \achk is \widecheck{a}
+\def\definechk#1{\ea\gdef\csname #1chk\endcsname{\ensuremath{\widecheck{#1}}\xspace}}
+\foreachLetter{1}{27}{\definechk}
+\foreachletter{1}{27}{\definechk}
+% Underline: \uA is \underline{A}, \ua is \underline{a}
+\def\defineul#1{\ea\gdef\csname u#1\endcsname{\ensuremath{\underline{#1}}\xspace}}
+\foreachLetter{1}{27}{\defineul}
+\foreachletter{1}{27}{\defineul}
+
+% Particular commands for typefaces, sometimes with the first letter
+% different.
+\def\autofmt@n#1\autofmt@end{\mathrm{#1}}
+\def\autofmt@b#1\autofmt@end{\mathbf{#1}}
+\def\autofmt@l#1#2\autofmt@end{\mathbb{#1}\mathsf{#2}}
+\def\autofmt@c#1#2\autofmt@end{\mathcal{#1}\mathit{#2}}
+\def\autofmt@s#1#2\autofmt@end{\mathscr{#1}\mathit{#2}}
+\def\autofmt@f#1\autofmt@end{\mathsf{#1}}
+\def\autofmt@k#1\autofmt@end{\mathfrak{#1}}
+% Particular commands for decorations.
+\def\autofmt@u#1\autofmt@end{\underline{\smash{\mathsf{#1}}}}
+\def\autofmt@U#1\autofmt@end{\underline{\underline{\smash{\mathsf{#1}}}}}
+\def\autofmt@h#1\autofmt@end{\widehat{#1}}
+\def\autofmt@r#1\autofmt@end{\overline{#1}}
+\def\autofmt@t#1\autofmt@end{\widetilde{#1}}
+\def\autofmt@k#1\autofmt@end{\check{#1}}
+
+% Defining multi-letter commands.  Use this like so:
+% \autodefs{\bSet\cCat\cCAT\kBicat\lProf}
+\def\auto@drop#1{}
+\def\autodef#1{\ea\ea\ea\@autodef\ea\ea\ea#1\ea\auto@drop\string#1\autodef@end}
+\def\@autodef#1#2#3\autodef@end{%
+  \ea\def\ea#1\ea{\ea\ensuremath\ea{\csname autofmt@#2\endcsname#3\autofmt@end}\xspace}}
+\def\autodefs@end{blarg!}
+\def\autodefs#1{\@autodefs#1\autodefs@end}
+\def\@autodefs#1{\ifx#1\autodefs@end%
+  \def\autodefs@next{}%
+  \else%
+  \def\autodefs@next{\autodef#1\@autodefs}%
+  \fi\autodefs@next}
+
+%% FONTS AND DECORATION FOR GREEK LETTERS
+
+%% the package `mathbbol' gives us blackboard bold greek and numbers,
+%% but it does it by redefining \mathbb to use a different font, so that
+%% all the other \mathbb letters look different too.  Here we import the
+%% font with bb greek and numbers, but assign it a different name,
+%% \mathbbb, so as not to replace the usual one.
+\DeclareSymbolFont{bbold}{U}{bbold}{m}{n}
+\DeclareSymbolFontAlphabet{\mathbbb}{bbold}
+\newcommand{\lDelta}{\ensuremath{\mathbbb{\Delta}}\xspace}
+\newcommand{\lone}{\ensuremath{\mathbbb{1}}\xspace}
+\newcommand{\ltwo}{\ensuremath{\mathbbb{2}}\xspace}
+\newcommand{\lthree}{\ensuremath{\mathbbb{3}}\xspace}
+
+% greek with bars
+\newcommand{\albar}{\ensuremath{\overline{\alpha}}\xspace}
+\newcommand{\bebar}{\ensuremath{\overline{\beta}}\xspace}
+\newcommand{\gmbar}{\ensuremath{\overline{\gamma}}\xspace}
+\newcommand{\debar}{\ensuremath{\overline{\delta}}\xspace}
+\newcommand{\phibar}{\ensuremath{\overline{\varphi}}\xspace}
+\newcommand{\psibar}{\ensuremath{\overline{\psi}}\xspace}
+\newcommand{\xibar}{\ensuremath{\overline{\xi}}\xspace}
+\newcommand{\ombar}{\ensuremath{\overline{\omega}}\xspace}
+
+% greek with tildes
+\newcommand{\altil}{\ensuremath{\widetilde{\alpha}}\xspace}
+\newcommand{\betil}{\ensuremath{\widetilde{\beta}}\xspace}
+\newcommand{\gmtil}{\ensuremath{\widetilde{\gamma}}\xspace}
+\newcommand{\phitil}{\ensuremath{\widetilde{\varphi}}\xspace}
+\newcommand{\psitil}{\ensuremath{\widetilde{\psi}}\xspace}
+\newcommand{\xitil}{\ensuremath{\widetilde{\xi}}\xspace}
+\newcommand{\omtil}{\ensuremath{\widetilde{\omega}}\xspace}
+
+% MISCELLANEOUS SYMBOLS
+\let\del\partial
+\mdef\delbar{\overline{\partial}}
+\let\sm\wedge
+\newcommand{\dd}[1]{\ensuremath{\frac{\partial}{\partial {#1}}}}
+\newcommand{\inv}{^{-1}}
+\newcommand{\dual}{^{\vee}}
+\mdef\hf{\textstyle\frac12 }
+\mdef\thrd{\textstyle\frac13 }
+\mdef\qtr{\textstyle\frac14 }
+\let\meet\wedge
+\let\join\vee
+\let\dn\downarrow
+\newcommand{\op}{^{\mathrm{op}}}
+\newcommand{\co}{^{\mathrm{co}}}
+\newcommand{\coop}{^{\mathrm{coop}}}
+\let\adj\dashv
+\SelectTips{cm}{}
+\newdir{ >}{{}*!/-10pt/@{>}}    % extra spacing for tail arrows in XYpic
+\newcommand{\pushout}[1][dr]{\save*!/#1+1.2pc/#1:(1,-1)@^{|-}\restore}
+\newcommand{\pullback}[1][dr]{\save*!/#1-1.2pc/#1:(-1,1)@^{|-}\restore}
+\let\iso\cong
+\let\eqv\simeq
+\let\cng\equiv
+\mdef\Id{\mathrm{Id}}
+\mdef\id{\mathrm{id}}
+\alwaysmath{ell}
+\alwaysmath{infty}
+\alwaysmath{odot}
+\def\frc#1/#2.{\frac{#1}{#2}}   % \frc x^2+1 / x^2-1 .
+\mdef\ten{\mathrel{\otimes}}
+\let\bigten\bigotimes
+\mdef\sqten{\mathrel{\boxtimes}}
+\def\lt{<}                      % For iTex compatibility
+\def\gt{>}
+
+%% OPERATORS
+\DeclareMathOperator\lan{Lan}
+\DeclareMathOperator\ran{Ran}
+\DeclareMathOperator\colim{colim}
+\DeclareMathOperator\coeq{coeq}
+\DeclareMathOperator\eq{eq}
+\DeclareMathOperator\Tot{Tot}
+\DeclareMathOperator\cosk{cosk}
+\DeclareMathOperator\sk{sk}
+%\DeclareMathOperator\im{im}
+\DeclareMathOperator\Spec{Spec}
+\DeclareMathOperator\Ho{Ho}
+\DeclareMathOperator\Aut{Aut}
+\DeclareMathOperator\End{End}
+\DeclareMathOperator\Hom{Hom}
+\DeclareMathOperator\Map{Map}
+
+%% ARROWS
+% \to already exists
+\newcommand{\too}[1][]{\ensuremath{\overset{#1}{\longrightarrow}}}
+\newcommand{\ot}{\ensuremath{\leftarrow}}
+\newcommand{\oot}[1][]{\ensuremath{\overset{#1}{\longleftarrow}}}
+\let\toot\rightleftarrows
+\let\otto\leftrightarrows
+\let\Impl\Rightarrow
+\let\imp\Rightarrow
+\let\toto\rightrightarrows
+\let\into\hookrightarrow
+\let\xinto\xhookrightarrow
+\mdef\we{\overset{\sim}{\longrightarrow}}
+\mdef\leftwe{\overset{\sim}{\longleftarrow}}
+\let\mono\rightarrowtail
+\let\leftmono\leftarrowtail
+\let\cof\rightarrowtail
+\let\leftcof\leftarrowtail
+\let\epi\twoheadrightarrow
+\let\leftepi\twoheadleftarrow
+\let\fib\twoheadrightarrow
+\let\leftfib\twoheadleftarrow
+\let\cohto\rightsquigarrow
+\let\maps\colon
+\newcommand{\spam}{\,:\!}       % \maps for left arrows
+\def\acof{\mathrel{\mathrlap{\hspace{3pt}\raisebox{4pt}{$\scriptscriptstyle\sim$}}\mathord{\rightarrowtail}}}
+
+% diagxy redefines \to, along with \toleft, \two, \epi, and \mon.
+
+%% EXTENSIBLE ARROWS
+\let\xto\xrightarrow
+\let\xot\xleftarrow
+% See Voss' Mathmode.tex for instructions on how to create new
+% extensible arrows.
+\def\rightarrowtailfill@{\arrowfill@{\Yright\joinrel\relbar}\relbar\rightarrow}
+\newcommand\xrightarrowtail[2][]{\ext@arrow 0055{\rightarrowtailfill@}{#1}{#2}}
+\let\xmono\xrightarrowtail
+\let\xcof\xrightarrowtail
+\def\twoheadrightarrowfill@{\arrowfill@{\relbar\joinrel\relbar}\relbar\twoheadrightarrow}
+\newcommand\xtwoheadrightarrow[2][]{\ext@arrow 0055{\twoheadrightarrowfill@}{#1}{#2}}
+\let\xepi\xtwoheadrightarrow
+\let\xfib\xtwoheadrightarrow
+% Let's leave the left-going ones until I need them.
+
+%% EXTENSIBLE SLASHED ARROWS
+% Making extensible slashed arrows, by modifying the underlying AMS code.
+% Arguments are:
+% 1 = arrowhead on the left (\relbar or \Relbar if none)
+% 2 = fill character (usually \relbar or \Relbar)
+% 3 = slash character (such as \mapstochar or \Mapstochar)
+% 4 = arrowhead on the left (\relbar or \Relbar if none)
+% 5 = display mode (\displaystyle etc)
+\def\slashedarrowfill@#1#2#3#4#5{%
+  $\m@th\thickmuskip0mu\medmuskip\thickmuskip\thinmuskip\thickmuskip
+   \relax#5#1\mkern-7mu%
+   \cleaders\hbox{$#5\mkern-2mu#2\mkern-2mu$}\hfill
+   \mathclap{#3}\mathclap{#2}%
+   \cleaders\hbox{$#5\mkern-2mu#2\mkern-2mu$}\hfill
+   \mkern-7mu#4$%
+}
+% Here's the idea: \<slashed>arrowfill@ should be a box containing
+% some stretchable space that is the "middle of the arrow".  This
+% space is created as a "leader" using \cleader<thing>\hfill, which
+% fills an \hfill of space with copies of <thing>.  Here instead of
+% just one \cleader, we use two, with the slash in between (and an
+% extra copy of the filler, to avoid extra space around the slash).
+\def\rightslashedarrowfill@{%
+  \slashedarrowfill@\relbar\relbar\mapstochar\rightarrow}
+\newcommand\xslashedrightarrow[2][]{%
+  \ext@arrow 0055{\rightslashedarrowfill@}{#1}{#2}}
+\mdef\hto{\xslashedrightarrow{}}
+\mdef\htoo{\xslashedrightarrow{\quad}}
+\let\xhto\xslashedrightarrow
+
+%% To get a slashed arrow in XYmatrix, do
+% \[\xymatrix{A \ar[r]|-@{|} & B}\]
+%% To get it in diagxy, do
+% \morphism/{@{>}|-*@{|}}/[A`B;p]
+
+%% Here is an \hto for diagxy:
+% \def\htopppp/#1/<#2>^#3_#4{\:%
+% \ifnum#2=0%
+%    \setwdth{#3}{#4}\deltax=\wdth \divide \deltax by \ul%
+%    \advance \deltax by \defaultmargin  \ratchet{\deltax}{100}%
+% \else \deltax #2%
+% \fi%
+% \xy\ar@{#1}|-@{|}^{#3}_{#4}(\deltax,0) \endxy%
+% \:}%
+% \def\htoppp/#1/<#2>^#3{\ifnextchar_{\htopppp/#1/<#2>^{#3}}{\htopppp/#1/<#2>^{#3}_{}}}%
+% \def\htopp/#1/<#2>{\ifnextchar^{\htoppp/#1/<#2>}{\htoppp/#1/<#2>^{}}}%
+% \def\htoop/#1/{\ifnextchar<{\htopp/#1/}{\htopp/#1/<0>}}%
+% \def\hto{\ifnextchar/{\htoop}{\htoop/>/}}%
+
+% LABELED ISOMORPHISMS
+\def\xiso#1{\mathrel{\mathrlap{\smash{\xto[\smash{\raisebox{1.3mm}{$\scriptstyle\sim$}}]{#1}}}\hphantom{\xto{#1}}}}
+\def\toiso{\xto{\smash{\raisebox{-.5mm}{$\scriptstyle\sim$}}}}
+
+% SHADOWS
+\def\shvar#1#2{{\ensuremath{%
+  \hspace{1mm}\makebox[-1mm]{$#1\langle$}\makebox[0mm]{$#1\langle$}\hspace{1mm}%
+  {#2}%
+  \makebox[1mm]{$#1\rangle$}\makebox[0mm]{$#1\rangle$}%
+}}}
+\def\sh{\shvar{}}
+\def\scriptsh{\shvar{\scriptstyle}}
+\def\bigsh{\shvar{\big}}
+\def\Bigsh{\shvar{\Big}}
+\def\biggsh{\shvar{\bigg}}
+\def\Biggsh{\shvar{\Bigg}}
+
+% TYPING JUDGMENTS
+% Call this macro as \jd{x:A, y:B |- c:C}.  It adds (what I think is)
+% appropriate spacing, plus auto-sized parentheses around each typing judgment.
+\def\jd#1{\@jd#1\ej}
+\def\@jd#1|-#2\ej{\@@jd#1,,\;\vdash\;\left(#2\right)}
+\def\@@jd#1,{\@ifmtarg{#1}{\let\next=\relax}{\left(#1\right)\let\next=\@@@jd}\next}
+\def\@@@jd#1,{\@ifmtarg{#1}{\let\next=\relax}{,\,\left(#1\right)\let\next=\@@@jd}\next}
+% Here's a version which puts a line break before the turnstyle.
+\def\jdm#1{\@jdm#1\ej}
+\def\@jdm#1|-#2\ej{\@@jd#1,,\\\vdash\;\left(#2\right)}
+% Make an actual comma that doesn't separate typing judgments (e.g. A,B,C : Type).
+\def\cm{,}
+
+%% SKIPIT in TikZ
+% See http://tex.stackexchange.com/questions/3513/draw-only-some-segments-of-a-path-in-tikz
+\long\def\my@drawfill#1#2;{%
+\@skipfalse
+\fill[#1,draw=none] #2;
+\@skiptrue
+\draw[#1,fill=none] #2;
+}
+\newif\if@skip
+\newcommand{\skipit}[1]{\if@skip\else#1\fi}
+\newcommand{\drawfill}[1][]{\my@drawfill{#1}}
+
+%% TODO: This \autoref in TAC doesn't work with figures (and anything
+%% else other than theorems).
+
+%% Also TODO: TAC's {proof} environment always inserts "Proof" at the
+%% beginning even when you give it an [argument], unlike the AMS
+%% {proof} environment.
+
+%%%% THEOREM-TYPE ENVIRONMENTS, hacked to
+%%% (a) number all with the same numbers, and
+%%% (b) have the right names.
+%% The following code should work in TAC or out of it, and with
+%% hyperref or without it.  In all cases, we use \label to label
+%% things and \autoref to refer to them (ordinary \ref declines to
+%% include names).  The non-hyperref label and reference hack is from
+%% Mike Mandell, I believe.
+\newif\ifhyperref
+\@ifpackageloaded{hyperref}{\hyperreftrue}{\hyperreffalse}
+\iftac
+  %% In the TAC style, all theorems are actually subsections.  So
+  %% the hyperref \autoref doesn't work and we have to use our own code
+  %% in any case.  We also have to hook into the \state macros instead
+  %% of \@thm since those are what know about the current theorem type.
+  \let\your@state\state
+  \def\state#1{\my@state#1}
+  \def\my@state#1.{\gdef\currthmtype{#1}\your@state{#1.}}
+  \let\your@staterm\staterm
+  \def\staterm#1{\my@staterm#1}
+  \def\my@staterm#1.{\gdef\currthmtype{#1}\your@staterm{#1.}}
+  \let\defthm\newtheorem
+  \def\switchtotheoremrm{\let\defthm\newtheoremrm}
+  % Start out \currthmtype as empty
+  \def\currthmtype{}
+  % In a bit, we're going to redefine \label so that \label{athm} will
+  % also make a label "label@name@athm" which is the current value of
+  % \currthmtype.  Now \autoref{athm} just adds a reference to this in
+  % front of the reference.
+  \ifhyperref
+    \def\autoref#1{\ref*{label@name@#1}~\ref{#1}}
+  \else
+    \def\autoref#1{\ref{label@name@#1}~\ref{#1}}
+  \fi
+  % This has to go AFTER the \begin{document} because apparently
+  % hyperref resets the definition of \label at that point.
+  \AtBeginDocument{%
+    % Save the old definition of \label
+    \let\old@label\label%
+    % Redefine \label so that \label{athm} will also make a label
+    % "label@name@athm" which is the current value of \currthmtype.
+    \def\label#1{%
+      {\let\your@currentlabel\@currentlabel%
+        \edef\@currentlabel{\currthmtype}%
+        \old@label{label@name@#1}}%
+      \old@label{#1}}
+  }
+\else
+  % In non-TAC styles, theorems have their own counters and so the
+  % hyperref \autoref works, if hyperref is loaded.
+  \ifhyperref
+    %% If we have hyperref, then we have to make sure all the theorem
+    %% types appear to use different counters so that hyperref can tell
+    %% them apart.  However, we want them actually to use the same
+    %% counter, so we don't have both Theorem 9.1 and Definition 9.1.
+    \def\defthm#1#2#3{%
+      %% Ensure all theorem types are numbered with the same counter
+      \newaliascnt{#1}{thm}%
+      \newtheorem{#1}[#1]{#2}%
+      \aliascntresetthe{#1}%
+      %% This command tells cleveref's \cref what to call things
+      \crefname{#1}{#2}{#3}}
+  \else
+    %% Without hyperref, we have to roll our own.  This code is due to
+    %% Mike Mandell.  First, all theorems can now "officially" use the
+    %% same counter.
+    \def\defthm#1#2{\newtheorem{#1}[thm]{#2}}
+    %% Save the label- and theorem-making commands
+    \ifx\SK@label\undefined\let\SK@label\label\fi
+    \let\old@label\label
+    \let\your@thm\@thm
+    %% Save the current type of theorem whenever we start one
+    \def\@thm#1#2#3{\gdef\currthmtype{#3}\your@thm{#1}{#2}{#3}}
+    %% Start that out as empty
+    \def\currthmtype{}
+    %% Redefine \label so that \label{athm} defines, in addition to a
+    %% label "athm" pointing to "9.1," a label "athm@" pointing to
+    %% "Theorem 9.1."
+    \def\label#1{{\let\your@currentlabel\@currentlabel\def\@currentlabel%
+        {\currthmtype~\your@currentlabel}%
+        \SK@label{#1@}}\old@label{#1}}
+    %% Now \autoref just looks at "athm@" instead of "athm."
+    \def\autoref#1{\ref{#1@}}
+  \fi
+\fi
+
+%% Now the code that works in all cases.  Note that TAC allows the
+%% optional arguments, but ignores them.  It also defines environments
+%% called "theorem," etc.
+\newtheorem{thm}{Theorem}[section]
+\newcommand{\thmautorefname}{Theorem}
+\crefname{thm}{Theorem}{Theorems}
+\defthm{cor}{Corollary}{Corollaries}
+\defthm{prop}{Proposition}{Propositions}
+\defthm{lem}{Lemma}{Lemmas}
+\defthm{sch}{Scholium}{Scholia}
+\defthm{assume}{Assumption}{Assumptions}
+\defthm{claim}{Claim}{Claims}
+\defthm{conj}{Conjecture}{Conjectures}
+\defthm{hyp}{Hypothesis}{Hypotheses}
+\iftac\switchtotheoremrm\else\theoremstyle{definition}\fi
+\defthm{defn}{Definition}{Definitions}
+\defthm{notn}{Notation}{Notations}
+\iftac\switchtotheoremrm\else\theoremstyle{remark}\fi
+\defthm{rmk}{Remark}{Remarks}
+\defthm{eg}{Example}{Exercises}
+\defthm{egs}{Examples}{Examples}
+\defthm{ex}{Exercise}{Exercises}
+\defthm{ceg}{Counterexample}{Counterexamples}
+
+\let\autoref\cref
+
+% Display format for sections
+\crefformat{section}{\S#2#1#3}
+\Crefformat{section}{Section~#2#1#3}
+\crefrangeformat{section}{\S\S#3#1#4--#5#2#6}
+\Crefrangeformat{section}{Sections~#3#1#4--#5#2#6}
+\crefmultiformat{section}{\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{ and~#2#1#3}
+\Crefmultiformat{section}{Sections~#2#1#3}{ and~#2#1#3}{, #2#1#3}{ and~#2#1#3}
+\crefrangemultiformat{section}{\S\S#3#1#4--#5#2#6}{ and~#3#1#4--#5#2#6}{, #3#1#4--#5#2#6}{ and~#3#1#4--#5#2#6}
+\Crefrangemultiformat{section}{Sections~#3#1#4--#5#2#6}{ and~#3#1#4--#5#2#6}{, #3#1#4--#5#2#6}{ and~#3#1#4--#5#2#6}
+
+% Display format for appendices
+\crefformat{appendix}{Appendix~#2#1#3}
+\Crefformat{appendix}{Appendix~#2#1#3}
+\crefrangeformat{appendix}{Appendices~#3#1#4--#5#2#6}
+\Crefrangeformat{appendix}{Appendices~#3#1#4--#5#2#6}
+\crefmultiformat{appendix}{Appendices~#2#1#3}{ and~#2#1#3}{, #2#1#3}{ and~#2#1#3}
+\Crefmultiformat{appendix}{Appendices~#2#1#3}{ and~#2#1#3}{, #2#1#3}{ and~#2#1#3}
+\crefrangemultiformat{appendix}{Appendices~#3#1#4--#5#2#6}{ and~#3#1#4--#5#2#6}{, #3#1#4--#5#2#6}{ and~#3#1#4--#5#2#6}
+\Crefrangemultiformat{appendix}{Appendices~#3#1#4--#5#2#6}{ and~#3#1#4--#5#2#6}{, #3#1#4--#5#2#6}{ and~#3#1#4--#5#2#6}
+
+% How to get QED symbols inside equations at the end of the statements
+% of theorems.  AMS LaTeX knows how to do this inside equations at the
+% end of *proofs* with \qedhere, and at the end of the statement of a
+% theorem with \qed (meaning no proof will be given), but it can't
+% seem to combine the two.  Use this instead.
+\def\thmqedhere{\expandafter\csname\csname @currenvir\endcsname @qed\endcsname}
+
+% Number numbered lists as (i), (ii), ...
+\ifbeamer\else
+  \renewcommand{\theenumi}{(\roman{enumi})}
+  \renewcommand{\labelenumi}{\theenumi}
+\fi
+
+% Left margins for enumitem
+\ifbeamer\else
+  \setitemize[1]{leftmargin=2em}
+  \setenumerate[1]{leftmargin=*}
+\fi
+
+% Also number formulas with the theorem counter
+\iftac
+  \let\c@equation\c@subsection
+\else
+  \let\c@equation\c@thm
+\fi
+\numberwithin{equation}{section}
+
+% % Only show numbers for equations that are actually referenced (or
+% % whose tags are specified manually) - uses mathtools.  All equations
+% % need to be referenced with \eqref, not \ref, for this to work!
+% \@ifpackageloaded{mathtools}{\mathtoolsset{showonlyrefs,showmanualtags}}{}
+
+% GREEK LETTERS, ETC.
+\alwaysmath{alpha}
+\alwaysmath{beta}
+\alwaysmath{gamma}
+\alwaysmath{Gamma}
+\alwaysmath{delta}
+\alwaysmath{Delta}
+\alwaysmath{epsilon}
+\mdef\ep{\varepsilon}
+\alwaysmath{zeta}
+\alwaysmath{eta}
+\alwaysmath{theta}
+\alwaysmath{Theta}
+\alwaysmath{iota}
+\alwaysmath{kappa}
+\alwaysmath{lambda}
+\alwaysmath{Lambda}
+\alwaysmath{mu}
+\alwaysmath{nu}
+\alwaysmath{xi}
+\alwaysmath{pi}
+\alwaysmath{rho}
+\alwaysmath{sigma}
+\alwaysmath{Sigma}
+\alwaysmath{tau}
+\alwaysmath{upsilon}
+\alwaysmath{Upsilon}
+\alwaysmath{phi}
+\alwaysmath{Pi}
+\alwaysmath{Phi}
+\mdef\ph{\varphi}
+\alwaysmath{chi}
+\alwaysmath{psi}
+\alwaysmath{Psi}
+\alwaysmath{omega}
+\alwaysmath{Omega}
+\let\al\alpha
+\let\be\beta
+\let\gm\gamma
+\let\Gm\Gamma
+\let\de\delta
+\let\De\Delta
+\let\si\sigma
+\let\Si\Sigma
+\let\om\omega
+\let\ka\kappa
+\let\la\lambda
+\let\La\Lambda
+\let\ze\zeta
+\let\th\theta
+\let\Th\Theta
+\let\vth\vartheta
+\let\Om\Omega
+
+%% Include or exclude solutions
+% This code is basically copied from version.sty, except that when the
+% solutions are included, we put them in a `proof' environment as
+% well.  To include solutions, say \includesolutions; to exclude them
+% say \excludesolutions.
+% \begingroup
+% 
+% \catcode`{=12\relax\catcode`}=12\relax%
+% \catcode`(=1\relax \catcode`)=2\relax%
+% \gdef\includesolutions(\newenvironment(soln)(\begin(proof)[Solution])(\end(proof)))%
+% \gdef\excludesolutions(%
+%   \gdef\soln(\@bsphack\catcode`{=12\relax\catcode`}=12\relax\soln@NOTE)%
+%   \long\gdef\soln@NOTE##1\end{soln}(\solnEND@NOTE)%
+%   \gdef\solnEND@NOTE(\@esphack\end(soln))%
+% )%
+% \endgroup
+
+%%% Dependent products %%%
+\def\prdsym{\textstyle\prod}
+%% Call the macro like \prd{x,y:A}{p:x=y} with any number of
+%% arguments.  Make sure that whatever comes *after* the call doesn't
+%% begin with an open-brace, or it will be parsed as another argument.
+% Currently the macro is configured to produce
+%     {\textstyle\prod}(x:A) \; {\textstyle\prod}(y:B),\ 
+% in display-math mode, and
+%     \prod_{(x:A)} \prod_{y:B}
+% in text-math mode.
+\def\prd#1{\@ifnextchar\bgroup{\prd@parens{#1}}{\@ifnextchar\sm{\prd@parens{#1}\@eatsm}{\prd@noparens{#1}}}}
+\def\prd@parens#1{\@ifnextchar\bgroup%
+  {\mathchoice{\@dprd{#1}}{\@tprd{#1}}{\@tprd{#1}}{\@tprd{#1}}\prd@parens}%
+  {\mathchoice{\@dprd{#1}}{\@tprd{#1}}{\@tprd{#1}}{\@tprd{#1}}}}
+\def\@eatsm\sm{\sm@parens}
+\def\prd@noparens#1{\mathchoice{\@dprd@noparens{#1}}{\@tprd{#1}}{\@tprd{#1}}{\@tprd{#1}}}
+% Helper macros for three styles
+\def\lprd#1{\@ifnextchar\bgroup{\@lprd{#1}\lprd}{\@@lprd{#1}}}
+\def\@lprd#1{\mathchoice{{\textstyle\prod}}{\prod}{\prod}{\prod}({\textstyle #1})\;}
+\def\@@lprd#1{\mathchoice{{\textstyle\prod}}{\prod}{\prod}{\prod}({\textstyle #1}),\ }
+\def\tprd#1{\@tprd{#1}\@ifnextchar\bgroup{\tprd}{}}
+\def\@tprd#1{\mathchoice{{\textstyle\prod_{(#1)}}}{\prod_{(#1)}}{\prod_{(#1)}}{\prod_{(#1)}}}
+\def\dprd#1{\@dprd{#1}\@ifnextchar\bgroup{\dprd}{}}
+\def\@dprd#1{\prod_{(#1)}\,}
+\def\@dprd@noparens#1{\prod_{#1}\,}
+
+%%% Lambda abstractions.
+% Each variable being abstracted over is a separate argument.  If
+% there is more than one such argument, they *must* be enclosed in
+% braces.  Arguments can be untyped, as in \lam{x}{y}, or typed with a
+% colon, as in \lam{x:A}{y:B}. In the latter case, the colons are
+% automatically noticed and (with current implementation) the space
+% around the colon is reduced.  You can even give more than one variable
+% the same type, as in \lam{x,y:A}.
+\def\lam#1{{\lambda}\@lamarg#1:\@endlamarg\@ifnextchar\bgroup{.\,\lam}{.\,}}
+\def\@lamarg#1:#2\@endlamarg{\if\relax\detokenize{#2}\relax #1\else\@lamvar{\@lameatcolon#2},#1\@endlamvar\fi}
+\def\@lamvar#1,#2\@endlamvar{(#2\,{:}\,#1)}
+% \def\@lamvar#1,#2{{#2}^{#1}\@ifnextchar,{.\,{\lambda}\@lamvar{#1}}{\let\@endlamvar\relax}}
+\def\@lameatcolon#1:{#1}
+\let\lamt\lam
+% This version silently eats any typing annotation.
+\def\lamu#1{{\lambda}\@lamuarg#1:\@endlamuarg\@ifnextchar\bgroup{.\,\lamu}{.\,}}
+\def\@lamuarg#1:#2\@endlamuarg{#1}
+
+%%% Dependent products written with \forall, in the same style
+\def\fall#1{\forall (#1)\@ifnextchar\bgroup{.\,\fall}{.\,}}
+
+%%% Existential quantifier %%%
+\def\exis#1{\exists (#1)\@ifnextchar\bgroup{.\,\exis}{.\,}}
+
+%%% Dependent sums %%%
+\def\smsym{\textstyle\sum}
+% Use in the same way as \prd
+\def\sm#1{\@ifnextchar\bgroup{\sm@parens{#1}}{\@ifnextchar\prd{\sm@parens{#1}\@eatprd}{\sm@noparens{#1}}}}
+\def\sm@parens#1{\@ifnextchar\bgroup%
+  {\mathchoice{\@dsm{#1}}{\@tsm{#1}}{\@tsm{#1}}{\@tsm{#1}}\sm@parens}%
+  {\mathchoice{\@dsm{#1}}{\@tsm{#1}}{\@tsm{#1}}{\@tsm{#1}}}}
+\def\@eatprd\prd{\prd@parens}
+\def\sm@noparens#1{\mathchoice{\@dsm@noparens{#1}}{\@tsm{#1}}{\@tsm{#1}}{\@tsm{#1}}}
+\def\lsm#1{\@ifnextchar\bgroup{\@lsm{#1}\lsm}{\@@lsm{#1}}}
+\def\@lsm#1{\mathchoice{{\textstyle\sum}}{\sum}{\sum}{\sum}({\textstyle #1})\;}
+\def\@@lsm#1{\mathchoice{{\textstyle\sum}}{\sum}{\sum}{\sum}({\textstyle #1}),\ }
+\def\tsm#1{\@tsm{#1}\@ifnextchar\bgroup{\tsm}{}}
+\def\@tsm#1{\mathchoice{{\textstyle\sum_{(#1)}}}{\sum_{(#1)}}{\sum_{(#1)}}{\sum_{(#1)}}}
+\def\dsm#1{\@dsm{#1}\@ifnextchar\bgroup{\dsm}{}}
+\def\@dsm#1{\sum_{(#1)}\,}
+\def\@dsm@noparens#1{\sum_{#1}\,}
+
+
+%%% Definitional equality (used infix) %%%
+\newcommand{\jdeq}{\equiv}      % An equality judgment
+\let\judgeq\jdeq
+%\newcommand{\defeq}{\coloneqq}  % An equality currently being defined
+\newcommand{\defeq}{\vcentcolon\equiv}  % A judgmental equality currently being defined
+
+%%% Bracket/squash/truncation types %%%
+\newcommand{\trunc}[2]{\mathopen{}\left\Vert #2\right\Vert_{#1}\mathclose{}}
+\newcommand{\ttrunc}[2]{\bigl\Vert #2\bigr\Vert_{#1}}
+\newcommand{\Trunc}[2]{\Bigl\Vert #2\Bigr\Vert_{#1}}
+\newcommand{\truncf}[1]{\Vert -\Vert_{#1}}
+\newcommand{\tproj}[3][]{\mathopen{}\left|#3\right|_{#2}^{#1}\mathclose{}}
+\newcommand{\tprojf}[1]{|-|_{#1}}
+\newcommand{\brck}[1]{\trunc{}{#1}}
+\newcommand{\bbrck}[1]{\ttrunc{}{#1}}
+\newcommand{\Brck}[1]{\Trunc{}{#1}}
+\newcommand{\bproj}[1]{\tproj{}{#1}}
+\newcommand{\bprojf}{\tprojf{}}
+
+% Transport
+\newcommand{\trans}[2]{\ensuremath{{#1}_{*}\mathopen{}\left({#2}\right)\mathclose{}}\xspace}
+
+% Big parentheses
+\newcommand{\Parens}[1]{\Bigl(#1\Bigr)}
+\let\UU\cU
+
+\newcommand{\ty}{\;\textsf{type}}
+\newcommand{\prp}{\;\textsf{prop}}
+
+\newcommand{\fc}[1]{FOLDS-pre$^{#1}$category}
+\newcommand{\fcs}[1]{FOLDS-pre$^{#1}$categories}
+
+\makeatother
+
+% Local Variables:
+% mode: latex
+% TeX-master: "ufolds"
+% End:

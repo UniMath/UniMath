@@ -1,0 +1,642 @@
+\documentclass{amsart}
+\input{decls}
+\title{Univalent FOLDS}
+\author{Michael Shulman}
+\date{\today}
+
+\newcommand{\fiso}{\cong_{\textsf{F}}}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+\label{sec:introduction}
+
+% ...
+
+In~\cite{aks:rezk} and~\cite[Chapter 9]{hottbook} (the latter being a slight expansion of the former), we presented a theory of categories in univalent foundations, according to which isomorphic objects of a category are equal, and equivalent categories are equal.
+In particular, this implies that equivalent categories share all the same properties.
+
+On the other hand, in~\cite{makkai:folds} Makkai presented \dots
+
+
+We begin by comparing the definitions of category from~\cite{aks:rezk,hottbook} and from~\cite{makkai:folds}; this will lead us directly to the general theory.
+
+\section{Review of univalent foundations}
+\label{sec:uf}
+
+Univalent foundations is an extension of Martin-L\"of's intensional type theory.
+We presume general familiarity with dependent type theory and recall here only the essential concepts of univalent foundations.
+For details, we refer to~\cite{hottbook} (which does not assume any prior knowledge of type theory).
+
+% which adds principles such as \emph{the univalence axiom} and \emph{higher inductive types}.
+In univalent foundations, we view the basic objects (types) as homotopy-theoretic objects, like spaces or $\infty$-groupoids.
+Martin-L\"of's \emph{identity type}, which we write as
+\[ \jd{x:X,y:X |- (x=y)\ty} \]
+is interpreted as the space of ``paths'' from $x$ to $y$ in the ``space'' $X$.
+With this interpretation, we can import various other homotopy-theoretic concepts into type theory.
+
+For instance, a \textbf{(homotopy) equivalence} is a function $f:X\to Y$ such that there exists $g:Y\to X$ with paths $f\circ g = 1_Y$ and $g\circ f = 1_X$.
+(This notion requires a bit of refinement---see e.g.~\cite[Chapter 4]{hottbook}---but the details are unimportant for us.)
+A type $X$ is said to be \textbf{contractible} if it is homotopy equivalent to the unit type, or equivalently if there is an element $x:X$ such that for all $y:X$ we have a path $x=y$.
+As always, we interpret this according to the propositions-as-types principle, yielding the definition
+\[ \mathsf{isContr}(X) \defeq \sm{x:X}\prd{y:X} (x=y). \]
+More generally, we define the notion of \textbf{homotopy $n$-types}, for integers $n\ge -2$, by induction on $n$:
+\begin{itemize}
+\item $X$ is a $(-2)$-type if it is contractible.
+\item $X$ is an $(n+1)$-type if for all $x,y:X$ the type $(x=y)$ is an $n$-type.
+\end{itemize}
+A $(-1)$-type is also called a \textbf{mere proposition}, and is equivalently characterized by \emph{proof irrelevance}: for all $x,y:X$ we have $x=y$.
+A $0$-type is also called a \textbf{set}, and is equivalently characterized by \emph{uniqueness of identity proofs}: for all $x,y:X$ and $p,q:x=y$ we have $p=q$.
+This ensures that $X$ contains no higher homotopy information: it behaves like a disjoint union of contractible components.
+
+Among the type formers of univalent foundations is the \textbf{propositional truncation}, denoted $\brck{A}$ for any type $A$.
+This is a mere proposition which comes with a map from $A$ and is universal with this property, i.e.\ the map
+\[ (\brck{A} \to B) \to (A\to B) \]
+is an equivalence for any mere proposition $B$.
+Propositional truncation is also known as a \emph{squash type} or \emph{bracket type}~\cite{ab:bracket-types}; it enables us to represent traditional logic inside type theory.
+For instance, in addition to the ``pure'' existential quantifier $\sm{x:A} P(x)$ arising directly from the propositions-as-types principle, we have the \textbf{mere existential}
+\[ \exis{x:A} P(x) \;\defeq\; \Brck{\sm{x:A} P(x)}.\]
+In general, we use the adjective ``mere'' and the adverb ``merely'' to indicate in English the application of propositional truncation.
+For instance, a function $f:A\to B$ is said to be \textbf{surjective} if for each $b:B$ there merely exists $a:A$ such that $f(a)=b$, i.e.\ if $\prd{b:B} \brck{\sm{a:A} (f(a)=b)}$.
+
+TODO: Recall univalence
+
+\section{Categories in univalent foundations}
+\label{sec:cat-uf}
+
+Now, in~\cite{aks:rezk} and~\cite[Chapter 9]{hottbook}, we began the study of category theory in univalent foundations by defining a \textbf{precategory} to consist of the following.
+\begin{enumerate}
+\item A type $A_0$ of objects.  We write $a:A$ for $a:A_0$.
+\item For each $a,b:A$, a set $\hom_A(a,b)$ of {morphisms}.
+\item For each $a:A$, a morphism $1_a:\hom_A(a,a)$.
+\item For each $a,b,c:A$, a function
+  \[  \hom_A(b,c) \to \hom_A(a,b) \to \hom_A(a,c). \]
+\item For each $a,b:A$ and $f:\hom_A(a,b)$, we have $f = {1_b\circ f}$ and $f = {f\circ 1_a}$.
+\item For each $a,b,c,d:A$ and $f:\hom_A(a,b)$, $g:\hom_A(b,c)$, $h:\hom_A(c,d)$, we have ${h\circ (g\circ f)} ={(h\circ g)\circ f}$.
+\end{enumerate}
+Note that we do not require the type $A_0$ of objects in a precategory to be a set: it could be a set, but it could also contain arbitrary higher homotopy.
+The notion of \emph{category} fixes this as follows.
+
+Of course, we say that a morphism $f:\hom_A(a,b)$ is an \textbf{isomorphism} if there is $g:\hom_A(b,a)$ such that $f\circ g = 1_b$ and $g\circ f = 1_a$.
+According to propositions-as-types, this means that the type of isomorphisms from $a$ to $b$ is
+\[ (a\cong b) \defeq \sm{f:\hom_A(a,b)}{g:\hom_A(b,a)} (f\circ g = 1_B) \times (g\circ f = 1_A) \]
+As usual, an inverse to $f$ is unique if it exists.
+This means that for any $f:\hom_A(a,b)$, the type
+\[ \mathsf{isiso}(f) \defeq \sm{g:\hom_A(b,a)} (f\circ g = 1_B) \times (g\circ f = 1_A)  \]
+is a mere proposition.
+Thus, $(a\cong b)$ can be regarded as a ``subset'' of $\hom_A(a,b)$; in particular, it is a set.
+
+Now for any $a,b:A_0$ there is a map
+\[\mathsf{idtoiso}_{a,b}:(a=_{A_0} b) \to (a\cong b),\]
+which can be defined by path induction.
+We say that a precategory $A$ is a \textbf{category} if $\mathsf{idtoiso}_{a,b}$ is an equivalence for all $a,b$.
+This implements the idea that ``isomorphic objects are equal''.
+Note that it implies that $A_0$ is a 1-type, since its identity types are all sets (0-types).
+
+Let $\mathsf{Cat}$ denote the type of categories.
+That is, we have
+\begin{multline*}
+\mathsf{Cat} \defeq
+\sm{A_0:\UU}{\hom_A:A_0\to A_0\to\mathsf{Set}}{1:\prd{a:A_0}\hom_A(a,a)}{\circ:\cdots}\\
+\Parens{\prd{a,b:A_0}{f:\hom_A(a,b)} (f=1_b\circ f) \times (f = f\circ 1_a)}
+\times \Parens{\cdots }\\
+\times \Parens{\prd{a,b:A_0} \mathsf{isequiv} (\mathsf{idtoiso}_{a,b})}
+\end{multline*}
+(omitting for brevity the types of $\circ$ and associativity).
+We can then prove, using the univalence axiom, that the ``local'' form of univalence asserted for objects of a category implies a ``global'' form of univalence for categories themselves.
+
+\begin{thm}[\cite{aks:rezk}]\label{thm:univalence-for-categories}
+  For precategories $A$ and $B$, let $A\simeq B$ denote the type of equivalence functors from $A$ to $B$.
+  Then if $A$ and $B$ are categories, we have
+  \[ (A=_{\mathsf{Cat}}B) = (A\simeq B). \]
+\end{thm}
+
+\begin{cor}\label{thm:uf-invariance}
+  If $P:\mathsf{Cat} \to \mathsf{Prop}$ is any property of categories expressible in univalent foundations, and $A$ and $B$ are equivalent categories, then $P(A) \Leftrightarrow P(B)$.
+\end{cor}
+\begin{proof}[Proof of \autoref{thm:uf-invariance}]
+  If $A\simeq B$, then $A=B$ by \autoref{thm:univalence-for-categories}.
+  Since $P$ respects equality, as does any operation in type theory, we have $P(A)=P(B)$.
+  But equality in $\mathsf{Prop}$ is bi-implication, so $P(A) \Leftrightarrow P(B)$.
+\end{proof}
+
+It is also shown in~\cite{aks:rezk,hottbook} that every precategory $A$ admits a fully faithful and essentially surjective functor (a \emph{weak equivalence}) to a category $\Ahat$, its \emph{Rezk completion}.
+Moreover, every weak equivalence between categories is an equivalence, hence an equality.
+Thus we have:
+
+\begin{cor}
+  If $P:\mathsf{Precat}\to\mathsf{Prop}$ is any property of precategories expressible in univalent foundations, then the following are equivalent:
+  \begin{enumerate}
+  \item $P$ is invariant under weak equivalence.
+  \item $P$ factors through the Rezk completion $\mathsf{Precat}\to \mathsf{Cat}$.
+  \end{enumerate}
+\end{cor}
+
+
+\section{Categories in FOLDS}
+\label{sec:categories-folds}
+
+In~\cite{makkai:folds}, Makkai presents a definition of category in a language called First-Order Logic with Dependent Sorts (FOLDS).
+In contrast to univalent foundations, the language FOLDS is not a foundational system for all of mathematics; rather, it is a certain sort of first-order logic which is designed for talking about higher categorical structures.
+Just as one might introduce the axioms of Zermelo--Fraenkel set theory inside of ordinary one-sorted first-order logic, one might contemplate introducing category-theoretic foundational axioms for mathematics (such as, for instance, Lawvere's Elementary Theory of the Category of Sets~\cite{lawvere:etcs-long}) inside of FOLDS.
+Makkai's definition of ``category'' in FOLDS could be the first part of such a system.
+
+On the other hand, since FOLDS is a restricted form of dependent type theory, we can interpret it inside of univalent foundations, in the same way that ordinary first-order logic can be interpreted inside simple type theory or set theory.
+We can then ask how Makkai's definition of category compares to the ``native'' one of univalent foundations described in \autoref{sec:cat-uf}.
+This will be our task in \autoref{sec:categories}; in this section we recall the basic definitions of FOLDS in the special case of categories (we postpone the general case to \autoref{sec:folds}).
+
+A signature for a theory in FOLDS consists of a ``simple category'' with certain distinguished ``relation'' objects.
+For the FOLDS signature of categories, the simple category in question is:
+\begin{equation}
+  \vcenter{\xymatrix{
+      T \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & I \ar[d] \\
+      & A \ar@<1mm>[d] \ar@<-1mm>[d] \\
+      & O}}\label{eq:cat-simplecat}
+\end{equation}
+with some relations on the composite arrows.
+The intent is that $O$ is the sort of objects, $A$ the sort of arrows, $I$ the sort of identity arrows, and $T$ the sort of composable pairs of arrows.
+This implies, for instance, that the two composites $I\to A\toto O$ must be equal, and some similar relations on the morphisms $T\to O$ (in fact, $T$, $A$, and $O$ form a truncated version of the semi-simplicial indexing category, while~\eqref{eq:cat-simplecat} is a truncated version of the ``fat simplicial indexing category''~\cite{kock:weakids}).
+
+The distinguished relation objects in this signature are $T$ and $I$.
+The other objects (that is, $A$ and $O$) are called by Makkai \emph{kinds}.
+A special role is played by the \emph{maximal kinds}, those not admitting any nonidentity arrow from another kind: in this example the only maximal kind is $A$.
+
+Given such a signature, FOLDS is a logic on top of an extremely basic dependent type theory, which has no type forming rules except those derived directly from the dependency structure of the kinds, as expressed by the simple category.
+In our example, there are two type forming rules:
+\[ \inferrule{ }{{\Gm \vdash O \ty}} \qquad
+\inferrule{{\Gm\vdash x:O}\\ {\Gm\vdash y:O}}{{\Gm\vdash A(x,y)\ty}}
+\]
+The first rule has no hypotheses, because the object $O$ of~\eqref{eq:cat-simplecat} is not the domain of any nonidentity arrow, while similarly the second rule has two hypotheses corresponding to the two nonidentity arrows $A\toto O$.
+Since there are no other type- or term-forming rules, a context in this type theory is simply a list of variables, each of which has type either $O$ or $A(x,y)$, where $x,y$ are variables occurring earlier in the context with type $O$.
+
+The logic on top of this dependent type theory may be described by introducing an additional form of judgment ``$P\prp$'', as in logic-enriched type theory~\cite{ag:colldtt} and the type theories that describe the internal language of categories~\cite{?}.
+The basic rules for this judgment are relations arising from the distinguished relation symbols; in our example these are
+\[\inferrule{\Gm\vdash x:O \\ \Gm\vdash f:A(x,x)}{\Gm\vdash I_x(f) \prp}\]
+and
+\[\inferrule{\Gm\vdash x:O \\
+\Gm\vdash y:O \\
+\Gm\vdash z:O \\
+\Gm\vdash f:A(x,y)\\
+\Gm\vdash g:A(y,z)\\
+\Gm\vdash h:A(x,z)
+}{\Gm\vdash T_{x,y,z}(f,g,h)\prp}
+\]
+As with the type-forming rules, the hypotheses of each rule correspond to the nonidentity arrows out of the corresponding object of~\eqref{eq:cat-simplecat}.
+The proposition $I_x(f)$ is intended to be read as ``$f$ is the identity arrow at $x$'', while $T_{x,y,z}(f,g,h)$ should be read as ``$h$ is the composite of $g$ and $f$''.
+
+There are also the usual rules for all the logical connectives and quantifiers: $\land$, $\lor$, $\exists$, $\forall$, and so on; this completes the definition of \textbf{FOLDS without equality}.
+For \textbf{FOLDS with (restricted) equality}, we additionally allow equality propositions for inhabitants of types arising from \emph{maximal kinds only}; in our example this yields
+\[ \inferrule{\Gm\vdash x:O \\ \Gm\vdash y:O \\ \Gm\vdash f:A(x,y) \\ \Gm\vdash g:A(x,y)}{\Gm\vdash (f=g) \prp}\]
+As usual, a \emph{theory} in such a signature is specified by giving certain \emph{axioms}.
+For instance, one of the axioms of the theory of categories is
+\[ \fall{x:O}\exis{f:A(x,x)} I_x(f) \]
+asserting that every object has an identity arrow.
+Another one is
+\begin{equation*}
+%  \fall{x,y,z:O}{f:A(x,y)}{g:A(y,z)}{h:A(x,z)}{k:A(x,z)} \\
+  (T_{x,y,z}(f,g,h) \land T_{x,y,z}(f,h,k)) \Rightarrow (h=k)
+\end{equation*}
+asserting that two arrows have only one composite.
+
+Of course, we can add a deductive system to FOLDS, e.g.\ by introducing a further judgment ``$P\;\mathsf{true}$'' with the usual rules of first-order logic over a dependent type theory.
+However, Makkai is mainly concerned instead with the semantics of FOLDS theories.
+There are two general ways to describe set-valued semantics of dependent type theory: we can interpret a dependent type ``$x:A \vdash B(x)\ty$'' either as a function $B:A\to \mathrm{Set}$ or as a function $B\to A$ (in the latter case the individual sets in the family are the fibers).
+Makkai chooses the latter, but since we eventually care more about interpreting FOLDS in univalent foundations, which is another dependent type theory, we choose the former.
+
+Thus, we define a \textbf{structure} (in sets) for the signature~\eqref{eq:cat-simplecat} to consist of
+\begin{itemize}
+\item A set $O$;
+\item A function $A:O\times O \to \mathrm{Set}$;
+\item For each $x\in O$, a subset $I_[x$ of $A(x,x)$; and
+\item For each $x,y,z\in O$, a subset $T_{x,y,z}$ of $A(x,y) \times A(y,z) \times A(x,z)$.
+\end{itemize}
+%
+% Given a signature such as~\eqref{eq:cat-simplecat}, a \emph{structure} is defined to be a functor from this category to sets (or, perhaps, some more general category), satisfying an additional condition ensuring that the distinguished relation objects $T$ and $I$ are indeed sent to relations, i.e.\ subobjects of an appropriate domain.
+% To state this precisely, suppose $X$ is a functor out of~\eqref{eq:cat-simplecat}, i.e.\ a diagram of the form
+% \begin{equation*}
+% \vcenter{\xymatrix{
+%   X_T \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & X_I \ar[d] \\ % & X_E \ar@<1mm>[dl] \ar@<-1mm>[dl] \\
+%   & X_A \ar@<1mm>[d] \ar@<-1mm>[d] \\
+%   & X_O.}}
+% \end{equation*}
+% For each object $U$ of~\eqref{eq:cat-simplecat}, we define the corresponding \textbf{matching object} of $X$, written $M_U X$, to be the limit of $X$ restricted to the category of nonidentity arrows with domain $U$.
+% Thus we have
+% \begin{align*}
+%   M_O X &= 1\\
+%   M_A X &= X_O \times X_0 \\
+%   M_I X &= \mathrm{eq}(X_A \toto X_O)\\
+%   M_T X &= \mathrm{lim}\left(
+%     \vcenter{\xymatrix@R=1pc@C=.5pc{&& X_A \ar[dl] \ar[dr] \\ & X_O && X_O \\
+%       X_A \ar[ur] \ar[rr] && X_O && X_A \ar[ll] \ar[ul]}}
+%   \right) %\\
+%   %M_E X &= X_A \times_{(X_O\times X_O)} X_A.
+% \end{align*}
+% The point is that the single morphism $X_U \to M_U X$ encapsulates the action of $X$ on all the nonidentity morphisms with domain $U$.
+% In the usual language of semantics of dependent type theory, it is the ``display map'' or ``dependent projection'' corresponding to the dependent type $U$, with $M_U X$ being the semantics of the context of variables on which $U$ depends.
+% For instance, the map $X_A \to M_A X = X_O \times X_O$ assigns to each arrow its domain and codomain.
+
+% The condition for $X$ to be a \textbf{structure} is then that $X_U \to M_U X$ is a monomorphism whenever $U$ is a distinguished relation object (i.e.\ $T$ and $I$ in our example).
+% Thus, $X_I$ is a subset of the set of arrows with equal domain and codomain, while $X_T$ is a subset of the set of composable triples of arrows.
+%
+Of course, this structure is a \textbf{model} of some FOLDS theory (such as the theory of categories) if it is a structure which furthermore satisfies the axioms in the obvious sense.
+
+Note that as usual in first-order logic, FOLDS with equality can be reduced to FOLDS without equality, by adding a binary ``equality'' relation on all maximal kinds.
+That is, instead of~\eqref{eq:cat-simplecat} we consider
+\begin{equation}
+\vcenter{\xymatrix{
+  T \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & I \ar[d] & E \ar@<1mm>[dl] \ar@<-1mm>[dl] \\
+  & A \ar@<1mm>[d] \ar@<-1mm>[d] \\
+  & O}}\label{eq:cat-simplecateq}
+\end{equation}
+and we replace the proposition $(f=g)$ by $E_{x,y}(f,g)$.
+When a theory with equality is translated into a theory without equality in this way, we have to add axioms asserting that the relation $E$ is an equivalence relation and a congruence for all the other relations, e.g.
+\begin{gather*}
+  E_{x,y} (f,f)\\
+  E_{x,y}(f,g) \Rightarrow E_{x,y}(g,f)\\
+  E_{x,y}(f,g) \land E_{x,y}(g,h) \Rightarrow E_{x,y}(f,h)\\
+  E_{x,x}(f,g) \land I_x(f) \Rightarrow I_x(g)\\
+  E_{x,y} (f,f') \land E_{y,z} (g,g') \land E_{x,z} (h,h') \land T_{x,y,z}(f,g,h) \Rightarrow T_{x,y,z}(f',g',h').
+\end{gather*}
+And when considering semantics of the translated theory, we generally restrict to \textbf{standard} models, meaning those where $X_E$ is the actual equality relation on $X_A$.
+
+The point of all this is to give a language in which to talk about categories which contains no equality predicate for the objects.
+Since $O$ is not a maximal kind, there is no proposition $(x=y)$ in FOLDS for $x,y:O$.
+This enables Makkai to prove:
+
+\begin{thm}[\cite{makkai:folds}]
+  For any property $P$ of categories, the following are equivalent:
+  \begin{enumerate}
+  \item $P$ is invariant under equivalence of categories.
+  \item $P$ can be expressed as a formula of FOLDS.
+  \end{enumerate}
+\end{thm}
+
+Essentially the same result was obtained earlier by Freyd and Blanc~\cite{freyd:invar-eqv,blanc:eqv-log}; the point of FOLDS is to place it in a general context.
+Indeed, Makkai actually proved more generally that for \emph{any} FOLDS theory, a property of its models is expressible in FOLDS if and only if it is invariant under ``FOLDS-equivalence''.
+The important ingredient here is, of course, the notion of FOLDS-equivalence, which makes sense in the generality of any FOLDS theory, while reducing in the case of categories to ordinary (weak) equivalence of categories.
+We will return to FOLDS-equivalence in \autoref{sec:folds-equivalence}.
+
+% \begin{rmk}
+%   Although the definitions presented above ``get the job done'', one may feel that there are too many technicalities: we need a distinguished set of relations, the maximal kinds and the equality relation get special treatment, and there is the curious condition on a structure to be ``standard''.
+%   %and on an equivalence to be ``normal''.
+%   Moreover, things start to feel even more \emph{ad hoc} for higher categorical structures such as pseudofunctors and bicategories, where we have to impose an additional ``saturation'' condition; see \autoref{?}.
+%   Fortunately, all these problems will go away when we do FOLDS univalently. % see \autoref{?}.
+% \end{rmk}
+
+
+\section{Comparing notions of category}
+\label{sec:categories}
+
+Since FOLDS is a restricted sort of dependent type theory, we can easily interpret it inside the more powerful dependent type theory of univalent foundations.
+If we do this na\"ively, then the structure underlying a FOLDS-category in UF would consist of the following.
+\begin{enumerate}
+\item A type $O$.\label{item:foldscat1}
+\item For each $x,y:O$, a type $A(x,y)$.\label{item:foldscat2}
+\item For each $x:O$ and $f:A(x,x)$, a type $I_x(f)$.\label{item:foldscat3}
+\item For each $x,y,z:O$ and $f:A(x,y)$, $g:A(y,z)$, and $h:A(x,z)$, a type $T_{x,y,z}(f,g,h)$.\label{item:foldscat4}
+\end{enumerate}
+However, since $I$ and $T$ are supposed to represent relations, it is natural to require that the types $I_x(f)$ and $T_{x,y,z}(f,g,h)$ be mere propositions.
+This is analogous to the requirement in Makkai's semantics of FOLDS that these relations be interpreted by subobjects.
+Unlike Makkai, however, we have to consider the additional problem of whether the types $O$ and $A(x,y)$ should be assumed to be sets, or more generally $n$-types for any $n$.
+For now, let us follow the definition of precategory in \autoref{sec:cat-uf} and suppose that the types $A(x,y)$ are sets, but that the type $O$ is arbitrary.
+
+\begin{defn}
+  A \textbf{FOLDS-precategory} consists of data as in~\autoref{item:foldscat1,item:foldscat2,item:foldscat3,item:foldscat4} above such that each $A(x,y)$ is a set, each $I_x(f)$ and $T_{x,y,z}(f,g,h)$ are mere propositions, and the FOLDS axioms of a category (with equality interpreted standardly as the identity type on the sets $A(x,y)$) are satisfied.
+\end{defn}
+
+This definition is motivated by the following.
+
+\begin{lem}
+  The type of FOLDS-precategories is equivalent to the type of precategories.
+\end{lem}
+\begin{proof}
+  The underlying data of a type of objects and dependent hom-sets are the same, and the translations in either direction are obvious.
+  In one direction, we define $I_x(f) \defeq (f = 1_x)$ and $T_{x,y,z}(f,g,h) \defeq (h = g\circ f)$.
+  In the other direction, we define $1_x$ to be the unique $f:\hom_X(x,x)$ such that $I_x(f)$, and $g\circ f$ to be the unique $h$ such that $T_{x,y,z}(f,g,h)$.
+  (Here we use the principle of unique choice, which holds in univalent foundations; see~\cite[\S3.9]{hottbook}.)
+\end{proof}
+
+Now, in \autoref{sec:cat-uf} we defined \emph{categories} to be precategories satisfying a univalence condition, and concluded that for such categories the type of objects must be a 1-type.
+We can of course do the same for FOLDS-precategories, but we would like to do it in a way which uses only the FOLDS structure, so that we can generalize it to higher categorical structures.
+The central problem is to characterize the type $(a\cong b)$ of isomorphisms between $a,b:O$ without using our knowledge that these data describe a category.
+
+To start with, recall that by the Yoneda lemma, isomorphisms $(a\cong b)$ in a category $X$ can equivalently be described by natural families of isomorphisms of sets $\hom_X(x,a) \cong \hom_X(x,b)$.
+We can phrase such a natural family in the language of FOLDS-precategories as follows:
+\begin{enumerate}
+\item For each $x:O$, an isomorphism $\phi_{x\bullet}:A(x,a) \cong A(x,b)$.\label{item:foldsiso1}
+\item For each $x,y:O$, $f:A(x,y)$, $g:A(y,a)$, and $h:A(x,a)$, we have\label{item:foldsiso2}
+  \[T_{x,y,a}(f,g,h) \Leftrightarrow T_{x,y,b}(f,\phi_{y\bullet}(g),\phi_{x\bullet}(h)).\]
+\end{enumerate}
+The second condition, of course, is an equivalent way to say that $\phi_{y\bullet}(g) \circ f = \phi_{x\bullet}(g\circ f)$.
+This looks more promising, but it still privileges one of the variables of $A$ over the other, and the relation $T$ over $I$ (and $E$).
+More natural from the FOLDS point of view would be to replace~\ref{item:foldsiso1} by
+\begin{enumerate}[label=(\alph*)]
+\item For each $x:O$, an isomorphism $\phi_{x\bullet}:A(x,a) \cong A(x,b)$.\label{item:foldsiso1a}
+\item For each $z:O$, an isomorphism $\phi_{\bullet z}:A(a,z) \cong A(b,z)$.\label{item:foldsiso1b}
+\item An isomorphism $\phi_{\bullet\bullet}:A(a,a) \cong A(b,b)$.\label{item:foldsiso1c}
+\end{enumerate}
+and~\ref{item:foldsiso2} by logical equivalences
+\begin{align}
+  T_{x,y,a}(f,g,h) &\Leftrightarrow T_{x,y,b}(f,\phi_{y\bullet}(g),\phi_{x\bullet}(h)) \label{eq:Txya}\\
+  T_{x,a,z}(f,g,h) &\Leftrightarrow T_{x,b,z}(\phi_{x\bullet}(f),\phi_{\bullet z}(g),h) \label{eq:Txaz}\\
+  T_{a,z,w}(f,g,h) &\Leftrightarrow T_{b,z,w}(\phi_{\bullet z}(f),g,\phi_{\bullet w}(h)) \label{eq:Tazw}\\
+  T_{x,a,a}(f,g,h) &\Leftrightarrow T_{x,b,b}(\phi_{x\bullet}(f),\phi_{\bullet\bullet}(g),\phi_{x\bullet}(h)) \label{eq:Txaa}\\
+  T_{a,x,a}(f,g,h) &\Leftrightarrow T_{b,x,b}(\phi_{\bullet x}(f),\phi_{x\bullet}(g),\phi_{\bullet\bullet}(h)) \label{eq:Taxa}\\
+  T_{a,a,x}(f,g,h) &\Leftrightarrow T_{b,b,x}(\phi_{\bullet\bullet}(f),\phi_{\bullet x}(g),\phi_{\bullet x}(h)) \label{eq:Taax}\\
+  T_{a,a,a}(f,g,h) &\Leftrightarrow T_{b,b,b}(\phi_{\bullet\bullet}(f),\phi_{\bullet\bullet}(g),\phi_{\bullet\bullet}(h)) \label{eq:Taaa}\\
+  I_{a,a}(f) &\Leftrightarrow I_{b,b}(\phi_{\bullet\bullet}(f)) \label{eq:Iaa}
+  % \\
+  % E_{x,a}(f,g) &\Leftrightarrow E_{x,b}(\phi_{x\bullet }(f),\phi_{x\bullet}(g)) \label{eq:Exa}\\
+  % E_{a,x}(f,g) &\Leftrightarrow E_{b,x}(\phi_{\bullet x}(f),\phi_{\bullet x}(g)) \label{eq:Eax}\\
+  % E_{a,a}(f,g) &\Leftrightarrow E_{b,b}(\phi_{\bullet \bullet}(f),\phi_{\bullet \bullet}(g)) \label{eq:Eaa}
+\end{align}
+for all $x,y,z,w:O$ and $f,g,h$ of appropriate types.
+Fortunately, the additional data here are completely redundant.
+Just as~\eqref{eq:Txya} means that the $\phi_{x\bullet}$ form a natural isomorphism,~\eqref{eq:Tazw} means that the $\phi_{\bullet z}$ form a natural isomorphism, and~\eqref{eq:Txaz} means that these two natural isomorphisms arise from the same isomorphism $\phi : a\cong b$.
+Given this, any one of~\autoref{eq:Txaa,eq:Taxa,eq:Taax} ensures that $\phi_{\bullet\bullet}$ is conjugation by $\phi$, and then the other two follow automatically, as do~\autoref{eq:Taaa,eq:Iaa}.
+This suggests the following definition.
+
+\begin{defn}
+  For $a,b$ objects of a FOLDS-precategory, a \textbf{FOLDS-isomorphism} from $a$ to $b$ consists of data as in \autoref{item:foldsiso1a,item:foldsiso1b,item:foldsiso1c} satisfying \crefrange{eq:Txya}{eq:Iaa} for all $x,y,z,w:O$ and $f,g,h$ of appropriate types.
+\end{defn}
+
+\begin{thm}
+  In any FOLDS-precategory, the type of FOLDS-isomorphisms from $a$ to $b$ is equivalent to the type of ordinary isomorphisms $a\cong b$.\qed
+\end{thm}
+
+The point is that the definition of FOLDS-isomorphism can be derived algorithmically from the FOLDS-signature for categories, by an algorithm which applies equally well to any FOLDS-signature.
+We will give this algorithm explicitly in \autoref{sec:folds-isomorphisms}, but for now we trust that this seems plausible.
+Thus, we may expect that for any FOLDS-theory we will have a notion of \emph{premodel} analogous to precategories, and then a notion of \emph{model} obtained by asserting an appropriate univalence property.
+Namely, for each kind $K$ in the FOLDS-signature and each $a,b:K$ in a premodel, there ought to be a canonical map from $(a=_K b)$ to the type of FOLDS-isomorphisms $(a\fiso b)$, and the condition for a premodel to be a model will be that this map is an equivalence.
+
+Having leaped to this general conclusion, however, let us look back at the example of categories for a moment.
+There are two obvious mismatches between this example, as we have described it so far, and the general theory we have just proposed.
+Firstly, we have assumed (in a somewhat \textit{ad hoc} manner) that the types $A(x,y)$ in a FOLDS-precategory are all sets.
+Secondly, we have just proposed that \emph{all} kinds in a FOLDS model should satisfy a univalence property, but in the example of categories we have only considered this for the kind $O$.
+
+Fortunately, these two problems solve each other, and moreover absolve us of the need to postulate ``standardness'' with respect to equality in the bargain.
+Let us make the following definition
+
+\begin{defn}
+  A \textbf{\fc{2}} consists of the following data:
+  \begin{enumerate}
+  \item A type $O$.
+  \item For each $x,y:O$, a type $A(x,y)$.
+  \item For each $x:O$ and $f:A(x,x)$, a mere proposition $I_x(f)$.
+  \item For each $x,y,z:O$ and $f:A(x,y)$, $g:A(y,z)$, and $h:A(x,z)$, a mere proposition $T_{x,y,z}(f,g,h)$.
+  \item For each $x,y:O$ and $f,g:A(x,y)$, a mere proposition $E_{x,y}(f,g)$.
+  \end{enumerate}
+  which satisfy the FOLDS axioms of a category, with equality interpreted by the propositions $E$.
+\end{defn}
+
+Now suppose given $f,g:A(a,b)$ in a \fc{2}.
+A FOLDS-iso\-mor\-phism from $f$ to $g$ should consist of logical equivalences between instances of $T$, $I$, and $E$ with occurrences of $f$ replaced by $g$ in all possible ways.
+It is obvious that this should begin with
+\begin{align}
+  T_{x,a,b}(u,f,v) &\Leftrightarrow T_{x,a,b}(u,g,v) \label{eq:fia1}\\
+  T_{a,x,b}(u,v,f) &\Leftrightarrow T_{a,x,b}(u,v,g)\\
+  T_{a,b,x}(f,u,v) &\Leftrightarrow T_{x,a,b}(g,u,v)\\
+  \intertext{for all $x:O$ and $u,v$ of appropriate types.
+    However, is perhaps not so obvious how to continue: how do we put $f$ in two or three of the places in $T$ in the most general possible way?
+    In \autoref{sec:folds-isomorphisms} we will describe the underlying general theory, but for now we ask the reader to believe us that the answer is to assume an equality between objects and transport $f$ along it so as to make the statement well-typed.
+    This leads us to complete the notion of FOLDS-isomorphism between $f$ and $g$ as follows.}
+  \prd{p:b=a} T_{a,a,b}(\trans{p}{f},f,u) &\Leftrightarrow T_{a,a,b}(\trans{p}{g},g,u)\\
+  \prd{p:a=a} T_{a,b,b}(\trans{p}{f},u,f) &\Leftrightarrow T_{a,b,b}(\trans{p}{g},u,g)\\
+  \prd{p:b=b} T_{a,a,b}(u,\trans{p}{f},f) &\Leftrightarrow T_{a,a,b}(u,\trans{p}{g},g)\\
+  \prd{p:a=a}{q:b=a}{r:b=b} T_{a,a,b} (\trans{(p,q)}f,\trans r f,f) &\Leftrightarrow T_{a,a,b}(\trans{(p,q)}g,\trans r g,g)\\
+  \prd{p:b=a} I_{a} (\trans p f) &\Leftrightarrow I_a(\trans p g)\\
+  E_{a,b}(f,u) &\Leftrightarrow E_{a,b}(g,u)\\
+  E_{a,b}(u,f) &\Leftrightarrow E_{a,b}(u,g)\\
+  \prd{p:a=a}{q:b=b} E_{a,b} (\trans{(p,q)}f,f) &\Leftrightarrow E_{a,b} (\trans{(p,q)}g,g)\label{eq:fian}
+\end{align}
+
+\begin{defn}
+  For $f,g:A(x,y)$ in a \fc{2}, a \textbf{FOLDS-isomorphism} from $f$ to $g$ consists of the logical equivalences shown in~\crefrange{eq:fia1}{eq:fian}.
+\end{defn}
+
+Since $T$, $I$, and $E$ in a \fc{2} are mere propositions, so is the type of FOLDS-isomorphisms from $f$ to $g$, which we denote $f\fiso g$.
+Of course, if $f$ and $g$ are the same, then both sides of all these equivalences are identical, so we have $f\fiso f$.
+Thus, by path induction, we have $(f=g) \to (f\fiso g)$, and the obvious ``univalence'' condition for the kind $A$ is that this map is an equivalence for all $f,g$.
+
+\begin{thm}
+  A \fc{2} is a FOLDS-precategory if and only if the map $(f=g) \to (f\fiso g)$ is an equivalence for all $f,g$.
+\end{thm}
+\begin{proof}
+  First of all, since $f\fiso g$ is a mere proposition, if the latter condition holds then each type $A(a,b)$ is a set.
+  Thus, for the ``if'' direction, it will suffice to show that if $E_{a,b}(f,g)$ then $f\fiso g$.
+  However, this follows easily from the axioms that $E$ is a congruence for $T$ and $I$.
+
+  For the ``only if'' direction, we must show that $(f\fiso g) \Rightarrow (f=g)$ in a FOLDS-precategory.
+  However, since $E_{a,b}(f,f)$ always, $f\fiso g$ implies in particular that $E_{a,b}(f,g)$, hence $f=g$ by standardness.
+\end{proof}
+
+Thus, by extending the ``univalence'' condition of a category from the kind $O$ to the kind $A$, we encompass automatically the assumption that the hom-types in a precategory are sets and that the equality is standard.
+
+We can even go one step further and stop considering the ``distinguished relations'' as special.
+
+\begin{defn}
+  A \textbf{\fc{3}} consists of the same data as a \fc{2}, but without the assumption that the types $T$, $I$, and $E$ are mere propositions.
+\end{defn}
+
+In a \fc{3}, we may ask about the type $t\fiso t'$ of FOLDS-iso\-mor\-phisms between two inhabitants $t,t':T_{x,y,z}(f,g,h)$, say.
+By analogy, this should consist of consistent equivalences between all types dependent on $t$ and $t'$.
+However, there are no such types in the signature.
+Thus, there is a unique such FOLDS-isomorphism, i.e.\ $(t\fiso t')$ is contractible.
+The same reasoning applies to $I$ and $E$.
+Thus, the univalence condition for these types will assert simply that all of their path-types are contractible, i.e.\ that they are mere propositions.
+
+\begin{thm}
+  A \fc{3} is a \fc{2} if and only if the canonical maps
+  \begin{align*}
+    (t= t') &\to (t\fiso t')\\
+    (i=i') &\to (i\fiso i')\\
+    (e=e') &\to (e\fiso e')
+  \end{align*}
+  are equivalences for all inhabitants of the types $T$, $I$, and $E$ respectively.
+\end{thm}
+
+Thus, the FOLDS-theory of categories need consist only of the simple category~\eqref{eq:cat-simplecateq} and the corresponding axioms.
+We expect the general notion of \emph{premodel} for this theory to be what we have called above a ``\fc{3}''.
+Then there will be a general \emph{univalence} condition which makes a premodel into a \emph{model}, such that models of the FOLDS-theory of categories are equivalent to categories as defined in \autoref{sec:cat-uf}.
+
+We now proceed to the general definitions.
+
+
+\section{FOLDS signatures and theories}
+\label{sec:folds}
+
+Definition of simple category and the corresponding DTT.
+
+What sort of ``axioms'' do we allow?  Arbitrary types built in UF from the basic ones?  Or maybe only propositional ones.
+
+
+\section{FOLDS-equivalence}
+\label{sec:folds-equivalence}
+
+Use morphisms, not dependent structures.
+
+Theorem: a very surjective map between univalent structures is a levelwise equivalence.
+Downward induction works, even before officially defining univalence.
+
+
+\section{FOLDS-isomorphisms and univalence}
+\label{sec:folds-isomorphisms}
+
+Define FOLDS-isomorphisms using FOLDS-equivalences.
+
+
+A simple example: ordinary first-order structures.
+
+
+\section{Example: $\dagger$-categories}
+\label{sec:dagger-categories}
+
+Works!
+
+\section{Restricted FOLDS-isomorphism and saturation}
+\label{sec:saturation}
+
+Anabicategories: need saturation.
+Specify for each sort, a cosieve in the simple category containing it wrt which we define FOLDS-isomorphisms and univalence.
+
+Mention anafunctors too.
+Strict categories are easier this way.
+
+
+\section{Example: double categories}
+\label{sec:dblcats}
+
+Doubly weak double categories.
+
+
+\section{$\omega$-structures}
+\label{sec:omega-structures}
+
+Without downward induction, what do we do?
+
+
+\bibliographystyle{alpha}
+\bibliography{all}
+
+\end{document}
+
+
+
+In fact, the notion of FOLDS-equivalence doesn't even depend on the axioms of the theory; it uses only the underlying signature.
+If $X$ and $Y$ are structures for a FOLDS signature, then of course a morphism $\phi:Y\to X$ is just a natural transformation.
+Makkai defines such a morphism to be \textbf{very surjective} if for all $U$, the induced map
+\begin{equation}
+  Y_U \to X_U \times_{M_U X} M_U Y\label{eq:verysurjectivemap}
+\end{equation}
+is surjective.%
+\footnote{A homotopy theorist would call this being \textbf{Reedy surjective}, by analogy with the Reedy model structure.
+In fact, the very surjective maps are precisely the trivial fibrations in Cisinski model structures on a presheaf category.}
+Note that if $U$ is a distinguished relation, then~\eqref{eq:verysurjectivemap} is automatically monic, since it factors the mono $Y_U \to M_U Y$.
+Thus when $\phi$ is very surjective,~\eqref{eq:verysurjectivemap} is an isomorphism for all distinguished relations $U$.
+
+Unraveling this in our example, one obtains the following.
+
+\begin{thm}[\cite{makkai:folds}]
+  Let $X$ be a category (in sets) regarded as a structure for~\eqref{eq:cat-simplecateq}, and let $Y$ be any standard structure for~\eqref{eq:cat-simplecateq}.
+  Then the following are equivalent.
+  \begin{enumerate}
+  \item $Y$ is a category and $f:Y\to X$ is a surjective equivalence functor.\label{item:vs1}
+  \item $f:Y\to X$ is a very surjective morphism of FOLDS structures.\label{item:vs2}
+  \end{enumerate}
+\end{thm}
+
+% \begin{itemize}
+% \item $\phi$ is surjective on objects.
+% \item For each pair of objects $x,y:X_0$, the induced map $\hom_X(x,y) \to \hom_Y(\phi x,\phi y)$ is surjective (i.e.\ $\phi$ is full).
+% \item For each $x:X_0$ and $f:\hom_X(x,x)$, if $\phi f$ is an identity arrow, then so is $f$ (note that the converse follows from $\phi$ being a natural transformation).
+% \item For each $x,y,z$ and $f,g,h$, if $\phi h = \phi g \circ \phi f$, then $h= g\circ f$ (again, the converse is automatic).
+% \item For each $x,y:X_0$ and $f,g:\hom_X(x,y)$, if $\phi f = \phi g$, then $f=g$ (i.e.\ $\phi$ is faithful).
+% \end{itemize}
+% In other words, $\phi$ is very surjective iff it is a surjective equivalence functor.
+
+Note that in particular, in this case~\eqref{eq:verysurjectivemap} is an isomorphism for $U=A$ as well.
+In the case of FOLDS with equality, Makkai calls a very surjective map \textbf{normal} if it has this property for all maximal kinds.
+Very surjective maps whose domain and codomain are both standard (in the above sense that their equality relations $E$ are interpreted by actual equality) are always normal, while conversely a normal very surjective map with standard codomain must also have standard domain.
+
+Finally, $X$ and $Y$ are \textbf{FOLDS-equivalent} if they are related by a span $X \ot R \to Y$ of very surjective maps.
+In the case of categories, this is equivalent to being related by a zigzag of weak equivalence functors (without any appeal to the axiom of choice).
+The point, of course, is that the notion of FOLDS-equivalence makes sense for any FOLDS-theory, and hence can be generalized easily to higher categorical structures.
+We will return to this in \autoref{folds-equivalence}.
+
+\bigskip
+
+Let us consider how the notion of FOLDS-equivalence translates into univalent foundations.
+When discussing very surjective maps, it will be convenient to take the domain to be dependent on the codomain, with the map consisting of dependent projections.
+
+TODO: Say more earlier about semantics of DTT.
+
+That is, to describe a very surjective map $f:Y\to X$, instead of giving $X$ and $Y$ separately in terms of FOLDS-precategory data, we assume only that $X$ is a FOLDS-precategory, and describe $f$ and $Y$ together by way of the following type families:
+\begin{align*}
+  Y_O &: X_O \to \UU\\
+  Y_A &: \prd{x,y:X_O} X_A(x,y) \to Y_O(x) \to Y_O(y) \to \mathsf{Set}_\UU\\
+  Y_I &: \prd{x:X_O}{f:X_A(x,x)}{i:X_I(x,f)}{x':Y_O(x)} Y_A(x,x,f,x',x') \to \mathsf{Prop}_\UU\\
+  Y_T &: \prd{x,y,z:X_O}{f:X_A(x,y)}{g:X_A(y,z)}{h:Y_A(x,z)}{t:X_T(x,y,z,f,g,h)}{x':Y_O(x)}{y':Y_O(y)}{z':Y_O(z)}
+  \\
+  & \hspace{1cm} Y_A(x,y,f,x',y') \to Y_A(y,z,g,y',z') \to Y_A(x,z,h,x',z') \to \mathsf{Prop}_\UU
+\end{align*}
+Here each $Y_U$ is indexed by all the types that go into the codomain $X_U \times_{M_U X} M_U Y$ of~\eqref{eq:verysurjectivemap}.
+We require $Y_I$ and $Y_T$ to take values in mere propositions to match the assumption in \autoref{sec:categories-folds} that $Y$ is a structure, and  we require $Y_A$ to take values in sets by analogy with our similar requirement on FOLDS-precategories.
+
+Given these data, the condition of very-surjectivity then becomes the assertions that
+\begin{gather}
+  \prd{x:X_O} \brck{Y_O(x)} \label{eq:ufolds-vsurj-O}\\
+  \prd{x,y:X_O}{f:X_A(x,y)}{x':Y_O(x)}{y':Y_O(y)} \brck{Y_A(x,y,f,x',y'),}\label{eq:ufolds-vsurj-A}
+\end{gather}
+%% TODO: Introduce propositional truncation
+that $Y_I$ and $Y_T$ take values in \emph{true} propositions (i.e.\ are constant at the unit type $1$), and that
+\begin{multline}
+  \prd{x,y:X_O}{f,g:X_A(x,y)}{p:f=g}\\ \prd{x':Y_O(x)}{y':Y_O(y)}{f':Y_A(x,y,f,x',y')}{g':Y_A(x,y,g,x',y')} (f'=g').\label{eq:ufolds-vsurj-E}
+\end{multline}
+In the last condition, since $X$ and $Y$ are supposed to be standard structures, we have replaced $E$ with the actual identity types.
+Note that these have no unexpected homotopical behavior, since $X_A$ and $Y_A$ are set-valued.
+Also,~\eqref{eq:ufolds-vsurj-E} is equivalent to asking that $Y_A$ take values in mere propositions, and so by~\eqref{eq:ufolds-vsurj-A} it is also constant at $1$.
+Thus, the natural representation of a very surjective map $Y\to X$, with $X$ a FOLDS-precategory, is simply a type family $Y_O :X_O\to\UU$ which is merely inhabited (i.e.~\eqref{eq:ufolds-vsurj-O} holds).
+We can then define $Y_A$, $Y_I$, and $Y_T$ as above to be constant at $1$, and thereby obtain a precategory whose type of objects is $\sm{x:X_O} Y_O(x)$ and which maps to $X$ by a surjective equivalence.
+
+Now a FOLDS-equivalence is supposed to be a span of very surjective maps $X \ot R \to Y$, so according to this philosophy we should take the components of $R$ to be dependent on both $X$ and $Y$.
+For the first two data, this means we should have
+\begin{align*}
+  R_O &: X_O \to Y_O \to \UU\\
+  R_A &: \prd{x_1,x_2:X_O}{f:X_A(x_1,x_2)}{y_1,y_2:Y_O}{g:Y_A(y_1,y_2)} R_O(x_1,y_1) \to R_O(x_2,y_2) \to \mathsf{Set}_\UU
+\end{align*}
+The condition of very-surjectivity for $R_O$ will require that
+\begin{equation*}
+  \prd{x:X_O} \Brck{\sm{y:Y_O} R_O(x,y)}
+  \qquad\text{and}\qquad
+  \prd{y:Y_O} \Brck{\sm{x:X_O} R_O(x,y)}
+\end{equation*}
+For $R_A$, the conditions will be
+\begin{multline*}
+  \prd{x_1,x_2:X_O}{f:X_A(x_1,x_2)}{y_1,y_2:Y_O}{r_1:R_O(x_1,y_1)}{r_2:R_O(x_2,y_2)}\\
+  \Brck{\sm{g:Y_A(y_1,y_2)} R_A(x_1,x_2,f,y_1,y_2,g,r_1,r_2) }
+\end{multline*}
+and a symmetrical one.
+The condition for $E$ analogous to~\eqref{eq:ufolds-vsurj-E} will ensure that $R_A$ takes values in mere propositions.
+Finally, the conditions for $R_I$ and $R_T$ (which are uniquely determined, as before) ensure that the mere relation $R_A$ respects composition and identity of arrows.
+
+% Recall that in \autoref{sec:categories-folds} we described the notion of FOLDS-equivalence, which reproduces the notion of ``equivalence of categories'' as a special case of a general definition which doesn't ``know'' that the data describe a category.
+% Thus, it suffices to reduce the notion of isomorphism of objects \emph{in} a category to the notion of equivalence \emph{of} categories.
+% (This may seems slightly backwards, but it really works.)
+% Note that $x\cong y$ in a category $X$ if and only if there is an equivalence of categories $f:X\simeq X$ such that
+% \begin{enumerate}
+% \item $f$ is naturally isomorphic to the identity equivalence, and
+% \item $f(x)=y$.
+% \end{enumerate}
+% We can express this in FOLDS as a FOLDS-equivalence $X\ot R \to X$ such that
+% \begin{enumerate}
+% \item The diagonal span $X\ot X \to X$ factors through $R$, and
+% \item There is an $r\in R_O$ lying over $(x,y)$.
+% \end{enumerate}
+% Since we are interested in the set \emph{of} isomorphisms rather than the mere existence of one, we need to restrict this a bit further to ensure that the equivalence doesn't introduce extra junk.
+% Specifically, we will require that $R_O = X_O + 1$, so that the \emph{only} pairs of objects it relates are $(z,z)$ for all $z:X_O$ and our particular pair $(x,y)$.
+
+
+
+\end{document}
