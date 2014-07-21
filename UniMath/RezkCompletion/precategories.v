@@ -337,6 +337,26 @@ Proof.
   assumption.
 Qed.
 
+Lemma iso_inv_to_left (C : precategory) (a b c: ob C)
+  (f : iso a  b) (g : b --> c) (h : a --> c) :     
+    inv_from_iso f ;; h == g -> h == f ;; g.
+Proof.
+  intro H.
+  transitivity (f;; inv_from_iso f;; h).
+  - rewrite iso_inv_after_iso, id_left; apply idpath.
+  - rewrite <- assoc. rewrite H. apply idpath.
+Qed.  
+  
+Lemma iso_inv_to_right (C : precategory) (a b c: ob C)
+  (f : a --> b) (g : iso b c) (h : a --> c) :
+     f == h ;; inv_from_iso g -> f ;; g == h.
+Proof.
+  intro H.
+  transitivity (h;; inv_from_iso g;; g).
+  - rewrite H. apply idpath.
+  - rewrite <- assoc, iso_after_iso_inv, id_right. apply idpath.
+Qed.
+
 
 (** ** Properties of isomorphisms *)
 (** Stability under composition, inverses etc *)
