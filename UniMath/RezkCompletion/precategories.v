@@ -146,6 +146,13 @@ Definition assoc (C : precategory) :
           (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) == (f ;; g) ;; h := pr2 (pr2 C).
 
+Lemma assoc4 (C : precategory) (a b c d e : C) (f : a --> b) (g : b --> c) 
+       (h : c --> d) (i : d --> e) : 
+     ((f ;; g) ;; h) ;; i == f ;; (g ;; h) ;; i.
+Proof.
+  repeat rewrite assoc; apply idpath.
+Qed.
+
 (** Any equality on objects a and b induces a morphism from a to b *)
 
 Definition idtomor {C : precategory_data}
@@ -335,6 +342,26 @@ Proof.
   rewrite id_right in H2.
   apply pathsinv0.
   assumption.
+Qed.
+
+Lemma iso_inv_to_left (C : precategory) (a b c: ob C)
+  (f : iso a  b) (g : b --> c) (h : a --> c) :     
+    inv_from_iso f ;; h == g -> h == f ;; g.
+Proof.
+  intro H.
+  transitivity (f;; inv_from_iso f;; h).
+  - rewrite iso_inv_after_iso, id_left; apply idpath.
+  - rewrite <- assoc. rewrite H. apply idpath.
+Qed.  
+  
+Lemma iso_inv_to_right (C : precategory) (a b c: ob C)
+  (f : a --> b) (g : iso b c) (h : a --> c) :
+     f == h ;; inv_from_iso g -> f ;; g == h.
+Proof.
+  intro H.
+  transitivity (h;; inv_from_iso g;; g).
+  - rewrite H. apply idpath.
+  - rewrite <- assoc, iso_after_iso_inv, id_right. apply idpath.
 Qed.
 
 
