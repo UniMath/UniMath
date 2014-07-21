@@ -57,6 +57,13 @@ Proof.
    repeat (apply impred; intro); apply isapropweqtoprop; apply pr2.
 Qed.
 
+Definition folds_iso (a b : C) := total2 
+      (λ i : folds_iso_data a b, folds_iso_prop i).
+
+Definition folds_iso_data_from_folds_iso (a b : C) :  
+  folds_iso a b → folds_iso_data a b := λ i, pr1 i.
+Coercion folds_iso_data_from_folds_iso : folds_iso >-> folds_iso_data.
+
 Section from_iso_to_folds_iso.
 
 Variables a b : C.
@@ -176,6 +183,28 @@ Proof.
 Qed.
 
 End from_iso_to_folds_iso.
+
+Section from_folds_iso_to_iso.
+
+Variables a b : C.
+Variable i : folds_iso a b.
+
+Let i': a ⇒ b := ϕ1 i (identity (C:=precat_from_folds C) _ ).
+Let i'inv : b ⇒ a := ϕ2 i (identity (C:=precat_from_folds C) _ ).
+
+(* before attacking this one, show id and comp for fold_isos
+
+
+Lemma are_inverse : is_inverse_in_precat (C:=precat_from_folds C) i' i'inv.
+Proof.
+  split.
+  - simpl in *.
+    apply id_identity2'.
+  admit.
+Qed.
+*)
+  
+End from_folds_iso_to_iso.
 
 End folds_iso_def.
 
