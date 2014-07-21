@@ -64,6 +64,46 @@ Definition folds_iso_data_from_folds_iso (a b : C) :
   folds_iso a b → folds_iso_data a b := λ i, pr1 i.
 Coercion folds_iso_data_from_folds_iso : folds_iso >-> folds_iso_data.
 
+Definition id_folds_iso_data (a : C) : folds_iso_data a a.
+Proof.
+  repeat split.
+  - intro x. apply idweq.
+  - intro z. apply idweq.
+  - apply idweq.
+Defined.
+
+Lemma id_folds_iso_prop (a : C) : folds_iso_prop (id_folds_iso_data a).
+Proof.
+  repeat split; intros; apply idweq.
+Qed.
+  
+Definition id_folds_iso (a : C) : folds_iso a a := 
+  tpair _ (id_folds_iso_data a) (id_folds_iso_prop a).
+
+Section folds_iso_inverse.
+
+Variables a b : C.
+Variable i : folds_iso a b.
+
+Definition folds_iso_inv_data : folds_iso_data b a.
+Proof.
+  repeat split.
+  - intro x. exact (invweq (ϕ1 i)).
+  - intro z. exact (invweq (ϕ2 i)).
+  - exact (invweq (ϕdot i)).
+Defined.
+
+(*
+Lemma folds_iso_inv_prop : folds_iso_prop folds_iso_inv_data.
+Proof.
+  repeat split; intros.
+  - simpl.
+*)
+
+
+End folds_iso_inverse.
+  
+
 Section from_iso_to_folds_iso.
 
 Variables a b : C.
@@ -194,11 +234,11 @@ Let i'inv : b ⇒ a := ϕ2 i (identity (C:=precat_from_folds C) _ ).
 
 (* before attacking this one, show id and comp for fold_isos
 
-
 Lemma are_inverse : is_inverse_in_precat (C:=precat_from_folds C) i' i'inv.
 Proof.
   split.
   - simpl in *.
+(*    apply path_to_ctr. *)
     apply id_identity2'.
   admit.
 Qed.
