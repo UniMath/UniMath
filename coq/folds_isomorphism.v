@@ -22,6 +22,7 @@ Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
 Section folds_iso_def.
 
 Variable C : folds_precat.
+Notation C':= (precat_from_folds C).
 
 Definition folds_iso_data (a b : C) : UU :=
    dirprod (dirprod (∀ {x : C}, weq (x ⇒ a) (x ⇒ b)) 
@@ -63,9 +64,92 @@ Qed.
 Definition folds_iso (a b : C) := total2 
       (λ i : folds_iso_data a b, folds_iso_prop i).
 
-Definition folds_iso_data_from_folds_iso (a b : C) :  
+Definition folds_iso_data_from_folds_iso {a b : C} :  
   folds_iso a b → folds_iso_data a b := λ i, pr1 i.
 Coercion folds_iso_data_from_folds_iso : folds_iso >-> folds_iso_data.
+
+Lemma folds_iso_eq {a b : C} (i i' : folds_iso a b) : 
+  folds_iso_data_from_folds_iso i == folds_iso_data_from_folds_iso i' →
+   i == i'.
+Proof.
+  intro H.
+  apply total2_
+
+(** * a FOLDS isomorphism is given by composition *)
+
+Section about_folds_isos.
+
+Context {a b : C} (i : folds_iso a b).
+
+Lemma folds_iso_1 (x : C) (f : x ⇒ a) : 
+    ϕ1 i f == compose (C:=precat_from_folds C) f (ϕ1 i (identity (C:=precat_from_folds C) _ )).
+Proof.
+  set (q:=pr1 (pr1 (pr1 (pr1 (pr2 i))))). 
+  specialize (q _ _ f (identity (C:= C') _ ) f).
+  set (q':=pr1 q ); clearbody q'.
+  assert (H: comp f (identity (C:= C') a) f).
+  { set (H:= pr1 (pr2 (pr1 (pr2 C)))). 
+    apply H. apply id_func_id. } 
+  set (q'H:= q' H). clearbody q'H; clear H q' q.
+  apply path_to_ctr. assumption.
+Qed.  
+
+Lemma folds_iso_2 (z : C) (g : a ⇒ z) : 
+    ϕ2 i g == compose (C:= C') (ϕ2 i (identity (C:=C') _ )) g.
+Proof.
+  set (q:=pr2 (pr1 (pr1 (pr2 i)))). simpl in q.
+  specialize (q _ _ (identity (C:= C') _ ) g g).
+  set (q':=pr1 q ); clearbody q'.
+  assert (H: comp (identity (C:= C') a) g g).
+  { set (H:= pr2 (pr2 (pr1 (pr2 C)))). 
+    apply H. apply id_func_id. } 
+  set (q'H:= q' H). clearbody q'H; clear H q' q.
+  apply path_to_ctr. assumption.
+Qed. 
+
+Lemma folds_iso_3 : 
+ compose (C:=C') (ϕ1 i (identity (C:=C') _ )) 
+                 (ϕ2 i (identity (C:=C') _ )) == identity _.
+Proof.               
+  set (q:=pr2 (pr1 (pr1 (pr1 (pr2 i))))). simpl in q.
+  specialize (q _ _ (identity (C:= C') _ ) (identity (C:=C')_ ) 
+                            (identity (C:=C')_ )).
+  set (q':=pr1 q ); clearbody q'.
+  apply comp_compose2'.
+  apply q'.
+  apply comp_compose2.
+  apply comp_id_l.
+Qed.
+  
+Lemma ϕdot_identity : 
+   ϕdot i (identity (C:=C') _ ) == identity (C:=C') _ .
+Proof.
+  apply id_identity2'.  
+  apply (pr2 (pr2 i)).
+  apply id_func_id.
+Qed.
+
+Lemma folds_iso_5: compose (C:=C') 
+    ((ϕ2 i) (identity (C:=C') a)) 
+    ((ϕ1 i) (identity (C:=C') a)) == identity (C:=C') b.
+Proof.
+  set (H':= pr2 (pr1 (pr2 (pr1 (pr2 i))))).
+  simpl in H'.
+  specialize (H' _ (identity(C:=C') _ ) 
+                     (identity(C:=C') _ )
+                     (identity(C:=C') _ )).
+  simpl in H'.
+  set (H2:=ϕdot_identity). 
+  rewrite <- H2.
+  apply comp_compose2'.
+  apply H'.
+  apply comp_compose2.
+  apply comp_id_l.
+Qed.
+
+End about_folds_isos.
+
+
 
 Definition id_folds_iso_data (a : C) : folds_iso_data a a.
 Proof.
@@ -85,8 +169,7 @@ Definition id_folds_iso (a : C) : folds_iso a a :=
 
 Section folds_iso_inverse.
 
-Variables a b : C.
-Variable i : folds_iso a b.
+Context {a b : C} (i : folds_iso a b).
 
 Definition folds_iso_inv_data : folds_iso_data b a.
 Proof.
@@ -146,7 +229,51 @@ Definition folds_iso_inv : folds_iso b a :=
   tpair _ folds_iso_inv_data folds_iso_inv_prop.
 
 End folds_iso_inverse.
-  
+
+Section folds_iso_comp.
+
+Context {a b c : C} (i : folds_iso a b) (i' : folds_iso b c).
+
+Definition folds_iso_comp_data : folds_iso_data a c.
+Proof.
+  repeat split.
+  - intro x; apply (weqcomp (ϕ1 i) (ϕ1 i')).
+  - intro z; apply (weqcomp (ϕ2 i) (ϕ2 i')).
+  - apply (weqcomp (ϕdot i) (ϕdot i')).
+Defined.
+
+Lemma folds_iso_comp_prop : folds_iso_prop folds_iso_comp_data.
+Proof.
+  repeat split.
+  - intros. simpl. eapply weqcomp.
+    + apply (pr1 (pr1 (pr1 (pr1 (pr2 i))))). 
+    + apply (pr1 (pr1 (pr1 (pr1 (pr2 i'))))).
+  - intros; simpl; eapply weqcomp.
+    + apply (pr2 (pr1 (pr1 (pr1 (pr2 i))))). 
+    + apply (pr2 (pr1 (pr1 (pr1 (pr2 i'))))). 
+  - intros; simpl; eapply weqcomp.
+    + apply (pr2 (pr1 (pr1 (pr2 i)))). 
+    + apply (pr2 (pr1 (pr1 (pr2 i')))). 
+  - intros; simpl; eapply weqcomp.
+    + apply (pr1 (pr1 (pr2 (pr1 (pr2 i))))). 
+    + apply (pr1 (pr1 (pr2 (pr1 (pr2 i'))))).
+  - intros; simpl; eapply weqcomp.
+    + apply (pr2 (pr1 (pr2 (pr1 (pr2 i))))).
+    + apply (pr2 (pr1 (pr2 (pr1 (pr2 i'))))).
+  - intros; simpl; eapply weqcomp.
+    + apply (pr1 (pr2 (pr2 (pr1 (pr2 i))))). 
+    + apply (pr1 (pr2 (pr2 (pr1 (pr2 i'))))). 
+  - intros; simpl; eapply weqcomp.
+    + apply (pr2 (pr2 (pr2 (pr1 (pr2 i))))). 
+    + apply (pr2 (pr2 (pr2 (pr1 (pr2 i'))))). 
+  - intros; simpl; eapply weqcomp.
+    + apply (pr2 (pr2 i)). 
+    + apply (pr2 (pr2 i')). 
+Qed.
+
+
+
+End folds_iso_comp.
 
 Section from_iso_to_folds_iso.
 
@@ -266,6 +393,9 @@ Proof.
       * apply (iso_inv_after_iso (precat_from_folds C)).
 Qed.
 
+Definition folds_iso_from_iso : folds_iso a b :=
+  tpair _ _ folds_iso_data_prop.
+
 End from_iso_to_folds_iso.
 
 Section from_folds_iso_to_iso.
@@ -277,18 +407,52 @@ Let i': a ⇒ b := ϕ1 i (identity (C:=precat_from_folds C) _ ).
 Let i'inv : b ⇒ a := ϕ2 i (identity (C:=precat_from_folds C) _ ).
 
 (* before attacking this one, show id and comp for fold_isos
+*)
 
 Lemma are_inverse : is_inverse_in_precat (C:=precat_from_folds C) i' i'inv.
 Proof.
   split.
-  - simpl in *.
-(*    apply path_to_ctr. *)
-    apply id_identity2'.
-  admit.
+  - set (H:=folds_iso_3 i).
+    apply H.
+  - unfold i'.
+    unfold i'inv.
+    apply folds_iso_5.
 Qed.
-*)
+
+Definition iso_from_folds_iso : iso (C:=C') a b.
+Proof.
+  exists i'.
+  exists i'inv.
+  apply are_inverse.
+Defined.
+
+End from_folds_iso_to_iso.
+
+Section iso_from_folds_from_iso.
+
+Context {a b : C} (i : iso (C:=C') a b).
+
+Lemma bla : iso_from_folds_iso _ _ (folds_iso_from_iso _ _ i) == i.
+Proof.
+  apply eq_iso.
+  simpl.
+  apply (id_left C').
+Qed.
+
+Variable i' : folds_iso a b.
+
+Lemma bla2 : folds_iso_from_iso _ _ (iso_from_folds_iso _ _ i') == i'.
+Proof.
+  simpl.
+
+End iso_from_folds_from_iso.
+
+
+
   
 End from_folds_iso_to_iso.
+
+
 
 End folds_iso_def.
 
