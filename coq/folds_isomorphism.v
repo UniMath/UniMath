@@ -41,10 +41,13 @@ Notation "a ≅ b" := (weq a b) (at level 40).
 
 Definition folds_iso_prop {a b : C} (i : folds_iso_data a b) :=
  dirprod(
-    dirprod (dirprod (dirprod (∀ x y (f : x ⇒ y) (g : y ⇒ a) (h : x ⇒ a), comp f g h ≅ comp f (ϕ1 i g) (ϕ1 i h))  (* 5.3 *)
-                              (∀ x z (f : x ⇒ a) (g : a ⇒ z) (h : x ⇒ z), comp f g h ≅ comp (ϕ1 i f) (ϕ2 i g) h)) (* 5.4 *)
-                     (∀ z w (f : a ⇒ z) (g : z ⇒ w) (h : a ⇒ w), comp f g h ≅ comp (ϕ2 i f) g (ϕ2 i h)))          (* 5.5 *)
-            (dirprod (dirprod (∀ x (f : x ⇒ a) (g : a ⇒ a) (h : x ⇒ a), comp f g h ≅ comp (ϕ1 i f) (ϕdot i g) (ϕ1 i h))    (* 5.6 *)
+  dirprod(
+   dirprod(
+    dirprod(
+     ∀ x y (f : x ⇒ y) (g : y ⇒ a) (h : x ⇒ a), comp f g h ≅ comp f (ϕ1 i g) (ϕ1 i h))  (* 5.3 *)
+     (∀ x z (f : x ⇒ a) (g : a ⇒ z) (h : x ⇒ z), comp f g h ≅ comp (ϕ1 i f) (ϕ2 i g) h)) (* 5.4 *)
+      (∀ z w (f : a ⇒ z) (g : z ⇒ w) (h : a ⇒ w), comp f g h ≅ comp (ϕ2 i f) g (ϕ2 i h)))          (* 5.5 *)
+       (dirprod (dirprod (∀ x (f : x ⇒ a) (g : a ⇒ a) (h : x ⇒ a), comp f g h ≅ comp (ϕ1 i f) (ϕdot i g) (ϕ1 i h))    (* 5.6 *)
                               (∀ x (f : a ⇒ x) (g : x ⇒ a) (h : a ⇒ a), comp f g h ≅ comp (ϕ2 i f) (ϕ1 i g) (ϕdot i h)))   (* 5.7 *)
                      (dirprod (∀ x (f : a ⇒ a) (g : a ⇒ x) (h : a ⇒ x), comp f g h ≅ comp (ϕdot i f) (ϕ2 i g) (ϕ2 i h))    (* 5.8 *)
                               (∀ f g h : a ⇒ a, comp f g h ≅ comp (ϕdot i f) (ϕdot i g) (ϕdot i h))))                      (* 5.9 *)
@@ -93,13 +96,54 @@ Proof.
   - exact (invweq (ϕdot i)).
 Defined.
 
-(*
+
 Lemma folds_iso_inv_prop : folds_iso_prop folds_iso_inv_data.
 Proof.
   repeat split; intros.
-  - simpl.
-*)
+  - simpl. apply invweq.
+    set (q:=pr1 (pr1 (pr1 (pr1 (pr2 i))))). clearbody q.
+    set (q':= q _ _ f (invmap (ϕ1 i) g) (invmap (ϕ1 i) h)).
+    repeat rewrite (homotweqinvweq (ϕ1 i)) in q'.
+    apply q'.
+  - simpl. apply invweq.
+    set (q:=pr2 (pr1 (pr1 (pr1 (pr2 i))))). simpl in q; clearbody q.
+    set (q':= q _ _ (invmap (ϕ1 i) f) (invmap (ϕ2 i) g) h); clearbody q'.
+    repeat rewrite homotweqinvweq in q'.
+    apply q'.
+  - simpl. apply invweq.
+    set (q:= ((pr2 (pr1 (pr1 (pr2 i)))))). clearbody q; simpl in q.
+    set (q':= q _ _ (invmap (ϕ2 i) f) g  (invmap (ϕ2 i) h) ).
+    repeat rewrite homotweqinvweq in q'.
+    apply q'.
+  - simpl; apply invweq.
+    set (q:= pr1 (pr1 (pr2 (pr1 (pr2 i))))). clearbody q; simpl in q.
+    set (q':= q _  (invmap (ϕ1 i) f) (invmap (ϕdot i) g) (invmap (ϕ1 i) h)).
+    repeat rewrite homotweqinvweq in q'.
+    apply q'.
+  - simpl; apply invweq.
+    set (q:= pr2 (pr1 (pr2 (pr1 (pr2 i))))). clearbody q; simpl in q.
+    set (q':= q _ (invmap (ϕ2 i) f) (invmap (ϕ1 i) g) (invmap (ϕdot i) h)).
+    repeat rewrite homotweqinvweq in q'.
+    apply q'.
+  - simpl. apply invweq.
+    set (q:= pr1 (pr2 (pr2 (pr1 (pr2 i))))). clearbody q; simpl in q.
+    specialize (q _ (invmap (ϕdot i) f) (invmap (ϕ2 i) g) (invmap (ϕ2 i) h)).
+    repeat rewrite homotweqinvweq in q.
+    apply q.
+  - simpl. apply invweq.
+    set (q:= pr2 (pr2 (pr2 (pr1 (pr2 i))))). clearbody q; simpl in q.
+    specialize (q (invmap (ϕdot i) f) (invmap (ϕdot i) g) (invmap (ϕdot i) h)).
+    repeat rewrite homotweqinvweq in q.
+    apply q.
+  - simpl. apply invweq.
+    set (q:= pr2 (pr2 i)). simpl in q; clearbody q.
+    specialize (q (invmap (ϕdot i) f)).
+    rewrite homotweqinvweq in q.
+    apply q.
+Qed.
 
+Definition folds_iso_inv : folds_iso b a :=
+  tpair _ folds_iso_inv_data folds_iso_inv_prop.
 
 End folds_iso_inverse.
   
