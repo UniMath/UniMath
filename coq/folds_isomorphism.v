@@ -17,7 +17,7 @@ Require Import from_precats_to_folds_and_back.
 Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
 
 
-(** * Definition of FOLDS precat isomorphisms *)
+(** * Definition of FOLDS precat isomorphisms **)
 
 Section folds_iso_def.
 
@@ -78,7 +78,9 @@ Proof.
   - assumption.
 Qed.
 
-(** * a FOLDS isomorphism is given by composition *)
+(** * Lemmas about FOLDS isomorphisms *)  
+(** the families of equivalences constituting a FOLDS isomorphism 
+are given by composition **)
 
 Section about_folds_isos.
 
@@ -180,7 +182,8 @@ Proof.
 Qed.
 
 End bla.
-Check @ϕdot_ϕ1_ϕ2.
+
+(** * A FOLDS isomorphism is determined by the first family of isos **) 
 
 Variables i i' : folds_iso a b.
 
@@ -251,6 +254,8 @@ Qed.
 End about_folds_isos.
 
 
+(** * Identity FOLDS isomorphism **) 
+
 
 Definition id_folds_iso_data (a : C) : folds_iso_data a a.
 Proof.
@@ -267,6 +272,8 @@ Qed.
   
 Definition id_folds_iso (a : C) : folds_iso a a := 
   tpair _ (id_folds_iso_data a) (id_folds_iso_prop a).
+
+(** * Inverse of a FOLDS isomorphism **)
 
 Section folds_iso_inverse.
 
@@ -331,6 +338,8 @@ Definition folds_iso_inv : folds_iso b a :=
 
 End folds_iso_inverse.
 
+(** * Composition of FOLDS isomorphisms **)
+
 Section folds_iso_comp.
 
 Context {a b c : C} (i : folds_iso a b) (i' : folds_iso b c).
@@ -375,6 +384,8 @@ Qed.
 
 
 End folds_iso_comp.
+
+(** * From isomorphisms to FOLDS isomorphisms **)
 
 Section from_iso_to_folds_iso.
 
@@ -499,6 +510,8 @@ Definition folds_iso_from_iso : folds_iso a b :=
 
 End from_iso_to_folds_iso.
 
+(** * from FOLDS isomorphism to isomorphism **)
+
 Section from_folds_iso_to_iso.
 
 Variables a b : C.
@@ -507,22 +520,16 @@ Variable i : folds_iso a b.
 Let i': a ⇒ b := ϕ1 i (identity (C:=precat_from_folds C) _ ).
 Let i'inv : b ⇒ a := ϕ2 i (identity (C:=precat_from_folds C) _ ).
 
-(* before attacking this one, show id and comp for fold_isos
-*)
-
-Lemma are_inverse : is_inverse_in_precat (C:=precat_from_folds C) i' i'inv.
-Proof.
-  apply ϕ1_ϕ2_are_inverse.
-Qed.
-
 Definition iso_from_folds_iso : iso (C:=C') a b.
 Proof.
   exists i'.
   exists i'inv.
-  apply are_inverse.
+  apply ϕ1_ϕ2_are_inverse.
 Defined.
 
 End from_folds_iso_to_iso.
+
+(** * from FOLDS isos to isos and back, and the other way round **)
 
 Section iso_from_folds_from_iso.
 
@@ -531,19 +538,18 @@ Context {a b : C} (i : iso (C:=C') a b).
 Lemma bla : iso_from_folds_iso _ _ (folds_iso_from_iso _ _ i) == i.
 Proof.
   apply eq_iso.
-  simpl.
   apply (id_left C').
 Qed.
 
 
-(*
 Variable i' : folds_iso a b.
 
 Lemma bla2 : folds_iso_from_iso _ _ (iso_from_folds_iso _ _ i') == i'.
 Proof.
-  simpl.
-
-*)
+  apply folds_iso_equal.
+  apply (id_left C').
+Qed.
+ 
 
 End iso_from_folds_from_iso.
 
