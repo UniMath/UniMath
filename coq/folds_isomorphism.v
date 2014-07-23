@@ -73,15 +73,22 @@ Lemma folds_iso_eq {a b : C} (i i' : folds_iso a b) :
    i == i'.
 Proof.
   intro H.
-  apply total2_
+  apply total2_paths_hProp.
+  - apply isaprop_folds_iso_prop.
+  - assumption.
+Qed.
 
 (** * a FOLDS isomorphism is given by composition *)
 
 Section about_folds_isos.
 
-Context {a b : C} (i : folds_iso a b).
+Context {a b : C}.
 
-Lemma folds_iso_1 (x : C) (f : x ⇒ a) : 
+Section bla.
+
+Variable (i : folds_iso a b).
+
+Lemma ϕ1_is_comp (x : C) (f : x ⇒ a) : 
     ϕ1 i f == compose (C:=precat_from_folds C) f (ϕ1 i (identity (C:=precat_from_folds C) _ )).
 Proof.
   set (q:=pr1 (pr1 (pr1 (pr1 (pr2 i))))). 
@@ -94,7 +101,7 @@ Proof.
   apply path_to_ctr. assumption.
 Qed.  
 
-Lemma folds_iso_2 (z : C) (g : a ⇒ z) : 
+Lemma ϕ2_is_comp (z : C) (g : a ⇒ z) : 
     ϕ2 i g == compose (C:= C') (ϕ2 i (identity (C:=C') _ )) g.
 Proof.
   set (q:=pr2 (pr1 (pr1 (pr2 i)))). simpl in q.
@@ -107,7 +114,7 @@ Proof.
   apply path_to_ctr. assumption.
 Qed. 
 
-Lemma folds_iso_3 : 
+Lemma ϕ1_ϕ2_id : 
  compose (C:=C') (ϕ1 i (identity (C:=C') _ )) 
                  (ϕ2 i (identity (C:=C') _ )) == identity _.
 Proof.               
@@ -121,7 +128,7 @@ Proof.
   apply comp_id_l.
 Qed.
   
-Lemma ϕdot_identity : 
+Lemma ϕdot_id : 
    ϕdot i (identity (C:=C') _ ) == identity (C:=C') _ .
 Proof.
   apply id_identity2'.  
@@ -129,7 +136,7 @@ Proof.
   apply id_func_id.
 Qed.
 
-Lemma folds_iso_5: compose (C:=C') 
+Lemma ϕ2_ϕ1_id: compose (C:=C') 
     ((ϕ2 i) (identity (C:=C') a)) 
     ((ϕ1 i) (identity (C:=C') a)) == identity (C:=C') b.
 Proof.
@@ -139,14 +146,108 @@ Proof.
                      (identity(C:=C') _ )
                      (identity(C:=C') _ )).
   simpl in H'.
-  set (H2:=ϕdot_identity). 
-  rewrite <- H2.
+  rewrite <- ϕdot_id. 
   apply comp_compose2'.
   apply H'.
   apply comp_compose2.
   apply comp_id_l.
 Qed.
 
+Lemma ϕ1_ϕ2_are_inverse : is_inverse_in_precat (C:=precat_from_folds C) 
+     (ϕ1 i (identity (C:=C') _ )) (ϕ2 i (identity (C:=C') _ )).
+Proof.
+  split.
+  - apply ϕ1_ϕ2_id.
+  - apply ϕ2_ϕ1_id.
+Qed.
+
+Lemma ϕdot_ϕ1_ϕ2 (f : a ⇒ a) : 
+  ϕdot i f == compose 
+                 (compose (C:=C') (ϕ2 i (identity (C:=C') _ )) f) 
+                 (ϕ1 i (identity (C:=C') _) ).
+Proof.
+  set (q:=pr2 (pr1 (pr2 (pr1 (pr2 i))))); simpl in q; clearbody q.
+  specialize (q _ f (identity (C:=C') _ ) f).
+  set (q':=pr1 q). clearbody q'. simpl in q'. clear q.
+  match goal with | [_ : ?a → _ |- _ ] => assert a end.
+  { apply comp_compose2. apply (id_right C'). }
+  specialize (q' X). clear X.
+  set (q:= comp_compose2' q'). clearbody q; clear q'.
+  simpl in *.
+  change (ϕdot i f) with (ϕdot (pr1 i) f). 
+  rewrite <- q. clear q.
+  rewrite ϕ2_is_comp. apply idpath.
+Qed.
+
+End bla.
+Check @ϕdot_ϕ1_ϕ2.
+
+Variables i i' : folds_iso a b.
+
+Hypothesis H : ϕ1 i (identity (C:=C') _ ) == ϕ1 i' (identity (C:=C') _ ).
+
+Lemma ϕ2_determined : ∀ x (f : a ⇒ x) , ϕ2 i f == ϕ2 i' f.
+Proof.
+  intros x f.
+  rewrite (ϕ2_is_comp i).
+  rewrite (ϕ2_is_comp i').
+  assert (H': is_inverse_in_precat (C:=C') (ϕ1 i (identity (C:=C')_ )) 
+                               (ϕ2 i' (identity (C:=C') _ ))).
+  { split.
+    - rewrite H. apply ϕ1_ϕ2_id.
+    - rewrite H. apply ϕ2_ϕ1_id. } 
+  assert (X : ϕ2 i (identity (C:=C') _ ) == ϕ2 i' (identity (C:=C') _ )).
+  { set (H1:= inverse_unique_precat C' _ _  _ _  _ (ϕ1_ϕ2_are_inverse i) H').
+    assumption.
+  } 
+  rewrite X.
+  apply idpath.
+Qed.
+
+Lemma ϕdot_determined : ∀ f, ϕdot i f == ϕdot i' f.
+Proof.
+  intro f.
+  do 2 rewrite ϕdot_ϕ1_ϕ2.
+  rewrite ϕ2_determined.
+  rewrite H.
+  apply idpath.
+Qed.
+
+Lemma dirprodpath (A B : UU) (x y : dirprod A B) : 
+  pr1 x == pr1 y → pr2 x == pr2 y -> x == y.
+Proof.
+  intros H1 H2.
+  destruct x; destruct y. simpl in *.
+  apply pathsdirprod; assumption.
+Defined.
+  
+
+Lemma folds_iso_equal : i == i'.
+Proof.
+  apply folds_iso_eq.
+  apply dirprodpath.
+  - apply dirprodpath.
+    + apply funextsec; intro.
+      apply total2_paths_hProp.
+      * intros; apply isapropisweq.
+      * apply funextfunax; intro f.
+        etransitivity.
+        { apply ϕ1_is_comp. }
+        symmetry.
+        etransitivity.
+        { apply ϕ1_is_comp. } 
+        rewrite H. apply idpath.
+    + apply funextsec; intro.
+      apply total2_paths_hProp.
+      * intros; apply isapropisweq.
+      * apply funextfunax. apply ϕ2_determined.
+  - apply total2_paths_hProp.
+    intros. apply isapropisweq.
+    apply funextfunax. intros. 
+    apply ϕdot_determined.
+Qed.  
+
+  
 End about_folds_isos.
 
 
@@ -411,12 +512,7 @@ Let i'inv : b ⇒ a := ϕ2 i (identity (C:=precat_from_folds C) _ ).
 
 Lemma are_inverse : is_inverse_in_precat (C:=precat_from_folds C) i' i'inv.
 Proof.
-  split.
-  - set (H:=folds_iso_3 i).
-    apply H.
-  - unfold i'.
-    unfold i'inv.
-    apply folds_iso_5.
+  apply ϕ1_ϕ2_are_inverse.
 Qed.
 
 Definition iso_from_folds_iso : iso (C:=C') a b.
@@ -439,18 +535,18 @@ Proof.
   apply (id_left C').
 Qed.
 
+
+(*
 Variable i' : folds_iso a b.
 
 Lemma bla2 : folds_iso_from_iso _ _ (iso_from_folds_iso _ _ i') == i'.
 Proof.
   simpl.
 
+*)
+
 End iso_from_folds_from_iso.
 
-
-
-  
-End from_folds_iso_to_iso.
 
 
 
