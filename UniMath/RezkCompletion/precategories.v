@@ -146,6 +146,13 @@ Definition assoc (C : precategory) :
           (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) == (f ;; g) ;; h := pr2 (pr2 C).
 
+Lemma assoc4 (C : precategory) (a b c d e : C) (f : a --> b) (g : b --> c) 
+       (h : c --> d) (i : d --> e) : 
+     ((f ;; g) ;; h) ;; i == f ;; (g ;; h) ;; i.
+Proof.
+  repeat rewrite assoc; apply idpath.
+Qed.
+
 (** Any equality on objects a and b induces a morphism from a to b *)
 
 Definition idtomor {C : precategory_data}
@@ -337,6 +344,26 @@ Proof.
   assumption.
 Qed.
 
+Lemma iso_inv_to_left (C : precategory) (a b c: ob C)
+  (f : iso a  b) (g : b --> c) (h : a --> c) :     
+    inv_from_iso f ;; h == g -> h == f ;; g.
+Proof.
+  intro H.
+  transitivity (f;; inv_from_iso f;; h).
+  - rewrite iso_inv_after_iso, id_left; apply idpath.
+  - rewrite <- assoc. rewrite H. apply idpath.
+Qed.  
+  
+Lemma iso_inv_to_right (C : precategory) (a b c: ob C)
+  (f : a --> b) (g : iso b c) (h : a --> c) :
+     f == h ;; inv_from_iso g -> f ;; g == h.
+Proof.
+  intro H.
+  transitivity (h;; inv_from_iso g;; g).
+  - rewrite H. apply idpath.
+  - rewrite <- assoc, iso_after_iso_inv, id_right. apply idpath.
+Qed.
+
 
 (** ** Properties of isomorphisms *)
 (** Stability under composition, inverses etc *)
@@ -468,7 +495,23 @@ Proof.
          { apply assoc. } { apply id_left. } } 
 Qed.
 
+Definition iso_comp_right_weq {C:precategory} {a b:C} (h:iso a b) (c:C) : 
+ weq (b --> c) (a --> c) := weqpair _ (iso_comp_right_isweq h c).
 
+Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
+  isweq (fun f : c --> a => f ;; h).
+Proof. 
+  intros. apply (gradth _ (fun g => g ;; inv_from_iso h)).
+       { intros f. refine (_ @ maponpaths (fun m => f;;m) (pr1 (pr2 (pr2 h))) @ _).
+         { apply pathsinv0. apply assoc. }  { apply id_right. } }
+       { intros g. refine (_ @ maponpaths (fun m => g;;m) (pr2 (pr2 (pr2 h))) @ _).
+         { apply pathsinv0, assoc. } { apply id_right. } } 
+Qed.
+Definition iso_comp_left_weq {C:precategory} {a b:C} (h:iso a b) (c:C) : 
+ weq (c --> a) (c --> b) := weqpair _ (iso_comp_left_isweq h c).
+
+Definition iso_conjug_weq {C:precategory} {a b:C} (h:iso a b) : 
+ weq (a --> a) (b --> b) := weqcomp (iso_comp_left_weq h _ ) (iso_comp_right_weq (iso_inv_from_iso h) _ ).
 
 (** * Categories (aka saturated precategories) *)
 

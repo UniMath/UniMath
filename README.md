@@ -20,7 +20,7 @@ available from http://brew.sh/, with the following command:
 $ brew install objective-caml
 ```
 
-Under Ubuntu, you may install ocaml (and ProofGeneral) with
+Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
 
 ```bash
 $ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra proofgeneral proofgeneral-doc
