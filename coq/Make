@@ -1,4 +1,4 @@
-# -R . Folds
+-R . FOLDS
 
 aux_lemmas.v
 folds_precat.v
