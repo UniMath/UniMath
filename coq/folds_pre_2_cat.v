@@ -43,6 +43,21 @@ Definition T {C : folds_3_id_comp_eq} :
 Definition E {C : folds_3_id_comp_eq} : 
       ∀ {a b : C}, a ⇒ b → a ⇒ b → UU := pr2 (pr2 C).
 
+(** ** E is an "equality", i.e. a congruence and equivalence *)
+
+Definition E_is_good_to_I_and_T (C : folds_3_id_comp_eq) : UU :=
+  dirprod (
+          dirprod (
+            dirprod (∀ (a b : C) (f : a ⇒ b), E f f)  (* refl *)
+                    (∀ (a b : C) (f g : a ⇒ b), E f g → E g f) (* sym *)
+                  )
+                  (∀ (a b : C) (f g h : a ⇒ b), E f g → E g h → E f h)
+          )
+          (
+          dirprod (∀ (a : C) (f g : a ⇒ a), E f g → I f → I g)
+                  (∀ (a b c : C) (f f' : a ⇒ b) (g g' : b ⇒ c) (h h' : a ⇒ c),
+                      E f f' → E g g' → E h h' → T f g h → T f' g' h')
+          ).
 
 
 (** **  The axioms for identity *)
@@ -52,6 +67,8 @@ Definition folds_ax_id (C : folds_3_id_comp_eq) :=
      (dirprod (∀ (a b : C) (f : a ⇒ b)(i : b ⇒ b), I i → T f i f) (* I is post neutral *)      
               (∀ (a b : C) (f : a ⇒ b)(i : a ⇒ a), I i → T i f f)). (* I is pre neutral *)
 
+
+(** this is no longer valid
 Lemma isaprop_folds_ax_id C : isaprop (folds_ax_id C).
 Proof.
  repeat (apply isapropdirprod).
@@ -59,17 +76,19 @@ Proof.
  - repeat (apply impred; intro). apply pr2.  
  - repeat (apply impred; intro). apply pr2.
 Qed.
+*)
 
-Definition folds_ax_comp (C : folds_id_comp) :=
+Definition folds_ax_comp (C : folds_3_id_comp_eq) :=
     dirprod (∀ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), 
-                ishinh (total2 (λ h : a ⇒ c, comp f g h))) (* there is a composite *)
+                ishinh (total2 (λ h : a ⇒ c, T f g h))) (* there is a composite *)
      (dirprod (∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
-                  comp f g h → comp f g k → h == k )       (* composite is unique *)
+                  T f g h → T f g k → E h k )       (* composite is unique mod E *)
               (∀ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
                   (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d), 
-               comp f g fg → comp g h gh → 
-                  comp fg h fg_h → comp f gh f_gh → f_gh == fg_h)). (* composition is assoc *)
+               T f g fg → T g h gh → 
+                  T fg h fg_h → T f gh f_gh → E f_gh fg_h)). (* composition is assoc mod E *)
 
+(** not valid 
 Lemma isaprop_folds_ax_comp C : isaprop (folds_ax_comp C).
 Proof.
  repeat (apply isapropdirprod).
@@ -77,12 +96,13 @@ Proof.
  - repeat (apply impred; intro). apply (pr2 (_ ⇒ _)) .  
  - repeat (apply impred; intro). apply (pr2 (_ ⇒ _ )).
 Qed.
+*)
 
-
-Definition folds_precat := total2 (λ C : folds_id_comp,
-    dirprod (folds_ax_id C) (folds_ax_comp C)).
-Definition folds_id_comp_from_folds_precat (C : folds_precat) : folds_id_comp := pr1 C.
-Coercion folds_id_comp_from_folds_precat : folds_precat >-> folds_id_comp.
+Definition folds_3_precat := total2 (λ C : folds_3_id_comp_eq,
+    dirprod (dirprod (folds_ax_id C) (folds_ax_comp C))
+             (E_is_good_to_I_and_T C)).
+Definition folds_id_comp_from_folds_precat (C : folds_3_precat) : folds_3_id_comp_eq := pr1 C.
+Coercion folds_id_comp_from_folds_precat : folds_3_precat >-> folds_3_id_comp_eq.
 
 (** * Some lemmas about FOLDS precategories *)
 
@@ -91,21 +111,43 @@ Coercion folds_id_comp_from_folds_precat : folds_precat >-> folds_id_comp.
   - composition as a function
 *)
 
+(** * FOLDS-2-precategories *)
+(** they are 3-precategories such that T, I and E are hProps *)
+
+Definition is_folds_2_precat (C : folds_3_precat) :=
+   dirprod (
+     dirprod (∀ (a : C) (i : a ⇒ a), isaprop (I i)) 
+             (∀ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h : a ⇒ c), isaprop (T f g h)))
+           (∀ (a b : C) (f g : a ⇒ b), isaprop (E f g)).
+
+Definition folds_2_precat : UU := total2 (λ C, is_folds_2_precat C).
+
+Definition folds_3_from_folds_2 (C : folds_2_precat) : folds_3_precat := pr1 C.
+Coercion folds_3_from_folds_2 : folds_2_precat >-> folds_3_precat.
+
+
+(** * FOLDS-2-isomorphisms *)
+
+
+
+
+
 Section some_lemmas_about_folds_precats.
 
-Variable C : folds_precat.
+Variable C : folds_3_precat.
 
-Lemma id_unique : ∀ (a : C) (i i' : a ⇒ a), id i → id i' → i == i'.
+Lemma I_I_E : ∀ (a : C) (i i' : a ⇒ a), I i → I i' → E i i'.
 Proof.
   intros a i i' Hi Hi'.
   destruct C as [CC [Cid Ccomp]]; simpl in *.
-  assert (H1 : comp i i' i).
+  assert (H1 : T i i' i).
   { apply (pr1 (pr2 Cid) _ _ _ _  ).  assumption. }
-  assert (H2 : comp i i' i').
+  assert (H2 : T i i' i').
   { apply (pr2 (pr2 Cid) _ _ _ _ ) . assumption. }
   apply (pr1 (pr2 Ccomp) _ _ _ _ _ _ _ H1 H2).
 Qed.
 
+(** not valid 
 Lemma id_contr : ∀ a : C, iscontr (total2 (λ f : a ⇒ a, id f)).  
 Proof.
   intro a.
@@ -120,7 +162,9 @@ Proof.
   - destruct t; destruct t';
     apply id_unique; assumption.
 Defined.
+*)
 
+(*
 Definition id_func (a : C) : a ⇒ a := pr1 (pr1 (id_contr a)).
 
 Lemma id_func_id (a : C) : id (id_func a).
@@ -183,7 +227,7 @@ Proof.
   - apply comp_func_comp.
   - apply comp_func_comp.
 Defined.
- 
+*)
 
 End some_lemmas_about_folds_precats.
 
