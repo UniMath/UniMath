@@ -9,6 +9,8 @@ Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 (* Require Import FOLDS.aux_lemmas. *)
 
+Notation "p # a" := (transportf _ p a) (at level 3, only parsing).
+
 (** * The definition of a FOLDS pre-3-category *)
 
 (** ** Objects and a dependent type of morphisms *)
@@ -128,9 +130,37 @@ Coercion folds_3_from_folds_2 : folds_2_precat >-> folds_3_precat.
 
 (** * FOLDS-2-isomorphisms *)
 
+Section FOLDS_2_isos.
+
+Variable C : folds_2_precat.
+Variables a b : C.
+Variables f g : a ⇒ b.
+
+Definition folds_2_iso : UU :=
+  dirprod 
+    (dirprod 
+      (dirprod 
+        (∀ (x : C) (u : x ⇒ a) (v : x ⇒ b), weq (T u f v) (T u g v))
+        (∀ (x : C) (u : a ⇒ x) (v : x ⇒ b), weq (T u v f) (T u v g))
+      )
+      (∀ (x : C) (u : b ⇒ x) (v : a ⇒ x), weq (T f u v) (T g u v))
+     )
+    (dirprod
+      (dirprod (dirprod (∀ (u : a ⇒ b) (p : b == a), weq (T p # f f u) (T p # g g u)) (True)) (dirprod (True) (True)))
+      (dirprod (dirprod (True) (True)) (dirprod (True) (True)))
+    ).
+      
+Print folds_2_iso.
+
+    (dirprod
+      (dirprod (
+         (∀ (u : a ⇒ b) (p : b == a), weq (T (transportf _ p f) f u) 
+                                          (T (transportf _ p g) g u)).
 
 
+Print folds_2_iso.
 
+End FOLDS_2_isos.
 
 Section some_lemmas_about_folds_precats.
 
