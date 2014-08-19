@@ -1,6 +1,5 @@
 
 Require Import Utf8.
-
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
@@ -187,7 +186,7 @@ Proof.
     apply idpath.
 Qed.
 
-
+(** * Some lemmas to pass from [comp] to [compose] and back **)
 
 Lemma comp_compose {C : precategory} {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h : a ⇒ c} :
    f ;; g == h -> comp (C:=folds_precat_from_precat C) f g h.
@@ -211,4 +210,33 @@ Lemma comp_compose2' {C : folds_precat} {a b c : C} {f : folds_morphisms a b} {g
 Proof.
   intro H. apply pathsinv0. apply path_to_ctr. assumption. 
 Qed.
+
+
+(** * Some lemmas to pass from [id] to [identity] and back **)
+
+Lemma id_identity {C : precategory} {a : C} {f : a ⇒ a} : 
+  f == identity _ -> id (C:=folds_precat_from_precat C) f.
+Proof.
+  apply (λ x, x).
+Qed.
+
+Lemma id_identity' {C : precategory} {a : C} {f : a ⇒ a} : 
+  id (C:=folds_precat_from_precat C) f -> f == identity _ .
+Proof.
+  apply (λ x, x).
+Qed.
+
+Lemma id_identity2 {C : folds_precat} {a : C} {f : a ⇒ a} : 
+  f == identity (C:=precat_from_folds C)  _ -> id f.
+Proof.
+  intro H; rewrite H.
+  apply id_func_id.
+Qed.
+
+Lemma id_identity2' {C : folds_precat} {a : C} {f : a ⇒ a} : 
+  id f -> f == identity (C:=precat_from_folds C) _ .
+Proof.
+  intro H. apply path_to_ctr; assumption.
+Qed.
+
 
