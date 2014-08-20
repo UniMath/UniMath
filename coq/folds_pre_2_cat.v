@@ -146,17 +146,19 @@ Definition folds_2_iso : UU :=
       (∀ (x : C) (u : b ⇒ x) (v : a ⇒ x), weq (T f u v) (T g u v))
      )
     (dirprod
-      (dirprod (dirprod (∀ (u : a ⇒ b) (p : b == a), weq (T p # f f u) (T p # g g u)) (True)) (dirprod (True) (True)))
-      (dirprod (dirprod (True) (True)) (dirprod (True) (True)))
+      (dirprod 
+        (dirprod (∀ (u : a ⇒ b) (p : b == a), weq (T p # f f u) (T p # g g u)) 
+                 (∀ (u : b ⇒ b) (p : a == a), weq (T (transportf (λ a, a ⇒ b) p f) u f) 
+                                                  (T (transportf (λ a, a ⇒ b) p g) u g)) (*True*)) 
+        (dirprod (∀ (u : a ⇒ a) (p : b == b), weq (T u p # f f) (T u p # g g)) (*True*) 
+                 (True)))
+      (dirprod 
+        (dirprod (True) 
+                 (True)) 
+        (dirprod (True) 
+                 (True)))
     ).
       
-Print folds_2_iso.
-
-    (dirprod
-      (dirprod (
-         (∀ (u : a ⇒ b) (p : b == a), weq (T (transportf _ p f) f u) 
-                                          (T (transportf _ p g) g u)).
-
 
 Print folds_2_iso.
 
