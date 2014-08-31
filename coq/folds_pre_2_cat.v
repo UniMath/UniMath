@@ -7,6 +7,7 @@ Require Import Foundations.hlevel2.hSet.
 Require Import RezkCompletion.pathnotations.
 Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
+
 (* Require Import FOLDS.aux_lemmas. *)
 
 Notation "p # a" := (transportf _ p a) (at level 3, only parsing).
@@ -24,6 +25,10 @@ Coercion ob : folds_3_ob_mor >-> Sortclass.
 
 Definition folds_3_morphisms {C : folds_3_ob_mor} : C → C → UU := pr2 C.
 Local Notation "a ⇒ b" := (folds_3_morphisms a b)(at level 50).
+
+Definition double_transport {C : folds_3_ob_mor} {a a' b b' : ob C}
+   (p : a == a') (q : b == b') (f : a ⇒ b) : a' ⇒ b' :=
+  transportf (λ c, a' ⇒ c) q (transportf (λ c, c ⇒ b) p f).
 
 (** ** Identity, composition, and equality, given through predicates *)
 (** We do not assume those to be propositions.  *)
@@ -140,29 +145,45 @@ Definition folds_2_iso : UU :=
   dirprod 
     (dirprod 
       (dirprod 
-        (∀ (x : C) (u : x ⇒ a) (v : x ⇒ b), weq (T u f v) (T u g v))
-        (∀ (x : C) (u : a ⇒ x) (v : x ⇒ b), weq (T u v f) (T u v g))
+        (∀ (x : C) (u : x ⇒ a) (v : x ⇒ b), weq (T u f v) (T u g v)) (*5.14*)
+        (∀ (x : C) (u : a ⇒ x) (v : x ⇒ b), weq (T u v f) (T u v g)) (*5.15*)
       )
-      (∀ (x : C) (u : b ⇒ x) (v : a ⇒ x), weq (T f u v) (T g u v))
+      (∀ (x : C) (u : b ⇒ x) (v : a ⇒ x), weq (T f u v) (T g u v)) (*5.16*)
      )
     (dirprod
       (dirprod 
-        (dirprod (∀ (u : a ⇒ b) (p : b == a), weq (T p # f f u) (T p # g g u)) 
+        (dirprod (∀ (u : a ⇒ b) (p : b == a), weq (T p # f f u) (T p # g g u)) (*5.17*)
                  (∀ (u : b ⇒ b) (p : a == a), weq (T (transportf (λ a, a ⇒ b) p f) u f) 
-                                                  (T (transportf (λ a, a ⇒ b) p g) u g)) (*True*)) 
-        (dirprod (∀ (u : a ⇒ a) (p : b == b), weq (T u p # f f) (T u p # g g)) (*True*) 
-                 (True)))
+                                                  (T (transportf (λ a, a ⇒ b) p g) u g)) (*5.18*)) 
+        (dirprod (∀ (u : a ⇒ a) (p : b == b), weq (T u p # f f) (T u p # g g)) (*5.19*) 
+                 (∀ (p : a == a) (q : b == a) (r : b == b), 
+                    weq (T (double_transport p q f) r # f f) 
+                        (T (double_transport p q g) r # g g) ))) (*5.20*)
       (dirprod 
-        (dirprod (True) 
-                 (True)) 
-        (dirprod (True) 
-                 (True)))
+        (dirprod (∀ (p : b == a), weq (I p # f) (I p # g)) (*5.21*)
+                 (∀ (u : a ⇒ b), weq (E f u) (E g u) )) (*5.22*)
+        (dirprod (∀ (u : a ⇒ b), weq (E u f) (E u g)) (*5.23*)
+                 (∀ (p : a == a) (q : b == b), weq (E (double_transport p q f) f) 
+                                                   (E (double_transport p q g) g) )(*5.24*)))
     ).
       
 
 Print folds_2_iso.
 
 End FOLDS_2_isos.
+
+(** * FOLDS precategories *)
+(** We define them as special folds_2_precategories, namely such that
+   - hom-types are sets
+   - axioms of precategory modulo identity (rather than E)
+ *)
+
+(* TODO *)
+
+(** * Univalent FOLDS-2-precategory *)
+(** satisfies (f == g) ≡ (folds_2_iso f g) *)
+
+(* TODO *)
 
 Section some_lemmas_about_folds_precats.
 
