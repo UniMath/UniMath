@@ -88,7 +88,8 @@ endif
 #                    #
 ######################
 
-VFILES:=folds_isomorphism.v\
+VFILES:=folds_pre_2_cat.v\
+  folds_isomorphism.v\
   from_precats_to_folds_and_back.v\
   folds_precat.v\
   aux_lemmas.v

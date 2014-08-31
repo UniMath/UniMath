@@ -171,8 +171,6 @@ Definition folds_2_iso : UU :=
     ).
       
 
-Print folds_2_iso.
-
 Lemma isaprop_folds_2_iso : isaprop folds_2_iso.
 Proof.
   repeat (apply isofhleveldirprod);
@@ -372,102 +370,42 @@ Qed.
      
 End is_univalent_implies_folds_precat.
 
-Section some_lemmas_about_folds_precats.
+Section folds_precat_implies_univalent.
 
-Variable C : folds_3_precat.
+Variable C : folds_2_precat.
+Hypothesis H : is_folds_precategory C.
+Hypothesis standardness : ∀ (a b : C) (f g : a ⇒ b), E f g → f == g.
 
-Lemma I_I_E : ∀ (a : C) (i i' : a ⇒ a), I i → I i' → E i i'.
+Lemma folds_2_iso_implies_E (a b : C) (f g : a ⇒ b) : 
+   folds_2_iso f g → E f g.
 Proof.
-  intros a i i' Hi Hi'.
-  destruct C as [CC [Cid Ccomp]]; simpl in *.
-  assert (H1 : T i i' i).
-  { apply (pr1 (pr2 Cid) _ _ _ _  ).  assumption. }
-  assert (H2 : T i i' i').
-  { apply (pr2 (pr2 Cid) _ _ _ _ ) . assumption. }
-  apply (pr1 (pr2 Ccomp) _ _ _ _ _ _ _ H1 H2).
+  intro Isofg.
+  set (keytojoy := pr1 (pr2 (pr2 (pr2 Isofg)))).
+  apply (keytojoy f).
+  set (H' := pr2 (pr2 (pr1 C))). simpl in H'.
+  destruct H' as [[[Erefl Esym] Etrans] [EI ET]].
+  apply Erefl.
 Qed.
 
-(** not valid 
-Lemma id_contr : ∀ a : C, iscontr (total2 (λ f : a ⇒ a, id f)).  
+
+
+Lemma folds_2_iso_implies_identity (a b : C) (f g : a ⇒ b) :
+   folds_2_iso f g → f == g.
 Proof.
-  intro a.
-  set (H := pr1 (pr1 (pr2 C)) a).
-  set (H' := hProppair (iscontr (total2 (λ f : a ⇒ a, id f)))
-                      (isapropiscontr _ )).
-  apply (H H'); simpl.
-  intro t; exists t.
-  intro t'.
-  apply total2_paths_hProp.
-  - intro b; apply pr2.
-  - destruct t; destruct t';
-    apply id_unique; assumption.
-Defined.
-*)
+  intro Isofg.
+  apply standardness. 
+  apply folds_2_iso_implies_E.
+  apply Isofg.
+Qed.
 
-(*
-Definition id_func (a : C) : a ⇒ a := pr1 (pr1 (id_contr a)).
-
-Lemma id_func_id (a : C) : id (id_func a).
+Lemma folds_precat_implies_univalent : is_univalent_folds_2_precat C.
 Proof.
-  apply (pr2 (pr1 (id_contr a))).  
-Defined.
+  intros a b f g.
+  apply isweqimplimpl.
+  - apply folds_2_iso_implies_identity.
+  - apply (pr1 H). 
+  - apply isaprop_folds_2_iso.
+Qed.
 
-Lemma comp_contr : ∀ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), 
-    iscontr (total2 (λ h, comp f g h)).
-Proof.
-  intros a b c f g.
-  set (H' := hProppair (iscontr (total2 (λ h : a ⇒ c, comp f g h)))
-                      (isapropiscontr _ )).
-  apply (pr1 (pr2 (pr2 C)) a b c f g H').
-  simpl; intro t; exists t.
-  intro t'.
-  apply total2_paths_hProp.
-  - intro; apply pr2.
-  - destruct t as [t tp]; destruct t' as [t' tp']; simpl in *.
-    apply (pr1 (pr2 (pr2 (pr2 C))) _ _ _ f g ); assumption.
-Defined.
-
-Definition comp_func {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : a ⇒ c :=
-     pr1 (pr1 (comp_contr a b c f g)).
-
-Local Notation "f ∘ g" := (comp_func f g) (at level 30).
-
-Lemma comp_func_comp {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : 
-   comp f g (f ∘ g).
-Proof.
-  apply (pr2 (pr1 (comp_contr a b c f g))).
-Defined.
-
-Lemma comp_id_l (a b : C) (f : a ⇒ b) : f ∘ (id_func b) == f.
-Proof.
-  assert (H : comp f (id_func b) f).  
-  { apply (pr1 (pr2 (pr1 (pr2 C)))). apply id_func_id. }
-  assert (H' : comp f (id_func b) (comp_func f (id_func b))).  
-  { apply comp_func_comp. }
-  set (H2 := pr1 (pr2 (pr2 (pr2 C)))).
-  apply (H2 _ _ _ _ _ _ _ H' H).
-Defined.
-
-Lemma comp_id_r (a b : C) (f : a ⇒ b) : (id_func a) ∘ f == f.
-Proof.
-  assert (H : comp (id_func a) f f).  
-  { apply (pr2 (pr2 (pr1 (pr2 C)))). apply id_func_id. }
-  assert (H' : comp (id_func a) f (comp_func (id_func a) f)).  
-  { apply comp_func_comp. }
-  set (H2 := pr1 (pr2 (pr2 (pr2 C)))).
-  apply (H2 _ _ _ _ _ _ _ H' H).
-Defined.
-
-Lemma comp_assoc (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d) :
-    f ∘ (g ∘ h) == (f ∘ g) ∘ h.
-Proof.
-  apply (pr2 (pr2 (pr2 (pr2 C))) a b c d f g h (f ∘ g) (g ∘ h)).
-  - apply comp_func_comp.
-  - apply comp_func_comp.
-  - apply comp_func_comp.
-  - apply comp_func_comp.
-Defined.
-*)
-
-End some_lemmas_about_folds_precats.
+End folds_precat_implies_univalent.
 
