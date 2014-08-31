@@ -66,7 +66,6 @@ Definition E_is_good_to_I_and_T (C : folds_3_id_comp_eq) : UU :=
                       E f f' → E g g' → E h h' → T f g h → T f' g' h')
           ).
 
-
 (** **  The axioms for identity *)
 
 Definition folds_ax_id (C : folds_3_id_comp_eq) := 
@@ -139,7 +138,11 @@ Section FOLDS_2_isos.
 
 Variable C : folds_2_precat.
 Variables a b : C.
-Variables f g : a ⇒ b.
+Variables f : a ⇒ b.
+
+Section def.
+
+Variable g : a ⇒ b.
 
 Definition folds_2_iso : UU :=
   dirprod 
@@ -170,7 +173,50 @@ Definition folds_2_iso : UU :=
 
 Print folds_2_iso.
 
+Lemma isaprop_folds_2_iso : isaprop folds_2_iso.
+Proof.
+  repeat (apply isofhleveldirprod);
+  repeat (apply impred; intro);
+  apply isofhlevelsnweqtohlevelsn;
+  apply C.
+Qed.
+
+End def.
+
+Definition folds_2_iso_id : folds_2_iso f.
+Proof.
+  repeat split; 
+    intros; apply idweq.
+Defined.
+
 End FOLDS_2_isos.
+
+Arguments folds_2_iso [C] [a] [b] f g.
+Arguments folds_2_iso_id [C] [a] [b] f.
+
+Definition idtoiso2 {C : folds_2_precat} {a b : C} {f g : a ⇒ b} :
+   f == g → folds_2_iso f g.
+Proof.
+  destruct 1.
+  exact (folds_2_iso_id f).
+Defined.
+
+(** * Univalent FOLDS-2-precategory *)
+(** satisfies [isweq (idtoiso2 f g)] for any [f] and [g] *)
+
+Definition is_univalent_folds_2_precat (C : folds_2_precat) : UU :=
+   ∀ (a b : C) (f g : a ⇒ b), isweq (@idtoiso2 _ _ _ f g).
+
+Lemma isaprop_is_univalent_folds_2_precat (C : folds_2_precat) : 
+   isaprop (is_univalent_folds_2_precat C).
+Proof.
+  do 4 (apply impred; intro);
+  apply isapropisweq.
+Qed.
+
+Definition isotoid2 (C : folds_2_precat) (H : is_univalent_folds_2_precat C)
+  (a b : C) (f g : a ⇒ b) : folds_2_iso f g → f == g := 
+  invmap (weqpair _ (H a b f g)).
 
 (** * FOLDS precategories *)
 (** We define them as special folds_2_precategories, namely such that
@@ -178,12 +224,153 @@ End FOLDS_2_isos.
    - axioms of precategory modulo identity (rather than E)
  *)
 
-(* TODO *)
+Definition is_folds_precategory (C : folds_2_precat) : UU :=
+   dirprod (∀ a b : C, isaset (a ⇒ b)) 
+       (dirprod 
+           (∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
+                  T f g h → T f g k → h == k )       (* T is unique mod identity *)
+           (∀ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
+                  (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d), 
+               T f g fg → T g h gh → 
+                  T fg h fg_h → T f gh f_gh → f_gh == fg_h)). (* T is assoc mod identity *)
 
-(** * Univalent FOLDS-2-precategory *)
-(** satisfies (f == g) ≡ (folds_2_iso f g) *)
+Lemma isaprop_is_folds_precategory (C : folds_2_precat) : isaprop (is_folds_precategory C).
+Proof.
+  apply isofhlevelsn. intro H.
+  repeat (apply isofhleveldirprod).
+  - do 2 (apply impred; intro).
+    apply isapropisaset.
+  - do 9 (apply impred; intro).
+    apply (pr1 H).
+  - do 15 (apply impred; intro).
+    apply H.
+(* alternatively by hand 
+  apply invproofirrelevance.
+  intros [p q] [p' q'].
+  apply pathsdirprod.
+  - apply proofirrelevance.
+    do 2 (apply impred; intro).
+    apply isapropisaset.
+  - destruct q as [q1 q2]. 
+    destruct q' as [q'1 q'2]. 
+    apply pathsdirprod. 
+    + apply proofirrelevance;
+      do 9 (apply impred; intro); apply p.
+    + apply proofirrelevance.
+      do 15 (apply impred; intro); apply p.
+*)
+Qed.
 
-(* TODO *)
+
+Lemma E_transport_source : ∀ (C : folds_2_precat) (a a' b : C) (f g : a ⇒ b) (p : a == a'),
+          E f g → E (transportf (λ c, c ⇒ b) p f) (transportf (λ c, c ⇒ b) p g).
+Proof.
+  intros. destruct p.
+  assumption.
+Defined.
+
+Lemma E_transport_target : ∀ (C : folds_2_precat) (a b b' : C) (f g : a ⇒ b) (p : b == b'),
+          E f g → E (transportf (λ c, a ⇒ c) p f) (transportf (λ c, a ⇒ c) p g).
+Proof.
+  intros. destruct p.
+  assumption.
+Defined.
+
+
+
+Section is_univalent_implies_folds_precat.
+ 
+Variable C : folds_2_precat.
+Hypothesis H : is_univalent_folds_2_precat C.
+
+Lemma E_implies_iso (a b : C) (f g : a ⇒ b) : E f g → folds_2_iso f g.
+Proof.
+  set (H' := pr2 (pr2 (pr1 C))). simpl in H'.
+  destruct H' as [[[Erefl Esym] Etrans] [EI ET]].
+  intro Efg.  
+  repeat split; intros; apply weqimplimpl; intro.
+  - apply (ET _ _ _  u u f g v v); auto.
+  - apply (ET _ _ _ u u g f v v) ; auto.
+  - apply C.     
+  - apply C.
+  - apply (ET _ _ _ u u v v f g); auto.
+  - apply (ET _ _ _ u u v v g f); auto.
+  - apply C.
+  - apply C.
+  - apply (ET _ _ _ f g u u v v); auto.
+  - apply (ET _ _ _ g f u u v v); auto.
+  - apply C.
+  - apply C.
+  - destruct p; 
+    apply (ET _ _ _ f g f g u u); auto. 
+  - destruct p;
+    apply (ET _ _ _ g f g f u u); auto.
+  - apply C.
+  - apply C.
+  - apply (ET _ _ _ (transportf (λ c, c ⇒ b) p f) (p # g) u u f g); 
+    try apply E_transport_source; auto.
+  - apply (ET _ _ _ (transportf (λ c, c ⇒ b) p g) (p # f) u u g f); 
+    try apply E_transport_source; auto.
+  - apply C.
+  - apply C.
+  - apply (ET _ _ _ u u (transportf (λ c, a ⇒ c) p f) (p # g) f g); 
+    try apply E_transport_target; auto.
+  - apply (ET _ _ _ u u (transportf (λ c, a ⇒ c) p g) (p # f) g f); 
+    try apply E_transport_target; auto.
+  - apply C.
+  - apply C.
+  - apply (ET _ _ _ (double_transport p q f) (double_transport p q g) 
+                          (transportf (λ c, a ⇒ c) r f) (r # g) f g); 
+    try apply E_transport_target; try apply E_transport_source; auto.
+  - apply (ET _ _ _ (double_transport p q g) (double_transport p q f) 
+                          (transportf (λ c, a ⇒ c) r g) (r # f) g f); 
+    try apply E_transport_target; try apply E_transport_source; auto.
+  - apply C.
+  - apply C.
+  - destruct p. apply (EI _ f); auto.
+  - destruct p; apply (EI _ g); auto.
+  - apply C.
+  - apply C.
+  - apply (Etrans _ _ g f u).
+    + apply Esym; auto.
+    + auto.
+  - apply (Etrans _ _ f g u); auto.
+  - apply C.
+  - apply C.
+  - apply (Etrans _ _ u f g); auto.
+  - apply (Etrans _ _ u g f).
+    + auto.
+    + apply Esym; auto.
+  - apply C.
+  - apply C.
+  - apply (Etrans _ _ (double_transport p q g) (double_transport p q f) g).
+    + apply E_transport_target. apply E_transport_source. apply Esym; auto.
+    + apply (Etrans _ _ (double_transport p q f) f g); auto.
+  - apply (Etrans _ _ (double_transport p q f) (double_transport p q g) f).
+    + apply E_transport_target. apply E_transport_source. auto.
+    + apply (Etrans _ _ (double_transport p q g) g f); auto.
+  - apply C.
+  - apply C.      
+Qed.
+
+Lemma is_univalent_implies_is_folds_precatcategory : is_folds_precategory C.
+Proof.
+  apply dirprodpair.
+  - intros a b f g.
+    apply (isofhlevelweqb _ (weqpair _ (H a b f g))).
+    apply isaprop_folds_2_iso.
+  - apply dirprodpair.
+    + intros. apply (isotoid2 _ H).
+      apply E_implies_iso.
+      set (T_unique := pr1 (pr2 (pr2 (pr1 (pr2 (pr1 C)))))).
+      apply (T_unique _ _ _ f g); auto.
+    + intros. apply (isotoid2 _ H).
+      apply E_implies_iso.
+      set (T_assoc := pr2 (pr2 (pr2 (pr1 (pr2 (pr1 C)))))). simpl in T_assoc.
+      apply (T_assoc _ _ _ _ f g h fg gh fg_h f_gh); auto.
+Qed.
+     
+End is_univalent_implies_folds_precat.
 
 Section some_lemmas_about_folds_precats.
 
