@@ -100,3 +100,10 @@ If that doesn't work, try
 brew remove objective-caml
 brew install objective-caml
 ```
+
+If you get the error message "Error: cannot find 'ocamlc.opt' in your path!", you need to install ocaml-native-compilers, e.g., by running
+```bash
+$ sudo apt-get install ocaml-native-compilers
+```
+
+
