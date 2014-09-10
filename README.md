@@ -85,6 +85,10 @@ directory UniMath to the path, using the "-R" option.
 
 ## Problems
 
+In this section we describe some problems that have been encountered during compilation, and how to fix them.
+
+### MacOS
+
 If you get error messages involving the command line option "-fno-defer-pop", you
 might be running Mac OS X 10.9 with an ocaml compiler installed by "brew".  In
 that case try
@@ -100,3 +104,15 @@ If that doesn't work, try
 brew remove objective-caml
 brew install objective-caml
 ```
+
+### Linux (e.g., Debian and Ubuntu)
+
+If you get the error message "Error: cannot find 'ocamlc.opt' in your path!", you need to install ocaml-native-compilers, e.g., by running
+```bash
+$ sudo apt-get install ocaml-native-compilers
+```
+This package is not among the build dependencies for older versions of Coq.
+
+
+
+
