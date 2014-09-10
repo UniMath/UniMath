@@ -27,7 +27,7 @@ Require Export Foundations.hlevel1.hProp .
 Definition hSet:= total2 (fun X : UU => isaset X) .
 Definition hSetpair := tpair (fun X : UU => isaset X).
 Definition pr1hSet:= @pr1 UU (fun X : UU => isaset X) : hSet -> UU.
-Coercion pr1hSet: hSet >-> Sortclass.
+Coercion pr1hSet: hSet >-> UU .
 
 Definition eqset { X : hSet } ( x x' : X ) : hProp := hProppair _ ( pr2 X x x' ) . 
 
