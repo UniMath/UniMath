@@ -26,8 +26,8 @@ Require Export Foundations.hlevel1.hProp .
 
 Definition hSet:= total2 (fun X : UU => isaset X) .
 Definition hSetpair := tpair (fun X : UU => isaset X).
-Definition pr1hSet:= @pr1 UU (fun X : UU => isaset X) : hSet -> Type.
-Coercion pr1hSet: hSet >-> Sortclass.
+Definition pr1hSet:= @pr1 UU (fun X : UU => isaset X) : hSet -> UU.
+Coercion pr1hSet: hSet >-> UU .
 
 Definition eqset { X : hSet } ( x x' : X ) : hProp := hProppair _ ( pr2 X x x' ) . 
 
@@ -913,7 +913,7 @@ The issue which arises here is the same one which arises in several other places
 
 It can and probably should be fixed by the addition of a new componenet to CIC in the form of a term constructor:
 
-tfc ( X : Type ) ( E : X -> Type ) ( is : forall x , iscontr ( E x ) ) ( x0 : X ) ( e0 : E x0 ) : forall x : X , E x . 
+tfc ( X : UU ) ( E : X -> UU ) ( is : forall x , iscontr ( E x ) ) ( x0 : X ) ( e0 : E x0 ) : forall x : X , E x . 
 
 and a computation rule
 
@@ -1059,12 +1059,12 @@ Proof . intros . apply idpath . Defined .
 Lemma test ( X Y : UU ) ( phi : F X Y ) ( f : X -> Y ) : paths ( Fd1 phi ( Fi ( X -> Y ) Y f ) ) ( Fd2 phi ( Fi ( X -> Y ) Y f ) ) .
 Proof . intros . unfold Fd1 . unfold Fd2. unfold Fi . unfold Ffunct . unfold funcomp .    simpl .  apply ( maponpaths phi ) .  apply etacorrection . Defined . 
 
-Inductive try0 ( T : Type ) ( t : T ) : forall ( t1 t2 : T ) ( e1 : paths t t1 ) ( e2 : paths t t2 ) , Type := idconstr : forall ( t' : T ) ( e' : paths t t' ) , try0 T t t' t' e' e' .
+Inductive try0 ( T : UU ) ( t : T ) : forall ( t1 t2 : T ) ( e1 : paths t t1 ) ( e2 : paths t t2 ) , UU := idconstr : forall ( t' : T ) ( e' : paths t t' ) , try0 T t t' t' e' e' .
 
-Definition try0map1 ( T : Type ) ( t : T ) ( t1 t2 : T ) ( e1 : paths t t1 ) ( e2 : paths t t2 ) ( X : try0 T t t1 t2 e1 e2 ) : paths t1 t2 .
+Definition try0map1 ( T : UU ) ( t : T ) ( t1 t2 : T ) ( e1 : paths t t1 ) ( e2 : paths t t2 ) ( X : try0 T t t1 t2 e1 e2 ) : paths t1 t2 .
 Proof . intros . destruct  X . apply idpath . Defined . 
 
-Definition try0map2  ( T : Type ) ( t : T ) ( t1 t2 : T ) ( e1 : paths t t1 ) ( e2 : paths t t2 ) : try0 T t t1 t2 e1 e2 .
+Definition try0map2  ( T : UU ) ( t : T ) ( t1 t2 : T ) ( e1 : paths t t1 ) ( e2 : paths t t2 ) : try0 T t t1 t2 e1 e2 .
 Proof .     
 
 
