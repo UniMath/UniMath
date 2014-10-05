@@ -477,6 +477,8 @@
   \fi
 \fi
 
+\ifbeamer\else
+
 %% Now the code that works in all cases.  Note that TAC allows the
 %% optional arguments, but ignores them.  It also defines environments
 %% called "theorem," etc.
@@ -523,6 +525,8 @@
 \crefrangemultiformat{appendix}{Appendices~#3#1#4--#5#2#6}{ and~#3#1#4--#5#2#6}{, #3#1#4--#5#2#6}{ and~#3#1#4--#5#2#6}
 \Crefrangemultiformat{appendix}{Appendices~#3#1#4--#5#2#6}{ and~#3#1#4--#5#2#6}{, #3#1#4--#5#2#6}{ and~#3#1#4--#5#2#6}
 
+\fi % not beamer
+
 % How to get QED symbols inside equations at the end of the statements
 % of theorems.  AMS LaTeX knows how to do this inside equations at the
 % end of *proofs* with \qedhere, and at the end of the statement of a
@@ -548,7 +552,7 @@
 \else
   \let\c@equation\c@thm
 \fi
-\numberwithin{equation}{section}
+\ifbeamer\else\numberwithin{equation}{section}\fi
 
 % % Only show numbers for equations that are actually referenced (or
 % % whose tags are specified manually) - uses mathtools.  All equations
