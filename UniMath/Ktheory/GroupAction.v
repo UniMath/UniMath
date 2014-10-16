@@ -147,16 +147,16 @@ Proof. intros ? ? ? ? [e i] [f j]. exists (weqcomp e f).
        destruct e as [e e'], f as [f f']; simpl.
        apply is_equivariant_comp. exact i. exact j. Defined.
 
-Definition path_to_ActionIso {G:gr} {X Y:Action G} (e:X=Y) : ActionIso X Y.
+Definition path_to_ActionIso {G:gr} {X Y:Action G} (e:X = Y) : ActionIso X Y.
 Proof. intros. destruct e. exact (idActionIso X). Defined.
 
-Definition castAction {G:gr} {X Y:Action G} (e:X=Y) : X -> Y.
+Definition castAction {G:gr} {X Y:Action G} (e:X = Y) : X -> Y.
 Proof. intros ? ? ? ? x. exact (path_to_ActionIso e x). Defined.
 
 (** ** Applications of univalence *)
 
 Definition Action_univalence_prelim {G:gr} {X Y:Action G} :
-  weq (X=Y) (ActionIso X Y).
+  weq (X = Y) (ActionIso X Y).
 Proof. intros.
        refine (weqcomp (total_paths_equiv (ActionStructure G) X Y) _).
        refine (weqbandf _ _ _ _).
@@ -165,7 +165,7 @@ Proof. intros.
        exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap set_to_type p)))).
 Defined.
 
-Definition Action_univalence_prelim_comp {G:gr} {X Y:Action G} (p:X=Y) :
+Definition Action_univalence_prelim_comp {G:gr} {X Y:Action G} (p:X = Y) :
    Action_univalence_prelim p = path_to_ActionIso p.
 Proof. intros. destruct p. apply pair_path_in2. apply funextsec; intro g.
        apply funextsec; intro x. apply setproperty. Defined.
@@ -178,10 +178,10 @@ Proof. intros. exact (isweqhomot Action_univalence_prelim
                          (pr2 Action_univalence_prelim)). Qed.
 
 Definition Action_univalence {G:gr} {X Y:Action G} :
-  weq (X=Y) (ActionIso X Y).
+  weq (X = Y) (ActionIso X Y).
 Proof. intros. exists path_to_ActionIso. apply path_to_ActionIso_isweq. Defined.
 
-Definition Action_univalence_comp {G:gr} {X Y:Action G} (p:X=Y) :
+Definition Action_univalence_comp {G:gr} {X Y:Action G} (p:X = Y) :
    Action_univalence p = path_to_ActionIso p.
 Proof. reflexivity. Defined.
 
@@ -221,7 +221,7 @@ Definition torsor_mult_weq {G} (X:Torsor G) (x:X) :=
 Definition torsor_update_nonempty {G} (X:Torsor G) (x:nonempty X) : Torsor G.
 Proof. intros ? X new. 
        exact (underlyingAction X,,(new,,pr2(is_torsor_prop X))). Defined.
-Definition castTorsor {G} {T T':Torsor G} (q:T=T') : T -> T'.
+Definition castTorsor {G} {T T':Torsor G} (q:T = T') : T -> T'.
 Proof. intros ? ? ? ?. exact (castAction (ap underlyingAction q)). Defined.
 
 Lemma underlyingAction_incl {G:gr} :
@@ -229,10 +229,10 @@ Lemma underlyingAction_incl {G:gr} :
 Proof. intros. apply isinclpr1; intro X. apply is_torsor_isaprop. Defined.
 
 Lemma underlyingAction_injectivity {G:gr} {X Y:Torsor G} :
-      weq (X=Y) (underlyingAction X=underlyingAction Y).
+      weq (X = Y) (underlyingAction X = underlyingAction Y).
 Proof. intros. apply weqonpathsincl. apply underlyingAction_incl. Defined.
 
-Definition underlyingAction_injectivity_comp {G:gr} {X Y:Torsor G} (p:X=Y) :
+Definition underlyingAction_injectivity_comp {G:gr} {X Y:Torsor G} (p:X = Y) :
   underlyingAction_injectivity p = ap underlyingAction p.
 Proof. reflexivity. Defined.
 
@@ -242,7 +242,7 @@ Definition underlyingAction_injectivity_comp' {G:gr} {X Y:Torsor G} :
 Proof. reflexivity. Defined.
 
 Definition underlyingAction_injectivity_inv_comp {G:gr} {X Y:Torsor G} 
-           (f:underlyingAction X=underlyingAction Y) :
+           (f:underlyingAction X = underlyingAction Y) :
   ap underlyingAction (invmap underlyingAction_injectivity f) = f.
 Proof. intros. apply (homotweqinvweq underlyingAction_injectivity f). Defined.
 
@@ -318,7 +318,7 @@ Definition trivialTorsorAuto (G:gr) (g:G) :
 Proof. intros. exists (trivialTorsorEquiv G g).
        intros h x. simpl.  exact (assocax _ h x g). Defined.
 
-Lemma pr1weq_injectivity {X Y} (f g:weq X Y) : weq (f=g) (pr1weq f = pr1weq g).
+Lemma pr1weq_injectivity {X Y} (f g:weq X Y) : weq (f = g) (pr1weq f = pr1weq g).
 Proof. intros. apply weqonpathsincl. apply isinclpr1weq.  Defined.
 
 Definition autos (G:gr) : weq G (ActionIso (trivialTorsor G) (trivialTorsor G)).
@@ -358,11 +358,11 @@ Proof. intros. refine (pair_path_props _ _).
 
 (** ** Applications of univalence *)
 
-Definition Torsor_univalence {G:gr} {X Y:Torsor G} : weq (X=Y) (ActionIso X Y).
+Definition Torsor_univalence {G:gr} {X Y:Torsor G} : weq (X = Y) (ActionIso X Y).
 Proof. intros. refine (weqcomp underlyingAction_injectivity _).
        apply Action_univalence. Defined.
 
-Definition Torsor_univalence_comp {G:gr} {X Y:Torsor G} (p:X=Y) :
+Definition Torsor_univalence_comp {G:gr} {X Y:Torsor G} (p:X = Y) :
    Torsor_univalence p = path_to_ActionIso (ap underlyingAction p).
 Proof. reflexivity. Defined.
 
@@ -388,7 +388,7 @@ Proof. intros ? [X x]. exists (triviality_isomorphism X x).
        simpl. apply univ_function_pointed. Defined.       
 
 Definition PointedTorsor_univalence {G:gr} {X Y:PointedTorsor G} : 
-  weq (X=Y) (PointedActionIso X Y).
+  weq (X = Y) (PointedActionIso X Y).
 Proof. intros.
        refine (weqcomp (total_paths_equiv _ X Y) _). 
        refine (weqbandf _ _ _ _).

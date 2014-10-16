@@ -105,6 +105,6 @@ Proof. intros. apply (hzplusrcan _ _ (x+y)). rewrite hzlminus.
        rewrite <- (hzplusassoc (-x)). rewrite hzlminus. rewrite hzplusl0.
        rewrite hzlminus. reflexivity. Defined.
 
-Definition loop_power {Y} {y:Y} (l:y=y) (n:ℤ) : y=y.
+Definition loop_power {Y} {y:Y} (l:y = y) (n:ℤ) : y = y.
 Proof. intros. assert (m := loop_power_nat l (hzabsval n)).
        destruct (hzlthorgeh n 0%hz). { exact (!m). } { exact m. } Defined.

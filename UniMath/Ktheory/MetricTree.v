@@ -15,11 +15,11 @@ Record Tree :=
       mt_anti: forall x y, mt_dist x y = 0 -> x = y;
       mt_symm: forall x y, mt_dist x y = mt_dist y x;
       mt_trans: forall x y z, mt_dist x z <= mt_dist x y + mt_dist y z;
-      mt_step: forall x z, x!=z ->
+      mt_step: forall x z, x != z ->
                  total2 (fun y => (S (mt_dist x y) = mt_dist x z) **
                                   (mt_dist y z = 1)) }.
       
-Lemma mt_path_refl (T:Tree) (x y:T) : x=y -> mt_dist _ x y = 0.
+Lemma mt_path_refl (T:Tree) (x y:T) : x = y -> mt_dist _ x y = 0.
 Proof. intros ? ? ? e. destruct e. apply mt_refl. Qed.
 
 Lemma tree_deceq (T:Tree) : isdeceq T.
@@ -30,11 +30,11 @@ Proof. intros. intros t u. induction (isdeceqnat (mt_dist T t u) 0).
 Corollary tree_isaset (T:Tree) : isaset T.
 Proof. intros. apply isasetifdeceq. apply tree_deceq. Qed.
 
-Definition step (T:Tree) {x z:T} (ne:x!=z) : T := pr1 (mt_step _ x z ne).
+Definition step (T:Tree) {x z:T} (ne:x != z) : T := pr1 (mt_step _ x z ne).
 
 Definition tree_induction (T:Tree) (x:T) (P:T->Type)
            (p0 : P x)
-           (pn : forall z (ne:x!=z), P (step T ne) -> P z) :
+           (pn : forall z (ne:x != z), P (step T ne) -> P z) :
   forall z, P z.
 Proof. intros ? ? ? ? ?.
        assert(d_ind : forall n z, mt_dist _ x z = n -> P z).

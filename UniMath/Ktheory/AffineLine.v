@@ -23,16 +23,16 @@ Definition ℤRecursionData0 (P:ℤ->Type) (p0:P zero)
       (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':forall n, P(- toℤ n) -> P(- toℤ (S n))) := fun 
           f:forall i, P i => 
-            (f zero=p0) **
-            (forall n, f(  toℤ (S n))=IH  n (f (  toℤ n))) **
-            (forall n, f(- toℤ (S n))=IH' n (f (- toℤ n))).
+            (f zero = p0) **
+            (forall n, f(  toℤ (S n)) = IH  n (f (  toℤ n))) **
+            (forall n, f(- toℤ (S n)) = IH' n (f (- toℤ n))).
 
 Definition ℤRecursionData (P:ℤ->Type)
       (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':forall n, P(- toℤ n) -> P(- toℤ (S n))) := fun 
              f:forall i, P i => 
-               (forall n, f(  toℤ (S n))=IH  n (f (  toℤ n))) **
-               (forall n, f(- toℤ (S n))=IH' n (f (- toℤ n))).
+               (forall n, f(  toℤ (S n)) = IH  n (f (  toℤ n))) **
+               (forall n, f(- toℤ (S n)) = IH' n (f (- toℤ n))).
 
 Lemma ℤRecursionUniq (P:ℤ->Type) (p0:P zero) 
       (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
@@ -411,13 +411,13 @@ Proof. intros. destruct q. reflexivity. Defined.
 
 Definition makeGuidedHomotopy_verticalPath {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y=f t0)
-           {y':Y} (p:y'=y) :
+           {y':Y} (p:y' = y) :
   makeGuidedHomotopy f s t0 (p@h0) = makeGuidedHomotopy f s t0 h0.
 Proof. intros. apply (total2_paths2 p). destruct p. reflexivity. Defined.
 
 Definition makeGuidedHomotopy_verticalPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y=f t0)
-           {y':Y} (p:y'=y) :
+           {y':Y} (p:y' = y) :
   ap pr1 (makeGuidedHomotopy_verticalPath f s t0 h0 p) = p.
 Proof. intros. apply total2_paths2_comp1. Defined.
 
