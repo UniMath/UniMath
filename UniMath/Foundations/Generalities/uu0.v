@@ -144,6 +144,9 @@ Proof. intros. destruct e.  apply idpath. Defined.
 Definition pathsinv0inv0 { X : UU } { x x' : X } ( e : paths x x' ) : paths ( pathsinv0 ( pathsinv0 e ) ) e .
 Proof. intros. destruct e. apply idpath. Defined.  
 
+
+(** PathNotations module inserted by B.A., oct 2014 *)
+
 Module Import PathNotations.
 
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
@@ -151,6 +154,7 @@ Notation "! p " := (pathsinv0 p) (at level 50).
 Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
 
 End PathNotations.
+
 
 (** *** Direct product of paths  *)
 
