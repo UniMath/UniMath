@@ -24,11 +24,9 @@ Contents :  Definition of adjunction
 
 
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
-
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
@@ -58,9 +56,9 @@ Definition form_adjunction (A B : precategory) (F : ob [A, B])
        (eps : nat_trans (pr1 (F O G)) (functor_identity B)) : UU :=
 dirprod 
   (forall a : ob A,
-       # (pr1 F) (pr1 eta a) ;;   pr1 eps (pr1 F a) == identity (pr1 F a))
+       # (pr1 F) (pr1 eta a) ;;   pr1 eps (pr1 F a) = identity (pr1 F a))
   (forall b : ob B,
-       pr1 eta (pr1 G b) ;; # (pr1 G) (pr1 eps b) == identity (pr1 G b)).
+       pr1 eta (pr1 G b) ;; # (pr1 G) (pr1 eps b) = identity (pr1 G b)).
 
 Definition are_adjoints (A B : precategory) (F : ob [A, B])
     (G : ob [B, A]) : UU :=
@@ -91,7 +89,7 @@ Definition triangle_id_left_ad (A B : precategory) (F : functor A B)
   forall (a : ob A),
        #F (eta_from_left_adjoint H a);;
        eps_from_left_adjoint H (F a) 
-       == 
+       = 
       identity (F a) 
    := pr1 (pr2 (pr2 H)).
 
@@ -99,7 +97,7 @@ Definition triangle_id_right_ad (A B : precategory) (F : ob [A, B])
       (H : is_left_adjoint _ _ F) :
   forall b : ob B,
          eta_from_left_adjoint H (right_adjoint H b);;
-        #(right_adjoint H) (eps_from_left_adjoint H b) ==
+        #(right_adjoint H) (eps_from_left_adjoint H b) =
         identity (right_adjoint H b) := pr2 (pr2 (pr2 H)).
 
 (** * Equivalence of (pre)categories *)
@@ -223,7 +221,7 @@ Proof.
   unfold fminusf; clear fminusf.
   assert (HFg : functor_on_iso A B F a a'
         (iso_from_fully_faithful_reflection HF a a'
-           (iso_comp f (iso_inv_from_iso f'))) == 
+           (iso_comp f (iso_inv_from_iso f'))) = 
            iso_comp f (iso_inv_from_iso f')).
     generalize (iso_comp f (iso_inv_from_iso f')).
     intro h.

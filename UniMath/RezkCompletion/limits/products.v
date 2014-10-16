@@ -1,11 +1,9 @@
 Require Import Foundations.Generalities.uuu.
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
@@ -21,8 +19,8 @@ Variable C : precategory.
 
 Definition isProductCone (c d p: C) (p1 : p --> c) (p2 : p --> d) := 
   forall (a : C) (f : a --> c) (g : a --> d),
-    iscontr (total2 (fun fg : a --> p => dirprod (fg ;; p1 == f) 
-                                                 (fg ;; p2 == g))).
+    iscontr (total2 (fun fg : a --> p => dirprod (fg ;; p1 = f) 
+                                                 (fg ;; p2 = g))).
 
 Definition ProductCone (c d : C) := 
    total2 (fun pp1p2 : total2 (fun p : C => dirprod (p --> c) (p --> d)) =>
@@ -51,14 +49,14 @@ Proof.
 Defined.
 
 Lemma ProductPr1Commutes (c d : C) (P : ProductCone c d):
-     forall (a : C) (f : a --> c) g, ProductArrow P f g ;; ProductPr1 P == f.
+     forall (a : C) (f : a --> c) g, ProductArrow P f g ;; ProductPr1 P = f.
 Proof.
   intros a f g.
   exact (pr1 (pr2 (pr1 (isProductCone_ProductCone P _ f g)))).
 Qed.
 
 Lemma ProductPr2Commutes (c d : C) (P : ProductCone c d):
-     forall (a : C) (f : a --> c) g, ProductArrow P f g ;; ProductPr2 P == g.
+     forall (a : C) (f : a --> c) g, ProductArrow P f g ;; ProductPr2 P = g.
 Proof.
   intros a f g.
   exact (pr2 (pr2 (pr1 (isProductCone_ProductCone P _ f g)))).
@@ -66,8 +64,8 @@ Qed.
 
 Lemma ProductArrowUnique (c d : C) (P : ProductCone c d) (x : C)
     (f : x --> c) (g : x --> d) (k : x --> ProductObject P) :
-    k ;; ProductPr1 P == f -> k ;; ProductPr2 P == g ->
-      k == ProductArrow P f g.
+    k ;; ProductPr1 P = f -> k ;; ProductPr2 P = g ->
+      k = ProductArrow P f g.
 Proof.
   intros H1 H2.
   set (H := tpair (fun h => dirprod _ _ ) k (dirprodpair H1 H2)).
@@ -78,7 +76,7 @@ Qed.
 
 Lemma ProductArrowEta (c d : C) (P : ProductCone c d) (x : C)
     (f : x --> ProductObject P) : 
-    f == ProductArrow P (f ;; ProductPr1 P) (f ;; ProductPr2 P).
+    f = ProductArrow P (f ;; ProductPr1 P) (f ;; ProductPr2 P).
 Proof.
   apply ProductArrowUnique;
   apply idpath.
@@ -92,7 +90,7 @@ Definition ProductOfArrows {c d : C} (Pcd : ProductCone c d) {a b : C}
 
 Lemma ProductOfArrowsPr1 {c d : C} (Pcd : ProductCone c d) {a b : C}
     (Pab : ProductCone a b) (f : a --> c) (g : b --> d) : 
-    ProductOfArrows Pcd Pab f g ;; ProductPr1 Pcd == ProductPr1 Pab ;; f.
+    ProductOfArrows Pcd Pab f g ;; ProductPr1 Pcd = ProductPr1 Pab ;; f.
 Proof.
   unfold ProductOfArrows.
   rewrite ProductPr1Commutes.
@@ -101,7 +99,7 @@ Qed.
 
 Lemma ProductOfArrowsPr2 {c d : C} (Pcd : ProductCone c d) {a b : C}
     (Pab : ProductCone a b) (f : a --> c) (g : b --> d) : 
-    ProductOfArrows Pcd Pab f g ;; ProductPr2 Pcd == ProductPr2 Pab ;; g.
+    ProductOfArrows Pcd Pab f g ;; ProductPr2 Pcd = ProductPr2 Pab ;; g.
 Proof.
   unfold ProductOfArrows.
   rewrite ProductPr2Commutes.
@@ -112,7 +110,7 @@ Qed.
 Lemma postcompWithProductArrow {c d : C} (Pcd : ProductCone c d) {a b : C}
     (Pab : ProductCone a b) (f : a --> c) (g : b --> d) 
     {x : C} (k : x --> a) (h : x --> b) : 
-        ProductArrow Pab k h ;; ProductOfArrows Pcd Pab f g == 
+        ProductArrow Pab k h ;; ProductOfArrows Pcd Pab f g = 
          ProductArrow Pcd (k ;; f) (h ;; g).
 Proof.
   apply ProductArrowUnique.
@@ -127,7 +125,7 @@ Qed.
 
 Lemma precompWithProductArrow {c d : C} (Pcd : ProductCone c d) {a : C}
     (f : a --> c) (g : a --> d) {x : C} (k : x --> a)  : 
-       k ;; ProductArrow Pcd f g  == ProductArrow Pcd (k ;; f) (k ;; g).
+       k ;; ProductArrow Pcd f g  = ProductArrow Pcd (k ;; f) (k ;; g).
 Proof.
   apply ProductArrowUnique.
   -  rewrite <- assoc, ProductPr1Commutes;

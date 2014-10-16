@@ -3,12 +3,11 @@
 
 Require Import Foundations.Generalities.uuu.
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
 
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
@@ -30,8 +29,8 @@ Definition ConeData := total2 (
 Definition ConeTop (a : ConeData) : C := pr1 a.
 Definition ConeMor (a : ConeData) (j : J) : ConeTop a --> F j := (pr2 a) j.
 
-Lemma eq_ConeData_eq (a b : ConeData) (p q : a == b) :
-   base_paths _ _ p == base_paths _ _ q -> p == q.
+Lemma eq_ConeData_eq (a b : ConeData) (p q : a = b) :
+   base_paths _ _ p = base_paths _ _ q -> p = q.
 Proof.
   intro H.
   apply (eq_equalities_between_pairs _ _ _ _ _ _ H).
@@ -41,7 +40,7 @@ Proof.
 Defined.
 
 Definition ConeProp (a : ConeData) :=
-  forall j j' (f : j --> j'), ConeMor a j ;; #F f == ConeMor a j'.
+  forall j j' (f : j --> j'), ConeMor a j ;; #F f = ConeMor a j'.
 
 Lemma isaprop_ConeProp (a : ConeData) : isaprop (ConeProp a).
 Proof.
@@ -54,12 +53,12 @@ Definition Cone := total2 (fun a : ConeData => ConeProp a).
 
 Definition ConeData_from_Cone : Cone -> ConeData := fun a => pr1 a.
 
-Lemma eq_Cone_eq (a b : Cone) (p q : a == b) :
-   base_paths _ _ (base_paths _ _ p) == 
-   base_paths _ _ (base_paths _ _ q) -> p == q.
+Lemma eq_Cone_eq (a b : Cone) (p q : a = b) :
+   base_paths _ _ (base_paths _ _ p) = 
+   base_paths _ _ (base_paths _ _ q) -> p = q.
 Proof.
   intro H.
-  assert (H2 : base_paths _ _ p == base_paths _ _ q).
+  assert (H2 : base_paths _ _ p = base_paths _ _ q).
   apply eq_ConeData_eq.
   apply H.
   apply (eq_equalities_between_pairs _ _ _ _ _ _ H2).
@@ -76,12 +75,12 @@ Coercion ConeProp_from_Cone : Cone >-> ConeProp.
 
 
 Lemma cone_prop (a : Cone) : 
-  forall j j' (f : j --> j'), ConeMor a j ;; #F f == ConeMor a j'.
+  forall j j' (f : j --> j'), ConeMor a j ;; #F f = ConeMor a j'.
 Proof.
   exact (pr2 a).
 Qed.
 
-Definition Cone_eq (a b : Cone) : pr1 a == pr1 b -> a == b.
+Definition Cone_eq (a b : Cone) : pr1 a = pr1 b -> a = b.
 Proof.
   intro H.
   apply (total2_paths H).
@@ -91,7 +90,7 @@ Defined.
 
 Definition Cone_Mor (M N : Cone) := 
   total2 (fun f : ConeTop M --> ConeTop N =>
-        forall j : J, f ;; ConeMor N j == ConeMor M j).
+        forall j : J, f ;; ConeMor N j = ConeMor M j).
 
 
 Lemma isaset_Cone_Mor (M N : Cone) : isaset (Cone_Mor M N).
@@ -109,7 +108,7 @@ Definition ConeConnect {M N : Cone} (f : Cone_Mor M N) :
     ConeTop M --> ConeTop N := pr1 f.
 
 Lemma Cone_Mor_eq (M N : Cone) (f g : Cone_Mor M N) : 
-   ConeConnect f == ConeConnect g -> f == g.
+   ConeConnect f = ConeConnect g -> f = g.
 Proof.
   intro H.
   apply (total2_paths H).
@@ -118,7 +117,7 @@ Proof.
 Qed.
 
 Lemma cone_mor_prop M N (f : Cone_Mor M N) : 
-    forall j : J, ConeConnect f ;; ConeMor N j == ConeMor M j.
+    forall j : J, ConeConnect f ;; ConeMor N j = ConeMor M j.
 Proof.
   exact (pr2 f).
 Qed.
@@ -191,14 +190,14 @@ Definition ConeConnectIso {a b : CONE} (f : iso a b) :
  tpair _ _ (iso_projects_from_CONE a b f).
 
 Lemma ConeConnectIso_identity_iso (a : CONE) :
-   ConeConnectIso (identity_iso a) == identity_iso _ .
+   ConeConnectIso (identity_iso a) = identity_iso _ .
 Proof.
   apply eq_iso.
   apply idpath.
 Qed.
 
 Lemma ConeConnectIso_inj (a b : CONE) (f g : iso a b) :
-   ConeConnectIso f == ConeConnectIso g -> f == g.
+   ConeConnectIso f = ConeConnectIso g -> f = g.
 Proof.
   intro H.
   apply eq_iso; simpl in *.
@@ -212,7 +211,7 @@ Section CONE_category.
 Hypothesis is_cat_C : is_category C.
 
 
-Definition isotoid_CONE_pr1 (a b : CONE) : iso a b -> pr1 a == pr1 b.
+Definition isotoid_CONE_pr1 (a b : CONE) : iso a b -> pr1 a = pr1 b.
 Proof.
   intro f.
   apply (total2_paths (isotoid _ is_cat_C (ConeConnectIso f))).
@@ -235,7 +234,7 @@ Proof.
   apply (pr2 (inv_from_iso f)).
 Defined.
 
-Definition isotoid_CONE {a b : CONE} : iso a b -> a == b.
+Definition isotoid_CONE {a b : CONE} : iso a b -> a = b.
 Proof.
   intro f.
   apply Cone_eq.
@@ -243,7 +242,7 @@ Proof.
 Defined.
 
 
-Lemma eq_CONE_pr1 (M N : CONE) (p q : M == N) : base_paths _ _ p == base_paths _ _ q -> p == q.
+Lemma eq_CONE_pr1 (M N : CONE) (p q : M = N) : base_paths _ _ p = base_paths _ _ q -> p = q.
 Proof.
   intro H.
   simpl in *.
@@ -256,7 +255,7 @@ Defined.
  
 Lemma base_paths_isotoid_CONE (M : CONE):
 base_paths (pr1 M) (pr1 M)
-      (base_paths M M (isotoid_CONE (identity_iso M))) ==
+      (base_paths M M (isotoid_CONE (identity_iso M))) =
     base_paths (pr1 M) (pr1 M) (idpath (pr1 M)).
 Proof.
   pathvia (base_paths (pr1 M) (pr1 M) (isotoid_CONE_pr1 M M (identity_iso M))).
@@ -272,7 +271,7 @@ Proof.
 Defined.
 
 
-Lemma isotoid_CONE_idtoiso (M N : CONE) : forall p : M == N, isotoid_CONE (idtoiso p) == p.
+Lemma isotoid_CONE_idtoiso (M N : CONE) : forall p : M = N, isotoid_CONE (idtoiso p) = p.
 Proof.
   intro p.
   induction p.
@@ -282,14 +281,14 @@ Qed.
 
 
 
-Lemma ConeConnect_idtoiso (M N : CONE) (p : M == N):
-  ConeConnect (pr1 (idtoiso p)) == idtoiso ((base_paths _ _ (base_paths _ _  p))).
+Lemma ConeConnect_idtoiso (M N : CONE) (p : M = N):
+  ConeConnect (pr1 (idtoiso p)) = idtoiso ((base_paths _ _ (base_paths _ _  p))).
 Proof.
   destruct p.
   apply idpath.
 Qed.
 
-Lemma idtoiso_isotoid_CONE (M N : CONE) : forall f : iso M N, idtoiso (isotoid_CONE f) == f.
+Lemma idtoiso_isotoid_CONE (M N : CONE) : forall f : iso M N, idtoiso (isotoid_CONE f) = f.
 Proof.
   intro f.
   apply eq_iso.

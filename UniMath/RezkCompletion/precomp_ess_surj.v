@@ -19,11 +19,9 @@ Contents : Precomposition with a fully faithful and
 
 
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
-
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
@@ -74,7 +72,7 @@ Section essentially_surjective.
 (** ** Specification of preimage [G] of a functor [F] *)
 
 (** Given a functor [F] from [A] to [C], we construct [G] such that
-       [F == G O H] *)
+       [F = G O H] *)
 
 Variable F : functor A C.
 
@@ -90,8 +88,8 @@ Let X (b : B) := total2 (
                      iso (H a) b -> iso (F a) c) =>
     forall t t' : total2 (fun a : A => iso (H a) b),
           forall f : pr1 t --> pr1 t',
-             (#H f ;; pr2 t' == pr2 t -> 
-                    #F f ;; pr2 ck (pr1 t') (pr2 t') == pr2 ck (pr1 t) (pr2 t))).
+             (#H f ;; pr2 t' = pr2 t -> 
+                    #F f ;; pr2 ck (pr1 t') (pr2 t') = pr2 ck (pr1 t) (pr2 t))).
 
 Definition kX {b : B} (t : X b) := (pr2 (pr1 t)).
 
@@ -100,9 +98,9 @@ Definition kX {b : B} (t : X b) := (pr2 (pr1 t)).
 Lemma X_aux_type_center_of_contr_proof (b : B) (anot : A) (hnot : iso (H anot) b) :
   forall (t t' : total2 (fun a :  A => iso (H a) b))
     (f : pr1 t --> pr1 t'),
-  #H f;; pr2 t' == pr2 t ->
+  #H f;; pr2 t' = pr2 t ->
   #F f;;
-  #F (fH^-1 (pr2 t';; inv_from_iso hnot)) ==
+  #F (fH^-1 (pr2 t';; inv_from_iso hnot)) =
   #F (fH^-1 (pr2 t;; inv_from_iso hnot)).
 Proof.
   intros t t' f.
@@ -142,13 +140,13 @@ Defined.
 (** Any inhabitant of [X b] is equal to the center of [X b]. *)
 
 Lemma X_aux_type_contr_eq (b : B) (anot : A) (hnot : iso (H anot) b) : 
-   forall t : X b, t == X_aux_type_center_of_contr b anot hnot.
+   forall t : X b, t = X_aux_type_center_of_contr b anot hnot.
 Proof.
   intro t.
   simpl in X.
-  assert (Hpr1 : pr1 (X_aux_type_center_of_contr b anot hnot) == pr1 t).
+  assert (Hpr1 : pr1 (X_aux_type_center_of_contr b anot hnot) = pr1 t).
   set (w := isotoid _ Ccat ((pr2 (pr1 t)) anot hnot) : 
-          pr1 (pr1 (X_aux_type_center_of_contr b anot hnot)) == pr1 (pr1 t)).
+          pr1 (pr1 (X_aux_type_center_of_contr b anot hnot)) = pr1 (pr1 t)).
   apply (total2_paths w).
   simpl.
   destruct t as [[c1 k1] q1].
@@ -160,7 +158,7 @@ Proof.
   simpl in *.
 
   assert (feedtoqhelp : 
-        #H (fH^-1 (h;; inv_from_iso hnot));; hnot == h).
+        #H (fH^-1 (h;; inv_from_iso hnot));; hnot = h).
     inv_functor fH a anot.
     rewrite <- assoc.
     rewrite iso_after_iso_inv.
@@ -220,7 +218,7 @@ Let q (b : B) := pr2 (pr1 (iscontr_X b)).
 
 (** Given any inhabitant of [X b], its first component is equal to [Go b]. *)
 
-Definition Xphi (b : B) (t : X b) : pr1 (pr1 t) == Go b.
+Definition Xphi (b : B) (t : X b) : pr1 (pr1 t) = Go b.
 Proof.
   set (p1 := pr2 (iscontr_X b) t).
   exact (base_paths _ _ (base_paths _ _ p1)).
@@ -231,7 +229,7 @@ Defined.
 
 Definition Xkphi_transp (b : B) (t : X b) : 
      forall a : A, forall h : iso (H a) b, 
-  transportf _ (Xphi b t) (kX t) a h ==  k b a h.
+  transportf _ (Xphi b t) (kX t) a h =  k b a h.
 Proof.
   unfold k.
   rewrite <- (fiber_path (base_paths _ _ (pr2 (iscontr_X b) t))).
@@ -244,7 +242,7 @@ Qed.
 
 Definition Xkphi_idtoiso (b : B) (t : X b) :
     forall a : A, forall h : iso (H a) b,
-   k b a h ;; idtoiso (!Xphi b t) == kX t a h.
+   k b a h ;; idtoiso (!Xphi b t) = kX t a h.
 Proof.
   intros a h.
   rewrite <- (Xkphi_transp _ t).
@@ -256,10 +254,10 @@ Qed.
 
 (*
 Lemma k_transport (b : ob B) (*t : X b*) (c : ob C) 
-   (p : pr1 (pr1 t) == c) (a : ob A) (h : iso (pr1 H a) b):
+   (p : pr1 (pr1 t) = c) (a : ob A) (h : iso (pr1 H a) b):
 transportf (fun c' : ob C => forall a : ob A, iso (pr1 H a) b -> 
                           iso ((pr1 F) a) c')
-   p (k) a h == (k b) b a h ;; idtoiso p .
+   p (k) a h = (k b) b a h ;; idtoiso p .
 *)
 
 
@@ -275,21 +273,21 @@ Let Y {b b' : B} (f : b --> b') :=
           forall a' : A,
             forall h' : iso (H a') b',
               forall l : a --> a',
-                #H l ;; h' == h ;; f -> #F l ;; k b' a' h' == k b a h ;; g).
+                #H l ;; h' = h ;; f -> #F l ;; k b' a' h' = k b a h ;; g).
 
 Lemma Y_inhab_proof (b b' : B) (f : b --> b') (a0 : A) (h0 : iso (H a0) b)
     (a0' : A) (h0' : iso (H a0') b') :
   forall (a : A) (h : iso (H a) b) (a' : A) (h' : iso (H a') b')
     (l : a --> a'),
-  #H l;; h' == h;; f ->
-  #F l;; k b' a' h' ==
+  #H l;; h' = h;; f ->
+  #F l;; k b' a' h' =
     k b a h;; ((inv_from_iso (k b a0 h0);;
   #F (fH^-1 ((h0;; f);; inv_from_iso h0')));; k b' a0' h0').
 Proof.
   intros a h a' h' l alpha.
   set (m := fH^-i (iso_comp h0 (iso_inv_from_iso h))).
   set (m' := fH^-i (iso_comp h0' (iso_inv_from_iso h'))).
-  assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) == 
+  assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) = 
                    k b a0 h0).
     apply eq_iso.
     apply (q b (tpair _ a0 h0) (tpair _ a h) m).
@@ -298,7 +296,7 @@ Proof.
     rewrite <- assoc.
     rewrite iso_after_iso_inv.
     apply id_right.
-  assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b' a' h') == 
+  assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b' a' h') = 
                    k b' a0' h0').
     apply eq_iso.
     apply (q b' (tpair _ a0' h0') (tpair _ a' h') m').
@@ -312,7 +310,7 @@ Proof.
   set (l0 := fH^-1 hfh).
   set (g0 := inv_from_iso (k b a0 h0) ;; #F l0  ;; k b' a0' h0').
   
-  assert (sssss : #H (l0 ;; m') == #H (m ;; l)).
+  assert (sssss : #H (l0 ;; m') = #H (m ;; l)).
     rewrite functor_comp .
     unfold m'. simpl.
     inv_functor fH a0' a'.
@@ -328,7 +326,7 @@ Proof.
     rewrite assoc.
     apply iso_inv_on_left, pathsinv0, alpha.
 
-  assert (star5 : inv_from_iso m ;; l0 == l ;; inv_from_iso m').
+  assert (star5 : inv_from_iso m ;; l0 = l ;; inv_from_iso m').
     apply iso_inv_on_right.
     rewrite assoc.
     apply iso_inv_on_left,
@@ -337,7 +335,7 @@ Proof.
           sssss.
   clear sssss.
   unfold g0.
-  assert (sss'' : k b a h ;; inv_from_iso (k b a0 h0) == 
+  assert (sss'' : k b a h ;; inv_from_iso (k b a0 h0) = 
              inv_from_iso (functor_on_iso _ _ F _ _  m)).
     apply pathsinv0, iso_inv_on_left, pathsinv0.
     apply iso_inv_on_right.
@@ -352,7 +350,7 @@ Proof.
   rewrite functor_comp, functor_on_inv_from_iso.
   assert (star4 : 
         inv_from_iso (functor_on_iso A C F a0' a' m');; k b' a0' h0'
-           == k b' a' h' ).
+           = k b' a' h' ).
     apply iso_inv_on_right.
     apply pathsinv0, (base_paths _ _ ssss).
   rewrite <- assoc.
@@ -377,11 +375,11 @@ Defined.
 Lemma Y_contr_eq (b b' : B) (f : b --> b')
      (a0 : A) (h0 : iso (H a0) b)
      (a0' : A) (h0' : iso (H a0') b') :
-  forall t : Y b b' f, t == Y_inhab b b' f a0 h0 a0' h0'.
+  forall t : Y b b' f, t = Y_inhab b b' f a0 h0 a0' h0'.
 Proof.
   intro t.
   apply pathsinv0.
-  assert (Hpr : pr1 (Y_inhab b b' f a0 h0 a0' h0') == pr1 t).
+  assert (Hpr : pr1 (Y_inhab b b' f a0 h0 a0' h0') = pr1 t).
     destruct t as [g1 r1]; simpl in *.
     rewrite <- assoc.
     apply iso_inv_on_right.
@@ -439,8 +437,8 @@ Proof.
   assert (PR2 : forall (a : A) (h : iso (H a) b) (a' : A) 
           (h' : iso (H a') b)
     (l : a --> a'),
-  #H l;; h' == h;; identity b ->
-  #F l;; k b a' h' == k b a h;; identity (Go b)).
+  #H l;; h' = h;; identity b ->
+  #F l;; k b a' h' = k b a h;; identity (Go b)).
     intros a h a' h' l LL.
     rewrite id_right.
     apply (q b (tpair _ a h) (tpair _ a' h') l).
@@ -460,16 +458,16 @@ Proof.
 
   intros b b' b'' f f'.
 
-  assert (HHHH : isaprop (pr1 (pr1 (Y_iscontr b b'' (f;; f'))) ==
+  assert (HHHH : isaprop (pr1 (pr1 (Y_iscontr b b'' (f;; f'))) =
                         pr1 (pr1 (Y_iscontr b b' f));; pr1 (pr1 (Y_iscontr b' b'' f')))).
     apply (pr2 (Go b --> Go b'')).
-  apply (p b (tpair (fun x => isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f;; f'))) ==
+  apply (p b (tpair (fun x => isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f;; f'))) =
            pr1 (pr1 (Y_iscontr b b' f));; pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
   intros [a0 h0]; simpl.
-  apply (p b' (tpair (fun x => isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f;; f'))) ==
+  apply (p b' (tpair (fun x => isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f;; f'))) =
            pr1 (pr1 (Y_iscontr b b' f));; pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
   intros [a0' h0']; simpl.
-  apply (p b'' (tpair (fun x => isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f;; f'))) ==
+  apply (p b'' (tpair (fun x => isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f;; f'))) =
            pr1 (pr1 (Y_iscontr b b' f));; pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
   intros [a0'' h0''].
   simpl; clear HHHH.
@@ -478,7 +476,7 @@ Proof.
   set (l0' := fH^-1 (h0' ;; f' ;; inv_from_iso h0'')).
   set (l0'' := fH^-1 (h0 ;; (f;; f') ;; inv_from_iso h0'')).
   
-  assert (L : l0 ;; l0' == l0'').
+  assert (L : l0 ;; l0' = l0'').
     apply (equal_transport_along_weq _ _ (weq_from_fully_faithful fH a0 a0'')).
     simpl; rewrite functor_comp.
     unfold l0'.
@@ -495,14 +493,14 @@ Proof.
   
   assert (PR2 : forall (a : A) (h : iso (H a) b)(a' : A)
           (h' : iso (H a') b') (l : a --> a'),
-           #H l;; h' == h;; f ->
-           #F l;; k b' a' h' ==
+           #H l;; h' = h;; f ->
+           #F l;; k b' a' h' =
             k b a h;; ((inv_from_iso (k b a0 h0);; #F l0);; k b' a0' h0') ).
     intros a h a' h' l.
     intro alpha.
     set (m := fH^-i (iso_comp h0 (iso_inv_from_iso h))).
     set (m' := fH^-i (iso_comp h0' (iso_inv_from_iso h'))).
-    assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) == 
+    assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) = 
                    k b a0 h0).
       apply eq_iso; simpl.
       apply (q b (tpair _ a0 h0) (tpair _ a h) m).
@@ -511,7 +509,7 @@ Proof.
       rewrite <- assoc.
       rewrite iso_after_iso_inv.
       apply id_right.
-    assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b' a' h') == 
+    assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b' a' h') = 
                    k b' a0' h0').
       apply eq_iso; simpl.
       apply (q b' (tpair _ a0' h0') (tpair _ a' h') m'); simpl.
@@ -519,7 +517,7 @@ Proof.
       rewrite <- assoc.
       rewrite iso_after_iso_inv.
       apply id_right.
-    assert (sssss : #H (l0 ;; m') == #H (m ;; l)).
+    assert (sssss : #H (l0 ;; m') = #H (m ;; l)).
       rewrite functor_comp.
       unfold m'; simpl.
       inv_functor fH a0' a'.
@@ -537,7 +535,7 @@ Proof.
       apply iso_inv_on_left.
       apply pathsinv0.
       apply alpha.
-    assert (star5 : inv_from_iso m ;; l0 == l ;; inv_from_iso m').
+    assert (star5 : inv_from_iso m ;; l0 = l ;; inv_from_iso m').
       apply iso_inv_on_right.
       rewrite assoc.
       apply iso_inv_on_left.
@@ -546,7 +544,7 @@ Proof.
       apply sssss.
     clear sssss.
     set (sss':= base_paths _ _ sss); simpl in sss'.
-    assert (sss'' : k b a h ;; inv_from_iso (k b a0 h0) == 
+    assert (sss'' : k b a h ;; inv_from_iso (k b a0 h0) = 
              inv_from_iso (functor_on_iso _ _ F _ _  m)).
       apply pathsinv0.
       apply iso_inv_on_left.
@@ -563,7 +561,7 @@ Proof.
     clear star5.
     assert (star4 : 
         inv_from_iso (functor_on_iso A C F a0' a' m');; k b' a0' h0'
-           == k b' a' h' ).
+           = k b' a' h' ).
       apply iso_inv_on_right.
       set (ssss' := base_paths _ _ ssss).
       apply pathsinv0.
@@ -573,7 +571,7 @@ Proof.
     rewrite star4.
     apply idpath.
   
-  assert (HGf : G f == inv_from_iso (k b a0 h0) ;; #F l0 ;; k b' a0' h0'). 
+  assert (HGf : G f = inv_from_iso (k b a0 h0) ;; #F l0 ;; k b' a0' h0'). 
     set (Gbrtilde :=
            tpair _ (inv_from_iso (k b a0 h0) ;; #F l0 ;; k b' a0' h0') PR2 : Y b b' f).
     set (H' := pr2 (Y_iscontr b b' f) Gbrtilde).
@@ -585,14 +583,14 @@ Proof.
   clear PR2.
   assert (PR2 : forall (a : A) (h : iso (H a) b') (a' : A) 
             (h' : iso (H a') b'') (l : a --> a'),
-         #H l;; h' == h;; f' ->
-           #F l;; k b'' a' h' ==
+         #H l;; h' = h;; f' ->
+           #F l;; k b'' a' h' =
          k b' a h;; ((inv_from_iso (k b' a0' h0');; #F l0');; k b'' a0'' h0'')).
     intros a' h' a'' h'' l'.
     intro alpha.
     set (m := fH^-i (iso_comp h0' (iso_inv_from_iso h'))).
     set (m' := fH^-i (iso_comp h0'' (iso_inv_from_iso h''))).
-    assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b' a' h') == 
+    assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b' a' h') = 
                    k b' a0' h0').
       apply eq_iso; simpl.
       apply (q b' (tpair _ a0' h0') (tpair _ a' h') m); simpl.
@@ -600,7 +598,7 @@ Proof.
       rewrite <- assoc.
       rewrite iso_after_iso_inv.
       apply id_right.
-    assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b'' a'' h'') == 
+    assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b'' a'' h'') = 
                    k b'' a0'' h0'').
       apply eq_iso; simpl.
       apply (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m'); simpl.
@@ -608,7 +606,7 @@ Proof.
       rewrite <- assoc.
       rewrite iso_after_iso_inv.
       apply id_right.
-    assert (sssss : #H (l0' ;; m') == #H (m ;; l')).
+    assert (sssss : #H (l0' ;; m') = #H (m ;; l')).
       rewrite functor_comp.
       unfold m'. simpl.
       inv_functor fH a0'' a''.
@@ -622,7 +620,7 @@ Proof.
       apply maponpaths, pathsinv0, iso_inv_on_right.
       rewrite assoc.
       apply iso_inv_on_left, pathsinv0, alpha.
-    assert (star5 : inv_from_iso m ;; l0' == l' ;; inv_from_iso m').
+    assert (star5 : inv_from_iso m ;; l0' = l' ;; inv_from_iso m').
       apply iso_inv_on_right.
       rewrite assoc.
       apply iso_inv_on_left,
@@ -630,7 +628,7 @@ Proof.
         pathsinv0,
         sssss.
     set (sss':= base_paths _ _ sss); simpl in sss'.
-    assert (sss'' : k b' a' h' ;; inv_from_iso (k b' a0' h0') == 
+    assert (sss'' : k b' a' h' ;; inv_from_iso (k b' a0' h0') = 
              inv_from_iso (functor_on_iso _ _ F _ _  m)).
       apply pathsinv0, iso_inv_on_left, pathsinv0, iso_inv_on_right.
       unfold m; simpl;
@@ -643,7 +641,7 @@ Proof.
     rewrite functor_comp, functor_on_inv_from_iso.
     assert (star4 : 
         inv_from_iso (functor_on_iso A C F a0'' a'' m');; k b'' a0'' h0''
-           == k b'' a'' h'' ).
+           = k b'' a'' h'' ).
       apply iso_inv_on_right.
       set (ssss' := base_paths _ _ ssss).
       apply pathsinv0.
@@ -651,7 +649,7 @@ Proof.
     rewrite <- assoc.
     rewrite star4.
     apply idpath.
-  assert (HGf' : G f' == inv_from_iso (k b' a0' h0') ;; #F l0' ;; k b'' a0'' h0''). 
+  assert (HGf' : G f' = inv_from_iso (k b' a0' h0') ;; #F l0' ;; k b'' a0'' h0''). 
     set (Gbrtilde :=
        tpair _ (inv_from_iso (k b' a0' h0') ;; #F l0' ;; k b'' a0'' h0'') PR2 : 
                       Y b' b'' f').
@@ -662,28 +660,28 @@ Proof.
   clear PR2.
   assert (PR2 : forall (a : A) (h : iso (H a) b) (a' : A) 
              (h' : iso (H a') b'') (l : a --> a'),
-          #H l;; h' == h;; (f;; f') ->
-          #F l;; k b'' a' h' ==
+          #H l;; h' = h;; (f;; f') ->
+          #F l;; k b'' a' h' =
            k b a h;; ((inv_from_iso (k b a0 h0);; #F l0'');; k b'' a0'' h0'')).
     intros a h a'' h'' l.
     intro alpha.
     set (m := fH^-i (iso_comp h0 (iso_inv_from_iso h))).
     set (m' := fH^-i (iso_comp h0'' (iso_inv_from_iso h''))).
-    assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) == k b a0 h0).
+    assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) = k b a0 h0).
       apply eq_iso. 
       apply (q b (tpair _ a0 h0) (tpair _ a h) m); simpl.
       inv_functor fH a0 a.
       rewrite <- assoc.
       rewrite iso_after_iso_inv.
       apply id_right.
-    assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b'' a'' h'') == 
+    assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b'' a'' h'') = 
                    k b'' a0'' h0'').
       apply eq_iso. apply (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m').
       simpl; inv_functor fH a0'' a''.
       rewrite <- assoc.
       rewrite iso_after_iso_inv.
       apply id_right.
-    assert (sssss : #H (l0'' ;; m') == #H (m ;; l)).
+    assert (sssss : #H (l0'' ;; m') = #H (m ;; l)).
       rewrite functor_comp.
       unfold m'. simpl.
       inv_functor fH a0'' a''.
@@ -699,14 +697,14 @@ Proof.
       apply iso_inv_on_left, pathsinv0.
       repeat rewrite <- assoc.
       apply alpha.
-    assert (star5 : inv_from_iso m ;; l0'' == l ;; inv_from_iso m').
+    assert (star5 : inv_from_iso m ;; l0'' = l ;; inv_from_iso m').
       apply iso_inv_on_right.
       rewrite assoc.
       apply iso_inv_on_left.
       apply (equal_transport_along_weq _ _ (weq_from_fully_faithful fH a0 a'' )).
       apply pathsinv0, sssss.
     set (sss':= base_paths _ _ sss); simpl in sss'.
-    assert (sss'' : k b a h ;; inv_from_iso (k b a0 h0) == 
+    assert (sss'' : k b a h ;; inv_from_iso (k b a0 h0) = 
              inv_from_iso (functor_on_iso _ _ F _ _  m)).
       apply pathsinv0, iso_inv_on_left, pathsinv0, iso_inv_on_right.
       unfold m; simpl.
@@ -719,12 +717,12 @@ Proof.
     rewrite functor_comp, functor_on_inv_from_iso.
     assert (star4 : 
         inv_from_iso (functor_on_iso A C F a0'' a'' m');; k b'' a0'' h0''
-           == k b'' a'' h'' ).
+           = k b'' a'' h'' ).
       apply iso_inv_on_right, pathsinv0, (base_paths _ _ ssss).
     rewrite <- assoc.
     rewrite star4.
     apply idpath.
-  assert (HGff' : G (f ;; f') == 
+  assert (HGff' : G (f ;; f') = 
        inv_from_iso (k b a0 h0) ;; #F l0'' ;; k b'' a0'' h0''). 
     set (Gbrtilde :=
            tpair _ (inv_from_iso (k b a0 h0) ;; #F l0'' ;; k b'' a0'' h0'') PR2 : 
@@ -757,13 +755,13 @@ Definition GG : [B, C] := tpair _ preimage_functor_data
 
 (** Given any [a : A], we produce an element in [X (H a)], whose
      first component is [F a]. 
-   This allows to prove [G (H a) == F a]. *)
+   This allows to prove [G (H a) = F a]. *)
 
 Lemma qF (a0 : A) :
   forall (t t' : total2 (fun a :  A => iso (H a) (H a0)))
     (f : pr1 t --> pr1 t'),
-  #H f;; pr2 t' == pr2 t ->
-  #F f;; #F (fH^-1 (pr2 t')) ==
+  #H f;; pr2 t' = pr2 t ->
+  #F f;; #F (fH^-1 (pr2 t')) =
   #F (fH^-1  (pr2 t)).
 Proof.
   simpl.
@@ -790,12 +788,12 @@ Definition XtripleF (a0 : A) : X (H a0) :=
    tpair _ (tpair _ (F a0) (kFa a0)) (qF a0).
 
 
-Lemma phi (a0 : A) : pr1 (pr1 (GG O H)) a0 == pr1 (pr1 F) a0.
+Lemma phi (a0 : A) : pr1 (pr1 (GG O H)) a0 = pr1 (pr1 F) a0.
 Proof.
   exact (!Xphi _ (XtripleF a0)).
 Defined.
 
-Lemma extphi : pr1 (pr1 (GG O H)) == pr1 (pr1 F).
+Lemma extphi : pr1 (pr1 (GG O H)) = pr1 (pr1 F).
 Proof.
   apply funextsec.
   apply phi.
@@ -804,7 +802,7 @@ Defined.
 (** Now for the functor as a whole. It remains to prove 
     equality on morphisms, modulo transport. *)
 
-Lemma is_preimage_for_pre_composition : GG O H == F.
+Lemma is_preimage_for_pre_composition : GG O H = F.
 Proof.
   apply (functor_eq _ _ (GG O H) F).
   apply (total2_paths extphi).
@@ -820,8 +818,8 @@ Proof.
   rewrite <- assoc.
   assert (PSIf : forall (a : A) (h : iso (H a) (H a0)) (a' : A)
   (h' : iso (H a') (H a0')) (l : a --> a'),
-         #H l;; h' == h;; #H f ->
-         #F l;; k (H a0') a' h' ==
+         #H l;; h' = h;; #H f ->
+         #F l;; k (H a0') a' h' =
          k (H a0) a h;;
          ((idtoiso (phi a0);; #F f);; inv_from_iso (idtoiso (phi a0')))).
     intros a h a' h' l alpha.
@@ -833,7 +831,7 @@ Proof.
     repeat rewrite <- assoc.
     rewrite (Xkphi_idtoiso (H a0') (XtripleF a0')).
     simpl.
-    assert (HH4 : fH^-1 h ;; f == l ;; fH^-1 h').
+    assert (HH4 : fH^-1 h ;; f = l ;; fH^-1 h').
       apply (equal_transport_along_weq _ _ (weq_from_fully_faithful fH a a0')).
       simpl; repeat rewrite functor_comp.
       inv_functor fH a a0.

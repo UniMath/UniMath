@@ -1,12 +1,10 @@
 
 Require Import Foundations.Generalities.uuu.
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
@@ -26,7 +24,7 @@ Coercion InitialObject : Initial >-> ob.
 
 Definition InitialArrow (O : Initial) (b : C) : O --> b :=  pr1 (pr2 O b).
 
-Lemma InitialEndo_is_identity (O : Initial) (f : O --> O) : identity O == f.
+Lemma InitialEndo_is_identity (O : Initial) (f : O --> O) : identity O = f.
 Proof.
   apply proofirrelevance.
   apply isapropifcontr.
