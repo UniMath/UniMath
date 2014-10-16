@@ -46,7 +46,7 @@ End TerminalObject.
 (** *** initial objects *)
 
 Module InitialObject.
-  Import RezkCompletion.pathnotations.PathNotations Ktheory.Utilities.Notation.
+  Import uu0.PathNotations Ktheory.Utilities.Notation.
   Definition isInitialObject (C:precategory) (a:ob C) :=
     forall x:ob C, iscontr (x ← a).
   Lemma theInitialObjectIsomorphy (C:precategory) (a b:ob C) :
@@ -72,11 +72,11 @@ Module InitialObject.
     := fun X => make_InitialObject C (pr1 X) (pr2 X).
   Definition pack {C:precategory} : InitialObject C -> InitialObject_total C
     := fun Y => (theInitialObject _ Y,,theInitialProperty _ Y).
-  Definition h {C:precategory} (X:InitialObject_total C) : pack (unpack X) == X
-    := match X as t return (pack (unpack t) == t) 
+  Definition h {C:precategory} (X:InitialObject_total C) : pack (unpack X) = X
+    := match X as t return (pack (unpack t) = t) 
        with X1,, X2 => idpath (X1,, X2) end.
-  Definition k {C:precategory} (Y:InitialObject C) : unpack (pack Y) == Y
-    := match Y as i return (unpack (pack i) == i) 
+  Definition k {C:precategory} (Y:InitialObject C) : unpack (pack Y) = Y
+    := match Y as i return (unpack (pack i) = i) 
        with make_InitialObject _ Y1 Y2 => idpath _ end.
   Lemma unpack_weq (C:precategory) : weq (InitialObject_total C) (InitialObject C).
   Proof. intros. exists unpack. intros Y. exists (pack Y,,k Y). intros [X m].

@@ -4,16 +4,16 @@ Require Import Foundations.hlevel2.algebra1b
 	       RezkCompletion.auxiliary_lemmas_HoTT
                Ktheory.Utilities.
 Require Ktheory.Magma Ktheory.QuotientSet.
-Import RezkCompletion.pathnotations.PathNotations Ktheory.Utilities.Notation. 
+Import uu0.PathNotations Ktheory.Utilities.Notation. 
 Local Notation Hom := monoidfun (only parsing).
 Local Notation "x * y" := ( op x y ). 
 Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
-Definition funEquality G H (p q : Hom G H) : pr1 p == pr1 q -> p == q.
+Definition funEquality G H (p q : Hom G H) : pr1 p = pr1 q -> p = q.
   intros ? ? [p i] [q j] v. simpl in v. destruct v.
   destruct (pr1 (isapropismonoidfun p i j)). reflexivity. Qed.
-Definition unitproperty {G H} (p:Hom G H) : p (unel G) == unel H 
+Definition unitproperty {G H} (p:Hom G H) : p (unel G) = unel H 
   := pr2 (pr2 p).
-Definition multproperty {G H} (p:Hom G H) (g g':G) : p(g * g') == p g * p g'
+Definition multproperty {G H} (p:Hom G H) (g g':G) : p(g * g') = p g * p g'
   := pr1 (pr2 p) g g'.
 Definition zero : monoid.
   exists Magma.zero. split. intros x y z. reflexivity.
@@ -79,11 +79,11 @@ Module Presentation.
   Definition MarkedPreMonoid_to_hrel {X} 
              (M:MarkedPreMonoid X) (is:isaset (elem M)) : 
       hrel (word X) :=
-    fun v w => (evalword M v == evalword M w) ,, is _ _.
+    fun v w => (evalword M v = evalword M w) ,, is _ _.
 
   (** eta expansion principle for words *)
 
-  Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v == v.
+  Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v = v.
   Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
          { exact (aptwice word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
 
@@ -167,13 +167,13 @@ Module Presentation.
   Lemma lift {X I} (R:I->reln X) : issurjective (setquotpr (smallestAdequateRelation R)).
   Proof. intros. exact (issurjsetquotpr (smallestAdequateRelation R)). Qed.
   Lemma is_left_unit_univ_binop {X I} (R:I->reln X) (w:universalMarkedPreMonoid0 R) :
-    ((univ_binop _) (setquotpr _ word_unit) w) == w.
+    ((univ_binop _) (setquotpr _ word_unit) w) = w.
   Proof. intros ? ? ? w'. isaprop_goal ig. { apply setproperty. } 
     apply (squash_to_prop (lift R w') ig); intros [w []].
     exact (iscompsetquotpr (smallestAdequateRelation R) _ _ 
                            (fun r ra => left_unit R r ra w)). Qed.
   Lemma is_right_unit_univ_binop {X I} (R:I->reln X) (w:universalMarkedPreMonoid0 R) :
-    ((univ_binop _) w (setquotpr _ word_unit)) == w.
+    ((univ_binop _) w (setquotpr _ word_unit)) = w.
   Proof. intros ? ? ? w'. isaprop_goal ig. { apply setproperty. } 
     apply (squash_to_prop (lift R w') ig); intros [w []].
     exact (iscompsetquotpr (smallestAdequateRelation R) _ _ 
@@ -186,14 +186,14 @@ Module Presentation.
          apply (squash_to_prop (lift R w') ig); intros [w []].
          exact (iscompsetquotpr e _ _ (fun r ra => assoc R r ra u v w)). Qed.
   Fixpoint reassemble_pr {X I} (R:I->reln X) (v:word X) : 
-    evalword (universalMarkedPreMonoid R) v == setquotpr _ v.
+    evalword (universalMarkedPreMonoid R) v = setquotpr _ v.
   Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
          { simpl. assert (p := ! reassemble_pr _ _ R v). destruct p.
                   assert (q := ! reassemble_pr _ _ R w). destruct q.
                   reflexivity. } Qed.
   Lemma pr_eval_compat {X I} (R:I->reln X) (w:word X) :
     setquotpr (smallestAdequateRelation R) (evalword (wordop X) w) 
-    == evalword (universalMarkedPreMonoid R) w.
+    = evalword (universalMarkedPreMonoid R) w.
   Proof. intros. destruct w as [|x|v w]. { reflexivity. } { reflexivity. } 
     { assert (p := !reassemble R (word_op v w)). destruct p. 
       exact (!reassemble_pr R (word_op v w)). } Qed.
@@ -208,7 +208,7 @@ Module Presentation.
     make_MarkedMonoid {
         m_base :> monoid;
         m_mark : X -> m_base;
-        m_reln : forall i, evalword (toMarkedPreMonoid R m_base m_mark) (lhs (R i)) ==
+        m_reln : forall i, evalword (toMarkedPreMonoid R m_base m_mark) (lhs (R i)) =
                            evalword (toMarkedPreMonoid R m_base m_mark) (rhs (R i)) }.
   Arguments make_MarkedMonoid {X I} R _ _ _.
   Arguments m_base {X I R} _.
@@ -233,18 +233,18 @@ Module Presentation.
   Record MarkedMonoidMap {X I} {R:I->reln X} (M N:MarkedMonoid R) :=
     make_MarkedMonoidMap {
         map_base :> Hom M N;
-        map_mark : forall x, map_base (m_mark M x) == m_mark N x }.
+        map_mark : forall x, map_base (m_mark M x) = m_mark N x }.
   Arguments map_base {X I R M N} m.
   Arguments map_mark {X I R M N} m x.
   Lemma MarkedMonoidMapEquality {X I} {R:I->reln X} {M N:MarkedMonoid R}
-        (f g:MarkedMonoidMap M N) : map_base f == map_base g -> f == g.
+        (f g:MarkedMonoidMap M N) : map_base f = map_base g -> f = g.
   Proof. intros ? ? ? ? ? ? ? j.
          destruct f as [f ft], g as [g gt]; simpl in j. destruct j.
-         assert(k : ft == gt). { apply funextsec; intro x. apply setproperty. } destruct k. 
+         assert(k : ft = gt). { apply funextsec; intro x. apply setproperty. } destruct k. 
          reflexivity. Qed.
   Fixpoint MarkedMonoidMap_compat {X I} {R:I->reln X}
            {M N:MarkedMonoid R} (f:MarkedMonoidMap M N) (w:word X) :
-    map_base f (evalwordMM M w) == evalwordMM N w.
+    map_base f (evalwordMM M w) = evalwordMM N w.
   Proof. intros. destruct w as [|x|v w].
          { exact (unitproperty f). }
          { exact (map_mark f x). }
@@ -254,7 +254,7 @@ Module Presentation.
                             (MarkedMonoidMap_compat _ _ _ _ _ f w)). } Qed.
   Lemma MarkedMonoidMap_compat2 {X I} {R:I->reln X} 
            {M N:MarkedMonoid R} (f g:MarkedMonoidMap M N) (w:word X) :
-    map_base f (evalwordMM M w) == map_base g (evalwordMM M w).
+    map_base f (evalwordMM M w) = map_base g (evalwordMM M w).
   Proof. intros. 
          exact (MarkedMonoidMap_compat f w @ !MarkedMonoidMap_compat g w). Qed.
 
@@ -274,12 +274,12 @@ Defined.
                   (universalMarkedMonoid0 R)
                   (fun x : X => setquotpr (smallestAdequateRelation R) (word_gen x))). 
   Lemma universalMarkedMonoid2 {X I} (R:I->reln X) (w:word X) : 
-    setquotpr (smallestAdequateRelation R) w == evalword (universalMarkedMonoid1 R) w.
+    setquotpr (smallestAdequateRelation R) w = evalword (universalMarkedMonoid1 R) w.
   Proof. intros.
     exact (! (ap (setquotpr (smallestAdequateRelation R)) (reassemble R w))
            @ pr_eval_compat R w). Qed.
   Definition universalMarkedMonoid3 {X I} (R:I->reln X) (i:I) : 
-    evalword (universalMarkedMonoid1 R) (lhs (R i)) ==
+    evalword (universalMarkedMonoid1 R) (lhs (R i)) =
     evalword (universalMarkedMonoid1 R) (rhs (R i)).
   Proof. intros.
          exact (! universalMarkedMonoid2 R (lhs (R i))
@@ -291,10 +291,10 @@ Defined.
                 (universalMarkedMonoid3 R).
   Fixpoint agreement_on_gens0 {X I} {R:I->reln X} {M:monoid}
         (f g:Hom (universalMarkedMonoid R) M)
-        (p:forall i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) ==
+        (p:forall i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i)))
         (w:word X) :
-          pr1 f (setquotpr (smallestAdequateRelation R) w) ==
+          pr1 f (setquotpr (smallestAdequateRelation R) w) =
           pr1 g (setquotpr (smallestAdequateRelation R) w).
   Proof. intros. destruct w as [|x|v w].
          { intermediate_path (unel M). exact (unitproperty f). exact (!unitproperty g). }
@@ -311,9 +311,9 @@ Defined.
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:monoid}
         (f g:Hom (universalMarkedMonoid R) M) :
-        (forall i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) ==
+        (forall i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i))) 
-          -> f == g.
+          -> f = g.
     intros ? ? ? ? ? ? p. apply funEquality.
     apply funextsec; intro t; simpl in t. 
     apply (surjectionisepitosets _ _ _ (issurjsetquotpr _)).
@@ -326,7 +326,7 @@ Defined.
   Defined.
   Definition universality1 {X I} (R:I->reln X) 
                            (M:MarkedMonoid R) (v w:universalMarkedMonoid0 R) :
-    universality0 M (v * w) == universality0 M v * universality0 M w.
+    universality0 M (v * w) = universality0 M v * universality0 M w.
   Proof. intros. isaprop_goal ig. { apply setproperty. }
     apply (squash_to_prop (lift R v) ig); intros [v' j]; destruct j.
     apply (squash_to_prop (lift R w) ig); intros [w' []].
@@ -374,7 +374,7 @@ Module Product.
     exists (pr2 (Magma.Product.Fun X T g)). apply funextsec; intro i.
     exact (pr2 (pr2 (g i))). Defined.
   Definition Eqn {I} (X:I->monoid) (T:monoid) (g: forall i, Hom T (X i))
-             : forall i, Proj X i ∘ Fun X T g == g i.
+             : forall i, Proj X i ∘ Fun X T g = g i.
     intros. apply funEquality. reflexivity. Qed.
   Lemma issurjective_projection {I} (X:I->monoid) (i:I) :
     isdeceq I -> issurjective (Proj X i).
@@ -389,7 +389,7 @@ Module Product.
       { exact (transportf X p xi). }
       { exact (unel (X j)). } }
     simpl. destruct (decide_equality i i) as [q|r]; simpl.
-    { assert (e : idpath i == q).
+    { assert (e : idpath i = q).
       { apply equality_proof_irrelevance'. apply isasetifdeceq. assumption. }
       destruct e. reflexivity. }
     { destruct (r (idpath i)). } Qed.
