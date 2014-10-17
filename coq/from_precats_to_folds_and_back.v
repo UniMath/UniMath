@@ -107,14 +107,14 @@ Variable C : folds_precat.
 
 Definition precat_from_folds_data : precategory_data :=
   tpair (λ C : precategory_ob_mor, precategory_id_comp C)
-    (pr1 (pr1 C)) (dirprodpair (id_func C)(@T_func C)).
+    (pr1 (pr1 C)) (dirprodpair (I_func C)(@T_func C)).
 
 Lemma is_precategory_precat_from_folds_data : 
    is_precategory precat_from_folds_data.
 Proof.
   repeat split.
-  - apply T_id_r.  
-  - apply T_id_l. 
+  - apply T_I_r.  
+  - apply T_I_l. 
   - apply T_assoc. 
 Qed.
 
@@ -132,7 +132,7 @@ Proof.
   - intro a; apply isapropdirprod.
     + apply isaprop_folds_ax_id.
     + apply isaprop_folds_ax_T.
-  - set (Hid := id_contr C).
+  - set (Hid := I_contr C).
     set (Hcomp := T_contr C).
     destruct C as [Cd CC]; simpl in *.
     destruct Cd as [Ca Cb]; simpl in *. 
@@ -244,7 +244,7 @@ Lemma id_identity2 {C : folds_precat} {a : C} {f : a ⇒ a} :
   f = identity (C:=precat_from_folds_precat C)  _ -> I f.
 Proof.
   intro H; rewrite H.
-  apply id_func_id.
+  apply I_func_I.
 Qed.
 
 Lemma id_identity2' {C : folds_precat} {a : C} {f : a ⇒ a} : 

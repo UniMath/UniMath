@@ -110,7 +110,7 @@ Proof.
   set (q':=pr1 q ); clearbody q'.
   assert (H: T f (identity (C:= C') a) f).
   { set (H:= pr1 (pr2 (pr1 (pr2 C)))). 
-    apply H. apply id_func_id. } 
+    apply H. apply I_func_I. } 
   set (q'H:= q' H). clearbody q'H; clear H q' q.
   apply path_to_ctr. assumption.
 Qed.  
@@ -123,7 +123,7 @@ Proof.
   set (q':=pr1 q ); clearbody q'.
   assert (H: T (identity (C:= C') a) g g).
   { set (H:= pr2 (pr2 (pr1 (pr2 C)))). 
-    apply H. apply id_func_id. } 
+    apply H. apply I_func_I. } 
   set (q'H:= q' H). clearbody q'H; clear H q' q.
   apply path_to_ctr. assumption.
 Qed. 
@@ -139,7 +139,7 @@ Proof.
   apply comp_compose2'.
   apply q'.
   apply comp_compose2.
-  apply T_id_l.
+  apply T_I_l.
 Qed.
   
 Lemma ϕo_id : 
@@ -147,7 +147,7 @@ Lemma ϕo_id :
 Proof.
   apply id_identity2'.  
   apply (pr2 (pr2 i)).
-  apply id_func_id.
+  apply I_func_I.
 Qed.
 
 Lemma ϕ₂_ϕ₁_id: compose (C:=C') 
@@ -164,7 +164,7 @@ Proof.
   apply comp_compose2'.
   apply H'.
   apply comp_compose2.
-  apply T_id_l.
+  apply T_I_l.
 Qed.
 
 Lemma ϕ₁_ϕ₂_are_inverse : is_inverse_in_precat (C:= C') 
