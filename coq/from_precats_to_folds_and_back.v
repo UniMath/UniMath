@@ -1,4 +1,19 @@
 
+(** Univalent FOLDS
+
+    Benedikt Ahrens, following notes by Michael Shulman
+
+Contents of this file:
+
+  - Map [folds_precat_from_precat] 
+  - Map [precat_from_folds_precat]
+  - Identity [folds_precat_from_precat_precat_from_folds_precat]
+  - Identity [precat_from_folds_precat_folds_precat_from_precat]
+  - Lemmas to pass between the compositions via predicate [comp] and as function [compose]
+  - Lemmas to pass between the identities via predicate [id] and as a function [identity]
+
+*)
+
 Require Import Utf8.
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
@@ -103,15 +118,15 @@ Proof.
   - apply comp_assoc. 
 Qed.
 
-Definition precat_from_folds : precategory := 
+Definition precat_from_folds_precat : precategory := 
   tpair _ _ is_precategory_precat_from_folds_data.
 
 End from_folds_to_precats.
 
 (** * From FOLDS precats to precats to FOLDS precats *)
 
-Lemma folds_precat_from_precat_precat_from_folds (C : folds_precat) : 
-    folds_precat_from_precat (precat_from_folds C) = C.
+Lemma folds_precat_from_precat_precat_from_folds_precat (C : folds_precat) : 
+    folds_precat_from_precat (precat_from_folds_precat C) = C.
 Proof.
   apply total2_paths_hProp.
   - intro a; apply isapropdirprod.
@@ -161,8 +176,8 @@ Qed.
 
 (** * From precats to FOLDS precats to precats *)
 
-Lemma precat_from_folds_folds_precat_from_precat (C : precategory) : 
-     precat_from_folds (folds_precat_from_precat C) = C.
+Lemma precat_from_folds_precat_folds_precat_from_precat (C : precategory) : 
+     precat_from_folds_precat (folds_precat_from_precat C) = C.
 Proof.
   apply total2_paths_hProp.
   { intro; apply isaprop_is_precategory. }
@@ -199,13 +214,13 @@ Proof.
 Qed.
 
 Lemma comp_compose2 {C : folds_precat} {a b c : C} {f : folds_morphisms a b} {g : folds_morphisms b c} {h : folds_morphisms a c} :
-   compose (C:=precat_from_folds C) f g = h -> comp f g h.
+   compose (C:=precat_from_folds_precat C) f g = h -> comp f g h.
 Proof.
   intro H; rewrite <- H. apply comp_func_comp. 
 Qed.
 
 Lemma comp_compose2' {C : folds_precat} {a b c : C} {f : folds_morphisms a b} {g : folds_morphisms b c} {h : folds_morphisms a c} :
-  comp f g h -> compose (C:=precat_from_folds C) f g = h.
+  comp f g h -> compose (C:=precat_from_folds_precat C) f g = h.
 Proof.
   intro H. apply pathsinv0. apply path_to_ctr. assumption. 
 Qed.
@@ -226,14 +241,14 @@ Proof.
 Qed.
 
 Lemma id_identity2 {C : folds_precat} {a : C} {f : a ⇒ a} : 
-  f = identity (C:=precat_from_folds C)  _ -> id f.
+  f = identity (C:=precat_from_folds_precat C)  _ -> id f.
 Proof.
   intro H; rewrite H.
   apply id_func_id.
 Qed.
 
 Lemma id_identity2' {C : folds_precat} {a : C} {f : a ⇒ a} : 
-  id f -> f = identity (C:=precat_from_folds C) _ .
+  id f -> f = identity (C:=precat_from_folds_precat C) _ .
 Proof.
   intro H. apply path_to_ctr; assumption.
 Qed.

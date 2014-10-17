@@ -1,4 +1,17 @@
 
+(** Univalent FOLDS
+
+    Benedikt Ahrens, following notes by Michael Shulman
+
+Contents of this file:
+
+  - Definition of the type of FOLDS precategories [folds_precat]
+  - Definition of functions [id_func] and [comp_func] from a FOLDS precategory
+  - Proof of the usual axioms of categories for those functions
+
+*)
+
+
 Require Import Utf8.
 
 Require Import Foundations.Generalities.uu0.

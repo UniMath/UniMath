@@ -1,3 +1,40 @@
+(** Univalent FOLDS
+
+    Benedikt Ahrens, following notes by Michael Shulman
+
+Contents of this file:
+
+  - Definition of a FOLDS 3-precategory 
+    - objects [ob] coerced, morphisms denoted by infix [⇒]
+    - predicates for identity [I], composition [T], equality [E]
+    - [E] is a congruence for [T] and [I], and [E] is an equivalence relation
+    - usual categorical axioms
+
+  - Definition of a FOLDS 2-precategoy: the fibers of [I], [T] and [E] are hProps
+
+  - Isomorphism in a FOLDS 2-precategory
+    - Definition:  given by a family of equivalences
+    - Type of isos [folds_2_iso f g] is a proposition (because [I], [T], [E] are)
+    - Map [idtoiso2] from paths to isos
+
+  - Definition of univalent FOLDS 2-precategory as special FOLDS 2-precategory
+    - [idtoiso2] is an equivalence 
+    - [is_univalent_folds_2_precat] is an hProp
+
+  - Definition of FOLDS precategory as special FOLDS 2-precategory
+    - predicate [is_folds_precategory] defined as
+      - hom-types are sets
+      - axioms of category modulo [=] rather than [E]
+
+  - Logical equivalence between being a FOLDS precategory and being univalent
+    - since both are hProps, this entails equivalence between the types of
+      - univalent FOLDS 2-precats
+      - FOLDS precats
+    - Implications are called 
+      - [is_univalent_implies_is_folds_precat] and
+      - [is_folds_precat_implies_is_univalent]
+
+*)
 
 Require Import Utf8.
 
@@ -274,6 +311,7 @@ Proof.
   assumption.
 Defined.
 
+(** * Univalent FOLDS 2-precategory is a FOLDS precategory *)
 
 
 Section is_univalent_implies_folds_precat.
@@ -351,7 +389,7 @@ Proof.
   - apply C.      
 Qed.
 
-Lemma is_univalent_implies_is_folds_precatcategory : is_folds_precategory C.
+Lemma is_univalent_implies_is_folds_precat : is_folds_precategory C.
 Proof.
   apply dirprodpair.
   - intros a b f g.
@@ -369,6 +407,8 @@ Proof.
 Qed.
      
 End is_univalent_implies_folds_precat.
+
+(** * FOLDS precategory implies univalence *)
 
 Section folds_precat_implies_univalent.
 
@@ -398,7 +438,7 @@ Proof.
   apply Isofg.
 Qed.
 
-Lemma folds_precat_implies_univalent : is_univalent_folds_2_precat C.
+Lemma is_folds_precat_implies_is_univalent : is_univalent_folds_2_precat C.
 Proof.
   intros a b f g.
   apply isweqimplimpl.

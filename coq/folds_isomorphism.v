@@ -1,3 +1,19 @@
+
+(** Univalent FOLDS
+
+    Benedikt Ahrens, following notes by Michael Shulman
+
+Contents of this file:
+
+  - Definition of isomorphism in a FOLDS precategory [folds_iso]
+  - Components [φ2] and [φdot] are determined by [φ1]
+  - Identity isomorphim, inverse and composition
+  - Map [folds_iso_from_iso] associating to any FOLDS precat isomorphism
+    an isomorphism in the corresponding precategory à la RezkCompletion
+  - Map [iso_from_iso_folds] doing the converse, still departing from a FOLDS precategory
+  - Lemma: [folds_iso_from_iso] and [iso_from_iso_folds] are inverse to each other
+
+*)
  
 Require Import Utf8.
 
@@ -21,7 +37,7 @@ Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
 Section folds_iso_def.
 
 Variable C : folds_precat.
-Notation C':= (precat_from_folds C).
+Notation C':= (precat_from_folds_precat C).
 
 Definition folds_iso_data (a b : C) : UU :=
    dirprod (dirprod (∀ {x : C}, weq (x ⇒ a) (x ⇒ b)) 
@@ -90,7 +106,7 @@ Section bla.
 Variable (i : folds_iso a b).
 
 Lemma ϕ1_is_comp (x : C) (f : x ⇒ a) : 
-    ϕ1 i f = compose (C:=precat_from_folds C) f (ϕ1 i (identity (C:=precat_from_folds C) _ )).
+    ϕ1 i f = compose (C:= C') f (ϕ1 i (identity (C:= C') _ )).
 Proof.
   set (q:=pr1 (pr1 (pr1 (pr1 (pr2 i))))). 
   specialize (q _ _ f (identity (C:= C') _ ) f).
@@ -154,7 +170,7 @@ Proof.
   apply comp_id_l.
 Qed.
 
-Lemma ϕ1_ϕ2_are_inverse : is_inverse_in_precat (C:=precat_from_folds C) 
+Lemma ϕ1_ϕ2_are_inverse : is_inverse_in_precat (C:= C') 
      (ϕ1 i (identity (C:=C') _ )) (ϕ2 i (identity (C:=C') _ )).
 Proof.
   split.
@@ -389,7 +405,7 @@ End folds_iso_comp.
 Section from_iso_to_folds_iso.
 
 Variables a b : C.
-Variable f : iso (C:=precat_from_folds C) a b.
+Variable f : iso (C:=C') a b.
 
 Definition folds_iso_data_from_iso : folds_iso_data a b :=
   dirprodpair (dirprodpair (iso_comp_left_weq f) 
@@ -412,13 +428,14 @@ Proof.
     + intro H. apply comp_compose2.
       apply pathsinv0. etransitivity.
       * apply (pathsinv0 (comp_compose2' H)).
-      * transitivity (compose (compose (C:=precat_from_folds C)  f0 (compose f (inv_from_iso f))) g).   rewrite iso_inv_after_iso. rewrite id_right. apply idpath.
+      * transitivity (compose (compose (C:= C')  f0 (compose f (inv_from_iso f))) g).   
+        rewrite iso_inv_after_iso. rewrite id_right. apply idpath.
         repeat rewrite assoc; apply idpath.
     + intro H. apply comp_compose2.
       set (H2 := comp_compose2' H). apply pathsinv0.
       etransitivity. 
       * apply (pathsinv0 H2).
-      * transitivity (compose (compose (C:=precat_from_folds C)  f0 (compose f (inv_from_iso f))) g).   
+      * transitivity (compose (compose (C:=C')  f0 (compose f (inv_from_iso f))) g).   
         repeat rewrite assoc; apply idpath.
         rewrite iso_inv_after_iso. rewrite id_right. apply idpath.
   - simpl. apply logeqweq. 
@@ -433,7 +450,7 @@ Proof.
     + intro H; apply comp_compose2.
       rewrite <- (comp_compose2' H).
       transitivity 
-  (compose (compose (C:=precat_from_folds C) f0 (compose (C:=precat_from_folds C) f (inv_from_iso f)))(compose (C:=precat_from_folds C) g  f)).
+  (compose (compose (C:= C') f0 (compose (C:= C') f (inv_from_iso f)))(compose (C:= C') g  f)).
       * repeat rewrite assoc; apply idpath.
       * rewrite iso_inv_after_iso. rewrite id_right; apply assoc.
     + intro H; apply comp_compose2.
@@ -442,7 +459,7 @@ Proof.
       set (H3:= post_comp_with_iso_is_inj _  _ _ _ (pr2 f) _  _ _ H2). 
       rewrite <- H3; clear H3 H2 H.
       transitivity 
-   (compose (compose (C:=precat_from_folds C) f0 (compose (C:=precat_from_folds C) f (inv_from_iso f))) g).
+   (compose (compose (C:= C') f0 (compose (C:= C') f (inv_from_iso f))) g).
       * rewrite iso_inv_after_iso, id_right; apply idpath.
       * repeat rewrite assoc; apply idpath.
   -  simpl; apply logeqweq.
@@ -466,7 +483,8 @@ Proof.
     + intro H; apply comp_compose2.
       set (H':= comp_compose2' H); generalize H'; clear H' H; intro H.
       repeat rewrite <- assoc in H.
-      set (H2:=pre_comp_with_iso_is_inj _ _ _  _ _ ((is_iso_inv_from_iso  _ _ f)) _ _ H); clearbody H2; clear H.
+      set (H2:=pre_comp_with_iso_is_inj _ _ _  _ _ ((is_iso_inv_from_iso  _ _ f)) _ _ H); 
+        clearbody H2; clear H.
       repeat rewrite  assoc in H2; rewrite assoc4 in H2.
       rewrite iso_inv_after_iso, id_right in H2.
       assumption.
@@ -475,17 +493,18 @@ Proof.
       rename H' into H; rewrite <- H; clear H.
       apply comp_compose2.
       repeat rewrite <- assoc; apply maponpaths; simpl.
-      set (H':=assoc (precat_from_folds C) _ _ _ _ f0 g f); clearbody H';
+      set (H':=assoc C' _ _ _ _ f0 g f); clearbody H';
       simpl in *. rewrite <- H'; clear H'.
       apply maponpaths. simpl in *. 
-      repeat rewrite  (assoc (precat_from_folds C)).
+      repeat rewrite  (assoc C').
       rewrite iso_inv_after_iso, id_left; 
       apply idpath.
     + intro H; set (H':=comp_compose2' H); clearbody H'; clear H;
       rename H' into H.
       apply comp_compose2.
       repeat rewrite <- assoc in H.
-      set (H':=pre_comp_with_iso_is_inj _ _ _  _ _ ((is_iso_inv_from_iso  _ _ f)) _ _ H); clearbody H'; clear H.
+      set (H':=pre_comp_with_iso_is_inj _ _ _  _ _ ((is_iso_inv_from_iso  _ _ f)) _ _ H); 
+        clearbody H'; clear H.
       repeat rewrite assoc in H'.
       set (H'':=post_comp_with_iso_is_inj _ _ _ _ (pr2 f) _ _ _ H');
       clearbody H''; clear H'.
@@ -493,15 +512,15 @@ Proof.
       assumption.
   - simpl. apply logeqweq.  
     + intro H. apply id_identity2. 
-      rewrite (id_identity2' H). rewrite (id_left (precat_from_folds C)).
+      rewrite (id_identity2' H). rewrite (id_left C').
       apply (iso_after_iso_inv _ _ _ f).
     + intro H. apply id_identity2.
       set (H':=id_identity2' H); clearbody H'; clear H.
       set (H2:=iso_inv_to_left _ _ _ _ f _ _ H'); clearbody H2.
       rewrite id_right in H2.      
-      transitivity (compose (C:=precat_from_folds C) f (inv_from_iso f)).
-      * apply (iso_inv_on_left (precat_from_folds C)); auto.
-      * apply (iso_inv_after_iso (precat_from_folds C)).
+      transitivity (compose (C:= C') f (inv_from_iso f)).
+      * apply (iso_inv_on_left C'); auto.
+      * apply (iso_inv_after_iso C').
 Qed.
 
 Definition folds_iso_from_iso : folds_iso a b :=
@@ -516,8 +535,8 @@ Section from_folds_iso_to_iso.
 Variables a b : C.
 Variable i : folds_iso a b.
 
-Let i': a ⇒ b := ϕ1 i (identity (C:=precat_from_folds C) _ ).
-Let i'inv : b ⇒ a := ϕ2 i (identity (C:=precat_from_folds C) _ ).
+Let i': a ⇒ b := ϕ1 i (identity (C:= C') _ ).
+Let i'inv : b ⇒ a := ϕ2 i (identity (C:= C') _ ).
 
 Definition iso_from_folds_iso : iso (C:=C') a b.
 Proof.
