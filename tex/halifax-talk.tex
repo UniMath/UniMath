@@ -29,69 +29,52 @@
   \maketitle
 \end{frame}
 
-\section{Equivalence invariance}
+\section{The Problem: Equivalence invariance}
 \label{sec:invariance}
 
 \begin{frame}
   \frametitle{Equivalence Invariance}
-  \begin{itemize}
-  \item We generally work with categories ``up to equivalence''.
-  \item If category A (e.g.\ local homeomorphisms over $X$) is equivalent to category B (e.g.\ presheaves on $\mathcal{O}(X)$ satisfying gluing), we feel free to use them interchangeably.
-  \item But technically, this depends on knowing that \alert<1>{category theory is invariant under equivalence}.
-  \end{itemize}
+  \begin{block}{Question}
+    We generally work with categories ``up to equivalence''.  How do we know that a true statement about one category is also true about any \alert<1>{equivalent} category?
+  \end{block}
   \pause
-  \begin{block}{How do we know that}
-    \begin{itemize}
-    \item If a \alert{statement} is true about category A, it is also true about any equivalent category B?
-    \item Category A can be replaced by category B in any \alert{construction}?
-    \end{itemize}
-  \end{block}
+  Well\dots it's not.
+  \begin{itemize}
+  \item<+-> The category of sets has exactly one initial object, but plenty of \alert<2>{equivalent} categories (e.g.\ $\mathbf{CABA}^{\mathrm{op}}$) have more than one.
+  \item<+-> \structure{A:} That was a dumb theorem.  Every \alert<1>{sensible} statement is invariant under equivalence.
+  \item<+-> \structure{Q:} What does ``sensible'' mean?
+  \item<+-> \structure{A:} \dots I know it when I see it.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Equivalence non-invariance}
-  In set-theoretically founded mathematics, this is false.
-  \begin{theorem}
-    The category of sets has exactly one initial object.
-  \end{theorem}
-  \begin{proof}
-    By the axiom of extensionality, any two empty sets are \alert<1>{equal} (not just isomorphic).
-  \end{proof}
-  \pause\medskip
-  \structure{But:} there are plenty of categories \alert<2>{equivalent} to $\mathbf{Set}$ that have more than one initial object (e.g.\ the opposite of the category of complete atomic Boolean algebras).
-\end{frame}
-
-\begin{frame}
-  \frametitle{Syntactic recognition}
-  \begin{block}{Problem}
-    Technically, whenever we define a property of categories, we ought to prove that it is invariant under equivalence.
-    This would be unbearably tedious.
-  \end{block}
+  \frametitle{Why it matters}
+  When is ``I know it when I see it'' not good enough?
+  \begin{enumerate}
+  \item When the notion of ``equivalence'' is less obvious (e.g.\ no AC)
+  \item When syntax matters, e.g.\ internalizing in a topos
+  \item Generalizing to higher categorical structures
+  \item Formalizing category theory in a computer
+  \end{enumerate}
   \pause
   \begin{block}{A possible solution (Freyd, Blanc, Makkai)}
-    Prove that any statement \alert{with a certain syntactic form} is invariant under equivalence of categories.
-  \end{block}
-  Then we can tell \alert{just by looking} at a statement that it is okay.
-\end{frame}
-
-\begin{frame}
-  \frametitle{Equality of objects}
-  \begin{block}{Idea}
-    Non-invariance comes from referring to \alert<1>{equality of objects} (rather than isomorphism).
-  \end{block}
-  \pause
-  \begin{block}{Problem}
-    The very \alert{definition} of a category refers to equality of objects:
-    \begin{quote}
-      If the source of $g$ is \alert{equal to} the target of $f$, we have a composite $g\circ f$.
-    \end{quote}
+    \begin{enumerate}
+    \item Prove that any statement \alert{with a certain syntactic form} is invariant under equivalence.
+    \item Non-invariance comes from using \alert{equality of objects} (rather than isomorphism).
+  \end{enumerate}
   \end{block}
 \end{frame}
 
 \begin{frame}
   \frametitle{Dependent types}
+  \begin{block}{Problem}
+    The \alert<1>{definition} of category uses equality of objects:
+    \begin{center}
+      ``If $s(g)$ is \alert<1>{equal to} $t(f)$, then $g\circ f$ exists.''
+    \end{center}
+  \end{block}
   \begin{block}{Solution}
-    Use a logic of \alert{dependent types}, in which $s(g)=t(f)$ is encoded by what \alert{type of thing} $f$ and $g$ are, rather than an equality.
+    Use a logic of \alert<2>{dependent types}, in which $s(g)=t(f)$ is encoded by what \alert<2>{type of thing} $f$ and $g$ are.
   \end{block}
   A category consists of
   \begin{itemize}
@@ -106,7 +89,7 @@
 \begin{frame}
   \frametitle{Syntactic invariance}
   \begin{theorem}[Freyd 76, Blanc 78, Makkai 95]
-    A \alert<2>{property} of categories is invariant under equivalence \alert<1>{if and only if} it can be expressed in this dependently typed language.
+    A {property} of categories is invariant under equivalence iff it can be expressed in this dependently typed language, using equality for arrows but not for objects.
   \end{theorem}
   This is great:
   \begin{enumerate}
@@ -114,29 +97,28 @@
   \item It's really just the language we usually use anyway!
   \end{enumerate}
   \pause
-  But:
-  \begin{enumerate}
-  \item How can we generalize it to other categorical structures?
-  \item What about \alert{constructions}?
-  \end{enumerate}
+  \begin{block}{Goal}
+    \begin{enumerate}
+    \item Generalize this to higher categorical structures\dots
+    \item \dots in a way that a computer can understand.
+    \end{enumerate}
+  \end{block}
 \end{frame}
 
-\section{FOLDS}
+\section{Higher categories: FOLDS}
 \label{sec:folds}
 
 \begin{frame}[t]
   \frametitle{Dependent types for higher categories}
   \begin{block}{Observation 1 (Makkai 95)}
-    Every (higher-)categorical structure comes with a natural dependently typed language.
+    Every (higher) categorical structure has a natural dependently typed language.
   \end{block}
-  \pause
   \begin{itemize}
-  \item 2-categories: objects $O$, arrows $A(x,y)$, 2-arrows $W(x,y,f,g)$
-    \only<2>{\[\xymatrix{x \rtwocell^f_g & y}\]}\pause
-  \item 3-categories: objects $O$, arrows $A(x,y)$, 2-arrows $W(x,y,f,g)$, 3-arrows $H(x,y,f,g,\alpha,\beta)$
-    \pause
-  \item double categories: objects $O$, horizontal arrows $H(x,y)$, vertical arrows $V(x,y)$, squares $S(x,y,z,w,f,g,h,k)$
-    \only<4>{\[\xymatrix{x \ar[r]^f \ar[d]_h \drtwocell\omit & y \ar[d]^k \\ z \ar[r]_{g} & w}\]}
+  \item \structure{2-categories:} objects $O$, arrows $A(x,y)$, 2-arrows $W(x,y,f,g)$
+    \[\xymatrix{x \rtwocell^f_g & y}\]
+  \item \structure{3-categories:} objects $O$, arrows $A(x,y)$, 2-arrows $W(x,y,f,g)$, 3-arrows $H(x,y,f,g,\alpha,\beta)$
+  \item \structure{double categories:} objects $O$, horizontal arrows $H(x,y)$, vertical arrows $V(x,y)$, squares $S(x,y,z,w,f,g,h,k)$
+    \[\xymatrix@-1pc{x \ar[r]^f \ar[d]_h \drtwocell\omit & y \ar[d]^k \\ z \ar[r]_{g} & w}\]
   \end{itemize}
 \end{frame}
 
@@ -147,102 +129,146 @@
   \end{block}
   A category consists of
   \begin{itemize}
+    \only<1>{
   \item A collection $O$ of objects
   \item For each $x,y:O$, a collection $A(x,y)$ of arrows
   \item For each $x,y,z:O$, $f:A(x,y)$, $g:A(y,z)$, and $h:A(x,z)$, a collection $T(x,y,z,f,g,h)$ of \alert<1>{assertions that $h$ is $g\circ f$}.
   \item For each $x:O$ and $f:A(x,y)$, a collection $I(x,f)$ of \\\alert<1>{assertions that $f$ is $1_x$}.
-  \item \only<1>{\dots}\only<2->{For each $x,y:O$ and $f,g:A(x,y)$, a collection $E(x,y,f,g)$ of \alert<2>{assertions that $f=g$}.}
+  \item \dots
+  }
+  \only<2-3>{
+  \item \dots $O$, $A$, $T$, $I$, \dots
+  \item For any $f:A(x,y)$, and $g:A(y,z)$, there exist $h:A(x,z)$ and $t:T(x,y,z,f,g,h)$.
+  \item For any $t_1:T(x,y,z,f,g,h_1)$ and $t_2:T(x,y,z,f,g,h_2)$, we have $h_1 = h_2$.
+  \item \dots
+    \pause\pause
+  \item For any $t_1,t_2:T(x,y,z,f,g,h)$, we have $h_1 = h_2$\\ ($T$ is a mere relation).
+  \item For any $x,f$ with $i_1,i_2 : I(x,f)$ we have $i_1=i_2$\\ ($I$ is a mere relation).
+  }
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Equality as a type}
+  \begin{block}{Representing equality}
+    We include \alert{equality of morphisms} as an explicit relation.
+  \end{block}
+  A category consists of
+  \begin{itemize}
+  \item \dots $O$, $A$, $T$, $I$, \dots
+  \item For each $x,y:O$ and $f,g:A(x,y)$, a collection $E(x,y,f,g)$ of \alert{assertions that $f=g$}.
+  \item \dots
     \pause
-  \item \dots \pause (including: $T$, $I$, and $E$ have \alert<3>{at most one element each})
+  \item For any $t_1:T(x,y,z,f,g,h_1)$ and $t_2:T(x,y,z,f,g,h_2)$, we have $e : E(x,z,h_1,h_2)$.
+    \pause
+  \item $T$, $I$, and now also $E$ are mere relations.
   \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{FOLDS-signatures}
-  \begin{block}{Observation 3}
-    We can describe a dependent type structure with a \alert{simple category} $\Sigma$.
-  \end{block}
+  We describe a dependent type structure with a \alert{simple category} $\Sigma$.
   \[
   \vcenter{\xymatrix{
       T \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & I \ar[d] & E \ar@<1mm>[dl] \ar@<-1mm>[dl] \\
       & A \ar@<1mm>[d] \ar@<-1mm>[d] \\
       & O}}
   \]
-  A structure of this type is just a diagram of sets on the category (about which we assert the axioms).
+  Then a \structure{structure} is a \structure{diagram} on $\Sigma$ (about which we assert the axioms).
 
   \medskip
   \alert{FOLDS} = \alert{F}irst-\alert{O}rder \alert{L}ogic with \alert{D}ependent \alert{S}orts
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Equivalences for higher categories}
   \begin{block}{Observation 4 (Makkai 95)}
-    Every (higher-)categorical structure comes with a notion of \alert<1>{equivalence}, defined in terms of its dependently typed language.
+    Every (higher-)categorical structure has an intrinsic notion of \alert<1>{equivalence} arising from its dependently typed language.
   \end{block}
-  % \begin{definition}
-    A functor $F:C\to D$ is \alert<1>{very surjective} if
-    \begin{itemize}
-    \item For each $y:O_D$, there exists $x:O_C$ such that $F(x)=y$.
-    \item For each $x,y:O_C$ and $g:A_D(Fx,Fy)$, there exists $f:A_C(x,y)$ such that $F(f)=g$.
-    \item \dots
-    \item For $x,y:O_C$ and $f,g:A_C(x,y)$ and $e:E_D(Fx,Fy,Ff,Fg)$, there exists $d:E_C(x,y,f,g)$ (such that $Fd=e$)
-    \end{itemize}
-  % \end{definition}
-  \pause\medskip
   \begin{enumerate}
-  \item $\iff$ surjective on objects, full, and faithful
-  \item \alert{Only} refers to the dependent type structure, not the axioms
+\only<1>{\item Categories $C$ and $D$ are equivalent iff there is a span
+    \[ C \ot X \to D\]
+    of surjective equivalences.
+  }\only<2->{\setcounter{enumi}{1}
+  \item A \only<2>{functor}\only<3>{\alert{map of structures}} is $F:C\to D$ is a surjective equivalence iff
+    \begin{itemize}
+    \item For each $y:O_D$, there exists $x:O_C$ such that $F(x)=y$ (\alert<2>{surjective on objects}).
+    \item For each $x,y:O_C$ and $g:A_D(Fx,Fy)$, there exists $f:A_C(x,y)$ such that $F(f)=g$ (\alert<2>{full}).
+    \item For $x,y:O_C$ and $f,g:A_C(x,y)$ and $e_D:E_D(Fx,Fy,Ff,Fg)$, there exists $e_C:E_C(x,y,f,g)$ such that $Fe_C=e_D$ (\alert<2>{faithful}).
+      \only<3->{
+    \item For $x,y,z,f,g,h$ and $t_D:T_D(Fx,Fy,Fz,Ff,Fg,Fh)$, there exists $t_C:T_C(x,y,z,f,g,h)$ such that $Ft_C = t_D$ (\alert{preserves composition}).
+    \item For $x,f$ and $i_D:I_D(Fx,Ff)$, there exists $i_C:T_C(x,f)$ such that $Fi_C = i_D$ (\alert{preserves identities}).
+      }
+    \end{itemize}}
   \end{enumerate}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Equivalences for higher categories}
   \begin{block}{Observation 4 (Makkai 95)}
-    Every (higher-)categorical structure comes with a notion of {equivalence}, defined in terms of its dependently typed language.
+    Every (higher-)categorical structure has an intrinsic notion of {equivalence} arising from its dependently typed language.
   \end{block}
-  \begin{definition}
-    Two FOLDS-structures $C$, $D$ are \alert<1>{equivalent} if there is a span
-    \[ C \ot F \to D\]
+  \begin{enumerate}
+  \item A morphism of FOLDS-structures is \alert<1>{very surjective} if \dots
+  \item Structures $C$ and $D$ are \alert<1>{FOLDS-equivalent} if there is a span
+    \[ C \ot X \to D\]
     of very-surjective maps.
-  \end{definition}
+  \end{enumerate}
+  \pause
+  \begin{theorem}[Makkai 95]
+    A {statement} about FOLDS-structures is invariant under FOLDS-equivalence \alert<2>{if and only if} it can be expressed in their dependently typed language, using equality only at ``top level''.
+  \end{theorem}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Invariance for FOLDS}
-  \begin{theorem}[Makkai]
-    A \alert<2>{statement} about FOLDS-structures is invariant under FOLDS-equivalence \alert<1>{if and only if} it can be expressed in their dependently typed language.
-  \end{theorem}
-  \pause\bigskip
-  What about \alert{constructions}?
+  \frametitle{FOLDS redux}
+  \begin{block}{Pros}
+    \begin{itemize}
+    \item Applies generally to any categorical structure.
+    \item An easily checkable syntactic criterion.
+    \item Really just the language we usually use anyway.
+    \end{itemize}
+  \end{block}
+  \pause
+  \begin{block}{Cons}
+    \begin{itemize}
+    \item The ``mere relations'' ($T$, $I$, $E$) play a curiously special role.
+    \item Need to include equality $E$ as a relation, but then not all structures are ``standard'' (interpret $E$ by ``actual'' equality).
+    \item FOLDS-equivalence is complicated and ``large''.
+    \end{itemize}
+  \end{block}
 \end{frame}
 
-\section{Univalent categories}
+\section{Reducing to groupoids: Univalent categories}
 \label{sec:univalence}
 
 \begin{frame}
-  \frametitle{Do categories have to be special?}
+  \frametitle{Reducing to groupoids}
+  \begin{block}{Idea}
+    \begin{enumerate}
+    \item Define categories as \alert<1>{structured groupoids} rather than structured sets.
+    \item An equivalence of categories is a levelwise equivalence of groupoids.
+    \end{enumerate}
+  \end{block}
+  Why?
   \begin{itemize}
-  \item A morphism $G\to H$ of groups is an equivalence iff it is an equivalence on underlying sets.
-  \item A morphism $R\to S$ of rings is an equivalence iff it is an equivalence on underlying sets.
-  \item A morphism $V\to W$ of modules is an equivalence iff it is an equivalence on underlying sets.
-  \item A morphism $C\to D$ of categories is an equivalence iff \alert{something more complicated}.
+  \item Tools from homotopy theory make (higher) groupoids easier to work with.
+  \item (Higher) groupoids are a common reduct for all higher categorical structures.
+  \item Levelwise equivalences are easier to work with.
+  \item Homotopy type theory: computers understand higher groupoids!
   \end{itemize}
-  Do categories have to be different from other algebraic structures?
 \end{frame}
 
 \begin{frame}
-  \frametitle{Structures on groupoids}
-  \begin{block}{Idea}
-    Consider algebraic structures on \alert<1>{groupoids} rather than \alert<1>{sets}.
-  \end{block}
-  From any category $C$, we can construct an internal category $\Chat = (A\toto O)$ in groupoids:
+  \frametitle{Saturating categories}
+  From any category $C$, its \alert{saturation} is an internal category $\Chat = (A\toto O)$ in groupoids:
   \begin{itemize}
-  \item $O$ is the groupoid of objects of $C$ and isomorphisms in $C$
-  \item $A$ is the groupoid of morphisms of $C$ and isomorphisms (commutative squares)
+  \item $O$ is the groupoid of objects of $C$ and isomorphisms in $C$.
+  \item $A$ is the groupoid of morphisms of $C$ and their isomorphisms (commutative squares).
   \end{itemize}
   \pause
   \begin{block}{Fact}
-    A morphism $C\to D$ of categories is an equivalence iff $\Chat \to \Dhat$ is an \alert{equivalence on underlying groupoids}.
+    $C\to D$ is an equivalence iff $\Chat \to \Dhat$ is an \alert{equivalence on underlying groupoids} (i.e.\ $O_{\chat} \to O_{\Dhat}$ and $A_{\Chat} \to A_{\Dhat}$ are equivalences).
   \end{block}
 \end{frame}
 
@@ -261,67 +287,46 @@
   \item $\hom_O(x,y)=$ morphisms in the groupoid $O$
   \item $\mathsf{iso}(x,y)=$ objects of the groupoid $A$ that are isomorphisms from $x$ to $y$ for the category structure on $A\toto O$.
   \end{itemize}
-  \pause
   Such a category in groupoids is called \alert{univalent} (or ``saturated'' or ``Rezk-complete'').
 \end{frame}
 
-\begin{frame}
-  \frametitle{Categories don't have to be special}
-  \begin{itemize}
-  \item A morphism $G\to H$ of groups is an equivalence iff it is an equivalence on underlying sets.
-  \item \dots
-  \item A morphism $C\to D$ of \alert<1>{univalent categories} is an equivalence iff it is an equivalence on underlying groupoids.
-  \end{itemize}
-  \pause
-  \begin{block}{Oh, come on!}
-    You used the notion of ``equivalence of groupoids''.  Have we really gained anything?
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{In praise of $\infty$-groupoids}
-  \begin{block}{Why groupoids?}
-    \begin{itemize}
-    \item The Homotopy Hypothesis: $\infty$-groupoids are equivalent to homotopy types.
-    \item Tools from homotopy theory show that (higher) groupoids are easier to work with than other categorical structures.
-    \item $\infty$-groupoids capture the ``essence'' of ``higher equivalences''.
-    \item We can build {all} categorical structures ($n$-categories, $n$-fold categories, etc.) out of $\infty$-groupoids.
-    \end{itemize}
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Univalent foundations}
-  \begin{block}{Univalent foundations}
-    An alternative to set-theoretic foundations for mathematics in which
-    \begin{itemize}
-    \item The basic objects are not sets but $\infty$-groupoids (called \alert<1>{(homotopy) types})
-      \pause
-    \item Instead of the \alert<2>{proposition} $x=y$ of set theory, we have for any type $X$ and elements $x,y:X$, \alert<2>{another type} ``$x=y$''.
-      \pause
-    \item The elements of $x=y$ are called \alert<3>{morphisms}, \alert<3>{paths}, or \alert<3>{identifications} from $x$ to $y$.
-      \pause
-    \item There is a type $\mathcal{U}$ whose elements are types, such that for $A,B:\mathcal{U}$ the type $A=B$ consists of \alert<4>{equivalences} from $A$ to $B$ (the \alert<4>{univalence axiom})
-      \pause
-    \item There is an operation that automatically transports all statements \alert<5>{or constructions} along an identification $p:x=y$.
-    \end{itemize}
-  \end{block}
-\end{frame}
+% \begin{frame}
+%   \frametitle{Univalent foundations}
+%   \begin{block}{Univalent foundations}
+%     An alternative to set-theoretic foundations for mathematics in which
+%     \begin{itemize}
+%     \item The basic objects are not sets but $\infty$-groupoids (called \alert<1>{(homotopy) types})
+%       \pause
+%     \item Instead of the \alert<2>{proposition} $x=y$ of set theory, we have for any type $X$ and elements $x,y:X$, \alert<2>{another type} ``$x=y$''.
+%       \pause
+%     \item The elements of $x=y$ are called \alert<3>{morphisms}, \alert<3>{paths}, or \alert<3>{identifications} from $x$ to $y$.
+%       \pause
+%     \item There is a type $\mathcal{U}$ whose elements are types, such that for $A,B:\mathcal{U}$ the type $A=B$ consists of \alert<4>{equivalences} from $A$ to $B$ (the \alert<4>{univalence axiom})
+%       \pause
+%     \item There is an operation that automatically transports all statements \alert<5>{or constructions} along an identification $p:x=y$.
+%     \end{itemize}
+%   \end{block}
+% \end{frame}
 
 \begin{frame}
   \frametitle{Univalent FOLDS}
-  We can consider FOLDS-structures in $\infty$-groupoids, or in univalent foundations.
+  Consider FOLDS-structures in $\infty$-groupoids, i.e.\ each $O$, $A$, $T$, etc.\ is an $\infty$-groupoid.
   \begin{theorem}[in progress]
-    Two \alert<1>{univalent} FOLDS-structures are FOLDS-equivalent if and only if they are equivalent on underlying $\infty$-groupoids.
+    There is a notion of \alert{univalence} for FOLDS-structures in $\infty$-groupoids, such that
+    \begin{enumerate}
+    \item In a univalent structure, the top sorts (e.g.\ $T$, $I$, $E$) are {automatically} mere relations.
+    \item A univalent structure is automatically standard ($E$ is actual equality).
+    \item Two univalent structures are FOLDS-equivalent iff they are levelwise equivalent on underlying $\infty$-groupoids.
+    \end{enumerate}
   \end{theorem}
-  \structure{NB:} The hard part is defining ``univalent''.
-  \pause\medskip
-  \begin{block}{Higher category theory in UF}
-    \begin{itemize}
-    \item We can define \alert{any higher-categorical structure} in univalent foundations, such that $C=D$ consists of the appropriate sort of  equivalences.
-    \item In particular, any statement \alert{or construction} can automatically be transported along such equivalences.
-  \end{itemize}
-  \end{block}
+  % \structure{NB:} The hard part is defining ``univalent''.
+  % \pause\medskip
+  % \begin{block}{Higher category theory in UF}
+  %   \begin{itemize}
+  %   \item We can define \alert{any higher-categorical structure} in univalent foundations, such that $C=D$ consists of the appropriate sort of  equivalences.
+  %   \item In particular, any statement \alert{or construction} can automatically be transported along such equivalences.
+  % \end{itemize}
+  % \end{block}
 \end{frame}
 
 \section{Univalent FOLDS by example}
@@ -348,6 +353,7 @@
     A FOLDS-isomorphism between $x,y:M_C(\dots)$ in a structure $C$ is\\\alert<1>{a coherent set of equivalences replacing $x$ by $y$ in the types of anything in $C$ that depends on one or more elements of $M$}.
   \end{block}
   \pause
+  \begin{example}
   For objects $x,y:O$ of a FOLDS-category $(O,A,T,I,E,\dots)$, a FOLDS-isomorphism is
   \begin{enumerate}
   \item For each $a:O$, an isomorphism $A(a,x) \cong A(a,y)$,
@@ -355,6 +361,7 @@
   \item An isomorphism $A(x,x) \cong A(y,y)$,
   \item Respecting composites, identities, and equality ($T$, $I$, and $E$).
   \end{enumerate}
+\end{example}
   \pause
   This is equivalent to an ordinary isomorphism $x\cong y$, by a ``two-sided'' form of the Yoneda lemma.
 \end{frame}
@@ -377,27 +384,35 @@
   \frametitle{FOLDS-isomorphisms for operations}
   \[
   \vcenter{\xymatrix{
-      T \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & I \ar[d] & E \ar@<1mm>[dl] \ar@<-1mm>[dl] \\
-      & A \ar@<1mm>[d] \ar@<-1mm>[d] \\
-      & O}}
+      % &&& \text{FOLDS} \cong\\
+      \alert<1-2>{T} \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & \alert<1-2>{I} \ar[d] & \alert<1-2>{E} \ar@<1mm>[dl] \ar@<-1mm>[dl] &
+      \only<1>{?}\only<2->{\text{vacuous}}\\
+      & \alert<3>{A} \ar@<1mm>[d] \ar@<-1mm>[d] && \only<3>{?} \\
+      & {O}&& \text{ordinary} \cong}}
   \]
+  \pause
   \begin{itemize}
-  \item The types $T$, $I$, and $E$ have nothing that depend on them.
+  \item The types $T$, $I$, and $E$ have \alert<2>{nothing} that depend on them.
   \item Thus, $\mathsf{iso}(x,y)=1$ vacuously for any $x,y$ in these types.
-  \item Hence, univalence at these types means they have at most one element each.
   \end{itemize}
+  \begin{block}{Hence}
+    Univalence at $T$ means any two $t_1,t_2 : T(x,y,z,f,g,h)$\\ (for instance) are equal, i.e.\ $T$ is a mere relation.
+  \end{block}
 \end{frame}
 
 \begin{frame}
   \frametitle{FOLDS-isomorphisms for arrows}
-  A FOLDS-isomorphism between $f,g:A(x,y)$ includes
+  A FOLDS-iso between $f,g:A(x,y)$ includes, among other things,
   \begin{itemize}
   \item For any $h:A(x,y)$, we have $E(x,y,f,h) \iff E(x,y,g,h)$.
   \end{itemize}
-  Since $E$ is assumed a congruence for $T$ and $I$, this implies everything else.
-
-  \pause\medskip
-  In fact, since $E$ is reflexive, the type of FOLDS-isomorphisms between $f,g:A(x,y)$ is equivalent to $E(x,y,f,g)$.
+  and therefore, since $E$ is reflexive,
+  \begin{itemize}
+  \item $E(x,y,f,g)$.
+  \end{itemize}
+  \pause
+  Since $E$ is a congruence for $T$ and $I$, this implies everything else.
+  So \alert{a FOLDS-iso between $f,g:A(x,y)$ is the assertion $E(x,y,f,g)$.}
   \begin{block}{Thus}
     Univalence at $A$ means that the fibers of $A\to O\times O$ are discrete sets and their equality is $E$.
   \end{block}
