@@ -5,8 +5,7 @@ Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 Require Import Foundations.Proof_of_Extensionality.funextfun.
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
+Import uu0.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
@@ -69,8 +68,8 @@ Definition folds_iso_data_from_folds_iso {a b : C} :
 Coercion folds_iso_data_from_folds_iso : folds_iso >-> folds_iso_data.
 
 Lemma folds_iso_eq {a b : C} (i i' : folds_iso a b) : 
-  folds_iso_data_from_folds_iso i == folds_iso_data_from_folds_iso i' →
-   i == i'.
+  folds_iso_data_from_folds_iso i = folds_iso_data_from_folds_iso i' →
+   i = i'.
 Proof.
   intro H.
   apply total2_paths_hProp.
@@ -91,7 +90,7 @@ Section bla.
 Variable (i : folds_iso a b).
 
 Lemma ϕ1_is_comp (x : C) (f : x ⇒ a) : 
-    ϕ1 i f == compose (C:=precat_from_folds C) f (ϕ1 i (identity (C:=precat_from_folds C) _ )).
+    ϕ1 i f = compose (C:=precat_from_folds C) f (ϕ1 i (identity (C:=precat_from_folds C) _ )).
 Proof.
   set (q:=pr1 (pr1 (pr1 (pr1 (pr2 i))))). 
   specialize (q _ _ f (identity (C:= C') _ ) f).
@@ -104,7 +103,7 @@ Proof.
 Qed.  
 
 Lemma ϕ2_is_comp (z : C) (g : a ⇒ z) : 
-    ϕ2 i g == compose (C:= C') (ϕ2 i (identity (C:=C') _ )) g.
+    ϕ2 i g = compose (C:= C') (ϕ2 i (identity (C:=C') _ )) g.
 Proof.
   set (q:=pr2 (pr1 (pr1 (pr2 i)))). simpl in q.
   specialize (q _ _ (identity (C:= C') _ ) g g).
@@ -118,7 +117,7 @@ Qed.
 
 Lemma ϕ1_ϕ2_id : 
  compose (C:=C') (ϕ1 i (identity (C:=C') _ )) 
-                 (ϕ2 i (identity (C:=C') _ )) == identity _.
+                 (ϕ2 i (identity (C:=C') _ )) = identity _.
 Proof.               
   set (q:=pr2 (pr1 (pr1 (pr1 (pr2 i))))). simpl in q.
   specialize (q _ _ (identity (C:= C') _ ) (identity (C:=C')_ ) 
@@ -131,7 +130,7 @@ Proof.
 Qed.
   
 Lemma ϕdot_id : 
-   ϕdot i (identity (C:=C') _ ) == identity (C:=C') _ .
+   ϕdot i (identity (C:=C') _ ) = identity (C:=C') _ .
 Proof.
   apply id_identity2'.  
   apply (pr2 (pr2 i)).
@@ -140,7 +139,7 @@ Qed.
 
 Lemma ϕ2_ϕ1_id: compose (C:=C') 
     ((ϕ2 i) (identity (C:=C') a)) 
-    ((ϕ1 i) (identity (C:=C') a)) == identity (C:=C') b.
+    ((ϕ1 i) (identity (C:=C') a)) = identity (C:=C') b.
 Proof.
   set (H':= pr2 (pr1 (pr2 (pr1 (pr2 i))))).
   simpl in H'.
@@ -164,7 +163,7 @@ Proof.
 Qed.
 
 Lemma ϕdot_ϕ1_ϕ2 (f : a ⇒ a) : 
-  ϕdot i f == compose 
+  ϕdot i f = compose 
                  (compose (C:=C') (ϕ2 i (identity (C:=C') _ )) f) 
                  (ϕ1 i (identity (C:=C') _) ).
 Proof.
@@ -187,9 +186,9 @@ End bla.
 
 Variables i i' : folds_iso a b.
 
-Hypothesis H : ϕ1 i (identity (C:=C') _ ) == ϕ1 i' (identity (C:=C') _ ).
+Hypothesis H : ϕ1 i (identity (C:=C') _ ) = ϕ1 i' (identity (C:=C') _ ).
 
-Lemma ϕ2_determined : ∀ x (f : a ⇒ x) , ϕ2 i f == ϕ2 i' f.
+Lemma ϕ2_determined : ∀ x (f : a ⇒ x) , ϕ2 i f = ϕ2 i' f.
 Proof.
   intros x f.
   rewrite (ϕ2_is_comp i).
@@ -199,7 +198,7 @@ Proof.
   { split.
     - rewrite H. apply ϕ1_ϕ2_id.
     - rewrite H. apply ϕ2_ϕ1_id. } 
-  assert (X : ϕ2 i (identity (C:=C') _ ) == ϕ2 i' (identity (C:=C') _ )).
+  assert (X : ϕ2 i (identity (C:=C') _ ) = ϕ2 i' (identity (C:=C') _ )).
   { set (H1:= inverse_unique_precat C' _ _  _ _  _ (ϕ1_ϕ2_are_inverse i) H').
     assumption.
   } 
@@ -207,7 +206,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma ϕdot_determined : ∀ f, ϕdot i f == ϕdot i' f.
+Lemma ϕdot_determined : ∀ f, ϕdot i f = ϕdot i' f.
 Proof.
   intro f.
   do 2 rewrite ϕdot_ϕ1_ϕ2.
@@ -217,7 +216,7 @@ Proof.
 Qed.
 
 Lemma dirprodpath (A B : UU) (x y : dirprod A B) : 
-  pr1 x == pr1 y → pr2 x == pr2 y -> x == y.
+  pr1 x = pr1 y → pr2 x = pr2 y -> x = y.
 Proof.
   intros H1 H2.
   destruct x; destruct y. simpl in *.
@@ -225,7 +224,7 @@ Proof.
 Defined.
   
 
-Lemma folds_iso_equal : i == i'.
+Lemma folds_iso_equal : i = i'.
 Proof.
   apply folds_iso_eq.
   apply dirprodpath.
@@ -535,7 +534,7 @@ Section iso_from_folds_from_iso.
 
 Context {a b : C} (i : iso (C:=C') a b).
 
-Lemma bla : iso_from_folds_iso _ _ (folds_iso_from_iso _ _ i) == i.
+Lemma bla : iso_from_folds_iso _ _ (folds_iso_from_iso _ _ i) = i.
 Proof.
   apply eq_iso.
   apply (id_left C').
@@ -544,7 +543,7 @@ Qed.
 
 Variable i' : folds_iso a b.
 
-Lemma bla2 : folds_iso_from_iso _ _ (iso_from_folds_iso _ _ i') == i'.
+Lemma bla2 : folds_iso_from_iso _ _ (iso_from_folds_iso _ _ i') = i'.
 Proof.
   apply folds_iso_equal.
   apply (id_left C').

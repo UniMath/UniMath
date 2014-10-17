@@ -4,8 +4,7 @@ Require Import Utf8.
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
+Import uu0.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
 (** * The definition of a FOLDS precategory *)
@@ -54,11 +53,11 @@ Definition folds_ax_comp (C : folds_id_comp) :=
     dirprod (∀ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), 
                 ishinh (total2 (λ h : a ⇒ c, comp f g h))) (* there is a composite *)
      (dirprod (∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
-                  comp f g h → comp f g k → h == k )       (* composite is unique *)
+                  comp f g h → comp f g k → h = k )       (* composite is unique *)
               (∀ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
                   (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d), 
                comp f g fg → comp g h gh → 
-                  comp fg h fg_h → comp f gh f_gh → f_gh == fg_h)). (* composition is assoc *)
+                  comp fg h fg_h → comp f gh f_gh → f_gh = fg_h)). (* composition is assoc *)
 
 Lemma isaprop_folds_ax_comp C : isaprop (folds_ax_comp C).
 Proof.
@@ -85,7 +84,7 @@ Section some_lemmas_about_folds_precats.
 
 Variable C : folds_precat.
 
-Lemma id_unique : ∀ (a : C) (i i' : a ⇒ a), id i → id i' → i == i'.
+Lemma id_unique : ∀ (a : C) (i i' : a ⇒ a), id i → id i' → i = i'.
 Proof.
   intros a i i' Hi Hi'.
   destruct C as [CC [Cid Ccomp]]; simpl in *.
@@ -144,7 +143,7 @@ Proof.
   apply (pr2 (pr1 (comp_contr a b c f g))).
 Defined.
 
-Lemma comp_id_l (a b : C) (f : a ⇒ b) : f ∘ (id_func b) == f.
+Lemma comp_id_l (a b : C) (f : a ⇒ b) : f ∘ (id_func b) = f.
 Proof.
   assert (H : comp f (id_func b) f).  
   { apply (pr1 (pr2 (pr1 (pr2 C)))). apply id_func_id. }
@@ -154,7 +153,7 @@ Proof.
   apply (H2 _ _ _ _ _ _ _ H' H).
 Defined.
 
-Lemma comp_id_r (a b : C) (f : a ⇒ b) : (id_func a) ∘ f == f.
+Lemma comp_id_r (a b : C) (f : a ⇒ b) : (id_func a) ∘ f = f.
 Proof.
   assert (H : comp (id_func a) f f).  
   { apply (pr2 (pr2 (pr1 (pr2 C)))). apply id_func_id. }
@@ -165,7 +164,7 @@ Proof.
 Defined.
 
 Lemma comp_assoc (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d) :
-    f ∘ (g ∘ h) == (f ∘ g) ∘ h.
+    f ∘ (g ∘ h) = (f ∘ g) ∘ h.
 Proof.
   apply (pr2 (pr2 (pr2 (pr2 C))) a b c d f g h (f ∘ g) (g ∘ h)).
   - apply comp_func_comp.

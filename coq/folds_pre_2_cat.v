@@ -4,8 +4,8 @@ Require Import Utf8.
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
+Import uu0.PathNotations.
+
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
 (* Require Import FOLDS.aux_lemmas. *)
@@ -27,7 +27,7 @@ Definition folds_3_morphisms {C : folds_3_ob_mor} : C → C → UU := pr2 C.
 Local Notation "a ⇒ b" := (folds_3_morphisms a b)(at level 50).
 
 Definition double_transport {C : folds_3_ob_mor} {a a' b b' : ob C}
-   (p : a == a') (q : b == b') (f : a ⇒ b) : a' ⇒ b' :=
+   (p : a = a') (q : b = b') (f : a ⇒ b) : a' ⇒ b' :=
   transportf (λ c, a' ⇒ c) q (transportf (λ c, c ⇒ b) p f).
 
 (** ** Identity, composition, and equality, given through predicates *)
@@ -155,18 +155,18 @@ Definition folds_2_iso : UU :=
      )
     (dirprod
       (dirprod 
-        (dirprod (∀ (u : a ⇒ b) (p : b == a), weq (T p # f f u) (T p # g g u)) (*5.17*)
-                 (∀ (u : b ⇒ b) (p : a == a), weq (T (transportf (λ a, a ⇒ b) p f) u f) 
+        (dirprod (∀ (u : a ⇒ b) (p : b = a), weq (T p # f f u) (T p # g g u)) (*5.17*)
+                 (∀ (u : b ⇒ b) (p : a = a), weq (T (transportf (λ a, a ⇒ b) p f) u f) 
                                                   (T (transportf (λ a, a ⇒ b) p g) u g)) (*5.18*)) 
-        (dirprod (∀ (u : a ⇒ a) (p : b == b), weq (T u p # f f) (T u p # g g)) (*5.19*) 
-                 (∀ (p : a == a) (q : b == a) (r : b == b), 
+        (dirprod (∀ (u : a ⇒ a) (p : b = b), weq (T u p # f f) (T u p # g g)) (*5.19*) 
+                 (∀ (p : a = a) (q : b = a) (r : b = b), 
                     weq (T (double_transport p q f) r # f f) 
                         (T (double_transport p q g) r # g g) ))) (*5.20*)
       (dirprod 
-        (dirprod (∀ (p : b == a), weq (I p # f) (I p # g)) (*5.21*)
+        (dirprod (∀ (p : b = a), weq (I p # f) (I p # g)) (*5.21*)
                  (∀ (u : a ⇒ b), weq (E f u) (E g u) )) (*5.22*)
         (dirprod (∀ (u : a ⇒ b), weq (E u f) (E u g)) (*5.23*)
-                 (∀ (p : a == a) (q : b == b), weq (E (double_transport p q f) f) 
+                 (∀ (p : a = a) (q : b = b), weq (E (double_transport p q f) f) 
                                                    (E (double_transport p q g) g) )(*5.24*)))
     ).
       
@@ -193,7 +193,7 @@ Arguments folds_2_iso [C] [a] [b] f g.
 Arguments folds_2_iso_id [C] [a] [b] f.
 
 Definition idtoiso2 {C : folds_2_precat} {a b : C} {f g : a ⇒ b} :
-   f == g → folds_2_iso f g.
+   f = g → folds_2_iso f g.
 Proof.
   destruct 1.
   exact (folds_2_iso_id f).
@@ -213,7 +213,7 @@ Proof.
 Qed.
 
 Definition isotoid2 (C : folds_2_precat) (H : is_univalent_folds_2_precat C)
-  (a b : C) (f g : a ⇒ b) : folds_2_iso f g → f == g := 
+  (a b : C) (f g : a ⇒ b) : folds_2_iso f g → f = g := 
   invmap (weqpair _ (H a b f g)).
 
 (** * FOLDS precategories *)
@@ -226,11 +226,11 @@ Definition is_folds_precategory (C : folds_2_precat) : UU :=
    dirprod (∀ a b : C, isaset (a ⇒ b)) 
        (dirprod 
            (∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
-                  T f g h → T f g k → h == k )       (* T is unique mod identity *)
+                  T f g h → T f g k → h = k )       (* T is unique mod identity *)
            (∀ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
                   (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d), 
                T f g fg → T g h gh → 
-                  T fg h fg_h → T f gh f_gh → f_gh == fg_h)). (* T is assoc mod identity *)
+                  T fg h fg_h → T f gh f_gh → f_gh = fg_h)). (* T is assoc mod identity *)
 
 Lemma isaprop_is_folds_precategory (C : folds_2_precat) : isaprop (is_folds_precategory C).
 Proof.
@@ -260,14 +260,14 @@ Proof.
 Qed.
 
 
-Lemma E_transport_source : ∀ (C : folds_2_precat) (a a' b : C) (f g : a ⇒ b) (p : a == a'),
+Lemma E_transport_source : ∀ (C : folds_2_precat) (a a' b : C) (f g : a ⇒ b) (p : a = a'),
           E f g → E (transportf (λ c, c ⇒ b) p f) (transportf (λ c, c ⇒ b) p g).
 Proof.
   intros. destruct p.
   assumption.
 Defined.
 
-Lemma E_transport_target : ∀ (C : folds_2_precat) (a b b' : C) (f g : a ⇒ b) (p : b == b'),
+Lemma E_transport_target : ∀ (C : folds_2_precat) (a b b' : C) (f g : a ⇒ b) (p : b = b'),
           E f g → E (transportf (λ c, a ⇒ c) p f) (transportf (λ c, a ⇒ c) p g).
 Proof.
   intros. destruct p.
@@ -374,7 +374,7 @@ Section folds_precat_implies_univalent.
 
 Variable C : folds_2_precat.
 Hypothesis H : is_folds_precategory C.
-Hypothesis standardness : ∀ (a b : C) (f g : a ⇒ b), E f g → f == g.
+Hypothesis standardness : ∀ (a b : C) (f g : a ⇒ b), E f g → f = g.
 
 Lemma folds_2_iso_implies_E (a b : C) (f g : a ⇒ b) : 
    folds_2_iso f g → E f g.
@@ -390,7 +390,7 @@ Qed.
 
 
 Lemma folds_2_iso_implies_identity (a b : C) (f g : a ⇒ b) :
-   folds_2_iso f g → f == g.
+   folds_2_iso f g → f = g.
 Proof.
   intro Isofg.
   apply standardness. 
