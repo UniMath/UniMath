@@ -15,7 +15,7 @@ Contents of this file:
 
 *)
  
-Require Import Utf8.
+Require Import UnicodeNotations.
 
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
