@@ -56,7 +56,7 @@ Proof.
   apply idpath.  
 Defined.
 
-Definition folds_id_comp_from_precat_data : folds_id_comp :=
+Definition folds_id_comp_from_precat_data : folds_id_T :=
   tpair (λ C : folds_ob_mor, dirprod (∀ a : C, a ⇒ a → hProp)
             (∀ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))  
         (pr1 C) (dirprodpair (@id_pred) (@comp_pred)).
@@ -75,11 +75,11 @@ Proof.
     apply hinhpr.
     exists (identity a).
     apply idpath.
-  - intros; unfold id, comp; simpl.
+  - intros; unfold id, T; simpl.
     transitivity (compose f (identity _ )).
     + apply maponpaths; assumption.
     + apply id_right.
- - intros; unfold id, comp; simpl.
+ - intros; unfold id, T; simpl.
    transitivity (compose (identity _ ) f).
    +  rewrite X. apply idpath.
    +  apply id_left.
@@ -107,15 +107,15 @@ Variable C : folds_precat.
 
 Definition precat_from_folds_data : precategory_data :=
   tpair (λ C : precategory_ob_mor, precategory_id_comp C)
-    (pr1 (pr1 C)) (dirprodpair (id_func C)(@comp_func C)).
+    (pr1 (pr1 C)) (dirprodpair (id_func C)(@T_func C)).
 
 Lemma is_precategory_precat_from_folds_data : 
    is_precategory precat_from_folds_data.
 Proof.
   repeat split.
-  - apply comp_id_r.  
-  - apply comp_id_l. 
-  - apply comp_assoc. 
+  - apply T_id_r.  
+  - apply T_id_l. 
+  - apply T_assoc. 
 Qed.
 
 Definition precat_from_folds_precat : precategory := 
@@ -131,9 +131,9 @@ Proof.
   apply total2_paths_hProp.
   - intro a; apply isapropdirprod.
     + apply isaprop_folds_ax_id.
-    + apply isaprop_folds_ax_comp.
+    + apply isaprop_folds_ax_T.
   - set (Hid := id_contr C).
-    set (Hcomp := comp_contr C).
+    set (Hcomp := T_contr C).
     destruct C as [Cd CC]; simpl in *.
     destruct Cd as [Ca Cb]; simpl in *. 
     unfold folds_id_comp_from_precat_data.
@@ -203,24 +203,24 @@ Qed.
 (** * Some lemmas to pass from [comp] to [compose] and back **)
 
 Lemma comp_compose {C : precategory} {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h : a ⇒ c} :
-   f ;; g = h -> comp (C:=folds_precat_from_precat C) f g h.
+   f ;; g = h -> T (C:=folds_precat_from_precat C) f g h.
 Proof.
    apply (λ x, x).
 Qed.
 Lemma comp_compose' {C : precategory} {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h : a ⇒ c} :
-    comp (C:=folds_precat_from_precat C) f g h -> f ;; g = h.
+    T (C:=folds_precat_from_precat C) f g h -> f ;; g = h.
 Proof.
    apply (λ x, x).
 Qed.
 
 Lemma comp_compose2 {C : folds_precat} {a b c : C} {f : folds_morphisms a b} {g : folds_morphisms b c} {h : folds_morphisms a c} :
-   compose (C:=precat_from_folds_precat C) f g = h -> comp f g h.
+   compose (C:=precat_from_folds_precat C) f g = h -> T f g h.
 Proof.
-  intro H; rewrite <- H. apply comp_func_comp. 
+  intro H; rewrite <- H. apply T_func_T. 
 Qed.
 
 Lemma comp_compose2' {C : folds_precat} {a b c : C} {f : folds_morphisms a b} {g : folds_morphisms b c} {h : folds_morphisms a c} :
-  comp f g h -> compose (C:=precat_from_folds_precat C) f g = h.
+  T f g h -> compose (C:=precat_from_folds_precat C) f g = h.
 Proof.
   intro H. apply pathsinv0. apply path_to_ctr. assumption. 
 Qed.
@@ -229,26 +229,26 @@ Qed.
 (** * Some lemmas to pass from [id] to [identity] and back **)
 
 Lemma id_identity {C : precategory} {a : C} {f : a ⇒ a} : 
-  f = identity _ -> id (C:=folds_precat_from_precat C) f.
+  f = identity _ -> I (C:=folds_precat_from_precat C) f.
 Proof.
   apply (λ x, x).
 Qed.
 
 Lemma id_identity' {C : precategory} {a : C} {f : a ⇒ a} : 
-  id (C:=folds_precat_from_precat C) f -> f = identity _ .
+  I (C:=folds_precat_from_precat C) f -> f = identity _ .
 Proof.
   apply (λ x, x).
 Qed.
 
 Lemma id_identity2 {C : folds_precat} {a : C} {f : a ⇒ a} : 
-  f = identity (C:=precat_from_folds_precat C)  _ -> id f.
+  f = identity (C:=precat_from_folds_precat C)  _ -> I f.
 Proof.
   intro H; rewrite H.
   apply id_func_id.
 Qed.
 
 Lemma id_identity2' {C : folds_precat} {a : C} {f : a ⇒ a} : 
-  id f -> f = identity (C:=precat_from_folds_precat C) _ .
+  I f -> f = identity (C:=precat_from_folds_precat C) _ .
 Proof.
   intro H. apply path_to_ctr; assumption.
 Qed.

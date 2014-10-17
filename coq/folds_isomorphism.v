@@ -57,15 +57,15 @@ Definition folds_iso_prop {a b : C} (i : folds_iso_data a b) :=
   dirprod(
    dirprod(
     dirprod(
-     ∀ x y (f : x ⇒ y) (g : y ⇒ a) (h : x ⇒ a), comp f g h ≃ comp f (ϕ₁ i g) (ϕ₁ i h))  (* 5.3 *)
-     (∀ x z (f : x ⇒ a) (g : a ⇒ z) (h : x ⇒ z), comp f g h ≃ comp (ϕ₁ i f) (ϕ₂ i g) h)) (* 5.4 *)
-      (∀ z w (f : a ⇒ z) (g : z ⇒ w) (h : a ⇒ w), comp f g h ≃ comp (ϕ₂ i f) g (ϕ₂ i h)))          (* 5.5 *)
-       (dirprod (dirprod (∀ x (f : x ⇒ a) (g : a ⇒ a) (h : x ⇒ a), comp f g h ≃ comp (ϕ₁ i f) (ϕo i g) (ϕ₁ i h))    (* 5.6 *)
-                              (∀ x (f : a ⇒ x) (g : x ⇒ a) (h : a ⇒ a), comp f g h ≃ comp (ϕ₂ i f) (ϕ₁ i g) (ϕo i h)))   (* 5.7 *)
-                     (dirprod (∀ x (f : a ⇒ a) (g : a ⇒ x) (h : a ⇒ x), comp f g h ≃ comp (ϕo i f) (ϕ₂ i g) (ϕ₂ i h))    (* 5.8 *)
-                              (∀ f g h : a ⇒ a, comp f g h ≃ comp (ϕo i f) (ϕo i g) (ϕo i h))))                      (* 5.9 *)
+     ∀ x y (f : x ⇒ y) (g : y ⇒ a) (h : x ⇒ a), T f g h ≃ T f (ϕ₁ i g) (ϕ₁ i h))  (* 5.3 *)
+     (∀ x z (f : x ⇒ a) (g : a ⇒ z) (h : x ⇒ z), T f g h ≃ T (ϕ₁ i f) (ϕ₂ i g) h)) (* 5.4 *)
+      (∀ z w (f : a ⇒ z) (g : z ⇒ w) (h : a ⇒ w), T f g h ≃ T (ϕ₂ i f) g (ϕ₂ i h)))          (* 5.5 *)
+       (dirprod (dirprod (∀ x (f : x ⇒ a) (g : a ⇒ a) (h : x ⇒ a), T f g h ≃ T (ϕ₁ i f) (ϕo i g) (ϕ₁ i h))    (* 5.6 *)
+                              (∀ x (f : a ⇒ x) (g : x ⇒ a) (h : a ⇒ a), T f g h ≃ T (ϕ₂ i f) (ϕ₁ i g) (ϕo i h)))   (* 5.7 *)
+                     (dirprod (∀ x (f : a ⇒ a) (g : a ⇒ x) (h : a ⇒ x), T f g h ≃ T (ϕo i f) (ϕ₂ i g) (ϕ₂ i h))    (* 5.8 *)
+                              (∀ f g h : a ⇒ a, T f g h ≃ T (ϕo i f) (ϕo i g) (ϕo i h))))                      (* 5.9 *)
        )
-       (∀ f : a ⇒ a, id f ≃ id (ϕo i f)).  (* 5.10 *)
+       (∀ f : a ⇒ a, I f ≃ I (ϕo i f)).  (* 5.10 *)
  
 Definition isaprop_folds_iso_prop (a b : C) (i : folds_iso_data a b) : isaprop (folds_iso_prop i).
 Proof.
@@ -108,7 +108,7 @@ Proof.
   set (q:=pr1 (pr1 (pr1 (pr1 (pr2 i))))). 
   specialize (q _ _ f (identity (C:= C') _ ) f).
   set (q':=pr1 q ); clearbody q'.
-  assert (H: comp f (identity (C:= C') a) f).
+  assert (H: T f (identity (C:= C') a) f).
   { set (H:= pr1 (pr2 (pr1 (pr2 C)))). 
     apply H. apply id_func_id. } 
   set (q'H:= q' H). clearbody q'H; clear H q' q.
@@ -121,7 +121,7 @@ Proof.
   set (q:=pr2 (pr1 (pr1 (pr2 i)))). simpl in q.
   specialize (q _ _ (identity (C:= C') _ ) g g).
   set (q':=pr1 q ); clearbody q'.
-  assert (H: comp (identity (C:= C') a) g g).
+  assert (H: T (identity (C:= C') a) g g).
   { set (H:= pr2 (pr2 (pr1 (pr2 C)))). 
     apply H. apply id_func_id. } 
   set (q'H:= q' H). clearbody q'H; clear H q' q.
@@ -139,7 +139,7 @@ Proof.
   apply comp_compose2'.
   apply q'.
   apply comp_compose2.
-  apply comp_id_l.
+  apply T_id_l.
 Qed.
   
 Lemma ϕo_id : 
@@ -164,7 +164,7 @@ Proof.
   apply comp_compose2'.
   apply H'.
   apply comp_compose2.
-  apply comp_id_l.
+  apply T_id_l.
 Qed.
 
 Lemma ϕ₁_ϕ₂_are_inverse : is_inverse_in_precat (C:= C') 
