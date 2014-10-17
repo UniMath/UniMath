@@ -109,11 +109,11 @@ Proof.
   apply (pr1 (pr2 Ccomp) _ _ _ _ _ _ _ H1 H2).
 Qed.
 
-Lemma I_contr : ∀ a : C, iscontr (total2 (λ f : a ⇒ a, I f)).  
+Lemma I_contr : ∀ a : C, iscontr (Σ f : a ⇒ a, I f).  
 Proof.
   intro a.
   set (H := pr1 (pr1 (pr2 C)) a).
-  set (H' := hProppair (iscontr (total2 (λ f : a ⇒ a, I f)))
+  set (H' := hProppair (iscontr (Σ f : a ⇒ a, I f))
                       (isapropiscontr _ )).
   apply (H H'); simpl.
   intro t; exists t.
@@ -134,7 +134,7 @@ Defined.
 Lemma T_contr : ∀ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), iscontr (Σ h, T f g h).
 Proof.
   intros a b c f g.
-  set (H' := hProppair (iscontr (total2 (λ h : a ⇒ c, T f g h)))
+  set (H' := hProppair (iscontr (Σ h : a ⇒ c, T f g h))
                       (isapropiscontr _ )).
   apply (pr1 (pr2 (pr2 C)) a b c f g H').
   simpl; intro t; exists t.
@@ -150,8 +150,7 @@ Definition T_func {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : a ⇒ c :=
 
 Local Notation "f ∘ g" := (T_func f g) (at level 30).
 
-Lemma T_func_T {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : 
-   T f g (f ∘ g).
+Lemma T_func_T {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : T f g (f ∘ g).
 Proof.
   apply (pr2 (pr1 (T_contr a b c f g))).
 Defined.
