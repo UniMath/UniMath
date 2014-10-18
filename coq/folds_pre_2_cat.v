@@ -98,24 +98,14 @@ Definition E_is_good_to_I_and_T (C : folds_3_id_comp_eq) : UU :=
 (** **  The axioms for identity *)
 
 Definition folds_ax_id (C : folds_3_id_comp_eq) := 
-     (∀ a : C, ishinh (total2 (λ f : a ⇒ a, I f)))  (* there is a thing satisfying I *)
+     (∀ a : C, ∥ Σ f : a ⇒ a, I f ∥ )  (* there is a thing satisfying I *)
  ×  ((∀ (a b : C) (f : a ⇒ b)(i : b ⇒ b), I i → T f i f) (* I is post neutral *)      
   ×  (∀ (a b : C) (f : a ⇒ b)(i : a ⇒ a), I i → T i f f)). (* I is pre neutral *)
 
-
-(** this is no longer valid
-Lemma isaprop_folds_ax_id C : isaprop (folds_ax_id C).
-Proof.
- repeat (apply isapropdirprod).
- - apply impred; intro; apply isapropishinh.
- - repeat (apply impred; intro). apply pr2.  
- - repeat (apply impred; intro). apply pr2.
-Qed.
-*)
+(** ** The axioms for composition *)
 
 Definition folds_ax_comp (C : folds_3_id_comp_eq) :=
-     (∀ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), 
-                ishinh (total2 (λ h : a ⇒ c, T f g h))) 
+     (∀ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), ∥ Σ h : a ⇒ c, T f g h ∥ )
                                                         (* there is a composite *)
  × ( (∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c}, T f g h → T f g k → E h k )       
                                                         (* composite is unique mod E *)
@@ -146,7 +136,7 @@ Definition is_folds_pre_2_cat (C : folds_pre_3_cat) :=
   ×  (∀ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h : a ⇒ c), isaprop (T f g h)))
  ×   (∀ (a b : C) (f g : a ⇒ b), isaprop (E f g)).
 
-Definition folds_pre_2_cat : UU := total2 (λ C, is_folds_pre_2_cat C).
+Definition folds_pre_2_cat : UU := Σ C, is_folds_pre_2_cat C.
 
 Definition folds_3_from_folds_2 (C : folds_pre_2_cat) : folds_pre_3_cat := pr1 C.
 Coercion folds_3_from_folds_2 : folds_pre_2_cat >-> folds_pre_3_cat.
@@ -398,8 +388,7 @@ Qed.
 
 
 
-Lemma folds_2_iso_implies_identity (a b : C) (f g : a ⇒ b) :
-   folds_2_iso f g → f = g.
+Lemma folds_2_iso_implies_identity (a b : C) (f g : a ⇒ b) : folds_2_iso f g → f = g.
 Proof.
   intro Isofg.
   apply standardness. 

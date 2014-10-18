@@ -54,7 +54,7 @@ Definition ϕ₂ {a b : C} (f : folds_iso_data a b) {z : C} : (a ⇒ z) ≃ (b �
       pr2 (pr1 f) z.
 Definition ϕo {a b : C} (f : folds_iso_data a b) : (a ⇒ a) ≃ (b ⇒ b) :=
       pr2 f.
-
+Notation "ϕ∙" := ϕo. (* works as a notation, but not as an identifier *)
 
 
 Definition folds_iso_prop {a b : C} (i : folds_iso_data a b) : UU := 
@@ -62,10 +62,10 @@ Definition folds_iso_prop {a b : C} (i : folds_iso_data a b) : UU :=
    × (∀ (x z : C) (f : x ⇒ a) (g : a ⇒ z) (h : x ⇒ z), T f g h ≃ T ((ϕ₁ i) f) ((ϕ₂ i) g) h))
    × (∀ (z w : C) (f : a ⇒ z) (g : z ⇒ w) (h : a ⇒ w), T f g h ≃ T ((ϕ₂ i) f) g ((ϕ₂ i) h)))
  × (((∀ (x : C) (f : x ⇒ a) (g : a ⇒ a) (h : x ⇒ a),   T f g h ≃ T ((ϕ₁ i) f) ((ϕo i) g) ((ϕ₁ i) h))
-   × (∀ (x : C) (f : a ⇒ x) (g : x ⇒ a) (h : a ⇒ a),   T f g h ≃ T ((ϕ₂ i) f) ((ϕ₁ i) g) ((ϕo i) h)))
-  × ((∀ (x : C) (f : a ⇒ a) (g h : a ⇒ x),             T f g h ≃ T ((ϕo i) f) ((ϕ₂ i) g) ((ϕ₂ i) h))
-   × (∀ f g h : a ⇒ a,                                 T f g h ≃ T ((ϕo i) f) ((ϕo i) g) ((ϕo i) h)))))
-   × (∀ f : a ⇒ a,                                     I f ≃ I ((ϕo i) f)).
+   × (∀ (x : C) (f : a ⇒ x) (g : x ⇒ a) (h : a ⇒ a),   T f g h ≃ T ((ϕ₂ i) f) ((ϕ₁ i) g) ((ϕ∙ i) h)))
+  × ((∀ (x : C) (f : a ⇒ a) (g h : a ⇒ x),             T f g h ≃ T ((ϕ∙ i) f) ((ϕ₂ i) g) ((ϕ₂ i) h))
+   × (∀ f g h : a ⇒ a,                                 T f g h ≃ T ((ϕ∙ i) f) ((ϕ∙ i) g) ((ϕ∙ i) h)))))
+   × (∀ f : a ⇒ a,                                     I f ≃ I ((ϕ∙ i) f)).
  
 Definition isaprop_folds_iso_prop (a b : C) (i : folds_iso_data a b) : isaprop (folds_iso_prop i).
 Proof.
@@ -135,7 +135,7 @@ Proof.
   apply T_I_l.
 Qed.
   
-Lemma ϕo_id : ϕo i (id _ ) = id _ .
+Lemma ϕo_id : ϕ∙ i (id _ ) = id _ .
 Proof.
   apply id_identity2'.  
   apply (pr2 (pr2 i)).
@@ -162,7 +162,7 @@ Proof.
   - apply ϕ₂_ϕ₁_id.
 Qed.
 
-Lemma ϕo_ϕ₁_ϕ₂ (f : a ⇒ a) : ϕo i f = (ϕ₂ i (id _ ) □ f) □ ϕ₁ i (id _).
+Lemma ϕo_ϕ₁_ϕ₂ (f : a ⇒ a) : ϕ∙ i f = (ϕ₂ i (id _ ) □ f) □ ϕ₁ i (id _).
 Proof.
   set (q:=pr2 (pr1 (pr2 (pr1 (pr2 i))))); simpl in q; clearbody q.
   specialize (q _ f (id _ ) f).
@@ -172,7 +172,7 @@ Proof.
   specialize (q' X). clear X.
   set (q:= comp_compose2' q'). clearbody q; clear q'.
   simpl in *.
-  change (ϕo i f) with (ϕo (pr1 i) f). 
+  change (ϕ∙ i f) with (ϕ∙ (pr1 i) f). 
   rewrite <- q. clear q.
   rewrite ϕ₂_is_comp. apply idpath.
 Qed.
@@ -202,7 +202,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma ϕo_determined : ∀ f, ϕo i f = ϕo i' f.
+Lemma ϕo_determined : ∀ f, ϕ∙ i f = ϕ∙ i' f.
 Proof.
   intro f.
   do 2 rewrite ϕo_ϕ₁_ϕ₂.
@@ -270,7 +270,7 @@ Proof.
   repeat split.
   - intro x. exact (invweq (ϕ₁ i)).
   - intro z. exact (invweq (ϕ₂ i)).
-  - exact (invweq (ϕo i)).
+  - exact (invweq (ϕ∙ i)).
 Defined.
 
 
@@ -294,27 +294,27 @@ Proof.
     apply q'.
   - simpl; apply invweq.
     set (q:= pr1 (pr1 (pr2 (pr1 (pr2 i))))). clearbody q; simpl in q.
-    set (q':= q _  (invmap (ϕ₁ i) f) (invmap (ϕo i) g) (invmap (ϕ₁ i) h)).
+    set (q':= q _  (invmap (ϕ₁ i) f) (invmap (ϕ∙ i) g) (invmap (ϕ₁ i) h)).
     repeat rewrite homotweqinvweq in q'.
     apply q'.
   - simpl; apply invweq.
     set (q:= pr2 (pr1 (pr2 (pr1 (pr2 i))))). clearbody q; simpl in q.
-    set (q':= q _ (invmap (ϕ₂ i) f) (invmap (ϕ₁ i) g) (invmap (ϕo i) h)).
+    set (q':= q _ (invmap (ϕ₂ i) f) (invmap (ϕ₁ i) g) (invmap (ϕ∙ i) h)).
     repeat rewrite homotweqinvweq in q'.
     apply q'.
   - simpl. apply invweq.
     set (q:= pr1 (pr2 (pr2 (pr1 (pr2 i))))). clearbody q; simpl in q.
-    specialize (q _ (invmap (ϕo i) f) (invmap (ϕ₂ i) g) (invmap (ϕ₂ i) h)).
+    specialize (q _ (invmap (ϕ∙ i) f) (invmap (ϕ₂ i) g) (invmap (ϕ₂ i) h)).
     repeat rewrite homotweqinvweq in q.
     apply q.
   - simpl. apply invweq.
     set (q:= pr2 (pr2 (pr2 (pr1 (pr2 i))))). clearbody q; simpl in q.
-    specialize (q (invmap (ϕo i) f) (invmap (ϕo i) g) (invmap (ϕo i) h)).
+    specialize (q (invmap (ϕ∙ i) f) (invmap (ϕ∙ i) g) (invmap (ϕ∙ i) h)).
     repeat rewrite homotweqinvweq in q.
     apply q.
   - simpl. apply invweq.
     set (q:= pr2 (pr2 i)). simpl in q; clearbody q.
-    specialize (q (invmap (ϕo i) f)).
+    specialize (q (invmap (ϕ∙ i) f)).
     rewrite homotweqinvweq in q.
     apply q.
 Qed.
@@ -335,7 +335,7 @@ Proof.
   repeat split.
   - intro x; apply (weqcomp (ϕ₁ i) (ϕ₁ i')).
   - intro z; apply (weqcomp (ϕ₂ i) (ϕ₂ i')).
-  - apply (weqcomp (ϕo i) (ϕo i')).
+  - apply (weqcomp (ϕ∙ i) (ϕ∙ i')).
 Defined.
 
 Lemma folds_iso_comp_prop : folds_iso_prop folds_iso_comp_data.

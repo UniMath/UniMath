@@ -28,8 +28,8 @@ Definition folds_ob_mor := Σ a : UU, a → a → hSet.
 Definition folds_ob_mor_pair (ob : UU)(mor : ob → ob → hSet) :
     folds_ob_mor := tpair _ ob mor.
 
-Definition ob (C : folds_ob_mor) : Type := @pr1 _ _ C.
-Coercion ob : folds_ob_mor >-> Sortclass.
+Definition ob (C : folds_ob_mor) : UU := @pr1 _ _ C.
+Coercion ob : folds_ob_mor >-> UU.
 
 Definition folds_morphisms {C : folds_ob_mor} : C → C → hSet := pr2 C.
 Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
@@ -51,7 +51,7 @@ Definition T {C : folds_id_T} : ∀ {a b c : C}, (a ⇒ b) → (b ⇒ c) → (a 
 (** **  The axioms for identity *)
 
 Definition folds_ax_I (C : folds_id_T) := 
-     (∀ a : C, ishinh (Σ f : a ⇒ a, I f))  (* there is an id *)
+     (∀ a : C, ∥ Σ f : a ⇒ a, I f ∥ )  (* there is an id *)
   × ((∀ (a b : C) (f : a ⇒ b)(i : b ⇒ b), I i → T f i f) (* id is post neutral *)      
    × (∀ (a b : C) (f : a ⇒ b)(i : a ⇒ a), I i → T i f f)). (* id is pre neutral *)
 
@@ -64,8 +64,7 @@ Proof.
 Qed.
 
 Definition folds_ax_T (C : folds_id_T) :=
-     (∀ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), 
-                ishinh (Σ h : a ⇒ c, T f g h)) (* there is a composite *)
+     (∀ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), ∥ Σ h : a ⇒ c, T f g h ∥ ) (* there is a composite *)
  ×  ((∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
                   T f g h → T f g k → h = k )       (* composite is unique *)
   ×  (∀ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
