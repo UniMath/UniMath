@@ -1,18 +1,30 @@
 
-Require Import Utf8.
+(** Univalent FOLDS
+
+    Benedikt Ahrens, following notes by Michael Shulman
+
+Contents of this file:
+
+  - Definition of the type of FOLDS precategories [folds_precat]
+  - Definition of functions [id_func] and [comp_func] from a FOLDS precategory
+  - Proof of the usual axioms of categories for those functions
+
+*)
+
+
+Require Import UnicodeNotations.
 
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
+Import uu0.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
 (** * The definition of a FOLDS precategory *)
 
 (** ** Objects and a dependent type of morphisms *)
 
-Definition folds_ob_mor := total2 (λ a : UU, a → a → hSet).
+Definition folds_ob_mor := Σ a : UU, a → a → hSet.
 Definition folds_ob_mor_pair (ob : UU)(mor : ob → ob → hSet) :
     folds_ob_mor := tpair _ ob mor.
 
@@ -24,25 +36,26 @@ Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
 
 (** ** Identity and composition, given through predicates *)
 
-Definition folds_id_comp := total2 (λ C : folds_ob_mor,
-    dirprod (∀ a : C, a ⇒ a → hProp) 
-            (∀ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp)).
+Definition folds_id_T := Σ C : folds_ob_mor,
+    (∀ a : C, a ⇒ a → hProp) 
+ ×  (∀ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp).
 
-Definition folds_ob_mor_from_folds_id_comp (C : folds_id_comp) : folds_ob_mor := pr1 C.
-Coercion folds_ob_mor_from_folds_id_comp : folds_id_comp >-> folds_ob_mor.
+Definition folds_ob_mor_from_folds_id_comp (C : folds_id_T) : folds_ob_mor := pr1 C.
+Coercion folds_ob_mor_from_folds_id_comp : folds_id_T >-> folds_ob_mor.
 
-Definition id {C : folds_id_comp} : ∀ {a : C}, a ⇒ a → hProp := pr1 (pr2 C).
-Definition comp {C : folds_id_comp} :
-      ∀ {a b c : C}, (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp := pr2 (pr2 C).
+Definition I {C : folds_id_T} : ∀ {a : C}, a ⇒ a → hProp 
+  := pr1 (pr2 C).
+Definition T {C : folds_id_T} : ∀ {a b c : C}, (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp 
+  := pr2 (pr2 C).
 
 (** **  The axioms for identity *)
 
-Definition folds_ax_id (C : folds_id_comp) := 
-    dirprod (∀ a : C, ishinh (total2 (λ f : a ⇒ a, id f)))  (* there is an id *)
-     (dirprod (∀ (a b : C) (f : a ⇒ b)(i : b ⇒ b), id i → comp f i f) (* id is post neutral *)      
-              (∀ (a b : C) (f : a ⇒ b)(i : a ⇒ a), id i → comp i f f)). (* id is pre neutral *)
+Definition folds_ax_I (C : folds_id_T) := 
+     (∀ a : C, ishinh (Σ f : a ⇒ a, I f))  (* there is an id *)
+  × ((∀ (a b : C) (f : a ⇒ b)(i : b ⇒ b), I i → T f i f) (* id is post neutral *)      
+   × (∀ (a b : C) (f : a ⇒ b)(i : a ⇒ a), I i → T i f f)). (* id is pre neutral *)
 
-Lemma isaprop_folds_ax_id C : isaprop (folds_ax_id C).
+Lemma isaprop_folds_ax_id C : isaprop (folds_ax_I C).
 Proof.
  repeat (apply isapropdirprod).
  - apply impred; intro; apply isapropishinh.
@@ -50,17 +63,17 @@ Proof.
  - repeat (apply impred; intro). apply pr2.
 Qed.
 
-Definition folds_ax_comp (C : folds_id_comp) :=
-    dirprod (∀ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), 
-                ishinh (total2 (λ h : a ⇒ c, comp f g h))) (* there is a composite *)
-     (dirprod (∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
-                  comp f g h → comp f g k → h == k )       (* composite is unique *)
-              (∀ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
+Definition folds_ax_T (C : folds_id_T) :=
+     (∀ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), 
+                ishinh (Σ h : a ⇒ c, T f g h)) (* there is a composite *)
+ ×  ((∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
+                  T f g h → T f g k → h = k )       (* composite is unique *)
+  ×  (∀ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
                   (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d), 
-               comp f g fg → comp g h gh → 
-                  comp fg h fg_h → comp f gh f_gh → f_gh == fg_h)). (* composition is assoc *)
+               T f g fg → T g h gh → 
+                  T fg h fg_h → T f gh f_gh → f_gh = fg_h)). (* composition is assoc *)
 
-Lemma isaprop_folds_ax_comp C : isaprop (folds_ax_comp C).
+Lemma isaprop_folds_ax_T C : isaprop (folds_ax_T C).
 Proof.
  repeat (apply isapropdirprod).
  - do 5 (apply impred; intro). apply isapropishinh.
@@ -69,10 +82,10 @@ Proof.
 Qed.
 
 
-Definition folds_precat := total2 (λ C : folds_id_comp,
-    dirprod (folds_ax_id C) (folds_ax_comp C)).
-Definition folds_id_comp_from_folds_precat (C : folds_precat) : folds_id_comp := pr1 C.
-Coercion folds_id_comp_from_folds_precat : folds_precat >-> folds_id_comp.
+Definition folds_precat := Σ C : folds_id_T, folds_ax_I C × folds_ax_T C.
+
+Definition folds_id_comp_from_folds_precat (C : folds_precat) : folds_id_T := pr1 C.
+Coercion folds_id_comp_from_folds_precat : folds_precat >-> folds_id_T.
 
 (** * Some lemmas about FOLDS precategories *)
 
@@ -85,22 +98,22 @@ Section some_lemmas_about_folds_precats.
 
 Variable C : folds_precat.
 
-Lemma id_unique : ∀ (a : C) (i i' : a ⇒ a), id i → id i' → i == i'.
+Lemma I_unique : ∀ (a : C) (i i' : a ⇒ a), I i → I i' → i = i'.
 Proof.
   intros a i i' Hi Hi'.
   destruct C as [CC [Cid Ccomp]]; simpl in *.
-  assert (H1 : comp i i' i).
+  assert (H1 : T i i' i).
   { apply (pr1 (pr2 Cid) _ _ _ _  ).  assumption. }
-  assert (H2 : comp i i' i').
+  assert (H2 : T i i' i').
   { apply (pr2 (pr2 Cid) _ _ _ _ ) . assumption. }
   apply (pr1 (pr2 Ccomp) _ _ _ _ _ _ _ H1 H2).
 Qed.
 
-Lemma id_contr : ∀ a : C, iscontr (total2 (λ f : a ⇒ a, id f)).  
+Lemma I_contr : ∀ a : C, iscontr (Σ f : a ⇒ a, I f).  
 Proof.
   intro a.
   set (H := pr1 (pr1 (pr2 C)) a).
-  set (H' := hProppair (iscontr (total2 (λ f : a ⇒ a, id f)))
+  set (H' := hProppair (iscontr (Σ f : a ⇒ a, I f))
                       (isapropiscontr _ )).
   apply (H H'); simpl.
   intro t; exists t.
@@ -108,21 +121,20 @@ Proof.
   apply total2_paths_hProp.
   - intro b; apply pr2.
   - destruct t; destruct t';
-    apply id_unique; assumption.
+    apply I_unique; assumption.
 Defined.
 
-Definition id_func (a : C) : a ⇒ a := pr1 (pr1 (id_contr a)).
+Definition I_func (a : C) : a ⇒ a := pr1 (pr1 (I_contr a)).
 
-Lemma id_func_id (a : C) : id (id_func a).
+Lemma I_func_I (a : C) : I (I_func a).
 Proof.
-  apply (pr2 (pr1 (id_contr a))).  
+  apply (pr2 (pr1 (I_contr a))).  
 Defined.
 
-Lemma comp_contr : ∀ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), 
-    iscontr (total2 (λ h, comp f g h)).
+Lemma T_contr : ∀ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), iscontr (Σ h, T f g h).
 Proof.
   intros a b c f g.
-  set (H' := hProppair (iscontr (total2 (λ h : a ⇒ c, comp f g h)))
+  set (H' := hProppair (iscontr (Σ h : a ⇒ c, T f g h))
                       (isapropiscontr _ )).
   apply (pr1 (pr2 (pr2 C)) a b c f g H').
   simpl; intro t; exists t.
@@ -133,45 +145,44 @@ Proof.
     apply (pr1 (pr2 (pr2 (pr2 C))) _ _ _ f g ); assumption.
 Defined.
 
-Definition comp_func {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : a ⇒ c :=
-     pr1 (pr1 (comp_contr a b c f g)).
+Definition T_func {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : a ⇒ c :=
+     pr1 (pr1 (T_contr a b c f g)).
 
-Local Notation "f ∘ g" := (comp_func f g) (at level 30).
+Local Notation "f ∘ g" := (T_func f g) (at level 30).
 
-Lemma comp_func_comp {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : 
-   comp f g (f ∘ g).
+Lemma T_func_T {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : T f g (f ∘ g).
 Proof.
-  apply (pr2 (pr1 (comp_contr a b c f g))).
+  apply (pr2 (pr1 (T_contr a b c f g))).
 Defined.
 
-Lemma comp_id_l (a b : C) (f : a ⇒ b) : f ∘ (id_func b) == f.
+Lemma T_I_l (a b : C) (f : a ⇒ b) : f ∘ (I_func b) = f.
 Proof.
-  assert (H : comp f (id_func b) f).  
-  { apply (pr1 (pr2 (pr1 (pr2 C)))). apply id_func_id. }
-  assert (H' : comp f (id_func b) (comp_func f (id_func b))).  
-  { apply comp_func_comp. }
+  assert (H : T f (I_func b) f).  
+  { apply (pr1 (pr2 (pr1 (pr2 C)))). apply I_func_I. }
+  assert (H' : T f (I_func b) (T_func f (I_func b))).  
+  { apply T_func_T. }
   set (H2 := pr1 (pr2 (pr2 (pr2 C)))).
   apply (H2 _ _ _ _ _ _ _ H' H).
 Defined.
 
-Lemma comp_id_r (a b : C) (f : a ⇒ b) : (id_func a) ∘ f == f.
+Lemma T_I_r (a b : C) (f : a ⇒ b) : (I_func a) ∘ f = f.
 Proof.
-  assert (H : comp (id_func a) f f).  
-  { apply (pr2 (pr2 (pr1 (pr2 C)))). apply id_func_id. }
-  assert (H' : comp (id_func a) f (comp_func (id_func a) f)).  
-  { apply comp_func_comp. }
+  assert (H : T (I_func a) f f).  
+  { apply (pr2 (pr2 (pr1 (pr2 C)))). apply I_func_I. }
+  assert (H' : T (I_func a) f (T_func (I_func a) f)).  
+  { apply T_func_T. }
   set (H2 := pr1 (pr2 (pr2 (pr2 C)))).
   apply (H2 _ _ _ _ _ _ _ H' H).
 Defined.
 
-Lemma comp_assoc (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d) :
-    f ∘ (g ∘ h) == (f ∘ g) ∘ h.
+Lemma T_assoc (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d) :
+    f ∘ (g ∘ h) = (f ∘ g) ∘ h.
 Proof.
   apply (pr2 (pr2 (pr2 (pr2 C))) a b c d f g h (f ∘ g) (g ∘ h)).
-  - apply comp_func_comp.
-  - apply comp_func_comp.
-  - apply comp_func_comp.
-  - apply comp_func_comp.
+  - apply T_func_T.
+  - apply T_func_T.
+  - apply T_func_T.
+  - apply T_func_T.
 Defined.
  
 
