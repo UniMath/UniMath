@@ -139,7 +139,7 @@
   \only<2-3>{
   \item \dots $O$, $A$, $T$, $I$, \dots
   \item For any $f:A(x,y)$, and $g:A(y,z)$, there exist $h:A(x,z)$ and $t:T(x,y,z,f,g,h)$.
-  \item For any $t_1:T(x,y,z,f,g,h_1)$ and $t_2:T(x,y,z,f,g,h_2)$, we have $h_1 = h_2$.
+  \item For any $t_1:T(x,y,z,f,g,h_1)$ and $t_2:T(x,y,z,f,g,h_2)$, we have $t_1 = t_2$.
   \item \dots
     \pause\pause
   \item For any $t_1,t_2:T(x,y,z,f,g,h)$, we have $h_1 = h_2$\\ ($T$ is a mere relation).
@@ -162,6 +162,7 @@
   \item For any $t_1:T(x,y,z,f,g,h_1)$ and $t_2:T(x,y,z,f,g,h_2)$, we have $e : E(x,z,h_1,h_2)$.
     \pause
   \item $T$, $I$, and now also $E$ are mere relations.
+  \item $E$ is an equivalence relation, and a congruence for $T$ and $I$.
   \end{itemize}
 \end{frame}
 
@@ -277,7 +278,7 @@
   \begin{theorem}
     An internal category $A\toto O$ in groupoids is of the form $\Chat$ iff
     \begin{enumerate}
-    \item The map $A\to O\times O$ has discrete fibers, and
+    \item The map $A\to O\times O$ is a discrete fibration, and
     \item The canonical map
     \[ \hom_O(x,y) \to \mathsf{iso}(x,y) \]
     is an isomorphism for all $x,y\in O$.
@@ -311,12 +312,13 @@
 \begin{frame}
   \frametitle{Univalent FOLDS}
   Consider FOLDS-structures in $\infty$-groupoids, i.e.\ each $O$, $A$, $T$, etc.\ is an $\infty$-groupoid.
+  We also require each ``dependency-assigning map'', e.g.\ $A \to O\times O$ or $E\to A\times_{O\times O} A$, to be a fibration.
   \begin{theorem}[in progress]
     There is a notion of \alert{univalence} for FOLDS-structures in $\infty$-groupoids, such that
     \begin{enumerate}
+    \item Two univalent structures are FOLDS-equivalent iff they are levelwise equivalent on underlying $\infty$-groupoids.
     \item In a univalent structure, the top sorts (e.g.\ $T$, $I$, $E$) are {automatically} mere relations.
     \item A univalent structure is automatically standard ($E$ is actual equality).
-    \item Two univalent structures are FOLDS-equivalent iff they are levelwise equivalent on underlying $\infty$-groupoids.
     \end{enumerate}
   \end{theorem}
   % \structure{NB:} The hard part is defining ``univalent''.
@@ -374,7 +376,7 @@
   \begin{block}{But}
     \begin{enumerate}
     \item To be consistent, we must apply that condition at the other types too: $A$, $T$, $I$, $E$.
-    \item There is also the first condition ($A\to O\times O$ has discrete fibers).
+    \item There is also the first condition ($A\to O\times O$ is a discrete fibration).
     \end{enumerate}
   \end{block}
   Fortunately, these two difficulties resolve each other.
@@ -467,11 +469,6 @@
 
 \begin{frame}
   \frametitle{2-categories}
-  TODO
-\end{frame}
-
-\begin{frame}
-  \frametitle{Double categories}
   TODO
 \end{frame}
 
