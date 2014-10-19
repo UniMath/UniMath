@@ -1,6 +1,6 @@
 
 Require Export Foundations.Generalities.uu0.
-
+Require Export Foundations.hlevel1.hProp.
 
 Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
   (at level 200, x binder, y binder, right associativity) : type_scope.
@@ -13,3 +13,5 @@ Notation "x → y" := (x -> y)
 
 Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
   (at level 200, x binder, y binder, right associativity).
+
+Notation "∥ A ∥" := (ishinh A) (at level 200) : type_scope.
