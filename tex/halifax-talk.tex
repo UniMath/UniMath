@@ -132,18 +132,18 @@
     \only<1>{
   \item A collection $O$ of objects
   \item For each $x,y:O$, a collection $A(x,y)$ of arrows
-  \item For each $x,y,z:O$, $f:A(x,y)$, $g:A(y,z)$, and $h:A(x,z)$, a collection $T(x,y,z,f,g,h)$ of \alert<1>{assertions that $h$ is $g\circ f$}.
-  \item For each $x:O$ and $f:A(x,y)$, a collection $I(x,f)$ of \\\alert<1>{assertions that $f$ is $1_x$}.
+  \item For each $x,y,z:O$, $f:A(x,y)$, $g:A(y,z)$, and $h:A(x,z)$, a collection $T_{x,y,z}(f,g,h)$ of \alert<1>{assertions that $h$ is $g\circ f$}.
+  \item For each $x:O$ and $f:A(x,y)$, a collection $I_x(f)$ of \\\alert<1>{assertions that $f$ is $1_x$}.
   \item \dots
   }
   \only<2-3>{
   \item \dots $O$, $A$, $T$, $I$, \dots
-  \item For any $f:A(x,y)$, and $g:A(y,z)$, there exist $h:A(x,z)$ and $t:T(x,y,z,f,g,h)$.
-  \item For any $t_1:T(x,y,z,f,g,h_1)$ and $t_2:T(x,y,z,f,g,h_2)$, we have $t_1 = t_2$.
+  \item For any $f:A(x,y)$, and $g:A(y,z)$, there exist $h:A(x,z)$ and $t:T_{x,y,z}(f,g,h)$.
+  \item For any $t_1:T_{x,y,z}(f,g,h_1)$ and $t_2:T_{x,y,z}(f,g,h_2)$, $t_1 = t_2$.
   \item \dots
     \pause\pause
-  \item For any $t_1,t_2:T(x,y,z,f,g,h)$, we have $h_1 = h_2$\\ ($T$ is a mere relation).
-  \item For any $x,f$ with $i_1,i_2 : I(x,f)$ we have $i_1=i_2$\\ ($I$ is a mere relation).
+  \item For any $t_1,t_2:T_{x,y,z}(f,g,h)$, we have $h_1 = h_2$\\ ($T$ is a mere relation).
+  \item For any $x,f$ with $i_1,i_2 : I_x(f)$ we have $i_1=i_2$\\ ($I$ is a mere relation).
   }
   \end{itemize}
 \end{frame}
@@ -156,10 +156,10 @@
   A category consists of
   \begin{itemize}
   \item \dots $O$, $A$, $T$, $I$, \dots
-  \item For each $x,y:O$ and $f,g:A(x,y)$, a collection $E(x,y,f,g)$ of \alert{assertions that $f=g$}.
+  \item For each $x,y:O$ and $f,g:A(x,y)$, a collection $E_{x,y}(f,g)$ of \alert{assertions that $f=g$}.
   \item \dots
     \pause
-  \item For any $t_1:T(x,y,z,f,g,h_1)$ and $t_2:T(x,y,z,f,g,h_2)$, we have $e : E(x,z,h_1,h_2)$.
+  \item For any $t_1:T_{x,y,z}(f,g,h_1)$ and $t_2:T_{x,y,z}(f,g,h_2)$, we have $e : E_{x,z}(h_1,h_2)$.
     \pause
   \item $T$, $I$, and now also $E$ are mere relations.
   \item $E$ is an equivalence relation, and a congruence for $T$ and $I$.
@@ -195,10 +195,10 @@
     \begin{itemize}
     \item For each $y:O_D$, there exists $x:O_C$ such that $F(x)=y$ (\alert<2>{surjective on objects}).
     \item For each $x,y:O_C$ and $g:A_D(Fx,Fy)$, there exists $f:A_C(x,y)$ such that $F(f)=g$ (\alert<2>{full}).
-    \item For $x,y:O_C$ and $f,g:A_C(x,y)$ and $e_D:E_D(Fx,Fy,Ff,Fg)$, there exists $e_C:E_C(x,y,f,g)$ such that $Fe_C=e_D$ (\alert<2>{faithful}).
+    \item For $x,y:O_C$ and $f,g:A_C(x,y)$ and $e_D:E_{D,(Fx,Fy)}(Ff,Fg)$, there exists $e_C:E_{C,(x,y)}(f,g)$ such that $Fe_C=e_D$ (\alert<2>{faithful}).
       \only<3->{
-    \item For $x,y,z,f,g,h$ and $t_D:T_D(Fx,Fy,Fz,Ff,Fg,Fh)$, there exists $t_C:T_C(x,y,z,f,g,h)$ such that $Ft_C = t_D$ (\alert{preserves composition}).
-    \item For $x,f$ and $i_D:I_D(Fx,Ff)$, there exists $i_C:T_C(x,f)$ such that $Fi_C = i_D$ (\alert{preserves identities}).
+    \item For $x,y,z,f,g,h$ and $t_D:T_{D,(Fx,Fy,Fz)}(Ff,Fg,Fh)$, there exists $t_C:T_{C,(x,y,z)}(f,g,h)$ such that $Ft_C = t_D$ (\alert{preserves composition}).
+    \item For $x,f$ and $i_D:I_{D,Fx}(Ff)$, there exists $i_C:I_{C,x}(f)$ such that $Fi_C = i_D$ (\alert{preserves identities}).
       }
     \end{itemize}}
   \end{enumerate}
@@ -262,7 +262,7 @@
 
 \begin{frame}
   \frametitle{Saturating categories}
-  From any category $C$, its \alert{saturation} is an internal category $\Chat = (A\toto O)$ in groupoids:
+  From any category $C$, its \alert<1>{saturation} is an internal category $\Chat = (A\toto O)$ in groupoids:
   \begin{itemize}
   \item $O$ is the groupoid of objects of $C$ and isomorphisms in $C$.
   \item $A$ is the groupoid of morphisms of $C$ and their isomorphisms (commutative squares).
@@ -349,23 +349,68 @@
   What is a FOLDS-isomorphism?
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
   \frametitle{FOLDS-isomorphisms for categories}
   \begin{block}{Idea}
     A FOLDS-isomorphism between $x,y:M_C(\dots)$ in a structure $C$ is\\\alert<1>{a coherent set of equivalences replacing $x$ by $y$ in the types of anything in $C$ that depends on one or more elements of $M$}.
   \end{block}
   \pause
   \begin{example}
-  For objects $x,y:O$ of a FOLDS-category $(O,A,T,I,E,\dots)$, a FOLDS-isomorphism is
+  For objects $a,b:O$ of a FOLDS-category $(O,A,T,I,E,\dots)$, a FOLDS-isomorphism is
   \begin{enumerate}
-  \item For each $a:O$, an isomorphism $A(a,x) \cong A(a,y)$,
-  \item For each $b:O$, an isomorphism $A(x,b) \cong A(y,b)$, and
-  \item An isomorphism $A(x,x) \cong A(y,y)$,
-  \item Respecting composites, identities, and equality ($T$, $I$, and $E$).
+  \item For each $x:O$, an isomorphism $\phi_{x\bullet} : A(x,a) \cong A(x,b)$,
+  \item For each $z:O$, an isomorphism $\phi_{\bullet z} : A(a,z) \cong A(b,z)$, and
+  \item An isomorphism $\phi_{\bullet\bullet} : A(a,a) \cong A(b,b)$,
+  \item Respecting composites, identities, and equality ($T$, $I$, and $E$)\\
+    \textit{(to be continued \dots)}
   \end{enumerate}
 \end{example}
-  \pause
-  This is equivalent to an ordinary isomorphism $x\cong y$, by a ``two-sided'' form of the Yoneda lemma.
+  % \pause
+  % This is equivalent to an ordinary isomorphism $x\cong y$, by a ``two-sided'' form of the Yoneda lemma.
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{FOLDS-isomorphisms for categories}
+  \[
+  \begin{array}{rcl}
+    \alert<2>{T_{x,y,a}(f,g,h)} & \alert<2>{\Leftrightarrow}& \alert<2>{T_{x,y,b}(f,\phi_{y\bullet}(g),\phi_{x\bullet}(h))}\\
+    \alert<4>{T_{x,a,z}(f,g,h)} &\alert<4>{\Leftrightarrow}& \alert<4>{T_{x,b,z}(\phi_{x\bullet}(f),\phi_{\bullet z}(g),h)}\\
+    \alert<3>{T_{a,z,w}(f,g,h)} &\alert<3>{\Leftrightarrow}& \alert<3>{T_{b,z,w}(\phi_{\bullet z}(f),g,\phi_{\bullet w}(h))}\\
+    \alert<5>{T_{x,a,a}(f,g,h)} &\alert<5>{\Leftrightarrow}& \alert<5>{T_{x,b,b}(\phi_{x\bullet}(f),\phi_{\bullet\bullet}(g),\phi_{x\bullet}(h))}\\
+    \alert<5>{T_{a,x,a}(f,g,h)} &\alert<5>{\Leftrightarrow}& \alert<5>{T_{b,x,b}(\phi_{\bullet x}(f),\phi_{x\bullet}(g),\phi_{\bullet\bullet}(h))}\\
+    \alert<5>{T_{a,a,x}(f,g,h)} &\alert<5>{\Leftrightarrow}& \alert<5>{T_{b,b,x}(\phi_{\bullet\bullet}(f),\phi_{\bullet x}(g),\phi_{\bullet x}(h))}\\
+    \alert<6>{T_{a,a,a}(f,g,h)} &\alert<6>{\Leftrightarrow}& \alert<6>{T_{b,b,b}(\phi_{\bullet\bullet}(f),\phi_{\bullet\bullet}(g),\phi_{\bullet\bullet}(h))}\\
+    \alert<6>{I_{a,a}(f) }& \alert<6>{\Leftrightarrow}& \alert<6>{I_{b,b}(\phi_{\bullet\bullet}(f))}\\
+    \alert<6>{E_{x,a}(f,g) }&\alert<6>{\Leftrightarrow}& \alert<6>{E_{x,b}(\phi_{x\bullet }(f),\phi_{x\bullet}(g))}\\
+    \alert<6>{E_{a,x}(f,g) }&\alert<6>{\Leftrightarrow}& \alert<6>{E_{b,x}(\phi_{\bullet x}(f),\phi_{\bullet x}(g))}\\
+    \alert<6>{E_{a,a}(f,g) }&\alert<6>{\Leftrightarrow}& \alert<6>{E_{b,b}(\phi_{\bullet \bullet}(f),\phi_{\bullet \bullet}(g))}
+  \end{array}
+  \]
+  \vspace{1mm}
+  \begin{center}
+    \only<2>{The $\phi_{x\bullet}$ are a natural isomorphism.}
+    \only<3>{The $\phi_{\bullet x}$ are a natural isomorphism.}
+    \only<4>{The $\phi_{x\bullet}$ and $\phi_{\bullet x}$ arise from the same iso $a\cong b$.}
+    \only<5>{$\phi_{\bullet\bullet}$ is conjugation by this iso.\\
+      (Any one of these ensures this, and the others follow.)}
+    \only<6>{The rest are automatic.}
+  \end{center}
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{FOLDS-isomorphisms for categories}
+  \begin{example}
+    For objects $a,b:O$ of a FOLDS-category $(O,A,T,I,E,\dots)$, a FOLDS-isomorphism is
+    \begin{enumerate}
+    \item For each $x:O$, an isomorphism $\phi_{x\bullet} : A(x,a) \cong A(x,b)$,
+    \item For each $z:O$, an isomorphism $\phi_{\bullet z} : A(a,z) \cong A(b,z)$, and
+    \item An isomorphism $\phi_{\bullet\bullet} : A(a,a) \cong A(b,b)$,
+    \item Respecting composites, identities, and equality ($T$, $I$, and $E$).
+    \end{enumerate}
+  \end{example}
+  \begin{theorem}[Two-sided Yoneda lemma]
+    FOLDS-isomorphisms are equivalent to ordinary isos $a\cong b$.
+  \end{theorem}
 \end{frame}
 
 \begin{frame}
@@ -398,7 +443,7 @@
   \item Thus, $\mathsf{iso}(x,y)=1$ vacuously for any $x,y$ in these types.
   \end{itemize}
   \begin{block}{Hence}
-    Univalence at $T$ means any two $t_1,t_2 : T(x,y,z,f,g,h)$\\ (for instance) are equal, i.e.\ $T$ is a mere relation.
+    Univalence at $T$ means any two $t_1,t_2 : T_{x,y,z}(f,g,h)$\\ (for instance) are equal, i.e.\ $T$ is a mere relation.
   \end{block}
 \end{frame}
 
@@ -406,15 +451,15 @@
   \frametitle{FOLDS-isomorphisms for arrows}
   A FOLDS-iso between $f,g:A(x,y)$ includes, among other things,
   \begin{itemize}
-  \item For any $h:A(x,y)$, we have $E(x,y,f,h) \iff E(x,y,g,h)$.
+  \item For any $h:A(x,y)$, we have $E_{x,y}(f,h) \iff E_{x,y}(g,h)$.
   \end{itemize}
   and therefore, since $E$ is reflexive,
   \begin{itemize}
-  \item $E(x,y,f,g)$.
+  \item $E_{x,y}(f,g)$.
   \end{itemize}
   \pause
   Since $E$ is a congruence for $T$ and $I$, this implies everything else.
-  So \alert{a FOLDS-iso between $f,g:A(x,y)$ is the assertion $E(x,y,f,g)$.}
+  So \alert{a FOLDS-iso between $f,g:A(x,y)$ is the assertion $E_{x,y}(f,g)$.}
   \begin{block}{Thus}
     Univalence at $A$ means that the fibers of $A\to O\times O$ are discrete sets and their equality is $E$.
   \end{block}
@@ -467,13 +512,124 @@
   We recover classical first-order logic with equality.
 \end{frame}
 
-\begin{frame}
+\begin{frame}[t]
   \frametitle{2-categories}
-  TODO
+  \[
+  \vcenter{\xymatrix{
+      T_2 \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & I_2 \ar[d] & E_2 \ar@<1mm>[dl] \ar@<-1mm>[dl] \\
+      & A_2 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+      & A_1 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+      & O}}
+  \]
 \end{frame}
 
+\begin{frame}[t]
+  \frametitle{2-categories}
+  \[
+  \vcenter{\xymatrix{
+      I_2 \ar[drr] & T_2 \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & E_2 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+      && A_2 \ar@<1mm>[d] \ar@<-1mm>[d] & T_1 \; ? \ar[dl] \ar@<1mm>[dl] \ar@<-1mm>[dl]  \\
+      && A_1 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+      && O}}
+  \]
+  \begin{itemize}
+  \item Since $T_1 \to (A_1)^3$ is a fibration, any $t:T_1(f,g,h)$ can be transported along an iso $h \cong h'$ to yield $T_1(f,g,h')$.
+  \item $t:T_1(f,g,h)$ must record an iso $h \cong g \circ f$, so $T_1$ can't be a mere relation.
+  \end{itemize}
+\end{frame}
 
-\section{Univalent FOLDS}
+\begin{frame}[t]
+  \frametitle{2-categories}
+  \[
+  \vcenter{\xymatrix{
+      I_2 \ar[drr] & T_2 \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & E_2 \ar@<1mm>[d] \ar@<-1mm>[d]
+      & E_{T_1} \ar@<1mm>[d] \ar@<-1mm>[d]\\
+      && A_2 \ar@<1mm>[d] \ar@<-1mm>[d] & T_1  \ar[dl] \ar@<1mm>[dl] \ar@<-1mm>[dl]  \\
+      && A_1 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+      && O}}
+  \]
+  \begin{itemize}
+  \item Need an equality on $T_1$ to allow it to be a set.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{2-categories}
+  \[
+  \vcenter{\xymatrix{
+      I_2 \ar[drr] & T_2 \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & E_2 \ar@<1mm>[d] \ar@<-1mm>[d]
+      & ? \ar[dl] \ar[d]
+      & E_{T_1} \ar@<1mm>[dl] \ar@<-1mm>[dl]\\
+      && A_2 \ar@<1mm>[d] \ar@<-1mm>[d] & T_1  \ar[dl] \ar@<1mm>[dl] \ar@<-1mm>[dl]  \\
+      && A_1 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+      && O}}
+  \]
+  \begin{itemize}
+  \item Need an equality on $T_1$ to allow it to be a set.
+  \item Need to relate $T_1$ to the isos in $A_2$\dots
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{2-categories}
+  \begin{block}{Options}
+    \begin{enumerate}
+    \item Use a ``fat truncated $\Theta$''.
+      \pause
+    \item Use \alert{opetopes} / \alert{multitopes}! \\(Baez--Dolan, Hermida--Makkai--Power)
+    \end{enumerate}
+  \end{block}
+  \[
+  \vcenter{\xymatrix{
+      A_{2,0} \ar[dr]
+      & A_{2,1} \ar@<1mm>[d] \ar@<-1mm>[d]
+      & A_{2,2} \ar@<1mm>[dl] \ar@<-1mm>[dl] \ar[dl]
+      & \cdots \ar@{}[dll]|{\cdots} \\
+      & A_1 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+      & O}}
+  \]
+  \begin{itemize}
+  \item Need equalities $E_{2,n}$, many compositions of different arities.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{$\omega$-categories}
+  \begin{columns}
+    \begin{column}{2cm}
+      \[
+      \vcenter{\xymatrix{
+          & \vdots \ar@<1mm>[d] \ar@<-1mm>[d] \\
+          & A_3 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+          & A_2 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+          & A_1 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+          & O}}
+      \]
+    \end{column}
+    \begin{column}{8cm}
+      \begin{block}{Expectations}
+        \begin{itemize}
+        \item No top-level sorts $\Rightarrow$ no mere relations
+        \item All types are general $\infty$-groupoids
+        \item Need infinite limits to define FOLDS-isos
+          \pause
+        \item FOLDS-isos are \alert{not} coinductive, but downward inductive.
+        \end{itemize}
+      \end{block}
+      What is an equivalence in an $\omega$-category?
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    Thanks!
+  \end{center}
+\end{frame}
+
+\appendix
+
+\section{Appendix: FOLDS-isomorphisms by definition}
 \label{sec:univalent-folds}
 
 \begin{frame}
@@ -495,34 +651,34 @@
   For 1-categories, a FOLDS-equivalence $C \ot F \to D$ is an \alert<1>{ana-equivalence}:
   \begin{itemize}
   \item The objects of $F$ are ``reasons why $F(c) = d$''
-  \item For every $c\in C$, there is some $d\in D$ and some reason why $F(c)=d$.
-  \item For every $d\in D$, there is some $c\in C$ and some reason why $F(c)=d$.
+  \item For every $c\in C$, there is a $d\in D$ and a reason why $F(c)=d$.
+  \item For every $d\in D$, there is a $c\in C$ and a reason why $F(c)=d$.
   \item If $F(c)=d$ and $F(c')=d'$ (with given reasons), then we have an isomorphism $\hom_C(c,c') \toiso \hom_D(d,d')$.
   \item These isomorphisms are functorial.
   \end{itemize}
   \pause
-  Such an equivalence $C \ot F \to C$ is a \alert{version of the identity} if for all $c$, there is some reason why $F(c)=c$.
+  An endo-ana-equivalence $C \ot F \to C$ is a \alert{version of the identity} if for all $c$, there is some reason why $F(c)=c$.
 \end{frame}
 
 \begin{frame}
   \frametitle{FOLDS-isomorphic objects}
   \begin{definition}
-    $x,y:M_C(\dots)$ in a FOLDS-structure $C$ are \alert<1>{FOLDS-isomorphic} if there is a version of the identity $C\ot F \to C$ and a reason why $F(x)=y$.
+    $x,y:M_C(\dots)$ in $C$ are \alert<1>{FOLDS-isomorphic} if there is a version of the identity $C\ot F \to C$ and a reason why $F(x)=y$.
   \end{definition}
   \pause
   \begin{itemize}
-  \item To define univalent FOLDS-structures, we need\\ \alert<2>{the $\infty$-groupoid of} FOLDS-isomorphisms.
-    \pause
-  \item Need a version of the identity that contains \alert<3>{no more information} than an isomorphism $x\cong y$.
+  \item To define univalent FOLDS-structures, we need\\ \alert<2>{the $\infty$-groupoid} $\mathsf{iso}(x,y)$ of FOLDS-isomorphisms.
+  \item Need a version of the identity that contains \alert<2>{no more information} than an isomorphism $x\cong y$.
+  \item Some other time\dots
   \end{itemize}
 \end{frame}
 
-\begin{frame}
-  \frametitle{FOLDS-isomorphisms}
-  Recall $M$ is an object of some simple category $\Sigma$.
-  By Yoneda, $x,y:M_C(\dots)$ induce a canonical span
-  \[ C \xot{x} \hom_\Sigma(M,\blank) \xto{y} C \]
-  TODO\dots
-\end{frame}
+% \begin{frame}
+%   \frametitle{FOLDS-isomorphisms}
+%   Recall $M$ is an object of some simple category $\Sigma$.
+%   By Yoneda, $x,y:M_C(\dots)$ induce a canonical span
+%   \[ C \xot{x} \hom_\Sigma(M,\blank) \xto{y} C \]
+%   TODO\dots
+% \end{frame}
 
 \end{document}
