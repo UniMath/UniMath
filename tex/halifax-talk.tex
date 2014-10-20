@@ -41,7 +41,7 @@
   Well\dots it's not.
   \begin{itemize}
   \item<+-> The category of sets has exactly one initial object, but plenty of \alert<2>{equivalent} categories (e.g.\ $\mathbf{CABA}^{\mathrm{op}}$) have more than one.
-  \item<+-> \structure{A:} That was a dumb theorem.  Every \alert<1>{sensible} statement is invariant under equivalence.
+  \item<+-> \structure{A:} That's stupid.  Every \alert<3>{sensible} statement is invariant under equivalence.
   \item<+-> \structure{Q:} What does ``sensible'' mean?
   \item<+-> \structure{A:} \dots I know it when I see it.
   \end{itemize}
@@ -74,7 +74,7 @@
     \end{center}
   \end{block}
   \begin{block}{Solution}
-    Use a logic of \alert<2>{dependent types}, in which $s(g)=t(f)$ is encoded by what \alert<2>{type of thing} $f$ and $g$ are.
+    Use a logic of {dependent types}, in which $s(g)=t(f)$ is encoded by what {type of thing} $f$ and $g$ are.
   \end{block}
   A category consists of
   \begin{itemize}
@@ -114,10 +114,10 @@
     Every (higher) categorical structure has a natural dependently typed language.
   \end{block}
   \begin{itemize}
-  \item \structure{2-categories:} objects $O$, arrows $A(x,y)$, 2-arrows $W(x,y,f,g)$
+  \item \structure{2-categories:} objects $O$, arrows $A(x,y)$, 2-arrows $W_{x,y}(f,g)$
     \[\xymatrix{x \rtwocell^f_g & y}\]
-  \item \structure{3-categories:} objects $O$, arrows $A(x,y)$, 2-arrows $W(x,y,f,g)$, 3-arrows $H(x,y,f,g,\alpha,\beta)$
-  \item \structure{double categories:} objects $O$, horizontal arrows $H(x,y)$, vertical arrows $V(x,y)$, squares $S(x,y,z,w,f,g,h,k)$
+  \item \structure{3-categories:} objects $O$, arrows $A(x,y)$, 2-arrows $W_{x,y}(f,g)$, 3-arrows $H_{x,y,f,g}(\alpha,\beta)$
+  \item \structure{double categories:} objects $O$, horizontal arrows $H(x,y)$, vertical arrows $V(x,y)$, squares $S_{x,y,z,w}(f,g,h,k)$
     \[\xymatrix@-1pc{x \ar[r]^f \ar[d]_h \drtwocell\omit & y \ar[d]^k \\ z \ar[r]_{g} & w}\]
   \end{itemize}
 \end{frame}
@@ -139,10 +139,10 @@
   \only<2-3>{
   \item \dots $O$, $A$, $T$, $I$, \dots
   \item For any $f:A(x,y)$, and $g:A(y,z)$, there exist $h:A(x,z)$ and $t:T_{x,y,z}(f,g,h)$.
-  \item For any $t_1:T_{x,y,z}(f,g,h_1)$ and $t_2:T_{x,y,z}(f,g,h_2)$, $t_1 = t_2$.
+  \item For any $t_1:T_{x,y,z}(f,g,h_1)$ and $t_2:T_{x,y,z}(f,g,h_2)$, $h_1 = h_2$.
   \item \dots
     \pause\pause
-  \item For any $t_1,t_2:T_{x,y,z}(f,g,h)$, we have $h_1 = h_2$\\ ($T$ is a mere relation).
+  \item For any $t_1,t_2:T_{x,y,z}(f,g,h)$, we have $t_1 = t_2$\\ ($T$ is a mere relation).
   \item For any $x,f$ with $i_1,i_2 : I_x(f)$ we have $i_1=i_2$\\ ($I$ is a mere relation).
   }
   \end{itemize}
@@ -160,7 +160,7 @@
   \item \dots
     \pause
   \item For any $t_1:T_{x,y,z}(f,g,h_1)$ and $t_2:T_{x,y,z}(f,g,h_2)$, we have $e : E_{x,z}(h_1,h_2)$.
-    \pause
+    % \pause
   \item $T$, $I$, and now also $E$ are mere relations.
   \item $E$ is an equivalence relation, and a congruence for $T$ and $I$.
   \end{itemize}
@@ -168,23 +168,28 @@
 
 \begin{frame}
   \frametitle{FOLDS-signatures}
-  We describe a dependent type structure with a \alert{simple category} $\Sigma$.
+  We describe a dependent type structure with a \alert<1>{simple category} $\Sigma$.
   \[
   \vcenter{\xymatrix{
       T \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & I \ar[d] & E \ar@<1mm>[dl] \ar@<-1mm>[dl] \\
       & A \ar@<1mm>[d] \ar@<-1mm>[d] \\
       & O}}
   \]
-  Then a \structure{structure} is a \structure{diagram} on $\Sigma$ (about which we assert the axioms).
-
-  \medskip
+  \pause
+  \begin{itemize}
+  \item A \alert<2>{structure} is a {diagram} $X$ on $\Sigma$.
+  \item The objects $K$ of $\Sigma$ are called \alert<2>{kinds}.
+  \item The \alert<2>{matching object} $M_K X = \lim_{(K\to K') \neq \mathsf{id}} X_{K'}$ of $X$ and $K$ encodes the possible dependencies of $x\in X_K$.
+  \item The fibers of $X_K\to M_K X$ are \alert<2>{types}, e.g.\ $A(a,b)$, $T_{x,y,z}(f,g,h)$.
+  \end{itemize}
+  \pause
   \alert{FOLDS} = \alert{F}irst-\alert{O}rder \alert{L}ogic with \alert{D}ependent \alert{S}orts
 \end{frame}
 
 \begin{frame}[t]
   \frametitle{Equivalences for higher categories}
   \begin{block}{Observation 4 (Makkai 95)}
-    Every (higher-)categorical structure has an intrinsic notion of \alert<1>{equivalence} arising from its dependently typed language.
+    Every (higher) categorical structure has an intrinsic notion of \alert<1>{equivalence} arising from its dependently typed language.
   \end{block}
   \begin{enumerate}
 \only<1>{\item Categories $C$ and $D$ are equivalent iff there is a span
@@ -197,7 +202,7 @@
     \item For each $x,y:O_C$ and $g:A_D(Fx,Fy)$, there exists $f:A_C(x,y)$ such that $F(f)=g$ (\alert<2>{full}).
     \item For $x,y:O_C$ and $f,g:A_C(x,y)$ and $e_D:E_{D,(Fx,Fy)}(Ff,Fg)$, there exists $e_C:E_{C,(x,y)}(f,g)$ such that $Fe_C=e_D$ (\alert<2>{faithful}).
       \only<3->{
-    \item For $x,y,z,f,g,h$ and $t_D:T_{D,(Fx,Fy,Fz)}(Ff,Fg,Fh)$, there exists $t_C:T_{C,(x,y,z)}(f,g,h)$ such that $Ft_C = t_D$ (\alert{preserves composition}).
+    \item For $x,y,z,f,g,h$ and $t_D:T_{D,(Fx,Fy,Fz)}(Ff,Fg,Fh)$, there exists $t_C:T_{C,(x,y,z)}(f,g,h)$ with $Ft_C = t_D$ (\alert{preserves composition}).
     \item For $x,f$ and $i_D:I_{D,Fx}(Ff)$, there exists $i_C:I_{C,x}(f)$ such that $Fi_C = i_D$ (\alert{preserves identities}).
       }
     \end{itemize}}
@@ -207,13 +212,11 @@
 \begin{frame}[t]
   \frametitle{Equivalences for higher categories}
   \begin{block}{Observation 4 (Makkai 95)}
-    Every (higher-)categorical structure has an intrinsic notion of {equivalence} arising from its dependently typed language.
+    Every (higher) categorical structure has an intrinsic notion of {equivalence} arising from its dependently typed language.
   \end{block}
   \begin{enumerate}
-  \item A morphism of FOLDS-structures is \alert<1>{very surjective} if \dots
-  \item Structures $C$ and $D$ are \alert<1>{FOLDS-equivalent} if there is a span
-    \[ C \ot X \to D\]
-    of very-surjective maps.
+  \item A morphism $X\to Y$ of FOLDS-structures is \alert<1>{very surjective} (a.k.a.\ \structure<1>{Reedy surjective} or a \structure<1>{trivial fibration}) if each ``matching map'' $X_K \to Y_K \times_{M_K Y} M_K X$ is surjective.
+  \item Structures $C$ and $D$ are \alert<1>{FOLDS-equivalent} if there is a span \( C \ot X \to D\) of very surjective maps.
   \end{enumerate}
   \pause
   \begin{theorem}[Makkai 95]
@@ -230,7 +233,7 @@
     \item Really just the language we usually use anyway.
     \end{itemize}
   \end{block}
-  \pause
+  % \pause
   \begin{block}{Cons}
     \begin{itemize}
     \item The ``mere relations'' ($T$, $I$, $E$) play a curiously special role.
@@ -262,11 +265,12 @@
 
 \begin{frame}
   \frametitle{Saturating categories}
-  From any category $C$, its \alert<1>{saturation} is an internal category $\Chat = (A\toto O)$ in groupoids:
+  For any category $C$, its \alert<1>{saturation} is an internal category $\Chat = (A\toto O)$ in groupoids:
   \begin{itemize}
   \item $O$ is the groupoid of objects of $C$ and isomorphisms in $C$.
   \item $A$ is the groupoid of morphisms of $C$ and their isomorphisms (commutative squares).
   \end{itemize}
+  Equivalently, $\Chat$ is the double category of objects, morphisms, isomorphisms, and commutative squares in $C$.
   \pause
   \begin{block}{Fact}
     $C\to D$ is an equivalence iff $\Chat \to \Dhat$ is an \alert{equivalence on underlying groupoids} (i.e.\ $O_{\chat} \to O_{\Dhat}$ and $A_{\Chat} \to A_{\Dhat}$ are equivalences).
@@ -281,7 +285,7 @@
     \item The map $A\to O\times O$ is a discrete fibration, and
     \item The canonical map
     \[ \hom_O(x,y) \to \mathsf{iso}(x,y) \]
-    is an isomorphism for all $x,y\in O$.
+    is an isomorphism for all $x,y\in \mathsf{ob}(O)$.
     \end{enumerate}
   \end{theorem}
   \begin{itemize}
@@ -311,8 +315,12 @@
 
 \begin{frame}
   \frametitle{Univalent FOLDS}
-  Consider FOLDS-structures in $\infty$-groupoids, i.e.\ each $O$, $A$, $T$, etc.\ is an $\infty$-groupoid.
-  We also require each ``dependency-assigning map'', e.g.\ $A \to O\times O$ or $E\to A\times_{O\times O} A$, to be a fibration.
+  Consider ``Reedy fibrant'' FOLDS-structures in $\infty$-groupoids.
+  \begin{itemize}
+  \item Each $O$, $A$, $T$, etc.\ is an $\infty$-groupoid.
+  \item Each ``dependency-assigning map'' $K\to M_K$ is a fibration.\\
+    (E.g.\ $A \to O\times O$ or $E\to A\times_{O\times O} A$)
+  \end{itemize}
   \begin{theorem}[in progress]
     There is a notion of \alert{univalence} for FOLDS-structures in $\infty$-groupoids, such that
     \begin{enumerate}
@@ -337,14 +345,14 @@
 \begin{frame}
   \frametitle{Univalent FOLDS-structures}
   \begin{definition}
-    A FOLDS-structure in $\infty$-groupoids is \alert<1>{univalent} if for every type $M$ in its signature and every $x,y:M(\dots)$, the canonical map
-    \[ \hom_M(x,y) \to \mathsf{iso}(x,y) \]
+    A FOLDS-structure in $\infty$-groupoids is \alert<1>{univalent} if for every kind $K$, $\vec{k}\in M_K$, and $a,b:K(\vec{k})$, the canonical map
+    \[ \hom_{K(\vec{k})}(a,b) \to \mathsf{iso}(a,b) \]
     is an equivalence.
   \end{definition}
   \pause
   \begin{itemize}
-  \item $\hom_M(x,y)=$ the $\infty$-groupoid of maps in the fiber of the $\infty$-groupoid $M$ over $(\dots)$.
-  \item $\mathsf{iso}(x,y)=$ the $\infty$-groupoid of \alert{FOLDS-isomorphisms} $x$ to $y$.
+  \item $\hom_{K(\vec{k})}(a,b)=$ the $\infty$-groupoid of maps in the fiber of the $\infty$-groupoid $K$ over $\vec{k} \in M_K$.
+  \item $\mathsf{iso}(a,b)=$ the $\infty$-groupoid of \alert{FOLDS-isomorphisms} $a$ to $b$.
   \end{itemize}
   What is a FOLDS-isomorphism?
 \end{frame}
@@ -352,7 +360,7 @@
 \begin{frame}[t]
   \frametitle{FOLDS-isomorphisms for categories}
   \begin{block}{Idea}
-    A FOLDS-isomorphism between $x,y:M_C(\dots)$ in a structure $C$ is\\\alert<1>{a coherent set of equivalences replacing $x$ by $y$ in the types of anything in $C$ that depends on one or more elements of $M$}.
+    A FOLDS-isomorphism between $a,b:K(\vec{k})$ is\\\alert<1>{a coherent set of equivalences replacing $a$ by $b$ in the types of anything in $C$ that depends on one or more elements of $K$}.
   \end{block}
   \pause
   \begin{example}
@@ -393,7 +401,7 @@
     \only<4>{The $\phi_{x\bullet}$ and $\phi_{\bullet x}$ arise from the same iso $a\cong b$.}
     \only<5>{$\phi_{\bullet\bullet}$ is conjugation by this iso.\\
       (Any one of these ensures this, and the others follow.)}
-    \only<6>{The rest are automatic.}
+    \only<6>{The rest are then automatic.}
   \end{center}
 \end{frame}
 
@@ -420,8 +428,8 @@
   \end{block}
   \begin{block}{But}
     \begin{enumerate}
-    \item To be consistent, we must apply that condition at the other types too: $A$, $T$, $I$, $E$.
-    \item There is also the first condition ($A\to O\times O$ is a discrete fibration).
+    \item To be consistent, we must apply that condition at the other kinds too: $A$, $T$, $I$, $E$.
+    \item Also need the first condition: $A\to O\times O$ is a discrete fibration.
     \end{enumerate}
   \end{block}
   Fortunately, these two difficulties resolve each other.
@@ -457,16 +465,15 @@
   \begin{itemize}
   \item $E_{x,y}(f,g)$.
   \end{itemize}
-  \pause
+  % \pause
   Since $E$ is a congruence for $T$ and $I$, this implies everything else.
   So \alert{a FOLDS-iso between $f,g:A(x,y)$ is the assertion $E_{x,y}(f,g)$.}
   \begin{block}{Thus}
     Univalence at $A$ means that the fibers of $A\to O\times O$ are discrete sets and their equality is $E$.
   \end{block}
-  \pause
-  \begin{block}{Note}
+  % \pause
+  \structure{Note:}
     Similarly, univalence at $O$ also ensures that $O$ is a 1-groupoid, even if \textit{a priori} it was an $\infty$-groupoid.
-  \end{block}
 \end{frame}
 
 \begin{frame}
@@ -474,7 +481,8 @@
   \begin{block}{In conclusion}
     A FOLDS-category in $\infty$-groupoids satisfies the univalence condition at all types if and only if it is a univalent 1-category in groupoids, hence of the form $\Chat$ for some ordinary category $C$.
   \end{block}
-  \pause
+  \vspace{1cm}
+  % \pause
   Is it sensible in other examples?
 \end{frame}
 
@@ -491,8 +499,8 @@
   \]}
   \pause
   \begin{itemize}
-  \item Now a FOLDS-isomorphism between $x,y:O$ is a \alert<2>{unitary isomorphism} $f:x\toiso y$, i.e.\ one satisfying $f^{-1} = f^\dagger$.
-    \pause
+  \item Now a FOLDS-isomorphism between $x,y:O$ is a \alert{unitary isomorphism} $f:x\toiso y$, i.e.\ one satisfying $f^{-1} = f^\dagger$.
+    % \pause
   \item In a univalent $\dagger$-category, $O$ is the groupoid of objects and unitary isomorphisms.
   \item FOLDS-equivalences (which are underlying equivalences of univalent $\dagger$-categories) are \alert{$\dagger$-equivalences}, involving unitary natural isomorphisms.
   \end{itemize}
@@ -514,12 +522,17 @@
 
 \begin{frame}[t]
   \frametitle{2-categories}
+  What about 2-categories?
   \[
   \vcenter{\xymatrix{
-      T_2 \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & I_2 \ar[d] & E_2 \ar@<1mm>[dl] \ar@<-1mm>[dl] \\
-      & A_2 \ar@<1mm>[d] \ar@<-1mm>[d] \\
-      & A_1 \ar@<1mm>[d] \ar@<-1mm>[d] \\
-      & O}}
+      I_2 \ar[drr] & T_2 \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & E_2 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+      && A_2 \ar@<1mm>[d] \ar@<-1mm>[d]\\
+      && A_1 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+      && O}}
+      % T_2 \ar[dr] \ar@<1mm>[dr] \ar@<-1mm>[dr] & I_2 \ar[d] & E_2 \ar@<1mm>[dl] \ar@<-1mm>[dl] \\
+      % & A_2 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+      % & A_1 \ar@<1mm>[d] \ar@<-1mm>[d] \\
+      % & O}}
   \]
 \end{frame}
 
@@ -574,9 +587,9 @@
   \frametitle{2-categories}
   \begin{block}{Options}
     \begin{enumerate}
-    \item Use a ``fat truncated $\Theta$''.
+    \item Use a ``fat truncated $\Theta$''.  Need an extra \alert<1>{saturation} condition.
       \pause
-    \item Use \alert{opetopes} / \alert{multitopes}! \\(Baez--Dolan, Hermida--Makkai--Power)
+    \item Use \alert{opetopes} / \alert{multitopes} \\(Baez--Dolan, Hermida--Makkai--Power).
     \end{enumerate}
   \end{block}
   \[
@@ -595,6 +608,7 @@
 
 \begin{frame}
   \frametitle{$\omega$-categories}
+  What about $\omega$-categories?
   \begin{columns}
     \begin{column}{2cm}
       \[
@@ -634,8 +648,11 @@
 
 \begin{frame}
   \frametitle{Versions of the identity}
-  \begin{block}{Idea}
-    $x,y:M_C(\dots)$ in a FOLDS-structure $C$ are \alert<1>{FOLDS-isomorphic} if\\ \only<1>{there is a FOLDS-equivalence $C\simeq C$ taking $x$ to $y$.}\only<2>{the \alert<2>{identity} FOLDS-equivalence $C \simeq C$ takes $x$ to $y$.}\only<3->{the identity FOLDS-equivalence $C \simeq C$ \alert<3>{could} take $x$ to $y$.}
+  \begin{block}{\only<1-2>{Wrong }\only<3->{Right }Idea}
+    $a,b:K(\vec{k})$ in $C$ are \alert<1>{FOLDS-isomorphic} if
+    \begin{itemize}
+    \item \only<1>{there is a FOLDS-equivalence $C\simeq C$ taking $a$ to $b$.}\only<2>{the \alert<2>{identity} FOLDS-equivalence $C \simeq C$ takes $a$ to $b$.}\only<3->{the identity FOLDS-equivalence $C \simeq C$ \alert<3>{could} take $a$ to $b$.}
+    \end{itemize}
   \end{block}
   \pause\pause\pause
   \begin{definition}
@@ -648,37 +665,47 @@
 
 \begin{frame}
   \frametitle{Ana-equivalences of categories}
-  For 1-categories, a FOLDS-equivalence $C \ot F \to D$ is an \alert<1>{ana-equivalence}:
-  \begin{itemize}
-  \item The objects of $F$ are ``reasons why $F(c) = d$''
-  \item For every $c\in C$, there is a $d\in D$ and a reason why $F(c)=d$.
-  \item For every $d\in D$, there is a $c\in C$ and a reason why $F(c)=d$.
-  \item If $F(c)=d$ and $F(c')=d'$ (with given reasons), then we have an isomorphism $\hom_C(c,c') \toiso \hom_D(d,d')$.
-  \item These isomorphisms are functorial.
-  \end{itemize}
-  \pause
-  An endo-ana-equivalence $C \ot F \to C$ is a \alert{version of the identity} if for all $c$, there is some reason why $F(c)=c$.
+  \begin{example}
+    For 1-categories, a FOLDS-equivalence $C \ot F \to D$ is an \alert<1>{ana-equivalence}:
+    \begin{itemize}
+    \item The objects of $F$ are ``reasons why $F(c) = d$''
+    \item For every $c\in C$, there is a $d\in D$ and a reason why $F(c)=d$.
+    \item For every $d\in D$, there is a $c\in C$ and a reason why $F(c)=d$.
+    \item If $F(c)=d$ and $F(c')=d'$ (with given reasons), then we have an isomorphism $\hom_C(c,c') \toiso \hom_D(d,d')$.
+    \item These isomorphisms are functorial.
+    \end{itemize}
+  \end{example}
+  An endo-ana-equivalence $C \ot F \to C$ is a \structure{version of the identity} if for all $c$, there is some reason why $F(c)=c$.
 \end{frame}
 
 \begin{frame}
   \frametitle{FOLDS-isomorphic objects}
-  \begin{definition}
-    $x,y:M_C(\dots)$ in $C$ are \alert<1>{FOLDS-isomorphic} if there is a version of the identity $C\ot F \to C$ and a reason why $F(x)=y$.
+  \begin{definition}[Makkai]
+    $a,b:K(\vec{k})$ in $C$ are \alert<1>{FOLDS-isomorphic} if they are related by some version of the identity.
+    \[ \xymatrix{ &C \ar[d] \ar@{=}[dl] \ar@{=}[dr] \\ C & F \ar[l] \ar[r] & C }
+    \qquad
+    \xymatrix{ &\hom_\Sigma(K,-) \ar[d] \ar[dl]_a \ar[dr]^b \\ C & F \ar[l] \ar[r] & C }
+    \]
   \end{definition}
   \pause
   \begin{itemize}
-  \item To define univalent FOLDS-structures, we need\\ \alert<2>{the $\infty$-groupoid} $\mathsf{iso}(x,y)$ of FOLDS-isomorphisms.
-  \item Need a version of the identity that contains \alert<2>{no more information} than an isomorphism $x\cong y$.
-  \item Some other time\dots
+  \item For univalent FOLDS-structures, need \alert<2>{the $\infty$-groupoid} $\mathsf{iso}(a,b)$ of FOLDS-isomorphisms.
+  \item Need a version of the identity that contains \alert<2>{no more information} than an isomorphism $a\cong b$.
   \end{itemize}
 \end{frame}
 
-% \begin{frame}
-%   \frametitle{FOLDS-isomorphisms}
-%   Recall $M$ is an object of some simple category $\Sigma$.
-%   By Yoneda, $x,y:M_C(\dots)$ induce a canonical span
-%   \[ C \xot{x} \hom_\Sigma(M,\blank) \xto{y} C \]
-%   TODO\dots
-% \end{frame}
+\begin{frame}
+  \frametitle{FOLDS-isomorphisms}
+  There is a canonical span with a common section relating $a$ to $b$:
+  \[ C \xot{[\mathsf{id},a]} \;C \sqcup \hom_\Sigma(K,\blank)\; \xto{[\mathsf{id},b]} C \]
+  But the legs may not be very surjective.
+  \begin{definition}
+    A \alert{FOLDS-isomorphism} from $a$ to $b$ is a version of the identity $C\ot F \to C$ such that
+    \begin{enumerate}
+    \item If $L\le K$, then $F_L$ is the above canonical span.
+    \item Otherwise, $C_L \times_{M_L C} M_L F \otiso F_L \toiso C_L \times_{M_L C} M_L F$ are equivalences.
+    \end{enumerate}
+  \end{definition}
+\end{frame}
 
 \end{document}
