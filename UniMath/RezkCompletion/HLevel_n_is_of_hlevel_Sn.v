@@ -12,13 +12,11 @@
 *)
 
 Require Import Foundations.hlevel1.hProp.
+Import PathNotations.
 Require Import Foundations.Proof_of_Extensionality.funextfun.
 
 Require Import RezkCompletion.auxiliary_lemmas_HoTT. 
 
-(** As before, we use an infix notation for the path space. *)
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 
 
 (** ** Weak equivalence between identity types in [HLevel] and [U] *)
@@ -40,8 +38,8 @@ Import RezkCompletion.pathnotations.PathNotations.
 *)
 
 Lemma weq1  (P : UU -> hProp) (X X' : UU) (pX : P X) (pX' : P X') : 
-   weq (tpair _ X pX == tpair (fun x => P x) X' pX')
-       (total2 (fun w : X == X' => transportf (fun x => P x) w pX == pX')).
+   weq (tpair _ X pX = tpair (fun x => P x) X' pX')
+       (total2 (fun w : X = X' => transportf (fun x => P x) w pX = pX')).
 Proof.
   apply total_paths_equiv.
 Defined.
@@ -52,8 +50,8 @@ Defined.
 *)
 
 Lemma ident_is_prop : forall (P : UU -> hProp) (X X' : UU)
-      (pX : P X) (pX' : P X') (w : X == X'),
-   isaprop (transportf (fun X => P X) w pX == pX').
+      (pX : P X) (pX' : P X') (w : X = X'),
+   isaprop (transportf (fun X => P X) w pX = pX').
 Proof.
   intros P X X' pX pX' w.
   apply isapropifcontr.
@@ -70,15 +68,15 @@ Defined.
 
 Lemma weq2 (P : UU -> hProp) (X X' : UU) 
       (pX : P X) (pX' : P X') :
-  weq (total2 (fun w : X == X' => 
-              transportf (fun x => P x) w pX == pX'))
-      (X == X').
+  weq (total2 (fun w : X = X' => 
+              transportf (fun x => P x) w pX = pX'))
+      (X = X').
 Proof.
-  exists (@pr1 (X == X') (fun w : X == X' => 
-            (transportf (fun x : UU => P x) w pX)  == pX' )).
+  exists (@pr1 (X = X') (fun w : X = X' => 
+            (transportf (fun x : UU => P x) w pX)  = pX' )).
   set (H' := isweqpr1_UU X X'
-        (fun w : X == X' => 
-      (transportf (fun X => P X) w pX == pX') )).
+        (fun w : X = X' => 
+      (transportf (fun X => P X) w pX = pX') )).
   simpl in H'.
   apply H'.
   intro z.
@@ -91,7 +89,7 @@ Defined.
 
 Lemma Id_p_weq_Id (P : UU -> hProp) (X X' : UU) 
       (pX : P X) (pX' : P X') : 
- weq ((tpair _ X pX) == (tpair (fun x => P x) X' pX')) (X == X').
+ weq ((tpair _ X pX) = (tpair (fun x => P x) X' pX')) (X = X').
 Proof.
   set (f := weq1 P X X' pX pX').
   set (g := weq2 P X X' pX pX').
@@ -103,15 +101,15 @@ Defined.
 (** ** Hlevel of path spaces *)
 
 (**  We show that if [X] and [X'] are of hlevel [n], then so is their 
-      identity type [X == X'].
+      identity type [X = X'].
 *)
-(** The proof works differently for [n == 0] and [n == S n'],
+(** The proof works differently for [n = 0] and [n = S n'],
     so we treat these two cases in separate lemmas 
     [isofhlevel0pathspace] and [isofhlevelSnpathspace] and put them
     together in the lemma [isofhlevelpathspace].
 *)
 
-(** *** The case [n == 0] *)
+(** *** The case [n = 0] *)
 
 Lemma isofhlevel0weq (X Y : UU) :
     iscontr X -> iscontr Y -> weq X Y.
@@ -124,14 +122,14 @@ Defined.
 
 
 Lemma isofhlevel0pathspace (X Y : UU) :
-    iscontr X -> iscontr Y -> iscontr (X == Y).
+    iscontr X -> iscontr Y -> iscontr (X = Y).
 Proof.
   intros pX pY.
   set (H := isofhlevelweqb 0 (tpair _ _ (univalenceaxiom X Y))).
   apply H.
   exists (isofhlevel0weq _ _ pX pY ).
   intro f.
-  assert (H' : pr1 f == pr1 (isofhlevel0weq X Y pX pY)).
+  assert (H' : pr1 f = pr1 (isofhlevel0weq X Y pX pY)).
     apply funextfun.
     simpl. intro x. 
     apply (pr2 pY).
@@ -142,10 +140,10 @@ Defined.
 
 
 
-(** *** The case [n == S n'] *)
+(** *** The case [n = S n'] *)
 
 Lemma isofhlevelSnpathspace : forall n : nat, forall X Y : UU,
-      isofhlevel (S n) Y -> isofhlevel (S n) (X == Y).
+      isofhlevel (S n) Y -> isofhlevel (S n) (X = Y).
 Proof.
   intros n X Y pY.
   set (H:=isofhlevelweqb (S n) (tpair _ _ (univalenceaxiom X Y))).
@@ -164,7 +162,7 @@ Defined.
 (** ** The lemma itself *)
 
 Lemma isofhlevelpathspace : forall n : nat, forall X Y : UU,
-      isofhlevel n X -> isofhlevel n Y -> isofhlevel n (X == Y).
+      isofhlevel n X -> isofhlevel n Y -> isofhlevel n (X = Y).
 Proof.
   intros n.
   case n.
@@ -212,7 +210,7 @@ Defined.
 
 Lemma UA_for_Predicates (P : UU -> hProp) (X X' : UU)
      (pX : P X) (pX' : P X') :
-  weq ((tpair _ X pX) == (tpair (fun x => P x) X' pX')) (weq X X').
+  weq ((tpair _ X pX) = (tpair (fun x => P x) X' pX')) (weq X X').
 Proof.
   set (f := Id_p_weq_Id P X X' pX pX').
   set (g := tpair _ _ (univalenceaxiom X X')).
@@ -221,7 +219,7 @@ Defined.
 
 Corollary UA_for_HLevels : forall (n : nat)
       (X X' : HLevel n), 
-     weq (X == X') (weq (pr1 X) (pr1 X')).
+     weq (X = X') (weq (pr1 X) (pr1 X')).
 Proof.
   intros n [X pX] [X' pX'].
   simpl.

@@ -3,7 +3,7 @@
 Require Import RezkCompletion.precategories
                Foundations.hlevel2.hSet.
 Require Ktheory.Utilities Ktheory.Precategories.
-Import RezkCompletion.pathnotations.PathNotations
+Import uu0.PathNotations
        Utilities.Notation
        Precategories.Notation.
 Definition compose' { C:precategory_data } { a b c:ob C }
@@ -13,7 +13,7 @@ Proof. intros. exact (compose f g). Defined.
 (** *** the path groupoid *)
 
 Definition is_groupoid (C : precategory) := 
-  forall a b : ob C, isweq (fun p : a == b => idtomor a b p).
+  forall a b : ob C, isweq (fun p : a = b => idtomor a b p).
 Lemma isaprop_is_groupoid (C : precategory) : isaprop (is_groupoid C).
 Proof. intro. apply impred.
   intro a. apply impred. intro b. apply isapropisweq. Qed.
@@ -44,7 +44,7 @@ Defined.
 Lemma is_groupoid_path_pregroupoid (X:UU) (iobj:isofhlevel 3 X) :
   is_groupoid (path_pregroupoid X iobj).
 Proof. intros ? ? a b.
-  assert (k : idfun (a == b) ~ idtomor a b). { intro p. destruct p. reflexivity. }
+  assert (k : idfun (a = b) ~ idtomor a b). { intro p. destruct p. reflexivity. }
   apply (isweqhomot _ _ k). apply idisweq. Qed.
 Lemma is_category_path_pregroupoid (X:UU) (i:isofhlevel 3 X) :
   is_category (path_pregroupoid X i).

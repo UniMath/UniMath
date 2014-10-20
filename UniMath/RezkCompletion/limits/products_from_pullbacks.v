@@ -1,11 +1,9 @@
 Require Import Foundations.Generalities.uuu.
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
@@ -27,8 +25,8 @@ Variable T : Terminal C.
 Definition UnivProductFromPullback (c d a : C) (f : a --> c) (g : a --> d):
 total2
      (fun fg : a --> Pb T c d (TerminalArrow c) (TerminalArrow d) =>
-      dirprod (fg;; PullbackPr1 C (Pb T c d (TerminalArrow c) (TerminalArrow d)) == f)
-        (fg;; PullbackPr2 C (Pb T c d (TerminalArrow c) (TerminalArrow d)) == g)).
+      dirprod (fg;; PullbackPr1 C (Pb T c d (TerminalArrow c) (TerminalArrow d)) = f)
+        (fg;; PullbackPr2 C (Pb T c d (TerminalArrow c) (TerminalArrow d)) = g)).
 Proof.
   unfold Pullbacks in Pb.
   exists (PullbackArrow _ (Pb _ _ _ (TerminalArrow c)(TerminalArrow d)) _ f g

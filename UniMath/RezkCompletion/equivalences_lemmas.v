@@ -24,11 +24,9 @@ Contents :  Definition of adjunction
 
 
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
-
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
@@ -55,16 +53,14 @@ Let G : functor B A := right_adjoint (pr1 H).
 Let eta := eta_pointwise_iso_from_equivalence H.
 Let eps := eps_pointwise_iso_from_equivalence H.
 
-Check eta.
-
 Definition inverse {a b} (g : F a --> F b) : a --> b := 
    eta a ;;  #G g ;; inv_from_iso (eta b).
 
 Lemma inverse_is_inverse_1 a b (f : a --> b) : 
-    inverse (#F f) == f.
+    inverse (#F f) = f.
 Proof.
   unfold inverse.
-  set (H' := nat_trans_ax _ _ (eta_from_left_adjoint (pr1 H))).
+  set (H' := nat_trans_ax  (eta_from_left_adjoint (pr1 H))).
   simpl in H'; rewrite <- H'; clear H'; simpl in *.
   rewrite <- assoc.
   transitivity (f ;; identity _ ).
@@ -76,10 +72,10 @@ Proof.
 Qed.
 
 Lemma triangle_id_inverse (a : A): 
-   iso_inv_from_iso (functor_on_iso _ _ F _ _ (eta a)) == eps (F a).
+   iso_inv_from_iso (functor_on_iso _ _ F _ _ (eta a)) = eps (F a).
 Proof.
   apply eq_iso. simpl.
-  match goal with | [  |- ?x == ?y ] => transitivity (x ;; identity _ )end.
+  match goal with | [  |- ?x = ?y ] => transitivity (x ;; identity _ )end.
   apply pathsinv0, id_right.
   apply iso_inv_on_right.
   set (H':=triangle_id_left_ad _ _ _ (pr1 H) a).
@@ -88,14 +84,14 @@ Proof.
 Qed.
 
 Lemma triangle_id_inverse' (a : A): 
-   inv_from_iso (functor_on_iso _ _ F _ _ (eta a)) == eps (F a).
+   inv_from_iso (functor_on_iso _ _ F _ _ (eta a)) = eps (F a).
 Proof.
   apply (base_paths _ _ (triangle_id_inverse a)).
 Qed.
 
 
 Lemma inverse_is_inverse_2 a b (g : F a --> F b) : 
-    #F (inverse g) == g.
+    #F (inverse g) = g.
 Proof.
   unfold inverse.
   repeat rewrite functor_comp.
@@ -103,12 +99,12 @@ Proof.
   simpl.
   rewrite triangle_id_inverse'.
   rewrite <- assoc.
-  set (H':=nat_trans_ax _ _ (eps_from_left_adjoint (pr1 H))).
+  set (H':=nat_trans_ax  (eps_from_left_adjoint (pr1 H))).
   simpl in H'; rewrite H'; clear H'.
   rewrite assoc.  
   set (H' := pathsinv0 (triangle_id_left_ad _ _ _ (pr1 H) a)).
-  match goal with | [ |- ?f ;; ?g == ?h ] => 
-        assert (H'' : identity _ == f) end.
+  match goal with | [ |- ?f ;; ?g = ?h ] => 
+        assert (H'' : identity _ = f) end.
   - simpl in *; apply H'.
   - rewrite <- H''. rewrite id_left. apply idpath.
 Qed. 

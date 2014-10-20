@@ -7,7 +7,7 @@ Require Import RezkCompletion.precategories
                RezkCompletion.functors_transformations
                .
 Require Import Foundations.hlevel2.hSet.
-Import RezkCompletion.pathnotations.PathNotations
+Import PathNotations
        Ktheory.Utilities.Notation.
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := tpair _ C i.
@@ -84,10 +84,10 @@ Definition makePrecategory
     (imor : forall i j, isaset (mor i j))
     (identity : forall i, mor i i)
     (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
-    (right : forall i j (f:mor i j), compose _ _ _ (identity i) f == f)
-    (left  : forall i j (f:mor i j), compose _ _ _ f (identity j) == f)
+    (right : forall i j (f:mor i j), compose _ _ _ (identity i) f = f)
+    (left  : forall i j (f:mor i j), compose _ _ _ f (identity j) = f)
     (associativity : forall a b c d (f:mor a b) (g:mor b c) (h:mor c d),
-        compose _ _ _ f (compose _ _ _ g h) == compose _ _ _ (compose _ _ _ f g) h)
+        compose _ _ _ f (compose _ _ _ g h) = compose _ _ _ (compose _ _ _ f g) h)
     : precategory.
   intros.
   apply (precategory_pair 
@@ -100,17 +100,17 @@ Definition makePrecategory
 
 (** *** opposite category of opposite category *)
 
-Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C == opp_precat_ob_mor (opp_precat_ob_mor C).
+Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
 Proof. intros [ob mor]. reflexivity. Defined.
 
 Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
-  idpath _ == maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
+  idpath _ = maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
 Proof. intros [ob mor]. reflexivity. Defined.
 
 Lemma opp_opp_precat_data (C : precategory_data) 
-   : C == opp_precat_data (opp_precat_data C).
+   : C = opp_precat_data (opp_precat_data C).
 Proof. intros [[ob mor] [id co]]. reflexivity. Defined.
 
-Lemma opp_opp_precat (C : precategory) : C == C^op^op.
+Lemma opp_opp_precat (C : precategory) : C = C^op^op.
 Proof. intros [data ispre]. apply (pair_path_props (opp_opp_precat_data data)).
        apply isaprop_is_precategory. Defined.

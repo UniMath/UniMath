@@ -7,10 +7,10 @@ Require Export RezkCompletion.precategories
 Require Export Ktheory.Precategories.
 Export Utilities.Notation
        Precategories.Notation
-       pathnotations.PathNotations.
+       uu0.PathNotations.
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
   intros. exists (total2 (fun c : ob C => set_to_type (X c))).
-  intros a b. exists (total2 (fun f : pr1 a → pr1 b => #X f (pr2 a) == (pr2 b))).
+  intros a b. exists (total2 (fun f : pr1 a → pr1 b => #X f (pr2 a) = (pr2 b))).
   abstract (
         intros; apply (isofhleveltotal2 2);
         [ apply setproperty |
@@ -26,9 +26,9 @@ Definition cat_data {C} (X:C==>SET) : precategory_data.
             @ (ap (#X (pr1 g)) (pr2 f) @ (pr2 g)))). } Defined.
 Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr1 f.
 Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x → y) :
-      get_mor f == get_mor g -> f == g.
+      get_mor f = get_mor g -> f = g.
 Proof. intros ? ? ? ? [f i] [g j] p. simpl in p. destruct p.
-       assert (k : i==j). { apply equality_proof_irrelevance. }
+       assert (k : i=j). { apply equality_proof_irrelevance. }
        destruct k. reflexivity. Qed.
 Lemma isPrecategory {C} (X:C==>SET) : is_precategory (cat_data X).
 Proof. intros. split.
@@ -45,7 +45,7 @@ Definition make_ob {C} (X:C==>SET) (c:ob C) (x:set_to_type (X c)) : ob (cat X)
   := (c,,x).
 Definition make_mor {C} (X:C==>SET) (r s : ob (cat X)) 
            (f : Hom (pr1 r) (pr1 s))
-           (i : #X f (pr2 r) == pr2 s) : Hom r s
+           (i : #X f (pr2 r) = pr2 s) : Hom r s
   := (f,,i).
 
 (** *** functoriality of the construction of the category of elements *)
@@ -81,7 +81,7 @@ Module pr1.
     split. { reflexivity. } { reflexivity. } Defined.
   Lemma func_reflects_isos {C} (X:C==>SET) : Precategories.reflects_isos (func X).
   Proof. intros ? ? [c x] [d y] [f i] [f' j].
-    assert (i' : #X f' y == x).
+    assert (i' : #X f' y = x).
     { intermediate_path (#X f' (#X f x)).
       { exact (ap (#X f') (!i)). }
       { intermediate_path (#X (f' ∘ f) x).

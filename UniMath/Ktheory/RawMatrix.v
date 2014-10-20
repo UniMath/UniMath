@@ -11,7 +11,7 @@ Require Import
         RezkCompletion.functors_transformations
         Ktheory.Utilities.
 Require Ktheory.Precategories Ktheory.Sum Ktheory.Product.
-Import RezkCompletion.pathnotations.PathNotations Utilities.Notation Precategories.Notation.
+Import uu0.PathNotations Utilities.Notation Precategories.Notation.
 Import Sum.Coercions Product.Coercions.
 Definition to_row {C:precategory} {I} {b:I -> ob C} 
            (B:Sum.type C b) {d:ob C} :
@@ -23,7 +23,7 @@ Definition from_row {C:precategory} {I} {b:I -> ob C}
 Proof. intros. apply invweq. apply to_row. Defined.
 Lemma from_row_entry {C:precategory} {I} {b:I -> ob C} 
            (B:Sum.type C b) {d:ob C} (f : forall j, Hom (b j) d) :
-  forall j, from_row B f ∘ Sum.In B j == f j.
+  forall j, from_row B f ∘ Sum.In B j = f j.
 Proof. intros. exact (apevalat j (homotweqinvweq (to_row B) f)). Qed.
 Definition to_col {C:precategory} {I} {d:I -> ob C} (D:Product.type C d) {b:ob C} :
   weq (Hom b D) (forall i, Hom b (d i)).
@@ -34,7 +34,7 @@ Definition from_col {C:precategory} {I} {d:I -> ob C}
 Proof. intros. apply invweq. apply to_col. Defined.
 Lemma from_col_entry {C:precategory} {I} {b:I -> ob C} 
            (D:Product.type C b) {d:ob C} (f : forall i, Hom d (b i)) :
-  forall i, Product.Proj D i ∘ from_col D f == f i.
+  forall i, Product.Proj D i ∘ from_col D f = f i.
 Proof. intros. exact (apevalat i (homotweqinvweq (to_row D) f)). Qed.
 Definition to_matrix {C:precategory} 
            {I} {d:I -> ob C} (D:Product.type C d)
@@ -51,11 +51,11 @@ Lemma from_matrix_entry {C:precategory}
            {I} {d:I -> ob C} (D:Product.type C d)
            {J} {b:J -> ob C} (B:Sum.type C b)
            (f : forall i j, Hom (b j) (d i)) :
-  forall i j, (Product.Proj D i ∘ from_matrix D B f) ∘ Sum.In B j == f i j.
+  forall i j, (Product.Proj D i ∘ from_matrix D B f) ∘ Sum.In B j = f i j.
 Proof. intros. exact (apevalat j (apevalat i (homotweqinvweq (to_matrix D B) f))). Qed.
 Lemma from_matrix_entry_assoc {C:precategory} 
            {I} {d:I -> ob C} (D:Product.type C d)
            {J} {b:J -> ob C} (B:Sum.type C b)
            (f : forall i j, Hom (b j) (d i)) :
-  forall i j, Product.Proj D i ∘ (from_matrix D B f ∘ Sum.In B j) == f i j.
+  forall i j, Product.Proj D i ∘ (from_matrix D B f ∘ Sum.In B j) = f i j.
 Proof. intros. refine ( !_ @ from_matrix_entry D B f i j ). apply assoc. Qed.

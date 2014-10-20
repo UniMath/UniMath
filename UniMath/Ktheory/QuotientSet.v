@@ -3,25 +3,25 @@
 Require Import 
         Foundations.hlevel2.hSet
         Ktheory.Utilities.
-Import RezkCompletion.pathnotations.PathNotations.
+Import uu0.PathNotations.
 Import Utilities.Notation.
 Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
            (f:X->Y->Z) : Type
-  := (forall x x', RX x x' -> forall y, f x y == f x' y) **
-     (forall y y', RY y y' -> forall x, f x y == f x y').
+  := (forall x x', RX x x' -> forall y, f x y = f x' y) **
+     (forall y y', RY y y' -> forall x, f x y = f x y').
 Definition iscomprelrelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y) (RZ:eqrel Z) 
            (f:X->Y->Z) : Type
   := (forall x x' y, RX x x' -> RZ (f x y) (f x' y)) **
      (forall x y y', RY y y' -> RZ (f x y) (f x y')).
 Lemma setquotuniv_equal { X : UU } ( R : hrel X ) ( Y : hSet ) 
-      ( f f' : X -> Y ) (p : f == f')
+      ( f f' : X -> Y ) (p : f = f')
       ( is : iscomprelfun R f ) ( is' : iscomprelfun R f' )
-: setquotuniv R Y f is == setquotuniv R Y f' is'.
+: setquotuniv R Y f is = setquotuniv R Y f' is'.
 Proof. intros. destruct p. apply funextsec; intro c.
        assert(ip : isaprop (iscomprelfun R f)). { 
          apply impred; intro x; apply impred; intro x'.
          apply impred; intro p. apply setproperty. }
-       assert( q : is == is' ). { apply ip. }
+       assert( q : is = is' ). { apply ip. }
        destruct q. reflexivity. Qed.
 Definition setquotuniv2 {X Y} (RX:hrel X) (RY:hrel Y) 
            {Z:hSet} (f:X->Y->Z) (is:iscomprelfun2 RX RY f) :
@@ -32,7 +32,7 @@ Proof. intros ? ? ? ? ? ? ? x''.
          intros y y' e. unfold iscomprelfun2 in is.
          apply (pr2 is). assumption. }
        { intros x x' e.
-         assert( p : f x == f x' ). 
+         assert( p : f x = f x' ). 
          { apply funextsec; intro y. apply (pr1 is). assumption. }
        apply setquotuniv_equal. assumption. } assumption. Defined.
 Definition setquotfun2 {X Y Z} {RX:hrel X} {RY:hrel Y} {RZ:eqrel Z}
@@ -47,6 +47,6 @@ Defined.
 Lemma setquotfun2_equal {X Y Z} (RX:eqrel X) (RY:eqrel Y) (RZ:eqrel Z)
            (f:X->Y->Z) (is:iscomprelrelfun2 RX RY RZ f)
            (x:X) (y:Y) :
-  setquotfun2 f is (setquotpr RX x) (setquotpr RY y) ==
+  setquotfun2 f is (setquotpr RX x) (setquotpr RY y) =
   setquotpr RZ (f x y).
 Proof. reflexivity. (* it computes! *) Defined.
