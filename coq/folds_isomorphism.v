@@ -5,12 +5,20 @@
 
 Contents of this file:
 
-  - Definition of isomorphism in a FOLDS precategory [folds_iso]
-  - Components [φ2] and [φdot] are determined by [φ1]
-  - Identity isomorphim, inverse and composition
+  - Definition of type of isomorphism [folds_iso a b] in a FOLDS precategory
+    - consists of two families of isos and an iso, see [folds_iso_data]
+      - [ϕ₁ : ∀ x, x ⇒ a → x ⇒ b]
+      - [ϕ₂ : ∀ z, a ⇒ z → b ⇒ z]
+      - [ϕ∙ :      a ⇒ a → b ⇒ b]
+    - and a number of logical equivalences, see [folds_iso_prop]
+  - Some lemmas expressing naturality of maps [ϕX]
+  - Components [ϕ₂] and [ϕ∙] are determined by [ϕ₁]
+    - [ϕ₂_determined]
+    - [ϕo_determined]
+  - Identity isomorphim [id_folds_iso], inverse [inv_folds_iso] and composition
   - Map [folds_iso_from_iso] associating to any FOLDS precat isomorphism
     an isomorphism in the corresponding precategory à la RezkCompletion
-  - Map [iso_from_iso_folds] doing the converse, still departing from a FOLDS precategory
+  - Map [iso_from_folds_iso] doing the converse, still departing from a FOLDS precategory
   - Lemma: [folds_iso_from_iso] and [iso_from_folds_iso] are inverse to each other
 
 *)
@@ -265,7 +273,7 @@ Section folds_iso_inverse.
 
 Context {a b : C} (i : folds_iso a b).
 
-Definition folds_iso_inv_data : folds_iso_data b a.
+Definition inv_folds_iso_data : folds_iso_data b a.
 Proof.
   repeat split.
   - intro x. exact (invweq (ϕ₁ i)).
@@ -274,7 +282,7 @@ Proof.
 Defined.
 
 
-Lemma folds_iso_inv_prop : folds_iso_prop folds_iso_inv_data.
+Lemma inv_folds_iso_prop : folds_iso_prop inv_folds_iso_data.
 Proof.
   repeat split; intros.
   - simpl. apply invweq.
@@ -319,8 +327,8 @@ Proof.
     apply q.
 Qed.
 
-Definition folds_iso_inv : folds_iso b a :=
-  tpair _ folds_iso_inv_data folds_iso_inv_prop.
+Definition inv_folds_iso : folds_iso b a :=
+  tpair _ inv_folds_iso_data inv_folds_iso_prop.
 
 End folds_iso_inverse.
 
