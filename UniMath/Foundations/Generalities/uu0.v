@@ -147,7 +147,7 @@ Proof. intros. destruct e. apply idpath. Defined.
 
 (** PathNotations module inserted by B.A., oct 2014 *)
 
-Module Import PathNotations.
+Module PathNotations.
 
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation "! p " := (pathsinv0 p) (at level 50).
