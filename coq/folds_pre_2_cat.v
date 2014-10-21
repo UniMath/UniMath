@@ -4,29 +4,34 @@
 
 Contents of this file:
 
-  - Definition of a FOLDS pre-3-category
+  - Definition: FOLDS pre-3-category
     - objects [ob] coerced, morphisms denoted by infix [⇒]
     - predicates for identity [I], composition [T], equality [E]
     - [E] is a congruence for [T] and [I], and [E] is an equivalence relation
     - usual categorical axioms
 
-  - Definition of a FOLDS pre-2-categoy: the fibers of [I], [T] and [E] are hProps
+  - Definition: FOLDS pre-2-categoy 
+    - the fibers of [I], [T] and [E] are hProps
 
-  - Isomorphism in a FOLDS pre-2-category
-    - Definition:  given by a family of equivalences
-    - Type of isos [folds_2_iso f g] is a proposition (because [I], [T], [E] are)
-    - Map [idtoiso2] from paths to isos
+  - Isomorphism between morphisms in a FOLDS pre-2-category
+    - Definition: given by a family of equivalences
+    - Lemma: Type of isos [folds_2_iso f g] is a proposition (because [I], [T], [E] are)
+    - Definition: Map [idtoiso2] from paths to isos
 
-  - Definition of univalent FOLDS pre-2-category as special FOLDS pre-2-category
+  - Lemma: In a FOLDS pre-2-category, [folds_2_iso f g] is equivalent to [E f g]
+    - [E_implies_folds_iso]
+    - [folds_iso_implies_E]
+
+  - Definition: univalent FOLDS pre-2-category as special FOLDS pre-2-category
     - [idtoiso2] is an equivalence 
     - [is_univalent_folds_2_precat] is an hProp
 
-  - Definition of FOLDS precategory as special FOLDS pre-2-category
+  - Definition: FOLDS precategory as special FOLDS pre-2-category
     - predicate [is_folds_precategory] defined as
       - hom-types are sets
       - axioms of category modulo [=] rather than [E]
 
-  - Logical equivalence between being a FOLDS precategory and being univalent
+  - Lemma: Logical equivalence between being a FOLDS precategory and being univalent
     - since both are hProps, this entails equivalence between the types of
       - univalent FOLDS pre-2-cats
       - FOLDS precats
@@ -114,6 +119,13 @@ Definition folds_ax_comp (C : folds_3_id_comp_eq) :=
        T f g fg → T g h gh → T fg h fg_h → T f gh f_gh → E f_gh fg_h)). 
                                                         (* composition is assoc mod E *)
 
+(** ** A FOLDS pre-3-category is a package of
+  - identity [I]
+  - composition [T]
+  - equality [E]
+  satisfying the categorical axioms modulo [E] and [E] is an "equality"
+*)
+
 Definition folds_pre_3_cat := Σ C : folds_3_id_comp_eq,
      (folds_ax_id C 
     × folds_ax_comp C) 
@@ -121,12 +133,6 @@ Definition folds_pre_3_cat := Σ C : folds_3_id_comp_eq,
 Definition folds_id_comp_from_folds_precat (C : folds_pre_3_cat) : folds_3_id_comp_eq := pr1 C.
 Coercion folds_id_comp_from_folds_precat : folds_pre_3_cat >-> folds_3_id_comp_eq.
 
-(** * Some lemmas about FOLDS precategories *)
-
-(** used later to go to precategories; we define
-  - identity as a function
-  - composition as a function
-*)
 
 (** * FOLDS-2-precategories *)
 (** they are 3-precategories such that T, I and E are hProps *)
@@ -144,17 +150,7 @@ Coercion folds_3_from_folds_2 : folds_pre_2_cat >-> folds_pre_3_cat.
 
 (** * FOLDS-2-isomorphisms *)
 
-Section FOLDS_2_isos.
-
-Variable C : folds_pre_2_cat.
-Variables a b : C.
-Variables f : a ⇒ b.
-
-Section def.
-
-Variable g : a ⇒ b.
-
-Definition folds_2_iso : UU := 
+Definition folds_iso {C: folds_pre_3_cat} {a b : C} (f g : a ⇒ b) : UU := 
 (((∀ (x : C) (u : x ⇒ a) (v : x ⇒ b), T u f v ≃ T u g v)
   × (∀ (x : C) (u : a ⇒ x) (v : x ⇒ b), T u v f ≃ T u v g))
  × (∀ (x : C) (u : b ⇒ x) (v : a ⇒ x), T f u v ≃ T g u v))
@@ -170,7 +166,8 @@ Definition folds_2_iso : UU :=
          × (∀ (p : a = a) (q : b = b),
             E (double_transport p q f) f ≃ E (double_transport p q g) g)))).
 
-Lemma isaprop_folds_2_iso : isaprop folds_2_iso.
+Lemma isaprop_folds_2_iso (C : folds_pre_2_cat) (a b : C) (f g : a ⇒ b) : 
+  isaprop (folds_iso f g).
 Proof.
   repeat (apply isofhleveldirprod);
   repeat (apply impred; intro);
@@ -178,84 +175,15 @@ Proof.
   apply C.
 Qed.
 
-End def.
 
-Definition folds_2_iso_id : folds_2_iso f.
+Definition folds_2_iso_id (C : folds_pre_3_cat) (a b : C) (f : a ⇒ b) : folds_iso f f.
 Proof.
   repeat split; 
     intros; apply idweq.
 Defined.
 
-End FOLDS_2_isos.
 
-Arguments folds_2_iso [C] [a] [b] f g.
-Arguments folds_2_iso_id [C] [a] [b] f.
-
-Definition idtoiso2 {C : folds_pre_2_cat} {a b : C} {f g : a ⇒ b} : f = g → folds_2_iso f g.
-Proof.
-  destruct 1.
-  exact (folds_2_iso_id f).
-Defined.
-
-(** * Univalent FOLDS-2-precategory *)
-(** satisfies [isweq (idtoiso2 f g)] for any [f] and [g] *)
-
-Definition is_univalent_folds_pre_2_cat (C : folds_pre_2_cat) : UU :=
-   ∀ (a b : C) (f g : a ⇒ b), isweq (@idtoiso2 _ _ _ f g).
-
-Lemma isaprop_is_univalent_folds_2_precat (C : folds_pre_2_cat) : 
-   isaprop (is_univalent_folds_pre_2_cat C).
-Proof.
-  do 4 (apply impred; intro);
-  apply isapropisweq.
-Qed.
-
-Definition isotoid2 (C : folds_pre_2_cat) (H : is_univalent_folds_pre_2_cat C)
-  (a b : C) (f g : a ⇒ b) : folds_2_iso f g → f = g := 
-  invmap (weqpair _ (H a b f g)).
-
-(** * FOLDS precategories *)
-(** We define them as special FOLDS pre-2-categories, namely such that
-   - hom-types are sets
-   - axioms of precategory modulo identity (rather than E)
- *)
-
-Definition is_folds_precategory (C : folds_pre_2_cat) : UU :=
-     (∀ a b : C, isaset (a ⇒ b)) 
- ×  ((∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
-                  T f g h → T f g k → h = k )       (* T is unique mod identity *)
-  ×  (∀ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
-                  (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d), 
-               T f g fg → T g h gh → 
-                  T fg h fg_h → T f gh f_gh → f_gh = fg_h)). (* T is assoc mod identity *)
-
-Lemma isaprop_is_folds_precategory (C : folds_pre_2_cat) : isaprop (is_folds_precategory C).
-Proof.
-  apply isofhlevelsn. intro H.
-  repeat (apply isofhleveldirprod).
-  - do 2 (apply impred; intro).
-    apply isapropisaset.
-  - do 9 (apply impred; intro).
-    apply (pr1 H).
-  - do 15 (apply impred; intro).
-    apply H.
-(* alternatively by hand 
-  apply invproofirrelevance.
-  intros [p q] [p' q'].
-  apply pathsdirprod.
-  - apply proofirrelevance.
-    do 2 (apply impred; intro).
-    apply isapropisaset.
-  - destruct q as [q1 q2]. 
-    destruct q' as [q'1 q'2]. 
-    apply pathsdirprod. 
-    + apply proofirrelevance;
-      do 9 (apply impred; intro); apply p.
-    + apply proofirrelevance.
-      do 15 (apply impred; intro); apply p.
-*)
-Qed.
-
+(** * In FOLDS-2-precats, [folds_iso f g <-> E f g] *)
 
 Lemma E_transport_source : ∀ (C : folds_pre_2_cat) (a a' b : C) (f g : a ⇒ b) (p : a = a'),
           E f g → E (transportf (λ c, c ⇒ b) p f) (transportf (λ c, c ⇒ b) p g).
@@ -271,15 +199,7 @@ Proof.
   assumption.
 Defined.
 
-(** * Univalent FOLDS pre-2-category is a FOLDS precategory *)
-
-
-Section is_univalent_implies_folds_precat.
- 
-Variable C : folds_pre_2_cat.
-Hypothesis H : is_univalent_folds_pre_2_cat C.
-
-Lemma E_implies_iso (a b : C) (f g : a ⇒ b) : E f g → folds_2_iso f g.
+Lemma E_implies_folds_iso (C : folds_pre_2_cat) (a b : C) (f g : a ⇒ b) : E f g → folds_iso f g.
 Proof.
   set (H' := pr2 (pr2 (pr1 C))). simpl in H'.
   destruct H' as [[[Erefl Esym] Etrans] [EI ET]].
@@ -349,6 +269,93 @@ Proof.
   - apply C.      
 Qed.
 
+Lemma folds_iso_implies_E (C : folds_pre_2_cat) (a b : C) (f g : a ⇒ b) : folds_iso f g → E f g.
+Proof.
+  intro Isofg.
+  set (keytojoy := pr1 (pr2 (pr2 (pr2 Isofg)))).
+  apply (keytojoy f).
+  set (H' := pr2 (pr2 (pr1 C))). simpl in H'.
+  destruct H' as [[[Erefl Esym] Etrans] [EI ET]].
+  apply Erefl.
+Qed.
+
+
+(** * Univalent FOLDS-2-precategory *)
+(** satisfies [isweq (idtoiso2 f g)] for any [f] and [g] *)
+
+Definition idtoiso2 {C : folds_pre_2_cat} {a b : C} {f g : a ⇒ b} : f = g → folds_iso f g.
+Proof.
+  destruct 1.
+  exact (folds_2_iso_id _ _ _ f).
+Defined.
+
+
+Definition is_univalent_folds_pre_2_cat (C : folds_pre_2_cat) : UU :=
+   ∀ (a b : C) (f g : a ⇒ b), isweq (@idtoiso2 _ _ _ f g).
+
+Lemma isaprop_is_univalent_folds_2_precat (C : folds_pre_2_cat) : 
+   isaprop (is_univalent_folds_pre_2_cat C).
+Proof.
+  do 4 (apply impred; intro);
+  apply isapropisweq.
+Qed.
+
+Definition isotoid2 (C : folds_pre_2_cat) (H : is_univalent_folds_pre_2_cat C)
+  (a b : C) (f g : a ⇒ b) : folds_iso f g → f = g := 
+  invmap (weqpair _ (H a b f g)).
+
+(** * FOLDS precategories *)
+(** We define them as special FOLDS pre-2-categories, namely such that
+   - hom-types are sets
+   - axioms of precategory modulo identity (rather than E)
+ *)
+
+Definition is_folds_precategory (C : folds_pre_2_cat) : UU :=
+     (∀ a b : C, isaset (a ⇒ b)) 
+ ×  ((∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
+                  T f g h → T f g k → h = k )       (* T is unique mod identity *)
+  ×  (∀ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
+                  (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d), 
+               T f g fg → T g h gh → 
+                  T fg h fg_h → T f gh f_gh → f_gh = fg_h)). (* T is assoc mod identity *)
+
+Lemma isaprop_is_folds_precategory (C : folds_pre_2_cat) : isaprop (is_folds_precategory C).
+Proof.
+  apply isofhlevelsn. intro H.
+  repeat (apply isofhleveldirprod).
+  - do 2 (apply impred; intro).
+    apply isapropisaset.
+  - do 9 (apply impred; intro).
+    apply (pr1 H).
+  - do 15 (apply impred; intro).
+    apply H.
+(* alternatively by hand 
+  apply invproofirrelevance.
+  intros [p q] [p' q'].
+  apply pathsdirprod.
+  - apply proofirrelevance.
+    do 2 (apply impred; intro).
+    apply isapropisaset.
+  - destruct q as [q1 q2]. 
+    destruct q' as [q'1 q'2]. 
+    apply pathsdirprod. 
+    + apply proofirrelevance;
+      do 9 (apply impred; intro); apply p.
+    + apply proofirrelevance.
+      do 15 (apply impred; intro); apply p.
+*)
+Qed.
+
+
+
+(** * Univalent FOLDS pre-2-category is a FOLDS precategory *)
+
+
+Section is_univalent_implies_folds_precat.
+ 
+Variable C : folds_pre_2_cat.
+Hypothesis H : is_univalent_folds_pre_2_cat C.
+
 Lemma is_univalent_implies_is_folds_precat : is_folds_precategory C.
 Proof.
   apply dirprodpair.
@@ -357,11 +364,11 @@ Proof.
     apply isaprop_folds_2_iso.
   - apply dirprodpair.
     + intros. apply (isotoid2 _ H).
-      apply E_implies_iso.
+      apply E_implies_folds_iso.
       set (T_unique := pr1 (pr2 (pr2 (pr1 (pr2 (pr1 C)))))).
       apply (T_unique _ _ _ f g); auto.
     + intros. apply (isotoid2 _ H).
-      apply E_implies_iso.
+      apply E_implies_folds_iso.
       set (T_assoc := pr2 (pr2 (pr2 (pr1 (pr2 (pr1 C)))))). simpl in T_assoc.
       apply (T_assoc _ _ _ _ f g h fg gh fg_h f_gh); auto.
 Qed.
@@ -373,26 +380,15 @@ End is_univalent_implies_folds_precat.
 Section folds_precat_implies_univalent.
 
 Variable C : folds_pre_2_cat.
-Hypothesis H : is_folds_precategory C.
+
+Hypothesis H : is_folds_precategory C. 
 Hypothesis standardness : ∀ (a b : C) (f g : a ⇒ b), E f g → f = g.
 
-Lemma folds_2_iso_implies_E (a b : C) (f g : a ⇒ b) : folds_2_iso f g → E f g.
-Proof.
-  intro Isofg.
-  set (keytojoy := pr1 (pr2 (pr2 (pr2 Isofg)))).
-  apply (keytojoy f).
-  set (H' := pr2 (pr2 (pr1 C))). simpl in H'.
-  destruct H' as [[[Erefl Esym] Etrans] [EI ET]].
-  apply Erefl.
-Qed.
-
-
-
-Lemma folds_2_iso_implies_identity (a b : C) (f g : a ⇒ b) : folds_2_iso f g → f = g.
+Lemma folds_2_iso_implies_identity (a b : C) (f g : a ⇒ b) : folds_iso f g → f = g.
 Proof.
   intro Isofg.
   apply standardness. 
-  apply folds_2_iso_implies_E.
+  apply folds_iso_implies_E.
   apply Isofg.
 Qed.
 
