@@ -27,8 +27,11 @@ NO_SHARING = yes
 ifeq ($(NO_SHARING),yes)
 OTHERFLAGS += -no-sharing
 endif
+
+# COQDOCFLAGS?=-interpolate -utf8 -s --with-header assets/coq-header.html --with-footer assets/coq-footer.html
+
 # TIME = time
-COQDOC := $(COQDOC) -utf8
+COQDOC := $(COQDOC) -utf8 -interpolate --with-header assets/coq-header.html
 COQC = $(TIME) $(COQBIN)coqc
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\2/'
 TAGS : $(VFILES); etags $(COQDEFS) $^
@@ -81,3 +84,22 @@ sub/coq/config/coq_config.ml: sub/coq/configure.ml
 sub/coq/bin/coqc:
 	make -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight
 endif
+
+doc: rmhtml html/toc.html html/coqdoc.css html/Symbola.woff html/jquery-1.11.0.min.js
+	perl -i assets/alignment.pl html/*.html
+	sed -i'.bk' -f assets/replace.sed html/*.html
+	perl -i -p -0 -e 's/(\n<br\/>\n)+/<br\/>\n/g' html/*.html
+	perl -i -p -0 -e 's/(<div class="code">\n*)(\n<br\/>\n)+/\1/g' html/*.html
+	rm -rf html/*.bk
+
+html/toc.html: 
+# 	markdown $< | cat assets/toc-header.html - assets/toc-footer.html > $@
+
+rmhtml: html
+	rm -f html/toc.html html/coqdoc.css
+
+html/%: assets/%
+	cp $< $@
+	
+
+

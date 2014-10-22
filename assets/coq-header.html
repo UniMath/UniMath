@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<link href="coqdoc.css" rel="stylesheet" data-type="text/css" />
+<title>Terminal semantics for codata types in intensional Martin-Löf type theory</title>
+<script src="jquery-1.11.0.min.js"></script>
+<script type="text/javascript">
+$ (function () {
+	$ ("div.code:contains('Require')").first ().remove ();
+	$ ('div.proof').each (function () {
+		var html = $ (this).html ();
+		var indent = html.match (/^\s*((?:&nbsp;)*)/)[1];
+		var indentsize = indent.length / 6;
+		$ (this).html (html.replace (new RegExp (indent + "([^&])", 'g'), '$1')).css ('margin-left', indentsize + 'ex');
+	});
+	$ ('div.code').each (function () {
+		var first = $ ($ (this).children ()[0]);
+		if (first.prop ('tagName') === 'A' && first.hasClass ('proof')) {
+			var prev = $ (this).prev ();
+			if (prev.hasClass ('doc')) {
+				first.next ().next ().prepend ("<div class=\"proofcomment\">" + prev.html () + "</div>");
+				prev.remove ();
+				prev = $ (this).prev ();
+				if (prev.hasClass ('code')) {
+					prev.append ($ (this).contents ());
+					$ (this).remove ();
+				}
+			}
+		}
+	});
+	$ ('div.proof').each (function () {
+		var next = $ (this).next ();
+		while (next.prop ('tagName') === 'A' && next.hasClass ('proof')) {
+			next.remove ();
+			$ (this).next ().remove (); // <br />
+			next = $ (this).next (); // <div class="proof">
+			if (!$ (next.children ()[0]).hasClass ('proofcomment')) {
+				$ (this).append ('<hr />');
+			}
+			$ (this).append (next.contents ());
+			next.remove ();
+			next = $ (this).next ();
+		}
+	});
+	$ ('a.proof').click (function (e) {
+		e.preventDefault ();
+		var proof = $ (this).next ().next ();
+		$ (this).text ((proof.css ('display') === 'none' ? 'Hide' : 'Show') + ' proof.');
+		proof.slideToggle ();
+	});
+});
+</script>
+</head>
+<body>
+<div class="table-nav-top">
+	<div>
+		Benedikt Ahrens and Régis Spadotti&mdash;
+		<a href="http://arxiv.org/abs/1401.1053">Terminal semantics for codata types in intensional Martin-Löf type theory</a>
+	</div>
+	<div class="toc-nav" >
+		<a href="toc.html">Table of contents</a>
+	</div>
+	<div class="index-nav" >
+		<a href="index.html">Index</a>
+	</div>
+	<div class="sep-nav"> </div>
+</div>
