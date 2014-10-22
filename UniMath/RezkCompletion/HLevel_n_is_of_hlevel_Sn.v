@@ -12,7 +12,6 @@
 *)
 
 Require Import Foundations.hlevel1.hProp.
-Import PathNotations.
 Require Import Foundations.Proof_of_Extensionality.funextfun.
 
 Require Import RezkCompletion.auxiliary_lemmas_HoTT. 

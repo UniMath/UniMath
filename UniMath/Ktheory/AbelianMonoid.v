@@ -4,7 +4,7 @@ Require Import Foundations.hlevel2.algebra1b
                Foundations.hlevel2.finitesets
 	       RezkCompletion.auxiliary_lemmas_HoTT
                Ktheory.Utilities.
-Import uu0.PathNotations Utilities.Notation.
+Import Utilities.Notation.
 Require Ktheory.QuotientSet Ktheory.Monoid.
 Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.

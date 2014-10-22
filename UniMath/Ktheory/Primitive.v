@@ -46,7 +46,7 @@ End TerminalObject.
 (** *** initial objects *)
 
 Module InitialObject.
-  Import uu0.PathNotations Ktheory.Utilities.Notation.
+  Import Ktheory.Utilities.Notation.
   Definition isInitialObject (C:precategory) (a:ob C) :=
     forall x:ob C, iscontr (x ← a).
   Lemma theInitialObjectIsomorphy (C:precategory) (a b:ob C) :
