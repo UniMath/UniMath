@@ -22,6 +22,7 @@ Contents :
 
 
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 Require Import Foundations.Proof_of_Extensionality.funextfun. 
@@ -30,9 +31,6 @@ Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.HLevel_n_is_of_hlevel_Sn.
-
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
@@ -175,11 +173,11 @@ Defined.
   
 (** ** HSET is a category. *)
 
-Definition univalenceweq (X X' : UU) : weq (X == X') (weq X X') :=
+Definition univalenceweq (X X' : UU) : weq (X = X') (weq X X') :=
    tpair _ _ (univalenceaxiom X X').
 
 Definition hset_id_iso_weq (A B : ob HSET) :
-  weq (A == B) (iso A B) :=
+  weq (A = B) (iso A B) :=
   weqcomp (UA_for_HLevels 2 A B) (hset_equiv_iso_weq A B).
 
 
@@ -192,7 +190,7 @@ Definition hset_id_iso_weq (A B : ob HSET) :
 *)
 
 Lemma hset_id_iso_weq_is (A B : ob HSET):
-    @idtoiso _ A B == pr1 (hset_id_iso_weq A B).
+    @idtoiso _ A B = pr1 (hset_id_iso_weq A B).
 Proof.
   apply funextfunax.
   intro p; elim p.

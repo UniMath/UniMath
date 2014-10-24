@@ -39,9 +39,7 @@ Contents :
 
 
 Require Import Foundations.hlevel2.hSet.
-
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
+Import PathNotations.
 
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
@@ -199,7 +197,7 @@ Defined.
 
 Lemma eq_in_sub_precategory (C : precategory)(C':sub_precategories C)
       (a b : sub_ob C') (f g : sub_precategory_morphisms C' a b) :
-          pr1 f == pr1 g -> f == g.
+          pr1 f = pr1 g -> f = g.
 Proof.
   intro H.
   destruct f as [f p].
@@ -214,7 +212,7 @@ Lemma eq_in_sub_precategory2 (C : precategory)(C':sub_precategories C)
      (a b : sub_ob C') (f g : a --> b) 
  (pf : sub_precategory_predicate_morphisms C' _ _ f) 
  (pg : sub_precategory_predicate_morphisms C' _ _ g): 
-  f == g -> (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) f pf) == 
+  f = g -> (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) f pf) = 
       (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) g pg).
 Proof.
   intro H.
@@ -397,7 +395,7 @@ Proof.
   set (Fb := tpair (fun a : ob D => is_in_img_functor F a) 
         (F b) (image_is_in_image _ _ F b)).
   set (H3 := (H'' Fa Fb)).
-  assert (H2 : functor_on_morphisms (functor_full_img F) (a:=a) (b:=b) == 
+  assert (H2 : functor_on_morphisms (functor_full_img F) (a:=a) (b:=b) = 
                   funcomp (functor_on_morphisms F (a:=a) (b:=b))
                           ((H3))).
   apply funextsec. intro f.
@@ -415,7 +413,7 @@ Qed.
 
 Lemma functor_full_img_factorization_ob (C D: precategory) 
    (F : functor C D):
-  functor_on_objects F == 
+  functor_on_objects F = 
   functor_on_objects (functor_composite _ _ _ 
        (functor_full_img F) 
             (sub_precategory_inclusion D _)).
@@ -430,7 +428,7 @@ Defined.
 (*
 Lemma functor_full_img_factorization (C D: precategory) 
                 (F : functor C D) :
-    F == functor_composite _ _ _ (functor_full_img F) 
+    F = functor_composite _ _ _ (functor_full_img F) 
             (sub_precategory_inclusion D _).
 Proof.
   apply functor_eq. About functor_full_img_factorization_ob.
@@ -451,7 +449,7 @@ Proof.
   
   generalize Fmor.
   clear Fax.
-  assert (H' : Fob == (fun a : ob C => Fob a)).
+  assert (H' : Fob = (fun a : ob C => Fob a)).
    apply H.
 
   generalize dependent a .
@@ -546,12 +544,12 @@ Defined.
 (** This gives a weak equivalence *)
 
 Definition Id_in_sub_to_iso (a b : ob (full_sub_precategory C')):
-     a == b -> iso (pr1 a) (pr1 b) :=
+     a = b -> iso (pr1 a) (pr1 b) :=
        funcomp (@idtoiso _ a b) (iso_from_iso_in_sub a b).
 
 Lemma Id_in_sub_to_iso_equal_iso 
   (a b : ob (full_sub_precategory C')) :
-    Id_in_sub_to_iso a b == funcomp (total_paths2_hProp_equiv C' a b)
+    Id_in_sub_to_iso a b = funcomp (total_paths2_hProp_equiv C' a b)
                                     (@idtoiso _ (pr1 a) (pr1 b)).
 Proof.
   apply funextfunax.
@@ -574,7 +572,7 @@ Defined.
 
 Lemma precat_paths_in_sub_as_3_maps
    (a b : ob (full_sub_precategory C')):
-     @idtoiso _ a b == funcomp (Id_in_sub_to_iso a b) 
+     @idtoiso _ a b = funcomp (Id_in_sub_to_iso a b) 
                                         (iso_in_sub_from_iso a b).
 Proof.
   apply funextfunax.

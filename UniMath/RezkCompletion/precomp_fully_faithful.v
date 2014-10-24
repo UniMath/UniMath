@@ -22,11 +22,9 @@ Precomposition with a fully faithful and
 ************************************************************)
 
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
-
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
@@ -66,9 +64,9 @@ Proof.
   simpl in *.
   apply nat_trans_eq.
   intro b.
-  assert (Heq : isaprop (gamma b == delta b)). 
+  assert (Heq : isaprop (gamma b = delta b)). 
     apply (pr2 (_ --> _)).
-  apply (p b (tpair (fun x => isaprop x) (gamma b == delta b) Heq)).
+  apply (p b (tpair (fun x => isaprop x) (gamma b = delta b) Heq)).
   simpl in *; clear Heq.
   intros [a f].
   apply (pre_comp_with_iso_is_inj C (F (H a)) (F b) (G b) (# F f)
@@ -111,7 +109,7 @@ Variable gamma : nat_trans (F O H) (G O H).
 Lemma isaprop_aux_space (b : B) : 
     isaprop (total2 (fun g : F b --> G b => 
       forall a : A, forall f : iso (H a) b,
-           gamma a == #F f ;; g ;; #G (inv_from_iso f))).
+           gamma a = #F f ;; g ;; #G (inv_from_iso f))).
 Proof.
   apply invproofirrelevance.
   intros x x'.
@@ -121,11 +119,11 @@ Proof.
   destruct x as [g q].
   destruct x' as [g' q'].
   simpl.
-    apply (p b (tpair (fun x => isaprop x) (g == g') (pr2 (F b --> G b) _ _ ))).
+    apply (p b (tpair (fun x => isaprop x) (g = g') (pr2 (F b --> G b) _ _ ))).
     intro anoth.
     destruct anoth as [anot h].
     set (qanoth := q anot h).
-    assert (H1 : g == iso_inv_from_iso (functor_on_iso _ _ F _ _ h) ;; 
+    assert (H1 : g = iso_inv_from_iso (functor_on_iso _ _ F _ _ h) ;; 
                       gamma anot ;; functor_on_iso _ _ G _ _ h).
       apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso _ _ F _ _ h)
                                           (pr2 (functor_on_iso _ _ F _ _ h))).
@@ -143,7 +141,7 @@ Proof.
       rewrite assoc.
       apply qanoth.
     set (q'anoth := q' anot h).
-    assert (H2 : g' == iso_inv_from_iso (functor_on_iso _ _ F _ _ h) ;; 
+    assert (H2 : g' = iso_inv_from_iso (functor_on_iso _ _ F _ _ h) ;; 
                       pr1 gamma anot ;; functor_on_iso _ _ G _ _ h).
       apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso _ _ F _ _ h)
                                           (pr2 (functor_on_iso _ _ F _ _ h))).
@@ -168,19 +166,19 @@ Qed.
 Lemma iscontr_aux_space (b : B) : 
    iscontr (total2 (fun g : F b --> G b => 
       forall a : A, forall f : iso (H a) b,
-           gamma a == #F f ;; g ;; #G (inv_from_iso f)  )).
+           gamma a = #F f ;; g ;; #G (inv_from_iso f)  )).
 Proof.
   set (X := isapropiscontr (total2
      (fun g : F b --> G b =>
       forall (a : A) (f : iso (H a) b),
-      gamma a == (#F f;; g);; #G (inv_from_iso f)))).
+      gamma a = (#F f;; g);; #G (inv_from_iso f)))).
   apply (p b (tpair (fun x => isaprop x) _ X)).
   intros [anot h].
   simpl in *.
   set (g := #F (inv_from_iso h) ;; gamma anot ;; #G h). 
   assert (gp : forall (a : A) 
                      (f : iso (H a) b),
-                 gamma a == #F f ;; g ;; #G (inv_from_iso f)).
+                 gamma a = #F f ;; g ;; #G (inv_from_iso f)).
     clear X.
     intros a f.
     set (k := iso_from_fully_faithful_reflection Hff _ _ 
@@ -221,18 +219,18 @@ Proof.
   intros b b' f.
   apply pathsinv0. 
   apply (p b (tpair (fun x => isaprop x) 
-                       (pdelta b;; #G f == 
+                       (pdelta b;; #G f = 
                          #F f;; pdelta b')
                        (pr2 (F b --> G b') _ _ ))).
   intro t; destruct t as [a h].
   simpl in *.
   apply (p b' (tpair (fun x => isaprop x) 
-                       (pdelta b;; #G f == 
+                       (pdelta b;; #G f = 
                          #F f;; pdelta b')
                        (pr2 (F b --> G b') _ _ ))).
   simpl in *.
   intro t; destruct t as [a' h'].  
-  assert (Hb : pdelta b == inv_from_iso (functor_on_iso _ _ F _ _ h) ;; 
+  assert (Hb : pdelta b = inv_from_iso (functor_on_iso _ _ F _ _ h) ;; 
                                 gamma a ;; #G h).
     apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso _ _ F _ _ h)
                                           (pr2 (functor_on_iso _ _ F _ _ h))).
@@ -249,7 +247,7 @@ Proof.
     apply pathsinv0.
     rewrite assoc.
     apply (pr2 ((pr1 (iscontr_aux_space b))) a h).
-  assert (Hb' : pdelta b' == inv_from_iso (functor_on_iso _ _ F _ _ h') ;; 
+  assert (Hb' : pdelta b' = inv_from_iso (functor_on_iso _ _ F _ _ h') ;; 
                                 gamma a' ;; #G h').
     apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso _ _ F _ _ h')
                                           (pr2 (functor_on_iso _ _ F _ _ h'))).
@@ -310,7 +308,7 @@ Proof.
   apply is_nat_trans_pdelta.
 Defined.
 
-Lemma pdelta_preimage : pre_whisker _ _ _ H _ _ delta == gamma.
+Lemma pdelta_preimage : pre_whisker _ _ _ H _ _ delta = gamma.
 Proof.
   simpl in *.
   apply nat_trans_eq; intro a.

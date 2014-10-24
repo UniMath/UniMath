@@ -1,8 +1,7 @@
 Require Export Foundations.hlevel2.hnat .
 Require Export RezkCompletion.precategories.
 
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
+Import uu0.PathNotations.
 
 Unset Automatic Introduction.
 
@@ -37,7 +36,7 @@ Definition qof { C : precategory_ob_mor } { ftd : ft_data C } { l : C -> nat } (
 A problem arises with the following definition since one of the morphisms f or ( pX ftd ( fstar qd is f ) ) need to be transported along the equality fteq in order for the composition  ( pX ftd ( fstar qd is f ) ) ;; f to be defined. 
 
 Definition C0sysax5 { C : precategory_ob_mor } { ftd : ft_data C } { l : C -> nat } ( qd : q_data ftd l ) :=
- forall ( X Y : C ) ( is : natgth ( l X ) 0 ) ( f : Y --> ftd X ) , total2 ( fun fteq : ftd ( fstar qd is f ) == Y => ( pX ftd ( fstar qd is f ) ) ;; f == ( qof qd is f ) ;; ( pX ftd X ) ) . 
+ forall ( X Y : C ) ( is : natgth ( l X ) 0 ) ( f : Y --> ftd X ) , total2 ( fun fteq : ftd ( fstar qd is f ) = Y => ( pX ftd ( fstar qd is f ) ) ;; f == ( qof qd is f ) ;; ( pX ftd X ) ) . 
 
 *)
 

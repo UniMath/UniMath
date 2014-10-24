@@ -2,9 +2,8 @@
 
 Require Import Foundations.hlevel2.hSet funextfun.
 Require RezkCompletion.auxiliary_lemmas_HoTT.
-Require Import RezkCompletion.pathnotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
-        Import RezkCompletion.pathnotations.PathNotations.
+        Import uu0.PathNotations.
 
 Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
   let T := type of x in

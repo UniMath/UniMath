@@ -10,7 +10,7 @@ Require Import
         Ktheory.ZeroObject.
 Require Ktheory.Utilities Ktheory.Precategories Ktheory.RawMatrix
         Ktheory.Sum Ktheory.Product Ktheory.FiniteSet.
-Import RezkCompletion.pathnotations.PathNotations 
+Import uu0.PathNotations 
        Ktheory.Utilities.Notation
        Precategories.Notation
        FiniteSet.Coercions 
@@ -30,7 +30,7 @@ Record DirectSum {C:precategory} (h:hasZeroObject C) I (dec : isdeceq I) (c : I 
       ds : C;
       ds_pr : forall i, Hom ds (c i);
       ds_in : forall i, Hom (c i) ds;
-      ds_id : forall i j, ds_pr i ∘ ds_in j == identity_matrix h c dec i j;
+      ds_id : forall i j, ds_pr i ∘ ds_in j = identity_matrix h c dec i j;
       ds_isprod : forall c, isweq (fun f : Hom c ds => fun i => ds_pr i ∘ f);
       ds_issum  : forall c, isweq (fun f : Hom ds c => fun i => f ∘ ds_in i) }.
 Definition toDirectSum {C:precategory} (h:hasZeroObject C) {I} (dec : isdeceq I) (d:I -> ob C) 
@@ -44,7 +44,7 @@ Proof. intros. set (id := identity_map h dec B D).
   { intros. exact (pr2 (Representation.Iso D c)). }
   { intros. 
     assert (b : (fun (f : Hom D c) (i : I) => (f ∘ id) ∘ Sum.In B i)
-             == (fun (f : Hom D c) (i : I) => f ∘ (id ∘ Sum.In B i))).
+             = (fun (f : Hom D c) (i : I) => f ∘ (id ∘ Sum.In B i))).
     { apply funextsec; intros f. apply funextsec; intros i. apply assoc. }
     destruct b.
     exact (twooutof3c (fun f => f ∘ id) 

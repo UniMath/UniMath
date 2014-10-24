@@ -3,12 +3,12 @@
 Require Import Foundations.hlevel2.algebra1a
         Ktheory.Utilities.
 Require Ktheory.Sets.
-Import RezkCompletion.pathnotations.PathNotations Ktheory.Utilities.Notation.
+Import uu0.PathNotations Ktheory.Utilities.Notation.
 Local Notation "x * y" := (op x y). 
 Local Notation "g ∘ f" := (binopfuncomp f g) (at level 50, only parsing).
 Local Notation Hom := binopfun.
 Definition funEquality G H (p q : Hom G H)
-           (v : pr1 p == pr1 q) : p == q.
+           (v : pr1 p = pr1 q) : p = q.
   intros ? ? [p i] [q j] v. simpl in v. destruct v.
   destruct (pr1 (isapropisbinopfun p i j)). reflexivity. Qed.
 Definition zero : setwithbinop.
@@ -27,6 +27,6 @@ Module Product.
     intros. exists (fun t i => g i t).
     intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
   Definition Eqn {I} (X:I->setwithbinop) (T:setwithbinop) (g: forall i, Hom T (X i))
-             : forall i, Proj X i ∘ Fun X T g == g i.
+             : forall i, Proj X i ∘ Fun X T g = g i.
     intros. apply funEquality. reflexivity. Qed.
 End Product.

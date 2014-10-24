@@ -22,11 +22,9 @@ Contents : Definition of opposite category
 
 
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
-
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
@@ -48,7 +46,7 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Definition opp_precat_ob_mor (C : precategory_ob_mor) : precategory_ob_mor :=
    tpair (fun ob : UU => ob -> ob -> hSet) (ob C) 
-        (fun a b : ob C => hom C b a  ).
+        (fun a b : ob C => hom C b a ).
 
 Definition opp_precat_data (C : precategory_data) : precategory_data.
 Proof.
@@ -223,7 +221,7 @@ Defined.
 Lemma yoneda_map_1_2 (C : precategory)(c : C)
   (F : functor C^op HSET)
   (alpha : hom _ (yoneda C c) F) :
-      yoneda_map_2 _ _ _ (yoneda_map_1 _ _ _ alpha) == alpha.
+      yoneda_map_2 _ _ _ (yoneda_map_1 _ _ _ alpha) = alpha.
 Proof.
   simpl in *; apply nat_trans_eq; intro a'; simpl.
   apply funextsec; intro f.
@@ -238,7 +236,7 @@ Qed.
 
 Lemma yoneda_map_2_1 (C : precategory) (c : C)
    (F : functor C^op HSET) (x : pr1 (F c)) : 
-   yoneda_map_1 _ _ _ (yoneda_map_2 _ _ _ x) == x.
+   yoneda_map_1 _ _ _ (yoneda_map_2 _ _ _ x) = x.
 Proof.
   simpl.
   rewrite (functor_id F).
@@ -266,7 +264,7 @@ Defined.
 Lemma yoneda_fully_faithful (C : precategory) : fully_faithful (yoneda C).
 Proof.
   intros a b; simpl.
-  assert (eximio : yoneda_morphisms C a b == yoneda_map_2 C a (yoneda C b)).
+  assert (eximio : yoneda_morphisms C a b = yoneda_map_2 C a (yoneda C b)).
   - apply funextsec; intro f.
     apply nat_trans_eq; intro c; simpl.
     apply funextsec; intro g.

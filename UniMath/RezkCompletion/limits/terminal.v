@@ -1,12 +1,10 @@
 
 Require Import Foundations.Generalities.uuu.
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
@@ -26,14 +24,14 @@ Coercion TerminalObject : Terminal >-> ob.
 
 Definition TerminalArrow (T : Terminal) (b : C) : b --> T :=  pr1 (pr2 T b).
 
-Lemma ArrowsToTerminal (T : Terminal) (b : C) (f g : b --> T) : f == g.
+Lemma ArrowsToTerminal (T : Terminal) (b : C) (f g : b --> T) : f = g.
 Proof.
   apply proofirrelevance.
   apply isapropifcontr.
   apply (pr2 T _).
 Qed.
 
-Lemma TerminalEndo_is_identity (T : Terminal) (f : T --> T) : identity T == f.
+Lemma TerminalEndo_is_identity (T : Terminal) (f : T --> T) : identity T = f.
 Proof.
   apply ArrowsToTerminal.
 Qed.

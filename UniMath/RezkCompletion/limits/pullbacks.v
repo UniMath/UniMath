@@ -1,12 +1,10 @@
 
 Require Import Foundations.Generalities.uuu.
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-
-Require Import RezkCompletion.pathnotations.
-Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
@@ -22,12 +20,12 @@ Variable C : precategory.
 
 
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
-        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f == p2;; g) : UU :=
-   forall e (h : e --> b) (k : e --> c)(H : h ;; f == k ;; g ),
-      iscontr (total2 (fun hk : e --> d => dirprod (hk ;; p1 == h)(hk ;; p2 == k))).
+        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g) : UU :=
+   forall e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
+      iscontr (total2 (fun hk : e --> d => dirprod (hk ;; p1 = h)(hk ;; p2 = k))).
 
 Lemma isaprop_isPullback {a b c d : C} (f : b --> a) (g : c --> a)
-        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f == p2 ;; g) :
+        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2 ;; g) :
        isaprop (isPullback f g p1 p2 H).
 Proof.
   repeat (apply impred; intro).
@@ -35,14 +33,14 @@ Proof.
 Qed.
 
 Lemma PullbackArrowUnique {a b c d : C} (f : b --> a) (g : c --> a)
-        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f == p2;; g) 
+        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g) 
      (P : isPullback f g p1 p2 H) e (h : e --> b) (k : e --> c)
-     (Hcomm : h ;; f == k ;; g)
+     (Hcomm : h ;; f = k ;; g)
      (w : e --> d)
-     (H1 : w ;; p1 == h) (H2 : w ;; p2 == k) :
-     w == (pr1 (pr1 (P e h k Hcomm))).
+     (H1 : w ;; p1 = h) (H2 : w ;; p2 = k) :
+     w = (pr1 (pr1 (P e h k Hcomm))).
 Proof.
-  set (T := tpair (fun hk : e --> d => dirprod (hk ;; p1 == h)(hk ;; p2 == k)) 
+  set (T := tpair (fun hk : e --> d => dirprod (hk ;; p1 = h)(hk ;; p2 = k)) 
                     w (dirprodpair H1 H2)).
   set (T' := pr2 (P e h k Hcomm) T).
   exact (base_paths _ _ T').
@@ -51,7 +49,7 @@ Qed.
 
 Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
      total2 (fun pfg : total2 (fun p : C => dirprod (p --> b) (p --> c)) =>
-         total2 (fun H : pr1 (pr2 pfg) ;; f == pr2 (pr2 pfg) ;; g =>
+         total2 (fun H : pr1 (pr2 pfg) ;; f = pr2 (pr2 pfg) ;; g =>
         isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
 
 Definition Pullbacks := forall (a b c : C)(f : b --> a)(g : c --> a),
@@ -73,7 +71,7 @@ Definition PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a}
 
 Definition PullbackSqrCommutes {a b c : C} {f : b --> a} {g : c --> a} 
    (Pb : Pullback f g) : 
-    PullbackPr1 Pb ;; f == PullbackPr2 Pb ;; g . 
+    PullbackPr1 Pb ;; f = PullbackPr2 Pb ;; g . 
 Proof. 
   exact (pr1 (pr2 Pb)).
 Qed.
@@ -86,19 +84,19 @@ Proof.
 Qed.
 
 Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a} 
-   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f == k ;; g) : e --> Pb :=
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) : e --> Pb :=
    pr1 (pr1 (isPullback_Pullback Pb e h k H)).
 
 Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a} 
-   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f == k ;; g) :
-   PullbackArrow Pb e h k H ;; PullbackPr1 Pb == h.
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) :
+   PullbackArrow Pb e h k H ;; PullbackPr1 Pb = h.
 Proof.
   exact (pr1 (pr2 (pr1 (isPullback_Pullback Pb e h k H)))).
 Qed.
 
 Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a} 
-   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f == k ;; g) :
-   PullbackArrow Pb e h k H ;; PullbackPr2 Pb == k.
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) :
+   PullbackArrow Pb e h k H ;; PullbackPr2 Pb = k.
 Proof.
   exact (pr2 (pr2 (pr1 (isPullback_Pullback Pb e h k H)))).
 Qed.
@@ -107,19 +105,19 @@ Qed.
 
 Definition identity_is_Pullback_input {a b c : C}{f : b --> a} {g : c --> a} (Pb : Pullback f g) : 
  total2 (fun hk : Pb --> Pb => 
-   dirprod (hk ;; PullbackPr1 Pb == PullbackPr1 Pb)(hk ;; PullbackPr2 Pb == PullbackPr2 Pb)).
+   dirprod (hk ;; PullbackPr1 Pb = PullbackPr1 Pb)(hk ;; PullbackPr2 Pb = PullbackPr2 Pb)).
 Proof.
   exists (identity Pb).
   apply dirprodpair; apply id_left.
 Defined.
 
 Lemma PullbackEndo_is_identity {a b c : C}{f : b --> a} {g : c --> a}
-   (Pb : Pullback f g) (k : Pb --> Pb) (kH1 : k ;; PullbackPr1 Pb == PullbackPr1 Pb)
-                                       (kH2 : k ;; PullbackPr2 Pb == PullbackPr2 Pb) :
-       identity Pb == k.
+   (Pb : Pullback f g) (k : Pb --> Pb) (kH1 : k ;; PullbackPr1 Pb = PullbackPr1 Pb)
+                                       (kH2 : k ;; PullbackPr2 Pb = PullbackPr2 Pb) :
+       identity Pb = k.
 Proof.
-  set (H1 := tpair ((fun hk : Pb --> Pb => dirprod (hk ;; _ == _)(hk ;; _ == _))) k (dirprodpair kH1 kH2)).
-  assert (H2 : identity_is_Pullback_input Pb == H1).
+  set (H1 := tpair ((fun hk : Pb --> Pb => dirprod (hk ;; _ = _)(hk ;; _ = _))) k (dirprodpair kH1 kH2)).
+  assert (H2 : identity_is_Pullback_input Pb = H1).
   - apply proofirrelevance.
     apply isapropifcontr.
     apply (isPullback_Pullback Pb).
@@ -172,12 +170,12 @@ Section pullback_lemma.
 Variables a b c d e x : C.
 Variables (f : b --> a) (g : c --> a) (h : e --> b) (k : e --> c)
           (i : d --> b) (j : x --> e) (m : x --> d).
-Hypothesis H1 : h ;; f == k ;; g.
-Hypothesis H2 : m ;; i == j ;; h.
+Hypothesis H1 : h ;; f = k ;; g.
+Hypothesis H2 : m ;; i = j ;; h.
 Hypothesis P1 : isPullback _ _ _ _ H1.
 Hypothesis P2 : isPullback _ _ _ _ H2.
 
-Lemma glueSquares : m ;; (i ;; f) == (j ;; k) ;; g.
+Lemma glueSquares : m ;; (i ;; f) = (j ;; k) ;; g.
 Proof.
   rewrite assoc.
   rewrite H2.
@@ -191,19 +189,19 @@ Proof.
   unfold isPullback.
   intros y p q.
   intro Hrt.
-  assert (ex : (p;; i);; f == q;; g).
+  assert (ex : (p;; i);; f = q;; g).
    { rewrite <- Hrt.
      rewrite assoc; apply idpath.
    }
   set (rt := P1 _ (p ;; i) q ex).
   set (Ppiq := pr1 (pr1 (rt))).
-  assert (owiej : p ;; i == Ppiq ;; h).
+  assert (owiej : p ;; i = Ppiq ;; h).
    { apply pathsinv0. apply (pr1 (pr2 (pr1 rt))). }
   set (rt' := P2 _ p Ppiq owiej).
   set (awe := pr1 (pr1 rt')).
-  assert (Hawe1 : awe ;; m == p).
+  assert (Hawe1 : awe ;; m = p).
    { exact (pr1 (pr2 (pr1 rt'))). }
-  assert (Hawe2 : awe ;; (j ;; k) == q).
+  assert (Hawe2 : awe ;; (j ;; k) = q).
    { rewrite assoc.
      set (X := pr2 (pr2 (pr1 rt'))). simpl in X.
            unfold awe. rewrite X.

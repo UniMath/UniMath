@@ -6,12 +6,12 @@ Require Import
         RezkCompletion.functors_transformations
         Ktheory.ZeroObject.
 Require Ktheory.Utilities Ktheory.Representation.
-Import RezkCompletion.pathnotations.PathNotations 
+Import uu0.PathNotations 
        Utilities.Notation Precategories.Notation.
 Definition zerocomp_type {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ob C -> Type.
 Proof. intros ? ? ? ? ? x.
-  exact (total2( fun g:Hom d x => g ∘ f == zeroMap c x z)). Defined.
+  exact (total2( fun g:Hom d x => g ∘ f = zeroMap c x z)). Defined.
 Definition zerocomp_type_isaset {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   forall x:ob C, isaset (zerocomp_type z f x).
 Proof. intros ? ? ? ? ? x.

@@ -16,4 +16,3 @@ limits/terminal.v
 limits/aux_lemmas_HoTT.v
 precategories.v
 auxiliary_lemmas_HoTT.v
-pathnotations.v

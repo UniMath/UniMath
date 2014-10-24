@@ -1,6 +1,7 @@
 (** * Equivalences *)
 
 Require Import uu0.
+Import PathNotations.
 Require Import Utilities funextfun.
 
 Section A.
@@ -10,10 +11,10 @@ Section A.
   Local Arguments idpath {_ _}.
 
   Lemma other_adjoint {X Y} (f : X -> Y) (g : Y -> X)
-        (p : forall y : Y, f (g y) == y)
-        (q : forall x : X, g (f x) == x)
-        (h : forall x : X, ap f (q x) == p (f x)) :
-   forall y : Y, ap g (p y) == q (g y).
+        (p : forall y : Y, f (g y) = y)
+        (q : forall x : X, g (f x) = x)
+        (h : forall x : X, ap f (q x) = p (f x)) :
+   forall y : Y, ap g (p y) = q (g y).
   Proof. intros. apply pathsinv0. 
          intermediate_path (
               !(ap g (p (f (g y))))
@@ -210,9 +211,9 @@ End A.
 Definition Equiv X Y :=
   { f:X->Y & 
   { g:Y->X &
-  { p:forall y, f(g y) == y & 
-  { q:forall x, g(f x) == x &
-      forall x, ap f (q x) == p(f x)}}}}.
+  { p:forall y, f(g y) = y & 
+  { q:forall x, g(f x) = x &
+      forall x, ap f (q x) = p(f x)}}}}.
 
 Definition makeEquiv X Y f g p q h := (f,,(g,,(p,,(q,,h)))) : Equiv X Y.
 
@@ -223,14 +224,14 @@ Coercion mapEquiv : Equiv >-> Funclass.
 Definition invMap {X Y} : Equiv X Y -> Y->X.
 Proof. intros ? ? f. exact (pr1 (pr2 f)). Defined.
 
-Definition homotEquivInvequiv {X Y} (f:Equiv X Y) : forall y, f (invMap f y) == y
+Definition homotEquivInvequiv {X Y} (f:Equiv X Y) : forall y, f (invMap f y) = y
   := pr1 (pr2 (pr2 f)).
 
-Definition homotInvequivEquiv {X Y} (f:Equiv X Y) : forall y, invMap f (f y) == y
+Definition homotInvequivEquiv {X Y} (f:Equiv X Y) : forall y, invMap f (f y) = y
   := pr1 (pr2 (pr2 (pr2 f))).
 
 Definition EquivAdjointness {X Y} (f:Equiv X Y)
-  : forall x, ap f (homotInvequivEquiv f x) == homotEquivInvequiv f (f x)
+  : forall x, ap f (homotInvequivEquiv f x) = homotEquivInvequiv f (f x)
   := pr2 (pr2 (pr2 (pr2 f))).
 
 Definition invEquiv {X Y} : Equiv X Y -> Equiv Y X.
@@ -280,10 +281,10 @@ Defined.
 Module Equiv'.
   Record data X Y := make {
          f :> X -> Y; g : Y -> X;
-         p : forall y, f(g y) == y;
-         q : forall x, g(f x) == x;
-         h : forall x y (r:f x == y), 
-             transportf (fun x':X => f x'==y) (! q x @ ap g r) r == p y }.
+         p : forall y, f(g y) = y;
+         q : forall x, g(f x) = x;
+         h : forall x y (r:f x = y), 
+             transportf (fun x':X => f x' = y) (! q x @ ap g r) r = p y }.
 End Equiv'.
 
 Definition Equiv'_to_weq X Y : Equiv'.data X Y -> weq X Y.
@@ -318,24 +319,24 @@ Proof. intros ? ? [f g p q h].
        intros. destruct r. rewrite ap_idpath. rewrite pathscomp0rid.
        admit. Defined.
 
-Definition weqcompidl {X Y} (f:weq X Y) : weqcomp (idweq X) f == f.
+Definition weqcompidl {X Y} (f:weq X Y) : weqcomp (idweq X) f = f.
 Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
        apply funextsec; intro x; simpl. reflexivity. Defined.
 
-Definition weqcompidr {X Y} (f:weq X Y) : weqcomp f (idweq Y) == f.
+Definition weqcompidr {X Y} (f:weq X Y) : weqcomp f (idweq Y) = f.
 Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
        apply funextsec; intro x; simpl. reflexivity. Defined.
 
-Definition weqcompinvl {X Y} (f:weq X Y) : weqcomp (invweq f) f == idweq Y.
+Definition weqcompinvl {X Y} (f:weq X Y) : weqcomp (invweq f) f = idweq Y.
 Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
        apply funextsec; intro y; simpl. apply homotweqinvweq. Defined.
 
-Definition weqcompinvr {X Y} (f:weq X Y) : weqcomp f (invweq f) == idweq X.
+Definition weqcompinvr {X Y} (f:weq X Y) : weqcomp f (invweq f) = idweq X.
 Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
        apply funextsec; intro x; simpl. apply homotinvweqweq. Defined.
 
 Definition weqcompassoc {X Y Z W} (f:weq X Y) (g:weq Y Z) (h:weq Z W) :
-  weqcomp (weqcomp f g) h == weqcomp f (weqcomp g h).
+  weqcomp (weqcomp f g) h = weqcomp f (weqcomp g h).
 Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
        apply funextsec; intro x; simpl. reflexivity. Defined.
 
@@ -358,66 +359,66 @@ Proof. intros. refine (gradth _ _ _ _).
          apply weqcompidr. } Defined.
 
 Definition weqcompinjr {X Y Z} {f f':weq X Y} (g:weq Y Z) :
-  weqcomp f g == weqcomp f' g -> f == f'.
+  weqcomp f g = weqcomp f' g -> f = f'.
 Proof. intros ? ? ? ? ? ?.
        apply (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweqr g))).
 Defined.
 
 Definition weqcompinjl {X Y Z} (f:weq X Y) {g g':weq Y Z} :
-  weqcomp f g == weqcomp f g' -> g == g'.
+  weqcomp f g = weqcomp f g' -> g = g'.
 Proof. intros ? ? ? ? ? ?.
        apply (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweql f))).
 Defined.
 
 Definition invweqcomp {X Y Z} (f:weq X Y) (g:weq Y Z) :
-  invweq (weqcomp f g) == weqcomp (invweq g) (invweq f).
+  invweq (weqcomp f g) = weqcomp (invweq g) (invweq f).
 Proof. intros. apply (weqcompinjr (weqcomp f g)). rewrite weqcompinvl.
        rewrite weqcompassoc. rewrite <- (weqcompassoc (invweq f)).
        rewrite weqcompinvl. rewrite weqcompidl. rewrite weqcompinvl. reflexivity.
 Defined.
 
-Definition weq_pathscomp0r {X} x {y z:X} (p:y==z) : weq (x==y) (x==z).
+Definition weq_pathscomp0r {X} x {y z:X} (p:y = z) : weq (x = y) (x = z).
 Proof. intros. exact (weqpair _ (isweqpathscomp0r _ p)). Defined.
 
 Definition iscontrretract_compute {X Y} (p:X->Y) (s:Y->X) 
-           (eps:forall y : Y, p (s y) == y) (is:iscontr X) : 
-  the (iscontrretract p s eps is) == p (the is).
+           (eps:forall y : Y, p (s y) = y) (is:iscontr X) : 
+  the (iscontrretract p s eps is) = p (the is).
 Proof. intros. unfold iscontrretract. destruct is as [ctr uni].
        simpl. reflexivity. Defined.
 
 Definition iscontrweqb_compute {X Y} (w:weq X Y) (is:iscontr Y) :
-  the (iscontrweqb w is) == invmap w (the is).
+  the (iscontrweqb w is) = invmap w (the is).
 Proof. intros. unfold iscontrweqb. rewrite iscontrretract_compute.
        reflexivity. Defined.
 
 Definition compute_iscontrweqb_weqfibtototal_1 {T} {P Q:T->Type}
            (f:forall t, weq (P t) (Q t)) 
            (is:iscontr (total2 Q)) :
-  pr1 (the (iscontrweqb (weqfibtototal P Q f) is)) == pr1 (the is).
+  pr1 (the (iscontrweqb (weqfibtototal P Q f) is)) = pr1 (the is).
 Proof. intros. destruct is as [ctr uni]. reflexivity. Defined.
 
 Definition compute_pr1_invmap_weqfibtototal {T} {P Q:T->Type}
            (f:forall t, weq (P t) (Q t)) 
            (w:total2 Q) :
-  pr1 (invmap (weqfibtototal P Q f) w) == pr1 w.
+  pr1 (invmap (weqfibtototal P Q f) w) = pr1 w.
 Proof. intros. reflexivity. Defined.
 
 Definition compute_pr2_invmap_weqfibtototal {T} {P Q:T->Type}
            (f:forall t, weq (P t) (Q t)) 
            (w:total2 Q) :
-  pr2 (invmap (weqfibtototal P Q f) w) == invmap (f (pr1 w)) (pr2 w).
+  pr2 (invmap (weqfibtototal P Q f) w) = invmap (f (pr1 w)) (pr2 w).
 Proof. intros. reflexivity. Defined.
 
 Definition compute_iscontrweqb_weqfibtototal_3 {T} {P Q:T->Type}
            (f:forall t, weq (P t) (Q t)) 
            (is:iscontr (total2 Q)) :
   ap pr1 (iscontrweqb_compute (weqfibtototal P Q f) is) 
-  ==
+  =
   compute_iscontrweqb_weqfibtototal_1 f is.
 Proof. intros. destruct is as [ctr uni]. reflexivity. Defined.
 
 Definition iscontrcoconustot_comp {X} {x:X} :
-  the (iscontrcoconustot X x) == tpair _ x (idpath x).
+  the (iscontrcoconustot X x) = tpair _ x (idpath x).
 Proof. reflexivity. Defined.
 
 Definition funfibtototal {X} (P Q:X->Type) (f:forall x:X, P x -> Q x) :
@@ -425,27 +426,27 @@ Definition funfibtototal {X} (P Q:X->Type) (f:forall x:X, P x -> Q x) :
 Proof. intros ? ? ? ? [x p]. exact (x,,f x p). Defined.
 
 Definition weqfibtototal_comp {X} (P Q:X->Type) (f:forall x:X, weq (P x) (Q x)) :
-  invmap (weqfibtototal P Q f) == funfibtototal Q P (fun x => invmap (f x)).
+  invmap (weqfibtototal P Q f) = funfibtototal Q P (fun x => invmap (f x)).
 Proof. intros. apply funextsec; intros [x q]. reflexivity. Defined.
 
-Definition eqweqmapap_inv {T} (P:T->Type) {t u:T} (e:t==u) (p:P u) :
-  (eqweqmap (ap P e)) ((eqweqmap (ap P (!e))) p) == p.
+Definition eqweqmapap_inv {T} (P:T->Type) {t u:T} (e:t = u) (p:P u) :
+  (eqweqmap (ap P e)) ((eqweqmap (ap P (!e))) p) = p.
 Proof. intros. destruct e. reflexivity. Defined.
 
-Definition eqweqmapap_inv' {T} (P:T->Type) {t u:T} (e:t==u) (p:P t) :
-  (eqweqmap (ap P (!e))) ((eqweqmap (ap P e)) p) == p.
+Definition eqweqmapap_inv' {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) :
+  (eqweqmap (ap P (!e))) ((eqweqmap (ap P e)) p) = p.
 Proof. intros. destruct e. reflexivity. Defined.
 
 Definition invmapweqcomp {X Y Z} (f:weq X Y) (g:weq Y Z) :
-  invmap (weqcomp f g) == weqcomp (invweq g) (invweq f).
+  invmap (weqcomp f g) = weqcomp (invweq g) (invweq f).
 Proof. intros. exact (ap pr1weq (invweqcomp f g)). Defined.
 
-Definition pr1hSet_injectivity (X Y:hSet) : weq (X==Y) (pr1hSet X==pr1hSet Y).
+Definition pr1hSet_injectivity (X Y:hSet) : weq (X = Y) (pr1hSet X = pr1hSet Y).
 Proof. intros. apply weqonpathsincl. apply isinclpr1; intro T.
        apply isapropisaset. Defined.
 
 Definition weqpr1_irr_sec {X} {P:X->Type}
-           (irr:forall x (p q:P x), p==q) (sec:Section P) : weq (total2 P) X.
+           (irr:forall x (p q:P x), p = q) (sec:Section P) : weq (total2 P) X.
 Proof. intros.
        set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
        apply Equiv_to_weq.
@@ -455,7 +456,7 @@ Proof. intros.
        { intros [x p]. simpl. apply pair_path_in2_comp1. } Defined.
 
 Definition invweqpr1_irr_sec {X} {P:X->Type}
-           (irr:forall x (p q:P x), p==q) (sec:Section P) : weq X (total2 P).
+           (irr:forall x (p q:P x), p = q) (sec:Section P) : weq X (total2 P).
 Proof. intros.
        set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
        apply Equiv_to_weq.
@@ -467,29 +468,29 @@ Proof. intros.
          reflexivity. } Defined.
 
 Definition homotinvweqweq' {X} {P:X->Type} 
-           (irr:forall x (p q:P x), p==q) (s:Section P) (w:total2 P) :
-  invmap (weqpr1_irr_sec irr s) (weqpr1_irr_sec irr s w) == w.
+           (irr:forall x (p q:P x), p = q) (s:Section P) (w:total2 P) :
+  invmap (weqpr1_irr_sec irr s) (weqpr1_irr_sec irr s w) = w.
 Proof. intros ? ? ? ? [x p]. apply pair_path_in2. apply irr. Defined.
 
 Definition homotinvweqweq'_comp {X} {P:X->Type}
-           (irr:forall x (p q:P x), p==q) (sec:Section P) 
+           (irr:forall x (p q:P x), p = q) (sec:Section P) 
            (x:X) (p:P x) : 
   let f := weqpr1_irr_sec irr sec in
   let w := x,,p in
   let w' := invweq f x in
-  @identity (w' == w)
+  @identity (w' = w)
             (homotinvweqweq' irr sec w)
             (pair_path_in2 P (irr x (sec x) (pr2 w))).
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
 Definition homotinvweqweq_comp {X} {P:X->Type}
-           (irr:forall x (p q:P x), p==q) (sec:Section P) 
+           (irr:forall x (p q:P x), p = q) (sec:Section P) 
            (x:X) (p:P x) : 
   let f := weqpr1_irr_sec irr sec in
   let w := x,,p in
   let w' := invweq f x in
-  @identity (w' == w)
+  @identity (w' = w)
             (homotinvweqweq f w)
             (pair_path_in2 P (irr x (sec x) (pr2 w))).
 Proof. admit.
@@ -499,35 +500,35 @@ Proof. admit.
 Defined.
 
 Definition homotinvweqweq_comp_3 {X} {P:X->Type}
-           (irr:forall x (p q:P x), p==q) (sec:Section P) 
+           (irr:forall x (p q:P x), p = q) (sec:Section P) 
            (x:X) (p:P x) : 
   let f := weqpr1_irr_sec irr sec in
   let g := invweqpr1_irr_sec irr sec in
   let w := x,,p in
   let w' := g x in
-  @identity (w' == w)
+  @identity (w' = w)
             (homotweqinvweq g w)    (* !! *)
             (pair_path_in2 P (irr x (sec x) (pr2 w))).
 Proof. reflexivity. Defined.
 
 Definition loop_correspondence {T X Y}
            (f:weq T X) (g:T->Y)
-           {t t':T} {l:t==t'}
-           {m:f t==f t'} (mi:ap f l == m)
-           {n:g t==g t'} (ni:ap g l == n) : 
+           {t t':T} {l:t = t'}
+           {m:f t = f t'} (mi:ap f l = m)
+           {n:g t = g t'} (ni:ap g l = n) : 
      ap (funcomp (invmap f) g) m @ ap g (homotinvweqweq f t') 
-  == ap g (homotinvweqweq f t) @ n.
+  = ap g (homotinvweqweq f t) @ n.
 Proof. intros. destruct ni, mi, l. simpl. rewrite pathscomp0rid. reflexivity.
 Defined.
 
 Definition loop_correspondence' {X Y} {P:X->Type} 
-           (irr:forall x (p q:P x), p==q) (sec:Section P)
+           (irr:forall x (p q:P x), p = q) (sec:Section P)
            (g:total2 P->Y)
-           {w w':total2 P} {l:w==w'}
-           {m:weqpr1_irr_sec irr sec w==weqpr1_irr_sec irr sec w'} (mi:ap (weqpr1_irr_sec irr sec) l == m)
-           {n:g w==g w'} (ni:ap g l == n) : 
+           {w w':total2 P} {l:w = w'}
+           {m:weqpr1_irr_sec irr sec w = weqpr1_irr_sec irr sec w'} (mi:ap (weqpr1_irr_sec irr sec) l = m)
+           {n:g w = g w'} (ni:ap g l = n) : 
      ap (funcomp (invmap (weqpr1_irr_sec irr sec)) g) m @ ap g (homotinvweqweq' irr sec w') 
-  == ap g (homotinvweqweq' irr sec w) @ n.
+  = ap g (homotinvweqweq' irr sec w) @ n.
 Proof. intros. destruct ni, mi, l. simpl. rewrite pathscomp0rid. reflexivity.
 Defined.
 
