@@ -207,19 +207,6 @@ Proof.
 Defined.
 
 
-Theorem equal_transport_along_weq (A B : UU)  (f : weq A B) (a a' : A) :
-      f a = f a' -> a = a'.
-Proof.
-  intro H.
-  apply (!homotinvweqweq f a @ maponpaths (invmap f) H @ homotinvweqweq f a').
-Defined.
-
-Definition equal_equalities_between_pairs (A : UU)(B : A -> UU)(x y : total2 (fun x => B x))
-   (p q : x = y) : 
-  total_paths_equiv _ _ _ p = total_paths_equiv _ _ _ q -> p = q :=
-      equal_transport_along_weq _ _ _ _ _ .
-
-
 (** This helper lemma is an adaptation of an analogous lemma
     [isweqpr1] from Voevodsky's Foundations library.
     Here, we prove it for predicates on path spaces in [UU].
@@ -235,29 +222,5 @@ Proof.
   apply (iscontrweqf ( ezweqpr1 B y)) . 
   assumption. 
 Defined.
-
-
-
-Lemma pairofobuip (C C': hSet) (a b : C) (c d : C') 
-        (p q : dirprod (a = b) (c = d)) : p = q.
-Proof.
-  assert (H : pr1 p = pr1 q).
-  apply uip. exact (pr2 C).
-  apply (total2_paths H).
-  apply uip. exact (pr2 C').
-Qed.
-
-
-Lemma fun_eq_fun_eq_pointwise (A B : UU) (f g : A -> B) : 
-     f = g -> forall a, f a = g a.
-Proof.
-  destruct 1.
-  exact (fun a => idpath _).
-Defined.
-
-
-
-
-
 
 

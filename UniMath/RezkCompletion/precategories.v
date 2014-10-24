@@ -241,7 +241,7 @@ Proof.
   destruct g as [g [eta eps]].
   destruct g' as [g' [eta' eps']].
   simpl in *.
-  apply pairofobuip.
+  apply isapropdirprod; apply (_ --> _ ).
 Qed.
 
 Definition iso {C : precategory} (a b :ob C) := total2
