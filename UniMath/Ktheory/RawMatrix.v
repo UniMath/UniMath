@@ -11,7 +11,7 @@ Require Import
         RezkCompletion.functors_transformations
         Ktheory.Utilities.
 Require Ktheory.Precategories Ktheory.Sum Ktheory.Product.
-Import uu0.PathNotations Utilities.Notation Precategories.Notation.
+Import Utilities.Notation Precategories.Notation.
 Import Sum.Coercions Product.Coercions.
 Definition to_row {C:precategory} {I} {b:I -> ob C} 
            (B:Sum.type C b) {d:ob C} :

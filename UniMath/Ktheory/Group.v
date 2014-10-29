@@ -4,8 +4,7 @@ Require Import Foundations.hlevel2.algebra1b
 	       RezkCompletion.auxiliary_lemmas_HoTT
                Ktheory.Utilities.
 Require Ktheory.Monoid.
-Import uu0.PathNotations 
-       Ktheory.Utilities.Notation.
+Import Ktheory.Utilities.Notation.
 Local Notation Hom := monoidfun.
 Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
 Local Notation "x * y" := ( op x y ). 

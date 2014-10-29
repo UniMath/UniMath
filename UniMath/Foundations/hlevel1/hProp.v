@@ -242,7 +242,7 @@ Definition hinhimplinhdneg (X:UU)(inx1: ishinh X): isinhdneg X := inx1 hfalse.
 
 (** ** Univalence axiom for hProp 
 
-We introduce here the weakest form of the univalence axiom - the univalence axiom for hProp which is equivalent to the second part of the extensionality axiom in Church simple type theory.  This axiom is easily shown to be equivalent to its version with [paths P P'] as a target and to [ weqtopathshProp ] (see below) as well as to the version of [ weqtopathshProp ] with [ paths P P'] as a target. 
+We introduce here the weakest form of the univalence axiom - the univalence axiom for hProp which is equivalent to the second part of the extensionality axiom in Church simple type theory.  This axiom is easily shown to be equivalent to its version with [P = P'] as a target and to [ weqtopathshProp ] (see below) as well as to the version of [ weqtopathshProp ] with [P = P'] as a target. 
 
 The proof of theorem [ univfromtwoaxiomshProp ] is modeled on the proof of [ univfromtwoaxioms ] from univ01.v 
 
@@ -257,7 +257,7 @@ Proof. intros . destruct e . apply idweq.  Defined.
 
 Definition  weqtopathshProp { P P' : hProp } (w: weq P P' ): @paths hProp P P' := uahp P P' w ( invweq w ) .
 
-Definition weqpathsweqhProp { P P' : hProp } (w : weq P P'): paths (eqweqmaphProp (weqtopathshProp w)) w.
+Definition weqpathsweqhProp { P P' : hProp } (w : weq P P'): eqweqmaphProp (weqtopathshProp w) = w.
 Proof. intros. apply proofirrelevance . apply (isapropweqtoprop P P' (pr2 P')). Defined.
 
 

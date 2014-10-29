@@ -2,7 +2,6 @@
 
 Global Unset Automatic Introduction.
 Require Export uu0.
-Export PathNotations.
 Require Export hSet.
 Require Import funextfun.
 Require RezkCompletion.auxiliary_lemmas_HoTT.

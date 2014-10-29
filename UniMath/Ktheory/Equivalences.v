@@ -1,7 +1,6 @@
 (** * Equivalences *)
 
 Require Import uu0.
-Import PathNotations.
 Require Import Utilities funextfun.
 
 Section A.

@@ -39,7 +39,6 @@ Contents :
 
 
 Require Import Foundations.hlevel2.hSet.
-Import PathNotations.
 
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
