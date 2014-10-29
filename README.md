@@ -47,6 +47,13 @@ shell commands (in this directory).
 $ make
 ```
 
+Until the Makefile is fixed, it may be necessary to run the command a second time, if
+only Coq is compiled above, as follows.
+
+```bash
+$ make
+```
+
 To create the documentation:
 ```bash
 $ make html
