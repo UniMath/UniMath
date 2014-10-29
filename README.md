@@ -63,6 +63,24 @@ $ make install
 ```
 The path to that directory from here, by default, is ./sub/coq/user-contrib/.
 
+### Measuring compilation time
+
+To obtain information about the compilation time of each file, uncomment the line `#TIME = time` in the Makefile. 
+This leads to each call to `coqc` being wrapped in the `time` command, as in
+```
+$ time coqc foo.v
+```
+For this to work, you need the "time" utility installed on your system.
+
+Timing of execution of individual tactics and vernacular commands can be obtained by
+```bash
+$ make OTHERFLAGS=-time
+```
+For postprocessing of the (huge) output, direct the output into a file as in
+```bash
+$ make OTHERFLAGS=-time > timing.txt
+```
+
 ## Further details
 
 The correct version of Coq is built and used automatically by the command
