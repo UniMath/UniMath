@@ -15,7 +15,7 @@ Lemma eq_equalities_between_pairs (A : UU)(B : A -> UU)(x y : total2 (fun x => B
     (H2 : transportf (fun p : pr1 x = pr1 y =>  transportf _ p (pr2 x) = pr2 y )
          H (fiber_path p) = fiber_path q) :  p = q.
 Proof.
-  apply equal_equalities_between_pairs.
+  apply (invmaponpathsweq (total_paths_equiv _ _ _ )).
   set (H3 := total2_paths (B:=(fun p : pr1 x = pr1 y =>
           transportf (fun x : A => B x) p (pr2 x) = pr2 y))
           (s:=(total_paths_equiv B x y) p)
