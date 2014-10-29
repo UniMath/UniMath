@@ -23,6 +23,7 @@ Notation UUU := Set .
 *)
 
 Notation empty := Empty_set. 
+Notation empty_rect := Empty_set_rect. 
 
 (** Identity Types. Idenity types are introduced in Coq.Init.Datatypes by the lines : 
 
@@ -33,6 +34,7 @@ Hint Resolve identity_refl : core . ]
 
 Notation paths := identity .
 Notation idpath := identity_refl .
+Notation paths_rect := identity_rect .
 
 (** Coproducts . 
 
@@ -52,6 +54,9 @@ Notation ii1 := inl .
 Notation ii2 := inr .
 Implicit Arguments ii1 [ A B ] .
 Implicit Arguments ii2 [ A B ] .
+
+Notation coprod_rect := sum_rect.
+
 
 
 (** Dpendent sums. 

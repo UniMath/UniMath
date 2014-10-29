@@ -28,7 +28,7 @@ Definition intersect { X T : UU } ( F : T -> hsubtypes X ) : hsubtypes X := fun 
 
 
 Definition topologydata ( X : UU ) := ( X -> hProp ) -> hProp . 
-Notation isopen := topologydata . 
+
 
 Definition opensets { X : UU } ( TD : topologydata X ) := total2 TD . 
 
@@ -36,10 +36,10 @@ Definition opensetstosubsets { X : UU } ( TD : topologydata X ) : opensets TD ->
 Coercion  opensetstosubsets : opensets >-> hsubtypes . 
 
 
-Definition openunioncond { X : UU } ( TD : topologydata X ) := forall ( T : UU ) ( F : T -> opensets TD ) , isopen ( union F ) . 
+Definition openunioncond { X : UU } ( TD : topologydata X ) := forall ( T : UU ) ( F : T -> opensets TD ) , TD ( union F ) . 
 
 Definition openintcond { X : UU } ( TD : topologydata X ) := 
-forall ( T : UU ) ( is : isfinite T ) ( F : T -> opensets TD ) , isopen ( intersect F ) . 
+forall ( T : UU ) ( is : isfinite T ) ( F : T -> opensets TD ) , TD ( intersect F ) . 
 
 
 Definition istopology { X : UU } ( TD : topologydata X ) := dirprod ( openunioncond TD ) ( openintcond TD ) . 
