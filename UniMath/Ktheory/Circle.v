@@ -198,7 +198,7 @@ Definition makeGH_diagonalLoop_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T)
 Proof. intros. unfold makeGH_diagonalLoop.
        refine (ap_natl (makeGH_transPath_comp1 _ _ _) _).
        refine (ap_natl (makeGH_localPath_comp1 _ _ _ _) _).
-       rewrite <- (pathscomp0rid (! q)).
+       rewrite <- (pathscomp0rid (paths_rect _ (fun b _ => b = T) _ _ q)). (* Used to be "rewrite <- (pathscomp0rid (! q))", which was more perspicuous. *)
        refine (ap_natl' (makeGH_horizontalPath_comp1 _ _ _ _) _).
        rewrite <- (pathscomp0rid (idpath T)).
        refine (ap_natl (makeGH_localPath_comp1 _ _ _ _) _).
