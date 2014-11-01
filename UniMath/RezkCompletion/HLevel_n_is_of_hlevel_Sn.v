@@ -14,7 +14,7 @@
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.Proof_of_Extensionality.funextfun.
 
-Require Import RezkCompletion.auxiliary_lemmas_HoTT. 
+Require Import RezkCompletion.total2_paths. 
 
 
 

@@ -4,7 +4,7 @@
 
 Require Import Foundations.hlevel2.algebra1b
                Foundations.hlevel2.hz
-               RezkCompletion.auxiliary_lemmas_HoTT
+               RezkCompletion.total2_paths
                Ktheory.Utilities.
 Require Ktheory.Group Ktheory.Precategories Ktheory.Primitive Ktheory.Product
         Ktheory.Sum.

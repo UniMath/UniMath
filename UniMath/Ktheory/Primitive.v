@@ -6,7 +6,7 @@ Require Import
         Ktheory.Utilities
         Ktheory.Precategories
         RezkCompletion.precategories
-        RezkCompletion.auxiliary_lemmas_HoTT
+        RezkCompletion.total2_paths
         Foundations.hlevel2.hSet.
 Import Precategories.Notation.
 Module TerminalObject.

@@ -7,7 +7,7 @@ Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
 
-Require Import RezkCompletion.auxiliary_lemmas_HoTT.
+Require Import RezkCompletion.total2_paths.
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
 Require Import RezkCompletion.limits.aux_lemmas_HoTT.
