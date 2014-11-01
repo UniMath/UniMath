@@ -6,7 +6,6 @@ Require Import Foundations.hlevel2.hSet.
 Require Import RezkCompletion.total2_paths.
 Require Import RezkCompletion.precategories.
 
-Require Import RezkCompletion.limits.aux_lemmas_HoTT.
 Require Import RezkCompletion.limits.terminal.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
