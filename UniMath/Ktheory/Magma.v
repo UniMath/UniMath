@@ -3,7 +3,7 @@
 Require Import Foundations.hlevel2.algebra1a
         Ktheory.Utilities.
 Require Ktheory.Sets.
-Import uu0.PathNotations Ktheory.Utilities.Notation.
+Import Ktheory.Utilities.Notation.
 Local Notation "x * y" := (op x y). 
 Local Notation "g ∘ f" := (binopfuncomp f g) (at level 50, only parsing).
 Local Notation Hom := binopfun.

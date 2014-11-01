@@ -3,7 +3,6 @@
 (** We will show that [B ℤ] has the universal property of the circle. *)
 
 Require Import AffineLine algebra1b funextfun GroupAction hz Nat Integers Ktheory.Equivalences.
-Import uu0.PathNotations.
 Require Import Utilities.
 Import Utilities.Notation.
 Delimit Scope paths_scope with paths.

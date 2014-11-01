@@ -33,6 +33,8 @@ Hint Resolve identity_refl : core . ]
 *)
 
 Notation paths := identity .
+(** Notation [a = b] added by B.A., oct 2014 *)
+Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation idpath := identity_refl .
 Notation paths_rect := identity_rect .
 
@@ -81,7 +83,7 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 
 (** The following command checks wheather the patch which modifies the universe level assignement for inductive types have been installed. With the patch it returns [ paths 0 0 : UUU ] . Without the patch it returns [ paths 0 0 : Prop ]. *)
 
-Check (paths O O) .
+Check (O = O) .
 
 
 
