@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import Foundations.hlevel2.algebra1b 
-	       RezkCompletion.auxiliary_lemmas_HoTT
+	       RezkCompletion.total2_paths
                Ktheory.Utilities.
 Require Ktheory.Monoid.
 Import Ktheory.Utilities.Notation.

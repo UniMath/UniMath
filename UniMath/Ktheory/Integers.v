@@ -2,7 +2,7 @@
 
 (** These results might as well be in hz.v . *)
 
-Require Import algebra1b funextfun Utilities auxiliary_lemmas_HoTT GroupAction hz.
+Require Import algebra1b funextfun Utilities total2_paths GroupAction hz.
 Require Nat.
 Import Utilities.Notation Utilities.NatNotation.
 

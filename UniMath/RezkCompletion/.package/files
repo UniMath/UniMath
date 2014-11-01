@@ -15,4 +15,4 @@ limits/products.v
 limits/terminal.v
 limits/aux_lemmas_HoTT.v
 precategories.v
-auxiliary_lemmas_HoTT.v
+total2_paths.v

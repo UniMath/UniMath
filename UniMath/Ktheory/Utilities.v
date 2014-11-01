@@ -4,8 +4,8 @@ Global Unset Automatic Introduction.
 Require Export uu0.
 Require Export hSet.
 Require Import funextfun.
-Require RezkCompletion.auxiliary_lemmas_HoTT.
-Require Export RezkCompletion.auxiliary_lemmas_HoTT.
+Require RezkCompletion.total2_paths.
+Require Export RezkCompletion.total2_paths.
 Require Export Ktheory.Tactics.
 
 Set Default Timeout 50.

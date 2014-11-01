@@ -26,7 +26,7 @@ Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 Require Import Foundations.Proof_of_Extensionality.funextfun. 
 
-Require Import RezkCompletion.auxiliary_lemmas_HoTT.
+Require Import RezkCompletion.total2_paths.
 
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.HLevel_n_is_of_hlevel_Sn.
