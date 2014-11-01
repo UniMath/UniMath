@@ -7,6 +7,8 @@ Definition propproperty ( X : hProp ) := pr2 X .
 
 (** * Paths in total spaces are equivalent to pairs of paths *)
 
+(** proofs are inspired by HoTT library, http://github.com/HoTT/HoTT *)
+
 (** some of the lemmas are proved for similar fibrations twice:
     once we consider fibrations over a type in universe [UU], 
     once we consider fibrations over the universe [UU] itself *)
@@ -191,21 +193,45 @@ Proof.
   exact HHH.
 Defined.
 
+(** * Lemmas about transport *)
 
-(** This helper lemma is an adaptation of an analogous lemma
-    [isweqpr1] from Voevodsky's Foundations library.
-    Here, we prove it for predicates on path spaces in [UU].
-*)
-
-Lemma isweqpr1_UU (X X' : UU) ( B : (X = X') -> UU ) 
-   ( is1 : forall z , iscontr ( B z ) ) : isweq ( @pr1 _ B ) .
-Proof. 
-  intros. 
-  unfold isweq. 
-  intro y. 
-  set (isy:= is1 y). 
-  apply (iscontrweqf ( ezweqpr1 B y)) . 
-  assumption. 
+Definition transportD {A : UU} (B : A -> UU) (C : forall a : A, B a -> UU)
+  {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C x1 y) : C x2 (transportf _ p y).
+Proof.  
+  induction p. 
+  exact z.
 Defined.
 
 
+Definition transportf_total2 {A : UU} {B : A -> UU} {C : forall a:A, B a -> UU}
+  {x1 x2 : A} (p : x1 = x2) (yz : total2 (fun y : B x1 => C x1 y )): 
+ transportf (fun x => total2 (fun y : B x => C x y)) p yz = 
+ tpair (fun y => C x2 y) (transportf _ p  (pr1 yz)) (transportD _ _ p (pr1 yz) (pr2 yz)).
+Proof.
+  induction p. 
+  induction yz. 
+  apply idpath.
+Defined.
+
+Definition transportf_dirprod (A : UU) (B B' : A -> UU) 
+  (x x' : total2 (fun a => dirprod (B a) (B' a)))  (p : pr1 x = pr1 x') :
+  transportf (fun a => dirprod (B a) (B' a)) p (pr2 x) = 
+                            dirprodpair (transportf (fun a => B a) p (pr1 (pr2 x))) 
+                                        (transportf (fun a => B' a) p (pr2 (pr2 x))) .
+Proof.
+  induction p.
+  apply tppr.
+Defined.
+
+Lemma eq_equalities_between_pairs (A : UU)(B : A -> UU)(x y : total2 (fun x => B x))
+    (p q : x = y) (H : base_paths _ _ p = base_paths _ _ q) 
+    (H2 : transportf (fun p : pr1 x = pr1 y =>  transportf _ p (pr2 x) = pr2 y )
+         H (fiber_paths p) = fiber_paths q) :  p = q.
+Proof.
+  apply (invmaponpathsweq (total2_paths_equiv _ _ _ )).
+  apply (total2_paths (B:=(fun p : pr1 x = pr1 y =>
+          transportf (fun x : A => B x) p (pr2 x) = pr2 y))
+          (s:=(total2_paths_equiv B x y) p)
+          (s':=(total2_paths_equiv B x y) q) H).
+  assumption.
+Defined.

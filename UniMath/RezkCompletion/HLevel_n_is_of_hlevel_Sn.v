@@ -73,12 +73,8 @@ Lemma weq2 (P : UU -> hProp) (X X' : UU)
 Proof.
   exists (@pr1 (X = X') (fun w : X = X' => 
             (transportf (fun x : UU => P x) w pX)  = pX' )).
-  set (H' := isweqpr1_UU X X'
-        (fun w : X = X' => 
-      (transportf (fun X => P X) w pX = pX') )).
-  simpl in H'.
-  apply H'.
-  intro z.
+  apply isweqpr1.
+  intros ? .
   apply (pr2 (P X')).
 Defined.
  
