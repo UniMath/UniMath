@@ -260,10 +260,10 @@ Proof.
   pathvia (base_paths (pr1 M) (pr1 M) (isotoid_CONE_pr1 M M (identity_iso M))).
   unfold Cone_eq.
   apply maponpaths. 
-  apply base_total_path.
+  apply base_total2_paths.
   pathvia (isotoid C is_cat_C (ConeConnectIso (identity_iso M))).
   unfold isotoid_CONE_pr1.
-  apply base_total_path.
+  apply base_total2_paths.
   pathvia (isotoid C is_cat_C (identity_iso (ConeTop (pr1 M)))).
   apply maponpaths, ConeConnectIso_identity_iso.
   apply isotoid_identity_iso.
@@ -296,9 +296,9 @@ Proof.
   rewrite ConeConnect_idtoiso.
   unfold isotoid_CONE.
   unfold Cone_eq.
-  rewrite base_total_path.
+  rewrite base_total2_paths.
   unfold isotoid_CONE_pr1.
-  rewrite base_total_path.
+  rewrite base_total2_paths.
   simpl.
   rewrite idtoiso_isotoid.
   apply idpath.

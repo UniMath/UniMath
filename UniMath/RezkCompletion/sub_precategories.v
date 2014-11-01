@@ -548,7 +548,7 @@ Definition Id_in_sub_to_iso (a b : ob (full_sub_precategory C')):
 
 Lemma Id_in_sub_to_iso_equal_iso 
   (a b : ob (full_sub_precategory C')) :
-    Id_in_sub_to_iso a b = funcomp (total_paths2_hProp_equiv C' a b)
+    Id_in_sub_to_iso a b = funcomp (total2_paths_hProp_equiv C' a b)
                                     (@idtoiso _ (pr1 a) (pr1 b)).
 Proof.
   apply funextfunax.

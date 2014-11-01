@@ -231,7 +231,7 @@ Definition Xkphi_transp (b : B) (t : X b) :
   transportf _ (Xphi b t) (kX t) a h =  k b a h.
 Proof.
   unfold k.
-  rewrite <- (fiber_path (base_paths _ _ (pr2 (iscontr_X b) t))).
+  rewrite <- (fiber_paths (base_paths _ _ (pr2 (iscontr_X b) t))).
   intros ? ?.
   apply maponpaths, idpath.
 Qed.
