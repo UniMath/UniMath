@@ -1,9 +1,7 @@
 (** * Tactics *)
 
 Require Import Foundations.hlevel2.hSet funextfun.
-Require RezkCompletion.auxiliary_lemmas_HoTT.
-Require Import RezkCompletion.auxiliary_lemmas_HoTT.
-        Import uu0.PathNotations.
+Require Import RezkCompletion.total2_paths.
 
 Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
   let T := type of x in
