@@ -1,6 +1,7 @@
 /build/Makefile-coq.make.bak
 /TAGS
 /html
+/enhanced-html
 /build/Makefile-configuration
 /.coq_makefile_input
 /.coq_makefile_output
