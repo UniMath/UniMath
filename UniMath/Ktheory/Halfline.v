@@ -1,8 +1,8 @@
 (** * The induction principle for the half line. *)
 
-Require Import funextfun Utilities auxiliary_lemmas_HoTT.
+Require Import funextfun Utilities total2_paths.
 Require precategories.
-Import uu0.PathNotations Utilities.Notation.
+Import Utilities.Notation.
 Require Nat.
 Notation ℕ := nat.
 

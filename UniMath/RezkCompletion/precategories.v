@@ -26,11 +26,10 @@ Contents :  Definition of
 ************************************************************)
 
 Require Import Foundations.Generalities.uu0.
-Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.auxiliary_lemmas_HoTT.
+Require Import RezkCompletion.total2_paths.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -241,7 +240,7 @@ Proof.
   destruct g as [g [eta eps]].
   destruct g' as [g' [eta' eps']].
   simpl in *.
-  apply pairofobuip.
+  apply isapropdirprod; apply (_ --> _ ).
 Qed.
 
 Definition iso {C : precategory} (a b :ob C) := total2
