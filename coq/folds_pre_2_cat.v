@@ -46,9 +46,8 @@ Require Import UnicodeNotations.
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
-Import uu0.PathNotations.
 
-Require Import RezkCompletion.auxiliary_lemmas_HoTT.
+Require Import RezkCompletion.total2_paths.
 
 (* Require Import FOLDS.aux_lemmas. *)
 
