@@ -60,13 +60,14 @@ $ make html
 ```
 The documentation is created in the subdirectory "html".
 
-To create HTML documentation with toggable proofs:
+To create HTML documentation with "hidden" proofs:
 ```bash
 $ make doc
 ```
-This allows proofs enclosed within "Proof." and "Qed."/"Defined." to be hidden and shown. 
+In this version of the documentation, any proof enclosed within "Proof." and "Qed."/"Defined." is replaced by a button "Show proof.".
+Clicking on this button unveils (unfolds) the corresponding proof. A "Hide proof" button can be used to fold the proof again.
 The documentation is created in the subdirectory "enhanced-html".
-(This feature requires the use of the otherwise optional "Proof." vernacular. 
+(This feature requires the use of the otherwise optional "Proof." vernacular to indicate the beginning of the . 
 Toggling of proofs requires an internet connection for downloading the jquery library.)
 
 To make a TAGS file for use with emacs "etags" commands:
