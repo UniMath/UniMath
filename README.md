@@ -54,10 +54,21 @@ only Coq is compiled above, as follows.
 $ make
 ```
 
-To create the documentation:
+To create the standard HTML documentation provided by coqdoc:
 ```bash
 $ make html
 ```
+The documentation is created in the subdirectory "html".
+
+To create HTML documentation with "hidden" proofs:
+```bash
+$ make doc
+```
+In this version of the documentation, any proof enclosed within "Proof." and "Qed."/"Defined." is replaced by a button "Show proof.".
+Clicking on this button unveils (unfolds) the corresponding proof. A "Hide proof" button can be used to fold the proof again.
+The documentation is created in the subdirectory "enhanced-html".
+(This feature requires the use of the otherwise optional "Proof." vernacular to indicate the beginning of the . 
+Toggling of proofs requires an internet connection for downloading the jquery library.)
 
 To make a TAGS file for use with emacs "etags" commands:
 ```bash
