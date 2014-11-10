@@ -10,6 +10,9 @@ The "UniMath" subdirectory contains various packages of formalized
 mathematics. Please see the file README (or README.md) in each package for more
 information about its contents.
 
+Some articles describing the contents of UniMath are listed in the 
+[wiki](https://github.com/UniMath/UniMath/wiki/Documentation:-Articles-describing-UniMath).
+
 ## Installation
 
 Prepare for installation by installing the OCAML compiler on your system.
