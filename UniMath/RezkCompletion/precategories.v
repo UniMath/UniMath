@@ -36,16 +36,16 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 (** * Definition of a precategory *)
 
 Definition precategory_ob_mor := total2 (
-  fun ob : UU => ob -> ob -> hSet).
+  fun ob : UU => ob -> ob -> UU).
 
-Definition precategory_ob_mor_pair (ob : UU)(mor : ob -> ob -> hSet) :
+Definition precategory_ob_mor_pair (ob : UU)(mor : ob -> ob -> UU) :
     precategory_ob_mor := tpair _ ob mor.
 
 Definition ob (C : precategory_ob_mor) : UU := @pr1 _ _ C.
 Coercion ob : precategory_ob_mor >-> UU.
 
 Definition precategory_morphisms { C : precategory_ob_mor } : 
-       C ->  C -> hSet := pr2 C.
+       C ->  C -> UU := pr2 C.
 
 (** We introduce notation for morphisms *)
 (** in order for this notation not to pollute subsequent files, 
@@ -104,24 +104,46 @@ Definition is_precategory (C : precategory_data) :=
             (forall (a b c d : C) 
                     (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) = (f ;; g) ;; h).
+(*
+Definition is_hs_precategory_data (C : precategory_data) := forall (a b : C), isaset (a --> b).
+*)
+(*Definition hs_precategory_data := total2 is_hs_precategory_data.
+Definition precategory_data_from_hs_precategory_data (C : hs_precategory_data) :
+  precategory_data := pr1 C.
+Coercion precategory_data_from_hs_precategory_data : hs_precategory_data >-> precategory_data.
 
 
-Lemma isaprop_is_precategory (C : precategory_data)
+Lemma isaprop_is_precategory (C : hs_precategory_data)
   : isaprop (is_precategory C).
 Proof.
   apply isofhleveltotal2.
-  { apply isofhleveltotal2. { repeat (apply impred; intro); apply setproperty. }
-    intros _. repeat (apply impred; intro); apply setproperty. }
-  intros _. repeat (apply impred; intro); apply setproperty. 
+  { apply isofhleveltotal2. { repeat (apply impred; intro). apply (pr2 C). }
+    intros _. repeat (apply impred; intro); apply (pr2 C). }
+  intros _. repeat (apply impred; intro); apply C. 
 Qed.
+*)
 
 Definition precategory := total2 is_precategory.
+
+Definition hs_precategory := total2 (fun C : precategory_data => 
+  dirprod (is_precategory C) (forall a b : C, isaset (a --> b))).
 
 Definition precategory_data_from_precategory (C : precategory) : 
        precategory_data := pr1 C.
 Coercion precategory_data_from_precategory : precategory >-> precategory_data.
+(*
+Definition precategory_data_from_hs_precategory (C : hs_precategory) : 
+       precategory_data := pr1 C.
+Coercion precategory_data_from_hs_precategory : hs_precategory >-> precategory_data.
+*)
+Definition precategory_from_hs_precategory (C : hs_precategory) : precategory :=
+  tpair _ (pr1 C) (pr1 (pr2 C)).
+Coercion precategory_from_hs_precategory : hs_precategory >-> precategory.
 
-Lemma eq_precategory : forall C D : precategory, 
+Definition has_homsets (C : precategory) := forall a b : C, isaset (a --> b).
+
+(*
+Lemma eq_hs_precategory : forall C D : precategory, 
     precategory_data_from_precategory C = precategory_data_from_precategory D -> C = D.
 Proof.
   intros C D H.
@@ -129,6 +151,7 @@ Proof.
   - apply isaprop_is_precategory.
   - apply H.
 Defined.
+*)
   
 Definition id_left (C : precategory) : 
    forall (a b : C) (f : a --> b),
@@ -204,12 +227,10 @@ Definition is_inverse_in_precat {C : precategory} {a b : C}
   dirprod (f ;; g = identity a)
           (g ;; f = identity b).
 
-Lemma isaprop_is_inverse_in_precat (C : precategory) (a b : ob C)
+Lemma isaprop_is_inverse_in_precat (C : precategory) (hs: has_homsets C) (a b : ob C)
    (f : a --> b) (g : b --> a) : isaprop (is_inverse_in_precat f g).
 Proof.
-  apply isapropdirprod.
-  apply (pr2 (a --> a)).
-  apply (pr2 (b --> b)).
+  apply isapropdirprod; apply hs.
 Qed.
 
 Lemma inverse_unique_precat (C : precategory) (a b : ob C)
@@ -230,7 +251,7 @@ Qed.
 Definition is_isomorphism {C : precategory} {a b : ob C}
   (f : a --> b) := total2 (fun g => is_inverse_in_precat f g).
 
-Lemma isaprop_is_isomorphism {C : precategory} {a b : ob C}
+Lemma isaprop_is_isomorphism {C : precategory} {a b : ob C} (hs: has_homsets C)
      (f : a --> b) : isaprop (is_isomorphism f).
 Proof.
   apply invproofirrelevance.
@@ -240,24 +261,24 @@ Proof.
   destruct g as [g [eta eps]].
   destruct g' as [g' [eta' eps']].
   simpl in *.
-  apply isapropdirprod; apply (_ --> _ ).
+  apply isapropdirprod; apply hs.
 Qed.
 
 Definition iso {C : precategory} (a b :ob C) := total2
     (fun f : a --> b => is_isomorphism f).
 
-Lemma eq_iso (C : precategory)(a b : ob C)
+Lemma eq_iso (C : precategory)(hs: has_homsets C) (a b : ob C)
    (f g : iso a b) : pr1 f = pr1 g -> f = g.
 Proof.
   intro H.
   apply (total2_paths H).
   apply proofirrelevance.
-  apply isaprop_is_isomorphism.
+  apply isaprop_is_isomorphism, hs.
 Defined.
 
 Definition morphism_from_iso (C : precategory)(a b : ob C) 
    (f : iso a b) : a --> b := pr1 f.
-Coercion morphism_from_iso : iso >-> pr1hSet.
+Coercion morphism_from_iso : iso >-> precategory_morphisms.
 
 Lemma isaset_iso {C : precategory} (a b :ob C) :
   isaset (iso a b).
