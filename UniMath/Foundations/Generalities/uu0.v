@@ -63,6 +63,10 @@ O => idfun T |
 S m => funcomp ( iteration f m ) f 
 end . *)
 
+(* the end of Oct. 22, 2014 lecture *)
+
+
+
 Definition iteration { T : UU } ( f : T -> T ) ( n : nat ) : T -> T .
 Proof. 
 intros T f n . induction n as [ | n IHn ] . exact ( idfun T )  . exact ( funcomp IHn f ) . Defined.
@@ -147,6 +151,10 @@ Proof. intros. induction e1. apply e2 . Defined.
 Hint Resolve @pathscomp0 : pathshints .
 (** Notation [p @ q] added by B.A., oct 2014 *)
 Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
+
+
+(* the end of Oct. 29, 2014 *)
+
 
 Definition pathscomp0rid { X : UU } { a b : X } ( e1 : paths a b ) : paths ( pathscomp0 e1 ( idpath b ) ) e1 . 
 Proof. intros. induction e1. simpl. apply idpath.  Defined. 
@@ -1132,7 +1140,7 @@ Proof. intros x ne . induction (boolchoice x) as [t | f].  apply t . induction (
 
 
 
-
+(* the end of Nov. 5, 2014 lecture *)
 
 
 
@@ -1682,7 +1690,7 @@ Definition weqbandf { X Y : UU } (w : weq X Y ) (P:X -> UU)(Q: Y -> UU)
 
 
 
-
+ 
 
 
 
@@ -1946,7 +1954,7 @@ set ( gg := weqhfibertohfp g z ) . apply ( twooutof3a ff gg ( pr2 ggff ) ( pr2 g
 
 
 
-
+(* the end of the Nov. 12, 2014 lecture *)
 
 
 
@@ -2065,7 +2073,7 @@ intros. apply (IHn  _ _ (d2g  f x xe') (is1 (pr1  xe') x) (is2 (f x) y)).
 assert (is4: forall (y:Y)(x:X)(xe': hfiber  f y)(e: paths (f x) y), 
                isofhlevel n (paths (hfiberpair  f x e) xe')). intros.
 apply (isofhlevelweqb n  ( ezweq3g f x xe' e)  (is3 y x xe' e)).
-intros y xe xe' .  induction xe as [ t x ]. apply (is4 y t xe' x). \
+intros y xe xe' .  induction xe as [ t x ]. apply (is4 y t xe' x). 
 Defined.
 
 
@@ -2382,14 +2390,19 @@ Lemma iscontraprop1inv { X : UU } ( f : X -> iscontr X ) : isaprop X .
 Proof. intros X X0. assert ( H : X -> isofhlevel (S O) X). intro X1.  apply (hlevelntosn O _ ( X0 X1 ) ) . apply ( isofhlevelsn O H ) . Defined.
 
 Lemma proofirrelevance ( X : UU ) ( is : isaprop X ) : forall x x' : X , x = x' . 
-Proof. intros . unfold isaprop in is . unfold isofhlevel in is .   apply ( pr1 ( is x x' ) ). Defined. 
+Proof. intros . unfold isaprop in is . unfold isofhlevel in is .   apply ( pr1 ( is x x' ) ). 
+Defined. 
 
 Lemma invproofirrelevance ( X : UU ) ( ee : forall x x' : X , x = x' ) : isaprop X.
 Proof. intros . unfold isaprop. unfold isofhlevel .  intro x .  
-assert ( is1 : iscontr X ).  split with x. intro t .  apply ( ee t x). assert ( is2 : isaprop X).  apply isapropifcontr. assumption.   
+assert ( is1 : iscontr X ).  split with x. intro t .  apply ( ee t x). assert ( is2 : isaprop X).  
+apply isapropifcontr. assumption.   
 unfold isaprop in is2. unfold isofhlevel in is2.  apply (is2 x). Defined. 
 
-Lemma isweqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isaprop X ) ( isy : isaprop Y ) : isweq f.
+(* the end of the Nov. 19, 2014 lecture *)
+
+Lemma isweqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isaprop X ) ( isy : isaprop Y ) :
+ isweq f.
 Proof. intros. 
 assert (isx0: forall x:X, paths (g (f x)) x). intro. apply proofirrelevance . apply isx . 
 assert (isy0 : forall y : Y, paths (f (g y)) y). intro. apply proofirrelevance . apply isy . 
