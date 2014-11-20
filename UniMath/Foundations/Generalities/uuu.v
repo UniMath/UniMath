@@ -61,16 +61,28 @@ Notation coprod_rect := sum_rect.
 
 
 
-(** Dpendent sums. 
+(** Dependent sums. 
 
-One can not use a new record each time one needs it because the general theorems about this construction would not apply to new instances of "Record" due to the "generativity" of inductive definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
+One can not use a new record each time one needs it because the general theorems about this 
+construction would not apply to new instances of "Record" due to the "generativity" of inductive 
+definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is 
+equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
 
-Set Primitive Projections.
 
-Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }.
+Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . 
 Arguments tpair {T} _ _ _.
+
+Definition pr1 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : T .
+Proof . intros .  induction t as [ t p ] . exact t . Defined. 
+
 Arguments pr1 {_ _} _.
+
+Definition pr2 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : P ( pr1 t ) .
+Proof . intros .  induction t as [ t p ] . exact p . Defined. 
+
 Arguments pr2 {_ _} _.
+
+
 
 (*
 
