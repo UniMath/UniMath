@@ -52,18 +52,18 @@ Proof.
   induction H.
 Defined. 
 
-Definition tounit {X : UU} : X -> unit := (fun x : X => tt).
+Definition tounit {X : UU} : X -> unit := fun (x : X) => tt.
 
 (** *** Functions from [ unit ] corresponding to terms *)
 
-Definition termfun {X : UU} (x : X) : unit -> X := (fun t : unit => x).
+Definition termfun {X : UU} (x : X) : unit -> X := fun (t : unit) => x.
 
 (** *** Identity functions and function composition *)
 
-Definition idfun ( T : UU ) := fun t : T => t .
+Definition idfun ( T : UU ) := fun (t : T) => t .
 
 Definition funcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z) := 
-  (fun x : X => g (f x)).
+  fun (x : X) => g (f x).
 
 Notation "g 'circ' f" := (funcomp f g) (at level 80, right associativity).
 
@@ -83,7 +83,7 @@ Defined.
 Definition adjev {X Y : UU} (x : X) (f : X -> Y) : Y := f x.
 
 Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
-  (fun  (x : X) => phi (fun (f : X -> Y) => f x)).
+  fun  (x : X) => phi (fun (f : X -> Y) => f x).
 
 (** *** Pairwise direct products *)
 
@@ -111,7 +111,7 @@ Defined.
 Definition neg (X : UU) : UU := X -> empty.
 
 Definition negf {X Y : UU} (f : X -> Y) : neg Y -> neg X := 
-  (fun (phi : Y -> empty) => fun (x : X) => phi (f x)).
+  fun (phi : Y -> empty) => fun (x : X) => phi (f x).
 
 Definition dneg (X : UU) : UU := (X -> empty) -> empty.
 
