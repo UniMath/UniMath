@@ -49,7 +49,7 @@ Definition hset_fun_space (A B : hSet) : hSet :=
   hSetpair _ (isaset_set_fun_space A B).
 
 Definition hset_precategory_ob_mor : precategory_ob_mor :=
-  tpair (fun ob : UU => ob -> ob -> hSet) hSet 
+  tpair (fun ob : UU => ob -> ob -> UU) hSet 
         (fun A B : hSet => hset_fun_space A B).
 
 Definition hset_precategory_data : precategory_data :=
@@ -140,10 +140,12 @@ Defined.
 Lemma hset_iso_equiv_is_equiv (A B : ob HSET) : isweq (hset_iso_equiv A B).
 Proof.
   apply (gradth _ (hset_equiv_iso A B)).
-  intro; apply eq_iso; reflexivity.  
-  intro; apply total2_paths_hProp.
-    intro; apply isapropisweq.
-    reflexivity.
+  intro; apply eq_iso. 
+  - intros ? ? . apply isaset_set_fun_space.
+  - reflexivity.  
+  - intro; apply total2_paths_hProp.
+    + intro; apply isapropisweq.
+    + reflexivity.
 Qed.
 
 Definition hset_iso_equiv_weq (A B : ob HSET) : weq (iso A B) (weq (pr1 A) (pr1 B)).
@@ -160,7 +162,8 @@ Proof.
     apply isapropisweq.
     reflexivity.
   intro; apply eq_iso.
-  reflexivity.
+  - intros ? ? . apply isaset_set_fun_space.
+  - reflexivity.
 Qed.
 
 Definition hset_equiv_iso_weq (A B : ob HSET) :
@@ -194,10 +197,11 @@ Proof.
   apply funextfunax.
   intro p; elim p.
   apply eq_iso; simpl.
-  apply funextfun;
-  intro x; 
-  destruct A. 
-  apply idpath.
+  - intros ? ? . apply isaset_set_fun_space.
+  - apply funextfun;
+    intro x; 
+    destruct A. 
+    apply idpath.
 Defined.
 
 
@@ -210,8 +214,9 @@ Defined.
 
 Lemma is_category_HSET : is_category HSET.
 Proof.
-  unfold is_category.
-  apply is_weq_precat_paths_to_iso_hset.
+  split.
+  - apply is_weq_precat_paths_to_iso_hset.
+  - intros ? ? . apply isaset_set_fun_space.
 Defined.
 
 

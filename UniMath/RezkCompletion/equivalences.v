@@ -40,8 +40,10 @@ Local Notation "f ;; g" := (compose f g)(at level 50).
 Notation "[ C , D ]" := (functor_precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
-Definition functor_composite (A B C : precategory) (F : ob [A, B])
-      (G : ob [B , C]) : ob [A , C] := 
+Definition functor_composite (A B C : precategory) 
+   (hsB: has_homsets B) (hsC: has_homsets C)
+   (F : ob [A, B, hsB])
+      (G : ob [B , C, hsC]) : ob [A , C, hsC] := 
    functor_composite _ _ _ F G.
 
 Notation "G 'O' F" := (functor_composite _ _ _ F G) (at level 25).
@@ -49,8 +51,9 @@ Notation "G 'O' F" := (functor_composite _ _ _ F G) (at level 25).
 (** * Adjunction *)
 
 
-Definition form_adjunction (A B : precategory) (F : ob [A, B])
-       (G : ob [B, A]) 
+Definition form_adjunction (A B : precategory) 
+   (hsA: has_homsets A) (hsB: has_homsets B)  (F : ob [A, B, hsB])
+       (G : ob [B, A, hsA]) 
        (eta : nat_trans (functor_identity A) (pr1 (G O F)))  
        (eps : nat_trans (pr1 (F O G)) (functor_identity B)) : UU :=
 dirprod 

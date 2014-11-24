@@ -15,7 +15,7 @@ Local Notation "f ;; g" := (compose f g)(at level 50).
 Section def_pb.
 
 Variable C : precategory.
-
+Variable hs: has_homsets C.
 
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g) : UU :=
@@ -209,7 +209,7 @@ Proof.
   intro t.
   apply total2_paths_hProp.
   - intro a0. apply isapropdirprod;
-    apply (pr2 (_ --> _)).
+    apply hs.
   - simpl. destruct t as [t [Ht1 Ht2]].
     simpl in *.
     apply PullbackArrowUnique.
@@ -240,7 +240,7 @@ Proof.
   intros Pb Pb'.
   apply total2_paths_hProp.
   - intro; apply isofhleveltotal2.
-    + apply (pr2 (_ --> _)).
+    + apply hs.
     + intros; apply isaprop_isPullback.
   - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))). 
     rewrite transportf_dirprod, transportf_isotoid.

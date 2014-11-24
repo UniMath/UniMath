@@ -584,7 +584,7 @@ Proof.
   intros a b.
   apply (isofhlevelweqb _ (tpair _ _ (pr1 (pr2 C) a b))).
   apply isaset_iso.
-  apply C.
+  apply (pr2 (pr2 C)).
 Qed.
   
 
@@ -653,6 +653,7 @@ Proof.
   apply hs.
   apply id_left.
 Qed.
+
 
 
 Lemma double_transport_idtoiso (C : precategory) (a a' b b' : ob C) 
