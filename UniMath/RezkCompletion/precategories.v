@@ -111,17 +111,8 @@ Definition is_hs_precategory_data (C : precategory_data) := forall (a b : C), is
 Definition precategory_data_from_hs_precategory_data (C : hs_precategory_data) :
   precategory_data := pr1 C.
 Coercion precategory_data_from_hs_precategory_data : hs_precategory_data >-> precategory_data.
-
-
-Lemma isaprop_is_precategory (C : hs_precategory_data)
-  : isaprop (is_precategory C).
-Proof.
-  apply isofhleveltotal2.
-  { apply isofhleveltotal2. { repeat (apply impred; intro). apply (pr2 C). }
-    intros _. repeat (apply impred; intro); apply (pr2 C). }
-  intros _. repeat (apply impred; intro); apply C. 
-Qed.
 *)
+
 
 Definition precategory := total2 is_precategory.
 
@@ -140,7 +131,17 @@ Definition precategory_from_hs_precategory (C : hs_precategory) : precategory :=
   tpair _ (pr1 C) (pr1 (pr2 C)).
 Coercion precategory_from_hs_precategory : hs_precategory >-> precategory.
 
-Definition has_homsets (C : precategory) := forall a b : C, isaset (a --> b).
+Definition has_homsets (C : precategory_data) := forall a b : C, isaset (a --> b).
+
+Lemma isaprop_is_precategory (C : precategory_data)(hs: has_homsets C)
+  : isaprop (is_precategory C).
+Proof.
+  apply isofhleveltotal2.
+  { apply isofhleveltotal2. { repeat (apply impred; intro). apply hs. }
+    intros _. repeat (apply impred; intro); apply hs. }
+  intros _. repeat (apply impred; intro); apply hs. 
+Qed.
+
 
 (*
 Lemma eq_hs_precategory : forall C D : precategory, 

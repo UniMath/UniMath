@@ -18,7 +18,7 @@ Module Precategory.
     ob (
         precategory_ob_mor_from_precategory_data (
             precategory_data_from_precategory C)).
-  Definition mor {C:precategory} : ob C -> ob C -> hSet :=
+  Definition mor {C:precategory} : ob C -> ob C -> UU :=
     pr2 (
         precategory_ob_mor_from_precategory_data (
             precategory_data_from_precategory C)).
@@ -50,37 +50,37 @@ Definition theUnivalenceProperty (C:category) := pr2 _ : is_category C.
 Definition reflects_isos {C D} (X:C==>D) :=
   forall c c' (f : c → c'), is_isomorphism (#X f) -> is_isomorphism f.
 
-Lemma isaprop_reflects_isos {C D} (X:C==>D) : isaprop (reflects_isos X).
+Lemma isaprop_reflects_isos {C D} (X:C==>D) (hsC: has_homsets C): isaprop (reflects_isos X).
 Proof.
   intros. apply impred; intros. apply impred; intros. apply impred; intros.
-  apply impred; intros. apply isaprop_is_isomorphism. Qed.
+  apply impred; intros. apply isaprop_is_isomorphism. apply hsC. Qed.
 
 (** *** make a precategory *)
 
 Definition makePrecategory_ob_mor
     (obj : UU)
     (mor : obj -> obj -> UU)
-    (imor : forall i j:obj, isaset (mor i j))
+(*    (imor : forall i j:obj, isaset (mor i j)) *)
     : precategory_ob_mor.
   intros.
-  exact (precategory_ob_mor_pair obj (fun i j:obj => hSetpair (mor i j) (imor i j))).
+  exact (precategory_ob_mor_pair obj (fun i j:obj => mor i j)).
 Defined.    
 
 Definition makePrecategory_data
     (obj : UU)
     (mor : obj -> obj -> UU)
-    (imor : forall i j, isaset (mor i j))
+(*    (imor : forall i j, isaset (mor i j)) *)
     (identity : forall i, mor i i)
     (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
     : precategory_data.
   intros.
-  exact (precategory_data_pair (makePrecategory_ob_mor obj mor imor) identity compose).
+  exact (precategory_data_pair (makePrecategory_ob_mor obj mor) identity compose).
 Defined.    
 
 Definition makePrecategory 
     (obj : UU)
     (mor : obj -> obj -> UU)
-    (imor : forall i j, isaset (mor i j))
+(*    (imor : forall i j, isaset (mor i j)) *)
     (identity : forall i, mor i i)
     (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
     (right : forall i j (f:mor i j), compose _ _ _ (identity i) f = f)
@@ -93,7 +93,7 @@ Definition makePrecategory
            (precategory_data_pair
               (precategory_ob_mor_pair 
                  obj
-                 (fun i j => hSetpair (mor i j) (imor i j)))
+                 (fun i j => mor i j))
               identity compose)
            ((right,,left),,associativity)). Defined.    
 
@@ -110,6 +110,12 @@ Lemma opp_opp_precat_data (C : precategory_data)
    : C = opp_precat_data (opp_precat_data C).
 Proof. intros [[ob mor] [id co]]. reflexivity. Defined.
 
-Lemma opp_opp_precat (C : precategory) : C = C^op^op.
-Proof. intros [data ispre]. apply (pair_path_props (opp_opp_precat_data data)).
-       apply isaprop_is_precategory. Defined.
+(*
+Lemma opp_opp_precat (C : precategory)(hsC: has_homsets (pr1 C)) : C = C^op^op.
+Proof. intros C hsC.
+       apply (total2_paths  (opp_opp_precat_data C)).
+       simpl.
+       Check pair_path_props.
+       apply (pair_path_props (opp_opp_precat_data Cd)).
+       intro z. apply (isaprop_is_precategory z). apply hsC. Defined.
+*)

@@ -679,7 +679,6 @@ Proof.
   apply idpath.
 Defined.
   
-  
 
 (** Characterizing isomorphisms in the functor category *)
 
@@ -946,11 +945,18 @@ Lemma is_category_functor_category (C D : precategory) (H : is_category D) :
    is_category [C, D, (pr2 H)].
 Proof.
   split.
-  intros F G.
-  apply isweq_idtoiso_functorcat.
-  intros a b.
-  apply isaset_nat_trans.
-  apply (pr2 H).
+  - intros F G.
+    apply isweq_idtoiso_functorcat.
+  - intros a b.
+    apply isaset_nat_trans.
+    apply (pr2 H).
 Qed.
 
 
+Lemma functor_category_has_homsets (C D : precategory) (hs: has_homsets D):
+  has_homsets [C, D, hs].
+Proof.  
+  intros F G.
+  apply isaset_nat_trans.
+  apply hs.
+Qed.
