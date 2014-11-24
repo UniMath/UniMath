@@ -401,7 +401,7 @@ Proof.
       set (H2 := comp_compose2' H).
       rewrite assoc in H2.
       eapply post_comp_with_iso_is_inj. 
-      apply f. apply H2.
+      apply (pr2 f). apply H2.
   - simpl. apply logeqweq.
     + intro H. apply comp_compose2.
       apply pathsinv0. etransitivity.

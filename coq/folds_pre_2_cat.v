@@ -143,6 +143,12 @@ Definition is_folds_pre_2_cat (C : folds_pre_3_cat) :=
 
 Definition folds_pre_2_cat : UU := Σ C, is_folds_pre_2_cat C.
 
+Ltac folds_pre_2_cat_props C :=
+     try apply (pr2 (pr1 (pr2 C)));
+     try apply (pr1 (pr1 (pr2 C)));
+     try apply (pr2 (pr2 C)).
+
+
 Definition folds_3_from_folds_2 (C : folds_pre_2_cat) : folds_pre_3_cat := pr1 C.
 Coercion folds_3_from_folds_2 : folds_pre_2_cat >-> folds_pre_3_cat.
 
@@ -171,7 +177,7 @@ Proof.
   repeat (apply isofhleveldirprod);
   repeat (apply impred; intro);
   apply isofhlevelsnweqtohlevelsn;
-  apply C.
+  folds_pre_2_cat_props C.
 Qed.
 
 
@@ -203,69 +209,47 @@ Proof.
   set (H' := pr2 (pr2 (pr1 C))). simpl in H'.
   destruct H' as [[[Erefl Esym] Etrans] [EI ET]].
   intro Efg.  
-  repeat split; intros; apply weqimplimpl; intro.
+  repeat split; intros; apply weqimplimpl; intro; folds_pre_2_cat_props C.
   - apply (ET _ _ _  u u f g v v); auto.
   - apply (ET _ _ _ u u g f v v) ; auto.
-  - apply C.     
-  - apply C.
   - apply (ET _ _ _ u u v v f g); auto.
   - apply (ET _ _ _ u u v v g f); auto.
-  - apply C.
-  - apply C.
   - apply (ET _ _ _ f g u u v v); auto.
   - apply (ET _ _ _ g f u u v v); auto.
-  - apply C.
-  - apply C.
   - destruct p; 
     apply (ET _ _ _ f g f g u u); auto. 
   - destruct p;
     apply (ET _ _ _ g f g f u u); auto.
-  - apply C.
-  - apply C.
   - apply (ET _ _ _ (transportf (λ c, c ⇒ b) p f) (p # g) u u f g); 
     try apply E_transport_source; auto.
   - apply (ET _ _ _ (transportf (λ c, c ⇒ b) p g) (p # f) u u g f); 
     try apply E_transport_source; auto.
-  - apply C.
-  - apply C.
   - apply (ET _ _ _ u u (transportf (λ c, a ⇒ c) p f) (p # g) f g); 
     try apply E_transport_target; auto.
   - apply (ET _ _ _ u u (transportf (λ c, a ⇒ c) p g) (p # f) g f); 
     try apply E_transport_target; auto.
-  - apply C.
-  - apply C.
   - apply (ET _ _ _ (double_transport p q f) (double_transport p q g) 
                           (transportf (λ c, a ⇒ c) r f) (r # g) f g); 
     try apply E_transport_target; try apply E_transport_source; auto.
   - apply (ET _ _ _ (double_transport p q g) (double_transport p q f) 
                           (transportf (λ c, a ⇒ c) r g) (r # f) g f); 
     try apply E_transport_target; try apply E_transport_source; auto.
-  - apply C.
-  - apply C.
   - destruct p. apply (EI _ f); auto.
   - destruct p; apply (EI _ g); auto.
-  - apply C.
-  - apply C.
   - apply (Etrans _ _ g f u).
     + apply Esym; auto.
     + auto.
   - apply (Etrans _ _ f g u); auto.
-  - apply C.
-  - apply C.
   - apply (Etrans _ _ u f g); auto.
   - apply (Etrans _ _ u g f).
     + auto.
     + apply Esym; auto.
-  - apply C.
-  - apply C.
   - apply (Etrans _ _ (double_transport p q g) (double_transport p q f) g).
     + apply E_transport_target. apply E_transport_source. apply Esym; auto.
     + apply (Etrans _ _ (double_transport p q f) f g); auto.
   - apply (Etrans _ _ (double_transport p q f) (double_transport p q g) f).
     + apply E_transport_target. apply E_transport_source. auto.
     + apply (Etrans _ _ (double_transport p q g) g f); auto.
-  - apply C.
-  - apply C.      
 Qed.
 
 Lemma folds_iso_implies_E (C : folds_pre_2_cat) (a b : C) (f g : a ⇒ b) : folds_iso f g → E f g.
