@@ -13,29 +13,31 @@ Require Import
 Require Ktheory.Precategories Ktheory.Sum Ktheory.Product.
 Import Utilities.Notation Precategories.Notation.
 Import Sum.Coercions Product.Coercions.
-Definition to_row {C:precategory} {I} {b:I -> ob C} 
-           (B:Sum.type C b) {d:ob C} :
+Definition to_row {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C} 
+           (B:Sum.type C hs b) {d:ob C} :
   weq (Hom B d) (forall j, Hom (b j) d).
 Proof. intros. exact (Representation.Iso B d). Defined.
-Definition from_row {C:precategory} {I} {b:I -> ob C} 
-           (B:Sum.type C b) {d:ob C} :
+Definition from_row {C:precategory} (hs: has_homsets C)  {I} {b:I -> ob C} 
+           (B:Sum.type C hs b) {d:ob C} :
   weq (forall j, Hom (b j) d) (Hom B d).
 Proof. intros. apply invweq. apply to_row. Defined.
-Lemma from_row_entry {C:precategory} {I} {b:I -> ob C} 
-           (B:Sum.type C b) {d:ob C} (f : forall j, Hom (b j) d) :
-  forall j, from_row B f ∘ Sum.In B j = f j.
-Proof. intros. exact (apevalat j (homotweqinvweq (to_row B) f)). Qed.
-Definition to_col {C:precategory} {I} {d:I -> ob C} (D:Product.type C d) {b:ob C} :
+Lemma from_row_entry {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C} 
+           (B:Sum.type C hs b) {d:ob C} (f : forall j, Hom (b j) d) :
+  forall j, from_row hs B f ∘ Sum.In hs B j = f j.
+Proof. intros. exact (apevalat j (homotweqinvweq (to_row hs B) f)). Qed.
+Definition to_col {C:precategory} (hs: has_homsets C) {I} {d:I -> ob C} (D:Product.type C hs d) {b:ob C} :
   weq (Hom b D) (forall i, Hom b (d i)).
 Proof. intros. exact (Representation.Iso D b). Defined.
-Definition from_col {C:precategory} {I} {d:I -> ob C} 
-           (D:Product.type C d) {b:ob C} :
+Definition from_col {C:precategory} (hs: has_homsets C) {I} {d:I -> ob C} 
+           (D:Product.type C hs d) {b:ob C} :
   weq (forall i, Hom b (d i)) (Hom b D).
 Proof. intros. apply invweq. apply to_col. Defined.
-Lemma from_col_entry {C:precategory} {I} {b:I -> ob C} 
-           (D:Product.type C b) {d:ob C} (f : forall i, Hom d (b i)) :
-  forall i, Product.Proj D i ∘ from_col D f = f i.
-Proof. intros. exact (apevalat i (homotweqinvweq (to_row D) f)). Qed.
+Lemma from_col_entry {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C} 
+           (D:Product.type C hs b) {d:ob C} (f : forall i, Hom d (b i)) :
+  forall i, Product.Proj hs D i ∘ from_col hs D f = f i.
+Proof. intros.  
+  set (T:= apevalat i (homotweqinvweq (to_row hs D) f )).
+  exact (apevalat i (homotweqinvweq (to_row hs D) f)). Qed.
 Definition to_matrix {C:precategory} 
            {I} {d:I -> ob C} (D:Product.type C d)
            {J} {b:J -> ob C} (B:Sum.type C b) :
