@@ -36,28 +36,27 @@ Lemma from_col_entry {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C}
            (D:Product.type C hs b) {d:ob C} (f : forall i, Hom d (b i)) :
   forall i, Product.Proj hs D i ∘ from_col hs D f = f i.
 Proof. intros.  
-  set (T:= apevalat i (homotweqinvweq (to_row hs D) f )).
-  exact (apevalat i (homotweqinvweq (to_row hs D) f)). Qed.
-Definition to_matrix {C:precategory} 
-           {I} {d:I -> ob C} (D:Product.type C d)
-           {J} {b:J -> ob C} (B:Sum.type C b) :
+  apply (apevalat i (homotweqinvweq (to_row _ D) f )). Qed.
+Definition to_matrix {C:precategory} (hs: has_homsets C)
+           {I} {d:I -> ob C} (D:Product.type C hs d)
+           {J} {b:J -> ob C} (B:Sum.type C hs b) :
            weq (Hom B D) (forall i j, Hom (b j) (d i)).
 Proof. intros. apply @weqcomp with (Y := forall i, Hom B (d i)).
        { apply to_col. } { apply weqonsecfibers; intro i. apply to_row. } Defined.
-Definition from_matrix {C:precategory} 
-           {I} {d:I -> ob C} (D:Product.type C d)
-           {J} {b:J -> ob C} (B:Sum.type C b) :
+Definition from_matrix {C:precategory} (hs: has_homsets C) 
+           {I} {d:I -> ob C} (D:Product.type C hs d)
+           {J} {b:J -> ob C} (B:Sum.type C hs b) :
            weq (forall i j, Hom (b j) (d i)) (Hom B D).
 Proof. intros. apply invweq. apply to_matrix. Defined.
-Lemma from_matrix_entry {C:precategory} 
-           {I} {d:I -> ob C} (D:Product.type C d)
-           {J} {b:J -> ob C} (B:Sum.type C b)
+Lemma from_matrix_entry {C:precategory} (hs: has_homsets C) 
+           {I} {d:I -> ob C} (D:Product.type C hs d)
+           {J} {b:J -> ob C} (B:Sum.type C hs b)
            (f : forall i j, Hom (b j) (d i)) :
-  forall i j, (Product.Proj D i ∘ from_matrix D B f) ∘ Sum.In B j = f i j.
-Proof. intros. exact (apevalat j (apevalat i (homotweqinvweq (to_matrix D B) f))). Qed.
-Lemma from_matrix_entry_assoc {C:precategory} 
-           {I} {d:I -> ob C} (D:Product.type C d)
-           {J} {b:J -> ob C} (B:Sum.type C b)
+  forall i j, (Product.Proj hs D i ∘ from_matrix hs D B f) ∘ Sum.In hs B j = f i j.
+Proof. intros. exact (apevalat j (apevalat i (homotweqinvweq (to_matrix _ D B) f))). Qed.
+Lemma from_matrix_entry_assoc {C:precategory} (hs: has_homsets C)
+           {I} {d:I -> ob C} (D:Product.type C _ d)
+           {J} {b:J -> ob C} (B:Sum.type C hs b)
            (f : forall i j, Hom (b j) (d i)) :
-  forall i j, Product.Proj D i ∘ (from_matrix D B f ∘ Sum.In B j) = f i j.
-Proof. intros. refine ( !_ @ from_matrix_entry D B f i j ). apply assoc. Qed.
+  forall i j, Product.Proj _ D i ∘ (from_matrix _ D B f ∘ Sum.In _ B j) = f i j.
+Proof. intros. refine ( !_ @ from_matrix_entry _ D B f i j ). apply assoc. Qed.

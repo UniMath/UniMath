@@ -14,44 +14,44 @@ Import Ktheory.Utilities.Notation
        Precategories.Notation
        FiniteSet.Coercions 
        Sum.Coercions Product.Coercions.
-Definition identity_matrix {C:precategory} (h:hasZeroObject C)
+Definition identity_matrix {C:precategory} (hs: has_homsets C) (h:hasZeroObject C)
            {I} (d:I -> ob C) (dec : isdeceq I) : forall i j, Hom (d j) (d i).
 Proof. intros. destruct (dec i j) as [ [] | _ ].
-       { apply identity. } { apply zeroMap. apply h. } Defined.
-Definition identity_map {C:precategory} (h:hasZeroObject C)
+       { apply identity. } { apply zeroMap. apply hs. apply h. } Defined.
+Definition identity_map {C:precategory} (hs: has_homsets C) (h:hasZeroObject C)
            {I} {d:I -> ob C} (dec : isdeceq I) 
-           (B:Sum.type C d) (D:Product.type C d)
+           (B:Sum.type C hs d) (D:Product.type C hs d)
       : Hom B D.
 Proof. intros. apply RawMatrix.from_matrix. apply identity_matrix.  
-       assumption. assumption. Defined.
-Record DirectSum {C:precategory} (h:hasZeroObject C) I (dec : isdeceq I) (c : I -> ob C) := 
+       assumption. assumption. assumption. Defined.
+Record DirectSum {C:precategory} (hs: has_homsets C) (h:hasZeroObject C) I (dec : isdeceq I) (c : I -> ob C) := 
   make_DirectSum {
       ds : C;
       ds_pr : forall i, Hom ds (c i);
       ds_in : forall i, Hom (c i) ds;
-      ds_id : forall i j, ds_pr i ∘ ds_in j = identity_matrix h c dec i j;
+      ds_id : forall i j, ds_pr i ∘ ds_in j = identity_matrix hs h c dec i j;
       ds_isprod : forall c, isweq (fun f : Hom c ds => fun i => ds_pr i ∘ f);
       ds_issum  : forall c, isweq (fun f : Hom ds c => fun i => f ∘ ds_in i) }.
-Definition toDirectSum {C:precategory} (h:hasZeroObject C) {I} (dec : isdeceq I) (d:I -> ob C) 
-           (B:Sum.type C d) (D:Product.type C d)
-           (is: is_isomorphism (identity_map h dec B D)) : DirectSum h I dec d.
-Proof. intros. set (id := identity_map h dec B D).
-  refine (make_DirectSum C h I dec d D
-                         (fun i => Product.Proj D i)
-                         (fun i => id ∘ Sum.In B i) _ _ _).
-  { intros. exact (RawMatrix.from_matrix_entry_assoc D B (identity_matrix h d dec) i j). }
+Definition toDirectSum {C:precategory} (hs: has_homsets C) (h:hasZeroObject C) {I} (dec : isdeceq I) (d:I -> ob C) 
+           (B:Sum.type C hs d) (D:Product.type C hs d)
+           (is: is_isomorphism (identity_map hs h dec B D)) : DirectSum hs h I dec d.
+Proof. intros. set (id := identity_map hs h dec B D).
+  refine (make_DirectSum C hs h I dec d D
+                         (fun i => Product.Proj hs D i)
+                         (fun i => id ∘ Sum.In hs B i) _ _ _).
+  { intros. exact (RawMatrix.from_matrix_entry_assoc _ D B (identity_matrix _ h d dec) i j). }
   { intros. exact (pr2 (Representation.Iso D c)). }
   { intros. 
-    assert (b : (fun (f : Hom D c) (i : I) => (f ∘ id) ∘ Sum.In B i)
-             = (fun (f : Hom D c) (i : I) => f ∘ (id ∘ Sum.In B i))).
+    assert (b : (fun (f : Hom D c) (i : I) => (f ∘ id) ∘ Sum.In _ B i)
+             = (fun (f : Hom D c) (i : I) => f ∘ (id ∘ Sum.In _ B i))).
     { apply funextsec; intros f. apply funextsec; intros i. apply assoc. }
     destruct b.
     exact (twooutof3c (fun f => f ∘ id) 
-                      (fun g i => g ∘ Sum.In B i)
+                      (fun g i => g ∘ Sum.In _ B i)
                       (iso_comp_right_isweq (id,,is) c)
                       (pr2 (Representation.Iso B c))). }
 Defined.
-Definition FiniteDirectSums (C:precategory) := total2 (fun 
+Definition FiniteDirectSums (C:precategory)(hs: has_homsets C) := total2 (fun 
              h:hasZeroObject C => 
              forall (I:FiniteSet.Data) (d:I -> ob C), 
-               DirectSum h I (FiniteSet.Isdeceq I) d).
+               DirectSum hs  h I (FiniteSet.Isdeceq I) d).
