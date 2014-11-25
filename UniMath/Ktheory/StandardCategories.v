@@ -52,7 +52,12 @@ Proof. intros ? ? a b.
   apply (isweqhomot _ _ k). apply idisweq. Qed.
 Lemma is_category_path_pregroupoid (X:UU) (i:isofhlevel 3 X) :
   is_category (path_pregroupoid X i).
-Proof. intros. apply is_category_groupoid. apply is_groupoid_path_pregroupoid.
+Proof. 
+  intros; split.
+  - apply is_category_groupoid. 
+    + apply i.
+    + apply is_groupoid_path_pregroupoid.
+  - apply i.
 Qed.
 Definition path_groupoid (X:UU) : isofhlevel 3 X -> category.
 Proof. intros ? iobj. apply (Precategories.category_pair (path_pregroupoid X iobj)). 

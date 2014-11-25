@@ -97,6 +97,12 @@ Definition makePrecategory
               identity compose)
            ((right,,left),,associativity)). Defined.    
 
+Lemma has_homsets_opp_precat (C: precategory) (hs: has_homsets C) : has_homsets (C^op).
+Proof.
+  intros C hs a b.
+  apply hs.
+Qed.
+
 (** *** opposite category of opposite category *)
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).

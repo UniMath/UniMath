@@ -9,12 +9,18 @@ Export Utilities.Notation
        Precategories.Notation.
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
   intros. exists (total2 (fun c : ob C => set_to_type (X c))).
-  intros a b. exists (total2 (fun f : pr1 a → pr1 b => #X f (pr2 a) = (pr2 b))).
+  intros a b. 
+  exact (total2 (fun f : pr1 a → pr1 b => #X f (pr2 a) = (pr2 b))).
+(*  exists (total2 (fun f : pr1 a → pr1 b => #X f (pr2 a) = (pr2 b))).
   abstract (
         intros; apply (isofhleveltotal2 2);
         [ apply setproperty |
           intros f;  apply (isofhlevelsnprop 1); apply setproperty])
-    using cat_data_isaset. Defined.
+    using cat_data_isaset. 
+*)
+Defined.
+
+
 Definition cat_data {C} (X:C==>SET) : precategory_data.
   intros. exists (cat_ob_mor X). split.
   { intro a. 
@@ -23,6 +29,15 @@ Definition cat_data {C} (X:C==>SET) : precategory_data.
     exact (pr1 g ∘ pr1 f,,
            (  (apevalat (pr2 a) ((functor_comp X) _ _ _ (pr1 f) (pr1 g)))
             @ (ap (#X (pr1 g)) (pr2 f) @ (pr2 g)))). } Defined.
+
+Lemma has_homsets_cat_ob_mor (C:precategory) (hsC: has_homsets C)(X:C==>SET) : 
+   has_homsets (cat_data X).
+Proof.
+  intros C hsC X a b. simpl. apply (isofhleveltotal2 2).
+  - apply hsC.
+  - intro f; apply (isofhlevelsnprop 1). apply setproperty.
+Qed.
+
 Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr1 f.
 Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x → y) :
       get_mor f = get_mor g -> f = g.
@@ -46,6 +61,7 @@ Definition make_mor {C} (X:C==>SET) (r s : ob (cat X))
            (f : Hom (pr1 r) (pr1 s))
            (i : #X f (pr2 r) = pr2 s) : Hom r s
   := (f,,i).
+
 
 (** *** functoriality of the construction of the category of elements *)
 
