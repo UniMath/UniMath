@@ -59,7 +59,6 @@ Lemma pre_composition_with_ess_surj_is_faithful (A B C : precategory) (hsB: has_
       (hsC: has_homsets C) (H : [A, B, hsB]) (p : essentially_surjective H) : 
            faithful (pre_composition_functor A B C hsB hsC H).
 Proof.
-  Search ( _ -> isincl _ ).
   intros F G.
   apply isinclbetweensets.
   - apply isaset_nat_trans. apply hsC.

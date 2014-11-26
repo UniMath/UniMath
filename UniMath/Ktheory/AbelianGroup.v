@@ -495,7 +495,7 @@ Module Category.
   Module Product.
     Definition Object {I} (X:I->ob Precat) : ob Precat
       := Product.make X.
-    Import Primitive.InitialObject. Print Precat.
+    Import Primitive.InitialObject. 
     Definition make {I} (X:I->ob Precat) : Product.type Precat has_homsets_Precat X.
       intros.
       set (Q := Elements.make_ob (HomFamily.precat Precat^op  (Precategories.has_homsets_opp_precat _ has_homsets_Precat) X) (Object X)

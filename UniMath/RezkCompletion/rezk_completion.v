@@ -77,7 +77,7 @@ Section rezk_universal_property.
 Variables A C : precategory.
 Hypothesis hsA: has_homsets A.
 Hypothesis Ccat : is_category C.
-Check pre_composition_functor.
+
 Lemma pre_comp_rezk_eta_is_fully_faithful :
     fully_faithful (pre_composition_functor A (Rezk_completion A hsA) C 
                 (pr2 (pr2 (Rezk_completion A hsA))) (pr2 Ccat) ((Rezk_eta A hsA))).
@@ -107,7 +107,6 @@ Proof.
   assumption.
   apply is_category_functor_category; 
   assumption. 
-  Check rad_equivalence_of_precats.
   pose (T:=@rad_equivalence_of_precats 
            [Rezk_completion A hsA, C, pr2 Ccat]
            [A, C, pr2 Ccat]

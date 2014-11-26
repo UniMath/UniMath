@@ -139,7 +139,6 @@ Definition eps_pointwise_iso_from_equivalence {A B : precategory}
   exists (eps_from_left_adjoint _ _ (pr1 HF) b).
   exact (pr2 (pr2 HF) b).
 Defined.
-Check FC.
 
 Definition eta_iso_from_equivalence_of_precats {A B : precategory}
   (hsA: has_homsets A) (hsB: has_homsets B)                                               

@@ -371,7 +371,6 @@ Qed.
 
 Definition full {C D : precategory} (F : functor C D) :=
    forall a b: C, issurjective (fun f : a --> b => #F f).
-Print issurjective.
 
 Lemma issurjectiveweq (X Y : UU) (f : X -> Y) : isweq f -> issurjective f.
 Proof.
