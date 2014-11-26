@@ -251,23 +251,31 @@ Defined.
     by a function which is a weak equivalence is itself a weak
     equivalence. *)
 
-Definition maponpathshomidinv {X : UU} (f:X -> X) (h : forall x:X, f x = x)
+Definition maponpathshomidinv {X : UU} (f:X -> X) (h : forall x : X, f x = x)
   (x x' : X) (e : f x = f x') : x = x' := ! (h x) @ e @ (h x').
 
+Lemma maponpathshomid1 {X : UU} (f:X -> X) (h: forall x : X, f x = x) {x x' : X}
+  (e : x = x') : maponpaths f e = (h x) @ e @ (! h x').
+Proof.
+  intros. induction e. simpl.
+  apply pathsinv0.
+  apply pathsinv0r.
+Defined.
 
-Lemma maponpathshomid1 { X : UU } (f:X -> X) (h: forall x:X, paths (f x) x) { x x' : X } (e:paths x x'): paths (maponpaths f e) (pathscomp0 (h x) (pathscomp0 e (pathsinv0 (h x')))).
-Proof. intros. induction e. change (pathscomp0 (idpath x) (pathsinv0 (h x))) with (pathsinv0 (h x)). assert (ee: paths  (maponpaths f (idpath x)) (idpath (f x))). apply idpath .  
-assert (eee: paths (idpath (f x)) (pathscomp0  (h x)  (pathsinv0 (h x)))). apply (pathsinv0  (pathsinv0r  (h x))). apply (pathscomp0   ee eee). Defined. 
+Lemma maponpathshomid12 {X : UU} {x x' fx fx' : X} (e : fx = fx') (hx : fx = x )
+  (hx' : fx' = x') : hx @ (!hx @ e @ hx') @ !hx' = e.
+Proof.
+  intros. induction hx. induction hx'. induction e.  simpl. apply idpath.
+Defined. 
 
-
-Lemma maponpathshomid12 { X : UU } { x x' fx fx' : X } (e:paths fx fx') (hx:paths fx x) (hx':paths fx' x') : paths   (pathscomp0 hx (pathscomp0 (pathscomp0 (pathsinv0 hx) (pathscomp0 e hx')) (pathsinv0 hx'))) e.
-Proof. intros. induction hx. induction hx'. induction e.  simpl. apply idpath. Defined. 
-
-
-Lemma maponpathshomid2 { X : UU } (f:X->X) (h: forall x:X, f x = x) ( x x' : X ) (e: f x = f x') : maponpaths f (maponpathshomidinv f h _ _ e) = e.
-Proof.  intros. assert (ee: h x @ (! h x @ e @ h x') @ ! h x' = e). apply (maponpathshomid12 e (h x) (h x')). assert (eee: maponpaths f (! h x @ e @ h x') = h x @ (! h x @ e @ h x') @ (! h x')). 
-apply maponpathshomid1. apply (eee @ ee). Defined. 
-
+Lemma maponpathshomid2 {X : UU} (f : X->X) (h: forall x : X, f x = x) (x x' : X)
+  (e: f x = f x') : maponpaths f (maponpathshomidinv f h _ _ e) = e.
+Proof.
+  intros. assert (ee: h x @ (! h x @ e @ h x') @ ! h x' = e). 
+  apply (maponpathshomid12 e (h x) (h x')).
+  assert (eee: maponpaths f (! h x @ e @ h x') = h x @ (! h x @ e @ h x') @ (! h x')). 
+  apply maponpathshomid1. apply (eee @ ee).
+Defined.
 
 (** Here we consider the behavior of maponpaths in the case of a
     projection [ p ] with a section [ s ]. *)
