@@ -172,7 +172,7 @@ Proof.
   apply functor_id.
   
   rewrite <- functor_comp.
-  rewrite (iso_after_iso_inv _ _ _ f).
+  rewrite iso_after_iso_inv.
   apply functor_id.
 Qed.
 
@@ -180,8 +180,8 @@ Qed.
 Lemma functor_on_iso_is_iso (C C' : precategory) (F : functor C C')
     (a b : ob C)(f : iso a b) : is_isomorphism (#F f).
 Proof.
-  exists (#F (inv_from_iso f)). 
-  simpl; apply is_inverse_functor_image.
+  apply (is_iso_qinv _ (#F (inv_from_iso f))).
+  apply is_inverse_functor_image.
 Defined.
 
 
@@ -192,14 +192,21 @@ Proof.
   apply functor_on_iso_is_iso.
 Defined.
  
-Lemma functor_on_iso_inv (C C' : precategory) (hs: has_homsets C') (F : functor C C')
+Lemma functor_on_iso_inv (C C' : precategory) (*hs: has_homsets C'*) (F : functor C C')
     (a b : ob C) (f : iso a b) : 
    functor_on_iso _ _ F _ _ (iso_inv_from_iso f) = 
        iso_inv_from_iso (functor_on_iso _ _ F _ _ f).
 Proof.
-  apply eq_iso.
-  apply hs.
+  apply eq_iso; simpl.
+  apply inv_iso_unique'; simpl.
+  unfold precomp_with. rewrite <- functor_comp.
+  rewrite iso_inv_after_iso.
+  apply functor_id.
+(*  apply pathsinv0.
+  apply inv_from_iso_unique.
+(*  apply hs.*)
   apply idpath.
+*)
 Defined.
   
 (** ** Functors preserve inverses *)
@@ -208,7 +215,10 @@ Lemma functor_on_inv_from_iso (C C' : precategory) (F : functor C C')
     (a b : ob C)(f : iso a b) :
       #F (inv_from_iso f) = inv_from_iso (functor_on_iso _ _ F _ _ f) .
 Proof.
-  apply idpath.
+  apply inv_iso_unique'; simpl.  
+  unfold precomp_with. rewrite <- functor_comp.
+  rewrite iso_inv_after_iso.
+  apply functor_id.
 Qed. 
 
 
@@ -279,6 +289,7 @@ Qed.
 
 (** *** Fully faithful functors reflect isos *)
 
+
 Lemma inv_of_ff_inv_is_inv (C D : precategory) (F : functor C D)
    (FF : fully_faithful F) (a b : C) (f : iso (F a) (F b)) :
   is_inverse_in_precat ((FF ^-1) f) ((FF ^-1) (inv_from_iso f)).
@@ -306,14 +317,12 @@ Proof.
   apply iso_after_iso_inv.
 Qed.
 
-
 Lemma fully_faithful_reflects_iso_proof (C D : precategory)(F : functor C D) 
         (FF : fully_faithful F)
     (a b : ob C) (f : iso (F a) (F b)) : 
      is_isomorphism (FF^-1 f).
 Proof.
-  exists (FF^-1 (inv_from_iso f)).
-  simpl;
+  apply (is_iso_qinv _ (FF^-1 (inv_from_iso f))).
   apply inv_of_ff_inv_is_inv.
 Defined.
 
@@ -326,14 +335,14 @@ Proof.
   apply fully_faithful_reflects_iso_proof.
 Defined.
 
-Lemma functor_on_iso_iso_from_fully_faithful_reflection (C D : precategory) (hs: has_homsets D)
+Lemma functor_on_iso_iso_from_fully_faithful_reflection (C D : precategory) (*hs: has_homsets D*)
       (F : functor C D) (HF : fully_faithful F) (a b : ob C)
    (f : iso (F a) (F b)) :
       functor_on_iso _ _  F a b
         (iso_from_fully_faithful_reflection HF a b f) = f.
 Proof.
   apply eq_iso. 
-  apply hs.
+(*  apply hs. *)
   simpl;
   apply (homotweqinvweq (weq_from_fully_faithful HF a b)).
 Qed.
@@ -713,9 +722,10 @@ Lemma is_inverse_nat_trans_inv_from_pointwise_inv (C C' : precategory) (hs: has_
   is_inverse_in_precat A (nat_trans_inv_from_pointwise_inv C C' _ F G A H).
 Proof.
   simpl; split; simpl.
-  apply nat_trans_eq. apply hs.
-  intro x; simpl.
-  apply (pr2 (H _ )).
+  - apply nat_trans_eq. apply hs.
+    intro x; simpl.
+    
+    apply (pr2 (H _ )).
   apply nat_trans_eq. apply hs.
   intro x; simpl.
   apply (pr2 (pr2 (H _))).
