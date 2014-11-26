@@ -135,8 +135,6 @@ Proof.
                       gamma anot ;; functor_on_iso _ _ G _ _ h).
       apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso _ _ F _ _ h)
                                           (pr2 (functor_on_iso _ _ F _ _ h))).
-(* *)
- 
      repeat rewrite assoc.
      set (TH:=iso_inv_after_iso (functor_on_iso B C F (H anot) b h)). 
      simpl in TH. simpl. rewrite TH.
@@ -218,8 +216,6 @@ Proof.
     rewrite functor_comp.
     unfold g; repeat rewrite assoc.
     apply idpath.
-(*   apply hsB. *)
-(*   apply hsC. *)
   apply iscontraprop1.
   apply isaprop_aux_space.
   exists g.

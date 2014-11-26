@@ -253,7 +253,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma bla (C: precategory) (hs: has_homsets C) (c : C) 
+Lemma isaset_nat_trans_yoneda (C: precategory) (hs: has_homsets C) (c : C) 
   (F : functor C^op HSET) :
  isaset (nat_trans (yoneda_ob_functor_data C hs c) F).
 Proof.
@@ -266,12 +266,13 @@ Qed.
 Lemma yoneda_iso_sets (C : precategory) (hs: has_homsets C) (c : C)
    (F : functor C^op HSET) : 
    is_isomorphism (C:=HSET) 
-     (a := hSetpair (hom _ ((yoneda C) hs c) F) (bla C hs c F))
+     (a := hSetpair (hom _ ((yoneda C) hs c) F) (isaset_nat_trans_yoneda C hs c F))
      (b := F c)
      (yoneda_map_1 C hs c F).
 Proof.
   set (T:=yoneda_map_2 C hs c F). simpl in T.
-  set (T':= T : hom HSET (F c) (hSetpair (hom _ ((yoneda C) hs c) F) (bla C hs c F))).
+  set (T':= T : hom HSET (F c) (hSetpair (hom _ ((yoneda C) hs c) F) 
+                                         (isaset_nat_trans_yoneda C hs c F))).
   apply (is_iso_qinv (C:=HSET) _ T' ).
   repeat split; simpl.
   - apply funextsec; intro alpha.

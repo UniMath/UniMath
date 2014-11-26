@@ -134,7 +134,6 @@ Lemma hset_iso_equiv_is_equiv (A B : ob HSET) : isweq (hset_iso_equiv A B).
 Proof.
   apply (gradth _ (hset_equiv_iso A B)).
   intro; apply eq_iso. 
-(*  - intros ? ? . apply isaset_set_fun_space. *)
   - reflexivity.  
   - intro; apply total2_paths_hProp.
     + intro; apply isapropisweq.
@@ -155,7 +154,6 @@ Proof.
     apply isapropisweq.
     reflexivity.
   intro; apply eq_iso.
-(*  - intros ? ? . apply isaset_set_fun_space. *)
   - reflexivity.
 Qed.
 
@@ -190,7 +188,6 @@ Proof.
   apply funextfunax.
   intro p; elim p.
   apply eq_iso; simpl.
-(*  - intros ? ? . apply isaset_set_fun_space. *)
   - apply funextfun;
     intro x; 
     destruct A. 

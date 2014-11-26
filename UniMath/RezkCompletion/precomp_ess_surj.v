@@ -168,11 +168,11 @@ Proof.
        (fH^-i (iso_comp h (iso_inv_from_iso hnot)))) (idtoiso w) ).
   generalize w; intro w0.
   induction w0.
-  simpl. apply eq_iso. simpl. (* apply (pr2 Ccat). *)
+  simpl. apply eq_iso. simpl. 
   simpl. rewrite id_right.
   apply idpath.
 
-  apply eq_iso. (* apply (pr2 Ccat). *)
+  apply eq_iso. 
   simpl.
   unfold w.
   rewrite idtoiso_isotoid.
@@ -288,7 +288,7 @@ Proof.
   set (m' := fH^-i (iso_comp h0' (iso_inv_from_iso h'))).
   assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) = 
                    k b a0 h0).
-    apply eq_iso. (* apply (pr2 Ccat). *)
+    apply eq_iso. 
     apply (q b (tpair _ a0 h0) (tpair _ a h) m).
     simpl.
     inv_functor fH a0 a.
@@ -297,7 +297,7 @@ Proof.
     apply id_right.
   assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b' a' h') = 
                    k b' a0' h0').
-    apply eq_iso. (* apply (pr2 Ccat). *)
+    apply eq_iso. 
     apply (q b' (tpair _ a0' h0') (tpair _ a' h') m').
     simpl;
     inv_functor fH a0' a'.
@@ -501,7 +501,7 @@ Proof.
     set (m' := fH^-i (iso_comp h0' (iso_inv_from_iso h'))).
     assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) = 
                    k b a0 h0).
-      apply eq_iso; simpl. (* apply (pr2 Ccat). *)
+      apply eq_iso; simpl. 
       apply (q b (tpair _ a0 h0) (tpair _ a h) m).
       simpl.
       inv_functor fH a0 a.
@@ -510,7 +510,7 @@ Proof.
       apply id_right.
     assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b' a' h') = 
                    k b' a0' h0').
-      apply eq_iso; simpl. (* apply (pr2 Ccat). *)
+      apply eq_iso; simpl. 
       apply (q b' (tpair _ a0' h0') (tpair _ a' h') m'); simpl.
       inv_functor fH a0' a'.
       rewrite <- assoc.
@@ -591,7 +591,7 @@ Proof.
     set (m' := fH^-i (iso_comp h0'' (iso_inv_from_iso h''))).
     assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b' a' h') = 
                    k b' a0' h0').
-      apply eq_iso; simpl. (* apply (pr2 Ccat). *)
+      apply eq_iso; simpl. 
       apply (q b' (tpair _ a0' h0') (tpair _ a' h') m); simpl.
       inv_functor fH a0' a'.
       rewrite <- assoc.
@@ -599,7 +599,7 @@ Proof.
       apply id_right.
     assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b'' a'' h'') = 
                    k b'' a0'' h0'').
-      apply eq_iso; simpl. (* apply (pr2 Ccat). *)
+      apply eq_iso; simpl. 
       apply (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m'); simpl.
       inv_functor fH a0'' a''.
       rewrite <- assoc.
@@ -667,7 +667,7 @@ Proof.
     set (m := fH^-i (iso_comp h0 (iso_inv_from_iso h))).
     set (m' := fH^-i (iso_comp h0'' (iso_inv_from_iso h''))).
     assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) = k b a0 h0).
-      apply eq_iso. (* apply (pr2 Ccat). *)
+      apply eq_iso.
       apply (q b (tpair _ a0 h0) (tpair _ a h) m); simpl.
       inv_functor fH a0 a.
       rewrite <- assoc.
@@ -675,7 +675,7 @@ Proof.
       apply id_right.
     assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b'' a'' h'') = 
                    k b'' a0'' h0'').
-      apply eq_iso. (* apply (pr2 Ccat). *) 
+      apply eq_iso. 
       apply (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m').
       simpl; inv_functor fH a0'' a''.
       rewrite <- assoc.

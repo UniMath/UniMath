@@ -521,7 +521,6 @@ Proof.
   apply (gradth _ (iso_in_sub_from_iso a b)).
   intro f.
   apply eq_iso; simpl.
-(*  - intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H). *)
   - apply eq_in_sub_precategory, idpath.
   - intro f; apply eq_iso, idpath. 
 Defined.
@@ -531,9 +530,7 @@ Lemma isweq_iso_in_sub_from_iso (a b : ob (full_sub_precategory C')):
 Proof.
   apply (gradth _ (iso_from_iso_in_sub a b)).
   intro f; apply eq_iso, idpath.
-(*  - apply (pr2 H). *)
   intro f; apply eq_iso; simpl.
-(*    + intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H). *)
   apply eq_in_sub_precategory, idpath.
 Defined.
 
@@ -556,7 +553,6 @@ Proof.
   intro p.
   destruct p.
   apply eq_iso.
-(*  - apply (pr2 H). *)
   simpl; apply idpath.
 Qed.
 
@@ -580,7 +576,6 @@ Proof.
   intro p; destruct p.
   apply eq_iso; simpl.
   unfold precategory_morphisms_in_subcat.
-(*  - intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H). *)
   apply eq_in_sub_precategory, idpath.
 Qed.
 

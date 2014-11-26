@@ -107,7 +107,8 @@ Definition is_precategory (C : precategory_data) :=
 (*
 Definition is_hs_precategory_data (C : precategory_data) := forall (a b : C), isaset (a --> b).
 *)
-(*Definition hs_precategory_data := total2 is_hs_precategory_data.
+(*
+Definition hs_precategory_data := total2 is_hs_precategory_data.
 Definition precategory_data_from_hs_precategory_data (C : hs_precategory_data) :
   precategory_data := pr1 C.
 Coercion precategory_data_from_hs_precategory_data : hs_precategory_data >-> precategory_data.
@@ -142,17 +143,6 @@ Proof.
   intros _. repeat (apply impred; intro); apply hs. 
 Qed.
 
-
-(*
-Lemma eq_hs_precategory : forall C D : precategory, 
-    precategory_data_from_precategory C = precategory_data_from_precategory D -> C = D.
-Proof.
-  intros C D H.
-  apply total2_paths_hProp.
-  - apply isaprop_is_precategory.
-  - apply H.
-Defined.
-*)
   
 Definition id_left (C : precategory) : 
    forall (a b : C) (f : a --> b),
@@ -396,32 +386,6 @@ Qed.
 
 (** ** Properties of isomorphisms *)
 (** Stability under composition, inverses etc *)
-(*
-Lemma are_inverse_comp_of_inverses (C : precategory) (a b c : C)
-     (f : iso a b) (g : iso b c) :  
-  is_inverse_in_precat (f;; g) (inv_from_iso g;; inv_from_iso f).
-Proof.
-  simpl; split; simpl;
-  unfold inv_from_iso; simpl.
-  destruct f as [f [f' Hf]]. simpl in *.
-  destruct g as [g [g' Hg]]; simpl in *.
-  pathvia ((f ;; (g ;; g')) ;; f').
-  repeat rewrite assoc; apply idpath.
-  rewrite (pr1 Hg).
-  rewrite id_right.
-  rewrite (pr1 Hf).
-  apply idpath.
-
-  destruct f as [f [f' Hf]]. simpl in *.
-  destruct g as [g [g' Hg]]; simpl in *.
-  pathvia ((g' ;; (f' ;; f)) ;; g).
-  repeat rewrite assoc; apply idpath.
-  rewrite (pr2 Hf).
-  rewrite id_right.
-  rewrite (pr2 Hg).
-  apply idpath.
-Qed. 
-*)
 
 Definition isweqhomot' {X Y} (f g : X -> Y) (H : isweq f) 
       (homot : forall x, f x = g x) : isweq g. 
@@ -445,24 +409,7 @@ Proof.
   exists (f ;; g).
   apply is_iso_comp_of_isos.
 Defined.
-(*
-Lemma inv_iso_unique (C : precategory) (hs: has_homsets C) (a b : ob C)
-  (f : iso a b) (g : iso b a) :
-  is_inverse_in_precat f g -> g = iso_inv_from_iso f.
-Proof.
-  intro H.
-  apply eq_iso.
-  apply hs.
-  apply (inverse_unique_precat _ _ _ f).
-  assumption.
-  split.
-  apply iso_inv_after_iso.
-  set (h := iso_after_iso_inv _ _ _ f).
-  unfold iso_inv_from_iso.
-  simpl in *.
-  apply h.
-Qed.
-*)
+
 
 Lemma inv_iso_unique (C : precategory) (a b : C) (f : iso a b) (g : iso b a) :
   precomp_with f g = identity _ -> g = iso_inv_from_iso f.
@@ -571,7 +518,6 @@ Definition is_inverse_in_precat {C : precategory} {a b : C}
 
 Definition is_iso_qinv {C:precategory} {a b : C} (f : a --> b) (g : b --> a) :
   is_inverse_in_precat f g -> is_iso f.
-(*  f ;; g = identity _ -> g ;; f = identity _ -> is_iso f. *)
 Proof.
   intros H c.
   apply (gradth _ (precomp_with g)).
@@ -1007,7 +953,6 @@ Lemma idtoiso_postcompose_iso (C : precategory) (hs: has_homsets C) (a b b' : ob
 Proof.
   destruct p.
   apply eq_iso.
-(*  apply hs. *)
   apply id_right.
 Qed.
 
@@ -1026,7 +971,6 @@ Lemma idtoiso_precompose_iso (C : precategory) (hs: has_homsets C) (a a' b : ob 
 Proof.
   destruct p.
   apply eq_iso.
-(*  apply hs. *)
   apply id_left.
 Qed.
 
@@ -1059,7 +1003,6 @@ Proof.
   destruct p.
   destruct q.
   apply eq_iso.
-(*  apply hs. *)
   simpl; apply pathsinv0, id_left.
 Qed.
 

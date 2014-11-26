@@ -192,7 +192,7 @@ Proof.
   apply functor_on_iso_is_iso.
 Defined.
  
-Lemma functor_on_iso_inv (C C' : precategory) (*hs: has_homsets C'*) (F : functor C C')
+Lemma functor_on_iso_inv (C C' : precategory) (F : functor C C')
     (a b : ob C) (f : iso a b) : 
    functor_on_iso _ _ F _ _ (iso_inv_from_iso f) = 
        iso_inv_from_iso (functor_on_iso _ _ F _ _ f).
@@ -202,11 +202,6 @@ Proof.
   unfold precomp_with. rewrite <- functor_comp.
   rewrite iso_inv_after_iso.
   apply functor_id.
-(*  apply pathsinv0.
-  apply inv_from_iso_unique.
-(*  apply hs.*)
-  apply idpath.
-*)
 Defined.
   
 (** ** Functors preserve inverses *)
@@ -335,14 +330,13 @@ Proof.
   apply fully_faithful_reflects_iso_proof.
 Defined.
 
-Lemma functor_on_iso_iso_from_fully_faithful_reflection (C D : precategory) (*hs: has_homsets D*)
+Lemma functor_on_iso_iso_from_fully_faithful_reflection (C D : precategory) 
       (F : functor C D) (HF : fully_faithful F) (a b : ob C)
    (f : iso (F a) (F b)) :
       functor_on_iso _ _  F a b
         (iso_from_fully_faithful_reflection HF a b f) = f.
 Proof.
   apply eq_iso. 
-(*  apply hs. *)
   simpl;
   apply (homotweqinvweq (weq_from_fully_faithful HF a b)).
 Qed.
@@ -917,7 +911,7 @@ idtoiso
      (base_paths (pr1 F) (pr1 G) (base_paths F G p)) a).
 Proof.
   induction p.
-  apply eq_iso. (*apply hs.*) apply idpath.
+  apply eq_iso. apply idpath.
 Qed.
 
 

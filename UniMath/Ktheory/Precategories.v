@@ -60,7 +60,6 @@ Proof.
 Definition makePrecategory_ob_mor
     (obj : UU)
     (mor : obj -> obj -> UU)
-(*    (imor : forall i j:obj, isaset (mor i j)) *)
     : precategory_ob_mor.
   intros.
   exact (precategory_ob_mor_pair obj (fun i j:obj => mor i j)).
@@ -69,7 +68,6 @@ Defined.
 Definition makePrecategory_data
     (obj : UU)
     (mor : obj -> obj -> UU)
-(*    (imor : forall i j, isaset (mor i j)) *)
     (identity : forall i, mor i i)
     (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
     : precategory_data.
@@ -80,7 +78,6 @@ Defined.
 Definition makePrecategory 
     (obj : UU)
     (mor : obj -> obj -> UU)
-(*    (imor : forall i j, isaset (mor i j)) *)
     (identity : forall i, mor i i)
     (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
     (right : forall i j (f:mor i j), compose _ _ _ (identity i) f = f)

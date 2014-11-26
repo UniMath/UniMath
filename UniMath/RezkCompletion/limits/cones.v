@@ -200,7 +200,6 @@ Lemma ConeConnectIso_inj (a b : CONE) (f g : iso a b) :
 Proof.
   intro H.
   apply eq_iso; simpl in *.
-(*  - intros c d. apply isaset_Cone_Mor. *)
   apply Cone_Mor_eq.
   apply (base_paths _ _ H).
 Qed.
@@ -305,7 +304,6 @@ Lemma idtoiso_isotoid_CONE (M N : CONE) : forall f : iso M N, idtoiso (isotoid_C
 Proof.
   intro f.
   apply eq_iso.
-(*  - intros c d. apply isaset_Cone_Mor. *)
     simpl.
     apply Cone_Mor_eq.
     rewrite ConeConnect_idtoiso.

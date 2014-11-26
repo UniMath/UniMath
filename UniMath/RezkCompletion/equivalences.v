@@ -222,12 +222,11 @@ Proof.
     intro p0; destruct p0.
     rewrite <- functor_on_iso_inv.
     rewrite iso_inv_of_iso_id.
-    apply eq_iso. (* apply hsB. *)
+    apply eq_iso. 
     simpl; rewrite functor_id.
     rewrite id_left.
     apply idpath.
    apply (pr2 HA).
-   (* apply hsB. *)
   rewrite idtoiso_isotoid.
   unfold g; clear g.
   unfold fminusf; clear fminusf.
@@ -237,14 +236,14 @@ Proof.
            iso_comp f (iso_inv_from_iso f')).
     generalize (iso_comp f (iso_inv_from_iso f')).
     intro h.
-    apply eq_iso; simpl. (* apply hsB. *)
+    apply eq_iso; simpl. 
     set (H3:= homotweqinvweq (weq_from_fully_faithful HF a a')).
     simpl in H3. unfold fully_faithful_inv_hom.
     unfold invweq; simpl.
     rewrite H3; apply idpath.
   rewrite HFg.
   rewrite iso_inv_of_iso_comp.
-  apply eq_iso; simpl. (* apply hsB. *)
+  apply eq_iso; simpl. 
   repeat rewrite <- assoc.
   rewrite iso_after_iso_inv.
   rewrite id_right.
