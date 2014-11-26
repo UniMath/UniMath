@@ -177,7 +177,7 @@ Definition CONE : precategory := tpair _ _ is_precategory_Cone.
 Definition iso_projects_from_CONE (a b : CONE) (f : iso a b) :
   is_isomorphism (ConeConnect (pr1 f)).
 Proof.
-  exists (ConeConnect (inv_from_iso f)).
+  apply (is_iso_qinv _ (ConeConnect (inv_from_iso f))).
   split; simpl.
   apply (base_paths _ _ (pr1 (pr2 (pr2 f)))).
   apply (base_paths _ _ (pr2 (pr2 (pr2 f)))).
