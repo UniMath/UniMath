@@ -151,7 +151,7 @@ Lemma isiso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
    (Pb Pb': Pullback f g) : 
       is_isomorphism (from_Pullback_to_Pullback Pb Pb').
 Proof.
-  exists (from_Pullback_to_Pullback Pb' Pb).
+  apply (is_iso_qinv _ (from_Pullback_to_Pullback Pb' Pb)).
   apply are_inverses_from_Pullback_to_Pullback.
 Defined.
 
@@ -228,7 +228,7 @@ End pullback_lemma.
 Section Universal_Unique.
 
 Hypothesis H : is_category C.
-
+(*
 Lemma isaprop_Pullbacks: isaprop Pullbacks.
 Proof.
   apply impred; intro a;
@@ -259,7 +259,7 @@ Proof.
     rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.
     apply idpath.
 Qed.
-
+*)
 End Universal_Unique.
 
 End def_pb.

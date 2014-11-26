@@ -94,6 +94,8 @@ Module pr1.
   Definition func {C} (X:C==>SET) : cat X ==> C.
     intros. exists (fun_data _).
     split. { reflexivity. } { reflexivity. } Defined.
+
+(*
   Lemma func_reflects_isos {C} (X:C==>SET) : Precategories.reflects_isos (func X).
   Proof. intros ? ? [c x] [d y] [f i] [f' j].
     assert (i' : #X f' y = x).
@@ -107,4 +109,5 @@ Module pr1.
     { exists (f' ,, i'). split.
       { apply mor_equality.  exact (pr1 j). }
       { apply mor_equality.  exact (pr2 j). } } Qed.
+*)
 End pr1.

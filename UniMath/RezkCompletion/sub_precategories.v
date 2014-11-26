@@ -484,29 +484,27 @@ Lemma iso_in_subcat_is_iso_in_precat (a b : ob (full_sub_precategory C'))
        (f : iso a b): is_isomorphism (C:=C) (a:=pr1 a) (b:=pr1 b) 
      (pr1 (pr1 f)).
 Proof.
-  destruct f as [f fp].
-  destruct fp as [g gx]. simpl in *.
-  exists g.
-  destruct gx as [t tp]; simpl in *.
+  set (T:= pr1 (inv_from_iso f)).
+  apply (is_iso_qinv  _ T).
+  unfold T; clear T.
   split; simpl.
-  apply (base_paths _ _ t).
-  apply (base_paths _ _ tp).
-Qed.
+  - set (T:=iso_inv_after_iso f).
+    apply (base_paths _ _ T).
+  - set (T:=iso_after_iso_inv f).
+    apply (base_paths _ _ T).
+Defined.
 
 Lemma iso_in_precat_is_iso_in_subcat (a b : ob (full_sub_precategory C'))
      (f : iso (pr1 a) (pr1 b)) : 
    is_isomorphism (C:=full_sub_precategory C')  
      (precategory_morphisms_in_subcat f tt).
 Proof.
-  destruct f as [f fp].
-  destruct fp as [g gax].
-  destruct gax as [g1 g2].
-  exists (precategory_morphisms_in_subcat g tt).
-  split; simpl in *.
-  apply eq_in_sub_precategory. simpl.
-  assumption.
-  apply eq_in_sub_precategory. simpl.
-  assumption.
+  apply (is_iso_qinv _ (precategory_morphisms_in_subcat (inv_from_iso f) tt)).  
+  split; simpl.
+  - apply eq_in_sub_precategory; simpl.
+    apply iso_inv_after_iso.
+  - apply eq_in_sub_precategory; simpl.
+    apply iso_after_iso_inv.
 Qed.
 
 Definition iso_from_iso_in_sub (a b : ob (full_sub_precategory C'))
@@ -523,9 +521,9 @@ Proof.
   apply (gradth _ (iso_in_sub_from_iso a b)).
   intro f.
   apply eq_iso; simpl.
-  - intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H).
+(*  - intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H). *)
   - apply eq_in_sub_precategory, idpath.
-  - intro f; apply eq_iso, idpath. apply (pr2 H).
+  - intro f; apply eq_iso, idpath. 
 Defined.
 
 Lemma isweq_iso_in_sub_from_iso (a b : ob (full_sub_precategory C')):
@@ -533,10 +531,10 @@ Lemma isweq_iso_in_sub_from_iso (a b : ob (full_sub_precategory C')):
 Proof.
   apply (gradth _ (iso_from_iso_in_sub a b)).
   intro f; apply eq_iso, idpath.
-  - apply (pr2 H). 
-  - intro f; apply eq_iso; simpl.
-    + intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H).
-    + apply eq_in_sub_precategory, idpath.
+(*  - apply (pr2 H). *)
+  intro f; apply eq_iso; simpl.
+(*    + intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H). *)
+  apply eq_in_sub_precategory, idpath.
 Defined.
 
 
@@ -558,8 +556,8 @@ Proof.
   intro p.
   destruct p.
   apply eq_iso.
-  - apply (pr2 H).
-  - simpl; apply idpath.
+(*  - apply (pr2 H). *)
+  simpl; apply idpath.
 Qed.
 
 Lemma isweq_Id_in_sub_to_iso (a b : ob (full_sub_precategory C')):
@@ -582,8 +580,8 @@ Proof.
   intro p; destruct p.
   apply eq_iso; simpl.
   unfold precategory_morphisms_in_subcat.
-  - intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H).
-  - apply eq_in_sub_precategory, idpath.
+(*  - intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H). *)
+  apply eq_in_sub_precategory, idpath.
 Qed.
 
 (** *** The aforementioned decomposed map is a weak equivalence  *)

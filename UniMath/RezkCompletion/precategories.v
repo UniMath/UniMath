@@ -258,9 +258,11 @@ Proof.
   apply isapropisweq.
 Qed.
 
+Definition isaprop_is_isomorphism := @isaprop_is_iso.
+
 Definition iso {C: precategory}(a b : C) := total2 (fun f : a --> b => is_iso f).
-Definition mor_from_iso {C:precategory}{a b : C} (f : iso a b) : a --> b := pr1 f.
-Coercion mor_from_iso : iso >-> precategory_morphisms.
+Definition morphism_from_iso (C:precategory)(a b : C) (f : iso a b) : a --> b := pr1 f.
+Coercion morphism_from_iso : iso >-> precategory_morphisms.
 
 Definition isopair {C: precategory}{a b : C} (f : a --> b) (fiso: is_iso f) : iso a b :=
    tpair _ f fiso.

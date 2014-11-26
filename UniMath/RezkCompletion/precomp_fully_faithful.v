@@ -136,13 +136,17 @@ Proof.
                       gamma anot ;; functor_on_iso _ _ G _ _ h).
       apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso _ _ F _ _ h)
                                           (pr2 (functor_on_iso _ _ F _ _ h))).
-      repeat rewrite assoc.
-      rewrite iso_inv_after_iso, id_left.
+(* *)
+ 
+     repeat rewrite assoc.
+     set (TH:=iso_inv_after_iso (functor_on_iso B C F (H anot) b h)). 
+     simpl in TH. simpl. rewrite TH.
+     rewrite id_left.
       apply (post_comp_with_iso_is_inj _ _ _  
           (iso_inv_from_iso (functor_on_iso _ _ G _ _ h))
                      (pr2 (iso_inv_from_iso (functor_on_iso _ _ G _ _ h)))).
       simpl.
-      simp_rerew (base_paths _ _ (functor_on_iso_inv _ _ hsC G _ _ h)).
+      simp_rerew (base_paths _ _ (functor_on_iso_inv _ _  G _ _ h)).
       repeat rewrite <- assoc.
       rewrite <- functor_comp.
       rewrite iso_inv_after_iso, functor_id, id_right.
@@ -155,12 +159,14 @@ Proof.
       apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso _ _ F _ _ h)
                                           (pr2 (functor_on_iso _ _ F _ _ h))).
       repeat rewrite assoc.
-      rewrite iso_inv_after_iso, id_left.
+     set (TH:=iso_inv_after_iso (functor_on_iso B C F (H anot) b h)). 
+     simpl in TH. simpl. rewrite TH.
+      rewrite id_left.
       apply ( post_comp_with_iso_is_inj _ _ _  
             (iso_inv_from_iso (functor_on_iso _ _ G _ _ h))
                      (pr2 (iso_inv_from_iso (functor_on_iso _ _ G _ _ h)))).
       simpl.
-      simp_rerew(base_paths _ _ (functor_on_iso_inv _ _ hsC G _ _ h)).
+      simp_rerew(base_paths _ _ (functor_on_iso_inv _ _  G _ _ h)).
       repeat rewrite <- assoc.
       rewrite <- functor_comp.
       rewrite iso_inv_after_iso, functor_id, id_right.
@@ -213,8 +219,8 @@ Proof.
     rewrite functor_comp.
     unfold g; repeat rewrite assoc.
     apply idpath.
-   apply hsB.
-   apply hsC.
+(*   apply hsB. *)
+(*   apply hsC. *)
   apply iscontraprop1.
   apply isaprop_aux_space.
   exists g.
@@ -252,7 +258,7 @@ Proof.
           (iso_inv_from_iso (functor_on_iso _ _ G _ _ h))
                      (pr2 (iso_inv_from_iso (functor_on_iso _ _ G _ _ h)))).
     simpl.
-    simp_rerew (base_paths _ _ (functor_on_iso_inv _ _ hsC G _ _ h)).
+    simp_rerew (base_paths _ _ (functor_on_iso_inv _ _  G _ _ h)).
     repeat rewrite <- assoc.
     rewrite <- functor_comp.
     rewrite iso_inv_after_iso, functor_id, id_right.
@@ -269,7 +275,7 @@ Proof.
           (iso_inv_from_iso (functor_on_iso _ _ G _ _ h'))
                      (pr2 (iso_inv_from_iso (functor_on_iso _ _ G _ _ h')))).
     simpl.
-    simp_rerew (base_paths _ _ (functor_on_iso_inv _ _ hsC G _ _ h')).
+    simp_rerew (base_paths _ _ (functor_on_iso_inv _ _  G _ _ h')).
     repeat rewrite <- assoc.
     rewrite <- functor_comp.
     rewrite iso_inv_after_iso, functor_id, id_right.
@@ -299,7 +305,7 @@ Proof.
   rewrite (assoc _ _ _ _ _ (gamma a)).
   simpl in *.
   rewrite <- P; clear P.
-  set (H4 := functor_on_iso_inv _ _ hsC F _ _ h).
+  set (H4 := functor_on_iso_inv _ _  F _ _ h).
   set (H5 := base_paths _ _ H4). simpl in H5.
   rewrite <- H5.
   repeat rewrite assoc.

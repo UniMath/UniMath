@@ -53,7 +53,7 @@ Definition reflects_isos {C D} (X:C==>D) :=
 Lemma isaprop_reflects_isos {C D} (X:C==>D) (hsC: has_homsets C): isaprop (reflects_isos X).
 Proof.
   intros. apply impred; intros. apply impred; intros. apply impred; intros.
-  apply impred; intros. apply isaprop_is_isomorphism. apply hsC. Qed.
+  apply impred; intros. apply isaprop_is_isomorphism. Qed.
 
 (** *** make a precategory *)
 

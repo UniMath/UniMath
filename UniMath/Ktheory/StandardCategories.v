@@ -19,7 +19,7 @@ Proof. intro. apply impred.
 Lemma morphism_from_iso_is_incl (C : precategory) (hs: has_homsets C) (a b : ob C) :
   isincl (morphism_from_iso C a b).
 Proof. intros ? ? ? ? g.
-  apply (isofhlevelweqf _ (ezweqpr1 _ _)). apply isaprop_is_isomorphism. assumption. Qed.
+  apply (isofhlevelweqf _ (ezweqpr1 _ _)). apply isaprop_is_isomorphism. Qed.
 Lemma is_category_groupoid {C : precategory} (hs: has_homsets C): is_groupoid C -> is_category C.
 Proof. intros ? ? ig  .
   split. 

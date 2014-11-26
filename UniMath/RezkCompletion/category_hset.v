@@ -82,24 +82,17 @@ Notation HSET := hset_precategory.
    This is basically unpacking and packing again.
 *)
 
+
 Lemma hset_iso_is_equiv (A B : ob HSET) 
    (f : iso A B) : isweq (pr1 f).
 Proof.
-
-  destruct f as [f fax]; simpl in *.
-  apply (gradth _ (pr1 fax)).
-  destruct fax as [g [eta eps]]; simpl in *.
-  unfold compose, identity in *; 
-  simpl in *.
-  intro x.
-  apply (toforallpaths _ _ _ eta).
-  destruct fax as [g [eta eps]]; simpl in *.
-  unfold compose, identity in *; 
-  simpl in *.
-  intro x.
-  apply (toforallpaths _ _ _ eps).
+  apply (gradth _ (inv_from_iso f)).
+  - intro x. 
+    set (T:=iso_inv_after_iso f). 
+    set (T':=toforallpaths _ _ _ T). apply T'.
+  - intro x.
+    apply (toforallpaths _ _ _ (iso_after_iso_inv f)).
 Defined.
-  
 
 Lemma hset_iso_equiv (A B : ob HSET) : iso A B -> weq (pr1 A) (pr1 B).
 Proof.
@@ -116,14 +109,14 @@ Lemma hset_equiv_is_iso (A B : hSet)
       (f : weq (pr1 A) (pr1 B)) :
            is_isomorphism (C:=HSET) (pr1 f).
 Proof.
-  exists (invmap f).
+  apply (is_iso_qinv (C:=HSET) _ (invmap f)).
   split; simpl.
-  apply funextfunax; intro x; simpl in *.
-  unfold compose, identity; simpl. 
-  apply homotinvweqweq.
-  apply funextfunax; intro x; simpl in *.
-  unfold compose, identity; simpl.
-  apply homotweqinvweq.
+  - apply funextfunax; intro x; simpl in *.
+    unfold compose, identity; simpl. 
+    apply homotinvweqweq.
+  - apply funextfunax; intro x; simpl in *.
+    unfold compose, identity; simpl.
+    apply homotweqinvweq.
 Defined.
 
 Lemma hset_equiv_iso (A B : ob HSET) : weq (pr1 A) (pr1 B) -> iso A B.
@@ -141,7 +134,7 @@ Lemma hset_iso_equiv_is_equiv (A B : ob HSET) : isweq (hset_iso_equiv A B).
 Proof.
   apply (gradth _ (hset_equiv_iso A B)).
   intro; apply eq_iso. 
-  - intros ? ? . apply isaset_set_fun_space.
+(*  - intros ? ? . apply isaset_set_fun_space. *)
   - reflexivity.  
   - intro; apply total2_paths_hProp.
     + intro; apply isapropisweq.
@@ -162,7 +155,7 @@ Proof.
     apply isapropisweq.
     reflexivity.
   intro; apply eq_iso.
-  - intros ? ? . apply isaset_set_fun_space.
+(*  - intros ? ? . apply isaset_set_fun_space. *)
   - reflexivity.
 Qed.
 
@@ -197,7 +190,7 @@ Proof.
   apply funextfunax.
   intro p; elim p.
   apply eq_iso; simpl.
-  - intros ? ? . apply isaset_set_fun_space.
+(*  - intros ? ? . apply isaset_set_fun_space. *)
   - apply funextfun;
     intro x; 
     destruct A. 

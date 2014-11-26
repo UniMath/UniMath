@@ -18,7 +18,7 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Section Cone.
 
 Variables J C : precategory.
-Variable hs: has_homsets C.
+Variable hs: has_homsets C. 
 Variable F : functor J C.
 
 Definition ConeData := total2 (
@@ -177,10 +177,12 @@ Definition CONE : precategory := tpair _ _ is_precategory_Cone.
 Definition iso_projects_from_CONE (a b : CONE) (f : iso a b) :
   is_isomorphism (ConeConnect (pr1 f)).
 Proof.
+  set (T:=iso_inv_after_iso f).
+  set (T':=iso_after_iso_inv f).
   apply (is_iso_qinv _ (ConeConnect (inv_from_iso f))).
   split; simpl.
-  apply (base_paths _ _ (pr1 (pr2 (pr2 f)))).
-  apply (base_paths _ _ (pr2 (pr2 (pr2 f)))).
+  - apply (base_paths _ _ T).
+  - apply (base_paths _ _ T').
 Defined.
 
 Definition ConeConnectIso {a b : CONE} (f : iso a b) :
@@ -190,9 +192,7 @@ Definition ConeConnectIso {a b : CONE} (f : iso a b) :
 Lemma ConeConnectIso_identity_iso (a : CONE) :
    ConeConnectIso (identity_iso a) = identity_iso _ .
 Proof.
-  apply eq_iso.
-  - apply hs.
-  - apply idpath.
+  apply eq_iso. apply idpath.
 Qed.
 
 Lemma ConeConnectIso_inj (a b : CONE) (f g : iso a b) :
@@ -200,11 +200,20 @@ Lemma ConeConnectIso_inj (a b : CONE) (f g : iso a b) :
 Proof.
   intro H.
   apply eq_iso; simpl in *.
-  - intros c d. apply isaset_Cone_Mor.
-  - apply Cone_Mor_eq.
-    apply (base_paths _ _ H).
+(*  - intros c d. apply isaset_Cone_Mor. *)
+  apply Cone_Mor_eq.
+  apply (base_paths _ _ H).
 Qed.
 
+Lemma inv_from_iso_ConeConnectIso (a b : CONE) (f : iso a b):
+  pr1 (inv_from_iso f) = inv_from_iso (ConeConnectIso f).
+Proof.
+  apply inv_iso_unique'.
+  unfold precomp_with. 
+  set (T:=iso_inv_after_iso f).
+  set (T':=iso_after_iso_inv f).
+  apply (base_paths _ _ T).
+Defined.
 
 Section CONE_category.
 
@@ -231,7 +240,11 @@ Proof.
   simpl in *.
   apply (base_paths _ _ H).
   simpl.
-  apply (pr2 (inv_from_iso f)).
+  set (T':= inv_from_iso f).
+  set (T:=pr2 (inv_from_iso f) t).
+  simpl in *. 
+  rewrite <- inv_from_iso_ConeConnectIso.
+  apply T.
 Defined.
 
 Definition isotoid_CONE {a b : CONE} : iso a b -> a = b.
@@ -292,8 +305,8 @@ Lemma idtoiso_isotoid_CONE (M N : CONE) : forall f : iso M N, idtoiso (isotoid_C
 Proof.
   intro f.
   apply eq_iso.
-  - intros c d. apply isaset_Cone_Mor.
-  - simpl.
+(*  - intros c d. apply isaset_Cone_Mor. *)
+    simpl.
     apply Cone_Mor_eq.
     rewrite ConeConnect_idtoiso.
     unfold isotoid_CONE.

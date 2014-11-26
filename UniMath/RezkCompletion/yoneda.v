@@ -80,16 +80,21 @@ Definition opp_precat (C : precategory) : precategory :=
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3).
-
+(*
 Definition opp_iso {C:precategory} {a b:ob C} : @iso C a b -> @iso C^op b a.
   intro f.
+  exists (pr1 f).
+  intro c.  simpl in *.
+  apply (pr2 f c).
+  exact (pr2 f).
+  apply (is_iso_qinv _ (inv_from_iso (C:=C^op) f)).
   exact (pr1 f,,pr1 (pr2 f),,pr2 (pr2 (pr2 f)),,pr1 (pr2 (pr2 f))).
 Defined.
 
 Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
   isweq (fun f : hom _ c a => f ;; h).
 Proof. intros. apply (@iso_comp_right_isweq C^op b a (opp_iso h)). Qed.
-
+*)
 (** * Yoneda functor *)
 
 (** ** On objects *)
@@ -265,14 +270,16 @@ Lemma yoneda_iso_sets (C : precategory) (hs: has_homsets C) (c : C)
      (b := F c)
      (yoneda_map_1 C hs c F).
 Proof.
-  exists (yoneda_map_2 C hs c F).
+  set (T:=yoneda_map_2 C hs c F). simpl in T.
+  set (T':= T : hom HSET (F c) (hSetpair (hom _ ((yoneda C) hs c) F) (bla C hs c F))).
+  apply (is_iso_qinv (C:=HSET) _ T' ).
   repeat split; simpl.
-  apply funextsec; intro alpha.
-  unf; simpl.
-  apply (yoneda_map_1_2 C hs c F).
-  apply funextsec; intro x.
-  unf; rewrite (functor_id F).
-  apply idpath.
+  - apply funextsec; intro alpha.
+    unf; simpl.
+    apply (yoneda_map_1_2 C hs c F).
+  - apply funextsec; intro x.
+    unf; rewrite (functor_id F).
+    apply idpath.
 Defined.
 
 
