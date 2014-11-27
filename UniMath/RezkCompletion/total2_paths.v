@@ -35,6 +35,16 @@ Proof.
   apply is.
 Defined.
 
+Lemma total2_paths_second_hProp (A : UU) (B : A -> UU) 
+    (s s' : total2 (fun x => B x)) (is:isaprop (B (pr1 s'))): pr1 s = pr1 s' -> s = s'.
+Proof.
+  intro h.
+  apply (total2_paths h).
+  apply proofirrelevance.
+  apply is.
+Defined.
+
+
 Lemma total2_paths_UU  {B : UU -> UU} {s s' : total2 (fun x => B x)} 
     (p : pr1 s = pr1 s') 
     (q : transportf (fun x => B x) p (pr2 s) = pr2 s') : 
@@ -55,6 +65,15 @@ Proof.
   apply (@total2_paths _ _  
     (tpair (fun x => B x) a1 b1)(tpair (fun x => B x) a2 b2) p q).
 Defined.
+
+Definition total2_paths2_second_hProp {X} {P:X -> UU} {x y:X} {p:P x} {q:P y} :
+  x = y -> isaprop (P y) -> tpair _ x p = tpair _ y q.
+Proof.
+  intros H H0.
+  apply (total2_paths2 H).
+  apply proofirrelevance.
+  apply H0.
+Defined.    
 
 Lemma total2_paths2_UU {B : UU -> UU} {A A': UU} {b : B A} 
      {b' : B A'} (p : A = A') (q : transportf (fun x => B x) p b = b') : 
