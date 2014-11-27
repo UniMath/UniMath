@@ -134,6 +134,12 @@ Coercion precategory_from_hs_precategory : hs_precategory >-> precategory.
 
 Definition has_homsets (C : precategory_data) := forall a b : C, isaset (a --> b).
 
+Lemma isaprop_has_homsets (C : precategory) : isaprop (has_homsets C).
+Proof.
+  do 2 (apply impred; intro).
+  apply isapropisaset.
+Qed.
+
 Lemma isaprop_is_precategory (C : precategory_data)(hs: has_homsets C)
   : isaprop (is_precategory C).
 Proof.

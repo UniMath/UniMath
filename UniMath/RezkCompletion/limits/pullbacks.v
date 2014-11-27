@@ -228,7 +228,19 @@ End pullback_lemma.
 Section Universal_Unique.
 
 Hypothesis H : is_category C.
-(*
+
+
+Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : b --> a) (g : c --> a)
+  (Pb : Pullback f g) (Pb' : Pullback f g):
+    inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb') = from_Pullback_to_Pullback Pb' Pb.
+Proof.
+  apply pathsinv0.
+  apply inv_iso_unique'.
+  set (T:= are_inverses_from_Pullback_to_Pullback Pb Pb').
+  apply (pr1 T).
+Qed.
+
+
 Lemma isaprop_Pullbacks: isaprop Pullbacks.
 Proof.
   apply impred; intro a;
@@ -244,11 +256,9 @@ Proof.
     + intros; apply isaprop_isPullback.
   - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))). 
     rewrite transportf_dirprod, transportf_isotoid.
-    change (inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb'))
-         with (from_Pullback_to_Pullback Pb' Pb).
+    rewrite inv_from_iso_iso_from_Pullback.
     rewrite transportf_isotoid.
-    change (inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb'))
-         with (from_Pullback_to_Pullback Pb' Pb).
+    rewrite inv_from_iso_iso_from_Pullback.
     destruct Pb as [Cone bla];
     destruct Pb' as [Cone' bla'];
     simpl in *.
@@ -259,7 +269,7 @@ Proof.
     rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.
     apply idpath.
 Qed.
-*)
+
 End Universal_Unique.
 
 End def_pb.
