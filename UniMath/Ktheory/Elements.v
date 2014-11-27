@@ -88,10 +88,13 @@ Module pr1.
     intros. exists (fun_data _).
     split. { reflexivity. } { reflexivity. } Defined.
 
-(*
+
   Lemma func_reflects_isos {C} (X:C==>SET) : Precategories.reflects_isos (func X).
-  Proof. intros ? ? [c x] [d y] [f i] [f' j].
-    assert (i' : #X f' y = x).
+  Proof. intros C X [c x] [d y] f Hf.
+    apply is_iso_from_is_z_iso.
+    set (H := is_z_iso_from_is_iso _ _ _ _ Hf). clearbody H. clear Hf.
+    destruct f as [f i]. destruct H as [f' j].
+        assert (i' : #X f' y = x).
     { intermediate_path (#X f' (#X f x)).
       { exact (ap (#X f') (!i)). }
       { intermediate_path (#X (f' ∘ f) x).
@@ -102,5 +105,5 @@ Module pr1.
     { exists (f' ,, i'). split.
       { apply mor_equality.  exact (pr1 j). }
       { apply mor_equality.  exact (pr2 j). } } Qed.
-*)
+
 End pr1.

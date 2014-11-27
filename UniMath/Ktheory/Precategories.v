@@ -50,7 +50,7 @@ Definition theUnivalenceProperty (C:category) := pr2 _ : is_category C.
 Definition reflects_isos {C D} (X:C==>D) :=
   forall c c' (f : c → c'), is_isomorphism (#X f) -> is_isomorphism f.
 
-Lemma isaprop_reflects_isos {C D} (X:C==>D) (hsC: has_homsets C): isaprop (reflects_isos X).
+Lemma isaprop_reflects_isos {C D} (X:C==>D) : isaprop (reflects_isos X).
 Proof.
   intros. apply impred; intros. apply impred; intros. apply impred; intros.
   apply impred; intros. apply isaprop_is_isomorphism. Qed.
