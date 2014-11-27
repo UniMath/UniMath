@@ -113,11 +113,17 @@ Lemma opp_opp_precat_data (C : precategory_data)
    : C = opp_precat_data (opp_precat_data C).
 Proof. intros [[ob mor] [id co]]. reflexivity. Defined.
 
+Lemma has_homsets_opp_precat_data (C : precategory_data)(hs : has_homsets C) : 
+  has_homsets (opp_precat_data (opp_precat_data C)).
+Proof.
+  intros C hs a b.
+  apply hs.
+Qed.  
 
 Lemma opp_opp_precat (C : precategory)(hsC: has_homsets (pr1 C)) : C = C^op^op.
 Proof. intros [data ispre] hsC.
-       apply pathsinv0.
-       apply (total2_paths2_second_hProp (!opp_opp_precat_data data)).
+       apply (total2_paths2_second_hProp (opp_opp_precat_data data)).
        apply isaprop_is_precategory.
+       apply has_homsets_opp_precat_data. 
        apply hsC.
 Defined.
