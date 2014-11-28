@@ -1,28 +1,38 @@
-(** * Univalent Basics. Vladimir Voevodsky. Feb. 2010 - Sep. 2011. Port to coq trunk (8.4-8.5) in March 2014.  
+(** * Univalent Basics. 
 
-This file contains results which form a basis of the univalent approach and which do not require the use of universes
- as types. Fixpoints with values in a universe are used only once in the definition [ isofhlevel ]. Many results in 
-this file do not require any axioms. The first axiom we use is [ funextempty ] which is the functional extensionality
- axiom for functions with values in the empty type. Closer to the end of the file we use general functional 
-extensionality [ funextfunax ] asserting that two homotopic functions are equal. Since [ funextfunax ] itself is 
-not an "axiom"  in our sense i.e. its type is not of h-level 1 we show that it is logically equivalent to a real 
-axiom [ funcontr ] which asserts that the space of sections of a family with contractible fibers is contractible.  
+Vladimir Voevodsky. 
+Feb. 2010 - Sep. 2011.
+
+Port to coq trunk (8.4-8.5) in March 2014.  
+
+This file contains results which form a basis of the univalent
+approach and which do not require the use of universes as
+types. Fixpoints with values in a universe are used only once in the
+definition [ isofhlevel ]. Many results in this file do not require
+any axioms. The first axiom we use is [ funextempty ] which is the
+functional extensionality axiom for functions with values in the empty
+type. Closer to the end of the file we use general functional
+extensionality [ funextfunax ] asserting that two homotopic functions
+are equal. Since [ funextfunax ] itself is not an "axiom" in our sense
+i.e. its type is not of h-level 1 we show that it is logically
+equivalent to a real axiom [ funcontr ] which asserts that the space
+of sections of a family with contractible fibers is contractible.
+
+*) 
 
 
- *) 
+(** * Preambule *)
 
+(** ** Settings *)
 
-(** ** Preambule *)
+Unset Automatic Introduction. (* This line has to be removed for the
+file to compile with Coq8.2 *)
 
-(** Settings *)
-
-Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
-
-(** Imports *)
+(** ** Imports *)
 
 Require Export Foundations.Generalities.uuu.
 
-(** Universe structure *)
+(** ** Universe structure *)
 
 Definition UU := Type .
 
@@ -31,210 +41,244 @@ Identity Coercion fromUUtoType : UU >-> Sortclass.
 (* end of "Preambule". *)
 
 
-
-
 (** ** Some standard constructions not using identity types (paths) *)
 
 (** *** Canonical functions from [ empty ] and to [ unit ] *)
 
-Definition fromempty { X : UU } : empty -> X.
-Proof.  intro X .   intro H.  
- induction H. Defined. 
+Definition fromempty {X : UU} : empty -> X.
+Proof.
+  intro X.
+  intro H.  
+  induction H.
+Defined. 
 
-
-Definition tounit { X : UU } : X -> unit := fun x : X => tt .
+Definition tounit {X : UU} : X -> unit := fun (x : X) => tt.
 
 (** *** Functions from [ unit ] corresponding to terms *)
 
-Definition termfun { X : UU } ( x : X ) : unit -> X := fun t : unit => x .
-
+Definition termfun {X : UU} (x : X) : unit -> X := fun (t : unit) => x.
 
 (** *** Identity functions and function composition *)
 
-Definition idfun ( T : UU ) := fun t : T => t .
+Definition idfun ( T : UU ) := fun (t : T) => t .
 
-Definition funcomp { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) := fun x : X => g ( f x ) . 
-  
+Definition funcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z) := 
+  fun (x : X) => g (f x).
+
+Notation "g 'circ' f" := (funcomp f g) (at level 80, right associativity).
 
 (** *** Iteration of an endomorphism *)
 
-(* Fixpoint iteration { T : UU } ( f : T -> T ) ( n : nat ) : T -> T := match n with 
-O => idfun T |
-S m => funcomp ( iteration f m ) f 
-end . *)
+Definition iteration {T : UU} (f : T -> T) (n : nat) : T -> T.
+Proof.
+  intros T f n.
+  induction n as [ | n IHn ].
+  + exact (idfun T).
+  + exact (f circ IHn).
+Defined.
 
-(* the end of Oct. 22, 2014 lecture *)
+(** *** Basic constructions related to the adjoint evaluation 
+  function [ X -> ((X -> Y) -> Y) ] *)
 
+Definition adjev {X Y : UU} (x : X) (f : X -> Y) : Y := f x.
 
-
-Definition iteration { T : UU } ( f : T -> T ) ( n : nat ) : T -> T .
-Proof. 
-intros T f n . induction n as [ | n IHn ] . exact ( idfun T )  . exact ( funcomp IHn f ) . Defined.
-
-
-
-
-(** ***  Basic constructions related to the adjoint evaluation function [ X -> ( ( X -> Y ) -> Y ) ] *)
-
-Definition adjev { X Y : UU } ( x : X ) ( f : X -> Y ) : Y := f x.
-
-Definition adjev2 { X Y : UU } ( phi : ( ( X -> Y ) -> Y ) -> Y ) : X -> Y  :=  (fun  x : X => phi ( fun f : X -> Y => f x ) ) .
-
+Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
+  fun  (x : X) => phi (fun (f : X -> Y) => f x).
 
 (** *** Pairwise direct products *)
 
+Definition dirprod (X Y : UU) := total2 (fun x : X => Y).
 
+Definition dirprodpair {X Y : UU} := tpair (fun x : X => Y).
 
-Definition dirprod ( X Y : UU ) := total2 ( fun x : X => Y ) .
-Definition dirprodpair { X Y : UU } := tpair ( fun x : X => Y ) .
+Definition dirprodadj {X Y Z : UU} (f : dirprod X Y -> Z) : X -> Y -> Z :=  
+  (fun (x : X) => (fun (y : Y) => f (dirprodpair x y))).
 
-Definition dirprodadj { X Y Z : UU } ( f : dirprod X Y -> Z ) : X -> Y -> Z :=  fun x : X => fun y : Y => f ( dirprodpair x y ) .
+Definition dirprodf {X Y X' Y' : UU} 
+  (f : X -> Y) (f' : X' -> Y') (xx' : dirprod X X')  : dirprod Y Y' :=
+     dirprodpair (f (pr1 xx')) (f' (pr2 xx')).
 
-Definition dirprodf { X Y X' Y' : UU } ( f : X -> Y ) ( f' : X' -> Y' ) ( xx' : dirprod X X' )  : dirprod Y Y' :=  dirprodpair ( f ( pr1 xx') ) ( f' ( pr2 xx' ) ) .  
-
-Definition ddualand { X Y P : UU } (xp : ( X -> P ) -> P ) ( yp : ( Y -> P ) -> P ) : ( dirprod X Y -> P ) -> P.
-Proof. intros X Y P xp yp X0 . set ( int1 := fun ypp : ( ( Y -> P ) -> P ) => fun x : X => yp ( fun y : Y => X0 ( dirprodpair x y) ) ) . apply ( xp ( int1 yp ) ) . Defined . 
+Definition ddualand {X Y P : UU} (xp : (X -> P) -> P ) (yp : (Y -> P) -> P) :
+  (dirprod X Y -> P) -> P.
+Proof. 
+  intros X Y P xp yp X0.
+  set (int1 := fun ypp : ((Y -> P) -> P) => fun x : X => yp (fun y : Y => X0 (dirprodpair x y))).
+  apply (xp (int1 yp)).
+Defined.
 
 (** *** Negation and double negation *)
 
+Definition neg (X : UU) : UU := X -> empty.
 
-Definition neg ( X : UU ) : UU := X -> empty.
+Definition negf {X Y : UU} (f : X -> Y) : neg Y -> neg X := 
+  fun (phi : Y -> empty) => fun (x : X) => phi (f x).
 
-Definition negf { X Y : UU } ( f : X -> Y ) : neg Y -> neg X := fun phi : Y -> empty => fun x : X => phi ( f x ) .
+Definition dneg (X : UU) : UU := (X -> empty) -> empty.
 
-Definition dneg ( X : UU ) : UU := ( X -> empty ) -> empty .
+Definition dnegf {X Y : UU} (f : X -> Y) : dneg X -> dneg Y :=
+  negf (negf f).
 
-Definition dnegf { X Y : UU } ( f : X -> Y ) : dneg X -> dneg Y := negf ( negf f ) .
+Definition todneg (X : UU) : X -> dneg X := adjev.
 
-Definition todneg ( X : UU ) : X -> dneg X := adjev .
+Definition dnegnegtoneg { X : UU } : dneg (neg X) -> neg X := adjev2.
 
-Definition dnegnegtoneg { X : UU } : dneg ( neg X ) ->  neg X := adjev2  .
+Lemma dneganddnegl1 {X Y : UU} (dnx : dneg X) (dny : dneg Y) : neg (X -> neg Y).
+Proof.
+  intros.
+  intros X2.
+  apply (dnegf X2).
+  + apply dnx.
+  + apply dny.
+Defined.
 
-Lemma dneganddnegl1 { X Y : UU } ( dnx : dneg X ) ( dny : dneg Y ) : neg ( X -> neg Y ) .
-Proof. intros. intro X2. assert ( X3 : dneg X -> neg Y ) . apply ( fun xx : dneg X => dnegnegtoneg ( dnegf X2 xx ) ) .  apply ( dny ( X3 dnx ) ) . Defined.
-
-Definition dneganddnegimpldneg { X Y : UU } ( dnx : dneg X ) ( dny : dneg Y ) : dneg ( dirprod X Y ) := ddualand dnx dny. 
-
+Definition dneganddnegimpldneg {X Y : UU}
+  (dnx : dneg X) (dny : dneg Y) : dneg (dirprod X Y) := ddualand dnx dny. 
 
 (** *** Logical equivalence *)
 
+Definition logeq (X Y : UU) := dirprod (X -> Y)  (Y -> X) .
+Notation " X <-> Y " := (logeq X Y) : type_scope .  
 
-Definition logeq ( X Y : UU ) := dirprod ( X -> Y ) ( Y -> X ) .
-Notation " X <-> Y " := ( logeq X Y ) : type_scope .  
-
-
-Definition logeqnegs { X Y : UU } ( l : X <-> Y ) : ( neg X ) <-> ( neg Y ) := dirprodpair ( negf ( pr2 l ) ) ( negf ( pr1 l ) ) . 
-
-
-
+Definition logeqnegs {X Y : UU} (l : X <-> Y ) : (neg X) <-> (neg Y) :=
+  dirprodpair (negf (pr2 l)) (negf (pr1 l)). 
 
 (* end of "Some standard constructions not using idenity types (paths)". *)
 
 
-
-
-
-
 (** ** Operations on [ paths ] *)
-
-
-
-
-
-
-
-(** *** Composition of paths and inverse paths *)
-
- 
-Definition pathscomp0 { X : UU } { a b c : X } ( e1 : paths a b ) ( e2 : paths b c ) : paths a c .
-Proof. intros. induction e1. apply e2 . Defined.
-Hint Resolve @pathscomp0 : pathshints .
-(** Notation [p @ q] added by B.A., oct 2014 *)
-Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
-
-
-(* the end of Oct. 29, 2014 *)
-
-
-Definition pathscomp0rid { X : UU } { a b : X } ( e1 : paths a b ) : paths ( pathscomp0 e1 ( idpath b ) ) e1 . 
-Proof. intros. induction e1. simpl. apply idpath.  Defined. 
-
-(** Note that we do no need [ pathscomp0lid ] since the corresponding two terms are convertible to each other due to our definition of [ pathscomp0 ] . If we defined it by inductioning [ e2 ] and applying [ e1 ] then [ pathsinv0rid ] would be trivial but [ pathsinv0lid ] would require a proof. Similarly we do not need a lemma to connect [ pathsinv0 ( idpath _ ) ] to [ idpath ] *)
-
-Definition pathsinv0 { X : UU } { a b : X } ( e : paths a b ) : paths b a .
-Proof. intros. induction e.  apply idpath. Defined. 
-Hint Resolve @pathsinv0 : pathshints .
-(** Notation [! p] added by B.A., oct 2014 *)
-Notation "! p " := (pathsinv0 p) (at level 50).
-
-Definition pathsinv0l { X : UU } { a b : X } ( e : paths a b ) : paths ( pathscomp0 ( pathsinv0 e ) e ) ( idpath _ ) .
-Proof. intros. induction e.  apply idpath. Defined. 
-
-
-
-Definition pathsinv0r { X : UU } { a b : X } ( e : paths a b ) : paths ( pathscomp0 e ( pathsinv0 e ) ) ( idpath _ ) .
-Proof. intros. induction e.  apply idpath. Defined. 
-
-Definition pathsinv0inv0 { X : UU } { x x' : X } ( e : paths x x' ) : paths ( pathsinv0 ( pathsinv0 e ) ) e .
-Proof. intros. induction e. apply idpath. Defined.  
-
 
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 
+(** *** Composition of paths and inverse paths *)
+ 
+Definition pathscomp0 {X : UU} {a b c : X} (e1 : a = b) (e2 : b = c) : a = c.
+Proof.
+  intros. induction e1. apply e2.
+Defined.
+
+Hint Resolve @pathscomp0 : pathshints.
+
+Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
+
+(* the end of Oct. 29, 2014 *)
+
+Definition pathscomp0rid {X : UU} {a b : X} (e1 : a = b) : e1 @ idpath b = e1 . 
+Proof.
+  intros. induction e1. simpl. apply idpath.
+Defined. 
+
+(** Note that we do no need [ pathscomp0lid ] since the corresponding
+    two terms are convertible to each other due to our definition of
+    [ pathscomp0 ]. If we defined it by inductioning [ e2 ] and
+    applying [ e1 ] then [ pathsinv0rid ] would be trivial but
+    [ pathsinv0lid ] would require a proof. Similarly we do not need a
+    lemma to connect [ pathsinv0 ( idpath _ ) ] to [ idpath ].
+ *)
+
+Definition pathsinv0 { X : UU } { a b : X } (e : a = b) : b = a.
+Proof.
+  intros. induction e. apply idpath.
+Defined.
+
+Hint Resolve @pathsinv0 : pathshints .
+
+Notation "! p" := (pathsinv0 p) (at level 50).
+
+Definition pathsinv0l {X : UU} {a b : X} (e : a = b) : !e @ e = idpath _.
+Proof.
+  intros. induction e. apply idpath.
+Defined.
+
+Definition pathsinv0r {X : UU} {a b : X} (e : a = b) : e @ !e = idpath _.
+Proof.
+  intros. induction e. apply idpath.
+Defined. 
+
+Definition pathsinv0inv0 {X : UU} {x x' : X} (e : paths x x') : !(!e) = e.
+Proof.
+  intros. induction e. apply idpath.
+Defined.
 
 (** *** Direct product of paths  *)
 
-Definition pathsdirprod { X Y : UU } { x1 x2 : X } { y1 y2 : Y } ( ex : x1 = x2 ) ( ey : y1 = y2 ) :  dirprodpair x1 y1 = dirprodpair x2 y2 .
-Proof . intros . destruct ex . destruct ey . apply idpath . Defined . 
+Definition pathsdirprod {X Y : UU} {x1 x2 : X} {y1 y2 : Y}
+  (ex : x1 = x2) (ey : y1 = y2) : dirprodpair x1 y1 = dirprodpair x2 y2 .
+Proof.
+  intros. destruct ex. destruct ey. apply idpath.
+Defined. 
 
+(** *** The function [ maponpaths ] between paths types defined by a
+    function between ambient types and its behavior relative to [ @ ]
+    and [ ! ] *)
 
+Definition maponpaths {T1 T2 : UU} (f : T1 -> T2) {t1 t2 : T1} 
+  (e: t1 = t2) : f t1 = f t2.
+Proof.
+  intros. induction e. apply idpath.
+Defined.
 
-(** *** The function [ maponpaths ] between paths types defined by a function between abmbient types and its behavior relative to [ pathscomp0 ] and [ pathsinv0 ] *)
+Definition maponpathscomp0 {X Y : UU} {x1 x2 x3 : X}
+  (f : X -> Y) (e1 : x1 = x2) (e2 : x2 = x3) :
+    maponpaths f (e1 @ e2) = maponpaths f e1 @ maponpaths f e2.
+Proof.
+  intros. induction e1. induction e2. simpl. apply idpath.
+Defined. 
 
-Definition maponpaths { T1 T2 : UU } ( f : T1 -> T2 ) { t1 t2 : T1 } ( e: paths t1 t2 ) : paths ( f t1 ) ( f t2 ) .
-Proof. intros .  induction e . apply idpath. Defined. 
+Definition maponpathsinv0 {X Y : UU} (f : X -> Y)
+  {x1 x2 : X} (e : x1 = x2) : maponpaths f (! e) = ! (maponpaths f e).
+Proof.
+  intros. induction e. apply idpath.
+Defined.
 
-Definition maponpathscomp0 { X Y : UU } { x1 x2 x3 : X } ( f : X -> Y ) ( e1 : paths x1 x2 ) ( e2 : paths x2 x3 ) : paths ( maponpaths f ( pathscomp0  e1 e2 ) ) ( pathscomp0 ( maponpaths f e1 ) ( maponpaths f e2 ) ) .
-Proof. intros.  induction e1. induction e2.  simpl. apply idpath. Defined. 
+(** *** [ maponpaths ] for the identity functions and compositions of
+    functions *)
 
-Definition maponpathsinv0 { X Y : UU } ( f : X -> Y ) { x1 x2 : X } ( e : paths x1 x2 ) : paths ( maponpaths f ( pathsinv0 e ) ) ( pathsinv0 ( maponpaths f e ) ) .
-Proof. intros . induction e . apply idpath . Defined .  
+Lemma maponpathsidfun {X : UU} {x x' : X}
+  (e : x = x') : maponpaths (idfun _) e = e.
+Proof.
+  intros. induction e. apply idpath.
+Defined. 
 
+Lemma maponpathscomp {X Y Z : UU} {x x' : X} (f : X -> Y) (g : Y -> Z) 
+  (e : x = x') : maponpaths g (maponpaths f e) = maponpaths (g circ f) e.
+Proof.
+  intros. induction e. apply idpath.
+Defined. 
 
+(** The following four statements show that [ maponpaths ] defined by
+    a function f which is homotopic to the identity is
+    "surjective". It is later used to show that the maponpaths defined
+    by a function which is a weak equivalence is itself a weak
+    equivalence. *)
 
-(** *** [ maponpaths ] for the identity functions and compositions of functions *)
+Definition maponpathshomidinv {X : UU} (f:X -> X) (h : forall x : X, f x = x)
+  (x x' : X) (e : f x = f x') : x = x' := ! (h x) @ e @ (h x').
 
-Lemma maponpathsidfun { X : UU } { x x' : X } ( e : paths x x' ) : paths ( maponpaths ( idfun X ) e ) e . 
-Proof. intros. induction e. apply idpath . Defined. 
+Lemma maponpathshomid1 {X : UU} (f:X -> X) (h: forall x : X, f x = x) {x x' : X}
+  (e : x = x') : maponpaths f e = (h x) @ e @ (! h x').
+Proof.
+  intros. induction e. simpl.
+  apply pathsinv0.
+  apply pathsinv0r.
+Defined.
 
-Lemma maponpathscomp { X Y Z : UU } { x x' : X } ( f : X -> Y ) ( g : Y -> Z ) ( e : paths x x' ) : paths ( maponpaths g ( maponpaths f e ) ) ( maponpaths ( funcomp f g ) e) .
-Proof. intros. induction e.  apply idpath. Defined. 
+Lemma maponpathshomid12 {X : UU} {x x' fx fx' : X} (e : fx = fx') (hx : fx = x )
+  (hx' : fx' = x') : hx @ (!hx @ e @ hx') @ !hx' = e.
+Proof.
+  intros. induction hx. induction hx'. induction e.  simpl. apply idpath.
+Defined. 
 
+Lemma maponpathshomid2 {X : UU} (f : X->X) (h: forall x : X, f x = x) (x x' : X)
+  (e: f x = f x') : maponpaths f (maponpathshomidinv f h _ _ e) = e.
+Proof.
+  intros. assert (ee: h x @ (! h x @ e @ h x') @ ! h x' = e). 
+  apply (maponpathshomid12 e (h x) (h x')).
+  assert (eee: maponpaths f (! h x @ e @ h x') = h x @ (! h x @ e @ h x') @ (! h x')). 
+  apply maponpathshomid1. apply (eee @ ee).
+Defined.
 
-
-
-
-(** The following four statements show that [ maponpaths ] defined by a function f which is homotopic to the identity is "surjective". It is later used to show that the maponpaths defined by a function which is a weak equivalence is itself a weak equivalence. *) 
-
-
-Definition maponpathshomidinv { X : UU } (f:X -> X) ( h: forall x:X, f x = x) ( x x' : X ) : f x = f x' -> x = x' := (fun e: f x = f x' => ! (h x) @ e @ (h x')).
-
-
-Lemma maponpathshomid1 { X : UU } (f:X -> X) (h: forall x:X, paths (f x) x) { x x' : X } (e:paths x x'): paths (maponpaths f e) (pathscomp0 (h x) (pathscomp0 e (pathsinv0 (h x')))).
-Proof. intros. induction e. change (pathscomp0 (idpath x) (pathsinv0 (h x))) with (pathsinv0 (h x)). assert (ee: paths  (maponpaths f (idpath x)) (idpath (f x))). apply idpath .  
-assert (eee: paths (idpath (f x)) (pathscomp0  (h x)  (pathsinv0 (h x)))). apply (pathsinv0  (pathsinv0r  (h x))). apply (pathscomp0   ee eee). Defined. 
-
-
-Lemma maponpathshomid12 { X : UU } { x x' fx fx' : X } (e:paths fx fx') (hx:paths fx x) (hx':paths fx' x') : paths   (pathscomp0 hx (pathscomp0 (pathscomp0 (pathsinv0 hx) (pathscomp0 e hx')) (pathsinv0 hx'))) e.
-Proof. intros. induction hx. induction hx'. induction e.  simpl. apply idpath. Defined. 
-
-
-Lemma maponpathshomid2 { X : UU } (f:X->X) (h: forall x:X, f x = x) ( x x' : X ) (e: f x = f x') : maponpaths f (maponpathshomidinv f h _ _ e) = e.
-Proof.  intros. assert (ee: h x @ (! h x @ e @ h x') @ ! h x' = e). apply (maponpathshomid12 e (h x) (h x')). assert (eee: maponpaths f (! h x @ e @ h x') = h x @ (! h x @ e @ h x') @ (! h x')). 
-apply maponpathshomid1. apply (eee @ ee). Defined. 
-
-
-(** Here we consider the behavior of maponpaths in the case of a projection [ p ] with a section [ s ]. *)
+(** Here we consider the behavior of maponpaths in the case of a
+    projection [ p ] with a section [ s ]. *)
 
 
 
