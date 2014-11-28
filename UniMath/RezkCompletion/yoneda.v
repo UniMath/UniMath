@@ -84,7 +84,7 @@ Local Notation "C '^op'" := (opp_precat C) (at level 3).
 Definition opp_iso {C:precategory} {a b:ob C} : @iso C a b -> @iso C^op b a.
   intro f.
   exists (pr1 f).
-  set (T:= is_z_iso_from_is_iso _ _ _ _ (pr2 f)).
+  set (T:= is_z_iso_from_is_iso _ (pr2 f)).
   apply (is_iso_qinv (C:=C^op) _ (pr1 T)).
   split. 
   - apply (pr2 (pr2 T)).

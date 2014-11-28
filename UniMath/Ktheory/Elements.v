@@ -92,7 +92,7 @@ Module pr1.
   Lemma func_reflects_isos {C} (X:C==>SET) : Precategories.reflects_isos (func X).
   Proof. intros C X [c x] [d y] f Hf.
     apply is_iso_from_is_z_iso.
-    set (H := is_z_iso_from_is_iso _ _ _ _ Hf). clearbody H. clear Hf.
+    set (H := is_z_iso_from_is_iso _ Hf). clearbody H. clear Hf.
     destruct f as [f i]. destruct H as [f' j].
         assert (i' : #X f' y = x).
     { intermediate_path (#X f' (#X f x)).

@@ -239,6 +239,11 @@ Proof.
 Qed.
 
 (** * Isomorphism in a precategory *)
+(** A morphism [f: a --> b] in a precategory is an isomorphism [is_iso(f)], 
+    if for any [c: C], precomposition with [f] yields an equivalence
+    (b --> c -> a --> c].
+    Definition suggested by V. Voevodsky
+*)
 
 Definition precomp_with {C : precategory} {a b : C} (f : a --> b) {c} (g : b --> c): a --> c :=
    f ;; g.
@@ -492,7 +497,6 @@ Proof.
     apply id_right.
 Qed.    
 
-(** ***  *)
 
 Lemma iso_comp_right_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
   isweq (fun f : b --> c => h ;; f).
@@ -824,7 +828,6 @@ Proof.
   apply idpath.
 Qed.
 
-(** ***  *)
 
 Lemma z_iso_comp_right_isweq {C:precategory} {a b:ob C} (h:z_iso a b) (c:C) :
   isweq (fun f : b --> c => h ;; f).
@@ -855,22 +858,16 @@ Definition z_iso_conjug_weq {C:precategory} {a b:C} (h:z_iso a b) :
  weq (a --> a) (b --> b) := weqcomp (z_iso_comp_left_weq h _ ) 
          (z_iso_comp_right_weq (z_iso_inv_from_z_iso h) _ ).
 
-
-Section equivalence_iso_z_iso.
-
-Variable C : precategory.
-Hypothesis hs: has_homsets C.
-Variables a b : C.
-Variable f : a --> b.
-
-Lemma is_iso_from_is_z_iso: is_z_isomorphism f -> is_iso f.
+Lemma is_iso_from_is_z_iso {C: precategory}{a b : C} (f: a --> b) : 
+     is_z_isomorphism f -> is_iso f.
 Proof.
   intro H. 
   apply (is_iso_qinv _ (pr1 H)).
   apply (pr2 H).
 Qed.
 
-Lemma is_z_iso_from_is_iso: is_iso f -> is_z_isomorphism f.
+Lemma is_z_iso_from_is_iso {C: precategory}{a b : C} (f: a --> b): 
+     is_iso f -> is_z_isomorphism f.
 Proof.
   intro H.
   set (fiso:= isopair f H).
@@ -881,8 +878,6 @@ Proof.
   - set (H2:=iso_after_iso_inv fiso).
     simpl in H2. apply H2.
 Qed.
-
-End equivalence_iso_z_iso.
 
 (** * Categories (aka saturated precategories) *)
 
