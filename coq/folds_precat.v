@@ -23,15 +23,17 @@ Require Import RezkCompletion.total2_paths.
 
 (** ** Objects and a dependent type of morphisms *)
 
-Definition folds_ob_mor := Σ a : UU, a → a → hSet.
-Definition folds_ob_mor_pair (ob : UU)(mor : ob → ob → hSet) :
+Definition folds_ob_mor := Σ a : UU, a → a → UU.
+Definition folds_ob_mor_pair (ob : UU)(mor : ob → ob → UU) :
     folds_ob_mor := tpair _ ob mor.
 
 Definition ob (C : folds_ob_mor) : UU := @pr1 _ _ C.
 Coercion ob : folds_ob_mor >-> UU.
 
-Definition folds_morphisms {C : folds_ob_mor} : C → C → hSet := pr2 C.
+Definition folds_morphisms {C : folds_ob_mor} : C → C → UU := pr2 C.
 Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
+
+Definition has_folds_homsets (C : folds_ob_mor) : UU := ∀ a b: C, isaset (a ⇒ b).
 
 (** ** Identity and composition, given through predicates *)
 
@@ -71,12 +73,12 @@ Definition folds_ax_T (C : folds_id_T) :=
                T f g fg → T g h gh → 
                   T fg h fg_h → T f gh f_gh → f_gh = fg_h)). (* composition is assoc *)
 
-Lemma isaprop_folds_ax_T C : isaprop (folds_ax_T C).
+Lemma isaprop_folds_ax_T (C:folds_id_T) (hs: has_folds_homsets C): isaprop (folds_ax_T C).
 Proof.
  repeat (apply isapropdirprod).
  - do 5 (apply impred; intro). apply isapropishinh.
- - repeat (apply impred; intro). apply (pr2 (_ ⇒ _)) .  
- - repeat (apply impred; intro). apply (pr2 (_ ⇒ _ )).
+ - repeat (apply impred; intro). apply hs.  
+ - repeat (apply impred; intro). apply hs.
 Qed.
 
 

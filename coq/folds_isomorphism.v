@@ -383,14 +383,14 @@ End folds_iso_comp.
 Section from_iso_to_folds_iso.
 
 Variables a b : C.
-Variable f : iso (C:=C') a b.
+Variable f : z_iso (C:=C') a b.
 
-Definition folds_iso_data_from_iso : folds_iso_data a b :=
-  dirprodpair (dirprodpair (iso_comp_left_weq f) 
-                           (iso_comp_right_weq (iso_inv_from_iso f))) 
-              (iso_conjug_weq f).
+Definition folds_iso_data_from_z_iso : folds_iso_data a b :=
+  dirprodpair (dirprodpair (z_iso_comp_left_weq f) 
+                           (z_iso_comp_right_weq (z_iso_inv_from_z_iso f))) 
+              (z_iso_conjug_weq f).
 
-Lemma folds_iso_data_prop : folds_iso_prop folds_iso_data_from_iso.
+Lemma folds_iso_data_prop : folds_iso_prop folds_iso_data_from_z_iso.
 Proof.
   repeat split; intros.
   - simpl. apply logeqweq. 
@@ -400,45 +400,45 @@ Proof.
     + intro H. apply comp_compose2.
       set (H2 := comp_compose2' H).
       rewrite assoc in H2.
-      eapply post_comp_with_iso_is_inj. 
+      eapply post_comp_with_z_iso_is_inj. 
       apply (pr2 f). apply H2.
   - simpl. apply logeqweq.
     + intro H. apply comp_compose2.
       apply pathsinv0. etransitivity.
       * apply (pathsinv0 (comp_compose2' H)).
-      * transitivity ((f0 □ (f □ (inv_from_iso f))) □ g).   
-        rewrite iso_inv_after_iso. rewrite id_right. apply idpath.
+      * transitivity ((f0 □ (f □ (inv_from_z_iso f))) □ g).   
+        rewrite z_iso_inv_after_z_iso. rewrite id_right. apply idpath.
         repeat rewrite assoc; apply idpath.
     + intro H. apply comp_compose2.
       set (H2 := comp_compose2' H). apply pathsinv0.
       etransitivity. 
       * apply (pathsinv0 H2).
-      * transitivity ((f0 □ (f □ (inv_from_iso f))) □ g).   
+      * transitivity ((f0 □ (f □ (inv_from_z_iso f))) □ g).   
         repeat rewrite assoc; apply idpath.
-        rewrite iso_inv_after_iso. rewrite id_right. apply idpath.
+        rewrite z_iso_inv_after_z_iso. rewrite id_right. apply idpath.
   - simpl. apply logeqweq. 
     + intro H. apply comp_compose2. 
       rewrite <- assoc. rewrite (comp_compose2' H). apply idpath.
     + intro H. apply comp_compose2.
       set (H2:= comp_compose2' H).
       rewrite <- assoc in H2.
-      set (H3:= pre_comp_with_iso_is_inj _  _ _ _ _ (is_iso_inv_from_iso _ _ f) _ _ H2). 
+      set (H3:= pre_comp_with_z_iso_is_inj _  _ _ _ _ (is_z_iso_inv_from_z_iso _ _ f) _ _ H2). 
       assumption.
   - simpl; apply logeqweq. 
     + intro H; apply comp_compose2.
       rewrite <- (comp_compose2' H).
       transitivity 
-          ((f0 □ (f □ (inv_from_iso f))) □ (g □ f)).
+          ((f0 □ (f □ (inv_from_z_iso f))) □ (g □ f)).
       * repeat rewrite assoc; apply idpath.
-      * rewrite iso_inv_after_iso. rewrite id_right; apply assoc.
+      * rewrite z_iso_inv_after_z_iso. rewrite id_right; apply assoc.
     + intro H; apply comp_compose2.
       set (H2 := comp_compose2' H).
       repeat rewrite assoc in H2.
-      set (H3:= post_comp_with_iso_is_inj _  _ _ _ (pr2 f) _  _ _ H2). 
+      set (H3:= post_comp_with_z_iso_is_inj _  _ _ _ (pr2 f) _  _ _ H2). 
       rewrite <- H3; clear H3 H2 H.
       transitivity 
-          ((f0 □ (f □ (inv_from_iso f))) □ g).
-      * rewrite iso_inv_after_iso, id_right; apply idpath.
+          ((f0 □ (f □ (inv_from_z_iso f))) □ g).
+      * rewrite z_iso_inv_after_z_iso, id_right; apply idpath.
       * repeat rewrite assoc; apply idpath.
   -  simpl; apply logeqweq.
     + intro H. apply comp_compose2.
@@ -448,23 +448,23 @@ Proof.
     + intro H; apply comp_compose2.
       set (H2 := comp_compose2' H).
       rewrite <- assoc in H2.
-      set (H3 := pre_comp_with_iso_is_inj _ _ _  _ _ ((is_iso_inv_from_iso  _ _ f)) _ _ H2).
+      set (H3 := pre_comp_with_z_iso_is_inj _ _ _  _ _ ((is_z_iso_inv_from_z_iso  _ _ f)) _ _ H2).
       rewrite assoc in H3.
-      set (H4:= post_comp_with_iso_is_inj _ _ _ _ (pr2 f) _ _ _ H3).
+      set (H4:= post_comp_with_z_iso_is_inj _ _ _ _ (pr2 f) _ _ _ H3).
       assumption.
   - simpl. apply logeqweq.
     + intro H; apply comp_compose2.
       rewrite <- (comp_compose2' H); clear H.
       repeat rewrite <- assoc. apply maponpaths. repeat rewrite assoc.      
-      rewrite assoc4, iso_inv_after_iso, id_right.
+      rewrite assoc4, z_iso_inv_after_z_iso, id_right.
       apply idpath.
     + intro H; apply comp_compose2.
       set (H':= comp_compose2' H); generalize H'; clear H' H; intro H.
       repeat rewrite <- assoc in H.
-      set (H2:=pre_comp_with_iso_is_inj _ _ _  _ _ ((is_iso_inv_from_iso  _ _ f)) _ _ H); 
+      set (H2:=pre_comp_with_z_iso_is_inj _ _ _  _ _ ((is_z_iso_inv_from_z_iso  _ _ f)) _ _ H); 
         clearbody H2; clear H.
       repeat rewrite  assoc in H2; rewrite assoc4 in H2.
-      rewrite iso_inv_after_iso, id_right in H2.
+      rewrite z_iso_inv_after_z_iso, id_right in H2.
       assumption.
   - simpl; apply logeqweq.
     + intro H; set (H':=comp_compose2' H); clearbody H'; clear H;
@@ -475,30 +475,30 @@ Proof.
       simpl in *. rewrite <- H'; clear H'.
       apply maponpaths. simpl in *. 
       repeat rewrite  (assoc C').
-      rewrite iso_inv_after_iso, id_left; 
+      rewrite z_iso_inv_after_z_iso, id_left; 
       apply idpath.
     + intro H; set (H':=comp_compose2' H); clearbody H'; clear H;
       rename H' into H.
       apply comp_compose2.
       repeat rewrite <- assoc in H.
-      set (H':=pre_comp_with_iso_is_inj _ _ _  _ _ ((is_iso_inv_from_iso  _ _ f)) _ _ H); 
+      set (H':=pre_comp_with_z_iso_is_inj _ _ _  _ _ ((is_z_iso_inv_from_z_iso  _ _ f)) _ _ H); 
         clearbody H'; clear H.
       repeat rewrite assoc in H'.
-      set (H'':=post_comp_with_iso_is_inj _ _ _ _ (pr2 f) _ _ _ H');
+      set (H'':=post_comp_with_z_iso_is_inj _ _ _ _ (pr2 f) _ _ _ H');
       clearbody H''; clear H'.
-      rewrite assoc4, iso_inv_after_iso, id_right in H'';
+      rewrite assoc4, z_iso_inv_after_z_iso, id_right in H'';
       assumption.
   - simpl. apply logeqweq.  
     + intro H. apply id_identity2. 
       rewrite (id_identity2' H). rewrite (id_left C').
-      apply (iso_after_iso_inv _ _ _ f).
+      apply (z_iso_after_z_iso_inv _ _ _ f).
     + intro H. apply id_identity2.
       set (H':=id_identity2' H); clearbody H'; clear H.
-      set (H2:=iso_inv_to_left _ _ _ _ f _ _ H'); clearbody H2.
+      set (H2:=z_iso_inv_to_left _ _ _ _ f _ _ H'); clearbody H2.
       rewrite id_right in H2.      
-      transitivity (f □ (inv_from_iso f)).
-      * apply (iso_inv_on_left C'); auto.
-      * apply (iso_inv_after_iso C').
+      transitivity (f □ (inv_from_z_iso f)).
+      * apply (z_iso_inv_on_left C'); auto.
+      * apply (z_iso_inv_after_z_iso C').
 Qed.
 
 Definition folds_iso_from_iso : folds_iso a b := tpair _ _ folds_iso_data_prop.
@@ -515,7 +515,7 @@ Variable i : folds_iso a b.
 Let i': a ⇒ b := ϕ₁ i (id _ ).
 Let i'inv : b ⇒ a := ϕ₂ i (id _ ).
 
-Definition iso_from_folds_iso : iso (C:=C') a b.
+Definition iso_from_folds_iso : z_iso (C:=C') a b.
 Proof.
   exists i'.
   exists i'inv.
@@ -528,11 +528,12 @@ End from_folds_iso_to_iso.
 
 Section iso_from_folds_from_iso.
 
-Context {a b : C} (i : iso (C:=C') a b).
+Hypothesis (hs: has_homsets C').
+Context {a b : C} (i : z_iso (C:=C') a b).
 
 Lemma iso_from_folds_iso_folds_iso_from_iso : iso_from_folds_iso _ _ (folds_iso_from_iso _ _ i) = i.
 Proof.
-  apply eq_iso.
+  apply eq_z_iso. apply hs.
   apply (id_left C').
 Qed.
 

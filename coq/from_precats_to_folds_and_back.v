@@ -1,4 +1,5 @@
 
+
 (** Univalent FOLDS
 
     Benedikt Ahrens, following notes by Michael Shulman
@@ -36,10 +37,11 @@ Section from_precats_to_folds.
 Section data.
 
 Variable C : precategory_data.
+Variable hsC : has_homsets C.
 
 (** identity as a predicate *)
 Definition id_pred {a : C} : a ⇒ a → hProp :=
-   λ f, hProppair (f = identity _ ) (pr2 (a ⇒ a) _ _ ) .
+   λ f, hProppair (f = identity _ ) (hsC a a _ _) .
 
 Lemma id_pred_id (a : C) : id_pred (identity a).
 Proof.
@@ -48,13 +50,13 @@ Qed.
 
 (** composition as a predicate *)
 Definition comp_pred {a b c : C} : a ⇒ b → b ⇒ c → a ⇒ c → hProp :=
-  λ f g fg, hProppair (compose f g = fg) (pr2 (_ ⇒ _ ) _ _ ).
+  λ f g fg, hProppair (compose f g = fg) (hsC _ _ _ _ ).
 
 Lemma comp_pred_comp (a b c : C) (f : a ⇒ b) (g : b ⇒ c) : comp_pred f g (compose f g).
 Proof.
   apply idpath.  
 Defined.
-
+Print folds_ob_mor.
 Definition folds_id_comp_from_precat_data : folds_id_T :=
   tpair (λ C : folds_ob_mor, (∀ a : C, a ⇒ a → hProp) 
                            × (∀ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))  
@@ -63,12 +65,13 @@ Definition folds_id_comp_from_precat_data : folds_id_T :=
 End data.
 
 Variable C : precategory.
+Hypothesis hs: has_homsets C.
 
 (** FOLDS precategory from precategory *)
 
 Definition folds_precat_from_precat : folds_precat.
 Proof.
-  exists (folds_id_comp_from_precat_data C).
+  exists (folds_id_comp_from_precat_data C hs).
   repeat split.
   - intro a.
     apply hinhpr.
@@ -124,13 +127,14 @@ End from_folds_to_precats.
 
 (** * From FOLDS precats to precats to FOLDS precats *)
 
-Lemma folds_precat_from_precat_precat_from_folds_precat (C : folds_precat) : 
-    folds_precat_from_precat (precat_from_folds_precat C) = C.
+Lemma folds_precat_from_precat_precat_from_folds_precat 
+  (C : folds_precat)(hs:has_folds_homsets C): 
+    folds_precat_from_precat (precat_from_folds_precat C) hs = C.
 Proof.
-  apply total2_paths_hProp.
+  apply total2_paths_second_hProp.
   - intro a; apply isapropdirprod.
     + apply isaprop_folds_ax_id.
-    + apply isaprop_folds_ax_T.
+    + apply isaprop_folds_ax_T. assumption.
   - set (Hid := I_contr C).
     set (Hcomp := T_contr C).
     destruct C as [Cd CC]; simpl in *.
@@ -153,7 +157,7 @@ Proof.
        * intro H. unfold precategory_morphisms in f.
          set (H2 := pr2 (Hid a)). simpl in H2.
          apply (path_to_ctr). assumption.
-       * apply (pr2 (precategory_morphisms _ _ )).
+       * apply hs. (* apply (pr2 (precategory_morphisms _ _ )). *)
        * apply (pr2 (Cid a f)).
    + apply funextsec; intro a.
      apply funextsec; intro b.
@@ -169,17 +173,17 @@ Proof.
          apply (pr2 (pr1 (Hcomp a b c f g))).
        * simpl. intro H. apply pathsinv0. apply path_to_ctr.
            assumption.
-       * simpl in *. apply (pr2 (precategory_morphisms _ _ )).
+       * simpl in *. apply hs. (* apply (pr2 (precategory_morphisms _ _ )). *)
        * apply (pr2 (Ccomp _ _ _ _ _ _ )).
 Qed.
 
 (** * From precats to FOLDS precats to precats *)
 
-Lemma precat_from_folds_precat_folds_precat_from_precat (C : precategory) : 
-     precat_from_folds_precat (folds_precat_from_precat C) = C.
+Lemma precat_from_folds_precat_folds_precat_from_precat (C : precategory)(hs: has_homsets C) : 
+     precat_from_folds_precat (folds_precat_from_precat C hs) = C.
 Proof.
-  apply total2_paths_hProp.
-  { intro; apply isaprop_is_precategory. }
+  apply total2_paths_second_hProp.
+  { intro; apply isaprop_is_precategory. assumption. }
   destruct C as [Cdata Cax]; simpl in *.
   destruct Cdata as [Cobmor Cidcomp]; simpl in *.
   unfold precat_from_folds_data; apply maponpaths.
@@ -204,13 +208,13 @@ Qed.
 Local Notation "C ^" := (folds_precat_from_precat C) (at level 3).
 Local Notation "C ^^" := (precat_from_folds_precat C) (at level 3).
 
-Lemma comp_compose {C : precategory} {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h : a ⇒ c} :
-   f □ g = h -> T (C:=C^) f g h.
+Lemma comp_compose {C : precategory} (hs: has_homsets C) {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h : a ⇒ c} :
+   f □ g = h -> T (C:=C^hs) f g h.
 Proof.
    apply (λ x, x).
 Qed.
-Lemma comp_compose' {C : precategory} {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h : a ⇒ c} :
-    T (C:=C^) f g h -> f □ g = h.
+Lemma comp_compose' {C : precategory} (hs: has_homsets C){a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h : a ⇒ c} :
+    T (C:=C^hs) f g h -> f □ g = h.
 Proof.
    apply (λ x, x).
 Qed.
@@ -232,12 +236,12 @@ Qed.
 
 (** * Some lemmas to pass from [id] to [identity] and back **)
 
-Lemma id_identity {C : precategory} {a : C} {f : a ⇒ a} : f = identity _ -> I (C:=C^) f.
+Lemma id_identity {C : precategory} (hs: has_homsets C){a : C} {f : a ⇒ a} : f = identity _ -> I (C:=C^hs) f.
 Proof.
   apply (λ x, x).
 Qed.
 
-Lemma id_identity' {C : precategory} {a : C} {f : a ⇒ a} : I (C:=C^) f -> f = identity _ .
+Lemma id_identity' {C : precategory} (hs: has_homsets C){a : C} {f : a ⇒ a} : I (C:=C^hs) f -> f = identity _ .
 Proof.
   apply (λ x, x).
 Qed.
