@@ -1,10 +1,10 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import Foundations.hlevel2.algebra1b
-	       RezkCompletion.auxiliary_lemmas_HoTT
+	       RezkCompletion.total2_paths
                Ktheory.Utilities.
 Require Ktheory.Magma Ktheory.QuotientSet.
-Import uu0.PathNotations Ktheory.Utilities.Notation. 
+Import Ktheory.Utilities.Notation. 
 Local Notation Hom := monoidfun (only parsing).
 Local Notation "x * y" := ( op x y ). 
 Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).

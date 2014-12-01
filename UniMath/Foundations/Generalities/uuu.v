@@ -33,6 +33,8 @@ Hint Resolve identity_refl : core . ]
 *)
 
 Notation paths := identity .
+(** Notation [a = b] added by B.A., oct 2014 *)
+Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation idpath := identity_refl .
 Notation paths_rect := identity_rect .
 
@@ -59,11 +61,13 @@ Notation coprod_rect := sum_rect.
 
 
 
-(** Dpendent sums. 
+(** Dependent sums. 
 
-One can not use a new record each time one needs it because the general theorems about this construction would not apply to new instances of "Record" due to the "generativity" of inductive definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
+One can not use a new record each time one needs it because the general theorems about this 
+construction would not apply to new instances of "Record" due to the "generativity" of inductive 
+definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is 
+equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
 
-(* Set Primitive Projections. *)
 
 Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . 
 Arguments tpair {T} _ _ _.
@@ -91,7 +95,7 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 
 (** The following command checks wheather the patch which modifies the universe level assignement for inductive types have been installed. With the patch it returns [ paths 0 0 : UUU ] . Without the patch it returns [ paths 0 0 : Prop ]. *)
 
-Check (paths O O) .
+Check (O = O) .
 
 
 

@@ -3,7 +3,6 @@
 Require Import 
         Foundations.hlevel2.hSet
         Ktheory.Utilities.
-Import uu0.PathNotations.
 Import Utilities.Notation.
 Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
            (f:X->Y->Z) : Type
