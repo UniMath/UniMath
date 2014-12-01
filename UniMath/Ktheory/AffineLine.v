@@ -10,6 +10,7 @@
 
 Require Ktheory.Nat.
 Require Export hSet.
+Import uu0.PathNotations.
 Require Import Utilities algebra1b funextfun GroupAction hz Integers Nat Ktheory.Equivalences.
 Import Utilities.Notation Utilities.NatNotation.
 

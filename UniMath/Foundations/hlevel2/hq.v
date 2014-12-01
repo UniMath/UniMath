@@ -737,8 +737,7 @@ apply (nattohz (intpart0 x)) . Defined .
 
 Transparent hz .
 
-Eval lazy in
-    ( hzabsval ( intpart ( hqdiv ( hztohq ( nattohz ( 10 ) ) )  ( - ( 1 + 1 + 1 ) ) ) ) ) . 
+Eval lazy in ( hzabsval ( intpart ( hqdiv ( hztohq ( nattohz ( 10 ) ) )  ( - ( 1 + 1 + 1 ) ) ) ) ) . 
 
 
 Opaque hz . 

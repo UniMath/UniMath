@@ -2,7 +2,7 @@
 
 (** * Group actions *)
 
-Require Import algebra1b funextfun Utilities total2_paths Ktheory.Equivalences.
+Require Import algebra1b funextfun Utilities auxiliary_lemmas_HoTT Ktheory.Equivalences.
 Import Utilities.Notation.
 
 (** ** Definitions *)
@@ -158,7 +158,7 @@ Proof. intros ? ? ? ? x. exact (path_to_ActionIso e x). Defined.
 Definition Action_univalence_prelim {G:gr} {X Y:Action G} :
   weq (X = Y) (ActionIso X Y).
 Proof. intros.
-       refine (weqcomp (total2_paths_equiv (ActionStructure G) X Y) _).
+       refine (weqcomp (total_paths_equiv (ActionStructure G) X Y) _).
        refine (weqbandf _ _ _ _).
        { refine (weqcomp (pr1hSet_injectivity _ _) (weqpair (@eqweqmap (pr1 X) (pr1 Y)) (univalenceaxiom _ _))). }
        simpl. intro p. refine (weqcomp (is_equivariant_identity p) _).
@@ -390,7 +390,7 @@ Proof. intros ? [X x]. exists (triviality_isomorphism X x).
 Definition PointedTorsor_univalence {G:gr} {X Y:PointedTorsor G} : 
   weq (X = Y) (PointedActionIso X Y).
 Proof. intros.
-       refine (weqcomp (total2_paths_equiv _ X Y) _). 
+       refine (weqcomp (total_paths_equiv _ X Y) _). 
        refine (weqbandf _ _ _ _).
        { intros. 
          exact (weqcomp (weqonpathsincl underlyingAction underlyingAction_incl X Y)

@@ -3,7 +3,8 @@
 Require Import RezkCompletion.precategories
                Foundations.hlevel2.hSet.
 Require Ktheory.Utilities Ktheory.Precategories.
-Import Utilities.Notation
+Import uu0.PathNotations
+       Utilities.Notation
        Precategories.Notation.
 Definition compose' { C:precategory_data } { a b c:ob C }
   (g:b → c) (f:a → b) : a → c.

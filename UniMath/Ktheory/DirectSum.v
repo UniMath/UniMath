@@ -10,7 +10,8 @@ Require Import
         Ktheory.ZeroObject.
 Require Ktheory.Utilities Ktheory.Precategories Ktheory.RawMatrix
         Ktheory.Sum Ktheory.Product Ktheory.FiniteSet.
-Import Ktheory.Utilities.Notation
+Import uu0.PathNotations 
+       Ktheory.Utilities.Notation
        Precategories.Notation
        FiniteSet.Coercions 
        Sum.Coercions Product.Coercions.

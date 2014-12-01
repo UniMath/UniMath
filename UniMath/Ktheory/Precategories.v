@@ -7,7 +7,8 @@ Require Import RezkCompletion.precategories
                RezkCompletion.functors_transformations
                .
 Require Import Foundations.hlevel2.hSet.
-Import Ktheory.Utilities.Notation.
+Import PathNotations
+       Ktheory.Utilities.Notation.
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := tpair _ C i.
 Module Precategory.

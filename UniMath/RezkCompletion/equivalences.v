@@ -24,10 +24,11 @@ Contents :  Definition of adjunction
 
 
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.total2_paths.
+Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
@@ -375,7 +376,7 @@ Proof.
   simpl.
   intros a a' f.
   unfold rad_mor. simpl.
-  apply (invmaponpathsweq 
+  apply (equal_transport_along_weq _ _ 
           (weq_from_fully_faithful HF a (rad_ob ((pr1 F) a')))).
   simpl; repeat rewrite functor_comp.
   unfold rad_eta.
@@ -411,7 +412,7 @@ Proof.
   apply idpath.
 
   intro b.  
-  apply (invmaponpathsweq 
+  apply (equal_transport_along_weq _ _ 
           (weq_from_fully_faithful HF (rad_ob b) (rad_ob b))).
   simpl; rewrite functor_comp.
   unfold rad_eta.

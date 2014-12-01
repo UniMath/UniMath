@@ -36,37 +36,15 @@ Axiom weqtopaths0 : forall ( T1 T2 : UU ) ( w : weq T1 T2 ) , paths T1 T2.
 Axiom weqpathsweq0 : forall ( T1 T2 : UU ) ( w : weq T1 T2 ) ,  paths ( eqweqmap ( weqtopaths0 _ _ w ) ) w.
 
 Theorem univfromtwoaxioms ( T1 T2 : UU ) : isweq ( @eqweqmap T1 T2 ).
-Proof. intros. set ( P1 := fun XY : dirprod UU UU => pr1 XY = pr2 XY ) . 
-set ( P2 := fun XY :  dirprod UU UU => weq (pr1 XY)  (pr2 XY) ) . 
-set ( Z1 := total2 P1 ). set ( Z2 := total2 P2 ). 
-set ( f := totalfun _ _ ( fun XY :  dirprod UU UU =>  @eqweqmap (pr1 XY) (pr2 XY)) : Z1 -> Z2 ) . 
-set ( g := totalfun _ _ ( fun XY : dirprod UU UU =>  weqtopaths0 (pr1 XY) (pr2 XY) ) : Z2 -> Z1 ) . 
-
-
-assert ( efg : homot ( funcomp g f ) ( idfun _ ) ) .  intro z2 . induction z2 as [ XY e ] .
-unfold funcomp . unfold idfun . unfold g . unfold f . unfold totalfun . simpl . 
-apply ( maponpaths ( fun w : weq ( pr1 XY) (pr2 XY) =>  tpair P2 XY w ) 
-( weqpathsweq0 ( pr1 XY ) ( pr2 XY ) e )) . 
-
-
-
+Proof. intros. set ( P1 := fun XY : dirprod UU UU => ( match XY with  tpair _ X Y =>  paths X Y end ) ) . set ( P2 := fun XY :  dirprod UU UU => match XY with  tpair _ X Y => weq X Y end ) . set ( Z1 := total2 P1 ). set ( Z2 := total2 P2 ). set ( f := totalfun _ _ ( fun XY :  dirprod UU UU => match XY with  tpair _ X Y => @eqweqmap X Y end ) : Z1 -> Z2 ) . set ( g := totalfun _ _ ( fun XY : dirprod UU UU => match XY with  tpair _ X Y => weqtopaths0 X Y end ) : Z2 -> Z1 ) . set ( s1 := fun X Y  : UU => fun w : weq X Y =>  tpair P2 (  dirprodpair X Y ) w ) . set ( efg := fun a => match a as a' return (  paths ( f ( g a' ) ) a' ) with  tpair _ ( tpair _ X Y ) w => ( maponpaths ( s1 X Y ) ( weqpathsweq0 X Y w ) ) end ) . 
 
 set ( h := fun a1 : Z1 =>  pr1 ( pr1 a1 ) ) .
-
-assert ( egf0 : forall a1 : Z1 ,  paths ( pr1 ( g ( f a1 ) ) ) (  pr1 a1 ) ). intro. 
-apply  idpath. 
- 
-assert ( egf1 : forall a1 a1' : Z1 ,  paths ( pr1 a1' ) (  pr1 a1 ) ->  paths a1' a1 ). intros.  
-set ( X' :=  maponpaths ( @pr1 _ _ ) X ). 
-assert ( is : isweq h ). simpl in h .  apply isweqpr1pr1 . 
-apply ( invmaponpathsweq ( weqpair h is ) _ _ X' ).
-
-set ( egf := fun a1  => ( egf1 _ _ ( egf0 a1 ) ) ).
-
+assert ( egf0 : forall a1 : Z1 ,  paths ( pr1 ( g ( f a1 ) ) ) (  pr1 a1 ) ). intro. apply  idpath.  
+assert ( egf1 : forall a1 a1' : Z1 ,  paths ( pr1 a1' ) (  pr1 a1 ) ->  paths a1' a1 ). intros.  set ( X' :=  maponpaths ( @pr1 _ _ ) X ). 
+assert ( is : isweq h ).  apply isweqpr1pr1 . apply ( invmaponpathsweq ( weqpair h is ) _ _ X' ).
+set ( egf := fun a1  => ( egf1 _ _ ( egf0 a1 ) ) ). 
 set ( is2 := gradth _ _ egf efg ). 
-apply ( isweqtotaltofib P1 P2  ( fun XY : dirprod UU UU => 
-@eqweqmap (pr1 XY) (pr2 XY)) is2 ( dirprodpair T1 T2 ) ). 
-Defined. 
+apply ( isweqtotaltofib P1 P2  ( fun XY : dirprod UU UU => match XY with  tpair _ X Y => @eqweqmap X Y end ) is2 ( dirprodpair T1 T2 ) ). Defined. 
 
 
 (** Conjecture :  the pair [weqtopaths0] and [weatopathsweq0] is well defined up to a canonical equality. **)

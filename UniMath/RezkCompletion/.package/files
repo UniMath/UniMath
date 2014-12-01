@@ -13,5 +13,6 @@ limits/cones.v
 functors_transformations.v
 limits/products.v
 limits/terminal.v
+limits/aux_lemmas_HoTT.v
 precategories.v
-total2_paths.v
+auxiliary_lemmas_HoTT.v

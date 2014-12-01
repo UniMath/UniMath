@@ -1,10 +1,11 @@
 
 Require Import Foundations.Generalities.uuu.
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.total2_paths.
+Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).

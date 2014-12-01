@@ -6,7 +6,7 @@ Require Import
         Ktheory.Utilities
         Ktheory.Precategories
         RezkCompletion.precategories
-        RezkCompletion.total2_paths
+        RezkCompletion.auxiliary_lemmas_HoTT
         Foundations.hlevel2.hSet.
 Import Precategories.Notation.
 Module TerminalObject.
@@ -46,7 +46,7 @@ End TerminalObject.
 (** *** initial objects *)
 
 Module InitialObject.
-  Import Ktheory.Utilities.Notation.
+  Import uu0.PathNotations Ktheory.Utilities.Notation.
   Definition isInitialObject (C:precategory) (a:ob C) :=
     forall x:ob C, iscontr (x ← a).
   Lemma theInitialObjectIsomorphy (C:precategory) (a b:ob C) :

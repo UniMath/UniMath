@@ -645,25 +645,17 @@ Opaque rigtorngldistr .
 
 
 Lemma rigtorngrdistr ( X : rig ) : isrdistr ( rigtorngop1 X ) ( rigtorngop2 X ) . 
-Proof . intro . unfold isrdistr . 
- apply ( setquotuniv3prop ( eqrelrigtorng X ) ( fun x x' x'' : rigtorngcarrier X => eqset (rigtorngop2 X (rigtorngop1 X x x') x'' )
- (rigtorngop1 X (rigtorngop2 X x x'' ) (rigtorngop2 X x' x'' )) ) ) . intros x x' x'' . change ( paths ( setquotpr (eqrelrigtorng X ) 
-( rigtorngop2int X ( rigtorngop1int X x x' ) x'' ) ) ( setquotpr (eqrelrigtorng X ) ( rigtorngop1int X ( rigtorngop2int X x x'' ) 
-( rigtorngop2int X x' x'' ) ) ) ) . apply ( maponpaths ( setquotpr ( eqrelrigtorng X ) ) ) .  unfold rigtorngop1int . 
-unfold rigtorngop2int . simpl . set ( rd := rigrdistr X ) .  set ( cm1 := rigcomm1 X ) . set ( rr := abmonoidoprer ( rigop1axs X ) ) . 
-  apply pathsdirprod .  
+Proof . intro . unfold isrdistr .  apply ( setquotuniv3prop ( eqrelrigtorng X ) ( fun x x' x'' : rigtorngcarrier X => eqset (rigtorngop2 X (rigtorngop1 X x x') x'' ) (rigtorngop1 X (rigtorngop2 X x x'' ) (rigtorngop2 X x' x'' )) ) ) . intros x x' x'' . change ( paths ( setquotpr (eqrelrigtorng X ) ( rigtorngop2int X ( rigtorngop1int X x x' ) x'' ) ) ( setquotpr (eqrelrigtorng X ) ( rigtorngop1int X ( rigtorngop2int X x x'' ) ( rigtorngop2int X x' x'' ) ) ) ) . apply ( maponpaths ( setquotpr ( eqrelrigtorng X ) ) ) .  unfold rigtorngop1int . unfold rigtorngop2int . simpl . set ( rd := rigrdistr X ) .  set ( cm1 := rigcomm1 X ) . set ( rr := abmonoidoprer ( rigop1axs X ) ) .   apply pathsdirprod .  
 
 rewrite ( rd _ _ ( pr1 x'' ) ) . rewrite ( rd _ _ ( pr2 x'' ) ) . apply ( rr _ ( pr1 x' * pr1 x'' ) (pr2 x * pr2 x'' ) _ ) . 
 rewrite ( rd _ _ ( pr1 x'' ) ) . rewrite ( rd _ _ ( pr2 x'' ) ) . apply ( rr _ (pr1 x' * pr2 x'' ) ( pr2 x * pr1 x'' ) _ ) . Defined . 
 
 Opaque rigtorngrdistr . 
 
-Definition rigtorngdistr ( X : rig ) : isdistr  ( rigtorngop1 X ) ( rigtorngop2 X )  := 
-dirprodpair ( rigtorngldistr X ) ( rigtorngrdistr X ) .
+Definition rigtorngdistr ( X : rig ) : isdistr  ( rigtorngop1 X ) ( rigtorngop2 X )  := dirprodpair ( rigtorngldistr X ) ( rigtorngrdistr X ) .
 
 Definition rigtorng ( X : rig ) : rng .
-Proof . intro . split with ( @setwith2binoppair ( rigtorngcarrier X ) ( dirprodpair ( rigtorngop1 X ) ( rigtorngop2 X ) ) ) . 
-split . apply ( dirprodpair ( rigtorngop1axs X ) ( rigtorngismonoidop2 X ) ) . apply ( rigtorngdistr X ) .  Defined . 
+Proof . intro . split with ( @setwith2binoppair ( rigtorngcarrier X ) ( dirprodpair ( rigtorngop1 X ) ( rigtorngop2 X ) ) ) . split . apply ( dirprodpair ( rigtorngop1axs X ) ( rigtorngismonoidop2 X ) ) . apply ( rigtorngdistr X ) .  Defined . 
 
 
 (** **** Canonical homomorphism to the ring associated with a rig (ring of differences) *)

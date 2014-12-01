@@ -49,10 +49,11 @@ Contents :
 
 
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.total2_paths.
+Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
@@ -119,10 +120,10 @@ Definition functor_eq_eq_from_functor_ob_eq (C C' : precategory)
          base_paths _ _ (base_paths _ _ q)) :
     p = q.
 Proof.
-  apply (invmaponpathsweq (total2_paths_equiv _ _ _ )).
+  apply equal_equalities_between_pairs.
   simpl.
   assert (H' : base_paths _ _ p = base_paths _ _ q).
-  apply (invmaponpathsweq (total2_paths_equiv _ _ _ )).
+  apply equal_equalities_between_pairs.
   simpl. 
   apply (@total2_paths2 _ (fun p : pr1 (pr1 F) = pr1 (pr1 G) =>
           transportf
@@ -130,7 +131,7 @@ Proof.
             (fun x0 : ob C -> ob C' => 
             forall a b : ob C, a --> b -> x0 a --> x0 b) x)
             p (pr2 (pr1 F)) = pr2 (pr1 G)) _ 
-   (fiber_paths (base_paths F G p)) _ (fiber_paths (base_paths F G q))  H).
+   (fiber_path (base_paths F G p)) _ (fiber_path (base_paths F G q))  H).
    apply uip.
    change (isaset) with (isofhlevel 2).
    apply impred; intro a.
@@ -139,7 +140,7 @@ Proof.
    apply (pr2 (_ --> _)).
    apply (@total2_paths2 (pr1 F = pr1 G)  
     (fun x : pr1 F = pr1 G => transportf _ x (pr2 F) = pr2 G)
-          (base_paths F G p) (fiber_paths p) (base_paths F G q) (fiber_paths q) H').
+          (base_paths F G p) (fiber_path p) (base_paths F G q) (fiber_path q) H').
    apply uip.
    apply isasetaprop.
    apply isaprop_is_functor.
@@ -244,7 +245,7 @@ Lemma fully_faithful_inv_identity (C D : precategory) (F : functor C D)
       (FF : fully_faithful F) (a : ob C) : 
          FF^-1 (identity (F a)) = identity _.
 Proof.
-  apply (invmaponpathsweq (weq_from_fully_faithful FF a a)).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful FF a a)).
   unfold fully_faithful_inv_hom.
   set (HFaa:=homotweqinvweq (weq_from_fully_faithful FF a a)(identity _ )).
   simpl in *. 
@@ -258,7 +259,7 @@ Lemma fully_faithful_inv_comp (C D : precategory) (F : functor C D)
       (f : F a --> F b) (g : F b --> F c) : 
         FF^-1 (f ;; g) = FF^-1 f ;; FF^-1 g.
 Proof.
-  apply (invmaponpathsweq (weq_from_fully_faithful FF a c)).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful FF a c)).
   set (HFFac := homotweqinvweq (weq_from_fully_faithful FF a c)
                  (f ;; g)).
   unfold fully_faithful_inv_hom.
@@ -283,7 +284,7 @@ Lemma inv_of_ff_inv_is_inv (C D : precategory) (F : functor C D)
 Proof.
   unfold fully_faithful_inv_hom; simpl.
   split.
-  apply (invmaponpathsweq (weq_from_fully_faithful FF a a)).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful FF a a)).
   set (HFFab := homotweqinvweq (weq_from_fully_faithful FF a b)).
   set (HFFba := homotweqinvweq (weq_from_fully_faithful FF b a)).
   simpl in *.
@@ -293,7 +294,7 @@ Proof.
   rewrite functor_id.
   apply iso_inv_after_iso.
   
-  apply (invmaponpathsweq (weq_from_fully_faithful FF b b)).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful FF b b)).
   set (HFFab := homotweqinvweq (weq_from_fully_faithful FF a b)).
   set (HFFba := homotweqinvweq (weq_from_fully_faithful FF b a)).
   simpl in *.
@@ -385,7 +386,7 @@ Proof.
   
   unfold faithful.
   intros a b f g Heq.
-  apply (invmaponpathsweq (weq_from_fully_faithful H a b)).
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful H a b)).
   simpl. assumption.
 Qed.
 
@@ -881,11 +882,11 @@ Proof.
   simpl; apply functor_eq_eq_from_functor_ob_eq.
   unfold functor_eq_from_functor_iso.
   unfold functor_eq.
-  rewrite base_total2_paths.
+  rewrite base_total_path.
   unfold pr1_functor_eq_from_functor_iso.
-  rewrite base_total2_paths.
+  rewrite base_total_path.
   unfold pr1_pr1_functor_eq_from_functor_iso.
-  apply (invmaponpathsweq (weqtoforallpaths _ _ _ )).
+  apply (equal_transport_along_weq _ _   (weqtoforallpaths _ _ _ )).
   simpl.
   rewrite toforallpaths_funextsec.
   apply funextsec; intro a. 
@@ -911,9 +912,9 @@ Proof.
       simpl in H2. apply H2. 
   unfold functor_eq_from_functor_iso.
   unfold functor_eq.
-  rewrite base_total2_paths.
+  rewrite base_total_path.
   unfold pr1_functor_eq_from_functor_iso.
-  rewrite base_total2_paths.
+  rewrite base_total_path.
   pathvia (pr1 (idtoiso
      (isotoid D H (functor_iso_pointwise_if_iso C D F G gamma (pr2 gamma) a)))).
   apply maponpaths.

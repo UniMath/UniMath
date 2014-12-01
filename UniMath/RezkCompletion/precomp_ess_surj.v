@@ -19,10 +19,11 @@ Contents : Precomposition with a fully faithful and
 
 
 Require Import Foundations.Generalities.uu0.
+Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.total2_paths.
+Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
@@ -109,7 +110,7 @@ Proof.
   intro star.
   rewrite <- functor_comp.
   apply maponpaths.
-  apply (invmaponpathsweq
+  apply (equal_transport_along_weq _ _
           (weq_from_fully_faithful fH a anot)).
   simpl.
   rewrite functor_comp.
@@ -231,7 +232,7 @@ Definition Xkphi_transp (b : B) (t : X b) :
   transportf _ (Xphi b t) (kX t) a h =  k b a h.
 Proof.
   unfold k.
-  rewrite <- (fiber_paths (base_paths _ _ (pr2 (iscontr_X b) t))).
+  rewrite <- (fiber_path (base_paths _ _ (pr2 (iscontr_X b) t))).
   intros ? ?.
   apply maponpaths, idpath.
 Qed.
@@ -329,7 +330,7 @@ Proof.
     apply iso_inv_on_right.
     rewrite assoc.
     apply iso_inv_on_left,
-          (invmaponpathsweq (weq_from_fully_faithful fH a0 a' )),
+          (equal_transport_along_weq _ _ (weq_from_fully_faithful fH a0 a' )),
           pathsinv0,
           sssss.
   clear sssss.
@@ -476,7 +477,7 @@ Proof.
   set (l0'' := fH^-1 (h0 ;; (f;; f') ;; inv_from_iso h0'')).
   
   assert (L : l0 ;; l0' = l0'').
-    apply (invmaponpathsweq (weq_from_fully_faithful fH a0 a0'')).
+    apply (equal_transport_along_weq _ _ (weq_from_fully_faithful fH a0 a0'')).
     simpl; rewrite functor_comp.
     unfold l0'.
     inv_functor fH a0' a0''.
@@ -538,7 +539,7 @@ Proof.
       apply iso_inv_on_right.
       rewrite assoc.
       apply iso_inv_on_left.
-      apply (invmaponpathsweq (weq_from_fully_faithful fH a0 a' )).
+      apply (equal_transport_along_weq _ _ (weq_from_fully_faithful fH a0 a' )).
       apply pathsinv0.
       apply sssss.
     clear sssss.
@@ -623,7 +624,7 @@ Proof.
       apply iso_inv_on_right.
       rewrite assoc.
       apply iso_inv_on_left,
-        (invmaponpathsweq (weq_from_fully_faithful fH a0' a'' )),
+        (equal_transport_along_weq _ _ (weq_from_fully_faithful fH a0' a'' )),
         pathsinv0,
         sssss.
     set (sss':= base_paths _ _ sss); simpl in sss'.
@@ -700,7 +701,7 @@ Proof.
       apply iso_inv_on_right.
       rewrite assoc.
       apply iso_inv_on_left.
-      apply (invmaponpathsweq (weq_from_fully_faithful fH a0 a'' )).
+      apply (equal_transport_along_weq _ _ (weq_from_fully_faithful fH a0 a'' )).
       apply pathsinv0, sssss.
     set (sss':= base_paths _ _ sss); simpl in sss'.
     assert (sss'' : k b a h ;; inv_from_iso (k b a0 h0) = 
@@ -768,7 +769,7 @@ Proof.
   simpl in L; simpl.
   rewrite <- functor_comp.
   apply maponpaths.
-  apply (invmaponpathsweq (weq_from_fully_faithful fH a a0)
+  apply (equal_transport_along_weq _ _ (weq_from_fully_faithful fH a a0)
                  (f;; fH^-1 h') (fH^-1 h)  ).
   inv_functor fH a a0.
   rewrite functor_comp.
@@ -831,7 +832,7 @@ Proof.
     rewrite (Xkphi_idtoiso (H a0') (XtripleF a0')).
     simpl.
     assert (HH4 : fH^-1 h ;; f = l ;; fH^-1 h').
-      apply (invmaponpathsweq (weq_from_fully_faithful fH a a0')).
+      apply (equal_transport_along_weq _ _ (weq_from_fully_faithful fH a a0')).
       simpl; repeat rewrite functor_comp.
       inv_functor fH a a0.
       inv_functor fH a' a0'.
