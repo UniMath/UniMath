@@ -2515,25 +2515,32 @@ Lemma invproofirrelevance ( X : UU ) ( ee : forall x x' : X , x = x' ) : isaprop
 Proof. intros . unfold isaprop. unfold isofhlevel .  intro x .  
 assert ( is1 : iscontr X ).  split with x. intro t .  apply ( ee t x). assert ( is2 : isaprop X).  
 apply isapropifcontr. assumption.   
-unfold isaprop in is2. unfold isofhlevel in is2.  apply (is2 x). Defined. 
+unfold isaprop in is2. unfold isofhlevel in is2.  apply (is2 x). Defined.
+
+
 
 (* the end of the Nov. 19, 2014 lecture *)
 
-Lemma isweqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isaprop X ) ( isy : isaprop Y ) :
- isweq f.
+
+
+
+Lemma isweqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isaprop X )
+      ( isy : isaprop Y ) : isweq f.
 Proof. intros. 
 assert (isx0: forall x:X, paths (g (f x)) x). intro. apply proofirrelevance . apply isx . 
 assert (isy0 : forall y : Y, paths (f (g y)) y). intro. apply proofirrelevance . apply isy . 
 apply (gradth  f g isx0 isy0).  Defined. 
 
-Definition weqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isaprop X ) ( isy : isaprop Y ) := weqpair _ ( isweqimplimpl f g isx isy ) .
+Definition weqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isaprop X )
+           ( isy : isaprop Y ) := weqpair _ ( isweqimplimpl f g isx isy ) .
 
 Theorem isapropempty: isaprop empty.
 Proof. unfold isaprop. unfold isofhlevel. intros x x' . induction x. Defined. 
 
 
 Theorem isapropifnegtrue { X : UU } ( a : X -> empty ) : isaprop X .
-Proof . intros . set ( w := weqpair _ ( isweqtoempty a ) ) . apply ( isofhlevelweqb 1 w isapropempty ) .  Defined .
+Proof . intros . set ( w := weqpair _ ( isweqtoempty a ) ) .
+        apply ( isofhlevelweqb 1 w isapropempty ) .  Defined .
 
 
 
@@ -2548,7 +2555,9 @@ Axiom funextempty : forall ( X : UU ) ( f g : X -> empty ) , f = g .
 
 
 Theorem isapropneg (X:UU): isaprop (X -> empty).
-Proof. intro.  apply invproofirrelevance . intros x x' .   apply ( funextempty X x x' ) . Defined .  
+Proof.
+  intro.  apply invproofirrelevance . intros x x' .   apply ( funextempty X x x' ) .
+Defined .  
 
 (** See also [ isapropneg2 ] *) 
 
@@ -2559,7 +2568,8 @@ Proof. intro. apply (isapropneg (neg X)). Defined.
 
 Definition isaninvprop (X:UU) := isweq  (todneg X).
 
-Definition invimpl (X:UU) (is: isaninvprop X) : (dneg X) -> X:= invmap  ( weqpair (todneg X) is ) . 
+Definition invimpl (X:UU) (is: isaninvprop X) : (dneg X) -> X :=
+  invmap  ( weqpair (todneg X) is ) . 
 
 
 Lemma isapropaninvprop (X:UU): isaninvprop X -> isaprop X.
@@ -2568,8 +2578,11 @@ apply (isofhlevelweqb (S O) ( weqpair (todneg X) X0 ) (isapropdneg X)). Defined.
 
 
 Theorem isaninvpropneg (X:UU): isaninvprop (neg X).
-Proof. intros. 
-set (f:= todneg (neg X)). set (g:= negf  (todneg X)). set (is1:= isapropneg X). set (is2:= isapropneg (dneg X)). apply (isweqimplimpl  f g is1 is2).  Defined.
+Proof.
+  intros.
+       set (f:= todneg (neg X)). set (g:= negf  (todneg X)). set (is1:= isapropneg X).
+       set (is2:= isapropneg (dneg X)). apply (isweqimplimpl  f g is1 is2).
+Defined.
 
 
 Theorem isapropdec (X:UU): (isaprop X) -> (isaprop (coprod X (X-> empty))).
@@ -2630,40 +2643,60 @@ Proof . intros . apply ( isofhlevelfhomot ( S O ) f g h isf ) . Defined .
 
 Definition isofhlevelsninclb (n:nat) { X Y : UU } (f:X -> Y)(is: isincl  f) : isofhlevel (S n) Y -> isofhlevel (S n) X:= isofhlevelXfromfY (S n)  f (isofhlevelfsnincl n  f is).  
 
-Definition  isapropinclb { X Y : UU } ( f : X -> Y ) ( isf : isincl f ) : isaprop Y ->  isaprop X := isofhlevelXfromfY 1 _ isf .
+Definition  isapropinclb { X Y : UU } ( f : X -> Y ) ( isf : isincl f ) :
+  isaprop Y ->  isaprop X := isofhlevelXfromfY 1 _ isf .
 
 
-Lemma iscontrhfiberofincl { X Y : UU } (f:X -> Y): isincl  f -> (forall x:X, iscontr (hfiber  f (f x))).
-Proof. intros X Y f X0 x. unfold isofhlevelf in X0. set (isy:= X0 (f x)).  apply (iscontraprop1 isy (hfiberpair  f _ (idpath (f x)))). Defined.
+Lemma iscontrhfiberofincl { X Y : UU } (f:X -> Y) :
+  isincl  f -> (forall x:X, iscontr (hfiber  f (f x))).
+Proof.
+  intros X Y f X0 x. unfold isofhlevelf in X0. set (isy:= X0 (f x)).
+  apply (iscontraprop1 isy (hfiberpair  f _ (idpath (f x)))).
+Defined.
 
 
-Lemma isweqonpathsincl { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X): isweq (@maponpaths _ _ f x x').
-Proof. intros. apply (isofhlevelfonpaths O  f x x' is). Defined.
+Lemma isweqonpathsincl { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X) :
+  isweq (@maponpaths _ _ f x x').
+Proof.
+  intros. apply (isofhlevelfonpaths O  f x x' is).
+Defined.
 
-Definition weqonpathsincl  { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X) := weqpair _ ( isweqonpathsincl f is x x' ) .
+Definition weqonpathsincl  { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X) :=
+  weqpair _ ( isweqonpathsincl f is x x' ) .
 
-Definition invmaponpathsincl { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X): f x = f x' -> paths x x':= invmap  ( weqonpathsincl  f is x x') .
-
-
-Lemma isinclweqonpaths { X Y : UU } (f:X -> Y): (forall x x':X, isweq (@maponpaths _ _ f x x')) -> isincl  f.
-Proof. intros X Y f X0.  apply (isofhlevelfsn O  f X0). Defined.
-
-
-Definition isinclpr1 { X : UU } (P:X -> UU)(is: forall x:X, isaprop (P x)): isincl  (@pr1 X P):= isofhlevelfpr1 (S O) P is.
-
+Definition invmaponpathsincl { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X) :
+  f x = f x' -> paths x x' :=
+  invmap  ( weqonpathsincl  f is x x') .
 
 
+Lemma isinclweqonpaths { X Y : UU } (f:X -> Y) :
+  (forall x x':X, isweq (@maponpaths _ _ f x x')) -> isincl  f.
+Proof.
+  intros X Y f X0.  apply (isofhlevelfsn O  f X0).
+Defined.
+
+
+Definition isinclpr1 { X : UU } (P:X -> UU)(is: forall x:X, isaprop (P x)) :
+  isincl  (@pr1 X P):= isofhlevelfpr1 (S O) P is.
 
 
 
-Theorem samehfibers { X Y Z : UU } (f: X -> Y) (g: Y -> Z) (is1: isincl  g) ( y: Y): weq ( hfiber f y ) ( hfiber ( fun x => g ( f x ) ) ( g y ) ) .
-Proof. intros. split with (@hfibersftogf  _ _ _ f g (g y) (hfiberpair  g y (idpath _ ))) .
+Theorem samehfibers { X Y Z : UU } (f: X -> Y) (g: Y -> Z) (is1: isincl  g) ( y: Y):
+  weq ( hfiber f y ) ( hfiber ( fun x => g ( f x ) ) ( g y ) ) .
+Proof.
+  intros. split with (@hfibersftogf  _ _ _ f g (g y) (hfiberpair  g y (idpath _ ))) .
 
 set (z:= g y). set (ye:= hfiberpair  g y (idpath _ )).  unfold isweq. intro xe.  
 set (is3:= isweqezmap1 _ _ _ ( fibseqhf f g z ye ) xe). 
-assert (w1: weq (paths (hfibersgftog f g z xe) ye) (hfiber  (hfibersftogf  f g z ye) xe)). split with (ezmap (d1 (hfibersftogf f g z ye) (hfibersgftog f g z) ye ( fibseqhf f g z ye ) xe) (hfibersftogf f g z ye) xe ( fibseq1 (hfibersftogf f g z ye) (hfibersgftog f g z) ye ( fibseqhf f g z ye ) xe) ). apply is3. apply (iscontrweqf w1 ). 
+assert (w1: weq (paths (hfibersgftog f g z xe) ye) (hfiber  (hfibersftogf  f g z ye) xe)).
+split with (ezmap (d1 (hfibersftogf f g z ye) (hfibersgftog f g z) ye ( fibseqhf f g z ye ) xe)
+                  (hfibersftogf f g z ye) xe ( fibseq1 (hfibersftogf f g z ye)
+                                                       (hfibersgftog f g z) ye
+                                                       ( fibseqhf f g z ye ) xe) ).
+apply is3. apply (iscontrweqf w1 ). 
 assert (is4: iscontr (hfiber g z)). apply iscontrhfiberofincl. assumption.
-apply ( isapropifcontr is4  ). Defined.
+apply ( isapropifcontr is4  ).
+Defined.
 
 
 
@@ -2860,15 +2893,33 @@ Proof . intros . induction a as [ ane | t ] . induction ane as [ a ne ] .  simpl
 (** *** Recomplement on functions *)
 
 
-Definition recomplf { X Y : UU } ( x : X ) ( y : Y ) ( isx : isisolated X x ) ( f : compl X x -> compl Y y )  := funcomp ( funcomp ( invmap ( weqrecompl X x isx ) ) ( coprodf f ( idfun unit ) ) )  ( recompl Y y ) .
+Definition recomplf { X Y : UU } ( x : X ) ( y : Y ) ( isx : isisolated X x )
+           ( f : compl X x -> compl Y y )  :=
+  funcomp ( funcomp ( invmap ( weqrecompl X x isx ) ) ( coprodf f ( idfun unit ) ) )
+          ( recompl Y y ) .
 
-Definition weqrecomplf { X Y : UU } ( x : X ) ( y : Y ) ( isx : isisolated X x ) ( isy : isisolated Y y ) ( w : weq ( compl X x ) ( compl Y y ) ) := weqcomp ( weqcomp ( invweq ( weqrecompl X x isx ) ) ( weqcoprodf w ( idweq unit ) ) ) ( weqrecompl Y y isy ) . 
+Definition weqrecomplf { X Y : UU } ( x : X ) ( y : Y ) ( isx : isisolated X x )
+           ( isy : isisolated Y y ) ( w : weq ( compl X x ) ( compl Y y ) ) :=
+  weqcomp ( weqcomp ( invweq ( weqrecompl X x isx ) ) ( weqcoprodf w ( idweq unit ) ) )
+          ( weqrecompl Y y isy ) . 
 
-Definition homotrecomplfhomot { X Y : UU } ( x : X ) ( y : Y ) ( isx : isisolated X x ) ( f f' : compl X x -> compl Y y ) ( h : homot f f' ) : homot ( recomplf x y isx f ) ( recomplf x y isx f') .
-Proof . intros. intro a . unfold recomplf . apply ( maponpaths ( recompl Y y ) ( homotcoprodfhomot _ _ _ _ h ( fun t : unit => idpath t ) (invmap (weqrecompl X x isx) a) ) ) .  Defined .  
+Definition homotrecomplfhomot { X Y : UU } ( x : X ) ( y : Y ) ( isx : isisolated X x )
+           ( f f' : compl X x -> compl Y y ) ( h : homot f f' ) : homot ( recomplf x y isx f )
+                                                                        ( recomplf x y isx f') .
+Proof .
+  intros. intro a . unfold recomplf .
+  apply ( maponpaths ( recompl Y y )
+                     ( homotcoprodfhomot _ _ _ _ h ( fun t : unit => idpath t )
+                                         (invmap (weqrecompl X x isx) a) ) ) .
+Defined .  
 
-Lemma pathsrecomplfxtoy { X Y : UU } ( x : X ) ( y : Y ) ( isx : isisolated X x ) ( f : compl X x -> compl Y y ) : paths ( recomplf x y isx f x ) y .
-Proof .  intros . unfold recomplf . unfold weqrecompl .  unfold invmap .   simpl . unfold invrecompl . unfold funcomp .  induction ( isx x ) as [ i1 | i2 ] .  simpl . apply idpath . induction ( i2 ( idpath _ ) ) .  Defined . 
+Lemma pathsrecomplfxtoy { X Y : UU } ( x : X ) ( y : Y ) ( isx : isisolated X x )
+      ( f : compl X x -> compl Y y ) : paths ( recomplf x y isx f x ) y .
+Proof .
+  intros . unfold recomplf . unfold weqrecompl .  unfold invmap .   simpl . unfold invrecompl .
+  unfold funcomp .  induction ( isx x ) as [ i1 | i2 ] .  simpl . apply idpath .
+  induction ( i2 ( idpath _ ) ) .
+Defined . 
 
 Definition homotrecomplfcomp { X Y Z : UU } ( x : X ) ( y : Y ) ( z : Z ) ( isx : isisolated X x ) ( isy : isisolated Y y ) ( f :  compl X x -> compl Y y )  ( g :  compl Y y -> compl Z z ) : homot ( funcomp ( recomplf x y isx f ) ( recomplf y z isy g ) ) ( recomplf x z isx ( funcomp f g ) ) .
 Proof . intros. intro x' . unfold recomplf . set ( e := homotinvweqweq ( weqrecompl Y y isy ) (coprodf f ( idfun unit) (invmap ( weqrecompl X x isx ) x')) ) . unfold funcomp .   simpl in e .  simpl . rewrite e . set ( e' := homotcoprodfcomp f ( idfun unit ) g ( idfun unit ) (invmap (weqrecompl X x isx) x') ) . unfold funcomp in e' .  rewrite e' .  apply idpath .  Defined . 
@@ -4282,7 +4333,7 @@ apply ( gradth _ _ egf efg ) . Defined .
   
 
 
-
+(* End of the lecture on Nov. 26, 2014 *)
 
 
 
@@ -4327,4 +4378,4 @@ end.
 
 *)
  
-
+(* End of the file uu0.v *)
