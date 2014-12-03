@@ -27,14 +27,26 @@ Notation empty_rect := Empty_set_rect.
 
 (** Identity Types. Idenity types are introduced in Coq.Init.Datatypes by the lines : 
 
-[ Inductive identity ( A : Type ) ( a : A ) : A -> Type := identity_refl : identity _ a a . 
+[ Inductive identity ( A : Type ) ( a : A ) : A -> Type := identity_refl : identity _ a a .    
+    
 Hint Resolve identity_refl : core . ] 
 
 *)
 
 Notation paths := identity .
+(** Notation [a = b] added by B.A., oct 2014 *)
+Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation idpath := identity_refl .
 Notation paths_rect := identity_rect .
+
+(* Remark: all of the uu0.v now uses only paths_rect and not the direct "match" construction
+on paths. By adding a constantin paths for the computation rule for paths_rect and then making
+both this constant and paths_rect itself opaque it is possible to check which of the
+constructions of the uu0 can be done with the weakened version of the Martin-Lof Type Theory
+that is interpreted by the Bezm-Coquand-Huber cubical set model of 2014. *)
+
+
+
 
 (** Coproducts . 
 
@@ -59,11 +71,13 @@ Notation coprod_rect := sum_rect.
 
 
 
-(** Dpendent sums. 
+(** Dependent sums. 
 
-One can not use a new record each time one needs it because the general theorems about this construction would not apply to new instances of "Record" due to the "generativity" of inductive definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
+One can not use a new record each time one needs it because the general theorems about this 
+construction would not apply to new instances of "Record" due to the "generativity" of inductive 
+definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is 
+equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
 
-(* Set Primitive Projections. *)
 
 Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . 
 Arguments tpair {T} _ _ _.
@@ -91,7 +105,7 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 
 (** The following command checks wheather the patch which modifies the universe level assignement for inductive types have been installed. With the patch it returns [ paths 0 0 : UUU ] . Without the patch it returns [ paths 0 0 : Prop ]. *)
 
-Check (paths O O) .
+Check (O = O) .
 
 
 

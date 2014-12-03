@@ -47,6 +47,13 @@ shell commands (in this directory).
 $ make
 ```
 
+Until the Makefile is fixed, it may be necessary to run the command a second time, if
+only Coq is compiled above, as follows.
+
+```bash
+$ make
+```
+
 To create the documentation:
 ```bash
 $ make html
@@ -62,6 +69,24 @@ To install UniMath in the "user-contrib" directory of Coq, for use by other deve
 $ make install
 ```
 The path to that directory from here, by default, is ./sub/coq/user-contrib/.
+
+### Measuring compilation time
+
+To obtain information about the compilation time of each file, uncomment the line `#TIME = time` in the Makefile. 
+This leads to each call to `coqc` being wrapped in the `time` command, as in
+```
+$ time coqc foo.v
+```
+For this to work, you need the "time" utility installed on your system.
+
+Timing of execution of individual tactics and vernacular commands can be obtained by
+```bash
+$ make OTHERFLAGS=-time
+```
+For postprocessing of the (huge) output, direct the output into a file as in
+```bash
+$ make OTHERFLAGS=-time > timing.txt
+```
 
 ## Further details
 

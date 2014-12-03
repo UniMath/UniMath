@@ -125,7 +125,69 @@ Proof . intro .  assert ( lg : logeq ( neg ( ishinh X ) ) ( neg X ) ) . split . 
 
 Lemma hinhcoprod ( X Y : UU ) ( is : ishinh ( coprod ( ishinh X ) ( ishinh Y ) ) )  : ishinh ( coprod X Y ) .
 Proof. intros . unfold ishinh. intro P .  intro CP.  set (CPX := fun x : X => CP ( ii1 x ) ) . set (CPY := fun y : Y => CP (ii2 y) ).  set (is1P := is P).
- assert ( f : coprod ( ishinh X ) ( ishinh Y ) -> P ) .  apply ( sumofmaps ( hinhuniv CPX ) ( hinhuniv CPY ) ).   apply (is1P f ) . Defined. 
+       assert ( f : coprod ( ishinh X ) ( ishinh Y ) -> P ) .  apply ( sumofmaps ( hinhuniv CPX ) ( hinhuniv CPY ) ).   apply (is1P f ) . Defined.
+
+
+(** ** Images and surjectivity for functions between types 
+(both depend only on the behavior of the corresponding function between the sets of 
+connected components) **)
+
+Definition image { X Y : UU } ( f : X -> Y ) := total2 ( fun y : Y => ishinh ( hfiber f y ) ) .
+Definition imagepair { X Y : UU } (f: X -> Y) := tpair ( fun y : Y => ishinh ( hfiber f y ) ) .
+Definition pr1image { X Y : UU } ( f : X -> Y ) := @pr1 _  ( fun y : Y => ishinh ( hfiber f y ) ) .
+
+
+Definition prtoimage { X Y : UU } (f : X -> Y) : X -> image f.
+Proof. intros X Y f X0. apply (imagepair _ (f X0) (hinhpr _ (hfiberpair f X0 (idpath _ )))). Defined. 
+
+Definition issurjective { X Y : UU } (f : X -> Y ) := forall y:Y, ishinh (hfiber f y). 
+
+Lemma isapropissurjective { X Y : UU } ( f : X -> Y) : isaprop (issurjective f).
+Proof. intros.  apply impred. intro t. apply  (pr2 (ishinh (hfiber f t))). Defined. 
+
+Lemma isinclpr1image { X Y : UU } (f:X -> Y): isincl (pr1image f).
+Proof. intros. apply isofhlevelfpr1. intro. apply ( pr2 ( ishinh ( hfiber f x ) ) ) . Defined.
+
+Lemma issurjprtoimage { X Y : UU } ( f : X -> Y) : issurjective (prtoimage f ).
+Proof. intros. intro z.  set (f' := prtoimage f ). set (g:= pr1image f ). set (gf':= fun x:_ => g ( f' x )).
+assert (e: paths f gf'). apply etacorrection .  
+assert (ff: hfiber gf' (pr1 z) -> hfiber f' z).   apply ( invweq ( samehfibers _ _ ( isinclpr1image f ) z ) ) .  
+assert (is2: ishinh (hfiber gf' (pr1 z))). destruct e.  apply (pr2 z). 
+apply (hinhfun ff is2). Defined. 
+
+
+
+
+(** *** The two-out-of-three properties of surjections *)
+
+Lemma issurjcomp { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( isf : issurjective f ) ( isg : issurjective g ) : issurjective ( funcomp f g ) .
+Proof . intros . unfold issurjective .  intro z . apply ( fun ff => hinhuniv ff ( isg z ) ) . intro ye .  apply ( hinhfun ( hfibersftogf f g z ye ) ) .  apply ( isf ) .   Defined . 
+
+Notation issurjtwooutof3c := issurjcomp . 
+
+Lemma issurjtwooutof3b { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( isgf : issurjective ( funcomp f g ) ) : issurjective g .  
+Proof . intros . unfold issurjective .  intro z .  apply ( hinhfun ( hfibersgftog f g z ) ( isgf z ) ) .  Defined . 
+
+(** *** A function between types which is an inclusion and a surjection is a weak equivalence *)
+
+Lemma isweqinclandsurj { X Y : UU } ( f : X -> Y ) : isincl f -> issurjective f -> isweq f .
+Proof .
+  intros X Y f Hincl Hsurj.
+  intro y.
+  set (H := hProppair (iscontr (hfiber f y)) (isapropiscontr _ )).
+  apply (Hsurj y H).
+  intro x.
+  simpl.
+  apply iscontraprop1.
+  - apply Hincl.
+  - apply x.
+Defined.
+
+
+
+
+
+
 
  
 
@@ -242,7 +304,7 @@ Definition hinhimplinhdneg (X:UU)(inx1: ishinh X): isinhdneg X := inx1 hfalse.
 
 (** ** Univalence axiom for hProp 
 
-We introduce here the weakest form of the univalence axiom - the univalence axiom for hProp which is equivalent to the second part of the extensionality axiom in Church simple type theory.  This axiom is easily shown to be equivalent to its version with [paths P P'] as a target and to [ weqtopathshProp ] (see below) as well as to the version of [ weqtopathshProp ] with [ paths P P'] as a target. 
+We introduce here the weakest form of the univalence axiom - the univalence axiom for hProp which is equivalent to the second part of the extensionality axiom in Church simple type theory.  This axiom is easily shown to be equivalent to its version with [P = P'] as a target and to [ weqtopathshProp ] (see below) as well as to the version of [ weqtopathshProp ] with [P = P'] as a target. 
 
 The proof of theorem [ univfromtwoaxiomshProp ] is modeled on the proof of [ univfromtwoaxioms ] from univ01.v 
 
@@ -257,22 +319,34 @@ Proof. intros . destruct e . apply idweq.  Defined.
 
 Definition  weqtopathshProp { P P' : hProp } (w: weq P P' ): @paths hProp P P' := uahp P P' w ( invweq w ) .
 
-Definition weqpathsweqhProp { P P' : hProp } (w : weq P P'): paths (eqweqmaphProp (weqtopathshProp w)) w.
+Definition weqpathsweqhProp { P P' : hProp } (w : weq P P'): eqweqmaphProp (weqtopathshProp w) = w.
 Proof. intros. apply proofirrelevance . apply (isapropweqtoprop P P' (pr2 P')). Defined.
 
 
 Theorem univfromtwoaxiomshProp (P P':hProp): isweq (@eqweqmaphProp P P').
 Proof. intros. 
 
-set (P1:= fun XY: dirprod hProp hProp => (match XY with tpair _ X Y =>  paths X Y end)). set (P2:= fun XY:  dirprod hProp hProp => match XY with  tpair _ X Y => weq X Y end). set (Z1:=  total2 P1). set (Z2:=  total2 P2). set (f:= ( totalfun _ _ (fun XY: dirprod hProp hProp => (match XY with  tpair _ X Y => @eqweqmaphProp X Y end))): Z1 -> Z2). set (g:=  ( totalfun _ _ (fun XY: dirprod hProp hProp => (match XY with  tpair _ X Y => @weqtopathshProp X Y end))): Z2 -> Z1). set (s1:= (fun X Y :hProp => fun w: weq X Y =>  tpair P2 ( dirprodpair X Y) w)). set (efg:= (fun a:_ => match a as a' return (paths (f (g a')) a') with  tpair _ ( tpair _ X Y) w => ( maponpaths (s1 X Y) (@weqpathsweqhProp X Y w)) end)). 
+set (P1:= fun XY: dirprod hProp hProp => paths ( pr1 XY ) ( pr2 XY ) ) . 
+set (P2:= fun XY: dirprod hProp hProp => weq ( pr1 XY ) ( pr2 XY ) ) . 
+set (Z1:=  total2 P1). 
+set (Z2:=  total2 P2). 
+set (f:= ( totalfun _ _ (fun XY: dirprod hProp hProp => 
+                           @eqweqmaphProp ( pr1 XY ) ( pr2 XY )): Z1 -> Z2)). 
+set (g:= ( totalfun _ _ (fun XY: dirprod hProp hProp =>                         
+                           @weqtopathshProp ( pr1 XY ) ( pr2 XY )): Z2 -> Z1)). 
+assert (efg : forall z2 : Z2 , paths ( f ( g z2 ) ) z2 ). intros. induction z2 as [ XY w] .  
+exact ( maponpaths (fun w: weq (pr1 XY) (pr2 XY) => tpair P2 XY w) (@weqpathsweqhProp (pr1 XY) (pr2 XY) w)). 
 
 set (h:= fun a1:Z1 => (pr1 ( pr1 a1))).
 assert (egf0: forall a1:Z1,  paths ( pr1 (g (f a1))) ( pr1 a1)). intro. apply  idpath.  
-assert (egf1: forall a1 a1':Z1,  paths ( pr1 a1') ( pr1 a1) -> paths a1' a1). intros ? ? X .  set (X':=  maponpaths ( @pr1 _ _ )  X). 
+assert (egf1: forall a1 a1':Z1,  paths ( pr1 a1') ( pr1 a1) -> paths a1' a1). intros ? ? X .  
+set (X':=  maponpaths ( @pr1 _ _ )  X). 
 assert (is:  isweq h). apply ( isweqpr1pr1 hProp ). apply ( invmaponpathsweq ( weqpair h is ) _ _ X').
 set (egf:= fun a1:_ => (egf1 _ _ (egf0 a1))). 
 set (is2:= gradth _ _ egf efg). 
-apply ( isweqtotaltofib P1 P2  (fun XY: dirprod hProp hProp => (match XY with  tpair _ X Y => @eqweqmaphProp X Y end)) is2 ( dirprodpair P P')). Defined. 
+apply ( isweqtotaltofib P1 P2  (fun XY: dirprod hProp hProp => 
+                                  @eqweqmaphProp (pr1 XY) (pr2 XY)) is2 ( dirprodpair P P')).
+Defined. 
 
 Definition weqeqweqhProp ( P P' : hProp ) := weqpair _ ( univfromtwoaxiomshProp P P' ) .
 
