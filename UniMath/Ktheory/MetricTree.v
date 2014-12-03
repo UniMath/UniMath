@@ -2,7 +2,7 @@
 
 (** * Metric trees *)
 
-Require Import algebra1b hnat funextfun total2_paths Ktheory.Utilities.
+Require Import algebra1b hnat funextfun auxiliary_lemmas_HoTT Ktheory.Utilities.
 Import Utilities.Notation Utilities.NatNotation.
 
 (** ** Definitions *)

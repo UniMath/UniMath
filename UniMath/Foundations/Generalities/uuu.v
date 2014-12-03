@@ -33,8 +33,6 @@ Hint Resolve identity_refl : core . ]
 *)
 
 Notation paths := identity .
-(** Notation [a = b] added by B.A., oct 2014 *)
-Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation idpath := identity_refl .
 Notation paths_rect := identity_rect .
 
@@ -61,28 +59,16 @@ Notation coprod_rect := sum_rect.
 
 
 
-(** Dependent sums. 
+(** Dpendent sums. 
 
-One can not use a new record each time one needs it because the general theorems about this 
-construction would not apply to new instances of "Record" due to the "generativity" of inductive 
-definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is 
-equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
+One can not use a new record each time one needs it because the general theorems about this construction would not apply to new instances of "Record" due to the "generativity" of inductive definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
 
+Set Primitive Projections.
 
-Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . 
+Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }.
 Arguments tpair {T} _ _ _.
-
-Definition pr1 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : T .
-Proof . intros .  induction t as [ t p ] . exact t . Defined. 
-
 Arguments pr1 {_ _} _.
-
-Definition pr2 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : P ( pr1 t ) .
-Proof . intros .  induction t as [ t p ] . exact p . Defined. 
-
 Arguments pr2 {_ _} _.
-
-
 
 (*
 
@@ -95,7 +81,7 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 
 (** The following command checks wheather the patch which modifies the universe level assignement for inductive types have been installed. With the patch it returns [ paths 0 0 : UUU ] . Without the patch it returns [ paths 0 0 : Prop ]. *)
 
-Check (O = O) .
+Check (paths O O) .
 
 
 

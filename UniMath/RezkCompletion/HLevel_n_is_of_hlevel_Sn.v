@@ -12,9 +12,10 @@
 *)
 
 Require Import Foundations.hlevel1.hProp.
+Import PathNotations.
 Require Import Foundations.Proof_of_Extensionality.funextfun.
 
-Require Import RezkCompletion.total2_paths. 
+Require Import RezkCompletion.auxiliary_lemmas_HoTT. 
 
 
 
@@ -40,7 +41,7 @@ Lemma weq1  (P : UU -> hProp) (X X' : UU) (pX : P X) (pX' : P X') :
    weq (tpair _ X pX = tpair (fun x => P x) X' pX')
        (total2 (fun w : X = X' => transportf (fun x => P x) w pX = pX')).
 Proof.
-  apply total2_paths_equiv.
+  apply total_paths_equiv.
 Defined.
 
 (** This helper lemma is needed to show that our fibration 
@@ -73,8 +74,12 @@ Lemma weq2 (P : UU -> hProp) (X X' : UU)
 Proof.
   exists (@pr1 (X = X') (fun w : X = X' => 
             (transportf (fun x : UU => P x) w pX)  = pX' )).
-  apply isweqpr1.
-  intros ? .
+  set (H' := isweqpr1_UU X X'
+        (fun w : X = X' => 
+      (transportf (fun X => P X) w pX = pX') )).
+  simpl in H'.
+  apply H'.
+  intro z.
   apply (pr2 (P X')).
 Defined.
  

@@ -6,7 +6,8 @@ Require Export RezkCompletion.precategories
                Ktheory.Utilities.
 Require Export Ktheory.Precategories.
 Export Utilities.Notation
-       Precategories.Notation.
+       Precategories.Notation
+       uu0.PathNotations.
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
   intros. exists (total2 (fun c : ob C => set_to_type (X c))).
   intros a b. exists (total2 (fun f : pr1 a → pr1 b => #X f (pr2 a) = (pr2 b))).

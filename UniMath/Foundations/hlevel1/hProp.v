@@ -242,7 +242,7 @@ Definition hinhimplinhdneg (X:UU)(inx1: ishinh X): isinhdneg X := inx1 hfalse.
 
 (** ** Univalence axiom for hProp 
 
-We introduce here the weakest form of the univalence axiom - the univalence axiom for hProp which is equivalent to the second part of the extensionality axiom in Church simple type theory.  This axiom is easily shown to be equivalent to its version with [P = P'] as a target and to [ weqtopathshProp ] (see below) as well as to the version of [ weqtopathshProp ] with [P = P'] as a target. 
+We introduce here the weakest form of the univalence axiom - the univalence axiom for hProp which is equivalent to the second part of the extensionality axiom in Church simple type theory.  This axiom is easily shown to be equivalent to its version with [paths P P'] as a target and to [ weqtopathshProp ] (see below) as well as to the version of [ weqtopathshProp ] with [ paths P P'] as a target. 
 
 The proof of theorem [ univfromtwoaxiomshProp ] is modeled on the proof of [ univfromtwoaxioms ] from univ01.v 
 
@@ -257,34 +257,22 @@ Proof. intros . destruct e . apply idweq.  Defined.
 
 Definition  weqtopathshProp { P P' : hProp } (w: weq P P' ): @paths hProp P P' := uahp P P' w ( invweq w ) .
 
-Definition weqpathsweqhProp { P P' : hProp } (w : weq P P'): eqweqmaphProp (weqtopathshProp w) = w.
+Definition weqpathsweqhProp { P P' : hProp } (w : weq P P'): paths (eqweqmaphProp (weqtopathshProp w)) w.
 Proof. intros. apply proofirrelevance . apply (isapropweqtoprop P P' (pr2 P')). Defined.
 
 
 Theorem univfromtwoaxiomshProp (P P':hProp): isweq (@eqweqmaphProp P P').
 Proof. intros. 
 
-set (P1:= fun XY: dirprod hProp hProp => paths ( pr1 XY ) ( pr2 XY ) ) . 
-set (P2:= fun XY: dirprod hProp hProp => weq ( pr1 XY ) ( pr2 XY ) ) . 
-set (Z1:=  total2 P1). 
-set (Z2:=  total2 P2). 
-set (f:= ( totalfun _ _ (fun XY: dirprod hProp hProp => 
-                           @eqweqmaphProp ( pr1 XY ) ( pr2 XY )): Z1 -> Z2)). 
-set (g:= ( totalfun _ _ (fun XY: dirprod hProp hProp =>                         
-                           @weqtopathshProp ( pr1 XY ) ( pr2 XY )): Z2 -> Z1)). 
-assert (efg : forall z2 : Z2 , paths ( f ( g z2 ) ) z2 ). intros. induction z2 as [ XY w] .  
-exact ( maponpaths (fun w: weq (pr1 XY) (pr2 XY) => tpair P2 XY w) (@weqpathsweqhProp (pr1 XY) (pr2 XY) w)). 
+set (P1:= fun XY: dirprod hProp hProp => (match XY with tpair _ X Y =>  paths X Y end)). set (P2:= fun XY:  dirprod hProp hProp => match XY with  tpair _ X Y => weq X Y end). set (Z1:=  total2 P1). set (Z2:=  total2 P2). set (f:= ( totalfun _ _ (fun XY: dirprod hProp hProp => (match XY with  tpair _ X Y => @eqweqmaphProp X Y end))): Z1 -> Z2). set (g:=  ( totalfun _ _ (fun XY: dirprod hProp hProp => (match XY with  tpair _ X Y => @weqtopathshProp X Y end))): Z2 -> Z1). set (s1:= (fun X Y :hProp => fun w: weq X Y =>  tpair P2 ( dirprodpair X Y) w)). set (efg:= (fun a:_ => match a as a' return (paths (f (g a')) a') with  tpair _ ( tpair _ X Y) w => ( maponpaths (s1 X Y) (@weqpathsweqhProp X Y w)) end)). 
 
 set (h:= fun a1:Z1 => (pr1 ( pr1 a1))).
 assert (egf0: forall a1:Z1,  paths ( pr1 (g (f a1))) ( pr1 a1)). intro. apply  idpath.  
-assert (egf1: forall a1 a1':Z1,  paths ( pr1 a1') ( pr1 a1) -> paths a1' a1). intros ? ? X .  
-set (X':=  maponpaths ( @pr1 _ _ )  X). 
+assert (egf1: forall a1 a1':Z1,  paths ( pr1 a1') ( pr1 a1) -> paths a1' a1). intros ? ? X .  set (X':=  maponpaths ( @pr1 _ _ )  X). 
 assert (is:  isweq h). apply ( isweqpr1pr1 hProp ). apply ( invmaponpathsweq ( weqpair h is ) _ _ X').
 set (egf:= fun a1:_ => (egf1 _ _ (egf0 a1))). 
 set (is2:= gradth _ _ egf efg). 
-apply ( isweqtotaltofib P1 P2  (fun XY: dirprod hProp hProp => 
-                                  @eqweqmaphProp (pr1 XY) (pr2 XY)) is2 ( dirprodpair P P')).
-Defined. 
+apply ( isweqtotaltofib P1 P2  (fun XY: dirprod hProp hProp => (match XY with  tpair _ X Y => @eqweqmaphProp X Y end)) is2 ( dirprodpair P P')). Defined. 
 
 Definition weqeqweqhProp ( P P' : hProp ) := weqpair _ ( univfromtwoaxiomshProp P P' ) .
 

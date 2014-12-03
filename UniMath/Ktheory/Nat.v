@@ -2,7 +2,7 @@
 
 (** * Natural numbers *)
 
-Require Import algebra1b hnat funextfun total2_paths Utilities.
+Require Import algebra1b hnat funextfun auxiliary_lemmas_HoTT Utilities.
 Import Utilities.Notation.
 Import Utilities.NatNotation.
 

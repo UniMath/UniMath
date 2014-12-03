@@ -6,7 +6,8 @@ Require Import
         RezkCompletion.functors_transformations
         Ktheory.ZeroObject.
 Require Ktheory.Utilities Ktheory.Representation.
-Import Utilities.Notation Precategories.Notation.
+Import uu0.PathNotations 
+       Utilities.Notation Precategories.Notation.
 Definition zerocomp_type {C} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ob C -> Type.
 Proof. intros ? ? ? ? ? x.

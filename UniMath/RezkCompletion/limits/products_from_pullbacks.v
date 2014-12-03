@@ -4,9 +4,10 @@ Import PathNotations.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.total2_paths.
+Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
+Require Import RezkCompletion.limits.aux_lemmas_HoTT.
 Require Export RezkCompletion.limits.pullbacks.
 Require Export RezkCompletion.limits.products.
 Require Import RezkCompletion.limits.terminal.

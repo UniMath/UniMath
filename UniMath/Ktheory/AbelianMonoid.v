@@ -2,9 +2,9 @@
 
 Require Import Foundations.hlevel2.algebra1b
                Foundations.hlevel2.finitesets
-	       RezkCompletion.total2_paths
+	       RezkCompletion.auxiliary_lemmas_HoTT
                Ktheory.Utilities.
-Import Utilities.Notation.
+Import uu0.PathNotations Utilities.Notation.
 Require Ktheory.QuotientSet Ktheory.Monoid.
 Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.
