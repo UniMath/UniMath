@@ -58,10 +58,16 @@ Definition funcomp { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) := fun x : X => 
 
 (** *** Iteration of an endomorphism *)
 
-Fixpoint iteration { T : UU } ( f : T -> T ) ( n : nat ) : T -> T := match n with 
+(* Fixpoint iteration { T : UU } ( f : T -> T ) ( n : nat ) : T -> T := match n with 
 O => idfun T |
 S m => funcomp ( iteration f m ) f 
-end .
+end . *)
+
+Definition iteration { T : UU } ( f : T -> T ) ( n : nat ) : T -> T .
+Proof. 
+intros T f n . induction n as [ | n IHn ] . exact ( idfun T )  . exact ( funcomp IHn f ) . Defined.
+
+
 
 
 (** ***  Basic constructions related to the adjoint evaluation function [ X -> ( ( X -> Y ) -> Y ) ] *)
@@ -72,6 +78,8 @@ Definition adjev2 { X Y : UU } ( phi : ( ( X -> Y ) -> Y ) -> Y ) : X -> Y  :=  
 
 
 (** *** Pairwise direct products *)
+
+
 
 Definition dirprod ( X Y : UU ) := total2 ( fun x : X => Y ) .
 Definition dirprodpair { X Y : UU } := tpair ( fun x : X => Y ) .
@@ -124,6 +132,11 @@ Definition logeqnegs { X Y : UU } ( l : X <-> Y ) : ( neg X ) <-> ( neg Y ) := d
 
 
 (** ** Operations on [ paths ] *)
+
+
+Type paths_rect . 
+
+
 
 
 
