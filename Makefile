@@ -28,6 +28,8 @@ ifeq ($(NO_SHARING),yes)
 OTHERFLAGS += -no-sharing
 endif
 # TIME = time
+ENHANCEDDOCTARGET = enhanced-html
+ENHANCEDDOCSOURCE = util/enhanced-doc
 COQDOC := $(COQDOC) -utf8
 COQC = $(TIME) $(COQBIN)coqc
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\2/'
@@ -60,7 +62,7 @@ build/CoqMakefile.make: .coq_makefile_input
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output $@
 
-clean:clean2
+clean:clean2 clean-enhanced
 distclean:cleanconfig distclean_coq
 clean2:
 	rm -f .coq_makefile_output build/CoqMakefile.make
@@ -69,6 +71,8 @@ distclean_coq:
 	- $(MAKE) -C sub/coq distclean
 cleanconfig:
 	rm -f build/Makefile-configuration
+clean-enhanced:
+	rm -rf $(ENHANCEDDOCTARGET)
 
 # building coq:
 ifeq ($(BUILD_COQ),yes)
@@ -81,3 +85,10 @@ sub/coq/config/coq_config.ml: sub/coq/configure.ml
 sub/coq/bin/coqc:
 	make -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight
 endif
+
+doc: $(GLOBFILES) $(VFILES) 
+	mkdir -p $(ENHANCEDDOCTARGET)
+	cp $(ENHANCEDDOCSOURCE)/proofs-toggle.js $(ENHANCEDDOCTARGET)/proofs-toggle.js
+	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d $(ENHANCEDDOCTARGET) \
+	--with-header $(ENHANCEDDOCSOURCE)/header.html $(VFILES)
+	sed -i'.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
