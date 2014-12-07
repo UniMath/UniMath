@@ -27,7 +27,8 @@ Notation empty_rect := Empty_set_rect.
 
 (** Identity Types. Idenity types are introduced in Coq.Init.Datatypes by the lines : 
 
-[ Inductive identity ( A : Type ) ( a : A ) : A -> Type := identity_refl : identity _ a a . 
+[ Inductive identity ( A : Type ) ( a : A ) : A -> Type := identity_refl : identity _ a a .    
+    
 Hint Resolve identity_refl : core . ] 
 
 *)
@@ -37,6 +38,15 @@ Notation paths := identity .
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation idpath := identity_refl .
 Notation paths_rect := identity_rect .
+
+(* Remark: all of the uu0.v now uses only paths_rect and not the direct "match" construction
+on paths. By adding a constantin paths for the computation rule for paths_rect and then making
+both this constant and paths_rect itself opaque it is possible to check which of the
+constructions of the uu0 can be done with the weakened version of the Martin-Lof Type Theory
+that is interpreted by the Bezm-Coquand-Huber cubical set model of 2014. *)
+
+
+
 
 (** Coproducts . 
 

@@ -47,9 +47,9 @@ Module Export Notation.
   Notation set_to_type := hSet.pr1hSet.
   Notation ap := maponpaths.
   (* see table 3.1 in the coq manual for parsing levels *)
-  Notation "f ~ g" := (uu0.homot f g) (at level 70).
-  Notation "g ∘ f" := (uu0.funcomp f g) (at level 50).
-  Notation "f ;; g" := (uu0.funcomp f g) (at level 50).
+  Notation "f ~ g" := (uu0a.homot f g) (at level 70).
+  Notation "g ∘ f" := (uu0a.funcomp f g) (at level 50).
+  Notation "f ;; g" := (uu0a.funcomp f g) (at level 50).
   Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
   (* funcomp' is like funcomp, but with the arguments in the other order *)
   Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
