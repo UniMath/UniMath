@@ -125,7 +125,69 @@ Proof . intro .  assert ( lg : logeq ( neg ( ishinh X ) ) ( neg X ) ) . split . 
 
 Lemma hinhcoprod ( X Y : UU ) ( is : ishinh ( coprod ( ishinh X ) ( ishinh Y ) ) )  : ishinh ( coprod X Y ) .
 Proof. intros . unfold ishinh. intro P .  intro CP.  set (CPX := fun x : X => CP ( ii1 x ) ) . set (CPY := fun y : Y => CP (ii2 y) ).  set (is1P := is P).
- assert ( f : coprod ( ishinh X ) ( ishinh Y ) -> P ) .  apply ( sumofmaps ( hinhuniv CPX ) ( hinhuniv CPY ) ).   apply (is1P f ) . Defined. 
+       assert ( f : coprod ( ishinh X ) ( ishinh Y ) -> P ) .  apply ( sumofmaps ( hinhuniv CPX ) ( hinhuniv CPY ) ).   apply (is1P f ) . Defined.
+
+
+(** ** Images and surjectivity for functions between types 
+(both depend only on the behavior of the corresponding function between the sets of 
+connected components) **)
+
+Definition image { X Y : UU } ( f : X -> Y ) := total2 ( fun y : Y => ishinh ( hfiber f y ) ) .
+Definition imagepair { X Y : UU } (f: X -> Y) := tpair ( fun y : Y => ishinh ( hfiber f y ) ) .
+Definition pr1image { X Y : UU } ( f : X -> Y ) := @pr1 _  ( fun y : Y => ishinh ( hfiber f y ) ) .
+
+
+Definition prtoimage { X Y : UU } (f : X -> Y) : X -> image f.
+Proof. intros X Y f X0. apply (imagepair _ (f X0) (hinhpr _ (hfiberpair f X0 (idpath _ )))). Defined. 
+
+Definition issurjective { X Y : UU } (f : X -> Y ) := forall y:Y, ishinh (hfiber f y). 
+
+Lemma isapropissurjective { X Y : UU } ( f : X -> Y) : isaprop (issurjective f).
+Proof. intros.  apply impred. intro t. apply  (pr2 (ishinh (hfiber f t))). Defined. 
+
+Lemma isinclpr1image { X Y : UU } (f:X -> Y): isincl (pr1image f).
+Proof. intros. apply isofhlevelfpr1. intro. apply ( pr2 ( ishinh ( hfiber f x ) ) ) . Defined.
+
+Lemma issurjprtoimage { X Y : UU } ( f : X -> Y) : issurjective (prtoimage f ).
+Proof. intros. intro z.  set (f' := prtoimage f ). set (g:= pr1image f ). set (gf':= fun x:_ => g ( f' x )).
+assert (e: paths f gf'). apply etacorrection .  
+assert (ff: hfiber gf' (pr1 z) -> hfiber f' z).   apply ( invweq ( samehfibers _ _ ( isinclpr1image f ) z ) ) .  
+assert (is2: ishinh (hfiber gf' (pr1 z))). destruct e.  apply (pr2 z). 
+apply (hinhfun ff is2). Defined. 
+
+
+
+
+(** *** The two-out-of-three properties of surjections *)
+
+Lemma issurjcomp { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( isf : issurjective f ) ( isg : issurjective g ) : issurjective ( funcomp f g ) .
+Proof . intros . unfold issurjective .  intro z . apply ( fun ff => hinhuniv ff ( isg z ) ) . intro ye .  apply ( hinhfun ( hfibersftogf f g z ye ) ) .  apply ( isf ) .   Defined . 
+
+Notation issurjtwooutof3c := issurjcomp . 
+
+Lemma issurjtwooutof3b { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( isgf : issurjective ( funcomp f g ) ) : issurjective g .  
+Proof . intros . unfold issurjective .  intro z .  apply ( hinhfun ( hfibersgftog f g z ) ( isgf z ) ) .  Defined . 
+
+(** *** A function between types which is an inclusion and a surjection is a weak equivalence *)
+
+Lemma isweqinclandsurj { X Y : UU } ( f : X -> Y ) : isincl f -> issurjective f -> isweq f .
+Proof .
+  intros X Y f Hincl Hsurj.
+  intro y.
+  set (H := hProppair (iscontr (hfiber f y)) (isapropiscontr _ )).
+  apply (Hsurj y H).
+  intro x.
+  simpl.
+  apply iscontraprop1.
+  - apply Hincl.
+  - apply x.
+Defined.
+
+
+
+
+
+
 
  
 

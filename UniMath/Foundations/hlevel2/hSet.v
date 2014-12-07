@@ -488,37 +488,7 @@ apply ( iseqclassconstr _ ax0 ax1 ax2 ) . Defined .
 
 
 
-
-
-
-
-(** ** Images and surjectivity for functions between types (both depend only on the behavior of the corresponding function between the sets of connected components) **)
-
-Definition image { X Y : UU } ( f : X -> Y ) := total2 ( fun y : Y => ishinh ( hfiber f y ) ) .
-Definition imagepair { X Y : UU } (f: X -> Y) := tpair ( fun y : Y => ishinh ( hfiber f y ) ) .
-Definition pr1image { X Y : UU } ( f : X -> Y ) := @pr1 _  ( fun y : Y => ishinh ( hfiber f y ) ) .
-
-
-Definition prtoimage { X Y : UU } (f : X -> Y) : X -> image f.
-Proof. intros X Y f X0. apply (imagepair _ (f X0) (hinhpr _ (hfiberpair f X0 (idpath _ )))). Defined. 
-
-Definition issurjective { X Y : UU } (f : X -> Y ) := forall y:Y, ishinh (hfiber f y). 
-
-Lemma isapropissurjective { X Y : UU } ( f : X -> Y) : isaprop (issurjective f).
-Proof. intros.  apply impred. intro t. apply  (pr2 (ishinh (hfiber f t))). Defined. 
-
-Lemma isinclpr1image { X Y : UU } (f:X -> Y): isincl (pr1image f).
-Proof. intros. apply isofhlevelfpr1. intro. apply ( pr2 ( ishinh ( hfiber f x ) ) ) . Defined.
-
-Lemma issurjprtoimage { X Y : UU } ( f : X -> Y) : issurjective (prtoimage f ).
-Proof. intros. intro z.  set (f' := prtoimage f ). set (g:= pr1image f ). set (gf':= fun x:_ => g ( f' x )).
-assert (e: paths f gf'). apply etacorrection .  
-assert (ff: hfiber gf' (pr1 z) -> hfiber f' z).   apply ( invweq ( samehfibers _ _ ( isinclpr1image f ) z ) ) .  
-assert (is2: ishinh (hfiber gf' (pr1 z))). destruct e.  apply (pr2 z). 
-apply (hinhfun ff is2). Defined. 
-
-
-(** *** Surjections to sets are epimorphisms  *)
+(** ** Surjections to sets are epimorphisms  *)
 
 Theorem surjectionisepitosets { X Y Z : UU } ( f : X -> Y ) ( g1 g2 : Y -> Z ) ( is1 : issurjective f ) ( is2 : isaset Z ) ( isf : forall x : X , g1 (f x) = g2 (f x)  ) : forall y : Y , g1 y = g2 y .
 Proof. intros . set (P1:= hProppair (paths (g1 y) (g2 y)) (is2 (g1 y) (g2 y))). unfold issurjective in is1. 
@@ -526,26 +496,7 @@ assert (s1: (hfiber f y)-> paths (g1 y) (g2 y)). intro X1. destruct X1 as [t x ]
 assert (s2: ishinh (paths (g1 y) (g2 y))). apply (hinhfun s1 (is1 y)).  
 set (is3:= is2 (g1 y) (g2 y)). simpl in is3. apply (@hinhuniv (paths (g1 y) (g2 y)) (hProppair _ is3)). intro X1.  assumption. assumption. Defined. 
 
-(** *** The two-out-of-three properties of surjections *)
 
-Lemma issurjcomp { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( isf : issurjective f ) ( isg : issurjective g ) : issurjective ( funcomp f g ) .
-Proof . intros . unfold issurjective .  intro z . apply ( fun ff => hinhuniv ff ( isg z ) ) . intro ye .  apply ( hinhfun ( hfibersftogf f g z ye ) ) .  apply ( isf ) .   Defined . 
-
-Notation issurjtwooutof3c := issurjcomp . 
-
-Lemma issurjtwooutof3b { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( isgf : issurjective ( funcomp f g ) ) : issurjective g .  
-Proof . intros . unfold issurjective .  intro z .  apply ( hinhfun ( hfibersgftog f g z ) ( isgf z ) ) .  Defined . 
-
-(** *** A function between hsets which is an inclusion and a surjection is a weak equivalence *)
-
-Lemma isweqinclandsurj { X Y : hSet } ( f : X -> Y ) ( is1 : isincl f ) ( is1 : issurjective f ) : isweq f .
-Proof . intros . unfold isweq . intro y . 
-
-assert ( isp : isaprop ( hfiber f y ) ) . apply ( is1 y ) .
-apply iscontraprop1 . apply isp . apply ( @hinhuniv _ ( hProppair _ isp ) ( idfun _ ) ( is0 y ) ) .  Defined .
-
-
- 
 
 
 
