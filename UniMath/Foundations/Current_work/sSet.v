@@ -10,15 +10,6 @@ Require Export RezkCompletion.functors_transformations.
 
 (* To upstream files *)
 
-Notation " x > y " := ( natgth x y ) : nat_scope .
-Notation " x < y " := ( natlth x y ) : nat_scope .
-Notation " x >= y " := ( natgeh x y ) : nat_scope .
-Notation " x <= y " := ( natleh x y ) : nat_scope .
-
-Notation " 'stnel' ( i , j ) " :=
-  ( stnpair _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) ) ( at level 70 ) .
-
-
 
 
 (* The pre-category data for the category Delta *)

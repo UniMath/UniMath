@@ -51,20 +51,16 @@ Theorem isasetnat: isaset nat.
 Proof.  apply (isasetifdeceq _ isdeceqnat). Defined. 
 
 Definition natset : hSet := hSetpair _ isasetnat . 
-(* Canonical Structure natset . *) 
 
 Definition nateq ( x y : nat ) : hProp := hProppair ( paths x y ) ( isasetnat _ _  )  .
 Definition isdecrelnateq : isdecrel nateq  := fun a b => isdeceqnat a b .
 Definition natdeceq : decrel nat := decrelpair isdecrelnateq . 
-(* Canonical Structure natdeceq. *)
 
 Definition natbooleq := decreltobrel natdeceq .  
 
 Definition natneq ( x y : nat ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
 Definition isdecrelnatneq : isdecrel natneq  := isdecnegrel _ isdecrelnateq . 
 Definition natdecneq : decrel nat := decrelpair isdecrelnatneq . 
-
-(* Canonical Structure natdecneq. *) 
 
 Definition natboolneq := decreltobrel natdecneq .  
 
@@ -97,7 +93,9 @@ end.
 2. We choose "greater" as the root relation from which we define all other relations on [ nat ] because it is more natural to extend "greater" to integers and then to rationals than it is to extend "less".   *) 
 
 
-Definition natgth ( n m : nat ) := hProppair ( paths ( natgtb n m ) true ) ( isasetbool _ _ ) . 
+Definition natgth ( n m : nat ) := hProppair ( paths ( natgtb n m ) true ) ( isasetbool _ _ ) .
+
+Notation " x > y " := ( natgth x y ) : nat_scope .
 
 Lemma negnatgth0n ( n : nat ) : neg ( natgth 0 n ) .
 Proof. intro n . simpl . intro np . apply ( nopathsfalsetotrue np ) .  Defined . 
@@ -139,8 +137,6 @@ Proof. intros n m . apply ( isdeceqbool ( natgtb n m ) true ) .  Defined .
 
 Definition natgthdec := decrelpair isdecrelnatgth .
 
-(* Canonical Structure natgthdec . *)
-
 Lemma isnegrelnatgth : isnegrel natgth .
 Proof . apply isdecreltoisnegrel . apply isdecrelnatgth . Defined . 
 
@@ -156,6 +152,8 @@ Proof . intros x y z gxz .  destruct ( isdecrelnatgth x y ) as [ gxy | ngxy ] . 
 (** *** Semi-boolean "less" on [ nat ] or [ natlth ] *)
 
 Definition natlth ( n m : nat ) := natgth m n .
+
+Notation " x < y " := ( natlth x y ) : nat_scope .
 
 Definition negnatlthn0 ( n : nat ) : neg ( natlth n 0 ) := negnatgth0n n .
 
@@ -184,8 +182,6 @@ Definition isdecrelnatlth  : isdecrel natlth  := fun n m => isdecrelnatgth m n .
 
 Definition natlthdec := decrelpair isdecrelnatlth .
 
-(* Canonical Structure natlthdec . *)
-
 Definition isnegrelnatlth : isnegrel natlth := fun n m => isnegrelnatgth m n .
 
 Definition iscoantisymmnatlth ( n m : nat ) : neg ( natlth n m ) -> coprod ( natlth m n ) ( paths n m ) .
@@ -199,6 +195,8 @@ Proof . intros n m k lnk . apply ( ( pr1 islogeqcommhdisj ) ( iscotransnatgth _ 
 (** *** Semi-boolean "less or equal " on [ nat ] or [ natleh ] *)
 
 Definition natleh ( n m : nat ) := hProppair ( neg ( natgth n m ) ) ( isapropneg _ )  .
+
+Notation " x <= y " := ( natleh x y ) : nat_scope .
 
 Definition natleh0tois0 ( n : nat ) ( l : natleh n 0 ) : paths n 0 := negnatgth0tois0 _ l .
 
@@ -219,8 +217,6 @@ Definition isdecrelnatleh : isdecrel natleh := isdecnegrel _ isdecrelnatgth .
 
 Definition natlehdec := decrelpair isdecrelnatleh .
 
-(* Canonical Structure natlehdec . *)
-
 Definition isnegrelnatleh : isnegrel natleh .
 Proof . apply isdecreltoisnegrel . apply isdecrelnatleh . Defined . 
 
@@ -234,7 +230,9 @@ Proof . intros x y . destruct ( isdecrelnatleh x y ) as [ lxy | lyx ] . apply ( 
 (** *** Semi-boolean "greater or equal" on [ nat ] or [ natgeh ] . *)
 
 
-Definition natgeh ( n m : nat ) : hProp := hProppair ( neg ( natgth m n ) ) ( isapropneg _ ) .  
+Definition natgeh ( n m : nat ) : hProp := hProppair ( neg ( natgth m n ) ) ( isapropneg _ ) .
+
+Notation " x >= y " := ( natgeh x y ) : nat_scope .
 
 Definition nat0gehtois0 ( n : nat ) ( g : natgeh 0 n ) : paths n 0 := natleh0tois0 _ g . 
 
@@ -253,8 +251,6 @@ Definition isantisymmnatgeh ( n m : nat ) : natgeh n m -> natgeh m n -> paths n 
 Definition isdecrelnatgeh : isdecrel natgeh := fun n m => isdecrelnatleh m n .
 
 Definition natgehdec := decrelpair isdecrelnatgeh .
-
-(* Canonical Structure natgehdec . *)
 
 Definition isnegrelnatgeh : isnegrel natgeh := fun n m => isnegrelnatleh m n . 
 

@@ -10,5 +10,8 @@ hlevel2/algebra1a.v
 hlevel2/hSet.v
 hlevel1/hProp.v
 Proof_of_Extensionality/funextfun.v
-Generalities/uu0.v
+Generalities/uu0d.v
+Generalities/uu0c.v
+Generalities/uu0b.v
+Generalities/uu0a.v
 Generalities/uuu.v
