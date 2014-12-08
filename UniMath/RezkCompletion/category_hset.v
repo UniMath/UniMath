@@ -49,7 +49,7 @@ Definition hset_fun_space (A B : hSet) : hSet :=
   hSetpair _ (isaset_set_fun_space A B).
 
 Definition hset_precategory_ob_mor : precategory_ob_mor :=
-  tpair (fun ob : UU => ob -> ob -> hSet) hSet 
+  tpair (fun ob : UU => ob -> ob -> UU) hSet 
         (fun A B : hSet => hset_fun_space A B).
 
 Definition hset_precategory_data : precategory_data :=
@@ -82,24 +82,17 @@ Notation HSET := hset_precategory.
    This is basically unpacking and packing again.
 *)
 
+
 Lemma hset_iso_is_equiv (A B : ob HSET) 
    (f : iso A B) : isweq (pr1 f).
 Proof.
-
-  destruct f as [f fax]; simpl in *.
-  apply (gradth _ (pr1 fax)).
-  destruct fax as [g [eta eps]]; simpl in *.
-  unfold compose, identity in *; 
-  simpl in *.
-  intro x.
-  apply (toforallpaths _ _ _ eta).
-  destruct fax as [g [eta eps]]; simpl in *.
-  unfold compose, identity in *; 
-  simpl in *.
-  intro x.
-  apply (toforallpaths _ _ _ eps).
+  apply (gradth _ (inv_from_iso f)).
+  - intro x. 
+    set (T:=iso_inv_after_iso f). 
+    set (T':=toforallpaths _ _ _ T). apply T'.
+  - intro x.
+    apply (toforallpaths _ _ _ (iso_after_iso_inv f)).
 Defined.
-  
 
 Lemma hset_iso_equiv (A B : ob HSET) : iso A B -> weq (pr1 A) (pr1 B).
 Proof.
@@ -116,14 +109,14 @@ Lemma hset_equiv_is_iso (A B : hSet)
       (f : weq (pr1 A) (pr1 B)) :
            is_isomorphism (C:=HSET) (pr1 f).
 Proof.
-  exists (invmap f).
+  apply (is_iso_qinv (C:=HSET) _ (invmap f)).
   split; simpl.
-  apply funextfunax; intro x; simpl in *.
-  unfold compose, identity; simpl. 
-  apply homotinvweqweq.
-  apply funextfunax; intro x; simpl in *.
-  unfold compose, identity; simpl.
-  apply homotweqinvweq.
+  - apply funextfunax; intro x; simpl in *.
+    unfold compose, identity; simpl. 
+    apply homotinvweqweq.
+  - apply funextfunax; intro x; simpl in *.
+    unfold compose, identity; simpl.
+    apply homotweqinvweq.
 Defined.
 
 Lemma hset_equiv_iso (A B : ob HSET) : weq (pr1 A) (pr1 B) -> iso A B.
@@ -140,10 +133,11 @@ Defined.
 Lemma hset_iso_equiv_is_equiv (A B : ob HSET) : isweq (hset_iso_equiv A B).
 Proof.
   apply (gradth _ (hset_equiv_iso A B)).
-  intro; apply eq_iso; reflexivity.  
-  intro; apply total2_paths_hProp.
-    intro; apply isapropisweq.
-    reflexivity.
+  intro; apply eq_iso. 
+  - reflexivity.  
+  - intro; apply total2_paths_hProp.
+    + intro; apply isapropisweq.
+    + reflexivity.
 Qed.
 
 Definition hset_iso_equiv_weq (A B : ob HSET) : weq (iso A B) (weq (pr1 A) (pr1 B)).
@@ -160,7 +154,7 @@ Proof.
     apply isapropisweq.
     reflexivity.
   intro; apply eq_iso.
-  reflexivity.
+  - reflexivity.
 Qed.
 
 Definition hset_equiv_iso_weq (A B : ob HSET) :
@@ -194,10 +188,10 @@ Proof.
   apply funextfunax.
   intro p; elim p.
   apply eq_iso; simpl.
-  apply funextfun;
-  intro x; 
-  destruct A. 
-  apply idpath.
+  - apply funextfun;
+    intro x; 
+    destruct A. 
+    apply idpath.
 Defined.
 
 
@@ -210,8 +204,9 @@ Defined.
 
 Lemma is_category_HSET : is_category HSET.
 Proof.
-  unfold is_category.
-  apply is_weq_precat_paths_to_iso_hset.
+  split.
+  - apply is_weq_precat_paths_to_iso_hset.
+  - intros ? ? . apply isaset_set_fun_space.
 Defined.
 
 

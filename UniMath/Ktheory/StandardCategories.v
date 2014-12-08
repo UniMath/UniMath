@@ -16,24 +16,29 @@ Definition is_groupoid (C : precategory) :=
 Lemma isaprop_is_groupoid (C : precategory) : isaprop (is_groupoid C).
 Proof. intro. apply impred.
   intro a. apply impred. intro b. apply isapropisweq. Qed.
-Lemma morphism_from_iso_is_incl (C : precategory) (a b : ob C) :
+Lemma morphism_from_iso_is_incl (C : precategory) (hs: has_homsets C) (a b : ob C) :
   isincl (morphism_from_iso C a b).
-Proof. intros ? ? ? g.
+Proof. intros ? ? ? ? g.
   apply (isofhlevelweqf _ (ezweqpr1 _ _)). apply isaprop_is_isomorphism. Qed.
-Lemma is_category_groupoid {C : precategory} : is_groupoid C -> is_category C.
-Proof. intros ? ig ? ?.
+Lemma is_category_groupoid {C : precategory} (hs: has_homsets C): is_groupoid C -> is_category C.
+Proof. intros ? ? ig  .
+  split. 
+  intros a b.
   refine (isofhlevelff 0 idtoiso (morphism_from_iso _ _ _) _ _).
   { refine (isweqhomot (idtomor _ _) _ _ _).
     { intro p. destruct p. reflexivity. }
     apply ig. }
-    apply morphism_from_iso_is_incl. Qed.
+    apply morphism_from_iso_is_incl. 
+  assumption.
+  assumption.
+Qed.
 Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> precategory.
   (* Later we'll define a version of this with no hlevel assumption on X,
      where [mor i j] will be defined with [pi0].  This version will still
      be useful, because in it, each arrow is a path, rather than an
      equivalence class of paths. *)
   intros obj iobj.
-  refine (Precategories.makePrecategory obj _ iobj _ _ _ _ _).
+  refine (Precategories.makePrecategory obj (fun x y => x = y)  _ _ _ _ _).
   { reflexivity. }
   { intros. exact (f @ g). }
   { reflexivity. }
@@ -47,7 +52,12 @@ Proof. intros ? ? a b.
   apply (isweqhomot _ _ k). apply idisweq. Qed.
 Lemma is_category_path_pregroupoid (X:UU) (i:isofhlevel 3 X) :
   is_category (path_pregroupoid X i).
-Proof. intros. apply is_category_groupoid. apply is_groupoid_path_pregroupoid.
+Proof. 
+  intros; split.
+  - apply is_category_groupoid. 
+    + apply i.
+    + apply is_groupoid_path_pregroupoid.
+  - apply i.
 Qed.
 Definition path_groupoid (X:UU) : isofhlevel 3 X -> category.
 Proof. intros ? iobj. apply (Precategories.category_pair (path_pregroupoid X iobj)). 

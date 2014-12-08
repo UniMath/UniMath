@@ -15,7 +15,7 @@ Local Notation "f ;; g" := (compose f g)(at level 50).
 Section def_pb.
 
 Variable C : precategory.
-
+Variable hs: has_homsets C.
 
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g) : UU :=
@@ -151,7 +151,7 @@ Lemma isiso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
    (Pb Pb': Pullback f g) : 
       is_isomorphism (from_Pullback_to_Pullback Pb Pb').
 Proof.
-  exists (from_Pullback_to_Pullback Pb' Pb).
+  apply (is_iso_qinv _ (from_Pullback_to_Pullback Pb' Pb)).
   apply are_inverses_from_Pullback_to_Pullback.
 Defined.
 
@@ -209,7 +209,7 @@ Proof.
   intro t.
   apply total2_paths_hProp.
   - intro a0. apply isapropdirprod;
-    apply (pr2 (_ --> _)).
+    apply hs.
   - simpl. destruct t as [t [Ht1 Ht2]].
     simpl in *.
     apply PullbackArrowUnique.
@@ -229,6 +229,18 @@ Section Universal_Unique.
 
 Hypothesis H : is_category C.
 
+
+Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : b --> a) (g : c --> a)
+  (Pb : Pullback f g) (Pb' : Pullback f g):
+    inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb') = from_Pullback_to_Pullback Pb' Pb.
+Proof.
+  apply pathsinv0.
+  apply inv_iso_unique'.
+  set (T:= are_inverses_from_Pullback_to_Pullback Pb Pb').
+  apply (pr1 T).
+Qed.
+
+
 Lemma isaprop_Pullbacks: isaprop Pullbacks.
 Proof.
   apply impred; intro a;
@@ -240,15 +252,13 @@ Proof.
   intros Pb Pb'.
   apply total2_paths_hProp.
   - intro; apply isofhleveltotal2.
-    + apply (pr2 (_ --> _)).
+    + apply hs.
     + intros; apply isaprop_isPullback.
   - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))). 
     rewrite transportf_dirprod, transportf_isotoid.
-    change (inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb'))
-         with (from_Pullback_to_Pullback Pb' Pb).
+    rewrite inv_from_iso_iso_from_Pullback.
     rewrite transportf_isotoid.
-    change (inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb'))
-         with (from_Pullback_to_Pullback Pb' Pb).
+    rewrite inv_from_iso_iso_from_Pullback.
     destruct Pb as [Cone bla];
     destruct Pb' as [Cone' bla'];
     simpl in *.
