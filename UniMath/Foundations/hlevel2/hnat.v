@@ -7,7 +7,7 @@ This file contains the formulations and proofs of general properties of natural 
 
 
 
-(** ** Preambule *)
+(** ** Preamble *)
 
 (** Settings *)
 
