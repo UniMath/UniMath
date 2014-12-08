@@ -17,7 +17,7 @@ One can achieve similar results with a combination of usual axioms which imitate
 
 
 
-(** ** Preambule *)
+(** ** Preamble *)
 
 (** Settings *)
 
@@ -31,7 +31,7 @@ Require Export Foundations.Generalities.uu0.
 
 (* Definition UU0 := UU . *)
 
-(* end of " Preambule " . *)
+(* end of " Preamble " . *)
 
 
 (** ** To upstream files *)
