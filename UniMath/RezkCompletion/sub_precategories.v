@@ -40,8 +40,6 @@ Contents :
 
 Require Import Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.total2_paths.
-
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
 
@@ -137,7 +135,7 @@ Proof.
   apply hs.
   intro f.
   apply isasetaprop. 
-  apply propproperty.
+  apply pr2.
 Qed.
 
 Definition sub_precategory_morphisms_set {C : precategory}(hs: has_homsets C)
@@ -306,8 +304,8 @@ Lemma is_functor_full_img (C D: precategory) (F : functor C D) :
 Proof.
   split. 
   intro a; simpl.
-  apply total2_paths_hProp.
-    intro; apply propproperty.
+  apply total2_paths_isaprop.
+    intro; apply pr2.
   apply functor_id.
   intros a b c f g.
   set ( H := eq_in_sub_precategory D (full_img_sub_precategory F)).

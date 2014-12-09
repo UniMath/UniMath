@@ -25,8 +25,6 @@ Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.total2_paths.
-
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
 Require Import RezkCompletion.whiskering.
@@ -120,7 +118,7 @@ Lemma isaprop_aux_space (b : B) :
 Proof.
   apply invproofirrelevance.
   intros x x'.
-  apply total2_paths_hProp.  
+  apply total2_paths_isaprop.  
     intro; repeat (apply impred; intro).
     apply hsC.
   destruct x as [g q].

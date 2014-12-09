@@ -26,8 +26,6 @@ Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 Require Import Foundations.Proof_of_Extensionality.funextfun. 
 
-Require Import RezkCompletion.total2_paths.
-
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.HLevel_n_is_of_hlevel_Sn.
 
@@ -135,7 +133,7 @@ Proof.
   apply (gradth _ (hset_equiv_iso A B)).
   intro; apply eq_iso. 
   - reflexivity.  
-  - intro; apply total2_paths_hProp.
+  - intro; apply total2_paths_isaprop.
     + intro; apply isapropisweq.
     + reflexivity.
 Qed.
@@ -150,7 +148,7 @@ Lemma hset_equiv_iso_is_equiv (A B : ob HSET) : isweq (hset_equiv_iso A B).
 Proof.
   apply (gradth _ (hset_iso_equiv A B)).
   intro f.
-  apply total2_paths_hProp. 
+  apply total2_paths_isaprop. 
     apply isapropisweq.
     reflexivity.
   intro; apply eq_iso.

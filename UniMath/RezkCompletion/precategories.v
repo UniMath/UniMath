@@ -29,7 +29,6 @@ Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.total2_paths.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -314,7 +313,7 @@ Definition iso_inv_from_iso {C:precategory}{a b : C} (f : iso a b) : iso b a :=
 Lemma eq_iso {C: precategory} {a b : C} (f g : iso a b) : pr1 f = pr1 g -> f = g.
 Proof.
   intro H.
-  apply total2_paths_hProp.
+  apply total2_paths_isaprop.
   - apply isaprop_is_iso.
   - apply H.
 Defined.

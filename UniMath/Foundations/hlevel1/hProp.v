@@ -185,10 +185,6 @@ Defined.
 
 
 
-
-
-
-
  
 
 (** *** Intuitionistic logic on [ hProp ]. *)
@@ -369,5 +365,13 @@ Proof . apply ( isasetifcontr iscontrtildehProp ) . Defined .
 Definition logeqweq ( P Q : hProp ) : ( P -> Q ) -> ( Q -> P ) -> weq P Q := 
   fun f g => weqimplimpl f g (pr2 P) (pr2 Q).
 
+(* ** A variant of a lemma proved in uu0b.v *)
+Theorem total2_paths_hProp_equiv {A : UU} (B : A -> hProp)
+   (x y : total2 (fun x => B x)): weq (x = y) (pr1 x = pr1 y).
+Proof.
+  intros.
+  apply total2_paths_isaprop_equiv.
+  intro a. apply (pr2 (B a)).
+Defined.
 
 (* End of the file hProp.v *)
