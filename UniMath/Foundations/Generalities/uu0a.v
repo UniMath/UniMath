@@ -1,11 +1,17 @@
-(** * Univalent Basics. Vladimir Voevodsky. Feb. 2010 - Sep. 2011. Port to coq trunk (8.4-8.5) in
- March 2014. The first part of the original uu0 file, created on Dec. 3, 2014.
+(** * Univalent Basics. 
 
-This file contains results which form a basis of the univalent approach and which do not require 
-the use of universes as types. 
+Vladimir Voevodsky. 
+Feb. 2010 - Sep. 2011.
+
+
+The first part of the original uu0 file, created on Dec. 3, 2014.
+
+This file contains results which form a basis of the univalent
+approach, and which do not require the use of universes as types.
 
  *)
 
+(* Port to coq trunk (8.4-8.5) in March 2014.  *)
 
 (** ** Preambule *)
 
@@ -21,7 +27,7 @@ Require Export Foundations.Generalities.uuu.
 
 (** ** Universe structure *)
 
-Definition UU := Type .
+Definition UU := Type.
 
 Identity Coercion fromUUtoType : UU >-> Sortclass.
 
@@ -87,12 +93,13 @@ Definition dirprodf {X Y X' Y' : UU}
   (f : X -> Y) (f' : X' -> Y') (xx' : dirprod X X')  : dirprod Y Y' :=
      dirprodpair (f (pr1 xx')) (f' (pr2 xx')).
 
-Definition ddualand {X Y P : UU} (xp : (X -> P) -> P ) (yp : (Y -> P) -> P) :
-  (dirprod X Y -> P) -> P.
+Definition ddualand {X Y P : UU}
+  (xp : (X -> P) -> P) (yp : (Y -> P) -> P) : (dirprod X Y -> P) -> P.
 Proof. 
   intros X Y P xp yp X0.
-  set (int1 := fun ypp : ((Y -> P) -> P) => fun x : X => yp (fun y : Y => X0 (dirprodpair x y))).
-  apply (xp (int1 yp)).
+  apply xp. intro x.
+  apply yp. intro y.
+  apply (X0 (dirprodpair x y)).
 Defined.
 
 (** *** Negation and double negation *)
@@ -188,13 +195,10 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
-
-
 Definition pathsinv0r {X : UU} {a b : X} (e : a = b) : e @ !e = idpath _.
 Proof.
   intros. induction e. apply idpath.
 Defined. 
-
 
 Definition pathsinv0inv0 {X : UU} {x x' : X} (e : paths x x') : !(!e) = e.
 Proof.
@@ -202,10 +206,7 @@ Proof.
 Defined.
 
 
-
-
 (** *** Direct product of paths  *)
-
 
 
 Definition pathsdirprod {X Y : UU} {x1 x2 : X} {y1 y2 : Y}
@@ -254,122 +255,148 @@ Proof.
   intros. induction e. apply idpath.
 Defined. 
 
-(** The following four statements show that [ maponpaths ] defined by
+(** The following three statements show that [ maponpaths ] defined by
     a function f which is homotopic to the identity is
     "surjective". It is later used to show that the maponpaths defined
     by a function which is a weak equivalence is itself a weak
     equivalence. *)
 
-Definition maponpathshomidinv {X : UU} (f:X -> X) (h : forall x : X, f x = x)
-  (x x' : X) (e : f x = f x') : x = x' := ! (h x) @ e @ (h x').
+Definition maponpathshomidinv {X : UU} (f : X -> X)
+  (h : forall x : X, f x = x) (x x' : X) (e : f x = f x') : x = x' := 
+    ! (h x) @ e @ (h x').
 
-Lemma maponpathshomid1 {X : UU} (f:X -> X) (h: forall x : X, f x = x) {x x' : X}
-  (e : x = x') : maponpaths f e = (h x) @ e @ (! h x').
+Lemma maponpathshomid1 {X : UU} (f : X -> X) (h: forall x : X, f x = x)
+  {x x' : X} (e : x = x') : maponpaths f e = (h x) @ e @ (! h x').
 Proof.
   intros. induction e. simpl.
   apply pathsinv0.
   apply pathsinv0r.
 Defined.
 
-
-Lemma maponpathshomid12 {X : UU} {x x' fx fx' : X} (e : fx = fx') (hx : fx = x )
-  (hx' : fx' = x') : hx @ (!hx @ e @ hx') @ !hx' = e.
+Lemma maponpathshomid2 {X : UU} (f : X -> X) (h: forall x : X, f x = x)
+  (x x' : X) (e: f x = f x') : maponpaths f (maponpathshomidinv f h _ _ e) = e.
 Proof.
-  intros. induction hx. induction hx'. induction e.  simpl. apply idpath.
-Defined. 
+  intros.
+  unfold maponpathshomidinv.
+  apply (pathscomp0 (maponpathshomid1 f h (! h x @ e @ h x'))).
 
+  (* We prove a little lemma first. *)
+  assert (l : forall X : UU, forall a b c d : X,
+            forall p : a = b, forall q : a = c, forall r : c = d,
+               p @ (!p @ q @ r) @ !r = q).
+  intros. induction p. induction q. induction r. apply idpath.
 
-Lemma maponpathshomid2 {X : UU} (f : X->X) (h: forall x : X, f x = x) (x x' : X)
-  (e: f x = f x') : maponpaths f (maponpathshomidinv f h _ _ e) = e.
-Proof.
-  intros. assert (ee: h x @ (! h x @ e @ h x') @ ! h x' = e). 
-  apply (maponpathshomid12 e (h x) (h x')).
-  assert (eee: maponpaths f (! h x @ e @ h x') = h x @ (! h x @ e @ h x') @ (! h x')). 
-  apply maponpathshomid1. apply (eee @ ee).
+  apply (l _ _ _ _ _ (h x) e (h x')).
 Defined.
 
 (** Here we consider the behavior of maponpaths in the case of a
     projection [ p ] with a section [ s ]. *)
 
+Definition pathssec1 {X Y : UU} (s : X -> Y) (p : Y -> X)
+  (eps : forall (x : X) , p (s x) = x) 
+    (x : X) (y : Y) (e : s x = y) : x = p y.
+Proof.
+  intros.
+  apply (pathscomp0 (! eps x)).
+  apply (maponpaths p e).
+Defined.
 
+Definition pathssec2 {X Y : UU} (s : X -> Y) (p : Y -> X)
+  (eps : forall (x : X), p (s x) = x)
+    (x x' : X) (e : s x = s x') : x = x'.
+Proof.
+  intros.
+  set (e' := pathssec1 s p eps _ _ e).
+  apply (e' @ (eps x')).
+Defined.
 
-Definition pathssec1 { X Y : UU } ( s : X -> Y ) ( p : Y -> X ) ( eps : forall x:X , paths ( p ( s x ) ) x ) ( x : X ) ( y : Y ) ( e : paths (s x) y ) : paths x (p y) := pathscomp0 ( pathsinv0 ( eps x ) ) ( maponpaths p e ) .  
+Definition pathssec2id {X Y : UU} (s : X -> Y) (p : Y -> X)
+  (eps : forall (x: X), p (s x) = x)
+    (x : X) : pathssec2 s p eps _ _ (idpath (s x)) = idpath x.
+Proof.
+  intros.
+  unfold pathssec2. unfold pathssec1. simpl.
+  assert (e : forall X : UU, forall a b : X,
+    forall p : a = b, (! p @ idpath _) @ p = idpath _).
+  intros. induction p0. simpl. apply idpath.
+  apply e.
+Defined.
 
-Definition pathssec2 { X Y : UU } ( s : X -> Y ) ( p : Y -> X ) ( eps : forall x : X , paths ( p ( s x ) ) x ) ( x x' : X ) ( e : paths ( s x ) ( s x' ) ) : paths x x'.
-Proof. intros . set ( e' := pathssec1 s p eps _ _ e ) . apply ( pathscomp0 e' ( eps x' ) ) . Defined .
-
-Definition pathssec2id { X Y : UU } ( s : X -> Y ) ( p : Y -> X ) ( eps : forall x : X , paths ( p ( s x ) ) x ) ( x : X ) : paths ( pathssec2 s p eps _ _  ( idpath ( s x ) ) ) ( idpath x ) .
-Proof. intros.  unfold pathssec2. unfold pathssec1. simpl.   assert (e: paths (pathscomp0 (pathsinv0 (eps x)) (idpath (p (s x)))) (pathsinv0 (eps x))). apply pathscomp0rid. assert (ee: paths 
-(pathscomp0  (pathscomp0 (pathsinv0 (eps x)) (idpath (p (s x)))) (eps x)) 
-(pathscomp0 (pathsinv0 (eps x)) (eps x))). 
-apply (maponpaths (fun e0: _ => pathscomp0 e0 (eps x)) e). assert (eee: paths (pathscomp0 (pathsinv0 (eps x)) (eps x)) (idpath x)).  apply (pathsinv0l (eps x)). apply (pathscomp0 ee eee). Defined. 
-
-
-Definition pathssec3 { X Y : UU } (s:X-> Y) (p:Y->X) (eps: forall x:X, paths (p (s x)) x) { x x' : X } ( e : paths x x' ) : paths  (pathssec2  s p eps  _ _ (maponpaths s  e)) e.
-Proof. intros. induction e.  simpl. unfold pathssec2. unfold pathssec1.  simpl. apply pathssec2id.  Defined. 
-
+Definition pathssec3 {X Y : UU} (s : X -> Y) (p : Y -> X) 
+  (eps: forall x:X, p (s x) = x) {x x' : X} (e : x = x') : 
+    pathssec2 s p eps  _ _ (maponpaths s e) = e.
+Proof.
+  intros. induction e. simpl.
+  apply pathssec2id.
+Defined. 
 
 (* end of "Operations on [ paths ]". *) 
-
-
-
-
-
-
-
 
 
 (** ** Fibrations and paths *)
 
 
-Definition tppr { T : UU } { P : T -> UU } ( x : total2 P ) : paths x ( tpair _ (pr1 x) (pr2 x) ) .
-Proof. intros. induction x. apply idpath. Defined. 
+Definition tppr {T : UU} {P : T -> UU}
+  (x : total2 P) : x = tpair _ (pr1 x) (pr2 x).
+Proof.
+  intros. induction x. simpl.
+  apply idpath.
+Defined.
 
-Definition constr1 { X : UU } ( P : X -> UU ) { x x' : X } ( e : paths x x' ) : total2 (fun f: P x -> P x' => ( total2 ( fun ee : forall p : P x, paths (tpair _ x p) (tpair _ x' ( f p ) ) => forall pp : P x, paths (maponpaths ( @pr1 _ _ ) ( ee pp ) ) e ) ) ) . 
-Proof. intros. induction e. split with ( idfun ( P x ) ). simpl. split with (fun p : P x => idpath _ ) . unfold maponpaths. simpl. apply (fun pp : P x => idpath _ ) . Defined. 
+Definition constr1 {X : UU} (P : X -> UU) {x x' : X} (e : x = x') :
+  total2 (fun (f : P x -> P x') =>
+  total2 (fun (ee : forall p : P x, tpair _ x p = tpair _ x' (f p)) =>
+    forall pp : P x, maponpaths (@pr1 _ _ ) (ee pp) = e)). 
+Proof.
+  intros. induction e.
+  split with (idfun (P x)).
+  split with (fun p : P x => idpath _).
+  unfold maponpaths. simpl.
+  intro. apply idpath.
+Defined.
 
-Definition transportf { X : UU } ( P : X -> UU ) { x x' : X } ( e : paths x x' ) : P x -> P x' := pr1 ( constr1 P e ) .
+Definition transportf {X : UU} (P : X -> UU) {x x' : X}
+  (e : x = x') : P x -> P x' := pr1 (constr1 P e).
 
-Definition transportb { X : UU } ( P : X -> UU ) { x x' : X } ( e : paths x x' ) : P x' -> P x := transportf P ( pathsinv0 e ) .
+Definition transportb {X : UU} (P : X -> UU) {x x' : X}
+  (e : x = x') : P x' -> P x := transportf P (!e).
 
-
-Lemma functtransportf { X Y : UU } ( f : X -> Y ) ( P : Y -> UU ) { x x' : X } ( e : paths x x' ) ( p : P ( f x ) ) : paths ( transportf ( fun x => P ( f x ) ) e p ) ( transportf P ( maponpaths f e ) p ) .
-Proof.  intros.  induction e. apply idpath. Defined.   
-
-
+Lemma functtransportf {X Y : UU} (f : X -> Y) (P : Y -> UU) {x x' : X}
+  (e : x = x') (p : P (f x)) :
+    transportf (fun x => P (f x)) e p = transportf P (maponpaths f e) p.
+Proof.
+  intros. induction e. apply idpath.
+Defined.
 
 
 (** ** First homotopy notions *)
 
 (** *** Homotopy between functions *)
 
+Definition homot {X Y : UU} (f g : X -> Y) := forall x : X , f x = g x.
 
-Definition homot { X Y : UU } ( f g : X -> Y ) := forall x : X , paths ( f x ) ( g x ) .
+Notation "f ~ g" := (homot f g) (at level 70, right associativity).
 
-Definition homotcomp { X Y : UU } { f f' f'' : X -> Y } ( h : homot f f' )
-           ( h' : homot f' f'' ) : homot f f'' :=
-  fun x => ( h x ) @ ( h' x ) .
+Definition homotcomp {X Y : UU} {f f' f'' : X -> Y}
+  (h : f ~ f') (h' : f' ~ f'') : f ~ f'' := fun (x : X) => h x @ h' x.
 
-Definition invhomot { X Y : UU } { f f' : X -> Y } ( h : homot f f' ) : homot f' f :=
-  fun x => ( ! ( h x ) ) . 
+Definition invhomot {X Y : UU} {f f' : X -> Y}
+  (h : f ~ f' ) : f' ~ f := fun (x : X) => !(h x).
 
-Definition funhomot { X Y Z : UU } ( f : X -> Y ) { g g' : Y -> Z } ( h : homot g g' ) :
-  homot ( funcomp f g ) ( funcomp f g' ) :=
-  fun x => h ( f x ) .
+Definition funhomot {X Y Z : UU} (f : X -> Y) {g g' : Y -> Z}
+  (h : g ~ g' ) : (g circ f) ~ (g' circ f) := fun (x : X) => h (f x) .
 
-Definition homotfun { X Y Z : UU } { f f' : X -> Y } ( h : homot f f' ) ( g : Y -> Z ) :
-  homot ( funcomp f g ) ( funcomp f' g ) :=
-  fun x => maponpaths g ( h x ) .
-  
-
-
+Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
+  (g : Y -> Z) : (g circ f) ~ (g circ f') := fun (x : X) => maponpaths g (h x).
+ 
 
 (** *** Contractibility, homotopy fibers etc. *)
 
-
 (** Contractible types. *)
 
-Definition iscontr (T:UU) : UU := total2 (fun cntr:T => forall t:T, paths t cntr).
+Definition iscontr (T:UU) : UU := 
+  total2 (fun (cntr : T)  => forall (t : T), paths t cntr).
+
 Definition iscontrpair { T : UU }  := tpair (fun cntr:T => forall t:T, paths t cntr).
 Definition iscontrpr1 { T : UU } := @pr1 T ( fun cntr:T => forall t:T, paths t cntr ) .
 
