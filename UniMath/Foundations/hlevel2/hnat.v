@@ -411,7 +411,7 @@ Lemma natplusnsm ( n m : nat ) : paths ( n + S m ) ( S n + m ) .
 Proof. intro . simpl . induction n as [ | n IHn ] .  auto with natarith . simpl . intro . apply ( maponpaths S ( IHn m ) ) .  Defined . 
 Hint Resolve natplusnsm : natarith .
 
-Lemma natpluscomm ( n m : nat ) : paths ( n + m ) ( m + n ) .
+Lemma natpluscomm ( n m : nat ) : n + m = m + n .
 Proof. intro. induction n as [ | n IHn ] . intro . auto with natarith .  intro .  set ( int := IHn ( S m ) ) . set ( int2 := pathsinv0 ( natplusnsm n m ) ) . set ( int3 := pathsinv0 ( natplusnsm m n ) ) .  set ( int4 := pathscomp0 int2 int  ) .  apply ( pathscomp0 int4 int3 ) . Defined . 
 Hint Resolve natpluscomm : natarith . 
 
@@ -436,7 +436,8 @@ Definition natgthtogths ( n m : nat ) : natgth n m -> natgth ( S n ) m  .
 Proof. intros n m is . apply ( istransnatgth _ _ _ ( natgthsnn n ) is ) . Defined .
 
 Definition negnatgthmplusnm ( n m : nat ) : neg ( natgth m ( n + m ) ) .
-Proof. intros . induction n as [ | n IHn ] .  apply isirreflnatgth . apply ( istransnatleh _ _ _ IHn ( ( natlthtoleh _ _ ( natlthnsn _ ) ) ) ) .  Defined . 
+Proof. intros . induction n as [ | n IHn ] .  apply isirreflnatgth .
+       apply ( istransnatleh _ _ _ IHn ( ( natlthtoleh _ _ ( natlthnsn _ ) ) ) ) .  Defined . 
 
 Definition negnatgthnplusnm ( n m : nat ) : neg ( natgth n ( n + m ) ) .
 Proof. intros . rewrite ( natpluscomm n m ) .  apply ( negnatgthmplusnm m n ) .  Defined . 
@@ -445,13 +446,18 @@ Definition natgthandplusl ( n m k : nat ) : natgth n m -> natgth ( k + n ) ( k +
 Proof. intros n m k l . induction k as [ | k IHk ] . assumption .  assumption .  Defined . 
 
 Definition natgthandplusr ( n m k : nat ) : natgth n m -> natgth ( n + k ) ( m + k ) .
-Proof. intros . rewrite ( natpluscomm n k ) . rewrite ( natpluscomm m k ) . apply natgthandplusl . assumption . Defined . 
+Proof. intros . rewrite ( natpluscomm n k ) . rewrite ( natpluscomm m k ) .
+       apply natgthandplusl . assumption . Defined . 
 
 Definition natgthandpluslinv  ( n m k : nat ) : natgth ( k + n ) ( k + m ) -> natgth n m  .
-Proof. intros n m k l . induction k as [ | k IHk ] . assumption .  apply ( IHk l ) . Defined .
+Proof.
+  intros n m k l . induction k as [ | k IHk ] . assumption .  apply ( IHk l ) .
+Defined .
 
 Definition natgthandplusrinv ( n m k : nat ) :  natgth ( n + k ) ( m + k ) -> natgth n m  . 
-Proof. intros n m k l . rewrite ( natpluscomm n k ) in l . rewrite ( natpluscomm m k ) in l . apply ( natgthandpluslinv _ _ _ l )  . Defined . 
+Proof. intros n m k l . rewrite ( natpluscomm n k ) in l . rewrite ( natpluscomm m k ) in l .
+       apply ( natgthandpluslinv _ _ _ l )  .
+Defined . 
  
 
 (** [ natlth ] *)
@@ -497,19 +503,26 @@ Definition natlehandplusrinv ( n m k : nat ) :  natleh ( n + k ) ( m + k ) -> na
 (** [ natgeh ] *)
 
 
-Definition natgehtogehs ( n m : nat ) : natgeh n m -> natgeh ( S n ) m := natlehtolehs _ _  .
+Definition natgehtogehs ( n m : nat ) : n > m ->  S n > m :=
+  natlehtolehs _ _  .
  
-Definition natgehplusnmm ( n m : nat ) : natgeh ( n + m ) m := negnatgthmplusnm _ _ .
+Definition natgehplusnmm ( n m : nat ) : n + m > m :=
+  negnatgthmplusnm _ _ .
 
-Definition natgehplusnmn ( n m : nat ) : natgeh ( n + m ) n := negnatgthnplusnm _ _  . 
+Definition natgehplusnmn ( n m : nat ) : n + m >= n :=
+  negnatgthnplusnm _ _  . 
 
-Definition natgehandplusl ( n m k : nat ) : natgeh n m -> natgeh ( k + n ) ( k + m ) := negf ( natgthandpluslinv m n k ) .  
+Definition natgehandplusl ( n m k : nat ) : n >= m -> k + n >= k + m :=
+  negf ( natgthandpluslinv m n k ) .  
 
-Definition natgehandplusr ( n m k : nat ) : natgeh n m -> natgeh ( n + k ) ( m + k ) := negf ( natgthandplusrinv m n k )  . 
+Definition natgehandplusr ( n m k : nat ) : n >= m -> n + k >= m + k :=
+  negf ( natgthandplusrinv m n k )  . 
 
-Definition natgehandpluslinv  ( n m k : nat ) : natgeh ( k + n ) ( k + m ) -> natgeh n m := negf ( natgthandplusl m n k )  . 
+Definition natgehandpluslinv  ( n m k : nat ) : k + n >= k + m -> n >= m :=
+  negf ( natgthandplusl m n k )  . 
 
-Definition natgehandplusrinv ( n m k : nat ) :  natgeh ( n + k ) ( m + k ) -> natgeh n m :=  negf ( natgthandplusr m n k ) . 
+Definition natgehandplusrinv ( n m k : nat ) :  n + k >= m + k -> n >= m :=
+  negf ( natgthandplusr m n k ) . 
 
 
 
@@ -624,16 +637,16 @@ where "n - m" := (minus n m) : nat_scope.
 *)
 
 
-Definition minuseq0 ( n m : nat ) ( is : natleh n m ) : paths ( n - m )%nat  0 .
+Definition minuseq0 ( n m : nat ) ( is : n >= m ) : n - m = 0 .
 Proof. intros n m . generalize n . clear n . induction m .  intros n is . rewrite ( natleh0tois0 n is ) . simpl . apply idpath. intro n . destruct n . intro . apply idpath .  apply (IHm n ) . Defined. 
 
-Definition minusgeh0 ( n m : nat ) ( is : natgeh n m ) : natgeh ( n - m ) 0%nat.
+Definition minusgeh0 ( n m : nat ) ( is : n >= m ) : n - m >= 0 .
 Proof. intro . induction n as [ | n IHn ] . intros.  apply isreflnatgeh. intros .  apply natgehn0 . Defined. 
 
-Definition minusgth0 ( n m : nat ) ( is : natgth n m ) : natgth ( n - m ) 0%nat .
+Definition minusgth0 ( n m : nat ) ( is : n > m ) : n - m > 0.
 Proof . intro n . induction n as [ | n IHn ] .  intros .  destruct (negnatgth0n _ is ) . intro m . destruct m as [ | m ] . intro . apply natgthsn0 .  intro is .  apply ( IHn m is ) .  Defined. 
 
-Definition minusgth0inv ( n m : nat ) ( is : natgth ( n - m ) 0%nat ) : natgth n m .
+Definition minusgth0inv ( n m : nat ) ( is : n - m > 0 ) : n > m .
 Proof . intro . induction n as [ | n IHn ] . intros .  destruct ( negnatgth0n _ is ) . intro . destruct m as [ | m ]. intros . apply natgthsn0.  intro . apply ( IHn m is ) . Defined. 
 
 
@@ -652,25 +665,25 @@ Proof. intro .   induction n as [ | n IHn ] . intros .  destruct ( negnatlthn0 _
 
 
 
-Definition minusplusnmm ( n m : nat ) ( is : natgeh n m ) : paths ( ( n - m ) + m ) n .
+Definition minusplusnmm ( n m : nat ) ( is : n >= m ) : ( n - m ) + m = n .
 Proof . intro n . induction n as [ | n IHn] . intro m . intro is . simpl . apply ( natleh0tois0 _ is ) . intro m . destruct m as [ | m ] . intro .   simpl . rewrite ( natplusr0 n ) .  apply idpath .  simpl . intro is .  rewrite ( natplusnsm ( n - m ) m ) . apply ( maponpaths S ( IHn m is ) ) .  Defined . 
 
-Definition minusplusnmmineq ( n m : nat ) : natgeh ( ( n - m ) + m ) n .
+Definition minusplusnmmineq ( n m : nat ) : ( n - m ) + m >= n .
 Proof. intros. destruct ( natlthorgeh n m ) as [ lt | ge ] .  rewrite ( minuseq0 _ _ ( natlthtoleh _ _ lt ) ). apply ( natgthtogeh _ _ lt ) . rewrite ( minusplusnmm _ _ ge ) . apply isreflnatgeh . Defined. 
 
-Definition plusminusnmm ( n m : nat ) : paths ( ( n + m ) - m )%nat n .
+Definition plusminusnmm ( n m : nat ) : ( n + m ) - m = n .
 Proof. intros . set ( int1 := natgehplusnmm n m ) . apply ( natplusrcan _ _ m ) .  rewrite ( minusplusnmm _ _ int1 ) .  apply idpath. Defined. 
 
 
 (* *** Two-sided minus and comparisons *)
 
-Definition natgehandminusr ( n m k : nat ) ( is : natgeh  n m ) : natgeh ( n - k ) ( m - k ) .
+Definition natgehandminusr ( n m k : nat ) ( is : n >= m ) : n - k >= m - k .
 Proof. intro n. induction n as [ | n IHn ] . intros .  rewrite ( nat0gehtois0 _ is ) . apply isreflnatleh .  intro m . induction m . intros . destruct k .  apply natgehn0.  apply natgehn0 .  intro k . induction k . intro is .  apply is .  intro is .  apply ( IHn m k is ) . Defined. 
 
-Definition natgehandminusl ( n m k : nat ) ( is : natgeh n m ) : natgeh ( n - k ) ( m - k ) .
+Definition natgehandminusl ( n m k : nat ) ( is : n >= m ) : n - k >= m - k .
 Proof .  intro n. induction n as [ | n IHn ] . intros . rewrite ( nat0gehtois0 _ is ) . apply isreflnatleh .  intro m . induction m . intros . destruct k .  apply natgehn0 . apply natgehn0 .  intro k . induction k . intro is .  apply is . intro is .  apply ( IHn m k is ) .  Defined. 
 
-Definition natgehandminusrinv ( n m k : nat ) ( is' : natgeh n k ) ( is : natgeh  ( n - k ) ( m - k ) ) : natgeh n m  .
+Definition natgehandminusrinv ( n m k : nat ) ( is' : n >= k ) ( is : n - k >= m - k ) : n >= m .
 Proof. intro n. induction n as [ | n IHn ] . intros . rewrite ( nat0gehtois0 _ is' ) in is . rewrite ( natminuseqn m )  in is . rewrite ( nat0gehtois0 _ is ) . apply isreflnatleh .  intro m . induction m . intros . apply natgehn0 . intros . destruct k .  rewrite natminuseqn in is . rewrite natminuseqn in is .  apply is . apply ( IHn m k is' is ) .  Defined. 
 
 (*
@@ -715,15 +728,7 @@ Definition natlehandminusr ( n m k : nat ) : ( natleh n m ) -> natleh ( n - k ) 
 
 (* *** Greater or equal and minus *)
 
-
-Definition natgehrightminus ( n m k : nat ) ( is : natgeh ( n + m ) k ) : natgeh n ( k - m ) .
-Proof. intros . 
-
-Definition natgehrightplus ( n m k : nat ) ( is : natgeh ( n - m ) k ) : natgeh n ( k + m ) .
-
-Definition natgehleftminus ( n m k : nat ) ( is : natgeh n ( m + k ) ) : natgeh ( n - k ) m .
-
-Definition natgehleftplus ( n m k : nat ) ( is : natgeh n ( m - k ) ) : natgeh ( n + k ) m .
+(* See lBsystems.v *)
 
 
 (* **** Greater and minus *)
@@ -777,8 +782,7 @@ There are four possible plus/minus associativities which are labelled by pp, pm,
 
 Notation natassocppeq := natplusassoc .
 
-Definition natassocpmeq ( n m k : nat ) ( is : natgeh m k ) : paths (( n + m ) - k )%nat (n + ( m - k )).
-Proof. intros.  apply ( natplusrcan _ _ k ) . rewrite ( natplusassoc n _ k ) .  rewrite ( minusplusnmm _ k is ) .  set ( is' := istransnatgeh _ _ _ ( natgehplusnmm n m ) is ) . rewrite ( minusplusnmm _ k is' ) . apply idpath. Defined. 
+(* see lBsystems *)
 
 Definition natassocpmineq ( n m k : nat ) : natleh (( n + m ) - k ) ( n + ( m - k )) .
 Proof. intros n m k . destruct (natgthorleh k m) as [g | le]. 
@@ -788,11 +792,7 @@ set ( e := minuseq0 m k ( natgthtogeh _ _ g ) ) .   rewrite e . rewrite (natplus
 rewrite ( natassocpmeq _ _ _ le ) .  apply isreflnatleh . Defined.
 
 
-Definition natassocmpeq ( n m k : nat ) ( isnm : natgeh n m ) ( ismk : natgeh m k ) : paths (( n - m ) + k )%nat (n - ( m - k ))%nat.
-Proof. intros.  apply ( natplusrcan _ _ ( m - k ) ) . 
-
-assert ( is' : natleh ( m - k ) n ) . apply ( istransnatleh _ _ _ (natminuslehn _ _ ) isnm ) . rewrite ( minusplusnmm _ _ is' ) . rewrite (natplusassoc _ k _ ) .  rewrite ( natpluscomm k _ ) . rewrite ( minusplusnmm _ _ ismk ) . rewrite ( minusplusnmm _ _ isnm ) . apply idpath. Defined. 
-
+(* see lBsystems *)
 
 Definition natassocmpineq ( n m k : nat ) : natgeh (( n - m ) + k ) ( n - ( m - k )) .
 Proof. intros n m k . destruct (natgthorleh k m) as [g | le]. 
@@ -806,19 +806,7 @@ destruct ( natgthorleh ( m - k ) n ) as [ g'' | le'' ] . rewrite ( minuseq0 n ( 
 rewrite ( natassocmpeq _ _ _ le' le ) . apply isreflnatgeh .  Defined. 
 
 
-Definition natassocmmeq ( n m k : nat ) : paths (( n  - m ) - k )%nat (n - ( m + k ))%nat.
-Proof. intros.  destruct ( natgthorleh ( m + k ) n ) as [ g | le ] . 
 
-rewrite ( minuseq0 _ _ ( natgthtogeh _ _ g ) ) .  assert ( int1 : natleh ( n - m ) k ) . rewrite natpluscomm in g . set ( int2 := natgehandminusr _ _ m ( natgthtogeh _ _ g ) ) .  rewrite plusminusnmm in int2 .  apply int2 .  apply ( minuseq0 _ _ int1 ) . apply ( natplusrcan _ _ ( m + k ) ) .   rewrite ( minusplusnmm _ ( m + k )%nat ) . rewrite ( natpluscomm m k ) . destruct ( natplusassoc ( n - m - k ) k m ) .   rewrite 
-
-
-
-
-
-
-
-
-apply ( natplusrcan _ _ k ) . rewrite ( natplusassoc n _ k ) .  rewrite ( minusplusnmm _ k is ) .  set ( is' := istransnatgeh _ _ _ ( natgehplusnmm n m ) is ) . rewrite ( minusplusnmm _ k is' ) .apply idpath. Defined. 
 
 Definition natassocpmineq ( n m k : nat ) : natleh (( n + m ) - k ) ( n + ( m - k )) .
 Proof. intros n m k . destruct (natgthorleh k m) as [g | le]. 
