@@ -365,14 +365,7 @@ Qed.
 Definition full {C D : precategory} (F : functor C D) :=
    forall a b: C, issurjective (fun f : a --> b => #F f).
 
-Lemma issurjectiveweq (X Y : UU) (f : X -> Y) : isweq f -> issurjective f.
-Proof.
-  intro H.
-  unfold issurjective.
-  intro y.
-  apply hinhpr.
-  apply (pr1 (H y)).
-Defined.
+
 
 (** ** Fully faithful is the same as full and faithful *)
 
@@ -393,21 +386,6 @@ Proof.
   apply H.
 Qed.
 
-Lemma isweqinclandsurj_UU (X Y : UU) (f : X -> Y):
-       isincl f -> issurjective f -> isweq f.
-Proof.
-  intros Hincl Hsurj.
-  intro y.
-  unfold issurjective in Hsurj.
-  set (H := hProppair (iscontr (hfiber f y)) (isapropiscontr _ )).
-  apply (Hsurj y H).
-  intro x.
-  simpl.
-  apply iscontraprop1.
-  - apply Hincl.
-  - apply x.
-Defined.
-  
   
 Lemma full_and_faithful_implies_fully_faithful (C D : precategory) (F : functor C D) :
    full_and_faithful F -> fully_faithful F.
@@ -415,7 +393,7 @@ Proof.
   intros [Hfull Hfaith].
   intros a b.
   simpl in *.
-  apply isweqinclandsurj_UU.
+  apply isweqinclandsurj.
   - apply Hfaith.
   - apply Hfull.
 Qed.

@@ -183,6 +183,14 @@ Proof .
   - apply x.
 Defined.
 
+(** On the other hand, a weak equivalence is surjective *)
+
+Lemma issurjectiveweq (X Y : UU) (f : X -> Y) : isweq f -> issurjective f.
+Proof.
+  intros X Y f H y.
+  apply hinhpr.
+  apply (pr1 (H y)).
+Defined.
 
 
  
