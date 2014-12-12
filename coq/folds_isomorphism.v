@@ -90,7 +90,7 @@ Lemma folds_iso_eq {a b : C} (i i' : folds_iso a b) :
   folds_iso_data_from_folds_iso i = folds_iso_data_from_folds_iso i' → i = i'.
 Proof.
   intro H.
-  apply total2_paths_hProp.
+  apply total2_paths_isaprop.
   - apply isaprop_folds_iso_prop.
   - assumption.
 Qed.
@@ -225,7 +225,7 @@ Proof.
   apply dirprodpath.
   - apply dirprodpath.
     + apply funextsec; intro.
-      apply total2_paths_hProp.
+      apply total2_paths_isaprop.
       * intros; apply isapropisweq.
       * apply funextfunax; intro f.
         etransitivity.
@@ -235,10 +235,10 @@ Proof.
         { apply ϕ₁_is_comp. } 
         rewrite H. apply idpath.
     + apply funextsec; intro.
-      apply total2_paths_hProp.
+      apply total2_paths_isaprop.
       * intros; apply isapropisweq.
       * apply funextfunax. apply ϕ₂_determined.
-  - apply total2_paths_hProp.
+  - apply total2_paths_isaprop.
     intros. apply isapropisweq.
     apply funextfunax. intros. 
     apply ϕo_determined.

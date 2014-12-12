@@ -118,7 +118,7 @@ Proof.
   apply (H H'); simpl.
   intro t; exists t.
   intro t'.
-  apply total2_paths_hProp.
+  apply total2_paths_isaprop.
   - intro b; apply pr2.
   - destruct t; destruct t';
     apply I_unique; assumption.
@@ -139,7 +139,7 @@ Proof.
   apply (pr1 (pr2 (pr2 C)) a b c f g H').
   simpl; intro t; exists t.
   intro t'.
-  apply total2_paths_hProp.
+  apply total2_paths_isaprop.
   - intro; apply pr2.
   - destruct t as [t tp]; destruct t' as [t' tp']; simpl in *.
     apply (pr1 (pr2 (pr2 (pr2 C))) _ _ _ f g ); assumption.

@@ -56,7 +56,7 @@ Lemma comp_pred_comp (a b c : C) (f : a ⇒ b) (g : b ⇒ c) : comp_pred f g (co
 Proof.
   apply idpath.  
 Defined.
-Print folds_ob_mor.
+
 Definition folds_id_comp_from_precat_data : folds_id_T :=
   tpair (λ C : folds_ob_mor, (∀ a : C, a ⇒ a → hProp) 
                            × (∀ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))  
@@ -131,7 +131,7 @@ Lemma folds_precat_from_precat_precat_from_folds_precat
   (C : folds_precat)(hs:has_folds_homsets C): 
     folds_precat_from_precat (precat_from_folds_precat C) hs = C.
 Proof.
-  apply total2_paths_second_hProp.
+  apply total2_paths_second_isaprop.
   - intro a; apply isapropdirprod.
     + apply isaprop_folds_ax_id.
     + apply isaprop_folds_ax_T. assumption.
@@ -146,7 +146,7 @@ Proof.
     apply pathsdirprod.
     +  apply funextsec.  intro a.
        apply funextsec. intro f. unfold id_pred.  simpl. 
-       apply total2_paths_hProp.
+       apply total2_paths_isaprop.
        { intro. apply isapropisaprop. } 
        simpl.
        apply weqtopaths. 
@@ -166,7 +166,7 @@ Proof.
      apply funextsec; intro g.
      apply funextsec; intro fg.
      clear Hid.
-     apply total2_paths_hProp.
+     apply total2_paths_isaprop.
      { intro; apply isapropisaprop. } 
      apply weqtopaths. apply weqimplimpl.
        * intro H. simpl in *. rewrite <- H.
@@ -182,7 +182,7 @@ Qed.
 Lemma precat_from_folds_precat_folds_precat_from_precat (C : precategory)(hs: has_homsets C) : 
      precat_from_folds_precat (folds_precat_from_precat C hs) = C.
 Proof.
-  apply total2_paths_second_hProp.
+  apply total2_paths_second_isaprop.
   { intro; apply isaprop_is_precategory. assumption. }
   destruct C as [Cdata Cax]; simpl in *.
   destruct Cdata as [Cobmor Cidcomp]; simpl in *.
