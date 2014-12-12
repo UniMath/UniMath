@@ -4,7 +4,6 @@ Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.total2_paths.
 Require Import RezkCompletion.precategories.
 
 Require Import RezkCompletion.limits.terminal.
@@ -207,7 +206,7 @@ Proof.
    }
   exists (tpair _ awe (dirprodpair Hawe1 Hawe2)).
   intro t.
-  apply total2_paths_hProp.
+  apply total2_paths_isaprop.
   - intro a0. apply isapropdirprod;
     apply hs.
   - simpl. destruct t as [t [Ht1 Ht2]].
@@ -250,7 +249,7 @@ Proof.
   apply impred; intro g;
   apply invproofirrelevance.
   intros Pb Pb'.
-  apply total2_paths_hProp.
+  apply total2_paths_isaprop.
   - intro; apply isofhleveltotal2.
     + apply hs.
     + intros; apply isaprop_isPullback.
