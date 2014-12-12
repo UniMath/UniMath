@@ -122,7 +122,7 @@ Qed.
 
 Lemma opp_opp_precat (C : precategory)(hsC: has_homsets (pr1 C)) : C = C^op^op.
 Proof. intros [data ispre] hsC.
-       apply (total2_paths2_second_hProp (opp_opp_precat_data data)).
+       apply (total2_paths2_second_isaprop (opp_opp_precat_data data)).
        apply isaprop_is_precategory.
        apply has_homsets_opp_precat_data. 
        apply hsC.
