@@ -60,6 +60,8 @@ Definition funcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :=
 
 Notation "g 'circ' f" := (funcomp f g) (at level 80, right associativity).
 
+Notation "f 'comp' g" := (funcomp f g) (at level 80, right associativity).
+
 (** *** Iteration of an endomorphism *)
 
 Definition iteration {T : UU} (f : T -> T) (n : nat) : T -> T.
