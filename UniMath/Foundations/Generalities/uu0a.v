@@ -9,9 +9,7 @@ The first part of the original uu0 file, created on Dec. 3, 2014.
 This file contains results which form a basis of the univalent
 approach, and which do not require the use of universes as types.
 
- *)
-
-(* Port to coq trunk (8.4-8.5) in March 2014.  *)
+Ported to coq trunk (8.4-8.5) in March 2014.  *)
 
 (** ** Preambule *)
 
@@ -345,8 +343,8 @@ Defined.
 
 Definition constr1 {X : UU} (P : X -> UU) {x x' : X} (e : x = x') :
   total2 (fun (f : P x -> P x') =>
-  total2 (fun (ee : forall p : P x, tpair _ x p = tpair _ x' (f p)) =>
-    forall pp : P x, maponpaths (@pr1 _ _ ) (ee pp) = e)). 
+    total2 (fun (ee : forall p : P x, tpair _ x p = tpair _ x' (f p)) =>
+      forall pp : P x, maponpaths pr1 (ee pp) = e)). 
 Proof.
   intros. induction e.
   split with (idfun (P x)).
@@ -371,7 +369,8 @@ Defined.
 (** A series of lemmas about paths and sigma types.
     Adapted from the HoTT library http://github.com/HoTT/HoTT *)
 
-Lemma base_paths {A : UU}{B : A -> UU}(a b : total2 B) : a = b -> pr1 a = pr1 b.
+Lemma base_paths {A : UU} {B : A -> UU} 
+  (a b : total2 B) : a = b -> pr1 a = pr1 b.
 Proof.
   intros.
   apply maponpaths; assumption.
@@ -390,13 +389,13 @@ Proof.
 Defined.
 
 Lemma total2_paths2 {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
-    {a2 : A} {b2 : B a2} (p : a1 = a2) 
+  {a2 : A} {b2 : B a2} (p : a1 = a2) 
     (q : transportf (fun x => B x) p b1 = b2) : 
-    tpair (fun x => B x) a1 b1 = tpair (fun x => B x) a2 b2.
+      tpair (fun x => B x) a1 b1 = tpair (fun x => B x) a2 b2.
 Proof.
   intros.
   apply (@total2_paths _ _  
-    (tpair (fun x => B x) a1 b1)(tpair (fun x => B x) a2 b2) p q).
+    (tpair (fun x => B x) a1 b1) (tpair (fun x => B x) a2 b2) p q).
 Defined.
 
 Definition fiber_paths {A : UU} {B : A -> UU} {u v : total2 (fun x => B x)}
@@ -407,7 +406,7 @@ Proof.
 Defined.
 
 Lemma total2_fiber_paths {A : UU} {B : A -> UU} {x y : total2 (fun x => B x)} 
- (p : x = y) : total2_paths  _ (fiber_paths p) = p.
+  (p : x = y) : total2_paths  _ (fiber_paths p) = p.
 Proof.
   induction p.
   induction x.
@@ -416,7 +415,7 @@ Defined.
 
 Lemma base_total2_paths {A : UU} {B : A -> UU} {x y : total2 (fun x => B x)}
   {p : pr1 x = pr1 y} (q : transportf _ p (pr2 x) = pr2 y) :
-  (base_paths _ _ (total2_paths _ q)) = p.
+    (base_paths _ _ (total2_paths _ q)) = p.
 Proof.
   induction x as [x H]. 
   induction y as [y K].
@@ -427,10 +426,11 @@ Proof.
 Defined.
 
 
-Lemma transportf_fiber_total2_paths {A : UU} (B : A -> UU) (x y : total2 (fun x => B x))
-  (p : pr1 x = pr1 y) (q : transportf _ p (pr2 x) = pr2 y) :
-  transportf (fun p' : pr1 x = pr1 y => transportf _ p' (pr2 x) = pr2 y)
-  (base_total2_paths q)  (fiber_paths (total2_paths _ q)) = q.
+Lemma transportf_fiber_total2_paths {A : UU} (B : A -> UU)
+  (x y : total2 (fun x => B x))
+    (p : pr1 x = pr1 y) (q : transportf _ p (pr2 x) = pr2 y) :
+      transportf (fun p' : pr1 x = pr1 y => transportf _ p' (pr2 x) = pr2 y)
+      (base_total2_paths q)  (fiber_paths (total2_paths _ q)) = q.
 Proof.
   induction x as [x H]. 
   induction y as [y K].
@@ -455,9 +455,10 @@ Defined.
 
 
 Definition transportf_total2 {A : UU} {B : A -> UU} {C : forall a:A, B a -> UU}
-  {x1 x2 : A} (p : x1 = x2) (yz : total2 (fun y : B x1 => C x1 y )): 
- transportf (fun x => total2 (fun y : B x => C x y)) p yz = 
- tpair (fun y => C x2 y) (transportf _ p  (pr1 yz)) (transportD _ _ p (pr1 yz) (pr2 yz)).
+  {x1 x2 : A} (p : x1 = x2) (yz : total2 (fun y : B x1 => C x1 y )) : 
+    transportf (fun x => total2 (fun y : B x => C x y)) p yz = 
+     tpair (fun y => C x2 y) (transportf _ p  (pr1 yz))
+                             (transportD _ _ p (pr1 yz) (pr2 yz)).
 Proof.
   intros.
   induction p. 
@@ -468,8 +469,8 @@ Defined.
 Definition transportf_dirprod (A : UU) (B B' : A -> UU) 
   (x x' : total2 (fun a => dirprod (B a) (B' a)))  (p : pr1 x = pr1 x') :
   transportf (fun a => dirprod (B a) (B' a)) p (pr2 x) = 
-                            dirprodpair (transportf (fun a => B a) p (pr1 (pr2 x))) 
-                                        (transportf (fun a => B' a) p (pr2 (pr2 x))) .
+    dirprodpair (transportf (fun a => B a) p (pr1 (pr2 x))) 
+                (transportf (fun a => B' a) p (pr2 (pr2 x))).
 Proof.
   induction p.
   apply tppr.
@@ -502,56 +503,113 @@ Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
 (** Contractible types. *)
 
 Definition iscontr (T:UU) : UU := 
-  total2 (fun (cntr : T)  => forall (t : T), paths t cntr).
+  total2 (fun (cntr : T)  => forall (t : T), t = cntr).
 
-Definition iscontrpair { T : UU }  := tpair (fun cntr:T => forall t:T, paths t cntr).
-Definition iscontrpr1 { T : UU } := @pr1 T ( fun cntr:T => forall t:T, paths t cntr ) .
+Definition iscontrpair {T : UU} := 
+  tpair (fun (cntr : T) => forall t : T, t = cntr).
 
-Lemma iscontrretract { X Y : UU } ( p : X -> Y ) ( s : Y -> X ) ( eps : forall y : Y, paths ( p ( s y ) ) y  ) ( is : iscontr X ) : iscontr Y.
-Proof . intros . induction is as [ x fe ] . set ( y := p x ) . split with y . intro y' . apply ( pathscomp0 ( pathsinv0 ( eps y' ) ) ( maponpaths p ( fe ( s y' ) ) ) ) .  Defined .    
+Definition iscontrpr1 {T : UU} :=
+  @pr1 T (fun (cntr : T) => forall t : T, t = cntr).
 
-Lemma proofirrelevancecontr { X : UU }(is: iscontr X) ( x x' : X ): paths x x'.
-Proof. intros. unfold iscontr in is.  induction is as [ t x0 ]. set (e:= x0 x). set (e':= pathsinv0 (x0 x')). apply (pathscomp0 e e'). Defined. 
+Lemma iscontrretract {X Y : UU} (p : X -> Y) (s : Y -> X) 
+  (eps : forall y : Y, p (s y) = y) (is : iscontr X) : iscontr Y.
+Proof.
+  intros.
+  induction is as [x fe].
+  split with (p x).
+  intro t.
+  apply (! (eps t) @ maponpaths p (fe (s t))).
+Defined.    
+
+Lemma proofirrelevancecontr {X : UU} (is : iscontr X) (x x' : X): x = x'.
+Proof.
+  intros.
+  induction is as [y fe].
+  apply (fe x @ !(fe x')).
+Defined. 
+
+(** Coconuses: spaces of paths which begin (coconusfromt) or end (coconustot)
+    at a given point. *)
 
 
-(** Coconuses - spaces of paths which begin or end at a given point. *)  
+Definition coconusfromt (T : UU) (t : T) :=
+  total2 (fun (t' : T) => t = t').
 
+Definition coconusfromtpair (T : UU) {t t' : T}
+  (e: t = t') : coconusfromt T t :=
+    tpair (fun t':T => paths t t') t' e.
 
-Definition coconustot ( T : UU ) ( t : T ) := total2 (fun t':T => paths t' t).
-Definition coconustotpair ( T : UU ) { t t' : T } (e: paths t' t) : coconustot T t := tpair (fun t':T => paths t' t) t' e.
-Definition coconustotpr1 ( T : UU ) ( t : T ) := @pr1 _ (fun t':T => paths t' t) . 
+Definition coconusfromtpr1 (T : UU) (t : T) := @pr1 _ (fun t':T => t' = t).
 
-Lemma connectedcoconustot { T : UU }  { t : T } ( c1 c2 : coconustot T t ) : paths c1 c2.
-Proof. intros. induction c1 as [ x0 x ]. induction x. induction c2 as [ x1 x ]. induction x. apply idpath. Defined. 
+Definition coconustot (T : UU) (t : T) := 
+  total2 (fun (t' : T) => t' = t).
 
-Lemma iscontrcoconustot ( T : UU ) (t:T) : iscontr (coconustot T t).
-Proof. intros. unfold iscontr.  set (t0:= tpair (fun t':T => paths t' t) t (idpath t)).  split with t0. intros. apply  connectedcoconustot. Defined.
+Definition coconustotpair (T : UU) {t t' : T}
+  (e: t' = t) : coconustot T t :=
+    tpair (fun (t' : T) => t' = t) t' e.
 
+Definition coconustotpr1 (T : UU) (t : T) := @pr1 _ (fun (t' : T) => t' = t). 
 
+(* There is a homotopy between any two paths in a coconus. As we also
+   have a trivial path, namely the one that starts at t and ends at t,
+   the space of coconuses is contractible. *)
 
-Definition coconusfromt ( T : UU ) (t:T) :=  total2 (fun t':T => paths t t').
-Definition coconusfromtpair ( T : UU ) { t t' : T } (e: paths t t') : coconusfromt T t := tpair (fun t':T => paths t t') t' e.
-Definition coconusfromtpr1 ( T : UU ) ( t : T ) := @pr1 _ (fun t':T => paths t t') .
+Lemma connectedcoconustot {T : UU} {t : T} (c1 c2 : coconustot T t) : c1 = c2.
+Proof.
+  intros.
+  induction c1 as [x0 x].
+  induction x.
+  induction c2 as [x1 y].
+  induction y.
+  apply idpath.
+Defined. 
 
-Lemma connectedcoconusfromt { T : UU } { t : T } ( e1 e2 : coconusfromt T t ) : paths e1 e2.
-Proof. intros. induction e1 as [x0 x]. induction x. induction e2 as [ x1 x ]. induction x. apply idpath. Defined.
+Lemma iscontrcoconustot (T : UU) (t : T) : iscontr (coconustot T t).
+Proof.
+  intros.
+  unfold iscontr.
+  split with (tpair (fun (t' : T) => t' = t) t (idpath t)).
+  intros.
+  apply connectedcoconustot.
+Defined.
 
-Lemma iscontrcoconusfromt ( T : UU ) (t:T) : iscontr (coconusfromt T t).
-Proof. intros. unfold iscontr.  set (t0:= tpair (fun t':T => paths t t') t (idpath t)).  split with t0. intros. apply  connectedcoconusfromt. Defined.
+Lemma connectedcoconusfromt {T : UU} {t : T} (c1 c2 : coconusfromt T t) :
+  c1 = c2.
+Proof.
+  intros.
+  induction c1 as [x0 x].
+  induction x.
+  induction c2 as [x1 y].
+  induction y.
+  apply idpath.
+Defined.
 
-(** Pathsspace of a type. *)
+Lemma iscontrcoconusfromt (T : UU) (t : T) : iscontr (coconusfromt T t).
+Proof.
+  intros. unfold iscontr.
+  split with (tpair (fun (t' : T) => t = t') t (idpath t)).
+  intros. 
+  apply connectedcoconusfromt.
+Defined.
 
-Definition pathsspace (T:UU) := total2 (fun t:T => coconusfromt T t).
-Definition pathsspacetriple ( T : UU ) { t1 t2 : T } (e: paths t1 t2): pathsspace T := tpair _ t1 (coconusfromtpair T e). 
+(** Paths space of a type: a point t, and the coconus from it. *)
 
-Definition deltap ( T : UU ) : T -> pathsspace T := (fun t:T => pathsspacetriple T (idpath t)). 
+Definition pathsspace (T : UU) := total2 (fun (t : T) => coconusfromt T t).
 
-Definition pathsspace' ( T : UU ) := total2 (fun xy : dirprod T T => pr1 xy = pr2 xy ).
+Definition pathsspacetriple (T : UU) {t1 t2 : T}
+  (e : t1 = t2) : pathsspace T := tpair _ t1 (coconusfromtpair T e).
 
+Definition deltap (T : UU) : T -> pathsspace T := 
+  fun (t : T) => pathsspacetriple T (idpath t).
+
+Definition pathsspace' (T : UU) := 
+  total2 (fun (xy : dirprod T T) => pr1 xy = pr2 xy).
 
 (** Homotopy fibers. *)
 
-Definition hfiber { X Y : UU } (f:X -> Y) (y:Y) : UU := total2 (fun pointover:X => paths (f pointover) y). 
+Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := 
+  total2 (fun (pointover : X) => f pointover = y).
+ 
 Definition hfiberpair  { X Y : UU } (f:X -> Y) { y : Y } ( x : X ) ( e : paths ( f x ) y ) := tpair (fun pointover:X => paths (f pointover) y) x e .
 Definition hfiberpr1 { X Y : UU } ( f : X -> Y ) ( y : Y ) := @pr1 _ (fun pointover:X => paths (f pointover) y) . 
 
