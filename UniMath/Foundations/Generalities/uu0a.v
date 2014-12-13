@@ -610,55 +610,85 @@ Definition pathsspace' (T : UU) :=
 Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := 
   total2 (fun (pointover : X) => f pointover = y).
  
-Definition hfiberpair  { X Y : UU } (f:X -> Y) { y : Y } ( x : X ) ( e : paths ( f x ) y ) := tpair (fun pointover:X => paths (f pointover) y) x e .
-Definition hfiberpr1 { X Y : UU } ( f : X -> Y ) ( y : Y ) := @pr1 _ (fun pointover:X => paths (f pointover) y) . 
+Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y} (x : X) (e : f x = y) := 
+  tpair (fun (pointover : X) => f pointover = y) x e.
 
-
+Definition hfiberpr1 {X Y : UU} (f : X -> Y) (y : Y) :=
+  @pr1 _ (fun (pointover : X) => f pointover = y).
 
 (** Paths in homotopy fibers. *)
 
-Lemma hfibertriangle1 { X Y : UU } (f:X -> Y) { y : Y } { xe1 xe2: hfiber  f y } (e: paths xe1 xe2): paths (pr2 xe1) (pathscomp0   (maponpaths f (maponpaths ( @pr1 _ _ ) e)) (pr2 xe2)).
-Proof. intros. induction e.  simpl. apply idpath. Defined. 
+Lemma hfibertriangle1 {X Y : UU} (f : X -> Y) {y : Y} {xe1 xe2 : hfiber f y}
+  (e : xe1 = xe2) : 
+    pr2 xe1 = maponpaths f (maponpaths pr1 e) @ pr2 xe2.
+Proof.
+  intros. induction e. simpl. apply idpath.
+Defined.
 
-Lemma hfibertriangle1inv0 { X Y : UU } (f:X -> Y) { y : Y } { xe1 xe2: hfiber  f y } (e: paths xe1 xe2) :  paths ( pathscomp0 ( maponpaths f ( pathsinv0 ( maponpaths ( @pr1 _ _ ) e ) ) ) ( pr2 xe1 ) ) ( pr2 xe2 ) .
-Proof . intros . induction e .   apply idpath . Defined .
+Lemma hfibertriangle1inv0 {X Y : UU} (f : X -> Y) {y : Y} {xe1 xe2: hfiber f y}
+  (e : xe1 = xe2) :
+    maponpaths f (! (maponpaths pr1 e)) @ (pr2 xe1) = pr2 xe2. 
+Proof.
+  intros. induction e. apply idpath.
+Defined.
 
-
-Lemma hfibertriangle2 { X Y : UU } (f:X -> Y) { y : Y } (xe1 xe2: hfiber  f y) (ee: paths (pr1  xe1) (pr1  xe2))(eee: paths (pr2 xe1) (pathscomp0   (maponpaths f ee) (pr2 xe2))): paths xe1 xe2.
-Proof. intros. induction xe1 as [ t e1 ]. induction xe2.   simpl in eee. simpl in ee. induction ee. simpl in eee. apply (maponpaths (fun e: paths (f t) y => hfiberpair f t e)  eee). Defined. 
-
+Lemma hfibertriangle2 {X Y : UU} (f : X -> Y) {y : Y} (xe1 xe2: hfiber f y)
+  (ee: pr1 xe1 = pr1 xe2) (eee: pr2 xe1 = maponpaths f ee @ (pr2 xe2)) :
+    xe1 = xe2.
+Proof.
+  intros.
+  induction xe1 as [t e1].
+  induction xe2 as [t' e2].
+  simpl in *.
+  fold (hfiberpair f t e1).
+  fold (hfiberpair f t' e2).
+  induction ee.
+  simpl in eee.
+  apply (maponpaths (fun e: paths (f t) y => hfiberpair f t e) eee).
+Defined.
 
 (** Coconus of a function - the total space of the family of h-fibers. *)
 
-Definition coconusf { X Y : UU } (f: X -> Y):= total2 (fun y:_ => hfiber f y).
-Definition fromcoconusf { X Y : UU } (f: X -> Y) : coconusf  f -> X := fun yxe:_ => pr1  (pr2 yxe).
-Definition tococonusf { X Y:UU } (f: X -> Y) : X -> coconusf  f := fun x:_ => tpair  _  (f x) (hfiberpair f x (idpath _ ) ).   
+Definition coconusf {X Y : UU} (f : X -> Y) :=
+  total2 (fun (y : Y) => hfiber f y).
 
+Definition fromcoconusf {X Y : UU} (f : X -> Y) : coconusf f -> X := 
+  fun (yxe : coconusf f) => pr1 (pr2 yxe).
+
+Definition tococonusf {X Y : UU} (f : X -> Y) : X -> coconusf f :=
+  fun (x : _) => tpair _ (f x) (hfiberpair f x (idpath _ )).   
 
 (** Total spaces of families and homotopies *)
 
-Definition famhomotfun { X : UU } { P Q : X -> UU } ( h : homot P Q ) ( xp : total2 P ) : total2 Q . 
-Proof . intros. induction xp as [ x p ] . split with x .  induction ( h x ) . apply p .  Defined.
+Definition famhomotfun {X : UU} {P Q : X -> UU}
+  (h : P ~ Q) (xp : total2 P) : total2 Q. 
+Proof.
+  intros.
+  induction xp as [ x p ].
+  split with x.
+  induction (h x). 
+  apply p.
+Defined.
 
-Definition famhomothomothomot { X : UU } { P Q : X -> UU } ( h1 h2 : homot P Q ) ( H : forall x : X , paths ( h1 x ) ( h2 x ) ) : homot ( famhomotfun h1 ) ( famhomotfun h2 ) .
-Proof . intros .  intro xp .  induction xp as [x p] . simpl . apply ( maponpaths ( fun q => tpair Q x q ) ) .  induction ( H x ) . apply idpath .  Defined. 
-
-
-
-
-
-
-
-
-
+Definition famhomothomothomot {X : UU} {P Q : X -> UU} (h1 h2 : P ~ Q)
+  (H : forall x : X , h1 x = h2 x ) : famhomotfun h1 ~  famhomotfun h2.
+Proof.
+  intros.
+  intro xp.
+  induction xp as [x p].
+  simpl.
+  apply (maponpaths (fun q => tpair Q x q)).
+  induction (H x).
+  apply idpath.
+Defined. 
 
 
 (** ** Weak equivalences *)
 
 (** *** Basics *)
 
-
-Definition isweq { X Y : UU } ( f : X -> Y) : UU := forall y:Y, iscontr (hfiber f y) .
+Definition isweq {X Y : UU} (f : X -> Y) : UU :=
+  forall y : Y, iscontr (hfiber f y).
 
 Lemma idisweq (T:UU) : isweq (fun t:T => t).
 Proof. intros. 
