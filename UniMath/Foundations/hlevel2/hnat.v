@@ -503,10 +503,10 @@ Definition natlehandplusrinv ( n m k : nat ) :  natleh ( n + k ) ( m + k ) -> na
 (** [ natgeh ] *)
 
 
-Definition natgehtogehs ( n m : nat ) : n > m ->  S n > m :=
-  natlehtolehs _ _  .
+Definition natgehtogehs ( n m : nat ) : n >= m ->  S n >= m :=
+  natlehtolehs _ _ .
  
-Definition natgehplusnmm ( n m : nat ) : n + m > m :=
+Definition natgehplusnmm ( n m : nat ) : n + m >= m :=
   negnatgthmplusnm _ _ .
 
 Definition natgehplusnmn ( n m : nat ) : n + m >= n :=
@@ -637,7 +637,7 @@ where "n - m" := (minus n m) : nat_scope.
 *)
 
 
-Definition minuseq0 ( n m : nat ) ( is : n >= m ) : n - m = 0 .
+Definition minuseq0 ( n m : nat ) ( is : n <= m ) : n - m = 0 .
 Proof. intros n m . generalize n . clear n . induction m .  intros n is . rewrite ( natleh0tois0 n is ) . simpl . apply idpath. intro n . destruct n . intro . apply idpath .  apply (IHm n ) . Defined. 
 
 Definition minusgeh0 ( n m : nat ) ( is : n >= m ) : n - m >= 0 .
@@ -651,10 +651,10 @@ Proof . intro . induction n as [ | n IHn ] . intros .  destruct ( negnatgth0n _ 
 
 
 
-Definition natminuseqn ( n : nat ) : paths ( n - 0 )%nat n .
+Definition natminuseqn ( n : nat ) : n - 0 = n .
 Proof . intro. destruct n . apply idpath . apply idpath. Defined. 
 
-Definition natminuslehn ( n m : nat ) : natleh ( n - m ) n .
+Definition natminuslehn ( n m : nat ) : n - m <= n .
 Proof . intro n. induction n as [ | n IHn ] . intro. apply isreflnatleh .  intro . destruct m as [ | m ]. apply isreflnatleh . simpl .  apply ( istransnatleh _ _ _ (IHn m) ( natlehnsn n ) ) .  Defined. 
 
 Definition natminuslthn ( n m : nat ) ( is : natgth n 0 ) ( is' : natgth m 0 ) : natlth ( n - m ) n .
@@ -672,7 +672,9 @@ Definition minusplusnmmineq ( n m : nat ) : ( n - m ) + m >= n .
 Proof. intros. destruct ( natlthorgeh n m ) as [ lt | ge ] .  rewrite ( minuseq0 _ _ ( natlthtoleh _ _ lt ) ). apply ( natgthtogeh _ _ lt ) . rewrite ( minusplusnmm _ _ ge ) . apply isreflnatgeh . Defined. 
 
 Definition plusminusnmm ( n m : nat ) : ( n + m ) - m = n .
-Proof. intros . set ( int1 := natgehplusnmm n m ) . apply ( natplusrcan _ _ m ) .  rewrite ( minusplusnmm _ _ int1 ) .  apply idpath. Defined. 
+Proof. intros . set ( int1 := natgehplusnmm n m ) . apply ( natplusrcan _ _ m ) .  rewrite ( minusplusnmm _ _ int1 ) .  apply idpath. Defined.
+
+
 
 
 (* *** Two-sided minus and comparisons *)
@@ -730,18 +732,6 @@ Definition natlehandminusr ( n m k : nat ) : ( natleh n m ) -> natleh ( n - k ) 
 
 (* See lBsystems.v *)
 
-
-(* **** Greater and minus *)
-
-
-Definition natgthrightminus ( n m k : nat ) ( is : natgth ( n + m ) k ) : natgth n ( k - m ) .
-Proof . intros. 
-
-Definition natgthrightplus ( n m k : nat ) ( is : natgth ( n - m ) k ) : natgth n ( k + m ) .
-
-Definition natgthleftminus ( n m k : nat ) ( is : natgth n ( m + k ) ) : natgth ( n - k ) m .
-
-Definition natgthleftplus ( n m k : nat ) ( is : natgth n ( m - k ) ) : natgth ( n + k ) m .\
 
 
 (* **** Less and minus *)

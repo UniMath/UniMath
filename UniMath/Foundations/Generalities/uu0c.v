@@ -22,6 +22,7 @@ Require Export Foundations.Generalities.uu0b.
 
 
 
+
 (** *** Functional extensionality for functions to the empty type *)
 
 Axiom funextempty : forall ( X : UU ) ( f g : X -> empty ) , paths f g . 
@@ -68,152 +69,6 @@ apply (invproofirrelevance _ X2).  Defined.
 
 
 
-(** *** Inclusions - functions of h-level 1 *)
-
-
-Definition isincl { X Y : UU } (f : X -> Y ) := isofhlevelf 1 f .
-
-Definition incl ( X Y : UU ) := total2 ( fun f : X -> Y => isincl f ) .
-Definition inclpair { X Y : UU } ( f : X -> Y ) ( is : isincl f ) : incl X Y := tpair _ f is . 
-Definition pr1incl ( X Y : UU ) : incl X Y -> ( X -> Y ) := @pr1 _ _ .
-Coercion pr1incl : incl >-> Funclass .
-
-Lemma isinclweq ( X Y : UU ) ( f : X -> Y ) : isweq f -> isincl f .
-Proof . intros X Y f is . apply ( isofhlevelfweq 1 ( weqpair _ is ) ) .  Defined .
-Coercion isinclweq : isweq >-> isincl .
-
-Lemma isofhlevelfsnincl (n:nat) { X Y : UU } (f:X -> Y)(is: isincl  f): isofhlevelf (S n)  f.
-Proof. intros. unfold isofhlevelf.  intro y . apply isofhlevelsnprop. apply (is y). Defined.  
-
-Definition weqtoincl ( X Y : UU ) : weq X Y -> incl X Y :=  fun w => inclpair ( pr1weq w ) ( pr2 w ) .  
-Coercion weqtoincl : weq >-> incl . 
-
-Lemma isinclcomp { X Y Z : UU } ( f : incl X Y ) ( g : incl Y Z ) : isincl ( funcomp ( pr1 f ) ( pr1 g ) ) .
-Proof . intros . apply ( isofhlevelfgf 1 f g ( pr2 f ) ( pr2 g ) ) . Defined .
-
-Definition inclcomp { X Y Z : UU } ( f : incl X Y ) ( g : incl Y Z ) : incl X Z := inclpair ( funcomp ( pr1 f ) ( pr1 g ) ) ( isinclcomp f g ) . 
-
-Lemma isincltwooutof3a { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( isg : isincl g ) ( isgf : isincl ( funcomp f g ) ) : isincl f .
-Proof . intros . apply ( isofhlevelff 1 f g isgf ) .  apply ( isofhlevelfsnincl 1 g isg ) . Defined .
-
-Lemma isinclgwtog { X Y Z : UU } ( w : weq X Y ) ( g : Y -> Z ) ( is : isincl ( funcomp w g ) ) : isincl g .
-Proof . intros . apply ( isofhlevelfgwtog 1 w g is ) .  Defined . 
-
-Lemma isinclgtogw { X Y Z : UU }  ( w : weq X Y ) ( g : Y -> Z ) ( is : isincl g ) : isincl ( funcomp w g ) .
-Proof . intros . apply  ( isofhlevelfgtogw 1 w g is ) . Defined . 
-
-
-Lemma isinclhomot { X Y : UU } ( f g : X -> Y ) ( h : homot f g ) ( isf : isincl f ) : isincl g .
-Proof . intros . apply ( isofhlevelfhomot ( S O ) f g h isf ) . Defined . 
-
-
-
-Definition isofhlevelsninclb (n:nat) { X Y : UU } (f:X -> Y)(is: isincl  f) : isofhlevel (S n) Y -> isofhlevel (S n) X:= isofhlevelXfromfY (S n)  f (isofhlevelfsnincl n  f is).  
-
-Definition  isapropinclb { X Y : UU } ( f : X -> Y ) ( isf : isincl f ) : isaprop Y ->  isaprop X := isofhlevelXfromfY 1 _ isf .
-
-
-Lemma iscontrhfiberofincl { X Y : UU } (f:X -> Y): isincl  f -> (forall x:X, iscontr (hfiber  f (f x))).
-Proof. intros X Y f X0 x. unfold isofhlevelf in X0. set (isy:= X0 (f x)).  apply (iscontraprop1 isy (hfiberpair  f _ (idpath (f x)))). Defined.
-
-
-Lemma isweqonpathsincl { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X): isweq (@maponpaths _ _ f x x').
-Proof. intros. apply (isofhlevelfonpaths O  f x x' is). Defined.
-
-Definition weqonpathsincl  { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X) := weqpair _ ( isweqonpathsincl f is x x' ) .
-
-Definition invmaponpathsincl { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X): paths (f x) (f x') -> paths x x':= invmap  ( weqonpathsincl  f is x x') .
-
-
-Lemma isinclweqonpaths { X Y : UU } (f:X -> Y): (forall x x':X, isweq (@maponpaths _ _ f x x')) -> isincl  f.
-Proof. intros X Y f X0.  apply (isofhlevelfsn O  f X0). Defined.
-
-
-Definition isinclpr1 { X : UU } (P:X -> UU)(is: forall x:X, isaprop (P x)): isincl  (@pr1 X P):= isofhlevelfpr1 (S O) P is.
-
-
-
-
-
-
-Theorem samehfibers { X Y Z : UU } (f: X -> Y) (g: Y -> Z) (is1: isincl  g) ( y: Y): weq ( hfiber f y ) ( hfiber ( fun x => g ( f x ) ) ( g y ) ) .
-Proof. intros. split with (@hfibersftogf  _ _ _ f g (g y) (hfiberpair  g y (idpath _ ))) .
-
-set (z:= g y). set (ye:= hfiberpair  g y (idpath _ )).  unfold isweq. intro xe.  
-set (is3:= isweqezmap1 _ _ _ ( fibseqhf f g z ye ) xe). 
-assert (w1: weq (paths (hfibersgftog f g z xe) ye) (hfiber  (hfibersftogf  f g z ye) xe)). split with (ezmap (d1 (hfibersftogf f g z ye) (hfibersgftog f g z) ye ( fibseqhf f g z ye ) xe) (hfibersftogf f g z ye) xe ( fibseq1 (hfibersftogf f g z ye) (hfibersgftog f g z) ye ( fibseqhf f g z ye ) xe) ). apply is3. apply (iscontrweqf w1 ). 
-assert (is4: iscontr (hfiber g z)). apply iscontrhfiberofincl. assumption.
-apply ( isapropifcontr is4  ). Defined.
-
-
-
-
-
-
-
-
-(** *** Basics about types of h-level 2 - "sets" *)
-
-Definition isaset ( X : UU ) : UU := forall x x' : X , isaprop ( paths x x' ) .
-
-(* Definition isaset := isofhlevel 2 . *)
-
-Notation isasetdirprod := ( isofhleveldirprod 2 ) .
-
-Lemma isasetunit : isaset unit .
-Proof . apply ( isofhlevelcontr 2 iscontrunit ) . Defined .
-
-Lemma isasetempty : isaset empty .
-Proof. apply ( isofhlevelsnprop 1 isapropempty ) .  Defined . 
-
-Lemma isasetifcontr { X : UU } ( is : iscontr X ) : isaset X .
-Proof . intros . apply ( isofhlevelcontr 2 is ) . Defined .
-
-Lemma isasetaprop { X : UU } ( is : isaprop X ) : isaset X .
-Proof . intros . apply ( isofhlevelsnprop 1 is ) . Defined . 
-
-(** The following lemma assert "uniqueness of identity proofs" (uip) for sets. *)
-
-Lemma uip { X : UU } ( is : isaset X ) { x x' : X } ( e e' : paths x x' ) : paths e e' .
-Proof. intros . apply ( proofirrelevance _ ( is x x' ) e e' ) . Defined .  
-
-(** For the theorem about the coproduct of two sets see [ isasetcoprod ] below. *)
-
-
-Lemma isofhlevelssnset (n:nat) ( X : UU ) ( is : isaset X ) : isofhlevel ( S (S n) ) X.
-Proof. intros n X X0. simpl. unfold isaset in X0.   intros x x' . apply isofhlevelsnprop. set ( int := X0 x x'). assumption . Defined. 
-
-Lemma isasetifiscontrloops (X:UU): (forall x:X, iscontr (paths x x)) -> isaset X.
-Proof. intros X X0. unfold isaset. unfold isofhlevel. intros x x' x0 x0' .   induction x0. set (is:= X0 x). apply isapropifcontr. assumption.  Defined. 
-
-Lemma iscontrloopsifisaset (X:UU): (isaset X) -> (forall x:X, iscontr (paths x x)).
-Proof. intros X X0 x. unfold isaset in X0. unfold isofhlevel in X0.  change (forall (x x' : X) (x0 x'0 : paths x x'), iscontr (paths x0 x'0))  with (forall (x x':X),  isaprop (paths x x')) in X0.  apply (iscontraprop1 (X0 x x) (idpath x)). Defined.
-
-
-
-(**  A monic subtype of a set is a set. *)
-
-Theorem isasetsubset { X Y : UU } (f: X -> Y) (is1: isaset Y) (is2: isincl  f): isaset X.
-Proof. intros. apply  (isofhlevelsninclb (S O)  f is2). apply is1. Defined. 
-
-
-
-(** The morphism from hfiber of a map to a set is an inclusion. *)
-
-Theorem isinclfromhfiber { X Y : UU } (f: X -> Y) (is : isaset Y) ( y: Y ) : @isincl (hfiber  f y) X ( @pr1 _ _  ).
-Proof. intros. apply isofhlevelfhfiberpr1. assumption. Defined. 
-
-
-(** Criterion for a function between sets being an inclusion.  *)
-
-
-Theorem isinclbetweensets { X Y : UU } ( f : X -> Y ) ( isx : isaset X ) ( isy : isaset Y ) ( inj : forall x x' : X , ( paths ( f x ) ( f x' ) -> paths x x' ) ) : isincl f .
-Proof. intros .  apply isinclweqonpaths .  intros x x' .  apply ( isweqimplimpl ( @maponpaths _ _ f x x' ) (  inj x x' ) ( isx x x' ) ( isy ( f x ) ( f x' ) ) ) . Defined .   
-
-(** A map from [ unit ] to a set is an inclusion. *)
-
-Theorem isinclfromunit { X : UU } ( f : unit -> X ) ( is : isaset X ) : isincl f .
-Proof. intros . apply ( isinclbetweensets f ( isofhlevelcontr 2 ( iscontrunit ) )  is ) .  intros .  induction x . induction x' . apply idpath . Defined . 
 
 
 
@@ -255,10 +110,12 @@ assert (is3: isweq map1).  unfold map1 . apply ( isweqfibtototal  _ _  (fun x':X
 assert (is4: isweq map2). apply (isweqfpmap  f  (fun y:Y => neg (paths (f x) y )) ).
 assert (h: forall x0':_, paths (map2 (map1 x0')) (maponcomplweq  f x x0')). intro.  simpl. induction x0'. simpl. apply idpath.
 apply (isweqhomot _ _ h (twooutof3c _ _ is3 is4)).
-Defined.
+Defined. 
 
 
 Definition weqoncompl { X Y : UU } (w: weq X Y) ( x : X ) : weq (compl X x) (compl Y (w x)):= weqpair  _ (isweqmaponcompl w x).
+
+
 
 Definition homotweqoncomplcomp { X Y Z : UU } ( f : weq X Y ) ( g : weq Y Z ) ( x : X ) : homot ( weqcomp ( weqoncompl f x ) ( weqoncompl g ( f x ) ) ) ( weqoncompl  ( weqcomp f g ) x ) .
 Proof . intros . intro x' . induction x' as [ x' nexx' ] . apply ( invmaponpathsincl _ ( isinclpr1compl Z _ ) _ _ ) . simpl .  apply idpath .    Defined . 
