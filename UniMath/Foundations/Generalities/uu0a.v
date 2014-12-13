@@ -481,7 +481,8 @@ Defined.
 
 (** *** Homotopy between functions *)
 
-Definition homot {X Y : UU} (f g : X -> Y) := forall x : X , f x = g x.
+Definition homot {X : UU} {P : X -> UU} (f g : forall x : X, P x) :=
+  forall x : X , f x = g x.
 
 Notation "f ~ g" := (homot f g) (at level 70, right associativity).
 
@@ -610,8 +611,9 @@ Definition pathsspace' (T : UU) :=
 Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := 
   total2 (fun (pointover : X) => f pointover = y).
  
-Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y} (x : X) (e : f x = y) := 
-  tpair (fun (pointover : X) => f pointover = y) x e.
+Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
+  (x : X) (e : f x = y) : hfiber f y := 
+    tpair (fun (pointover : X) => f pointover = y) x e.
 
 Definition hfiberpr1 {X Y : UU} (f : X -> Y) (y : Y) :=
   @pr1 _ (fun (pointover : X) => f pointover = y).
@@ -671,7 +673,7 @@ Proof.
 Defined.
 
 Definition famhomothomothomot {X : UU} {P Q : X -> UU} (h1 h2 : P ~ Q)
-  (H : forall x : X , h1 x = h2 x ) : famhomotfun h1 ~  famhomotfun h2.
+  (H : forall x : X, h1 x = h2 x) : famhomotfun h1 ~ famhomotfun h2.
 Proof.
   intros.
   intro xp.
@@ -690,60 +692,103 @@ Defined.
 Definition isweq {X Y : UU} (f : X -> Y) : UU :=
   forall y : Y, iscontr (hfiber f y).
 
-Lemma idisweq (T:UU) : isweq (fun t:T => t).
-Proof. intros. 
-unfold isweq.
-intro y .
-assert (y0: hfiber (fun t : T => t) y). apply (tpair (fun pointover:T => paths ((fun t:T => t) pointover) y) y (idpath y)). 
-split with y0. intro t.  
-induction y0 as [x0 e0].    induction t as [x1 e1].  induction  e0.  induction e1.  apply idpath. Defined. 
+Lemma idisweq (T : UU) : isweq (idfun T).
+Proof.
+  intros. unfold isweq. intro y.
+  unfold iscontr.
+  split with (tpair (fun (x : T) => (idfun T) x = y) y (idpath y)).
+  intro t.
+  induction t as [x e].
+  induction e.
+  apply idpath.
+Defined. 
 
+Definition weq (X Y : UU) : UU :=
+  total2 (fun (f : X -> Y) => isweq f).
 
-
-Definition weq ( X Y : UU )  : UU := total2 (fun f:X->Y => isweq f) .
 Definition pr1weq {X Y : UU} := @pr1 _ _ : weq X Y -> (X -> Y).
-Coercion pr1weq : weq >-> Funclass. 
-Definition weqpair { X Y : UU } (f:X-> Y) (is: isweq f) : weq X Y := tpair (fun f:X->Y => isweq f) f is. 
-Definition idweq (X:UU) : weq X X :=  tpair (fun f:X->X => isweq f) (fun x:X => x) ( idisweq X ) .
+Coercion pr1weq : weq >-> Funclass.
 
+Definition weqccontrhfiber {X Y : UU} (w : weq X Y) (y : Y) : hfiber w y.
+Proof.
+  intros. apply (pr1 (pr2 w y)).
+Defined.
 
-Definition isweqtoempty { X : UU } (f : X -> empty ) : isweq f.
-Proof. intros. intro y.  apply (fromempty y). Defined. 
+Definition weqccontrhfiber2 {X Y : UU} (w : weq X Y) (y : Y) :
+  forall x : hfiber w y, x = weqccontrhfiber w y.
+Proof.
+  intros. unfold weqccontrhfiber. apply (pr2 (pr2 w y)).
+Defined. 
 
-Definition weqtoempty { X : UU } ( f : X -> empty )  := weqpair _ ( isweqtoempty f ) .
+Definition weqpair {X Y : UU} (f : X -> Y) (is: isweq f) : weq X Y :=
+  tpair (fun (f : X -> Y) => isweq f) f is.
+ 
+Definition idweq (X : UU) : weq X X :=
+  tpair (fun (f : X -> X) => isweq f) (fun (x : X) => x) (idisweq X).
 
-Lemma isweqtoempty2 { X Y : UU } ( f : X -> Y ) ( is : neg Y ) : isweq f .
-Proof. intros . intro y . induction ( is y ) . Defined . 
+Definition isweqtoempty {X : UU} (f : X -> empty) : isweq f.
+Proof.
+  intros. intro y. apply (fromempty y).
+Defined.
 
-Definition weqtoempty2 { X Y : UU } ( f : X -> Y ) ( is : neg Y ) := weqpair _ ( isweqtoempty2 f is ) .
+Definition weqtoempty {X : UU} (f : X -> empty) :=
+  weqpair _ (isweqtoempty f).
 
-Definition invmap { X Y : UU } ( w : weq X Y ) : Y -> X .
-Proof. intros X Y w y . apply (pr1  (pr1  ( pr2 w y ))). Defined.
+Lemma isweqtoempty2 {X Y : UU} (f : X -> Y) (is : neg Y) : isweq f.
+Proof.
+  intros. intro y. induction (is y).
+Defined. 
 
+Definition weqtoempty2 {X Y : UU} (f : X -> Y) (is : neg Y) :=
+  weqpair _ (isweqtoempty2 f is).
 
-(** We now define different homotopies and maps between the paths spaces corresponding to a weak equivalence. What may look like unnecessary complexity in the  definition of [ weqgf ] is due to the fact that the "naive" definition, that of [ weqgf00 ], needs to be corrected in order for lemma [ weqfgf ] to hold. *)
+Definition invmap {X Y : UU} (w : weq X Y) : Y -> X :=
+  fun (y : Y) => pr1 (weqccontrhfiber w y).
 
+(** We now define different homotopies and maps between the paths
+    spaces corresponding to a weak equivalence. What may look like
+    unnecessary complexity in the definition of [ weqgf ] is due to the
+    fact that the "naive" definition, that of [ weqgf00 ], needs to be
+    corrected in order for lemma [ weqfgf ] to hold. *)
 
+Definition homotweqinvweq {T1 T2 : UU} (w : weq T1 T2) :
+  forall t2 : T2, w (invmap w t2) = t2.
+Proof.
+  intros. 
+  unfold invmap.
+  apply (pr2 (weqccontrhfiber w t2)).
+Defined.
 
-Definition homotweqinvweq { T1 T2 : UU } ( w : weq T1 T2 ) : forall t2:T2, paths ( w ( invmap w t2 ) ) t2.
-Proof. intros. unfold invmap. simpl. apply (pr2  (pr1 ( pr2 w t2 ) ) ) . Defined.
+Definition homotinvweqweq0 {X Y : UU}
+  (w : weq X Y) (x : X) : x = invmap w (w x).
+Proof.
+  intros.
+  unfold invmap.
+  set (xe1 := weqccontrhfiber w (w x)).
+  set (xe2 := hfiberpair w x (idpath (w x))).
+  set (p := weqccontrhfiber2 w (w x) xe2).
+  apply (maponpaths pr1 p).
+Defined.
 
+Definition homotinvweqweq {X Y : UU}
+  (w : weq X Y) (x : X) : invmap w (w x) = x :=
+    ! (homotinvweqweq0 w x).
 
-Definition homotinvweqweq0  { X Y : UU } ( w : weq X Y ) ( x : X ) : paths x ( invmap w ( w x ) ) .
-Proof. intros. set (isfx:= ( pr2 w ( w x ) ) ). set (pr1fx:= @pr1 X (fun x':X => paths ( w x' ) ( w x ))).
-set (xe1:= (hfiberpair  w x (idpath ( w x)))). apply  (maponpaths pr1fx  (pr2 isfx xe1)). Defined.
+Lemma diaglemma2 {X Y : UU} (f : X -> Y) {x x':X}
+  (e1 : x = x') (e2 : f x' = f x)
+    (ee : idpath (f x) = maponpaths f e1 @ e2) : maponpaths f (! e1) = e2.
+Proof.
+  intros. induction e1. simpl in *. apply ee.
+Defined. 
 
-Definition homotinvweqweq { X Y : UU } ( w : weq X Y )  ( x : X ) : paths (invmap w ( w x ) ) x := pathsinv0  (homotinvweqweq0 w x).
-
-Lemma diaglemma2 { X Y : UU } (f:X -> Y) { x x':X } (e1: paths x x')(e2: paths (f x') (f x)) (ee: paths (idpath (f x)) (pathscomp0 (maponpaths f e1) e2)): paths (maponpaths f  (pathsinv0 e1)) e2.
-Proof. intros.  induction e1. simpl. simpl in ee. assumption. Defined. 
-
-Definition homotweqinvweqweq { X Y : UU } ( w : weq X Y ) ( x : X ) : paths  (maponpaths w (homotinvweqweq w x)) (homotweqinvweq w ( w x)).
+Definition homotweqinvweqweq {X Y : UU} (w : weq X Y) (x : X) :
+  maponpaths w (homotinvweqweq w x) = homotweqinvweq w (w x).
 Proof. intros.    set (xe1:= hfiberpair w x (idpath (w x))). set (isfx:= ( pr2 w ) (w x)).   set (xe2:= pr1  isfx). set (e:= pr2  isfx xe1). set (ee:=hfibertriangle1 w e). simpl in ee.
 apply (diaglemma2 w (homotinvweqweq0 w x) ( homotweqinvweq w ( w x ) ) ee ). Defined.
 
-
-Definition invmaponpathsweq { X Y : UU } ( w : weq X Y ) ( x x' : X ) : paths (w x) (w x') -> paths x x':= pathssec2  w (invmap w ) (homotinvweqweq w ) _ _ .
+Definition invmaponpathsweq {X Y : UU} (w : weq X Y) (x x' : X) : 
+  w x = w x' -> x = x' := 
+    pathssec2  w (invmap w ) (homotinvweqweq w ) _ _ .
 
 Definition invmaponpathsweqid { X Y : UU } ( w : weq X Y ) ( x : X ) :  paths (invmaponpathsweq w _ _ (idpath (w x))) (idpath x):= pathssec2id w  (invmap w ) (homotinvweqweq w ) x.
 
