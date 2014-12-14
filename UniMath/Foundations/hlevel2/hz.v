@@ -7,7 +7,7 @@ In this file we introduce the type [ hz ] of integers defined as the quotient se
 
 
 
-(** ** Preambule *)
+(** ** Preamble *)
 
 (** Settings *)
 

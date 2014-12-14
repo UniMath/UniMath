@@ -42,10 +42,10 @@ Proof. intros. set (i := the (map_to x a)).
   intermediate_path (q ∘ (h ∘ i)).
   { rewrite <- assoc. apply path_right_composition. apply uniqueness'. }
   { apply path_left_composition. apply uniqueness. } Qed.
-Lemma zeroMap {C:precategory} (a b:ob C): hasZeroObject C  ->  a → b.
-Proof. intros ? ? ?. 
+Lemma zeroMap {C:precategory} (hsC: has_homsets C) (a b:ob C): hasZeroObject C  ->  a → b.
+Proof. intros ? ? ? ?. 
        refine (squash_to_set _ _ _).
-       { apply setproperty. }
+       { apply hsC. }
        { apply zeroMap'. }
        { intros. apply zeroMapUniqueness. } Defined.
 Lemma zeroMap'_left_composition {C:precategory} 
@@ -55,8 +55,8 @@ Proof. intros. unfold zeroMap'.
        intermediate_path ((f ∘ the (map_from z b)) ∘ the (map_to z a)).
        { apply pathsinv0. apply assoc. }
        { apply path_right_composition. apply initMapUniqueness. } Qed.
-Lemma zeroMap_left_composition {C:precategory} 
+Lemma zeroMap_left_composition {C:precategory} (hsC: has_homsets C)
       (a b c:ob C) (f:b→c) (h:hasZeroObject C) : 
-  f ∘ zeroMap a b h = zeroMap a c h. 
-Proof. intros ? ? ? ? ?. apply (@factor_dep_through_squash (ZeroObject C)). 
-       intro. apply setproperty. intro z. apply zeroMap'_left_composition. Qed.
+  f ∘ zeroMap hsC a b h = zeroMap hsC a c h. 
+Proof. intros ? ? ? ? ? ?. apply (@factor_dep_through_squash (ZeroObject C)). 
+       intro. apply hsC. intro z. apply zeroMap'_left_composition. Qed.
