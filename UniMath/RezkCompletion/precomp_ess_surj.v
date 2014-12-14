@@ -22,8 +22,6 @@ Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.total2_paths.
-
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
 Require Import RezkCompletion.whiskering.
@@ -168,11 +166,11 @@ Proof.
        (fH^-i (iso_comp h (iso_inv_from_iso hnot)))) (idtoiso w) ).
   generalize w; intro w0.
   induction w0.
-  simpl. apply eq_iso. simpl.
-  rewrite id_right.
+  simpl. apply eq_iso. simpl. 
+  simpl. rewrite id_right.
   apply idpath.
 
-  apply eq_iso.
+  apply eq_iso. 
   simpl.
   unfold w.
   rewrite idtoiso_isotoid.
@@ -183,7 +181,7 @@ Proof.
   apply proofirrelevance.
   
   repeat (apply impred; intro).
-  apply (pr2 (_ --> _)).
+  apply (pr2 Ccat).
 Qed.
 
 
@@ -288,7 +286,7 @@ Proof.
   set (m' := fH^-i (iso_comp h0' (iso_inv_from_iso h'))).
   assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) = 
                    k b a0 h0).
-    apply eq_iso.
+    apply eq_iso. 
     apply (q b (tpair _ a0 h0) (tpair _ a h) m).
     simpl.
     inv_functor fH a0 a.
@@ -297,7 +295,7 @@ Proof.
     apply id_right.
   assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b' a' h') = 
                    k b' a0' h0').
-    apply eq_iso.
+    apply eq_iso. 
     apply (q b' (tpair _ a0' h0') (tpair _ a' h') m').
     simpl;
     inv_functor fH a0' a'.
@@ -394,7 +392,7 @@ Proof.
   apply (total2_paths Hpr).
   apply proofirrelevance.
   repeat (apply impred; intro).
-  apply (pr2 (_ --> _)).
+  apply (pr2 Ccat).
 Qed.
 
 (** The type [Y b b' f] is contractible. *)
@@ -459,7 +457,7 @@ Proof.
 
   assert (HHHH : isaprop (pr1 (pr1 (Y_iscontr b b'' (f;; f'))) =
                         pr1 (pr1 (Y_iscontr b b' f));; pr1 (pr1 (Y_iscontr b' b'' f')))).
-    apply (pr2 (Go b --> Go b'')).
+    apply (pr2 Ccat). 
   apply (p b (tpair (fun x => isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f;; f'))) =
            pr1 (pr1 (Y_iscontr b b' f));; pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
   intros [a0 h0]; simpl.
@@ -501,7 +499,7 @@ Proof.
     set (m' := fH^-i (iso_comp h0' (iso_inv_from_iso h'))).
     assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) = 
                    k b a0 h0).
-      apply eq_iso; simpl.
+      apply eq_iso; simpl. 
       apply (q b (tpair _ a0 h0) (tpair _ a h) m).
       simpl.
       inv_functor fH a0 a.
@@ -510,7 +508,7 @@ Proof.
       apply id_right.
     assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b' a' h') = 
                    k b' a0' h0').
-      apply eq_iso; simpl.
+      apply eq_iso; simpl. 
       apply (q b' (tpair _ a0' h0') (tpair _ a' h') m'); simpl.
       inv_functor fH a0' a'.
       rewrite <- assoc.
@@ -591,7 +589,7 @@ Proof.
     set (m' := fH^-i (iso_comp h0'' (iso_inv_from_iso h''))).
     assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b' a' h') = 
                    k b' a0' h0').
-      apply eq_iso; simpl.
+      apply eq_iso; simpl. 
       apply (q b' (tpair _ a0' h0') (tpair _ a' h') m); simpl.
       inv_functor fH a0' a'.
       rewrite <- assoc.
@@ -599,7 +597,7 @@ Proof.
       apply id_right.
     assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b'' a'' h'') = 
                    k b'' a0'' h0'').
-      apply eq_iso; simpl.
+      apply eq_iso; simpl. 
       apply (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m'); simpl.
       inv_functor fH a0'' a''.
       rewrite <- assoc.
@@ -667,7 +665,7 @@ Proof.
     set (m := fH^-i (iso_comp h0 (iso_inv_from_iso h))).
     set (m' := fH^-i (iso_comp h0'' (iso_inv_from_iso h''))).
     assert (sss : iso_comp (functor_on_iso _ _ F _ _  m) (k b a h) = k b a0 h0).
-      apply eq_iso. 
+      apply eq_iso.
       apply (q b (tpair _ a0 h0) (tpair _ a h) m); simpl.
       inv_functor fH a0 a.
       rewrite <- assoc.
@@ -675,7 +673,8 @@ Proof.
       apply id_right.
     assert (ssss : iso_comp (functor_on_iso _ _ F _ _  m') (k b'' a'' h'') = 
                    k b'' a0'' h0'').
-      apply eq_iso. apply (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m').
+      apply eq_iso. 
+      apply (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m').
       simpl; inv_functor fH a0'' a''.
       rewrite <- assoc.
       rewrite iso_after_iso_inv.
@@ -747,7 +746,7 @@ Qed.
 
 (** We call the functor [GG] ... *)
 
-Definition GG : [B, C] := tpair _ preimage_functor_data 
+Definition GG : [B, C, pr2 Ccat] := tpair _ preimage_functor_data 
                     is_functor_preimage_functor_data.
 
 (** ** [G] is the preimage of [F] under [ _ O H] *)
@@ -787,12 +786,12 @@ Definition XtripleF (a0 : A) : X (H a0) :=
    tpair _ (tpair _ (F a0) (kFa a0)) (qF a0).
 
 
-Lemma phi (a0 : A) : pr1 (pr1 (GG O H)) a0 = pr1 (pr1 F) a0.
+Lemma phi (a0 : A) : pr1 (pr1 (functor_composite _ _ _ H GG)) a0 = pr1 (pr1 F) a0.
 Proof.
   exact (!Xphi _ (XtripleF a0)).
 Defined.
 
-Lemma extphi : pr1 (pr1 (GG O H)) = pr1 (pr1 F).
+Lemma extphi : pr1 (pr1 (functor_composite _ _ _ H GG)) = pr1 (pr1 F).
 Proof.
   apply funextsec.
   apply phi.
@@ -801,9 +800,9 @@ Defined.
 (** Now for the functor as a whole. It remains to prove 
     equality on morphisms, modulo transport. *)
 
-Lemma is_preimage_for_pre_composition : GG O H = F.
-Proof.
-  apply (functor_eq _ _ (GG O H) F).
+Lemma is_preimage_for_pre_composition : functor_composite _ _ _ H GG = F.
+Proof. 
+  apply (functor_eq _ _  (pr2 Ccat) (functor_composite _ _ _ H GG) F).
   apply (total2_paths extphi).
   apply funextsec; intro a0;
   apply funextsec; intro a0';
@@ -867,8 +866,8 @@ End essentially_surjective.
 (** Abstracting from [F] by closing the previous section,
     we can prove essential surjectivity of [_ O H]. *)
 
-Lemma pre_composition_essentially_surjective : 
-       essentially_surjective (pre_composition_functor A B C H).
+Lemma pre_composition_essentially_surjective (hsB: has_homsets B) : 
+       essentially_surjective (pre_composition_functor A B C hsB (pr2 Ccat) H).
 Proof.
   intros F p' f.
   apply f.

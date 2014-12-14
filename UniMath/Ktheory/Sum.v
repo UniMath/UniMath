@@ -8,12 +8,12 @@ Require Import
         Ktheory.Utilities.
 Require Ktheory.Precategories Ktheory.Representation Ktheory.HomFamily.
 Import Utilities.Notation Precategories.Notation.
-Definition type (C:precategory) {I} (c:I -> ob C) :=
-  Representation.Data (HomFamily.precat C c).
-Definition Object {C:precategory} {I} {c:I -> ob C} (r:type C c)
+Definition type (C:precategory) (hs: has_homsets C) {I} (c:I -> ob C) :=
+  Representation.Data (HomFamily.precat C hs c).
+Definition Object {C:precategory} (hs: has_homsets C) {I} {c:I -> ob C} (r:type C hs c)
            : ob C := Representation.Object r.
-Definition In {C:precategory} {I} {b:I -> ob C} (B:type C b) i :
-     Hom (b i) (Object B).
+Definition In {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C} (B:type C hs b) i :
+     Hom (b i) (Object hs B).
 Proof. intros. exact (Representation.Element B i). Defined.
 Module Coercions.
   Coercion Object : type >-> ob.

@@ -18,7 +18,7 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Section Cone.
 
 Variables J C : precategory.
-
+Variable hs: has_homsets C. 
 Variable F : functor J C.
 
 Definition ConeData := total2 (
@@ -34,7 +34,7 @@ Proof.
   apply (eq_equalities_between_pairs _ _ _ _ _ _ H).
   apply uip.
   apply (impred 2); intro j.
-  apply (pr2 (_ --> _ )).
+  apply hs.
 Defined.
 
 Definition ConeProp (a : ConeData) :=
@@ -43,7 +43,7 @@ Definition ConeProp (a : ConeData) :=
 Lemma isaprop_ConeProp (a : ConeData) : isaprop (ConeProp a).
 Proof.
   repeat (apply impred; intro).
-  apply (pr2 (_ --> _)).
+  apply hs.
 Qed.
 
 Definition Cone := total2 (fun a : ConeData => ConeProp a).
@@ -94,12 +94,12 @@ Definition Cone_Mor (M N : Cone) :=
 Lemma isaset_Cone_Mor (M N : Cone) : isaset (Cone_Mor M N).
 Proof.
   apply (isofhleveltotal2 2).
-  apply (pr2 (_ --> _ )).
+  apply hs.
   intros.
   apply hlevelntosn.
   apply impred.
   intros.
-  apply (pr2 (_ --> _ )).
+  apply hs.
 Qed.
 
 Definition ConeConnect {M N : Cone} (f : Cone_Mor M N) : 
@@ -111,7 +111,7 @@ Proof.
   intro H.
   apply (total2_paths H).
   apply proofirrelevance.
-  apply impred; intro; apply (pr2 (_ --> _)).
+  apply impred; intro; apply hs.
 Qed.
 
 Lemma cone_mor_prop M N (f : Cone_Mor M N) : 
@@ -142,7 +142,7 @@ Defined.
 
 Definition Cone_precategory_ob_mor : precategory_ob_mor := 
    precategory_ob_mor_pair Cone 
-   (fun a b => hSetpair (Cone_Mor a b) (isaset_Cone_Mor a b)).
+   (fun a b => Cone_Mor a b).
 
 Definition Cone_precategory_data : precategory_data.
 Proof.
@@ -177,10 +177,12 @@ Definition CONE : precategory := tpair _ _ is_precategory_Cone.
 Definition iso_projects_from_CONE (a b : CONE) (f : iso a b) :
   is_isomorphism (ConeConnect (pr1 f)).
 Proof.
-  exists (ConeConnect (inv_from_iso f)).
+  set (T:=iso_inv_after_iso f).
+  set (T':=iso_after_iso_inv f).
+  apply (is_iso_qinv _ (ConeConnect (inv_from_iso f))).
   split; simpl.
-  apply (base_paths _ _ (pr1 (pr2 (pr2 f)))).
-  apply (base_paths _ _ (pr2 (pr2 (pr2 f)))).
+  - apply (base_paths _ _ T).
+  - apply (base_paths _ _ T').
 Defined.
 
 Definition ConeConnectIso {a b : CONE} (f : iso a b) :
@@ -190,8 +192,7 @@ Definition ConeConnectIso {a b : CONE} (f : iso a b) :
 Lemma ConeConnectIso_identity_iso (a : CONE) :
    ConeConnectIso (identity_iso a) = identity_iso _ .
 Proof.
-  apply eq_iso.
-  apply idpath.
+  apply eq_iso. apply idpath.
 Qed.
 
 Lemma ConeConnectIso_inj (a b : CONE) (f g : iso a b) :
@@ -203,6 +204,15 @@ Proof.
   apply (base_paths _ _ H).
 Qed.
 
+Lemma inv_from_iso_ConeConnectIso (a b : CONE) (f : iso a b):
+  pr1 (inv_from_iso f) = inv_from_iso (ConeConnectIso f).
+Proof.
+  apply inv_iso_unique'.
+  unfold precomp_with. 
+  set (T:=iso_inv_after_iso f).
+  set (T':=iso_after_iso_inv f).
+  apply (base_paths _ _ T).
+Defined.
 
 Section CONE_category.
 
@@ -229,7 +239,11 @@ Proof.
   simpl in *.
   apply (base_paths _ _ H).
   simpl.
-  apply (pr2 (inv_from_iso f)).
+  set (T':= inv_from_iso f).
+  set (T:=pr2 (inv_from_iso f) t).
+  simpl in *. 
+  rewrite <- inv_from_iso_ConeConnectIso.
+  apply T.
 Defined.
 
 Definition isotoid_CONE {a b : CONE} : iso a b -> a = b.
@@ -290,27 +304,28 @@ Lemma idtoiso_isotoid_CONE (M N : CONE) : forall f : iso M N, idtoiso (isotoid_C
 Proof.
   intro f.
   apply eq_iso.
-  simpl.
-  apply Cone_Mor_eq.
-  rewrite ConeConnect_idtoiso.
-  unfold isotoid_CONE.
-  unfold Cone_eq.
-  rewrite base_total2_paths.
-  unfold isotoid_CONE_pr1.
-  rewrite base_total2_paths.
-  simpl.
-  rewrite idtoiso_isotoid.
-  apply idpath.
+    simpl.
+    apply Cone_Mor_eq.
+    rewrite ConeConnect_idtoiso.
+    unfold isotoid_CONE.
+    unfold Cone_eq.
+    rewrite base_total2_paths.
+    unfold isotoid_CONE_pr1.
+    rewrite base_total2_paths.
+    simpl.
+    rewrite idtoiso_isotoid.
+    apply idpath.
 Qed.
 
 
 Lemma is_category_CONE : is_category CONE.
 Proof.
-  unfold is_category.
-  intros a b.
-  apply (gradth _  (@isotoid_CONE a b)).
-  apply isotoid_CONE_idtoiso.
-  apply idtoiso_isotoid_CONE.
+  split.
+  - intros a b.
+    apply (gradth _  (@isotoid_CONE a b)).
+    apply isotoid_CONE_idtoiso.
+    apply idtoiso_isotoid_CONE.
+  - intros x y. apply isaset_Cone_Mor.
 Defined.
 
 End CONE_category.
