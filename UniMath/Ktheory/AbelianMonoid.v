@@ -2,6 +2,7 @@
 
 Require Import Foundations.hlevel2.algebra1b
                Foundations.hlevel2.finitesets
+	       RezkCompletion.total2_paths
                Ktheory.Utilities.
 Import Utilities.Notation.
 Require Ktheory.QuotientSet Ktheory.Monoid.

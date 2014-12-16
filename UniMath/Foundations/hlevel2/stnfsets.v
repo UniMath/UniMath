@@ -5,7 +5,7 @@ This file contains main constructions related to the standard finite sets define
 
 
 
-(** ** Preamble *)
+(** ** Preambule *)
 
 (** Settings *)
 

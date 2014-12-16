@@ -7,7 +7,7 @@ In this file we introduce the type [ hq ] of rationals defined as the quotient s
 
 
 
-(** ** Preamble *)
+(** ** Preambule *)
 
 (** Settings *)
 

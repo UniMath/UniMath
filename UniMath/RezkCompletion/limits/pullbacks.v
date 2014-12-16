@@ -4,6 +4,7 @@ Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
+Require Import RezkCompletion.total2_paths.
 Require Import RezkCompletion.precategories.
 
 Require Import RezkCompletion.limits.terminal.
@@ -14,7 +15,7 @@ Local Notation "f ;; g" := (compose f g)(at level 50).
 Section def_pb.
 
 Variable C : precategory.
-Variable hs: has_homsets C.
+
 
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g) : UU :=
@@ -150,7 +151,7 @@ Lemma isiso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
    (Pb Pb': Pullback f g) : 
       is_isomorphism (from_Pullback_to_Pullback Pb Pb').
 Proof.
-  apply (is_iso_qinv _ (from_Pullback_to_Pullback Pb' Pb)).
+  exists (from_Pullback_to_Pullback Pb' Pb).
   apply are_inverses_from_Pullback_to_Pullback.
 Defined.
 
@@ -206,9 +207,9 @@ Proof.
    }
   exists (tpair _ awe (dirprodpair Hawe1 Hawe2)).
   intro t.
-  apply total2_paths_isaprop.
+  apply total2_paths_hProp.
   - intro a0. apply isapropdirprod;
-    apply hs.
+    apply (pr2 (_ --> _)).
   - simpl. destruct t as [t [Ht1 Ht2]].
     simpl in *.
     apply PullbackArrowUnique.
@@ -228,18 +229,6 @@ Section Universal_Unique.
 
 Hypothesis H : is_category C.
 
-
-Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : b --> a) (g : c --> a)
-  (Pb : Pullback f g) (Pb' : Pullback f g):
-    inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb') = from_Pullback_to_Pullback Pb' Pb.
-Proof.
-  apply pathsinv0.
-  apply inv_iso_unique'.
-  set (T:= are_inverses_from_Pullback_to_Pullback Pb Pb').
-  apply (pr1 T).
-Qed.
-
-
 Lemma isaprop_Pullbacks: isaprop Pullbacks.
 Proof.
   apply impred; intro a;
@@ -249,15 +238,17 @@ Proof.
   apply impred; intro g;
   apply invproofirrelevance.
   intros Pb Pb'.
-  apply total2_paths_isaprop.
+  apply total2_paths_hProp.
   - intro; apply isofhleveltotal2.
-    + apply hs.
+    + apply (pr2 (_ --> _)).
     + intros; apply isaprop_isPullback.
   - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))). 
     rewrite transportf_dirprod, transportf_isotoid.
-    rewrite inv_from_iso_iso_from_Pullback.
+    change (inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb'))
+         with (from_Pullback_to_Pullback Pb' Pb).
     rewrite transportf_isotoid.
-    rewrite inv_from_iso_iso_from_Pullback.
+    change (inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb'))
+         with (from_Pullback_to_Pullback Pb' Pb).
     destruct Pb as [Cone bla];
     destruct Pb' as [Cone' bla'];
     simpl in *.

@@ -33,7 +33,7 @@ Qed.
 Lemma isiso_from_Initial_to_Initial (O O' : Initial) : 
    is_isomorphism (InitialArrow O O').
 Proof.
-  apply (is_iso_qinv _ (InitialArrow O' O)).
+  exists (InitialArrow O' O).
   split; apply pathsinv0;
    apply InitialEndo_is_identity.
 Defined.

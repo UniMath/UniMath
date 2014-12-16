@@ -334,115 +334,10 @@ Definition transportf { X : UU } ( P : X -> UU ) { x x' : X } ( e : paths x x' )
 
 Definition transportb { X : UU } ( P : X -> UU ) { x x' : X } ( e : paths x x' ) : P x' -> P x := transportf P ( pathsinv0 e ) .
 
+
 Lemma functtransportf { X Y : UU } ( f : X -> Y ) ( P : Y -> UU ) { x x' : X } ( e : paths x x' ) ( p : P ( f x ) ) : paths ( transportf ( fun x => P ( f x ) ) e p ) ( transportf P ( maponpaths f e ) p ) .
 Proof.  intros.  induction e. apply idpath. Defined.   
 
-(** A series of lemmas about paths and sigma types.
-    Adapted from the HoTT library http://github.com/HoTT/HoTT *)
-
-Lemma base_paths {A : UU}{B : A -> UU}(a b : total2 B) : a = b -> pr1 a = pr1 b.
-Proof.
-  intros.
-  apply maponpaths; assumption.
-Defined.
-
-Lemma total2_paths {A : UU} {B : A -> UU} {s s' : total2 (fun x => B x)} 
-    (p : pr1 s = pr1 s') 
-    (q : transportf (fun x => B x) p (pr2 s) = pr2 s') : s = s'.
-Proof.
-  intros.
-  induction s as [a b].
-  induction s' as [a' b']; simpl in *.
-  induction p.
-  induction q. 
-  apply idpath.
-Defined.
-
-Lemma total2_paths2 {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
-    {a2 : A} {b2 : B a2} (p : a1 = a2) 
-    (q : transportf (fun x => B x) p b1 = b2) : 
-    tpair (fun x => B x) a1 b1 = tpair (fun x => B x) a2 b2.
-Proof.
-  intros.
-  apply (@total2_paths _ _  
-    (tpair (fun x => B x) a1 b1)(tpair (fun x => B x) a2 b2) p q).
-Defined.
-
-Definition fiber_paths {A : UU} {B : A -> UU} {u v : total2 (fun x => B x)}
-  (p : u = v) : transportf (fun x => B x) (base_paths _ _ p) (pr2 u) = pr2 v.
-Proof.
-  induction p.
-  apply idpath.
-Defined.
-
-Lemma total2_fiber_paths {A : UU} {B : A -> UU} {x y : total2 (fun x => B x)} 
- (p : x = y) : total2_paths  _ (fiber_paths p) = p.
-Proof.
-  induction p.
-  induction x.
-  apply idpath.
-Defined.
-
-Lemma base_total2_paths {A : UU} {B : A -> UU} {x y : total2 (fun x => B x)}
-  {p : pr1 x = pr1 y} (q : transportf _ p (pr2 x) = pr2 y) :
-  (base_paths _ _ (total2_paths _ q)) = p.
-Proof.
-  induction x as [x H]. 
-  induction y as [y K].
-  simpl in *. 
-  induction p.  
-  induction q.
-  apply idpath.
-Defined.
-
-
-Lemma transportf_fiber_total2_paths {A : UU} (B : A -> UU) (x y : total2 (fun x => B x))
-  (p : pr1 x = pr1 y) (q : transportf _ p (pr2 x) = pr2 y) :
-  transportf (fun p' : pr1 x = pr1 y => transportf _ p' (pr2 x) = pr2 y)
-  (base_total2_paths q)  (fiber_paths (total2_paths _ q)) = q.
-Proof.
-  induction x as [x H]. 
-  induction y as [y K].
-  simpl in *. 
-  induction p. 
-  induction q.
-  apply idpath.
-Defined.
-
-
-(** Lemmas about transport 
-    Adapted from the HoTT library and the HoTT book
-*)
-
-Definition transportD {A : UU} (B : A -> UU) (C : forall a : A, B a -> UU)
-  {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C x1 y) : C x2 (transportf _ p y).
-Proof.  
-  intros.
-  induction p. 
-  exact z.
-Defined.
-
-
-Definition transportf_total2 {A : UU} {B : A -> UU} {C : forall a:A, B a -> UU}
-  {x1 x2 : A} (p : x1 = x2) (yz : total2 (fun y : B x1 => C x1 y )): 
- transportf (fun x => total2 (fun y : B x => C x y)) p yz = 
- tpair (fun y => C x2 y) (transportf _ p  (pr1 yz)) (transportD _ _ p (pr1 yz) (pr2 yz)).
-Proof.
-  intros.
-  induction p. 
-  induction yz. 
-  apply idpath.
-Defined.
-
-Definition transportf_dirprod (A : UU) (B B' : A -> UU) 
-  (x x' : total2 (fun a => dirprod (B a) (B' a)))  (p : pr1 x = pr1 x') :
-  transportf (fun a => dirprod (B a) (B' a)) p (pr2 x) = 
-                            dirprodpair (transportf (fun a => B a) p (pr1 (pr2 x))) 
-                                        (transportf (fun a => B' a) p (pr2 (pr2 x))) .
-Proof.
-  induction p.
-  apply tppr.
-Defined.
 
 
 
@@ -688,6 +583,7 @@ Proof. intros. apply (isweqtransportf  _ (pathsinv0  e)). Defined.
 
 
 
+
 (** *** [ unit ] and contractibility *)
 
 (** [ unit ] is contractible (recall that [ tt ] is the name of the canonical term of the type [ unit ]). *)
@@ -805,7 +701,6 @@ Definition weqgradth { X Y : UU } (f:X->Y) (g:Y->X) (egf: forall x:X, paths (g (
  
 
 
-
 (** *** Some basic weak equivalences *)
 
 
@@ -822,28 +717,6 @@ Proof. intros. unfold invweq . unfold invmap . simpl . apply idpath . Defined .
 
 Corollary iscontrweqf { X Y : UU } ( w : weq X Y ) : iscontr X -> iscontr Y.
 Proof. intros X Y w X0 . apply (iscontrweqb ( invweq w ) ). assumption. Defined.
-
-(** Equality between pairs is equivalent to pairs of equalities between components 
-    Theorem adapted from HoTT library http://github.com/HoTT/HoTT
-*)
-
-Theorem total2_paths_equiv {A : UU} (B : A -> UU) (x y : total2 (fun x => B x)) :
-  weq (x = y) (total2 (fun p : pr1 x = pr1 y => transportf _ p (pr2 x) = pr2 y )).
-Proof.
-  intros A B x y.
-  exists (fun r : x = y =>  
-               tpair (fun p : pr1 x = pr1 y => 
-             transportf _ p (pr2 x) = pr2 y) (base_paths _ _ r) (fiber_paths r)).
-  apply (gradth _
-    (fun pq : total2 (fun p : pr1 x = pr1 y => transportf _ p (pr2 x) = pr2 y) => 
-                         total2_paths (pr1 pq) (pr2 pq))).
-  - intro p.
-    apply total2_fiber_paths. 
-  - intros [p q]. simpl in *.
-    apply (total2_paths2 (base_total2_paths q)).
-    apply transportf_fiber_total2_paths.
-Defined.
-
 
 (** The standard weak equivalence from [ unit ] to a contractible type *)
 

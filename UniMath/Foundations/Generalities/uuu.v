@@ -8,7 +8,7 @@ This is the first in the group of files which contain the (current state of) the
 
 
 
-(** Preamble. *)
+(** Preambule. *)
 
 Unset Automatic Introduction.  (** This line has to be removed for the file to compile with Coq8.2 *)
 

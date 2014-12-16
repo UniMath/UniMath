@@ -16,7 +16,7 @@ Module TerminalObject.
     isTerminalObject C a -> isTerminalObject C b -> @iso C a b.
   Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
     exists (the (map_to_b_from_ a)).
-    apply (is_iso_qinv _ (the (map_to_a_from_ b))). 
+    exists (the (map_to_a_from_ b)). 
     split. { intermediate_path (the (map_to_a_from_ a)). 
              apply uniqueness. apply uniqueness'. }
            { intermediate_path (the (map_to_b_from_ b)). 
@@ -53,7 +53,7 @@ Module InitialObject.
     isInitialObject C a -> isInitialObject C b -> @iso C a b.
   Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
     exists (the (map_to_a_from_ b)). 
-    apply (is_iso_qinv _ (the (map_to_b_from_ a))).
+    exists (the (map_to_b_from_ a)).
     split. { intermediate_path (the (map_to_a_from_ a)). 
              apply uniqueness. apply uniqueness'. }
            { intermediate_path (the (map_to_b_from_ b)). 

@@ -8,7 +8,7 @@ This file contains the definition and main properties of finite sets. At the end
 
 
 
-(** ** Preamble *)
+(** ** Preambule *)
 
 (** Settings *)
 

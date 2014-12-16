@@ -8,7 +8,7 @@ While it is possible to write a part of this file in a form which does not requi
 
 
 
-(** ** Preamble *)
+(** ** Preambule *)
 
 (** Settings *)
 

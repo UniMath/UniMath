@@ -1,6 +1,6 @@
 (** * The induction principle for the half line. *)
 
-Require Import funextfun Utilities.
+Require Import funextfun Utilities total2_paths.
 Require precategories.
 Import Utilities.Notation.
 Require Nat.

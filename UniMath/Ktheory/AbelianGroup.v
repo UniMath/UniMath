@@ -4,6 +4,7 @@
 
 Require Import Foundations.hlevel2.algebra1b
                Foundations.hlevel2.hz
+               RezkCompletion.total2_paths
                Ktheory.Utilities.
 Require Ktheory.Group Ktheory.Precategories Ktheory.Primitive Ktheory.Product
         Ktheory.Sum.
@@ -468,11 +469,7 @@ Module Category.
   Identity Coercion Ob_to_abgr : Ob >-> abgr.
   Definition Mor : Ob -> Ob -> hSet.
     intros G H. exists (monoidfun G H). exact (isasetmonoidfun G H). Defined.
-  Definition ObMor : precategory_ob_mor.
-  Proof.
-    exists Ob.
-    intros F G. apply (monoidfun F G).
-  Defined.
+  Definition ObMor : precategory_ob_mor := Ob,,Mor.
   Definition Data : precategory_data.
     exists ObMor. split. intro G. exists (idfun (G : abgr)). split. 
     split. reflexivity. intros a b c.  exact monoidfuncomp. Defined.
@@ -484,20 +481,15 @@ Module Category.
     - intros. apply MorEquality. reflexivity.
     - intros. apply MorEquality. reflexivity. Defined.
 
-  Lemma has_homsets_Precat: has_homsets Precat.
-  Proof.
-    intros F G. apply isasetmonoidfun.
-  Qed.
-    
   (** *** products in the category of abelian groups *)
 
   Module Product.
     Definition Object {I} (X:I->ob Precat) : ob Precat
       := Product.make X.
-    Import Primitive.InitialObject. 
-    Definition make {I} (X:I->ob Precat) : Product.type Precat has_homsets_Precat X.
+    Import Primitive.InitialObject.
+    Definition make {I} (X:I->ob Precat) : Product.type Precat X.
       intros.
-      set (Q := Elements.make_ob (HomFamily.precat Precat^op  (Precategories.has_homsets_opp_precat _ has_homsets_Precat) X) (Object X)
+      set (Q := Elements.make_ob (HomFamily.precat Precat^op X) (Object X)
                                  (Product.Proj X)).
       exists Q. intros T. assert ( k' : Hom Q T ).
       { destruct T as [T_ob T_el].
@@ -514,9 +506,9 @@ Module Category.
     Definition Object {I} (X:I->ob Precat) : ob Precat
       := Sum.make X.
     Import Primitive.InitialObject.
-    Definition make {I} (X:I->ob Precat) : Sum.type Precat has_homsets_Precat X.
+    Definition make {I} (X:I->ob Precat) : Sum.type Precat X.
       intros.
-      set (Q := Elements.make_ob (HomFamily.precat Precat  has_homsets_Precat X) (Object X)
+      set (Q := Elements.make_ob (HomFamily.precat Precat X) (Object X)
                                  (Sum.Incl X)).
       exists Q. intros T. assert ( k' : Hom Q T ).
       { destruct T as [T_ob T_el].

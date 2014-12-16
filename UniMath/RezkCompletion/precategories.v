@@ -29,22 +29,23 @@ Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
+Require Import RezkCompletion.total2_paths.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 (** * Definition of a precategory *)
 
 Definition precategory_ob_mor := total2 (
-  fun ob : UU => ob -> ob -> UU).
+  fun ob : UU => ob -> ob -> hSet).
 
-Definition precategory_ob_mor_pair (ob : UU)(mor : ob -> ob -> UU) :
+Definition precategory_ob_mor_pair (ob : UU)(mor : ob -> ob -> hSet) :
     precategory_ob_mor := tpair _ ob mor.
 
 Definition ob (C : precategory_ob_mor) : UU := @pr1 _ _ C.
 Coercion ob : precategory_ob_mor >-> UU.
 
 Definition precategory_morphisms { C : precategory_ob_mor } : 
-       C ->  C -> UU := pr2 C.
+       C ->  C -> hSet := pr2 C.
 
 (** We introduce notation for morphisms *)
 (** in order for this notation not to pollute subsequent files, 
@@ -103,51 +104,31 @@ Definition is_precategory (C : precategory_data) :=
             (forall (a b c d : C) 
                     (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) = (f ;; g) ;; h).
-(*
-Definition is_hs_precategory_data (C : precategory_data) := forall (a b : C), isaset (a --> b).
-*)
-(*
-Definition hs_precategory_data := total2 is_hs_precategory_data.
-Definition precategory_data_from_hs_precategory_data (C : hs_precategory_data) :
-  precategory_data := pr1 C.
-Coercion precategory_data_from_hs_precategory_data : hs_precategory_data >-> precategory_data.
-*)
 
+
+Lemma isaprop_is_precategory (C : precategory_data)
+  : isaprop (is_precategory C).
+Proof.
+  apply isofhleveltotal2.
+  { apply isofhleveltotal2. { repeat (apply impred; intro); apply setproperty. }
+    intros _. repeat (apply impred; intro); apply setproperty. }
+  intros _. repeat (apply impred; intro); apply setproperty. 
+Qed.
 
 Definition precategory := total2 is_precategory.
-
-Definition hs_precategory := total2 (fun C : precategory_data => 
-  dirprod (is_precategory C) (forall a b : C, isaset (a --> b))).
 
 Definition precategory_data_from_precategory (C : precategory) : 
        precategory_data := pr1 C.
 Coercion precategory_data_from_precategory : precategory >-> precategory_data.
-(*
-Definition precategory_data_from_hs_precategory (C : hs_precategory) : 
-       precategory_data := pr1 C.
-Coercion precategory_data_from_hs_precategory : hs_precategory >-> precategory_data.
-*)
-Definition precategory_from_hs_precategory (C : hs_precategory) : precategory :=
-  tpair _ (pr1 C) (pr1 (pr2 C)).
-Coercion precategory_from_hs_precategory : hs_precategory >-> precategory.
 
-Definition has_homsets (C : precategory_data) := forall a b : C, isaset (a --> b).
-
-Lemma isaprop_has_homsets (C : precategory) : isaprop (has_homsets C).
+Lemma eq_precategory : forall C D : precategory, 
+    precategory_data_from_precategory C = precategory_data_from_precategory D -> C = D.
 Proof.
-  do 2 (apply impred; intro).
-  apply isapropisaset.
-Qed.
-
-Lemma isaprop_is_precategory (C : precategory_data)(hs: has_homsets C)
-  : isaprop (is_precategory C).
-Proof.
-  apply isofhleveltotal2.
-  { apply isofhleveltotal2. { repeat (apply impred; intro). apply hs. }
-    intros _. repeat (apply impred; intro); apply hs. }
-  intros _. repeat (apply impred; intro); apply hs. 
-Qed.
-
+  intros C D H.
+  apply total2_paths_hProp.
+  - apply isaprop_is_precategory.
+  - apply H.
+Defined.
   
 Definition id_left (C : precategory) : 
    forall (a b : C) (f : a --> b),
@@ -168,29 +149,6 @@ Lemma assoc4 (C : precategory) (a b c d e : C) (f : a --> b) (g : b --> c)
 Proof.
   repeat rewrite assoc; apply idpath.
 Qed.
-
-Lemma remove_id_left (C : precategory) (a b : C) (f g : a --> b) (h : a --> a):
-  h = identity _ -> f = g -> h ;; f = g.
-Proof.
-  intros H eq.
-  pathvia (identity _ ;; f).
-  - destruct H. apply idpath.
-  - pathvia f.
-    + apply id_left.
-    + apply eq.
-Defined.
-
-Lemma remove_id_right (C : precategory) (a b : C) (f g : a --> b) (h : b --> b):
-  h = identity _ -> f = g -> f ;; h = g.
-Proof.
-  intros H eq.
-  pathvia (f ;; identity _).
-  - destruct H. apply idpath.
-  - pathvia f.
-    + apply id_right.
-    + apply eq.
-Defined.
-
 
 (** Any equality on objects a and b induces a morphism from a to b *)
 
@@ -237,127 +195,137 @@ Proof.
   apply (maponpaths (idtomor _ _ ) h).
 Qed.
 
-(** * Isomorphism in a precategory *)
-(** A morphism [f: a --> b] in a precategory is an isomorphism [is_iso(f)], 
-    if for any [c: C], precomposition with [f] yields an equivalence
-    (b --> c -> a --> c].
-    Definition suggested by V. Voevodsky
-*)
+(** * Isomorphisms in a precategory *)
 
-Definition precomp_with {C : precategory} {a b : C} (f : a --> b) {c} (g : b --> c): a --> c :=
-   f ;; g.
+(** ** Definition of isomorphisms *)
 
-Definition is_iso {C : precategory} {a b : C} (f : a --> b) := 
-  forall c, isweq (precomp_with f (c:=c)).
+Definition is_inverse_in_precat {C : precategory} {a b : C}
+  (f : a --> b) (g : b --> a) := 
+  dirprod (f ;; g = identity a)
+          (g ;; f = identity b).
 
-Definition is_isomorphism {C: precategory}{a b : C} (f : a --> b) := is_iso f.
-
-Lemma isaprop_is_iso {C : precategory }(a b : C) (f : a --> b) : isaprop (is_iso f).
+Lemma isaprop_is_inverse_in_precat (C : precategory) (a b : ob C)
+   (f : a --> b) (g : b --> a) : isaprop (is_inverse_in_precat f g).
 Proof.
-  apply impred; intro.
-  apply isapropisweq.
+  apply isapropdirprod.
+  apply (pr2 (a --> a)).
+  apply (pr2 (b --> b)).
 Qed.
 
-Definition isaprop_is_isomorphism := @isaprop_is_iso.
-
-Definition iso {C: precategory}(a b : C) := total2 (fun f : a --> b => is_iso f).
-Definition morphism_from_iso (C:precategory)(a b : C) (f : iso a b) : a --> b := pr1 f.
-Coercion morphism_from_iso : iso >-> precategory_morphisms.
-
-Definition isopair {C: precategory}{a b : C} (f : a --> b) (fiso: is_iso f) : iso a b :=
-   tpair _ f fiso.
-
-Definition inv_from_iso {C:precategory}{a b : C} (f : iso a b) : b --> a :=
-   invmap (weqpair (precomp_with f) (pr2 f a)) (identity _ ).
-
-Definition iso_inv_after_iso {C : precategory}{a b : C} (f: iso a b) :
-   f ;; inv_from_iso f = identity _ .
+Lemma inverse_unique_precat (C : precategory) (a b : ob C)
+   (f : a --> b) (g g': b --> a) (H : is_inverse_in_precat f g)
+    (H' : is_inverse_in_precat f g') : g = g'.
 Proof.
-  set (T:=homotweqinvweq (weqpair (precomp_with f) (pr2 f a ))).
+  destruct H as [eta eps].
+  destruct H' as [eta' eps'].
+  assert (H : g = identity b ;; g).
+    rewrite id_left; apply idpath.
+  apply (pathscomp0 H).
+  rewrite <- eps'.
+  rewrite <- assoc.
+  rewrite eta.
+  apply id_right.
+Qed.
+
+Definition is_isomorphism {C : precategory} {a b : ob C}
+  (f : a --> b) := total2 (fun g => is_inverse_in_precat f g).
+
+Lemma isaprop_is_isomorphism {C : precategory} {a b : ob C}
+     (f : a --> b) : isaprop (is_isomorphism f).
+Proof.
+  apply invproofirrelevance.
+  intros g g'.
+  set (Hpr1 := inverse_unique_precat _ _ _ _ _ _ (pr2 g) (pr2 g')).
+  apply (total2_paths Hpr1).
+  destruct g as [g [eta eps]].
+  destruct g' as [g' [eta' eps']].
   simpl in *.
-  apply T.
-Defined.
+  apply isapropdirprod; apply  (pr2 (_ --> _ )).
+Qed.
 
-Definition iso_after_iso_inv {C : precategory}{a b : C} (f : iso a b) : 
-  inv_from_iso f ;; f = identity _ .
-Proof.
-  set (T:= invmaponpathsweq (weqpair (precomp_with f) (pr2 f b))).
-  apply T; clear T; simpl.
-  unfold precomp_with.
-  pathvia ((f;; inv_from_iso f);;f).
-  - apply assoc.
-  - apply remove_id_left.
-    + apply iso_inv_after_iso. 
-    + apply (!(id_right _ _ _ _ )).
-Defined.
+Definition iso {C : precategory} (a b :ob C) := total2
+    (fun f : a --> b => is_isomorphism f).
 
-Definition is_iso_inv_from_iso {C:precategory}{a b : C} (f : iso a b) : is_iso (inv_from_iso f).
-Proof.
-  intro c.
-  apply (gradth _ (precomp_with f)).
-  - intro g. 
-    unfold precomp_with.
-    pathvia ((f ;; inv_from_iso f) ;; g).
-    + apply assoc.
-    + apply remove_id_left. apply iso_inv_after_iso. apply idpath.
-  - intro g.
-    unfold precomp_with.
-    pathvia ((inv_from_iso f;;f);;g).
-    + apply assoc.
-    + apply remove_id_left. apply iso_after_iso_inv. apply idpath.
-Defined.
-
-Definition iso_inv_from_iso {C:precategory}{a b : C} (f : iso a b) : iso b a := 
-  tpair _ _ (is_iso_inv_from_iso f). 
-
-Lemma eq_iso {C: precategory} {a b : C} (f g : iso a b) : pr1 f = pr1 g -> f = g.
+Lemma eq_iso (C : precategory)(a b : ob C)
+   (f g : iso a b) : pr1 f = pr1 g -> f = g.
 Proof.
   intro H.
-  apply total2_paths_isaprop.
-  - apply isaprop_is_iso.
-  - apply H.
+  apply (total2_paths H).
+  apply proofirrelevance.
+  apply isaprop_is_isomorphism.
 Defined.
 
-Lemma isaset_iso {C : precategory} (hs: has_homsets C) (a b :ob C) :
+Definition morphism_from_iso (C : precategory)(a b : ob C) 
+   (f : iso a b) : a --> b := pr1 f.
+Coercion morphism_from_iso : iso >-> pr1hSet.
+
+Lemma isaset_iso {C : precategory} (a b :ob C) :
   isaset (iso a b).
 Proof.
   change isaset with (isofhlevel 2).
   apply isofhleveltotal2.
-  - apply hs.
-  - intro f.
-    apply isasetaprop.
-    apply isaprop_is_iso.
+  apply (pr2 (a --> b)).
+  intro f.
+  apply isasetaprop.
+  apply isaprop_is_isomorphism.
 Qed.
 
-Lemma identity_is_iso (C : precategory) (a : ob C) : is_iso (identity a).
+Lemma identity_is_iso (C : precategory) (a : ob C) :
+    is_isomorphism (identity a).
 Proof.
-  intros c.
-  set (T:=@isweqhomot (a --> c) (a --> c) (fun t => t) (precomp_with (identity a))).
-  apply T.
-  - intro g. apply pathsinv0. apply id_left.
-  - apply idisweq.
+  exists (identity a).
+  simpl; split;
+  apply id_left.
 Defined.
 
 Definition identity_iso {C : precategory} (a : ob C) :
    iso a a := tpair _ _ (identity_is_iso C a).
 
+Definition inv_from_iso {C : precategory} {a b : ob C}
+  (f : iso a b) : b --> a := pr1 (pr2 f).
+
+Lemma is_iso_inv_from_iso {C : precategory} (a b : ob C)
+  (f : iso a b) : is_isomorphism (inv_from_iso f).
+Proof.
+  exists (pr1 f).
+  simpl; split; simpl.
+  unfold inv_from_iso.
+  apply (pr2 (pr2 (pr2 f))).
+  apply (pr1 (pr2 (pr2 f))).
+Defined.
+
+Definition iso_inv_from_iso {C : precategory} {a b : ob C}
+  (f : iso a b) : iso b a.
+Proof.
+  exists (inv_from_iso f).
+  apply is_iso_inv_from_iso.
+Defined.
 
 Definition iso_inv_from_is_iso {C : precategory} {a b : ob C}
-  (f : a --> b) (H : is_iso f) : iso b a :=
+  (f : a --> b) (H : is_isomorphism f) : iso b a :=
   iso_inv_from_iso (tpair _ f H).
+
+Definition iso_inv_after_iso (C : precategory) (a b : ob C)
+   (f : iso a b) : f;; inv_from_iso f = identity _ :=
+      pr1 (pr2 (pr2 f)).
+
+Definition iso_after_iso_inv (C : precategory) (a b : ob C)
+   (f : iso a b) : inv_from_iso f ;; f = identity _ :=
+      pr2 (pr2 (pr2 f)).
+
 
 Lemma iso_inv_on_right (C : precategory) (a b c: ob C)
   (f : iso a  b) (g : b --> c) (h : a --> c) (H : h = f;;g) :
      inv_from_iso f ;; h = g.
 Proof.
-  apply (invmaponpathsweq (weqpair (precomp_with f) (pr2 f c))).
-  unfold precomp_with; simpl.
-  pathvia ((f;;inv_from_iso f);;h).
-  - apply assoc.
-  - apply remove_id_left.
-    + apply iso_inv_after_iso.
-    + assumption.
-Defined. 
+  assert (H2 : inv_from_iso f;; h = 
+                  inv_from_iso f;; (f ;; g)).
+  apply maponpaths; assumption.
+  rewrite assoc in H2.
+  rewrite H2.
+  rewrite iso_after_iso_inv.
+  apply id_left.
+Qed.
 
 Lemma iso_inv_on_left (C : precategory) (a b c: ob C)
   (f : a --> b) (g : iso b c) (h : a --> c) (H : h = f;;g) :
@@ -397,322 +365,9 @@ Qed.
 (** ** Properties of isomorphisms *)
 (** Stability under composition, inverses etc *)
 
-Definition isweqhomot' {X Y} (f g : X -> Y) (H : isweq f) 
-      (homot : forall x, f x = g x) : isweq g. 
-Proof.
-  apply (isweqhomot f g homot H).
-Defined.
-
-Lemma is_iso_comp_of_isos {C : precategory} {a b c : ob C}
-  (f : iso a b) (g : iso b c) : is_iso (f ;; g).
-Proof.
-  simpl.
-  intro d.
-  set (T:=twooutof3c (precomp_with g) (precomp_with f(c:=d)) (pr2 g d) (pr2 f _)).
-  apply (isweqhomot' _ _ T).
-  intro h. apply assoc.
-Defined.
-
-Definition iso_comp {C : precategory} {a b c : ob C}
-  (f : iso a b) (g : iso b c) : iso a c.
-Proof.
-  exists (f ;; g).
-  apply is_iso_comp_of_isos.
-Defined.
-
-
-Lemma inv_iso_unique (C : precategory) (a b : C) (f : iso a b) (g : iso b a) :
-  precomp_with f g = identity _ -> g = iso_inv_from_iso f.
-Proof.
-  intro H.
-  apply eq_iso. simpl.
-  set (T:=invmaponpathsweq (weqpair (precomp_with f) (pr2 f a ))).
-  apply T; simpl.
-  pathvia (identity a ).
-  + assumption.
-  + apply pathsinv0. apply iso_inv_after_iso.
-Defined.  
-
-Lemma inv_iso_unique' (C : precategory) (a b : C) (f : iso a b) (g : b --> a) :
-  precomp_with f g = identity _ -> g = inv_from_iso f.
-Proof.
-  intro H.
-  set (T:=invmaponpathsweq (weqpair (precomp_with f) (pr2 f a ))).
-  apply T; simpl.
-  pathvia (identity a ).
-  + assumption.
-  + apply pathsinv0. apply iso_inv_after_iso.
-Defined.
-
-
-Lemma iso_inv_of_iso_comp (C : precategory) (hs: has_homsets C) (a b c : ob C)
-   (f : iso a b) (g : iso b c) :
-   iso_inv_from_iso (iso_comp f g) = iso_comp (iso_inv_from_iso g) (iso_inv_from_iso f).
-Proof.
-  apply pathsinv0.
-  apply inv_iso_unique. simpl. unfold precomp_with.
-  pathvia (f ;; (g;;inv_from_iso g) ;; inv_from_iso f).  
-  - repeat rewrite assoc.  apply idpath. 
-  - rewrite iso_inv_after_iso. rewrite id_right.
-    apply iso_inv_after_iso.
-Qed.
-
-Lemma iso_inv_of_iso_id (C : precategory) (hs: has_homsets C) (a : ob C) :
-   iso_inv_from_iso (identity_iso a) = identity_iso a.
-Proof.
-  apply eq_iso.
-  apply idpath.
-Qed.
-
-
-Lemma iso_inv_iso_inv (C : precategory) (hs: has_homsets C) (a b : ob C) (f : iso a b) : 
-     iso_inv_from_iso (iso_inv_from_iso f) = f.
-Proof.
-  apply eq_iso. simpl. 
-  apply pathsinv0. 
-  apply inv_iso_unique'.
-  apply iso_after_iso_inv.
-Defined.
-
-Lemma pre_comp_with_iso_is_inj (C : precategory) (a b c : ob C)
-    (f : a --> b) (H : is_iso f) (g h : b --> c) : f ;; g = f ;; h -> g = h.
-Proof.
-  intro X.
-  apply (invmaponpathsweq (weqpair (precomp_with f) (H _ ))).
-  apply X.
-Qed.
-  
-Lemma post_comp_with_iso_is_inj (C : precategory) (b c : ob C)
-     (h : b --> c) (H : is_iso h) 
-   (a : ob C) (f g : a --> b) : f ;; h = g ;; h -> f = g.
-Proof.
-  intro HH.
-  set (T:=iso_inv_after_iso (tpair _ h H)). simpl in T. 
-  pathvia (f ;; (h ;; inv_from_iso (tpair _ h H))).
-  - rewrite T. clear T.
-    apply pathsinv0, id_right.
-  - rewrite assoc. rewrite HH.
-    rewrite <- assoc. rewrite T.
-    apply id_right.
-Qed.    
-
-
-Lemma iso_comp_right_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
-  isweq (fun f : b --> c => h ;; f).
-Proof. 
-  apply (pr2 h _ ).
-Qed.
-
-Definition iso_comp_right_weq {C:precategory} {a b:C} (h:iso a b) (c:C) : 
- weq (b --> c) (a --> c) := weqpair _ (iso_comp_right_isweq h c).
-
-Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
-  isweq (fun f : c --> a => f ;; h).
-Proof. 
-  intros. apply (gradth _ (fun g => g ;; inv_from_iso h)).
-  - intro x. rewrite <- assoc. apply remove_id_right.
-    apply iso_inv_after_iso. apply idpath.
-  - intro y. rewrite <- assoc. apply remove_id_right.
-    apply iso_after_iso_inv. apply idpath.
-Qed.
-
-Definition postcomp_with {C : precategory}{b c : C}(h : b --> c) {a : C} 
-  (f : a --> b) : a --> c := f ;; h.
-
-Definition is_inverse_in_precat {C : precategory} {a b : C}
-  (f : a --> b) (g : b --> a) := 
-  dirprod (f ;; g = identity a)
-          (g ;; f = identity b).
-
-
-Definition is_iso_qinv {C:precategory} {a b : C} (f : a --> b) (g : b --> a) :
-  is_inverse_in_precat f g -> is_iso f.
-Proof.
-  intros H c.
-  apply (gradth _ (precomp_with g)).
-  - intro h. unfold precomp_with.
-    rewrite assoc.
-    apply remove_id_left.
-    apply (pr2 H). apply idpath.
-  - intro h. unfold precomp_with. rewrite assoc.
-    apply remove_id_left.
-    apply (pr1 H). apply idpath.
-Qed.
-
-Definition iso_comp_left_weq {C:precategory} {a b:C} (h:iso a b) (c:C) : 
- weq (c --> a) (c --> b) := weqpair _ (iso_comp_left_isweq h c).
-
-Definition iso_conjug_weq {C:precategory} {a b:C} (h:iso a b) : 
- weq (a --> a) (b --> b) := weqcomp (iso_comp_left_weq h _ ) (iso_comp_right_weq (iso_inv_from_iso h) _ ).
-
-
-
-(** * Isomorphisms in a precategory WITH HOM-SETS *)
-(** In a precategory with hom-sets, we can give the usual definition of 
-    isomorphism, called [0-iso] in the following. 
-*)
-(** ** Definition of isomorphisms *)
-
-Lemma isaprop_is_inverse_in_precat (C : precategory) (hs: has_homsets C) (a b : ob C)
-   (f : a --> b) (g : b --> a) : isaprop (is_inverse_in_precat f g).
-Proof.
-  apply isapropdirprod; apply hs.
-Qed.
-
-Lemma inverse_unique_precat (C : precategory) (a b : ob C)
-   (f : a --> b) (g g': b --> a) (H : is_inverse_in_precat f g)
-    (H' : is_inverse_in_precat f g') : g = g'.
-Proof.
-  destruct H as [eta eps].
-  destruct H' as [eta' eps'].
-  assert (H : g = identity b ;; g).
-    rewrite id_left; apply idpath.
-  apply (pathscomp0 H).
-  rewrite <- eps'.
-  rewrite <- assoc.
-  rewrite eta.
-  apply id_right.
-Qed.
-
-Definition is_z_isomorphism {C : precategory} {a b : ob C}
-  (f : a --> b) := total2 (fun g => is_inverse_in_precat f g).
-
-Lemma isaprop_is_z_isomorphism {C : precategory} {a b : ob C} (hs: has_homsets C)
-     (f : a --> b) : isaprop (is_z_isomorphism f).
-Proof.
-  apply invproofirrelevance.
-  intros g g'.
-  set (Hpr1 := inverse_unique_precat _ _ _ _ _ _ (pr2 g) (pr2 g')).
-  apply (total2_paths Hpr1).
-  destruct g as [g [eta eps]].
-  destruct g' as [g' [eta' eps']].
-  simpl in *.
-  apply isapropdirprod; apply hs.
-Qed.
-
-Definition z_iso {C : precategory} (a b :ob C) := total2
-    (fun f : a --> b => is_z_isomorphism f).
-
-Lemma eq_z_iso (C : precategory)(hs: has_homsets C) (a b : ob C)
-   (f g : z_iso a b) : pr1 f = pr1 g -> f = g.
-Proof.
-  intro H.
-  apply (total2_paths H).
-  apply proofirrelevance.
-  apply isaprop_is_z_isomorphism, hs.
-Defined.
-
-Definition morphism_from_z_iso (C : precategory)(a b : ob C) 
-   (f : z_iso a b) : a --> b := pr1 f.
-Coercion morphism_from_z_iso : z_iso >-> precategory_morphisms.
-
-Lemma isaset_z_iso {C : precategory} (hs: has_homsets C) (a b :ob C) : isaset (z_iso a b).
-Proof.
-  change isaset with (isofhlevel 2).
-  apply isofhleveltotal2.
-  apply hs.
-  intro f.
-  apply isasetaprop.
-  apply isaprop_is_z_isomorphism, hs.
-Qed.
-
-Lemma identity_is_z_iso (C : precategory) (a : ob C) :
-    is_z_isomorphism (identity a).
-Proof.
-  exists (identity a).
-  simpl; split;
-  apply id_left.
-Defined.
-
-Definition identity_z_iso {C : precategory} (a : ob C) :
-   z_iso a a := tpair _ _ (identity_is_z_iso C a).
-
-Definition inv_from_z_iso {C : precategory} {a b : ob C}
-  (f : z_iso a b) : b --> a := pr1 (pr2 f).
-
-Lemma is_z_iso_inv_from_z_iso {C : precategory} (a b : ob C)
-  (f : z_iso a b) : is_z_isomorphism (inv_from_z_iso f).
-Proof.
-  exists (pr1 f).
-  simpl; split; simpl.
-  - apply (pr2 (pr2 (pr2 f))).
-  - apply (pr1 (pr2 (pr2 f))).
-Defined.
-
-Definition z_iso_inv_from_z_iso {C : precategory} {a b : ob C}
-  (f : z_iso a b) : z_iso b a.
-Proof.
-  exists (inv_from_z_iso f).
-  apply is_z_iso_inv_from_z_iso.
-Defined.
-
-Definition z_iso_inv_from_is_z_iso {C : precategory} {a b : ob C}
-  (f : a --> b) (H : is_z_isomorphism f) : z_iso b a :=
-  z_iso_inv_from_z_iso (tpair _ f H).
-
-Definition z_iso_inv_after_z_iso (C : precategory) (a b : ob C)
-   (f : z_iso a b) : f;; inv_from_z_iso f = identity _ :=
-      pr1 (pr2 (pr2 f)).
-
-Definition z_iso_after_z_iso_inv (C : precategory) (a b : ob C)
-   (f : z_iso a b) : inv_from_z_iso f ;; f = identity _ :=
-      pr2 (pr2 (pr2 f)).
-
-
-Lemma z_iso_inv_on_right (C : precategory) (a b c: ob C)
-  (f : z_iso a  b) (g : b --> c) (h : a --> c) (H : h = f;;g) :
-     inv_from_z_iso f ;; h = g.
-Proof.
-  assert (H2 : inv_from_z_iso f;; h = 
-                  inv_from_z_iso f;; (f ;; g)).
-  apply maponpaths; assumption.
-  rewrite assoc in H2.
-  rewrite H2.
-  rewrite z_iso_after_z_iso_inv.
-  apply id_left.
-Qed.
-
-Lemma z_iso_inv_on_left (C : precategory) (a b c: ob C)
-  (f : a --> b) (g : z_iso b c) (h : a --> c) (H : h = f;;g) :
-     f = h ;; inv_from_z_iso g.
-Proof.
-  assert (H2 : h ;; inv_from_z_iso g = 
-                         (f;; g) ;; inv_from_z_iso g).
-    rewrite H. apply idpath.
-  rewrite <- assoc in H2.
-  rewrite z_iso_inv_after_z_iso in H2.
-  rewrite id_right in H2.
-  apply pathsinv0.
-  assumption.
-Qed.
-
-Lemma z_iso_inv_to_left (C : precategory) (a b c: ob C)
-  (f : z_iso a  b) (g : b --> c) (h : a --> c) :     
-    inv_from_z_iso f ;; h = g -> h = f ;; g.
-Proof.
-  intro H.
-  transitivity (f;; inv_from_z_iso f;; h).
-  - rewrite z_iso_inv_after_z_iso, id_left; apply idpath.
-  - rewrite <- assoc. rewrite H. apply idpath.
-Qed.  
-  
-Lemma z_iso_inv_to_right (C : precategory) (a b c: ob C)
-  (f : a --> b) (g : z_iso b c) (h : a --> c) :
-     f = h ;; inv_from_z_iso g -> f ;; g = h.
-Proof.
-  intro H.
-  transitivity (h;; inv_from_z_iso g;; g).
-  - rewrite H. apply idpath.
-  - rewrite <- assoc, z_iso_after_z_iso_inv, id_right. apply idpath.
-Qed.
-
-
-(** ** Properties of isomorphisms *)
-(** Stability under composition, inverses etc *)
-
 Lemma are_inverse_comp_of_inverses (C : precategory) (a b c : C)
-     (f : z_iso a b) (g : z_iso b c) :  
-  is_inverse_in_precat (f;; g) (inv_from_z_iso g;; inv_from_z_iso f).
+     (f : iso a b) (g : iso b c) :  
+  is_inverse_in_precat (f;; g) (inv_from_iso g;; inv_from_iso f).
 Proof.
   simpl; split; simpl;
   unfold inv_from_iso; simpl.
@@ -736,66 +391,64 @@ Proof.
 Qed. 
 
 
-Lemma is_z_iso_comp_of_z_isos {C : precategory} {a b c : ob C}
-  (f : z_iso a b) (g : z_iso b c) : is_z_isomorphism (f ;; g).
+Lemma is_iso_comp_of_isos {C : precategory} {a b c : ob C}
+  (f : iso a b) (g : iso b c) : is_isomorphism (f ;; g).
 Proof.
-  exists (inv_from_z_iso g ;; inv_from_z_iso f). simpl.
+  exists (inv_from_iso g ;; inv_from_iso f). simpl.
   apply are_inverse_comp_of_inverses.
 Defined. (* Qed. *)
 
 
-Definition z_iso_comp {C : precategory} {a b c : ob C}
-  (f : z_iso a b) (g : z_iso b c) : z_iso a c.
+Definition iso_comp {C : precategory} {a b c : ob C}
+  (f : iso a b) (g : iso b c) : iso a c.
 Proof.
   exists (f ;; g).
-  apply is_z_iso_comp_of_z_isos.
+  apply is_iso_comp_of_isos.
 Defined.
 
-Lemma inv_z_iso_unique (C : precategory) (hs: has_homsets C) (a b : ob C)
-  (f : z_iso a b) (g : z_iso b a) :
-  is_inverse_in_precat f g -> g = z_iso_inv_from_z_iso f.
+Lemma inv_iso_unique (C : precategory) (a b : ob C)
+  (f : iso a b) (g : iso b a) :
+  is_inverse_in_precat f g -> g = iso_inv_from_iso f.
 Proof.
   intro H.
-  apply eq_z_iso.
-  apply hs.
+  apply eq_iso.
   apply (inverse_unique_precat _ _ _ f).
   assumption.
   split.
-  apply z_iso_inv_after_z_iso.
-  set (h := z_iso_after_z_iso_inv _ _ _ f).
+  apply iso_inv_after_iso.
+  set (h := iso_after_iso_inv _ _ _ f).
+  unfold iso_inv_from_iso.
+  simpl in *.
   apply h.
 Qed.
 
 
-Lemma z_iso_inv_of_z_iso_comp (C : precategory) (hs: has_homsets C) (a b c : ob C)
-   (f : z_iso a b) (g : z_iso b c) :
-   z_iso_inv_from_z_iso (z_iso_comp f g) = 
-       z_iso_comp (z_iso_inv_from_z_iso g) (z_iso_inv_from_z_iso f).
+Lemma iso_inv_of_iso_comp (C : precategory) (a b c : ob C)
+   (f : iso a b) (g : iso b c) :
+   iso_inv_from_iso (iso_comp f g) = iso_comp (iso_inv_from_iso g) (iso_inv_from_iso f).
 Proof.
-  apply eq_z_iso. 
-  apply hs.
+  apply eq_iso. 
   reflexivity.
 Qed.
 
-Lemma z_iso_inv_of_z_iso_id (C : precategory) (hs: has_homsets C) (a : ob C) :
-   z_iso_inv_from_z_iso (identity_z_iso a) = identity_z_iso a.
+Lemma iso_inv_of_iso_id (C : precategory) (a : ob C) :
+   iso_inv_from_iso (identity_iso a) = identity_iso a.
 Proof.
-  apply eq_z_iso.
-  apply hs.
+  apply eq_iso.
   apply idpath.
 Qed.
 
 
-Lemma z_iso_inv_z_iso_inv (C : precategory) (hs: has_homsets C) (a b : ob C) (f : z_iso a b) : 
-     z_iso_inv_from_z_iso (z_iso_inv_from_z_iso f) = f.
+Lemma iso_inv_iso_inv (C : precategory) (a b : ob C)
+   (f : iso a b) : 
+     iso_inv_from_iso (iso_inv_from_iso f) = f.
 Proof.
-  apply eq_z_iso.
-  apply hs.
+  apply eq_iso.
   reflexivity.
 Defined.
 
-Lemma pre_comp_with_z_iso_is_inj (C : precategory) (a b c : ob C)
-    (f : a --> b) (H : is_z_isomorphism f) (g h : b --> c) : f ;; g = f ;; h -> g = h.
+Lemma pre_comp_with_iso_is_inj (C : precategory) (a b c : ob C)
+    (f : a --> b) (H : is_isomorphism f) (g h : b --> c) : f ;; g = f ;; h -> g = h.
 Proof.
   intro HH.
   pathvia (pr1 H ;; f ;; g).
@@ -810,8 +463,8 @@ Proof.
   apply idpath.
 Qed.
   
-Lemma post_comp_with_z_iso_is_inj (C : precategory) (b c : ob C)
-     (h : b --> c) (H : is_z_isomorphism h) 
+Lemma post_comp_with_iso_is_inj (C : precategory) (b c : ob C)
+     (h : b --> c) (H : is_isomorphism h) 
    (a : ob C) (f g : a --> b) : f ;; h = g ;; h -> f = g.
 Proof.
   intro HH.
@@ -827,56 +480,35 @@ Proof.
   apply idpath.
 Qed.
 
+(** ***  *)
 
-Lemma z_iso_comp_right_isweq {C:precategory} {a b:ob C} (h:z_iso a b) (c:C) :
+Lemma iso_comp_right_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
   isweq (fun f : b --> c => h ;; f).
 Proof. 
-  intros. apply (gradth _ (fun g => inv_from_z_iso h ;; g)).
+  intros. apply (gradth _ (fun g => inv_from_iso h ;; g)).
        { intros f. refine (_ @ maponpaths (fun m => m ;; f) (pr2 (pr2 (pr2 h))) @ _).
          { apply assoc. } { apply id_left. } }
        { intros g. refine (_ @ maponpaths (fun m => m ;; g) (pr1 (pr2 (pr2 h))) @ _).
          { apply assoc. } { apply id_left. } } 
 Qed.
 
-Definition z_iso_comp_right_weq {C:precategory} {a b:C} (h:z_iso a b) (c:C) : 
- weq (b --> c) (a --> c) := weqpair _ (z_iso_comp_right_isweq h c).
+Definition iso_comp_right_weq {C:precategory} {a b:C} (h:iso a b) (c:C) : 
+ weq (b --> c) (a --> c) := weqpair _ (iso_comp_right_isweq h c).
 
-Lemma z_iso_comp_left_isweq {C:precategory} {a b:ob C} (h:z_iso a b) (c:C) :
+Lemma iso_comp_left_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
   isweq (fun f : c --> a => f ;; h).
 Proof. 
-  intros. apply (gradth _ (fun g => g ;; inv_from_z_iso h)).
+  intros. apply (gradth _ (fun g => g ;; inv_from_iso h)).
        { intros f. refine (_ @ maponpaths (fun m => f;;m) (pr1 (pr2 (pr2 h))) @ _).
          { apply pathsinv0. apply assoc. }  { apply id_right. } }
        { intros g. refine (_ @ maponpaths (fun m => g;;m) (pr2 (pr2 (pr2 h))) @ _).
          { apply pathsinv0, assoc. } { apply id_right. } } 
 Qed.
-Definition z_iso_comp_left_weq {C:precategory} {a b:C} (h:z_iso a b) (c:C) : 
- weq (c --> a) (c --> b) := weqpair _ (z_iso_comp_left_isweq h c).
+Definition iso_comp_left_weq {C:precategory} {a b:C} (h:iso a b) (c:C) : 
+ weq (c --> a) (c --> b) := weqpair _ (iso_comp_left_isweq h c).
 
-Definition z_iso_conjug_weq {C:precategory} {a b:C} (h:z_iso a b) : 
- weq (a --> a) (b --> b) := weqcomp (z_iso_comp_left_weq h _ ) 
-         (z_iso_comp_right_weq (z_iso_inv_from_z_iso h) _ ).
-
-Lemma is_iso_from_is_z_iso {C: precategory}{a b : C} (f: a --> b) : 
-     is_z_isomorphism f -> is_iso f.
-Proof.
-  intro H. 
-  apply (is_iso_qinv _ (pr1 H)).
-  apply (pr2 H).
-Qed.
-
-Lemma is_z_iso_from_is_iso {C: precategory}{a b : C} (f: a --> b): 
-     is_iso f -> is_z_isomorphism f.
-Proof.
-  intro H.
-  set (fiso:= isopair f H).
-  exists (inv_from_iso fiso).
-  split.
-  - set (H2:= iso_inv_after_iso fiso).
-    simpl in H2. apply H2.
-  - set (H2:=iso_after_iso_inv fiso).
-    simpl in H2. apply H2.
-Qed.
+Definition iso_conjug_weq {C:precategory} {a b:C} (h:iso a b) : 
+ weq (a --> a) (b --> b) := weqcomp (iso_comp_left_weq h _ ) (iso_comp_right_weq (iso_inv_from_iso h) _ ).
 
 (** * Categories (aka saturated precategories) *)
 
@@ -891,9 +523,8 @@ Proof.
 Defined.
       
 (* use eta expanded version to force printing of object arguments *)
-Definition is_category (C : precategory) := 
-  dirprod (forall (a b : ob C), isweq (fun p : a = b => idtoiso p))
-          (has_homsets C).
+Definition is_category (C : precategory) := forall (a b : ob C),
+    isweq (fun p : a = b => idtoiso p).
 
 Lemma eq_idtoiso_idtomor {C:precategory} (a b:ob C) (e:a = b) :
     pr1 (idtoiso e) = idtomor _ _ e.
@@ -903,17 +534,11 @@ Defined.
 
 Lemma isaprop_is_category (C : precategory) : isaprop (is_category C).
 Proof.
-  apply isapropdirprod.
-  - apply impred.
-    intro a.
-    apply impred.
-    intro b.
-    apply isapropisweq.
-  - apply impred.
-    intro a.
-    apply impred.
-    intro b.
-    apply isapropisaset.
+  apply impred.
+  intro a.
+  apply impred.
+  intro b.
+  apply isapropisweq.
 Qed.
 
 Definition category := total2 (fun C : precategory => is_category C).
@@ -921,27 +546,27 @@ Definition category := total2 (fun C : precategory => is_category C).
 Definition precat_from_cat (C : category) : precategory := pr1 C.
 Coercion precat_from_cat : category >-> precategory.
 
-Lemma category_has_groupoid_ob (C : category): isofhlevel 3 (ob C).
+Lemma category_has_groupoid_ob (C : category) : 
+  isofhlevel 3 (ob C).
 Proof.
   change (isofhlevel 3 C) with
         (forall a b : C, isofhlevel 2 (a = b)).
   intros a b.
-  apply (isofhlevelweqb _ (tpair _ _ (pr1 (pr2 C) a b))).
+  apply (isofhlevelweqb _ (tpair _ _ (pr2 C a b))).
   apply isaset_iso.
-  apply (pr2 (pr2 C)).
 Qed.
   
 
 (** ** Definition of [isotoid] *)
 
 Definition isotoid (C : precategory) (H : is_category C) {a b : ob C}:
-      iso a b -> a = b := invmap (weqpair _ (pr1 H a b)).
+      iso a b -> a = b := invmap (weqpair _ (H a b)).
 
 Lemma idtoiso_isotoid (C : precategory) (H : is_category C) (a b : ob C)
     (f : iso a b) : idtoiso (isotoid _ H f) = f.
 Proof.
   unfold isotoid.
-  set (Hw := homotweqinvweq (weqpair idtoiso (pr1 H a b))).
+  set (Hw := homotweqinvweq (weqpair idtoiso (H a b))).
   simpl in Hw.
   apply Hw.
 Qed.
@@ -950,7 +575,7 @@ Lemma isotoid_idtoiso (C : precategory) (H : is_category C) (a b : ob C)
     (p : a = b) : isotoid _ H (idtoiso p) = p.
 Proof.
   unfold isotoid.
-  set (Hw := homotinvweqweq (weqpair idtoiso (pr1 H a b))).
+  set (Hw := homotinvweqweq (weqpair idtoiso (H a b))).
   simpl in Hw.
   apply Hw.
 Qed.
@@ -969,12 +594,13 @@ Proof.
   apply id_right.
 Qed.
 
-Lemma idtoiso_postcompose_iso (C : precategory) (hs: has_homsets C) (a b b' : ob C)
+Lemma idtoiso_postcompose_iso (C : precategory) (a b b' : ob C)
   (p : b = b') (f : iso a b) : 
     iso_comp f (idtoiso p) = transportf (fun b => iso a b) p f.
 Proof.
   destruct p.
   apply eq_iso.
+  simpl.
   apply id_right.
 Qed.
 
@@ -987,12 +613,13 @@ Proof.
   apply id_left.
 Qed.
 
-Lemma idtoiso_precompose_iso (C : precategory) (hs: has_homsets C) (a a' b : ob C)
+Lemma idtoiso_precompose_iso (C : precategory) (a a' b : ob C)
   (p : a = a') (f : iso a b) : 
       iso_comp (idtoiso (!p)) f = transportf (fun a => iso a b) p f.
 Proof.
   destruct p.
   apply eq_iso.
+  simpl.
   apply id_left.
 Qed.
 
@@ -1004,28 +631,29 @@ Lemma double_transport_idtoiso (C : precategory) (a a' b b' : ob C)
 Proof.
   destruct p.
   destruct q.
-  pathvia (identity _ ;; f).
-  - apply pathsinv0; apply id_left.
-  - apply pathsinv0; apply id_right.
-Defined.
+  rewrite id_right.
+  rewrite id_left.
+  apply idpath.
+Qed.
 
 Lemma idtoiso_inv (C : precategory) (a a' : ob C)
   (p : a = a') : idtoiso (!p) = iso_inv_from_iso (idtoiso p).
 Proof.
   destruct p. 
-  simpl. apply eq_iso.
   apply idpath.
-Defined.
+Qed.
 
 
-Lemma idtoiso_concat (C : precategory) (hs: has_homsets C) (a a' a'' : ob C)
+Lemma idtoiso_concat (C : precategory) (a a' a'' : ob C)
   (p : a = a') (q : a' = a'') :
   idtoiso (p @ q) = iso_comp (idtoiso p) (idtoiso q).
 Proof.
   destruct p.
   destruct q.
   apply eq_iso.
-  simpl; apply pathsinv0, id_left.
+  simpl;  
+  rewrite id_left.
+  apply idpath.
 Qed.
 
 Lemma idtoiso_inj (C : precategory) (H : is_category C) (a a' : ob C)
@@ -1044,7 +672,7 @@ Proof.
   apply isweqinvmap.
 Qed.
 
-Lemma isotoid_comp (C : precategory) (H : is_category C) (hs: has_homsets C) (a b c : ob C)
+Lemma isotoid_comp (C : precategory) (H : is_category C) (a b c : ob C)
   (e : iso a b) (f : iso b c) :
   isotoid _ H (iso_comp e f) = isotoid _ H e @ isotoid _ H f.
 Proof.
@@ -1053,7 +681,6 @@ Proof.
   rewrite idtoiso_concat.
   repeat rewrite idtoiso_isotoid.
   apply idpath.
-  apply hs.
 Qed.
 
 Lemma isotoid_identity_iso (C : precategory) (H : is_category C) (a : C) :
@@ -1119,7 +746,7 @@ Definition total_morphisms (C : precategory_ob_mor) := total2 (
    fun ab : dirprod (ob C)(ob C) =>
         precategory_morphisms (pr1 ab) (pr2 ab)).
 
-Lemma isaset_setcategory_total_morphisms (C : setcategory) (hs : has_homsets C) : 
+Lemma isaset_setcategory_total_morphisms (C : setcategory) : 
    isaset (total_morphisms C).
 Proof.
   change isaset with (isofhlevel 2).
@@ -1127,13 +754,11 @@ Proof.
   apply isofhleveldirprod.
   exact (pr2 C).
   exact (pr2 C).
-  intro ab.
-  induction ab.
-  apply hs.
+  exact (fun x => (pr2 (pr1 x --> pr2 x))).
 Qed.
 
-Definition setcategory_total_morphisms_set (C : setcategory) (hs: has_homsets C) : hSet :=
-    hSetpair _ (isaset_setcategory_total_morphisms C hs).
+Definition setcategory_total_morphisms_set (C : setcategory) : hSet :=
+    hSetpair _ (isaset_setcategory_total_morphisms C).
 
 Definition precategory_source (C : precategory_ob_mor) : 
      total_morphisms C -> ob C := 

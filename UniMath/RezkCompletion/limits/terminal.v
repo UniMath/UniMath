@@ -38,10 +38,9 @@ Qed.
 Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) : 
    is_isomorphism (TerminalArrow T T').
 Proof.
-  apply (is_iso_qinv _ (TerminalArrow T' T)).
-  split.
-  - apply pathsinv0. apply TerminalEndo_is_identity.
-  - apply pathsinv0. apply TerminalEndo_is_identity.
+  exists (TerminalArrow T' T).
+  split; apply pathsinv0;
+   apply TerminalEndo_is_identity.
 Defined.
 
 Definition iso_Terminals (T T' : Terminal) : iso T T' := 

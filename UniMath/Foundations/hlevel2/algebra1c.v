@@ -4,7 +4,7 @@
 
 
 
-(** ** Preamble *)
+(** ** Preambule *)
 
 (** Settings *)
 

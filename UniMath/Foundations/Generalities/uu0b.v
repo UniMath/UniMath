@@ -332,26 +332,6 @@ Proof. unfold isaprop. unfold isofhlevel. intros x x' . induction x. Defined.
 Theorem isapropifnegtrue { X : UU } ( a : X -> empty ) : isaprop X .
 Proof . intros . set ( w := weqpair _ ( isweqtoempty a ) ) . apply ( isofhlevelweqb 1 w isapropempty ) .  Defined .
 
-(** *** Two pairs are equal if their first components are and the type of the second
-        component is a proposition for one of the components *)
-
-Lemma total2_paths_second_isaprop (A : UU) (B : A -> UU) 
-    (s s' : total2 (fun x => B x)) (is: isaprop (B (pr1 s'))): pr1 s = pr1 s' -> s = s'.
-Proof.
-  intros A B s s' is h.
-  apply (total2_paths h).
-  apply proofirrelevance.
-  apply is.
-Defined.
-
-Definition total2_paths2_second_isaprop {X} {P:X -> UU} {x y:X} {p:P x} {q:P y} :
-  x = y -> isaprop (P y) -> tpair _ x p = tpair _ y q.
-Proof.
-  intros X P x y p q H H0.
-  apply (total2_paths2 H).
-  apply proofirrelevance.
-  apply H0.
-Defined.    
 
 
 

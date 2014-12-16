@@ -2,7 +2,7 @@
 
 (** * Group actions *)
 
-Require Import algebra1b funextfun Utilities Ktheory.Equivalences.
+Require Import algebra1b funextfun Utilities total2_paths Ktheory.Equivalences.
 Import Utilities.Notation.
 
 (** ** Definitions *)
