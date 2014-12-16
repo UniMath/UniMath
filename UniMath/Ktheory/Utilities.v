@@ -4,8 +4,7 @@ Global Unset Automatic Introduction.
 Require Export uu0.
 Require Export hSet.
 Require Import funextfun.
-Require RezkCompletion.total2_paths.
-Require Export RezkCompletion.total2_paths.
+
 Require Export Ktheory.Tactics.
 
 Set Default Timeout 50.
@@ -24,6 +23,7 @@ Definition point_from {X} {x:X} : paths_to x -> X := pr1.
 Definition paths_to_path {X} {x:X} (w:paths_to x) := pr2 w.
 Definition iscontr_paths_to {X} (x:X) : iscontr (paths_to x).
 Proof. apply iscontrcoconustot. Defined.
+Definition propproperty (P:hProp) := pr2 P : isaprop (pr1 P).
 Definition propProperty (P:hProp) := pr2 P : isaprop (pr1 P).
 Definition paths_to_prop {X} (x:X) := 
   hProppair (paths_to x) (isapropifcontr (iscontr_paths_to x)).

@@ -126,6 +126,15 @@ directory UniMath to the path, using the "-R" option.
 
 In this section we describe some problems that have been encountered during compilation, and how to fix them.
 
+### Problems caused by ill-formed input to make
+
+When calling "make", various files are read, some of them not under version control by git. 
+If those files are ill-formed, "make" stops working; in particular, "make" cannot be used to delete and recreate those files.
+When such a situation arises, the solution is to let git do the cleaning, by calling
+```bash
+$ git clean -Xdfq
+```
+
 ### MacOS
 
 If you get error messages involving the command line option "-fno-defer-pop", you

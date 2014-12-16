@@ -71,8 +71,6 @@ apply (invproofirrelevance _ X2).  Defined.
 
 
 
-
-
 (** ** Isolated points and types with decidable equality. *)
 
 
