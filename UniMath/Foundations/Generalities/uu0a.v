@@ -1067,7 +1067,9 @@ Proof.
 Defined.  
 
 Corollary isweqhomot {X Y : UU} (f1 f2 : X -> Y)
-  (h : f1 ~ f2): isweq f1 -> isweq f2.
+  (h : forall x : X, f1 x = f2 x): isweq f1 -> isweq f2.
+(* WARNING: Changing to homotopy notation in the immediately preceding line
+   causes algebra1a to fail. *)
 Proof.
   intros X Y f1 f2 h x0.
   unfold isweq.
@@ -1085,9 +1087,9 @@ Proof.
   intro y.
   assert (iscontr (hfiber (f circ g) y)).
   assert (efg' : forall y : Y, y = f (g y)).
-    intro y0.
+  { intro y0.
     apply pathsinv0.    
-    apply (efg y0).
+    apply (efg y0). }
   apply (iscontrhfiberl2 (idfun _) (f circ g) efg' y (idisweq Y y)).
   apply (iscontrhfiberl1 g f egf y). 
   apply X0.
