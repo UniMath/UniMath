@@ -198,8 +198,11 @@ split with f . apply ( isweqimplimpl f g ( isapropisincl ( fun x0 : X => opp x x
 Lemma weqlinvertiblerinvertible { X : hSet } ( opp : binop X ) ( is : iscomm opp ) ( x : X ) : weq ( islinvertible opp x ) ( isrinvertible opp x ) .
 Proof . intros . 
 
-assert ( f : ( islinvertible opp x ) -> ( isrinvertible opp x ) ) . unfold islinvertible . unfold isrinvertible .  intro isl . apply ( fun h : _ => isweqhomot _ _ h isl ) .  apply is .  
-assert ( g : ( isrinvertible opp x ) -> ( islinvertible opp x ) ) . unfold islinvertible . unfold isrinvertible .  intro isr . apply ( fun h : _ => isweqhomot _ _ h isr ) .  intro x0 . apply is . 
+assert ( f : ( islinvertible opp x ) -> ( isrinvertible opp x ) ) . unfold islinvertible . unfold isrinvertible .  intro isl . 
+apply (isweqhomot (fun y => opp x y)).
+- intro z. apply is.
+- apply isl.
+- assert ( g : ( isrinvertible opp x ) -> ( islinvertible opp x ) ) . unfold islinvertible . unfold isrinvertible .  intro isr . apply ( fun h : _ => isweqhomot _ _ h isr ) .  intro x0 . apply is . 
 
 split with f . apply ( isweqimplimpl f g ( isapropisweq ( fun x0 : X => opp x x0 ) )  ( isapropisweq ( fun x0 : X => opp x0 x ) ) ) .  Defined .  
 
