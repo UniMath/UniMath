@@ -36,12 +36,14 @@ Identity Coercion fromUUtoType : UU >-> Sortclass.
 
 (** *** Canonical functions from [ empty ] and to [ unit ] *)
 
-Definition fromempty {X : UU} : empty -> X.
+Definition fromempty  : forall X : UU , empty -> X.
 Proof.
   intro X.
   intro H.  
   induction H.
-Defined. 
+Defined.
+
+Arguments fromempty { X } _ . 
 
 Definition tounit {X : UU} : X -> unit := fun (x : X) => tt.
 
