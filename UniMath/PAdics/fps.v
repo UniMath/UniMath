@@ -62,7 +62,16 @@ g'. rewrite ( rnglunax1 R ). apply idpath.  Defined.
 Lemma natsummationshift0 { R : commrng } ( upper : nat ) ( f : nat ->
 R ) : natsummation0 ( S upper ) f ~> ( natsummation0 upper ( fun x :
 nat => f ( S x ) ) + f 0%nat ).  Proof.  intros R upper. induction
-upper. intros f. simpl. apply R.  intros. change ( natsummation0 ( S
+upper. intros f. simpl. 
+set (H:=pr2 R). simpl in H.
+set (H1:=pr1 H).
+set (H2:=pr1 H1).
+set (H3:=pr1 H2).
+set (H4:=pr2 H3).
+simpl in H4.
+apply H4.
+
+intros. change ( natsummation0 ( S
 upper ) f + f ( S ( S upper ) ) ~> ( natsummation0 upper ( fun x : nat
 => f ( S x ) ) + f ( S ( S upper ) ) + f 0%nat ) ).  rewrite
 IHupper. rewrite 2! ( rngassoc1 R ). rewrite ( rngcomm1 R ( f 0%nat )
@@ -72,7 +81,17 @@ Lemma natsummationshift { R : commrng } ( upper : nat ) ( f : nat -> R
 ) { i : nat } ( p : natleh i upper ) : natsummation0 ( S upper ) f ~>
 ( natsummation0 upper ( funcomp ( natcoface i ) f ) + f i ).  Proof.
 intros R upper. induction upper. intros f i p. destruct i.  unfold
-funcomp. apply R. assert empty. exact ( negnatlehsn0 i p
+funcomp. simpl. 
+unfold natcoface. simpl.
+set (H:=pr2 R). simpl in H.
+set (H1:=pr1 H).
+set (H2:=pr1 H1).
+set (H3:=pr1 H2).
+set (H4:=pr2 H3).
+simpl in H4.
+apply H4. 
+
+assert empty. exact ( negnatlehsn0 i p
 ). contradiction.  intros f i p. destruct i. apply natsummationshift0.
 destruct ( natlehchoice ( S i ) ( S upper ) p ) as [ h | k ].  change
 ( natsummation0 ( S upper ) f + f ( S ( S upper ) ) ~> ( natsummation0
@@ -175,11 +194,13 @@ Lemma nattruncautoisinj { upper : nat } { i : nat -> nat } ( p :
 isnattruncauto upper i ) { n m : nat } ( n' : natleh n upper ) ( m' :
 natleh m upper ) : i n ~> i m -> n ~> m.  Proof.  intros upper i p n m
 n' m' h. assert ( natleh ( i m ) upper ) as q. apply
-p. assumption. set ( x := pr1 p ( i m ) q ). set ( v := pr1 x ). set (
+(pr2 p). assumption. set ( x := pr1 p ( i m ) q ). set ( v := pr1 x ). set (
 w := pr1 ( pr2 x ) ).  set ( y := pr1 ( pr2 ( pr2 x ) ) ). change (
-pr1 x ) with v in w, y. assert ( v ~> n ) as a. apply ( pr2 x
-). assumption. assumption. rewrite <- a. apply ( pr2 x
-). assumption. apply idpath.  Defined.
+pr1 x ) with v in w, y. assert ( v ~> n ) as a. 
+apply (pr2 (pr2 (pr2 x))).
+(*apply ( pr2 x).*) 
+assumption. assumption. rewrite <- a. apply (pr2 (pr2 ( pr2 x))). 
+assumption. apply idpath.  Defined.
 
 Definition nattruncautopreimage { upper : nat } { i : nat -> nat } ( p
 : isnattruncauto upper i ) { n : nat } ( n' : natleh n upper ) : nat
@@ -209,11 +230,10 @@ nattruncautopreimage p r ).  Defined.
 Lemma nattruncautoinvisnattruncauto { upper : nat } { i : nat -> nat }
 ( p : isnattruncauto upper i ) : isnattruncauto upper (
 nattruncautoinv p ).  Proof.  intros. split. intros n n'. split with (
-i n ). split. apply p. assumption. split. unfold
+i n ). split. apply (pr2 p). assumption. split. unfold
 nattruncautoinv. destruct ( natgthorleh ( i n ) upper ) as [ l | r
 ]. assert empty. apply ( isirreflnatlth ( i n ) ).  apply (
-natlehlthtrans _ upper ). apply
-p. assumption. assumption. contradiction. apply ( nattruncautoisinj p
+natlehlthtrans _ upper ). apply (pr2 p). assumption. assumption. contradiction. apply ( nattruncautoisinj p
 ). apply ( nattruncautopreimageineq ). assumption. apply (
 nattruncautopreimagepath p r ).  intros m x v.  unfold nattruncautoinv
 in v. destruct ( natgthorleh m upper ) as [ l | r ].  assert
@@ -236,13 +256,13 @@ natleh ( truncnattruncauto p n ) upper.  Proof.  intros. unfold
 truncnattruncauto. destruct ( natlthorgeh ( i n ) ( S upper) ) as [ l
 | r ]. apply natlthsntoleh. assumption. destruct ( natgehchoice ( i n
 ) ( S upper ) ) as [ l' | r' ]. assert empty. apply ( isirreflnatlth (
-i n ) ). apply ( natlehlthtrans _ ( S upper ) ). apply p. apply
+i n ) ). apply ( natlehlthtrans _ ( S upper ) ). apply (pr2 p). apply
 natlthtoleh. apply ( natlehlthtrans _ upper ). assumption. apply
 natlthnsn. assumption. contradiction. destruct ( isdeceqnat n ( S
 upper ) ) as [ l'' | r'' ]. assert empty. apply ( isirreflnatlth upper
 ). apply ( natlthlehtrans _ ( S upper ) ). apply natlthnsn. rewrite <-
 l''. assumption. contradiction. assert ( natleh ( i ( S upper ) ) ( S
-upper ) ) as aux. apply p. apply isreflnatleh. destruct ( natlehchoice
+upper ) ) as aux. apply (pr2 p). apply isreflnatleh. destruct ( natlehchoice
 _ _ aux ) as [ l''' | r''' ]. apply natlthsntoleh. assumption. assert
 empty. apply r''. apply ( nattruncautoisinj p ). apply
 natlthtoleh. apply ( natlehlthtrans _ upper ). assumption. apply
@@ -275,7 +295,7 @@ natlthlehtrans _ n ). rewrite <- f1, f0. apply
 natlthnsn. assumption. contradiction.  destruct ( natgehchoice ( i n )
 ( S upper ) a1 ) as [ a00 | a01 ].  assert empty. apply (
 isirreflnatlth ( S upper ) ). apply ( natlthlehtrans _ ( i n )
-). assumption. apply ( p ). apply natlthtoleh. apply ( natlehlthtrans
+). assumption. apply ( pr2 p ). apply natlthtoleh. apply ( natlehlthtrans
 _ upper ). assumption. apply natlthnsn. contradiction.  destruct (
 natlthorgeh ( i m ) ( S upper ) ) as [ b0 | b1 ]. destruct (
 isdeceqnat n ( S upper ) ) as [ a000 | a001 ]. assumption. assert ( S
@@ -287,7 +307,7 @@ a001. rewrite f0. assert empty. apply ( isirreflnatlth ( S upper )
 natlthnsn. contradiction. contradiction.  destruct ( natgehchoice ( i
 m ) ( S upper ) b1 ) as [ b00 | b01 ].  assert empty. apply (
 isirreflnatlth ( i m ) ). apply ( natlehlthtrans _ ( S upper )
-). apply p. apply ( natlthtoleh ). apply ( natlehlthtrans _ upper
+). apply (pr2 p). apply ( natlthtoleh ). apply ( natlehlthtrans _ upper
 ). assumption. apply natlthnsn. assumption. contradiction. rewrite
 b01.  rewrite a01. apply idpath.  Defined.
 
@@ -362,7 +382,15 @@ f0. assumption. apply natlthnsn. contradiction.
   ). rewrite <- r'. rewrite ( nattruncautopreimagepath p q'
   ). assumption. apply natlthnsn. contradiction.
 
-  intros x X y. apply ( nattruncautoisinj p ). apply ( pr1 p ). apply
+  intros x X y. apply ( nattruncautoisinj p ). 
+  
+  set (H:=pr1 p). simpl in H.
+  set (H1:=pr2 p). simpl in H1.
+  set (H2:=H n q').
+  apply (pr2 H2).
+  
+  (* apply ( pr1 p ). *)
+  apply
   natlthtoleh. apply ( natlehlthtrans _ upper ). assumption. apply
   natlthnsn.  rewrite ( nattruncautopreimagepath p q' ). unfold
   truncnattruncauto in y. destruct ( natlthorgeh ( i x ) ( S upper ) )
@@ -439,7 +467,7 @@ v ~> m ).  rewrite <- j. rewrite r'. apply idpath. rewrite
 g. assumption. apply natlthnsn. contradiction.
 
       intros x X. unfold funcomp. assert ( natleh ( i ( natcoface v x
-      ) ) ( S upper ) ) as a0. apply p. apply
+      ) ) ( S upper ) ) as a0. apply (pr2 p). apply
       natcofaceleh. assumption.  destruct ( natlehchoice _ _ a0 ) as [
       l | r ]. apply natlthsntoleh. assumption. assert ( v ~>
       natcoface v x ) as g. unfold v. apply (
@@ -465,10 +493,10 @@ nattruncautopreimagepath p' _ ). rewrite ( nattruncautopreimagepath p
 _ ). apply idpath. intros x X y. unfold funcomp in y.  apply (
 nattruncautoisinj p' ). apply
 nattruncautopreimageineq. assumption. apply ( nattruncautoisinj p
-). apply p'. apply nattruncautopreimageineq. apply
-p'. assumption. rewrite ( nattruncautopreimagepath p' ). rewrite (
+). apply (pr2 p'). apply nattruncautopreimageineq. apply
+(pr2 p') . assumption. rewrite ( nattruncautopreimagepath p' ). rewrite (
 nattruncautopreimagepath p ). rewrite y. apply idpath.  intros x
-X. unfold funcomp. apply p. apply p'. assumption.  Defined.
+X. unfold funcomp. apply (pr2 p). apply (pr2 p'). assumption.  Defined.
 
 Definition nattruncreverse ( upper : nat ) : nat -> nat.  Proof.
 intros upper n. destruct ( natgthorleh n upper ) as [ h | k ]. exact
@@ -553,7 +581,7 @@ k. unfold funcomp in k. rewrite <- ( minussn1 n ).  assert ( v ~> S n
 ) as f.  apply ( nattruncautopreimagecanon p _
 ). assumption. assumption. rewrite f.  apply idpath.  intros x
 X. unfold funcomp. assert ( natleh ( i ( S x ) ) ( S upper ) ) as
-aux. apply p. assumption. destruct ( natlehchoice _ _ aux ) as [ h | k
+aux. apply (pr2 p). assumption. destruct ( natlehchoice _ _ aux ) as [ h | k
 ]. apply natlthsntoleh. assumption. assert empty. assert ( 0%nat ~> S
 x ) as ii. apply ( nattruncautoisinj p ). apply natleh0n. assumption.
 rewrite j. rewrite k. apply idpath. apply ( isirreflnatlth ( S x ) ).
@@ -612,7 +640,7 @@ Definition seqson ( A : UU ) := nat -> A.
 
 Lemma seqsonisaset ( A : hSet ) : isaset ( seqson A ).  Proof.
 intros. unfold seqson. change ( isofhlevel 2 ( nat -> A ) ). apply
-impredfun. apply A.  Defined.
+impredfun. apply (pr2 A).  Defined.
 
 Definition isasetfps ( R : commrng ) : isaset ( seqson R ) :=
 seqsonisaset R.
@@ -658,7 +686,16 @@ Proof.  intros. unfold ismonoidop. split.  unfold isassoc.  intros s t
 u. unfold fpsplus.  (* This is a hack which should work immediately
 without such a workaround! *) change ( (fun n : nat => s n + t n + u
 n) ~> (fun n : nat => s n + (t n + u n)) ). apply funextfun.  intro
-n. apply R.
+n. 
+ set (H:=pr2 R).
+ set (H1:=pr1 H).
+ set (H2:=pr1 H1).
+ set (H3:=pr1 H2).
+ set (H4:=pr1 H3).
+ set (H5:=pr1 H4).
+ set (H6:=pr1 H5).
+ apply H6.
+(*  apply R. *)
       
       unfold isunital. assert ( isunit ( fpsplus R ) ( fpszero R ) )
       as a.  unfold isunit.  split.  unfold islunit. intro s. unfold
@@ -686,7 +723,11 @@ funextfun. intro n. exact ( rnglinvax1 R ( s n ) ).
 Lemma iscommfpsplus ( R : commrng ) : iscomm ( fpsplus R ).  Proof.
 intros. unfold iscomm.  intros s t. unfold fpsplus.  change ((fun n :
 nat => s n + t n) ~> (fun n : nat => t n + s n) ).  apply
-funextfun. intro n. apply R.  Defined.
+funextfun. intro n. 
+set (H1:= pr2 (pr1 (pr1 (pr1 (pr2 R))))).
+apply H1.
+(* apply R. *)  
+Defined.
 
 Lemma isassocfpstimes ( R : commrng ) : isassoc (fpstimes R).  Proof.
 intros. unfold isassoc. intros s t u.  unfold fpstimes.

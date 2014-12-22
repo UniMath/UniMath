@@ -6,6 +6,7 @@ include build/Makefile-configuration
 endif
 ############################################
 # The packages, listed in reverse order by dependency:
+PACKAGES += PAdics
 PACKAGES += Ktheory
 PACKAGES += RezkCompletion
 PACKAGES += Foundations
