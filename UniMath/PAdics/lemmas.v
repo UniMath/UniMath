@@ -32,7 +32,7 @@ E b0 ) ( e1 : E b1 ) ( p0 : b0 ~> b1 ) ( p1 : transportf E p0 e0 ~> e1
 ) : ( tpair b0 e0 ) ~> ( tpair b1 e1 ).  Proof.  intros. destruct p0,
 p1. apply idpath.  Defined.
 
-Definition neq ( X : UU0 ) : X -> X -> hProp := fun x y : X =>
+Definition neq ( X : UU ) : X -> X -> hProp := fun x y : X =>
 hProppair (neg (x ~> y)) (isapropneg (x ~> y)).
 
 Definition pathintotalpr1 { B : UU } { E : B -> UU } { v w : total2 E
@@ -230,7 +230,7 @@ A b ). change ( dirprod ( ( a' * a )%rng ~> ( @rngunel2 A ) ) ( ( a *
 a' )%rng ~> ( @rngunel2 A ) ) ) in p. change ( dirprod ( ( b' * b
 )%rng ~> ( @rngunel2 A ) ) ( ( b * b' )%rng ~> ( @rngunel2 A ) ) ) in
 q. rewrite <- ( pr2 q ). rewrite ( pr2 q ). rewrite rnglunax2. apply
-p.  Defined.
+(pr2 p).  Defined.
 
 Lemma commrngaddinvunique ( X : commrng ) ( a b c : X ) ( p : @op1 X a
 b ~> @rngunel1 X ) ( q : @op1 X a c ~> @rngunel1 X ) : b ~> c.  Proof.
@@ -252,8 +252,8 @@ multinvpair X a ).  Proof.  intros. unfold isaprop.  intros b c.
   isofhleveldirprod. apply ( setproperty X ). apply ( setproperty X
   ). apply is.  split with f. intros g. assert ( isaset ( multinvpair
   X a ) ) as is. unfold multinvpair. unfold invpair. change isaset
-  with ( isofhlevel 2 ). apply isofhleveltotal2. apply ( pr1 ( pr1 (
-  rigmultmonoid X ) ) ). intros. apply isofhleveldirprod. apply
+  with ( isofhlevel 2 ). apply isofhleveltotal2. apply ( pr2 ( pr1 ( pr1 (
+  rigmultmonoid X ) ) ) ). intros. apply isofhleveldirprod. apply
   hlevelntosn. apply ( setproperty X ). apply hlevelntosn. apply (
   setproperty X ). apply is.  Defined.
 
@@ -415,13 +415,13 @@ Close Scope hz_scope.
 
 (** * IV. Generalities on apartness relations *)
 
-Definition iscomparel { X : UU0 } ( R : hrel X ) := forall x y z : X,
+Definition iscomparel { X : UU } ( R : hrel X ) := forall x y z : X,
 R x y -> coprod ( R x z ) ( R z y ).
 
-Definition isapart { X : UU0 } ( R : hrel X ) := dirprod ( isirrefl R
+Definition isapart { X : UU } ( R : hrel X ) := dirprod ( isirrefl R
 ) ( dirprod ( issymm R ) ( iscotrans R ) ).
 
-Definition istightapart { X : UU0 } ( R : hrel X ) := dirprod (
+Definition istightapart { X : UU } ( R : hrel X ) := dirprod (
 isapart R ) ( forall x y : X, neg ( R x y ) -> ( x ~> y ) ).
 
 Definition apart ( X : hSet ) := total2 ( fun R : hrel X => isapart R
@@ -438,7 +438,7 @@ b c.
 Definition isbinopapart { X : hSet } ( R : apart X ) ( opp : binop X )
 := dirprod ( isbinopapartl R opp ) ( isbinopapartr R opp ).
 
-Lemma deceqtoneqapart { X : UU0 } ( is : isdeceq X ) : isapart ( neq X
+Lemma deceqtoneqapart { X : UU } ( is : isdeceq X ) : isapart ( neq X
 ).  Proof.  intros. split. intros a. intro p. apply p. apply idpath.
 split. intros a b p q. apply p. apply pathsinv0. assumption.  intros a
 c b p P s. apply s. destruct ( is a c ) as [ l | r ].  apply
@@ -500,8 +500,10 @@ pr1aintdom : aintdom >-> acommrng.
 
 Definition aintdomazerosubmonoid ( A : aintdom ) : @subabmonoids (
 rngmultabmonoid A ).  Proof. intros. split with ( fun x : A => ( x # 0
-) ). split.  intros a b. simpl in *. apply A. apply a. apply b.  apply
-A.  Defined.
+) ). split.  intros a b. simpl in *. apply (pr2 (pr2 A)). 
+simpl in a.
+apply (pr2 a). apply (pr2 b).  apply
+(pr2 A).  Defined.
 
 Definition isaafield ( A : acommrng ) := dirprod ( ( rngunel2 ( X := A
 ) ) # 0 ) ( forall x : A, x # 0 -> multinvpair A x ).
@@ -515,16 +517,16 @@ Lemma afldinvertibletoazero ( A : afld ) ( a : A ) ( p : multinvpair A
 a ) : a # 0.  Proof.  intros. destruct p as [ a' p ].  assert ( a' * a
 # 0 ) as q.  change ( a' * a # 0 ). assert ( a' * a ~> a * a' ) as
 f. apply ( rngcomm2 A ).  assert ( a * a' ~> 1 ) as g. apply
-p. rewrite f, g. apply A.  assert ( a' * a # a' * ( rngunel1 ( X := A
+(pr2 p). rewrite f, g. apply (pr2 A).  assert ( a' * a # a' * ( rngunel1 ( X := A
 ) ) ) as q'.  assert ( ( rngunel1 ( X := A ) ) ~> ( a' * ( rngunel1 (
 X := A ) ) ) ) as f.  apply pathsinv0. apply ( rngmultx0 A ). rewrite
 <- f. assumption.  apply ( ( pr1 ( acommrng_amult A ) ) a'
 ). assumption.  Defined.
 
 Definition afldtoaintdom ( A : afld ) : aintdom .  Proof.  intro
-. split with ( pr1 A ) . split. apply A. intros a b p q.  apply
-afldinvertibletoazero. apply multinvmultstable. apply A. assumption.
-apply A. assumption.  Defined.
+. split with ( pr1 A ) . split. apply (pr2 A). intros a b p q.  apply
+afldinvertibletoazero. apply multinvmultstable.  apply (pr2 (pr2 A)). assumption.
+apply (pr2 (pr2 A)). assumption.  Defined.
 
 Lemma timesazero { A : acommrng } { a b : A } ( p : a * b # 0 ) :
 dirprod ( a # 0 ) ( b # 0 ).  Proof.  intros. split. assert ( a * b #
@@ -551,7 +553,7 @@ Close Scope rng_scope.
 
 (** * VI. Lemmas on logic *)
 
-Lemma horelim ( A B : UU0 ) ( P : hProp ) : dirprod ( ishinh_UU A -> P
+Lemma horelim ( A B : UU ) ( P : hProp ) : dirprod ( ishinh_UU A -> P
 ) ( ishinh_UU B -> P ) -> ( hdisj A B -> P ).  Proof.  intros A B P
 p. intro q. apply q. intro u. destruct u as [ u | v ].  apply ( pr1 p
 ). intro Q. auto. apply ( pr2 p ). intro Q. auto.  Defined.
@@ -566,10 +568,13 @@ apply IHn. assumption. apply q. rewrite right. intro f.  apply (
 negpathssx0 n ). assumption. intros k s. rewrite right in s. apply (
 IHn k ). assumption.  Defined.
 
-Lemma setquotprpathsandR { X : UU0 } ( R : eqrel X ) : forall x y : X,
+Lemma setquotprpathsandR { X : UU } ( R : eqrel X ) : forall x y : X,
 setquotpr R x ~> setquotpr R y -> R x y.  Proof.  intros. assert ( pr1
 ( setquotpr R x ) y ) as i. assert ( pr1 ( setquotpr R y ) y ) as
-i0. unfold setquotpr. apply R. destruct X0. assumption. apply i.
+i0. unfold setquotpr. simpl. 
+- apply (pr2 (pr1 (pr2 R))). 
+- destruct X0. assumption. 
+- apply i.
 Defined.
 
 (* Some lemmas on decidable properties of natural numbers. *)
@@ -589,18 +594,18 @@ n. destruct ( is 0%nat ) as [ l | r ].  apply ii1. apply
 total2tohexists. split with 0%nat. split. apply
 isreflnatleh. assumption. apply ii2. intro j. assert hfalse as
 x. apply j. intro m. destruct m as [ m m' ]. apply r. rewrite (
-natleh0tois0 m ( pr1 m' ) ) in m'. apply m'. apply x.
+natleh0tois0 m ( pr1 m' ) ) in m'. apply (pr2 m'). apply x.
 
   destruct ( is ( S n ) ) as [ l | r ]. apply ii1. apply
 total2tohexists. split with ( S n ). split. apply ( isreflnatleh ( S n
 ) ). assumption. destruct IHn as [ l' | r' ]. apply ii1. apply l'.
 intro m. destruct m as [ m m' ]. apply total2tohexists. split with
 m. split. apply ( istransnatleh _ n _ ). apply m'. apply
-natlthtoleh. apply natlthnsn. apply m'. apply ii2. intro j. apply
+natlthtoleh. apply natlthnsn. apply (pr2 m'). apply ii2. intro j. apply
 r'. apply j. intro m. destruct m as [ m m' ]. apply
 total2tohexists. split with m. split. destruct ( natlehchoice m ( S n
 ) ( pr1 m' ) ). apply natlthsntoleh. assumption. assert empty. apply
-r. rewrite <- i. apply m'. contradiction. apply m'.  Defined.
+r. rewrite <- i. apply (pr2 m'). contradiction. apply (pr2 m').  Defined.
 
 Lemma isdecisbndqdec ( P : nat -> hProp ) ( is : isdecnatprop P ) ( n
 : nat ) : coprod ( forall m : nat, natleh m n -> P m ) ( hexists ( fun
