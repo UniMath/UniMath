@@ -50,9 +50,12 @@ Definition hset_precategory_ob_mor : precategory_ob_mor :=
   tpair (fun ob : UU => ob -> ob -> UU) hSet 
         (fun A B : hSet => hset_fun_space A B).
 
-Definition hset_precategory_data : precategory_data :=
-  precategory_data_pair hset_precategory_ob_mor (fun (A:hSet) (x : A) => x) 
-     (fun (A B C : hSet) (f : A -> B) (g : B -> C) (x : A) => g (f x)).
+Definition hset_precategory_data : precategory_data.
+Proof.
+  exists hset_precategory_ob_mor.
+  intros A B C f g x.
+  apply (g (f x)).
+Defined.
 
 Lemma is_precategory_hset_precategory_data :
   is_precategory hset_precategory_data.
