@@ -61,7 +61,9 @@ Lemma is_precategory_hset_precategory_data :
   is_precategory hset_precategory_data.
 Proof.
   repeat split; simpl.
-Qed.
+  exists (fun A x => x).
+  repeat split; auto. 
+Defined.
 
 Definition hset_precategory : precategory := 
   tpair _ _ is_precategory_hset_precategory_data.

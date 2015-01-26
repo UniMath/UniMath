@@ -179,11 +179,12 @@ Definition sub_precategory_data (C : precategory)(C':sub_precategories C) :
       precategory_data.
 Proof.
   exists (sub_precategory_ob_mor C C').
-  split.
+  (*split.
     intro c.
     exists (identity (C:=C) (pr1 c)).
     apply sub_precategory_id.
     apply (pr2 c).
+  *)
   intros a b c f g.
   exists (compose (pr1 f) (pr1 g)).
   apply sub_precategory_comp.
@@ -218,20 +219,27 @@ Proof.
   apply (total2_paths2 (idpath _ )).
 *)
 
+Definition precategory_sub_category_id (C : precategory) (C' : sub_precategories C) :
+   forall a : sub_ob C', sub_precategory_morphisms C' a a.
+Proof.
+  intro a.
+  exists (identity (C := C) (pr1 a)).
+  apply (pr2 C').
+  apply (pr2 a).
+Defined.
+
 Definition is_precategory_sub_category (C : precategory)(C':sub_precategories C) :
     is_precategory (sub_precategory_data C C').
 Proof.
   repeat split;
   simpl; intros.
-  unfold sub_precategory_comp;
-  apply eq_in_sub_precategory; simpl;
-  apply id_left.
-  apply eq_in_sub_precategory. simpl.
-  apply id_right.
-  apply eq_in_sub_precategory.
-  simpl.
-  apply assoc.
-Qed.
+  - exists (precategory_sub_category_id C C').
+    split; intros; simpl;
+    apply eq_in_sub_precategory;
+    try apply id_left; try apply id_right.
+  - apply eq_in_sub_precategory.
+    apply assoc.
+Defined.
 
 Definition carrier_of_sub_precategory (C : precategory)(C':sub_precategories C) :
    precategory := tpair _ _ (is_precategory_sub_category C C').
