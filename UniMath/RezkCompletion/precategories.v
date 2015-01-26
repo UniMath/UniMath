@@ -56,20 +56,12 @@ Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 (** data of a precategory : 
     - objects
     - morphisms
-    - identity morphisms
     - composition
 *)
 
 Definition precategory_data := total2 (
    fun C : precategory_ob_mor => forall a b c : C,
           a --> b -> b --> c -> a --> c).
-
-(*
-Definition precategory_id_comp (C : precategory_ob_mor) :=
-     dirprod (forall c : C, c --> c) (* identities *) 
-             (forall a b c : C,
-                 a --> b -> b --> c -> a --> c).
-*)
 
 Definition precategory_ob_mor_from_precategory_data (C : precategory_data) :
      precategory_ob_mor := pr1 C.
@@ -82,20 +74,10 @@ Definition compose { C : precategory_data }
 
 Local Notation "f ;; g" := (compose f g)(at level 50).
 
-(*
-Definition precategory_data := total2 precategory_id_comp.
-*)
-(*
-Definition precategory_data_pair (C : precategory_ob_mor)
-    (id : forall c : C, c --> c)
-    (comp: forall a b c : C,
-         a --> b -> b --> c -> a --> c) : precategory_data :=
-   tpair _ C (dirprodpair id comp).
-*)
-
 
 (** ** Axioms of a precategory *)
 (** 
+        - identity operation
         - identity is left and right neutral for composition 
         - composition is associative
 *)
@@ -108,15 +90,6 @@ Definition is_precategory (C : precategory_data) :=
      (forall (a b c d : C) 
                     (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) = (f ;; g) ;; h).
-(*
-Definition is_hs_precategory_data (C : precategory_data) := forall (a b : C), isaset (a --> b).
-*)
-(*
-Definition hs_precategory_data := total2 is_hs_precategory_data.
-Definition precategory_data_from_hs_precategory_data (C : hs_precategory_data) :
-  precategory_data := pr1 C.
-Coercion precategory_data_from_hs_precategory_data : hs_precategory_data >-> precategory_data.
-*)
 
 
 Definition precategory := total2 is_precategory.
@@ -130,11 +103,7 @@ Definition identity {C : precategory} : forall c : C, c --> c := pr1 (pr1 (pr2 C
 Definition hs_precategory := total2 (fun C : precategory_data => 
   dirprod (is_precategory C) (forall a b : C, isaset (a --> b))).
 
-(*
-Definition precategory_data_from_hs_precategory (C : hs_precategory) : 
-       precategory_data := pr1 C.
-Coercion precategory_data_from_hs_precategory : hs_precategory >-> precategory_data.
-*)
+
 Definition precategory_from_hs_precategory (C : hs_precategory) : precategory :=
   tpair _ (pr1 C) (pr1 (pr2 C)).
 Coercion precategory_from_hs_precategory : hs_precategory >-> precategory.

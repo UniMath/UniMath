@@ -68,7 +68,6 @@ Defined.
 Definition makePrecategory_data
     (obj : UU)
     (mor : obj -> obj -> UU)
-    (* identity : forall i, mor i i) *)
     (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
     : precategory_data.
   intros.
@@ -105,11 +104,7 @@ Qed.
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
 Proof. intros [ob mor]. reflexivity. Defined.
-(*
-Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
-  idpath _ = maponpaths precategory_comp (opp_opp_precat_ob_mor C).
-Proof. intros [ob mor]. reflexivity. Defined.
-*)
+
 Lemma opp_opp_precat_data (C : precategory_data) 
    : C = opp_precat_data (opp_precat_data C).
 Proof. intros [[ob mor] co]. reflexivity. Defined.

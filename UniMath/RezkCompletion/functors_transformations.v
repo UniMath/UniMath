@@ -699,12 +699,6 @@ Proof.
     intro x; simpl.
     set (T:=iso_inv_after_iso (tpair _ (pr1 A x) (H x))).
     apply T.
-(*  simpl in *.
-    change (A x) with (pr1 A x).
-    simpl in *. rewrite T. unfold identity. simpl.
-    apply idpath.
-    unfold is_precategory_functor_precategory_data.
-*)
   - apply nat_trans_eq. apply hs.
     intro x; simpl.
     set (T:=iso_after_iso_inv (tpair _ (pr1 A x) (H x))).

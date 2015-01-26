@@ -16,10 +16,6 @@ Defined.
 
 Definition cat_data {C} (X:C==>SET) : precategory_data.
   intros. exists (cat_ob_mor X). 
-(*  split.
-  { intro a. 
-    exact (identity (pr1 a),, (apevalat (pr2 a) ((functor_id X) (pr1 a)))). }
-*)
   { intros a b c f g.
     exact (pr1 g ∘ pr1 f,,
            (  (apevalat (pr2 a) ((functor_comp X) _ _ _ (pr1 f) (pr1 g)))

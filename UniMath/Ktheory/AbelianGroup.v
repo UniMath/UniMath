@@ -474,8 +474,7 @@ Module Category.
     intros F G. apply (monoidfun F G).
   Defined.
   Definition Data : precategory_data.
-    exists ObMor. (* split. intro G. exists (idfun (G : abgr)). split. 
-    split. reflexivity. *) intros a b c.  exact monoidfuncomp. Defined.
+    exists ObMor. intros a b c.  exact monoidfuncomp. Defined.
   Definition MorEquality G H (p q : Mor G H) : pr1 p = pr1 q -> p = q.
     intros. apply Monoid.funEquality. assumption. Qed.
   Definition abgrid (a : Data) : a → a.

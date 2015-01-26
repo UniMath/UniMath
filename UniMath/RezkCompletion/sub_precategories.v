@@ -179,12 +179,6 @@ Definition sub_precategory_data (C : precategory)(C':sub_precategories C) :
       precategory_data.
 Proof.
   exists (sub_precategory_ob_mor C C').
-  (*split.
-    intro c.
-    exists (identity (C:=C) (pr1 c)).
-    apply sub_precategory_id.
-    apply (pr2 c).
-  *)
   intros a b c f g.
   exists (compose (pr1 f) (pr1 g)).
   apply sub_precategory_comp.
@@ -205,19 +199,6 @@ Proof.
   apply pr2.
 Qed.
 
-(*
-Lemma eq_in_sub_precategory2 (C : precategory)(C':sub_precategories C)
-     (a b : sub_ob C') (f g : a --> b) 
- (pf : sub_precategory_predicate_morphisms C' _ _ f) 
- (pg : sub_precategory_predicate_morphisms C' _ _ g): 
-  f = g -> (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) f pf) = 
-      (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) g pg).
-Proof.
-  intro H.
-  apply (total2_paths2 H).
-  destruct H.
-  apply (total2_paths2 (idpath _ )).
-*)
 
 Definition precategory_sub_category_id (C : precategory) (C' : sub_precategories C) :
    forall a : sub_ob C', sub_precategory_morphisms C' a a.
