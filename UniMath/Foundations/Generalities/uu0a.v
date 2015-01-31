@@ -568,7 +568,7 @@ Definition coconustotpair (T : UU) {t t' : T}
 
 Definition coconustotpr1 (T : UU) (t : T) := @pr1 _ (fun (t' : T) => t' = t). 
 
-(* There is a homotopy between any two paths in a coconus. As we also
+(* There is a path between any two paths in a coconus. As we also
    have a trivial path, namely the one that starts at t and ends at t,
    the space of coconuses is contractible. *)
 
