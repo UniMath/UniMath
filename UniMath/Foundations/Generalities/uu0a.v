@@ -36,12 +36,14 @@ Identity Coercion fromUUtoType : UU >-> Sortclass.
 
 (** *** Canonical functions from [ empty ] and to [ unit ] *)
 
-Definition fromempty {X : UU} : empty -> X.
+Definition fromempty  : forall X : UU , empty -> X.
 Proof.
   intro X.
   intro H.  
   induction H.
-Defined. 
+Defined.
+
+Arguments fromempty { X } _ . 
 
 Definition tounit {X : UU} : X -> unit := fun (x : X) => tt.
 
@@ -1067,9 +1069,7 @@ Proof.
 Defined.  
 
 Corollary isweqhomot {X Y : UU} (f1 f2 : X -> Y)
-  (h : forall x : X, f1 x = f2 x): isweq f1 -> isweq f2.
-(* WARNING: Changing to homotopy notation in the immediately preceding line
-   causes algebra1a to fail. *)
+  (h : f1 ~ f2) : isweq f1 -> isweq f2.
 Proof.
   intros X Y f1 f2 h x0.
   unfold isweq.
