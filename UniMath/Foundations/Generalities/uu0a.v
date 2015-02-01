@@ -1482,7 +1482,7 @@ Proof.
 Defined.
 
 Definition weqcomp {X Y Z : UU} (w1 : weq X Y) (w2 : weq Y Z) : (weq X Z) :=
-  weqpair (w2 circ w1) (twooutof3c w1 w2 (pr2 w1) (pr2 w2)). 
+  weqpair (fun (x : X) => w2 (w1 x)) (twooutof3c w1 w2 (pr2 w1) (pr2 w2)). 
 
 
 (** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences. *)
