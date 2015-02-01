@@ -1102,8 +1102,8 @@ Proof.
 Defined.
 
 Theorem gradth {X Y : UU} (f : X -> Y) (g : Y -> X)
-  (egf: forall (x : X), g (f x) = x)
-  (efg: forall (y : Y), f (g y) = y) : isweq f.
+  (egf: forall x : X, g (f x) = x)
+  (efg: forall y : Y, f (g y) = y) : isweq f.
 Proof.
   intros.
   unfold isweq.
@@ -1147,8 +1147,7 @@ Defined.
 
 Corollary iscontrweqf {X Y : UU} (w : weq X Y) (is : iscontr X) : iscontr Y.
 Proof.
-  intros.
-  apply (iscontrweqb (invweq w) is).
+  intros. apply (iscontrweqb (invweq w) is).
 Defined.
 
 (** Equality between pairs is equivalent to pairs of equalities
