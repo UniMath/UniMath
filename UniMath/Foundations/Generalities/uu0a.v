@@ -1142,11 +1142,7 @@ Definition invweq {X Y : UU} (w : weq X Y) : weq Y X :=
 Corollary invinv {X Y :UU} (w : weq X Y) (x : X)  :
   invmap (invweq w) x = w x.
 Proof.
-  intros.
-  unfold invweq.
-  unfold invmap.
-  simpl.
-  apply idpath.
+  intros. apply idpath.
 Defined.
 
 Corollary iscontrweqf {X Y : UU} (w : weq X Y) (is : iscontr X) : iscontr Y.
