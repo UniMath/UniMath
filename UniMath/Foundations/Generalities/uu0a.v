@@ -309,7 +309,7 @@ Proof.
 Defined.
 
 Definition pathssec2id {X Y : UU} (s : X -> Y) (p : Y -> X)
-  (eps : forall (x : X), p (s x) = x)
+  (eps : forall x : X, p (s x) = x)
     (x : X) : pathssec2 s p eps _ _ (idpath (s x)) = idpath x.
 Proof.
   intros.
@@ -321,7 +321,7 @@ Proof.
 Defined.
 
 Definition pathssec3 {X Y : UU} (s : X -> Y) (p : Y -> X) 
-  (eps : forall (x : X), p (s x) = x) {x x' : X} (e : x = x') : 
+  (eps : forall x : X, p (s x) = x) {x x' : X} (e : x = x') : 
     pathssec2 s p eps  _ _ (maponpaths s e) = e.
 Proof.
   intros. induction e. simpl.
