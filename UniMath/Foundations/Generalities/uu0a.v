@@ -309,7 +309,7 @@ Proof.
 Defined.
 
 Definition pathssec2id {X Y : UU} (s : X -> Y) (p : Y -> X)
-  (eps : forall (x: X), p (s x) = x)
+  (eps : forall (x : X), p (s x) = x)
     (x : X) : pathssec2 s p eps _ _ (idpath (s x)) = idpath x.
 Proof.
   intros.
@@ -321,12 +321,12 @@ Proof.
 Defined.
 
 Definition pathssec3 {X Y : UU} (s : X -> Y) (p : Y -> X) 
-  (eps: forall x:X, p (s x) = x) {x x' : X} (e : x = x') : 
+  (eps : forall (x : X), p (s x) = x) {x x' : X} (e : x = x') : 
     pathssec2 s p eps  _ _ (maponpaths s e) = e.
 Proof.
   intros. induction e. simpl.
   apply pathssec2id.
-Defined. 
+Defined.
 
 (* end of "Operations on [ paths ]". *) 
 
@@ -393,7 +393,7 @@ Lemma total2_paths2 {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1}
       tpair (fun x => B x) a1 b1 = tpair (fun x => B x) a2 b2.
 Proof.
   intros.
-  apply (@total2_paths _ _  
+  apply (@total2_paths _ _
     (tpair (fun x => B x) a1 b1) (tpair (fun x => B x) a2 b2) p q).
 Defined.
 
@@ -668,7 +668,8 @@ Proof.
   apply (maponpaths (fun e: paths (f t) y => hfiberpair f t e) eee).
 Defined.
 
-(** Coconus of a function - the total space of the family of h-fibers. *)
+(** Coconus of a function: the total space of the family of h-fibers.
+    The coconus behaves like the image of a function.  *)
 
 Definition coconusf {X Y : UU} (f : X -> Y) :=
   total2 (fun (y : Y) => hfiber f y).
@@ -677,7 +678,30 @@ Definition fromcoconusf {X Y : UU} (f : X -> Y) : coconusf f -> X :=
   fun (yxe : coconusf f) => pr1 (pr2 yxe).
 
 Definition tococonusf {X Y : UU} (f : X -> Y) : X -> coconusf f :=
-  fun (x : _) => tpair _ (f x) (hfiberpair f x (idpath _ )).   
+  fun (x : _) => tpair _ (f x) (hfiberpair f x (idpath _ )).
+
+Lemma homottofromcoconusf {X Y : UU} (f : X -> Y) :
+  forall yxe : coconusf f, tococonusf f (fromcoconusf f yxe) = yxe.
+Proof.
+  intros.
+  induction yxe as [y xe].
+  induction xe as [x e].
+  unfold fromcoconusf.
+  unfold tococonusf.
+  simpl.
+  induction e.
+  apply idpath.
+Defined.
+
+Lemma homotfromtococonusf {X Y : UU} (f : X -> Y) :
+  forall x : X, fromcoconusf f (tococonusf f x) = x.
+Proof.
+  intros.
+  unfold fromcoconusf.
+  unfold tococonusf.
+  simpl.
+  apply idpath.
+Defined.
 
 (** Total spaces of families and homotopies *)
 
@@ -715,7 +739,7 @@ Lemma idisweq (T : UU) : isweq (idfun T).
 Proof.
   intros. unfold isweq. intro y.
   unfold iscontr.
-  split with (tpair (fun (x : T) => (idfun T) x = y) y (idpath y)).
+  split with (tpair (fun (x : T) => idfun T x = y) y (idpath y)).
   intro t.
   induction t as [x e].
   induction e.
@@ -778,8 +802,8 @@ Proof.
   apply (pr2 (weqccontrhfiber w y)).
 Defined.
 
-Definition homotinvweqweq0 {X Y : UU}
-  (w : weq X Y) (x : X) : x = invmap w (w x).
+Definition homotinvweqweq0 {X Y : UU} (w : weq X Y) :
+ forall x : X, x = invmap w (w x).
 Proof.
   intros.
   unfold invmap.
@@ -789,16 +813,16 @@ Proof.
   apply (maponpaths pr1 p).
 Defined.
 
-Definition homotinvweqweq {X Y : UU}
-  (w : weq X Y) (x : X) : invmap w (w x) = x :=
-    ! (homotinvweqweq0 w x).
+Definition homotinvweqweq {X Y : UU} (w : weq X Y) :
+  forall x : X, invmap w (w x) = x :=
+    fun (x : X) => ! (homotinvweqweq0 w x).
 
-Lemma diaglemma2 {X Y : UU} (f : X -> Y) {x x':X}
+Lemma diaglemma2 {X Y : UU} (f : X -> Y) {x x' : X}
   (e1 : x = x') (e2 : f x' = f x)
     (ee : idpath (f x) = maponpaths f e1 @ e2) : maponpaths f (! e1) = e2.
 Proof.
   intros. induction e1. simpl in *. apply ee.
-Defined. 
+Defined.
 
 Definition homotweqinvweqweq {X Y : UU} (w : weq X Y) (x : X) :
   maponpaths w (homotinvweqweq w x) = homotweqinvweq w (w x).
@@ -812,7 +836,7 @@ Proof.
   apply diaglemma2.
   apply (@hfibertriangle1 _ _ w _ hfid hfcc (weqccontrhfiber2 w (w x) hfid)).
 Defined.
-  
+
 Definition invmaponpathsweq {X Y : UU} (w : weq X Y) (x x' : X) : 
   w x = w x' -> x = x' :=
     pathssec2 w (invmap w) (homotinvweqweq w) x x'.
@@ -839,41 +863,40 @@ Proof.
   intros.
   destruct w as [f is1].
   set (w := weqpair f is1).
-  set (g :=invmap w).
-  set (gf := fun (x : X) => g (f x)).
+  set (g := invmap w).
   set (ee := maponpaths g e).
   simpl in *.
-  set (eee := maponpathshomidinv gf (homotinvweqweq w) x x' ee). 
+  set (eee := maponpathshomidinv (g circ f) (homotinvweqweq w) x x' ee).
   
   assert (e1 : maponpaths f eee = e).
   {
-    assert (e2 : maponpaths g (maponpaths f eee) = maponpaths g e).
-    assert (e3 : maponpaths g  (maponpaths f eee) = maponpaths gf eee).
-    apply maponpathscomp. 
-    assert (e4 : maponpaths gf eee = ee).
+    assert (e2 : maponpaths (g circ f) eee = ee).
     apply maponpathshomid2.
-    apply (e3 @ e4). 
+    assert (e3 : maponpaths g (maponpaths f eee) = maponpaths g e).
+    apply (maponpathscomp f g eee @ e2).
     set (s := @maponpaths _ _ g (f x) (f x')).
     set (p := @pathssec2  _ _ g f (homotweqinvweq w) (f x) (f x')).
     set (eps := @pathssec3  _ _ g f (homotweqinvweq w ) (f x) (f x')).
-    apply (pathssec2 s p eps _ _  e2).
+    apply (pathssec2 s p eps _ _  e3).
   }
-  
-  assert (e5: 
-    maponpaths f  (invmaponpathsweq w x x' e) =
-      maponpaths f (invmaponpathsweq w x x' (maponpaths f eee))).
-  { apply (! (maponpaths
-    (fun e0: f x = f x' => maponpaths f (invmaponpathsweq w x x' e0))
-      e1)). }
+ 
+  assert (e4: 
+    maponpaths f  (invmaponpathsweq w x x' (maponpaths f eee)) =
+      maponpaths f (invmaponpathsweq w x x' e)).
+  { 
+    apply (maponpaths (fun (e0: f x = f x') =>
+                       maponpaths f (invmaponpathsweq w x x' e0))
+           e1).
+  }
 
   assert (X0 : invmaponpathsweq w x x' (maponpaths f eee) = eee).
   { apply (pathsweq3 w). }
 
-  assert (e6: maponpaths f (invmaponpathsweq w x x' (maponpaths f eee)) = 
-    maponpaths f eee).
+  assert (e5: maponpaths f (invmaponpathsweq w x x' (maponpaths f eee))
+              = maponpaths f eee).
   { apply (maponpaths (fun eee0: x = x' => maponpaths f eee0) X0). }
 
-  apply (e5 @ e6 @ e1).
+  apply (! e4 @ e5 @ e1).
 Defined. 
 
 (** *** Weak equivalences between contractible types (other
@@ -1079,8 +1102,8 @@ Proof.
 Defined.
 
 Theorem gradth {X Y : UU} (f : X -> Y) (g : Y -> X)
-  (egf: forall x : X, g (f x) = x)
-  (efg: forall y : Y, f (g y) = y) : isweq f.
+  (egf: forall (x : X), g (f x) = x)
+  (efg: forall (y : Y), f (g y) = y) : isweq f.
 Proof.
   intros.
   unfold isweq.
@@ -1103,172 +1126,371 @@ Definition weqgradth {X Y : UU} (f : X -> Y) (g : Y -> X)
 
 (** *** Some basic weak equivalences *)
 
+Corollary isweqinvmap {X Y : UU} (w : weq X Y) : isweq (invmap w).
+Proof.
+  intros.
+  assert (efg : forall (y : Y), w (invmap w y) = y).
+  apply homotweqinvweq.
+  assert (egf : forall (x : X), invmap w (w x) = x).
+  apply homotinvweqweq.
+  apply (gradth _ _ efg egf).
+Defined.
 
+Definition invweq {X Y : UU} (w : weq X Y) : weq Y X :=
+  weqpair (invmap w) (isweqinvmap w).
 
-Corollary isweqinvmap { X Y : UU } ( w : weq X Y ) : isweq (invmap w ).
-Proof. intros. set (invf:= invmap w ). assert (efinvf: forall y:Y, paths ( w (invf y)) y). apply homotweqinvweq. 
-assert (einvff: forall x:X, paths (invf ( w x)) x). apply homotinvweqweq. apply ( gradth _ _ efinvf einvff ) . Defined. 
+Corollary invinv {X Y :UU} (w : weq X Y) (x : X)  :
+  invmap (invweq w) x = w x.
+Proof.
+  intros.
+  unfold invweq.
+  unfold invmap.
+  simpl.
+  apply idpath.
+Defined.
 
-Definition invweq { X Y : UU } ( w : weq X Y ) : weq Y X := weqpair  (invmap w ) (isweqinvmap w ).
+Corollary iscontrweqf {X Y : UU} (w : weq X Y) (is : iscontr X) : iscontr Y.
+Proof.
+  intros.
+  apply (iscontrweqb (invweq w) is).
+Defined.
 
-Corollary invinv { X Y :UU } ( w : weq X Y ) ( x : X ) : paths  ( invmap ( invweq w ) x) (w x).
-Proof. intros. unfold invweq . unfold invmap . simpl . apply idpath . Defined .  
+(** Equality between pairs is equivalent to pairs of equalities
+    between components. Theorem adapted from HoTT library
+    http://github.com/HoTT/HoTT.
+ *)
 
-
-Corollary iscontrweqf { X Y : UU } ( w : weq X Y ) : iscontr X -> iscontr Y.
-Proof. intros X Y w X0 . apply (iscontrweqb ( invweq w ) ). assumption. Defined.
-
-(** Equality between pairs is equivalent to pairs of equalities between components 
-    Theorem adapted from HoTT library http://github.com/HoTT/HoTT
-*)
-
-Theorem total2_paths_equiv {A : UU} (B : A -> UU) (x y : total2 (fun x => B x)) :
-  weq (x = y) (total2 (fun p : pr1 x = pr1 y => transportf _ p (pr2 x) = pr2 y )).
+Theorem total2_paths_equiv {A : UU} (B : A -> UU)
+  (x y : total2 (fun x => B x)) :
+    weq (x = y)
+        (total2 (fun p : pr1 x = pr1 y => transportf _ p (pr2 x) = pr2 y)).
 Proof.
   intros A B x y.
-  exists (fun r : x = y =>  
-               tpair (fun p : pr1 x = pr1 y => 
-             transportf _ p (pr2 x) = pr2 y) (base_paths _ _ r) (fiber_paths r)).
+  exists (fun (r : x = y) =>  
+            tpair (fun p : pr1 x = pr1 y => transportf _ p (pr2 x) = pr2 y)
+              (base_paths _ _ r) (fiber_paths r)).
   apply (gradth _
-    (fun pq : total2 (fun p : pr1 x = pr1 y => transportf _ p (pr2 x) = pr2 y) => 
-                         total2_paths (pr1 pq) (pr2 pq))).
+    (fun (pq : total2 (fun (p : pr1 x = pr1 y) => 
+               transportf _ p (pr2 x) = pr2 y)) => 
+       total2_paths (pr1 pq) (pr2 pq))).
   - intro p.
-    apply total2_fiber_paths. 
+    apply total2_fiber_paths.
   - intros [p q]. simpl in *.
     apply (total2_paths2 (base_total2_paths q)).
     apply transportf_fiber_total2_paths.
 Defined.
 
-
 (** The standard weak equivalence from [ unit ] to a contractible type *)
 
-Definition wequnittocontr { X : UU } ( is : iscontr X ) : weq unit X .
-Proof . intros . set ( f := fun t : unit => pr1 is ) . set ( g := fun x : X => tt ) . split with f .
-assert ( egf : forall a : _ , paths ( g ( f a )) a ) . intro .  induction a . apply idpath . 
-assert ( efg : forall a : _ , paths ( f ( g a ) ) a ) . intro . simpl .  apply ( pathsinv0 ( pr2 is a ) ) .  
-apply ( gradth _ _ egf efg ) . Defined . 
+Definition wequnittocontr {X : UU} (is : iscontr X) : weq unit X.
+Proof.
+  intros.
+  set (f := fun (t : unit) => pr1 is).
+  set (g := fun (x : X) => tt).
+  split with f.
+  assert (egf : forall t : unit, g (f t) = t).
+  { intro. induction t. apply idpath. }
+  assert (efg : forall x : X, f (g x) = x).
+  { intro. apply (! (pr2 is x)). }
+  apply (gradth _ _ egf efg).
+Defined.
 
+(** A weak equivalence between types defines weak equivalences on the
+    corresponding [ paths ] types. *)
 
-(** A weak equivalence bwteen types defines weak equivalences on the corresponding [ paths ] types. *)
+Corollary isweqmaponpaths {X Y : UU} (w : weq X Y) (x x' : X) :
+  isweq (@maponpaths _ _ w x x').
+Proof.
+  intros.
+  apply (gradth (@maponpaths _ _ w x x')
+                (@invmaponpathsweq _ _ w x x')
+                (@pathsweq3 _ _ w x x')
+                (@pathsweq4 _ _ w x x')).
+Defined.
 
+Definition weqonpaths {X Y : UU} (w : weq X Y) (x x' : X) :=
+  weqpair _ (isweqmaponpaths w x x').
 
-Corollary isweqmaponpaths { X Y : UU } ( w : weq X Y ) ( x x' : X ) : isweq (@maponpaths _ _ w x x').
-Proof. intros. apply (gradth  (@maponpaths _ _ w x x') (@invmaponpathsweq _ _ w x x') (@pathsweq3 _ _ w x x')  (@pathsweq4 _ _ w x x')). Defined.  
+Corollary isweqpathsinv0 {X : UU} (x x' : X) : isweq (@pathsinv0 _ x x').
+Proof.
+  intros.
+  apply (gradth (@pathsinv0 _ x x')
+                (@pathsinv0 _ x' x)
+                (@pathsinv0inv0 _ _ _  )
+                (@pathsinv0inv0  _ _ _ )).
+Defined.
 
-Definition weqonpaths { X Y : UU } ( w : weq X Y ) ( x x' : X ) := weqpair _ ( isweqmaponpaths w x x' ) .
+Definition weqpathsinv0 {X : UU} (x x' : X) :=
+  weqpair _ (isweqpathsinv0 x x').
 
+Corollary isweqpathscomp0r {X : UU} (x : X) {x' x'' : X} (e': x' = x'') :
+   isweq (fun (e : x = x') => e @ e').
+Proof.
+  intros.
+  set (f := fun (e : x = x') => e @ e').
+  set (g := fun (e'' : x = x'') => e'' @ (! e')).
+  assert (egf : forall e : _, g (f e) = e).
+  { intro e. induction e. induction e'. apply idpath. }
+  assert (efg : forall e : _, f (g e) = e).
+  { intro e. induction e. induction e'. apply idpath. }
+  apply (gradth f g egf efg).
+Defined.
 
-Corollary isweqpathsinv0 { X : UU } (x x':X): isweq (@pathsinv0 _ x x').
-Proof. intros.  apply (gradth  (@pathsinv0 _ x x') (@pathsinv0 _ x' x) (@pathsinv0inv0 _ _ _  ) (@pathsinv0inv0  _ _ _ )). Defined.
+Corollary isweqtococonusf {X Y : UU} (f : X -> Y): isweq (tococonusf f).
+Proof.
+  intros.
+  apply (gradth _ _ (homotfromtococonusf f) (homottofromcoconusf f)).
+Defined.
 
-Definition weqpathsinv0 { X : UU } ( x x' : X ) := weqpair _ ( isweqpathsinv0 x x' ) .
+Definition weqtococonusf {X Y : UU} (f : X -> Y) : weq X (coconusf f) := 
+  weqpair _ (isweqtococonusf f).
 
-Corollary isweqpathscomp0r { X : UU } (x : X ) { x' x'' : X } (e': paths x' x''): isweq (fun e:paths x x' => pathscomp0   e e').
-Proof. intros. set (f:= fun e:paths x x' => pathscomp0   e e'). set (g:= fun e'': paths x x'' => pathscomp0   e'' (pathsinv0 e')). 
-assert (egf: forall e:_ , paths (g (f e)) e).   intro. induction e.  simpl. induction e'.  simpl.  apply idpath.
-assert (efg: forall e'':_, paths (f (g e'')) e''). intro. induction e''. simpl. induction e'. simpl.   apply idpath. 
-apply (gradth  f g egf efg). Defined. 
+Corollary  isweqfromcoconusf {X Y : UU} (f : X -> Y): isweq (fromcoconusf f).
+Proof.
+  intros.
+  apply (gradth _ _ (homottofromcoconusf f) (homotfromtococonusf f)).
+Defined.
 
+Definition weqfromcoconusf {X Y : UU} (f : X -> Y) : weq (coconusf f) X :=
+  weqpair _ (isweqfromcoconusf f).
 
-Corollary isweqtococonusf { X Y : UU } (f:X-> Y): isweq ( tococonusf  f) .
-Proof . intros. set (ff:= fromcoconusf  f). set (gg:= tococonusf  f).
-assert (egf: forall yxe:_, paths (gg (ff yxe)) yxe). intro. induction yxe as [t x].   induction x as [ x e ]. unfold gg. unfold tococonusf. unfold ff. unfold fromcoconusf.  simpl. induction e. apply idpath.  
-assert (efg: forall x:_, paths (ff (gg x)) x). intro. apply idpath.
-apply (gradth _ _ efg egf ). Defined.
+Corollary isweqdeltap (T : UU) : isweq (deltap T).
+Proof.
+  intros.
+  set (ff := deltap T). set (gg := fun (z : pathsspace T) => pr1 z).
+  assert (egf : forall t : T, gg (ff t) = t).
+  { intro. apply idpath. }
+  assert (efg : forall (tte : _), ff (gg tte) = tte).
+  { intro tte. induction tte as [t c].
+    induction c as [x e]. induction e.
+    apply idpath.
+  }
+  apply (gradth _ _ egf efg).
+Defined.
 
-Definition weqtococonusf { X Y : UU } ( f : X -> Y ) : weq X ( coconusf f ) := weqpair _ ( isweqtococonusf f ) .
+(* Recall that pathsspace' consists of pairs of points and a path
+   between them. *)
+Corollary isweqpr1pr1 (T : UU) :
+  isweq (fun (a : pathsspace' T) => pr1 (pr1 a)).
+Proof.
+  intros.
+  set (f := fun (a : pathsspace' T) => pr1 (pr1 a)).
+  set (g := fun (t : T) => 
+              tpair _ (dirprodpair t t) (idpath t) : pathsspace' T).
+  assert (efg : forall t : T, f (g t) = t).
+  { intros t. unfold f. unfold g. simpl. apply idpath. }
+  assert (egf : forall a : _, g (f a) = a).
+  { intros a. induction a as [xy e].
+    induction xy as [x y]. simpl in e.
+    induction e. unfold f. unfold g.
+    apply idpath.
+  }
+  apply (gradth _ _ egf efg).
+Defined.
 
+Lemma hfibershomotftog {X Y : UU} (f g : X -> Y)
+  (h : f ~ g) (y : Y) : hfiber f y -> hfiber g y .
+Proof.
+  intros X Y f g h y xe.
+  induction xe as [x e].
+  split with x.
+  apply (!(h x) @ e).
+Defined.
 
-Corollary  isweqfromcoconusf { X Y : UU } (f:X-> Y): isweq (fromcoconusf  f).
-Proof. intros. set (ff:= fromcoconusf  f). set (gg:= tococonusf  f).
-assert (egf: forall yxe:_, paths (gg (ff yxe)) yxe). intro. induction yxe as [t x].   induction x as [ x e ]. unfold gg. unfold tococonusf. unfold ff. unfold fromcoconusf.  simpl. induction e. apply idpath.  
-assert (efg: forall x:_, paths (ff (gg x)) x). intro. apply idpath.
-apply (gradth _ _ egf efg). Defined.
+Lemma hfibershomotgtof {X Y : UU} (f g : X -> Y) 
+  (h : f ~ g) (y : Y) : hfiber g y -> hfiber f y.
+Proof.
+  intros X Y f g h y xe.
+  induction xe as [x e].
+  split with x.
+  apply (h x @ e).
+Defined.
 
-Definition weqfromcoconusf { X Y : UU } ( f : X -> Y ) : weq ( coconusf f ) X := weqpair _ ( isweqfromcoconusf f ) .
+Theorem weqhfibershomot {X Y : UU} (f g : X -> Y) 
+  (h : f ~ g) (y : Y) : weq (hfiber f y) (hfiber g y).
+Proof.
+  intros X Y f g h y.
+  set (ff := hfibershomotftog f g h y).
+  set (gg := hfibershomotgtof f g h y).
 
-Corollary isweqdeltap (T:UU) : isweq (deltap T).
-Proof. intros. set (ff:=deltap T). set (gg:= fun z:pathsspace T => pr1  z). 
-assert (egf: forall t:T, paths (gg (ff t)) t). intro. apply idpath.
-assert (efg: forall tte: pathsspace T, paths (ff (gg tte)) tte). intro. induction tte as [ t x ].  induction x as [ x0 e ]. induction e. apply idpath. 
-apply (gradth _ _ egf efg). Defined. 
+  split with ff.
 
+  assert (effgg : forall xe : _, ff (gg xe) = xe).
+  {
+    intro xe.
+    induction xe as [x e].
+    simpl.
+    assert (eee : ! h x @ h x @ e = maponpaths g (idpath x) @ e).
+    { simpl.  induction e. induction (h x). apply idpath. }
+    set (xe1 := hfiberpair g x (! h x @ h x @ e)).
+    set (xe2 := hfiberpair g x e).
+    apply (hfibertriangle2 g xe1 xe2 (idpath x) eee).
+  }
 
-Corollary isweqpr1pr1 (T:UU) : isweq (fun a: pathsspace' T => (pr1  (pr1  a))).
-Proof. intros. set (f:=  (fun a:_ => (pr1  (pr1  a))): pathsspace' T -> T). set (g:= (fun t:T => tpair _ (dirprodpair  t t) (idpath t)): T -> pathsspace' T). 
-assert (efg: forall t:T, paths (f (g t)) t). intro. apply idpath. 
-assert (egf: forall a: pathsspace' T, paths (g (f a)) a). intro. induction a as [ t x ].   induction t. simpl in x . induction x.   simpl. apply idpath. 
-apply (gradth _ _  egf efg). Defined. 
+  assert (eggff : forall xe : _, gg (ff xe) = xe).
+  {
+    intro xe.
+    induction xe as [x e].
+    simpl.
+    assert (eee :  h x @ !h x @ e = maponpaths f (idpath x) @ e).
+    { simpl.  induction e. induction (h x). apply idpath. }
+    set (xe1 := hfiberpair f x (h x @ ! h x @ e)).
+    set (xe2 := hfiberpair f x e).
+    apply (hfibertriangle2 f xe1 xe2 (idpath x) eee).
+  }
 
+  apply (gradth _ _ eggff effgg).
+Defined.
 
-Lemma hfibershomotftog { X Y : UU } ( f g : X -> Y ) ( h : forall x : X , paths ( f x ) ( g x ) ) ( y : Y ) : hfiber f y -> hfiber g y .
-Proof. intros X Y f g h y xe .  induction xe as [ x e ] .  split with x .  apply ( pathscomp0 ( pathsinv0 ( h x ) ) e  ) . Defined .
+(** *** The 2-out-of-3 property of weak equivalences. 
+    
+    Theorems showing that if any two of three functions f, g, gf are
+    weak equivalences then so is the third - the 2-out-of-3 property.
+*)
 
+Theorem twooutof3a {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
+  (isgf: isweq (g circ f)) (isg: isweq g) : isweq f.
+Proof.
+  intros.
+  set (gw := weqpair g isg).
+  set (gfw := weqpair (g circ f) isgf).
+  set (invg := invmap gw).
+  set (invgf := invmap gfw).
 
-Lemma hfibershomotgtof { X Y : UU } ( f g : X -> Y ) ( h : forall x : X , paths ( f x ) ( g x ) ) ( y : Y ) : hfiber g y -> hfiber f y .
-Proof. intros X Y f g h y xe .  induction xe as [ x e ] .  split with x .  apply ( pathscomp0  ( h x ) e  ) . Defined .
+  set (invf := invgf circ g).
 
+  assert (efinvf : forall y : Y, f (invf y) = y).
+  {
+    intro y.
+    assert (int1 : g (f (invf y)) = g y).
+    { unfold invf. apply (homotweqinvweq gfw (g y)). }
+    apply (invmaponpathsweq gw _ _  int1). 
+  }
 
-Theorem weqhfibershomot { X Y : UU } ( f g : X -> Y ) ( h : forall x : X , paths ( f x ) ( g x ) ) ( y : Y ) : weq ( hfiber f y ) ( hfiber g y ) .
-Proof . intros . set ( ff := hfibershomotftog f g h y ) . set ( gg :=  hfibershomotgtof f g h y ) .  split with ff .
-assert ( effgg : forall xe : _ , paths ( ff ( gg xe ) ) xe ) . intro . induction xe as [ x e ] . simpl . 
-assert ( eee: paths ( pathscomp0 (pathsinv0 (h x)) (pathscomp0 (h x) e) )  (pathscomp0   (maponpaths g ( idpath x ) ) e ) ) .  simpl .  induction e . induction ( h x ) .  simpl .  apply idpath . 
-set ( xe1 := hfiberpair g x ( pathscomp0 (pathsinv0 (h x)) (pathscomp0 (h x) e) ) ) . set ( xe2 := hfiberpair g x e ) . apply ( hfibertriangle2 g xe1 xe2 ( idpath x ) eee ) .  
-assert ( eggff : forall xe : _ , paths ( gg ( ff xe ) ) xe ) . intro . induction xe as [ x e ] . simpl .
-assert ( eee: paths ( pathscomp0 (h x) (pathscomp0 (pathsinv0 (h x)) e) )  (pathscomp0   (maponpaths f ( idpath x ) ) e ) ) .  simpl .  induction e . induction ( h x ) .  simpl .  apply idpath . 
-set ( xe1 := hfiberpair f x ( pathscomp0 (h x) (pathscomp0 (pathsinv0 (h x)) e) ) ) . set ( xe2 := hfiberpair f x e ) . apply ( hfibertriangle2 f xe1 xe2 ( idpath x ) eee ) .  
-apply ( gradth _ _ eggff effgg ) . Defined .
+  assert (einvff: forall x : X, invf (f x) = x).
+  { intro. unfold invf. apply (homotinvweqweq gfw x). }
 
+  apply (gradth f invf einvff efinvf).
+Defined.
 
+Corollary isweqcontrcontr {X Y : UU} (f : X -> Y) 
+  (isx : iscontr X) (isy: iscontr Y): isweq f.
+Proof.
+  intros.
+  set (py := fun (y : Y) => tt).
+  apply (twooutof3a f py (isweqcontrtounit isx) (isweqcontrtounit isy)).
+Defined.
 
+Definition weqcontrcontr {X Y : UU} (isx : iscontr X) (isy: iscontr Y) :=
+  weqpair _ (isweqcontrcontr (fun (x : X) => pr1 isy) isx isy). 
 
+Theorem twooutof3b {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
+  (isf: isweq f) (isgf: isweq (g circ f)) : isweq g.
+Proof.
+  intros.
+  set (wf := weqpair f isf).
+  set (wgf := weqpair (g circ f) isgf).
+  set (invf := invmap wf).
+  set (invgf := invmap wgf).
 
-(** *** The 2-out-of-3 property of weak equivalences.
+  set (invg := f circ invgf).
+ 
+  assert (eginvg : forall z : Z, g (invg z) = z).
+  { intro. unfold invg. apply (homotweqinvweq wgf z). }
 
-Theorems showing that if any two of three functions f, g, gf are weak equivalences then so is the third - the 2-out-of-3 property. *)
+  assert (einvgg : forall y : Y, invg (g y) = y).
+  { intro. unfold invg.
 
+    assert (isinvf: isweq invf).
+    { apply isweqinvmap. }
+    assert (isinvgf: isweq invgf).
+    { apply isweqinvmap. }
 
+    assert (int1 : g y = (g circ f) (invf y)).
+     apply (maponpaths g (! homotweqinvweq wf y)).
 
+    assert (int2 : (g circ f) (invgf (g y)) = (g circ f) (invf y)).
+    { 
+      assert (int3: paths ((g circ f) (invgf (g y))) (g y)).
+      { apply (homotweqinvweq wgf). }
+      induction int1. 
+      apply int3.
+    }
+   
+    assert (int4: paths (invgf (g y)) (invf y)).
+    { apply (invmaponpathsweq wgf). apply int2. }
 
+    assert (int5: paths (invf (f (invgf (g y)))) (invgf (g y))).
+    { apply (homotinvweqweq wf ). }
 
-Theorem twooutof3a { X Y Z : UU } (f:X->Y) (g:Y->Z) (isgf: isweq (fun x:X => g (f x))) (isg: isweq g) : isweq f.
-Proof. intros. set ( gw := weqpair g isg ) . set ( gfw := weqpair _ isgf ) . set (invg:= invmap gw ). set (invgf:= invmap gfw ). set (invf := (fun y:Y => invgf (g y))). 
+     assert (int6: paths (invf (f (invgf (g (y))))) (invf y)). 
+    { induction int4. apply int5. }
+   
+     apply (invmaponpathsweq ( weqpair invf isinvf ) ).
+     simpl.
+     apply int6.
+  }
 
-assert (efinvf: forall y:Y, paths (f (invf y)) y). intro.   assert (int1: paths (g (f (invf y))) (g y)). unfold invf.  apply (homotweqinvweq gfw ( g y ) ). apply (invmaponpathsweq gw _ _  int1). 
+  apply (gradth g invg einvgg eginvg).
+Defined.
 
-assert (einvff: forall x: X, paths (invf (f x)) x). intro. unfold invf. apply (homotinvweqweq gfw x).
+Lemma isweql3 {X Y : UU} (f : X -> Y) (g : Y -> X)
+  (egf: forall x : X, g (f x) = x): isweq f -> isweq g.
+Proof.
+  intros X Y f g egf w.
+  assert (int1 : isweq (g circ f)).
+  {
+    apply (isweqhomot (idfun X) (g circ f) (fun (x : X) => ! (egf x))).
+    apply idisweq.
+  }
+  apply (twooutof3b f g w int1).
+Defined.
 
-apply (gradth  f invf einvff efinvf).  Defined.
+Theorem twooutof3c {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
+  (isf: isweq f) (isg: isweq g) : isweq (g circ f).
+Proof.
+  intros.
+  set (wf := weqpair f isf).
+  set (wg := weqpair g isg).
+  set (invf := invmap wf).
+  set (invg := invmap wg).
 
+  set (gf := g circ f).
+  set (invgf := invf circ invg).
 
-Corollary isweqcontrcontr { X Y : UU } (f:X -> Y) (isx: iscontr X) (isy: iscontr Y): isweq f.
-Proof. intros. set (py:= (fun y:Y => tt)). apply (twooutof3a f py (isweqcontrtounit isx) (isweqcontrtounit isy)). Defined. 
+  assert (egfinvgf : forall x : X, invgf (gf x) = x).
+  {
+    intros x.
+    assert (int1 : invf (invg (g (f x))) = invf (f x)).
+    { apply (maponpaths invf (homotinvweqweq wg (f x))). }
+    assert (int2 : invf (f x) = x).
+    { apply (homotinvweqweq wf x). }
+    induction int1.
+    apply int2.
+  }
 
-Definition weqcontrcontr { X Y : UU } ( isx : iscontr X) (isy: iscontr Y) := weqpair _ ( isweqcontrcontr ( fun x : X => pr1 isy ) isx isy ) . 
+  assert (einvgfgf : forall z : Z, gf (invgf z) = z).
+  {
+    intros z.
+    assert (int1 : g (f (invgf z)) = g (invg z)).
+    { 
+      unfold invgf.
+      apply (maponpaths g (homotweqinvweq wf (invg z))).
+    }
+    assert (int2 : g (invg z) = z).
+    { apply (homotweqinvweq wg z). }
+    induction int1.
+    apply int2.
+  }
 
-Theorem twooutof3b { X Y Z : UU } (f:X->Y) (g:Y->Z) (isf: isweq f) (isgf: isweq (fun x:X => g(f x))) : isweq g.
-Proof. intros. set ( wf := weqpair f isf ) . set ( wgf := weqpair _ isgf ) . set (invf:= invmap wf ). set (invgf:= invmap wgf ). set (invg := (fun z:Z => f ( invgf z))). set (gf:= fun x:X => (g (f x))). 
+  apply (gradth gf invgf egfinvgf einvgfgf).
+Defined.
 
-assert (eginvg: forall z:Z, paths (g (invg z)) z). intro. apply (homotweqinvweq wgf z).  
-
-assert (einvgg: forall y:Y, paths (invg (g y)) y). intro.  assert (isinvf: isweq invf). apply isweqinvmap.  assert (isinvgf: isweq invgf).  apply isweqinvmap. assert (int1: paths (g y) (gf (invf y))).  apply (maponpaths g  (pathsinv0  (homotweqinvweq wf y))). assert (int2: paths (gf (invgf (g y))) (gf (invf y))). assert (int3: paths (gf (invgf (g y))) (g y)). apply (homotweqinvweq wgf ). induction int1. assumption. assert (int4: paths (invgf (g y)) (invf y)). apply (invmaponpathsweq wgf ). assumption. assert (int5:paths (invf (f (invgf (g y)))) (invgf (g y))). apply (homotinvweqweq wf ). assert (int6: paths (invf (f (invgf (g (y))))) (invf y)).  induction int4. assumption. apply (invmaponpathsweq ( weqpair invf isinvf ) ). assumption. apply (gradth  g invg  einvgg eginvg). Defined.
-
-
-
-Lemma isweql3 { X Y : UU } (f:X-> Y) (g:Y->X) (egf: forall x:X, paths (g (f x)) x): isweq f -> isweq g.
-Proof. intros X Y f g egf X0. set (gf:= fun x:X => g (f x)). assert (int1: isweq gf). apply (isweqhomot  (fun x:X => x) gf  (fun x:X => (pathsinv0 (egf x)))). apply idisweq.  apply (twooutof3b  f g X0 int1). Defined. 
-
-Theorem twooutof3c { X Y Z : UU } (f:X->Y) (g:Y->Z) (isf: isweq f) (isg: isweq g) : isweq  (fun x:X => g(f x)).
-Proof. intros. set ( wf := weqpair f isf ) . set ( wg := weqpair _ isg ) .  set (gf:= fun x:X => g (f x)). set (invf:= invmap wf ). set (invg:= invmap wg ). set (invgf:= fun z:Z => invf (invg z)). assert (egfinvgf: forall x:X, paths (invgf (gf x)) x). unfold gf. unfold invgf.  intro x.  assert (int1: paths (invf (invg (g (f x))))  (invf (f x))). apply (maponpaths invf (homotinvweqweq wg (f x))). assert (int2: paths (invf (f x)) x). apply homotinvweqweq.  induction int1. assumption. 
-assert (einvgfgf: forall z:Z, paths (gf (invgf z)) z).  unfold gf. unfold invgf. intro z. assert (int1: paths (g (f (invf (invg z)))) (g (invg z))). apply (maponpaths g (homotweqinvweq wf (invg z))).   assert (int2: paths (g (invg z)) z). apply (homotweqinvweq wg z). induction int1. assumption. apply (gradth  gf invgf egfinvgf einvgfgf). Defined. 
-
-
-Definition weqcomp { X Y Z : UU } (w1 : weq X Y) (w2 : weq Y Z) : (weq X Z) :=  weqpair  (fun x:X => w2 (w1 x)) (twooutof3c _ _ (pr2  w1) (pr2  w2)). 
-
+Definition weqcomp {X Y Z : UU} (w1 : weq X Y) (w2 : weq Y Z) : (weq X Z) :=
+  weqpair (w2 circ w1) (twooutof3c w1 w2 (pr2 w1) (pr2 w2)). 
 
 
 (** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences. *)
-
 
 
 Theorem twooutofsixu {X Y Z K : UU}{u : X -> Y}{v : Y -> Z}{w : Z -> K}
@@ -1304,16 +1526,6 @@ Theorem twooutofsixw {X Y Z K : UU}{u : X -> Y}{v : Y -> Z}{w : Z -> K}
 Proof.
   intros . exact ( twooutof3b _ _ ( twooutofsixv isuv isvw ) isvw ) .
 Defined.
-
- 
-
-
-
-
-
-
-
-
 
 (** *** Associativity of [ total2 ]  *)
 
