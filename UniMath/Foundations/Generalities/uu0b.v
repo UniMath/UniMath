@@ -419,7 +419,24 @@ Proof. intros X Y f X0.  apply (isofhlevelfsn O  f X0). Defined.
 Definition isinclpr1 { X : UU } (P:X -> UU)(is: forall x:X, isaprop (P x)): isincl  (@pr1 X P):= isofhlevelfpr1 (S O) P is.
 
 
+Lemma total2_paths_isaprop (A : UU) (B : A -> UU) (is : forall a, isaprop (B a))
+   (s s' : total2 (fun x => B x)) : pr1 s = pr1 s' -> s = s'.
+Proof.
+  intros A B H s s'.
+  apply invmaponpathsincl.
+  apply isinclpr1.
+  apply H.
+Defined.
 
+Theorem total2_paths_isaprop_equiv {A : UU} (B : A -> UU) (hB: forall a, isaprop (B a))
+  (x y : total2 (fun x => B x)): weq (x = y) (pr1 x = pr1 y).
+Proof.
+  intros.
+  exists (maponpaths pr1).
+  apply isweqonpathsincl.
+  apply isinclpr1.
+  assumption.
+Defined.
 
 
 
