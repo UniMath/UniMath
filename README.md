@@ -2,7 +2,7 @@ Univalent Mathematics
 =====================
 
 This Coq library aims to formalize a substantial body of mathematics using the
-univalent point of view.
+[univalent point of view](https://en.wikipedia.org/wiki/Univalent_foundations).
 
 ## Contents
 
