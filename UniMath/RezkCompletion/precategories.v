@@ -218,16 +218,16 @@ Proof.
 Defined.
 
 
-(** * Setcategories: Precategories whose objects form a set *)
+(** * Setcategories: Precategories whose objects and morphisms are sets *)
 
 Definition setcategory := total2 (
-   fun C : precategory => isaset (ob C)).
+   fun C : precategory => dirprod (isaset (ob C)) (has_homsets C)).
 
 Definition precategory_from_setcategory (C : setcategory) : precategory := pr1 C.
 Coercion precategory_from_setcategory : setcategory >-> precategory.
 
 Definition setcategory_objects_set (C : setcategory) : hSet :=
-    hSetpair (ob C) (pr2 C).
+    hSetpair (ob C) (pr1 (pr2 C)).
 
 Lemma setcategory_eq_morphism_pi (C : setcategory) (a b : ob C)
       (e e': a = b) : idtomor _ _ e = idtomor _ _ e'.
@@ -1119,21 +1119,21 @@ Definition total_morphisms (C : precategory_ob_mor) := total2 (
    fun ab : dirprod (ob C)(ob C) =>
         precategory_morphisms (pr1 ab) (pr2 ab)).
 
-Lemma isaset_setcategory_total_morphisms (C : setcategory) (hs : has_homsets C) : 
+Lemma isaset_setcategory_total_morphisms (C : setcategory): 
    isaset (total_morphisms C).
 Proof.
   change isaset with (isofhlevel 2).
   apply isofhleveltotal2.
   apply isofhleveldirprod.
-  exact (pr2 C).
-  exact (pr2 C).
-  intro ab.
-  induction ab.
-  apply hs.
+  - exact (pr1 (pr2 C)).
+  - exact (pr1 (pr2 C)).
+  - intro ab.
+    induction ab.
+    apply (pr2 (pr2 C)).
 Qed.
 
-Definition setcategory_total_morphisms_set (C : setcategory) (hs: has_homsets C) : hSet :=
-    hSetpair _ (isaset_setcategory_total_morphisms C hs).
+Definition setcategory_total_morphisms_set (C : setcategory) : hSet :=
+    hSetpair _ (isaset_setcategory_total_morphisms C).
 
 Definition precategory_source (C : precategory_ob_mor) : 
      total_morphisms C -> ob C := 
