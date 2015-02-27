@@ -59,12 +59,12 @@ Lemma Rezk_eta_is_fully_faithful : fully_faithful Rezk_eta.
 Proof.
   apply (functor_full_img_fully_faithful_if_fun_is _ _ (yoneda A hsA)).
   apply yoneda_fully_faithful.
-Qed.
+Defined.
 
 Lemma Rezk_eta_essentially_surjective : essentially_surjective Rezk_eta.
 Proof.
   apply (functor_full_img_essentially_surjective _ _ (yoneda A hsA)).
-Qed.
+Defined.
 
 End rezk.
 
@@ -83,7 +83,7 @@ Proof.
   apply pre_composition_with_ess_surj_and_fully_faithful_is_fully_faithful.
   apply Rezk_eta_essentially_surjective.
   apply Rezk_eta_is_fully_faithful.
-Qed.
+Defined.
 
 Lemma pre_comp_rezk_eta_is_ess_surj :
    essentially_surjective (pre_composition_functor A (Rezk_completion A hsA) C 
@@ -93,7 +93,7 @@ Proof.
   apply pre_composition_essentially_surjective.
   apply Rezk_eta_essentially_surjective.
   apply Rezk_eta_is_fully_faithful.
-Qed.
+Defined.
 
 Theorem Rezk_eta_Universal_Property : 
   isweq (pre_composition_functor A (Rezk_completion A hsA) C 
@@ -101,11 +101,11 @@ Theorem Rezk_eta_Universal_Property :
 Proof.
   apply (equiv_of_cats_is_weq_of_objects _ _ (functor_category_has_homsets _ _ _  )
                                          (functor_category_has_homsets _ _ _ )).
-  apply is_category_functor_category; 
-  assumption.
-  apply is_category_functor_category; 
-  assumption. 
-  pose (T:=@rad_equivalence_of_precats 
+  - apply is_category_functor_category; 
+    assumption.
+  - apply is_category_functor_category; 
+    assumption. 
+  - pose (T:=@rad_equivalence_of_precats 
            [Rezk_completion A hsA, C, pr2 Ccat]
            [A, C, pr2 Ccat]
            (is_category_functor_category _ _ _ )
@@ -113,13 +113,12 @@ Proof.
            _ 
            (pre_comp_rezk_eta_is_fully_faithful)
            (pre_comp_rezk_eta_is_ess_surj)).
-  clearbody T.
   assert (HT: (pr2 (is_category_functor_category (Rezk_completion A hsA) C Ccat)) = 
                (functor_category_has_homsets (Rezk_completion A hsA) C (pr2 Ccat))).
     { apply proofirrelevance. apply isaprop_has_homsets. }
   rewrite <- HT.
   exact T.
-Qed.
+Defined.
 
 End rezk_universal_property.
   

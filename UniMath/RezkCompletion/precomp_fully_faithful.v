@@ -218,7 +218,7 @@ Proof.
   apply isaprop_aux_space.
   exists g.
   apply gp.
-Qed.
+Defined.
   
  
 Definition pdelta : forall b : B, F b --> G b :=
@@ -366,14 +366,14 @@ Proof.
   split.
   apply pre_composition_with_ess_surj_and_fully_faithful_is_full.
   apply pre_composition_with_ess_surj_is_faithful. assumption.
-Qed.
+Defined.
 
 Lemma pre_composition_with_ess_surj_and_fully_faithful_is_fully_faithful : 
    fully_faithful (pre_composition_functor A B C hsB hsC H).
 Proof.
   apply full_and_faithful_implies_fully_faithful.
   apply pre_composition_with_ess_surj_and_fully_faithful_is_full_and_faithful.
-Qed.
+Defined.
 
 
 End precomp_with_ess_surj_ff_functor_is_full.

@@ -196,7 +196,7 @@ Proof.
   intro t.
   exists (X_aux_type_center_of_contr b (pr1 t) (pr2 t)).
   apply (X_aux_type_contr_eq b (pr1 t) (pr2 t)).
-Qed.
+Defined.
 
 (** The object part of [G], [Go b], is defined as the first component of 
     the center of [X b]. *)
@@ -408,7 +408,7 @@ Proof.
   intros [a0' h0'].
   exists (Y_inhab b b' f a0 h0 a0' h0').
   apply Y_contr_eq.
-Qed.
+Defined.
 
 (** *** [G] on morphisms *)
 
