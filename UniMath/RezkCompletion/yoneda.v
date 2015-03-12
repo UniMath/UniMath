@@ -48,9 +48,6 @@ Definition opp_precat_ob_mor (C : precategory_ob_mor) : precategory_ob_mor :=
 Definition opp_precat_data (C : precategory_data) : precategory_data.
 Proof.
   exists (opp_precat_ob_mor C).
-  split.
-  exact (fun c => identity c).
-  simpl.
   intros a b c f g.
   exact (g ;; f).
 Defined.
@@ -65,14 +62,12 @@ Ltac unf := unfold identity,
 Lemma is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C).
 Proof.
   repeat split; simpl.
-  intros. unf.
-  apply id_right.
-  intros; unf.
-  apply id_left.
-  intros; unf.
-  rewrite assoc.
-  apply idpath.
-Qed.
+  - exists (fun a => identity a).
+    repeat split;
+    intros; unf;
+    try apply id_right; try apply id_left.
+  - intros; unf; apply pathsinv0, assoc.
+Defined.
 
 Definition opp_precat (C : precategory) : precategory := 
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).

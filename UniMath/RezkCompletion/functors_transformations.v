@@ -80,7 +80,7 @@ Definition functor_on_morphisms {C C' : precategory_ob_mor} (F : functor_data C 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 
-Definition is_functor {C C' : precategory_data} (F : functor_data C C') :=
+Definition is_functor {C C' : precategory} (F : functor_data C C') :=
      dirprod (forall a : ob C, #F (identity a) = identity (F a))
              (forall a b c : ob C, forall f : a --> b, forall g : b --> c, 
                 #F (f ;; g) = #F f ;; #F g).
@@ -610,20 +610,23 @@ Definition nat_trans_comp {C C' : precategory}
 
 Definition functor_precategory_data (C C' : precategory): precategory_data.
 Proof.
-  apply ( precategory_data_pair 
+  exists (
         (functor_precategory_ob_mor C C')).
-  intro a. simpl.
-  apply (nat_trans_id (pr1 a)).
   intros a b c f g.
   apply (nat_trans_comp _ _ _ f g).
 Defined.
 
 (** *** Above data forms a precategory *)
 
+(** this proof needs to be transparent for proof of 
+    [is_inverse_nat_trans_inv_from_pointwise_inv] to work
+*)
 Lemma is_precategory_functor_precategory_data (C C' : precategory) (hs: has_homsets C'):
    is_precategory (functor_precategory_data C C').
 Proof.
   repeat split; simpl; intros.
+  exists (fun i => nat_trans_id i).
+  split; intros.
   unfold identity.
   simpl.
   apply nat_trans_eq. apply hs.
@@ -637,7 +640,7 @@ Proof.
   apply nat_trans_eq. apply hs.
   intro x; simpl.
   apply assoc.
-Qed.
+Defined.
 
 Definition functor_precategory (C C' : precategory) (hs: has_homsets C'): precategory := 
   tpair (fun C => is_precategory C)   

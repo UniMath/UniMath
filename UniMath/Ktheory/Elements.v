@@ -15,9 +15,7 @@ Defined.
 
 
 Definition cat_data {C} (X:C==>SET) : precategory_data.
-  intros. exists (cat_ob_mor X). split.
-  { intro a. 
-    exact (identity (pr1 a),, (apevalat (pr2 a) ((functor_id X) (pr1 a)))). }
+  intros. exists (cat_ob_mor X). 
   { intros a b c f g.
     exact (pr1 g ∘ pr1 f,,
            (  (apevalat (pr2 a) ((functor_comp X) _ _ _ (pr1 f) (pr1 g)))
@@ -39,10 +37,13 @@ Proof. intros ? ? ? ? [f i] [g j] p. simpl in p. destruct p.
        destruct k. reflexivity. Qed.
 Lemma isPrecategory {C} (X:C==>SET) : is_precategory (cat_data X).
 Proof. intros. split.
-       { split. 
+       { 
+         exists (fun a => 
+           (identity (pr1 a),, (apevalat (pr2 a) ((functor_id X) (pr1 a))))).         
+         split. 
          { intros. apply mor_equality. apply id_left. }
          { intros. apply mor_equality. apply id_right. } }
-       { intros. apply mor_equality. apply assoc. } Qed.
+       { intros. apply mor_equality. apply assoc. } Defined.
 Definition cat {C} (X:C==>SET) : precategory.
   intros. exact (cat_data X ,, isPrecategory X). Defined.
 Definition get_ob {C} {X:C==>SET} (x:ob (cat X)) := pr1 x.

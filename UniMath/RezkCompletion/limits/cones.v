@@ -147,26 +147,20 @@ Definition Cone_precategory_ob_mor : precategory_ob_mor :=
 Definition Cone_precategory_data : precategory_data.
 Proof.
   exists Cone_precategory_ob_mor.
-  exists Cone_id.
   exact Cone_comp.
 Defined.
 
 Lemma is_precategory_Cone : is_precategory Cone_precategory_data.
 Proof.
   repeat split; simpl.
-  
-  intros;
-  apply Cone_Mor_eq;
-  simpl; apply id_left.
-  
-  intros;
-  apply Cone_Mor_eq;
-  simpl; apply id_right.
-  
-  intros; 
-  apply Cone_Mor_eq;
-  simpl; apply assoc.
-Qed.
+  - exists Cone_id.
+    split; intros;
+    apply Cone_Mor_eq;
+    simpl; try apply id_left; try apply id_right.
+  - intros; 
+    apply Cone_Mor_eq;
+    simpl; apply assoc.
+Defined.
   
 Definition CONE : precategory := tpair _ _ is_precategory_Cone.
 

@@ -68,11 +68,10 @@ Defined.
 Definition makePrecategory_data
     (obj : UU)
     (mor : obj -> obj -> UU)
-    (identity : forall i, mor i i)
     (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
     : precategory_data.
   intros.
-  exact (precategory_data_pair (makePrecategory_ob_mor obj mor) identity compose).
+  exact (tpair _  (makePrecategory_ob_mor obj mor) compose).
 Defined.    
 
 Definition makePrecategory 
@@ -87,12 +86,13 @@ Definition makePrecategory
     : precategory.
   intros.
   apply (precategory_pair 
-           (precategory_data_pair
-              (precategory_ob_mor_pair 
-                 obj
-                 (fun i j => mor i j))
-              identity compose)
-           ((right,,left),,associativity)). Defined.    
+           (makePrecategory_data obj mor compose)).
+  split.
+  - exists identity; split.
+    + exact right.
+    + exact left.
+  - exact associativity.
+Defined.    
 
 Lemma has_homsets_opp_precat (C: precategory) (hs: has_homsets C) : has_homsets (C^op).
 Proof.
@@ -105,13 +105,9 @@ Qed.
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
 Proof. intros [ob mor]. reflexivity. Defined.
 
-Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
-  idpath _ = maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
-Proof. intros [ob mor]. reflexivity. Defined.
-
 Lemma opp_opp_precat_data (C : precategory_data) 
    : C = opp_precat_data (opp_precat_data C).
-Proof. intros [[ob mor] [id co]]. reflexivity. Defined.
+Proof. intros [[ob mor] co]. reflexivity. Defined.
 
 Lemma has_homsets_opp_precat_data (C : precategory_data)(hs : has_homsets C) : 
   has_homsets (opp_precat_data (opp_precat_data C)).

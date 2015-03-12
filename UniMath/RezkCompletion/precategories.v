@@ -56,77 +56,54 @@ Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 (** data of a precategory : 
     - objects
     - morphisms
-    - identity morphisms
     - composition
 *)
 
-Definition precategory_id_comp (C : precategory_ob_mor) :=
-     dirprod (forall c : C, c --> c) (* identities *) 
-             (forall a b c : C,
-                 a --> b -> b --> c -> a --> c).
-
-Definition precategory_data := total2 precategory_id_comp.
-
-Definition precategory_data_pair (C : precategory_ob_mor)
-    (id : forall c : C, c --> c)
-    (comp: forall a b c : C,
-         a --> b -> b --> c -> a --> c) : precategory_data :=
-   tpair _ C (dirprodpair id comp).
+Definition precategory_data := total2 (
+   fun C : precategory_ob_mor => forall a b c : C,
+          a --> b -> b --> c -> a --> c).
 
 Definition precategory_ob_mor_from_precategory_data (C : precategory_data) :
      precategory_ob_mor := pr1 C.
 Coercion precategory_ob_mor_from_precategory_data : 
   precategory_data >-> precategory_ob_mor.
 
-Definition identity { C : precategory_data } :
-    forall c : C, c --> c := 
-         pr1 (pr2 C).
-
 Definition compose { C : precategory_data } 
   { a b c : C } : 
-    a --> b -> b --> c -> a --> c := pr2 (pr2 C) a b c.
+    a --> b -> b --> c -> a --> c := pr2 C a b c.
 
 Local Notation "f ;; g" := (compose f g)(at level 50).
 
 
 (** ** Axioms of a precategory *)
 (** 
+        - identity operation
         - identity is left and right neutral for composition 
         - composition is associative
 *)
 
-Definition is_precategory (C : precategory_data) := 
-   dirprod (dirprod (forall (a b : C) (f : a --> b),
-                         identity a ;; f = f)
-                     (forall (a b : C) (f : a --> b),
-                         f ;; identity b = f))
-            (forall (a b c d : C) 
+Definition is_precategory (C : precategory_data) :=
+   dirprod
+     (total2 (fun i : forall a : C, a --> a => 
+          dirprod (forall (a b : C) (f : a --> b), i a ;; f = f)
+                  (forall (a b : C) (f : a --> b), f ;; i b = f)))
+     (forall (a b c d : C) 
                     (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) = (f ;; g) ;; h).
-(*
-Definition is_hs_precategory_data (C : precategory_data) := forall (a b : C), isaset (a --> b).
-*)
-(*
-Definition hs_precategory_data := total2 is_hs_precategory_data.
-Definition precategory_data_from_hs_precategory_data (C : hs_precategory_data) :
-  precategory_data := pr1 C.
-Coercion precategory_data_from_hs_precategory_data : hs_precategory_data >-> precategory_data.
-*)
 
 
 Definition precategory := total2 is_precategory.
 
+Definition precategory_data_from_precategory (C : precategory) : precategory_data := pr1 C.
+Coercion precategory_data_from_precategory : precategory >-> precategory_data.
+
+Definition identity {C : precategory} : forall c : C, c --> c := pr1 (pr1 (pr2 C)).
+
+
 Definition hs_precategory := total2 (fun C : precategory_data => 
   dirprod (is_precategory C) (forall a b : C, isaset (a --> b))).
 
-Definition precategory_data_from_precategory (C : precategory) : 
-       precategory_data := pr1 C.
-Coercion precategory_data_from_precategory : precategory >-> precategory_data.
-(*
-Definition precategory_data_from_hs_precategory (C : hs_precategory) : 
-       precategory_data := pr1 C.
-Coercion precategory_data_from_hs_precategory : hs_precategory >-> precategory_data.
-*)
+
 Definition precategory_from_hs_precategory (C : hs_precategory) : precategory :=
   tpair _ (pr1 C) (pr1 (pr2 C)).
 Coercion precategory_from_hs_precategory : hs_precategory >-> precategory.
@@ -143,19 +120,30 @@ Lemma isaprop_is_precategory (C : precategory_data)(hs: has_homsets C)
   : isaprop (is_precategory C).
 Proof.
   apply isofhleveltotal2.
-  { apply isofhleveltotal2. { repeat (apply impred; intro). apply hs. }
-    intros _. repeat (apply impred; intro); apply hs. }
-  intros _. repeat (apply impred; intro); apply hs. 
+  - apply invproofirrelevance.
+    intros i i'.
+    destruct i as [i x]. 
+    destruct i' as [i' x']. 
+    apply total2_paths2_second_isaprop.
+    apply funextsec; intro a.
+    transitivity (i a;; i' a).
+    + rewrite (pr2 x'). reflexivity.
+    + rewrite (pr1 x). reflexivity.
+    + apply isapropdirprod.
+      { repeat (apply impred; intro). apply hs. }
+      { repeat (apply impred; intro). apply hs. } 
+  - intro. 
+    repeat (apply impred; intro); apply hs.
 Qed.
 
   
 Definition id_left (C : precategory) : 
    forall (a b : C) (f : a --> b),
-           identity a ;; f = f := pr1 (pr1 (pr2 C)).
+           identity a ;; f = f := pr1 (pr2 (pr1 (pr2 C))).
 
 Definition id_right (C : precategory) :
    forall (a b : C) (f : a --> b),
-           f ;; identity b = f := pr2 (pr1 (pr2 C)).
+           f ;; identity b = f := pr2 (pr2 (pr1 (pr2 C))).
 
 Definition assoc (C : precategory) : 
    forall (a b c d : C) 
@@ -194,7 +182,7 @@ Defined.
 
 (** Any equality on objects a and b induces a morphism from a to b *)
 
-Definition idtomor {C : precategory_data}
+Definition idtomor {C : precategory}
    (a b : C) (H : a = b) : a --> b.
 Proof.
   destruct H.
@@ -1153,11 +1141,11 @@ Definition precategory_target (C : precategory_ob_mor) :
      total_morphisms C -> ob C := 
      fun abf => pr2 (pr1 abf).
 
-Definition precategory_total_id (C : precategory_data) : 
+Definition precategory_total_id (C : precategory) : 
       ob C -> total_morphisms C :=
       fun c => tpair _ (dirprodpair c c) (identity c).
 
-Definition precategory_total_comp'' (C : precategory_data) : 
+Definition precategory_total_comp'' (C : precategory) : 
       forall f g : total_morphisms C,
         precategory_target C f = precategory_source C g ->
          total_morphisms C.
@@ -1172,7 +1160,7 @@ Proof.
   exact ((f ;; idtomor _ _ e) ;; g).
 Defined.
 
-Definition precategory_total_comp (C : precategory_data) : 
+Definition precategory_total_comp (C : precategory) : 
       forall f g : total_morphisms C,
         precategory_target C f = precategory_source C g ->
          total_morphisms C := 
