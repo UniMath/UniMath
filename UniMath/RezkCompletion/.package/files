@@ -11,6 +11,7 @@ limits/initial.v
 limits/pullbacks.v
 limits/cones.v
 Monads.v
+FunctorAlgebras.v
 functors_transformations.v
 limits/products.v
 limits/terminal.v
