@@ -203,7 +203,7 @@ Definition yoneda_map_1 (C : precategory) (hs: has_homsets C) (c : C)
 
 Lemma yoneda_map_2_ax (C : precategory) (hs: has_homsets C) (c : C)
        (F : functor C^op HSET) (x : pr1 (F c)) :
-  is_nat_trans (pr1 (yoneda C hs c)) F 
+  is_nat_trans (yoneda C hs c) F 
          (fun (d : C) (f : hom (C ^op) c d) => #F f x).
 Proof.
   intros a b f; simpl in *.
@@ -255,7 +255,7 @@ Qed.
 
 Lemma isaset_nat_trans_yoneda (C: precategory) (hs: has_homsets C) (c : C) 
   (F : functor C^op HSET) :
- isaset (nat_trans (yoneda_ob_functor_data C hs c) F).
+ isaset (nat_trans (yoneda C hs c) F).
 Proof.
   apply isaset_nat_trans.
   apply (pr2 is_category_HSET).
