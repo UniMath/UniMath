@@ -20,7 +20,7 @@ Under Mac OS X, the most convenient way to do that is with "Homebrew",
 available from http://brew.sh/, with the following command:
 
 ```bash
-$ brew install objective-caml
+$ brew install objective-caml camlp5
 ```
 
 Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
@@ -47,15 +47,10 @@ To compile the Coq formalizations (in all the packages), issue the following
 shell commands (in this directory).
 
 ```bash
-$ make
+$ make && make
 ```
-
-Until the Makefile is fixed, it may be necessary to run the command a second time, if
-only Coq is compiled above, as follows.
-
-```bash
-$ make
-```
+(Remark: the Makefile currently has a bug (see [issue #40](https://github.com/UniMath/UniMath/issues/40)), which makes it necessary to call "make" 
+twice - this is done via the command above.)
 
 To create the standard HTML documentation provided by coqdoc:
 ```bash

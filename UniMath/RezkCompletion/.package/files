@@ -10,8 +10,11 @@ HLevel_n_is_of_hlevel_Sn.v
 limits/initial.v
 limits/pullbacks.v
 limits/cones.v
+Monads.v
+FunctorAlgebras.v
 functors_transformations.v
 limits/products.v
 limits/terminal.v
 precategories.v
 total2_paths.v
+UnicodeNotations.v

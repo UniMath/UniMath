@@ -229,6 +229,16 @@ Coercion precategory_from_setcategory : setcategory >-> precategory.
 Definition setcategory_objects_set (C : setcategory) : hSet :=
     hSetpair (ob C) (pr1 (pr2 C)).
 
+Lemma isaset_ob (C : setcategory) : isaset C.
+Proof.
+  exact (pr1 (pr2 C)).
+Qed.
+
+Lemma isaset_mor (C : setcategory) : has_homsets C.
+Proof.
+  exact (pr2 (pr2 C)).
+Qed.
+
 Lemma setcategory_eq_morphism_pi (C : setcategory) (a b : ob C)
       (e e': a = b) : idtomor _ _ e = idtomor _ _ e'.
 Proof.
