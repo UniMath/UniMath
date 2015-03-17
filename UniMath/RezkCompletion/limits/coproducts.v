@@ -55,92 +55,77 @@ Proof.
   exact (pr2 (pr2 (pr1 (isCoproductCocone_CoproductCocone CC _ f g)))).
 Qed.
 
-Lemma ProductArrowUnique (c d : C) (P : ProductCone c d) (x : C)
-    (f : x --> c) (g : x --> d) (k : x --> ProductObject P) :
-    k ;; ProductPr1 P = f -> k ;; ProductPr2 P = g ->
-      k = ProductArrow P f g.
+Lemma CoproductArrowUnique (a b : C) (CC : CoproductCocone a b) (x : C)
+    (f : a ⇒ x) (g : b ⇒ x) (k : CoproductObject CC ⇒ x) :
+    CoproductIn1 CC ;; k = f → CoproductIn2 CC ;; k = g →
+      k = CoproductArrow CC f g.
 Proof.
   intros H1 H2.
   set (H := tpair (fun h => dirprod _ _ ) k (dirprodpair H1 H2)).
-  set (H' := (pr2 (isProductCone_ProductCone P _ f g)) H).
+  set (H' := (pr2 (isCoproductCocone_CoproductCocone CC _ f g)) H).
   apply (base_paths _ _ H').
 Qed.
 
 
-Lemma ProductArrowEta (c d : C) (P : ProductCone c d) (x : C)
-    (f : x --> ProductObject P) : 
-    f = ProductArrow P (f ;; ProductPr1 P) (f ;; ProductPr2 P).
+Lemma CoproductArrowEta (a b : C) (CC : CoproductCocone a b) (x : C)
+    (f : CoproductObject CC ⇒ x) : 
+    f = CoproductArrow CC (CoproductIn1 CC ;; f) (CoproductIn2 CC ;; f).
 Proof.
-  apply ProductArrowUnique;
+  apply CoproductArrowUnique;
   apply idpath.
 Qed.
   
 
-Definition ProductOfArrows {c d : C} (Pcd : ProductCone c d) {a b : C}
-    (Pab : ProductCone a b) (f : a --> c) (g : b --> d) : 
-          ProductObject Pab --> ProductObject Pcd :=
-    ProductArrow Pcd (ProductPr1 Pab ;; f) (ProductPr2 Pab ;; g).
+Definition CoproductOfArrows {a b : C} (CCab : CoproductCocone a b) {c d : C}
+    (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d) : 
+          CoproductObject CCab ⇒ CoproductObject CCcd :=
+    CoproductArrow CCab (f ;; CoproductIn1 CCcd) (g ;; CoproductIn2 CCcd).
 
-Lemma ProductOfArrowsPr1 {c d : C} (Pcd : ProductCone c d) {a b : C}
-    (Pab : ProductCone a b) (f : a --> c) (g : b --> d) : 
-    ProductOfArrows Pcd Pab f g ;; ProductPr1 Pcd = ProductPr1 Pab ;; f.
+Lemma CoproductOfArrowsIn1 {a b : C} (CCab : CoproductCocone a b) {c d : C}
+    (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d) : 
+    CoproductIn1 CCab ;; CoproductOfArrows CCab CCcd f g = f ;; CoproductIn1 CCcd.
 Proof.
-  unfold ProductOfArrows.
-  rewrite ProductPr1Commutes.
-  apply idpath.
+  unfold CoproductOfArrows.
+  apply CoproductIn1Commutes.
 Qed.
 
-Lemma ProductOfArrowsPr2 {c d : C} (Pcd : ProductCone c d) {a b : C}
-    (Pab : ProductCone a b) (f : a --> c) (g : b --> d) : 
-    ProductOfArrows Pcd Pab f g ;; ProductPr2 Pcd = ProductPr2 Pab ;; g.
+Lemma CoproductOfArrowsIn2 {a b : C} (CCab : CoproductCocone a b) {c d : C}
+    (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d) : 
+    CoproductIn2 CCab ;; CoproductOfArrows CCab CCcd f g = g ;; CoproductIn2 CCcd.
 Proof.
-  unfold ProductOfArrows.
-  rewrite ProductPr2Commutes.
-  apply idpath.
+  unfold CoproductOfArrows.
+  apply CoproductIn2Commutes.
 Qed.
 
 
-Lemma postcompWithProductArrow {c d : C} (Pcd : ProductCone c d) {a b : C}
-    (Pab : ProductCone a b) (f : a --> c) (g : b --> d) 
-    {x : C} (k : x --> a) (h : x --> b) : 
-        ProductArrow Pab k h ;; ProductOfArrows Pcd Pab f g = 
-         ProductArrow Pcd (k ;; f) (h ;; g).
+Lemma precompWithCoproductArrow {a b : C} (CCab : CoproductCocone a b) {c d : C}
+    (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d) 
+    {x : C} (k : c ⇒ x) (h : d ⇒ x) : 
+        CoproductOfArrows CCab CCcd f g ;; CoproductArrow CCcd k h = 
+         CoproductArrow CCab (f ;; k) (g ;; h).
 Proof.
-  apply ProductArrowUnique.
-  - rewrite <- assoc, ProductOfArrowsPr1.
-    rewrite assoc, ProductPr1Commutes.
+  apply CoproductArrowUnique.
+  - rewrite assoc. rewrite CoproductOfArrowsIn1.
+    rewrite <- assoc, CoproductIn1Commutes.
     apply idpath.
-  - rewrite <- assoc, ProductOfArrowsPr2.
-    rewrite assoc, ProductPr2Commutes.
+  - rewrite assoc, CoproductOfArrowsIn2.
+    rewrite <- assoc, CoproductIn2Commutes.
     apply idpath.
 Qed.
 
 
-Lemma precompWithProductArrow {c d : C} (Pcd : ProductCone c d) {a : C}
-    (f : a --> c) (g : a --> d) {x : C} (k : x --> a)  : 
-       k ;; ProductArrow Pcd f g  = ProductArrow Pcd (k ;; f) (k ;; g).
+Lemma postcompWithCoproductArrow {a b : C} (CCab : CoproductCocone a b) {c : C}
+    (f : a ⇒ c) (g : b ⇒ c) {x : C} (k : c ⇒ x)  : 
+       CoproductArrow CCab f g ;; k = CoproductArrow CCab (f ;; k) (g ;; k).
 Proof.
-  apply ProductArrowUnique.
-  -  rewrite <- assoc, ProductPr1Commutes;
+  apply CoproductArrowUnique.
+  -  rewrite assoc, CoproductIn1Commutes;
      apply idpath.
-  -  rewrite <- assoc, ProductPr2Commutes;
+  -  rewrite assoc, CoproductIn2Commutes;
      apply idpath.
 Qed.
 
-End product_def.
-
-
-
-Section test.
-
-Variable C : precategory.
-Variable H : Products C.
-Arguments ProductObject [C] c d {_}.
-Local Notation "c 'x' d" := (ProductObject  c d )(at level 5).
-(*
-Check (fun c d : C => c x d).
-*)
-End test.
+End coproduct_def.
 
 
 
