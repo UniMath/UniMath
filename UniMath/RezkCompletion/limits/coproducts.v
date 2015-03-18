@@ -1,3 +1,8 @@
+
+(** ******************************************
+Benedikt Ahrens, March 2015
+*********************************************)
+
 Require Import Foundations.Generalities.uuu.
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
@@ -6,6 +11,8 @@ Require Import Foundations.hlevel2.hSet.
 Require Import RezkCompletion.total2_paths.
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.UnicodeNotations.
+
+(** * Definition of binary coproduct of objects in a precategory *)
 
 Section coproduct_def.
 
@@ -61,7 +68,7 @@ Lemma CoproductArrowUnique (a b : C) (CC : CoproductCocone a b) (x : C)
       k = CoproductArrow CC f g.
 Proof.
   intros H1 H2.
-  set (H := tpair (fun h => dirprod _ _ ) k (dirprodpair H1 H2)).
+  set (H := tpair (λ h, dirprod _ _ ) k (dirprodpair H1 H2)).
   set (H' := (pr2 (isCoproductCocone_CoproductCocone CC _ f g)) H).
   apply (base_paths _ _ H').
 Qed.
@@ -125,6 +132,124 @@ Proof.
      apply idpath.
 Qed.
 
+
+(** * Proof that coproducts are unique when the precategory [C] is a category *)
+
+Section coproduct_unique.
+
+Hypothesis H : is_category C.
+
+Variables a b : C.
+
+Definition from_Coproduct_to_Coproduct (CC CC' : CoproductCocone a b) 
+  : CoproductObject CC ⇒ CoproductObject CC'.
+Proof.
+  apply (CoproductArrow CC  (CoproductIn1 _ ) (CoproductIn2 _ )).
+Defined.  
+(*
+Lemma PullbackEndo_is_identity {a b c : C}{f : b --> a} {g : c --> a}
+(Pb : Pullback f g) (k : Pb --> Pb) (kH1 : k ;; PullbackPr1 Pb = PullbackPr1 Pb)
+(kH2 : k ;; PullbackPr2 Pb = PullbackPr2 Pb) :
+identity Pb = k.
+Proof.
+set (H1 := tpair ((fun hk : Pb --> Pb => dirprod (hk ;; _ = _)(hk ;; _ = _))) k (dirprodpair kH1 kH2)).
+assert (H2 : identity_is_Pullback_input Pb = H1).
+- apply proofirrelevance.
+apply isapropifcontr.
+apply (isPullback_Pullback Pb).
+apply PullbackSqrCommutes.
+- apply (base_paths _ _ H2).
+Qed.
+*)
+
+
+Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (fun a => B a))) 
+           (x : A) (H' : B x) : x = pr1 (pr1 isc).
+Proof.
+  set (Hi := tpair _ x H').
+  apply (maponpaths pr1 (pr2 isc Hi)).
+Defined.
+
+Lemma Coproduct_endo_is_identity (CC : CoproductCocone a b) 
+  (k : CoproductObject CC ⇒ CoproductObject CC) 
+  (H1 : CoproductIn1 CC ;; k = CoproductIn1 CC)
+  (H2 : CoproductIn2 CC ;; k = CoproductIn2 CC) 
+  : identity _ = k.
+Proof.
+  set (H' := pr2 CC _ (CoproductIn1 CC) (CoproductIn2 CC) ); simpl in *.
+  set (X := (Σ fg : pr1 (pr1 CC) ⇒ CoproductObject CC,
+          pr1 (pr2 (pr1 CC));; fg = CoproductIn1 CC
+          × pr2 (pr2 (pr1 CC));; fg = CoproductIn2 CC)).
+  set (t1 := tpair _ k (dirprodpair H1 H2) : X).
+  set (t2 := tpair _ (identity _ ) (dirprodpair (id_right _ _ _ _ ) (id_right _ _ _ _ ) ) : X).
+  assert (X' : t1 = t2).
+  { apply proofirrelevance.
+    apply isapropifcontr.
+    apply H'.
+  }
+  apply pathsinv0.
+  apply (base_paths _ _ X').
+Defined.
+  
+
+Lemma is_iso_from_Coproduct_to_Coproduct (CC CC' : CoproductCocone a b) 
+  : is_iso (from_Coproduct_to_Coproduct CC CC').
+Proof.
+  apply is_iso_from_is_z_iso.
+  exists (from_Coproduct_to_Coproduct CC' CC).
+  split; simpl.
+  - apply pathsinv0. 
+    apply Coproduct_endo_is_identity.
+    + rewrite assoc. unfold from_Coproduct_to_Coproduct. 
+      rewrite CoproductIn1Commutes.
+      rewrite CoproductIn1Commutes.
+      apply idpath.
+    + rewrite assoc. unfold from_Coproduct_to_Coproduct. 
+      rewrite CoproductIn2Commutes.
+      rewrite CoproductIn2Commutes.
+      apply idpath.
+  - apply pathsinv0.
+    apply Coproduct_endo_is_identity.
+    + rewrite assoc; unfold from_Coproduct_to_Coproduct.
+      repeat rewrite CoproductIn1Commutes; apply idpath.
+    + rewrite assoc; unfold from_Coproduct_to_Coproduct.
+      repeat rewrite CoproductIn2Commutes; apply idpath.
+Defined.
+      
+Definition iso_from_Coproduct_to_Coproduct (CC CC' : CoproductCocone a b) 
+  : iso (CoproductObject CC) (CoproductObject CC') 
+  := isopair _ (is_iso_from_Coproduct_to_Coproduct CC CC').
+
+Lemma transportf_isotoid' (c d d': C) (p : iso d d') (f : c ⇒ d) : 
+  transportf (λ a0 : C, c ⇒ a0) (isotoid C H p) f = f ;; p .
+Proof.
+  rewrite <- idtoiso_postcompose.
+  rewrite idtoiso_isotoid.
+  apply idpath.
+Defined.
+
+Lemma isaprop_CoproductCocone : isaprop (CoproductCocone a b).
+Proof.
+  apply invproofirrelevance.
+  intros CC CC'.
+  apply total2_paths_isaprop.
+  + intros.
+    do 3 (apply impred; intro); apply isapropiscontr.
+  + apply (total2_paths (isotoid _ H (iso_from_Coproduct_to_Coproduct CC CC'))).
+    rewrite transportf_dirprod. 
+    rewrite transportf_isotoid'. simpl.
+    rewrite transportf_isotoid'.
+    destruct CC as [CC bla].
+    destruct CC' as [CC' bla']; simpl in *.
+    destruct CC as [CC [CC1 CC2]].
+    destruct CC' as [CC' [CC1' CC2']]; simpl in *.
+    unfold from_Coproduct_to_Coproduct.
+    rewrite CoproductIn1Commutes.
+    rewrite CoproductIn2Commutes.
+    apply idpath.
+Qed.
+
+End coproduct_unique.  
 End coproduct_def.
 
 
