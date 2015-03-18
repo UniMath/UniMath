@@ -146,29 +146,7 @@ Definition from_Coproduct_to_Coproduct (CC CC' : CoproductCocone a b)
 Proof.
   apply (CoproductArrow CC  (CoproductIn1 _ ) (CoproductIn2 _ )).
 Defined.  
-(*
-Lemma PullbackEndo_is_identity {a b c : C}{f : b --> a} {g : c --> a}
-(Pb : Pullback f g) (k : Pb --> Pb) (kH1 : k ;; PullbackPr1 Pb = PullbackPr1 Pb)
-(kH2 : k ;; PullbackPr2 Pb = PullbackPr2 Pb) :
-identity Pb = k.
-Proof.
-set (H1 := tpair ((fun hk : Pb --> Pb => dirprod (hk ;; _ = _)(hk ;; _ = _))) k (dirprodpair kH1 kH2)).
-assert (H2 : identity_is_Pullback_input Pb = H1).
-- apply proofirrelevance.
-apply isapropifcontr.
-apply (isPullback_Pullback Pb).
-apply PullbackSqrCommutes.
-- apply (base_paths _ _ H2).
-Qed.
-*)
 
-
-Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (fun a => B a))) 
-           (x : A) (H' : B x) : x = pr1 (pr1 isc).
-Proof.
-  set (Hi := tpair _ x H').
-  apply (maponpaths pr1 (pr2 isc Hi)).
-Defined.
 
 Lemma Coproduct_endo_is_identity (CC : CoproductCocone a b) 
   (k : CoproductObject CC ⇒ CoproductObject CC) 
