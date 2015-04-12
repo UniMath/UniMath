@@ -1,0 +1,8 @@
+-R . SubstSystems
+PointedFunctors.v
+SubstitutionSystems.v
+ProductPrecategory.v
+HorizontalComposition.v
+FunctorsPointwiseCoproduct.v
+Auxiliary.v
+UnicodeNotations.v
