@@ -7,7 +7,7 @@ Matthes & Uustalu, [Substitution in Non-wellfounded Syntax with Variable Binding
 # Installation
 
 This library depends on the [UniMath](https://github.com/UniMath/UniMath) library. 
-After installing the UniMath library and installing it, simply clone this repository and call `make`, in detail
+After _installing_ the UniMath library, simply clone this repository and call `make`, in detail
 ```
 $ git clone https://github.com/benediktahrens/substitution.git
 $ cd substitution
