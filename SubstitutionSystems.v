@@ -270,7 +270,7 @@ Definition τ (T : Alg) : H (U T) ⟶ U T := pr2 T.
 
 
 
-
+(*
 Definition bracket (T : Alg) : UU := 
   ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
    (Σ h : functor_composite (U Z) (U T)  ⟶ (U T),
@@ -291,16 +291,14 @@ Definition bracket'' (T : Alg) : UU :=
      (#U f = pre_whisker (U Z) (ptd_pt _ (pr1 T)) ;; h) ×
      (∀ c : C, pr1 (θ (prodcatpair (U T) Z))  c ;; pr1 (#H h) c ;; τ _ c = 
         τ _ (pr1 (U Z) c) ;; pr1 h c)).
-
-Definition bracket''' (T : Alg) : UU := 
+*)
+Definition bracket (T : Alg) : UU := 
   ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
    (Σ h : (U T) ∙ (U Z)  ⇒ U T,
      (#U f = pre_whisker (U Z) (ptd_pt _ (pr1 T)) ;; h) ×
      (θ (prodcatpair (U T) Z) ;; #H h ;; τ _  = pre_whisker (U Z) (τ _) ;;  h )).
 
-
-
-Definition hss : UU := Σ T : Alg, bracket''' T.
+Definition hss : UU := Σ T : Alg, bracket T.
 
 Coercion AlgFromhss (T : hss) : Alg := pr1 T.
 
@@ -621,6 +619,14 @@ Defined.
 
 End hssMor_equality.
 
+Lemma isaset_hssMor (T T' : hss) : isaset (hssMor T T').
+Proof.
+  intros β β'.
+  apply (isofhlevelweqb _ (hssMor_eq _ _ β β')).
+  apply isaset_nat_trans.
+  apply hs.
+Qed.
+
 Section hss_precategory.
 
 Lemma ishssMor_id (T : hss) : ishssMor (identity T).
@@ -703,6 +709,83 @@ Qed.
 
 Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.
 
+Definition Monad_Mor_laws_from_hssMor (T T' : hss)(β : hssMor T T') 
+  : Monad_Mor_laws (T:=Monad_from_hss T) (T':=Monad_from_hss T') (#U β).
+Proof.
+  (*exists (#U β).*)
+  repeat split; simpl.
+  - intro c.
+    unfold μ_2. simpl.
+    set (H':=isbracketMor_hssMor β).
+    unfold isbracketMor in H'.
+    set (H2:= H' _ (identity _ )).
+    set (H3:=(nat_trans_eq_weq _ _ hs _ _ _ _ H2)).
+    rewrite id_left in H3.
+    simpl in H3.
+    rewrite H3; clear H3 H2 H'. 
+    rewrite compute_fbracket.
+    simpl.
+    repeat rewrite assoc.
+    apply idpath.
+  - unfold μ_0.
+    intro c.
+    set (H':=ptd_mor_commutes _  (pr1 β)).
+    apply H'.
+Qed.
+    
+Definition Monad_Mor_from_hssMor {T T' : hss}(β : hssMor T T') 
+  : Monad_Mor (Monad_from_hss T) (Monad_from_hss T')
+  := tpair _ (#U β) (Monad_Mor_laws_from_hssMor T T' β).
+
+
+Definition hss_to_monad_functor_data : functor_data hss_precategory (precategory_Monad C hs).
+Proof.
+  exists Monad_from_hss.
+  exact @Monad_Mor_from_hssMor.
+Defined.
+
+Lemma is_functor_hss_to_monad : is_functor hss_to_monad_functor_data.
+Proof.  
+  split; simpl.
+  - intro a.
+    apply (invmap (Monad_Mor_equiv hs _ _ )).
+    apply idpath.
+  - intros a b c f g.
+    apply (invmap (Monad_Mor_equiv hs _ _ )).
+    apply idpath.
+Qed.
+
+Definition hss_to_monad_functor : functor _ _ := tpair _ _ is_functor_hss_to_monad.
+
+Lemma isaset_Monad_Mor (T T' : Monad C) : isaset (Monad_Mor T T').
+Proof.
+  intros β β'.
+  apply (isofhlevelweqb _ (Monad_Mor_equiv hs  _ _)).
+  apply isaset_nat_trans.
+  apply hs.
+Qed.
+
+Definition hssMor_Monad_Mor_eq {T T' : hss} (β β' : hssMor T T') 
+  : β = β' ≃ Monad_Mor_from_hssMor β = Monad_Mor_from_hssMor β'.
+Proof.
+  eapply weqcomp.
+  - apply hssMor_eq.
+  - apply invweq.
+    apply Monad_Mor_equiv.
+    apply hs.
+Defined.
+
+Lemma faithful_hss_to_monad : faithful hss_to_monad_functor.
+Proof.
+  unfold faithful.
+  intros T T'.
+  apply isinclbetweensets.
+  - apply isaset_hssMor.
+  - apply isaset_Monad_Mor.
+  - intros β β'.
+    apply (invmap (hssMor_Monad_Mor_eq _ _ )).
+Qed.
+ 
 End hss_precategory.
 
 End hss_morphisms.
