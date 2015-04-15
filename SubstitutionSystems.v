@@ -4,7 +4,7 @@ Require Import Foundations.hlevel2.hSet.
 
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
-Require Import UnicodeNotations.
+Require Import SubstSystems.UnicodeNotations.
 Require Import RezkCompletion.whiskering.
 Require Import RezkCompletion.Monads.
 Require Import SubstSystems.Auxiliary.
@@ -518,9 +518,16 @@ Proof.
     + intro c. 
       unfold μ_2. simpl.
       unfold μ_0. simpl.
-      admit.
+      set (H':=fbracket_η T (identity _) ).
+      set (H2:= nat_trans_eq_weq _ _ hs _ _ _ _ H').
+      simpl in H2.
+      apply pathsinv0.
+      apply H2.
     + intro c.
-      admit.
+      transitivity (μ_1 c).
+      * unfold μ_0. 
+        admit.
+      * apply μ_1_identity.
   - unfold Monad_data_from_hss; simpl.
     intro c.
     unfold μ_2. simpl.
