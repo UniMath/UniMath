@@ -444,7 +444,9 @@ Section mu_from_fbracket.
 
 Variable T : hss.
 
-Definition μ_0 : functor_identity C ⟶ U T := ptd_pt _ (pr1 (pr1 T)).
+Local Notation "'η'" := (ptd_pt _ (pr1 (pr1 T))).
+
+Definition μ_0 : functor_identity C ⟶ U T := η. (*ptd_pt _ (pr1 (pr1 T)).*)
 
 Definition μ_0_ptd : id_Ptd ⇒ T.
 Proof.
@@ -506,7 +508,9 @@ Qed.
 (* This is the multiplication of the monad to be constructed *)
 Definition μ_2 : functor_composite (U T) (U T) ⟶ U T 
   := fbracket T (identity _ ).
-
+(*
+Definition μ_3 := fbracket T μ_2.
+*)
 Definition functor_with_mu_from_hss : functor_with_μ C.
 Proof.
   exists (U T).
@@ -519,6 +523,77 @@ Proof.
   exact μ_0.
 Defined.
 
+Lemma Monad_law_1_from_hss :
+  ∀ c : C, μ_0 (pr1 (U T) c);; μ_2 c = identity ((pr1 (U T)) c).
+Proof.
+  intro c. 
+  unfold μ_2. simpl.
+  unfold μ_0. simpl.
+  set (H':=fbracket_η T (identity _) ).
+  set (H2:= nat_trans_eq_weq _ _ hs _ _ _ _ H').
+  simpl in H2.
+  apply pathsinv0.
+  apply H2.
+Qed.
+
+Lemma ηη_nat_trans :
+  is_nat_trans (functor_identity C) (functor_composite (U T) (U T))
+     (λ c : C, η c;; η ((pr1 (U T)) c)).
+Proof.
+  simpl.
+  unfold is_nat_trans.
+  simpl.
+  intros c c' f.
+  set (η_nat := nat_trans_ax η).
+  repeat rewrite <- assoc.
+  set (H1 := η_nat _ _ (# (pr1 (U T)) f)); clearbody H1.
+  simpl in H1.
+  
+  transitivity (η c ;;  # (pr1 (U T)) f;; η ((pr1 (U T)) c')).
+  
+  Focus 2.
+  repeat rewrite <- assoc.
+  apply maponpaths.
+  apply H1.
+  
+  clear H1.
+  
+  repeat rewrite assoc.
+  apply cancel_postcomposition.
+  apply η_nat.
+Qed.
+
+Definition T_squared : Ptd.
+Proof.
+  exists (functor_composite (U T) (U T)).
+  exists (λ c, η c ;; η (pr1 (U T) c)).
+(*  exists (λ c, ptd_pt _ (pr1 (pr1 T)) c ;; ptd_pt _ (pr1 (pr1 T)) (pr1 (U T) c)). *)
+  apply ηη_nat_trans.
+Defined.
+
+
+Lemma μ_2_is_ptd_mor :
+  ∀ c : C, (ptd_pt C T_squared) c;; μ_2 c = (ptd_pt C (pr1 (pr1 T))) c.
+Proof.
+  intro c.
+  unfold μ_2.
+  unfold T_squared. simpl.
+  set (H':=Monad_law_1_from_hss c).
+  simpl in H'.
+  transitivity (η c ;; identity _ ).
+  - repeat rewrite <- assoc.
+    apply maponpaths.
+    apply H'.
+  - apply id_right.
+Qed.
+
+Definition μ_2_ptd : T_squared ⇒ T.
+Proof.
+  exists μ_2.
+  apply μ_2_is_ptd_mor.
+Defined.
+
+
 (* Here we prove Thm 10 of the original paper 
    economically by using magic "admit" tactic. *)
 
@@ -526,14 +601,7 @@ Lemma Monad_laws_from_hss : Monad_laws Monad_data_from_hss.
 Proof.
   split.
   - unfold Monad_data_from_hss; simpl; split.
-    + intro c. 
-      unfold μ_2. simpl.
-      unfold μ_0. simpl.
-      set (H':=fbracket_η T (identity _) ).
-      set (H2:= nat_trans_eq_weq _ _ hs _ _ _ _ H').
-      simpl in H2.
-      apply pathsinv0.
-      apply H2.
+    + apply Monad_law_1_from_hss.
     + intro c.
       transitivity (μ_1 c).
       * unfold μ_1.
@@ -612,6 +680,7 @@ Proof.
   - unfold Monad_data_from_hss; simpl.
     intro c.
     unfold μ_2. simpl.
+    
     admit.
 Qed.
 
