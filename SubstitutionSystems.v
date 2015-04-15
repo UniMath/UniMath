@@ -329,6 +329,17 @@ Proof.
   split;  assumption.
 Qed.
 
+Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
+  : ∀ α : functor_composite (U Z)(U T) ⟶ U T,
+     (#U f = pre_whisker (U Z) (ptd_pt _ ((pr1 (pr1 T)))) ;; α) →
+     (θ (prodcatpair (U T) Z) ;; #H α ;; τ _ = pre_whisker (U Z) (τ _) ;; α) 
+   → ∀ c, α c = pr1 (fbracket T f) c.
+Proof.
+  intros α H1 H2.
+  set (t:= fbracket_unique _ _ α H1 H2).
+  apply (nat_trans_eq_weq _ _ hs _ _ _ _ t).
+Qed.
+
 (* Properties of [fbracket] by definition *)
 
 Lemma fbracket_η (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
@@ -525,8 +536,79 @@ Proof.
       apply H2.
     + intro c.
       transitivity (μ_1 c).
-      * unfold μ_0. 
-        admit.
+      * unfold μ_1.
+        set (H':= fbracket_unique_target_pointwise).
+        set (H1:= H' _ _ μ_0_ptd).
+        set (x:= post_whisker _ _ _ _ μ_0 (U T)).
+        set (x':= x ;; μ_2).
+        set (H2 := H1 x').
+        apply H2; clear H2.
+        unfold x'. clear x'.
+        unfold x; clear x.
+        clear H1. clear H'. clear c.
+        simpl.
+        apply nat_trans_eq; simpl.
+         apply hs.
+         intro c.
+         set (H':=nat_trans_ax (ptd_pt _ (pr1 (pr1 T)))).
+         simpl in H'.
+         rewrite assoc.
+         rewrite <- H'; clear H'.
+         set (H':= fbracket_η T (identity _ )).
+         unfold μ_2.
+         set (H2 := nat_trans_eq_weq _ _ hs _ _ _ _ H').
+         simpl in H2.
+         rewrite <- assoc.
+         rewrite <- H2.
+         rewrite id_right.
+         apply idpath. (* done *)
+
+         unfold x'; clear x'.
+         unfold x; clear x.
+         clear H1. clear H'.
+         set (H':=θ_nat_2).
+         set (H2 := H' (U T) _ _ μ_0_ptd).
+         simpl in H2.
+         rewrite functor_comp.
+         apply nat_trans_eq; try assumption.
+         clear c.
+         intro c; simpl.
+         set (H3:= nat_trans_eq_weq _ _ hs _ _ _ _ H2 c).
+         simpl in H3.
+         rewrite id_left in H3.
+         rewrite <- horcomp_id_postwhisker.
+         repeat rewrite assoc.
+         simpl in *.
+         transitivity ( # (pr1 (H ( (U T)))) (μ_0 c);; pr1 (θ (prodcatpair (U T) T)) c ;; 
+                           pr1 (# H μ_2) c ;; (τ T) c).
+           apply cancel_postcomposition.
+           apply cancel_postcomposition.
+           apply (!H3). (* done *)
+           
+           clear H3 H2 H'.
+           
+
+(*
+           set (H':= 
+           unfold μ_2.
+           
+         rewrite <- H3.
+         unfold identity in H3.
+         repeat rewrite assoc.
+         rewrite <- H3.
+         simpl.
+  
+         unfold μ_0. simpl. 
+         apply H2.
+        unfold post_whisker. simpl.
+        
+        Check μ_2.
+        set (H2 := H1 
+        unfold μ_0.
+        unfold μ_1.
+        
+        apply fbracket_unique_target_pointwise.
+ *)       admit.
       * apply μ_1_identity.
   - unfold Monad_data_from_hss; simpl.
     intro c.
