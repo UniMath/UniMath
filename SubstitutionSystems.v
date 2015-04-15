@@ -586,30 +586,29 @@ Proof.
            apply (!H3). (* done *)
            
            clear H3 H2 H'.
-           
-
-(*
-           set (H':= 
+           set (H':= fbracket_τ T (identity _ )).
            unfold μ_2.
+           simpl.
+           set (H2:= nat_trans_eq_weq _ _ hs _ _ _ _ H' c).
+             clearbody H2.
+           simpl in *.
+           repeat rewrite <- assoc.
+           transitivity (  # (pr1 (H (U T))) (μ_0 c);;
+                             (pr1 (τ T) (pr1 (U T) c);; pr1 (fbracket T (identity T)) c)).
+             apply maponpaths.
+             rewrite assoc.
+             apply H2; clear H2. (* rewrite done *)
+            
+           clear H2 H'.
+           repeat rewrite assoc.
+           apply cancel_postcomposition.  
            
-         rewrite <- H3.
-         unfold identity in H3.
-         repeat rewrite assoc.
-         rewrite <- H3.
-         simpl.
-  
-         unfold μ_0. simpl. 
-         apply H2.
-        unfold post_whisker. simpl.
-        
-        Check μ_2.
-        set (H2 := H1 
-        unfold μ_0.
-        unfold μ_1.
-        
-        apply fbracket_unique_target_pointwise.
- *)       admit.
-      * apply μ_1_identity.
+           
+           set (H':=nat_trans_ax (τ T) ).
+           rewrite H'.
+           apply idpath.
+    * apply μ_1_identity.
+
   - unfold Monad_data_from_hss; simpl.
     intro c.
     unfold μ_2. simpl.
