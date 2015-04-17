@@ -166,28 +166,29 @@ Proof.
   exists X.
   exact Z.
 Defined.
+Local Notation "A ⊗ B" := (prodcatpair A B) (at level 10).
 
 Definition prodcatmor {X X' : EndC} {Z Z' : Ptd} (α : X ⇒ X') (β : Z ⇒ Z') 
-  : prodcatpair X Z ⇒ prodcatpair X' Z'.
+  : X ⊗ Z ⇒ X' ⊗ Z'.
 Proof.
   exists α.
   exact β.
 Defined.
 
 Lemma θ_nat_1 (X X' : EndC) (α : X ⇒ X') (Z : Ptd) 
-  : compose(C:=EndC) (# H α ∙∙ nat_trans_id (U Z)) (θ (prodcatpair X' Z)) =
-        θ (prodcatpair X Z);; # H (α ∙∙ nat_trans_id (U Z)).
+  : compose(C:=EndC) (# H α ∙∙ nat_trans_id (U Z)) (θ (X' ⊗ Z)) =
+        θ (X ⊗ Z);; # H (α ∙∙ nat_trans_id (U Z)).
 Proof.
   set (t:=nat_trans_ax θ).
-  set (t':=t (prodcatpair X Z) (prodcatpair X' Z)).
+  set (t':=t (X ⊗ Z) (X' ⊗ Z)).
   set (t'':= t' (prodcatmor α (identity _ ))).
   simpl in t''.
   exact t''.
 Qed.
 
 Lemma θ_nat_1_pointwise (X X' : EndC) (α : X ⇒ X') (Z : Ptd) (c : C)
-  :  pr1 (# H α) ((pr1 Z) c);; pr1 (θ (prodcatpair X' Z)) c =
-       pr1 (θ (prodcatpair X Z)) c;; pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
+  :  pr1 (# H α) ((pr1 Z) c);; pr1 (θ (X' ⊗ Z)) c =
+       pr1 (θ (X ⊗ Z)) c;; pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
 Proof.
   set (t := θ_nat_1 _ _ α Z).
   set (t' := nat_trans_eq_weq _ _ hs _ _ _ _ t c).
@@ -201,8 +202,8 @@ Proof.
 Qed.
 
 Lemma θ_nat_2 (X : EndC) (Z Z' : Ptd) (f : Z ⇒ Z')
-  : compose (C:=EndC) (identity (H X) ∙∙ pr1 f) (θ (prodcatpair X Z')) =
-       θ (prodcatpair X Z);; # H (identity X ∙∙ pr1 f).
+  : compose (C:=EndC) (identity (H X) ∙∙ pr1 f) (θ (X ⊗ Z')) =
+       θ (X ⊗ Z);; # H (identity X ∙∙ pr1 f).
 Proof.
   set (t := nat_trans_ax θ).
   set (t' := t (prodcatpair X Z) (prodcatpair X Z') (prodcatmor (identity _ ) f)).
@@ -217,8 +218,8 @@ Proof.
 Qed.
 
 Lemma θ_nat_2_pointwise (X : EndC) (Z Z' : Ptd) (f : Z ⇒ Z') (c : C)
-  :  # (pr1 (H X)) ((pr1 f) c);; pr1 (θ (prodcatpair X Z')) c =
-       pr1 (θ (prodcatpair X Z)) c;; pr1 (# H (identity X ∙∙ pr1 f)) c .
+  :  # (pr1 (H X)) ((pr1 f) c);; pr1 (θ (X ⊗ Z')) c =
+       pr1 (θ (X ⊗ Z)) c;; pr1 (# H (identity X ∙∙ pr1 f)) c .
 Proof.
   set (t:=θ_nat_2 X _ _ f).
   set (t':=nat_trans_eq_weq _ _ hs _ _ _ _ t c).
@@ -296,7 +297,7 @@ Definition bracket (T : Alg) : UU :=
   ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
    (Σ h : (U T) ∙ (U Z)  ⇒ U T,
      (#U f = pre_whisker (U Z) (ptd_pt _ (pr1 T)) ;; h) ×
-     (θ (prodcatpair (U T) Z) ;; #H h ;; τ _  = pre_whisker (U Z) (τ _) ;;  h )).
+     (θ (U T ⊗ Z) ;; #H h ;; τ _  = pre_whisker (U Z) (τ _) ;;  h )).
 
 Definition hss : UU := Σ T : Alg, bracket T.
 
@@ -310,7 +311,7 @@ Definition fbracket (T : hss) {Z : Ptd} (f : Z ⇒ T)
 Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
   : ∀ (α : functor_composite (U Z)(U T) ⟶ U T),
      (∀ c : C, pr1 (#U f) c = ptd_pt _ (pr1 (pr1 T)) (pr1 (U Z) c) ;; α c) →
-     (∀ c : C, pr1 (θ (prodcatpair (U T) Z))  c ;; pr1 (#H α) c ;; τ _ c = 
+     (∀ c : C, pr1 (θ (U T ⊗ Z))  c ;; pr1 (#H α) c ;; τ _ c = 
         τ _ (pr1 (U Z) c) ;; α c) → α = fbracket T f.
 Proof.
   intros α H1 H2.
@@ -321,7 +322,7 @@ Qed.
 Definition fbracket_unique (T : hss) {Z : Ptd} (f : Z ⇒ T) 
   : ∀ α : functor_composite (U Z)(U T) ⟶ U T,
      (#U f = pre_whisker (U Z) (ptd_pt _ ((pr1 (pr1 T)))) ;; α) →
-     (θ (prodcatpair (U T) Z) ;; #H α ;; τ _ = pre_whisker (U Z) (τ _) ;; α) 
+     (θ (U T ⊗ Z) ;; #H α ;; τ _ = pre_whisker (U Z) (τ _) ;; α) 
    → α = fbracket T f.
 Proof.
   intros α H1 H2.
@@ -332,7 +333,7 @@ Qed.
 Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
   : ∀ α : functor_composite (U Z)(U T) ⟶ U T,
      (#U f = pre_whisker (U Z) (ptd_pt _ ((pr1 (pr1 T)))) ;; α) →
-     (θ (prodcatpair (U T) Z) ;; #H α ;; τ _ = pre_whisker (U Z) (τ _) ;; α) 
+     (θ (U T ⊗ Z) ;; #H α ;; τ _ = pre_whisker (U Z) (τ _) ;; α) 
    → ∀ c, α c = pr1 (fbracket T f) c.
 Proof.
   intros α H1 H2.
@@ -350,7 +351,7 @@ Proof.
 Qed.
 
 Lemma fbracket_τ (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
-    θ (prodcatpair (U T) Z) ;; #H (fbracket T f) ;; τ _  
+    θ (U T ⊗ Z) ;; #H (fbracket T f) ;; τ _  
     = 
     pre_whisker (U Z) (τ _) ;;  fbracket T f .
 Proof.
@@ -491,7 +492,7 @@ Proof.
   - intros; simpl.
     rewrite id_right.
     assert (H':pr1 (θ (prodcatpair (U (pr1 T)) id_Ptd)) c;; pr1 (# H μ_1_alt) c = identity _ ).
-    { admit. } (* should be given by hypothesis on θ anyway *) 
+    { admit. } (* should be given by hypothesis on θ *) 
     apply equal_to_identity.
     + apply H'.
     + apply idpath.
@@ -593,6 +594,28 @@ Proof.
   apply μ_2_is_ptd_mor.
 Defined.
 
+Definition μ_3 : U T_squared ∙ U T ⇒ U T := fbracket T μ_2_ptd.
+
+Lemma μ_3_μ_2_T_μ_2 :  μ_3  =  pre_whisker (U T) μ_2 ;; μ_2.
+Proof.
+  apply pathsinv0.  
+  unfold μ_3.
+  set (H1 := @fbracket_unique T _ μ_2_ptd).
+  apply H1; clear H1.
+  - simpl.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    simpl.
+    set (H1:=Monad_law_1_from_hss (pr1 (U T) c)).
+    simpl in H1.
+    rewrite assoc.
+    unfold μ_0 in H1.
+    transitivity (identity _ ;; μ_2 c).
+    + rewrite id_left; apply idpath.
+    + apply cancel_postcomposition.
+      apply (!H1).
+  - admit.
+Qed.
 
 (* Here we prove Thm 10 of the original paper 
    economically by using magic "admit" tactic. *)
