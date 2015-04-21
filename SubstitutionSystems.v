@@ -21,7 +21,7 @@ Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35
 Local Notation "α ∙∙ β" := (hor_comp β α) (at level 20).
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
-Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 35).
+Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
 Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 35).
 
 Section def_hss.
@@ -598,6 +598,7 @@ Definition μ_3 : U T_squared ∙ U T ⇒ U T := fbracket T μ_2_ptd.
 
 Lemma μ_3_T_μ_2_μ_2 : μ_3 = (U T) ∘ μ_2 ;; μ_2.
 Proof.
+  Check (U T ∘ μ_2 ;; μ_2).
   apply pathsinv0.
   set (H1 := @fbracket_unique T _ μ_2_ptd).
   apply H1; clear H1.
@@ -672,18 +673,18 @@ Proof.
       apply H1.
 Qed.
    
+   
     
-    
-    
-Lemma μ_3_μ_2_T_μ_2 :  μ_3  =  pre_whisker (U T) μ_2 ;; μ_2.
+Lemma μ_3_μ_2_T_μ_2 :  μ_3  = μ_2 ø U T ;; μ_2.
 Proof.
+  Check μ_3.
+  Check (pre_whisker (U T) μ_2 ;; μ_2).
   apply pathsinv0.  
   unfold μ_3.
-  set (H1 := @fbracket_unique T _ μ_2_ptd).
+  set (H1 := @fbracket_unique (*_pointwise*) T _ μ_2_ptd).
   apply H1; clear H1.
   - simpl.
-    apply nat_trans_eq; try assumption.
-    intro c.
+    apply nat_trans_eq; try assumption; intro c.
     simpl.
     set (H1:=Monad_law_1_from_hss (pr1 (U T) c)).
     simpl in H1.
@@ -693,23 +694,103 @@ Proof.
     + rewrite id_left; apply idpath.
     + apply cancel_postcomposition.
       apply (!H1).
-  - 
+  - admit.
+(*
+    simpl.
+    unfold T_squared.
+    simpl.
+    set (A := pr1 (θ (U T ⊗ T_squared)) c).
+    set (B := pr1 (# H (μ_2 ø U T)) c).
+    simpl in *.
     
+    unfold θ_target_ob in A. simpl in A.
+    unfold functor_compose in B.
+    simpl in B.
+    set (C := compose (C:=C) A  B).
+    
+    
+    transitivity ( pr1 (θ ((U T) ⊗ T_squared)) c;; pr1 (# H (μ_2 ø U T;; μ_2)) c;;
+                      (τ T) c).
+    
+    assert ( θ ((U T) ⊗ T_squared);; # H (μ_2 ø U T;; μ_2);; τ T =
+   τ T ø U T_squared;; (μ_2 ø U T;; μ_2) ).
+    
+    apply nat_trans_eq; try assumption.
+    intro c; simpl.
+    
+    
+    
+    set (A := θ ( U T ⊗ T_squared)).
+    set (B := # H (μ_2 ø U T;; μ_2)).
+    simpl in *.
+    unfold functor_compose in B.
+    unfold θ_target_ob in A.
+    simpl in A.
+    idtac.
+    set (H':= functor_comp H).
+    set (H2:= H' _ _ _ (μ_2 ø U T) μ_2); clearbody H2; clear H'.
+    
+    assert ( A;; # H (μ_2 ø pr1 T;; μ_2);; τ T =
+   τ T ø functor_composite (pr1 T) (pr1 T);; (μ_2 ø pr1 T;; μ_2) ).
+    
+    rewrite H2 in B.
+    Set Printing Coercions.
+    idtac.
+    rewrite H2.
+    set (Ht := θ ((U T) ⊗ T_squared)).
+    set (TT:= τ T).
+    generalize dependent H2.
+    set (YY := # H (μ_2 ø U T ;; μ_2)).
+    destruct 1.
+    rewrite H2.
+    set (X:= # H (μ_2 ø U T)).
+    simpl in Ht.
+    unfold θ_target_ob in Ht.
+    simpl in Ht.
+    simpl in *.
+    unfold functor_compose in X.
+    simpl in H.
+    set (X':=  # H (μ_2 ø U T;; μ_2) ).
+    unfold functor_compose in X'.
+    set (A := nat_trans_comp Ht X').
+    set (A := nat_trans_comp Ht X).
+    simpl in *.
+*)
+
+(*    unfold θ_target in *. simpl in *.
+    unfold θ_target_functor_data in *.
+*)
+
+(*    rewrite H2.
+    induction H2.
+    rewrite <- H2.
+    repeat rewrite <- assoc.
+*)
+(*
+    transitivity (θ ((U T) ⊗ T_squared);; # H (μ_2 ø U T) ;; # H μ_2 ;; τ T).
+*)
+(*  
     set (H1:= θ_nat_1 _ _ μ_2); clearbody H1.
-    set (H2 := H1 T).
-    set (H3:= (nat_trans_eq_weq _ _ hs  _ _ _ _ H2) ); clearbody  H3.
-    simpl in H3.
+    set (H6 := H1 T).
+    set (H3:= (nat_trans_eq_weq _ _ hs  _ _ _ _ H6) ); clearbody  H3.
     apply nat_trans_eq; try assumption.
     intro c.
+    set (H4 := H3 c).
+    simpl in H4.
+    rewrite functor_id in H4.
+    rewrite id_right in H4.
     simpl.
-    admit.
-(* 
+    
+    transitivity (pr1 (θ ((U T) ⊗ T_squared)) c;; 
+                  pr1 (# H (μ_2 ø U T ;; μ_2)) c  ;; τ T c).
+
     assert (H : ∀ c : C, 
        pr1 (θ (U T ⊗ T_squared)) c = 
-         pr1 (θ (U T ⊗ T)) _ ;; pr1 (θ (functor_composite (U T) (U T) ⊗ T)) (pr1 (U T) c) ).
+         pr1 (θ (U T ⊗ T)) (pr1 (U T) c) ;; pr1 (θ (functor_composite (U T) (U T) ⊗ T)) c ).
 *)
-Qed.
 
+Qed.
+Check μ_3_μ_2_T_μ_2.
 (* Here we prove Thm 10 of the original paper 
    economically by using magic "admit" tactic. *)
 
@@ -795,9 +876,13 @@ Proof.
 
   - unfold Monad_data_from_hss; simpl.
     intro c.
-    unfold μ_2. simpl.
-    
-    admit.
+    transitivity (pr1 μ_3 c).
+    + set (H1 := μ_3_T_μ_2_μ_2).
+      set (H2 := nat_trans_eq_weq _ _ hs _ _ _ _ H1).
+      apply pathsinv0, H2.
+    + set (H1 :=  μ_3_μ_2_T_μ_2).
+      set (H2 := nat_trans_eq_weq _ _ hs _ _ _ _ H1).
+      apply H2.
 Qed.
 
 Definition Monad_from_hss : Monad C.
