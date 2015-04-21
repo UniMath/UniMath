@@ -598,7 +598,18 @@ Definition μ_3 : U T_squared ∙ U T ⇒ U T := fbracket T μ_2_ptd.
 
 Lemma μ_3_T_μ_2_μ_2 : μ_3 = (U T) ∘ μ_2 ;; μ_2.
 Proof.
+(*  Print functor_compose.
   Check (U T ∘ μ_2 ;; μ_2).
+  Check μ_3.
+  set (A:=μ_3).
+  set (B:= (U T) ∘ μ_2 ;; μ_2).
+  simpl in A.
+  simpl in B.
+  unfold functor_compose in B.
+  unfold functor_composite in *.
+  simpl.
+  simpl in *
+*)
   apply pathsinv0.
   set (H1 := @fbracket_unique T _ μ_2_ptd).
   apply H1; clear H1.
@@ -694,8 +705,30 @@ Proof.
     + rewrite id_left; apply idpath.
     + apply cancel_postcomposition.
       apply (!H1).
-  - admit.
-(*
+  - 
+    set (A:=θ (U T ⊗ T_squared)).
+    set (H':= functor_comp H).
+    set (H2:= H' _ _ _ (μ_2 ø U T) μ_2); clearbody H2; clear H'.
+    set (B:= τ T).
+    match goal with | [  |- _ ;; ?f ;; _ = _ ] => (set (D:= f)) end.
+        
+    match goal with | [ H : ?f = ?g |- _ ] => set (E := g) end.
+
+    transitivity (A ;; D ;; B).
+    
+    
+    
+    assert (H1 : D = E).
+    
+    unfold functor_compose in E.
+    
+   assert (H1 : ).
+    
+    transitivity (A ;; (E;; B)).
+    
+    set (D:= # H (pre_whisker (U T) μ_2 ;; μ_2)).
+    transitivity (A ;; (# H (μ_2 ø U T ;; μ_2) ;; B)).
+    rewrite H2.
     simpl.
     unfold T_squared.
     simpl.
@@ -727,8 +760,6 @@ Proof.
     unfold θ_target_ob in A.
     simpl in A.
     idtac.
-    set (H':= functor_comp H).
-    set (H2:= H' _ _ _ (μ_2 ø U T) μ_2); clearbody H2; clear H'.
     
     assert ( A;; # H (μ_2 ø pr1 T;; μ_2);; τ T =
    τ T ø functor_composite (pr1 T) (pr1 T);; (μ_2 ø pr1 T;; μ_2) ).
