@@ -710,7 +710,34 @@ Proof.
     set (H':= functor_comp H).
     set (H2:= H' _ _ _ (μ_2 ø U T) μ_2); clearbody H2; clear H'.
     set (B:= τ T).
-    match goal with | [  |- _ ;; ?f ;; _ = _ ] => (set (D:= f)) end.
+    
+    generalize dependent H2.
+    
+(*
+    match goal with | [ |- _ -> _ = _ ;; ?f ] => set (F := f) end.
+*)
+    set (D:= # H (μ_2 ø U T ;; μ_2)).
+
+    
+    intro X.
+    
+    
+    match goal with | [  |-  _ ;; ?f ;; _ = _ ] => (set (D':= f)) end.
+    
+    simpl in *.
+    unfold functor_compose in D.
+
+    Unset Printing Notations.
+    idtac.
+    
+    Set Printing Coercions.
+    idtac.
+    Set Printing All.
+    
+    idtac.
+    
+    assert (H2 : D' = D).
+    
         
     match goal with | [ H : ?f = ?g |- _ ] => set (E := g) end.
 
