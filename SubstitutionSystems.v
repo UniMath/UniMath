@@ -95,12 +95,10 @@ Proof.
       clear aax eta. clear bax eta'. clear eta''.
       set (HHH:=nat_trans_ax (#H β)).
       rewrite <- functor_comp.
-      rewrite HHH.
       rewrite assoc.
+      rewrite <- functor_comp.
       rewrite HHH.
-      rewrite <- assoc.
-      apply maponpaths.
-      apply functor_comp.
+      apply idpath.
 Qed.
 
 Definition θ_source : functor _ _ := tpair _ _ is_functor_θ_source.
