@@ -54,8 +54,8 @@ Notation "G 'O' F [ hsB , hsC ]" := (functor_composite hsB hsC F G) (at level 20
 Definition form_adjunction (A B : precategory) 
    (hsA: has_homsets A) (hsB: has_homsets B)  (F : ob [A, B, hsB])
        (G : ob [B, A, hsA]) 
-       (eta : nat_trans (functor_identity A) (FC hsB hsA F G))  
-       (eps : nat_trans (FC hsA hsB G F) (functor_identity B)) : UU :=
+       (eta : nat_trans (functor_identity A) (pr1 (FC hsB hsA F G)))  
+       (eps : nat_trans (pr1 (FC hsA hsB G F)) (functor_identity B)) : UU :=
 dirprod 
   (forall a : ob A,
        # (pr1 F) (pr1 eta a) ;;   pr1 eps (pr1 F a) = identity (pr1 F a))
@@ -66,8 +66,8 @@ Definition are_adjoints (A B : precategory)
    (hsA: has_homsets A) (hsB: has_homsets B)
    (F : ob [A, B, hsB])  (G : ob [B, A, hsA]) : UU :=
   total2 (fun etaeps : dirprod 
-            (nat_trans (functor_identity A) (FC hsB hsA F G))
-            (nat_trans (FC hsA hsB G F) (functor_identity B)) =>
+            (nat_trans (functor_identity A) (pr1 (FC hsB hsA F G)))
+            (nat_trans (pr1 (FC hsA hsB G F)) (functor_identity B)) =>
       form_adjunction A B hsA hsB F G (pr1 etaeps) (pr2 etaeps)).
 
 Definition is_left_adjoint (A B : precategory) 
@@ -79,12 +79,12 @@ Definition right_adjoint {A B : precategory} (hsA: has_homsets A) (hsB: has_homs
 
 Definition eta_from_left_adjoint {A B : precategory} (hsA: has_homsets A) (hsB: has_homsets B)
    {F : ob [A, B, hsB]}  (H : is_left_adjoint _ _ hsA hsB F) : 
-  nat_trans (functor_identity A) (FC hsB hsA F (pr1 H)) := pr1 (pr1 (pr2 H)).
+  nat_trans (functor_identity A) (pr1 (FC hsB hsA F (pr1 H))) := pr1 (pr1 (pr2 H)).
 
 
 Definition eps_from_left_adjoint {A B : precategory} (hsA: has_homsets A) (hsB: has_homsets B) 
   {F : functor A B}   (H : is_left_adjoint _ _ hsA hsB F)  : 
- nat_trans (FC hsA hsB (pr1 H) F) (functor_identity B)
+ nat_trans (pr1 (FC hsA hsB (pr1 H) F)) (functor_identity B)
    := pr2 (pr1 (pr2 H)).
 
 
@@ -352,7 +352,7 @@ Defined.
 (** Epsilon is natural *)
 
 Lemma rad_eps_is_nat_trans : is_nat_trans 
-    (FC _ _ rad F) (functor_identity B)
+    (pr1 (FC _ _ rad F)) (functor_identity B)
        (fun b => rad_eps b).
 Proof.
   unfold is_nat_trans.
@@ -380,7 +380,7 @@ Ltac inv_functor x y :=
      rewrite H; clear H.
 
 Lemma rad_eta_is_nat_trans : is_nat_trans 
-         (functor_identity A) (FC _ _ F rad) 
+         (functor_identity A) (pr1 (FC _ _ F rad)) 
        (fun a => rad_eta a).
 Proof.
   unfold is_nat_trans.
