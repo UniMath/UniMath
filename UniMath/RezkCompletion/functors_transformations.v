@@ -489,15 +489,15 @@ Defined.
 
 (** ** Definition of natural transformations *)
 
-Definition is_nat_trans {C C' : precategory}
-  (F F' : functor C C')
+Definition is_nat_trans {C C' : precategory_data}
+  (F F' : functor_data C C')
   (t : forall x : ob C, F x -->  F' x) := 
   forall (x x' : ob C)(f : x --> x'),
     #F f ;; t x' = t x ;; #F' f.
 
 
 Lemma isaprop_is_nat_trans (C C' : precategory) (hs: has_homsets C')
-  (F F' : functor C C') (t : forall x : ob C, F x -->  F' x):
+  (F F' : functor_data C C') (t : forall x : ob C, F x -->  F' x):
   isaprop (is_nat_trans F F' t).
 Proof.
   repeat (apply impred; intro).
@@ -505,12 +505,12 @@ Proof.
 Qed.
 
 
-Definition nat_trans {C C' : precategory}
-  (F F' : functor C C') := total2 (
+Definition nat_trans {C C' : precategory_data}
+  (F F' : functor_data C C') := total2 (
    fun t : forall x : ob C, F x -->  F' x => is_nat_trans F F' t).
 
 Lemma isaset_nat_trans {C C' : precategory} (hs: has_homsets C')
-  (F F' : functor C C') : isaset (nat_trans F F').
+  (F F' : functor_data C C') : isaset (nat_trans F F').
 Proof.
   change isaset with (isofhlevel 2).
   apply isofhleveltotal2.
@@ -522,20 +522,20 @@ Proof.
   apply hs.
 Qed.
 
-Definition nat_trans_data {C C' : precategory}
- {F F' : functor C C'}(a : nat_trans F F') :
+Definition nat_trans_data {C C' : precategory_data}
+ {F F' : functor_data C C'}(a : nat_trans F F') :
    forall x : ob C, F x --> F' x := pr1 a.
 Coercion nat_trans_data : nat_trans >-> Funclass.
 
-Definition nat_trans_ax {C C' : precategory}
-  {F F' : functor C C'} (a : nat_trans F F') :
+Definition nat_trans_ax {C C' : precategory_data}
+  {F F' : functor_data C C'} (a : nat_trans F F') :
   forall (x x' : ob C)(f : x --> x'),
     #F f ;; a x' = a x ;; #F' f := pr2 a.
 
 (** Equality between two natural transformations *)
 
 Lemma nat_trans_eq {C C' : precategory} (hs: has_homsets C')
-  (F F' : functor C C')(a a' : nat_trans F F'):
+  (F F' : functor_data C C')(a a' : nat_trans F F'):
   (forall x, a x = a' x) -> a = a'.
 Proof.
   intro H.
@@ -548,8 +548,8 @@ Proof.
   apply hs.
 Qed.
 
-Definition nat_trans_eq_pointwise (C C' : precategory)
-   (F F' : functor C C') (a a' : nat_trans F F'):
+Definition nat_trans_eq_pointwise (C C' : precategory_data)
+   (F F' : functor_data C C') (a a' : nat_trans F F'):
       a = a' -> forall x, a x = a' x.
 Proof.
   intro h.
@@ -569,7 +569,7 @@ Definition functor_precategory_ob_mor (C C' : precategory):
 (** *** Identity natural transformation *)
 
 Lemma is_nat_trans_id {C C' : precategory}
-  (F : functor C C') : is_nat_trans F F
+  (F : functor_data C C') : is_nat_trans F F
      (fun c : ob C => identity (F c)).
 Proof.
   intros ? ? ? .
@@ -579,13 +579,13 @@ Proof.
 Qed.
 
 Definition nat_trans_id {C C' : precategory}
-  (F : functor C C') : nat_trans F F :=
+  (F : functor_data C C') : nat_trans F F :=
     tpair _ _ (is_nat_trans_id F).
 
 (** *** Composition of natural transformations *)
 
 Lemma is_nat_trans_comp {C C' : precategory}
-  {F G H : functor C C'}
+  {F G H : functor_data C C'}
   (a : nat_trans F G)
   (b : nat_trans G H): is_nat_trans F H
      (fun x : ob C => a x ;; b x).
@@ -600,7 +600,7 @@ Qed.
 
 
 Definition nat_trans_comp {C C' : precategory}
-  (F G H: functor C C') 
+  (F G H: functor_data C C') 
   (a : nat_trans F G)
   (b : nat_trans G H): nat_trans F H :=
     tpair _ _ (is_nat_trans_comp a b).
@@ -613,7 +613,7 @@ Proof.
   apply ( precategory_data_pair 
         (functor_precategory_ob_mor C C')).
   intro a. simpl.
-  apply (nat_trans_id a).
+  apply (nat_trans_id (pr1 a)).
   intros a b c f g.
   apply (nat_trans_comp _ _ _ f g).
 Defined.
