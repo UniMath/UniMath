@@ -85,7 +85,7 @@ Definition is_functor {C C' : precategory_data} (F : functor_data C C') :=
              (forall a b c : ob C, forall f : a --> b, forall g : b --> c, 
                 #F (f ;; g) = #F f ;; #F g).
 
-Lemma isaprop_is_functor (C C' : precategory) (hs: has_homsets C')
+Lemma isaprop_is_functor (C C' : precategory_data) (hs: has_homsets C')
        (F : functor_data C C'): isaprop (is_functor F).
 Proof.
   apply isofhleveldirprod.
@@ -95,10 +95,10 @@ Proof.
   apply hs.
 Qed.
 
-Definition functor (C C' : precategory) := total2 (
+Definition functor (C C' : precategory_data) := total2 (
    fun F : functor_data C C' => is_functor F).
 
-Lemma functor_eq (C C' : precategory) (hs: has_homsets C') (F F': functor C C'):
+Lemma functor_eq (C C' : precategory_data) (hs: has_homsets C') (F F': functor C C'):
     pr1 F = pr1 F' -> F = F'.
 Proof.
   intro H.
@@ -108,12 +108,12 @@ Proof.
   apply hs.
 Defined.
 
-Definition functor_data_from_functor (C C': precategory)
+Definition functor_data_from_functor (C C': precategory_data)
      (F : functor C C') : functor_data C C' := pr1 F.
 Coercion functor_data_from_functor : functor >-> functor_data.
 
 
-Definition functor_eq_eq_from_functor_ob_eq (C C' : precategory) (hs: has_homsets C')
+Definition functor_eq_eq_from_functor_ob_eq (C C' : precategory_data) (hs: has_homsets C')
    (F G : functor C C') (p q : F = G) 
    (H : base_paths _ _ (base_paths _ _  p) = 
          base_paths _ _ (base_paths _ _ q)) :
@@ -149,10 +149,10 @@ Defined.
 
  
 
-Definition functor_id {C C' : precategory}(F : functor C C'):
+Definition functor_id {C C' : precategory_data}(F : functor C C'):
        forall a : ob C, #F (identity a) = identity (F a) := pr1 (pr2 F).
 
-Definition functor_comp {C C' : precategory}
+Definition functor_comp {C C' : precategory_data}
       (F : functor C C'):
        forall a b c : ob C, forall f : a --> b,
                  forall g : b --> c, 
@@ -853,7 +853,7 @@ Proof.
   destruct A as [A Aiso].
   simpl in *.
   pathvia 
-    (inv_from_iso (functor_iso_pointwise_if_iso C D _ F G A Aiso a) ;;
+    (inv_from_iso (functor_iso_pointwise_if_iso C D hs F G A Aiso a) ;;
        (A a ;; #G f)).
   rewrite <- assoc.
   apply maponpaths.
@@ -925,7 +925,7 @@ Proof.
        (idtoiso
           (toforallpaths (fun _ : ob C => D) (pr1 (pr1 F)) (pr1 (pr1 G))
              (base_paths (pr1 F) (pr1 G)
-                (base_paths F G (functor_eq_from_functor_iso _ H F G gamma))) a))).
+                (base_paths F G (functor_eq_from_functor_iso hs H F G gamma))) a))).
       assert (H2 := maponpaths (@pr1 _ _ ) H').
       simpl in H2. apply H2. 
   unfold functor_eq_from_functor_iso.
@@ -934,7 +934,7 @@ Proof.
   unfold pr1_functor_eq_from_functor_iso.
   rewrite base_total2_paths.
   pathvia (pr1 (idtoiso
-     (isotoid D H (functor_iso_pointwise_if_iso C D _ F G gamma (pr2 gamma) a)))).
+     (isotoid D H (functor_iso_pointwise_if_iso C D hs F G gamma (pr2 gamma) a)))).
   apply maponpaths.
   apply maponpaths.
   unfold pr1_pr1_functor_eq_from_functor_iso.
