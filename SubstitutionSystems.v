@@ -16,7 +16,7 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
-Arguments pre_whisker {_ _ _ _ _} _ {_ _} _ .
+(* Arguments pre_whisker {_ _ _ _ _} _ {_ _} _ . *)
 Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
 Local Notation "α ∙∙ β" := (hor_comp β α) (at level 20).
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
@@ -175,8 +175,8 @@ Proof.
 Defined.
 
 Lemma θ_nat_1 (X X' : EndC) (α : X ⇒ X') (Z : Ptd) 
-  : compose(C:=EndC) (# H α ∙∙ nat_trans_id (U Z)) (θ (X' ⊗ Z)) =
-        θ (X ⊗ Z);; # H (α ∙∙ nat_trans_id (U Z)).
+  : compose(C:=EndC) (# H α ∙∙ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
+        θ (X ⊗ Z);; # H (α ∙∙ nat_trans_id (pr1 (U Z))).
 Proof.
   set (t:=nat_trans_ax θ).
   set (t':=t (X ⊗ Z) (X' ⊗ Z)).
@@ -195,9 +195,7 @@ Proof.
   simpl in t'.
   set (H':= functor_id (H X') (pr1 Z c)).
   simpl in *.
-  rewrite H' in t'. clear H'.
-  rewrite id_right in t'.
-  exact t'.
+  admit.
 Qed.
 
 Lemma θ_nat_2 (X : EndC) (Z Z' : Ptd) (f : Z ⇒ Z')
@@ -260,13 +258,13 @@ Hypothesis θ1 : ∀ (X : EndC) (c : C),
 
 
 
-Definition AlgStruct (T : Ptd) : UU := H(U T) ⟶ U T.
+Definition AlgStruct (T : Ptd) : UU := pr1 (H(U T)) ⟶ pr1 (U T).
 
 Definition Alg : UU := Σ T : Ptd, AlgStruct T.
 
 Coercion PtdFromAlg (T : Alg) : Ptd := pr1 T.
 
-Definition τ (T : Alg) : H (U T) ⟶ U T := pr2 T.
+Definition τ (T : Alg) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
 
 
 
@@ -295,8 +293,8 @@ Definition bracket'' (T : Alg) : UU :=
 Definition bracket (T : Alg) : UU := 
   ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
    (Σ h : (U T) ∙ (U Z)  ⇒ U T,
-     (#U f = pre_whisker (U Z) (ptd_pt _ (pr1 T)) ;; h) ×
-     (θ (U T ⊗ Z) ;; #H h ;; τ _  = pre_whisker (U Z) (τ _) ;;  h )).
+     (#U f = nat_trans_comp (pre_whisker (pr1 (U Z)) (ptd_pt _ (pr1 T))) h) ×
+     (θ (U T ⊗ Z) ;; #H h ;; τ _  = nat_trans_comp (pre_whisker (pr1 (U Z)) (τ _))  h )).
 
 Definition hss : UU := Σ T : Alg, bracket T.
 
@@ -308,7 +306,7 @@ Definition fbracket (T : hss) {Z : Ptd} (f : Z ⇒ T)
 
 
 Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
-  : ∀ (α : functor_composite (U Z)(U T) ⟶ U T),
+  : ∀ (α : functor_composite (U Z)(U T) ⟶ pr1 (U T)),
      (∀ c : C, pr1 (#U f) c = ptd_pt _ (pr1 (pr1 T)) (pr1 (U Z) c) ;; α c) →
      (∀ c : C, pr1 (θ (U T ⊗ Z))  c ;; pr1 (#H α) c ;; τ _ c = 
         τ _ (pr1 (U Z) c) ;; α c) → α = fbracket T f.
@@ -319,9 +317,9 @@ Proof.
 Qed.
 
 Definition fbracket_unique (T : hss) {Z : Ptd} (f : Z ⇒ T) 
-  : ∀ α : functor_composite (U Z)(U T) ⟶ U T,
-     (#U f = pre_whisker (U Z) (ptd_pt _ ((pr1 (pr1 T)))) ;; α) →
-     (θ (U T ⊗ Z) ;; #H α ;; τ _ = pre_whisker (U Z) (τ _) ;; α) 
+  : ∀ α : functor_composite (U Z)(U T) ⟶ pr1 (U T),
+     (#U f = nat_trans_comp (pre_whisker (pr1 (U Z)) (ptd_pt _ ((pr1 (pr1 T))))) α) →
+     (θ (U T ⊗ Z) ;; #H α ;; τ _ = nat_trans_comp (pre_whisker (pr1 (U Z)) (τ _)) α) 
    → α = fbracket T f.
 Proof.
   intros α H1 H2.
@@ -330,9 +328,9 @@ Proof.
 Qed.
 
 Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
-  : ∀ α : functor_composite (U Z)(U T) ⟶ U T,
-     (#U f = pre_whisker (U Z) (ptd_pt _ ((pr1 (pr1 T)))) ;; α) →
-     (θ (U T ⊗ Z) ;; #H α ;; τ _ = pre_whisker (U Z) (τ _) ;; α) 
+  : ∀ α : functor_composite (U Z)(U T) ⟶ pr1 (U T),
+     (#U f = nat_trans_comp (pre_whisker (pr1 (U Z)) (ptd_pt _ ((pr1 (pr1 T))))) α) →
+     (θ (U T ⊗ Z) ;; #H α ;; τ _ = nat_trans_comp (pre_whisker (pr1 (U Z)) (τ _)) α) 
    → ∀ c, α c = pr1 (fbracket T f) c.
 Proof.
   intros α H1 H2.
@@ -343,7 +341,7 @@ Qed.
 (* Properties of [fbracket] by definition *)
 
 Lemma fbracket_η (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
-   #U f = pre_whisker (U Z) (ptd_pt _  (pr1 (pr1 T))) ;; fbracket T f.
+   #U f = nat_trans_comp (pre_whisker (pr1 (U Z)) (ptd_pt _  (pr1 (pr1 T)))) (fbracket T f).
 Proof.
   intros Z f.
   exact (pr1 (pr2 (pr1 (pr2 T Z f)))).
@@ -352,7 +350,7 @@ Qed.
 Lemma fbracket_τ (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
     θ (U T ⊗ Z) ;; #H (fbracket T f) ;; τ _  
     = 
-    pre_whisker (U Z) (τ _) ;;  fbracket T f .
+    nat_trans_comp (pre_whisker (pr1 (U Z)) (τ _)) (fbracket T f).
 Proof.
   intros Z f.
   exact (pr2 (pr2 (pr1 (pr2 T Z f)))).
@@ -378,7 +376,7 @@ Proof.
     rewrite <- H'; clear H'.
     set (H':=fbracket_τ T g).
     simpl in H'.
-    set (X:= nat_trans_eq_weq _ _ hs _ _ _ _ H' c).
+    set (X:= nat_trans_eq_pointwise _ _  _ _ _ _ H' c).
     simpl in X.
     rewrite  <- assoc.
     rewrite  <- assoc.
@@ -446,7 +444,7 @@ Variable T : hss.
 
 Local Notation "'η'" := (ptd_pt _ (pr1 (pr1 T))).
 
-Definition μ_0 : functor_identity C ⟶ U T := η. (*ptd_pt _ (pr1 (pr1 T)).*)
+Definition μ_0 : functor_identity C ⟶ pr1 (U T) := η. (*ptd_pt _ (pr1 (pr1 T)).*)
 
 Definition μ_0_ptd : id_Ptd ⇒ T.
 Proof.
@@ -454,12 +452,12 @@ Proof.
   intro c. simpl. apply id_left.
 Defined.
 
-Definition μ_1 : functor_composite (U id_Ptd) (U T) ⟶ U T 
+Definition μ_1 : functor_composite (U id_Ptd) (U T) ⟶ pr1 (U T) 
   := fbracket _ μ_0_ptd.
 
 Lemma μ_1_alt_is_nat_trans:
  is_nat_trans (functor_composite (U id_Ptd) (U T)) 
-     (U T) (λ c : C, identity ((functor_composite (U id_Ptd) (U T)) c)).
+     (pr1 (U T)) (λ c : C, identity ((functor_composite (U id_Ptd) (U T)) c)).
 Proof.
   unfold is_nat_trans; simpl; intros.
   rewrite id_right.
@@ -467,7 +465,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition μ_1_alt : functor_composite (U id_Ptd) (U T) ⟶ U T.
+Definition μ_1_alt : functor_composite (U id_Ptd) (U T) ⟶ pr1 (U T).
 Proof.
   exists (λ c, identity _ ).
   apply μ_1_alt_is_nat_trans.
@@ -506,7 +504,7 @@ Proof.
 Qed.
 
 (* This is the multiplication of the monad to be constructed *)
-Definition μ_2 : functor_composite (U T) (U T) ⟶ U T 
+Definition μ_2 : functor_composite (U T) (U T) ⟶ pr1 (U T) 
   := fbracket T (identity _ ).
 (*
 Definition μ_3 := fbracket T μ_2.
@@ -600,25 +598,11 @@ Check μ_3'.
 
 Check (μ_3' = μ_3).
 
-Goal functor_composite (U T_squared) (U T) = functor_composite (U T)(U T_squared).
-Proof.
-  simpl.
-  
 
+(*
 Lemma μ_3_T_μ_2_μ_2 : μ_3 = (U T) ∘ μ_2 ;; μ_2.
 Proof.
-(*  Print functor_compose.
-  Check (U T ∘ μ_2 ;; μ_2).
-  Check μ_3.
-  set (A:=μ_3).
-  set (B:= (U T) ∘ μ_2 ;; μ_2).
-  simpl in A.
-  simpl in B.
-  unfold functor_compose in B.
-  unfold functor_composite in *.
-  simpl.
-  simpl in *
-*)
+
   apply pathsinv0.
   set (H1 := @fbracket_unique T _ μ_2_ptd).
   apply H1; clear H1.
@@ -642,7 +626,7 @@ Proof.
     simpl in H1.
 
     transitivity (pr1 (θ ((U T) ⊗ T_squared)) c;; 
-                  pr1 (# H (nat_trans_id (U T) ∙∙ μ_2)) c;; 
+                  pr1 (# H (nat_trans_id (pr1 (U T)) ∙∙ μ_2)) c;; 
                   pr1 (# H μ_2) c;; 
                   (τ T) c).
     repeat rewrite <- assoc.
@@ -650,6 +634,8 @@ Proof.
     repeat rewrite assoc.
     apply cancel_postcomposition.
     apply cancel_postcomposition.
+    
+     (* does not compile from here *)
     rewrite H4.
     apply idpath.
     
@@ -692,14 +678,12 @@ Proof.
       set (H1 := nat_trans_ax (τ T)).
       apply H1.
 Qed.
-   (*
-Lemma bla :    
-    *)
-Lemma μ_3_μ_2_T_μ_2 :  μ_3  = μ_2 ø U T ;; μ_2.
+*)  
+
+Lemma μ_3_μ_2_T_μ_2 :  μ_3  = nat_trans_comp (μ_2 ø pr1 (U T)) μ_2.
 Proof.
   Check μ_3.
   Print functor_composite.
-  Check (pre_whisker (U T) μ_2 ;; μ_2).
   apply pathsinv0.  
   unfold μ_3.
   set (H1 := @fbracket_unique (*_pointwise*) T _ μ_2_ptd).
@@ -715,11 +699,14 @@ Proof.
     + rewrite id_left; apply idpath.
     + apply cancel_postcomposition.
       apply (!H1).
-  - 
+  -
+  
+    
+    
     set (A:=θ (U T ⊗ T_squared)).
     set (H':= functor_comp H).
-    set (H2:= H' _ _ _ (μ_2 ø U T) μ_2); clearbody H2; clear H'.
-    set (B:= τ T).
+
+    
     
     generalize dependent H2.
     
