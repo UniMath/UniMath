@@ -594,6 +594,16 @@ Proof.
 Defined.
 
 Definition μ_3 : U T_squared ∙ U T ⇒ U T := fbracket T μ_2_ptd.
+Definition μ_3' := fbracket T μ_2_ptd.
+
+Check μ_3'.
+
+Check (μ_3' = μ_3).
+
+Goal functor_composite (U T_squared) (U T) = functor_composite (U T)(U T_squared).
+Proof.
+  simpl.
+  
 
 Lemma μ_3_T_μ_2_μ_2 : μ_3 = (U T) ∘ μ_2 ;; μ_2.
 Proof.
@@ -682,12 +692,13 @@ Proof.
       set (H1 := nat_trans_ax (τ T)).
       apply H1.
 Qed.
-   
-   
-    
+   (*
+Lemma bla :    
+    *)
 Lemma μ_3_μ_2_T_μ_2 :  μ_3  = μ_2 ø U T ;; μ_2.
 Proof.
   Check μ_3.
+  Print functor_composite.
   Check (pre_whisker (U T) μ_2 ;; μ_2).
   apply pathsinv0.  
   unfold μ_3.
@@ -725,16 +736,13 @@ Proof.
     
     simpl in *.
     unfold functor_compose in D.
-
-    Unset Printing Notations.
     idtac.
-    
-    Set Printing Coercions.
-    idtac.
-    Set Printing All.
     
     idtac.
     
+    
+    idtac.
+(*    
     assert (H2 : D' = D).
     
         
@@ -845,11 +853,15 @@ Proof.
        pr1 (θ (U T ⊗ T_squared)) c = 
          pr1 (θ (U T ⊗ T)) (pr1 (U T) c) ;; pr1 (θ (functor_composite (U T) (U T) ⊗ T)) c ).
 *)
-
+admit.
 Qed.
 Check μ_3_μ_2_T_μ_2.
 (* Here we prove Thm 10 of the original paper 
    economically by using magic "admit" tactic. *)
+
+Unset Printing All.
+Set Printing Notations.
+Unset Printing Implicit.
 
 Lemma Monad_laws_from_hss : Monad_laws Monad_data_from_hss.
 Proof.
