@@ -696,7 +696,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
     match goal with | [|- _ = ?q] => set (Q:=q) end.
     match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => 
          set (F:=f : functor_compose hs hs (functor_composite (U T) (U T)) _ ⇒ _ ) end.
-    
+    set (HX:=θ_nat_1 _ _ μ_2).
     set (H3:= functor_comp H _ _ _ F μ_2).
     unfold functor_compose in H3.
     match goal with | [ H : ?f = _ |- _ ] => transitivity (A ;; f ;; B) end.
@@ -720,14 +720,63 @@ Lemma μ_3_μ_2_T_μ_2 :  (
       unfold θ_target_ob in *.
       simpl in *.
       unfold functor_compose in *.
+      set (HX1:= HX (pr1 (pr1 T))).
+      simpl in HX1.
+      set (HXX:=nat_trans_eq_pointwise _ _ _ _ _ _ HX1 c).
+      clearbody HXX. clear HX1. clear HX.
+      simpl in HXX.
+      rewrite (functor_id ( H (U T))) in HXX.
+      rewrite id_right in HXX.
+      match goal with |[HXX : ?f ;; ?h = _ ;; _ |- _ ;; (_ ;; ?x ) ;; ?y = _ ] =>
+      transitivity (pr1 (θ ((U T) ⊗ T)) (pr1 (pr1 (pr1 T)) c);;
+                       f  ;; h ;; x;; y) end.
+      * repeat rewrite assoc.
+        apply cancel_postcomposition.
+        apply cancel_postcomposition.
+        unfold Ac.
+        simpl.
+        unfold F.
+        
+        match goal with |[ H : _ = ?b |- _ = ?a ;; _ ;; _  ] => 
+             transitivity ( a ;; b) end.
+          repeat rewrite <- assoc.
+          match goal with |[|- _ ;; ?e = _ ;; (_ ;; ?f)] => set (E := e) end. 
+          match goal with |[|- _ ;; _ = _ ;; (_ ;; ?f)] => set (E' := f) end. 
+          simpl in E'.
+          admit.
 
-      (* not well-typed *)
-(*
-      match goal with | [ |- _ ;; ?f ;; ?g = _ ] => transitivity (A'c ;; f;;g) end.
-*)    
+          repeat rewrite <- assoc.
+          apply maponpaths.
+          apply (!HXX).
+
+    * set (H4 := fbracket_τ).
+      set (H4':= H4 T T (identity _ )).
+      set (H5:= nat_trans_eq_pointwise _ _ _ _ _ _ H4' (c)). 
+      simpl in H5.
+      unfold μ_2.
+      unfold B.
+      clearbody H5; clear H4'; clear H4; clear HXX.
       
-    admit.
-Qed.
+      match goal with |[ H5 : _ = ?e |- ?a ;; ?b ;; _ ;; _ ;; _ = _ ] => 
+            transitivity (a ;; b ;; e) end.
+       
+        repeat rewrite <- assoc.
+        apply maponpaths.
+        apply maponpaths.
+        repeat rewrite assoc; repeat rewrite assoc in H5; apply H5.
+        
+        repeat rewrite assoc.
+        apply cancel_postcomposition.
+        
+        set (H4 := fbracket_τ).
+        set (H4':= H4 T T (identity _ )).
+        set (H6:= nat_trans_eq_pointwise _ _ _ _ _ _ H4'). 
+        
+        apply H6.
+Qed.      
+    
+ 
+
 
 Check μ_3_μ_2_T_μ_2.
 
