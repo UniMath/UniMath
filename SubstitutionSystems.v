@@ -700,13 +700,37 @@ Lemma μ_3_μ_2_T_μ_2 :  (
     set (H3:= functor_comp H _ _ _ F μ_2).
     unfold functor_compose in H3.
     match goal with | [ H : ?f = _ |- _ ] => transitivity (A ;; f ;; B) end.
-      apply idpath.
-      rewrite H3.
+    + apply idpath.
+    + rewrite H3.
+      clear H3.
+      set (A':= θ ((U T) ⊗ T) øø U T ;; θ ((functor_compose hs hs (U T) (U T)) ⊗ T)). 
+      simpl in *.
+      
+      apply nat_trans_eq; try assumption.
+      intro c. simpl.
+      unfold A.
+      simpl.
+      set (A'c := A' c).
+      simpl in *.
+      
+      clear A Q.
+      match goal with | [ |- ?a ;; _ ;; _ = _ ] => set (Ac:= a) end.
+      
+      simpl in Ac.
+      unfold θ_target_ob in *.
+      simpl in *.
+      unfold functor_compose in *.
+
+      (* not well-typed *)
+(*
+      match goal with | [ |- _ ;; ?f ;; ?g = _ ] => transitivity (A'c ;; f;;g) end.
+*)    
+      
     admit.
 Qed.
+
 Check μ_3_μ_2_T_μ_2.
-(* Here we prove Thm 10 of the original paper 
-   economically by using magic "admit" tactic. *)
+
 
 Unset Printing All.
 Set Printing Notations.
