@@ -735,20 +735,57 @@ Lemma μ_3_μ_2_T_μ_2 :  (
         apply cancel_postcomposition.
         unfold Ac.
         simpl.
-        unfold F.
         
-        match goal with |[ H : _ = ?b |- _ = ?a ;; _ ;; _  ] => 
-             transitivity ( a ;; b) end.
+        
+(*
+        unfold F.
+        match goal with |[ H : _ = ?b ;; ?c |- _ = ?a ;; _ ;; _  ] => 
+             transitivity ( a ;; (b ;; c)) end.
           repeat rewrite <- assoc.
+         
+          match goal with |[|- _ ;;  ((# ?H) ?f) _ = _ ] => set (E:=f) end.
+*)          
+          assert (Strength_2 : ∀ α : functor_compose hs hs (functor_composite (U T) (U T))(U T) ⇒ U T ,
+                       
+                    pr1 (θ (U T ⊗ T_squared)) c ;; pr1 (# H α) c =
+                     pr1 (θ ((U T) ⊗ T)) ((pr1 (pr1 (pr1 T))) c);;
+                     pr1 (θ ((functor_composite (U T) (U T)) ⊗ (pr1 (pr1 T)))) c;;
+                     pr1 (# H (α : functor_compose hs hs (U T) (functor_composite (U T) (U T))⇒ _ )) c       ).
+             admit.
+         assert (Strength_2' : ∀ α : functor_compose hs hs (functor_composite (U T) (U T))(U T) ⇒ U T ,
+                               ∀ β : _ ,
+                        α = β → 
+                    pr1 (θ (U T ⊗ T_squared)) c ;; pr1 (# H α) c =
+                     pr1 (θ ((U T) ⊗ T)) ((pr1 (pr1 (pr1 T))) c);;
+                     pr1 (θ ((functor_composite (U T) (U T)) ⊗ (pr1 (pr1 T)))) c;;
+                     pr1 (# H (β : functor_compose hs hs (U T) (functor_composite (U T) (U T))⇒ _ )) c       ).
+             admit.
+
+         match goal with |[ H : _ = ?a ;; ?b  |- _ = ?e ;; ?f ;; ?g] => 
+             transitivity (e ;; a ;; b) end.     
+           admit. (* apply Strength_2'. *)
+          
+           repeat rewrite <- assoc.
+           apply maponpaths.
+           apply pathsinv0.
+           apply HXX.
+(*             
+           rewrite HXX.
+          
+             apply Strength_2'.
           match goal with |[|- _ ;; ?e = _ ;; (_ ;; ?f)] => set (E := e) end. 
           match goal with |[|- _ ;; _ = _ ;; (_ ;; ?f)] => set (E' := f) end. 
+          repeat rewrite assoc.
+          
+          assert (E = E').
+          apply cancel_postcomposition.
           simpl in E'.
           admit.
 
           repeat rewrite <- assoc.
           apply maponpaths.
           apply (!HXX).
-
+*)
     * set (H4 := fbracket_τ).
       set (H4':= H4 T T (identity _ )).
       set (H5:= nat_trans_eq_pointwise _ _ _ _ _ _ H4' (c)). 
@@ -768,8 +805,8 @@ Lemma μ_3_μ_2_T_μ_2 :  (
         repeat rewrite assoc.
         apply cancel_postcomposition.
         
-        set (H4 := fbracket_τ).
-        set (H4':= H4 T T (identity _ )).
+        set (HT := fbracket_τ).
+        set (HT':= HT T T (identity _ )).
         set (H6:= nat_trans_eq_pointwise _ _ _ _ _ _ H4'). 
         
         apply H6.
