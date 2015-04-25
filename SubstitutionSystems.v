@@ -807,7 +807,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
         
         set (HT := fbracket_τ).
         set (HT':= HT T T (identity _ )).
-        set (H6:= nat_trans_eq_pointwise _ _ _ _ _ _ H4'). 
+        set (H6:= nat_trans_eq_pointwise _ _ _ _ _ _ HT'). 
         
         apply H6.
 Qed.      
