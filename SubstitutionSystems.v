@@ -191,12 +191,17 @@ Lemma θ_nat_1_pointwise (X X' : EndC) (α : X ⇒ X') (Z : Ptd) (c : C)
        pr1 (θ (X ⊗ Z)) c;; pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
 Proof.
   set (t := θ_nat_1 _ _ α Z).
-  set (t' := nat_trans_eq_weq _ _ hs _ _ _ _ t c).
-  clearbody t'.
-  simpl in t'.
-  set (H':= functor_id (H X') (pr1 Z c)).
-  simpl in *.
-  admit.
+  set (t' := nat_trans_eq_weq _ _ hs _ _ _ _ t c);
+  clearbody t';  simpl in t'.
+  set (H':= functor_id (H X') (pr1 (pr1 Z) c));
+  clearbody H'; simpl in H'.
+  match goal with |[H1 : ?f ;; _ ;; ?g = _ , H2 : ?x = _ |- _ ] =>
+                        transitivity (f ;; x ;; g) end.
+  - repeat rewrite <- assoc. 
+    apply maponpaths.
+    rewrite H'.
+    apply pathsinv0, id_left.
+  - apply t'.
 Qed.
 
 Lemma θ_nat_2 (X : EndC) (Z Z' : Ptd) (f : Z ⇒ Z')
@@ -602,7 +607,6 @@ Check (μ_3' = μ_3).
 
 Lemma μ_3_T_μ_2_μ_2 : μ_3 = (U T) ∘ μ_2 ;; μ_2.
 Proof.
-
   apply pathsinv0.
   set (H1 := @fbracket_unique T _ μ_2_ptd).
   apply H1; clear H1.
@@ -618,71 +622,44 @@ Proof.
     + apply maponpaths.
       apply pathsinv0. apply H3.
   - rewrite functor_comp.
-    apply nat_trans_eq; try assumption.
-    intro c; simpl.
+(*    apply nat_trans_eq; try assumption.
+    intro c; simpl. *)
     set (H1 := θ_nat_2 (U T) _ _ μ_2_ptd); clearbody H1.
     set (H3:=horcomp_id_postwhisker ).
-    set (H4 := H3 _ _ _ hs hs _ _ μ_2 (U T)).
+    set (H4 := H3 _ _ _ hs hs _ _ μ_2 (U T));
+      clearbody H4; clear H3.
     simpl in H1.
-
-    transitivity (pr1 (θ ((U T) ⊗ T_squared)) c;; 
-                  pr1 (# H (nat_trans_id (pr1 (U T)) ∙∙ μ_2)) c;; 
-                  pr1 (# H μ_2) c;; 
-                  (τ T) c).
-    repeat rewrite <- assoc.
-    apply maponpaths.
     repeat rewrite assoc.
-    apply cancel_postcomposition.
-    apply cancel_postcomposition.
-    
-     (* does not compile from here *)
-
-(*
-    rewrite H4.
-    apply idpath.
-    
-    clear H4.
-    clear H3.
-    
-    repeat rewrite assoc.
-    unfold identity in H1; simpl in H1.
-    set (H2:=nat_trans_eq_weq _ _ hs _ _ _ _ H1 c); clearbody H2.
-    simpl in H2.
-    rewrite id_left in H2.
-    transitivity 
-               (# (pr1 (H (U T))) (μ_2 c);; 
-                pr1 (θ ((U T) ⊗ T)) c ;;
-                 pr1 (# H μ_2) c;; 
-                 (τ T) c ).
-    repeat rewrite assoc.
-    apply cancel_postcomposition.
-    apply cancel_postcomposition.
-    apply (!H2).
-    
-    clear H2. clear H1.
-
-
-    set (H1 := @fbracket_τ T _ (identity _ )); clearbody H1.
-    set (H2 := nat_trans_eq_weq _ _ hs _ _ _ _ H1 c); clearbody H2.
-    simpl in H2.
-    unfold μ_2.
-    rewrite <- assoc in H2.
-    repeat rewrite <- assoc.
-    
-    transitivity ( # (pr1 (H (U T))) (pr1(fbracket T (identity T)) c);;
-            pr1 (τ T) ((pr1 (U T)) c);; pr1 (fbracket T (identity T)) c).
-    + repeat rewrite <- assoc.
-      apply maponpaths.
-      apply H2.
-    + clear H2 H1.
-      repeat rewrite assoc.
+    match goal with |[H1 : ?g = _ |- _ ;; _ ;; ?f ;; ?h = _ ] => 
+         transitivity (g ;; f ;; h) end.
+    + apply cancel_postcomposition.
       apply cancel_postcomposition.
-      set (H1 := nat_trans_ax (τ T)).
-      apply H1.
-*)
-admit.
-admit.
+      apply pathsinv0.
+      rewrite H1.
+      apply maponpaths.
+      apply maponpaths.
+      apply H4.
+    + 
+      set (H2 := @fbracket_τ T _ (identity _ )); clearbody H2.
+      clear H1 H4.
+      apply nat_trans_eq; try assumption.
+      intro c; simpl.
+      rewrite id_left.
+      set (H3:= nat_trans_eq_pointwise _ _ _ _ _ _ H2 c);
+        clearbody H3; clear H2.
+      simpl in *.
+      match goal with |[H : _ = ?f |- ?e ;; _ ;; _ ;; _  = _ ] =>
+         transitivity (e ;; f) end.
+      * repeat rewrite <- assoc.
+        apply maponpaths.
+        repeat rewrite <- assoc in H3.
+        apply H3.
+      * repeat rewrite assoc.
+        apply cancel_postcomposition.
+        set (H1 := nat_trans_ax (τ T )).
+        apply H1.
 Qed.
+ 
 
 Lemma μ_3_μ_2_T_μ_2 :  (
     @compose (functor_precategory C C hs)
