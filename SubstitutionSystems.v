@@ -39,6 +39,7 @@ Local Notation "'U'" := (functor_ptd_forget C hs).
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 Local Notation "'EndC'":= ([C, C, hs]) .
 Local Notation "A 'XX' B" := (product_precategory A B) (at level 2).
+Local Notation "α 'øø' Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).
 
 (* Definition U₀ (F : precategory_Ptd C hs) : functor C C := functor_ptd_forget C hs F. *)
 
@@ -293,8 +294,8 @@ Definition bracket'' (T : Alg) : UU :=
 Definition bracket (T : Alg) : UU := 
   ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
    (Σ h : (U T) ∙ (U Z)  ⇒ U T,
-     (#U f = nat_trans_comp (pre_whisker (pr1 (U Z)) (ptd_pt _ (pr1 T))) h) ×
-     (θ (U T ⊗ Z) ;; #H h ;; τ _  = nat_trans_comp (pre_whisker (pr1 (U Z)) (τ _))  h )).
+     (#U f = (ptd_pt _ (pr1 T)) øø (U Z) ;; h) ×
+     (θ (U T ⊗ Z) ;; #H h ;; τ _  = τ _ øø ((U Z)) ;;  h )).
 
 Definition hss : UU := Σ T : Alg, bracket T.
 
@@ -318,8 +319,8 @@ Qed.
 
 Definition fbracket_unique (T : hss) {Z : Ptd} (f : Z ⇒ T) 
   : ∀ α : functor_composite (U Z)(U T) ⟶ pr1 (U T),
-     (#U f = nat_trans_comp (pre_whisker (pr1 (U Z)) (ptd_pt _ ((pr1 (pr1 T))))) α) →
-     (θ (U T ⊗ Z) ;; #H α ;; τ _ = nat_trans_comp (pre_whisker (pr1 (U Z)) (τ _)) α) 
+     (#U f = ptd_pt _ (pr1 (pr1 T)) øø ((U Z)) ;; α) →
+     (θ (U T ⊗ Z) ;; #H α ;; τ _ = τ _ øø (U Z) ;; α) 
    → α = fbracket T f.
 Proof.
   intros α H1 H2.
@@ -329,8 +330,8 @@ Qed.
 
 Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
   : ∀ α : functor_composite (U Z)(U T) ⟶ pr1 (U T),
-     (#U f = nat_trans_comp (pre_whisker (pr1 (U Z)) (ptd_pt _ ((pr1 (pr1 T))))) α) →
-     (θ (U T ⊗ Z) ;; #H α ;; τ _ = nat_trans_comp (pre_whisker (pr1 (U Z)) (τ _)) α) 
+     (#U f =  (ptd_pt _ ((pr1 (pr1 T)))) øø U Z ;; α) →
+     (θ (U T ⊗ Z) ;; #H α ;; τ _ = τ _ øø U Z ;; α) 
    → ∀ c, α c = pr1 (fbracket T f) c.
 Proof.
   intros α H1 H2.
@@ -341,7 +342,7 @@ Qed.
 (* Properties of [fbracket] by definition *)
 
 Lemma fbracket_η (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
-   #U f = nat_trans_comp (pre_whisker (pr1 (U Z)) (ptd_pt _  (pr1 (pr1 T)))) (fbracket T f).
+   #U f = (ptd_pt _  (pr1 (pr1 T))) øø U Z ;;  (fbracket T f).
 Proof.
   intros Z f.
   exact (pr1 (pr2 (pr1 (pr2 T Z f)))).
@@ -350,7 +351,7 @@ Qed.
 Lemma fbracket_τ (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
     θ (U T ⊗ Z) ;; #H (fbracket T f) ;; τ _  
     = 
-    nat_trans_comp (pre_whisker (pr1 (U Z)) (τ _)) (fbracket T f).
+    τ _ øø U Z ;; (fbracket T f).
 Proof.
   intros Z f.
   exact (pr2 (pr2 (pr1 (pr2 T Z f)))).
@@ -599,7 +600,6 @@ Check μ_3'.
 Check (μ_3' = μ_3).
 
 
-(*
 Lemma μ_3_T_μ_2_μ_2 : μ_3 = (U T) ∘ μ_2 ;; μ_2.
 Proof.
 
@@ -636,6 +636,8 @@ Proof.
     apply cancel_postcomposition.
     
      (* does not compile from here *)
+
+(*
     rewrite H4.
     apply idpath.
     
@@ -677,14 +679,25 @@ Proof.
       apply cancel_postcomposition.
       set (H1 := nat_trans_ax (τ T)).
       apply H1.
+*)
+admit.
+admit.
 Qed.
-*)  
 
-Lemma μ_3_μ_2_T_μ_2 :  μ_3  = nat_trans_comp (μ_2 ø pr1 (U T)) μ_2.
-Proof.
-  Check μ_3.
-  Print functor_composite.
-  apply pathsinv0.  
+Lemma μ_3_μ_2_T_μ_2 :  (
+    @compose (functor_precategory C C hs)
+                 (@functor_composite C C C 
+                    (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                                              ((functor_ptd_forget C hs) T))
+                    ((functor_ptd_forget C hs) T))
+                 (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                    ((functor_ptd_forget C hs) T))
+                 ((functor_ptd_forget C hs) T)
+          (μ_2 øø U T (*:@functor_compose C C C hs hs 
+                    (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                                              ((functor_ptd_forget C hs) T))
+                    ((functor_ptd_forget C hs) T) ⇒ _*) ) ( μ_2) : 
+           functor_compose hs hs (functor_composite (U T) (U T)) (U T) ⇒ U T) = μ_3.
   unfold μ_3.
   set (H1 := @fbracket_unique (*_pointwise*) T _ μ_2_ptd).
   apply H1; clear H1.
@@ -699,148 +712,20 @@ Proof.
     + rewrite id_left; apply idpath.
     + apply cancel_postcomposition.
       apply (!H1).
-  -
-  
-    
+  - 
     
     set (A:=θ (U T ⊗ T_squared)).
-    set (H':= functor_comp H).
-
+    set (B:= τ T).
+    match goal with | [|- _ = ?q] => set (Q:=q) end.
+    match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => 
+         set (F:=f : functor_compose hs hs (functor_composite (U T) (U T)) _ ⇒ _ ) end.
     
-    
-    generalize dependent H2.
-    
-(*
-    match goal with | [ |- _ -> _ = _ ;; ?f ] => set (F := f) end.
-*)
-    set (D:= # H (μ_2 ø U T ;; μ_2)).
-
-    
-    intro X.
-    
-    
-    match goal with | [  |-  _ ;; ?f ;; _ = _ ] => (set (D':= f)) end.
-    
-    simpl in *.
-    unfold functor_compose in D.
-    idtac.
-    
-    idtac.
-    
-    
-    idtac.
-(*    
-    assert (H2 : D' = D).
-    
-        
-    match goal with | [ H : ?f = ?g |- _ ] => set (E := g) end.
-
-    transitivity (A ;; D ;; B).
-    
-    
-    
-    assert (H1 : D = E).
-    
-    unfold functor_compose in E.
-    
-   assert (H1 : ).
-    
-    transitivity (A ;; (E;; B)).
-    
-    set (D:= # H (pre_whisker (U T) μ_2 ;; μ_2)).
-    transitivity (A ;; (# H (μ_2 ø U T ;; μ_2) ;; B)).
-    rewrite H2.
-    simpl.
-    unfold T_squared.
-    simpl.
-    set (A := pr1 (θ (U T ⊗ T_squared)) c).
-    set (B := pr1 (# H (μ_2 ø U T)) c).
-    simpl in *.
-    
-    unfold θ_target_ob in A. simpl in A.
-    unfold functor_compose in B.
-    simpl in B.
-    set (C := compose (C:=C) A  B).
-    
-    
-    transitivity ( pr1 (θ ((U T) ⊗ T_squared)) c;; pr1 (# H (μ_2 ø U T;; μ_2)) c;;
-                      (τ T) c).
-    
-    assert ( θ ((U T) ⊗ T_squared);; # H (μ_2 ø U T;; μ_2);; τ T =
-   τ T ø U T_squared;; (μ_2 ø U T;; μ_2) ).
-    
-    apply nat_trans_eq; try assumption.
-    intro c; simpl.
-    
-    
-    
-    set (A := θ ( U T ⊗ T_squared)).
-    set (B := # H (μ_2 ø U T;; μ_2)).
-    simpl in *.
-    unfold functor_compose in B.
-    unfold θ_target_ob in A.
-    simpl in A.
-    idtac.
-    
-    assert ( A;; # H (μ_2 ø pr1 T;; μ_2);; τ T =
-   τ T ø functor_composite (pr1 T) (pr1 T);; (μ_2 ø pr1 T;; μ_2) ).
-    
-    rewrite H2 in B.
-    Set Printing Coercions.
-    idtac.
-    rewrite H2.
-    set (Ht := θ ((U T) ⊗ T_squared)).
-    set (TT:= τ T).
-    generalize dependent H2.
-    set (YY := # H (μ_2 ø U T ;; μ_2)).
-    destruct 1.
-    rewrite H2.
-    set (X:= # H (μ_2 ø U T)).
-    simpl in Ht.
-    unfold θ_target_ob in Ht.
-    simpl in Ht.
-    simpl in *.
-    unfold functor_compose in X.
-    simpl in H.
-    set (X':=  # H (μ_2 ø U T;; μ_2) ).
-    unfold functor_compose in X'.
-    set (A := nat_trans_comp Ht X').
-    set (A := nat_trans_comp Ht X).
-    simpl in *.
-*)
-
-(*    unfold θ_target in *. simpl in *.
-    unfold θ_target_functor_data in *.
-*)
-
-(*    rewrite H2.
-    induction H2.
-    rewrite <- H2.
-    repeat rewrite <- assoc.
-*)
-(*
-    transitivity (θ ((U T) ⊗ T_squared);; # H (μ_2 ø U T) ;; # H μ_2 ;; τ T).
-*)
-(*  
-    set (H1:= θ_nat_1 _ _ μ_2); clearbody H1.
-    set (H6 := H1 T).
-    set (H3:= (nat_trans_eq_weq _ _ hs  _ _ _ _ H6) ); clearbody  H3.
-    apply nat_trans_eq; try assumption.
-    intro c.
-    set (H4 := H3 c).
-    simpl in H4.
-    rewrite functor_id in H4.
-    rewrite id_right in H4.
-    simpl.
-    
-    transitivity (pr1 (θ ((U T) ⊗ T_squared)) c;; 
-                  pr1 (# H (μ_2 ø U T ;; μ_2)) c  ;; τ T c).
-
-    assert (H : ∀ c : C, 
-       pr1 (θ (U T ⊗ T_squared)) c = 
-         pr1 (θ (U T ⊗ T)) (pr1 (U T) c) ;; pr1 (θ (functor_composite (U T) (U T) ⊗ T)) c ).
-*)
-admit.
+    set (H3:= functor_comp H _ _ _ F μ_2).
+    unfold functor_compose in H3.
+    match goal with | [ H : ?f = _ |- _ ] => transitivity (A ;; f ;; B) end.
+      apply idpath.
+      rewrite H3.
+    admit.
 Qed.
 Check μ_3_μ_2_T_μ_2.
 (* Here we prove Thm 10 of the original paper 
@@ -938,7 +823,7 @@ Proof.
       apply pathsinv0, H2.
     + set (H1 :=  μ_3_μ_2_T_μ_2).
       set (H2 := nat_trans_eq_weq _ _ hs _ _ _ _ H1).
-      apply H2.
+      apply pathsinv0, H2.
 Qed.
 
 Definition Monad_from_hss : Monad C.
@@ -971,7 +856,7 @@ Definition isbracketMor {T T' : hss} (β : T ⇒ T') : UU :=
     ∀ (Z : Ptd) (f : Z ⇒ T), 
        fbracket _ f ;; #U β
        = 
-       pre_whisker (U Z) (#U β) ;; fbracket _ (f ;; β ).
+       (#U β)øø (U Z) ;; fbracket _ (f ;; β ).
 
 
 Lemma isaprop_isbracketMor (T T':hss) (β : T ⇒ T') : isaprop (isbracketMor β).
@@ -1059,8 +944,9 @@ Proof.
     rewrite id_right.
     set (H2:=pre_composition_functor _ _ C _ hs (U Z)).
     set (H2' := functor_id H2). simpl in H2'.
+    simpl.
     rewrite H2'.
-    rewrite id_left.
+    rewrite (id_left EndC).
     apply idpath.
 Qed.
 
@@ -1086,10 +972,11 @@ Proof.
     rewrite <- assoc.
     set (H2:=functor_comp (pre_composition_functor _ _ C _ hs (U Z)) ).
     simpl in H2.
+    simpl.
     rewrite H2; clear H2.
-    repeat rewrite <- assoc.
+    rewrite <- (assoc EndC).
     apply maponpaths.
-    rewrite assoc.
+    rewrite (assoc Ptd).
     apply isbracketMor_hssMor.
 Qed.
 
@@ -1114,11 +1001,11 @@ Lemma is_precategory_hss : is_precategory hss_precategory_data.
 Proof.
   repeat split; intros.
   - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply id_left.
+    apply (id_left EndC).
   - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply id_right.
+    apply (id_right EndC).
   - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply assoc.
+    apply (assoc EndC).
 Qed.
 
 Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.
