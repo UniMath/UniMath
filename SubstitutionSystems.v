@@ -186,6 +186,16 @@ Proof.
   exact t''.
 Qed.
 
+(* the following makes sense but is wrong
+Lemma θ_nat_1' (X X' : EndC) (α : X ⇒ X') (Z : Ptd) 
+  : compose(C:=EndC) (# H α øø (U Z)) (θ (X' ⊗ Z)) =
+        θ (X ⊗ Z);; # H (α øø (U Z)).
+Proof.
+  admit.
+Qed.
+*)
+
+
 Lemma θ_nat_1_pointwise (X X' : EndC) (α : X ⇒ X') (Z : Ptd) (c : C)
   :  pr1 (# H α) ((pr1 Z) c);; pr1 (θ (X' ⊗ Z)) c =
        pr1 (θ (X ⊗ Z)) c;; pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
@@ -509,6 +519,19 @@ Proof.
   apply idpath.
 Qed.
 
+Check (μ_1:U T⇒U T).
+(* therefore, it is not just the type itself that makes it necessary to introduce μ_1_alt,
+   it is rather the question of the formulation of the first strength law of θ *)
+
+Lemma μ_1_identity_stronger : μ_1 = identity (U T).
+Proof.
+  set (t':=nat_trans_eq_weq C C hs _ _ μ_1 (identity (U T))).
+  apply invweq in t'.
+  set (t'' := t' μ_1_identity).
+  exact t''.
+Qed.
+
+
 (* This is the multiplication of the monad to be constructed *)
 Definition μ_2 : functor_composite (U T) (U T) ⟶ pr1 (U T) 
   := fbracket T (identity _ ).
@@ -612,10 +635,10 @@ Proof.
   apply H1; clear H1.
   - apply nat_trans_eq; try assumption.
     intro c; simpl.
-    set (H2 := nat_trans_ax η); clearbody H2; simpl in H2.
+    assert (H2 := nat_trans_ax η); simpl in H2.
     rewrite assoc.
     rewrite <- H2.
-    set (H3:=Monad_law_1_from_hss); clearbody H3.
+    assert (H3 := Monad_law_1_from_hss).
     rewrite <- assoc.
     transitivity (μ_2 c ;; identity _ ).
     + rewrite id_right; apply idpath.
@@ -624,10 +647,9 @@ Proof.
   - rewrite functor_comp.
 (*    apply nat_trans_eq; try assumption.
     intro c; simpl. *)
-    set (H1 := θ_nat_2 (U T) _ _ μ_2_ptd); clearbody H1.
-    set (H3:=horcomp_id_postwhisker ).
-    set (H4 := H3 _ _ _ hs hs _ _ μ_2 (U T));
-      clearbody H4; clear H3.
+    assert (H1 := θ_nat_2 (U T) _ _ μ_2_ptd).
+    set (H3:=horcomp_id_postwhisker).
+    assert (H4 := H3 _ _ _ hs hs _ _ μ_2 (U T)); clear H3.
     simpl in H1.
     repeat rewrite assoc.
     match goal with |[H1 : ?g = _ |- _ ;; _ ;; ?f ;; ?h = _ ] => 
@@ -640,15 +662,14 @@ Proof.
       apply maponpaths.
       apply H4.
     + 
-      set (H2 := @fbracket_τ T _ (identity _ )); clearbody H2.
+      assert (H2 := @fbracket_τ T _ (identity _ )).
       clear H1 H4.
       apply nat_trans_eq; try assumption.
       intro c; simpl.
       rewrite id_left.
-      set (H3:= nat_trans_eq_pointwise _ _ _ _ _ _ H2 c);
-        clearbody H3; clear H2.
+      assert (H3:= nat_trans_eq_pointwise _ _ _ _ _ _ H2 c); clear H2.
       simpl in *.
-      match goal with |[H : _ = ?f |- ?e ;; _ ;; _ ;; _  = _ ] =>
+      match goal with |[H3 : _ = ?f |- ?e ;; _ ;; _ ;; _  = _ ] =>
          transitivity (e ;; f) end.
       * repeat rewrite <- assoc.
         apply maponpaths.
@@ -659,29 +680,32 @@ Proof.
         set (H1 := nat_trans_ax (τ T )).
         apply H1.
 Qed.
- 
+
+Definition TtimesTthenT': [C, C] hs := functor_compose hs hs (functor_composite (U T) (U T)) (U T).
+Definition TtimesTthenT: functor C C := @functor_composite C C C 
+                    (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                                              ((functor_ptd_forget C hs) T))
+                    ((functor_ptd_forget C hs) T).
 
 Lemma μ_3_μ_2_T_μ_2 :  (
     @compose (functor_precategory C C hs)
-                 (@functor_composite C C C 
+                 TtimesTthenT _ _
+                 (* (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                    ((functor_ptd_forget C hs) T))
+                 ((functor_ptd_forget C hs) T) *)
+          ((μ_2 øø U T) (* :  TtimesTthenT' ⇒ _ *)
+                  (*:@functor_compose C C C hs hs 
                     (@functor_composite C C C ((functor_ptd_forget C hs) T)
                                               ((functor_ptd_forget C hs) T))
-                    ((functor_ptd_forget C hs) T))
-                 (@functor_composite C C C ((functor_ptd_forget C hs) T)
-                    ((functor_ptd_forget C hs) T))
-                 ((functor_ptd_forget C hs) T)
-          (μ_2 øø U T (*:@functor_compose C C C hs hs 
-                    (@functor_composite C C C ((functor_ptd_forget C hs) T)
-                                              ((functor_ptd_forget C hs) T))
-                    ((functor_ptd_forget C hs) T) ⇒ _*) ) ( μ_2) : 
-           functor_compose hs hs (functor_composite (U T) (U T)) (U T) ⇒ U T) = μ_3.
+                    ((functor_ptd_forget C hs) T) ⇒ _*) ) μ_2 : 
+            TtimesTthenT' ⇒ U T) = μ_3.
   unfold μ_3.
   set (H1 := @fbracket_unique (*_pointwise*) T _ μ_2_ptd).
   apply H1; clear H1.
   - simpl.
     apply nat_trans_eq; try assumption; intro c.
     simpl.
-    set (H1:=Monad_law_1_from_hss (pr1 (U T) c)).
+    set (H1 := Monad_law_1_from_hss (pr1 (U T) c)).
     simpl in H1.
     rewrite assoc.
     unfold μ_0 in H1.
@@ -694,12 +718,11 @@ Lemma μ_3_μ_2_T_μ_2 :  (
     set (A:=θ (U T ⊗ T_squared)).
     set (B:= τ T).
     match goal with | [|- _ = ?q] => set (Q:=q) end.
-    match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => 
-         set (F:=f : functor_compose hs hs (functor_composite (U T) (U T)) _ ⇒ _ ) end.
-    set (HX:=θ_nat_1 _ _ μ_2).
+    match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => set (F:=f : TtimesTthenT' ⇒ _ ) end.
+    set (HX:=θ_nat_1 _ _ μ_2).  (* it may be tested with the primed version *)
     set (H3:= functor_comp H _ _ _ F μ_2).
     unfold functor_compose in H3.
-    match goal with | [ H : ?f = _ |- _ ] => transitivity (A ;; f ;; B) end.
+    match goal with | [ H' : ?f = _ |- _ ] => transitivity (A ;; f ;; B) end.
     + apply idpath.
     + rewrite H3.
       clear H3.
@@ -722,11 +745,11 @@ Lemma μ_3_μ_2_T_μ_2 :  (
       unfold functor_compose in *.
       set (HX1:= HX (pr1 (pr1 T))).
       simpl in HX1.
-      set (HXX:=nat_trans_eq_pointwise _ _ _ _ _ _ HX1 c).
-      clearbody HXX. clear HX1. clear HX.
+      assert (HXX:=nat_trans_eq_pointwise _ _ _ _ _ _ HX1 c).
+      clear HX1. clear HX.
       simpl in HXX.
       rewrite (functor_id ( H (U T))) in HXX.
-      rewrite id_right in HXX.
+      rewrite id_right in HXX. (* last two lines needed because of def. of theta on product category *)
       match goal with |[HXX : ?f ;; ?h = _ ;; _ |- _ ;; (_ ;; ?x ) ;; ?y = _ ] =>
       transitivity (pr1 (θ ((U T) ⊗ T)) (pr1 (pr1 (pr1 T)) c);;
                        f  ;; h ;; x;; y) end.
@@ -745,30 +768,46 @@ Lemma μ_3_μ_2_T_μ_2 :  (
          
           match goal with |[|- _ ;;  ((# ?H) ?f) _ = _ ] => set (E:=f) end.
 *)          
-          assert (Strength_2 : ∀ α : functor_compose hs hs (functor_composite (U T) (U T))(U T) ⇒ U T ,
+          assert (Strength_2 : ∀ α : functor_compose hs hs (functor_composite (U T) (U T))(U T) ⇒ functor_composite (U T) (U T),
                        
                     pr1 (θ (U T ⊗ T_squared)) c ;; pr1 (# H α) c =
                      pr1 (θ ((U T) ⊗ T)) ((pr1 (pr1 (pr1 T))) c);;
                      pr1 (θ ((functor_composite (U T) (U T)) ⊗ (pr1 (pr1 T)))) c;;
-                     pr1 (# H (α : functor_compose hs hs (U T) (functor_composite (U T) (U T))⇒ _ )) c       ).
+                     pr1 (# H (α : functor_compose hs hs (U T) (functor_composite (U T) (U T))⇒ _)) c       ).
              admit.
-         assert (Strength_2' : ∀ α : functor_compose hs hs (functor_composite (U T) (U T))(U T) ⇒ U T ,
+         (*
+         assert (Strength_2' : ∀ α : functor_compose hs hs (functor_composite (U T) (U T))(U T) ⇒ functor_composite (U T) (U T),
                                ∀ β : _ ,
                         α = β → 
                     pr1 (θ (U T ⊗ T_squared)) c ;; pr1 (# H α) c =
                      pr1 (θ ((U T) ⊗ T)) ((pr1 (pr1 (pr1 T))) c);;
                      pr1 (θ ((functor_composite (U T) (U T)) ⊗ (pr1 (pr1 T)))) c;;
                      pr1 (# H (β : functor_compose hs hs (U T) (functor_composite (U T) (U T))⇒ _ )) c       ).
-             admit.
+             admit. *)
+         fold TtimesTthenT' in Strength_2. (*, Strength_2' .*)
+         rewrite <- assoc.
+         match goal with |[ HXX : ?a ;; ?b = _ |- _ = ?e ;; _] => 
+             transitivity (e ;; (a ;; b)) end.
+           Focus 2.
+             apply idpath.
 
-         match goal with |[ H : _ = ?a ;; ?b  |- _ = ?e ;; ?f ;; ?g] => 
-             transitivity (e ;; a ;; b) end.     
-           admit. (* apply Strength_2'. *)
+           rewrite HXX.
+           clear HXX.
+
+           rewrite assoc.
+           assert (HS :=  Strength_2 F). 
+           match goal with |[ H : ?a ;; ?b = _ ;; _ ;; _ |- _ ] => 
+             transitivity (a ;; b) end.
+           apply idpath. 
+           rewrite HS.
+           clear HS.
           
            repeat rewrite <- assoc.
            apply maponpaths.
-           apply pathsinv0.
-           apply HXX.
+           apply maponpaths.
+(* we are really stuck here with the theta on the product category *)
+           admit.
+
 (*             
            rewrite HXX.
           
