@@ -805,8 +805,22 @@ Lemma μ_3_μ_2_T_μ_2 :  (
            repeat rewrite <- assoc.
            apply maponpaths.
            apply maponpaths.
+           
+           match goal with |[ |- _ = ?pr1 (# ?G ?g) _ ] =>
+              assert (X : F = g) end.
+           { apply nat_trans_eq. assumption.
+             intros. unfold F.
+             simpl.
+             rewrite functor_id.
+             rewrite id_right.
+             apply idpath.
+           }
+              rewrite X.
+              apply idpath.
+  
+           
 (* we are really stuck here with the theta on the product category *)
-           admit.
+(* no we are not *)
 
 (*             
            rewrite HXX.
