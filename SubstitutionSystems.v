@@ -911,7 +911,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
                 assert (HA':= HA (U T) (pr1 (pr1 T)) (pr1 (pr1 T)) _ α).
                 assert (HA2 := nat_trans_eq_pointwise _ _ _ _ _ _  HA' c ).
                 simpl in HA2.
-                admit. (* At least problem with T_squared, which should be defined as instance of ptd_composite *)
+                apply HA2.
               }  
                
          (*
