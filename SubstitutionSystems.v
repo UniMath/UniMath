@@ -41,6 +41,20 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Local Notation "A 'XX' B" := (product_precategory A B) (at level 2).
 Local Notation "α 'øø' Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).
 
+Definition prodcatpair (X : functor C C) (Z : Ptd) : ob EndC XX Ptd.
+Proof.
+  exists X.
+  exact Z.
+Defined.
+Local Notation "A ⊗ B" := (prodcatpair A B) (at level 10).
+Definition prodcatmor {X X' : EndC} {Z Z' : Ptd} (α : X ⇒ X') (β : Z ⇒ Z') 
+  : X ⊗ Z ⇒ X' ⊗ Z'.
+Proof.
+  exists α.
+  exact β.
+Defined.
+
+
 (* Definition U₀ (F : precategory_Ptd C hs) : functor C C := functor_ptd_forget C hs F. *)
 
 Definition θ_source_ob (F : [C, C, hs]) (X : Ptd) : [C, C, hs] := H F ∙ U X.
@@ -159,21 +173,20 @@ Qed.
 
 Definition θ_target : functor _ _ := tpair _ _ is_functor_θ_target_functor_data.
 
+Definition id_Ptd : Ptd.
+Proof.
+  exists (functor_identity _).
+  exact (nat_trans_id _ ).
+Defined.
+
+
 Hypothesis θ : θ_source ⟶ θ_target.
 
-Definition prodcatpair (X : functor C C) (Z : Ptd) : ob EndC XX Ptd.
-Proof.
-  exists X.
-  exact Z.
-Defined.
-Local Notation "A ⊗ B" := (prodcatpair A B) (at level 10).
+Definition θ_Strength1 : UU := ∀ X : EndC,  
+  (θ (X ⊗ id_Ptd)) ;; # H (identity X : functor_composite (functor_identity C) X ⟶ pr1 X) 
+          = nat_trans_id _ .
 
-Definition prodcatmor {X X' : EndC} {Z Z' : Ptd} (α : X ⇒ X') (β : Z ⇒ Z') 
-  : X ⊗ Z ⇒ X' ⊗ Z'.
-Proof.
-  exists α.
-  exact β.
-Defined.
+Hypothesis θ_strength1 : θ_Strength1.
 
 Lemma θ_nat_1 (X X' : EndC) (α : X ⇒ X') (Z : Ptd) 
   : compose(C:=EndC) (# H α ∙∙ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
@@ -254,11 +267,6 @@ Qed.
   set (H':= functor_id (pre_composition_functor C _ C hs hs  (U F))).
   set (Ha := H' (U F)).
 *)
-Definition id_Ptd : Ptd.
-Proof.
-  exists (functor_identity _).
-  exact (nat_trans_id _ ).
-Defined.
 
 (* 
   does not typecheck cuz the first is of type [H X c] whereas the second 
@@ -486,6 +494,7 @@ Proof.
   exists (λ c, identity _ ).
   apply μ_1_alt_is_nat_trans.
 Defined.
+
   
 
 Lemma equal_to_identity (a b : C) (f : a ⇒ a) (g g' : a ⇒ b) : 
@@ -495,7 +504,7 @@ Proof.
   subst.
   apply id_left.
 Qed.
-
+(*
 Lemma μ_1_identity' : μ_1_alt = μ_1.
 Proof.
   apply fbracket_unique_pointwise.
@@ -504,19 +513,42 @@ Proof.
     apply idpath.
   - intros; simpl.
     rewrite id_right.
+    
+   (* assert (H2 :  pr1 (θ ((U T) ⊗ id_Ptd)) c = identity _ ).*)
     assert (H':pr1 (θ (prodcatpair (U (pr1 T)) id_Ptd)) c;; pr1 (# H μ_1_alt) c = identity _ ).
+    
     { admit. } (* should be given by hypothesis on θ *) 
     apply equal_to_identity.
     + apply H'.
     + apply idpath.
 Qed.
-  
+*)
+Lemma μ_1_identity : μ_1 = identity (U T) .
+Proof.
+  apply pathsinv0.
+  apply fbracket_unique.
+  - apply nat_trans_eq; try assumption.
+    intros; simpl.
+    rewrite id_right.
+    apply idpath.
+  - apply nat_trans_eq; try assumption.
+    intro c. simpl.
+    rewrite id_right.
+    assert (H':= θ_strength1). 
+    red in H'. simpl in H'.
+    assert (H2 := H' (U T)).
+    assert (H3 := nat_trans_eq_pointwise _ _ _ _ _ _ H2 c).
+    simpl in *.
+    rewrite H3.
+    apply id_left.
+Qed.
 
-Lemma μ_1_identity : ∀ c : C, μ_1 c = identity _.
+
+Lemma μ_1_identity' : ∀ c : C, μ_1 c = identity _.
 Proof.
   intros c.
-  rewrite <- μ_1_identity'.
-  apply idpath.
+  assert (HA:= nat_trans_eq_pointwise _ _ _ _ _ _ μ_1_identity).
+  apply HA.
 Qed.
 
 Check (μ_1:U T⇒U T).
@@ -527,7 +559,7 @@ Lemma μ_1_identity_stronger : μ_1 = identity (U T).
 Proof.
   set (t':=nat_trans_eq_weq C C hs _ _ μ_1 (identity (U T))).
   apply invweq in t'.
-  set (t'' := t' μ_1_identity).
+  set (t'' := t' μ_1_identity').
   exact t''.
 Qed.
 
@@ -953,7 +985,7 @@ Proof.
            set (H':=nat_trans_ax (τ T) ).
            rewrite H'.
            apply idpath.
-    * apply μ_1_identity.
+    * apply μ_1_identity'.
 
   - unfold Monad_data_from_hss; simpl.
     intro c.
