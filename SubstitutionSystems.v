@@ -17,7 +17,6 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
-(* Arguments pre_whisker {_ _ _ _ _} _ {_ _} _ . *)
 Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
 Local Notation "α ∙∙ β" := (hor_comp β α) (at level 20).
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
@@ -27,21 +26,28 @@ Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 35).
 
 Section def_hss.
 
+(** ** Some variables and assumptions *)
+
+(** Assume having a precategory [C] whose hom-types are sets *)
 Variable C : precategory.
 Variable hs : has_homsets C.
 
+(** [H] is a rank-2 endofunctor on endofunctors *)
 Variable H : functor [C, C, hs] [C, C, hs].
 
-(* formalize [θ] not as a natural transformation, but simply by
-   writing down all the axioms 
-*)
-
+(** The forgetful functor from pointed endofunctors to endofunctors *)
 Local Notation "'U'" := (functor_ptd_forget C hs).
+(** The precategory of pointed endofunctors on [C] *)
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
+(** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C, hs]) .
+(** The product of two precategories *)
 Local Notation "A 'XX' B" := (product_precategory A B) (at level 2).
+(** Pre-whiskering defined as morphism part of the functor given by precomposition 
+    with a fixed functor *)
 Local Notation "α 'øø' Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).
 
+(** Objects and morphisms in the product precategory of two precategories *)
 Definition prodcatpair (X : functor C C) (Z : Ptd) : ob EndC XX Ptd.
 Proof.
   exists X.
@@ -55,26 +61,20 @@ Proof.
   exact β.
 Defined.
 
-
-(* Definition U₀ (F : precategory_Ptd C hs) : functor C C := functor_ptd_forget C hs F. *)
-
-Definition θ_source_ob (F : [C, C, hs]) (X : Ptd) : [C, C, hs] := H F ∙ U X.
-
-Definition θ_source_ob' (FX : EndC XX Ptd) : [C, C, hs] := H (pr1 FX) ∙ U (pr2 FX).
+(** ** Source and target of the natural transformation [θ] *)
 
 
-Definition θ_source_mor {F F' : [C, C, hs]} {X X' : Ptd} (α : F ⇒ F') (β : X ⇒ X') 
-  : θ_source_ob F X ⇒ θ_source_ob F' X' 
-  := #H α ∙∙ #U β.
+(** Source is given by [X,Z => H(X)∙U(Z)] *)
+Definition θ_source_ob (FX : EndC XX Ptd) : [C, C, hs] := H (pr1 FX) ∙ U (pr2 FX).
 
-Definition θ_source_mor' {FX FX' : EndC XX Ptd} (αβ : FX ⇒ FX') 
-  : θ_source_ob' FX ⇒ θ_source_ob' FX' := hor_comp (#U (pr2 αβ)) (#H (pr1 αβ)).
+Definition θ_source_mor {FX FX' : EndC XX Ptd} (αβ : FX ⇒ FX') 
+  : θ_source_ob FX ⇒ θ_source_ob FX' := hor_comp (#U (pr2 αβ)) (#H (pr1 αβ)).
 
 
 Definition θ_source_functor_data : functor_data (EndC XX Ptd) EndC.
 Proof.
-  exists θ_source_ob'.
-  exact (@θ_source_mor').
+  exists θ_source_ob.
+  exact (@θ_source_mor).
 Defined.
 
 Lemma is_functor_θ_source : is_functor θ_source_functor_data.
@@ -251,7 +251,7 @@ Proof.
   set (t := nat_trans_ax θ).
   set (t' := t (prodcatpair X Z) (prodcatpair X Z') (prodcatmor (identity _ ) f)).
   simpl in t'.
-  unfold θ_source_mor' in t'.
+  unfold θ_source_mor in t'.
   unfold θ_target_mor in t'.
   simpl in t'.
   set (T := functor_id H X).
