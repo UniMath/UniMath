@@ -612,6 +612,87 @@ Proof.
   apply H2.
 Qed.
 
+
+Lemma Monad_law_2_from_hss:
+  ∀ c : C, # (pr1 (U T)) (μ_0 c);; μ_2 c = identity ((pr1 (U T)) c).
+Proof.
+ intro c.
+      transitivity (μ_1 c).
+      * unfold μ_1.
+        set (H':= fbracket_unique_target_pointwise).
+        set (H1:= H' _ _ μ_0_ptd).
+        set (x:= post_whisker _ _ _ _ μ_0 (U T)).
+        set (x':= x ;; μ_2).
+        set (H2 := H1 x').
+        apply H2; clear H2.
+        unfold x'. clear x'.
+        unfold x; clear x.
+        clear H1. clear H'. clear c.
+        simpl.
+        apply nat_trans_eq; simpl.
+         apply hs.
+         intro c.
+         set (H':=nat_trans_ax (ptd_pt _ (pr1 (pr1 T)))).
+         simpl in H'.
+         rewrite assoc.
+         rewrite <- H'; clear H'.
+         set (H':= fbracket_η T (identity _ )).
+         unfold μ_2.
+         set (H2 := nat_trans_eq_weq _ _ hs _ _ _ _ H').
+         simpl in H2.
+         rewrite <- assoc.
+         rewrite <- H2.
+         rewrite id_right.
+         apply idpath. (* done *)
+
+         unfold x'; clear x'.
+         unfold x; clear x.
+         clear H1. clear H'.
+         set (H':=θ_nat_2).
+         set (H2 := H' (U T) _ _ μ_0_ptd).
+         simpl in H2.
+         rewrite functor_comp.
+         apply nat_trans_eq; try assumption.
+         clear c.
+         intro c; simpl.
+         set (H3:= nat_trans_eq_weq _ _ hs _ _ _ _ H2 c).
+         simpl in H3.
+         rewrite id_left in H3.
+         rewrite <- horcomp_id_postwhisker.
+         repeat rewrite assoc.
+         simpl in *.
+         transitivity ( # (pr1 (H ( (U T)))) (μ_0 c);; pr1 (θ (prodcatpair (U T) T)) c ;; 
+                           pr1 (# H μ_2) c ;; (τ T) c).
+           apply cancel_postcomposition.
+           apply cancel_postcomposition.
+           apply (!H3). (* done *)
+           
+           clear H3 H2 H'.
+           set (H':= fbracket_τ T (identity _ )).
+           unfold μ_2.
+           simpl.
+           set (H2:= nat_trans_eq_weq _ _ hs _ _ _ _ H' c).
+             clearbody H2.
+           simpl in *.
+           repeat rewrite <- assoc.
+           transitivity (  # (pr1 (H (U T))) (μ_0 c);;
+                             (pr1 (τ T) (pr1 (U T) c);; pr1 (fbracket T (identity T)) c)).
+             apply maponpaths.
+             rewrite assoc.
+             apply H2; clear H2. (* rewrite done *)
+            
+           clear H2 H'.
+           repeat rewrite assoc.
+           apply cancel_postcomposition.  
+           
+           
+           set (H':=nat_trans_ax (τ T) ).
+           rewrite H'.
+           apply idpath.
+    * apply μ_1_identity'.
+Qed.
+
+(*
 Lemma ηη_nat_trans :
   is_nat_trans (functor_identity C) (functor_composite (U T) (U T))
      (λ c : C, η c;; η ((pr1 (U T)) c)).
@@ -638,13 +719,15 @@ Proof.
   apply cancel_postcomposition.
   apply η_nat.
 Qed.
-
+*)
 Definition T_squared : Ptd.
 Proof.
-  exists (functor_composite (U T) (U T)).
+  exact (ptd_composite _ (pr1 (pr1 T)) (pr1 (pr1 T))).
+(*  exists (functor_composite (U T) (U T)).
   exists (λ c, η c ;; η (pr1 (U T) c)).
 (*  exists (λ c, ptd_pt _ (pr1 (pr1 T)) c ;; ptd_pt _ (pr1 (pr1 T)) (pr1 (U T) c)). *)
   apply ηη_nat_trans.
+*)
 Defined.
 
 
@@ -654,7 +737,7 @@ Proof.
   intro c.
   unfold μ_2.
   unfold T_squared. simpl.
-  set (H':=Monad_law_1_from_hss c).
+  set (H':=Monad_law_2_from_hss c).
   simpl in H'.
   transitivity (η c ;; identity _ ).
   - repeat rewrite <- assoc.
@@ -936,80 +1019,7 @@ Proof.
   split.
   - unfold Monad_data_from_hss; simpl; split.
     + apply Monad_law_1_from_hss.
-    + intro c.
-      transitivity (μ_1 c).
-      * unfold μ_1.
-        set (H':= fbracket_unique_target_pointwise).
-        set (H1:= H' _ _ μ_0_ptd).
-        set (x:= post_whisker _ _ _ _ μ_0 (U T)).
-        set (x':= x ;; μ_2).
-        set (H2 := H1 x').
-        apply H2; clear H2.
-        unfold x'. clear x'.
-        unfold x; clear x.
-        clear H1. clear H'. clear c.
-        simpl.
-        apply nat_trans_eq; simpl.
-         apply hs.
-         intro c.
-         set (H':=nat_trans_ax (ptd_pt _ (pr1 (pr1 T)))).
-         simpl in H'.
-         rewrite assoc.
-         rewrite <- H'; clear H'.
-         set (H':= fbracket_η T (identity _ )).
-         unfold μ_2.
-         set (H2 := nat_trans_eq_weq _ _ hs _ _ _ _ H').
-         simpl in H2.
-         rewrite <- assoc.
-         rewrite <- H2.
-         rewrite id_right.
-         apply idpath. (* done *)
-
-         unfold x'; clear x'.
-         unfold x; clear x.
-         clear H1. clear H'.
-         set (H':=θ_nat_2).
-         set (H2 := H' (U T) _ _ μ_0_ptd).
-         simpl in H2.
-         rewrite functor_comp.
-         apply nat_trans_eq; try assumption.
-         clear c.
-         intro c; simpl.
-         set (H3:= nat_trans_eq_weq _ _ hs _ _ _ _ H2 c).
-         simpl in H3.
-         rewrite id_left in H3.
-         rewrite <- horcomp_id_postwhisker.
-         repeat rewrite assoc.
-         simpl in *.
-         transitivity ( # (pr1 (H ( (U T)))) (μ_0 c);; pr1 (θ (prodcatpair (U T) T)) c ;; 
-                           pr1 (# H μ_2) c ;; (τ T) c).
-           apply cancel_postcomposition.
-           apply cancel_postcomposition.
-           apply (!H3). (* done *)
-           
-           clear H3 H2 H'.
-           set (H':= fbracket_τ T (identity _ )).
-           unfold μ_2.
-           simpl.
-           set (H2:= nat_trans_eq_weq _ _ hs _ _ _ _ H' c).
-             clearbody H2.
-           simpl in *.
-           repeat rewrite <- assoc.
-           transitivity (  # (pr1 (H (U T))) (μ_0 c);;
-                             (pr1 (τ T) (pr1 (U T) c);; pr1 (fbracket T (identity T)) c)).
-             apply maponpaths.
-             rewrite assoc.
-             apply H2; clear H2. (* rewrite done *)
-            
-           clear H2 H'.
-           repeat rewrite assoc.
-           apply cancel_postcomposition.  
-           
-           
-           set (H':=nat_trans_ax (τ T) ).
-           rewrite H'.
-           apply idpath.
-    * apply μ_1_identity'.
+    + apply Monad_law_2_from_hss.
 
   - unfold Monad_data_from_hss; simpl.
     intro c.
