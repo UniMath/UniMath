@@ -1,4 +1,5 @@
 -R . SubstSystems
+PointedFunctorsComposition.v
 PointedFunctors.v
 SubstitutionSystems.v
 ProductPrecategory.v

@@ -11,6 +11,7 @@ Require Import SubstSystems.Auxiliary.
 Require Import SubstSystems.PointedFunctors.
 Require Import SubstSystems.ProductPrecategory.
 Require Import SubstSystems.HorizontalComposition.
+Require Import SubstSystems.PointedFunctorsComposition.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -187,6 +188,22 @@ Definition θ_Strength1 : UU := ∀ X : EndC,
           = nat_trans_id _ .
 
 Hypothesis θ_strength1 : θ_Strength1.
+(*
+  assert (Strength_2 : ∀ α : functor_compose hs hs (functor_composite (U T) (U T))(U T) ⇒ functor_composite (U T) (U T),
+                       
+                    pr1 (θ (U T ⊗ T_squared)) c ;; pr1 (# H α) c =
+                     pr1 (θ ((U T) ⊗ T)) ((pr1 (pr1 (pr1 T))) c);;
+                     pr1 (θ ((functor_composite (U T) (U T)) ⊗ (pr1 (pr1 T)))) c;;
+                     pr1 (# H (α : functor_compose hs hs (U T) (functor_composite (U T) (U T))⇒ _)) c       )
+*)
+Definition θ_Strength2 : UU := ∀ (X : EndC) (Z Z' : Ptd) (Y : EndC)
+           (α : functor_compose hs hs (functor_composite (U Z) (U Z')) X ⇒ Y),
+    θ (X ⊗ (ptd_composite _ Z Z')) ;; # H α =
+    θ (X ⊗ Z') øø (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) ;; 
+       # H (α : functor_compose hs hs (U Z) (functor_composite (U Z') X) ⇒ Y).
+
+Hypothesis θ_strength2 : θ_Strength2.
+
 
 Lemma θ_nat_1 (X X' : EndC) (α : X ⇒ X') (Z : Ptd) 
   : compose(C:=EndC) (# H α ∙∙ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
@@ -806,7 +823,14 @@ Lemma μ_3_μ_2_T_μ_2 :  (
                      pr1 (θ ((U T) ⊗ T)) ((pr1 (pr1 (pr1 T))) c);;
                      pr1 (θ ((functor_composite (U T) (U T)) ⊗ (pr1 (pr1 T)))) c;;
                      pr1 (# H (α : functor_compose hs hs (U T) (functor_composite (U T) (U T))⇒ _)) c       ).
-             admit.
+             {  intro α. 
+                assert (HA := θ_strength2). red in HA. simpl in HA.
+                assert (HA':= HA (U T) (pr1 (pr1 T)) (pr1 (pr1 T)) _ α).
+                assert (HA2 := nat_trans_eq_pointwise _ _ _ _ _ _  HA' c ).
+                simpl in HA2.
+                admit. (* At least problem with T_squared, which should be defined as instance of ptd_composite *)
+              }  
+               
          (*
          assert (Strength_2' : ∀ α : functor_compose hs hs (functor_composite (U T) (U T))(U T) ⇒ functor_composite (U T) (U T),
                                ∀ β : _ ,
