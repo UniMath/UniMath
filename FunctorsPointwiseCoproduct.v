@@ -16,8 +16,12 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Section def_functor_pointwise_coprod.
 
 Variable C D : precategory.
-Variables F G : functor C D.
 Variable HD : Coproducts D.
+
+Section coproduct_functor.
+
+Variables F G : functor C D.
+
 
 Local Notation "c ⊗ d" := (CoproductObject _ (HD c d))(at level 45).
 
@@ -70,6 +74,34 @@ Proof.
 Qed.
 
 Definition coproduct_functor : functor C D := tpair _ _ is_functor_coproduct_functor_data.
+
+Variable A : functor C D.
+Variable f : F ⟶ A.
+Variable g : G ⟶ A.
+
+Definition coproduct_nat_trans_data : ∀ c, coproduct_functor c ⇒ A c.
+Proof.
+  intro c.
+  apply CoproductArrow.
+  - exact (f c).
+  - exact (g c).
+Defined.
+
+Lemma is_nat_trans_coproduct_nat_trans_data : is_nat_trans _ _ coproduct_nat_trans_data.
+Proof.
+  intros a b k.
+  simpl.
+  unfold coproduct_functor_mor.
+  unfold coproduct_nat_trans_data.
+  simpl.
+  set (XX:=precompWithCoproductArrow).
+  set (X1 := XX D _ _ (HD (F a) (G a))).
+  set (X2 := X1 _ _ (HD (F b) (G b))).
+  rewrite X2.
+  admit.
+Qed.
+
+End coproduct_functor.
 
 
 End def_functor_pointwise_coprod.
