@@ -89,6 +89,13 @@ Qed.
    
 Definition precategory_Ptd : precategory := tpair _ _ is_precategory_ptd.
 
+Definition id_Ptd : precategory_Ptd.
+Proof.
+  exists (functor_identity _).
+  exact (nat_trans_id _ ).
+Defined.
+
+
 (** Forgetful functor to functor category *)
 
 Definition ptd_forget_data : functor_data precategory_Ptd [C, C, hs].

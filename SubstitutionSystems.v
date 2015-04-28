@@ -64,7 +64,7 @@ Defined.
 (** ** Source and target of the natural transformation [θ] *)
 
 
-(** Source is given by [X,Z => H(X)∙U(Z)] *)
+(** Source is given by [(X,Z) => H(X)∙U(Z)] *)
 Definition θ_source_ob (FX : EndC XX Ptd) : [C, C, hs] := H (pr1 FX) ∙ U (pr2 FX).
 
 Definition θ_source_mor {FX FX' : EndC XX Ptd} (αβ : FX ⇒ FX') 
@@ -118,6 +118,8 @@ Proof.
 Qed.
 
 Definition θ_source : functor _ _ := tpair _ _ is_functor_θ_source.
+
+(** Target is given by [(X,Z) => H(X∙U(Z))] *)
 
 Definition θ_target_ob (FX : EndC XX Ptd) : EndC := H (pr1 FX ∙ U (pr2 FX)).
 
@@ -174,28 +176,17 @@ Qed.
 
 Definition θ_target : functor _ _ := tpair _ _ is_functor_θ_target_functor_data.
 
-Definition id_Ptd : Ptd.
-Proof.
-  exists (functor_identity _).
-  exact (nat_trans_id _ ).
-Defined.
-
-
+(** We assume a suitable (bi)natural transformation [θ] *)
 Hypothesis θ : θ_source ⟶ θ_target.
 
+(** [θ] is supposed to satisfy two strength laws *)
+
 Definition θ_Strength1 : UU := ∀ X : EndC,  
-  (θ (X ⊗ id_Ptd)) ;; # H (identity X : functor_composite (functor_identity C) X ⟶ pr1 X) 
+  (θ (X ⊗ (id_Ptd C hs))) ;; # H (identity X : functor_composite (functor_identity C) X ⟶ pr1 X) 
           = nat_trans_id _ .
 
 Hypothesis θ_strength1 : θ_Strength1.
-(*
-  assert (Strength_2 : ∀ α : functor_compose hs hs (functor_composite (U T) (U T))(U T) ⇒ functor_composite (U T) (U T),
-                       
-                    pr1 (θ (U T ⊗ T_squared)) c ;; pr1 (# H α) c =
-                     pr1 (θ ((U T) ⊗ T)) ((pr1 (pr1 (pr1 T))) c);;
-                     pr1 (θ ((functor_composite (U T) (U T)) ⊗ (pr1 (pr1 T)))) c;;
-                     pr1 (# H (α : functor_compose hs hs (U T) (functor_composite (U T) (U T))⇒ _)) c       )
-*)
+
 Definition θ_Strength2 : UU := ∀ (X : EndC) (Z Z' : Ptd) (Y : EndC)
            (α : functor_compose hs hs (functor_composite (U Z) (U Z')) X ⇒ Y),
     θ (X ⊗ (ptd_composite _ Z Z')) ;; # H α =
@@ -204,6 +195,9 @@ Definition θ_Strength2 : UU := ∀ (X : EndC) (Z Z' : Ptd) (Y : EndC)
 
 Hypothesis θ_strength2 : θ_Strength2.
 
+
+(** Not having a general theory of binatural transformations, we isolate 
+    naturality in each component here *)
 
 Lemma θ_nat_1 (X X' : EndC) (α : X ⇒ X') (Z : Ptd) 
   : compose(C:=EndC) (# H α ∙∙ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
@@ -224,7 +218,6 @@ Proof.
   admit.
 Qed.
 *)
-
 
 Lemma θ_nat_1_pointwise (X X' : EndC) (α : X ⇒ X') (Z : Ptd) (c : C)
   :  pr1 (# H α) ((pr1 Z) c);; pr1 (θ (X' ⊗ Z)) c =
@@ -271,33 +264,8 @@ Proof.
   rewrite id_left in t'.
   exact t'.
 Qed.
-(*
-  change (identity X ∙∙ pr1 f) with (functor_composite X
-  unfold hor_comp in t'.
-  simpl in *.
-*)
-(*
-  assert (TTT: pr1 (#H (identity X ∙∙ pr1 f)) c = pr1 (#H (pr1 f)) c).
-*)
 
-(*
-  set (H':= functor_id (pre_composition_functor C _ C hs hs  (U F))).
-  set (Ha := H' (U F)).
-*)
-
-(* 
-  does not typecheck cuz the first is of type [H X c] whereas the second 
-   is of type [H (X ∙ Id) c] 
-
-  it is best to postpone the formulation of this statement until we see what we need
-
-*)
-(* 
-Hypothesis θ1 : ∀ (X : EndC) (c : C), 
-  pr1 (θ (dirprodpair X id_Ptd)) c = pr1 (identity (H X)) c.
-*)
-
-
+(** ** Definition of algebra structure [τ] of a pointed functor *)
 
 Definition AlgStruct (T : Ptd) : UU := pr1 (H(U T)) ⟶ pr1 (U T).
 
@@ -309,28 +277,6 @@ Definition τ (T : Alg) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
 
 
 
-(*
-Definition bracket (T : Alg) : UU := 
-  ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
-   (Σ h : functor_composite (U Z) (U T)  ⟶ (U T),
-     (∀ c : C, pr1 (#U f) c = ptd_pt _ (pr1 T) (pr1 (U Z) c) ;; h c) ×
-     (∀ c : C, pr1 (θ (prodcatpair (U T) Z))  c ;; pr1 (#H h) c ;; τ _ c = 
-        τ _ (pr1 (U Z) c) ;; h c)).
-
-Definition bracket' (T : Alg) : UU := 
-  ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
-   (Σ h : (U T) ∙ (U Z)  ⇒ U T,
-     (∀ c : C, pr1 (#U f) c = ptd_pt _ (pr1 T) (pr1 (U Z) c) ;; pr1 h c) ×
-     (∀ c : C, pr1 (θ (prodcatpair (U T) Z))  c ;; pr1 (#H h) c ;; τ _ c = 
-        τ _ (pr1 (U Z) c) ;; pr1 h c)).
-
-Definition bracket'' (T : Alg) : UU := 
-  ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
-   (Σ h : (U T) ∙ (U Z)  ⇒ U T,
-     (#U f = pre_whisker (U Z) (ptd_pt _ (pr1 T)) ;; h) ×
-     (∀ c : C, pr1 (θ (prodcatpair (U T) Z))  c ;; pr1 (#H h) c ;; τ _ c = 
-        τ _ (pr1 (U Z) c) ;; pr1 h c)).
-*)
 Definition bracket (T : Alg) : UU := 
   ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
    (Σ h : (U T) ∙ (U Z)  ⇒ U T,
@@ -345,6 +291,7 @@ Definition fbracket (T : hss) {Z : Ptd} (f : Z ⇒ T)
   : (U T) ∙ (U Z) ⇒ U T
   := pr1 (pr1 (pr2 T Z f)).
 
+(** The bracket operation [fbracket] is unique *)
 
 Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
   : ∀ (α : functor_composite (U Z)(U T) ⟶ pr1 (U T)),
@@ -379,7 +326,7 @@ Proof.
   apply (nat_trans_eq_weq _ _ hs _ _ _ _ t).
 Qed.
 
-(* Properties of [fbracket] by definition *)
+(** Properties of [fbracket] by definition: commutative diagrams *)
 
 Lemma fbracket_η (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
    #U f = (ptd_pt _  (pr1 (pr1 T))) øø U Z ;;  (fbracket T f).
@@ -396,6 +343,8 @@ Proof.
   intros Z f.
   exact (pr2 (pr2 (pr1 (pr2 T Z f)))).
 Qed.
+
+(** [fbracket] is also natural *)
 
 Lemma fbracket_natural (T : hss) {Z Z' : Ptd} (f : Z ⇒ Z') (g : Z' ⇒ T) 
   : post_whisker _ _ _ _ (#U f)(U T) ;; fbracket T g = fbracket T (f ;; g).
@@ -453,6 +402,8 @@ Proof.
     apply idpath.
 Qed.
 
+(** As a consequence of naturality, we can compute [fbracket f] from [fbracket identity] *)
+
 Lemma compute_fbracket (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
   fbracket T f = post_whisker _ _ _ _ (#U f)(U T) ;; fbracket T (identity _ ). 
 Proof.
@@ -465,21 +416,12 @@ Proof.
   apply idpath.
 Qed.
 
-(* not quite clear what this should be *)
-(*
-Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
-  : ∀ (α : functor_composite (U Z)(U T) ⟶  (U T) ),
-     (∀ c : C, pr1 (#U f) c = ptd_pt _ (pr1 (pr1 T)) (pr1 (U Z) c) ;; α c) →
-     (∀ c : C, pr1 (θ (prodcatpair (U T) Z))  c ;; pr1 (#H α) c ;; τ _ c = 
-        τ _ (pr1 (U Z) c) ;; α c) → α = fbracket T f.
-Proof.
-  intros α H1 H2.
-  apply path_to_ctr.
-  split; assumption.
-Qed.
-*)
+
+(** ** Derivation of the monad laws from a heterogeneous substitution system *)
 
 Section mu_from_fbracket.
+
+(** We assume given a hss [T] *)
 
 Variable T : hss.
 
@@ -487,14 +429,16 @@ Local Notation "'η'" := (ptd_pt _ (pr1 (pr1 T))).
 
 Definition μ_0 : functor_identity C ⟶ pr1 (U T) := η. (*ptd_pt _ (pr1 (pr1 T)).*)
 
-Definition μ_0_ptd : id_Ptd ⇒ T.
+Definition μ_0_ptd : id_Ptd C hs ⇒ T.
 Proof.
   exists μ_0.
   intro c. simpl. apply id_left.
 Defined.
 
-Definition μ_1 : functor_composite (U id_Ptd) (U T) ⟶ pr1 (U T) 
+Definition μ_1 : functor_composite (U (id_Ptd C hs)) (U T) ⟶ pr1 (U T) 
   := fbracket _ μ_0_ptd.
+
+(*
 
 Lemma μ_1_alt_is_nat_trans:
  is_nat_trans (functor_composite (U id_Ptd) (U T)) 
@@ -512,8 +456,9 @@ Proof.
   apply μ_1_alt_is_nat_trans.
 Defined.
 
-  
+*)
 
+(*
 Lemma equal_to_identity (a b : C) (f : a ⇒ a) (g g' : a ⇒ b) : 
    f = identity _ → g = g' → f ;; g = g'.
 Proof.
@@ -521,6 +466,8 @@ Proof.
   subst.
   apply id_left.
 Qed.
+*)
+
 (*
 Lemma μ_1_identity' : μ_1_alt = μ_1.
 Proof.
@@ -568,10 +515,14 @@ Proof.
   apply HA.
 Qed.
 
-Check (μ_1:U T⇒U T).
+(* The whole secret is that this typechecks
+  Check (μ_1:U T⇒U T).
+*)
+
 (* therefore, it is not just the type itself that makes it necessary to introduce μ_1_alt,
    it is rather the question of the formulation of the first strength law of θ *)
 
+(*
 Lemma μ_1_identity_stronger : μ_1 = identity (U T).
 Proof.
   set (t':=nat_trans_eq_weq C C hs _ _ μ_1 (identity (U T))).
@@ -579,14 +530,14 @@ Proof.
   set (t'' := t' μ_1_identity').
   exact t''.
 Qed.
+*)
 
+(** This is the multiplication of the monad to be constructed *)
 
-(* This is the multiplication of the monad to be constructed *)
 Definition μ_2 : functor_composite (U T) (U T) ⟶ pr1 (U T) 
   := fbracket T (identity _ ).
-(*
-Definition μ_3 := fbracket T μ_2.
-*)
+
+
 Definition functor_with_mu_from_hss : functor_with_μ C.
 Proof.
   exists (U T).
@@ -598,6 +549,8 @@ Proof.
   exists functor_with_mu_from_hss.
   exact μ_0.
 Defined.
+
+(** *** Proof of the first monad law *)
 
 Lemma Monad_law_1_from_hss :
   ∀ c : C, μ_0 (pr1 (U T) c);; μ_2 c = identity ((pr1 (U T)) c).
@@ -612,6 +565,7 @@ Proof.
   apply H2.
 Qed.
 
+(** *** Proof of the second monad law *)
 
 Lemma Monad_law_2_from_hss:
   ∀ c : C, # (pr1 (U T)) (μ_0 c);; μ_2 c = identity ((pr1 (U T)) c).
@@ -692,44 +646,15 @@ Proof.
     * apply μ_1_identity'.
 Qed.
 
-(*
-Lemma ηη_nat_trans :
-  is_nat_trans (functor_identity C) (functor_composite (U T) (U T))
-     (λ c : C, η c;; η ((pr1 (U T)) c)).
-Proof.
-  simpl.
-  unfold is_nat_trans.
-  simpl.
-  intros c c' f.
-  set (η_nat := nat_trans_ax η).
-  repeat rewrite <- assoc.
-  set (H1 := η_nat _ _ (# (pr1 (U T)) f)); clearbody H1.
-  simpl in H1.
-  
-  transitivity (η c ;;  # (pr1 (U T)) f;; η ((pr1 (U T)) c')).
-  
-  Focus 2.
-  repeat rewrite <- assoc.
-  apply maponpaths.
-  apply H1.
-  
-  clear H1.
-  
-  repeat rewrite assoc.
-  apply cancel_postcomposition.
-  apply η_nat.
-Qed.
-*)
+(** [T_squared] is [T∙T, η∙η], that is, the selfcomposition of [T] as a pointed functor *)
+
 Definition T_squared : Ptd.
 Proof.
   exact (ptd_composite _ (pr1 (pr1 T)) (pr1 (pr1 T))).
-(*  exists (functor_composite (U T) (U T)).
-  exists (λ c, η c ;; η (pr1 (U T) c)).
-(*  exists (λ c, ptd_pt _ (pr1 (pr1 T)) c ;; ptd_pt _ (pr1 (pr1 T)) (pr1 (U T) c)). *)
-  apply ηη_nat_trans.
-*)
 Defined.
 
+(** [μ_2] is not just a natural transformation from [T∙T] to [T], but also compatible with 
+    the pointed structure given by [η] *)
 
 Lemma μ_2_is_ptd_mor :
   ∀ c : C, (ptd_pt C T_squared) c;; μ_2 c = (ptd_pt C (pr1 (pr1 T))) c.
@@ -753,12 +678,15 @@ Proof.
 Defined.
 
 Definition μ_3 : U T_squared ∙ U T ⇒ U T := fbracket T μ_2_ptd.
+
+(*
 Definition μ_3' := fbracket T μ_2_ptd.
-
 Check μ_3'.
-
 Check (μ_3' = μ_3).
+*)
 
+(** *** Proof of the third monad law via transitivity *)
+(** We show that both sides are equal to [μ_3 = fbracket μ_2] *)
 
 Lemma μ_3_T_μ_2_μ_2 : μ_3 = (U T) ∘ μ_2 ;; μ_2.
 Proof.
@@ -777,8 +705,6 @@ Proof.
     + apply maponpaths.
       apply pathsinv0. apply H3.
   - rewrite functor_comp.
-(*    apply nat_trans_eq; try assumption.
-    intro c; simpl. *)
     assert (H1 := θ_nat_2 (U T) _ _ μ_2_ptd).
     set (H3:=horcomp_id_postwhisker).
     assert (H4 := H3 _ _ _ hs hs _ _ μ_2 (U T)); clear H3.
@@ -813,15 +739,25 @@ Proof.
         apply H1.
 Qed.
 
+Local Notation "'T∙T²'" := (functor_compose hs hs (functor_composite (U T) (U T)) (U T) : [C, C, hs]).
+(*
 Definition TtimesTthenT': [C, C] hs := functor_compose hs hs (functor_composite (U T) (U T)) (U T).
+*)
+
+
+Local Notation "'T²∙T'" := (@functor_composite C C C 
+                    (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                                              ((functor_ptd_forget C hs) T))
+                    ((functor_ptd_forget C hs) T) : functor C C).
+(*
 Definition TtimesTthenT: functor C C := @functor_composite C C C 
                     (@functor_composite C C C ((functor_ptd_forget C hs) T)
                                               ((functor_ptd_forget C hs) T))
                     ((functor_ptd_forget C hs) T).
-
+*)
 Lemma μ_3_μ_2_T_μ_2 :  (
     @compose (functor_precategory C C hs)
-                 TtimesTthenT _ _
+                 (* TtimesTthenT *) T²∙T _ _
                  (* (@functor_composite C C C ((functor_ptd_forget C hs) T)
                     ((functor_ptd_forget C hs) T))
                  ((functor_ptd_forget C hs) T) *)
@@ -830,7 +766,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
                     (@functor_composite C C C ((functor_ptd_forget C hs) T)
                                               ((functor_ptd_forget C hs) T))
                     ((functor_ptd_forget C hs) T) ⇒ _*) ) μ_2 : 
-            TtimesTthenT' ⇒ U T) = μ_3.
+            (*TtimesTthenT'*) T∙T² ⇒ U T) = μ_3.
   unfold μ_3.
   set (H1 := @fbracket_unique (*_pointwise*) T _ μ_2_ptd).
   apply H1; clear H1.
@@ -850,7 +786,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
     set (A:=θ (U T ⊗ T_squared)).
     set (B:= τ T).
     match goal with | [|- _ = ?q] => set (Q:=q) end.
-    match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => set (F:=f : TtimesTthenT' ⇒ _ ) end.
+    match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => set (F:=f : (*TtimesTthenT'*) T∙T² ⇒ _ ) end.
     set (HX:=θ_nat_1 _ _ μ_2).  (* it may be tested with the primed version *)
     set (H3:= functor_comp H _ _ _ F μ_2).
     unfold functor_compose in H3.
@@ -923,7 +859,9 @@ Lemma μ_3_μ_2_T_μ_2 :  (
                      pr1 (θ ((functor_composite (U T) (U T)) ⊗ (pr1 (pr1 T)))) c;;
                      pr1 (# H (β : functor_compose hs hs (U T) (functor_composite (U T) (U T))⇒ _ )) c       ).
              admit. *)
+(*
          fold TtimesTthenT' in Strength_2. (*, Strength_2' .*)
+*)
          rewrite <- assoc.
          match goal with |[ HXX : ?a ;; ?b = _ |- _ = ?e ;; _] => 
              transitivity (e ;; (a ;; b)) end.
@@ -957,27 +895,6 @@ Lemma μ_3_μ_2_T_μ_2 :  (
               rewrite X.
               apply idpath.
   
-           
-(* we are really stuck here with the theta on the product category *)
-(* no we are not *)
-
-(*             
-           rewrite HXX.
-          
-             apply Strength_2'.
-          match goal with |[|- _ ;; ?e = _ ;; (_ ;; ?f)] => set (E := e) end. 
-          match goal with |[|- _ ;; _ = _ ;; (_ ;; ?f)] => set (E' := f) end. 
-          repeat rewrite assoc.
-          
-          assert (E = E').
-          apply cancel_postcomposition.
-          simpl in E'.
-          admit.
-
-          repeat rewrite <- assoc.
-          apply maponpaths.
-          apply (!HXX).
-*)
     * set (H4 := fbracket_τ).
       set (H4':= H4 T T (identity _ )).
       set (H5:= nat_trans_eq_pointwise _ _ _ _ _ _ H4' (c)). 
@@ -1014,6 +931,8 @@ Unset Printing All.
 Set Printing Notations.
 Unset Printing Implicit.
 
+(** Finally putting together all the preparatory results to obtain a monad *)
+
 Lemma Monad_laws_from_hss : Monad_laws Monad_data_from_hss.
 Proof.
   split.
@@ -1040,7 +959,11 @@ Defined.
 
 End mu_from_fbracket.
 
+(** ** Morphisms of heterogeneous substitution systems *)
+
 Section hss_morphisms.
+
+(** A morphism [f] of pointed functors is an algebra morphism when... *)
 
 Definition isAlgMor {T T' : Alg} (f : T ⇒ T') : UU :=
    #H (# U f) ;; τ T' =  compose (C:=EndC) (τ T) (#U f).
@@ -1051,13 +974,8 @@ Proof.
   apply hs.
 Qed.
 
-(*
-Definition isbracketMor {T T' : hss} (β : T ⇒ T') : UU :=
-    ∀ (Z : Ptd) (f : Z ⇒ T), 
-       ∀ c : C, pr1 (fbracket _ f) c ;; pr1 (#U β) c
-                             = 
-                             (pr1 (#U β)) (pr1 (U Z) c) ;; pr1 (fbracket _ (f ;; β )) c.
-*)
+(** A morphism [β] of pointed functors is a bracket morphism when... *)
+
 Definition isbracketMor {T T' : hss} (β : T ⇒ T') : UU :=
     ∀ (Z : Ptd) (f : Z ⇒ T), 
        fbracket _ f ;; #U β
@@ -1072,13 +990,8 @@ Proof.
   apply hs.
 Qed.
 
-(*
-Definition isbracketMor' {T T' : hss} (β : T ⇒ T') : UU :=
-    ∀ (Z : Ptd) (f : Z ⇒ T), 
-       nat_trans_comp (fbracket _ f) (#U β)
-                             = 
-       nat_trans_comp (pre_whisker (U Z) (#U β)) (fbracket _ (f ;; β )).
-*)
+(** A morphism of hss is a pointed morphism that is compatible with both 
+    [τ] and [fbracket] *)
 
 Definition ishssMor {T T' : hss} (β : T ⇒ T') : UU 
   :=  isAlgMor β × isbracketMor β.
@@ -1093,8 +1006,12 @@ Definition isAlgMor_hssMor {T T' : hss} (β : hssMor T T')
 Definition isbracketMor_hssMor {T T' : hss} (β : hssMor T T') 
   : isbracketMor β := pr2 (pr2 β).
 
+(** **** Equality of morphisms of hss *)
+
 Section hssMor_equality.
-(* Show that equality of hssMor is equality of underlying nat. transformations *)
+
+(** Show that equality of hssMor is equality of underlying nat. transformations *)
+
 Variables T T' : hss.
 Variables β β' : hssMor T T'.
 Definition hssMor_eq1 : β = β' ≃ (pr1 β = pr1 β').
@@ -1106,13 +1023,6 @@ Proof.
   - apply isaprop_isbracketMor.
 Defined.
 
-(*
-Definition hssMor_eq2 : pr1 β = pr1 β' ≃ #U β = #U β'.
-Proof.
-  apply eq_ptd_mor.
-  apply hs.
-Defined.
-*)
 
 Definition hssMor_eq : β = β' ≃ #U β = #U β'.
 Proof.
@@ -1132,7 +1042,11 @@ Proof.
   apply hs.
 Qed.
 
+(** ** The precategory of hss *)
+
 Section hss_precategory.
+
+(** *** Identity morphism of hss *)
 
 Lemma ishssMor_id (T : hss) : ishssMor (identity T).
 Proof.
@@ -1158,6 +1072,8 @@ Qed.
 
 Definition hssMor_id (T : hss) : hssMor _ _ := tpair _ _ (ishssMor_id T).
   
+(** *** Composition of morphisms of hss *)
+
 Lemma ishssMor_comp {T T' T'' : hss} (β : hssMor T T') (γ : hssMor T' T'') 
   : ishssMor (β ;; γ).
 Proof.
@@ -1216,10 +1132,13 @@ Qed.
 
 Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.
 
+(** ** A functor from hss to monads *)
+
+(** Objects are considered above, now morphisms *)
+
 Definition Monad_Mor_laws_from_hssMor (T T' : hss)(β : hssMor T T') 
   : Monad_Mor_laws (T:=Monad_from_hss T) (T':=Monad_from_hss T') (#U β).
 Proof.
-  (*exists (#U β).*)
   repeat split; simpl.
   - intro c.
     unfold μ_2. simpl.
@@ -1281,6 +1200,8 @@ Proof.
     apply Monad_Mor_equiv.
     apply hs.
 Defined.
+
+(** *** The functor from hss to monads is faithful, i.e. forgets at most structure *)
 
 Lemma faithful_hss_to_monad : faithful hss_to_monad_functor.
 Proof.
