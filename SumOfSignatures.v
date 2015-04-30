@@ -56,10 +56,101 @@ Variable S21 : θ_Strength1 θ2.
 Variable S22 : θ_Strength2 θ2.
 
 
-Definition H : functor [C, C, hs] [C, C, hs] := coproduct_functor _ _ CCC H1 H2. 
- 
+Definition H : functor [C, C, hs] [C, C, hs] := coproduct_functor _ _ CCC H1 H2.
+
+
+Definition bla1 (X : [C, C] hs) (Z : precategory_Ptd C hs) :
+   ∀ c : C, 
+    (functor_composite_data (pr1 Z)
+     (coproduct_functor_data C C CC (H1 X) (H2 X))) c
+   ⇒ (coproduct_functor_data C C CC (H1 (functor_composite (pr1 Z) X))
+       (H2 (functor_composite (pr1 Z) X))) c.
+Proof.
+  intro c.
+  apply CoproductOfArrows.
+  - set (T1 := θ1 (prodcatpair _ _ X Z)).
+    set (T2 := pr1 T1 c).
+    simpl in T2.
+    exact T2.
+  - exact (pr1 (θ2 (prodcatpair _ _ X Z)) c).
+Defined.
+
+Lemma bar (X : [C, C] hs) (Z : precategory_Ptd C hs):
+   is_nat_trans
+     (functor_composite_data (pr1 Z)
+        (coproduct_functor_data C C CC (H1 X) (H2 X)))
+     (coproduct_functor_data C C CC (H1 (functor_composite (pr1 Z) X))
+        (H2 (functor_composite (pr1 Z) X))) (bla1 X Z).
+Proof.
+  intros x x' f.
+  simpl.
+  unfold bla1.
+  simpl.
+  unfold coproduct_functor_mor.
+  assert (T:= CoproductOfArrows_comp C CC).
+  assert (T1 := T _ _ _ _ _ _ 
+           (# (pr1 (H1 X)) (# (pr1 Z) f)) (# (pr1 (H2 X)) (# (pr1 Z) f))
+         (pr1 (θ1 (prodcatpair C hs X Z)) x') 
+         (pr1 (θ2 (prodcatpair C hs X Z)) x')
+         ).
+  simpl in *.
+  match goal with |[H : _ = ?g |- _ ] => transitivity g end.
+  - apply T1.
+  - clear T1.
+    assert (T2 := T _ _ _ _ _ _ 
+                   (pr1 (θ1 (prodcatpair C hs X Z)) x) 
+                   (pr1 (θ2 (prodcatpair C hs X Z)) x)
+                   (# (pr1 (H1 (functor_composite (pr1 Z) X))) f)
+                   (# (pr1 (H2 (functor_composite (pr1 Z) X))) f) ).
+    match goal with |[H : _ = ?g |- _ ] => transitivity g end.
+    + apply CoproductOfArrows_eq.
+      * apply (nat_trans_ax (θ1 (prodcatpair _ _ X Z))).
+      * apply (nat_trans_ax (θ2 (prodcatpair _ _ X Z))).
+    + apply (!T2). 
+Qed.
+
+Definition bla (X : [C, C] hs) (Z : precategory_Ptd C hs) :
+   functor_composite_data (pr1 Z)
+     (coproduct_functor_data C C CC (H1 X) (H2 X))
+   ⟶ coproduct_functor_data C C CC (H1 (functor_composite (pr1 Z) X))
+       (H2 (functor_composite (pr1 Z) X)).
+Proof.
+  exists (bla1 X Z).
+  apply bar.
+Defined.  
+
+
+Definition θ_ob : ∀ XF, θ_source H XF ⇒ θ_target H XF. 
+Proof.
+  intro XZ.
+  destruct XZ as [X Z].
+  apply bla.
+Defined.
+  
    
 Definition θ : θ_source H ⟶ θ_target H.
+Proof.
+  exists θ_ob.
+  intros [X Z] [X' Z'] [α β].  
+  simpl in *.
+  unfold θ_source_mor.
+  simpl.
+  unfold θ_target_mor.
+  simpl.
+  unfold coproduct_functor_mor.
+  apply nat_trans_eq.
+  - apply hs.
+  - intro c.
+    simpl.
+    unfold coproduct_nat_trans_data.
+    unfold bla1; simpl.
+    unfold coproduct_functor_mor.
+    simpl.
+    unfold coproduct_nat_trans_in2_data.
+    unfold coproduct_nat_trans_in1_data.
+    simpl.
+    rewrite <- assoc.
+(*    rewrite CoproductOfArrows_comp. *)
   admit.
 Defined.
 
