@@ -111,6 +111,18 @@ Proof.
   apply idpath.
 Qed.
 
+Lemma precompWithCoproductArrow_eq  (CCab : CoproductCocone _ a b) 
+    (CCcd : CoproductCocone _ c d) (f : a ⇒ c) (g : b ⇒ d)
+     (k : c ⇒ x) (h : d ⇒ x) (fk : a ⇒ x) (gh : b ⇒ x):
+      fk = f ;; k → gh = g ;; h →
+        CoproductOfArrows _ CCab CCcd f g ;; CoproductArrow _ CCcd k h =
+         CoproductArrow _ CCab (fk) (gh).
+Proof.
+  intros H H'.
+  rewrite H.
+  rewrite H'.
+  apply precompWithCoproductArrow.
+Qed.
 
 End Coproducts.
 

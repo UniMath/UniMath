@@ -1,4 +1,5 @@
 -R . SubstSystems
+SumOfSignatures.v
 PointedFunctorsComposition.v
 PointedFunctors.v
 SubstitutionSystems.v

@@ -219,12 +219,101 @@ Defined.
 
 Lemma SumStrength1 : θ_Strength1 θ.
 Proof.
-  admit.
+  unfold θ_Strength1.
+  intro X.
+  apply nat_trans_eq. 
+  - apply hs.
+  - intro x.
+    simpl.
+    unfold bla1.
+    unfold coproduct_nat_trans_data.
+    assert (H:=@precompWithCoproductArrow C).
+    assert (Ha := H _ _ (CC ((pr1 (H1 X)) ((pr1 (id_Ptd C hs)) x)) ((pr1 (H2 X)) ((pr1 (id_Ptd C hs)) x)))).
+    clear H.
+    assert (Hb := Ha _ _  (CC ((pr1 (H1 (functor_composite (pr1 (id_Ptd C hs)) X))) x)
+        ((pr1 (H2 (functor_composite (pr1 (id_Ptd C hs)) X))) x))).
+      clear Ha.
+     assert (Hc := Hb  (pr1 (θ1 (prodcatpair C hs X (id_Ptd C hs))) x)
+                       (pr1 (θ2 (prodcatpair C hs X (id_Ptd C hs))) x)).
+        clear Hb.
+        rewrite Hc. clear Hc.
+      unfold coproduct_functor_ob.
+      simpl.
+     apply pathsinv0.
+     apply Coproduct_endo_is_identity.
+     + rewrite CoproductIn1Commutes.
+       unfold θ_Strength1 in S11.
+       
+       assert (Ha := nat_trans_eq_pointwise _ _ _ _ _ _ (S11 X) x).
+       rewrite assoc.
+       match goal with |[H : _ = ?e |- _ ;; _ ;; ?f = _ ] => 
+              transitivity (e ;; f) end.
+       * apply cancel_postcomposition.
+         apply Ha.
+       * apply id_left.
+    + rewrite CoproductIn2Commutes.
+      assert (Ha := nat_trans_eq_pointwise _ _ _ _ _ _ (S21 X) x).
+       rewrite assoc.
+       match goal with |[H : _ = ?e |- _ ;; _ ;; ?f = _ ] => 
+              transitivity (e ;; f) end.
+       * apply cancel_postcomposition.
+         apply Ha.
+       * apply id_left.
 Qed.
 
 Lemma SumStrength2 : θ_Strength2 θ.
 Proof.
-  admit.
+  unfold θ_Strength2.
+  intros X Z Z' Y α.
+  apply nat_trans_eq; try assumption.
+    intro x.
+    simpl.
+    unfold bla1.
+    simpl.
+    unfold coproduct_nat_trans_data.
+    simpl.
+    assert (Ha := @precompWithCoproductArrow C).
+    assert (Hb := Ha _ _ (CC ((pr1 (H1 X)) (pr1 Z' (pr1 Z x))) ((pr1 (H2 X)) (pr1 Z' (pr1 Z x))))).
+    clear Ha.
+    assert (Hc := Hb _ _ (CC ((pr1 (H1 (functor_composite (functor_composite (pr1 Z) (pr1 Z')) X))) x)
+        ((pr1 (H2 (functor_composite (functor_composite (pr1 Z) (pr1 Z')) X))) x))
+     (pr1 (θ1 (prodcatpair C hs X (ptd_composite C Z Z'))) x)
+     (pr1 (θ2 (prodcatpair C hs X (ptd_composite C Z Z'))) x)  ).
+      clear Hb.
+     assert (Hd := Hc _ (pr1 (# H1 α) x;; coproduct_nat_trans_in1_data C C CC (H1 Y) (H2 Y) x)
+     (pr1 (# H2 α) x;; coproduct_nat_trans_in2_data C C CC (H1 Y) (H2 Y) x)).
+     clear Hc.
+     match goal with |[ H : _ = ?e |- _ ] => transitivity e end.
+     { apply Hd. }
+     
+     clear Hd.
+       apply pathsinv0.
+       Check CoproductOfArrows_comp.
+       match goal with |[|- CoproductOfArrows _ _ _ ?f ?g ;;
+                            CoproductOfArrows _ _ _ ?f' ?g' ;; _ = _ ] =>
+              
+         assert (T:= CoproductOfArrows_comp _ CC _ _ _ _ _ _ f g f' g') end.
+       match goal with |[T: _ = ?e |- _ ;; _ ;; ?f = _ ] =>
+            transitivity (e ;; f) end.
+       { apply cancel_postcomposition.
+         apply T. }
+       
+       clear T.
+       apply precompWithCoproductArrow_eq.
+       - assert (Ha:=S12 X Z Z' Y α).
+         simpl in Ha.
+         rewrite assoc.
+         rewrite assoc.
+         apply cancel_postcomposition.
+         assert (Hb := nat_trans_eq_pointwise _ _ _ _ _ _ Ha).
+         apply Hb.
+       - assert (Ha:=S22 X Z Z' Y α).
+         simpl in Ha.
+         rewrite assoc.
+         rewrite assoc.
+         apply cancel_postcomposition.
+         assert (Hb := nat_trans_eq_pointwise _ _ _ _ _ _ Ha).
+         apply Hb.       
 Qed.
 
 End sum_of_signatures.
