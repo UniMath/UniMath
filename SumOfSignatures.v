@@ -41,10 +41,8 @@ Variable PP : Products C.
 Variable CC : Coproducts C.
 
 (* should be proved somewhere *)
-Definition CCC : Coproducts [C, C, hs].
-  admit.
-Defined.
 
+Local Notation "'CCC'" := (Coproducts_functor_precat C C CC hs : Coproducts [C, C, hs]).
 
 
 Variables H1 H2 : functor [C, C, hs] [C, C, hs].
@@ -57,9 +55,8 @@ Variable S12 : θ_Strength2 θ1.
 Variable S21 : θ_Strength1 θ2.
 Variable S22 : θ_Strength2 θ2.
 
-(* is definable as soon as we have CCC above *)
 
-Definition H : functor [C, C, hs] [C, C, hs] := coproduct_functor _ _ H1 H2 CCC. 
+Definition H : functor [C, C, hs] [C, C, hs] := coproduct_functor _ _ CCC H1 H2. 
  
    
 Definition θ : θ_source H ⟶ θ_target H.
