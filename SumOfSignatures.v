@@ -59,6 +59,7 @@ Variable S22 : θ_Strength2 θ2.
 Definition H : functor [C, C, hs] [C, C, hs] := coproduct_functor _ _ CCC H1 H2.
 
 
+
 Definition bla1 (X : [C, C] hs) (Z : precategory_Ptd C hs) :
    ∀ c : C, 
     (functor_composite_data (pr1 Z)
@@ -127,17 +128,19 @@ Proof.
   apply bla.
 Defined.
   
-   
-Definition θ : θ_source H ⟶ θ_target H.
+
+Lemma is_nat_trans_θ_ob : 
+ is_nat_trans (θ_source_functor_data C hs H) (θ_target_functor_data C hs H)
+     θ_ob.
 Proof.
-  exists θ_ob.
-  intros [X Z] [X' Z'] [α β].  
-  simpl in *.
+    intros [X Z] [X' Z'] [α β].  
+(*  simpl in *.
   unfold θ_source_mor.
   simpl.
   unfold θ_target_mor.
   simpl.
   unfold coproduct_functor_mor.
+*)
   apply nat_trans_eq.
   - apply hs.
   - intro c.
@@ -149,9 +152,79 @@ Proof.
     unfold coproduct_nat_trans_in2_data.
     unfold coproduct_nat_trans_in1_data.
     simpl.
-    rewrite <- assoc.
-(*    rewrite CoproductOfArrows_comp. *)
-  admit.
+    assert (T:=CoproductOfArrows_comp C CC).
+    match goal with |[ |- _ = (CoproductOfArrows C (CC ?a ?b) (CC ?c ?d) ?f ?g) ;; _ ] =>
+                       assert (T2 := T a b c d) end.
+    clear T.
+    assert (T3:= T2 (pr1 (H1 (functor_composite (pr1 Z') X')) c)
+                 (pr1 (H2 (functor_composite (pr1 Z') X')) c)).
+    clear T2.
+    match goal with |[ |- _ = (CoproductOfArrows _ _ _  ?f ?g) ;; _ ] =>
+            assert (T4 := T3 f g) end.
+    clear T3.
+    match goal with |[ |- _ = _ ;; CoproductArrow _ _ (?a ;; _ ) (?b ;; _ ) ] =>
+          assert (T5 := T4 a b) end.
+    clear T4.
+    match goal with |[H : _ = ?g |- _ ] => transitivity g end.
+     Focus 2.
+     apply (!T5).
+
+    clear T5.
+    assert (T:=CoproductOfArrows_comp C CC).
+    assert (T':= T _ _ _ _ _ _ 
+             (pr1 (# H1 α) ((pr1 Z) c))
+             (pr1 (# H2 α) ((pr1 Z) c))
+             (# (pr1 (H1 X')) ((pr1 β) c))
+             (# (pr1 (H2 X')) ((pr1 β) c))).
+    simpl in *. clear T.
+    match goal with |[T' : _ = ?e |- _ ;; _ ;; ?h = _ ] =>
+       transitivity (e ;; h) end.
+    + apply cancel_postcomposition.
+      apply T'.
+    + clear T'.
+      assert (T := CoproductOfArrows_comp C CC 
+                   _ _ _ _ _ _ 
+                   (pr1 (# H1 α) ((pr1 Z) c);; # (pr1 (H1 X')) ((pr1 β) c))
+                   (pr1 (# H2 α) ((pr1 Z) c);; # (pr1 (H2 X')) ((pr1 β) c))
+                   (pr1 (θ1 (prodcatpair C hs X' Z')) c)
+                   (pr1 (θ2 (prodcatpair C hs X' Z')) c)).
+      match goal with | [T : _ = ?e |- _ ] => transitivity e end.
+      * apply T.
+      * clear T. 
+        apply CoproductOfArrows_eq.
+        
+           assert (Ha:= nat_trans_ax θ1).
+           assert (Hb:= Ha _ _ (prodcatmor _ _ α β)). clear Ha.
+           unfold θ_source_mor, θ_target_mor in Hb.
+           simpl in *.
+           assert (HA := nat_trans_eq_pointwise _ _ _ _ _ _ Hb c).
+           apply HA.
+           
+           assert (Ha:= nat_trans_ax θ2).
+           assert (Hb:= Ha _ _ (prodcatmor _ _ α β)). clear Ha.
+           unfold θ_source_mor, θ_target_mor in Hb.
+           simpl in *.
+           assert (HA := nat_trans_eq_pointwise _ _ _ _ _ _ Hb c).
+           apply HA.
+Qed.           
+           
+
+
+   
+Definition θ : θ_source H ⟶ θ_target H.
+Proof.
+  exists θ_ob.
+  apply is_nat_trans_θ_ob.
 Defined.
+
+Lemma SumStrength1 : θ_Strength1 θ.
+Proof.
+  admit.
+Qed.
+
+Lemma SumStrength2 : θ_Strength2 θ.
+Proof.
+  admit.
+Qed.
 
 End sum_of_signatures.
