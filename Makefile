@@ -95,7 +95,8 @@ VFILES:=UnicodeNotations.v\
   ProductPrecategory.v\
   SubstitutionSystems.v\
   PointedFunctors.v\
-  PointedFunctorsComposition.v
+  PointedFunctorsComposition.v\
+  SumOfSignatures.v
 
 -include $(addsuffix .d,$(VFILES))
 .SECONDARY: $(addsuffix .d,$(VFILES))

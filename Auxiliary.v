@@ -5,6 +5,7 @@ Require Import Foundations.hlevel2.hSet.
 Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
 Require Import RezkCompletion.whiskering.
+Require Import RezkCompletion.limits.coproducts.
 Require Import UnicodeNotations.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -74,3 +75,54 @@ Proof.
   - apply weqtoforallpaths.
 Defined.
 End nat_trans_eq.
+
+
+Section Coproducts.
+
+Variable C : precategory.
+Variable CC : Coproducts C.
+Variables a b c d x y : C.
+
+Definition CoproductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y) 
+  : CoproductOfArrows _ (CC a b) (CC c d) f f' ;; 
+    CoproductOfArrows _ (CC _ _) (CC _ _) g g' 
+    =
+    CoproductOfArrows _ (CC _ _) (CC _ _)(f ;; g) (f' ;; g').
+Proof.
+  apply CoproductArrowUnique.
+  - rewrite assoc.
+    rewrite CoproductOfArrowsIn1.
+    rewrite <- assoc.
+    rewrite CoproductOfArrowsIn1.
+    apply assoc.
+  - rewrite assoc.
+    rewrite CoproductOfArrowsIn2.
+    rewrite <- assoc.
+    rewrite CoproductOfArrowsIn2.
+    apply assoc.
+Qed.
+
+Definition CoproductOfArrows_eq (f f' : a ⇒ c) (g g' : b ⇒ d) 
+  : f = f' → g = g' → 
+      CoproductOfArrows _ _ _ f g = CoproductOfArrows _ (CC _ _) (CC _ _) f' g'. 
+Proof.
+  induction 1.
+  induction 1.
+  apply idpath.
+Qed.
+
+Lemma precompWithCoproductArrow_eq  (CCab : CoproductCocone _ a b) 
+    (CCcd : CoproductCocone _ c d) (f : a ⇒ c) (g : b ⇒ d)
+     (k : c ⇒ x) (h : d ⇒ x) (fk : a ⇒ x) (gh : b ⇒ x):
+      fk = f ;; k → gh = g ;; h →
+        CoproductOfArrows _ CCab CCcd f g ;; CoproductArrow _ CCcd k h =
+         CoproductArrow _ CCab (fk) (gh).
+Proof.
+  intros H H'.
+  rewrite H.
+  rewrite H'.
+  apply precompWithCoproductArrow.
+Qed.
+
+End Coproducts.
+
