@@ -195,6 +195,7 @@ Proof.
         
            assert (Ha:= nat_trans_ax θ1).
            assert (Hb:= Ha _ _ (prodcatmor _ _ α β)). clear Ha.
+           simpl in *.
            unfold θ_source_mor, θ_target_mor in Hb.
            simpl in *.
            assert (HA := nat_trans_eq_pointwise _ _ _ _ _ _ Hb c).
@@ -202,6 +203,7 @@ Proof.
            
            assert (Ha:= nat_trans_ax θ2).
            assert (Hb:= Ha _ _ (prodcatmor _ _ α β)). clear Ha.
+           simpl in *.
            unfold θ_source_mor, θ_target_mor in Hb.
            simpl in *.
            assert (HA := nat_trans_eq_pointwise _ _ _ _ _ _ Hb c).

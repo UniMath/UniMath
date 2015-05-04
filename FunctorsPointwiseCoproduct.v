@@ -6,6 +6,7 @@ Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
 Require Import UnicodeNotations.
 Require Import RezkCompletion.limits.coproducts.
+Require Import Auxiliary.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -53,6 +54,10 @@ Proof.
       rewrite functor_id.
       apply id_left.
   - unfold coproduct_functor_mor.
+    do 2 rewrite functor_comp.
+    rewrite <- CoproductOfArrows_comp.
+    apply idpath.
+(* former proof:
     unfold CoproductOfArrows.
     apply pathsinv0.
     apply CoproductArrowUnique.
@@ -72,6 +77,7 @@ Proof.
       repeat rewrite <- assoc.
       apply maponpaths.
       apply CoproductIn2Commutes.
+*)
 Qed.
 
 Definition coproduct_functor : functor C D := tpair _ _ is_functor_coproduct_functor_data.
