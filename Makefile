@@ -1,8 +1,10 @@
 # -*- makefile-gmake -*-
 UMAKEFILES += Makefile
+ifneq "$(INCLUDE)" "no"
 ifeq ($(shell test -f build/Makefile-configuration && echo yes),yes)
 UMAKEFILES += build/Makefile-configuration
 include build/Makefile-configuration
+endif
 endif
 ############################################
 # The packages, listed in reverse order by dependency:
@@ -15,7 +17,9 @@ ifeq ($(BUILD_COQ),yes)
 COQBIN=sub/coq/bin/
 all: build-coq
 endif
--include build/CoqMakefile.make
+ifneq "$(INCLUDE)" "no"
+include build/CoqMakefile.make
+endif
 everything: TAGS all html install
 OTHERFLAGS += -indices-matter
 UniMath/Foundations/hlevel2/algebra1b.vo : OTHERFLAGS += -no-sharing
@@ -58,12 +62,12 @@ publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
 	echo '# End:' ;\
 	) >$@
 # the '' above prevents emacs from mistaking the lines above as providing local variables when visiting this file
-build/CoqMakefile.make: .coq_makefile_input
+build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output $@
 
 clean:clean2 clean-enhanced
-distclean:cleanconfig distclean_coq
+distclean:clean cleanconfig distclean_coq
 clean2:
 	rm -f .coq_makefile_output build/CoqMakefile.make
 	find UniMath \( -name .\*.aux \) -delete
@@ -77,13 +81,13 @@ clean-enhanced:
 # building coq:
 ifeq ($(BUILD_COQ),yes)
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
-build-coq: sub/coq/configure sub/coq/config/coq_config.ml sub/coq/bin/coqc
 sub/coq/configure:
 	git submodule update --init sub/coq
-sub/coq/config/coq_config.ml: sub/coq/configure.ml
+sub/coq/config/coq_config.ml: sub/coq/configure.ml sub/coq/configure
 	cd sub/coq && ./configure -coqide no -opt -no-native-compiler -with-doc no -annotate -debug -local
-sub/coq/bin/coqc:
+sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 	make -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight
+build-coq: sub/coq/bin/coqc
 endif
 
 doc: $(GLOBFILES) $(VFILES) 
