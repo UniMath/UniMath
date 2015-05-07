@@ -16,6 +16,10 @@ BUILD_COQ ?= yes
 ifeq ($(BUILD_COQ),yes)
 COQBIN=sub/coq/bin/
 all: build-coq
+BUILD_COQIDE ?= no
+ifneq ($(BUILD_COQIDE),no)
+all: build-coqide
+endif
 endif
 ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
@@ -84,11 +88,15 @@ export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
 sub/coq/configure:
 	git submodule update --init sub/coq
 sub/coq/config/coq_config.ml: sub/coq/configure.ml sub/coq/configure
-	cd sub/coq && ./configure -coqide no -opt -no-native-compiler -with-doc no -annotate -debug -local
+	cd sub/coq && ./configure -coqide "$(BUILD_COQIDE)" -opt -no-native-compiler -with-doc no -annotate -debug -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 	make -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight
+sub/coq/bin/coqide: sub/coq/config/coq_config.ml
+	make -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
 build-coq: sub/coq/bin/coqc
+build-coqide: sub/coq/bin/coqide
+configure-coq: sub/coq/config/coq_config.ml
 endif
 
 doc: $(GLOBFILES) $(VFILES) 

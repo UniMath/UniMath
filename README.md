@@ -20,7 +20,7 @@ Under Mac OS X, the most convenient way to do that is with "Homebrew",
 available from http://brew.sh/, with the following command:
 
 ```bash
-$ brew install objective-caml camlp5
+$ brew install objective-caml camlp5 lablgtk
 ```
 
 Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
