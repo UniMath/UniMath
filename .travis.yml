@@ -5,5 +5,4 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra 
 
-# run make twice to work around bug in Makefile
-script: make && make
+script: make
