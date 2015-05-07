@@ -1,5 +1,5 @@
 language:       ocaml
 before_install: sudo apt-get update -qq
 install:        sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra 
-script:		make all install
-after_script:	test -f UniMath/Ktheory/Circle.vo -a -f sub/coq/user-contrib/UniMath/Ktheory/Circle.vo
+script:         make all install
+after_script:   test -f UniMath/Ktheory/Circle.vo -a -f sub/coq/user-contrib/UniMath/Ktheory/Circle.vo
