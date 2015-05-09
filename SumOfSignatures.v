@@ -43,7 +43,7 @@ Variable CC : Coproducts C.
 (* should be proved somewhere *)
 
 Local Notation "'CCC'" := (Coproducts_functor_precat C C CC hs : Coproducts [C, C, hs]).
-
+Local Notation "α 'øø' Z" := (# (pre_composition_functor_data _ _ _ hs _ Z) α) (at level 25).
 
 Variables H1 H2 : functor [C, C, hs] [C, C, hs].
 
@@ -317,5 +317,262 @@ Proof.
          assert (Hb := nat_trans_eq_pointwise _ _ _ _ _ _ Ha).
          apply Hb.       
 Qed.
+
+
+Section sum_of_hss.
+
+
+Local Notation "'U'" := (functor_ptd_forget C hs).
+Local Notation "'Ptd'" := (precategory_Ptd C hs).
+Local Notation "'EndC'":= ([C, C, hs]) .
+
+Variable T : hss _ _ H1 θ1.
+
+Definition eta := (ptd_pt _ (pr1 (pr1 T))).
+Definition tau := τ _ _ _ T.
+
+Variable ExtH : H2 (U T) ⇒ U T. 
+
+Variable ExtH_compat : ∀ Z (f : Z ⇒ _ ), 
+  ExtH øø (U Z) ;; fbracket C hs H1 θ1 T f =
+                        θ2 (prodcatpair C hs (U T) Z) ;; # H2 (fbracket C hs H1 θ1 T f) ;; ExtH.
+
+Definition extended_Alg : Alg C hs H.
+Proof.
+  exists (pr1 (pr1 T)).
+  exact (CoproductArrow _ (Coproducts_functor_precat _ _  _ _ _ _ )
+           tau ExtH).
+Defined.
+
+Definition extended_bracket : bracket C hs H θ extended_Alg.
+Proof.
+  unfold bracket.
+  intros Z f.
+  set (X:= fbracket _ _ _ _ T f).
+  assert (X' : # U f =
+      # (pre_composition_functor_data C C C hs hs (U Z))
+        (ptd_pt C (pr1 extended_Alg));; X
+      × θ (prodcatpair C hs (U extended_Alg) Z);; # H X;;
+        τ C hs H extended_Alg =
+        # (pre_composition_functor_data C C C hs hs (U Z))
+          (τ C hs H extended_Alg);; X).
+  { split.
+    - apply fbracket_η.
+    - unfold X.
+      apply nat_trans_eq; try assumption.
+      intro c; simpl.
+      unfold bla1.
+      unfold coproduct_nat_trans_data.
+      simpl.
+      assert (A:= @precompWithCoproductArrow C).
+      assert (B:=A _ _  (CC (pr1 (H1 (pr1 (pr1 (pr1 T)))) ((pr1 Z) c))
+        (pr1 (H2 (pr1 (pr1 (pr1 T)))) ((pr1 Z) c)))).
+        clear A.
+      assert (D:= B _ _  (CC (pr1 (H1 (functor_composite (pr1 Z) (pr1 (pr1 (pr1 T))))) c)
+        (pr1 (H2 (functor_composite (pr1 Z) (pr1 (pr1 (pr1 T))))) c))
+     (pr1 (θ1 (prodcatpair C hs (pr1 (pr1 (pr1 T))) Z)) c)
+     (pr1 (θ2 (prodcatpair C hs (pr1 (pr1 (pr1 T))) Z)) c)).
+        clear B.
+          rewrite D. clear D.
+      unfold coproduct_nat_trans_in1_data.
+      unfold coproduct_nat_trans_in2_data.
+      assert (A:=@precompWithCoproductArrow C).
+      assert (B:= A _ _  (CC ((pr1 (H1 (pr1 (pr1 (pr1 T))))) ((pr1 Z) c))
+        ((pr1 (H2 (pr1 (pr1 (pr1 T))))) ((pr1 Z) c)))).
+       clear A.
+      assert (D:= B _ _ (CC (pr1 (H1 (U T)) c) (pr1 (H2 (U T)) c))).
+        clear B.
+      assert (E:= D  (pr1 (θ1 (prodcatpair C hs (pr1 (pr1 (pr1 T))) Z)) c;;
+                        (pr1 (# H1 (fbracket C hs H1 θ1 T f)) c))
+                     (pr1 (θ2 (prodcatpair C hs (pr1 (pr1 (pr1 T))) Z)) c;;
+                        (pr1 (# H2 (fbracket C hs H1 θ1 T f)) c))
+                       _ 
+                       (tau c) 
+                       (pr1 ExtH c)).
+        clear D.
+      match goal with |[ E : _ = ?x |- _ ] => transitivity x end.
+        repeat rewrite assoc.
+        apply E.
+      clear E. apply pathsinv0.
+      apply CoproductArrowUnique.
+      + assert (A:=CoproductIn1Commutes C). 
+        rewrite assoc.
+        assert (B:= A _ _ (CC ((pr1 (H1 (pr1 (pr1 (pr1 T))))) ((pr1 Z) c))
+        ((pr1 (H2 (pr1 (pr1 (pr1 T))))) ((pr1 Z) c)))).
+        clear A.
+        assert (D:= B _  (tau (pr1 (pr1 (pr1 Z)) c))).
+        simpl in *.
+          assert (E:= D 
+                         (pr1 ExtH (pr1 (pr1 (pr1 Z)) c))).
+         clear B D.
+       match goal with |[ E : _ = ?x |- _ ;; _ ;; ?z = _ ] => transitivity (x ;; z) end.
+        * apply cancel_postcomposition. apply E.
+        * clear E.
+          assert (A:= fbracket_τ _ _ _ _ T f).
+          assert (B:= nat_trans_eq_pointwise _ _ _ _ _ _ A).
+         apply pathsinv0, B.
+     + rewrite assoc.
+        assert (A:=CoproductIn2Commutes C). 
+        assert (B:= A _ _ (CC ((pr1 (H1 (pr1 (pr1 (pr1 T))))) ((pr1 Z) c))
+        ((pr1 (H2 (pr1 (pr1 (pr1 T))))) ((pr1 Z) c)))).
+        clear A.
+        assert (D:= B _  (tau (pr1 (pr1 (pr1 Z)) c))).
+          assert (E:= D 
+                         (pr1 ExtH (pr1 (pr1 (pr1 Z)) c))).
+          clear B D.
+         match goal with |[ E : _ = ?x |- _ ;; _ ;; ?z = _ ] => transitivity (x ;; z) end.
+          * apply cancel_postcomposition. apply E.
+          * clear E.
+            simpl.
+            assert (X0 :  ExtH øø (U Z) ;; fbracket C hs H1 θ1 T f =
+                        θ2 (prodcatpair C hs (U T) Z) ;; # H2 (fbracket C hs H1 θ1 T f) ;; ExtH). 
+            { apply ExtH_compat. }            
+            apply (nat_trans_eq_pointwise _ _ _ _ _ _ X0).
+      }
+  
+    exists (tpair _ X X').
+  
+    intros [t tp].
+    apply total2_paths_second_isaprop.
+  - simpl.
+    apply isapropdirprod.
+    * apply isaset_nat_trans. apply hs.
+    * apply isaset_nat_trans. apply hs.
+  - simpl.
+    unfold X.
+    apply fbracket_unique.
+    + apply (pr1 tp). 
+    + apply nat_trans_eq; try assumption.
+      intro c; simpl.
+      assert (A := nat_trans_eq_pointwise _ _ _ _ _ _ (pr2 tp) c).
+      simpl in A.
+      unfold bla1 in A.
+      unfold coproduct_nat_trans_data in A.
+      
+      admit. (* should follow from "left side" of A *)
+Defined.      
+
+
+Definition extended_hss : hss _ _ H θ.
+Proof.
+  exists extended_Alg.
+  exact extended_bracket.
+Defined.  
+
+End sum_of_hss.
+
+
+
+Section hss_of_sum.
+
+(** Goal of this section was to show that a hss on a sum
+    induces a hss on the components.
+    But that is not true, because substitution on the
+    components cannot proved to be unique
+*)
+
+Local Notation "'U'" := (functor_ptd_forget C hs).
+Local Notation "'Ptd'" := (precategory_Ptd C hs).
+Local Notation "'EndC'":= ([C, C, hs]) .
+
+Variable T : hss _ _ H θ.
+
+Definition eta' := (ptd_pt _ (pr1 (pr1 T))).
+
+Definition tau' := τ _ _ _ T.
+
+Definition inj : H1 (U T) ⇒ H (U T).
+Proof.
+  set (X := @CoproductIn1 _ (H1 (U T)) (H2 (U T))).
+  set (X1 := X (Coproducts_functor_precat _ _ CC _ _ _ )).
+  exact X1.
+Defined.
+  
+Definition H1_Alg : Alg C hs H1.
+Proof.
+  exists (pr1 (pr1 T)).
+  exact (inj ;; tau').
+Defined.
+
+Definition summand_bracket : bracket C hs H1 θ1 H1_Alg.
+Proof.
+  unfold bracket.
+  intros Z f.
+  simpl in f.
+  set (X := fbracket _ hs H θ T f).
+  assert ( X' :  
+      # U f =
+      # (pre_composition_functor_data C C C hs hs (U Z))
+        (ptd_pt C (pr1 H1_Alg));; X
+      × θ1 (prodcatpair C hs (U H1_Alg) Z);; # H1 X;; τ C hs H1 H1_Alg =
+        # (pre_composition_functor_data C C C hs hs (U Z)) (τ C hs H1 H1_Alg);;
+        X).
+  { split.
+    - simpl.
+      set (H3 := fbracket_η C hs H θ T f).
+      exact H3.
+    - set (H3 := fbracket_τ C hs H θ T f).
+      simpl.
+      unfold tau.
+      unfold inj.
+      simpl.
+      apply nat_trans_eq; try assumption.
+      intro c; simpl.
+      unfold coproduct_nat_trans_in1_data.
+      simpl.
+      assert (H3':= nat_trans_eq_weq _ _ hs _ _ _ _ H3 c).
+      clear H3. simpl in H3'.
+      unfold bla1 in H3'. unfold coproduct_nat_trans_data in H3'.
+      simpl in H3'.
+      unfold coproduct_nat_trans_in1_data in H3'.
+      simpl in *.
+      unfold X.
+      
+      match goal with |[H3' : ?z = _ |- _ = ?x ;; _ ;; _ ] =>
+          transitivity (x ;; z) end.
+      Focus 2.
+        repeat rewrite <- assoc.
+        apply maponpaths.
+        repeat rewrite <- assoc in H3'.
+        apply H3'.
+
+      clear H3'.  
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
+      
+      clear X.
+      assert (X:= @CoproductOfArrowsIn1 C ).
+      
+      assert (X1 := X _ _ (CC (pr1 (H1 (U T)) (pr1 (pr1 (pr1 Z)) c))
+                       (pr1 (H2 (U T)) (pr1 (pr1 (pr1 Z)) c)))).
+      assert (X2 := X1 _ _  (CC (pr1 (H1 (functor_composite (pr1 Z) (U T))) c)
+        (pr1 (H2 (functor_composite (pr1 Z) (U T))) c))).
+         clear X X1.
+      rewrite X2. clear X2.
+      repeat rewrite <- assoc.
+      apply maponpaths.
+      rewrite CoproductIn1Commutes.
+      apply idpath.
+  }
+  exists (tpair _ X X').
+  intro t.
+  destruct t as [t tp].
+  apply total2_paths_second_isaprop.
+  + simpl. 
+    apply isapropdirprod.
+    * apply isaset_nat_trans. apply hs.
+    * apply isaset_nat_trans. apply hs.
+  + simpl.
+    unfold X.
+    apply fbracket_unique.
+    * apply (pr1 tp).
+    * Abort. (* here we'd need to say something about H2, but we can't *)
+       
+Definition T' : hss _ _ H1 θ1.
+Proof.
+  exists H1_Alg.
+  Abort.
+
+End hss_of_sum.
 
 End sum_of_signatures.
