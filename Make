@@ -1,4 +1,6 @@
 -R . SubstSystems
+LiftingInitial.v
+ExampleSignatures.v
 SumOfSignatures.v
 PointedFunctorsComposition.v
 PointedFunctors.v

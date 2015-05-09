@@ -96,7 +96,9 @@ VFILES:=UnicodeNotations.v\
   SubstitutionSystems.v\
   PointedFunctors.v\
   PointedFunctorsComposition.v\
-  SumOfSignatures.v
+  SumOfSignatures.v\
+  ExampleSignatures.v\
+  LiftingInitial.v
 
 -include $(addsuffix .d,$(VFILES))
 .SECONDARY: $(addsuffix .d,$(VFILES))
