@@ -47,10 +47,8 @@ To compile the Coq formalizations (in all the packages), issue the following
 shell commands (in this directory).
 
 ```bash
-$ make && make
+$ make
 ```
-(Remark: the Makefile currently has a bug (see [issue #40](https://github.com/UniMath/UniMath/issues/40)), which makes it necessary to call "make" 
-twice - this is done via the command above.)
 
 To create the standard HTML documentation provided by coqdoc:
 ```bash
@@ -125,9 +123,14 @@ In this section we describe some problems that have been encountered during comp
 
 When calling "make", various files are read, some of them not under version control by git. 
 If those files are ill-formed, "make" stops working; in particular, "make" cannot be used to delete and recreate those files.
-When such a situation arises, the solution is to let git do the cleaning, by calling
+When such a situation arises, one solution is to try cleaning everything with this command:
+```bash
+$ make INCLUDE=no distclean
+```
+Another solution is to let git do the cleaning, by running:
 ```bash
 $ git clean -Xdfq
+$ git submodule foreach git clean -Xdfq
 ```
 
 ### MacOS
