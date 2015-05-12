@@ -200,7 +200,7 @@ Definition makeGH_diagonalLoop_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T)
 Proof. intros. unfold makeGH_diagonalLoop.
        refine (ap_natl (makeGH_transPath_comp1 _ _ _) _).
        refine (ap_natl (makeGH_localPath_comp1 _ _ _ _) _).
-       rewrite <- (pathscomp0rid (paths_rect _ (fun b _ => b = T) _ _ q)). (* Used to be "rewrite <- (pathscomp0rid (! q))", which was more perspicuous. *)
+       rewrite <- (pathscomp0rid (paths_rect _ _ (fun b _ => b = T) _ _ q)). (* Used to be "rewrite <- (pathscomp0rid (! q))", which was more perspicuous. *)
        refine (ap_natl' (makeGH_horizontalPath_comp1 _ _ _ _) _).
        rewrite <- (pathscomp0rid (idpath T)).
        refine (ap_natl (makeGH_localPath_comp1 _ _ _ _) _).
@@ -251,7 +251,7 @@ Print Assumptions circle_map_check_paths.
 
 Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)} 
            (l:circle_loop#y = y) : forall c:circle, Y c.
-Proof. (** (not proved yet) *) admit. Defined.
+Proof. (** (not proved yet) *) admit. Admitted.
 
 (* One approach to the theorem above would be through the results of the paper
  "Higher Inductive Types as Homotopy-Initial Algebras", by Kristina Sojakova,
