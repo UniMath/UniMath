@@ -355,7 +355,7 @@ Proof. intros.
                                         ℤTorsorRecursionEquiv (fun t : T => y = f t)
                                                               (fun t : T => weq_pathscomp0r y (s t)) t0))
                       (iscontrcoconustot Y (f t0))) 
-                : @identity (GHomotopy f s (f t0)) _ _).
+                : @paths (GHomotopy f s (f t0)) _ _).
        refine (apevalat t0 (ap pr1 ((idpath _ :
                          (pr2
                             (the

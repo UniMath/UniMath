@@ -68,7 +68,7 @@ Definition pr1_GH_weq {Y} {y:Y} {l:y = y} : weq (GH l) (Torsor ℤ) := weqpr1_ir
 
 Definition homotinvweqweq_GH_comp {Y} {y:Y} {l:y = y}
            (T:Torsor ℤ) (gh:ZGuidedHomotopy l T) : 
-  @identity (@identity (GH l)
+  @paths (@paths (GH l)
              (invweq (@pr1_GH_weq _ _ l) T) (T,,gh))
             (homotinvweqweq' irr sec (T,,gh))
             (@pair_path_in2 _ (ZGuidedHomotopy l) 
@@ -91,7 +91,7 @@ Proof. intros. destruct w. reflexivity. Defined.
 Definition pr1_GH_weq_compute {Y} {y:Y} (l:y = y) :
   let T0 := trivialTorsor ℤ in 
   let t0 := 0 : T0 in 
-    @identity (y = y)
+    @paths (y = y)
               (ap pr12_GH (homotinvweqweq' irr sec (makeGH1 l T0 t0)))
               (idpath y).
 Proof. intros.
