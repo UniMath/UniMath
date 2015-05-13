@@ -26,11 +26,9 @@ OTHERFLAGS += -indices-matter -type-in-type
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
-# TIME = time
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
 COQDOC := $(COQDOC) -utf8
-COQC = $(TIME) $(COQBIN)coqc
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\2/'
 TAGS : $(VFILES); etags $(COQDEFS) $^
 install:all

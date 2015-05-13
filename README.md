@@ -79,12 +79,12 @@ The path to that directory from here, by default, is ./sub/coq/user-contrib/.
 
 ### Measuring compilation time
 
-To obtain information about the compilation time of each file, uncomment the line `#TIME = time` in the Makefile. 
-This leads to each call to `coqc` being wrapped in the `time` command, as in
-```
-$ time coqc foo.v
-```
-For this to work, you need the "time" utility installed on your system.
+To obtain information about the compilation time of each file, add
+```TIMED=yes``` to the ```make``` command line.  For this to work, you need the
+GNU "time" utility installed on your system in ```/usr/bin```.  Alternatively,
+add ```TIMECMD=time``` to the ```make``` command line, where ```time``` is a
+time command that works on your system.  Under Mac OS X, you can install GNU
+time as ```gtime``` by running ```brew install gnu-time```.
 
 Timing of execution of individual tactics and vernacular commands can be obtained by
 ```bash
