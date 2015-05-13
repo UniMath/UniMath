@@ -82,19 +82,24 @@ Qed.
 Definition slice_precategory (hsC : has_homsets C) : precategory :=
   tpair _ (is_precategory_slice_precategory_data hsC).
 
-(* Is this true? *)
-Lemma test (hsC : has_homsets C) : has_homsets (slice_precategory hsC).
+Lemma isasetisofhlevelssz (X : UU) : isofhlevel (S (S O)) X -> isaset X.
+Proof.
+  unfold isaset; unfold isaprop; trivial.
+Qed.
+
+Lemma has_homsets_slice_precategory (hsC : has_homsets C) :
+  has_homsets (slice_precategory hsC).
 Proof.
 unfold has_homsets; intros a b.
-case a; clear a; intros a f.
-case b; clear b; intros b g.
-simpl.
+case a; clear a; intros a f; case b; clear b; intros b g; simpl.
 unfold slicecat_mor; simpl.
-unfold isaset.
-admit.
+apply isasetisofhlevelssz.
+apply isofhleveltotal2.
+  apply hsC.
+intro h.
+apply hlevelntosn.
+apply hsC.
 Qed.
 
 End slicecat_def.
-
-Check slice_precategory.
 
