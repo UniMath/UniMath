@@ -1,3 +1,6 @@
+
+Unset Kernel Term Sharing.
+
 (** * Construction of affine lines 
 
  We show that the propositional truncation of a ℤ-torsor, where ℤ

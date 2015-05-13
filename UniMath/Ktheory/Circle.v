@@ -1,3 +1,6 @@
+
+Unset Kernel Term Sharing.
+
 (** * Construction of the circle *)
 
 (** We will show that [B ℤ] has the universal property of the circle. *)
