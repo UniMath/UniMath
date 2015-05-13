@@ -81,9 +81,9 @@ clean-enhanced:
 # building coq:
 ifeq ($(BUILD_COQ),yes)
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
-sub/coq/configure:
+sub/coq/configure sub/coq/configure.ml:
 	git submodule update --init sub/coq
-sub/coq/config/coq_config.ml: sub/coq/configure.ml sub/coq/configure
+sub/coq/config/coq_config.ml: sub/coq/configure sub/coq/configure.ml
 	cd sub/coq && ./configure -coqide no -opt -no-native-compiler -with-doc no -annotate -debug -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
