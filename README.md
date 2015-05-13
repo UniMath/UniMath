@@ -132,6 +132,10 @@ Another solution is to let git do the cleaning, by running:
 $ git clean -Xdfq
 $ git submodule foreach git clean -Xdfq
 ```
+The Makefile provides this pair of commands, too:
+```bash
+$ make INCLUDE=no git-clean
+```
 
 ### MacOS
 

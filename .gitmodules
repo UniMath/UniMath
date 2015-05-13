@@ -1,4 +1,4 @@
 [submodule "sub/coq"]
 	path = sub/coq
-	url = https://github.com/DanGrayson/coq.git
-	branch = trunk-patched
+	url = https://github.com/coq/coq.git
+	branch = trunk
