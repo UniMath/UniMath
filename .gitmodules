@@ -1,4 +1,4 @@
 [submodule "sub/coq"]
 	path = sub/coq
 	url = https://github.com/coq/coq.git
-	branch = trunk
+	branch = v8.5
