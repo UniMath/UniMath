@@ -1,6 +1,6 @@
 language:       ocaml
 before_install: sudo apt-get update -qq
-install:        sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra 
+install:        sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra time
 script:
   - time make build-coq
   - time make TIMECMD=time all
