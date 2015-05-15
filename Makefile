@@ -12,6 +12,7 @@ PACKAGES += Ktheory
 PACKAGES += RezkCompletion
 PACKAGES += Foundations
 ############################################
+.PHONY: all everything install lc lcp wc describe publish-dan clean clean2 distclean distclean_coq cleanconfig clean-enhanced git-clean build-coq doc
 BUILD_COQ ?= yes
 ifeq ($(BUILD_COQ),yes)
 COQBIN=sub/coq/bin/
@@ -21,21 +22,13 @@ ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
 endif
 everything: TAGS all html install
-OTHERFLAGS += -indices-matter
-UniMath/Foundations/hlevel2/algebra1b.vo : OTHERFLAGS += -no-sharing
+OTHERFLAGS += -indices-matter -type-in-type
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
-# later: see exactly which files need -no-sharing
-NO_SHARING = yes
-ifeq ($(NO_SHARING),yes)
-OTHERFLAGS += -no-sharing
-endif
-# TIME = time
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
 COQDOC := $(COQDOC) -utf8
-COQC = $(TIME) $(COQBIN)coqc
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\2/'
 TAGS : $(VFILES); etags $(COQDEFS) $^
 install:all
@@ -66,7 +59,8 @@ build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output $@
 
-clean:clean2 clean-enhanced
+# "clean::" occurs also in build/CoqMakefile.make
+clean:: clean2 clean-enhanced
 distclean:clean cleanconfig distclean_coq
 clean2:
 	rm -f .coq_makefile_output build/CoqMakefile.make
@@ -90,6 +84,10 @@ sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 	make -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight
 build-coq: sub/coq/bin/coqc
 endif
+
+git-clean:
+	git clean -Xdfq
+	git submodule foreach git clean -Xdfq
 
 doc: $(GLOBFILES) $(VFILES) 
 	mkdir -p $(ENHANCEDDOCTARGET)
