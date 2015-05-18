@@ -1,11 +1,11 @@
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.hlevel1.hProp.
+Require Import UniMath.Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.precategories.
-Require Import RezkCompletion.functors_transformations.
+Require Import UniMath.RezkCompletion.precategories.
+Require Import UniMath.RezkCompletion.functors_transformations.
 Require Import UnicodeNotations.
-Require Import RezkCompletion.whiskering.
+Require Import UniMath.RezkCompletion.whiskering.
 Require Import SubstSystems.Auxiliary.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).

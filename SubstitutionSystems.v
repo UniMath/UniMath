@@ -1,12 +1,12 @@
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.hlevel1.hProp.
+Require Import UniMath.Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.precategories.
-Require Import RezkCompletion.functors_transformations.
+Require Import UniMath.RezkCompletion.precategories.
+Require Import UniMath.RezkCompletion.functors_transformations.
 Require Import SubstSystems.UnicodeNotations.
-Require Import RezkCompletion.whiskering.
-Require Import RezkCompletion.Monads.
+Require Import UniMath.RezkCompletion.whiskering.
+Require Import UniMath.RezkCompletion.Monads.
 Require Import SubstSystems.Auxiliary.
 Require Import SubstSystems.PointedFunctors.
 Require Import SubstSystems.ProductPrecategory.
@@ -152,7 +152,8 @@ Proof.
     unfold θ_target_mor.
     set (T:=functor_comp H _ _ _ (pr1 α ∙∙ # U (pr2 α)) (pr1 β ∙∙ # U (pr2 β))).
     simpl in *.
-    etransitivity.
+    match goal with |[ H :  ?f = _ |- _ ] => transitivity f end.
+(*    etransitivity. *)
     Focus 2.
       apply T. 
     apply maponpaths. clear T.
