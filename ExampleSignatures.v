@@ -1,15 +1,15 @@
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.hlevel1.hProp.
+Require Import UniMath.Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.precategories.
-Require Import RezkCompletion.functors_transformations.
+Require Import UniMath.RezkCompletion.precategories.
+Require Import UniMath.RezkCompletion.functors_transformations.
 Require Import SubstSystems.UnicodeNotations.
-Require Import RezkCompletion.whiskering.
-Require Import RezkCompletion.Monads.
-Require Import RezkCompletion.limits.products.
-Require Import RezkCompletion.limits.coproducts.
-Require Import RezkCompletion.limits.initial.
+Require Import UniMath.RezkCompletion.whiskering.
+Require Import UniMath.RezkCompletion.Monads.
+Require Import UniMath.RezkCompletion.limits.products.
+Require Import UniMath.RezkCompletion.limits.coproducts.
+Require Import UniMath.RezkCompletion.limits.initial.
 Require Import SubstSystems.Auxiliary.
 Require Import SubstSystems.PointedFunctors.
 Require Import SubstSystems.ProductPrecategory.

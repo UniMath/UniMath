@@ -665,7 +665,7 @@ Proof.
   unfold T_squared. simpl.
   set (H':=Monad_law_2_from_hss c).
   simpl in H'.
-  transitivity (η c ;; identity _ ).
+  pathvia (η c ;; identity _ ).
   - repeat rewrite <- assoc.
     apply maponpaths.
     apply H'.
@@ -1057,7 +1057,7 @@ Proof.
     rewrite functor_id.
     rewrite id_left.
     set (H2 := id_right ([C,C,hs])).
-    symmetry. apply H2.
+    apply pathsinv0, H2.
   - unfold isbracketMor.
     intros Z f.
     rewrite functor_id.

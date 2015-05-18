@@ -1,15 +1,15 @@
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.hlevel1.hProp.
+Require Import UniMath.Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.precategories.
-Require Import RezkCompletion.functors_transformations.
+Require Import UniMath.RezkCompletion.precategories.
+Require Import UniMath.RezkCompletion.functors_transformations.
 Require Import SubstSystems.UnicodeNotations.
-Require Import RezkCompletion.whiskering.
-Require Import RezkCompletion.Monads.
-Require Import RezkCompletion.limits.products.
-Require Import RezkCompletion.limits.coproducts.
-Require Import RezkCompletion.limits.initial.
+Require Import UniMath.RezkCompletion.whiskering.
+Require Import UniMath.RezkCompletion.Monads.
+Require Import UniMath.RezkCompletion.limits.products.
+Require Import UniMath.RezkCompletion.limits.coproducts.
+Require Import UniMath.RezkCompletion.limits.initial.
 Require Import SubstSystems.Auxiliary.
 Require Import SubstSystems.PointedFunctors.
 Require Import SubstSystems.ProductPrecategory.
@@ -97,7 +97,7 @@ Proof.
   rewrite functor_id.
   rewrite id_left.
   set (H2 := id_right ([C,C,hs])).
-  symmetry. apply H2.
+  apply pathsinv0, H2.
 Qed.
 
 Definition AlgMor_id (A : Alg_obj) : Alg_mor A A := tpair _ _ (isAlgMor_id A).
@@ -156,7 +156,7 @@ Definition bracket_for_InitAlg : bracket _ _ H θ InitAlg.
 Proof.
   intros F α.
   admit.
-Defined.
+Admitted.
 
 Definition InitHSS : hss_precategory C hs H θ.
 Proof.
@@ -167,7 +167,7 @@ Defined.
 Lemma isInitial_InitHSS : isInitial (hss_precategory C hs H θ) InitHSS.
 Proof.
   admit.
-Defined.
+Admitted.
 
 Lemma Ihss : Initial (hss_precategory C hs H θ).
 Proof.
