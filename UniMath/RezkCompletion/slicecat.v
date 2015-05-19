@@ -5,6 +5,7 @@ Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
 Require Import RezkCompletion.precategories.
+Require Import RezkCompletion.functors_transformations.
 
 Local Notation "a --> b" := (precategory_morphisms a b) (at level 50, left associativity).
 Local Notation "f ;; g"  := (compose f g) (at level 50, format "f  ;;  g").
@@ -44,7 +45,7 @@ Definition slice_precat_ob_mor : precategory_ob_mor :=
 Definition id_slice_precat (c : slice_precat_ob_mor) : c --> c :=
   tpair _ _ (id_left _ _ _ (pr2 c)).
 
-Definition comp_slice_precat' (a b c : slice_precat_ob_mor)
+Definition comp_slice_precat_subproof (a b c : slice_precat_ob_mor)
   (f : a --> b) (g : b --> c) : (pr1 f ;; pr1 g) ;; pr2 c = pr2 a.
 Proof.
 rewrite <- assoc, (pr2 g).
@@ -53,7 +54,7 @@ Qed.
 
 Definition comp_slice_precat (a b c : slice_precat_ob_mor)
                              (f : a --> b) (g : b --> c) : a --> c :=
-  tpair _ (pr1 f ;; pr1 g) (comp_slice_precat' a b c f g).
+  tpair _ (pr1 f ;; pr1 g) (comp_slice_precat_subproof _ _ _ _ _).
 
 Definition slice_precat_data : precategory_data :=
   precategory_data_pair _ id_slice_precat comp_slice_precat.
@@ -192,3 +193,35 @@ apply eq_mor_slicecat; trivial.
 Qed.
 
 End slicecat_theory.
+
+(* Any morphism x --> y in the base category induces a functor between
+   the slice categories C/x and C/y *)
+Section slicecat_functor.
+
+Variable C : precategory.
+Variable hsC : has_homsets C.
+Variable x y : C.
+Variable f : x --> y.
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Definition slicecat_functor_ob (af : C / x) : C / y :=
+  tpair _ (pr1 af) (pr2 af ;; f).
+
+Lemma slicecat_functor_subproof (af bg : C / x) (h : af --> bg) :
+  pr1 h ;; (pr2 bg ;; f) = pr2 af ;; f.
+Proof. rewrite assoc, (pr2 h); apply idpath. Qed.
+
+Definition slicecat_functor_data : functor_data (C / x) (C / y) :=
+  tpair (fun F => forall a b, a --> b -> F a --> F b)
+        slicecat_functor_ob
+        (fun a b h => tpair _ (pr1 h) (slicecat_functor_subproof _ _ h)).
+
+Lemma is_functor_slicecat_functor : is_functor slicecat_functor_data.
+Proof. split; intros; apply eq_mor_slicecat; apply idpath. Qed.
+
+Definition slicecat_functor : functor (C / x) (C / y) :=
+  tpair _ _ is_functor_slicecat_functor.
+
+End slicecat_functor.
+
