@@ -196,7 +196,7 @@ End slicecat_theory.
 
 (* Any morphism x --> y in the base category induces a functor between
    the slice categories C/x and C/y *)
-Section slicecat_functor.
+Section slicecat_functor_def.
 
 Variable C : precategory.
 Variable hsC : has_homsets C.
@@ -224,4 +224,85 @@ Definition slicecat_functor : functor (C / x) (C / y) :=
   tpair _ _ is_functor_slicecat_functor.
 
 End slicecat_functor.
+
+End slicecat_functor_def.
+
+Section slicecat_functor_theory.
+
+Variable C : precategory.
+Variable hsC : has_homsets C.
+
+Local Notation "C / X" := (slice_precat C X hsC).
+
+Lemma slicecat_functor_identity_ob (x : C) :
+  slicecat_functor_ob C hsC x x (identity x) = functor_identity (C / x).
+Proof.
+apply funextsec; intro af.
+unfold slicecat_functor_ob.
+rewrite id_right, tppr.
+apply idpath.
+Defined.
+
+Lemma slicecat_functor_identity (x : C) :
+  slicecat_functor _ _ _ _ (identity x) = functor_identity (C / x).
+Proof.
+apply (functor_eq _ _ (has_homsets_slice_precat _ _ _)); simpl.
+apply (total2_paths2 (slicecat_functor_identity_ob _)).
+apply funextsec; intro a; case a; clear a; intros a f.
+apply funextsec; intro b; case b; clear b; intros b g.
+apply funextsec; intro h; case h; clear h; intros h hh.
+rewrite transport_of_functor_map_is_pointwise; simpl in *.
+unfold slicecat_mor.
+rewrite transportf_total2.
+apply total2_paths2_second_isaprop; [| apply hsC ].
+rewrite transportf_total2; simpl.
+unfold slicecat_functor_identity_ob.
+rewrite toforallpaths_funextsec; simpl.
+case (id_right C a x f).
+case (id_right C b x g).
+apply idpath.
+Qed.
+
+Lemma slicecat_functor_comp_ob (x y z : C) (f : x --> y) (g : y --> z) :
+  slicecat_functor_ob C hsC x z (f ;; g) =
+       (fun a : slicecat_ob C x =>
+        slicecat_functor_ob C hsC y z g (slicecat_functor_ob C hsC x y f a)).
+Proof.
+apply funextsec; intro af.
+unfold slicecat_functor_ob; simpl.
+rewrite assoc; apply idpath.
+Defined.
+
+Lemma slicecat_functor_comp (x y z : C) (f : x --> y) (g : y --> z) :
+  slicecat_functor _ hsC _ _ (f ;; g) = 
+  functor_composite _ _ _ (slicecat_functor _ _ _ _ f) (slicecat_functor _ _ _ _ g).
+Proof.
+apply (functor_eq _ _ (has_homsets_slice_precat _ _ _)); simpl.
+unfold slicecat_functor_data; simpl.
+unfold functor_composite_data; simpl.
+apply (total2_paths2 (slicecat_functor_comp_ob _ _ _ _ _)).
+apply funextsec; intro a; case a; clear a; intros a fax.
+apply funextsec; intro b; case b; clear b; intros b fbx.
+apply funextsec; intro h; case h; clear h; intros h hh.
+rewrite transport_of_functor_map_is_pointwise; simpl in *.
+unfold slicecat_mor.
+rewrite transportf_total2.
+apply total2_paths2_second_isaprop; [| apply hsC ].
+rewrite transportf_total2; simpl.
+unfold slicecat_functor_comp_ob.
+rewrite toforallpaths_funextsec; simpl.
+unfold uu0a.internal_paths_rew_r.
+simpl.
+case (assoc C a x y z fax f g).
+case (assoc C b x y z fbx f g).
+case (id_right C b x g).
+apply idpath.
+
+
+
+
+
+
+
+End slicecat_functor_theory.
 
