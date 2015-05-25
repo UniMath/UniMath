@@ -44,7 +44,7 @@ Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 
