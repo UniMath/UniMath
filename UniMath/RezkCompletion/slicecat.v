@@ -273,6 +273,7 @@ unfold slicecat_functor_ob; simpl.
 rewrite assoc; apply idpath.
 Defined.
 
+(* This proof is not so nice... *)
 Lemma slicecat_functor_comp (x y z : C) (f : x --> y) (g : y --> z) :
   slicecat_functor _ hsC _ _ (f ;; g) = 
   functor_composite _ _ _ (slicecat_functor _ _ _ _ f) (slicecat_functor _ _ _ _ g).
@@ -291,18 +292,21 @@ apply total2_paths2_second_isaprop; [| apply hsC ].
 rewrite transportf_total2; simpl.
 unfold slicecat_functor_comp_ob.
 rewrite toforallpaths_funextsec; simpl.
-unfold uu0a.internal_paths_rew_r.
-simpl.
-case (assoc C a x y z fax f g).
-case (assoc C b x y z fbx f g).
-case (id_right C b x g).
-apply idpath.
-
-
-
-
-
-
+assert (H1 : transportf (fun x : C / z => pr1 x --> b)
+               (uu0a.internal_paths_rew_r _ _ _
+                 (fun p => tpair _ a p = tpair _ a _) (idpath (tpair _ a _))
+                 (assoc C a x y z fax f g)) h = h).
+  case (assoc C a x y z fax f g); apply idpath.
+assert (H2 : forall h', h' = h ->
+             transportf (fun x : C / z => a --> pr1 x)
+                        (uu0a.internal_paths_rew_r _ _ _
+                           (fun p => tpair _ b p = tpair _ b _) (idpath _)
+                           (assoc C b x y z fbx f g)) h' = h).
+  intros h' eq.
+  case (assoc C b x y z fbx f g); rewrite eq; apply idpath.
+apply H2.
+assumption.
+Qed.
 
 End slicecat_functor_theory.
 
