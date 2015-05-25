@@ -2,6 +2,7 @@
 
 Require Import Ktheory.Utilities.
 Require Import RezkCompletion.precategories 
+               RezkCompletion.opp_precat
                RezkCompletion.yoneda
                RezkCompletion.category_hset
                RezkCompletion.functors_transformations
