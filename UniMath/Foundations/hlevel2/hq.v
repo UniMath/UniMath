@@ -13,6 +13,7 @@ In this file we introduce the type [ hq ] of rationals defined as the quotient s
 
 Unset Automatic Introduction. (** This line has to be removed for the file to compile with Coq8.2 *)
 
+Unset Kernel Term Sharing.
 
 (** Imports *)
 
