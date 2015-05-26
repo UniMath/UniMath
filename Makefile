@@ -60,7 +60,7 @@ build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
 	mv .coq_makefile_output $@
 
 # "clean::" occurs also in build/CoqMakefile.make
-clean:: clean2 clean-enhanced
+# clean:: clean2 clean-enhanced
 distclean:clean cleanconfig distclean_coq
 clean2:
 	rm -f .coq_makefile_output build/CoqMakefile.make

@@ -1,0 +1,2 @@
+UniMath/Ktheory/Primitive.vo UniMath/Ktheory/Primitive.glob UniMath/Ktheory/Primitive.v.beautified: UniMath/Ktheory/Primitive.v UniMath/Ktheory/Utilities.vo UniMath/Ktheory/Precategories.vo UniMath/RezkCompletion/precategories.vo UniMath/RezkCompletion/auxiliary_lemmas_HoTT.vo UniMath/Foundations/hlevel2/hSet.vo
+UniMath/Ktheory/Primitive.vi: UniMath/Ktheory/Primitive.v UniMath/Ktheory/Utilities.vi UniMath/Ktheory/Precategories.vi UniMath/RezkCompletion/precategories.vi UniMath/RezkCompletion/auxiliary_lemmas_HoTT.vi UniMath/Foundations/hlevel2/hSet.vi
