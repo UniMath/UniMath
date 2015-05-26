@@ -412,9 +412,14 @@ Hint Resolve natplusr0: natarith .
 Lemma natplusnsm ( n m : nat ) :  n + S m = S n + m .
 Proof. intro . simpl . induction n as [ | n IHn ] .  auto with natarith . simpl . intro . apply ( maponpaths S ( IHn m ) ) .  Defined . 
 Hint Resolve natplusnsm : natarith .
-
+Hint Resolve pathsinv0 : natarith.
 Lemma natpluscomm ( n m : nat ) : n + m = m + n .
-Proof. intro. induction n as [ | n IHn ] . intro . auto with natarith .  intro .  set ( int := IHn ( S m ) ) . set ( int2 := pathsinv0 ( natplusnsm n m ) ) . set ( int3 := pathsinv0 ( natplusnsm m n ) ) .  set ( int4 := pathscomp0 int2 int  ) .  apply ( pathscomp0 int4 int3 ) . Defined . 
+Proof. intro. induction n as [ | n IHn ] . 
+  - intro . 
+    (*apply pathsinv0.*)
+    (*apply natplusr0.*)
+    auto with natarith .  
+  - intro .  set ( int := IHn ( S m ) ) . set ( int2 := pathsinv0 ( natplusnsm n m ) ) . set ( int3 := pathsinv0 ( natplusnsm m n ) ) .  set ( int4 := pathscomp0 int2 int  ) .  apply ( pathscomp0 int4 int3 ) . Defined . 
 Hint Resolve natpluscomm : natarith . 
 
 Lemma natplusassoc ( n m k : nat ) : paths ( ( n + m ) + k ) ( n + ( m + k ) ) .

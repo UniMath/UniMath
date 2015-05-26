@@ -47,10 +47,8 @@ To compile the Coq formalizations (in all the packages), issue the following
 shell commands (in this directory).
 
 ```bash
-$ make && make
+$ make
 ```
-(Remark: the Makefile currently has a bug (see [issue #40](https://github.com/UniMath/UniMath/issues/40)), which makes it necessary to call "make" 
-twice - this is done via the command above.)
 
 To create the standard HTML documentation provided by coqdoc:
 ```bash
@@ -81,12 +79,12 @@ The path to that directory from here, by default, is ./sub/coq/user-contrib/.
 
 ### Measuring compilation time
 
-To obtain information about the compilation time of each file, uncomment the line `#TIME = time` in the Makefile. 
-This leads to each call to `coqc` being wrapped in the `time` command, as in
-```
-$ time coqc foo.v
-```
-For this to work, you need the "time" utility installed on your system.
+To obtain information about the compilation time of each file, add
+```TIMED=yes``` to the ```make``` command line.  For this to work, you need the
+GNU "time" utility installed on your system in ```/usr/bin```.  Alternatively,
+add ```TIMECMD=time``` to the ```make``` command line, where ```time``` is a
+time command that works on your system.  Under Mac OS X, you can install GNU
+time as ```gtime``` by running ```brew install gnu-time```.
 
 Timing of execution of individual tactics and vernacular commands can be obtained by
 ```bash
@@ -125,9 +123,18 @@ In this section we describe some problems that have been encountered during comp
 
 When calling "make", various files are read, some of them not under version control by git. 
 If those files are ill-formed, "make" stops working; in particular, "make" cannot be used to delete and recreate those files.
-When such a situation arises, the solution is to let git do the cleaning, by calling
+When such a situation arises, one solution is to try cleaning everything with this command:
+```bash
+$ make INCLUDE=no distclean
+```
+Another solution is to let git do the cleaning, by running:
 ```bash
 $ git clean -Xdfq
+$ git submodule foreach git clean -Xdfq
+```
+The Makefile provides this pair of commands, too:
+```bash
+$ make INCLUDE=no git-clean
 ```
 
 ### MacOS
