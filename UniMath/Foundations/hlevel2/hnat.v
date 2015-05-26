@@ -675,7 +675,7 @@ Proof . intro n. induction n as [ | n IHn ] . intro. apply isreflnatleh .
 
 Defined.
 
-Definition natminusgehn ( n m : nat ) : n >= n - m :
+Definition natminusgehn ( n m : nat ) : n >= n - m :=
   natminuslehn _ _ . 
 
 Definition natminuslthn ( n m : nat ) ( is : n > 0 ) ( is' : m > 0 ) :  n - m < n .
