@@ -75,8 +75,8 @@ Proof.
          (functor_on_iso_is_iso _ _ _ _ _ f)).
       repeat rewrite nat_trans_ax.
       change (gamma (H a)) with (pr1 gamma ((pr1 H) a)).
-      simp_rew (nat_trans_eq_pointwise _ _ _ _ _ _ ex a).
-      apply idpath.
+      apply cancel_postcomposition.
+      apply (nat_trans_eq_pointwise _ _ _ _ _ _ ex a).
 Qed.
   
 
@@ -319,7 +319,7 @@ Proof.
   apply is_nat_trans_pdelta.
 Defined.
 
-Lemma pdelta_preimage : pre_whisker _ _ _ hsB hsC  H _ _ delta = gamma.
+Lemma pdelta_preimage : pre_whisker  H delta = gamma.
 Proof.
   simpl in *.
   apply nat_trans_eq; intro a.
