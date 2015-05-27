@@ -1,6 +1,3 @@
-
-Unset Kernel Term Sharing.
-
 (** * Construction of affine lines 
 
  We show that the propositional truncation of a ℤ-torsor, where ℤ
@@ -355,7 +352,7 @@ Proof. intros.
                                         ℤTorsorRecursionEquiv (fun t : T => y = f t)
                                                               (fun t : T => weq_pathscomp0r y (s t)) t0))
                       (iscontrcoconustot Y (f t0))) 
-                : @paths (GHomotopy f s (f t0)) _ _).
+                : @identity (GHomotopy f s (f t0)) _ _).
        refine (apevalat t0 (ap pr1 ((idpath _ :
                          (pr2
                             (the

@@ -11,7 +11,7 @@ Definition unitFunctor_data (C:precategory)
      : functor_data (Precategories.Precategory.obmor C) (Precategories.Precategory.obmor SET).
   intros. refine (tpair _ _ _).
   intros. exact Sets.unit. intros. exact (idfun _). Defined.
-Definition unitFunctor (C:precategory) : C ==> SET.
+Definition unitFunctor C : C ==> SET.
   intros. exists (unitFunctor_data C).
   split. reflexivity. reflexivity. Defined.
 Definition InitialObject (C:precategory) := Representation.Data (unitFunctor C).

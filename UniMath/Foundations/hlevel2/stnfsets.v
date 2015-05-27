@@ -106,7 +106,7 @@ Lemma iscontrhfiberdni ( n : nat ) ( i j : stn ( S n ) ) ( ne : neg ( paths i j 
 Proof . intros . set ( ne' := negf ( invmaponpathsincl _ ( isinclstntonat ( S n ) ) _ _ ) ne ) .  apply ( iscontrweqb ( weqhfiberdnihfiberdi n i j ) ( iscontrhfiberdi i j ne' ) ) .  Defined . 
 
 Lemma isdecincldni ( n : nat ) ( i : stn ( S n ) ) : isdecincl ( dni n i ) .
-Proof.  intros . intro j . destruct ( isdeceqstn _ i j ) as [i0|] . rewrite i0 .  apply ( isdecpropfromneg ( neghfiberdni n j ) ) . apply ( isdecpropfromiscontr ( iscontrhfiberdni _ _ _ e ) ) .  Defined . 
+Proof.  intros . intro j . destruct ( isdeceqstn _ i j ) . rewrite i0 .  apply ( isdecpropfromneg ( neghfiberdni n j ) ) . apply ( isdecpropfromiscontr ( iscontrhfiberdni _ _ _ e ) ) .  Defined . 
  
 Lemma isincldni ( n : nat ) ( i : stn ( S n ) ) : isincl ( dni n i ) .
 Proof. intros . apply ( isdecincltoisincl _  ( isdecincldni n i ) ) .  Defined . 
@@ -127,7 +127,7 @@ Definition dnitocompl ( n : nat ) ( i : stn ( S n ) ) ( j : stn n ) : compl ( st
 Proof. intros . split with ( dni n i j ) .  intro e .  apply ( neghfiberdni n i ( hfiberpair _ j ( pathsinv0 e ) ) ) .  Defined .
 
 Lemma isweqdnitocompl  ( n : nat ) ( i : stn ( S n ) ) : isweq ( dnitocompl n i ) .
-Proof. intros . intro jni . destruct jni as [ j ni ] . set ( jni := complpair _ i j ni ) .  destruct ( isdeceqnat i j ) as [i0|] .  destruct ( ni ( invmaponpathsincl _ ( isinclstntonat _ ) _ _ i0 ) ) .  set ( w := samehfibers ( dnitocompl n i )  _ ( isinclpr1compl _ i ) jni ) .   simpl in w . assert ( is : iscontr (hfiber (fun x : stn n => dni n i x) j) ) . apply iscontrhfiberdni .  assumption . apply ( iscontrweqb w is ) .  Defined . 
+Proof. intros . intro jni . destruct jni as [ j ni ] . set ( jni := complpair _ i j ni ) .  destruct ( isdeceqnat i j )  .  destruct ( ni ( invmaponpathsincl _ ( isinclstntonat _ ) _ _ i0 ) ) .  set ( w := samehfibers ( dnitocompl n i )  _ ( isinclpr1compl _ i ) jni ) .   simpl in w . assert ( is : iscontr (hfiber (fun x : stn n => dni n i x) j) ) . apply iscontrhfiberdni .  assumption . apply ( iscontrweqb w is ) .  Defined . 
 
 
 Definition weqdnicompl ( n : nat ) ( i : stn ( S n ) ) := weqpair _ ( isweqdnitocompl n i ) . 
