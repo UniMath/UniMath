@@ -851,7 +851,7 @@ Proof.
   destruct A as [A Aiso].
   simpl in *.
   pathvia 
-    (inv_from_iso (functor_iso_pointwise_if_iso C D _ F G A Aiso a) ;;
+    (inv_from_iso (functor_iso_pointwise_if_iso C D hs F G A Aiso a) ;;
        (A a ;; #G f)).
   rewrite <- assoc.
   apply maponpaths.
@@ -923,7 +923,7 @@ Proof.
        (idtoiso
           (toforallpaths (fun _ : ob C => D) (pr1 (pr1 F)) (pr1 (pr1 G))
              (base_paths (pr1 F) (pr1 G)
-                (base_paths F G (functor_eq_from_functor_iso _ H F G gamma))) a))).
+                (base_paths F G (functor_eq_from_functor_iso hs H F G gamma))) a))).
       assert (H2 := maponpaths (@pr1 _ _ ) H').
       simpl in H2. apply H2. 
   unfold functor_eq_from_functor_iso.
@@ -932,7 +932,7 @@ Proof.
   unfold pr1_functor_eq_from_functor_iso.
   rewrite base_total2_paths.
   pathvia (pr1 (idtoiso
-     (isotoid D H (functor_iso_pointwise_if_iso C D _ F G gamma (pr2 gamma) a)))).
+     (isotoid D H (functor_iso_pointwise_if_iso C D hs F G gamma (pr2 gamma) a)))).
   apply maponpaths.
   apply maponpaths.
   unfold pr1_pr1_functor_eq_from_functor_iso.
@@ -1045,7 +1045,7 @@ Proof.
   rewrite pathscomp0assoc . 
   apply ( maponpaths ( fun e => pathscomp0 e ( is2id (F1ob (F0ob t)) ) ) ) .
   rewrite maponpathscomp0 .
-:  apply ( maponpaths ( fun e => pathscomp0 e ( maponpaths
+  apply ( maponpaths ( fun e => pathscomp0 e ( maponpaths
                                                  (F2mor (F1ob (F0ob t)) (F1ob (F0ob t)))
                                                  (is1id (F0ob t)) ) ) ) .
   apply maponpathscomp . 
