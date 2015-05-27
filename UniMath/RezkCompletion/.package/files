@@ -7,7 +7,6 @@ whiskering.v
 yoneda.v
 category_hset.v
 HLevel_n_is_of_hlevel_Sn.v
-limits/coproducts.v
 limits/initial.v
 limits/pullbacks.v
 limits/cones.v

@@ -43,7 +43,7 @@ Proof. intros ? ?. induction n as [|n IH].
              (* try using weqcutonweq, dni, dnitocompl, weqdnicompl, weqdnicoprod, ... *)
              admit. }
            { exact (ap x e). } }
-         { admit. } } Admitted.
+         { admit. } } Qed.
 Definition finiteOperation1 (X:abmonoid) I : finstruct I -> (I->X) -> X.
   intros ? ? [n f] x.
   apply (finiteOperation0 X n).
@@ -423,5 +423,5 @@ Module NN_agreement.
     { intros m.
       admit.
       }
-    Admitted.
+    Defined.
 End NN_agreement.

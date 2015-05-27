@@ -1,10 +1,8 @@
 # -*- makefile-gmake -*-
 UMAKEFILES += Makefile
-ifneq "$(INCLUDE)" "no"
 ifeq ($(shell test -f build/Makefile-configuration && echo yes),yes)
 UMAKEFILES += build/Makefile-configuration
 include build/Makefile-configuration
-endif
 endif
 ############################################
 # The packages, listed in reverse order by dependency:
@@ -12,23 +10,28 @@ PACKAGES += Ktheory
 PACKAGES += RezkCompletion
 PACKAGES += Foundations
 ############################################
-.PHONY: all everything install lc lcp wc describe publish-dan clean clean2 distclean distclean_coq cleanconfig clean-enhanced git-clean build-coq doc
 BUILD_COQ ?= yes
 ifeq ($(BUILD_COQ),yes)
 COQBIN=sub/coq/bin/
 all: build-coq
 endif
-ifneq "$(INCLUDE)" "no"
-include build/CoqMakefile.make
-endif
+-include build/CoqMakefile.make
 everything: TAGS all html install
-OTHERFLAGS += -indices-matter -type-in-type
+OTHERFLAGS += -indices-matter
+UniMath/Foundations/hlevel2/algebra1b.vo : OTHERFLAGS += -no-sharing
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
+# later: see exactly which files need -no-sharing
+NO_SHARING = yes
+ifeq ($(NO_SHARING),yes)
+OTHERFLAGS += -no-sharing
+endif
+# TIME = time
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
 COQDOC := $(COQDOC) -utf8
+COQC = $(TIME) $(COQBIN)coqc
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\2/'
 TAGS : $(VFILES); etags $(COQDEFS) $^
 install:all
@@ -55,13 +58,12 @@ publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
 	echo '# End:' ;\
 	) >$@
 # the '' above prevents emacs from mistaking the lines above as providing local variables when visiting this file
-build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
+build/CoqMakefile.make: .coq_makefile_input
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output $@
 
-# "clean::" occurs also in build/CoqMakefile.make
-# clean:: clean2 clean-enhanced
-distclean:clean cleanconfig distclean_coq
+clean:clean2 clean-enhanced
+distclean:cleanconfig distclean_coq
 clean2:
 	rm -f .coq_makefile_output build/CoqMakefile.make
 	find UniMath \( -name .\*.aux \) -delete
@@ -75,19 +77,14 @@ clean-enhanced:
 # building coq:
 ifeq ($(BUILD_COQ),yes)
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
-sub/coq/configure sub/coq/configure.ml:
+build-coq: sub/coq/configure sub/coq/config/coq_config.ml sub/coq/bin/coqc
+sub/coq/configure:
 	git submodule update --init sub/coq
-sub/coq/config/coq_config.ml: sub/coq/configure sub/coq/configure.ml
+sub/coq/config/coq_config.ml: sub/coq/configure.ml
 	cd sub/coq && ./configure -coqide no -opt -no-native-compiler -with-doc no -annotate -debug -local
-# instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
-sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
+sub/coq/bin/coqc:
 	make -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight
-build-coq: sub/coq/bin/coqc
 endif
-
-git-clean:
-	git clean -Xdfq
-	git submodule foreach git clean -Xdfq
 
 doc: $(GLOBFILES) $(VFILES) 
 	mkdir -p $(ENHANCEDDOCTARGET)

@@ -1,6 +1,3 @@
-
-Unset Kernel Term Sharing.
-
 (** * Construction of the circle *)
 
 (** We will show that [B ℤ] has the universal property of the circle. *)
@@ -68,7 +65,7 @@ Definition pr1_GH_weq {Y} {y:Y} {l:y = y} : weq (GH l) (Torsor ℤ) := weqpr1_ir
 
 Definition homotinvweqweq_GH_comp {Y} {y:Y} {l:y = y}
            (T:Torsor ℤ) (gh:ZGuidedHomotopy l T) : 
-  @paths (@paths (GH l)
+  @identity (@identity (GH l)
              (invweq (@pr1_GH_weq _ _ l) T) (T,,gh))
             (homotinvweqweq' irr sec (T,,gh))
             (@pair_path_in2 _ (ZGuidedHomotopy l) 
@@ -91,7 +88,7 @@ Proof. intros. destruct w. reflexivity. Defined.
 Definition pr1_GH_weq_compute {Y} {y:Y} (l:y = y) :
   let T0 := trivialTorsor ℤ in 
   let t0 := 0 : T0 in 
-    @paths (y = y)
+    @identity (y = y)
               (ap pr12_GH (homotinvweqweq' irr sec (makeGH1 l T0 t0)))
               (idpath y).
 Proof. intros.
@@ -200,7 +197,7 @@ Definition makeGH_diagonalLoop_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T)
 Proof. intros. unfold makeGH_diagonalLoop.
        refine (ap_natl (makeGH_transPath_comp1 _ _ _) _).
        refine (ap_natl (makeGH_localPath_comp1 _ _ _ _) _).
-       rewrite <- (pathscomp0rid (paths_rect _ _ (fun b _ => b = T) _ _ q)). (* Used to be "rewrite <- (pathscomp0rid (! q))", which was more perspicuous. *)
+       rewrite <- (pathscomp0rid (paths_rect _ (fun b _ => b = T) _ _ q)). (* Used to be "rewrite <- (pathscomp0rid (! q))", which was more perspicuous. *)
        refine (ap_natl' (makeGH_horizontalPath_comp1 _ _ _ _) _).
        rewrite <- (pathscomp0rid (idpath T)).
        refine (ap_natl (makeGH_localPath_comp1 _ _ _ _) _).
@@ -251,7 +248,7 @@ Print Assumptions circle_map_check_paths.
 
 Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)} 
            (l:circle_loop#y = y) : forall c:circle, Y c.
-Proof. (** (not proved yet) *) admit. Admitted.
+Proof. (** (not proved yet) *) admit. Defined.
 
 (* One approach to the theorem above would be through the results of the paper
  "Higher Inductive Types as Homotopy-Initial Algebras", by Kristina Sojakova,
