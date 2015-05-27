@@ -264,7 +264,7 @@ Definition weq_to_Equiv_inv X Y : weq X Y -> Equiv Y X.
   refine (makeEquiv Y X g f q' p _).
   intro y.
   admit.
-Admitted.
+Defined.
 
 Definition Equiv_to_weq X Y : Equiv X Y -> weq X Y.
 Proof. intros ? ? [f [g [p [q h]]]]. exists f. unfold isweq. intro y.
@@ -275,7 +275,7 @@ Definition Equiv_to_invweq X Y : Equiv X Y -> weq Y X.
 Proof. intros ? ? [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
        exists (f x,,q x). intros [y []]. apply (total2_paths2 (!p y)). 
        admit.
-Admitted.
+Defined.
 
 Module Equiv'.
   Record data X Y := make {
@@ -310,13 +310,13 @@ Proof. intros ? ? [f iw].
        rewrite ap_idpath.
        rewrite pathscomp0rid.
        rewrite transportf_fun_idpath.
-       { rewrite pathsinv0inv0. admit. } reflexivity. Admitted.
+       { rewrite pathsinv0inv0. admit. } reflexivity. Defined.
 
 Goal (* invequiv' *) forall X Y, Equiv'.data X Y -> Equiv'.data Y X.
 Proof. intros ? ? [f g p q h].
        refine (Equiv'.make Y X g f (fun y => q y) (fun x => p x) _).
        intros. destruct r. rewrite ap_idpath. rewrite pathscomp0rid.
-       admit. Admitted.
+       admit. Defined.
 
 Definition weqcompidl {X Y} (f:weq X Y) : weqcomp (idweq X) f = f.
 Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
@@ -496,7 +496,7 @@ Proof. admit.
 (*
        reflexivity.             (* don't change the proof *)
 *)
-Admitted.
+Defined.
 
 Definition homotinvweqweq_comp_3 {X} {P:X->Type}
            (irr:forall x (p q:P x), p = q) (sec:Section P) 

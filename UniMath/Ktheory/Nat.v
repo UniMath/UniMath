@@ -76,7 +76,7 @@ Fixpoint nat_dist (m n:nat) : nat :=
     | 0, n => n
     | m, 0 => m end.
 
-Fixpoint nat_discern (m n:nat) : UU :=
+Fixpoint nat_discern (m n:nat) : Type :=
   match m , n with
     | S m, S n => nat_discern m n
     | 0, S n => empty

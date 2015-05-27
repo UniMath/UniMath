@@ -25,7 +25,7 @@ Notation UUU := Set .
 Notation empty := Empty_set. 
 Notation empty_rect := Empty_set_rect. 
 
-(** Identity Types. Identity types are introduced in Coq.Init.Datatypes by the lines : 
+(** Identity Types. Idenity types are introduced in Coq.Init.Datatypes by the lines : 
 
 [ Inductive identity ( A : Type ) ( a : A ) : A -> Type := identity_refl : identity _ a a .    
     
@@ -33,10 +33,11 @@ Hint Resolve identity_refl : core . ]
 
 *)
 
-Inductive paths {A:Type} (a:A) : A -> Type := paths_refl : paths a a.
-Hint Resolve paths_refl : core .
+Notation paths := identity .
+(** Notation [a = b] added by B.A., oct 2014 *)
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
-Notation idpath := paths_refl .
+Notation idpath := identity_refl .
+Notation paths_rect := identity_rect .
 
 (* Remark: all of the uu0.v now uses only paths_rect and not the direct "match" construction
 on paths. By adding a constantin paths for the computation rule for paths_rect and then making
