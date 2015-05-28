@@ -166,10 +166,12 @@ Lemma pre_composition_is_functor (A B C : precategory) (hsB: has_homsets B)
     is_functor (pre_composition_functor_data A B C hsB hsC H).
 Proof.
   split; simpl in *.
-  - intros. 
+  - unfold functor_idax .
+    intros.
     apply pre_whisker_identity.
     assumption.
-  - intros.
+  - unfold functor_compax .
+    intros.
     apply pre_whisker_composition.
     assumption.
 Qed.
