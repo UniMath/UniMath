@@ -400,11 +400,13 @@ where "n + m" := (plus n m) : nat_scope.
 (** *** The structure of the additive ablelian monoid on [ nat ] *) 
 
 
-Lemma natplusl0 ( n : nat ) : paths ( 0 + n ) n .
+Lemma natplusl0 ( n : nat ) : 0 + n = n .
 Proof . intros . apply idpath . Defined .  
 
-Lemma natplusr0 ( n : nat ) : paths ( n + 0 ) n .
-Proof . intro . induction n as [ | n IH n ] . apply idpath .  simpl . apply ( maponpaths S IH ) . Defined .
+Lemma natplusr0 ( n : nat ) : n + 0 = n .
+Proof .
+  intro . induction n as [ | n IH n ] . apply idpath .  simpl . apply ( maponpaths S IH ) .
+Defined .
 Hint Resolve natplusr0: natarith .
 
 Lemma natplusnsm ( n m : nat ) :  n + S m = S n + m .
@@ -487,20 +489,29 @@ Definition natlthandplusrinv ( n m k : nat ) :  natlth ( n + k ) ( m + k ) -> na
 (** [ natleh ] *)
 
 
-Definition natlehtolehs ( n m : nat ) : natleh n m -> natleh n ( S m ) .  
-Proof . intros n m is . apply ( istransnatleh _ _ _ is ( natlthtoleh _ _ ( natlthnsn _ ) ) ) . Defined .
+Definition natlehtolehs ( n m : nat ) : n <= m -> n <= S m .  
+Proof .
+  intros n m is . apply ( istransnatleh _ _ _ is ( natlthtoleh _ _ ( natlthnsn _ ) ) ) .
 
-Definition natlehmplusnm ( n m : nat ) : natleh m ( n + m )  := negnatlthplusnmm _ _  .
+Defined .
 
-Definition natlehnplusnm ( n m : nat ) : natleh n ( n + m ) := negnatlthplusnmn _ _  .
+Definition natlehmplusnm ( n m : nat ) :  m <= n + m  :=
+  negnatlthplusnmm _ _  .
 
-Definition natlehandplusl ( n m k : nat ) : natleh n m -> natleh ( k + n ) ( k + m ) := negf ( natgthandpluslinv n m k )  . 
+Definition natlehnplusnm ( n m : nat ) :  n <= n + m  :=
+  negnatlthplusnmn _ _  .
 
-Definition natlehandplusr ( n m k : nat ) : natleh n m -> natleh ( n + k ) ( m + k ) := negf ( natgthandplusrinv n m k )  . 
+Definition natlehandplusl ( n m k : nat ) : n <= m -> k + n <= k + m :=
+  negf ( natgthandpluslinv n m k )  . 
 
-Definition natlehandpluslinv  ( n m k : nat ) : natleh ( k + n ) ( k + m ) -> natleh n m := negf ( natgthandplusl n m k )  .  
+Definition natlehandplusr ( n m k : nat ) : n <= m -> n + k <= m + k :=
+  negf ( natgthandplusrinv n m k )  . 
 
-Definition natlehandplusrinv ( n m k : nat ) :  natleh ( n + k ) ( m + k ) -> natleh n m :=  negf ( natgthandplusr n m k ) . 
+Definition natlehandpluslinv  ( n m k : nat ) : k + n <= k + m -> n <= m :=
+  negf ( natgthandplusl n m k )  .  
+
+Definition natlehandplusrinv ( n m k : nat ) :  n + k <= m + k -> n <= m :=
+  negf ( natgthandplusr n m k ) . 
 
 
 
@@ -667,7 +678,10 @@ Proof . intro n. induction n as [ | n IHn ] . intro. apply isreflnatleh .
         intro . destruct m as [ | m ]. apply isreflnatleh . simpl .
         apply ( istransnatleh _ _ _ (IHn m) ( natlehnsn n ) ) .
 
-Defined. 
+Defined.
+
+Definition natminusgehn ( n m : nat ) : n >= n - m :=
+  natminuslehn _ _ . 
 
 Definition natminuslthn ( n m : nat ) ( is : n > 0 ) ( is' : m > 0 ) :  n - m < n .
 Proof . intro . induction n as [ | n IHn ] . intros . destruct ( negnatgth0n _ is ) . intro m . induction m . intros . destruct ( negnatgth0n _ is' ) . intros . apply ( natlehlthtrans _ n _ ) .  apply ( natminuslehn n m )  .  apply natlthnsn . Defined. 
