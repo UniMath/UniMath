@@ -13,7 +13,7 @@ Definition unitFunctor_data (C:precategory)
   intros. exact Sets.unit. intros. exact (idfun _). Defined.
 Definition unitFunctor (C:precategory) : C ==> SET.
   intros. exists (unitFunctor_data C).
-  split. reflexivity. reflexivity. Defined.
+  split. intros a . reflexivity. intros a b c f g . reflexivity. Defined.
 Definition InitialObject (C:precategory) := Representation.Data (unitFunctor C).
 Definition initialObject {C} (i:InitialObject C) : ob C.
   intros C i. exact (Representation.Object i). Defined.

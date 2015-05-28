@@ -263,8 +263,9 @@ Definition is_functor_sub_precategory_inclusion (C : precategory)
          (C':sub_precategories C) :
     is_functor  (sub_precategory_inclusion_data C C').
 Proof.
-  split; simpl; intros;
-  apply (idpath _ ).
+  split; simpl.
+  unfold functor_idax . intros.  apply (idpath _ ).
+  unfold functor_compax . intros.  apply (idpath _ ).
 Qed.
 
  

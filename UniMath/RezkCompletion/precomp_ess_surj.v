@@ -428,7 +428,7 @@ Notation "'G' f" := (pr1 (pr1 (Y_iscontr _ _ f))) (at level 3).
 
 Lemma is_functor_preimage_functor_data : is_functor preimage_functor_data.
 Proof.
-  split; simpl.
+  split. unfold functor_idax. simpl.
   intro b.
   
   assert (PR2 : forall (a : A) (h : iso (H a) b) (a' : A) 
