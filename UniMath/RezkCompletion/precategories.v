@@ -95,7 +95,7 @@ Definition compose { C : precategory_data }
   { a b c : C } : 
     a --> b -> b --> c -> a --> c := pr2 (pr2 C) a b c.
 
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 
 
 (** ** Axioms of a precategory *)

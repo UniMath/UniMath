@@ -19,3 +19,4 @@ limits/terminal.v
 precategories.v
 total2_paths.v
 UnicodeNotations.v
+opp_precat.v
