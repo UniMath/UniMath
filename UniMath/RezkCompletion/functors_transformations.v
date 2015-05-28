@@ -444,7 +444,7 @@ Definition sub_img_functor {C D : precategory_data}(F : functor C D) :
 
 (** *** Composition *)
 
-Definition functor_composite_data {C C' C'' : precategory_data } (F : functor_data C C')
+Definition functor_composite_data {C C' C'' : precategory_ob_mor } (F : functor_data C C')
            (F' : functor_data C' C'') : functor_data C C'' :=           
   functor_data_constr C C'' (fun a => F' (F a))  (fun (a b : ob C) f => #F' (#F f)) .
 
