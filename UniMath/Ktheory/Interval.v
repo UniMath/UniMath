@@ -1,5 +1,7 @@
 (** * A construction of the interval using propositional truncation *)
 
+Unset Kernel Term Sharing.
+
 Require Import Ktheory.Utilities.
 
 Definition interval := squash bool.
