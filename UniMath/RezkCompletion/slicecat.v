@@ -1,5 +1,15 @@
-(** Definition of slice categories C/X and proof that if C is a
-    category then C/X is also a category *)
+(** **********************************************************
+
+Contents: Definition of slice precategories, C/x (assumes
+            that C has homsets)
+
+          Proof that C/x is a category if C is
+
+          Proof that any morphism x --> y induces a functor
+            from C/x to C/y
+
+************************************************************)
+
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
@@ -146,6 +156,8 @@ Defined.
 
 End slice_precat_theory.
 
+(* Proof that C/x is a category if C is. This is exercise 9.1 in the
+   HoTT book *)
 Section slicecat_theory.
 
 Variable C : precategory.
@@ -277,7 +289,7 @@ Defined.
 
 (* This proof is not so nice... *)
 Lemma slicecat_functor_comp (x y z : C) (f : x --> y) (g : y --> z) :
-  slicecat_functor _ hsC _ _ (f ;; g) = 
+  slicecat_functor _ hsC _ _ (f ;; g) =
   functor_composite _ _ _ (slicecat_functor _ _ _ _ f) (slicecat_functor _ _ _ _ g).
 Proof.
 apply (functor_eq _ _ (has_homsets_slice_precat _ _ _)); simpl.
@@ -311,4 +323,3 @@ assumption.
 Qed.
 
 End slicecat_functor_theory.
-
