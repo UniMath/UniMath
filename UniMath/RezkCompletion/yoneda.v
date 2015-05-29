@@ -74,6 +74,7 @@ Lemma is_functor_yoneda_functor_data (C : precategory) (hs: has_homsets C) (c : 
   is_functor (yoneda_ob_functor_data C hs c).
 Proof.
   repeat split; unf; simpl.
+  unfold functor_idax . 
   intros.
   apply funextsec.
   intro f. unf. apply id_left.
