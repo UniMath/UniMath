@@ -218,12 +218,14 @@ Definition slicecat_functor_data : functor_data (C / x) (C / y) :=
         (fun a b h => tpair _ (pr1 h) (slicecat_functor_subproof _ _ h)).
 
 Lemma is_functor_slicecat_functor : is_functor slicecat_functor_data.
-Proof. split; intros; apply eq_mor_slicecat; apply idpath. Qed.
+Proof.
+split.
+  intros a; apply eq_mor_slicecat; apply idpath.
+intros a b c g h; apply eq_mor_slicecat; apply idpath.
+Qed.
 
 Definition slicecat_functor : functor (C / x) (C / y) :=
   tpair _ _ is_functor_slicecat_functor.
-
-End slicecat_functor.
 
 End slicecat_functor_def.
 
