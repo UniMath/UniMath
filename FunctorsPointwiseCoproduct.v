@@ -43,7 +43,8 @@ Defined.
 Lemma is_functor_coproduct_functor_data : is_functor coproduct_functor_data.
 Proof.
   split; simpl; intros.
-  - apply pathsinv0.
+  - unfold functor_idax; intros; simpl in *.
+    apply pathsinv0.
     apply Coproduct_endo_is_identity.
     + unfold coproduct_functor_mor.
       rewrite CoproductOfArrowsIn1.
@@ -53,7 +54,9 @@ Proof.
       rewrite CoproductOfArrowsIn2.
       rewrite functor_id.
       apply id_left.
-  - unfold coproduct_functor_mor.
+  - unfold functor_compax, coproduct_functor_mor;
+    intros; simpl in *.
+    unfold coproduct_functor_mor.
     do 2 rewrite functor_comp.
     rewrite <- CoproductOfArrows_comp.
     apply idpath.

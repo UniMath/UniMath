@@ -107,8 +107,8 @@ Defined.
 Lemma is_functor_ptd_forget : is_functor ptd_forget_data.
 Proof.
   split; simpl; intros.
-  - apply idpath.
-  - apply idpath.
+  - unfold functor_idax; intros; apply idpath.
+  - unfold functor_compax; intros; apply idpath.
 Defined.
 
 Definition functor_ptd_forget : functor _ _ := tpair _ _ is_functor_ptd_forget.

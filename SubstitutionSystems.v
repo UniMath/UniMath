@@ -155,7 +155,8 @@ Proof.
     match goal with |[ H :  ?f = _ |- _ ] => transitivity f end.
 (*    etransitivity. *)
     Focus 2.
-      apply T. 
+      apply T.
+    unfold θ_target_mor. simpl.
     apply maponpaths. clear T.
     simpl.
     destruct α as [α a].
