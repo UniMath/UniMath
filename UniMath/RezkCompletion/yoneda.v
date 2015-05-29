@@ -11,9 +11,7 @@ january 2013
 
 (** **********************************************************
 
-Contents : Definition of opposite category
- 	
-	   Definition of the Yoneda functor 
+Contents : Definition of the Yoneda functor
            [yoneda(C) : [C, [C^op, HSET]]]
 	
            Proof that [yoneda(C)] is fully faithful  
@@ -26,68 +24,24 @@ Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 
 Require Import RezkCompletion.precategories.
+Require Import RezkCompletion.opp_precat.
 Require Import RezkCompletion.category_hset.
 Require Import RezkCompletion.functors_transformations.
 
 (*Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).*)
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Local Notation "[ C , D ]" := (functor_precategory C D).
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
-
-(** * The opposite precategory of a precategory *)
-
-Definition opp_precat_ob_mor (C : precategory_ob_mor) : precategory_ob_mor :=
-   tpair (fun ob : UU => ob -> ob -> UU) (ob C) 
-        (fun a b : ob C => hom C b a ).
-
-Definition opp_precat_data (C : precategory_data) : precategory_data.
-Proof.
-  exists (opp_precat_ob_mor C).
-  split.
-  exact (fun c => identity c).
-  simpl.
-  intros a b c f g.
-  exact (g ;; f).
-Defined.
-
-Hint Unfold identity.
 
 Ltac unf := unfold identity, 
                    compose, 
                    precategory_morphisms;
                    simpl.
-
-Lemma is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C).
-Proof.
-  repeat split; simpl.
-  intros. unf.
-  apply id_right.
-  intros; unf.
-  apply id_left.
-  intros; unf.
-  rewrite assoc.
-  apply idpath.
-Qed.
-
-Definition opp_precat (C : precategory) : precategory := 
-  tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
-
-Local Notation "C '^op'" := (opp_precat C) (at level 3).
-
-Definition opp_iso {C:precategory} {a b:ob C} : @iso C a b -> @iso C^op b a.
-  intro f.
-  exists (pr1 f).
-  set (T:= is_z_iso_from_is_iso _ (pr2 f)).
-  apply (is_iso_qinv (C:=C^op) _ (pr1 T)).
-  split. 
-  - apply (pr2 (pr2 T)).
-  - apply (pr1 (pr2 T)).
-Defined.
 
 (** The following lemma is already in precategories.v . It should be transparent? *)
 

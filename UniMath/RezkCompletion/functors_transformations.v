@@ -55,7 +55,7 @@ Require Import Foundations.hlevel2.hSet.
 Require Import RezkCompletion.precategories.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
