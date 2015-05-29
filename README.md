@@ -88,7 +88,7 @@ time as ```gtime``` by running ```brew install gnu-time```.
 
 Timing of execution of individual tactics and vernacular commands can be obtained by
 ```bash
-$ make OTHERFLAGS=-time
+$ make MOREFLAGS=-time
 ```
 For postprocessing of the (huge) output, direct the output into a file as in
 ```bash
