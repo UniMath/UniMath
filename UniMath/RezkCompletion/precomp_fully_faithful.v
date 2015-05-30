@@ -44,7 +44,7 @@ Ltac inv_functor HF x y :=
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 (*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Notation "[ C , D ]" := (functor_precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "G 'O' F" := (functor_compose _ _ _ F G : functor _ _ ) (at level 25).

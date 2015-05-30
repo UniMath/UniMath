@@ -30,7 +30,7 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 (*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Notation "[ C , D ]" := (functor_precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "FF ^-1" := (fully_faithful_inv_hom FF _ _ ) (at level 20).
@@ -428,7 +428,7 @@ Notation "'G' f" := (pr1 (pr1 (Y_iscontr _ _ f))) (at level 3).
 
 Lemma is_functor_preimage_functor_data : is_functor preimage_functor_data.
 Proof.
-  split; simpl.
+  split. unfold functor_idax. simpl.
   intro b.
   
   assert (PR2 : forall (a : A) (h : iso (H a) b) (a' : A) 

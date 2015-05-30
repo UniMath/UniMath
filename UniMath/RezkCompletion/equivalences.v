@@ -34,7 +34,7 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 (*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Notation "[ C , D ]" := (functor_precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
@@ -323,15 +323,14 @@ Defined.
   
 Lemma rad_is_functor : is_functor rad_functor_data.
 Proof.
-  split; simpl.
-  intro b.
-  unfold rad_mor; simpl.
-  rewrite id_right,
-    iso_inv_after_iso,
-    fully_faithful_inv_identity.
+  split. simpl. 
+  intro b. simpl . unfold rad_mor .  simpl . 
+  rewrite id_right, 
+  iso_inv_after_iso,
+  fully_faithful_inv_identity.
   apply idpath.
   
-  intros a b c f g.
+  intros a b c f g. simpl . 
   unfold rad_mor; simpl.
   rewrite <- fully_faithful_inv_comp.
   apply maponpaths.

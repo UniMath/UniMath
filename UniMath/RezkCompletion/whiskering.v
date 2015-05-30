@@ -34,7 +34,7 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 (*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Notation "[ C , D ]" := (functor_precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
@@ -166,10 +166,12 @@ Lemma pre_composition_is_functor (A B C : precategory) (hsB: has_homsets B)
     is_functor (pre_composition_functor_data A B C hsB hsC H).
 Proof.
   split; simpl in *.
-  - intros. 
+  - unfold functor_idax .
+    intros.
     apply pre_whisker_identity.
     assumption.
-  - intros.
+  - unfold functor_compax .
+    intros.
     apply pre_whisker_composition.
     assumption.
 Qed.

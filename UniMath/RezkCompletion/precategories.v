@@ -15,12 +15,21 @@ Contents :  Definition of
 	        Categories (aka saturated precategories)         	
                 Setcategories
                 
-                Isomorphisms
+                Isomorphisms I: [iso]
+                  Definition: [isiso f := isweq (precomp_with f)]
                   various lemmas:
                     uniqueness of inverse, composition etc.
                     stability under composition
+                  Analogue to [gradth]: [is_iso_qinv]
+
+                Isomorphisms II: [z_iso]
+                  Definition: [is_z_iso f := Σ g, ...]
+                  Relationship between [z_iso] and [iso]
                 
                 Categories have groupoid as objects
+
+                Many lemmas about [idtoiso], [isotoid],
+                   interplay with composition, transport etc.
                 	
            
 ************************************************************)
@@ -86,7 +95,7 @@ Definition compose { C : precategory_data }
   { a b c : C } : 
     a --> b -> b --> c -> a --> c := pr2 (pr2 C) a b c.
 
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 
 
 (** ** Axioms of a precategory *)

@@ -44,7 +44,7 @@ Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.functors_transformations.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 
@@ -263,8 +263,9 @@ Definition is_functor_sub_precategory_inclusion (C : precategory)
          (C':sub_precategories C) :
     is_functor  (sub_precategory_inclusion_data C C').
 Proof.
-  split; simpl; intros;
-  apply (idpath _ ).
+  split; simpl.
+  unfold functor_idax . intros.  apply (idpath _ ).
+  unfold functor_compax . intros.  apply (idpath _ ).
 Qed.
 
  

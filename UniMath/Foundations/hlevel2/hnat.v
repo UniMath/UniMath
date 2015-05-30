@@ -667,7 +667,10 @@ Proof . intro n. induction n as [ | n IHn ] . intro. apply isreflnatleh .
         intro . destruct m as [ | m ]. apply isreflnatleh . simpl .
         apply ( istransnatleh _ _ _ (IHn m) ( natlehnsn n ) ) .
 
-Defined. 
+Defined.
+
+Definition natminusgehn ( n m : nat ) : n >= n - m :=
+  natminuslehn _ _ . 
 
 Definition natminuslthn ( n m : nat ) ( is : n > 0 ) ( is' : m > 0 ) :  n - m < n .
 Proof . intro . induction n as [ | n IHn ] . intros . destruct ( negnatgth0n _ is ) . intro m . induction m . intros . destruct ( negnatgth0n _ is' ) . intros . apply ( natlehlthtrans _ n _ ) .  apply ( natminuslehn n m )  .  apply natlthnsn . Defined. 

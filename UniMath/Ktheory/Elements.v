@@ -69,8 +69,8 @@ Proof. intros.
 Lemma cat_on_nat_trans_is_nat_trans {C:precategory} {X Y:C==>SET} (p:nat_trans X Y) :
   is_functor (cat_on_nat_trans_data p).
 Proof. intros. split.
-  { intros. apply mor_equality. reflexivity. }
-  { intros. apply mor_equality. reflexivity. } Qed.
+  { intros a . apply mor_equality. reflexivity. }
+  { intros a b c f g . apply mor_equality. reflexivity. } Qed.
 
 Definition cat_on_nat_trans {C:precategory} {X Y:C==>SET} (p:nat_trans X Y) :
   cat X ==> cat Y.
@@ -86,7 +86,7 @@ Module pr1.
     intros. exists pr1. intros x x'. exact pr1. Defined.
   Definition func {C:precategory} (X:C==>SET) : cat X ==> C.
     intros. exists (fun_data _).
-    split. { reflexivity. } { reflexivity. } Defined.
+    split. { intros a . reflexivity. } { intros a b c f g . reflexivity. } Defined.
 
 
   Lemma func_reflects_isos {C:precategory} (X:C==>SET) : Precategories.reflects_isos (func X).
