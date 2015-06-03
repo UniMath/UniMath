@@ -196,8 +196,8 @@ Defined.
      is a proposition *)
 
 
-Lemma isaprop_sigma_iso (A B : precategory) (HA : is_category A) (hsB: has_homsets B)
-     (F : ob [A, B, hsB]) (HF : fully_faithful F) :
+Lemma isaprop_sigma_iso (A B : precategory) (HA : is_category A) (*hsB: has_homsets B*)
+     (F : functor A B) (HF : fully_faithful F) :
       forall b : ob B,
   isaprop (total2 (fun a : ob A => iso (pr1 F a) b)).
 Proof.
@@ -267,8 +267,7 @@ Section from_fully_faithful_and_ess_surj_to_equivalence.
 
 Variables A B : precategory.
 Hypothesis HA : is_category A.
-Hypothesis hsB: has_homsets B.
-Variable F : ob [A, B, hsB].
+Variable F : functor A B.
 Hypothesis HF : fully_faithful F.
 Hypothesis HS : essentially_surjective F.
 
@@ -278,7 +277,7 @@ Definition rad_ob : ob B -> ob A.
 Proof.
   intro b.
   apply (pr1 (HS b (tpair (fun x => isaprop x) _ 
-               (isaprop_sigma_iso A B HA hsB F HF b)) (fun x => x))).
+               (isaprop_sigma_iso A B HA F HF b)) (fun x => x))).
 Defined.
 
 (** Definition of the epsilon transformation *)
@@ -286,7 +285,7 @@ Defined.
 Definition rad_eps (b : ob B) : iso (pr1 F (rad_ob b)) b.
 Proof.
   apply (pr2 (HS b (tpair (fun x => isaprop x) _ 
-               (isaprop_sigma_iso A B HA hsB F HF b)) (fun x => x))).
+               (isaprop_sigma_iso A B HA F HF b)) (fun x => x))).
 Defined.
 
 (** The right adjoint on morphisms *)

@@ -109,7 +109,6 @@ Proof.
            [Rezk_completion A hsA, C, pr2 Ccat]
            [A, C, pr2 Ccat]
            (is_category_functor_category _ _ _ )
-           (functor_category_has_homsets _ _ _ )
            _ 
            (pre_comp_rezk_eta_is_fully_faithful)
            (pre_comp_rezk_eta_is_ess_surj)).
