@@ -113,11 +113,7 @@ Proof.
            _ 
            (pre_comp_rezk_eta_is_fully_faithful)
            (pre_comp_rezk_eta_is_ess_surj)).
-  assert (HT: (pr2 (is_category_functor_category (Rezk_completion A hsA) C Ccat)) = 
-               (functor_category_has_homsets (Rezk_completion A hsA) C (pr2 Ccat))).
-    { apply proofirrelevance. apply isaprop_has_homsets. }
-  rewrite <- HT.
-  exact T.
+  apply T.
 Defined.
 
 End rezk_universal_property.
