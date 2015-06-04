@@ -1,4 +1,5 @@
 -R . SubstSystems
+AdjunctionHomTypesWeq.v
 LiftingInitial.v
 ExampleSignatures.v
 SumOfSignatures.v
