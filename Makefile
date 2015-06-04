@@ -105,7 +105,8 @@ VFILES:=UnicodeNotations.v\
   SumOfSignatures.v\
   ExampleSignatures.v\
   LiftingInitial.v\
-  AdjunctionHomTypesWeq.v
+  AdjunctionHomTypesWeq.v\
+  RightKanExtension.v
 
 -include $(addsuffix .d,$(VFILES))
 .SECONDARY: $(addsuffix .d,$(VFILES))
