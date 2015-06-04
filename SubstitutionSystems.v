@@ -12,6 +12,7 @@ Require Import SubstSystems.PointedFunctors.
 Require Import SubstSystems.ProductPrecategory.
 Require Import SubstSystems.HorizontalComposition.
 Require Import SubstSystems.PointedFunctorsComposition.
+Require Import SubstSystems.EndofunctorsMonoidal.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -187,6 +188,30 @@ Definition θ_Strength1 : UU := ∀ X : EndC,
   (θ (X ⊗ (id_Ptd C hs))) ;; # H (identity X : functor_composite (functor_identity C) X ⟶ pr1 X) 
           = nat_trans_id _ .
 
+Section Strength_law_1_intensional.
+
+Definition θ_Strength1_int : UU 
+  := ∀ X : EndC, 
+     θ (X ⊗ (id_Ptd C hs)) ;; # H (λ_functor _ _ ) = λ_functor _ _ .
+
+Lemma θ_Strength1_int_implies_θ_Strength1 : θ_Strength1_int → θ_Strength1.
+Proof.
+  unfold θ_Strength1_int, θ_Strength1.
+  intros T X.
+  assert (TX:= T X).
+  apply nat_trans_eq; try assumption.
+  intro c; simpl.
+  assert (T2 := nat_trans_eq_pointwise _ _ _ _ _ _ TX c).
+  simpl in *.
+  assert (X0 : λ_functor C X = identity (X : EndC)).
+  { apply nat_trans_eq; try assumption; intros; apply idpath. }
+  rewrite X0 in T2.
+  apply T2.
+Defined.
+  
+End Strength_law_1_intensional.
+
+
 Hypothesis θ_strength1 : θ_Strength1.
 
 Definition θ_Strength2 : UU := ∀ (X : EndC) (Z Z' : Ptd) (Y : EndC)
@@ -194,6 +219,92 @@ Definition θ_Strength2 : UU := ∀ (X : EndC) (Z Z' : Ptd) (Y : EndC)
     θ (X ⊗ (ptd_composite _ Z Z')) ;; # H α =
     θ (X ⊗ Z') øø (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) ;; 
        # H (α : functor_compose hs hs (U Z) (functor_composite (U Z') X) ⇒ Y).
+
+Section Strength_law_2_intensional.
+
+Definition θ_Strength2_int : UU 
+  := ∀ (X : EndC) (Z Z' : Ptd), 
+      θ (X ⊗ (ptd_composite _ Z Z'))  ;; #H (α_functor _ (U Z) (U Z') X )  =
+     (* (α_functor _ _ _ _ : functor_compose hs hs _ _  ⇒ _ ) ;;  *)
+      θ (X ⊗ Z') øø (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) .
+
+(*
+
+Lemma θ_Strength2_int_implies_θ_Strength2 : θ_Strength2_int → θ_Strength2.
+Proof.
+  unfold θ_Strength2_int, θ_Strength2.
+  intros T X Z Z' Y a.
+  assert (TXZZ' := T X Z Z').
+  rewrite <- TXZZ'; clear TXZZ'.
+  apply nat_trans_eq; try assumption.
+  intro c ; simpl.
+  rewrite <- assoc.
+  apply maponpaths.
+    
+(*
+  match goal with | [ |- ?f ;; ?g = _ ] => 
+              pathvia (f ;; (#H (identity _ ) ;; g)) end.
+  - rewrite assoc. apply cancel_postcomposition.
+    rewrite functor_id.
+    apply pathsinv0.
+    apply id_right.
+  - apply cancel_postcomposition.
+    rewrite <- assoc.
+    apply maponpaths.
+    rewrite <- functor_comp.
+    rewrite id_left.
+*)    
+  assert (X0 : α_functor _ (U Z) (U Z') X = identity (_ : EndC)).
+  { apply nat_trans_eq; try assumption; intros; apply idpath. }
+  rewrite X0; clear X0.
+  apply nat_trans_eq; try assumption.
+  intro x; simpl.
+  assert (T0 : forall X' c,  pr1 (#H (identity X')) c = identity _ ).
+  { intros X' c. rewrite functor_id. apply idpath. }
+  
+  rewrite <- assoc.
+  apply maponpaths.
+  admit.
+(*  
+  assert (T0Xx := T0 (functor_compose hs hs (functor_composite (U Z) (U Z)) X) x).
+  admit.
+  
+  match goal with | [ |- _ = ?f ;; _ ] => set (TTT:= f) end.
+  assert (∀ (C : precategory
+  
+  
+  match goal with | [ H : _ = ?x |- ?f ;; ?g = _ ] => 
+         pathvia (f ;; x ;; g) end.
+  
+  
+  
+  rewrite T0Xx.
+  rewrite (T0 _ x).
+  
+  rewrite <- assoc.
+  apply maponpaths.
+  apply pathsinv0.
+  match goal with |[ |- _ ;; ?f = _ ] => pathvia (identity _ ;; f) end. 
+  - apply cancel_postcomposition.
+  pathvia (identity _ ;; # H a x).
+  - apply cancel_postcomposition.
+  eapply pathscomp0.
+  
+  rewrite (functor_id H).
+  
+  rewrite assoc.
+  apply maponpaths.
+  rewrite assoc.
+  rewrite assoc.
+  assert (TX:= T X).
+  apply nat_trans_eq; try assumption.
+  intro c; s
+*)
+Admitted.
+*)
+
+End Strength_law_2_intensional.
+
 
 Hypothesis θ_strength2 : θ_Strength2.
 
