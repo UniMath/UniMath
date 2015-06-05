@@ -225,9 +225,9 @@ Section Strength_law_2_intensional.
 Definition θ_Strength2_int : UU 
   := ∀ (X : EndC) (Z Z' : Ptd), 
       θ (X ⊗ (ptd_composite _ Z Z'))  ;; #H (α_functor _ (U Z) (U Z') X )  =
-     (* (α_functor _ _ _ _ : functor_compose hs hs _ _  ⇒ _ ) ;;  *)
+      (α_functor _ (U Z) (U Z') (H X) : functor_compose hs hs _ _  ⇒ _ ) ;;  
       θ (X ⊗ Z') øø (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) .
-
+Print θ_Strength2_int.
 (*
 
 Lemma θ_Strength2_int_implies_θ_Strength2 : θ_Strength2_int → θ_Strength2.
@@ -1039,6 +1039,122 @@ Qed.
 
 Check μ_3_μ_2_T_μ_2.
 
+(** proving a variant of the third monad law with assoc iso explicitly inserted *)
+
+Section third_monad_law_with_assoc.
+ 
+
+Lemma bla : (U T) ∘ μ_2 ;; μ_2 = 
+     (α_functor _ _ _ _ : functor_compose hs hs _ _  ⇒ _) ;; (μ_2 øø U T) ;; μ_2.
+Proof.
+  pathvia μ_3.
+  - apply pathsinv0. apply μ_3_T_μ_2_μ_2.
+  -  unfold μ_3.
+    set (H1 := @fbracket_unique (*_pointwise*) T _ μ_2_ptd).
+    apply pathsinv0.
+    apply H1; clear H1.
+    + simpl.
+      apply nat_trans_eq; try assumption; intro c.
+      simpl.
+      set (H1 := Monad_law_1_from_hss (pr1 (U T) c)).
+      simpl in H1.
+      rewrite assoc.
+      unfold μ_0 in H1.
+      transitivity (identity _ ;; μ_2 c).
+      * rewrite id_left; apply idpath.
+      * apply cancel_postcomposition.
+        rewrite id_left.
+        apply (!H1).
+    + assert (HTT :  θ_Strength2_int).
+      { admit. }
+      unfold θ_Strength2_int in HTT.
+      rewrite functor_comp.
+      rewrite functor_comp.
+      assert (HX := HTT (U T) (T) (T)).
+      rewrite assoc.
+      rewrite assoc.
+      rewrite assoc.
+      rewrite assoc.
+      unfold T_squared.
+      apply nat_trans_eq; try assumption.
+      intro x; simpl.
+      assert (HX':= nat_trans_eq_pointwise _ _ _ _ _ _ HX x).
+      simpl in HX'.
+      repeat rewrite  assoc.
+      clear HTT HX.
+      
+      match goal with | [ H : _  = ?f |- _ ;; _ ;; ?g ;; ?h ;; ?i = _ ] => 
+               pathvia (f ;; g ;; h ;; i) end.
+       * apply cancel_postcomposition.
+         apply cancel_postcomposition.
+         apply cancel_postcomposition.
+         apply HX'.
+       * rewrite id_left.
+         rewrite id_right.
+         clear HX'.
+         assert (HX:=θ_nat_1 _ _ μ_2).
+         assert (HX1:= HX (pr1 (pr1 T))).
+         simpl in HX1.
+         assert (HXX:=nat_trans_eq_pointwise _ _ _ _ _ _ HX1 x).
+         clear HX1. clear HX.
+         simpl in HXX.
+         match goal with | [ H : ?x = _ |- ?e ;; _ ;; _ ;; ?f ;; ?g = _ ] => 
+                 pathvia (e ;; x ;; f ;; g) end.
+           apply cancel_postcomposition.
+           apply cancel_postcomposition.
+           repeat rewrite <- assoc.
+           apply maponpaths. apply pathsinv0. 
+           match goal with | [ H : _ = ?x |- _ ] => pathvia x end.
+             repeat rewrite assoc.
+             repeat rewrite assoc in HXX.
+             apply HXX.
+             
+             apply maponpaths.
+             match goal with | [ |- _  ?a ?x = _  ?b ?y ] => assert (TTT : a = b) end.
+             match goal with | [ |- _ ?a = _ ?b ] => assert (TTTT : a = b) end.
+               apply nat_trans_eq; try assumption.
+               intros. simpl. rewrite functor_id. apply id_right.
+
+               rewrite TTTT. apply idpath.
+               
+               rewrite TTT. apply idpath.
+           
+        (*  
+           rewrite  HXX.
+           
+           apply HXX.
+           repeat rewrite ass
+         *)
+         assert (H4 := fbracket_τ).
+         assert (H4':= H4 T T (identity _ )).
+         assert (H5:= nat_trans_eq_pointwise _ _ _ _ _ _ H4' (x)).
+         unfold μ_2.
+         clear H4 H4'.
+         simpl in H5.
+         clear HXX.
+         repeat rewrite assoc.
+      match goal with |[ H5 : _ = ?e |- ?a ;; ?b ;; ?c ;; _ ;; _ ;; _ = _ ] =>
+            transitivity (a ;; b ;; c;; e) end.
+      
+        repeat rewrite <- assoc.
+        apply maponpaths.
+        apply maponpaths.
+        apply maponpaths.
+        repeat rewrite <- assoc in H5.
+        apply H5.
+
+         rewrite functor_id.
+         rewrite id_right.
+         assert (H4 := fbracket_τ).
+         assert (H4':= H4 T T (identity _ )).
+         assert (H6:= nat_trans_eq_pointwise _ _ _ _ _ _ H4').
+         repeat rewrite assoc.
+         apply cancel_postcomposition.
+         apply H6.
+
+Admitted. 
+
+End third_monad_law_with_assoc.
 
 Unset Printing All.
 Set Printing Notations.
@@ -1079,7 +1195,7 @@ Section hss_morphisms.
 (** A morphism [f] of pointed functors is an algebra morphism when... *)
 
 Definition isAlgMor {T T' : Alg} (f : T ⇒ T') : UU :=
-   #H (# U f) ;; τ T' =  compose (C:=EndC) (τ T) (#U f).
+  #H (# U f) ;; τ T' = compose (C:=EndC) (τ T) (#U f).
 
 Lemma isaprop_isAlgMor (T T' : Alg) (f : T ⇒ T') : isaprop (isAlgMor f).
 Proof.
