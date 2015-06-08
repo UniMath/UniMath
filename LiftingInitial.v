@@ -15,6 +15,7 @@ Require Import SubstSystems.PointedFunctors.
 Require Import SubstSystems.ProductPrecategory.
 Require Import SubstSystems.HorizontalComposition.
 Require Import SubstSystems.PointedFunctorsComposition.
+Require Import SubstSystems.Signatures.
 Require Import SubstSystems.SubstitutionSystems.
 Require Import SubstSystems.FunctorsPointwiseCoproduct.
 
@@ -57,13 +58,12 @@ Section Precategory_Algebra.
 Variable C : precategory.
 Variable hs : has_homsets C.
 
- Local Notation "'EndC'":= ([C, C, hs]) .
+Local Notation "'EndC'":= ([C, C, hs]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 Local Notation "'U'" := (functor_ptd_forget C hs).
 
-Variable H : functor [C,C,hs] [C,C,hs].
-
-Variable θ : θ_source H ⟶ θ_target H.
+Variable H : Signature C hs.
+Let θ := theta H. 
 
 Local Notation "'Alg_obj'" := (Alg C hs H).
 
@@ -152,24 +152,24 @@ Variable IA : Initial precategory_Alg.
 
 Definition InitAlg : ALG := InitialObject _ IA.
 
-Definition bracket_for_InitAlg : bracket _ _ H θ InitAlg.
+Definition bracket_for_InitAlg : bracket _ _ H InitAlg.
 Proof.
   intros F α.
   admit.
 Admitted.
 
-Definition InitHSS : hss_precategory C hs H θ.
+Definition InitHSS : hss_precategory C hs H.
 Proof.
   exists InitAlg.
   exact bracket_for_InitAlg.
 Defined.
 
-Lemma isInitial_InitHSS : isInitial (hss_precategory C hs H θ) InitHSS.
+Lemma isInitial_InitHSS : isInitial (hss_precategory C hs H) InitHSS.
 Proof.
   admit.
 Admitted.
 
-Lemma Ihss : Initial (hss_precategory C hs H θ).
+Lemma Ihss : Initial (hss_precategory C hs H).
 Proof.
   exists InitHSS.
   apply isInitial_InitHSS.

@@ -14,7 +14,7 @@ Require Import SubstSystems.PointedFunctors.
 Require Import SubstSystems.ProductPrecategory.
 Require Import SubstSystems.HorizontalComposition.
 Require Import SubstSystems.PointedFunctorsComposition.
-Require Import SubstSystems.SubstitutionSystems.
+Require Import SubstSystems.Signatures.
 Require Import SubstSystems.FunctorsPointwiseCoproduct.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -290,7 +290,6 @@ Proof.
      
      clear Hd.
        apply pathsinv0.
-       Check CoproductOfArrows_comp.
        match goal with |[|- CoproductOfArrows _ _ _ ?f ?g ;;
                             CoproductOfArrows _ _ _ ?f' ?g' ;; _ = _ ] =>
               

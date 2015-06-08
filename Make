@@ -8,6 +8,7 @@ SumOfSignatures.v
 PointedFunctorsComposition.v
 PointedFunctors.v
 SubstitutionSystems.v
+Signatures.v
 ProductPrecategory.v
 HorizontalComposition.v
 FunctorsPointwiseCoproduct.v

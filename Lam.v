@@ -9,13 +9,13 @@ Require Import UniMath.RezkCompletion.whiskering.
 Require Import UniMath.RezkCompletion.Monads.
 Require Import UniMath.RezkCompletion.limits.products.
 Require Import UniMath.RezkCompletion.limits.coproducts.
-Require Import UniMath.RezkCompletion.limits.initial.
+Require Import UniMath.RezkCompletion.limits.terminal.
 Require Import SubstSystems.Auxiliary.
 Require Import SubstSystems.PointedFunctors.
 Require Import SubstSystems.ProductPrecategory.
 Require Import SubstSystems.HorizontalComposition.
 Require Import SubstSystems.PointedFunctorsComposition.
-Require Import SubstSystems.Signatures.
+Require Import SubstSystems.SubstitutionSystems.
 Require Import SubstSystems.FunctorsPointwiseCoproduct.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -29,30 +29,64 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
 Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 35).
 
-Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
-
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .
 Arguments θ_Strength1 {_ _ _} _ .
 Arguments θ_Strength2 {_ _ _} _ .
 
-Section Example_Signatures.
 
-(** Define some examples of signatures
-
-    For this, we implement basic building blocks for 
-    - abstraction (precomposition with +1, i.e. F mapsto F ∘ option)
-    - application (sends a functor F to F × F)
-    - explicit flattening (sends F to F ∘ F)
-
-*)
-
+Section Lambda.
 
 Variable C : precategory.
 Variable hs : has_homsets C.
 
- Local Notation "'EndC'":= ([C, C, hs]) .
-Local Notation "'Ptd'" := (precategory_Ptd C hs).
-Local Notation "'U'" := (functor_ptd_forget C hs).
+Variable terminal : Terminal C.
 
-End Example_Signatures.
+Variable CC : Coproducts C.
+Variable CP : Products C.
+
+Let one : C :=  @TerminalObject C terminal.
+
+Definition App_Sig : functor [C, C, hs] [C, C, hs].
+(** 
+   [App_Sig (X) (A) :=  X(A) × X(A)]
+ 
+see FunctorsPointwiseCoproduct, do analogously for product 
+
+*)
+
+Definition Lam_Sig : functor [C, C, hs] [C, C, hs].
+(** 
+   [Lam_Sig (X) := X o option
+
+   implement the functor (E + _) for fixed E
+
+   needs terminal object
+
+*)
+
+Definition Flat_Sig : functor [C, C, hs] [C, C, hs].
+(** 
+   [Flat_Sig (X) := X o X]
+   
+   ingredients:
+     - functor_composite in RezkCompletion.functors_transformations 
+     - map given by horizontal composition in Substsystems.HorizontalComposition
+     - functor laws for this thing : 
+         functor_id, functor_comp
+         id_left, id_right, assoc
+
+ Alternatively : free in two arguments, then precomposed with diagonal
+ 
+*)
+
+
+
+(** here definition of suitable θ's  *)
+
+(** finally, prove strength laws to yield the 3 signatures *)
+
+
+
+
+

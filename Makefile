@@ -99,6 +99,7 @@ VFILES:=UnicodeNotations.v\
   FunctorsPointwiseCoproduct.v\
   HorizontalComposition.v\
   ProductPrecategory.v\
+  Signatures.v\
   SubstitutionSystems.v\
   PointedFunctors.v\
   PointedFunctorsComposition.v\
