@@ -152,7 +152,14 @@ Proof.
     unfold coproduct_nat_trans_in2_data.
     unfold coproduct_nat_trans_in1_data.
     simpl.
+    
+    
+    eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp]. (* replaces commented code below *)
+    
+    
+(*    
     assert (T:=CoproductOfArrows_comp C CC).
+    
     match goal with |[ |- _ = (CoproductOfArrows C (CC ?a ?b) (CC ?c ?d) ?f ?g) ;; _ ] =>
                        assert (T2 := T a b c d) end.
     clear T.
@@ -170,6 +177,9 @@ Proof.
      apply (!T5).
 
     clear T5.
+*)
+    eapply pathscomp0. apply cancel_postcomposition. apply CoproductOfArrows_comp.
+(*
     assert (T:=CoproductOfArrows_comp C CC).
     assert (T':= T _ _ _ _ _ _ 
              (pr1 (# H1 α) ((pr1 Z) c))
@@ -181,6 +191,11 @@ Proof.
        transitivity (e ;; h) end.
     + apply cancel_postcomposition.
       apply T'.
+*)
+    eapply pathscomp0. apply CoproductOfArrows_comp.
+    
+    apply CoproductOfArrows_eq.
+ (*
     + clear T'.
       assert (T := CoproductOfArrows_comp C CC 
                    _ _ _ _ _ _ 
@@ -192,7 +207,7 @@ Proof.
       * apply T.
       * clear T. 
         apply CoproductOfArrows_eq.
-        
+*)        
            assert (Ha:= nat_trans_ax θ1).
            assert (Hb:= Ha _ _ (prodcatmor _ _ α β)). clear Ha.
            simpl in *.
@@ -229,6 +244,10 @@ Proof.
     simpl.
     unfold bla1.
     unfold coproduct_nat_trans_data.
+    
+    eapply pathscomp0. apply precompWithCoproductArrow.
+    
+(*    
     assert (H:=@precompWithCoproductArrow C).
     assert (Ha := H _ _ (CC ((pr1 (H1 X)) ((pr1 (id_Ptd C hs)) x)) ((pr1 (H2 X)) ((pr1 (id_Ptd C hs)) x)))).
     clear H.
@@ -239,13 +258,14 @@ Proof.
                        (pr1 (θ2 (prodcatpair C hs X (id_Ptd C hs))) x)).
         clear Hb.
         rewrite Hc. clear Hc.
-      unfold coproduct_functor_ob.
+*)
+  
+    unfold coproduct_functor_ob.
       simpl.
      apply pathsinv0.
      apply Coproduct_endo_is_identity.
      + rewrite CoproductIn1Commutes.
        unfold θ_Strength1 in S11.
-       
        assert (Ha := nat_trans_eq_pointwise _ _ _ _ _ _ (S11 X) x).
        rewrite assoc.
        match goal with |[H : _ = ?e |- _ ;; _ ;; ?f = _ ] => 
@@ -274,6 +294,8 @@ Proof.
     simpl.
     unfold coproduct_nat_trans_data.
     simpl.
+    eapply pathscomp0. apply precompWithCoproductArrow.
+(*
     assert (Ha := @precompWithCoproductArrow C).
     assert (Hb := Ha _ _ (CC ((pr1 (H1 X)) (pr1 Z' (pr1 Z x))) ((pr1 (H2 X)) (pr1 Z' (pr1 Z x))))).
     clear Ha.
@@ -289,7 +311,18 @@ Proof.
      { apply Hd. }
      
      clear Hd.
+*)
        apply pathsinv0.
+       eapply pathscomp0. apply cancel_postcomposition. apply CoproductOfArrows_comp.
+(*
+       eapply pathscomp0. apply precompWithCoproductArrow.
+       
+       Search (CoproductArrow _ _ _ _ _ _ = CoproductArrow _ _ _ _ _ _ ).
+       
+       apply CoproductArrow_eq.
+  *)     
+       
+(*
        match goal with |[|- CoproductOfArrows _ _ _ ?f ?g ;;
                             CoproductOfArrows _ _ _ ?f' ?g' ;; _ = _ ] =>
               
@@ -300,6 +333,7 @@ Proof.
          apply T. }
        
        clear T.
+*)
        apply precompWithCoproductArrow_eq.
        - assert (Ha:=S12 X Z Z' Y α).
          simpl in Ha.
