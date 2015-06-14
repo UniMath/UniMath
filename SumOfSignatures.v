@@ -69,10 +69,7 @@ Definition bla1 (X : [C, C] hs) (Z : precategory_Ptd C hs) :
 Proof.
   intro c.
   apply CoproductOfArrows.
-  - set (T1 := θ1 (prodcatpair _ _ X Z)).
-    set (T2 := pr1 T1 c).
-    simpl in T2.
-    exact T2.
+  - exact (pr1 (θ1 (prodcatpair _ _ X Z)) c).
   - exact (pr1 (θ2 (prodcatpair _ _ X Z)) c).
 Defined.
 
@@ -135,25 +132,16 @@ Lemma is_nat_trans_θ_ob :
  is_nat_trans (θ_source_functor_data C hs H) (θ_target_functor_data C hs H)
      θ_ob.
 Proof.
-    intros [X Z] [X' Z'] [α β].  
-(*  simpl in *.
-  unfold θ_source_mor.
-  simpl.
-  unfold θ_target_mor.
-  simpl.
-  unfold coproduct_functor_mor.
-*)
+  intros [X Z] [X' Z'] [α β].  
   apply nat_trans_eq.
   - apply hs.
-  - intro c.
-    simpl.
-    unfold coproduct_nat_trans_data.
+  - intro c; simpl.
+    unfold coproduct_nat_trans_data;
     unfold bla1; simpl.
     unfold coproduct_functor_mor.
     simpl.
     unfold coproduct_nat_trans_in2_data.
     unfold coproduct_nat_trans_in1_data.
-    simpl.
     
     
     eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp]. (* replaces commented code below *)
@@ -197,7 +185,8 @@ Proof.
     eapply pathscomp0. apply CoproductOfArrows_comp.
     
     apply CoproductOfArrows_eq.
- (*
+
+(*
     + clear T'.
       assert (T := CoproductOfArrows_comp C CC 
                    _ _ _ _ _ _ 
@@ -210,21 +199,10 @@ Proof.
       * clear T. 
         apply CoproductOfArrows_eq.
 *)        
-           assert (Ha:= nat_trans_ax θ1).
-           assert (Hb:= Ha _ _ (prodcatmor _ _ α β)). clear Ha.
-           simpl in *.
-           unfold θ_source_mor, θ_target_mor in Hb.
-           simpl in *.
-           assert (HA := nat_trans_eq_pointwise _ _ _ _ _ _ Hb c).
-           apply HA.
-           
-           assert (Ha:= nat_trans_ax θ2).
-           assert (Hb:= Ha _ _ (prodcatmor _ _ α β)). clear Ha.
-           simpl in *.
-           unfold θ_source_mor, θ_target_mor in Hb.
-           simpl in *.
-           assert (HA := nat_trans_eq_pointwise _ _ _ _ _ _ Hb c).
-           apply HA.
+    + assert (Ha:= nat_trans_ax θ1 _ _ (prodcatmor _ _ α β)).
+      apply (nat_trans_eq_pointwise _ _ _ _ _ _ Ha c).
+    + assert (Ha:= nat_trans_ax θ2 _ _ (prodcatmor _ _ α β)).
+      apply (nat_trans_eq_pointwise _ _ _ _ _ _ Ha).
 Qed.           
            
 
@@ -262,8 +240,7 @@ Proof.
         rewrite Hc. clear Hc.
 *)
   
-    unfold coproduct_functor_ob.
-      simpl.
+    unfold coproduct_functor_ob; simpl.
      apply pathsinv0.
      apply Coproduct_endo_is_identity.
      + rewrite CoproductIn1Commutes.
