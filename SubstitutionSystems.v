@@ -146,10 +146,10 @@ Lemma fbracket_natural (T : hss) {Z Z' : Ptd} (f : Z ⇒ Z') (g : Z' ⇒ T)
 Proof.
   apply fbracket_unique_pointwise.
   - simpl. intro c.
-    set (H':=nat_trans_ax (ptd_pt _ (pr1 (pr1 T)) )).
     rewrite assoc.
+    set (H':=nat_trans_ax (ptd_pt _ (pr1 (pr1 T)) )).
     simpl in H'.
-    rewrite <- H'.
+    rewrite <- H'; clear H'.
     rewrite <- assoc.
     apply maponpaths.
     set (X:= nat_trans_eq_weq _ _ hs _ _ _ _  (fbracket_η T g)).
@@ -161,11 +161,10 @@ Proof.
     rewrite <- H'; clear H'.
     set (H':=fbracket_τ T g).
     simpl in H'.
-    set (X:= nat_trans_eq_pointwise _ _  _ _ _ _ H' c).
+    assert (X:= nat_trans_eq_pointwise _ _  _ _ _ _ H' c).
     simpl in X.
     rewrite  <- assoc.
     rewrite  <- assoc.
-    simpl in *.
     transitivity (  # (pr1 (H ((U T)))) (pr1 (pr1 f) c) ;;
                      (pr1 (θ ((U T) ⊗ Z')) c);; pr1 (# H (fbracket T g)) c;; (τ T) c).
     Focus 2.
@@ -298,7 +297,7 @@ Proof.
     assert (H2 := H' (U T)).
     assert (H3 := nat_trans_eq_pointwise _ _ _ _ _ _ H2 c).
     simpl in *.
-    match goal with | [ |- _ = ?e ] => pathvia (identity _ ;; τ T c) end.
+    pathvia (identity _ ;; τ T c).
     + apply cancel_postcomposition. apply H3. 
     + apply id_left.
 Qed.

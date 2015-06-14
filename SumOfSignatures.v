@@ -83,11 +83,12 @@ Lemma bar (X : [C, C] hs) (Z : precategory_Ptd C hs):
      (coproduct_functor_data C C CC (H1 (functor_composite (pr1 Z) X))
         (H2 (functor_composite (pr1 Z) X))) (bla1 X Z).
 Proof.
-  intros x x' f.
-  simpl.
-  unfold bla1.
-  simpl.
+  intros x x' f; simpl.
+  unfold bla1; simpl.
   unfold coproduct_functor_mor.
+  eapply pathscomp0; [ apply CoproductOfArrows_comp | ].
+  eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp].
+(*  
   assert (T:= CoproductOfArrows_comp C CC).
   assert (T1 := T _ _ _ _ _ _ 
            (# (pr1 (H1 X)) (# (pr1 Z) f)) (# (pr1 (H2 X)) (# (pr1 Z) f))
@@ -104,10 +105,11 @@ Proof.
                    (# (pr1 (H1 (functor_composite (pr1 Z) X))) f)
                    (# (pr1 (H2 (functor_composite (pr1 Z) X))) f) ).
     match goal with |[H : _ = ?g |- _ ] => transitivity g end.
-    + apply CoproductOfArrows_eq.
-      * apply (nat_trans_ax (θ1 (prodcatpair _ _ X Z))).
-      * apply (nat_trans_ax (θ2 (prodcatpair _ _ X Z))).
-    + apply (!T2). 
+*)
+    
+  apply CoproductOfArrows_eq.
+  * apply (nat_trans_ax (θ1 (prodcatpair _ _ X Z))).
+  * apply (nat_trans_ax (θ2 (prodcatpair _ _ X Z))).
 Qed.
 
 Definition bla (X : [C, C] hs) (Z : precategory_Ptd C hs) :
