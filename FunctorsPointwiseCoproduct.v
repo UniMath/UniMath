@@ -236,6 +236,7 @@ Proof.
   exists (tpair _ (coproduct_nat_trans A f g)
              (dirprodpair (coproduct_nat_trans_In1Commutes _ _ _ )
                           (coproduct_nat_trans_In2Commutes _ _ _ ))).
+  simpl.
   apply coproduct_nat_trans_univ_prop.
 Defined.
 
