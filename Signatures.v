@@ -155,16 +155,18 @@ Proof.
       apply idpath.
   - intros FX FX' FX''.
     intros α β.
+    unfold θ_target_functor_data. simpl in *.
     unfold θ_target_mor.
     set (T:=functor_comp H _ _ _ (pr1 α ∙∙ # U (pr2 α)) (pr1 β ∙∙ # U (pr2 β))).
     simpl in *.
-    match goal with |[ H :  ?f = _ |- _ ] => transitivity f end.
+    eapply pathscomp0.
+(*    match goal with |[ H :  ?f = _ |- _ ] => transitivity f end. *)
 (*    etransitivity. *)
     Focus 2.
       apply T.
-    unfold θ_target_mor. simpl.
-    apply maponpaths. clear T.
-    simpl.
+(*  unfold θ_target_mor. simpl. *)
+    clear T.
+    apply maponpaths.
     destruct α as [α a].
     destruct β as [β b]; simpl in *.
     apply nat_trans_eq.
@@ -234,80 +236,39 @@ Definition θ_Strength2_int : UU
       (α_functor _ (U Z) (U Z') (H X) : functor_compose hs hs _ _  ⇒ _ ) ;;  
       θ (X ⊗ Z') øø (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) .
 
-(*
-
 Lemma θ_Strength2_int_implies_θ_Strength2 : θ_Strength2_int → θ_Strength2.
 Proof.
   unfold θ_Strength2_int, θ_Strength2.
   intros T X Z Z' Y a.
   assert (TXZZ' := T X Z Z').
-  rewrite <- TXZZ'; clear TXZZ'.
   apply nat_trans_eq; try assumption.
-  intro c ; simpl.
+  intro c.
+  simpl.
+  assert (TXZZ'c := nat_trans_eq_pointwise _ _ _ _ _ _ TXZZ' c).
+  simpl in TXZZ'c.
+  clear T TXZZ'.
+  rewrite id_left in TXZZ'c.
+  rewrite <- TXZZ'c.
   rewrite <- assoc.
   apply maponpaths.
-    
-(*
-  match goal with | [ |- ?f ;; ?g = _ ] => 
-              pathvia (f ;; (#H (identity _ ) ;; g)) end.
-  - rewrite assoc. apply cancel_postcomposition.
-    rewrite functor_id.
-    apply pathsinv0.
-    apply id_right.
-  - apply cancel_postcomposition.
-    rewrite <- assoc.
-    apply maponpaths.
-    rewrite <- functor_comp.
-    rewrite id_left.
-*)    
-  assert (X0 : α_functor _ (U Z) (U Z') X = identity (_ : EndC)).
-  { apply nat_trans_eq; try assumption; intros; apply idpath. }
-  rewrite X0; clear X0.
-  apply nat_trans_eq; try assumption.
-  intro x; simpl.
-  assert (T0 : forall X' c,  pr1 (#H (identity X')) c = identity _ ).
-  { intros X' c. rewrite functor_id. apply idpath. }
-  
-  rewrite <- assoc.
-  apply maponpaths.
-  admit.
-(*  
-  assert (T0Xx := T0 (functor_compose hs hs (functor_composite (U Z) (U Z)) X) x).
-  admit.
-  
-  match goal with | [ |- _ = ?f ;; _ ] => set (TTT:= f) end.
-  assert (∀ (C : precategory
-  
-  
-  match goal with | [ H : _ = ?x |- ?f ;; ?g = _ ] => 
-         pathvia (f ;; x ;; g) end.
-  
-  
-  
-  rewrite T0Xx.
-  rewrite (T0 _ x).
-  
-  rewrite <- assoc.
-  apply maponpaths.
-  apply pathsinv0.
-  match goal with |[ |- _ ;; ?f = _ ] => pathvia (identity _ ;; f) end. 
-  - apply cancel_postcomposition.
-  pathvia (identity _ ;; # H a x).
-  - apply cancel_postcomposition.
+  clear TXZZ'c.
+  assert (functor_comp_H := functor_comp H _ _ _ (α_functor C (pr1 Z) (pr1 Z') X) (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) ⇒ Y)).
+  assert (functor_comp_H_c := nat_trans_eq_pointwise _ _ _ _ _ _ functor_comp_H c).
+  simpl in functor_comp_H_c.
   eapply pathscomp0.
-  
-  rewrite (functor_id H).
-  
-  rewrite assoc.
+Focus 2.
+  apply functor_comp_H_c.
+  clear functor_comp_H functor_comp_H_c.
+  generalize c; clear c.
+  apply nat_trans_eq_pointwise.
   apply maponpaths.
-  rewrite assoc.
-  rewrite assoc.
-  assert (TX:= T X).
   apply nat_trans_eq; try assumption.
-  intro c; s
-*)
-Admitted.
-*)
+  intro c.
+  simpl.
+  rewrite id_left.
+  apply idpath.
+Qed.
+  
 
 End Strength_law_2_intensional.
 
