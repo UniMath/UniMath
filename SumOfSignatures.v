@@ -32,6 +32,8 @@ Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .
 Arguments θ_Strength1 {_ _ _} _ .
 Arguments θ_Strength2 {_ _ _} _ .
+Arguments θ_Strength1_int {_ _ _} _ .
+Arguments θ_Strength2_int {_ _ _} _ .
 
 Section sum_of_signatures.
 
@@ -132,17 +134,16 @@ Lemma is_nat_trans_θ_ob :
  is_nat_trans (θ_source_functor_data C hs H) (θ_target_functor_data C hs H)
      θ_ob.
 Proof.
-  intros [X Z] [X' Z'] [α β].  
+  intros [X Z] [X' Z'] [α β]. simpl in *.
   apply nat_trans_eq.
-  - apply hs.
+  - exact hs.
   - intro c; simpl.
     unfold coproduct_nat_trans_data;
     unfold bla1; simpl.
     unfold coproduct_functor_mor.
-    simpl.
     unfold coproduct_nat_trans_in2_data.
     unfold coproduct_nat_trans_in1_data.
-    
+    (* on the right-hand side, there is a second but unfolded CoproductOfArrows in the row - likewise a first such on the left-hand side, to be treater further below *)
     
     eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp]. (* replaces commented code below *)
     
@@ -225,41 +226,21 @@ Proof.
     unfold bla1.
     unfold coproduct_nat_trans_data.
     
-    eapply pathscomp0. apply precompWithCoproductArrow.
-    
-(*    
-    assert (H:=@precompWithCoproductArrow C).
-    assert (Ha := H _ _ (CC ((pr1 (H1 X)) ((pr1 (id_Ptd C hs)) x)) ((pr1 (H2 X)) ((pr1 (id_Ptd C hs)) x)))).
-    clear H.
-    assert (Hb := Ha _ _  (CC ((pr1 (H1 (functor_composite (pr1 (id_Ptd C hs)) X))) x)
-        ((pr1 (H2 (functor_composite (pr1 (id_Ptd C hs)) X))) x))).
-      clear Ha.
-     assert (Hc := Hb  (pr1 (θ1 (prodcatpair C hs X (id_Ptd C hs))) x)
-                       (pr1 (θ2 (prodcatpair C hs X (id_Ptd C hs))) x)).
-        clear Hb.
-        rewrite Hc. clear Hc.
-*)
-  
-    unfold coproduct_functor_ob; simpl.
+    eapply pathscomp0. apply CoproductOfArrows_comp.
      apply pathsinv0.
      apply Coproduct_endo_is_identity.
-     + rewrite CoproductIn1Commutes.
+     + rewrite CoproductOfArrowsIn1.
        unfold θ_Strength1 in S11.
        assert (Ha := nat_trans_eq_pointwise _ _ _ _ _ _ (S11 X) x).
-       rewrite assoc.
-       match goal with |[H : _ = ?e |- _ ;; _ ;; ?f = _ ] => 
-              transitivity (e ;; f) end.
-       * apply cancel_postcomposition.
-         apply Ha.
-       * apply id_left.
-    + rewrite CoproductIn2Commutes.
-      assert (Ha := nat_trans_eq_pointwise _ _ _ _ _ _ (S21 X) x).
-       rewrite assoc.
-       match goal with |[H : _ = ?e |- _ ;; _ ;; ?f = _ ] => 
-              transitivity (e ;; f) end.
-       * apply cancel_postcomposition.
-         apply Ha.
-       * apply id_left.
+       eapply pathscomp0; [ | apply id_left].
+       apply cancel_postcomposition.
+       apply Ha.
+     + rewrite CoproductOfArrowsIn2.
+       unfold θ_Strength1 in S21.
+       assert (Ha := nat_trans_eq_pointwise _ _ _ _ _ _ (S21 X) x).
+       eapply pathscomp0; [ | apply id_left].
+       apply cancel_postcomposition.
+       apply Ha.
 Qed.
 
 Lemma SumStrength2 : θ_Strength2 θ.
@@ -273,61 +254,91 @@ Proof.
     simpl.
     unfold coproduct_nat_trans_data.
     simpl.
-    eapply pathscomp0. apply precompWithCoproductArrow.
-(*
-    assert (Ha := @precompWithCoproductArrow C).
-    assert (Hb := Ha _ _ (CC ((pr1 (H1 X)) (pr1 Z' (pr1 Z x))) ((pr1 (H2 X)) (pr1 Z' (pr1 Z x))))).
-    clear Ha.
-    assert (Hc := Hb _ _ (CC ((pr1 (H1 (functor_composite (functor_composite (pr1 Z) (pr1 Z')) X))) x)
-        ((pr1 (H2 (functor_composite (functor_composite (pr1 Z) (pr1 Z')) X))) x))
-     (pr1 (θ1 (prodcatpair C hs X (ptd_composite C Z Z'))) x)
-     (pr1 (θ2 (prodcatpair C hs X (ptd_composite C Z Z'))) x)  ).
-      clear Hb.
-     assert (Hd := Hc _ (pr1 (# H1 α) x;; coproduct_nat_trans_in1_data C C CC (H1 Y) (H2 Y) x)
-     (pr1 (# H2 α) x;; coproduct_nat_trans_in2_data C C CC (H1 Y) (H2 Y) x)).
-     clear Hc.
-     match goal with |[ H : _ = ?e |- _ ] => transitivity e end.
-     { apply Hd. }
-     
-     clear Hd.
-*)
-       apply pathsinv0.
-       eapply pathscomp0. apply cancel_postcomposition. apply CoproductOfArrows_comp.
-(*
-       eapply pathscomp0. apply precompWithCoproductArrow.
-       
-       Search (CoproductArrow _ _ _ _ _ _ = CoproductArrow _ _ _ _ _ _ ).
-       
-       apply CoproductArrow_eq.
-  *)     
-       
-(*
-       match goal with |[|- CoproductOfArrows _ _ _ ?f ?g ;;
-                            CoproductOfArrows _ _ _ ?f' ?g' ;; _ = _ ] =>
-              
-         assert (T:= CoproductOfArrows_comp _ CC _ _ _ _ _ _ f g f' g') end.
-       match goal with |[T: _ = ?e |- _ ;; _ ;; ?f = _ ] =>
-            transitivity (e ;; f) end.
-       { apply cancel_postcomposition.
-         apply T. }
-       
-       clear T.
-*)
-       apply precompWithCoproductArrow_eq.
+    eapply pathscomp0. apply CoproductOfArrows_comp.
+    apply pathsinv0.
+    eapply pathscomp0. apply cancel_postcomposition. apply CoproductOfArrows_comp.
+    unfold coproduct_nat_trans_in2_data.
+    unfold coproduct_nat_trans_in1_data.
+    eapply pathscomp0. apply CoproductOfArrows_comp.
+    apply pathsinv0.
+    apply CoproductOfArrows_eq.
        - assert (Ha:=S12 X Z Z' Y α).
          simpl in Ha.
-         rewrite assoc.
-         rewrite assoc.
-         apply cancel_postcomposition.
-         assert (Hb := nat_trans_eq_pointwise _ _ _ _ _ _ Ha).
-         apply Hb.
+         assert (Ha_x := nat_trans_eq_pointwise _ _ _ _ _ _ Ha x).
+         apply Ha_x.
        - assert (Ha:=S22 X Z Z' Y α).
          simpl in Ha.
-         rewrite assoc.
-         rewrite assoc.
-         apply cancel_postcomposition.
-         assert (Hb := nat_trans_eq_pointwise _ _ _ _ _ _ Ha).
-         apply Hb.       
+         assert (Ha_x := nat_trans_eq_pointwise _ _ _ _ _ _ Ha x).
+         apply Ha_x.
+Qed.
+
+Variable S11' : θ_Strength1_int θ1.
+Variable S12' : θ_Strength2_int θ1.
+Variable S21' : θ_Strength1_int θ2.
+Variable S22' : θ_Strength2_int θ2.
+
+Lemma SumStrength1' : θ_Strength1_int θ.
+Proof.
+  clear S11 S12 S21 S22 S12' S22'.
+  unfold θ_Strength1_int.
+  intro X.
+  apply nat_trans_eq. 
+  - apply hs.
+  - intro x.
+    simpl.
+    unfold bla1.
+    unfold coproduct_nat_trans_data.
+    
+    eapply pathscomp0. apply CoproductOfArrows_comp.
+     apply pathsinv0.
+     apply Coproduct_endo_is_identity.
+     + rewrite CoproductOfArrowsIn1.
+       red in S11'.
+       assert (Ha := nat_trans_eq_pointwise _ _ _ _ _ _ (S11' X) x).
+       simpl in Ha.
+       eapply pathscomp0; [ | apply id_left].
+       apply cancel_postcomposition.
+       apply Ha.
+     + rewrite CoproductOfArrowsIn2.
+       red in S21'.
+       assert (Ha := nat_trans_eq_pointwise _ _ _ _ _ _ (S21' X) x).
+       simpl in Ha.
+       eapply pathscomp0; [ | apply id_left].
+       apply cancel_postcomposition.
+       apply Ha.
+Qed.
+
+
+Lemma SumStrength2' : θ_Strength2_int θ.
+Proof.
+  clear S11 S12 S21 S22 S11' S21'.
+  unfold θ_Strength2_int.
+  intros X Z Z'.
+  apply nat_trans_eq; try assumption.
+    intro x.
+    simpl.
+    rewrite id_left. 
+    unfold bla1.
+    simpl.
+    unfold coproduct_nat_trans_data.
+    simpl.
+    eapply pathscomp0. apply CoproductOfArrows_comp.
+    apply pathsinv0.
+    eapply pathscomp0. apply CoproductOfArrows_comp.
+    apply pathsinv0.
+    apply CoproductOfArrows_eq.
+       - assert (Ha:=S12' X Z Z').
+         simpl in Ha.
+         assert (Ha_x := nat_trans_eq_pointwise _ _ _ _ _ _ Ha x).
+         simpl in Ha_x.
+         rewrite id_left in Ha_x.
+         apply Ha_x.
+       - assert (Ha:=S22' X Z Z').
+         simpl in Ha.
+         assert (Ha_x := nat_trans_eq_pointwise _ _ _ _ _ _ Ha x).
+         simpl in Ha_x.
+         rewrite id_left in Ha_x.
+         apply Ha_x.
 Qed.
 
 End sum_of_signatures.
