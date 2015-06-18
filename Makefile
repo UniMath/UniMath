@@ -22,6 +22,7 @@ ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
 endif
 everything: TAGS all html install
+OTHERFLAGS += $(MOREFLAGS)
 OTHERFLAGS += -indices-matter -type-in-type
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
