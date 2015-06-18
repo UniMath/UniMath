@@ -215,6 +215,23 @@ Proof.
   rewrite X0 in T2.
   apply T2.
 Defined.
+
+(* practically the same proof works in the opposite direction *)
+Lemma θ_Strength1_implies_θ_Strength1_int : θ_Strength1 → θ_Strength1_int.
+Proof.
+  unfold θ_Strength1_int, θ_Strength1.
+  intros T X.
+  assert (TX:= T X).
+  apply nat_trans_eq; try assumption.
+  intro c; simpl.
+  assert (T2 := nat_trans_eq_pointwise _ _ _ _ _ _ TX c).
+  simpl in *.
+  assert (X0 : λ_functor C X = identity (X : EndC)).
+  { apply nat_trans_eq; try assumption; intros; apply idpath. }
+  rewrite X0.
+  apply T2.
+Defined.
+
   
 End Strength_law_1_intensional.
 
@@ -268,13 +285,41 @@ Focus 2.
   rewrite id_left.
   apply idpath.
 Qed.
-  
+ 
+(* for curiosity also the other direction *)
+Lemma θ_Strength2_implies_θ_Strength2_int : θ_Strength2 → θ_Strength2_int.
+Proof.
+  unfold θ_Strength2_int, θ_Strength2.
+  intros T X Z Z'.
+  assert (TXZZ'_inst := T X Z Z' (functor_compose hs hs (U Z) (functor_composite (U Z') X)) (α_functor C (pr1 Z) (pr1 Z') X)).
+  eapply pathscomp0. apply TXZZ'_inst.
+  clear T TXZZ'_inst.
+  apply nat_trans_eq; try assumption.
+  intro c.
+  simpl.
+  rewrite id_left.
+  rewrite <- assoc.
+  apply maponpaths.
+  eapply pathscomp0; [| apply id_right].
+  apply maponpaths.
+  assert (functor_id_H := functor_id H (functor_compose hs hs (pr1 Z) (functor_composite (pr1 Z') X))).
+  assert (functor_id_H_c := nat_trans_eq_pointwise _ _ _ _ _ _ functor_id_H c).
+  eapply pathscomp0; [| apply functor_id_H_c].
+  clear functor_id_H functor_id_H_c.
+  generalize c; clear c.
+  apply nat_trans_eq_pointwise.
+  apply maponpaths.
+  apply nat_trans_eq; try assumption.
+  intro c.
+  simpl.
+  apply idpath.
+Qed.
 
 End Strength_law_2_intensional.
 
-
+(*
 Hypothesis θ_strength2 : θ_Strength2.
-
+*)
 
 (** Not having a general theory of binatural transformations, we isolate 
     naturality in each component here *)
