@@ -12,5 +12,6 @@ Signatures.v
 ProductPrecategory.v
 HorizontalComposition.v
 FunctorsPointwiseCoproduct.v
+FunctorsPointwiseProduct.v
 Auxiliary.v
 UnicodeNotations.v

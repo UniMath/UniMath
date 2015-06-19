@@ -96,6 +96,7 @@ endif
 
 VFILES:=UnicodeNotations.v\
   Auxiliary.v\
+  FunctorsPointwiseProduct.v\
   FunctorsPointwiseCoproduct.v\
   HorizontalComposition.v\
   ProductPrecategory.v\
