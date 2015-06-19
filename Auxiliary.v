@@ -164,3 +164,29 @@ Proof.
 Qed.
 
 End Products.
+
+Section Product_unique.
+
+Variable C : precategory.
+Variable CC : Products C.
+Variables a b : C.
+
+Lemma Product_endo_is_identity (P : ProductCone _ a b) 
+  (k : ProductObject _ P ⇒ ProductObject _ P) 
+  (H1 : k ;; ProductPr1 _ P = ProductPr1 _ P)
+  (H2 : k ;; ProductPr2 _ P = ProductPr2 _ P)
+  : identity _ = k.
+Proof.
+  apply pathsinv0.
+  eapply pathscomp0.
+  apply ProductArrowEta.
+  apply pathsinv0.
+  apply ProductArrowUnique; apply pathsinv0.
+  + rewrite id_left. exact H1.
+  + rewrite id_left. exact H2.
+Defined.
+  
+
+
+
+End Product_unique.
