@@ -184,9 +184,6 @@ Proof.
   apply ProductArrowUnique; apply pathsinv0.
   + rewrite id_left. exact H1.
   + rewrite id_left. exact H2.
-Defined.
-  
-
-
+Qed.
 
 End Product_unique.
