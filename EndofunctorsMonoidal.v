@@ -40,9 +40,8 @@ Proof.
   exists (λ x, identity _ ).
   intros a b f; 
   simpl.
-  eapply pathscomp0.
-  - apply id_right.
-  - apply pathsinv0, id_left.
+  rewrite id_right.
+  apply pathsinv0, id_left.
 Defined.
 
 End Monoidal_Structure_on_Endofunctors.
