@@ -46,14 +46,12 @@ Proof.
   - red; intros; simpl in *.
     apply pathsinv0.
     unfold product_functor_mor.
-    apply ProductArrowUnique.
-    + rewrite id_left.
+    apply Product_endo_is_identity.
+    + rewrite ProductOfArrowsPr1.
       rewrite functor_id.
-      apply pathsinv0.
       apply id_right.
-    + rewrite id_left.
+    + rewrite ProductOfArrowsPr2.
       rewrite functor_id.
-      apply pathsinv0.
       apply id_right.
   - red; intros; simpl in *.
     unfold product_functor_mor.
@@ -158,8 +156,65 @@ Qed.
 
 End vertex.
 
+Lemma product_nat_trans_univ_prop (A : [C, D, hsD])
+  (f : (A ⇒ (F:[C,D,hsD]))) (g : A ⇒ (G:[C,D,hsD])) :
+   ∀
+   t : Σ fg : A ⇒ (product_functor:[C,D,hsD]),
+       fg ;; (product_nat_trans_pr1 : (product_functor:[C,D,hsD]) ⇒ F) = f 
+      × 
+       fg ;; (product_nat_trans_pr2 : (product_functor:[C,D,hsD]) ⇒ G) = g,
+   t =
+   tpair
+     (λ fg : A ⇒ (product_functor:[C,D,hsD]),
+      fg ;; (product_nat_trans_pr1 : (product_functor:[C,D,hsD]) ⇒ F) = f
+   × 
+      fg ;; (product_nat_trans_pr2 : (product_functor:[C,D,hsD]) ⇒ G) = g)
+     (product_nat_trans A f g)
+     (dirprodpair (product_nat_trans_Pr1Commutes A f g)
+        (product_nat_trans_Pr2Commutes A f g)).
+Proof.
+  intro t.
+  simpl in *.
+  destruct t as [t1 [ta tb]].
+  simpl in *.
+  apply (total2_paths_second_isaprop).
+  - simpl.
+    apply isapropdirprod;
+    apply isaset_nat_trans;
+    apply hsD.
+  - simpl.
+    apply nat_trans_eq.
+    + apply hsD.
+    + intro c.
+      unfold product_nat_trans.
+      simpl.
+      unfold product_nat_trans_data.
+      apply ProductArrowUnique.
+      * apply (nat_trans_eq_pointwise _ _ _ _ _ _ ta).
+      * apply (nat_trans_eq_pointwise _ _ _ _ _ _ tb).
+Qed.
+
+Definition functor_precat_product_cone 
+  : ProductCone [C, D, hsD] F G.
+Proof.
+  exists (tpair _ product_functor (dirprodpair product_nat_trans_pr1 
+                                                 product_nat_trans_pr2)).
+  intros A f g.
+  exists (tpair _ (product_nat_trans A f g)
+             (dirprodpair (product_nat_trans_Pr1Commutes _ _ _ )
+                          (product_nat_trans_Pr2Commutes _ _ _ ))).
+  simpl.
+  apply product_nat_trans_univ_prop.
+Defined.
 
 
 End product_functor.
+
+Definition Products_functor_precat : Products [C, D, hsD].
+Proof.
+  intros F G.
+  apply functor_precat_product_cone.
+Defined.
+
 
 End def_functor_pointwise_prod.
