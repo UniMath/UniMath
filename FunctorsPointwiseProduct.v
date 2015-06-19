@@ -99,6 +99,67 @@ Qed.
 Definition product_nat_trans_pr2 : nat_trans _ _ 
   := tpair _ _ is_nat_trans_product_nat_trans_pr2_data.
 
+
+Section vertex.
+
+(** The product morphism of a diagram with vertex [A] *)
+
+Variable A : functor C D.
+Variable f : A ⟶ F.
+Variable g : A ⟶ G.
+
+Definition product_nat_trans_data : ∀ c,  A c ⇒ product_functor c.
+Proof.
+  intro c.
+  apply ProductArrow.
+  - exact (f c).
+  - exact (g c).
+Defined.
+
+Lemma is_nat_trans_product_nat_trans_data : is_nat_trans _ _ product_nat_trans_data.
+Proof.
+  intros a b k.
+  simpl.
+  unfold product_functor_mor.
+  unfold product_nat_trans_data.
+  set (XX:=postcompWithProductArrow).
+  set (X1 := XX D _ _ (HD (F b) (G b))).
+  set (X2 := X1 _ _ (HD (F a) (G a))).
+  rewrite X2.
+  clear X2 X1 XX.
+  set (XX:=precompWithProductArrow).
+  set (X1 := XX D _ _ (HD (F b) (G b))). 
+  rewrite X1.
+  rewrite (nat_trans_ax f).
+  rewrite (nat_trans_ax g).
+  apply idpath.
+Qed.
+
+Definition product_nat_trans : nat_trans _ _ 
+  := tpair _ _ is_nat_trans_product_nat_trans_data.
+
+Lemma product_nat_trans_Pr1Commutes : 
+  nat_trans_comp _ _ _ product_nat_trans product_nat_trans_pr1  = f.
+Proof.
+  apply nat_trans_eq.
+  - apply hsD.
+  - intro c; simpl.
+    apply ProductPr1Commutes.
+Qed. 
+
+Lemma product_nat_trans_Pr2Commutes : 
+  nat_trans_comp _ _ _ product_nat_trans product_nat_trans_pr2  = g.
+Proof.
+  apply nat_trans_eq.
+  - apply hsD.
+  - intro c; simpl.
+    apply ProductPr2Commutes.
+Qed. 
+
+End vertex.
+
+
+
 End product_functor.
 
 End def_functor_pointwise_prod.
