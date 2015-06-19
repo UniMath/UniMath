@@ -6,6 +6,7 @@ Require Import UniMath.RezkCompletion.precategories.
 Require Import UniMath.RezkCompletion.functors_transformations.
 Require Import UniMath.RezkCompletion.whiskering.
 Require Import UniMath.RezkCompletion.limits.coproducts.
+Require Import UniMath.RezkCompletion.limits.products.
 Require Import UnicodeNotations.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -126,3 +127,40 @@ Qed.
 
 End Coproducts.
 
+Section Products.
+
+Variable C : precategory.
+Variable CC : Products C.
+Variables a b c d x y : C.
+
+Definition ProductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y) 
+  : ProductOfArrows _ (CC c d) (CC a b) f f' ;; 
+    ProductOfArrows _ (CC _ _) (CC _ _) g g' 
+    =
+    ProductOfArrows _ (CC _ _) (CC _ _)(f ;; g) (f' ;; g').
+Proof.
+  apply ProductArrowUnique.
+  - rewrite <- assoc.
+    rewrite ProductOfArrowsPr1.
+    rewrite assoc.
+    rewrite ProductOfArrowsPr1.
+    apply pathsinv0.
+    apply assoc.
+  - rewrite <- assoc.
+    rewrite ProductOfArrowsPr2.
+    rewrite assoc.
+    rewrite ProductOfArrowsPr2.
+    apply pathsinv0.
+    apply assoc.
+Qed.
+
+Definition ProductOfArrows_eq (f f' : a ⇒ c) (g g' : b ⇒ d) 
+  : f = f' → g = g' → 
+      ProductOfArrows _ _ _ f g = ProductOfArrows _ (CC _ _) (CC _ _) f' g'. 
+Proof.
+  induction 1.
+  induction 1.
+  apply idpath.
+Qed.
+
+End Products.
