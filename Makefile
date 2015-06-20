@@ -102,6 +102,7 @@ VFILES:=UnicodeNotations.v\
   ProductPrecategory.v\
   Signatures.v\
   SubstitutionSystems.v\
+  MonadsFromSubstitutionSystems.v\
   PointedFunctors.v\
   PointedFunctorsComposition.v\
   SumOfSignatures.v\

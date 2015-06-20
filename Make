@@ -7,6 +7,7 @@ ExampleSignatures.v
 SumOfSignatures.v
 PointedFunctorsComposition.v
 PointedFunctors.v
+MonadsFromSubstitutionSystems.v
 SubstitutionSystems.v
 Signatures.v
 ProductPrecategory.v

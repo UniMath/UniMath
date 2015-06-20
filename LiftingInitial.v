@@ -65,7 +65,7 @@ Local Notation "'U'" := (functor_ptd_forget C hs).
 Variable H : Signature C hs.
 Let θ := theta H. 
 
-Local Notation "'Alg_obj'" := (Alg C hs H).
+Local Notation "'Alg_obj'" := (Alg H).
 
 
 Definition Alg_mor (A B : Alg_obj) : UU 
@@ -158,18 +158,18 @@ Proof.
   admit.
 Admitted.
 
-Definition InitHSS : hss_precategory C hs H.
+Definition InitHSS : hss_precategory H.
 Proof.
   exists InitAlg.
   exact bracket_for_InitAlg.
 Defined.
 
-Lemma isInitial_InitHSS : isInitial (hss_precategory C hs H) InitHSS.
+Lemma isInitial_InitHSS : isInitial (hss_precategory H) InitHSS.
 Proof.
   admit.
 Admitted.
 
-Lemma Ihss : Initial (hss_precategory C hs H).
+Lemma Ihss : Initial (hss_precategory H).
 Proof.
   exists InitHSS.
   apply isInitial_InitHSS.
