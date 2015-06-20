@@ -38,8 +38,8 @@ Variable H : Signature C hs.
 
 Let θ := theta H.
 
-Let θ_strength1 := Sig_strength_law1 _ _ H.
-Let θ_strength2 := Sig_strength_law2 _ _ H.
+Let θ_strength1_int := Sig_strength_law1 _ _ H.
+Let θ_strength2_int := Sig_strength_law2 _ _ H.
 
 
 (*
@@ -292,7 +292,7 @@ Proof.
   - apply nat_trans_eq; try assumption.
     intro c. simpl.
     rewrite id_right.
-    assert (H':= θ_strength1). 
+    assert (H':= θ_Strength1_int_implies_θ_Strength1 _ _ _ _ θ_strength1_int). 
     red in H'. simpl in H'.
     assert (H2 := H' (U T)).
     assert (H3 := nat_trans_eq_pointwise _ _ _ _ _ _ H2 c).
@@ -638,7 +638,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
                      pr1 (θ ((functor_composite (U T) (U T)) ⊗ (pr1 (pr1 T)))) c;;
                      pr1 (# H (α : functor_compose hs hs (U T) (functor_composite (U T) (U T))⇒ _)) c       ).
              {  intro α. 
-                assert (HA := θ_strength2). red in HA. simpl in HA.
+                assert (HA := θ_Strength2_int_implies_θ_Strength2 _ _ _ _ θ_strength2_int). red in HA. simpl in HA.
                 assert (HA':= HA (U T) (pr1 (pr1 T)) (pr1 (pr1 T)) _ α).
                 assert (HA2 := nat_trans_eq_pointwise _ _ _ _ _ _  HA' c ).
                 simpl in HA2.
@@ -714,7 +714,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
         set (H6:= nat_trans_eq_pointwise _ _ _ _ _ _ HT'). 
         
         apply H6.
-Qed.      
+Qed.    
     
  
 
@@ -744,8 +744,7 @@ Proof.
       * apply cancel_postcomposition.
         rewrite id_left.
         apply (!H1).
-    + assert (HTT :  θ_Strength2_int _ _ H θ).
-      { admit. }
+    + assert (HTT := θ_strength2_int).
       unfold θ_Strength2_int in HTT.
       rewrite functor_comp.
       rewrite functor_comp.
@@ -831,7 +830,7 @@ Proof.
          apply cancel_postcomposition.
          apply H6.
 
-Admitted. 
+Qed. 
 
 End third_monad_law_with_assoc.
 

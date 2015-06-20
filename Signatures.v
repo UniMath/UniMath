@@ -276,7 +276,7 @@ Proof.
 Focus 2.
   apply functor_comp_H_c.
   clear functor_comp_H functor_comp_H_c.
-  generalize c; clear c.
+  revert c.
   apply nat_trans_eq_pointwise.
   apply maponpaths.
   apply nat_trans_eq; try assumption.
@@ -306,7 +306,7 @@ Proof.
   assert (functor_id_H_c := nat_trans_eq_pointwise _ _ _ _ _ _ functor_id_H c).
   eapply pathscomp0; [| apply functor_id_H_c].
   clear functor_id_H functor_id_H_c.
-  generalize c; clear c.
+  revert c.
   apply nat_trans_eq_pointwise.
   apply maponpaths.
   apply nat_trans_eq; try assumption.
@@ -400,15 +400,15 @@ End Strength_laws.
 Definition Signature (*C : precategory) (hs : has_homsets C*) : UU 
   := 
   Σ H : functor [C, C, hs] [C, C, hs] , 
-     Σ θ : nat_trans (θ_source H) (θ_target H) , θ_Strength1 H θ × θ_Strength2 H θ.
+     Σ θ : nat_trans (θ_source H) (θ_target H) , θ_Strength1_int H θ × θ_Strength2_int H θ.
 
 Coercion Signature_Functor (S : Signature) : functor _ _ := pr1 S.
 
 Definition theta (H : Signature) : nat_trans (θ_source H) (θ_target H) := pr1 (pr2 H).
 
-Definition Sig_strength_law1 (H : Signature) : θ_Strength1 _ _ := pr1 (pr2 (pr2 H)).
+Definition Sig_strength_law1 (H : Signature) : θ_Strength1_int _ _ := pr1 (pr2 (pr2 H)).
 
-Definition Sig_strength_law2 (H : Signature) : θ_Strength2 _ _ := pr2 (pr2 (pr2 H)).
+Definition Sig_strength_law2 (H : Signature) : θ_Strength2_int _ _ := pr2 (pr2 (pr2 H)).
 
 End bla.
 
