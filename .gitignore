@@ -3,4 +3,6 @@
 *.glob
 *.aux
 html/
-
+*~
+*.bak
+*#

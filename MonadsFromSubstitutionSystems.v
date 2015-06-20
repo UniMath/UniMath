@@ -27,7 +27,7 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
 Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 35).
 
-Section def_hss.
+Section monad_from_hss.
 
 (** ** Some variables and assumptions *)
 
@@ -667,180 +667,7 @@ Proof.
 Defined.
 
 End mu_from_fbracket.
-(*
-(** ** Morphisms of heterogeneous substitution systems *)
 
-Section hss_morphisms.
-
-(** A morphism [f] of pointed functors is an algebra morphism when... *)
-
-Definition isAlgMor {T T' : Alg H} (f : T ⇒ T') : UU :=
-  #H (# U f) ;; τ T' = compose (C:=EndC) (τ T) (#U f).
-
-Lemma isaprop_isAlgMor (T T' : Alg H) (f : T ⇒ T') : isaprop (isAlgMor f).
-Proof.
-  apply isaset_nat_trans.
-  apply hs.
-Qed.
-
-(** A morphism [β] of pointed functors is a bracket morphism when... *)
-
-Definition isbracketMor {T T' : hss H} (β : T ⇒ T') : UU :=
-    ∀ (Z : Ptd) (f : Z ⇒ T), 
-       fbracket _ f ;; #U β
-       = 
-       (#U β)øø (U Z) ;; fbracket _ (f ;; β ).
-
-
-Lemma isaprop_isbracketMor (T T' : hss H) (β : T ⇒ T') : isaprop (isbracketMor β).
-Proof.
-  do 2 (apply impred; intro).
-  apply isaset_nat_trans.
-  apply hs.
-Qed.
-
-(** A morphism of hss is a pointed morphism that is compatible with both 
-    [τ] and [fbracket] *)
-
-Definition ishssMor {T T' : hss H} (β : T ⇒ T') : UU 
-  :=  isAlgMor β × isbracketMor β.
-  
-Definition hssMor (T T' : hss H) : UU 
-  := Σ β : T ⇒ T', ishssMor β.
-
-Coercion ptd_mor_from_hssMor (T T' : hss H) (β : hssMor T T') : T ⇒ T' := pr1 β.
-
-Definition isAlgMor_hssMor {T T' : hss H} (β : hssMor T T') 
-  : isAlgMor β := pr1 (pr2 β).
-Definition isbracketMor_hssMor {T T' : hss H} (β : hssMor T T') 
-  : isbracketMor β := pr2 (pr2 β).
-
-(** **** Equality of morphisms of hss *)
-
-Section hssMor_equality.
-
-(** Show that equality of hssMor is equality of underlying nat. transformations *)
-
-Variables T T' : hss H.
-Variables β β' : hssMor T T'.
-Definition hssMor_eq1 : β = β' ≃ (pr1 β = pr1 β').
-Proof.
-  apply total2_paths_isaprop_equiv.
-  intro γ.
-  apply isapropdirprod.
-  - apply isaprop_isAlgMor.
-  - apply isaprop_isbracketMor.
-Defined.
-
-
-Definition hssMor_eq : β = β' ≃ #U β = #U β'.
-Proof.
-  eapply weqcomp.
-  - apply hssMor_eq1.
-  - apply eq_ptd_mor.
-    apply hs.
-Defined.
-
-End hssMor_equality.
-
-Lemma isaset_hssMor (T T' : hss H) : isaset (hssMor T T').
-Proof.
-  intros β β'.
-  apply (isofhlevelweqb _ (hssMor_eq _ _ β β')).
-  apply isaset_nat_trans.
-  apply hs.
-Qed.
-
-(** ** The precategory of hss *)
-
-Section hss_precategory.
-
-(** *** Identity morphism of hss *)
-
-Lemma ishssMor_id (T : hss H) : ishssMor (identity T).
-Proof.
-  split.
-  - unfold isAlgMor.
-    rewrite functor_id.
-    rewrite functor_id.
-    rewrite id_left.
-    set (H2 := id_right ([C,C,hs])).
-    apply pathsinv0, H2.
-  - unfold isbracketMor.
-    intros Z f.
-    rewrite functor_id.
-    rewrite id_right.
-    rewrite id_right.
-    set (H2:=pre_composition_functor _ _ C _ hs (U Z)).
-    set (H2' := functor_id H2). simpl in H2'.
-    simpl.
-    rewrite H2'.
-    rewrite (id_left EndC).
-    apply idpath.
-Qed.
-
-Definition hssMor_id (T : hss H) : hssMor _ _ := tpair _ _ (ishssMor_id T).
-  
-(** *** Composition of morphisms of hss *)
-
-Lemma ishssMor_comp {T T' T'' : hss H} (β : hssMor T T') (γ : hssMor T' T'') 
-  : ishssMor (β ;; γ).
-Proof.
-  split.
-  - unfold isAlgMor.
-    rewrite functor_comp.
-    rewrite functor_comp.
-    rewrite <- assoc.
-    rewrite isAlgMor_hssMor.
-    rewrite assoc.
-    rewrite isAlgMor_hssMor.
-    apply pathsinv0, assoc.
-  - unfold isbracketMor.
-    intros Z f.
-    rewrite functor_comp.
-    rewrite assoc.
-    rewrite isbracketMor_hssMor.
-    rewrite <- assoc.
-    set (H2:=functor_comp (pre_composition_functor _ _ C _ hs (U Z)) ).
-    simpl in H2.
-    simpl.
-    rewrite H2; clear H2.
-    rewrite <- (assoc EndC).
-    apply maponpaths.
-    rewrite (assoc Ptd).
-    apply isbracketMor_hssMor.
-Qed.
-
-Definition hssMor_comp {T T' T'' : hss H} (β : hssMor T T') (γ : hssMor T' T'') 
-  : hssMor T T'' := tpair _ _ (ishssMor_comp β γ).
-
-Definition hss_obmor : precategory_ob_mor.
-Proof.
-  exists (hss H).
-  exact hssMor.
-Defined.
-
-Definition hss_precategory_data : precategory_data.
-Proof.
-  exists hss_obmor.
-  split.
-  - exact hssMor_id.
-  - exact @hssMor_comp.
-Defined.
-
-Lemma is_precategory_hss : is_precategory hss_precategory_data.
-Proof.
-  repeat split; intros.
-  - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply (id_left EndC).
-  - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply (id_right EndC).
-  - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply (assoc EndC).
-Qed.
-
-Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.
-*)
 (** ** A functor from hss to monads *)
 
 (** Objects are considered above, now morphisms *)
@@ -925,7 +752,7 @@ Qed.
  
 
 
-End def_hss.
+End monad_from_hss.
 
 
 
