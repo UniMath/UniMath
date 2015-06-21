@@ -62,6 +62,7 @@ COQDOCLIBS?=\
 
 
 OPT?=
+OTHERFLAGS=-type-in-type
 COQDEP?="$(COQBIN)coqdep" -c
 COQFLAGS?=-q $(OPT) $(COQLIBS) $(OTHERFLAGS) $(COQ_XML)
 COQCHKFLAGS?=-silent -o
