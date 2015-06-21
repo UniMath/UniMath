@@ -41,8 +41,33 @@ Section Preparations.
 Variable C : precategory.
 Variable hs : has_homsets C.
 Variable CP : Products C.
+Variable CC : Coproducts C.
+Variable terminal : Terminal C.
+Let one : C :=  @TerminalObject C terminal.
 
-Definition square_functor:= product_functor C C CP (functor_identity C) (functor_identity C).
+Definition square_functor := product_functor C C CP (functor_identity C) (functor_identity C).
+
+Section Constant_Functor.
+
+Variable c: ob C.
+
+Definition constant_functor_data: functor_data C C :=
+   functor_data_constr C C (fun a => c) (fun (a b : ob C) f => identity _) .
+
+Lemma is_functor_constant: is_functor constant_functor_data.
+Proof.
+  split; simpl.
+  red; intros; apply idpath.
+  red; intros; simpl.
+  apply pathsinv0.
+  apply id_left.
+Qed.
+
+Definition constant_functor: functor C C := tpair _ _ is_functor_constant.
+
+End Constant_Functor.
+
+Definition option_functor: functor C C := coproduct_functor _ _ CC (constant_functor one) (functor_identity C).
 
 End Preparations.
 
@@ -65,23 +90,65 @@ Let one : C :=  @TerminalObject C terminal.
 (** 
    [App_H (X) (A) :=  X(A) × X(A)]
 *)
-Definition App_H : functor [C, C, hs] [C, C, hs].
+Definition App_H : functor EndC EndC.
 Proof.
   apply square_functor.
   apply Products_functor_precat.
   exact CP.
 Defined.
 
-(*
-Definition Lam_H : functor [C, C, hs] [C, C, hs]. *)
 (** 
    [Lam_H (X) := X o option
+*)  
 
-   implement the functor (E + _) for fixed E
+Definition Lam_H_ob (X: EndC): functor C C := functor_composite (option_functor _ CC terminal) X.
+Definition Lam_H_mor_nat_trans_data (X X': EndC)(α: X ⇒ X'): ∀ c, Lam_H_ob X c ⇒ Lam_H_ob X' c.
+Proof.
+  intro.
+  unfold Lam_H_ob.
+  red. simpl. apply α.
+Defined.
+  
+Lemma is_nat_trans_Lam_H_mor_nat_trans_data  (X X': EndC)(α: X ⇒ X'): is_nat_trans _ _ (Lam_H_mor_nat_trans_data X X' α).
+Proof.
+  red.
+  intros c c' f.
+  destruct α as [a a_nat_trans].
+  unfold Lam_H_mor_nat_trans_data, Lam_H_ob.
+  simpl.
+  apply a_nat_trans.
+ Qed. 
+  
+Definition Lam_H_mor (X X': EndC)(α: X ⇒ X'): (Lam_H_ob X: ob EndC) ⇒ Lam_H_ob X'.
+Proof.
+  exists (Lam_H_mor_nat_trans_data X X' α).
+  exact (is_nat_trans_Lam_H_mor_nat_trans_data X X' α).
+Defined.
+  
+Definition Lam_H_functor_data: functor_data EndC EndC.
+Proof.
+  exists Lam_H_ob.
+  exact Lam_H_mor.
+Defined.
 
-   needs terminal object
+Lemma is_functor_Lam_H_data: is_functor Lam_H_functor_data.
+Proof.
+  red.
+  split; red.
+  + intros X.
+    unfold Lam_H_functor_data.
+    simpl.
+    unfold Lam_H_mor.
+    simpl. (* how is equality of nat trafos proven? uses certainly irrelevance of the naturality proofs *)
+admit.
+   + intros.
+admit.
+Admitted.
 
-*)
+Definition Lam_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Lam_H_data.
+
+
+
 (*
 Definition Flat_H : functor [C, C, hs] [C, C, hs].*)
 (** 
