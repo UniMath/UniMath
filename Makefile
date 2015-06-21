@@ -110,7 +110,8 @@ VFILES:=UnicodeNotations.v\
   LiftingInitial.v\
   AdjunctionHomTypesWeq.v\
   RightKanExtension.v\
-  EndofunctorsMonoidal.v
+  EndofunctorsMonoidal.v\
+  Lam.v
 
 -include $(addsuffix .d,$(VFILES))
 .SECONDARY: $(addsuffix .d,$(VFILES))
