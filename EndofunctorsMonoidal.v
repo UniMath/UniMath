@@ -29,8 +29,15 @@ Proof.
   - apply pathsinv0, id_left.
 Defined.
 
+Definition ρ_functor_inv (X : functor C C) 
+  : nat_trans X (functor_composite X (functor_identity C)) := ρ_functor X.
+
 Definition λ_functor (X : functor C C) 
   : nat_trans (functor_composite (functor_identity C) X) X
+  := ρ_functor X.
+
+Definition λ_functor_inv (X : functor C C) 
+  : nat_trans X (functor_composite (functor_identity C) X)
   := ρ_functor X.
 
 Definition α_functor (X Y Z : functor C C)
@@ -43,6 +50,11 @@ Proof.
   rewrite id_right.
   apply pathsinv0, id_left.
 Defined.
+
+Definition α_functor_inv (X Y Z : functor C C)
+  : nat_trans (functor_composite X (functor_composite Y Z))
+              (functor_composite (functor_composite X Y) Z) := α_functor X Y Z.
+
 
 End Monoidal_Structure_on_Endofunctors.
 
