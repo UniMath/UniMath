@@ -84,6 +84,16 @@ Variable C : precategory.
 Variable CC : Coproducts C.
 Variables a b c d x y : C.
 
+Lemma CoproductArrow_eq (f f' : a ⇒ c) (g g' : b ⇒ c) 
+  : f = f' → g = g' → 
+      CoproductArrow _ (CC _ _) f g = CoproductArrow _ _ f' g'. 
+Proof.
+  induction 1.
+  induction 1.
+  apply idpath.
+Qed.
+
+
 Definition CoproductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y) 
   : CoproductOfArrows _ (CC a b) (CC c d) f f' ;; 
     CoproductOfArrows _ (CC _ _) (CC _ _) g g' 
