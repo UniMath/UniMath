@@ -1,10 +1,11 @@
 language:       ocaml
-before_install: sudo apt-get update -qq
-install:        
+before_install: 
+  - sudo apt-get update -qq
   - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra time
+install:        
   - git clone https://github.com/UniMath/UniMath
   - cd UniMath && make && make install
   - export PATH=$PATH:$PWD/sub/coq/bin/
 script:
-  - make
+  - git clone https://github.com/benediktahrens/substitutions && cd substitution && make
 
