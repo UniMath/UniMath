@@ -50,7 +50,7 @@ Definition square_functor := product_functor C C CP (functor_identity C) (functo
 
 Section Constant_Functor.
 
-Variable c: ob C.
+Variable c: C.
 
 Definition constant_functor_data: functor_data C C :=
    functor_data_constr C C (fun a => c) (fun (a b : ob C) f => identity _) .
@@ -103,11 +103,22 @@ Defined.
 *)  
 
 Definition Abs_H_ob (X: EndC): functor C C := functor_composite (option_functor _ CC terminal) X.
+
+(* works only with -type-in-type:
 Definition Abs_H_mor_nat_trans_data (X X': EndC)(α: X ⇒ X'): ∀ c, Abs_H_ob X c ⇒ Abs_H_ob X' c.
 Proof.
   intro.
   unfold Abs_H_ob.
   red. simpl. apply α.
+Defined.
+*)
+
+Definition Abs_H_mor_nat_trans_data (X X': functor C C)(α: nat_trans X X'): ∀ c, Abs_H_ob X c ⇒ Abs_H_ob X' c.
+Proof.
+  intro.
+  simpl in *. 
+  unfold coproduct_functor_ob. simpl.
+  apply α.
 Defined.
   
 Lemma is_nat_trans_Abs_H_mor_nat_trans_data  (X X': EndC)(α: X ⇒ X'): is_nat_trans _ _ (Abs_H_mor_nat_trans_data X X' α).
