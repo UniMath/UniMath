@@ -383,7 +383,79 @@ Qed.
 Definition Abs_θ: nat_trans (θ_source Abs_H) (θ_target Abs_H) :=
   tpair _ _ is_nat_trans_Abs_θ_data.
  
+Lemma Abs_θ_strenght1_int: θ_Strength1_int _  _ _ Abs_θ.
+Proof.
+  red.
+  intro.
+  unfold Abs_θ, Abs_H.  
+  simpl.
+  unfold Abs_θ_data. 
+  apply nat_trans_eq; try assumption.
+  intro c.
+  simpl.
+  rewrite id_right.
+  apply functor_id_id.
+  apply pathsinv0.
+  apply CoproductArrowUnique.
+  + apply idpath.
+  + apply id_right.
+Qed.
 
+Lemma Abs_θ_strenght2_int: θ_Strength2_int _  _ _ Abs_θ.
+Proof.
+  red.
+  intros.
+  unfold Abs_θ, Abs_H.  
+  simpl.
+  unfold Abs_θ_data. 
+  apply nat_trans_eq; try assumption.
+  intro c.
+  simpl.
+  rewrite id_left.
+  rewrite id_right.
+  rewrite <- functor_comp.
+  apply maponpaths.
+  clear X.
+  destruct Z as [Z e];
+  destruct Z' as [Z' e'];
+  simpl.
+  eapply pathscomp0.
+Focus 2.
+  eapply pathsinv0.
+  apply postcompWithCoproductArrow.
+  destruct e as [e e_is_nat].
+  destruct e' as [e' e'_is_nat].
+  simpl in *.
+  apply CoproductArrow_eq.
+  + rewrite <- assoc.
+    assert (NN := e'_is_nat _ _ (e (CoproductObject C (CC terminal c)))).
+    simpl in NN. (* is important for success of the trick *)
+    match goal with |[ H1: _ = ?f;;?g |- ?h ;; _ = _ ] => 
+         transitivity (h;;(f;;g)) end.
+    * apply idpath.
+    * rewrite <- NN.    
+      clear NN.
+      assert (NNN := e'_is_nat _ _ (CoproductArrow C (CC terminal (Z c))
+         (CoproductIn1 C (CC terminal c);;
+          e (CoproductObject C (CC terminal c)))
+         (# Z (CoproductIn2 C (CC terminal c))))). 
+      simpl in NNN.
+      match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _] => 
+         transitivity (h;;(f;;g)) end.
+      - rewrite <- NNN.
+        clear NNN.
+        do 2 rewrite assoc.        
+        rewrite CoproductIn1Commutes.
+        apply idpath.
+      - apply idpath.
+  + rewrite <- functor_comp.
+    apply maponpaths.
+    eapply pathscomp0.
+Focus 2.
+    eapply pathsinv0.
+    apply CoproductIn2Commutes.
+    apply idpath.
+Qed.
 
 (** finally, constitute the 3 signatures *)
 
@@ -395,6 +467,16 @@ Proof.
   + exact App_θ_strenght1_int.      
   + exact App_θ_strenght2_int.
 Defined.
+
+Definition Abs_Sig: Signature C hs.
+Proof.
+  exists Abs_H.
+  exists Abs_θ.
+  split.
+  + exact Abs_θ_strenght1_int.      
+  + exact Abs_θ_strenght2_int.
+Defined.
+
 
 
 End Lambda.
