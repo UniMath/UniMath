@@ -19,6 +19,7 @@ Require Import SubstSystems.Signatures.
 Require Import SubstSystems.SubstitutionSystems.
 Require Import SubstSystems.FunctorsPointwiseCoproduct.
 Require Import SubstSystems.FunctorsPointwiseProduct.
+Require Import SubstSystems.EndofunctorsMonoidal.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -98,7 +99,7 @@ Proof.
 Defined.
 
 (** 
-   [Abs_H (X) := X o option
+   [Abs_H (X) := X o option]
 *)  
 
 Definition Abs_H_ob (X: EndC): functor C C := functor_composite (option_functor _ CC terminal) X.
@@ -113,11 +114,11 @@ Lemma is_nat_trans_Abs_H_mor_nat_trans_data  (X X': EndC)(α: X ⇒ X'): is_nat_
 Proof.
   red.
   intros c c' f.
-  destruct α as [a a_nat_trans].
+  destruct α as [α α_nat_trans].
   unfold Abs_H_mor_nat_trans_data, Abs_H_ob.
   simpl.
-  apply a_nat_trans.
- Qed. 
+  apply α_nat_trans.
+ Qed.
   
 Definition Abs_H_mor (X X': EndC)(α: X ⇒ X'): (Abs_H_ob X: ob EndC) ⇒ Abs_H_ob X'.
 Proof.
@@ -156,22 +157,54 @@ Qed.
 Definition Abs_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Abs_H_data.
 
 
-
-(*
-Definition Flat_H : functor [C, C, hs] [C, C, hs].*)
 (** 
    [Flat_H (X) := X o X]
    
    ingredients:
      - functor_composite in RezkCompletion.functors_transformations 
      - map given by horizontal composition in Substsystems.HorizontalComposition
-     - functor laws for this thing : 
-         functor_id, functor_comp
-         id_left, id_right, assoc
-
+ 
  Alternatively : free in two arguments, then precomposed with diagonal
  
 *)
+Definition Flat_H_ob (X: EndC): functor C C := functor_composite X X.
+Definition Flat_H_mor (X X': EndC)(α: X ⇒ X'): (Flat_H_ob X: ob EndC) ⇒ Flat_H_ob X' := α ∙∙ α.
+Definition Flat_H_functor_data: functor_data EndC EndC.
+Proof.
+  exists Flat_H_ob.
+  exact Flat_H_mor.
+Defined.
+
+Lemma is_functor_Flat_H_data: is_functor Flat_H_functor_data.
+Proof.
+  red.
+  split; red.
+  + intros X.
+    unfold Flat_H_functor_data.
+    simpl.
+    unfold Flat_H_mor.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    simpl.
+    rewrite id_left.
+    apply functor_id.
+  + intros X X' X'' α β.
+    unfold Flat_H_functor_data.
+    simpl.
+    unfold Flat_H_mor.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    simpl.
+    destruct β as [β β_is_nat]; simpl.
+    rewrite functor_comp.
+    repeat rewrite <- assoc.
+    apply maponpaths.
+    repeat rewrite assoc.
+    rewrite β_is_nat.
+    apply idpath.
+Qed.
+
+Definition Flat_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Flat_H_data.
 
 
 
@@ -189,9 +222,10 @@ Proof.
   red.
   unfold App_θ_data.
   intros XZ XZ' αβ.
-  destruct XZ as [X Z].
-  destruct XZ' as [X' Z'].
-  destruct αβ as [α β].
+(* the following only for better readability: *)
+  destruct XZ as [X Z];
+  destruct XZ' as [X' Z'];
+  destruct αβ as [α β];
   simpl in *.
   apply nat_trans_eq; try assumption.
   intro c.
@@ -306,7 +340,7 @@ Proof.
   apply precompWithCoproductArrow.
   eapply pathscomp0.
 Focus 2.
-  apply (! (postcompWithCoproductArrow _ _ _ _ _)).
+  apply (!(postcompWithCoproductArrow _ _ _ _ _)).
   simpl.
   rewrite id_left.
   rewrite <- assoc.
@@ -331,7 +365,7 @@ Focus 2.
   + apply maponpaths.
     eapply pathscomp0.
 Focus 2.
-    apply (! (CoproductOfArrowsIn2 _ _ _ _ _ )).
+    apply (!(CoproductOfArrowsIn2 _ _ _ _ _ )).
     apply idpath.
 Qed.       
 
@@ -423,8 +457,8 @@ Proof.
 Focus 2.
   eapply pathsinv0.
   apply postcompWithCoproductArrow.
-  destruct e as [e e_is_nat].
-  destruct e' as [e' e'_is_nat].
+(*  destruct e as [e e_is_nat]. *)
+  destruct e' as [e' e'_is_nat];
   simpl in *.
   apply CoproductArrow_eq.
   + rewrite <- assoc.
@@ -457,6 +491,88 @@ Focus 2.
     apply idpath.
 Qed.
 
+
+Definition Flat_θ_data: ∀ XZ, (θ_source Flat_H)XZ ⇒ (θ_target Flat_H)XZ.
+Proof.
+  intro XZ.
+  destruct XZ as [X [Z e]].
+  simpl.
+  set (h:= nat_trans_comp (λ_functor_inv _ X) ((nat_trans_id _) ∙∙ e)).
+  exact (nat_trans_comp (α_functor_inv _ Z X X) (h ∙∙ (nat_trans_id (functor_composite Z X)))).
+Defined.
+
+Lemma is_nat_trans_Flat_θ_data: is_nat_trans _ _ Flat_θ_data.
+Proof.
+  red.
+  intros XZ XZ' αβ.
+  apply nat_trans_eq; try assumption.
+  intro c.
+  simpl.
+  destruct XZ as [X [Z e]];
+  destruct XZ' as [X' [Z' e']];
+  destruct αβ as [α β];
+  simpl in *.
+  destruct α as [α α_is_nat];
+  destruct β as [[β β_is_nat] β_is_pointed];
+  simpl in *.
+  repeat rewrite id_left.
+  do 4 rewrite functor_id.
+  do 2 rewrite id_right.
+  repeat rewrite <- assoc.
+  do 3 rewrite <- functor_comp.
+  repeat rewrite assoc.
+  rewrite α_is_nat.
+  repeat rewrite <- assoc.
+  apply maponpaths.
+  rewrite <- functor_comp.
+  apply maponpaths.
+  repeat rewrite assoc.
+  rewrite β_is_pointed.
+  destruct e as [e e_is_nat];
+  destruct e' as [e' e'_is_nat];
+  simpl in *.
+  eapply pathscomp0.
+Focus 2.
+  apply e'_is_nat.
+  apply idpath.
+Qed.
+
+Definition Flat_θ: nat_trans (θ_source Flat_H) (θ_target Flat_H) :=
+  tpair _ _ is_nat_trans_Flat_θ_data.
+
+Lemma Flat_θ_strenght1_int: θ_Strength1_int _  _ _ Flat_θ.
+Proof.
+  red.
+  intro.
+  unfold Flat_θ, Flat_H.  
+  simpl.
+  apply nat_trans_eq; try assumption.
+  intro c.
+  simpl.
+  repeat rewrite id_left.
+  repeat rewrite functor_id.
+  repeat rewrite id_left.
+  apply idpath.
+Qed.
+
+Lemma Flat_θ_strenght2_int: θ_Strength2_int _  _ _ Flat_θ.
+Proof.
+  red.
+  intros.
+  destruct Z as [Z e];
+  destruct Z' as [Z' e'];
+  simpl.
+  apply nat_trans_eq; try assumption.
+  intro c.
+  simpl.
+  repeat rewrite id_left.
+  repeat rewrite <- functor_comp.
+  apply maponpaths.
+  repeat rewrite functor_id.
+  repeat rewrite id_right.
+  apply idpath.  
+Qed.
+
 (** finally, constitute the 3 signatures *)
 
 Definition App_Sig: Signature C hs.
@@ -477,6 +593,13 @@ Proof.
   + exact Abs_θ_strenght2_int.
 Defined.
 
-
+Definition Flat_Sig: Signature C hs.
+Proof.
+  exists Flat_H.
+  exists Flat_θ.
+  split.
+  + exact Flat_θ_strenght1_int.      
+  + exact Flat_θ_strenght2_int.
+Defined.
 
 End Lambda.
