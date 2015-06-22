@@ -353,7 +353,32 @@ Proof.
   apply nat_trans_eq; try assumption.
   intro c.
   simpl.
-Admitted. 
+  destruct α as [α α_is_nat].
+  destruct β as [β β_is_pointed].
+  simpl in *.
+  unfold constant_functor.
+  unfold coproduct_functor_ob.
+  simpl.
+  rewrite assoc.
+  rewrite α_is_nat.
+  do 2 rewrite <- assoc.
+  apply maponpaths.
+  do 2 rewrite <- functor_comp.
+  apply maponpaths.
+  unfold coproduct_functor_mor, constant_functor_data.
+  simpl.  
+  rewrite precompWithCoproductArrow.
+  rewrite postcompWithCoproductArrow.
+  apply CoproductArrow_eq.
+  + rewrite id_left.
+    rewrite <- assoc.
+    rewrite β_is_pointed.
+    apply idpath.
+  + destruct β as [β β_is_nat].
+    simpl in *.
+    apply pathsinv0.
+    apply β_is_nat.
+Qed.
 
 Definition Abs_θ: nat_trans (θ_source Abs_H) (θ_target Abs_H) :=
   tpair _ _ is_nat_trans_Abs_θ_data.
