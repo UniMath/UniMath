@@ -4,8 +4,8 @@ before_install:
   - sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra time
 install:        
   - git clone https://github.com/UniMath/UniMath
-  - cd UniMath && make && make install
-  - export PATH=$PATH:$PWD/sub/coq/bin/
+  - cd UniMath && make && make install && cd ..
+  - export PATH=$PATH:$PWD/UniMath/sub/coq/bin/
 script:
-  - git clone https://github.com/benediktahrens/substitutions && cd substitution && make
+  - make
 
