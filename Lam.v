@@ -98,54 +98,62 @@ Proof.
 Defined.
 
 (** 
-   [Lam_H (X) := X o option
+   [Abs_H (X) := X o option
 *)  
 
-Definition Lam_H_ob (X: EndC): functor C C := functor_composite (option_functor _ CC terminal) X.
-Definition Lam_H_mor_nat_trans_data (X X': EndC)(α: X ⇒ X'): ∀ c, Lam_H_ob X c ⇒ Lam_H_ob X' c.
+Definition Abs_H_ob (X: EndC): functor C C := functor_composite (option_functor _ CC terminal) X.
+Definition Abs_H_mor_nat_trans_data (X X': EndC)(α: X ⇒ X'): ∀ c, Abs_H_ob X c ⇒ Abs_H_ob X' c.
 Proof.
   intro.
-  unfold Lam_H_ob.
+  unfold Abs_H_ob.
   red. simpl. apply α.
 Defined.
   
-Lemma is_nat_trans_Lam_H_mor_nat_trans_data  (X X': EndC)(α: X ⇒ X'): is_nat_trans _ _ (Lam_H_mor_nat_trans_data X X' α).
+Lemma is_nat_trans_Abs_H_mor_nat_trans_data  (X X': EndC)(α: X ⇒ X'): is_nat_trans _ _ (Abs_H_mor_nat_trans_data X X' α).
 Proof.
   red.
   intros c c' f.
   destruct α as [a a_nat_trans].
-  unfold Lam_H_mor_nat_trans_data, Lam_H_ob.
+  unfold Abs_H_mor_nat_trans_data, Abs_H_ob.
   simpl.
   apply a_nat_trans.
  Qed. 
   
-Definition Lam_H_mor (X X': EndC)(α: X ⇒ X'): (Lam_H_ob X: ob EndC) ⇒ Lam_H_ob X'.
+Definition Abs_H_mor (X X': EndC)(α: X ⇒ X'): (Abs_H_ob X: ob EndC) ⇒ Abs_H_ob X'.
 Proof.
-  exists (Lam_H_mor_nat_trans_data X X' α).
-  exact (is_nat_trans_Lam_H_mor_nat_trans_data X X' α).
+  exists (Abs_H_mor_nat_trans_data X X' α).
+  exact (is_nat_trans_Abs_H_mor_nat_trans_data X X' α).
 Defined.
   
-Definition Lam_H_functor_data: functor_data EndC EndC.
+Definition Abs_H_functor_data: functor_data EndC EndC.
 Proof.
-  exists Lam_H_ob.
-  exact Lam_H_mor.
+  exists Abs_H_ob.
+  exact Abs_H_mor.
 Defined.
 
-Lemma is_functor_Lam_H_data: is_functor Lam_H_functor_data.
+Lemma is_functor_Abs_H_data: is_functor Abs_H_functor_data.
 Proof.
   red.
   split; red.
   + intros X.
-    unfold Lam_H_functor_data.
+    unfold Abs_H_functor_data.
     simpl.
-    unfold Lam_H_mor.
-    simpl. (* how is equality of nat trafos proven? uses certainly irrelevance of the naturality proofs *)
-admit.
-   + intros.
-admit.
-Admitted.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    unfold Abs_H_mor.
+    simpl.
+    apply idpath.
+  + intros X X' X'' α β.
+    unfold Abs_H_functor_data.
+    simpl.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    unfold Abs_H_mor.
+    simpl.
+    apply idpath.
+Qed.
 
-Definition Lam_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Lam_H_data.
+Definition Abs_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Abs_H_data.
 
 
 
@@ -267,6 +275,89 @@ Proof.
 Qed.
 
 
+Definition Abs_θ_data_data: ∀ XZ A, ((θ_source Abs_H)XZ: functor C C) A ⇒ ((θ_target Abs_H)XZ: functor C C) A.
+Proof.
+  intro XZ.
+  destruct XZ as [X Z].
+  simpl.
+  intro A.
+  apply (functor_on_morphisms (functor_data_from_functor _ _ X)).
+  unfold coproduct_functor_ob.
+  unfold constant_functor.
+  simpl.
+  destruct Z as [Z e].
+  simpl.
+  apply CoproductArrow.
+  + exact (CoproductIn1 _ _ ;; nat_trans_data e (CoproductObject C (CC terminal A))).
+  + exact (functor_on_morphisms (functor_data_from_functor _ _ Z) (CoproductIn2 _ (CC terminal A))).
+Defined.
+
+Lemma is_nat_trans_Abs_θ_data_data: ∀ XZ, is_nat_trans _ _ (Abs_θ_data_data XZ).
+Proof.
+  intros [X [Z e]].
+  red.
+  intros c c' f.
+  simpl.
+  rewrite <- functor_comp.
+  rewrite <- functor_comp.
+  apply maponpaths.
+  unfold coproduct_functor_mor.
+  eapply pathscomp0.
+  apply precompWithCoproductArrow.
+  eapply pathscomp0.
+Focus 2.
+  apply (! (postcompWithCoproductArrow _ _ _ _ _)).
+  simpl.
+  rewrite id_left.
+  rewrite <- assoc.
+  rewrite <- functor_comp.
+  rewrite <- functor_comp.
+  destruct e as [e e_is_nat].
+  simpl.
+  apply CoproductArrow_eq.
+  + assert (NN :=  e_is_nat _ _ (CoproductOfArrows C (CC terminal c) (CC terminal c')
+         (identity terminal) f)).
+    match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _ ] => 
+         transitivity (h;;(f;;g)) end.
+    * rewrite <- NN.
+      clear NN.
+      unfold functor_identity.   
+      simpl.
+      rewrite assoc.
+      rewrite CoproductOfArrowsIn1.
+      rewrite id_left.
+      apply idpath.
+    * apply idpath. 
+  + apply maponpaths.
+    eapply pathscomp0.
+Focus 2.
+    apply (! (CoproductOfArrowsIn2 _ _ _ _ _ )).
+    apply idpath.
+Qed.       
+
+
+Definition Abs_θ_data: ∀ XZ, (θ_source Abs_H)XZ ⇒ (θ_target Abs_H)XZ.
+Proof.
+  intro XZ.
+  exact (tpair _ _ (is_nat_trans_Abs_θ_data_data XZ)).
+Defined.
+
+Lemma is_nat_trans_Abs_θ_data: is_nat_trans _ _ Abs_θ_data.
+Proof.
+  red.
+  intros XZ XZ' αβ.
+  destruct XZ as [X [Z e]].
+  destruct XZ' as [X' [Z' e']].
+  destruct αβ as [α β].
+  simpl in *.
+  apply nat_trans_eq; try assumption.
+  intro c.
+  simpl.
+Admitted. 
+
+Definition Abs_θ: nat_trans (θ_source Abs_H) (θ_target Abs_H) :=
+  tpair _ _ is_nat_trans_Abs_θ_data.
+ 
 
 
 (** finally, constitute the 3 signatures *)
