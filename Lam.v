@@ -265,7 +265,7 @@ Qed.
 Definition App_θ: nat_trans (θ_source App_H) (θ_target App_H) :=
   tpair _ _ is_nat_trans_App_θ_data.
 
-Lemma App_θ_strenght1_int: θ_Strength1_int _ _ _ App_θ.
+Lemma App_θ_strenght1_int: θ_Strength1_int App_θ.
 Proof.
   red.
   intro.
@@ -294,7 +294,7 @@ Proof.
 Qed.
 
 
-Lemma App_θ_strenght2_int: θ_Strength2_int _  _ _ App_θ.
+Lemma App_θ_strenght2_int: θ_Strength2_int App_θ.
 Proof.
   red.
   intros.
@@ -429,7 +429,7 @@ Qed.
 Definition Abs_θ: nat_trans (θ_source Abs_H) (θ_target Abs_H) :=
   tpair _ _ is_nat_trans_Abs_θ_data.
  
-Lemma Abs_θ_strenght1_int: θ_Strength1_int _  _ _ Abs_θ.
+Lemma Abs_θ_strenght1_int: θ_Strength1_int Abs_θ.
 Proof.
   red.
   intro.
@@ -447,7 +447,7 @@ Proof.
   + apply id_right.
 Qed.
 
-Lemma Abs_θ_strenght2_int: θ_Strength2_int _  _ _ Abs_θ.
+Lemma Abs_θ_strenght2_int: θ_Strength2_int Abs_θ.
 Proof.
   red.
   intros.
@@ -552,7 +552,7 @@ Qed.
 Definition Flat_θ: nat_trans (θ_source Flat_H) (θ_target Flat_H) :=
   tpair _ _ is_nat_trans_Flat_θ_data.
 
-Lemma Flat_θ_strenght1_int: θ_Strength1_int _  _ _ Flat_θ.
+Lemma Flat_θ_strenght1_int: θ_Strength1_int Flat_θ.
 Proof.
   red.
   intro.
@@ -567,7 +567,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma Flat_θ_strenght2_int: θ_Strength2_int _  _ _ Flat_θ.
+Lemma Flat_θ_strenght2_int: θ_Strength2_int Flat_θ.
 Proof.
   red.
   intros.
@@ -614,11 +614,12 @@ Proof.
   + exact Flat_θ_strenght2_int.
 Defined.
 
-(*
+
 Definition Lam_Sig: Signature C hs :=
-  Sum_Of_Signatures 
+  Sum_of_Signatures C hs CC App_Sig Abs_Sig.  
   
 Definition LamE_Sig: Signature C hs :=
-*)
+  Sum_of_Signatures C hs CC Lam_Sig Flat_Sig.
+
 
 End Lambda.
