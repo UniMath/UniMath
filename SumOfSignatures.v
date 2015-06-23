@@ -39,8 +39,10 @@ Section sum_of_signatures.
 
 Variable C : precategory.
 Variable hs : has_homsets C.
-Variable PP : Products C.
+(* Variable PP : Products C. *)
 Variable CC : Coproducts C.
+
+Section construction.
 
 (* should be proved somewhere *)
 
@@ -340,5 +342,20 @@ Proof.
          rewrite id_left in Ha_x.
          apply Ha_x.
 Qed.
+
+End construction.
+
+(*
+Definition Sum_of_Signatures (S1 S2: Signature C hs): Signature C hs.
+Proof.
+  destruct S1 as [H1 [θ1 [S11' S12']]].
+  destruct S2 as [H2 [θ2 [S21' S22']]].
+  exists (H H1 H2).
+  exists (θ H1 H2 θ1 θ2).
+  split.
+  + apply SumStrength1'; assumption.
+  + apply SumStrength2'; assumption.
+Defined.
+*)
 
 End sum_of_signatures.
