@@ -86,6 +86,9 @@ sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 build-coq: sub/coq/bin/coqc
 endif
 
+git-describe:
+	git describe --dirty --long --always --abbrev=40
+	git submodule foreach git describe --dirty --long --always --abbrev=40 --tags
 git-clean:
 	git clean -Xdfq
 	git submodule foreach git clean -Xdfq

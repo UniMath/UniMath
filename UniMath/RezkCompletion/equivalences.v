@@ -38,125 +38,120 @@ Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Notation "[ C , D ]" := (functor_precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
-Definition functor_composite {A B C : precategory} 
-   (hsB: has_homsets B) (hsC: has_homsets C)
-   (F : ob [A, B, hsB])
-      (G : ob [B , C, hsC]) : ob [A , C, hsC] := 
-   functor_composite _ _ _ F G.
+Arguments functor_composite {_ _ _} _ _ .
 
-Notation FC := functor_composite.
-
-Notation "G 'O' F [ hsB , hsC ]" := (functor_composite hsB hsC F G) (at level 200).
 
 (** * Adjunction *)
 
-
-Definition form_adjunction (A B : precategory) 
-   (hsA: has_homsets A) (hsB: has_homsets B)  (F : ob [A, B, hsB])
-       (G : ob [B, A, hsA]) 
-       (eta : nat_trans (functor_identity A) (pr1 (FC hsB hsA F G)))  
-       (eps : nat_trans (pr1 (FC hsA hsB G F)) (functor_identity B)) : UU :=
+Definition form_adjunction {A B : precategory}
+       (F : functor A B) (G : functor B A) 
+       (eta : nat_trans (functor_identity A) (functor_composite F G))  
+       (eps : nat_trans (functor_composite G F) (functor_identity B)) : UU :=
 dirprod 
   (forall a : ob A,
-       # (pr1 F) (pr1 eta a) ;;   pr1 eps (pr1 F a) = identity (pr1 F a))
+       #F (eta a) ;; eps (F a) = identity (F a))
   (forall b : ob B,
-       pr1 eta (pr1 G b) ;; # (pr1 G) (pr1 eps b) = identity (pr1 G b)).
+       eta (G b) ;; #G (eps b) = identity (G b)).
 
-Definition are_adjoints (A B : precategory) 
-   (hsA: has_homsets A) (hsB: has_homsets B)
-   (F : ob [A, B, hsB])  (G : ob [B, A, hsA]) : UU :=
+
+Definition are_adjoints {A B : precategory}
+   (F : functor A B)  (G : functor B A) : UU :=
   total2 (fun etaeps : dirprod 
-            (nat_trans (functor_identity A) (pr1 (FC hsB hsA F G)))
-            (nat_trans (pr1 (FC hsA hsB G F)) (functor_identity B)) =>
-      form_adjunction A B hsA hsB F G (pr1 etaeps) (pr2 etaeps)).
-
-Definition is_left_adjoint (A B : precategory) 
-  (hsA: has_homsets A) (hsB: has_homsets B)(F : ob [A, B, hsB]) : UU :=
-   total2 (fun G : ob [B, A, hsA] => are_adjoints A B hsA hsB F G).
-
-Definition right_adjoint {A B : precategory} (hsA: has_homsets A) (hsB: has_homsets B)
-  {F : ob [A, B, hsB]} (H : is_left_adjoint _ _ hsA hsB F) : functor B A := pr1 H.
-
-Definition eta_from_left_adjoint {A B : precategory} (hsA: has_homsets A) (hsB: has_homsets B)
-   {F : ob [A, B, hsB]}  (H : is_left_adjoint _ _ hsA hsB F) : 
-  nat_trans (functor_identity A) (pr1 (FC hsB hsA F (pr1 H))) := pr1 (pr1 (pr2 H)).
+            (nat_trans (functor_identity A) (functor_composite F G))
+            (nat_trans (functor_composite G F) (functor_identity B)) =>
+      form_adjunction  F G (pr1 etaeps) (pr2 etaeps)).
 
 
-Definition eps_from_left_adjoint {A B : precategory} (hsA: has_homsets A) (hsB: has_homsets B) 
-  {F : functor A B}   (H : is_left_adjoint _ _ hsA hsB F)  : 
- nat_trans (pr1 (FC hsA hsB (pr1 H) F)) (functor_identity B)
+Definition is_left_adjoint {A B : precategory}
+  (F : functor A B) : UU :=
+   total2 (fun G : functor B A => are_adjoints F G).
+
+
+Definition right_adjoint {A B : precategory} 
+  {F : functor A B} (H : is_left_adjoint F) : functor B A := pr1 H.
+
+
+Definition eta_from_left_adjoint {A B : precategory} 
+   {F : functor A B}  (H : is_left_adjoint F) : 
+  nat_trans (functor_identity A) (functor_composite F (right_adjoint H)) 
+  := pr1 (pr1 (pr2 H)).
+
+
+Definition eps_from_left_adjoint {A B : precategory}  
+  {F : functor A B}   (H : is_left_adjoint F)  : 
+ nat_trans (functor_composite (right_adjoint H) F) (functor_identity B)
    := pr2 (pr1 (pr2 H)).
 
 
-Definition triangle_id_left_ad (A B : precategory) (hsA: has_homsets A) (hsB: has_homsets B) 
-  (F : functor A B) (H : is_left_adjoint _ _ hsA hsB F) :
+Definition triangle_id_left_ad (A B : precategory) 
+  (F : functor A B) (H : is_left_adjoint F) :
   forall (a : ob A),
-       #F (eta_from_left_adjoint hsA hsB H a);;
-       eps_from_left_adjoint hsA hsB H (F a) 
+       #F (eta_from_left_adjoint H a);;
+       eps_from_left_adjoint H (F a) 
        = 
       identity (F a) 
    := pr1 (pr2 (pr2 H)).
 
-Definition triangle_id_right_ad (A B : precategory) (hsA: has_homsets A) (hsB: has_homsets B) 
-   (F : ob [A, B, hsB])  (H : is_left_adjoint _ _ hsA hsB F) :
+Definition triangle_id_right_ad (A B : precategory) 
+   (F : functor A B)  (H : is_left_adjoint F) :
   forall b : ob B,
-         eta_from_left_adjoint hsA hsB H (right_adjoint hsA hsB H b);;
-        #(right_adjoint hsA hsB H) (eps_from_left_adjoint hsA hsB H b) =
-        identity (right_adjoint hsA hsB H b) := pr2 (pr2 (pr2 H)).
+         eta_from_left_adjoint H (right_adjoint H b);;
+        #(right_adjoint H) (eps_from_left_adjoint H b) =
+        identity (right_adjoint H b) 
+  := pr2 (pr2 (pr2 H)).
 
 (** * Equivalence of (pre)categories *)
 
-Definition equivalence_of_precats {A B : precategory}(hsA: has_homsets A) (hsB: has_homsets B)
-  (F : ob [A, B, hsB]) : UU :=
-   total2 (fun H : is_left_adjoint _ _ hsA hsB F =>
+Definition equivalence_of_precats {A B : precategory}
+  (F : functor A B) : UU :=
+   total2 (fun H : is_left_adjoint  F =>
      dirprod (forall a, is_isomorphism 
-                    (eta_from_left_adjoint hsA hsB H a))
+                    (eta_from_left_adjoint H a))
              (forall b, is_isomorphism
-                    (eps_from_left_adjoint hsA hsB H b))
+                    (eps_from_left_adjoint H b))
              ).
 
-Definition equivalence_inv {A B : precategory} (hsA: has_homsets A) (hsB: has_homsets B)
-  {F : [A, B, hsB]} (HF : equivalence_of_precats hsA hsB F) : functor B A :=
-    right_adjoint hsA hsB (pr1 HF).
+Definition equivalence_inv {A B : precategory} 
+  {F : functor A B} (HF : equivalence_of_precats F) : functor B A :=
+    right_adjoint (pr1 HF).
 
-Local Notation "HF ^^-1" := (equivalence_inv _ _ HF)(at level 3).
+Local Notation "HF ^^-1" := (equivalence_inv  HF)(at level 3).
 
-Definition eta_pointwise_iso_from_equivalence {A B : precategory} (hsA: has_homsets A) 
-  (hsB: has_homsets B)   {F : functor A B} (HF : equivalence_of_precats hsA hsB F) : 
+Definition eta_pointwise_iso_from_equivalence {A B : precategory} 
+   {F : functor A B} (HF : equivalence_of_precats F) : 
     forall a, iso a (HF^^-1 (F a)).
   intro a.
-  exists (eta_from_left_adjoint _ _ (pr1 HF) a).
+  exists (eta_from_left_adjoint (pr1 HF) a).
   exact (pr1 (pr2 HF) a).
 Defined.
 
 Definition eps_pointwise_iso_from_equivalence {A B : precategory} 
-  (hsA: has_homsets A) (hsB: has_homsets B)
-  {F : functor A B} (HF : equivalence_of_precats hsA hsB F) : 
+  {F : functor A B} (HF : equivalence_of_precats F) : 
     forall b, iso (F (HF^^-1 b)) b.
   intro b.
-  exists (eps_from_left_adjoint _ _ (pr1 HF) b).
+  exists (eps_from_left_adjoint (pr1 HF) b).
   exact (pr2 (pr2 HF) b).
 Defined.
 
 Definition eta_iso_from_equivalence_of_precats {A B : precategory}
-  (hsA: has_homsets A) (hsB: has_homsets B)                                               
-  {F : ob [A, B, hsB]} (HF : equivalence_of_precats hsA hsB F) : 
+  (hsA: has_homsets A) 
+  {F : functor A B} (HF : equivalence_of_precats F) : 
        iso (C:=[A, A, hsA]) (functor_identity A) 
-        (FC _ _ F (right_adjoint _ _  (pr1 HF))).
+        (functor_composite F (right_adjoint  (pr1 HF))).
 Proof.
-  exists (eta_from_left_adjoint _ _ (pr1 HF)).
+  exists (eta_from_left_adjoint (pr1 HF)).
   apply functor_iso_if_pointwise_iso.
   apply (pr1 (pr2 HF)).
 Defined.
 
 Definition eps_iso_from_equivalence_of_precats {A B : precategory}
-  (hsA: has_homsets A) (hsB: has_homsets B)                                                          
-  {F : ob [A, B, hsB]} (HF : equivalence_of_precats hsA hsB F) : 
+  (hsB: has_homsets B)                                                   
+  {F : ob [A, B, hsB]} (HF : equivalence_of_precats F) : 
        iso (C:=[B, B, hsB]) 
-   (FC hsA _ (right_adjoint _ _ (pr1 HF)) F)
+   (functor_composite  (right_adjoint (pr1 HF)) F)
                 (functor_identity B).
 Proof.
-  exists (eps_from_left_adjoint _ _ (pr1 HF)).
+  exists (eps_from_left_adjoint (pr1 HF)).
   apply functor_iso_if_pointwise_iso.
   apply (pr2 (pr2 HF)).
 Defined.
@@ -166,18 +161,18 @@ Defined.
 (**  Fundamentally needed that both source and target are categories *)
 
 Lemma equiv_of_cats_is_weq_of_objects (A B : precategory)
-    (hsA: has_homsets A) (hsB: has_homsets B)                                                      
+    (hsA: has_homsets A) (hsB: has_homsets B)                                                   
    (HA : is_category A) (HB : is_category B) (F : ob [A, B, hsB ])
-   (HF : equivalence_of_precats hsA hsB F) : isweq (pr1 (pr1 F)).
+   (HF : equivalence_of_precats F) : isweq (pr1 (pr1 F)).
 Proof.
-  set (G := right_adjoint _ _ (pr1 HF)).
-  set (et := eta_iso_from_equivalence_of_precats _ _ HF).
-  set (ep := eps_iso_from_equivalence_of_precats _ _ HF).
+  set (G := right_adjoint (pr1 HF)).
+  set (et := eta_iso_from_equivalence_of_precats hsA  HF).
+  set (ep := eps_iso_from_equivalence_of_precats _ HF).
   set (AAcat := is_category_functor_category A _ HA).
   set (BBcat := is_category_functor_category B _ HB).
   set (Et := isotoid _ AAcat et).
   set (Ep := isotoid _ BBcat ep).
-  apply (gradth _ (fun b => pr1 (right_adjoint _ _ (pr1 HF)) b)).
+  apply (gradth _ (fun b => pr1 (right_adjoint (pr1 HF)) b)).
   intro a.
   set (ou := toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Et)) a).
   simpl in ou.
@@ -189,7 +184,7 @@ Defined.
 
 Definition weq_on_objects_from_equiv_of_cats (A B : precategory)
    (HA : is_category A) (HB : is_category B) (F : ob [A, B, pr2 HB])
-   (HF : equivalence_of_precats (pr2 HA) (pr2 HB) F) : weq 
+   (HF : equivalence_of_precats F) : weq 
           (ob A) (ob B).
 Proof.
   exists (pr1 (pr1 F)).
@@ -201,8 +196,8 @@ Defined.
      is a proposition *)
 
 
-Lemma isaprop_sigma_iso (A B : precategory) (HA : is_category A) (hsB: has_homsets B)
-     (F : ob [A, B, hsB]) (HF : fully_faithful F) :
+Lemma isaprop_sigma_iso (A B : precategory) (HA : is_category A) (*hsB: has_homsets B*)
+     (F : functor A B) (HF : fully_faithful F) :
       forall b : ob B,
   isaprop (total2 (fun a : ob A => iso (pr1 F a) b)).
 Proof.
@@ -224,7 +219,6 @@ Proof.
     simpl; rewrite functor_id.
     rewrite id_left.
     apply idpath.
-   apply (pr2 HA).
   rewrite idtoiso_isotoid.
   unfold g; clear g.
   unfold fminusf; clear fminusf.
@@ -245,10 +239,9 @@ Proof.
   repeat rewrite <- assoc.
   rewrite iso_after_iso_inv.
   rewrite id_right.
-  set (H := iso_inv_iso_inv _ hsB _ _ f').
+  set (H := iso_inv_iso_inv _ _ _ f').
   set (h':= base_paths _ _ H).
   assumption.
-  apply hsB.
 Qed.
 
 
@@ -274,8 +267,7 @@ Section from_fully_faithful_and_ess_surj_to_equivalence.
 
 Variables A B : precategory.
 Hypothesis HA : is_category A.
-Hypothesis hsB: has_homsets B.
-Variable F : ob [A, B, hsB].
+Variable F : functor A B.
 Hypothesis HF : fully_faithful F.
 Hypothesis HS : essentially_surjective F.
 
@@ -285,7 +277,7 @@ Definition rad_ob : ob B -> ob A.
 Proof.
   intro b.
   apply (pr1 (HS b (tpair (fun x => isaprop x) _ 
-               (isaprop_sigma_iso A B HA hsB F HF b)) (fun x => x))).
+               (isaprop_sigma_iso A B HA F HF b)) (fun x => x))).
 Defined.
 
 (** Definition of the epsilon transformation *)
@@ -293,7 +285,7 @@ Defined.
 Definition rad_eps (b : ob B) : iso (pr1 F (rad_ob b)) b.
 Proof.
   apply (pr2 (HS b (tpair (fun x => isaprop x) _ 
-               (isaprop_sigma_iso A B HA hsB F HF b)) (fun x => x))).
+               (isaprop_sigma_iso A B HA F HF b)) (fun x => x))).
 Defined.
 
 (** The right adjoint on morphisms *)
@@ -351,7 +343,7 @@ Defined.
 (** Epsilon is natural *)
 
 Lemma rad_eps_is_nat_trans : is_nat_trans 
-    (pr1 (FC _ _ rad F)) (functor_identity B)
+    (functor_composite rad F) (functor_identity B)
        (fun b => rad_eps b).
 Proof.
   unfold is_nat_trans.
@@ -379,7 +371,7 @@ Ltac inv_functor x y :=
      rewrite H; clear H.
 
 Lemma rad_eta_is_nat_trans : is_nat_trans 
-         (functor_identity A) (pr1 (FC _ _ F rad)) 
+         (functor_identity A) (functor_composite F rad) 
        (fun a => rad_eta a).
 Proof.
   unfold is_nat_trans.
@@ -412,7 +404,7 @@ Definition rad_eta_trans : nat_trans _ _ :=
 
 (** The data [rad], [eta], [eps] forms an adjunction *)
 
-Lemma rad_form_adjunction : form_adjunction A B _ _ F rad rad_eta_trans rad_eps_trans.
+Lemma rad_form_adjunction : form_adjunction F rad rad_eta_trans rad_eps_trans.
 Proof.
   split; simpl.
   intro a.
@@ -438,13 +430,13 @@ Proof.
   apply idpath.
 Qed.
   
-Definition rad_are_adjoints : are_adjoints _ _ _ _ F rad.
+Definition rad_are_adjoints : are_adjoints F rad.
 Proof.
   exists (dirprodpair rad_eta_trans rad_eps_trans).
   apply rad_form_adjunction.
 Defined.
 
-Definition rad_is_left_adjoint : is_left_adjoint _ _ (pr2 HA) _  F.
+Definition rad_is_left_adjoint : is_left_adjoint F.
 Proof.
   exists rad.
   apply rad_are_adjoints.
@@ -455,7 +447,7 @@ Defined.
     remains to show that [eta], [eps] are isos
 *)
 
-Lemma rad_equivalence_of_precats : equivalence_of_precats (pr2 HA)  _ F.
+Lemma rad_equivalence_of_precats : equivalence_of_precats F.
 Proof.
   exists rad_is_left_adjoint.
   split; simpl.
