@@ -54,7 +54,7 @@ Section Constant_Functor.
 Variable c: C.
 
 Definition constant_functor_data: functor_data C C :=
-   functor_data_constr C C (fun a => c) (fun (a b : ob C) f => identity _) .
+   functor_data_constr C C (fun a => c) (fun (a b : C) f => identity _) .
 
 Lemma is_functor_constant: is_functor constant_functor_data.
 Proof.
@@ -180,7 +180,7 @@ Definition Abs_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Abs_H_d
  
 *)
 Definition Flat_H_ob (X: EndC): functor C C := functor_composite X X.
-Definition Flat_H_mor (X X': EndC)(α: X ⇒ X'): (Flat_H_ob X: ob EndC) ⇒ Flat_H_ob X' := α ∙∙ α.
+Definition Flat_H_mor (X X': EndC)(α: X ⇒ X'): (Flat_H_ob X: EndC) ⇒ Flat_H_ob X' := α ∙∙ α.
 Definition Flat_H_functor_data: functor_data EndC EndC.
 Proof.
   exists Flat_H_ob.
