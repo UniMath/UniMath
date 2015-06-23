@@ -64,6 +64,8 @@ Let φ_inv := @SubstSystems.AdjunctionHomTypesWeq.φ_inv _ _ _ is_left_adj_L.
 Let R : functor _ _ := right_adjoint is_left_adj_L.
 Let η : nat_trans _ _ := eta_from_left_adjoint is_left_adj_L.
 Let ε : nat_trans _ _ := eps_from_left_adjoint is_left_adj_L.
+Let φ_natural_precomp := @SubstSystems.AdjunctionHomTypesWeq.φ_natural_precomp _ _ _ is_left_adj_L.
+Let φ_inv_natural_precomp := @SubstSystems.AdjunctionHomTypesWeq.φ_inv_natural_precomp _ _ _ is_left_adj_L.
 
 
 Arguments φ {_ _} _ .
@@ -80,11 +82,68 @@ Variable ψ : ψ_source ⟶ ψ_target.
 
 Definition It : L μF ⇒ X := φ_inv (iter (φ (ψ (R X) (ε X)))).
 
+(* what is the usual name of the following lemma? *)
+Lemma aux0 (A B: UU)(f g: A -> B)(a: A): f = g -> f a = g a.
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  apply idpath.
+Qed.
+   
+Lemma ψ_naturality (A B: C)(h: B ⇒ A)(f: L A ⇒ X): ψ B (#L h;; f) = #L (#F h);; ψ A f.
+Proof.
+  destruct ψ as [ψ0 ψ0_is_nat].
+  simpl.
+  red in ψ0_is_nat.
+  assert (ψ0_is_nat_inst1 := ψ0_is_nat _ _ h).
+  assert (ψ0_is_nat_inst2 := aux0 _ _ _ _ f ψ0_is_nat_inst1).
+  apply ψ0_is_nat_inst2.
+Qed.
+
+Lemma truth_about_ε (A: C'): ε A = φ_inv (identity (R A)).
+Proof.
+  unfold φ_inv, AdjunctionHomTypesWeq.φ_inv.
+  rewrite functor_id.
+  apply pathsinv0.
+  apply id_left.
+Qed.
+
+Lemma φ_ψ_μF_eq (h: L μF ⇒ X): φ (ψ μF h) = #F (φ h) ;; φ(ψ (R X) (ε X)).
+Proof.
+  rewrite <- φ_natural_precomp.
+  apply maponpaths.
+  eapply pathscomp0.
+Focus 2.
+  apply ψ_naturality.  
+  apply maponpaths.
+  rewrite truth_about_ε.
+  rewrite <- φ_inv_natural_precomp.
+  rewrite id_right.
+  apply pathsinv0.
+  change (φ_inv(φ h) = h).
+  apply AdjunctionHomTypesWeq.φ_inv_after_φ.
+Qed.
+
+Lemma cancel_φ {A: C}{B: C'} (f g : L A ⇒ B): φ f = φ g -> f = g.
+Proof.
+  intro Hyp.
+  rewrite <- (AdjunctionHomTypesWeq.φ_inv_after_φ _ _ _ is_left_adj_L f).
+  rewrite <- (AdjunctionHomTypesWeq.φ_inv_after_φ _ _ _ is_left_adj_L g).
+  apply maponpaths.
+  exact Hyp.
+Qed.
+
+
 Theorem GenMendlerIteration : iscontr (Σ h : L μF ⇒ X, #L inF ;; h = ψ μF h).
 Proof.
   refine (tpair _ _ _ ).
   - exists It.
-    admit.
+    apply cancel_φ.
+    rewrite φ_ψ_μF_eq.
+    rewrite φ_natural_precomp.
+    unfold It.
+    do 2 rewrite (AdjunctionHomTypesWeq.φ_after_φ_inv _ _ _ is_left_adj_L).
+    assert (iter_eq := algebra_mor_commutes _ _ _ _ (InitialArrow _ μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).   exact iter_eq.
   - admit.
 Admitted.
 
