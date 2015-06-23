@@ -20,6 +20,7 @@ Require Import SubstSystems.SubstitutionSystems.
 Require Import SubstSystems.FunctorsPointwiseCoproduct.
 Require Import SubstSystems.FunctorsPointwiseProduct.
 Require Import SubstSystems.EndofunctorsMonoidal.
+Require Import SubstSystems.SumOfSignatures.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -264,7 +265,7 @@ Qed.
 Definition App_θ: nat_trans (θ_source App_H) (θ_target App_H) :=
   tpair _ _ is_nat_trans_App_θ_data.
 
-Lemma App_θ_strenght1_int: θ_Strength1_int _  _ _ App_θ.
+Lemma App_θ_strenght1_int: θ_Strength1_int _ _ _ App_θ.
 Proof.
   red.
   intro.
@@ -612,5 +613,12 @@ Proof.
   + exact Flat_θ_strenght1_int.      
   + exact Flat_θ_strenght2_int.
 Defined.
+
+(*
+Definition Lam_Sig: Signature C hs :=
+  Sum_Of_Signatures 
+  
+Definition LamE_Sig: Signature C hs :=
+*)
 
 End Lambda.
