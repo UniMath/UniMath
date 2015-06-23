@@ -345,7 +345,7 @@ Qed.
 
 End construction.
 
-(*
+
 Definition Sum_of_Signatures (S1 S2: Signature C hs): Signature C hs.
 Proof.
   destruct S1 as [H1 [θ1 [S11' S12']]].
@@ -356,6 +356,6 @@ Proof.
   + apply SumStrength1'; assumption.
   + apply SumStrength2'; assumption.
 Defined.
-*)
+
 
 End sum_of_signatures.
