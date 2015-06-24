@@ -63,10 +63,10 @@ Let φ_inv := @φ_adj_inv _ _ _ is_left_adj_L.
 Let R : functor _ _ := right_adjoint is_left_adj_L.
 Let η : nat_trans _ _ := eta_from_left_adjoint is_left_adj_L.
 Let ε : nat_trans _ _ := eps_from_left_adjoint is_left_adj_L.
-Let φ_natural_precomp := @φ_adj_natural_precomp _ _ _ is_left_adj_L.
+(* Let φ_natural_precomp := @φ_adj_natural_precomp _ _ _ is_left_adj_L.
 Let φ_inv_natural_precomp := @φ_adj_inv_natural_precomp _ _ _ is_left_adj_L.
 Let φ_after_φ_inv := @φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L.
-Let φ_inv_after_φ := @φ_adj_inv_after_φ_adj _ _ _ is_left_adj_L.
+Let φ_inv_after_φ := @φ_adj_inv_after_φ_adj _ _ _ is_left_adj_L.*)
 
 
 Arguments φ {_ _} _ .
@@ -113,25 +113,25 @@ Qed.
 
 Lemma φ_ψ_μF_eq (h: L μF ⇒ X): φ (ψ μF h) = #F (φ h) ;; φ(ψ (R X) (ε X)).
 Proof.
-  rewrite <- φ_natural_precomp.
+  rewrite <- φ_adj_natural_precomp.
   apply maponpaths.
   eapply pathscomp0.
 Focus 2.
   apply ψ_naturality.  
   apply maponpaths.
   rewrite truth_about_ε.
-  rewrite <- φ_inv_natural_precomp.
+  rewrite <- (φ_adj_inv_natural_precomp _ _ _ is_left_adj_L).
   rewrite id_right.
   apply pathsinv0.
   change (φ_inv(φ h) = h).
-  apply φ_inv_after_φ.
+  apply φ_adj_inv_after_φ_adj.
 Qed.
 
 Lemma cancel_φ {A: C}{B: C'} (f g : L A ⇒ B): φ f = φ g -> f = g.
 Proof.
   intro Hyp.
-  rewrite <- (φ_inv_after_φ _ _ f).
-  rewrite <- (φ_inv_after_φ _ _ g).
+  rewrite <- (φ_adj_inv_after_φ_adj _ _ _ is_left_adj_L f).
+  rewrite <- (φ_adj_inv_after_φ_adj _ _ _ is_left_adj_L g).
   apply maponpaths.
   exact Hyp.
 Qed.
@@ -143,9 +143,10 @@ Proof.
   - exists It.
     apply cancel_φ.
     rewrite φ_ψ_μF_eq.
-    rewrite φ_natural_precomp.
+    rewrite (φ_adj_natural_precomp _ _ _ is_left_adj_L).
     unfold It.
-    do 2 rewrite φ_after_φ_inv.
+    rewrite φ_adj_after_φ_adj_inv.
+    rewrite (φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L).
     assert (iter_eq := algebra_mor_commutes _ _ _ _ (InitialArrow _ μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
     exact iter_eq.
   - intros [h h_rec_eq]; simpl.
@@ -160,13 +161,13 @@ Focus 2.
 
     apply cancel_φ.
     unfold It.
-    rewrite φ_after_φ_inv.
+    rewrite (φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L).
     assert (iter_uniq := pr2 (pr2 μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
     simpl in iter_uniq.
     assert(φh_is_alg_mor: inF ;; φ h = #F(φ h) ;; φ (ψ (R X) (ε X))).
       (* remark: I am missing a definition of the algebra morphism property in UniMath.RezkCompletion.FunctorAlgebras *)
     + rewrite <- φ_ψ_μF_eq. 
-      rewrite <- φ_natural_precomp.
+      rewrite <- φ_adj_natural_precomp.
       apply maponpaths.
       exact h_rec_eq.
     + set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial ⇒ ⟨ R X, φ (ψ (R X) (ε X)) ⟩).
