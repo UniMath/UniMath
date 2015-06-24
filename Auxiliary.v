@@ -12,6 +12,27 @@ Require Import UnicodeNotations.
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
+Section Constant_Functor.
+Variables C D : precategory.
+Variable d : D.
+
+Definition constant_functor_data: functor_data C D :=
+   functor_data_constr C D (fun _ => d) (fun _ _ _  => identity _) .
+
+Lemma is_functor_constant: is_functor constant_functor_data.
+Proof.
+  split; simpl.
+  red; intros; apply idpath.
+  red; intros; simpl.
+  apply pathsinv0.
+  apply id_left.
+Qed.
+
+Definition constant_functor: functor C D := tpair _ _ is_functor_constant.
+
+End Constant_Functor.
+
+
 Lemma functor_id_id (A B : precategory) (G : functor A B) (a : A) (f : a ⇒ a)
   : f = identity _ → #G f = identity _ .
 Proof.

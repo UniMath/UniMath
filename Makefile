@@ -111,7 +111,8 @@ VFILES:=UnicodeNotations.v\
   AdjunctionHomTypesWeq.v\
   RightKanExtension.v\
   EndofunctorsMonoidal.v\
-  Lam.v
+  Lam.v\
+  GenMendlerIteration.v
 
 -include $(addsuffix .d,$(VFILES))
 .SECONDARY: $(addsuffix .d,$(VFILES))

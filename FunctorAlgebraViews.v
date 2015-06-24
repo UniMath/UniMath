@@ -19,7 +19,6 @@ Require Import SubstSystems.PointedFunctorsComposition.
 Require Import SubstSystems.Signatures.
 Require Import SubstSystems.SubstitutionSystems.
 Require Import SubstSystems.FunctorsPointwiseCoproduct.
-Require Import SubstSystems.GenMendlerIteration.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -33,13 +32,6 @@ Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
 Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 35).
 
 Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
-
-Arguments θ_source {_ _} _ .
-Arguments θ_target {_ _} _ .
-Arguments θ_Strength1 {_ _ _} _ .
-Arguments θ_Strength2 {_ _ _} _ .
-
-Section Precategory_Algebra.
 
 
 
@@ -55,8 +47,8 @@ Local Notation "'U'" := (functor_ptd_forget C hs).
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 
 
-Variable H : Signature C hs.
-Let θ := theta H. 
+Variable H : functor EndC EndC.
+
 
 Let Id_H
 : functor EndC EndC
@@ -64,42 +56,10 @@ Let Id_H
                        (constant_functor _ _ (functor_identity _ : EndC))
                        H.
 
-Let ALG : precategory := precategory_FunctorAlg _ Id_H hsEndC.
-
-Variable IA : Initial ALG.
-
-Let 
-
-Definition InitAlg : ALG := InitialObject _ IA.
-
-Definition bracket_for_InitAlg : bracket _ _ H InitAlg.
-Proof.
-  intros F α.
-  admit.
-Admitted.
-
-Definition InitHSS : hss_precategory H.
-Proof.
-  exists InitAlg.
-  exact bracket_for_InitAlg.
-Defined.
-
-Lemma isInitial_InitHSS : isInitial (hss_precategory H) InitHSS.
-Proof.
-  admit.
-Admitted.
-
-Lemma Ihss : Initial (hss_precategory H).
-Proof.
-  exists InitHSS.
-  apply isInitial_InitHSS.
-Defined.
-
-
-End Precategory_Algebra.
-
-
-(*
+Definition AlgStruct (T : Ptd) : UU := pr1 (H(U T)) ⟶ pr1 (U T).
+Definition Alg : UU := Σ T : Ptd, AlgStruct T.
+Coercion PtdFromAlg (T : Alg) : Ptd := pr1 T.
+Definition τ (T : Alg) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
 
 
 (** Define the precategory of Id+H-algebras.

@@ -54,6 +54,13 @@ Let iter {A : C} (α : F A ⇒ A) : μF ⇒ A :=
 Variable C' : precategory.
 Variable hsC' : has_homsets C'.
 
+Variable X : C'.
+
+Let Yon : functor C'^op HSET := yoneda_objects C' hsC' X.
+
+
+Section the_iteration_principle.
+
 Variable L : functor C C'.
 
 Variable is_left_adj_L : is_left_adjoint L.
@@ -72,12 +79,10 @@ Let φ_inv_after_φ := @φ_adj_inv_after_φ_adj _ _ _ is_left_adj_L.*)
 Arguments φ {_ _} _ .
 Arguments φ_inv {_ _} _ .
 
-Variable X : C'.
+Definition ψ_source : functor C^op HSET := functor_composite (functor_opp L) Yon.
+Definition ψ_target : functor C^op HSET := functor_composite (functor_opp F) ψ_source.
 
-Let Y : functor C'^op HSET := yoneda_objects C' hsC' X.
-
-Let ψ_source : functor C^op HSET := functor_composite (functor_opp L) Y.
-Let ψ_target : functor C^op HSET := functor_composite (functor_opp F) ψ_source.
+Section general_case.
 
 Variable ψ : ψ_source ⟶ ψ_target.
 
@@ -176,4 +181,79 @@ Focus 2.
       exact iter_uniq_inst.
 Qed.
 
+End general_case.
+
+
+Section special_case.
+
+  Variable G : functor C' C'.
+  Variable ρ : G X ⇒ X.
+  Variable θ : functor_composite F L ⟶ functor_composite L G.
+
+  Definition ψ_from_comps : ψ_source ⟶ ψ_target.
+  Proof.
+    refine (tpair _ _ _ ).
+    - intro A. simpl. intro f.
+      unfold yoneda_objects_ob in *.
+      exact (θ A ;; #G f ;; ρ).
+    - admit.
+  Admitted.
+
+
+(*
+  Definition SpecialGenMendlerIteration :
+    iscontr
+      (Σ h : L μF ⇒ X, # L inF;; h = θ μF ;; #G h ;; ρ)
+    := GenMendlerIteration ψ_from_comps.
+*)
+
+End special_case.
+
+End the_iteration_principle.
+
+Variable L : functor C C'.
+Variable is_left_adj_L : is_left_adjoint L.
+Variable ψ : ψ_source L ⟶ ψ_target L.
+Variable L' : functor C C'.
+Variable is_left_adj_L' : is_left_adjoint L'.
+Variable ψ' : ψ_source L' ⟶ ψ_target L'.
+
+Variable Φ : functor_composite (functor_opp L) Yon ⟶ functor_composite (functor_opp L') Yon.
+
+Section fusion_law.
+  
+  Variable H : ψ μF ;; Φ (F μF) = Φ μF ;; ψ' μF.
+
+  Theorem fusion_law : Φ μF (It L is_left_adj_L ψ) = It L' is_left_adj_L' ψ'.
+  Proof.
+    admit.
+  Admitted.
+    
+End fusion_law.
+
+
+
 End GenMenIt.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

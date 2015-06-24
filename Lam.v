@@ -49,27 +49,7 @@ Let one : C :=  @TerminalObject C terminal.
 
 Definition square_functor := product_functor C C CP (functor_identity C) (functor_identity C).
 
-Section Constant_Functor.
-
-Variable c: C.
-
-Definition constant_functor_data: functor_data C C :=
-   functor_data_constr C C (fun a => c) (fun (a b : C) f => identity _) .
-
-Lemma is_functor_constant: is_functor constant_functor_data.
-Proof.
-  split; simpl.
-  red; intros; apply idpath.
-  red; intros; simpl.
-  apply pathsinv0.
-  apply id_left.
-Qed.
-
-Definition constant_functor: functor C C := tpair _ _ is_functor_constant.
-
-End Constant_Functor.
-
-Definition option_functor: functor C C := coproduct_functor _ _ CC (constant_functor one) (functor_identity C).
+Definition option_functor: functor C C := coproduct_functor _ _ CC (constant_functor _ _  one) (functor_identity C).
 
 End Preparations.
 
