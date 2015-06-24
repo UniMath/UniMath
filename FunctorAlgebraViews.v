@@ -16,8 +16,8 @@ Require Import SubstSystems.PointedFunctors.
 Require Import SubstSystems.ProductPrecategory.
 Require Import SubstSystems.HorizontalComposition.
 Require Import SubstSystems.PointedFunctorsComposition.
-Require Import SubstSystems.Signatures.
-Require Import SubstSystems.SubstitutionSystems.
+
+
 Require Import SubstSystems.FunctorsPointwiseCoproduct.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -33,7 +33,7 @@ Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 35).
 
 Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
 
-
+Section two_views_on_Id_H_algebras.
 
 Variable C : precategory.
 Variable hs : has_homsets C.
@@ -45,7 +45,7 @@ Local Notation "'Ptd'" := (precategory_Ptd C hs).
 Local Notation "'U'" := (functor_ptd_forget C hs).
 
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
-
+Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CP hs.
 
 Variable H : functor EndC EndC.
 
@@ -56,10 +56,10 @@ Let Id_H
                        (constant_functor _ _ (functor_identity _ : EndC))
                        H.
 
-Definition AlgStruct (T : Ptd) : UU := pr1 (H(U T)) ⟶ pr1 (U T).
-Definition Alg : UU := Σ T : Ptd, AlgStruct T.
-Coercion PtdFromAlg (T : Alg) : Ptd := pr1 T.
-Definition τ (T : Alg) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
+Definition ALGStruct (T : Ptd) : UU := pr1 (H(U T)) ⟶ pr1 (U T).
+Definition ALG : UU := Σ T : Ptd, ALGStruct T.
+Coercion PtdFromAlg (T : ALG) : Ptd := pr1 T.
+Definition τ (T : ALG) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
 
 
 (** Define the precategory of Id+H-algebras.
@@ -77,33 +77,43 @@ Definition τ (T : Alg) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
 
 *)
 
-Local Notation "'Alg_obj'" := (Alg H).
+(** A morphism [f] of pointed functors is an algebra morphism when... *)
 
-Definition Alg_mor (A B : Alg_obj) : UU 
-  := Σ f : Ptd ⟦A, B⟧, isAlgMor C hs H f. 
+Definition isALGMor {T T' : ALG} (f : T ⇒ T') : UU :=
+  #H (# U f) ;; τ T' = compose (C:=EndC) (τ T) (#U f).
+
+Lemma isaprop_isALGMor (T T' : ALG) (f : T ⇒ T') : isaprop (isALGMor f).
+Proof.
+  apply isaset_nat_trans.
+  apply hs.
+Qed.
+
+
+Definition ALG_mor (A B : ALG) : UU 
+  := Σ f : Ptd ⟦A, B⟧, isALGMor f. 
 
 (* explicit coercion not necessary, this works, too:
 Definition Alg_mor' (A B : Alg_obj) : UU 
   := Σ f : A ⇒ pr1 B, isAlgMor C hs H f.
 *)
 
-Coercion Ptd_mor_from_Alg_mor (A B : Alg_obj)(f : Alg_mor A B) : Ptd ⟦A, B⟧ := pr1 f.
+Coercion Ptd_mor_from_ALG_mor (A B : ALG)(f : ALG_mor A B) : Ptd ⟦A, B⟧ := pr1 f.
 
-Definition isAlgMor_Alg_mor (A B : Alg_obj)(f : Alg_mor A B) : isAlgMor _ _ _ f := pr2 f.
+Definition isALGMor_Alg_mor (A B : ALG)(f : ALG_mor A B) : isALGMor f := pr2 f.
 
-Definition Alg_mor_eq_weq (A B : Alg_obj) (f g : Alg_mor A B) 
+Definition ALG_mor_eq_weq (A B : ALG) (f g : ALG_mor A B) 
   : f = g ≃ #U f = #U g.
 Proof.
   eapply weqcomp.
   - apply total2_paths_isaprop_equiv.
-    intro h. apply isaprop_isAlgMor.
+    intro h. apply isaprop_isALGMor.
   - apply eq_ptd_mor.
     apply hs.
 Defined.
 
-Definition isAlgMor_id (A : Alg_obj) : isAlgMor C hs H (identity A : Ptd⟦A,A⟧).
+Definition isALGMor_id (A : ALG) : isALGMor (identity A : Ptd⟦A,A⟧).
 Proof.
-  unfold isAlgMor.
+  unfold isALGMor.
   rewrite functor_id.
   rewrite functor_id.
   rewrite id_left.
@@ -111,54 +121,93 @@ Proof.
   apply pathsinv0, H2.
 Qed.
 
-Definition AlgMor_id (A : Alg_obj) : Alg_mor A A := tpair _ _ (isAlgMor_id A).
+Definition ALGMor_id (A : ALG) : ALG_mor A A := tpair _ _ (isALGMor_id A).
 
 
-Definition isAlgMor_comp (A B D : Alg_obj) (f : Alg_mor A B) (g : Alg_mor B D) 
-  : isAlgMor C hs H (f ;; g : Ptd⟦A, D⟧).
+Definition isALGMor_comp (A B D : ALG) (f : ALG_mor A B) (g : ALG_mor B D) 
+  : isALGMor (f ;; g : Ptd⟦A, D⟧).
 Proof.
-  unfold isAlgMor.
+  unfold isALGMor.
   rewrite functor_comp.
   rewrite functor_comp.
   rewrite <- assoc.
-  rewrite isAlgMor_Alg_mor.
+  rewrite isALGMor_Alg_mor.
   rewrite assoc.
-  rewrite isAlgMor_Alg_mor.
+  rewrite isALGMor_Alg_mor.
   apply pathsinv0, assoc.
 Qed.
 
-Definition AlgMor_comp (A B D : Alg_obj) (f : Alg_mor A B) (g : Alg_mor B D) : Alg_mor A D
-  := tpair _ _ (isAlgMor_comp A B D f g).
+Definition ALGMor_comp (A B D : ALG) (f : ALG_mor A B) (g : ALG_mor B D) : ALG_mor A D
+  := tpair _ _ (isALGMor_comp A B D f g).
 
-Definition Alg_precategory_ob_mor : precategory_ob_mor.
+Definition ALG_precategory_ob_mor : precategory_ob_mor.
 Proof.
-  exists Alg_obj.
-  exact (Alg_mor).
+  exists ALG.
+  exact ALG_mor.
 Defined.
 
-Definition Alg_precategory_data : precategory_data.
+Definition ALG_precategory_data : precategory_data.
 Proof.
-  exists Alg_precategory_ob_mor.
+  exists ALG_precategory_ob_mor.
   split.
-  - exact AlgMor_id.
-  - exact AlgMor_comp.
+  - exact ALGMor_id.
+  - exact ALGMor_comp.
 Defined.
 
-Lemma is_precategory_Alg : is_precategory Alg_precategory_data.
+Lemma is_precategory_ALG : is_precategory ALG_precategory_data.
 Proof.
   repeat split; intros.
-  - apply (invmap (Alg_mor_eq_weq _ _ _ _ )).
+  - apply (invmap (ALG_mor_eq_weq _ _ _ _ )).
     apply (id_left EndC).
-  - apply (invmap (Alg_mor_eq_weq _ _ _ _ )).
+  - apply (invmap (ALG_mor_eq_weq _ _ _ _ )).
     apply (id_right EndC).
-  - apply (invmap (Alg_mor_eq_weq _ _ _ _ )).
+  - apply (invmap (ALG_mor_eq_weq _ _ _ _ )).
     apply (assoc EndC).
 Qed.
 
-Definition precategory_Alg : precategory := tpair _ _ is_precategory_Alg.
-
-Local Notation "'ALG'" := precategory_Alg.
- *)
+Definition precategory_ALG : precategory := tpair _ _ is_precategory_ALG.
 
 
-   
+
+Let prectegory_Alg : precategory := precategory_FunctorAlg  _ Id_H hsEndC.
+
+
+
+Definition Alg_from_ALG (T : ALG) : algebra_ob _ Id_H.
+Proof.
+  exists (pr1 (pr1 T)).
+  simpl.
+  eapply (CoproductArrow _ (CPEndC _ _ )).
+  - simpl.
+    apply (pr2 (pr1 T)).
+  - apply (pr2 T).
+Defined.
+
+Definition Alg_mor_from_ALG_mor {T T' : ALG} (f : ALG_mor T T')
+  : algebra_mor _ _ (Alg_from_ALG T) (Alg_from_ALG T').
+Proof.
+  exists (pr1 (pr1 f)).
+  simpl. unfold coproduct_functor_mor. simpl.
+  admit.
+Admitted.
+
+Definition ALG_from_Alg (T : algebra_ob _ Id_H) : ALG.
+Proof.
+  refine (tpair _ _ _ ).
+  - exists (pr1 T).
+    apply (CoproductIn1 _ (CPEndC (functor_identity C) (H (pr1 T))) ;; (pr2 T)).
+  - simpl.
+    apply (CoproductIn2 _ (CPEndC (functor_identity C) (H (pr1 T))) ;; (pr2 T)).
+Defined.
+
+Definition ALG_mor_from_Alg_mor {T T' : algebra_ob _ Id_H} (f : algebra_mor _ _  T T')
+  : ALG_mor (ALG_from_Alg T) (ALG_from_Alg T').
+Proof.
+  refine (tpair _ _ _ ).
+  - exists (pr1 f).
+    simpl. intro c.
+    admit.
+  - admit.
+Admitted.
+
+End two_views_on_Id_H_algebras.
