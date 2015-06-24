@@ -187,12 +187,11 @@ Proof.
     apply nat_trans_eq; try assumption.
     intro c.
     simpl.
-    destruct β as [β β_is_nat]; simpl.
     rewrite functor_comp.
     repeat rewrite <- assoc.
     apply maponpaths.
     repeat rewrite assoc.
-    rewrite β_is_nat.
+    rewrite (nat_trans_ax β).
     apply idpath.
 Qed.
 
@@ -338,10 +337,9 @@ Focus 2.
   rewrite <- assoc.
   rewrite <- functor_comp.
   rewrite <- functor_comp.
-  destruct e as [e e_is_nat].
   simpl.
   apply CoproductArrow_eq.
-  + assert (NN :=  e_is_nat _ _ (CoproductOfArrows C (CC terminal c) (CC terminal c')
+  + assert (NN :=  nat_trans_ax e _ _ (CoproductOfArrows C (CC terminal c) (CC terminal c')
          (identity terminal) f)).
     match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _ ] => 
          transitivity (h;;(f;;g)) end.
@@ -359,7 +357,7 @@ Focus 2.
 Focus 2.
     apply (!(CoproductOfArrowsIn2 _ _ _ _ _ )).
     apply idpath.
-Qed.       
+Qed.      
 
 
 Definition Abs_θ_data: ∀ XZ, (θ_source Abs_H)XZ ⇒ (θ_target Abs_H)XZ.
@@ -379,14 +377,12 @@ Proof.
   apply nat_trans_eq; try assumption.
   intro c.
   simpl.
-  destruct α as [α α_is_nat].
-  destruct β as [β β_is_pointed].
   simpl in *.
   unfold constant_functor.
   unfold coproduct_functor_ob.
   simpl.
   rewrite assoc.
-  rewrite α_is_nat.
+  rewrite (nat_trans_ax α).
   do 2 rewrite <- assoc.
   apply maponpaths.
   do 2 rewrite <- functor_comp.
@@ -398,12 +394,11 @@ Proof.
   apply CoproductArrow_eq.
   + rewrite id_left.
     rewrite <- assoc.
-    rewrite β_is_pointed.
+    rewrite <- (ptd_mor_commutes _ β).
     apply idpath.
-  + destruct β as [β β_is_nat].
-    simpl in *.
+  + simpl in *.
     apply pathsinv0.
-    apply β_is_nat.
+    apply (nat_trans_ax β).
 Qed.
 
 Definition Abs_θ: nat_trans (θ_source Abs_H) (θ_target Abs_H) :=
@@ -449,26 +444,24 @@ Proof.
 Focus 2.
   eapply pathsinv0.
   apply postcompWithCoproductArrow.
-(*  destruct e as [e e_is_nat]. *)
-  destruct e' as [e' e'_is_nat];
   simpl in *.
   apply CoproductArrow_eq.
   + rewrite <- assoc.
-    assert (NN := e'_is_nat _ _ (e (CoproductObject C (CC terminal c)))).
+    assert (NN := nat_trans_ax e' _ _ (e (CoproductObject C (CC terminal c)))).  
     simpl in NN. (* is important for success of the trick *)
     match goal with |[ H1: _ = ?f;;?g |- ?h ;; _ = _ ] => 
          transitivity (h;;(f;;g)) end.
     * apply idpath.
-    * rewrite <- NN.    
+    * simpl. rewrite <- NN.    
       clear NN.
-      assert (NNN := e'_is_nat _ _ (CoproductArrow C (CC terminal (Z c))
+      assert (NNN := nat_trans_ax e' _ _ (CoproductArrow C (CC terminal (Z c))
          (CoproductIn1 C (CC terminal c);;
           e (CoproductObject C (CC terminal c)))
          (# Z (CoproductIn2 C (CC terminal c))))). 
       simpl in NNN.
       match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _] => 
          transitivity (h;;(f;;g)) end.
-      - rewrite <- NNN.
+      - simpl. rewrite <- NNN.
         clear NNN.
         do 2 rewrite assoc.        
         rewrite CoproductIn1Commutes.
@@ -504,28 +497,25 @@ Proof.
   destruct XZ' as [X' [Z' e']];
   destruct αβ as [α β];
   simpl in *.
-  destruct α as [α α_is_nat];
-  destruct β as [[β β_is_nat] β_is_pointed];
-  simpl in *.
   repeat rewrite id_left.
   do 4 rewrite functor_id.
   do 2 rewrite id_right.
   repeat rewrite <- assoc.
   do 3 rewrite <- functor_comp.
   repeat rewrite assoc.
-  rewrite α_is_nat.
+  rewrite (nat_trans_ax α).
   repeat rewrite <- assoc.
   apply maponpaths.
   rewrite <- functor_comp.
   apply maponpaths.
   repeat rewrite assoc.
+  assert (β_is_pointed := ptd_mor_commutes _ β).
+  simpl in β_is_pointed.
   rewrite β_is_pointed.
-  destruct e as [e e_is_nat];
-  destruct e' as [e' e'_is_nat];
-  simpl in *.
+  simpl.
   eapply pathscomp0.
 Focus 2.
-  apply e'_is_nat.
+  apply (nat_trans_ax e').
   apply idpath.
 Qed.
 
