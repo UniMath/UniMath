@@ -12,6 +12,7 @@ Require Import UniMath.RezkCompletion.opp_precat.
 Require Import UniMath.RezkCompletion.yoneda.
 Require Import UniMath.RezkCompletion.equivalences. (* for adjunctions *)
 Require Import SubstSystems.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
+Require Import SubstSystems.Auxiliary.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -99,13 +100,11 @@ Qed.
    
 Lemma ψ_naturality (A B: C)(h: B ⇒ A)(f: L A ⇒ X): ψ B (#L h;; f) = #L (#F h);; ψ A f.
 Proof.
-  destruct ψ as [ψ0 ψ0_is_nat].
-  simpl.
-  red in ψ0_is_nat.
-  assert (ψ0_is_nat_inst1 := ψ0_is_nat _ _ h).
-  (* assert (ψ0_is_nat_inst2 := aux0 _ _ _ _ f ψ0_is_nat_inst1). *)
-  assert (ψ0_is_nat_inst2 := toforallpaths _ _ _ ψ0_is_nat_inst1 f).
-  apply ψ0_is_nat_inst2.
+  assert (ψ_is_nat := nat_trans_ax ψ);
+  assert (ψ_is_nat_inst1 := ψ_is_nat _ _ h).
+  (* assert (ψ_is_nat_inst2 := aux0 _ _ _ _ f ψ_is_nat_inst1). *)
+  assert (ψ_is_nat_inst2 := toforallpaths _ _ _ ψ_is_nat_inst1 f).
+  apply ψ_is_nat_inst2.
 Qed.
 
 Lemma truth_about_ε (A: C'): ε A = φ_inv (identity (R A)).
@@ -135,17 +134,18 @@ Qed.
 Lemma cancel_φ {A: C}{B: C'} (f g : L A ⇒ B): φ f = φ g -> f = g.
 Proof.
   intro Hyp.
+(* pedestrian way:
   rewrite <- (φ_adj_inv_after_φ_adj _ _ _ is_left_adj_L f).
   rewrite <- (φ_adj_inv_after_φ_adj _ _ _ is_left_adj_L g).
   apply maponpaths.
   exact Hyp.
+*)
+  apply (invmaponpathsweq (adjunction_hom_weq _ _ _ is_left_adj_L _ _)).
+  exact Hyp.
 Qed.
 
-
-Theorem GenMendlerIteration : iscontr (Σ h : L μF ⇒ X, #L inF ;; h = ψ μF h).
+Lemma It_ok : # L inF;; It = ψ μF It.
 Proof.
-  refine (tpair _ _ _ ).
-  - exists It.
     apply cancel_φ.
     rewrite φ_ψ_μF_eq.
     rewrite (φ_adj_natural_precomp _ _ _ is_left_adj_L).
@@ -154,12 +154,17 @@ Proof.
     rewrite (φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L).
     assert (iter_eq := algebra_mor_commutes _ _ _ _ (InitialArrow _ μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
     exact iter_eq.
-  - intros [h h_rec_eq]; simpl.
+Qed.
+
+Lemma It_uniq (t : Σ h : L μF ⇒ X, # L inF;; h = ψ μF h):
+    t = tpair (λ h : L μF ⇒ X, # L inF;; h = ψ μF h) It It_ok.
+Proof.
+    destruct t as [h h_rec_eq]; simpl.
     assert (same: h = It).
 Focus 2.
     apply (total2_paths_second_isaprop).
     + simpl.
-    apply hsC'.
+      apply hsC'.
 Focus 2.
     simpl.
     exact same.
@@ -175,11 +180,18 @@ Focus 2.
       rewrite <- φ_adj_natural_precomp.
       apply maponpaths.
       exact h_rec_eq.
-    + set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial ⇒ ⟨ R X, φ (ψ (R X) (ε X)) ⟩).
-      assert (iter_uniq_inst := iter_uniq φh_alg_mor). clear iter_uniq.
-      apply (maponpaths pr1) in iter_uniq_inst.
-      exact iter_uniq_inst.
+    + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial ⇒ ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
+      apply path_to_ctr.
+      exact φh_is_alg_mor.
 Qed.
+
+Theorem GenMendlerIteration : iscontr (Σ h : L μF ⇒ X, #L inF ;; h = ψ μF h).
+Proof.
+  refine (tpair _ _ _ ).
+  - exists It.
+    exact It_ok.
+  - exact It_uniq.
+Defined.
 
 End general_case.
 
@@ -196,16 +208,25 @@ Section special_case.
     - intro A. simpl. intro f.
       unfold yoneda_objects_ob in *.
       exact (θ A ;; #G f ;; ρ).
-    - admit.
-  Admitted.
+    - red; intros A B h.
+      apply funextfun.
+      intro f.
+      simpl.
+      unfold compose at 1 5; simpl.
+      rewrite functor_comp. 
+      repeat rewrite assoc.
+      assert (θ_nat_trans_ax := nat_trans_ax θ).
+      unfold functor_composite in θ_nat_trans_ax.
+      simpl in θ_nat_trans_ax.
+      rewrite <- θ_nat_trans_ax.
+      apply idpath.          
+  Defined.   
 
 
-(*
   Definition SpecialGenMendlerIteration :
     iscontr
-      (Σ h : L μF ⇒ X, # L inF;; h = θ μF ;; #G h ;; ρ)
+      (Σ h : L μF ⇒ X, # L inF ;; h = θ μF ;; #G h ;; ρ)
     := GenMendlerIteration ψ_from_comps.
-*)
 
 End special_case.
 
@@ -234,26 +255,3 @@ End fusion_law.
 
 
 End GenMenIt.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
