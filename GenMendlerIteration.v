@@ -11,8 +11,7 @@ Require Import UniMath.RezkCompletion.category_hset.
 Require Import UniMath.RezkCompletion.opp_precat.
 Require Import UniMath.RezkCompletion.yoneda.
 Require Import UniMath.RezkCompletion.equivalences. (* for adjunctions *)
-
-Require SubstSystems.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
+Require Import SubstSystems.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -59,15 +58,15 @@ Variable L : functor C C'.
 
 Variable is_left_adj_L : is_left_adjoint L.
 
-Let φ := @SubstSystems.AdjunctionHomTypesWeq.φ _ _ _ is_left_adj_L.
-Let φ_inv := @SubstSystems.AdjunctionHomTypesWeq.φ_inv _ _ _ is_left_adj_L.
+Let φ := @φ_adj _ _ _ is_left_adj_L.
+Let φ_inv := @φ_adj_inv _ _ _ is_left_adj_L.
 Let R : functor _ _ := right_adjoint is_left_adj_L.
 Let η : nat_trans _ _ := eta_from_left_adjoint is_left_adj_L.
 Let ε : nat_trans _ _ := eps_from_left_adjoint is_left_adj_L.
-Let φ_natural_precomp := @SubstSystems.AdjunctionHomTypesWeq.φ_natural_precomp _ _ _ is_left_adj_L.
-Let φ_inv_natural_precomp := @SubstSystems.AdjunctionHomTypesWeq.φ_inv_natural_precomp _ _ _ is_left_adj_L.
-Let φ_after_φ_inv := @AdjunctionHomTypesWeq.φ_after_φ_inv _ _ _ is_left_adj_L.
-Let φ_inv_after_φ := @AdjunctionHomTypesWeq.φ_inv_after_φ _ _ _ is_left_adj_L.
+Let φ_natural_precomp := @φ_adj_natural_precomp _ _ _ is_left_adj_L.
+Let φ_inv_natural_precomp := @φ_adj_inv_natural_precomp _ _ _ is_left_adj_L.
+Let φ_after_φ_inv := @φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L.
+Let φ_inv_after_φ := @φ_adj_inv_after_φ_adj _ _ _ is_left_adj_L.
 
 
 Arguments φ {_ _} _ .
@@ -106,7 +105,7 @@ Qed.
 
 Lemma truth_about_ε (A: C'): ε A = φ_inv (identity (R A)).
 Proof.
-  unfold φ_inv, AdjunctionHomTypesWeq.φ_inv.
+  unfold φ_inv, φ_adj_inv.
   rewrite functor_id.
   apply pathsinv0.
   apply id_left.
