@@ -169,6 +169,12 @@ Contributing to UniMath
 To contribute to UniMath, submit a pull request or contact us.  Your code will
 be subject to the copyright and license agreement below.
 
+The UniMath Development Team
+============================
+
+The members of the UniMath Development Team are Vladimir Voevodsky, Benedikt
+Ahrens, and Daniel Grayson.
+
 UniMath copyright and license
 =============================
 
@@ -176,9 +182,6 @@ UniMath consists of the files in the UniMath github repository at
 https://github.com/UniMath/UniMath .
 
 UniMath is copyright 2015 by the UniMath Development Team.
-
-The members of the UniMath Development Team are Vladimir Voevodsky, Benedikt
-Ahrens, and Daniel Grayson.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 UniMath, to deal in UniMath without restriction, including without limitation
