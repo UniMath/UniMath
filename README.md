@@ -163,8 +163,13 @@ $ sudo apt-get install ocaml-native-compilers
 ```
 This package is not among the build dependencies for older versions of Coq.
 
+Contributing to UniMath
+=======================
 
-UniMath license and copyright
+To contribute to UniMath, submit a pull request or contact us.  Your code will
+be subject to the copyright and license agreement below.
+
+UniMath copyright and license
 =============================
 
 UniMath consists of the files in the UniMath github repository at
@@ -181,7 +186,7 @@ the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 sell copies of UniMath, and to permit persons to whom UniMath is furnished to
 do so, subject to the following conditions:
 
-* This license and copyright notice shall be included in all copies or
+* This copyright and license notice shall be included in all copies or
   substantial portions of the Software.
 
 * If UniMath is used in a paper, please cite it.  If you use latex with
