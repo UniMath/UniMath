@@ -193,6 +193,12 @@ Proof.
   - exact It_uniq.
 Defined.
 
+Definition It_which_is_unique: L μF ⇒ X := pr1 (pr1 GenMendlerIteration).
+Lemma It_is_It_which_is_unique: It = It_which_is_unique.
+Proof.
+  apply idpath.
+Qed.
+
 End general_case.
 
 
@@ -247,8 +253,22 @@ Section fusion_law.
 
   Theorem fusion_law : Φ μF (It L is_left_adj_L ψ) = It L' is_left_adj_L' ψ'.
   Proof.
-    admit.
-  Admitted.
+    apply pathsinv0.
+    rewrite It_is_It_which_is_unique.
+    apply pathsinv0.
+    apply path_to_ctr.
+    assert (Φ_is_nat := nat_trans_ax Φ).
+    assert (Φ_is_nat_inst1 := Φ_is_nat _ _ inF).
+    assert (Φ_is_nat_inst2 := toforallpaths _ _ _ Φ_is_nat_inst1 (It L is_left_adj_L ψ)).
+    unfold compose in Φ_is_nat_inst2; simpl in Φ_is_nat_inst2.
+    simpl.
+    rewrite <- Φ_is_nat_inst2.
+    assert (H_inst :=  toforallpaths _ _ _ H (It L is_left_adj_L ψ)).
+    unfold compose in H_inst; simpl in H_inst.
+    rewrite <- H_inst.
+    apply maponpaths.
+    apply It_ok.    
+  Qed.
     
 End fusion_law.
 
