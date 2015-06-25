@@ -52,7 +52,7 @@ Variable H : functor EndC EndC.
 
 Let Id_H
 : functor EndC EndC
-  := coproduct_functor _ _ (Coproducts_functor_precat _ _ CP hs) 
+  := coproduct_functor _ _ CPEndC 
                        (constant_functor _ _ (functor_identity _ : EndC))
                        H.
 
@@ -99,7 +99,7 @@ Definition Alg_mor' (A B : Alg_obj) : UU
 
 Coercion Ptd_mor_from_ALG_mor (A B : ALG)(f : ALG_mor A B) : Ptd ⟦A, B⟧ := pr1 f.
 
-Definition isALGMor_Alg_mor (A B : ALG)(f : ALG_mor A B) : isALGMor f := pr2 f.
+Definition isALGMor_Alg_mor {A B : ALG}(f : ALG_mor A B) : isALGMor f := pr2 f.
 
 Definition ALG_mor_eq_weq (A B : ALG) (f g : ALG_mor A B) 
   : f = g ≃ #U f = #U g.
@@ -111,25 +111,23 @@ Proof.
     apply hs.
 Defined.
 
-Definition isALGMor_id (A : ALG) : isALGMor (identity A : Ptd⟦A,A⟧).
+Lemma isALGMor_id (A : ALG) : isALGMor (identity A : Ptd⟦A,A⟧).
 Proof.
-  unfold isALGMor.
-  rewrite functor_id.
-  rewrite functor_id.
+  red.
+  do 2 rewrite functor_id.
   rewrite id_left.
-  set (H2 := id_right ([C,C,hs])).
-  apply pathsinv0, H2.
+  rewrite id_right.
+  apply idpath.
 Qed.
 
 Definition ALGMor_id (A : ALG) : ALG_mor A A := tpair _ _ (isALGMor_id A).
 
 
-Definition isALGMor_comp (A B D : ALG) (f : ALG_mor A B) (g : ALG_mor B D) 
+Lemma isALGMor_comp (A B D : ALG) (f : ALG_mor A B) (g : ALG_mor B D) 
   : isALGMor (f ;; g : Ptd⟦A, D⟧).
 Proof.
-  unfold isALGMor.
-  rewrite functor_comp.
-  rewrite functor_comp.
+  red.
+  do 2 rewrite functor_comp.
   rewrite <- assoc.
   rewrite isALGMor_Alg_mor.
   rewrite assoc.
@@ -169,7 +167,7 @@ Definition precategory_ALG : precategory := tpair _ _ is_precategory_ALG.
 
 
 
-Let prectegory_Alg : precategory := precategory_FunctorAlg  _ Id_H hsEndC.
+Let precategory_Alg : precategory := precategory_FunctorAlg  _ Id_H hsEndC.
 
 
 
@@ -180,7 +178,7 @@ Proof.
   eapply (CoproductArrow _ (CPEndC _ _ )).
   - simpl.
     apply (pr2 (pr1 T)).
-  - apply (pr2 T).
+  - apply (τ T).
 Defined.
 
 Definition Alg_mor_from_ALG_mor {T T' : ALG} (f : ALG_mor T T')
@@ -188,8 +186,23 @@ Definition Alg_mor_from_ALG_mor {T T' : ALG} (f : ALG_mor T T')
 Proof.
   exists (pr1 (pr1 f)).
   simpl. unfold coproduct_functor_mor. simpl.
-  admit.
-Admitted.
+  apply pathsinv0.
+  eapply pathscomp0.
+  + apply (precompWithCoproductArrow ([C, C] hs) (CPEndC (functor_identity C) (H (pr1 (pr1 T))))
+     (CPEndC (functor_identity C) (H (pr1 (pr1 T'))))).
+  + rewrite id_left.
+    eapply pathscomp0.
+Focus 2.
+    eapply pathsinv0. 
+    apply (postcompWithCoproductArrow ([C, C] hs) (CPEndC (functor_identity C) (H (pr1 (pr1 T))))).
+    apply (CoproductArrow_eq ([C, C] hs) CPEndC).
+    * apply pathsinv0.
+      apply nat_trans_eq; try assumption.
+      intro c.
+      assert (f_pointed_mor:= pr2 (pr1 f) c).
+      exact f_pointed_mor.
+    * apply isALGMor_Alg_mor.
+Defined.
 
 Definition ALG_from_Alg (T : algebra_ob _ Id_H) : ALG.
 Proof.
