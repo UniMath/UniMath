@@ -14,7 +14,7 @@ Local Notation "G ∙ F" := (functor_composite _ _ _ F G) (at level 35).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
-Section def_product_precategory.
+Section one_product_precategory.
 
 Variables C D : precategory.
 
@@ -53,7 +53,86 @@ Proof.
   - apply hsC.
   - apply hsD.
 Qed.
+ 
+Section functor_fix_snd_arg.
+
+Variable E : precategory.
+Variable F: functor product_precategory E.
+Variable d: D.
+
+Definition functor_fix_snd_arg_ob (c:C): E := F(tpair _ c d).
+Definition functor_fix_snd_arg_mor (c c':C)(f: c ⇒ c'): functor_fix_snd_arg_ob c ⇒ functor_fix_snd_arg_ob c'.
+Proof.
+  apply (#F). 
+  split; simpl.
+  exact f.
+  exact (identity d).
+Defined.
+Definition functor_fix_snd_arg_data : functor_data C E.
+Proof.
+  red. 
+  exists functor_fix_snd_arg_ob.
+  exact functor_fix_snd_arg_mor.
+Defined.
+
+Lemma is_functor_functor_fix_snd_arg_data: is_functor functor_fix_snd_arg_data.
+Proof.
+  red.
+  split; red.
+  + intros c.
+    unfold functor_fix_snd_arg_data; simpl.
+    unfold functor_fix_snd_arg_mor; simpl.
+    unfold functor_fix_snd_arg_ob; simpl.
+    assert (functor_id_inst := functor_id F).
+    rewrite <- functor_id_inst.
+    apply maponpaths.
+    apply idpath.
+  + intros c c' c'' f g.
+    unfold functor_fix_snd_arg_data; simpl.
+    unfold functor_fix_snd_arg_mor; simpl.
+    assert (functor_comp_inst := functor_comp F (dirprodpair c d) (dirprodpair c' d) (dirprodpair c'' d)).
+    rewrite <- functor_comp_inst.
+    apply maponpaths.
+    unfold compose at 2.
+    unfold product_precategory; simpl.
+    rewrite id_left.
+    apply idpath.
+Qed.
   
+Definition functor_fix_snd_arg: functor C E.
+Proof.
+  exists functor_fix_snd_arg_data.
+  exact is_functor_functor_fix_snd_arg_data.
+Defined.    
 
-End def_product_precategory.
+End functor_fix_snd_arg.
 
+Section nat_trans_fix_snd_arg.
+
+Variable E : precategory.
+Variable F F': functor product_precategory E.
+Variable α: F ⟶ F'.
+Variable d: D.
+
+Definition nat_trans_fix_snd_arg_data (c:C): functor_fix_snd_arg E F d c ⇒ functor_fix_snd_arg E F' d c := α (tpair _ c d).
+
+Lemma nat_trans_fix_snd_arg_ax: is_nat_trans _ _ nat_trans_fix_snd_arg_data.
+Proof.
+  red.
+  intros c c' f.
+  unfold nat_trans_fix_snd_arg_data, functor_fix_snd_arg; simpl.
+  unfold functor_fix_snd_arg_mor; simpl.
+  assert (nat_trans_ax_inst := nat_trans_ax α).
+  apply nat_trans_ax_inst.
+Qed.
+
+Definition nat_trans_fix_snd_arg: functor_fix_snd_arg E F d ⟶ functor_fix_snd_arg E F' d.
+Proof.
+  exists nat_trans_fix_snd_arg_data.
+  exact nat_trans_fix_snd_arg_ax.
+Defined.
+
+End nat_trans_fix_snd_arg.
+
+
+End one_product_precategory.
