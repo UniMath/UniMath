@@ -213,14 +213,36 @@ Proof.
     apply (CoproductIn2 _ (CPEndC (functor_identity C) (H (pr1 T))) ;; (pr2 T)).
 Defined.
 
+(*
+Lemma ALG_mor_from_Alg_mor_aux1 {T T' : algebra_ob _ Id_H} (f : algebra_mor _ _  T T')(c : C):
+   (ptd_pt C (ALG_from_Alg T)) c;; (pr1 f) c = (ptd_pt C (ALG_from_Alg T')) c.
+*)
+
 Definition ALG_mor_from_Alg_mor {T T' : algebra_ob _ Id_H} (f : algebra_mor _ _  T T')
   : ALG_mor (ALG_from_Alg T) (ALG_from_Alg T').
 Proof.
   refine (tpair _ _ _ ).
   - exists (pr1 f).
     simpl. intro c.
-    admit.
-  - admit.
+    unfold coproduct_nat_trans_in1_data; simpl.
+    rewrite <- assoc.
+    assert (f_is_alg_mor := algebra_mor_commutes ([C, C] hs) _ _ _ f).
+    assert (f_is_alg_mor_inst := nat_trans_eq_pointwise _ _ _ _ _ _ f_is_alg_mor c).
+    clear f_is_alg_mor.
+    simpl in f_is_alg_mor_inst.
+    unfold coproduct_nat_trans_data in f_is_alg_mor_inst; simpl in  f_is_alg_mor_inst.
+    unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data in f_is_alg_mor_inst; simpl in  f_is_alg_mor_inst.
+    unfold alg_map in f_is_alg_mor_inst; simpl in  f_is_alg_mor_inst.
+    rewrite id_left in f_is_alg_mor_inst.
+    match goal with |[ H1: ?f = _ |- ?h ;; _ = _ ] => 
+         transitivity (h;;f) end.
+    + apply idpath.
+    + rewrite f_is_alg_mor_inst.
+      rewrite assoc.
+      apply (maponpaths (fun x => x;;(pr1 ((pr2 T'):([C, C] hs ⟦ Id_H (pr1 T'), pr1 T' ⟧))) c)).
+      
+      apply CoproductIn1Commutes.
+  - admit.    (* the H part *)
 Admitted.
 
 End two_views_on_Id_H_algebras.
