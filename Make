@@ -1,4 +1,5 @@
 -R . SubstSystems
+FunctorAlgebraViews.v
 GenMendlerIteration.v
 Lam.v
 EndofunctorsMonoidal.v

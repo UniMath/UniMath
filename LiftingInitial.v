@@ -20,6 +20,9 @@ Require Import SubstSystems.Signatures.
 Require Import SubstSystems.SubstitutionSystems.
 Require Import SubstSystems.FunctorsPointwiseCoproduct.
 Require Import SubstSystems.GenMendlerIteration.
+Require Import SubstSystems.FunctorAlgebraViews.
+Require Import SubstSystems.RightKanExtension.
+Require Import SubstSystems.GenMendlerIteration.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -53,30 +56,54 @@ Local Notation "'Ptd'" := (precategory_Ptd C hs).
 Local Notation "'U'" := (functor_ptd_forget C hs).
 
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
+Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CP hs.
 
+Variable KanExt : ∀ Z : Ptd, GlobalRightKanExtensionExists _ _ (U Z) _ hs hs.
 
 Variable H : Signature C hs.
 Let θ := theta H. 
 
-Let Id_H
-: functor EndC EndC
-  := coproduct_functor _ _ (Coproducts_functor_precat _ _ CP hs) 
+
+Let Id_H :
+    functor EndC EndC
+  := coproduct_functor _ _ CPEndC
                        (constant_functor _ _ (functor_identity _ : EndC))
                        H.
+ 
 
-Let ALG : precategory := precategory_FunctorAlg _ Id_H hsEndC.
+Let Alg : precategory := precategory_FunctorAlg _ Id_H hsEndC.
 
-Variable IA : Initial ALG.
 
-Let 
+Variable IA : Initial Alg.
+Definition GG (Z : Ptd) (X : EndC) :=
+  SpecialGenMendlerIteration _ _ _ IA EndC hsEndC X _ (KanExt Z) .
 
-Definition InitAlg : ALG := InitialObject _ IA.
 
-Definition bracket_for_InitAlg : bracket _ _ H InitAlg.
+Definition InitAlg : Alg := InitialObject _ IA.
+
+Definition bracket_for_InitAlg : bracket _ _ H (ALG_from_Alg _ _ _ _ InitAlg).
 Proof.
-  intros F α.
+  intros Z f.
+  set (GGG:= GG Z (pr1 InitAlg)).
+  set (HHH := coproduct_functor _ _ CPEndC
+                       (constant_functor _ _ (U Z))
+                       H).
+  set (G3 := GGG HHH).
+
+  set (ρ := @CoproductArrow EndC _ _  (CPEndC (U Z) (H (pr1 InitAlg))) (pr1 InitAlg) (#U f) (alg_map _ _ InitAlg)).
+  
+  eapply G3.
+ 
+  eapply GGG.
+  simpl.
+  refine (tpair _ _ _ ).
+  - refine (tpair _ _ _ ).
+    simpl in *.
+  
   admit.
 Admitted.
+
+ *)
 
 Definition InitHSS : hss_precategory H.
 Proof.

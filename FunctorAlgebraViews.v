@@ -276,6 +276,30 @@ Proof.
     simpl.
     apply ALG_mor_from_Alg_mor_aux2.
 Defined.
+(*
+Lemma ALG_from_Alg_from_ALG (T : ALG) : ALG_from_Alg (Alg_from_ALG T) = T.
+Proof.
+  refine (total2_paths _ _ ).
+  - refine (total2_paths _ _ ).
+    * apply idpath.
+    * simpl.
+      refine (CoproductIn1Commutes _ _ _ (CPEndC (functor_identity C) _ ) _ _ _ ).
+  - Search (transportf _ _  _ = _ ).
+    Search (transportf (λ (_ : Σ _ , _) , _ ) _ _ = _ ). 
+    set (HT:=@transportf_total2).
+    set (HT' := HT Ptd ALGStruct).
+    set (HT'' := HT' 
+    eapply pathscomp0.
+    apply HT'.
+    rewrite HT.
+    apply nat_trans_eq. assumption.
+    intro c; simpl.
+    apply idpath.
+    Check (pr2 T). Print ALGStruct.
+    
 
+    simpl.
+      apply idpath.
+*)
 
 End two_views_on_Id_H_algebras.

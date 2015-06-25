@@ -12,6 +12,12 @@ Require Import UnicodeNotations.
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
+Lemma transportf_idpath (A : UU) (B : A -> UU) (a : A) (b : B a)
+: transportf _ (idpath a) b = b.
+Proof.
+  apply idpath.
+Defined.
+
 Section Constant_Functor.
 Variables C D : precategory.
 Variable d : D.

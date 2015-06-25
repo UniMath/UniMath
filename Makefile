@@ -112,7 +112,8 @@ VFILES:=UnicodeNotations.v\
   RightKanExtension.v\
   EndofunctorsMonoidal.v\
   Lam.v\
-  GenMendlerIteration.v
+  GenMendlerIteration.v\
+  FunctorAlgebraViews.v
 
 -include $(addsuffix .d,$(VFILES))
 .SECONDARY: $(addsuffix .d,$(VFILES))
