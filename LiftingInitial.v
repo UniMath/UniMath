@@ -79,6 +79,8 @@ Definition GG (Z : Ptd) (X : EndC) :=
   SpecialGenMendlerIteration _ _ _ IA EndC hsEndC X _ (KanExt Z) .
 
 
+Definition θ_in_first_arg (Z: Ptd) := nat_trans_fix_snd_arg _ _ _ _ _ θ Z. 
+
 Definition InitAlg : Alg := InitialObject _ IA.
 
 Definition bracket_for_InitAlg : bracket _ _ H (ALG_from_Alg _ _ _ _ InitAlg).
@@ -89,9 +91,19 @@ Proof.
                        (constant_functor _ _ (U Z))
                        H).
   set (G3 := GGG HHH).
-
-  set (ρ := @CoproductArrow EndC _ _  (CPEndC (U Z) (H (pr1 InitAlg))) (pr1 InitAlg) (#U f) (alg_map _ _ InitAlg)).
   
+  set (ρ := @CoproductArrow EndC _ _  (CPEndC (U Z) (H (pr1 InitAlg))) (pr1 InitAlg) (#U f)(CoproductIn2 _ _ ;; (alg_map _ _ InitAlg))).
+  set (G4 := G3 ρ).
+
+  set (EndEndC := [EndC, EndC, hsEndC]).
+  set (CPEndEndC:= Coproducts_functor_precat _ _ CPEndC hsEndC: Coproducts EndEndC).
+  set (θ' := CoproductOfArrows EndEndC (CPEndEndC _ _) (CPEndEndC _ _) (identity (constant_functor EndC _ (U Z): functor_precategory EndC EndC hsEndC)) (θ_in_first_arg Z)).
+(* 
+  set (G5 := G4 θ').
+  We need to work hard on the type that G4 requires for its first argument.
+
+
+
   eapply G3.
  
   eapply GGG.
@@ -99,12 +111,12 @@ Proof.
   refine (tpair _ _ _ ).
   - refine (tpair _ _ _ ).
     simpl in *.
-  
+*)
   admit.
 Admitted.
 
- *)
 
+(*
 Definition InitHSS : hss_precategory H.
 Proof.
   exists InitAlg.
@@ -121,7 +133,7 @@ Proof.
   exists InitHSS.
   apply isInitial_InitHSS.
 Defined.
-
+*)
 
 End Precategory_Algebra.
 
