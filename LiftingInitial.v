@@ -177,7 +177,8 @@ Proof.
       apply path_to_ctr.
       apply nat_trans_eq; try assumption.
       intro c; simpl .
-      
+      unfold coproduct_nat_trans_data.
+      simpl.
     (* now back translation of the data into an argument for h_unique (Alg view) *)
     admit.
 Admitted.
@@ -185,16 +186,47 @@ Admitted.
 
 Definition InitHSS : hss_precategory H.
 Proof.
-  red.
+ (* 
+  red. (* FORBIDDEN *)
   unfold hss_precategory; simpl.
+*)
   exists (ALG_from_Alg _ _ _ _ InitAlg).
   exact bracket_for_InitAlg.
 (* now universe problem when checking the definition *)
-Admitted.
+Defined.
+
+
+
+
 
 Lemma isInitial_InitHSS : isInitial (hss_precategory H) InitHSS.
 Proof.
-  admit.
+  intro T.
+  simpl.
+  set (T' := Alg_from_ALG _ _ CP _  (pr1 T)). 
+  set (β := InitialArrow _ IA T').
+  refine (tpair _ _ _ ).
+  - refine (tpair _ _ _ ).
+    + refine (tpair _ _ _ ).
+      * 
+        apply β.
+      * simpl.
+        intro c.
+        unfold coproduct_nat_trans_in1_data.
+        destruct β as [β βalg]; simpl in *.
+        (* apply a component of βalg *)
+        admit.
+    + simpl.
+      split.
+      * (* apply another component of βalg *)
+        admit.
+      * simpl.
+
+        destruct β as [β βalg]; simpl in *.
+        unfold isbracketMor. simpl.
+        intros Z f.        
+        (* now define Ψ for fusion law *)
+      admit.
 Admitted.
 
 Lemma Ihss : Initial (hss_precategory H).
