@@ -98,30 +98,44 @@ Proof.
   set (EndEndC := [EndC, EndC, hsEndC]).
   set (CPEndEndC:= Coproducts_functor_precat _ _ CPEndC hsEndC: Coproducts EndEndC).
   set (θ' := CoproductOfArrows EndEndC (CPEndEndC _ _) (CPEndEndC _ _) (identity (constant_functor EndC _ (U Z): functor_precategory EndC EndC hsEndC)) (θ_in_first_arg Z)).
-(* 
-  set (G5 := G4 θ').
-  We need to work hard on the type that G4 requires for its first argument.
-
-
-
-  eapply G3.
+  assert (type_of_θ'_ok : functor_composite Id_H (pre_composition_functor C C C hs hs (U Z))
+           ⟶ functor_composite (pre_composition_functor C C C hs hs (U Z))
+               HHH =  EndEndC
+       ⟦ CoproductObject EndEndC
+           (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
+              (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z)),
+       CoproductObject EndEndC
+         (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
+            (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z))
+       ⟧).
+   unfold precategory_morphisms.
+   unfold EndEndC. simpl.
+   unfold coproduct_functor_data at 3 4; simpl.
+   admit.
  
-  eapply GGG.
-  simpl.
+  rewrite <- type_of_θ'_ok in θ'.  (* has to be done with transport so that the computational content does not get lost *)
+  set (G5 := G4 θ').
+
+  destruct G5 as [[h h_eq] h_unique].
   refine (tpair _ _ _ ).
   - refine (tpair _ _ _ ).
-    simpl in *.
-*)
-  admit.
+    + exact h.
+    + (* the property in h_eq in the Alg world has to be translated into the ALG setting *)
+      admit.    
+  - intros [h' [h'_eq1 h'_eq2]].
+    (* now back translation of the data into an argument for h_unique (Alg view) *)
+    admit.
 Admitted.
 
 
-(*
 Definition InitHSS : hss_precategory H.
 Proof.
-  exists InitAlg.
+  red.
+  unfold hss_precategory; simpl.
+  exists (ALG_from_Alg _ _ _ _ InitAlg).
   exact bracket_for_InitAlg.
-Defined.
+(* now universe problem when checking the definition *)
+Admitted.
 
 Lemma isInitial_InitHSS : isInitial (hss_precategory H) InitHSS.
 Proof.
@@ -133,7 +147,7 @@ Proof.
   exists InitHSS.
   apply isInitial_InitHSS.
 Defined.
-*)
+
 
 End Precategory_Algebra.
 
