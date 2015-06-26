@@ -98,6 +98,43 @@ Proof.
   set (EndEndC := [EndC, EndC, hsEndC]).
   set (CPEndEndC:= Coproducts_functor_precat _ _ CPEndC hsEndC: Coproducts EndEndC).
   set (θ' := CoproductOfArrows EndEndC (CPEndEndC _ _) (CPEndEndC _ _) (identity (constant_functor EndC _ (U Z): functor_precategory EndC EndC hsEndC)) (θ_in_first_arg Z)).
+
+  (* simpl in θ'. *)
+
+  idtac.
+
+  
+  
+ (*
+  assert (iso_1 : functor_composite Id_H (pre_composition_functor C C C hs hs (U Z)) ⟶  
+                 coproduct_functor_data ([C, C] hs) ([C, C] hs) CPEndC
+    (constant_functor ([C, C] hs) ([C, C] hs) (pr1 Z))
+    (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z) : EndEndC ⟦ _ , _ ⟧ ).
+  { admit. }
+  *)
+
+  assert (iso_1 : EndEndC ⟦ functor_composite Id_H
+                                        (pre_composition_functor C C C hs hs (U Z)),
+                            CoproductObject EndEndC
+           (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
+              (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z))
+                          ⟧).
+  {  admit. }
+
+  
+  assert (iso_2_inv : EndEndC ⟦
+                           CoproductObject EndEndC
+         (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
+                    (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z)),
+
+                       functor_composite (pre_composition_functor C C C hs hs (U Z) )   HHH 
+                           
+                        ⟧).
+  { admit . }
+  set (G5:= G4 (iso_1 ;; θ' ;; iso_2_inv  )).
+
+
+(*
   assert (type_of_θ'_ok : functor_composite Id_H (pre_composition_functor C C C hs hs (U Z))
            ⟶ functor_composite (pre_composition_functor C C C hs hs (U Z))
                HHH =  EndEndC
@@ -115,14 +152,32 @@ Proof.
  
   rewrite <- type_of_θ'_ok in θ'.  (* has to be done with transport so that the computational content does not get lost *)
   set (G5 := G4 θ').
-
+ *)
+  (*
   destruct G5 as [[h h_eq] h_unique].
+  *)
   refine (tpair _ _ _ ).
   - refine (tpair _ _ _ ).
-    + exact h.
+    + exact (pr1 (pr1 G5)).
     + (* the property in h_eq in the Alg world has to be translated into the ALG setting *)
-      admit.    
+      simpl.
+      split.
+      *  apply nat_trans_eq; try assumption.
+         intro x; simpl.
+         admit.
+     * admit.
   - intros [h' [h'_eq1 h'_eq2]].
+    simpl in *.
+    apply total2_paths_second_isaprop.
+    + apply isofhleveltotal2.
+      * apply isaset_nat_trans. assumption.
+      * intro.  apply isaset_nat_trans. assumption.
+    + simpl.
+      rewrite It_is_It_which_is_unique.
+      apply path_to_ctr.
+      apply nat_trans_eq; try assumption.
+      intro c; simpl .
+      
     (* now back translation of the data into an argument for h_unique (Alg view) *)
     admit.
 Admitted.
