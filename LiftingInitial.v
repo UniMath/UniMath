@@ -248,6 +248,8 @@ Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H 
 Definition bracket_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧) :=
    pr1 (pr1 (SpecializedGMIt_Thm15 Z f)).
 
+(* Remark B: before proving a conjunction, we prove the individual components *)
+
 Lemma bracket_Thm15_ok_pt1 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
 # U f =
  # (pre_composition_functor_data C C C hs hs (U Z))
@@ -262,12 +264,29 @@ Proof.
          simpl in h_eq'.
          assert (h_eq1' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (CoproductIn1 EndC (CPEndC _ _));; m) h_eq'); clear h_eq'.
          assert (h_eq1'_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h_eq1' c);
-         clear h_eq1'.
-         simpl in h_eq1'_inst.
-         unfold coproduct_nat_trans_data in h_eq1'_inst; simpl in h_eq1'_inst.
-         unfold coproduct_nat_trans_in1_data in h_eq1'_inst; simpl in h_eq1'_inst.
-         repeat rewrite <- assoc in h_eq1'_inst.
-         apply CoproductIn1Commutes_right_in_ctx in h_eq1'_inst.
+           clear h_eq1'.
+
+(* Remark B: it might be better to do transitivity here instead of 
+             many manipulations of the context
+      
+         I have not adapted the following tactics to this change
+
+*)
+         
+         match goal with |[ H1 : _  = ?f |- _ = _   ] => 
+         transitivity (f) end.
+
+  * 
+         clear h_eq1'_inst.
+         unfold coproduct_nat_trans_data; simpl.
+         unfold coproduct_nat_trans_in1_data ; simpl.
+         repeat rewrite <- assoc .
+
+         (* Remark B: from here needs to be adapted 
+             For now commented out and admitted below
+          *)
+         (*
+         apply CoproductIn1Commutes_right_in_ctx .
          apply CoproductIn1Commutes_left_in_ctx in h_eq1'_inst.
          rewrite id_left in h_eq1'_inst.
          apply CoproductIn1Commutes_right_in_ctx in h_eq1'_inst.
@@ -279,8 +298,6 @@ Proof.
          apply CoproductIn1Commutes_right in h_eq1'_inst.
          simpl.
          unfold coproduct_nat_trans_in1_data.
-         match goal with |[ H1 : _  = ?f |- _ = _   ] => 
-         transitivity (f) end.
          apply idpath.
          rewrite <- h_eq1'_inst.
          clear h_eq1'_inst.
@@ -293,9 +310,14 @@ Proof.
          repeat rewrite assoc.
 (*         apply maponpaths. *)
          apply idpath.
-         
-Qed.
-  
+          *)
+         admit.
+  *  admit.
+Admitted.
+
+(* Remark B: do the same for second component of bracket_Thm15_ok, i.e. 
+             give it its own lemma 
+*)
 
 Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
 # U f =
@@ -410,6 +432,8 @@ Proof.
     + exact (bracket_Thm15_ok Z f).
 (* when the first components were not opaque, the following proof
    became extremely slow *)
+
+      
   - intros [h' [h'_eq1 h'_eq2]].
     simpl in *.
     apply total2_paths_second_isaprop.
