@@ -208,13 +208,12 @@ Section special_case.
   Variable ρ : G X ⇒ X.
   Variable θ : functor_composite F L ⟶ functor_composite L G.
 
-  Definition ψ_from_comps : ψ_source ⟶ ψ_target.
+
+  Lemma is_nat_trans_ψ_from_comps
+        :  is_nat_trans ψ_source ψ_target
+                        (λ (A : C^op) (f : yoneda_objects_ob C' X (L A)), θ A;; # G f;; ρ).
   Proof.
-    refine (tpair _ _ _ ).
-    - intro A. simpl. intro f.
-      unfold yoneda_objects_ob in *.
-      exact (θ A ;; #G f ;; ρ).
-    - red; intros A B h.
+    intros A B h.
       apply funextfun.
       intro f.
       simpl.
@@ -225,7 +224,16 @@ Section special_case.
       unfold functor_composite in θ_nat_trans_ax.
       simpl in θ_nat_trans_ax.
       rewrite <- θ_nat_trans_ax.
-      apply idpath.          
+      apply idpath.
+   Qed.
+  
+  Definition ψ_from_comps : ψ_source ⟶ ψ_target.
+  Proof.
+    refine (tpair _ _ _ ).
+    - intro A. simpl. intro f.
+      unfold yoneda_objects_ob in *.
+      exact (θ A ;; #G f ;; ρ).
+    - apply is_nat_trans_ψ_from_comps.
   Defined.   
 
 
