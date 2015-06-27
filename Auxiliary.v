@@ -120,6 +120,86 @@ Proof.
   apply idpath.
 Qed.
 
+Lemma CoproductArrow_eq_cor (f f' : CoproductObject C (CC a b) ⇒ c) 
+  : CoproductIn1 _ _;; f = CoproductIn1 _ _;; f' → CoproductIn2 _ _;; f = CoproductIn2 _ _;; f' → 
+      f = f' . 
+Proof.
+  intros Hyp1 Hyp2.
+  rewrite (CoproductArrowEta _ _ _ _ _ f).
+  rewrite (CoproductArrowEta _ _ _ _ _ f').
+  apply CoproductArrow_eq; assumption.
+Qed.
+
+Lemma CoproductIn1Commutes_left (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h -> f = h. 
+Proof.
+  intro Hyp.
+  rewrite CoproductIn1Commutes in Hyp. 
+  exact Hyp.
+Qed.
+
+Lemma CoproductIn1Commutes_right (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): h = CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g -> h = f. 
+Proof.
+  intro Hyp.
+  rewrite CoproductIn1Commutes in Hyp. 
+  exact Hyp.
+Qed.
+
+Lemma CoproductIn2Commutes_left (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h -> g = h. 
+Proof.
+  intro Hyp.
+  rewrite CoproductIn2Commutes in Hyp. 
+  exact Hyp.
+Qed.
+
+Lemma CoproductIn2Commutes_right (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): h = CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g -> h = g. 
+Proof.
+  intro Hyp.
+  rewrite CoproductIn2Commutes in Hyp. 
+  exact Hyp.
+Qed.
+
+Lemma CoproductIn1Commutes_left_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h' -> f ;; h = h'. 
+Proof.
+  intro Hyp.
+  rewrite assoc in Hyp.
+  rewrite CoproductIn1Commutes in Hyp. 
+  exact Hyp.
+Qed.
+
+Lemma CoproductIn1Commutes_right_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): h' = CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h)  -> h' = f ;; h. 
+Proof.
+  intro Hyp.
+  apply pathsinv0 in Hyp.
+  apply pathsinv0.
+  exact (CoproductIn1Commutes_left_in_ctx _ _ _ _ Hyp).
+Qed.
+
+Lemma CoproductIn2Commutes_left_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h' -> g ;; h = h'. 
+Proof.
+  intro Hyp.
+  rewrite assoc in Hyp.
+  rewrite CoproductIn2Commutes in Hyp. 
+  exact Hyp.
+Qed.
+
+Lemma CoproductIn2Commutes_right_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): h' = CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h)  -> h' = g ;; h. 
+Proof.
+  intro Hyp.
+  apply pathsinv0 in Hyp.
+  apply pathsinv0.
+  exact (CoproductIn2Commutes_left_in_ctx _ _ _ _ Hyp).
+Qed.
+
+Lemma CoproductIn2Commutes_right_in_double_ctx (g0 : x ⇒ b)(f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : x ⇒ d): h' = g0 ;; CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h)  -> h' = g0 ;; g ;; h. 
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  repeat rewrite <- assoc.
+  apply maponpaths.
+  rewrite assoc.
+  rewrite CoproductIn2Commutes.  
+  apply idpath.
+Qed.
 
 Definition CoproductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y) 
   : CoproductOfArrows _ (CC a b) (CC c d) f f' ;; 
