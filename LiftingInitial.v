@@ -76,7 +76,7 @@ Let Alg : precategory := precategory_FunctorAlg _ Id_H hsEndC.
 
 
 Variable IA : Initial Alg.
-Definition GG (Z : Ptd) (X : EndC) :=
+Definition SpecializedGMIt (Z : Ptd) (X : EndC) :=
   SpecialGenMendlerIteration _ _ _ IA EndC hsEndC X _ (KanExt Z) .
 
 
@@ -157,7 +157,7 @@ Focus 2.
       apply id_left.
 Defined.
 
-Let HHH (Z: Ptd) := coproduct_functor _ _ CPEndC
+Let H_Thm15 (Z: Ptd) := coproduct_functor _ _ CPEndC
                        (constant_functor _ _ (U Z))
                        H.
 
@@ -166,7 +166,7 @@ Definition aux_iso_2_inv (Z: Ptd): EndEndC ⟦
          (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
                     (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z)),
 
-                       functor_composite (pre_composition_functor C C C hs hs (U Z) )   (HHH Z) ⟧.   
+                       functor_composite (pre_composition_functor C C C hs hs (U Z) )   (H_Thm15 Z) ⟧.   
   Proof.
   refine (tpair _ _ _).
   - intro X.
@@ -194,49 +194,31 @@ Definition aux_iso_2_inv (Z: Ptd): EndEndC ⟦
       apply id_left.  
 Defined.
 
+Definition θ'_Thm15 (Z: Ptd):= CoproductOfArrows EndEndC (CPEndEndC _ _) (CPEndEndC _ _) (identity (constant_functor EndC _ (U Z): functor_precategory EndC EndC hsEndC)) (θ_in_first_arg Z).
 
-Definition bracket_for_InitAlg : bracket _ _ H (ALG_from_Alg _ _ _ _ InitAlg).
+Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):= @CoproductArrow EndC _ _  (CPEndC (U Z) (H (pr1 InitAlg))) (pr1 InitAlg) (#U f)(CoproductIn2 _ _ ;; (alg_map _ _ InitAlg)).
+
+Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧) := SpecializedGMIt Z (pr1 InitAlg) (H_Thm15 Z) (ρ_Thm15 Z f) (aux_iso_1 Z ;; θ'_Thm15 Z ;; aux_iso_2_inv Z).
+
+Definition bracket_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧) :=
+   pr1 (pr1 (SpecializedGMIt_Thm15 Z f)).
+
+Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
+# U f =
+ # (pre_composition_functor_data C C C hs hs (U Z))
+   (ptd_pt C (pr1 (ALG_from_Alg C hs CP H InitAlg)));; 
+ bracket_Thm15 Z f
+ × (theta H) ((U (ALG_from_Alg C hs CP H InitAlg)) ⊗ Z);;
+   # H (bracket_Thm15 Z f);;
+   SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg) =
+   # (pre_composition_functor_data C C C hs hs (U Z))
+     (SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg));;
+   bracket_Thm15 Z f.
 Proof.
-  intros Z f.
-  set (GGG:= GG Z (pr1 InitAlg)).
-  set (G3 := GGG (HHH Z)).
-  set (ρ := @CoproductArrow EndC _ _  (CPEndC (U Z) (H (pr1 InitAlg))) (pr1 InitAlg) (#U f)(CoproductIn2 _ _ ;; (alg_map _ _ InitAlg))).
-  set (G4 := G3 ρ).
-  set (θ' := CoproductOfArrows EndEndC (CPEndEndC _ _) (CPEndEndC _ _) (identity (constant_functor EndC _ (U Z): functor_precategory EndC EndC hsEndC)) (θ_in_first_arg Z)).
 
-  (* simpl in θ'. *)
-
-  set (G5:= G4 (aux_iso_1 Z ;; θ' ;; aux_iso_2_inv Z)).
-
-
-(*
-  assert (type_of_θ'_ok : functor_composite Id_H (pre_composition_functor C C C hs hs (U Z))
-           ⟶ functor_composite (pre_composition_functor C C C hs hs (U Z))
-               HHH =  EndEndC
-       ⟦ CoproductObject EndEndC
-           (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
-              (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z)),
-       CoproductObject EndEndC
-         (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
-            (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z))
-       ⟧).
-   unfold precategory_morphisms.
-   unfold EndEndC. simpl.
-   unfold coproduct_functor_data at 3 4; simpl.
-   admit.
- 
-  rewrite <- type_of_θ'_ok in θ'.  (* has to be done with transport so that the computational content does not get lost *)
-  set (G5 := G4 θ').
- *)
-  (*
-  destruct G5 as [[h h_eq] h_unique].
-  *)
-  refine (tpair _ _ _ ).
-  - refine (tpair _ _ _ ).
-    + exact (pr1 (pr1 G5)).
-    + (* the property in h_eq in the Alg world has to be translated into the ALG setting *)
+(* the property in h_eq in the Alg world has to be translated into the ALG setting *)
       simpl.
-      assert (h_eq := pr2 (pr1 G5)).
+      assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
       assert (h_eq' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (((aux_iso_1_inv Z):(_⟶_)) _);; m) h_eq).
       clear h_eq.
       split.
@@ -244,7 +226,7 @@ Proof.
          intro c.
          simpl in h_eq'.
          assert (h_eq1' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (CoproductIn1 EndC (CPEndC _ _));; m) h_eq').
-         clear h_eq'. clear GGG G3 G4 G5.
+         clear h_eq'.
          assert (h_eq1'_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h_eq1' c).
          clear h_eq1'.
          simpl in h_eq1'_inst.
@@ -282,7 +264,7 @@ Proof.
          intro c.
          simpl in h_eq'.
          assert (h_eq2' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (CoproductIn2 EndC (CPEndC _ _));; m) h_eq').
-         clear h_eq'. clear GGG G3 G4 G5.
+         clear h_eq'.
          assert (h_eq2'_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h_eq2' c).
          clear h_eq2'.
          simpl in h_eq2'_inst.
@@ -297,7 +279,6 @@ Proof.
          unfold nat_trans_fix_snd_arg_data in h_eq2'_inst.
          rewrite id_left in h_eq2'_inst.
 (* now need even context to the left *)
-         (* repeat rewrite assoc in h_eq2'_inst. *)
          apply CoproductIn2Commutes_right_in_double_ctx in h_eq2'_inst.
          match goal with |[ H1 : _  = ?f |- _ = _   ] => 
          transitivity (f) end.
@@ -324,9 +305,17 @@ Focus 2.
          apply maponpaths.
          apply pathsinv0.
          apply CoproductIn2Commutes.
+Qed. (* should rather be Admitted since verification is very time-consuming *)
 
-(* since the first components are no longer opaque, the following proof
-   becomes extremely slow *)
+Definition bracket_for_InitAlg : bracket _ _ H (ALG_from_Alg _ _ _ _ InitAlg).
+Proof.
+  intros Z f.
+  refine (tpair _ _ _ ).
+  - refine (tpair _ _ _ ).
+    + exact (bracket_Thm15 Z f).
+    + exact (bracket_Thm15_ok Z f).
+(* when the first components were not opaque, the following proof
+   became extremely slow *)
   - intros [h' [h'_eq1 h'_eq2]].
     simpl in *.
     apply total2_paths_second_isaprop.
@@ -334,6 +323,8 @@ Focus 2.
       * apply isaset_nat_trans. exact hs.
       * intro Hyp. apply isaset_nat_trans. exact hs.
     + simpl.
+      unfold bracket_Thm15.
+      simpl.
       rewrite It_is_It_which_is_unique.
       apply path_to_ctr.
       apply nat_trans_eq; try (exact hs).
@@ -390,7 +381,7 @@ Focus 2.
         apply pathsinv0 in h'_eq2_inst.
         rewrite <- assoc in h'_eq2_inst.
         eapply pathscomp0.
-          exact h'_eq2_inst. clear h'_eq2_inst. clear GGG G3 G4 G5.
+          exact h'_eq2_inst. clear h'_eq2_inst.
 
         assert (Hyp2 := CoproductIn2Commutes C _ _ (CP _ _) _
     (coproduct_nat_trans_in1_data C C CP (pr1 Z)
@@ -436,7 +427,7 @@ Focus 2.
            apply idpath.
 
     (* this was the back translation of the data into an argument for h_unique (Alg view) *)
-Defined.
+Defined.  (* took 4 minutes on an old AMD processor *) 
 
 
 Definition InitHSS : hss_precategory H.
