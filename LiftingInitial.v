@@ -248,9 +248,10 @@ Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H 
 Definition bracket_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧) :=
    pr1 (pr1 (SpecializedGMIt_Thm15 Z f)).
 
-(* Remark B: before proving a conjunction, we prove the individual components *)
+(* the property in h_eq in the Alg world has to be translated into the ALG setting *)
+(* we prove the individual components for ease of compilation *)
 
-Lemma bracket_Thm15_ok_pt1 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
+Lemma bracket_Thm15_ok_part1 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
 # U f =
  # (pre_composition_functor_data C C C hs hs (U Z))
    (ptd_pt C (pr1 (ALG_from_Alg C hs CP H InitAlg)));; 
@@ -265,14 +266,7 @@ Proof.
          assert (h_eq1' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (CoproductIn1 EndC (CPEndC _ _));; m) h_eq'); clear h_eq'.
          assert (h_eq1'_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h_eq1' c);
            clear h_eq1'.
-
-(* Remark B: it might be better to do transitivity here instead of 
-             many manipulations of the context
-      
-         I have not adapted the following tactics to this change
-
-*)
-         
+(* match goal right in the beginning in contrast with earlier approach - suggestion by Benedikt *)
          match goal with |[ H1 : _  = ?f |- _ = _   ] => 
          transitivity (f) end.
 
@@ -281,43 +275,104 @@ Proof.
          unfold coproduct_nat_trans_data; simpl.
          unfold coproduct_nat_trans_in1_data ; simpl.
          repeat rewrite <- assoc .
-
-         (* Remark B: from here needs to be adapted 
-             For now commented out and admitted below
-          *)
-         (*
-         apply CoproductIn1Commutes_right_in_ctx .
-         apply CoproductIn1Commutes_left_in_ctx in h_eq1'_inst.
-         rewrite id_left in h_eq1'_inst.
-         apply CoproductIn1Commutes_right_in_ctx in h_eq1'_inst.
-         apply CoproductIn1Commutes_right_in_ctx in h_eq1'_inst.
-         do 2 rewrite id_left in h_eq1'_inst.
-         apply CoproductIn1Commutes_right_in_ctx in h_eq1'_inst.
-         rewrite id_left in h_eq1'_inst.
-         repeat rewrite <- assoc in h_eq1'_inst.
-         apply CoproductIn1Commutes_right in h_eq1'_inst.
-         simpl.
-         unfold coproduct_nat_trans_in1_data.
+         apply CoproductIn1Commutes_right_in_ctx_dir.
+         unfold λ_functor; simpl.
+         rewrite id_left.
+         apply CoproductIn1Commutes_right_in_ctx_dir.
+         unfold ρ_functor; simpl.
+         rewrite id_left.
+         apply CoproductIn1Commutes_right_in_ctx_dir.
+         rewrite (id_left EndC).
+         rewrite id_left.
+         apply CoproductIn1Commutes_right_in_ctx_dir.
+         rewrite (id_left EndC).
+         apply CoproductIn1Commutes_right_dir.
          apply idpath.
-         rewrite <- h_eq1'_inst.
+
+  *      rewrite <- h_eq1'_inst.
          clear h_eq1'_inst.
 
-         repeat rewrite id_left.
-         unfold nat_trans_id; simpl.
+         apply CoproductIn1Commutes_left_in_ctx_dir.
+         unfold λ_functor, nat_trans_id; simpl.
+         rewrite id_left.
          repeat rewrite (id_left EndEndC).
          repeat rewrite (id_left EndC).
          unfold functor_fix_snd_arg_ob.
          repeat rewrite assoc.
-(*         apply maponpaths. *)
+         apply maponpaths.
          apply idpath.
-          *)
-         admit.
-  *  admit.
-Admitted.
+Qed.   (* one may consider Admitted for speedup during development *)
 
-(* Remark B: do the same for second component of bracket_Thm15_ok, i.e. 
-             give it its own lemma 
+Lemma bracket_Thm15_ok_part2 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
+ (theta H) ((U (ALG_from_Alg C hs CP H InitAlg)) ⊗ Z);;
+   # H (bracket_Thm15 Z f);;
+   SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg) =
+   # (pre_composition_functor_data C C C hs hs (U Z))
+     (SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg));;
+   bracket_Thm15 Z f.
+Proof.
+  simpl.
+  apply nat_trans_eq; try (exact hs).
+  intro c.
+  assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
+  assert (h_eq' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (((aux_iso_1_inv Z):(_⟶_)) _);; m) h_eq); clear h_eq.
+         simpl in h_eq'. (* until here same as in previous lemma *)
+         
+         assert (h_eq2' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (CoproductIn2 EndC (CPEndC _ _));; m) h_eq').
+         clear h_eq'.
+         assert (h_eq2'_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h_eq2' c).
+         clear h_eq2'.
+         simpl in h_eq2'_inst.
+         match goal with |[ H1 : _  = ?f |- _ = _   ] => 
+         transitivity (f) end.
+         + clear h_eq2'_inst.
+           unfold coproduct_nat_trans_data; simpl.
+           unfold coproduct_nat_trans_in2_data; simpl.
+
+           apply CoproductIn2Commutes_right_in_ctx_dir.
+           rewrite id_right.
+           rewrite id_left.
+           do 3 rewrite <- assoc.
+           apply CoproductIn2Commutes_right_in_ctx_dir.
+           apply CoproductIn2Commutes_right_in_ctx_dir.
+           unfold nat_trans_fix_snd_arg_data.
+           apply CoproductIn2Commutes_right_in_double_ctx_dir.
+           rewrite <- assoc.
+           apply maponpaths.
+           rewrite <- assoc.
+           apply maponpaths.
+           apply pathsinv0.
+           apply CoproductIn2Commutes.
+
+
+(* alternative with slightly less precise control:
+           do 4 rewrite <- assoc.
+           apply CoproductIn2Commutes_right_in_ctx_dir.
+           rewrite id_left.
+           apply CoproductIn2Commutes_right_in_ctx_dir.
+           apply CoproductIn2Commutes_right_in_ctx_dir.
+           unfold nat_trans_fix_snd_arg_data.
+           rewrite id_left.
+           apply CoproductIn2Commutes_right_in_double_ctx_dir.
+           do 2 rewrite <- assoc.
+           apply maponpaths.
+           apply maponpaths.
+           apply pathsinv0.
+           apply CoproductIn2Commutes.
 *)
+         + rewrite <- h_eq2'_inst. clear h_eq2'_inst.
+           apply CoproductIn2Commutes_left_in_ctx_dir.
+           (* unfold Coproducts_functor_precat.
+              unfold functor_precat_coproduct_cocone. *)
+           simpl.
+           (* unfold coproduct_nat_trans_in2_data. *)
+           repeat rewrite id_left.
+           repeat rewrite <- assoc.
+           (* apply maponpaths.
+              apply maponpaths. *)
+           apply idpath.   
+Admitted. (* Qed works fine but takes quite some time, hence Admitted for the purpose of development *)
+
 
 Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
 # U f =
@@ -331,7 +386,10 @@ Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg �
      (SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg));;
    bracket_Thm15 Z f.
 Proof.
-
+  split.
+  + exact (bracket_Thm15_ok_part1 Z f).
+  + exact (bracket_Thm15_ok_part2 Z f).
+(*
 (* the property in h_eq in the Alg world has to be translated into the ALG setting *)
       simpl.
       assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
@@ -421,7 +479,10 @@ Focus 2.
          apply maponpaths.
          apply pathsinv0.
          apply CoproductIn2Commutes.
-Qed. (* should rather be Admitted since verification is very time-consuming *)
+
+(* verification of the original proof was very time-consuming *)
+*)
+Qed.
 
 Definition bracket_for_InitAlg : bracket _ _ H (ALG_from_Alg _ _ _ _ InitAlg).
 Proof.
@@ -468,28 +529,10 @@ Focus 2.
           eapply pathsinv0.
           exact h'_eq1_inst. 
         clear h'_eq1_inst.
-        assert (Hyp1 := CoproductIn1Commutes C _ _ (CP _ _) _
-         (CoproductIn1 C
-         (CP _ _))
-      ((nat_trans_fix_snd_arg_data ([C, C] hs) Ptd 
-          ([C, C] hs) (θ_source H) (θ_target H) θ Z 
-          (pr1 (pr1 IA)): _ ⟶ _) c;;
-       coproduct_nat_trans_in2_data C C CP (pr1 Z)
-         (functor_fix_snd_arg_ob ([C, C] hs) Ptd ([C, C] hs) 
-            (θ_target H) Z (pr1 (pr1 IA))) c)).
-        unfold functor_fix_snd_arg in Hyp1; simpl in Hyp1.
-        repeat rewrite assoc.
-        match goal with |[ H1 : ?f  = _ |- _ = _ ;; ?g ;; ?h  ] => 
-         transitivity (f ;; g ;; h) end.
-          rewrite Hyp1. clear Hyp1.
-          rewrite CoproductIn1Commutes.
-          eapply pathscomp0.
-Focus 2.
-          eapply pathsinv0.
-          apply CoproductIn1Commutes.
-          apply idpath.
-
-          apply idpath.
+        apply CoproductIn1Commutes_right_in_ctx_dir.
+        apply CoproductIn1Commutes_right_in_ctx_dir.
+        apply CoproductIn1Commutes_right_dir.
+        apply idpath.
       * simpl.
         unfold coproduct_nat_trans_in2_data; simpl.
         assert (h'_eq2_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h'_eq2 c).
@@ -501,62 +544,27 @@ Focus 2.
         eapply pathscomp0.
           exact h'_eq2_inst. clear h'_eq2_inst.
 
-        assert (Hyp2 := CoproductIn2Commutes C _ _ (CP _ _) _
-    (coproduct_nat_trans_in1_data C C CP (pr1 Z)
-         (functor_fix_snd_arg_ob ([C, C] hs) Ptd ([C, C] hs) 
-            (θ_target H) Z (pr1 (pr1 IA))) c)     
-
-(((nat_trans_fix_snd_arg_data ([C, C] hs) Ptd 
-          ([C, C] hs) (θ_source H) (θ_target H) θ Z 
-          (pr1 (pr1 IA))):(_⟶_)) c;;
-       CoproductIn2 C
-         (CP ((pr1 Z) c)
-            ((pr1(functor_fix_snd_arg_ob ([C, C] hs) Ptd 
-                ([C, C] hs) (θ_target H) Z (pr1 (pr1 IA)))) c)))
-).
-        unfold functor_fix_snd_arg in Hyp2; simpl in Hyp2.
-        repeat rewrite assoc.
-        match goal with |[ H1 : ?f  = _ |- _ = _ ;; ?g ;; ?h  ] => 
-         transitivity (f ;; g ;; h) end.
-          rewrite Hyp2. clear Hyp2.
-Focus 2.  
-          apply idpath.
-
-          unfold nat_trans_fix_snd_arg_data; simpl.
-          repeat rewrite <- assoc.
-          apply maponpaths.
-          repeat rewrite assoc.
-          unfold functor_fix_snd_arg_ob; simpl.
-          unfold θ_target_ob; simpl.
-          unfold functor_compose.
-
-          assert (Hyp3 := CoproductIn2Commutes C _ _ (CP _ _) _
-          (coproduct_nat_trans_in1_data C C CP (pr1 Z) (H (pr1 InitAlg)) c)
-(((# H (h':EndC⟦functor_compose hs hs (U Z) (pr1 InitAlg),pr1 InitAlg⟧)):(_⟶_)) c;; CoproductIn2 C (CP ((pr1 Z) c) (((H (pr1 InitAlg)):functor _ _) c)))).
-          unfold functor_compose in Hyp3.
-         match goal with |[ H1 : ?f  = _ |- _ = _ ;; ?h  ] => 
-         transitivity (f ;; h) end.
-           rewrite CoproductIn2Commutes.
-           repeat rewrite <- assoc.
-           apply maponpaths.
-           rewrite CoproductIn2Commutes.
-           apply idpath.
-
-           apply idpath.
-
+        apply CoproductIn2Commutes_right_in_ctx_dir.
+        apply CoproductIn2Commutes_right_in_double_ctx_dir.
+        unfold nat_trans_fix_snd_arg_data; simpl.
+        do 2 rewrite <- assoc.
+        apply maponpaths.
+        rewrite <- assoc.
+        apply maponpaths.
+        apply pathsinv0.
+        apply CoproductIn2Commutes.
     (* this was the back translation of the data into an argument for h_unique (Alg view) *)
-Defined.  (* took 4 minutes on an old AMD processor *) 
+Defined.
 
 
 Definition InitHSS : hss_precategory H.
 Proof.
  (* 
-  red. (* FORBIDDEN *)
+  red. (* FORBIDDEN, otherwise universe problem when checking the definition *)
   unfold hss_precategory; simpl.
 *)
   exists (ALG_from_Alg _ _ _ _ InitAlg).
   exact bracket_for_InitAlg.
-(* now universe problem when checking the definition *)
 Defined.
 
 

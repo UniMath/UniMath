@@ -130,6 +130,8 @@ Proof.
   apply CoproductArrow_eq; assumption.
 Qed.
 
+(** specialized versions of beta rules for coproducts *)
+(* all the following lemmas for manipulation of the hypothesis
 Lemma CoproductIn1Commutes_left (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h -> f = h. 
 Proof.
   intro Hyp.
@@ -200,6 +202,87 @@ Proof.
   rewrite CoproductIn2Commutes.  
   apply idpath.
 Qed.
+*)
+
+
+(* optimized versions in direct style *)
+Lemma CoproductIn1Commutes_right_dir (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): h = f -> h = CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g. 
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  apply pathsinv0.
+  apply CoproductIn1Commutes. 
+Qed.
+
+Lemma CoproductIn2Commutes_right_dir (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): h = g -> h = CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g. 
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  apply pathsinv0.
+  apply CoproductIn2Commutes. 
+Qed.
+
+Lemma CoproductIn1Commutes_right_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): h' = f ;; h -> h' = CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h). 
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  rewrite assoc.
+  rewrite CoproductIn1Commutes.
+  apply idpath.
+Qed.
+
+Lemma CoproductIn2Commutes_right_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): h' = g ;; h -> h' = CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h). 
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  rewrite assoc.
+  rewrite CoproductIn2Commutes.
+  apply idpath.
+Qed.
+
+Lemma CoproductIn1Commutes_left_dir (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): f = h -> CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h. 
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  apply CoproductIn1Commutes. 
+Qed.
+
+Lemma CoproductIn2Commutes_left_dir (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): g = h -> CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h. 
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  apply CoproductIn2Commutes. 
+Qed.
+
+Lemma CoproductIn1Commutes_left_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): f ;; h = h' -> CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h'. 
+Proof.
+  intro Hyp.
+  rewrite <- Hyp.
+  rewrite assoc.
+  rewrite CoproductIn1Commutes.
+  apply idpath.
+Qed.
+
+Lemma CoproductIn2Commutes_left_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): g ;; h = h' -> CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h'. 
+Proof.
+  intro Hyp.
+  rewrite <- Hyp.
+  rewrite assoc.
+  rewrite CoproductIn2Commutes.
+  apply idpath.
+Qed.
+
+Lemma CoproductIn2Commutes_right_in_double_ctx_dir (g0 : x ⇒ b)(f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : x ⇒ d): h' = g0 ;; g ;; h -> h' = g0 ;; CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h).
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  repeat rewrite <- assoc.
+  apply maponpaths.
+  rewrite assoc.
+  rewrite CoproductIn2Commutes.  
+  apply idpath.
+Qed.
+(** end of specialized versions of the beta laws for coproducts *) 
 
 Definition CoproductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y) 
   : CoproductOfArrows _ (CC a b) (CC c d) f f' ;; 
