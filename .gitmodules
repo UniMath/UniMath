@@ -2,3 +2,9 @@
 	path = sub/coq
 	url = https://github.com/coq/coq.git
 	branch = v8.5
+[submodule "UniMath/sub/coq-tools"]
+	path = UniMath/sub/coq-tools
+	url = https://github.com/JasonGross/coq-tools
+[submodule "sub/coq-tools"]
+	path = sub/coq-tools
+	url = https://github.com/JasonGross/coq-tools

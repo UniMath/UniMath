@@ -77,21 +77,12 @@ construction would not apply to new instances of "Record" due to the "generativi
 definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is 
 equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
 
+Set Primitive Projections.
 
-Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . 
+Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }.
 Arguments tpair {T} _ _ _.
-
-Definition pr1 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : T .
-Proof . intros .  induction t as [ t p ] . exact t . Defined. 
-
 Arguments pr1 {_ _} _.
-
-Definition pr2 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : P ( pr1 t ) .
-Proof . intros .  induction t as [ t p ] . exact p . Defined. 
-
 Arguments pr2 {_ _} _.
-
-
 
 (*
 

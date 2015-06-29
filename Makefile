@@ -99,3 +99,16 @@ doc: $(GLOBFILES) $(VFILES)
 	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d $(ENHANCEDDOCTARGET) \
 	--with-header $(ENHANCEDDOCSOURCE)/header.html $(VFILES)
 	sed -i'.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
+
+help-find-bug:
+	sub/coq-tools/find-bug.py --help
+isolate-bug:
+	cd UniMath && \
+	rm -f ../isolated-bug.v && \
+	../sub/coq-tools/find-bug.py \
+		--coqbin ../sub/coq/bin \
+		-R "$(shell pwd)"/UniMath UniMath \
+		--arg " -indices-matter" \
+		--arg " -type-in-type" \
+		Foundations/Generalities/uu0a.v \
+		../isolated-bug.v
