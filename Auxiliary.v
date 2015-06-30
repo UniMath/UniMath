@@ -272,6 +272,17 @@ Proof.
   apply idpath.
 Qed.
 
+Lemma CoproductIn1Commutes_right_in_double_ctx_dir (g0 : x ⇒ a)(f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : x ⇒ d): h' = g0 ;; f ;; h -> h' = g0 ;; CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h).
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  repeat rewrite <- assoc.
+  apply maponpaths.
+  rewrite assoc.
+  rewrite CoproductIn1Commutes.
+  apply idpath.
+Qed.
+
 Lemma CoproductIn2Commutes_right_in_double_ctx_dir (g0 : x ⇒ b)(f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : x ⇒ d): h' = g0 ;; g ;; h -> h' = g0 ;; CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h).
 Proof.
   intro Hyp.
@@ -283,6 +294,41 @@ Proof.
   apply idpath.
 Qed.
 (** end of specialized versions of the beta laws for coproducts *) 
+
+
+(* do we ever want to create a multitude of similar lemmas for other rewrite rules?
+Lemma id_left_to_the_right (C': precategory)(a b : C')(f h : C' ⟦ a, b ⟧): h = f -> h = identity a;; f.
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  apply pathsinv0, id_left.
+Qed.
+
+Lemma id_left_to_the_right_in_ctx (C': precategory)(a b c: C')(f : C' ⟦ a, b ⟧)(g : C' ⟦ b, c ⟧)(h : C' ⟦ a, c ⟧): h = f ;; g -> h = identity a ;; f ;; g.
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  rewrite id_left.
+  apply idpath.
+Qed.
+
+
+Lemma assoc_to_the_right (C' : precategory) (a b c d : C') (f : C' ⟦ a, b ⟧)
+       (g : C' ⟦ b, c ⟧) (h : C' ⟦ c, d ⟧)(res: C' ⟦ a, d ⟧) : res = f;; g;; h -> res = f;; (g;; h).
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  apply pathsinv0, assoc.
+Qed.
+
+Lemma assoc_back_to_the_right (C' : precategory) (a b c d : C') (f : C' ⟦ a, b ⟧)
+       (g : C' ⟦ b, c ⟧) (h : C' ⟦ c, d ⟧)(res: C' ⟦ a, d ⟧) : res = f;; (g;; h) -> res = f;; g;; h.
+Proof.
+  intro Hyp.
+  rewrite Hyp.
+  apply assoc.
+Qed.
+*)
 
 Definition CoproductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y) 
   : CoproductOfArrows _ (CC a b) (CC c d) f f' ;; 

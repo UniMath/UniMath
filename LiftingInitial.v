@@ -270,8 +270,7 @@ Proof.
          match goal with |[ H1 : _  = ?f |- _ = _   ] => 
          transitivity (f) end.
 
-  * 
-         clear h_eq1'_inst.
+  *      clear h_eq1'_inst.
          unfold coproduct_nat_trans_data; simpl.
          unfold coproduct_nat_trans_in1_data ; simpl.
          repeat rewrite <- assoc .
@@ -288,7 +287,6 @@ Proof.
          rewrite (id_left EndC).
          apply CoproductIn1Commutes_right_dir.
          apply idpath.
-
   *      rewrite <- h_eq1'_inst.
          clear h_eq1'_inst.
 
