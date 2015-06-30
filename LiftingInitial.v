@@ -501,14 +501,14 @@ Proof.
 
       
   - intros [h' [h'_eq1 h'_eq2]].
-    simpl in *.
+    (* simpl in *. *)
     apply total2_paths_second_isaprop.
     + apply isofhleveltotal2.
       * apply isaset_nat_trans. exact hs.
       * intro Hyp. apply isaset_nat_trans. exact hs.
     + simpl.
       unfold bracket_Thm15.
-      simpl.
+      simpl. 
       rewrite It_is_It_which_is_unique.
       apply path_to_ctr.
       apply nat_trans_eq; try (exact hs).
@@ -523,12 +523,13 @@ Focus 2.
       apply postcompWithCoproductArrow.
       apply CoproductArrowUnique.
       * simpl.
-        rewrite id_left.
-        unfold coproduct_nat_trans_in1_data; simpl.
-        assert (h'_eq1_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h'_eq1 c).
+        clear h'_eq2.
+        rewrite (id_left C).
+(*        unfold coproduct_nat_trans_in1_data; simpl. *)
+        assert (h'_eq1_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h'_eq1 c);
+          clear h'_eq1.
         simpl in h'_eq1_inst.
         unfold coproduct_nat_trans_in1_data in h'_eq1_inst; simpl in h'_eq1_inst.
-        clear h'_eq1 h'_eq2.
         rewrite <- assoc in h'_eq1_inst.
         eapply pathscomp0.
           eapply pathsinv0.
@@ -538,12 +539,13 @@ Focus 2.
         apply CoproductIn1Commutes_right_in_ctx_dir.
         apply CoproductIn1Commutes_right_dir.
         apply idpath.
-      * simpl.
-        unfold coproduct_nat_trans_in2_data; simpl.
-        assert (h'_eq2_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h'_eq2 c).
+      * clear h'_eq1.
+        (*simpl.
+        unfold coproduct_nat_trans_in2_data; simpl. *)
+        assert (h'_eq2_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h'_eq2 c);
+          clear h'_eq2.
         simpl in h'_eq2_inst.
         unfold coproduct_nat_trans_in2_data in h'_eq2_inst; simpl in h'_eq2_inst.
-        clear h'_eq1 h'_eq2.
         apply pathsinv0 in h'_eq2_inst.
         rewrite <- assoc in h'_eq2_inst.
         eapply pathscomp0.
