@@ -1037,7 +1037,7 @@ Proof.
 Defined.
 
 
-Lemma idtoiso_concat (C : precategory) (hs: has_homsets C) (a a' a'' : ob C)
+Lemma idtoiso_concat (C : precategory) (a a' a'' : ob C)
   (p : a = a') (q : a' = a'') :
   idtoiso (p @ q) = iso_comp (idtoiso p) (idtoiso q).
 Proof.
@@ -1063,7 +1063,7 @@ Proof.
   apply isweqinvmap.
 Qed.
 
-Lemma isotoid_comp (C : precategory) (H : is_category C) (hs: has_homsets C) (a b c : ob C)
+Lemma isotoid_comp (C : precategory) (H : is_category C) (a b c : ob C)
   (e : iso a b) (f : iso b c) :
   isotoid _ H (iso_comp e f) = isotoid _ H e @ isotoid _ H f.
 Proof.
@@ -1072,7 +1072,6 @@ Proof.
   rewrite idtoiso_concat.
   repeat rewrite idtoiso_isotoid.
   apply idpath.
-  apply hs.
 Qed.
 
 Lemma isotoid_identity_iso (C : precategory) (H : is_category C) (a : C) :
