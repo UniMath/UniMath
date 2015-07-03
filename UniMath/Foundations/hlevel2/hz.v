@@ -13,6 +13,7 @@ In this file we introduce the type [ hz ] of integers defined as the quotient se
 
 Unset Automatic Introduction. (** This line has to be removed for the file to compile with Coq8.2 *)
 
+Unset Kernel Term Sharing.
 
 (** Imports *)
  

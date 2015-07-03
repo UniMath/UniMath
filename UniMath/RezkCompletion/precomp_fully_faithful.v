@@ -44,7 +44,7 @@ Ltac inv_functor HF x y :=
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 (*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Notation "[ C , D ]" := (functor_precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "G 'O' F" := (functor_compose _ _ _ F G : functor _ _ ) (at level 25).
@@ -207,10 +207,10 @@ Proof.
     rewrite <- functor_on_iso_inv.
     unfold k; simpl.
     rewrite functor_on_iso_iso_from_fully_faithful_reflection.
-    simp_rew (base_paths _ _ (iso_inv_of_iso_comp _ hsB  _ _  _ f (iso_inv_from_iso h))).
+    simp_rew (base_paths _ _ (iso_inv_of_iso_comp _  _ _  _ f (iso_inv_from_iso h))).
     rewrite functor_comp.
     inv_functor Hff a anot.
-    simp_rew (base_paths _ _ (iso_inv_iso_inv _ hsB  _ _ h)).
+    simp_rew (base_paths _ _ (iso_inv_iso_inv _ _ _ h)).
     rewrite functor_comp.
     unfold g; repeat rewrite assoc.
     apply idpath.
@@ -332,7 +332,7 @@ Proof.
        #G (inv_from_iso (identity_iso (H a)))).
   rewrite functor_id.
   rewrite id_left.
-  set (P := iso_inv_of_iso_id _ hsB (H a)).
+  set (P := iso_inv_of_iso_id _ (H a)).
   set (Pr := base_paths _ _ P); simpl in Pr.
   rewrite Pr. clear Pr P. simpl in *.
   rewrite functor_id.

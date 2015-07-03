@@ -15,12 +15,21 @@ Contents :  Definition of
 	        Categories (aka saturated precategories)         	
                 Setcategories
                 
-                Isomorphisms
+                Isomorphisms I: [iso]
+                  Definition: [isiso f := isweq (precomp_with f)]
                   various lemmas:
                     uniqueness of inverse, composition etc.
                     stability under composition
+                  Analogue to [gradth]: [is_iso_qinv]
+
+                Isomorphisms II: [z_iso]
+                  Definition: [is_z_iso f := Σ g, ...]
+                  Relationship between [z_iso] and [iso]
                 
                 Categories have groupoid as objects
+
+                Many lemmas about [idtoiso], [isotoid],
+                   interplay with composition, transport etc.
                 	
            
 ************************************************************)
@@ -86,7 +95,7 @@ Definition compose { C : precategory_data }
   { a b c : C } : 
     a --> b -> b --> c -> a --> c := pr2 (pr2 C) a b c.
 
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 
 
 (** ** Axioms of a precategory *)
@@ -455,7 +464,7 @@ Proof.
 Defined.
 
 
-Lemma iso_inv_of_iso_comp (C : precategory) (hs: has_homsets C) (a b c : ob C)
+Lemma iso_inv_of_iso_comp (C : precategory) (a b c : ob C)
    (f : iso a b) (g : iso b c) :
    iso_inv_from_iso (iso_comp f g) = iso_comp (iso_inv_from_iso g) (iso_inv_from_iso f).
 Proof.
@@ -467,7 +476,7 @@ Proof.
     apply iso_inv_after_iso.
 Qed.
 
-Lemma iso_inv_of_iso_id (C : precategory) (hs: has_homsets C) (a : ob C) :
+Lemma iso_inv_of_iso_id (C : precategory) (a : ob C) :
    iso_inv_from_iso (identity_iso a) = identity_iso a.
 Proof.
   apply eq_iso.
@@ -475,7 +484,7 @@ Proof.
 Qed.
 
 
-Lemma iso_inv_iso_inv (C : precategory) (hs: has_homsets C) (a b : ob C) (f : iso a b) : 
+Lemma iso_inv_iso_inv (C : precategory) (a b : ob C) (f : iso a b) : 
      iso_inv_from_iso (iso_inv_from_iso f) = f.
 Proof.
   apply eq_iso. simpl. 

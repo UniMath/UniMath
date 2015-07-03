@@ -30,7 +30,7 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 (*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Notation "[ C , D ]" := (functor_precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "FF ^-1" := (fully_faithful_inv_hom FF _ _ ) (at level 20).
@@ -358,7 +358,7 @@ Qed.
 (** The center of [Y b b' f]. *)
 
 Definition Y_inhab (b b' : B) (f : b --> b')
-      (a0 : A) (h0 : iso (H a0) b) (a0' : A) (h0' : iso (H a0') b') : Y b b' f.
+      (a0 : A) (h0 : iso (H a0) b) (a0' : A) (h0' : iso (H a0') b') : Y f.
 Proof.
   set (hfh := h0 ;; f ;; inv_from_iso h0').
   set (l0 := fH^-1 hfh).
@@ -372,7 +372,7 @@ Defined.
 Lemma Y_contr_eq (b b' : B) (f : b --> b')
      (a0 : A) (h0 : iso (H a0) b)
      (a0' : A) (h0' : iso (H a0') b') :
-  forall t : Y b b' f, t = Y_inhab b b' f a0 h0 a0' h0'.
+  forall t : Y f, t = Y_inhab b b' f a0 h0 a0' h0'.
 Proof.
   intro t.
   apply pathsinv0.
@@ -398,13 +398,13 @@ Qed.
 (** The type [Y b b' f] is contractible. *)
 
 Definition Y_iscontr  (b b' : B) (f : b --> b') : 
-   iscontr (Y b b' f).
+   iscontr (Y f).
 Proof.
-  assert (HH : isaprop (iscontr (Y b b' f))).
+  assert (HH : isaprop (iscontr (Y f))).
     apply isapropiscontr.
-  apply (p b (tpair (fun x => isaprop x) (iscontr (Y b b' f)) HH)).
+  apply (p b (tpair (fun x => isaprop x) (iscontr (Y f)) HH)).
   intros [a0 h0].
-  apply (p b' (tpair (fun x => isaprop x) (iscontr (Y b b' f)) HH)).
+  apply (p b' (tpair (fun x => isaprop x) (iscontr (Y f)) HH)).
   intros [a0' h0'].
   exists (Y_inhab b b' f a0 h0 a0' h0').
   apply Y_contr_eq.
@@ -428,7 +428,7 @@ Notation "'G' f" := (pr1 (pr1 (Y_iscontr _ _ f))) (at level 3).
 
 Lemma is_functor_preimage_functor_data : is_functor preimage_functor_data.
 Proof.
-  split; simpl.
+  split. unfold functor_idax. simpl.
   intro b.
   
   assert (PR2 : forall (a : A) (h : iso (H a) b) (a' : A) 
@@ -442,7 +442,7 @@ Proof.
     rewrite id_right in LL.
     apply LL.
     set (Gbrtilde :=
-           tpair _ (identity (Go b)) PR2 : Y b b (identity b)).
+           tpair _ (identity (Go b)) PR2 : Y (identity b)).
  
     set (H' := pr2 (Y_iscontr b b (identity b)) Gbrtilde).
     set (H'' := base_paths _ _ H').
@@ -570,7 +570,7 @@ Proof.
   
   assert (HGf : G f = inv_from_iso (k b a0 h0) ;; #F l0 ;; k b' a0' h0'). 
     set (Gbrtilde :=
-           tpair _ (inv_from_iso (k b a0 h0) ;; #F l0 ;; k b' a0' h0') PR2 : Y b b' f).
+           tpair _ (inv_from_iso (k b a0 h0) ;; #F l0 ;; k b' a0' h0') PR2 : Y f).
     set (H' := pr2 (Y_iscontr b b' f) Gbrtilde).
     set (H'' := base_paths _ _ H').
     simpl in H'.
@@ -649,7 +649,7 @@ Proof.
   assert (HGf' : G f' = inv_from_iso (k b' a0' h0') ;; #F l0' ;; k b'' a0'' h0''). 
     set (Gbrtilde :=
        tpair _ (inv_from_iso (k b' a0' h0') ;; #F l0' ;; k b'' a0'' h0'') PR2 : 
-                      Y b' b'' f').
+                      Y f').
     set (H' := pr2 (Y_iscontr b' b'' f') Gbrtilde).
     rewrite <-(base_paths _ _ H').
     apply idpath.
@@ -724,7 +724,7 @@ Proof.
        inv_from_iso (k b a0 h0) ;; #F l0'' ;; k b'' a0'' h0''). 
     set (Gbrtilde :=
            tpair _ (inv_from_iso (k b a0 h0) ;; #F l0'' ;; k b'' a0'' h0'') PR2 : 
-               Y b b'' (f ;; f')).
+               Y (f ;; f')).
     rewrite <- (pr2 (Y_iscontr b b'' (f ;; f')) Gbrtilde).
     apply idpath.
   clear PR2.
@@ -842,7 +842,7 @@ Proof.
     rewrite functor_comp.
     apply idpath.
   set (Ybla := tpair _ (idtoiso (phi a0) ;; #F f ;; inv_from_iso (idtoiso (phi a0')))
-                    PSIf : Y _ _ (#H f)).
+                    PSIf : Y (#H f)).
   set (Ycontr := pr2 (Y_iscontr _ _ (#(pr1 H) f)) Ybla).
   set (Ycontr2 := base_paths _ _ Ycontr); simpl in *.
   change (G (#H f)) with (G (#(pr1 H) f)). 

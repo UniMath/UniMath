@@ -55,7 +55,7 @@ Require Import Foundations.hlevel2.hSet.
 Require Import RezkCompletion.precategories.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -65,9 +65,12 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 (** * Functors : Morphisms of precategories *)
 
 
-Definition functor_data (C C' : precategory_ob_mor) := total2 (
-    fun F : ob C -> ob C' => 
-             forall a b : ob C, a --> b -> F a --> F b).
+Definition functor_data (C C' : precategory_ob_mor) :=
+  total2 ( fun F : ob C -> ob C' =>  forall a b : ob C, a --> b -> F a --> F b).
+
+Definition functor_data_constr ( C C' : precategory_ob_mor )
+           ( F : ob C -> ob C' ) ( Fm : forall a b : ob C, a --> b -> F a --> F b ) :
+  functor_data C C' := tpair _ F Fm . 
 
 Definition functor_on_objects {C C' : precategory_ob_mor}
      (F : functor_data C C') :  ob C -> ob C' := pr1 F.
@@ -79,14 +82,17 @@ Definition functor_on_morphisms {C C' : precategory_ob_mor} (F : functor_data C 
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
+Definition functor_idax {C C' : precategory_data} (F : functor_data C C') :=
+  forall a : ob C, #F (identity a) = identity (F a).
+
+Definition functor_compax {C C' : precategory_data} (F : functor_data C C') :=
+  forall a b c : ob C, forall f : a --> b, forall g : b --> c, #F (f ;; g) = #F f ;; #F g .
 
 Definition is_functor {C C' : precategory_data} (F : functor_data C C') :=
-     dirprod (forall a : ob C, #F (identity a) = identity (F a))
-             (forall a b c : ob C, forall f : a --> b, forall g : b --> c, 
-                #F (f ;; g) = #F f ;; #F g).
+     dirprod ( functor_idax F ) ( functor_compax F ) . 
 
 Lemma isaprop_is_functor (C C' : precategory_data) (hs: has_homsets C')
-       (F : functor_data C C'): isaprop (is_functor F).
+      (F : functor_data C C') : isaprop (is_functor F).
 Proof.
   apply isofhleveldirprod.
   apply impred; intro a.
@@ -95,8 +101,9 @@ Proof.
   apply hs.
 Qed.
 
-Definition functor (C C' : precategory_data) := total2 (
-   fun F : functor_data C C' => is_functor F).
+Definition functor (C C' : precategory_data) :=
+  total2 ( fun F : functor_data C C' => is_functor F ).
+
 
 Lemma functor_eq (C C' : precategory_data) (hs: has_homsets C') (F F': functor C C'):
     pr1 F = pr1 F' -> F = F'.
@@ -437,55 +444,46 @@ Definition sub_img_functor {C D : precategory_data}(F : functor C D) :
 
 (** *** Composition *)
 
-Definition functor_composite_data {C C' C'' : precategory_ob_mor}
-  (F : functor_data C C') (F' : functor_data C' C'') 
-  : functor_data C C''
-  := (tpair (fun F : ob C -> ob C'' => 
-             forall a b : ob C, a --> b -> F a --> F b) 
-    (fun a => F' (F a))
-               (fun (a b : ob C) f => #F' (#F f))).
+Definition functor_composite_data {C C' C'' : precategory_ob_mor } (F : functor_data C C')
+           (F' : functor_data C' C'') : functor_data C C'' :=           
+  functor_data_constr C C'' (fun a => F' (F a))  (fun (a b : ob C) f => #F' (#F f)) .
 
-Lemma is_functor_functor_composite_data {C C' C'' : precategory_data}
+
+Lemma is_functor_composite {C C' C'' : precategory_data}
        (F : functor C C') (F' : functor C' C'') :
- is_functor (functor_composite_data F F').
+ is_functor ( functor_composite_data F F' ) . 
 Proof.
   split; simpl.
-  - intro a.
-    repeat rewrite functor_id.
-    apply idpath.
-  - intros.
-    repeat rewrite functor_comp.
-    apply idpath.
-Qed.
+  intro a.
+  assert ( e1 := functor_id F a ) .
+  assert ( e2 := functor_id F' ( F a ) ) .
+  apply ( ( maponpaths ( # F' ) e1 ) @ e2 ) .
 
-Definition functor_composite (C C' C'' : precategory_data)
-       (F : functor C C') (F' : functor C' C'') :
-  functor C C'' := tpair _ _ (is_functor_functor_composite_data F F').
+  unfold functor_compax .  intros . 
+  assert ( e1 := functor_comp F _ _ _ f g ) . 
+  assert ( e2 := functor_comp F' _ _ _ ( # F f ) ( # F g ) ) .
+  apply ( ( maponpaths ( # F' ) e1 ) @ e2 ) . 
+Defined.
+
+
+Definition functor_composite (C C' C'' : precategory_data) (F : functor C C') (F' : functor C' C'') :
+  functor C C'' := tpair _ _ (is_functor_composite F F').
 
 (** *** Identity functor *)
 
-Lemma functor_identity_ob_mor (C : precategory_data) :
- is_functor  
-  (tpair (fun F : ob C -> ob C => 
-             forall a b : ob C, a --> b -> F a --> F b) 
-    (fun a => a)
-               (fun (a b : ob C) f => f)).
+Definition functor_identity_data ( C  : precategory_data ) : functor_data C C :=
+  functor_data_constr C C (fun a => a) (fun (a b : ob C) f => f) . 
+
+Lemma is_functor_identity (C : precategory_data) : is_functor ( functor_identity_data C ) . 
 Proof.
   split; simpl.
-  intros; apply idpath.
-  intros; apply idpath.
-Qed.
-
-Definition functor_identity (C : precategory_data) :
-     functor C  C.
-Proof.
-  exists (tpair (fun F : ob C -> ob C => 
-             forall a b : ob C, a --> b -> F a --> F b) 
-    (fun a => a)
-               (fun (a b : ob C) f => f)).
-  apply  (functor_identity_ob_mor C).
+  unfold functor_idax. intros; apply idpath.
+  unfold functor_compax. intros; apply idpath.
 Defined.
-   
+
+Definition functor_identity (C : precategory_data) : functor C C :=
+  tpair _ _ ( is_functor_identity C ) . 
+
 
 
 (** * Natural transformations *)
@@ -992,3 +990,95 @@ Proof.
   apply isaset_nat_trans.
   apply hs.
 Qed.
+
+Lemma functor_identity_left (C D : precategory) (F : functor C D) :
+  functor_composite C C D (functor_identity C) F = F.
+Proof.
+  destruct F as [ [ Fob Fmor ] is ] . destruct is as [ idax compax ] . apply idpath . 
+   
+Defined.
+
+
+
+Lemma functor_identity_right (C D : precategory) (F : functor C D) :
+  functor_composite C D D F (functor_identity D) = F.
+Proof.
+  destruct F as [ [ Fob Fmor ] is ] .
+  apply ( maponpaths ( fun p => tpair is_functor (tpair _ Fob Fmor) p ) ) .
+  destruct is as [ idax compax ] . 
+  apply pathsdirprod .
+  simpl . apply funextsec . intro t . unfold functor_identity .  unfold functor_id . simpl .
+  rewrite maponpathsidfun . 
+  rewrite pathscomp0rid . 
+  apply idpath . 
+
+  apply funextsec . intro t . apply funextsec . intro t0 . apply funextsec . intro t1 . 
+  apply funextsec . intro f . apply funextsec . intro g . unfold functor_identity . simpl . 
+  unfold functor_comp . simpl .
+  rewrite maponpathsidfun . 
+  rewrite pathscomp0rid . 
+  apply idpath.
+
+Defined.
+
+(** Note: the following should be somewhere upstream: *)
+
+Lemma pathscomp0assoc { X : UU } { a b c d : X } ( e1 : a = b ) ( e2 : b = c ) ( e3 : c = d ) :
+  e1 @ ( e2 @ e3 ) = ( e1 @ e2 ) @ e3 .
+Proof.
+  intros . destruct e1 . destruct e2 . apply idpath .
+Defined.
+
+
+Lemma functor_assoc (C0 C1 C2 C3 : precategory) 
+  (F0 : functor C0 C1) (F1 : functor C1 C2) (F2 : functor C2 C3) :
+    functor_composite _ _ _ (functor_composite _ _ _ F0 F1) F2 =
+    functor_composite _ _ _ F0 (functor_composite _ _ _ F1 F2).
+Proof.
+  destruct F0 as [ [ F0ob F0mor ] is0 ] .  
+  destruct F1 as [ [ F1ob F1mor ] is1 ] .
+  destruct F2 as [ [ F2ob F2mor ] is2 ] . simpl .
+  unfold functor_composite . simpl . 
+  apply ( maponpaths ( fun p => tpair is_functor _ p ) ) . simpl . 
+  apply pathsdirprod .
+  apply funextsec . 
+  intro t .
+  
+  simpl .
+  unfold functor_comp . simpl . unfold functor_id . simpl . unfold functor_id . simpl . 
+  destruct is0 as [ is0id is0comp ] .
+  destruct is1 as [ is1id is1comp ] .
+  destruct is2 as [ is2id is2comp ] .
+  simpl .
+
+  rewrite pathscomp0assoc . 
+  apply ( maponpaths ( fun e => pathscomp0 e ( is2id (F1ob (F0ob t)) ) ) ) .
+  rewrite maponpathscomp0 .
+  apply ( maponpaths ( fun e => pathscomp0 e ( maponpaths
+                                                 (F2mor (F1ob (F0ob t)) (F1ob (F0ob t)))
+                                                 (is1id (F0ob t)) ) ) ) .
+  apply maponpathscomp . 
+
+  apply funextsec . intro t . apply funextsec . intro t0 . apply funextsec . intro t1 . 
+  apply funextsec . intro f . apply funextsec . intro g .
+
+  simpl . 
+  unfold functor_comp . simpl . unfold functor_comp .  simpl . 
+  destruct is0 as [ is0id is0comp ] .
+  destruct is1 as [ is1id is1comp ] .
+  destruct is2 as [ is2id is2comp ] .
+  simpl .
+
+  rewrite pathscomp0assoc . 
+  apply ( maponpaths ( fun e =>
+                         pathscomp0 e ( is2comp (F1ob (F0ob t)) (F1ob (F0ob t0)) (F1ob (F0ob t1))
+                                                (F1mor (F0ob t) (F0ob t0) (F0mor t t0 f))
+                                                (F1mor (F0ob t0) (F0ob t1) (F0mor t0 t1 g)) ) ) ) .
+  rewrite maponpathscomp0 .
+  apply ( maponpaths ( fun e =>
+                         pathscomp0 e ( maponpaths (F2mor (F1ob (F0ob t)) (F1ob (F0ob t1)))
+                                                   (is1comp (F0ob t) (F0ob t0) (F0ob t1)
+                                                            (F0mor t t0 f) (F0mor t0 t1 g)) ))).
+  apply maponpathscomp . 
+
+  Defined.
