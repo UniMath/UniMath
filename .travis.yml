@@ -11,5 +11,5 @@ install:
   - export PATH=$PATH:$PWD/sub/coq/bin/
   - cd $WPATH
 script:
-  - travis_wait make
+  - make
 
