@@ -169,8 +169,6 @@ Definition precategory_ALG : precategory := tpair _ _ is_precategory_ALG.
 
 Let precategory_Alg : precategory := precategory_FunctorAlg  _ Id_H hsEndC.
 
-
-
 Definition Alg_from_ALG (T : ALG) : algebra_ob _ Id_H.
 Proof.
   exists (pr1 (pr1 T)).
@@ -181,10 +179,12 @@ Proof.
   - apply (τ T).
 Defined.
 
-Definition Alg_mor_from_ALG_mor {T T' : ALG} (f : ALG_mor T T')
-  : algebra_mor _ _ (Alg_from_ALG T) (Alg_from_ALG T').
+Definition is_Alg_mor {T T': algebra_ob _ Id_H}(f: pr1(pr1 T)⟶pr1(pr1 T')):= alg_map _ _ T ;; f = #Id_H f ;; alg_map _ _ T'.
+
+Lemma is_Alg_mor_ALG_mor {T T' : ALG} (f : ALG_mor T T')
+  : is_Alg_mor(T:= Alg_from_ALG T)(T':= Alg_from_ALG T') (pr1(pr1 f)).
 Proof.
-  exists (pr1 (pr1 f)).
+  unfold is_Alg_mor.
   simpl. unfold coproduct_functor_mor. simpl.
   apply pathsinv0.
   eapply pathscomp0.
@@ -202,6 +202,13 @@ Focus 2.
       assert (f_pointed_mor:= pr2 (pr1 f) c).
       exact f_pointed_mor.
     * apply isALGMor_Alg_mor.
+Qed.
+
+Definition Alg_mor_from_ALG_mor {T T' : ALG} (f : ALG_mor T T')
+  : algebra_mor _ _ (Alg_from_ALG T) (Alg_from_ALG T').
+Proof.
+  exists (pr1 (pr1 f)).
+  apply is_Alg_mor_ALG_mor.
 Defined.
 
 Definition ALG_from_Alg (T : algebra_ob _ Id_H) : ALG.
