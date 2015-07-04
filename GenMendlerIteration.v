@@ -55,12 +55,12 @@ Let iter {A : C} (α : F A ⇒ A) : μF ⇒ A :=
 Variable C' : precategory.
 Variable hsC' : has_homsets C'.
 
+
+Section the_iteration_principle.
+
 Variable X : C'.
 
 Let Yon : functor C'^op HSET := yoneda_objects C' hsC' X.
-
-
-Section the_iteration_principle.
 
 Variable L : functor C C'.
 
@@ -246,20 +246,23 @@ End special_case.
 
 End the_iteration_principle.
 
+Variable X X': C'.
+Let Yon : functor C'^op HSET := yoneda_objects C' hsC' X.
+Let Yon' : functor C'^op HSET := yoneda_objects C' hsC' X'.
 Variable L : functor C C'.
 Variable is_left_adj_L : is_left_adjoint L.
-Variable ψ : ψ_source L ⟶ ψ_target L.
+Variable ψ : ψ_source X L ⟶ ψ_target X L.
 Variable L' : functor C C'.
 Variable is_left_adj_L' : is_left_adjoint L'.
-Variable ψ' : ψ_source L' ⟶ ψ_target L'.
+Variable ψ' : ψ_source X' L' ⟶ ψ_target X' L'.
 
-Variable Φ : functor_composite (functor_opp L) Yon ⟶ functor_composite (functor_opp L') Yon.
+Variable Φ : functor_composite (functor_opp L) Yon ⟶ functor_composite (functor_opp L') Yon'.
 
 Section fusion_law.
   
   Variable H : ψ μF ;; Φ (F μF) = Φ μF ;; ψ' μF.
 
-  Theorem fusion_law : Φ μF (It L is_left_adj_L ψ) = It L' is_left_adj_L' ψ'.
+  Theorem fusion_law : Φ μF (It X L is_left_adj_L ψ) = It X' L' is_left_adj_L' ψ'.
   Proof.
     apply pathsinv0.
     rewrite It_is_It_which_is_unique.
@@ -267,11 +270,11 @@ Section fusion_law.
     apply path_to_ctr.
     assert (Φ_is_nat := nat_trans_ax Φ).
     assert (Φ_is_nat_inst1 := Φ_is_nat _ _ inF).
-    assert (Φ_is_nat_inst2 := toforallpaths _ _ _ Φ_is_nat_inst1 (It L is_left_adj_L ψ)).
+    assert (Φ_is_nat_inst2 := toforallpaths _ _ _ Φ_is_nat_inst1 (It X L is_left_adj_L ψ)).
     unfold compose in Φ_is_nat_inst2; simpl in Φ_is_nat_inst2.
     simpl.
     rewrite <- Φ_is_nat_inst2.
-    assert (H_inst :=  toforallpaths _ _ _ H (It L is_left_adj_L ψ)).
+    assert (H_inst :=  toforallpaths _ _ _ H (It X L is_left_adj_L ψ)).
     unfold compose in H_inst; simpl in H_inst.
     rewrite <- H_inst.
     apply maponpaths.
@@ -283,3 +286,4 @@ End fusion_law.
 
 
 End GenMenIt.
+
