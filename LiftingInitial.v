@@ -304,7 +304,8 @@ Proof.
          apply idpath.
 Qed.   (* one may consider Admitted for speedup during development *)
 
-
+(* produce some output to keep TRAVIS running *)
+Check bracket_Thm15_ok_part1.
 
 Lemma bracket_Thm15_ok_part2 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
  (theta H) ((U (ALG_from_Alg C hs CP H InitAlg)) ⊗ Z);;
@@ -377,6 +378,9 @@ Proof.
               apply maponpaths. *)
            apply idpath. *)  
 Qed. (* Qed works fine but takes quite some time, hence Admitted for the purpose of development *)
+
+(* produce some output to keep TRAVIS running *)
+Check bracket_Thm15_ok_part2.
 
 
 Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
@@ -654,6 +658,9 @@ Focus 2.
     (* this was the back translation of the data into an argument for h_unique (Alg view) *)
 *)
 Defined.
+
+(* produce some output to keep TRAVIS running *)
+Check bracket_for_InitAlg.
 
 
 Definition InitHSS : hss_precategory H.
