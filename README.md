@@ -44,11 +44,22 @@ $ cd UniMath
 ```
 
 To compile the Coq formalizations (in all the packages), issue the following
-shell commands (in this directory).
+shell command (in this directory).
 
 ```bash
 $ make
 ```
+
+If you wish also to build the program "coqide", then issue the following
+command instead of the one above.
+
+```bash
+$ make BUILD_COQIDE=yes
+```
+
+Alternatively, you can specify the value of the BUILD_COQIDE option more
+permanently by following the instructions in the file
+build/Makefile-configuration-template.
 
 To create the standard HTML documentation provided by coqdoc:
 ```bash

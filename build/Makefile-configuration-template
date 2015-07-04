@@ -19,7 +19,6 @@
 BUILD_COQ = yes
 
 # When coq is being built, whether also to build coqide.
-# The three choices are "no", "opt", and "byte".  To build it, specify "opt".
 BUILD_COQIDE = no
 
 # When BUILD_COQ is "no", give the path to the coq binary "coqtop", including the
