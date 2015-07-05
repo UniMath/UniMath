@@ -674,29 +674,37 @@ Proof.
 Defined.
 
 
-
-
-
 Lemma isInitial_InitHSS : isInitial (hss_precategory H) InitHSS.
 Proof.
   intro T.
   simpl.
-  set (T' := Alg_from_ALG _ _ CP _  (pr1 T)). 
+  set (T' := Alg_from_ALG _ _ CP _  (pr1 T)).
+(*
+  assert (auxT' : ALG_from_Alg C hs CP H T' = pr1 T).
+Focus 2.
+*)
   set (β := InitialArrow _ IA T').
+  set (β' := ALG_mor_from_Alg_mor _ hs CP _ β).
   refine (tpair _ _ _ ).
   - refine (tpair _ _ _ ).
     + refine (tpair _ _ _ ).
-      * 
-        apply β.
-      * simpl.
+      * apply β.
+      * destruct β as [β βalg].
+        assert (β_is_ptd := pr2 (pr1 β')).
+        simpl in β_is_ptd.
+        (* does not work: apply β_is_ptd.*)
         intro c.
-        unfold coproduct_nat_trans_in1_data.
-        destruct β as [β βalg]; simpl in *.
-        (* apply a component of βalg *)
-        admit.
-    + simpl.
+        assert (β_is_ptd_inst := β_is_ptd c); clear β_is_ptd.
+        eapply pathscomp0.
+          exact  β_is_ptd_inst.
+        clear β_is_ptd_inst.
+        apply CoproductIn1Commutes.      
+    + destruct β as [β βalg].
       split.
-      * (* apply another component of βalg *)
+      * assert (β_isALGMor := pr2 β').
+        
+
+        (* apply another component of βalg *)
         admit.
       * simpl.
 
