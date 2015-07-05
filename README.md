@@ -163,6 +163,14 @@ $ sudo apt-get install ocaml-native-compilers
 ```
 This package is not among the build dependencies for older versions of Coq.
 
+Contributing to UniMath
+=======================
 
+To contribute to UniMath, submit a pull request or contact us.  Your code will
+be subject to the copyright and license agreement below.
 
+The UniMath Development Team
+============================
 
+The members of the UniMath Development Team are Vladimir Voevodsky, Benedikt
+Ahrens, and Daniel Grayson.
