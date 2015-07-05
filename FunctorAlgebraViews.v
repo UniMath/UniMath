@@ -185,19 +185,19 @@ Lemma is_Alg_mor_ALG_mor {T T' : ALG} (f : ALG_mor T T')
   : is_Alg_mor(T:= Alg_from_ALG T)(T':= Alg_from_ALG T') (pr1(pr1 f)).
 Proof.
   unfold is_Alg_mor.
-  simpl. unfold coproduct_functor_mor. simpl.
+  simpl. unfold coproduct_functor_mor.
   apply pathsinv0.
   eapply pathscomp0.
-  + apply (precompWithCoproductArrow ([C, C] hs) (CPEndC (functor_identity C) (H (pr1 (pr1 T))))
-     (CPEndC (functor_identity C) (H (pr1 (pr1 T'))))).
+  + apply (precompWithCoproductArrow ([C, C] hs) (CPEndC _ (H (pr1 (pr1 T))))
+     (CPEndC _ (H (pr1 (pr1 T'))))).
   + rewrite id_left.
     eapply pathscomp0.
 Focus 2.
     eapply pathsinv0. 
-    apply (postcompWithCoproductArrow ([C, C] hs) (CPEndC (functor_identity C) (H (pr1 (pr1 T))))).
+    apply (postcompWithCoproductArrow ([C, C] hs) (CPEndC _ (H (pr1 (pr1 T))))).
     apply (CoproductArrow_eq ([C, C] hs) CPEndC).
     * apply pathsinv0.
-      apply nat_trans_eq; try assumption.
+      apply nat_trans_eq; try (exact hs).
       intro c.
       assert (f_pointed_mor:= pr2 (pr1 f) c).
       exact f_pointed_mor.
@@ -216,22 +216,22 @@ Proof.
   refine (tpair _ _ _ ).
   - exists (pr1 T).
     apply (CoproductIn1 _ (CPEndC (functor_identity C) (H (pr1 T))) ;; (pr2 T)).
-  - simpl.
-    apply (CoproductIn2 _ (CPEndC (functor_identity C) (H (pr1 T))) ;; (pr2 T)).
+  - apply (CoproductIn2 _ (CPEndC (functor_identity C) (H (pr1 T))) ;; (pr2 T)).
 Defined.
 
-Lemma ALG_mor_from_Alg_mor_aux1 {T T' : algebra_ob _ Id_H} (f : algebra_mor _ _  T T')(c : C):
-   (ptd_pt C (PtdFromAlg (ALG_from_Alg T))) c;; (pr1(pr1 f)) c = (ptd_pt C (PtdFromAlg (ALG_from_Alg T'))) c.
+Lemma ALG_mor_from_Alg_mor_is_ptd_mor {T T' : algebra_ob _ Id_H} (f : algebra_mor _ _  T T') : is_ptd_mor(F:= PtdFromAlg (ALG_from_Alg T))(G:= PtdFromAlg (ALG_from_Alg T')) C (pr1 f).   
 Proof.
+    unfold is_ptd_mor; simpl.
+    intro c.
     unfold coproduct_nat_trans_in1_data; simpl.
     rewrite <- assoc.
     assert (f_is_alg_mor := algebra_mor_commutes ([C, C] hs) _ _ _ f).
-    assert (f_is_alg_mor_inst := nat_trans_eq_pointwise _ _ _ _ _ _ f_is_alg_mor c).
+    assert (f_is_alg_mor_inst := nat_trans_eq_pointwise _ _ _ _ _ _ f_is_alg_mor c);
     clear f_is_alg_mor.
     simpl in f_is_alg_mor_inst.
     unfold coproduct_nat_trans_data in f_is_alg_mor_inst; simpl in  f_is_alg_mor_inst.
     unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data in f_is_alg_mor_inst; simpl in  f_is_alg_mor_inst.
-    unfold alg_map in f_is_alg_mor_inst; simpl in  f_is_alg_mor_inst.
+    unfold alg_map in f_is_alg_mor_inst; simpl in f_is_alg_mor_inst.
     rewrite id_left in f_is_alg_mor_inst.
     match goal with |[ H1: ?f = _ |- ?h ;; _ = _ ] => 
          transitivity (h;;f) end.
@@ -242,19 +242,26 @@ Proof.
       apply CoproductIn1Commutes.
 Qed.
 
-Lemma ALG_mor_from_Alg_mor_aux2 {T T' : algebra_ob _ Id_H} (f : algebra_mor _ _  T T'):
-   # H (pr1 f);;
-   (CoproductIn2 ([C, C] hs) (CPEndC (functor_identity C) (H (pr1 T')));;
-    pr2 T') =
-   CoproductIn2 ([C, C] hs) (CPEndC (functor_identity C) (H (pr1 T)));; pr2 T;;
-   pr1 f.
+Definition ALG_mor_from_Alg_mor_ptd  {T T' : algebra_ob _ Id_H} (f : algebra_mor _ _  T T') : ptd_mor _ (PtdFromAlg (ALG_from_Alg T)) (PtdFromAlg (ALG_from_Alg T')).
 Proof.
-    apply nat_trans_eq; try assumption.
+  refine (tpair _ _ _ ).
+  - exact (pr1 f).
+    (* wrong approach:
+    exists (pr1 (pr1 f)).
+    set (f0 := mor_from_algebra_mor _ _ _ _ f).
+    assert (f_is_nat := nat_trans_ax f0).
+    exact f_is_nat. *)
+  - apply ALG_mor_from_Alg_mor_is_ptd_mor.
+Defined.
+
+Lemma ALG_mor_from_Alg_mor_is_ALG_mor {T T' : algebra_ob _ Id_H} (f : algebra_mor _ _  T T'): isALGMor(T:= ALG_from_Alg T)(T':= ALG_from_Alg T') (ALG_mor_from_Alg_mor_ptd f).
+Proof.
+    apply nat_trans_eq; try (exact hs).
     intro c.
     simpl.
     unfold coproduct_nat_trans_in2_data; simpl.
     assert (f_is_alg_mor := algebra_mor_commutes ([C, C] hs) _ _ _ f).
-    assert (f_is_alg_mor_inst := nat_trans_eq_pointwise _ _ _ _ _ _ f_is_alg_mor c).
+    assert (f_is_alg_mor_inst := nat_trans_eq_pointwise _ _ _ _ _ _ f_is_alg_mor c);
     clear f_is_alg_mor.
     simpl in f_is_alg_mor_inst.
     unfold coproduct_nat_trans_data in f_is_alg_mor_inst; simpl in  f_is_alg_mor_inst.
@@ -276,13 +283,10 @@ Definition ALG_mor_from_Alg_mor {T T' : algebra_ob _ Id_H} (f : algebra_mor _ _ 
   : ALG_mor (ALG_from_Alg T) (ALG_from_Alg T').
 Proof.
   refine (tpair _ _ _ ).
-  - exists (pr1 f).
-    simpl. intro c.
-    apply ALG_mor_from_Alg_mor_aux1.
-  - red.
-    simpl.
-    apply ALG_mor_from_Alg_mor_aux2.
+  - exact (ALG_mor_from_Alg_mor_ptd f).
+  - apply ALG_mor_from_Alg_mor_is_ALG_mor.
 Defined.
+
 (*
 Lemma ALG_from_Alg_from_ALG (T : ALG) : ALG_from_Alg (Alg_from_ALG T) = T.
 Proof.
