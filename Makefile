@@ -107,7 +107,7 @@ isolate-bug:
 	rm -f ../isolated-bug.v && \
 	../sub/coq-tools/find-bug.py \
 		--coqbin ../sub/coq/bin \
-		-R "$(shell pwd)"/UniMath UniMath \
+		-R . UniMath \
 		--arg " -indices-matter" \
 		--arg " -type-in-type" \
 		Foundations/Generalities/uu0a.v \
