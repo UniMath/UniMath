@@ -100,15 +100,17 @@ doc: $(GLOBFILES) $(VFILES)
 	--with-header $(ENHANCEDDOCSOURCE)/header.html $(VFILES)
 	sed -i'.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
 
+sub/coq-tools/find-bug.py:
+	git submodule update --init sub/coq-tools
 help-find-bug:
 	sub/coq-tools/find-bug.py --help
-isolate-bug:
+isolate-bug: sub/coq-tools/find-bug.py
 	cd UniMath && \
-	rm -f ../isolated-bug.v && \
+	rm -f isolated-bug.v && \
 	../sub/coq-tools/find-bug.py \
 		--coqbin ../sub/coq/bin \
-		-R "$(shell pwd)"/UniMath UniMath \
+		-R . UniMath \
 		--arg " -indices-matter" \
 		--arg " -type-in-type" \
 		Foundations/Generalities/uu0a.v \
-		../isolated-bug.v
+		isolated-bug.v
