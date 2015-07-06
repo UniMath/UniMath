@@ -310,9 +310,9 @@ Check bracket_Thm15_ok_part1.
 Lemma bracket_Thm15_ok_part2 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
  (theta H) ((U (ALG_from_Alg C hs CP H InitAlg)) ⊗ Z);;
    # H (bracket_Thm15 Z f);;
-   SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg) =
+   tau (ALG_from_Alg C hs CP H InitAlg) =
    # (pre_composition_functor_data C C C hs hs (U Z))
-     (SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg));;
+     (tau (ALG_from_Alg C hs CP H InitAlg));;
    bracket_Thm15 Z f.
 Proof.
   apply nat_trans_eq; try (exact hs).
@@ -390,9 +390,9 @@ Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg �
  bracket_Thm15 Z f
  × (theta H) ((U (ALG_from_Alg C hs CP H InitAlg)) ⊗ Z);;
    # H (bracket_Thm15 Z f);;
-   SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg) =
+   tau (ALG_from_Alg C hs CP H InitAlg) =
    # (pre_composition_functor_data C C C hs hs (U Z))
-     (SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg));;
+     (tau (ALG_from_Alg C hs CP H InitAlg));;
    bracket_Thm15 Z f.
 Proof.
   split.
@@ -503,9 +503,9 @@ Lemma foo (Z : Ptd) (f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧) :
        # (pre_composition_functor_data C C C hs hs (U Z))
          (ptd_pt C (pr1 (ALG_from_Alg C hs CP H InitAlg)));; h
        × (theta H) ((U (ALG_from_Alg C hs CP H InitAlg)) ⊗ Z);; # H h;;
-         SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg) =
+         tau (ALG_from_Alg C hs CP H InitAlg) =
          # (pre_composition_functor_data C C C hs hs (U Z))
-           (SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg));; h,
+           (tau (ALG_from_Alg C hs CP H InitAlg));; h,
    t =
    tpair
      (λ h : [C, C] hs
@@ -515,9 +515,9 @@ Lemma foo (Z : Ptd) (f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧) :
       # (pre_composition_functor_data C C C hs hs (U Z))
         (ptd_pt C (pr1 (ALG_from_Alg C hs CP H InitAlg)));; h
       × (theta H) ((U (ALG_from_Alg C hs CP H InitAlg)) ⊗ Z);; # H h;;
-        SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg) =
+        tau (ALG_from_Alg C hs CP H InitAlg) =
         # (pre_composition_functor_data C C C hs hs (U Z))
-          (SubstitutionSystems.τ (ALG_from_Alg C hs CP H InitAlg));; h)
+          (tau (ALG_from_Alg C hs CP H InitAlg));; h)
      (bracket_Thm15 Z f) (bracket_Thm15_ok Z f).
 Proof.
   intros [h' [h'_eq1 h'_eq2]].
@@ -692,6 +692,8 @@ Focus 2.
       * destruct β as [β βalg].
         assert (β_is_ptd := pr2 (pr1 β')).
         simpl in β_is_ptd.
+        unfold is_ptd_mor in β_is_ptd. simpl in *.
+        unfold is_ptd_mor. simpl.
         (* does not work: apply β_is_ptd.*)
         intro c.
         assert (β_is_ptd_inst := β_is_ptd c); clear β_is_ptd.
@@ -700,19 +702,27 @@ Focus 2.
         clear β_is_ptd_inst.
         apply CoproductIn1Commutes.      
     + destruct β as [β βalg].
+      simpl in *.
+      unfold ishssMor. 
       split.
       * assert (β_isALGMor := pr2 β').
-        
-
-        (* apply another component of βalg *)
-        admit.
+        unfold isALGMor. simpl.
+        unfold isALGMor in β_isALGMor. simpl in β_isALGMor.
+        eapply pathscomp0. Focus 2. apply β_isALGMor.
+        apply maponpaths.
+        apply pathsinv0.
+        eapply pathscomp0.
+        apply (CoproductIn2Commutes EndC). apply idpath.
       * simpl.
-
-        destruct β as [β βalg]; simpl in *.
+        unfold isbracketMor. simpl.
+        intros Z f.
+(*        destruct β as [β βalg]; simpl in *.
         unfold isbracketMor. simpl.
         intros Z f.        
+*)
         (* now define Ψ for fusion law *)
-      admit.
+        admit.
+  - admit.
 Admitted.
 
 Lemma Ihss : Initial (hss_precategory H).

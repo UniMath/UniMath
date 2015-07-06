@@ -15,6 +15,7 @@ Require Import SubstSystems.PointedFunctorsComposition.
 Require Import SubstSystems.EndofunctorsMonoidal.
 Require Import SubstSystems.Signatures.
 Require Import SubstSystems.SubstitutionSystems.
+Require Import SubstSystems.FunctorAlgebraViews.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -60,6 +61,8 @@ Local Notation "A 'XX' B" := (product_precategory A B) (at level 2).
 Local Notation "α 'øø' Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).
 
 Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
+Local Notation "'τ'" := (tau).
+
 
 (** ** Definition of algebra structure [τ] of a pointed functor *)
 
@@ -73,6 +76,8 @@ Section mu_from_fbracket.
 Variable T : hss H.
 
 Local Notation "'η'" := (ptd_pt _ (pr1 (pr1 T))).
+
+Coercion ALG_from_hss (T : hss H) : ALG H := pr1 T.
 
 Definition μ_0 : functor_identity C ⟶ pr1 (U T) := η. (*ptd_pt _ (pr1 (pr1 T)).*)
 
@@ -274,6 +279,7 @@ Qed.
 Definition μ_2_ptd : T_squared ⇒ T.
 Proof.
   exists μ_2.
+  unfold is_ptd_mor.
   apply μ_2_is_ptd_mor.
 Defined.
 

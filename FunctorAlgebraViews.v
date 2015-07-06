@@ -59,7 +59,7 @@ Let Id_H
 Definition ALGStruct (T : Ptd) : UU := pr1 (H(U T)) ⟶ pr1 (U T).
 Definition ALG : UU := Σ T : Ptd, ALGStruct T.
 Coercion PtdFromAlg (T : ALG) : Ptd := pr1 T.
-Definition τ (T : ALG) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
+Definition tau (T : ALG) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
 
 
 (** Define the precategory of Id+H-algebras.
@@ -80,7 +80,7 @@ Definition τ (T : ALG) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
 (** A morphism [f] of pointed functors is an algebra morphism when... *)
 
 Definition isALGMor {T T' : ALG} (f : T ⇒ T') : UU :=
-  #H (# U f) ;; τ T' = compose (C:=EndC) (τ T) (#U f).
+  #H (# U f) ;; tau T' = compose (C:=EndC) (tau T) (#U f).
 
 Lemma isaprop_isALGMor (T T' : ALG) (f : T ⇒ T') : isaprop (isALGMor f).
 Proof.
@@ -176,7 +176,7 @@ Proof.
   eapply (CoproductArrow _ (CPEndC _ _ )).
   - simpl.
     apply (pr2 (pr1 T)).
-  - apply (τ T).
+  - apply (tau T).
 Defined.
 
 Definition is_Alg_mor {T T': algebra_ob _ Id_H}(f: pr1(pr1 T)⟶pr1(pr1 T')):= alg_map _ _ T ;; f = #Id_H f ;; alg_map _ _ T'.
@@ -314,3 +314,8 @@ Proof.
 *)
 
 End two_views_on_Id_H_algebras.
+
+Arguments tau {_ _ _ } _ .
+Arguments ALG {_ _} _.
+Arguments isALGMor {_ _ _ _ _} _ .
+Arguments ALG_mor {_ _ _} _ _ .

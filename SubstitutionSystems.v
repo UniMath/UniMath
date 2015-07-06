@@ -14,6 +14,7 @@ Require Import SubstSystems.HorizontalComposition.
 Require Import SubstSystems.PointedFunctorsComposition.
 Require Import SubstSystems.EndofunctorsMonoidal.
 Require Import SubstSystems.Signatures.
+Require Import SubstSystems.FunctorAlgebraViews.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -59,9 +60,10 @@ Local Notation "A 'XX' B" := (product_precategory A B) (at level 2).
 Local Notation "α 'øø' Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).
 
 Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
+Local Notation "'τ'" := (tau).
 
 (** ** Definition of algebra structure [τ] of a pointed functor *)
-
+(*
 Definition AlgStruct (T : Ptd) : UU := pr1 (H(U T)) ⟶ pr1 (U T).
 
 Definition Alg : UU := Σ T : Ptd, AlgStruct T.
@@ -69,18 +71,20 @@ Definition Alg : UU := Σ T : Ptd, AlgStruct T.
 Coercion PtdFromAlg (T : Alg) : Ptd := pr1 T.
 
 Definition τ (T : Alg) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
+*)
 
 
-
-Definition bracket (T : Alg) : UU := 
+Definition bracket (T : ALG H) : UU := 
   ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
    (Σ h : (U T) ∙ (U Z)  ⇒ U T,
      (#U f = (ptd_pt _ (pr1 T)) øø (U Z) ;; h) ×
      (θ (U T ⊗ Z) ;; #H h ;; τ _  = τ _ øø ((U Z)) ;;  h )).
 
-Definition hss : UU := Σ T : Alg, bracket T.
+Definition hss : UU := Σ T : ALG H, bracket T.
 
-Coercion AlgFromhss (T : hss) : Alg := pr1 T.
+Coercion ALG_from_hss (T : hss) : ALG H := pr1 T.
+
+Coercion AlgFromhss (T : hss) : ALG H := pr1 T.
 
 Definition fbracket (T : hss) {Z : Ptd} (f : Z ⇒ T) 
   : (U T) ∙ (U Z) ⇒ U T
@@ -124,7 +128,7 @@ Qed.
 (** Properties of [fbracket] by definition: commutative diagrams *)
 
 Lemma fbracket_η (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
-   #U f = (ptd_pt _  (pr1 (pr1 T))) øø U Z ;;  (fbracket T f).
+   #U f = (ptd_pt _  (pr1 (pr1 T))) øø U Z ;; fbracket T f.
 Proof.
   intros Z f.
   exact (pr1 (pr2 (pr1 (pr2 T Z f)))).
@@ -216,7 +220,7 @@ Qed.
 
 
 (** A morphism [f] of pointed functors is an algebra morphism when... *)
-
+(*
 Definition isAlgMor {T T' : Alg} (f : T ⇒ T') : UU :=
   #H (# U f) ;; τ T' = compose (C:=EndC) (τ T) (#U f).
 
@@ -225,7 +229,7 @@ Proof.
   apply isaset_nat_trans.
   apply hs.
 Qed.
-
+*)
 (** A morphism [β] of pointed functors is a bracket morphism when... *)
 
 Definition isbracketMor {T T' : hss} (β : T ⇒ T') : UU :=
@@ -246,7 +250,7 @@ Qed.
     [τ] and [fbracket] *)
 
 Definition ishssMor {T T' : hss} (β : T ⇒ T') : UU 
-  :=  isAlgMor β × isbracketMor β.
+  :=  isALGMor β × isbracketMor β.
   
 Definition hssMor (T T' : hss) : UU 
   := Σ β : T ⇒ T', ishssMor β.
@@ -254,7 +258,7 @@ Definition hssMor (T T' : hss) : UU
 Coercion ptd_mor_from_hssMor (T T' : hss) (β : hssMor T T') : T ⇒ T' := pr1 β.
 
 Definition isAlgMor_hssMor {T T' : hss} (β : hssMor T T') 
-  : isAlgMor β := pr1 (pr2 β).
+  : isALGMor β := pr1 (pr2 β).
 Definition isbracketMor_hssMor {T T' : hss} (β : hssMor T T') 
   : isbracketMor β := pr2 (pr2 β).
 
@@ -271,7 +275,7 @@ Proof.
   apply total2_paths_isaprop_equiv.
   intro γ.
   apply isapropdirprod.
-  - apply isaprop_isAlgMor.
+  - apply isaprop_isALGMor.
   - apply isaprop_isbracketMor.
 Defined.
 
@@ -301,7 +305,7 @@ Qed.
 Lemma ishssMor_id (T : hss) : ishssMor (identity T).
 Proof.
   split.
-  - unfold isAlgMor.
+  - unfold isALGMor.
     rewrite functor_id.
     rewrite functor_id.
     rewrite id_left.
@@ -328,7 +332,7 @@ Lemma ishssMor_comp {T T' T'' : hss} (β : hssMor T T') (γ : hssMor T' T'')
   : ishssMor (β ;; γ).
 Proof.
   split.
-  - unfold isAlgMor.
+  - unfold isALGMor.
     rewrite functor_comp.
     rewrite functor_comp.
     rewrite <- assoc.
@@ -387,10 +391,10 @@ End def_hss.
 Arguments hss {_ _} _ .
 Arguments hssMor {_ _ _} _ _ .
 Arguments fbracket {_ _ _} _ {_} _ .
-Arguments τ {_ _ _} _ .
+Arguments tau {_ _ _} _ .
 Arguments fbracket_η {_ _ _} _ {_} _ .
 Arguments fbracket_τ {_ _ _} _ {_} _ .
 Arguments fbracket_unique_target_pointwise {_ _ _} _ {_ _ _} _ _ _ .
 Arguments fbracket_unique {_ _ _} _ {_} _ _ _ _ .
-Arguments Alg {_ _} _.
+(* Arguments Alg {_ _} _. *)
 Arguments hss_precategory {_ _} _ .
