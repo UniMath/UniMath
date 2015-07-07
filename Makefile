@@ -26,7 +26,8 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 		ExampleSignatures \
 		GenMendlerIteration \
 		MonadsFromSubstitutionSystems \
-		RightKanExtension
+		RightKanExtension \
+		SubstitutionSystems_alt
 
 	
 # Remaining modules, included only in “make all”.
