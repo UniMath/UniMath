@@ -343,17 +343,14 @@ Proof.
     intro c; simpl.
     assert (H2 := nat_trans_ax η); simpl in H2.
     rewrite assoc.
-    rewrite <- H2.
-    assert (H3 := Monad_law_1_from_hss).
+    rewrite <- H2 ; clear H2.
     rewrite <- assoc.
     transitivity (μ_2 c ;; identity _ ).
     + rewrite id_right; apply idpath.
     + apply maponpaths.
-      apply pathsinv0. apply H3.
+      apply pathsinv0. apply Monad_law_1_from_hss.
   - rewrite functor_comp.
     assert (H1 := θ_nat_2 _ _ H θ (`T) _ _ μ_2_ptd).
-    set (H3:=horcomp_id_postwhisker).
-    assert (H4 := H3 _ _ _ hs hs _ _ μ_2 (`T)); clear H3.
     simpl in H1.
     repeat rewrite assoc.
     match goal with |[H1 : ?g = _ |- _ ;; _ ;; ?f ;; ?h = _ ] => 
@@ -361,16 +358,17 @@ Proof.
     + apply cancel_postcomposition.
       apply cancel_postcomposition.
       apply pathsinv0.
-      rewrite H1.
+      rewrite H1; clear H1.
       apply maponpaths.
       apply maponpaths.
+      assert (H3:=horcomp_id_postwhisker).
+      assert (H4 := H3 _ _ _ hs hs _ _ μ_2 (`T)); clear H3.
       apply H4.
-    + 
-      assert (H2 := fbracket_τ T  (identity _ )).
-      clear H1 H4.
+    + clear H1.
       apply nat_trans_eq; try assumption.
       intro c; simpl.
       rewrite id_left.
+      assert (H2 := fbracket_τ T  (identity _ )).
       assert (H3:= nat_trans_eq_pointwise _ _ _ _ _ _ H2 c); clear H2.
       simpl in *.
       match goal with |[H3 : _ = ?f |- ?e ;; _ ;; _ ;; _  = _ ] =>
@@ -383,11 +381,11 @@ Proof.
         apply cancel_postcomposition.
         assert (H1 := nat_trans_ax (τ T )).
         unfold tau_from_alg in H1.
-        eapply pathscomp0; [ | apply H1].
+        eapply pathscomp0; [ | apply H1]; clear H1.
         repeat rewrite <- assoc.
         apply maponpaths.
         unfold coproduct_nat_trans_in2_data.
-        simpl in *. apply idpath.
+        apply idpath.
 Qed.
 
 (* for Travis *)
@@ -422,18 +420,16 @@ Lemma μ_3_μ_2_T_μ_2 :  (
                     ((functor_ptd_forget C hs) T) ⇒ _*) ) μ_2 : 
             (*TtimesTthenT'*) T•T² ⇒ `T) = μ_3.
   unfold μ_3.
-  set (H1 := fbracket_unique (*_pointwise*) T μ_2_ptd).
+  assert (H1 := fbracket_unique (*_pointwise*) T μ_2_ptd).
   apply H1; clear H1.
   - simpl.
     apply nat_trans_eq; try assumption; intro c.
     simpl.
-    set (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
-    simpl in H1.
     rewrite assoc.
-    unfold μ_0 in H1.
     transitivity (identity _ ;; μ_2 c).
     + rewrite id_left; apply idpath.
     + apply cancel_postcomposition.
+      assert (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
       apply (!H1).
   - 
     
@@ -441,12 +437,12 @@ Lemma μ_3_μ_2_T_μ_2 :  (
     set (B:= τ T).
     match goal with | [|- _ = ?q] => set (Q:=q) end.
     match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => set (F:=f : (*TtimesTthenT'*) T•T² ⇒ _ ) end.
-    set (HX:=θ_nat_1 _ _ H θ _ _ μ_2).  (* it may be tested with the primed version *)
-    set (H3:= functor_comp H _ _ _ F μ_2).
+    assert (H3:= functor_comp H _ _ _ F μ_2).
     unfold functor_compose in H3.
-    match goal with | [ H' : ?f = _ |- _ ] => transitivity (A ;; f ;; B) end.
-    + apply idpath.
-    + rewrite H3.
+    eapply pathscomp0. apply cancel_postcomposition. apply maponpaths. apply H3.
+(*    match goal with | [ H' : ?f = _ |- _ ] => transitivity (A ;; f ;; B) end.
+    + apply idpath.*)
+ (*   + rewrite H3. *)
       clear H3.
       set (A':= θ ((`T) ⊗ (ptd_from_alg _ _ _ _ T)) øø `T ;; θ ((functor_compose hs hs (`T) (`T)) ⊗ (ptd_from_alg _ _ _ _ T))). 
       simpl in *.
@@ -465,10 +461,10 @@ Lemma μ_3_μ_2_T_μ_2 :  (
       unfold θ_target_ob in *.
       simpl in *.
       unfold functor_compose in *.
-      set (HX1:= HX (ptd_from_alg _ _ _ _ T)).
+      assert (HX:=θ_nat_1 _ _ H θ _ _ μ_2).  (* it may be tested with the primed version *)
+      assert (HX1:= HX (ptd_from_alg _ _ _ _ T)); clear HX.
       simpl in HX1.
-      assert (HXX:=nat_trans_eq_pointwise _ _ _ _ _ _ HX1 c).
-      clear HX1. clear HX.
+      assert (HXX:=nat_trans_eq_pointwise _ _ _ _ _ _ HX1 c); clear HX1. 
       simpl in HXX.
       rewrite (functor_id ( H (`T))) in HXX.
       rewrite id_right in HXX. (* last two lines needed because of def. of theta on product category *)
@@ -479,7 +475,6 @@ Lemma μ_3_μ_2_T_μ_2 :  (
         apply cancel_postcomposition.
         apply cancel_postcomposition.
         unfold Ac.
-        simpl.
         
         
 (*
@@ -497,11 +492,10 @@ Lemma μ_3_μ_2_T_μ_2 :  (
                      pr1 (θ ((functor_composite (`T) (`T)) ⊗ (ptd_from_alg _ _ _ _ T))) c;;
                      pr1 (# H (α : functor_compose hs hs (`T) (functor_composite (`T) (` T))⇒ _)) c       ).
              {  intro α. 
-                assert (HA := θ_Strength2_int_implies_θ_Strength2 _ _ _ _ θ_strength2_int). red in HA. simpl in HA.
-                assert (HA':= HA (`T) (ptd_from_alg _ _ _ _  T) (ptd_from_alg _ _ _ _ T) _ α).
-                assert (HA2 := nat_trans_eq_pointwise _ _ _ _ _ _  HA' c ).
-                simpl in HA2.
-                apply HA2.
+                assert (HA := θ_Strength2_int_implies_θ_Strength2 _ _ _ _ θ_strength2_int).  
+                assert (HA':= HA (`T) (ptd_from_alg _ _ _ _  T) (ptd_from_alg _ _ _ _ T) _ α); clear HA.
+                assert (HA2 := nat_trans_eq_pointwise _ _ _ _ _ _  HA' c ); clear HA'.
+                simpl in HA2. apply HA2.
               }  
                
          (*
@@ -559,12 +553,13 @@ Lemma μ_3_μ_2_T_μ_2 :  (
               rewrite X.
               apply idpath.
   
-    * set (H4 := fbracket_τ T  (identity _ )).
-      set (H5:= nat_trans_eq_pointwise _ _ _ _ _ _ H4 c). 
+      * clear HXX.
+      assert (H4 := fbracket_τ T  (identity _ )).
+      assert (H5:= nat_trans_eq_pointwise _ _ _ _ _ _ H4 c); clear H4.
       simpl in H5.
       unfold μ_2.
       unfold B.
-      clearbody H5; clear H4; clear HXX.
+      
       
       match goal with |[ H5 : _ = ?e |- ?a ;; ?b ;; _ ;; _ ;; _ = _ ] => 
             transitivity (a ;; b ;; e) end.
@@ -585,7 +580,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
         unfold tau_from_alg in H6.
         rewrite assoc in H6.
         apply H6.
-Qed.    
+Admitted.    
 
 (* for Travis *)
 Check  μ_3_μ_2_T_μ_2.
@@ -607,14 +602,13 @@ Proof.
     + simpl.
       apply nat_trans_eq; try assumption; intro c.
       simpl.
-      set (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
-      simpl in H1.
       rewrite assoc.
-      unfold μ_0 in H1.
       transitivity (identity _ ;; μ_2 c).
       * rewrite id_left; apply idpath.
       * apply cancel_postcomposition.
         rewrite id_left.
+        assert (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
+        simpl in H1.
         apply (!H1).
     + 
       (* unfold θ_Strength2_int in HTT. *)
