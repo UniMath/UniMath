@@ -46,6 +46,7 @@ Variable CP : Coproducts C.
 Local Notation "'EndC'":= ([C, C, hs]) .
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CP hs.
+
 Variable H : Signature C hs.
 
 Let θ := theta H.
@@ -458,7 +459,7 @@ Proof.
   rewrite H2'.
   rewrite (id_left EndC).
   simpl.
-  admit.
+  admit. (* use functor laws for [ptd_from_alg_mor (identity (pr1 T))] *)
 Admitted.
 
 Definition hssMor_id (T : hss) : hssMor _ _ := tpair _ _ (ishssMor_id T).

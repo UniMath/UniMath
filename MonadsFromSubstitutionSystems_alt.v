@@ -104,7 +104,7 @@ Local Notation "`` T" := (functor_from_algebra_ob _ hs CP _ T : EndC) (at level 
 
 Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 
-Local Notation "'τ'" := (tau_from_alg _ _ _ _ ).
+Local Notation "'τ'" := (tau_from_alg _ _ _ _ ). (* could put [T] as fixed argument as in [η] *)
 
 Local Notation "'η'" := (eta_from_alg _ _ _ _ T).
 
@@ -321,6 +321,10 @@ Defined.
 
 Definition μ_3 : EndC ⟦ U T_squared ∙ `T,  `T⟧ := fbracket T μ_2_ptd.
 
+(* for Travis *)
+
+Check μ_3.
+
 (*
 Definition μ_3' := fbracket T μ_2_ptd.
 Check μ_3'.
@@ -385,6 +389,9 @@ Proof.
         unfold coproduct_nat_trans_in2_data.
         simpl in *. apply idpath.
 Qed.
+
+(* for Travis *)
+Check μ_3_T_μ_2_μ_2.
 
 Local Notation "'T•T²'" := (functor_compose hs hs (functor_composite (`T) (`T)) (`T) : [C, C, hs]).
 (*
@@ -579,14 +586,16 @@ Lemma μ_3_μ_2_T_μ_2 :  (
         rewrite assoc in H6.
         apply H6.
 Qed.    
-    
+
+(* for Travis *)
+Check  μ_3_μ_2_T_μ_2.
  
 
 (** proving a variant of the third monad law with assoc iso explicitly inserted *)
 
 Section third_monad_law_with_assoc.
   
-Lemma bla : (`T) ∘ μ_2 ;; μ_2 = 
+Lemma third_monad_law_from_hss : (`T) ∘ μ_2 ;; μ_2 = 
      (α_functor _ _ _ _ : functor_compose hs hs _ _  ⇒ _) ;; (μ_2 øø `T) ;; μ_2.
 Proof.
   pathvia μ_3.
@@ -700,6 +709,9 @@ Proof.
 Qed.
 
 End third_monad_law_with_assoc.
+
+(* for Travis *)
+Check third_monad_law_from_hss.
 
 Unset Printing All.
 Set Printing Notations.
