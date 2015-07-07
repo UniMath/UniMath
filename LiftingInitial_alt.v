@@ -20,7 +20,7 @@ Require Import SubstSystems.Signatures.
 Require Import SubstSystems.SubstitutionSystems_alt.
 Require Import SubstSystems.FunctorsPointwiseCoproduct.
 Require Import SubstSystems.GenMendlerIteration.
-Require Import SubstSystems.FunctorAlgebraViews.
+(* Require Import SubstSystems.FunctorAlgebraViews. *)
 Require Import SubstSystems.RightKanExtension.
 Require Import SubstSystems.GenMendlerIteration.
 Require Import SubstSystems.EndofunctorsMonoidal.
@@ -245,19 +245,19 @@ Defined.
 
 Definition θ'_Thm15 (Z: Ptd):= CoproductOfArrows EndEndC (CPEndEndC _ _) (CPEndEndC _ _) (identity (constant_functor EndC _ (U Z): functor_precategory EndC EndC hsEndC)) (θ_in_first_arg Z).
 
-Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):= @CoproductArrow EndC _ _  (CPEndC (U Z) (H (pr1 InitAlg))) (pr1 InitAlg) (#U f)(CoproductIn2 _ _ ;; (alg_map _ _ InitAlg)).
+Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z,  ptd_from_alg _ _ _ _ InitAlg ⟧):= @CoproductArrow EndC _ _  (CPEndC (U Z) (H (pr1 InitAlg))) (pr1 InitAlg) (#U f)(CoproductIn2 _ _ ;; (alg_map _ _ InitAlg)).
 
-Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧) := SpecializedGMIt Z (pr1 InitAlg) (H_Thm15 Z) (ρ_Thm15 Z f) (aux_iso_1 Z ;; θ'_Thm15 Z ;; aux_iso_2_inv Z).
+Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg ⟧) := SpecializedGMIt Z (pr1 InitAlg) (H_Thm15 Z) (ρ_Thm15 Z f) (aux_iso_1 Z ;; θ'_Thm15 Z ;; aux_iso_2_inv Z).
 
-Definition bracket_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧) :=
+Definition bracket_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg ⟧) :=
    pr1 (pr1 (SpecializedGMIt_Thm15 Z f)).
 
 (* the property in h_eq in the Alg world has to be translated into the ALG setting *)
 (* we prove the individual components for ease of compilation *)
-Lemma bracket_Thm15_ok_part1 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
+Lemma bracket_Thm15_ok_part1 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg ⟧):
 # U f =
  # (pre_composition_functor_data C C C hs hs (U Z))
-   (ptd_pt C (pr1 (ALG_from_Alg C hs CP H InitAlg)));; 
+   (eta_from_alg _ _ _ _ (InitAlg));; 
  bracket_Thm15 Z f.
 Proof.
   apply nat_trans_eq; try (exact hs).
@@ -307,12 +307,12 @@ Qed.   (* one may consider Admitted for speedup during development *)
 (* produce some output to keep TRAVIS running *)
 Check bracket_Thm15_ok_part1.
 
-Lemma bracket_Thm15_ok_part2 (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
- (theta H) ((U (ALG_from_Alg C hs CP H InitAlg)) ⊗ Z);;
+Lemma bracket_Thm15_ok_part2 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg ⟧):
+ (theta H) ((pr1 InitAlg) ⊗ Z);;
    # H (bracket_Thm15 Z f);;
-   tau (ALG_from_Alg C hs CP H InitAlg) =
+   tau_from_alg  _ _ _ _ InitAlg =
    # (pre_composition_functor_data C C C hs hs (U Z))
-     (tau (ALG_from_Alg C hs CP H InitAlg));;
+     (tau_from_alg  _ _ _ _  InitAlg);;
    bracket_Thm15 Z f.
 Proof.
   apply nat_trans_eq; try (exact hs).
@@ -383,16 +383,16 @@ Qed. (* Qed works fine but takes quite some time, hence Admitted for the purpose
 Check bracket_Thm15_ok_part2.
 
 
-Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧):
+Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg ⟧):
 # U f =
  # (pre_composition_functor_data C C C hs hs (U Z))
-   (ptd_pt C (pr1 (ALG_from_Alg C hs CP H InitAlg)));; 
+   (eta_from_alg _ _ _ _  InitAlg);; 
  bracket_Thm15 Z f
- × (theta H) ((U (ALG_from_Alg C hs CP H InitAlg)) ⊗ Z);;
+ × (theta H) ( pr1 InitAlg ⊗ Z);;
    # H (bracket_Thm15 Z f);;
-   tau (ALG_from_Alg C hs CP H InitAlg) =
+   tau_from_alg  _ _ _ _ InitAlg =
    # (pre_composition_functor_data C C C hs hs (U Z))
-     (tau (ALG_from_Alg C hs CP H InitAlg));;
+     (tau_from_alg _ _ _ _  InitAlg);;
    bracket_Thm15 Z f.
 Proof.
   split.
@@ -493,31 +493,31 @@ Focus 2.
 *)
 Qed.
 
-Lemma foo (Z : Ptd) (f : Ptd ⟦ Z, ALG_from_Alg C hs CP H InitAlg ⟧) :
+Lemma foo (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg ⟧) :
    ∀
    t : Σ
        h : [C, C] hs
-           ⟦ functor_composite (U Z) (U (ALG_from_Alg C hs CP H InitAlg)),
-           U (ALG_from_Alg C hs CP H InitAlg) ⟧,
+           ⟦ functor_composite (U Z) (pr1  InitAlg),
+            pr1 InitAlg ⟧,
        # U f =
        # (pre_composition_functor_data C C C hs hs (U Z))
-         (ptd_pt C (pr1 (ALG_from_Alg C hs CP H InitAlg)));; h
-       × (theta H) ((U (ALG_from_Alg C hs CP H InitAlg)) ⊗ Z);; # H h;;
-         tau (ALG_from_Alg C hs CP H InitAlg) =
+         (eta_from_alg _ _ _ _  InitAlg);; h
+       × (theta H) ((pr1 InitAlg) ⊗ Z);; # H h;;
+         tau_from_alg _ _ _ _  InitAlg =
          # (pre_composition_functor_data C C C hs hs (U Z))
-           (tau (ALG_from_Alg C hs CP H InitAlg));; h,
+           (tau_from_alg _ _ _ _  InitAlg);; h,
    t =
    tpair
      (λ h : [C, C] hs
-            ⟦ functor_composite (U Z) (U (ALG_from_Alg C hs CP H InitAlg)),
-            U (ALG_from_Alg C hs CP H InitAlg) ⟧,
+            ⟦ functor_composite (U Z) (pr1 InitAlg),
+              pr1 InitAlg ⟧,
       # U f =
       # (pre_composition_functor_data C C C hs hs (U Z))
-        (ptd_pt C (pr1 (ALG_from_Alg C hs CP H InitAlg)));; h
-      × (theta H) ((U (ALG_from_Alg C hs CP H InitAlg)) ⊗ Z);; # H h;;
-        tau (ALG_from_Alg C hs CP H InitAlg) =
+        (eta_from_alg _ _ _  _ InitAlg);; h
+      × (theta H) ((pr1 InitAlg) ⊗ Z);; # H h;;
+        tau_from_alg _ _ _ _  InitAlg =
         # (pre_composition_functor_data C C C hs hs (U Z))
-          (tau (ALG_from_Alg C hs CP H InitAlg));; h)
+          (tau_from_alg _ _ _ _  InitAlg);; h)
      (bracket_Thm15 Z f) (bracket_Thm15_ok Z f).
 Proof.
   intros [h' [h'_eq1 h'_eq2]].
@@ -588,13 +588,15 @@ Proof.
   refine (tpair _ _ _ ).
   - refine (tpair _ _ _ ).
     + exact (bracket_Thm15 Z f).
-    + apply whole_from_parts. exact (bracket_Thm15_ok Z f).
+    + apply whole_from_parts. (* B: better to prove the whole outside, and apply it here *)
+
+      exact (bracket_Thm15_ok Z f).
 (* when the first components were not opaque, the following proof
    became extremely slow *)
 
       
   -
-    (* apply foo. *)
+     (* apply foo. *) (* foo uses the η and τ commutative diagrams, but we need α diagram *)
     admit.
  (*   
     intros [h' [h'_eq1 h'_eq2]].
@@ -675,22 +677,53 @@ Proof.
   exact bracket_for_InitAlg.
 Defined.
 
+Lemma ishssMor_InitAlg (T : hss CP H) :
+  @ishssMor C hs CP H
+        InitHSS T        
+           (InitialArrow Alg IA (pr1 T) : algebra_mor EndC Id_H InitAlg T ).  
+Proof.
+  admit.
+Admitted.
+
+Definition hss_InitMor : ∀ T : hss CP H, hssMor InitHSS T.
+Proof.
+  intro T.
+  exists (InitialArrow Alg IA (pr1 T)).
+  apply ishssMor_InitAlg.
+Defined.
+
+Lemma hss_InitMor_unique (T : hss_precategory CP H):
+  ∀ t : hss_precategory CP H ⟦ InitHSS, T ⟧, t = hss_InitMor T.
+Proof.
+  admit.
+Admitted.
 
 Lemma isInitial_InitHSS : isInitial (hss_precategory CP H) InitHSS.
 Proof.
   intro T.
+  exists (hss_InitMor T).
+  apply hss_InitMor_unique.
+Defined.
+(*
   simpl.
   set (T' :=  (pr1 T)).
+*)
 (*
   assert (auxT' : ALG_from_Alg C hs CP H T' = pr1 T).
 Focus 2.
-*)
+ *)
+(*
   set (β := InitialArrow _ IA T').
   (*set (β' := ALG_mor_from_Alg_mor _ hs CP _ β). *)
   refine (tpair _ _ _ ).
   - refine (tpair _ _ _ ).
     apply β.
-
+    unfold ishssMor.
+    unfold isbracketMor.
+    intros Z f.
+*)
+    
+(*
 
     + refine (tpair _ _ _ ).
       * apply β.
@@ -706,7 +739,9 @@ Focus 2.
           exact  β_is_ptd_inst.
         clear β_is_ptd_inst.
         apply CoproductIn1Commutes.      
-    + destruct β as [β βalg].
+ *)
+(*    
+   + destruct β as [β βalg].
       simpl in *.
       unfold ishssMor. 
       split.
@@ -725,12 +760,12 @@ Focus 2.
         unfold isbracketMor. simpl.
         intros Z f.        
 *)
-        (* now define Ψ for fusion law *)
-        admit.
-  - admit.
-Admitted.
+*)
 
-Lemma Ihss : Initial (hss_precategory H).
+        (* now define Ψ for fusion law *)
+
+
+Lemma Ihss : Initial (hss_precategory CP H).
 Proof.
   exists InitHSS.
   apply isInitial_InitHSS.

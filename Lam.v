@@ -16,7 +16,7 @@ Require Import SubstSystems.ProductPrecategory.
 Require Import SubstSystems.HorizontalComposition.
 Require Import SubstSystems.PointedFunctorsComposition.
 Require Import SubstSystems.Signatures.
-Require Import SubstSystems.SubstitutionSystems.
+(* Require Import SubstSystems.SubstitutionSystems. *)
 Require Import SubstSystems.FunctorsPointwiseCoproduct.
 Require Import SubstSystems.FunctorsPointwiseProduct.
 Require Import SubstSystems.EndofunctorsMonoidal.

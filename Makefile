@@ -10,31 +10,31 @@
 # Includes everything that compiles in reasonable time, and all dependencies.
 MODULES-CORE := Auxiliary UnicodeNotations \
 		AdjunctionHomTypesWeq  \
-		FunctorAlgebraViews  \
 		HorizontalComposition \
 		PointedFunctorsComposition \
 		Signatures \
  		FunctorsPointwiseCoproduct \
 		Lam \
 		PointedFunctors \
-		SubstitutionSystems \
 		EndofunctorsMonoidal \
 		FunctorsPointwiseProduct \
-		LiftingInitial \
 		ProductPrecategory \
 		SumOfSignatures \
 		ExampleSignatures \
 		GenMendlerIteration \
-		MonadsFromSubstitutionSystems \
 		RightKanExtension \
 		SubstitutionSystems_alt \
-		MonadsFromSubstitutionSystems_alt
+		MonadsFromSubstitutionSystems_alt \
+		LiftingInitial_alt
 
 	
 # Remaining modules, included only in “make all”.
 # Useful for leaves that are slow to recompile.
-MODULES-EXTRA := \
-	
+MODULES-EXTRA := 	MonadsFromSubstitutionSystems \
+			FunctorAlgebraViews  \
+			SubstitutionSystems \
+			LiftingInitial 			
+
 VS-CORE  := $(MODULES-CORE:%=%.v)
 VS-EXTRA := $(MODULES-EXTRA:%=%.v)
 

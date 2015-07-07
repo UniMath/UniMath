@@ -16,7 +16,7 @@ Require Import SubstSystems.HorizontalComposition.
 Require Import SubstSystems.PointedFunctorsComposition.
 Require Import SubstSystems.EndofunctorsMonoidal.
 Require Import SubstSystems.Signatures.
-Require Import SubstSystems.FunctorAlgebraViews.
+(* Require Import SubstSystems.FunctorAlgebraViews. *)
 Require Import SubstSystems.FunctorsPointwiseCoproduct.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -77,7 +77,7 @@ Local Notation "A 'XX' B" := (product_precategory A B) (at level 2).
 Local Notation "α 'øø' Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).
 
 Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
-Local Notation "'τ'" := (tau).
+(* Local Notation "'τ'" := (tau). *)
 
 (** ** Definition of algebra structure [τ] of a pointed functor *)
 (*
@@ -524,7 +524,6 @@ End def_hss.
 Arguments hss {_ _} _  _ .
 Arguments hssMor {_ _ _ _ } _ _ .
 Arguments fbracket {_ _ _ _ } _ {_} _ .
-Arguments tau {_ _ _} _ .
 Arguments fbracket_η {_ _ _ _ } _ {_} _ .
 Arguments fbracket_τ {_ _ _ _} _ {_} _ .
 Arguments fbracket_unique_target_pointwise {_ _ _ _ } _ {_ _ _} _ _ _ .
