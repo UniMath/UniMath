@@ -162,8 +162,60 @@ Lemma parts_from_whole (T : algebra_ob _ Id_H) (Z : Ptd) (f : Z ⇒ ptd_from_alg
    (#U f = eta_from_alg T øø (U Z) ;; h) ×
      (θ (`T ⊗ Z) ;; #H h ;; tau_from_alg T  = tau_from_alg T øø (U Z) ;;  h ).
 Proof.
-  admit.
-Admitted.
+  intro Hyp.
+(*  assert (Hyp_inst :=  maponpaths (fun m:EndC⟦_,_⟧ => CoproductIn1 ([C, C] hs)
+      (CPEndC
+         ((constant_functor ([C, C] hs) ([C, C] hs) (functor_identity C)) T)
+         (H T));;m) Hyp). *)
+  split.
+  + unfold eta_from_alg.
+    apply nat_trans_eq; try (exact hs).
+    intro c.
+    simpl.  
+    unfold coproduct_nat_trans_in1_data.
+    assert (Hyp_inst := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp c); clear Hyp.
+    apply (maponpaths (fun m =>  CoproductIn1 C (CP _ _);; m)) in Hyp_inst.
+    match goal with |[ H1 : _  = ?f |- _ = _   ] => 
+         transitivity (f) end.
+
+    * clear Hyp_inst.
+      rewrite <- assoc.
+      apply CoproductIn1Commutes_right_in_ctx_dir.
+      rewrite id_left.
+      apply CoproductIn1Commutes_right_in_ctx_dir.
+      rewrite id_left.
+      apply CoproductIn1Commutes_right_dir.
+      apply idpath.
+    * rewrite <- Hyp_inst; clear Hyp_inst.
+      rewrite <- assoc.
+      apply idpath.
+  + unfold tau_from_alg.
+    apply nat_trans_eq; try (exact hs).
+    intro c.
+    simpl.  
+    unfold coproduct_nat_trans_in2_data.
+    assert (Hyp_inst := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp c); clear Hyp.
+    apply (maponpaths (fun m =>  CoproductIn2 C (CP _ _);; m)) in Hyp_inst.
+    match goal with |[ H1 : _  = ?f |- _ = _   ] => 
+         transitivity (f) end.
+
+    * clear Hyp_inst.
+      do 2 rewrite <- assoc.
+      apply CoproductIn2Commutes_right_in_ctx_dir.
+      simpl.
+      rewrite <- assoc.
+      apply maponpaths.
+      apply CoproductIn2Commutes_right_in_ctx_dir.
+      simpl.
+      rewrite <- assoc.
+      apply maponpaths.
+      unfold tau_from_alg.
+      apply CoproductIn2Commutes_right_dir.
+      apply idpath.
+    * rewrite <- Hyp_inst; clear Hyp_inst.
+      rewrite <- assoc.
+      apply idpath.
+Qed.
 
 Lemma whole_from_parts (T : algebra_ob _ Id_H) (Z : Ptd) (f : Z ⇒ ptd_from_alg T)
       (h :  `T ∙ (U Z)  ⇒ T) :
