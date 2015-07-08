@@ -58,10 +58,10 @@ Makefile.coq: Makefile $(VS-CORE)
 Makefile_all.coq: Makefile $(VS-CORE) $(VS-EXTRA)
 	coq_makefile -R . $(PROJECTNAME) $(VS-CORE) $(VS-EXTRA) -arg $(COQOPTIONS) -o Makefile_all.coq
 
-install: all
+install_all: core
 	$(MAKE) -f Makefile_all.coq install
 
-install_core: core
+install: core
 	$(MAKE) -f Makefile.coq install
 
 clean:: Makefile_all.coq
@@ -69,13 +69,13 @@ clean:: Makefile_all.coq
 	rm -f Makefile_all.coq
 	rm -f html
 
-html: all
+html: core
+	mkdir -p html
+	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -html $(COQDOCLIBS) -d html $(VS-CORE) 
+
+html_all: all
 	mkdir -p html
 	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -html $(COQDOCLIBS) -d html $(VS-CORE) $(VS-EXTRA)
-
-html_core: core
-	mkdir -p html
-	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -html $(COQDOCLIBS) -d html $(VS-CORE)
 	
 # Makefile based on example from Adam Chlipala, “Theorem Proving in the Large”,
 # section “Build Patterns”. http://adam.chlipala.net/cpdt/html/Large.html

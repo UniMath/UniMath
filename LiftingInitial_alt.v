@@ -58,8 +58,16 @@ Local Notation "'U'" := (functor_ptd_forget C hs).
 
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CP hs.
+Let EndEndC := [EndC, EndC, hsEndC].
+Let CPEndEndC:= Coproducts_functor_precat _ _ CPEndC hsEndC: Coproducts EndEndC.
+(*Opaque CPEndEndC.*)
 
+Definition ℓ (X : EndC) : EndEndC := (pre_composition_functor C C C hs hs X).
+(*   in Agda mode \ell *)
+
+(*
 Opaque hsEndC.
+*)
 (*Opaque CPEndC.*)
 
 Variable KanExt : ∀ Z : Ptd, GlobalRightKanExtensionExists _ _ (U Z) _ hs hs.
@@ -88,9 +96,7 @@ Definition θ_in_first_arg (Z: Ptd) := nat_trans_fix_snd_arg _ _ _ _ _ θ Z.
 
 Definition InitAlg : Alg := InitialObject _ IA.
 
-Let EndEndC := [EndC, EndC, hsEndC].
-Let CPEndEndC:= Coproducts_functor_precat _ _ CPEndC hsEndC: Coproducts EndEndC.
-(*Opaque CPEndEndC.*)
+
 
 (* original try in bracket_for_InitAlg with
   assert (iso_1 : functor_composite Id_H (pre_composition_functor C C C hs hs (U Z)) ⟶  
@@ -102,7 +108,7 @@ Let CPEndEndC:= Coproducts_functor_precat _ _ CPEndC hsEndC: Coproducts EndEndC.
 
 Lemma aux_iso_1_is_nat_trans (Z : Ptd) :
    is_nat_trans
-     (functor_composite Id_H (pre_composition_functor C C C hs hs (U Z)))
+     (functor_composite Id_H (ℓ (U Z)))
      (pr1 (CoproductObject EndEndC
         (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
            (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z))))
@@ -152,7 +158,7 @@ Lemma aux_iso_1_inv_is_nat_trans (Z : Ptd) :
      (pr1 (CoproductObject EndEndC
         (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
            (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z))) )
-     (functor_composite Id_H (pre_composition_functor C C C hs hs (U Z)))
+     (functor_composite Id_H (ℓ (U Z)))
      (λ X : [C, C] hs,
       CoproductOfArrows ([C, C] hs)
         (CPEndC (functor_composite (functor_identity C) (U Z))
@@ -184,7 +190,7 @@ Qed.
 Definition aux_iso_1_inv (Z: Ptd): EndEndC ⟦ CoproductObject EndEndC
            (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
               (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z)),
-             functor_composite Id_H (pre_composition_functor C C C hs hs (U Z)) ⟧.
+             functor_composite Id_H (ℓ (U Z)) ⟧.
 Proof.
   refine (tpair _ _ _).
   - intro X.
@@ -203,7 +209,7 @@ Lemma aux_iso_2_inv_is_nat_trans (Z : Ptd) :
      (pr1 (CoproductObject EndEndC
         (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
            (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z))) )
-     (functor_composite (pre_composition_functor C C C hs hs (U Z))
+     (functor_composite (ℓ (U Z))
         (Const_plus_H (U Z)))
      (λ X : [C, C] hs,
       nat_trans_id
@@ -238,7 +244,7 @@ Definition aux_iso_2_inv (Z: Ptd): EndEndC ⟦
          (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
                     (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z)),
 
-                       functor_composite (pre_composition_functor C C C hs hs (U Z) )   (Const_plus_H (U Z)) ⟧.   
+                       functor_composite (ℓ (U Z) )   (Const_plus_H (U Z)) ⟧.   
   Proof.
   refine (tpair _ _ _).
   - intro X.
@@ -531,8 +537,6 @@ Proof.
       * intro Hyp. apply isaset_nat_trans. exact hs.
     + simpl.
       unfold bracket_Thm15.
-      simpl. 
-      rewrite It_is_It_which_is_unique.
       apply path_to_ctr.
       apply nat_trans_eq; try (exact hs).
       intro c; simpl.
@@ -709,7 +713,7 @@ Proof.
 Defined.
 
 Definition iso1' (Z : Ptd) :  EndEndC ⟦ functor_composite Id_H
-                                        (pre_composition_functor C C C hs hs (U Z)),
+                                        (ℓ (U Z)),
  CoproductObject EndEndC
     (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
                (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z)) ⟧.
@@ -717,20 +721,94 @@ Proof.
   exact (aux_iso_1 Z).
 Defined.  
 
-Definition thetahat (Z : Ptd)
-           : EndEndC ⟦ functor_composite Id_H
-                                        (pre_composition_functor C C C hs hs (U Z)),
-                     functor_composite (pre_composition_functor C C C hs hs (U Z) ) (Ghat) ⟧.
+
+Lemma is_nat_trans_iso2' (Z : Ptd) :
+   is_nat_trans
+     (pr1 (CoproductObject EndEndC
+        (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (pr1 InitAlg))
+           (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z))))
+     (functor_composite (ℓ (U Z)) Ghat)
+     (λ X : [C, C] hs,
+      nat_trans_id
+        (CoproductObject ([C, C] hs)
+           (CPEndC
+              ((constant_functor ([C, C] hs) ([C, C] hs) (pr1 InitAlg)) X)
+              ((θ_target H) (X ⊗ Z)))
+         :functor C C)).
 Proof.
-  
-  simpl.
+  unfold is_nat_trans; simpl.
+    intros X X' α.
+    rewrite (id_left EndC).
+    rewrite (id_right EndC).
+    apply nat_trans_eq; try (exact hs).
+    intro c; simpl.
+    unfold coproduct_nat_trans_data; simpl.
+    unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
+    apply CoproductOfArrows_eq.
+    + apply idpath.
+    + unfold functor_fix_snd_arg_mor; simpl.
+      unfold θ_target_mor; simpl.
+      revert c.
+      apply nat_trans_eq_pointwise.
+      apply maponpaths.
+      apply nat_trans_eq; try (exact hs).
+      intro c.
+      simpl.
+      rewrite <- (nat_trans_ax α).
+      rewrite functor_id.
+      apply id_left.
+Qed.
+
+Definition iso2' (Z : Ptd) : EndEndC ⟦
+  CoproductObject EndEndC
+  (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (pr1 InitAlg))
+             (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z)),
+  functor_composite (ℓ (U Z) ) (Ghat) ⟧.
+Proof.
+    refine (tpair _ _ _).
+  - intro X.
+    exact (nat_trans_id ((@CoproductObject EndC _ (θ_target H (X⊗Z)) (CPEndC _ _) ): functor C C)).
+  - exact (is_nat_trans_iso2' Z).
+Defined.
+
+Definition thetahat (Z : Ptd)  (f : Z ⇒ ptd_from_alg _ _ _ _ InitAlg)
+           : EndEndC ⟦ functor_composite Id_H
+                                        (ℓ (U Z)),
+                     functor_composite (ℓ (U Z)) (Ghat) ⟧.
+Proof.
+  exact (iso1' Z ;; thetahat_0 Z f ;; iso2' Z).
+Defined.
+
+
+Require Import UniMath.RezkCompletion.opp_precat.
+Require Import UniMath.RezkCompletion.yoneda.
+Require Import UniMath.RezkCompletion.category_hset.
+ 
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+
+Let Yon (X : EndC) : functor EndC^op HSET := yoneda_objects EndC hsEndC X.
+
+Definition Phi_fusion (Z : Ptd) (X : EndC) (b : pr1 InitAlg ⇒ X) :
+  functor_composite (functor_opp (ℓ (U Z))) (Yon (pr1 InitAlg))
+   ⟶
+  functor_composite (functor_opp (ℓ (U Z))) (Yon X) .
+Proof.
   refine (tpair _ _ _ ).
-  intro X.
-  simpl.
-  eapply CoproductOfArrows.
-*)
-
-
+  - intro Y.
+    intro a.
+    exact (a ;; b).
+  - intros ? ? ? . simpl.
+    apply funextsec.
+    intro.
+    unfold yoneda_objects_ob. simpl.
+    unfold compose.
+    simpl.
+    apply nat_trans_eq.
+    + assumption.
+    + simpl. intros ?.
+      apply pathsinv0, assoc.
+Defined.    
+    
 Lemma ishssMor_InitAlg (T' : hss CP H) :
   @ishssMor C hs CP H
         InitHSS T'        
@@ -740,30 +818,74 @@ Proof.
   unfold isbracketMor.
   intros Z f.
   match goal with | [|- _ ;; ?b = _ ] => set (β := b) end.
-  set (Ghat .
   set ( rhohat := CoproductArrow EndC  (CPEndC _ _ )  β (tau_from_alg _ _ _ _ T')
-       : Ghat T' ⇒ T').
-  Check θ'_Thm15.
-  set (thetahat := CoproductOfArrows EndEndC (CPEndEndC _ _) (CPEndEndC _ _)
-                                     (constant_functor _ _ _ (#U f))
-                                     (θ_in_first_arg Z)).
-  set (thetahat :=  θ'_Thm15 Z).
-  set (Ψ
-  
+                  :  pr1 Ghat T' ⇒ T').
+  set (X:= SpecializedGMIt Z _ Ghat rhohat (thetahat Z f)).
+  pathvia (pr1 (pr1 X)).
+  - set (TT:= fusion_law _ _ _ IA _ hsEndC (pr1 InitAlg) T' _ (KanExt Z)).
+    set (Psi := ψ_from_comps _ (Id_H) _ hsEndC _ (ℓ (U Z)) (Const_plus_H (U Z)) (ρ_Thm15 Z f)
+                             (aux_iso_1 Z ;; θ'_Thm15 Z ;; aux_iso_2_inv Z) ).
+    set (T2 := TT Psi).
+    set (T3 := T2 (ℓ (U Z)) (KanExt Z)).
+    set (Psi' := ψ_from_comps _ (Id_H) _ hsEndC _ (ℓ (U Z)) (Ghat) (rhohat)
+                             (iso1' Z ;; thetahat_0 Z f ;; iso2' Z) ).
+    set (T4 := T3 Psi').
+    set (Φ := (Phi_fusion Z T' β)).
+    set (T5 := T4 Φ).
+    pathvia (Φ _ (fbracket InitHSS f)).
+      apply idpath.
+    eapply pathscomp0.
+      Focus 2.
+        eapply T5.
+      (* hypothesis of fusion law *)
+      apply funextsec. intro.
+      simpl.
+      unfold compose. simpl.
+      apply nat_trans_eq. assumption.
+      simpl.
+      intro c.
+      rewrite id_right.
+      rewrite id_right.
+      (* should be decomposed into two diagrams *)
+      apply CoproductArrow_eq_cor.
+      * admit. (* first diagram *)
+      * admit.
+        (* apply cancel_postcomposition.
+           unfold fbracket. simpl.
+         *)
+        (* should be idpath as soon as [bracket_for_InitAlg] is axiom-free *)
+
+
+      * admit. (* second diagram *)
+
+  - apply pathsinv0.
+    apply path_to_ctr.
+    simpl.
+    admit.
 Admitted.
 
-Definition hss_InitMor : ∀ T : hss CP H, hssMor InitHSS T.
+Definition hss_InitMor : ∀ T' : hss CP H, hssMor InitHSS T'.
 Proof.
-  intro T.
-  exists (InitialArrow Alg IA (pr1 T)).
+  intro T'.
+  exists (InitialArrow Alg IA (pr1 T')).
   apply ishssMor_InitAlg.
 Defined.
 
-Lemma hss_InitMor_unique (T : hss_precategory CP H):
-  ∀ t : hss_precategory CP H ⟦ InitHSS, T ⟧, t = hss_InitMor T.
+Lemma hss_InitMor_unique (T' : hss_precategory CP H):
+  ∀ t : hss_precategory CP H ⟦ InitHSS, T' ⟧, t = hss_InitMor T'.
 Proof.
-  admit.
-Admitted.
+  intro t.
+  (* show lemma that says that two hss morphisms are equal if their underlying alg morphisms are *)
+  apply (invmap (hssMor_eq1 _ _ _ _ _ _ _ _ )).
+  set (T2:= pr2 IA).
+  simpl in T2.
+  set (T3 := T2 (pr1 T')).
+  simpl.
+  set (T4 := pr2 T3).
+  simpl in T4.
+  set (T5 := T4 (pr1 t)).
+  apply T5.
+Qed.
 
 Lemma isInitial_InitHSS : isInitial (hss_precategory CP H) InitHSS.
 Proof.
@@ -771,6 +893,7 @@ Proof.
   exists (hss_InitMor T).
   apply hss_InitMor_unique.
 Defined.
+
 (*
   simpl.
   set (T' :=  (pr1 T)).

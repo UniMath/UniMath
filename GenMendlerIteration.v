@@ -87,7 +87,7 @@ Section general_case.
 
 Variable ψ : ψ_source ⟶ ψ_target.
 
-Definition It : L μF ⇒ X := φ_inv (iter (φ (ψ (R X) (ε X)))).
+Definition preIt : L μF ⇒ X := φ_inv (iter (φ (ψ (R X) (ε X)))).
 
 (* what is the usual name of the following lemma? it is toforallpaths
 Lemma aux0 (A B: UU)(f g: A -> B)(a: A): f = g -> f a = g a.
@@ -144,23 +144,23 @@ Proof.
   exact Hyp.
 Qed.
 
-Lemma It_ok : # L inF;; It = ψ μF It.
+Lemma preIt_ok : # L inF;; preIt = ψ μF preIt.
 Proof.
     apply cancel_φ.
     rewrite φ_ψ_μF_eq.
     rewrite (φ_adj_natural_precomp _ _ _ is_left_adj_L).
-    unfold It.
+    unfold preIt.
     rewrite φ_adj_after_φ_adj_inv.
     rewrite (φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L).
     assert (iter_eq := algebra_mor_commutes _ _ _ _ (InitialArrow _ μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
     exact iter_eq.
 Qed.
 
-Lemma It_uniq (t : Σ h : L μF ⇒ X, # L inF;; h = ψ μF h):
-    t = tpair (λ h : L μF ⇒ X, # L inF;; h = ψ μF h) It It_ok.
+Lemma preIt_uniq (t : Σ h : L μF ⇒ X, # L inF;; h = ψ μF h):
+    t = tpair (λ h : L μF ⇒ X, # L inF;; h = ψ μF h) preIt preIt_ok.
 Proof.
     destruct t as [h h_rec_eq]; simpl.
-    assert (same: h = It).
+    assert (same: h = preIt).
 Focus 2.
     apply (total2_paths_second_isaprop).
     + simpl.
@@ -170,7 +170,7 @@ Focus 2.
     exact same.
 
     apply cancel_φ.
-    unfold It.
+    unfold preIt.
     rewrite (φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L).
     assert (iter_uniq := pr2 (pr2 μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
     simpl in iter_uniq.
@@ -188,13 +188,13 @@ Qed.
 Theorem GenMendlerIteration : iscontr (Σ h : L μF ⇒ X, #L inF ;; h = ψ μF h).
 Proof.
   refine (tpair _ _ _ ).
-  - exists It.
-    exact It_ok.
-  - exact It_uniq.
+  - exists preIt.
+    exact preIt_ok.
+  - exact preIt_uniq.
 Defined.
 
-Definition It_which_is_unique: L μF ⇒ X := pr1 (pr1 GenMendlerIteration).
-Lemma It_is_It_which_is_unique: It = It_which_is_unique.
+Definition It : L μF ⇒ X := pr1 (pr1 GenMendlerIteration).
+Lemma It_is_preIt : It = preIt.
 Proof.
   apply idpath.
 Qed.
@@ -265,7 +265,6 @@ Section fusion_law.
   Theorem fusion_law : Φ μF (It X L is_left_adj_L ψ) = It X' L' is_left_adj_L' ψ'.
   Proof.
     apply pathsinv0.
-    rewrite It_is_It_which_is_unique.
     apply pathsinv0.
     apply path_to_ctr.
     assert (Φ_is_nat := nat_trans_ax Φ).
@@ -278,7 +277,8 @@ Section fusion_law.
     unfold compose in H_inst; simpl in H_inst.
     rewrite <- H_inst.
     apply maponpaths.
-    apply It_ok.    
+    rewrite It_is_preIt.
+    apply preIt_ok.    
   Qed.
     
 End fusion_law.
