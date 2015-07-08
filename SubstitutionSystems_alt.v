@@ -227,8 +227,41 @@ Lemma whole_from_parts (T : algebra_ob _ Id_H) (Z : Ptd) (f : Z ⇒ ptd_from_alg
           identity (U Z) ⊕ #H h ;;
           CoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T ).
 Proof.
-  admit.
-Admitted.
+  intros [Hyp1 Hyp2].
+  apply nat_trans_eq; try (exact hs).
+  intro c.
+  apply CoproductArrow_eq_cor.
+  + clear Hyp2.
+    assert (Hyp1_inst := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp1 c); clear Hyp1.
+    rewrite <- assoc.
+    apply CoproductIn1Commutes_right_in_ctx_dir.
+    rewrite id_left.
+    apply CoproductIn1Commutes_right_in_ctx_dir.
+    rewrite id_left.
+    apply CoproductIn1Commutes_right_dir.
+    rewrite Hyp1_inst.
+    simpl.
+    apply assoc.
+  + clear Hyp1.
+    assert (Hyp2_inst := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp2 c); clear Hyp2.
+    rewrite <- assoc.
+    apply CoproductIn2Commutes_right_in_ctx_dir.
+    simpl.
+    rewrite assoc.
+    eapply pathscomp0.
+    * eapply pathsinv0. 
+      exact Hyp2_inst.
+    * clear Hyp2_inst.
+      simpl. 
+      do 2 rewrite <- assoc.
+      apply maponpaths.
+      apply CoproductIn2Commutes_right_in_ctx_dir.
+      simpl.
+      rewrite <- assoc.
+      apply maponpaths.
+      apply CoproductIn2Commutes_right_dir.
+      apply idpath.
+Qed.      
 
 
 (* show bracket_parts_point is logically equivalent to bracket_point, then 
