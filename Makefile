@@ -14,7 +14,7 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 		PointedFunctorsComposition \
 		Signatures \
  		FunctorsPointwiseCoproduct \
-		Lam \
+		LamSignature \
 		PointedFunctors \
 		EndofunctorsMonoidal \
 		FunctorsPointwiseProduct \
@@ -25,7 +25,8 @@ MODULES-CORE := Auxiliary UnicodeNotations \
 		RightKanExtension \
 		SubstitutionSystems_alt \
 		MonadsFromSubstitutionSystems_alt \
-		LiftingInitial_alt
+		LiftingInitial_alt \
+		Lam
 
 	
 # Remaining modules, included only in “make all”.
