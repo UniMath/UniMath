@@ -841,9 +841,28 @@ Proof.
           apply CoproductIn2Commutes.
         + rewrite <- H_nat_inst_c.
           apply idpath.
-  - apply pathsinv0.
+  - apply pathsinv0. 
     apply path_to_ctr.
-    simpl. (* here serious verification work to be done *)
+    (* now a lot of serious verification work to be done *)
+    apply nat_trans_eq; try (exact hs).
+    intro c.
+    simpl.
+    rewrite id_right.
+    (* look at type:
+       match goal with | [ |- ?l = _ ] => let ty:= (type of l) in idtac ty end. *)
+    apply CoproductArrow_eq_cor.
+    + repeat rewrite <- assoc.
+      apply CoproductIn1Commutes_right_in_ctx_dir.
+      simpl.
+      rewrite id_left.
+      apply CoproductIn1Commutes_right_in_ctx_dir.
+      repeat rewrite assoc.
+(*
+      eapply pathscomp0.
+Focus 2.
+      apply cancel_postcomposition.                  
+*)
+ 
     admit.
 Admitted.
 
