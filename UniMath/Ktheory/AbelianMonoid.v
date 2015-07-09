@@ -49,6 +49,118 @@ Lemma nelstructoncomplmap'''  {I:UU} {n} (sx:nelstruct (S n) I) :
   = dni_first n ;; pr1weq sx.
 Proof. intros. apply nelstructoncomplmap''. Defined.
 
+Lemma natbooleq_refl i : natbooleq i i = true.
+Proof.
+  intros.
+  induction i as [|i].
+  - reflexivity.
+  - admit.                      (* ??? *)
+Admitted.
+
+Definition transposition0 {n} (i:stn n) (j:stn n) : stn n -> stn n.
+  intros ? ? ? k.
+  induction (isdeceqstn n k i).
+  - exact j.
+  - induction (isdeceqstn n k j).
+    * exact i.
+    * exact k.
+Defined.
+
+Lemma isdeceqnat_refl i : isdeceqnat i i = ii1 (idpath i).
+Proof.
+  intros.
+  induction (isdeceqnat i i) as [ieqi | inei].
+  {
+    assert( ieqi = idpath i ). { apply isasetnat. }
+    destruct H.
+    reflexivity.
+  }
+  destruct (inei (idpath i )).
+Defined.
+
+Lemma isdeceqnat_neq i j (ne : i != j) : isdeceqnat i j = ii2 ne.
+Proof.
+  intros.
+  induction (isdeceqnat i j) as [ieqj | inej].
+  { destruct (ne ieqj). }
+  { assert ( H : inej = ne ).
+    { apply funextfun. intros. destruct (ne x). }
+    destruct H.
+    reflexivity.
+  }
+Defined.
+
+Lemma isdeceqstn_refl n i : isdeceqstn n i i = ii1 (idpath i).
+Proof.
+  intros.
+  induction (isdeceqstn _ i i) as [ieqi | inei].
+  {
+    assert( H : ieqi = idpath i ). { apply isasetstn. }
+    destruct H.
+    reflexivity.
+  }
+  destruct (inei (idpath i )).
+Defined.
+
+Lemma isdeceqstn_neq n (i:stn n) (j:stn n) (ne : i != j) : isdeceqstn n i j = ii2 ne.
+Proof.
+  intros.
+  induction (isdeceqstn n i j) as [ieqj | inej].
+  { destruct (ne ieqj). }
+  { assert ( H : inej = ne ).
+    { apply funextfun. intros. destruct (ne x). }
+    destruct H.
+    reflexivity.
+  }
+Defined.
+
+Lemma transposition1 {n} (i:stn n) (j:stn n) : transposition0 i j i = j.
+Proof.
+  intros.
+  unfold transposition0.
+  destruct (!isdeceqstn_refl n i).
+  reflexivity.
+Defined.
+
+Lemma transposition2 {n} (i:stn n) (j:stn n) : transposition0 i j j = i.
+Proof.
+  intros.
+  unfold transposition0.
+  destruct (isdeceqstn _ j i) as [jeqi|jnei].
+  { 
+    destruct jeqi.
+    destruct (!isdeceqstn_refl n j).
+    simpl.
+    reflexivity.
+  }
+  {
+    simpl.
+    destruct (!isdeceqstn_refl n j).
+    simpl.
+    reflexivity.
+    }
+Defined.
+  
+Definition transposition {n} (i:stn n) (j:stn n) : weq (stn n) (stn n).
+  intros.
+  set (f := fun (k:stn n) => if natbooleq k i then j else if natbooleq k j then i else k).
+  assert( c : homot (funcomp f f) (idfun _) ).
+  {
+    intro k.
+    induction (isdeceqnat k i) as [keqi | knei].
+    {
+        destruct (keqi).
+        simpl.
+        admit.
+        }
+    { 
+      induction (isdecrelnateq k j) as [keqj | knej].
+      { admit. }
+      { admit. }}}
+  exists f.
+  { exact (gradth f f c c). }
+Admitted.
+
 Lemma uniqueness0 (X:abmonoid) n : forall I (f g:nelstruct n I) (x:I->X),
      finiteOperation0 X n (funcomp (pr1 f) x) 
   = finiteOperation0 X n (funcomp (pr1 g) x).
