@@ -848,19 +848,74 @@ Proof.
       rewrite id_right.
       (* should be decomposed into two diagrams *)
       apply CoproductArrow_eq_cor.
-      * admit. (* first diagram *)
-      * admit.
-        (* apply cancel_postcomposition.
-           unfold fbracket. simpl.
-         *)
+      * (* first diagram *)
+        clear TT T2 T3 T4 T5.
+        do 5 rewrite <- assoc.
+        apply CoproductIn1Commutes_left_in_ctx_dir.
+        apply CoproductIn1Commutes_right_in_ctx_dir.
+        simpl.
+        rewrite id_left.
+        apply CoproductIn1Commutes_left_in_ctx_dir.
+        apply CoproductIn1Commutes_right_in_ctx_dir.
+        simpl.
+        rewrite id_left.
+        apply CoproductIn1Commutes_left_in_ctx_dir.
+        simpl.
+        rewrite id_left.
+        apply CoproductIn1Commutes_left_in_ctx_dir.
+        rewrite <- assoc.
+        apply maponpaths.
+        apply CoproductIn1Commutes_right_in_ctx_dir.
+        simpl.
+        rewrite id_left.
+        apply CoproductIn1Commutes_right_dir.
+        apply idpath.
+      * (* a bit out of order what follows *)
+        apply cancel_postcomposition.
+        unfold fbracket. simpl.
         (* should be idpath as soon as [bracket_for_InitAlg] is axiom-free *)
-
-
-      * admit. (* second diagram *)
-
+        admit.
+      * (* second diagram *)
+        clear TT T2 T3 T4 T5.
+        do 5 rewrite <- assoc.
+        apply CoproductIn2Commutes_left_in_ctx_dir.
+        apply CoproductIn2Commutes_right_in_ctx_dir.
+        rewrite (id_left EndC).
+        apply CoproductIn2Commutes_left_in_ctx_dir.
+        apply CoproductIn2Commutes_right_in_ctx_dir.
+        simpl.
+        unfold nat_trans_fix_snd_arg_data.
+        repeat rewrite <- assoc.
+        apply maponpaths.
+        apply CoproductIn2Commutes_left_in_ctx_dir.
+        apply CoproductIn2Commutes_right_in_ctx_dir.
+        simpl.
+        assert (H_nat_inst := functor_comp H _ _ _ t β).
+        assert (H_nat_inst_c := nat_trans_eq_pointwise _ _ _ _ _ _ H_nat_inst c); clear H_nat_inst.
+        match goal with |[ H1 : _  = ?f |- _ = _;; ?g ;; ?h  ] => 
+         pathvia (f;;g;;h) end.
+        + clear H_nat_inst_c.
+          simpl.
+          repeat rewrite <- assoc.
+          apply maponpaths.
+          apply CoproductIn2Commutes_left_in_ctx_dir.
+          simpl.
+          unfold coproduct_nat_trans_in2_data, coproduct_nat_trans_data.
+          assert (Hyp := τ_part_of_alg_mor _ hs CP _ _ _ (InitialArrow Alg IA (pr1 T'))).
+          assert (Hyp_c := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp c); clear Hyp.
+          simpl in Hyp_c.
+          eapply pathscomp0.
+            eapply pathsinv0.
+            exact Hyp_c.
+          clear Hyp_c.
+          apply maponpaths.
+          apply pathsinv0.
+          apply CoproductIn2Commutes.
+        + rewrite <- H_nat_inst_c.
+          apply idpath.
   - apply pathsinv0.
     apply path_to_ctr.
-    simpl.
+    simpl. (* here serious verification work to be done *)
     admit.
 Admitted.
 
