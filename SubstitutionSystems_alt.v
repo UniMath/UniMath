@@ -425,6 +425,32 @@ Proof.
   apply hs.
 Qed.
 *)
+
+(** a little preparation for much later *)
+Lemma τ_part_of_alg_mor  (T T' : algebra_ob ([C, C] hs) Id_H)
+  (β : algebra_mor ([C, C] hs) Id_H T T'): #H β ;; tau_from_alg T' = compose (C:=EndC) (tau_from_alg T) β.
+Proof.
+  assert (β_is_alg_mor := pr2 β).
+  simpl in β_is_alg_mor. 
+  assert (β_is_alg_mor_inst := maponpaths (fun m:EndC⟦_,_⟧ => (CoproductIn2 EndC (CPEndC _ _));; m) β_is_alg_mor); clear β_is_alg_mor.
+  simpl in β_is_alg_mor_inst.
+  apply nat_trans_eq; try (exact hs).
+  intro c.
+  assert (β_is_alg_mor_inst':= nat_trans_eq_pointwise _ _ _ _ _ _ β_is_alg_mor_inst c); clear β_is_alg_mor_inst.
+  simpl in β_is_alg_mor_inst'.
+  rewrite assoc in β_is_alg_mor_inst'.
+  eapply pathscomp0.
+Focus 2.
+  eapply pathsinv0.
+  exact β_is_alg_mor_inst'.  
+  clear β_is_alg_mor_inst'.
+  apply CoproductIn2Commutes_right_in_ctx_dir.
+  simpl.
+  rewrite <- assoc.
+  apply idpath.
+Qed.
+
+
 (** A morphism [β] of pointed functors is a bracket morphism when... *)
 
 Lemma is_ptd_mor_alg_mor (T T' : algebra_ob ([C, C] hs) Id_H)
