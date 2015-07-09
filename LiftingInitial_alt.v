@@ -393,116 +393,36 @@ Check bracket_Thm15_ok_part2.
 
 
 Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg ⟧):
-# U f =
- # (pre_composition_functor_data C C C hs hs (U Z))
-   (eta_from_alg _ _ _ _  InitAlg);; 
- bracket_Thm15 Z f
- × (theta H) ( pr1 InitAlg ⊗ Z);;
-   # H (bracket_Thm15 Z f);;
-   tau_from_alg  _ _ _ _ InitAlg =
-   # (pre_composition_functor_data C C C hs hs (U Z))
-     (tau_from_alg _ _ _ _  InitAlg);;
-   bracket_Thm15 Z f.
+ bracket_property_parts _ hs CP H InitAlg f (bracket_Thm15 Z f).
 Proof.
   split.
   + exact (bracket_Thm15_ok_part1 Z f).
   + exact (bracket_Thm15_ok_part2 Z f).
-(*
-(* the property in h_eq in the Alg world has to be translated into the ALG setting *)
-      simpl.
-      assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
-      assert (h_eq' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (((aux_iso_1_inv Z):(_⟶_)) _);; m) h_eq).
-      clear h_eq.
-      split.
-      *  apply nat_trans_eq; try (exact hs).
-         intro c.
-         simpl in h_eq'.
-         assert (h_eq1' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (CoproductIn1 EndC (CPEndC _ _));; m) h_eq').
-         clear h_eq'.
-         assert (h_eq1'_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h_eq1' c).
-         clear h_eq1'.
-         simpl in h_eq1'_inst.
-         unfold coproduct_nat_trans_data in h_eq1'_inst; simpl in h_eq1'_inst.
-         unfold coproduct_nat_trans_in1_data in h_eq1'_inst; simpl in h_eq1'_inst.
-         repeat rewrite <- assoc in h_eq1'_inst.
-         apply CoproductIn1Commutes_right_in_ctx in h_eq1'_inst.
-         apply CoproductIn1Commutes_left_in_ctx in h_eq1'_inst.
-         rewrite id_left in h_eq1'_inst.
-         apply CoproductIn1Commutes_right_in_ctx in h_eq1'_inst.
-         apply CoproductIn1Commutes_right_in_ctx in h_eq1'_inst.
-         do 2 rewrite id_left in h_eq1'_inst.
-         apply CoproductIn1Commutes_right_in_ctx in h_eq1'_inst.
-         rewrite id_left in h_eq1'_inst.
-         repeat rewrite <- assoc in h_eq1'_inst.
-         apply CoproductIn1Commutes_right in h_eq1'_inst.
-         simpl.
-         unfold coproduct_nat_trans_in1_data.
-         match goal with |[ H1 : _  = ?f |- _ = _   ] => 
-         transitivity (f) end.
-         apply idpath.
-         rewrite <- h_eq1'_inst.
-         clear h_eq1'_inst.
-
-         repeat rewrite id_left.
-         unfold nat_trans_id; simpl.
-         repeat rewrite (id_left EndEndC).
-         repeat rewrite (id_left EndC).
-         unfold functor_fix_snd_arg_ob.
-         repeat rewrite assoc.
-         apply maponpaths.
-         apply idpath.
- 
-     *   apply nat_trans_eq; try (exact hs).
-         intro c.
-         simpl in h_eq'.
-         assert (h_eq2' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (CoproductIn2 EndC (CPEndC _ _));; m) h_eq').
-         clear h_eq'.
-         assert (h_eq2'_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h_eq2' c).
-         clear h_eq2'.
-         simpl in h_eq2'_inst.
-         unfold coproduct_nat_trans_data in h_eq2'_inst; simpl in h_eq2'_inst.
-         unfold coproduct_nat_trans_in2_data in h_eq2'_inst; simpl in h_eq2'_inst.
-         repeat rewrite <- assoc in h_eq2'_inst.
-         apply CoproductIn2Commutes_right_in_ctx in h_eq2'_inst.
-         apply CoproductIn2Commutes_left_in_ctx in h_eq2'_inst.
-         rewrite id_left in h_eq2'_inst.
-         apply CoproductIn2Commutes_right_in_ctx in h_eq2'_inst.
-         apply CoproductIn2Commutes_right_in_ctx in h_eq2'_inst.
-         unfold nat_trans_fix_snd_arg_data in h_eq2'_inst.
-         rewrite id_left in h_eq2'_inst.
-(* now need even context to the left *)
-         apply CoproductIn2Commutes_right_in_double_ctx in h_eq2'_inst.
-         match goal with |[ H1 : _  = ?f |- _ = _   ] => 
-         transitivity (f) end.
-Focus 2.
-         rewrite <- h_eq2'_inst.
-         repeat rewrite <- assoc.
-         unfold Coproducts_functor_precat.
-         unfold functor_precat_coproduct_cocone.
-         simpl.
-         unfold coproduct_nat_trans_in2_data.
-         repeat rewrite <- assoc.
-         (* apply maponpaths.
-         apply maponpaths. *)
-         apply idpath.   
-
-         clear h_eq2'_inst.
-         repeat rewrite <- assoc.
-         unfold Coproducts_functor_precat.
-         unfold functor_precat_coproduct_cocone.
-         simpl.
-         unfold coproduct_nat_trans_in2_data.
-         repeat rewrite <- assoc.
-         apply maponpaths.
-         apply maponpaths.
-         apply pathsinv0.
-         apply CoproductIn2Commutes.
-
-(* verification of the original proof was very time-consuming *)
-*)
 Qed.
 
+Lemma bracket_Thm15_ok_cor (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg ⟧):
+ bracket_property _ hs CP H InitAlg f (bracket_Thm15 Z f).
+Proof.
+  apply whole_from_parts.
+  apply bracket_Thm15_ok.
+Qed.
+
+(* we will directly need the later lemma foo'
 Lemma foo (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg ⟧) :
+ ∀
+   t : Σ
+       h : [C, C] hs
+           ⟦ functor_composite (U Z) (pr1  InitAlg),
+            pr1 InitAlg ⟧,
+       bracket_property_parts _ hs CP H InitAlg f h,
+   t =
+   tpair
+     (λ h : [C, C] hs
+            ⟦ functor_composite (U Z) (pr1 InitAlg),
+              pr1 InitAlg ⟧,
+      bracket_property_parts _ hs CP H InitAlg f h)
+     (bracket_Thm15 Z f) (bracket_Thm15_ok Z f).
+(*
    ∀
    t : Σ
        h : [C, C] hs
@@ -528,6 +448,7 @@ Lemma foo (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg ⟧) :
         # (pre_composition_functor_data C C C hs hs (U Z))
           (tau_from_alg _ _ _ _  InitAlg);; h)
      (bracket_Thm15 Z f) (bracket_Thm15_ok Z f).
+*)
 Proof.
   intros [h' [h'_eq1 h'_eq2]].
     (* simpl in *. *)
@@ -588,34 +509,32 @@ Focus 2.
         apply pathsinv0.
         apply CoproductIn2Commutes.
 Qed.
+*)
 
-Definition bracket_for_InitAlg : bracket _ _ CP H (InitAlg).
+Lemma foo' (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg ⟧) :
+ ∀
+   t : Σ
+       h : [C, C] hs
+           ⟦ functor_composite (U Z) (pr1  InitAlg),
+            pr1 InitAlg ⟧,
+       bracket_property _ hs CP H InitAlg f h,
+   t =
+   tpair
+     (λ h : [C, C] hs
+            ⟦ functor_composite (U Z) (pr1 InitAlg),
+              pr1 InitAlg ⟧,
+      bracket_property _ hs CP H InitAlg f h)
+     (bracket_Thm15 Z f) (bracket_Thm15_ok_cor Z f).
 Proof.
-  intros Z f.
-  refine (tpair _ _ _ ).
-  - refine (tpair _ _ _ ).
-    + exact (bracket_Thm15 Z f).
-    + apply whole_from_parts. (* B: better to prove the whole outside, and apply it here *)
-
-      exact (bracket_Thm15_ok Z f).
-(* when the first components were not opaque, the following proof
-   became extremely slow *)
-
-      
-  -
-     (* apply foo. *) (* foo uses the η and τ commutative diagrams, but we need α diagram *)
-    admit.
- (*   
-    intros [h' [h'_eq1 h'_eq2]].
+   intros [h' h'_eq].
     (* simpl in *. *)
     apply total2_paths_second_isaprop.
-    + apply isofhleveltotal2.
-      * apply isaset_nat_trans. exact hs.
-      * intro Hyp. apply isaset_nat_trans. exact hs.
+    + unfold bracket_property.
+      apply isaset_nat_trans. exact hs.
     + simpl.
+      apply parts_from_whole in h'_eq.
+      destruct h'_eq as [h'_eq1 h'_eq2].
       unfold bracket_Thm15.
-      simpl. 
-      rewrite It_is_It_which_is_unique.
       apply path_to_ctr.
       apply nat_trans_eq; try (exact hs).
       intro c; simpl.
@@ -666,9 +585,20 @@ Focus 2.
         apply maponpaths.
         apply pathsinv0.
         apply CoproductIn2Commutes.
-    (* this was the back translation of the data into an argument for h_unique (Alg view) *)
-*)
-Admitted.
+Qed. 
+
+Definition bracket_for_InitAlg : bracket _ _ CP H (InitAlg).
+Proof.
+  intros Z f.
+  refine (tpair _ _ _ ).
+  - refine (tpair _ _ _ ).
+    + exact (bracket_Thm15 Z f).
+    + exact (bracket_Thm15_ok_cor Z f).
+       (* B: better to prove the whole outside, and apply it here *)
+     (* when the first components were not opaque, the following proof
+        became extremely slow *)
+  - apply foo'.
+Defined.
 
 (* produce some output to keep TRAVIS running *)
 Check bracket_for_InitAlg.
@@ -872,9 +802,7 @@ Proof.
         apply idpath.
       * (* a bit out of order what follows *)
         apply cancel_postcomposition.
-        unfold fbracket. simpl.
-        (* should be idpath as soon as [bracket_for_InitAlg] is axiom-free *)
-        admit.
+        apply idpath.
       * (* second diagram *)
         clear TT T2 T3 T4 T5.
         do 5 rewrite <- assoc.
