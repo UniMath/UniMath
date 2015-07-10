@@ -141,7 +141,7 @@ Focus 2.
 Qed.
   
 Definition aux_iso_1 (Z: Ptd): EndEndC ⟦ functor_composite Id_H
-                                        (pre_composition_functor C C C hs hs (U Z)),
+                                        (ℓ (U Z)),
                             CoproductObject EndEndC
            (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
               (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z))
@@ -265,7 +265,7 @@ Definition bracket_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg �
 (* we prove the individual components for ease of compilation *)
 Lemma bracket_Thm15_ok_part1 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitAlg ⟧):
 # U f =
- # (pre_composition_functor_data C C C hs hs (U Z))
+ # (pr1 (ℓ (U Z)))
    (eta_from_alg _ _ _ _ (InitAlg));; 
  bracket_Thm15 Z f.
 Proof.
@@ -320,7 +320,7 @@ Lemma bracket_Thm15_ok_part2 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg _ _ _ _  InitA
  (theta H) ((pr1 InitAlg) ⊗ Z);;
    # H (bracket_Thm15 Z f);;
    tau_from_alg  _ _ _ _ InitAlg =
-   # (pre_composition_functor_data C C C hs hs (U Z))
+   # (pr1 (ℓ (U Z)))
      (tau_from_alg  _ _ _ _  InitAlg);;
    bracket_Thm15 Z f.
 Proof.
@@ -854,15 +854,36 @@ Proof.
     + repeat rewrite <- assoc.
       apply CoproductIn1Commutes_right_in_ctx_dir.
       simpl.
+      unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data, coproduct_nat_trans_data.
       rewrite id_left.
       apply CoproductIn1Commutes_right_in_ctx_dir.
-      repeat rewrite assoc.
-(*
+
+      simpl.
+      repeat rewrite <- assoc.
+      
       eapply pathscomp0.
 Focus 2.
-      apply cancel_postcomposition.                  
-*)
- 
+      apply maponpaths.
+      apply CoproductIn1Commutes_right_in_ctx_dir.
+      rewrite id_left.
+      apply CoproductIn1Commutes_right_dir.
+      apply idpath.
+
+      do 2 rewrite assoc.
+      eapply pathscomp0.
+        apply cancel_postcomposition.
+        assert (ptd_mor_commutes_inst := ptd_mor_commutes _ (ptd_from_alg_mor _ hs CP H (InitialArrow Alg IA (pr1 T'))) ((pr1 Z) c)). 
+        apply ptd_mor_commutes_inst.
+           
+      eapply pathscomp0.
+        eapply pathsinv0.
+        assert (fbracket_η_inst := fbracket_η T' (f;; ptd_from_alg_mor _ hs CP H (InitialArrow Alg IA (pr1 T')))).
+        assert (fbracket_η_inst_c := nat_trans_eq_pointwise _ _ _ _ _ _ fbracket_η_inst c); clear fbracket_η_inst.
+        apply fbracket_η_inst_c.
+    
+      rewrite functor_comp.
+      apply idpath.
+    + (* now the difficult case *)
     admit.
 Admitted.
 
