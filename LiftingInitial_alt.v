@@ -747,6 +747,7 @@ Proof.
   unfold ishssMor.
   unfold isbracketMor.
   intros Z f.
+  set (β0 := InitialArrow Alg IA (pr1 T')).
   match goal with | [|- _ ;; ?b = _ ] => set (β := b) end.
   set ( rhohat := CoproductArrow EndC  (CPEndC _ _ )  β (tau_from_alg _ _ _ _ T')
                   :  pr1 Ghat T' ⇒ T').
@@ -872,18 +873,71 @@ Focus 2.
       do 2 rewrite assoc.
       eapply pathscomp0.
         apply cancel_postcomposition.
-        assert (ptd_mor_commutes_inst := ptd_mor_commutes _ (ptd_from_alg_mor _ hs CP H (InitialArrow Alg IA (pr1 T'))) ((pr1 Z) c)). 
+        assert (ptd_mor_commutes_inst := ptd_mor_commutes _ (ptd_from_alg_mor _ hs CP H β0) ((pr1 Z) c)). 
         apply ptd_mor_commutes_inst.
            
       eapply pathscomp0.
         eapply pathsinv0.
-        assert (fbracket_η_inst := fbracket_η T' (f;; ptd_from_alg_mor _ hs CP H (InitialArrow Alg IA (pr1 T')))).
+        assert (fbracket_η_inst := fbracket_η T' (f;; ptd_from_alg_mor _ hs CP H β0)).
         assert (fbracket_η_inst_c := nat_trans_eq_pointwise _ _ _ _ _ _ fbracket_η_inst c); clear fbracket_η_inst.
         apply fbracket_η_inst_c.
     
       rewrite functor_comp.
       apply idpath.
     + (* now the difficult case *)
+      repeat rewrite <- assoc.
+      apply CoproductIn2Commutes_right_in_ctx_dir.
+      simpl.
+      unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data, coproduct_nat_trans_data.
+      rewrite id_left.
+      apply CoproductIn2Commutes_right_in_ctx_dir.
+      unfold nat_trans_fix_snd_arg_data.
+      simpl.
+      unfold coproduct_nat_trans_in2_data.
+      repeat rewrite <- assoc.
+      
+      eapply pathscomp0.
+Focus 2.
+      apply maponpaths.
+      apply CoproductIn2Commutes_right_in_ctx_dir.
+      rewrite <- assoc.
+      apply maponpaths.
+      apply CoproductIn2Commutes_right_dir.
+      apply idpath. 
+  
+      do 2 rewrite assoc.
+      eapply pathscomp0.
+        apply cancel_postcomposition.
+        eapply pathsinv0.
+        assert (τ_part_of_alg_mor_inst := τ_part_of_alg_mor _ hs CP H _ _ β0).
+        assert (τ_part_of_alg_mor_inst_Zc := nat_trans_eq_pointwise _ _ _ _ _ _  τ_part_of_alg_mor_inst ((pr1 Z) c)); clear τ_part_of_alg_mor_inst.
+        apply τ_part_of_alg_mor_inst_Zc.
+      
+      simpl.   
+      unfold coproduct_nat_trans_in2_data.  
+      repeat rewrite <- assoc.
+      eapply pathscomp0.
+        apply maponpaths.
+        rewrite assoc.
+        eapply pathsinv0.
+        assert (fbracket_τ_inst := fbracket_τ T' (f;; ptd_from_alg_mor _ hs CP H β0)).
+        assert (fbracket_τ_inst_c := nat_trans_eq_pointwise _ _ _ _ _ _ fbracket_τ_inst c); clear fbracket_τ_inst.
+        apply fbracket_τ_inst_c.
+
+      simpl.
+      unfold coproduct_nat_trans_in2_data.
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
+      apply cancel_postcomposition.
+
+(* only missing: once naturality of theta, once functoriality of H
+      assert (H_nat_inst := functor_comp H _ _ _ (β ø pr1 (pr1 Z))(fbracket T' (f;; ptd_from_alg_mor C hs CP H β0))).
+      assert (H_nat_inst_c := nat_trans_eq_pointwise _ _ _ _ _ _ H_nat_inst c); clear H_nat_inst.
+
+rewrite functor_comp  
+
+
+*)
     admit.
 Admitted.
 
