@@ -500,11 +500,40 @@ Defined.
 
 (* show functor laws for [ptd_from_alg] and [ptd_from_alg_mor] *)
 
+Definition ptd_from_alg_functor_data : functor_data (precategory_FunctorAlg _ Id_H hsEndC) Ptd.
+Proof.
+  exists ptd_from_alg.
+  intros T T' β.
+  apply ptd_from_alg_mor.
+  exact β.
+Defined.
+
+Lemma is_functor_ptd_from_alg_functor_data : is_functor ptd_from_alg_functor_data.
+Proof.
+  split; simpl; intros.
+  + unfold functor_idax.
+    intro T. 
+    (* match goal with | [ |- ?l = _ ] => let ty:= (type of l) in idtac ty end. *)
+    apply (invmap (eq_ptd_mor_precat _ hs _ _)).
+    apply (invmap (eq_ptd_mor _ hs _ _)).
+    (* match goal with | [ |- ?l = _ ] => let ty:= (type of l) in idtac ty end. *)
+    apply idpath.
+  + unfold functor_compax.
+    intros T T' T'' β β'. 
+    apply (invmap (eq_ptd_mor_precat _ hs _ _)).
+    apply (invmap (eq_ptd_mor _ hs _ _)).
+    apply idpath.
+Qed.
+
+Definition ptd_from_alg_functor: functor (precategory_FunctorAlg _ Id_H hsEndC) Ptd :=
+  tpair _ _ is_functor_ptd_from_alg_functor_data.
+
+
 Definition isbracketMor {T T' : hss} (β : algebra_mor _ _ T T') : UU :=
     ∀ (Z : Ptd) (f : Z ⇒ ptd_from_alg T), 
        fbracket _ f ;;  β
        = 
-       (β)øø (U Z) ;; fbracket _ (f ;; ptd_from_alg_mor β ).
+       (β)øø (U Z) ;; fbracket _ (f ;; # ptd_from_alg_functor β ).
 
 
 Lemma isaprop_isbracketMor (T T':hss) (β : algebra_mor _ _ T T') : isaprop (isbracketMor β).
@@ -578,15 +607,16 @@ Proof.
   unfold isbracketMor.
   intros Z f.
   rewrite id_right.
-  
+  rewrite functor_id.
+  rewrite id_right.
+  apply pathsinv0.
   set (H2:=pre_composition_functor _ _ C _ hs (U Z)).
   set (H2' := functor_id H2). simpl in H2'.
   simpl.
   rewrite H2'.
   rewrite (id_left EndC).
-  simpl.
-  admit. (* use functor laws for [ptd_from_alg_mor (identity (pr1 T))] *)
-Admitted.
+  apply idpath.
+Qed.
 
 Definition hssMor_id (T : hss) : hssMor _ _ := tpair _ _ (ishssMor_id T).
   
@@ -598,22 +628,24 @@ Proof.
   unfold ishssMor.
   unfold isbracketMor.
   intros Z f.
-  (*
+  eapply pathscomp0.
+    apply assoc.  
+  (* match goal with | [|- ?l = _ ] => assert (Hyp : l = fbracket T f;; pr1 β;; pr1 γ) end. *)
+  eapply pathscomp0.
+    apply cancel_postcomposition.
+    apply isbracketMor_hssMor.
+  rewrite <- assoc.
+  eapply pathscomp0.
+    apply maponpaths.
+    apply isbracketMor_hssMor.
+  rewrite assoc.  
   rewrite functor_comp.
   rewrite assoc.
-  rewrite isbracketMor_hssMor.
-  rewrite <- assoc.
+  apply cancel_postcomposition.
   set (H2:=functor_comp (pre_composition_functor _ _ C _ hs (U Z)) ).
-  simpl in H2.
-  simpl.
-  rewrite H2; clear H2.
-  rewrite <- (assoc EndC).
-  apply maponpaths.
-  rewrite (assoc Ptd).
-  apply isbracketMor_hssMor.
-   *)
-  admit.
-Admitted.
+  apply pathsinv0.
+  apply H2.
+Qed.
 
 Definition hssMor_comp {T T' T'' : hss} (β : hssMor T T') (γ : hssMor T' T'') 
   : hssMor T T'' := tpair _ _ (ishssMor_comp β γ).
