@@ -97,6 +97,14 @@ Proof.
   exact (nat_trans_id _ ).
 Defined.
 
+Lemma eq_ptd_mor_precat {F G : precategory_Ptd} (a b : F ⇒ G) 
+  : a = b ≃ (a : ptd_mor F G) = b.
+Proof.
+  refine (tpair _ _ _).
+  intro H.
+  exact H.
+  apply idisweq.
+Qed.
 
 (** Forgetful functor to functor category *)
 
