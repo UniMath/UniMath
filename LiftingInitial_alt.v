@@ -929,17 +929,35 @@ Focus 2.
       repeat rewrite assoc.
       apply cancel_postcomposition.
       apply cancel_postcomposition.
+      assert (Hyp: ((# (pr1 (ℓ(U Z))) (# H β));; (theta H) ((functor_from_algebra_ob C hs CP H T') ⊗ Z);; # H (fbracket T' (f;; ptd_from_alg_mor C hs CP H β0)) = θ (tpair (λ _ : functor C C, ptd_obj C) (pr1 (pr1 IA)) Z) ;; # H (# (pr1 (ℓ(U Z))) β ;; fbracket T' (f;; ptd_from_alg_mor C hs CP H β0)))).
+      
+Focus 2.
+      assert (Hyp_c := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp c); clear Hyp. 
+      exact Hyp_c.    
 
-(* only missing: once naturality of theta, once functoriality of H
-      assert (H_nat_inst := functor_comp H _ _ _ (β ø pr1 (pr1 Z))(fbracket T' (f;; ptd_from_alg_mor C hs CP H β0))).
-      assert (H_nat_inst_c := nat_trans_eq_pointwise _ _ _ _ _ _ H_nat_inst c); clear H_nat_inst.
-
-rewrite functor_comp  
-
-
-*)
-    admit.
-Admitted.
+      clear c.
+      rewrite (functor_comp H).
+      rewrite assoc.
+      apply cancel_postcomposition.
+      fold θ.
+      apply nat_trans_eq; try (exact hs).
+      intro c.
+      simpl.
+      unfold functor_from_algebra_ob.
+      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hs H θ _ _ β Z c).
+      eapply pathscomp0.
+        exact θ_nat_1_pointwise_inst.
+      clear θ_nat_1_pointwise_inst.
+      apply maponpaths.
+      assert (Hyp: # H (β ∙∙ nat_trans_id (pr1 Z)) = # H (# (pr1 (ℓ(U Z))) β)).
+        apply maponpaths.
+        apply nat_trans_eq; try (exact hs).
+        intro c'.
+        simpl.
+        rewrite functor_id.
+        apply id_right.
+      apply (nat_trans_eq_pointwise _ _ _ _ _ _ Hyp c).
+Qed.
 
 Definition hss_InitMor : ∀ T' : hss CP H, hssMor InitHSS T'.
 Proof.
