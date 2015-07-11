@@ -149,7 +149,7 @@ Defined.
 (* we need a flattening in order to get a model for LamE *)
 
 Definition Lam_Flatten : 
-  [C, C] hs ⟦ (Flat_H C hs) `Lam , ` Lam ⟧.
+  [C, C] hs ⟦ (Flat_H C hs) `Lam , `Lam ⟧.
 Proof.
   exact (fbracket LamHSS (identity _ )).
 Defined.
@@ -159,7 +159,7 @@ Defined.
 
 Definition LamE_algebra_on_Lam : precategory_FunctorAlg _ (Id_H _ _ CC LamE_S) hsEndC.
 Proof.
-  exists ((*ob_from_algebra_ob _ _*) ` (InitialObject _ Lam_Initial)).
+  exists ((*ob_from_algebra_ob _ _*) `Lam).
   refine (CoproductArrow _ (CPEndC _ _ )  _ _ ) .
   + exact Lam_Var.
   + refine (CoproductArrow _ (CPEndC _ _ )  _ _ ).
@@ -171,45 +171,90 @@ Defined.
 
 (* now define bracket operation for a given [Z] and [f] *)
 
+(* preparations for typedness *)
+Definition bla': (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam) ⇒ (ptd_from_alg_functor C hs CC _ Lam).
+Proof.
+  refine (tpair _ _ _ ).
+    + apply (nat_trans_id _ ). 
+    + intro c; simpl. rewrite id_right.
+      apply CoproductIn1Commutes_left_dir.
+      apply idpath.
+Defined.
+
+Definition bla'_inv: (ptd_from_alg_functor C hs CC _ Lam) ⇒ (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam).
+Proof.
+  refine (tpair _ _ _ ).
+    + apply (nat_trans_id _ ). 
+    + intro c; simpl. rewrite id_right.
+      apply CoproductIn1Commutes_right_dir.
+      apply idpath.
+Defined.
 
 (* this iso does nothing, but is needed to make the argument to [fbracket] below well-typed *)
 (* maybe a better definition somewhere above could make this iso superfluous *)
 (* maybe don't need iso, but only morphism *)
+Definition bla : iso (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor C hs CC _ Lam).
+Proof.
+  unfold iso.
+  exists bla'.
+  unfold is_iso.
+  intro Z.
+  apply (gradth _ (precomp_with bla'_inv)).
+  + intro α.
+    apply eq_ptd_mor_precat.
+    apply (invmap (eq_ptd_mor _ hs _ _)). 
+    apply nat_trans_eq; try (exact hs).
+    intro c.
+    simpl.
+    rewrite id_left.
+    apply id_left.
+  + intro α.
+    apply eq_ptd_mor_precat.
+    apply (invmap (eq_ptd_mor _ hs _ _)). 
+    apply nat_trans_eq; try (exact hs).
+    intro c.
+    simpl.
+    rewrite id_left.
+    apply id_left.
+Defined.
 
-Lemma bla :  iso (ptd_from_alg C hs CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg C hs CC _ Lam).
+(* earlier attempt:
+Lemma bla :  iso (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor C hs CC _ Lam).
 Proof.
   refine (tpair _ _ _ ).
   (* apply ptd_id. *) (* is ill-typed - that is the whole problem *)
   - refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ). 
-    + intro c; simpl.  rewrite id_right.
-      admit. (* apply is_ptd_mor_nat_trans_id. *) 
-  - admit.
+    + intro c; simpl. rewrite id_right.
+      apply CoproductIn1Commutes_left_dir.
+      apply idpath.
+  - admit.    
 Admitted.
-
-
+*)
 
 Definition fbracket_for_LamE_algebra_on_Lam (Z : Ptd)
-   (f : Ptd ⟦ Z, ptd_from_alg C hs CC LamE_S LamE_algebra_on_Lam ⟧ ) :
+   (f : Ptd ⟦ Z, ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam ⟧ ) :
    [C, C] hs
    ⟦ functor_composite (U Z)
        (functor_from_algebra_ob C hs CC LamE_S LamE_algebra_on_Lam),
      ob_from_algebra_ob _ _ LamE_algebra_on_Lam ⟧ .
 Proof.
-  exact (fbracket LamHSS (f ;; bla)).
+  exact (fbracket LamHSS (f ;; bla')).
 Defined.
 
 
-Lemma  bracket_property_Lam (Z : Ptd)
+Lemma  bracket_property_for_LamE_algebra_on_Lam (Z : Ptd)
   (f : Ptd ⟦ Z, ptd_from_alg C hs CC LamE_S LamE_algebra_on_Lam ⟧)
  :
    bracket_property C hs CC LamE_S LamE_algebra_on_Lam f
                     (fbracket_for_LamE_algebra_on_Lam Z f).
 Proof.
+  
+  unfold bracket_property.
   admit.
 Admitted.
 
-Lemma bracket_Lam_unique (Z : Ptd)
+Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
   (f : Ptd ⟦ Z, ptd_from_alg C hs CC LamE_S LamE_algebra_on_Lam ⟧)
  :
    ∀
@@ -226,7 +271,7 @@ Lemma bracket_Lam_unique (Z : Ptd)
                 (functor_from_algebra_ob C hs CC LamE_S LamE_algebra_on_Lam),
             `LamE_algebra_on_Lam ⟧,
       bracket_property C hs CC LamE_S LamE_algebra_on_Lam f h)
-     (fbracket_for_LamE_algebra_on_Lam Z f) (bracket_property_Lam Z f).
+     (fbracket_for_LamE_algebra_on_Lam Z f) (bracket_property_for_LamE_algebra_on_Lam Z f).
 Proof.
   intro t.
   apply total2_paths_second_isaprop.
@@ -236,22 +281,22 @@ Proof.
   admit.
 Admitted.
 
-Definition Lam_bracket_at (Z : Ptd)
+Definition bracket_for_LamE_algebra_on_Lam_at (Z : Ptd)
   (f : Ptd ⟦ Z, ptd_from_alg C hs CC LamE_S LamE_algebra_on_Lam ⟧)
   :
     bracket_at C hs CC LamE_S LamE_algebra_on_Lam f.
 Proof.
   refine (tpair _ _ _ ).
   - exists (fbracket_for_LamE_algebra_on_Lam Z f).
-    apply (bracket_property_Lam Z f).
-  - apply bracket_Lam_unique.
+    apply (bracket_property_for_LamE_algebra_on_Lam Z f).
+  - apply bracket_for_LamE_algebra_on_Lam_unique.
 Defined.
   
 Definition bracket_for_LamE_algebra_on_Lam : bracket C hs CC LamE_S LamE_algebra_on_Lam.
 Proof.
   intros Z f.
   simpl.
-  apply Lam_bracket_at.
+  apply bracket_for_LamE_algebra_on_Lam_at.
 Defined.
   
 Definition LamE_model_on_Lam : hss CC LamE_S.
@@ -259,8 +304,6 @@ Proof.
   exists LamE_algebra_on_Lam.
   exact bracket_for_LamE_algebra_on_Lam.
 Defined.
-
-
 
 
 End Lambda.
