@@ -298,10 +298,30 @@ Proof.
     apply idpath.   
     (* this proof did not work with pointedness but with brute force *)
   + (* now the difficult case of the domain-specific constructors *)
-    
+    destruct Hyp as [_ Hyp2].
+    fold (fbracket LamHSS (f ;; bla)) in Hyp2.
+    unfold fbracket_for_LamE_algebra_on_Lam.
+
+
+(*
+    apply nat_trans_eq; try (exact hs).
+    intro c.
+    simpl.
+    apply CoproductArrow_eq_cor.
+    simpl.
+    repeat rewrite <- assoc.
+    apply CoproductIn1Commutes_left_in_ctx_dir.
+
+
+
+    unfold LamE_S. unfold LamE_Sig.
+
+
 (*
   match goal with | [ |- ?l = _ ] => let ty:= (type of l) in idtac ty end.
   match goal with | [ H1: ?l = _ |- _] => let ty:= (type of l) in idtac ty end.
+*)
+
 *)
   admit.
 Admitted.
