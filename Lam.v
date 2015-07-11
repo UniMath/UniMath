@@ -239,21 +239,70 @@ Definition fbracket_for_LamE_algebra_on_Lam (Z : Ptd)
        (functor_from_algebra_ob C hs CC LamE_S LamE_algebra_on_Lam),
      ob_from_algebra_ob _ _ LamE_algebra_on_Lam ⟧ .
 Proof.
-  exact (fbracket LamHSS (f ;; bla')).
+  exact (fbracket LamHSS (f ;; bla)).
 Defined.
 
 
-Lemma  bracket_property_for_LamE_algebra_on_Lam (Z : Ptd)
+Lemma bracket_property_for_LamE_algebra_on_Lam (Z : Ptd)
   (f : Ptd ⟦ Z, ptd_from_alg C hs CC LamE_S LamE_algebra_on_Lam ⟧)
  :
    bracket_property C hs CC LamE_S LamE_algebra_on_Lam f
                     (fbracket_for_LamE_algebra_on_Lam Z f).
 Proof.
-  unfold bracket_property.
-  assert (Hyp := pr2 (pr1 (pr2 LamHSS _ (f;; bla')))).
-  simpl in Hyp.
-  unfold bracket_property in Hyp.
-  
+  assert (Hyp := pr2 (pr1 (pr2 LamHSS _ (f;; bla)))).
+  apply parts_from_whole in Hyp.
+  apply whole_from_parts.
+  split.
+  + (* the "easy" eta part *)
+    apply pr1 in Hyp.
+    apply (maponpaths (fun x => x;; #U (inv_from_iso bla))) in Hyp.
+    rewrite <- functor_comp in Hyp.
+    rewrite <- assoc in Hyp.
+    rewrite iso_inv_after_iso in Hyp.
+    rewrite id_right in Hyp.
+    eapply pathscomp0.
+      exact Hyp.
+    clear Hyp.
+    fold (fbracket LamHSS (f ;; bla)).
+    unfold fbracket_for_LamE_algebra_on_Lam.
+    match goal with |[ |- _;; _ ;; ?h = _  ] => 
+         assert (idness : h = nat_trans_id _) end.
+      apply nat_trans_eq; try (exact hs).
+      intro c.
+      unfold functor_ptd_forget.
+      simpl.
+      apply id_left.
+    rewrite idness. clear idness.
+    rewrite id_right.
+    (* does not work:
+       apply cancel_postcomposition.
+       although the terms are of identical type:
+    match goal with | [ |- _ ;; ?l = _ ] => let ty:= (type of l) in idtac ty end.
+(*
+([C, C] hs
+ ⟦ functor_composite (U Z) (functor_from_algebra_ob C hs CC Lam_S LamHSS)
+   :[C, C] hs, LamHSS ⟧)
+*)
+    match goal with | [ |- _ = _ ;; ?l ] => let ty:= (type of l) in idtac ty end.
+(*
+([C, C] hs
+ ⟦ functor_composite (U Z) (functor_from_algebra_ob C hs CC Lam_S LamHSS)
+   :[C, C] hs, LamHSS ⟧)
+*)
+*)
+    apply nat_trans_eq; try (exact hs).
+    intro c.
+    simpl.
+    apply cancel_postcomposition.
+    apply CoproductIn1Commutes_right_dir.
+    apply idpath.   
+    (* this proof did not work with pointedness but with brute force *)
+  + (* now the difficult case of the domain-specific constructors *)
+    
+(*
+  match goal with | [ |- ?l = _ ] => let ty:= (type of l) in idtac ty end.
+  match goal with | [ H1: ?l = _ |- _] => let ty:= (type of l) in idtac ty end.
+*)
   admit.
 Admitted.
 
