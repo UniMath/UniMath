@@ -2,8 +2,8 @@ language:       ocaml
 before_install: sudo apt-get update -qq
 install:        sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra time
 script:
-  - time make build-coq
-  - time make TIMECMD=time all
+  - time make -j2 build-coq
+  - time make TIMECMD=time all || make isolate-bug
   - time make install
 after_script:
   - test -f UniMath/Ktheory/Circle.vo
