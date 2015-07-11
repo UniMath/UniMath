@@ -69,6 +69,9 @@ Proof. intro. unfold Poset . split with ( hSetpair ( stn i ) ( isasetstn i ) ) .
 Definition lastelement ( n : nat ) : stn ( S n ) .
 Proof. intro .   split with n .  apply ( natgthsnn ( S n ) ) .  Defined . 
 
+Definition firstelement (n:nat) : stn(S n).
+Proof. intro. exists 0. apply natgthsn0. Defined.
+
 Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : stn m -> stn n := fun x : stn m => match x with tpair _ i is => stnpair _ i ( natlthlehtrans i m n is isnatleh ) end .  
 
 
