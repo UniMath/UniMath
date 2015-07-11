@@ -249,8 +249,11 @@ Lemma  bracket_property_for_LamE_algebra_on_Lam (Z : Ptd)
    bracket_property C hs CC LamE_S LamE_algebra_on_Lam f
                     (fbracket_for_LamE_algebra_on_Lam Z f).
 Proof.
-  
   unfold bracket_property.
+  assert (Hyp := pr2 (pr1 (pr2 LamHSS _ (f;; bla')))).
+  simpl in Hyp.
+  unfold bracket_property in Hyp.
+  
   admit.
 Admitted.
 
