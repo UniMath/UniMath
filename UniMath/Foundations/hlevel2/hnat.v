@@ -57,6 +57,10 @@ Definition isdecrelnateq : isdecrel nateq  := fun a b => isdeceqnat a b .
 Definition natdeceq : decrel nat := decrelpair isdecrelnateq . 
 
 Definition natbooleq := decreltobrel natdeceq .  
+Lemma natbooleq_refl i : natbooleq i i = true.
+Proof. intros. apply rtopaths. reflexivity. Defined.
+Lemma natbooleq_neq i j : neg (i = j) -> natbooleq i j = false.
+Proof. intros ? ? inej. apply negrtopaths. exact inej. Defined.
 
 Definition natneq ( x y : nat ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
 Definition isdecrelnatneq : isdecrel natneq  := isdecnegrel _ isdecrelnateq . 
