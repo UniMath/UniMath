@@ -8,17 +8,19 @@ Require Ktheory.QuotientSet Ktheory.Monoid.
 Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.
 Local Notation Hom := monoidfun.
-Definition dni_first n : stn n -> stn (S n).
-  intros n.
-  exact (dni n (lastelement n)).
-Defined.
+Definition dni_first n : stn n -> stn (S n) := dni n (firstelement n).
+Definition dni_last  n : stn n -> stn (S n) := dni n (lastelement n).
 Definition finiteOperation0 (X:abmonoid) n (x:stn n->X) : X.
 Proof. (* return (...((x0*x1)*x2)*...)  *)
   intros. induction n as [|n x'].
-  { exact (unel _). } { exact ((x' (funcomp (dni_first n) x)) + x (lastelement n)). } Defined.
+  { exact (unel _). } { exact ((x' (funcomp (dni_last n) x)) + x (lastelement n)). } Defined.
+Definition finiteOperation0' (X:abmonoid) n (x:stn n->X) : X.
+Proof. (* return x0*(x1*(x2*...))  *)
+  intros. induction n as [|n x'].
+  { exact (unel _). } { exact (x (firstelement n) + x' (funcomp (dni_first n) x)). } Defined.
 Goal forall (X:abmonoid) n (x:stn (S n)->X),
      finiteOperation0 X (S n) x 
-  = finiteOperation0 X n (funcomp (dni_first n) x) + x (lastelement n).
+  = finiteOperation0 X n (funcomp (dni_last n) x) + x (lastelement n).
 Proof. reflexivity. Qed.
 Lemma same_n {I m n} (f:nelstruct m I) (g:nelstruct n I) : m = n.
 Proof. intros. apply weqtoeqstn. exact (weqcomp f (invweq g)). Qed.
@@ -46,30 +48,17 @@ Proof. intros.
 Defined.
 Lemma nelstructoncomplmap'''  {I:UU} {n} (sx:nelstruct (S n) I) :
     pr1 (nelstructoncompl (pr1weq sx (lastelement n)) sx) ;; pr1compl I (pr1weq sx (lastelement n))
-  = dni_first n ;; pr1weq sx.
+  = dni_last n ;; pr1weq sx.
 Proof. intros. apply nelstructoncomplmap''. Defined.
 
 Lemma isdeceq_refl {X} (dec:isdeceq X) (x:X) : dec x x = ii1 (idpath x).
-Proof.
-  intros.
+Proof. intros.
   induction (dec x) as [eq|ne].
-  { 
-    assert( c : eq = idpath x ). { apply isasetifdeceq. assumption. }
+  { assert( c : eq = idpath x ). { apply isasetifdeceq. assumption. }
     induction c.
-    reflexivity.
-  }
-  {
-    induction (ne (idpath x)).
-  }
+    reflexivity. }
+  { induction (ne (idpath x)). }
 Defined.
-
-Lemma isdeceqnat_refl i : isdeceqnat i i = ii1 (idpath i).
-Proof.
-  apply isdeceq_refl.
-Defined.
-
-Lemma natbooleq_refl i : natbooleq i i = true.
-Proof. intros. apply rtopaths. reflexivity. Defined.
 
 Lemma isdeceq_neq {X} (dec:isdeceq X) (i j:X) (ne : i != j) : dec i j = ii2 ne.
 Proof.
@@ -79,28 +68,7 @@ Proof.
   { assert ( H : inej = ne ).
     { apply funextfun. intros. induction (ne x). }
     induction H.
-    reflexivity.
-  }
-Defined.
-
-Lemma isdeceqnat_neq i j (ne : i != j) : isdeceqnat i j = ii2 ne.
-Proof.
-  apply isdeceq_neq.
-Defined.
-
-Lemma natbooleq_neq i j : i != j -> natbooleq i j = false.
-Proof. intros ? ? inej. apply negrtopaths. exact inej. Defined.
-
-Lemma isdeceqstn_refl n i : isdeceqstn n i i = ii1 (idpath i).
-Proof.
-  intros.
-  apply isdeceq_refl.
-Defined.
-
-Lemma isdeceqstn_neq n (i:stn n) (j:stn n) (ne : i != j) : isdeceqstn n i j = ii2 ne.
-Proof.
-  intros.
-  apply isdeceq_neq.
+    reflexivity. }
 Defined.
 
 Definition transposition0 {X} (dec: isdeceq X) (i j:X) : X -> X.
@@ -153,24 +121,18 @@ Proof.
   intros k.  
   unfold funcomp.
   induction (dec k i) as [keqi | knei].
-  {
-    induction (!keqi).
+  { induction (!keqi).
     induction (!transposition1 dec i j).
     induction (!transposition2 dec i j).
-    reflexivity.
-    }
-  { 
-    induction (dec k j) as [keqj | knej].
-    {
-      induction (!keqj).
+    reflexivity. }
+  { induction (dec k j) as [keqj | knej].
+    { induction (!keqj).
       induction (!transposition2 dec i j).
       induction (!transposition1 dec i j).
-      reflexivity.
-    }
+      reflexivity. }
     induction (!transpositionk dec i j k knei knej).
     induction (!transpositionk dec i j k knei knej).
-    reflexivity.
-  }    
+    reflexivity. }    
 Defined.
 
 Definition transposition_weq {X} (dec: isdeceq X) (i j:X) : isweq (transposition0 dec i j).
@@ -187,6 +149,36 @@ Definition transposition {X} (dec: isdeceq X) (i j:X) : weq X X.
   apply transposition_weq.
 Defined.
 
+Definition transposition_stn {n} (i j:stn n) : weq (stn n) (stn n).
+Proof.
+  intros.
+  refine (transposition _ i j).
+  apply isdeceqstn.
+Defined.
+
+Lemma isdeceq_nelstruct {n} {I} (f:nelstruct n I) : isdeceq I.
+Proof.
+  intros.
+  apply (isdeceqweqf f).
+  apply isdeceqstn.
+Defined.
+
+Lemma uniqueness1 {X:abmonoid} {n} {I} (f:nelstruct n I) (x:I->X) (i j:stn n) :
+    finiteOperation0 X n (pr1 f ;; x)
+  = finiteOperation0 X n (pr1 (transposition_stn i j) ;; pr1 f ;; x).
+Proof.
+  intros.
+  admit.
+Admitted.
+
+Lemma uniqueness1' {X:abmonoid} {n} {I} (f:nelstruct n I) (x:I->X) (i j:I) :
+    finiteOperation0 X n (pr1 f ;; x)
+  = finiteOperation0 X n (pr1 f ;; pr1 (transposition (isdeceq_nelstruct f) i j) ;; x).
+Proof.
+  intros.
+  admit.
+Admitted.
+
 Lemma uniqueness0 (X:abmonoid) n : forall I (f g:nelstruct n I) (x:I->X),
     finiteOperation0 X n (funcomp (pr1 f) x) 
   = finiteOperation0 X n (funcomp (pr1 g) x).
@@ -201,8 +193,8 @@ Proof.
       { rewrite <- 2 ! fun_assoc. 
         set (f' := nelstructoncompl (pr1 f (lastelement n)) f).
         set (g' := nelstructoncompl (pr1 g (lastelement n)) g).
-        assert (p' := nelstructoncomplmap''' f).
-        assert (q' := nelstructoncomplmap''' g).
+        set (p' := nelstructoncomplmap''' f).
+        set (q' := nelstructoncomplmap''' g).
         unfold pr1weq in p', q'.
         induction p', q', e.
         apply (IH (compl I (pr1 f (lastelement n)))
