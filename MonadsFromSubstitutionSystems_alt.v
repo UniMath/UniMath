@@ -208,7 +208,7 @@ Lemma Monad_law_2_from_hss:
   ∀ c : C, # (pr1 (`T)) (μ_0 c);; μ_2 c = identity ((pr1 (`T)) c).
 Proof.
  intro c.
-      transitivity (μ_1 c).
+      pathvia (μ_1 c).
       * unfold μ_1.
         assert (H':= @fbracket_unique_target_pointwise _ _  _ _ T).
         assert (H1:= H'  _ μ_0_ptd).
@@ -246,7 +246,7 @@ Proof.
            rewrite <- horcomp_id_postwhisker.
            repeat rewrite assoc.
            simpl in *.
-           transitivity ( # (pr1 (H ( (` T)))) (μ_0 c);; pr1 (θ ((`T) ⊗ (ptd_from_alg _ _ _ _ T))) c ;; 
+           pathvia ( # (pr1 (H ( (` T)))) (μ_0 c);; pr1 (θ ((`T) ⊗ (ptd_from_alg _ _ _ _ T))) c ;; 
                           pr1 (# H μ_2) c ;; pr1 (τ T) c).
            unfold tau_from_alg; simpl.
            repeat rewrite assoc.
@@ -262,7 +262,7 @@ Proof.
            assert (H2:= nat_trans_eq_weq _ _ hs _ _ _ _ H' c); clear H'.
            simpl in *.
            repeat rewrite <- assoc.
-           transitivity (  # (pr1 (H (` T))) (μ_0 c);;
+           pathvia (  # (pr1 (H (` T))) (μ_0 c);;
                              (pr1 (τ T) (pr1 (`T) c);; pr1 (fbracket T (identity (ptd_from_alg _ _ _ _ T))) c)).
              apply maponpaths.
              rewrite assoc.
@@ -337,7 +337,7 @@ Proof.
     rewrite assoc.
     rewrite <- H2 ; clear H2.
     rewrite <- assoc.
-    transitivity (μ_2 c ;; identity _ ).
+    pathvia (μ_2 c ;; identity _ ).
     + rewrite id_right; apply idpath.
     + apply maponpaths.
       apply pathsinv0. apply Monad_law_1_from_hss.
@@ -346,7 +346,7 @@ Proof.
     simpl in H1.
     repeat rewrite assoc.
     match goal with |[H1 : ?g = _ |- _ ;; _ ;; ?f ;; ?h = _ ] => 
-         transitivity (g ;; f ;; h) end.
+         pathvia (g ;; f ;; h) end.
     + apply cancel_postcomposition.
       apply cancel_postcomposition.
       apply pathsinv0.
@@ -364,7 +364,7 @@ Proof.
       assert (H3:= nat_trans_eq_pointwise _ _ _ _ _ _ H2 c); clear H2.
       simpl in *.
       match goal with |[H3 : _ = ?f |- ?e ;; _ ;; _ ;; _  = _ ] =>
-         transitivity (e ;; f) end.
+         pathvia (e ;; f) end.
       * repeat rewrite <- assoc.
         apply maponpaths.
         repeat rewrite <- assoc in H3.
@@ -461,7 +461,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
       rewrite (functor_id ( H (`T))) in HXX.
       rewrite id_right in HXX. (* last two lines needed because of def. of theta on product category *)
       match goal with |[HXX : ?f ;; ?h = _ ;; _ |- _ ;; (_ ;; ?x ) ;; ?y = _ ] =>
-      transitivity (pr1 (θ ((`T) ⊗ (ptd_from_alg _ _ _ _ T))) (pr1 (pr1 (pr1 T)) c);;
+      pathvia (pr1 (θ ((`T) ⊗ (ptd_from_alg _ _ _ _ T))) (pr1 (pr1 (pr1 T)) c);;
                        f  ;; h ;; x;; y) end.
       * repeat rewrite assoc.
         apply cancel_postcomposition.
@@ -554,7 +554,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
       
       
       match goal with |[ H5 : _ = ?e |- ?a ;; ?b ;; _ ;; _ ;; _ = _ ] => 
-            transitivity (a ;; b ;; e) end.
+            pathvia (a ;; b ;; e) end.
        
         repeat rewrite <- assoc.
         apply maponpaths.
@@ -713,7 +713,7 @@ Proof.
 
   - unfold Monad_data_from_hss; simpl.
     intro c.
-    transitivity (pr1 μ_3 c).
+    pathvia (pr1 μ_3 c).
     + set (H1 := μ_3_T_μ_2_μ_2).
       set (H2 := nat_trans_eq_weq _ _ hs _ _ _ _ H1).
       apply pathsinv0, H2.

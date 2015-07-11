@@ -279,7 +279,7 @@ Proof.
            clear h_eq1'.
 (* match goal right in the beginning in contrast with earlier approach - suggestion by Benedikt *)
          match goal with |[ H1 : _  = ?f |- _ = _   ] => 
-         transitivity (f) end.
+         pathvia (f) end.
 
   *      clear h_eq1'_inst.
          unfold coproduct_nat_trans_data; simpl.
@@ -336,7 +336,7 @@ Proof.
          clear h_eq2'.
  (*        simpl in h_eq2'_inst. *)
          match goal with |[ H1 : _  = ?f |- _ = _   ] => 
-         transitivity (f) end.
+         pathvia (f) end.
          + clear h_eq2'_inst.
  (*          unfold coproduct_nat_trans_data.
            unfold coproduct_nat_trans_in2_data.

@@ -234,7 +234,7 @@ Proof.
     unfold alg_map in f_is_alg_mor_inst; simpl in f_is_alg_mor_inst.
     rewrite id_left in f_is_alg_mor_inst.
     match goal with |[ H1: ?f = _ |- ?h ;; _ = _ ] => 
-         transitivity (h;;f) end.
+         pathvia (h;;f) end.
     + apply idpath.
     + rewrite f_is_alg_mor_inst.
       rewrite assoc.
@@ -270,7 +270,7 @@ Proof.
     rewrite id_left in f_is_alg_mor_inst.
     rewrite <- assoc.    
     match goal with |[ H1: ?f = _ |- _ = ?h ;; _ ] => 
-         transitivity (h;;f) end.
+         pathvia (h;;f) end.
     + rewrite f_is_alg_mor_inst.
       do 2 rewrite assoc.
       apply (maponpaths (fun x => x;;(pr1 ((pr2 T'):([C, C] hs ⟦ Id_H (pr1 T'), pr1 T' ⟧))) c)).

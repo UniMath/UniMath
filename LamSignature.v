@@ -342,7 +342,7 @@ Focus 2.
   + assert (NN :=  nat_trans_ax e _ _ (CoproductOfArrows C (CC terminal c) (CC terminal c')
          (identity terminal) f)).
     match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _ ] => 
-         transitivity (h;;(f;;g)) end.
+         pathvia (h;;(f;;g)) end.
     * rewrite <- NN.
       clear NN.
       unfold functor_identity.   
@@ -450,7 +450,7 @@ Focus 2.
     assert (NN := nat_trans_ax e' _ _ (e (CoproductObject C (CC terminal c)))).  
     simpl in NN. (* is important for success of the trick *)
     match goal with |[ H1: _ = ?f;;?g |- ?h ;; _ = _ ] => 
-         transitivity (h;;(f;;g)) end.
+         pathvia (h;;(f;;g)) end.
     * apply idpath.
     * simpl. rewrite <- NN.    
       clear NN.
@@ -460,7 +460,7 @@ Focus 2.
          (# Z (CoproductIn2 C (CC terminal c))))). 
       simpl in NNN.
       match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _] => 
-         transitivity (h;;(f;;g)) end.
+         pathvia (h;;(f;;g)) end.
       - simpl. rewrite <- NNN.
         clear NNN.
         do 2 rewrite assoc.        

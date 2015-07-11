@@ -354,7 +354,7 @@ Proof.
   set (H':= functor_id (H X') (pr1 (pr1 Z) c));
   clearbody H'; simpl in H'.
   match goal with |[H1 : ?f ;; _ ;; ?g = _ , H2 : ?x = _ |- _ ] =>
-                        transitivity (f ;; x ;; g) end.
+                        pathvia (f ;; x ;; g) end.
   - repeat rewrite <- assoc. 
     apply maponpaths.
     rewrite H'.
