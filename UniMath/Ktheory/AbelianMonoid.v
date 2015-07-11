@@ -49,31 +49,43 @@ Lemma nelstructoncomplmap'''  {I:UU} {n} (sx:nelstruct (S n) I) :
   = dni_first n ;; pr1weq sx.
 Proof. intros. apply nelstructoncomplmap''. Defined.
 
-Lemma isdeceqnat_refl i : isdeceqnat i i = ii1 (idpath i).
+Lemma isdeceq_refl {X} (dec:isdeceq X) (x:X) : dec x x = ii1 (idpath x).
 Proof.
   intros.
-  induction (isdeceqnat i i) as [ieqi | inei].
-  {
-    assert( ieqi = idpath i ). { apply isasetnat. }
-    induction H.
+  induction (dec x) as [eq|ne].
+  { 
+    assert( c : eq = idpath x ). { apply isasetifdeceq. assumption. }
+    induction c.
     reflexivity.
   }
-  induction (inei (idpath i )).
+  {
+    induction (ne (idpath x)).
+  }
+Defined.
+
+Lemma isdeceqnat_refl i : isdeceqnat i i = ii1 (idpath i).
+Proof.
+  apply isdeceq_refl.
 Defined.
 
 Lemma natbooleq_refl i : natbooleq i i = true.
 Proof. intros. apply rtopaths. reflexivity. Defined.
 
-Lemma isdeceqnat_neq i j (ne : i != j) : isdeceqnat i j = ii2 ne.
+Lemma isdeceq_neq {X} (dec:isdeceq X) (i j:X) (ne : i != j) : dec i j = ii2 ne.
 Proof.
   intros.
-  induction (isdeceqnat i j) as [ieqj | inej].
+  induction (dec i j) as [ieqj | inej].
   { induction (ne ieqj). }
   { assert ( H : inej = ne ).
     { apply funextfun. intros. induction (ne x). }
     induction H.
     reflexivity.
   }
+Defined.
+
+Lemma isdeceqnat_neq i j (ne : i != j) : isdeceqnat i j = ii2 ne.
+Proof.
+  apply isdeceq_neq.
 Defined.
 
 Lemma natbooleq_neq i j : i != j -> natbooleq i j = false.
@@ -82,113 +94,101 @@ Proof. intros ? ? inej. apply negrtopaths. exact inej. Defined.
 Lemma isdeceqstn_refl n i : isdeceqstn n i i = ii1 (idpath i).
 Proof.
   intros.
-  induction (isdeceqstn _ i i) as [ieqi | inei].
-  {
-    assert( H : ieqi = idpath i ). { apply isasetstn. }
-    induction H.
-    reflexivity.
-  }
-  induction (inei (idpath i )).
+  apply isdeceq_refl.
 Defined.
 
 Lemma isdeceqstn_neq n (i:stn n) (j:stn n) (ne : i != j) : isdeceqstn n i j = ii2 ne.
 Proof.
   intros.
-  induction (isdeceqstn n i j) as [ieqj | inej].
-  { induction (ne ieqj). }
-  { assert ( H : inej = ne ).
-    { apply funextfun. intros. induction (ne x). }
-    induction H.
-    reflexivity.
-  }
+  apply isdeceq_neq.
 Defined.
 
-Definition transposition0 {n} (i:stn n) (j:stn n) : stn n -> stn n.
-  intros ? ? ? k.
-  induction (isdeceqstn n k i).
-  - exact j.
-  - induction (isdeceqstn n k j).
-    * exact i.
-    * exact k.
+Definition transposition0 {X} (dec: isdeceq X) (i j:X) : X -> X.
+  intros ? ? ? ? k.
+  induction (dec k i).
+  { exact j. }
+  { induction (dec k j).
+    { exact i. }
+    { exact k. }}
 Defined.
 
-Lemma transposition1 {n} (i:stn n) (j:stn n) : transposition0 i j i = j.
+Lemma transposition1 {X} (dec: isdeceq X) (i j:X) : transposition0 dec i j i = j.
 Proof.
   intros.
   unfold transposition0.
-  induction (!isdeceqstn_refl n i).
+  induction (!isdeceq_refl dec i).
   reflexivity.
 Defined.
 
-Lemma transposition2 {n} (i:stn n) (j:stn n) : transposition0 i j j = i.
+Lemma transposition2 {X} (dec: isdeceq X) (i j:X) : transposition0 dec i j j = i.
 Proof.
   intros.
   unfold transposition0.
-  induction (isdeceqstn _ j i) as [jeqi|jnei].
-  { 
-    induction jeqi.
-    induction (!isdeceqstn_refl n j).
+  induction (dec j i) as [jeqi|jnei].
+  - induction jeqi.
+    induction (!isdeceq_refl dec j).
     simpl.
     reflexivity.
-  }
-  {
-    simpl.
-    induction (!isdeceqstn_refl n j).
+  - simpl.
+    induction (!isdeceq_refl dec j).
     reflexivity.
-    }
 Defined.
 
-Lemma transpositionk {n} (i j k : stn n) : k != i -> k != j -> transposition0 i j k = k.
+Lemma transpositionk {X} (dec: isdeceq X) (i j k : X) : k != i -> k != j -> transposition0 dec i j k = k.
 Proof.
-  intros ? ? ? ? knei knej.
+  intros ? ? ? ? ? knei knej.
   unfold transposition0.
-  induction (isdeceqstn _ k i) as [ki|ki'].
-  { induction (knei ki). }
-  { 
-    simpl.
-    induction (isdeceqstn _ k j) as [kj|kj'].
-    { induction (knej kj). }
-    { reflexivity. }
-  }
+  induction (dec k i) as [ki|ki'].
+  - induction (knei ki).
+  - simpl.
+    induction (dec k j) as [kj|kj'].
+    * induction (knej kj).
+    * reflexivity.
 Defined.
   
-Lemma transposition_squared {n} (i j:stn n) : transposition0 i j ;; transposition0 i j ~ idfun _.
+Lemma transposition_squared {X} (dec: isdeceq X) (i j:X) : transposition0 dec i j ;; transposition0 dec i j ~ idfun X.
 Proof.
   intros.
   unfold homot.
   intros k.  
   unfold funcomp.
-  induction (isdeceqstn _ k i) as [keqi | knei].
+  induction (dec k i) as [keqi | knei].
   {
     induction (!keqi).
-    induction (!transposition1 i j).
-    induction (!transposition2 i j).
+    induction (!transposition1 dec i j).
+    induction (!transposition2 dec i j).
     reflexivity.
     }
   { 
-    induction (isdeceqstn _ k j) as [keqj | knej].
+    induction (dec k j) as [keqj | knej].
     {
       induction (!keqj).
-      induction (!transposition2 i j).
-      induction (!transposition1 i j).
+      induction (!transposition2 dec i j).
+      induction (!transposition1 dec i j).
       reflexivity.
     }
-    induction (!transpositionk i j k knei knej).
-    induction (!transpositionk i j k knei knej).
+    induction (!transpositionk dec i j k knei knej).
+    induction (!transpositionk dec i j k knei knej).
     reflexivity.
   }    
 Defined.
 
-Definition transposition {n} (i:stn n) (j:stn n) : weq (stn n) (stn n).
+Definition transposition_weq {X} (dec: isdeceq X) (i j:X) : isweq (transposition0 dec i j).
+Proof.
   intros.
-  exists (transposition0 i j).
-  apply (gradth _ (transposition0 i j)).
+  apply (gradth _ (transposition0 dec i j)).
   { apply transposition_squared. }
   { apply transposition_squared. }
 Defined.
 
+Definition transposition {X} (dec: isdeceq X) (i j:X) : weq X X.
+  intros.
+  exists (transposition0 dec i j).
+  apply transposition_weq.
+Defined.
+
 Lemma uniqueness0 (X:abmonoid) n : forall I (f g:nelstruct n I) (x:I->X),
-     finiteOperation0 X n (funcomp (pr1 f) x) 
+    finiteOperation0 X n (funcomp (pr1 f) x) 
   = finiteOperation0 X n (funcomp (pr1 g) x).
 Proof.
   intros ? ?. induction n as [|n IH].
@@ -208,7 +208,9 @@ Proof.
         apply (IH (compl I (pr1 f (lastelement n)))
                   f' g' (pr1compl I (pr1 f (lastelement n)) ;; x)). }
       { exact (ap x e). } }
-    { admit. } }
+    { 
+      
+      admit. } }
 Admitted.       
 
 Definition finiteOperation1 (X:abmonoid) I : finstruct I -> (I->X) -> X.
