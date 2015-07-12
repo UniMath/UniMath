@@ -794,7 +794,7 @@ Proof.
   apply eq_z_iso. 
   apply hs.
   reflexivity.
-Qed.
+Defined.
 
 Lemma z_iso_inv_of_z_iso_id (C : precategory) (hs: has_homsets C) (a : ob C) :
    z_iso_inv_from_z_iso (identity_z_iso a) = identity_z_iso a.
@@ -855,7 +855,7 @@ Proof.
          { apply assoc. } { apply id_left. } }
        { intros g. refine (_ @ maponpaths (fun m => m ;; g) (pr1 (pr2 (pr2 h))) @ _).
          { apply assoc. } { apply id_left. } } 
-Qed.
+Defined.
 
 Definition z_iso_comp_right_weq {C:precategory} {a b:C} (h:z_iso a b) (c:C) : 
  weq (b --> c) (a --> c) := weqpair _ (z_iso_comp_right_isweq h c).
@@ -868,7 +868,7 @@ Proof.
          { apply pathsinv0. apply assoc. }  { apply id_right. } }
        { intros g. refine (_ @ maponpaths (fun m => g;;m) (pr2 (pr2 (pr2 h))) @ _).
          { apply pathsinv0, assoc. } { apply id_right. } } 
-Qed.
+Defined.
 Definition z_iso_comp_left_weq {C:precategory} {a b:C} (h:z_iso a b) (c:C) : 
  weq (c --> a) (c --> b) := weqpair _ (z_iso_comp_left_isweq h c).
 
@@ -882,7 +882,7 @@ Proof.
   intro H. 
   apply (is_iso_qinv _ (pr1 H)).
   apply (pr2 H).
-Qed.
+Defined.
 
 Lemma is_z_iso_from_is_iso {C: precategory}{a b : C} (f: a --> b): 
      is_iso f -> is_z_isomorphism f.
@@ -895,7 +895,7 @@ Proof.
     simpl in H2. apply H2.
   - set (H2:=iso_after_iso_inv fiso).
     simpl in H2. apply H2.
-Qed.
+Defined.
 
 (** * Categories (aka saturated precategories) *)
 
