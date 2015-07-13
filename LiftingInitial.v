@@ -529,7 +529,7 @@ Proof.
     + simpl.
       unfold bracket_Thm15.
       simpl. 
-      rewrite It_is_It_which_is_unique.
+      rewrite <- It_is_preIt.
       apply path_to_ctr.
       apply nat_trans_eq; try (exact hs).
       intro c; simpl.
