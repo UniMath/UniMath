@@ -176,18 +176,18 @@ Definition bla': (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam) ⇒ (
 Proof.
   refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ). 
-    + intro c; simpl. rewrite id_right.
-      apply CoproductIn1Commutes_left_dir.
-      apply idpath.
+    +  (intro c; rewrite id_right (* should be opaque *)
+      ; apply CoproductIn1Commutes_left_dir;
+      apply idpath).
 Defined.
 
 Definition bla'_inv: (ptd_from_alg_functor C hs CC _ Lam) ⇒ (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam).
 Proof.
   refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ). 
-    + intro c; simpl. rewrite id_right.
-      apply CoproductIn1Commutes_right_dir.
-      apply idpath.
+    +  (intro c; rewrite id_right ; (* should be opaque *)
+      apply CoproductIn1Commutes_right_dir;
+      apply idpath) .
 Defined.
 
 (* this iso does nothing, but is needed to make the argument to [fbracket] below well-typed *)
@@ -196,26 +196,31 @@ Defined.
 Definition bla : iso (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor C hs CC _ Lam).
 Proof.
   unfold iso.
-  exists bla'.
+  exists bla'. 
+(*  apply is_iso_from_is_z_iso. *)  (* this should work, but causes problem later, because of being opaque instead of transparent *)
+(*  exists (bla'_inv). 
+  split ; [ *)
+
   unfold is_iso.
-  intro Z.
+  intro Z. 
   apply (gradth _ (precomp_with bla'_inv)).
-  + intro α.
-    apply eq_ptd_mor_precat.
-    apply (invmap (eq_ptd_mor _ hs _ _)). 
-    apply nat_trans_eq; try (exact hs).
-    intro c.
+  + 
+      intro α. 
+(*    apply eq_ptd_mor_precat. *) (* is this the identity map ? *)
+    apply (invmap (eq_ptd_mor _ hs _ _));
+    apply nat_trans_eq; try (exact hs) ;
+    intro c ;
     simpl.
-    rewrite id_left.
-    apply id_left.
-  + intro α.
-    apply eq_ptd_mor_precat.
-    apply (invmap (eq_ptd_mor _ hs _ _)). 
-    apply nat_trans_eq; try (exact hs).
-    intro c.
-    simpl.
-    rewrite id_left.
-    apply id_left.
+    rewrite id_left. apply id_left .
+
+  + 
+    intro α. 
+    apply eq_ptd_mor_precat; (* idem *)
+    apply (invmap (eq_ptd_mor _ hs _ _)) ;
+    apply nat_trans_eq; try (exact hs) ;
+    intro c ;
+    simpl ;
+    rewrite id_left; apply id_left . 
 Defined.
 
 (* earlier attempt:
@@ -350,7 +355,11 @@ Proof.
   apply isaset_nat_trans. apply hs.
   simpl.
   destruct t as [t Ht]; simpl.
-  admit.
+  unfold fbracket_for_LamE_algebra_on_Lam.
+  apply (fbracket_unique LamHSS).
+  split.
+  - admit.
+  - admit.
 Admitted.
 
 Definition bracket_for_LamE_algebra_on_Lam_at (Z : Ptd)
