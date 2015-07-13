@@ -40,12 +40,19 @@ Variable F : functor C C.
 
 Definition algebra_ob : UU := Σ X : C, F X ⇒ X.
 
-Coercion ob_from_algebra_ob (X : algebra_ob) : C := pr1 X.
+(* this coercion causes confusion, and it is not inserted when parsing most of the time
+   thus removing coercion globally
+*)
+Definition alg_carrier (X : algebra_ob) : C := pr1 X.
+Local Coercion alg_carrier : algebra_ob >-> ob.
 
 Definition alg_map (X : algebra_ob) : F X ⇒ X := pr2 X.
 
+Definition is_algebra_mor (X Y : algebra_ob) (f : alg_carrier X ⇒ alg_carrier Y) : UU
+  := alg_map X ;; f = #F f ;; alg_map Y.
+
 Definition algebra_mor (X Y : algebra_ob) : UU :=
-  Σ f : X ⇒ Y, alg_map X ;; f = #F f ;; alg_map Y.
+  Σ f : X ⇒ Y, is_algebra_mor X Y f.
 
 Coercion mor_from_algebra_mor (X Y : algebra_ob) (f : algebra_mor X Y) : X ⇒ Y := pr1 f.
 
@@ -75,24 +82,24 @@ Qed.
 Definition algebra_mor_id (X : algebra_ob) : algebra_mor X X.
 Proof.
   exists (identity _ ).
-  pathvia (alg_map X).
-  - apply id_right.
-  - apply pathsinv0.
-    pathvia (identity _ ;; alg_map X).
-    + rewrite functor_id. apply idpath.
-    + apply id_left.
+  abstract (unfold is_algebra_mor;
+            rewrite id_right ;
+            rewrite functor_id;
+            rewrite id_left;
+            apply idpath).
 Defined.
 
 Definition algebra_mor_comp (X Y Z : algebra_ob) (f : algebra_mor X Y) (g : algebra_mor Y Z)
   : algebra_mor X Z.
 Proof.
   exists (f ;; g).
-  rewrite assoc.
-  rewrite algebra_mor_commutes.
-  rewrite <- assoc.
-  rewrite algebra_mor_commutes.
-  rewrite functor_comp, assoc.
-  apply idpath.
+  abstract (unfold is_algebra_mor;
+            rewrite assoc;
+            rewrite algebra_mor_commutes;
+            rewrite <- assoc;
+            rewrite algebra_mor_commutes;
+            rewrite functor_comp, assoc;
+            apply idpath).
 Defined.  
 
 Definition precategory_alg_ob_mor : precategory_ob_mor.
