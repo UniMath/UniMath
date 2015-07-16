@@ -1059,7 +1059,7 @@ Definition natdivrem ( n m : nat ) : dirprod nat nat .
 Proof. intros . induction n as [ | n IHn ] . intros . apply ( dirprodpair 0 0 ) . destruct ( natlthorgeh ( S ( pr2 IHn ) ) m )  . apply ( dirprodpair ( pr1 IHn ) ( S ( pr2 IHn ) ) ) .  apply ( dirprodpair ( S ( pr1 IHn ) ) 0 ) .   Defined . 
 
 Definition natdiv ( n m : nat )  := pr1 ( natdivrem n m ) .
-Definition natrem ( n m : nat )  := pr2 ( natdivrem n m ) .
+Definition natrem ( n m : nat ) : nat := pr2 ( natdivrem n m ) .
 
 Lemma lthnatrem ( n m : nat ) ( is : natneq m 0 ) : natlth ( natrem n m ) m .
 Proof. intro . destruct n as [ | n ] . unfold natrem . simpl . intros.  apply ( natneq0togth0 _ is ) .  unfold natrem . intros m is . simpl .   destruct ( natlthorgeh (S (pr2 (natdivrem n m))) m )  as [ nt | t ] . simpl . apply nt . simpl .  apply ( natneq0togth0 _ is ) .   Defined . 
