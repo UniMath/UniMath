@@ -163,20 +163,125 @@ Proof.
   apply isdeceqstn.
 Defined.
 
-Lemma uniqueness1 {X:abmonoid} {n} {I} (f:nelstruct n I) (x:I->X) (i j:stn n) :
-    finiteOperation0 X n (pr1 f ;; x)
-  = finiteOperation0 X n (pr1 (transposition_stn i j) ;; pr1 f ;; x).
+Definition rotate_left_stn_0 n (i:nat) : stn n -> stn n.
+Proof.
+  (* 0 1 2 ... n-1 becomes i i+1 i+2 ...  *)
+  intros ? ? j.
+  induction n.
+  { exact j. }
+  { exists (natrem (i + j) (S n)).
+    apply lthnatrem.
+    apply negpathssx0. }
+Defined.
+
+Open Scope nat_scope.
+
+Notation " x % y " := (natrem x y) (at level 40, left associativity) : nat_scope .
+Notation " x / y " := (natdiv x y) (at level 40, left associativity) : nat_scope .
+
+Lemma natnzero m n : m<n -> neg (0=n).
+Proof.
+  intros ? ? l.
+  exact (natlthtoneq 0 n (natlehlthtrans 0 m n (natleh0n m) l)).
+Defined.
+
+Lemma natnzero' m n : m<n -> neg (n=0).
+Proof.
+  intros ? ? l f.
+  exact (natlthtoneq 0 n (natlehlthtrans 0 m n (natleh0n m) l) (pathsinv0 f)).
+Defined.
+
+Theorem natdivremunique' (n m i j:nat) : j+i*m=n -> j<m ->
+                                         dirprod (natdiv n m = i) (natrem n m = j).
+Proof.
+  intros ? ? ? ? e l.
+  apply (natdivremunique m (natdiv n m) (natrem n m) i j).
+  { apply lthnatrem. apply (natnzero' j m l). }
+  { assumption. }
+  { rewrite e. apply pathsinv0. apply natdivremrule; simpl. exact (natnzero' j m l). }
+Defined.  
+
+Theorem natdivunique (n m i j:nat) : j+i*m=n -> j<m -> natdiv n m = i.
+Proof.
+  intros ? ? ? ? e l.
+  exact (pr1 (natdivremunique' n m i j e l)).
+Defined.
+
+Theorem natremunique (n m i j:nat) : j+i*m=n -> j<m -> natrem n m = j.
+Proof.
+  intros ? ? ? ? e l.
+  exact (pr2 (natdivremunique' n m i j e l)).
+Defined.
+
+Theorem natremunique' (m j:nat) : j<m -> natrem j m = j.
+Proof.
+  intros ? ? l.
+  refine (natremunique j m 0 j _ l).
+  apply natplusr0.
+Defined.
+
+Lemma natremplusden n m : natrem (m+n) m = natrem n m.
 Proof.
   intros.
-  admit.
+  induction (isdeceqnat m 0).
+  { rewrite a. reflexivity. }
+  { set (j := natrem n m).
+    set (i := natdiv n m).
+    apply (natremunique (m+n) m (S i) j).
+    { set (r := natdivremrule n m b).
+      rewrite r; simpl.
+      clear r b.
+      change (natrem n m) with j.
+      change (natdiv n m) with i.
+      rewrite natpluscomm.
+      rewrite natplusassoc.
+      rewrite (natpluscomm (i*m) j).
+      reflexivity. }
+    { apply lthnatrem. assumption. } }
+Defined.
+
+Lemma natremplus i j m : m!=0 -> natrem (i + natrem j m) m = natrem (i+j) m.
+Proof.
+  intros ? ? ? ne.
+  apply pathsinv0.
+  set (p := natdiv (i+natrem j m) m).
+  set (q := natrem (i+natrem j m) m).
+  refine (natremunique (i+j) m (p + natdiv j m) q _ _).
+  { 
+    assert (t := natdivremrule j m ne).
+    rewrite t.
+    admit.
+    }
+  { apply lthnatrem. assumption. }
 Admitted.
 
-Lemma uniqueness1' {X:abmonoid} {n} {I} (f:nelstruct n I) (x:I->X) (i j:I) :
-    finiteOperation0 X n (pr1 f ;; x)
-  = finiteOperation0 X n (pr1 f ;; pr1 (transposition (isdeceq_nelstruct f) i j) ;; x).
+Open Scope addmonoid_scope.
+
+Lemma rotate_left_stn_1 n : rotate_left_stn_0 n n ~ idfun (stn n).
 Proof.
-  intros.
-  admit.
+  intros ? i.
+  destruct n.
+  { reflexivity. }
+  { induction i as [i I].
+    apply (invmaponpathsincl (stntonat _)).
+    { apply isinclstntonat. }
+    { simpl.
+      intermediate_path (natrem i (S n)).
+      { apply (natremplusden i (S n)). }
+      { apply natremunique'. assumption. } } }
+Defined.
+
+Lemma rotate_left_stn_2 n i j :
+  rotate_left_stn_0 n (i+j) ~ rotate_left_stn_0 n j ;; rotate_left_stn_0 n i.
+Proof.
+  intros ? ? ? k.
+  destruct n.
+  { reflexivity. }
+  { induction k as [k K].
+    apply (invmaponpathsincl (stntonat _)).
+    { apply isinclstntonat. }
+    { simpl.
+
 Admitted.
 
 Lemma uniqueness0 (X:abmonoid) n : forall I (f g:nelstruct n I) (x:I->X),

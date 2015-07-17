@@ -9,6 +9,17 @@ Require Export Ktheory.Tactics.
 
 Set Default Timeout 50.
 
+(* some jargon reminders: *)
+Goal forall X (i:isaprop X) (x x':X), x = x'.
+Proof. apply proofirrelevance. Defined.
+
+Goal forall X (i:iscontr X) (x x':X), x = x'.
+Proof. intros. apply proofirrelevancecontr. assumption. Defined.
+
+Goal forall X Y (f:X->Y) (inj:isincl f) x x', f x = f x' -> x = x'.
+Proof. intros ? ? ? ? ? ? e.
+       apply (invmaponpathsincl f). assumption. assumption. Defined.
+
 Definition confun T {Y} (y:Y) := fun _:T => y.
 Definition path_type {X} {x x':X} (p:x = x') := X.
 Definition path_start {X} {x x':X} (p:x = x') := x.
