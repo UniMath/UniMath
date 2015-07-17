@@ -464,7 +464,7 @@ Proof.
 Defined.
 
 
-Lemma iso_inv_of_iso_comp (C : precategory) (hs: has_homsets C) (a b c : ob C)
+Lemma iso_inv_of_iso_comp (C : precategory) (a b c : ob C)
    (f : iso a b) (g : iso b c) :
    iso_inv_from_iso (iso_comp f g) = iso_comp (iso_inv_from_iso g) (iso_inv_from_iso f).
 Proof.
@@ -476,7 +476,7 @@ Proof.
     apply iso_inv_after_iso.
 Qed.
 
-Lemma iso_inv_of_iso_id (C : precategory) (hs: has_homsets C) (a : ob C) :
+Lemma iso_inv_of_iso_id (C : precategory) (a : ob C) :
    iso_inv_from_iso (identity_iso a) = identity_iso a.
 Proof.
   apply eq_iso.
@@ -484,7 +484,7 @@ Proof.
 Qed.
 
 
-Lemma iso_inv_iso_inv (C : precategory) (hs: has_homsets C) (a b : ob C) (f : iso a b) : 
+Lemma iso_inv_iso_inv (C : precategory) (a b : ob C) (f : iso a b) : 
      iso_inv_from_iso (iso_inv_from_iso f) = f.
 Proof.
   apply eq_iso. simpl. 
@@ -1037,7 +1037,7 @@ Proof.
 Defined.
 
 
-Lemma idtoiso_concat (C : precategory) (hs: has_homsets C) (a a' a'' : ob C)
+Lemma idtoiso_concat (C : precategory) (a a' a'' : ob C)
   (p : a = a') (q : a' = a'') :
   idtoiso (p @ q) = iso_comp (idtoiso p) (idtoiso q).
 Proof.
@@ -1063,7 +1063,7 @@ Proof.
   apply isweqinvmap.
 Qed.
 
-Lemma isotoid_comp (C : precategory) (H : is_category C) (hs: has_homsets C) (a b c : ob C)
+Lemma isotoid_comp (C : precategory) (H : is_category C) (a b c : ob C)
   (e : iso a b) (f : iso b c) :
   isotoid _ H (iso_comp e f) = isotoid _ H e @ isotoid _ H f.
 Proof.
@@ -1072,7 +1072,6 @@ Proof.
   rewrite idtoiso_concat.
   repeat rewrite idtoiso_isotoid.
   apply idpath.
-  apply hs.
 Qed.
 
 Lemma isotoid_identity_iso (C : precategory) (H : is_category C) (a : C) :
