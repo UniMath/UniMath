@@ -2,12 +2,12 @@
 
 (** * abelian groups *)
 
-Require Import Foundations.hlevel2.algebra1b
-               Foundations.hlevel2.hz
-               Ktheory.Utilities.
-Require Ktheory.Group Ktheory.Precategories Ktheory.Primitive Ktheory.Product
-        Ktheory.Sum.
-Import Ktheory.Utilities.Notation. 
+Require Import UniMath.Foundations.hlevel2.algebra1b
+               UniMath.Foundations.hlevel2.hz
+               UniMath.Ktheory.Utilities.
+Require UniMath.Ktheory.Group UniMath.Ktheory.Precategories UniMath.Ktheory.Primitive UniMath.Ktheory.Product
+        UniMath.Ktheory.Sum.
+Import UniMath.Ktheory.Utilities.Notation. 
 Local Notation Hom := monoidfun.
 Local Notation "0" := (unel _).
 Local Notation "x + y" := ( op x y ). 
@@ -462,8 +462,8 @@ Definition power (I:Type) (X:abgr) : abgr.
 
 Module Category.
   Import Precategories.Notation.
-  Require Import Foundations.hlevel2.algebra1b
-                 RezkCompletion.precategories.
+  Require Import UniMath.Foundations.hlevel2.algebra1b
+                 UniMath.RezkCompletion.precategories.
   Definition Ob := abgr.
   Identity Coercion Ob_to_abgr : Ob >-> abgr.
   Definition Mor : Ob -> Ob -> hSet.

@@ -11,9 +11,9 @@ Unset Kernel Term Sharing.
 
 (** ** Preliminaries *)
 
-Require Ktheory.Nat.
+Require UniMath.Ktheory.Nat.
 Require Export hSet.
-Require Import Utilities algebra1b funextfun GroupAction hz Integers Nat Ktheory.Equivalences.
+Require Import Utilities algebra1b funextfun GroupAction hz Integers Nat UniMath.Ktheory.Equivalences.
 Import Utilities.Notation Utilities.NatNotation.
 
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.

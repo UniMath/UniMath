@@ -34,9 +34,9 @@ Contents :  Definition of
            
 ************************************************************)
 
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.hlevel1.hProp.
+Require Import UniMath.Foundations.hlevel2.hSet.
 
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).

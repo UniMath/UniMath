@@ -3,14 +3,14 @@
 Benedikt Ahrens, March 2015
 *********************************************)
 
-Require Import Foundations.Generalities.uuu.
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Generalities.uuu.
+Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.hlevel1.hProp.
+Require Import UniMath.Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.total2_paths.
-Require Import RezkCompletion.precategories.
-Require Import RezkCompletion.UnicodeNotations.
+Require Import UniMath.RezkCompletion.total2_paths.
+Require Import UniMath.RezkCompletion.precategories.
+Require Import UniMath.RezkCompletion.UnicodeNotations.
 
 (** * Definition of binary coproduct of objects in a precategory *)
 
