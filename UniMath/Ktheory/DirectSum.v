@@ -11,9 +11,9 @@ Require Import
 Require Ktheory.Utilities Ktheory.Precategories Ktheory.RawMatrix
         Ktheory.Sum Ktheory.Product Ktheory.FiniteSet.
 Import Ktheory.Utilities.Notation
-       Precategories.Notation
-       FiniteSet.Coercions 
-       Sum.Coercions Product.Coercions.
+       Ktheory.Precategories.Notation
+       Ktheory.FiniteSet.Coercions 
+       Ktheory.Sum.Coercions Ktheory.Product.Coercions.
 Definition identity_matrix {C:precategory} (hs: has_homsets C) (h:hasZeroObject C)
            {I} (d:I -> ob C) (dec : isdeceq I) : forall i j, Hom (d j) (d i).
 Proof. intros. destruct (dec i j) as [ [] | _ ].

@@ -1,6 +1,7 @@
 (** * Tactics *)
 
-Require Import Foundations.hlevel2.hSet funextfun.
+Require Import Foundations.hlevel2.hSet
+               Foundations.Proof_of_Extensionality.funextfun.
 
 Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
   let T := type of x in

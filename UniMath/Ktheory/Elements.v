@@ -5,8 +5,8 @@ Require Export RezkCompletion.precategories
                Foundations.hlevel2.hSet 
                Ktheory.Utilities.
 Require Export Ktheory.Precategories.
-Export Utilities.Notation
-       Precategories.Notation.
+Export Ktheory.Utilities.Notation
+       Ktheory.Precategories.Notation.
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
   intros. exists (total2 (fun c : ob C => set_to_type (X c))).
   intros a b. 

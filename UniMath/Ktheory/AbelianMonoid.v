@@ -3,7 +3,7 @@
 Require Import Foundations.hlevel2.algebra1b
                Foundations.hlevel2.finitesets
                Ktheory.Utilities.
-Import Utilities.Notation.
+Import Ktheory.Utilities.Notation.
 Require Ktheory.QuotientSet Ktheory.Monoid.
 Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.
