@@ -3,7 +3,7 @@
 (** Description: Some tactics for monoids.*)
 
 Require Import Foundations.hlevel2.algebra1b
-               UniMath.Utilities.
+               UniMath.Tactics.Utilities.
 
 Ltac op_strip f :=
   repeat 
