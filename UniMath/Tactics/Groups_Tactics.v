@@ -5,8 +5,8 @@
 Unset Automatic Introduction.
 
 Require Import Foundations.hlevel2.algebra1b
-               Utilities
-               Monoids_Tactics.
+               UniMath.Tactics.Utilities
+               UniMath.Tactics.Monoids_Tactics.
 
 Open Scope multmonoid.
 

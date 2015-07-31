@@ -11,8 +11,8 @@ Unset Automatic Introduction.
 
 Require Import
         Foundations.hlevel2.hnat
-        Utilities
-        Abmonoids_Tactics.
+        UniMath.Tactics.Utilities
+        UniMath.Tactics.Abmonoids_Tactics.
 
 Open Scope nat_scope.
 

@@ -3,8 +3,8 @@
 (** Description: Some tactics for abelian monoids.*)
 
 Require Import Foundations.hlevel2.algebra1b
-               Utilities
-               Monoids_Tactics.
+               UniMath.Tactics.Utilities
+               UniMath.Tactics.Monoids_Tactics.
 
 (** * I. Definitions.*)
 
