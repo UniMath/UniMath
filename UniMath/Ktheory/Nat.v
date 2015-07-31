@@ -2,9 +2,13 @@
 
 (** * Natural numbers *)
 
-Require Import algebra1b hnat funextfun total2_paths Utilities.
-Import Utilities.Notation.
-Import Utilities.NatNotation.
+Require Import Foundations.hlevel2.algebra1b
+        Foundations.hlevel2.hnat
+        Foundations.Proof_of_Extensionality.funextfun
+        RezkCompletion.total2_paths
+        Ktheory.Utilities.
+Import Ktheory.Utilities.Notation.
+Import Ktheory.Utilities.NatNotation.
 
 Definition ℕ := nat.
 

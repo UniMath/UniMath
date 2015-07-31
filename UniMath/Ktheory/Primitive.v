@@ -8,7 +8,7 @@ Require Import
         RezkCompletion.precategories
         RezkCompletion.total2_paths
         Foundations.hlevel2.hSet.
-Import Precategories.Notation.
+Import Ktheory.Precategories.Notation.
 Module TerminalObject.
   Definition isTerminalObject (C:precategory) (a:ob C) := 
     forall x:ob C, iscontr (a ← x).

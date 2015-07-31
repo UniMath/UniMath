@@ -7,7 +7,7 @@ Require Import
         RezkCompletion.functors_transformations
         Ktheory.Utilities.
 Require Ktheory.Precategories Ktheory.Representation Ktheory.HomFamily.
-Import Utilities.Notation Precategories.Notation.
+Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
 Definition type (C:precategory) (hs: has_homsets C) {I} (c:I -> ob C) :=
   Representation.Data (HomFamily.precat C hs c).
 Definition Object {C:precategory} (hs: has_homsets C) {I} {c:I -> ob C} (r:type C hs c)

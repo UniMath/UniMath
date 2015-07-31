@@ -11,8 +11,8 @@ Require Import
         RezkCompletion.functors_transformations
         Ktheory.Utilities.
 Require Ktheory.Precategories Ktheory.Sum Ktheory.Product.
-Import Utilities.Notation Precategories.Notation.
-Import Sum.Coercions Product.Coercions.
+Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
+Import Ktheory.Sum.Coercions Ktheory.Product.Coercions.
 Definition to_row {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C} 
            (B:Sum.type C hs b) {d:ob C} :
   weq (Hom B d) (forall j, Hom (b j) d).

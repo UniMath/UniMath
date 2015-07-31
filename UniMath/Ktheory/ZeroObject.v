@@ -2,8 +2,8 @@
 
 Require Import RezkCompletion.precategories Foundations.hlevel2.hSet Ktheory.Utilities.
 Require Ktheory.Precategories Ktheory.Primitive.
-Import Utilities.Notation Precategories.Notation
-       Primitive.TerminalObject Primitive.InitialObject.
+Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation
+       Ktheory.Primitive.TerminalObject Ktheory.Primitive.InitialObject.
 Definition ZeroObject (C:precategory) := 
   { z:ob C & isInitialObject C z ** isTerminalObject C z }.
 Definition zero_opp (C:precategory) : ZeroObject C -> ZeroObject C^op.

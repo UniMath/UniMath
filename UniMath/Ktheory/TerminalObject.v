@@ -6,7 +6,7 @@ Require Import
         RezkCompletion.functors_transformations 
         Ktheory.Utilities.
 Require Ktheory.Precategories Ktheory.Sets Ktheory.Representation.
-Import Utilities.Notation Precategories.Notation.
+Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
 Definition unitFunctor_data (C:precategory) 
      : functor_data (Precategories.Precategory.obmor C) (Precategories.Precategory.obmor SET).
   intros. refine (tpair _ _ _).

@@ -6,7 +6,7 @@ Require Import
         RezkCompletion.functors_transformations
         Ktheory.Utilities.
 Require Ktheory.Precategories Ktheory.Sets.
-Import Utilities.Notation Precategories.Notation.
+Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
 Definition set (C:precategory) (hs:has_homsets C) {I} (c:I -> ob C) : ob C -> ob SET.
   intros ? ? ? ? x. 
    apply (Sets.Product (fun i => hSetpair (Hom (c i) x) (hs _ _ ) )).
