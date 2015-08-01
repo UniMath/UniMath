@@ -77,6 +77,9 @@ Local Notation "A 'XX' B" := (product_precategory A B) (at level 2).
 Local Notation "α 'øø' Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).
 
 Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
+
+ Local Coercion alg_carrier : algebra_ob >-> ob.
+
 (* Local Notation "'τ'" := (tau). *)
 
 (** ** Definition of algebra structure [τ] of a pointed functor *)

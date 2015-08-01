@@ -88,8 +88,8 @@ Variable Lam_Initial : Initial
                              (Id_H C hs CC Lam_S) hsEndC).
 
 Let Lam := InitialObject _ Lam_Initial.
-Local Notation "` XX" := (ob_from_algebra_ob _ _ XX) (at level 3).
-About "`".
+Local Notation "` XX" := (alg_carrier _ _ XX) (at level 3).
+
 (*
 (* assume initial algebra for signature LamE *)
 
@@ -242,7 +242,7 @@ Definition fbracket_for_LamE_algebra_on_Lam (Z : Ptd)
    [C, C] hs
    ⟦ functor_composite (U Z)
        (functor_from_algebra_ob C hs CC LamE_S LamE_algebra_on_Lam),
-     ob_from_algebra_ob _ _ LamE_algebra_on_Lam ⟧ .
+      `LamE_algebra_on_Lam ⟧ .
 Proof.
   exact (fbracket LamHSS (f ;; bla)).
 Defined.

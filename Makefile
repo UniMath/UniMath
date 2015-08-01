@@ -43,7 +43,7 @@ COQDOC := coqdoc
 
 PROJECTNAME="SubstSystems"
 
-COQOPTIONS := ""
+COQOPTIONS := "-type-in-type"
 
 .PHONY: core all clean
 

@@ -38,6 +38,8 @@ Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 35).
 Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
 Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
 
+Local Coercion alg_carrier : algebra_ob >-> ob.
+
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .
 Arguments θ_Strength1 {_ _ _} _ .
