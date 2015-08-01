@@ -3,7 +3,7 @@
 Require Import 
         UniMath.Foundations.hlevel2.hSet
         UniMath.Ktheory.Utilities.
-Import Utilities.Notation.
+Import Ktheory.Utilities.Notation.
 Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
            (f:X->Y->Z) : Type
   := (forall x x', RX x x' -> forall y, f x y = f x' y) **

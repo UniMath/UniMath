@@ -1,5 +1,5 @@
 Require Export UniMath.Ktheory.Primitive UniMath.Ktheory.Elements.
-Import Primitive.InitialObject.
+Import Ktheory.Primitive.InitialObject.
 Definition Data {C:precategory} (X:C==>SET) := InitialObject (Elements.cat X).
 Definition Property {C:precategory} (X:C==>SET) := Utilities.squash (Data X).
 Definition Pair {C:precategory} {X:C==>SET} (r:Data X) : ob (Elements.cat X)

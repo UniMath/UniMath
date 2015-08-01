@@ -3,7 +3,7 @@
 Require Import UniMath.Foundations.hlevel2.algebra1b
                UniMath.Foundations.hlevel2.finitesets
                UniMath.Ktheory.Utilities.
-Import Utilities.Notation.
+Import UniMath.Ktheory.Utilities.Notation.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.
