@@ -1,8 +1,8 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import 
-        Foundations.hlevel2.hSet
-        Ktheory.Utilities.
+        UniMath.Foundations.hlevel2.hSet
+        UniMath.Ktheory.Utilities.
 Import Utilities.Notation.
 Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
            (f:X->Y->Z) : Type

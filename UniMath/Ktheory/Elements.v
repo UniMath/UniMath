@@ -1,10 +1,10 @@
 (** *** the category of elements of a functor *)
 
-Require Export RezkCompletion.precategories
-               RezkCompletion.functors_transformations 
-               Foundations.hlevel2.hSet 
-               Ktheory.Utilities.
-Require Export Ktheory.Precategories.
+Require Export UniMath.RezkCompletion.precategories
+               UniMath.RezkCompletion.functors_transformations 
+               UniMath.Foundations.hlevel2.hSet 
+               UniMath.Ktheory.Utilities.
+Require Export UniMath.Ktheory.Precategories.
 Export Utilities.Notation
        Precategories.Notation.
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.

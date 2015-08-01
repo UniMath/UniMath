@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import Foundations.hlevel2.hSet.
-Require Ktheory.Utilities.
+Require Import UniMath.Foundations.hlevel2.hSet.
+Require UniMath.Ktheory.Utilities.
 Import Utilities.Notation.
 Definition unit : hSet := tpair isaset unit isasetunit.
 Definition Product {I} (X:I -> hSet) : hSet.

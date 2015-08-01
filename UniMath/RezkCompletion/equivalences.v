@@ -23,12 +23,12 @@ Contents :  Definition of adjunction
 ************************************************************)
 
 
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.hlevel1.hProp.
+Require Import UniMath.Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.precategories.
-Require Import RezkCompletion.functors_transformations.
+Require Import UniMath.RezkCompletion.precategories.
+Require Import UniMath.RezkCompletion.functors_transformations.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 

@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import RezkCompletion.precategories Foundations.hlevel2.hSet Ktheory.Utilities.
-Require Ktheory.Precategories Ktheory.Primitive.
+Require Import UniMath.RezkCompletion.precategories UniMath.Foundations.hlevel2.hSet UniMath.Ktheory.Utilities.
+Require UniMath.Ktheory.Precategories UniMath.Ktheory.Primitive.
 Import Utilities.Notation Precategories.Notation
        Primitive.TerminalObject Primitive.InitialObject.
 Definition ZeroObject (C:precategory) := 

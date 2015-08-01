@@ -1,6 +1,6 @@
 (** * A construction of the interval using propositional truncation *)
 
-Require Import Ktheory.Utilities.
+Require Import UniMath.Ktheory.Utilities.
 
 Definition interval := squash bool.
 Definition left := hinhpr _ true : interval.

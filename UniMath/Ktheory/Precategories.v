@@ -1,14 +1,14 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import Ktheory.Utilities.
-Require Import RezkCompletion.precategories 
-               RezkCompletion.opp_precat
-               RezkCompletion.yoneda
-               RezkCompletion.category_hset
-               RezkCompletion.functors_transformations
+Require Import UniMath.Ktheory.Utilities.
+Require Import UniMath.RezkCompletion.precategories 
+               UniMath.RezkCompletion.opp_precat
+               UniMath.RezkCompletion.yoneda
+               UniMath.RezkCompletion.category_hset
+               UniMath.RezkCompletion.functors_transformations
                .
-Require Import Foundations.hlevel2.hSet.
-Import Ktheory.Utilities.Notation.
+Require Import UniMath.Foundations.hlevel2.hSet.
+Import UniMath.Ktheory.Utilities.Notation.
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := tpair _ C i.
 Module Precategory.

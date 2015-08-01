@@ -1,11 +1,11 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import 
-        Foundations.hlevel2.hSet
-        RezkCompletion.precategories
-        RezkCompletion.functors_transformations
-        Ktheory.Utilities.
-Require Ktheory.Precategories Ktheory.Sets.
+        UniMath.Foundations.hlevel2.hSet
+        UniMath.RezkCompletion.precategories
+        UniMath.RezkCompletion.functors_transformations
+        UniMath.Ktheory.Utilities.
+Require UniMath.Ktheory.Precategories UniMath.Ktheory.Sets.
 Import Utilities.Notation Precategories.Notation.
 Definition set (C:precategory) (hs:has_homsets C) {I} (c:I -> ob C) : ob C -> ob SET.
   intros ? ? ? ? x. 

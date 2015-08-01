@@ -21,13 +21,13 @@ Contents :
 
 
 
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
-Require Import Foundations.Proof_of_Extensionality.funextfun. 
+Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.hlevel1.hProp.
+Require Import UniMath.Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun. 
 
-Require Import RezkCompletion.precategories.
-Require Import RezkCompletion.HLevel_n_is_of_hlevel_Sn.
+Require Import UniMath.RezkCompletion.precategories.
+Require Import UniMath.RezkCompletion.HLevel_n_is_of_hlevel_Sn.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 

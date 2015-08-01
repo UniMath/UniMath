@@ -1,10 +1,10 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import Foundations.hlevel2.algebra1b 
-	       RezkCompletion.total2_paths
-               Ktheory.Utilities.
-Require Ktheory.Monoid.
-Import Ktheory.Utilities.Notation.
+Require Import UniMath.Foundations.hlevel2.algebra1b 
+	       UniMath.RezkCompletion.total2_paths
+               UniMath.Ktheory.Utilities.
+Require UniMath.Ktheory.Monoid.
+Import UniMath.Ktheory.Utilities.Notation.
 Local Notation Hom := monoidfun.
 Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
 Local Notation "x * y" := ( op x y ). 
@@ -388,5 +388,5 @@ Module Free.
   Definition make (X:Type) := @universalMarkedGroup X empty fromempty.
 End Free.
 Definition ZZ := Free.make unit.
-Require Foundations.hlevel2.hz.
+Require UniMath.Foundations.hlevel2.hz.
 Definition hZZ := hz.hzaddabgr:gr. (* isomorphic to ZZ *)
