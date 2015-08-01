@@ -2,7 +2,7 @@
 
 Require Import UniMath.Foundations.hlevel2.hSet.
 Require UniMath.Ktheory.Utilities.
-Import Utilities.Notation.
+Import Ktheory.Utilities.Notation.
 Definition unit : hSet := tpair isaset unit isasetunit.
 Definition Product {I} (X:I -> hSet) : hSet.
   intros. exists (Utilities.Section (funcomp X set_to_type)).

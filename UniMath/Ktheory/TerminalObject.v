@@ -6,7 +6,7 @@ Require Import
         UniMath.RezkCompletion.functors_transformations 
         UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Precategories UniMath.Ktheory.Sets UniMath.Ktheory.Representation.
-Import Utilities.Notation Precategories.Notation.
+Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
 Definition unitFunctor_data (C:precategory) 
      : functor_data (Precategories.Precategory.obmor C) (Precategories.Precategory.obmor SET).
   intros. refine (tpair _ _ _).

@@ -6,7 +6,7 @@ Require Import
         UniMath.RezkCompletion.functors_transformations
         UniMath.Ktheory.ZeroObject.
 Require UniMath.Ktheory.Utilities UniMath.Ktheory.Representation.
-Import Utilities.Notation Precategories.Notation.
+Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
 Definition zerocomp_type {C:precategory} (hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ob C -> Type.
 Proof. intros ? ? ? ? ? ? x.
