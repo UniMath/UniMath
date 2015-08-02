@@ -74,8 +74,14 @@ Notation coprod_rect := sum_rect.
 
 One can not use a new record each time one needs it because the general theorems about this 
 construction would not apply to new instances of "Record" due to the "generativity" of inductive 
-definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is 
-equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
+definitions in Coq. 
+
+We use "Inductive" instead of "Record" here. 
+Using "Record" which is equivalent to "Structure" would allow us later to use the mechanism of 
+canonical structures with total2. 
+By using "Structure", we could also get eta for dependent pairs, by adding the option 
+"Set Primitive Projections.".
+*)
 
 
 Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . 
