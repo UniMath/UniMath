@@ -77,11 +77,17 @@ One can not use a new record each time one needs it because the general theorems
 construction would not apply to new instances of "Record" due to the "generativity" of inductive 
 definitions in Coq. 
 
-We use "Inductive" instead of "Record" here. 
+We use "Inductive" instead of "Record" here.
+
 Using "Record" which is equivalent to "Structure" would allow us later to use the mechanism of 
 canonical structures with total2. 
 By using "Structure", we could also get eta for dependent pairs, by adding the option 
 "Set Primitive Projections.".
+
+However, the use of “Inductive” allows us to obtain proof terms that are expressed in terms of 
+the eliminator total2_rect that, unlike the “match" construct that would appear in the proof terms 
+if we used “Record”, has a known interpretation in the framework of the univalent model.
+
 *)
 
 
