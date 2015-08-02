@@ -1,6 +1,7 @@
 (** * Introduction. Vladimir Voevodsky . Feb. 2010 - Sep. 2011 
 
-This is the first in the group of files which contain the (current state of) the mathematical library for theproof assistant Coq based on the Univalent Foundations. It contains some new notations for constructions defined in Coq.Init library as well as the definition of dependent sum as a record.
+This is the first in the group of files which contain the (current state of) the mathematical library for the proof assistant Coq based on the Univalent Foundations. 
+It contains some new notations for constructions defined in Coq.Init library as well as the definition of dependent sum.
 
 
 *)
