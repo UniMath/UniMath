@@ -84,9 +84,9 @@ canonical structures with total2.
 By using "Structure", we could also get eta for dependent pairs, by adding the option 
 "Set Primitive Projections.".
 
-However, the use of “Inductive” allows us to obtain proof terms that are expressed in terms of 
-the eliminator total2_rect that, unlike the “match" construct that would appear in the proof terms 
-if we used “Record”, has a known interpretation in the framework of the univalent model.
+However, the use of "Inductive" allows us to obtain proof terms that are expressed in terms of 
+the eliminator total2_rect that, unlike the "match" construct that would appear in the proof terms 
+if we used "Record", has a known interpretation in the framework of the univalent model.
 
 *)
 
