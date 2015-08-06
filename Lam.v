@@ -75,7 +75,7 @@ Let one : C :=  @TerminalObject C terminal.
 
 Variable KanExt : ∀ Z : precategory_Ptd C hs,
    RightKanExtension.GlobalRightKanExtensionExists C C
-     ((functor_ptd_forget C hs) Z) C hs hs.
+     (U Z) C hs hs.
 
 
 Let Lam_S : Signature _ _ := Lam_Sig C hs terminal CC CP.
@@ -176,18 +176,20 @@ Definition bla': (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam) ⇒ (
 Proof.
   refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ). 
-    +  (intro c; rewrite id_right (* should be opaque *)
-      ; apply CoproductIn1Commutes_left_dir;
-      apply idpath).
+    + abstract
+        (intro c; rewrite id_right (* should be opaque *)
+         ; apply CoproductIn1Commutes_left_dir;
+         apply idpath).
 Defined.
 
 Definition bla'_inv: (ptd_from_alg_functor C hs CC _ Lam) ⇒ (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam).
 Proof.
   refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ). 
-    +  (intro c; rewrite id_right ; (* should be opaque *)
-      apply CoproductIn1Commutes_right_dir;
-      apply idpath) .
+    + abstract
+        (intro c; rewrite id_right ; (* should be opaque *)
+         apply CoproductIn1Commutes_right_dir;
+         apply idpath) .
 Defined.
 
 (* this iso does nothing, but is needed to make the argument to [fbracket] below well-typed *)
@@ -196,46 +198,24 @@ Defined.
 Definition bla : iso (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor C hs CC _ Lam).
 Proof.
   unfold iso.
-  exists bla'. 
-(*  apply is_iso_from_is_z_iso. *)  (* this should work, but causes problem later, because of being opaque instead of transparent *)
-(*  exists (bla'_inv). 
-  split ; [ *)
-
-  unfold is_iso.
-  intro Z. 
-  apply (gradth _ (precomp_with bla'_inv)).
-  + 
-      intro α. 
-(*    apply eq_ptd_mor_precat. *) (* is this the identity map ? *)
+  exists bla'.
+  apply is_iso_from_is_z_iso.
+  exists bla'_inv.
+  abstract (
+   split; [
     apply (invmap (eq_ptd_mor _ hs _ _));
     apply nat_trans_eq; try (exact hs) ;
     intro c ;
-    simpl.
-    rewrite id_left. apply id_left .
-
-  + 
-    intro α. 
+    apply id_left
+                   |
     apply eq_ptd_mor_precat; (* idem *)
     apply (invmap (eq_ptd_mor _ hs _ _)) ;
     apply nat_trans_eq; try (exact hs) ;
     intro c ;
-    simpl ;
-    rewrite id_left; apply id_left . 
+    apply id_left ]
+           ).
 Defined.
 
-(* earlier attempt:
-Lemma bla :  iso (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor C hs CC _ Lam).
-Proof.
-  refine (tpair _ _ _ ).
-  (* apply ptd_id. *) (* is ill-typed - that is the whole problem *)
-  - refine (tpair _ _ _ ).
-    + apply (nat_trans_id _ ). 
-    + intro c; simpl. rewrite id_right.
-      apply CoproductIn1Commutes_left_dir.
-      apply idpath.
-  - admit.    
-Admitted.
-*)
 
 Definition fbracket_for_LamE_algebra_on_Lam (Z : Ptd)
    (f : Ptd ⟦ Z, ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam ⟧ ) :
@@ -276,7 +256,7 @@ Proof.
       intro c.
       unfold functor_ptd_forget.
       simpl.
-      apply id_left.
+      apply id_left. 
     rewrite idness. clear idness.
     rewrite id_right.
     (* does not work:
