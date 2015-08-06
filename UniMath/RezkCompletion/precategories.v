@@ -520,7 +520,7 @@ Lemma iso_comp_right_isweq {C:precategory_data} {a b:ob C} (h:iso a b) (c:C) :
   isweq (fun f : b --> c => h ;; f).
 Proof. 
   apply (pr2 h _ ).
-Qed.
+Defined.
 
 Definition iso_comp_right_weq {C:precategory_data} {a b:C} (h:iso a b) (c:C) : 
  weq (b --> c) (a --> c) := weqpair _ (iso_comp_right_isweq h c).
@@ -533,7 +533,7 @@ Proof.
     apply iso_inv_after_iso. apply idpath.
   - intro y. rewrite <- assoc. apply remove_id_right.
     apply iso_after_iso_inv. apply idpath.
-Qed.
+Defined.
 
 Definition postcomp_with {C : precategory_data}{b c : C}(h : b --> c) {a : C} 
   (f : a --> b) : a --> c := f ;; h.
@@ -556,7 +556,7 @@ Proof.
   - intro h. unfold precomp_with. rewrite assoc.
     apply remove_id_left.
     apply (pr1 H). apply idpath.
-Qed.
+Defined.
 
 Definition iso_comp_left_weq {C:precategory} {a b:C} (h:iso a b) (c:C) : 
  weq (c --> a) (c --> b) := weqpair _ (iso_comp_left_isweq h c).
@@ -760,7 +760,7 @@ Lemma is_z_iso_comp_of_z_isos {C : precategory} {a b c : ob C}
 Proof.
   exists (inv_from_z_iso g ;; inv_from_z_iso f). simpl.
   apply are_inverse_comp_of_inverses.
-Defined. (* Qed. *)
+Defined. 
 
 
 Definition z_iso_comp {C : precategory} {a b c : ob C}
