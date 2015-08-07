@@ -623,11 +623,13 @@ Definition constant_nat_trans (C' D : precategory) (hsD : has_homsets D) (d d' :
     : [C', D, hsD] ⟦constant_functor C' D d, constant_functor C' D d'⟧.
 Proof.
   exists (fun _ => m).
-  intros ? ? ? .
-  pathvia m.
-  apply id_left.
-  apply pathsinv0.
-  apply id_right.
+  abstract ( 
+    intros ? ? ? ;
+    pathvia m ;
+    [
+    apply id_left |
+    apply pathsinv0 ;
+  apply id_right] ).
 Defined.
 
 Definition thetahat_0 (Z : Ptd) (f : Z ⇒ ptd_from_alg _ _ _ _ InitAlg): 
@@ -729,16 +731,19 @@ Proof.
   - intro Y.
     intro a.
     exact (a ;; b).
-  - intros ? ? ? . simpl.
-    apply funextsec.
-    intro.
-    unfold yoneda_objects_ob. simpl.
-    unfold compose.
-    simpl.
-    apply nat_trans_eq.
-    + assumption.
-    + simpl. intros ?.
-      apply pathsinv0, assoc.
+  - abstract (
+    intros ? ? ? ; simpl ;
+    apply funextsec ;
+    intro ;
+    unfold yoneda_objects_ob ; simpl ;
+    unfold compose ;
+    simpl ;
+    apply nat_trans_eq ;
+    [
+      assumption
+        |
+      simpl ; intros ? ;
+      apply pathsinv0, assoc ]).
 Defined.    
     
 Lemma ishssMor_InitAlg (T' : hss CP H) :

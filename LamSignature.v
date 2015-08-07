@@ -97,8 +97,6 @@ Defined.
 Definition Abs_H_mor_nat_trans_data (X X': functor C C)(α: nat_trans X X'): ∀ c, Abs_H_ob X c ⇒ Abs_H_ob X' c.
 Proof.
   intro.
-  simpl in *. 
-  unfold coproduct_functor_ob. simpl.
   apply α.
 Defined.
   
