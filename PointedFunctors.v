@@ -50,19 +50,21 @@ Qed.
 Definition ptd_id (F : ptd_obj) : ptd_mor F F.
 Proof.
   exists (nat_trans_id _ ).
-  intro c. simpl.
-  apply id_right.
+  abstract (
+      intro c;
+      apply id_right) .
 Defined.
 
 Definition ptd_comp {F F' F'' : ptd_obj} (α : ptd_mor F F') (α' : ptd_mor F' F'')
   : ptd_mor F F''.
 Proof.
   exists (nat_trans_comp _ _ _ α α').
-  intro c. simpl.
-  rewrite assoc.
-  set (H:=ptd_mor_commutes α c); simpl in H; rewrite H; clear H.
-  set (H:=ptd_mor_commutes α' c); simpl in H; rewrite H; clear H.
-  apply idpath.
+  abstract (
+      intro c; simpl;
+      rewrite assoc ;
+      set (H:=ptd_mor_commutes α c); simpl in H; rewrite H; clear H ;
+      set (H:=ptd_mor_commutes α' c); simpl in H; rewrite H; clear H ;
+      apply idpath ).
 Defined.  
 
 Definition ptd_ob_mor : precategory_ob_mor.
@@ -119,7 +121,7 @@ Proof.
   split; simpl; intros.
   - unfold functor_idax; intros; apply idpath.
   - unfold functor_compax; intros; apply idpath.
-Defined.
+Qed.
 
 Definition functor_ptd_forget : functor _ _ := tpair _ _ is_functor_ptd_forget.
 

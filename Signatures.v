@@ -214,7 +214,7 @@ Proof.
   { apply nat_trans_eq; try assumption; intros; apply idpath. }
   rewrite X0 in T2.
   apply T2.
-Defined.
+Qed.
 
 (* practically the same proof works in the opposite direction *)
 Lemma θ_Strength1_implies_θ_Strength1_int : θ_Strength1 → θ_Strength1_int.
@@ -230,7 +230,7 @@ Proof.
   { apply nat_trans_eq; try assumption; intros; apply idpath. }
   rewrite X0.
   apply T2.
-Defined.
+Qed.
 
   
 End Strength_law_1_intensional.
