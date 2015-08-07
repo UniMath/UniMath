@@ -277,7 +277,6 @@ Proof.
 *)
     apply nat_trans_eq; try (exact hs).
     intro c.
-    simpl.
     apply cancel_postcomposition.
     apply CoproductIn1Commutes_right_dir.
     apply idpath.   
@@ -288,14 +287,16 @@ Proof.
     unfold fbracket_for_LamE_algebra_on_Lam.
     apply nat_trans_eq; try (exact hs).
     intro c.
+    (*
     simpl.
     unfold bla1.
     unfold coproduct_nat_trans_data.
-
+*)
     eapply pathscomp0; [apply cancel_postcomposition ;apply precompWithCoproductArrow |].
 
     eapply pathscomp0; [|eapply pathsinv0; apply cancel_postcomposition ; apply CoproductIn2Commutes].
 
+    simpl.
     
 
 (*

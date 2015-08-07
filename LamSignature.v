@@ -301,22 +301,68 @@ Qed.
 Definition Abs_θ_data_data: ∀ XZ A, ((θ_source Abs_H)XZ: functor C C) A ⇒ ((θ_target Abs_H)XZ: functor C C) A.
 Proof.
   intro XZ.
+(*
   destruct XZ as [X Z].
+*)
   simpl.
   intro A.
-  apply (functor_on_morphisms (functor_data_from_functor _ _ X)).
+  apply (functor_on_morphisms (functor_data_from_functor _ _ (pr1 XZ))).
   unfold coproduct_functor_ob.
   unfold constant_functor.
   simpl.
+(*  
   destruct Z as [Z e].
+*)
   simpl.
   apply CoproductArrow.
-  + exact (CoproductIn1 _ _ ;; nat_trans_data e (CoproductObject C (CC terminal A))).
-  + exact (functor_on_morphisms (functor_data_from_functor _ _ Z) (CoproductIn2 _ (CC terminal A))).
+  + exact (CoproductIn1 _ _ ;; nat_trans_data (pr2 (pr2 XZ)) (CoproductObject C (CC terminal A))).
+  + exact (# (pr1 (pr2 XZ)) (CoproductIn2 _ (CC terminal A))).
 Defined.
 
 Lemma is_nat_trans_Abs_θ_data_data: ∀ XZ, is_nat_trans _ _ (Abs_θ_data_data XZ).
 Proof.
+
+  intro XZ.
+  intros c c' f.
+  unfold Abs_θ_data_data.
+  simpl.
+  rewrite <- functor_comp.
+  rewrite <- functor_comp.
+  apply maponpaths.
+  unfold coproduct_functor_mor.
+  eapply pathscomp0.
+  apply precompWithCoproductArrow.
+  eapply pathscomp0.
+Focus 2.
+  apply (!(postcompWithCoproductArrow _ _ _ _ _)).
+  simpl.
+  rewrite id_left.
+  rewrite <- assoc.
+  rewrite <- functor_comp.
+  rewrite <- functor_comp.
+  simpl.
+  apply CoproductArrow_eq.
+  + assert (NN :=  nat_trans_ax (pr2 (pr2 XZ)) _ _ (CoproductOfArrows C (CC terminal c) (CC terminal c')
+         (identity terminal) f)).
+    match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _ ] => 
+         pathvia (h;;(f;;g)) end.
+    * rewrite <- NN.
+      clear NN.
+      unfold functor_identity.   
+      simpl.
+      rewrite assoc.
+      rewrite CoproductOfArrowsIn1.
+      rewrite id_left.
+      apply idpath.
+    * apply idpath. 
+  + apply maponpaths.
+    eapply pathscomp0.
+Focus 2.
+    apply (!(CoproductOfArrowsIn2 _ _ _ _ _ )).
+    apply idpath.
+
+
+(*  
   intros [X [Z e]].
   red.
   intros c c' f.
@@ -355,6 +401,7 @@ Focus 2.
 Focus 2.
     apply (!(CoproductOfArrowsIn2 _ _ _ _ _ )).
     apply idpath.
+*)
 Qed.      
 
 
@@ -380,15 +427,22 @@ Proof.
   unfold coproduct_functor_ob.
   simpl.
   rewrite assoc.
+  unfold Abs_θ_data_data. simpl.
   rewrite (nat_trans_ax α).
   do 2 rewrite <- assoc.
   apply maponpaths.
   do 2 rewrite <- functor_comp.
   apply maponpaths.
   unfold coproduct_functor_mor, constant_functor_data.
-  simpl.  
-  rewrite precompWithCoproductArrow.
-  rewrite postcompWithCoproductArrow.
+  simpl.
+  eapply pathscomp0. apply precompWithCoproductArrow.
+(*  rewrite precompWithCoproductArrow. *)
+  eapply pathscomp0. Focus 2. eapply pathsinv0.
+  apply postcompWithCoproductArrow.
+(*
+  eapply cancel_postcomposition. apply postcompWithCoproductArrow.
+*)
+(*  rewrite postcompWithCoproductArrow. *)
   apply CoproductArrow_eq.
   + rewrite id_left.
     rewrite <- assoc.
@@ -432,6 +486,7 @@ Proof.
   simpl.
   rewrite id_left.
   rewrite id_right.
+  unfold Abs_θ_data_data. simpl.
   rewrite <- functor_comp.
   apply maponpaths.
   clear X.
@@ -478,10 +533,11 @@ Qed.
 Definition Flat_θ_data: ∀ XZ, (θ_source Flat_H)XZ ⇒ (θ_target Flat_H)XZ.
 Proof.
   intro XZ.
-  destruct XZ as [X [Z e]].
+(*  destruct XZ as [X [Z e]]. 
   simpl.
-  set (h:= nat_trans_comp (λ_functor_inv _ X) ((nat_trans_id _) ∙∙ e)).
-  exact (nat_trans_comp (α_functor_inv _ Z X X) (h ∙∙ (nat_trans_id (functor_composite Z X)))).
+*)
+  set (h:= nat_trans_comp (λ_functor_inv _ (pr1 XZ)) ((nat_trans_id _) ∙∙ (pr2 (pr2 XZ)))).
+  exact (nat_trans_comp (α_functor_inv _ (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ∙∙ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
 Defined.
 
 Lemma is_nat_trans_Flat_θ_data: is_nat_trans _ _ Flat_θ_data.
