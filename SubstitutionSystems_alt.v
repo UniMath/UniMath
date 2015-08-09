@@ -78,7 +78,7 @@ Local Notation "α 'øø' Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z)
 
 Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
 
- Local Coercion alg_carrier : algebra_ob >-> ob.
+Local Coercion alg_carrier : algebra_ob >-> ob.
 
 (* Local Notation "'τ'" := (tau). *)
 
@@ -114,8 +114,10 @@ Defined.
 
 Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
 
+(*
 Coercion functor_from_algebra_ob (X : algebra_ob _ Id_H) : functor C C  := pr1 X.
-Local Notation "` T" := (functor_from_algebra_ob T) (at level 3).
+*)
+Local Notation "` T" := (alg_carrier _ _ T : functor C C) (at level 3).
 
 Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 

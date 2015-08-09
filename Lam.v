@@ -39,6 +39,9 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
 Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 35).
 Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
+Local Notation "` T" := (alg_carrier _ _ T) (at level 3).
+Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
+
 
 
 Arguments θ_source {_ _} _ .
@@ -65,11 +68,16 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 Local Notation "'U'" := (functor_ptd_forget C hs).
 
+
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CC hs.
 Let EndEndC := [EndC, EndC, hsEndC].
 Let CPEndEndC:= Coproducts_functor_precat _ _ CPEndC hsEndC: Coproducts EndEndC.
 
+
+Local Notation "'ℓ'" := (pre_composition_functor_data _ _ _ _ _ ).
+
+Local Notation "'τ'" := (tau_from_alg _ _ _ _ ).
 
 Let one : C :=  @TerminalObject C terminal.
 
@@ -88,7 +96,6 @@ Variable Lam_Initial : Initial
                              (Id_H C hs CC Lam_S) hsEndC).
 
 Let Lam := InitialObject _ Lam_Initial.
-Local Notation "` XX" := (alg_carrier _ _ XX) (at level 3).
 
 (*
 (* assume initial algebra for signature LamE *)
@@ -220,9 +227,7 @@ Defined.
 Definition fbracket_for_LamE_algebra_on_Lam (Z : Ptd)
    (f : Ptd ⟦ Z, ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam ⟧ ) :
    [C, C] hs
-   ⟦ functor_composite (U Z)
-       (functor_from_algebra_ob C hs CC LamE_S LamE_algebra_on_Lam),
-      `LamE_algebra_on_Lam ⟧ .
+   ⟦ functor_composite (U Z) `LamE_algebra_on_Lam, `LamE_algebra_on_Lam ⟧ .
 Proof.
   exact (fbracket LamHSS (f ;; bla)).
 Defined.
@@ -291,13 +296,50 @@ Proof.
     simpl.
     unfold bla1.
     unfold coproduct_nat_trans_data.
-*)
+     *)
+    
     eapply pathscomp0; [apply cancel_postcomposition ;apply precompWithCoproductArrow |].
 
+    Arguments H {_ _ _} _ _.
+    Arguments CoproductArrow {_ _ _ _ _} _ _ .
+    idtac.
     eapply pathscomp0; [|eapply pathsinv0; apply cancel_postcomposition ; apply CoproductIn2Commutes].
+    eapply pathscomp0; [apply postcompWithCoproductArrow |].
+    apply pathsinv0.
+    apply CoproductArrowUnique.
+  - rewrite assoc.
+    eapply pathscomp0 ;[ apply cancel_postcomposition; apply CoproductIn1Commutes |].
+    apply pathsinv0.
+    assert (Hyp := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp2 c).
+ 
+    
+ (*   
+    Check θ.
+    Arguments θ {_ _ _ _ _ } _ _ .
+    idtac.
+    Opaque θ.
+    Opaque fbracket.
+    simpl.
+    unfold coproduct_nat_trans_in2_data.
+    
+    unfold Flat_H. simpl.
+
+    simpl.
+
+    unfold coproduct_nat_trans_data. simpl.
+    unfold coproduct_nat_trans_in1_data.
+    unfold product_nat_trans_data.
 
     simpl.
     
+    rewrite assoc.
+
+    unfold bla1.
+
+    rewrite id_left.
+    
+    unfold coproduct_nat_trans_data. simpl.
+*)
 
 (*
     apply nat_trans_eq; try (exact hs).
@@ -329,14 +371,14 @@ Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
    t : Σ
        h : [C, C] hs
            ⟦ functor_composite (U Z)
-               (functor_from_algebra_ob C hs CC LamE_S LamE_algebra_on_Lam),
+               (` LamE_algebra_on_Lam),
            `LamE_algebra_on_Lam ⟧,
        bracket_property C hs CC LamE_S LamE_algebra_on_Lam f h,
    t =
    tpair
      (λ h : [C, C] hs
             ⟦ functor_composite (U Z)
-                (functor_from_algebra_ob C hs CC LamE_S LamE_algebra_on_Lam),
+                (` LamE_algebra_on_Lam),
             `LamE_algebra_on_Lam ⟧,
       bracket_property C hs CC LamE_S LamE_algebra_on_Lam f h)
      (fbracket_for_LamE_algebra_on_Lam Z f) (bracket_property_for_LamE_algebra_on_Lam Z f).
@@ -349,8 +391,25 @@ Proof.
   unfold fbracket_for_LamE_algebra_on_Lam.
   apply (fbracket_unique LamHSS).
   split.
-  - admit.
-  - admit.
+  -  apply parts_from_whole in Ht. destruct Ht as [H1 _].
+     apply nat_trans_eq; try assumption.
+     intro c.
+     assert (HT:=nat_trans_eq_pointwise _ _ _ _ _ _ H1 c).
+     simpl.
+     rewrite id_right.
+     match goal with |[ H : _ = ?a |- _ ] => transitivity a end.
+     + apply HT.
+     + simpl. repeat rewrite assoc. apply cancel_postcomposition.
+       repeat rewrite <- assoc.
+       unfold coproduct_nat_trans_in1_data.
+       unfold coproduct_nat_trans_data.
+       eapply pathscomp0. apply CoproductIn1Commutes.
+       admit.
+  - apply parts_from_whole in Ht. destruct Ht as [_ H2].
+     apply nat_trans_eq; try assumption.
+     intro c.
+     (* now extract first component of HT, by precomposing with CoproductIn1 *)
+    admit.
 Admitted.
 
 Definition bracket_for_LamE_algebra_on_Lam_at (Z : Ptd)

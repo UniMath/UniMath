@@ -99,8 +99,8 @@ Local Notation "'p' T" := (ptd_from_alg _ _ _ _ T) (at level 3).
 (*
 Coercion functor_from_algebra_ob (X : algebra_ob _ Id_H) : functor C C := pr1 X.
 *)
-Local Notation "` T" := (functor_from_algebra_ob _ hs CP _ T) (at level 3).
-Local Notation "`` T" := (functor_from_algebra_ob _ hs CP _ T : EndC) (at level 3).
+Local Notation "` T" := (alg_carrier _ _ T) (at level 3).
+Local Notation "`` T" := (alg_carrier _ _ T : EndC) (at level 3).
 
 Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 
@@ -110,7 +110,7 @@ Local Notation "'η'" := (eta_from_alg _ _ _ _ T).
 
 Coercion alg_from_hss (T : hss CP H) : algebra_ob _  _ := pr1 T.
 
-Definition μ_0 : functor_identity C ⟶ `T := η. (*ptd_pt _ (pr1 (pr1 T)).*)
+Definition μ_0 : functor_identity C ⟶ functor_data_from_functor _ _ `T := η. (*ptd_pt _ (pr1 (pr1 T)).*)
 
 Definition μ_0_ptd : id_Ptd C hs ⇒ p T.
 Proof.
@@ -118,7 +118,7 @@ Proof.
   intro c. simpl. apply id_left.
 Defined.
 
-Definition μ_1 : functor_composite (U (id_Ptd C hs)) (`T) ⟶ `T 
+Definition μ_1 : functor_composite (U (id_Ptd C hs)) (`T) ⟶ functor_data_from_functor _ _ `T 
   := fbracket _ μ_0_ptd.
 
 
@@ -682,7 +682,7 @@ Proof.
          rewrite functor_id.
          rewrite id_left.
          assert (H4':= fbracket_τ T (identity _ )).
-         assert (H6:= nat_trans_eq_pointwise _ _ _ _ _ _ H4' (`T x)); clear H4'.
+         assert (H6:= nat_trans_eq_pointwise _ _ _ _ _ _ H4' (pr1 `T x)); clear H4'.
          repeat rewrite assoc.
          apply cancel_postcomposition.
          simpl in H6.
