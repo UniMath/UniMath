@@ -1,7 +1,8 @@
 (** * Equivalences *)
 
-Require Import uu0.
-Require Import Utilities funextfun.
+Require Import Foundations.Generalities.uu0.
+Require Import Ktheory.Utilities
+               Foundations.Proof_of_Extensionality.funextfun.
 
 Section A.
 

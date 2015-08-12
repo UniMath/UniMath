@@ -2,8 +2,12 @@
 
 (** * Metric trees *)
 
-Require Import algebra1b hnat funextfun total2_paths Ktheory.Utilities.
-Import Utilities.Notation Utilities.NatNotation.
+Require Import Foundations.hlevel2.algebra1b
+               Foundations.hlevel2.hnat
+               Foundations.Proof_of_Extensionality.funextfun
+               RezkCompletion.total2_paths
+               UniMath.Ktheory.Utilities.
+Import Ktheory.Utilities.Notation Ktheory.Utilities.NatNotation.
 
 (** ** Definitions *)
 

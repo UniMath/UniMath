@@ -1,6 +1,8 @@
 Ktheory
 =======
 
+Author: Daniel R. Grayson <dan@math.uiuc.edu>
+
 This package aims to formalize theorems of higher algebraic K-theory.
 
 We start by introducing the category theory needed for K-theory:
@@ -25,20 +27,6 @@ Acknowledgments
 I thank the Oswald Veblen Fund and the Bell Companies Fellowship for supporting
 my stay at the Institute for Advanced Study in 2013-2014, where I wrote this
 code.
-
-Licensing and copyright
-=======================
-
-Author: Daniel R. Grayson <dan@math.uiuc.edu>
-
-The code in this package (Ktheory) is made available under the terms of "CC0
-1.0 Universal", see
-[http://creativecommons.org/publicdomain/zero/1.0/legalcode](http://creativecommons.org/publicdomain/zero/1.0/legalcode).
-That means, basically, that I disclaim all rights, including copyright, and put
-it into the public domain.
-
-The code in this package (Ktheory) is (also) put into the public domain, which
-means I disclaim any and all copyright protection.
 
 Overview of contents
 ====================

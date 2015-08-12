@@ -1,11 +1,11 @@
 
-Require Import Foundations.Generalities.uuu.
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Generalities.uuu.
+Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.hlevel1.hProp.
+Require Import UniMath.Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.total2_paths.
-Require Import RezkCompletion.precategories.
+Require Import UniMath.RezkCompletion.total2_paths.
+Require Import UniMath.RezkCompletion.precategories.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 Local Notation "f ;; g" := (compose f g)(at level 50).
