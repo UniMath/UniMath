@@ -105,6 +105,8 @@ sub/coq/bin/coqide: sub/lablgtk/README sub/coq/config/coq_config.ml
 	$(MAKE) -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
 configure-coq: sub/coq/config/coq_config.ml
 # we use sub/lablgtk/src/gSourceView2.cmi as a proxy for all of lablgtk
+# note: under Mac OS X, "homebrew" installs lablgtk without that file, but it's needed for building coqide.  That's why we build lablgtk ourselves.
+# note: lablgtk needs camlp4, not camlp5.  Strange, but it does.  So we must install that, too.
 build-lablgtk sub/lablgtk/src/gSourceView2.cmi: sub/lablgtk/README
 	cd sub/lablgtk && ./configure
 	$(MAKE) -C sub/lablgtk all byte opt world
