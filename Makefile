@@ -126,5 +126,5 @@ git-clean:
 	git submodule foreach git clean -xdfq
 git-deinit:
 	git submodule foreach git clean -xdfq
-	git submodule deinit sub/*
+	git submodule deinit -f sub/*
 #################################
