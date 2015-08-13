@@ -107,7 +107,7 @@ help-find-bug:
 isolate-bug: sub/coq-tools/find-bug.py
 	cd UniMath && \
 	rm -f isolated-bug.v && \
-	../sub/coq-tools/find-bug.py \
+	yes | ../sub/coq-tools/find-bug.py \
 		--coqbin ../sub/coq/bin \
 		-R . UniMath \
 		--arg " -indices-matter" \
