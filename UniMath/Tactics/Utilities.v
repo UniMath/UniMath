@@ -33,7 +33,7 @@ Ltac check_cons f g :=
 Ltac id_check T := idtac.
 
 Ltac make_hyp_check e :=
-  let T0 := type of e in 
+  let T0 := type of e in
   let f T :=
       match T with
         | T0 => fail 1

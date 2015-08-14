@@ -30,7 +30,7 @@ Proof.
   apply (pr2 O O).
 Qed.
 
-Lemma isiso_from_Initial_to_Initial (O O' : Initial) : 
+Lemma isiso_from_Initial_to_Initial (O O' : Initial) :
    is_isomorphism (InitialArrow O O').
 Proof.
   apply (is_iso_qinv _ (InitialArrow O' O)).
@@ -38,7 +38,7 @@ Proof.
    apply InitialEndo_is_identity.
 Defined.
 
-Definition iso_Initials (O O' : Initial) : iso O O' := 
+Definition iso_Initials (O O' : Initial) : iso O O' :=
    tpair _ (InitialArrow O O') (isiso_from_Initial_to_Initial O O') .
 
 Definition hasInitial := ishinh Initial.

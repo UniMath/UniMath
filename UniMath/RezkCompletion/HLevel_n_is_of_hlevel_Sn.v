@@ -1,12 +1,12 @@
 (** * [HLevel(n)] is of hlevel n+1 *)
 
-(** 
+(**
    Authors: Benedikt Ahrens, Chris Kapulkin
-   Title: HLevel(n) is of hlevel n+1 
-   Date: December 2012 
+   Title: HLevel(n) is of hlevel n+1
+   Date: December 2012
 *)
 
-(** 
+(**
    In this file we prove the main result of this work:
    the type of types of hlevel n is itself of hlevel n+1.
 *)
@@ -19,30 +19,30 @@ Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun.
 (** ** Weak equivalence between identity types in [HLevel] and [U] *)
 
 (** To show that HLevel(n) is of hlevel n + 1, we need to show that
-    its path spaces are of hlevel n. 
-	
-    First, we show that each of its path spaces equivalent to the 
+    its path spaces are of hlevel n.
+
+    First, we show that each of its path spaces equivalent to the
      path space of the underlying types.
-   
+
     More generally, we prove this for any predicate [P : UU -> hProp]
     which we later instantiate with [P := isofhlevel n].
 *)
 
-(** Overview of the proof: 
+(** Overview of the proof:
    Identity of Sigmas <~> Sigma of Identities <~> Identities in [U] ,
    where the first equivalence is called [weq1] and the second one
    is called [weq2].
 *)
 
-Lemma weq1  (P : UU -> hProp) (X X' : UU) (pX : P X) (pX' : P X') : 
+Lemma weq1  (P : UU -> hProp) (X X' : UU) (pX : P X) (pX' : P X') :
    weq (tpair _ X pX = tpair (fun x => P x) X' pX')
        (total2 (fun w : X = X' => transportf (fun x => P x) w pX = pX')).
 Proof.
   apply total2_paths_equiv.
 Defined.
 
-(** This helper lemma is needed to show that our fibration 
-    is indeed a predicate, so that we can instantiate 
+(** This helper lemma is needed to show that our fibration
+    is indeed a predicate, so that we can instantiate
     the hProposition [P] with this fibration.
 *)
 
@@ -59,29 +59,29 @@ Defined.
 
 
 (** We construct the equivalence [weq2] as a projection
-    from a total space, which, by the previous lemma, is 
+    from a total space, which, by the previous lemma, is
     a weak equivalence.
 *)
 
-Lemma weq2 (P : UU -> hProp) (X X' : UU) 
+Lemma weq2 (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') :
-  weq (total2 (fun w : X = X' => 
+  weq (total2 (fun w : X = X' =>
               transportf (fun x => P x) w pX = pX'))
       (X = X').
 Proof.
-  exists (@pr1 (X = X') (fun w : X = X' => 
+  exists (@pr1 (X = X') (fun w : X = X' =>
             (transportf (fun x : UU => P x) w pX)  = pX' )).
   apply isweqpr1.
   intros ? .
   apply (pr2 (P X')).
 Defined.
- 
-(**  Composing [weq1] and [weq2] yields the desired 
-     weak equivalence. 
+
+(**  Composing [weq1] and [weq2] yields the desired
+     weak equivalence.
 *)
 
-Lemma Id_p_weq_Id (P : UU -> hProp) (X X' : UU) 
-      (pX : P X) (pX' : P X') : 
+Lemma Id_p_weq_Id (P : UU -> hProp) (X X' : UU)
+      (pX : P X) (pX' : P X') :
  weq ((tpair _ X pX) = (tpair (fun x => P x) X' pX')) (X = X').
 Proof.
   set (f := weq1 P X X' pX pX').
@@ -93,11 +93,11 @@ Defined.
 
 (** ** Hlevel of path spaces *)
 
-(**  We show that if [X] and [X'] are of hlevel [n], then so is their 
+(**  We show that if [X] and [X'] are of hlevel [n], then so is their
       identity type [X = X'].
 *)
 (** The proof works differently for [n = 0] and [n = S n'],
-    so we treat these two cases in separate lemmas 
+    so we treat these two cases in separate lemmas
     [isofhlevel0pathspace] and [isofhlevelSnpathspace] and put them
     together in the lemma [isofhlevelpathspace].
 *)
@@ -124,7 +124,7 @@ Proof.
   intro f.
   assert (H' : pr1 f = pr1 (isofhlevel0weq X Y pX pY)).
     apply funextfun.
-    simpl. intro x. 
+    simpl. intro x.
     apply (pr2 pY).
   apply (total2_paths H').
   apply proofirrelevance.
@@ -184,19 +184,19 @@ Proof.
   intro n.
   simpl.
   intros [X pX] [X' pX'].
-  set (H := isofhlevelweqb n 
-       (Id_p_weq_Id (fun X => tpair (fun X => isaprop X) (isofhlevel n X) 
+  set (H := isofhlevelweqb n
+       (Id_p_weq_Id (fun X => tpair (fun X => isaprop X) (isofhlevel n X)
                                (isapropisofhlevel _ _)) X X' pX pX')).
   apply H.
   apply isofhlevelpathspace;
   assumption.
-Defined.   
+Defined.
 
 (** ** Aside: Univalence for predicates and hlevels *)
 
-(** As a corollary from [Id_p_weq_Id], 
-    we obtain a version of the Univalence Axiom for 
-    predicates on the universe [U]. 
+(** As a corollary from [Id_p_weq_Id],
+    we obtain a version of the Univalence Axiom for
+    predicates on the universe [U].
     In particular, we can instantiate this predicate with
     [isofhlevel n].
 *)
@@ -211,13 +211,13 @@ Proof.
 Defined.
 
 Corollary UA_for_HLevels : forall (n : nat)
-      (X X' : HLevel n), 
+      (X X' : HLevel n),
      weq (X = X') (weq (pr1 X) (pr1 X')).
 Proof.
   intros n [X pX] [X' pX'].
   simpl.
-  apply (UA_for_Predicates 
-       (fun X => tpair (fun X => isaprop X) (isofhlevel n X) 
+  apply (UA_for_Predicates
+       (fun X => tpair (fun X => isaprop X) (isofhlevel n X)
                                       (isapropisofhlevel _ _))).
 Defined.
-  
+

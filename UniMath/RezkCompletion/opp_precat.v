@@ -66,12 +66,12 @@ Definition functor_opp_data {C D : precategory} (F : functor C D) :
 
 Lemma is_functor_functor_opp {C D : precategory} (F : functor C D) :
   is_functor (functor_opp_data F).
-Proof. split; intros. 
+Proof. split; intros.
   - unfold functor_idax; simpl.
-    apply (functor_id F). 
+    apply (functor_id F).
   - unfold functor_compax; simpl.
     intros.
-    apply (functor_comp F). 
+    apply (functor_comp F).
 Qed.
 
 Definition functor_opp {C D : precategory} (F : functor C D) : functor C^op D^op :=

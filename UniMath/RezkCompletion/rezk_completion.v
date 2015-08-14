@@ -77,7 +77,7 @@ Hypothesis hsA: has_homsets A.
 Hypothesis Ccat : is_category C.
 
 Lemma pre_comp_rezk_eta_is_fully_faithful :
-    fully_faithful (pre_composition_functor A (Rezk_completion A hsA) C 
+    fully_faithful (pre_composition_functor A (Rezk_completion A hsA) C
                 (pr2 (pr2 (Rezk_completion A hsA))) (pr2 Ccat) ((Rezk_eta A hsA))).
 Proof.
   apply pre_composition_with_ess_surj_and_fully_faithful_is_fully_faithful.
@@ -86,7 +86,7 @@ Proof.
 Defined.
 
 Lemma pre_comp_rezk_eta_is_ess_surj :
-   essentially_surjective (pre_composition_functor A (Rezk_completion A hsA) C 
+   essentially_surjective (pre_composition_functor A (Rezk_completion A hsA) C
    (pr2 (pr2 (Rezk_completion A hsA))) (pr2 Ccat)
    (Rezk_eta A hsA)).
 Proof.
@@ -95,29 +95,29 @@ Proof.
   apply Rezk_eta_is_fully_faithful.
 Defined.
 
-Theorem Rezk_eta_Universal_Property : 
-  isweq (pre_composition_functor A (Rezk_completion A hsA) C 
+Theorem Rezk_eta_Universal_Property :
+  isweq (pre_composition_functor A (Rezk_completion A hsA) C
    (pr2 (pr2 (Rezk_completion A hsA))) (pr2 Ccat) (Rezk_eta A hsA)).
 Proof.
   apply (equiv_of_cats_is_weq_of_objects _ _ (functor_category_has_homsets _ _ _  )
                                          (functor_category_has_homsets _ _ _ )).
-  - apply is_category_functor_category; 
+  - apply is_category_functor_category;
     assumption.
-  - apply is_category_functor_category; 
-    assumption. 
-  - pose (T:=@rad_equivalence_of_precats 
+  - apply is_category_functor_category;
+    assumption.
+  - pose (T:=@rad_equivalence_of_precats
            [Rezk_completion A hsA, C, pr2 Ccat]
            [A, C, pr2 Ccat]
            (is_category_functor_category _ _ _ )
-           _ 
+           _
            (pre_comp_rezk_eta_is_fully_faithful)
            (pre_comp_rezk_eta_is_ess_surj)).
   apply T.
 Defined.
 
 End rezk_universal_property.
-  
-  
+
+
 
 
 

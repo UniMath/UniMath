@@ -9,7 +9,7 @@ Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
 Notation "A × B" := (dirprod A B) (at level 80, no associativity) : type_scope.
 Notation "X ≃ Y" := (weq X Y) (at level 80, no associativity) : type_scope.
-(* written \simeq in Agda input method *) 
+(* written \simeq in Agda input method *)
 Notation "x → y" := (x -> y)
   (at level 90, y at level 200, right associativity): type_scope.
 (* written \to in Agda input method *)

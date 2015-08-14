@@ -41,21 +41,21 @@ Ltac gr_clean G :=
 Unset Ltac Debug.
 
 Section Tests.
-  
+
   Hypothesis G : gr.
 
   Hypothesis x y z u v w : G.
-  
+
   Lemma test_gr_prezap_1 (is : w = v): x * (y * w) = x * (y * v).
   Proof.
     intros. gr_prezap G.
   Qed.
-  
+
   Lemma test_gr_prezap_2 (is : w = v):  x * (y * w) = (x * y) * v.
   Proof.
-    intros. gr_prezap G. 
+    intros. gr_prezap G.
   Qed.
-  
+
   Lemma test_gr_prezap_3 (t : x * (y * (z * u)) = (v * w) * u) :
     (((x * y) * z) * u) * w = v * (w * (u * w)).
   Proof.
@@ -67,25 +67,25 @@ Section Tests.
   Proof.
     intros. gr_prezap G.
   Qed.
-  
+
   Lemma test_gr_group_1 (t : x * (y * (z * u)) = (v * w) * u) :
     ((x * (y * z)) * u) * w = v * (w * (u * w)).
   Proof.
     intros. gr_group_in G t w u. gr_group G w u. gr_group G v (w * u).
-    gr_prezap G. 
+    gr_prezap G.
   Qed.
-  
+
   Lemma test_gr_prezap_5 (t : x * (y * (z * u)) = (v * w) * u) :
     ((x * (y * z)) * u) * w = v * (w * (u * w)).
   Proof.
     intros. gr_prezap G.
   Qed.
-  
+
   Lemma test_gr_prezap_6 (t : x * y = y * x) : x * y * x = x * x * y.
   Proof.
     intros. gr_prezap G.
   Qed.
-  
+
   Lemma test_gr_prezap_7 (t : x * y = y * x) (i : x * z = @unel G) :
     x * (y * z) = y * (x * z).
   Proof.

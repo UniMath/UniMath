@@ -256,7 +256,7 @@ Ltac nat_plus_move_to_back_in H s :=
         | context[s + ?x + ?y] =>
           rewrite (nat_plus_perm201 s x y) in H
       end.
-            
+
 Ltac nat_plus_move_to_front s :=
   repeat
     let lhs := get_current_lhs in
@@ -300,12 +300,12 @@ Ltac nat_plus_move_to_front_both_in H s :=
         | context[?x + ?y + s] => nat_plus_not_word y;
             rewrite (nat_plus_perm021 x y s) in H
       end.
-   
+
 Ltac nat_plus_move_to_back_goal s :=
-  repeat 
+  repeat
     let rhs := get_current_rhs in
     nat_plus_not_at_back rhs s;
-      match rhs with 
+      match rhs with
         | context [s + ?x] => rewrite (natpluscomm s x)
         | context[?x + s + ?y] => nat_plus_not_word y;
             rewrite (nat_plus_perm021 x s y)
@@ -315,10 +315,10 @@ Ltac nat_plus_move_to_back_goal s :=
       end.
 
 Ltac nat_plus_move_to_back_both_in H s :=
-  repeat 
+  repeat
     let rhs := get_current_rhs_in H in
     nat_plus_not_at_back rhs s;
-      match rhs with 
+      match rhs with
         | context [s + ?x] => rewrite (natpluscomm s x)
         | context[?x + s + ?y] => nat_plus_not_word y;
             rewrite (nat_plus_perm021 x s y) in H
@@ -370,7 +370,7 @@ Ltac nat_mult_move_to_back_in H s :=
         | context[s * ?x * ?y] =>
           rewrite (nat_mult_perm201 s x y) in H
       end.
-            
+
 Ltac nat_mult_move_to_front s :=
   repeat
     let lhs := get_current_lhs in
@@ -414,12 +414,12 @@ Ltac nat_mult_move_to_front_both_in H s :=
         | context[?x * ?y * s] => nat_mult_not_word y;
             rewrite (nat_mult_perm021 x y s) in H
       end.
-   
+
 Ltac nat_mult_move_to_back_goal s :=
-  repeat 
+  repeat
     let rhs := get_current_rhs in
     nat_mult_not_at_back rhs s;
-      match rhs with 
+      match rhs with
         | context [s * ?x] => rewrite (natmultcomm s x)
         | context[?x * s * ?y] => nat_mult_not_word y;
             rewrite (nat_mult_perm021 x s y)
@@ -429,10 +429,10 @@ Ltac nat_mult_move_to_back_goal s :=
       end.
 
 Ltac nat_mult_move_to_back_both_in H s :=
-  repeat 
+  repeat
     let rhs := get_current_rhs_in H in
     nat_mult_not_at_back rhs s;
-      match rhs with 
+      match rhs with
         | context [s * ?x] => rewrite (natmultcomm s x)
         | context[?x * s * ?y] => nat_mult_not_word y;
             rewrite (nat_mult_perm021 x s y) in H
@@ -459,7 +459,7 @@ Ltac nat_plus_group_both_in H s t :=
 
 Ltac nat_plus_group_all s t :=
   nat_plus_group_goal s t;
-  repeat 
+  repeat
     match goal with
       | H : _ |- _ => nat_plus_group_both_in H s t
     end.
@@ -472,7 +472,7 @@ Ltac nat_plus_group_as t :=
       nat_plus_group_as x
     | ?x => nat_plus_not_word x; nat_plus_move_to_front x
   end.
-  
+
 (** t is a term of type x = y for x, y : nat and nat_plus_group_from attempts to reogranize the lhs of the goal to include as a subterm x.*)
 Ltac nat_plus_group_from t :=
   let T := type of t in
@@ -494,7 +494,7 @@ Ltac nat_mult_group_both_in H s t :=
 
 Ltac nat_mult_group_all s t :=
   nat_mult_group_goal s t;
-  repeat 
+  repeat
     match goal with
       | H : _ |- _ => nat_mult_group_both_in H s t
     end.
@@ -507,7 +507,7 @@ Ltac nat_mult_group_as t :=
       nat_mult_group_as x
     | ?x => nat_mult_not_word x; nat_mult_move_to_front x
   end.
-  
+
 (** [t] is a term of type [x = y] for [x y : nat] and [nat_mult_group_from] attempts to reogranize the [lhs] of the [goal] to include as a subterm [x].*)
 Ltac nat_mult_group_from t :=
   let T := type of t in
@@ -604,7 +604,7 @@ Ltac natgeh_simple :=
     | |- hProptoType (?x >= ?x) => apply isreflnatgeh
     | |- hProptoType (?x >= 0) => apply natgehn0
     | |- hProptoType ((S ?x) >= ?x) => apply (natgehsnn x)
-    | |- hProptoType (?x >= ?x - ?y) => apply (minusgeh x y) 
+    | |- hProptoType (?x >= ?x - ?y) => apply (minusgeh x y)
     | H : hProptoType (?x > ?y) |- hProptoType (?x >= ?y) =>
       apply (natgthtogeh x y H)
     | P : hProptoType (?x >= ?y),
@@ -698,11 +698,11 @@ Ltac nat_eq_contr :=
     | H : ?x = ?x -> empty |- _ => i H
     | H : neg (?x = ?x) |- _ => i H
     | H : hProptoType (natneq ?x ?y), _ : ?x = ?y |- _ => f H
-    | H : hProptoType (natneq ?x ?x) |- _ => i H 
+    | H : hProptoType (natneq ?x ?x) |- _ => i H
     | H : hProptoType (natneq ?x ?y), _ : ?x = ?y |- _ => f H
     | H : hProptoType (natneq ?x ?x) |- _ => i H
   end.
-  
+
 Ltac nat_simple_contr :=
   assert empty; [
     match goal with
@@ -953,47 +953,47 @@ Section Tests.
   Hypothesis x y z u v w x' y' z' u' v' w' : nat.
 
   (** Note that [nat_devious_ineq] also correctly solves all of the tests designed for [nat_dfs].*)
-  
+
   Lemma test_nat_dfs_0 (i1 : natgth x y) (i2 : natgeh y z)
         (i3 : natgth z u) (i4 : natgeh u v) (i5 : natgeh v w) : natgth x w.
   Proof.
     intros. nat_dfs.
   Qed.
-  
+
   Lemma test_nat_dfs_1 (i1 : natgth x y) (i2 : natgth y z)
         (i3 : natlth u z) (i4 : natgth w u) (i5 : natgth z x') : natgth x x'.
   Proof.
-    intros. nat_dfs. 
+    intros. nat_dfs.
   Qed.
-  
+
   Lemma test_nat_dfs_2 (i1 : natgth x y) (i2 : natlth z y)
         (i3 : natgth u z) : natgth x z.
   Proof.
-    intros. nat_dfs. 
+    intros. nat_dfs.
   Qed.
-  
+
   Lemma test_nat_dfs_3 (i1 : natgth x y) (i2 : natlth z y)
         (i3 : natlth z u) : natgth x z.
   Proof.
-    intros. nat_dfs. 
+    intros. nat_dfs.
   Qed.
-  
+
   Lemma test_nat_dfs_4 (i1 : natgth x y) (i2 : natgth y z)
         (i3 : natlth z u) (i4 : natlth v z) (i5 : natgth v x')
         (i6 : natlth v w) (i7 : natlth z' x') (i8 : natlth u' z')
         (i9 : natgth u y') : natgth x u'.
   Proof.
-    intros. nat_dfs. 
+    intros. nat_dfs.
   Qed.
-  
+
   Lemma test_nat_dfs_5 (i1 : natlth x y) (i2 : natlth y z)
         (i3 : natgth z u) (i4 : natgth v z) (i5 : natlth v x')
         (i6 : natgth v w) (i7 : natgth z' x') (i8 : natgth u' z')
         (i9 : natlth u y') : natlth x u'.
   Proof.
-    intros. nat_dfs. 
+    intros. nat_dfs.
   Qed.
-  
+
   Lemma test_nat_dfs_6 (i1 : natgeh x y) (i2 : natgth y z)
         (i3 : natleh z u) (i4 : natlth v z) (i5 : natgth v x')
         (i6 : natleh v w) (i7 : natlth z' x') (i8 : natlth u' z')
@@ -1001,7 +1001,7 @@ Section Tests.
   Proof.
     intros. nat_dfs.
   Qed.
-  
+
   Lemma test_nat_dfs_7 (i1 : natleh x y) (i2 : natlth y z)
         (i3 : natgeh z u) (i4 : natgth v z) (i5 : natlth v x')
         (i6 : natgeh v w) (i7 : natgth z' x') (i8 : natgth u' z')
@@ -1009,33 +1009,33 @@ Section Tests.
   Proof.
     intros. nat_dfs.
   Qed.
-  
+
   Lemma test_nat_dfs_8 (i1 : natleh x y) (i2 : natlth y z)
         (i3 : natgeh z u) (i4 : natgth v z) (i5 : natlth v x')
         (i6 : natgeh v w) (i7 : natgth z' x') (i8 : natgth u' z')
         (i9 : natleh u y') : natleh x u'.
   Proof.
-    intros. nat_dfs. 
+    intros. nat_dfs.
   Qed.
-  
+
   Lemma test_nat_dfs_10 (i1 : natneq x 0) (i2 : natgeh x 0) :
     natgth x 0.
   Proof.
     intros. nat_dfs.
   Qed.
-  
+
   Lemma test_nat_dfs_11 (i2 : natneq 0 x) (i2 : natgeh x 0) :
     natgth x 0.
   Proof.
-    intros. nat_dfs. 
+    intros. nat_dfs.
   Qed.
-  
+
   Lemma test_nat_dfs_12 (i1 : 0 = x -> empty) (i2 : natgeh x 0) :
     natgth x 0.
   Proof.
-    intros. nat_dfs. 
+    intros. nat_dfs.
   Qed.
-  
+
   Lemma test_nat_dfs_13 (i : natleh y x) (l : natgth y x) : natlth x x.
   Proof.
     intros. nat_dfs.
@@ -1059,13 +1059,13 @@ Section Tests.
   Proof.
     intros. nat_absurd.
   Qed.
-  
+
   Lemma test_nat_absurd_4 (i1 : natgth x y) (i2 : natlth z y)
         (i3 : natgth u z) (i4 : natleh x z ) : natgth x z.
   Proof.
-    intros. nat_absurd. 
+    intros. nat_absurd.
   Qed.
-  
+
   Lemma test_nat_plus_ternary_perm  n m k l : n + m + k + l = l + m + n + k.
   Proof.
     intros. nat_plus_ternary_perm l m k. nat_plus_ternary_perm l m n.
@@ -1089,6 +1089,6 @@ Section Tests.
   Qed.
 
   Close Scope nat_scope.
-  
+
 End Tests.
 *)

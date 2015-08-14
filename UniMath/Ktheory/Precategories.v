@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Ktheory.Utilities.
-Require Import UniMath.RezkCompletion.precategories 
+Require Import UniMath.RezkCompletion.precategories
                UniMath.RezkCompletion.opp_precat
                UniMath.RezkCompletion.yoneda
                UniMath.RezkCompletion.category_hset
@@ -12,7 +12,7 @@ Import UniMath.Ktheory.Utilities.Notation.
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := tpair _ C i.
 Module Precategory.
-  Definition obmor (C:precategory) : precategory_ob_mor := 
+  Definition obmor (C:precategory) : precategory_ob_mor :=
         precategory_ob_mor_from_precategory_data (
             precategory_data_from_precategory C).
   Definition obj (C:precategory) : Type :=
@@ -64,7 +64,7 @@ Definition makePrecategory_ob_mor
     : precategory_ob_mor.
   intros.
   exact (precategory_ob_mor_pair obj (fun i j:obj => mor i j)).
-Defined.    
+Defined.
 
 Definition makePrecategory_data
     (obj : UU)
@@ -74,9 +74,9 @@ Definition makePrecategory_data
     : precategory_data.
   intros.
   exact (precategory_data_pair (makePrecategory_ob_mor obj mor) identity compose).
-Defined.    
+Defined.
 
-Definition makePrecategory 
+Definition makePrecategory
     (obj : UU)
     (mor : obj -> obj -> UU)
     (identity : forall i, mor i i)
@@ -87,13 +87,13 @@ Definition makePrecategory
         compose _ _ _ f (compose _ _ _ g h) = compose _ _ _ (compose _ _ _ f g) h)
     : precategory.
   intros.
-  apply (precategory_pair 
+  apply (precategory_pair
            (precategory_data_pair
-              (precategory_ob_mor_pair 
+              (precategory_ob_mor_pair
                  obj
                  (fun i j => mor i j))
               identity compose)
-           ((right,,left),,associativity)). Defined.    
+           ((right,,left),,associativity)). Defined.
 
 Lemma has_homsets_opp_precat (C: precategory) (hs: has_homsets C) : has_homsets (C^op).
 Proof.
@@ -110,21 +110,21 @@ Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
   idpath _ = maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
 Proof. intros [ob mor]. reflexivity. Defined.
 
-Lemma opp_opp_precat_data (C : precategory_data) 
+Lemma opp_opp_precat_data (C : precategory_data)
    : C = opp_precat_data (opp_precat_data C).
 Proof. intros [[ob mor] [id co]]. reflexivity. Defined.
 
-Lemma has_homsets_opp_precat_data (C : precategory_data)(hs : has_homsets C) : 
+Lemma has_homsets_opp_precat_data (C : precategory_data)(hs : has_homsets C) :
   has_homsets (opp_precat_data (opp_precat_data C)).
 Proof.
   intros C hs a b.
   apply hs.
-Qed.  
+Qed.
 
 Lemma opp_opp_precat (C : precategory)(hsC: has_homsets (pr1 C)) : C = C^op^op.
 Proof. intros [data ispre] hsC.
        apply (total2_paths2_second_isaprop (opp_opp_precat_data data)).
        apply isaprop_is_precategory.
-       apply has_homsets_opp_precat_data. 
+       apply has_homsets_opp_precat_data.
        apply hsC.
 Defined.

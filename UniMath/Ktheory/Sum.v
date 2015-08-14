@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 (* sums (coproducts) *)
-Require Import 
+Require Import
         UniMath.Foundations.hlevel2.hSet
         UniMath.RezkCompletion.precategories
         UniMath.RezkCompletion.functors_transformations
