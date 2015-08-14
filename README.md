@@ -20,13 +20,13 @@ Under Mac OS X, the most convenient way to do that is with "Homebrew",
 available from http://brew.sh/, with the following command:
 
 ```bash
-$ brew install objective-caml camlp5
+$ brew install objective-caml camlp5 camlp4 lablgtk
 ```
 
 Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
 
 ```bash
-$ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra proofgeneral proofgeneral-doc
+$ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0
 ```
 
 Under Mac OS X, you may obtain ProofGeneral from http://proofgeneral.inf.ed.ac.uk/.
@@ -44,11 +44,22 @@ $ cd UniMath
 ```
 
 To compile the Coq formalizations (in all the packages), issue the following
-shell commands (in this directory).
+shell command (in this directory).
 
 ```bash
 $ make
 ```
+
+If you wish also to build the program "coqide", then issue the following
+command instead of the one above.
+
+```bash
+$ make BUILD_COQIDE=yes
+```
+
+Alternatively, you can specify the value of the BUILD_COQIDE option more
+permanently by following the instructions in the file
+build/Makefile-configuration-template.
 
 To create the standard HTML documentation provided by coqdoc:
 ```bash
