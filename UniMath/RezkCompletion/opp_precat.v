@@ -15,10 +15,10 @@ Contents : Definition of opposite category and functor
 
 ************************************************************)
 
-Require Import Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.Generalities.uu0.
 
-Require Import RezkCompletion.precategories.
-Require Import RezkCompletion.functors_transformations.
+Require Import UniMath.RezkCompletion.precategories.
+Require Import UniMath.RezkCompletion.functors_transformations.
 
 Local Notation "a --> b" := (precategory_morphisms a b) (at level 50, left associativity).
 Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").

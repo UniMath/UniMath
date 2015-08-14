@@ -17,7 +17,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Require Export Foundations.hlevel1.hProp .
+Require Export UniMath.Foundations.hlevel1.hProp .
 
 
 

@@ -8,15 +8,28 @@ endif
 endif
 ############################################
 # The packages, listed in reverse order by dependency:
+PACKAGES += Tactics
 PACKAGES += Ktheory
 PACKAGES += RezkCompletion
 PACKAGES += Foundations
 ############################################
-.PHONY: all everything install lc lcp wc describe publish-dan clean clean2 distclean distclean_coq cleanconfig clean-enhanced git-clean build-coq doc
+# other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes
-ifeq ($(BUILD_COQ),yes)
+BUILD_COQIDE ?= no
+COQBIN ?=
+############################################
+.PHONY: all everything install lc lcp wc describe publish-dan clean clean2 distclean distclean_coq cleanconfig clean-enhanced git-clean build-coq doc build-coqide
+COQIDE_OPTION ?= no
+ifeq "$(BUILD_COQ)" "yes"
 COQBIN=sub/coq/bin/
 all: build-coq
+build-coq: sub/coq/bin/coqc
+ifeq "$(BUILD_COQIDE)" "yes"
+all: build-coqide
+build-coqide: sub/coq/bin/coqide
+COQIDE_OPTION := opt
+LABLGTK := -lablgtkdir "$(shell pwd)"/sub/lablgtk/src
+endif
 endif
 ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
@@ -74,28 +87,44 @@ clean-enhanced:
 	rm -rf $(ENHANCEDDOCTARGET)
 
 # building coq:
-ifeq ($(BUILD_COQ),yes)
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
+sub/lablgtk/README:
+	git submodule update --init sub/lablgtk
 sub/coq/configure sub/coq/configure.ml:
 	git submodule update --init sub/coq
+ifeq "$(BUILD_COQ) $(BUILD_COQIDE)" "yes yes"
+sub/coq/config/coq_config.ml: sub/lablgtk/src/gSourceView2.cmi
+endif
 sub/coq/config/coq_config.ml: sub/coq/configure sub/coq/configure.ml
-	cd sub/coq && ./configure -coqide no -opt -no-native-compiler -with-doc no -annotate -debug -local
+	: making $@ because of $?
+	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" $(LABLGTK) -opt -no-native-compiler -with-doc no -annotate -debug -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 	$(MAKE) -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight
-build-coq: sub/coq/bin/coqc
-endif
-
+sub/coq/bin/coqide: sub/lablgtk/README sub/coq/config/coq_config.ml
+	$(MAKE) -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
+configure-coq: sub/coq/config/coq_config.ml
+# we use sub/lablgtk/src/gSourceView2.cmi as a proxy for all of lablgtk
+# note: under Mac OS X, "homebrew" installs lablgtk without that file, but it's needed for building coqide.  That's why we build lablgtk ourselves.
+# note: lablgtk needs camlp4, not camlp5.  Strange, but it does.  So we must install that, too.
+build-lablgtk sub/lablgtk/src/gSourceView2.cmi: sub/lablgtk/README
+	cd sub/lablgtk && ./configure
+	$(MAKE) -C sub/lablgtk all byte opt world
 git-describe:
 	git describe --dirty --long --always --abbrev=40
 	git submodule foreach git describe --dirty --long --always --abbrev=40 --tags
-git-clean:
-	git clean -Xdfq
-	git submodule foreach git clean -Xdfq
-
 doc: $(GLOBFILES) $(VFILES) 
 	mkdir -p $(ENHANCEDDOCTARGET)
 	cp $(ENHANCEDDOCSOURCE)/proofs-toggle.js $(ENHANCEDDOCTARGET)/proofs-toggle.js
 	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d $(ENHANCEDDOCTARGET) \
 	--with-header $(ENHANCEDDOCSOURCE)/header.html $(VFILES)
 	sed -i'.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
+#################################
+# targets best used with INCLUDE=no
+git-clean:
+	git clean -Xdfq
+	git submodule foreach git clean -xdfq
+git-deinit:
+	git submodule foreach git clean -xdfq
+	git submodule deinit -f sub/*
+#################################

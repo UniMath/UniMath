@@ -2,3 +2,7 @@
 	path = sub/coq
 	url = https://github.com/coq/coq.git
 	branch = v8.5
+[submodule "sub/lablgtk"]
+	path = sub/lablgtk
+	url = http://forge.ocamlcore.org/anonscm/git/lablgtk/lablgtk.git
+	branch = master

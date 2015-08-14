@@ -2,12 +2,12 @@
 
 (* sums (coproducts) *)
 Require Import 
-        Foundations.hlevel2.hSet
-        RezkCompletion.precategories
-        RezkCompletion.functors_transformations
-        Ktheory.Utilities.
-Require Ktheory.Precategories Ktheory.Representation Ktheory.HomFamily.
-Import Utilities.Notation Precategories.Notation.
+        UniMath.Foundations.hlevel2.hSet
+        UniMath.RezkCompletion.precategories
+        UniMath.RezkCompletion.functors_transformations
+        UniMath.Ktheory.Utilities.
+Require UniMath.Ktheory.Precategories UniMath.Ktheory.Representation UniMath.Ktheory.HomFamily.
+Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
 Definition type (C:precategory) (hs: has_homsets C) {I} (c:I -> ob C) :=
   Representation.Data (HomFamily.precat C hs c).
 Definition Object {C:precategory} (hs: has_homsets C) {I} {c:I -> ob C} (r:type C hs c)
