@@ -11,7 +11,7 @@ Import Ktheory.Utilities.Notation Ktheory.Utilities.NatNotation.
 
 (** ** Definitions *)
 
-Record Tree := 
+Record Tree :=
   make {
       mt_set:> Type;
       mt_dist: mt_set -> mt_set -> nat;
@@ -22,7 +22,7 @@ Record Tree :=
       mt_step: forall x z, x != z ->
                  total2 (fun y => (S (mt_dist x y) = mt_dist x z) **
                                   (mt_dist y z = 1)) }.
-      
+
 Lemma mt_path_refl (T:Tree) (x y:T) : x = y -> mt_dist _ x y = 0.
 Proof. intros ? ? ? e. destruct e. apply mt_refl. Qed.
 
@@ -44,9 +44,9 @@ Proof. intros ? ? ? ? ?.
        assert(d_ind : forall n z, mt_dist _ x z = n -> P z).
        { intros ?.
          induction n as [|n IH].
-         { intros. assert (k:x=z). 
+         { intros. assert (k:x=z).
            { apply mt_anti. assumption. } destruct k. assumption. }
-         { intros. 
+         { intros.
            assert (ne : x != z).
            { intros s. exact (negpaths0sx _ (! mt_path_refl _ _ _ s @ H)). }
            refine (pn z ne _).

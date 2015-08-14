@@ -9,11 +9,11 @@ started March 2015
 
 (** **********************************************************
 
-Contents :  
+Contents :
 
         - precategory of algebras of an endofunctor
         - saturated if base precategory is
-		           
+
 ************************************************************)
 
 
@@ -73,7 +73,7 @@ Proof.
   intro a. apply hs.
 Defined.
 
-Lemma algebra_mor_commutes (X Y : algebra_ob) (f : algebra_mor X Y) 
+Lemma algebra_mor_commutes (X Y : algebra_ob) (f : algebra_mor X Y)
   : alg_map X ;; f = #F f ;; alg_map Y.
 Proof.
   exact (pr2 f).
@@ -100,7 +100,7 @@ Proof.
             rewrite algebra_mor_commutes;
             rewrite functor_comp, assoc;
             apply idpath).
-Defined.  
+Defined.
 
 Definition precategory_alg_ob_mor : precategory_ob_mor.
 Proof.
@@ -115,7 +115,7 @@ Proof.
   exact algebra_mor_comp.
 Defined.
 
-Lemma is_precategory_precategory_alg_data (hs : has_homsets C) 
+Lemma is_precategory_precategory_alg_data (hs : has_homsets C)
   : is_precategory precategory_alg_data.
 Proof.
   repeat split; intros; simpl.
@@ -130,13 +130,13 @@ Proof.
     + apply assoc.
 Qed.
 
-Definition precategory_FunctorAlg (hs : has_homsets C) 
+Definition precategory_FunctorAlg (hs : has_homsets C)
   : precategory := tpair _ _ (is_precategory_precategory_alg_data hs).
 
-Lemma has_homsets_FunctorAlg (hs : has_homsets C) 
+Lemma has_homsets_FunctorAlg (hs : has_homsets C)
   : has_homsets (precategory_FunctorAlg hs).
 Proof.
-  intros f g.  
+  intros f g.
   apply isaset_algebra_mor.
   assumption.
 Qed.
@@ -145,10 +145,10 @@ Section FunctorAlg_saturated.
 
 Hypothesis H : is_category C.
 
-Definition algebra_eq_type (X Y : precategory_FunctorAlg (pr2 H)) : UU 
+Definition algebra_eq_type (X Y : precategory_FunctorAlg (pr2 H)) : UU
   := Σ p : iso (pr1 X) (pr1 Y), pr2 X ;; p = #F p ;; pr2 Y.
 
-Definition algebra_ob_eq (X Y : precategory_FunctorAlg (pr2 H)) : 
+Definition algebra_ob_eq (X Y : precategory_FunctorAlg (pr2 H)) :
   (X = Y) ≃ algebra_eq_type X Y.
 Proof.
   eapply weqcomp.
@@ -159,7 +159,7 @@ Proof.
     intro p.
     destruct X as [X α].
     destruct Y as [Y β]; simpl in *.
-    destruct p.  
+    destruct p.
     apply weqimplimpl.
     + intro x; simpl.
       rewrite functor_id.
@@ -179,12 +179,12 @@ Proof.
   set (H' := iso_inv_after_iso (isopair f p)).
   set (H'':= iso_after_iso_inv (isopair f p)).
   exists (pr1 (inv_from_iso (isopair f p))).
-  split; simpl. 
+  split; simpl.
   - apply (maponpaths pr1 H').
   - apply (maponpaths pr1 H'').
 Defined.
 
-Definition inv_algebra_mor_from_is_iso {X Y : precategory_FunctorAlg (pr2 H)} (f : X ⇒ Y) 
+Definition inv_algebra_mor_from_is_iso {X Y : precategory_FunctorAlg (pr2 H)} (f : X ⇒ Y)
   : is_iso (pr1 f) → (Y ⇒ X).
 Proof.
   intro T.
@@ -203,7 +203,7 @@ Proof.
   apply (pr2 f).
 Defined.
 
-Definition is_algebra_iso_from_is_iso {X Y : precategory_FunctorAlg (pr2 H)} (f : X ⇒ Y) 
+Definition is_algebra_iso_from_is_iso {X Y : precategory_FunctorAlg (pr2 H)} (f : X ⇒ Y)
   : is_iso (pr1 f) → is_iso f.
 Proof.
   intro T.
@@ -236,13 +236,13 @@ Proof.
   intro ab.
   exists (pr2 ab).
   exact (pr1 ab).
-Defined.  
+Defined.
 
 Definition swapweq (A B : UU) : (A × B) ≃ (B × A).
 Proof.
   exists (swap A B).
   apply (gradth _ (swap B A)).
-  - intro ab. destruct ab. apply idpath. 
+  - intro ab. destruct ab. apply idpath.
   - intro ba. destruct ba. apply idpath.
 Defined.
 
@@ -260,7 +260,7 @@ Proof.
       apply swapweq.
 Defined.
 
-Definition algebra_idtoiso (X Y : precategory_FunctorAlg (pr2 H)) : 
+Definition algebra_idtoiso (X Y : precategory_FunctorAlg (pr2 H)) :
   (X = Y) ≃ iso X Y.
 Proof.
   eapply weqcomp.
@@ -280,7 +280,7 @@ Proof.
     + apply idpath.
   - apply (pr2 _ ).
 Defined.
-     
+
 
 End FunctorAlg_saturated.
 

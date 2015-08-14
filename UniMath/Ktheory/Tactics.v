@@ -7,9 +7,9 @@ Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification th
   let G := match goal with |- ?G => constr:(G) end in
   exact ((@id G : T -> G) x).
 
-Ltac prop_logic := 
+Ltac prop_logic :=
   intros; simpl;
-  repeat (try (apply isapropdirprod);try (apply isapropishinh);apply impred ;intro); 
+  repeat (try (apply isapropdirprod);try (apply isapropishinh);apply impred ;intro);
   try (apply isapropiscontr); try assumption.
 
 Ltac intermediate_path x := apply (pathscomp0 (b := x)).

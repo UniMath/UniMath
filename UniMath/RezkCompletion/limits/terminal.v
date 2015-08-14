@@ -35,7 +35,7 @@ Proof.
   apply ArrowsToTerminal.
 Qed.
 
-Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) : 
+Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) :
    is_isomorphism (TerminalArrow T T').
 Proof.
   apply (is_iso_qinv _ (TerminalArrow T' T)).
@@ -44,7 +44,7 @@ Proof.
   - apply pathsinv0. apply TerminalEndo_is_identity.
 Defined.
 
-Definition iso_Terminals (T T' : Terminal) : iso T T' := 
+Definition iso_Terminals (T T' : Terminal) : iso T T' :=
    tpair _ (TerminalArrow T' T) (isiso_from_Terminal_to_Terminal T' T) .
 
 Definition hasTerminal := ishinh Terminal.

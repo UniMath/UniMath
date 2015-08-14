@@ -10,13 +10,13 @@ january 2013
 
 (** **********************************************************
 
-Contents :  
-	    
+Contents :
+
             Precategory HSET of hSets
 
 	    HSET is a category
-                	
-           
+
+
 ************************************************************)
 
 
@@ -24,7 +24,7 @@ Contents :
 Require Import UniMath.Foundations.Generalities.uu0.
 Require Import UniMath.Foundations.hlevel1.hProp.
 Require Import UniMath.Foundations.hlevel2.hSet.
-Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun. 
+Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun.
 
 Require Import UniMath.RezkCompletion.precategories.
 Require Import UniMath.RezkCompletion.HLevel_n_is_of_hlevel_Sn.
@@ -43,15 +43,15 @@ Proof.
   apply (fun _ => (pr2 B)).
 Qed.
 
-Definition hset_fun_space (A B : hSet) : hSet := 
+Definition hset_fun_space (A B : hSet) : hSet :=
   hSetpair _ (isaset_set_fun_space A B).
 
 Definition hset_precategory_ob_mor : precategory_ob_mor :=
-  tpair (fun ob : UU => ob -> ob -> UU) hSet 
+  tpair (fun ob : UU => ob -> ob -> UU) hSet
         (fun A B : hSet => hset_fun_space A B).
 
 Definition hset_precategory_data : precategory_data :=
-  precategory_data_pair hset_precategory_ob_mor (fun (A:hSet) (x : A) => x) 
+  precategory_data_pair hset_precategory_ob_mor (fun (A:hSet) (x : A) => x)
      (fun (A B C : hSet) (f : A -> B) (g : B -> C) (x : A) => g (f x)).
 
 Lemma is_precategory_hset_precategory_data :
@@ -60,20 +60,20 @@ Proof.
   repeat split; simpl.
 Qed.
 
-Definition hset_precategory : precategory := 
+Definition hset_precategory : precategory :=
   tpair _ _ is_precategory_hset_precategory_data.
 
 Notation HSET := hset_precategory.
 
-(* 
+(*
   Canonical Structure hset_precategory. :-)
 *)
 
 
 (** * The precategory of hSets is a category. *)
 
-(** ** Equivalence between isomorphisms and weak equivalences 
-       of two hsets. 
+(** ** Equivalence between isomorphisms and weak equivalences
+       of two hsets.
 *)
 
 (** Given an iso, we construct a weak equivalence.
@@ -81,12 +81,12 @@ Notation HSET := hset_precategory.
 *)
 
 
-Lemma hset_iso_is_equiv (A B : ob HSET) 
+Lemma hset_iso_is_equiv (A B : ob HSET)
    (f : iso A B) : isweq (pr1 f).
 Proof.
   apply (gradth _ (inv_from_iso f)).
-  - intro x. 
-    set (T:=iso_inv_after_iso f). 
+  - intro x.
+    set (T:=iso_inv_after_iso f).
     set (T':=toforallpaths _ _ _ T). apply T'.
   - intro x.
     apply (toforallpaths _ _ _ (iso_after_iso_inv f)).
@@ -100,17 +100,17 @@ Proof.
 Defined.
 
 (** Given a weak equivalence, we construct an iso.
-    Again mostly unwrapping and packing. 
+    Again mostly unwrapping and packing.
 *)
 
-Lemma hset_equiv_is_iso (A B : hSet) 
+Lemma hset_equiv_is_iso (A B : hSet)
       (f : weq (pr1 A) (pr1 B)) :
            is_isomorphism (C:=HSET) (pr1 f).
 Proof.
   apply (is_iso_qinv (C:=HSET) _ (invmap f)).
   split; simpl.
   - apply funextfunax; intro x; simpl in *.
-    unfold compose, identity; simpl. 
+    unfold compose, identity; simpl.
     apply homotinvweqweq.
   - apply funextfunax; intro x; simpl in *.
     unfold compose, identity; simpl.
@@ -131,8 +131,8 @@ Defined.
 Lemma hset_iso_equiv_is_equiv (A B : ob HSET) : isweq (hset_iso_equiv A B).
 Proof.
   apply (gradth _ (hset_equiv_iso A B)).
-  intro; apply eq_iso. 
-  - reflexivity.  
+  intro; apply eq_iso.
+  - reflexivity.
   - intro; apply total2_paths_isaprop.
     + intro; apply isapropisweq.
     + reflexivity.
@@ -148,7 +148,7 @@ Lemma hset_equiv_iso_is_equiv (A B : ob HSET) : isweq (hset_equiv_iso A B).
 Proof.
   apply (gradth _ (hset_iso_equiv A B)).
   intro f.
-  apply total2_paths_isaprop. 
+  apply total2_paths_isaprop.
     apply isapropisweq.
     reflexivity.
   intro; apply eq_iso.
@@ -161,7 +161,7 @@ Proof.
   exists (hset_equiv_iso A B).
   apply hset_equiv_iso_is_equiv.
 Defined.
-  
+
 (** ** HSET is a category. *)
 
 Definition univalenceweq (X X' : UU) : weq (X = X') (weq X X') :=
@@ -172,9 +172,9 @@ Definition hset_id_iso_weq (A B : ob HSET) :
   weqcomp (UA_for_HLevels 2 A B) (hset_equiv_iso_weq A B).
 
 
-(** The map [precat_paths_to_iso] 
-    for which we need to show [isweq] is actually 
-    equal to the carrier of the weak equivalence we 
+(** The map [precat_paths_to_iso]
+    for which we need to show [isweq] is actually
+    equal to the carrier of the weak equivalence we
     constructed above.
     We use this fact to show that that [precat_paths_to_iso]
     is an equivalence.
@@ -187,8 +187,8 @@ Proof.
   intro p; elim p.
   apply eq_iso; simpl.
   - apply funextfun;
-    intro x; 
-    destruct A. 
+    intro x;
+    destruct A.
     apply idpath.
 Defined.
 

@@ -6,7 +6,7 @@ Require Import Foundations.hlevel2.algebra1b
                UniMath.Tactics.Utilities.
 
 Ltac op_strip f :=
-  repeat 
+  repeat
     match goal with
       | |- f ?x ?y = f ?x ?z =>
         apply (ap (fun v => f x v))
@@ -31,7 +31,7 @@ Ltac assocop_trivial M f :=
   try (assocop_clean_all M f; op_strip f; apply idpath).
 
 Ltac assocop_group_in M f x s t :=
-  let T := type of x in 
+  let T := type of x in
   match T with
     | context[f s t] => idtac
     | context [f (f ?u s) t] => rewrite (assocax M u s t) in x
@@ -93,22 +93,22 @@ Ltac monoid_zap M := monoid_clean_all M; monoid_zap_body M id_check.
 Unset Ltac Debug.
 
 Section Tests.
-  Open Scope multmonoid. 
-  
+  Open Scope multmonoid.
+
   Hypothesis M : monoid.
 
   Hypothesis x y z u v w : M.
-  
+
   Lemma test_op_strip_1 (is : w = v): x * (y * w) = x * (y * v).
   Proof.
     intros. op_strip (@op M). assumption.
   Qed.
-  
+
   Lemma test_assocop_clean_1 (is : w = v):  x * (y * w) = (x * y) * v.
   Proof.
     intros. assocop_clean M (@op M). op_strip (@op M). assumption.
   Qed.
-  
+
   Lemma test_assocop_clean_in_1 (t : x * (y * (z * u)) = (v * w) * u) :
     (((x * y) * z) * u) * w = v * (w * (u * w)).
   Proof.
@@ -122,7 +122,7 @@ Section Tests.
     intros. assocop_clean_all M (@op M). rewrite t. op_strip (@op M).
     apply idpath.
   Qed.
-  
+
   Lemma test_assocop_group_1 (t : x * (y * (z * u)) = (v * w) * u) :
     ((x * (y * z)) * u) * w = v * (w * (u * w)).
   Proof.
@@ -130,24 +130,24 @@ Section Tests.
     assocop_group M (@op M) w u. assocop_group M (@op M) v (w * u).
     rewrite <- t. assocop_trivial M (@op M).
   Qed.
-  
+
   Lemma test_monoid_zap_1 (t : x * (y * (z * u)) = (v * w) * u) :
     ((x * (y * z)) * u) * w = v * (w * (u * w)).
   Proof.
     intros. monoid_zap M.
   Qed.
-  
+
   Lemma test_monoid_zap_2 (t : x * y = y * x) : x * y * x = x * x * y.
   Proof.
     intros. monoid_zap M.
   Qed.
-  
+
   Lemma test_monoid_zap_3 (t : x * y = y * x) (i : x * z = @unel M) :
     x * (y * z) = y * (x * z).
   Proof.
     intros. monoid_zap M.
   Qed.
-  
+
   Close Scope multmonoid.
 End Tests.
 *)

@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import 
+Require Import
         UniMath.Foundations.hlevel2.hSet
         UniMath.RezkCompletion.precategories
         UniMath.RezkCompletion.functors_transformations
@@ -8,7 +8,7 @@ Require Import
 Require UniMath.Ktheory.Precategories UniMath.Ktheory.Sets.
 Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
 Definition set (C:precategory) (hs:has_homsets C) {I} (c:I -> ob C) : ob C -> ob SET.
-  intros ? ? ? ? x. 
+  intros ? ? ? ? x.
    apply (Sets.Product (fun i => hSetpair (Hom (c i) x) (hs _ _ ) )).
 Defined.
 Definition map (C:precategory)(hs: has_homsets C) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :
