@@ -1,12 +1,12 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import 
-        Foundations.hlevel2.hSet
-        RezkCompletion.precategories
-        RezkCompletion.functors_transformations 
-        Ktheory.Utilities.
-Require Ktheory.Precategories Ktheory.Sets Ktheory.Representation.
-Import Utilities.Notation Precategories.Notation.
+        UniMath.Foundations.hlevel2.hSet
+        UniMath.RezkCompletion.precategories
+        UniMath.RezkCompletion.functors_transformations 
+        UniMath.Ktheory.Utilities.
+Require UniMath.Ktheory.Precategories UniMath.Ktheory.Sets UniMath.Ktheory.Representation.
+Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
 Definition unitFunctor_data (C:precategory) 
      : functor_data (Precategories.Precategory.obmor C) (Precategories.Precategory.obmor SET).
   intros. refine (tpair _ _ _).

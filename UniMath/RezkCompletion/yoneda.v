@@ -19,14 +19,14 @@ Contents : Definition of the Yoneda functor
 ************************************************************)
 
 
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.hlevel1.hProp.
+Require Import UniMath.Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.precategories.
-Require Import RezkCompletion.opp_precat.
-Require Import RezkCompletion.category_hset.
-Require Import RezkCompletion.functors_transformations.
+Require Import UniMath.RezkCompletion.precategories.
+Require Import UniMath.RezkCompletion.opp_precat.
+Require Import UniMath.RezkCompletion.category_hset.
+Require Import UniMath.RezkCompletion.functors_transformations.
 
 (*Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).*)
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).

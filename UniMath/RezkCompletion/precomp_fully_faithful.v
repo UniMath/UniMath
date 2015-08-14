@@ -21,13 +21,13 @@ Precomposition with a fully faithful and
 
 ************************************************************)
 
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.hlevel1.hProp.
+Require Import UniMath.Foundations.hlevel2.hSet.
 
-Require Import RezkCompletion.precategories.
-Require Import RezkCompletion.functors_transformations.
-Require Import RezkCompletion.whiskering.
+Require Import UniMath.RezkCompletion.precategories.
+Require Import UniMath.RezkCompletion.functors_transformations.
+Require Import UniMath.RezkCompletion.whiskering.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Ltac simp_rew lem := let H:=fresh in
