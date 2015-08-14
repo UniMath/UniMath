@@ -79,7 +79,6 @@ equivalent to "Structure" allows us later to use the mechanism of canonical stru
 
 
 Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . 
-Arguments tpair {T} _ _ _.
 
 Definition pr1 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : T .
 Proof . intros .  induction t as [ t p ] . exact t . Defined. 
