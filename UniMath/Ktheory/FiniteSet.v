@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import Foundations.hlevel2.finitesets
-        Ktheory.Utilities.
+Require Import UniMath.Foundations.hlevel2.finitesets
+        UniMath.Ktheory.Utilities.
 Definition Data := total2 isfinite.
 Definition ToType (X:Data) : Type := pr1 X.
 Module Import Coercions.
