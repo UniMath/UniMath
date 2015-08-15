@@ -129,17 +129,10 @@ files with names of the form "*.v" to be edited in "Coq mode".
 
 We are using some unicode characters in our Coq files.  One way to type such
 characters easily is with the "Agda input method": to type σ, for example, one
-types \sigma, which is automatically replaced by σ.  To arrange to use it with
-Coq files in Coq mode, install Agda and ensure that the emacs files (files
-such as ```agda-input.el``` and ```agda2.el``` are visible on emacs' load path
-(associated with the emacs variable ```load-path```).  Then add this code to
-your emacs init file, ```.emacs```:
-```
-(require 'agda-input)
-(add-hook 'coq-mode-hook (function (lambda() (set-input-method "Agda"))))
-```
-The emacs command for viewing the typing shortcuts offered by the Agda input
-method is ```C-H I```.
+types \sigma, which is automatically replaced by σ.  We have arranged for the
+Agda input method to be automatically enabled in buffers containing one of the
+UniMath Coq files.  The emacs command for viewing the typing shortcuts offered
+by the Agda input method is ```C-H I```.
 
 ## Problems
 
