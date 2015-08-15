@@ -138,6 +138,8 @@ your emacs init file, ```.emacs```:
 (require 'agda-input)
 (add-hook 'coq-mode-hook (function (lambda() (set-input-method "Agda"))))
 ```
+The emacs command for viewing the typing shortcuts offered by the Agda input
+method is ```C-H I```.
 
 ## Problems
 
