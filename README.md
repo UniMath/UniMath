@@ -124,7 +124,15 @@ qualified name of "maponpaths" in uu0.v is
 The preferred way to interact with the Coq code is with ProofGeneral, running
 in a modern version of emacs.  The file UniMath/.dir-locals.el will set the
 emacs variable "coq-prog-args" appropriately.  In particular, it will add the
-directory UniMath to the path, using the "-R" option.
+directory UniMath to the path, using the "-R" option, and it will arrange for
+files with names of the form "*.v" to be edited in "Coq mode".
+
+We are using some unicode characters in our Coq files.  One way to type such
+characters easily is with the "Agda input method": to type σ, for example, one
+types \sigma, which is automatically replaced by σ.  We have arranged for the
+Agda input method to be automatically enabled in buffers containing one of the
+UniMath Coq files.  The emacs command for viewing the typing shortcuts offered
+by the Agda input method is ```C-H I```.
 
 ## Problems
 
