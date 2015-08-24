@@ -21,13 +21,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-s|<span class="id" type="keyword">Proof</span>.\(<br/>\)*|<a class="proof" href="#">Show proof.</a><br/><div class="proof">|g
-s|<span class="id" type="keyword">Next</span> <span class="id" type="keyword">Obligation</span>.\(<br/>\)*|<a class="proof" href="#">Show proof.</a><br/><div class="proof">|g
+s|<span class="id" title="keyword">Proof</span>.\(<br/>\)*|<a class="proof" href="#">Show proof.</a><br/><div class="proof">|g
+s|<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.\(<br/>\)*|<a class="proof" href="#">Show proof.</a><br/><div class="proof">|g
 t goto-end-proof
 b
 :goto-end-proof
-s|\(&nbsp;\)*<span class="id" type="keyword">Qed</span>.\(<br/>\)*|</div>|g
-s|\(&nbsp;\)*<span class="id" type="keyword">Defined</span>.\(<br/>\)*|</div>|g
+s|\(&nbsp;\)*<span class="id" title="keyword">Qed</span>.\(<br/>\)*|</div>|g
+s|\(&nbsp;\)*<span class="id" title="keyword">Defined</span>.\(<br/>\)*|</div>|g
 t
 n
 b goto-end-proof
