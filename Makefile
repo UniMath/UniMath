@@ -31,6 +31,10 @@ COQIDE_OPTION := opt
 LABLGTK := -lablgtkdir "$(shell pwd)"/sub/lablgtk/src
 endif
 endif
+
+# override the definition in build/CoqMakefile.make, to eliminate the -utf8 option
+COQDOCFLAGS := -interpolate
+
 ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
 endif
@@ -42,7 +46,7 @@ OTHERFLAGS += -verbose
 endif
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
-COQDOC := $(COQDOC) -utf8
+COQDOC := $(COQDOC) -utf8 --charset utf-8
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\2/'
 TAGS : $(VFILES); etags $(COQDEFS) $^
 install:all
