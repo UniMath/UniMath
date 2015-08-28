@@ -335,6 +335,21 @@ Proof.
 
     (* maybe make a better writeup of the proof before proceeding here ?*)
 
+    (* from here on not sure how to proceed, but 'simpl' is feasible 
+       after some opacification, at least *)
+    Opaque fbracket.
+    Opaque LamHSS.
+    simpl.
+    rewrite id_left.
+    rewrite id_left.
+    rewrite id_left.
+
+    Local Notation "⦃ f ⦄" := (fbracket _ f)(at level 0).
+    (* written '\{{' and '\}}', respectively *)
+
+    set (Tη := ptd_from_alg C hs CC Lam_S _ ).
+
+    
 
       
     
