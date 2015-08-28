@@ -321,12 +321,19 @@ Proof.
   - eapply pathscomp0. apply assoc.
     eapply pathscomp0.
     apply cancel_postcomposition. apply CoproductIn1Commutes.
-    (* this should now be an instance of the hypothesis, for (f := f ;; bla) *)
+    assert (T:= nat_trans_eq_pointwise _ _ _ _ _ _ Hyp2 c).
+    clear Hyp2.
+    match goal with | [H : ?e = _ |- _ ] => transitivity e end.
+    Focus 2. apply idpath.
 
+    match goal with | [H : _ = ?f |- _ ] => transitivity f end.
+    Focus 1. apply idpath.
+    apply pathsinv0. assumption.
+    
+    
     (* There should be a more general hypothesis than 'Hyp' defined above,
        one where one has a quantification over maps 'f', no? *)
 
-    admit.
   - eapply pathscomp0. apply assoc.
     eapply pathscomp0.
     apply cancel_postcomposition. apply CoproductIn2Commutes.
