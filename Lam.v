@@ -174,6 +174,11 @@ Proof.
     * apply Lam_Flatten.
 Defined.
 
+Lemma τ_LamE_algebra_on_Lam : τ LamE_algebra_on_Lam =
+                              CoproductArrow _ (CPEndC _ _ ) Lam_App_Abs Lam_Flatten.
+Proof.
+  apply CoproductIn2Commutes.
+Defined.
 
 
 (* now define bracket operation for a given [Z] and [f] *)
@@ -223,6 +228,7 @@ Proof.
            ).
 Defined.
 
+(* A simple but important lemma *)
 
 Definition fbracket_for_LamE_algebra_on_Lam (Z : Ptd)
    (f : Ptd ⟦ Z, ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam ⟧ ) :
@@ -239,7 +245,9 @@ Lemma bracket_property_for_LamE_algebra_on_Lam (Z : Ptd)
    bracket_property C hs CC LamE_S LamE_algebra_on_Lam f
                     (fbracket_for_LamE_algebra_on_Lam Z f).
 Proof.
+  (* Could we have this in a more declarative style? *)
   assert (Hyp := pr2 (pr1 (pr2 LamHSS _ (f;; bla)))).
+  
   apply parts_from_whole in Hyp.
   apply whole_from_parts.
   split.
@@ -292,26 +300,43 @@ Proof.
     unfold fbracket_for_LamE_algebra_on_Lam.
     apply nat_trans_eq; try (exact hs).
     intro c.
-    (*
-    simpl.
-    unfold bla1.
-    unfold coproduct_nat_trans_data.
-     *)
-    
-    eapply pathscomp0; [apply cancel_postcomposition ;apply precompWithCoproductArrow |].
 
-    Arguments H {_ _ _} _ _.
-    Arguments CoproductArrow {_ _ _ _ _} _ _ .
+    (* from here slightly interesting, because it is crucial to see that
+       the τ considered here is a Coproduct arrow *)
+    
+    rewrite τ_LamE_algebra_on_Lam.
+    eapply pathscomp0; [apply cancel_postcomposition ; apply CoproductOfArrows_comp | ].
     idtac.
-    eapply pathscomp0; [|eapply pathsinv0; apply cancel_postcomposition ; apply CoproductIn2Commutes].
-    eapply pathscomp0; [apply postcompWithCoproductArrow |].
+    eapply pathscomp0.
+    apply precompWithCoproductArrow.
     apply pathsinv0.
+
+    (* showing that a diagram of coproduct arrows splits into two is slightly cumbersome,
+       but a general theorem seems difficult to formulate
+
+       instead we apply [CoproductArrowUnique] and then use the coproduct beta laws in 
+       each branch; this gives precisely what we want *)
+    
     apply CoproductArrowUnique.
-  - rewrite assoc.
-    eapply pathscomp0 ;[ apply cancel_postcomposition; apply CoproductIn1Commutes |].
-    apply pathsinv0.
-    assert (Hyp := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp2 c).
- 
+  - eapply pathscomp0. apply assoc.
+    eapply pathscomp0.
+    apply cancel_postcomposition. apply CoproductIn1Commutes.
+    (* this should now be an instance of the hypothesis, for (f := f ;; bla) *)
+
+    (* There should be a more general hypothesis than 'Hyp' defined above,
+       one where one has a quantification over maps 'f', no? *)
+
+    admit.
+  - eapply pathscomp0. apply assoc.
+    eapply pathscomp0.
+    apply cancel_postcomposition. apply CoproductIn2Commutes.
+    unfold Lam_Flatten.
+    (* now we have the equation that is mentioned in the documents *)
+
+    (* maybe make a better writeup of the proof before proceeding here ?*)
+
+
+      
     
  (*   
     Check θ.
