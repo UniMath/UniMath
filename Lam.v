@@ -444,13 +444,50 @@ Proof.
        unfold coproduct_nat_trans_in1_data.
        unfold coproduct_nat_trans_data.
        eapply pathscomp0. apply CoproductIn1Commutes.
-       admit.
+       apply idpath.
   - apply parts_from_whole in Ht. destruct Ht as [_ H2].
      apply nat_trans_eq; try assumption.
      intro c.
-     (* now extract first component of HT, by precomposing with CoproductIn1 *)
-    admit.
-Admitted.
+     assert (HT := nat_trans_eq_pointwise _ _ _ _ _ _ H2 c).
+     match goal with |[H2 : ?e = ?f |- _ ] =>
+                         assert (X: CoproductIn1 _ _ ;; e = CoproductIn1 _ _ ;; f) end.
+     { apply maponpaths . assumption. }
+     clear HT. clear H2.
+
+     match goal with |[X : _ = ?f |- _ ] => transitivity f end.
+     Focus 2. rewrite τ_LamE_algebra_on_Lam.
+     eapply pathscomp0. apply assoc.
+     eapply pathscomp0. apply cancel_postcomposition. apply CoproductIn1Commutes.
+     apply idpath.
+
+     match goal with |[X : ?e = _ |- _ ] => transitivity e end.
+     Focus 2. apply X.
+
+     rewrite τ_LamE_algebra_on_Lam.
+     
+     apply pathsinv0.
+     eapply pathscomp0. apply assoc.
+     eapply pathscomp0.
+     apply cancel_postcomposition. apply assoc.
+     eapply pathscomp0.
+     apply cancel_postcomposition.
+     apply cancel_postcomposition.
+     apply CoproductIn1Commutes.
+
+     repeat rewrite <- assoc.
+
+     eapply pathscomp0. apply maponpaths.
+     apply assoc.
+
+     eapply pathscomp0. apply maponpaths. apply cancel_postcomposition.
+     apply CoproductIn1Commutes.
+
+     eapply pathscomp0. apply maponpaths. apply (!assoc _ _ _ _ _ _ _ _ ).
+     eapply pathscomp0. apply maponpaths. apply maponpaths.
+     apply CoproductIn1Commutes.
+     apply idpath.
+Qed.     
+
 
 Definition bracket_for_LamE_algebra_on_Lam_at (Z : Ptd)
   (f : Ptd ⟦ Z, ptd_from_alg C hs CC LamE_S LamE_algebra_on_Lam ⟧)
