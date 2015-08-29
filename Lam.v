@@ -98,22 +98,7 @@ Variable Lam_Initial : Initial
 
 Let Lam := InitialObject _ Lam_Initial.
 
-(*
-(* assume initial algebra for signature LamE *)
 
-Variable  LamE_Initial : Initial
-     (precategory_FunctorAlg ([C, C] hs)
-        (Id_H C hs CC LamE_S) hsEndC).
-
-
-Definition LamEHSS_Initial : Initial (hss_precategory CC LamE_S).
-Proof.
-  apply  Ihss.
-  - apply KanExt.
-  - apply LamE_Initial.
-Defined.
-Let LamEHSS := InitialObject _ LamEHSS_Initial.
-*)
 
 
 (* bracket for Lam from the initial hss obtained via theorem 15+ *)
@@ -615,6 +600,24 @@ Proof.
   exists LamE_algebra_on_Lam.
   exact bracket_for_LamE_algebra_on_Lam.
 Defined.
-Print Assumptions LamE_model_on_Lam.
+
+(* assume initial algebra for signature LamE *)
+
+Variable  LamE_Initial : Initial
+     (precategory_FunctorAlg ([C, C] hs)
+        (Id_H C hs CC LamE_S) hsEndC).
+
+
+Definition LamEHSS_Initial : Initial (hss_precategory CC LamE_S).
+Proof.
+  apply  Ihss.
+  - apply KanExt.
+  - apply LamE_Initial.
+Defined.
+Let LamEHSS := InitialObject _ LamEHSS_Initial.
+
+
+Definition FLATTEN : (hss_precategory CC LamE_S) ⟦LamEHSS, LamE_model_on_Lam⟧
+  := InitialArrow _ _ _ .
 
 End Lambda.
