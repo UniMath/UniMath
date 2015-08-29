@@ -77,6 +77,13 @@ html: core
 html_all: all
 	mkdir -p html
 	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -html $(COQDOCLIBS) -d html $(VS-CORE) $(VS-EXTRA)
-	
+
+wc: Makefile
+	coqwc $(VS-CORE)
+
+wc_all: Makefile
+	coqwc $(VS-CORE) $(VS-EXTRA)
+
+
 # Makefile based on example from Adam Chlipala, “Theorem Proving in the Large”,
 # section “Build Patterns”. http://adam.chlipala.net/cpdt/html/Large.html
