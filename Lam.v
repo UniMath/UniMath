@@ -26,6 +26,7 @@ Require Import SubstSystems.SumOfSignatures.
 Require Import SubstSystems.SubstitutionSystems_alt.
 Require Import SubstSystems.LamSignature.
 Require Import SubstSystems.LiftingInitial_alt.
+Require Import SubstSystems.MonadsFromSubstitutionSystems_alt.
 
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -334,7 +335,8 @@ Proof.
     (* There should be a more general hypothesis than 'Hyp' defined above,
        one where one has a quantification over maps 'f', no? *)
 
-  - eapply pathscomp0. apply assoc.
+  - clear Hyp2.
+    eapply pathscomp0. apply assoc.
     eapply pathscomp0.
     apply cancel_postcomposition. apply CoproductIn2Commutes.
     unfold Lam_Flatten.
@@ -346,7 +348,13 @@ Proof.
        after some opacification, at least *)
     Opaque fbracket.
     Opaque LamHSS.
-    simpl.
+    set (X:= f ;; bla).
+    
+    assert (TT:=compute_fbracket C hs CC Lam_S LamHSS(Z:=Z)).
+    simpl in *.
+    assert (T3 := TT  X).
+    clear TT.
+    unfold X; unfold X in T3; clear X.
     rewrite id_left.
     rewrite id_left.
     rewrite id_left.
@@ -356,9 +364,97 @@ Proof.
 
     set (Tη := ptd_from_alg C hs CC Lam_S _ ).
 
-    
+    rewrite functor_id.
+    rewrite functor_id.
+    rewrite id_right.
+    destruct Z as [Z e]. simpl in *.
+    set (T := ` Lam).
 
-      
+
+    (* now we want to rewrite with T3 in 3 places *)
+    
+    assert (T3':= nat_trans_eq_pointwise _ _ _ _ _ _ T3 c).
+    simpl in *.
+    match goal with |[ T3' : _ = ?f |- ?a ;; _ = _ ] => transitivity (a ;; f) end.
+    { apply maponpaths. apply T3'. }
+    
+    repeat rewrite assoc.
+(*
+    apply cancel_postcomposition. (* that's a bad idea, because it fucks up use of third monad law *)
+*)
+    
+    match goal with |[ T3' : _ = ?f |- _ = ?a ;; ?b ;; _ ;; ?d  ] => transitivity (a ;; b ;; #T f ;; d) end.
+    Focus 2.  apply cancel_postcomposition. apply maponpaths. apply maponpaths. apply (!T3'). 
+    clear T3'.
+
+    apply pathsinv0.
+
+    assert (T3':= nat_trans_eq_pointwise _ _ _ _ _ _ T3 (T (Z c))).
+    
+    eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition. 
+                       apply maponpaths. apply T3'.
+
+    clear T3'.                   
+    apply pathsinv0.
+
+    destruct f as [f fptdmor]. simpl in *.
+    simpl.
+
+    rewrite id_right.
+    rewrite id_right.
+
+    repeat rewrite assoc.
+
+    assert (X := fptdmor (T (Z c))). clear T3 fptdmor.
+    assert (X' := maponpaths (#T) X).
+    rewrite functor_comp in X'.
+
+    apply pathsinv0.
+    eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition.
+                       apply cancel_postcomposition. apply X'.
+                       clear X'.
+
+    clear X.
+    
+    assert (X := Monad_law_2_from_hss _ _ CC Lam_S LamHSS (T (Z c))).
+    unfold μ_0 in X. unfold μ_2 in X.
+
+    match goal with |[ X : ?e = _ |- ?a ;; ?b ;; _ ;; _  = _ ] =>
+                     assert (X' : e = a ;; b) end.
+    { apply cancel_postcomposition. apply maponpaths.
+      simpl.
+      unfold coproduct_nat_trans_in1_data. simpl.
+      repeat rewrite  assoc.
+      unfold coproduct_nat_trans_data.
+      apply pathsinv0. eapply pathscomp0. apply CoproductIn1Commutes.
+      apply idpath. }
+
+    rewrite X' in X. clear X'.
+
+    eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition. apply X. clear X.
+
+    rewrite id_left.
+
+    assert (μ_2_nat := nat_trans_ax (μ_2 C hs CC Lam_S LamHSS)).
+    assert (X := μ_2_nat _ _ (f c)).
+    unfold μ_2 in X.
+
+    eapply pathscomp0. Focus 2. apply cancel_postcomposition. apply X. clear X.
+
+    rewrite functor_comp.
+    repeat rewrite <- assoc.
+    apply maponpaths.
+
+    
+    assert (X := third_monad_law_from_hss _ _ CC Lam_S LamHSS).
+    assert (X' := nat_trans_eq_pointwise _ _ _ _ _ _ X). clear X.
+    simpl in X'.
+
+    eapply pathscomp0. apply X'.
+
+    rewrite id_left. apply idpath.
+
+
     
  (*   
     Check θ.
@@ -407,9 +503,9 @@ Proof.
   match goal with | [ H1: ?l = _ |- _] => let ty:= (type of l) in idtac ty end.
 *)
 
-*)
-  admit.
-Admitted.
+ *)
+
+Qed.
 
 Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
   (f : Ptd ⟦ Z, ptd_from_alg C hs CC LamE_S LamE_algebra_on_Lam ⟧)
@@ -519,6 +615,6 @@ Proof.
   exists LamE_algebra_on_Lam.
   exact bracket_for_LamE_algebra_on_Lam.
 Defined.
-
+Print Assumptions LamE_model_on_Lam.
 
 End Lambda.
