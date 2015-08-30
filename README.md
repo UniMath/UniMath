@@ -20,13 +20,13 @@ Under Mac OS X, the most convenient way to do that is with "Homebrew",
 available from http://brew.sh/, with the following command:
 
 ```bash
-$ brew install objective-caml camlp5
+$ brew install objective-caml camlp5 camlp4 lablgtk
 ```
 
 Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with
 
 ```bash
-$ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra proofgeneral proofgeneral-doc
+$ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0
 ```
 
 Under Mac OS X, you may obtain ProofGeneral from http://proofgeneral.inf.ed.ac.uk/.
@@ -44,11 +44,22 @@ $ cd UniMath
 ```
 
 To compile the Coq formalizations (in all the packages), issue the following
-shell commands (in this directory).
+shell command (in this directory).
 
 ```bash
 $ make
 ```
+
+If you wish also to build the program "coqide", then issue the following
+command instead of the one above.
+
+```bash
+$ make BUILD_COQIDE=yes
+```
+
+Alternatively, you can specify the value of the BUILD_COQIDE option more
+permanently by following the instructions in the file
+build/Makefile-configuration-template.
 
 To create the standard HTML documentation provided by coqdoc:
 ```bash
@@ -113,7 +124,15 @@ qualified name of "maponpaths" in uu0.v is
 The preferred way to interact with the Coq code is with ProofGeneral, running
 in a modern version of emacs.  The file UniMath/.dir-locals.el will set the
 emacs variable "coq-prog-args" appropriately.  In particular, it will add the
-directory UniMath to the path, using the "-R" option.
+directory UniMath to the path, using the "-R" option, and it will arrange for
+files with names of the form "*.v" to be edited in "Coq mode".
+
+We are using some unicode characters in our Coq files.  One way to type such
+characters easily is with the "Agda input method": to type σ, for example, one
+types \sigma, which is automatically replaced by σ.  We have arranged for the
+Agda input method to be automatically enabled in buffers containing one of the
+UniMath Coq files.  The emacs command for viewing the typing shortcuts offered
+by the Agda input method is ```C-H I```.
 
 ## Problems
 
