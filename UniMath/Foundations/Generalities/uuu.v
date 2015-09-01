@@ -12,9 +12,6 @@ This is the first in the group of files which contain the (current state of) the
 
 Unset Automatic Introduction.  (** This line has to be removed for the file to compile with Coq8.2 *)
 
-(** Universe structure *)
-
-Notation UUU := Set .
 
 (** Empty type.  The empty type is introduced in Coq.Init.Datatypes by the line:
 
