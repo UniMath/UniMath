@@ -1,7 +1,7 @@
 (** *** the category of elements of a functor *)
 
 Require Export UniMath.RezkCompletion.precategories
-               UniMath.RezkCompletion.functors_transformations 
+               UniMath.RezkCompletion.functor_categories 
                UniMath.Foundations.hlevel2.hSet 
                UniMath.Ktheory.Utilities.
 Require Export UniMath.Ktheory.Precategories.

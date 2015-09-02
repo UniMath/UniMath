@@ -5,7 +5,7 @@ Require Import UniMath.RezkCompletion.precategories
                UniMath.RezkCompletion.opp_precat
                UniMath.RezkCompletion.yoneda
                UniMath.RezkCompletion.category_hset
-               UniMath.RezkCompletion.functors_transformations
+               UniMath.RezkCompletion.functor_categories
                .
 Require Import UniMath.Foundations.hlevel2.hSet.
 Import UniMath.Ktheory.Utilities.Notation.

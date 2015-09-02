@@ -30,7 +30,7 @@ Require Import Foundations.hlevel2.hSet.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
 Require Import RezkCompletion.precategories.
-Require Import RezkCompletion.functors_transformations.
+Require Import RezkCompletion.functor_categories.
 Require Import RezkCompletion.equivalences.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
