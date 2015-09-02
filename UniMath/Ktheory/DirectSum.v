@@ -6,7 +6,7 @@
 Require Import 
         UniMath.Foundations.hlevel2.hSet
         UniMath.RezkCompletion.precategories
-        UniMath.RezkCompletion.functors_transformations
+        UniMath.RezkCompletion.functor_categories
         UniMath.Ktheory.ZeroObject.
 Require UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories UniMath.Ktheory.RawMatrix
         UniMath.Ktheory.Sum UniMath.Ktheory.Product UniMath.Ktheory.FiniteSet.

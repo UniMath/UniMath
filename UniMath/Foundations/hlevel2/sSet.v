@@ -13,7 +13,7 @@ Unset Automatic Introduction.
 Require Export Foundations.hlevel2.finitesets.
 Require Export RezkCompletion.precategories. 
 Require Export RezkCompletion.category_hset.
-Require Export RezkCompletion.functors_transformations.
+Require Export RezkCompletion.functor_categories.
 
 
 (* To upstream files *)

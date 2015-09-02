@@ -41,7 +41,7 @@ Contents :
 Require Import UniMath.Foundations.hlevel2.hSet.
 
 Require Import UniMath.RezkCompletion.precategories.
-Require Import UniMath.RezkCompletion.functors_transformations.
+Require Import UniMath.RezkCompletion.functor_categories.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").

@@ -21,7 +21,7 @@ The toplevel files contain the formalization of the Rezk Completion:
 * *precategories.v*
   * precategories
   * isomorphisms in precategories
-* *functors_transformations.v*
+* *functor_categories.v*
   * functors and natural transformations
   * various properties of functors
   * the functor precategory is a category if the target category is
