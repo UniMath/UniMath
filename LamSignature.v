@@ -3,7 +3,7 @@ Require Import UniMath.Foundations.hlevel1.hProp.
 Require Import UniMath.Foundations.hlevel2.hSet.
 
 Require Import UniMath.RezkCompletion.precategories.
-Require Import UniMath.RezkCompletion.functors_transformations.
+Require Import UniMath.RezkCompletion.functor_categories.
 Require Import SubstSystems.UnicodeNotations.
 Require Import UniMath.RezkCompletion.whiskering.
 Require Import UniMath.RezkCompletion.Monads.
@@ -151,7 +151,7 @@ Definition Abs_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Abs_H_d
    [Flat_H (X) := X o X]
    
    ingredients:
-     - functor_composite in RezkCompletion.functors_transformations 
+     - functor_composite in RezkCompletion.functor_categories 
      - map given by horizontal composition in Substsystems.HorizontalComposition
  
  Alternatively : free in two arguments, then precomposed with diagonal

@@ -3,7 +3,7 @@ Require Import UniMath.Foundations.hlevel1.hProp.
 Require Import UniMath.Foundations.hlevel2.hSet.
 
 Require Import UniMath.RezkCompletion.precategories.
-Require Import UniMath.RezkCompletion.functors_transformations.
+Require Import UniMath.RezkCompletion.functor_categories.
 Require Import SubstSystems.UnicodeNotations.
 Require Import UniMath.RezkCompletion.limits.initial.
 Require Import UniMath.RezkCompletion.FunctorAlgebras.
