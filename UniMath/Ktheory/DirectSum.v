@@ -4,13 +4,13 @@
     sum to the product is an isomorphism, then the sum is called a direct sum. *)
 
 Require Import 
-        Foundations.hlevel2.hSet
-        RezkCompletion.precategories
-        RezkCompletion.functors_transformations
-        Ktheory.ZeroObject.
-Require Ktheory.Utilities Ktheory.Precategories Ktheory.RawMatrix
-        Ktheory.Sum Ktheory.Product Ktheory.FiniteSet.
-Import Ktheory.Utilities.Notation
+        UniMath.Foundations.hlevel2.hSet
+        UniMath.RezkCompletion.precategories
+        UniMath.RezkCompletion.functors_transformations
+        UniMath.Ktheory.ZeroObject.
+Require UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories UniMath.Ktheory.RawMatrix
+        UniMath.Ktheory.Sum UniMath.Ktheory.Product UniMath.Ktheory.FiniteSet.
+Import UniMath.Ktheory.Utilities.Notation
        Precategories.Notation
        FiniteSet.Coercions 
        Sum.Coercions Product.Coercions.

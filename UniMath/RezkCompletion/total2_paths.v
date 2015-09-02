@@ -1,6 +1,6 @@
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.hlevel1.hProp.
+Require Import UniMath.Foundations.hlevel2.hSet.
 
 
 Definition propproperty ( X : hProp ) := pr2 X . 

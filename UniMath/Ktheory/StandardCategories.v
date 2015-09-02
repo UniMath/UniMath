@@ -1,10 +1,10 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import RezkCompletion.precategories
-               Foundations.hlevel2.hSet.
-Require Ktheory.Utilities Ktheory.Precategories.
-Import Utilities.Notation
-       Precategories.Notation.
+Require Import UniMath.RezkCompletion.precategories
+               UniMath.Foundations.hlevel2.hSet.
+Require UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories.
+Import Ktheory.Utilities.Notation
+       Ktheory.Precategories.Notation.
 Definition compose' { C:precategory_data } { a b c:ob C }
   (g:b → c) (f:a → b) : a → c.
 Proof. intros. exact (compose f g). Defined.
@@ -65,7 +65,7 @@ Proof. intros ? iobj. apply (Precategories.category_pair (path_pregroupoid X iob
 
 (** *** the discrete category on n objects *)
 
-Require Import Foundations.hlevel2.stnfsets.
+Require Import UniMath.Foundations.hlevel2.stnfsets.
 Definition cat_n (n:nat):category.
   intro. apply (path_groupoid (stn n)). apply hlevelntosn.
   apply isasetstn. Defined.

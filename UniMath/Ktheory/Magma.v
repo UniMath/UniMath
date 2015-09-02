@@ -1,9 +1,9 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import Foundations.hlevel2.algebra1a
-        Ktheory.Utilities.
-Require Ktheory.Sets.
-Import Ktheory.Utilities.Notation.
+Require Import UniMath.Foundations.hlevel2.algebra1a
+        UniMath.Ktheory.Utilities.
+Require UniMath.Ktheory.Sets.
+Import UniMath.Ktheory.Utilities.Notation.
 Local Notation "x * y" := (op x y). 
 Local Notation "g ∘ f" := (binopfuncomp f g) (at level 50, only parsing).
 Local Notation Hom := binopfun.

@@ -22,12 +22,15 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 (** ** Imports *)
 
 Require Export UniMath.Foundations.Generalities.uuu.
+<<<<<<< HEAD
 
 (** ** Universe structure *)
 
 Definition UU := Type.
 
 Identity Coercion fromUUtoType : UU >-> Sortclass.
+=======
+>>>>>>> 50eed598155842536cbfb077f28a4ba50517bd77
 
 (* end of "Preambule". *)
 
@@ -170,8 +173,8 @@ Defined.
 (** Note that we do no need [ pathscomp0lid ] since the corresponding
     two terms are convertible to each other due to our definition of
     [ pathscomp0 ]. If we defined it by inductioning [ e2 ] and
-    applying [ e1 ] then [ pathsinv0rid ] would be trivial but
-    [ pathsinv0lid ] would require a proof. Similarly we do not need a
+    applying [ e1 ] then [ pathscomp0rid ] would be trivial but
+    [ pathscomp0lid ] would require a proof. Similarly we do not need a
     lemma to connect [ pathsinv0 ( idpath _ ) ] to [ idpath ].
  *)
 

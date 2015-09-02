@@ -1,8 +1,8 @@
 language:       ocaml
 before_install: sudo apt-get update -qq
-install:        sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra time
+install:        sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra time libgtk2.0 libgtksourceview2.0
 script:
-  - time make build-coq
+  - time make BUILD_COQIDE=yes build-coq
   - time make TIMECMD=time all
   - time make install
 after_script:
