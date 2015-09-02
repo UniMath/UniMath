@@ -22,15 +22,6 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 (** ** Imports *)
 
 Require Export UniMath.Foundations.Generalities.uuu.
-<<<<<<< HEAD
-
-(** ** Universe structure *)
-
-Definition UU := Type.
-
-Identity Coercion fromUUtoType : UU >-> Sortclass.
-=======
->>>>>>> 50eed598155842536cbfb077f28a4ba50517bd77
 
 (* end of "Preambule". *)
 
