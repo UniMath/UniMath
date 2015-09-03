@@ -17,6 +17,11 @@ Unset Automatic Introduction.  (** This line has to be removed for the file to c
 
 Notation UUU := Set .
 
+Definition UU := Type.
+
+Identity Coercion fromUUtoType : UU >-> Sortclass.
+
+
 (** Empty type.  The empty type is introduced in Coq.Init.Datatypes by the line:
 
 [ Inductive Empty_set : Set := . ]
@@ -114,7 +119,9 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 
 *)
 
-(** The following command checks wheather the patch which modifies the universe level assignement for inductive types have been installed. With the patch it returns [ paths 0 0 : UUU ] . Without the patch it returns [ paths 0 0 : Prop ]. *)
+
+
+(** The following command checks whether the flag [-indices-matter] which modifies the universe level assignment for inductive types has been set. With the flag it returns [ paths 0 0 : UUU ] . Without the flag it returns [ paths 0 0 : Prop ]. *)
 
 Check (O = O) .
 

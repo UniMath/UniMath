@@ -3,7 +3,7 @@
 Require Import 
         UniMath.Foundations.hlevel2.hSet
         UniMath.RezkCompletion.precategories
-        UniMath.RezkCompletion.functors_transformations 
+        UniMath.RezkCompletion.functor_categories 
         UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Precategories UniMath.Ktheory.Sets UniMath.Ktheory.Representation.
 Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.

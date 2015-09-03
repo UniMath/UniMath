@@ -26,7 +26,7 @@ Require Import UniMath.Foundations.hlevel2.hSet.
 Require Import UniMath.RezkCompletion.precategories.
 Require Import UniMath.RezkCompletion.opp_precat.
 Require Import UniMath.RezkCompletion.category_hset.
-Require Import UniMath.RezkCompletion.functors_transformations.
+Require Import UniMath.RezkCompletion.functor_categories.
 
 (*Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).*)
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).
