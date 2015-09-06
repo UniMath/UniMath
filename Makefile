@@ -8,7 +8,8 @@
 
 # Modules to be compiled by default, in plain “make”.
 # Includes everything that compiles in reasonable time, and all dependencies.
-MODULES-CORE := Auxiliary UnicodeNotations \
+MODULES-CORE := Auxiliary \
+		UnicodeNotations \
 		AdjunctionHomTypesWeq  \
 		HorizontalComposition \
 		PointedFunctorsComposition \
@@ -77,6 +78,11 @@ html: core
 html_all: all
 	mkdir -p html
 	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -html $(COQDOCLIBS) -d html $(VS-CORE) $(VS-EXTRA)
+
+latex: core
+	mkdir -p latex
+	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -p "\usepackage{textgreek}\usepackage{stmaryrd}" -latex $(COQDOCLIBS) -d latex $(VS-CORE) 
+
 
 wc: Makefile
 	coqwc $(VS-CORE)
