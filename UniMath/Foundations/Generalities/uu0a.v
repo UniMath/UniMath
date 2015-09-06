@@ -784,9 +784,9 @@ Definition invmap {X Y : UU} (w : weq X Y) : Y -> X :=
 
 (** We now define different homotopies and maps between the paths
     spaces corresponding to a weak equivalence. What may look like
-    unnecessary complexity in the definition of [ weqgf ] is due to the
-    fact that the "naive" definition, that of [ weqgf00 ], needs to be
-    corrected in order for lemma [ weqfgf ] to hold. *)
+    unnecessary complexity in the definition of [ homotinvweqweq ] is due to the
+    fact that the "naive" definition needs to be
+    corrected in order for lemma [ homotweqinvweqweq ] to hold. *)
 
 Definition homotweqinvweq {X Y : UU} (w : weq X Y) :
   forall y : Y, w (invmap w y) = y.
