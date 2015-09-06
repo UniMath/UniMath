@@ -81,7 +81,7 @@ html_all: all
 
 latex: core
 	mkdir -p latex
-	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -p "\usepackage{textgreek}\usepackage{stmaryrd}" -latex $(COQDOCLIBS) -d latex $(VS-CORE) 
+	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}" -latex $(COQDOCLIBS) -d latex $(VS-CORE) 
 
 
 wc: Makefile
