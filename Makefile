@@ -46,7 +46,11 @@ PROJECTNAME="SubstSystems"
 
 COQOPTIONS := "-type-in-type"
 
-.PHONY: core all clean
+COQDOCLATEXOPTIONS := -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}"
+LATEXDIR := latex
+HTMLDIR := html
+
+.PHONY: core all clean latexclean htmlclean
 
 core: Makefile.coq
 	$(MAKE) -f Makefile.coq 
@@ -66,22 +70,31 @@ install_all: core
 install: core
 	$(MAKE) -f Makefile.coq install
 
-clean:: Makefile_all.coq
+clean:: Makefile_all.coq htmlclean latexclean
 	$(MAKE) -f Makefile_all.coq clean
 	rm -f Makefile_all.coq
-	rm -f html
+
+htmlclean: 
+	rm -rf $(HTMLDIR)
+
+latexclean:
+	rm -rf $(LATEXDIR)
 
 html: core
-	mkdir -p html
-	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -html $(COQDOCLIBS) -d html $(VS-CORE) 
+	mkdir -p $(HTMLDIR) 
+	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -html $(COQDOCLIBS) -d $(HTMLDIR) $(VS-CORE) 
 
 html_all: all
-	mkdir -p html
-	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -html $(COQDOCLIBS) -d html $(VS-CORE) $(VS-EXTRA)
+	mkdir -p $(HTMLDIR) 
+	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -html $(COQDOCLIBS) -d $(HTMLDIR) $(VS-CORE) $(VS-EXTRA)
 
 latex: core
-	mkdir -p latex
-	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}" -latex $(COQDOCLIBS) -d latex $(VS-CORE) 
+	mkdir -p $(LATEXDIR) 
+	$(COQDOC) -R . $(PROJECTNAME) -toc $(COQDOCFLAGS) -utf8 $(COQDOCLATEXOPTIONS) -latex $(COQDOCLIBS) -d $(LATEXDIR) $(VS-CORE) 
+
+pdf: latex	
+	cd $(LATEXDIR) ;\
+	latexmk -pdf *.tex
 
 
 wc: Makefile
