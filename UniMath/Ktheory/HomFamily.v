@@ -2,11 +2,11 @@
 
 Require Import 
         UniMath.Foundations.hlevel2.hSet
-        UniMath.RezkCompletion.precategories
-        UniMath.RezkCompletion.functor_categories
+        UniMath.CategoryTheory.precategories
+        UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Precategories UniMath.Ktheory.Sets.
-Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
+Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Precategories.Notation.
 Definition set (C:precategory) (hs:has_homsets C) {I} (c:I -> ob C) : ob C -> ob SET.
   intros ? ? ? ? x. 
    apply (Sets.Product (fun i => hSetpair (Hom (c i) x) (hs _ _ ) )).

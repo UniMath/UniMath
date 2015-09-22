@@ -1,11 +1,11 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Ktheory.Utilities.
-Require Import UniMath.RezkCompletion.precategories 
-               UniMath.RezkCompletion.opp_precat
-               UniMath.RezkCompletion.yoneda
-               UniMath.RezkCompletion.category_hset
-               UniMath.RezkCompletion.functor_categories
+Require Import UniMath.CategoryTheory.precategories 
+               UniMath.CategoryTheory.opp_precat
+               UniMath.CategoryTheory.yoneda
+               UniMath.CategoryTheory.category_hset
+               UniMath.CategoryTheory.functor_categories
                .
 Require Import UniMath.Foundations.hlevel2.hSet.
 Import UniMath.Ktheory.Utilities.Notation.

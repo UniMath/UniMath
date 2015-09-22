@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Foundations.hlevel2.algebra1b 
-	       UniMath.RezkCompletion.total2_paths
+	       UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Monoid.
 Import UniMath.Ktheory.Utilities.Notation.

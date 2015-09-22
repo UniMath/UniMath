@@ -2,11 +2,11 @@
 
 (** * Group actions *)
 
-Require Import Foundations.hlevel2.algebra1b
-               Foundations.Proof_of_Extensionality.funextfun
-               Ktheory.Utilities
+Require Import UniMath.Foundations.hlevel2.algebra1b
+               UniMath.Foundations.Proof_of_Extensionality.funextfun
+               UniMath.Ktheory.Utilities
                UniMath.Ktheory.Equivalences.
-Import Ktheory.Utilities.Notation.
+Import UniMath.Ktheory.Utilities.Notation.
 
 (** ** Definitions *)
 

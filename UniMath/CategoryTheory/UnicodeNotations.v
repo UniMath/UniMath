@@ -1,7 +1,7 @@
 
-Require Export UniMath.Foundations.Generalities.uu0.
-Require Export UniMath.Foundations.hlevel1.hProp.
-Require Export UniMath.RezkCompletion.precategories.
+Require Export UniMath.Foundations.Generalities.uu0.  Require Export
+UniMath.Foundations.hlevel1.hProp.  Require Export
+UniMath.CategoryTheory.precategories.
 
 Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
   (at level 200, x binder, y binder, right associativity) : type_scope.

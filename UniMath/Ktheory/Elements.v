@@ -1,12 +1,12 @@
 (** *** the category of elements of a functor *)
 
-Require Export UniMath.RezkCompletion.precategories
-               UniMath.RezkCompletion.functor_categories 
+Require Export UniMath.CategoryTheory.precategories
+               UniMath.CategoryTheory.functor_categories 
                UniMath.Foundations.hlevel2.hSet 
                UniMath.Ktheory.Utilities.
 Require Export UniMath.Ktheory.Precategories.
-Export Ktheory.Utilities.Notation
-       Ktheory.Precategories.Notation.
+Export UniMath.Ktheory.Utilities.Notation
+       UniMath.Ktheory.Precategories.Notation.
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
   intros. exists (total2 (fun c : ob C => set_to_type (X c))).
   intros a b. 

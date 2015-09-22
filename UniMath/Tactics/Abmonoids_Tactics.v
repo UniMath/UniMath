@@ -2,7 +2,7 @@
 (** Date: Spring 2015.*)
 (** Description: Some tactics for abelian monoids.*)
 
-Require Import Foundations.hlevel2.algebra1b
+Require Import UniMath.Foundations.hlevel2.algebra1b
                UniMath.Tactics.Utilities
                UniMath.Tactics.Monoids_Tactics.
 

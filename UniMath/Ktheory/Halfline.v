@@ -1,10 +1,10 @@
 (** * The induction principle for the half line. *)
 
-Require Import Foundations.Proof_of_Extensionality.funextfun
-               Ktheory.Utilities.
-Require RezkCompletion.precategories.
-Import Ktheory.Utilities.Notation.
-Require Ktheory.Nat.
+Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun
+               UniMath.Ktheory.Utilities.
+Require UniMath.CategoryTheory.precategories.
+Import UniMath.Ktheory.Utilities.Notation.
+Require UniMath.Ktheory.Nat.
 Notation ℕ := nat.
 
 Definition target_paths {Y} (f:ℕ->Y) := forall n, f n=f(S n).

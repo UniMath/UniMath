@@ -4,14 +4,14 @@
 
 Unset Kernel Term Sharing.
 
-Require Import Foundations.hlevel2.algebra1b
-               Foundations.Proof_of_Extensionality.funextfun
-               Ktheory.Utilities
-               RezkCompletion.total2_paths
-               Ktheory.GroupAction
-               Foundations.hlevel2.hz.
-Require Ktheory.Nat.
-Import Ktheory.Utilities.Notation Ktheory.Utilities.NatNotation.
+Require Import UniMath.Foundations.hlevel2.algebra1b
+               UniMath.Foundations.Proof_of_Extensionality.funextfun
+               UniMath.Ktheory.Utilities
+               UniMath.CategoryTheory.total2_paths
+               UniMath.Ktheory.GroupAction
+               UniMath.Foundations.hlevel2.hz.
+Require UniMath.Ktheory.Nat.
+Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Utilities.NatNotation.
 
 Definition ℤ := hzaddabgr.
 Definition toℤ (n:nat) : ℤ := nattohz n.

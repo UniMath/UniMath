@@ -2,7 +2,7 @@
 (** Date: Spring 2015.*)
 (** Description: Some tactics for monoids.*)
 
-Require Import Foundations.hlevel2.algebra1b
+Require Import UniMath.Foundations.hlevel2.algebra1b
                UniMath.Tactics.Utilities.
 
 Ltac op_strip f :=

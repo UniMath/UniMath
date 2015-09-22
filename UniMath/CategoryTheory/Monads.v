@@ -24,10 +24,10 @@ Require Import UniMath.Foundations.Generalities.uu0.
 Require Import UniMath.Foundations.hlevel1.hProp.
 Require Import UniMath.Foundations.hlevel2.hSet.
 
-Require Import UniMath.RezkCompletion.precategories.
-Require Import UniMath.RezkCompletion.functor_categories.
-Require Import UniMath.RezkCompletion.UnicodeNotations.
-Require Import UniMath.RezkCompletion.whiskering.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.whiskering.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).

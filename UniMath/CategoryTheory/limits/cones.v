@@ -7,9 +7,9 @@ Require Import UniMath.Foundations.hlevel1.hProp.
 Require Import UniMath.Foundations.hlevel2.hSet.
 
 
-Require Import UniMath.RezkCompletion.total2_paths.
-Require Import UniMath.RezkCompletion.precategories.
-Require Import UniMath.RezkCompletion.functor_categories.
+Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 Local Notation "f ;; g" := (compose f g)(at level 50).

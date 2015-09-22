@@ -23,10 +23,10 @@ Require Import UniMath.Foundations.Generalities.uu0.
 Require Import UniMath.Foundations.hlevel1.hProp.
 Require Import UniMath.Foundations.hlevel2.hSet.
 
-Require Import UniMath.RezkCompletion.precategories.
-Require Import UniMath.RezkCompletion.opp_precat.
-Require Import UniMath.RezkCompletion.category_hset.
-Require Import UniMath.RezkCompletion.functor_categories.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.functor_categories.
 
 (*Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).*)
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).

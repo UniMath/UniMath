@@ -24,15 +24,15 @@ Require Import UniMath.Foundations.Generalities.uu0.
 Require Import UniMath.Foundations.hlevel1.hProp.
 Require Import UniMath.Foundations.hlevel2.hSet.
 
-Require Import UniMath.RezkCompletion.precategories.
-Require Import UniMath.RezkCompletion.functor_categories.
-Require Import UniMath.RezkCompletion.category_hset.
-Require Import UniMath.RezkCompletion.yoneda.
-Require Import UniMath.RezkCompletion.sub_precategories.
-Require Import UniMath.RezkCompletion.equivalences.
-Require Import UniMath.RezkCompletion.whiskering.
-Require Import UniMath.RezkCompletion.precomp_fully_faithful.
-Require Import UniMath.RezkCompletion.precomp_ess_surj.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.CategoryTheory.sub_precategories.
+Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.precomp_fully_faithful.
+Require Import UniMath.CategoryTheory.precomp_ess_surj.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 

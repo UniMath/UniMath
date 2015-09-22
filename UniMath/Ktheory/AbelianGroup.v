@@ -463,7 +463,7 @@ Definition power (I:Type) (X:abgr) : abgr.
 Module Category.
   Import Precategories.Notation.
   Require Import UniMath.Foundations.hlevel2.algebra1b
-                 UniMath.RezkCompletion.precategories.
+                 UniMath.CategoryTheory.precategories.
   Definition Ob := abgr.
   Identity Coercion Ob_to_abgr : Ob >-> abgr.
   Definition Mor : Ob -> Ob -> hSet.

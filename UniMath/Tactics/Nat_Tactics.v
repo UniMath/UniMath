@@ -10,7 +10,7 @@
 Unset Automatic Introduction.
 
 Require Import
-        Foundations.hlevel2.hnat
+        UniMath.Foundations.hlevel2.hnat
         UniMath.Tactics.Utilities
         UniMath.Tactics.Abmonoids_Tactics.
 

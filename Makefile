@@ -10,7 +10,7 @@ endif
 # The packages, listed in reverse order by dependency:
 PACKAGES += Tactics
 PACKAGES += Ktheory
-PACKAGES += RezkCompletion
+PACKAGES += CategoryTheory
 PACKAGES += Foundations
 ############################################
 # other user options; see also build/Makefile-configuration-template

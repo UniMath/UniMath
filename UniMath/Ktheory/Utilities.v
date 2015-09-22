@@ -1,9 +1,9 @@
 (** * Utilities concerning paths, hlevel, and logic *)
 
 Global Unset Automatic Introduction.
-Require Export Foundations.Generalities.uu0.
-Require Export Foundations.hlevel2.hSet.
-Require Import Foundations.Proof_of_Extensionality.funextfun.
+Require Export UniMath.Foundations.Generalities.uu0.
+Require Export UniMath.Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun.
 
 Require Export UniMath.Ktheory.Tactics.
 
@@ -60,7 +60,7 @@ Module Export Notation.
 End Notation.
 
 Module Import NatNotation.
-  Require Foundations.hlevel2.hnat.
+  Require UniMath.Foundations.hlevel2.hnat.
   Notation "m <= n" := (hnat.natleh m n).
   Notation "m >= n" := (hnat.natgeh m n).
   Notation "m > n" := (hnat.natgth m n).

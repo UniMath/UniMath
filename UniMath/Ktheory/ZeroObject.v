@@ -1,9 +1,9 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.RezkCompletion.precategories UniMath.Foundations.hlevel2.hSet UniMath.Ktheory.Utilities.
+Require Import UniMath.CategoryTheory.precategories UniMath.Foundations.hlevel2.hSet UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Precategories UniMath.Ktheory.Primitive.
-Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation
-       Ktheory.Primitive.TerminalObject Ktheory.Primitive.InitialObject.
+Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Precategories.Notation
+       UniMath.Ktheory.Primitive.TerminalObject UniMath.Ktheory.Primitive.InitialObject.
 Definition ZeroObject (C:precategory) := 
   { z:ob C & isInitialObject C z ** isTerminalObject C z }.
 Definition zero_opp (C:precategory) : ZeroObject C -> ZeroObject C^op.
