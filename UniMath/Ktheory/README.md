@@ -25,8 +25,11 @@ Acknowledgments
 ===============
 
 I thank the Oswald Veblen Fund and the Bell Companies Fellowship for supporting
-my stay at the Institute for Advanced Study in 2013-2014, where I wrote this
-code.
+my stay at the Institute for Advanced Study in Fall, 2013, and in Spring, 2014,
+where I started writing this code.
+
+I thank The Ambrose Monell Foundation for supporting my stay at the Institute
+for Advanced Study in Fall, 2015, where I continued working on this code.
 
 Overview of contents
 ====================
