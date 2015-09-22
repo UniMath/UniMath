@@ -44,7 +44,7 @@ COQDOC := coqdoc
 
 PROJECTNAME="SubstSystems"
 
-COQOPTIONS := "-type-in-type"
+COQOPTIONS="-type-in-type"
 
 COQDOCLATEXOPTIONS := -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}"
 LATEXDIR := latex
