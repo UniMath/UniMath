@@ -2,7 +2,7 @@
 
 (** * abelian groups *)
 
-Require Import UniMath.Foundations.algebra1b
+Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
                UniMath.Foundations.hz
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Group UniMath.Ktheory.Precategories UniMath.Ktheory.Primitive UniMath.Ktheory.Product
@@ -462,7 +462,7 @@ Definition power (I:Type) (X:abgr) : abgr.
 
 Module Category.
   Import Precategories.Notation.
-  Require Import UniMath.Foundations.algebra1b
+  Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
                  UniMath.CategoryTheory.precategories.
   Definition Ob := abgr.
   Identity Coercion Ob_to_abgr : Ob >-> abgr.

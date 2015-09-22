@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.algebra1b
+Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
                UniMath.Foundations.finitesets
                UniMath.Ktheory.Utilities.
 Import UniMath.Ktheory.Utilities.Notation.

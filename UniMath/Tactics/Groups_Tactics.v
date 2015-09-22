@@ -4,7 +4,7 @@
 
 Unset Automatic Introduction.
 
-Require Import UniMath.Foundations.algebra1b
+Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
                UniMath.Tactics.Utilities
                UniMath.Tactics.Monoids_Tactics.
 

@@ -4,7 +4,7 @@
 
 Unset Kernel Term Sharing.
 
-Require Import UniMath.Foundations.algebra1b
+Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
                UniMath.Foundations.funextfun
                UniMath.Ktheory.Utilities
                UniMath.CategoryTheory.total2_paths

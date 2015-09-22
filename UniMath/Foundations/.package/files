@@ -3,10 +3,10 @@ hz.v
 finitesets.v
 stnfsets.v
 hnat.v
-algebra1d.v
-algebra1c.v
-algebra1b.v
-algebra1a.v
+Algebra/Bourbaki/DomainsAndFields.v
+Algebra/Bourbaki/Rings.v
+Algebra/Bourbaki/MonoidsAndGroups.v
+Algebra/Bourbaki/Generalities.v
 hSet.v
 hProp.v
 funextfun.v

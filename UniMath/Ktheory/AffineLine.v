@@ -14,7 +14,7 @@ Unset Kernel Term Sharing.
 Require UniMath.Ktheory.Nat.
 Require Export UniMath.Foundations.hSet.
 Require Import UniMath.Ktheory.Utilities
-               UniMath.Foundations.algebra1b
+               UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
                UniMath.Foundations.funextfun
                UniMath.Ktheory.GroupAction
                UniMath.Foundations.hz

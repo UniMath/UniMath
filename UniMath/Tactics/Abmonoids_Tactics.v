@@ -2,7 +2,7 @@
 (** Date: Spring 2015.*)
 (** Description: Some tactics for abelian monoids.*)
 
-Require Import UniMath.Foundations.algebra1b
+Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
                UniMath.Tactics.Utilities
                UniMath.Tactics.Monoids_Tactics.
 

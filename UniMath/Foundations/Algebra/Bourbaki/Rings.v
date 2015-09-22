@@ -14,7 +14,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Foundations.algebra1b .
+Require Export UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups .
 
 
 (** To upstream files *)

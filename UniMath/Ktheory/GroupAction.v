@@ -2,7 +2,7 @@
 
 (** * Group actions *)
 
-Require Import UniMath.Foundations.algebra1b
+Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
                UniMath.Foundations.funextfun
                UniMath.Ktheory.Utilities
                UniMath.Ktheory.Equivalences.
