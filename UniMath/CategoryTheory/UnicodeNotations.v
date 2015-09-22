@@ -1,6 +1,6 @@
 
-Require Export UniMath.Foundations.Generalities.uu0.  Require Export
-UniMath.Foundations.hlevel1.hProp.  Require Export
+Require Export UniMath.Foundations.uu0.  Require Export
+UniMath.Foundations.hProp.  Require Export
 UniMath.CategoryTheory.precategories.
 
 Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)

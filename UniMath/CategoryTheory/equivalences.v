@@ -23,9 +23,9 @@ Contents :  Definition of adjunction
 ************************************************************)
 
 
-Require Import UniMath.Foundations.Generalities.uu0.
-Require Import UniMath.Foundations.hlevel1.hProp.
-Require Import UniMath.Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.uu0.
+Require Import UniMath.Foundations.hProp.
+Require Import UniMath.Foundations.hSet.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.

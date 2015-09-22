@@ -15,7 +15,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Foundations.hlevel2.algebra1a .
+Require Export UniMath.Foundations.algebra1a .
 
 
 (** To upstream files *)

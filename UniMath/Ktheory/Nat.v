@@ -2,9 +2,9 @@
 
 (** * Natural numbers *)
 
-Require Import UniMath.Foundations.hlevel2.algebra1b
-               UniMath.Foundations.hlevel2.hnat
-               UniMath.Foundations.Proof_of_Extensionality.funextfun
+Require Import UniMath.Foundations.algebra1b
+               UniMath.Foundations.hnat
+               UniMath.Foundations.funextfun
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
 Import UniMath.Ktheory.Utilities.Notation.

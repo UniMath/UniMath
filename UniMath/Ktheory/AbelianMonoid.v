@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.hlevel2.algebra1b
-               UniMath.Foundations.hlevel2.finitesets
+Require Import UniMath.Foundations.algebra1b
+               UniMath.Foundations.finitesets
                UniMath.Ktheory.Utilities.
 Import UniMath.Ktheory.Utilities.Notation.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.

@@ -1,9 +1,9 @@
 (** * Utilities concerning paths, hlevel, and logic *)
 
 Global Unset Automatic Introduction.
-Require Export UniMath.Foundations.Generalities.uu0.
-Require Export UniMath.Foundations.hlevel2.hSet.
-Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun.
+Require Export UniMath.Foundations.uu0.
+Require Export UniMath.Foundations.hSet.
+Require Import UniMath.Foundations.funextfun.
 
 Require Export UniMath.Ktheory.Tactics.
 
@@ -60,7 +60,7 @@ Module Export Notation.
 End Notation.
 
 Module Import NatNotation.
-  Require UniMath.Foundations.hlevel2.hnat.
+  Require UniMath.Foundations.hnat.
   Notation "m <= n" := (hnat.natleh m n).
   Notation "m >= n" := (hnat.natgeh m n).
   Notation "m > n" := (hnat.natgth m n).
@@ -622,7 +622,7 @@ Proof. intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
 
 (** Compare the following two definitions with [transport_type_path]. *)
 
-Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun.
+Require Import UniMath.Foundations.funextfun.
 
 Definition pr1_eqweqmap { X Y } ( e: X = Y ) : cast e = pr1 (eqweqmap e).
 Proof. intros. destruct e. reflexivity. Defined.

@@ -17,7 +17,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Foundations.hlevel2.hz .
+Require Export UniMath.Foundations.hz .
 
 Opaque hz . 
 

@@ -17,7 +17,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
  
-Require Export UniMath.Foundations.hlevel2.hnat .
+Require Export UniMath.Foundations.hnat .
 
 
 

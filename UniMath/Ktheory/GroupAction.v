@@ -2,8 +2,8 @@
 
 (** * Group actions *)
 
-Require Import UniMath.Foundations.hlevel2.algebra1b
-               UniMath.Foundations.Proof_of_Extensionality.funextfun
+Require Import UniMath.Foundations.algebra1b
+               UniMath.Foundations.funextfun
                UniMath.Ktheory.Utilities
                UniMath.Ktheory.Equivalences.
 Import UniMath.Ktheory.Utilities.Notation.

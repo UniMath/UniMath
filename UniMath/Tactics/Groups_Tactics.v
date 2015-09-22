@@ -4,7 +4,7 @@
 
 Unset Automatic Introduction.
 
-Require Import UniMath.Foundations.hlevel2.algebra1b
+Require Import UniMath.Foundations.algebra1b
                UniMath.Tactics.Utilities
                UniMath.Tactics.Monoids_Tactics.
 

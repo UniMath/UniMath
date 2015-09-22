@@ -1,8 +1,8 @@
 (** * Equivalences *)
 
-Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.uu0.
 Require Import UniMath.Ktheory.Utilities
-               UniMath.Foundations.Proof_of_Extensionality.funextfun.
+               UniMath.Foundations.funextfun.
 
 Section A.
 

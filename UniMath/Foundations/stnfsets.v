@@ -15,7 +15,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
-Require Export UniMath.Foundations.hlevel2.hnat .
+Require Export UniMath.Foundations.hnat .
 
 
 (* To up-stream files *)

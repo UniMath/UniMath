@@ -13,7 +13,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Require Export UniMath.Foundations.hlevel2.hSet .
+Require Export UniMath.Foundations.hSet .
 
 
 (** To upstream files *)

@@ -15,7 +15,7 @@ Coq8.2 *)
 
 (** Imports *)
 
-Require Export UniMath.Foundations.Generalities.uu0b.
+Require Export UniMath.Foundations.uu0b.
 
 
 

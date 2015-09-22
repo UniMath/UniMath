@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.CategoryTheory.precategories UniMath.Foundations.hlevel2.hSet UniMath.Ktheory.Utilities.
+Require Import UniMath.CategoryTheory.precategories UniMath.Foundations.hSet UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Precategories UniMath.Ktheory.Primitive.
 Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Precategories.Notation
        UniMath.Ktheory.Primitive.TerminalObject UniMath.Ktheory.Primitive.InitialObject.

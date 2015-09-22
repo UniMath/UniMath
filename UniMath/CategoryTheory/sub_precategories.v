@@ -38,7 +38,7 @@ Contents :
 ************************************************************)
 
 
-Require Import UniMath.Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.hSet.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.

@@ -15,7 +15,7 @@ Contents : Definition of opposite category and functor
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Generalities.uu0.
+Require Import UniMath.Foundations.uu0.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.

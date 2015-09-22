@@ -7,7 +7,7 @@ Require Import UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.category_hset
                UniMath.CategoryTheory.functor_categories
                .
-Require Import UniMath.Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.hSet.
 Import UniMath.Ktheory.Utilities.Notation.
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := tpair _ C i.
