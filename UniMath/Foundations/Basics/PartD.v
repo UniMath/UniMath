@@ -15,7 +15,7 @@ Coq8.2 *)
 
 (** Imports *)
 
-Require Export UniMath.Foundations.uu0c.
+Require Export UniMath.Foundations.Basics.PartC.
                                                                                     
 
 (** *** Deduction of functional extnsionality for dependent functions (sections) from functional extensionality of usual functions *)

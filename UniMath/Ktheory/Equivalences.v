@@ -1,6 +1,6 @@
 (** * Equivalences *)
 
-Require Import UniMath.Foundations.uu0.
+Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Ktheory.Utilities
                UniMath.Foundations.funextfun.
 

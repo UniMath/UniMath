@@ -16,7 +16,7 @@ Contents: Definition of slice precategories, C/x (assumes
 
 ************************************************************)
 
-Require Import UniMath.Foundations.uu0.
+Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.hProp.
 Require Import UniMath.Foundations.hSet.
 
@@ -313,13 +313,13 @@ rewrite transportf_total2; simpl.
 unfold slicecat_functor_comp_ob.
 rewrite toforallpaths_funextsec; simpl.
 assert (H1 : transportf (fun x : C / z => pr1 x --> b)
-               (uu0a.internal_paths_rew_r _ _ _
+               (Basics.PartA.internal_paths_rew_r _ _ _
                  (fun p => tpair _ a p = tpair _ a _) (idpath (tpair _ a _))
                  (assoc C a x y z fax f g)) h = h).
   case (assoc C a x y z fax f g); apply idpath.
 assert (H2 : forall h', h' = h ->
              transportf (fun x : C / z => a --> pr1 x)
-                        (uu0a.internal_paths_rew_r _ _ _
+                        (Basics.PartA.internal_paths_rew_r _ _ _
                            (fun p => tpair _ b p = tpair _ b _) (idpath _)
                            (assoc C b x y z fbx f g)) h' = h).
   intros h' eq.

@@ -20,7 +20,7 @@ TODO :
 ************************************************************)
 
 
-Require Import UniMath.Foundations.uu0.
+Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.hProp.
 Require Import UniMath.Foundations.hSet.
 

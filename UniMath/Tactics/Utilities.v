@@ -5,7 +5,7 @@ Unset Automatic Introduction.
 
 (** Imports *)
 
-Require Import UniMath.Foundations.uu0
+Require Import UniMath.Foundations.Basics.All
                UniMath.Foundations.hProp
                UniMath.Foundations.hSet.
 

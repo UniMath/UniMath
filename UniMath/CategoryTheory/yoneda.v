@@ -19,7 +19,7 @@ Contents : Definition of the Yoneda functor
 ************************************************************)
 
 
-Require Import UniMath.Foundations.uu0.
+Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.hProp.
 Require Import UniMath.Foundations.hSet.
 

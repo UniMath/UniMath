@@ -10,10 +10,10 @@ Unset Automatic Introduction.
 
 (* Preamble *)
 
-Require Export Foundations.hlevel2.finitesets.
-Require Export RezkCompletion.precategories. 
-Require Export RezkCompletion.category_hset.
-Require Export RezkCompletion.functor_categories.
+Require Export Foundations.finitesets.
+Require Export CategoryTheory.precategories. 
+Require Export CategoryTheory.category_hset.
+Require Export CategoryTheory.functor_categories.
 
 
 (* To upstream files *)
@@ -83,7 +83,7 @@ Proof.
   refine ( tpair _ _ _ ) .
   refine ( tpair _ _ _ ) . 
   exact nat . 
-  intros n m . split with ( monfunstn n m ) . apply isasetmonfunstn . 
+  intros n m . (* split with ( monfunstn n m ) . apply isasetmonfunstn . 
   refine ( tpair _ _ _ ) . 
   intros . simpl in * .  apply monfunstnid . 
   intros ? ? ? f g .  simpl in * . apply ( monfunstncomp f g ) . 
@@ -93,16 +93,15 @@ Proof.
   intros . simpl in * .  apply monfunstncompidl . 
   intros . simpl in * .  apply monfunstncompidr . 
   intros . simpl in * .  apply monfunstncompassoc .
-Defined.
-
+Defined. *)
+Admitted.               
 
 
 
   
 (* Definition of a simplicial hset *)
 
-
-Definition sSet := [ precatDelta , HSET ] . 
+Definition sSet := [ precatDelta , HSET, pr2 is_category_HSET ] . 
 
 (* V.V. with Sasha Vishik, Nov. 23, 2014 *)
 

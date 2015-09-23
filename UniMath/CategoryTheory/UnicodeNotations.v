@@ -1,5 +1,5 @@
 
-Require Export UniMath.Foundations.uu0.  Require Export
+Require Export UniMath.Foundations.Basics.All.  Require Export
 UniMath.Foundations.hProp.  Require Export
 UniMath.CategoryTheory.precategories.
 

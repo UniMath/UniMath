@@ -150,4 +150,4 @@ Section Tests.
   
   Close Scope multmonoid.
 End Tests.
-*)
+ *)

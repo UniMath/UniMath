@@ -1,7 +1,7 @@
 (** * Utilities concerning paths, hlevel, and logic *)
 
 Global Unset Automatic Introduction.
-Require Export UniMath.Foundations.uu0.
+Require Export UniMath.Foundations.Basics.All.
 Require Export UniMath.Foundations.hSet.
 Require Import UniMath.Foundations.funextfun.
 
@@ -47,8 +47,8 @@ Module Export Notation.
   Notation set_to_type := hSet.pr1hSet.
   Notation ap := maponpaths.
   (* see table 3.1 in the coq manual for parsing levels *)
-  Notation "g ∘ f" := (uu0a.funcomp f g) (at level 50).
-  Notation "f ;; g" := (uu0a.funcomp f g) (at level 50).
+  Notation "g ∘ f" := (funcomp f g) (at level 50).
+  Notation "f ;; g" := (funcomp f g) (at level 50).
   Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
   (* funcomp' is like funcomp, but with the arguments in the other order *)
   Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 

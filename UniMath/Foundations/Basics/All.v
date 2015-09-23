@@ -25,7 +25,7 @@ of sections of a family with contractible fibers is contractible.
 (* The original file uu0 was split into the files uu0a, uu0b, uu0c and uu0d by 
 Vladimir Voevodsdy on Dec. 3, 2014. *)
 
-Require Export uu0d.
+Require Export UniMath.Foundations.Basics.PartD.
 
 
 (* End file *)

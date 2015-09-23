@@ -3,8 +3,7 @@
 Benedikt Ahrens, March 2015
 *********************************************)
 
-Require Import UniMath.Foundations.uuu.
-Require Import UniMath.Foundations.uu0.
+Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.hProp.
 Require Import UniMath.Foundations.hSet.
 
