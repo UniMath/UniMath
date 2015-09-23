@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.hSet.
+Require Import UniMath.Foundations.Sets.
 Require UniMath.Ktheory.Utilities.
 Import UniMath.Ktheory.Utilities.Notation.
 Definition unit : hSet := tpair isaset unit isasetunit.

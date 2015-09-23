@@ -65,7 +65,7 @@ publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
 	echo '-R UniMath UniMath' ;\
 	echo ;\
 	for i in $(PACKAGES) ;\
-	do sed "s=^=UniMath/$$i/=" < UniMath/$$i/.package/files ;\
+	do sed "s=^\(.\)=UniMath/$$i/\1=" < UniMath/$$i/.package/files ;\
 	done ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\

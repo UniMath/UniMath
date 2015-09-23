@@ -12,12 +12,12 @@ Unset Kernel Term Sharing.
 (** ** Preliminaries *)
 
 Require UniMath.Ktheory.Nat.
-Require Export UniMath.Foundations.hSet.
+Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Ktheory.Utilities
                UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
-               UniMath.Foundations.funextfun
+               UniMath.Foundations.FunctionalExtensionality
                UniMath.Ktheory.GroupAction
-               UniMath.Foundations.hz
+               UniMath.Foundations.Integers
                UniMath.Ktheory.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.Equivalences.

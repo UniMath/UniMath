@@ -10,7 +10,7 @@ Unset Automatic Introduction.
 
 (* Preamble *)
 
-Require Export Foundations.finitesets.
+Require Export Foundations.FiniteSets.
 Require Export CategoryTheory.precategories. 
 Require Export CategoryTheory.category_hset.
 Require Export CategoryTheory.functor_categories.

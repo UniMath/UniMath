@@ -7,9 +7,9 @@ Unset Kernel Term Sharing.
 
 Require Import UniMath.Ktheory.AffineLine
                UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
-               UniMath.Foundations.funextfun
+               UniMath.Foundations.FunctionalExtensionality
                UniMath.Ktheory.GroupAction
-               UniMath.Foundations.hz
+               UniMath.Foundations.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.Integers
                UniMath.Ktheory.Equivalences.

@@ -21,8 +21,8 @@ TODO :
 
 
 Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.hProp.
-Require Import UniMath.Foundations.hSet.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.

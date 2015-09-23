@@ -15,7 +15,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
-Require Export UniMath.Foundations.hnat .
+Require Export UniMath.Foundations.NaturalNumbers .
 
 
 (* To up-stream files *)

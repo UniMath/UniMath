@@ -18,7 +18,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
-Require Export UniMath.Foundations.stnfsets .
+Require Export UniMath.Foundations.StandardFiniteSets .
 
 
 

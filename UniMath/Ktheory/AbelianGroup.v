@@ -3,7 +3,7 @@
 (** * abelian groups *)
 
 Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
-               UniMath.Foundations.hz
+               UniMath.Foundations.Integers
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Group UniMath.Ktheory.Precategories UniMath.Ktheory.Primitive UniMath.Ktheory.Product
         UniMath.Ktheory.Sum.

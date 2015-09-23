@@ -1,6 +1,6 @@
 (** * The induction principle for the half line. *)
 
-Require Import UniMath.Foundations.funextfun
+Require Import UniMath.Foundations.FunctionalExtensionality
                UniMath.Ktheory.Utilities.
 Require UniMath.CategoryTheory.precategories.
 Import UniMath.Ktheory.Utilities.Notation.

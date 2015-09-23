@@ -388,5 +388,5 @@ Module Free.
   Definition make (X:Type) := @universalMarkedGroup X empty fromempty.
 End Free.
 Definition ZZ := Free.make unit.
-Require UniMath.Foundations.hz.
-Definition hZZ := hz.hzaddabgr:gr. (* isomorphic to ZZ *)
+Require Import UniMath.Foundations.Integers.
+Definition hZZ := hzaddabgr:gr. (* isomorphic to ZZ *)

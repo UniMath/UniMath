@@ -7,7 +7,7 @@ Require Import
         UniMath.Ktheory.Precategories
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.total2_paths
-        UniMath.Foundations.hSet.
+        UniMath.Foundations.Sets.
 Import Precategories.Notation.
 Module TerminalObject.
   Definition isTerminalObject (C:precategory) (a:ob C) := 

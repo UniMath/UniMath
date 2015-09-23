@@ -3,7 +3,7 @@
 (** * Group actions *)
 
 Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
-               UniMath.Foundations.funextfun
+               UniMath.Foundations.FunctionalExtensionality
                UniMath.Ktheory.Utilities
                UniMath.Ktheory.Equivalences.
 Import UniMath.Ktheory.Utilities.Notation.

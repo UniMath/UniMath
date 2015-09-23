@@ -6,8 +6,8 @@ Unset Automatic Introduction.
 (** Imports *)
 
 Require Import UniMath.Foundations.Basics.All
-               UniMath.Foundations.hProp
-               UniMath.Foundations.hSet.
+               UniMath.Foundations.Propositions
+               UniMath.Foundations.Sets.
 
 Implicit Arguments tpair [ T P ].
 

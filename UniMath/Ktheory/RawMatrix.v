@@ -6,7 +6,7 @@
        sum decompositions. *)
 
 Require Import 
-        UniMath.Foundations.hSet
+        UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Utilities.

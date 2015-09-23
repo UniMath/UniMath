@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import 
-        UniMath.Foundations.hSet
+        UniMath.Foundations.Sets
         UniMath.Ktheory.Utilities.
 Import UniMath.Ktheory.Utilities.Notation.
 Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)

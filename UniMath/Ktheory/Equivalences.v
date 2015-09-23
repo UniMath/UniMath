@@ -2,7 +2,7 @@
 
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Ktheory.Utilities
-               UniMath.Foundations.funextfun.
+               UniMath.Foundations.FunctionalExtensionality.
 
 Section A.
 

@@ -3,8 +3,8 @@
 (** * Metric trees *)
 
 Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
-               UniMath.Foundations.hnat
-               UniMath.Foundations.funextfun
+               UniMath.Foundations.NaturalNumbers
+               UniMath.Foundations.FunctionalExtensionality
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
 Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Utilities.NatNotation.

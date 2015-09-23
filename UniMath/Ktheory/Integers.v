@@ -5,11 +5,11 @@
 Unset Kernel Term Sharing.
 
 Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
-               UniMath.Foundations.funextfun
+               UniMath.Foundations.FunctionalExtensionality
                UniMath.Ktheory.Utilities
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.GroupAction
-               UniMath.Foundations.hz.
+               UniMath.Foundations.Integers.
 Require UniMath.Ktheory.Nat.
 Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Utilities.NatNotation.
 

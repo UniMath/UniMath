@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
-               UniMath.Foundations.finitesets
+               UniMath.Foundations.FiniteSets
                UniMath.Ktheory.Utilities.
 Import UniMath.Ktheory.Utilities.Notation.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.

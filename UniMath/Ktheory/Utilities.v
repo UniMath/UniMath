@@ -2,8 +2,8 @@
 
 Global Unset Automatic Introduction.
 Require Export UniMath.Foundations.Basics.All.
-Require Export UniMath.Foundations.hSet.
-Require Import UniMath.Foundations.funextfun.
+Require Export UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.FunctionalExtensionality.
 
 Require Export UniMath.Ktheory.Tactics.
 
@@ -44,7 +44,7 @@ Proof. intros. exact (! (pr2 i t)). Defined.
 Module Export Notation.
   Notation "'not' X" := (X -> empty) (at level 35).
   Notation "x != y" := (not (x = y)) (at level 40).
-  Notation set_to_type := hSet.pr1hSet.
+  Notation set_to_type := pr1hSet.
   Notation ap := maponpaths.
   (* see table 3.1 in the coq manual for parsing levels *)
   Notation "g ∘ f" := (funcomp f g) (at level 50).
@@ -60,11 +60,11 @@ Module Export Notation.
 End Notation.
 
 Module Import NatNotation.
-  Require UniMath.Foundations.hnat.
-  Notation "m <= n" := (hnat.natleh m n).
-  Notation "m >= n" := (hnat.natgeh m n).
-  Notation "m > n" := (hnat.natgth m n).
-  Notation "m < n" := (hnat.natlth m n).
+  Require Import UniMath.Foundations.NaturalNumbers.
+  Notation "m <= n" := (natleh m n).
+  Notation "m >= n" := (natgeh m n).
+  Notation "m > n" := (natgth m n).
+  Notation "m < n" := (natlth m n).
 End NatNotation.
 
 Definition path_inverse_to_right {X} {x y:X} (p q:x = y) : p = q -> !q@p = idpath _.
@@ -622,7 +622,7 @@ Proof. intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
 
 (** Compare the following two definitions with [transport_type_path]. *)
 
-Require Import UniMath.Foundations.funextfun.
+Require Import UniMath.Foundations.FunctionalExtensionality.
 
 Definition pr1_eqweqmap { X Y } ( e: X = Y ) : cast e = pr1 (eqweqmap e).
 Proof. intros. destruct e. reflexivity. Defined.
