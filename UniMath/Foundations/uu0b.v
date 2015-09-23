@@ -6,7 +6,7 @@ and only once as a type in the definition of the family isofhlevel : nat -> UU a
 values in UU. *)
 
 
-(** ** Preambule *)
+(** ** Preamble *)
 
 (** Settings *)
 

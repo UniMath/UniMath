@@ -6,7 +6,7 @@ Only one usniverse is used and never as a type. We use general functional extens
 *)
 
 
-(** ** Preambule *)
+(** ** Preamble *)
 
 (** Settings *)
 

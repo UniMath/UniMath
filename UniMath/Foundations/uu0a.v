@@ -11,7 +11,7 @@ approach, and which do not require the use of universes as types.
 
 Ported to coq trunk (8.4-8.5) in March 2014.  *)
 
-(** ** Preambule *)
+(** ** Preamble *)
 
 (** Settings *)
 
@@ -23,7 +23,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 Require Export UniMath.Foundations.uuu.
 
-(* end of "Preambule". *)
+(* end of "Preamble". *)
 
 
 (** ** Some standard constructions not using identity types (paths) *)

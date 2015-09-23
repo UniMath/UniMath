@@ -6,7 +6,7 @@ The only axiom we use is [ funextempty ] which is the functional extensionality
  axiom for functions with values in the empty type. *)
 
 
-(** ** Preambule *)
+(** ** Preamble *)
 
 (** Settings *)
 
