@@ -21,7 +21,6 @@ MODULES-CORE := Auxiliary \
 		FunctorsPointwiseProduct \
 		ProductPrecategory \
 		SumOfSignatures \
-		ExampleSignatures \
 		GenMendlerIteration \
 		RightKanExtension \
 		SubstitutionSystems \
