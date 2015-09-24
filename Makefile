@@ -24,9 +24,9 @@ MODULES-CORE := Auxiliary \
 		ExampleSignatures \
 		GenMendlerIteration \
 		RightKanExtension \
-		SubstitutionSystems_alt \
-		MonadsFromSubstitutionSystems_alt \
-		LiftingInitial_alt \
+		SubstitutionSystems \
+		MonadsFromSubstitutionSystems \
+		LiftingInitial \
 		Lam
 
 	

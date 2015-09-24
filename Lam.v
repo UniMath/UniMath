@@ -23,10 +23,10 @@ Require Import SubstSystems.FunctorsPointwiseCoproduct.
 Require Import SubstSystems.FunctorsPointwiseProduct.
 Require Import SubstSystems.EndofunctorsMonoidal.
 Require Import SubstSystems.SumOfSignatures.
-Require Import SubstSystems.SubstitutionSystems_alt.
+Require Import SubstSystems.SubstitutionSystems.
 Require Import SubstSystems.LamSignature.
-Require Import SubstSystems.LiftingInitial_alt.
-Require Import SubstSystems.MonadsFromSubstitutionSystems_alt.
+Require Import SubstSystems.LiftingInitial.
+Require Import SubstSystems.MonadsFromSubstitutionSystems.
 
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -105,7 +105,7 @@ Let Lam := InitialObject _ Lam_Initial.
 
 Definition LamHSS_Initial : Initial (hss_precategory CC Lam_S).
 Proof.
-  apply  Ihss.
+  apply Ihss.
   - apply KanExt.
   - apply Lam_Initial.
 Defined.
