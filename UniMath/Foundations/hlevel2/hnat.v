@@ -215,7 +215,7 @@ Proof. apply istransnegrel . unfold iscotrans. apply iscotransnatgth .  Defined.
 
 Definition isreflnatleh ( n : nat ) : natleh n n := isirreflnatgth n .  
 
-Definition isantisymmnatleh ( n m : nat ) : natleh n m -> natleh m n -> paths n m := isantisymmnegnatgth n m .   
+Definition isantisymmnatleh : isantisymm natleh := isantisymmnegnatgth .   
 
 Definition isdecrelnatleh : isdecrel natleh := isdecnegrel _ isdecrelnatgth . 
 
