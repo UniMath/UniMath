@@ -4,15 +4,15 @@ Require Import UniMath.Foundations.hlevel2.hSet.
 
 Require Import UniMath.RezkCompletion.precategories.
 Require Import UniMath.RezkCompletion.functor_categories.
-Require Import SubstSystems.UnicodeNotations.
+Require Import UniMath.SubstitutionSystems.UnicodeNotations.
 Require Import UniMath.RezkCompletion.limits.initial.
 Require Import UniMath.RezkCompletion.FunctorAlgebras.
 Require Import UniMath.RezkCompletion.category_hset.
 Require Import UniMath.RezkCompletion.opp_precat.
 Require Import UniMath.RezkCompletion.yoneda.
 Require Import UniMath.RezkCompletion.equivalences. (* for adjunctions *)
-Require Import SubstSystems.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
-Require Import SubstSystems.Auxiliary.
+Require Import UniMath.SubstitutionSystems.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
+Require Import UniMath.SubstitutionSystems.Auxiliary.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).

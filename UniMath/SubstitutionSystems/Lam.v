@@ -4,29 +4,25 @@ Require Import UniMath.Foundations.hlevel2.hSet.
 
 Require Import UniMath.RezkCompletion.precategories.
 Require Import UniMath.RezkCompletion.functor_categories.
-Require Import SubstSystems.UnicodeNotations.
+Require Import UniMath.SubstitutionSystems.UnicodeNotations.
 Require Import UniMath.RezkCompletion.whiskering.
-(*Require Import UniMath.RezkCompletion.Monads.*)
 Require Import UniMath.RezkCompletion.limits.products.
 Require Import UniMath.RezkCompletion.limits.coproducts.
 Require Import UniMath.RezkCompletion.limits.terminal.
 Require Import UniMath.RezkCompletion.limits.initial.
 Require Import UniMath.RezkCompletion.FunctorAlgebras.
-Require Import SubstSystems.Auxiliary.
-Require Import SubstSystems.PointedFunctors.
-Require Import SubstSystems.ProductPrecategory.
-(*Require Import SubstSystems.HorizontalComposition.*)
-(*Require Import SubstSystems.PointedFunctorsComposition.*)
-Require Import SubstSystems.Signatures.
-(* Require Import SubstSystems.SubstitutionSystems. *)
-Require Import SubstSystems.FunctorsPointwiseCoproduct.
-Require Import SubstSystems.FunctorsPointwiseProduct.
-Require Import SubstSystems.EndofunctorsMonoidal.
-Require Import SubstSystems.SumOfSignatures.
-Require Import SubstSystems.SubstitutionSystems.
-Require Import SubstSystems.LamSignature.
-Require Import SubstSystems.LiftingInitial.
-Require Import SubstSystems.MonadsFromSubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.Auxiliary.
+Require Import UniMath.SubstitutionSystems.PointedFunctors.
+Require Import UniMath.SubstitutionSystems.ProductPrecategory.
+Require Import UniMath.SubstitutionSystems.Signatures.
+Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.SubstitutionSystems.FunctorsPointwiseProduct.
+Require Import UniMath.SubstitutionSystems.EndofunctorsMonoidal.
+Require Import UniMath.SubstitutionSystems.SumOfSignatures.
+Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.LamSignature.
+Require Import UniMath.SubstitutionSystems.LiftingInitial.
+Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).

@@ -4,9 +4,9 @@ Require Import UniMath.Foundations.hlevel2.hSet.
 
 Require Import UniMath.RezkCompletion.precategories.
 Require Import UniMath.RezkCompletion.functor_categories.
-Require Import UnicodeNotations.
+Require Import UniMath.SubstitutionSystems.UnicodeNotations.
 Require Import UniMath.RezkCompletion.limits.coproducts.
-Require Import Auxiliary.
+Require Import UniMath.SubstitutionSystems.Auxiliary.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).

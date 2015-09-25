@@ -4,22 +4,21 @@ Require Import UniMath.Foundations.hlevel2.hSet.
 
 Require Import UniMath.RezkCompletion.precategories.
 Require Import UniMath.RezkCompletion.functor_categories.
-Require Import SubstSystems.UnicodeNotations.
+Require Import UniMath.SubstitutionSystems.UnicodeNotations.
 Require Import UniMath.RezkCompletion.whiskering.
 Require Import UniMath.RezkCompletion.Monads.
 Require Import UniMath.RezkCompletion.FunctorAlgebras.
 Require Import UniMath.RezkCompletion.limits.coproducts.
-Require Import SubstSystems.Auxiliary.
-Require Import SubstSystems.PointedFunctors.
-Require Import SubstSystems.ProductPrecategory.
-Require Import SubstSystems.HorizontalComposition.
-Require Import SubstSystems.PointedFunctorsComposition.
-Require Import SubstSystems.EndofunctorsMonoidal.
-Require Import SubstSystems.Signatures.
-Require Import SubstSystems.FunctorsPointwiseCoproduct.
-Require Import SubstSystems.SubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.Auxiliary.
+Require Import UniMath.SubstitutionSystems.PointedFunctors.
+Require Import UniMath.SubstitutionSystems.ProductPrecategory.
+Require Import UniMath.SubstitutionSystems.HorizontalComposition.
+Require Import UniMath.SubstitutionSystems.PointedFunctorsComposition.
+Require Import UniMath.SubstitutionSystems.EndofunctorsMonoidal.
+Require Import UniMath.SubstitutionSystems.Signatures.
+Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 
-(*Require Import SubstSystems.FunctorAlgebraViews.*)
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).

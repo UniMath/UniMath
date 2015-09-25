@@ -7,7 +7,7 @@ Require Import UniMath.RezkCompletion.functor_categories.
 Require Import UniMath.RezkCompletion.whiskering.
 Require Import UniMath.RezkCompletion.limits.coproducts.
 Require Import UniMath.RezkCompletion.limits.products.
-Require Import UnicodeNotations.
+Require Import UniMath.SubstitutionSystems.UnicodeNotations.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
