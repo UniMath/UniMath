@@ -30,3 +30,4 @@ Equivalences.v
 Utilities.v
 Tactics.v
 Integers.v
+OrderedSet.v
