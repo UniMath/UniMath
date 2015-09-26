@@ -84,7 +84,8 @@ clean:: clean2 clean-enhanced
 distclean:clean cleanconfig distclean_coq
 clean2:
 	rm -f .coq_makefile_output build/CoqMakefile.make
-	find UniMath \( -name .\*.aux \) -delete
+	find UniMath \( -name .\*.aux -o -name \*.glob -o -name \*.v.d -o -name \*.vo \) -delete
+	find UniMath -type d -empty -delete
 distclean_coq:
 	- $(MAKE) -C sub/coq distclean
 cleanconfig:
