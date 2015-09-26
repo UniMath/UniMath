@@ -95,7 +95,13 @@ To obtain information about the compilation time of each file, add
 GNU "time" utility installed on your system in ```/usr/bin```.  Alternatively,
 add ```TIMECMD=time``` to the ```make``` command line, where ```time``` is a
 time command that works on your system.  Under Mac OS X, you can install GNU
-time as ```gtime``` by running ```brew install gnu-time```.
+time as ```gtime``` by running ```brew install gnu-time```.  Since ```make```
+variables can be included in the command, the following command is a convenient
+example that puts the user time and the name of the file on the same line.
+```
+$ time make TIMECMD='gtime -f "user time %U: $*"'
+```
+The first ```time``` command provides overall time for the whole build.
 
 Timing of execution of individual tactics and vernacular commands can be obtained by
 ```bash
@@ -104,6 +110,12 @@ $ make MOREFLAGS=-time
 For postprocessing of the (huge) output, direct the output into a file as in
 ```bash
 $ make MOREFLAGS=-time > timing.txt
+```
+
+To speed up execution on a machine with multiple cores or pseudo-cores, specify
+the use of multiple processes in paralle, e.g, 4, as follows.
+```
+$ make -j4
 ```
 
 ## Further details
