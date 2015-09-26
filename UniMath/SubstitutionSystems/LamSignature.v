@@ -1,15 +1,15 @@
-Require Import UniMath.Foundations.Generalities.uu0.
-Require Import UniMath.Foundations.hlevel1.hProp.
-Require Import UniMath.Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Basics.All.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.RezkCompletion.precategories.
-Require Import UniMath.RezkCompletion.functor_categories.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.SubstitutionSystems.UnicodeNotations.
-Require Import UniMath.RezkCompletion.whiskering.
-Require Import UniMath.RezkCompletion.Monads.
-Require Import UniMath.RezkCompletion.limits.products.
-Require Import UniMath.RezkCompletion.limits.coproducts.
-Require Import UniMath.RezkCompletion.limits.terminal.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Monads.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.SubstitutionSystems.Auxiliary.
 Require Import UniMath.SubstitutionSystems.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.ProductPrecategory.
@@ -150,7 +150,7 @@ Definition Abs_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Abs_H_d
    [Flat_H (X) := X o X]
    
    ingredients:
-     - functor_composite in RezkCompletion.functor_categories 
+     - functor_composite in CategoryTheory.functor_categories 
      - map given by horizontal composition in Substsystems.HorizontalComposition
  
  Alternatively : free in two arguments, then precomposed with diagonal

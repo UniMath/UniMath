@@ -1,9 +1,9 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import 
-        UniMath.Foundations.hlevel2.hSet
+        UniMath.Foundations.Sets
         UniMath.Ktheory.Utilities.
-Import Ktheory.Utilities.Notation.
+Import UniMath.Ktheory.Utilities.Notation.
 Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
            (f:X->Y->Z) : Type
   := (forall x x', RX x x' -> forall y, f x y = f x' y) **

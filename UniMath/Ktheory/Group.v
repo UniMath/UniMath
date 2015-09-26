@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.hlevel2.algebra1b 
-	       UniMath.RezkCompletion.total2_paths
+Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups 
+	       UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Monoid.
 Import UniMath.Ktheory.Utilities.Notation.
@@ -388,5 +388,5 @@ Module Free.
   Definition make (X:Type) := @universalMarkedGroup X empty fromempty.
 End Free.
 Definition ZZ := Free.make unit.
-Require UniMath.Foundations.hlevel2.hz.
-Definition hZZ := hz.hzaddabgr:gr. (* isomorphic to ZZ *)
+Require Import UniMath.Foundations.Integers.
+Definition hZZ := hzaddabgr:gr. (* isomorphic to ZZ *)
