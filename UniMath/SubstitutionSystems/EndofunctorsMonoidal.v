@@ -1,9 +1,9 @@
-Require Import UniMath.Foundations.Generalities.uu0.
-Require Import UniMath.Foundations.hlevel1.hProp.
-Require Import UniMath.Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Basics.All.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.RezkCompletion.precategories.
-Require Import UniMath.RezkCompletion.functor_categories.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.SubstitutionSystems.UnicodeNotations.
 
 

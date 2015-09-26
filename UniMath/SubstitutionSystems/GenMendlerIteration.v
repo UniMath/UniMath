@@ -1,16 +1,16 @@
-Require Import UniMath.Foundations.Generalities.uu0.
-Require Import UniMath.Foundations.hlevel1.hProp.
-Require Import UniMath.Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Basics.All.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.RezkCompletion.precategories.
-Require Import UniMath.RezkCompletion.functor_categories.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.SubstitutionSystems.UnicodeNotations.
-Require Import UniMath.RezkCompletion.limits.initial.
-Require Import UniMath.RezkCompletion.FunctorAlgebras.
-Require Import UniMath.RezkCompletion.category_hset.
-Require Import UniMath.RezkCompletion.opp_precat.
-Require Import UniMath.RezkCompletion.yoneda.
-Require Import UniMath.RezkCompletion.equivalences. (* for adjunctions *)
+Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.FunctorAlgebras.
+Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.CategoryTheory.equivalences. (* for adjunctions *)
 Require Import UniMath.SubstitutionSystems.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
 Require Import UniMath.SubstitutionSystems.Auxiliary.
 
@@ -175,7 +175,7 @@ Focus 2.
     assert (iter_uniq := pr2 (pr2 μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
     simpl in iter_uniq.
     assert(φh_is_alg_mor: inF ;; φ h = #F(φ h) ;; φ (ψ (R X) (ε X))).
-      (* remark: I am missing a definition of the algebra morphism property in UniMath.RezkCompletion.FunctorAlgebras *)
+      (* remark: I am missing a definition of the algebra morphism property in UniMath.CategoryTheory.FunctorAlgebras *)
     + rewrite <- φ_ψ_μF_eq. 
       rewrite <- φ_adj_natural_precomp.
       apply maponpaths.

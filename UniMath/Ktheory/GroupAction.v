@@ -428,7 +428,7 @@ Proof. intros. unfold loopsBG. rewrite invinv. unfold weqcomp; simpl.
        rewrite (Torsor_univalence_inv_comp_eval (trivialTorsorAuto G g)).
        reflexivity. Defined.
 
-(** Theorem [loopsBG] also follows from the main theorem of the RezkCompletion
+(** Theorem [loopsBG] also follows from the Rezk Completion theorem of the CategoryTheory
     package.  To see that, regard G as a category with one object.  Consider a
     merely representable functor F : G^op -> Set.  Let X be F of the object *.
     Apply F to the arrows to get an action of G on X.  Try to prove that X is a
