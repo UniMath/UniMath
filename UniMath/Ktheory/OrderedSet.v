@@ -4,7 +4,7 @@
 
 (** see Bourbaki, Set Theory, III.1, where they are called totally ordered sets *)
 
-Require Import UniMath.Foundations.hlevel2.finitesets
+Require Import UniMath.Foundations.FiniteSets
                UniMath.Ktheory.Utilities.
 
 Unset Automatic Introduction.
