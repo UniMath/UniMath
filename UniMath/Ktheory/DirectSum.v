@@ -4,9 +4,9 @@
     sum to the product is an isomorphism, then the sum is called a direct sum. *)
 
 Require Import 
-        UniMath.Foundations.hlevel2.hSet
-        UniMath.RezkCompletion.precategories
-        UniMath.RezkCompletion.functor_categories
+        UniMath.Foundations.Sets
+        UniMath.CategoryTheory.precategories
+        UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.ZeroObject.
 Require UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories UniMath.Ktheory.RawMatrix
         UniMath.Ktheory.Sum UniMath.Ktheory.Product UniMath.Ktheory.FiniteSet.

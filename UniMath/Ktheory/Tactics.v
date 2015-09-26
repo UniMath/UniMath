@@ -1,6 +1,6 @@
 (** * Tactics *)
 
-Require Import UniMath.Foundations.hlevel2.hSet funextfun.
+Require Import UniMath.Foundations.Sets UniMath.Foundations.FunctionalExtensionality.
 
 Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
   let T := type of x in

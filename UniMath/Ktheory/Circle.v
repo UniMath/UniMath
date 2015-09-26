@@ -5,16 +5,16 @@ Unset Kernel Term Sharing.
 
 (** We will show that [B ℤ] has the universal property of the circle. *)
 
-Require Import Ktheory.AffineLine
-               Foundations.hlevel2.algebra1b
-               Foundations.Proof_of_Extensionality.funextfun
-               Ktheory.GroupAction
-               Foundations.hlevel2.hz
-               Ktheory.Nat
-               Ktheory.Integers
+Require Import UniMath.Ktheory.AffineLine
+               UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
+               UniMath.Foundations.FunctionalExtensionality
+               UniMath.Ktheory.GroupAction
+               UniMath.Foundations.Integers
+               UniMath.Ktheory.Nat
+               UniMath.Ktheory.Integers
                UniMath.Ktheory.Equivalences.
-Require Import Ktheory.Utilities.
-Import Ktheory.Utilities.Notation.
+Require Import UniMath.Ktheory.Utilities.
+Import UniMath.Ktheory.Utilities.Notation.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
 Open Scope action_scope.

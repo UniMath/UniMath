@@ -2,13 +2,13 @@
 
 (** * Natural numbers *)
 
-Require Import Foundations.hlevel2.algebra1b
-               Foundations.hlevel2.hnat
-               Foundations.Proof_of_Extensionality.funextfun
-               RezkCompletion.total2_paths
-               Ktheory.Utilities.
-Import Ktheory.Utilities.Notation.
-Import Ktheory.Utilities.NatNotation.
+Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
+               UniMath.Foundations.NaturalNumbers
+               UniMath.Foundations.FunctionalExtensionality
+               UniMath.CategoryTheory.total2_paths
+               UniMath.Ktheory.Utilities.
+Import UniMath.Ktheory.Utilities.Notation.
+Import UniMath.Ktheory.Utilities.NatNotation.
 
 Definition ℕ := nat.
 
