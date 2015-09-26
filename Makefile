@@ -124,6 +124,11 @@ doc: $(GLOBFILES) $(VFILES)
 	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d $(ENHANCEDDOCTARGET) \
 	--with-header $(ENHANCEDDOCSOURCE)/header.html $(VFILES)
 	sed -i'.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
+show:
+	: NATIVEFILES1 = $(NATIVEFILES1)
+	: GLOBFILES1   = $(GLOBFILES1)
+	: VFILES1      = $(VFILES1)
+	: VOFILES1     = $(VOFILES1)
 #################################
 # targets best used with INCLUDE=no
 git-clean:

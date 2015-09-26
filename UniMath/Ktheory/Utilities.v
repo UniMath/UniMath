@@ -16,10 +16,13 @@ Proof. apply proofirrelevance. Defined.
 Goal forall X (i:iscontr X) (x x':X), x = x'.
 Proof. intros. apply proofirrelevancecontr. assumption. Defined.
 
-Goal forall X Y (f:X->Y) (inj:isincl f) x x', f x = f x' -> x = x'.
-Proof. intros ? ? ? ? ? ? e.
-       apply (invmaponpathsincl f). assumption. assumption. Defined.
+Definition an_inclusion_is_injective {X Y} (f:X->Y) (inj:isincl f) x x': f x = f x' -> x = x'.
+Proof. intros ? ? ? ? ? ?. exact (invmaponpathsincl _ inj _ _). Defined.
 
+Lemma isaprop_hProp (X:hProp) : isaprop X.
+Proof. intro. exact (pr2 X). Qed.
+
+(* paths *)
 Definition confun T {Y} (y:Y) := fun _:T => y.
 Definition path_type {X} {x x':X} (p:x = x') := X.
 Definition path_start {X} {x x':X} (p:x = x') := x.
@@ -430,9 +433,6 @@ Proof. trivial. Qed.
 
 Definition isofhlevel2_if_isaset {X} : isaset X -> isofhlevel 2 X.
 Proof. trivial. Qed.
-
-Definition isaprop_hProp (X:hProp) : isaprop X.
-Proof. intro. exact (pr2 X). Qed.
 
 Definition equality_proof_irrelevance {X:hSet} {x y:X} (p q:x = y) : p = q.
 Proof. intros. destruct (the (setproperty _ _ _ p q)). reflexivity. Qed.

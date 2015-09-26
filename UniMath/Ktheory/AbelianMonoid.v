@@ -263,8 +263,7 @@ Proof.
   destruct n.
   { reflexivity. }
   { induction i as [i I].
-    apply (invmaponpathsincl (stntonat _)).
-    { apply isinclstntonat. }
+    apply (an_inclusion_is_injective _ (isinclstntonat _)).
     { simpl.
       intermediate_path (natrem i (S n)).
       { apply (natremplusden i (S n)). }
@@ -278,8 +277,7 @@ Proof.
   destruct n.
   { reflexivity. }
   { induction k as [k K].
-    apply (invmaponpathsincl (stntonat _)).
-    { apply isinclstntonat. }
+    apply (an_inclusion_is_injective _ (isinclstntonat _)).
     { simpl.
 
 Admitted.

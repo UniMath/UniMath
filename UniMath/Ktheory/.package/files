@@ -27,7 +27,7 @@ Primitive.v
 Precategories.v
 Interval.v
 Equivalences.v
+OrderedSet.v
+Integers.v
 Utilities.v
 Tactics.v
-Integers.v
-OrderedSet.v
