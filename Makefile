@@ -8,6 +8,7 @@ endif
 endif
 ############################################
 # The packages, listed in reverse order by dependency:
+PACKAGES += SubstitutionSystems
 PACKAGES += Tactics
 PACKAGES += Ktheory
 PACKAGES += RezkCompletion
