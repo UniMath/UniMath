@@ -1,9 +1,9 @@
 (** * Utilities concerning paths, hlevel, and logic *)
 
 Global Unset Automatic Introduction.
-Require Export Foundations.Generalities.uu0.
-Require Export Foundations.hlevel2.hSet.
-Require Import Foundations.Proof_of_Extensionality.funextfun.
+Require Export UniMath.Foundations.Basics.All.
+Require Export UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.FunctionalExtensionality.
 
 Require Export UniMath.Ktheory.Tactics.
 
@@ -58,11 +58,11 @@ Proof. intros. exact (! (pr2 i t)). Defined.
 Module Export Notation.
   Notation "'not' X" := (X -> empty) (at level 35).
   Notation "x != y" := (not (x = y)) (at level 40).
-  Notation set_to_type := hSet.pr1hSet.
+  Notation set_to_type := pr1hSet.
   Notation ap := maponpaths.
   (* see table 3.1 in the coq manual for parsing levels *)
-  Notation "g ∘ f" := (uu0a.funcomp f g) (at level 50).
-  Notation "f ;; g" := (uu0a.funcomp f g) (at level 50).
+  Notation "g ∘ f" := (funcomp f g) (at level 50).
+  Notation "f ;; g" := (funcomp f g) (at level 50).
   Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
   (* funcomp' is like funcomp, but with the arguments in the other order *)
   Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
@@ -74,11 +74,11 @@ Module Export Notation.
 End Notation.
 
 Module Import NatNotation.
-  Require Foundations.hlevel2.hnat.
-  Notation "m <= n" := (hnat.natleh m n).
-  Notation "m >= n" := (hnat.natgeh m n).
-  Notation "m > n" := (hnat.natgth m n).
-  Notation "m < n" := (hnat.natlth m n).
+  Require Import UniMath.Foundations.NaturalNumbers.
+  Notation "m <= n" := (natleh m n).
+  Notation "m >= n" := (natgeh m n).
+  Notation "m > n" := (natgth m n).
+  Notation "m < n" := (natlth m n).
 End NatNotation.
 
 Definition path_inverse_to_right {X} {x y:X} (p q:x = y) : p = q -> !q@p = idpath _.
@@ -633,7 +633,7 @@ Proof. intros ? ? p x y. assert (a := p x). assert (b := p y). clear p.
 
 (** Compare the following two definitions with [transport_type_path]. *)
 
-Require Import UniMath.Foundations.Proof_of_Extensionality.funextfun.
+Require Import UniMath.Foundations.FunctionalExtensionality.
 
 Definition pr1_eqweqmap { X Y } ( e: X = Y ) : cast e = pr1 (eqweqmap e).
 Proof. intros. destruct e. reflexivity. Defined.

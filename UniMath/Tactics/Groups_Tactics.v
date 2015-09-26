@@ -4,7 +4,7 @@
 
 Unset Automatic Introduction.
 
-Require Import Foundations.hlevel2.algebra1b
+Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
                UniMath.Tactics.Utilities
                UniMath.Tactics.Monoids_Tactics.
 
@@ -101,4 +101,4 @@ Section Tests.
 End Tests.
 
 Close Scope multmonoid.
-*)
+ *)

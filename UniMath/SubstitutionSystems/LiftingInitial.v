@@ -1,16 +1,16 @@
-Require Import UniMath.Foundations.Generalities.uu0.
-Require Import UniMath.Foundations.hlevel1.hProp.
-Require Import UniMath.Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Basics.All.
+Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.RezkCompletion.precategories.
-Require Import UniMath.RezkCompletion.functor_categories.
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.SubstitutionSystems.UnicodeNotations.
-Require Import UniMath.RezkCompletion.whiskering.
-Require Import UniMath.RezkCompletion.Monads.
-Require Import UniMath.RezkCompletion.limits.products.
-Require Import UniMath.RezkCompletion.limits.coproducts.
-Require Import UniMath.RezkCompletion.limits.initial.
-Require Import UniMath.RezkCompletion.FunctorAlgebras.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Monads.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.SubstitutionSystems.Auxiliary.
 Require Import UniMath.SubstitutionSystems.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.ProductPrecategory.
@@ -713,9 +713,9 @@ Proof.
 Defined.
 
 
-Require Import UniMath.RezkCompletion.opp_precat.
-Require Import UniMath.RezkCompletion.yoneda.
-Require Import UniMath.RezkCompletion.category_hset.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.CategoryTheory.category_hset.
  
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 

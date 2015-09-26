@@ -5,9 +5,9 @@
 Require Import
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories
-        UniMath.RezkCompletion.precategories
-        UniMath.RezkCompletion.total2_paths
-        UniMath.Foundations.hlevel2.hSet.
+        UniMath.CategoryTheory.precategories
+        UniMath.CategoryTheory.total2_paths
+        UniMath.Foundations.Sets.
 Import Precategories.Notation.
 Module TerminalObject.
   Definition isTerminalObject (C:precategory) (a:ob C) := 

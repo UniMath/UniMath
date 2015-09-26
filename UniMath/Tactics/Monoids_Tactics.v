@@ -2,7 +2,7 @@
 (** Date: Spring 2015.*)
 (** Description: Some tactics for monoids.*)
 
-Require Import Foundations.hlevel2.algebra1b
+Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
                UniMath.Tactics.Utilities.
 
 Ltac op_strip f :=
@@ -150,4 +150,4 @@ Section Tests.
   
   Close Scope multmonoid.
 End Tests.
-*)
+ *)

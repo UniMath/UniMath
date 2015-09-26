@@ -6,13 +6,13 @@
        sum decompositions. *)
 
 Require Import 
-        UniMath.Foundations.hlevel2.hSet
-        UniMath.RezkCompletion.precategories
-        UniMath.RezkCompletion.functor_categories
+        UniMath.Foundations.Sets
+        UniMath.CategoryTheory.precategories
+        UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Precategories UniMath.Ktheory.Sum UniMath.Ktheory.Product.
-Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
-Import Ktheory.Sum.Coercions Ktheory.Product.Coercions.
+Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Precategories.Notation.
+Import UniMath.Ktheory.Sum.Coercions UniMath.Ktheory.Product.Coercions.
 Definition to_row {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C} 
            (B:Sum.type C hs b) {d:ob C} :
   weq (Hom B d) (forall j, Hom (b j) d).
