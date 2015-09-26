@@ -103,7 +103,7 @@ $ make MOREFLAGS=-time
 ```
 For postprocessing of the (huge) output, direct the output into a file as in
 ```bash
-$ make OTHERFLAGS=-time > timing.txt
+$ make MOREFLAGS=-time > timing.txt
 ```
 
 ## Further details
