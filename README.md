@@ -94,12 +94,18 @@ To obtain information about the compilation time of each file, add
 ```TIMED=yes``` to the ```make``` command line.  For this to work, you need the
 GNU "time" utility installed on your system in ```/usr/bin```.  Alternatively,
 add ```TIMECMD=time``` to the ```make``` command line, where ```time``` is a
-time command that works on your system.  Under Mac OS X, you can install GNU
-time as ```gtime``` by running ```brew install gnu-time```.  Since ```make```
-variables can be included in the command, the following command is a convenient
-example that puts the user time and the name of the file on the same line.
+time command that works on your system.
+
+On both Linux and Mac OS X systems, ```time``` is a built in bash shell command
+that differs from GNU time, available on Linux systems as ```\time```.  Under
+Mac OS X, you can install GNU time as ```gtime``` by running ```brew install
+gnu-time```.
+
+Since ```make``` variables can be included in the time command, the following
+example (using GNU time) shows how to display the user time and the name of the
+file on the same line.
 ```
-$ time make TIMECMD='gtime -f "user time %U: $*"'
+$ time make TIMECMD='\time -f "user time %U: $*"'
 ```
 The first ```time``` command provides overall time for the whole build.
 
