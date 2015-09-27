@@ -139,8 +139,7 @@ variable ```coq-prog-name``` in your emacs initialization file, ```.emacs```.
 
 The various *.v files are compiled by Coq in such a way that the fully
 qualified name of each identifier begins with UniMath.  For example, the fully
-qualified name of ```maponpaths``` in uu0.v is
-```UniMath.Foundations.Basics.PartA.maponpaths```.
+qualified name of ```maponpaths``` in uu0.v is ```UniMath.Foundations.Basics.PartA.maponpaths```.
 
 The preferred way to interact with the Coq code is with ProofGeneral, running
 in a modern version of emacs.  The file UniMath/.dir-locals.el will set the
