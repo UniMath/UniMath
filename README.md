@@ -3,6 +3,7 @@ Univalent Mathematics
 
 This Coq library aims to formalize a substantial body of mathematics using the
 [univalent point of view](https://en.wikipedia.org/wiki/Univalent_foundations).
+It is licensed for use under the terms in the file ```LICENSE.md```.
 
 ## Contents
 
@@ -206,7 +207,7 @@ Contributing to UniMath
 =======================
 
 To contribute to UniMath, submit a pull request or contact us.  Your code will
-be subject to the copyright and license agreement below.
+be subject to the copyright and license agreement in the file ```LICENSE.md```.
 
 The UniMath Development Team
 ============================
