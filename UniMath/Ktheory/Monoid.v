@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
+Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
 	       UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Magma UniMath.Ktheory.QuotientSet.
