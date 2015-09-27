@@ -1,12 +1,12 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import 
-        UniMath.Foundations.hlevel2.hSet
-        UniMath.RezkCompletion.precategories
-        UniMath.RezkCompletion.functors_transformations
+        UniMath.Foundations.Sets
+        UniMath.CategoryTheory.precategories
+        UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.ZeroObject.
 Require UniMath.Ktheory.Utilities UniMath.Ktheory.Representation.
-Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
+Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Precategories.Notation.
 Definition zerocomp_type {C:precategory} (hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ob C -> Type.
 Proof. intros ? ? ? ? ? ? x.

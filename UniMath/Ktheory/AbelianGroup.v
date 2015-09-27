@@ -2,8 +2,8 @@
 
 (** * abelian groups *)
 
-Require Import UniMath.Foundations.hlevel2.algebra1b
-               UniMath.Foundations.hlevel2.hz
+Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
+               UniMath.Foundations.Integers
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Group UniMath.Ktheory.Precategories UniMath.Ktheory.Primitive UniMath.Ktheory.Product
         UniMath.Ktheory.Sum.
@@ -462,8 +462,8 @@ Definition power (I:Type) (X:abgr) : abgr.
 
 Module Category.
   Import Precategories.Notation.
-  Require Import UniMath.Foundations.hlevel2.algebra1b
-                 UniMath.RezkCompletion.precategories.
+  Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
+                 UniMath.CategoryTheory.precategories.
   Definition Ob := abgr.
   Identity Coercion Ob_to_abgr : Ob >-> abgr.
   Definition Mor : Ob -> Ob -> hSet.

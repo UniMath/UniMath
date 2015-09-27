@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.hlevel2.algebra1a
+Require Import UniMath.Foundations.Algebra.BinaryOperations
         UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Sets.
 Import UniMath.Ktheory.Utilities.Notation.

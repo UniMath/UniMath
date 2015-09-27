@@ -8,9 +8,10 @@ endif
 endif
 ############################################
 # The packages, listed in reverse order by dependency:
+PACKAGES += SubstitutionSystems
 PACKAGES += Tactics
 PACKAGES += Ktheory
-PACKAGES += RezkCompletion
+PACKAGES += CategoryTheory
 PACKAGES += Foundations
 ############################################
 # other user options; see also build/Makefile-configuration-template
@@ -49,6 +50,7 @@ ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\2/'
 TAGS : $(VFILES); etags $(COQDEFS) $^
+$(foreach P,$(PACKAGES),$(eval $P:; $(MAKE) $(shell sed "s=^\(..*\)=UniMath/$P/\1o=" < UniMath/$P/.package/files)))
 install:all
 lc:; wc -l $(VFILES)
 lcp:; for i in $(PACKAGES) ; do echo ; echo ==== $$i ==== ; for f in $(VFILES) ; do echo "$$f" ; done | grep "UniMath/$$i" | xargs wc -l ; done
@@ -65,7 +67,7 @@ publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
 	echo '-R UniMath UniMath' ;\
 	echo ;\
 	for i in $(PACKAGES) ;\
-	do sed "s=^=UniMath/$$i/=" < UniMath/$$i/.package/files ;\
+	do sed "s=^\(.\)=UniMath/$$i/\1=" < UniMath/$$i/.package/files ;\
 	done ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\
@@ -101,7 +103,7 @@ sub/coq/config/coq_config.ml: sub/lablgtk/src/gSourceView2.cmi
 endif
 sub/coq/config/coq_config.ml: sub/coq/configure sub/coq/configure.ml
 	: making $@ because of $?
-	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" $(LABLGTK) -opt -no-native-compiler -with-doc no -annotate -debug -local
+	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" $(LABLGTK) -with-doc no -annotate -debug -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 	$(MAKE) -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqlight

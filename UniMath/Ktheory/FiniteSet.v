@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.hlevel2.finitesets
+Require Import UniMath.Foundations.FiniteSets
         UniMath.Ktheory.Utilities.
 Definition Data := total2 isfinite.
 Definition ToType (X:Data) : Type := pr1 X.
