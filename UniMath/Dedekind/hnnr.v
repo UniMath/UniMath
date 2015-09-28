@@ -1,20 +1,19 @@
 (** * Definition of non-negative real numbers using Dedekind cuts *)
 (** Catherine Lelay. Sep. 2015 *)
 
-Require Import UniMath.Foundations.hlevel2.hq.
 Require Import UniMath.Dedekind.hnnq.
 
-Local Open Scope hq_scope.
+Local Open Scope hnnq_scope.
 
 (** ** Non-negative real numbers *)
 (** Definition *)
  
 Definition hnnr_def_bot (X : hnnq -> hProp) : hProp :=
   ishinh (forall x : hnnq, X x ->
-    forall y : hnnq, hqleh y x -> X y).
+    forall y : hnnq, y <= x -> X y).
 Definition hnnr_def_open (X : hnnq -> hProp) : hProp :=
   ishinh (forall x : hnnq, X x ->
-    hexists (fun y : hnnq => dirprod (X y) (hqlth x y))).
+    hexists (fun y : hnnq => dirprod (X y) (x < y))).
 Definition hnnr_def_bounded (X : hnnq -> hProp) : hProp :=
   hexists (fun ub : hnnq => neg (X ub)).
 
@@ -25,7 +24,7 @@ Definition hnnr_def :=
 
 Lemma is_hnnr_bot (X : hnnr_def) :
   forall x : hnnq, pr1 X x ->
-    forall y : hnnq, hqleh y x -> pr1 X y.
+    forall y : hnnq, y <= x -> pr1 X y.
 Proof.
   destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
   intros r Xr y Hxy.
@@ -34,7 +33,7 @@ Proof.
 Qed.
 Lemma is_hnnr_open (X : hnnr_def) :
   forall x : hnnq, pr1 X x ->
-    hexists (fun y : hnnq => dirprod (pr1 X y) (hqlth x y)).
+    hexists (fun y : hnnq => dirprod (pr1 X y) (x < y)).
 Proof.
   destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
   intros r Xr.
@@ -50,9 +49,9 @@ Qed.
 
 Definition mk_hnnr_def (X : hnnq -> hProp)
                    (Hbot : forall x : hnnq, X x ->
-                     forall y : hnnq, hqleh y x -> X y)
+                     forall y : hnnq, y <= x -> X y)
                    (Hopen : forall x : hnnq, X x ->
-                     hexists (fun y : hnnq => dirprod (X y) (hqlth x y)))
+                     hexists (fun y : hnnq => dirprod (X y) (x < y)))
                    (Hbound : hexists (fun ub : hnnq => neg (X ub))) : hnnr_def.
 Proof.
   exists X ; repeat split.
@@ -65,7 +64,7 @@ Defined.
 
 Lemma hnnr_bounded :
   forall X : hnnr_def, forall r : hnnq,
-    neg (pr1 X r) -> forall n : hnnq, pr1 X n -> hqlth n r.
+    neg (pr1 X r) -> forall n : hnnq, pr1 X n -> n < r.
 Proof.
   intros X r Hr n Hn.
   apply neghqgehtolth ; intro Hn'.
@@ -278,7 +277,7 @@ Definition hnnr_lub_val (E : hnnr_def -> hProp) : hnnq -> hProp :=
   fun r : hnnq => hexists (fun X : hnnr_def => dirprod (E X) (pr1 X r)).
 Lemma hnnr_lub_bot (E : hnnr_def -> hProp) : 
   forall (x : hnnq),
-    hnnr_lub_val E x -> forall y : hnnq, hqleh y x -> hnnr_lub_val E y.
+    hnnr_lub_val E x -> forall y : hnnq, y <= x -> hnnr_lub_val E y.
 Proof.
   intros r Xr n Xn.
   revert Xr ; apply hinhfun ; intros (X,(Ex,Xr)).
@@ -289,13 +288,12 @@ Qed.
 Lemma hnnr_lub_open (E : hnnr_def -> hProp) :
   forall (x : hnnq),
     hnnr_lub_val E x ->
-    hexists (fun y : hnnq => dirprod (hnnr_lub_val E y) (hqlth x y)).
+    hexists (fun y : hnnq => dirprod (hnnr_lub_val E y) (x < y)).
 Proof.
-  intros r Xr.
-  simpl in Xr.
-  revert Xr ; apply hinhuniv ; intros (X,(Ex,Xr)).
-  set (Xopen := is_hnnr_open X r Xr) ; clearbody Xopen.
-  revert Xopen ; apply hinhfun ; intros (n,(Xn,Hrn)).
+  intros r.
+  apply hinhuniv ; intros (X,(Ex,Xr)).
+  generalize (is_hnnr_open X r Xr). 
+  apply hinhfun ; intros (n,(Xn,Hrn)).
   exists n ; split.
   intros P HP ; apply HP ; clear P HP.
   exists X ; split.
