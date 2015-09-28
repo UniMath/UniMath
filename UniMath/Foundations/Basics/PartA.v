@@ -599,7 +599,7 @@ Defined.
 
 (** Paths space of a type: a point t, and the coconus from it. *)
 
-Definition pathsspace (T : UU) := total2 (fun (t : T) => coconusfromt T t).
+Definition pathsspace (T : UU) := Σ t:T, coconusfromt T t.
 
 Definition pathsspacetriple (T : UU) {t1 t2 : T}
   (e : t1 = t2) : pathsspace T := tpair _ t1 (coconusfromtpair T e).
@@ -607,20 +607,17 @@ Definition pathsspacetriple (T : UU) {t1 t2 : T}
 Definition deltap (T : UU) : T -> pathsspace T := 
   fun (t : T) => pathsspacetriple T (idpath t).
 
-Definition pathsspace' (T : UU) := 
-  total2 (fun (xy : dirprod T T) => pr1 xy = pr2 xy).
+Definition pathsspace' (T : UU) := Σ xy : dirprod T T, pr1 xy = pr2 xy.
 
 (** Homotopy fibers. *)
 
-Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := 
-  total2 (fun (pointover : X) => f pointover = y).
+Definition hfiber {X Y : UU}  (f : X -> Y) (y : Y) : UU := Σ x:X, f x = y.
  
 Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
   (x : X) (e : f x = y) : hfiber f y := 
-    tpair (fun (pointover : X) => f pointover = y) x e.
+    tpair _ x e.
 
-Definition hfiberpr1 {X Y : UU} (f : X -> Y) (y : Y) :=
-  @pr1 _ (fun (pointover : X) => f pointover = y).
+Definition hfiberpr1 {X Y : UU} (f : X -> Y) (y : Y) : hfiber f y -> X := pr1.
 
 (** Paths in homotopy fibers. *)
 
@@ -656,8 +653,7 @@ Defined.
 (** Coconus of a function: the total space of the family of h-fibers.
     The coconus behaves like the image of a function.  *)
 
-Definition coconusf {X Y : UU} (f : X -> Y) :=
-  total2 (fun (y : Y) => hfiber f y).
+Definition coconusf {X Y : UU} (f : X -> Y) := Σ y:Y, hfiber f y.
 
 Definition fromcoconusf {X Y : UU} (f : X -> Y) : coconusf f -> X := 
   fun (yxe : coconusf f) => pr1 (pr2 yxe).
@@ -731,13 +727,12 @@ Proof.
   apply idpath.
 Defined. 
 
-Definition weq (X Y : UU) : UU :=
-  total2 (fun (f : X -> Y) => isweq f).
+Definition weq (X Y : UU) : UU := Σ f:X->Y, isweq f.
 
 Notation "X ≃ Y" := (weq X Y) (at level 80, no associativity) : type_scope.
 (* written \simeq in Agda input method *) 
 
-Definition pr1weq {X Y : UU} := @pr1 _ _ : X ≃ Y -> (X -> Y).
+Definition pr1weq {X Y : UU} := pr1 : X ≃ Y -> (X -> Y).
 Coercion pr1weq : weq >-> Funclass.
 
 Definition weqccontrhfiber {X Y : UU} (w : X ≃ Y) (y : Y) : hfiber w y.
@@ -754,7 +749,7 @@ Defined.
 Definition weqpair {X Y : UU} (f : X -> Y) (is: isweq f) : X ≃ Y :=
   tpair (fun (f : X -> Y) => isweq f) f is.
  
-Definition idweq (X : UU) : weq X X :=
+Definition idweq (X : UU) : X ≃ X :=
   tpair (fun (f : X -> X) => isweq f) (fun (x : X) => x) (idisweq X).
 
 Definition isweqtoempty {X : UU} (f : X -> empty) : isweq f.
@@ -773,7 +768,7 @@ Defined.
 Definition weqtoempty2 {X Y : UU} (f : X -> Y) (is : neg Y) :=
   weqpair _ (isweqtoempty2 f is).
 
-Definition invmap {X Y : UU} (w : weq X Y) : Y -> X :=
+Definition invmap {X Y : UU} (w : X ≃ Y) : Y -> X :=
   fun (y : Y) => pr1 (weqccontrhfiber w y).
 
 (** We now define different homotopies and maps between the paths
@@ -782,7 +777,7 @@ Definition invmap {X Y : UU} (w : weq X Y) : Y -> X :=
     fact that the "naive" definition needs to be
     corrected in order for lemma [ homotweqinvweqweq ] to hold. *)
 
-Definition homotweqinvweq {X Y : UU} (w : weq X Y) :
+Definition homotweqinvweq {X Y : UU} (w : X ≃ Y) :
   ∀ y : Y, w (invmap w y) = y.
 Proof.
   intros.
@@ -790,7 +785,7 @@ Proof.
   apply (pr2 (weqccontrhfiber w y)).
 Defined.
 
-Definition homotinvweqweq0 {X Y : UU} (w : weq X Y) :
+Definition homotinvweqweq0 {X Y : UU} (w : X ≃ Y) :
  ∀ x : X, x = invmap w (w x).
 Proof.
   intros.
@@ -801,7 +796,7 @@ Proof.
   apply (maponpaths pr1 p).
 Defined.
 
-Definition homotinvweqweq {X Y : UU} (w : weq X Y) :
+Definition homotinvweqweq {X Y : UU} (w : X ≃ Y) :
   ∀ x : X, invmap w (w x) = x :=
     fun (x : X) => ! (homotinvweqweq0 w x).
 
@@ -812,7 +807,7 @@ Proof.
   intros. induction e1. simpl in *. apply ee.
 Defined.
 
-Definition homotweqinvweqweq {X Y : UU} (w : weq X Y) (x : X) :
+Definition homotweqinvweqweq {X Y : UU} (w : X ≃ Y) (x : X) :
   maponpaths w (homotinvweqweq w x) = homotweqinvweq w (w x).
 Proof.
   intros.
@@ -825,15 +820,15 @@ Proof.
   apply (@hfibertriangle1 _ _ w _ hfid hfcc (weqccontrhfiber2 w (w x) hfid)).
 Defined.
 
-Definition invmaponpathsweq {X Y : UU} (w : weq X Y) (x x' : X) : 
+Definition invmaponpathsweq {X Y : UU} (w : X ≃ Y) (x x' : X) : 
   w x = w x' -> x = x' :=
     pathssec2 w (invmap w) (homotinvweqweq w) x x'.
 
-Definition invmaponpathsweqid {X Y : UU} (w : weq X Y) (x : X) : 
+Definition invmaponpathsweqid {X Y : UU} (w : X ≃ Y) (x : X) : 
   invmaponpathsweq w _ _ (idpath (w x)) = idpath x :=
     pathssec2id w (invmap w) (homotinvweqweq w) x.
 
-Definition pathsweq1 {X Y : UU} (w : weq X Y) (x : X) (y : Y) :
+Definition pathsweq1 {X Y : UU} (w : X ≃ Y) (x : X) (y : Y) :
   w x = y -> x = invmap w y :=
     pathssec1 w (invmap w) (homotinvweqweq w) _ _.
 
@@ -1007,7 +1002,7 @@ Definition hfibersgftog {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
 
 Lemma constr2 {X Y : UU} (f : X -> Y) (g : Y -> X) 
   (efg: ∀ y : Y, f (g y) = y) (x0 : X) (xe : hfiber g x0) :
-    total2 (fun (xe' : hfiber (g circ f) x0) => xe = hfibersgftog f g x0 xe').
+    Σ xe' : hfiber (g circ f) x0, xe = hfibersgftog f g x0 xe'.
 Proof.
   intros.
   destruct xe as [y0 e].
@@ -1146,15 +1141,14 @@ Defined.
 Theorem total2_paths_equiv {A : UU} (B : A -> UU)
   (x y : Σ x, B x) :
     weq (x = y)
-        (total2 (fun p : pr1 x = pr1 y => transportf _ p (pr2 x) = pr2 y)).
+        (Σ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y).
 Proof.
   intros A B x y.
   exists (fun (r : x = y) =>  
             tpair (fun p : pr1 x = pr1 y => transportf _ p (pr2 x) = pr2 y)
               (base_paths _ _ r) (fiber_paths r)).
   apply (gradth _
-    (fun (pq : total2 (fun (p : pr1 x = pr1 y) => 
-               transportf _ p (pr2 x) = pr2 y)) => 
+    (fun (pq : Σ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y) => 
        total2_paths (pr1 pq) (pr2 pq))).
   - intro p.
     apply total2_fiber_paths.
@@ -1512,20 +1506,20 @@ Defined.
 
 (** *** Associativity of [ total2 ]  *)
 
-Lemma total2asstor { X : UU } ( P : X -> UU ) ( Q : total2 P -> UU ) : total2 Q ->  total2 ( fun x : X => total2 ( fun p : P x => Q ( tpair P x p ) ) ) .
+Lemma total2asstor { X : UU } ( P : X -> UU ) ( Q : total2 P -> UU ) : total2 Q ->  Σ x:X, Σ p : P x, Q ( tpair P x p )  .
 Proof. intros X P Q xpq .  induction xpq as [ xp q ] . induction xp as [ x p ] . split with x . split with p . assumption . Defined .
 
-Lemma total2asstol { X : UU } ( P : X -> UU ) ( Q : total2 P -> UU ) : total2 ( fun x : X => total2 ( fun p : P x => Q ( tpair P x p ) ) ) -> total2 Q .
+Lemma total2asstol { X : UU } ( P : X -> UU ) ( Q : total2 P -> UU ) : (Σ x : X, Σ p : P x, Q ( tpair P x p )) -> total2 Q .
 Proof. intros X P Q xpq .  induction xpq as [ x pq ] . induction pq as [ p q ] . split with ( tpair P x p ) . assumption . Defined .
 
 
-Theorem weqtotal2asstor { X : UU } ( P : X -> UU ) ( Q : total2 P -> UU ) : weq ( total2 Q ) ( total2 ( fun x : X => total2 ( fun p : P x => Q ( tpair P x p ) ) ) ).
+Theorem weqtotal2asstor { X : UU } ( P : X -> UU ) ( Q : total2 P -> UU ) : weq ( total2 Q ) ( Σ x : X, Σ p : P x, Q ( tpair P x p ) ).
 Proof. intros . set ( f := total2asstor P Q ) . set ( g:= total2asstol P Q ) .  split with f .
 assert ( egf : ∀ xpq : _ , ( g ( f xpq ) ) = xpq ) . intro . induction xpq as [ xp q ] . induction xp as [ x p ] . apply idpath . 
 assert ( efg : ∀ xpq : _ , ( f ( g xpq ) ) = xpq ) . intro . induction xpq as [ x pq ] . induction pq as [ p q ] . apply idpath .
 apply ( gradth _ _ egf efg ) . Defined.
 
-Definition weqtotal2asstol { X : UU } ( P : X -> UU ) ( Q : total2 P -> UU ) : weq ( total2 ( fun x : X => total2 ( fun p : P x => Q ( tpair P x p ) ) ) ) ( total2 Q ) := invweq ( weqtotal2asstor P Q ) .
+Definition weqtotal2asstol { X : UU } ( P : X -> UU ) ( Q : total2 P -> UU ) : weq ( Σ x : X, Σ p : P x, Q ( tpair P x p ) ) ( total2 Q ) := invweq ( weqtotal2asstor P Q ) .
 
 
 
@@ -1576,13 +1570,13 @@ Definition weqrdistrtocoprod (X Y Z: UU):= weqpair  _ (isweqrdistrtocoprod X Y Z
 (** *** Total space of a family over a coproduct *)
 
 
-Definition fromtotal2overcoprod { X Y : UU } ( P : coprod X Y -> UU ) ( xyp : total2 P ) : coprod ( total2 ( fun x : X => P ( ii1 x ) ) ) ( total2 ( fun y : Y => P ( ii2 y ) ) ) .
+Definition fromtotal2overcoprod { X Y : UU } ( P : coprod X Y -> UU ) ( xyp : total2 P ) : coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) .
 Proof. intros . set ( PX :=  fun x : X => P ( ii1 x ) ) . set ( PY :=  fun y : Y => P ( ii2 y ) ) . induction xyp as [ xy p ] . induction xy as [ x | y ] . apply (  ii1 ( tpair PX x p ) ) .   apply ( ii2 ( tpair PY y p ) ) . Defined .
 
-Definition tototal2overcoprod { X Y : UU } ( P : coprod X Y -> UU ) ( xpyp :  coprod ( total2 ( fun x : X => P ( ii1 x ) ) ) ( total2 ( fun y : Y => P ( ii2 y ) ) ) ) : total2 P .
+Definition tototal2overcoprod { X Y : UU } ( P : coprod X Y -> UU ) ( xpyp :  coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) ) : total2 P .
 Proof . intros . induction xpyp as [ xp | yp ] . induction xp as [ x p ] . apply ( tpair P ( ii1 x ) p ) .   induction yp as [ y p ] . apply ( tpair P ( ii2 y ) p ) . Defined . 
  
-Theorem weqtotal2overcoprod { X Y : UU } ( P : coprod X Y -> UU ) : weq ( total2 P ) ( coprod ( total2 ( fun x : X => P ( ii1 x ) ) ) ( total2 ( fun y : Y => P ( ii2 y ) ) ) ) .
+Theorem weqtotal2overcoprod { X Y : UU } ( P : coprod X Y -> UU ) : weq ( total2 P ) ( coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) ) .
 Proof. intros .  set ( f := fromtotal2overcoprod P ) . set ( g := tototal2overcoprod P ) . split with f . 
 assert ( egf : ∀ a : _ , ( g ( f a ) ) = a ) . intro a . induction a as [ xy p ] . induction xy as [ x | y ] . simpl . apply idpath . simpl .  apply idpath .     
 assert ( efg : ∀ a : _ , ( f ( g a ) ) = a ) . intro a . induction a as [ xp | yp ] . induction xp as [ x p ] . simpl . apply idpath .  induction yp as [ y p ] . apply idpath .
@@ -1781,7 +1775,7 @@ Proof.
   set ( f := fun p => tpair _ x p ) .   
 
   set ( Q1 := hfiber ( @pr1 _ P ) x ) .
-  set ( Q2 := total2 ( fun xp : total2 P => ( P ( pr1 xp ) -> empty ) ) ) .
+  set ( Q2 := Σ xp : total2 P, ( P ( pr1 xp ) -> empty ) ) .
   set ( toQ1Q2 := fun xp : total2 P => fun eorem : coprod ( x = ( pr1 xp ) )
                                                           ( P ( pr1 xp ) -> empty ) =>
                                          @sumofmaps _ _ ( coprod Q1 Q2 )
@@ -1894,7 +1888,7 @@ Definition weqboolsumtocoprod ( X Y : UU ) := weqpair _ ( isweqboolsumtocoprod X
 (** *** Splitting of [ X ] into a coproduct defined by a function [ X -> coprod Y Z ] *)
 
 
-Definition weqcoprodsplit { X Y Z : UU } ( f : X -> coprod Y Z ) : weq  X  ( coprod ( total2 ( fun y : Y => hfiber f ( ii1 y ) ) ) ( total2 ( fun z : Z => hfiber f ( ii2 z ) ) ) ) .
+Definition weqcoprodsplit { X Y Z : UU } ( f : X -> coprod Y Z ) : weq  X  ( coprod ( Σ y : Y, hfiber f ( ii1 y ) ) ( Σ z : Z, hfiber f ( ii2 z ) ) ) .
 Proof . intros . set ( w1 := weqtococonusf f ) .  set ( w2 := weqtotal2overcoprod ( fun yz : coprod Y Z => hfiber f yz ) ) . apply ( weqcomp w1 w2 ) .  Defined . 
 
 
@@ -1977,7 +1971,7 @@ Definition ezmap { X Y Z : UU } (f:X -> Y) (g:Y->Z) ( z : Z ) (ez : complxstr f 
 
 Definition isfibseq { X Y Z : UU } (f:X -> Y) (g:Y->Z) ( z : Z ) (ez : complxstr f g z ) := isweq (ezmap f g z ez). 
 
-Definition fibseqstr { X Y Z : UU } (f:X -> Y) (g:Y->Z) ( z : Z ) := total2 ( fun ez : complxstr f g z => isfibseq f g z ez ) .
+Definition fibseqstr { X Y Z : UU } (f:X -> Y) (g:Y->Z) ( z : Z ) := Σ ez : complxstr f g z, isfibseq f g z ez.
 Definition fibseqstrpair { X Y Z : UU } (f:X -> Y) (g:Y->Z) ( z : Z ) := tpair ( fun ez : complxstr f g z => isfibseq f g z ez ) .
 Definition fibseqstrtocomplxstr  { X Y Z : UU } (f:X -> Y) (g:Y->Z) ( z : Z ) : fibseqstr f g z -> complxstr f g z := @pr1 _  ( fun ez : complxstr f g z => isfibseq f g z ez ) .
 Coercion fibseqstrtocomplxstr : fibseqstr >-> complxstr . 
@@ -2217,16 +2211,16 @@ Definition weqfibtototal { X : UU } ( P Q : X -> UU) (f: ∀ x:X, weq ( P x ) ( 
 Given [ X Y ] in [ UU ], [ P:Y -> UU ] and [ f: X -> Y ] we get a function [ fpmap: total2 X (P f) -> total2 Y P ]. The main theorem of this section asserts that the homotopy fiber of fpmap over [ yp:total Y P ] is naturally weakly equivalent to the homotopy fiber of [ f ] over [ pr1 yp ]. In particular, if  [ f ] is a weak equivalence then so is [ fpmap ]. *)
 
 
-Definition fpmap { X Y : UU } (f: X -> Y) ( P:Y-> UU) : total2 ( fun x => P ( f x ) ) -> total2 P := 
+Definition fpmap { X Y : UU } (f: X -> Y) ( P:Y-> UU) : (Σ x, P ( f x )) -> total2 P := 
 (fun z:total2 (fun x:X => P (f x)) => tpair P (f (pr1  z)) (pr2  z)).
 
 
-Definition hffpmap2 { X Y : UU } (f: X -> Y) (P:Y-> UU):  total2 ( fun x => P ( f x ) ) -> total2 (fun u:total2 P => hfiber  f (pr1  u)).
+Definition hffpmap2 { X Y : UU } (f: X -> Y) (P:Y-> UU):  (Σ x, P ( f x )) -> Σ u:total2 P, hfiber f (pr1 u).
 Proof. intros X Y f P X0. set (u:= fpmap f P X0).  split with u. set (x:= pr1  X0).  split with x. simpl. apply idpath. Defined.
 
 
 Definition hfiberfpmap { X Y : UU } (f:X -> Y)(P:Y-> UU)(yp: total2 P): hfiber  (fpmap f P) yp -> hfiber  f (pr1  yp).
-Proof. intros X Y f P yp X0. set (int1:= hfibersgftog (hffpmap2  f P) (fun u: (total2 (fun u:total2 P => hfiber  f (pr1  u))) => (pr1  u)) yp).  set (phi:= invezmappr1 (fun u:total2 P => hfiber  f (pr1  u)) yp). apply (phi (int1 X0)).   Defined. 
+Proof. intros X Y f P yp X0. set (int1:= hfibersgftog (hffpmap2  f P) (fun u: (Σ u:total2 P, hfiber  f (pr1  u)) => (pr1  u)) yp).  set (phi:= invezmappr1 (fun u:total2 P => hfiber  f (pr1  u)) yp). apply (phi (int1 X0)).   Defined. 
 
 
 

@@ -77,10 +77,6 @@ Notation coprod_rect := sum_rect.
 Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
   (at level 200, x binder, y binder, right associativity) : type_scope.
 
-Notation "x → y" := (x -> y)
-  (at level 90, y at level 200, right associativity): type_scope.
-(* written \to in Agda input method *)
-
 Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
   (at level 200, x binder, y binder, right associativity).
 
