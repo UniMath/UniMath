@@ -2,7 +2,7 @@
 
 (** * Natural numbers *)
 
-Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
+Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.NaturalNumbers
                UniMath.Foundations.FunctionalExtensionality
                UniMath.CategoryTheory.total2_paths
@@ -362,7 +362,7 @@ Proof. intros ? ? ? i p.
        rewrite b in a; clear b. apply natleplusminus. 
        rewrite natpluscomm. exact a. Qed.
 
-Require Import MetricTree.
+Require Import UniMath.Ktheory.MetricTree.
 
 Definition nat_tree : Tree.
 Proof. refine (make nat nat_dist _ _ _ _ _).

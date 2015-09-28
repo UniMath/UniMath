@@ -14,7 +14,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Foundations.Algebra.Bourbaki.Rings .
+Require Export UniMath.Foundations.Algebra.Rigs_and_Rings .
 
 
 (** To upstream files *)

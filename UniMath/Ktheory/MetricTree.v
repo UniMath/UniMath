@@ -2,7 +2,7 @@
 
 (** * Metric trees *)
 
-Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
+Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.NaturalNumbers
                UniMath.Foundations.FunctionalExtensionality
                UniMath.CategoryTheory.total2_paths

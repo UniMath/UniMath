@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.Algebra.Bourbaki.Generalities
+Require Import UniMath.Foundations.Algebra.BinaryOperations
         UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Sets.
 Import UniMath.Ktheory.Utilities.Notation.

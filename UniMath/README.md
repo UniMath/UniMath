@@ -22,3 +22,20 @@ if you'd like to test your package with modifying "./Makefile", which you might
 accidentally commit and push, add its name to the head of the list in
 "../build/Makefile-configuration", which is created from
 "../build/Makefile-configuration-template".
+
+## UniMath coding style
+
+We purposely restrict our use of Coq to a subset whose semantics is more likely
+to be rigorously verifiable, according to the following principles.
+* Do not use ```Prop``` or ```Set```, and ensure definitions don't produce
+  elements of them.
+* Do not use ```Type```, except in ```Foundations/Basics/Preamble.v```.
+  Use ```UU``` instead.  If higher universes are needed, they should be
+  added to ```Foundations/Basics/Preamble.v```.
+* Do not use ```Inductive``` or ```Record```, except in ```Foundations/Basics/Preamble.v```.
+* Do not use ```Module``` or ```Structure```.
+
+Some of the files in ```Ktheory``` don't adhere (yet) to these conventions.
+
+Another advantage of coding in this style is that the proofs should be easier
+to transport to another proof assistant.

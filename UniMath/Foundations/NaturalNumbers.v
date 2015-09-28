@@ -17,7 +17,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
-Require Export UniMath.Foundations.Algebra.Bourbaki.DomainsAndFields . 
+Require Export UniMath.Foundations.Algebra.Domains_and_Fields . 
 
 (** To up-stream files  *)
 
