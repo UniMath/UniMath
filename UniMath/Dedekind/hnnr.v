@@ -9,25 +9,21 @@ Local Open Scope hq_scope.
 (** ** Non-negative real numbers *)
 (** Definition *)
  
-Module hnnr_def.
-
-Definition is_hnnr_bot (X : hnnq -> hProp) : hProp :=
+Definition hnnr_def_bot (X : hnnq -> hProp) : hProp :=
   ishinh (forall x : hnnq, X x ->
     forall y : hnnq, hqleh y x -> X y).
-Definition is_hnnr_open (X : hnnq -> hProp) : hProp :=
+Definition hnnr_def_open (X : hnnq -> hProp) : hProp :=
   ishinh (forall x : hnnq, X x ->
     hexists (fun y : hnnq => dirprod (X y) (hqlth x y))).
-Definition is_hnnr_bounded (X : hnnq -> hProp) : hProp :=
+Definition hnnr_def_bounded (X : hnnq -> hProp) : hProp :=
   hexists (fun ub : hnnq => neg (X ub)).
 
-End hnnr_def.
+Definition hnnr_def :=
+  total2 (fun X : hnnq -> hProp => hconj (hnnr_def_bot X)
+                                  (hconj (hnnr_def_open X)
+                                         (hnnr_def_bounded X))).
 
-Definition hnnr :=
-  total2 (fun X : hnnq -> hProp => hconj (hnnr_def.is_hnnr_bot X)
-                                  (hconj (hnnr_def.is_hnnr_open X)
-                                         (hnnr_def.is_hnnr_bounded X))).
-
-Lemma is_hnnr_bot (X : hnnr) :
+Lemma is_hnnr_bot (X : hnnr_def) :
   forall x : hnnq, pr1 X x ->
     forall y : hnnq, hqleh y x -> pr1 X y.
 Proof.
@@ -36,7 +32,7 @@ Proof.
   revert Hbot ; apply hinhuniv ; intros Hbot.
   now apply Hbot with r.
 Qed.
-Lemma is_hnnr_open (X : hnnr) :
+Lemma is_hnnr_open (X : hnnr_def) :
   forall x : hnnq, pr1 X x ->
     hexists (fun y : hnnq => dirprod (pr1 X y) (hqlth x y)).
 Proof.
@@ -45,19 +41,19 @@ Proof.
   revert Hopen ; apply (hinhuniv (P := ishinh _)) ; intros Hopen.
   now apply Hopen.
 Qed.
-Lemma is_hnnr_bounded (X : hnnr) :
+Lemma is_hnnr_bounded (X : hnnr_def) :
   hexists (fun ub : hnnq => neg (pr1 X ub)).
 Proof.
   destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
   now apply Hbound.
 Qed.
 
-Definition mk_hnnr (X : hnnq -> hProp)
+Definition mk_hnnr_def (X : hnnq -> hProp)
                    (Hbot : forall x : hnnq, X x ->
                      forall y : hnnq, hqleh y x -> X y)
                    (Hopen : forall x : hnnq, X x ->
                      hexists (fun y : hnnq => dirprod (X y) (hqlth x y)))
-                   (Hbound : hexists (fun ub : hnnq => neg (X ub))) : hnnr.
+                   (Hbound : hexists (fun ub : hnnq => neg (X ub))) : hnnr_def.
 Proof.
   exists X ; repeat split.
   intros P HP ; apply HP.
@@ -68,7 +64,7 @@ Proof.
 Defined.
 
 Lemma hnnr_bounded :
-  forall X : hnnr, forall r : hnnq,
+  forall X : hnnr_def, forall r : hnnq,
     neg (pr1 X r) -> forall n : hnnq, pr1 X n -> hqlth n r.
 Proof.
   intros X r Hr n Hn.
@@ -84,8 +80,8 @@ Qed.
 
 (** [hnnr_le] is a partial order *)
 
-Definition hnnr_le_rel : hrel hnnr :=
-  fun (X Y : hnnr) => ishinh (forall x : hnnq, pr1 X x -> pr1 Y x).
+Definition hnnr_le_rel : hrel hnnr_def :=
+  fun (X Y : hnnr_def) => ishinh (forall x : hnnq, pr1 X x -> pr1 Y x).
 
 Lemma istrans_hnnr_le_rel : istrans hnnr_le_rel.
 Proof.
@@ -98,7 +94,7 @@ Lemma isrefl_hnnr_le_rel : isrefl hnnr_le_rel.
 Proof.
   now intros x P HP ; apply HP ; clear P HP.
 Qed.
-Definition hnnr_le : po hnnr.
+Definition hnnr_le : po hnnr_def.
 Proof.
   exists  hnnr_le_rel.
   split.
@@ -108,8 +104,8 @@ Defined.
 
 (** [hnnr_ge] is a partial order *)
 
-Definition hnnr_ge_rel : hrel hnnr :=
-  fun (X Y : hnnr) => hnnr_le Y X.
+Definition hnnr_ge_rel : hrel hnnr_def :=
+  fun (X Y : hnnr_def) => hnnr_le Y X.
 
 Lemma istrans_hnnr_ge_rel : istrans hnnr_ge_rel.
 Proof.
@@ -120,7 +116,7 @@ Lemma isrefl_hnnr_ge_rel : isrefl hnnr_ge_rel.
 Proof.
   now apply isrefl_hnnr_le_rel.
 Qed.
-Definition hnnr_ge : po hnnr.
+Definition hnnr_ge : po hnnr_def.
 Proof.
   exists  hnnr_ge_rel.
   split.
@@ -130,8 +126,8 @@ Defined.
 
 (** [hnnr_eq] is an equality *)
 
-Definition hnnr_eq_rel : hrel hnnr :=
-  fun (X Y : hnnr) => hconj (hnnr_le_rel X Y) (hnnr_ge_rel X Y).
+Definition hnnr_eq_rel : hrel hnnr_def :=
+  fun (X Y : hnnr_def) => hconj (hnnr_le_rel X Y) (hnnr_ge_rel X Y).
 
 Lemma istrans_hnnr_eq_rel : istrans hnnr_eq_rel.
 Proof.
@@ -152,7 +148,7 @@ Proof.
   intros x y (Hxy,Hyx).
   now split.
 Qed.
-Definition hnnr_eq : eqrel hnnr.
+Definition hnnr_eq : eqrel hnnr_def.
 Proof.
   exists hnnr_eq_rel.
   split ; [split | ].
@@ -167,23 +163,23 @@ Definition hnnr_set : hSet := setquotinset hnnr_eq.
 
 (** [hnnr_lt] is a partial order *)
 
-Definition hnnr_lt (X Y : hnnr) : hProp :=
+Definition hnnr_lt (X Y : hnnr_def) : hProp :=
   hexists (fun x : hnnq => dirprod (neg (pr1 X x)) (pr1 Y x)).
 
 (** [hnnr_gt] is a partial order *)
 
-Definition hnnr_gt (X Y : hnnr) : hProp :=
+Definition hnnr_gt (X Y : hnnr_def) : hProp :=
   hnnr_lt Y X.
 
 (** [hnnr_ap] is an appartness relation *)
 
-Definition hnnr_ap (X Y : hnnr) : hProp :=
+Definition hnnr_ap (X Y : hnnr_def) : hProp :=
   hdisj (hnnr_lt X Y) (hnnr_gt X Y).
 
 (** *** Various Theorems *)
 
 Lemma hhnr_lt_le :
-  forall X Y : hnnr, hnnr_lt X Y -> hnnr_le X Y.
+  forall X Y : hnnr_def, hnnr_lt X Y -> hnnr_le X Y.
 Proof.
   intros X Y ; apply hinhfun ; intros (r,(Xr,Yr)).
   intros n Xn.
@@ -278,9 +274,9 @@ Lemma hnnr_ap_cotrans :
 
 (** ** Least Upper Bound *)
 
-Definition hnnr_lub_val (E : hnnr -> hProp) : hnnq -> hProp :=
-  fun r : hnnq => hexists (fun X : hnnr => dirprod (E X) (pr1 X r)).
-Lemma hnnr_lub_bot (E : hnnr -> hProp) : 
+Definition hnnr_lub_val (E : hnnr_def -> hProp) : hnnq -> hProp :=
+  fun r : hnnq => hexists (fun X : hnnr_def => dirprod (E X) (pr1 X r)).
+Lemma hnnr_lub_bot (E : hnnr_def -> hProp) : 
   forall (x : hnnq),
     hnnr_lub_val E x -> forall y : hnnq, hqleh y x -> hnnr_lub_val E y.
 Proof.
@@ -290,7 +286,7 @@ Proof.
   exact Ex.
   now apply is_hnnr_bot with r.
 Qed.
-Lemma hnnr_lub_open (E : hnnr -> hProp) :
+Lemma hnnr_lub_open (E : hnnr_def -> hProp) :
   forall (x : hnnq),
     hnnr_lub_val E x ->
     hexists (fun y : hnnq => dirprod (hnnr_lub_val E y) (hqlth x y)).
@@ -307,14 +303,14 @@ Proof.
   exact Xn.
   exact Hrn.
 Qed.
-Lemma hnnr_lub_bounded (E : hnnr -> hProp) :
+Lemma hnnr_lub_bounded (E : hnnr_def -> hProp) :
    hexists (fun ub : hnnq => neg (hnnr_lub_val E ub)).
 Proof.
   (* Need order *)
 Admitted.
 
-Definition hnnr_lub  (E : hnnr -> hProp) : hnnr :=
-  mk_hnnr (hnnr_lub_val E) (hnnr_lub_bot E) (hnnr_lub_open E) (hnnr_lub_bounded E).
+Definition hnnr_lub  (E : hnnr_def -> hProp) : hnnr_def :=
+  mk_hnnr_def (hnnr_lub_val E) (hnnr_lub_bot E) (hnnr_lub_open E) (hnnr_lub_bounded E).
 
 (* End of the file hnnr.v *)
 
