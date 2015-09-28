@@ -32,8 +32,7 @@ to be rigorously verifiable, according to the following principles.
 * Do not use ```Type```, except in ```Foundations/Basics/Preamble.v```.
   Use ```UU``` instead.  If higher universes are needed, they should be
   added to ```Foundations/Basics/Preamble.v```.
-* Do not use ```Inductive``` or ```Record```, except in
-  ```Foundations/Basics/Preamble.v```.
+* Do not use ```Inductive``` or ```Record```, except in ```Foundations/Basics/Preamble.v```.
 * Do not use ```Module``` or ```Structure```.
 
 Some of the files in ```Ktheory``` don't adhere (yet) to these conventions.
