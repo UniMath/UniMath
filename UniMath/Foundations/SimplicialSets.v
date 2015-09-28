@@ -10,10 +10,10 @@ Unset Automatic Introduction.
 
 (* Preamble *)
 
-Require Export Foundations.FiniteSets.
-Require Export CategoryTheory.precategories. 
-Require Export CategoryTheory.category_hset.
-Require Export CategoryTheory.functor_categories.
+Require Export UniMath.Foundations.FiniteSets.
+Require Export UniMath.CategoryTheory.precategories. 
+Require Export UniMath.CategoryTheory.category_hset.
+Require Export UniMath.CategoryTheory.functor_categories.
 
 
 (* To upstream files *)
