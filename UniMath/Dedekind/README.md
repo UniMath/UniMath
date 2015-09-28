@@ -3,7 +3,7 @@ Dedekind
 
 Authors: Catherine Lelay
 
-This Coq library provide a formalisation of real numbers built using
+This Coq library provides a formalisation of real numbers built using
 Dedekind cuts.
 
 It builds upon V. Voevodsky's Foundations library, available on

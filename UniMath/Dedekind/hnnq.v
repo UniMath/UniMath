@@ -11,7 +11,7 @@ Opaque hq.
 
 Open Scope hq_scope.
 
-(** ** Non-negative ratrional numbers *)
+(** ** Non-negative rational numbers *)
 
 Definition hnnq_def := total2 (hqleh 0).
 
@@ -67,7 +67,7 @@ Proof.
   now rewrite hqplusr0.
 Qed.
 Definition hnnq_plus_def (x y : hnnq_set) : hnnq_set :=
-    hq_to_hnnq_def ((pr1 x) + (pr1 y)) (hq0lehandplus (pr1 x) (pr1 y) (pr2 x) (pr2 y)).
+  hq_to_hnnq_def ((pr1 x) + (pr1 y)) (hq0lehandplus (pr1 x) (pr1 y) (pr2 x) (pr2 y)).
 
 Definition hnnq_setwithbinop : setwithbinop :=
   tpair _ hnnq_set hnnq_plus_def.
@@ -127,16 +127,20 @@ Defined.
 
 Close Scope hq_scope.
 
-(** * Notations and descriptions *)
+(** * Notations and remarks *)
 
 Notation hnnq := hnnq_abmonoid.
 
 Bind Scope hnnq_scope with hnnq.
 
+(** [hnnq] is an ordered set *)
+
 Notation "x <= y" := (hnnq_le x y) : hnnq_scope.
 Notation "x < y" := (hnnq_lt x y) : hnnq_scope.
 Notation "x >= y" := (hnnq_ge x y) : hnnq_scope.
 Notation "x > y" := (hnnq_gt x y) : hnnq_scope.
+
+(** [hnnq] is an abelian monoid *)
 
 Notation "0" := (unel hnnq_abmonoid) : hnnq_scope.
 Notation "x + y" := (@op hnnq_abmonoid x y) : hnnqscope.
