@@ -10,6 +10,7 @@ endif
 # The packages, listed in reverse order by dependency:
 PACKAGES += SubstitutionSystems
 PACKAGES += Tactics
+PACKAGES += Dedekind
 PACKAGES += Ktheory
 PACKAGES += CategoryTheory
 PACKAGES += Foundations
