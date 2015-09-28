@@ -2,12 +2,12 @@
 
 (** * Metric trees *)
 
-Require Import Foundations.hlevel2.algebra1b
-               Foundations.hlevel2.hnat
-               Foundations.Proof_of_Extensionality.funextfun
-               RezkCompletion.total2_paths
+Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
+               UniMath.Foundations.NaturalNumbers
+               UniMath.Foundations.FunctionalExtensionality
+               UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
-Import Ktheory.Utilities.Notation Ktheory.Utilities.NatNotation.
+Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Utilities.NatNotation.
 
 (** ** Definitions *)
 

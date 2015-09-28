@@ -5,9 +5,9 @@ Unset Automatic Introduction.
 
 (** Imports *)
 
-Require Import Foundations.Generalities.uu0
-               Foundations.hlevel1.hProp
-               Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Basics.All
+               UniMath.Foundations.Propositions
+               UniMath.Foundations.Sets.
 
 Implicit Arguments tpair [ T P ].
 

@@ -12,17 +12,17 @@ Unset Kernel Term Sharing.
 (** ** Preliminaries *)
 
 Require UniMath.Ktheory.Nat.
-Require Export Foundations.hlevel2.hSet.
-Require Import Ktheory.Utilities
-               Foundations.hlevel2.algebra1b
-               Foundations.Proof_of_Extensionality.funextfun
-               Ktheory.GroupAction
-               Foundations.hlevel2.hz
-               Ktheory.Integers
-               Ktheory.Nat
+Require Export UniMath.Foundations.Sets.
+Require Import UniMath.Ktheory.Utilities
+               UniMath.Foundations.Algebra.Monoids_and_Groups
+               UniMath.Foundations.FunctionalExtensionality
+               UniMath.Ktheory.GroupAction
+               UniMath.Foundations.Integers
+               UniMath.Ktheory.Integers
+               UniMath.Ktheory.Nat
                UniMath.Ktheory.Equivalences.
-Import Ktheory.Utilities.Notation
-       Ktheory.Utilities.NatNotation.
+Import UniMath.Ktheory.Utilities.Notation
+       UniMath.Ktheory.Utilities.NatNotation.
 
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Open Scope hz_scope.
