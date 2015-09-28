@@ -8,6 +8,7 @@ endif
 endif
 ############################################
 # The packages, listed in reverse order by dependency:
+PACKAGES += Dedekind
 PACKAGES += Tactics
 PACKAGES += Ktheory
 PACKAGES += RezkCompletion
