@@ -67,7 +67,7 @@ Lemma Dcuts_bounded :
     neg (pr1 X r) -> forall n : hnnq, pr1 X n -> n < r.
 Proof.
   intros X r Hr n Hn.
-  apply neghqgehtolth ; intro Hn'.
+  apply hnnq_nge_lt ; intro Hn'.
   apply Hr.  
   apply is_Dcuts_bot with n.
   exact Hn.
@@ -93,18 +93,18 @@ Proof.
   now intros x P HP ; apply HP ; clear P HP.
 Qed.
 
-Definition Dcuts_le : po Dcuts.
+Definition Dcuts_le_po : po Dcuts.
 Proof.
   exists  Dcuts_le_rel.
   split.
   exact istrans_Dcuts_le_rel.
   exact isrefl_Dcuts_le_rel.
 Defined.
-Lemma istrans_Dcuts_le : istrans Dcuts_le.
+Lemma istrans_Dcuts_le_po : istrans Dcuts_le_po.
 Proof.
   apply istrans_Dcuts_le_rel.
 Qed.
-Lemma isrefl_Dcuts_le : isrefl Dcuts_le.
+Lemma isrefl_Dcuts_le_po : isrefl Dcuts_le_po.
 Proof.
   apply isrefl_Dcuts_le_rel.
 Qed.
@@ -112,7 +112,7 @@ Qed.
 (** [Dcuts_ge] is a partial order *)
 
 Definition Dcuts_ge_rel : hrel Dcuts :=
-  fun (X Y : Dcuts) => Dcuts_le Y X.
+  fun (X Y : Dcuts) => Dcuts_le_po Y X.
 
 Lemma istrans_Dcuts_ge_rel : istrans Dcuts_ge_rel.
 Proof.
@@ -134,7 +134,7 @@ Defined.
 (** [Dcuts_eq] is an equality *)
 
 Definition Dcuts_eq_rel : hrel Dcuts :=
-  fun (X Y : Dcuts) => hconj (Dcuts_le X Y) (Dcuts_ge X Y).
+  fun (X Y : Dcuts) => hconj (Dcuts_le_po X Y) (Dcuts_ge X Y).
 
 Lemma istrans_Dcuts_eq_rel : istrans Dcuts_eq_rel.
 Proof.
@@ -192,7 +192,7 @@ Proof.
   now apply nXr.
 Qed.
 
-(* to move *)
+(* to move in Sets.v *)
 Definition isstpo {X : UU} (R : hrel X) := dirprod ( istrans R ) ( isirrefl R ).
 Definition stpo (X : UU) := total2 (fun R : hrel X => isstpo R ).
 Definition stpopair { X : UU } ( R : hrel X ) ( is : isstpo R ) : stpo X := tpair ( fun R : hrel X => isstpo R ) R is .
@@ -208,7 +208,7 @@ Proof.
   exact isirrefl_Dcuts_lt_rel.
 Defined.
 
-(** [Dcuts_gt] is a struct partial order *)
+(** [Dcuts_gt] is a strict partial order *)
 
 Definition Dcuts_gt_rel : hrel Dcuts :=
   fun (X Y : Dcuts) => Dcuts_lt Y X.
@@ -230,21 +230,22 @@ Proof.
   exact isirrefl_Dcuts_gt_rel.
 Defined.
 
-(** [Dcuts_ap] is an appartness relation *)
+(** [Dcuts_ap] is an apartness relation *)
+(* todo : define apartness relation *)
 
 Definition Dcuts_ap (X Y : Dcuts) : hProp :=
   hdisj (Dcuts_lt X Y) (Dcuts_gt X Y).
 
-(** *** Various Theorems *)
+(** *** Various basic theorems about order, equality and apartness *)
 
-Lemma hhnr_lt_le :
-  forall X Y : Dcuts, Dcuts_lt X Y -> Dcuts_le X Y.
+Lemma Dcuts_lt_le :
+  forall X Y : Dcuts, Dcuts_lt X Y -> Dcuts_le_po X Y.
 Proof.
   intros X Y ; apply hinhfun ; intros (r,(Xr,Yr)).
   intros n Xn.
   apply is_Dcuts_bot with r.
   exact Yr.
-  apply hqlthtoleh.
+  apply hnnq_lt_le.
   now apply Dcuts_bounded with X.
 Qed.
 
@@ -333,16 +334,35 @@ Lemma Dcuts_ap_cotrans :
 
 (** ** Least Upper Bound *)
 
-Section Dcuts_lub.
+(* to move to Sets.v *)
+
+Definition isub {X : UU} (le : hrel X) (E : X -> hProp) (ub : X) :=
+  forall x : X, E x -> le x ub.
+Definition islbub {X : UU} (le : hrel X) (E : X -> hProp) (lub : X) :=
+  forall ub : X, isub le E ub -> le lub ub.
+Definition islub {X : UU} (le : hrel X) (E : X -> hProp) (lub : X) :=
+  dirprod (isub le E lub) (islbub le E lub).
+          
+Definition lub {X : UU} (le : hrel X) (E : X -> hProp) :=
+  total2 (islub le E).
+
+Definition iscompleterel {X : UU} (le : hrel X) :=
+  forall E : X -> hProp,
+         hexists (fun M : X => forall x : X, E x -> le x M) -> hexists E -> lub le E.
+Definition completerel (X : UU) :=
+  total2 (fun le : hrel X => iscompleterel le).
+(* end *)
+
+Section Dcuts_lub_val.
 
 Context (E : Dcuts -> hProp).
-Context (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le x M)).
+Context (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le_po x M)).
 
-Definition Dcuts_lub_val : hnnq -> hProp :=
+Definition Dcuts_lub_aux : hnnq -> hProp :=
   fun r : hnnq => hexists (fun X : Dcuts => dirprod (E X) (pr1 X r)).
-Lemma Dcuts_lub_bot : 
+Lemma Dcuts_lub_aux_bot : 
   forall (x : hnnq),
-    Dcuts_lub_val x -> forall y : hnnq, y <= x -> Dcuts_lub_val y.
+    Dcuts_lub_aux x -> forall y : hnnq, y <= x -> Dcuts_lub_aux y.
 Proof.
   intros r Xr n Xn.
   revert Xr ; apply hinhfun ; intros (X,(Ex,Xr)).
@@ -350,10 +370,10 @@ Proof.
   exact Ex.
   now apply is_Dcuts_bot with r.
 Qed.
-Lemma Dcuts_lub_open :
+Lemma Dcuts_lub_aux_open :
   forall (x : hnnq),
-    Dcuts_lub_val x ->
-    hexists (fun y : hnnq => dirprod (Dcuts_lub_val y) (x < y)).
+    Dcuts_lub_aux x ->
+    hexists (fun y : hnnq => dirprod (Dcuts_lub_aux y) (x < y)).
 Proof.
   intros r.
   apply hinhuniv ; intros (X,(Ex,Xr)).
@@ -366,8 +386,8 @@ Proof.
   exact Xn.
   exact Hrn.
 Qed.
-Lemma Dcuts_lub_bounded :
-   hexists (fun ub : hnnq => neg (Dcuts_lub_val ub)).
+Lemma Dcuts_lub_aux_bounded :
+   hexists (fun ub : hnnq => neg (Dcuts_lub_aux ub)).
 Proof.
   revert E_bounded.
   apply hinhuniv.
@@ -385,13 +405,72 @@ Proof.
   now apply H.
 Qed.
 
-End Dcuts_lub.
+End Dcuts_lub_val.
+
+Definition Dcuts_lub_val (E : Dcuts -> hProp)
+                     (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le_po x M)) : Dcuts :=
+  mk_Dcuts (Dcuts_lub_aux E) (Dcuts_lub_aux_bot E) (Dcuts_lub_aux_open E) (Dcuts_lub_aux_bounded E E_bounded).
+
+Lemma isub_Dcuts_lub_val (E : Dcuts -> hProp)
+      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le_po x M)) :
+  isub Dcuts_le_po E (Dcuts_lub_val E E_bounded).
+Proof.
+  intros x Ex.
+  intros P HP ; apply HP ; clear P HP.
+  intros r Hr.
+  intros P HP ; apply HP ; clear P HP.
+  now exists x.
+Qed.
+Lemma islbub_Dcuts_lub_val (E : Dcuts -> hProp)
+      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le_po x M)) :
+  islbub Dcuts_le_po E (Dcuts_lub_val E E_bounded).
+Proof.
+  intros x Hx.  
+  intros P HP ; apply HP ; clear P HP.
+  intros r ; simpl.
+  apply hinhuniv.
+  intros (y,(Ey,Yr)).
+  apply (Hx y Ey).
+  now intros H ; apply H.
+Qed.
+Lemma islub_Dcuts_lub_val (E : Dcuts -> hProp)
+      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le_po x M)) :
+  islub Dcuts_le_po E (Dcuts_lub_val E E_bounded).
+Proof.
+  split.
+  exact (isub_Dcuts_lub_val E E_bounded).
+  exact (islbub_Dcuts_lub_val E E_bounded).
+Qed.
 
 Definition Dcuts_lub (E : Dcuts -> hProp)
-                    (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le x M)) : Dcuts :=
-  mk_Dcuts (Dcuts_lub_val E) (Dcuts_lub_bot E) (Dcuts_lub_open E) (Dcuts_lub_bounded E E_bounded).
+      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le_po x M)) : lub Dcuts_le_po E.
+Proof.
+  exists (Dcuts_lub_val E E_bounded).
+  now apply islub_Dcuts_lub_val.
+Defined.
 
+Definition Dcuts_le : completerel Dcuts.
+Proof.
+  exists Dcuts_le_po.
+  intros E E_bounded _.
+  now apply Dcuts_lub.
+Defined.
 
+(** * Notations and remarks *)
+
+Bind Scope Dcuts_scope with Dcuts.
+
+(** [Dcuts] is a complete set *)
+
+Global Opaque Dcuts_eq Dcuts_le Dcuts_ge.
+Global Opaque Dcuts_ap Dcuts_lt Dcuts_gt.
+
+Notation "x <= y" := (Dcuts_le x y) : Dcuts_scope.
+Notation "x >= y" := (Dcuts_ge x y) : Dcuts_scope.
+Notation "x < y" := (Dcuts_lt x y) : Dcuts_scope.
+Notation "x > y" := (Dcuts_gt x y) : Dcuts_scope.
+    
+Delimit Scope Dcuts_scope with Dcuts.
 
 (* End of the file Dcuts.v *)
 

@@ -56,6 +56,22 @@ Definition hnnq_ge (x y : hnnq_set) : hProp := hqgeh (pr1 x) (pr1 y).
 Definition hnnq_lt (x y : hnnq_set) : hProp := hqlth (pr1 x) (pr1 y).
 Definition hnnq_gt (x y : hnnq_set) : hProp := hqgth (pr1 x) (pr1 y).
 
+(** *** Various theorems about order *)
+
+Lemma hnnq_lt_le :
+  forall x y : hnnq_set,
+    hnnq_lt x y -> hnnq_le x y.
+Proof.
+  intros x y.
+  now apply hqlthtoleh.
+Qed.
+Lemma hnnq_nge_lt :
+  forall x y : hnnq_set, neg (hnnq_ge x y) -> hnnq_lt x y.
+Proof.
+  intros x y Hxy.
+  now apply neghqgehtolth.
+Qed.
+
 (** ** [hnnq] is an abelian monoid *)
 
 Lemma hq0lehandplus:
@@ -135,6 +151,8 @@ Bind Scope hnnq_scope with hnnq.
 
 (** [hnnq] is an ordered set *)
 
+Global Opaque hnnq_le hnnq_lt hnnq_ge hnnq_gt.
+
 Notation "x <= y" := (hnnq_le x y) : hnnq_scope.
 Notation "x < y" := (hnnq_lt x y) : hnnq_scope.
 Notation "x >= y" := (hnnq_ge x y) : hnnq_scope.
@@ -142,23 +160,11 @@ Notation "x > y" := (hnnq_gt x y) : hnnq_scope.
 
 (** [hnnq] is an abelian monoid *)
 
+Global Opaque hnnq_setwithbinop hnnq_abmonoid.
+
 Notation "0" := (unel hnnq_abmonoid) : hnnq_scope.
 Notation "x + y" := (@op hnnq_abmonoid x y) : hnnqscope.
-
+    
 Delimit Scope hnnq_scope with hnnq.
-
-Open Scope hnnq_scope.
-
-(** * Theorems about order *)
-
-Lemma hnnq_lt_le :
-  forall x y : hnnq,
-    x < y -> x <= y.
-Proof.
-  intros x y.
-  now apply hqlthtoleh.
-Qed.
-
-Close Scope hnnq_scope.
 
 (* End of the file hnnq.v *)
