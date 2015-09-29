@@ -51,7 +51,10 @@ ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\2/'
 TAGS : $(VFILES); etags $(COQDEFS) $^
-$(foreach P,$(PACKAGES),$(eval $P:; $(MAKE) $(shell sed "s=^\(..*\)=UniMath/$P/\1o=" < UniMath/$P/.package/files)))
+
+FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
+
+$(foreach P,$(PACKAGES),$(eval $P:; $(MAKE) $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
 install:all
 lc:; wc -l $(VFILES)
 lcp:; for i in $(PACKAGES) ; do echo ; echo ==== $$i ==== ; for f in $(VFILES) ; do echo "$$f" ; done | grep "UniMath/$$i" | xargs wc -l ; done
@@ -68,7 +71,7 @@ publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
 	echo '-Q UniMath UniMath' ;\
 	echo ;\
 	for i in $(PACKAGES) ;\
-	do sed "s=^\(.\)=UniMath/$$i/\1=" < UniMath/$$i/.package/files ;\
+	do <UniMath/$$i/.package/files $(FILES_FILTER) |sed "s=^=UniMath/$$i/="  ;\
 	done ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\
