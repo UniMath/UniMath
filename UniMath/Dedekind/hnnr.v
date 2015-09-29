@@ -11,5 +11,18 @@ Require Import UniMath.Dedekind.Dcuts.
 
 Definition hnnr_set : hSet := setquotinset Dcuts_eq.
 
+(** Order *)
+
+Definition hnnr_le_rel : hrel hnnr_set.
+Proof.
+  apply (quotrel (L := Dcuts_le)).
+  exact Dcuts_le_comp.
+Defined.
+
+
+(** * Notations *)
+
+Notation hnnr := hnnr_set.
+
 (* End of the file hnnr.v *)
 
