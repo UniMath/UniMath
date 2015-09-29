@@ -273,11 +273,16 @@ Lemma hnnr_ap_cotrans :
 
 (** ** Least Upper Bound *)
 
-Definition hnnr_lub_val (E : hnnr_def -> hProp) : hnnq -> hProp :=
+Section hnnr_lub.
+
+Context (E : hnnr_def -> hProp).
+Context (E_bounded : hexists (fun M : hnnr_def => forall x : hnnr_def, E x -> hnnr_le x M)).
+
+Definition hnnr_lub_val : hnnq -> hProp :=
   fun r : hnnq => hexists (fun X : hnnr_def => dirprod (E X) (pr1 X r)).
-Lemma hnnr_lub_bot (E : hnnr_def -> hProp) : 
+Lemma hnnr_lub_bot : 
   forall (x : hnnq),
-    hnnr_lub_val E x -> forall y : hnnq, y <= x -> hnnr_lub_val E y.
+    hnnr_lub_val x -> forall y : hnnq, y <= x -> hnnr_lub_val y.
 Proof.
   intros r Xr n Xn.
   revert Xr ; apply hinhfun ; intros (X,(Ex,Xr)).
@@ -285,10 +290,10 @@ Proof.
   exact Ex.
   now apply is_hnnr_bot with r.
 Qed.
-Lemma hnnr_lub_open (E : hnnr_def -> hProp) :
+Lemma hnnr_lub_open :
   forall (x : hnnq),
-    hnnr_lub_val E x ->
-    hexists (fun y : hnnq => dirprod (hnnr_lub_val E y) (x < y)).
+    hnnr_lub_val x ->
+    hexists (fun y : hnnq => dirprod (hnnr_lub_val y) (x < y)).
 Proof.
   intros r.
   apply hinhuniv ; intros (X,(Ex,Xr)).
@@ -301,14 +306,32 @@ Proof.
   exact Xn.
   exact Hrn.
 Qed.
-Lemma hnnr_lub_bounded (E : hnnr_def -> hProp) :
-   hexists (fun ub : hnnq => neg (hnnr_lub_val E ub)).
+Lemma hnnr_lub_bounded :
+   hexists (fun ub : hnnq => neg (hnnr_lub_val ub)).
 Proof.
-  (* Need order *)
-Admitted.
+  revert E_bounded.
+  apply hinhuniv.
+  intros (M,HM).
+  generalize (is_hnnr_bounded M).
+  apply hinhfun.
+  intros (ub,Hub).
+  exists ub.
+  unfold neg.
+  apply (hinhuniv (P := hProppair _ isapropempty)).
+  intros (x,(Ex,Hx)).
+  apply Hub.
+  generalize (HM x Ex).
+  apply hinhuniv ; intro H.
+  now apply H.
+Qed.
 
-Definition hnnr_lub  (E : hnnr_def -> hProp) : hnnr_def :=
-  mk_hnnr_def (hnnr_lub_val E) (hnnr_lub_bot E) (hnnr_lub_open E) (hnnr_lub_bounded E).
+End hnnr_lub.
+
+Definition hnnr_lub (E : hnnr_def -> hProp)
+                    (E_bounded : hexists (fun M : hnnr_def => forall x : hnnr_def, E x -> hnnr_le x M)) : hnnr_def :=
+  mk_hnnr_def (hnnr_lub_val E) (hnnr_lub_bot E) (hnnr_lub_open E) (hnnr_lub_bounded E E_bounded).
+
+
 
 (* End of the file hnnr.v *)
 
