@@ -38,6 +38,8 @@ endif
 COQDOC := coqdoc
 COQDOCFLAGS := -interpolate --charset utf-8
 
+PACKAGE_FILES := $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
+
 ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
 endif
@@ -50,7 +52,7 @@ endif
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\2/'
-TAGS : $(VFILES); etags $(COQDEFS) $^
+TAGS : $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 
@@ -61,7 +63,7 @@ lcp:; for i in $(PACKAGES) ; do echo ; echo ==== $$i ==== ; for f in $(VFILES) ;
 wc:; wc -w $(VFILES)
 describe:; git describe --dirty --long --always --abbrev=40 --all
 publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
-.coq_makefile_input: $(patsubst %, UniMath/%/.package/files, $(PACKAGES)) $(UMAKEFILES)
+.coq_makefile_input: $(PACKAGE_FILES) $(UMAKEFILES)
 	@ echo making $@ ; ( \
 	echo '# -*- makefile-gmake -*-' ;\
 	echo ;\
