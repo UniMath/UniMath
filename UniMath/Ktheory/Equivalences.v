@@ -335,7 +335,7 @@ Proof. intros. unfold iscontrweqb. rewrite iscontrretract_compute.
 
 Definition compute_iscontrweqb_weqfibtototal_1 {T} {P Q:T->Type}
            (f:forall t, weq (P t) (Q t)) 
-           (is:iscontr (total2 Q)) :
+           (is:∃! t, Q t) :
   pr1 (the (iscontrweqb (weqfibtototal P Q f) is)) = pr1 (the is).
 Proof. intros. destruct is as [ctr uni]. reflexivity. Defined.
 

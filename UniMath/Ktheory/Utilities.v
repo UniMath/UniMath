@@ -8,6 +8,7 @@ Require Import UniMath.Foundations.FunctionalExtensionality.
 Require Export UniMath.Ktheory.Tactics.
 
 
+  Notation "'∃!'  x .. y , P" := (iscontr (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
   Notation "'not' X" := (X -> empty) (at level 35).
   Notation "x != y" := (not (x = y)) (at level 70).
   Notation set_to_type := pr1hSet.

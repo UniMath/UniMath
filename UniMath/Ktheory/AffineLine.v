@@ -46,7 +46,7 @@ Definition ℤRecursionData (P:ℤ->Type)
 Lemma ℤRecursionUniq (P:ℤ->Type) (p0:P zero) 
       (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':forall n, P(- toℤ n) -> P(- toℤ (S n))) :
-  iscontr (total2 (ℤRecursionData0 P p0 IH IH')).
+  ∃! f, ℤRecursionData0 P p0 IH IH' f.
 Proof. intros.
        unfold ℤRecursionData0.
        (* use hNatRecursionEquiv *)

@@ -44,8 +44,7 @@ Module Uniqueness.
   Proof. intros. apply weqfibtototal. intros f. apply helper_B. Defined.
 
   Lemma hNatRecursionUniq (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
-    iscontr (total2 (fun f:forall n, P n => 
-                       (f 0=p0) × (forall n, f(S n)=IH n (f n)))).
+    ∃! (f:forall n, P n), (f 0=p0) × (forall n, f(S n)=IH n (f n)).
   Proof. intros. exact (iscontrweqf (helper_C _ _ _) (iscontrcoconustot _ _)).
   Defined.
 
