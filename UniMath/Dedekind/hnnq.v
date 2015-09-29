@@ -147,4 +147,18 @@ Notation "x + y" := (@op hnnq_abmonoid x y) : hnnqscope.
 
 Delimit Scope hnnq_scope with hnnq.
 
+Open Scope hnnq_scope.
+
+(** * Theorems about order *)
+
+Lemma hnnq_lt_le :
+  forall x y : hnnq,
+    x < y -> x <= y.
+Proof.
+  intros x y.
+  now apply hqlthtoleh.
+Qed.
+
+Close Scope hnnq_scope.
+
 (* End of the file hnnq.v *)
