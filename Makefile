@@ -49,6 +49,8 @@ OTHERFLAGS += -verbose
 endif
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
+LATEXTARGET = latex
+COQDOCLATEXOPTIONS := -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}"
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\2/'
 TAGS : $(VFILES); etags $(COQDEFS) $^
 $(foreach P,$(PACKAGES),$(eval $P:; $(MAKE) $(shell sed "s=^\(..*\)=UniMath/$P/\1o=" < UniMath/$P/.package/files)))
@@ -126,6 +128,13 @@ doc: $(GLOBFILES) $(VFILES)
 	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d $(ENHANCEDDOCTARGET) \
 	--with-header $(ENHANCEDDOCSOURCE)/header.html $(VFILES)
 	sed -i'.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
+latex: Makefile $(GLOBFILES) $(VFILES)
+	mkdir -p $(LATEXTARGET)
+	$(COQDOC) -toc $(COQDOCFLAGS) -latex $(COQDOCLATEXOPTIONS) $(COQDOCLIBS) -utf8 -d $(LATEXTARGET) $(VFILES)
+pdf: latex
+	cd $(LATEXTARGET) ;\
+	latexmk -pdf *.tex
+
 #################################
 # targets best used with INCLUDE=no
 git-clean:
