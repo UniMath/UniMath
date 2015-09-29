@@ -517,6 +517,8 @@ Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
 
 Definition iscontr (T:UU) : UU := Σ cntr:T, ∀ t:T, t=cntr.
 
+Notation "'∃!'  x .. y , P" := (iscontr (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
+
 Definition iscontrpair {T : UU} : ∀ x : T, (∀ t : T, t = x) -> iscontr T := tpair _.
 
 Definition iscontrpr1 {T : UU} : iscontr T -> T := pr1.
