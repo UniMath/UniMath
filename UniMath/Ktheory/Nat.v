@@ -80,83 +80,87 @@ Fixpoint nat_dist (m n:nat) : nat :=
     | 0, n => n
     | m, 0 => m end.
 
-Fixpoint nat_discern (m n:nat) : UU :=
-  match m , n with
-    | S m, S n => nat_discern m n
-    | 0, S n => empty
-    | S m, 0 => empty
-    | 0, 0 => unit end.
+Module Discern.
 
-Goal forall m n, nat_discern m n -> nat_discern (S m) (S n).
-Proof. intros ? ? e. exact e. Defined.
+  Fixpoint nat_discern (m n:nat) : UU :=
+    match m , n with
+      | S m, S n => nat_discern m n
+      | 0, S n => empty
+      | S m, 0 => empty
+      | 0, 0 => unit end.
 
-Lemma nat_discern_inj m n : nat_discern (S m) (S n) -> nat_discern m n.
-Proof. intros ? ? e. induction m.
-       { induction n. { exact tt. } { simpl in e. exact (fromempty e). } }
-       { induction n. { simpl in e. exact (fromempty e). } { simpl in e. exact e. } }
-Defined.
+  Goal forall m n, nat_discern m n -> nat_discern (S m) (S n).
+  Proof. intros ? ? e. exact e. Defined.
 
-Lemma nat_discern_isaprop m n : isaprop (nat_discern m n).
-Proof. intros m. induction m. 
-       { intros n. induction n.
-         { apply isapropifcontr. apply iscontrunit. }
-         { simpl. apply isapropempty. } }
-       { intros n. induction n. 
-         { simpl. apply isapropempty. }
-         { simpl. apply IHm. } } Defined.
+  Lemma nat_discern_inj m n : nat_discern (S m) (S n) -> nat_discern m n.
+  Proof. intros ? ? e. induction m.
+         { induction n. { exact tt. } { simpl in e. exact (fromempty e). } }
+         { induction n. { simpl in e. exact (fromempty e). } { simpl in e. exact e. } }
+  Defined.
 
-Lemma nat_discern_unit m : nat_discern m m = unit.
-Proof. intros m. induction m. { reflexivity. } { simpl. apply IHm. } Defined.
+  Lemma nat_discern_isaprop m n : isaprop (nat_discern m n).
+  Proof. intros m. induction m. 
+         { intros n. induction n.
+           { apply isapropifcontr. apply iscontrunit. }
+           { simpl. apply isapropempty. } }
+         { intros n. induction n. 
+           { simpl. apply isapropempty. }
+           { simpl. apply IHm. } } Defined.
 
-Lemma nat_discern_iscontr m : iscontr (nat_discern m m).
-Proof. intros m. apply iscontr_if_inhab_prop.
-       { apply nat_discern_isaprop. }
-       { induction m. { exact tt. } { simpl. exact IHm. } } Defined.
+  Lemma nat_discern_unit m : nat_discern m m = unit.
+  Proof. intros m. induction m. { reflexivity. } { simpl. apply IHm. } Defined.
 
-Fixpoint helper_A m n : nat_dist m n = 0 -> nat_discern m n.
-Proof. intros ? ?. destruct m as [|m'].
-       { destruct n as [|n'].
-         { intros _. exact tt. } { simpl. exact (negpathssx0 n'). } }
-       { destruct n as [|n'].
-         { simpl. exact (negpathssx0 m'). } { simpl. exact (helper_A m' n'). } } Defined.
+  Lemma nat_discern_iscontr m : iscontr (nat_discern m m).
+  Proof. intros m. apply iscontr_if_inhab_prop.
+         { apply nat_discern_isaprop. }
+         { induction m. { exact tt. } { simpl. exact IHm. } } Defined.
 
-Fixpoint helper_B m n : nat_discern m n -> m = n.
-Proof. intros ? ?. destruct m as [|m'].
-       { destruct n as [|n'].
-         { intros _. reflexivity. } { simpl. exact fromempty. } }
-       { destruct n as [|n'].
-         { simpl. exact fromempty. }
-         { simpl. intro i. assert(b := helper_B _ _ i); clear i. 
-           destruct b. reflexivity. } } Defined.
+  Fixpoint helper_A m n : nat_dist m n = 0 -> nat_discern m n.
+  Proof. intros ? ?. destruct m as [|m'].
+         { destruct n as [|n'].
+           { intros _. exact tt. } { simpl. exact (negpathssx0 n'). } }
+         { destruct n as [|n'].
+           { simpl. exact (negpathssx0 m'). } { simpl. exact (helper_A m' n'). } } Defined.
 
-Goal forall m n (e:nat_discern m n), ap S (helper_B m n e) = helper_B (S m) (S n) e.
-Proof. reflexivity. Defined.
+  Fixpoint helper_B m n : nat_discern m n -> m = n.
+  Proof. intros ? ?. destruct m as [|m'].
+         { destruct n as [|n'].
+           { intros _. reflexivity. } { simpl. exact fromempty. } }
+         { destruct n as [|n'].
+           { simpl. exact fromempty. }
+           { simpl. intro i. assert(b := helper_B _ _ i); clear i. 
+             destruct b. reflexivity. } } Defined.
 
-Fixpoint helper_C m n : m = n -> nat_discern m n.
-Proof. intros ? ? e. destruct e.
-       (* alternatively:
-        destruct m. { exact tt. } { simpl. exact (the (nat_discern_iscontr _)). }  
-        *)
-       exact (cast (! nat_discern_unit m) tt).
-Defined.
+  Goal forall m n (e:nat_discern m n), ap S (helper_B m n e) = helper_B (S m) (S n) e.
+  Proof. reflexivity. Defined.
 
-Lemma apSC m n (e:m=n) : helper_C m n e = helper_C (S m) (S n) (ap S e).
-Proof. intros. apply proofirrelevance. apply nat_discern_isaprop. Defined.
+  Fixpoint helper_C m n : m = n -> nat_discern m n.
+  Proof. intros ? ? e. destruct e.
+         (* alternatively:
+          destruct m. { exact tt. } { simpl. exact (the (nat_discern_iscontr _)). }  
+          *)
+         exact (cast (! nat_discern_unit m) tt).
+  Defined.
 
-Definition helper_D m n : isweq (helper_B m n).
-Proof. intros. refine (gradth _ (helper_C _ _) _ _).
-       { intro e. assert(p := ! helper_B _ _ e). destruct p.
-         apply proofirrelevancecontr. apply nat_discern_iscontr. }
-       { intro e. destruct e. induction m.
-         { reflexivity. }
-         { exact (  ap (helper_B (S m) (S m)) (! apSC _ _ (idpath m)) 
-                  @ ap (ap S) IHm). } } Defined.
+  Lemma apSC m n (e:m=n) : helper_C m n e = helper_C (S m) (S n) (ap S e).
+  Proof. intros. apply proofirrelevance. apply nat_discern_isaprop. Defined.
 
-Definition E m n : weq (nat_discern m n) (m = n).
-Proof. intros. exact (weqpair (helper_B _ _) (helper_D _ _)). Defined.
+  Definition helper_D m n : isweq (helper_B m n).
+  Proof. intros. refine (gradth _ (helper_C _ _) _ _).
+         { intro e. assert(p := ! helper_B _ _ e). destruct p.
+           apply proofirrelevancecontr. apply nat_discern_iscontr. }
+         { intro e. destruct e. induction m.
+           { reflexivity. }
+           { exact (  ap (helper_B (S m) (S m)) (! apSC _ _ (idpath m)) 
+                    @ ap (ap S) IHm). } } Defined.
 
-Definition nat_dist_anti m n : nat_dist m n = 0 -> m = n.
-Proof. intros ? ? i. exact (helper_B _ _ (helper_A _ _ i)). Defined.
+  Definition E m n : weq (nat_discern m n) (m = n).
+  Proof. intros. exact (weqpair (helper_B _ _) (helper_D _ _)). Defined.
+
+  Definition nat_dist_anti m n : nat_dist m n = 0 -> m = n.
+  Proof. intros ? ? i. exact (helper_B _ _ (helper_A _ _ i)). Defined.
+
+End Discern.
 
 Fixpoint nat_dist_symm m n : nat_dist m n = nat_dist n m.
 Proof. intros ? ?. destruct m as [|m'].
@@ -361,39 +365,6 @@ Proof. intros ? ? ? i p.
        assert (b := minusplusnmm n k i); clear i.
        rewrite b in a; clear b. apply natleplusminus. 
        rewrite natpluscomm. exact a. Qed.
-
-Require Import UniMath.Ktheory.MetricTree.
-
-Definition nat_tree : Tree.
-Proof. refine (make nat nat_dist _ _ _ _ _).
-       { intro m. induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
-       { apply nat_dist_anti. } { apply nat_dist_symm. } 
-       { apply nat_dist_trans. }
-       { intros m n e. assert (d := natneqchoice _ _ e). clear e.
-         destruct d as [h|h].
-         { exists (S n).
-           { split.
-             { apply nat_dist_gt. exact h. }
-             { destruct (natgthorleh (S n) n) as [_|j].
-               { clear h. induction n. { reflexivity. } { apply IHn. } } 
-               { apply fromempty. clear h. exact (j (natgthsnn n)). }}} }
-         { exists (n - 1).
-           { split.
-             { assert (a := natltminus1 m n h). assert (b := natlthtoleh m n h).
-               assert (c := nat_dist_le _ _ a). assert (d := nat_dist_le _ _ b).
-               rewrite c, d; clear c d. rewrite natminusminusassoc. simpl.
-               change (1 + (n - (1+m)) = n - m). rewrite (natpluscomm 1 m).
-               rewrite <- natminusminusassoc. rewrite natpluscomm.
-               apply (minusplusnmm (n-m) 1).
-               apply (natminusplusltcomm m n 1).
-               { assert(e := natleh0n m). 
-                 assert(f := natlehlthtrans _ _ _ e h).
-                 exact (natlthtolehsn _ _ f). }
-               { exact a. } }
-             { assert (a := natleh0n m).
-               assert (b := natlehlthtrans _ _ _ a h).
-               assert (c := natlthtolehsn _ _ b).
-               exact (nat_dist_minus 1 n c). } } } } Defined.
 
 (*
 Local Variables:

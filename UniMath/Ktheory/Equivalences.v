@@ -441,10 +441,6 @@ Definition invmapweqcomp {X Y Z} (f:weq X Y) (g:weq Y Z) :
   invmap (weqcomp f g) = weqcomp (invweq g) (invweq f).
 Proof. intros. exact (ap pr1weq (invweqcomp f g)). Defined.
 
-Definition pr1hSet_injectivity (X Y:hSet) : weq (X = Y) (pr1hSet X = pr1hSet Y).
-Proof. intros. apply weqonpathsincl. apply isinclpr1; intro T.
-       apply isapropisaset. Defined.
-
 Definition weqpr1_irr_sec {X} {P:X->Type}
            (irr:forall x (p q:P x), p = q) (sec:Section P) : weq (total2 P) X.
 Proof. intros.

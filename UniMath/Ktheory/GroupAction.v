@@ -4,8 +4,7 @@
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.FunctionalExtensionality
-               UniMath.Ktheory.Utilities
-               UniMath.Ktheory.Equivalences.
+               UniMath.Ktheory.Utilities.
 Import UniMath.Ktheory.Utilities.Notation.
 
 (** ** Definitions *)

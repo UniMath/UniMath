@@ -423,6 +423,10 @@ Proof. trivial. Qed.
 Definition isaprop_hProp (X:hProp) : isaprop X.
 Proof. intro. exact (pr2 X). Qed.
 
+Definition pr1hSet_injectivity (X Y:hSet) : weq (X = Y) (pr1hSet X = pr1hSet Y).
+Proof. intros. apply weqonpathsincl. apply isinclpr1; intro T.
+       apply isapropisaset. Defined.
+
 Definition equality_proof_irrelevance {X:hSet} {x y:X} (p q:x = y) : p = q.
 Proof. intros. destruct (the (setproperty _ _ _ p q)). reflexivity. Qed.
 
