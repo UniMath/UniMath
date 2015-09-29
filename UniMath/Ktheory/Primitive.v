@@ -8,7 +8,6 @@ Require Import
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.total2_paths
         UniMath.Foundations.Sets.
-Import Precategories.Notation.
 Module TerminalObject.
   Definition isTerminalObject (C:precategory) (a:ob C) := 
     forall x:ob C, iscontr (a ← x).
@@ -46,7 +45,6 @@ End TerminalObject.
 (** *** initial objects *)
 
 Module InitialObject.
-  Import UniMath.Ktheory.Utilities.Notation.
   Definition isInitialObject (C:precategory) (a:ob C) :=
     forall x:ob C, iscontr (x ← a).
   Lemma theInitialObjectIsomorphy (C:precategory) (a b:ob C) :

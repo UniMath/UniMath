@@ -209,11 +209,11 @@ Section A.
 End A.
 
 Definition Equiv X Y :=
-  { f:X->Y & 
-  { g:Y->X &
-  { p:forall y, f(g y) = y & 
-  { q:forall x, g(f x) = x &
-      forall x, ap f (q x) = p(f x)}}}}.
+  Σ f:X->Y,
+  Σ g:Y->X,
+  Σ p:forall y, f(g y) = y,
+  Σ q:forall x, g(f x) = x,
+      forall x, ap f (q x) = p(f x).
 
 Definition makeEquiv X Y f g p q h := (f,,(g,,(p,,(q,,h)))) : Equiv X Y.
 
@@ -319,64 +319,6 @@ Proof. intros ? ? [f g p q h].
        intros. destruct r. rewrite ap_idpath. rewrite pathscomp0rid.
        admit. Admitted.
 
-Definition weqcompidl {X Y} (f:weq X Y) : weqcomp (idweq X) f = f.
-Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
-       apply funextsec; intro x; simpl. reflexivity. Defined.
-
-Definition weqcompidr {X Y} (f:weq X Y) : weqcomp f (idweq Y) = f.
-Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
-       apply funextsec; intro x; simpl. reflexivity. Defined.
-
-Definition weqcompinvl {X Y} (f:weq X Y) : weqcomp (invweq f) f = idweq Y.
-Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
-       apply funextsec; intro y; simpl. apply homotweqinvweq. Defined.
-
-Definition weqcompinvr {X Y} (f:weq X Y) : weqcomp f (invweq f) = idweq X.
-Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
-       apply funextsec; intro x; simpl. apply homotinvweqweq. Defined.
-
-Definition weqcompassoc {X Y Z W} (f:weq X Y) (g:weq Y Z) (h:weq Z W) :
-  weqcomp (weqcomp f g) h = weqcomp f (weqcomp g h).
-Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
-       apply funextsec; intro x; simpl. reflexivity. Defined.
-
-Definition weqcompweql {X Y Z} (f:weq X Y) :
-  isweq (fun g:weq Y Z => weqcomp f g).
-Proof. intros. refine (gradth _ _ _ _).
-       { intro h. exact (weqcomp (invweq f) h). }
-       { intro g. simpl. rewrite <- weqcompassoc. rewrite weqcompinvl.
-         apply weqcompidl. }
-       { intro h. simpl. rewrite <- weqcompassoc. rewrite weqcompinvr.
-         apply weqcompidl. } Defined.
-
-Definition weqcompweqr {X Y Z} (g:weq Y Z) :
-  isweq (fun f:weq X Y => weqcomp f g).
-Proof. intros. refine (gradth _ _ _ _).
-       { intro h. exact (weqcomp h (invweq g)). }
-       { intro f. simpl. rewrite weqcompassoc. rewrite weqcompinvr.
-         apply weqcompidr. }
-       { intro h. simpl. rewrite weqcompassoc. rewrite weqcompinvl.
-         apply weqcompidr. } Defined.
-
-Definition weqcompinjr {X Y Z} {f f':weq X Y} (g:weq Y Z) :
-  weqcomp f g = weqcomp f' g -> f = f'.
-Proof. intros ? ? ? ? ? ?.
-       apply (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweqr g))).
-Defined.
-
-Definition weqcompinjl {X Y Z} (f:weq X Y) {g g':weq Y Z} :
-  weqcomp f g = weqcomp f g' -> g = g'.
-Proof. intros ? ? ? ? ? ?.
-       apply (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweql f))).
-Defined.
-
-Definition invweqcomp {X Y Z} (f:weq X Y) (g:weq Y Z) :
-  invweq (weqcomp f g) = weqcomp (invweq g) (invweq f).
-Proof. intros. apply (weqcompinjr (weqcomp f g)). rewrite weqcompinvl.
-       rewrite weqcompassoc. rewrite <- (weqcompassoc (invweq f)).
-       rewrite weqcompinvl. rewrite weqcompidl. rewrite weqcompinvl. reflexivity.
-Defined.
-
 Definition weq_pathscomp0r {X} x {y z:X} (p:y = z) : weq (x = y) (x = z).
 Proof. intros. exact (weqpair _ (isweqpathscomp0r _ p)). Defined.
 
@@ -436,10 +378,6 @@ Proof. intros. destruct e. reflexivity. Defined.
 Definition eqweqmapap_inv' {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) :
   (eqweqmap (ap P (!e))) ((eqweqmap (ap P e)) p) = p.
 Proof. intros. destruct e. reflexivity. Defined.
-
-Definition invmapweqcomp {X Y Z} (f:weq X Y) (g:weq Y Z) :
-  invmap (weqcomp f g) = weqcomp (invweq g) (invweq f).
-Proof. intros. exact (ap pr1weq (invweqcomp f g)). Defined.
 
 Definition weqpr1_irr_sec {X} {P:X->Type}
            (irr:forall x (p q:P x), p = q) (sec:Section P) : weq (total2 P) X.

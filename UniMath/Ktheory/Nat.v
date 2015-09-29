@@ -7,8 +7,6 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.FunctionalExtensionality
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
-Import UniMath.Ktheory.Utilities.Notation.
-Import UniMath.Ktheory.Utilities.NatNotation.
 
 Definition ℕ := nat.
 
@@ -17,7 +15,7 @@ Module Uniqueness.
   Lemma helper_A (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
         (f:forall n, P n) :
     weq (forall n, f n = nat_rect P p0 IH n)
-        (f 0=p0 ** forall n, f(S n)=IH n (f n)).
+        (f 0=p0 × forall n, f(S n)=IH n (f n)).
   Proof. intros. refine (_,,gradth _ _ _ _).
          { intros h. split.
            { exact (h 0). } { intros. exact (h (S n) @ ap (IH n) (! h n)). } }
@@ -35,25 +33,25 @@ Module Uniqueness.
   Lemma helper_B (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
         (f:forall n, P n) :
     weq (f = nat_rect P p0 IH)
-        ((f 0=p0) ** (forall n, f(S n)=IH n (f n))).
+        ((f 0=p0) × (forall n, f(S n)=IH n (f n))).
   Proof. intros.
          exact (weqcomp (weqtoforallpaths _ _ _) (helper_A _ _ _ _)). Defined.
 
   Lemma helper_C (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     weq (total2 (fun f:forall n, P n => f = nat_rect P p0 IH))
         (total2 (fun f:forall n, P n => 
-                   (f 0=p0) ** (forall n, f(S n)=IH n (f n)))).
+                   (f 0=p0) × (forall n, f(S n)=IH n (f n)))).
   Proof. intros. apply weqfibtototal. intros f. apply helper_B. Defined.
 
   Lemma hNatRecursionUniq (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     iscontr (total2 (fun f:forall n, P n => 
-                       (f 0=p0) ** (forall n, f(S n)=IH n (f n)))).
+                       (f 0=p0) × (forall n, f(S n)=IH n (f n)))).
   Proof. intros. exact (iscontrweqf (helper_C _ _ _) (iscontrcoconustot _ _)).
   Defined.
 
   Lemma helper_D (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     weq (total2 (fun f:forall n, P n => 
-                       (f 0=p0) ** (forall n, f(S n)=IH n (f n))))
+                       (f 0=p0) × (forall n, f(S n)=IH n (f n))))
         (@hfiber 
            (total2 (fun f:forall n, P n => forall n, f(S n)=IH n (f n))) 
            (P 0)
@@ -169,7 +167,7 @@ Proof. intros ? ?. destruct m as [|m'].
          { simpl. reflexivity. }
          { simpl. apply nat_dist_symm. } } Defined.
 
-Fixpoint nat_dist_ge m n : m >= n -> nat_dist m n = m-n.
+Fixpoint nat_dist_ge m n : m ≥ n -> nat_dist m n = m-n.
 Proof. intros ? ?. destruct m as [|m'].
        { destruct n as [|n']. { reflexivity. }
          { simpl. intro f. apply fromempty. apply f. reflexivity. } }
@@ -187,14 +185,14 @@ Proof. intros [|m'] ?.
        { simpl. apply nat_dist_m0. }
        { simpl. apply nat_dist_plus. } Defined.
 
-Fixpoint nat_dist_le m n : m <= n -> nat_dist m n = n-m.
+Fixpoint nat_dist_le m n : m ≤ n -> nat_dist m n = n-m.
 Proof. intros ? ?. destruct m as [|m'].
        { destruct n as [|n']. { reflexivity. } { simpl. intros _. reflexivity. } }
        { destruct n as [|n'].
          { simpl. intro f. apply fromempty. apply f. reflexivity. } 
          { simpl. apply nat_dist_le. } } Defined.
 
-Definition nat_dist_minus m n : m <= n -> nat_dist (n - m) n = m.
+Definition nat_dist_minus m n : m ≤ n -> nat_dist (n - m) n = m.
 Proof. intros ? ? e. set (k := n-m). assert(b := ! minusplusnmm n m e).
        rewrite (idpath _ : n-m = k) in b. rewrite b.
        rewrite nat_dist_symm. apply nat_dist_plus. Qed.
@@ -211,13 +209,13 @@ Proof. intros ? ?. destruct m as [|m'].
 Definition nat_dist_S m n : nat_dist (S m) (S n) = nat_dist m n.
 Proof. reflexivity. Defined.
 
-Definition natminuseqlr m n x : m<=n -> n-m = x -> n = x+m.
+Definition natminuseqlr m n x : m≤n -> n-m = x -> n = x+m.
 Proof. intros ? ? ? i j.
        rewrite <- (minusplusnmm _ _ i). rewrite j. reflexivity. Defined.
 
-Definition nat_dist_between_le m n a b : 
-  m <= n -> nat_dist m n = a + b -> 
-  total2 (fun x => nat_dist x m = a ** nat_dist x n = b).
+Definition nat_dist_between_le (m n:nat) a b : 
+  m ≤ n -> nat_dist m n = a + b -> 
+  total2 (fun x => nat_dist x m = a × nat_dist x n = b).
 Proof. intros ? ? ? ? i j. exists (m+a). split.
        { apply nat_dist_plus. }
        { rewrite (nat_dist_le m n i) in j.
@@ -227,8 +225,7 @@ Proof. intros ? ? ? ? i j. exists (m+a). split.
          rewrite (natplusassoc m a b) in l. rewrite <- k in l. exact l. } Defined.
 
 Definition nat_dist_between_ge m n a b : 
-  n <= m -> nat_dist m n = a + b -> 
-  {x:nat & nat_dist x m = a ** nat_dist x n = b}.
+  n ≤ m -> nat_dist m n = a + b -> Σ x:nat, nat_dist x m = a × nat_dist x n = b.
 Proof. intros ? ? ? ? i j. 
        rewrite nat_dist_symm in j.
        rewrite natpluscomm in j.
@@ -238,21 +235,20 @@ Proof. intros ? ? ? ? i j.
 Defined.
 
 Definition nat_dist_between m n a b : 
-  nat_dist m n = a + b -> 
-  {x:nat & nat_dist x m = a ** nat_dist x n = b}.
+  nat_dist m n = a + b -> Σ x:nat, nat_dist x m = a × nat_dist x n = b.
 Proof. intros ? ? ? ? j. 
        induction (natgthorleh m n) as [r|s].
        { apply nat_dist_between_ge. apply natlthtoleh. exact r. exact j. }
        { apply nat_dist_between_le. exact s. exact j. }
 Defined.
 
-Definition natleorle m n : coprod (m<=n) (n<=m).
+Definition natleorle m n : coprod (m≤n) (n≤m).
 Proof. intros.
        induction (natgthorleh m n) as [r|s].
        { apply ii2. apply natlthtoleh. exact r. }
        { apply ii1. exact s. } Defined.
 
-Definition nat_dist_trans x y z : nat_dist x z <= nat_dist x y + nat_dist y z.
+Definition nat_dist_trans x y z : nat_dist x z ≤ nat_dist x y + nat_dist y z.
 Proof. intros. induction (natleorle x y) as [r|s].
        { rewrite (nat_dist_le _ _ r).
          induction (natleorle y z) as [t|u].
@@ -321,7 +317,7 @@ Lemma plusmn0m0 m n : m + n = 0 -> m = 0.
 Proof. intros ? ? i. assert (a := natlehnplusnm m n). rewrite i in a.
        apply natleh0tois0. assumption. Defined.
 
-Lemma natminus0le {m n} : m-n = 0 -> n >= m.
+Lemma natminus0le {m n} : m-n = 0 -> n ≥ m.
 Proof. intros ? ? i j. assert (a := minusgth0 m n j); clear j.
        rewrite i in a; clear i. exact (negnatgth0n 0 a). Defined.
 
@@ -331,7 +327,7 @@ Proof. intro. induction m. reflexivity. simpl. assumption. Defined.
 Lemma minusSxx m : S m - m = 1.
 Proof. intro. induction m. reflexivity. assumption. Defined.
 
-Lemma natminusminus n m : m <= n -> n - (n - m) = m.
+Lemma natminusminus n m : m ≤ n -> n - (n - m) = m.
 Proof. intros ? ? i. assert (b := plusminusnmm m (n-m)).
        rewrite natpluscomm in b. rewrite (minusplusnmm _ _ i) in b.
        exact b. Defined.
@@ -339,16 +335,16 @@ Proof. intros ? ? i. assert (b := plusminusnmm m (n-m)).
 Lemma natplusminus m n k : k=m+n -> k-n=m.
 Proof. intros ? ? ? i. rewrite i. apply plusminusnmm. Defined.
 
-Lemma natleplusminus k m n : k + m <= n -> k <= n - m.
+Lemma natleplusminus k m n : k + m ≤ n -> k ≤ n - m.
 Proof. intros ? ? ? i.
        apply (natlehandplusrinv _ _ m).
        rewrite minusplusnmm.
        { exact i. }
-       { change (m <= n).
+       { change (m ≤ n).
          refine (istransnatleh m (k+m) n _ i); clear i.
          apply natlehmplusnm. } Defined.
 
-Lemma natltminus1 m n : m < n -> m <= n - 1.
+Lemma natltminus1 m n : m < n -> m ≤ n - 1.
 Proof. intros ? ? i. assert (a := natlthp1toleh m (n - 1)).
        assert (b := natleh0n m). assert (c := natlehlthtrans _ _ _ b i).
        assert (d := natlthtolehsn _ _ c). assert (e := minusplusnmm _ _ d).
@@ -359,7 +355,7 @@ Proof. intros. destruct m. { reflexivity. }
        { destruct n. { rewrite natminuseqn. reflexivity. }
          { simpl. apply natminusminusassoc. } } Defined.
 
-Definition natminusplusltcomm m n k : k <= n -> m <= n - k -> k <= n - m.
+Definition natminusplusltcomm m n k : k ≤ n -> m ≤ n - k -> k ≤ n - m.
 Proof. intros ? ? ? i p.
        assert (a := natlehandplusr m (n-k) k p); clear p.
        assert (b := minusplusnmm n k i); clear i.
