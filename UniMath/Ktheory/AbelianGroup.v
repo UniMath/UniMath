@@ -6,7 +6,7 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.Integers
                UniMath.Ktheory.Utilities
                UniMath.Ktheory.Precategories
-               UniMath.Ktheory.Primitive.
+               UniMath.Ktheory.InitialAndFinalObject.
 Require UniMath.Ktheory.Group UniMath.Ktheory.Product
         UniMath.Ktheory.Sum.
 Local Notation Hom := monoidfun.

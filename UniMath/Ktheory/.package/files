@@ -28,7 +28,7 @@ Representation.v
 Elements.v
 StandardCategories.v
 ZeroObject.v
-Primitive.v
+InitialAndFinalObject.v
 Precategories.v
 Interval.v
 Utilities.v
