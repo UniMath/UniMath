@@ -5,8 +5,9 @@
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.Integers
                UniMath.Ktheory.Utilities
-               UniMath.Ktheory.Precategories.
-Require UniMath.Ktheory.Group UniMath.Ktheory.Primitive UniMath.Ktheory.Product
+               UniMath.Ktheory.Precategories
+               UniMath.Ktheory.Primitive.
+Require UniMath.Ktheory.Group UniMath.Ktheory.Product
         UniMath.Ktheory.Sum.
 Local Notation Hom := monoidfun.
 Local Notation "0" := (unel _).
@@ -493,7 +494,6 @@ Module Category.
   Module Product.
     Definition Object {I} (X:I->ob Precat) : ob Precat
       := Product.make X.
-    Import Primitive.InitialObject. 
     Definition make {I} (X:I->ob Precat) : Product.type Precat has_homsets_Precat X.
       intros.
       set (Q := Elements.make_ob (HomFamily.precat Precat^op  (has_homsets_opp_precat _ has_homsets_Precat) X) (Object X)
@@ -512,7 +512,6 @@ Module Category.
   Module Sum.
     Definition Object {I} (X:I->ob Precat) : ob Precat
       := Sum.make X.
-    Import Primitive.InitialObject.
     Definition make {I} (X:I->ob Precat) : Sum.type Precat has_homsets_Precat X.
       intros.
       set (Q := Elements.make_ob (HomFamily.precat Precat  has_homsets_Precat X) (Object X)
