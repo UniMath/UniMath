@@ -78,7 +78,7 @@ Section preimage.
 (** The type [X b] will be contractible, and [G] is defined as 
      the first component of its center. *)
 
-Let X (b : B) := total2 (
+Local Definition X (b : B) := total2 (
  fun ck : 
   total2 (fun c : C =>
                 forall a : A,
@@ -88,7 +88,7 @@ Let X (b : B) := total2 (
              (#H f ;; pr2 t' = pr2 t -> 
                     #F f ;; pr2 ck (pr1 t') (pr2 t') = pr2 ck (pr1 t) (pr2 t))).
 
-Definition kX {b : B} (t : X b) := (pr2 (pr1 t)).
+Local Definition kX {b : B} (t : X b) := (pr2 (pr1 t)).
 
 (** The following is the third component of the center of [X b] *)
 
@@ -140,7 +140,6 @@ Lemma X_aux_type_contr_eq (b : B) (anot : A) (hnot : iso (H anot) b) :
    forall t : X b, t = X_aux_type_center_of_contr b anot hnot.
 Proof.
   intro t.
-  simpl in X.
   assert (Hpr1 : pr1 (X_aux_type_center_of_contr b anot hnot) = pr1 t).
   set (w := isotoid _ Ccat ((pr2 (pr1 t)) anot hnot) : 
           pr1 (pr1 (X_aux_type_center_of_contr b anot hnot)) = pr1 (pr1 t)).
@@ -206,11 +205,11 @@ Defined.
 Definition Go : B -> C :=
    fun b : B => pr1 (pr1 (pr1 (iscontr_X b))).
 
-Let k (b : B) : 
+Local Definition k (b : B) : 
      forall a : A, iso (H a) b -> iso (F a) (Go b) := 
               pr2 (pr1 (pr1 (iscontr_X b))).
 
-Let q (b : B) := pr2 (pr1 (iscontr_X b)).
+Local Definition q (b : B) := pr2 (pr1 (iscontr_X b)).
  
 
 (** Given any inhabitant of [X b], its first component is equal to [Go b]. *)
@@ -263,7 +262,7 @@ transportf (fun c' : ob C => forall a : ob A, iso (pr1 H a) b ->
 (** [G f] will be defined as the first component of the center of
      contraction of [Y f]. *)
 
-Let Y {b b' : B} (f : b --> b') :=
+Local Definition Y {b b' : B} (f : b --> b') :=
   total2 (fun g : Go b --> Go b' =>
       forall a : A,
         forall h : iso (H a) b,
