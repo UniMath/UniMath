@@ -96,6 +96,7 @@ Proof.
   now rewrite hqplusr0.
 Qed.
 (* end *)
+
 Definition hnnq_plus_def (x y : hnnq_set) : hnnq_set :=
   hq_to_hnnq_def ((pr1 x) + (pr1 y)) (hq0lehandplus (pr1 x) (pr1 y) (pr2 x) (pr2 y)).
 
@@ -111,10 +112,10 @@ Proof.
   apply (hqplusassoc (pr1 x) (pr1 y) (pr1 z)).
 Qed.
 
-Definition hnnq_0 : hnnq_set :=
+Definition hnnq_0_def : hnnq_set :=
   hq_to_hnnq_def 0 (isreflhqleh 0).
-Lemma islunit_hnnq_plus_def_hnnq_0 :
-  islunit hnnq_plus_def hnnq_0.
+Lemma islunit_hnnq_plus_def_hnnq_0_def :
+  islunit hnnq_plus_def hnnq_0_def.
 Proof.
   intros x.
   apply total2_paths_isaprop.
@@ -122,8 +123,8 @@ Proof.
   now destruct (hqleh 0 a).
   apply (hqplusl0 (pr1 x)).
 Qed.
-Lemma isrunit_hnnq_plus_def_hnnq_0 :
-  isrunit hnnq_plus_def hnnq_0.
+Lemma isrunit_hnnq_plus_def_hnnq_0_def :
+  isrunit hnnq_plus_def hnnq_0_def.
 Proof.
   intros x.
   apply total2_paths_isaprop.
@@ -148,25 +149,63 @@ Proof.
   split.
   split.
   exact isassoc_hnnq_plus_def.
-  exists hnnq_0.
+  exists hnnq_0_def.
   split.
-  exact islunit_hnnq_plus_def_hnnq_0.
-  exact isrunit_hnnq_plus_def_hnnq_0.
+  exact islunit_hnnq_plus_def_hnnq_0_def.
+  exact isrunit_hnnq_plus_def_hnnq_0_def.
   exact iscomm_hnnq_plus_def.
 Defined.
 
+(** *** Notations *)
+
+Definition hnnq_0 : hnnq_abmonoid := (unel hnnq_abmonoid).
+Definition hnnq_plus (x y : hnnq_abmonoid) : hnnq_abmonoid := (@op hnnq_abmonoid x y).
+
+Notation "0" := hnnq_0 : hnnq_scope.
+Notation "x + y" := (hnnq_plus x y) : hnnqscope.
+
+(** *** Theorems about [hnnq_abmonoid] *)
+
+Open Scope hnnq_scope.
+
+Lemma hnnq_0_le :
+  forall x : hnnq_abmonoid, 0 <= x.
+Proof.
+  intros x.
+  apply (pr2 x).
+Qed.
+
+Lemma isassoc_hnnq_plus : isassoc hnnq_plus.
+Proof.
+  exact isassoc_hnnq_plus_def.
+Qed.
+
+Lemma islunit_hnnq_plus_hnnq_0 :
+  islunit hnnq_plus hnnq_0.
+Proof.
+  exact islunit_hnnq_plus_def_hnnq_0_def.
+Qed.
+Lemma isrunit_hnnq_plus_hnnq_0 :
+  isrunit hnnq_plus hnnq_0.
+Proof.
+  exact isrunit_hnnq_plus_def_hnnq_0_def.
+Qed.
+
+Lemma iscomm_hnnq_plus : iscomm hnnq_plus.
+Proof.
+  exact iscomm_hnnq_plus_def.
+Qed.
+
+Close Scope hnnq_scope.
+
 Close Scope hq_scope.
 
-(** * Notations and remarks *)
+(** * Notations and opacify functions *)
 
 Notation hnnq := hnnq_abmonoid.
 
 Global Opaque hnnq_le hnnq_lt hnnq_ge hnnq_gt.
 Global Opaque hnnq_setwithbinop hnnq_abmonoid.
-
-Notation "0" := (unel hnnq_abmonoid) : hnnq_scope.
-Notation "x + y" := (@op hnnq_abmonoid x y) : hnnqscope.
-    
-
+Global Opaque hnnq_0 hnnq_plus.
 
 (* End of the file hnnq.v *)

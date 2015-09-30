@@ -17,14 +17,17 @@ Definition Dcuts_def_open (X : hnnq -> hProp) : hProp :=
 Definition Dcuts_def_bounded (X : hnnq -> hProp) : hProp :=
   hexists (fun ub : hnnq => neg (X ub)).
 
-Definition Dcuts : hsubtypes (hnnq -> hProp) :=
+Definition Dcuts_hsubtypes : hsubtypes (hnnq -> hProp) :=
   (fun X : hnnq -> hProp => hconj (Dcuts_def_bot X)
                            (hconj (Dcuts_def_open X)
                                   (Dcuts_def_bounded X))).
+Definition Dcuts := carrier Dcuts_hsubtypes.
+Definition pr1Dcuts (x : Dcuts) : hnnq -> hProp := pr1 x.
+Coercion pr1Dcuts : Dcuts >-> Funclass.
 
 Lemma is_Dcuts_bot (X : Dcuts) :
-  forall x : hnnq, pr1 X x ->
-    forall y : hnnq, y <= x -> pr1 X y.
+  forall x : hnnq, X x ->
+    forall y : hnnq, y <= x -> X y.
 Proof.
   destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
   intros r Xr y Hxy.
@@ -32,8 +35,8 @@ Proof.
   now apply Hbot with r.
 Qed.
 Lemma is_Dcuts_open (X : Dcuts) :
-  forall x : hnnq, pr1 X x ->
-    hexists (fun y : hnnq => dirprod (pr1 X y) (x < y)).
+  forall x : hnnq, X x ->
+    hexists (fun y : hnnq => dirprod (X y) (x < y)).
 Proof.
   destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
   intros r Xr.
@@ -41,7 +44,7 @@ Proof.
   now apply Hopen.
 Qed.
 Lemma is_Dcuts_bounded (X : Dcuts) :
-  hexists (fun ub : hnnq => neg (pr1 X ub)).
+  hexists (fun ub : hnnq => neg (X ub)).
 Proof.
   destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
   now apply Hbound.
@@ -54,6 +57,7 @@ Definition mk_Dcuts (X : hnnq -> hProp)
                      hexists (fun y : hnnq => dirprod (X y) (x < y)))
                    (Hbound : hexists (fun ub : hnnq => neg (X ub))) : Dcuts.
 Proof.
+  intros.
   exists X ; repeat split.
   intros P HP ; apply HP.
   exact Hbot.
@@ -64,7 +68,7 @@ Defined.
 
 Lemma Dcuts_bounded :
   forall X : Dcuts, forall r : hnnq,
-    neg (pr1 X r) -> forall n : hnnq, pr1 X n -> n < r.
+    neg (X r) -> forall n : hnnq, X n -> n < r.
 Proof.
   intros X r Hr n Hn.
   apply hnnq_nge_lt ; intro Hn'.
@@ -75,12 +79,10 @@ Proof.
 Qed.
 
 (** ** [Dcuts] is an ordered set *)
-(** *** Large order and equality *)
-
-(** [Dcuts_le] is a partial order on  *)
+(** *** [Dcuts_le] is a partial order on  *)
 
 Definition Dcuts_le : hrel Dcuts :=
-  fun (X Y : Dcuts) => ishinh (forall x : hnnq, pr1 X x -> pr1 Y x).
+  fun (X Y : Dcuts) => ishinh (forall x : hnnq, X x -> Y x).
 Lemma istrans_Dcuts_le : istrans Dcuts_le.
 Proof.
   intros x y z.
@@ -93,18 +95,17 @@ Proof.
   now intros x P HP ; apply HP ; clear P HP.
 Qed.
 
-Definition Dcuts_le_po : po Dcuts.
+Lemma ispo_Dcuts_le : ispo Dcuts_le.
 Proof.
-  exists  Dcuts_le.
   split.
   exact istrans_Dcuts_le.
   exact isrefl_Dcuts_le.
-Defined.
+Qed.
 
 (** [Dcuts_ge] is a partial order *)
 
 Definition Dcuts_ge : hrel Dcuts :=
-  fun (X Y : Dcuts) => Dcuts_le_po Y X.
+  fun (X Y : Dcuts) => Dcuts_le Y X.
 
 Lemma istrans_Dcuts_ge : istrans Dcuts_ge.
 Proof.
@@ -115,18 +116,18 @@ Lemma isrefl_Dcuts_ge : isrefl Dcuts_ge.
 Proof.
   now apply isrefl_Dcuts_le.
 Qed.
-Definition Dcuts_ge_po : po Dcuts.
+
+Lemma ispo_Dcuts_ge : ispo Dcuts_ge.
 Proof.
-  exists  Dcuts_ge.
   split.
   exact istrans_Dcuts_ge.
   exact isrefl_Dcuts_ge.
-Defined.
+Qed.
 
 (** [Dcuts_eq] is an equality *)
 
 Definition Dcuts_eq : hrel Dcuts :=
-  fun (X Y : Dcuts) => hconj (Dcuts_le_po X Y) (Dcuts_ge_po X Y).
+  fun (X Y : Dcuts) => hconj (Dcuts_le X Y) (Dcuts_ge X Y).
 
 Lemma istrans_Dcuts_eq : istrans Dcuts_eq.
 Proof.
@@ -142,10 +143,25 @@ Proof.
   now apply isrefl_Dcuts_le.
   now apply isrefl_Dcuts_ge.
 Qed.
+
+Lemma ispo_Dcuts_eq : ispo Dcuts_eq.
+Proof.
+  split.
+  exact istrans_Dcuts_eq.
+  exact isrefl_Dcuts_eq.
+Qed.
+
 Lemma issymm_Dcuts_eq : issymm Dcuts_eq.
 Proof.
   intros x y (Hxy,Hyx).
   now split.
+Qed.
+
+Lemma iseqrel_Dcuts_eq : iseqrel Dcuts_eq.
+Proof.
+  split.
+  exact ispo_Dcuts_eq.
+  exact issymm_Dcuts_eq.
 Qed.
 
 (** *** Strict order and appartness *)
@@ -154,7 +170,7 @@ Qed.
 
 Definition Dcuts_lt : hrel Dcuts :=
   fun (X Y : Dcuts) =>
-    hexists (fun x : hnnq => dirprod (neg (pr1 X x)) (pr1 Y x)).
+    hexists (fun x : hnnq => dirprod (neg (X x)) (Y x)).
 Lemma istrans_Dcuts_lt : istrans Dcuts_lt.
 Proof.
   intros x y z.
@@ -184,18 +200,17 @@ Definition carrierofstpo ( X : UU ) :  stpo X  -> ( X -> X -> hProp ) :=  @pr1 _
 Coercion carrierofstpo : stpo >-> Funclass.
 (* end *)
 
-Definition Dcuts_lt_stpo : stpo Dcuts.
+Lemma isstpo_Dcuts_lt : isstpo Dcuts_lt.
 Proof.
-  exists Dcuts_lt.
   split.
   exact istrans_Dcuts_lt.
   exact isirrefl_Dcuts_lt.
-Defined.
+Qed.
 
 (** [Dcuts_gt] is a strict partial order *)
 
 Definition Dcuts_gt : hrel Dcuts :=
-  fun (X Y : Dcuts) => Dcuts_lt_stpo Y X.
+  fun (X Y : Dcuts) => Dcuts_lt Y X.
 Lemma istrans_Dcuts_gt : istrans Dcuts_gt.
 Proof.
   intros x y z Hxy Hyz.
@@ -206,115 +221,201 @@ Proof.
   now apply isirrefl_Dcuts_lt.
 Qed.
 
-Definition Dcuts_gt_stpo : stpo Dcuts.
+Lemma isstpo_Dcuts_gt : isstpo Dcuts_gt.
 Proof.
-  exists Dcuts_gt.
   split.
   exact istrans_Dcuts_gt.
   exact isirrefl_Dcuts_gt.
-Defined.
+Qed.
 
 (** [Dcuts_ap] is an apartness relation *)
 (* todo : define apartness relation *)
 
 Definition Dcuts_ap (X Y : Dcuts) : hProp :=
-  hdisj (Dcuts_lt_stpo X Y) (Dcuts_gt_stpo X Y).
+  hdisj (Dcuts_lt X Y) (Dcuts_gt X Y).
+
+Lemma isirrefl_Dcuts_ap : isirrefl Dcuts_ap.
+Proof.
+  intros x. 
+  unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
+  intros [Hap|Hap].
+  now apply isirrefl_Dcuts_lt with (1 := Hap).
+  now apply isirrefl_Dcuts_lt with (1 := Hap).
+Qed.
 
 (** *** Various basic theorems about order, equality and apartness *)
 
-Lemma Dcuts_lt_le :
-  forall X Y : Dcuts, Dcuts_lt_stpo X Y -> Dcuts_le_po X Y.
+Delimit Scope Dcuts_scope with Dcuts.
+
+(** Notations *)
+
+Notation "x <= y" := (Dcuts_le x y) : Dcuts_scope.
+Notation "x >= y" := (Dcuts_ge x y) : Dcuts_scope.
+Notation "x < y" := (Dcuts_lt x y) : Dcuts_scope.
+Notation "x > y" := (Dcuts_gt x y) : Dcuts_scope.
+
+Open Scope Dcuts.
+
+(** Compatibility between order predicates *)
+
+Lemma Dcuts_ge_le :
+  forall x y : Dcuts, x >= y -> y <= x.
 Proof.
-  intros X Y ; apply hinhfun ; intros (r,(Xr,Yr)).
+  easy.
+Qed.
+Lemma Dcuts_le_ge :
+  forall x y : Dcuts, x <= y -> y >= x.
+Proof.
+  easy.
+Qed.
+Lemma Dcuts_eq_le :
+  forall x y : Dcuts, Dcuts_eq x y -> x <= y.
+Proof.
+  now intros x y (le_xy,ge_xy).
+Qed.
+Lemma Dcuts_eq_ge :
+  forall x y : Dcuts, Dcuts_eq x y -> x >= y.
+Proof.
+  now intros x y (le_xy,ge_xy).
+Qed.
+Lemma Dcuts_le_ge_eq :
+  forall x y : Dcuts, x <= y -> x >= y -> Dcuts_eq x y.
+Proof.
+  intros x y le_xy ge_xy.
+  now split.
+Qed.
+
+Lemma Dcuts_gt_lt :
+  forall x y : Dcuts, x > y -> y < x.
+Proof.
+  easy.
+Qed.
+Lemma Dcuts_lt_gt :
+  forall x y : Dcuts, x < y -> y > x.
+Proof.
+  easy.
+Qed.
+
+Lemma Dcuts_lt_le :
+  forall x y : Dcuts, x < y -> x <= y.
+Proof.
+  intros x y ; apply hinhfun ; intros (r,(Xr,Yr)).
   intros n Xn.
   apply is_Dcuts_bot with r.
   exact Yr.
   apply hnnq_lt_le.
-  now apply Dcuts_bounded with X.
+  now apply Dcuts_bounded with x.
+Qed.
+Lemma Dcuts_gt_ge :
+  forall x y : Dcuts, x > y -> x >= y.
+Proof.
+  intros x y.
+  now apply Dcuts_lt_le.
 Qed.
 
-(* Lemma Dcuts_le_ngt :
-  forall X Y, Dcuts_le X Y -> neg (Dcuts_gt X Y).
+Lemma Dcuts_le_ngt :
+  forall x y : Dcuts, x <= y -> neg (x > y).
 Proof.
-  intros X Y Hxy (r,(Yr,Xr)).
+  unfold neg.
+  intros x y ;
+    apply (hinhuniv2 (P := hProppair _ isapropempty)) ;
+      intros Hxy (r,(Yr,Xr)).
   now apply Yr, Hxy.
 Qed.
 Lemma Dcuts_gt_nle :
-  forall X Y, Dcuts_gt X Y -> neg (Dcuts_le X Y).
+  forall x y : Dcuts, x > y -> neg (x <= y).
 Proof.
-  intros X Y (r,(Yr,Xr)) Hyx.
-  now apply Yr, Hyx.
+  intros x y Hlt Hle.
+  revert Hlt.
+  now apply Dcuts_le_ngt.
 Qed.
-
 Lemma Dcuts_ge_nlt :
-  forall X Y, Dcuts_ge X Y -> neg (Dcuts_lt X Y).
+  forall x y : Dcuts, x >= y -> neg (x < y).
 Proof.
   intros X Y.
   now apply Dcuts_le_ngt.
 Qed.
 Lemma Dcuts_lt_nge :
-  forall X Y, Dcuts_lt X Y -> neg (Dcuts_ge X Y).
+  forall x y : Dcuts, x < y -> neg (x >= y).
 Proof.
-  intros X Y (r,(Yr,Xr)) Hyx.
-  now apply Yr, Hyx.
+  intros x y.
+  now apply Dcuts_gt_nle.
 Qed.
 
 Lemma Dcuts_eq_nap :
-  forall X Y, Dcuts_eq X Y -> neg (Dcuts_ap X Y).
+  forall x y : Dcuts, Dcuts_eq x y -> neg (Dcuts_ap x y).
 Proof.
-  intros X Y [Hxy Hyx] Hap.
-  destruct Hap as [Hap|Hap].
+  intros X Y [Hxy Hyx].
+  unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
+  intros [Hap|Hap].
   now apply Dcuts_ge_nlt in Hyx.
   now apply Dcuts_le_ngt in Hxy.
 Qed.
-Lemma Dcuts_nap_eq :
-  forall X Y, neg (Dcuts_ap X Y) -> Dcuts_eq X Y.
+
+(** Mixed transitivity *)
+
+Lemma istrans_Dcuts_le_lt :
+  forall x y z : Dcuts,
+    x <= y -> y < z -> x < z.
 Proof.
-  intros X Y Hap ; split ; intros r Hr.
-  
+  intros x y z. 
+  apply hinhfun2.
+  intros Hxy (r,(Yr,Zr)).
+  exists r ; split.
+  intro Xr ; apply Yr.
+  now apply Hxy.
+  exact Zr.
+Qed.
+Lemma istrans_Dcuts_lt_le :
+  forall x y z : Dcuts,
+    x < y -> y <= z -> x < z.
+Proof.
+  intros x y z. 
+  apply hinhfun2.
+  intros (r,(Xr,Yr)) Hyz.
+  exists r ; split.
+  exact Xr.
+  now apply Hyz.
 Qed.
 
-(** *** Strict order and appartness *)
-(** irreflexive *)
+(** [iscomprelrel] *)
 
-Lemma Dcuts_lt_irrefl :
-  forall X, neg (Dcuts_lt X X).
+Lemma Dcuts_le_comp : iscomprelrel Dcuts_eq Dcuts_le.
 Proof.
-  intros X (x,(Hnx,Hx)).
-  now apply Hnx, Hx.
+  apply iscomprelrelif.
+  now apply issymm_Dcuts_eq.
+  intros x x' y (Hx,Hx') Hxy.
+  now eapply istrans_Dcuts_le, Hxy.
+  intros x y y' (Hy,Hy') Hxy.
+  now eapply istrans_Dcuts_le, Dcuts_ge_le, Hy.
 Qed.
-Lemma Dcuts_gt_irrefl :
-  forall X, neg (Dcuts_gt X X).
+Lemma Dcuts_ge_comp : iscomprelrel Dcuts_eq Dcuts_ge.
 Proof.
-  now apply Dcuts_lt_irrefl.
+  apply iscomprelrelif.
+  now apply issymm_Dcuts_eq.
+  intros x x' y (Hx,Hx') Hxy.
+  now eapply istrans_Dcuts_ge, Hxy.
+  intros x y y' (Hy,Hy') Hxy.
+  now eapply istrans_Dcuts_ge, Hy'.
 Qed.
-Lemma Dcuts_ap_irrefl :
-  forall X, neg (Dcuts_ap X X).
+Lemma Dcuts_lt_comp : iscomprelrel Dcuts_eq Dcuts_lt.
 Proof.
-  intros X [H|H].
-  now apply Dcuts_lt_irrefl with (1 := H).
-  now apply Dcuts_lt_irrefl with (1 := H).
+  apply iscomprelrelif.
+  now apply issymm_Dcuts_eq.
+  intros x x' y (Hx,Hx') Hxy.
+  now eapply istrans_Dcuts_le_lt, Hxy.
+  intros x y y' (Hy,Hy') Hxy.
+  now eapply istrans_Dcuts_lt_le, Dcuts_ge_le, Hy.
 Qed.
-
-(** cotransitivity *)
-
-Lemma  Dcuts_lt_cotrans :
-  forall X Y, Dcuts_lt X Y ->
-    forall Z, coprod (Dcuts_lt X Z) (Dcuts_lt Z Y).
+Lemma Dcuts_gt_comp : iscomprelrel Dcuts_eq Dcuts_gt.
 Proof.
-  intros X Y (r,(Xr,Yr)) Z.
-
-Search bool.
+  apply iscomprelrelif.
+  now apply issymm_Dcuts_eq.
+  intros x x' y (Hx,Hx') Hxy.
+  now eapply istrans_Dcuts_lt_le, Hx.
+  intros x y y' (Hy,Hy') Hxy.
+  now eapply istrans_Dcuts_le_lt, Hxy.
 Qed.
-
-Lemma Dcuts_ap_cotrans :
-  forall X Y,
-    Dcuts_ap X Y -> forall Z, coprod (Dcuts_ap X Z) (Dcuts_ap Z Y).
-Lemma Dcuts_ap_cotrans :
-  forall X Y,
-    Dcuts_ap X Y -> forall Z, coprod (Dcuts_ap X Z) (Dcuts_ap Z Y).
-
-(** *** Large order and equivalence *) *)
 
 (** ** Least Upper Bound *)
 
@@ -335,20 +436,20 @@ Definition iscompleterel {X : UU} (le : hrel X) :=
          hexists (fun M : X => forall x : X, E x -> le x M) -> hexists E -> lub le E.
 Definition completerel (X : UU) :=
   total2 (fun le : hrel X => iscompleterel le).
-Definition id_completerel {X : UU} : completerel X -> hrel X := pr1.
-Coercion id_completerel : completerel >-> hrel.
+Definition pr1completerel {X : UU} : completerel X -> hrel X := pr1.
+Coercion pr1completerel : completerel >-> hrel.
 (* end *)
 
 Section Dcuts_lub.
 
 Context (E : Dcuts -> hProp).
-Context (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le_po x M)).
+Context (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> x <= M)).
 
 Definition Dcuts_lub_val : hnnq -> hProp :=
-  fun r : hnnq => hexists (fun X : Dcuts => dirprod (E X) (pr1 X r)).
+  fun r : hnnq => hexists (fun X : Dcuts => dirprod (E X) (X r)).
 Lemma Dcuts_lub_bot : 
   forall (x : hnnq),
-    Dcuts_lub_val x -> forall y : hnnq, y <= x -> Dcuts_lub_val y.
+    Dcuts_lub_val x -> forall y : hnnq, (y <= x)%hnnq -> Dcuts_lub_val y.
 Proof.
   intros r Xr n Xn.
   revert Xr ; apply hinhfun ; intros (X,(Ex,Xr)).
@@ -359,7 +460,7 @@ Qed.
 Lemma Dcuts_lub_open :
   forall (x : hnnq),
     Dcuts_lub_val x ->
-    hexists (fun y : hnnq => dirprod (Dcuts_lub_val y) (x < y)).
+    hexists (fun y : hnnq => dirprod (Dcuts_lub_val y) (x < y)%hnnq).
 Proof.
   intros r.
   apply hinhuniv ; intros (X,(Ex,Xr)).
@@ -394,13 +495,14 @@ Qed.
 End Dcuts_lub.
 
 Definition Dcuts_lub (E : Dcuts -> hProp)
-                     (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le_po x M)) : Dcuts :=
+                     (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> x <= M)) : Dcuts :=
   mk_Dcuts (Dcuts_lub_val E) (Dcuts_lub_bot E) (Dcuts_lub_open E) (Dcuts_lub_bounded E E_bounded).
 
 Lemma isub_Dcuts_lub (E : Dcuts -> hProp)
-      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le_po x M)) :
-  isub Dcuts_le_po E (Dcuts_lub E E_bounded).
+      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> x <= M)) :
+  isub Dcuts_le E (Dcuts_lub E E_bounded).
 Proof.
+  intros ;
   intros x Ex.
   intros P HP ; apply HP ; clear P HP.
   intros r Hr.
@@ -408,9 +510,10 @@ Proof.
   now exists x.
 Qed.
 Lemma islbub_Dcuts_lub (E : Dcuts -> hProp)
-      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le_po x M)) :
+      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> x <= M)) :
   islbub Dcuts_le E (Dcuts_lub E E_bounded).
 Proof.
+  intros.
   intros x Hx.  
   intros P HP ; apply HP ; clear P HP.
   intros r ; simpl.
@@ -420,7 +523,7 @@ Proof.
   now intros H ; apply H.
 Qed.
 Lemma islub_Dcuts_lub (E : Dcuts -> hProp)
-      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le_po x M)) :
+      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le x M)) :
   islub Dcuts_le E (Dcuts_lub E E_bounded).
 Proof.
   split.
@@ -430,74 +533,9 @@ Qed.
 
 (** * Notations and theorems *)
 
-Delimit Scope Dcuts_scope with Dcuts.
-
-(** [Dcuts] is an ordered set *)
-
-Notation "x <= y" := (Dcuts_le x y) : Dcuts_scope.
-Notation "x >= y" := (Dcuts_ge x y) : Dcuts_scope.
-Notation "x < y" := (Dcuts_lt x y) : Dcuts_scope.
-Notation "x > y" := (Dcuts_gt x y) : Dcuts_scope.
-
-Close Scope hnnq.
-Open Scope Dcuts.
-
-Lemma Dcuts_ge_le :
-  forall x y : Dcuts, x >= y -> y <= x.
-Proof.
-  easy.
-Qed.
-Lemma Dcuts_le_ge :
-  forall x y : Dcuts, Dcuts_le x y -> Dcuts_ge y x.
-Proof.
-  easy.
-Qed.
-
-Lemma istrans_Dcuts_le_lt :
-  forall x y z : Dcuts,
-    Dcuts_le x y -> Dcuts_lt y z -> Dcuts_lt x z.
-Proof.
-Admitted.
-Lemma istrans_Dcuts_lt_le :
-  forall x y z : Dcuts,
-    Dcuts_lt x y -> Dcuts_le y z -> Dcuts_lt x z.
-Proof.
-Admitted.
-
-(** [iscomprelrel] *)
-
-Lemma Dcuts_le_comp : iscomprelrel Dcuts_eq Dcuts_le.
-Proof.
-  apply iscomprelrelif.
-  now apply issymm_Dcuts_eq.
-  intros x x' y (Hx,Hx') Hxy.
-  now eapply istrans_Dcuts_le, Hxy.
-  intros x y y' (Hy,Hy') Hxy.
-  now eapply istrans_Dcuts_le, Dcuts_ge_le, Hy.
-Qed.
-Lemma Dcuts_ge_comp : iscomprelrel Dcuts_eq Dcuts_ge.
-Proof.
-  apply iscomprelrelif.
-  now apply issymm_Dcuts_eq.
-  intros x x' y (Hx,Hx') Hxy.
-  now eapply istrans_Dcuts_ge, Hxy.
-  intros x y y' (Hy,Hy') Hxy.
-  now eapply istrans_Dcuts_ge, Hy'.
-Qed.
-Lemma Dcuts_lt_comp : iscomprelrel Dcuts_eq Dcuts_lt.
-Proof.
-  apply iscomprelrelif.
-  now apply issymm_Dcuts_eq.
-  intros x x' y (Hx,Hx') Hxy.
-  now eapply istrans_Dcuts_le_lt, Hxy.
-  intros x y y' (Hy,Hy') Hxy.
-  now eapply istrans_Dcuts_lt_le, Dcuts_ge_le, Hy.
-Qed.
-
-(** Opaque functions and relations *)
-
 Global Opaque Dcuts_eq Dcuts_le Dcuts_ge.
 Global Opaque Dcuts_ap Dcuts_lt Dcuts_gt.
+Global Opaque Dcuts_lub.
 
 (* End of the file Dcuts.v *)
 
