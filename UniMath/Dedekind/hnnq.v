@@ -6,6 +6,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 Unset Kernel Term Sharing.
 
 Require Export UniMath.Foundations.RationalNumbers.
+Require Import UniMath.Dedekind.Complements.
 
 Opaque hq.
 
@@ -85,17 +86,6 @@ Qed.
 Close Scope hnnq_scope.
 
 (** ** [hnnq] is an abelian monoid *)
-
-(* move *)
-Lemma hq0lehandplus:
-  forall n m : hq,
-    hqleh 0 n -> hqleh 0 m -> hqleh 0 (n + m).
-Proof.
-  intros n m Hn Hm.
-  eapply istranshqleh, hqlehandplusl, Hm.
-  now rewrite hqplusr0.
-Qed.
-(* end *)
 
 Definition hnnq_plus_def (x y : hnnq_set) : hnnq_set :=
   hq_to_hnnq_def ((pr1 x) + (pr1 y)) (hq0lehandplus (pr1 x) (pr1 y) (pr2 x) (pr2 y)).

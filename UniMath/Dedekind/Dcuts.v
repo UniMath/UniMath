@@ -2,6 +2,7 @@
 (** Catherine Lelay. Sep. 2015 *)
 
 Require Import UniMath.Dedekind.hnnq.
+Require Import UniMath.Dedekind.Complements.
 
 Local Open Scope hnnq_scope.
 
@@ -192,15 +193,7 @@ Proof.
   now apply nXr.
 Qed.
 
-(* to move in Sets.v *)
-Definition isstpo {X : UU} (R : hrel X) := dirprod ( istrans R ) ( isirrefl R ).
-Definition stpo (X : UU) := total2 (fun R : hrel X => isstpo R ).
-Definition stpopair { X : UU } ( R : hrel X ) ( is : isstpo R ) : stpo X := tpair ( fun R : hrel X => isstpo R ) R is .
-Definition carrierofstpo ( X : UU ) :  stpo X  -> ( X -> X -> hProp ) :=  @pr1 _ ( fun R : hrel X => isstpo R ) .
-Coercion carrierofstpo : stpo >-> Funclass.
-(* end *)
-
-Lemma isstpo_Dcuts_lt : isstpo Dcuts_lt.
+Lemma isstpo_Dcuts_lt : isStrictPartialOrder Dcuts_lt.
 Proof.
   split.
   exact istrans_Dcuts_lt.
@@ -221,7 +214,7 @@ Proof.
   now apply isirrefl_Dcuts_lt.
 Qed.
 
-Lemma isstpo_Dcuts_gt : isstpo Dcuts_gt.
+Lemma isstpo_Dcuts_gt : isStrictPartialOrder Dcuts_gt.
 Proof.
   split.
   exact istrans_Dcuts_gt.
@@ -419,31 +412,10 @@ Qed.
 
 (** ** Least Upper Bound *)
 
-(* to move to Sets.v *)
-
-Definition isub {X : UU} (le : hrel X) (E : X -> hProp) (ub : X) :=
-  forall x : X, E x -> le x ub.
-Definition islbub {X : UU} (le : hrel X) (E : X -> hProp) (lub : X) :=
-  forall ub : X, isub le E ub -> le lub ub.
-Definition islub {X : UU} (le : hrel X) (E : X -> hProp) (lub : X) :=
-  dirprod (isub le E lub) (islbub le E lub).
-          
-Definition lub {X : UU} (le : hrel X) (E : X -> hProp) :=
-  total2 (islub le E).
-
-Definition iscompleterel {X : UU} (le : hrel X) :=
-  forall E : X -> hProp,
-         hexists (fun M : X => forall x : X, E x -> le x M) -> hexists E -> lub le E.
-Definition completerel (X : UU) :=
-  total2 (fun le : hrel X => iscompleterel le).
-Definition pr1completerel {X : UU} : completerel X -> hrel X := pr1.
-Coercion pr1completerel : completerel >-> hrel.
-(* end *)
-
 Section Dcuts_lub.
 
 Context (E : Dcuts -> hProp).
-Context (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> x <= M)).
+Context (E_bounded : hexists (isub Dcuts_le E)).
 
 Definition Dcuts_lub_val : hnnq -> hProp :=
   fun r : hnnq => hexists (fun X : Dcuts => dirprod (E X) (X r)).
@@ -494,12 +466,11 @@ Qed.
 
 End Dcuts_lub.
 
-Definition Dcuts_lub (E : Dcuts -> hProp)
-                     (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> x <= M)) : Dcuts :=
+Definition Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isub Dcuts_le E)) : Dcuts :=
   mk_Dcuts (Dcuts_lub_val E) (Dcuts_lub_bot E) (Dcuts_lub_open E) (Dcuts_lub_bounded E E_bounded).
 
 Lemma isub_Dcuts_lub (E : Dcuts -> hProp)
-      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> x <= M)) :
+                     (E_bounded : hexists (isub Dcuts_le E)) :
   isub Dcuts_le E (Dcuts_lub E E_bounded).
 Proof.
   intros ;
@@ -509,8 +480,7 @@ Proof.
   intros P HP ; apply HP ; clear P HP.
   now exists x.
 Qed.
-Lemma islbub_Dcuts_lub (E : Dcuts -> hProp)
-      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> x <= M)) :
+Lemma islbub_Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isub Dcuts_le E)) :
   islbub Dcuts_le E (Dcuts_lub E E_bounded).
 Proof.
   intros.
@@ -522,8 +492,7 @@ Proof.
   apply (Hx y Ey).
   now intros H ; apply H.
 Qed.
-Lemma islub_Dcuts_lub (E : Dcuts -> hProp)
-      (E_bounded : hexists (fun M : Dcuts => forall x : Dcuts, E x -> Dcuts_le x M)) :
+Lemma islub_Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isub Dcuts_le E)) :
   islub Dcuts_le E (Dcuts_lub E E_bounded).
 Proof.
   split.
