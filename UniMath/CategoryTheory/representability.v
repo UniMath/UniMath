@@ -26,19 +26,19 @@ Variable (C : precategory).
 Variable (hsC : has_homsets C).
 
 (* The covariant functor Hom(a,_) *)
-Section cov_hom.
+Section maps_from.
 
 Variable a : C.
 
-Definition cov_hom_ob (x : C) : hSet := hSetpair C⟦a,x⟧ (hsC a x).
+Definition maps_from_ob (x : C) : hSet := hSetpair C⟦a,x⟧ (hsC a x).
 
-Definition cov_hom_mor (x y : C) (f : C⟦x,y⟧) :
-  cov_hom_ob x -> cov_hom_ob y := fun g => g ;; f.
+Definition maps_from_mor (x y : C) (f : C⟦x,y⟧) :
+  maps_from_ob x -> maps_from_ob y := fun g => g ;; f.
 
-Definition cov_hom_functor_data : functor_data C HSET :=
-  tpair _ _ cov_hom_mor.
+Definition maps_from_functor_data : functor_data C HSET :=
+  tpair _ _ maps_from_mor.
 
-Lemma is_functor_cov_hom : is_functor cov_hom_functor_data.
+Lemma is_functor_maps_from : is_functor maps_from_functor_data.
 Proof.
 split.
   intro f.
@@ -49,25 +49,25 @@ apply funextsec; intro h; simpl.
 now apply assoc.
 Qed.
 
-Definition cov_hom (c : C) : functor C HSET :=
-  tpair _ _ is_functor_cov_hom.
+Definition maps_from (c : C) : functor C HSET :=
+  tpair _ _ is_functor_maps_from.
 
-End cov_hom.
+End maps_from.
 
 (* The contravariant functor Hom(_,b) : C -> Set *)
-Section cont_hom.
+Section maps_to.
 
 Variable b : C.
 
-Definition cont_hom_ob (x : C) : hSet := hSetpair C⟦x,b⟧ (hsC x b).
+Definition maps_to_ob (x : C) : hSet := hSetpair C⟦x,b⟧ (hsC x b).
 
-Definition cont_hom_mor (x y : C) (h : C⟦x,y⟧) :
-  cont_hom_ob y -> cont_hom_ob x := fun g => h ;; g.
+Definition maps_to_mor (x y : C) (h : C⟦x,y⟧) :
+  maps_to_ob y -> maps_to_ob x := fun g => h ;; g.
 
 (* Stuck here because only covariant functors in library... Maybe
 define this functor as covariant functor on C^op? *)
 
-End cont_hom.
+End maps_to.
 End hom_functors.
 
 
