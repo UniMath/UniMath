@@ -13,8 +13,6 @@ Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 
 Section extras.
 
-Lemma has_homsets_HSET : has_homsets HSET.
-Proof. intros a b; apply isaset_set_fun_space. Qed.
 
 End extras.
 

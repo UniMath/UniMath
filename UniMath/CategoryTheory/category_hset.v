@@ -1,9 +1,10 @@
 (** **********************************************************
 
-Benedikt Ahrens, Chris Kapulkin, Mike Shulman
+Started by: Benedikt Ahrens, Chris Kapulkin, Mike Shulman
 
 january 2013
 
+Extended by: Anders Mörtberg
 
 ************************************************************)
 
@@ -19,20 +20,20 @@ Contents :
            
 ************************************************************)
 
-
-
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.FunctionalExtensionality. 
 
 Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.HLevel_n_is_of_hlevel_Sn.
 
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
+Local Notation "a --> b" :=
+  (precategory_morphisms a b) (at level 50, left associativity).
 
-
-
+Local Notation "# F" := (functor_on_morphisms F) (at level 3).
+Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 
 (** * Precategory of hSets *)
 
@@ -64,6 +65,9 @@ Definition hset_precategory : precategory :=
   tpair _ _ is_precategory_hset_precategory_data.
 
 Notation HSET := hset_precategory.
+
+Lemma has_homsets_HSET : has_homsets HSET.
+Proof. intros a b; apply isaset_set_fun_space. Qed.
 
 (* 
   Canonical Structure hset_precategory. :-)
@@ -204,7 +208,7 @@ Lemma is_category_HSET : is_category HSET.
 Proof.
   split.
   - apply is_weq_precat_paths_to_iso_hset.
-  - intros ? ? . apply isaset_set_fun_space.
+  - apply has_homsets_HSET.
 Defined.
 
 
@@ -212,14 +216,105 @@ Defined.
 
 
 
+(***** NEW STUFF *)
+
+Section rel_extras.
+
+Variable A : UU.
+Variable R0 : hrel A.
+(* Variable P : UU -> hProp. *)
+
+Definition isaprop_hProp (X : hProp) : isaprop X.
+Proof. exact (pr2 X). Qed.
+
+Lemma isaprop_eqrel_from_hrel a b :
+  isaprop (∀ R : eqrel A, (∀ x y, R0 x y -> R x y) -> R a b).
+Proof.
+repeat (apply impred; intro).
+now apply isaprop_hProp.
+Qed.
+
+Definition eqrel_from_hrel : hrel A :=
+  fun a b => hProppair _ (isaprop_eqrel_from_hrel a b).
+
+Lemma iseqrel_eqrel_from_hrel : iseqrel eqrel_from_hrel.
+Proof.
+repeat split.
+- intros x y z; simpl.
+  unfold eqrel_from_hrel; intros H1 H2 R HR.
+  apply (eqreltrans R _ y); [ now apply H1 | now apply H2].
+- intros x R _; apply (eqrelrefl R).
+- intros x y H R H'.
+  apply (eqrelsymm R).
+  now apply H.
+Qed.
+
+Lemma eqrel_impl a b : R0 a b -> eqrel_from_hrel a b.
+Proof. intros H R HR; now apply HR. Qed.
+
+End rel_extras.
+
+Section colimits.
+
+Variable (J : precategory).
+Variable (F : functor J HSET).
+
+(* TODO: Define using Σ = Sigma *)
+(* Definition test x := total2 (x). *)
+
+(* TODO: Define notation for pr1hSet? Or can we trigger computation so that
+   coercion "ob  HSET = hSet :> UU" can be applied? *)
+Definition cobase : UU := total2 (fun j => pr1hSet (F j)).
+
+(* hprop stuff is in UniMath.Foundations.Propositions *)
+Definition relation : cobase -> cobase -> hProp :=
+  fun ja j'a' => hProppair (ishinh (total2 (fun f : pr1 ja --> pr1 j'a' => # F f (pr2 ja) = pr2 j'a'))) (isapropishinh _).
+
+(* Defined in UniMath.Foundations.Sets *)
+Definition colimit := setquot relation.
+
+(* 
+
+  (X,~) ----------
+    |             \
+    |setquotpr     \
+    V               \
+   X/~ -----------> (Y,=)
+
+*)
+
+Lemma eqrel_relation : iseqrel relation.
+Proof.
+repeat split.
+intros x y z H1 H2.
+apply (H1 (relation x z)); clear H1; intro H1.
+apply (H2 (relation x z)); clear H2; intro H2.
+apply hinhpr.
+case H1; clear H1; intros f Hf.
+case H2; clear H2; intros g Hg.
+exists (f ;; g).
+rewrite <- Hg, <- Hf.
+rewrite functor_comp.
+apply idpath.
+
+intros x.
+apply hinhpr.
+exists (identity (pr1 x)).
+rewrite functor_id.
+apply idpath.
+
+intros x y H.
+apply (H (relation y x)); clear H; intro H.
+case H; clear H; intros f Hf.
+apply hinhpr.
 
 
 
+Definition projection (j : J) : pr1hSet (F j) -> colimit.
+intros fj.
+unfold colimit..
+eapply setquotpr.
 
+simpl.
 
-
-
-
-
-
-
+End colimits. 
