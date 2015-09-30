@@ -83,7 +83,7 @@ build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
 	mv .coq_makefile_output $@
 
 # "clean::" occurs also in build/CoqMakefile.make
-clean:: clean2 clean-enhanced
+clean:: clean2 clean-enhanced clean-latex
 distclean:clean cleanconfig distclean_coq
 clean2:
 	rm -f .coq_makefile_output build/CoqMakefile.make
@@ -94,6 +94,8 @@ cleanconfig:
 	rm -f build/Makefile-configuration
 clean-enhanced:
 	rm -rf $(ENHANCEDDOCTARGET)
+clean-latex:
+	rm -rf $(LATEXTARGET)
 
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
@@ -133,7 +135,7 @@ latex: Makefile $(GLOBFILES) $(VFILES)
 	$(COQDOC) -toc $(COQDOCFLAGS) -latex $(COQDOCLATEXOPTIONS) $(COQDOCLIBS) -utf8 -d $(LATEXTARGET) $(VFILES)
 pdf: latex
 	cd $(LATEXTARGET) ;\
-	latexmk -pdf *.tex
+	latexmk -pdf $(subst /,.,$(VFILES:.v=.tex))
 
 #################################
 # targets best used with INCLUDE=no
