@@ -4,10 +4,21 @@
 
 Require Export UniMath.Foundations.Sets.
 
+(** *** Partiel Order *)
+
+Definition isPartialOrder {X : UU} := ispo (X := X).
+Definition PartialOrder := po.
+Definition pairPartialOrder {X : UU} (R : hrel X) (is : isPartialOrder R) : PartialOrder X :=
+  popair R is.
+Definition pr1PartialOrder {X : UU} (R : PartialOrder X) : hrel X := carrierofpo X R.
+Coercion  pr1PartialOrder : PartialOrder >-> hrel.
+
 (** *** Strict Partial Order *)
 
 Definition isStrictPartialOrder {X : UU} (R : hrel X) := dirprod ( istrans R ) ( isirrefl R ).
 Definition StrictPartialOrder (X : UU) := total2 (fun R : hrel X => isStrictPartialOrder R ).
+Definition pairStrictPartialOrder {X : UU} (R : hrel X) (is : isStrictPartialOrder R) : StrictPartialOrder X :=
+  tpair (fun R : hrel X => isStrictPartialOrder R ) R is.
 Definition pr1StrictPartialOrder {X : UU} : StrictPartialOrder X -> hrel X := pr1.
 Coercion  pr1StrictPartialOrder : StrictPartialOrder >-> hrel.
 
@@ -22,24 +33,28 @@ Defined.
 
 (** *** Complete Ordered Space *)
 
-Definition isub {X : UU} (le : hrel X) (E : X -> hProp) (ub : X) :=
+Definition isUpperBound {X : UU} (le : PartialOrder X) (E : X -> hProp) (ub : X) :=
   forall x : X, E x -> le x ub.
-Definition islbub {X : UU} (le : hrel X) (E : X -> hProp) (lub : X) :=
-  forall ub : X, isub le E ub -> le lub ub.
-Definition islub {X : UU} (le : hrel X) (E : X -> hProp) (lub : X) :=
-  dirprod (isub le E lub) (islbub le E lub).
+Definition isSmallerThanUpperBounds {X : UU} (le : PartialOrder X) (E : X -> hProp) (lub : X) :=
+  forall ub : X, isUpperBound le E ub -> le lub ub.
 
-Definition lub {X : UU} (le : hrel X) (E : X -> hProp) :=
-  total2 (islub le E).
+Definition isLeastUpperBound {X : UU} (le : PartialOrder X) (E : X -> hProp) (lub : X) :=
+  dirprod (isUpperBound le E lub) (isSmallerThanUpperBounds le E lub).
+Definition LeastUpperBound {X : UU} (le : PartialOrder X) (E : X -> hProp) :=
+  total2 (isLeastUpperBound le E).
+Definition pairLeastUpperBound {X : UU} (le : PartialOrder X) (E : X -> hProp) (lub : X)
+           (is : isLeastUpperBound le E lub) : LeastUpperBound le E :=
+  tpair (isLeastUpperBound le E) lub is.
+Definition pr1LeastUpperBound {X : UU} {le : PartialOrder X} {E : X -> hProp} :
+  LeastUpperBound le E -> X := pr1.
 
-Definition iscompleterel {X : UU} (le : hrel X) :=
+Definition isCompletePartialOrder {X : UU} (le : PartialOrder X) :=
   forall E : X -> hProp,
-    hexists (isub le E) ->
-    hexists E -> lub le E.
-Definition completerel (X : UU) :=
-  total2 (fun le : hrel X => iscompleterel le).
-Definition pr1completerel {X : UU} : completerel X -> hrel X := pr1.
-Coercion pr1completerel : completerel >-> hrel.
+    hexists (isUpperBound le E) -> hexists E -> LeastUpperBound le E.
+Definition CompletePartialOrder (X : UU) :=
+  total2 (fun le : PartialOrder X => isCompletePartialOrder le).
+Definition pr1CompletePartialOrder {X : UU} : CompletePartialOrder X -> PartialOrder X := pr1.
+Coercion pr1CompletePartialOrder : CompletePartialOrder >-> PartialOrder.
 
 (** ** for RationalNumbers.v *)
 
