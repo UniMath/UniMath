@@ -11,7 +11,51 @@ Require Import UniMath.Dedekind.Dcuts.
 (** Definition *)
 
 Definition hnnr_set : hSet := setquotinset Dcuts_eq.
+Definition Dcuts_to_hnnr_set : Dcuts -> hnnr_set :=
+  setquotpr (eqrelpair _ iseqrel_Dcuts_eq).
 
+Lemma hnnr_set_to_Dcuts_aux :
+  forall E : hnnr_set, hexists (isub Dcuts_le (pr1 E)).
+Proof.
+  destruct E as [E (x,(H,H0))] ; simpl.
+  revert x.
+  apply hinhfun.
+  intros (x,Ex).
+  exists x.
+  intros y Hy.
+  apply Dcuts_eq_le.
+  now apply H0.
+Qed.
+Definition hnnr_set_to_Dcuts : hnnr_set -> Dcuts.
+Proof.
+  intros E.
+  apply (Dcuts_lub (pr1 E)).
+  now apply hnnr_set_to_Dcuts_aux.
+Defined.
+Coercion hnnr_set_to_Dcuts : pr1hSet >-> Dcuts.
+
+Lemma hnnr_set_to_Dcuts_surj :
+  forall x y : hnnr_set,
+    Dcuts_eq (hnnr_set_to_Dcuts x) (hnnr_set_to_Dcuts y) -> x = y.
+Proof.
+Admitted.
+
+Lemma hnnr_set_to_Dcuts_bij :
+  forall x : Dcuts, Dcuts_eq (hnnr_set_to_Dcuts (Dcuts_to_hnnr_set x)) x.
+Proof.
+  intros x.
+  split.
+  - apply islbub_Dcuts_lub.
+    intros y Hy.
+    now apply Dcuts_eq_ge.
+  - apply isub_Dcuts_lub.
+    now apply isrefl_Dcuts_eq.
+Qed.
+Lemma Dcuts_to_hnnr_set_bij :
+  forall x : hnnr_set, (Dcuts_to_hnnr_set (hnnr_set_to_Dcuts x)) = x.
+Proof.
+Admitted.
+  
 (** Order *)
 
 Definition hnnr_le_rel : hrel hnnr_set := quotrel Dcuts_le_comp.
@@ -24,21 +68,29 @@ Definition hnnr_gt_rel : hrel hnnr_set := quotrel Dcuts_gt_comp.
 Definition hnnr_lub (E : hnnr_set -> hProp)
   (E_bounded : hexists (isub hnnr_le_rel E)) : hnnr_set.
 Proof.
-  set (F := fun x : Dcuts => hexists (fun X : hnnr_set => dirprod (E X) (pr1 X x))).
+  set (F := fun x : Dcuts => E (Dcuts_to_hnnr_set x)).
   assert (F_bounded : hexists (isub Dcuts_le F)).
-    apply E_bounded ; intros ((UB,(ub,(Hub1,Hub2))),HUB).
-    revert ub HUB. ; apply hinhfun2 ; intros (ub,Hub).
-
+  { revert E_bounded.
+    apply hinhfun.
+    intros (ub,Hub).
+    exists (hnnr_set_to_Dcuts ub).
+    intros x Fx.
+    assert (Ex : E (Dcuts_to_hnnr_set x)).
+    admit.
+    admit.
+  }
   exists (Dcuts_eq (Dcuts_lub F F_bounded)).
   apply iseqclassconstr.
-  Search ishinh.
   intros P HP.
   apply HP.
   exists (Dcuts_lub F F_bounded).
   now apply isrefl_Dcuts_eq.
+  intros.
+  now apply istrans_Dcuts_eq with (1 := X0).
+  intros.
+  apply istrans_Dcuts_eq with (2 := X0).
+  now apply issymm_Dcuts_eq.
 Admitted.
-
-(** * Notations *)
 
 Notation hnnr := hnnr_set.
 

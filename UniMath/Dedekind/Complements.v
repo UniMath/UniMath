@@ -13,12 +13,12 @@ Coercion  pr1StrictPartialOrder : StrictPartialOrder >-> hrel.
 
 (** *** Complete Ordered Space *)
 
-Definition isub {X : UU} (le : hrel X) (E : X -> hProp) (ub : X) : hProp :=
-  ishinh (forall x : X, E x -> le x ub).
+Definition isub {X : UU} (le : hrel X) (E : X -> hProp) (ub : X) :=
+  forall x : X, E x -> le x ub.
 Definition islbub {X : UU} (le : hrel X) (E : X -> hProp) (lub : X) :=
-  ishinh (forall ub : X, isub le E ub -> le lub ub).
+  forall ub : X, isub le E ub -> le lub ub.
 Definition islub {X : UU} (le : hrel X) (E : X -> hProp) (lub : X) :=
-  hconj (isub le E lub) (islbub le E lub).
+  dirprod (isub le E lub) (islbub le E lub).
 
 Definition lub {X : UU} (le : hrel X) (E : X -> hProp) :=
   total2 (islub le E).
