@@ -48,9 +48,9 @@ Variables A B : precategory.
 Variable F : functor A B.
 Variable H : equivalence_of_precats F.
 
-Let G : functor B A := right_adjoint (pr1 H).
-Let eta := eta_pointwise_iso_from_equivalence H.
-Let eps := eps_pointwise_iso_from_equivalence H.
+Local Definition G : functor B A := right_adjoint (pr1 H).
+Local Definition eta := eta_pointwise_iso_from_equivalence H.
+Local Definition eps := eps_pointwise_iso_from_equivalence H.
 
 Definition inverse {a b} (g : F a --> F b) : a --> b := 
    eta a ;;  #G g ;; inv_from_iso (eta b).
