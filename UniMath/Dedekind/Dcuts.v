@@ -82,26 +82,32 @@ Qed.
 (** ** [Dcuts] is an ordered set *)
 (** *** [Dcuts_le] is a partial order on  *)
 
-Definition Dcuts_le : hrel Dcuts :=
+Local Definition Dcuts_le_rel : hrel Dcuts :=
   fun (X Y : Dcuts) => ishinh (forall x : hnnq, X x -> Y x).
-Lemma istrans_Dcuts_le : istrans Dcuts_le.
+Lemma istrans_Dcuts_le_rel : istrans Dcuts_le_rel.
 Proof.
   intros x y z.
   apply hinhfun2.
   intros Hxy Hyz r Xr.
   now apply Hyz, Hxy.
 Qed.
-Lemma isrefl_Dcuts_le : isrefl Dcuts_le.
+Lemma isrefl_Dcuts_le_rel : isrefl Dcuts_le_rel.
 Proof.
   now intros x P HP ; apply HP ; clear P HP.
 Qed.
 
-Lemma ispo_Dcuts_le : ispo Dcuts_le.
+Lemma isPartialOrder_Dcuts_le_rel : isPartialOrder Dcuts_le_rel.
 Proof.
   split.
-  exact istrans_Dcuts_le.
-  exact isrefl_Dcuts_le.
+  exact istrans_Dcuts_le_rel.
+  exact isrefl_Dcuts_le_rel.
 Qed.
+Definition Dcuts_le : PartialOrder Dcuts :=
+  pairPartialOrder _ isPartialOrder_Dcuts_le_rel.
+Definition istrans_Dcuts_le : istrans Dcuts_le :=
+  istrans_Dcuts_le_rel.
+Definition isrefl_Dcuts_le : isrefl Dcuts_le :=
+  isrefl_Dcuts_le_rel.
 
 (** [Dcuts_ge] is a partial order *)
 
@@ -424,7 +430,7 @@ Qed.
 Section Dcuts_lub.
 
 Context (E : Dcuts -> hProp).
-Context (E_bounded : hexists (isub Dcuts_le E)).
+Context (E_bounded : hexists (isUpperBound Dcuts_le E)).
 
 Definition Dcuts_lub_val : hnnq -> hProp :=
   fun r : hnnq => hexists (fun X : Dcuts => dirprod (E X) (X r)).
@@ -475,12 +481,12 @@ Qed.
 
 End Dcuts_lub.
 
-Definition Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isub Dcuts_le E)) : Dcuts :=
+Definition Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isUpperBound Dcuts_le E)) : Dcuts :=
   mk_Dcuts (Dcuts_lub_val E) (Dcuts_lub_bot E) (Dcuts_lub_open E) (Dcuts_lub_bounded E E_bounded).
 
 Lemma isub_Dcuts_lub (E : Dcuts -> hProp)
-                     (E_bounded : hexists (isub Dcuts_le E)) :
-  isub Dcuts_le E (Dcuts_lub E E_bounded).
+                     (E_bounded : hexists (isUpperBound Dcuts_le E)) :
+  isUpperBound Dcuts_le E (Dcuts_lub E E_bounded).
 Proof.
   intros ;
   intros x Ex.
@@ -489,8 +495,8 @@ Proof.
   intros P HP ; apply HP ; clear P HP.
   now exists x.
 Qed.
-Lemma islbub_Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isub Dcuts_le E)) :
-  islbub Dcuts_le E (Dcuts_lub E E_bounded).
+Lemma islbub_Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isUpperBound Dcuts_le E)) :
+  isSmallerThanUpperBounds Dcuts_le E (Dcuts_lub E E_bounded).
 Proof.
   intros.
   intros x Hx.  
@@ -501,8 +507,8 @@ Proof.
   apply (Hx y Ey).
   now intros H ; apply H.
 Qed.
-Lemma islub_Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isub Dcuts_le E)) :
-  islub Dcuts_le E (Dcuts_lub E E_bounded).
+Lemma islub_Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isUpperBound Dcuts_le E)) :
+  isLeastUpperBound Dcuts_le E (Dcuts_lub E E_bounded).
 Proof.
   split.
   exact (isub_Dcuts_lub E E_bounded).
