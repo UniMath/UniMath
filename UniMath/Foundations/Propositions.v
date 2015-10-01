@@ -88,8 +88,9 @@ Lemma isapropishinh ( X : UU ) : isaprop ( ishinh_UU X ).
 Proof. intro. apply impred . intro P . apply impred.  intro. apply ( pr2 P ) .  Defined . 
 
 Definition ishinh ( X : UU ) : hProp := hProppair ( ishinh_UU X ) ( isapropishinh X ) .
-(* Canonical Structure ishinh .  (** RR1 *) *)
 
+Notation "∥ A ∥" := (ishinh A) (at level 200) : type_scope.
+(* written \|| *)
 
 Definition hinhpr ( X : UU ) : X -> ishinh X := fun x : X => fun P : hProp  => fun f : X -> P => f x .
 
