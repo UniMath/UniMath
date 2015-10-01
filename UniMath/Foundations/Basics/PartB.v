@@ -32,6 +32,10 @@ O => iscontr X |
 S m => forall x:X, forall x':X, (isofhlevel m (paths x x'))
 end.
 
+(* document an equality for the reader *)
+Goal isofhlevel 0 = iscontr.
+Proof. trivial. Qed.
+
 (* induction induction *)
 
 Theorem hlevelretract (n:nat) { X Y : UU } ( p : X -> Y ) ( s : Y -> X ) ( eps : forall y : Y , paths ( p ( s y ) ) y ) : isofhlevel n X -> isofhlevel n Y .
@@ -256,7 +260,7 @@ Proof. intros. apply isofhleveltotal2. assumption. intro. assumption. Defined.
 (** *** Basics about types of h-level 1 - "propositions" *)
 
 
-Definition isaprop  := isofhlevel (S O) . 
+Definition isaprop  := isofhlevel 1 . 
 
 Notation isapropunit := iscontrpathsinunit .
 
@@ -459,6 +463,10 @@ apply ( isapropifcontr is4  ). Defined.
 (** *** Basics about types of h-level 2 - "sets" *)
 
 Definition isaset ( X : UU ) : UU := forall x x' : X , isaprop ( paths x x' ) .
+
+(* document an equality for the reader *)
+Goal isaset = isofhlevel 2.
+Proof. trivial. Qed.
 
 (* Definition isaset := isofhlevel 2 . *)
 
