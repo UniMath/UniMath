@@ -1,7 +1,7 @@
 (** * Definition of Dedekind cuts for non-negative real numbers *)
 (** Catherine Lelay. Sep. 2015 *)
 
-Require Import UniMath.Dedekind.hnnq.
+Require Import UniMath.Dedekind.NonnegativeRationals.
 Require Import UniMath.Dedekind.Complements.
 
 Local Open Scope NnR_scope.
