@@ -11,19 +11,19 @@ Extended by: Anders Mörtberg
 
 (** **********************************************************
 
-Contents :  
-	    
+Contents :
+
             Precategory HSET of hSets
 
 	    HSET is a category
-                	
-           
+
+
 ************************************************************)
 
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.FunctionalExtensionality. 
+Require Import UniMath.Foundations.FunctionalExtensionality.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -44,15 +44,15 @@ Proof.
   apply (fun _ => (pr2 B)).
 Qed.
 
-Definition hset_fun_space (A B : hSet) : hSet := 
+Definition hset_fun_space (A B : hSet) : hSet :=
   hSetpair _ (isaset_set_fun_space A B).
 
 Definition hset_precategory_ob_mor : precategory_ob_mor :=
-  tpair (fun ob : UU => ob -> ob -> UU) hSet 
+  tpair (fun ob : UU => ob -> ob -> UU) hSet
         (fun A B : hSet => hset_fun_space A B).
 
 Definition hset_precategory_data : precategory_data :=
-  precategory_data_pair hset_precategory_ob_mor (fun (A:hSet) (x : A) => x) 
+  precategory_data_pair hset_precategory_ob_mor (fun (A:hSet) (x : A) => x)
      (fun (A B C : hSet) (f : A -> B) (g : B -> C) (x : A) => g (f x)).
 
 Lemma is_precategory_hset_precategory_data :
@@ -61,7 +61,7 @@ Proof.
   repeat split; simpl.
 Qed.
 
-Definition hset_precategory : precategory := 
+Definition hset_precategory : precategory :=
   tpair _ _ is_precategory_hset_precategory_data.
 
 Notation HSET := hset_precategory.
@@ -69,15 +69,15 @@ Notation HSET := hset_precategory.
 Lemma has_homsets_HSET : has_homsets HSET.
 Proof. intros a b; apply isaset_set_fun_space. Qed.
 
-(* 
+(*
   Canonical Structure hset_precategory. :-)
 *)
 
 
 (** * The precategory of hSets is a category. *)
 
-(** ** Equivalence between isomorphisms and weak equivalences 
-       of two hsets. 
+(** ** Equivalence between isomorphisms and weak equivalences
+       of two hsets.
 *)
 
 (** Given an iso, we construct a weak equivalence.
@@ -85,12 +85,12 @@ Proof. intros a b; apply isaset_set_fun_space. Qed.
 *)
 
 
-Lemma hset_iso_is_equiv (A B : ob HSET) 
+Lemma hset_iso_is_equiv (A B : ob HSET)
    (f : iso A B) : isweq (pr1 f).
 Proof.
   apply (gradth _ (inv_from_iso f)).
-  - intro x. 
-    set (T:=iso_inv_after_iso f). 
+  - intro x.
+    set (T:=iso_inv_after_iso f).
     set (T':=toforallpaths _ _ _ T). apply T'.
   - intro x.
     apply (toforallpaths _ _ _ (iso_after_iso_inv f)).
@@ -104,17 +104,17 @@ Proof.
 Defined.
 
 (** Given a weak equivalence, we construct an iso.
-    Again mostly unwrapping and packing. 
+    Again mostly unwrapping and packing.
 *)
 
-Lemma hset_equiv_is_iso (A B : hSet) 
+Lemma hset_equiv_is_iso (A B : hSet)
       (f : weq (pr1 A) (pr1 B)) :
            is_isomorphism (C:=HSET) (pr1 f).
 Proof.
   apply (is_iso_qinv (C:=HSET) _ (invmap f)).
   split; simpl.
   - apply funextfunax; intro x; simpl in *.
-    unfold compose, identity; simpl. 
+    unfold compose, identity; simpl.
     apply homotinvweqweq.
   - apply funextfunax; intro x; simpl in *.
     unfold compose, identity; simpl.
@@ -135,8 +135,8 @@ Defined.
 Lemma hset_iso_equiv_is_equiv (A B : ob HSET) : isweq (hset_iso_equiv A B).
 Proof.
   apply (gradth _ (hset_equiv_iso A B)).
-  intro; apply eq_iso. 
-  - reflexivity.  
+  intro; apply eq_iso.
+  - reflexivity.
   - intro; apply total2_paths_isaprop.
     + intro; apply isapropisweq.
     + reflexivity.
@@ -152,7 +152,7 @@ Lemma hset_equiv_iso_is_equiv (A B : ob HSET) : isweq (hset_equiv_iso A B).
 Proof.
   apply (gradth _ (hset_iso_equiv A B)).
   intro f.
-  apply total2_paths_isaprop. 
+  apply total2_paths_isaprop.
     apply isapropisweq.
     reflexivity.
   intro; apply eq_iso.
@@ -165,7 +165,7 @@ Proof.
   exists (hset_equiv_iso A B).
   apply hset_equiv_iso_is_equiv.
 Defined.
-  
+
 (** ** HSET is a category. *)
 
 Definition univalenceweq (X X' : UU) : weq (X = X') (weq X X') :=
@@ -176,9 +176,9 @@ Definition hset_id_iso_weq (A B : ob HSET) :
   weqcomp (UA_for_HLevels 2 A B) (hset_equiv_iso_weq A B).
 
 
-(** The map [precat_paths_to_iso] 
-    for which we need to show [isweq] is actually 
-    equal to the carrier of the weak equivalence we 
+(** The map [precat_paths_to_iso]
+    for which we need to show [isweq] is actually
+    equal to the carrier of the weak equivalence we
     constructed above.
     We use this fact to show that that [precat_paths_to_iso]
     is an equivalence.
@@ -191,8 +191,8 @@ Proof.
   intro p; elim p.
   apply eq_iso; simpl.
   - apply funextfun;
-    intro x; 
-    destruct A. 
+    intro x;
+    destruct A.
     apply idpath.
 Defined.
 
@@ -217,6 +217,7 @@ Defined.
 
 
 (***** NEW STUFF *)
+Set Implicit Arguments.
 
 Section rel_extras.
 
@@ -225,7 +226,9 @@ Variable R0 : hrel A.
 (* Variable P : UU -> hProp. *)
 
 Definition isaprop_hProp (X : hProp) : isaprop X.
-Proof. exact (pr2 X). Qed.
+Proof.
+exact (pr2 X).
+Qed.
 
 Lemma isaprop_eqrel_from_hrel a b :
   isaprop (∀ R : eqrel A, (∀ x y, R0 x y -> R x y) -> R a b).
@@ -250,7 +253,16 @@ repeat split.
 Qed.
 
 Lemma eqrel_impl a b : R0 a b -> eqrel_from_hrel a b.
-Proof. intros H R HR; now apply HR. Qed.
+Proof.
+intros H R HR; now apply HR.
+Qed.
+
+(* eqrel_from_hrel is the *smallest* relation containing R0 *)
+Lemma minimal_eqrel_from_hrel (R : eqrel A) (H : ∀ a b, R0 a b -> R a b) :
+  ∀ a b, eqrel_from_hrel a b -> R a b.
+Proof.
+now intros a b H'; apply H'.
+Qed.
 
 End rel_extras.
 
@@ -259,21 +271,30 @@ Section colimits.
 Variable (J : precategory).
 Variable (F : functor J HSET).
 
-(* TODO: Define using Σ = Sigma *)
 (* Definition test x := total2 (x). *)
 
 (* TODO: Define notation for pr1hSet? Or can we trigger computation so that
    coercion "ob  HSET = hSet :> UU" can be applied? *)
-Definition cobase : UU := total2 (fun j => pr1hSet (F j)).
+Definition cobase : UU := Σ j, pr1hSet (F j).
 
 (* hprop stuff is in UniMath.Foundations.Propositions *)
-Definition relation : cobase -> cobase -> hProp :=
-  fun ja j'a' => hProppair (ishinh (total2 (fun f : pr1 ja --> pr1 j'a' => # F f (pr2 ja) = pr2 j'a'))) (isapropishinh _).
+Definition rel0 : hrel cobase := λ ja ja',
+  hProppair (ishinh (Σ f, # F f (pr2 ja) = pr2 ja')) (isapropishinh _).
+
+Definition rel : hrel cobase := eqrel_from_hrel rel0.
+
+Lemma iseqrel_rel : iseqrel rel.
+Proof.
+now apply iseqrel_eqrel_from_hrel.
+Qed.
+
+Definition eqr : eqrel cobase := eqrelpair _ iseqrel_rel.
 
 (* Defined in UniMath.Foundations.Sets *)
-Definition colimit := setquot relation.
+Definition colimit : HSET :=
+  hSetpair (setquot eqr) (isasetsetquot _).
 
-(* 
+(*
 
   (X,~) ----------
     |             \
@@ -283,38 +304,85 @@ Definition colimit := setquot relation.
 
 *)
 
-Lemma eqrel_relation : iseqrel relation.
+Definition projection (j : J) : F j --> colimit.
 Proof.
-repeat split.
-intros x y z H1 H2.
-apply (H1 (relation x z)); clear H1; intro H1.
-apply (H2 (relation x z)); clear H2; intro H2.
-apply hinhpr.
-case H1; clear H1; intros f Hf.
-case H2; clear H2; intros g Hg.
-exists (f ;; g).
-rewrite <- Hg, <- Hf.
-rewrite functor_comp.
-apply idpath.
-
-intros x.
-apply hinhpr.
-exists (identity (pr1 x)).
-rewrite functor_id.
-apply idpath.
-
-intros x y H.
-apply (H (relation y x)); clear H; intro H.
-case H; clear H; intros f Hf.
-apply hinhpr.
-
-
-
-Definition projection (j : J) : pr1hSet (F j) -> colimit.
 intros fj.
-unfold colimit..
-eapply setquotpr.
+unfold colimit.
+apply (setquotpr _).
+exists j.
+assumption.
+Defined.
 
+Definition cocone {J C : precategory} (F : functor J C) (N : C) :=
+  Σ (a : (∀ i, F i --> N)), ∀ i j (f : i --> j), a i = # F f ;; a j.
+
+Variables (N : HSET) (c : cocone F N).
+
+(* TODO: Better names and coercions for cocones *)
+Definition from_cobase : cobase -> pr1hSet N.
+Proof.
+intros cob.
+exact ((pr1 c) (pr1 cob) (pr2 cob)).
+Defined.
+
+Definition from_cobase_rel : hrel cobase.
+Proof.
+intros x x'.
+exists (from_cobase x = from_cobase x').
+apply setproperty.
+Defined.
+
+Definition from_cobase_eqrel : eqrel cobase.
+Proof.
+exists from_cobase_rel.
+repeat split.
+- intros x y z H1 H2.
+  exact (pathscomp0 H1 H2).
+- intros x y H.
+  exact (pathsinv0 H).
+Defined.
+
+(* TODO: clean this! *)
+Lemma rel0_impl a b : rel0 a b -> from_cobase_eqrel a b.
+Proof.
+intros H.
+apply H.
+intros H'.
 simpl.
+unfold from_cobase.
+simpl.
+case H'.
+simpl.
+case c.
+simpl.
+intros.
+generalize p0.
+destruct a.
+destruct b.
+simpl in *.
+generalize (p t1 t2 t0).
+intros APA BEPA.
+rewrite APA.
+simpl.
+rewrite <- BEPA.
+apply idpath.
+Qed.
 
-End colimits. 
+Lemma test a b : rel a b -> from_cobase_eqrel a b.
+Proof.
+intros H.
+apply (@minimal_eqrel_from_hrel _ rel0).
+apply rel0_impl.
+assumption.
+Qed.
+
+Lemma iscomprel_from_base : iscomprelfun rel from_cobase.
+Proof.
+intros x x' H.
+apply test.
+assumption.
+Qed.
+
+Definition testfun : colimit --> N.
+
+End colimits.
