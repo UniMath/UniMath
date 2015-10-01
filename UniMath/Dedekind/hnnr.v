@@ -3,7 +3,7 @@
 
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Dedekind.Complements.
-Require Import UniMath.Dedekind.Dcuts.
+Require Import UniMath.Dedekind.DedekindCuts.
 
 (*Local Open Scope Dcuts_scope.*)
 
@@ -11,14 +11,14 @@ Require Import UniMath.Dedekind.Dcuts.
 
 (** [hnnr_quot] is the set [DedekindCuts] quotientied by the equivalence relation [eqDedekindCuts] *)
 
-Definition hnnr_quot : hSet := setquotinset Dcuts_eq.
+Definition hnnr_quot : hSet := setquotinset eqDedekindCuts.
 
-Definition Dcuts_to_hnnr_set : Dcuts -> hnnr_quot :=
-  setquotpr Dcuts_eq.
+Definition Dcuts_to_hnnr_set : DedekindCuts -> hnnr_quot :=
+  setquotpr eqDedekindCuts.
 
 
 Lemma hnnr_quot_to_Dcuts_bounded :
-  forall E : hnnr_quot, hexists (isUpperBound Dcuts_le (pr1 E)).
+  forall E : hnnr_quot, hexists (isUpperBound leDedekindCuts (pr1 E)).
 Proof.
   destruct E as [E (x,(H,H0))] ; simpl.
   revert x.
@@ -29,10 +29,10 @@ Proof.
   apply Dcuts_eq_le.
   now apply H0.
 Qed.
-Definition hnnr_quot_to_Dcuts : hnnr_quot -> Dcuts.
+Definition hnnr_quot_to_Dcuts : hnnr_quot -> DedekindCuts.
 Proof.
   intros E.
-  apply (Dcuts_lub (pr1 E)).
+  apply (lubDedekindCuts (pr1 E)).
   now apply hnnr_quot_to_Dcuts_bounded.
 Defined.
 
@@ -45,7 +45,7 @@ Proof.
 Admitted.*)
 
 Lemma hnnr_quot_to_Dcuts_bij :
-  forall x : Dcuts, Dcuts_eq (hnnr_quot_to_Dcuts (Dcuts_to_hnnr_set x)) x.
+  forall x : DedekindCuts, eqDedekindCuts (hnnr_quot_to_Dcuts (Dcuts_to_hnnr_set x)) x.
 Proof.
   intros x.
   split.
@@ -62,18 +62,25 @@ Admitted.*)
   
 (** Order *)
 
-Local Definition hnnr_le_rel : hrel hnnr_quot := quotrel Dcuts_le_comp.
-Local Definition ispo_hnnr_le_rel : ispo (hnnr_le_rel) := ispoquotrel Dcuts_le_comp (pr2 Dcuts_le).
-Definition hnnr_le : po hnnr_quot :=
-  popair _ ispo_hnnr_le_rel.
+Local Definition hnnr_le : hrel hnnr_quot :=
+  quotrel leDedekindCuts_comp.
+Local Definition ispo_hnnr_le : isPartialOrder hnnr_le :=
+  ispoquotrel leDedekindCuts_comp (pr2 (pr1 leDedekindCuts)).
 
-Local Definition hnnr_ge_rel : hrel hnnr_quot := quotrel Dcuts_ge_comp.
-Local Definition ispo_hnnr_ge_rel : ispo (hnnr_ge_rel) := ispoquotrel Dcuts_ge_comp ispo_Dcuts_ge.
-Definition hnnr_ge : po hnnr_quot :=
-  popair _ ispo_hnnr_ge_rel.
+Local Definition hnnr_ge : hrel hnnr_quot :=
+  quotrel geDedekindCuts_comp.
+Local Definition ispo_hnnr_ge : isPartialOrder hnnr_ge :=
+  ispoquotrel geDedekindCuts_comp (pr2 geDedekindCuts).
 
-Local Definition hnnr_lt_rel : hrel hnnr_quot := quotrel Dcuts_lt_comp.
-Local Definition hnnr_gt_rel : hrel hnnr_quot := quotrel Dcuts_gt_comp.
+Local Definition hnnr_lt : hrel hnnr_quot :=
+  quotrel ltDedekindCuts_comp.
+Local Definition isstpo_hnnr_lt : isStrictPartialOrder hnnr_lt :=
+  isStrictPartialOrder_quotrel ltDedekindCuts_comp (pr2 ltDedekindCuts).
+
+Local Definition hnnr_gt : hrel hnnr_quot :=
+  quotrel gtDedekindCuts_comp.
+Local Definition isstpo_hnnr_gt : isStrictPartialOrder hnnr_gt :=
+  isStrictPartialOrder_quotrel gtDedekindCuts_comp (pr2 gtDedekindCuts).
 
 (* (** Least Upper Bound *)
 
@@ -104,8 +111,24 @@ Proof.
   now apply issymm_Dcuts_eq.
 Admitted.*)
 
+(** * Export *)
+
 Definition NonnegativeReals := hnnr_quot.
 
+(** ** Order *)
+
+Definition leNonnegativeReals : PartialOrder NonnegativeReals :=
+  pairPartialOrder _ ispo_hnnr_le.
+Definition geNonnegativeReals : PartialOrder NonnegativeReals :=
+  pairPartialOrder _ ispo_hnnr_ge.
+Definition ltNonnegativeReals : StrictPartialOrder NonnegativeReals :=
+  pairStrictPartialOrder _ isstpo_hnnr_lt.
+Definition gtNonnegativeReals : StrictPartialOrder NonnegativeReals :=
+  pairStrictPartialOrder _ isstpo_hnnr_gt.
+
+(** ** Opacify *)
+
+Global Opaque NonnegativeReals.
 
 (* End of the file hnnr.v *)
 

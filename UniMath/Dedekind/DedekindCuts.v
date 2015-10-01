@@ -6,24 +6,23 @@ Require Import UniMath.Dedekind.Complements.
 
 Local Open Scope NnR_scope.
 
-(** ** Non-negative real numbers *)
-(** Definition *)
+(** ** Definition of Dedekind cuts *)
 
-Definition Dcuts_def_bot (X : NonnegativeRationals -> hProp) : hProp :=
+Local Definition Dcuts_def_bot (X : NonnegativeRationals -> hProp) : hProp :=
   ishinh (forall x : NonnegativeRationals, X x ->
     forall y : NonnegativeRationals, y <= x -> X y).
-Definition Dcuts_def_open (X : NonnegativeRationals -> hProp) : hProp :=
+Local Definition Dcuts_def_open (X : NonnegativeRationals -> hProp) : hProp :=
   ishinh (forall x : NonnegativeRationals, X x ->
     hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y))).
-Definition Dcuts_def_bounded (X : NonnegativeRationals -> hProp) : hProp :=
+Local Definition Dcuts_def_bounded (X : NonnegativeRationals -> hProp) : hProp :=
   hexists (fun ub : NonnegativeRationals => neg (X ub)).
 
-Definition Dcuts_hsubtypes : hsubtypes (NonnegativeRationals -> hProp) :=
+Local Definition Dcuts_hsubtypes : hsubtypes (NonnegativeRationals -> hProp) :=
   (fun X : NonnegativeRationals -> hProp => hconj (Dcuts_def_bot X)
                            (hconj (Dcuts_def_open X)
                                   (Dcuts_def_bounded X))).
-Definition Dcuts := carrier Dcuts_hsubtypes.
-Definition pr1Dcuts (x : Dcuts) : NonnegativeRationals -> hProp := pr1 x.
+Local Definition Dcuts := carrier Dcuts_hsubtypes.
+Local Definition pr1Dcuts (x : Dcuts) : NonnegativeRationals -> hProp := pr1 x.
 Coercion pr1Dcuts : Dcuts >-> Funclass.
 
 Lemma is_Dcuts_bot (X : Dcuts) :
@@ -51,7 +50,7 @@ Proof.
   now apply Hbound.
 Qed.
 
-Definition mk_Dcuts (X : NonnegativeRationals -> hProp)
+Local Definition mk_Dcuts (X : NonnegativeRationals -> hProp)
                    (Hbot : forall x : NonnegativeRationals, X x ->
                      forall y : NonnegativeRationals, y <= x -> X y)
                    (Hopen : forall x : NonnegativeRationals, X x ->
@@ -102,16 +101,16 @@ Proof.
   exact istrans_Dcuts_le_rel.
   exact isrefl_Dcuts_le_rel.
 Qed.
-Definition Dcuts_le : PartialOrder Dcuts :=
+Local Definition Dcuts_le : PartialOrder Dcuts :=
   pairPartialOrder _ isPartialOrder_Dcuts_le_rel.
-Definition istrans_Dcuts_le : istrans Dcuts_le :=
+Local Definition istrans_Dcuts_le : istrans Dcuts_le :=
   istrans_Dcuts_le_rel.
-Definition isrefl_Dcuts_le : isrefl Dcuts_le :=
+Local Definition isrefl_Dcuts_le : isrefl Dcuts_le :=
   isrefl_Dcuts_le_rel.
 
 (** [Dcuts_ge] is a partial order *)
 
-Definition Dcuts_ge : hrel Dcuts :=
+Local Definition Dcuts_ge : hrel Dcuts :=
   fun (X Y : Dcuts) => Dcuts_le Y X.
 
 Lemma istrans_Dcuts_ge : istrans Dcuts_ge.
@@ -133,17 +132,17 @@ Qed.
 
 (** [Dcuts_eq] is an equality *)
 
-Local Definition Dcuts_eq_rel : hrel Dcuts :=
+Local Definition Dcuts_eq : hrel Dcuts :=
   fun (X Y : Dcuts) => hconj (Dcuts_le X Y) (Dcuts_ge X Y).
 
-Lemma istrans_Dcuts_eq_rel : istrans Dcuts_eq_rel.
+Lemma istrans_Dcuts_eq : istrans Dcuts_eq.
 Proof.
   intros x y z (Hxy,Hyx) (Hyz,Hzy).
   split.
   now apply istrans_Dcuts_le with y.
   now apply istrans_Dcuts_ge with y.
 Qed.
-Lemma isrefl_Dcuts_eq_rel : isrefl Dcuts_eq_rel.
+Lemma isrefl_Dcuts_eq : isrefl Dcuts_eq.
 Proof.
   intros x.
   split.
@@ -151,40 +150,31 @@ Proof.
   now apply isrefl_Dcuts_ge.
 Qed.
 
-Lemma ispo_Dcuts_eq_rel : ispo Dcuts_eq_rel.
+Lemma ispo_Dcuts_eq : ispo Dcuts_eq.
 Proof.
   split.
-  exact istrans_Dcuts_eq_rel.
-  exact isrefl_Dcuts_eq_rel.
+  exact istrans_Dcuts_eq.
+  exact isrefl_Dcuts_eq.
 Qed.
 
-Lemma issymm_Dcuts_eq_rel : issymm Dcuts_eq_rel.
+Lemma issymm_Dcuts_eq : issymm Dcuts_eq.
 Proof.
   intros x y (Hxy,Hyx).
   now split.
 Qed.
 
-Lemma iseqrel_Dcuts_eq_rel : iseqrel Dcuts_eq_rel.
+Lemma iseqrel_Dcuts_eq : iseqrel Dcuts_eq.
 Proof.
   split.
-  exact ispo_Dcuts_eq_rel.
-  exact issymm_Dcuts_eq_rel.
+  exact ispo_Dcuts_eq.
+  exact issymm_Dcuts_eq.
 Qed.
-
-Definition Dcuts_eq : eqrel Dcuts :=
-  eqrelpair _ iseqrel_Dcuts_eq_rel.
-Definition issymm_Dcuts_eq : issymm Dcuts_eq :=
-  issymm_Dcuts_eq_rel.
-Definition isrefl_Dcuts_eq : isrefl Dcuts_eq :=
-  isrefl_Dcuts_eq_rel.
-Definition istrans_Dcuts_eq : istrans Dcuts_eq :=
-  istrans_Dcuts_eq_rel.
 
 (** *** Strict order and appartness *)
 
 (** [Dcuts_lt] is a strict partial order *)
 
-Definition Dcuts_lt : hrel Dcuts :=
+Local Definition Dcuts_lt : hrel Dcuts :=
   fun (X Y : Dcuts) =>
     hexists (fun x : NonnegativeRationals => dirprod (neg (X x)) (Y x)).
 Lemma istrans_Dcuts_lt : istrans Dcuts_lt.
@@ -217,7 +207,7 @@ Qed.
 
 (** [Dcuts_gt] is a strict partial order *)
 
-Definition Dcuts_gt : hrel Dcuts :=
+Local Definition Dcuts_gt : hrel Dcuts :=
   fun (X Y : Dcuts) => Dcuts_lt Y X.
 Lemma istrans_Dcuts_gt : istrans Dcuts_gt.
 Proof.
@@ -239,7 +229,7 @@ Qed.
 (** [Dcuts_ap] is an apartness relation *)
 (* todo : define apartness relation *)
 
-Definition Dcuts_ap (X Y : Dcuts) : hProp :=
+Local Definition Dcuts_ap (X Y : Dcuts) : hProp :=
   hdisj (Dcuts_lt X Y) (Dcuts_gt X Y).
 
 Lemma isirrefl_Dcuts_ap : isirrefl Dcuts_ap.
@@ -386,44 +376,6 @@ Proof.
   now apply Hyz.
 Qed.
 
-(** [iscomprelrel] *)
-
-Lemma Dcuts_le_comp : iscomprelrel Dcuts_eq Dcuts_le.
-Proof.
-  apply iscomprelrelif.
-  now apply issymm_Dcuts_eq.
-  intros x x' y (Hx,Hx') Hxy.
-  now eapply istrans_Dcuts_le, Hxy.
-  intros x y y' (Hy,Hy') Hxy.
-  now eapply istrans_Dcuts_le, Dcuts_ge_le, Hy.
-Qed.
-Lemma Dcuts_ge_comp : iscomprelrel Dcuts_eq Dcuts_ge.
-Proof.
-  apply iscomprelrelif.
-  now apply issymm_Dcuts_eq.
-  intros x x' y (Hx,Hx') Hxy.
-  now eapply istrans_Dcuts_ge, Hxy.
-  intros x y y' (Hy,Hy') Hxy.
-  now eapply istrans_Dcuts_ge, Hy'.
-Qed.
-Lemma Dcuts_lt_comp : iscomprelrel Dcuts_eq Dcuts_lt.
-Proof.
-  apply iscomprelrelif.
-  now apply issymm_Dcuts_eq.
-  intros x x' y (Hx,Hx') Hxy.
-  now eapply istrans_Dcuts_le_lt, Hxy.
-  intros x y y' (Hy,Hy') Hxy.
-  now eapply istrans_Dcuts_lt_le, Dcuts_ge_le, Hy.
-Qed.
-Lemma Dcuts_gt_comp : iscomprelrel Dcuts_eq Dcuts_gt.
-Proof.
-  apply iscomprelrelif.
-  now apply issymm_Dcuts_eq.
-  intros x x' y (Hx,Hx') Hxy.
-  now eapply istrans_Dcuts_lt_le, Hx.
-  intros x y y' (Hy,Hy') Hxy.
-  now eapply istrans_Dcuts_le_lt, Hxy.
-Qed.
 
 (** ** Least Upper Bound *)
 
@@ -432,7 +384,7 @@ Section Dcuts_lub.
 Context (E : Dcuts -> hProp).
 Context (E_bounded : hexists (isUpperBound Dcuts_le E)).
 
-Definition Dcuts_lub_val : NonnegativeRationals -> hProp :=
+Local Definition Dcuts_lub_val : NonnegativeRationals -> hProp :=
   fun r : NonnegativeRationals => hexists (fun X : Dcuts => dirprod (E X) (X r)).
 Lemma Dcuts_lub_bot : 
   forall (x : NonnegativeRationals),
@@ -481,7 +433,7 @@ Qed.
 
 End Dcuts_lub.
 
-Definition Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isUpperBound Dcuts_le E)) : Dcuts :=
+Local Definition Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isUpperBound Dcuts_le E)) : Dcuts :=
   mk_Dcuts (Dcuts_lub_val E) (Dcuts_lub_bot E) (Dcuts_lub_open E) (Dcuts_lub_bounded E E_bounded).
 
 Lemma isub_Dcuts_lub (E : Dcuts -> hProp)
@@ -515,11 +467,95 @@ Proof.
   exact (islbub_Dcuts_lub E E_bounded).
 Qed.
 
-(** * Notations and theorems *)
+(** * Exports *)
 
-Global Opaque Dcuts_eq Dcuts_le Dcuts_ge.
-Global Opaque Dcuts_ap Dcuts_lt Dcuts_gt.
-Global Opaque Dcuts_lub.
+Definition DedekindCuts := Dcuts.
+
+Definition DedekindCuts_to_subsetNonnegativeRationals : DedekindCuts -> (NonnegativeRationals -> hProp) := pr1.
+Definition subsetNonnegativeRationals_to_DedekindCuts
+  (X : NonnegativeRationals -> hProp)
+  (Xbot : forall x : NonnegativeRationals,
+            X x -> forall y : NonnegativeRationals, (y <= x)%NnR -> X y)
+  (Xopen : forall x : NonnegativeRationals,
+             X x ->
+             hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y)%NnR))
+  (Xtop : hexists (fun ub : NonnegativeRationals => neg (X ub))) : DedekindCuts :=
+  mk_Dcuts X Xbot Xopen Xtop.
+
+(** ** Order *)
+
+Definition eqDedekindCuts : eqrel DedekindCuts :=
+  eqrelpair Dcuts_eq iseqrel_Dcuts_eq.
+
+Definition leDedekindCuts : CompletePartialOrder DedekindCuts.
+Proof.
+  exists Dcuts_le.
+  intros E Eub Ene.
+  exists (Dcuts_lub E Eub).
+  apply islub_Dcuts_lub.
+Defined.
+Definition lubDedekindCuts (E : DedekindCuts -> hProp) (Eub : hexists (isUpperBound leDedekindCuts E)) : LeastUpperBound leDedekindCuts E.
+Proof.
+  exists (Dcuts_lub E Eub).
+  apply islub_Dcuts_lub.
+Defined.
+
+Definition geDedekindCuts : PartialOrder DedekindCuts :=
+  pairPartialOrder _ ispo_Dcuts_ge.
+
+Definition ltDedekindCuts : StrictPartialOrder DedekindCuts :=
+  pairStrictPartialOrder _ isstpo_Dcuts_lt.
+Definition gtDedekindCuts : StrictPartialOrder DedekindCuts :=
+  pairStrictPartialOrder _ isstpo_Dcuts_gt.
+
+(** ** Constants and functions *)
+
+(** ** Theorems *)
+
+(** [iscomprelrel] *)
+
+Lemma leDedekindCuts_comp : iscomprelrel eqDedekindCuts leDedekindCuts.
+Proof.
+  apply iscomprelrelif.
+  now apply issymm_Dcuts_eq.
+  intros x x' y (Hx,Hx') Hxy.
+  now eapply istrans_Dcuts_le, Hxy.
+  intros x y y' (Hy,Hy') Hxy.
+  now eapply istrans_Dcuts_le, Dcuts_ge_le, Hy.
+Qed.
+Lemma geDedekindCuts_comp : iscomprelrel eqDedekindCuts geDedekindCuts.
+Proof.
+  apply iscomprelrelif.
+  now apply issymm_Dcuts_eq.
+  intros x x' y (Hx,Hx') Hxy.
+  now eapply istrans_Dcuts_ge, Hxy.
+  intros x y y' (Hy,Hy') Hxy.
+  now eapply istrans_Dcuts_ge, Hy'.
+Qed.
+Lemma ltDedekindCuts_comp : iscomprelrel eqDedekindCuts ltDedekindCuts.
+Proof.
+  apply iscomprelrelif.
+  now apply issymm_Dcuts_eq.
+  intros x x' y (Hx,Hx') Hxy.
+  now eapply istrans_Dcuts_le_lt, Hxy.
+  intros x y y' (Hy,Hy') Hxy.
+  now eapply istrans_Dcuts_lt_le, Dcuts_ge_le, Hy.
+Qed.
+Lemma gtDedekindCuts_comp : iscomprelrel eqDedekindCuts gtDedekindCuts.
+Proof.
+  apply iscomprelrelif.
+  now apply issymm_Dcuts_eq.
+  intros x x' y (Hx,Hx') Hxy.
+  now eapply istrans_Dcuts_lt_le, Hx.
+  intros x y y' (Hy,Hy') Hxy.
+  now eapply istrans_Dcuts_le_lt, Hxy.
+Qed.
+
+(** ** Opacify *)
+
+Global Opaque eqDedekindCuts leDedekindCuts geDedekindCuts.
+Global Opaque ltDedekindCuts gtDedekindCuts.
+Global Opaque lubDedekindCuts.
 
 (* End of the file Dcuts.v *)
 
