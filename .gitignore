@@ -6,3 +6,4 @@
 /.coq_makefile_input
 /.coq_makefile_output
 /build/CoqMakefile.make
+/latex
