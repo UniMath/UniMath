@@ -11,6 +11,15 @@ Definition StrictPartialOrder (X : UU) := total2 (fun R : hrel X => isStrictPart
 Definition pr1StrictPartialOrder {X : UU} : StrictPartialOrder X -> hrel X := pr1.
 Coercion  pr1StrictPartialOrder : StrictPartialOrder >-> hrel.
 
+Definition isStrictPartialOrder_quotrel {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
+  isStrictPartialOrder L -> isStrictPartialOrder (quotrel is).
+Proof.
+  intros (Htrans,Hirrefl).
+  split.
+  now apply istransquotrel.
+  now apply isirreflquotrel.
+Defined.
+
 (** *** Complete Ordered Space *)
 
 Definition isub {X : UU} (le : hrel X) (E : X -> hProp) (ub : X) :=
@@ -25,7 +34,8 @@ Definition lub {X : UU} (le : hrel X) (E : X -> hProp) :=
 
 Definition iscompleterel {X : UU} (le : hrel X) :=
   forall E : X -> hProp,
-         hexists (fun M : X => forall x : X, E x -> le x M) -> hexists E -> lub le E.
+    hexists (isub le E) ->
+    hexists E -> lub le E.
 Definition completerel (X : UU) :=
   total2 (fun le : hrel X => iscompleterel le).
 Definition pr1completerel {X : UU} : completerel X -> hrel X := pr1.

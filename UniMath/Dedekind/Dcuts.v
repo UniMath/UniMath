@@ -127,17 +127,17 @@ Qed.
 
 (** [Dcuts_eq] is an equality *)
 
-Definition Dcuts_eq : hrel Dcuts :=
+Local Definition Dcuts_eq_rel : hrel Dcuts :=
   fun (X Y : Dcuts) => hconj (Dcuts_le X Y) (Dcuts_ge X Y).
 
-Lemma istrans_Dcuts_eq : istrans Dcuts_eq.
+Lemma istrans_Dcuts_eq_rel : istrans Dcuts_eq_rel.
 Proof.
   intros x y z (Hxy,Hyx) (Hyz,Hzy).
   split.
   now apply istrans_Dcuts_le with y.
   now apply istrans_Dcuts_ge with y.
 Qed.
-Lemma isrefl_Dcuts_eq : isrefl Dcuts_eq.
+Lemma isrefl_Dcuts_eq_rel : isrefl Dcuts_eq_rel.
 Proof.
   intros x.
   split.
@@ -145,25 +145,34 @@ Proof.
   now apply isrefl_Dcuts_ge.
 Qed.
 
-Lemma ispo_Dcuts_eq : ispo Dcuts_eq.
+Lemma ispo_Dcuts_eq_rel : ispo Dcuts_eq_rel.
 Proof.
   split.
-  exact istrans_Dcuts_eq.
-  exact isrefl_Dcuts_eq.
+  exact istrans_Dcuts_eq_rel.
+  exact isrefl_Dcuts_eq_rel.
 Qed.
 
-Lemma issymm_Dcuts_eq : issymm Dcuts_eq.
+Lemma issymm_Dcuts_eq_rel : issymm Dcuts_eq_rel.
 Proof.
   intros x y (Hxy,Hyx).
   now split.
 Qed.
 
-Lemma iseqrel_Dcuts_eq : iseqrel Dcuts_eq.
+Lemma iseqrel_Dcuts_eq_rel : iseqrel Dcuts_eq_rel.
 Proof.
   split.
-  exact ispo_Dcuts_eq.
-  exact issymm_Dcuts_eq.
+  exact ispo_Dcuts_eq_rel.
+  exact issymm_Dcuts_eq_rel.
 Qed.
+
+Definition Dcuts_eq : eqrel Dcuts :=
+  eqrelpair _ iseqrel_Dcuts_eq_rel.
+Definition issymm_Dcuts_eq : issymm Dcuts_eq :=
+  issymm_Dcuts_eq_rel.
+Definition isrefl_Dcuts_eq : isrefl Dcuts_eq :=
+  isrefl_Dcuts_eq_rel.
+Definition istrans_Dcuts_eq : istrans Dcuts_eq :=
+  istrans_Dcuts_eq_rel.
 
 (** *** Strict order and appartness *)
 

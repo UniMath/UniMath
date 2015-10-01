@@ -11,10 +11,12 @@ Require Import UniMath.Dedekind.Dcuts.
 (** Definition *)
 
 Definition hnnr_set : hSet := setquotinset Dcuts_eq.
-Definition Dcuts_to_hnnr_set : Dcuts -> hnnr_set :=
-  setquotpr (eqrelpair _ iseqrel_Dcuts_eq).
 
-Lemma hnnr_set_to_Dcuts_aux :
+Definition Dcuts_to_hnnr_set : Dcuts -> hnnr_set :=
+  setquotpr Dcuts_eq.
+
+
+Lemma hnnr_set_to_Dcuts_bounded :
   forall E : hnnr_set, hexists (isub Dcuts_le (pr1 E)).
 Proof.
   destruct E as [E (x,(H,H0))] ; simpl.
@@ -30,15 +32,16 @@ Definition hnnr_set_to_Dcuts : hnnr_set -> Dcuts.
 Proof.
   intros E.
   apply (Dcuts_lub (pr1 E)).
-  now apply hnnr_set_to_Dcuts_aux.
+  now apply hnnr_set_to_Dcuts_bounded.
 Defined.
-Coercion hnnr_set_to_Dcuts : pr1hSet >-> Dcuts.
 
-Lemma hnnr_set_to_Dcuts_surj :
+
+(* Lemma hnnr_set_to_Dcuts_surj :
   forall x y : hnnr_set,
     Dcuts_eq (hnnr_set_to_Dcuts x) (hnnr_set_to_Dcuts y) -> x = y.
 Proof.
-Admitted.
+  
+Admitted.*)
 
 Lemma hnnr_set_to_Dcuts_bij :
   forall x : Dcuts, Dcuts_eq (hnnr_set_to_Dcuts (Dcuts_to_hnnr_set x)) x.
@@ -51,19 +54,27 @@ Proof.
   - apply isub_Dcuts_lub.
     now apply isrefl_Dcuts_eq.
 Qed.
-Lemma Dcuts_to_hnnr_set_bij :
+(*Lemma Dcuts_to_hnnr_set_bij :
   forall x : hnnr_set, (Dcuts_to_hnnr_set (hnnr_set_to_Dcuts x)) = x.
 Proof.
-Admitted.
+Admitted.*)
   
 (** Order *)
 
-Definition hnnr_le_rel : hrel hnnr_set := quotrel Dcuts_le_comp.
-Definition hnnr_lt_rel : hrel hnnr_set := quotrel Dcuts_lt_comp.
-Definition hnnr_ge_rel : hrel hnnr_set := quotrel Dcuts_ge_comp.
-Definition hnnr_gt_rel : hrel hnnr_set := quotrel Dcuts_gt_comp.
+Local Definition hnnr_le_rel : hrel hnnr_set := quotrel Dcuts_le_comp.
+Local Definition ispo_hnnr_le_rel : ispo (hnnr_le_rel) := ispoquotrel Dcuts_le_comp ispo_Dcuts_le.
+Definition hnnr_le : po hnnr_set :=
+  popair _ ispo_hnnr_le_rel.
 
-(** Least Upper Bound *)
+Local Definition hnnr_ge_rel : hrel hnnr_set := quotrel Dcuts_ge_comp.
+Local Definition ispo_hnnr_ge_rel : ispo (hnnr_ge_rel) := ispoquotrel Dcuts_ge_comp ispo_Dcuts_ge.
+Definition hnnr_ge : po hnnr_set :=
+  popair _ ispo_hnnr_ge_rel.
+
+Local Definition hnnr_lt_rel : hrel hnnr_set := quotrel Dcuts_lt_comp.
+Local Definition hnnr_gt_rel : hrel hnnr_set := quotrel Dcuts_gt_comp.
+
+(* (** Least Upper Bound *)
 
 Definition hnnr_lub (E : hnnr_set -> hProp)
   (E_bounded : hexists (isub hnnr_le_rel E)) : hnnr_set.
@@ -90,7 +101,7 @@ Proof.
   intros.
   apply istrans_Dcuts_eq with (2 := X0).
   now apply issymm_Dcuts_eq.
-Admitted.
+Admitted.*)
 
 Notation hnnr := hnnr_set.
 
