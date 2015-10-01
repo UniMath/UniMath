@@ -9,17 +9,18 @@ Require Import UniMath.Foundations.FiniteSets
 
 Unset Automatic Introduction.
 
-Definition Oset := total2 (fun X : Poset => dirprod (istotal (pr1 (pr2 X))) (isantisymm (pr1 (pr2 X)))).
+Definition Oset := total2 (fun X : Poset => istotal (pr1 (pr2 X)) × isantisymm (pr1 (pr2 X))).
 
 Definition underlyingSet (X:Oset) : hSet := pr1 X.
 Coercion underlyingSet : Oset >-> hSet.
 
 Definition underlyingRelation (X:Oset) := pr1 (pr2 (pr1 X)).
 
-Notation "m ≤ n" := (underlyingRelation _ m n) (no associativity, at level 70).
-Notation "m ≥ n" := (n ≤ m) (no associativity, at level 70).
-Notation "m < n" := (dirprod (m ≤ n) (not (m = n))).
-Notation "m > n" := (n < m).
+Notation "m ≤ n" := (underlyingRelation _ m n) (no associativity, at level 70) : oset_scope.
+Open Scope oset_scope.
+Notation "m ≥ n" := (n ≤ m) (no associativity, at level 70) : oset_scope.
+Notation "m < n" := m ≤ n × not (m = n) : oset_scope.
+Notation "m > n" := (n < m) : oset_scope.
 
 Definition stnoset (n:nat) : Oset.
 Proof.
