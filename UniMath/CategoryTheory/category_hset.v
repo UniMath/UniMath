@@ -30,7 +30,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.HLevel_n_is_of_hlevel_Sn.
 
 Local Notation "a --> b" :=
-  (precategory_morphisms a b) (at level 50, left associativity).
+  (precategory_morphisms a b) (at level 50).
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
@@ -305,13 +305,19 @@ Definition colimit : HSET :=
 
 *)
 
+Definition to_cobase (j : J) : pr1hSet (F j) -> cobase.
+Proof.
+  intros Fj.
+  exists j.
+  exact Fj.
+  Defined.
+
 Definition injections (j : J) : F j --> colimit.
 Proof.
-intros fj.
+intros Fj.
 unfold colimit.
 apply (setquotpr _).
-exists j.
-assumption.
+exact (to_cobase j Fj).
 Defined.
 
 (* Definition cocone {J C : precategory} (F : functor J C) (N : C) := *)
@@ -328,7 +334,9 @@ Defined.
 
 
 Require Import UniMath.CategoryTheory.colimits.cocones.
+
 Section cpm.
+
 Variables (c : Cocone F).
 
 Definition from_cobase : cobase -> pr1hSet (coconeBottom c).
@@ -339,6 +347,11 @@ intros iA.
 exact ((coconeIn _ _ _ c) (pr1 iA) (pr2 iA)). (* TODO: implicits *)
 Defined.
 
+Lemma to_cobase_from_cobase (i : J) (A : pr1hSet (F i)) : from_cobase (to_cobase i A) = coconeIn _ _ _ c i A.
+Proof.
+apply idpath.
+Qed.
+  
 Definition from_cobase_rel : hrel cobase.
 Proof.
 intros x x'.
@@ -398,7 +411,6 @@ apply test.
 assumption.
 Qed.
 
-
 Definition from_colimit : colimit --> coconeBottom c.
 Proof.
 unfold colimit; simpl.
@@ -427,18 +439,38 @@ apply hinhpr; simpl.
 now exists f.
 Defined.
 
+Definition foo (C : COCONE has_homsets_HSET F) : thing --> C.
+Proof.
+exists (from_colimit C); intro i; simpl.
+unfold injections, compose, from_colimit; simpl.
+apply funextfun; intro Fi.
+rewrite (setquotunivcomm eqr).
+apply to_cobase_from_cobase.
+Defined.
+
 Definition ColimitF : Colimit _ _ F has_homsets_HSET.
 Proof.
-unfold Colimit.
-apply (tpair _ thing).
-intro C.
-assert (foo : thing --> C).
-simpl in *.
-exists (from_colimit C).
-intro i.
+apply (tpair _ thing); intro C.
+exists (foo C); simpl; intro f.
+apply (CoconeMor_eq _ _ has_homsets_HSET).
 simpl.
-admit.
-admit.
-Admitted.
+apply funextfun; intro x; simpl.
+Search (issurjective _ -> _).
+apply (surjectionisepitosets (setquotpr eqr)).
+apply issurjsetquotpr.
+apply pr2.
+intro y.
+destruct y as [i Fi].
+generalize (CoconeMor_prop _ _ _ _ _ f i).
+simpl.
+intro H.
+assert (H':=toforallpaths _ _ _ H Fi).
+unfold compose in H'.
+simpl in *.
+eapply pathscomp0.
+apply H'.
+apply idpath.
+Defined.
 
+       
 End colimits.
