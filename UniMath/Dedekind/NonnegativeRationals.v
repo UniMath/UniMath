@@ -195,18 +195,37 @@ Notation "x + y" := (plusNonnegativeRationals x y) : NnR_scope.
 
 Open Scope NnR_scope.
 
-Lemma ltNonnegativeRationals_leNonnegativeRationals :
+Lemma lt_leNonnegativeRationals :
   forall x y : NonnegativeRationals, x < y -> x <= y.
 Proof.
   intros x y.
   now apply hqlthtoleh.
 Qed.
-Lemma notgeNonnegativeRationals_ltNonnegativeRationals :
+Lemma notge_ltNonnegativeRationals :
   forall x y : NonnegativeRationals, neg (x >= y) -> x < y.
 Proof.
   intros x y Hxy.
   now apply neghqgehtolth.
 Qed.
+Lemma istrans_ltNonnegativeRationals : istrans ltNonnegativeRationals.
+Proof.
+  now destruct ltNonnegativeRationals as (lt,(Htrans,H)) ; simpl.
+Qed.
+Lemma istrans_le_lt_ltNonnegativeRationals :
+  forall x y z : NonnegativeRationals,
+    x <= y -> y < z -> x < z.
+Proof.
+  intros x y z.
+  now apply hqlehlthtrans.
+Qed.
+Lemma between_ltNonnegativeRationals :
+  forall x y : NonnegativeRationals,
+    x < y -> total2 (fun t => dirprod (x < t) (t < y)).
+Proof.
+  intros x y H.
+  (*exists ((x+y)/2). need hqdiv*)
+Admitted.
+
 Lemma isnonnegative_NonnegativeRationals :
   forall x : NonnegativeRationals , 0 <= x.
 Proof.
