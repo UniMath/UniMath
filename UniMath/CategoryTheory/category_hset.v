@@ -278,8 +278,9 @@ Variable (F : functor J HSET).
 Definition cobase : UU := Σ j, pr1hSet (F j).
 
 (* hprop stuff is in UniMath.Foundations.Propositions *)
-Definition rel0 : hrel cobase := λ ja ja',
-  hProppair (ishinh (Σ f, # F f (pr2 ja) = pr2 ja')) (isapropishinh _).
+Definition rel0 : hrel cobase := λ (ia jb : cobase),
+  hProppair (ishinh (Σ f : pr1 ia --> pr1 jb, # F f (pr2 ia) = pr2 jb))
+            (isapropishinh _).
 
 Definition rel : hrel cobase := eqrel_from_hrel rel0.
 
@@ -304,7 +305,7 @@ Definition colimit : HSET :=
 
 *)
 
-Definition projection (j : J) : F j --> colimit.
+Definition injections (j : J) : F j --> colimit.
 Proof.
 intros fj.
 unfold colimit.
@@ -313,16 +314,29 @@ exists j.
 assumption.
 Defined.
 
-Definition cocone {J C : precategory} (F : functor J C) (N : C) :=
-  Σ (a : (∀ i, F i --> N)), ∀ i j (f : i --> j), a i = # F f ;; a j.
+(* Definition cocone {J C : precategory} (F : functor J C) (N : C) := *)
+(*   Σ (a : (∀ i, F i --> N)), ∀ i j (f : i --> j), a i = # F f ;; a j. *)
 
-Variables (N : HSET) (c : cocone F N).
+(* Lemma colimitCocone (i j : J) (f : i --> j) : # F f ;; injections j = injections i. *)
+(* Proof. *)
+(* unfold injections, compose; apply funextfun; intros Fi; simpl. *)
+(* apply (weqpathsinsetquot eqr). *)
+(* apply eqrel_impl. *)
+(* apply hinhpr; simpl. *)
+(* now exists f. *)
+(* Qed. *)
 
-(* TODO: Better names and coercions for cocones *)
-Definition from_cobase : cobase -> pr1hSet N.
+
+Require Import UniMath.CategoryTheory.colimits.cocones.
+Section cpm.
+Variables (c : Cocone F).
+
+Definition from_cobase : cobase -> pr1hSet (coconeBottom c).
 Proof.
-intros cob.
-exact ((pr1 c) (pr1 cob) (pr2 cob)).
+intros iA.
+(* destruct iA as [i Fi]. *)
+(* exact (coconeIn _ _ _ c i Fi) *)
+exact ((coconeIn _ _ _ c) (pr1 iA) (pr2 iA)). (* TODO: implicits *)
 Defined.
 
 Definition from_cobase_rel : hrel cobase.
@@ -362,10 +376,11 @@ destruct b.
 simpl in *.
 generalize (p t1 t2 t0).
 intros APA BEPA.
-rewrite APA.
-simpl.
+unfold compose in APA.
+simpl in *.
 rewrite <- BEPA.
-apply idpath.
+set (T:=toforallpaths _ _ _ APA).
+now rewrite T.
 Qed.
 
 Lemma test a b : rel a b -> from_cobase_eqrel a b.
@@ -383,6 +398,47 @@ apply test.
 assumption.
 Qed.
 
-Definition testfun : colimit --> N.
+
+Definition from_colimit : colimit --> coconeBottom c.
+Proof.
+unfold colimit; simpl.
+apply (setquotuniv _ _ from_cobase).
+exact iscomprel_from_base.
+Defined.
+
+End cpm.
+
+Definition thing0 : CoconeData J HSET F := tpair _ colimit injections.
+
+Definition thing : COCONE has_homsets_HSET F.
+Proof.
+apply (tpair _ thing0).
+unfold CoconeProp.
+unfold coconeIn.
+simpl.
+intros i j f.
+apply funextfun; intros Fi; simpl.
+unfold compose; simpl.
+unfold injections; simpl.
+apply (weqpathsinsetquot eqr).
+apply (eqrelsymm eqr).
+apply eqrel_impl.
+apply hinhpr; simpl.
+now exists f.
+Defined.
+
+Definition ColimitF : Colimit _ _ F has_homsets_HSET.
+Proof.
+unfold Colimit.
+apply (tpair _ thing).
+intro C.
+assert (foo : thing --> C).
+simpl in *.
+exists (from_colimit C).
+intro i.
+simpl.
+admit.
+admit.
+Admitted.
 
 End colimits.
