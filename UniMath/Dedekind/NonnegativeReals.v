@@ -13,7 +13,7 @@ Require Import UniMath.Dedekind.DedekindCuts.
 
 Definition hnnr_quot : hSet := setquotinset eqDedekindCuts.
 
-Definition Dcuts_to_hnnr_set : DedekindCuts -> hnnr_quot :=
+Definition Dcuts_to_hnnr_quot : DedekindCuts -> hnnr_quot :=
   setquotpr eqDedekindCuts.
 
 
@@ -45,7 +45,7 @@ Proof.
 Admitted.*)
 
 Lemma hnnr_quot_to_Dcuts_bij :
-  forall x : DedekindCuts, eqDedekindCuts (hnnr_quot_to_Dcuts (Dcuts_to_hnnr_set x)) x.
+  forall x : DedekindCuts, eqDedekindCuts (hnnr_quot_to_Dcuts (Dcuts_to_hnnr_quot x)) x.
 Proof.
   intros x.
   split.
@@ -55,10 +55,15 @@ Proof.
   - apply isub_Dcuts_lub.
     now apply isrefl_Dcuts_eq.
 Qed.
-(*Lemma Dcuts_to_hnnr_set_bij :
-  forall x : hnnr_set, (Dcuts_to_hnnr_set (hnnr_set_to_Dcuts x)) = x.
+Lemma Dcuts_to_hnnr_quot_bij :
+  forall x : hnnr_quot, (Dcuts_to_hnnr_quot (hnnr_quot_to_Dcuts x)) = x.
 Proof.
-Admitted.*)
+  intros X.
+  unfold Dcuts_to_hnnr_quot.
+  unfold hnnr_quot_to_Dcuts.
+  destruct lubDedekindCuts as (x,Hx).
+  
+Admitted.
   
 (** Order *)
 
@@ -82,34 +87,32 @@ Local Definition hnnr_gt : hrel hnnr_quot :=
 Local Definition isstpo_hnnr_gt : isStrictPartialOrder hnnr_gt :=
   isStrictPartialOrder_quotrel gtDedekindCuts_comp (pr2 gtDedekindCuts).
 
-(* (** Least Upper Bound *)
+(** Least Upper Bound *)
 
-Definition hnnr_lub (E : hnnr_set -> hProp)
-  (E_bounded : hexists (isub hnnr_le_rel E)) : hnnr_set.
+Local Definition hnnr_lub (E : hnnr_quot -> hProp)
+  (E_bounded : hexists (isUpperBound (pairPartialOrder _ ispo_hnnr_le) E)) : hnnr_quot.
 Proof.
-  set (F := fun x : Dcuts => E (Dcuts_to_hnnr_set x)).
-  assert (F_bounded : hexists (isub Dcuts_le F)).
+  set (F := fun x : DedekindCuts => E (Dcuts_to_hnnr_quot x)).
+  assert (F_bounded : hexists (isUpperBound leDedekindCuts F)).
   { revert E_bounded.
     apply hinhfun.
     intros (ub,Hub).
-    exists (hnnr_set_to_Dcuts ub).
+    exists (hnnr_quot_to_Dcuts ub).
     intros x Fx.
-    assert (Ex : E (Dcuts_to_hnnr_set x)).
-    admit.
-    admit.
+    specialize (Hub _ Fx) ; simpl in Hub.
+    erewrite leDedekindCuts_comp.
+    2: apply issymm_eqDedekindCuts, hnnr_quot_to_Dcuts_bij.
+    2: apply isrefl_eqDedekindCuts.
+    revert Hub.
+    generalize (Dcuts_to_hnnr_quot x) ; clear.
+    intros x H.
+    rewrite <- (setquotuniv2comm eqDedekindCuts (hSetpair _ isasethProp) leDedekindCuts leDedekindCuts_comp).
+    simpl.
+    rewrite !Dcuts_to_hnnr_quot_bij.
+    apply H.
   }
-  exists (Dcuts_eq (Dcuts_lub F F_bounded)).
-  apply iseqclassconstr.
-  intros P HP.
-  apply HP.
-  exists (Dcuts_lub F F_bounded).
-  now apply isrefl_Dcuts_eq.
-  intros.
-  now apply istrans_Dcuts_eq with (1 := X0).
-  intros.
-  apply istrans_Dcuts_eq with (2 := X0).
-  now apply issymm_Dcuts_eq.
-Admitted.*)
+  apply (Dcuts_to_hnnr_quot (pr1 (lubDedekindCuts F F_bounded))).
+Qed.
 
 (** * Export *)
 
@@ -129,6 +132,8 @@ Definition gtNonnegativeReals : StrictPartialOrder NonnegativeReals :=
 (** ** Opacify *)
 
 Global Opaque NonnegativeReals.
+Global Opaque leNonnegativeReals geNonnegativeReals.
+Global Opaque ltNonnegativeReals gtNonnegativeReals.
 
 (* End of the file hnnr.v *)
 

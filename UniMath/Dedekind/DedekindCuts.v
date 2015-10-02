@@ -512,6 +512,15 @@ Definition gtDedekindCuts : StrictPartialOrder DedekindCuts :=
 
 (** ** Theorems *)
 
+Lemma issymm_eqDedekindCuts : issymm eqDedekindCuts.
+Proof.
+  apply eqrelsymm.
+Qed.
+Lemma isrefl_eqDedekindCuts : isrefl eqDedekindCuts.
+Proof.
+  apply eqrelrefl.
+Qed.
+
 (** [iscomprelrel] *)
 
 Lemma leDedekindCuts_comp : iscomprelrel eqDedekindCuts leDedekindCuts.
