@@ -225,7 +225,8 @@ Definition Action_univalence_prelim {G:gr} {X Y:Action G} :
 Proof. intros.
        refine (weqcomp (total2_paths_equiv (ActionStructure G) X Y) _).
        refine (weqbandf _ _ _ _).
-       { refine (weqcomp (pr1hSet_injectivity _ _) (weqpair (@eqweqmap (pr1 X) (pr1 Y)) (univalenceaxiom _ _))). }
+       { refine (weqcomp _ (weqpair (@eqweqmap (pr1 X) (pr1 Y)) (univalenceaxiom _ _))).
+         { apply total2_paths_isaprop_equiv. apply isapropisaset. } }
        simpl. intro p. refine (weqcomp (is_equivariant_identity p) _).
        exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap set_to_type p)))).
 Defined.
