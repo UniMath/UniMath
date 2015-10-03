@@ -7,7 +7,6 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.FunctionalExtensionality
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
-Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Utilities.NatNotation.
 
 (** ** Definitions *)
 
@@ -20,7 +19,7 @@ Record Tree :=
       mt_symm: forall x y, mt_dist x y = mt_dist y x;
       mt_trans: forall x y z, mt_dist x z <= mt_dist x y + mt_dist y z;
       mt_step: forall x z, x != z ->
-                 total2 (fun y => (S (mt_dist x y) = mt_dist x z) **
+                 total2 (fun y => (S (mt_dist x y) = mt_dist x z) ×
                                   (mt_dist y z = 1)) }.
       
 Lemma mt_path_refl (T:Tree) (x y:T) : x = y -> mt_dist _ x y = 0.
@@ -56,6 +55,40 @@ Proof. intros ? ? ? ? ?.
              destruct y as [y [i j]]; simpl.
              apply invmaponpathsS. exact (i@H). } } }
        intro. apply (d_ind (mt_dist _ x z)). reflexivity. Defined.
+
+Require Import UniMath.Ktheory.Nat.
+        Import UniMath.Ktheory.Nat.Discern.
+
+Definition nat_tree : Tree.
+Proof. refine (make nat nat_dist _ _ _ _ _).
+       { intro m. induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
+       { apply nat_dist_anti. } { apply nat_dist_symm. } 
+       { apply nat_dist_trans. }
+       { intros m n e. assert (d := natneqchoice _ _ e). clear e.
+         destruct d as [h|h].
+         { exists (S n).
+           { split.
+             { apply nat_dist_gt. exact h. }
+             { destruct (natgthorleh (S n) n) as [_|j].
+               { clear h. induction n. { reflexivity. } { apply IHn. } } 
+               { apply fromempty. clear h. exact (j (natgthsnn n)). }}} }
+         { exists (n - 1).
+           { split.
+             { assert (a := natltminus1 m n h). assert (b := natlthtoleh m n h).
+               assert (c := nat_dist_le _ _ a). assert (d := nat_dist_le _ _ b).
+               rewrite c, d; clear c d. rewrite natminusminusassoc. simpl.
+               change (1 + (n - (1+m)) = n - m). rewrite (natpluscomm 1 m).
+               rewrite <- natminusminusassoc. rewrite natpluscomm.
+               apply (minusplusnmm (n-m) 1).
+               apply (natminusplusltcomm m n 1).
+               { assert(e := natleh0n m). 
+                 assert(f := natlehlthtrans _ _ _ e h).
+                 exact (natlthtolehsn _ _ f). }
+               { exact a. } }
+             { assert (a := natleh0n m).
+               assert (b := natlehlthtrans _ _ _ a h).
+               assert (c := natlthtolehsn _ _ b).
+               exact (nat_dist_minus 1 n c). } } } } Defined.
 
 (*
 Local Variables:

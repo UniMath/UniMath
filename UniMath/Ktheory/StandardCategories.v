@@ -2,9 +2,7 @@
 
 Require Import UniMath.CategoryTheory.precategories
                UniMath.Foundations.Sets.
-Require UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories.
-Import UniMath.Ktheory.Utilities.Notation
-       UniMath.Ktheory.Precategories.Notation.
+Require Import UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories.
 Definition compose' { C:precategory_data } { a b c:ob C }
   (g:b → c) (f:a → b) : a → c.
 Proof. intros. exact (compose f g). Defined.
@@ -69,7 +67,7 @@ Require Import UniMath.Foundations.StandardFiniteSets.
 Definition cat_n (n:nat):category.
   intro. apply (path_groupoid (stn n)). apply hlevelntosn.
   apply isasetstn. Defined.
-Definition is_discrete (C:precategory) := isaset (ob C) ** is_groupoid C.
+Definition is_discrete (C:precategory) := isaset (ob C) × is_groupoid C.
 Lemma isaprop_is_discrete (C:precategory) : 
   isaprop (is_discrete C).
 Proof. intro. apply isofhleveltotal2. apply isapropisaset.

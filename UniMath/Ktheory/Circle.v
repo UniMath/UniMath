@@ -12,9 +12,8 @@ Require Import UniMath.Ktheory.AffineLine
                UniMath.Foundations.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.Integers
-               UniMath.Ktheory.Equivalences.
-Require Import UniMath.Ktheory.Utilities.
-Import UniMath.Ktheory.Utilities.Notation.
+               UniMath.Ktheory.Equivalences
+               UniMath.Ktheory.Utilities.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
 Open Scope action_scope.
@@ -36,7 +35,7 @@ Proof. intros. unfold circle_loop. rewrite pathsinv0inv0.
 Definition ZGuidedHomotopy {Y} {y:Y} (l:y = y) (T:Torsor ℤ) := 
   GuidedHomotopy (confun T y) (confun T l).
 
-Definition GH {Y} {y:Y} (l:y = y) := {T:Torsor ℤ & ZGuidedHomotopy l T}.
+Definition GH {Y} {y:Y} (l:y = y) := Σ T:Torsor ℤ, ZGuidedHomotopy l T.
 
 Definition GHpair {Y} {y:Y} (l:y = y) (T:Torsor ℤ) (g:ZGuidedHomotopy l T) :=
   T,,g : GH l.

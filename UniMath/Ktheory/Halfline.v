@@ -3,7 +3,6 @@
 Require Import UniMath.Foundations.FunctionalExtensionality
                UniMath.Ktheory.Utilities.
 Require UniMath.CategoryTheory.precategories.
-Import UniMath.Ktheory.Utilities.Notation.
 Require UniMath.Ktheory.Nat.
 Notation ℕ := nat.
 

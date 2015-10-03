@@ -14,6 +14,7 @@ Unset Kernel Term Sharing.
 Require UniMath.Ktheory.Nat.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Ktheory.Utilities
+               UniMath.Foundations.NaturalNumbers
                UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.FunctionalExtensionality
                UniMath.Ktheory.GroupAction
@@ -21,8 +22,6 @@ Require Import UniMath.Ktheory.Utilities
                UniMath.Ktheory.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.Equivalences.
-Import UniMath.Ktheory.Utilities.Notation
-       UniMath.Ktheory.Utilities.NatNotation.
 
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Open Scope hz_scope.
@@ -33,30 +32,30 @@ Definition ℤRecursionData0 (P:ℤ->Type) (p0:P zero)
       (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':forall n, P(- toℤ n) -> P(- toℤ (S n))) := fun 
           f:forall i, P i => 
-            (f zero = p0) **
-            (forall n, f(  toℤ (S n)) = IH  n (f (  toℤ n))) **
+            (f zero = p0) ×
+            (forall n, f(  toℤ (S n)) = IH  n (f (  toℤ n))) ×
             (forall n, f(- toℤ (S n)) = IH' n (f (- toℤ n))).
 
 Definition ℤRecursionData (P:ℤ->Type)
       (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':forall n, P(- toℤ n) -> P(- toℤ (S n))) := fun 
              f:forall i, P i => 
-               (forall n, f(  toℤ (S n)) = IH  n (f (  toℤ n))) **
+               (forall n, f(  toℤ (S n)) = IH  n (f (  toℤ n))) ×
                (forall n, f(- toℤ (S n)) = IH' n (f (- toℤ n))).
 
 Lemma ℤRecursionUniq (P:ℤ->Type) (p0:P zero) 
       (IH :forall n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':forall n, P(- toℤ n) -> P(- toℤ (S n))) :
-  iscontr (total2 (ℤRecursionData0 P p0 IH IH')).
+  ∃! f, ℤRecursionData0 P p0 IH IH' f.
 Proof. intros.
        unfold ℤRecursionData0.
        (* use hNatRecursionEquiv *)
-       apply (iscontrweqb (Y := { 
-            f:forall w, P (negpos w) & 
-              (f (ii2 O) = p0) **
-              (forall n : nat, f (ii2 (S n)) = IH n (f (ii2 n))) **
-              (f (ii1 O) = IH' O (f (ii2 O))) **
-              (forall n : nat, f (ii1 (S n)) = IH' (S n) (f (ii1 n)))})).
+       apply (iscontrweqb (
+         Y := Σ f:forall w, P (negpos w),
+              (f (ii2 O) = p0) ×
+              (forall n : nat, f (ii2 (S n)) = IH n (f (ii2 n))) ×
+              (f (ii1 O) = IH' O (f (ii2 O))) ×
+              (forall n : nat, f (ii1 (S n)) = IH' (S n) (f (ii1 n))))).
        { apply (weqbandf (weqonsecbase _ negpos)). intro f.
          refine (weqpair _ (gradth _ _ _ _)).
          { intros [h0 [hp hn]]. refine (tuple4 _ _ _ _). 
@@ -69,52 +68,50 @@ Proof. intros.
            { reflexivity. } { reflexivity. }
            { apply funextsec; intros [|n']; reflexivity; reflexivity. } }
          { intros [h0 [h1' [hp hn]]]. reflexivity. } }
-       intermediate_iscontr ({
-             f : (forall n, P (negpos (ii1 n))) **
-                 (forall n, P (negpos (ii2 n))) & 
-                (pr2 f O = p0) **
-                (forall n : nat, pr2 f (S n) = IH n (pr2 f n)) **
-                (pr1 f O = IH' O (pr2 f O)) **
-                (forall n : nat, pr1 f (S n) = IH' (S n) (pr1 f n))}).
+       intermediate_iscontr (
+             Σ f : (forall n, P (negpos (ii1 n))) × (forall n, P (negpos (ii2 n))),
+                (pr2 f O = p0) ×
+                (forall n : nat, pr2 f (S n) = IH n (pr2 f n)) ×
+                (pr1 f O = IH' O (pr2 f O)) ×
+                (forall n : nat, pr1 f (S n) = IH' (S n) (pr1 f n))).
        { apply (weqbandf (weqsecovercoprodtoprod (fun w => P (negpos w)))). 
          intro f. apply idweq. }
-       intermediate_iscontr ({
-              f : (forall n, P (negpos (ii2 n))) **
-                  (forall n, P (negpos (ii1 n))) & 
-                (pr1 f O = p0) **
-                (forall n : nat, pr1 f (S n) = IH n (pr1 f n)) **
-                (pr2 f O = IH' O (pr1 f O)) **
-                (forall n : nat, pr2 f (S n) = IH' (S n) (pr2 f n))}).
+       intermediate_iscontr (
+              Σ f : (forall n, P (negpos (ii2 n))) × (forall n, P (negpos (ii1 n))),
+                (pr1 f O = p0) ×
+                (forall n : nat, pr1 f (S n) = IH n (pr1 f n)) ×
+                (pr2 f O = IH' O (pr1 f O)) ×
+                (forall n : nat, pr2 f (S n) = IH' (S n) (pr2 f n))).
        { apply (weqbandf (weqdirprodcomm _ _)). intro f. apply idweq. }
-       intermediate_iscontr ({
-                f2 : forall n : nat, P (negpos (ii2 n)) & {
-                f1 : forall n : nat, P (negpos (ii1 n)) & 
-                     (f2 O = p0) **
-                     (forall n : nat, f2 (S n) = IH n (f2 n)) **
-                     (f1 O = IH' O (f2 O)) **
-                     (forall n : nat, f1 (S n) = IH' (S n) (f1 n))}}).
+       intermediate_iscontr (
+                Σ f2 : forall n : nat, P (negpos (ii2 n)), 
+                Σ f1 : forall n : nat, P (negpos (ii1 n)),
+                     (f2 O = p0) ×
+                     (forall n : nat, f2 (S n) = IH n (f2 n)) ×
+                     (f1 O = IH' O (f2 O)) ×
+                     (forall n : nat, f1 (S n) = IH' (S n) (f1 n))).
        { apply weqtotal2asstor. }
-       intermediate_iscontr ({
-            f2 : forall n : nat, P (negpos (ii2 n)) & 
-                 (f2 O = p0) ** {
-            f1 : forall n : nat, P (negpos (ii1 n)) & 
-                 (forall n : nat, f2 (S n) = IH n (f2 n)) **
-                 (f1 O = IH' O (f2 O)) **
-                 (forall n : nat, f1 (S n) = IH' (S n) (f1 n))}}).
+       intermediate_iscontr (
+            Σ f2 : forall n : nat, P (negpos (ii2 n)),
+                 (f2 O = p0) × 
+            Σ f1 : forall n : nat, P (negpos (ii1 n)),
+                 (forall n : nat, f2 (S n) = IH n (f2 n)) ×
+                 (f1 O = IH' O (f2 O)) ×
+                 (forall n : nat, f1 (S n) = IH' (S n) (f1 n))).
        { apply weqfibtototal; intro f2. apply weq_total2_prod. }
-       intermediate_iscontr ({
-            f2 : forall n : nat, P (negpos (ii2 n)) & 
-                 (f2 O = p0) **
-                 (forall n : nat, f2 (S n) = IH n (f2 n)) ** {
-            f1 : forall n : nat, P (negpos (ii1 n)) & dirprod
-                 (f1 O = IH' O (f2 O))
-                 (forall n : nat, f1 (S n) = IH' (S n) (f1 n))}}).
+       intermediate_iscontr (
+            Σ f2 : forall n : nat, P (negpos (ii2 n)),
+                 (f2 O = p0) ×
+                 (forall n : nat, f2 (S n) = IH n (f2 n)) × 
+            Σ f1 : forall n : nat, P (negpos (ii1 n)), 
+                 (f1 O = IH' O (f2 O)) ×
+                 (forall n : nat, f1 (S n) = IH' (S n) (f1 n))).
        { apply weqfibtototal; intro f2. apply weqfibtototal; intro.
          apply weq_total2_prod. }
-       intermediate_iscontr ({
-            f2 : forall n : nat, P (negpos (ii2 n)) & 
-                 (f2 O = p0) **
-                 (forall n : nat, f2 (S n) = IH n (f2 n))}).
+       intermediate_iscontr (
+            Σ f2 : forall n : nat, P (negpos (ii2 n)),
+                 (f2 O = p0) ×
+                 (forall n : nat, f2 (S n) = IH n (f2 n))).
        { apply weqfibtototal; intro f2. apply weqfibtototal; intro h0.
          apply weqpr1; intro ih2. 
          exact (Nat.Uniqueness.hNatRecursionUniq
@@ -299,9 +296,7 @@ Proof. intros.
 Definition target_paths {Y} {T:Torsor ℤ} (f:T->Y) := forall t, f t=f(one + t).
 
 Definition GHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) := fun 
-        y:Y => {
-        h:nullHomotopyFrom f y &
-          forall n, h(one + n) = h n @ s n}.
+        y:Y => Σ h:nullHomotopyFrom f y, ∀ n, h(one + n) = h n @ s n.
 
 Definition GuidedHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) := 
   total2 (GHomotopy f s).
@@ -332,7 +327,7 @@ Proof. intros. apply (squash_to_prop (torsor_nonempty T)).
        (* A better proof would construct the center explicitly now
           using [makeGuidedHomotopy] below.  Or we could replace this theorem
           by a corollary of it, with the new center. *)
-       apply ( iscontrweqb (Y := {y:Y & y = f t0})).
+       apply ( iscontrweqb (Y := Σ y:Y, y = f t0)).
        { apply weqfibtototal; intro y.
          exact (ℤTorsorRecursionEquiv _ (fun t => weq_pathscomp0r _ _) t0). }
        apply iscontrcoconustot. Defined.

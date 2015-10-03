@@ -76,7 +76,7 @@ Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
 
 Definition dirprod (X Y : UU) := Σ x:X, Y.
 
-Notation "A × B" := (dirprod A B) (at level 80, no associativity) : type_scope.
+Notation "A × B" := (dirprod A B) (at level 80, right associativity) : type_scope.
 
 Definition dirprodpair {X Y : UU} := tpair (fun x : X => Y).
 
@@ -516,6 +516,8 @@ Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
 (** Contractible types. *)
 
 Definition iscontr (T:UU) : UU := Σ cntr:T, ∀ t:T, t=cntr.
+
+Notation "'∃!'  x .. y , P" := (iscontr (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
 
 Definition iscontrpair {T : UU} : ∀ x : T, (∀ t : T, t = x) -> iscontr T := tpair _.
 
