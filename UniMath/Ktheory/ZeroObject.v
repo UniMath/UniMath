@@ -4,7 +4,7 @@ Require Import UniMath.CategoryTheory.precategories UniMath.Foundations.Sets Uni
 Require Import UniMath.Ktheory.InitialAndFinalObject.
 Definition ZeroObject (C:precategory) := Σ z:ob C, isInitialObject C z × isTerminalObject C z.
 Definition zero_opp (C:precategory) : ZeroObject C -> ZeroObject C^op.
-  intros C [z [i t]]. exact (z ,, (t ,, i)). Defined.
+  intros C [z [i t]]. exact (z,,t,,i). Defined.
 Definition zero_opp' (C:precategory) : ZeroObject C^op -> ZeroObject C.
   intros ? X. exact (zero_opp C^op X). Defined.
 Definition zero_object {C:precategory} (z:ZeroObject C) : ob C := pr1  z.

@@ -17,23 +17,6 @@ Notation "f ;; g" := (funcomp f g) (at level 50).
 Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
 Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
 Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
-Open Scope transport_scope.
-
-Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
-Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
-(* some other tpair notations that "work":
-
-    Notation "x , y" := (tpair _ x y) (at level 69, right associativity).
-    (* Examples: *)
-    Goal Σ (_:nat), nat. exact (4,5). Defined.
-    Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,3,4,5,6). Defined.
-
-    Notation "( x ; .. ; y , z )" := (tpair _ x .. (tpair _ y z) ..) : core_scope.
-    (* Examples: *)
-    Goal Σ (_:nat), nat. exact (4,5). Defined.
-    Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2;3;4;5,6). Defined.
-*)
-
 Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
 Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
 Open Scope transport_scope.
@@ -165,7 +148,7 @@ Definition pr2_of_hfiberpair {X Y} {f:X->Y} {x:X} {y:Y} {e:f x = y} :
   pr2 (hfiberpair f x e) = e.
 Proof. reflexivity. Defined.
 
-Definition pr2_of_pair {X} {P:X->Type} (x:X) (p:P x) : pr2 (@tpair X P x p) = p.
+Definition pr2_of_pair {X} {P:X->Type} (x:X) (p:P x) : pr2 (tpair P x p) = p.
 Proof. reflexivity. Defined.
 
 Definition pr2_of_weqpair {X Y} (f:X->Y) (i:isweq f) : pr2 (weqpair f i) = i.

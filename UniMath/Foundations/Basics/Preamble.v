@@ -105,6 +105,10 @@ Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : 
 Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
 
+Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
+(* Example: *)
+Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
+
 Definition pr1 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : T .
 Proof . intros .  induction t as [ t p ] . exact t . Defined. 
 
