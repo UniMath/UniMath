@@ -1,15 +1,14 @@
 (* -*- coding: utf-8 -*- *)
 
-(** *** terminal objects *)
-
 Require Import
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.total2_paths
         UniMath.Foundations.Sets.
-Import Precategories.Notation.
-Module TerminalObject.
+
+(** *** terminal objects *)
+
   Definition isTerminalObject (C:precategory) (a:ob C) := 
     forall x:ob C, iscontr (a ← x).
   Lemma theTerminalObjectIsomorphy (C:precategory) (a b:ob C) :
@@ -41,11 +40,9 @@ Module TerminalObject.
   Definition squashTerminalObject (C:precategory) := squash (TerminalObject C).
   Definition squashTerminalObjectProp (C:precategory) := 
     hProppair (squashTerminalObject C) (isaprop_squash _).
-End TerminalObject.
 
 (** *** initial objects *)
 
-Module InitialObject.
   Definition isInitialObject (C:precategory) (a:ob C) :=
     forall x:ob C, iscontr (x ← a).
   Lemma theInitialObjectIsomorphy (C:precategory) (a b:ob C) :
@@ -91,4 +88,3 @@ Module InitialObject.
   Definition squashInitialObject (C:precategory) := squash (InitialObject C).
   Definition squashInitialObjectProp (C:precategory) := 
     hProppair (squashInitialObject C) (isaprop_squash _).
-End InitialObject.

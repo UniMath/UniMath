@@ -5,7 +5,6 @@ Require Export UniMath.CategoryTheory.precategories
                UniMath.Foundations.Sets 
                UniMath.Ktheory.Utilities.
 Require Export UniMath.Ktheory.Precategories.
-Export UniMath.Ktheory.Precategories.Notation.
 
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
   intros. exists (total2 (fun c : ob C => set_to_type (X c))).
@@ -82,7 +81,7 @@ Proof.
 
 Module pr1.
   Definition fun_data {C:precategory} (X:C==>SET) : 
-      functor_data (Precategories.Precategory.obmor (cat X)) (Precategories.Precategory.obmor C).
+      functor_data (Precategories.Precategory_obmor (cat X)) (Precategories.Precategory_obmor C).
     intros. exists pr1. intros x x'. exact pr1. Defined.
   Definition func {C:precategory} (X:C==>SET) : cat X ==> C.
     intros. exists (fun_data _).

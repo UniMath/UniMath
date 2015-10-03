@@ -38,6 +38,8 @@ endif
 COQDOC := coqdoc
 COQDOCFLAGS := -interpolate --charset utf-8
 
+PACKAGE_FILES := $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
+
 ifneq "$(INCLUDE)" "no"
 include build/CoqMakefile.make
 endif
@@ -49,17 +51,20 @@ OTHERFLAGS += -verbose
 endif
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
+LATEXTARGET = latex
+COQDOCLATEXOPTIONS := -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}"
 COQDEFS := --language=none -r '/^[[:space:]]*\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\2/'
-TAGS : $(VFILES); etags $(COQDEFS) $^
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
-$(foreach P,$(PACKAGES),$(eval $P:; $(MAKE) $(shell sed "s=^\(..*\)=UniMath/$P/\1o=" < UniMath/$P/.package/files)))
+TAGS : $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
+FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
+$(foreach P,$(PACKAGES),$(eval $P: $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
 install:all
 lc:; wc -l $(VFILES)
 lcp:; for i in $(PACKAGES) ; do echo ; echo ==== $$i ==== ; for f in $(VFILES) ; do echo "$$f" ; done | grep "UniMath/$$i" | xargs wc -l ; done
 wc:; wc -w $(VFILES)
 describe:; git describe --dirty --long --always --abbrev=40 --all
 publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
-.coq_makefile_input: $(patsubst %, UniMath/%/.package/files, $(PACKAGES)) $(UMAKEFILES)
+.coq_makefile_input: $(PACKAGE_FILES) $(UMAKEFILES)
 	@ echo making $@ ; ( \
 	echo '# -*- makefile-gmake -*-' ;\
 	echo ;\
@@ -69,7 +74,7 @@ publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
 	echo '-Q UniMath UniMath' ;\
 	echo ;\
 	for i in $(PACKAGES) ;\
-	do sed "s=^\(.\)=UniMath/$$i/\1=" < UniMath/$$i/.package/files ;\
+	do <UniMath/$$i/.package/files $(FILES_FILTER) |sed "s=^=UniMath/$$i/="  ;\
 	done ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\
@@ -82,7 +87,7 @@ build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
 	mv .coq_makefile_output $@
 
 # "clean::" occurs also in build/CoqMakefile.make
-clean:: clean2 clean-enhanced
+clean:: clean2 clean-enhanced clean-latex
 distclean:clean cleanconfig distclean_coq
 clean2:
 	rm -f .coq_makefile_output build/CoqMakefile.make
@@ -93,6 +98,8 @@ cleanconfig:
 	rm -f build/Makefile-configuration
 clean-enhanced:
 	rm -rf $(ENHANCEDDOCTARGET)
+clean-latex:
+	rm -rf $(LATEXTARGET)
 
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
@@ -127,6 +134,13 @@ doc: $(GLOBFILES) $(VFILES)
 	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d $(ENHANCEDDOCTARGET) \
 	--with-header $(ENHANCEDDOCSOURCE)/header.html $(VFILES)
 	sed -i'.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
+latex: Makefile $(GLOBFILES) $(VFILES)
+	mkdir -p $(LATEXTARGET)
+	$(COQDOC) -toc $(COQDOCFLAGS) -latex $(COQDOCLATEXOPTIONS) $(COQDOCLIBS) -utf8 -d $(LATEXTARGET) $(VFILES)
+pdf: latex
+	cd $(LATEXTARGET) ;\
+	latexmk -pdf $(subst /,.,$(VFILES:.v=.tex))
+
 #################################
 # targets best used with INCLUDE=no
 git-clean:

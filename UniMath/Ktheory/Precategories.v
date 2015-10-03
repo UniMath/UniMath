@@ -8,39 +8,37 @@ Require Import UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.functor_categories
                .
 Require Import UniMath.Foundations.Sets.
+
+Notation "b ← a" := (precategory_morphisms a b) (at level 50).
+Notation "a → b" := (precategory_morphisms a b) (at level 50).
+Notation "a ==> b" := (functor a b) (at level 50).
+Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing).
+Notation "g ∘ f" := (precategories.compose f g) (at level 50, only parsing).
+Notation "# F" := (functor_on_morphisms F) (at level 3).
+Notation "C '^op'" := (opp_precat C) (at level 3).
+Notation SET := hset_precategory.
+
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := C,,i.
-Module Precategory.
-  Definition obmor (C:precategory) : precategory_ob_mor := 
-        precategory_ob_mor_from_precategory_data (
-            precategory_data_from_precategory C).
-  Definition obj (C:precategory) : Type :=
-    ob (
-        precategory_ob_mor_from_precategory_data (
-            precategory_data_from_precategory C)).
-  Definition mor {C:precategory} : ob C -> ob C -> UU :=
-    pr2 (
-        precategory_ob_mor_from_precategory_data (
-            precategory_data_from_precategory C)).
-End Precategory.
-Module Functor.
-  Definition obmor {C D} (F:functor C D) := pr1 F.
-  Definition obj {C D} (F:functor C D) := pr1 (pr1 F).
-  Definition mor {C D} (F:functor C D) := pr2 (pr1 F).
-  Definition identity {C D} (F:functor C D) := functor_id F.
-  Definition compose {C D} (F:functor C D) := functor_comp F.
-End Functor.
-Module Import Notation.
-  Notation Hom := Precategory.mor.
-  Notation "b ← a" := (precategory_morphisms a b) (at level 50).
-  Notation "a → b" := (precategory_morphisms a b) (at level 50).
-  Notation "a ==> b" := (functor a b) (at level 50).
-  Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing).
-  Notation "g ∘ f" := (precategories.compose f g) (at level 50, only parsing).
-  Notation "# F" := (functor_on_morphisms F) (at level 3).
-  Notation "C '^op'" := (opp_precat C) (at level 3).
-  Notation SET := hset_precategory.
-End Notation.
+
+Definition Precategory_obmor (C:precategory) : precategory_ob_mor := 
+      precategory_ob_mor_from_precategory_data (
+          precategory_data_from_precategory C).
+Definition Precategory_obj (C:precategory) : Type :=
+  ob (
+      precategory_ob_mor_from_precategory_data (
+          precategory_data_from_precategory C)).
+Definition Precategory_mor {C:precategory} : ob C -> ob C -> UU :=
+  pr2 (
+      precategory_ob_mor_from_precategory_data (
+          precategory_data_from_precategory C)).
+Notation Hom := Precategory_mor.
+
+Definition Functor_obmor {C D} (F:functor C D) := pr1 F.
+Definition Functor_obj {C D} (F:functor C D) := pr1 (pr1 F).
+Definition Functor_mor {C D} (F:functor C D) := pr2 (pr1 F).
+Definition Functor_identity {C D} (F:functor C D) := functor_id F.
+Definition Functor_compose {C D} (F:functor C D) := functor_comp F.
 
 Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 

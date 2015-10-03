@@ -1,10 +1,9 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.CategoryTheory.precategories
-               UniMath.Foundations.Sets
-               UniMath.Ktheory.Utilities.
-Require UniMath.Ktheory.Precategories.
-Import UniMath.Ktheory.Precategories.Notation.
+               UniMath.Foundations.Sets.
+Require Import UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories.
+
 Definition compose' { C:precategory_data } { a b c:ob C }
   (g:b → c) (f:a → b) : a → c.
 Proof. intros. exact (compose f g). Defined.

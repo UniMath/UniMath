@@ -55,9 +55,12 @@ Definition η {C : precategory} (F : Monad_data C)
 
 Definition Monad_laws {C : precategory} (T : Monad_data C) : UU 
   := 
-  (∀ c : C, η T (T c) ;; μ T c = identity (T c)) ×
-  (∀ c : C, #T (η T c) ;; μ T c = identity (T c)) ×
-  (∀ c : C, #T (μ T c) ;; μ T c = μ T (T c) ;; μ T c).
+    (
+      (∀ c : C, η T (T c) ;; μ T c = identity (T c))
+        ×
+      (∀ c : C, #T (η T c) ;; μ T c = identity (T c)))
+      ×
+    (∀ c : C, #T (μ T c) ;; μ T c = μ T (T c) ;; μ T c).
 
 Lemma isaprop_Monad_laws (C : precategory) (hs : has_homsets C) (T : Monad_data C) :
    isaprop (Monad_laws T).

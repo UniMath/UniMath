@@ -4,8 +4,10 @@
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.Integers
-               UniMath.Ktheory.Utilities.
-Require UniMath.Ktheory.Group UniMath.Ktheory.Precategories UniMath.Ktheory.Primitive UniMath.Ktheory.Product
+               UniMath.Ktheory.Utilities
+               UniMath.Ktheory.Precategories
+               UniMath.Ktheory.InitialAndFinalObject.
+Require UniMath.Ktheory.Group UniMath.Ktheory.Product
         UniMath.Ktheory.Sum.
 Local Notation Hom := monoidfun.
 Local Notation "0" := (unel _).
@@ -460,7 +462,6 @@ Definition power (I:Type) (X:abgr) : abgr.
 (** ** the category of abelian groups *)
 
 Module Category.
-  Import Precategories.Notation.
   Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                  UniMath.CategoryTheory.precategories.
   Definition Ob := abgr.
@@ -493,12 +494,11 @@ Module Category.
   Module Product.
     Definition Object {I} (X:I->ob Precat) : ob Precat
       := Product.make X.
-    Import Primitive.InitialObject. 
     Definition make {I} (X:I->ob Precat) : Product.type Precat has_homsets_Precat X.
       intros.
-      set (Q := Elements.make_ob (HomFamily.precat Precat^op  (Precategories.has_homsets_opp_precat _ has_homsets_Precat) X) (Object X)
+      set (Q := Elements.make_ob (HomFamily.precat Precat^op  (has_homsets_opp_precat _ has_homsets_Precat) X) (Object X)
                                  (Product.Proj X)).
-      exists Q. intros T. assert ( k' : Hom Q T ).
+      exists Q. intros T. assert ( k' : Precategory_mor Q T ).
       { destruct T as [T_ob T_el].
         exists (Product.Map X T_ob T_el). simpl.
         apply funextsec. exact_op (Product.Eqn X T_ob T_el). }
@@ -512,12 +512,11 @@ Module Category.
   Module Sum.
     Definition Object {I} (X:I->ob Precat) : ob Precat
       := Sum.make X.
-    Import Primitive.InitialObject.
     Definition make {I} (X:I->ob Precat) : Sum.type Precat has_homsets_Precat X.
       intros.
       set (Q := Elements.make_ob (HomFamily.precat Precat  has_homsets_Precat X) (Object X)
                                  (Sum.Incl X)).
-      exists Q. intros T. assert ( k' : Hom Q T ).
+      exists Q. intros T. assert ( k' : Precategory_mor Q T ).
       { destruct T as [T_ob T_el].
         exists (Sum.Map X T_ob T_el). simpl.
         apply funextsec. exact_op (Sum.Eqn X T_ob T_el). }

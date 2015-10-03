@@ -4,10 +4,10 @@ Require Import
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
-        UniMath.Ktheory.ZeroObject.
-Require Import UniMath.Ktheory.Utilities.
+        UniMath.Ktheory.ZeroObject
+        UniMath.Ktheory.Utilities
+        UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.Representation.
-Import UniMath.Ktheory.Precategories.Notation.
 Definition zerocomp_type {C:precategory} (hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ob C -> Type.
 Proof. intros ? ? ? ? ? ? x.
@@ -32,7 +32,7 @@ Definition zerocomp_map {C:precategory}(hs: has_homsets C) (z:hasZeroObject C) {
 Proof. intros ? ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc. rewrite s.
        apply zeroMap_left_composition. Defined.
 Definition zerocomp_data {C:precategory} (hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
-  functor_data (Precategories.Precategory.obmor C) (Precategories.Precategory.obmor SET).
+  functor_data (Precategories.Precategory_obmor C) (Precategories.Precategory_obmor SET).
 Proof. intros. 
        exact (zerocomp_set hs z f,, zerocomp_map hs z f). Defined.
 Definition zerocomp {C:precategory}(hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d):C ==> SET.

@@ -5,9 +5,9 @@ Require Import
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
-        UniMath.Ktheory.Utilities.
-Require UniMath.Ktheory.Precategories UniMath.Ktheory.Representation UniMath.Ktheory.HomFamily.
-Import UniMath.Ktheory.Precategories.Notation.
+        UniMath.Ktheory.Utilities
+        UniMath.Ktheory.Precategories.
+Require UniMath.Ktheory.Representation UniMath.Ktheory.HomFamily.
 Definition type (C:precategory) (hs: has_homsets C) {I} (c:I -> ob C) :=
   Representation.Data (HomFamily.precat C hs c).
 Definition Object {C:precategory} (hs: has_homsets C) {I} {c:I -> ob C} (r:type C hs c)

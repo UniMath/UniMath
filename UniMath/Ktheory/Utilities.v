@@ -4,10 +4,39 @@ Global Unset Automatic Introduction.
 Require Export UniMath.Foundations.Basics.All.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.FunctionalExtensionality.
-
 Require Export UniMath.Ktheory.Tactics.
 
-Set Default Timeout 50.
+Notation "'∃!'  x .. y , P" := (iscontr (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
+Notation "'not' X" := (X -> empty) (at level 35).
+Notation set_to_type := pr1hSet.
+Notation ap := maponpaths.
+(* see table 3.1 in the coq manual for parsing levels *)
+Notation "g ∘ f" := (funcomp f g) (at level 50).
+Notation "f ;; g" := (funcomp f g) (at level 50).
+(* funcomp' is like funcomp, but with the arguments in the other order *)
+Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
+Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
+Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
+Open Scope transport_scope.
+
+Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
+Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
+(* some other tpair notations that "work":
+
+    Notation "x , y" := (tpair _ x y) (at level 69, right associativity).
+    (* Examples: *)
+    Goal Σ (_:nat), nat. exact (4,5). Defined.
+    Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,3,4,5,6). Defined.
+
+    Notation "( x ; .. ; y , z )" := (tpair _ x .. (tpair _ y z) ..) : core_scope.
+    (* Examples: *)
+    Goal Σ (_:nat), nat. exact (4,5). Defined.
+    Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2;3;4;5,6). Defined.
+*)
+
+Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
+Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
+Open Scope transport_scope.
 
 Definition confun T {Y} (y:Y) := fun _:T => y.
 Definition path_type {X} {x x':X} (p:x = x') := X.
@@ -34,40 +63,10 @@ Definition thePoint {T} : iscontr T -> T.
 Proof. intros ? is. exact (pr1 is). Defined.
 
 Definition uniqueness {T} (i:iscontr T) (t:T) : t = thePoint i.
-Proof. intros. apply (pr2 i). Defined.
+Proof. intros. exact (pr2 i t). Defined.
 
 Definition uniqueness' {T} (i:iscontr T) (t:T) : thePoint i = t.
-Proof. intros. apply (pathsinv0). apply uniqueness. Defined.
-
-Notation "'not' X" := (X -> empty) (at level 35).
-Notation set_to_type := pr1hSet.
-Notation ap := maponpaths.
-(* see table 3.1 in the coq manual for parsing levels *)
-Notation "g ∘ f" := (funcomp f g) (at level 50).
-Notation "f ;; g" := (funcomp f g) (at level 50).
-
-Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
-Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
-
-(* some other tpair notations that "work":
-
-    Notation "x , y" := (tpair _ x y) (at level 69, right associativity).
-    (* Examples: *)
-    Goal Σ (_:nat), nat. exact (4,5). Defined.
-    Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,3,4,5,6). Defined.
-
-    Notation "( x ; .. ; y , z )" := (tpair _ x .. (tpair _ y z) ..) : core_scope.
-    (* Examples: *)
-    Goal Σ (_:nat), nat. exact (4,5). Defined.
-    Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2;3;4;5,6). Defined.
-
-*)
-
-(* funcomp' is like funcomp, but with the arguments in the other order *)
-Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
-Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
-Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
-Open Scope transport_scope.
+Proof. intros. exact (! (pr2 i t)). Defined.
 
 Definition path_inverse_to_right {X} {x y:X} (p q:x = y) : p = q -> !q@p = idpath _.
 Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
