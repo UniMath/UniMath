@@ -3,7 +3,6 @@
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.FiniteSets
                UniMath.Ktheory.Utilities.
-Import UniMath.Ktheory.Utilities.Notation.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.
@@ -403,7 +402,7 @@ Module NN_agreement.
     set (one := Presentation.m_mark NN tt).
     set (markednat := 
            make_MarkedAbelianMonoid R nataddabmonoid (fun _ => 1) fromemptysec).
-    exists (map_base (the (iscontrMarkedAbelianMonoidMap markednat))).
+    exists (map_base (thePoint (iscontrMarkedAbelianMonoidMap markednat))).
     refine (gradth _ _ _ _).
     { intros m. { exact (m * one). } }
     { intros w.

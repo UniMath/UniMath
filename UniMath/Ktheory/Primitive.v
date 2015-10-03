@@ -15,11 +15,11 @@ Module TerminalObject.
   Lemma theTerminalObjectIsomorphy (C:precategory) (a b:ob C) :
     isTerminalObject C a -> isTerminalObject C b -> @iso C a b.
   Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
-    exists (the (map_to_b_from_ a)).
-    apply (is_iso_qinv _ (the (map_to_a_from_ b))). 
-    split. { intermediate_path (the (map_to_a_from_ a)). 
+    exists (thePoint (map_to_b_from_ a)).
+    apply (is_iso_qinv _ (thePoint (map_to_a_from_ b))). 
+    split. { intermediate_path (thePoint (map_to_a_from_ a)). 
              apply uniqueness. apply uniqueness'. }
-           { intermediate_path (the (map_to_b_from_ b)). 
+           { intermediate_path (thePoint (map_to_b_from_ b)). 
              apply uniqueness. apply uniqueness'. } Defined.
   Lemma isaprop_isTerminalObject (C:precategory) (a:ob C) :
     isaprop(isTerminalObject C a).
@@ -46,17 +46,16 @@ End TerminalObject.
 (** *** initial objects *)
 
 Module InitialObject.
-  Import UniMath.Ktheory.Utilities.Notation.
   Definition isInitialObject (C:precategory) (a:ob C) :=
     forall x:ob C, iscontr (x ← a).
   Lemma theInitialObjectIsomorphy (C:precategory) (a b:ob C) :
     isInitialObject C a -> isInitialObject C b -> @iso C a b.
   Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
-    exists (the (map_to_a_from_ b)). 
-    apply (is_iso_qinv _ (the (map_to_b_from_ a))).
-    split. { intermediate_path (the (map_to_a_from_ a)). 
+    exists (thePoint (map_to_a_from_ b)). 
+    apply (is_iso_qinv _ (thePoint (map_to_b_from_ a))).
+    split. { intermediate_path (thePoint (map_to_a_from_ a)). 
              apply uniqueness. apply uniqueness'. }
-           { intermediate_path (the (map_to_b_from_ b)). 
+           { intermediate_path (thePoint (map_to_b_from_ b)). 
              apply uniqueness. apply uniqueness'. } Defined.
   Lemma isaprop_isInitialObject (C:precategory) (a:ob C) :
     isaprop(isInitialObject C a).

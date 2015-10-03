@@ -5,8 +5,9 @@ Require Import
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.ZeroObject.
-Require UniMath.Ktheory.Utilities UniMath.Ktheory.Representation.
-Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Precategories.Notation.
+Require Import UniMath.Ktheory.Utilities.
+Require UniMath.Ktheory.Representation.
+Import UniMath.Ktheory.Precategories.Notation.
 Definition zerocomp_type {C:precategory} (hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ob C -> Type.
 Proof. intros ? ? ? ? ? ? x.

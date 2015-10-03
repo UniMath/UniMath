@@ -23,8 +23,6 @@ Definition point_from {X} {x:X} : paths_to x -> X := pr1.
 Definition paths_to_path {X} {x:X} (w:paths_to x) := pr2 w.
 Definition iscontr_paths_to {X} (x:X) : iscontr (paths_to x).
 Proof. apply iscontrcoconustot. Defined.
-Definition propproperty (P:hProp) := pr2 P : isaprop (pr1 P).
-Definition propProperty (P:hProp) := pr2 P : isaprop (pr1 P).
 Definition paths_to_prop {X} (x:X) := 
   hProppair (paths_to x) (isapropifcontr (iscontr_paths_to x)).
 Definition iscontr_paths_from {X} (x:X) : iscontr (paths_from x).
@@ -32,40 +30,44 @@ Proof. apply iscontrcoconusfromt. Defined.
 Definition paths_from_prop {X} (x:X) := 
   hProppair (paths_from x) (isapropifcontr (iscontr_paths_from x)).
 
-Definition the {T} : iscontr T -> T.
+Definition thePoint {T} : iscontr T -> T.
 Proof. intros ? is. exact (pr1 is). Defined.
 
-Definition uniqueness {T} (i:iscontr T) (t:T) : t = the i.
-Proof. intros. exact (pr2 i t). Defined.
+Definition uniqueness {T} (i:iscontr T) (t:T) : t = thePoint i.
+Proof. intros. apply (pr2 i). Defined.
 
-Definition uniqueness' {T} (i:iscontr T) (t:T) : the i = t.
-Proof. intros. exact (! (pr2 i t)). Defined.
+Definition uniqueness' {T} (i:iscontr T) (t:T) : thePoint i = t.
+Proof. intros. apply (pathsinv0). apply uniqueness. Defined.
 
-Module Export Notation.
-  Notation "'not' X" := (X -> empty) (at level 35).
-  Notation "x != y" := (not (x = y)) (at level 40).
-  Notation set_to_type := pr1hSet.
-  Notation ap := maponpaths.
-  (* see table 3.1 in the coq manual for parsing levels *)
-  Notation "g ∘ f" := (funcomp f g) (at level 50).
-  Notation "f ;; g" := (funcomp f g) (at level 50).
-  Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
-  (* funcomp' is like funcomp, but with the arguments in the other order *)
-  Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
-  Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
-  Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
-  Open Scope transport_scope.
-  Notation "{ x : X & P }" := (total2 (fun x:X => P)) : type_scope.
-  Notation "X ** Y" := (dirprod X Y) (right associativity, at level 80) : type_scope.
-End Notation.
+Notation "'not' X" := (X -> empty) (at level 35).
+Notation set_to_type := pr1hSet.
+Notation ap := maponpaths.
+(* see table 3.1 in the coq manual for parsing levels *)
+Notation "g ∘ f" := (funcomp f g) (at level 50).
+Notation "f ;; g" := (funcomp f g) (at level 50).
 
-Module Import NatNotation.
-  Require Import UniMath.Foundations.NaturalNumbers.
-  Notation "m <= n" := (natleh m n).
-  Notation "m >= n" := (natgeh m n).
-  Notation "m > n" := (natgth m n).
-  Notation "m < n" := (natlth m n).
-End NatNotation.
+Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
+Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
+
+(* some other tpair notations that "work":
+
+    Notation "x , y" := (tpair _ x y) (at level 69, right associativity).
+    (* Examples: *)
+    Goal Σ (_:nat), nat. exact (4,5). Defined.
+    Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,3,4,5,6). Defined.
+
+    Notation "( x ; .. ; y , z )" := (tpair _ x .. (tpair _ y z) ..) : core_scope.
+    (* Examples: *)
+    Goal Σ (_:nat), nat. exact (4,5). Defined.
+    Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2;3;4;5,6). Defined.
+
+*)
+
+(* funcomp' is like funcomp, but with the arguments in the other order *)
+Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
+Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
+Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
+Open Scope transport_scope.
 
 Definition path_inverse_to_right {X} {x y:X} (p q:x = y) : p = q -> !q@p = idpath _.
 Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
@@ -81,20 +83,6 @@ Definition app {X} {P:X->Type} {x x':X} {e e':x = x'} (q:e = e') (p:P x) :
 Proof. intros. destruct q. reflexivity. Defined.
 
 (** ** Paths *)
-
-Definition pathscomp0lid: forall {X} {a b : X} (e1 : a = b), idpath _ @ e1 = e1.
-Proof. reflexivity. Defined.
-
-(* this lemma must be somewhere in Foundations *)
-Definition path_assoc {X} {a b c d:X}
-        (f : a = b) (g : b = c) (h : c = d)
-      : f @ (g @ h) = (f @ g) @ h.
-Proof. intros. destruct f. reflexivity. Defined.
-
-Definition path_assoc_opaque {X} {a b c d:X} 
-        (f : a = b) (g : b = c) (h : c = d)
-      : f @ (g @ h) = (f @ g) @ h.
-Proof. intros. destruct f. reflexivity. Qed.
 
 Definition pathsinv0_to_right {X} {x y z:X} (p:y = x) (q:y = z) (r:x = z) :
   q = p @ r -> !p @ q = r.
@@ -412,25 +400,14 @@ Lemma isaprop_wma_inhab' X : (X -> iscontr X) -> isaprop X.
 Proof. intros ? f. apply isaprop_wma_inhab. intro x. apply isapropifcontr. 
        apply (f x). Qed.
 
-Definition isaset_if_isofhlevel2 {X} : isofhlevel 2 X -> isaset X.
-(* The use of this lemma ahead of something like 'impred' can be avoided by
-   providing 2 as first argument. *)
-Proof. trivial. Qed.
+Goal ∀ (X:hSet) (x y:X) (p q:x = y), p = q.
+Proof. intros. apply setproperty. Defined.
 
-Definition isofhlevel2_if_isaset {X} : isaset X -> isofhlevel 2 X.
-Proof. trivial. Qed.
-
-Definition isaprop_hProp (X:hProp) : isaprop X.
-Proof. intro. exact (pr2 X). Qed.
-
-Definition equality_proof_irrelevance {X:hSet} {x y:X} (p q:x = y) : p = q.
-Proof. intros. destruct (the (setproperty _ _ _ p q)). reflexivity. Qed.
-
-Definition equality_proof_irrelevance' {X:Type} {x y:X} (p q:x = y) : 
-  isaset X -> p = q.
+Goal ∀ (X:Type) (x y:X) (p q:x = y), isaset X -> p = q.
 Proof. intros ? ? ? ? ? is. apply is. Defined.
 
-Definition funset X (Y:hSet) : hSet := hSetpair (X->Y) (impredfun 2 _ _ (pr2 Y)).
+Definition funset X (Y:hSet) : hSet
+  := hSetpair (X->Y) (impredfun 2 _ _ (setproperty Y)).
 
 (** ** Null homotopies *)
 
@@ -467,14 +444,13 @@ Proof. intros ? ? ? ? x. apply invproofirrelevance. intros [r i] [s j].
 (** ** Squashing *)
 
 Notation squash := ishinh_UU.
-Notation nonempty := ishinh.
 Notation squash_fun := hinhfun.
 Lemma squash_fun2 {X Y Z} : (X -> Y -> Z) -> (squash X -> squash Y -> squash Z).
 Proof. intros ? ? ? f x y P h.
   exact (y P 
            (x (hProppair 
                  (Y -> P) 
-                 (impred 1 _ (fun _ => propProperty P))) 
+                 (impred 1 _ (fun _ => propproperty P))) 
               (fun a b => h (f a b)))). Qed.
 
 Definition squash_element {X} : X -> squash X.
@@ -599,15 +575,6 @@ Lemma isaxiomfuncontr { X : UU } (P:X -> UU) :
 Proof.                         (* the statement of [funcontr] is a proposition *)
   intros. apply impred; intro. apply isapropiscontr. Defined.
 
-(* from Vladimir, two lemmas, possibly useful for eta-correction: *)
-Definition fpmaphomotfun {X: UU} {P Q: X -> UU} (h: homot P Q) (xp: total2 P): total2 Q.
-Proof. intros ? ? ? ? [x p]. split with x.  destruct (h x). exact p. Defined.
-
-Definition fpmaphomothomot {X: UU} {P Q: X -> UU} (h1 h2: P ~ Q) (H: forall x: X, h1 x = h2 x) :
-  fpmaphomotfun h1 ~ fpmaphomotfun h2.
-Proof. intros. intros [x p]. apply (maponpaths (tpair _ x)).  
-       destruct (H x). apply idpath. Defined.
-
 (** ** Connected types *)
 
 Definition isconnected X := forall (x y:X), nonempty (x = y).
@@ -697,7 +664,7 @@ Proof. intros. refine (weqbandf _ _ _ _).
          unfold idfun; simpl. apply idweq. } Defined.
 
 Definition weq_total2_prod {X Y} (Z:Y->Type) :
-  weq (total2 (fun y => X ** Z y)) (X ** total2 Z).
+  weq (total2 (fun y => X × Z y)) (X × total2 Z).
 Proof. intros. refine (weqpair _ (gradth _ _ _ _)).
        { intros [y [x z]]. exact (x,,(y,,z)). }
        { intros [x [y z]]. exact (y,,(x,,z)). }
@@ -726,17 +693,13 @@ Definition Ω := loopSpace.
 
 (** ** Direct products with several factors *)
 
-Definition tuple3 {X Y Z} x y z := (x,,(y,,z)) : X ** Y ** Z.
-
 Definition paths3 {X Y Z} {x x':X} {y y':Y} {z z':Z} :
-  x = x' -> y = y' -> z = z' -> tuple3 x y z = tuple3 x' y' z'. 
+  x = x' -> y = y' -> z = z' -> @paths (_×_×_) (x,,y,,z) (x',,y',,z').
 Proof. intros ? ? ? ? ? ? ? ? ? p q r. destruct p, q, r. reflexivity.
 Defined.       
 
-Definition tuple4 {W X Y Z} (w:W) x y z := (w,,tuple3 x y z) : W ** X ** Y ** Z.
-
 Definition paths4 {W X Y Z} {w w':W} {x x':X} {y y':Y} {z z':Z} :
-  w = w' -> x = x' -> y = y' -> z = z' -> tuple4 w x y z = tuple4 w' x' y' z'. 
+  w = w' -> x = x' -> y = y' -> z = z' -> @paths (_×_×_×_) (w,,x,,y,,z) (w',,x',,y',,z').
 Proof. intros ? ? ? ? ? ? ? ? ? ? ? ? o p q r. destruct o, p, q, r. reflexivity.
 Defined.
 

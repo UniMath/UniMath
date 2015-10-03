@@ -6,7 +6,6 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.FunctionalExtensionality
                UniMath.Ktheory.Utilities
                UniMath.Ktheory.Equivalences.
-Import UniMath.Ktheory.Utilities.Notation.
 
 (** ** Definitions *)
 
@@ -206,7 +205,7 @@ Proof. intros. exact (apevalat x (ap pr1weq
 (** ** Torsors *)
 
 Definition is_torsor {G:gr} (X:Action G) := 
-  nonempty X ** forall x:X, isweq (right_mult x).
+  nonempty X × forall x:X, isweq (right_mult x).
 
 Lemma is_torsor_isaprop {G:gr} (X:Action G) : isaprop (is_torsor X).
 Proof. intros. apply isofhleveldirprod. { apply propproperty. }
@@ -257,11 +256,11 @@ Definition underlyingPoint {G} (X:PointedTorsor G) := pr2 X : X.
 Lemma is_quotient {G} (X:Torsor G) (y x:X) : iscontr (total2 (fun g => g*x = y)).
 Proof. intros. exact (pr2 (is_torsor_prop X) x y). Defined.
 
-Definition quotient {G} (X:Torsor G) (y x:X) := pr1 (the (is_quotient X y x)) : G.
+Definition quotient {G} (X:Torsor G) (y x:X) := pr1 (thePoint (is_quotient X y x)) : G.
 Local Notation "y / x" := (quotient _ y x) : action_scope.
 
 Lemma quotient_times {G} (X:Torsor G) (y x:X) : (y/x)*x = y.
-Proof. intros. exact (pr2 (the (is_quotient _ y x))). Defined.
+Proof. intros. exact (pr2 (thePoint (is_quotient _ y x))). Defined.
 
 Lemma quotient_uniqueness {G} (X:Torsor G) (y x:X) (g:G) : g*x = y -> g = y/x.
 Proof. intros ? ? ? ? ? e. 

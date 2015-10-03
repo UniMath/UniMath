@@ -11,7 +11,7 @@ Require Import
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Precategories UniMath.Ktheory.Sum UniMath.Ktheory.Product.
-Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Precategories.Notation.
+Import UniMath.Ktheory.Precategories.Notation.
 Import UniMath.Ktheory.Sum.Coercions UniMath.Ktheory.Product.Coercions.
 Definition to_row {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C} 
            (B:Sum.type C hs b) {d:ob C} :

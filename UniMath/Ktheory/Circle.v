@@ -14,7 +14,6 @@ Require Import UniMath.Ktheory.AffineLine
                UniMath.Ktheory.Integers
                UniMath.Ktheory.Equivalences.
 Require Import UniMath.Ktheory.Utilities.
-Import UniMath.Ktheory.Utilities.Notation.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
 Open Scope action_scope.
@@ -36,7 +35,7 @@ Proof. intros. unfold circle_loop. rewrite pathsinv0inv0.
 Definition ZGuidedHomotopy {Y} {y:Y} (l:y = y) (T:Torsor ℤ) := 
   GuidedHomotopy (confun T y) (confun T l).
 
-Definition GH {Y} {y:Y} (l:y = y) := {T:Torsor ℤ & ZGuidedHomotopy l T}.
+Definition GH {Y} {y:Y} (l:y = y) := Σ T:Torsor ℤ, ZGuidedHomotopy l T.
 
 Definition GHpair {Y} {y:Y} (l:y = y) (T:Torsor ℤ) (g:ZGuidedHomotopy l T) :=
   T,,g : GH l.
@@ -48,7 +47,7 @@ Definition pr2_GH {Y} {y:Y} (l:y = y) (u:GH l)
 
 Definition GH_path3 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} {y':Y}
            {g g':GHomotopy (confun T y) (confun T l) y'} (u:g = g') :
-  GHpair l T (tpair _ y' g ) = GHpair l T (tpair _ y' g' ).
+  GHpair l T (y',, g) = GHpair l T (y',,g').
 Proof. intros. destruct u. reflexivity. Defined.
 
 Definition pr12_GH {Y} {y:Y} {l:y = y} (u:GH l) := pr1 (pr2_GH l u) : Y.

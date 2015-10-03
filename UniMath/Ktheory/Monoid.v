@@ -4,7 +4,6 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
 	       UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Magma UniMath.Ktheory.QuotientSet.
-Import UniMath.Ktheory.Utilities.Notation. 
 Local Notation Hom := monoidfun (only parsing).
 Local Notation "x * y" := ( op x y ). 
 Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
@@ -390,7 +389,7 @@ Module Product.
       { exact (unel (X j)). } }
     simpl. destruct (decide_equality i i) as [q|r]; simpl.
     { assert (e : idpath i = q).
-      { apply equality_proof_irrelevance'. apply isasetifdeceq. assumption. }
+      { apply isasetifdeceq. assumption. }
       destruct e. reflexivity. }
     { destruct (r (idpath i)). } Qed.
   Lemma issurjective_projection' {I} (X:I->monoid) (i:I) :

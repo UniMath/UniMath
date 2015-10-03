@@ -7,8 +7,6 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.FunctionalExtensionality
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
-Import UniMath.Ktheory.Utilities.Notation.
-Import UniMath.Ktheory.Utilities.NatNotation.
 
 Definition ℕ := nat.
 
@@ -17,7 +15,7 @@ Module Uniqueness.
   Lemma helper_A (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
         (f:forall n, P n) :
     weq (forall n, f n = nat_rect P p0 IH n)
-        (f 0=p0 ** forall n, f(S n)=IH n (f n)).
+        (f 0=p0 × forall n, f(S n)=IH n (f n)).
   Proof. intros. refine (_,,gradth _ _ _ _).
          { intros h. split.
            { exact (h 0). } { intros. exact (h (S n) @ ap (IH n) (! h n)). } }
@@ -35,25 +33,25 @@ Module Uniqueness.
   Lemma helper_B (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n))
         (f:forall n, P n) :
     weq (f = nat_rect P p0 IH)
-        ((f 0=p0) ** (forall n, f(S n)=IH n (f n))).
+        ((f 0=p0) × (forall n, f(S n)=IH n (f n))).
   Proof. intros.
          exact (weqcomp (weqtoforallpaths _ _ _) (helper_A _ _ _ _)). Defined.
 
   Lemma helper_C (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     weq (total2 (fun f:forall n, P n => f = nat_rect P p0 IH))
         (total2 (fun f:forall n, P n => 
-                   (f 0=p0) ** (forall n, f(S n)=IH n (f n)))).
+                   (f 0=p0) × (forall n, f(S n)=IH n (f n)))).
   Proof. intros. apply weqfibtototal. intros f. apply helper_B. Defined.
 
   Lemma hNatRecursionUniq (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     iscontr (total2 (fun f:forall n, P n => 
-                       (f 0=p0) ** (forall n, f(S n)=IH n (f n)))).
+                       (f 0=p0) × (forall n, f(S n)=IH n (f n)))).
   Proof. intros. exact (iscontrweqf (helper_C _ _ _) (iscontrcoconustot _ _)).
   Defined.
 
   Lemma helper_D (P:nat->Type) (p0:P 0) (IH:forall n, P n->P(S n)) :
     weq (total2 (fun f:forall n, P n => 
-                       (f 0=p0) ** (forall n, f(S n)=IH n (f n))))
+                       (f 0=p0) × (forall n, f(S n)=IH n (f n))))
         (@hfiber 
            (total2 (fun f:forall n, P n => forall n, f(S n)=IH n (f n))) 
            (P 0)
@@ -135,7 +133,7 @@ Proof. reflexivity. Defined.
 Fixpoint helper_C m n : m = n -> nat_discern m n.
 Proof. intros ? ? e. destruct e.
        (* alternatively:
-        destruct m. { exact tt. } { simpl. exact (the (nat_discern_iscontr _)). }  
+        destruct m. { exact tt. } { simpl. exact (thePoint (nat_discern_iscontr _)). }  
         *)
        exact (cast (! nat_discern_unit m) tt).
 Defined.
@@ -213,7 +211,7 @@ Proof. intros ? ? ? i j.
 
 Definition nat_dist_between_le m n a b : 
   m <= n -> nat_dist m n = a + b -> 
-  total2 (fun x => nat_dist x m = a ** nat_dist x n = b).
+  total2 (fun x => nat_dist x m = a × nat_dist x n = b).
 Proof. intros ? ? ? ? i j. exists (m+a). split.
        { apply nat_dist_plus. }
        { rewrite (nat_dist_le m n i) in j.
@@ -224,7 +222,7 @@ Proof. intros ? ? ? ? i j. exists (m+a). split.
 
 Definition nat_dist_between_ge m n a b : 
   n <= m -> nat_dist m n = a + b -> 
-  {x:nat & nat_dist x m = a ** nat_dist x n = b}.
+  Σ x:nat, nat_dist x m = a × nat_dist x n = b.
 Proof. intros ? ? ? ? i j. 
        rewrite nat_dist_symm in j.
        rewrite natpluscomm in j.
@@ -235,7 +233,7 @@ Defined.
 
 Definition nat_dist_between m n a b : 
   nat_dist m n = a + b -> 
-  {x:nat & nat_dist x m = a ** nat_dist x n = b}.
+  Σ x:nat, nat_dist x m = a × nat_dist x n = b.
 Proof. intros ? ? ? ? j. 
        induction (natgthorleh m n) as [r|s].
        { apply nat_dist_between_ge. apply natlthtoleh. exact r. exact j. }

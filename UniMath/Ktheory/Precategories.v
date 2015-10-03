@@ -8,9 +8,8 @@ Require Import UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.functor_categories
                .
 Require Import UniMath.Foundations.Sets.
-Import UniMath.Ktheory.Utilities.Notation.
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
-  : precategory := tpair _ C i.
+  : precategory := C,,i.
 Module Precategory.
   Definition obmor (C:precategory) : precategory_ob_mor := 
         precategory_ob_mor_from_precategory_data (
@@ -43,8 +42,7 @@ Module Import Notation.
   Notation SET := hset_precategory.
 End Notation.
 
-Definition category_pair (C:precategory) (i:is_category C)
- : category := tpair _ C i.
+Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 
 Definition theUnivalenceProperty (C:category) := pr2 _ : is_category C.
 

@@ -6,7 +6,7 @@ Require Import
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Precategories UniMath.Ktheory.Sets.
-Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Precategories.Notation.
+Import UniMath.Ktheory.Precategories.Notation.
 Definition set (C:precategory) (hs:has_homsets C) {I} (c:I -> ob C) : ob C -> ob SET.
   intros ? ? ? ? x. 
    apply (Sets.Product (fun i => hSetpair (Hom (c i) x) (hs _ _ ) )).

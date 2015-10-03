@@ -1,10 +1,10 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.CategoryTheory.precategories
-               UniMath.Foundations.Sets.
-Require UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories.
-Import UniMath.Ktheory.Utilities.Notation
-       UniMath.Ktheory.Precategories.Notation.
+               UniMath.Foundations.Sets
+               UniMath.Ktheory.Utilities.
+Require UniMath.Ktheory.Precategories.
+Import UniMath.Ktheory.Precategories.Notation.
 Definition compose' { C:precategory_data } { a b c:ob C }
   (g:b → c) (f:a → b) : a → c.
 Proof. intros. exact (compose f g). Defined.
@@ -32,6 +32,7 @@ Proof. intros ? ? ig  .
   assumption.
   assumption.
 Qed.
+
 Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> precategory.
   (* Later we'll define a version of this with no hlevel assumption on X,
      where [mor i j] will be defined with [pi0].  This version will still
@@ -43,8 +44,9 @@ Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> precategory.
   { intros. exact (f @ g). }
   { reflexivity. }
   { intros. apply pathscomp0rid. }
-  { intros. apply Utilities.path_assoc_opaque. }
+  { intros. apply path_assoc. }
 Defined.
+
 Lemma is_groupoid_path_pregroupoid (X:UU) (iobj:isofhlevel 3 X) :
   is_groupoid (path_pregroupoid X iobj).
 Proof. intros ? ? a b.
@@ -69,7 +71,7 @@ Require Import UniMath.Foundations.StandardFiniteSets.
 Definition cat_n (n:nat):category.
   intro. apply (path_groupoid (stn n)). apply hlevelntosn.
   apply isasetstn. Defined.
-Definition is_discrete (C:precategory) := isaset (ob C) ** is_groupoid C.
+Definition is_discrete (C:precategory) := isaset (ob C) × is_groupoid C.
 Lemma isaprop_is_discrete (C:precategory) : 
   isaprop (is_discrete C).
 Proof. intro. apply isofhleveltotal2. apply isapropisaset.

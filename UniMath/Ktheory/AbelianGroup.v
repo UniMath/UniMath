@@ -7,7 +7,6 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Group UniMath.Ktheory.Precategories UniMath.Ktheory.Primitive UniMath.Ktheory.Product
         UniMath.Ktheory.Sum.
-Import UniMath.Ktheory.Utilities.Notation. 
 Local Notation Hom := monoidfun.
 Local Notation "0" := (unel _).
 Local Notation "x + y" := ( op x y ). 
@@ -420,9 +419,9 @@ Module Sum.                   (* coproducts *)
   Definition X {I} (G:I->abgr) := total2 G. (* the generators *)
   Inductive J {I} (G:I->abgr) : Type := (* index set for the relations *)
     | J_zero : I -> J G                 (* (i,0) ~ 0 *)
-    | J_sum : total2 (fun i => G i ** G i) -> J G. (* (i,g)+(i,h) ~ (i,g+h) *)
+    | J_sum : total2 (fun i => G i × G i) -> J G. (* (i,g)+(i,h) ~ (i,g+h) *)
   (* We could replace this with:
-     Definition J {I} (G:I->abgr) := coprod I (total2 (fun i => G i ** G i)).
+     Definition J {I} (G:I->abgr) := coprod I (total2 (fun i => G i × G i)).
      *)
   Definition R {I} (G:I->abgr) : J G -> reln (X G).
     intros ? ? [i|[i [g h]]].
@@ -445,7 +444,7 @@ Module Sum.                   (* coproducts *)
       { simpl. apply addproperty. } } Defined.
   Definition Map {I} (G:I->abgr) (T:abgr) (f: forall i, Hom (G i) T) :
       Hom (make G) T.
-    intros. exact (the (iscontrMarkedAbelianGroupMap (Map0 f))). Defined.
+    intros. exact (thePoint (iscontrMarkedAbelianGroupMap (Map0 f))). Defined.
   Lemma Eqn {I} (G:I->abgr) (T:abgr) (f: forall i, Hom (G i) T)
            : forall i, Map G T f ∘ Incl G i = f i.
     intros. apply Monoid.funEquality. reflexivity. Qed.

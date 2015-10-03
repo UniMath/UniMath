@@ -3,7 +3,6 @@
 Require Import UniMath.Foundations.Algebra.BinaryOperations
         UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Sets.
-Import UniMath.Ktheory.Utilities.Notation.
 Local Notation "x * y" := (op x y). 
 Local Notation "g ∘ f" := (binopfuncomp f g) (at level 50, only parsing).
 Local Notation Hom := binopfun.

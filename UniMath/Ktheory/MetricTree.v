@@ -7,7 +7,6 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.FunctionalExtensionality
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
-Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Utilities.NatNotation.
 
 (** ** Definitions *)
 
@@ -20,7 +19,7 @@ Record Tree :=
       mt_symm: forall x y, mt_dist x y = mt_dist y x;
       mt_trans: forall x y z, mt_dist x z <= mt_dist x y + mt_dist y z;
       mt_step: forall x z, x != z ->
-                 total2 (fun y => (S (mt_dist x y) = mt_dist x z) **
+                 total2 (fun y => (S (mt_dist x y) = mt_dist x z) ×
                                   (mt_dist y z = 1)) }.
       
 Lemma mt_path_refl (T:Tree) (x y:T) : x = y -> mt_dist _ x y = 0.

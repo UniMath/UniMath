@@ -7,11 +7,11 @@ Require Import
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
+        UniMath.Ktheory.Utilities
         UniMath.Ktheory.ZeroObject.
-Require UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories UniMath.Ktheory.RawMatrix
+Require UniMath.Ktheory.Precategories UniMath.Ktheory.RawMatrix
         UniMath.Ktheory.Sum UniMath.Ktheory.Product UniMath.Ktheory.FiniteSet.
-Import UniMath.Ktheory.Utilities.Notation
-       Precategories.Notation
+Import Precategories.Notation
        FiniteSet.Coercions 
        Sum.Coercions Product.Coercions.
 Definition identity_matrix {C:precategory} (hs: has_homsets C) (h:hasZeroObject C)
