@@ -11,9 +11,9 @@ Require UniMath.Ktheory.Representation.
 Definition zerocomp_type {C:precategory} (hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ob C -> Type.
 Proof. intros ? ? ? ? ? ? x.
-  exact (total2( fun g:Hom d x => g ∘ f = zeroMap hs c x z)). Defined.
+  exact (Σ g:Hom d x, g ∘ f = zeroMap hs c x z). Defined.
 Definition zerocomp_type_isaset {C: precategory}(hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
-  forall x:ob C, isaset (zerocomp_type hs z f x).
+  ∀ x:ob C, isaset (zerocomp_type hs z f x).
 Proof. intros ? ? ? ? ? ? x.
   apply (isofhleveltotal2 2).
   { apply hs. }
@@ -27,7 +27,7 @@ Definition zerocomp_set {C:precategory}(hs: has_homsets C) (z:hasZeroObject C) {
 Proof. intros ? ? ? ? ? ? x.
   exact (zerocomp_type _ z f x,, zerocomp_type_isaset hs z f x). Defined.
 Definition zerocomp_map {C:precategory}(hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
-  forall x y:ob C, Hom x y ->
+  ∀ x y:ob C, Hom x y ->
   set_to_type (zerocomp_set hs z f x) -> set_to_type (zerocomp_set hs z f y).
 Proof. intros ? ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc. rewrite s.
        apply zeroMap_left_composition. Defined.

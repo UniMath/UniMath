@@ -39,12 +39,12 @@ Lemma hzsign_hzsign (i:hz) : - - i = i.
 Proof. apply (grinvinv ℤ). Defined.
 
 Definition hz_normal_form (i:ℤ) :=
-  coprod (total2 (fun n => natnattohz n 0 = i))
-         (total2 (fun n => natnattohz 0 (S n) = i)).
+  coprod (Σ n, natnattohz n 0 = i)
+         (Σ n, natnattohz 0 (S n) = i).
 
-Definition hznf_pos n := _,, inl (n,,idpath _) : total2 hz_normal_form.
+Definition hznf_pos n := _,, inl (n,,idpath _) : totalSpace hz_normal_form.
 
-Definition hznf_neg n := _,, inr (n,,idpath _) : total2 hz_normal_form.
+Definition hznf_neg n := _,, inr (n,,idpath _) : totalSpace hz_normal_form.
 
 Definition hznf_zero := hznf_pos 0.
 
@@ -76,13 +76,13 @@ Proof. apply isweqpr1; intro i.
        exists (hz_to_normal_form i).
        generalize (hz_to_normal_form i) as s.
        intros [[m p]|[m p]] [[n q]|[n q]].
-       { apply (ap (@ii1 (total2 (fun n => natnattohz n 0 = i)) 
-                         (total2 (fun n => natnattohz 0 (S n) = i)))).
+       { apply (ap (@ii1 (Σ n, natnattohz n 0 = i)
+                         (Σ n, natnattohz 0 (S n) = i))).
          apply (proofirrelevance _ (isinclnattohz i)). }
        { apply fromempty. assert (r := p@!q); clear p q. apply (hzdichot r). }
        { apply fromempty. assert (r := q@!p); clear p q. apply (hzdichot r). }
-       { apply (ap (@ii2 (total2 (fun n => natnattohz n 0 = i)) 
-                         (total2 (fun n => natnattohz 0 (S n) = i)))).
+       { apply (ap (@ii2 (Σ n, natnattohz n 0 = i)
+                         (Σ n, natnattohz 0 (S n) = i))).
          assert (p' := ap hzsign p). assert (q' := ap hzsign q).
          change (- natnattohz O (S m)) with  (nattohz (S m)) in p'.
          change (- natnattohz O (S n)) with  (nattohz (S n)) in q'.
@@ -91,7 +91,7 @@ Proof. apply isweqpr1; intro i.
          assert (e := invmaponpathsS _ _ d); clear d.
          apply (pair_path_props (!e)). intro k. apply setproperty. } Defined.
 
-Definition negpos_weq := weqpair _ negpos' : weq (total2 hz_normal_form) ℤ.
+Definition negpos_weq := weqpair _ negpos' : weq (totalSpace hz_normal_form) ℤ.
 
 Definition negpos : weq (coprod nat nat) ℤ. (* ℤ = (-inf,-1) + (0,inf) *)
 Proof. refine (weqpair _ (gradth _ _ _ _)).

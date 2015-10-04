@@ -7,9 +7,9 @@ Require Export UniMath.CategoryTheory.precategories
 Require Export UniMath.Ktheory.Precategories.
 
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
-  intros. exists (total2 (fun c : ob C => set_to_type (X c))).
+  intros. exists (Σ c:ob C, set_to_type (X c)).
   intros a b. 
-  exact (total2 (fun f : pr1 a → pr1 b => #X f (pr2 a) = (pr2 b))).
+  exact (Σ f : pr1 a → pr1 b, #X f (pr2 a) = (pr2 b)).
 Defined.
 
 

@@ -18,14 +18,14 @@ Module Product.
   Definition make {I} (X:I->setwithbinop) : setwithbinop.
     intros.
     exists (Section X,,i1 X). exact (fun v w i => v i * w i). Defined.
-  Definition Proj {I} (X:I->setwithbinop) : forall i:I, Hom (make X) (X i).
+  Definition Proj {I} (X:I->setwithbinop) : ∀ i:I, Hom (make X) (X i).
     intros. exists (fun y => y i). intros a b. reflexivity. Defined.
   Definition Fun {I} (X:I->setwithbinop) (T:setwithbinop)
-             (g: forall i, Hom T (X i))
+             (g: ∀ i, Hom T (X i))
              : Hom T (make X).
     intros. exists (fun t i => g i t).
     intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
-  Definition Eqn {I} (X:I->setwithbinop) (T:setwithbinop) (g: forall i, Hom T (X i))
-             : forall i, Proj X i ∘ Fun X T g = g i.
+  Definition Eqn {I} (X:I->setwithbinop) (T:setwithbinop) (g: ∀ i, Hom T (X i))
+             : ∀ i, Proj X i ∘ Fun X T g = g i.
     intros. apply funEquality. reflexivity. Qed.
 End Product.

@@ -235,7 +235,7 @@ Definition invEquiv {X Y} : Equiv X Y -> Equiv Y X.
 Proof. intros ? ? [f [g [p [q h]]]]. refine (makeEquiv Y X g f q p _).
        intro y. apply other_adjoint. assumption. Defined.
 
-Definition weq_to_Equiv X Y : weq X Y -> Equiv X Y.
+Definition weq_to_Equiv X Y : X ≃ Y -> Equiv X Y.
   intros ? ? [f r].
   unfold isweq in r.
   set (g := fun y => hfiberpr1 f y (thePoint (r y))).
@@ -250,7 +250,7 @@ Definition weq_to_Equiv X Y : weq X Y -> Equiv X Y.
                  @ (ap_pr2 (L x)))).
 Defined.
 
-Definition weq_to_Equiv_inv X Y : weq X Y -> Equiv Y X.
+Definition weq_to_Equiv_inv X Y : X ≃ Y -> Equiv Y X.
   intros ? ? [f r].
   unfold isweq in r.
   set (g := fun y => hfiberpr1 f y (thePoint (r y))).
@@ -264,12 +264,12 @@ Definition weq_to_Equiv_inv X Y : weq X Y -> Equiv Y X.
   admit.
 Admitted.
 
-Definition Equiv_to_weq X Y : Equiv X Y -> weq X Y.
+Definition Equiv_to_weq X Y : Equiv X Y -> X ≃ Y.
 Proof. intros ? ? [f [g [p [q h]]]]. exists f. unfold isweq. intro y.
        exists (g y,,p y). intros [x []]. apply (total2_paths2 (!q x)). 
        refine (_ @ h x). destruct (q x). reflexivity. Defined.
 
-Definition Equiv_to_invweq X Y : Equiv X Y -> weq Y X.
+Definition Equiv_to_invweq X Y : Equiv X Y -> Y ≃ X.
 Proof. intros ? ? [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
        exists (f x,,q x). intros [y []]. apply (total2_paths2 (!p y)). 
        admit.
@@ -284,12 +284,12 @@ Module Equiv'.
              transportf (fun x':X => f x' = y) (! q x @ ap g r) r = p y }.
 End Equiv'.
 
-Definition Equiv'_to_weq X Y : Equiv'.data X Y -> weq X Y.
+Definition Equiv'_to_weq X Y : Equiv'.data X Y -> X ≃ Y.
 Proof. intros ? ? a. destruct a. exists f. unfold isweq. intro y.
        exists (g y,,p y). intros [x r]. 
        exact (total2_paths2 (! q x @ ap g r) (h x y r)). Defined.
 
-Goal (* weq_to_Equiv' *) ∀ X Y, weq X Y -> Equiv'.data X Y.
+Goal (* weq_to_Equiv' *) ∀ X Y, X ≃ Y -> Equiv'.data X Y.
 Proof. intros ? ? [f iw].
        set (g := fun y => hfiberpr1 f y (thePoint (iw y))).
        set (p := fun y => pr2 (pr1 (iw y))).
@@ -325,32 +325,32 @@ Definition iscontrretract_compute {X Y} (p:X->Y) (s:Y->X)
 Proof. intros. unfold iscontrretract. destruct is as [ctr uni].
        simpl. reflexivity. Defined.
 
-Definition iscontrweqb_compute {X Y} (w:weq X Y) (is:iscontr Y) :
+Definition iscontrweqb_compute {X Y} (w:X ≃ Y) (is:iscontr Y) :
   thePoint (iscontrweqb w is) = invmap w (thePoint is).
 Proof. intros. unfold iscontrweqb. rewrite iscontrretract_compute.
        reflexivity. Defined.
 
 Definition compute_iscontrweqb_weqfibtototal_1 {T} {P Q:T->Type}
            (f:∀ t, weq (P t) (Q t)) 
-           (is:iscontr (total2 Q)) :
+           (is:iscontr (totalSpace Q)) :
   pr1 (thePoint (iscontrweqb (weqfibtototal P Q f) is)) = pr1 (thePoint is).
 Proof. intros. destruct is as [ctr uni]. reflexivity. Defined.
 
 Definition compute_pr1_invmap_weqfibtototal {T} {P Q:T->Type}
            (f:∀ t, weq (P t) (Q t)) 
-           (w:total2 Q) :
+           (w:totalSpace Q) :
   pr1 (invmap (weqfibtototal P Q f) w) = pr1 w.
 Proof. intros. reflexivity. Defined.
 
 Definition compute_pr2_invmap_weqfibtototal {T} {P Q:T->Type}
            (f:∀ t, weq (P t) (Q t)) 
-           (w:total2 Q) :
+           (w:totalSpace Q) :
   pr2 (invmap (weqfibtototal P Q f) w) = invmap (f (pr1 w)) (pr2 w).
 Proof. intros. reflexivity. Defined.
 
 Definition compute_iscontrweqb_weqfibtototal_3 {T} {P Q:T->Type}
            (f:∀ t, weq (P t) (Q t)) 
-           (is:iscontr (total2 Q)) :
+           (is:iscontr (totalSpace Q)) :
   ap pr1 (iscontrweqb_compute (weqfibtototal P Q f) is) 
   =
   compute_iscontrweqb_weqfibtototal_1 f is.
@@ -361,7 +361,7 @@ Definition iscontrcoconustot_comp {X} {x:X} :
 Proof. reflexivity. Defined.
 
 Definition funfibtototal {X} (P Q:X->Type) (f:∀ x:X, P x -> Q x) :
-  total2 P -> total2 Q.
+  totalSpace P -> totalSpace Q.
 Proof. intros ? ? ? ? [x p]. exact (x,,f x p). Defined.
 
 Definition weqfibtototal_comp {X} (P Q:X->Type) (f:∀ x:X, weq (P x) (Q x)) :
@@ -377,7 +377,7 @@ Definition eqweqmapap_inv' {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) :
 Proof. intros. destruct e. reflexivity. Defined.
 
 Definition weqpr1_irr_sec {X} {P:X->Type}
-           (irr:∀ x (p q:P x), p = q) (sec:Section P) : weq (total2 P) X.
+           (irr:∀ x (p q:P x), p = q) (sec:Section P) : weq (totalSpace P) X.
 Proof. intros.
        set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
        apply Equiv_to_weq.
@@ -387,7 +387,7 @@ Proof. intros.
        { intros [x p]. simpl. apply pair_path_in2_comp1. } Defined.
 
 Definition invweqpr1_irr_sec {X} {P:X->Type}
-           (irr:∀ x (p q:P x), p = q) (sec:Section P) : weq X (total2 P).
+           (irr:∀ x (p q:P x), p = q) (sec:Section P) : X ≃ (totalSpace P).
 Proof. intros.
        set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
        apply Equiv_to_weq.
@@ -399,7 +399,7 @@ Proof. intros.
          reflexivity. } Defined.
 
 Definition homotinvweqweq' {X} {P:X->Type} 
-           (irr:∀ x (p q:P x), p = q) (s:Section P) (w:total2 P) :
+           (irr:∀ x (p q:P x), p = q) (s:Section P) (w:totalSpace P) :
   invmap (weqpr1_irr_sec irr s) (weqpr1_irr_sec irr s w) = w.
 Proof. intros ? ? ? ? [x p]. apply pair_path_in2. apply irr. Defined.
 
@@ -443,7 +443,7 @@ Definition homotinvweqweq_comp_3 {X} {P:X->Type}
 Proof. reflexivity. Defined.
 
 Definition loop_correspondence {T X Y}
-           (f:weq T X) (g:T->Y)
+           (f:T ≃ X) (g:T->Y)
            {t t':T} {l:t = t'}
            {m:f t = f t'} (mi:ap f l = m)
            {n:g t = g t'} (ni:ap g l = n) : 
@@ -454,8 +454,8 @@ Defined.
 
 Definition loop_correspondence' {X Y} {P:X->Type} 
            (irr:∀ x (p q:P x), p = q) (sec:Section P)
-           (g:total2 P->Y)
-           {w w':total2 P} {l:w = w'}
+           (g:totalSpace P->Y)
+           {w w':totalSpace P} {l:w = w'}
            {m:weqpr1_irr_sec irr sec w = weqpr1_irr_sec irr sec w'} (mi:ap (weqpr1_irr_sec irr sec) l = m)
            {n:g w = g w'} (ni:ap g l = n) : 
      ap (funcomp (invmap (weqpr1_irr_sec irr sec)) g) m @ ap g (homotinvweqweq' irr sec w') 

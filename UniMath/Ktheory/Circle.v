@@ -256,7 +256,7 @@ Print Assumptions circle_map_check_paths.
 
 
 Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)} 
-           (l:circle_loop#y = y) : forall c:circle, Y c.
+           (l:circle_loop#y = y) : ∀ c:circle, Y c.
 Proof. (** (not proved yet) *) admit. Admitted.
 
 (* One approach to the theorem above would be through the results of the paper
