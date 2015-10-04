@@ -14,7 +14,7 @@ Require UniMath.Ktheory.RawMatrix
         UniMath.Ktheory.Sum UniMath.Ktheory.Product UniMath.Ktheory.FiniteSet.
 Import FiniteSet.Coercions Sum.Coercions Product.Coercions.
 Definition identity_matrix {C:precategory} (hs: has_homsets C) (h:hasZeroObject C)
-           {I} (d:I -> ob C) (dec : isdeceq I) : forall i j, Hom (d j) (d i).
+           {I} (d:I -> ob C) (dec : isdeceq I) : ∀ i j, Hom (d j) (d i).
 Proof. intros. destruct (dec i j) as [ [] | _ ].
        { apply identity. } { apply zeroMap. apply hs. apply h. } Defined.
 Definition identity_map {C:precategory} (hs: has_homsets C) (h:hasZeroObject C)
@@ -26,11 +26,11 @@ Proof. intros. apply RawMatrix.from_matrix. apply identity_matrix.
 Record DirectSum {C:precategory} (hs: has_homsets C) (h:hasZeroObject C) I (dec : isdeceq I) (c : I -> ob C) := 
   make_DirectSum {
       ds : C;
-      ds_pr : forall i, Hom ds (c i);
-      ds_in : forall i, Hom (c i) ds;
-      ds_id : forall i j, ds_pr i ∘ ds_in j = identity_matrix hs h c dec i j;
-      ds_isprod : forall c, isweq (fun f : Hom c ds => fun i => ds_pr i ∘ f);
-      ds_issum  : forall c, isweq (fun f : Hom ds c => fun i => f ∘ ds_in i) }.
+      ds_pr : ∀ i, Hom ds (c i);
+      ds_in : ∀ i, Hom (c i) ds;
+      ds_id : ∀ i j, ds_pr i ∘ ds_in j = identity_matrix hs h c dec i j;
+      ds_isprod : ∀ c, isweq (fun f : Hom c ds => fun i => ds_pr i ∘ f);
+      ds_issum  : ∀ c, isweq (fun f : Hom ds c => fun i => f ∘ ds_in i) }.
 Definition toDirectSum {C:precategory} (hs: has_homsets C) (h:hasZeroObject C) {I} (dec : isdeceq I) (d:I -> ob C) 
            (B:Sum.type C hs d) (D:Product.type C hs d)
            (is: is_isomorphism (identity_map hs h dec B D)) : DirectSum hs h I dec d.
@@ -50,7 +50,8 @@ Proof. intros. set (id := identity_map hs h dec B D).
                       (iso_comp_right_isweq (id,,is) c)
                       (pr2 (Representation.Iso B c))). }
 Defined.
-Definition FiniteDirectSums (C:precategory)(hs: has_homsets C) := total2 (fun 
-             h:hasZeroObject C => 
-             forall (I:FiniteSet.Data) (d:I -> ob C), 
-               DirectSum hs  h I (FiniteSet.Isdeceq I) d).
+Definition FiniteDirectSums (C:precategory) (hs: has_homsets C) :=  
+             Σ h : hasZeroObject C,
+             ∀ I : FiniteSet.Data,
+             ∀ d : I -> ob C, 
+               DirectSum hs  h I (FiniteSet.Isdeceq I) d.

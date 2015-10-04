@@ -19,7 +19,7 @@ Notation "C '^op'" := (opp_precat C) (at level 3).
 Notation SET := hset_precategory.
 
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
-  : precategory := tpair _ C i.
+  : precategory := C,,i.
 
 Definition Precategory_obmor (C:precategory) : precategory_ob_mor := 
       precategory_ob_mor_from_precategory_data (
@@ -40,13 +40,12 @@ Definition Functor_mor {C D} (F:functor C D) := pr2 (pr1 F).
 Definition Functor_identity {C D} (F:functor C D) := functor_id F.
 Definition Functor_compose {C D} (F:functor C D) := functor_comp F.
 
-Definition category_pair (C:precategory) (i:is_category C)
- : category := tpair _ C i.
+Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 
 Definition theUnivalenceProperty (C:category) := pr2 _ : is_category C.
 
 Definition reflects_isos {C D} (X:C==>D) :=
-  forall c c' (f : c → c'), is_isomorphism (#X f) -> is_isomorphism f.
+  ∀ c c' (f : c → c'), is_isomorphism (#X f) -> is_isomorphism f.
 
 Lemma isaprop_reflects_isos {C D} (X:C==>D) : isaprop (reflects_isos X).
 Proof.
@@ -66,8 +65,8 @@ Defined.
 Definition makePrecategory_data
     (obj : UU)
     (mor : obj -> obj -> UU)
-    (identity : forall i, mor i i)
-    (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
+    (identity : ∀ i, mor i i)
+    (compose : ∀ i j k (f:mor i j) (g:mor j k), mor i k)
     : precategory_data.
   intros.
   exact (precategory_data_pair (makePrecategory_ob_mor obj mor) identity compose).
@@ -76,11 +75,11 @@ Defined.
 Definition makePrecategory 
     (obj : UU)
     (mor : obj -> obj -> UU)
-    (identity : forall i, mor i i)
-    (compose : forall i j k (f:mor i j) (g:mor j k), mor i k)
-    (right : forall i j (f:mor i j), compose _ _ _ (identity i) f = f)
-    (left  : forall i j (f:mor i j), compose _ _ _ f (identity j) = f)
-    (associativity : forall a b c d (f:mor a b) (g:mor b c) (h:mor c d),
+    (identity : ∀ i, mor i i)
+    (compose : ∀ i j k (f:mor i j) (g:mor j k), mor i k)
+    (right : ∀ i j (f:mor i j), compose _ _ _ (identity i) f = f)
+    (left  : ∀ i j (f:mor i j), compose _ _ _ f (identity j) = f)
+    (associativity : ∀ a b c d (f:mor a b) (g:mor b c) (h:mor c d),
         compose _ _ _ f (compose _ _ _ g h) = compose _ _ _ (compose _ _ _ f g) h)
     : precategory.
   intros.

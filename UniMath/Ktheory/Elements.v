@@ -5,10 +5,11 @@ Require Export UniMath.CategoryTheory.precategories
                UniMath.Foundations.Sets 
                UniMath.Ktheory.Utilities.
 Require Export UniMath.Ktheory.Precategories.
+
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
-  intros. exists (total2 (fun c : ob C => set_to_type (X c))).
+  intros. exists (Σ c:ob C, set_to_type (X c)).
   intros a b. 
-  exact (total2 (fun f : pr1 a → pr1 b => #X f (pr2 a) = (pr2 b))).
+  exact (Σ f : pr1 a → pr1 b, #X f (pr2 a) = (pr2 b)).
 Defined.
 
 
@@ -33,7 +34,7 @@ Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr1 f.
 Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x → y) :
       get_mor f = get_mor g -> f = g.
 Proof. intros ? ? ? ? [f i] [g j] p. simpl in p. destruct p.
-       assert (k : i=j). { apply equality_proof_irrelevance. }
+       assert (k : i=j). { apply setproperty. }
        destruct k. reflexivity. Qed.
 Lemma isPrecategory {C:precategory} (X:C==>SET) : is_precategory (cat_data X).
 Proof. intros. split.
