@@ -62,9 +62,14 @@ Require Export UniMath.Foundations.RationalNumbers.
 
 Open Scope hq_scope.
 
+Notation "x <= y" := (hqleh x y) : hq_scope.
+Notation "x >= y" := (hqgeh x y) : hq_scope.
+Notation "x < y" := (hqlth x y) : hq_scope.
+Notation "x > y" := (hqgth x y) : hq_scope.
+
 Lemma hq0lehandplus:
   forall n m : hq,
-    hqleh 0 n -> hqleh 0 m -> hqleh 0 (n + m).
+    0 <= n -> 0 <= m -> 0 <= (n + m).
 Proof.
   intros n m Hn Hm.
   eapply istranshqleh, hqlehandplusl, Hm.
