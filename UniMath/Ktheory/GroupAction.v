@@ -2,11 +2,73 @@
 
 (** * Group actions *)
 
-Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
+Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.FunctionalExtensionality
-               UniMath.Ktheory.Utilities
-               UniMath.Ktheory.Equivalences.
-Import UniMath.Ktheory.Utilities.Notation.
+               UniMath.Ktheory.Utilities.
+
+(** ** Move upstream *)
+
+Definition weqcompidl {X Y} (f:weq X Y) : weqcomp (idweq X) f = f.
+Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
+       apply funextsec; intro x; simpl. reflexivity. Defined.
+
+Definition weqcompidr {X Y} (f:weq X Y) : weqcomp f (idweq Y) = f.
+Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
+       apply funextsec; intro x; simpl. reflexivity. Defined.
+
+Definition weqcompinvl {X Y} (f:weq X Y) : weqcomp (invweq f) f = idweq Y.
+Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
+       apply funextsec; intro y; simpl. apply homotweqinvweq. Defined.
+
+Definition weqcompinvr {X Y} (f:weq X Y) : weqcomp f (invweq f) = idweq X.
+Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
+       apply funextsec; intro x; simpl. apply homotinvweqweq. Defined.
+
+Definition weqcompassoc {X Y Z W} (f:weq X Y) (g:weq Y Z) (h:weq Z W) :
+  weqcomp (weqcomp f g) h = weqcomp f (weqcomp g h).
+Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
+       apply funextsec; intro x; simpl. reflexivity. Defined.
+
+Definition weqcompweql {X Y Z} (f:weq X Y) :
+  isweq (fun g:weq Y Z => weqcomp f g).
+Proof. intros. refine (gradth _ _ _ _).
+       { intro h. exact (weqcomp (invweq f) h). }
+       { intro g. simpl. rewrite <- weqcompassoc. rewrite weqcompinvl.
+         apply weqcompidl. }
+       { intro h. simpl. rewrite <- weqcompassoc. rewrite weqcompinvr.
+         apply weqcompidl. } Defined.
+
+Definition weqcompweqr {X Y Z} (g:weq Y Z) :
+  isweq (fun f:weq X Y => weqcomp f g).
+Proof. intros. refine (gradth _ _ _ _).
+       { intro h. exact (weqcomp h (invweq g)). }
+       { intro f. simpl. rewrite weqcompassoc. rewrite weqcompinvr.
+         apply weqcompidr. }
+       { intro h. simpl. rewrite weqcompassoc. rewrite weqcompinvl.
+         apply weqcompidr. } Defined.
+
+Definition weqcompinjr {X Y Z} {f f':weq X Y} (g:weq Y Z) :
+  weqcomp f g = weqcomp f' g -> f = f'.
+Proof. intros ? ? ? ? ? ?.
+       apply (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweqr g))).
+Defined.
+
+Definition weqcompinjl {X Y Z} (f:weq X Y) {g g':weq Y Z} :
+  weqcomp f g = weqcomp f g' -> g = g'.
+Proof. intros ? ? ? ? ? ?.
+       apply (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweql f))).
+Defined.
+
+Definition invweqcomp {X Y Z} (f:weq X Y) (g:weq Y Z) :
+  invweq (weqcomp f g) = weqcomp (invweq g) (invweq f).
+Proof. intros. apply (weqcompinjr (weqcomp f g)). rewrite weqcompinvl.
+       rewrite weqcompassoc. rewrite <- (weqcompassoc (invweq f)).
+       rewrite weqcompinvl. rewrite weqcompidl. rewrite weqcompinvl. reflexivity.
+Defined.
+
+Definition invmapweqcomp {X Y Z} (f:weq X Y) (g:weq Y Z) :
+  invmap (weqcomp f g) = weqcomp (invweq g) (invweq f).
+Proof. intros. exact (ap pr1weq (invweqcomp f g)). Defined.
 
 (** ** Definitions *)
 
@@ -163,7 +225,8 @@ Definition Action_univalence_prelim {G:gr} {X Y:Action G} :
 Proof. intros.
        refine (weqcomp (total2_paths_equiv (ActionStructure G) X Y) _).
        refine (weqbandf _ _ _ _).
-       { refine (weqcomp (pr1hSet_injectivity _ _) (weqpair (@eqweqmap (pr1 X) (pr1 Y)) (univalenceaxiom _ _))). }
+       { refine (weqcomp _ (weqpair (@eqweqmap (pr1 X) (pr1 Y)) (univalenceaxiom _ _))).
+         { apply total2_paths_isaprop_equiv. apply isapropisaset. } }
        simpl. intro p. refine (weqcomp (is_equivariant_identity p) _).
        exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap set_to_type p)))).
 Defined.
@@ -206,7 +269,7 @@ Proof. intros. exact (apevalat x (ap pr1weq
 (** ** Torsors *)
 
 Definition is_torsor {G:gr} (X:Action G) := 
-  nonempty X ** forall x:X, isweq (right_mult x).
+  nonempty X × forall x:X, isweq (right_mult x).
 
 Lemma is_torsor_isaprop {G:gr} (X:Action G) : isaprop (is_torsor X).
 Proof. intros. apply isofhleveldirprod. { apply propproperty. }

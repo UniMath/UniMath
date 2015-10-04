@@ -15,7 +15,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Foundations.Algebra.Bourbaki.Generalities .
+Require Export UniMath.Foundations.Algebra.BinaryOperations .
 
 
 (** To upstream files *)

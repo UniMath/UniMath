@@ -4,11 +4,11 @@ Require Import
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories 
-        UniMath.Ktheory.Utilities.
-Require UniMath.Ktheory.Precategories UniMath.Ktheory.Sets UniMath.Ktheory.Representation.
-Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Precategories.Notation.
+        UniMath.Ktheory.Utilities
+        UniMath.Ktheory.Precategories.
+Require UniMath.Ktheory.Sets UniMath.Ktheory.Representation.
 Definition unitFunctor_data (C:precategory) 
-     : functor_data (Precategories.Precategory.obmor C) (Precategories.Precategory.obmor SET).
+     : functor_data (Precategories.Precategory_obmor C) (Precategories.Precategory_obmor SET).
   intros. refine (tpair _ _ _).
   intros. exact Sets.unit. intros. exact (idfun _). Defined.
 Definition unitFunctor (C:precategory) : C ==> SET.

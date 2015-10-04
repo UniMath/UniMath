@@ -1,9 +1,8 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
+Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.FiniteSets
                UniMath.Ktheory.Utilities.
-Import UniMath.Ktheory.Utilities.Notation.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.

@@ -4,14 +4,13 @@
 
 Unset Kernel Term Sharing.
 
-Require Import UniMath.Foundations.Algebra.Bourbaki.MonoidsAndGroups
+Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
+               UniMath.Foundations.NaturalNumbers
+               UniMath.Foundations.Integers
                UniMath.Foundations.FunctionalExtensionality
                UniMath.Ktheory.Utilities
                UniMath.CategoryTheory.total2_paths
-               UniMath.Ktheory.GroupAction
-               UniMath.Foundations.Integers.
-Require UniMath.Ktheory.Nat.
-Import UniMath.Ktheory.Utilities.Notation UniMath.Ktheory.Utilities.NatNotation.
+               UniMath.Ktheory.GroupAction.
 
 Definition ℤ := hzaddabgr.
 Definition toℤ (n:nat) : ℤ := nattohz n.

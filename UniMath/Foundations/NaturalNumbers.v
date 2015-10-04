@@ -17,7 +17,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
-Require Export UniMath.Foundations.Algebra.Bourbaki.DomainsAndFields . 
+Require Export UniMath.Foundations.Algebra.Domains_and_Fields . 
 
 (** To up-stream files  *)
 
@@ -201,6 +201,7 @@ Proof . intros n m k lnk . apply ( ( pr1 islogeqcommhdisj ) ( iscotransnatgth _ 
 Definition natleh ( n m : nat ) := hProppair ( neg ( natgth n m ) ) ( isapropneg _ )  .
 
 Notation " x <= y " := ( natleh x y ) : nat_scope .
+Notation " x ≤ y " := ( natleh x y ) (at level 70, no associativity) : nat_scope .
 
 Definition natleh0tois0 ( n : nat ) ( l : natleh n 0 ) : paths n 0 := negnatgth0tois0 _ l .
 
@@ -237,6 +238,7 @@ Proof . intros x y . destruct ( isdecrelnatleh x y ) as [ lxy | lyx ] . apply ( 
 Definition natgeh ( n m : nat ) : hProp := hProppair ( neg ( natgth m n ) ) ( isapropneg _ ) .
 
 Notation " x >= y " := ( natgeh x y ) : nat_scope .
+Notation " x ≥ y " := ( natgeh x y ) (at level 70, no associativity) : nat_scope .
 
 Definition nat0gehtois0 ( n : nat ) ( g : natgeh 0 n ) : paths n 0 := natleh0tois0 _ g . 
 

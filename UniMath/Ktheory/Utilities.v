@@ -7,7 +7,22 @@ Require Import UniMath.Foundations.FunctionalExtensionality.
 
 Require Export UniMath.Ktheory.Tactics.
 
-Set Default Timeout 50.
+
+  Notation "'∃!'  x .. y , P" := (iscontr (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
+  Notation "'not' X" := (X -> empty) (at level 35).
+  Notation "x != y" := (not (x = y)) (at level 70).
+  Notation set_to_type := pr1hSet.
+  Notation ap := maponpaths.
+  (* see table 3.1 in the coq manual for parsing levels *)
+  Notation "g ∘ f" := (funcomp f g) (at level 50).
+  Notation "f ;; g" := (funcomp f g) (at level 50).
+  Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
+  (* funcomp' is like funcomp, but with the arguments in the other order *)
+  Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
+  Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
+  Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
+  Open Scope transport_scope.
+  (* Notation "X × Y" := (dirprod X Y) (right associativity, at level 80) : type_scope. *)
 
 (* some jargon reminders: *)
 Goal forall X (i:isaprop X) (x x':X), x = x'.
@@ -54,32 +69,6 @@ Proof. intros. exact (pr2 i t). Defined.
 
 Definition uniqueness' {T} (i:iscontr T) (t:T) : the i = t.
 Proof. intros. exact (! (pr2 i t)). Defined.
-
-Module Export Notation.
-  Notation "'not' X" := (X -> empty) (at level 35).
-  Notation "x != y" := (not (x = y)) (at level 40).
-  Notation set_to_type := pr1hSet.
-  Notation ap := maponpaths.
-  (* see table 3.1 in the coq manual for parsing levels *)
-  Notation "g ∘ f" := (funcomp f g) (at level 50).
-  Notation "f ;; g" := (funcomp f g) (at level 50).
-  Notation "x ,, y" := (tpair _ x y) (at level 69, right associativity).
-  (* funcomp' is like funcomp, but with the arguments in the other order *)
-  Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
-  Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
-  Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
-  Open Scope transport_scope.
-  Notation "{ x : X & P }" := (total2 (fun x:X => P)) : type_scope.
-  Notation "X ** Y" := (dirprod X Y) (right associativity, at level 80) : type_scope.
-End Notation.
-
-Module Import NatNotation.
-  Require Import UniMath.Foundations.NaturalNumbers.
-  Notation "m <= n" := (natleh m n).
-  Notation "m >= n" := (natgeh m n).
-  Notation "m > n" := (natgth m n).
-  Notation "m < n" := (natlth m n).
-End NatNotation.
 
 Definition path_inverse_to_right {X} {x y:X} (p q:x = y) : p = q -> !q@p = idpath _.
 Proof. intros ? ? ? ? ? e. destruct e. destruct p. reflexivity. Defined.
@@ -708,7 +697,7 @@ Proof. intros. refine (weqbandf _ _ _ _).
          unfold idfun; simpl. apply idweq. } Defined.
 
 Definition weq_total2_prod {X Y} (Z:Y->Type) :
-  weq (total2 (fun y => X ** Z y)) (X ** total2 Z).
+  weq (total2 (fun y => X × Z y)) (X × total2 Z).
 Proof. intros. refine (weqpair _ (gradth _ _ _ _)).
        { intros [y [x z]]. exact (x,,(y,,z)). }
        { intros [x [y z]]. exact (y,,(x,,z)). }
@@ -737,14 +726,14 @@ Definition Ω := loopSpace.
 
 (** ** Direct products with several factors *)
 
-Definition tuple3 {X Y Z} x y z := (x,,(y,,z)) : X ** Y ** Z.
+Definition tuple3 {X Y Z} x y z := (x,,(y,,z)) : X × Y × Z.
 
 Definition paths3 {X Y Z} {x x':X} {y y':Y} {z z':Z} :
   x = x' -> y = y' -> z = z' -> tuple3 x y z = tuple3 x' y' z'. 
 Proof. intros ? ? ? ? ? ? ? ? ? p q r. destruct p, q, r. reflexivity.
 Defined.       
 
-Definition tuple4 {W X Y Z} (w:W) x y z := (w,,tuple3 x y z) : W ** X ** Y ** Z.
+Definition tuple4 {W X Y Z} (w:W) x y z := (w,,tuple3 x y z) : W × X × Y × Z.
 
 Definition paths4 {W X Y Z} {w w':W} {x x':X} {y y':Y} {z z':Z} :
   w = w' -> x = x' -> y = y' -> z = z' -> tuple4 w x y z = tuple4 w' x' y' z'. 
