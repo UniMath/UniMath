@@ -22,14 +22,17 @@ Defined.
 
 (* We represent a partition of [stn n] into m subintervals by giving an
    increasing sequence k_0 .. k_m in the range 0..n .  The i-th number k_i is
-   the least number not in the any of the first i-1 subintervals.  Thus consecutive
-   subintervals are defined as half open intervals by consecutive pairs of neighbors
-   in k.  Observe that the first number is always 0 and the last number is always n.
+   the least number not in the any of the first i subintervals, so it's the
+   starting number for the i+1-st subinterval.  The first number
+   is always 0 and the last number is always n.
 
    Examples:
-       m=1     k=(0,n)      [0,n)
-       m=2     k=(0,i,n)    [0,i)  [i,n)
-       m=3     k=(0,i,j,n)  [0,i)  [i,j)    [j,n)
+       m=n=0   k=(0)          
+       m=1     k=(0,n)        [0,n)
+       m=2     k=(0,i,n)      [0,i)  [i,n)
+               k=(0,n,n)      [0,n)  [n,n)
+       m=3     k=(0,i,j,n)    [0,i)  [i,j)  [j,n)
+               k=(0,0,n,n)    [0,0)  [0,n)  [n,n)
    *)
 
 Definition enumerateSubinterval n i j: i ≤ j -> j ≤ n -> stn (j-i) -> stn n.
@@ -37,22 +40,38 @@ Proof.
   intros ? ? ? ij jn [k kji].
   exists (k+i).
   refine (natlthlehtrans _ _ _ _ jn).
-  assert (u := minusplusnmm _ _ ij).
-  assert (t := natlthandplusr _ _ i kji).
-  induction (!u).
-  exact t.
+  destruct (minusplusnmm _ _ ij).
+  now apply natlthandplusr.
 Defined.
 
-(*
+Section Test.
+    Goal 5 ≤ 7. exact nopathsfalsetotrue. Defined.
+    Let a := nopathsfalsetotrue.
+    Goal 5 ≤ 7. trivial. Defined.
 
-Definition monoidSumOfSums (E:monoid) m n (f:posetmorphism (stnposet m) (stnposet n)): E.
-Proof.
+    Goal 5 < 7. reflexivity. Defined.
+    Let b := idpath true.
+    Goal 5 < 7. exact b. Defined.
+    Goal 5 < 7. trivial. Defined.
+
+    Goal enumerateSubinterval 7 3 6 a a (0,,b) = (3,,b). reflexivity. Defined.
+    Goal enumerateSubinterval 7 3 6 a a (1,,b) = (4,,b). reflexivity. Defined.
+    Goal enumerateSubinterval 7 3 6 a a (2,,b) = (5,,b). reflexivity. Defined.
+End Test.
+
+Definition Partition n          (* a partition of [stn n], as above *)
+  := Σ m,
+     Σ k: posetmorphism (stnposet (S m)) (stnposet (S n)),
+          k (firstelement m) = firstelement n
+            ×
+          k (lastelement m) = lastelement n.
+
+
+Definition monoidSumOfSums (E:monoid) n (x:stn n -> E) (P:Partition n) : E.
+Proof.  
   intros.
-  
 
-*)
-
-
+Admitted.
 
 
 
