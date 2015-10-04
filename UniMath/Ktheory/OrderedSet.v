@@ -19,7 +19,7 @@ Definition underlyingRelation (X:Oset) := pr1 (pr2 (pr1 X)).
 Notation "m ≤ n" := (underlyingRelation _ m n) (no associativity, at level 70) : oset_scope.
 Open Scope oset_scope.
 Notation "m ≥ n" := (n ≤ m) (no associativity, at level 70) : oset_scope.
-Notation "m < n" := m ≤ n × not (m = n) : oset_scope.
+Notation "m < n" := (m ≤ n × m != n) : oset_scope.
 Notation "m > n" := (n < m) : oset_scope.
 
 Definition stnoset (n:nat) : Oset.
