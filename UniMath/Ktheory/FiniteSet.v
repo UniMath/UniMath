@@ -2,7 +2,7 @@
 
 Require Import UniMath.Foundations.FiniteSets
         UniMath.Ktheory.Utilities.
-Definition Data := total2 isfinite.
+Definition Data := totalSpace isfinite.
 Definition ToType (X:Data) : Type := pr1 X.
 Module Import Coercions.
   Coercion ToType : Data >-> Sortclass.

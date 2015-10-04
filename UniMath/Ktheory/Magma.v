@@ -26,16 +26,15 @@ Module Product.
     intros.
     exists (Section X,,i1 X). exact (fun v w i => v i * w i). Defined.
   (** the projection maps *)
-  Definition Proj {I} (X:I->magma) : forall i:I, Hom (make X) (X i).
+  Definition Proj {I} (X:I->setwithbinop) : ∀ i:I, Hom (make X) (X i).
     intros. exists (fun y => y i). intros a b. reflexivity. Defined.
   (** the universal map *)
-  Definition Fun {I} (X:I->magma) (T:magma)
-             (g: forall i, Hom T (X i))
+  Definition Fun {I} (X:I->setwithbinop) (T:setwithbinop)
+             (g: ∀ i, Hom T (X i))
              : Hom T (make X).
     intros. exists (fun t i => g i t).
     intros t u. apply funextsec; intro i. apply (pr2 (g i)). Defined.
-  (** commutativity for the universal map *)
-  Definition Eqn {I} (X:I->magma) (T:magma) (g: forall i, Hom T (X i))
-             : forall i, Proj X i ∘ Fun X T g = g i.
+  Definition Eqn {I} (X:I->setwithbinop) (T:setwithbinop) (g: ∀ i, Hom T (X i))
+             : ∀ i, Proj X i ∘ Fun X T g = g i.
     intros. apply funEquality. reflexivity. Qed.
 End Product.

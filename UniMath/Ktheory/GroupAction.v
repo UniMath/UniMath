@@ -8,29 +8,29 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
 
 (** ** Move upstream *)
 
-Definition weqcompidl {X Y} (f:weq X Y) : weqcomp (idweq X) f = f.
+Definition weqcompidl {X Y} (f:X ≃ Y) : weqcomp (idweq X) f = f.
 Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
        apply funextsec; intro x; simpl. reflexivity. Defined.
 
-Definition weqcompidr {X Y} (f:weq X Y) : weqcomp f (idweq Y) = f.
+Definition weqcompidr {X Y} (f:X ≃ Y) : weqcomp f (idweq Y) = f.
 Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
        apply funextsec; intro x; simpl. reflexivity. Defined.
 
-Definition weqcompinvl {X Y} (f:weq X Y) : weqcomp (invweq f) f = idweq Y.
+Definition weqcompinvl {X Y} (f:X ≃ Y) : weqcomp (invweq f) f = idweq Y.
 Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
        apply funextsec; intro y; simpl. apply homotweqinvweq. Defined.
 
-Definition weqcompinvr {X Y} (f:weq X Y) : weqcomp f (invweq f) = idweq X.
+Definition weqcompinvr {X Y} (f:X ≃ Y) : weqcomp f (invweq f) = idweq X.
 Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
        apply funextsec; intro x; simpl. apply homotinvweqweq. Defined.
 
-Definition weqcompassoc {X Y Z W} (f:weq X Y) (g:weq Y Z) (h:weq Z W) :
+Definition weqcompassoc {X Y Z W} (f:X ≃ Y) (g:Y ≃ Z) (h:Z ≃ W) :
   weqcomp (weqcomp f g) h = weqcomp f (weqcomp g h).
 Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
        apply funextsec; intro x; simpl. reflexivity. Defined.
 
-Definition weqcompweql {X Y Z} (f:weq X Y) :
-  isweq (fun g:weq Y Z => weqcomp f g).
+Definition weqcompweql {X Y Z} (f:X ≃ Y) :
+  isweq (fun g:Y ≃ Z => weqcomp f g).
 Proof. intros. refine (gradth _ _ _ _).
        { intro h. exact (weqcomp (invweq f) h). }
        { intro g. simpl. rewrite <- weqcompassoc. rewrite weqcompinvl.
@@ -38,8 +38,8 @@ Proof. intros. refine (gradth _ _ _ _).
        { intro h. simpl. rewrite <- weqcompassoc. rewrite weqcompinvr.
          apply weqcompidl. } Defined.
 
-Definition weqcompweqr {X Y Z} (g:weq Y Z) :
-  isweq (fun f:weq X Y => weqcomp f g).
+Definition weqcompweqr {X Y Z} (g:Y ≃ Z) :
+  isweq (fun f:X ≃ Y => weqcomp f g).
 Proof. intros. refine (gradth _ _ _ _).
        { intro h. exact (weqcomp h (invweq g)). }
        { intro f. simpl. rewrite weqcompassoc. rewrite weqcompinvr.
@@ -47,26 +47,26 @@ Proof. intros. refine (gradth _ _ _ _).
        { intro h. simpl. rewrite weqcompassoc. rewrite weqcompinvl.
          apply weqcompidr. } Defined.
 
-Definition weqcompinjr {X Y Z} {f f':weq X Y} (g:weq Y Z) :
+Definition weqcompinjr {X Y Z} {f f':X ≃ Y} (g:Y ≃ Z) :
   weqcomp f g = weqcomp f' g -> f = f'.
 Proof. intros ? ? ? ? ? ?.
        apply (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweqr g))).
 Defined.
 
-Definition weqcompinjl {X Y Z} (f:weq X Y) {g g':weq Y Z} :
+Definition weqcompinjl {X Y Z} (f:X ≃ Y) {g g':Y ≃ Z} :
   weqcomp f g = weqcomp f g' -> g = g'.
 Proof. intros ? ? ? ? ? ?.
        apply (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweql f))).
 Defined.
 
-Definition invweqcomp {X Y Z} (f:weq X Y) (g:weq Y Z) :
+Definition invweqcomp {X Y Z} (f:X ≃ Y) (g:Y ≃ Z) :
   invweq (weqcomp f g) = weqcomp (invweq g) (invweq f).
 Proof. intros. apply (weqcompinjr (weqcomp f g)). rewrite weqcompinvl.
        rewrite weqcompassoc. rewrite <- (weqcompassoc (invweq f)).
        rewrite weqcompinvl. rewrite weqcompidl. rewrite weqcompinvl. reflexivity.
 Defined.
 
-Definition invmapweqcomp {X Y Z} (f:weq X Y) (g:weq Y Z) :
+Definition invmapweqcomp {X Y Z} (f:X ≃ Y) (g:Y ≃ Z) :
   invmap (weqcomp f g) = weqcomp (invweq g) (invweq f).
 Proof. intros. exact (ap pr1weq (invweqcomp f g)). Defined.
 
@@ -77,16 +77,16 @@ Definition action_op G X := G -> X -> X.
 Record ActionStructure (G:gr) (X:hSet) :=
   make {
       act_mult : action_op G X;
-      act_unit : forall x, act_mult (unel _) x = x;
-      act_assoc : forall g h x, act_mult (op g h) x = act_mult g (act_mult h x)
+      act_unit : ∀ x, act_mult (unel _) x = x;
+      act_assoc : ∀ g h x, act_mult (op g h) x = act_mult g (act_mult h x)
     }.
 Arguments act_mult {G _} _ g x.
 
 Module Pack.
-  Definition ActionStructure' (G:gr) (X:hSet) := total2 ( fun
-         act_mult : action_op G X => total2 ( fun
-         act_unit : forall x, act_mult (unel _) x = x => 
-      (* act_assoc : *) forall g h x, act_mult (op g h) x = act_mult g (act_mult h x))).
+  Definition ActionStructure' (G:gr) (X:hSet) := 
+         Σ act_mult : action_op G X,
+         Σ act_unit : ∀ x, act_mult (unel _) x = x,
+      (* act_assoc : *) ∀ g h x, act_mult (op g h) x = act_mult g (act_mult h x).
   Definition pack {G:gr} {X:hSet} : ActionStructure' G X -> ActionStructure G X
     := fun ac => make G X (pr1 ac) (pr1 (pr2 ac)) (pr2 (pr2 ac)).
   Definition unpack {G:gr} {X:hSet} : ActionStructure G X -> ActionStructure' G X
@@ -111,7 +111,7 @@ Proof. intros. apply (isofhlevelweqf 2 (Pack.weq G X)).
        intro un. apply impred; intro g. apply impred; intro h. apply impred; intro x. 
        apply hlevelntosn. apply setproperty. Qed.
 
-Definition Action (G:gr) := total2 (ActionStructure G). 
+Definition Action (G:gr) := totalSpace (ActionStructure G). 
 Definition makeAction {G:gr} (X:hSet) (ac:ActionStructure G X) :=
   X,,ac : Action G.
 
@@ -123,13 +123,13 @@ Definition ac_mult {G:gr} (X:Action G) := act_mult (pr2 X).
 Delimit Scope action_scope with action.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Open Scope action_scope.
-Definition ac_assoc {G:gr} (X:Action G) := act_assoc _ _ (pr2 X) : forall g h x, (op g h)*x = g*(h*x).
+Definition ac_assoc {G:gr} (X:Action G) := act_assoc _ _ (pr2 X) : ∀ g h x, (op g h)*x = g*(h*x).
 
 Definition right_mult {G:gr} {X:Action G} (x:X) := fun g => g*x.
 Definition left_mult {G:gr} {X:Action G} (g:G) := fun x:X => g*x.
 
 Definition is_equivariant {G:gr} {X Y:Action G} (f:X->Y) := 
-  forall g x, f (g*x) = g*(f x).
+  ∀ g x, f (g*x) = g*(f x).
 
 Definition is_equivariant_isaprop {G:gr} {X Y:Action G} (f:X->Y) : 
   isaprop (is_equivariant f).
@@ -171,7 +171,7 @@ Definition is_equivariant_comp {G:gr} {X Y Z:Action G}
            (q:Y->Z) (j:is_equivariant q) : is_equivariant (funcomp p q).
 Proof. intros. intros g x. exact (ap q (i g x) @ j g (p x)). Defined.
 
-Definition ActionMap {G:gr} (X Y:Action G) := total2 (@is_equivariant _ X Y).
+Definition ActionMap {G:gr} (X Y:Action G) := totalSpace (@is_equivariant _ X Y).
 
 Definition underlyingFunction {G:gr} {X Y:Action G} (f:ActionMap X Y) := pr1 f.
 
@@ -185,14 +185,14 @@ Proof. intros ? ? ? ? [p i] [q j]. exists (funcomp p q).
        apply is_equivariant_comp. assumption. assumption. Defined.
 
 Definition ActionIso {G:gr} (X Y:Action G) := 
-  total2 (fun f:weq (ac_set X) (ac_set Y) => is_equivariant f).
+  Σ f:weq (ac_set X) (ac_set Y), is_equivariant f.
 
-Definition underlyingIso {G:gr} {X Y:Action G} (e:ActionIso X Y) := pr1 e : weq X Y.
+Definition underlyingIso {G:gr} {X Y:Action G} (e:ActionIso X Y) := pr1 e : X ≃ Y.
 
 Coercion underlyingIso : ActionIso >-> weq.
 
 Lemma underlyingIso_incl {G:gr} {X Y:Action G} :
-  isincl (underlyingIso : ActionIso X Y -> weq X Y).
+  isincl (underlyingIso : ActionIso X Y -> X ≃ Y).
 Proof. intros. apply isinclpr1; intro f. apply is_equivariant_isaprop. Defined.
 
 Lemma underlyingIso_injectivity {G:gr} {X Y:Action G}
@@ -269,13 +269,13 @@ Proof. intros. exact (apevalat x (ap pr1weq
 (** ** Torsors *)
 
 Definition is_torsor {G:gr} (X:Action G) := 
-  nonempty X × forall x:X, isweq (right_mult x).
+  nonempty X × ∀ x:X, isweq (right_mult x).
 
 Lemma is_torsor_isaprop {G:gr} (X:Action G) : isaprop (is_torsor X).
 Proof. intros. apply isofhleveldirprod. { apply propproperty. }
        { apply impred; intro x. apply isapropisweq. } Qed.
 
-Definition Torsor (G:gr) := total2 (@is_torsor G).
+Definition Torsor (G:gr) := totalSpace (@is_torsor G).
 
 Definition underlyingAction {G} (X:Torsor G) := pr1 X : Action G.
 Coercion underlyingAction : Torsor >-> Action.
@@ -283,7 +283,7 @@ Definition is_torsor_prop {G} (X:Torsor G) := pr2 X.
 Definition torsor_nonempty {G} (X:Torsor G) := pr1 (is_torsor_prop X).
 Definition torsor_splitting {G} (X:Torsor G) := pr2 (is_torsor_prop X).
 Definition torsor_mult_weq {G} (X:Torsor G) (x:X) := 
-  weqpair (right_mult x) (torsor_splitting X x) : weq G X.
+  weqpair (right_mult x) (torsor_splitting X x) : G ≃ X.
 Definition torsor_update_nonempty {G} (X:Torsor G) (x:nonempty X) : Torsor G.
 Proof. intros ? X new. 
        exact (underlyingAction X,,(new,,pr2(is_torsor_prop X))). Defined.
@@ -312,19 +312,19 @@ Definition underlyingAction_injectivity_inv_comp {G:gr} {X Y:Torsor G}
   ap underlyingAction (invmap underlyingAction_injectivity f) = f.
 Proof. intros. apply (homotweqinvweq underlyingAction_injectivity f). Defined.
 
-Definition PointedTorsor (G:gr) := total2 (fun X:Torsor G => X).
+Definition PointedTorsor (G:gr) := Σ X:Torsor G, X.
 Definition underlyingTorsor {G} (X:PointedTorsor G) := pr1 X : Torsor G.
 Coercion underlyingTorsor : PointedTorsor >-> Torsor.
 Definition underlyingPoint {G} (X:PointedTorsor G) := pr2 X : X.
 
-Lemma is_quotient {G} (X:Torsor G) (y x:X) : iscontr (total2 (fun g => g*x = y)).
+Lemma is_quotient {G} (X:Torsor G) (y x:X) : ∃! g, g*x = y.
 Proof. intros. exact (pr2 (is_torsor_prop X) x y). Defined.
 
-Definition quotient {G} (X:Torsor G) (y x:X) := pr1 (the (is_quotient X y x)) : G.
+Definition quotient {G} (X:Torsor G) (y x:X) := pr1 (thePoint (is_quotient X y x)) : G.
 Local Notation "y / x" := (quotient _ y x) : action_scope.
 
 Lemma quotient_times {G} (X:Torsor G) (y x:X) : (y/x)*x = y.
-Proof. intros. exact (pr2 (the (is_quotient _ y x))). Defined.
+Proof. intros. exact (pr2 (thePoint (is_quotient _ y x))). Defined.
 
 Lemma quotient_uniqueness {G} (X:Torsor G) (y x:X) (g:G) : g*x = y -> g = y/x.
 Proof. intros ? ? ? ? ? e. 
@@ -384,10 +384,10 @@ Definition trivialTorsorAuto (G:gr) (g:G) :
 Proof. intros. exists (trivialTorsorEquiv G g).
        intros h x. simpl.  exact (assocax _ h x g). Defined.
 
-Lemma pr1weq_injectivity {X Y} (f g:weq X Y) : weq (f = g) (pr1weq f = pr1weq g).
+Lemma pr1weq_injectivity {X Y} (f g:X ≃ Y) : weq (f = g) (pr1weq f = pr1weq g).
 Proof. intros. apply weqonpathsincl. apply isinclpr1weq.  Defined.
 
-Definition autos (G:gr) : weq G (ActionIso (trivialTorsor G) (trivialTorsor G)).
+Definition autos (G:gr) : G ≃ (ActionIso (trivialTorsor G) (trivialTorsor G)).
 Proof. intros. exists (trivialTorsorAuto G). refine (gradth _ _ _ _).
        { intro f. exact (f (unel G)). } { intro g; simpl. exact (lunax _ g). }
        { intro f; simpl. apply (invweq (underlyingIso_injectivity _ _)); simpl.
@@ -444,9 +444,7 @@ Definition torsor_eqweq_to_path {G:gr} {X Y:Torsor G} : ActionIso X Y -> X = Y.
 Proof. intros ? ? ? f. exact ((invweq Torsor_univalence) f). Defined.
 
 Definition PointedActionIso {G:gr} (X Y:PointedTorsor G) 
-           := total2 (fun
-                         f:ActionIso X Y => 
-                         f (underlyingPoint X) = underlyingPoint Y).
+    := Σ f:ActionIso X Y, f (underlyingPoint X) = underlyingPoint Y.
 
 Definition pointed_triviality_isomorphism {G:gr} (X:PointedTorsor G) :
   PointedActionIso (pointedTrivialTorsor G) X.

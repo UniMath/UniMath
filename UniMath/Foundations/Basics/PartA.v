@@ -100,6 +100,8 @@ Defined.
 
 Definition neg (X : UU) : UU := X -> empty.
 
+Notation "x != y" := (neg (x = y)) (at level 40).
+
 Definition negf {X Y : UU} (f : X -> Y) : neg Y -> neg X := 
   fun (phi : Y -> empty) => fun (x : X) => phi (f x).
 
@@ -159,7 +161,7 @@ Proof.
   intros. induction e1. simpl. apply idpath.
 Defined. 
 
-(** Note that we do no need [ pathscomp0lid ] since the corresponding
+(** Note that we do not need [ pathscomp0lid ] since the corresponding
     two terms are convertible to each other due to our definition of
     [ pathscomp0 ]. If we defined it by inductioning [ e2 ] and
     applying [ e1 ] then [ pathscomp0rid ] would be trivial but
@@ -174,6 +176,10 @@ Defined.
 
 Hint Resolve @pathsinv0 : pathshints .
 
+Definition path_assoc {X} {a b c d:X}
+        (f : a = b) (g : b = c) (h : c = d)
+      : f @ (g @ h) = (f @ g) @ h.
+Proof. intros. destruct f. reflexivity. Defined.
 
 (** Notation [! p] added by B.A., oct 2014 *)
 

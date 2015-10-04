@@ -12,8 +12,8 @@ Require Import UniMath.Ktheory.AffineLine
                UniMath.Foundations.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.Integers
-               UniMath.Ktheory.Equivalences
-               UniMath.Ktheory.Utilities.
+               UniMath.Ktheory.Equivalences.
+Require Import UniMath.Ktheory.Utilities.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
 Open Scope action_scope.
@@ -47,7 +47,7 @@ Definition pr2_GH {Y} {y:Y} (l:y = y) (u:GH l)
 
 Definition GH_path3 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} {y':Y}
            {g g':GHomotopy (confun T y) (confun T l) y'} (u:g = g') :
-  GHpair l T (tpair _ y' g ) = GHpair l T (tpair _ y' g' ).
+  GHpair l T (y',, g) = GHpair l T (y',,g').
 Proof. intros. destruct u. reflexivity. Defined.
 
 Definition pr12_GH {Y} {y:Y} {l:y = y} (u:GH l) := pr1 (pr2_GH l u) : Y.
@@ -256,7 +256,7 @@ Print Assumptions circle_map_check_paths.
 
 
 Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)} 
-           (l:circle_loop#y = y) : forall c:circle, Y c.
+           (l:circle_loop#y = y) : ∀ c:circle, Y c.
 Proof. (** (not proved yet) *) admit. Admitted.
 
 (* One approach to the theorem above would be through the results of the paper
