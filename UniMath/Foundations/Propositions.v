@@ -48,10 +48,6 @@ Coercion hProptoType: hProp >-> UU.
 
 Definition propproperty (P:hProp) := pr2 P : isaprop (pr1 P).
 
-(* this lemma can be used with "apply" when the target is to show that an hProp coerced to UU yields a propostion *)
-Definition isaprop_hProp (X:hProp) : isaprop X.
-Proof. intro. exact (pr2 X). Qed.
-
 (** ** The type [ tildehProp ] of pairs ( P , p : P ) where [ P : hProp ] *)
 
 Definition tildehProp := total2 ( fun P : hProp => P ) .

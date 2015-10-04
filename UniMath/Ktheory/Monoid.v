@@ -99,7 +99,7 @@ Module Presentation'.
     { refine (_,,_).
       { intros v w.
         exists (∀ r, isAdequateRelation R r -> r v w).
-        apply impred; intros r; apply impred; intros ad. apply isaprop_hProp. }
+        apply impred; intros r; apply impred; intros ad. apply propproperty. }
       { refine (_,,_).
         { refine (_,,_).
           { intros u v w uv vw r ad; simpl in uv, vw.
