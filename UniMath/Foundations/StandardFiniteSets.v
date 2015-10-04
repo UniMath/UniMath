@@ -34,6 +34,8 @@ Definition stn ( n : nat ) := total2 ( fun m : nat => natlth m n ) .
 Definition stnpair ( n : nat ) := tpair ( fun m : nat => natlth m n ) .
 Definition stntonat ( n : nat ) : stn n -> nat := @pr1 _ _ .
 Coercion stntonat : stn >-> nat .
+Lemma stnlt {n} (i:stn n) : i < n.
+Proof. intros. exact (pr2 i). Defined.
 
 Notation " 'stnel' ( i , j ) " := ( stnpair _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) ) ( at level 70 ) .
 

@@ -1,6 +1,7 @@
 SimplicialSets.v
 RationalNumbers.v
 Integers.v
+Algebra/Associativity.v
 FiniteSets.v
 StandardFiniteSets.v
 NaturalNumbers.v

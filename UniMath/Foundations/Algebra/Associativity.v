@@ -10,7 +10,7 @@ Unset Automatic Introduction.
 (** * Associativity theorem, as in Bourbaki, Algebra, Theorem 1, page 4. *)
 
 (** define x0 + x1 + ... + xn as x0 + (x1 + (...( + xn)...)). *)
-Definition monoidSum (E:monoid) n (x:stn n -> E): E.
+Definition monoidSum {E:monoid} {n} (x:stn n -> E): E.
 Proof.
 Open Scope addmonoid.
   intros.
@@ -35,7 +35,7 @@ Defined.
                k=(0,0,n,n)    [0,0)  [0,n)  [n,n)
    *)
 
-Definition enumerateSubinterval n i j: i ≤ j -> j ≤ n -> stn (j-i) -> stn n.
+Definition enumerateSubinterval {n i j}: i ≤ j -> j ≤ n -> stn (j-i) -> stn n.
 Proof.
   intros ? ? ? ij jn [k kji].
   exists (k+i).
@@ -54,10 +54,16 @@ Section Test.
     Goal 5 < 7. exact b. Defined.
     Goal 5 < 7. trivial. Defined.
 
-    Goal enumerateSubinterval 7 3 6 a a (0,,b) = (3,,b). reflexivity. Defined.
-    Goal enumerateSubinterval 7 3 6 a a (1,,b) = (4,,b). reflexivity. Defined.
-    Goal enumerateSubinterval 7 3 6 a a (2,,b) = (5,,b). reflexivity. Defined.
+    Goal @enumerateSubinterval 7 3 6 a a (0,,b) = (3,,b). reflexivity. Defined.
+    Goal @enumerateSubinterval 7 3 6 a a (1,,b) = (4,,b). reflexivity. Defined.
+    Goal @enumerateSubinterval 7 3 6 a a (2,,b) = (5,,b). reflexivity. Defined.
 End Test.
+
+Definition monoidSumSubinterval {E:monoid} {n} (x:stn n -> E) i j: i ≤ j -> j ≤ n -> E.
+Proof.
+  intros ? ? ? ? ? ij jn.
+  exact (monoidSum (x ∘ enumerateSubinterval ij jn)).
+Defined.
 
 Definition Partition n          (* a partition of [stn n], as above *)
   := Σ m,
@@ -66,16 +72,27 @@ Definition Partition n          (* a partition of [stn n], as above *)
             ×
           k (lastelement m) = lastelement n.
 
-
-Definition monoidSumOfSums (E:monoid) n (x:stn n -> E) (P:Partition n) : E.
+Definition monoidSumOfSums {E:monoid} {n} (x:stn n -> E) (P:Partition n) : E.
 Proof.  
   intros.
+  induction P as [m [[k o] [a b]]].
+  simpl in a, b, k.
+  apply (@monoidSum E m).
+  intros [h hm].
+  set (i := (h,,natlthtolths _ _ hm) : stn(S m)).
+  set (j := (S h,,hm) : stn(S m)).
+  apply (monoidSumSubinterval x (k i) (k j)).
+  apply o.
+  apply natlehnsn.
+  apply natlthsntoleh.
+  apply stnlt.
+Defined.
 
+Theorem associativityOfSums (E:monoid) n (x:stn n -> E) (P:Partition n) :
+  monoidSum x = monoidSumOfSums x P.
+Proof.
+  intros.
 Admitted.
-
-
-
-
 
 
 
