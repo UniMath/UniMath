@@ -448,7 +448,7 @@ rewrite (setquotunivcomm eqr).
 apply to_cobase_from_cobase.
 Defined.
 
-Definition ColimitF : Colimit _ _ F has_homsets_HSET.
+Definition ColimitF : Colimit F has_homsets_HSET.
 Proof.
 apply (tpair _ thing); intro C.
 exists (foo C); simpl; intro f.

@@ -446,8 +446,9 @@ Admitted.
 
 (* TODO: Prove that this is a colimit *)
 
-    Definition colimitFunctor : Colimit F (functor_category_has_homsets _ _ hsD).
-Proof.
+(* Definition colimitFunctor : Colimit F (functor_category_has_homsets
+_ _ hsD). *)
+(* Proof. *)
 
   
 End ColimitsFunctorCategories.
