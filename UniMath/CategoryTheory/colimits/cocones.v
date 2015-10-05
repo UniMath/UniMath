@@ -91,9 +91,11 @@ Proof.
   apply isaprop_CoconeProp.
 Defined.
 
+Definition CoconeMorProp {M N : Cocone} (f : coconeBottom M --> coconeBottom N) :=
+  ∀ i : J, coconeIn M i ;; f = coconeIn N i.
+
 Definition CoconeMor (M N : Cocone) :=
-  Σ (f : coconeBottom M --> coconeBottom N),
-     ∀ i : J, coconeIn M i ;; f = coconeIn N i.
+  Σ (f : coconeBottom M --> coconeBottom N), CoconeMorProp f. 
 
 Lemma isaset_CoconeMor (M N : Cocone) : isaset (CoconeMor M N).
 Proof.
@@ -337,6 +339,8 @@ Definition Colimit := Initial (COCONE hsC F).
 Definition Colimit_ob (colim : Colimit) : C := coconeBottom (pr1 (InitialObject _ colim)).
 Definition Colimit_inj (colim : Colimit) : ∀ i,  F i --> Colimit_ob colim :=
   coconeIn _ _ _ (pr1 (InitialObject _ colim)).
+Definition Colimiting_cocone (c : Colimit) : COCONE hsC F :=
+  InitialObject _ c.
 
 Definition Colimit_cocone : ∀ (colim : Colimit) (b : COCONE hsC F), Colimit_ob colim --> coconeBottom (pr1 b).
 Proof.
@@ -353,6 +357,20 @@ Defined.
 
 Definition hasColimit := hasInitial (COCONE hsC F).
 
+Lemma coconeEndoId (c : Colimit) (f : Colimiting_cocone c --> Colimiting_cocone c) :
+  coconeBottomMor _ _ _ f = identity (Colimit_ob c).
+Proof.
+  set (T := InitialEndo_is_identity _ c f).
+  set (T' := maponpaths (coconeBottomMor _ _ _) T).
+  now apply pathsinv0.
+Qed.
+
+Lemma coconeEndoId' (c : Colimit) (f : Colimit_ob c --> Colimit_ob c) (h : @CoconeMorProp _ _ _ (Colimiting_cocone c) (Colimiting_cocone c) f) :
+  f = identity (Colimit_ob c).
+Proof.
+  exact (coconeEndoId _ (tpair _ f h)).
+Qed.
+  
 End Colimit.
 
 Arguments Colimit [J C] _ _.
@@ -417,29 +435,86 @@ Defined.
 
 Definition colim_data : functor_data C D.
 Proof.
-exists (fun c => Colimit_ob (allColimitsD J (F' c))).
+  exists (fun c => Colimit_ob (allColimitsD J (F' c))).
+  
 intros a b f.
 apply (Colimit_cocone' _ _ _ _ _ _ (Fi a b f)).
-intros i j fij.
-simpl.
-unfold Fi.
-(* set (inj := coconeIn _ _ _ _). *)
-set (T := CoconeProp_from_Cocone _ _ _ (pr1 (allColimitsD J (F' b))) i j fij).
-eapply pathscomp0; [ | eapply maponpaths; apply T ].
-repeat rewrite assoc.
-apply cancel_postcomposition.
-unfold F'; simpl.
-set (K:=@nat_trans_ax _ _ _ _ (# F fij) a b f).
-apply pathsinv0.
-exact K.
+abstract (intros i j fij; unfold Fi; simpl;
+          set (T := CoconeProp_from_Cocone _ _ _ (pr1 (allColimitsD J (F' b))) i j fij);
+          eapply pathscomp0; [ | eapply maponpaths; apply T ];
+          repeat rewrite assoc;
+          apply cancel_postcomposition;
+          unfold F'; 
+          set (K:=@nat_trans_ax _ _ _ _ (# F fij) a b f);
+          apply pathsinv0;
+          exact K).
 Defined.
+
+
 
 Definition colim : functor C D.
 Proof.
 exists colim_data.
 split.
 - intro a.
-   admit.
+  simpl.
+  apply (coconeEndoId' J D (F' a) hsD (allColimitsD J (F' a))).
+  intro i;  simpl.
+
+  unfold Colimit_cocone', Colimit_cocone.
+set (f := InitialArrow _ _ _).
+set (T:=CoconeMor_prop J D (F' a) (pr1 (allColimitsD J (F' a))) _ f i).
+eapply pathscomp0.
+apply T.
+assert (H : (tpair (CoconeProp J D (F' a))
+        (tpair (λ a0 : D, ∀ j : J, (F' a) j --> a0)
+           (Colimit_ob (allColimitsD J (F' a))) (Fi a a (identity a)))
+        (colim_data_subproof a a (identity a))) = pr1 (allColimitsD J (F' a))).
+Check (pr1 (pr1 (allColimitsD J (F' a)))).
+apply Cocone_eq.
+assumption.
+
+simpl.
+eapply (total2_paths ). (idpath _)).
+apply idpath.
+
+admit.
+
+  
+f_equal.
+
+apply idpath.
+Set Printing Coercions.
+simpl in *.
+
+apply T.
+
+  apply
+  simpl.
+  
+   coconeBottomMor J D (F' a)
+     (InitialArrow (COCONE hsD (F' a)) (allColimitsD J (F' a))
+        (tpair (CoconeProp J D (F' a))
+           (tpair (λ a0 : D, ∀ j : J, (pr1 (F j)) a --> a0)
+              (Colimit_ob (allColimitsD J (F' a))) 
+              (Fi a a (identity a)))
+           (colim_data_subproof a a (identity a))))
+
+
+
+     apply id_right.
+ apply pathsinv0.
+  apply (maponpaths (coconeBottomMor _ _ _) (T (InitialArrow (COCONE hsD (F' a)) (allColimitsD J (F' a))
+       (tpair (CoconeProp J D (F' a))
+          (tpair (λ a0 : D, ∀ j : J, (F' a) j --> a0)
+             (Colimit_ob (allColimitsD J (F' a))) 
+             (Fi a a (identity a))) (colim_data_subproof a a (identity a)))))).
+    unfold coconeBottomMor.
+         
+      Search functor_data.
+  Check (# colim_data (identity a)).
+  set (T:= InitialEndo_is_identity (COCONE hsD (F' a))).
+  admit.
 - intros a b c f g.
   admit.
 Admitted.
