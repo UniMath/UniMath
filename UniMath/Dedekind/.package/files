@@ -1,4 +1,3 @@
 Complements.v
 NonnegativeRationals.v
-Dcuts.v
-hnnr.v
+DedekindCuts.v
