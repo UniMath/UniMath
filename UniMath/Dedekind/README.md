@@ -21,11 +21,9 @@ For any question about this library, send an email to Catherine Lelay.
   * definition of non-negative rational numbers
   * large and strict orders
   * abelian monoid
-* *Dcuts.v*
+* *DedekindCuts.v*
   * definition of Dedekind cuts on non-negative rational numbers
+  * equality on Dedekind cuts
   * large and strict orders
-  * definition of the least upper bound
-* *hnnr.v*
-  * definition of non-negative real numbers based on Dedekind cuts
-  * large and strict orders
+  * definition of the least upper bound and the greatest lower bound
   
