@@ -65,12 +65,14 @@ Proof.
   exact (monoidSum (x ∘ enumerateSubinterval ij jn)).
 Defined.
 
-Definition Partition n          (* a partition of [stn n], as above *)
-  := Σ m,
-     Σ k: posetmorphism (stnposet (S m)) (stnposet (S n)),
-          k (firstelement m) = firstelement n
+Definition SizedPartition n numparts := 
+     Σ k: posetmorphism (stnposet (S numparts)) (stnposet (S n)),
+          k (firstelement numparts) = firstelement n
             ×
-          k (lastelement m) = lastelement n.
+          k (lastelement numparts) = lastelement n.
+
+Definition Partition n          (* a partition of [stn n], as above *)
+  := Σ numparts, SizedPartition n numparts.
 
 Definition stnntosnS {n} : stn n -> stn (S n).
 Proof. intros ? [h hm]. now exists (S h). Defined.
@@ -118,14 +120,14 @@ Theorem associativityOfSums (E:monoid) n (x:stn n -> E) (P:Partition n) :
   monoidSum x = monoidSumOfSums x P.
 Proof.
   intros.
-  induction P as [p [[k o] [a b]]].
-  simpl in a, b, k.
+  induction P as [p Q].
   (* Bourbaki reasons by induction on n, but we allow empty subintervals, so
      we use induction on p. Otherwise we have to prove things like
      0+0+0+0+x+0+0+0+0 = x. *)
-  induction p as [|p fewerparts].
-  { simpl. now destruct (maponpaths pr1 (!a @ b) : O = n). }
+  induction p as [|p IH].
+  { induction Q as [[k o] [a b]]. now destruct (maponpaths pr1 (!a @ b) : O = n). }
   { 
+
 
 Admitted.
 
