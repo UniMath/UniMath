@@ -53,7 +53,7 @@ Definition hnnq_boolneq := decreltobrel hnnq_decneq .
 (** *** Order *)
 
 Local Definition hnnq_le (x y : hnnq_set) : hProp := hqleh (pr1 x) (pr1 y).
-Lemma isPartialOrder_hnnq_le : isPartialOrder hnnq_le.
+Lemma isPartialOrder_hnnq_le : ispo hnnq_le.
 Proof.
   split.
   intros x y z.
@@ -63,7 +63,7 @@ Proof.
 Qed.  
   
 Local Definition hnnq_ge (x y : hnnq_set) : hProp := hqgeh (pr1 x) (pr1 y).
-Lemma isPartialOrder_hnnq_ge : isPartialOrder hnnq_ge.
+Lemma isPartialOrder_hnnq_ge : ispo hnnq_ge.
 Proof.
   destruct isPartialOrder_hnnq_le as [Htrans Hrefl].
   split.
@@ -167,10 +167,10 @@ Delimit Scope NnR_scope with NnR.
 
 (** ** Order *)
 
-Definition leNonnegativeRationals : PartialOrder NonnegativeRationals :=
-  pairPartialOrder hnnq_le isPartialOrder_hnnq_le.
-Definition geNonnegativeRationals : PartialOrder NonnegativeRationals :=
-  pairPartialOrder hnnq_ge isPartialOrder_hnnq_ge.
+Definition leNonnegativeRationals : po NonnegativeRationals :=
+  popair hnnq_le isPartialOrder_hnnq_le.
+Definition geNonnegativeRationals : po NonnegativeRationals :=
+  popair hnnq_ge isPartialOrder_hnnq_ge.
 Definition ltNonnegativeRationals : StrictPartialOrder NonnegativeRationals :=
   pairStrictPartialOrder hnnq_lt isStrictPartialOrder_hnnq_lt.
 Definition gtNonnegativeRationals : StrictPartialOrder NonnegativeRationals :=

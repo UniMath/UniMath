@@ -4,15 +4,6 @@
 
 Require Export UniMath.Foundations.Sets.
 
-(** *** Partiel Order *)
-
-Definition isPartialOrder {X : UU} := ispo (X := X).
-Definition PartialOrder := po.
-Definition pairPartialOrder {X : UU} (R : hrel X) (is : isPartialOrder R) : PartialOrder X :=
-  popair R is.
-Definition pr1PartialOrder {X : UU} (R : PartialOrder X) : hrel X := carrierofpo X R.
-Coercion  pr1PartialOrder : PartialOrder >-> hrel.
-
 (** *** Strict Partial Order *)
 
 Definition isStrictPartialOrder {X : UU} (R : hrel X) := dirprod ( istrans R ) ( isirrefl R ).
@@ -31,30 +22,65 @@ Proof.
   now apply isirreflquotrel.
 Defined.
 
+(** *** Effectively Ordered *)
+
+Definition isEffectiveOrder {X : UU} (le : po X) (gt : StrictPartialOrder X) :=
+  forall x y : X, le x y -> gt x y -> empty.
+Definition EffectiveOrder (X : UU) := total2 (fun legt : po X * StrictPartialOrder X => isEffectiveOrder (fst legt) (snd legt)).
+Definition pairEffectiveOrder {X : UU} (le : po X) (gt : StrictPartialOrder X) (is : isEffectiveOrder le gt) : EffectiveOrder X :=
+  tpair _ (le,gt) is.
+Definition leEffectiveOrder {X : UU} (R : EffectiveOrder X) : hrel X :=
+  match R with
+  | tpair _ (le,_) _ => le
+  end.
+Definition geEffectiveOrder {X : UU} (R : EffectiveOrder X) : hrel X :=
+  match R with
+  | tpair _ (le,_) _ => fun x y => le y x
+  end.
+Definition gtEffectiveOrder {X : UU} (R : EffectiveOrder X) : hrel X :=
+  match R with
+  | tpair _ (_,gt) _ => gt
+  end.
+Definition ltEffectiveOrder {X : UU} (R : EffectiveOrder X) : hrel X :=
+  match R with
+  | tpair _ (_,gt) _ => fun x y => gt y x
+  end.
+
+Notation "x <= y" := (leEffectiveOrder x y) : eo_scope.
+Notation "x >= y" := (geEffectiveOrder x y) : eo_scope.
+Notation "x < y" := (ltEffectiveOrder x y) : eo_scope.
+Notation "x > y" := (gtEffectiveOrder x y) : eo_scope.
+
 (** *** Complete Ordered Space *)
 
-Definition isUpperBound {X : UU} (le : PartialOrder X) (E : X -> hProp) (ub : X) :=
-  forall x : X, E x -> le x ub.
-Definition isSmallerThanUpperBounds {X : UU} (le : PartialOrder X) (E : X -> hProp) (lub : X) :=
-  forall ub : X, isUpperBound le E ub -> le lub ub.
+Definition lePoset {X : Poset} : hrel X :=
+  match X with
+  | tpair _ _ le => le
+  end.
+Definition subset (X : hSet) : hSet := hSetpair _ (isasethsubtypes X).
 
-Definition isLeastUpperBound {X : UU} (le : PartialOrder X) (E : X -> hProp) (lub : X) :=
-  dirprod (isUpperBound le E lub) (isSmallerThanUpperBounds le E lub).
-Definition LeastUpperBound {X : UU} (le : PartialOrder X) (E : X -> hProp) :=
-  total2 (isLeastUpperBound le E).
-Definition pairLeastUpperBound {X : UU} (le : PartialOrder X) (E : X -> hProp) (lub : X)
-           (is : isLeastUpperBound le E lub) : LeastUpperBound le E :=
-  tpair (isLeastUpperBound le E) lub is.
-Definition pr1LeastUpperBound {X : UU} {le : PartialOrder X} {E : X -> hProp} :
-  LeastUpperBound le E -> X := pr1.
+Definition isUpperBound {X : Poset} (E : subset X) (ub : X) :=
+  forall x : X, E x -> lePoset x ub.
+Definition isSmallerThanUpperBounds {X : Poset} (E : subset X) (lub : X) :=
+  forall ub : X, isUpperBound E ub -> lePoset lub ub.
 
-Definition isCompletePartialOrder {X : UU} (le : PartialOrder X) :=
-  forall E : X -> hProp,
-    hexists (isUpperBound le E) -> hexists E -> LeastUpperBound le E.
-Definition CompletePartialOrder (X : UU) :=
-  total2 (fun le : PartialOrder X => isCompletePartialOrder le).
-Definition pr1CompletePartialOrder {X : UU} : CompletePartialOrder X -> PartialOrder X := pr1.
-Coercion pr1CompletePartialOrder : CompletePartialOrder >-> PartialOrder.
+Definition isLeastUpperBound {X : Poset} (E : subset X) (lub : X) :=
+  dirprod (isUpperBound E lub) (isSmallerThanUpperBounds E lub).
+Definition LeastUpperBound {X : Poset} (E : subset X) :=
+  total2 (isLeastUpperBound E).
+Definition pairLeastUpperBound {X : Poset} (E : subset X) (lub : X)
+           (is : isLeastUpperBound E lub) : LeastUpperBound E :=
+  tpair (isLeastUpperBound E) lub is.
+Definition pr1LeastUpperBound {X : Poset} {E : X -> hProp} :
+  LeastUpperBound E -> X := pr1.
+
+Definition isCompleteSet (X : Poset) :=
+  forall E : subset X,
+    hexists (isUpperBound E) -> hexists E -> LeastUpperBound E.
+Definition CompleteSet :=
+  total2 (fun X : Poset => isCompleteSet X).
+Definition pr1CompletePartialOrder : CompleteSet -> Poset := pr1.
+Coercion pr1CompletePartialOrder : CompleteSet >-> Poset.
 
 (** ** for RationalNumbers.v *)
 

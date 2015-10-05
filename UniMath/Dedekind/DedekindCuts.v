@@ -18,12 +18,15 @@ Local Definition Dcuts_def_open (X : NonnegativeRationals -> hProp) : hProp :=
 Local Definition Dcuts_def_bounded (X : NonnegativeRationals -> hProp) : hProp :=
   hexists (fun ub : NonnegativeRationals => neg (X ub)).
 
-Local Definition Dcuts_hsubtypes : hsubtypes (NonnegativeRationals -> hProp) :=
-  (fun X : NonnegativeRationals -> hProp => hconj (Dcuts_def_bot X)
+Local Definition Dcuts_hsubtypes : hsubtypes (subset NonnegativeRationals) :=
+  (fun X : subset NonnegativeRationals => hconj (Dcuts_def_bot X)
                            (hconj (Dcuts_def_open X)
                                   (Dcuts_def_bounded X))).
-Local Definition Dcuts := carrier Dcuts_hsubtypes.
-Local Definition pr1Dcuts (x : Dcuts) : NonnegativeRationals -> hProp := pr1 x.
+Local Definition Dcuts : UU := (carrier Dcuts_hsubtypes).
+Local Definition pr1Dcuts (x : Dcuts) : NonnegativeRationals -> hProp :=
+  match x with
+  | tpair _ t _ => t
+  end.
 Coercion pr1Dcuts : Dcuts >-> Funclass.
 
 Lemma is_Dcuts_bot (X : Dcuts) :
@@ -36,20 +39,24 @@ Proof.
   now apply Hbot with r.
 Qed.
 Lemma is_Dcuts_open (X : Dcuts) :
+
   forall x : NonnegativeRationals, X x ->
     hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y)).
 Proof.
   destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
+
   intros r Xr.
   revert Hopen ; apply (hinhuniv (P := ishinh _)) ; intros Hopen.
   now apply Hopen.
 Qed.
+
 Lemma is_Dcuts_bounded (X : Dcuts) :
   hexists (fun ub : NonnegativeRationals => neg (X ub)).
 Proof.
   destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
   now apply Hbound.
 Qed.
+
 
 Local Definition mk_Dcuts (X : NonnegativeRationals -> hProp)
                    (Hbot : forall x : NonnegativeRationals, X x ->
@@ -96,14 +103,14 @@ Proof.
   now intros x P HP ; apply HP ; clear P HP.
 Qed.
 
-Lemma isPartialOrder_Dcuts_le_rel : isPartialOrder Dcuts_le_rel.
+Lemma ispo_Dcuts_le_rel : ispo Dcuts_le_rel.
 Proof.
   split.
   exact istrans_Dcuts_le_rel.
   exact isrefl_Dcuts_le_rel.
 Qed.
-Local Definition Dcuts_le : PartialOrder Dcuts :=
-  pairPartialOrder _ isPartialOrder_Dcuts_le_rel.
+Local Definition Dcuts_le : po Dcuts :=
+  popair _ ispo_Dcuts_le_rel.
 Local Definition istrans_Dcuts_le : istrans Dcuts_le :=
   istrans_Dcuts_le_rel.
 Local Definition isrefl_Dcuts_le : isrefl Dcuts_le :=
@@ -124,14 +131,14 @@ Proof.
   now apply isrefl_Dcuts_le.
 Qed.
 
-Lemma isPartialOrder_Dcuts_ge_rel : isPartialOrder Dcuts_ge_rel.
+Lemma ispo_Dcuts_ge_rel : ispo Dcuts_ge_rel.
 Proof.
   split.
   exact istrans_Dcuts_ge_rel.
   exact isrefl_Dcuts_ge_rel.
 Qed.
-Local Definition Dcuts_ge : PartialOrder Dcuts :=
-  pairPartialOrder _ isPartialOrder_Dcuts_ge_rel.
+Local Definition Dcuts_ge : po Dcuts :=
+  popair _ ispo_Dcuts_ge_rel.
 Local Definition istrans_Dcuts_ge : istrans Dcuts_ge :=
   istrans_Dcuts_ge_rel.
 Local Definition isrefl_Dcuts_ge : isrefl Dcuts_ge :=
@@ -194,6 +201,10 @@ Proof.
   now apply Hge.
 Qed.
 
+Lemma isaset_Dcuts : isaset Dcuts.
+Admitted.
+Definition Dcuts_set : hSet := (hSetpair Dcuts isaset_Dcuts).
+
 
 (** *** Strict order and appartness *)
 
@@ -205,6 +216,7 @@ Local Definition Dcuts_lt : hrel Dcuts :=
 Lemma istrans_Dcuts_lt : istrans Dcuts_lt.
 Proof.
   intros x y z.
+
   apply hinhfun2.
   intros (r,(Xr,Yr)) (n,(Yn,Zn)).
   exists r ; split.
@@ -405,8 +417,8 @@ Qed.
 
 Section Dcuts_lub.
 
-Context (E : Dcuts -> hProp).
-Context (E_bounded : hexists (isUpperBound Dcuts_le E)).
+Context (E : (Posetpair Dcuts_set Dcuts_le) -> hProp).
+Context (E_bounded : hexists (isUpperBound E)).
 
 Local Definition Dcuts_lub_val : NonnegativeRationals -> hProp :=
   fun r : NonnegativeRationals => hexists (fun X : Dcuts => dirprod (E X) (X r)).
@@ -457,12 +469,12 @@ Qed.
 
 End Dcuts_lub.
 
-Local Definition Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isUpperBound Dcuts_le E)) : Dcuts :=
+Local Definition Dcuts_lub (E : (Posetpair Dcuts_set Dcuts_le) -> hProp) (E_bounded : hexists (isUpperBound E)) : Dcuts :=
   mk_Dcuts (Dcuts_lub_val E) (Dcuts_lub_bot E) (Dcuts_lub_open E) (Dcuts_lub_bounded E E_bounded).
 
-Lemma isub_Dcuts_lub (E : Dcuts -> hProp)
-                     (E_bounded : hexists (isUpperBound Dcuts_le E)) :
-  isUpperBound Dcuts_le E (Dcuts_lub E E_bounded).
+Lemma isub_Dcuts_lub (E : (Posetpair Dcuts_set Dcuts_le) -> hProp)
+                     (E_bounded : hexists (isUpperBound E)) :
+  isUpperBound E (Dcuts_lub E E_bounded).
 Proof.
   intros ;
   intros x Ex.
@@ -471,8 +483,8 @@ Proof.
   intros P HP ; apply HP ; clear P HP.
   now exists x.
 Qed.
-Lemma islbub_Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isUpperBound Dcuts_le E)) :
-  isSmallerThanUpperBounds Dcuts_le E (Dcuts_lub E E_bounded).
+Lemma islbub_Dcuts_lub (E :  (Posetpair Dcuts_set Dcuts_le) -> hProp) (E_bounded : hexists (isUpperBound E)) :
+  isSmallerThanUpperBounds E (Dcuts_lub E E_bounded).
 Proof.
   intros.
   intros x Hx.  
@@ -483,8 +495,8 @@ Proof.
   apply (Hx y Ey).
   now intros H ; apply H.
 Qed.
-Lemma islub_Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isUpperBound Dcuts_le E)) :
-  isLeastUpperBound Dcuts_le E (Dcuts_lub E E_bounded).
+Lemma islub_Dcuts_lub (E : (Posetpair Dcuts_set Dcuts_le) -> hProp) (E_bounded : hexists (isUpperBound E)) :
+  isLeastUpperBound E (Dcuts_lub E E_bounded).
 Proof.
   split.
   exact (isub_Dcuts_lub E E_bounded).
@@ -495,7 +507,7 @@ Qed.
 
 Section Dcuts_glb.
 
-Context (E : Dcuts -> hProp).
+Context (E : (Posetpair Dcuts_set Dcuts_ge) -> hProp).
 Context (E_not_empty : hexists E).  
 
 Local Definition Dcuts_glb_val : NonnegativeRationals -> hProp :=
@@ -541,12 +553,12 @@ Qed.
 
 End Dcuts_glb.
 
-Local Definition Dcuts_glb (E : Dcuts -> hProp) (E_not_empty : hexists E) : Dcuts :=
+Local Definition Dcuts_glb (E : (Posetpair Dcuts_set Dcuts_ge) -> hProp) (E_not_empty : hexists E) : Dcuts :=
   mk_Dcuts (Dcuts_glb_val E) (Dcuts_glb_bot E) (Dcuts_glb_open E) (Dcuts_glb_bounded E E_not_empty).
 
-Lemma isub_Dcuts_glb (E : Dcuts -> hProp)
+Lemma isub_Dcuts_glb (E : (Posetpair Dcuts_set Dcuts_ge) -> hProp)
                      (E_not_empty : hexists E) :
-  isUpperBound Dcuts_ge E (Dcuts_glb E E_not_empty).
+  isUpperBound E (Dcuts_glb E E_not_empty).
 Proof.
   intros ;
   intros x Ex.
@@ -556,8 +568,8 @@ Proof.
   now apply Hn.
   now apply lt_leNonnegativeRationals.
 Qed.
-Lemma islbub_Dcuts_glb (E : Dcuts -> hProp) (E_not_empty : hexists E) :
-  isSmallerThanUpperBounds Dcuts_ge E (Dcuts_glb E E_not_empty).
+Lemma islbub_Dcuts_glb (E : (Posetpair Dcuts_set Dcuts_ge) -> hProp) (E_not_empty : hexists E) :
+  isSmallerThanUpperBounds E (Dcuts_glb E E_not_empty).
 Proof.
   intros ;
   intros x Hx.
@@ -574,8 +586,8 @@ Proof.
   apply hinhuniv.
   now intro H ; apply H.
 Qed.
-Lemma isglb_Dcuts_glb (E : Dcuts -> hProp) (E_not_empty : hexists E) :
-  isLeastUpperBound Dcuts_ge E (Dcuts_glb E E_not_empty).
+Lemma isglb_Dcuts_glb (E : (Posetpair Dcuts_set Dcuts_ge) -> hProp) (E_not_empty : hexists E) :
+  isLeastUpperBound E (Dcuts_glb E E_not_empty).
 Proof.
   split.
   exact (isub_Dcuts_glb E E_not_empty).
@@ -599,9 +611,9 @@ Definition subsetNonnegativeRationals_to_NonnegativeReals
 
 (** ** Order *)
 
-Definition leNonnegativeReals : CompletePartialOrder NonnegativeReals.
+Definition leNonnegativeReals : CompleteSet.
 Proof.
-  exists Dcuts_le.
+  exists (Posetpair Dcuts_set Dcuts_le).
   intros E Eub Ene.
   exists (Dcuts_lub E Eub).
   apply islub_Dcuts_lub.
