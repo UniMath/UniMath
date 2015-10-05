@@ -662,11 +662,21 @@ Proof. intros. refine (weqbandf _ _ _ _).
          unfold idfun; simpl. apply idweq. } Defined.
 
 Definition weq_total2_prod {X Y} (Z:Y->Type) : (Σ y, X × Z y) ≃ (X × Σ y, Z y).
-Proof. intros. refine (weqpair _ (gradth _ _ _ _)).
+Proof.                          (* move upstream *)
+       intros. refine (weqpair _ (gradth _ _ _ _)).
        { intros [y [x z]]. exact (x,,y,,z). }
        { intros [x [y z]]. exact (y,,x,,z). }
        { intros [y [x z]]. reflexivity. }
        { intros [x [y z]]. reflexivity. } Defined.
+
+(* associativity of Σ *)
+Definition totalAssociativity {X:UU} {Y: ∀ (x:X), UU} (Z: ∀ (x:X) (y:Y x), UU) : (Σ (x:X) (y:Y x), Z x y) ≃ (Σ (p:Σ (x:X), Y x), Z (pr1 p) (pr2 p)).
+Proof.                          (* move upstream *)
+  intros. refine (_,,gradth _ _ _ _).
+  { intros [x [y z]]. exact ((x,,y),,z). }
+  { intros [[x y] z]. exact (x,,(y,,z)). }
+  { intros [x [y z]]. reflexivity. }
+  { intros [[x y] z]. reflexivity. } Defined.
 
 (** ** Pointed types *)
 
