@@ -54,21 +54,9 @@ Defined.
 
 (** * Associativity theorem, as in Bourbaki, Algebra, Theorem 1, page 4. *)
 
-(** Define x0 + x1 + ... + xn as (((...(x0 + x1) + x2) ... ) + xn).  This is the *)
+(** Define x0 + x1 + ... + xn as (((...((0+x0) + x1) + x2) ... ) + xn).  This is the *)
 (** reverse of Bourbaki's choice, because other UniMath proofs by induction go *)
-(** this way.  See especially [stnsum] and [weqstnsum]. *)
-Definition monoidSum' {E:monoid} {n} (x:stn n -> E): E.
-Proof.
-  Open Scope addmonoid.
-  intros.
-  induction n as [|n sum].
-  { exact (0). }
-  { set (zero := (O,,natgthsn0 n) : stn (S n)). exact (x zero + sum (x ∘ dni _ zero)). }
-  Close Scope addmonoid.
-Defined.
-
-(** Or define x0 + x1 + ... + xn as (((...((0+x0) + x1) + x2) ... ) + xn), which 
-    might be more convenient for inductive proofs. *)
+(** this way, and it starts with 0.  See especially [stnsum] and [weqstnsum]. *)
 Definition monoidSum {E:monoid} {n} (x:stn n -> E): E.
 Proof. intros. exact (foldleft (unel _) op x). Defined.
 
