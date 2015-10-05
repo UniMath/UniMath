@@ -72,26 +72,61 @@ Definition Partition n          (* a partition of [stn n], as above *)
             ×
           k (lastelement m) = lastelement n.
 
+Definition stnntosnS {n} : stn n -> stn (S n).
+Proof. intros ? [h hm]. now exists (S h). Defined.
+
+Goal ∀ n (h:stn n), stnntosnS h = dni n (firstelement n) h.
+Proof. intros ? [h hm]. reflexivity. Qed.
+
+Definition stnntosn1 {n} : stn n -> stn (S n).
+Proof. intros ? h. destruct h as [h hm]. exists h. now apply natlthtolths. Defined.
+
+Goal ∀ n (h:stn n), stnntosn1 h = dni n (lastelement n) h.
+Proof. intros ? [h hm].
+       simpl.
+       try reflexivity. (* doesn't work, showing stnntosn1 is more computable *)
+                        (* for this case of dni, which is why we introduce it *)
+       unfold dni; simpl.
+       induction (natlthorgeh h n).
+       { unfold natlthtolths, stnpair.
+         reflexivity. (* works only because the propositional proofs are identical *)
+       }
+       { induction (b hm). }
+Qed.
+
+Lemma stnntosnlt {n} (h:stn n) : stnntosn1 h < stnntosnS h.
+Proof. intros ? [h hm]. apply natlthnsn. Defined.
+
+Lemma stnntosnle {n} (h:stn n) : stnntosn1 h ≤ stnntosnS h.
+Proof. intros ? [h hm]. apply natlehnsn. Defined.
+
 Definition monoidSumOfSums {E:monoid} {n} (x:stn n -> E) (P:Partition n) : E.
 Proof.  
   intros.
-  induction P as [m [[k o] [a b]]].
+  induction P as [p [[k o] [a b]]].
   simpl in a, b, k.
-  apply (@monoidSum E m).
-  intros [h hm].
-  set (i := (h,,natlthtolths _ _ hm) : stn(S m)).
-  set (j := (S h,,hm) : stn(S m)).
-  apply (monoidSumSubinterval x (k i) (k j)).
-  apply o.
-  apply natlehnsn.
-  apply natlthsntoleh.
-  apply stnlt.
+  apply (@monoidSum E p).
+  intros h.
+  apply (monoidSumSubinterval x (k (stnntosn1 h)) (k (stnntosnS h))).
+  { apply o. apply stnntosnle. }
+  apply natlthsntoleh. apply stnlt.
 Defined.
 
+Open Scope multmonoid.
+Open Scope addmonoid.
 Theorem associativityOfSums (E:monoid) n (x:stn n -> E) (P:Partition n) :
   monoidSum x = monoidSumOfSums x P.
 Proof.
   intros.
+  induction P as [p [[k o] [a b]]].
+  simpl in a, b, k.
+  (* Bourbaki reasons by induction on n, but we allow empty subintervals, so
+     we use induction on p. Otherwise we have to prove things like
+     0+0+0+0+x+0+0+0+0 = x. *)
+  induction p as [|p fewerparts].
+  { simpl. now destruct (maponpaths pr1 (!a @ b) : O = n). }
+  { 
+
 Admitted.
 
 
