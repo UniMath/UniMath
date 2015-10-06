@@ -22,6 +22,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 Local Notation "a --> b" := (precategory_morphisms a b) (at level 50).
+Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
 Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 
@@ -91,13 +92,13 @@ Proof.
   apply isaprop_CoconeProp.
 Defined.
 
-Definition CoconeMorProp {M N : Cocone} (f : coconeBottom M --> coconeBottom N) :=
+Definition CoconeMorProp {M N : CoconeData} (f : coconeBottom M --> coconeBottom N) :=
   ∀ i : J, coconeIn M i ;; f = coconeIn N i.
 
-Definition CoconeMor (M N : Cocone) :=
+Definition CoconeMor (M N : CoconeData) :=
   Σ (f : coconeBottom M --> coconeBottom N), CoconeMorProp f. 
 
-Lemma isaset_CoconeMor (M N : Cocone) : isaset (CoconeMor M N).
+Lemma isaset_CoconeMor (M N : CoconeData) : isaset (CoconeMor M N).
 Proof.
   apply (isofhleveltotal2 2).
     now apply hs.
@@ -108,10 +109,10 @@ Proof.
   now apply hs.
 Qed.
 
-Definition coconeBottomMor {M N : Cocone} (f : CoconeMor M N) :
+Definition coconeBottomMor {M N : CoconeData} (f : CoconeMor M N) :
   coconeBottom M --> coconeBottom N := pr1 f.
 
-Lemma CoconeMor_eq (M N : Cocone) (f g : CoconeMor M N) :
+Lemma CoconeMor_eq (M N : CoconeData) (f g : CoconeMor M N) :
    coconeBottomMor f = coconeBottomMor g -> f = g.
 Proof.
   intro H.
@@ -120,19 +121,19 @@ Proof.
   apply impred; intro Hs; apply hs.
 Qed.
 
-Lemma CoconeMor_prop M N (f : CoconeMor M N) :
+Lemma CoconeMor_prop {M N : CoconeData} (f : CoconeMor M N) :
   ∀ i, coconeIn M i ;; coconeBottomMor f = coconeIn N i.
 Proof.
 exact (pr2 f).
 Qed.
 
-Definition Cocone_id (A : Cocone) : CoconeMor A A.
+Definition Cocone_id (A : CoconeData) : CoconeMor A A.
 Proof.
   exists (identity _).
   intro i; apply id_right.
 Defined.
 
-Definition Cocone_comp (a b c : Cocone) (f : CoconeMor a b)
+Definition Cocone_comp (a b c : CoconeData) (f : CoconeMor a b)
   (g : CoconeMor b c) : CoconeMor a c.
 Proof.
 exists (coconeBottomMor f ;; coconeBottomMor g).
@@ -145,8 +146,8 @@ Definition Cocone_precategory_ob_mor : precategory_ob_mor :=
 Definition Cocone_precategory_data : precategory_data.
 Proof.
   exists Cocone_precategory_ob_mor.
-  exists Cocone_id.
-  exact Cocone_comp.
+  exists (fun (a : Cocone) => Cocone_id a).
+  exact (fun (a b c : Cocone) => Cocone_comp a b c).
 Defined.
 
 Lemma is_precategory_Cocone : is_precategory Cocone_precategory_data.
@@ -326,6 +327,59 @@ Implicit Arguments Cocone [J C].
 Implicit Arguments COCONE [J C].
 Implicit Arguments coconeBottom [J C F].
 
+Section CoconeFunctor.
+
+Variables J D : precategory.
+Variable hsD : has_homsets D.
+Variables F G : [J, D, hsD].
+Variable α : F --> G.
+
+Definition CoconeData_functor_ob : CoconeData _ _ G -> CoconeData _ _ F.
+Proof.
+intros CG.
+exists (coconeBottom CG).
+intro i.
+exact (pr1 α i ;; coconeIn _ _ _ CG i).
+Defined.
+
+Definition COCONE_functor_ob : COCONE hsD G -> COCONE hsD F.
+Proof.
+intros CG.
+exists (CoconeData_functor_ob (pr1 CG)).
+abstract (
+  intros i j x; simpl;
+  set (T:= CoconeProp_from_Cocone _ _ _ CG i j x);
+  eapply pathscomp0; [|eapply maponpaths; apply T]; 
+  repeat rewrite assoc; 
+  now apply cancel_postcomposition, nat_trans_ax).
+Defined.
+
+Definition CoconeFunctor_data : functor_data (COCONE hsD G) (COCONE hsD F).
+Proof.
+exists COCONE_functor_ob.
+intros a b f.
+simpl in α.
+exists (coconeBottomMor _ _ _ f).
+intros i; simpl; rewrite <- assoc; apply maponpaths;
+apply CoconeMor_prop. (* Why cannot this be in abstract? *)
+Defined.
+
+Lemma is_functor_CoconeFunctor : is_functor CoconeFunctor_data.
+Proof.
+split.
+- intro a.
+  now apply (CoconeMor_eq _ _ hsD), idpath.
+- intros a b c f g.
+  now apply (CoconeMor_eq _ _ hsD), idpath.
+Qed.
+
+Definition CoconeFunctor : functor (COCONE hsD G) (COCONE hsD F) :=
+  tpair _ _ is_functor_CoconeFunctor.
+
+
+End CoconeFunctor.
+
+
 Section Colimit.
 
 Require Import UniMath.CategoryTheory.limits.initial.
@@ -337,22 +391,21 @@ Variable hsC : has_homsets C.
 Definition Colimit := Initial (COCONE hsC F).
 
 Definition Colimit_ob (colim : Colimit) : C := coconeBottom (pr1 (InitialObject _ colim)).
-Definition Colimit_inj (colim : Colimit) : ∀ i,  F i --> Colimit_ob colim :=
+Definition Colimit_inj (colim : Colimit) : ∀ i, F i --> Colimit_ob colim :=
   coconeIn _ _ _ (pr1 (InitialObject _ colim)).
 Definition Colimiting_cocone (c : Colimit) : COCONE hsC F :=
   InitialObject _ c.
 
-Definition Colimit_cocone : ∀ (colim : Colimit) (b : COCONE hsC F), Colimit_ob colim --> coconeBottom (pr1 b).
+Definition Colimit_univ (colim : Colimit) (c : COCONE hsC F) :
+  Colimit_ob colim --> coconeBottom (pr1 c).
 Proof.
-  intros colim c.
   exact (coconeBottomMor _ _ _ (InitialArrow _ colim c)).
 Defined.
 
-Definition Colimit_cocone' : ∀ (colim : Colimit) (c : C) (Fi : ∀ i, F i --> c)
-  (H : CoconeProp _ _ _ (tpair _ c Fi)), Colimit_ob colim --> c.
+Definition Colimit_univ' (colim : Colimit) (c : C) (Fi : ∀ i, F i --> c)
+  (H : CoconeProp _ _ _ (tpair _ c Fi)) : Colimit_ob colim --> c.
 Proof.
-intros colim c Fi H.
-exact (Colimit_cocone colim (tpair _ _ H)).
+exact (Colimit_univ colim (tpair _ _ H)).
 Defined.
 
 Definition hasColimit := hasInitial (COCONE hsC F).
@@ -365,7 +418,7 @@ Proof.
   now apply pathsinv0.
 Qed.
 
-Lemma coconeEndoId' (c : Colimit) (f : Colimit_ob c --> Colimit_ob c) (h : @CoconeMorProp _ _ _ (Colimiting_cocone c) (Colimiting_cocone c) f) :
+Lemma coconeEndoId' (c : Colimit) (f : Colimit_ob c --> Colimit_ob c) (h : @CoconeMorProp _ _ _ (pr1 (Colimiting_cocone c)) (pr1 (Colimiting_cocone c)) f) :
   f = identity (Colimit_ob c).
 Proof.
   exact (coconeEndoId _ (tpair _ f h)).
@@ -385,16 +438,103 @@ Definition AllColimits (C : precategory) (hsC : has_homsets C) : UU :=
  colim : [J,D] -> D
  this is a functor under the hypothesis allColimits D
 *)
+Section ColimitFunctor.
 
-(* Section test. *)
+Variables (J D : precategory).
+Variable (hsD : has_homsets D).
+(* Variable (F : [J,D,hsD]). *)
 
-(* Variables (J D : precategory). *)
-(* Variable (hsD : has_homsets D). *)
-(* (* Variable (F : [J,D,hsD]). *) *)
+Variable (H : ∀ (F : functor J D), Colimit F hsD).
 
-(* Variable (allColimitsD : AllColimits D hsD). *)
+Let colim (F : [J,D,hsD]) := coconeBottom (pr1 (Colimiting_cocone _ _ _ hsD (H F))).
 
-(* End test. *)
+Definition colimG_CoconeData (F G : [J, D, hsD]) (alpha : F --> G) :
+  CoconeData _ _ F.
+Proof.
+exists (colim G).
+intro i.
+set (gi := coconeIn _ _ _ (pr1 (Colimiting_cocone J D G hsD (H G))) i).
+exact (pr1 alpha i ;; gi).
+Defined.
+
+Definition colimG_Cocone (F G : [J, D, hsD]) (alpha : F --> G) :
+  COCONE hsD F.
+Proof.
+exists (colimG_CoconeData F G alpha).
+abstract (
+  intros i j x; simpl; 
+  set (T:= CoconeProp_from_Cocone _ _ _ (Colimiting_cocone J D G hsD (H G)) i j x);
+  eapply pathscomp0; [|eapply maponpaths; apply T]; 
+  repeat rewrite assoc; 
+  now apply cancel_postcomposition, nat_trans_ax).
+Defined.
+
+Definition colimFunctor_data : functor_data [J,D,hsD] D.
+Proof.
+exists (fun (F : functor J D) => colim F).
+intros F G alpha.
+exact (Colimit_univ _ _ _ _ _ (colimG_Cocone F G alpha)).
+Defined.
+
+Definition wtf (F : [J,D,hsD]) : pr1 (colimG_CoconeData F F (identity F)) = pr1 (pr1 (pr1 (H F))).
+Proof.
+apply idpath.
+Defined.
+
+Lemma is_functor_colimFunctor_data : is_functor colimFunctor_data.
+Proof.
+split.
+- intro F.
+unfold colimFunctor_data.
+simpl.
+unfold Colimit_univ.
+simpl.
+set (Apa := (InitialArrow (COCONE hsD F) (H F) (colimG_Cocone F F (identity F)))).
+assert (test : colimG_Cocone F F (identity F) = pr1 (H F)).
+  apply total2_paths_second_isaprop.
+    apply isaprop_CoconeProp.
+    now apply hsD.
+  simpl.
+(* assert (HH:pr1 (colimG_CoconeData F F (identity F)) = pr1 (pr1 (pr1 (H F)))). *)
+(* simpl. *)
+(* apply idpath. *)
+  apply (total2_paths (wtf F)).
+  simpl.
+  unfold wtf.
+  apply funextsec.
+  intro i.
+  now apply id_left.
+assert (InitialArrow (COCONE hsD F) (H F) (colimG_Cocone F F (identity F)) ;;
+        idtoiso test =
+        identity (pr1 (H F))).
+  admit.
+(* simpl. *)
+(* apply idpath. *)
+
+(* (* eapply pathscomp0. *) *)
+(* (* eapply maponpaths. *) *)
+(* case test.  *)
+(* eapply maponpaths. *)
+(* rewrite test. *)
+
+(* set (T := coconeEndoId J D F hsD (H F)). *)
+(* eapply pathscomp0. *)
+(* apply T. *)
+(* intros i. *)
+(* set (cocF := pr1 _). *)
+
+(* assert (HH : Colimit_univ J D F hsD (H F) (colimG_Cocone F F (identity F)) = identity _). *)
+
+
+(* eapply pathscomp0. *)
+(* eapply maponpaths. *)
+(* apply HH. *)
+(* apply id_right. *)
+(* Defined. *)
+admit.
+Admitted.
+
+End ColimitFunctor.
 
 Section ColimitsFunctorCategories.
 
