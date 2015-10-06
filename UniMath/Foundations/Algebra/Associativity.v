@@ -66,7 +66,10 @@ Definition sequenceFunction {X} (x : Sequence X) : stn (sequenceLength x) -> X
   := pr2 x.
 Coercion sequenceFunction: Sequence >-> Funclass.
 
-Definition nil X : Sequence X.
+Definition sequenceMap {X Y} (f:X->Y) : Sequence X -> Sequence Y.
+Proof. intros ? ? ? [n x]. exact (n,,f∘x). Defined.
+
+Definition nil {X} : Sequence X.
 Proof.
   intros.
   exists 0.
@@ -74,14 +77,59 @@ Proof.
   induction (negnatlthn0 _ b).
 Defined.
 
+Definition postDrop {X} : Sequence X -> Sequence X.
+Proof.
+  intros ? [n x].
+  induction n as [|n].
+  - exact nil.                  (* yes, we didn't actually drop one *)
+  - exact (n,,x ∘ allButLast).
+Defined.
+
+Definition preDrop {X} : Sequence X -> Sequence X.
+Proof.
+  intros ? [n x].
+  induction n as [|n].
+  - exact nil.                  (* yes, we didn't actually drop one *)
+  - exact (n,,x ∘ allButFirst).
+Defined.
+
 Definition append {X} : Sequence X -> X -> Sequence X.
 Proof.
   intros ? [m x] y.
   exists (S m).
   intros [i b].
-  induction (natlthorgeh i m) as [c|d].
+  destruct (natlthorgeh i m) as [c|d].
   { exact (x (i,,c)). }
   { exact y. }
+Defined.
+
+Definition prepend {X} : X -> Sequence X -> Sequence X.
+Proof.
+  intros ? y [m x].
+  exists (S m).
+  intros [i b].
+  destruct i as [|i].
+  { exact y. }
+  { exact (x (i,,b)). }
+Defined.
+
+Definition pair_path_in2 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) : x,,p = x,,q.
+(* move upstream and remove copy in Ktheory/Utilities.v *)
+Proof. intros. destruct e. reflexivity. Defined.
+
+Lemma prependCheck1 {X x} {y:X} : preDrop (prepend y x) = x.
+Proof. intros ? [n x] ?. apply pair_path_in2. apply funextfun. intros [i b].
+       reflexivity.
+Defined.
+
+Lemma appendCheck1 {X x} {y:X} : postDrop (append x y) = x.
+Proof. intros ? [n x] ?. apply pair_path_in2. 
+       unfold funcomp.
+       apply funextfun; intros [i b].
+       simpl.
+       induction (natlthorgeh i n) as [p|q].
+       { apply maponpaths. apply pair_path_in2. apply isasetbool. }
+       { destruct (q b). }
 Defined.
 
 Definition concatenate {X} : Sequence X -> Sequence X -> Sequence X.
@@ -100,54 +148,57 @@ Proof.
   { exact (concatenate (IH (x ∘ allButLast)) (x (lastelement _))). }
 Defined.
 
+Definition flattenStep {X n} (x: stn (S n) -> Sequence X) :
+  flatten (S n,,x) = concatenate (flatten (n,,x ∘ allButLast)) (x (lastelement n)).
+Proof. intros. reflexivity. Defined.
+
+Open Scope addmonoid.
+
 (* Define x0 + x1 + ... + xn as (((...((0+x0) + x1) + x2) ... ) + xn).  This is
 the reverse of Bourbaki's choice, because other UniMath proofs by induction go
 this way.  See, for example, [stnsum] and [weqstnsum]. It also starts with 0. *)
 Definition sequenceSum {M:monoid} (x:Sequence M) : M.
 Proof.
   intros ? [n x].
-  induction n as [|n sum].     
-  Open Scope addmonoid.
+  induction n as [|n sequenceSum].     
   { exact (0). }
-  { exact (sum (x ∘ allButLast) + x (lastelement _)). }
-  Close Scope addmonoid.
+  { exact (sequenceSum (x ∘ allButLast) + x (lastelement _)). }
 Defined.
 
-Definition sequenceMap {X Y} (f:X->Y) : Sequence X -> Sequence Y.
-Proof. intros ? ? ? [n x]. exact (n,,f∘x). Defined.
+Definition sequenceSumStep {M:monoid} {n} (x:stn (S n) -> M) :
+  sequenceSum (S n,,x) = sequenceSum (n,,x ∘ allButLast) + x (lastelement _).
+Proof. intros. reflexivity. Defined.
+
+Definition sequenceSumCheck {M:monoid} (x:Sequence M) (m:M) :
+  sequenceSum (append x m) = sequenceSum x + m.
+Proof. intros ? [n x] ?.
+       unfold append.
+       rewrite sequenceSumStep.
+       
+
+Abort.
+
 
 Definition doubleSum {M:monoid} (x:Sequence (Sequence M)) : M.
 Proof.
   intros ? [n x].
-  induction n as [|n sum].     
-  { exact (0 % addmonoid). }
-  { exact ((sum (x ∘ allButLast) + sequenceSum (x (lastelement _))) % addmonoid). }
+  induction n as [|n doubleSum].     
+  { exact (0). }
+  { exact ((doubleSum (x ∘ allButLast) + sequenceSum (x (lastelement _)))). }
 Defined.
+
+Lemma doubleSumStep {M:monoid} {n} (x:stn (S n) -> Sequence M) :
+  doubleSum (S n,,x) = doubleSum (n,,x ∘ allButLast) + sequenceSum (x (lastelement _)).
+Proof. intros. reflexivity. Defined.
 
 Theorem associativityOfSums1 {M:monoid} (x:Sequence (Sequence M)) :
   sequenceSum (flatten x) = doubleSum x.
 Proof.
-  Open Scope multmonoid.
   intros ? [n x].
   induction n as [|n IHn].
   { reflexivity. }
-  { 
-
-
-
-
-
-    destruct (x (lastelement n)) as [m xn].
+  { rewrite flattenStep, doubleSumStep.
     
-    
-    
-    induction m as [|m IHm].
-    { change (sequenceSum (0,, xn)) with (unel M).
-      
 
 
-      (* ... working here ... *)
-
-
-  Close Scope multmonoid.
 Abort.
