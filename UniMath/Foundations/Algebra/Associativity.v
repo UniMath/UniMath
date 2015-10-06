@@ -4,7 +4,7 @@ Unset Automatic Introduction.
 
 (* move upstream *)
     Local Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity).
-    Local Notation "g ∘ f" := (funcomp f g) (at level 50).
+    Local Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
 
 Definition allButFirst {n} : stn n -> stn (S n).
 Proof. intros ? [h hm]. now exists (S h). Defined.
