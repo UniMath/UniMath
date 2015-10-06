@@ -56,7 +56,7 @@ Defined.
 
 (** Define x0 + x1 + ... + xn as (((...((0+x0) + x1) + x2) ... ) + xn).  This is the *)
 (** reverse of Bourbaki's choice, because other UniMath proofs by induction go *)
-(** this way, and it starts with 0.  See especially [stnsum] and [weqstnsum]. *)
+(** this way.  See especially [stnsum] and [weqstnsum]. It also starts with 0. *)
 Definition monoidSum {E:monoid} {n} (x:stn n -> E): E.
 Proof. intros. exact (foldleft (unel _) op x). Defined.
 
@@ -64,32 +64,46 @@ Proof. intros. exact (foldleft (unel _) op x). Defined.
 
 (* We consider sequences of sequences. *)
 
-Definition sequence X := Σ n, stn n -> X.
+Definition Sequence X := Σ n, stn n -> X.
 
-Definition sequenceLength {X} : sequence X -> nat := pr1.
+Definition sequenceLength   {X} (x : Sequence X) : nat
+  := pr1 x.
+Definition sequenceFunction {X} (x : Sequence X) : stn (sequenceLength x) -> X
+  := pr2 x.
+Coercion sequenceFunction: Sequence >-> Funclass.
 
-Definition bisequence X := sequence (sequence X).
+Definition sequenceSum {M:monoid} (x:Sequence M)
+  := monoidSum x.
 
-Definition totalBisequence X := Σ n (m:stn n->nat), (Σ i, stn (m i)) -> X.
+Definition sequenceSequenceSum {M:monoid} (x:Sequence (Sequence M)) : M
+  := monoidSum (sequenceSum ∘ x).
 
-Definition stntotal: ∀ {n : nat} (m : stn n -> nat), (Σ i, stn (m i)) ≃ stn (stnsum m).
-Proof. intros. exact (weqstnsum (stn∘m) m (fun _ => idweq _)). Defined.
+Definition Bisequence X := Σ n (m:stn n->nat), (Σ i, stn (m i)) -> X.
+
+Definition stntotal: ∀ {n : nat} (m : stn n -> nat), stn (stnsum m) ≃ Σ i, stn (m i).
+Proof. intros. exact (invweq (weqstnsum (stn∘m) m (fun _ => idweq _))). Defined.
 
 Section Test.
+  (* If m computes on numerals, so does stntotal m, in the sense that you can
+     verify the answer *)
   Let b := idpath true.
-  Let m := fun (i:stn 4) => pr1 i .
-  Let f := invweq (stntotal m).
+  Let m := fun (i:stn 4) => pr1 i . (* m is (0,1,2,3) *)
+  Let f := stntotal m.
   Goal stnsum m = 6. reflexivity. Defined.
-  Goal f (0,,b) = ((1,,b),,(0,,b)). reflexivity. Defined.
-  Goal f (1,,b) = ((2,,b),,(0,,b)). reflexivity. Defined.
-  Goal f (2,,b) = ((2,,b),,(1,,b)). reflexivity. Defined.
-  Goal f (3,,b) = ((3,,b),,(0,,b)). reflexivity. Defined.
-  Goal f (4,,b) = ((3,,b),,(1,,b)). reflexivity. Defined.
   Goal f (5,,b) = ((3,,b),,(2,,b)). reflexivity. Defined.
-  (* This takes a long time: Eval compute in f (0,,b). *)
+  (* But this takes a long time: Eval compute in f (0,,b). *)
 End Test.    
 
-Local Definition pack X : bisequence X -> totalBisequence X.
+Definition flatten_Bisequence {X} : Bisequence X -> Sequence X.
+Proof. 
+  intros ? [n [m x]].
+  exact (stnsum m,,x ∘ stntotal m).
+Defined.
+
+Definition flattenBisequenceSum {M:monoid} (x:Bisequence M) : M
+  := sequenceSum (flatten_Bisequence x).
+
+Definition pack X : Sequence (Sequence X) -> Bisequence X.
 Proof.
   intros ? [n x].
   exists n.
@@ -98,7 +112,7 @@ Proof.
   exact (pr2 (x i) j).
 Defined.
 
-Local Definition unpack X : totalBisequence X -> bisequence X.
+Definition unpack X : Bisequence X -> Sequence (Sequence X).
 Proof.
   intros ? [n [m x]].
   exists n.
@@ -112,7 +126,7 @@ Definition pair_path_in2 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) : x,,p = x,,q
 (* move upstream and remove copy in Ktheory/Utilities.v *)
 Proof. intros. destruct e. reflexivity. Defined.
 
-Definition bisequence_weq_sequence X : bisequence X ≃ totalBisequence X.
+Definition Bisequence_weq X : Sequence (Sequence X) ≃ Bisequence X.
 Proof.                          (* is this a special case of something else? *)
   intros.
   refine (_,,gradth (pack X) (unpack X) _ _).
