@@ -54,9 +54,12 @@ Defined.
 
 (** * Associativity theorem, as in Bourbaki, Algebra, Theorem 1, page 4. *)
 
-(** Define x0 + x1 + ... + xn as (((...((0+x0) + x1) + x2) ... ) + xn).  This is the *)
-(** reverse of Bourbaki's choice, because other UniMath proofs by induction go *)
-(** this way.  See especially [stnsum] and [weqstnsum]. It also starts with 0. *)
+(*
+Define x0 + x1 + ... + xn as (((...((0+x0) + x1) + x2) ... ) + xn).  This is the
+reverse of Bourbaki's choice, because other UniMath proofs by induction go
+this way.  See especially [stnsum] and [weqstnsum]. It also starts with 0.
+*)
+
 Definition monoidSum {E:monoid} {n} (x:stn n -> E): E.
 Proof. intros. exact (foldleft (unel _) op x). Defined.
 
@@ -72,14 +75,24 @@ Definition sequenceFunction {X} (x : Sequence X) : stn (sequenceLength x) -> X
   := pr2 x.
 Coercion sequenceFunction: Sequence >-> Funclass.
 
-Definition sequenceSum {M:monoid} (x:Sequence M)
-  := monoidSum x.
+Definition sequenceSum {M:monoid} (x:Sequence M) : M.
+Proof. intros. exact (monoidSum x). Defined.
+
+Open Scope addmonoid.
+Lemma peelOffTerm {E:monoid} {n} (x:stn (S n) -> E):
+  sequenceSum (S n,,x) = sequenceSum(n,,x∘allButLast) + x(lastelement _).
+Proof. intros. reflexivity. Defined.
+Close Scope addmonoid.
+
+Definition sequenceMap {X Y} (f:X->Y) : Sequence X -> Sequence Y.
+Proof. intros ? ? ? [n x]. exact (n,,f∘x). Defined.
 
 Definition sequenceSequenceSum {M:monoid} (x:Sequence (Sequence M)) : M
-  := monoidSum (sequenceSum ∘ x).
+  := sequenceSum (sequenceMap sequenceSum x).
 
 Definition Bisequence X := Σ n (m:stn n->nat), (Σ i, stn (m i)) -> X.
 
+(* We use [weqstnsum] to concatenate standard finite sets.  *)
 Definition stntotal: ∀ {n : nat} (m : stn n -> nat), stn (stnsum m) ≃ Σ i, stn (m i).
 Proof. intros. exact (invweq (weqstnsum (stn∘m) m (fun _ => idweq _))). Defined.
 
@@ -100,19 +113,16 @@ Proof.
   exact (stnsum m,,x ∘ stntotal m).
 Defined.
 
-Definition flattenBisequenceSum {M:monoid} (x:Bisequence M) : M
-  := sequenceSum (flatten_Bisequence x).
-
-Definition pack X : Sequence (Sequence X) -> Bisequence X.
+Definition toBisequence {X} : Sequence (Sequence X) -> Bisequence X.
 Proof.
   intros ? [n x].
   exists n.
   exists (sequenceLength ∘ x).
   intros [i j].
-  exact (pr2 (x i) j).
+  exact ((x i) j).
 Defined.
 
-Definition unpack X : Bisequence X -> Sequence (Sequence X).
+Definition fromBisequence {X} : Bisequence X -> Sequence (Sequence X).
 Proof.
   intros ? [n [m x]].
   exists n.
@@ -129,7 +139,7 @@ Proof. intros. destruct e. reflexivity. Defined.
 Definition Bisequence_weq X : Sequence (Sequence X) ≃ Bisequence X.
 Proof.                          (* is this a special case of something else? *)
   intros.
-  refine (_,,gradth (pack X) (unpack X) _ _).
+  refine (_,,gradth toBisequence fromBisequence _ _).
   { intros [n x]. simpl.
     apply pair_path_in2.
     apply funextfun; intros i.
@@ -148,7 +158,33 @@ Proof.                          (* is this a special case of something else? *)
     }
 Defined.
 
+Theorem associativityOfSums1 {M:monoid} (x:Sequence (Sequence M)) :
+  sequenceSum (flatten_Bisequence (toBisequence x)) = sequenceSum (sequenceMap sequenceSum x).
+Proof.
+  Open Scope multmonoid.
+  intros ? [n x].
+  induction n as [|n IHn].
+  { reflexivity. }
+  { unfold sequenceMap.
+    rewrite peelOffTerm.
+    change ((sequenceSum ∘ x) (lastelement n)) with (sequenceSum (x (lastelement n))).
 
+
+    destruct (x (lastelement n)) as [m xn].
+    
+    
+    
+    induction m as [|m IHm].
+    { change (sequenceSum (0,, xn)) with (unel M).
+      rewrite runax.
+      
+
+
+      (* ... working here ... *)
+
+
+  Close Scope multmonoid.
+Admitted.
 
 (** approach #2 *)
 
@@ -220,7 +256,7 @@ Defined.
 
 Open Scope multmonoid.
 Open Scope addmonoid.
-Theorem associativityOfSums (E:monoid) n (x:stn n -> E) (P:Partition n) :
+Theorem associativityOfSums2 (E:monoid) n (x:stn n -> E) (P:Partition n) :
   monoidSum x = monoidSumOfSums x P.
 Proof.
   intros.
