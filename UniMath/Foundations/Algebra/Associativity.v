@@ -4,7 +4,7 @@ Unset Automatic Introduction.
 
 (* move upstream *)
     Local Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity).
-    Local Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
+    Local Notation "g ∘ f" := (funcomp f g) (at level 50, no associativity).
 
 Definition allButFirst {n} : stn n -> stn (S n).
 Proof. intros ? [h hm]. now exists (S h). Defined.
@@ -60,7 +60,7 @@ reverse of Bourbaki's choice, because other UniMath proofs by induction go
 this way.  See especially [stnsum] and [weqstnsum]. It also starts with 0.
 *)
 
-Definition monoidSum {E:monoid} {n} (x:stn n -> E): E.
+Definition sequenceSum2 {E:monoid} {n} (x:stn n -> E): E.
 Proof. intros. exact (foldleft (unel _) op x). Defined.
 
 (** approach #1 *)
@@ -76,7 +76,7 @@ Definition sequenceFunction {X} (x : Sequence X) : stn (sequenceLength x) -> X
 Coercion sequenceFunction: Sequence >-> Funclass.
 
 Definition sequenceSum {M:monoid} (x:Sequence M) : M.
-Proof. intros. exact (monoidSum x). Defined.
+Proof. intros. exact (sequenceSum2 x). Defined.
 
 Open Scope addmonoid.
 Lemma peelOffTerm {E:monoid} {n} (x:stn (S n) -> E):
@@ -167,7 +167,8 @@ Proof.
   { reflexivity. }
   { unfold sequenceMap.
     rewrite peelOffTerm.
-    change ((sequenceSum ∘ x) (lastelement n)) with (sequenceSum (x (lastelement n))).
+    unfold funcomp at 3.
+
 
 
     destruct (x (lastelement n)) as [m xn].
@@ -184,7 +185,7 @@ Proof.
 
 
   Close Scope multmonoid.
-Admitted.
+Abort.
 
 (** approach #2 *)
 
@@ -230,7 +231,7 @@ End Test2.
 Definition monoidSumSubinterval {E:monoid} {n} (x:stn n -> E) i j: i ≤ j -> j ≤ n -> E.
 Proof.
   intros ? ? ? ? ? ij jn.
-  exact (monoidSum (x ∘ enumerateSubinterval ij jn)).
+  exact (sequenceSum2 (x ∘ enumerateSubinterval ij jn)).
 Defined.
 
 Definition SizedPartition n numparts := 
@@ -247,7 +248,7 @@ Proof.
   intros.
   induction P as [p [[k o] [a b]]].
   simpl in a, b, k.
-  apply (@monoidSum E p).
+  apply (@sequenceSum2 E p).
   intros h.
   apply (monoidSumSubinterval x (k (allButLast h)) (k (allButFirst h))).
   { apply o. apply stnntosnle. }
@@ -257,7 +258,7 @@ Defined.
 Open Scope multmonoid.
 Open Scope addmonoid.
 Theorem associativityOfSums2 (E:monoid) n (x:stn n -> E) (P:Partition n) :
-  monoidSum x = monoidSumOfSums x P.
+  sequenceSum2 x = monoidSumOfSums x P.
 Proof.
   intros.
   induction P as [p Q].
@@ -269,7 +270,7 @@ Proof.
   { 
 
 
-Admitted.
+Abort.
 
 
 
