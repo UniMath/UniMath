@@ -223,8 +223,16 @@ Lemma between_ltNonnegativeRationals :
     x < y -> total2 (fun t => dirprod (x < t) (t < y)).
 Proof.
   intros x y H.
-  (*exists ((x+y)/2). need hqdiv*)
-Admitted.
+  destruct (hqlth_between (pr1 x) (pr1 y) H) as [z (Hxz,Hzy)].
+  assert (Hz : hqleh 0%hq z).
+  { apply istranshqleh with (pr1 x). 
+    now apply (pr2 x).
+    apply (hqlthtoleh (pr1 x) z), Hxz. }
+  exists (hq_to_hnnq_def z Hz).
+  split.
+  exact Hxz.
+  exact Hzy.
+Qed.
 
 Lemma isnonnegative_NonnegativeRationals :
   forall x : NonnegativeRationals , 0 <= x.

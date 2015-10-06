@@ -152,20 +152,21 @@ Proof.
   now rewrite hq2eq1plus1, hqldistr, (hqmultr1 x).
 Qed.
 
+Lemma hqplusdiv2 : forall x : hq, x = (x + x) / 2.
+  intros x.
+  apply hqmultrcan with 2.
+  now apply hqgth_hqneq, hq2_gt0.
+  unfold hqdiv.
+  rewrite hqmultassoc.
+  rewrite (hqislinvmultinv 2).
+  2: now apply hqgth_hqneq, hq2_gt0.
+  rewrite (hqmultr1 (x + x)).
+  apply hqmult2r.
+Qed.
+
 Lemma hqlth_between :
   forall x y : hq, x < y -> total2 (fun z => dirprod (x < z) (z < y)).
 Proof.
-  assert (H : forall x : hq, x = (x + x) / 2).
-  { intros x.
-    apply hqmultrcan with 2.
-    now apply hqgth_hqneq, hq2_gt0.
-    unfold hqdiv.
-    rewrite hqmultassoc.
-    rewrite (hqislinvmultinv 2).
-    2: now apply hqgth_hqneq, hq2_gt0.
-    rewrite (hqmultr1 (x + x)).
-    apply hqmult2r.
-  }
   assert (H0 : / 2 > 0).
   { apply hqgthandmultlinv with 2.
     apply hq2_gt0.
@@ -176,15 +177,17 @@ Proof.
   intros x y Hlt.
   exists ((x + y) / 2).
   split.
-  - rewrite (H x).
+  - pattern x at 1.
+    rewrite (hqplusdiv2 x).
+    unfold hqdiv.
     apply (hqlthandmultr _ _ (/ 2)).
     exact H0.
-    rewrite <- (H x).
     now apply (hqlthandplusl _ _ x Hlt).
-  - rewrite (H y).
+  - pattern y at 2.
+    rewrite (hqplusdiv2 y).
+    unfold hqdiv.
     apply (hqlthandmultr _ _ (/ 2)).
     exact H0.
-    rewrite <- (H y).
     now apply (hqlthandplusr _ _ y Hlt).
 Qed.
 
