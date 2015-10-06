@@ -152,52 +152,63 @@ Definition flattenStep {X n} (x: stn (S n) -> Sequence X) :
   flatten (S n,,x) = concatenate (flatten (n,,x ∘ allButLast)) (x (lastelement n)).
 Proof. intros. reflexivity. Defined.
 
-Open Scope addmonoid.
+Open Scope multmonoid.
 
-(* Define x0 + x1 + ... + xn as (((...((0+x0) + x1) + x2) ... ) + xn).  This is
+(* Define x0 * x1 * ... * xn as (((...((0*x0) * x1) * x2) ... ) * xn).  This is
 the reverse of Bourbaki's choice, because other UniMath proofs by induction go
 this way.  See, for example, [stnsum] and [weqstnsum]. It also starts with 0. *)
-Definition sequenceSum {M:monoid} (x:Sequence M) : M.
+Definition sequenceProduct {M:monoid} (x:Sequence M) : M.
 Proof.
   intros ? [n x].
-  induction n as [|n sequenceSum].     
-  { exact (0). }
-  { exact (sequenceSum (x ∘ allButLast) + x (lastelement _)). }
+  induction n as [|n sequenceProduct].     
+  { exact 1. }
+  { exact (sequenceProduct (postDrop (S n,,x)) * x (lastelement _)). }
 Defined.
 
-Definition sequenceSumStep {M:monoid} {n} (x:stn (S n) -> M) :
-  sequenceSum (S n,,x) = sequenceSum (n,,x ∘ allButLast) + x (lastelement _).
+Definition sequenceProductStep {M:monoid} {n} (x:stn (S n) -> M) :
+  sequenceProduct (S n,,x) = sequenceProduct (n,,x ∘ allButLast) * x (lastelement _).
 Proof. intros. reflexivity. Defined.
 
-Definition sequenceSumCheck {M:monoid} (x:Sequence M) (m:M) :
-  sequenceSum (append x m) = sequenceSum x + m.
+Definition sequenceProductCheck {M:monoid} (x:Sequence M) (m:M) :
+  sequenceProduct (append x m) = sequenceProduct x * m.
 Proof. intros ? [n x] ?.
        unfold append.
-       rewrite sequenceSumStep.
-       
-
-Abort.
-
-
-Definition doubleSum {M:monoid} (x:Sequence (Sequence M)) : M.
-Proof.
-  intros ? [n x].
-  induction n as [|n doubleSum].     
-  { exact (0). }
-  { exact ((doubleSum (x ∘ allButLast) + sequenceSum (x (lastelement _)))). }
+       rewrite sequenceProductStep.
+       unfold funcomp.
+       unfold lastelement.
+       induction (natlthorgeh n n) as [p|q].
+       { destruct (isirreflnatlth _ p). }
+       { apply (maponpaths (fun a => a * m)).
+         apply (maponpaths (fun x => sequenceProduct (n,,x))).
+         apply funextfun; intros [i b].
+         simpl.
+         induction (natlthorgeh i n) as [r|s].
+         { apply (maponpaths x). apply pair_path_in2. apply isasetbool. }
+         { destruct (s b). }}
 Defined.
 
-Lemma doubleSumStep {M:monoid} {n} (x:stn (S n) -> Sequence M) :
-  doubleSum (S n,,x) = doubleSum (n,,x ∘ allButLast) + sequenceSum (x (lastelement _)).
+Definition doubleProduct {M:monoid} (x:Sequence (Sequence M)) : M.
+Proof.
+  intros ? [n x].
+  induction n as [|n doubleProduct].     
+  { exact 1. }
+  { exact ((doubleProduct (x ∘ allButLast) * sequenceProduct (x (lastelement _)))). }
+Defined.
+
+Lemma doubleProductStep {M:monoid} {n} (x:stn (S n) -> Sequence M) :
+  doubleProduct (S n,,x) = doubleProduct (n,,x ∘ allButLast) * sequenceProduct (x (lastelement _)).
 Proof. intros. reflexivity. Defined.
 
-Theorem associativityOfSums1 {M:monoid} (x:Sequence (Sequence M)) :
-  sequenceSum (flatten x) = doubleSum x.
+Theorem associativityOfProducts1 {M:monoid} (x:Sequence (Sequence M)) :
+  sequenceProduct (flatten x) = doubleProduct x.
 Proof.
   intros ? [n x].
   induction n as [|n IHn].
   { reflexivity. }
-  { rewrite flattenStep, doubleSumStep.
+  { 
+    
+    
+    rewrite flattenStep, doubleProductStep.
     
 
 
