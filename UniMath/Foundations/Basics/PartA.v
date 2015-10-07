@@ -102,6 +102,9 @@ Definition neg (X : UU) : UU := X -> empty.
 
 Notation "x != y" := (neg (x = y)) (at level 40).
 
+(* Apply this tactic to a proof of [X] and [neg X], in either order: *)
+Ltac contradicts a b := solve [ destruct (a b) | destruct (b a) ].
+
 Definition negf {X Y : UU} (f : X -> Y) : neg Y -> neg X := 
   fun (phi : Y -> empty) => fun (x : X) => phi (f x).
 
