@@ -142,8 +142,7 @@ Defined.
 
 Definition concatenateStep {X}  (x : Sequence X) {n} (y : stn (S n) -> X) :
   concatenate x (S n,,y) = append (concatenate x (n,,y ∘ allButLast)) (y (lastelement _)).
-Proof.
-Admitted.
+Proof. intros. reflexivity. Defined.
 
 Definition flatten {X} : Sequence (Sequence X) -> Sequence X.
 Proof.
