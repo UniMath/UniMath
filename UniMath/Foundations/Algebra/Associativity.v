@@ -29,7 +29,7 @@ Proof. intros ? [n x] ?.
          apply funextfun; intros [i b].
          simpl.
          induction (natlthorgeh i n) as [r|s].
-         { simpl. apply (maponpaths x). apply pair_path_in2. apply isasetbool. }
+         { simpl. apply maponpaths. apply maponpaths. apply isasetbool. }
          { simpl. induction (s b). }}
 Defined.
 

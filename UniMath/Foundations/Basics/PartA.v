@@ -396,7 +396,7 @@ Proof.
 Defined.
 
 Definition pair_path_in2 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) : x,,p = x,,q.
-Proof. intros. destruct e. reflexivity. Defined.
+Proof. intros. now apply maponpaths. Defined.
 
 Definition fiber_paths {A : UU} {B : A -> UU} {u v : Σ x, B x}
   (p : u = v) : transportf (fun x => B x) (base_paths _ _ p) (pr2 u) = pr2 v.
