@@ -5,20 +5,20 @@ Require Import UniMath.Dedekind.NonnegativeRationals.
 Require Import UniMath.Dedekind.Complements.
 Require Import UniMath.Foundations.FunctionalExtensionality.
 
-Local Open Scope NnR_scope.
+Open Scope NnR_scope.
 
 (** ** Definition of Dedekind cuts *)
 
-Local Definition Dcuts_def_bot (X : NonnegativeRationals -> hProp) : hProp :=
+Definition Dcuts_def_bot (X : NonnegativeRationals -> hProp) : hProp :=
   ishinh (forall x : NonnegativeRationals, X x ->
     forall y : NonnegativeRationals, y <= x -> X y).
-Local Definition Dcuts_def_open (X : NonnegativeRationals -> hProp) : hProp :=
+Definition Dcuts_def_open (X : NonnegativeRationals -> hProp) : hProp :=
   ishinh (forall x : NonnegativeRationals, X x ->
     hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y))).
-Local Definition Dcuts_def_bounded (X : NonnegativeRationals -> hProp) : hProp :=
+Definition Dcuts_def_bounded (X : NonnegativeRationals -> hProp) : hProp :=
   hexists (fun ub : NonnegativeRationals => neg (X ub)).
 
-Local Definition Dcuts_hsubtypes : hsubtypes (subset NonnegativeRationals) :=
+Definition Dcuts_hsubtypes : hsubtypes (subset NonnegativeRationals) :=
   (fun X : subset NonnegativeRationals => hconj (Dcuts_def_bot X)
                            (hconj (Dcuts_def_open X)
                                   (Dcuts_def_bounded X))).
@@ -30,8 +30,8 @@ Proof.
   intro x.
   apply pr2.
 Qed.
-Local Definition Dcuts : hSet := hSetpair _ isaset_Dcuts.
-Local Definition pr1Dcuts (x : Dcuts) : NonnegativeRationals -> hProp := pr1 x.
+Definition Dcuts : hSet := hSetpair _ isaset_Dcuts.
+Definition pr1Dcuts (x : Dcuts) : NonnegativeRationals -> hProp := pr1 x.
 Notation "x ∈ X" := (pr1Dcuts X x) (at level 70, no associativity) : DC_scope.
 
 Open Scope DC_scope.
@@ -64,7 +64,7 @@ Proof.
 Qed.
 
 
-Local Definition mk_Dcuts (X : NonnegativeRationals -> hProp)
+Definition mk_Dcuts (X : NonnegativeRationals -> hProp)
                    (Hbot : forall x : NonnegativeRationals, X x ->
                      forall y : NonnegativeRationals, y <= x -> X y)
                    (Hopen : forall x : NonnegativeRationals, X x ->
@@ -93,9 +93,10 @@ Proof.
 Qed.
 
 (** ** [Dcuts] is an ordered set *)
-(** *** [Dcuts_le] is a partial order on [Dcuts] *)
+(** *** Large orders and alternative definition of equality *)
+(** [Dcuts_le] is a partial order on [Dcuts] *)
 
-Local Definition Dcuts_le_rel : hrel Dcuts :=
+Definition Dcuts_le_rel : hrel Dcuts :=
   fun (X Y : Dcuts) => ishinh (forall x : NonnegativeRationals, x ∈ X -> x ∈ Y).
 Lemma istrans_Dcuts_le_rel : istrans Dcuts_le_rel.
 Proof.
@@ -115,16 +116,16 @@ Proof.
   exact istrans_Dcuts_le_rel.
   exact isrefl_Dcuts_le_rel.
 Qed.
-Local Definition Dcuts_le : po Dcuts :=
+Definition Dcuts_le : po Dcuts :=
   popair _ ispo_Dcuts_le_rel.
-Local Definition istrans_Dcuts_le : istrans Dcuts_le :=
+Definition istrans_Dcuts_le : istrans Dcuts_le :=
   istrans_Dcuts_le_rel.
-Local Definition isrefl_Dcuts_le : isrefl Dcuts_le :=
+Definition isrefl_Dcuts_le : isrefl Dcuts_le :=
   isrefl_Dcuts_le_rel.
 
 (** [Dcuts_ge] is a partial order on [Dcuts] *)
 
-Local Definition Dcuts_ge_rel : hrel Dcuts :=
+Definition Dcuts_ge_rel : hrel Dcuts :=
   fun (X Y : Dcuts) => Dcuts_le Y X.
 
 Lemma istrans_Dcuts_ge_rel : istrans Dcuts_ge_rel.
@@ -143,16 +144,16 @@ Proof.
   exact istrans_Dcuts_ge_rel.
   exact isrefl_Dcuts_ge_rel.
 Qed.
-Local Definition Dcuts_ge : po Dcuts :=
+Definition Dcuts_ge : po Dcuts :=
   popair _ ispo_Dcuts_ge_rel.
-Local Definition istrans_Dcuts_ge : istrans Dcuts_ge :=
+Definition istrans_Dcuts_ge : istrans Dcuts_ge :=
   istrans_Dcuts_ge_rel.
-Local Definition isrefl_Dcuts_ge : isrefl Dcuts_ge :=
+Definition isrefl_Dcuts_ge : isrefl Dcuts_ge :=
   isrefl_Dcuts_ge_rel.
 
 (** [Dcuts_eq] is an equality on [Dcuts] *)
 
-Local Definition Dcuts_eq : hrel Dcuts :=
+Definition Dcuts_eq : hrel Dcuts :=
   fun (X Y : Dcuts) => hconj (Dcuts_le X Y) (Dcuts_ge X Y).
 
 Lemma istrans_Dcuts_eq : istrans Dcuts_eq.
@@ -211,7 +212,7 @@ Qed.
 
 (** [Dcuts_lt] is a strict partial order *)
 
-Local Definition Dcuts_lt : hrel Dcuts :=
+Definition Dcuts_lt : hrel Dcuts :=
   fun (X Y : Dcuts) =>
     hexists (fun x : NonnegativeRationals => dirprod (neg (x ∈ X)) (x ∈ Y)).
 Lemma istrans_Dcuts_lt : istrans Dcuts_lt.
@@ -245,7 +246,7 @@ Qed.
 
 (** [Dcuts_gt] is a strict partial order *)
 
-Local Definition Dcuts_gt : hrel Dcuts :=
+Definition Dcuts_gt : hrel Dcuts :=
   fun (X Y : Dcuts) => Dcuts_lt Y X.
 Lemma istrans_Dcuts_gt : istrans Dcuts_gt.
 Proof.
@@ -258,6 +259,7 @@ Proof.
 Qed.
 
 Lemma isstpo_Dcuts_gt : isStrictPartialOrder Dcuts_gt.
+
 Proof.
   split.
   exact istrans_Dcuts_gt.
@@ -267,7 +269,7 @@ Qed.
 (** [Dcuts_ap] is an apartness relation *)
 (* todo : define apartness relation *)
 
-Local Definition Dcuts_ap (X Y : Dcuts) : hProp :=
+Definition Dcuts_ap (X Y : Dcuts) : hProp :=
   hdisj (Dcuts_lt X Y) (Dcuts_gt X Y).
 
 Lemma isirrefl_Dcuts_ap : isirrefl Dcuts_ap.
@@ -277,6 +279,11 @@ Proof.
   intros [Hap|Hap].
   now apply isirrefl_Dcuts_lt with (1 := Hap).
   now apply isirrefl_Dcuts_lt with (1 := Hap).
+Qed.
+Lemma issymm_Dcuts_ap : issymm Dcuts_ap.
+Proof.
+  intros x y.
+  apply islogeqcommhdisj.
 Qed.
 
 (** *** Various basic theorems about order, equality and apartness *)
@@ -421,7 +428,7 @@ Section Dcuts_lub.
 Context (E : Dcuts -> hProp).
 Context (E_bounded : hexists (isUpperBound Dcuts_le E)).
 
-Local Definition Dcuts_lub_val : NonnegativeRationals -> hProp :=
+Definition Dcuts_lub_val : NonnegativeRationals -> hProp :=
   fun r : NonnegativeRationals => hexists (fun X : Dcuts => dirprod (E X) (r ∈ X)).
 Lemma Dcuts_lub_bot : 
   forall (x : NonnegativeRationals),
@@ -470,7 +477,7 @@ Qed.
 
 End Dcuts_lub.
 
-Local Definition Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isUpperBound Dcuts_le E)) : Dcuts :=
+Definition Dcuts_lub (E : Dcuts -> hProp) (E_bounded : hexists (isUpperBound Dcuts_le E)) : Dcuts :=
   mk_Dcuts (Dcuts_lub_val E) (Dcuts_lub_bot E) (Dcuts_lub_open E) (Dcuts_lub_bounded E E_bounded).
 
 Lemma isub_Dcuts_lub (E : Dcuts -> hProp)
@@ -511,7 +518,7 @@ Section Dcuts_glb.
 Context (E : Dcuts -> hProp).
 Context (E_not_empty : hexists E).  
 
-Local Definition Dcuts_glb_val : NonnegativeRationals -> hProp :=
+Definition Dcuts_glb_val : NonnegativeRationals -> hProp :=
   fun r : NonnegativeRationals => hexists (fun n => dirprod (r < n)%NnR (forall X : Dcuts, E X -> n ∈ X)).
 Lemma Dcuts_glb_bot : 
   forall (x : NonnegativeRationals),
@@ -554,7 +561,7 @@ Qed.
 
 End Dcuts_glb.
 
-Local Definition Dcuts_glb (E : Dcuts -> hProp) (E_not_empty : hexists E) : Dcuts :=
+Definition Dcuts_glb (E : Dcuts -> hProp) (E_not_empty : hexists E) : Dcuts :=
   mk_Dcuts (Dcuts_glb_val E) (Dcuts_glb_bot E) (Dcuts_glb_open E) (Dcuts_glb_bounded E E_not_empty).
 
 Lemma isub_Dcuts_glb (E : Dcuts -> hProp)
@@ -597,7 +604,7 @@ Qed.
 
 (** * Definition of non-negative real numbers *)
 
-Definition NonnegativeReals := Dcuts.
+Definition NonnegativeReals : hSet := Dcuts.
 
 Definition NonnegativeReals_to_subsetNonnegativeRationals : NonnegativeReals -> (NonnegativeRationals -> hProp) := pr1.
 Definition subsetNonnegativeRationals_to_NonnegativeReals
