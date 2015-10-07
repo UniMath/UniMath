@@ -86,6 +86,10 @@ Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : stn m -> stn n := 
 Definition dni ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn ( S n ) .
 Proof. intros n i x .  destruct ( natlthorgeh x i ) . apply ( stnpair ( S n ) x ( natgthtogths _ _ ( pr2 x ) ) ) .  apply ( stnpair ( S n ) ( S x ) ( pr2 x ) ) .  Defined.  
 
+Definition dni_allButLast n : stn n -> stn (S n).
+(* this definition is simpler than that of [dni n (lastelement n)], since no choice is involved, so it's useful in special situations *)
+Proof. intros ? h. destruct h as [h hm]. exists h. now apply natlthtolths. Defined.
+
 Lemma dnicommsq ( n : nat ) ( i : stn ( S n ) ) : commsqstr( dni n i )  ( stntonat ( S n ) ) ( stntonat n ) ( di i )  .
 Proof. intros . intro x . unfold dni . unfold di . destruct ( natlthorgeh x i ) .  simpl .  apply idpath . simpl .  apply idpath . Defined . 
 
