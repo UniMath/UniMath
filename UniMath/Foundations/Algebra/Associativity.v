@@ -2,10 +2,6 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups.
 Require Import UniMath.Foundations.FiniteSets.
 Unset Automatic Introduction.
 
-(* move upstream *)
-    Local Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity).
-    Local Notation "g ∘ f" := (funcomp f g) (at level 50, no associativity).
-
 Definition allButFirst {n} : stn n -> stn (S n).
 Proof. intros ? [h hm]. now exists (S h). Defined.
 
