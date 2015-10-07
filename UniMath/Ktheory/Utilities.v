@@ -30,6 +30,8 @@ Proof. apply proofirrelevance. Defined.
 Goal forall X (i:iscontr X) (x x':X), x = x'.
 Proof. intros. apply proofirrelevancecontr. assumption. Defined.
 
+(* *)
+
 Definition an_inclusion_is_injective {X Y} (f:X->Y) (inj:isincl f) x x': f x = f x' -> x = x'.
 Proof. intros ? ? ? ? ? ?. exact (invmaponpathsincl _ inj _ _). Defined.
 

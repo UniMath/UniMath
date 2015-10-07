@@ -24,8 +24,8 @@ Proof. intros ? [n x] ?.
        unfold lastelement.
        induction (natlthorgeh n n) as [p|q].
        { induction (isirreflnatlth _ p). }
-       { apply (maponpaths (fun a => a * m)).
-         apply (maponpaths (fun x => sequenceProduct (n,,x))).
+       { apply (maponpaths (λ a, a * m)).
+         apply (maponpaths (λ x, sequenceProduct (n,,x))).
          apply funextfun; intros [i b].
          simpl.
          induction (natlthorgeh i n) as [r|s].
@@ -64,6 +64,6 @@ Proof.
       generalize (z (lastelement m)) as w; generalize (z ∘ (dni_allButLast _)) as v; intros.
       rewrite <- assocax.
       rewrite sequenceProductCheck.
-      apply (maponpaths (fun u => u*w)).
+      apply (maponpaths (λ u, u*w)).
       apply IHm. } }
 Defined.
