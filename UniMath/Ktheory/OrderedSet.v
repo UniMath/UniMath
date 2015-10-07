@@ -51,18 +51,17 @@ Proof.
   apply invproofirrelevance; intros r s.
   destruct r as [m p].
   destruct s as [n q].
-  apply pair_path_props.
+  apply total2_paths2_second_isaprop.
   { 
     apply weqtoeqstn.
     exact (weqcomp (pr1 p) (invweq (pr1 q))).
   }
   {
-    clear m n p q.
     intros k.
     apply invproofirrelevance; intros [[r b] i] [[s c] j]; simpl in r,s,i,j.
-    apply pair_path_props.
+    apply total2_paths2_second_isaprop.
     { 
-      apply pair_path_props.
+      apply total2_paths2_second_isaprop.
       { 
         
         
@@ -71,4 +70,4 @@ Proof.
       { apply isapropisweq. } }
     { intros; apply impredtwice; intros; apply impred; intros. apply pr2. }
   }
-Admitted.
+Abort.

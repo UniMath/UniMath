@@ -23,28 +23,11 @@ Proof. intros ? [h hm].
        { induction (b hm). }
 Qed.
 
-Lemma stnntosnlt {n} (h:stn n) : allButLast h < allButFirst h.
-Proof. intros ? [h hm]. apply natlthnsn. Defined.
-
-Lemma stnntosnle {n} (h:stn n) : allButLast h ≤ allButFirst h.
-Proof. intros ? [h hm]. apply natlehnsn. Defined.
-
-(** * Associativity theorem, as in Bourbaki, Algebra, Theorem 1, page 4. *)
-
 (** approach #1 *)
 
 (* We consider sequences of sequences. *)
 
 Definition Sequence X := Σ n, stn n -> X.
-
-Definition sequenceLength   {X} (x : Sequence X) : nat
-  := pr1 x.
-Definition sequenceFunction {X} (x : Sequence X) : stn (sequenceLength x) -> X
-  := pr2 x.
-Coercion sequenceFunction: Sequence >-> Funclass.
-
-Definition sequenceMap {X Y} (f:X->Y) : Sequence X -> Sequence Y.
-Proof. intros ? ? ? [n x]. exact (n,,f∘x). Defined.
 
 Definition nil {X} : Sequence X.
 Proof.
@@ -54,20 +37,12 @@ Proof.
   induction (negnatlthn0 _ b).
 Defined.
 
-Definition postDrop {X} : Sequence X -> Sequence X.
+Definition drop {X} : Sequence X -> Sequence X.
 Proof.
   intros ? [n x].
   induction n as [|n].
   - exact nil.                  (* yes, we didn't actually drop one *)
   - exact (n,,x ∘ allButLast).
-Defined.
-
-Definition preDrop {X} : Sequence X -> Sequence X.
-Proof.
-  intros ? [n x].
-  induction n as [|n].
-  - exact nil.                  (* yes, we didn't actually drop one *)
-  - exact (n,,x ∘ allButFirst).
 Defined.
 
 Definition append {X} : Sequence X -> X -> Sequence X.
@@ -78,35 +53,6 @@ Proof.
   destruct (natlthorgeh i m) as [c|d].
   { exact (x (i,,c)). }
   { exact y. }
-Defined.
-
-Definition prepend {X} : X -> Sequence X -> Sequence X.
-Proof.
-  intros ? y [m x].
-  exists (S m).
-  intros [i b].
-  destruct i as [|i].
-  { exact y. }
-  { exact (x (i,,b)). }
-Defined.
-
-Definition pair_path_in2 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) : x,,p = x,,q.
-(* move upstream and remove copy in Ktheory/Utilities.v *)
-Proof. intros. destruct e. reflexivity. Defined.
-
-Lemma prependCheck1 {X x} {y:X} : preDrop (prepend y x) = x.
-Proof. intros ? [n x] ?. apply pair_path_in2. apply funextfun. intros [i b].
-       reflexivity.
-Defined.
-
-Lemma appendCheck1 {X x} {y:X} : postDrop (append x y) = x.
-Proof. intros ? [n x] ?. apply pair_path_in2. 
-       unfold funcomp.
-       apply funextfun; intros [i b].
-       simpl.
-       induction (natlthorgeh i n) as [p|q].
-       { apply maponpaths. apply pair_path_in2. apply isasetbool. }
-       { destruct (q b). }
 Defined.
 
 Definition concatenate {X} : Sequence X -> Sequence X -> Sequence X.
@@ -135,15 +81,13 @@ Proof. intros. reflexivity. Defined.
 
 Open Scope multmonoid.
 
-(* Define x0 * x1 * ... * xn as (((...((0*x0) * x1) * x2) ... ) * xn).  This is
-the reverse of Bourbaki's choice, because other UniMath proofs by induction go
-this way.  See, for example, [stnsum] and [weqstnsum]. It also starts with 0. *)
+(* In a monoid, define x0 * x1 * ... * xn as (((...((0*x0) * x1) * x2) ... ) * xn). *)
 Definition sequenceProduct {M:monoid} (x:Sequence M) : M.
 Proof.
   intros ? [n x].
   induction n as [|n sequenceProduct].     
   { exact 1. }
-  { exact (sequenceProduct (postDrop (S n,,x)) * x (lastelement _)). }
+  { exact (sequenceProduct (pr2 (drop (S n,,x))) * x (lastelement _)). }
 Defined.
 
 Definition sequenceProductStep {M:monoid} {n} (x:stn (S n) -> M) :
@@ -183,6 +127,7 @@ Proof. intros. reflexivity. Defined.
 Theorem associativityOfProducts {M:monoid} (x:Sequence (Sequence M)) :
   sequenceProduct (flatten x) = doubleProduct x.
 Proof.
+  (* this proof comes from the Associativity theorem, Bourbaki, Algebra, Theorem 1, page 4. *)
   intros ? [n x].
   induction n as [|n IHn].
   { reflexivity. }
@@ -201,6 +146,5 @@ Proof.
       rewrite <- assocax.
       rewrite sequenceProductCheck.
       apply (maponpaths (fun u => u*w)).
-      apply IHm. }
-  }
+      apply IHm. } }
 Defined.

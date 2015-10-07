@@ -388,13 +388,15 @@ Defined.
 
 Lemma total2_paths2 {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
   {a2 : A} {b2 : B a2} (p : a1 = a2) 
-    (q : transportf (fun x => B x) p b1 = b2) : 
-      tpair (fun x => B x) a1 b1 = tpair (fun x => B x) a2 b2.
+    (q : transportf B p b1 = b2) : a1,,b1 = a2,,b2.
 Proof.
   intros.
   apply (@total2_paths _ _
     (tpair (fun x => B x) a1 b1) (tpair (fun x => B x) a2 b2) p q).
 Defined.
+
+Definition pair_path_in2 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) : x,,p = x,,q.
+Proof. intros. destruct e. reflexivity. Defined.
 
 Definition fiber_paths {A : UU} {B : A -> UU} {u v : Σ x, B x}
   (p : u = v) : transportf (fun x => B x) (base_paths _ _ p) (pr2 u) = pr2 v.

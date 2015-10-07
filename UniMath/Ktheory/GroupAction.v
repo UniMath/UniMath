@@ -407,8 +407,8 @@ Defined.
 
 Lemma trivialTorsorAuto_unit (G:gr) : 
   trivialTorsorAuto G (unel _) = idActionIso _.
-Proof. intros. refine (pair_path_props _ _).
-       { refine (pair_path_props _ _).
+Proof. intros. refine (total2_paths2_second_isaprop _ _).
+       { refine (total2_paths2_second_isaprop _ _).
          { apply funextsec; intro x; simpl. exact (runax G x). }
          { apply isapropisweq. } }
        { intro k. apply is_equivariant_isaprop. } Defined.
@@ -416,8 +416,8 @@ Proof. intros. refine (pair_path_props _ _).
 Lemma trivialTorsorAuto_mult (G:gr) (g h:G) :
   composeActionIso (trivialTorsorAuto G g) (trivialTorsorAuto G h) 
   = (trivialTorsorAuto G (op g h)).
-Proof. intros. refine (pair_path_props _ _).
-       { refine (pair_path_props _ _).
+Proof. intros. refine (total2_paths2_second_isaprop _ _).
+       { refine (total2_paths2_second_isaprop _ _).
          { apply funextsec; intro x; simpl. exact (assocax _ x g h). }
          { apply isapropisweq. } }
        { intro k. apply is_equivariant_isaprop. } Defined.

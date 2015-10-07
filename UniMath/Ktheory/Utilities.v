@@ -172,20 +172,10 @@ Proof. reflexivity. Defined.
 
 (** ** Paths between pairs *)
 
-Definition pair_path_in2 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) : x,,p = x,,q.
-Proof. intros. destruct e. reflexivity. Defined.
-
-Lemma total2_paths2' {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
-    {a2 : A} {b2 : B a2} (p : a1 = a2) 
-    (q : b1 = transportb (fun x => B x) p b2) : 
-    tpair (fun x => B x) a1 b1 = tpair (fun x => B x) a2 b2.
-Proof. intros. destruct p. apply pair_path_in2. exact q. Defined.
-
-(* We prefer [pair_path_props] to [total2_paths2]. *)
+(* Maybe replace uses of this by uses of total2_paths2_second_isaprop *)
 Definition pair_path_props {X} {P:X->Type} {x y:X} {p:P x} {q:P y} :
   x = y -> (∀ z, isaprop (P z)) -> x,,p = y,,q.
-Proof. intros ? ? ? ? ? ? e is. 
-       exact (total2_paths2 e (pr1 (is _ _ _))). Defined.
+Proof. intros ? ? ? ? ? ? e is. now apply total2_paths2_second_isaprop. Defined.
 
 Definition pair_path2 {A} {B:A->UU} {a a1 a2} {b1:B a1} {b2:B a2}
            (p:a1 = a) (q:a2 = a) (e:p#b1 = q#b2) : a1,,b1 = a2,,b2.
@@ -436,7 +426,7 @@ Lemma isaprop_NullHomotopyTo_0 {X} {Y} (is:isaset Y) (f:X->Y) :
 (** The point of X is needed, for when X is empty, then NullHomotopyTo f is
     equivalent to Y. *)
 Proof. intros ? ? ? ? x. apply invproofirrelevance. intros [r i] [s j].
-       apply (pair_path_props (!i x @ j x)).
+       apply (total2_paths2_second_isaprop (!i x @ j x)).
        apply (isaprop_nullHomotopyTo is). Defined.
 
 (** ** Squashing *)
