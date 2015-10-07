@@ -213,7 +213,23 @@ Proof . intro n . induction n as [ | n IHn ] . intros . simpl .  apply weqtoempt
 Corollary weqstnsum2 { X : UU } ( n : nat ) ( f : stn n -> nat ) ( g : X -> stn n ) ( ww : forall i : stn n , weq ( stn ( f i ) ) ( hfiber g i ) ) : weq X ( stn ( stnsum f ) ) .
 Proof. intros . assert ( w : weq X ( total2 ( fun i : stn n => hfiber g i ) ) ) . apply weqtococonusf . apply ( weqcomp w ( weqstnsum ( fun i : stn n => hfiber g i ) f ww ) ) .   Defined . 
 
+(** two generalizations of stnsum, potentially useful *)
 
+Definition foldleft {E} (e:E) (m:binop E) {n} (x:stn n -> E) : E.
+Proof.
+  intros.
+  induction n as [|n foldleft].
+  + exact e. 
+  + exact (m (foldleft (x ∘ (dni n (lastelement n)))) (x (lastelement n))).
+Defined.  
+
+Definition foldright {E} (m:binop E) (e:E) {n} (x:stn n -> E) : E.
+Proof.
+  intros.
+  induction n as [|n foldright].
+  + exact e. 
+  + exact (m (x (firstelement _)) (foldright (x ∘ dni n (firstelement n)))).
+Defined.  
 
 (** *** Weak equivalence between the direct product of [ stn n ] and [ stn m ] and [ stn n * m ] *)
 

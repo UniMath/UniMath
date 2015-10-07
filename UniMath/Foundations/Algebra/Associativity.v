@@ -29,25 +29,6 @@ Proof. intros ? [h hm]. apply natlthnsn. Defined.
 Lemma stnntosnle {n} (h:stn n) : allButLast h ≤ allButFirst h.
 Proof. intros ? [h hm]. apply natlehnsn. Defined.
 
-Definition foldleft {E} (e:E) (m:E->E->E) {n} (x:stn n -> E) : E.
-Proof.
-  intros.
-  induction n as [|n foldleft].
-  + exact e. 
-  + exact (m (foldleft (x ∘ allButLast)) (x (lastelement _))).
-Defined.  
-
-Definition foldright {E} (e:E) (m:E->E->E) {n} (x:stn n -> E) : E.
-Proof.
-  intros.
-  induction n as [|n foldright].
-  + exact e. 
-  + exact (m (x (firstelement _)) (foldright (x ∘ allButFirst))).
-Defined.  
-
-(* *)
-
-
 (** * Associativity theorem, as in Bourbaki, Algebra, Theorem 1, page 4. *)
 
 (** approach #1 *)
