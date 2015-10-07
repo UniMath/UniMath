@@ -30,7 +30,7 @@ Proof. intros ? [n x] ?.
          simpl.
          induction (natlthorgeh i n) as [r|s].
          { simpl. apply maponpaths. apply maponpaths. apply isasetbool. }
-         { simpl. induction (s b). }}
+         { simpl. contradicts b s. }}
 Defined.
 
 Definition doubleProduct {M:monoid} : Sequence (Sequence M) -> M.
