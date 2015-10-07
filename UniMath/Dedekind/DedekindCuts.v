@@ -9,19 +9,19 @@ Open Scope NnR_scope.
 
 (** ** Definition of Dedekind cuts *)
 
-Definition Dcuts_def_bot (X : NonnegativeRationals -> hProp) : hProp :=
-  ishinh (forall x : NonnegativeRationals, X x ->
-    forall y : NonnegativeRationals, y <= x -> X y).
-Definition Dcuts_def_open (X : NonnegativeRationals -> hProp) : hProp :=
-  ishinh (forall x : NonnegativeRationals, X x ->
-    hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y))).
-Definition Dcuts_def_bounded (X : NonnegativeRationals -> hProp) : hProp :=
+Definition Dcuts_def_bot (X : subset NonnegativeRationals) : UU :=
+  forall x : NonnegativeRationals, X x ->
+    forall y : NonnegativeRationals, y <= x -> X y.
+Definition Dcuts_def_open (X : subset NonnegativeRationals) : UU :=
+  forall x : NonnegativeRationals, X x ->
+    hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y)).
+Definition Dcuts_def_bounded (X : subset NonnegativeRationals) : hProp :=
   hexists (fun ub : NonnegativeRationals => neg (X ub)).
 
 Definition Dcuts_hsubtypes : hsubtypes (subset NonnegativeRationals) :=
-  (fun X : subset NonnegativeRationals => hconj (Dcuts_def_bot X)
-                           (hconj (Dcuts_def_open X)
-                                  (Dcuts_def_bounded X))).
+  fun X : subset NonnegativeRationals => hconj (ishinh (Dcuts_def_bot X))
+                                               (hconj (ishinh (Dcuts_def_open X))
+                                                      (Dcuts_def_bounded X)).
 Lemma isaset_Dcuts : isaset (carrier Dcuts_hsubtypes).
 Proof.
   apply isasetsubset with pr1.
@@ -31,24 +31,19 @@ Proof.
   apply pr2.
 Qed.
 Definition Dcuts : hSet := hSetpair _ isaset_Dcuts.
-Definition pr1Dcuts (x : Dcuts) : NonnegativeRationals -> hProp := pr1 x.
+Definition pr1Dcuts (x : Dcuts) : subset NonnegativeRationals := pr1 x.
 Notation "x ∈ X" := (pr1Dcuts X x) (at level 70, no associativity) : DC_scope.
 
 Open Scope DC_scope.
 
-Lemma is_Dcuts_bot (X : Dcuts) :
-  forall x : NonnegativeRationals, x ∈ X ->
-    forall y : NonnegativeRationals, y <= x -> y ∈ X.
+Lemma is_Dcuts_bot (X : Dcuts) : Dcuts_def_bot (pr1 X).
 Proof.
   destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
   intros r Xr y Hxy.
   revert Hbot ; apply hinhuniv ; intros Hbot.
   now apply Hbot with r.
 Qed.
-Lemma is_Dcuts_open (X : Dcuts) :
-  forall x : NonnegativeRationals, x ∈ X ->
-    hexists (fun y : NonnegativeRationals => dirprod (y ∈ X) (x < y)).
-
+Lemma is_Dcuts_open (X : Dcuts) : Dcuts_def_open (pr1 X).
 Proof.
   destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
   intros r Xr.
@@ -63,20 +58,14 @@ Proof.
   now apply Hbound.
 Qed.
 
-
 Definition mk_Dcuts (X : NonnegativeRationals -> hProp)
-                   (Hbot : forall x : NonnegativeRationals, X x ->
-                     forall y : NonnegativeRationals, y <= x -> X y)
-                   (Hopen : forall x : NonnegativeRationals, X x ->
-                     hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y)))
-                   (Hbound : hexists (fun ub : NonnegativeRationals => neg (X ub))) : Dcuts.
+                    (Hbot : Dcuts_def_bot X)
+                    (Hopen : Dcuts_def_open X)
+                    (Hbound : Dcuts_def_bounded X) : Dcuts.
 Proof.
-  intros.
   exists X ; repeat split.
-  intros P HP ; apply HP.
-  exact Hbot.
-  intros P HP ; apply HP.
-  exact Hopen.
+  now apply hinhpr.
+  now apply hinhpr.
   exact Hbound.
 Defined.
 
@@ -94,6 +83,7 @@ Qed.
 
 (** ** [Dcuts] is an ordered set *)
 (** *** Large orders and alternative definition of equality *)
+
 (** [Dcuts_le] is a partial order on [Dcuts] *)
 
 Definition Dcuts_le_rel : hrel Dcuts :=
@@ -601,6 +591,49 @@ Proof.
   exact (isub_Dcuts_glb E E_not_empty).
   exact (islbub_Dcuts_glb E E_not_empty).
 Qed.
+
+(** ** [Dcuts] is an [abmonoid] *)
+
+Section Dcuts_plus.
+
+  Context (X : subset NonnegativeRationals).
+  Context (X_bot : Dcuts_def_bot X).
+  Context (X_open : Dcuts_def_open X).
+  Context (X_bounded : Dcuts_def_bounded X).
+  Context (Y : subset NonnegativeRationals).
+  Context (Y_bot : Dcuts_def_bot Y).
+  Context (Y_open : Dcuts_def_open Y).
+  Context (Y_bounded : Dcuts_def_bounded Y).
+
+Definition Dcuts_plus_val : subset NonnegativeRationals :=
+  fun r => hdisj (hdisj (X r) (Y r))
+                 (hexists (fun xy => dirprod (r = (fst xy + snd xy)%NnR)
+                                             (dirprod (X (fst xy)) (Y (snd xy))))).
+Lemma Dcuts_plus_bot : Dcuts_def_bot Dcuts_plus_val.
+Proof.
+  intros r Hr n Hn.
+  revert Hr ; apply hinhfun ; intros [Hr | Hr].
+  - left.
+    revert Hr ; apply hinhfun ; intros [Hr | Hr].
+    + left.
+      now apply X_bot with r.
+    + right.
+      now apply Y_bot with r.
+  - right.
+    revert Hr ; apply hinhfun ; intros [(rx,ry) (Hr,(Hrx,Hry))].
+    simpl in Hr, Hrx, Hry.
+    (*set (nx := (rx * (n / r))%NnR).
+    set (ny := (ry * (n / r))%NnR).
+    
+Qed.*)
+Admitted.
+
+End Dcuts_plus.
+
+(* Definition Dcuts_plus (X Y : Dcuts) : Dcuts :=
+  mk_Dcuts (Dcuts_plus_val (pr1 X) (pr1 Y)). *)
+
+(* Lemma isabmonoidop_Dcuts : isabmonoidop Dcuts. *)
 
 (** * Definition of non-negative real numbers *)
 

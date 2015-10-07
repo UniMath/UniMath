@@ -87,6 +87,30 @@ Definition CompleteSet := total2 (fun X : UU => isCompleteSet X).
 Definition pr1CompleteSet : CompleteSet -> UU := pr1.
 Coercion pr1CompleteSet : CompleteSet >-> UU.
 
+(** ** For Fields *)
+
+Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
+
+Definition fld_to_addmonoid : fld -> monoid.
+Proof.
+  intro.
+  destruct X as (t,_).
+  destruct t.
+  exists (setwithbinop1 t).
+  now apply p.
+Defined.
+Definition fld_to_multmonoid : fld -> monoid.
+Proof.
+  intro.
+  destruct X as (t,_).
+  destruct t.
+  exists (setwithbinop2 t).
+  destruct p.
+  destruct t0.
+  destruct t0.
+  apply p1.
+Defined.
+
 (** ** for RationalNumbers.v *)
 
 Require Export UniMath.Foundations.RationalNumbers.

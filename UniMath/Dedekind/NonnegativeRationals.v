@@ -14,7 +14,7 @@ Open Scope hq_scope.
 
 (** ** Definition of non-negative rational numbers *)
 
-Local Definition hnnq_def := total2 (hqleh 0).
+Local Definition hnnq_def := carrier (hqleh 0).
 
 Local Definition hnnq_def_to_hq (r : hnnq_def) : hq := pr1 r.
 Coercion hnnq_def_to_hq : hnnq_def >-> pr1hSet.
@@ -30,29 +30,9 @@ Local Definition hnnq_set : hSet :=
 
 (** ** Equality and order on non-negative rational numbers *)
 
-(** *** Equality *)
-
-Local Definition hnnq_eq ( x y : hnnq_set) : hProp := 
-  hqeq (pr1 x) (pr1 y).
-Lemma isdecrel_hnnq_eq : isdecrel hnnq_eq.
-Proof.
-  intros (r1,H1) (r2,H2).
-  apply isdecrelhqeq.
-Qed.
-Local Definition hnnq_deceq : decrel hnnq_def :=
-  tpair _ hnnq_eq isdecrel_hnnq_eq.
-
-Local Definition hnnq_booleq := decreltobrel hnnq_deceq.
-
-Local Definition hnnq_neq ( x y : hnnq_def ) : hProp := hProppair ( neg (hnnq_eq  x y ) ) ( isapropneg _  )  .
-Local Definition isdecrel_hnnq_neq : isdecrel hnnq_neq  := isdecnegrel _ isdecrel_hnnq_eq . 
-Local Definition hnnq_decneq : decrel hnnq_def := decrelpair isdecrel_hnnq_neq . 
-
-Definition hnnq_boolneq := decreltobrel hnnq_decneq .
-
 (** *** Order *)
 
-Local Definition hnnq_le (x y : hnnq_set) : hProp := hqleh (pr1 x) (pr1 y).
+Local Definition hnnq_le : hrel hnnq_def := resrel hqleh (hqleh 0).
 Lemma isPartialOrder_hnnq_le : ispo hnnq_le.
 Proof.
   split.
@@ -62,7 +42,7 @@ Proof.
   now apply isreflhqleh.
 Qed.  
   
-Local Definition hnnq_ge (x y : hnnq_set) : hProp := hqgeh (pr1 x) (pr1 y).
+Local Definition hnnq_ge : hrel hnnq_def := resrel hqgeh (hqleh 0).
 Lemma isPartialOrder_hnnq_ge : ispo hnnq_ge.
 Proof.
   destruct isPartialOrder_hnnq_le as [Htrans Hrefl].
@@ -73,7 +53,7 @@ Proof.
   now apply Hrefl.
 Qed.
 
-Local Definition hnnq_lt (x y : hnnq_set) : hProp := hqlth (pr1 x) (pr1 y).
+Local Definition hnnq_lt : hrel hnnq_def := resrel hqlth (hqleh 0).
 Lemma isStrictPartialOrder_hnnq_lt : isStrictPartialOrder hnnq_lt.
 Proof.
   split.
@@ -83,7 +63,7 @@ Proof.
   now apply isirreflhqlth.
 Qed.
 
-Local Definition hnnq_gt (x y : hnnq_set) : hProp := hqgth (pr1 x) (pr1 y).
+Local Definition hnnq_gt : hrel hnnq_def := resrel hqgth (hqleh 0).
 Lemma isStrictPartialOrder_hnnq_gt : isStrictPartialOrder hnnq_gt.
 Proof.
   destruct isStrictPartialOrder_hnnq_lt as [Htrans Hirrefl].
@@ -94,70 +74,45 @@ Proof.
   now apply Hirrefl.
 Qed.
 
-(** ** Non-negative rational numbers are an abelian monoid *)
+(** ** Non-negative rational numbers are a commutative rig *)
 
-Local Definition hnnq_plus (x y : hnnq_set) : hnnq_set :=
-  hq_to_hnnq_def ((pr1 x) + (pr1 y)) (hq0lehandplus (pr1 x) (pr1 y) (pr2 x) (pr2 y)).
-
-Local Definition hnnq_setwithbinop : setwithbinop :=
-  tpair _ hnnq_set hnnq_plus.
-
-Lemma isassoc_hnnq_plus : isassoc hnnq_plus.
+Local Definition hnnq_plus_submonoid : issubmonoid (X := fld_to_addmonoid hq) (hqleh 0).
 Proof.
-  intros x y z.
-  apply total2_paths_isaprop.
-  intro.
-  now destruct (hqleh 0 a).
-  apply (hqplusassoc (pr1 x) (pr1 y) (pr1 z)).
-Qed.
-
-Local Definition hnnq_0 : hnnq_setwithbinop :=
-  hq_to_hnnq_def 0 (isreflhqleh 0).
-Lemma islunit_hnnq_plus_hnnq_0 :
-  islunit hnnq_plus hnnq_0.
-Proof.
-  intros x.
-  apply total2_paths_isaprop.
-  intro.
-  now destruct (hqleh 0 a).
-  apply (hqplusl0 (pr1 x)).
-Qed.
-Lemma isrunit_hnnq_plus_hnnq_0 :
-  isrunit hnnq_plus hnnq_0.
-Proof.
-  intros x.
-  apply total2_paths_isaprop.
-  intro.
-  now destruct (hqleh 0 a).
-  apply (hqplusr0 (pr1 x)).
-Qed.
-
-Lemma iscomm_hnnq_plus : iscomm hnnq_plus.
-Proof.
-  intros x y.
-  apply total2_paths_isaprop.
-  intro.
-  now destruct (hqleh 0 a).
-  now apply (hqpluscomm (pr1 x) (pr1 y)).
-Qed.
-
-Local Definition hnnq_abmonoid : abmonoid.
-Proof.
-  exists hnnq_setwithbinop.
-  simpl.
   split.
-  split.
-  exact isassoc_hnnq_plus.
-  exists hnnq_0.
-  split.
-  exact islunit_hnnq_plus_hnnq_0.
-  exact isrunit_hnnq_plus_hnnq_0.
-  exact iscomm_hnnq_plus.
+  intros (x,Hx) (y,Hy) ; simpl pr1.
+  now apply (hq0lehandplus x y Hx Hy).
+  apply isreflhqleh.
 Defined.
+Local Definition hnnq_mult_submonoid : issubmonoid (X := fld_to_multmonoid hq) (hqleh 0).
+Proof.
+  split.
+  intros (x,Hx) (y,Hy) ; simpl pr1.
+  apply (hqmultgeh0geh0 Hx Hy).
+  now apply hqlthtoleh, hq1_gt0.
+Defined.
+
+Local Definition hnnq_subrigs : issubrig (X := hq) (hqleh 0).
+Proof.
+  split.
+  apply hnnq_plus_submonoid.
+  apply hnnq_mult_submonoid.
+Defined.
+Local Definition hnnq_commrig : commrig.
+Proof.
+  apply (carrierofasubcommrig (X := hq)).
+  eexists.
+  apply hnnq_subrigs.
+Defined.
+
+Local Definition hnnq_commrig_to_def : hnnq_commrig -> hnnq_def := 
+  fun X : hnnq_commrig =>
+    match X with
+    | tpair _ r Hr => tpair (fun x : hq => 0 <= x) r Hr
+    end.
 
 (** * Exportable definitions and theorems *)
 
-Definition NonnegativeRationals : abmonoid := hnnq_abmonoid.
+Definition NonnegativeRationals : commrig := hnnq_commrig.
 Definition NonnegativeRationals_to_Rationals : NonnegativeRationals -> hq :=
   pr1.
 Definition Rationals_to_NonnegativeRationals (r : hq) (Hr : hqleh 0%hq r) : NonnegativeRationals :=
@@ -183,13 +138,18 @@ Notation "x > y" := (gtNonnegativeRationals x y) : NnR_scope.
 
 (** ** Constants and Functions *)
 
-Definition zeroNonnegativeRationals : NonnegativeRationals :=
-  unel NonnegativeRationals.
+Definition zeroNonnegativeRationals : NonnegativeRationals := 0%rig.
+Definition oneNonnegativeRationals : NonnegativeRationals := 1%rig.
+
 Definition plusNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
-  op x y.
+  (x + y)%rig.
+Definition multNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
+  (x * y)%rig.
 
 Notation "0" := zeroNonnegativeRationals : NnR_scope.
+Notation "1" := oneNonnegativeRationals : NnR_scope.
 Notation "x + y" := (plusNonnegativeRationals x y) : NnR_scope.
+Notation "x * y" := (multNonnegativeRationals x y) : NnR_scope.
 
 (** ** Theorems *)
 
