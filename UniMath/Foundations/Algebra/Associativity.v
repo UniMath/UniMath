@@ -140,6 +140,11 @@ Proof.
   { exact (append (IH (y ∘ allButLast)) (y (lastelement _))). }
 Defined.
 
+Definition concatenateStep {X}  (x : Sequence X) {n} (y : stn (S n) -> X) :
+  concatenate x (S n,,y) = append (concatenate x (n,,y ∘ allButLast)) (y (lastelement _)).
+Proof.
+Admitted.
+
 Definition flatten {X} : Sequence (Sequence X) -> Sequence X.
 Proof.
   intros ? [n x].
@@ -199,17 +204,27 @@ Lemma doubleProductStep {M:monoid} {n} (x:stn (S n) -> Sequence M) :
   doubleProduct (S n,,x) = doubleProduct (n,,x ∘ allButLast) * sequenceProduct (x (lastelement _)).
 Proof. intros. reflexivity. Defined.
 
-Theorem associativityOfProducts1 {M:monoid} (x:Sequence (Sequence M)) :
+Theorem associativityOfProducts {M:monoid} (x:Sequence (Sequence M)) :
   sequenceProduct (flatten x) = doubleProduct x.
 Proof.
   intros ? [n x].
   induction n as [|n IHn].
   { reflexivity. }
-  { 
-    
-    
-    rewrite flattenStep, doubleProductStep.
-    
-
-
-Abort.
+  { rewrite flattenStep, doubleProductStep.
+    generalize (x (lastelement n)) as z.
+    generalize (x ∘ allButLast) as y.
+    intros y [m z].
+    induction m as [|m IHm].
+    { change (sequenceProduct (0,, z)) with (unel M). rewrite runax.
+      change (concatenate (flatten (n,, y)) (0,, z)) with (flatten (n,, y)).
+      exact (IHn y). }
+    { rewrite sequenceProductStep, concatenateStep.
+      generalize (z (lastelement m)) as w.
+      generalize (z ∘ allButLast) as v.
+      intros.
+      rewrite <- assocax.
+      rewrite sequenceProductCheck.
+      apply (maponpaths (fun u => u*w)).
+      apply IHm. }
+  }
+Defined.
