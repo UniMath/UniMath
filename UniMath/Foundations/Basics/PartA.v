@@ -1846,7 +1846,7 @@ Defined.
 (** *** Pairwise coproducts as dependent sums of families over [ bool ] *)
 
 
-Fixpoint coprodtobool { X Y : UU } ( xy : coprod X Y ) : bool :=
+Definition coprodtobool { X Y : UU } ( xy : coprod X Y ) : bool :=
 match xy with
 ii1 x => true|
 ii2 y => false
