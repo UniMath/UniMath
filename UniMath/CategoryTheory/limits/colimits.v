@@ -12,6 +12,16 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
 
+Section move_upstream.
+
+Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (fun a => B a)))
+           (a : A) (p : B a) : a = pr1 (pr1 isc).
+Proof.
+exact (maponpaths pr1 (pr2 isc (tpair _ a p))).
+Defined.
+
+End move_upstream.
+
 Section diagram_def.
 
 Definition graph := Σ (D : UU) , D -> D -> UU.
@@ -48,7 +58,7 @@ Definition isColimitCocone {g : graph} (d : diagram g C) (c0 : C)
 (*   ∀ (c : C) (f : a ⇒ c) (g : b ⇒ c), *)
 (*     iscontr (Σ fg : co ⇒ c, (ia ;; fg = f) × (ib ;; fg = g)). *)
 
-Definition ColimitCocone {g : graph} (d : diagram g C) : UU := 
+Definition ColimitCocone {g : graph} (d : diagram g C) : UU :=
   Σ (A : Σ c0f : (Σ c0 : C, ∀ (v : vertex g), C⟦dob d v,c0⟧),
            ∀ (u v : vertex g) (e : edge u v), dmor d e ;; (pr2 c0f) v = (pr2 c0f) u),
     isColimitCocone d (pr1 (pr1 A)) (pr2 (pr1 A)) (pr2 A).
@@ -58,21 +68,23 @@ Definition ColimitCocone {g : graph} (d : diagram g C) : UU :=
 (*           isCoproductCocone a b (pr1 coiaib) (pr1 (pr2 coiaib)) (pr2 (pr2 coiaib)). *)
 
 Definition Colimits : UU := ∀ {g : graph} (d : diagram g C), ColimitCocone d.
-Definition hasColimits : UU  := ∀ {g : graph} (d : diagram g C), ishinh (ColimitCocone d).
+Definition hasColimits : UU  :=
+  ∀ {g : graph} (d : diagram g C), ishinh (ColimitCocone d).
 
 (* Definition Coproducts := ∀ (a b : C), CoproductCocone a b. *)
 (* Definition hasCoproducts := ishinh Coproducts. *)
 
-Definition ColimitBottom {g : graph} {d : diagram g C} (CC : ColimitCocone d) : C :=
-  pr1 (pr1 (pr1 CC)).
+Definition ColimitBottom {g : graph} {d : diagram g C}
+  (CC : ColimitCocone d) : C := pr1 (pr1 (pr1 CC)).
 
 Definition ColimitIn {g : graph} {d : diagram g C} (CC : ColimitCocone d) :
   ∀ (v : vertex g), C⟦dob d v,ColimitBottom CC⟧ :=
-  pr2 (pr1 (pr1 CC)).
+    pr2 (pr1 (pr1 CC)).
 
-Definition ColimitInCommutes {g : graph} {d : diagram g C} (CC : ColimitCocone d) :
-  ∀ (u v : vertex g) (e : edge u v), dmor d e ;; ColimitIn CC v = ColimitIn CC u :=
-  pr2 (pr1 CC).
+Definition ColimitInCommutes {g : graph} {d : diagram g C}
+  (CC : ColimitCocone d) : ∀ (u v : vertex g) (e : edge u v),
+   dmor d e ;; ColimitIn CC v = ColimitIn CC u :=
+     pr2 (pr1 CC).
 
 (* Definition CoproductObject {a b : C} (CC : CoproductCocone a b) : C := pr1 (pr1 CC). *)
 (* Definition CoproductIn1 {a b : C} (CC : CoproductCocone a b): a ⇒ CoproductObject CC := *)
@@ -80,8 +92,10 @@ Definition ColimitInCommutes {g : graph} {d : diagram g C} (CC : ColimitCocone d
 (* Definition CoproductIn2 {a b : C} (CC : CoproductCocone a b) : b ⇒ CoproductObject CC := *)
 (*    pr2 (pr2 (pr1 CC)). *)
 
-Definition isColimitCocone_ColimitCocone {g : graph} {d : diagram g C} (CC : ColimitCocone d) :
-  isColimitCocone d (ColimitBottom CC) (ColimitIn CC) (ColimitInCommutes CC) := pr2 CC.
+Definition isColimitCocone_ColimitCocone {g : graph} {d : diagram g C}
+  (CC : ColimitCocone d) :
+  isColimitCocone d (ColimitBottom CC) (ColimitIn CC) (ColimitInCommutes CC) :=
+   pr2 CC.
 
 Definition ColimitArrow {g : graph} {d : diagram g C} (CC : ColimitCocone d)
   (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧)
@@ -104,7 +118,7 @@ Defined.
 (* Defined. *)
 
 Lemma ColimitArrowCommutes {g : graph} {d : diagram g C} (CC : ColimitCocone d)
-  (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧) 
+  (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧)
   (Hc : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; fc v = fc u)
   (u : vertex g) :
   ColimitIn CC u ;; ColimitArrow CC c fc Hc = fc u.
@@ -126,14 +140,8 @@ Qed.
 (*   exact (pr2 (pr2 (pr1 (isCoproductCocone_CoproductCocone CC _ f g)))). *)
 (* Qed. *)
 
-Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (fun a => B a))) 
-           (a : A) (p : B a) : a = pr1 (pr1 isc).
-Proof.
-exact (maponpaths pr1 (pr2 isc (tpair _ a p))).
-Defined.
-
 Lemma ColimitArrowUnique {g : graph} {d : diagram g C} (CC : ColimitCocone d)
-  (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧) 
+  (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧)
   (Hc : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; fc v = fc u)
   (k : C⟦ColimitBottom CC,c⟧)
   (Hk : ∀ (u : vertex g), ColimitIn CC u ;; k = fc u) :
@@ -154,18 +162,18 @@ Qed.
 (* Qed. *)
 
 Lemma Cocone_postcompose {g : graph} {d : diagram g C}
-  (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧) 
+  (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧)
   (Hc : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; fc v = fc u)
   (x : C) (f : C⟦c,x⟧) : ∀ u v (e : edge u v), (dmor d e ;; (fc v ;; f) = fc u ;; f).
 Proof.
 intros u v e.
 now rewrite assoc, Hc.
 Qed.
-  
+
 Lemma ColimitArrowEta {g : graph} {d : diagram g C} (CC : ColimitCocone d)
-  (c : C) (f : C⟦ColimitBottom CC,c⟧) : 
+  (c : C) (f : C⟦ColimitBottom CC,c⟧) :
     f = ColimitArrow CC c (λ u, ColimitIn CC u ;; f)
-          (Cocone_postcompose (ColimitBottom CC) (ColimitIn CC) (ColimitInCommutes CC) c f).
+          (Cocone_postcompose _ _ (ColimitInCommutes CC) c f).
 Proof.
 apply ColimitArrowUnique.
 now intro u; apply idpath.
@@ -179,7 +187,7 @@ Qed.
 (*   apply idpath. *)
 (* Qed. *)
 
-Definition ColimitOfArrows {g : graph} (d1 d2 : diagram g C)
+Definition ColimitOfArrows {g : graph} {d1 d2 : diagram g C}
   (CC1 : ColimitCocone d1) (CC2 : ColimitCocone d2)
   (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e) :
@@ -190,6 +198,16 @@ refine (ColimitArrow _ _ _ _).
 - abstract (intros u v e; simpl;
             now rewrite assoc, fNat, <- assoc, ColimitInCommutes).
 Defined.
+
+Lemma ColimitOfArrowsIn {g : graph} (d1 d2 : diagram g C)
+  (CC1 : ColimitCocone d1) (CC2 : ColimitCocone d2)
+  (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e) :
+    ∀ u, ColimitIn CC1 u ;; ColimitOfArrows CC1 CC2 f fNat =
+         f u ;; ColimitIn CC2 u.
+Proof.
+now unfold ColimitOfArrows; intro u; rewrite ColimitArrowCommutes.
+Qed.
 
 (* Definition CoproductOfArrows {a b : C} (CCab : CoproductCocone a b) {c d : C} *)
 (*     (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d) :  *)
@@ -204,16 +222,20 @@ Defined.
 (*   apply CoproductIn1Commutes. *)
 (* Qed. *)
 
-(* Lemma CoproductOfArrowsIn2 {a b : C} (CCab : CoproductCocone a b) {c d : C} *)
-(*     (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d) :  *)
-(*     CoproductIn2 CCab ;; CoproductOfArrows CCab CCcd f g = g ;; CoproductIn2 CCcd. *)
-(* Proof. *)
-(*   unfold CoproductOfArrows. *)
-(*   apply CoproductIn2Commutes. *)
-(* Qed. *)
+Lemma preCompWithColimitOfArrows_subproof {g : graph} {d1 d2 : diagram g C}
+  (CC1 : ColimitCocone d1) (CC2 : ColimitCocone d2)
+  (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e)
+  (x : C) (k : ∀ (u : vertex g), C⟦dob d2 u,x⟧)
+  (Hx : ∀ (u v : vertex g) (e : edge u v), dmor d2 e ;; k v = k u) :
+    ∀ (u v : vertex g) (e : edge u v),
+      dmor d1 e;; (λ u0 : vertex g, f u0;; k u0) v =
+      (λ u0 : vertex g, f u0;; k u0) u.
+Proof.
+intros u v e; simpl.
+now rewrite <- (Hx u v e), !assoc, fNat.
+Qed.
 
-
-(* TODO: Adapt *)
 (* Lemma precompWithCoproductArrow {a b : C} (CCab : CoproductCocone a b) {c d : C} *)
 (*     (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d)  *)
 (*     {x : C} (k : c ⇒ x) (h : d ⇒ x) :  *)
@@ -229,58 +251,22 @@ Defined.
 (*     apply idpath. *)
 (* Qed. *)
 
-(* Definition ColimitOfArrows {g : graph} (d1 d2 : diagram g C) *)
-(*   (CC1 : ColimitCocone d1) (CC2 : ColimitCocone d2) *)
-(*   (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧) *)
-(*   (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e) : *)
-(*   C⟦ColimitBottom CC1,ColimitBottom CC2⟧. *)
-
-(* Definition ColimitArrow {g : graph} {d : diagram g C} (CC : ColimitCocone d) *)
-(*   (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧) *)
-(*   (Hc : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; fc v = fc u) : *)
-(*   C⟦ColimitBottom CC,c⟧. *)
-
-(* Lemma Cocone_postcompose {g : graph} {d : diagram g C} *)
-(*   (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧)  *)
-(*   (Hc : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; fc v = fc u) *)
-(*   (x : C) (f : C⟦c,x⟧) : ∀ u v (e : edge u v), (dmor d e ;; (fc v ;; f) = fc u ;; f). *)
-Lemma temp {g : graph} (d1 d2 : diagram g C) (CC1 : ColimitCocone d1) (CC2 : ColimitCocone d2)
-      (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (x : C) (k : ∀ (u : vertex g), C⟦dob d2 u,x⟧)
-  : ∀ (u v : vertex g) (e : edge u v),
- dmor d1 e;; (λ u0 : vertex g, f u0;; k u0) v =
- (λ u0 : vertex g, f u0;; k u0) u.
-
-   
-   
 Lemma precompWithColimitOfArrows {g : graph} (d1 d2 : diagram g C)
   (CC1 : ColimitCocone d1) (CC2 : ColimitCocone d2)
   (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e)
   (x : C) (k : ∀ (u : vertex g), C⟦dob d2 u,x⟧)
   (Hx : ∀ (u v : vertex g) (e : edge u v), dmor d2 e ;; k v = k u) :
-  ColimitOfArrows _ _ CC1 CC2 f fNat ;; ColimitArrow CC2 x k Hx =
-    (* ColimitOfArrows _ _ CC1 CC2 f fNat ;; ColimitArrow CC2 x k Hx = *)
-  ColimitArrow CC1 x (λ u, f u ;; k u) _. (Cocone_postcompose c  x k).
-  
-
-      {a b : C} (CCab : ColimitCocone a b) {c d : C}
-    (CCcd : ColimitCocone c d) (f : a ⇒ c) (g : b ⇒ d)
-    {x : C} (k : c ⇒ x) (h : d ⇒ x) :
-        ColimitOfArrows CCab CCcd f g ;; ColimitArrow CCcd k h =
-         ColimitArrow CCab (f ;; k) (g ;; h).
+  ColimitOfArrows CC1 CC2 f fNat ;; ColimitArrow CC2 x k Hx =
+  ColimitArrow CC1 x (λ u, f u ;; k u)
+     (preCompWithColimitOfArrows_subproof CC1 CC2 f fNat x k Hx).
 Proof.
-  apply ColimitArrowUnique.
-  - rewrite assoc. rewrite ColimitOfArrowsIn1.
-    rewrite <- assoc, ColimitIn1Commutes.
-    apply idpath.
-  - rewrite assoc, ColimitOfArrowsIn2.
-    rewrite <- assoc, ColimitIn2Commutes.
-    apply idpath.
+apply ColimitArrowUnique.
+now intro u; rewrite assoc, ColimitOfArrowsIn, <- assoc, ColimitArrowCommutes.
 Qed.
 
-
-Lemma postcompWithColimitArrow {g : graph} (D : diagram g C) (CC : ColimitCocone D)
+Lemma postcompWithColimitArrow {g : graph} (D : diagram g C)
+ (CC : ColimitCocone D)
  (c : C) (fc : ∀ u, C⟦dob D u,c⟧)
  (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u)
  (d : C) (k : C⟦c,d⟧) :
@@ -339,7 +325,7 @@ Qed.
 (*   apply pathsinv0. *)
 (*   apply (base_paths _ _ X'). *)
 (* Defined. *)
-  
+
 
 (* Lemma is_iso_from_Coproduct_to_Coproduct (CC CC' : CoproductCocone a b)  *)
 (*   : is_iso (from_Coproduct_to_Coproduct CC CC'). *)
@@ -364,7 +350,7 @@ Qed.
 (*     + rewrite assoc; unfold from_Coproduct_to_Coproduct. *)
 (*       repeat rewrite CoproductIn2Commutes; apply idpath. *)
 (* Defined. *)
-      
+
 (* Definition iso_from_Coproduct_to_Coproduct (CC CC' : CoproductCocone a b)  *)
 (*   : iso (CoproductObject CC) (CoproductObject CC')  *)
 (*   := isopair _ (is_iso_from_Coproduct_to_Coproduct CC CC'). *)
