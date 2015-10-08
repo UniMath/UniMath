@@ -5,13 +5,11 @@ Definition Sequence X := Σ n, stn n -> X.
 
 Definition length {X} : Sequence X -> nat := pr1.
 
+Local Definition empty_fun {X} : stn 0 -> X.
+Proof. intros ? i. contradicts i negstn0. Defined.
+
 Definition nil {X} : Sequence X.
-Proof.
-  intros.
-  exists 0.
-  intros i.
-  contradicts i negstn0.
-Defined.
+Proof. intros. exact (0,, empty_fun). Defined.
 
 Definition append {X} : Sequence X -> X -> Sequence X.
 Proof.
@@ -23,13 +21,37 @@ Proof.
   { exact y. }
 Defined.
 
-Definition nil_unique {X} (x : stn 0 -> X) : nil = (0,,x).
+Definition nil_unique {X} (x : stn 0 -> X) : (0,,x) = nil.
 Proof.
   intros.
   unfold nil.
   apply maponpaths.
   apply funextfun; intros i.
   contradicts i negstn0.
+Defined.
+
+(* induction principle for contractible types *)
+
+Definition isaset_transport (X : UU) (x : X) (P : X -> UU) (p : P x) (i : isaset X) (e : x = x) :
+  transportf P e p = p.
+Proof. intros. induction (pr1 (i x x (idpath _) e)). reflexivity. Defined.
+
+Definition iscontr_rect X (i : iscontr X) (x0 : X) (P : X -> UU) (p0 : P x0) : ∀ x:X, P x.
+Proof. intros. exact (transportf P (pr1 (isapropifcontr i x0 x)) p0). Defined.
+
+Definition iscontr_rect_compute X (i : iscontr X) (x : X) (P : X -> UU) (p : P x) :
+  iscontr_rect X i x P p x = p.
+Proof. intros. apply isaset_transport. apply isasetifcontr. exact i. Defined.
+
+(*  *)
+
+Definition nil_unique' {X} (x : Sequence X) : length x = 0 -> x = nil.
+Proof.
+  intros ? ? e.
+  induction x as [n x].
+  simpl in e.
+  induction (!e).
+  apply nil_unique.
 Defined.
 
 Definition drop {X} : Sequence X -> Sequence X.
@@ -86,8 +108,10 @@ Lemma Sequence_rect_nil {X} {P : Sequence X -> UU} (p0 : P nil)
   Sequence_rect p0 ind nil = p0.
 Proof.
   intros.
+  try reflexivity.
+  Opaque Sequence.
   simpl.
-  
+
 
 Abort.
 
