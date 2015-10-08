@@ -21,13 +21,16 @@ Proof.
   { exact y. }
 Defined.
 
+Definition stn0_fun_iscontr X : iscontr (stn 0 -> X).
+Proof.
+  intros. apply (@iscontrweqb _ (empty -> X)).
+  - apply invweq. apply weqbfun. apply weqstn0toempty.
+  - apply iscontrfunfromempty.
+Qed.  
+
 Definition nil_unique {X} (x : stn 0 -> X) : (0,,x) = nil.
 Proof.
-  intros.
-  unfold nil.
-  apply maponpaths.
-  apply funextfun; intros i.
-  contradicts i negstn0.
+  intros. apply pair_path_in2. apply isapropifcontr. apply stn0_fun_iscontr.
 Defined.
 
 (* induction principle for contractible types *)
@@ -35,6 +38,23 @@ Defined.
 Definition isaset_transport (X : UU) (x : X) (P : X -> UU) (p : P x) (i : isaset X) (e : x = x) :
   transportf P e p = p.
 Proof. intros. induction (pr1 (i x x (idpath _) e)). reflexivity. Defined.
+
+(* use induction *)
+
+Definition iscontr_rect' X (i : iscontr X) (x0 : X) (P : X -> UU) (p0 : P x0) : ∀ x:X, P x.
+Proof. intros. induction (pr1 (isapropifcontr i x0 x)). exact p0. Defined.
+
+Definition iscontr_rect_compute' X (i : iscontr X) (x : X) (P : X -> UU) (p : P x) :
+  iscontr_rect' X i x P p x = p.
+Proof.
+  intros.
+  (* this step might be a problem in more complicated situations: *)
+  unfold iscontr_rect'.
+  induction (pr1 (isasetifcontr i x x (idpath _) (pr1 (isapropifcontr i x x)))).
+  reflexivity.
+Defined.
+
+(* use transport explicitly *)
 
 Definition iscontr_rect X (i : iscontr X) (x0 : X) (P : X -> UU) (p0 : P x0) : ∀ x:X, P x.
 Proof. intros. exact (transportf P (pr1 (isapropifcontr i x0 x)) p0). Defined.
@@ -68,7 +88,6 @@ Proof.
   intros.
   apply (maponpaths (tpair _ (S n))).
   apply funextfun; intros [i b].
-  simpl.
   induction (natlehchoice4 i n b) as [p|p].
   - simpl; unfold funcomp.
     apply maponpaths.
@@ -76,9 +95,8 @@ Proof.
     apply isasetbool.
   - simpl.
     apply maponpaths.
-    unfold lastelement.
     induction p.
-    apply maponpaths.
+    apply pair_path_in2.
     apply isasetbool.
 Defined.
 
