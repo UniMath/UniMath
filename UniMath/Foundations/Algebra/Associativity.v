@@ -22,15 +22,15 @@ Proof. intros ? [n x] ?.
        rewrite sequenceProductStep.
        unfold funcomp.
        unfold lastelement.
-       induction (natlthorgeh n n) as [p|q].
-       { induction (isirreflnatlth _ p). }
+       induction (natlehchoice4 n n (natgthsnn (S n))) as [p|q].
+       { contradicts (isirreflnatlth n) p. }
        { apply (maponpaths (λ a, a * m)).
          apply (maponpaths (λ x, sequenceProduct (n,,x))).
          apply funextfun; intros [i b].
          simpl.
-         induction (natlthorgeh i n) as [r|s].
+         induction (natlehchoice4 i n (natlthtolths i n b)) as [r|s].
          { simpl. apply maponpaths. apply maponpaths. apply isasetbool. }
-         { simpl. contradicts b s. }}
+         { contradicts (natlthtoneq _ _ b) s. }}
 Defined.
 
 Definition doubleProduct {M:monoid} : Sequence (Sequence M) -> M.

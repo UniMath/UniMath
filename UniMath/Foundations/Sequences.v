@@ -10,7 +10,26 @@ Proof.
   intros.
   exists 0.
   intros i.
-  induction (negstn0 i).
+  contradicts i negstn0.
+Defined.
+
+Definition append {X} : Sequence X -> X -> Sequence X.
+Proof.
+  intros ? [m x] y.
+  exists (S m).
+  intros [i b].
+  induction (natlehchoice4 i m b) as [c|d].
+  { exact (x (i,,c)). }
+  { exact y. }
+Defined.
+
+Definition nil_unique {X} (x : stn 0 -> X) : nil = (0,,x).
+Proof.
+  intros.
+  unfold nil.
+  apply maponpaths.
+  apply funextfun; intros i.
+  contradicts i negstn0.
 Defined.
 
 Definition drop {X} : Sequence X -> Sequence X.
@@ -21,20 +40,72 @@ Proof.
   - exact (n,,x ∘ (dni_allButLast _)).
 Defined.
 
-Definition append {X} : Sequence X -> X -> Sequence X.
+Definition drop_and_append {X n} (x : stn (S n) -> X) :
+  append (n,,x ∘ (dni_allButLast _)) (x (lastelement n)) = (S n,, x).
 Proof.
-  intros ? [m x] y.
-  exists (S m).
-  intros [i b].
-  induction (natlthorgeh i m) as [c|d].
-  { exact (x (i,,c)). }
-  { exact y. }
+  intros.
+  apply (maponpaths (tpair _ (S n))).
+  apply funextfun; intros [i b].
+  simpl.
+  induction (natlehchoice4 i n b) as [p|p].
+  - simpl; unfold funcomp.
+    apply maponpaths.
+    apply pair_path_in2.
+    apply isasetbool.
+  - simpl.
+    apply maponpaths.
+    unfold lastelement.
+    induction p.
+    apply maponpaths.
+    apply isasetbool.
 Defined.
+
+Definition drop_and_append' {X n} (x : stn (S n) -> X) :
+  append (drop (S n,,x)) (x (lastelement n)) = (S n,, x).
+Proof.
+  intros.
+  apply drop_and_append.
+Defined.
+
+Definition Sequence_rect {X} {P : Sequence X -> UU}
+           (p0 : P nil)
+           (ind : ∀ (x : Sequence X) (y : X), P x -> P (append x y))
+           (x : Sequence X) : P x.
+Proof.
+  intros.
+  induction x as [n x].
+  induction n as [|n IH].
+  - induction (nil_unique x). exact p0.
+  - set (p := ind (n,,x ∘ (dni_allButLast _)) (x (lastelement _)) (IH (x ∘ dni_allButLast _))).
+    induction (drop_and_append x).
+    exact p.
+Defined.
+
+Lemma Sequence_rect_nil {X} {P : Sequence X -> UU} (p0 : P nil)
+      (ind : ∀ (s : Sequence X) (x : X), P s -> P (append s x)) :
+  Sequence_rect p0 ind nil = p0.
+Proof.
+  intros.
+  simpl.
+  
+
+Abort.
+
+Lemma Sequence_rect_cons
+      {X} {P : Sequence X -> UU} (p0 : P nil)
+      (ind : ∀ (s : Sequence X) (x : X), P s -> P (append s x))
+      (x:X) (l:Sequence X) :
+  Sequence_rect p0 ind (append l x) = ind l x (Sequence_rect p0 ind l). 
+Proof.
+  intros.
+
+Abort.
 
 Lemma append_length {X} (x:Sequence X) (y:X) :
   length (append x y) = S (length x).
 Proof.
-
+  intros.
+  try reflexivity.
 Admitted.
 
 Definition concatenate {X} : binop (Sequence X).
@@ -55,7 +126,9 @@ Admitted.
 Definition concatenateStep {X}  (x : Sequence X) {n} (y : stn (S n) -> X) :
   concatenate x (S n,,y) = append (concatenate x (n,,y ∘ (dni_allButLast _))) (y (lastelement _)).
 Proof. intros.
-       reflexivity.             (* why does this work? *)
+       Local Opaque append dni_allButLast lastelement.
+       simpl. (* just so we can see why reflexivity is about to work *)
+       reflexivity.
 Defined.
 
 Definition flatten {X} : Sequence (Sequence X) -> Sequence X.
