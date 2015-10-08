@@ -110,6 +110,25 @@ Local Definition hnnq_commrig_to_def : hnnq_commrig -> hnnq_def :=
     | tpair _ r Hr => tpair (fun x : hq => 0 <= x) r Hr
     end.
 
+Transparent hq.
+Lemma hqinv0 : / 0 = 0.
+Proof.
+  unfold hqmultinv, fldfracmultinv0, hqzero, unel ; simpl.
+  unfold commrngfracunel1 ; simpl.
+  rewrite (setquotfuncomm (eqrelcommrngfrac hz (intdomnonzerosubmonoid hzintdom))
+                          (eqrelcommrngfrac hz (intdomnonzerosubmonoid hzintdom))).
+  apply (iscompsetquotpr (eqrelcommrngfrac hz (intdomnonzerosubmonoid hzintdom))).
+  simpl.
+  intros P HP ; apply HP ; clear P HP.
+Admitted.
+Lemma hnnq_inv_ge0 (x : hnnq_commrig) : 0 <= / pr1 x.
+Proof.
+  intros (x,Hx) ; simpl pr1.
+  destruct (isdecrelhqeq x 0) as [Hx0 | Hx0] ; simpl in Hx0.
+  rewrite Hx0.
+Admitted.
+Local Definition hnnq_inv (x : hnnq_commrig) := hq_to_hnnq_def (/ (pr1 x)).
+
 (** * Exportable definitions and theorems *)
 
 Definition NonnegativeRationals : commrig := hnnq_commrig.
