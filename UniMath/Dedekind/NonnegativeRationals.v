@@ -5,8 +5,9 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 Unset Kernel Term Sharing.
 
-Require Export UniMath.Foundations.RationalNumbers.
+Require Import UniMath.Dedekind.Sets_comp.
 Require Import UniMath.Dedekind.Complements.
+
 
 Opaque hq.
 
@@ -111,23 +112,22 @@ Local Definition hnnq_commrig_to_def : hnnq_commrig -> hnnq_def :=
     end.
 
 Transparent hq.
-Lemma hqinv0 : / 0 = 0.
-Proof.
-  unfold hqmultinv, fldfracmultinv0, hqzero, unel ; simpl.
-  unfold commrngfracunel1 ; simpl.
-  rewrite (setquotfuncomm (eqrelcommrngfrac hz (intdomnonzerosubmonoid hzintdom))
-                          (eqrelcommrngfrac hz (intdomnonzerosubmonoid hzintdom))).
-  apply (iscompsetquotpr (eqrelcommrngfrac hz (intdomnonzerosubmonoid hzintdom))).
-  simpl.
-  intros P HP ; apply HP ; clear P HP.
-Admitted.
 Lemma hnnq_inv_ge0 (x : hnnq_commrig) : 0 <= / pr1 x.
 Proof.
   intros (x,Hx) ; simpl pr1.
   destruct (isdecrelhqeq x 0) as [Hx0 | Hx0] ; simpl in Hx0.
-  rewrite Hx0.
-Admitted.
-Local Definition hnnq_inv (x : hnnq_commrig) := hq_to_hnnq_def (/ (pr1 x)).
+  - rewrite Hx0, hqinv0.
+    apply hqlthtoleh, hq1_gt0.
+  - apply hqlehandmultlinv with x.
+    + apply hqneqchoice in Hx0.
+      destruct Hx0 as [Hx0 | Hx0].
+      * exact Hx0.
+      * now apply fromempty, Hx, Hx0.
+    + rewrite hqmultx0.
+      rewrite (hqisrinvmultinv _ Hx0).
+      now apply hqlthtoleh, hq1_gt0.
+Qed.
+Local Definition hnnq_inv (x : hnnq_commrig) : hnnq_commrig := hq_to_hnnq_def (/ (pr1 x)) (hnnq_inv_ge0 x).
 
 (** * Exportable definitions and theorems *)
 
@@ -138,6 +138,7 @@ Definition Rationals_to_NonnegativeRationals (r : hq) (Hr : hqleh 0%hq r) : Nonn
   tpair (fun x : hq => hqleh 0%hq x) r Hr.
 
 Delimit Scope NnR_scope with NnR.
+
 
 (** ** Order *)
 

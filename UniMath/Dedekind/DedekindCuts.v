@@ -1,8 +1,9 @@
 (** * Definition of Dedekind cuts for non-negative real numbers *)
 (** Catherine Lelay. Sep. 2015 *)
 
-Require Import UniMath.Dedekind.NonnegativeRationals.
+Require Import UniMath.Dedekind.Sets_comp.
 Require Import UniMath.Dedekind.Complements.
+Require Import UniMath.Dedekind.NonnegativeRationals.
 Require Import UniMath.Foundations.FunctionalExtensionality.
 
 Open Scope NnR_scope.
@@ -63,6 +64,7 @@ Definition mk_Dcuts (X : NonnegativeRationals -> hProp)
                     (Hopen : Dcuts_def_open X)
                     (Hbound : Dcuts_def_bounded X) : Dcuts.
 Proof.
+  intros X Hbot Hopen Hbound.
   exists X ; repeat split.
   now apply hinhpr.
   now apply hinhpr.
@@ -664,6 +666,7 @@ Coercion co_to_po : CompleteOrder >-> po.
 
 Definition lubNonnegativeReals (E : NonnegativeReals -> hProp) (Eub : hexists (isUpperBound leNonnegativeReals E)) : LeastUpperBound leNonnegativeReals E.
 Proof.
+  intros.
   exists (Dcuts_lub E Eub).
   apply islub_Dcuts_lub.
 Defined.
@@ -678,6 +681,7 @@ Defined.
 
 Definition glbNonnegativeReals (E : NonnegativeReals -> hProp) (Ene : hexists E) : LeastUpperBound geNonnegativeReals E.
 Proof.
+  intros.
   exists (Dcuts_glb E Ene).
   apply isglb_Dcuts_glb.
 Defined.
