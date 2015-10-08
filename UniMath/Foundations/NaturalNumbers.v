@@ -595,12 +595,13 @@ Proof.  intros n m g . destruct ( natgehchoice _ _ ( natgthtogehp1 _ _ g ) ) as 
 Lemma natlthchoice3 ( n m : nat ) : natlth n m -> coprod ( natlth ( n + 1 )  m ) ( paths ( n + 1 )  m ) .
 Proof.  intros n m l . destruct ( natlehchoice _ _ ( natlthtolehp1 _ _ l ) ) as [ l' | e ] . apply ( ii1 l' ) .  apply ( ii2 e ) .   Defined . 
    
-
-
-
-
-
-
+Lemma natlehchoice4 n m : n < S m -> coprod (n < m) (n = m).
+Proof.
+  intros ? ? b.
+  induction (natlthorgeh n m) as [p|p].
+  - exact (ii1 p).
+  - exact (ii2 (isantisymmnatleh _ _ (natlthsntoleh _ _ b) p)).
+Defined.
 
 (** *** Cancellation properties of [ plus ] on [ nat ] *)
 
