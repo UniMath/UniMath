@@ -359,7 +359,6 @@ Proof.
   exact colimit_functor_mor.
 Defined.
 
-
 Lemma is_functor_colimit_functor_data : is_functor colimit_functor_data.
 Proof.
   split; simpl; intros.
@@ -389,7 +388,6 @@ Qed.
 Definition colimit_functor : functor A C :=
   tpair _ _ is_functor_colimit_functor_data.
 
-
 Definition colimit_nat_trans_in_data :
  ∀ v : vertex g, [A, C, hsC] ⟦ dob D v, colimit_functor ⟧.
 Proof.
@@ -410,36 +408,38 @@ Defined.
 Lemma colimit_functor_unique (F : [A, C, hsC]) 
   (Fc : ∀ v : vertex g, [A, C, hsC] ⟦ dob D v, F ⟧)
   (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; Fc v = Fc u) :
-   iscontr
-     (Σ x : [A, C, hsC] ⟦ colimit_functor, F ⟧,
-      ∀ v : vertex g, colimit_nat_trans_in_data v ;; x = Fc v).
+   iscontr (Σ x : [A, C, hsC] ⟦ colimit_functor, F ⟧,
+            ∀ v : vertex g, colimit_nat_trans_in_data v ;; x = Fc v).
 Proof.
 refine (tpair _ _ _).
 - refine (tpair _ _ _).
   + refine (tpair _ _ _).
     * intro a.
-      set (T:= (ColimitArrow C (HC g (diagram_pointwise a))) (pr1 F a) (λ v, pr1 (Fc v) a)).
-      apply T.
-intros.
-set (X := Hc u v e).
-set (X' := nat_trans_eq_pointwise _ _ _ _ _ _ X).
-apply X'.
-*
-simpl.
-intros a a' f.
-simpl.
-unfold colimit_functor_mor.
-About precompWithColimitOfArrows.
-eapply pathscomp0.
-apply precompWithColimitOfArrows.
-About ColimitArrowUnique.
-set (T:= (ColimitArrowUnique _ (HC g (diagram_pointwise a)))).
-admit.
-+ admit.
-- admit.
-Admitted.
+      apply (ColimitArrow _ (HC g (diagram_pointwise a)) _ (λ v, pr1 (Fc v) a)).
+      intros u v e.
+      now apply (nat_trans_eq_pointwise _ _ _ _ _ _ (Hc u v e)).
+    * intros a a' f; simpl.
+      eapply pathscomp0; [now apply precompWithColimitOfArrows|].
+      apply pathsinv0.
+      eapply pathscomp0; [now apply postcompWithColimitArrow|].
+      apply ColimitArrowUnique.
+      intro u.
+      eapply pathscomp0; [now apply ColimitArrowCommutes|].
+      now apply pathsinv0, nat_trans_ax. 
+  + intro u.
+    apply (nat_trans_eq hsC); simpl; intro a.
+    now apply (ColimitArrowCommutes C (HC g (diagram_pointwise a))).
+- intro t; destruct t as [t1 t2].
+  simpl in *.
+  apply (total2_paths_second_isaprop); simpl.
+  + apply impred; intro u.
+    now apply functor_category_has_homsets.
+  + apply (nat_trans_eq hsC); simpl; intro a.
+    apply ColimitArrowUnique; intro u.
+    now rewrite <- (t2 u).
+Qed.
 
-Lemma temp : ColimitCocone [A,C,hsC] D.
+Lemma ColimitFunctorCocone : ColimitCocone [A,C,hsC] D.
 Proof.
 refine (tpair _ _ _).
 - refine (tpair _ _ _).
