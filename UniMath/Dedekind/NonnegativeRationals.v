@@ -112,24 +112,6 @@ Local Definition hnnq_commrig_to_def : hnnq_commrig -> hnnq_def :=
     | tpair _ r Hr => tpair (fun x : hq => 0 <= x) r Hr
     end.
 
-Transparent hq.
-Lemma hnnq_inv_ge0 (x : hnnq_commrig) : 0 <= / pr1 x.
-Proof.
-  intros (x,Hx) ; simpl pr1.
-  destruct (isdecrelhqeq x 0) as [Hx0 | Hx0] ; simpl in Hx0.
-  - rewrite Hx0, hqinv0.
-    apply hqlthtoleh, hq1_gt0.
-  - apply hqlehandmultlinv with x.
-    + apply hqneqchoice in Hx0.
-      destruct Hx0 as [Hx0 | Hx0].
-      * exact Hx0.
-      * now apply fromempty, Hx, Hx0.
-    + rewrite hqmultx0.
-      rewrite (hqisrinvmultinv _ Hx0).
-      now apply hqlthtoleh, hq1_gt0.
-Qed.
-Local Definition hnnq_inv (x : hnnq_commrig) : hnnq_commrig := hq_to_hnnq_def (/ (pr1 x)) (hnnq_inv_ge0 x).
-
 (** * Exportable definitions and theorems *)
 
 Definition NonnegativeRationals : commrig := hnnq_commrig.
