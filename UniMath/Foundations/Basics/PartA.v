@@ -385,10 +385,6 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
-Definition transportf_maponpaths_pr1 {X} {P:X->UU} {w w':total2 P} (p : w = w') :
-  transportf P (maponpaths pr1 p) (pr2 w) = pr2 w'.
-Proof. intros. destruct p. reflexivity. Defined.
-
 Definition transport_section X (x:X) (P:X -> UU) (f:∀ x:X, P x) (y:X) (e:x=y) :
   transportf P e (f x) = f y.
 Proof. intros. induction e. reflexivity. Defined.

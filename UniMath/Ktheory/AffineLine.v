@@ -353,7 +353,7 @@ Definition iscontrGuidedHomotopy_comp_2 {Y} :
         (GH_homotopy (thePoint (iscontrGuidedHomotopy T f s)) t0) =
         (idpath (f t0)).
 Proof. intros.
-       assert (a2 := transportf_maponpaths_pr1 (iscontrweqb_compute 
+       assert (a2 := fiber_paths (iscontrweqb_compute 
                       (weqfibtototal (GHomotopy f s) (fun y : Y => y = f t0)
                                      (fun y : Y =>
                                         ℤTorsorRecursion_weq (fun t : T => y = f t)

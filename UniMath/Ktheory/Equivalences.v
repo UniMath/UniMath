@@ -51,7 +51,7 @@ Proof. intros ? ? [f iw].
        intros.
        unfold isweq in iw.
        assert (a := pr2 (iw y) (hfiberpair f x r)).
-       assert (b := transportf_maponpaths_pr1 a).
+       assert (b := fiber_paths a).
        change (pr2 (pr1 (iw y))) with (p y) in b.
        refine (_@b).
        destruct r.

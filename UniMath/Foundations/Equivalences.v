@@ -52,7 +52,7 @@ Definition weq_to_Equivalence X Y : X ≃ Y -> Equivalence X Y.
   exact (makeEquivalence X Y f g p q' 
              (fun x => 
                  ! transportf_fun_idpath x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x))
-                 @ (transportf_maponpaths_pr1 (L x)))).
+                 @ (fiber_paths (L x)))).
 Defined.
 
 Definition path_inv_rotate_lr {X} {a b c:X} (r:a = b) (p:b = c) (q:a = c) :
