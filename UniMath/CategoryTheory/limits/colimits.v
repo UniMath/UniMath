@@ -12,8 +12,8 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
+(* Local Notation "F ⟶ G" := (nat_trans F G) (at level 39). *)
+(* Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35). *)
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -32,8 +32,7 @@ Lemma uniqueExists (A : UU) (P : A -> UU)
   (a b : A) (Ha : P a) (Hb : P b) : a = b.
 Proof.
 assert (H : tpair _ _ Ha = tpair _ _ Hb).
-  apply proofirrelevance.
-  now apply isapropifcontr.
+  now apply proofirrelevance, isapropifcontr.
 exact (base_paths _ _ H).
 Defined.
 
@@ -313,109 +312,78 @@ refine (uniqueExists _ _ ((pr2 CC) _ _ _) _ _ _ _).
 Qed.
 
 End colimit_def.
-  
 
-Section def_functor_pointwise_coprod.
+Section ColimitFunctor.
 
 Variable A C : precategory.
 Variable HC : Colimits C.
 Variable hsC : has_homsets C.
-
-Section colimit_functor.
-
 Variable g : graph.
 Variable D : diagram g [A, C, hsC].
 
 Definition diagram_pointwise (a : A) : diagram g C.
 Proof.
-  exists (fun v => pr1 (dob D v) a).
-  intros u v e.
-  apply (pr1 (dmor D e) a).
-Defined.                                         
-
-Definition colimit_functor_ob (a : A) : C :=
-  ColimitBottom _ (HC _ (diagram_pointwise a)).
-
-Definition colimit_functor_mor (a a' : A) (f : A⟦a, a'⟧) 
-  : colimit_functor_ob a ⇒ colimit_functor_ob a'.
-Proof.
-  refine (ColimitOfArrows _ _ _ _ _ ).
-  - intro u.
-    simpl.
-    apply (# (pr1 (dob D u)) f).
-  - abstract (intros u v e; simpl;
-    apply pathsinv0, (nat_trans_ax (dmor D e))).
+exists (fun v => pr1 (dob D v) a); intros u v e.
+now apply (pr1 (dmor D e) a).
 Defined.
-    
+
+Let HCg a := HC g (diagram_pointwise a).
+
+Definition ColimitFunctor_ob (a : A) : C := ColimitBottom _ (HCg a).
+
+Definition ColimitFunctor_mor (a a' : A) (f : A⟦a, a'⟧)
+  : ColimitFunctor_ob a ⇒ ColimitFunctor_ob a'.
+Proof.
+refine (ColimitOfArrows _ _ _ _ _).
+- now intro u; apply (# (pr1 (dob D u)) f).
+- abstract (now intros u v e; simpl; apply pathsinv0, (nat_trans_ax (dmor D e))).
+Defined.
+
 (*
-Definition coproduct_functor_mor (c c' : C) (f : c ⇒ c') 
+Definition coproduct_functor_mor (c c' : C) (f : c ⇒ c')
   : coproduct_functor_ob c ⇒ coproduct_functor_ob c'
   := CoproductOfArrows _ _ _ (#F f) (#G f).
  *)
 
-Definition colimit_functor_data : functor_data A C.
-Proof.
-  exists colimit_functor_ob.
-  exact colimit_functor_mor.
-Defined.
+Definition ColimitFunctor_data : functor_data A C :=
+  tpair _ _ ColimitFunctor_mor.
 
-Lemma is_functor_colimit_functor_data : is_functor colimit_functor_data.
+Lemma is_functor_ColimitFunctor_data : is_functor ColimitFunctor_data.
 Proof.
-  split; simpl; intros.
-  - unfold functor_idax; intros; simpl in *.
-    apply pathsinv0.
-    apply Colimit_endo_is_identity.
-    intro u.
-    unfold colimit_functor_mor.
-    rewrite ColimitOfArrowsIn.
-    rewrite (functor_id (dob D u)).
-    now apply id_left.
-  - unfold functor_compax, colimit_functor_mor;
-    intros; simpl in *.
-    unfold colimit_functor_mor.
-apply pathsinv0.
-eapply pathscomp0.
-apply precompWithColimitOfArrows.
-simpl.
-apply pathsinv0.
-apply ColimitArrowUnique.
-intro u.
-rewrite ColimitOfArrowsIn.
-rewrite (functor_comp (dob D u)).
-now rewrite assoc.
+split.
+- intro a; simpl.
+  apply pathsinv0, Colimit_endo_is_identity; intro u.
+  unfold ColimitFunctor_mor.
+  now rewrite ColimitOfArrowsIn, (functor_id (dob D u)), id_left.
+- intros a b c fab fbc; simpl; unfold ColimitFunctor_mor.
+  apply pathsinv0.
+  eapply pathscomp0; [now apply precompWithColimitOfArrows|].
+  apply pathsinv0, ColimitArrowUnique; intro u.
+  now rewrite ColimitOfArrowsIn, (functor_comp (dob D u)), assoc.
 Qed.
 
-Definition colimit_functor : functor A C :=
-  tpair _ _ is_functor_colimit_functor_data.
+Definition ColimitFunctor : functor A C :=
+  tpair _ _ is_functor_ColimitFunctor_data.
 
-Definition colimit_nat_trans_in_data :
- ∀ v : vertex g, [A, C, hsC] ⟦ dob D v, colimit_functor ⟧.
+Definition colimit_nat_trans_in_data v : [A, C, hsC] ⟦ dob D v, ColimitFunctor ⟧.
 Proof.
-intros v.
 refine (tpair _ _ _).
-intro a; simpl.
-unfold colimit_functor_ob.
-About ColimitIn.
-exact (ColimitIn C (HC g (diagram_pointwise a)) v).
-intros a a' f.
-
-simpl.
-unfold colimit_functor_mor.
-apply pathsinv0.
-now apply (ColimitOfArrowsIn _ _ _ (HC g (diagram_pointwise a)) (HC g (diagram_pointwise a'))).
+- intro a; exact (ColimitIn C (HCg a) v).
+- intros a a' f.
+  now apply pathsinv0, (ColimitOfArrowsIn _ _ _ (HCg a) (HCg a')).
 Defined.
 
-Lemma colimit_functor_unique (F : [A, C, hsC]) 
+Lemma ColimitFunctor_unique (F : [A, C, hsC])
   (Fc : ∀ v : vertex g, [A, C, hsC] ⟦ dob D v, F ⟧)
   (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; Fc v = Fc u) :
-   iscontr (Σ x : [A, C, hsC] ⟦ colimit_functor, F ⟧,
+   iscontr (Σ x : [A, C, hsC] ⟦ ColimitFunctor, F ⟧,
             ∀ v : vertex g, colimit_nat_trans_in_data v ;; x = Fc v).
 Proof.
 refine (tpair _ _ _).
 - refine (tpair _ _ _).
   + refine (tpair _ _ _).
     * intro a.
-      apply (ColimitArrow _ (HC g (diagram_pointwise a)) _ (λ v, pr1 (Fc v) a)).
+      apply (ColimitArrow _ (HCg a) _ (λ v, pr1 (Fc v) a)).
       intros u v e.
       now apply (nat_trans_eq_pointwise _ _ _ _ _ _ (Hc u v e)).
     * intros a a' f; simpl.
@@ -425,12 +393,11 @@ refine (tpair _ _ _).
       apply ColimitArrowUnique.
       intro u.
       eapply pathscomp0; [now apply ColimitArrowCommutes|].
-      now apply pathsinv0, nat_trans_ax. 
+      now apply pathsinv0, nat_trans_ax.
   + intro u.
     apply (nat_trans_eq hsC); simpl; intro a.
-    now apply (ColimitArrowCommutes C (HC g (diagram_pointwise a))).
+    now apply (ColimitArrowCommutes _ (HCg a)).
 - intro t; destruct t as [t1 t2].
-  simpl in *.
   apply (total2_paths_second_isaprop); simpl.
   + apply impred; intro u.
     now apply functor_category_has_homsets.
@@ -443,18 +410,14 @@ Lemma ColimitFunctorCocone : ColimitCocone [A,C,hsC] D.
 Proof.
 refine (tpair _ _ _).
 - refine (tpair _ _ _).
-  + exists colimit_functor.
-    apply colimit_nat_trans_in_data.
-  + abstract (simpl;
-    intros u v e;
-    apply (nat_trans_eq hsC);
-    intro a; simpl;
-    apply (ColimitInCommutes C (HC g (diagram_pointwise a)))).
-- simpl.
-intros F Fc Hc.
-apply colimit_functor_unique.
-exact Hc.
+  + exists ColimitFunctor.
+    now apply colimit_nat_trans_in_data.
+  + abstract (now intros u v e; apply (nat_trans_eq hsC);
+                  intro a; apply (ColimitInCommutes C (HCg a))).
+- now intros F Fc Hc; simpl; apply (ColimitFunctor_unique _ _ Hc).
 Defined.
+
+End ColimitFunctor.
 
 (* Lemma is_nat_trans_coproduct_nat_trans_in1_data  *)
 (*   : is_nat_trans _ _ coproduct_nat_trans_in1_data. *)
@@ -554,7 +517,7 @@ Defined.
 (* Qed.  *)
 
 (* End vertex. *)
-  
+
 
 (* Lemma coproduct_nat_trans_univ_prop (A : [C, D, hsD]) *)
 (*   (f : (F : [C,D,hsD]) ⇒ A) (g : (G : [C,D,hsD]) ⇒ A) : *)
