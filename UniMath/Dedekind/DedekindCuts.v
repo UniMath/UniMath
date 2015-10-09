@@ -4,7 +4,6 @@
 Require Import UniMath.Dedekind.Sets_comp.
 Require Import UniMath.Dedekind.Complements.
 Require Import UniMath.Dedekind.NonnegativeRationals.
-Require Import UniMath.Foundations.FunctionalExtensionality.
 
 Open Scope NnR_scope.
 
