@@ -128,6 +128,7 @@ Proof. intros. destruct e. reflexivity. Defined.
 
 Definition weqpr1_irr_sec {X} {P:X->Type}
            (irr:∀ x (p q:P x), p = q) (sec:Section P) : weq (totalSpace P) X.
+(* compare with weqpr1 *)
 Proof. intros.
        set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
        apply Equivalence_to_weq.
@@ -138,6 +139,7 @@ Proof. intros.
 
 Definition invweqpr1_irr_sec {X} {P:X->Type}
            (irr:∀ x (p q:P x), p = q) (sec:Section P) : X ≃ (totalSpace P).
+(* compare with weqpr1 *)
 Proof. intros.
        set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
        apply Equivalence_to_weq.
@@ -218,3 +220,4 @@ Local Variables:
 compile-command: "make -C ../.. TAGS TAGS-Ktheory UniMath/Ktheory/Equivalences.vo"
 End:
 *)
+
