@@ -1,6 +1,15 @@
 Require Export UniMath.Foundations.StandardFiniteSets.
 Unset Automatic Introduction.
 
+(* move upstream *)
+
+Definition transport_section X (x:X) (P:X -> UU) (f:∀ x:X, P x) (y:X) (e:x=y) :
+  transportf P e (f x) = f y.
+Proof. intros. induction e. reflexivity. Defined.
+
+(* *)
+
+
 Definition Sequence X := Σ n, stn n -> X.
 
 Definition length {X} : Sequence X -> nat := pr1.
@@ -72,15 +81,9 @@ Proof.
   set (fib  := P x0).
   set (destr := (λ f, f x0) : secs->fib).
   set (constr:= iscontr_rect X is x0 P).
-  apply invweq.
-  refine (constr,,gradth constr destr _ _).
+  refine (destr,,gradth destr constr _ _).
+  - intros f. apply funextsec; intros x. apply transport_section.
   - apply iscontr_rect_compute.
-  - intros f.
-    unfold constr, destr.
-    unfold iscontr_rect.
-    apply funextsec; intros x.
-    induction (pr1 (isapropifcontr is x0 x)).
-    reflexivity.
 Defined.
 
 (*  *)
