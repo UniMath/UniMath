@@ -4,6 +4,7 @@
 Require Import UniMath.Dedekind.Sets_comp.
 Require Import UniMath.Dedekind.Complements.
 Require Import UniMath.Dedekind.NonnegativeRationals.
+Require Import UniMath.Foundations.FunctionalExtensionality.
 
 Open Scope NnR_scope.
 
@@ -562,6 +563,49 @@ Proof.
   exact (isub_Dcuts_glb E E_not_empty).
   exact (islbub_Dcuts_glb E E_not_empty).
 Qed.
+
+(** ** [Dcuts] is an [abmonoid] *)
+
+Section Dcuts_plus.
+
+  Context (X : subset NonnegativeRationals).
+  Context (X_bot : Dcuts_def_bot X).
+  Context (X_open : Dcuts_def_open X).
+  Context (X_bounded : Dcuts_def_bounded X).
+  Context (Y : subset NonnegativeRationals).
+  Context (Y_bot : Dcuts_def_bot Y).
+  Context (Y_open : Dcuts_def_open Y).
+  Context (Y_bounded : Dcuts_def_bounded Y).
+
+Definition Dcuts_plus_val : subset NonnegativeRationals :=
+  fun r => hdisj (hdisj (X r) (Y r))
+                 (hexists (fun xy => dirprod (r = (fst xy + snd xy)%NnR)
+                                             (dirprod (X (fst xy)) (Y (snd xy))))).
+Lemma Dcuts_plus_bot : Dcuts_def_bot Dcuts_plus_val.
+Proof.
+  intros r Hr n Hn.
+  revert Hr ; apply hinhfun ; intros [Hr | Hr].
+  - left.
+    revert Hr ; apply hinhfun ; intros [Hr | Hr].
+    + left.
+      now apply X_bot with r.
+    + right.
+      now apply Y_bot with r.
+  - right.
+    revert Hr ; apply hinhfun ; intros [(rx,ry) (Hr,(Hrx,Hry))].
+    simpl in Hr, Hrx, Hry.
+    (*set (nx := (rx * (n / r))%NnR).
+    set (ny := (ry * (n / r))%NnR).
+    
+Qed.*)
+Admitted.
+
+End Dcuts_plus.
+
+(* Definition Dcuts_plus (X Y : Dcuts) : Dcuts :=
+  mk_Dcuts (Dcuts_plus_val (pr1 X) (pr1 Y)). *)
+
+(* Lemma isabmonoidop_Dcuts : isabmonoidop Dcuts. *)
 
 (** * Definition of non-negative real numbers *)
 

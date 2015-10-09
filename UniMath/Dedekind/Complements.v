@@ -27,6 +27,26 @@ Proof.
   exact hzone_neg_hzzero.
 Defined.
 
+Opaque hz.
+Lemma hqinv0 : / 0 = 1.
+Proof.
+  unfold hqmultinv, fldfracmultinv0, hqzero, hqone, unel ; simpl.
+  unfold commrngfracunel1 ; simpl.
+  rewrite (setquotfuncomm (eqrelcommrngfrac hz (intdomnonzerosubmonoid hzintdom))
+                          (eqrelcommrngfrac hz (intdomnonzerosubmonoid hzintdom))
+                          (fldfracmultinvint hzintdom isdeceqhz)
+                          (fldfracmultinvintcomp hzintdom isdeceqhz) _).
+  unfold fldfracmultinvint.
+  destruct isdeceqhz as [H|H] ; simpl in H.
+  - apply (iscompsetquotpr (eqrelcommrngfrac hz (intdomnonzerosubmonoid hzintdom))).
+    intros P HP ; apply HP ; clear P HP ; simpl pr1.
+    exists one_intdomnonzerosubmonoid.
+    simpl.
+    change 1%multmonoid with 1%hz.
+    now rewrite !hzmultr1.
+  - now apply fromempty, H, paths_refl.
+Qed.
+
 Lemma hq2eq1plus1 :
   2 = 1 + 1.
 Proof.
