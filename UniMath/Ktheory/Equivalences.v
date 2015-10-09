@@ -208,34 +208,36 @@ Section A.
 
 End A.
 
-Definition Equiv X Y :=
+Definition Equivalence X Y :=
   Σ (f:X->Y) (g:Y->X) (p:∀ y, f(g y) = y) (q:∀ x, g(f x) = x),
       ∀ x, ap f (q x) = p(f x).
 
-Definition makeEquiv X Y f g p q h := (f,,(g,,(p,,(q,,h)))) : Equiv X Y.
+Notation "X ≅ Y" := (Equivalence X Y) (at level 80, no associativity) : type_scope.
 
-Definition mapEquiv {X Y} (f:Equiv X Y) : X->Y := pr1 f.
+Definition makeEquivalence X Y f g p q h := (f,,(g,,(p,,(q,,h)))) : X ≅ Y.
 
-Coercion mapEquiv : Equiv >-> Funclass.
+Definition mapEquivalence {X Y} (f:X ≅ Y) : X->Y := pr1 f.
 
-Definition invMap {X Y} : Equiv X Y -> Y->X.
+Coercion mapEquivalence : Equivalence >-> Funclass.
+
+Definition invMap {X Y} : Equivalence X Y -> Y->X.
 Proof. intros ? ? f. exact (pr1 (pr2 f)). Defined.
 
-Definition homotEquivInvequiv {X Y} (f:Equiv X Y) : ∀ y, f (invMap f y) = y
+Definition homot_EquivalenceInverseEquivalence {X Y} (f:Equivalence X Y) : ∀ y, f (invMap f y) = y
   := pr1 (pr2 (pr2 f)).
 
-Definition homotInvequivEquiv {X Y} (f:Equiv X Y) : ∀ y, invMap f (f y) = y
+Definition homot_InverseEquivalenceEquivalence {X Y} (f:Equivalence X Y) : ∀ y, invMap f (f y) = y
   := pr1 (pr2 (pr2 (pr2 f))).
 
-Definition EquivAdjointness {X Y} (f:Equiv X Y)
-  : ∀ x, ap f (homotInvequivEquiv f x) = homotEquivInvequiv f (f x)
+Definition EquivalenceAdjointness {X Y} (f:Equivalence X Y)
+  : ∀ x, ap f (homot_InverseEquivalenceEquivalence f x) = homot_EquivalenceInverseEquivalence f (f x)
   := pr2 (pr2 (pr2 (pr2 f))).
 
-Definition invEquiv {X Y} : Equiv X Y -> Equiv Y X.
-Proof. intros ? ? [f [g [p [q h]]]]. refine (makeEquiv Y X g f q p _).
+Definition invEquivalence {X Y} : Equivalence X Y -> Equivalence Y X.
+Proof. intros ? ? [f [g [p [q h]]]]. refine (makeEquivalence Y X g f q p _).
        intro y. apply other_adjoint. assumption. Defined.
 
-Definition weq_to_Equiv X Y : X ≃ Y -> Equiv X Y.
+Definition weq_to_Equivalence X Y : X ≃ Y -> Equivalence X Y.
   intros ? ? [f r].
   unfold isweq in r.
   set (g := fun y => hfiberpr1 f y (thePoint (r y))).
@@ -244,13 +246,13 @@ Definition weq_to_Equiv X Y : X ≃ Y -> Equiv X Y.
   set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
   set (q := fun x => ap pr1 (L x)).
   set (q' := fun x => !q x).  
-  refine (makeEquiv X Y f g p q' 
+  refine (makeEquivalence X Y f g p q' 
              (fun x => 
                  ! transportf_fun_idpath x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x))
                  @ (ap_pr2 (L x)))).
 Defined.
 
-Definition weq_to_Equiv_inv X Y : X ≃ Y -> Equiv Y X.
+Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
   intros ? ? [f r].
   unfold isweq in r.
   set (g := fun y => hfiberpr1 f y (thePoint (r y))).
@@ -259,37 +261,37 @@ Definition weq_to_Equiv_inv X Y : X ≃ Y -> Equiv Y X.
   set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
   set (q := fun x => ap pr1 (L x)).
   set (q' := fun x => !q x).  
-  refine (makeEquiv Y X g f q' p _).
+  refine (makeEquivalence Y X g f q' p _).
   intro y.
   admit.
 Admitted.
 
-Definition Equiv_to_weq X Y : Equiv X Y -> X ≃ Y.
+Definition Equivalence_to_weq X Y : Equivalence X Y -> X ≃ Y.
 Proof. intros ? ? [f [g [p [q h]]]]. exists f. unfold isweq. intro y.
        exists (g y,,p y). intros [x []]. apply (total2_paths2 (!q x)). 
        refine (_ @ h x). destruct (q x). reflexivity. Defined.
 
-Definition Equiv_to_invweq X Y : Equiv X Y -> Y ≃ X.
+Definition Equivalence_to_invweq X Y : Equivalence X Y -> Y ≃ X.
 Proof. intros ? ? [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
        exists (f x,,q x). intros [y []]. apply (total2_paths2 (!p y)). 
        admit.
 Admitted.
 
-Module Equiv'.
+Module Equivalence'.
   Record data X Y := make {
          f :> X -> Y; g : Y -> X;
          p : ∀ y, f(g y) = y;
          q : ∀ x, g(f x) = x;
          h : ∀ x y (r:f x = y), 
              transportf (fun x':X => f x' = y) (! q x @ ap g r) r = p y }.
-End Equiv'.
+End Equivalence'.
 
-Definition Equiv'_to_weq X Y : Equiv'.data X Y -> X ≃ Y.
+Definition Equivalence'_to_weq X Y : Equivalence'.data X Y -> X ≃ Y.
 Proof. intros ? ? a. destruct a. exists f. unfold isweq. intro y.
        exists (g y,,p y). intros [x r]. 
        exact (total2_paths2 (! q x @ ap g r) (h x y r)). Defined.
 
-Goal (* weq_to_Equiv' *) ∀ X Y, X ≃ Y -> Equiv'.data X Y.
+Goal (* weq_to_Equivalence' *) ∀ X Y, X ≃ Y -> Equivalence'.data X Y.
 Proof. intros ? ? [f iw].
        set (g := fun y => hfiberpr1 f y (thePoint (iw y))).
        set (p := fun y => pr2 (pr1 (iw y))).
@@ -297,7 +299,7 @@ Proof. intros ? ? [f iw].
        set (L := fun x => pr2 (iw (f x)) (hfiberpair f x (idpath (f x)))).
        set (q := fun x => ap pr1 (L x)).
        set (q' := fun x => !q x).  
-       refine (Equiv'.make X Y f g p q' _).
+       refine (Equivalence'.make X Y f g p q' _).
        intros.
        unfold isweq in iw.
        assert (a := pr2 (iw y) (hfiberpair f x r)).
@@ -310,9 +312,9 @@ Proof. intros ? ? [f iw].
        rewrite transportf_fun_idpath.
        { rewrite pathsinv0inv0. admit. } reflexivity. Admitted.
 
-Goal (* invequiv' *) ∀ X Y, Equiv'.data X Y -> Equiv'.data Y X.
+Goal (* invequiv' *) ∀ X Y, Equivalence'.data X Y -> Equivalence'.data Y X.
 Proof. intros ? ? [f g p q h].
-       refine (Equiv'.make Y X g f (fun y => q y) (fun x => p x) _).
+       refine (Equivalence'.make Y X g f (fun y => q y) (fun x => p x) _).
        intros. destruct r. rewrite ap_idpath. rewrite pathscomp0rid.
        admit. Admitted.
 
@@ -380,8 +382,8 @@ Definition weqpr1_irr_sec {X} {P:X->Type}
            (irr:∀ x (p q:P x), p = q) (sec:Section P) : weq (totalSpace P) X.
 Proof. intros.
        set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
-       apply Equiv_to_weq.
-       refine (makeEquiv _ _ _ _ _ _ _).
+       apply Equivalence_to_weq.
+       refine (makeEquivalence _ _ _ _ _ _ _).
        { exact pr1. } { intro x. exact (x,,sec x). } { intro x. reflexivity. }
        { intros [x p]. simpl. apply pair_path_in2. apply irr. }
        { intros [x p]. simpl. apply pair_path_in2_comp1. } Defined.
@@ -390,8 +392,8 @@ Definition invweqpr1_irr_sec {X} {P:X->Type}
            (irr:∀ x (p q:P x), p = q) (sec:Section P) : X ≃ (totalSpace P).
 Proof. intros.
        set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
-       apply Equiv_to_weq.
-       refine (makeEquiv _ _ _ _ _ _ _).
+       apply Equivalence_to_weq.
+       refine (makeEquivalence _ _ _ _ _ _ _).
        { intro x. exact (x,,sec x). } { exact pr1. }
        { intros [x p]. simpl. apply pair_path_in2. apply irr. }
        { intro x. reflexivity. }
@@ -465,6 +467,6 @@ Defined.
 
 (*
 Local Variables:
-compile-command: "make -C ../.. TAGS UniMath/Ktheory/Equivalences.vo"
+compile-command: "make -C ../.. TAGS TAGS-Ktheory UniMath/Ktheory/Equivalences.vo"
 End:
 *)

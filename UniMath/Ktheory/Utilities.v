@@ -621,10 +621,10 @@ Proof. intros. exact (!pr1_eqweqmap2 _ @ ap pr1 (weqpathsweq w)). Defined.
 Definition weqpath_cast {X Y} (w:X ≃ Y) (x:X) : cast (weqtopaths w) = w.
 Proof. intros. exact (pr1_eqweqmap _ @ ap pr1 (weqpathsweq w)). Defined.
 
-Definition swequiv {X Y} (f:X ≃ Y) {x y} : y = f x -> invweq f y = x.
+Definition switch_weq {X Y} (f:X ≃ Y) {x y} : y = f x -> invweq f y = x.
 Proof. intros ? ? ? ? ? p. exact (ap (invweq f) p @ homotinvweqweq f x). Defined.
 
-Definition swequiv' {X Y} (f:X ≃ Y) {x y} : invweq f y = x -> y = f x.
+Definition switch_weq' {X Y} (f:X ≃ Y) {x y} : invweq f y = x -> y = f x.
 Proof. intros ? ? ? ? ? p. exact (! homotweqinvweq f y @ ap f p). Defined.
 
 Definition weqbandfrel {X Y T} 

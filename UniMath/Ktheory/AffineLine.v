@@ -48,7 +48,7 @@ Lemma ℤRecursionUniq (P:ℤ->Type) (p0:P zero)
   iscontr (totalSpace (ℤRecursionData0 P p0 IH IH')).
 Proof. intros.
        unfold ℤRecursionData0.
-       (* use hNatRecursionEquiv *)
+       (* use hNatRecursion_weq *)
        apply (iscontrweqb (Y :=  
             Σ f:∀ w, P (negpos w),
               (f (ii2 O) = p0) ×
@@ -138,18 +138,18 @@ Proof. intros.
        { intros [f [h0 h]]. reflexivity. }
        { intros [[f h] h0]. reflexivity. } Defined.
 
-Lemma ℤRecursionEquiv (P:ℤ->Type) 
+Lemma ℤRecursion_weq (P:ℤ->Type) 
       (IH :∀ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∀ n, P(- toℤ n) -> P(- toℤ (S n))) :
   weq (totalSpace (ℤRecursionData P IH IH')) (P 0).
 Proof. intros. exists (fun f => pr1 f zero). intro p0.
        apply (iscontrweqf (A _ _ _ _)). apply ℤRecursionUniq. Defined.
 
-Lemma ℤRecursionEquiv_compute (P:ℤ->Type) 
+Lemma ℤRecursion_weq_compute (P:ℤ->Type) 
       (IH :∀ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∀ n, P(- toℤ n) -> P(- toℤ (S n))) 
       (fh : totalSpace (ℤRecursionData P IH IH')) :
-  ℤRecursionEquiv P IH IH' fh = pr1 fh zero.
+  ℤRecursion_weq P IH IH' fh = pr1 fh zero.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
@@ -158,7 +158,7 @@ Defined.
 Definition ℤBiRecursionData (P:ℤ->Type) (IH :∀ i, P(i) -> P(1+i)) := 
   fun f:∀ i, P i => ∀ i, f(1+i)=IH i (f i).
 
-Definition ℤBiRecursionEquiv (P:ℤ->Type) (IH :∀ i, weq (P i) (P(1+i))) :
+Definition ℤBiRecursion_weq (P:ℤ->Type) (IH :∀ i, weq (P i) (P(1+i))) :
   weq (totalSpace (ℤBiRecursionData P IH)) (P 0).
 Proof. intros.
        assert (k : ∀ n, one + toℤ n = toℤ (S n)).
@@ -172,7 +172,7 @@ Proof. intros.
        set (l' := fun n => weq_transportf P (k' n)).
        set (ih := fun n => weqcomp (IH (toℤ n)) (l n)).
        set (ih':= fun n => (weqcomp (l' n) (invweq (IH (- toℤ (S n)))))).
-       set (G := ℤRecursionEquiv P ih ih'). refine (weqcomp _ G).
+       set (G := ℤRecursion_weq P ih ih'). refine (weqcomp _ G).
        apply weqfibtototal. intro f. unfold ℤRecursionData, ℤBiRecursionData.
        refine (weqcomp (weqonsecbase _ negpos) _).
        refine (weqcomp (weqsecovercoprodtoprod _) _).
@@ -190,10 +190,10 @@ Proof. intros.
            unfold l'. rewrite weq_transportf_comp.
            reflexivity. } } Defined.
 
-Definition ℤBiRecursionEquiv_compute (P:ℤ->Type)
+Definition ℤBiRecursion_weq_compute (P:ℤ->Type)
            (IH :∀ i, weq (P i) (P(1+i))) 
       (fh : totalSpace (ℤBiRecursionData P IH)) :
-  ℤBiRecursionEquiv P IH fh = pr1 fh 0.
+  ℤBiRecursion_weq P IH fh = pr1 fh 0.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
@@ -208,7 +208,7 @@ Definition GuidedSection {T:Torsor ℤ}
      f:Section P => 
        ∀ t, f (one + t) = IH t (f t).
 
-Definition ℤTorsorRecursionEquiv {T:Torsor ℤ} (P:T->Type) 
+Definition ℤTorsorRecursion_weq {T:Torsor ℤ} (P:T->Type) 
       (IH:∀ t, weq (P t) (P (one + t))) (t0:T) :
   weq (totalSpace (GuidedSection P IH)) (P t0).
 Proof. intros. exists (fun fh => pr1 fh t0). intro q.
@@ -231,44 +231,44 @@ Proof. intros. exists (fun fh => pr1 fh t0). intro q.
          { unfold l0. rewrite (k0 i). reflexivity. }
          { unfold IH'. unfold weqcomp; simpl.
            rewrite (homotinvweqweq (l0 i)). reflexivity. } }
-       exact (pr2 (ℤBiRecursionEquiv (fun i => P(w i)) IH') (e #' q)).
+       exact (pr2 (ℤBiRecursion_weq (fun i => P(w i)) IH') (e #' q)).
 Defined.
 
 Definition ℤTorsorRecursion_compute {T:Torsor ℤ} (P:T->Type) 
       (IH:∀ t, weq (P t) (P (one + t))) t h :
-  ℤTorsorRecursionEquiv P IH t h = pr1 h t.
+  ℤTorsorRecursion_weq P IH t h = pr1 h t.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
 Definition ℤTorsorRecursion_inv_compute {T:Torsor ℤ} (P:T->Type) 
       (IH:∀ t, weq (P t) (P (one + t)))
       (t0:T) (h0:P t0) :
-  pr1 (invmap (ℤTorsorRecursionEquiv P IH t0) h0) t0 = h0.
+  pr1 (invmap (ℤTorsorRecursion_weq P IH t0) h0) t0 = h0.
 Proof. intros.
        exact (! ℤTorsorRecursion_compute P IH t0 
-                (invmap (ℤTorsorRecursionEquiv P IH t0) h0) 
+                (invmap (ℤTorsorRecursion_weq P IH t0) h0) 
                 @ 
-                homotweqinvweq (ℤTorsorRecursionEquiv P IH t0) h0). Defined.
+                homotweqinvweq (ℤTorsorRecursion_weq P IH t0) h0). Defined.
 
 Definition ℤTorsorRecursion_transition {T:Torsor ℤ} (P:T->Type) 
       (IH:∀ t, weq (P t) (P (one + t)))
       (t:T)
       (h:totalSpace (GuidedSection P IH)) :
-  ℤTorsorRecursionEquiv P IH (one+t) h
+  ℤTorsorRecursion_weq P IH (one+t) h
   = 
-  IH t (ℤTorsorRecursionEquiv P IH t h).
+  IH t (ℤTorsorRecursion_weq P IH t h).
 Proof. intros. rewrite 2!ℤTorsorRecursion_compute. exact (pr2 h t). Defined.
 
 Definition ℤTorsorRecursion_transition_inv {T:Torsor ℤ} (P:T->Type) 
       (IH:∀ t, weq (P t) (P (one + t)))
       (t:T) :
   ∀ h0,
-  invmap (ℤTorsorRecursionEquiv P IH t) h0
+  invmap (ℤTorsorRecursion_weq P IH t) h0
   = 
-  invmap (ℤTorsorRecursionEquiv P IH (one+t)) (IH t h0).
+  invmap (ℤTorsorRecursion_weq P IH (one+t)) (IH t h0).
 Proof. intros.
        assert (a := ℤTorsorRecursion_transition P IH t
-                    (invmap (ℤTorsorRecursionEquiv P IH t) h0)).
+                    (invmap (ℤTorsorRecursion_weq P IH t) h0)).
        rewrite homotweqinvweq in a. rewrite <- a.
        rewrite homotinvweqweq. reflexivity. Defined.
 
@@ -277,8 +277,8 @@ Definition ℤTorsorRecursion {T:Torsor ℤ} (P:T->Type)
       (t t':T) :
   weq (P t) (P t').
 Proof. intros.
-       exact (weqcomp (invweq (ℤTorsorRecursionEquiv P IH t))
-                      (ℤTorsorRecursionEquiv P IH t')). Defined.  
+       exact (weqcomp (invweq (ℤTorsorRecursion_weq P IH t))
+                      (ℤTorsorRecursion_weq P IH t')). Defined.  
 
 (** ** Guided null-homotopies from ℤ-torsors 
 
@@ -330,7 +330,7 @@ Proof. intros. apply (squash_to_prop (torsor_nonempty T)).
           by a corollary of it, with the new center. *)
        apply ( iscontrweqb (Y := Σ y:Y, y = f t0)).
        { apply weqfibtototal; intro y.
-         exact (ℤTorsorRecursionEquiv _ (fun t => weq_pathscomp0r _ _) t0). }
+         exact (ℤTorsorRecursion_weq _ (fun t => weq_pathscomp0r _ _) t0). }
        apply iscontrcoconustot. Defined.
 
 Corollary proofirrGuidedHomotopy {Y} (T:Torsor ℤ) (f:T->Y) (s:target_paths f) :
@@ -356,7 +356,7 @@ Proof. intros.
        assert (a2 := ap_pr2 (iscontrweqb_compute 
                       (weqfibtototal (GHomotopy f s) (fun y : Y => y = f t0)
                                      (fun y : Y =>
-                                        ℤTorsorRecursionEquiv (fun t : T => y = f t)
+                                        ℤTorsorRecursion_weq (fun t : T => y = f t)
                                                               (fun t : T => weq_pathscomp0r y (s t)) t0))
                       (iscontrcoconustot Y (f t0))) 
                 : @paths (GHomotopy f s (f t0)) _ _).
@@ -366,7 +366,7 @@ Proof. intros.
                                (iscontrweqb
                                   (weqfibtototal (GHomotopy f s) (fun y : Y => y = f t0)
                                                  (fun y : Y =>
-                                                    ℤTorsorRecursionEquiv (fun t : T => y = f t)
+                                                    ℤTorsorRecursion_weq (fun t : T => y = f t)
                                                                           (fun t : T => weq_pathscomp0r y (s t)) t0))
                                   (iscontrcoconustot Y (f t0)))))
                            =
@@ -375,7 +375,7 @@ Proof. intros.
                  (ap pr1
                      (compute_pr2_invmap_weqfibtototal
                         (fun y : Y =>
-                           ℤTorsorRecursionEquiv
+                           ℤTorsorRecursion_weq
                              (fun t : T => y = f t)
                              (fun t : T => weq_pathscomp0r y (s t)) t0)
                         (f t0,, idpath (f t0)))) @ _).
@@ -396,7 +396,7 @@ Defined.
 Definition makeGuidedHomotopy {T:Torsor ℤ} {Y} (f:T->Y)
            (s:target_paths f) {y:Y} t0 (h0:y=f t0) : 
   GuidedHomotopy f s.
-Proof. intros. exact (y ,, invweq (ℤTorsorRecursionEquiv 
+Proof. intros. exact (y ,, invweq (ℤTorsorRecursion_weq 
                (fun t : T => y = f t)
                (fun t => weq_pathscomp0r y (s t))
                t0) h0). Defined.
