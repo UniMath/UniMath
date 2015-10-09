@@ -82,6 +82,10 @@ To make a TAGS file for use with emacs ```etags``` commands:
 ```bash
 $ make TAGS
 ```
+To make a TAGS file dealing with a single package, for example, ```Foundations```:
+```bash
+$ make TAGS-Foundations
+```
 
 To install UniMath in the ```user-contrib``` directory of Coq, for use by other developments:
 ```bash

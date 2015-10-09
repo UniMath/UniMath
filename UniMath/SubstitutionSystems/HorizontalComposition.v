@@ -5,7 +5,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.SubstitutionSystems.UnicodeNotations.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 (*Require Import CategoryTheory.whiskering.*)
 (*Require Import CategoryTheory.FunctorAlgebras.*)
 Require Import UniMath.SubstitutionSystems.Auxiliary.

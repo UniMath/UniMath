@@ -1,10 +1,15 @@
-AbelianGroup.v
+## these files will be moved out of UniMath eventually, as they aren't part of the Foundations:
 Circle.v
 AffineLine.v
-GroupAction.v
 Halfline.v
-Nat.v
 MetricTree.v
+Integers.v
+Nat.v
+Equivalences.v
+##
+
+GroupAction.v
+AbelianGroup.v
 Group.v
 AbelianMonoid.v
 Monoid.v
@@ -23,10 +28,8 @@ Representation.v
 Elements.v
 StandardCategories.v
 ZeroObject.v
-Primitive.v
+InitialAndFinalObject.v
 Precategories.v
 Interval.v
-Equivalences.v
 Utilities.v
 Tactics.v
-Integers.v

@@ -46,6 +46,8 @@ Definition hProppair ( X : UU ) ( is : isaprop X ) : hProp := tpair (fun X : UU 
 Definition hProptoType := @pr1 _ _ : hProp -> UU .
 Coercion hProptoType: hProp >-> UU.
 
+Definition propproperty (P:hProp) := pr2 P : isaprop (pr1 P).
+
 (** ** The type [ tildehProp ] of pairs ( P , p : P ) where [ P : hProp ] *)
 
 Definition tildehProp := total2 ( fun P : hProp => P ) .
@@ -88,8 +90,11 @@ Lemma isapropishinh ( X : UU ) : isaprop ( ishinh_UU X ).
 Proof. intro. apply impred . intro P . apply impred.  intro. apply ( pr2 P ) .  Defined . 
 
 Definition ishinh ( X : UU ) : hProp := hProppair ( ishinh_UU X ) ( isapropishinh X ) .
-(* Canonical Structure ishinh .  (** RR1 *) *)
 
+Notation nonempty := ishinh (only parsing).
+
+Notation "∥ A ∥" := (ishinh A) (at level 200) : type_scope.
+(* written \|| *)
 
 Definition hinhpr ( X : UU ) : X -> ishinh X := fun x : X => fun P : hProp  => fun f : X -> P => f x .
 

@@ -13,8 +13,8 @@ Proof. intros ? ? ? e. set (f := fun t:bool => if t then y else y').
 
 (** ** An easy proof of functional extensionality for sections using the interval *)
 
-Definition funextsec2 X (Y:X->Type) (f g:forall x,Y x) :
-           (forall x, f x = g x) -> f = g.
+Definition funextsec2 X (Y:X->Type) (f g:∀ x,Y x) :
+           (∀ x, f x = g x) -> f = g.
 Proof. intros ? ? ? ? e.
        exact (maponpaths (fun h x => interval_map (e x) h) interval_path).
 Defined.
