@@ -419,6 +419,12 @@ Defined.
 
 End ColimitFunctor.
 
+Lemma ColimitsFunctorCategory (A C : precategory) (hsC : has_homsets C)
+  (HC : Colimits C) : Colimits [A,C,hsC].
+Proof.
+now intros g d; apply ColimitFunctorCocone.
+Qed.
+
 (* Lemma is_nat_trans_coproduct_nat_trans_in1_data  *)
 (*   : is_nat_trans _ _ coproduct_nat_trans_in1_data. *)
 (* Proof. *)
