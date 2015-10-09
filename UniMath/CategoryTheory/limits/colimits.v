@@ -54,6 +54,17 @@ Definition dob {g : graph} {C : precategory} (d : diagram g C) : vertex g -> C :
 Definition dmor {g : graph} {C : precategory} (d : diagram g C) :
   ∀ {a b}, edge a b -> C⟦dob d a,dob d b⟧ := pr2 d.
 
+Section diagram_from_functor.
+
+Variables (J C : precategory).
+Variable (F : functor J C).
+
+Definition graph_from_precategory : graph := pr1 (pr1 J).
+Definition diagram_from_functor : diagram graph_from_precategory C :=
+  tpair _ _ (pr2 (pr1 F)).
+
+End diagram_from_functor.
+
 End diagram_def.
 
 Section colimit_def.
