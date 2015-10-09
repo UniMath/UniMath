@@ -8,7 +8,7 @@ Proof.
   intros ? [n x].
   induction n as [|n sequenceProduct].     
   { exact 1. }
-  { exact (sequenceProduct (pr2 (drop (S n,,x))) * x (lastelement _)). }
+  { exact (sequenceProduct (pr2 (drop (S n,,x) (negpathssx0 _))) * x (lastelement _)). }
 Defined.
 
 Definition sequenceProductStep {M:monoid} {n} (x:stn (S n) -> M) :

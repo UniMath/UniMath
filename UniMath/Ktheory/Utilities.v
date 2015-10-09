@@ -4,6 +4,7 @@ Global Unset Automatic Introduction.
 Require Export UniMath.Foundations.Basics.All.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.FunctionalExtensionality.
+Require Import UniMath.Foundations.Equivalences.
 Require Export UniMath.Ktheory.Tactics.
 
 Notation "'∃!'  x .. y , P" := (iscontr (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
@@ -11,7 +12,6 @@ Notation "'not' X" := (X -> empty) (at level 35).
 Notation set_to_type := pr1hSet.
 Notation ap := maponpaths.
 (* see table 3.1 in the coq manual for parsing levels *)
-Notation "g ∘ f" := (funcomp f g) (at level 50).
 Notation "f ;; g" := (funcomp f g) (at level 50).
 (* funcomp' is like funcomp, but with the arguments in the other order *)
 Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
@@ -97,28 +97,9 @@ Definition pathsinv0_to_right'' {X} {x:X} (p:x = x) :
 Proof. intros ? ? ? e. apply pathsinv0_to_right'. rewrite pathscomp0rid.
        exact e. Defined.
 
-Definition path_inverse_from_right {X} {x y:X} (p q:x = y) : !q@p = idpath _ -> p = q.
-Proof. intros ? ? ? ? ? e. destruct q. exact e. Defined.
-
-Definition path_inverse_from_right' {X} {x y:X} (p q:x = y) : p@!q = idpath _ -> p = q.
-Proof. intros ? ? ? ? ? e. destruct q.
-       intermediate_path (p @ idpath x).
-       { apply pathsinv0. apply pathscomp0rid. } exact e. Defined.
-
 Definition loop_power_nat {Y} {y:Y} (l:y = y) (n:nat) : y = y.
 Proof. intros. induction n as [|n p]. 
        { exact (idpath _). } { exact (p@l). } Defined.
-
-Definition post_cat {X} {x y z:X} {q:y = z} : x = y -> x = z.
-Proof. intros ? ? ? ? p q. exact (pathscomp0 q p). Defined.
-
-Definition pre_cat {X} {x y z:X} {q:x = y} : y = z -> x = z.
-Proof. intros ? ? ? ? p q. exact (pathscomp0 p q). Defined.
-
-Ltac ap_pre_post_cat := 
-  repeat rewrite path_assoc; repeat apply (ap post_cat); repeat rewrite <- path_assoc; 
-  repeat apply (ap pre_cat); repeat rewrite path_assoc; repeat rewrite maponpathsinv0; 
-  try reflexivity.
 
 Definition pathscomp0_linj {X} {x y z:X} {p:x = y} {q q':y = z} (r:p@q = p@q') : q = q'.
 Proof. intros. destruct p. exact r. Defined.
@@ -133,32 +114,10 @@ Proof. intros.
        { intros. destruct r. reflexivity. }
        exact (pathscomp0_rinj (k y p @ !k y q)). Defined.
 
-Definition path_inv_rotate_lr {X} {a b c:X} (r:a = b) (p:b = c) (q:a = c) :
-  q = r @ p -> q @ !p = r.
-Proof. intros ? ? ? ? ? ? ? e. destruct p. destruct q. rewrite pathscomp0rid in e. 
-       exact e. Defined.
-
-Definition path_inv_rotate_rr {X} {a b c:X} (r:a = b) (p:b = c) (q:a = c) :
-  r @ p = q -> r = q @ !p.
-Proof. intros ? ? ? ? ? ? ? e. destruct p. destruct q. rewrite pathscomp0rid in e. 
-       exact e. Defined.
-
-Definition path_inv_rotate_ll {X} {a b c:X} (p:a = b) (r:b = c) (q:a = c) :
-  q = p @ r -> !p @ q = r.
-Proof. intros ? ? ? ? ? ? ? e. destruct p. destruct q. exact e. Defined.
-
-Definition path_inv_rotate_rl {X} {a b c:X} (p:a = b) (r:b = c) (q:a = c) :
-  p @ r = q -> r = !p @ q.
-Proof. intros ? ? ? ? ? ? ? e. destruct p. destruct q. exact e. Defined.
-
 Definition path_inv_rotate_2 {X} {a b c d:X} (p:a = b) (p':c = d) (q:a = c) (q':b = d) :
   q @ p' = p @ q' -> p' @ ! q' = !q @ p.
 Proof. intros ? ? ? ? ? ? ? ? ?. destruct q,q'. simpl.
        repeat rewrite pathscomp0rid. apply idfun. Defined.
-
-Definition path_comp_inv_inv {X} {a b c:X} (p:a = b) (q:b = c) :
-  ! q @ ! p = ! (p @ q).
-Proof. intros. destruct p,q. reflexivity. Defined.
 
 (** ** Pairs *)
 
@@ -193,17 +152,13 @@ Definition pair_path_in2_comp1 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) :
   ap pr1 (pair_path_in2 P e) = idpath x.
 Proof. intros. destruct e. reflexivity. Defined.
 
-Definition ap_pr2 {X} {P:X->UU} {w w':totalSpace P} (p : w = w') :
-  transportf P (ap pr1 p) (pr2 w) = pr2 w'.
-Proof. intros. destruct p. reflexivity. Defined.
-
 Definition total2_paths2_comp1 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
            (p:x = x') (q:p#y = y') : ap pr1 (total2_paths2 p q) = p.
 Proof. intros. destruct p. destruct q. reflexivity. Defined.
 
 Definition total2_paths2_comp2 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
            (p:x = x') (q:p#y = y') :
-  ! app (total2_paths2_comp1 p q) y @ ap_pr2 (total2_paths2 p q) = q.
+  ! app (total2_paths2_comp1 p q) y @ transportf_maponpaths_pr1 (total2_paths2 p q) = q.
 Proof. intros. destruct p, q. reflexivity. Defined.
 
 (** ** Maps from pair types *)
@@ -233,7 +188,7 @@ Definition fromemptysec { X : empty -> UU } (nothing:empty) : X nothing.
 (* compare with [fromempty] in u00 *)
 Proof. intros X H.  destruct H. Defined. 
 
-Definition ap_idpath {X Y} {f:X->Y} {x:X} : ap f (idpath x) = idpath (f x).
+Definition maponpaths_idpath {X Y} {f:X->Y} {x:X} : ap f (idpath x) = idpath (f x).
 Proof. intros. reflexivity. Defined.
 
 (** ** Transport *)
@@ -252,14 +207,10 @@ Proof. intros. destruct e. reflexivity. Defined.
 Definition transportfbinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P u) : e#e#'p = p.
 Proof. intros. destruct e. reflexivity. Defined.
 
-Lemma transportf_fun_idpath {X Y} {f:X->Y} x x' (w:x = x') (t:f x = f x) :
-              transportf (fun x' => f x' = f x) w (idpath (f x)) = ap f (!w).
-Proof. intros ? ? k. destruct w. reflexivity. Qed.
-
 Definition transport_fun_path {X Y} {f g:X->Y} {x x':X} {p:x = x'} {e:f x = g x} {e':f x' = g x'} :
   e @ ap g p = ap f p @ e' -> 
   transportf (fun x => f x = g x) p e = e'.
-Proof. intros ? ? ? ? ? ? ? ? ? k. destruct p. rewrite ap_idpath in k. rewrite ap_idpath in k.
+Proof. intros ? ? ? ? ? ? ? ? ? k. destruct p. rewrite maponpaths_idpath in k. rewrite maponpaths_idpath in k.
        rewrite pathscomp0rid in k. exact k. Defined.
 
 Definition transportf_pathsinv0 {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
@@ -314,30 +265,6 @@ Definition transport_invmap {T} {X Y:T->Type} (f:∀ t, weq (X t) (Y t))
   invmap (transportf (fun t => weq (X t) (Y t)) p (f t)).
 Proof. intros. destruct p. reflexivity. Defined.
 
-Definition ap_fun_fun_natl {X Y Z} {g g':X->Y} {f f':Y->Z} 
-           (q:homot g g') (p:homot f f') x :
-  ap f (q x) @ p (g' x) = p (g x) @ ap f' (q x).
-Proof. intros. destruct (q x). simpl. rewrite pathscomp0rid. reflexivity. Defined.
-
-Definition ap_fun_fun_fun_natl {X Y Z W} {g g':X->Y}
-           (q:homot g g') (h:Y->Z) {f f':Z->W} (p:homot f f') x :
-  ap f (ap h (q x)) @ p (h (g' x)) = p (h (g x)) @ ap f' (ap h (q x)).
-Proof. intros. destruct (q x). simpl. rewrite pathscomp0rid. reflexivity. Defined.
-
-Definition ap_natl {X Y} {f:X->Y}
-           {x x' x'':X} {p:x = x'} {q:x' = x''}
-           {p':f x = f x'} {q':f x' = f x''}
-           (r:ap f p = p') (s:ap f q = q') :
-  ap f (p @ q) = p' @ q'.
-Proof. intros. destruct r, s. apply maponpathscomp0. Defined.
-
-Definition ap_natl' {X Y} {f:X->Y}
-           {x x' x'':X} {p:x' = x} {q:x' = x''}
-           {p':f x' = f x} {q':f x' = f x''}
-           (r:ap f p = p') (s:ap f q = q') :
-  ap f (!p @ q) = (!p') @ q'.
-Proof. intros. destruct r, s, p, q. reflexivity. Defined.
-
   (** *** Double transport *)
 
   Definition transportf2 {X} {Y:X->Type} (Z:∀ x, Y x->Type)
@@ -350,7 +277,7 @@ Proof. intros. destruct r, s, p, q. reflexivity. Defined.
              (y':Y x') (z':Z x' y') : Z x (p#'y').
   Proof. intros. destruct p. exact z'. Defined.
 
-  Definition ap_pr1_pr2 {X} {P:X->UU} {Q:∀ x, P x->Type}
+  Definition maponpaths_pr1_pr2 {X} {P:X->UU} {Q:∀ x, P x->Type}
              {w w': Σ x p, Q x p}
              (p : w = w') :
     transportf P (ap pr1 p) (pr1 (pr2 w)) = pr1 (pr2 w').

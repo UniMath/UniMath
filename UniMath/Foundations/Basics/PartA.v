@@ -152,6 +152,8 @@ Defined.
 
 Hint Resolve @pathscomp0 : pathshints.
 
+Ltac intermediate_path x := apply (pathscomp0 (b := x)).
+
 (** Notation [p @ q] added by B.A., oct 2014 *)
 
 Notation "p @ q" := (pathscomp0 p q) (at level 60, right associativity).
@@ -253,6 +255,22 @@ Lemma maponpathscomp {X Y Z : UU} {x x' : X} (f : X -> Y) (g : Y -> Z)
 Proof.
   intros. induction e. apply idpath.
 Defined. 
+
+(** naturality of [maponpaths] *)
+
+Definition maponpaths_naturality {X Y} {f:X->Y}
+           {x x' x'':X} {p:x = x'} {q:x' = x''}
+           {p':f x = f x'} {q':f x' = f x''}
+           (r:maponpaths f p = p') (s:maponpaths f q = q') :
+  maponpaths f (p @ q) = p' @ q'.
+Proof. intros. destruct r, s. apply maponpathscomp0. Defined.
+
+Definition maponpaths_naturality' {X Y} {f:X->Y}
+           {x x' x'':X} {p:x' = x} {q:x' = x''}
+           {p':f x' = f x} {q':f x' = f x''}
+           (r:maponpaths f p = p') (s:maponpaths f q = q') :
+  maponpaths f (!p @ q) = (!p') @ q'.
+Proof. intros. destruct r, s, p, q. reflexivity. Defined.
 
 (** The following three statements show that [ maponpaths ] defined by
     a function f which is homotopic to the identity is
@@ -366,6 +384,14 @@ Lemma functtransportf {X Y : UU} (f : X -> Y) (P : Y -> UU) {x x' : X}
 Proof.
   intros. induction e. apply idpath.
 Defined.
+
+Definition transportf_maponpaths_pr1 {X} {P:X->UU} {w w':total2 P} (p : w = w') :
+  transportf P (maponpaths pr1 p) (pr2 w) = pr2 w'.
+Proof. intros. destruct p. reflexivity. Defined.
+
+Definition transport_section X (x:X) (P:X -> UU) (f:∀ x:X, P x) (y:X) (e:x=y) :
+  transportf P e (f x) = f y.
+Proof. intros. induction e. reflexivity. Defined.
 
 (** A series of lemmas about paths and sigma types.
     Adapted from the HoTT library http://github.com/HoTT/HoTT *)
@@ -902,6 +928,8 @@ Lemma iscontrweqb {X Y : UU} (w : weq X Y) (is : iscontr Y) : iscontr X.
 Proof.
   intros. apply (iscontrretract (invmap w) w (homotinvweqweq w) is).
 Defined.
+
+Ltac intermediate_iscontr Y' := apply (iscontrweqb (Y := Y')).
 
 (** *** Functions between fibers defined by a path on the base are
         weak equivalences. *)
@@ -1479,6 +1507,7 @@ Defined.
 Definition weqcomp {X Y Z : UU} (w1 : weq X Y) (w2 : weq Y Z) : (weq X Z) :=
   weqpair (fun (x : X) => w2 (w1 x)) (twooutof3c w1 w2 (pr2 w1) (pr2 w2)). 
 
+Ltac intermediate_weq Y' := apply (weqcomp (Y := Y')).
 
 (** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences. *)
 

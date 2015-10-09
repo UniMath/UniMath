@@ -353,7 +353,7 @@ Definition iscontrGuidedHomotopy_comp_2 {Y} :
         (GH_homotopy (thePoint (iscontrGuidedHomotopy T f s)) t0) =
         (idpath (f t0)).
 Proof. intros.
-       assert (a2 := ap_pr2 (iscontrweqb_compute 
+       assert (a2 := transportf_maponpaths_pr1 (iscontrweqb_compute 
                       (weqfibtototal (GHomotopy f s) (fun y : Y => y = f t0)
                                      (fun y : Y =>
                                         ℤTorsorRecursion_weq (fun t : T => y = f t)
@@ -461,8 +461,8 @@ Definition makeGuidedHomotopy_diagonalPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
   ap pr1 (makeGuidedHomotopy_diagonalPath f s t0) = s t0.
 Proof. intros.
        unfold makeGuidedHomotopy_diagonalPath.
-       refine (ap_natl (makeGuidedHomotopy_transPath_comp _ _ _ _) _).
-       refine (ap_natl (makeGuidedHomotopy_localPath_comp _ _ _ _ _ _) _).
+       refine (maponpaths_naturality (makeGuidedHomotopy_transPath_comp _ _ _ _) _).
+       refine (maponpaths_naturality (makeGuidedHomotopy_localPath_comp _ _ _ _ _ _) _).
        exact (makeGuidedHomotopy_verticalPath_comp _ _ _ _ _).
 Defined.
 

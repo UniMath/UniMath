@@ -1,11 +1,8 @@
 Require Export UniMath.Foundations.StandardFiniteSets.
+Require Export UniMath.Foundations.Equivalences.
 Unset Automatic Introduction.
 
 (* move upstream *)
-
-Definition transport_section X (x:X) (P:X -> UU) (f:∀ x:X, P x) (y:X) (e:x=y) :
-  transportf P e (f x) = f y.
-Proof. intros. induction e. reflexivity. Defined.
 
 (* *)
 
@@ -73,7 +70,7 @@ Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X -> UU) (p : P 
 Proof. intros. apply isaset_transport. apply isasetifcontr. exact is. Defined.
 
 Corollary weqsecovercontr':     (* reprove weqsecovercontr, move upstream *)
-  ∀ (X : UU) (P : X -> UU) (is : iscontr X), (∀ x : X, P x) ≃ P (pr1 is).
+  ∀ (X:UU) (P:X->UU) (is:iscontr X), (∀ x:X, P x) ≃ P (pr1 is).
 Proof.
   intros.
   set (x0 := pr1 is).
