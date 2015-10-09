@@ -13,7 +13,17 @@ For any question about this library, send an email to Catherine Lelay.
 
 ## Contents
 
-* *hnnq.v*
-  * non-negative rational numbers
-* *hnnr.v*
-  * non-negative real numbers based on Dedekind cuts.
+* *Complements.v*
+  * renaming for partial order
+  * definition of a strict partial order
+  * definition of a complete partial order
+* *NonnegativeRationals.v*
+  * definition of non-negative rational numbers
+  * large and strict orders
+  * abelian monoid
+* *DedekindCuts.v*
+  * definition of Dedekind cuts on non-negative rational numbers
+  * equality on Dedekind cuts
+  * large and strict orders
+  * definition of the least upper bound and the greatest lower bound
+  
