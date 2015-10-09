@@ -14,21 +14,21 @@ Notation "X ≅ Y" := (Equivalence X Y) (at level 80, no associativity) : type_s
 
 Definition makeEquivalence X Y f g p q h := (f,,g,,p,,q,,h) : X ≅ Y.
 
-Definition Equivalence_to_fun {X Y} : X≅Y -> X->Y := pr1.
+Definition Equivalence_toFunction {X Y} : X≅Y -> X->Y := pr1.
 
-Coercion Equivalence_to_fun : Equivalence >-> Funclass.
+Coercion Equivalence_toFunction : Equivalence >-> Funclass.
 
-Definition Equivalence_to_invfun {X Y} : X≅Y -> Y->X.
+Definition Equivalence_toInverseFunction {X Y} : X≅Y -> Y->X.
 Proof. intros ? ? f. exact (pr1 (pr2 f)). Defined.
 
-Definition homot_EquivalenceInverseEquivalence {X Y} (f:Equivalence X Y) : ∀ y, f (Equivalence_to_invfun f y) = y
+Definition Equivalence_toTargetHomotopy {X Y} (f:Equivalence X Y) : ∀ y, f (Equivalence_toInverseFunction f y) = y
   := pr1 (pr2 (pr2 f)).
 
-Definition homot_InverseEquivalenceEquivalence {X Y} (f:Equivalence X Y) : ∀ y, Equivalence_to_invfun f (f y) = y
+Definition Equivalence_toSourceHomotopy {X Y} (f:Equivalence X Y) : ∀ x, Equivalence_toInverseFunction f (f x) = x
   := pr1 (pr2 (pr2 (pr2 f))).
 
 Definition EquivalenceAdjointness {X Y} (f:Equivalence X Y)
-  : ∀ x, ap f (homot_InverseEquivalenceEquivalence f x) = homot_EquivalenceInverseEquivalence f (f x)
+  : ∀ x, ap f (Equivalence_toSourceHomotopy f x) = Equivalence_toTargetHomotopy f (f x)
   := pr2 (pr2 (pr2 (pr2 f))).
 
 Definition Equivalence_to_weq X Y : Equivalence X Y -> X ≃ Y.
