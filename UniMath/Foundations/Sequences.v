@@ -33,13 +33,13 @@ Proof.
   intros. apply pair_path_in2. apply isapropifcontr. apply stn0_fun_iscontr.
 Defined.
 
-(* induction principle for contractible types *)
+(* induction principle for contractible types, as a warmup *)
 
 Definition isaset_transport (X : UU) (x : X) (P : X -> UU) (p : P x) (i : isaset X) (e : x = x) :
   transportf P e p = p.
 Proof. intros. induction (pr1 (i x x (idpath _) e)). reflexivity. Defined.
 
-(* use induction *)
+(* Two ways.  Use induction: *)
 
 Definition iscontr_rect' X (i : iscontr X) (x0 : X) (P : X -> UU) (p0 : P x0) : ∀ x:X, P x.
 Proof. intros. induction (pr1 (isapropifcontr i x0 x)). exact p0. Defined.
@@ -54,33 +54,61 @@ Proof.
   reflexivity.
 Defined.
 
-(* use transport explicitly *)
+(* .... or use transport explicitly: *)
 
-Definition iscontr_rect X (i : iscontr X) (x0 : X) (P : X -> UU) (p0 : P x0) : ∀ x:X, P x.
-Proof. intros. exact (transportf P (pr1 (isapropifcontr i x0 x)) p0). Defined.
+Definition iscontr_rect X (is : iscontr X) (x0 : X) (P : X -> UU) (p0 : P x0) : ∀ x:X, P x.
+Proof. intros. exact (transportf P (pr1 (isapropifcontr is x0 x)) p0). Defined.
 
-Definition iscontr_rect_compute X (i : iscontr X) (x : X) (P : X -> UU) (p : P x) :
-  iscontr_rect X i x P p x = p.
-Proof. intros. apply isaset_transport. apply isasetifcontr. exact i. Defined.
+Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X -> UU) (p : P x) :
+  iscontr_rect X is x P p x = p.
+Proof. intros. apply isaset_transport. apply isasetifcontr. exact is. Defined.
+
+Corollary weqsecovercontr':     (* reprove weqsecovercontr, move upstream *)
+  ∀ (X : UU) (P : X -> UU) (is : iscontr X), (∀ x : X, P x) ≃ P (pr1 is).
+Proof.
+  intros.
+  set (x0 := pr1 is).
+  set (secs := ∀ x : X, P x).
+  set (fib  := P x0).
+  set (destr := (λ f, f x0) : secs->fib).
+  set (constr:= iscontr_rect X is x0 P).
+  apply invweq.
+  refine (constr,,gradth constr destr _ _).
+  - apply iscontr_rect_compute.
+  - intros f.
+    unfold constr, destr.
+    unfold iscontr_rect.
+    apply funextsec; intros x.
+    induction (pr1 (isapropifcontr is x0 x)).
+    reflexivity.
+Defined.
 
 (*  *)
 
-Definition nil_unique' {X} (x : Sequence X) : length x = 0 -> x = nil.
+Definition nil_length {X} (x : Sequence X) : length x = 0 <-> x = nil.
 Proof.
-  intros ? ? e.
-  induction x as [n x].
-  simpl in e.
-  induction (!e).
-  apply nil_unique.
+  intros.
+  split.
+  - intro e.
+    induction x as [n x].
+    simpl in e.
+    induction (!e).
+    apply nil_unique.
+  - intro h.
+    induction (!h).
+    reflexivity.
 Defined.
 
-Definition drop {X} : Sequence X -> Sequence X.
+Definition drop {X} (x:Sequence X) : length x != 0 -> Sequence X.
 Proof.
-  intros ? [n x].
+  intros ? [n x] h.
   induction n as [|n].
-  - exact nil.                  (* yes, we didn't actually drop one *)
+  - contradicts h (idpath 0).
   - exact (n,,x ∘ (dni_allButLast _)).
 Defined.
+
+Definition drop' {X} (x:Sequence X) : x != nil -> Sequence X.
+Proof. intros ? ? h. exact (drop x (pr2 (logeqnegs (nil_length x)) h)). Defined.
 
 Definition drop_and_append {X n} (x : stn (S n) -> X) :
   append (n,,x ∘ (dni_allButLast _)) (x (lastelement n)) = (S n,, x).
@@ -101,11 +129,8 @@ Proof.
 Defined.
 
 Definition drop_and_append' {X n} (x : stn (S n) -> X) :
-  append (drop (S n,,x)) (x (lastelement n)) = (S n,, x).
-Proof.
-  intros.
-  apply drop_and_append.
-Defined.
+  append (drop (S n,,x) (negpathssx0 _)) (x (lastelement n)) = (S n,, x).
+Proof. intros. apply drop_and_append. Defined.
 
 Definition Sequence_rect {X} {P : Sequence X -> UU}
            (p0 : P nil)
