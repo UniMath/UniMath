@@ -25,47 +25,6 @@ Proof. intros ? ? [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
        admit.
 Admitted.
 
-Module Equivalence'.
-  Record data X Y := make {
-         f :> X -> Y; g : Y -> X;
-         p : ∀ y, f(g y) = y;
-         q : ∀ x, g(f x) = x;
-         h : ∀ x y (r:f x = y), 
-             transportf (fun x':X => f x' = y) (! q x @ ap g r) r = p y }.
-End Equivalence'.
-
-Definition Equivalence'_to_weq X Y : Equivalence'.data X Y -> X ≃ Y.
-Proof. intros ? ? a. destruct a. exists f. unfold isweq. intro y.
-       exists (g y,,p y). intros [x r]. 
-       exact (total2_paths2 (! q x @ ap g r) (h x y r)). Defined.
-
-Goal (* weq_to_Equivalence' *) ∀ X Y, X ≃ Y -> Equivalence'.data X Y.
-Proof. intros ? ? [f iw].
-       set (g := fun y => hfiberpr1 f y (thePoint (iw y))).
-       set (p := fun y => pr2 (pr1 (iw y))).
-       simpl in p.
-       set (L := fun x => pr2 (iw (f x)) (hfiberpair f x (idpath (f x)))).
-       set (q := fun x => ap pr1 (L x)).
-       set (q' := fun x => !q x).  
-       refine (Equivalence'.make X Y f g p q' _).
-       intros.
-       unfold isweq in iw.
-       assert (a := pr2 (iw y) (hfiberpair f x r)).
-       assert (b := fiber_paths a).
-       change (pr2 (pr1 (iw y))) with (p y) in b.
-       refine (_@b).
-       destruct r.
-       rewrite maponpaths_idpath.
-       rewrite pathscomp0rid.
-       rewrite transportf_fun_idpath.
-       { rewrite pathsinv0inv0. admit. } reflexivity. Admitted.
-
-Goal (* invequiv' *) ∀ X Y, Equivalence'.data X Y -> Equivalence'.data Y X.
-Proof. intros ? ? [f g p q h].
-       refine (Equivalence'.make Y X g f (fun y => q y) (fun x => p x) _).
-       intros. destruct r. rewrite maponpaths_idpath. rewrite pathscomp0rid.
-       admit. Admitted.
-
 Definition weq_pathscomp0r {X} x {y z:X} (p:y = z) : weq (x = y) (x = z).
 Proof. intros. exact (weqpair _ (isweqpathscomp0r _ p)). Defined.
 
