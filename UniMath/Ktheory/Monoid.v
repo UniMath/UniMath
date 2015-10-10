@@ -34,43 +34,24 @@ Proof. intros. exists (zero_map A zero).
 
 Module Presentation'.
 
-  Definition word X := Σ n, stn n -> X.
-  Definition word_length {X} : word X -> nat := pr1.
-  Definition word_unit {X} : word X.
-  Proof.
-    intros.
-    exists 0.
-    intros i.
-    induction i as [t p].
-    induction (nopathsfalsetotrue p).
-  Defined.
+  Require Import UniMath.Foundations.Sequences.
+
+  Definition word X := Sequence X.
+  Definition word_length {X} : word X -> nat := length.
+  Definition word_unit {X} : word X := nil.
   Definition word_gen {X} (x:X) : word X.
-  Proof.
-    intros.
-    exact (1,,fun i => x).
-  Defined.
+  Proof. intros. exact (1,,fun i => x). Defined.
 
-  Lemma A {i m n} : i < m+n -> i ≥ m -> i-m < n.
-  Admitted.
-
-  Definition word_op {X}: word X -> word X -> word X.
-  Proof.
-    intros ? [m v] [n w].
-    exists (m+n).
-    intros [i q].
-    induction (isdecrelnatlth i m) as [less|more].
-    { exact (v (i,,less)). }
-    { exact (w (i-m,,A q more)). }
-  Defined.
+  Definition word_op {X}: word X -> word X -> word X := concatenate.
 
   Lemma word_left_unit {X} (w:word X) : word_op word_unit w = w.
-  Admitted.
+  Abort.
 
   Lemma word_right_unit {X} (w:word X) : word_op w word_unit = w.
-  Admitted.
+  Abort.
 
   Lemma word_assoc {X} (u v w:word X) : (word_op (word_op u v) w) = (word_op u (word_op v w)).
-  Admitted.
+  Abort.
 
   Definition reln X := word X × word X.
 
@@ -154,10 +135,10 @@ Module Presentation'.
   (* Qed. *)
 
   Definition univ_binop_islunit {X I} (R:I->reln X) : islunit (univ_binop R) (univ_unit R).
-  Admitted.
+  Abort.
 
   Definition univ_binop_isrunit {X I} (R:I->reln X) : isrunit (univ_binop R) (univ_unit R).
-  Admitted.
+  Abort.
 
   (* Definition univ_monoid {X I} (R:I->reln X) : monoid. *)
   (*   intros. *)

@@ -257,15 +257,20 @@ Print Assumptions circle_map_check_paths.
 
 Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)} 
            (l:circle_loop#y = y) : ∀ c:circle, Y c.
-Proof. (** (not proved yet) *) admit. Admitted.
+Proof. (** (not proved yet) *)
+Abort.
 
 (* One approach to the theorem above would be through the results of the paper
  "Higher Inductive Types as Homotopy-Initial Algebras", by Kristina Sojakova,
  http://arxiv.org/abs/1402.0761 *)
 
-Lemma circle_map_check_paths' {Y} (f:circle->Y) : circle_map (ap f circle_loop) = f .
+Lemma circle_map_check_paths'
+      (circle_map': ∀ (Y:circle->UU) (y:Y(basepoint circle))
+           (l:circle_loop#y = y) (c:circle), Y c)
+      {Y} (f:circle->Y) :
+  circle_map (ap f circle_loop) = f .
 Proof. intros. apply funextsec; intro T. generalize T; clear T.
-       refine (circle_map' _).
+       refine (circle_map' _ _ _).
        { reflexivity. }
        { set (y := f (basepoint circle)). set (l := ap f circle_loop).
          set (P := fun T : underlyingType circle => circle_map _ T = f T).

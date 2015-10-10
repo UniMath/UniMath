@@ -76,7 +76,7 @@ Abort.
 Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
   intros ? ? [f r].
   unfold isweq in r.
-  set (g := fun y => hfiberpr1 f y (thePoint (r y))).
+  set (g := fun y => hfiberpr1 f y (pr1 (r y))).
   set (p := fun y => pr2 (pr1 (r y))).
   simpl in p.
   set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
