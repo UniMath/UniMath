@@ -4,7 +4,6 @@ Global Unset Automatic Introduction.
 Require Export UniMath.Foundations.Basics.All.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.FunctionalExtensionality.
-Require Import UniMath.Foundations.Equivalences.
 Require Export UniMath.Ktheory.Tactics.
 
 Notation "'∃!'  x .. y , P" := (iscontr (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
