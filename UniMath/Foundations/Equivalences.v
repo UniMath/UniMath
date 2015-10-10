@@ -31,14 +31,14 @@ Definition EquivalenceAdjointness {X Y} (f:Equivalence X Y)
   : ∀ x, ap f (Equivalence_toSourceHomotopy f x) = Equivalence_toTargetHomotopy f (f x)
   := pr2 (pr2 (pr2 (pr2 f))).
 
+Lemma transportf_fun_idpath {X Y} {f:X->Y} x x' (w:x = x') (t:f x = f x) :
+              transportf (fun x' => f x' = f x) w (idpath (f x)) = maponpaths f (!w).
+Proof. intros ? ? k. induction w. reflexivity. Qed.
+
 Definition Equivalence_to_weq X Y : Equivalence X Y -> X ≃ Y.
 Proof. intros ? ? [f [g [p [q h]]]]. exists f. unfold isweq. intro y.
        exists (g y,,p y). intros [x []]. apply (total2_paths2 (!q x)). 
-       refine (_ @ h x). destruct (q x). reflexivity. Defined.
-
-Lemma transportf_fun_idpath {X Y} {f:X->Y} x x' (w:x = x') (t:f x = f x) :
-              transportf (fun x' => f x' = f x) w (idpath (f x)) = ap f (!w).
-Proof. intros ? ? k. destruct w. reflexivity. Qed.
+       refine (_ @ h x). induction (q x). reflexivity. Defined.
 
 Definition weq_to_Equivalence X Y : X ≃ Y -> Equivalence X Y.
   intros ? ? [f r].
@@ -54,6 +54,24 @@ Definition weq_to_Equivalence X Y : X ≃ Y -> Equivalence X Y.
                  ! transportf_fun_idpath x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x))
                  @ (fiber_paths (L x)))).
 Defined.
+
+Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
+  intros ? ? [f r].
+  unfold isweq in r.
+  set (g := fun y => hfiberpr1 f y (thePoint (r y))).
+  set (p := fun y => pr2 (pr1 (r y))).
+  simpl in p.
+  set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
+  set (q := fun x => ap pr1 (L x)).
+  set (q' := fun x => !q x).  
+  refine (makeEquivalence Y X g f q' p _).
+  intro y.
+Abort.
+
+Definition Equivalence_to_invweq X Y : Equivalence X Y -> Y ≃ X.
+Proof. intros ? ? [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
+       exists (f x,,q x). intros [y []]. apply (total2_paths2 (!p y)). 
+Abort.
 
 Definition path_inv_rotate_lr {X} {a b c:X} (r:a = b) (p:b = c) (q:a = c) :
   q = r @ p -> q @ !p = r.

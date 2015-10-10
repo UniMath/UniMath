@@ -5,26 +5,6 @@ Require Import UniMath.Ktheory.Utilities.
 Require Import UniMath.Foundations.FunctionalExtensionality.
 Require Import UniMath.Foundations.Equivalences.
 
-Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
-  intros ? ? [f r].
-  unfold isweq in r.
-  set (g := fun y => hfiberpr1 f y (thePoint (r y))).
-  set (p := fun y => pr2 (pr1 (r y))).
-  simpl in p.
-  set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
-  set (q := fun x => ap pr1 (L x)).
-  set (q' := fun x => !q x).  
-  refine (makeEquivalence Y X g f q' p _).
-  intro y.
-  admit.
-Admitted.
-
-Definition Equivalence_to_invweq X Y : Equivalence X Y -> Y ≃ X.
-Proof. intros ? ? [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
-       exists (f x,,q x). intros [y []]. apply (total2_paths2 (!p y)). 
-       admit.
-Admitted.
-
 Definition weq_pathscomp0r {X} x {y z:X} (p:y = z) : weq (x = y) (x = z).
 Proof. intros. exact (weqpair _ (isweqpathscomp0r _ p)). Defined.
 
@@ -135,11 +115,9 @@ Definition homotinvweqweq_comp {X} {P:X->Type}
   @identity (w' = w)
             (homotinvweqweq f w)
             (pair_path_in2 P (irr x (sec x) (pr2 w))).
-Proof. admit.
-(*
-       reflexivity.             (* don't change the proof *)
-*)
-Admitted.
+Proof. 
+  try reflexivity.              (* this worked above but doesn't work here *)
+Abort.
 
 Definition homotinvweqweq_comp_3 {X} {P:X->Type}
            (irr:∀ x (p q:P x), p = q) (sec:Section P) 
