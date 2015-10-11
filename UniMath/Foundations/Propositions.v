@@ -94,22 +94,22 @@ Definition ishinh ( X : UU ) : hProp := hProppair ( ishinh_UU X ) ( isapropishin
 Notation nonempty := ishinh (only parsing).
 
 Notation "∥ A ∥" := (ishinh A) (at level 200) : type_scope.
-(* written \|| *)
+(* written \|| in agda-input method *)
 
-Definition hinhpr ( X : UU ) : X -> ishinh X := fun x : X => fun P : hProp  => fun f : X -> P => f x .
+Definition hinhpr ( X : UU ) : X -> ∥ X ∥ := fun x : X => fun P : hProp  => fun f : X -> P => f x .
 
-Definition hinhfun { X Y : UU } ( f : X -> Y ) : ishinh_UU X -> ishinh_UU Y := fun isx : ishinh X => fun P : _ =>  fun yp : Y -> P => isx P ( fun x : X => yp ( f x ) ) .
+Definition hinhfun { X Y : UU } ( f : X -> Y ) : ishinh_UU X -> ishinh_UU Y := fun isx : ∥ X ∥ => fun P : _ =>  fun yp : Y -> P => isx P ( fun x : X => yp ( f x ) ) .
 
 (** Note that the previous definitions do not require RR1 in an essential way ( except for the placing of [ ishinh ] in [ hProp UU ] - without RR1 it would be placed in [ hProp UU1 ] ) . The first place where RR1 is essentially required is in application of [ hinhuniv ] to a function [ X -> ishinh Y ] *)
 
 Definition hinhuniv { X : UU } { P : hProp } ( f : X -> P ) ( wit : ishinh_UU X ) : P :=  wit P f .
 
 
-Definition hinhand { X Y : UU } ( inx1 : ishinh_UU X ) ( iny1 : ishinh_UU Y) : ishinh ( X × Y ) := fun P:_  => ddualand (inx1 P) (iny1 P).
+Definition hinhand { X Y : UU } ( inx1 : ishinh_UU X ) ( iny1 : ishinh_UU Y) : ∥ X × Y ∥ := fun P:_  => ddualand (inx1 P) (iny1 P).
 
 Definition hinhuniv2 { X Y : UU } { P : hProp } ( f : X -> Y -> P ) ( isx : ishinh_UU X ) ( isy : ishinh_UU Y ) : P := hinhuniv ( fun xy : X × Y => f ( pr1 xy ) ( pr2 xy ) ) ( hinhand isx isy ) . 
 
-Definition hinhfun2 { X Y Z : UU } ( f : X -> Y -> Z ) ( isx : ishinh_UU X ) ( isy : ishinh_UU Y ) : ishinh Z := hinhfun ( fun xy: X × Y => f ( pr1 xy ) ( pr2 xy ) ) ( hinhand isx isy ) .
+Definition hinhfun2 { X Y Z : UU } ( f : X -> Y -> Z ) ( isx : ishinh_UU X ) ( isy : ishinh_UU Y ) : ∥ Z ∥ := hinhfun ( fun xy: X × Y => f ( pr1 xy ) ( pr2 xy ) ) ( hinhand isx isy ) .
 
 Definition hinhunivcor1 ( P : hProp ) : ishinh_UU P -> P := hinhuniv ( idfun P ).
 Notation hinhprinv := hinhunivcor1 .
@@ -118,18 +118,18 @@ Notation hinhprinv := hinhunivcor1 .
 (** *** [ ishinh ] and negation [ neg ] *)
 
 
-Lemma weqishinhnegtoneg ( X : UU ) : weq ( ishinh ( neg X ) ) ( neg X ) .
+Lemma weqishinhnegtoneg ( X : UU ) : ∥ ¬ X ∥ ≃ ¬ X.
 Proof . intro . assert ( lg : logeq ( ishinh ( neg X ) ) ( neg X ) ) . split . simpl . apply ( @hinhuniv _ ( hProppair _ ( isapropneg X ) ) ) .    simpl . intro nx . apply nx . apply hinhpr . apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( pr2 ( ishinh _ ) ) ( isapropneg X ) ) .  Defined . 
 
-Lemma weqnegtonegishinh ( X : UU ) : weq ( neg X ) ( neg ( ishinh X ) ) .
+Lemma weqnegtonegishinh ( X : UU ) : ¬ X ≃ ¬ ∥ X ∥.
 Proof . intro .  assert ( lg : logeq ( neg ( ishinh X ) ) ( neg X ) ) . split . apply ( negf ( hinhpr X ) ) .  intro nx .  unfold neg .  simpl . apply ( @hinhuniv _ ( hProppair _ isapropempty ) ) .  apply nx . apply ( weqimplimpl ( pr2 lg ) ( pr1 lg ) ( isapropneg _ ) ( isapropneg _ ) ) .   Defined . 
 
  
 (** *** [ ishinh ] and [ coprod ] *)
 
 
-Lemma hinhcoprod ( X Y : UU ) ( is : ishinh ( coprod ( ishinh X ) ( ishinh Y ) ) )  : ishinh ( coprod X Y ) .
-Proof. intros . unfold ishinh. intro P .  intro CP.  set (CPX := fun x : X => CP ( ii1 x ) ) . set (CPY := fun y : Y => CP (ii2 y) ).  set (is1P := is P).
+Lemma hinhcoprod ( X Y : UU ) : ∥ (∥ X ∥ ⨿ ∥ Y ∥) ∥ -> ∥ X ⨿ Y ∥.
+Proof. intros ? ? is . unfold ishinh. intro P .  intro CP.  set (CPX := fun x : X => CP ( ii1 x ) ) . set (CPY := fun y : Y => CP (ii2 y) ).  set (is1P := is P).
        assert ( f : coprod ( ishinh X ) ( ishinh Y ) -> P ) .  apply ( sumofmaps ( hinhuniv CPX ) ( hinhuniv CPY ) ).   apply (is1P f ) . Defined.
 
 
@@ -209,16 +209,29 @@ Definition hfalse : hProp := hProppair empty isapropempty.
 
 Definition hconj ( P Q : hProp ) : hProp := hProppair ( P × Q ) ( isapropdirprod _ _ ( pr2 P ) ( pr2 Q ) ). 
 
+Notation "A ∧ B" := (hconj A B) (at level 80, right associativity) : type_scope. (* precedence same as /\ *)
+  (* in agda-input method, type \and or \wedge *)
+
 Definition hdisj ( P Q : UU ) : hProp :=  ishinh ( coprod P Q ) . 
 
-Definition hneg ( P : UU ) : hProp := hProppair ( neg P ) ( isapropneg P ) . 
+Notation "X ∨ Y" := (hdisj X Y) (at level 85, right associativity) : type_scope.
+  (* in agda-input method, type \or *)
+  (* precedence same as ‌\/, whereas ⨿ has the opposite associativity *)
+
+Definition hneg ( P : UU ) : hProp := hProppair ( ¬ P ) ( isapropneg P ) . 
 
 Definition himpl ( P : UU ) ( Q : hProp ) : hProp.
 Proof. intros. split with ( P -> Q ) . apply impred. intro. apply (pr2  Q). Defined. 
 
-Definition hexists { X : UU } ( P : X -> UU ) := ishinh ( total2 P ) .
+Local Notation "A ⇒ B" := (himpl A B) (at level 95, no associativity) : type_scope.
+  (* precedence same as <-> *)
+  (* in agda-input method, type \r= or \Rightarrow or \=> *)
+  (* can't make it global, because it's defined differently in CategoryTheory/UnicodeNotations.v *)
+
+Definition hexists { X : UU } ( P : X -> UU ) := ∥ total2 P ∥.
 
 Notation "'∃' x .. y , P" := (ishinh (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
+  (* in agda-input method, type \ex *)
 
 Definition wittohexists { X : UU } ( P : X -> UU ) ( x : X ) ( is : P x ) : hexists P := hinhpr ( total2 P ) (tpair _ x is ) .
 
@@ -238,14 +251,11 @@ Proof . intros . split . simpl .  apply hinhfun .  apply coprodcomm .  simpl .  
 (** *** Proof of the only non-trivial axiom of intuitionistic logic for our constructions. For the full list of axioms see e.g.  http://plato.stanford.edu/entries/logic-intuitionistic/ *)
 
 
-Lemma hconjtohdisj ( P Q : UU ) ( R : hProp ) :  hconj ( himpl P R ) ( himpl Q R ) -> himpl ( hdisj P Q ) R .
+Lemma hconjtohdisj (P Q : UU) (R : hProp) : (P ⇒ R) ∧ (Q ⇒ R)  ->  P ∨ Q ⇒ R .
 Proof.  intros P Q R X0. 
 assert (s1: hdisj P Q -> R) . intro X1.  
 assert (s2: coprod P Q -> R ) . intro X2. destruct X2 as [ XP | XQ ].  apply X0. apply XP . apply ( pr2 X0 ). apply XQ . 
 apply ( hinhuniv s2 ). apply X1 .   unfold himpl. simpl . apply s1 .  Defined.
-
-
-
 
 (** *** Negation and quantification.
 

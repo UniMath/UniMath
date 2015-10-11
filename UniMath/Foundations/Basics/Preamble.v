@@ -77,13 +77,14 @@ Notation coprod_rect := sum_rect.
 Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity) : type_scope.
   (* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)
 
+
 Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
   (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* type this in emacs with agda-mode with \forall *)
+  (* type this in emacs in agda-input method with \forall *)
 
 Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
   (at level 200, x binder, y binder, right associativity).
-  (* type this in emacs with agda-mode with \lambda *)
+  (* type this in emacs in agda-input method with \lambda *)
 
 (** Dependent sums. 
 
@@ -109,7 +110,7 @@ Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : 
 
 Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* type this in emacs with agda-mode with \Sigma *)
+  (* type this in emacs in agda-input method with \Sigma *)
 
 Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
 (* Example: *)

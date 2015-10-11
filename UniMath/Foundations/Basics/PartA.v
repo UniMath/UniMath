@@ -77,7 +77,7 @@ Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
 Definition dirprod (X Y : UU) := Σ x:X, Y.
 
 Notation "A × B" := (dirprod A B) (at level 80, right associativity) : type_scope.
-  (* type this in emacs with agda-mode with \times *)
+  (* type this in emacs in agda-input method with \times *)
 
 Definition dirprodpair {X Y : UU} := tpair (fun x : X => Y).
 
@@ -102,7 +102,7 @@ Defined.
 Definition neg (X : UU) : UU := X -> empty.
 
 Notation "'¬' X" := (neg X) (at level 35, right associativity).
-  (* type this in emacs with agda-mode with \neg *)
+  (* type this in emacs in agda-input method with \neg *)
 
 Notation "x != y" := (neg (x = y)) (at level 40).
 
@@ -528,7 +528,7 @@ Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
 Definition iscontr (T:UU) : UU := Σ cntr:T, ∀ t:T, t=cntr.
 
 Notation "'∃!'  x .. y , P" := (iscontr (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* type this in emacs with agda-mode with \ex ! *)
+  (* type this in emacs in agda-input method with \ex ! *)
 
 Definition iscontrpair {T : UU} : ∀ x : T, (∀ t : T, t = x) -> iscontr T := tpair _.
 
