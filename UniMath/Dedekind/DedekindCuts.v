@@ -135,7 +135,7 @@ Proof.
   now apply nXr.
 Qed.
 
-Lemma isstpo_Dcuts_lt_rel : isStrictPartialOrder Dcuts_lt_rel.
+Lemma isstpo_Dcuts_lt_rel : isStrongOrder Dcuts_lt_rel.
 Proof.
   split.
   exact istrans_Dcuts_lt_rel.
@@ -184,8 +184,8 @@ Definition eo_Dcuts : EffectivelyOrderedSet :=
 
 Definition Dcuts_le : po Dcuts := @EOle eo_Dcuts.
 Definition Dcuts_ge : po Dcuts := @EOge eo_Dcuts.
-Definition Dcuts_lt : StrictPartialOrder Dcuts := @EOlt eo_Dcuts.
-Definition Dcuts_gt : StrictPartialOrder Dcuts := @EOgt eo_Dcuts.
+Definition Dcuts_lt : StrongOrder Dcuts := @EOlt eo_Dcuts.
+Definition Dcuts_gt : StrongOrder Dcuts := @EOgt eo_Dcuts.
 
 Delimit Scope Dcuts_scope with Dcuts.
 
@@ -264,8 +264,8 @@ Proof.
   intros x. 
   unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
   intros [Hap|Hap].
-  now apply isirrefl_stpo with (1 := Hap).
-  now apply isirrefl_stpo with (1 := Hap).
+  now apply isirrefl_StrongOrder with (1 := Hap).
+  now apply isirrefl_StrongOrder with (1 := Hap).
 Qed.
 Lemma issymm_Dcuts_ap : issymm Dcuts_ap.
 Proof.
@@ -456,12 +456,12 @@ Lemma islbub_Dcuts_lub (E : subset eo_Dcuts) (E_bounded : hexists (isUpperBound 
   isSmallerThanUpperBounds E (Dcuts_lub E E_bounded).
 Proof.
   intros.
-  intros x Hx.  
-  intros P HP ; apply HP ; clear P HP.
-  intros r ; simpl.
-  apply hinhuniv.
+  intros x Hx ; simpl.
+  apply hinhpr.
+  intros r ; apply hinhuniv ;
   intros (y,(Ey,Yr)).
-  apply (Hx y Ey).
+  generalize (Hx y Ey).
+  apply hinhuniv.
   now intros H ; apply H.
 Qed.
 Lemma islub_Dcuts_lub (E : subset eo_Dcuts) (E_bounded : hexists (isUpperBound E)) :
@@ -563,6 +563,55 @@ Proof.
   exact (islbub_Dcuts_glb E E_not_empty).
 Qed.
 
+(** * Algebraic structures on Dcuts *)
+
+(** ** From non negative rational numbers to Dedekind cuts *)
+
+Lemma NonnegativeRationals_to_Dcuts_bot (q : NonnegativeRationals) :
+  Dcuts_def_bot (λ r : NonnegativeRationals, (r < q)%NnR).
+Proof.
+  intros q r Hr n Hnr.
+  now apply istrans_le_lt_ltNonnegativeRationals with r.
+Qed.
+Lemma NonnegativeRationals_to_Dcuts_open (q : NonnegativeRationals) :
+  Dcuts_def_open (λ r : NonnegativeRationals, (r < q)%NnR).
+Proof.
+  intros q r Hr.
+  apply hinhpr.
+  destruct (between_ltNonnegativeRationals r q Hr) as [n (Hrn,Hnq)].
+  exists n.
+  now split.
+Qed.
+Lemma NonnegativeRationals_to_Dcuts_bounded (q : NonnegativeRationals) :
+  Dcuts_def_bounded (λ r : NonnegativeRationals, (r < q)%NnR).
+Proof.
+  intros q.
+  apply hinhpr.
+  exists q.
+  now apply isirrefl_StrongOrder.
+Qed.
+
+Definition NonnegativeRationals_to_Dcuts (q : NonnegativeRationals) : Dcuts :=
+  mk_Dcuts (fun r => (r < q)%NnR)
+           (NonnegativeRationals_to_Dcuts_bot q)
+           (NonnegativeRationals_to_Dcuts_open q)
+           (NonnegativeRationals_to_Dcuts_bounded q).
+
+Definition Dcuts_zero : Dcuts := NonnegativeRationals_to_Dcuts 0%NnR.
+Definition Dcuts_one : Dcuts := NonnegativeRationals_to_Dcuts 1%NnR.
+
+Notation "0" := Dcuts_zero : Dcuts_scope.
+Notation "1" := Dcuts_one : Dcuts_scope.
+
+Lemma Dcuts_zero_empty :
+  forall r : NonnegativeRationals, r ∈ 0 = hProppair empty isapropempty.
+Proof.
+  intros r ; simpl.
+  apply weqtopathshProp, logeqweq ; simpl.
+  - now apply isnonnegative_NonnegativeRationals'.
+  - easy.
+Qed.
+
 (** * Definition of non-negative real numbers *)
 
 Definition NonnegativeReals : hSet := Dcuts.
@@ -582,8 +631,8 @@ Definition subsetNonnegativeRationals_to_NonnegativeReals
 
 Definition leNonnegativeReals : po NonnegativeReals := Dcuts_le.
 Definition geNonnegativeReals : po NonnegativeReals := Dcuts_ge.
-Definition ltNonnegativeReals : StrictPartialOrder NonnegativeReals := Dcuts_lt.
-Definition gtNonnegativeReals : StrictPartialOrder NonnegativeReals := Dcuts_gt.
+Definition ltNonnegativeReals : StrongOrder NonnegativeReals := Dcuts_lt.
+Definition gtNonnegativeReals : StrongOrder NonnegativeReals := Dcuts_gt.
 
 Definition lubNonnegativeReals (E : subset NonnegativeReals) (Eub : hexists (isUpperBound (X := eo_Dcuts) E)) :
   LeastUpperBound (X := eo_Dcuts) E :=
