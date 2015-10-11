@@ -20,7 +20,7 @@ Require Import UniMath.Ktheory.Utilities
                UniMath.Foundations.Integers
                UniMath.Ktheory.Integers
                UniMath.Ktheory.Nat
-               UniMath.Ktheory.Equivalences.
+               UniMath.Ktheory.MoreEquivalences.
 
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Open Scope hz_scope.

@@ -12,7 +12,7 @@ Require Import UniMath.Ktheory.AffineLine
                UniMath.Foundations.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.Integers
-               UniMath.Ktheory.Equivalences.
+               UniMath.Ktheory.MoreEquivalences.
 Require Import UniMath.Ktheory.Utilities.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.

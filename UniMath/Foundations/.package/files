@@ -12,7 +12,6 @@ Algebra/Monoids_and_Groups.v
 Algebra/BinaryOperations.v
 Sets.v
 Propositions.v
-Equivalences.v
 FunctionalExtensionality.v
 Tactics.v
 Basics/All.v

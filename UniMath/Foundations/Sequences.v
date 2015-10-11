@@ -1,5 +1,4 @@
 Require Export UniMath.Foundations.StandardFiniteSets.
-Require Export UniMath.Foundations.Equivalences.
 Unset Automatic Introduction.
 
 (* move upstream *)
