@@ -113,7 +113,7 @@ Definition isofnelonweq { X : UU } { n : nat } ( sx : isofnel n X ) : isofnel ( 
 
 
 Definition finstruct  ( X : UU ) := total2 ( fun n : nat => nelstruct n X ) .
-Definition fintructpair  ( X : UU )  := tpair ( fun n : nat => nelstruct n X ) .
+Definition finstructpair  ( X : UU )  := tpair ( fun n : nat => nelstruct n X ) .
 
 Definition finstructonstn ( n : nat ) : finstruct ( stn n ) := tpair _ n ( nelstructonstn n ) . 
 

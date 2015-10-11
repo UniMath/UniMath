@@ -5,7 +5,7 @@ Halfline.v
 MetricTree.v
 Integers.v
 Nat.v
-Equivalences.v
+MoreEquivalences.v
 ##
 
 GroupAction.v
@@ -31,5 +31,10 @@ ZeroObject.v
 InitialAndFinalObject.v
 Precategories.v
 Interval.v
+OrderedSet.v
 Utilities.v
 Tactics.v
+
+## these files are potential candidates for being moved upstream
+
+Equivalences.v

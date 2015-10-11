@@ -12,7 +12,7 @@ Require Import UniMath.Ktheory.AffineLine
                UniMath.Foundations.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.Integers
-               UniMath.Ktheory.Equivalences.
+               UniMath.Ktheory.MoreEquivalences.
 Require Import UniMath.Ktheory.Utilities.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
@@ -204,12 +204,12 @@ Definition makeGH_diagonalLoop_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T)
            (q:T = T) (r:castTorsor q t = one + t) : 
   ap pr1_GH (makeGH_diagonalLoop l t q r) = !q.
 Proof. intros. unfold makeGH_diagonalLoop.
-       refine (ap_natl (makeGH_transPath_comp1 _ _ _) _).
-       refine (ap_natl (makeGH_localPath_comp1 _ _ _ _) _).
+       refine (maponpaths_naturality (makeGH_transPath_comp1 _ _ _) _).
+       refine (maponpaths_naturality (makeGH_localPath_comp1 _ _ _ _) _).
        rewrite <- (pathscomp0rid (paths_rect _ _ (fun b _ => b = T) _ _ q)). (* Used to be "rewrite <- (pathscomp0rid (! q))", which was more perspicuous. *)
-       refine (ap_natl' (makeGH_horizontalPath_comp1 _ _ _ _) _).
+       refine (maponpaths_naturality' (makeGH_horizontalPath_comp1 _ _ _ _) _).
        rewrite <- (pathscomp0rid (idpath T)).
-       refine (ap_natl (makeGH_localPath_comp1 _ _ _ _) _).
+       refine (maponpaths_naturality (makeGH_localPath_comp1 _ _ _ _) _).
        exact (makeGH_verticalPath_comp1 _ _ _ _).
 Defined.
 
@@ -217,10 +217,10 @@ Definition makeGH_diagonalLoop_comp2 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T)
            (q:T = T) (r:castTorsor q t = one + t) : 
   ap pr12_GH (makeGH_diagonalLoop l t q r) = l.
 Proof. intros. unfold makeGH_diagonalLoop.
-       refine (ap_natl (makeGH_transPath_comp2 _ _ _) _).
-       refine (ap_natl (makeGH_localPath_comp2 _ _ _ _) _).
-       refine (ap_natl' (makeGH_horizontalPath_comp2 _ _ _ _) _).
-       refine (ap_natl (makeGH_localPath_comp2 _ _ _ _) _).
+       refine (maponpaths_naturality (makeGH_transPath_comp2 _ _ _) _).
+       refine (maponpaths_naturality (makeGH_localPath_comp2 _ _ _ _) _).
+       refine (maponpaths_naturality' (makeGH_horizontalPath_comp2 _ _ _ _) _).
+       refine (maponpaths_naturality (makeGH_localPath_comp2 _ _ _ _) _).
        exact (makeGH_verticalPath_comp2 _ _ _ _).
 Defined.
 

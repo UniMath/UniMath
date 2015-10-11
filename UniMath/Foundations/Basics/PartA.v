@@ -52,7 +52,7 @@ Definition idfun (T : UU) := fun (t : T) => t.
 Definition funcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z) := 
   fun (x : X) => g (f x).
 
-Notation "g 'circ' f" := (funcomp f g) (at level 80, right associativity).
+Notation "g ∘ f" := (funcomp f g) (at level 50, no associativity).
 
 (** *** Iteration of an endomorphism *)
 
@@ -61,7 +61,7 @@ Proof.
   intros T f n.
   induction n as [ | n IHn ].
   + exact (idfun T).
-  + exact (f circ IHn).
+  + exact (f ∘ IHn).
 Defined.
 
 (** *** Basic constructions related to the adjoint evaluation 
@@ -101,6 +101,9 @@ Defined.
 Definition neg (X : UU) : UU := X -> empty.
 
 Notation "x != y" := (neg (x = y)) (at level 40).
+
+(* Apply this tactic to a proof of [X] and [neg X], in either order: *)
+Ltac contradicts a b := solve [ induction (a b) | induction (b a) ].
 
 Definition negf {X Y : UU} (f : X -> Y) : neg Y -> neg X := 
   fun (phi : Y -> empty) => fun (x : X) => phi (f x).
@@ -148,6 +151,8 @@ Proof.
 Defined.
 
 Hint Resolve @pathscomp0 : pathshints.
+
+Ltac intermediate_path x := apply (pathscomp0 (b := x)).
 
 (** Notation [p @ q] added by B.A., oct 2014 *)
 
@@ -246,10 +251,26 @@ Proof.
 Defined. 
 
 Lemma maponpathscomp {X Y Z : UU} {x x' : X} (f : X -> Y) (g : Y -> Z) 
-  (e : x = x') : maponpaths g (maponpaths f e) = maponpaths (g circ f) e.
+  (e : x = x') : maponpaths g (maponpaths f e) = maponpaths (g ∘ f) e.
 Proof.
   intros. induction e. apply idpath.
 Defined. 
+
+(** naturality of [maponpaths] *)
+
+Definition maponpaths_naturality {X Y} {f:X->Y}
+           {x x' x'':X} {p:x = x'} {q:x' = x''}
+           {p':f x = f x'} {q':f x' = f x''}
+           (r:maponpaths f p = p') (s:maponpaths f q = q') :
+  maponpaths f (p @ q) = p' @ q'.
+Proof. intros. destruct r, s. apply maponpathscomp0. Defined.
+
+Definition maponpaths_naturality' {X Y} {f:X->Y}
+           {x x' x'':X} {p:x' = x} {q:x' = x''}
+           {p':f x' = f x} {q':f x' = f x''}
+           (r:maponpaths f p = p') (s:maponpaths f q = q') :
+  maponpaths f (!p @ q) = (!p') @ q'.
+Proof. intros. destruct r, s, p, q. reflexivity. Defined.
 
 (** The following three statements show that [ maponpaths ] defined by
     a function f which is homotopic to the identity is
@@ -364,6 +385,10 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
+Definition transport_section X (x:X) (P:X -> UU) (f:∀ x:X, P x) (y:X) (e:x=y) :
+  transportf P e (f x) = f y.
+Proof. intros. induction e. reflexivity. Defined.
+
 (** A series of lemmas about paths and sigma types.
     Adapted from the HoTT library http://github.com/HoTT/HoTT *)
 
@@ -388,13 +413,15 @@ Defined.
 
 Lemma total2_paths2 {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
   {a2 : A} {b2 : B a2} (p : a1 = a2) 
-    (q : transportf (fun x => B x) p b1 = b2) : 
-      tpair (fun x => B x) a1 b1 = tpair (fun x => B x) a2 b2.
+    (q : transportf B p b1 = b2) : a1,,b1 = a2,,b2.
 Proof.
   intros.
   apply (@total2_paths _ _
     (tpair (fun x => B x) a1 b1) (tpair (fun x => B x) a2 b2) p q).
 Defined.
+
+Definition pair_path_in2 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) : x,,p = x,,q.
+Proof. intros. now apply maponpaths. Defined.
 
 Definition fiber_paths {A : UU} {B : A -> UU} {u v : Σ x, B x}
   (p : u = v) : transportf (fun x => B x) (base_paths _ _ p) (pr2 u) = pr2 v.
@@ -511,10 +538,10 @@ Definition invhomot {X Y : UU} {f f' : X -> Y}
   (h : f ~ f' ) : f' ~ f := fun (x : X) => !(h x).
 
 Definition funhomot {X Y Z : UU} (f : X -> Y) {g g' : Y -> Z}
-  (h : g ~ g' ) : (g circ f) ~ (g' circ f) := fun (x : X) => h (f x) .
+  (h : g ~ g' ) : (g ∘ f) ~ (g' ∘ f) := fun (x : X) => h (f x) .
 
 Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
-  (g : Y -> Z) : (g circ f) ~ (g circ f') := fun (x : X) => maponpaths g (h x).
+  (g : Y -> Z) : (g ∘ f) ~ (g ∘ f') := fun (x : X) => maponpaths g (h x).
  
 
 (** *** Contractibility, homotopy fibers etc. *)
@@ -857,11 +884,11 @@ Proof.
   set (g := invmap w).
   set (ee := maponpaths g e).
   simpl in *.
-  set (eee := maponpathshomidinv (g circ f) (homotinvweqweq w) x x' ee).
+  set (eee := maponpathshomidinv (g ∘ f) (homotinvweqweq w) x x' ee).
   
   assert (e1 : maponpaths f eee = e).
   {
-    assert (e2 : maponpaths (g circ f) eee = ee).
+    assert (e2 : maponpaths (g ∘ f) eee = ee).
     apply maponpathshomid2.
     assert (e3 : maponpaths g (maponpaths f eee) = maponpaths g e).
     apply (maponpathscomp f g eee @ e2).
@@ -897,6 +924,8 @@ Lemma iscontrweqb {X Y : UU} (w : weq X Y) (is : iscontr Y) : iscontr X.
 Proof.
   intros. apply (iscontrretract (invmap w) w (homotinvweqweq w) is).
 Defined.
+
+Ltac intermediate_iscontr Y' := apply (iscontrweqb (Y := Y')).
 
 (** *** Functions between fibers defined by a path on the base are
         weak equivalences. *)
@@ -1005,18 +1034,18 @@ Defined.
 (** *** A homotopy equivalence is a weak equivalence *)
 
 Definition hfibersgftog {X Y Z : UU} (f : X -> Y) (g : Y -> Z) (z : Z)
-  (xe : hfiber (g circ f) z) : hfiber g z :=
+  (xe : hfiber (g ∘ f) z) : hfiber g z :=
     hfiberpair g (f (pr1 xe)) (pr2 xe).
 
 Lemma constr2 {X Y : UU} (f : X -> Y) (g : Y -> X) 
   (efg: ∀ y : Y, f (g y) = y) (x0 : X) (xe : hfiber g x0) :
-    Σ xe' : hfiber (g circ f) x0, xe = hfibersgftog f g x0 xe'.
+    Σ xe' : hfiber (g ∘ f) x0, xe = hfibersgftog f g x0 xe'.
 Proof.
   intros.
   destruct xe as [y0 e].
   set (eint := pathssec1 _ _ efg _ _ e).
   set (ee := ! (maponpaths g eint) @ e).
-  split with (hfiberpair (g circ f) x0 ee).
+  split with (hfiberpair (g ∘ f) x0 ee).
   unfold hfibersgftog.
   unfold hfiberpair.
   simpl.
@@ -1027,7 +1056,7 @@ Defined.
 
 Lemma iscontrhfiberl1 {X Y : UU} (f : X -> Y) (g : Y -> X)
   (efg: ∀ y : Y, f (g y) = y) (x0 : X) 
-    (is : iscontr (hfiber (g circ f) x0)) : iscontr (hfiber g x0).
+    (is : iscontr (hfiber (g ∘ f) x0)) : iscontr (hfiber g x0).
 Proof.
   intros.
   set (f1 := hfibersgftog f g x0).
@@ -1099,12 +1128,12 @@ Proof.
   intros.
   unfold isweq.
   intro y.
-  assert (iscontr (hfiber (f circ g) y)).
+  assert (iscontr (hfiber (f ∘ g) y)).
   assert (efg' : ∀ y : Y, y = f (g y)).
   { intro y0.
     apply pathsinv0.    
     apply (efg y0). }
-  apply (iscontrhfiberl2 (idfun _) (f circ g) efg' y (idisweq Y y)).
+  apply (iscontrhfiberl2 (idfun _) (f ∘ g) efg' y (idisweq Y y)).
   apply (iscontrhfiberl1 g f egf y). 
   apply X0.
 Defined.
@@ -1334,15 +1363,15 @@ Defined.
 *)
 
 Theorem twooutof3a {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
-  (isgf: isweq (g circ f)) (isg: isweq g) : isweq f.
+  (isgf: isweq (g ∘ f)) (isg: isweq g) : isweq f.
 Proof.
   intros.
   set (gw := weqpair g isg).
-  set (gfw := weqpair (g circ f) isgf).
+  set (gfw := weqpair (g ∘ f) isgf).
   set (invg := invmap gw).
   set (invgf := invmap gfw).
 
-  set (invf := invgf circ g).
+  set (invf := invgf ∘ g).
 
   assert (efinvf : ∀ y : Y, f (invf y) = y).
   {
@@ -1370,15 +1399,15 @@ Definition weqcontrcontr {X Y : UU} (isx : iscontr X) (isy: iscontr Y) :=
   weqpair _ (isweqcontrcontr (fun (x : X) => pr1 isy) isx isy). 
 
 Theorem twooutof3b {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
-  (isf: isweq f) (isgf: isweq (g circ f)) : isweq g.
+  (isf: isweq f) (isgf: isweq (g ∘ f)) : isweq g.
 Proof.
   intros.
   set (wf := weqpair f isf).
-  set (wgf := weqpair (g circ f) isgf).
+  set (wgf := weqpair (g ∘ f) isgf).
   set (invf := invmap wf).
   set (invgf := invmap wgf).
 
-  set (invg := f circ invgf).
+  set (invg := f ∘ invgf).
  
   assert (eginvg : ∀ z : Z, g (invg z) = z).
   { intro. unfold invg. apply (homotweqinvweq wgf z). }
@@ -1391,12 +1420,12 @@ Proof.
     assert (isinvgf: isweq invgf).
     { apply isweqinvmap. }
 
-    assert (int1 : g y = (g circ f) (invf y)).
+    assert (int1 : g y = (g ∘ f) (invf y)).
      apply (maponpaths g (! homotweqinvweq wf y)).
 
-    assert (int2 : (g circ f) (invgf (g y)) = (g circ f) (invf y)).
+    assert (int2 : (g ∘ f) (invgf (g y)) = (g ∘ f) (invf y)).
     { 
-      assert (int3: (g circ f) (invgf (g y)) = g y).
+      assert (int3: (g ∘ f) (invgf (g y)) = g y).
       { apply (homotweqinvweq wgf). }
       induction int1. 
       apply int3.
@@ -1423,16 +1452,16 @@ Lemma isweql3 {X Y : UU} (f : X -> Y) (g : Y -> X)
   (egf: ∀ x : X, g (f x) = x): isweq f -> isweq g.
 Proof.
   intros X Y f g egf w.
-  assert (int1 : isweq (g circ f)).
+  assert (int1 : isweq (g ∘ f)).
   {
-    apply (isweqhomot (idfun X) (g circ f) (fun (x : X) => ! (egf x))).
+    apply (isweqhomot (idfun X) (g ∘ f) (fun (x : X) => ! (egf x))).
     apply idisweq.
   }
   apply (twooutof3b f g w int1).
 Defined.
 
 Theorem twooutof3c {X Y Z : UU} (f : X -> Y) (g : Y -> Z)
-  (isf: isweq f) (isg: isweq g) : isweq (g circ f).
+  (isf: isweq f) (isg: isweq g) : isweq (g ∘ f).
 Proof.
   intros.
   set (wf := weqpair f isf).
@@ -1440,8 +1469,8 @@ Proof.
   set (invf := invmap wf).
   set (invg := invmap wg).
 
-  set (gf := g circ f).
-  set (invgf := invf circ invg).
+  set (gf := g ∘ f).
+  set (invgf := invf ∘ invg).
 
   assert (egfinvgf : ∀ x : X, invgf (gf x) = x).
   {
@@ -1474,6 +1503,7 @@ Defined.
 Definition weqcomp {X Y Z : UU} (w1 : weq X Y) (w2 : weq Y Z) : (weq X Z) :=
   weqpair (fun (x : X) => w2 (w1 x)) (twooutof3c w1 w2 (pr2 w1) (pr2 w2)). 
 
+Ltac intermediate_weq Y' := apply (weqcomp (Y := Y')).
 
 (** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences. *)
 
@@ -1846,7 +1876,7 @@ Defined.
 (** *** Pairwise coproducts as dependent sums of families over [ bool ] *)
 
 
-Fixpoint coprodtobool { X Y : UU } ( xy : coprod X Y ) : bool :=
+Definition coprodtobool { X Y : UU } ( xy : coprod X Y ) : bool :=
 match xy with
 ii1 x => true|
 ii2 y => false
