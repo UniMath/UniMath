@@ -76,7 +76,7 @@ Proof.
   set (secs := ∀ x : X, P x).
   set (fib  := P x0).
   set (destr := (λ f, f x0) : secs->fib).
-  set (constr:= iscontr_rect X is x0 P).
+  set (constr:= iscontr_rect X is x0 P : fib->secs).
   refine (destr,,gradth destr constr _ _).
   - intros f. apply funextsec; intros x. apply transport_section.
   - apply iscontr_rect_compute.
@@ -130,6 +130,59 @@ Defined.
 Definition drop_and_append' {X n} (x : stn (S n) -> X) :
   append (drop (S n,,x) (negpathssx0 _)) (x (lastelement n)) = (S n,, x).
 Proof. intros. apply drop_and_append. Defined.
+
+Definition disassembleSequence {X} : Sequence X -> coprod unit (X × Sequence X).
+Proof.
+  intros ? x.
+  induction x as [n x].
+  induction n as [|n].
+  - exact (ii1 tt).
+  - exact (ii2(x(lastelement n),,(n,,x ∘ dni_allButLast _))).
+Defined.
+
+Definition assembleSequence {X} : coprod unit (X × Sequence X) -> Sequence X.
+Proof.
+  intros ? co.
+  induction co as [t|p].
+  - exact nil.
+  - exact (append (pr2 p) (pr1 p)).
+Defined.
+
+Lemma assembleSequence_ii2 {X} (p : X × Sequence X) :
+  assembleSequence (ii2 p) = append (pr2 p) (pr1 p).
+Proof. reflexivity. Defined.
+
+Theorem SequenceAssembly {X} : Sequence X ≃ coprod unit (X × Sequence X).
+Proof.
+  intros.
+  refine (disassembleSequence,, gradth _ assembleSequence _ _).
+  - intros.
+    induction x as [n x].
+    induction n as [|n].
+    + apply pathsinv0.
+      apply nil_unique.
+    + apply drop_and_append'.
+  - intros co.
+    (* maybe isolate this case as a lemma *)
+    induction co as [t|p].
+    + simpl. apply maponpaths. apply proofirrelevancecontr.
+      apply iscontrunit.
+    + induction p as [x y].
+      induction y as [n y].
+      apply (maponpaths (@inr unit (X × Sequence X))).
+      simpl.
+      induction (natlehchoice4 n n (natgthsnn n)) as [b|c].
+      * contradicts (isirreflnatlth n) b.
+      * simpl.
+        apply maponpaths.
+        apply maponpaths.
+        apply funextfun; intro i.
+        induction i as [i b].
+        unfold funcomp, dni_allButLast.
+        induction (natlehchoice4 i n (natlthtolths i n b)) as [d|d].
+        { simpl. apply maponpaths. apply maponpaths. apply isasetbool. }
+        { induction d. contradicts (isirreflnatlth i) b. }
+Defined.
 
 Definition Sequence_rect {X} {P : Sequence X -> UU}
            (p0 : P nil)
