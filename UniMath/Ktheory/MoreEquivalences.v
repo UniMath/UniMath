@@ -3,7 +3,7 @@
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Ktheory.Utilities.
 Require Import UniMath.Foundations.FunctionalExtensionality.
-Require Import UniMath.Foundations.Equivalences.
+Require Import UniMath.Ktheory.Equivalences.
 
 Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
   intros ? ? [f r].
