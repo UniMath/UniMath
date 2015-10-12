@@ -66,6 +66,7 @@ End diagram_def.
 Section colimit_def.
 
 Variable C : precategory.
+Variable (hsC : has_homsets C).
 (* Variable g : graph. *)
 (* Variable d : diagram g C. *)
 
@@ -81,6 +82,18 @@ Definition ColimitCocone {g : graph} (d : diagram g C) : UU :=
   Σ (A : Σ c0f : (Σ c0 : C, ∀ (v : vertex g), C⟦dob d v,c0⟧),
    ∀ (u v : vertex g) (e : edge u v), dmor d e ;; (pr2 c0f) v = (pr2 c0f) u),
     isColimitCocone d (pr1 (pr1 A)) (pr2 (pr1 A)) (pr2 A).
+
+Definition mk_ColimitCocone {g : graph} (d : diagram g C)
+  (c : C) (f : ∀ (v : vertex g), C⟦dob d v,c⟧)
+  (H : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; f v = f u)
+  (isCC : isColimitCocone d c f H) : ColimitCocone d.
+Proof.
+refine (tpair _ _ _).
++ refine (tpair _ _ _).
+  - apply (tpair _ c f).
+  - apply H.
++ apply isCC.
+Defined.
 
 Definition Colimits : UU := ∀ {g : graph} (d : diagram g C), ColimitCocone d.
 Definition hasColimits : UU  :=
@@ -227,6 +240,89 @@ refine (uniqueExists _ _ ((pr2 CC) _ _ _) _ _ _ _).
 - intros v; simpl.
   now apply H.
 Qed.
+
+Definition Cocone_by_postcompose {g : graph} (D : diagram g C)
+ (c : C) (fc : ∀ u, C⟦dob D u,c⟧)
+ (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u) :
+ ∀ (d : C) (k : C⟦c,d⟧),
+ Σ (μ : ∀ (u : vertex g), C⟦dob D u,d⟧), ∀ (u v : vertex g) (e : edge u v), dmor D e ;; μ v = μ u.
+Proof.
+intros d k.
+exists (λ u, fc u ;; k).
+now apply Cocone_postcompose.
+Defined.
+
+Lemma test {g : graph} (D : diagram g C)
+           (c : C) (fc : ∀ u, C⟦dob D u,c⟧)
+           (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u)
+           (d : C) (k : C⟦c,d⟧) :
+           ∀ u, fc u ;; k = pr1 (Cocone_by_postcompose D c fc Hc d k) u.
+Proof.
+now intro u.
+Qed.
+
+
+Lemma isColimit_weq {g : graph} (D : diagram g C)
+                    (c : C) (fc : ∀ u, C⟦dob D u,c⟧)
+                    (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u) :
+  isColimitCocone D c fc Hc <-> ∀ (d : C), isweq (Cocone_by_postcompose D c fc Hc d).
+Proof.
+split.
+- intros H d.
+  refine (gradth _ _ _ _).
+  + intros k.
+    exact (ColimitArrow (mk_ColimitCocone D c fc Hc H) _ (pr1 k) (pr2 k)).
+  + intro k; simpl.
+    now apply pathsinv0, (ColimitArrowEta (mk_ColimitCocone D c fc Hc H)).
+  + simpl; intro k.
+    apply total2_paths_second_isaprop.
+    * now repeat (apply impred; intro); apply hsC.
+    * destruct k as [k Hk]; simpl.
+      apply funextsec; intro u.
+      now apply (ColimitArrowCommutes (mk_ColimitCocone D c fc Hc H)).
+- intros H d fd Hd.
+  refine (tpair _ _ _).
+  + set (p := invmap (weqpair _ (H d))).
+    exists (p (tpair _ fd Hd)).
+    intro u.
+set (Y := test D c fc Hc d).
+set (p' := p _).
+set (X := Y p' u).
+rewrite X.
+unfold p', p.
+set (asdf := tpair _ _ _).
+set (@homotweqinvweq _ _ (weqpair _ (H d)) asdf).
+simpl in p0.
+now rewrite p0.
++
+intro.
+apply total2_paths_second_isaprop.
+apply impred; intro.
+apply hsC.
+simpl.
+destruct t as [t Ht]; simpl.
+set (q := weqpair _ (H d)).
+apply (invmaponpathsweq q).
+simpl.
+apply total2_paths_second_isaprop.
+repeat (apply impred; intro); apply hsC.
+simpl.
+apply funextsec; intro u.
+rewrite Ht.
+apply pathsinv0.
+set (p := invmap q).
+set (Y := test D c fc Hc d).
+set (p' := p _).
+set (X := Y p' u).
+rewrite X.
+unfold p', p.
+set (asdf := tpair _ _ _).
+set (@homotweqinvweq _ _ (weqpair _ (H d)) asdf).
+unfold q.
+simpl in p0.
+now rewrite p0.
+Defined.
+
 
 End colimit_def.
 
