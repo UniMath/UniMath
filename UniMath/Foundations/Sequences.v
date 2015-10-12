@@ -66,7 +66,18 @@ Proof. intros. exact (transportf P (pr1 (isapropifcontr is x0 x)) p0). Defined.
 
 Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X -> UU) (p : P x) :
   iscontr_rect X is x P p x = p.
-Proof. intros. apply isaset_transport. apply isasetifcontr. exact is. Defined.
+Proof. intros. apply isaset_transport. apply isasetifcontr. exact is.
+Defined.
+
+Definition iscontr_rect_compute'' X (is : iscontr X) (x : X) (P : X -> UU) (p : P x) :
+  iscontr_rect X is x P p x = p.
+Proof. intros.
+       (* try to prove it without using contractibility again *)
+       unfold iscontr_rect.
+       change p with (transportf _ (idpath _) p) at 2.
+       apply (maponpaths (λ e, transportf _ e _)).
+       (* this is a consequence of the adjointness relations for [unit ≃ X] *)
+Admitted.
 
 Corollary weqsecovercontr':     (* reprove weqsecovercontr, move upstream *)
   ∀ (X:UU) (P:X->UU) (is:iscontr X), (∀ x:X, P x) ≃ P (pr1 is).
@@ -104,14 +115,14 @@ Proof.
   intros ? [n x] h.
   induction n as [|n].
   - contradicts h (idpath 0).
-  - exact (n,,x ∘ (dni_allButLast _)).
+  - exact (n,,x ∘ dni_allButLast _).
 Defined.
 
 Definition drop' {X} (x:Sequence X) : x != nil -> Sequence X.
 Proof. intros ? ? h. exact (drop x (pr2 (logeqnegs (nil_length x)) h)). Defined.
 
 Definition drop_and_append {X n} (x : stn (S n) -> X) :
-  append (n,,x ∘ (dni_allButLast _)) (x (lastelement n)) = (S n,, x).
+  append (n,,x ∘ dni_allButLast _) (x (lastelement _)) = (S n,, x).
 Proof.
   intros.
   apply (maponpaths (tpair _ (S n))).
@@ -129,7 +140,7 @@ Proof.
 Defined.
 
 Definition drop_and_append' {X n} (x : stn (S n) -> X) :
-  append (drop (S n,,x) (negpathssx0 _)) (x (lastelement n)) = (S n,, x).
+  append (drop (S n,,x) (negpathssx0 _)) (x (lastelement _)) = (S n,, x).
 Proof. intros. apply drop_and_append. Defined.
 
 Definition disassembleSequence {X} : Sequence X -> coprod unit (X × Sequence X).
@@ -138,7 +149,7 @@ Proof.
   induction x as [n x].
   induction n as [|n].
   - exact (ii1 tt).
-  - exact (ii2(x(lastelement n),,(n,,x ∘ dni_allButLast _))).
+  - exact (ii2(x(lastelement _),,(n,,x ∘ dni_allButLast _))).
 Defined.
 
 Definition assembleSequence {X} : coprod unit (X × Sequence X) -> Sequence X.
@@ -203,10 +214,10 @@ Lemma Sequence_rect_compute_nil {X} {P : Sequence X -> UU} (p0 : P nil)
 Proof.
   intros.
   try reflexivity.
-  Opaque Sequence.
-  simpl.
-
-
+  unfold Sequence_rect, nil; simpl.
+  change p0 with (transportf P (idpath nil) p0) at 2.
+  apply (maponpaths (λ e, transportf P e p0)).
+  (* now [stn 0 -> X] is contractible, so is a set, etc. *)
 Abort.
 
 Lemma Sequence_rect_compute_cons
@@ -231,18 +242,18 @@ Proof.
   intros ? x [n y].
   induction n as [|n IH].
   { exact x. }
-  { exact (append (IH (y ∘ (dni_allButLast _))) (y (lastelement _))). }
+  { exact (append (IH (y ∘ dni_allButLast _)) (y (lastelement _))). }
 Defined.
 
 Definition concatenate_length {X} (x y:Sequence X) :
   length (concatenate x y) = length x + length y.
 Proof.
-
-
+  intros.
+  try reflexivity.
 Admitted.
 
 Definition concatenateStep {X}  (x : Sequence X) {n} (y : stn (S n) -> X) :
-  concatenate x (S n,,y) = append (concatenate x (n,,y ∘ (dni_allButLast _))) (y (lastelement _)).
+  concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni_allButLast _)) (y (lastelement _)).
 Proof. intros.
        Local Opaque append dni_allButLast lastelement.
        simpl. (* just so we can see why reflexivity is about to work *)
@@ -254,17 +265,18 @@ Proof.
   intros ? [n x].
   induction n as [|n IH].
   { apply nil. }
-  { exact (concatenate (IH (x ∘ (dni_allButLast _))) (x (lastelement _))). }
+  { exact (concatenate (IH (x ∘ dni_allButLast _)) (x (lastelement _))). }
 Defined.
 
 Lemma flatten_length {X} (x : Sequence (Sequence X)) :
   length (flatten x) = stnsum (λ i, length ((pr2 x) i)).
 Proof.
-
+  intros.
+  try reflexivity.
 Abort.
 
 Definition flattenStep {X n} (x: stn (S n) -> Sequence X) :
-  flatten (S n,,x) = concatenate (flatten (n,,x ∘ (dni_allButLast _))) (x (lastelement n)).
+  flatten (S n,,x) = concatenate (flatten (n,,x ∘ dni_allButLast _)) (x (lastelement _)).
 Proof. intros. reflexivity. Defined.
 
 Local Definition assoc1 {X} (x y:Sequence X) (z:X) :
@@ -292,7 +304,7 @@ Proof.
   induction n as [|n IH].
   - reflexivity.
   - repeat rewrite concatenateStep.
-    generalize (z (lastelement n)) as w; intros.
+    generalize (z (lastelement _)) as w; intros.
     generalize (z ∘ dni_allButLast n) as v; intros.
     rewrite <- assoc1.
     apply (maponpaths (λ t, append t w)).
