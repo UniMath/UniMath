@@ -63,82 +63,70 @@ End diagram_from_functor.
 
 End diagram_def.
 
-Section colimit_def.
+Section colim_def.
 
-Variable C : precategory.
-Variable (hsC : has_homsets C).
-(* Variable g : graph. *)
-(* Variable d : diagram g C. *)
+Variables (C : precategory) (hsC : has_homsets C).
 
 (* TODO: Maybe package cocones again? *)
-Definition isColimitCocone {g : graph} (d : diagram g C) (c0 : C)
+Definition isColimCocone {g : graph} (d : diagram g C) (c0 : C)
   (f : ∀ (v : vertex g), C⟦dob d v,c0⟧)
   (H : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; f v = f u) : UU :=
   ∀ (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧)
     (Hc : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; fc v = fc u),
   iscontr (Σ x : C⟦c0,c⟧, ∀ (v : vertex g), f v ;; x = fc v).
 
-Definition ColimitCocone {g : graph} (d : diagram g C) : UU :=
+Definition ColimCocone {g : graph} (d : diagram g C) : UU :=
   Σ (A : Σ c0f : (Σ c0 : C, ∀ (v : vertex g), C⟦dob d v,c0⟧),
    ∀ (u v : vertex g) (e : edge u v), dmor d e ;; (pr2 c0f) v = (pr2 c0f) u),
-    isColimitCocone d (pr1 (pr1 A)) (pr2 (pr1 A)) (pr2 A).
+    isColimCocone d (pr1 (pr1 A)) (pr2 (pr1 A)) (pr2 A).
 
-Definition mk_ColimitCocone {g : graph} (d : diagram g C)
+Definition mk_ColimCocone {g : graph} (d : diagram g C)
   (c : C) (f : ∀ (v : vertex g), C⟦dob d v,c⟧)
   (H : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; f v = f u)
-  (isCC : isColimitCocone d c f H) : ColimitCocone d.
-Proof.
-refine (tpair _ _ _).
-+ refine (tpair _ _ _).
-  - apply (tpair _ c f).
-  - apply H.
-+ apply isCC.
-Defined.
+  (isCC : isColimCocone d c f H) : ColimCocone d :=
+    tpair _ (tpair _ (tpair _ c f) H) isCC.
 
-Definition Colimits : UU := ∀ {g : graph} (d : diagram g C), ColimitCocone d.
-Definition hasColimits : UU  :=
-  ∀ {g : graph} (d : diagram g C), ishinh (ColimitCocone d).
+Definition Colims : UU := ∀ {g : graph} (d : diagram g C), ColimCocone d.
+Definition hasColims : UU  :=
+  ∀ {g : graph} (d : diagram g C), ishinh (ColimCocone d).
 
-Definition ColimitBottom {g : graph} {d : diagram g C}
-  (CC : ColimitCocone d) : C := pr1 (pr1 (pr1 CC)).
+Definition colim {g : graph} {d : diagram g C}
+  (CC : ColimCocone d) : C := pr1 (pr1 (pr1 CC)).
 
-Definition ColimitIn {g : graph} {d : diagram g C} (CC : ColimitCocone d) :
-  ∀ (v : vertex g), C⟦dob d v,ColimitBottom CC⟧ :=
+Definition colimIn {g : graph} {d : diagram g C} (CC : ColimCocone d) :
+  ∀ (v : vertex g), C⟦dob d v,colim CC⟧ :=
     pr2 (pr1 (pr1 CC)).
 
-Definition ColimitInCommutes {g : graph} {d : diagram g C}
-  (CC : ColimitCocone d) : ∀ (u v : vertex g) (e : edge u v),
-   dmor d e ;; ColimitIn CC v = ColimitIn CC u :=
+Definition colimInCommutes {g : graph} {d : diagram g C}
+  (CC : ColimCocone d) : ∀ (u v : vertex g) (e : edge u v),
+   dmor d e ;; colimIn CC v = colimIn CC u :=
      pr2 (pr1 CC).
 
-Definition isColimitCocone_ColimitCocone {g : graph} {d : diagram g C}
-  (CC : ColimitCocone d) :
-  isColimitCocone d (ColimitBottom CC) (ColimitIn CC) (ColimitInCommutes CC) :=
+Definition isColimCocone_ColimCocone {g : graph} {d : diagram g C}
+  (CC : ColimCocone d) :
+  isColimCocone d (colim CC) (colimIn CC) (colimInCommutes CC) :=
    pr2 CC.
 
-Definition ColimitArrow {g : graph} {d : diagram g C} (CC : ColimitCocone d)
+Definition colimArrow {g : graph} {d : diagram g C} (CC : ColimCocone d)
   (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧)
   (Hc : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; fc v = fc u) :
-  C⟦ColimitBottom CC,c⟧.
-Proof.
-exact (pr1 (pr1 (isColimitCocone_ColimitCocone CC c fc Hc))).
-Defined.
+  C⟦colim CC,c⟧ := pr1 (pr1 (isColimCocone_ColimCocone CC c fc Hc)).
 
-Lemma ColimitArrowCommutes {g : graph} {d : diagram g C} (CC : ColimitCocone d)
+Lemma colimArrowCommutes {g : graph} {d : diagram g C} (CC : ColimCocone d)
   (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧)
   (Hc : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; fc v = fc u)
   (u : vertex g) :
-  ColimitIn CC u ;; ColimitArrow CC c fc Hc = fc u.
+  colimIn CC u ;; colimArrow CC c fc Hc = fc u.
 Proof.
-exact ((pr2 (pr1 (isColimitCocone_ColimitCocone CC _ fc Hc))) u).
+exact ((pr2 (pr1 (isColimCocone_ColimCocone CC _ fc Hc))) u).
 Qed.
 
-Lemma ColimitArrowUnique {g : graph} {d : diagram g C} (CC : ColimitCocone d)
+Lemma colimArrowUnique {g : graph} {d : diagram g C} (CC : ColimCocone d)
   (c : C) (fc : ∀ (v : vertex g), C⟦dob d v,c⟧)
   (Hc : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; fc v = fc u)
-  (k : C⟦ColimitBottom CC,c⟧)
-  (Hk : ∀ (u : vertex g), ColimitIn CC u ;; k = fc u) :
-  k = ColimitArrow CC c fc Hc.
+  (k : C⟦colim CC,c⟧)
+  (Hk : ∀ (u : vertex g), colimIn CC u ;; k = fc u) :
+  k = colimArrow CC c fc Hc.
 Proof.
 now apply path_to_ctr, Hk.
 Qed.
@@ -148,43 +136,41 @@ Lemma Cocone_postcompose {g : graph} {d : diagram g C}
   (Hc : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; fc v = fc u)
   (x : C) (f : C⟦c,x⟧) : ∀ u v (e : edge u v), (dmor d e ;; (fc v ;; f) = fc u ;; f).
 Proof.
-intros u v e.
-now rewrite assoc, Hc.
+now intros u v e; rewrite assoc, Hc.
 Qed.
 
-Lemma ColimitArrowEta {g : graph} {d : diagram g C} (CC : ColimitCocone d)
-  (c : C) (f : C⟦ColimitBottom CC,c⟧) :
-    f = ColimitArrow CC c (λ u, ColimitIn CC u ;; f)
-          (Cocone_postcompose _ _ (ColimitInCommutes CC) c f).
+Lemma colimArrowEta {g : graph} {d : diagram g C} (CC : ColimCocone d)
+  (c : C) (f : C⟦colim CC,c⟧) :
+    f = colimArrow CC c (λ u, colimIn CC u ;; f)
+          (Cocone_postcompose _ _ (colimInCommutes CC) c f).
 Proof.
-apply ColimitArrowUnique.
-now intro u; apply idpath.
+now apply colimArrowUnique.
 Qed.
 
-Definition ColimitOfArrows {g : graph} {d1 d2 : diagram g C}
-  (CC1 : ColimitCocone d1) (CC2 : ColimitCocone d2)
+Definition colimOfArrows {g : graph} {d1 d2 : diagram g C}
+  (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
   (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e) :
-  C⟦ColimitBottom CC1,ColimitBottom CC2⟧.
+  C⟦colim CC1,colim CC2⟧.
 Proof.
-refine (ColimitArrow _ _ _ _).
-- now intro u; apply (f u ;; ColimitIn CC2 u).
+refine (colimArrow _ _ _ _).
+- now intro u; apply (f u ;; colimIn CC2 u).
 - abstract (intros u v e; simpl;
-            now rewrite assoc, fNat, <- assoc, ColimitInCommutes).
+            now rewrite assoc, fNat, <- assoc, colimInCommutes).
 Defined.
 
-Lemma ColimitOfArrowsIn {g : graph} (d1 d2 : diagram g C)
-  (CC1 : ColimitCocone d1) (CC2 : ColimitCocone d2)
+Lemma colimOfArrowsIn {g : graph} (d1 d2 : diagram g C)
+  (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
   (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e) :
-    ∀ u, ColimitIn CC1 u ;; ColimitOfArrows CC1 CC2 f fNat =
-         f u ;; ColimitIn CC2 u.
+    ∀ u, colimIn CC1 u ;; colimOfArrows CC1 CC2 f fNat =
+         f u ;; colimIn CC2 u.
 Proof.
-now unfold ColimitOfArrows; intro u; rewrite ColimitArrowCommutes.
+now unfold colimOfArrows; intro u; rewrite colimArrowCommutes.
 Qed.
 
-Lemma preCompWithColimitOfArrows_subproof {g : graph} {d1 d2 : diagram g C}
-  (CC1 : ColimitCocone d1) (CC2 : ColimitCocone d2)
+Lemma preCompWithColimOfArrows_subproof {g : graph} {d1 d2 : diagram g C}
+  (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
   (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e)
   (x : C) (k : ∀ (u : vertex g), C⟦dob d2 u,x⟧)
@@ -197,44 +183,44 @@ intros u v e; simpl.
 now rewrite <- (Hx u v e), !assoc, fNat.
 Qed.
 
-Lemma precompWithColimitOfArrows {g : graph} (d1 d2 : diagram g C)
-  (CC1 : ColimitCocone d1) (CC2 : ColimitCocone d2)
+Lemma precompWithColimOfArrows {g : graph} (d1 d2 : diagram g C)
+  (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
   (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e)
   (x : C) (k : ∀ (u : vertex g), C⟦dob d2 u,x⟧)
   (Hx : ∀ (u v : vertex g) (e : edge u v), dmor d2 e ;; k v = k u) :
-  ColimitOfArrows CC1 CC2 f fNat ;; ColimitArrow CC2 x k Hx =
-  ColimitArrow CC1 x (λ u, f u ;; k u)
-     (preCompWithColimitOfArrows_subproof CC1 CC2 f fNat x k Hx).
+  colimOfArrows CC1 CC2 f fNat ;; colimArrow CC2 x k Hx =
+  colimArrow CC1 x (λ u, f u ;; k u)
+     (preCompWithColimOfArrows_subproof CC1 CC2 f fNat x k Hx).
 Proof.
-apply ColimitArrowUnique.
-now intro u; rewrite assoc, ColimitOfArrowsIn, <- assoc, ColimitArrowCommutes.
+apply colimArrowUnique.
+now intro u; rewrite assoc, colimOfArrowsIn, <- assoc, colimArrowCommutes.
 Qed.
 
-Lemma postcompWithColimitArrow {g : graph} (D : diagram g C)
- (CC : ColimitCocone D)
+Lemma postcompWithColimArrow {g : graph} (D : diagram g C)
+ (CC : ColimCocone D)
  (c : C) (fc : ∀ u, C⟦dob D u,c⟧)
  (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u)
  (d : C) (k : C⟦c,d⟧) :
-   ColimitArrow CC c fc Hc ;; k =
-   ColimitArrow CC d (λ u, fc u ;; k) (Cocone_postcompose c fc Hc d k).
+   colimArrow CC c fc Hc ;; k =
+   colimArrow CC d (λ u, fc u ;; k) (Cocone_postcompose c fc Hc d k).
 Proof.
-apply ColimitArrowUnique.
-now intro u; rewrite assoc, ColimitArrowCommutes.
+apply colimArrowUnique.
+now intro u; rewrite assoc, colimArrowCommutes.
 Qed.
 
-Lemma Colimit_endo_is_identity {g : graph} (D : diagram g C)
-  (CC : ColimitCocone D)
-  (k : ColimitBottom CC ⇒ ColimitBottom CC)
-  (H : ∀ u, ColimitIn CC u ;; k = ColimitIn CC u) :
+Lemma colim_endo_is_identity {g : graph} (D : diagram g C)
+  (CC : ColimCocone D)
+  (k : colim CC ⇒ colim CC)
+  (H : ∀ u, colimIn CC u ;; k = colimIn CC u) :
   identity _ = k.
 Proof.
-unfold ColimitCocone in CC.
+unfold ColimCocone in CC.
 refine (uniqueExists _ _ ((pr2 CC) _ _ _) _ _ _ _).
 - intros v.
   exact (pr2 (pr1 (pr1 CC)) v).
 - intros u v e; simpl.
-  now apply ColimitInCommutes.
+  now apply colimInCommutes.
 - intros v; simpl.
   now apply id_right.
 - intros v; simpl.
@@ -252,84 +238,65 @@ exists (λ u, fc u ;; k).
 now apply Cocone_postcompose.
 Defined.
 
-Lemma test {g : graph} (D : diagram g C)
-           (c : C) (fc : ∀ u, C⟦dob D u,c⟧)
-           (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u)
-           (d : C) (k : C⟦c,d⟧) :
-           ∀ u, fc u ;; k = pr1 (Cocone_by_postcompose D c fc Hc d k) u.
+Lemma isColim_weq_subproof1 {g : graph} (D : diagram g C)
+  (c : C) (fc : ∀ u, C⟦dob D u,c⟧)
+  (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u)
+  (d : C) (k : C⟦c,d⟧) :
+  ∀ u, fc u ;; k = pr1 (Cocone_by_postcompose D c fc Hc d k) u.
 Proof.
 now intro u.
 Qed.
 
+Lemma isColim_weq_subproof2 (g : graph) (D : diagram g C)
+  (c : C) (fc : ∀ u, C⟦dob D u,c⟧) (Hc : ∀ u v e, dmor D e ;; fc v = fc u)
+  (H : ∀ d, isweq (Cocone_by_postcompose D c fc Hc d))
+  (d : C) (fd : ∀ u, C⟦dob D u,d⟧) (Hd : ∀ u v e, dmor D e ;; fd v = fd u)
+  (u : vertex g) :
+    fc u ;; invmap (weqpair _ (H d)) (tpair _ fd Hd) = fd u.
+Proof.
+rewrite (isColim_weq_subproof1 D c fc Hc d (invmap (weqpair _ (H d)) _) u).
+set (p := homotweqinvweq (weqpair _ (H d)) (tpair _ fd Hd)); simpl in p.
+now rewrite p.
+Qed.
 
-Lemma isColimit_weq {g : graph} (D : diagram g C)
-                    (c : C) (fc : ∀ u, C⟦dob D u,c⟧)
-                    (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u) :
-  isColimitCocone D c fc Hc <-> ∀ (d : C), isweq (Cocone_by_postcompose D c fc Hc d).
+Lemma isColim_weq {g : graph} (D : diagram g C)
+  (c : C) (fc : ∀ u, C⟦dob D u,c⟧)
+  (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u) :
+    isColimCocone D c fc Hc <-> ∀ d, isweq (Cocone_by_postcompose D c fc Hc d).
 Proof.
 split.
 - intros H d.
   refine (gradth _ _ _ _).
   + intros k.
-    exact (ColimitArrow (mk_ColimitCocone D c fc Hc H) _ (pr1 k) (pr2 k)).
+    exact (colimArrow (mk_ColimCocone D c fc Hc H) _ (pr1 k) (pr2 k)).
   + intro k; simpl.
-    now apply pathsinv0, (ColimitArrowEta (mk_ColimitCocone D c fc Hc H)).
+    now apply pathsinv0, (colimArrowEta (mk_ColimCocone D c fc Hc H)).
   + simpl; intro k.
     apply total2_paths_second_isaprop.
     * now repeat (apply impred; intro); apply hsC.
     * destruct k as [k Hk]; simpl.
       apply funextsec; intro u.
-      now apply (ColimitArrowCommutes (mk_ColimitCocone D c fc Hc H)).
+      now apply (colimArrowCommutes (mk_ColimCocone D c fc Hc H)).
 - intros H d fd Hd.
   refine (tpair _ _ _).
-  + set (p := invmap (weqpair _ (H d))).
-    exists (p (tpair _ fd Hd)).
-    intro u.
-set (Y := test D c fc Hc d).
-set (p' := p _).
-set (X := Y p' u).
-rewrite X.
-unfold p', p.
-set (asdf := tpair _ _ _).
-set (@homotweqinvweq _ _ (weqpair _ (H d)) asdf).
-simpl in p0.
-now rewrite p0.
-+
-intro.
-apply total2_paths_second_isaprop.
-apply impred; intro.
-apply hsC.
-simpl.
-destruct t as [t Ht]; simpl.
-set (q := weqpair _ (H d)).
-apply (invmaponpathsweq q).
-simpl.
-apply total2_paths_second_isaprop.
-repeat (apply impred; intro); apply hsC.
-simpl.
-apply funextsec; intro u.
-rewrite Ht.
-apply pathsinv0.
-set (p := invmap q).
-set (Y := test D c fc Hc d).
-set (p' := p _).
-set (X := Y p' u).
-rewrite X.
-unfold p', p.
-set (asdf := tpair _ _ _).
-set (@homotweqinvweq _ _ (weqpair _ (H d)) asdf).
-unfold q.
-simpl in p0.
-now rewrite p0.
+  + exists (invmap (weqpair _ (H d)) (tpair _ fd Hd)); intro u.
+    now apply isColim_weq_subproof2.
+  + intro t; apply total2_paths_second_isaprop;
+      [ now apply impred; intro; apply hsC | ].
+    destruct t as [t Ht]; simpl.
+    apply (invmaponpathsweq (weqpair _ (H d))); simpl.
+    apply total2_paths_second_isaprop;
+      [ now repeat (apply impred; intro); apply hsC | simpl ].
+    apply pathsinv0, funextsec; intro u; rewrite Ht.
+    now apply isColim_weq_subproof2.
 Defined.
 
+End colim_def.
 
-End colimit_def.
-
-Section ColimitFunctor.
+Section ColimFunctor.
 
 Variable A C : precategory.
-Variable HC : Colimits C.
+Variable HC : Colims C.
 Variable hsC : has_homsets C.
 Variable g : graph.
 Variable D : diagram g [A, C, hsC].
@@ -342,95 +309,98 @@ Defined.
 
 Let HCg a := HC g (diagram_pointwise a).
 
-Definition ColimitFunctor_ob (a : A) : C := ColimitBottom _ (HCg a).
+Definition ColimFunctor_ob (a : A) : C := colim _ (HCg a).
 
-Definition ColimitFunctor_mor (a a' : A) (f : A⟦a, a'⟧)
-  : ColimitFunctor_ob a ⇒ ColimitFunctor_ob a'.
+Definition ColimFunctor_mor (a a' : A) (f : A⟦a, a'⟧)
+  : ColimFunctor_ob a ⇒ ColimFunctor_ob a'.
 Proof.
-refine (ColimitOfArrows _ _ _ _ _).
+refine (colimOfArrows _ _ _ _ _).
 - now intro u; apply (# (pr1 (dob D u)) f).
 - abstract (now intros u v e; simpl; apply pathsinv0, (nat_trans_ax (dmor D e))).
 Defined.
 
-Definition ColimitFunctor_data : functor_data A C :=
-  tpair _ _ ColimitFunctor_mor.
+Definition ColimFunctor_data : functor_data A C :=
+  tpair _ _ ColimFunctor_mor.
 
-Lemma is_functor_ColimitFunctor_data : is_functor ColimitFunctor_data.
+Lemma is_functor_ColimFunctor_data : is_functor ColimFunctor_data.
 Proof.
 split.
 - intro a; simpl.
-  apply pathsinv0, Colimit_endo_is_identity; intro u.
-  unfold ColimitFunctor_mor.
-  now rewrite ColimitOfArrowsIn, (functor_id (dob D u)), id_left.
-- intros a b c fab fbc; simpl; unfold ColimitFunctor_mor.
+  apply pathsinv0, colim_endo_is_identity; intro u.
+  unfold ColimFunctor_mor.
+  now rewrite colimOfArrowsIn, (functor_id (dob D u)), id_left.
+- intros a b c fab fbc; simpl; unfold ColimFunctor_mor.
   apply pathsinv0.
-  eapply pathscomp0; [now apply precompWithColimitOfArrows|].
-  apply pathsinv0, ColimitArrowUnique; intro u.
-  now rewrite ColimitOfArrowsIn, (functor_comp (dob D u)), assoc.
+  eapply pathscomp0; [now apply precompWithColimOfArrows|].
+  apply pathsinv0, colimArrowUnique; intro u.
+  now rewrite colimOfArrowsIn, (functor_comp (dob D u)), assoc.
 Qed.
 
-Definition ColimitFunctor : functor A C :=
-  tpair _ _ is_functor_ColimitFunctor_data.
+Definition ColimFunctor : functor A C :=
+  tpair _ _ is_functor_ColimFunctor_data.
 
-Definition colimit_nat_trans_in_data v : [A, C, hsC] ⟦ dob D v, ColimitFunctor ⟧.
+Definition colim_nat_trans_in_data v : [A, C, hsC] ⟦ dob D v, ColimFunctor ⟧.
 Proof.
 refine (tpair _ _ _).
-- intro a; exact (ColimitIn C (HCg a) v).
+- intro a; exact (colimIn C (HCg a) v).
 - intros a a' f.
-  now apply pathsinv0, (ColimitOfArrowsIn _ _ _ (HCg a) (HCg a')).
+  now apply pathsinv0, (colimOfArrowsIn _ _ _ (HCg a) (HCg a')).
 Defined.
 
-Lemma ColimitFunctor_unique (F : [A, C, hsC])
+Lemma ColimFunctor_unique (F : [A, C, hsC])
   (Fc : ∀ v : vertex g, [A, C, hsC] ⟦ dob D v, F ⟧)
   (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; Fc v = Fc u) :
-   iscontr (Σ x : [A, C, hsC] ⟦ ColimitFunctor, F ⟧,
-            ∀ v : vertex g, colimit_nat_trans_in_data v ;; x = Fc v).
+   iscontr (Σ x : [A, C, hsC] ⟦ ColimFunctor, F ⟧,
+            ∀ v : vertex g, colim_nat_trans_in_data v ;; x = Fc v).
 Proof.
 refine (tpair _ _ _).
 - refine (tpair _ _ _).
   + refine (tpair _ _ _).
     * intro a.
-      apply (ColimitArrow _ (HCg a) _ (λ v, pr1 (Fc v) a)).
+      apply (colimArrow _ (HCg a) _ (λ v, pr1 (Fc v) a)).
       intros u v e.
       now apply (nat_trans_eq_pointwise _ _ _ _ _ _ (Hc u v e)).
     * intros a a' f; simpl.
-      eapply pathscomp0; [now apply precompWithColimitOfArrows|].
+      eapply pathscomp0; [now apply precompWithColimOfArrows|].
       apply pathsinv0.
-      eapply pathscomp0; [now apply postcompWithColimitArrow|].
-      apply ColimitArrowUnique.
-      intro u.
-      eapply pathscomp0; [now apply ColimitArrowCommutes|].
+      eapply pathscomp0; [now apply postcompWithColimArrow|].
+      apply colimArrowUnique; intro u.
+      eapply pathscomp0; [now apply colimArrowCommutes|].
       now apply pathsinv0, nat_trans_ax.
   + intro u.
     apply (nat_trans_eq hsC); simpl; intro a.
-    now apply (ColimitArrowCommutes _ (HCg a)).
+    now apply (colimArrowCommutes _ (HCg a)).
 - intro t; destruct t as [t1 t2].
   apply (total2_paths_second_isaprop); simpl.
   + apply impred; intro u.
     now apply functor_category_has_homsets.
   + apply (nat_trans_eq hsC); simpl; intro a.
-    apply ColimitArrowUnique; intro u.
+    apply colimArrowUnique; intro u.
     now rewrite <- (t2 u).
 Qed.
 
-Lemma ColimitFunctorCocone : ColimitCocone [A,C,hsC] D.
+Lemma ColimFunctorCocone : ColimCocone [A,C,hsC] D.
 Proof.
 refine (tpair _ _ _).
 - refine (tpair _ _ _).
-  + exists ColimitFunctor.
-    now apply colimit_nat_trans_in_data.
+  + exists ColimFunctor.
+    now apply colim_nat_trans_in_data.
   + abstract (now intros u v e; apply (nat_trans_eq hsC);
-                  intro a; apply (ColimitInCommutes C (HCg a))).
-- now intros F Fc Hc; simpl; apply (ColimitFunctor_unique _ _ Hc).
+                  intro a; apply (colimInCommutes C (HCg a))).
+- now intros F Fc Hc; simpl; apply (ColimFunctor_unique _ _ Hc).
 Defined.
 
-End ColimitFunctor.
+End ColimFunctor.
 
-Lemma ColimitsFunctorCategory (A C : precategory) (hsC : has_homsets C)
-  (HC : Colimits C) : Colimits [A,C,hsC].
+Lemma ColimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
+  (HC : Colims C) : Colims [A,C,hsC].
 Proof.
-now intros g d; apply ColimitFunctorCocone.
+now intros g d; apply ColimFunctorCocone.
 Qed.
+
+
+
+
 
 (**** TODO: Adapt *)
 (** * Proof that coproducts are unique when the precategory [C] is a category *)
