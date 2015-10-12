@@ -1,4 +1,4 @@
-colimits/cocones.v
+colimits/colimits.v
 slicecat.v
 rezk_completion.v
 precomp_ess_surj.v
