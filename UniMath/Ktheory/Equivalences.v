@@ -55,23 +55,18 @@ Definition weq_to_Equivalence X Y : X ≃ Y -> Equivalence X Y.
                  @ (fiber_paths (L x)))).
 Defined.
 
+(* this construction shows how to get the adjointness from a weak equivalence 
+   easily, using the two homotopies naturally provided *)
 Definition weq_to_Equivalence' X Y : X ≃ Y -> Equivalence X Y.
   intros ? ? f.
   set (g := invmap f).
   set (p := homotweqinvweq f).
   set (q := homotinvweqweq f).
-  apply (makeEquivalence X Y f g p q).
+  refine (makeEquivalence X Y f g p q _).
   intros.
-  simpl in p.
-  unfold p, q, homotinvweqweq, homotweqinvweq, homotinvweqweq0.
-  clear p.
-  clear q.
-  induction f as [f is]; simpl.
-  unfold invmap in g.
-  unfold weqccontrhfiber2, weqccontrhfiber in *.
-  simpl in *.
-  (* this should be easy to complete *)
-Abort.
+  induction f as [f is].
+  apply hfibertriangle1inv0'.
+Defined.
 
 Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
   intros ? ? [f r].
