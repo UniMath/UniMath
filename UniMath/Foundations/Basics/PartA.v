@@ -667,11 +667,31 @@ Proof.
   intros. induction e. simpl. apply idpath.
 Defined.
 
+Corollary hfibertriangle1' {X Y : UU} (f : X -> Y) {x : X} {xe1: hfiber f (f x)}
+  (e : xe1 = (x,,idpath (f x))) :
+    pr2 xe1 = maponpaths f (maponpaths pr1 e).
+Proof.
+  intros.
+  intermediate_path (maponpaths f (maponpaths pr1 e) @ idpath (f x)).
+  - apply hfibertriangle1.
+  - apply pathscomp0rid.
+Defined.
+
 Lemma hfibertriangle1inv0 {X Y : UU} (f : X -> Y) {y : Y} {xe1 xe2: hfiber f y}
   (e : xe1 = xe2) :
     maponpaths f (! (maponpaths pr1 e)) @ (pr2 xe1) = pr2 xe2. 
 Proof.
   intros. induction e. apply idpath.
+Defined.
+
+Corollary hfibertriangle1inv0' {X Y : UU} (f : X -> Y) {x : X} {xe2: hfiber f (f x)}
+  (e : (x,,idpath (f x)) = xe2) :
+    maponpaths f (! (maponpaths pr1 e)) = pr2 xe2. 
+Proof.
+  intros.
+  intermediate_path (maponpaths f (! (maponpaths pr1 e)) @ idpath (f x)).
+  - apply pathsinv0, pathscomp0rid.
+  - apply hfibertriangle1inv0.
 Defined.
 
 Lemma hfibertriangle2 {X Y : UU} (f : X -> Y) {y : Y} (xe1 xe2: hfiber f y)
