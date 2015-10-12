@@ -33,7 +33,7 @@ Proof.
   - apply iscontrfunfromempty.
 Qed.  
 
-Definition nil_unique {X} (x : stn 0 -> X) : (0,,x) = nil.
+Definition nil_unique {X} (x : stn 0 -> X) : nil = (0,,x).
 Proof.
   intros. apply pair_path_in2. apply isapropifcontr. apply stn0_fun_iscontr.
 Defined.
@@ -92,6 +92,7 @@ Proof.
     induction x as [n x].
     simpl in e.
     induction (!e).
+    apply pathsinv0.
     apply nil_unique.
   - intro h.
     induction (!h).
@@ -159,8 +160,7 @@ Proof.
   - intros.
     induction x as [n x].
     induction n as [|n].
-    + apply pathsinv0.
-      apply nil_unique.
+    + apply nil_unique.
     + apply drop_and_append'.
   - intros co.
     (* maybe isolate this case as a lemma *)
@@ -188,17 +188,16 @@ Definition Sequence_rect {X} {P : Sequence X -> UU}
            (p0 : P nil)
            (ind : ∀ (x : Sequence X) (y : X), P x -> P (append x y))
            (x : Sequence X) : P x.
-Proof.
-  intros.
-  induction x as [n x].
-  induction n as [|n IH].
-  - induction (nil_unique x). exact p0.
-  - set (p := ind (n,,x ∘ (dni_allButLast _)) (x (lastelement _)) (IH (x ∘ dni_allButLast _))).
-    induction (drop_and_append x).
-    exact p.
+Proof. intros. induction x as [n x]. induction n as [|n IH].
+  - exact (transportf _ (nil_unique x) p0).
+  - exact (transportf _
+                      (drop_and_append x)
+                      (ind (n,,x ∘ dni_allButLast _)
+                           (x (lastelement _))
+                           (IH (x ∘ dni_allButLast _)))).
 Defined.
 
-Lemma Sequence_rect_nil {X} {P : Sequence X -> UU} (p0 : P nil)
+Lemma Sequence_rect_compute_nil {X} {P : Sequence X -> UU} (p0 : P nil)
       (ind : ∀ (s : Sequence X) (x : X), P s -> P (append s x)) :
   Sequence_rect p0 ind nil = p0.
 Proof.
@@ -210,7 +209,7 @@ Proof.
 
 Abort.
 
-Lemma Sequence_rect_cons
+Lemma Sequence_rect_compute_cons
       {X} {P : Sequence X -> UU} (p0 : P nil)
       (ind : ∀ (s : Sequence X) (x : X), P s -> P (append s x))
       (x:X) (l:Sequence X) :
