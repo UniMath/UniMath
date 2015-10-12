@@ -77,6 +77,7 @@ Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
 Definition dirprod (X Y : UU) := Σ x:X, Y.
 
 Notation "A × B" := (dirprod A B) (at level 80, right associativity) : type_scope.
+  (* type this in emacs in agda-input method with \times *)
 
 Definition dirprodpair {X Y : UU} := tpair (fun x : X => Y).
 
@@ -100,24 +101,26 @@ Defined.
 
 Definition neg (X : UU) : UU := X -> empty.
 
+Notation "'¬' X" := (neg X) (at level 35, right associativity).
+  (* type this in emacs in agda-input method with \neg *)
+
 Notation "x != y" := (neg (x = y)) (at level 40).
 
 (* Apply this tactic to a proof of [X] and [neg X], in either order: *)
 Ltac contradicts a b := solve [ induction (a b) | induction (b a) ].
 
-Definition negf {X Y : UU} (f : X -> Y) : neg Y -> neg X := 
-  fun (phi : Y -> empty) => fun (x : X) => phi (f x).
+Definition negf {X Y : UU} (f : X -> Y) : ¬ Y -> ¬ X := λ phi x, phi (f x).
 
-Definition dneg (X : UU) : UU := (X -> empty) -> empty.
+Definition dneg (X : UU) : UU := ¬ ¬ X.
 
 Definition dnegf {X Y : UU} (f : X -> Y) : dneg X -> dneg Y :=
   negf (negf f).
 
 Definition todneg (X : UU) : X -> dneg X := adjev.
 
-Definition dnegnegtoneg { X : UU } : dneg (neg X) -> neg X := adjev2.
+Definition dnegnegtoneg { X : UU } : dneg (¬ X) -> ¬ X := adjev2.
 
-Lemma dneganddnegl1 {X Y : UU} (dnx : dneg X) (dny : dneg Y) : neg (X -> neg Y).
+Lemma dneganddnegl1 {X Y : UU} (dnx : dneg X) (dny : dneg Y) : ¬ (X -> ¬ Y).
 Proof.
   intros.
   intros X2.
@@ -134,7 +137,7 @@ Definition dneganddnegimpldneg {X Y : UU}
 Definition logeq (X Y : UU) := dirprod (X -> Y)  (Y -> X) .
 Notation " X <-> Y " := (logeq X Y) : type_scope .  
 
-Definition logeqnegs {X Y : UU} (l : X <-> Y ) : (neg X) <-> (neg Y) :=
+Definition logeqnegs {X Y : UU} (l : X <-> Y ) : (¬ X) <-> (¬ Y) :=
   dirprodpair (negf (pr2 l)) (negf (pr1 l)). 
 
 (* end of "Some standard constructions not using idenity types (paths)". *)
@@ -551,6 +554,7 @@ Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
 Definition iscontr (T:UU) : UU := Σ cntr:T, ∀ t:T, t=cntr.
 
 Notation "'∃!'  x .. y , P" := (iscontr (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
+  (* type this in emacs in agda-input method with \ex ! *)
 
 Definition iscontrpair {T : UU} : ∀ x : T, (∀ t : T, t = x) -> iscontr T := tpair _.
 
@@ -795,12 +799,12 @@ Defined.
 Definition weqtoempty {X : UU} (f : X -> empty) :=
   weqpair _ (isweqtoempty f).
 
-Lemma isweqtoempty2 {X Y : UU} (f : X -> Y) (is : neg Y) : isweq f.
+Lemma isweqtoempty2 {X Y : UU} (f : X -> Y) (is : ¬ Y) : isweq f.
 Proof.
   intros. intro y. induction (is y).
 Defined. 
 
-Definition weqtoempty2 {X Y : UU} (f : X -> Y) (is : neg Y) :=
+Definition weqtoempty2 {X Y : UU} (f : X -> Y) (is : ¬ Y) :=
   weqpair _ (isweqtoempty2 f is).
 
 Definition invmap {X Y : UU} (w : X ≃ Y) : Y -> X :=
@@ -1582,11 +1586,11 @@ split with f . apply ( gradth _ _ egf  efg ) . Defined .
 (** *** Coproducts and direct products *)
 
 
-Definition rdistrtocoprod ( X Y Z : UU ): dirprod X (coprod Y Z) -> coprod (dirprod X Y) (dirprod X Z).
+Definition rdistrtocoprod ( X Y Z : UU ): dirprod X (Y ⨿ Z) -> (X × Y) ⨿ (X × Z).
 Proof. intros X Y Z X0. induction X0 as [ t x ].  induction x as [ y | z ] .   apply (ii1  (dirprodpair  t y)). apply (ii2  (dirprodpair  t z)). Defined.
 
 
-Definition rdistrtoprod (X Y Z:UU): coprod (dirprod X Y) (dirprod X Z) ->  dirprod X (coprod Y Z).
+Definition rdistrtoprod (X Y Z:UU): (X × Y) ⨿ (X × Z) ->  X × (Y ⨿ Z).
 Proof. intros X Y Z X0. induction X0 as [ d | d ].  induction d as [ t x ]. apply (dirprodpair  t (ii1  x)). induction d as [ t x ]. apply (dirprodpair  t (ii2  x)). Defined. 
 
 
@@ -1608,13 +1612,13 @@ Definition weqrdistrtocoprod (X Y Z: UU):= weqpair  _ (isweqrdistrtocoprod X Y Z
 (** *** Total space of a family over a coproduct *)
 
 
-Definition fromtotal2overcoprod { X Y : UU } ( P : coprod X Y -> UU ) ( xyp : total2 P ) : coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) .
+Definition fromtotal2overcoprod { X Y : UU } ( P : X ⨿ Y -> UU ) ( xyp : total2 P ) : coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) .
 Proof. intros . set ( PX :=  fun x : X => P ( ii1 x ) ) . set ( PY :=  fun y : Y => P ( ii2 y ) ) . induction xyp as [ xy p ] . induction xy as [ x | y ] . apply (  ii1 ( tpair PX x p ) ) .   apply ( ii2 ( tpair PY y p ) ) . Defined .
 
-Definition tototal2overcoprod { X Y : UU } ( P : coprod X Y -> UU ) ( xpyp :  coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) ) : total2 P .
+Definition tototal2overcoprod { X Y : UU } ( P : X ⨿ Y -> UU ) ( xpyp :  coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) ) : total2 P .
 Proof . intros . induction xpyp as [ xp | yp ] . induction xp as [ x p ] . apply ( tpair P ( ii1 x ) p ) .   induction yp as [ y p ] . apply ( tpair P ( ii2 y ) p ) . Defined . 
  
-Theorem weqtotal2overcoprod { X Y : UU } ( P : coprod X Y -> UU ) : weq ( total2 P ) ( coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) ) .
+Theorem weqtotal2overcoprod { X Y : UU } ( P : X ⨿ Y -> UU ) : weq ( total2 P ) ( coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) ) .
 Proof. intros .  set ( f := fromtotal2overcoprod P ) . set ( g := tototal2overcoprod P ) . split with f . 
 assert ( egf : ∀ a : _ , ( g ( f a ) ) = a ) . intro a . induction a as [ xy p ] . induction xy as [ x | y ] . simpl . apply idpath . simpl .  apply idpath .     
 assert ( efg : ∀ a : _ , ( f ( g a ) ) = a ) . intro a . induction a as [ xp | yp ] . induction xp as [ x p ] . simpl . apply idpath .  induction yp as [ y p ] . apply idpath .
@@ -1650,7 +1654,7 @@ apply (gradth  f g egf efg). Defined.
 
 
 
-Definition sumofmaps {X Y Z:UU}(fx: X -> Z)(fy: Y -> Z): (coprod X Y) -> Z := fun xy:_ => match xy with ii1 x => fx x | ii2 y => fy y end.
+Definition sumofmaps {X Y Z:UU}(fx: X -> Z)(fy: Y -> Z): (X ⨿ Y) -> Z := fun xy:_ => match xy with ii1 x => fx x | ii2 y => fy y end.
 
 
 Definition boolascoprod: weq (coprod unit unit) bool.
@@ -1661,10 +1665,10 @@ assert (efg: ∀ t:_, (f (g t)) = t). induction t. apply idpath. apply idpath.
 apply (gradth  f g egf efg). Defined.  
 
 
-Definition coprodasstor (X Y Z:UU): coprod (coprod X Y) Z -> coprod X (coprod Y Z).
+Definition coprodasstor (X Y Z:UU): coprod (X ⨿ Y) Z -> coprod X (Y ⨿ Z).
 Proof. intros X Y Z X0. induction X0 as [ c | z ] .  induction c as [ x | y ] .  apply (ii1  x). apply (ii2  (ii1  y)). apply (ii2  (ii2  z)). Defined.
 
-Definition coprodasstol (X Y Z: UU): coprod X (coprod Y Z) -> coprod (coprod X Y) Z.
+Definition coprodasstol (X Y Z: UU): coprod X (Y ⨿ Z) -> coprod (X ⨿ Y) Z.
 Proof. intros X Y Z X0. induction X0 as [ x | c ] .  apply (ii1  (ii1  x)). induction c as [ y | z ] .   apply (ii1  (ii2  y)). apply (ii2  z). Defined.
 
 Theorem isweqcoprodasstor (X Y Z:UU): isweq (coprodasstor X Y Z).
@@ -1680,7 +1684,7 @@ Proof. intros. apply (isweqinvmap ( weqcoprodasstor X Y Z)  ). Defined.
 
 Definition weqcoprodasstol (X Y Z:UU):= weqpair  _ (isweqcoprodasstol X Y Z).
 
-Definition coprodcomm (X Y:UU): coprod X Y -> coprod Y X := fun xy:_ => match xy with ii1 x => ii2  x | ii2 y => ii1  y end. 
+Definition coprodcomm (X Y:UU): X ⨿ Y -> coprod Y X := fun xy:_ => match xy with ii1 x => ii2  x | ii2 y => ii1  y end. 
 
 Theorem isweqcoprodcomm (X Y:UU): isweq (coprodcomm X Y).
 Proof. intros. set (f:= coprodcomm X Y). set (g:= coprodcomm Y X).
@@ -1691,24 +1695,24 @@ apply (gradth  f g egf efg). Defined.
 Definition weqcoprodcomm (X Y:UU):= weqpair  _ (isweqcoprodcomm X Y). 
 
 Theorem isweqii1withneg  (X : UU) { Y : UU } (nf:Y -> empty): isweq (@ii1 X Y).
-Proof. intros. set (f:= @ii1 X Y). set (g:= fun xy:coprod X Y => match xy with ii1 x => x | ii2 y => fromempty (nf y) end).  
+Proof. intros. set (f:= @ii1 X Y). set (g:= fun xy:X ⨿ Y => match xy with ii1 x => x | ii2 y => fromempty (nf y) end).  
 assert (egf: ∀ x:X, (g (f x)) = x). intro. apply idpath. 
-assert (efg: ∀ xy: coprod X Y, (f (g xy)) = xy). intro. induction xy as [ x | y ] . apply idpath. apply (fromempty (nf y)).  
+assert (efg: ∀ xy: X ⨿ Y, (f (g xy)) = xy). intro. induction xy as [ x | y ] . apply idpath. apply (fromempty (nf y)).  
 apply (gradth  f g egf efg). Defined.  
 
-Definition weqii1withneg ( X : UU ) { Y : UU } ( nf : neg Y ) := weqpair _ ( isweqii1withneg X nf ) .
+Definition weqii1withneg ( X : UU ) { Y : UU } ( nf : ¬ Y ) := weqpair _ ( isweqii1withneg X nf ) .
 
 Theorem isweqii2withneg  { X  : UU } ( Y : UU ) (nf : X -> empty): isweq (@ii2 X Y).
-Proof. intros. set (f:= @ii2 X Y). set (g:= fun xy:coprod X Y => match xy with ii1 x => fromempty (nf x) | ii2 y => y end).  
+Proof. intros. set (f:= @ii2 X Y). set (g:= fun xy:X ⨿ Y => match xy with ii1 x => fromempty (nf x) | ii2 y => y end).  
 assert (egf: ∀ y : Y, (g (f y)) = y). intro. apply idpath. 
-assert (efg: ∀ xy: coprod X Y, (f (g xy)) = xy). intro. induction xy as [ x | y ] . apply (fromempty (nf x)).  apply idpath. 
+assert (efg: ∀ xy: X ⨿ Y, (f (g xy)) = xy). intro. induction xy as [ x | y ] . apply (fromempty (nf x)).  apply idpath. 
 apply (gradth  f g egf efg). Defined.  
 
-Definition weqii2withneg { X : UU } ( Y : UU ) ( nf : neg X ) := weqpair _ ( isweqii2withneg Y nf ) .
+Definition weqii2withneg { X : UU } ( Y : UU ) ( nf : ¬ X ) := weqpair _ ( isweqii2withneg Y nf ) .
 
 
 
-Definition coprodf { X Y X' Y' : UU } (f: X -> X')(g: Y-> Y'): coprod X Y -> coprod X' Y' := fun xy: coprod X Y =>
+Definition coprodf { X Y X' Y' : UU } (f: X -> X')(g: Y-> Y'): X ⨿ Y -> coprod X' Y' := fun xy: X ⨿ Y =>
 match xy with
 ii1 x => ii1  (f x)|
 ii2 y => ii2  (g y)
@@ -1724,7 +1728,7 @@ Definition homotcoprodfhomot { X X' Y Y' } ( f g : X -> Y ) ( f' g' : X' -> Y' )
 
 Theorem isweqcoprodf { X Y X' Y' : UU } ( w : weq X X' )( w' : weq Y Y' ) : isweq (coprodf w w' ).
 Proof. intros. set (finv:= invmap w ). set (ginv:= invmap w' ). set (ff:=coprodf w w' ). set (gg:=coprodf   finv ginv). 
-assert (egf: ∀ xy: coprod X Y, (gg (ff xy)) = xy). intro. induction xy as [ x | y ] . simpl. apply (maponpaths (@ii1 X Y)  (homotinvweqweq w x)).     apply (maponpaths (@ii2 X Y)  (homotinvweqweq w' y)).
+assert (egf: ∀ xy: X ⨿ Y, (gg (ff xy)) = xy). intro. induction xy as [ x | y ] . simpl. apply (maponpaths (@ii1 X Y)  (homotinvweqweq w x)).     apply (maponpaths (@ii2 X Y)  (homotinvweqweq w' y)).
 assert (efg: ∀ xy': coprod X' Y', (ff (gg xy')) = xy'). intro. induction xy' as [ x | y ] . simpl.  apply (maponpaths (@ii1 X' Y')  (homotweqinvweq w x)).     apply (maponpaths (@ii2 X' Y')  (homotweqinvweq w' y)). 
 apply (gradth  ff gg egf efg). Defined. 
 
@@ -1732,11 +1736,11 @@ apply (gradth  ff gg egf efg). Defined.
 Definition weqcoprodf { X Y X' Y' : UU } (w1: weq X Y)(w2: weq X' Y') : weq (coprod X X') (coprod Y Y') := weqpair _ ( isweqcoprodf w1 w2 ) .
 
 
-Lemma negpathsii1ii2 { X Y : UU } (x:X)(y:Y): neg ((ii1  x) = (ii2  y)).
-Proof. intros. unfold neg. intro X0. set (dist:= fun xy: coprod X Y => match xy with ii1 x => unit | ii2 y => empty end). apply (transportf dist  X0 tt). Defined.
+Lemma negpathsii1ii2 { X Y : UU } (x:X)(y:Y): ((ii1  x) != (ii2  y)).
+Proof. intros. unfold neg. intro X0. set (dist:= fun xy: X ⨿ Y => match xy with ii1 x => unit | ii2 y => empty end). apply (transportf dist  X0 tt). Defined.
 
-Lemma negpathsii2ii1 { X Y : UU } (x:X)(y:Y): neg ((ii2  y) = (ii1  x)).
-Proof. intros. unfold neg. intro X0. set (dist:= fun xy: coprod X Y => match xy with ii1 x => empty | ii2 y => unit end). apply (transportf dist  X0 tt). Defined.
+Lemma negpathsii2ii1 { X Y : UU } (x:X)(y:Y): ((ii2  y) != (ii1  x)).
+Proof. intros. unfold neg. intro X0. set (dist:= fun xy: X ⨿ Y => match xy with ii1 x => empty | ii2 y => unit end). apply (transportf dist  X0 tt). Defined.
 
 
 
@@ -1876,7 +1880,7 @@ Defined.
 (** *** Pairwise coproducts as dependent sums of families over [ bool ] *)
 
 
-Definition coprodtobool { X Y : UU } ( xy : coprod X Y ) : bool :=
+Definition coprodtobool { X Y : UU } ( xy : X ⨿ Y ) : bool :=
 match xy with
 ii1 x => true|
 ii2 y => false
@@ -1889,14 +1893,14 @@ true => X|
 false => Y
 end.
 
-Definition coprodtoboolsum ( X Y : UU ) : coprod X Y -> total2 (boolsumfun X Y) := fun xy : _ =>
+Definition coprodtoboolsum ( X Y : UU ) : X ⨿ Y -> total2 (boolsumfun X Y) := fun xy : _ =>
 match xy with
 ii1 x => tpair (boolsumfun X Y) true x|
 ii2 y => tpair (boolsumfun X Y) false y
 end .
 
 
-Definition boolsumtocoprod (X Y:UU): (total2 (boolsumfun X Y)) -> coprod X Y := (fun xy:_ =>
+Definition boolsumtocoprod (X Y:UU): (total2 (boolsumfun X Y)) -> X ⨿ Y := (fun xy:_ =>
 match xy with 
 tpair _ true x => ii1  x|
 tpair _ false y => ii2  y
@@ -1906,7 +1910,7 @@ end).
 
 Theorem isweqcoprodtoboolsum (X Y:UU): isweq (coprodtoboolsum X Y).
 Proof. intros. set (f:= coprodtoboolsum X Y). set (g:= boolsumtocoprod X Y). 
-assert (egf: ∀ xy: coprod X Y , (g (f xy)) = xy). induction xy. apply idpath. apply idpath. 
+assert (egf: ∀ xy: X ⨿ Y , (g (f xy)) = xy). induction xy. apply idpath. apply idpath. 
 assert (efg: ∀ xy: total2 (boolsumfun X Y), (f (g xy)) = xy). intro. induction xy as [ t x ]. induction t.  apply idpath. apply idpath. apply (gradth  f g egf efg). Defined.
 
 Definition weqcoprodtoboolsum ( X Y : UU ) := weqpair _ ( isweqcoprodtoboolsum X Y ) .
@@ -1949,16 +1953,16 @@ Proof. intro X.  apply (transportf curry  X tt).  Defined.
 Corollary nopathsfalsetotrue: false = true -> empty.
 Proof. intro X. apply (transportb curry  X tt). Defined. 
 
-Definition truetonegfalse ( x : bool ) : x = true -> neg ( x = false ) .
+Definition truetonegfalse ( x : bool ) : x = true -> x != false.
 Proof . intros x e . rewrite e . unfold neg . apply nopathstruetofalse . Defined . 
 
-Definition falsetonegtrue ( x : bool ) : x = false -> neg ( x = true ) .
+Definition falsetonegtrue ( x : bool ) : x = false -> x != true.
 Proof . intros x e . rewrite e . unfold neg . apply nopathsfalsetotrue . Defined .  
 
-Definition negtruetofalse (x : bool ) : neg ( x = true ) -> x = false .
+Definition negtruetofalse (x : bool ) : x != true -> x = false .
 Proof. intros x ne. induction (boolchoice x) as [t | f]. induction (ne t). apply f. Defined. 
 
-Definition negfalsetotrue ( x : bool ) : neg ( x = false ) -> x = true . 
+Definition negfalsetotrue ( x : bool ) : x != false -> x = true . 
 Proof. intros x ne . induction (boolchoice x) as [t | f].  apply t . induction (ne f) . Defined. 
 
 
