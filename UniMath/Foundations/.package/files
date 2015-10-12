@@ -1,6 +1,8 @@
 SimplicialSets.v
 RationalNumbers.v
 Integers.v
+Algebra/Associativity.v
+Sequences.v
 FiniteSets.v
 StandardFiniteSets.v
 NaturalNumbers.v
@@ -11,6 +13,7 @@ Algebra/BinaryOperations.v
 Sets.v
 Propositions.v
 FunctionalExtensionality.v
+Tactics.v
 Basics/All.v
 Basics/PartD.v
 Basics/PartC.v

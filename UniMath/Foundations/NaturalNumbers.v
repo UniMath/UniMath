@@ -57,6 +57,10 @@ Definition isdecrelnateq : isdecrel nateq  := fun a b => isdeceqnat a b .
 Definition natdeceq : decrel nat := decrelpair isdecrelnateq . 
 
 Definition natbooleq := decreltobrel natdeceq .  
+    Goal ∀ i, natbooleq i i = true.
+    Proof. intros. apply rtopaths. reflexivity. Defined.
+    Goal ∀ i j, neg (i = j) -> natbooleq i j = false.
+    Proof. intros ? ? inej. apply negrtopaths. exact inej. Defined.
 
 Definition natneq ( x y : nat ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
 Definition isdecrelnatneq : isdecrel natneq  := isdecnegrel _ isdecrelnateq . 
@@ -212,7 +216,7 @@ Proof. apply istransnegrel . unfold iscotrans. apply iscotransnatgth .  Defined.
 
 Definition isreflnatleh ( n : nat ) : natleh n n := isirreflnatgth n .  
 
-Definition isantisymmnatleh ( n m : nat ) : natleh n m -> natleh m n -> paths n m := isantisymmnegnatgth n m .   
+Definition isantisymmnatleh : isantisymm natleh := isantisymmnegnatgth .   
 
 Definition isdecrelnatleh : isdecrel natleh := isdecnegrel _ isdecrelnatgth . 
 
@@ -591,12 +595,13 @@ Proof.  intros n m g . destruct ( natgehchoice _ _ ( natgthtogehp1 _ _ g ) ) as 
 Lemma natlthchoice3 ( n m : nat ) : natlth n m -> coprod ( natlth ( n + 1 )  m ) ( paths ( n + 1 )  m ) .
 Proof.  intros n m l . destruct ( natlehchoice _ _ ( natlthtolehp1 _ _ l ) ) as [ l' | e ] . apply ( ii1 l' ) .  apply ( ii2 e ) .   Defined . 
    
-
-
-
-
-
-
+Lemma natlehchoice4 n m : n < S m -> coprod (n < m) (n = m).
+Proof.
+  intros ? ? b.
+  induction (natlthorgeh n m) as [p|p].
+  - exact (ii1 p).
+  - exact (ii2 (isantisymmnatleh _ _ (natlthsntoleh _ _ b) p)).
+Defined.
 
 (** *** Cancellation properties of [ plus ] on [ nat ] *)
 
@@ -1057,7 +1062,7 @@ Definition natdivrem ( n m : nat ) : dirprod nat nat .
 Proof. intros . induction n as [ | n IHn ] . intros . apply ( dirprodpair 0 0 ) . destruct ( natlthorgeh ( S ( pr2 IHn ) ) m )  . apply ( dirprodpair ( pr1 IHn ) ( S ( pr2 IHn ) ) ) .  apply ( dirprodpair ( S ( pr1 IHn ) ) 0 ) .   Defined . 
 
 Definition natdiv ( n m : nat )  := pr1 ( natdivrem n m ) .
-Definition natrem ( n m : nat )  := pr2 ( natdivrem n m ) .
+Definition natrem ( n m : nat ) : nat := pr2 ( natdivrem n m ) .
 
 Lemma lthnatrem ( n m : nat ) ( is : natneq m 0 ) : natlth ( natrem n m ) m .
 Proof. intro . destruct n as [ | n ] . unfold natrem . simpl . intros.  apply ( natneq0togth0 _ is ) .  unfold natrem . intros m is . simpl .   destruct ( natlthorgeh (S (pr2 (natdivrem n m))) m )  as [ nt | t ] . simpl . apply nt . simpl .  apply ( natneq0togth0 _ is ) .   Defined . 

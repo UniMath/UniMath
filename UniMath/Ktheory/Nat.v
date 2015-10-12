@@ -63,7 +63,7 @@ Module Uniqueness.
          { intros [[f h'] h0]. reflexivity. }
   Defined.
 
-  Lemma hNatRecursionEquiv (P:nat->Type) (IH:∀ n, P n->P(S n)) :
+  Lemma hNatRecursion_weq (P:nat->Type) (IH:∀ n, P n->P(S n)) :
     weq (totalSpace (fun f:∀ n, P n => ∀ n, f(S n)=IH n (f n))) (P 0).
   Proof. intros. exists (fun f => pr1 f 0). intro p0.
          apply (iscontrweqf (helper_D _ _ _)). apply hNatRecursionUniq.

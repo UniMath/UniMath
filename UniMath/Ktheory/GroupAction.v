@@ -373,7 +373,7 @@ Definition triviality_isomorphism {G:gr} (X:Torsor G) (x:X) :
 Proof. intros. 
        exact (torsor_mult_weq X x,, univ_function_is_equivariant X x). Defined.
 
-Definition trivialTorsorEquiv (G:gr) (g:G) : weq (trivialTorsor G) (trivialTorsor G).
+Definition trivialTorsor_weq (G:gr) (g:G) : weq (trivialTorsor G) (trivialTorsor G).
 Proof. intros. exists (fun h => op h g). apply (gradth _ (fun h => op h (grinv G g))).
        { exact (fun h => assocax _ _ _ _ @ ap (op _) (grrinvax _ _) @ runax _ _). }
        { exact (fun h => assocax _ _ _ _ @ ap (op _) (grlinvax _ _) @ runax _ _). }
@@ -381,7 +381,7 @@ Defined.
 
 Definition trivialTorsorAuto (G:gr) (g:G) : 
   ActionIso (trivialTorsor G) (trivialTorsor G).
-Proof. intros. exists (trivialTorsorEquiv G g).
+Proof. intros. exists (trivialTorsor_weq G g).
        intros h x. simpl.  exact (assocax _ h x g). Defined.
 
 Lemma pr1weq_injectivity {X Y} (f g:X ≃ Y) : weq (f = g) (pr1weq f = pr1weq g).
@@ -396,7 +396,7 @@ Proof. intros. exists (trivialTorsorAuto G). refine (gradth _ _ _ _).
        } Defined.
 
 Definition autos_comp (G:gr) (g:G) : 
-  underlyingIso (autos G g) = trivialTorsorEquiv G g.
+  underlyingIso (autos G g) = trivialTorsor_weq G g.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
@@ -407,8 +407,8 @@ Defined.
 
 Lemma trivialTorsorAuto_unit (G:gr) : 
   trivialTorsorAuto G (unel _) = idActionIso _.
-Proof. intros. refine (pair_path_props _ _).
-       { refine (pair_path_props _ _).
+Proof. intros. refine (total2_paths2_second_isaprop _ _).
+       { refine (total2_paths2_second_isaprop _ _).
          { apply funextsec; intro x; simpl. exact (runax G x). }
          { apply isapropisweq. } }
        { intro k. apply is_equivariant_isaprop. } Defined.
@@ -416,8 +416,8 @@ Proof. intros. refine (pair_path_props _ _).
 Lemma trivialTorsorAuto_mult (G:gr) (g h:G) :
   composeActionIso (trivialTorsorAuto G g) (trivialTorsorAuto G h) 
   = (trivialTorsorAuto G (op g h)).
-Proof. intros. refine (pair_path_props _ _).
-       { refine (pair_path_props _ _).
+Proof. intros. refine (total2_paths2_second_isaprop _ _).
+       { refine (total2_paths2_second_isaprop _ _).
          { apply funextsec; intro x; simpl. exact (assocax _ x g h). }
          { apply isapropisweq. } }
        { intro k. apply is_equivariant_isaprop. } Defined.
