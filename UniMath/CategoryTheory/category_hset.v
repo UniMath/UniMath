@@ -16,6 +16,8 @@ Contents :
             Precategory HSET of hSets
 
 	    HSET is a category
+	    
+	    Colimits in HSET
 
 
 ************************************************************)
