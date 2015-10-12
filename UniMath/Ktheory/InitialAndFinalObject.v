@@ -1,25 +1,24 @@
 (* -*- coding: utf-8 -*- *)
 
-(** *** terminal objects *)
-
 Require Import
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.total2_paths
         UniMath.Foundations.Sets.
-Import Precategories.Notation.
-Module TerminalObject.
+
+(** *** terminal objects *)
+
   Definition isTerminalObject (C:precategory) (a:ob C) := 
-    forall x:ob C, iscontr (a ← x).
+    ∀ x:ob C, iscontr (a ← x).
   Lemma theTerminalObjectIsomorphy (C:precategory) (a b:ob C) :
     isTerminalObject C a -> isTerminalObject C b -> @iso C a b.
   Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
-    exists (the (map_to_b_from_ a)).
-    apply (is_iso_qinv _ (the (map_to_a_from_ b))). 
-    split. { intermediate_path (the (map_to_a_from_ a)). 
+    exists (thePoint (map_to_b_from_ a)).
+    apply (is_iso_qinv _ (thePoint (map_to_a_from_ b))). 
+    split. { intermediate_path (thePoint (map_to_a_from_ a)). 
              apply uniqueness. apply uniqueness'. }
-           { intermediate_path (the (map_to_b_from_ b)). 
+           { intermediate_path (thePoint (map_to_b_from_ b)). 
              apply uniqueness. apply uniqueness'. } Defined.
   Lemma isaprop_isTerminalObject (C:precategory) (a:ob C) :
     isaprop(isTerminalObject C a).
@@ -27,7 +26,7 @@ Module TerminalObject.
   Definition isTerminalObjectProp (C:precategory) (a:ob C) := 
     hProppair (isTerminalObject C a) (isaprop_isTerminalObject C a) : hProp.
   Definition TerminalObject (C:precategory) := 
-    total2 (fun a:ob C => isTerminalObject C a).
+    Σ a:ob C, isTerminalObject C a.
   Definition theTerminalObject {C:precategory} (z:TerminalObject C) := pr1 z.
   Definition theTerminalProperty {C:precategory} (z:TerminalObject C) := pr2 z.
   Lemma isaprop_TerminalObject (C:category) : isaprop (TerminalObject C).
@@ -41,22 +40,19 @@ Module TerminalObject.
   Definition squashTerminalObject (C:precategory) := squash (TerminalObject C).
   Definition squashTerminalObjectProp (C:precategory) := 
     hProppair (squashTerminalObject C) (isaprop_squash _).
-End TerminalObject.
 
 (** *** initial objects *)
 
-Module InitialObject.
-  Import UniMath.Ktheory.Utilities.Notation.
   Definition isInitialObject (C:precategory) (a:ob C) :=
-    forall x:ob C, iscontr (x ← a).
+    ∀ x:ob C, iscontr (x ← a).
   Lemma theInitialObjectIsomorphy (C:precategory) (a b:ob C) :
     isInitialObject C a -> isInitialObject C b -> @iso C a b.
   Proof. intros ? ? ? map_to_a_from_ map_to_b_from_. 
-    exists (the (map_to_a_from_ b)). 
-    apply (is_iso_qinv _ (the (map_to_b_from_ a))).
-    split. { intermediate_path (the (map_to_a_from_ a)). 
+    exists (thePoint (map_to_a_from_ b)). 
+    apply (is_iso_qinv _ (thePoint (map_to_b_from_ a))).
+    split. { intermediate_path (thePoint (map_to_a_from_ a)). 
              apply uniqueness. apply uniqueness'. }
-           { intermediate_path (the (map_to_b_from_ b)). 
+           { intermediate_path (thePoint (map_to_b_from_ b)). 
              apply uniqueness. apply uniqueness'. } Defined.
   Lemma isaprop_isInitialObject (C:precategory) (a:ob C) :
     isaprop(isInitialObject C a).
@@ -67,7 +63,7 @@ Module InitialObject.
        theInitialObject : ob C ;
        theInitialProperty : isInitialObject C theInitialObject }.
   Definition InitialObject_total (C:precategory) := 
-    total2 (fun a:ob C => isInitialObject C a).
+    Σ a:ob C, isInitialObject C a.
   Definition unpack {C:precategory} : InitialObject_total C -> InitialObject C
     := fun X => make_InitialObject C (pr1 X) (pr2 X).
   Definition pack {C:precategory} : InitialObject C -> InitialObject_total C
@@ -92,4 +88,3 @@ Module InitialObject.
   Definition squashInitialObject (C:precategory) := squash (InitialObject C).
   Definition squashInitialObjectProp (C:precategory) := 
     hProppair (squashInitialObject C) (isaprop_squash _).
-End InitialObject.

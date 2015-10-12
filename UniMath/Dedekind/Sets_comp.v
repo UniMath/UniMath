@@ -25,29 +25,29 @@ Definition isrefl_po : isrefl R :=
 
 End po_pty.
 
-(** ** Strict Partial Order *)
+(** ** Strong Order *)
 
-Definition isStrictPartialOrder {X : UU} (R : hrel X) := dirprod ( istrans R ) ( isirrefl R ).
-Definition StrictPartialOrder (X : UU) := total2 (fun R : hrel X => isStrictPartialOrder R ).
-Definition pairStrictPartialOrder {X : UU} (R : hrel X) (is : isStrictPartialOrder R) : StrictPartialOrder X :=
-  tpair (fun R : hrel X => isStrictPartialOrder R ) R is.
-Definition pr1StrictPartialOrder {X : UU} : StrictPartialOrder X -> hrel X := pr1.
-Coercion  pr1StrictPartialOrder : StrictPartialOrder >-> hrel.
+Definition isStrongOrder {X : UU} (R : hrel X) := dirprod ( istrans R ) ( isirrefl R ).
+Definition StrongOrder (X : UU) := total2 (fun R : hrel X => isStrongOrder R ).
+Definition pairStrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : StrongOrder X :=
+  tpair (fun R : hrel X => isStrongOrder R ) R is.
+Definition pr1StrongOrder {X : UU} : StrongOrder X -> hrel X := pr1.
+Coercion  pr1StrongOrder : StrongOrder >-> hrel.
 
-Section stpo_pty.
+Section so_pty.
 
 Context {X : UU}.
-Context (R : StrictPartialOrder X).
+Context (R : StrongOrder X).
 
-Definition istrans_stpo : istrans R :=
+Definition istrans_StrongOrder : istrans R :=
   pr1 (pr2 R).
-Definition isirrefl_stpo : isirrefl R :=
+Definition isirrefl_StrongOrder : isirrefl R :=
   pr2 (pr2 R).
 
-End stpo_pty.
+End so_pty.
 
-Definition isStrictPartialOrder_quotrel {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
-  isStrictPartialOrder L -> isStrictPartialOrder (quotrel is).
+Definition isStrongOrder_quotrel {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
+  isStrongOrder L -> isStrongOrder (quotrel is).
 Proof.
   intros X R L is.
   intros (Htrans,Hirrefl).
@@ -125,23 +125,23 @@ Proof.
   now apply Hl.
 Qed.
 
-Lemma isStrictPartialOrder_reverse {X : UU} (l : hrel X) :
-  isStrictPartialOrder l -> isStrictPartialOrder (hrel_reverse l).
+Lemma isStrongOrder_reverse {X : UU} (l : hrel X) :
+  isStrongOrder l -> isStrongOrder (hrel_reverse l).
 Proof.
   intros X l (Ht,Hir).
   split.
   now apply istrans_reverse.
   now apply isirrefl_reverse.
 Qed.
-Definition StrictPartialOrder_reverse {X : UU} (l : StrictPartialOrder X) :=
-  pairStrictPartialOrder (hrel_reverse l) (isStrictPartialOrder_reverse l (pr2 l)).
-Lemma StrictPartialOrder_reverse_correct {X : UU} (l : StrictPartialOrder X) :
-  forall x y : X, StrictPartialOrder_reverse l x y = l y x.
+Definition StrongOrder_reverse {X : UU} (l : StrongOrder X) :=
+  pairStrongOrder (hrel_reverse l) (isStrongOrder_reverse l (pr2 l)).
+Lemma StrongOrder_reverse_correct {X : UU} (l : StrongOrder X) :
+  forall x y : X, StrongOrder_reverse l x y = l y x.
 Proof.
   intros X l x y.
   now apply paths_refl.
 Qed.
-(* Opaque StrictPartialOrder_reverse. *)
+(* Opaque StrongOrder_reverse. *)
 
 Lemma isasymm_reverse {X : UU} (l : hrel X) :
   isasymm l -> isasymm (hrel_reverse l).
@@ -171,20 +171,12 @@ Proof.
   apply islogeqcommhdisj.
   now apply Hl.
 Qed.
-
-
-(*  isdecrel
-  isnegrel
-  isantisymm
-  isantisymmneg
-  iscoantisymm
-  hrellogeq*)
   
 (** ** Effectively Ordered *)
 (** An alternative of total orders *)
 
 Definition isEffectiveOrder {X : UU} (le lt : hrel X) :=
-  dirprod (dirprod (ispo le) (isStrictPartialOrder lt))
+  dirprod (dirprod (ispo le) (isStrongOrder lt))
           (dirprod (forall x y : X, lt x y -> le x y)
                    (forall x y : X, le x y -> lt y x -> empty)).
 Definition EffectiveOrder (X : UU) :=
@@ -204,11 +196,11 @@ Definition EOle {X : EffectivelyOrderedSet} : po (pr1 X) :=
 Definition EOge {X : EffectivelyOrderedSet} : po (pr1 X) :=
   po_reverse (@EOle X).
 
-Definition EOlt {X : EffectivelyOrderedSet} : StrictPartialOrder (pr1 X) :=
+Definition EOlt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
   let R := pr2 X in
-  pairStrictPartialOrder (snd (pr1 R)) (pr2 (pr1 (pr2 R))).
-Definition EOgt {X : EffectivelyOrderedSet} : StrictPartialOrder (pr1 X) :=
-  StrictPartialOrder_reverse (@EOlt X).
+  pairStrongOrder (snd (pr1 R)) (pr2 (pr1 (pr2 R))).
+Definition EOgt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
+  StrongOrder_reverse (@EOlt X).
 
 Definition PosetEffectiveOrder (X : EffectivelyOrderedSet) : Poset :=
   Posetpair _ (@EOle X).
@@ -220,6 +212,23 @@ Notation "x <= y" := (EOle x y) : eo_scope.
 Notation "x >= y" := (EOge x y) : eo_scope.
 Notation "x < y" := (EOlt x y) : eo_scope.
 Notation "x > y" := (EOgt x y) : eo_scope.
+
+Section eo_pty.
+
+Context {X : EffectivelyOrderedSet}.
+
+Open Scope eo_scope.
+
+Definition EOlt_EOle :
+  forall x y : X, x < y -> x <= y :=
+  (pr1 (pr2 (pr2 (pr2 X)))).
+Definition EOle_not_EOlt :
+  forall x y : X, EOle x y -> EOlt y x -> empty :=
+  (pr2 (pr2 (pr2 (pr2 X)))).
+
+Close Scope eo_scope.
+
+End eo_pty.
 
 (** ** Complete Ordered Space *)
 

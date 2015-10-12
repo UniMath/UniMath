@@ -493,6 +493,15 @@ assert (is: forall t:T, isofhlevel n (paths (x t) (x' t))).  intro. apply (X t (
 assert (is2: isofhlevel n (forall t:T, paths (x t) (x' t))). apply (IHn _ (fun t0:T => paths (x t0) (x' t0)) is).
 set (u:=toforallpaths P x x').  assert (is3:isweq u). apply isweqtoforallpaths.  set (v:= invmap ( weqpair u is3) ). assert (is4: isweq v). apply isweqinvmap. apply (isofhlevelweqf n  ( weqpair v is4 )). assumption. Defined.
 
+Corollary impred_iscontr { T : UU } (P:T -> UU): (forall t:T, iscontr (P t)) -> (iscontr (forall t:T, P t)).
+Proof. intros. apply (impred 0). assumption. Defined.
+
+Corollary impred_isaprop { T : UU } (P:T -> UU): (forall t:T, isaprop (P t)) -> (isaprop (forall t:T, P t)).
+Proof. apply impred. Defined.
+
+Corollary impred_isaset { T : UU } (P:T -> UU): (forall t:T, isaset (P t)) -> (isaset (forall t:T, P t)).
+Proof. intros. apply (impred 2). assumption. Defined.
+
 Corollary impredtwice  (n:nat) { T T' : UU } (P:T -> T' -> UU): (forall (t:T)(t':T'), isofhlevel n (P t t')) -> (isofhlevel n (forall (t:T)(t':T'), P t t')).
 Proof.  intros n T T' P X. assert (is1: forall t:T, isofhlevel n (forall t':T', P t t')). intro. apply (impred n _ (X t)). apply (impred n _ is1). Defined.
 

@@ -18,7 +18,7 @@ Ltac intermediate_weq Y' := apply (weqcomp (Y := Y')).
 
 Ltac intermediate_iscontr Y' := apply (iscontrweqb (Y := Y')).
 
-Lemma iscontrweqb' {X Y} (is:iscontr Y) (w:weq X Y) : iscontr X.
+Lemma iscontrweqb' {X Y} (is:iscontr Y) (w:X ≃ Y) : iscontr X.
 Proof. intros. apply (iscontrweqb (Y:=Y)). assumption. assumption. Defined.
 
 Ltac intermediate_iscontr' Y' := apply (iscontrweqb' (Y := Y')).

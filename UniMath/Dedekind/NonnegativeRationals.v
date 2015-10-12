@@ -56,7 +56,7 @@ Proof.
 Qed.
 
 Local Definition hnnq_lt : hrel hnnq_def := resrel hqlth (hqleh 0).
-Lemma isStrictPartialOrder_hnnq_lt : isStrictPartialOrder hnnq_lt.
+Lemma isStrongOrder_hnnq_lt : isStrongOrder hnnq_lt.
 Proof.
   split.
   intros x y z.
@@ -66,9 +66,9 @@ Proof.
 Qed.
 
 Local Definition hnnq_gt : hrel hnnq_def := resrel hqgth (hqleh 0).
-Lemma isStrictPartialOrder_hnnq_gt : isStrictPartialOrder hnnq_gt.
+Lemma isStrongOrder_hnnq_gt : isStrongOrder hnnq_gt.
 Proof.
-  destruct isStrictPartialOrder_hnnq_lt as [Htrans Hirrefl].
+  destruct isStrongOrder_hnnq_lt as [Htrans Hirrefl].
   split.
   intros x y z Hxy Hyz.
   now apply Htrans with y.
@@ -147,10 +147,10 @@ Definition leNonnegativeRationals : po NonnegativeRationals :=
   popair hnnq_le isPartialOrder_hnnq_le.
 Definition geNonnegativeRationals : po NonnegativeRationals :=
   popair hnnq_ge isPartialOrder_hnnq_ge.
-Definition ltNonnegativeRationals : StrictPartialOrder NonnegativeRationals :=
-  pairStrictPartialOrder hnnq_lt isStrictPartialOrder_hnnq_lt.
-Definition gtNonnegativeRationals : StrictPartialOrder NonnegativeRationals :=
-  pairStrictPartialOrder hnnq_gt isStrictPartialOrder_hnnq_gt.
+Definition ltNonnegativeRationals : StrongOrder NonnegativeRationals :=
+  pairStrongOrder hnnq_lt isStrongOrder_hnnq_lt.
+Definition gtNonnegativeRationals : StrongOrder NonnegativeRationals :=
+  pairStrongOrder hnnq_gt isStrongOrder_hnnq_gt.
 
 Notation "x <= y" := (leNonnegativeRationals x y) : NnR_scope.
 Notation "x >= y" := (geNonnegativeRationals x y) : NnR_scope.
@@ -217,6 +217,12 @@ Qed.
 
 Lemma isnonnegative_NonnegativeRationals :
   forall x : NonnegativeRationals , 0 <= x.
+Proof.
+  intros x.
+  apply (pr2 x).
+Qed.
+Lemma isnonnegative_NonnegativeRationals' :
+  forall x : NonnegativeRationals , neg (x < 0).
 Proof.
   intros x.
   apply (pr2 x).
