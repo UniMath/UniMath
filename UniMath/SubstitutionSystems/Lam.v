@@ -4,7 +4,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.SubstitutionSystems.UnicodeNotations.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.coproducts.
@@ -34,7 +34,7 @@ Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
-Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 35).
+Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50).
 Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
 Local Notation "` T" := (alg_carrier _ _ T) (at level 3).
 Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).

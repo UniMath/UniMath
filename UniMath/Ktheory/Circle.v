@@ -12,9 +12,8 @@ Require Import UniMath.Ktheory.AffineLine
                UniMath.Foundations.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.Integers
-               UniMath.Ktheory.Equivalences.
+               UniMath.Ktheory.MoreEquivalences.
 Require Import UniMath.Ktheory.Utilities.
-Import UniMath.Ktheory.Utilities.Notation.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
 Open Scope action_scope.
@@ -36,7 +35,7 @@ Proof. intros. unfold circle_loop. rewrite pathsinv0inv0.
 Definition ZGuidedHomotopy {Y} {y:Y} (l:y = y) (T:Torsor ℤ) := 
   GuidedHomotopy (confun T y) (confun T l).
 
-Definition GH {Y} {y:Y} (l:y = y) := {T:Torsor ℤ & ZGuidedHomotopy l T}.
+Definition GH {Y} {y:Y} (l:y = y) := Σ T:Torsor ℤ, ZGuidedHomotopy l T.
 
 Definition GHpair {Y} {y:Y} (l:y = y) (T:Torsor ℤ) (g:ZGuidedHomotopy l T) :=
   T,,g : GH l.
@@ -48,7 +47,7 @@ Definition pr2_GH {Y} {y:Y} (l:y = y) (u:GH l)
 
 Definition GH_path3 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} {y':Y}
            {g g':GHomotopy (confun T y) (confun T l) y'} (u:g = g') :
-  GHpair l T (tpair _ y' g ) = GHpair l T (tpair _ y' g' ).
+  GHpair l T (y',, g) = GHpair l T (y',,g').
 Proof. intros. destruct u. reflexivity. Defined.
 
 Definition pr12_GH {Y} {y:Y} {l:y = y} (u:GH l) := pr1 (pr2_GH l u) : Y.
@@ -205,12 +204,12 @@ Definition makeGH_diagonalLoop_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T)
            (q:T = T) (r:castTorsor q t = one + t) : 
   ap pr1_GH (makeGH_diagonalLoop l t q r) = !q.
 Proof. intros. unfold makeGH_diagonalLoop.
-       refine (ap_natl (makeGH_transPath_comp1 _ _ _) _).
-       refine (ap_natl (makeGH_localPath_comp1 _ _ _ _) _).
+       refine (maponpaths_naturality (makeGH_transPath_comp1 _ _ _) _).
+       refine (maponpaths_naturality (makeGH_localPath_comp1 _ _ _ _) _).
        rewrite <- (pathscomp0rid (paths_rect _ _ (fun b _ => b = T) _ _ q)). (* Used to be "rewrite <- (pathscomp0rid (! q))", which was more perspicuous. *)
-       refine (ap_natl' (makeGH_horizontalPath_comp1 _ _ _ _) _).
+       refine (maponpaths_naturality' (makeGH_horizontalPath_comp1 _ _ _ _) _).
        rewrite <- (pathscomp0rid (idpath T)).
-       refine (ap_natl (makeGH_localPath_comp1 _ _ _ _) _).
+       refine (maponpaths_naturality (makeGH_localPath_comp1 _ _ _ _) _).
        exact (makeGH_verticalPath_comp1 _ _ _ _).
 Defined.
 
@@ -218,10 +217,10 @@ Definition makeGH_diagonalLoop_comp2 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T)
            (q:T = T) (r:castTorsor q t = one + t) : 
   ap pr12_GH (makeGH_diagonalLoop l t q r) = l.
 Proof. intros. unfold makeGH_diagonalLoop.
-       refine (ap_natl (makeGH_transPath_comp2 _ _ _) _).
-       refine (ap_natl (makeGH_localPath_comp2 _ _ _ _) _).
-       refine (ap_natl' (makeGH_horizontalPath_comp2 _ _ _ _) _).
-       refine (ap_natl (makeGH_localPath_comp2 _ _ _ _) _).
+       refine (maponpaths_naturality (makeGH_transPath_comp2 _ _ _) _).
+       refine (maponpaths_naturality (makeGH_localPath_comp2 _ _ _ _) _).
+       refine (maponpaths_naturality' (makeGH_horizontalPath_comp2 _ _ _ _) _).
+       refine (maponpaths_naturality (makeGH_localPath_comp2 _ _ _ _) _).
        exact (makeGH_verticalPath_comp2 _ _ _ _).
 Defined.
 
@@ -257,7 +256,7 @@ Print Assumptions circle_map_check_paths.
 
 
 Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)} 
-           (l:circle_loop#y = y) : forall c:circle, Y c.
+           (l:circle_loop#y = y) : ∀ c:circle, Y c.
 Proof. (** (not proved yet) *) admit. Admitted.
 
 (* One approach to the theorem above would be through the results of the paper

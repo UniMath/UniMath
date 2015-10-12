@@ -74,7 +74,11 @@ Implicit Arguments ii2 [ A B ] .
 
 Notation coprod_rect := sum_rect.
 
+Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
+  (at level 200, x binder, y binder, right associativity) : type_scope.
 
+Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
+  (at level 200, x binder, y binder, right associativity).
 
 (** Dependent sums. 
 
@@ -97,6 +101,13 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 
 Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . 
+
+Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : type_scope.
+
+Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
+(* Example: *)
+Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
 
 Definition pr1 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : T .
 Proof . intros .  induction t as [ t p ] . exact t . Defined. 

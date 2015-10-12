@@ -4,10 +4,12 @@
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.Integers
-               UniMath.Ktheory.Utilities.
-Require UniMath.Ktheory.Group UniMath.Ktheory.Precategories UniMath.Ktheory.Primitive UniMath.Ktheory.Product
+               UniMath.Foundations.Tactics
+               UniMath.Ktheory.Utilities
+               UniMath.Ktheory.Precategories
+               UniMath.Ktheory.InitialAndFinalObject.
+Require UniMath.Ktheory.Group UniMath.Ktheory.Product
         UniMath.Ktheory.Sum.
-Import UniMath.Ktheory.Utilities.Notation. 
 Local Notation Hom := monoidfun.
 Local Notation "0" := (unel _).
 Local Notation "x + y" := ( op x y ). 
@@ -74,19 +76,19 @@ Module Presentation.
 
   Record AdequateRelation {X I} (R:I->reln X) (r : hrel (word X)) := 
     make_AdequateRelation {
-        base: forall i, r (lhs (R i)) (rhs (R i));
-        reflex : forall w, r w w;
-        symm : forall v w, r v w -> r w v;
-        trans : forall u v w, r u v -> r v w -> r u w;
-        left_compat : forall u v w, r v w -> r (word_op u v) (word_op u w);
-        right_compat: forall u v w, r u v -> r (word_op u w) (word_op v w);
-        left_unit : forall w, r (word_op word_unit w) w;
-        right_unit : forall w, r (word_op w word_unit) w;
-        assoc : forall u v w, r (word_op (word_op u v) w) (word_op u (word_op v w));
-        inverse_compat : forall v w, r v w -> r (word_inv v) (word_inv w);
-        left_inverse : forall w, r (word_op (word_inv w) w) word_unit;
-        right_inverse: forall w, r (word_op w (word_inv w)) word_unit;
-        comm : forall v w, r (word_op v w) (word_op w v)
+        base: ∀ i, r (lhs (R i)) (rhs (R i));
+        reflex : ∀ w, r w w;
+        symm : ∀ v w, r v w -> r w v;
+        trans : ∀ u v w, r u v -> r v w -> r u w;
+        left_compat : ∀ u v w, r v w -> r (word_op u v) (word_op u w);
+        right_compat: ∀ u v w, r u v -> r (word_op u w) (word_op v w);
+        left_unit : ∀ w, r (word_op word_unit w) w;
+        right_unit : ∀ w, r (word_op w word_unit) w;
+        assoc : ∀ u v w, r (word_op (word_op u v) w) (word_op u (word_op v w));
+        inverse_compat : ∀ v w, r v w -> r (word_inv v) (word_inv w);
+        left_inverse : ∀ w, r (word_op (word_inv w) w) word_unit;
+        right_inverse: ∀ w, r (word_op w (word_inv w)) word_unit;
+        comm : ∀ v w, r (word_op v w) (word_op w v)
       }.
   Arguments make_AdequateRelation {X I} R r _ _ _ _ _ _ _ _ _ _ _ _ _.
   Arguments base {X I R r} _ _.
@@ -103,7 +105,7 @@ Module Presentation.
 
   Definition smallestAdequateRelation0 {X I} (R:I->reln X) : hrel (word X).
     intros ? ? ? v w.
-    exists (forall r: hrel (word X), AdequateRelation R r -> r v w).
+    exists (∀ r: hrel (word X), AdequateRelation R r -> r v w).
     abstract (apply impred; intro r; apply impred; intros _; apply propproperty).
   Defined.
   Lemma adequacy {X I} (R:I->reln X) : 
@@ -184,7 +186,7 @@ Module Presentation.
          apply (squash_to_prop (lift R w') ig); intros [w []].
          exact (iscompsetquotpr e _ _ (fun r ra => assoc R r ra u v w)). Qed.
   Lemma is_left_inverse_univ_binop {X I} (R:I->reln X) :
-    forall w:setquot (smallestAdequateRelation0 R),
+    ∀ w:setquot (smallestAdequateRelation0 R),
       univ_binop R (univ_inverse R w) w =
       setquotpr (smallestAdequateRelation R) word_unit.
   Proof. intros. isaprop_goal ig. { apply setproperty. } 
@@ -192,7 +194,7 @@ Module Presentation.
     exact (iscompsetquotpr (smallestAdequateRelation R) _ _ 
                            (fun r ra => left_inverse R r ra v)). Qed.
   Lemma is_right_inverse_univ_binop {X I} (R:I->reln X) :
-    forall w:setquot (smallestAdequateRelation0 R),
+    ∀ w:setquot (smallestAdequateRelation0 R),
       univ_binop R w (univ_inverse R w) =
       setquotpr (smallestAdequateRelation R) word_unit.
   Proof. intros. isaprop_goal ig. { apply setproperty. } 
@@ -231,7 +233,7 @@ Module Presentation.
     make_MarkedAbelianGroup {
         m_base :> abgr;
         m_mark : X -> m_base;
-        m_reln : forall i, evalword (toMarkedPreAbelianGroup R m_base m_mark) (lhs (R i)) =
+        m_reln : ∀ i, evalword (toMarkedPreAbelianGroup R m_base m_mark) (lhs (R i)) =
                            evalword (toMarkedPreAbelianGroup R m_base m_mark) (rhs (R i)) }.
   Arguments make_MarkedAbelianGroup {X I} R _ _ _.
   Arguments m_base {X I R} _.
@@ -259,7 +261,7 @@ Module Presentation.
   Record MarkedAbelianGroupMap {X I} {R:I->reln X} (M N:MarkedAbelianGroup R) :=
     make_MarkedAbelianGroupMap {
         map_base :> Hom M N;
-        map_mark : forall x, map_base (m_mark M x) = m_mark N x }.
+        map_mark : ∀ x, map_base (m_mark M x) = m_mark N x }.
   Arguments map_base {X I R M N} m.
   Arguments map_mark {X I R M N} m x.
   Lemma MarkedAbelianGroupMapEquality {X I} {R:I->reln X} {M N:MarkedAbelianGroup R}
@@ -326,7 +328,7 @@ Module Presentation.
                 (universalMarkedAbelianGroup3 R).
   Fixpoint agreement_on_gens0 {X I} {R:I->reln X} {M:abgr}
         (f g:Hom (universalMarkedAbelianGroup R) M)
-        (p:forall i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
+        (p:∀ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i)))
         (w:word X) :
           pr1 f (setquotpr (smallestAdequateRelation R) w) =
@@ -349,7 +351,7 @@ Module Presentation.
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:abgr}
         (f g:Hom (universalMarkedAbelianGroup R) M) :
-        (forall i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
+        (∀ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i))) 
           -> f = g.
     intros ? ? ? ? ? ? p. apply Monoid.funEquality.
@@ -403,27 +405,24 @@ Module Product.
     intros a b. apply funextsec; intro i. apply commax. Defined.
   Definition Proj {I} (G:I->abgr) (i:I) : Hom (make G) (G i).
     exact @Group.Product.Proj. Defined.
-  Definition Map {I} (G:I->abgr) (T:abgr) (g: forall i, Hom T (G i)) :
+  Definition Map {I} (G:I->abgr) (T:abgr) (g: ∀ i, Hom T (G i)) :
       Hom T (make G).
     exact @Group.Product.Fun. Defined.
-  Lemma Eqn {I} (G:I->abgr) (T:abgr) (g: forall i, Hom T (G i))
-           : forall i, Proj G i ∘ Map G T g = g i.
+  Lemma Eqn {I} (G:I->abgr) (T:abgr) (g: ∀ i, Hom T (G i))
+           : ∀ i, Proj G i ∘ Map G T g = g i.
     exact @Group.Product.Eqn. Qed.
   Definition UniqueMap {I} (G:I->abgr) (T:abgr) (h h' : Hom T (make G)) :
-       (forall i, Proj G i ∘ h = Proj G i ∘ h') -> h = h'.
+       (∀ i, Proj G i ∘ h = Proj G i ∘ h') -> h = h'.
     intros ? ? ? ? ? e. apply Monoid.funEquality.
     apply funextsec; intro t. apply funextsec; intro i.
     exact (apevalat t (ap pr1 (e i))). Qed.
 End Product.
 Module Sum.                   (* coproducts *)
   Import Presentation.
-  Definition X {I} (G:I->abgr) := total2 G. (* the generators *)
+  Definition X {I} (G:I->abgr) := totalSpace G. (* the generators *)
   Inductive J {I} (G:I->abgr) : Type := (* index set for the relations *)
-    | J_zero : I -> J G                 (* (i,0) ~ 0 *)
-    | J_sum : total2 (fun i => G i ** G i) -> J G. (* (i,g)+(i,h) ~ (i,g+h) *)
-  (* We could replace this with:
-     Definition J {I} (G:I->abgr) := coprod I (total2 (fun i => G i ** G i)).
-     *)
+    | J_zero : I -> J G                 (* (i,0) ~  ; redundant relation *)
+    | J_sum : (Σ i, G i × G i) -> J G.  (* (i,g)+(i,h) ~ (i,g+h) *)
   Definition R {I} (G:I->abgr) : J G -> reln (X G).
     intros ? ? [i|[i [g h]]].
     { exact (make_reln (word_gen (i,,0)) (word_unit)). }
@@ -436,21 +435,21 @@ Module Sum.                   (* coproducts *)
     { intro g. apply setquotpr. apply word_gen. exact (i,,g). } { split.
       { intros g h. apply iscompsetquotpr. exact (base (adequacy _) (J_sum _ (i,,(g,,h)))). }
       { apply iscompsetquotpr. exact (base (adequacy _) (J_zero _ i)). } } Defined.
-  Definition Map0 {I} {G:I->abgr} {T:abgr} (f: forall i, Hom (G i) T) :
+  Definition Map0 {I} {G:I->abgr} {T:abgr} (f: ∀ i, Hom (G i) T) :
       MarkedAbelianGroup (R G).
     intros. refine (make_MarkedAbelianGroup (R G) T _ _).
     { intros [i g]. exact (f i g). }
     { intros [i|[i [g h]]].
       { simpl. apply unitproperty. }
       { simpl. apply addproperty. } } Defined.
-  Definition Map {I} (G:I->abgr) (T:abgr) (f: forall i, Hom (G i) T) :
+  Definition Map {I} (G:I->abgr) (T:abgr) (f: ∀ i, Hom (G i) T) :
       Hom (make G) T.
-    intros. exact (the (iscontrMarkedAbelianGroupMap (Map0 f))). Defined.
-  Lemma Eqn {I} (G:I->abgr) (T:abgr) (f: forall i, Hom (G i) T)
-           : forall i, Map G T f ∘ Incl G i = f i.
+    intros. exact (thePoint (iscontrMarkedAbelianGroupMap (Map0 f))). Defined.
+  Lemma Eqn {I} (G:I->abgr) (T:abgr) (f: ∀ i, Hom (G i) T)
+           : ∀ i, Map G T f ∘ Incl G i = f i.
     intros. apply Monoid.funEquality. reflexivity. Qed.
   Definition UniqueMap {I} (G:I->abgr) (T:abgr) (h h' : Hom (make G) T) :
-       (forall i, h ∘ Incl G i = h' ∘ Incl G i) -> h = h'.
+       (∀ i, h ∘ Incl G i = h' ∘ Incl G i) -> h = h'.
     intros ? ? ? ? ? e. apply (agreement_on_gens h h').
     { intros [i g]. exact (ap (evalat g) (ap pr1 (e i))). }
   Qed.
@@ -461,7 +460,6 @@ Definition power (I:Type) (X:abgr) : abgr.
 (** ** the category of abelian groups *)
 
 Module Category.
-  Import Precategories.Notation.
   Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                  UniMath.CategoryTheory.precategories.
   Definition Ob := abgr.
@@ -494,12 +492,11 @@ Module Category.
   Module Product.
     Definition Object {I} (X:I->ob Precat) : ob Precat
       := Product.make X.
-    Import Primitive.InitialObject. 
     Definition make {I} (X:I->ob Precat) : Product.type Precat has_homsets_Precat X.
       intros.
-      set (Q := Elements.make_ob (HomFamily.precat Precat^op  (Precategories.has_homsets_opp_precat _ has_homsets_Precat) X) (Object X)
+      set (Q := Elements.make_ob (HomFamily.precat Precat^op  (has_homsets_opp_precat _ has_homsets_Precat) X) (Object X)
                                  (Product.Proj X)).
-      exists Q. intros T. assert ( k' : Hom Q T ).
+      exists Q. intros T. assert ( k' : Precategory_mor Q T ).
       { destruct T as [T_ob T_el].
         exists (Product.Map X T_ob T_el). simpl.
         apply funextsec. exact_op (Product.Eqn X T_ob T_el). }
@@ -513,12 +510,11 @@ Module Category.
   Module Sum.
     Definition Object {I} (X:I->ob Precat) : ob Precat
       := Sum.make X.
-    Import Primitive.InitialObject.
     Definition make {I} (X:I->ob Precat) : Sum.type Precat has_homsets_Precat X.
       intros.
       set (Q := Elements.make_ob (HomFamily.precat Precat  has_homsets_Precat X) (Object X)
                                  (Sum.Incl X)).
-      exists Q. intros T. assert ( k' : Hom Q T ).
+      exists Q. intros T. assert ( k' : Precategory_mor Q T ).
       { destruct T as [T_ob T_el].
         exists (Sum.Map X T_ob T_el). simpl.
         apply funextsec. exact_op (Sum.Eqn X T_ob T_el). }

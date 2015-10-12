@@ -34,6 +34,8 @@ Definition stn ( n : nat ) := total2 ( fun m : nat => natlth m n ) .
 Definition stnpair ( n : nat ) := tpair ( fun m : nat => natlth m n ) .
 Definition stntonat ( n : nat ) : stn n -> nat := @pr1 _ _ .
 Coercion stntonat : stn >-> nat .
+Lemma stnlt {n} (i:stn n) : i < n.
+Proof. intros. exact (pr2 i). Defined.
 
 Notation " 'stnel' ( i , j ) " := ( stnpair _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) ) ( at level 70 ) .
 
@@ -69,6 +71,9 @@ Proof. intro. unfold Poset . split with ( hSetpair ( stn i ) ( isasetstn i ) ) .
 Definition lastelement ( n : nat ) : stn ( S n ) .
 Proof. intro .   split with n .  apply ( natgthsnn ( S n ) ) .  Defined . 
 
+Definition firstelement (n:nat) : stn(S n).
+Proof. intro. exists 0. apply natgthsn0. Defined.
+
 Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : stn m -> stn n := fun x : stn m => match x with tpair _ i is => stnpair _ i ( natlthlehtrans i m n is isnatleh ) end .  
 
 
@@ -80,6 +85,10 @@ Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : stn m -> stn n := 
 
 Definition dni ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn ( S n ) .
 Proof. intros n i x .  destruct ( natlthorgeh x i ) . apply ( stnpair ( S n ) x ( natgthtogths _ _ ( pr2 x ) ) ) .  apply ( stnpair ( S n ) ( S x ) ( pr2 x ) ) .  Defined.  
+
+Definition dni_allButLast n : stn n -> stn (S n).
+(* this definition is simpler than that of [dni n (lastelement n)], since no choice is involved, so it's useful in special situations *)
+Proof. intros ? h. destruct h as [h hm]. exists h. now apply natlthtolths. Defined.
 
 Lemma dnicommsq ( n : nat ) ( i : stn ( S n ) ) : commsqstr( dni n i )  ( stntonat ( S n ) ) ( stntonat n ) ( di i )  .
 Proof. intros . intro x . unfold dni . unfold di . destruct ( natlthorgeh x i ) .  simpl .  apply idpath . simpl .  apply idpath . Defined . 
@@ -208,7 +217,23 @@ Proof . intro n . induction n as [ | n IHn ] . intros . simpl .  apply weqtoempt
 Corollary weqstnsum2 { X : UU } ( n : nat ) ( f : stn n -> nat ) ( g : X -> stn n ) ( ww : forall i : stn n , weq ( stn ( f i ) ) ( hfiber g i ) ) : weq X ( stn ( stnsum f ) ) .
 Proof. intros . assert ( w : weq X ( total2 ( fun i : stn n => hfiber g i ) ) ) . apply weqtococonusf . apply ( weqcomp w ( weqstnsum ( fun i : stn n => hfiber g i ) f ww ) ) .   Defined . 
 
+(** two generalizations of stnsum, potentially useful *)
 
+Definition foldleft {E} (e:E) (m:binop E) {n} (x:stn n -> E) : E.
+Proof.
+  intros.
+  induction n as [|n foldleft].
+  + exact e. 
+  + exact (m (foldleft (x ∘ (dni n (lastelement n)))) (x (lastelement n))).
+Defined.  
+
+Definition foldright {E} (m:binop E) (e:E) {n} (x:stn n -> E) : E.
+Proof.
+  intros.
+  induction n as [|n foldright].
+  + exact e. 
+  + exact (m (x (firstelement _)) (foldright (x ∘ dni n (firstelement n)))).
+Defined.  
 
 (** *** Weak equivalence between the direct product of [ stn n ] and [ stn m ] and [ stn n * m ] *)
 
