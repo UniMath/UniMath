@@ -56,7 +56,7 @@ Proof.
 Qed.
 
 Local Definition hnnq_lt : hrel hnnq_def := resrel hqlth (hqleh 0).
-Lemma isStrictPartialOrder_hnnq_lt : isStrictPartialOrder hnnq_lt.
+Lemma isStrongOrder_hnnq_lt : isStrongOrder hnnq_lt.
 Proof.
   split.
   intros x y z.
@@ -66,9 +66,9 @@ Proof.
 Qed.
 
 Local Definition hnnq_gt : hrel hnnq_def := resrel hqgth (hqleh 0).
-Lemma isStrictPartialOrder_hnnq_gt : isStrictPartialOrder hnnq_gt.
+Lemma isStrongOrder_hnnq_gt : isStrongOrder hnnq_gt.
 Proof.
-  destruct isStrictPartialOrder_hnnq_lt as [Htrans Hirrefl].
+  destruct isStrongOrder_hnnq_lt as [Htrans Hirrefl].
   split.
   intros x y z Hxy Hyz.
   now apply Htrans with y.
@@ -112,7 +112,8 @@ Local Definition hnnq_commrig_to_def : hnnq_commrig -> hnnq_def :=
     | tpair _ r Hr => tpair (fun x : hq => 0 <= x) r Hr
     end.
 
-Transparent hq.
+(** ** Multiplicative inverse and division *)
+
 Lemma hnnq_inv_ge0 (x : hnnq_commrig) : 0 <= / pr1 x.
 Proof.
   intros (x,Hx) ; simpl pr1.
@@ -129,6 +130,7 @@ Proof.
       now apply hqlthtoleh, hq1_gt0.
 Qed.
 Local Definition hnnq_inv (x : hnnq_commrig) : hnnq_commrig := hq_to_hnnq_def (/ (pr1 x)) (hnnq_inv_ge0 x).
+Local Definition hnnq_div (x y : hnnq_commrig) : hnnq_commrig := (x * (hnnq_inv y))%rig.
 
 (** * Exportable definitions and theorems *)
 
@@ -147,10 +149,10 @@ Definition leNonnegativeRationals : po NonnegativeRationals :=
   popair hnnq_le isPartialOrder_hnnq_le.
 Definition geNonnegativeRationals : po NonnegativeRationals :=
   popair hnnq_ge isPartialOrder_hnnq_ge.
-Definition ltNonnegativeRationals : StrictPartialOrder NonnegativeRationals :=
-  pairStrictPartialOrder hnnq_lt isStrictPartialOrder_hnnq_lt.
-Definition gtNonnegativeRationals : StrictPartialOrder NonnegativeRationals :=
-  pairStrictPartialOrder hnnq_gt isStrictPartialOrder_hnnq_gt.
+Definition ltNonnegativeRationals : StrongOrder NonnegativeRationals :=
+  pairStrongOrder hnnq_lt isStrongOrder_hnnq_lt.
+Definition gtNonnegativeRationals : StrongOrder NonnegativeRationals :=
+  pairStrongOrder hnnq_gt isStrongOrder_hnnq_gt.
 
 Notation "x <= y" := (leNonnegativeRationals x y) : NnR_scope.
 Notation "x >= y" := (geNonnegativeRationals x y) : NnR_scope.
@@ -166,15 +168,36 @@ Definition plusNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRa
   (x + y)%rig.
 Definition multNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
   (x * y)%rig.
+Definition invNonnegativeRationals (x : NonnegativeRationals) : NonnegativeRationals :=
+  hnnq_inv x.
+Definition divNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
+  hnnq_div x y.
 
 Notation "0" := zeroNonnegativeRationals : NnR_scope.
 Notation "1" := oneNonnegativeRationals : NnR_scope.
 Notation "x + y" := (plusNonnegativeRationals x y) : NnR_scope.
 Notation "x * y" := (multNonnegativeRationals x y) : NnR_scope.
+Notation "/ x" := (invNonnegativeRationals x) : NnR_scope.
+Notation "x / y" := (divNonnegativeRationals x y) : NnR_scope.
 
 (** ** Theorems *)
 
 Open Scope NnR_scope.
+
+Lemma isnonnegative_NonnegativeRationals :
+  forall x : NonnegativeRationals , 0 <= x.
+Proof.
+  intros x.
+  apply (pr2 x).
+Qed.
+Lemma isnonnegative_NonnegativeRationals' :
+  forall x : NonnegativeRationals , neg (x < 0).
+Proof.
+  intros x.
+  apply (pr2 x).
+Qed.
+
+(** *** Order *)
 
 Lemma lt_leNonnegativeRationals :
   forall x y : NonnegativeRationals, x < y -> x <= y.
@@ -215,12 +238,16 @@ Proof.
   exact Hzy.
 Qed.
 
-Lemma isnonnegative_NonnegativeRationals :
-  forall x : NonnegativeRationals , 0 <= x.
-Proof.
-  intros x.
-  apply (pr2 x).
-Qed.
+(** *** Algebra *)
+
+Definition isassoc_plusNonnegativeRationals : isassoc plusNonnegativeRationals :=
+  rigassoc1 _.
+Definition iscomm_plusNonnegativeRationals : iscomm plusNonnegativeRationals :=
+  rigcomm1 _.
+Definition isldistr_mult_plusNonnegativeRationals : isldistr plusNonnegativeRationals multNonnegativeRationals :=
+  rigldistr _.
+Definition isrdistr_mult_plusNonnegativeRationals : isrdistr plusNonnegativeRationals multNonnegativeRationals :=
+  rigrdistr _.
 
 Close Scope NnR_scope.
 
@@ -230,5 +257,7 @@ Global Opaque NonnegativeRationals.
 Global Opaque leNonnegativeRationals geNonnegativeRationals.
 Global Opaque ltNonnegativeRationals gtNonnegativeRationals.
 Global Opaque zeroNonnegativeRationals plusNonnegativeRationals.
+Global Opaque oneNonnegativeRationals multNonnegativeRationals.
+Global Opaque invNonnegativeRationals divNonnegativeRationals.
 
 (* End of the file hnnq.v *)

@@ -135,7 +135,7 @@ Proof.
   now apply nXr.
 Qed.
 
-Lemma isstpo_Dcuts_lt_rel : isStrictPartialOrder Dcuts_lt_rel.
+Lemma isstpo_Dcuts_lt_rel : isStrongOrder Dcuts_lt_rel.
 Proof.
   split.
   exact istrans_Dcuts_lt_rel.
@@ -184,8 +184,8 @@ Definition eo_Dcuts : EffectivelyOrderedSet :=
 
 Definition Dcuts_le : po Dcuts := @EOle eo_Dcuts.
 Definition Dcuts_ge : po Dcuts := @EOge eo_Dcuts.
-Definition Dcuts_lt : StrictPartialOrder Dcuts := @EOlt eo_Dcuts.
-Definition Dcuts_gt : StrictPartialOrder Dcuts := @EOgt eo_Dcuts.
+Definition Dcuts_lt : StrongOrder Dcuts := @EOlt eo_Dcuts.
+Definition Dcuts_gt : StrongOrder Dcuts := @EOgt eo_Dcuts.
 
 Delimit Scope Dcuts_scope with Dcuts.
 
@@ -264,8 +264,8 @@ Proof.
   intros x. 
   unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
   intros [Hap|Hap].
-  now apply isirrefl_stpo with (1 := Hap).
-  now apply isirrefl_stpo with (1 := Hap).
+  now apply isirrefl_StrongOrder with (1 := Hap).
+  now apply isirrefl_StrongOrder with (1 := Hap).
 Qed.
 Lemma issymm_Dcuts_ap : issymm Dcuts_ap.
 Proof.
@@ -456,12 +456,12 @@ Lemma islbub_Dcuts_lub (E : subset eo_Dcuts) (E_bounded : hexists (isUpperBound 
   isSmallerThanUpperBounds E (Dcuts_lub E E_bounded).
 Proof.
   intros.
-  intros x Hx.  
-  intros P HP ; apply HP ; clear P HP.
-  intros r ; simpl.
-  apply hinhuniv.
+  intros x Hx ; simpl.
+  apply hinhpr.
+  intros r ; apply hinhuniv ;
   intros (y,(Ey,Yr)).
-  apply (Hx y Ey).
+  generalize (Hx y Ey).
+  apply hinhuniv.
   now intros H ; apply H.
 Qed.
 Lemma islub_Dcuts_lub (E : subset eo_Dcuts) (E_bounded : hexists (isUpperBound E)) :
@@ -563,6 +563,55 @@ Proof.
   exact (islbub_Dcuts_glb E E_not_empty).
 Qed.
 
+(** * Algebraic structures on Dcuts *)
+
+(** ** From non negative rational numbers to Dedekind cuts *)
+
+Lemma NonnegativeRationals_to_Dcuts_bot (q : NonnegativeRationals) :
+  Dcuts_def_bot (λ r : NonnegativeRationals, (r < q)%NnR).
+Proof.
+  intros q r Hr n Hnr.
+  now apply istrans_le_lt_ltNonnegativeRationals with r.
+Qed.
+Lemma NonnegativeRationals_to_Dcuts_open (q : NonnegativeRationals) :
+  Dcuts_def_open (λ r : NonnegativeRationals, (r < q)%NnR).
+Proof.
+  intros q r Hr.
+  apply hinhpr.
+  destruct (between_ltNonnegativeRationals r q Hr) as [n (Hrn,Hnq)].
+  exists n.
+  now split.
+Qed.
+Lemma NonnegativeRationals_to_Dcuts_bounded (q : NonnegativeRationals) :
+  Dcuts_def_bounded (λ r : NonnegativeRationals, (r < q)%NnR).
+Proof.
+  intros q.
+  apply hinhpr.
+  exists q.
+  now apply isirrefl_StrongOrder.
+Qed.
+
+Definition NonnegativeRationals_to_Dcuts (q : NonnegativeRationals) : Dcuts :=
+  mk_Dcuts (fun r => (r < q)%NnR)
+           (NonnegativeRationals_to_Dcuts_bot q)
+           (NonnegativeRationals_to_Dcuts_open q)
+           (NonnegativeRationals_to_Dcuts_bounded q).
+
+Definition Dcuts_zero : Dcuts := NonnegativeRationals_to_Dcuts 0%NnR.
+Definition Dcuts_one : Dcuts := NonnegativeRationals_to_Dcuts 1%NnR.
+
+Notation "0" := Dcuts_zero : Dcuts_scope.
+Notation "1" := Dcuts_one : Dcuts_scope.
+
+Lemma Dcuts_zero_empty :
+  forall r : NonnegativeRationals, r ∈ 0 = hProppair empty isapropempty.
+Proof.
+  intros r ; simpl.
+  apply weqtopathshProp, logeqweq ; simpl.
+  - now apply isnonnegative_NonnegativeRationals'.
+  - easy.
+Qed.
+
 (** ** [Dcuts] is an [abmonoid] *)
 
 Section Dcuts_plus.
@@ -591,20 +640,255 @@ Proof.
     + right.
       now apply Y_bot with r.
   - right.
-    revert Hr ; apply hinhfun ; intros [(rx,ry) (Hr,(Hrx,Hry))].
-    simpl in Hr, Hrx, Hry.
-    (*set (nx := (rx * (n / r))%NnR).
+    revert Hr ; apply hinhfun ; intros [(rx,ry) (Hr,(Hrx,Hry))] ; simpl in * |-.
+    set (nx := (rx * (n / r))%NnR).
     set (ny := (ry * (n / r))%NnR).
-    
-Qed.*)
+    exists (nx,ny).
+    repeat split.
+    + unfold nx,ny ; simpl.
+      rewrite <- isrdistr_mult_plusNonnegativeRationals, <- Hr.
+Admitted.
+
+Lemma Dcuts_plus_open : Dcuts_def_open Dcuts_plus_val.
+Proof.
+  intros r.
+  apply hinhuniv, sumofmaps.
+  - apply hinhuniv, sumofmaps ; intro Hr.
+    + generalize (X_open r Hr).
+      apply hinhfun ; intros (n,(Xn,Hrn)).
+      exists n.
+      split.
+      * apply hinhpr ; left.
+        now apply hinhpr ; left.
+      * exact Hrn.
+    + generalize (Y_open r Hr).
+      apply hinhfun ; intros (n,(Yn,Hrn)).
+      exists n.
+      split.
+      * apply hinhpr ; left.
+        now apply hinhpr ; right.
+      * exact Hrn.
+  - apply hinhuniv ; intros ((rx,ry),(Hr,(Hx,Hy))) ; simpl in * |-.
+    generalize (X_open rx Hx) (Y_open ry Hy).
+    apply hinhfun2.
+    intros (nx,(Xn,Hnx)) (ny,(Yn,Hny)).
+    exists (nx + ny).
+    split.
+    + apply hinhpr ; right.
+      apply hinhpr ; exists (nx , ny).
+      repeat split.
+      * exact Xn.
+      * exact Yn.
+    + rewrite Hr.
+      admit.
+Admitted.
+Lemma Dcuts_plus_bounded : Dcuts_def_bounded Dcuts_plus_val.
+Proof.
+  revert X_bounded Y_bounded.
+  apply hinhfun2.
+  intros (r,Xr) (n,Yn).
+  exists (r + n).
+  unfold neg.
+  apply (hinhuniv (P := hProppair _ isapropempty)), sumofmaps.
+  - apply hinhuniv, sumofmaps.
+    + intro Hx ; apply Xr.
+      apply X_bot with (1 := Hx).
+      admit.
+    + intro Hy ; apply Yn.
+      apply Y_bot with (1 := Hy).
+      admit.
+  - apply hinhuniv ; intros ((rx,ry),(Hr,(Hx,Hy))) ; simpl in * |-.
+    admit.
 Admitted.
 
 End Dcuts_plus.
 
-(* Definition Dcuts_plus (X Y : Dcuts) : Dcuts :=
-  mk_Dcuts (Dcuts_plus_val (pr1 X) (pr1 Y)). *)
+Definition Dcuts_plus (X Y : Dcuts) : Dcuts :=
+  mk_Dcuts (Dcuts_plus_val (pr1 X) (pr1 Y))
+           (Dcuts_plus_bot (pr1 X) (is_Dcuts_bot X) (is_Dcuts_open X) (is_Dcuts_bounded X)
+                           (pr1 Y) (is_Dcuts_bot Y) (is_Dcuts_open Y) (is_Dcuts_bounded Y))
+           (Dcuts_plus_open (pr1 X) (is_Dcuts_bot X) (is_Dcuts_open X) (is_Dcuts_bounded X)
+                            (pr1 Y) (is_Dcuts_bot Y) (is_Dcuts_open Y) (is_Dcuts_bounded Y))
+           (Dcuts_plus_bounded (pr1 X) (is_Dcuts_bot X) (is_Dcuts_open X) (is_Dcuts_bounded X)
+                               (pr1 Y) (is_Dcuts_bot Y) (is_Dcuts_open Y) (is_Dcuts_bounded Y)).
 
-(* Lemma isabmonoidop_Dcuts : isabmonoidop Dcuts. *)
+Lemma iscomm_Dcuts_plus : iscomm Dcuts_plus.
+Proof.
+  assert (H : forall x y, ∀ x0 : NonnegativeRationals, x0 ∈ Dcuts_plus x y -> x0 ∈ Dcuts_plus y x).
+  { intros x y r.
+    apply hinhuniv, sumofmaps ; apply hinhuniv ; simpl pr1.
+    - apply sumofmaps ; intros Hr.
+      + apply hinhpr ; left.
+        now apply hinhpr ; right.
+      + apply hinhpr ; left.
+        now apply hinhpr ; left.
+    - intros ((rx,ry),(Hr,(Hx,Hy))) ; simpl in * |-.
+      apply hinhpr ; right.
+      apply hinhpr ; exists (ry,rx).
+      repeat split.
+      + rewrite Hr.
+        apply iscomm_plusNonnegativeRationals.
+      + exact Hy.
+      + exact Hx.
+  }
+  intros x y.
+  apply Dcuts_eq_is_eq ; split ; apply hinhpr.
+  - exact (H x y).
+  - exact (H y x).
+Qed.
+Lemma isassoc_Dcuts_plus : isassoc Dcuts_plus.
+Proof.
+  intros x y z.
+  apply Dcuts_eq_is_eq ; split ; apply hinhpr ; intro r.
+  - apply hinhuniv, sumofmaps ; apply hinhuniv ; simpl pr1.
+    + apply sumofmaps.
+      * apply hinhuniv, sumofmaps ; apply hinhuniv.
+        { apply sumofmaps ; intros Hr.
+          - apply hinhpr ; left.
+            now apply hinhpr ; left.
+          - apply hinhpr ; left.
+            apply hinhpr ; right.
+            apply hinhpr ; left.
+            now apply hinhpr ; left. }
+        { intros ((rx,ry),(Hr,(Hx,Hy))) ; simpl in * |-.
+          apply hinhpr ; right.
+          apply hinhpr ; exists (rx,ry).
+          repeat split.
+          - exact Hr.
+          - exact Hx.
+          - apply hinhpr ; left.
+            now apply hinhpr ; left. }
+      * intros Hr.
+        apply hinhpr ; left.
+        apply hinhpr ; right.
+        apply hinhpr ; left.
+        now apply hinhpr ; right.
+    + intros ((xy,rz),(Hr,(Hxy,Hz))) ; simpl in * |- .
+      revert Hxy ; apply hinhuniv, sumofmaps ; apply hinhuniv.
+      * apply sumofmaps ; intros Hxy.
+        { apply hinhpr ; right.
+          apply hinhpr ; exists (xy,rz).
+          repeat split.
+          - exact Hr.
+          - exact Hxy.
+          - apply hinhpr ; left.
+            now apply hinhpr ; right. }
+        { apply hinhpr ; left.
+          apply hinhpr ; right.
+          apply hinhpr ; right.
+          apply hinhpr ; exists (xy,rz).
+          repeat split.
+          - exact Hr.
+          - exact Hxy.
+          - exact Hz. }
+      * intros ((rx,ry),(Hxy,(Hx,Hy))) ; simpl in * |-.
+        apply hinhpr ; right.
+        apply hinhpr ; exists (rx,ry + rz).
+        repeat split ; simpl.
+        { rewrite Hr, Hxy.
+          now apply isassoc_plusNonnegativeRationals. }
+        { exact Hx. }
+        { apply hinhpr ; right.
+          apply hinhpr ; exists (ry,rz).
+          repeat split.
+          - exact Hy.
+          - exact Hz. }
+  - apply hinhuniv, sumofmaps ; apply hinhuniv ; simpl pr1.
+    + apply sumofmaps.
+      * intros Hr.
+        apply hinhpr ; left.
+        apply hinhpr ; left.
+        apply hinhpr ; left.
+        now apply hinhpr ; left.
+      * apply hinhuniv, sumofmaps ; apply hinhuniv.
+        { apply sumofmaps ; intros Hr.
+          - apply hinhpr ; left.
+            apply hinhpr ; left.
+            apply hinhpr ; left.
+            now apply hinhpr ; right.
+          - apply hinhpr ; left.
+            now apply hinhpr ; right. }
+        { intros ((ry,rz),(Hr,(Hy,Hz))) ; simpl in * |-.
+          apply hinhpr ; right.
+          apply hinhpr ; exists (ry,rz).
+          repeat split.
+          - exact Hr.
+          - apply hinhpr ; left.
+            now apply hinhpr ; right.
+          - exact Hz. }
+    + intros ((rx,yz),(Hr,(Hx,Hyz))) ; simpl in * |- .
+      revert Hyz ; apply hinhuniv, sumofmaps ; apply hinhuniv.
+      * apply sumofmaps ; intros Hyz.
+        { apply hinhpr ; left.
+          apply hinhpr ; left.
+          apply hinhpr ; right.
+          apply hinhpr ; exists (rx,yz).
+          repeat split.
+          - exact Hr.
+          - exact Hx.
+          - exact Hyz. }
+        { apply hinhpr ; right.
+          apply hinhpr ; exists (rx,yz).
+          repeat split.
+          - exact Hr.
+          - apply hinhpr ; left.
+            now apply hinhpr ; left.
+          - exact Hyz. }
+      * intros ((ry,rz),(Hyz,(Hy,Hz))) ; simpl in * |-.
+        apply hinhpr ; right.
+        apply hinhpr ; exists ((rx+ry), rz).
+        repeat split ; simpl.
+        { rewrite Hr, Hyz.
+          now rewrite isassoc_plusNonnegativeRationals. }
+        { apply hinhpr ; right.
+          apply hinhpr ; exists (rx,ry).
+          repeat split.
+          - exact Hx.
+          - exact Hy. }
+        { exact Hz. }
+Qed.
+Lemma islunit_Dcuts_plus_zero : islunit Dcuts_plus 0.
+Proof.
+  intros x.
+  apply Dcuts_eq_is_eq ; split ; apply hinhpr ; intro r.
+  - apply hinhuniv, sumofmaps ; apply hinhuniv.
+    + apply sumofmaps ; intro Hr.
+      * now rewrite Dcuts_zero_empty in Hr.
+      * exact Hr.
+    + intros ((r0,rx),(_,(Hr,_))).
+      now rewrite Dcuts_zero_empty in Hr.
+  - intros Hr.
+    apply hinhpr ; left.
+    now apply hinhpr ; right.
+Qed.
+Lemma isrunit_Dcuts_plus_zero : isrunit Dcuts_plus 0.
+Proof.
+  intros x.
+  rewrite iscomm_Dcuts_plus.
+  now apply islunit_Dcuts_plus_zero.
+Qed.
+Definition ismonoidop_Dcuts_plus : ismonoidop Dcuts_plus.
+Proof.
+  split.
+  - apply isassoc_Dcuts_plus.
+  - exists Dcuts_zero.
+    split.
+    + exact islunit_Dcuts_plus_zero.
+    + exact isrunit_Dcuts_plus_zero.
+Defined.
+
+Definition isabmonoidop_Dcuts : isabmonoidop Dcuts_plus.
+Proof.
+  split.
+  - exact ismonoidop_Dcuts_plus.
+  - exact iscomm_Dcuts_plus.
+Defined.
+
+Definition Dcuts_with_plus : setwithbinop :=
+  setwithbinoppair Dcuts Dcuts_plus.
+
+Definition Dcuts_addmonoid : abmonoid := 
+  abmonoidpair Dcuts_with_plus isabmonoidop_Dcuts.
 
 (** * Definition of non-negative real numbers *)
 
@@ -625,15 +909,15 @@ Definition subsetNonnegativeRationals_to_NonnegativeReals
 
 Definition leNonnegativeReals : po NonnegativeReals := Dcuts_le.
 Definition geNonnegativeReals : po NonnegativeReals := Dcuts_ge.
-Definition ltNonnegativeReals : StrictPartialOrder NonnegativeReals := Dcuts_lt.
-Definition gtNonnegativeReals : StrictPartialOrder NonnegativeReals := Dcuts_gt.
+Definition ltNonnegativeReals : StrongOrder NonnegativeReals := Dcuts_lt.
+Definition gtNonnegativeReals : StrongOrder NonnegativeReals := Dcuts_gt.
 
 Definition lubNonnegativeReals (E : subset NonnegativeReals) (Eub : hexists (isUpperBound (X := eo_Dcuts) E)) :
   LeastUpperBound (X := eo_Dcuts) E :=
   tpair _ (Dcuts_lub E Eub) (islub_Dcuts_lub E Eub).
 
 Definition glbNonnegativeReals (E : subset NonnegativeReals) (Ene : hexists E) : GreatestLowerBound (X := eo_Dcuts) E :=
-  tpair _ _ (isglb_Dcuts_glb E Ene).
+  tpair _ (Dcuts_glb E Ene) (isglb_Dcuts_glb E Ene).
 
 (** ** Constants and functions *)
 
@@ -643,6 +927,6 @@ Definition glbNonnegativeReals (E : subset NonnegativeReals) (Ene : hexists E) :
 
 Global Opaque leNonnegativeReals geNonnegativeReals.
 Global Opaque ltNonnegativeReals gtNonnegativeReals.
-Global Opaque lubNonnegativeReals.
+Global Opaque lubNonnegativeReals glbNonnegativeReals.
 
 (* End of the file Dcuts.v *)
