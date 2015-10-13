@@ -87,12 +87,16 @@ Proof. intros. reflexivity. Defined.
 
 Definition sequenceProductCheck {M:monoid} (x:Sequence M) (m:M) :
   sequenceProduct (append x m) = sequenceProduct x * m.
-Proof. intros ? [n x] ?.
+Proof. (* why is this proof so long? *)
+       intros ? [n x] ?.
        unfold append.
        rewrite sequenceProductStep.
        unfold funcomp.
        unfold lastelement.
-       induction (natlehchoice4 n n (natgthsnn (S n))) as [p|q].
+       Local Opaque sequenceProduct.
+       simpl.
+       Transparent sequenceProduct.
+       induction (natlehchoice4 n n (natgthsnn n)) as [p|p].
        { contradicts (isirreflnatlth n) p. }
        { apply (maponpaths (λ a, a * m)).
          apply (maponpaths (λ x, sequenceProduct (n,,x))).

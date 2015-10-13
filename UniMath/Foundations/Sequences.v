@@ -18,8 +18,9 @@ Proof. intros. exact (0,, empty_fun). Defined.
 
 Definition append {X} : Sequence X -> X -> Sequence X.
 Proof.
-  intros ? [m x] y.
-  exists (S m).
+  intros ? x y.
+  exists (S (length x)).
+  induction x as [m x]; simpl.
   intros [i b].
   induction (natlehchoice4 i m b) as [c|d].
   { exact (x (i,,c)). }
@@ -137,8 +138,9 @@ Proof.
   intros.
   apply (maponpaths (tpair _ (S n))).
   apply funextfun; intros [i b].
+  simpl.
   induction (natlehchoice4 i n b) as [p|p].
-  - simpl; unfold funcomp.
+  - unfold funcomp; simpl.
     apply maponpaths.
     apply pair_path_in2.
     apply isasetbool.
