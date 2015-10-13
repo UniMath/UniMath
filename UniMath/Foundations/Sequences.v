@@ -9,15 +9,12 @@ Definition Sequence X := Σ n, stn n -> X.
 
 Definition transport_stn m n i (b:i<m) (p:m=n) :
   transportf stn p (i,,b) = (i,,transportf (λ m,i<m) p b).
-Proof.
-  intros.
-
-Abort.
+Proof. intros. induction p. reflexivity. Defined.
 
 Definition sequenceEquality {X m n} (f:stn m->X) (g:stn n->X) (p:m=n) :
   (∀ i, f i = g (transportf stn p i))
   -> transportf (λ m, stn m->X) p f = g.
-Abort.
+Proof. intros ? ? ? ? ? ? e. induction p. apply funextfun. exact e. Defined.
 
 Definition length {X} : Sequence X -> nat := pr1.
 
@@ -83,23 +80,17 @@ Defined.
 
 (* .... or use transport explicitly: *)
 
+Definition iscontr_adjointness X (is:iscontr X) (x:X) : pr1 (isapropifcontr is x x) = idpath x.
+(* we call this adjointness, because if [unit] had η-reduction, then adjointness of
+   the weq [unit ≃ X] would give it to us, in the case where x is [pr1 is] *)
+Proof. intros. now apply isasetifcontr. Defined.
+
 Definition iscontr_rect X (is : iscontr X) (x0 : X) (P : X -> UU) (p0 : P x0) : ∀ x:X, P x.
 Proof. intros. exact (transportf P (pr1 (isapropifcontr is x0 x)) p0). Defined.
 
 Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X -> UU) (p : P x) :
   iscontr_rect X is x P p x = p.
-Proof. intros. apply isaset_transport. apply isasetifcontr. exact is.
-Defined.
-
-Definition iscontr_rect_compute_alt X (is : iscontr X) (x : X) (P : X -> UU) (p : P x) :
-  iscontr_rect X is x P p x = p.
-Proof. intros.
-       (* try to prove it without using contractibility again *)
-       unfold iscontr_rect.
-       change p with (transportf _ (idpath _) p) at 2.
-       apply (maponpaths (λ e, transportf _ e _)).
-       (* this is a consequence of the adjointness relations for [unit ≃ X] *)
-Admitted.
+Proof. intros. unfold iscontr_rect. now rewrite iscontr_adjointness. Defined.
 
 Corollary weqsecovercontr':     (* reprove weqsecovercontr, move upstream *)
   ∀ (X:UU) (P:X->UU) (is:iscontr X), (∀ x:X, P x) ≃ P (pr1 is).
