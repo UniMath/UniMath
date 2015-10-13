@@ -5,8 +5,19 @@ Unset Automatic Introduction.
 
 (* *)
 
-
 Definition Sequence X := Σ n, stn n -> X.
+
+Definition transport_stn m n i (b:i<m) (p:m=n) :
+  transportf stn p (i,,b) = (i,,transportf (λ m,i<m) p b).
+Proof.
+  intros.
+
+Abort.
+
+Definition sequenceEquality {X m n} (f:stn m->X) (g:stn n->X) (p:m=n) :
+  (∀ i, f i = g (transportf stn p i))
+  -> transportf (λ m, stn m->X) p f = g.
+Abort.
 
 Definition length {X} : Sequence X -> nat := pr1.
 
@@ -244,10 +255,7 @@ Abort.
 
 Lemma append_length {X} (x:Sequence X) (y:X) :
   length (append x y) = S (length x).
-Proof.
-  intros.
-  try reflexivity.
-Admitted.
+Proof. intros. reflexivity. Defined.
 
 Definition concatenate {X} : binop (Sequence X).
 Proof.
@@ -304,7 +312,7 @@ Proof.
     simpl.
     apply pathsinv0.
     apply natplusnsm.
-  - 
+  -                             (* working here *)
 
 Admitted.
 
