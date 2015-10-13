@@ -144,6 +144,27 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 Check (O = O) .
 
 
+(* confirm and repair some aspects of multiplication on [nat] *)
+Goal ∀ n, 0*n = 0.     reflexivity. Qed.
+Goal ∀ n, n*1 = n. try reflexivity. Abort.
+Goal ∀ n, 1*n = n. try reflexivity. Abort.
 
+(* Those two failures are not good.  The cause is that Nat.mul defines
+   multiplication as a right-associative sum.  Note also that the parser treats
+   "+" and "*" as left associative.  We redefine multiplication in nat here,
+   avoiding "Fixpoint", too. *)
 
-(* End of the file uuu.v *)
+Definition mul : nat -> nat -> nat.
+Proof.
+  intros n m.
+  induction n as [|p pm].
+  - exact O.
+  - exact (pm + m).
+Defined.
+Notation "n * m" := (mul n m) : nat_scope.
+
+(* confirm: *)
+Goal ∀ n, 0*n = 0.             reflexivity. Qed.
+Goal ∀ n m, S n * m = n*m + m. reflexivity. Qed.
+Goal ∀ n, 1*n = n.             reflexivity. Qed.
+Goal 3*5=15.                   reflexivity. Qed.
