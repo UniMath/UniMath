@@ -629,6 +629,7 @@ Definition Dcuts_plus_val : subset NonnegativeRationals :=
   fun r => hdisj (hdisj (X r) (Y r))
                  (hexists (fun xy => dirprod (r = (fst xy + snd xy)%NnR)
                                              (dirprod (X (fst xy)) (Y (snd xy))))).
+
 Lemma Dcuts_plus_bot : Dcuts_def_bot Dcuts_plus_val.
 Proof.
   intros r Hr n Hn.
@@ -647,6 +648,15 @@ Proof.
     repeat split.
     + unfold nx,ny ; simpl.
       rewrite <- isrdistr_mult_plusNonnegativeRationals, <- Hr.
+      rewrite multdivNonnegativeRationals.
+      reflexivity.
+      admit.
+    + apply X_bot with (1 := Hrx).
+      apply multrle1NonnegativeRationals.
+      now apply ledivle1NonnegativeRationals.
+    + apply Y_bot with (1 := Hry).
+      apply multrle1NonnegativeRationals.
+      now apply ledivle1NonnegativeRationals.
 Admitted.
 
 Lemma Dcuts_plus_open : Dcuts_def_open Dcuts_plus_val.
@@ -702,6 +712,8 @@ Proof.
 Admitted.
 
 End Dcuts_plus.
+
+Check Dcuts_plus_bot.
 
 Definition Dcuts_plus (X Y : Dcuts) : Dcuts :=
   mk_Dcuts (Dcuts_plus_val (pr1 X) (pr1 Y))
