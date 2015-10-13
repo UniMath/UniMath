@@ -112,6 +112,14 @@ Local Definition hnnq_commrig_to_def : hnnq_commrig -> hnnq_def :=
     | tpair _ r Hr => tpair (fun x : hq => 0 <= x) r Hr
     end.
 
+Local Definition hnnq_zero : hnnq_commrig := 0%rig.
+Local Definition hnnq_one : hnnq_commrig := 1%rig.
+
+Delimit Scope hnnq_scope with hnnq.
+
+Notation "0" := hnnq_zero : hnnq_scope.
+Notation "1" := hnnq_one : hnnq_scope.
+
 (** ** Multiplicative inverse and division *)
 
 Lemma hnnq_inv_ge0 (x : hnnq_commrig) : 0 <= / pr1 x.
@@ -131,6 +139,10 @@ Proof.
 Qed.
 Local Definition hnnq_inv (x : hnnq_commrig) : hnnq_commrig := hq_to_hnnq_def (/ (pr1 x)) (hnnq_inv_ge0 x).
 Local Definition hnnq_div (x y : hnnq_commrig) : hnnq_commrig := (x * (hnnq_inv y))%rig.
+
+Lemma hnnq_inv_mult_l :
+  forall r : hnnq_commrig, r != 0%hnnq -> ((hnnq_inv r) * r)%rig = 1%hnnq.
+Admitted.
 
 (** * Exportable definitions and theorems *)
 
@@ -244,10 +256,29 @@ Definition isassoc_plusNonnegativeRationals : isassoc plusNonnegativeRationals :
   rigassoc1 _.
 Definition iscomm_plusNonnegativeRationals : iscomm plusNonnegativeRationals :=
   rigcomm1 _.
+Definition isassoc_multNonnegativeRationals : isassoc multNonnegativeRationals :=
+  rigassoc2 _.
+Definition iscomm_multNonnegativeRationals : iscomm multNonnegativeRationals :=
+  rigcomm2 _.
 Definition isldistr_mult_plusNonnegativeRationals : isldistr plusNonnegativeRationals multNonnegativeRationals :=
   rigldistr _.
 Definition isrdistr_mult_plusNonnegativeRationals : isrdistr plusNonnegativeRationals multNonnegativeRationals :=
   rigrdistr _.
+
+Lemma multdivNonnegativeRationals :
+  forall q r : NonnegativeRationals, neg (r = 0) -> (r * (q / r)) = q.
+Proof.
+  intros q r Hr0.
+  unfold divNonnegativeRationals, hnnq_div.
+  rewrite iscomm_multNonnegativeRationals, isassoc_multNonnegativeRationals.
+  
+Admitted.
+Lemma multrle1NonnegativeRationals :
+  forall q r : NonnegativeRationals, (q <= 1)%NnR -> (r * q <= r)%NnR.
+Admitted.
+Lemma ledivle1NonnegativeRationals :
+  forall q r : NonnegativeRationals, (q <= r)%NnR -> (q / r <= 1)%NnR.
+Admitted.
 
 Close Scope NnR_scope.
 
