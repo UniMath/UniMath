@@ -60,7 +60,7 @@ Proof. intros. destruct (hzlthorgeh i 0) as [r|s].
        { apply inl. exists (hzabsval i). exact (hzabsvalgeh0 s). } Defined.
 
 Lemma nattohz_inj {m n} : nattohz m = nattohz n -> m = n.
-Proof. exact (invmaponpathsincl _ isinclnattohz). Defined.
+Proof. exact (an_inclusion_is_injective _ isinclnattohz). Defined.
 
 Lemma hzdichot {m n} : neg (nattohz m = - nattohz (S n)).
 Proof. intros. intro e. assert (d := ap hzsign e); clear e.
@@ -89,7 +89,7 @@ Proof. apply isweqpr1; intro i.
          assert (c := proofirrelevance _ (isinclnattohz (-i)) (S m,,p') (S n,,q')).
          assert (d := ap pr1 c); simpl in d.
          assert (e := invmaponpathsS _ _ d); clear d.
-         apply (pair_path_props (!e)). intro k. apply setproperty. } Defined.
+         apply (total2_paths2_second_isaprop (!e)). intro k. apply setproperty. } Defined.
 
 Definition negpos_weq := weqpair _ negpos' : weq (totalSpace hz_normal_form) ℤ.
 
