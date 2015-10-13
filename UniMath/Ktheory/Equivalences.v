@@ -41,6 +41,14 @@ Proof. intros ? ? [f [g [p [q h]]]]. exists f. unfold isweq. intro y.
        refine (_ @ h x). induction (q x). reflexivity. Defined.
 
 Definition weq_to_Equivalence X Y : X ≃ Y -> Equivalence X Y.
+  intros ? ? f.
+  exact (makeEquivalence X Y f (invmap f)
+                         (homotweqinvweq f) (homotinvweqweq f)
+                         (homotweqinvweqweq f)).
+Defined.
+
+(* another proof *)
+Definition weq_to_Equivalence' X Y : X ≃ Y -> Equivalence X Y.
   intros ? ? [f r].
   unfold isweq in r.
   set (g := fun y => hfiberpr1 f y (pr1 (r y))).
@@ -54,37 +62,6 @@ Definition weq_to_Equivalence X Y : X ≃ Y -> Equivalence X Y.
                  ! transportf_fun_idpath x (pr1 (pr1 (r (f x)))) (q x) (idpath (f x))
                  @ (fiber_paths (L x)))).
 Defined.
-
-(* this construction shows how to get the adjointness from a weak equivalence 
-   easily, using the two homotopies naturally provided *)
-Definition weq_to_Equivalence' X Y : X ≃ Y -> Equivalence X Y.
-  intros ? ? f.
-  set (g := invmap f).
-  set (p := homotweqinvweq f).
-  set (q := homotinvweqweq f).
-  refine (makeEquivalence X Y f g p q _).
-  intros.
-  induction f as [f is].
-  apply hfibertriangle1inv0'.
-Defined.
-
-Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
-  intros ? ? [f r].
-  unfold isweq in r.
-  set (g := fun y => hfiberpr1 f y (pr1 (r y))).
-  set (p := fun y => pr2 (pr1 (r y))).
-  simpl in p.
-  set (L := fun x => pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
-  set (q := fun x => ap pr1 (L x)).
-  set (q' := fun x => !q x).  
-  refine (makeEquivalence Y X g f q' p _).
-  intro y.
-Abort.
-
-Definition Equivalence_to_invweq X Y : Equivalence X Y -> Y ≃ X.
-Proof. intros ? ? [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
-       exists (f x,,q x). intros [y []]. apply (total2_paths2 (!p y)). 
-Abort.
 
 Definition path_inv_rotate_lr {X} {a b c:X} (r:a = b) (p:b = c) (q:a = c) :
   q = r @ p -> q @ !p = r.

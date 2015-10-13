@@ -866,6 +866,7 @@ Proof.
   intros. induction e1. simpl in *. apply ee.
 Defined.
 
+(* this is the adjointness relation for w and its homotopy inverse: *)
 Definition homotweqinvweqweq {X Y : UU} (w : X ≃ Y) (x : X) :
   maponpaths w (homotinvweqweq w x) = homotweqinvweq w (w x).
 Proof.

@@ -44,7 +44,7 @@ Definition isaset_transport (X : UU) (x : X) (P : X -> UU) (p : P x) (i : isaset
   transportf P e p = p.
 Proof. intros. induction (pr1 (i x x (idpath _) e)). reflexivity. Defined.
 
-(* Two ways.  Use induction: *)
+(* Three ways.  Use induction: *)
 
 Definition iscontr_rect' X (i : iscontr X) (x0 : X) (P : X -> UU) (p0 : P x0) : ∀ x:X, P x.
 Proof. intros. induction (pr1 (isapropifcontr i x0 x)). exact p0. Defined.
@@ -59,6 +59,16 @@ Proof.
   reflexivity.
 Defined.
 
+(* ... or use weqsecovercontr, but specializing x to pr1 i: *)
+
+Definition iscontr_rect'' X (i : iscontr X) (P : X -> UU) (p0 : P (pr1 i)) : ∀ x:X, P x.
+Proof. intros. exact (invmap (weqsecovercontr P i) p0 x). Defined.
+       
+Definition iscontr_rect_compute'' X (i : iscontr X) (P : X -> UU) (p : P(pr1 i)) :
+  iscontr_rect'' X i P p (pr1 i) = p.
+Proof. try reflexivity. intros. exact (homotweqinvweq (weqsecovercontr _ i) _).
+Defined.
+
 (* .... or use transport explicitly: *)
 
 Definition iscontr_rect X (is : iscontr X) (x0 : X) (P : X -> UU) (p0 : P x0) : ∀ x:X, P x.
@@ -69,7 +79,7 @@ Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X -> UU) (p : P 
 Proof. intros. apply isaset_transport. apply isasetifcontr. exact is.
 Defined.
 
-Definition iscontr_rect_compute'' X (is : iscontr X) (x : X) (P : X -> UU) (p : P x) :
+Definition iscontr_rect_compute_alt X (is : iscontr X) (x : X) (P : X -> UU) (p : P x) :
   iscontr_rect X is x P p x = p.
 Proof. intros.
        (* try to prove it without using contractibility again *)
