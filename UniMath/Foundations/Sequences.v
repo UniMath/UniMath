@@ -7,6 +7,8 @@ Unset Automatic Introduction.
 
 Definition Sequence X := Σ n, stn n -> X.
 
+Definition sequencePair {X n} (f:stn n -> X) : Sequence X := (n,,f).
+
 Definition transport_stn m n i (b:i<m) (p:m=n) :
   transportf stn p (i,,b) = (i,,transportf (λ m,i<m) p b).
 Proof. intros. induction p. reflexivity. Defined.
@@ -228,11 +230,11 @@ Lemma Sequence_rect_compute_nil {X} {P : Sequence X -> UU} (p0 : P nil)
 Proof.
   intros.
   try reflexivity.
-  unfold Sequence_rect, nil; simpl.
+  unfold Sequence_rect; simpl.
   change p0 with (transportf P (idpath nil) p0) at 2.
   apply (maponpaths (λ e, transportf P e p0)).
-  (* now [stn 0 -> X] is contractible, so is a set, etc. *)
-Abort.
+  exact (maponpaths (maponpaths sequencePair) (iscontr_adjointness _ _ _)).
+Defined.
 
 Lemma Sequence_rect_compute_cons
       {X} {P : Sequence X -> UU} (p0 : P nil)
