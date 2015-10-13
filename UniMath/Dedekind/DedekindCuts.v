@@ -614,6 +614,18 @@ Qed.
 
 (** ** [Dcuts] is an [abmonoid] *)
 
+Lemma NonnegativeRationals_leplus_r :
+  forall r q : NonnegativeRationals, (r <= r + q)%NnR.
+Admitted.
+Lemma NonnegativeRationals_leplus_l :
+  forall r q : NonnegativeRationals, (r <= q + r)%NnR.
+Admitted.
+Lemma isdecrel_leNonnegativeRationals : isdecrel leNonnegativeRationals.
+Admitted.
+Lemma NonnegativeRationals_pluslecancel_r :
+  forall r q n : NonnegativeRationals, (q + r <= n + r)%NnR -> (q <= n)%NnR.
+Admitted.
+                                          
 Section Dcuts_plus.
 
   Context (X : subset NonnegativeRationals).
@@ -642,22 +654,31 @@ Proof.
       now apply Y_bot with r.
   - right.
     revert Hr ; apply hinhfun ; intros [(rx,ry) (Hr,(Hrx,Hry))] ; simpl in * |-.
-    set (nx := (rx * (n / r))%NnR).
-    set (ny := (ry * (n / r))%NnR).
-    exists (nx,ny).
-    repeat split.
-    + unfold nx,ny ; simpl.
-      rewrite <- isrdistr_mult_plusNonnegativeRationals, <- Hr.
-      rewrite multdivNonnegativeRationals.
-      reflexivity.
-      admit.
-    + apply X_bot with (1 := Hrx).
-      apply multrle1NonnegativeRationals.
-      now apply ledivle1NonnegativeRationals.
-    + apply Y_bot with (1 := Hry).
-      apply multrle1NonnegativeRationals.
-      now apply ledivle1NonnegativeRationals.
-Admitted.
+    destruct (isdeceq_NonnegativeRationals r 0%NnR) as [Hr0 | Hr0].
+    + rewrite Hr0 in Hn.
+      apply NonnegativeRationals_le0_eq0 in Hn.
+      exists (0%NnR,0%NnR).
+      rewrite Hn ; simpl.
+      repeat split.
+      * now rewrite NonnegativeRationals_plus0r.
+      * apply X_bot with (1 := Hrx).
+        apply isnonnegative_NonnegativeRationals.
+      * apply Y_bot with (1 := Hry).
+        apply isnonnegative_NonnegativeRationals.
+    + set (nx := (rx * (n / r))%NnR).
+      set (ny := (ry * (n / r))%NnR).
+      exists (nx,ny).
+      repeat split.
+      * unfold nx,ny ; simpl.
+        rewrite <- isrdistr_mult_plusNonnegativeRationals, <- Hr.
+        now rewrite multdivNonnegativeRationals.
+      * apply X_bot with (1 := Hrx).
+        apply multrle1NonnegativeRationals.
+        now apply ledivle1NonnegativeRationals.
+      * apply Y_bot with (1 := Hry).
+        apply multrle1NonnegativeRationals.
+        now apply ledivle1NonnegativeRationals.
+Qed.
 
 Lemma Dcuts_plus_open : Dcuts_def_open Dcuts_plus_val.
 Proof.
@@ -690,8 +711,8 @@ Proof.
       * exact Xn.
       * exact Yn.
     + rewrite Hr.
-      admit.
-Admitted.
+      now apply NonnegativeRationals_plusltcompat.
+Qed.
 Lemma Dcuts_plus_bounded : Dcuts_def_bounded Dcuts_plus_val.
 Proof.
   revert X_bounded Y_bounded.
@@ -703,24 +724,31 @@ Proof.
   - apply hinhuniv, sumofmaps.
     + intro Hx ; apply Xr.
       apply X_bot with (1 := Hx).
-      admit.
+      now apply NonnegativeRationals_leplus_r.
     + intro Hy ; apply Yn.
       apply Y_bot with (1 := Hy).
-      admit.
+      now apply NonnegativeRationals_leplus_l.
   - apply hinhuniv ; intros ((rx,ry),(Hr,(Hx,Hy))) ; simpl in * |-.
+    destruct (isdecrel_leNonnegativeRationals r rx).
+    apply Xr.
+    now apply X_bot with (1 := Hx).
+    apply Yn.
+    apply Y_bot with (1 := Hy).
+    apply istrans_leNonnegativeRationals with ((rx + ry) - r)%NnR.
+    rewrite <- Hr.
+    admit.
+    apply NonnegativeRationals_pluslecancel_r with r.
     admit.
 Admitted.
 
 End Dcuts_plus.
 
-Check Dcuts_plus_bot.
-
 Definition Dcuts_plus (X Y : Dcuts) : Dcuts :=
   mk_Dcuts (Dcuts_plus_val (pr1 X) (pr1 Y))
-           (Dcuts_plus_bot (pr1 X) (is_Dcuts_bot X) (is_Dcuts_open X) (is_Dcuts_bounded X)
-                           (pr1 Y) (is_Dcuts_bot Y) (is_Dcuts_open Y) (is_Dcuts_bounded Y))
-           (Dcuts_plus_open (pr1 X) (is_Dcuts_bot X) (is_Dcuts_open X) (is_Dcuts_bounded X)
-                            (pr1 Y) (is_Dcuts_bot Y) (is_Dcuts_open Y) (is_Dcuts_bounded Y))
+           (Dcuts_plus_bot (pr1 X) (is_Dcuts_bot X)
+                           (pr1 Y) (is_Dcuts_bot Y))
+           (Dcuts_plus_open (pr1 X) (is_Dcuts_open X)
+                            (pr1 Y) (is_Dcuts_open Y))
            (Dcuts_plus_bounded (pr1 X) (is_Dcuts_bot X) (is_Dcuts_open X) (is_Dcuts_bounded X)
                                (pr1 Y) (is_Dcuts_bot Y) (is_Dcuts_open Y) (is_Dcuts_bounded Y)).
 

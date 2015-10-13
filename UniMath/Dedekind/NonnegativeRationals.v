@@ -23,12 +23,16 @@ Coercion hnnq_def_to_hq : hnnq_def >-> pr1hSet.
 Local Definition hq_to_hnnq_def (r : hq) (Hr : hqleh 0 r) : hnnq_def :=
   tpair (fun x : hq => hqleh 0 x) r Hr.
 
-Lemma isincl_hnnq_to_hq : isincl hnnq_def_to_hq. 
-Proof. 
-  apply (isinclpr1 (fun x : hq => hqleh 0 x) (fun x : hq => isapropneg (hqgth 0 x))).
-Qed.
 Local Definition hnnq_set : hSet := 
-  hSetpair _ (isasetsubset hnnq_def_to_hq isasethq isincl_hnnq_to_hq).
+  hSetpair _ (isasetsubset pr1 isasethq (isinclpr1 (hqleh _) (λ x : hq, pr2 (0 <= x)))).
+
+Lemma isdeceq_hnnq : isdeceq hnnq_def.
+Proof.
+  apply isdeceqinclb with pr1.
+  apply isdeceqhq.
+  apply isinclpr1.
+  intro ; apply pr2.
+Qed.
 
 (** ** Equality and order on non-negative rational numbers *)
 
@@ -45,6 +49,7 @@ Proof.
 Qed.  
   
 Local Definition hnnq_ge : hrel hnnq_def := resrel hqgeh (hqleh 0).
+
 Lemma isPartialOrder_hnnq_ge : ispo hnnq_ge.
 Proof.
   destruct isPartialOrder_hnnq_le as [Htrans Hrefl].
@@ -112,6 +117,8 @@ Local Definition hnnq_commrig_to_def : hnnq_commrig -> hnnq_def :=
     | tpair _ r Hr => tpair (fun x : hq => 0 <= x) r Hr
     end.
 
+(** ** Constants *)
+
 Local Definition hnnq_zero : hnnq_commrig := 0%rig.
 Local Definition hnnq_one : hnnq_commrig := 1%rig.
 
@@ -120,6 +127,17 @@ Delimit Scope hnnq_scope with hnnq.
 Notation "0" := hnnq_zero : hnnq_scope.
 Notation "1" := hnnq_one : hnnq_scope.
 
+(** ** Substraction *)
+
+Definition hnnq_minus (q r : hnnq_def) : hnnq_def.
+Proof.
+  intros (q,Hq) (r,Hr).
+  destruct (hqgthorleh r q) as [H0 | H0].
+  - exact hnnq_zero.
+  - apply (hq_to_hnnq_def (q - r)).
+    now apply hq0leminus.
+Qed.
+                                           
 (** ** Multiplicative inverse and division *)
 
 Lemma hnnq_inv_ge0 (x : hnnq_commrig) : 0 <= / pr1 x.
@@ -178,6 +196,8 @@ Definition oneNonnegativeRationals : NonnegativeRationals := 1%rig.
 
 Definition plusNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
   (x + y)%rig.
+Definition minusNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
+  hnnq_minus x y.
 Definition multNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
   (x * y)%rig.
 Definition invNonnegativeRationals (x : NonnegativeRationals) : NonnegativeRationals :=
@@ -188,6 +208,7 @@ Definition divNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRat
 Notation "0" := zeroNonnegativeRationals : NnR_scope.
 Notation "1" := oneNonnegativeRationals : NnR_scope.
 Notation "x + y" := (plusNonnegativeRationals x y) : NnR_scope.
+Notation "x - y" := (minusNonnegativeRationals x y) : NnR_scope.
 Notation "x * y" := (multNonnegativeRationals x y) : NnR_scope.
 Notation "/ x" := (invNonnegativeRationals x) : NnR_scope.
 Notation "x / y" := (divNonnegativeRationals x y) : NnR_scope.
@@ -208,8 +229,25 @@ Proof.
   intros x.
   apply (pr2 x).
 Qed.
+Lemma NonnegativeRationals_le0_eq0 :
+  forall r : NonnegativeRationals, r <= 0 -> r = 0.
+Proof.
+  intros (r,Hr) Hr0.
+  apply total2_paths_isaprop.
+  intro ; apply pr2.
+  simpl.
+  apply isantisymmhqleh.
+  apply Hr0.
+  apply Hr.
+Qed.
 
 (** *** Order *)
+
+Definition istrans_leNonnegativeRationals : istrans leNonnegativeRationals :=
+  istrans_po _.
+
+Definition isdeceq_NonnegativeRationals : isdeceq NonnegativeRationals
+  := isdeceq_hnnq.
 
 Lemma lt_leNonnegativeRationals :
   forall x y : NonnegativeRationals, x < y -> x <= y.
@@ -266,7 +304,7 @@ Definition isrdistr_mult_plusNonnegativeRationals : isrdistr plusNonnegativeRati
   rigrdistr _.
 
 Lemma multdivNonnegativeRationals :
-  forall q r : NonnegativeRationals, neg (r = 0) -> (r * (q / r)) = q.
+  forall q r : NonnegativeRationals, (r != 0) -> (r * (q / r)) = q.
 Proof.
   intros q r Hr0.
   unfold divNonnegativeRationals, hnnq_div.
@@ -277,8 +315,20 @@ Lemma multrle1NonnegativeRationals :
   forall q r : NonnegativeRationals, (q <= 1)%NnR -> (r * q <= r)%NnR.
 Admitted.
 Lemma ledivle1NonnegativeRationals :
-  forall q r : NonnegativeRationals, (q <= r)%NnR -> (q / r <= 1)%NnR.
+  forall q r : NonnegativeRationals, (r != 0) -> (q <= r)%NnR -> (q / r <= 1)%NnR.
 Admitted.
+
+Lemma NonnegativeRationals_plus0r :
+  forall r : NonnegativeRationals, r + 0 = r.
+Admitted.
+Lemma NonnegativeRationals_plus0l :
+  forall r : NonnegativeRationals, 0 + r = r.
+Admitted.
+Lemma NonnegativeRationals_plusltcompat :
+  forall x x' y y' : NonnegativeRationals,
+    x < x' -> y < y' -> x + y < x' + y'.
+Admitted.
+
 
 Close Scope NnR_scope.
 
