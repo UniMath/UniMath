@@ -9,7 +9,6 @@ Require Import UniMath.Dedekind.Sets_comp.
 Require Import UniMath.Dedekind.Fields_comp.
 Require Import UniMath.Dedekind.Complements.
 
-
 Opaque hq.
 
 Open Scope hq_scope.
@@ -21,7 +20,7 @@ Local Definition hnnq_def := carrier (hqleh 0).
 Local Definition hnnq_def_to_hq (r : hnnq_def) : hq := pr1 r.
 Coercion hnnq_def_to_hq : hnnq_def >-> pr1hSet.
 Local Definition hq_to_hnnq_def (r : hq) (Hr : hqleh 0 r) : hnnq_def :=
-  tpair (fun x : hq => hqleh 0 x) r Hr.
+  tpair _ r Hr.
 
 Local Definition hnnq_set : hSet := 
   hSetpair _ (isasetsubset pr1 isasethq (isinclpr1 (hqleh _) (λ x : hq, pr2 (0 <= x)))).
@@ -83,14 +82,14 @@ Qed.
 
 (** ** Non-negative rational numbers are a commutative rig *)
 
-Local Definition hnnq_plus_submonoid : issubmonoid (X := fld_to_addmonoid hq) (hqleh 0).
+Local Definition hnnq_plus_submonoid : issubmonoid (X := fld_to_monoid1 hq) (hqleh 0).
 Proof.
   split.
   intros (x,Hx) (y,Hy) ; simpl pr1.
   now apply (hq0lehandplus x y Hx Hy).
   apply isreflhqleh.
 Defined.
-Local Definition hnnq_mult_submonoid : issubmonoid (X := fld_to_multmonoid hq) (hqleh 0).
+Local Definition hnnq_mult_submonoid : issubmonoid (X := fld_to_monoid2 hq) (hqleh 0).
 Proof.
   split.
   intros (x,Hx) (y,Hy) ; simpl pr1.
@@ -114,7 +113,7 @@ Defined.
 Local Definition hnnq_commrig_to_def : hnnq_commrig -> hnnq_def := 
   fun X : hnnq_commrig =>
     match X with
-    | tpair _ r Hr => tpair (fun x : hq => 0 <= x) r Hr
+    | tpair _ r Hr => tpair _ r Hr
     end.
 
 (** ** Constants *)
@@ -127,7 +126,7 @@ Delimit Scope hnnq_scope with hnnq.
 Notation "0" := hnnq_zero : hnnq_scope.
 Notation "1" := hnnq_one : hnnq_scope.
 
-(** ** Substraction *)
+(** ** Functions *)
 
 Definition hnnq_minus (q r : hnnq_def) : hnnq_def.
 Proof.
@@ -136,7 +135,7 @@ Proof.
   - exact hnnq_zero.
   - apply (hq_to_hnnq_def (q - r)).
     now apply hq0leminus.
-Qed.
+Defined.
                                            
 (** ** Multiplicative inverse and division *)
 
@@ -168,7 +167,7 @@ Definition NonnegativeRationals : commrig := hnnq_commrig.
 Definition NonnegativeRationals_to_Rationals : NonnegativeRationals -> hq :=
   pr1.
 Definition Rationals_to_NonnegativeRationals (r : hq) (Hr : hqleh 0%hq r) : NonnegativeRationals :=
-  tpair (fun x : hq => hqleh 0%hq x) r Hr.
+  tpair _ r Hr.
 
 Delimit Scope NnR_scope with NnR.
 
@@ -213,9 +212,52 @@ Notation "x * y" := (multNonnegativeRationals x y) : NnR_scope.
 Notation "/ x" := (invNonnegativeRationals x) : NnR_scope.
 Notation "x / y" := (divNonnegativeRationals x y) : NnR_scope.
 
-(** ** Theorems *)
-
 Open Scope NnR_scope.
+
+(** *** Correctness *)
+
+Lemma zeroNonnegativeRationals_correct :
+  0 = Rationals_to_NonnegativeRationals 0%hq (isreflhqleh 0%hq).
+Proof.
+  apply total2_paths_isaprop.
+  - now intro ; apply pr2.
+  - reflexivity.
+Qed.
+
+Lemma hq1ge0 : (0 <= 1)%hq.
+Proof.
+  now apply hqlthtoleh, hq1_gt0.
+Qed.
+Lemma oneNonnegativeRationals_correct :
+  1 = Rationals_to_NonnegativeRationals 1%hq hq1ge0.
+Proof.
+  apply total2_paths_isaprop.
+  - now intro ; apply pr2.
+  - reflexivity.
+Qed.
+Lemma plusNonnegativeRationals_correct :
+  forall x y : NonnegativeRationals,
+    x + y = Rationals_to_NonnegativeRationals (pr1 x + pr1 y)%hq (hq0lehandplus _ _ (pr2 x) (pr2 y)).
+Proof.
+  intros (x,Hx) (y,Hy).
+  apply total2_paths_isaprop.
+  - now intro ; apply pr2.
+  - reflexivity.
+Qed.
+Lemma minusNonnegativeRationals_correct :
+  forall (x y : NonnegativeRationals) (Hxy : y <= x), 
+    x - y = Rationals_to_NonnegativeRationals (pr1 x - pr1 y)%hq (hq0leminus (pr1 y) (pr1 x) Hxy).
+Proof.
+  intros (x,Hx) (y,Hy) H ; simpl in H.
+  apply total2_paths_isaprop.
+  - now intro ; apply pr2.
+  - unfold minusNonnegativeRationals, hnnq_minus.
+    destruct hqgthorleh.
+    + now apply fromempty, H.
+    + reflexivity.
+Qed.
+
+(** ** Theorems *)
 
 Lemma isnonnegative_NonnegativeRationals :
   forall x : NonnegativeRationals , 0 <= x.
@@ -328,7 +370,57 @@ Lemma NonnegativeRationals_plusltcompat :
   forall x x' y y' : NonnegativeRationals,
     x < x' -> y < y' -> x + y < x' + y'.
 Admitted.
-
+Lemma NonnegativeRationals_leplus_r :
+  forall r q : NonnegativeRationals, (r <= r + q)%NnR.
+Admitted.
+Lemma NonnegativeRationals_leplus_l :
+  forall r q : NonnegativeRationals, (r <= q + r)%NnR.
+Admitted.
+Lemma isdecrel_leNonnegativeRationals : isdecrel leNonnegativeRationals.
+Admitted.
+Lemma NonnegativeRationals_pluslecompat_r :
+  forall r q n : NonnegativeRationals, (q <= n)%NnR -> (q + r <= n + r)%NnR.
+Admitted.
+Lemma NonnegativeRationals_pluslecompat_l :
+  forall r q n : NonnegativeRationals, (q <= n)%NnR -> (r + q <= r + n)%NnR.
+Admitted.
+Lemma NonnegativeRationals_pluslecancel_r :
+  forall r q n : NonnegativeRationals, (q + r <= n + r)%NnR -> (q <= n)%NnR.
+Admitted.
+Lemma NonnegativeRationals_pluslecancel_l :
+  forall r q n : NonnegativeRationals, (r + q <= r + n)%NnR -> (q <= n)%NnR.
+Admitted.
+Lemma NonnegativeRationals_plusr_minus :
+  forall q r : NonnegativeRationals, ((r + q) - q)%NnR = r.
+Proof.
+  intros (q,Hq) (r,Hr).
+  rewrite (minusNonnegativeRationals_correct _ _ (NonnegativeRationals_leplus_l _ _)).
+  apply total2_paths_isaprop.
+  - now intro ; apply pr2.
+  - simpl pr1.
+    unfold hqminus.
+    now rewrite hqplusassoc, (hqpluscomm q), (hqlminus q), hqplusr0.
+Qed.
+Lemma NonnegativeRationals_plusl_minus :
+  forall q r : NonnegativeRationals, ((q + r) - q)%NnR = r.
+Proof.
+  intros q r.
+  rewrite iscomm_plusNonnegativeRationals.
+  now apply NonnegativeRationals_plusr_minus.
+Qed.
+Lemma NonnegativeRationals_minusr_plus :
+  forall q r : NonnegativeRationals,
+    r <= q -> (q - r) + r = q.
+Proof.
+  intros (q,Hq) (r,Hr) H ; simpl in H.
+  unfold minusNonnegativeRationals, hnnq_minus.
+  destruct hqgthorleh as [H'|H'].
+  - now apply fromempty, H.
+  - apply total2_paths_isaprop.
+    + intro ; apply pr2.
+    + unfold hqminus ; simpl.
+      now rewrite hqplusassoc, hqlminus, hqplusr0.
+Qed.
 
 Close Scope NnR_scope.
 
@@ -337,7 +429,7 @@ Close Scope NnR_scope.
 Global Opaque NonnegativeRationals.
 Global Opaque leNonnegativeRationals geNonnegativeRationals.
 Global Opaque ltNonnegativeRationals gtNonnegativeRationals.
-Global Opaque zeroNonnegativeRationals plusNonnegativeRationals.
+Global Opaque zeroNonnegativeRationals plusNonnegativeRationals minusNonnegativeRationals.
 Global Opaque oneNonnegativeRationals multNonnegativeRationals.
 Global Opaque invNonnegativeRationals divNonnegativeRationals.
 

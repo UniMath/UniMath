@@ -614,18 +614,6 @@ Qed.
 
 (** ** [Dcuts] is an [abmonoid] *)
 
-Lemma NonnegativeRationals_leplus_r :
-  forall r q : NonnegativeRationals, (r <= r + q)%NnR.
-Admitted.
-Lemma NonnegativeRationals_leplus_l :
-  forall r q : NonnegativeRationals, (r <= q + r)%NnR.
-Admitted.
-Lemma isdecrel_leNonnegativeRationals : isdecrel leNonnegativeRationals.
-Admitted.
-Lemma NonnegativeRationals_pluslecancel_r :
-  forall r q n : NonnegativeRationals, (q + r <= n + r)%NnR -> (q <= n)%NnR.
-Admitted.
-                                          
 Section Dcuts_plus.
 
   Context (X : subset NonnegativeRationals).
@@ -734,12 +722,18 @@ Proof.
     now apply X_bot with (1 := Hx).
     apply Yn.
     apply Y_bot with (1 := Hy).
-    apply istrans_leNonnegativeRationals with ((rx + ry) - r)%NnR.
-    rewrite <- Hr.
-    admit.
+    rewrite <- (NonnegativeRationals_plusl_minus r n).
+    rewrite Hr.
     apply NonnegativeRationals_pluslecancel_r with r.
-    admit.
-Admitted.
+    rewrite NonnegativeRationals_minusr_plus.
+    rewrite iscomm_plusNonnegativeRationals.
+    apply NonnegativeRationals_pluslecompat_l.
+    apply lt_leNonnegativeRationals.
+    apply notge_ltNonnegativeRationals.
+    exact n0.
+    rewrite <- Hr.
+    apply NonnegativeRationals_leplus_r.
+Qed.
 
 End Dcuts_plus.
 
@@ -749,8 +743,8 @@ Definition Dcuts_plus (X Y : Dcuts) : Dcuts :=
                            (pr1 Y) (is_Dcuts_bot Y))
            (Dcuts_plus_open (pr1 X) (is_Dcuts_open X)
                             (pr1 Y) (is_Dcuts_open Y))
-           (Dcuts_plus_bounded (pr1 X) (is_Dcuts_bot X) (is_Dcuts_open X) (is_Dcuts_bounded X)
-                               (pr1 Y) (is_Dcuts_bot Y) (is_Dcuts_open Y) (is_Dcuts_bounded Y)).
+           (Dcuts_plus_bounded (pr1 X) (is_Dcuts_bot X) (is_Dcuts_bounded X)
+                               (pr1 Y) (is_Dcuts_bot Y) (is_Dcuts_bounded Y)).
 
 Lemma iscomm_Dcuts_plus : iscomm Dcuts_plus.
 Proof.

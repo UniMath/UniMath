@@ -30,11 +30,13 @@ Section fld_struct.
 
 Context (X : fld).
 
-Definition fld_to_addmonoid : monoid :=
-  grtomonoid (rngaddabgr (pr1fld X)).
-Search (monoid -> _).
+Definition fld_to_gr1 : gr :=
+  abgrtogr (rngaddabgr (pr1fld X)).
 
-Definition fld_to_multmonoid : monoid :=
+Definition fld_to_monoid1 : monoid :=
+  grtomonoid fld_to_gr1.
+
+Definition fld_to_monoid2 : monoid :=
   rngmultmonoid (pr1fld X).
 
 End fld_struct.
