@@ -42,6 +42,9 @@ Notation " 'stnel' ( i , j ) " := ( stnpair _ _  ( ctlong natlth isdecrelnatlth 
 Lemma isinclstntonat ( n : nat ) : isincl ( stntonat n ) .
 Proof. intro .  apply isinclpr1 .  intro x .  apply ( pr2 ( natlth x n ) ) .  Defined.
 
+Lemma isinjstntonat n : isinj (pr1 : stn n -> nat).
+Proof. intros ? i j. apply (invmaponpathsincl pr1). apply isinclstntonat. Defined.
+
 Lemma isdecinclstntonat ( n : nat ) : isdecincl ( stntonat n ) .
 Proof. intro . apply isdecinclpr1 .  intro x . apply isdecpropif . apply ( pr2 _ ) .   apply isdecrelnatgth .  Defined . 
 
@@ -146,8 +149,20 @@ Proof. intros . intro jni . destruct jni as [ j ni ] . set ( jni := complpair _ 
 
 Definition weqdnicompl ( n : nat ) ( i : stn ( S n ) ) := weqpair _ ( isweqdnitocompl n i ) . 
 
+Definition weqdnicompl_compute_first n i : pr1 (pr1 (weqdnicompl n (firstelement n) i)) = S (pr1 i).
+Proof. reflexivity. Defined.
 
+Definition weqdnicompl_compute_last n i : pr1 (pr1 (weqdnicompl n (lastelement n) i)) = pr1 i.
+Proof.
+  intros. induction i as [i b]. simpl. unfold dni; simpl.
+  induction (natlthorgeh i n) as [p|p]. { reflexivity. } { contradicts b p. }
+Defined.
 
+Definition inv_weqdnicompl_compute_last n i : pr1 (invweq (weqdnicompl n (lastelement n)) i) = pr1 (pr1 i).
+Proof.
+  intros.
+  exact ( ! (weqdnicompl_compute_last _ _) @ (maponpaths pr1 (maponpaths pr1 (homotweqinvweq _ i)))).
+Defined.
 
 (** *** Weak equivalence from [ coprod ( stn n ) unit ] to [ stn ( S n ) ] defined by [ dni n i ] *)
 
