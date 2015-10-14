@@ -159,6 +159,7 @@ Local Definition hnnq_div (x y : hnnq_commrig) : hnnq_commrig := (x * (hnnq_inv 
 
 Lemma hnnq_inv_mult_l :
   forall r : hnnq_commrig, r != 0%hnnq -> ((hnnq_inv r) * r)%rig = 1%hnnq.
+                                            
 Admitted.
 
 (** * Exportable definitions and theorems *)

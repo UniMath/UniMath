@@ -76,7 +76,7 @@ Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
 
 Definition dirprod (X Y : UU) := Σ x:X, Y.
 
-Notation "A × B" := (dirprod A B) (at level 80, right associativity) : type_scope.
+Notation "A × B" := (dirprod A B) (at level 75, right associativity) : type_scope.
   (* type this in emacs in agda-input method with \times *)
 
 Definition dirprodpair {X Y : UU} := tpair (fun x : X => Y).
@@ -104,7 +104,7 @@ Definition neg (X : UU) : UU := X -> empty.
 Notation "'¬' X" := (neg X) (at level 35, right associativity).
   (* type this in emacs in agda-input method with \neg *)
 
-Notation "x != y" := (neg (x = y)) (at level 40).
+Notation "x != y" := (neg (x = y)) (at level 70).
 
 (* Apply this tactic to a proof of [X] and [neg X], in either order: *)
 Ltac contradicts a b := solve [ induction (a b) | induction (b a) ].
