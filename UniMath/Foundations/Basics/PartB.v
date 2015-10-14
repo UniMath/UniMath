@@ -413,18 +413,21 @@ Proof. intros. apply (isofhlevelfonpaths O  f x x' is). Defined.
 
 Definition weqonpathsincl  { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X) := weqpair _ ( isweqonpathsincl f is x x' ) .
 
-Definition invmaponpathsincl { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X): paths (f x) (f x') -> paths x x':= invmap  ( weqonpathsincl  f is x x') .
+Definition isinj { X Y : UU } (f:X -> Y) := ∀ (x x':X), f x = f x' -> x = x'.
 
+Definition invmaponpathsincl { X Y : UU } (f:X -> Y) : isincl f -> isinj f.
+Proof.
+  intros ? ? ? is x x'.
+  exact (invmap (weqonpathsincl  f is x x')).
+Defined.
 
 Lemma isinclweqonpaths { X Y : UU } (f:X -> Y): (forall x x':X, isweq (@maponpaths _ _ f x x')) -> isincl  f.
-Proof. intros X Y f X0.  apply (isofhlevelfsn O  f X0). Defined.
+Proof. intros X Y f X0.  apply (isofhlevelfsn O f X0). Defined.
 
 
 Definition isinclpr1 { X : UU } (P:X -> UU)(is: forall x:X, isaprop (P x)): isincl  (@pr1 X P):= isofhlevelfpr1 (S O) P is.
 
-
-Lemma total2_paths_isaprop (A : UU) (B : A -> UU) (is : forall a, isaprop (B a))
-   (s s' : total2 (fun x => B x)) : pr1 s = pr1 s' -> s = s'.
+Lemma total2_paths_isaprop (A : UU) (B : A -> UU) (is : ∀ a, isaprop (B a)) : isinj (@pr1 A B).
 Proof.
   intros A B H s s'.
   apply invmaponpathsincl.
@@ -432,8 +435,8 @@ Proof.
   apply H.
 Defined.
 
-Theorem total2_paths_isaprop_equiv {A : UU} (B : A -> UU) (hB: forall a, isaprop (B a))
-  (x y : total2 (fun x => B x)): weq (x = y) (pr1 x = pr1 y).
+Theorem total2_paths_isaprop_equiv {A : UU} (B : A -> UU) (hB: ∀ a, isaprop (B a))
+  (x y : total2 B): (x = y) ≃ (pr1 x = pr1 y).
 Proof.
   intros.
   exists (maponpaths pr1).
