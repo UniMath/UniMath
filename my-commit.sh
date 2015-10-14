@@ -2,6 +2,7 @@ git checkout master
 git pull
 git pull upstream
 git merge upstream/master
+git gui
 make -j -k
 
 if [ "$?" -eq 0 ]
@@ -10,6 +11,7 @@ then
     git checkout dev
     git pull
     git merge master
+    git gui
     make -j -k
     emacs UniMath/Dedekind
     
