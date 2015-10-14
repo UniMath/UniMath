@@ -12,4 +12,4 @@ Notation "∥ A ∥" := (ishinh A) (at level 200) : type_scope.
 
 Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
   (* \=> in Agda input method *)
-Notation "g ;; f" := (compose g f)(at level 50, left associativity).
+Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g", left associativity).
