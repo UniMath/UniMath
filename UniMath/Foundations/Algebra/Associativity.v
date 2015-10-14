@@ -2,55 +2,20 @@ Require Export UniMath.Foundations.Sequences.
 Require Export UniMath.Foundations.Algebra.Monoids_and_Groups.
 Unset Automatic Introduction.
 
-(* confirm that [stnsum] and [stnprod] are associative in the same way as the parser *)
-
-Local Notation "●" := (idpath _).
-
-Goal ∀ n, 0+n = n.
-Proof. reflexivity. Defined.
-
-Goal ∀ n, n+0 = n.
-Proof. try reflexivity. Abort.
-
-Goal ∀ n, n*1 = n.
-Proof. try reflexivity. Abort.
-
-Goal ∀ n, 1*n = n.              (* this should be made to work *)
-Proof. try reflexivity. Abort.
-
-Goal ∀ (f : stn 3 -> nat), stnsum f = f(0,,●) + f(1,,●) + f(2,,●).
-Proof. reflexivity. Defined.
-
-Goal ∀ (f : stn 3 -> nat), stnprod f = f(0,,●) * f(1,,●) * f(2,,●).
-Proof. try reflexivity. Abort.
-
-Goal ∀ (f : stn 3 -> nat), stnprod f = 1 * f(0,,●) * f(1,,●) * f(2,,●).
-Proof. reflexivity. Defined.
-
-(* demonstrate for the reader that the Coq parser is left-associative with "*" *)
 
 Open Scope multmonoid.
 
-Goal ∀ (M:monoid) (x y z:M), x*y*z = (x*y)*z.
-Proof. reflexivity. Defined.
+(* demonstrate that the Coq parser is left-associative with "*" *)
+Goal ∀ (M:monoid) (x y z:M), x*y*z = (x*y)*z. Proof. reflexivity. Defined.
+Goal ∀ (M:monoid) (x y z:M), x*y*z = x*(y*z). Proof. apply assocax. Defined.
 
-Goal ∀ (M:monoid) (x y z:M), x*y*z = x*(y*z).
-Proof. try reflexivity. apply assocax. Defined.
-
-(* demonstrate for the reader that the Coq parser is left-associative with "+" *)
-
+(* demonstrate that the Coq parser is left-associative with "+" *)
 Open Scope addmonoid.
-
-Goal ∀ (M:monoid) (x y z:M), x+y+z = (x+y)+z.
-Proof. reflexivity. Defined.
-
-Goal ∀ (M:monoid) (x y z:M), x+y+z = x+(y+z).
-Proof. try reflexivity. apply assocax. Defined.
-
+Goal ∀ (M:monoid) (x y z:M), x+y+z = (x+y)+z. Proof. reflexivity. Defined.
+Goal ∀ (M:monoid) (x y z:M), x+y+z = x+(y+z). Proof. apply assocax. Defined.
 Close Scope addmonoid.
 
-(* so we define iterated products in the same way now, with left associativity: *)
-
+(* we define iterated products in the same way now, with left associativity: *)
 Definition sequenceProduct {M:monoid} : Sequence M -> M.
 Proof.
   intros ? [n x].
@@ -68,7 +33,7 @@ Proof.
 Defined.
 
 (* verify that our associativity matches that of the parser, with an extra "1" *)
-
+Local Notation "●" := (idpath _).
 Goal ∀ (M:monoid) (f:stn 3 -> M), sequenceProduct(3,,f) = 1 * f(O,,●) * f(S O,,●) * f(S(S O),,●).
 Proof. reflexivity. Defined.
 
