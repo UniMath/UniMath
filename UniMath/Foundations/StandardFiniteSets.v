@@ -93,6 +93,9 @@ Definition dni_allButLast n : stn n -> stn (S n).
 (* this definition is simpler than that of [dni n (lastelement n)], since no choice is involved, so it's useful in special situations *)
 Proof. intros ? h. destruct h as [h hm]. exists h. now apply natlthtolths. Defined.
 
+Definition pr1_dni_allButLast {n i} : pr1 (dni_allButLast n i) = pr1 i.
+Proof. intros. induction i as [i b]. reflexivity. Defined.
+
 Lemma dnicommsq ( n : nat ) ( i : stn ( S n ) ) : commsqstr( dni n i )  ( stntonat ( S n ) ) ( stntonat n ) ( di i )  .
 Proof. intros . intro x . unfold dni . unfold di . destruct ( natlthorgeh x i ) .  simpl .  apply idpath . simpl .  apply idpath . Defined . 
 

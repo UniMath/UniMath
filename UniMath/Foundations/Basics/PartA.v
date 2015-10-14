@@ -1534,6 +1534,14 @@ Definition weqcomp {X Y Z : UU} (w1 : weq X Y) (w2 : weq Y Z) : (weq X Z) :=
 
 Ltac intermediate_weq Y' := apply (weqcomp (Y := Y')).
 
+Definition weqcomp_to_funcomp_app {X Y Z} {x:X} {f:X≃Y} {g:Y≃Z} :
+  (weqcomp f g) x = pr1weq g (pr1weq f x).
+Proof. reflexivity. Defined.
+
+Definition weqcomp_to_funcomp {X Y Z} {f:X≃Y} {g:Y≃Z} :
+  pr1weq (weqcomp f g) = pr1weq g ∘ pr1weq f.
+Proof. reflexivity. Defined.
+
 (** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences. *)
 
 
