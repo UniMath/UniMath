@@ -1,6 +1,8 @@
 Require Export UniMath.Foundations.Algebra.Associativity.
 Require Export UniMath.Foundations.FunctionalExtensionality.
 Unset Automatic Introduction.
+Local Notation "●" := (idpath _).
+Local Notation "s □ x" := (append s x) (at level 65, left associativity).
 
 Theorem commutativityOfProducts {M:abmonoid} {n} (x:stn n->M) (f:stn n ≃ stn n) :
   sequenceProduct (n,,x) = sequenceProduct (n,,x∘f).
@@ -26,10 +28,27 @@ Proof.
         rewrite 3? weqcomp_to_funcomp_app. rewrite inv_weqdnicompl_compute_last. rewrite pr1_h.
         rewrite weqoncompl_compute. apply maponpaths. apply maponpaths. apply isinjstntonat.
         unfold wc. rewrite weqdnicompl_compute_last. rewrite pr1_dni_allButLast. reflexivity. }}
+    set (j := f (lastelement n)).
+    induction j as [j jlt].
+    assert (jle := natlthsntoleh _ _ jlt).
+    Open Scope nat.
+    set (m := nil □ j □ 1 □ n-j).
+    assert (B : stnsum m = S n). 
+    { unfold stnsum; simpl. rewrite natplusassoc. rewrite (natpluscomm 1). rewrite <- natplusassoc.
+      rewrite natpluscomm. apply (maponpaths S). rewrite natpluscomm. now apply minusplusnmm. }                                 
+    set (m' := nil □ j □ n-j □ 1).
+    assert (B' : stnsum m' = S n). 
+    { unfold stnsum; simpl. rewrite natplusassoc. rewrite (natpluscomm _ 1). rewrite <- natplusassoc. apply B. }
+    set (w := weqstnsum_idweq m). rewrite B in w. change (pr1 m) with 3 in w.
+    set (w' := weqstnsum_idweq m'). rewrite B' in w'. change (pr1 m') with 3 in w'.
+
+
+
+(*
     induction (isdeceqstn (S n) (f (lastelement n)) (lastelement n)) as [p|p].
     + now apply specialcase.
     + 
-
+*)
 
 Abort.
 

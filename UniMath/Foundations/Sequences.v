@@ -7,6 +7,9 @@ Unset Automatic Introduction.
 
 Definition Sequence X := Σ n, stn n -> X.
 
+Definition Sequence_to_function {X} (x:Sequence X) := pr2 x.
+Coercion Sequence_to_function : Sequence >-> Funclass.
+
 Definition sequencePair {X n} (f:stn n -> X) : Sequence X := (n,,f).
 
 Definition transport_stn m n i (b:i<m) (p:m=n) :
