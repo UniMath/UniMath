@@ -115,7 +115,12 @@ Lemma iscontrhfiberdni ( n : nat ) ( i j : stn ( S n ) ) ( ne : neg ( paths i j 
 Proof . intros . set ( ne' := negf ( invmaponpathsincl _ ( isinclstntonat ( S n ) ) _ _ ) ne ) .  apply ( iscontrweqb ( weqhfiberdnihfiberdi n i j ) ( iscontrhfiberdi i j ne' ) ) .  Defined . 
 
 Lemma isdecincldni ( n : nat ) ( i : stn ( S n ) ) : isdecincl ( dni n i ) .
-Proof.  intros . intro j . destruct ( isdeceqstn _ i j ) as [i0|] . rewrite i0 .  apply ( isdecpropfromneg ( neghfiberdni n j ) ) . apply ( isdecpropfromiscontr ( iscontrhfiberdni _ _ _ e ) ) .  Defined . 
+Proof.  intros . intro j .
+        induction ( isdeceqstn _ i j ) as [i0|e].
+        rewrite i0.
+        apply ( isdecpropfromneg ( neghfiberdni n j ) ) .
+        apply ( isdecpropfromiscontr (iscontrhfiberdni _ _ _ e) ) .
+Defined . 
  
 Lemma isincldni ( n : nat ) ( i : stn ( S n ) ) : isincl ( dni n i ) .
 Proof. intros . apply ( isdecincltoisincl _  ( isdecincldni n i ) ) .  Defined . 
