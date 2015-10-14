@@ -116,16 +116,15 @@ Definition shift_cocone (D : diagram nat_graph C)
   (Hx : ∀ u v (e : edge u v), dmor D e ;; fx v = fx u) :
   Σ (f : ∀ v, C ⟦ dob (shift D) v, x ⟧), 
     (∀ u v (e : edge u v), dmor (shift D) e ;; f v = f u).
-Admitted.
-(* Proof. *)
-(* simpl. *)
-(* refine (tpair _ _ _). *)
-(* - intro n. *)
-(*   set (@dmor _ _ D n (S n) (idpath _)). *)
-(*   now apply (p ;; fx n).  *)
-(* - abstract (now intros m n Hmn; destruct Hmn; simpl; *)
-(*             apply maponpaths, (Hx _ _ (idpath _))). *)
-(* Defined. *)
+Proof.
+simpl.
+refine (tpair _ _ _).
+- intro n.
+  set (@dmor _ _ D (S n) _ (idpath _)).
+  now apply (p ;; fx (S (S n))).
+- abstract (now intros m n Hmn; destruct Hmn; simpl;
+            apply maponpaths, (Hx _ _ (idpath _))).
+Defined.
 
 
 Definition shift_colim (hsC : has_homsets C) (D : diagram nat_graph C) (CC : ColimCocone C (shift D)) :
@@ -148,9 +147,26 @@ exists ca.
 simpl.
 intro n.
 unfold ca.
-admit.
-+ admit.
-Admitted.
+rewrite <- assoc.
+eapply pathscomp0.
+apply maponpaths.
+apply (colimArrowCommutes _ CC x (pr1 test) (pr2 test) n).
+unfold test.
+simpl.
+eapply pathscomp0; [|apply (Hx _ _ (idpath _))].
+now apply maponpaths, Hx.
++
+simpl; intro f.
+apply total2_paths_second_isaprop; 
+  [now apply impred; intro; apply hsC|]; simpl.
+apply colimArrowUnique; simpl; intro n.
+destruct f as [f Hf]; simpl.
+rewrite <- Hf, assoc.
+apply cancel_postcomposition, pathsinv0.
+eapply pathscomp0.
+apply maponpaths, (colimInCommutes _ CC (S n) _ (idpath _)).
+now apply (colimInCommutes _ CC _ _ (idpath _)).
+Defined.
 
 End nat_graph.
 
