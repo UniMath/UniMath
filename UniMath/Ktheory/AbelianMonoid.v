@@ -230,7 +230,8 @@ Proof.
       change (natdiv n m) with i.
       rewrite natpluscomm.
       rewrite natplusassoc.
-      rewrite (natpluscomm (i*m) j).
+      rewrite (natpluscomm (i*m) (m+j)).
+      rewrite <- natplusassoc.
       reflexivity. }
     { apply lthnatrem. assumption. } }
 Defined.

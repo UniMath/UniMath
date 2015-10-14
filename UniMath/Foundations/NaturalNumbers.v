@@ -63,6 +63,7 @@ Definition natbooleq := decreltobrel natdeceq .
     Proof. intros ? ? inej. apply negrtopaths. exact inej. Defined.
 
 Definition natneq ( x y : nat ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
+
 Definition isdecrelnatneq : isdecrel natneq  := isdecnegrel _ isdecrelnateq . 
 Definition natdecneq : decrel nat := decrelpair isdecrelnatneq . 
 
@@ -836,52 +837,67 @@ rewrite ( natassocpmeq _ _ _ le ) .  apply isreflnatleh . Defined.
 
 
 
+(** *** Basic algebraic properties of [ mul ] on [ nat ].
 
-
-
-(** ** Some properties of [ mult ] on [ nat ] 
-
-Note : multiplication is defined in Init/Peano.v by the following code:
-
-Fixpoint mult (n m:nat) : nat :=
-  match n with
-  | O => 0
-  | S p => m + p * m
-  end
-
-where "n * m" := (mult n m) : nat_scope.
-
-*)
-
-(** *** Basic algebraic properties of [ mult ] on [ nat ] *)
+  We no longer user [mult]. *)
 
 Lemma natmult0n ( n : nat ) : paths ( 0 * n ) 0 .
 Proof. intro n . apply idpath . Defined . 
 Hint Resolve natmult0n : natarith .
 
-Lemma natmultn0 ( n : nat ) : paths ( n * 0 ) 0 .
-Proof. intro n . induction n as [ | n IHn ] . apply idpath . simpl .   assumption .  Defined . 
+Lemma natmultn0 n : n*0 = 0.
+Proof.
+  intro n.
+  induction n as [ | n IHn ].
+  - reflexivity.
+  - simpl. exact (natplusr0 _ @ IHn).
+Defined.
 Hint Resolve natmultn0 : natarith .
 
-Lemma multsnm ( n m : nat ) : paths ( ( S n ) * m ) ( m + n * m ) .
-Proof. intros . apply idpath . Defined .
+Lemma multsnm ( n m : nat ) : S n * m = m + n * m.
+Proof. intros. simpl. apply natpluscomm. Defined.
 Hint Resolve multsnm : natarith .
 
-Lemma multnsm ( n m : nat ) : paths ( n * ( S m ) ) ( n + n * m ) .
-Proof. intro n . induction n as [ | n IHn ] . intro .  simpl .  apply idpath .  intro m .  simpl . apply ( maponpaths S ) .  rewrite ( pathsinv0 ( natplusassoc n m ( n * m ) ) ) .  rewrite ( natpluscomm n m ) .  rewrite ( natplusassoc m n ( n * m ) ) .  apply ( maponpaths ( fun x : nat => m + x ) ( IHn m ) ) .  Defined . 
+Lemma multnsm n m: n * S m = n + n * m.
+Proof. 
+  intro n.
+  induction n as [|n IHn].
+  - reflexivity.
+  - intro m. simpl.
+    rewrite <- natplusassoc.
+    rewrite ( natpluscomm _ m ) .
+    change (S (m + (n + n * m))) with (S m + (n + n * m)).
+    rewrite (natpluscomm (S m) _).
+    apply (maponpaths (λ x, x + S m)).
+    apply IHn.
+Defined . 
 Hint Resolve multnsm : natarith .
 
 Lemma natmultcomm ( n m : nat ) : paths ( n * m ) ( m * n ) .
 Proof. intro . induction n as [ | n IHn ] . intro .  auto with natarith . intro m .  rewrite ( multsnm n m ) .  rewrite ( multnsm m n ) .  apply ( maponpaths ( fun x : _ => m + x ) ( IHn m ) ) .   Defined .
 
-Lemma natrdistr ( n m k : nat ) : paths ( ( n + m ) * k ) ( n * k + m * k ) .
-Proof . intros . induction n as [ | n IHn ] . auto with natarith .   simpl . rewrite ( natplusassoc k ( n * k ) ( m * k ) ) .   apply ( maponpaths ( fun x : _ => k + x ) ( IHn ) ) .  Defined . 
+Lemma natrdistr ( n m k : nat ) : (n + m) * k = n * k + m * k.
+Proof .
+  intros.
+  induction n as [ | n IHn ].
+  - reflexivity.
+  - simpl. rewrite natplusassoc. rewrite (natpluscomm k _). rewrite <- natplusassoc.
+    exact (maponpaths (λ x, x+k) IHn).
+Defined.
   
 Lemma natldistr ( m k n : nat ) : paths ( n * ( m + k ) ) ( n * m + n * k ) .
 Proof . intros m k n . induction m as [ | m IHm ] . simpl . rewrite ( natmultn0 n ) . auto with natarith .  simpl . rewrite ( multnsm n ( m + k ) ) . rewrite ( multnsm n m ) .  rewrite ( natplusassoc _ _ _ ) .  apply ( maponpaths ( fun x : _ => n + x ) ( IHm ) ) . Defined .
 
 Lemma natmultassoc ( n m k : nat ) : paths ( ( n * m ) * k ) ( n * ( m * k ) ) .
-Proof. intro . induction n as [ | n IHn ] . auto with natarith . intros . simpl . rewrite ( natrdistr m ( n * m ) k ) .  apply ( maponpaths ( fun x : _ => m * k + x ) ( IHn m k ) ) .   Defined . 
+Proof.
+  intros.
+  induction n as [ | n IHn ] .
+  - reflexivity.
+  - simpl .
+    rewrite natrdistr.
+    apply (maponpaths (λ x, x + m * k)).
+    apply IHn.
+Defined . 
 
 Lemma natmultl1 ( n : nat ) : paths ( 1 * n ) n .
 Proof. simpl .  auto with natarith . Defined . 
@@ -902,10 +918,23 @@ Definition natcommrig : commrig .
 Proof . split with ( setwith2binoppair natset ( dirprodpair  ( fun n m : nat => n + m ) ( fun n m : nat => n * m ) ) ) .  split . split . split with ( dirprodpair ( dirprodpair ( dirprodpair natplusassoc ( @isunitalpair natset _ 0 ( dirprodpair natplusl0 natplusr0 ) ) ) natpluscomm ) ( dirprodpair natmultassoc ( @isunitalpair natset _ 1 ( dirprodpair natmultl1 natmultr1 ) ) ) ) . apply ( dirprodpair natmult0n natmultn0 ) . apply ( dirprodpair natldistr natrdistr ) . unfold iscomm . apply natmultcomm . Defined .
 
 
-(** *** Cancellation properties of [ mult ] on [ nat ] *)
+(** *** Cancellation properties of [ mul ] on [ nat ] *)
+
+Definition natplusnonzero (n m:nat) : m != 0 -> n+m != 0.
+Proof.
+  intros ? ? ne.
+  induction n as [|n].
+  - exact ne.
+  - simpl. apply negpathssx0.
+Defined.
 
 Definition natneq0andmult ( n m : nat ) ( isn : natneq n 0 ) ( ism : natneq m 0 ) : natneq ( n * m ) 0 .
-Proof . intros . destruct n as [ | n ] . destruct ( isn ( idpath _ ) ) .  destruct m as [ | m ] .  destruct ( ism ( idpath _ ) ) . simpl . apply ( negpathssx0 ) .  Defined . 
+Proof.
+  intros.
+  destruct n as [|n].
+  - contradicts isn (idpath 0).
+  - clear isn. simpl. now apply natplusnonzero.
+Defined.    
 
 Definition natneq0andmultlinv ( n m : nat ) ( isnm : natneq ( n * m ) 0 ) : natneq n 0 := rigneq0andmultlinv natcommrig n m isnm . 
 
@@ -989,9 +1018,27 @@ Lemma isinvmulthrelnatgth : @isinvbinophrel natmultabmonoid natgth .
 Proof . split .  intros a b c r . apply ( natlthandmultlinv _ _ _ r ) .   intros a b c r .  apply ( natlthandmultrinv _ _ _ r ) .  Defined . 
 
 Lemma isrigmultgtnatgth : isrigmultgt natcommrig natgth .
-Proof . change ( forall a b c d : nat , natgth a b -> natgth c d -> natgth ( a * c + b * d ) ( a * d + b * c ) ) .  intro a . induction a as [ | a IHa ] . intros b c d rab rcd . destruct ( negnatgth0n _ rab ) . 
-
-intro b . induction b as [ | b IHb ] . intros c d rab rcd . rewrite ( natmult0n d ) .  rewrite ( natplusr0 _ ) .  rewrite ( natmult0n _ ) .        rewrite ( natplusr0 _ ) . apply ( natlthandmultl _ _ _ ( natgthtoneq _ _ rab ) rcd ) . intros c d rab rcd . simpl . set ( rer := ( abmonoidrer nataddabmonoid ) ) . simpl in rer .  rewrite ( rer _ _ d _ ) . rewrite ( rer _ _ c _ ) .  rewrite ( natpluscomm c d ) .  apply ( natlthandplusl (a * d + b * c)  (a * c + b * d) ( d + c ) ) . apply ( IHa _ _ _ rab rcd ) .  Defined . 
+Proof.
+  intros a.
+  induction a as [|a IHa].
+  - intros ? ? ? rab rcd. contradicts rab (negnatgth0n b).
+  - intros ? ? ? rab rcd.
+    induction b as [|b IHb].
+    + simpl.
+      rewrite <- 2? plus_n_O.
+      simpl in IHa.
+      rewrite 2? (natmult0n) in IHa.
+      rewrite <- 2? plus_n_O in IHa.
+      apply (natlthandmultl _ _ _ (natgthtoneq _ _ rab) rcd).
+    + simpl.
+      set (rer := abmonoidrer nataddabmonoid).
+      unfold op1, op2; simpl.
+      rewrite ( rer _ _ _ d ) . rewrite ( rer _ _ _ c ) .
+      unfold op1, op2; simpl.
+      rewrite ( natpluscomm c d ) .
+      apply ( natlthandplusr (a * d + b * c)  (a * c + b * d) ( d + c ) ) .
+      apply ( IHa _ _ _ rab rcd ) .
+Defined. 
 
 Lemma isinvrigmultgtnatgth : isinvrigmultgt natcommrig natgth .
 Proof . set ( rer := abmonoidrer nataddabmonoid  ) .  simpl in rer .  apply isinvrigmultgtif . intros a b c d . generalize a b c . clear a b c .  induction d as [ | d IHd ] .  
@@ -1073,24 +1120,53 @@ Proof. intro . induction n as [ | n IHn ] . simpl .  intros . apply idpath . int
 
 simpl .  apply ( maponpaths S ( IHn m is ) ) .
 
-simpl . set ( is' := lthnatrem n m is ) .  destruct ( natgthchoice2 _ _ is' ) as [ h | e ] .    destruct ( natlehtonegnatgth _ _ t h ) .  fold ( natdiv n m ) . set ( e'' := maponpaths S ( IHn m is ) ) .  change (S (natrem n m + natdiv n m * m) ) with (  S ( natrem n m ) + natdiv n m * m ) in  e'' . rewrite ( pathsinv0 e ) in e'' . apply e'' . 
+simpl . set ( is' := lthnatrem n m is ) .  destruct ( natgthchoice2 _ _ is' ) as [ h | e ] .    destruct ( natlehtonegnatgth _ _ t h ) .  fold ( natdiv n m ) . set ( e'' := maponpaths S ( IHn m is ) ) .  change (S (natrem n m + natdiv n m * m) ) with (  S ( natrem n m ) + natdiv n m * m ) in  e'' . rewrite ( pathsinv0 e ) in e'' . rewrite (natpluscomm _ m). apply e'' . 
 Defined . 
 
 Opaque natdivremrule . 
 
+Lemma natlehmultnatdiv (n m : nat) (is : m != 0):  natdiv n m * m ≤ n .
+Proof . intros .
+        set ( e := natdivremrule n m is) .
+        set ( int := ( natdiv n m ) * m ) .
+        rewrite e.              (* why can't we just say "rewrite e at 2" here? *)
+        apply natlehmplusnm.
+Defined . 
 
-Lemma natlehmultnatdiv ( n m : nat ) ( is : natneq m 0 ) :  natleh ( mult ( natdiv n m ) m ) n .
-Proof . intros . set ( e := natdivremrule n m ) . set ( int := ( natdiv n m ) * m ) . rewrite e . unfold int  .   apply ( natlehmplusnm _ _ ) .  apply is . Defined . 
 
-
-Theorem natdivremunique ( m i j i' j' : nat ) ( lj : natlth j m ) ( lj' : natlth j' m ) ( e : paths ( j + i * m ) ( j' + i' * m ) ) : dirprod ( paths i i' ) ( paths j j' ) .
+Theorem natdivremunique ( m i j i' j' : nat )
+        ( lj : j < m )
+        ( lj' : j' < m )
+        ( e : j + i * m = j' + i' * m ) :
+  i = i'  ×  j = j' .
 Proof. intros m i . induction i as [ | i IHi ] .
-
-intros j i' j' lj lj' .  intro e .  simpl in e . rewrite ( natplusr0 j ) in e .  rewrite e in lj .  destruct i' . simpl in e .  rewrite ( natplusr0 j' ) in e .  apply ( dirprodpair ( idpath _ ) e ) .  simpl in lj . rewrite ( natpluscomm m ( i' * m ) ) in lj . rewrite ( pathsinv0 ( natplusassoc _ _ _ ) ) in lj .  destruct ( negnatgthmplusnm _ _ lj ) .
-
-intros j i' j' lj lj' e . destruct i' as [ | i' ] .  simpl in e .  rewrite ( natplusr0 j' ) in e . rewrite ( pathsinv0 e ) in lj' .   rewrite ( natpluscomm m ( i * m ) ) in lj' .  rewrite ( pathsinv0 ( natplusassoc _ _ _ ) ) in lj' .  destruct ( negnatgthmplusnm _ _ lj' ) .  
-
-simpl in e .  rewrite ( natpluscomm m ( i * m ) ) in e .  rewrite ( natpluscomm m ( i' * m ) ) in e .  rewrite ( pathsinv0 ( natplusassoc j _ _ ) ) in e .  rewrite ( pathsinv0 ( natplusassoc j' _ _ ) ) in e . set ( e' := invmaponpathsincl _ ( isinclnatplusr m ) _ _ e ) .  set ( ee := IHi j i' j' lj lj' e' ) .  apply ( dirprodpair ( maponpaths S ( pr1 ee ) ) ( pr2 ee )  ) .  Defined . 
+       - intros ? ? ? lj lj' .
+         simpl.
+         intro e .
+         simpl in e.
+         rewrite natplusr0 in e.
+         rewrite e in lj .
+         induction i'.
+         + simpl in e .
+           rewrite natplusr0 in e .
+           exact (idpath _,,e).
+         + change (S i' * m) with (i' * m + m) in lj.
+           rewrite <- natplusassoc in lj.
+           induction (negnatgthmplusnm _ _ lj).
+       - intros ? ? ? lj lj' e.
+         induction i' as [ | i' ].
+         + simpl in e.
+           rewrite natplusr0 in e.
+           rewrite <- e in lj'.
+           rewrite <- natplusassoc in lj' .
+           destruct ( negnatgthmplusnm _ _ lj' ) .
+         + simpl in e .
+           rewrite <- (natplusassoc j) in e .
+           rewrite <- (natplusassoc j') in e .
+           set ( e' := invmaponpathsincl _ ( isinclnatplusr m ) _ _ e ).
+           set ( ee := IHi j i' j' lj lj' e' ).
+           exact ( dirprodpair ( maponpaths S ( pr1 ee ) ) ( pr2 ee )  ) .
+Defined. 
 
 Opaque natdivremunique .
 
