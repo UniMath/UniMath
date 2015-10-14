@@ -135,4 +135,14 @@ Proof.
   now rewrite hqplusr0.
 Qed.
 
+Lemma hq0leminus :
+  forall r q : hq, r <= q -> 0 <= q - r.
+Proof.
+  intros r q Hr.
+  apply hqlehandplusrinv with r.
+  unfold hqminus.
+  rewrite hqplusassoc, hqlminus.
+  now rewrite hqplusl0, hqplusr0.
+Qed.
+
 Close Scope hq_scope.
