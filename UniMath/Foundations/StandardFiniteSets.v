@@ -253,7 +253,6 @@ Proof.
                    with tpair _ i j =>
                         stnpair ( n * m ) ( j + i * m ) ( i1 i j ( pr2 i ) ( pr2 j ) )
                    end ).
-      Check f.
       split with f.
       assert ( isinf : isincl f ) .
       * apply isinclbetweensets .

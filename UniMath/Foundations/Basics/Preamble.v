@@ -155,14 +155,13 @@ Goal ∀ n, 1*n = n. try reflexivity. Abort.
    avoiding "Fixpoint", too. *)
 
 Definition mul : nat -> nat -> nat.
-(* we name it "mult" to override Coq's name for Nat.mul *)
 Proof.
   intros n m.
   induction n as [|p pm].
   - exact O.
   - exact (pm + m).
 Defined.
-Notation mult := mul.           (* this overrides "mult" defined in Coq's Peano.v *)
+Notation mult := mul.           (* this overrides the notation "mult" defined in Coq's Peano.v *)
 Notation "n * m" := (mul n m) : nat_scope.
 
 (* confirm: *)
