@@ -168,6 +168,12 @@ apply maponpaths, (colimInCommutes _ CC (S n) _ (idpath _)).
 now apply (colimInCommutes _ CC _ _ (idpath _)).
 Defined.
 
+Definition colim_shift_iso (hsC : has_homsets C) (D : diagram nat_graph C)
+ (CC : ColimCocone C D) : iso (colim _ CC) (colim _ (colim_shift hsC D CC)).
+Proof.
+now apply identity_iso.
+Defined.
+
 End nat_graph.
 
 Section functor_diagram. 
@@ -179,14 +185,43 @@ Definition iter (n : nat) : functor C C.
 Proof.
 induction n as [|n Fn].
   now apply functor_identity.
-now apply (functor_composite _ _ _ F Fn).
+now apply (functor_composite _ _ _ Fn F).
 Defined.
 
 Definition Fdiagram : diagram nat_graph C.
 Proof.
 exists (λ n, iter n c); simpl; intros m n Hmn.
 destruct Hmn; simpl.
-now apply (# (iter m) s).
+induction m; simpl.
+- exact s.
+- exact (# F IHm).
+(* now apply (# (iter m) s). *)
 Defined.
 
+Definition from_colim_shift (hsC : has_homsets C) (CC : ColimCocone _ Fdiagram) :
+  C⟦colim _ (colim_shift _ hsC Fdiagram CC),F (colim _ CC)⟧.
+Proof.
+refine (colimArrow _ _ _ _ _).
+- simpl; intro n.
+set (# F (colimIn _ CC n)).
+simpl in p.
+apply p.
+- simpl.
+intros m n Hmn; destruct Hmn; simpl.
+destruct m; simpl.
++ rewrite <- functor_comp.
+  apply maponpaths.
+  exact (colimInCommutes _ CC 0 1 (idpath _)).
++ rewrite <- functor_comp.
+  apply maponpaths.
+  now apply (colimInCommutes _ CC _ _ (idpath (S (S m)))).
+Defined.
+
+Definition chain_cocontinuous (hsC : has_homsets C)
+  (CC : ColimCocone _ Fdiagram) : UU := is_iso (from_colim_shift hsC CC).
+
 End functor_diagram.
+
+Section colim_initial_algebra.
+
+End colim_initial_algebra.
