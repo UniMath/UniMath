@@ -31,7 +31,7 @@ Require Export UniMath.Foundations.NaturalNumbers .
 
 
 Definition stn ( n : nat ) := total2 ( fun m : nat => natlth m n ) .
-Definition stnpair ( n : nat ) := tpair ( fun m : nat => natlth m n ) .
+Definition stnpair n m (l:m<n) := (m,,l) : stn n.
 Definition stntonat ( n : nat ) : stn n -> nat := @pr1 _ _ .
 Coercion stntonat : stn >-> nat .
 Lemma stnlt {n} (i:stn n) : i < n.
@@ -237,22 +237,52 @@ Defined.
 
 (** *** Weak equivalence between the direct product of [ stn n ] and [ stn m ] and [ stn n * m ] *)
 
-Theorem weqfromprodofstn ( n m : nat ) : weq ( dirprod ( stn n ) ( stn m ) ) ( stn ( n * m ) ) .
-Proof .  intros . destruct ( natgthorleh m 0 ) as [ is | i ] . 
-
-assert ( i1 : forall i j : nat , natlth i n -> natlth j m ->  natlth ( j + i * m ) ( n * m ) ).  intros i j li lj . apply ( natlthlehtrans ( j + i * m ) ( ( S i ) * m ) ( n * m ) ( natgthandplusr m j ( i * m ) lj ) ( natlehandmultr ( S i ) n m ( natgthtogehsn _ _ li ) ) ) .     
-
-set ( f := fun ij : dirprod ( stn n ) ( stn m ) => match ij with tpair _ i j => stnpair ( n * m ) ( j + i * m ) ( i1 i j ( pr2 i ) ( pr2 j ) ) end ) .  split with f . 
-
-assert ( isinf : isincl f ) . apply isinclbetweensets . apply ( isofhleveldirprod 2 _ _ ( isasetstn n ) ( isasetstn m ) ) .  apply ( isasetstn ( n * m ) ) . intros ij ij' e .  destruct ij as [ i j ] . destruct ij' as [ i' j' ] .  destruct i as [ i li ] . destruct i' as [ i' li' ] .  destruct j as [ j lj ] . destruct j' as [ j' lj' ] . simpl in e . assert ( e' := maponpaths ( stntonat ( n * m ) ) e )  .   simpl in e' .
-assert ( eei : paths i i' ) . apply ( pr1 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ) .    
-set ( eeis := invmaponpathsincl _ ( isinclstntonat _ ) ( stnpair _ i li ) ( stnpair _ i' li' ) eei ) .
-assert ( eej : paths j j' ) . apply ( pr2 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ) . 
-set ( eejs := invmaponpathsincl _ ( isinclstntonat _ ) ( stnpair _ j lj ) ( stnpair _ j' lj' ) eej ) . apply ( pathsdirprod eeis eejs ) . 
-
-intro xnm .  apply iscontraprop1 . apply ( isinf xnm ) . set ( e := pathsinv0 ( natdivremrule xnm m ( natgthtoneq _ _ is ) ) ) .  set ( i := natdiv xnm m ) .   set ( j := natrem xnm m ) . destruct xnm as [ xnm lxnm ] .   set ( li := natlthandmultrinv _ _ _ ( natlehlthtrans _ _ _ ( natlehmultnatdiv xnm m ( natgthtoneq _ _ is ) ) lxnm ) ) .  set ( lj := lthnatrem xnm m ( natgthtoneq _ _ is ) ) .  split with ( dirprodpair ( stnpair n i li ) ( stnpair m j lj ) ) .  simpl . apply ( invmaponpathsincl _ ( isinclstntonat _ ) _ _ ) .  simpl . apply e .
-
-set ( e := natleh0tois0 _ i ) .  rewrite e .  rewrite ( natmultn0 n ) . split with ( @pr2 _ _ ) .   apply ( isweqtoempty2 _ ( weqstn0toempty ) ) . Defined . 
+Theorem weqfromprodofstn ( n m : nat ) : stn n × stn m ≃ stn (n * m).
+Proof.
+  intros.
+  induction ( natgthorleh m 0 ) as [ is | i ] . 
+  - assert ( i1 : ∀ i j : nat, i < n -> j < m -> j + i * m < n * m).
+    + intros i j li lj.
+      apply (natlthlehtrans ( j + i * m ) ( ( S i ) * m ) ( n * m )).
+      * change (S i * m) with (i*m + m). 
+        rewrite natpluscomm.
+        exact (natgthandplusl m j ( i * m ) lj ).
+      * exact ( natlehandmultr ( S i ) n m ( natgthtogehsn _ _ li ) ).
+    + set ( f := fun ij : stn n × stn m =>
+                   match ij
+                   with tpair _ i j =>
+                        stnpair ( n * m ) ( j + i * m ) ( i1 i j ( pr2 i ) ( pr2 j ) )
+                   end ).
+      split with f.
+      assert ( isinf : isincl f ) .
+      * apply isinclbetweensets .
+        apply ( isofhleveldirprod 2 _ _ ( isasetstn n ) ( isasetstn m ) ) .
+        apply ( isasetstn ( n * m ) ) .
+        intros ij ij' e .  destruct ij as [ i j ] . destruct ij' as [ i' j' ] .
+        destruct i as [ i li ] . destruct i' as [ i' li' ] .
+        destruct j as [ j lj ] . destruct j' as [ j' lj' ] .
+        simpl in e .
+        assert ( e' := maponpaths ( stntonat ( n * m ) ) e )  . simpl in e' .
+        assert ( eei : paths i i' ) .
+        { apply ( pr1 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ) . }
+        set ( eeis := invmaponpathsincl _ ( isinclstntonat _ ) ( stnpair _ i li ) ( stnpair _ i' li' ) eei ) .
+        assert ( eej : paths j j' ) .
+        { apply ( pr2 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ) . }
+        set ( eejs := invmaponpathsincl _ ( isinclstntonat _ ) ( stnpair _ j lj ) ( stnpair _ j' lj' ) eej ) .
+        apply ( pathsdirprod eeis eejs ) . 
+      * intro xnm .
+        apply iscontraprop1 . apply ( isinf xnm ) .
+        set ( e := pathsinv0 ( natdivremrule xnm m ( natgthtoneq _ _ is ) ) ) .
+        set ( i := natdiv xnm m ) .   set ( j := natrem xnm m ) .
+        destruct xnm as [ xnm lxnm ] .
+        set ( li := natlthandmultrinv _ _ _ ( natlehlthtrans _ _ _ ( natlehmultnatdiv xnm m ( natgthtoneq _ _ is ) ) lxnm ) ) .
+        set ( lj := lthnatrem xnm m ( natgthtoneq _ _ is ) ) .
+        split with ( dirprodpair ( stnpair n i li ) ( stnpair m j lj ) ) .
+        simpl .
+        apply ( invmaponpathsincl _ ( isinclstntonat _ ) _ _ ) .  simpl .
+        apply e .
+  - set ( e := natleh0tois0 _ i ) .  rewrite e .  rewrite ( natmultn0 n ) . split with ( @pr2 _ _ ) .   apply ( isweqtoempty2 _ ( weqstn0toempty ) ) .
+Defined. 
 
 
 (** *** Weak equivalences between decidable subsets of [ stn n ] and [ stn x ] *)
