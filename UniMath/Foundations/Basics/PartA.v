@@ -52,7 +52,7 @@ Definition idfun (T : UU) := fun (t : T) => t.
 Definition funcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z) := 
   fun (x : X) => g (f x).
 
-Notation "g ∘ f" := (funcomp f g) (at level 50, no associativity).
+Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
 
 Definition funcomp_assoc {X Y Z W : UU} (f : X -> Y) (g : Y -> Z) (h : Z -> W)
   :  h ∘ (g ∘ f) = (h ∘ g) ∘ f
@@ -1188,6 +1188,8 @@ Defined.
 Definition invweq {X Y : UU} (w : weq X Y) : weq Y X :=
   weqpair (invmap w) (isweqinvmap w).
 
+Notation "f ⁻¹" := (invweq f) (at level 30) : weq_scope.
+
 Corollary invinv {X Y :UU} (w : weq X Y) (x : X)  :
   invmap (invweq w) x = w x.
 Proof.
@@ -1531,6 +1533,10 @@ Defined.
 
 Definition weqcomp {X Y Z : UU} (w1 : weq X Y) (w2 : weq Y Z) : (weq X Z) :=
   weqpair (fun (x : X) => w2 (w1 x)) (twooutof3c w1 w2 (pr2 w1) (pr2 w2)). 
+
+Notation "g ∘ f" := (weqcomp f g) (at level 50, left associativity) : weq_scope.
+
+Delimit Scope weq_scope with weq. 
 
 Ltac intermediate_weq Y' := apply (weqcomp (Y := Y')).
 

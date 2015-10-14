@@ -15,7 +15,7 @@ Proof.
       set (h := eqweqmap (maponpaths (compl (stn (S n))) a)).
       assert (pr1_h : ∀ i, pr1 (pr1 (h i)) = pr1 (pr1 i)). { intros. induction a. reflexivity. }
       set (wc := weqdnicompl n (lastelement n)).
-      set (g' := weqcomp (weqcomp wc (weqcomp (weqoncompl g (lastelement n)) h)) (invweq wc)).
+      set (g' := (wc⁻¹ ∘ (h ∘ (weqoncompl g (lastelement n) ∘ wc))) %weq).
       intermediate_path (sequenceProduct (n,, y ∘ dni_allButLast n ∘ g')).
       { apply IH. }
       { change ((_ ∘ _) ∘ _) with (y ∘ (dni_allButLast n ∘ g')).
