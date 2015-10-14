@@ -49,7 +49,6 @@ Proof.
         change ((f ∘ dni_allButLast n) i) with (f  (dni_allButLast n i)).
         induction i as [i b].
         unfold dni_allButLast at 2.
-        set (b' := natlthtolths i n b).
         unfold f''', f'', f', funcomp.
         rewrite 3? weqcomp_to_funcomp.
         apply total2_paths_second_isaprop.
