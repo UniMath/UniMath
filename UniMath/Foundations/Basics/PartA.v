@@ -54,6 +54,10 @@ Definition funcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :=
 
 Notation "g ∘ f" := (funcomp f g) (at level 50, no associativity).
 
+Definition funcomp_assoc {X Y Z W : UU} (f : X -> Y) (g : Y -> Z) (h : Z -> W)
+  :  h ∘ (g ∘ f) = (h ∘ g) ∘ f
+  := idpath _.
+
 (** *** Iteration of an endomorphism *)
 
 Definition iteration {T : UU} (f : T -> T) (n : nat) : T -> T.
