@@ -1,4 +1,5 @@
 Sets_comp.v
+HalfField.v
 Fields_comp.v
 Complements.v
 NonnegativeRationals.v
