@@ -76,7 +76,7 @@ Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
 
 Definition dirprod (X Y : UU) := Σ x:X, Y.
 
-Notation "A × B" := (dirprod A B) (at level 80, right associativity) : type_scope.
+Notation "A × B" := (dirprod A B) (at level 75, right associativity) : type_scope.
   (* type this in emacs in agda-input method with \times *)
 
 Definition dirprodpair {X Y : UU} := tpair (fun x : X => Y).
