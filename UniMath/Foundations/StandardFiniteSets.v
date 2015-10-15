@@ -464,6 +464,8 @@ apply ( X n ( hinhpr _ ( tpair _ n ( dirprodpair ( isreflnatleh n ) l ) ) ) ) . 
 
 (* a tactic for proving things by induction over a finite number of cases *)
 Ltac inductive_reflexivity i b :=
+  (* Here i is a variable natural number and b is a bound on
+     i of the form i<k, where k is a numeral. *)
   induction i as [|i];
   [ reflexivity |
     contradicts (negnatlthn0 i) b || inductive_reflexivity i b ].
