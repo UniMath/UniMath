@@ -13,7 +13,6 @@ Unset Kernel Term Sharing.
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups.
 Require Import UniMath.Dedekind.Sets_comp.
-Require Import UniMath.Dedekind.Fields_comp.
 
 (** ** More About Monoids *)
 
@@ -24,12 +23,10 @@ Definition ismonoid {X : hSet} (x0 : X) (op : binop X) : UU :=
 
 Definition ismonoid_isassoc {X : hSet} {x0 : X} {op : binop X} (is : ismonoid x0 op) : isassoc op :=
   pr1 is.
-Definition ismonoid_isunit {X : hSet} {x0 : X} {op : binop X} (is : ismonoid x0 op) : isunit op x0 :=
-  pr2 is.
 Definition ismonoid_islunit {X : hSet} {x0 : X} {op : binop X} (is : ismonoid x0 op) : islunit op x0 :=
-  pr1 (ismonoid_isunit is).
+  pr1 (pr2 is).
 Definition ismonoid_isrunit {X : hSet} {x0 : X} {op : binop X} (is : ismonoid x0 op) : isrunit op x0 :=
-  pr2 (ismonoid_isunit is).
+  pr2 (pr2 is).
 
 Definition ismonoid_ismonoidop {X : hSet} {x0 : X} {op : binop X} (is : ismonoid x0 op) : ismonoidop op :=
   pr1 is,, x0,, pr2 is.
@@ -43,8 +40,6 @@ Definition isabmonoid_ismonoid {X : hSet} {x0 : X} {op : binop X} (is : isabmono
   pr1 is.
 Definition isabmonoid_isassoc {X : hSet} {x0 : X} {op : binop X} (is : isabmonoid x0 op) : isassoc op :=
   ismonoid_isassoc (isabmonoid_ismonoid is).
-Definition isabmonoid_isunit {X : hSet} {x0 : X} {op : binop X} (is : isabmonoid x0 op) : isunit op x0 :=
-  ismonoid_isunit (isabmonoid_ismonoid is).
 Definition isabmonoid_islunit {X : hSet} {x0 : X} {op : binop X} (is : isabmonoid x0 op) : islunit op x0 :=
   ismonoid_islunit (isabmonoid_ismonoid is).
 Definition isabmonoid_isrunit {X : hSet} {x0 : X} {op : binop X} (is : isabmonoid x0 op) : isrunit op x0 :=
@@ -71,18 +66,14 @@ Definition isgr_ismonoid {X : hSet} {x0 : X} {op : binop X} {inv : unop X} (is :
   pr1 is.
 Definition isgr_isassoc {X : hSet} {x0 : X} {op : binop X} {inv : unop X} (is : isgr x0 op inv) : isassoc op :=
   ismonoid_isassoc (isgr_ismonoid is).
-Definition isgr_isunit {X : hSet} {x0 : X} {op : binop X} {inv : unop X} (is : isgr x0 op inv) : isunit op x0 :=
-  ismonoid_isunit (isgr_ismonoid is).
 Definition isgr_islunit {X : hSet} {x0 : X} {op : binop X} {inv : unop X} (is : isgr x0 op inv) : islunit op x0 :=
   ismonoid_islunit (isgr_ismonoid is).
 Definition isgr_isrunit {X : hSet} {x0 : X} {op : binop X} {inv : unop X} (is : isgr x0 op inv) : isrunit op x0 :=
   ismonoid_isrunit (isgr_ismonoid is).
-Definition isgr_isinv {X : hSet} {x0 : X} {op : binop X} {inv : unop X} (is : isgr x0 op inv) : isinv op x0 inv :=
-  pr2 is.
 Definition isgr_islinv {X : hSet} {x0 : X} {op : binop X} {inv : unop X} (is : isgr x0 op inv) : islinv op x0 inv :=
-  pr1 (isgr_isinv is).
+  pr1 (pr2 is).
 Definition isgr_isrinv {X : hSet} {x0 : X} {op : binop X} {inv : unop X} (is : isgr x0 op inv) : isrinv op x0 inv :=
-  pr2 (isgr_isinv is).
+  pr2 (pr2 is).
 
 (** "multiplicative" group *)
 
@@ -100,18 +91,14 @@ Definition isgr'_ismonoid {X : hSet} {x0 : X} {op : binop X} {inv : unop X} {exi
   pr1 is.
 Definition isgr'_isassoc {X : hSet} {x0 : X} {op : binop X} {inv : unop X} {exinv : subsetcond X} (is : isgr' x0 op inv exinv) : isassoc op :=
   ismonoid_isassoc (isgr'_ismonoid is).
-Definition isgr'_isunit {X : hSet} {x0 : X} {op : binop X} {inv : unop X} {exinv : subsetcond X} (is : isgr' x0 op inv exinv) : isunit op x0 :=
-  ismonoid_isunit (isgr'_ismonoid is).
 Definition isgr'_islunit {X : hSet} {x0 : X} {op : binop X} {inv : unop X} {exinv : subsetcond X} (is : isgr' x0 op inv exinv) : islunit op x0 :=
   ismonoid_islunit (isgr'_ismonoid is).
 Definition isgr'_isrunit {X : hSet} {x0 : X} {op : binop X} {inv : unop X} {exinv : subsetcond X} (is : isgr' x0 op inv exinv) : isrunit op x0 :=
   ismonoid_isrunit (isgr'_ismonoid is).
-Definition isgr'_isinv' {X : hSet} {x0 : X} {op : binop X} {inv : unop X} {exinv : subsetcond X} (is : isgr' x0 op inv exinv) : isinv' x0 op inv exinv :=
-  pr2 is.
 Definition isgr'_islinv' {X : hSet} {x0 : X} {op : binop X} {inv : unop X} {exinv : subsetcond X} (is : isgr' x0 op inv exinv) : islinv' x0 op inv exinv :=
-  pr1 (isgr'_isinv' is).
+  pr1 (pr2 is).
 Definition isgr'_isrinv' {X : hSet} {x0 : X} {op : binop X} {inv : unop X} {exinv : subsetcond X} (is : isgr' x0 op inv exinv) : isrinv' x0 op inv exinv :=
-  pr2 (isgr'_isinv' is).
+  pr2 (pr2 is).
 
 Section isgr'_isgr.
 
@@ -177,3 +164,17 @@ Definition isHalfField {X : hSet} (x0 x1 : X) (op1 op2 : binop X) (inv : unop X)
   dirprod (dirprod (isabmonoid x0 op1)
                    (isgr' x1 op2 inv Hnz))
           (isdistr op1 op2).
+
+Definition isHalfField_isabmonoid {X : hSet} {x0 x1 : X} {op1 op2 : binop X} {inv : unop X} {Hnz : subsetcond X} (is : isHalfField x0 x1 op1 op2 inv Hnz) : isabmonoid x0 op1 := pr1 (pr1 is).
+Definition isHalfField_isassoc1 {X : hSet} {x0 x1 : X} {op1 op2 : binop X} {inv : unop X} {Hnz : subsetcond X} (is : isHalfField x0 x1 op1 op2 inv Hnz) : isassoc op1 :=
+  isabmonoid_isassoc (isHalfField_isabmonoid is).
+Definition isHalfField_islunit1 {X : hSet} {x0 x1 : X} {op1 op2 : binop X} {inv : unop X} {Hnz : subsetcond X} (is : isHalfField x0 x1 op1 op2 inv Hnz) : islunit op1 x0 :=
+  isabmonoid_islunit (isHalfField_isabmonoid is).
+Definition isHalfField_isrunit1 {X : hSet} {x0 x1 : X} {op1 op2 : binop X} {inv : unop X} {Hnz : subsetcond X} (is : isHalfField x0 x1 op1 op2 inv Hnz) : isrunit op1 x0 :=
+  isabmonoid_isrunit (isHalfField_isabmonoid is).
+Definition isHalfField_iscomm1 {X : hSet} {x0 x1 : X} {op1 op2 : binop X} {inv : unop X} {Hnz : subsetcond X} (is : isHalfField x0 x1 op1 op2 inv Hnz) : iscomm op1 :=
+  isabmonoid_iscomm (isHalfField_isabmonoid is).
+Definition isHalfField_isgr' {X : hSet} {x0 x1 : X} {op1 op2 : binop X} {inv : unop X} {Hnz : subsetcond X} (is : isHalfField x0 x1 op1 op2 inv Hnz) : isgr' x1 op2 inv Hnz := pr2 (pr1 is).
+Search isgr'.
+
+Definition isHalfField_isdistr {X : hSet} {x0 x1 : X} {op1 op2 : binop X} {inv : unop X} {Hnz : subsetcond X} (is : isHalfField x0 x1 op1 op2 inv Hnz) : isdistr op1 op2 := pr2 is.
