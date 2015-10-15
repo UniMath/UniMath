@@ -145,4 +145,16 @@ Proof.
   now rewrite hqplusl0, hqplusr0.
 Qed.
 
+Lemma hqinv_gt0 (x : hq) : 0 < x -> 0 < / x.
+Proof.
+  intros Hx.
+  apply hqlthandmultlinv with x.
+  - exact Hx.
+  - rewrite hqmultx0.
+    rewrite hqisrinvmultinv.
+    + exact hq1_gt0.
+    + apply hqgth_hqneq.
+      exact Hx.
+Qed.
+
 Close Scope hq_scope.

@@ -1,21 +1,32 @@
-git checkout master
+git checkout dev
 git pull
-git pull upstream
-git merge upstream/master
-git gui
 make
-
 if [ "$?" -eq 0 ]
 then
-    echo "Au travail"
-    git checkout dev
+    git checkout master
     git pull
-    git merge master
+    git pull upstream
+    git merge upstream/master
     git gui
     make
-    emacs UniMath/Dedekind
-    
-    make -j -k && git gui
+    if [ "$?" -eq 0 ]
+    then
+	echo "Au travail"
+	git checkout dev
+	git merge master
+	git gui
+	make
+	emacs UniMath/Dedekind
+	
+	make -j -k && git gui
+    else
+	echo "erreur dans la mise a jour de master"
+	git gui
+	./my-commit.sh
+    fi
 else
-    echo "erreur dans la mise a jour de master"
+    echo "erreur dans la mise a jour de dev"
+    git gui
+    ./my-commit.sh
 fi
+

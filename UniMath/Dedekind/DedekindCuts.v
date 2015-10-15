@@ -3,9 +3,10 @@
 
 Require Import UniMath.Dedekind.Sets_comp.
 Require Import UniMath.Dedekind.Complements.
+Require Import UniMath.Dedekind.HalfField.
 Require Import UniMath.Dedekind.NonnegativeRationals.
 
-Open Scope NnR_scope.
+Open Scope NRat_scope.
 
 (** ** Definition of Dedekind cuts *)
 
@@ -393,7 +394,7 @@ Definition Dcuts_lub_val : NonnegativeRationals -> hProp :=
   fun r : NonnegativeRationals => hexists (fun X : Dcuts => dirprod (E X) (r ∈ X)).
 Lemma Dcuts_lub_bot : 
   forall (x : NonnegativeRationals),
-    Dcuts_lub_val x -> forall y : NonnegativeRationals, (y <= x)%NnR -> Dcuts_lub_val y.
+    Dcuts_lub_val x -> forall y : NonnegativeRationals, (y <= x)%NRat -> Dcuts_lub_val y.
 Proof.
   intros r Xr n Xn.
   revert Xr ; apply hinhfun ; intros (X,(Ex,Xr)).
@@ -404,7 +405,7 @@ Qed.
 Lemma Dcuts_lub_open :
   forall (x : NonnegativeRationals),
     Dcuts_lub_val x ->
-    hexists (fun y : NonnegativeRationals => dirprod (Dcuts_lub_val y) (x < y)%NnR).
+    hexists (fun y : NonnegativeRationals => dirprod (Dcuts_lub_val y) (x < y)%NRat).
 Proof.
   intros r.
   apply hinhuniv ; intros (X,(Ex,Xr)).
@@ -480,10 +481,10 @@ Context (E : subsetcond Dcuts).
 Context (E_not_empty : hexists E).  
 
 Definition Dcuts_glb_val : NonnegativeRationals -> hProp :=
-  fun r : NonnegativeRationals => hexists (fun n => dirprod (r < n)%NnR (forall X : Dcuts, E X -> n ∈ X)).
+  fun r : NonnegativeRationals => hexists (fun n => dirprod (r < n)%NRat (forall X : Dcuts, E X -> n ∈ X)).
 Lemma Dcuts_glb_bot : 
   forall (x : NonnegativeRationals),
-    Dcuts_glb_val x -> forall y : NonnegativeRationals, (y <= x)%NnR -> Dcuts_glb_val y.
+    Dcuts_glb_val x -> forall y : NonnegativeRationals, (y <= x)%NRat -> Dcuts_glb_val y.
 Proof.
   intros r Hr n Hn.
   revert Hr ; apply hinhfun ; intros (m,(Hrm,Hr)).
@@ -494,7 +495,7 @@ Qed.
 Lemma Dcuts_glb_open :
   forall (x : NonnegativeRationals),
     Dcuts_glb_val x ->
-    hexists (fun y : NonnegativeRationals => dirprod (Dcuts_glb_val y) (x < y)%NnR).
+    hexists (fun y : NonnegativeRationals => dirprod (Dcuts_glb_val y) (x < y)%NRat).
 Proof.
   intros r ; apply hinhfun ; intros (n,(Hrn,Hn)).
   destruct (between_ltNonnegativeRationals _ _ Hrn) as (t,(Hrt,Ttn)).
@@ -568,13 +569,13 @@ Qed.
 (** ** From non negative rational numbers to Dedekind cuts *)
 
 Lemma NonnegativeRationals_to_Dcuts_bot (q : NonnegativeRationals) :
-  Dcuts_def_bot (λ r : NonnegativeRationals, (r < q)%NnR).
+  Dcuts_def_bot (λ r : NonnegativeRationals, (r < q)%NRat).
 Proof.
   intros q r Hr n Hnr.
   now apply istrans_le_lt_ltNonnegativeRationals with r.
 Qed.
 Lemma NonnegativeRationals_to_Dcuts_open (q : NonnegativeRationals) :
-  Dcuts_def_open (λ r : NonnegativeRationals, (r < q)%NnR).
+  Dcuts_def_open (λ r : NonnegativeRationals, (r < q)%NRat).
 Proof.
   intros q r Hr.
   apply hinhpr.
@@ -583,7 +584,7 @@ Proof.
   now split.
 Qed.
 Lemma NonnegativeRationals_to_Dcuts_bounded (q : NonnegativeRationals) :
-  Dcuts_def_bounded (λ r : NonnegativeRationals, (r < q)%NnR).
+  Dcuts_def_bounded (λ r : NonnegativeRationals, (r < q)%NRat).
 Proof.
   intros q.
   apply hinhpr.
@@ -592,13 +593,13 @@ Proof.
 Qed.
 
 Definition NonnegativeRationals_to_Dcuts (q : NonnegativeRationals) : Dcuts :=
-  mk_Dcuts (fun r => (r < q)%NnR)
+  mk_Dcuts (fun r => (r < q)%NRat)
            (NonnegativeRationals_to_Dcuts_bot q)
            (NonnegativeRationals_to_Dcuts_open q)
            (NonnegativeRationals_to_Dcuts_bounded q).
 
-Definition Dcuts_zero : Dcuts := NonnegativeRationals_to_Dcuts 0%NnR.
-Definition Dcuts_one : Dcuts := NonnegativeRationals_to_Dcuts 1%NnR.
+Definition Dcuts_zero : Dcuts := NonnegativeRationals_to_Dcuts 0%NRat.
+Definition Dcuts_one : Dcuts := NonnegativeRationals_to_Dcuts 1%NRat.
 
 Notation "0" := Dcuts_zero : Dcuts_scope.
 Notation "1" := Dcuts_one : Dcuts_scope.
@@ -627,7 +628,7 @@ Section Dcuts_plus.
 
 Definition Dcuts_plus_val : subsetcond NonnegativeRationals :=
   fun r => hdisj (hdisj (X r) (Y r))
-                 (hexists (fun xy => dirprod (r = (fst xy + snd xy)%NnR)
+                 (hexists (fun xy => dirprod (r = (fst xy + snd xy)%NRat)
                                              (dirprod (X (fst xy)) (Y (snd xy))))).
 
 Lemma Dcuts_plus_bot : Dcuts_def_bot Dcuts_plus_val.
@@ -642,10 +643,10 @@ Proof.
       now apply Y_bot with r.
   - right.
     revert Hr ; apply hinhfun ; intros [(rx,ry) (Hr,(Hrx,Hry))] ; simpl in * |-.
-    destruct (isdeceq_NonnegativeRationals r 0%NnR) as [Hr0 | Hr0].
+    destruct (isdeceq_NonnegativeRationals r 0%NRat) as [Hr0 | Hr0].
     + rewrite Hr0 in Hn.
       apply NonnegativeRationals_le0_eq0 in Hn.
-      exists (0%NnR,0%NnR).
+      exists (0%NRat,0%NRat).
       rewrite Hn ; simpl.
       repeat split.
       * now rewrite NonnegativeRationals_plus0r.
@@ -653,8 +654,8 @@ Proof.
         apply isnonnegative_NonnegativeRationals.
       * apply Y_bot with (1 := Hry).
         apply isnonnegative_NonnegativeRationals.
-    + set (nx := (rx * (n / r))%NnR).
-      set (ny := (ry * (n / r))%NnR).
+    + set (nx := (rx * (n / r))%NRat).
+      set (ny := (ry * (n / r))%NRat).
       exists (nx,ny).
       repeat split.
       * unfold nx,ny ; simpl.
@@ -932,10 +933,10 @@ Definition NonnegativeReals_to_subsetcondNonnegativeRationals : NonnegativeReals
 Definition subsetcondNonnegativeRationals_to_NonnegativeReals
   (X : NonnegativeRationals -> hProp)
   (Xbot : forall x : NonnegativeRationals,
-            X x -> forall y : NonnegativeRationals, (y <= x)%NnR -> X y)
+            X x -> forall y : NonnegativeRationals, (y <= x)%NRat -> X y)
   (Xopen : forall x : NonnegativeRationals,
              X x ->
-             hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y)%NnR))
+             hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y)%NRat))
   (Xtop : hexists (fun ub : NonnegativeRationals => neg (X ub))) : NonnegativeReals :=
   mk_Dcuts X Xbot Xopen Xtop.
 
