@@ -625,6 +625,9 @@ Proof . intros . rewrite ( natpluscomm _ _ ) in is . rewrite ( natpluscomm c b )
 Lemma iscontrhfibernatplusr ( n m : nat ) ( is : natgeh m n ) : iscontr ( hfiber ( fun i : nat => i + n ) m ) .
 Proof. intros . apply iscontraprop1 .    apply isinclnatplusr . induction m as [ | m IHm ] . set ( e := natleh0tois0 _ is ) .   split with 0 . apply e .  destruct ( natlehchoice2 _ _ is ) as [ l | e ] .  set ( j := IHm l ) .  destruct j as [ j e' ] . split with ( S j ) .  simpl . apply ( maponpaths S e' ) .  split with 0 . simpl .  assumption .  Defined . 
 
+Lemma iscontrhfibernatplusl ( n m : nat ) ( is : natgeh m n ) : iscontr ( hfiber ( fun i : nat => n + i ) m ) .
+Proof. intros . apply iscontraprop1 .    apply isinclnatplusl . induction m as [ | m IHm ] . set ( e := natleh0tois0 _ is ) .   split with 0 . rewrite <- plus_n_O. apply e .  destruct ( natlehchoice2 _ _ is ) as [ l | e ] .  set ( j := IHm l ) .  destruct j as [ j e' ] . split with ( S j ) .  simpl . rewrite <- plus_n_Sm. apply ( maponpaths S e' ) .  split with 0 . simpl .  rewrite <- plus_n_O. assumption .  Defined . 
+
 Lemma neghfibernatplusr ( n m : nat ) ( is : natlth m n ) : neg ( hfiber  ( fun i : nat => i + n ) m ) .
 Proof. intros. intro h . destruct h as [ i e ] . rewrite ( pathsinv0 e )  in is . destruct ( natlehtonegnatgth _ _ ( natlehmplusnm i n ) is ) .  Defined .    
 
