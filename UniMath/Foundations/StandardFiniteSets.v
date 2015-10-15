@@ -467,20 +467,20 @@ Ltac inductive_reflexivity i b :=
   (* Here i is a variable natural number and b is a bound on
      i of the form i<k, where k is a numeral. *)
   induction i as [|i];
-  [ reflexivity |
+  [ try apply isinjstntonat ; reflexivity |
     contradicts (negnatlthn0 i) b || inductive_reflexivity i b ].
 
 Section Example.
-  Definition f : stn 3 -> nat.
+  Definition f : stn 3 -> stn 10.
   Proof.
     intros n.
     induction n as [n b].
     induction n as [|n].
-    - exact 2.
+    - exact (2,,idpath _).
     - induction n as [|n].
-      + exact 3.
+      + exact (3,,idpath _).
       + induction n as [|n].
-        * exact 4.
+        * exact (4,,idpath _).
         * contradicts (negnatlthn0 n) b.
   Defined.          
 
