@@ -7,6 +7,7 @@ Unset Kernel Term Sharing.
 
 Require Import UniMath.Dedekind.Sets_comp.
 Require Import UniMath.Dedekind.Fields_comp.
+Require Import UniMath.Dedekind.HalfField.
 Require Import UniMath.Dedekind.Complements.
 
 Opaque hq.
@@ -15,29 +16,38 @@ Open Scope hq_scope.
 
 (** ** Definition of non-negative rational numbers *)
 
-Local Definition hnnq_def := carrier (hqleh 0).
+Definition hnnq_set := subset (hqleh 0).
 
-Local Definition hnnq_def_to_hq (r : hnnq_def) : hq := pr1 r.
-Coercion hnnq_def_to_hq : hnnq_def >-> pr1hSet.
-Local Definition hq_to_hnnq_def (r : hq) (Hr : hqleh 0 r) : hnnq_def :=
-  tpair _ r Hr.
+Local Definition hnnq_set_to_hq (r : hnnq_set) : hq := pr1 r.
+Coercion hnnq_set_to_hq : pr1hSet >-> pr1hSet.
+Local Definition hq_to_hnnq_set (r : hq) (Hr : hqleh 0 r) : hnnq_set :=
+  r ,, Hr.
 
-Local Definition hnnq_set : hSet := 
-  hSetpair _ (isasetsubset pr1 isasethq (isinclpr1 (hqleh _) (λ x : hq, pr2 (0 <= x)))).
-
-Lemma isdeceq_hnnq : isdeceq hnnq_def.
-Proof.
-  apply isdeceqinclb with pr1.
-  apply isdeceqhq.
-  apply isinclpr1.
-  intro ; apply pr2.
-Qed.
+Definition hnnq_zero: hnnq_set := hq_to_hnnq_set 0 (isreflhqleh 0).
+Definition hnnq_one: hnnq_set := hq_to_hnnq_set 1 (hqlthtoleh 0 1 hq1_gt0).
+Definition hnnq_plus: binop hnnq_set := 
+  λ x y : hnnq_set, hq_to_hnnq_set (pr1 x + pr1 y) (hq0lehandplus _ _ (pr2 x) (pr2 y)).
+Definition hnnq_minus: binop hnnq_set := 
+  λ x y : hnnq_set,
+          match (hqgthorleh (pr1 y) (pr1 x)) with
+          | ii1 _ => hnnq_zero
+          | ii2 H => hq_to_hnnq_set (pr1 x - pr1 y) (hq0leminus _ _ H)
+          end.
+Definition hnnq_mult: binop hnnq_set := 
+  λ x y : hnnq_set, hq_to_hnnq_set (pr1 x * pr1 y) (hqmultgeh0geh0 (pr2 x) (pr2 y)).
+Definition hnnq_inv: unop hnnq_set := 
+  λ x : hnnq_set,
+        match (hqlehchoice 0 (pr1 x) (pr2 x)) with
+        | ii1 Hx0 => hq_to_hnnq_set (/ pr1 x) (hqlthtoleh 0 (/ pr1 x) (hqinv_gt0 (pr1 x) Hx0))
+        | ii2 _ => x
+        end.
+Definition hnnq_div : binop hnnq_set := λ x y : hnnq_set, hnnq_mult x (hnnq_inv y).
 
 (** ** Equality and order on non-negative rational numbers *)
 
 (** *** Order *)
 
-Local Definition hnnq_le : hrel hnnq_def := resrel hqleh (hqleh 0).
+Local Definition hnnq_le : hrel hnnq_set := resrel hqleh (hqleh 0).
 Lemma isPartialOrder_hnnq_le : ispo hnnq_le.
 Proof.
   split.
@@ -47,7 +57,7 @@ Proof.
   now apply isreflhqleh.
 Qed.  
   
-Local Definition hnnq_ge : hrel hnnq_def := resrel hqgeh (hqleh 0).
+Local Definition hnnq_ge : hrel hnnq_set := resrel hqgeh (hqleh 0).
 
 Lemma isPartialOrder_hnnq_ge : ispo hnnq_ge.
 Proof.
@@ -59,7 +69,7 @@ Proof.
   now apply Hrefl.
 Qed.
 
-Local Definition hnnq_lt : hrel hnnq_def := resrel hqlth (hqleh 0).
+Local Definition hnnq_lt : hrel hnnq_set := resrel hqlth (hqleh 0).
 Lemma isStrongOrder_hnnq_lt : isStrongOrder hnnq_lt.
 Proof.
   split.
@@ -69,7 +79,7 @@ Proof.
   now apply isirreflhqlth.
 Qed.
 
-Local Definition hnnq_gt : hrel hnnq_def := resrel hqgth (hqleh 0).
+Local Definition hnnq_gt : hrel hnnq_set := resrel hqgth (hqleh 0).
 Lemma isStrongOrder_hnnq_gt : isStrongOrder hnnq_gt.
 Proof.
   destruct isStrongOrder_hnnq_lt as [Htrans Hirrefl].
@@ -80,101 +90,156 @@ Proof.
   now apply Hirrefl.
 Qed.
 
-(** ** Non-negative rational numbers are a commutative rig *)
+(** ** hnnq is a half field *)
 
-Local Definition hnnq_plus_submonoid : issubmonoid (X := fld_to_monoid1 hq) (hqleh 0).
+Lemma iscomm_hnnq_plus:
+  iscomm hnnq_plus.
 Proof.
-  split.
-  intros (x,Hx) (y,Hy) ; simpl pr1.
-  now apply (hq0lehandplus x y Hx Hy).
-  apply isreflhqleh.
-Defined.
-Local Definition hnnq_mult_submonoid : issubmonoid (X := fld_to_monoid2 hq) (hqleh 0).
-Proof.
-  split.
-  intros (x,Hx) (y,Hy) ; simpl pr1.
-  apply (hqmultgeh0geh0 Hx Hy).
-  now apply hqlthtoleh, hq1_gt0.
-Defined.
-
-Local Definition hnnq_subrigs : issubrig (X := hq) (hqleh 0).
-Proof.
-  split.
-  apply hnnq_plus_submonoid.
-  apply hnnq_mult_submonoid.
-Defined.
-Local Definition hnnq_commrig : commrig.
-Proof.
-  apply (carrierofasubcommrig (X := hq)).
-  eexists.
-  apply hnnq_subrigs.
-Defined.
-
-Local Definition hnnq_commrig_to_def : hnnq_commrig -> hnnq_def := 
-  fun X : hnnq_commrig =>
-    match X with
-    | tpair _ r Hr => tpair _ r Hr
-    end.
-
-(** ** Constants *)
-
-Local Definition hnnq_zero : hnnq_commrig := 0%rig.
-Local Definition hnnq_one : hnnq_commrig := 1%rig.
-
-Delimit Scope hnnq_scope with hnnq.
-
-Notation "0" := hnnq_zero : hnnq_scope.
-Notation "1" := hnnq_one : hnnq_scope.
-
-(** ** Functions *)
-
-Definition hnnq_minus (q r : hnnq_def) : hnnq_def.
-Proof.
-  intros (q,Hq) (r,Hr).
-  destruct (hqgthorleh r q) as [H0 | H0].
-  - exact hnnq_zero.
-  - apply (hq_to_hnnq_def (q - r)).
-    now apply hq0leminus.
-Defined.
-                                           
-(** ** Multiplicative inverse and division *)
-
-Lemma hnnq_inv_ge0 (x : hnnq_commrig) : 0 <= / pr1 x.
-Proof.
-  intros (x,Hx) ; simpl pr1.
-  destruct (isdecrelhqeq x 0) as [Hx0 | Hx0] ; simpl in Hx0.
-  - rewrite Hx0, hqinv0.
-    apply hqlthtoleh, hq1_gt0.
-  - apply hqlehandmultlinv with x.
-    + apply hqneqchoice in Hx0.
-      destruct Hx0 as [Hx0 | Hx0].
-      * exact Hx0.
-      * now apply fromempty, Hx, Hx0.
-    + rewrite hqmultx0.
-      rewrite (hqisrinvmultinv _ Hx0).
-      now apply hqlthtoleh, hq1_gt0.
+  intros (x,Hx) (y,Hy).
+  apply total2_paths_second_isaprop ; simpl pr1.
+  - now apply pr2.
+  - now apply hqpluscomm.
 Qed.
-Local Definition hnnq_inv (x : hnnq_commrig) : hnnq_commrig := hq_to_hnnq_def (/ (pr1 x)) (hnnq_inv_ge0 x).
-Local Definition hnnq_div (x y : hnnq_commrig) : hnnq_commrig := (x * (hnnq_inv y))%rig.
-
-Lemma hnnq_inv_mult_l :
-  forall r : hnnq_commrig, r != 0%hnnq -> ((hnnq_inv r) * r)%rig = 1%hnnq.
-                                            
-Admitted.
+Lemma isassoc_hnnq_plus :
+  isassoc hnnq_plus.
+Proof.
+  intros (x,Hx) (y,Hy) (z,Hz).
+  apply total2_paths_second_isaprop ; simpl pr1.
+  - now apply pr2.
+  - now apply hqplusassoc.
+Qed.
+Lemma islunit_hnnq_zero_plus:
+  islunit hnnq_plus hnnq_zero.
+Proof.
+  intros (x,Hx).
+  apply total2_paths_second_isaprop ; simpl pr1.
+  - now apply pr2.
+  - now apply hqplusl0.
+Qed.
+Lemma isrunit_hnnq_zero_plus:
+  isrunit hnnq_plus hnnq_zero.
+Proof.
+  intros x.
+  rewrite iscomm_hnnq_plus.
+  now apply islunit_hnnq_zero_plus.
+Qed.
+Lemma iscomm_hnnq_mult:
+  iscomm hnnq_mult.
+Proof.
+  intros (x,Hx) (y,Hy).
+  apply total2_paths_second_isaprop ; simpl pr1.
+  - now apply pr2.
+  - now apply hqmultcomm.
+Qed.
+Lemma isassoc_hnnq_mult:
+  isassoc hnnq_mult.
+Proof.
+  intros (x,Hx) (y,Hy) (z,Hz).
+  apply total2_paths_second_isaprop ; simpl pr1.
+  - now apply pr2.
+  - now apply hqmultassoc.
+Qed.
+Lemma islunit_hnnq_one_mult:
+  islunit hnnq_mult hnnq_one.
+Proof.
+  intros (x,Hx).
+  apply total2_paths_second_isaprop ; simpl pr1.
+  - now apply pr2.
+  - now apply hqmultl1.
+Qed.
+Lemma isrunit_hnnq_one_mult:
+  isrunit hnnq_mult hnnq_one.
+Proof.
+  intros x.
+  rewrite iscomm_hnnq_mult.
+  now apply islunit_hnnq_one_mult.
+Qed.
+Lemma islinv'_hnnq_inv:
+  islinv' hnnq_one hnnq_mult (hnnq_lt hnnq_zero)
+          (λ x : subset (hnnq_lt hnnq_zero), hnnq_inv (pr1 x)).
+Proof.
+  intros (x,Hx) Hx0.
+  unfold hnnq_inv.
+  destruct hqlehchoice as [Hx0' | Hx0'] ; simpl in Hx0'.
+  - apply total2_paths_second_isaprop; simpl pr1.
+    + now apply pr2.
+    + apply hqislinvmultinv.
+      now apply hqgth_hqneq.
+  - apply pathsinv0 in Hx0'.
+    apply fromempty ; revert Hx0'.
+    apply hqgth_hqneq, Hx0.
+Qed.
+Lemma isrinv'_hnnq_inv:
+ isrinv' hnnq_one hnnq_mult (hnnq_lt hnnq_zero)
+         (λ x : subset (hnnq_lt hnnq_zero), hnnq_inv (pr1 x)).
+Proof.
+  intros x Hx.
+  rewrite iscomm_hnnq_mult.
+  now apply islinv'_hnnq_inv.
+Qed.
+Lemma isldistr_hnnq_plus_mult:
+  isldistr hnnq_plus hnnq_mult.
+Proof.
+  intros (x,Hx) (y,Hy) (z,Hz).
+  apply total2_paths_second_isaprop ; simpl pr1.
+  - now apply pr2.
+  - now apply hqldistr.
+Qed.
+Lemma isrdistr_hnnq_plus_mult:
+  isrdistr hnnq_plus hnnq_mult.
+Proof.
+  intros x y z.
+  rewrite !(iscomm_hnnq_mult _ z).
+  now apply isldistr_hnnq_plus_mult.
+Qed.
+Lemma isHalfField_hnnq:
+  isHalfField hnnq_zero hnnq_one hnnq_plus hnnq_mult 
+              (hnnq_lt hnnq_zero) (λ x, hnnq_inv (pr1 x)).
+Proof.
+  repeat split.
+  - exact isassoc_hnnq_plus.
+  - exact islunit_hnnq_zero_plus.
+  - exact isrunit_hnnq_zero_plus.
+  - exact iscomm_hnnq_plus.
+  - exact isassoc_hnnq_mult.
+  - exact islunit_hnnq_one_mult.
+  - exact isrunit_hnnq_one_mult.
+  - exact islinv'_hnnq_inv.
+  - exact isrinv'_hnnq_inv.
+  - exact iscomm_hnnq_mult.
+  - exact isldistr_hnnq_plus_mult.
+  - exact isrdistr_hnnq_plus_mult.
+Qed.
+Definition HalfField_hnnq : HalfField := 
+  isHalfField_HalfField hnnq_zero hnnq_one hnnq_plus hnnq_mult
+                        (hnnq_lt hnnq_zero) (λ x : subset (hnnq_lt hnnq_zero), hnnq_inv (pr1 x))
+                        isHalfField_hnnq.
 
 (** * Exportable definitions and theorems *)
 
-Definition NonnegativeRationals : commrig := hnnq_commrig.
+Definition NonnegativeRationals : HalfField := HalfField_hnnq.
 Definition NonnegativeRationals_to_Rationals : NonnegativeRationals -> hq :=
   pr1.
 Definition Rationals_to_NonnegativeRationals (r : hq) (Hr : hqleh 0%hq r) : NonnegativeRationals :=
   tpair _ r Hr.
 
-Delimit Scope NnR_scope with NnR.
-
+Delimit Scope NRat_scope with NRat.
 
 (** ** Order *)
 
+Lemma isdeceq_NonnegativeRationals : isdeceq NonnegativeRationals.
+Proof.
+  intros (x,Hx) (y,Hy).
+  destruct (isdeceqhq x y).
+  - left.
+    apply total2_paths_second_isaprop; simpl pr1.
+    + now apply pr2.
+    + exact p.
+  - right.
+    intro ; apply e.
+    revert X.
+    apply base_paths.
+Qed.
 Definition leNonnegativeRationals : po NonnegativeRationals :=
   popair hnnq_le isPartialOrder_hnnq_le.
 Definition geNonnegativeRationals : po NonnegativeRationals :=
@@ -184,36 +249,36 @@ Definition ltNonnegativeRationals : StrongOrder NonnegativeRationals :=
 Definition gtNonnegativeRationals : StrongOrder NonnegativeRationals :=
   pairStrongOrder hnnq_gt isStrongOrder_hnnq_gt.
 
-Notation "x <= y" := (leNonnegativeRationals x y) : NnR_scope.
-Notation "x >= y" := (geNonnegativeRationals x y) : NnR_scope.
-Notation "x < y" := (ltNonnegativeRationals x y) : NnR_scope.
-Notation "x > y" := (gtNonnegativeRationals x y) : NnR_scope.
+Notation "x <= y" := (leNonnegativeRationals x y) : NRat_scope.
+Notation "x >= y" := (geNonnegativeRationals x y) : NRat_scope.
+Notation "x < y" := (ltNonnegativeRationals x y) : NRat_scope.
+Notation "x > y" := (gtNonnegativeRationals x y) : NRat_scope.
 
 (** ** Constants and Functions *)
 
-Definition zeroNonnegativeRationals : NonnegativeRationals := 0%rig.
-Definition oneNonnegativeRationals : NonnegativeRationals := 1%rig.
+Definition zeroNonnegativeRationals : NonnegativeRationals := hnnq_zero.
+Definition oneNonnegativeRationals : NonnegativeRationals := hnnq_one.
 
 Definition plusNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
-  (x + y)%rig.
+  hnnq_plus x y.
 Definition minusNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
   hnnq_minus x y.
 Definition multNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
-  (x * y)%rig.
+  hnnq_mult x y.
 Definition invNonnegativeRationals (x : NonnegativeRationals) : NonnegativeRationals :=
   hnnq_inv x.
 Definition divNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
   hnnq_div x y.
 
-Notation "0" := zeroNonnegativeRationals : NnR_scope.
-Notation "1" := oneNonnegativeRationals : NnR_scope.
-Notation "x + y" := (plusNonnegativeRationals x y) : NnR_scope.
-Notation "x - y" := (minusNonnegativeRationals x y) : NnR_scope.
-Notation "x * y" := (multNonnegativeRationals x y) : NnR_scope.
-Notation "/ x" := (invNonnegativeRationals x) : NnR_scope.
-Notation "x / y" := (divNonnegativeRationals x y) : NnR_scope.
+Notation "0" := zeroNonnegativeRationals : NRat_scope.
+Notation "1" := oneNonnegativeRationals : NRat_scope.
+Notation "x + y" := (plusNonnegativeRationals x y) : NRat_scope.
+Notation "x - y" := (minusNonnegativeRationals x y) : NRat_scope.
+Notation "x * y" := (multNonnegativeRationals x y) : NRat_scope.
+Notation "/ x" := (invNonnegativeRationals x) : NRat_scope.
+Notation "x / y" := (divNonnegativeRationals x y) : NRat_scope.
 
-Open Scope NnR_scope.
+Open Scope NRat_scope.
 
 (** *** Correctness *)
 
@@ -289,8 +354,8 @@ Qed.
 Definition istrans_leNonnegativeRationals : istrans leNonnegativeRationals :=
   istrans_po _.
 
-Definition isdeceq_NonnegativeRationals : isdeceq NonnegativeRationals
-  := isdeceq_hnnq.
+(*Definition isdeceq_NonnegativeRationals : isdeceq NonnegativeRationals
+  := isdeceq_hnnq.*)
 
 Lemma lt_leNonnegativeRationals :
   forall x y : NonnegativeRationals, x < y -> x <= y.
@@ -325,7 +390,7 @@ Proof.
   { apply istranshqleh with (pr1 x). 
     now apply (pr2 x).
     apply (hqlthtoleh (pr1 x) z), Hxz. }
-  exists (hq_to_hnnq_def z Hz).
+  exists (hq_to_hnnq_set z Hz).
   split.
   exact Hxz.
   exact Hzy.
@@ -333,19 +398,23 @@ Qed.
 
 (** *** Algebra *)
 
-Definition isassoc_plusNonnegativeRationals : isassoc plusNonnegativeRationals :=
-  rigassoc1 _.
-Definition iscomm_plusNonnegativeRationals : iscomm plusNonnegativeRationals :=
-  rigcomm1 _.
-Definition isassoc_multNonnegativeRationals : isassoc multNonnegativeRationals :=
-  rigassoc2 _.
-Definition iscomm_multNonnegativeRationals : iscomm multNonnegativeRationals :=
-  rigcomm2 _.
-Definition isldistr_mult_plusNonnegativeRationals : isldistr plusNonnegativeRationals multNonnegativeRationals :=
-  rigldistr _.
-Definition isrdistr_mult_plusNonnegativeRationals : isrdistr plusNonnegativeRationals multNonnegativeRationals :=
-  rigrdistr _.
+Definition isassoc_plusNonnegativeRationals := @HalfField_isassoc_plus NonnegativeRationals.
+Definition iscomm_plusNonnegativeRationals := @HalfField_iscomm_plus NonnegativeRationals.
+Definition isassoc_multNonnegativeRationals := @HalfField_isassoc_mult NonnegativeRationals.
+Definition iscomm_multNonnegativeRationals := @HalfField_iscomm_mult NonnegativeRationals.
+Definition isldistr_mult_plusNonnegativeRationals:
+  ∀ x y z : NonnegativeRationals, z * (x + y) = z * x + z * y :=
+  @HalfField_isldistr NonnegativeRationals.
+Definition isrdistr_mult_plusNonnegativeRationals:
+  ∀ x y z : NonnegativeRationals, (x + y) * z = x * z + y * z :=
+  @HalfField_isrdistr NonnegativeRationals.
 
+Lemma NonnegativeRationals_plus0r :
+  forall r : NonnegativeRationals, r + 0 = r.
+Admitted.
+Lemma NonnegativeRationals_plus0l :
+  forall r : NonnegativeRationals, 0 + r = r.
+Admitted.
 Lemma multdivNonnegativeRationals :
   forall q r : NonnegativeRationals, (r != 0) -> (r * (q / r)) = q.
 Proof.
@@ -355,44 +424,38 @@ Proof.
   
 Admitted.
 Lemma multrle1NonnegativeRationals :
-  forall q r : NonnegativeRationals, (q <= 1)%NnR -> (r * q <= r)%NnR.
+  forall q r : NonnegativeRationals, (q <= 1)%NRat -> (r * q <= r)%NRat.
 Admitted.
 Lemma ledivle1NonnegativeRationals :
-  forall q r : NonnegativeRationals, (r != 0) -> (q <= r)%NnR -> (q / r <= 1)%NnR.
+  forall q r : NonnegativeRationals, (r != 0) -> (q <= r)%NRat -> (q / r <= 1)%NRat.
 Admitted.
 
-Lemma NonnegativeRationals_plus0r :
-  forall r : NonnegativeRationals, r + 0 = r.
-Admitted.
-Lemma NonnegativeRationals_plus0l :
-  forall r : NonnegativeRationals, 0 + r = r.
-Admitted.
 Lemma NonnegativeRationals_plusltcompat :
   forall x x' y y' : NonnegativeRationals,
     x < x' -> y < y' -> x + y < x' + y'.
 Admitted.
 Lemma NonnegativeRationals_leplus_r :
-  forall r q : NonnegativeRationals, (r <= r + q)%NnR.
+  forall r q : NonnegativeRationals, (r <= r + q)%NRat.
 Admitted.
 Lemma NonnegativeRationals_leplus_l :
-  forall r q : NonnegativeRationals, (r <= q + r)%NnR.
+  forall r q : NonnegativeRationals, (r <= q + r)%NRat.
 Admitted.
 Lemma isdecrel_leNonnegativeRationals : isdecrel leNonnegativeRationals.
 Admitted.
 Lemma NonnegativeRationals_pluslecompat_r :
-  forall r q n : NonnegativeRationals, (q <= n)%NnR -> (q + r <= n + r)%NnR.
+  forall r q n : NonnegativeRationals, (q <= n)%NRat -> (q + r <= n + r)%NRat.
 Admitted.
 Lemma NonnegativeRationals_pluslecompat_l :
-  forall r q n : NonnegativeRationals, (q <= n)%NnR -> (r + q <= r + n)%NnR.
+  forall r q n : NonnegativeRationals, (q <= n)%NRat -> (r + q <= r + n)%NRat.
 Admitted.
 Lemma NonnegativeRationals_pluslecancel_r :
-  forall r q n : NonnegativeRationals, (q + r <= n + r)%NnR -> (q <= n)%NnR.
+  forall r q n : NonnegativeRationals, (q + r <= n + r)%NRat -> (q <= n)%NRat.
 Admitted.
 Lemma NonnegativeRationals_pluslecancel_l :
-  forall r q n : NonnegativeRationals, (r + q <= r + n)%NnR -> (q <= n)%NnR.
+  forall r q n : NonnegativeRationals, (r + q <= r + n)%NRat -> (q <= n)%NRat.
 Admitted.
 Lemma NonnegativeRationals_plusr_minus :
-  forall q r : NonnegativeRationals, ((r + q) - q)%NnR = r.
+  forall q r : NonnegativeRationals, ((r + q) - q)%NRat = r.
 Proof.
   intros (q,Hq) (r,Hr).
   rewrite (minusNonnegativeRationals_correct _ _ (NonnegativeRationals_leplus_l _ _)).
@@ -403,7 +466,7 @@ Proof.
     now rewrite hqplusassoc, (hqpluscomm q), (hqlminus q), hqplusr0.
 Qed.
 Lemma NonnegativeRationals_plusl_minus :
-  forall q r : NonnegativeRationals, ((q + r) - q)%NnR = r.
+  forall q r : NonnegativeRationals, ((q + r) - q)%NRat = r.
 Proof.
   intros q r.
   rewrite iscomm_plusNonnegativeRationals.
@@ -423,7 +486,7 @@ Proof.
       now rewrite hqplusassoc, hqlminus, hqplusr0.
 Qed.
 
-Close Scope NnR_scope.
+Close Scope NRat_scope.
 
 (** ** Opacify *)
 
