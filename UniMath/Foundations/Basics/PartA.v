@@ -536,7 +536,7 @@ Defined.
 Definition homot {X : UU} {P : X -> UU} (f g : ∀ x : X, P x) :=
   ∀ x : X , f x = g x.
 
-Notation "f ~ g" := (homot f g) (at level 70, right associativity).
+Notation "f ~ g" := (homot f g) (at level 70, no associativity).
 
 Definition homotcomp {X Y : UU} {f f' f'' : X -> Y}
   (h : f ~ f') (h' : f' ~ f'') : f ~ f'' := fun (x : X) => h x @ h' x.
