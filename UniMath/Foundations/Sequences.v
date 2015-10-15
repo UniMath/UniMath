@@ -29,15 +29,21 @@ Proof. intros ? i. contradicts i negstn0. Defined.
 Definition nil {X} : Sequence X.
 Proof. intros. exact (0,, empty_fun). Defined.
 
+Definition append_fun {X n} : (stn n -> X) -> X -> stn (S n) -> X.
+Proof.
+  intros ? ? x y i.
+  induction i as [i b].
+  induction (natlehchoice4 i n b) as [c|d].
+  { exact (x (i,,c)). }
+  { exact y. }
+Defined.
+
 Definition append {X} : Sequence X -> X -> Sequence X.
 Proof.
   intros ? x y.
   exists (S (length x)).
-  induction x as [m x]; simpl.
-  intros [i b].
-  induction (natlehchoice4 i m b) as [c|d].
-  { exact (x (i,,c)). }
-  { exact y. }
+  induction x as [n x]; simpl.
+  exact (append_fun x y).
 Defined.
 
 Definition stn0_fun_iscontr X : iscontr (stn 0 -> X).
@@ -209,6 +215,7 @@ Proof.
         apply funextfun; intro i.
         induction i as [i b].
         unfold funcomp, dni_allButLast.
+        simpl.
         induction (natlehchoice4 i n (natlthtolths i n b)) as [d|d].
         { simpl. apply maponpaths. apply maponpaths. apply isasetbool. }
         { induction d. contradicts (isirreflnatlth i) b. }

@@ -13,7 +13,7 @@ Require UniMath.Ktheory.Group UniMath.Ktheory.Product
 Local Notation Hom := monoidfun.
 Local Notation "0" := (unel _).
 Local Notation "x + y" := ( op x y ). 
-Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
+Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, left associativity, only parsing).
 Definition commax (G:abgr) := pr2 (pr2 G).
 Definition zero : abgr.
   exists Group.zero. split. exact (pr2 Group.zero). intros x y. reflexivity.

@@ -46,7 +46,7 @@ Variable CP : Coproducts C.
 Local Notation "'EndC'":= ([C, C, hs]) .
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CP hs.
-Local Notation "Z ∘ α" := (post_whisker hs hs _ _ α Z) (at level 50).
+Local Notation "Z ∘ α" := (post_whisker hs hs _ _ α Z) (at level 50, left associativity).
 
 Variable H : Signature C hs.
 

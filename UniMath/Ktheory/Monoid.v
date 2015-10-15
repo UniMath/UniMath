@@ -7,7 +7,7 @@ Require Import UniMath.Foundations.StandardFiniteSets
 Require UniMath.Ktheory.Magma UniMath.Ktheory.QuotientSet.
 Local Notation Hom := monoidfun (only parsing).
 Local Notation "x * y" := ( op x y ). 
-Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
+Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, left associativity, only parsing).
 Definition funEquality G H (p q : Hom G H) : pr1 p = pr1 q -> p = q.
   intros ? ? [p i] [q j] v. simpl in v. destruct v.
   destruct (pr1 (isapropismonoidfun p i j)). reflexivity. Qed.

@@ -30,7 +30,7 @@ Local Notation "α ∙∙ β" := (hor_comp β α) (at level 20).
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
-Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50).
+Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50, left associativity).
 
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .

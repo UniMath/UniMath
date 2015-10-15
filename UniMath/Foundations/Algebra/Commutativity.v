@@ -7,6 +7,7 @@ Local Notation "s □ x" := (append s x) (at level 65, left associativity).
 Theorem commutativityOfProducts {M:abmonoid} {n} (x:stn n->M) (f:stn n ≃ stn n) :
   sequenceProduct (n,,x) = sequenceProduct (n,,x∘f).
 Proof.
+  (* this proof comes from Bourbaki, Algebra, § 1.5, Theorem 2, page 9 *)
   intros.
   induction n as [|n IH].
   - reflexivity.
@@ -33,16 +34,20 @@ Proof.
     assert (jle := natlthsntoleh _ _ jlt).
     Open Scope nat.
     set (m := nil □ j □ 1 □ n-j).
+    set (m' := nil □ j □ n-j □ 1).
+    set (sw := nil □ (0,,●) □ (2,,●) □ (1,,●) : Sequence (stn 3)).
     assert (B : stnsum m = S n). 
     { unfold stnsum; simpl. rewrite natplusassoc. rewrite (natpluscomm 1). rewrite <- natplusassoc.
       rewrite natpluscomm. apply (maponpaths S). rewrite natpluscomm. now apply minusplusnmm. }                                 
-    set (m' := nil □ j □ n-j □ 1).
-    assert (B' : stnsum m' = S n). 
+    assert (B' : stnsum m' = S n).
     { unfold stnsum; simpl. rewrite natplusassoc. rewrite (natpluscomm _ 1). rewrite <- natplusassoc. apply B. }
+    assert (C : m' ∘ sw ~ m).
+    { intro i. change (pr1 sw) with 3 in i.
+      induction i as [i b]. inductive_reflexivity i b. }
+    assert (isweqsw : isweq sw).
+    { apply (gradth sw sw); ( intros [i b]; inductive_reflexivity i b). }
     set (w := weqstnsum_idweq m). rewrite B in w. change (pr1 m) with 3 in w.
     set (w' := weqstnsum_idweq m'). rewrite B' in w'. change (pr1 m') with 3 in w'.
-
-
 
 (*
     induction (isdeceqstn (S n) (f (lastelement n)) (lastelement n)) as [p|p].
