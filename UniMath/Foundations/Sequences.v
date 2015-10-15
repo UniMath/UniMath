@@ -262,76 +262,51 @@ Proof. intros. reflexivity. Defined.
 
 Definition concatenate {X} : binop (Sequence X).
 Proof.
-  intros ? x [n y].
-  induction n as [|n IH].
-  { exact x. }
-  { exact (append (IH (y ∘ dni_allButLast _)) (y (lastelement _))). }
+  intros ? x y.
+  exists (length x + length y).
+  intros i.
+  induction (invweq (weqfromcoprodofstn (length x) (length y)) i) as [j|k].
+  - exact (x j).
+  - exact (y k).
 Defined.
 
 Definition concatenate_length {X} (x y:Sequence X) :
   length (concatenate x y) = length x + length y.
-Proof.
-  intros.
-  try reflexivity.
-Admitted.
+Proof. intros. reflexivity. Defined.
 
 Definition concatenateStep {X}  (x : Sequence X) {n} (y : stn (S n) -> X) :
   concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni_allButLast _)) (y (lastelement _)).
 Proof. intros.
-       Local Opaque append dni_allButLast lastelement.
-       simpl. (* just so we can see why reflexivity is about to work *)
-       reflexivity.
-Defined.
+
+Abort.
+
 
 Definition flatten {X} : Sequence (Sequence X) -> Sequence X.
 Proof.
-  intros ? [n x].
-  induction n as [|n IH].
-  { apply nil. }
-  { exact (concatenate (IH (x ∘ dni_allButLast _)) (x (lastelement _))). }
+  intros ? x.
+  set (w := invweq (weqstnsum_idweq (λ i, length (x i)))).
+  set (g := λ j, x (pr1 (w j)) (pr2 (w j))).
+  exact (_,,g).
+Defined.
+
+Definition partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : Sequence (Sequence X).
+Proof.
+  intros. exists n. intro i. exists (f i). intro j. exact (x(weqstnsum_idweq f (i,,j))).
 Defined.
 
 Lemma flatten_length {X} (x : Sequence (Sequence X)) :
   length (flatten x) = stnsum (λ i, length ((pr2 x) i)).
-Proof.
-  intros.
-  try reflexivity.
-Abort.
-
-Definition flattenStep {X n} (x: stn (S n) -> Sequence X) :
-  flatten (S n,,x) = concatenate (flatten (n,,x ∘ dni_allButLast _)) (x (lastelement _)).
 Proof. intros. reflexivity. Defined.
-
-Local Definition assoc1 {X} (x y:Sequence X) (z:X) :
-  append (concatenate x y) z = concatenate x (append y z).
-Proof.
-  intros.
-  induction x as [m x].
-  induction y as [n y].
-  refine (total2_paths _ _).
-  - change pr1 with (@length X).
-    repeat rewrite append_length.
-    repeat rewrite concatenate_length.
-    simpl.
-    apply pathsinv0.
-    apply natplusnsm.
-  -                             (* working here *)
-
-Admitted.
 
 Definition isassoc_concatenate {X} (x y z:Sequence X) :
   concatenate (concatenate x y) z = concatenate x (concatenate y z).
 Proof.
   intros.
-  induction z as [n z].
-  induction n as [|n IH].
-  - reflexivity.
-  - repeat rewrite concatenateStep.
-    generalize (z (lastelement _)) as w; intros.
-    generalize (z ∘ dni_allButLast n) as v; intros.
-    rewrite <- assoc1.
-    apply (maponpaths (λ t, append t w)).
-    apply IH.
-Defined.
+  refine (total2_paths _ _).
+  - simpl. apply natplusassoc.
+  - apply sequenceEquality; intros i.
+
+
+Abort.
 
 
