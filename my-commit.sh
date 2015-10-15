@@ -3,7 +3,7 @@ git pull
 git pull upstream
 git merge upstream/master
 git gui
-make -j -k
+make
 
 if [ "$?" -eq 0 ]
 then
@@ -12,7 +12,7 @@ then
     git pull
     git merge master
     git gui
-    make -j -k
+    make
     emacs UniMath/Dedekind
     
     make -j -k && git gui
