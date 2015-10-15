@@ -462,16 +462,33 @@ assert ( is' : isdecprop ( F' n' ) ) . apply ( isdecbexists n' F is ) .   destru
 
 apply ( X n ( hinhpr _ ( tpair _ n ( dirprodpair ( isreflnatleh n ) l ) ) ) ) .  Defined . 
 
+(* a tactic for proving things by induction over a finite number of cases *)
+Ltac inductive_reflexivity i b :=
+  induction i as [|i];
+  [ reflexivity |
+    contradicts (negnatlthn0 i) b || inductive_reflexivity i b ].
 
-  
+Section Example.
+  Definition f : stn 3 -> nat.
+  Proof.
+    intros n.
+    induction n as [n b].
+    induction n as [|n].
+    - exact 2.
+    - induction n as [|n].
+      + exact 3.
+      + induction n as [|n].
+        * exact 4.
+        * contradicts (negnatlthn0 n) b.
+  Defined.          
 
-
-
-
-
-
-
-
+  Lemma lt : ∀ n, f n < 5.
+  Proof.
+    intros.
+    induction n as [i c].
+    inductive_reflexivity i c.
+  Defined.
+End Example.
 
 (* End of the file stnfsets.v *)
 
