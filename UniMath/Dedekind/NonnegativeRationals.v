@@ -203,8 +203,8 @@ Proof.
   rewrite !(iscomm_hnnq_mult _ z).
   now apply isldistr_hnnq_plus_mult.
 Qed.
-Lemma isDivisionRig_hnnq:
-  isDivisionRig hnnq_zero hnnq_one hnnq_plus hnnq_mult 
+Lemma isDivRig_hnnq:
+  isDivRig hnnq_zero hnnq_one hnnq_plus hnnq_mult 
               (hnnq_lt hnnq_zero) (λ x, hnnq_inv (pr1 x)).
 Proof.
   repeat split.
@@ -221,14 +221,14 @@ Proof.
   - exact isldistr_hnnq_plus_mult.
   - exact isrdistr_hnnq_plus_mult.
 Qed.
-Definition DivisionRig_hnnq : DivisionRig := 
-  isDivisionRig_DivisionRig hnnq_zero hnnq_one hnnq_plus hnnq_mult
+Definition DivRig_hnnq : DivRig := 
+  isDivRig_DivRig hnnq_zero hnnq_one hnnq_plus hnnq_mult
                         (hnnq_lt hnnq_zero) (λ x : subset (hnnq_lt hnnq_zero), hnnq_inv (pr1 x))
-                        isDivisionRig_hnnq.
+                        isDivRig_hnnq.
 
 (** * Exportable definitions and theorems *)
 
-Definition NonnegativeRationals : DivisionRig := DivisionRig_hnnq.
+Definition NonnegativeRationals : DivRig := DivRig_hnnq.
 Definition NonnegativeRationals_to_Rationals : NonnegativeRationals -> hq :=
   pr1.
 Definition Rationals_to_NonnegativeRationals (r : hq) (Hr : hqleh 0%hq r) : NonnegativeRationals :=
@@ -438,40 +438,40 @@ Qed.
 
 Definition isassoc_plusNonnegativeRationals:
   ∀ x y z : NonnegativeRationals, x + y + z = x + (y + z) :=
-  DivisionRig_isassoc_plus.
+  DivRig_isassoc_plus.
 Definition islunit_zeroNonnegativeRationals:
   forall r : NonnegativeRationals, 0 + r = r :=
-  DivisionRig_islunit_zero.
+  DivRig_islunit_zero.
 Definition isrunit_zeroNonnegativeRationals:
   forall r : NonnegativeRationals, r + 0 = r :=
-  DivisionRig_isrunit_zero.
+  DivRig_isrunit_zero.
 Definition iscomm_plusNonnegativeRationals:
   ∀ x y : NonnegativeRationals, x + y = y + x :=
-  DivisionRig_iscomm_plus.
+  DivRig_iscomm_plus.
 Definition isassoc_multNonnegativeRationals:
   ∀ x y z : NonnegativeRationals, x * y * z = x * (y * z) :=
-  DivisionRig_isassoc_mult.
+  DivRig_isassoc_mult.
 Definition islunit_oneNonnegativeRationals:
   ∀ x : NonnegativeRationals, 1 * x = x :=
-  DivisionRig_islunit_one.
+  DivRig_islunit_one.
 Definition isrunit_oneNonnegativeRationals:
   ∀ x : NonnegativeRationals, x * 1 = x :=
-  DivisionRig_isrunit_one.
+  DivRig_isrunit_one.
 Definition islinv_NonnegativeRationals:
   ∀ x : NonnegativeRationals, 0 < x -> / x * x = 1 :=
-  DivisionRig_islinv'.
+  DivRig_islinv'.
 Definition isrinv_NonnegativeRationals:
   ∀ x : NonnegativeRationals, 0 < x -> x * / x = 1 :=
-  DivisionRig_isrinv'.
+  DivRig_isrinv'.
 Definition iscomm_multNonnegativeRationals:
   ∀ x y : NonnegativeRationals, x * y = y * x :=
-  DivisionRig_iscomm_mult.
+  DivRig_iscomm_mult.
 Definition isldistr_mult_plusNonnegativeRationals:
   ∀ x y z : NonnegativeRationals, z * (x + y) = z * x + z * y :=
-  DivisionRig_isldistr.
+  DivRig_isldistr.
 Definition isrdistr_mult_plusNonnegativeRationals:
   ∀ x y z : NonnegativeRationals, (x + y) * z = x * z + y * z :=
-  DivisionRig_isrdistr.
+  DivRig_isrdistr.
 
 Lemma multdivNonnegativeRationals :
   forall q r : NonnegativeRationals, 0 < r -> (r * (q / r)) = q.
