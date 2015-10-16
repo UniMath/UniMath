@@ -291,16 +291,13 @@ Definition lex_ordering {n} (m:stn n->nat) := invweq (weqstnsum_idweq m) : stn (
 Definition inverse_lex_ordering {n} (m:stn n->nat) := weqstnsum_idweq m : (Σ i : stn n, stn (m i)) ≃ stn (stnsum m).
 
 Definition flatten {X} : Sequence (Sequence X) -> Sequence X.
-Proof.
-  intros ? x.
-  set (m := λ i, length (x i)).
-  exists (stnsum m).
-  exact (λ j, uncurry (pr2 x) (lex_ordering _ j)).
+Proof. intros ? x. exists (stnsum (length ∘ x)). exact (λ j, uncurry (pr2 x) (lex_ordering _ j)).
 Defined.
 
 Definition partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : Sequence (Sequence X).
 Proof.
-  intros. exists n. intro i. exists (f i). intro j. exact (x(weqstnsum_idweq f (i,,j))).
+  intros. exists n. intro i. exists (f i). intro j.
+  exact (x(inverse_lex_ordering f (i,,j))).
 Defined.
 
 Lemma flatten_length {X} (x : Sequence (Sequence X)) :
