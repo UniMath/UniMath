@@ -280,8 +280,10 @@ Proof. intros.
 
 Abort.
 
-Definition curry {X} {Y:X->UU} {Z} (f: (Σ x:X, Y x) -> Z) x y := f(x,,y).
-Definition uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) xy := g (pr1 xy) (pr2 xy).
+Definition curry {X} {Y:X->UU} {Z} (f: (Σ x:X, Y x) -> Z) : ∀ x, Y x -> Z.
+Proof. intros ? ? ? ? ? y. exact (f(x,,y)). Defined.
+Definition uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) : (Σ x, Y x) -> Z.
+Proof. intros ? ? ? ? xy. exact (g (pr1 xy) (pr2 xy)). Defined.
 Lemma uncurry_curry {X} {Y:X->UU} {Z} (f:(Σ x:X, Y x) -> Z): uncurry (curry f) = f.
   intros. apply funextfun. intros [x y]. reflexivity. Defined.
 Lemma curry_uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) : curry (uncurry g) = g.
@@ -290,14 +292,17 @@ Lemma curry_uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) : curry (uncurry g) =
 Definition lex_ordering {n} (m:stn n->nat) := invweq (weqstnsum_idweq m) : stn (stnsum m) ≃ (Σ i : stn n, stn (m i)).
 Definition inverse_lex_ordering {n} (m:stn n->nat) := weqstnsum_idweq m : (Σ i : stn n, stn (m i)) ≃ stn (stnsum m).
 
-Definition flatten {X} : Sequence (Sequence X) -> Sequence X.
-Proof. intros ? x. exists (stnsum (length ∘ x)). exact (λ j, uncurry (pr2 x) (lex_ordering _ j)).
-Defined.
+Definition lex_curry {X n} (m:stn n->nat) : (stn (stnsum m) -> X) -> (∀ (i:stn n), stn (m i) -> X).
+Proof. intros ? ? ? f ? j. exact (f (inverse_lex_ordering m (i,,j))). Defined.
+Definition lex_uncurry {X n} (m:stn n->nat) : (∀ (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
+Proof. intros ? ? ? g ij. exact (uncurry g (lex_ordering m ij)). Defined.
 
 Definition partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : Sequence (Sequence X).
-Proof.
-  intros. exists n. intro i. exists (f i). intro j.
-  exact (x(inverse_lex_ordering f (i,,j))).
+Proof. intros. exists n. intro i. exists (f i). intro j. exact (x(inverse_lex_ordering f (i,,j))).
+Defined.
+
+Definition flatten {X} : Sequence (Sequence X) -> Sequence X.
+Proof. intros ? x. exists (stnsum (length ∘ x)). exact (λ j, uncurry (pr2 x) (lex_ordering _ j)).
 Defined.
 
 Lemma flatten_length {X} (x : Sequence (Sequence X)) :
