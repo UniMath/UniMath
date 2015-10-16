@@ -280,13 +280,22 @@ Proof. intros.
 
 Abort.
 
+Definition curry {X} {Y:X->UU} {Z} (f: (Σ x:X, Y x) -> Z) x y := f(x,,y).
+Definition uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) xy := g (pr1 xy) (pr2 xy).
+Lemma uncurry_curry {X} {Y:X->UU} {Z} (f:(Σ x:X, Y x) -> Z): uncurry (curry f) = f.
+  intros. apply funextfun. intros [x y]. reflexivity. Defined.
+Lemma curry_uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) : curry (uncurry g) = g.
+  intros. apply funextsec. intros x. apply funextfun. intros y. reflexivity. Defined.
+
+Definition lex_ordering {n} (m:stn n->nat) := invweq (weqstnsum_idweq m) : stn (stnsum m) ≃ (Σ i : stn n, stn (m i)).
+Definition inverse_lex_ordering {n} (m:stn n->nat) := weqstnsum_idweq m : (Σ i : stn n, stn (m i)) ≃ stn (stnsum m).
 
 Definition flatten {X} : Sequence (Sequence X) -> Sequence X.
 Proof.
   intros ? x.
-  set (w := invweq (weqstnsum_idweq (λ i, length (x i)))).
-  set (g := λ j, x (pr1 (w j)) (pr2 (w j))).
-  exact (_,,g).
+  set (m := λ i, length (x i)).
+  exists (stnsum m).
+  exact (λ j, uncurry (pr2 x) (lex_ordering _ j)).
 Defined.
 
 Definition partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : Sequence (Sequence X).
