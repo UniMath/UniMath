@@ -26,6 +26,7 @@ Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level
 Section nat_graph.
 
 Variable C : precategory.
+Variable (hsC : has_homsets C).
 
 Definition nat_graph : graph.
 Proof.
@@ -58,20 +59,53 @@ destruct Hmn.
 now apply (pr2 d).
 Defined.
 
-Definition cocone_shift (D : diagram nat_graph C)
-  (x : C) (fx : ∀ v : nat, C ⟦ dob (shift D) v, x ⟧)
-  (Hx : ∀ u v (e : edge u v), dmor (shift D) e ;; fx v = fx u) :
-  Σ (f : ∀ v, C ⟦ dob D v, x ⟧), 
-    (∀ u v (e : edge u v), dmor D e ;; f v = f u).
+Definition cocone_shift {D : diagram nat_graph C}
+  {x : C} (cx : cocone _ (shift D) x) : cocone _ D x.
+  (* (fx : ∀ v : nat, C ⟦ dob (shift D) v, x ⟧) *)
+  (* (Hx : ∀ u v (e : edge u v), dmor (shift D) e ;; fx v = fx u) : *)
+  (* Σ (f : ∀ v, C ⟦ dob D v, x ⟧),  *)
+  (*   (∀ u v (e : edge u v), dmor D e ;; f v = f u). *)
 Proof.
-simpl.
+refine (mk_cocone _ _ _ _ _).
+- intro n.
+  set (p := @dmor _ _ D n (S n) (idpath _)).
+  now apply (p ;; coconeIn _ cx n). 
+- abstract (now intros m n Hmn; destruct Hmn; simpl;
+            apply maponpaths, (coconeInCommutes _ cx _ _ (idpath _))).
+Defined.
+
+Definition shift_cocone {D : diagram nat_graph C}
+  {x : C} (cx : cocone _ D x) : cocone _ (shift D) x.
+ (* (fx : ∀ v : nat, C ⟦ dob D v, x ⟧) *)
+ (*  (Hx : ∀ u v (e : edge u v), dmor D e ;; fx v = fx u) : *)
+  (* Σ (f : ∀ v, C ⟦ dob (shift D) v, x ⟧),  *)
+  (*   (∀ u v (e : edge u v), dmor (shift D) e ;; f v = f u). *)
+Proof.
 refine (tpair _ _ _).
 - intro n.
-  set (@dmor _ _ D n (S n) (idpath _)).
-  now apply (p ;; fx n). 
-- abstract (now intros m n Hmn; destruct Hmn; simpl;
-            apply maponpaths, (Hx _ _ (idpath _))).
+  now apply (coconeIn _ cx).
+  (* set (p := @dmor _ _ D (S n) _ (idpath _)). *)
+  (* now apply (p ;; coconeIn _ cx (S (S n))). *)
+- abstract (intros m n Hmn; destruct Hmn; apply (coconeInCommutes _ cx)).
 Defined.
+
+Lemma shift_cocone_cocone_shift (D : diagram nat_graph C)
+  (x : C) (cx : cocone _ D x) : cocone_shift (shift_cocone cx) = cx.
+Proof.
+apply total2_paths_second_isaprop; simpl.
+- now repeat (apply impred; intro); apply hsC.
+- now apply funextsec; intro n; apply (coconeInCommutes _ cx).
+Qed.
+
+Lemma cocone_shift_shift_cocone (D : diagram nat_graph C)
+  (x : C) (cx : cocone _ (shift D) x) : shift_cocone (cocone_shift cx) = cx.
+Proof.
+apply total2_paths_second_isaprop; simpl.
+- now repeat (apply impred; intro); apply hsC.
+- now apply funextsec; intro n; apply (coconeInCommutes _ cx _ _ (idpath _)).
+Qed.
+
+(**** TODO: Continue from here *)
 
 Definition colim_shift (hsC : has_homsets C) (D : diagram nat_graph C) (CC : ColimCocone C D) :
   ColimCocone C (shift D).
@@ -111,20 +145,7 @@ apply pathsinv0.
 now apply colimInCommutes.
 Defined. (* parts of this should be opaque? *)
 
-Definition shift_cocone (D : diagram nat_graph C)
-  (x : C) (fx : ∀ v : nat, C ⟦ dob D v, x ⟧)
-  (Hx : ∀ u v (e : edge u v), dmor D e ;; fx v = fx u) :
-  Σ (f : ∀ v, C ⟦ dob (shift D) v, x ⟧), 
-    (∀ u v (e : edge u v), dmor (shift D) e ;; f v = f u).
-Proof.
-simpl.
-refine (tpair _ _ _).
-- intro n.
-  set (@dmor _ _ D (S n) _ (idpath _)).
-  now apply (p ;; fx (S (S n))).
-- abstract (now intros m n Hmn; destruct Hmn; simpl;
-            apply maponpaths, (Hx _ _ (idpath _))).
-Defined.
+
 
 
 Definition shift_colim (hsC : has_homsets C) (D : diagram nat_graph C) (CC : ColimCocone C (shift D)) :
