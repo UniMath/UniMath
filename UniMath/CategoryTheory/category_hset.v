@@ -311,12 +311,11 @@ Defined.
 (* Define the morphism out of the colimit *)
 Section from_colim.
 
-Variables (c : HSET) (fc : ∀ v : vertex g, HSET ⟦ dob D v, c ⟧).
-Variable (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u).
+Variables (c : HSET) (cc : cocone _ D c).
 
 Definition from_cobase : cobase -> pr1hSet c.
 Proof.
-now intro iA; apply (fc (pr1 iA) (pr2 iA)).
+now intro iA; apply (coconeIn _ cc (pr1 iA) (pr2 iA)).
 Defined.
   
 Definition from_cobase_rel : hrel cobase.
@@ -339,7 +338,7 @@ Lemma rel0_impl a b (Hab : rel0 a b) : from_cobase_eqrel a b.
 Proof.
 apply Hab; clear Hab; intro H; simpl.
 destruct H as [f Hf].
-generalize (toforallpaths _ _ _ (Hc (pr1 a) (pr1 b) f) (pr2 a)).
+generalize (toforallpaths _ _ _ (coconeInCommutes _ cc (pr1 a) (pr1 b) f) (pr2 a)).
 unfold compose, from_cobase; simpl; intro H.
 now rewrite <- H, Hf.
 Qed.
@@ -361,23 +360,22 @@ Defined.
 
 End from_colim.
 
-Definition colimCocone : Σ c : HSET, ∀ v : vertex g, HSET ⟦ dob D v, c ⟧ :=
-  tpair _ colimHSET injections.
-
-Definition colimCoconeCommutes (u v : vertex g) (e : edge u v) :
-  dmor D e ;; pr2 colimCocone v = pr2 colimCocone u.
+Definition colimCocone : cocone HSET D colimHSET. 
 Proof.
-apply funextfun; intros Fi; simpl.
-unfold compose, injections; simpl.
-apply (weqpathsinsetquot eqr), (eqrelsymm eqr), eqrel_impl, hinhpr; simpl.
-now exists e.
-Qed.
+refine (mk_cocone _ _ _ _ _).
+- now apply injections.
+- intros u v e.
+  apply funextfun; intros Fi; simpl.
+  unfold compose, injections; simpl.
+  apply (weqpathsinsetquot eqr), (eqrelsymm eqr), eqrel_impl, hinhpr; simpl.
+  now exists e.
+Defined.
 
-Definition ColimHSETArrow (c : HSET) (fc : ∀ v : vertex g, HSET ⟦ dob D v, c ⟧)
-  (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u) :
-  Σ x : HSET ⟦ colimHSET, c ⟧, ∀ v : vertex g, injections v ;; x = fc v.
+Definition ColimHSETArrow (c : HSET)
+  (cc : cocone _ D c) : 
+  Σ x : HSET ⟦ colimHSET, c ⟧, ∀ v : vertex g, injections v ;; x = coconeIn _ cc v.
 Proof.
-exists (from_colim _ fc Hc); intro i; simpl.
+exists (from_colim _ cc); intro i; simpl.
 unfold injections, compose, from_colim; simpl.
 apply funextfun; intro Fi.
 now rewrite (setquotunivcomm eqr).
@@ -385,16 +383,16 @@ Defined.
 
 Definition ColimCoconeHSET : ColimCocone HSET D.
 Proof.
-apply (mk_ColimCocone _ _ _ _ colimCoconeCommutes).
-unfold isColimCocone; intros c fc Hc.
-exists (ColimHSETArrow _ fc Hc); intro f.
-apply total2_paths_second_isaprop.
-- now apply impred; intro i; apply has_homsets_HSET.
-- apply funextfun; intro x; simpl.
-  apply (surjectionisepitosets (setquotpr eqr));
-    [now apply issurjsetquotpr | now apply pr2 | ].
-  intro y; destruct y as [u fu]; destruct f as [f Hf].
-  now apply (toforallpaths _ _ _ (Hf u) fu).
+apply (mk_ColimCocone _ _ colimHSET colimCocone).
+unfold isColimCocone; intros c cc.
+exists (ColimHSETArrow _ cc). 
+abstract (intro f; apply total2_paths_second_isaprop;
+           [ now apply impred; intro i; apply has_homsets_HSET
+           | apply funextfun; intro x; simpl;
+             apply (surjectionisepitosets (setquotpr eqr));
+               [now apply issurjsetquotpr | now apply pr2 | ];
+             intro y; destruct y as [u fu]; destruct f as [f Hf];
+             now apply (toforallpaths _ _ _ (Hf u) fu)]).
 Defined.
 
 End colimits.
