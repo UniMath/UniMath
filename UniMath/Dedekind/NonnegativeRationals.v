@@ -7,7 +7,7 @@ Unset Kernel Term Sharing.
 
 Require Import UniMath.Dedekind.Sets_comp.
 Require Import UniMath.Dedekind.Fields_comp.
-Require Import UniMath.Dedekind.HalfField.
+Require Import UniMath.Dedekind.DivisionRig.
 Require Import UniMath.Dedekind.Complements.
 
 Opaque hq.
@@ -203,8 +203,8 @@ Proof.
   rewrite !(iscomm_hnnq_mult _ z).
   now apply isldistr_hnnq_plus_mult.
 Qed.
-Lemma isHalfField_hnnq:
-  isHalfField hnnq_zero hnnq_one hnnq_plus hnnq_mult 
+Lemma isDivisionRig_hnnq:
+  isDivisionRig hnnq_zero hnnq_one hnnq_plus hnnq_mult 
               (hnnq_lt hnnq_zero) (λ x, hnnq_inv (pr1 x)).
 Proof.
   repeat split.
@@ -221,14 +221,14 @@ Proof.
   - exact isldistr_hnnq_plus_mult.
   - exact isrdistr_hnnq_plus_mult.
 Qed.
-Definition HalfField_hnnq : HalfField := 
-  isHalfField_HalfField hnnq_zero hnnq_one hnnq_plus hnnq_mult
+Definition DivisionRig_hnnq : DivisionRig := 
+  isDivisionRig_DivisionRig hnnq_zero hnnq_one hnnq_plus hnnq_mult
                         (hnnq_lt hnnq_zero) (λ x : subset (hnnq_lt hnnq_zero), hnnq_inv (pr1 x))
-                        isHalfField_hnnq.
+                        isDivisionRig_hnnq.
 
 (** * Exportable definitions and theorems *)
 
-Definition NonnegativeRationals : HalfField := HalfField_hnnq.
+Definition NonnegativeRationals : DivisionRig := DivisionRig_hnnq.
 Definition NonnegativeRationals_to_Rationals : NonnegativeRationals -> hq :=
   pr1.
 Definition Rationals_to_NonnegativeRationals (r : hq) (Hr : hqleh 0%hq r) : NonnegativeRationals :=
@@ -438,40 +438,40 @@ Qed.
 
 Definition isassoc_plusNonnegativeRationals:
   ∀ x y z : NonnegativeRationals, x + y + z = x + (y + z) :=
-  HalfField_isassoc_plus.
+  DivisionRig_isassoc_plus.
 Definition islunit_zeroNonnegativeRationals:
   forall r : NonnegativeRationals, 0 + r = r :=
-  HalfField_islunit_zero.
+  DivisionRig_islunit_zero.
 Definition isrunit_zeroNonnegativeRationals:
   forall r : NonnegativeRationals, r + 0 = r :=
-  HalfField_isrunit_zero.
+  DivisionRig_isrunit_zero.
 Definition iscomm_plusNonnegativeRationals:
   ∀ x y : NonnegativeRationals, x + y = y + x :=
-  HalfField_iscomm_plus.
+  DivisionRig_iscomm_plus.
 Definition isassoc_multNonnegativeRationals:
   ∀ x y z : NonnegativeRationals, x * y * z = x * (y * z) :=
-  HalfField_isassoc_mult.
+  DivisionRig_isassoc_mult.
 Definition islunit_oneNonnegativeRationals:
   ∀ x : NonnegativeRationals, 1 * x = x :=
-  HalfField_islunit_one.
+  DivisionRig_islunit_one.
 Definition isrunit_oneNonnegativeRationals:
   ∀ x : NonnegativeRationals, x * 1 = x :=
-  HalfField_isrunit_one.
+  DivisionRig_isrunit_one.
 Definition islinv_NonnegativeRationals:
   ∀ x : NonnegativeRationals, 0 < x -> / x * x = 1 :=
-  HalfField_islinv'.
+  DivisionRig_islinv'.
 Definition isrinv_NonnegativeRationals:
   ∀ x : NonnegativeRationals, 0 < x -> x * / x = 1 :=
-  HalfField_isrinv'.
+  DivisionRig_isrinv'.
 Definition iscomm_multNonnegativeRationals:
   ∀ x y : NonnegativeRationals, x * y = y * x :=
-  HalfField_iscomm_mult.
+  DivisionRig_iscomm_mult.
 Definition isldistr_mult_plusNonnegativeRationals:
   ∀ x y z : NonnegativeRationals, z * (x + y) = z * x + z * y :=
-  HalfField_isldistr.
+  DivisionRig_isldistr.
 Definition isrdistr_mult_plusNonnegativeRationals:
   ∀ x y z : NonnegativeRationals, (x + y) * z = x * z + y * z :=
-  HalfField_isrdistr.
+  DivisionRig_isrdistr.
 
 Lemma multdivNonnegativeRationals :
   forall q r : NonnegativeRationals, 0 < r -> (r * (q / r)) = q.
