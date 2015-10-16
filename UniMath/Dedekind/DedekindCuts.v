@@ -649,7 +649,7 @@ Proof.
       exists (0%NRat,0%NRat).
       rewrite Hn ; simpl.
       repeat split.
-      * now rewrite NonnegativeRationals_plus0r.
+      * now rewrite isrunit_zeroNonnegativeRationals.
       * apply X_bot with (1 := Hrx).
         apply isnonnegative_NonnegativeRationals.
       * apply Y_bot with (1 := Hry).
@@ -660,7 +660,10 @@ Proof.
       repeat split.
       * unfold nx,ny ; simpl.
         rewrite <- isrdistr_mult_plusNonnegativeRationals, <- Hr.
-        now rewrite multdivNonnegativeRationals.
+        rewrite multdivNonnegativeRationals.
+        reflexivity.
+        apply notge_ltNonnegativeRationals ; intro ; apply Hr0.
+        now apply NonnegativeRationals_le0_eq0.
       * apply X_bot with (1 := Hrx).
         apply multrle1NonnegativeRationals.
         now apply ledivle1NonnegativeRationals.
