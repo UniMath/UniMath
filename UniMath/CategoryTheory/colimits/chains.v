@@ -33,22 +33,22 @@ exists nat.
 exact (fun m n => S m = n).
 Defined.
 
-Definition chain := Σ (f0 : nat -> C), ∀ n, C⟦f0 n,f0 (S n)⟧.
+(* Definition chain := Σ (f0 : nat -> C), ∀ n, C⟦f0 n,f0 (S n)⟧. *)
 
-Definition to_chain : diagram nat_graph C -> chain.
-Proof.
-intro D.
-exists (pr1 D); intro n.
-now apply (pr2 D).
-Defined.
+(* Definition to_chain : diagram nat_graph C -> chain. *)
+(* Proof. *)
+(* intro D. *)
+(* exists (pr1 D); intro n. *)
+(* now apply (pr2 D). *)
+(* Defined. *)
 
-Definition from_chain : chain -> diagram nat_graph C.
-Proof.
-intro c.
-exists (pr1 c); simpl; intros m n Hmn.
-destruct Hmn.
-now apply (pr2 c).
-Defined. (* Maybe define using idtoiso? *)
+(* Definition from_chain : chain -> diagram nat_graph C. *)
+(* Proof. *)
+(* intro c. *)
+(* exists (pr1 c); simpl; intros m n Hmn. *)
+(* destruct Hmn. *)
+(* now apply (pr2 c). *)
+(* Defined. (* Maybe define using idtoiso? *) *)
 
 (* Drop the first element of the chain *)
 Definition shift (d : diagram nat_graph C) : diagram nat_graph C.
@@ -206,15 +206,10 @@ refine (colimArrow _ _ _ _ _).
 set (# F (colimIn _ CC n)).
 simpl in p.
 apply p.
-- simpl.
-intros m n Hmn; destruct Hmn; simpl.
-destruct m; simpl.
-+ rewrite <- functor_comp.
-  apply maponpaths.
-  exact (colimInCommutes _ CC 0 1 (idpath _)).
-+ rewrite <- functor_comp.
-  apply maponpaths.
-  now apply (colimInCommutes _ CC _ _ (idpath (S (S m)))).
+- abstract (
+   simpl; intros m n Hmn; destruct Hmn; simpl; destruct m; simpl;
+    [ rewrite <- functor_comp; apply maponpaths; exact (colimInCommutes _ CC 0 1 (idpath _))
+    | rewrite <- functor_comp; apply maponpaths; now apply (colimInCommutes _ CC _ _ (idpath (S (S m)))) ]).
 Defined.
 
 Definition chain_cocontinuous (hsC : has_homsets C)
@@ -222,6 +217,126 @@ Definition chain_cocontinuous (hsC : has_homsets C)
 
 End functor_diagram.
 
+(* Arguments iter _ _ n : simpl never. *)
+Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.FunctorAlgebras.
+
+(* Move to limits.initial *)
+Lemma InitialArrowUnique (D : precategory) (I : Initial D) (a : D) (f : D⟦InitialObject _ I,a⟧) :
+  f = InitialArrow _ I _.
+Proof.
+now apply (pr2 (pr2 I a)).
+Defined.
+
 Section colim_initial_algebra.
+
+Variables (C : precategory) (F : functor C C).
+Variables (hsC : has_homsets C) (Init : Initial C).
+Let initDiag : diagram nat_graph C := Fdiagram C F Init (InitialArrow C Init (F Init)).
+
+Variable (CC : ColimCocone C initDiag).
+Variable (Fcont : chain_cocontinuous C F (InitialObject _ Init) (InitialArrow _ Init _) hsC CC).
+
+Let c := colim _ CC.
+Let Fcomm : iso (colim C (colim_shift C hsC initDiag CC)) (F c) := isopair _ Fcont.
+
+(* Morally we need to insert colim_shift_iso (ie the identity iso) *)
+Local Definition inc : C⟦F c,c⟧ := inv_from_iso Fcomm.
+
+Local Definition cinc : algebra_ob _ F. 
+Proof.
+exists c.
+apply inc.
+Defined. (* WTF *)
+
+Variable (Aa : algebra_ob _ F).
+Let A : C := alg_carrier _ _ Aa.
+Let a : C⟦F A,A⟧:= alg_map _ _ Aa.
+
+Definition cocone_over_alg (n : nat) : C ⟦ dob initDiag n, A ⟧.
+Proof.
+induction n as [|n Fn]; simpl.
+- now apply InitialArrow.
+- now apply (# F Fn ;; a).
+Defined.
+
+Lemma unfold_cocone_over_alg n : cocone_over_alg (S n) = # F (cocone_over_alg n) ;; a.
+Proof.
+now apply idpath.
+Qed.
+
+Lemma isCoconeOverAlg u v (e : edge u v) : dmor initDiag e ;; cocone_over_alg v = cocone_over_alg u.
+Proof.
+destruct e.
+induction u.
+- now apply InitialArrowUnique.
+- 
+rewrite unfold_cocone_over_alg.
+rewrite assoc.
+rewrite unfold_cocone_over_alg.
+apply cancel_postcomposition.
+rewrite unfold_cocone_over_alg in IHu.
+apply pathsinv0.
+eapply pathscomp0.
+Focus 2.
+simpl.
+apply functor_comp.
+apply maponpaths.
+apply pathsinv0.
+now apply IHu.
+Qed.
+
+Local Definition b : C⟦c,A⟧.
+Proof.
+refine (colimArrow _ _ _ _ _).
+- apply cocone_over_alg.
+- apply isCoconeOverAlg.
+Defined.
+
+Lemma b_is_algebra_mor : is_algebra_mor _ _ cinc Aa b.
+Proof.
+unfold is_algebra_mor; simpl; unfold inc.
+apply iso_inv_on_right, pathsinv0.
+assert (H : colim_shift_iso _ hsC initDiag CC ;; Fcomm ;; (# F b ;; a) =
+            colimArrow C CC A cocone_over_alg isCoconeOverAlg).
+  apply colimArrowUnique.
+simpl.
+intro n.
+rewrite id_left.
+
+induction n.
+- now apply InitialArrowUnique.
+- simpl.
+repeat rewrite assoc.
+
+unfold from_colim_shift.
+Check (colimArrow C
+                           (colim_shift C hsC
+                              (Fdiagram C F Init
+                                 (InitialArrow C Init (F Init))) CC)
+                           (F (colim C CC))
+                           (λ n0 : nat, # F (colimIn C CC n0))
+                           (from_colim_shift_subproof C F Init
+                              (InitialArrow C Init (F Init)) hsC CC) ).
+Search colimArrow.
+
+unfold from_colim_shift in IHn.
+rewrite IHn.
+
+eapply pathscomp0.
+eapply cancel_postcomposition.
+
+apply colimArrowCommutes.
+simpl.
+repeat rewrite functor_comp.
+
+unfold colimIn.
+simpl.
+- rewrite id_left in H.
+exact H.
+Admitted.
+
+
+ ().
 
 End colim_initial_algebra.
