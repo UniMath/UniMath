@@ -645,7 +645,7 @@ Proof.
     revert Hr ; apply hinhfun ; intros [(rx,ry) (Hr,(Hrx,Hry))] ; simpl in * |-.
     destruct (isdeceq_NonnegativeRationals r 0%NRat) as [Hr0 | Hr0].
     + rewrite Hr0 in Hn.
-      rewrite <- NonnegativeRationals_le0_eq0 in Hn.
+      rewrite <- NonnegativeRationals_eq0_le0 in Hn.
       exists (0%NRat,0%NRat).
       rewrite Hn ; simpl.
       repeat split.
@@ -663,7 +663,7 @@ Proof.
         rewrite multdivNonnegativeRationals.
         reflexivity.
         apply notge_ltNonnegativeRationals ; intro ; apply Hr0.
-        now rewrite NonnegativeRationals_le0_eq0.
+        now rewrite NonnegativeRationals_eq0_le0.
       * apply X_bot with (1 := Hrx).
         apply multrle1NonnegativeRationals.
         now apply ledivle1NonnegativeRationals.
