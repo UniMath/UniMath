@@ -431,7 +431,7 @@ Lemma weqcutforstn ( n n' : nat ) ( w : weq (stn (S n)) (stn (S n')) ) : weq (st
 Proof. intros. set ( nn := lastelement n  ) . set ( w1 := weqoncompl w nn ) .  set ( w2 := weqdnicompl n nn ) . set ( w3 := weqdnicompl n' ( w nn ) ) .   apply ( weqcomp w2 ( weqcomp w1 ( invweq w3 ) ) ) . Defined .   
 
 
-Theorem weqtoeqstn ( n n' : nat ) ( w : weq (stn n) (stn n') ) : paths n n'.
+Theorem weqtoeqstn { n n' : nat } ( w : weq (stn n) (stn n') ) : paths n n'.
 Proof. intro. induction n as [ | n IHn ] . intro. destruct n' as [ | n' ] .  reflexivity. intro X. apply (fromempty (negweqstn0sn _ X)). intro n'. destruct n' as [ | n' ] . intro X. apply (fromempty ( negweqstnsn0 n X)).  intro X. 
  apply (maponpaths S). apply IHn. now apply weqcutforstn.
 Defined. 
@@ -496,8 +496,7 @@ Ltac inductive_reflexivity i b :=
   [ try apply isinjstntonat ; reflexivity |
     contradicts (negnatlthn0 i) b || inductive_reflexivity i b ].
 
-Section Example.
-  Definition f : stn 3 -> stn 10.
+Local Definition f : stn 3 -> stn 10.
   Proof.
     intros n.
     induction n as [n b].
@@ -510,13 +509,12 @@ Section Example.
         * contradicts (negnatlthn0 n) b.
   Defined.          
 
-  Lemma lt : ∀ n, f n < 5.
+Local Definition lt : ∀ n, f n < 5.
   Proof.
     intros.
     induction n as [i c].
     inductive_reflexivity i c.
   Defined.
-End Example.
 
 (* End of the file stnfsets.v *)
 
