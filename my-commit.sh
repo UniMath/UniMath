@@ -1,5 +1,5 @@
 git checkout dev
-git pull
+git pull https://github.com/cathlelay/UniMath dev
 make
 if [ "$?" -eq 0 ]
 then
