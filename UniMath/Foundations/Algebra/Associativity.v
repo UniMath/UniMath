@@ -15,23 +15,17 @@ Lemma curry_uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) : curry (uncurry g) =
 Theorem nat_plus_associativity n (m:stn n->nat) (k:∀ (ij : Σ i:stn n, stn (m i)), nat) :
   stnsum (λ i, stnsum (λ j, k(i,,j))) = stnsum (λ ij, k (invweq (weqstnsum_idweq m) ij)).
 Proof.
-  intros.
-  set (k' := λ ij, k (invweq (weqstnsum_idweq m) ij)).
-  set (L3 := stn (stnsum (λ i, stnsum (curry k i)))).
-  set (L2 := Σ i:stn n, stn (stnsum (curry k i))).
-  set (L1 := Σ i j, stn (curry k i j)).
-  set (R1 := Σ ij: (Σ i, stn (m i)), stn (k ij)).
-  set (R2 := Σ ij: stn (stnsum m), stn (k (invweq (weqstnsum_idweq m) ij))).
-  set (R3 := stn (stnsum (λ ij, k (invweq (weqstnsum_idweq m) ij)))).
-  assert (a : L3 ≃ L2). { apply invweq. apply weqstnsum. intro. apply idweq. }
-  assert (b : L2 ≃ L1).
+  intros. apply weqtoeqstn.
+  intermediate_weq (Σ i:stn n, stn (stnsum (curry k i))).
+  { apply invweq. apply weqstnsum. intro. apply idweq. }
+  intermediate_weq (Σ i j, stn (curry k i j)).
   { apply weqfibtototal. intro i. apply invweq. apply weqstnsum. intro j. apply idweq. }
-  assert (c : L1 ≃ R1). { exact (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
-  assert (d : R1 ≃ R2).
-  { apply (weqbandf (weqstnsum_idweq m)). intro ij. apply eqweqmap. apply (maponpaths stn).
-    apply (maponpaths k). apply pathsinv0. apply homotinvweqweq. }
-  assert (e : R2 ≃ R3). { apply weqstnsum_idweq. }
-  exact (weqtoeqstn (e∘d∘c∘b∘a)%weq).
+  intermediate_weq (Σ ij: (Σ i, stn (m i)), stn (k ij)).
+  { exact (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
+  intermediate_weq (Σ ij: stn (stnsum m), stn (k (invweq (weqstnsum_idweq m) ij))).
+  { apply (weqbandf (weqstnsum_idweq m)). intro ij. apply eqweqmap.
+    apply (maponpaths stn), (maponpaths k). apply pathsinv0, homotinvweqweq. }
+  { apply weqstnsum_idweq. }
 Defined.
 
 (** general associativity for monoids *)
