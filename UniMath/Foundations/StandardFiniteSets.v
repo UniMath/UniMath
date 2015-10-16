@@ -432,9 +432,9 @@ Proof. intros. set ( nn := lastelement n  ) . set ( w1 := weqoncompl w nn ) .  s
 
 
 Theorem weqtoeqstn ( n n' : nat ) ( w : weq (stn n) (stn n') ) : paths n n'.
-Proof. intro. induction n as [ | n IHn ] . intro. destruct n' as [ | n' ] .  intros. apply idpath. intro X. apply (fromempty (negweqstn0sn  n' X)).  
- intro n'. destruct n' as [ | n' ] . intro X. set (int:= isdeceqnat (S n) 0 ).  destruct int as [ i | e ] .  assumption. apply (fromempty ( negweqstnsn0 n X)).  intro X. 
-set (e:= IHn n' ( weqcutforstn _ _ X)). apply (maponpaths S e). Defined. 
+Proof. intro. induction n as [ | n IHn ] . intro. destruct n' as [ | n' ] .  reflexivity. intro X. apply (fromempty (negweqstn0sn _ X)). intro n'. destruct n' as [ | n' ] . intro X. apply (fromempty ( negweqstnsn0 n X)).  intro X. 
+ apply (maponpaths S). apply IHn. now apply weqcutforstn.
+Defined. 
 
 Corollary stnsdnegweqtoeq ( n n' : nat ) ( dw : dneg (weq (stn n) (stn n')) ) : paths n n'.
 Proof. intros n n' X. apply (eqfromdnegeq nat isdeceqnat _ _  (dnegf (@weqtoeqstn n n') X)). Defined. 
