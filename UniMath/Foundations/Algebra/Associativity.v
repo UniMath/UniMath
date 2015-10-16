@@ -13,19 +13,19 @@ Lemma curry_uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) : curry (uncurry g) =
   intros. apply funextsec. intros x. apply funextfun. intros y. reflexivity. Defined.
 
 Theorem nat_plus_associativity n (m:stn n->nat) (k:∀ (ij : Σ i:stn n, stn (m i)), nat) :
-  stnsum (λ i, stnsum (λ j, k(i,,j))) = stnsum (λ ij, k (invweq (weqstnsum_idweq m) ij)).
+  stnsum (λ i, stnsum (λ j, k(i,,j))) = stnsum (λ ij, k (lex_ordering m ij)).
 Proof.
   intros. apply weqtoeqstn.
   intermediate_weq (Σ i:stn n, stn (stnsum (curry k i))).
-  { apply invweq. apply weqstnsum. intro. apply idweq. }
+  { apply invweq. apply weqstnsum_idweq. }
   intermediate_weq (Σ i j, stn (curry k i j)).
-  { apply weqfibtototal. intro i. apply invweq. apply weqstnsum. intro j. apply idweq. }
+  { apply weqfibtototal; intro i. apply invweq. apply weqstnsum_idweq. }
   intermediate_weq (Σ ij: (Σ i, stn (m i)), stn (k ij)).
   { exact (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
-  intermediate_weq (Σ ij: stn (stnsum m), stn (k (invweq (weqstnsum_idweq m) ij))).
-  { apply (weqbandf (weqstnsum_idweq m)). intro ij. apply eqweqmap.
+  intermediate_weq (Σ ij: stn (stnsum m), stn (k (lex_ordering m ij))).
+  { apply (weqbandf (inverse_lex_ordering m)). intro ij. apply eqweqmap.
     apply (maponpaths stn), (maponpaths k). apply pathsinv0, homotinvweqweq. }
-  { apply weqstnsum_idweq. }
+  { apply inverse_lex_ordering. }
 Defined.
 
 (** general associativity for monoids *)
