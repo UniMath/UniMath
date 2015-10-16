@@ -65,6 +65,11 @@ Proof.
   rewrite <- nattohzand1, <- nattohzand0.
   now apply hztohqandgth, nattohzandgth.
 Qed.
+Lemma hq1ge0 : (0 <= 1)%hq.
+Proof.
+  now apply hqlthtoleh, hq1_gt0.
+Qed.
+
 Lemma hqgth_hqneq :
   forall x y : hq, x > y -> hqneq x y.
 Proof.

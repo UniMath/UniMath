@@ -289,11 +289,6 @@ Proof.
   - now intro ; apply pr2.
   - reflexivity.
 Qed.
-
-Lemma hq1ge0 : (0 <= 1)%hq.
-Proof.
-  now apply hqlthtoleh, hq1_gt0.
-Qed.
 Lemma oneNonnegativeRationals_correct :
   1 = Rationals_to_NonnegativeRationals 1%hq hq1ge0.
 Proof.
@@ -353,9 +348,6 @@ Qed.
 
 Definition istrans_leNonnegativeRationals : istrans leNonnegativeRationals :=
   istrans_po _.
-
-(*Definition isdeceq_NonnegativeRationals : isdeceq NonnegativeRationals
-  := isdeceq_hnnq.*)
 
 Lemma lt_leNonnegativeRationals :
   forall x y : NonnegativeRationals, x < y -> x <= y.
