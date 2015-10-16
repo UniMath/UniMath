@@ -6,7 +6,9 @@ Require Import UniMath.Dedekind.Complements.
 Require Import UniMath.Dedekind.HalfField.
 Require Import UniMath.Dedekind.NonnegativeRationals.
 
+Delimit Scope Dcuts_scope with Dcuts.
 Open Scope NRat_scope.
+Open Scope Dcuts_scope.
 
 (** ** Definition of Dedekind cuts *)
 
@@ -83,126 +85,12 @@ Proof.
   exact Hn'.
 Qed.
 
-(** ** [Dcuts] is a effectively ordered set *)
-
-(** Partial order on [Dcuts] *)
-
-Definition Dcuts_le_rel : hrel Dcuts :=
-  fun (X Y : Dcuts) => ishinh (forall x : NonnegativeRationals, x ∈ X -> x ∈ Y).
-
-Lemma istrans_Dcuts_le_rel : istrans Dcuts_le_rel.
-Proof.
-  intros x y z.
-  apply hinhfun2.
-  intros Hxy Hyz r Xr.
-  now apply Hyz, Hxy.
-Qed.
-Lemma isrefl_Dcuts_le_rel : isrefl Dcuts_le_rel.
-Proof.
-  now intros x P HP ; apply HP ; clear P HP.
-Qed.
-
-Lemma ispo_Dcuts_le_rel : ispo Dcuts_le_rel.
-Proof.
-  split.
-  exact istrans_Dcuts_le_rel.
-  exact isrefl_Dcuts_le_rel.
-Qed.
-
-(** Strict partial order on [Dcuts] *)
-
-Definition Dcuts_lt_rel : hrel Dcuts :=
-  fun (X Y : Dcuts) =>
-    hexists (fun x : NonnegativeRationals => dirprod (neg (x ∈ X)) (x ∈ Y)).
-
-Lemma istrans_Dcuts_lt_rel : istrans Dcuts_lt_rel.
-Proof.
-  intros x y z.
-  apply hinhfun2.
-  intros (r,(Xr,Yr)) (n,(Yn,Zn)).
-  exists r ; split.
-  exact Xr.
-  apply is_Dcuts_bot with n.
-  exact Zn.
-  apply lt_leNonnegativeRationals.
-  now apply Dcuts_bounded with y.
-Qed.
-Lemma isirrefl_Dcuts_lt_rel : isirrefl Dcuts_lt_rel.
-Proof.
-  intros x.
-  unfold neg ;
-  apply (hinhuniv (P := hProppair _ isapropempty)).
-  intros (r,(nXr,Xr)).
-  now apply nXr.
-Qed.
-
-Lemma isstpo_Dcuts_lt_rel : isStrongOrder Dcuts_lt_rel.
-Proof.
-  split.
-  exact istrans_Dcuts_lt_rel.
-  exact isirrefl_Dcuts_lt_rel.
-Qed.
-
-(** Effectively Ordered Set *)
-
-Lemma Dcuts_lt_le_rel :
-  forall x y : Dcuts, Dcuts_lt_rel x y -> Dcuts_le_rel x y.
-Proof.
-  intros x y ; apply hinhfun ; intros (r,(Xr,Yr)).
-  intros n Xn.
-  apply is_Dcuts_bot with r.
-  exact Yr.
-  apply lt_leNonnegativeRationals.
-  now apply Dcuts_bounded with x.
-Qed.
-
-Lemma Dcuts_le_ngt_rel :
-  forall x y : Dcuts, Dcuts_le_rel x y -> Dcuts_lt_rel y x -> empty.
-Proof.
-  intros x y ;
-    apply (hinhuniv2 (P := hProppair _ isapropempty)) ;
-      intros Hxy (r,(Yr,Xr)).
-  now apply Yr, Hxy.
-Qed.
-
-Lemma iseo_Dcuts_le_lt_rel :
-  isEffectiveOrder Dcuts_le_rel Dcuts_lt_rel.
-Proof.
-  split.
-  - split.
-    + exact ispo_Dcuts_le_rel.
-    + exact isstpo_Dcuts_lt_rel.
-  - split.
-    + exact Dcuts_lt_le_rel.
-    + exact Dcuts_le_ngt_rel.
-Qed.
-
-Definition iseo_Dcuts : EffectiveOrder Dcuts :=
-  pairEffectiveOrder Dcuts_le_rel Dcuts_lt_rel iseo_Dcuts_le_lt_rel.
-
-Definition eo_Dcuts : EffectivelyOrderedSet :=
-  pairEffectivelyOrderedSet iseo_Dcuts.
-
-Definition Dcuts_le : po Dcuts := @EOle eo_Dcuts.
-Definition Dcuts_ge : po Dcuts := @EOge eo_Dcuts.
-Definition Dcuts_lt : StrongOrder Dcuts := @EOlt eo_Dcuts.
-Definition Dcuts_gt : StrongOrder Dcuts := @EOgt eo_Dcuts.
-
-Delimit Scope Dcuts_scope with Dcuts.
-
-Open Scope Dcuts_scope.
-
-Notation "x <= y" := (Dcuts_le x y) : Dcuts_scope.
-Notation "x >= y" := (Dcuts_ge x y) : Dcuts_scope.
-Notation "x < y" := (Dcuts_lt x y) : Dcuts_scope.
-Notation "x > y" := (Dcuts_gt x y) : Dcuts_scope.
-     
 (** ** Equality on [Dcuts] *)
 
 Definition Dcuts_eq : hrel Dcuts :=
-  fun (X Y : Dcuts) => hconj (X <= Y) (Y <= X).
+  fun (X Y : Dcuts) => ishinh (forall r, dirprod (r ∈ X -> r ∈ Y) (r ∈ Y -> r ∈ X)).
 
-Lemma istrans_Dcuts_eq : istrans Dcuts_eq.
+(* Lemma istrans_Dcuts_eq : istrans Dcuts_eq.
 Proof.
   intros x y z (Hxy,Hyx) (Hyz,Hzy).
   split.
@@ -235,333 +123,23 @@ Proof.
   split.
   exact ispo_Dcuts_eq.
   exact issymm_Dcuts_eq.
-Qed.
+Qed.*)
 
 Lemma Dcuts_eq_is_eq :
   forall x y : Dcuts,
     Dcuts_eq x y -> x = y.
 Proof.
-  intros x y (Hle,Hge).
+  intros x y Heq.
   apply total2_paths_second_isaprop.
-  apply pr2.
-  apply funextsec.
-  intro r.
-  apply weqtopathshProp.
-  apply logeqweq ; intros Hr.
-  revert Hle ; apply hinhuniv ; intro Hle.
-  now apply Hle.
-  revert Hge ; apply hinhuniv ; intro Hge.
-  now apply Hge.
-Qed.
-
-(** ** Apartness on [Dcuts] *)
-(* todo : define apartness relation *)
-
-Definition Dcuts_ap (X Y : Dcuts) : hProp :=
-  hdisj (Dcuts_lt X Y) (Dcuts_gt X Y).
-
-Lemma isirrefl_Dcuts_ap : isirrefl Dcuts_ap.
-Proof.
-  intros x. 
-  unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
-  intros [Hap|Hap].
-  now apply isirrefl_StrongOrder with (1 := Hap).
-  now apply isirrefl_StrongOrder with (1 := Hap).
-Qed.
-Lemma issymm_Dcuts_ap : issymm Dcuts_ap.
-Proof.
-  intros x y.
-  apply islogeqcommhdisj.
-Qed.
-
-(** *** Various basic theorems about order, equality and apartness *)
-
-
-Open Scope Dcuts.
-
-(** Compatibility between order predicates *)
-
-Lemma Dcuts_ge_le :
-  forall x y : Dcuts, x >= y -> y <= x.
-Proof.
-  easy.
-Qed.
-Lemma Dcuts_le_ge :
-  forall x y : Dcuts, x <= y -> y >= x.
-Proof.
-  easy.
-Qed.
-Lemma Dcuts_eq_le :
-  forall x y : Dcuts, Dcuts_eq x y -> x <= y.
-Proof.
-  now intros x y (le_xy,ge_xy).
-Qed.
-Lemma Dcuts_eq_ge :
-  forall x y : Dcuts, Dcuts_eq x y -> x >= y.
-Proof.
-  now intros x y (le_xy,ge_xy).
-Qed.
-Lemma Dcuts_le_ge_eq :
-  forall x y : Dcuts, x <= y -> x >= y -> Dcuts_eq x y.
-Proof.
-  intros x y le_xy ge_xy.
-  now split.
-Qed.
-
-Lemma Dcuts_gt_lt :
-  forall x y : Dcuts, x > y -> y < x.
-Proof.
-  easy.
-Qed.
-Lemma Dcuts_lt_gt :
-  forall x y : Dcuts, x < y -> y > x.
-Proof.
-  easy.
-Qed.
-
-
-Lemma Dcuts_gt_ge :
-  forall x y : Dcuts, x > y -> x >= y.
-Proof.
-  intros x y.
-  now apply Dcuts_lt_le_rel.
-Qed.
-
-Lemma Dcuts_gt_nle :
-  forall x y : Dcuts, x > y -> neg (x <= y).
-Proof.
-  intros x y Hlt Hle.
-  revert Hlt.
-  now apply Dcuts_le_ngt_rel.
-Qed.
-Lemma Dcuts_ge_nlt :
-  forall x y : Dcuts, x >= y -> neg (x < y).
-Proof.
-  intros X Y Hxy Hyx.
-  now apply (Dcuts_le_ngt_rel Y X).
-Qed.
-Lemma Dcuts_lt_nge :
-  forall x y : Dcuts, x < y -> neg (x >= y).
-Proof.
-  intros x y.
-  now apply Dcuts_gt_nle.
-Qed.
-
-Lemma Dcuts_eq_nap :
-  forall x y : Dcuts, Dcuts_eq x y -> neg (Dcuts_ap x y).
-Proof.
-  intros X Y [Hxy Hyx].
-  unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
-  intros [Hap|Hap].
-  now apply Dcuts_ge_nlt in Hyx.
-  now apply (Dcuts_le_ngt_rel X Y) in Hxy.
-Qed.
-
-(** Mixed transitivity *)
-
-Lemma istrans_Dcuts_le_lt :
-  forall x y z : Dcuts,
-    x <= y -> y < z -> x < z.
-Proof.
-  intros x y z. 
-  apply hinhfun2.
-  intros Hxy (r,(Yr,Zr)).
-  exists r ; split.
-  intro Xr ; apply Yr.
-  now apply Hxy.
-  exact Zr.
-Qed.
-Lemma istrans_Dcuts_lt_le :
-  forall x y z : Dcuts,
-    x < y -> y <= z -> x < z.
-Proof.
-  intros x y z. 
-  apply hinhfun2.
-  intros (r,(Xr,Yr)) Hyz.
-  exists r ; split.
-  exact Xr.
-  now apply Hyz.
-Qed.
-
-(** ** Least Upper Bound *)
-
-Section Dcuts_lub.
-
-Context (E : subsetcond Dcuts).
-Context (E_bounded : hexists (@isUpperBound eo_Dcuts E)).
-
-Definition Dcuts_lub_val : NonnegativeRationals -> hProp :=
-  fun r : NonnegativeRationals => hexists (fun X : Dcuts => dirprod (E X) (r ∈ X)).
-Lemma Dcuts_lub_bot : 
-  forall (x : NonnegativeRationals),
-    Dcuts_lub_val x -> forall y : NonnegativeRationals, (y <= x)%NRat -> Dcuts_lub_val y.
-Proof.
-  intros r Xr n Xn.
-  revert Xr ; apply hinhfun ; intros (X,(Ex,Xr)).
-  exists X ; split.
-  exact Ex.
-  now apply is_Dcuts_bot with r.
-Qed.
-Lemma Dcuts_lub_open :
-  forall (x : NonnegativeRationals),
-    Dcuts_lub_val x ->
-    hexists (fun y : NonnegativeRationals => dirprod (Dcuts_lub_val y) (x < y)%NRat).
-Proof.
-  intros r.
-  apply hinhuniv ; intros (X,(Ex,Xr)).
-  generalize (is_Dcuts_open X r Xr). 
-  apply hinhfun ; intros (n,(Xn,Hrn)).
-  exists n ; split.
-  intros P HP ; apply HP ; clear P HP.
-  exists X ; split.
-  exact Ex.
-  exact Xn.
-  exact Hrn.
-Qed.
-Lemma Dcuts_lub_bounded :
-   hexists (fun ub : NonnegativeRationals => neg (Dcuts_lub_val ub)).
-Proof.
-  revert E_bounded.
-  apply hinhuniv.
-  intros (M,HM).
-  generalize (is_Dcuts_bounded M).
-  apply hinhfun.
-  intros (ub,Hub).
-  exists ub.
-  unfold neg.
-  apply (hinhuniv (P := hProppair _ isapropempty)).
-  intros (x,(Ex,Hx)).
-  apply Hub.
-  generalize (HM x Ex).
-  apply hinhuniv ; intro H.
-  now apply H.
-Qed.
-
-End Dcuts_lub.
-
-Definition Dcuts_lub (E : subsetcond eo_Dcuts) (E_bounded : hexists (isUpperBound E)) : Dcuts :=
-  mk_Dcuts (Dcuts_lub_val E) (Dcuts_lub_bot E) (Dcuts_lub_open E) (Dcuts_lub_bounded E E_bounded).
-
-Lemma isub_Dcuts_lub (E : subsetcond eo_Dcuts)
-                     (E_bounded : hexists (isUpperBound E)) :
-  isUpperBound E (Dcuts_lub E E_bounded).
-Proof.
-  intros ;
-  intros x Ex.
-  intros P HP ; apply HP ; clear P HP.
-  intros r Hr.
-  intros P HP ; apply HP ; clear P HP.
-  now exists x.
-Qed.
-Lemma islbub_Dcuts_lub (E : subsetcond eo_Dcuts) (E_bounded : hexists (isUpperBound E)) :
-  isSmallerThanUpperBounds E (Dcuts_lub E E_bounded).
-Proof.
-  intros.
-  intros x Hx ; simpl.
-  apply hinhpr.
-  intros r ; apply hinhuniv ;
-  intros (y,(Ey,Yr)).
-  generalize (Hx y Ey).
-  apply hinhuniv.
-  now intros H ; apply H.
-Qed.
-Lemma islub_Dcuts_lub (E : subsetcond eo_Dcuts) (E_bounded : hexists (isUpperBound E)) :
-  isLeastUpperBound E (Dcuts_lub E E_bounded).
-Proof.
-  split.
-  exact (isub_Dcuts_lub E E_bounded).
-  exact (islbub_Dcuts_lub E E_bounded).
-Qed.
-
-(** ** Greatest Lower Bound *)
-
-Section Dcuts_glb.
-
-Context (E : subsetcond Dcuts).
-Context (E_not_empty : hexists E).  
-
-Definition Dcuts_glb_val : NonnegativeRationals -> hProp :=
-  fun r : NonnegativeRationals => hexists (fun n => dirprod (r < n)%NRat (forall X : Dcuts, E X -> n ∈ X)).
-Lemma Dcuts_glb_bot : 
-  forall (x : NonnegativeRationals),
-    Dcuts_glb_val x -> forall y : NonnegativeRationals, (y <= x)%NRat -> Dcuts_glb_val y.
-Proof.
-  intros r Hr n Hn.
-  revert Hr ; apply hinhfun ; intros (m,(Hrm,Hr)).
-  exists m ; split.
-  now apply istrans_le_lt_ltNonnegativeRationals with r.
-  easy.
-Qed.
-Lemma Dcuts_glb_open :
-  forall (x : NonnegativeRationals),
-    Dcuts_glb_val x ->
-    hexists (fun y : NonnegativeRationals => dirprod (Dcuts_glb_val y) (x < y)%NRat).
-Proof.
-  intros r ; apply hinhfun ; intros (n,(Hrn,Hn)).
-  destruct (between_ltNonnegativeRationals _ _ Hrn) as (t,(Hrt,Ttn)).
-  exists t.
-  split.
-  intros P HP ; apply HP ; clear P HP.
-  exists n.
-  now split.
-  exact Hrt.
-Qed.
-Lemma Dcuts_glb_bounded :
-   hexists (fun ub : NonnegativeRationals => neg (Dcuts_glb_val ub)).
-Proof.
-  revert E_not_empty ; apply hinhuniv ; intros (x,Hx).
-  generalize (is_Dcuts_bounded x) ; apply hinhfun ; intros (ub,Hub).
-  exists ub.
-  unfold neg.
-  apply (hinhuniv (P := hProppair _ isapropempty)).
-  intros (n,(Hn,Hn')).
-  apply Hub.
-  apply is_Dcuts_bot with n.
-  now apply Hn'.
-  now apply lt_leNonnegativeRationals.
-Qed.
-
-End Dcuts_glb.
-
-Definition Dcuts_glb (E : subsetcond eo_Dcuts) (E_not_empty : hexists E) : Dcuts :=
-  mk_Dcuts (Dcuts_glb_val E) (Dcuts_glb_bot E) (Dcuts_glb_open E) (Dcuts_glb_bounded E E_not_empty).
-
-Lemma isub_Dcuts_glb (E : subsetcond eo_Dcuts)
-                     (E_not_empty : hexists E) :
-  isLowerBound E (Dcuts_glb E E_not_empty).
-Proof.
-  intros ;
-  intros x Ex.
-  intros P HP ; apply HP ; clear P HP.
-  intros r ; apply hinhuniv ; intros (n,(Hrn,Hn)).
-  apply is_Dcuts_bot with n.
-  now apply Hn.
-  now apply lt_leNonnegativeRationals.
-Qed.
-Lemma islbub_Dcuts_glb (E : subsetcond eo_Dcuts) (E_not_empty : hexists E) :
-  isBiggerThanLowerBounds E (Dcuts_glb E E_not_empty).
-Proof.
-  intros ;
-  intros x Hx.
-  intros P HP ; apply HP ; clear P HP.
-  intros r Xr.
-  generalize (is_Dcuts_open _ _ Xr)
-  ; apply hinhuniv ; intros (n,(Xn,Hrn)).
-  intros P HP ; apply HP ; clear P HP.
-  exists n.
-  split.
-  exact Hrn.
-  intros y Ey.
-  generalize (Hx y Ey).
-  apply hinhuniv.
-  now intro H ; apply H.
-Qed.
-Lemma isglb_Dcuts_glb (E : subsetcond eo_Dcuts) (E_not_empty : hexists E) :
-  isGreatestLowerBound E (Dcuts_glb E E_not_empty).
-Proof.
-  split.
-  exact (isub_Dcuts_glb E E_not_empty).
-  exact (islbub_Dcuts_glb E E_not_empty).
+  - apply pr2.
+  - apply funextsec.
+    intro r.
+    apply weqtopathshProp.
+    apply logeqweq ; intros Hr.
+    + revert Heq ; apply hinhuniv ; intro Heq.
+      now apply (pr1 (Heq r)).
+    + revert Heq ; apply hinhuniv ; intro Heq.
+      now apply (pr2 (Heq r)).
 Qed.
 
 (** * Algebraic structures on Dcuts *)
@@ -770,14 +348,14 @@ Proof.
       + exact Hx.
   }
   intros x y.
-  apply Dcuts_eq_is_eq ; split ; apply hinhpr.
-  - exact (H x y).
-  - exact (H y x).
+  apply Dcuts_eq_is_eq ; apply hinhpr ; intro r ; split.
+  - now apply H.
+  - now apply H.
 Qed.
 Lemma isassoc_Dcuts_plus : isassoc Dcuts_plus.
 Proof.
   intros x y z.
-  apply Dcuts_eq_is_eq ; split ; apply hinhpr ; intro r.
+  apply Dcuts_eq_is_eq ; apply hinhpr ; intro r ; split.
   - apply hinhuniv, sumofmaps ; apply hinhuniv ; simpl pr1.
     + apply sumofmaps.
       * apply hinhuniv, sumofmaps ; apply hinhuniv.
@@ -888,7 +466,7 @@ Qed.
 Lemma islunit_Dcuts_plus_zero : islunit Dcuts_plus 0.
 Proof.
   intros x.
-  apply Dcuts_eq_is_eq ; split ; apply hinhpr ; intro r.
+  apply Dcuts_eq_is_eq ; apply hinhpr ; intro r ; split.
   - apply hinhuniv, sumofmaps ; apply hinhuniv.
     + apply sumofmaps ; intro Hr.
       * now rewrite Dcuts_zero_empty in Hr.
@@ -927,6 +505,430 @@ Definition Dcuts_with_plus : setwithbinop :=
 
 Definition Dcuts_addmonoid : abmonoid := 
   abmonoidpair Dcuts_with_plus isabmonoidop_Dcuts.
+
+(** ** [Dcuts] is a effectively ordered set *)
+
+(** Partial order on [Dcuts] *)
+
+Definition Dcuts_le_rel : hrel Dcuts :=
+  fun (X Y : Dcuts) => ishinh (forall x : NonnegativeRationals, x ∈ X -> x ∈ Y).
+
+Lemma istrans_Dcuts_le_rel : istrans Dcuts_le_rel.
+Proof.
+  intros x y z.
+  apply hinhfun2.
+  intros Hxy Hyz r Xr.
+  now apply Hyz, Hxy.
+Qed.
+Lemma isrefl_Dcuts_le_rel : isrefl Dcuts_le_rel.
+Proof.
+  now intros x P HP ; apply HP ; clear P HP.
+Qed.
+
+Lemma ispo_Dcuts_le_rel : ispo Dcuts_le_rel.
+Proof.
+  split.
+  exact istrans_Dcuts_le_rel.
+  exact isrefl_Dcuts_le_rel.
+Qed.
+
+(** Strict partial order on [Dcuts] *)
+
+Definition Dcuts_lt_rel : hrel Dcuts :=
+  fun (X Y : Dcuts) =>
+    hexists (fun x : NonnegativeRationals => dirprod (neg (x ∈ X)) (x ∈ Y)).
+
+Lemma istrans_Dcuts_lt_rel : istrans Dcuts_lt_rel.
+Proof.
+  intros x y z.
+  apply hinhfun2.
+  intros (r,(Xr,Yr)) (n,(Yn,Zn)).
+  exists r ; split.
+  exact Xr.
+  apply is_Dcuts_bot with n.
+  exact Zn.
+  apply lt_leNonnegativeRationals.
+  now apply Dcuts_bounded with y.
+Qed.
+Lemma isirrefl_Dcuts_lt_rel : isirrefl Dcuts_lt_rel.
+Proof.
+  intros x.
+  unfold neg ;
+  apply (hinhuniv (P := hProppair _ isapropempty)).
+  intros (r,(nXr,Xr)).
+  now apply nXr.
+Qed.
+
+Lemma isstpo_Dcuts_lt_rel : isStrongOrder Dcuts_lt_rel.
+Proof.
+  split.
+  exact istrans_Dcuts_lt_rel.
+  exact isirrefl_Dcuts_lt_rel.
+Qed.
+
+(** Effectively Ordered Set *)
+
+Lemma Dcuts_lt_le_rel :
+  forall x y : Dcuts, Dcuts_lt_rel x y -> Dcuts_le_rel x y.
+Proof.
+  intros x y ; apply hinhfun ; intros (r,(Xr,Yr)).
+  intros n Xn.
+  apply is_Dcuts_bot with r.
+  exact Yr.
+  apply lt_leNonnegativeRationals.
+  now apply Dcuts_bounded with x.
+Qed.
+
+Lemma Dcuts_le_ngt_rel :
+  forall x y : Dcuts, Dcuts_le_rel x y -> Dcuts_lt_rel y x -> empty.
+Proof.
+  intros x y ;
+    apply (hinhuniv2 (P := hProppair _ isapropempty)) ;
+      intros Hxy (r,(Yr,Xr)).
+  now apply Yr, Hxy.
+Qed.
+
+Lemma iseo_Dcuts_le_lt_rel :
+  isEffectiveOrder Dcuts_le_rel Dcuts_lt_rel.
+Proof.
+  split.
+  - split.
+    + exact ispo_Dcuts_le_rel.
+    + exact isstpo_Dcuts_lt_rel.
+  - split.
+    + exact Dcuts_lt_le_rel.
+    + exact Dcuts_le_ngt_rel.
+Qed.
+
+Definition iseo_Dcuts : EffectiveOrder Dcuts :=
+  pairEffectiveOrder Dcuts_le_rel Dcuts_lt_rel iseo_Dcuts_le_lt_rel.
+
+Definition eo_Dcuts : EffectivelyOrderedSet :=
+  pairEffectivelyOrderedSet iseo_Dcuts.
+
+Definition Dcuts_le : po Dcuts := @EOle eo_Dcuts.
+Definition Dcuts_ge : po Dcuts := @EOge eo_Dcuts.
+Definition Dcuts_lt : StrongOrder Dcuts := @EOlt eo_Dcuts.
+Definition Dcuts_gt : StrongOrder Dcuts := @EOgt eo_Dcuts.
+
+Notation "x <= y" := (Dcuts_le x y) : Dcuts_scope.
+Notation "x >= y" := (Dcuts_ge x y) : Dcuts_scope.
+Notation "x < y" := (Dcuts_lt x y) : Dcuts_scope.
+Notation "x > y" := (Dcuts_gt x y) : Dcuts_scope.     
+
+(** ** Apartness on [Dcuts] *)
+(* todo : define apartness relation *)
+
+Definition Dcuts_ap (X Y : Dcuts) : hProp :=
+  hdisj (Dcuts_lt X Y) (Dcuts_gt X Y).
+
+Lemma isirrefl_Dcuts_ap : isirrefl Dcuts_ap.
+Proof.
+  intros x. 
+  unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
+  intros [Hap|Hap].
+  now apply isirrefl_StrongOrder with (1 := Hap).
+  now apply isirrefl_StrongOrder with (1 := Hap).
+Qed.
+Lemma issymm_Dcuts_ap : issymm Dcuts_ap.
+Proof.
+  intros x y.
+  apply islogeqcommhdisj.
+Qed.
+
+(** *** Various basic theorems about order, equality and apartness *)
+
+
+Open Scope Dcuts.
+
+(** Compatibility between order predicates *)
+
+Lemma Dcuts_ge_le :
+  forall x y : Dcuts, x >= y -> y <= x.
+Proof.
+  easy.
+Qed.
+Lemma Dcuts_le_ge :
+  forall x y : Dcuts, x <= y -> y >= x.
+Proof.
+  easy.
+Qed.
+Lemma Dcuts_eq_le :
+  forall x y : Dcuts, Dcuts_eq x y -> x <= y.
+Proof.
+  intros x y ; apply hinhfun ; intros Heq r.
+  now apply (pr1 (Heq _)).
+Qed.
+Lemma Dcuts_eq_ge :
+  forall x y : Dcuts, Dcuts_eq x y -> x >= y.
+Proof.
+  intros x y ; apply hinhfun ; intros Heq r.
+  now apply (pr2 (Heq _)).
+Qed.
+Lemma Dcuts_le_ge_eq :
+  forall x y : Dcuts, x <= y -> x >= y -> Dcuts_eq x y.
+Proof.
+  intros x y ; apply hinhfun2 ; intros le_xy ge_xy r.
+  split.
+  now apply le_xy.
+  now apply ge_xy.
+Qed.
+
+Lemma Dcuts_gt_lt :
+  forall x y : Dcuts, x > y -> y < x.
+Proof.
+  easy.
+Qed.
+Lemma Dcuts_lt_gt :
+  forall x y : Dcuts, x < y -> y > x.
+Proof.
+  easy.
+Qed.
+
+
+Lemma Dcuts_gt_ge :
+  forall x y : Dcuts, x > y -> x >= y.
+Proof.
+  intros x y.
+  now apply Dcuts_lt_le_rel.
+Qed.
+
+Lemma Dcuts_gt_nle :
+  forall x y : Dcuts, x > y -> neg (x <= y).
+Proof.
+  intros x y Hlt Hle.
+  revert Hlt.
+  now apply Dcuts_le_ngt_rel.
+Qed.
+Lemma Dcuts_ge_nlt :
+  forall x y : Dcuts, x >= y -> neg (x < y).
+Proof.
+  intros X Y Hxy Hyx.
+  now apply (Dcuts_le_ngt_rel Y X).
+Qed.
+Lemma Dcuts_lt_nge :
+  forall x y : Dcuts, x < y -> neg (x >= y).
+Proof.
+  intros x y.
+  now apply Dcuts_gt_nle.
+Qed.
+
+Lemma Dcuts_eq_nap :
+  forall x y : Dcuts, Dcuts_eq x y -> neg (Dcuts_ap x y).
+Proof.
+  intros X Y Heq.
+  unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
+  intros [Hap|Hap].
+  - now apply Dcuts_eq_ge, Dcuts_ge_nlt in Heq.
+  - now apply Dcuts_eq_le, (Dcuts_le_ngt_rel X Y) in Heq.
+Qed.
+
+(** Mixed transitivity *)
+
+Lemma istrans_Dcuts_le_lt :
+  forall x y z : Dcuts,
+    x <= y -> y < z -> x < z.
+Proof.
+  intros x y z. 
+  apply hinhfun2.
+  intros Hxy (r,(Yr,Zr)).
+  exists r ; split.
+  intro Xr ; apply Yr.
+  now apply Hxy.
+  exact Zr.
+Qed.
+Lemma istrans_Dcuts_lt_le :
+  forall x y z : Dcuts,
+    x < y -> y <= z -> x < z.
+Proof.
+  intros x y z. 
+  apply hinhfun2.
+  intros (r,(Xr,Yr)) Hyz.
+  exists r ; split.
+  exact Xr.
+  now apply Hyz.
+Qed.
+
+(** ** Least Upper Bound *)
+
+Section Dcuts_lub.
+
+Context (E : subsetcond Dcuts).
+Context (E_bounded : hexists (@isUpperBound eo_Dcuts E)).
+
+Definition Dcuts_lub_val : NonnegativeRationals -> hProp :=
+  fun r : NonnegativeRationals => hexists (fun X : Dcuts => dirprod (E X) (r ∈ X)).
+Lemma Dcuts_lub_bot : 
+  forall (x : NonnegativeRationals),
+    Dcuts_lub_val x -> forall y : NonnegativeRationals, (y <= x)%NRat -> Dcuts_lub_val y.
+Proof.
+  intros r Xr n Xn.
+  revert Xr ; apply hinhfun ; intros (X,(Ex,Xr)).
+  exists X ; split.
+  exact Ex.
+  now apply is_Dcuts_bot with r.
+Qed.
+Lemma Dcuts_lub_open :
+  forall (x : NonnegativeRationals),
+    Dcuts_lub_val x ->
+    hexists (fun y : NonnegativeRationals => dirprod (Dcuts_lub_val y) (x < y)%NRat).
+Proof.
+  intros r.
+  apply hinhuniv ; intros (X,(Ex,Xr)).
+  generalize (is_Dcuts_open X r Xr). 
+  apply hinhfun ; intros (n,(Xn,Hrn)).
+  exists n ; split.
+  intros P HP ; apply HP ; clear P HP.
+  exists X ; split.
+  exact Ex.
+  exact Xn.
+  exact Hrn.
+Qed.
+Lemma Dcuts_lub_bounded :
+   hexists (fun ub : NonnegativeRationals => neg (Dcuts_lub_val ub)).
+Proof.
+  revert E_bounded.
+  apply hinhuniv.
+  intros (M,HM).
+  generalize (is_Dcuts_bounded M).
+  apply hinhfun.
+  intros (ub,Hub).
+  exists ub.
+  unfold neg.
+  apply (hinhuniv (P := hProppair _ isapropempty)).
+  intros (x,(Ex,Hx)).
+  apply Hub.
+  generalize (HM x Ex).
+  apply hinhuniv ; intro H.
+  now apply H.
+Qed.
+
+End Dcuts_lub.
+
+Definition Dcuts_lub (E : subsetcond eo_Dcuts) (E_bounded : hexists (isUpperBound E)) : Dcuts :=
+  mk_Dcuts (Dcuts_lub_val E) (Dcuts_lub_bot E) (Dcuts_lub_open E) (Dcuts_lub_bounded E E_bounded).
+
+Lemma isub_Dcuts_lub (E : subsetcond eo_Dcuts)
+                     (E_bounded : hexists (isUpperBound E)) :
+  isUpperBound E (Dcuts_lub E E_bounded).
+Proof.
+  intros ;
+  intros x Ex.
+  intros P HP ; apply HP ; clear P HP.
+  intros r Hr.
+  intros P HP ; apply HP ; clear P HP.
+  now exists x.
+Qed.
+Lemma islbub_Dcuts_lub (E : subsetcond eo_Dcuts) (E_bounded : hexists (isUpperBound E)) :
+  isSmallerThanUpperBounds E (Dcuts_lub E E_bounded).
+Proof.
+  intros.
+  intros x Hx ; simpl.
+  apply hinhpr.
+  intros r ; apply hinhuniv ;
+  intros (y,(Ey,Yr)).
+  generalize (Hx y Ey).
+  apply hinhuniv.
+  now intros H ; apply H.
+Qed.
+Lemma islub_Dcuts_lub (E : subsetcond eo_Dcuts) (E_bounded : hexists (isUpperBound E)) :
+  isLeastUpperBound E (Dcuts_lub E E_bounded).
+Proof.
+  split.
+  exact (isub_Dcuts_lub E E_bounded).
+  exact (islbub_Dcuts_lub E E_bounded).
+Qed.
+
+(** ** Greatest Lower Bound *)
+
+Section Dcuts_glb.
+
+Context (E : subsetcond Dcuts).
+Context (E_not_empty : hexists E).  
+
+Definition Dcuts_glb_val : NonnegativeRationals -> hProp :=
+  fun r : NonnegativeRationals => hexists (fun n => dirprod (r < n)%NRat (forall X : Dcuts, E X -> n ∈ X)).
+Lemma Dcuts_glb_bot : 
+  forall (x : NonnegativeRationals),
+    Dcuts_glb_val x -> forall y : NonnegativeRationals, (y <= x)%NRat -> Dcuts_glb_val y.
+Proof.
+  intros r Hr n Hn.
+  revert Hr ; apply hinhfun ; intros (m,(Hrm,Hr)).
+  exists m ; split.
+  now apply istrans_le_lt_ltNonnegativeRationals with r.
+  easy.
+Qed.
+Lemma Dcuts_glb_open :
+  forall (x : NonnegativeRationals),
+    Dcuts_glb_val x ->
+    hexists (fun y : NonnegativeRationals => dirprod (Dcuts_glb_val y) (x < y)%NRat).
+Proof.
+  intros r ; apply hinhfun ; intros (n,(Hrn,Hn)).
+  destruct (between_ltNonnegativeRationals _ _ Hrn) as (t,(Hrt,Ttn)).
+  exists t.
+  split.
+  intros P HP ; apply HP ; clear P HP.
+  exists n.
+  now split.
+  exact Hrt.
+Qed.
+Lemma Dcuts_glb_bounded :
+   hexists (fun ub : NonnegativeRationals => neg (Dcuts_glb_val ub)).
+Proof.
+  revert E_not_empty ; apply hinhuniv ; intros (x,Hx).
+  generalize (is_Dcuts_bounded x) ; apply hinhfun ; intros (ub,Hub).
+  exists ub.
+  unfold neg.
+  apply (hinhuniv (P := hProppair _ isapropempty)).
+  intros (n,(Hn,Hn')).
+  apply Hub.
+  apply is_Dcuts_bot with n.
+  now apply Hn'.
+  now apply lt_leNonnegativeRationals.
+Qed.
+
+End Dcuts_glb.
+
+Definition Dcuts_glb (E : subsetcond eo_Dcuts) (E_not_empty : hexists E) : Dcuts :=
+  mk_Dcuts (Dcuts_glb_val E) (Dcuts_glb_bot E) (Dcuts_glb_open E) (Dcuts_glb_bounded E E_not_empty).
+
+Lemma isub_Dcuts_glb (E : subsetcond eo_Dcuts)
+                     (E_not_empty : hexists E) :
+  isLowerBound E (Dcuts_glb E E_not_empty).
+Proof.
+  intros ;
+  intros x Ex.
+  intros P HP ; apply HP ; clear P HP.
+  intros r ; apply hinhuniv ; intros (n,(Hrn,Hn)).
+  apply is_Dcuts_bot with n.
+  now apply Hn.
+  now apply lt_leNonnegativeRationals.
+Qed.
+Lemma islbub_Dcuts_glb (E : subsetcond eo_Dcuts) (E_not_empty : hexists E) :
+  isBiggerThanLowerBounds E (Dcuts_glb E E_not_empty).
+Proof.
+  intros ;
+  intros x Hx.
+  intros P HP ; apply HP ; clear P HP.
+  intros r Xr.
+  generalize (is_Dcuts_open _ _ Xr)
+  ; apply hinhuniv ; intros (n,(Xn,Hrn)).
+  intros P HP ; apply HP ; clear P HP.
+  exists n.
+  split.
+  exact Hrn.
+  intros y Ey.
+  generalize (Hx y Ey).
+  apply hinhuniv.
+  now intro H ; apply H.
+Qed.
+Lemma isglb_Dcuts_glb (E : subsetcond eo_Dcuts) (E_not_empty : hexists E) :
+  isGreatestLowerBound E (Dcuts_glb E E_not_empty).
+Proof.
+  split.
+  exact (isub_Dcuts_glb E E_not_empty).
+  exact (islbub_Dcuts_glb E E_not_empty).
+Qed.
 
 (** * Definition of non-negative real numbers *)
 

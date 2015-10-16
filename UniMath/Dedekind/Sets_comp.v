@@ -5,7 +5,8 @@
 Require Export UniMath.Foundations.Sets
                UniMath.Ktheory.Sets
                UniMath.Ktheory.QuotientSet.
-
+Require Import UniMath.Foundations.Algebra.BinaryOperations.
+  
 (** ** Subsets *)
 
 Definition subsetcond (X : hSet) : UU := X -> hProp.
@@ -18,6 +19,17 @@ Definition subset {X : hSet} (Hsub : subsetcond X) : hSet :=
   hSetpair (carrier Hsub) (isaset_subsetcond Hsub).
 Definition set_to_subset {X : hSet} {Hsub : subsetcond X} (x : X) (Hx : Hsub x) : subset Hsub :=
   x,, Hx.
+
+(** ** Additional definitions *)
+
+Definition unop (X : UU) := X -> X.
+
+Definition islinv' {X : hSet} (x1 : X) (op : binop X) (exinv : subsetcond X) (inv : subset exinv -> X) :=
+  forall (x : X) (Hx : exinv x), op (inv (x ,, Hx)) x = x1.
+Definition isrinv' {X : hSet} (x1 : X) (op : binop X) (exinv : subsetcond X) (inv : subset exinv -> X) :=
+  forall (x : X) (Hx : exinv x), op x (inv (x ,, Hx)) = x1.
+Definition isinv' {X : hSet} (x1 : X) (op : binop X) (exinv : subsetcond X) (inv : subset exinv -> X)  :=
+  islinv' x1 op exinv inv × isrinv' x1 op exinv inv.
 
 (** ** Properties of [po] *)
 
@@ -65,7 +77,7 @@ Proof.
 Defined.
 
 (** ** Reverse orderse *)
-(** or how have ge x y := le x y *)
+(** or how easily define ge x y := le x y *)
 
 Definition hrel_reverse {X : UU} (l : hrel X) := fun x y => l y x.
 
@@ -231,9 +243,9 @@ Definition EOlt_EOle :
   forall x y : X, x < y -> x <= y :=
   (pr1 (pr2 (pr2 (pr2 X)))).
 Definition EOle_not_EOlt :
-  forall x y : X, EOle x y -> EOlt y x -> empty :=
+  forall x y : X, x <= y -> y < x -> empty :=
   (pr2 (pr2 (pr2 (pr2 X)))).
-
+                                         
 Close Scope eo_scope.
 
 End eo_pty.
