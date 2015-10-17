@@ -51,7 +51,7 @@ Local Definition hnnq_le : hrel hnnq_set := resrel hqleh (hqleh 0).
 Lemma isPartialOrder_hnnq_le : ispo hnnq_le.
 Proof.
   split.
-  intros x y z.
+ intros x y z.
   now apply istranshqleh.
   intros x.
   now apply isreflhqleh.
@@ -88,6 +88,17 @@ Proof.
   now apply Htrans with y.
   intros x.
   now apply Hirrefl.
+Qed.
+
+Lemma isEffectiveOrder_hnnq : isEffectiveOrder hnnq_le hnnq_lt.
+Proof.
+  split ; split.
+  - exact isPartialOrder_hnnq_le.
+  - exact isStrongOrder_hnnq_lt.
+  - intros x y.
+    now apply hqlthtoleh.
+  - intros x y.
+    now apply hqlehtoneghqgth.
 Qed.
 
 (** ** hnnq is a half field *)
@@ -240,14 +251,18 @@ Proof.
     revert X.
     apply base_paths.
 Qed.
+
+Local Definition NonnegativeRationals_EffectivelyOrderedSet :=
+  @pairEffectivelyOrderedSet NonnegativeRationals (pairEffectiveOrder _ _ isEffectiveOrder_hnnq).
+
 Definition leNonnegativeRationals : po NonnegativeRationals :=
-  popair hnnq_le isPartialOrder_hnnq_le.
+  @EOle NonnegativeRationals_EffectivelyOrderedSet.
 Definition geNonnegativeRationals : po NonnegativeRationals :=
-  popair hnnq_ge isPartialOrder_hnnq_ge.
+  @EOge NonnegativeRationals_EffectivelyOrderedSet.
 Definition ltNonnegativeRationals : StrongOrder NonnegativeRationals :=
-  pairStrongOrder hnnq_lt isStrongOrder_hnnq_lt.
+  @EOlt NonnegativeRationals_EffectivelyOrderedSet.
 Definition gtNonnegativeRationals : StrongOrder NonnegativeRationals :=
-  pairStrongOrder hnnq_gt isStrongOrder_hnnq_gt.
+  @EOgt NonnegativeRationals_EffectivelyOrderedSet.
 
 Notation "x <= y" := (leNonnegativeRationals x y) : NRat_scope.
 Notation "x >= y" := (geNonnegativeRationals x y) : NRat_scope.
@@ -268,7 +283,7 @@ Definition multNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRa
 Definition invNonnegativeRationals (x : NonnegativeRationals) : NonnegativeRationals :=
   hnnq_inv x.
 Definition divNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
-  hnnq_div x y.
+  multNonnegativeRationals x (invNonnegativeRationals y).
 
 Notation "0" := zeroNonnegativeRationals : NRat_scope.
 Notation "1" := oneNonnegativeRationals : NRat_scope.
@@ -332,39 +347,65 @@ Proof.
   intros x.
   apply (pr2 x).
 Qed.
-Lemma NonnegativeRationals_le0_eq0 :
-  forall r : NonnegativeRationals, r <= 0 -> r = 0.
+
+Lemma NonnegativeRationals_eq0_le0 :
+  forall r : NonnegativeRationals, (r = 0) = (r <= 0).
 Proof.
-  intros (r,Hr) Hr0.
-  apply total2_paths_isaprop.
-  intro ; apply pr2.
-  simpl.
-  apply isantisymmhqleh.
-  apply Hr0.
-  apply Hr.
+  intro r.
+  apply FunctionalExtensionality.weqtopaths.
+  assert (H0 : isisolated NonnegativeRationals 0).
+  intro.
+  apply isdeceq_NonnegativeRationals.
+  generalize (isaproppathstoisolated _ 0 H0 r) ; intro H.
+  apply (logeqweq (hProppair _ H)).
+  - intros Hr.
+    rewrite Hr.
+    apply isrefl_po.
+  - intros Hr0.
+    apply total2_paths_second_isaprop.
+    + apply pr2.
+    + apply isantisymmhqleh.
+      apply Hr0.
+      apply (pr2 r).
+Qed.
+Lemma NonnegativeRationals_neq0_gt0 :
+  forall r : NonnegativeRationals, (r != 0) = (0 < r).
+Proof.
+  intros r.
+  rewrite NonnegativeRationals_eq0_le0.
+  apply FunctionalExtensionality.weqtopaths.
+  apply (logeqweq (hProppair _ (isapropneg _))).
+  now apply neghqlehtogth.
+  now apply hqgthtoneghqleh.
 Qed.
 
 (** *** Order *)
 
-Definition istrans_leNonnegativeRationals : istrans leNonnegativeRationals :=
-  istrans_po _.
-
-Lemma lt_leNonnegativeRationals :
-  forall x y : NonnegativeRationals, x < y -> x <= y.
+Lemma isdecrel_leNonnegativeRationals : isdecrel leNonnegativeRationals.
 Proof.
   intros x y.
-  now apply hqlthtoleh.
+  destruct (isdecrelhqleh (pr1 x) (pr1 y)) as [H | H].
+  now left.
+  now right.
 Qed.
+
+Definition isrefl_leNonnegativeRationals:
+  ∀ x : NonnegativeRationals, x <= x :=
+  isrefl_po _.
+Definition istrans_leNonnegativeRationals:
+  ∀ x y z : NonnegativeRationals, x <= y -> y <= z -> x <= z :=
+  istrans_po _.
+Definition lt_leNonnegativeRationals :
+  forall x y : NonnegativeRationals, x < y -> x <= y :=
+  @EOlt_EOle NonnegativeRationals_EffectivelyOrderedSet.
 Lemma notge_ltNonnegativeRationals :
   forall x y : NonnegativeRationals, neg (x >= y) -> x < y.
 Proof.
   intros x y Hxy.
   now apply neghqgehtolth.
 Qed.
-Lemma istrans_ltNonnegativeRationals : istrans ltNonnegativeRationals.
-Proof.
-  now destruct ltNonnegativeRationals as (lt,(Htrans,H)) ; simpl.
-Qed.
+Definition istrans_ltNonnegativeRationals : istrans ltNonnegativeRationals :=
+  istrans_StrongOrder _.
 Lemma istrans_le_lt_ltNonnegativeRationals :
   forall x y z : NonnegativeRationals,
     x <= y -> y < z -> x < z.
@@ -390,62 +431,152 @@ Qed.
 
 (** *** Algebra *)
 
-Definition isassoc_plusNonnegativeRationals := @HalfField_isassoc_plus NonnegativeRationals.
-Definition iscomm_plusNonnegativeRationals := @HalfField_iscomm_plus NonnegativeRationals.
-Definition isassoc_multNonnegativeRationals := @HalfField_isassoc_mult NonnegativeRationals.
-Definition iscomm_multNonnegativeRationals := @HalfField_iscomm_mult NonnegativeRationals.
+Definition isassoc_plusNonnegativeRationals:
+  ∀ x y z : NonnegativeRationals, x + y + z = x + (y + z) :=
+  HalfField_isassoc_plus.
+Definition islunit_zeroNonnegativeRationals:
+  forall r : NonnegativeRationals, 0 + r = r :=
+  HalfField_islunit_zero.
+Definition isrunit_zeroNonnegativeRationals:
+  forall r : NonnegativeRationals, r + 0 = r :=
+  HalfField_isrunit_zero.
+Definition iscomm_plusNonnegativeRationals:
+  ∀ x y : NonnegativeRationals, x + y = y + x :=
+  HalfField_iscomm_plus.
+Definition isassoc_multNonnegativeRationals:
+  ∀ x y z : NonnegativeRationals, x * y * z = x * (y * z) :=
+  HalfField_isassoc_mult.
+Definition islunit_oneNonnegativeRationals:
+  ∀ x : NonnegativeRationals, 1 * x = x :=
+  HalfField_islunit_one.
+Definition isrunit_oneNonnegativeRationals:
+  ∀ x : NonnegativeRationals, x * 1 = x :=
+  HalfField_isrunit_one.
+Definition islinv_NonnegativeRationals:
+  ∀ x : NonnegativeRationals, 0 < x -> / x * x = 1 :=
+  HalfField_islinv'.
+Definition isrinv_NonnegativeRationals:
+  ∀ x : NonnegativeRationals, 0 < x -> x * / x = 1 :=
+  HalfField_isrinv'.
+Definition iscomm_multNonnegativeRationals:
+  ∀ x y : NonnegativeRationals, x * y = y * x :=
+  HalfField_iscomm_mult.
 Definition isldistr_mult_plusNonnegativeRationals:
   ∀ x y z : NonnegativeRationals, z * (x + y) = z * x + z * y :=
-  @HalfField_isldistr NonnegativeRationals.
+  HalfField_isldistr.
 Definition isrdistr_mult_plusNonnegativeRationals:
   ∀ x y z : NonnegativeRationals, (x + y) * z = x * z + y * z :=
-  @HalfField_isrdistr NonnegativeRationals.
+  HalfField_isrdistr.
 
-Lemma NonnegativeRationals_plus0r :
-  forall r : NonnegativeRationals, r + 0 = r.
-Admitted.
-Lemma NonnegativeRationals_plus0l :
-  forall r : NonnegativeRationals, 0 + r = r.
-Admitted.
 Lemma multdivNonnegativeRationals :
-  forall q r : NonnegativeRationals, (r != 0) -> (r * (q / r)) = q.
-Proof.
+  forall q r : NonnegativeRationals, 0 < r -> (r * (q / r)) = q.
+Proof. (** todo generalize *)
   intros q r Hr0.
-  unfold divNonnegativeRationals, hnnq_div.
+  unfold divNonnegativeRationals.
   rewrite iscomm_multNonnegativeRationals, isassoc_multNonnegativeRationals.
-  
-Admitted.
+  rewrite islinv_NonnegativeRationals.
+  now apply isrunit_oneNonnegativeRationals.
+  exact Hr0.
+Qed.
+Lemma islabsorb_zero_multNonnegativeRationals:
+  ∀ x : NonnegativeRationals, 0 * x = 0.
+Proof. (** todo generalize *)
+  intros (x,Hx).
+  apply total2_paths_second_isaprop ; simpl pr1.
+  - now apply pr2.
+  - now apply hqmult0x.
+Qed.                                
+Lemma israbsorb_zero_multNonnegativeRationals:
+  ∀ x : NonnegativeRationals, x * 0 = 0.
+Proof. (** todo generalize *)
+  intros x.
+  rewrite iscomm_multNonnegativeRationals.
+  now apply islabsorb_zero_multNonnegativeRationals.
+Qed.
 Lemma multrle1NonnegativeRationals :
   forall q r : NonnegativeRationals, (q <= 1)%NRat -> (r * q <= r)%NRat.
-Admitted.
+Proof.
+  intros q r Hq.
+  destruct (isdeceq_NonnegativeRationals r 0) as [Hr0 | Hr0].
+  - rewrite Hr0, islabsorb_zero_multNonnegativeRationals.
+    apply isrefl_leNonnegativeRationals.
+  - pattern r at 2.
+    rewrite <- (isrunit_oneNonnegativeRationals r).
+    apply hqlehandmultl.
+    apply neghqlehtogth.
+    intro ; apply Hr0.
+    now rewrite NonnegativeRationals_eq0_le0.
+    exact Hq.
+Qed.
 Lemma ledivle1NonnegativeRationals :
   forall q r : NonnegativeRationals, (r != 0) -> (q <= r)%NRat -> (q / r <= 1)%NRat.
-Admitted.
+Proof.
+  intros (q,Hq) (r,Hr) Hr0 Hrq.
+  unfold divNonnegativeRationals.
+  apply hqlehandmultrinv with r.
+  now rewrite NonnegativeRationals_neq0_gt0 in Hr0.
+  unfold invNonnegativeRationals, multNonnegativeRationals, hnnq_inv, hnnq_mult.
+  destruct hqlehchoice ; simpl pr1.
+  rewrite hqmultassoc.
+  rewrite hqislinvmultinv.
+  now rewrite hqmultr1, hqmultl1.
+  now apply hqgth_hqneq.
+  apply fromempty, Hr0.
+  apply pathsinv0.
+  apply total2_paths_second_isaprop.
+  now apply pr2.
+  exact p.
+Qed.
 
 Lemma NonnegativeRationals_plusltcompat :
   forall x x' y y' : NonnegativeRationals,
     x < x' -> y < y' -> x + y < x' + y'.
-Admitted.
+Proof.
+  intros x x' y y' Hx Hy.
+  apply istrans_ltNonnegativeRationals with (x + y').
+  now apply hqlthandplusl.
+  now apply hqlthandplusr.
+Qed.
 Lemma NonnegativeRationals_leplus_r :
   forall r q : NonnegativeRationals, (r <= r + q)%NRat.
-Admitted.
+Proof.
+  intros r q.
+  pattern r at 1.
+  rewrite <- (isrunit_zeroNonnegativeRationals r).
+  apply hqlehandplusl.
+  apply (pr2 q).
+Qed.
 Lemma NonnegativeRationals_leplus_l :
   forall r q : NonnegativeRationals, (r <= q + r)%NRat.
-Admitted.
-Lemma isdecrel_leNonnegativeRationals : isdecrel leNonnegativeRationals.
-Admitted.
+Proof.
+  intros r q.
+  rewrite iscomm_plusNonnegativeRationals.
+  now apply NonnegativeRationals_leplus_r.
+Qed.
 Lemma NonnegativeRationals_pluslecompat_r :
   forall r q n : NonnegativeRationals, (q <= n)%NRat -> (q + r <= n + r)%NRat.
-Admitted.
+Proof.
+  intros r q n H.
+  now apply hqlehandplusr.
+Qed.
 Lemma NonnegativeRationals_pluslecompat_l :
   forall r q n : NonnegativeRationals, (q <= n)%NRat -> (r + q <= r + n)%NRat.
-Admitted.
+Proof.
+  intros r q n H.
+  now apply hqlehandplusl.
+Qed.
 Lemma NonnegativeRationals_pluslecancel_r :
   forall r q n : NonnegativeRationals, (q + r <= n + r)%NRat -> (q <= n)%NRat.
-Admitted.
+Proof.
+  intros r q n H.
+  now apply hqlehandplusrinv with (pr1 r).
+Qed.
 Lemma NonnegativeRationals_pluslecancel_l :
   forall r q n : NonnegativeRationals, (r + q <= r + n)%NRat -> (q <= n)%NRat.
-Admitted.
+Proof.
+  intros r q n H.
+  now apply hqlehandpluslinv with (pr1 r).
+Qed.
 Lemma NonnegativeRationals_plusr_minus :
   forall q r : NonnegativeRationals, ((r + q) - q)%NRat = r.
 Proof.
