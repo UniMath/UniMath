@@ -72,7 +72,7 @@ Proof. intro. unfold Poset . split with ( hSetpair ( stn i ) ( isasetstn i ) ) .
 
 
 Definition lastelement ( n : nat ) : stn ( S n ) .
-Proof. intro .   split with n .  apply ( natgthsnn ( S n ) ) .  Defined . 
+Proof. intro .   split with n .  apply ( natgthsnn n ) .  Defined . 
 
 Definition firstelement (n:nat) : stn(S n).
 Proof. intro. exists 0. apply natgthsn0. Defined.
@@ -89,12 +89,12 @@ Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : stn m -> stn n := 
 Definition dni ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn ( S n ) .
 Proof. intros n i x .  destruct ( natlthorgeh x i ) . apply ( stnpair ( S n ) x ( natgthtogths _ _ ( pr2 x ) ) ) .  apply ( stnpair ( S n ) ( S x ) ( pr2 x ) ) .  Defined.  
 
-Definition dni_allButLast n : stn n -> stn (S n).
+Definition dni_lastelement {n} : stn n -> stn (S n).
 (* this definition is simpler than that of [dni n (lastelement n)], since no choice is involved, so it's useful in special situations *)
-Proof. intros ? h. destruct h as [h hm]. exists h. now apply natlthtolths. Defined.
+Proof. intros ? h. exists (pr1 h). exact (natlthtolths _ _ (pr2 h)). Defined.
 
-Definition pr1_dni_allButLast {n i} : pr1 (dni_allButLast n i) = pr1 i.
-Proof. intros. induction i as [i b]. reflexivity. Defined.
+Definition pr1_dni_lastelement {n} {i:stn n} : pr1 (dni_lastelement i) = pr1 i.
+Proof. reflexivity. Defined.
 
 Lemma dnicommsq ( n : nat ) ( i : stn ( S n ) ) : commsqstr( dni n i )  ( stntonat ( S n ) ) ( stntonat n ) ( di i )  .
 Proof. intros . intro x . unfold dni . unfold di . destruct ( natlthorgeh x i ) .  simpl .  apply idpath . simpl .  apply idpath . Defined . 
