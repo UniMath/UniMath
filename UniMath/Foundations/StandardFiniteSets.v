@@ -72,7 +72,7 @@ Proof. intro. unfold Poset . split with ( hSetpair ( stn i ) ( isasetstn i ) ) .
 
 
 Definition lastelement ( n : nat ) : stn ( S n ) .
-Proof. intro .   split with n .  apply ( natgthsnn ( S n ) ) .  Defined . 
+Proof. intro .   split with n .  apply ( natgthsnn n ) .  Defined . 
 
 Definition firstelement (n:nat) : stn(S n).
 Proof. intro. exists 0. apply natgthsn0. Defined.
@@ -89,12 +89,12 @@ Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : stn m -> stn n := 
 Definition dni ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn ( S n ) .
 Proof. intros n i x .  destruct ( natlthorgeh x i ) . apply ( stnpair ( S n ) x ( natgthtogths _ _ ( pr2 x ) ) ) .  apply ( stnpair ( S n ) ( S x ) ( pr2 x ) ) .  Defined.  
 
-Definition dni_allButLast n : stn n -> stn (S n).
+Definition dni_lastelement {n} : stn n -> stn (S n).
 (* this definition is simpler than that of [dni n (lastelement n)], since no choice is involved, so it's useful in special situations *)
-Proof. intros ? h. destruct h as [h hm]. exists h. now apply natlthtolths. Defined.
+Proof. intros ? h. exists (pr1 h). exact (natlthtolths _ _ (pr2 h)). Defined.
 
-Definition pr1_dni_allButLast {n i} : pr1 (dni_allButLast n i) = pr1 i.
-Proof. intros. induction i as [i b]. reflexivity. Defined.
+Definition pr1_dni_lastelement {n} {i:stn n} : pr1 (dni_lastelement i) = pr1 i.
+Proof. reflexivity. Defined.
 
 Lemma dnicommsq ( n : nat ) ( i : stn ( S n ) ) : commsqstr( dni n i )  ( stntonat ( S n ) ) ( stntonat n ) ( di i )  .
 Proof. intros . intro x . unfold dni . unfold di . destruct ( natlthorgeh x i ) .  simpl .  apply idpath . simpl .  apply idpath . Defined . 
@@ -431,10 +431,10 @@ Lemma weqcutforstn ( n n' : nat ) ( w : weq (stn (S n)) (stn (S n')) ) : weq (st
 Proof. intros. set ( nn := lastelement n  ) . set ( w1 := weqoncompl w nn ) .  set ( w2 := weqdnicompl n nn ) . set ( w3 := weqdnicompl n' ( w nn ) ) .   apply ( weqcomp w2 ( weqcomp w1 ( invweq w3 ) ) ) . Defined .   
 
 
-Theorem weqtoeqstn ( n n' : nat ) ( w : weq (stn n) (stn n') ) : paths n n'.
-Proof. intro. induction n as [ | n IHn ] . intro. destruct n' as [ | n' ] .  intros. apply idpath. intro X. apply (fromempty (negweqstn0sn  n' X)).  
- intro n'. destruct n' as [ | n' ] . intro X. set (int:= isdeceqnat (S n) 0 ).  destruct int as [ i | e ] .  assumption. apply (fromempty ( negweqstnsn0 n X)).  intro X. 
-set (e:= IHn n' ( weqcutforstn _ _ X)). apply (maponpaths S e). Defined. 
+Theorem weqtoeqstn { n n' : nat } ( w : weq (stn n) (stn n') ) : paths n n'.
+Proof. intro. induction n as [ | n IHn ] . intro. destruct n' as [ | n' ] .  reflexivity. intro X. apply (fromempty (negweqstn0sn _ X)). intro n'. destruct n' as [ | n' ] . intro X. apply (fromempty ( negweqstnsn0 n X)).  intro X. 
+ apply (maponpaths S). apply IHn. now apply weqcutforstn.
+Defined. 
 
 Corollary stnsdnegweqtoeq ( n n' : nat ) ( dw : dneg (weq (stn n) (stn n')) ) : paths n n'.
 Proof. intros n n' X. apply (eqfromdnegeq nat isdeceqnat _ _  (dnegf (@weqtoeqstn n n') X)). Defined. 
@@ -496,8 +496,7 @@ Ltac inductive_reflexivity i b :=
   [ try apply isinjstntonat ; reflexivity |
     contradicts (negnatlthn0 i) b || inductive_reflexivity i b ].
 
-Section Example.
-  Definition f : stn 3 -> stn 10.
+Local Definition f : stn 3 -> stn 10.
   Proof.
     intros n.
     induction n as [n b].
@@ -510,13 +509,12 @@ Section Example.
         * contradicts (negnatlthn0 n) b.
   Defined.          
 
-  Lemma lt : ∀ n, f n < 5.
+Local Definition lt : ∀ n, f n < 5.
   Proof.
     intros.
     induction n as [i c].
     inductive_reflexivity i c.
   Defined.
-End Example.
 
 (* End of the file stnfsets.v *)
 

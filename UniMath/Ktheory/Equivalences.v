@@ -47,7 +47,6 @@ Proof. intros ? ? w.
        intros xe.
        refine (hfibertriangle2 _ _ _ _ _).
        - simpl.
-         Check (pr2 xe : f (pr1 xe) = y). (* i.e., from (f (pr1 xe) = y) deduce (pr1 xe = g y) *)
          exact (! (q (pr1 xe)) @ maponpaths g (pr2 xe)).
        - induction xe as [x e]; simpl. induction e; simpl.
          rewrite pathscomp0rid.

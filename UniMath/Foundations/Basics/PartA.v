@@ -1710,6 +1710,14 @@ Proof. intros X Y Z X0. induction X0 as [ c | z ] .  induction c as [ x | y ] . 
 Definition coprodasstol (X Y Z: UU): coprod X (Y ⨿ Z) -> coprod (X ⨿ Y) Z.
 Proof. intros X Y Z X0. induction X0 as [ x | c ] .  apply (ii1  (ii1  x)). induction c as [ y | z ] .   apply (ii1  (ii2  y)). apply (ii2  z). Defined.
 
+Definition sumofmaps_assoc_left {X Y Z T} (f:X->T) (g:Y->T) (h:Z->T) :
+  sumofmaps (sumofmaps f g) h ∘ coprodasstol _ _ _ ~ sumofmaps f (sumofmaps g h).
+Proof. intros. intros [x|[y|z]]; reflexivity. Defined.
+
+Definition sumofmaps_assoc_right {X Y Z T} (f:X->T) (g:Y->T) (h:Z->T) :
+  sumofmaps f (sumofmaps g h) ∘ coprodasstor _ _ _ ~ sumofmaps (sumofmaps f g) h.
+Proof. intros. intros [[x|y]|z]; reflexivity. Defined.
+
 Theorem isweqcoprodasstor (X Y Z:UU): isweq (coprodasstor X Y Z).
 Proof. intros. set (f:= coprodasstor X Y Z). set (g:= coprodasstol X Y Z).
 assert (egf: ∀ xyz:_, (g (f xyz)) = xyz). intro xyz. induction xyz as [ c | z ] .  induction c. apply idpath. apply idpath. apply idpath. 

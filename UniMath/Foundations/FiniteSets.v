@@ -161,7 +161,7 @@ Definition finstructonweq { X : UU }  ( sx : finstruct X ) : finstruct ( weq X X
 Definition isfinite  ( X : UU ) := ishinh ( finstruct X ) .
 
 Definition fincard { X : UU } ( is : isfinite X ) : nat .
-Proof . intros . set ( int := carrier ( fun n : nat => isofnel n X ) ) .  set ( f1  := ( fun nw : finstruct X => tpair  ( fun n : nat => isofnel n X ) ( pr1 nw ) ( hinhpr _ ( pr2 nw ) ) ) : finstruct X -> int ) .  assert ( isp : isaprop int ) . apply isapropsubtype .   intros x1 x2 is1 is2 . apply ( @hinhuniv2 ( nelstruct x1 X ) ( nelstruct x2 X ) ( hProppair _ ( isasetnat x1 x2 ) ) ) .  intros sx1 sx2 . apply ( weqtoeqstn x1 x2 ( weqcomp sx1 ( invweq sx2 ) ) ) .  apply is1 .  apply is2 .  apply ( @hinhuniv _ ( hProppair _ isp ) f1 ) .  apply is .  Defined . 
+Proof . intros . set ( int := carrier ( fun n : nat => isofnel n X ) ) .  set ( f1  := ( fun nw : finstruct X => tpair  ( fun n : nat => isofnel n X ) ( pr1 nw ) ( hinhpr _ ( pr2 nw ) ) ) : finstruct X -> int ) .  assert ( isp : isaprop int ) . apply isapropsubtype .   intros x1 x2 is1 is2 . apply ( @hinhuniv2 ( nelstruct x1 X ) ( nelstruct x2 X ) ( hProppair _ ( isasetnat x1 x2 ) ) ) .  intros sx1 sx2 . apply ( weqtoeqstn ( weqcomp sx1 ( invweq sx2 ) ) ) .  apply is1 .  apply is2 .  apply ( @hinhuniv _ ( hProppair _ isp ) f1 ) .  apply is .  Defined . 
 
 Theorem ischoicebasefiniteset { X : UU } ( is : isfinite X ) : ischoicebase X . 
 Proof . intros . apply ( @hinhuniv ( finstruct X ) ( ischoicebase X ) ) .  intro nw . destruct nw as [ n w ] .   apply ( ischoicebaseweqf w ( ischoicebasestn n ) ) .  apply is .  Defined . 
