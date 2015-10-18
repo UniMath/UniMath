@@ -621,6 +621,9 @@ Definition isapropisincl { X Y : UU } ( f : X -> Y ) := isapropisofhlevelf 1 f .
 Theorem isinclpr1weq ( X Y : UU ) : isincl ( @pr1weq X Y ) .
 Proof. intros . apply isinclpr1 . intro f.   apply isapropisweq .  Defined . 
 
+Corollary isinjpr1weq ( X Y : UU ) : isinj ( @pr1weq X Y ) .
+Proof. intros. apply invmaponpathsincl. apply isinclpr1weq. Defined.
+
 Theorem isinclpr1isolated ( T : UU ) : isincl ( pr1isolated T ) .
 Proof . intro . apply ( isinclpr1 _ ( fun t : T => isapropisisolated T t ) ) . Defined . 
 
