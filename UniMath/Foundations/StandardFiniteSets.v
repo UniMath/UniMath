@@ -264,27 +264,21 @@ Local Notation "●" := (idpath _).
 Goal ∀ (f : stn 3 -> nat), stnsum f = f(0,,●) + f(1,,●) + f(2,,●).
 Proof. reflexivity. Defined.
 
-Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat)
-        (ww : forall i : stn n , weq (stn (f i))  (P i)) :
-  total2 P ≃ stn (stnsum f).
+Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
+  (∀ i, stn (f i) ≃ P i) -> total2 P ≃ stn (stnsum f).
 Proof.
-  intro n.
-  induction n as [ | n IHn ].
+  intros ? ? ? ww. induction n as [ | n IHn ].
   { intros. simpl. apply weqtoempty2. { exact pr1. } exact negstn0. }
-  intros. simpl.
-  set (a := stnsum (fun i : stn n => f (dni n (lastelement n) i))).
-  set (b := f(lastelement n)).
   intermediate_weq (Σ x : stn n ⨿ unit, P ((weqdnicoprod n (lastelement n)) x)).
   { apply invweq. apply weqfp. }
-  intermediate_weq (
-    (Σ x, P (dni n (lastelement n) x)) ⨿ (Σ _ : unit, P (lastelement n))).
+  intermediate_weq ((Σ x, P (dni n (lastelement n) x)) ⨿ (Σ _ : unit, P (lastelement n))).
   { apply weqtotal2overcoprod. }
-  intermediate_weq (stn a ⨿ stn b).
+  intermediate_weq (stn (stnsum (λ i, f (dni n (lastelement n) i))) ⨿ stn (f(lastelement n))).
   { apply weqcoprodf.
-    { apply IHn. { intro x. apply ww. } }
-    { intermediate_weq (P (lastelement n)).
-      { apply weqtotal2overunit. }
-      { apply invweq. apply ww. } } }
+    { apply IHn. intro x. apply ww. }
+    intermediate_weq (P (lastelement n)).
+    { apply weqtotal2overunit. }
+    apply invweq. apply ww. }
   apply weqfromcoprodofstn. 
 Defined.
 
