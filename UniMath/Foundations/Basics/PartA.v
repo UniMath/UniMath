@@ -815,6 +815,9 @@ Definition weqpair {X Y : UU} (f : X -> Y) (is: isweq f) : X ≃ Y :=
 Definition idweq (X : UU) : X ≃ X :=
   tpair (fun (f : X -> X) => isweq f) (fun (x : X) => x) (idisweq X).
 
+Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
+Proof. intros ? ? []. apply idweq. Defined. 
+
 Definition isweqtoempty {X : UU} (f : X -> empty) : isweq f.
 Proof.
   intros. intro y. apply (fromempty y).
@@ -1187,8 +1190,6 @@ Defined.
 
 Definition invweq {X Y : UU} (w : weq X Y) : weq Y X :=
   weqpair (invmap w) (isweqinvmap w).
-
-Notation "f ⁻¹" := (invweq f) (at level 30) : weq_scope.
 
 Corollary invinv {X Y :UU} (w : weq X Y) (x : X)  :
   invmap (invweq w) x = w x.

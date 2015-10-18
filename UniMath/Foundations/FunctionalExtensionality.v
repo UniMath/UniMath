@@ -17,10 +17,6 @@ Require Export UniMath.Foundations.Basics.All.
 
 (** ** Univalence axiom. *)
 
-
-Definition eqweqmap { T1 T2 : UU } ( e: paths T1 T2 ) : weq T1 T2 .
-Proof. intros. destruct e . apply idweq. Defined. 
-
 Axiom univalenceaxiom :  forall T1 T2 : UU ,  isweq ( @eqweqmap T1 T2 ).
  
 Definition weqtopaths { T1 T2 : UU } ( w : weq T1 T2 ) : paths T1 T2  :=  invmap ( weqpair _ ( univalenceaxiom T1 T2 ) ) w.

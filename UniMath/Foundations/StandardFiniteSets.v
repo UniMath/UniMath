@@ -228,8 +228,6 @@ set ( jmn := pr1 ( iscontrhfibernatplusl n j ni ) ) .   destruct jmn as [ k e ] 
 
 (** Associativity of [weqfromcoprodofstn] *)
 
-Require Import UniMath.Foundations.FunctionalExtensionality.
-
 Definition pr1_eqweqmap m n (e:m=n) (i:stn m) : pr1 (pr1weq (eqweqmap (maponpaths stn e)) i) = pr1 i.
 Proof. intros. induction e. reflexivity. Defined.
 
