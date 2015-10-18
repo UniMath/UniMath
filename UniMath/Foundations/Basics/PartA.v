@@ -408,7 +408,7 @@ Defined.
 
 Lemma total2_paths {A : UU} {B : A -> UU} {s s' : Σ x, B x} 
     (p : pr1 s = pr1 s') 
-    (q : transportf (fun x => B x) p (pr2 s) = pr2 s') : s = s'.
+    (q : transportf B p (pr2 s) = pr2 s') : s = s'.
 Proof.
   intros.
   induction s as [a b].
@@ -416,6 +416,18 @@ Proof.
   induction p.
   induction q. 
   apply idpath.
+Defined.
+
+Lemma total2_paths_b {A : UU} {B : A -> UU} {s s' : Σ x, B x} 
+    (p : pr1 s = pr1 s') 
+    (q : pr2 s = transportb B p (pr2 s')) : s = s'.
+Proof.
+  intros.
+  induction s as [a b].
+  induction s' as [a' b']; simpl in *.
+  induction p.
+  induction (!q). 
+  reflexivity.
 Defined.
 
 Lemma total2_paths2 {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
