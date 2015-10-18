@@ -1,5 +1,6 @@
 Require Export UniMath.Foundations.StandardFiniteSets.
 Unset Automatic Introduction.
+Local Notation "●" := (idpath _).
 
 (* move upstream *)
 
@@ -7,7 +8,9 @@ Unset Automatic Introduction.
 
 Definition Sequence X := Σ n, stn n -> X.
 
-Definition Sequence_to_function {X} (x:Sequence X) := pr2 x.
+Definition length {X} : Sequence X -> nat := pr1.
+
+Definition Sequence_to_function {X} (x:Sequence X) := pr2 x : stn (length x) -> X.
 Coercion Sequence_to_function : Sequence >-> Funclass.
 
 Definition sequencePair {X n} (f:stn n -> X) : Sequence X := (n,,f).
@@ -20,8 +23,6 @@ Definition sequenceEquality {X m n} (f:stn m->X) (g:stn n->X) (p:m=n) :
   (∀ i, f i = g (transportf stn p i))
   -> transportf (λ m, stn m->X) p f = g.
 Proof. intros ? ? ? ? ? ? e. induction p. apply funextfun. exact e. Defined.
-
-Definition length {X} : Sequence X -> nat := pr1.
 
 Local Definition empty_fun {X} : stn 0 -> X.
 Proof. intros ? i. contradicts i negstn0. Defined.
@@ -75,6 +76,8 @@ Proof.
   exact (append_fun x y).
 Defined.
 
+Local Notation "s □ x" := (append s x) (at level 65, left associativity).
+
 Definition stn0_fun_iscontr X : iscontr (stn 0 -> X).
 Proof.
   intros. apply (@iscontrweqb _ (empty -> X)).
@@ -93,6 +96,10 @@ Proof. intros. induction e'. induction e. reflexivity. Defined.
 
 Definition transport_f_f {X : UU} (P : X -> UU) {x y z : X} (e : x = y) (e' : y = z)
            (p : P x) : transportf P e' (transportf P e p) = transportf P (e @ e') p.
+Proof. intros. induction e'. induction e. reflexivity. Defined.
+
+Definition transport_b_b {X : UU} (P : X -> UU) {x y z : X} (e : x = y) (e' : y = z)
+           (p : P z) : transportb P e (transportb P e' p) = transportb P (e @ e') p.
 Proof. intros. induction e'. induction e. reflexivity. Defined.
 
 Definition isaset_transportf {X : UU} (P : X -> UU) {x : X} (e : x = x) (p : P x) :
@@ -234,7 +241,7 @@ Lemma assembleSequence_ii2 {X} (p : X × Sequence X) :
   assembleSequence (ii2 p) = append (pr2 p) (pr1 p).
 Proof. reflexivity. Defined.
 
-Theorem SequenceAssembly {X} : Sequence X ≃ coprod unit (X × Sequence X).
+Theorem SequenceAssembly {X} : Sequence X ≃ unit ⨿ (X × Sequence X).
 Proof.
   intros.
   refine (disassembleSequence,, gradth _ assembleSequence _ _).
@@ -426,21 +433,69 @@ Proof.
   apply weqtotal2overunit.
 Defined.
 
-Definition total2_step' {n} (f:stn (S n) -> nat) :
+Corollary total2_step' {n} (f:stn (S n) -> nat) :
   (Σ i, stn (f i))
     ≃
   (Σ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _)).
+Proof. intros. apply (total2_step (stn ∘ f)). Defined.
+
+Definition weqstnsum_idweq' {n} (f:stn (S n)->nat ) : total2 (λ i, stn (f i)) ≃ stn (stnsum f).
 Proof.
   intros.
-  apply (total2_step (λ i, stn (f i))).
+  intermediate_weq ((Σ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _))).
+  { apply total2_step'. }
+  intermediate_weq (stn (stnsum (f ∘ dni n (lastelement n))) ⨿ stn (f (lastelement n))).
+  { apply weqcoprodf.
+    { apply weqstnsum_idweq. }
+    apply idweq. }
+  apply weqfromcoprodofstn.
+Defined.  
+
+(* compute ((invweq (weqfp _ _)) (p,, q)) *)
+Definition weqfp_compute_1 { X Y : UU } ( w : X ≃ Y )(P:Y-> UU) (x:X) (p:P(w x)) :
+  weqfp w P (x,,p) = (w x,,p).
+Proof. reflexivity. Defined.
+
+Definition weqfp_compute_2 { X Y : UU } ( w : X ≃ Y )(P:Y-> UU) (y:Y) (p:P y) :
+  invmap (weqfp w P) (y,,p) = (invmap w y,,transportb P (homotweqinvweq w y) p).
+Proof. 
+  intros.
+  set (e := homotweqinvweq w y).
+  set (p' := transportb P e p).
+  set (x := invmap w y).
+  change (invmap w y) with x in e, p'.
+  set (d := homotinvweqweq w x).
+  intermediate_path (invmap (weqfp w P) (w x,, p')).
+  { apply maponpaths.
+    refine (total2_paths_b _ _).
+    { simpl. exact (!e). }
+    { simpl. change p' with (transportb P e p).
+      rewrite transport_b_b.
+      rewrite pathsinv0l.
+      reflexivity. } }
+  { exact (homotinvweqweq _ (_,,p')). }
 Defined.
 
 Definition weqstnsum_idweq_step {n} (f:stn (S n) -> nat) :
-  weqstnsum_idweq f
-  =
-  ((weqfromcoprodofstn _ _) ∘ (weqcoprodf (weqstnsum_idweq _) (idweq _)) ∘ total2_step' f)%weq.
+  weqstnsum_idweq f = weqstnsum_idweq' f.
 Proof.
+  intros.
+  apply isinjpr1weq.
+  apply funextfun; intros [k p].
+  unfold weqstnsum_idweq'.
+  unfold total2_step', total2_step. 
+  rewrite 4? weqcomp_to_funcomp.
+  unfold funcomp.
+  change (((invweq
+                  (weqfp (weqdnicoprod n (lastelement n))
+                         (λ i : stn (S n), stn (f i)))) (k,, p)))
+            with ((invmap
+                  (weqfp (weqdnicoprod n (lastelement n))
+                     (λ i : stn (S n), stn (f i)))) (k,, p)).
+  rewrite weqfp_compute_2.
 
+  
+  (* probably the best way to prove this is by equipping everything in sight with a well-ordering, preserved by all the equivalences involved *)
 Admitted.
 
 Definition flattenStep {X n} (x: stn (S n) -> Sequence X) :
@@ -448,6 +503,7 @@ Definition flattenStep {X n} (x: stn (S n) -> Sequence X) :
 Proof.
   intros.
   rewrite <- replace_dni_last.  (* replace it, because stnsum doesn't use it *)
+
   unfold flatten.
   simpl.
 
@@ -471,8 +527,6 @@ Proof.
 
 
 Abort.
-
-
 
 (*
 Local Variables:
