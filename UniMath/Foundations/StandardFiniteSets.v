@@ -264,8 +264,29 @@ Local Notation "●" := (idpath _).
 Goal ∀ (f : stn 3 -> nat), stnsum f = f(0,,●) + f(1,,●) + f(2,,●).
 Proof. reflexivity. Defined.
 
-Theorem weqstnsum { n : nat } ( P : stn n -> UU ) ( f : stn n -> nat ) ( ww : forall i : stn n , weq ( stn ( f i ) )  ( P i ) ) : weq ( total2 P ) ( stn ( stnsum f ) ) .
-Proof . intro n . induction n as [ | n IHn ] . intros . simpl .  apply weqtoempty2 .  apply ( @pr1 _ _ ) .  apply negstn0 . intros .  simpl .  set ( a := stnsum (fun i : stn n => f (dni n (lastelement n) i)) ) . set ( b :=  f (lastelement n) ) . set ( w1 := invweq ( weqfp ( weqdnicoprod n ( lastelement n ) ) P ) ) . set ( w2 := weqcomp w1 ( weqtotal2overcoprod (fun x : coprod (stn n) unit => P ( weqdnicoprod n ( lastelement n )  x)) ) ) .  simpl in w2 . assert ( w3 : weq (total2 (fun x : stn n => P (dni n (lastelement n) x))) ( stn a ) ) .  assert ( int : forall x : stn n , weq  ( stn ( f ( dni n (lastelement n) x) ) ) ( P (dni n (lastelement n) x) ) ) .  intro x . apply ( ww ( dni n (lastelement n) x) ) .  apply ( IHn ( fun x : stn n => P (dni n (lastelement n) x)) ( fun x : stn n => f ( dni n (lastelement n) x ) ) int ) .  assert ( w4 : weq (total2 (fun _ : unit => P (lastelement n))) ( stn b) ) . apply ( weqcomp ( weqtotal2overunit (fun _ : unit => P (lastelement n)) ) ( invweq ( ww ( lastelement n ) ) ) ) .   apply ( weqcomp w2 ( weqcomp ( weqcoprodf w3 w4 ) ( weqfromcoprodofstn a b ) ) ) .  Defined . 
+Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat)
+        (ww : forall i : stn n , weq (stn (f i))  (P i)) :
+  total2 P ≃ stn (stnsum f).
+Proof.
+  intro n.
+  induction n as [ | n IHn ].
+  { intros. simpl. apply weqtoempty2. { exact pr1. } exact negstn0. }
+  intros. simpl.
+  set (a := stnsum (fun i : stn n => f (dni n (lastelement n) i))).
+  set (b := f(lastelement n)).
+  intermediate_weq (Σ x : stn n ⨿ unit, P ((weqdnicoprod n (lastelement n)) x)).
+  { apply invweq. apply weqfp. }
+  intermediate_weq (
+    (Σ x, P (dni n (lastelement n) x)) ⨿ (Σ _ : unit, P (lastelement n))).
+  { apply weqtotal2overcoprod. }
+  intermediate_weq (stn a ⨿ stn b).
+  { apply weqcoprodf.
+    { apply IHn. { intro x. apply ww. } }
+    { intermediate_weq (P (lastelement n)).
+      { apply weqtotal2overunit. }
+      { apply invweq. apply ww. } } }
+  apply weqfromcoprodofstn. 
+Defined.
 
 Corollary weqstnsum_idweq {n} (f:stn n->nat ) : total2 (λ i, stn (f i)) ≃ stn (stnsum f).
 Proof. intros. apply (weqstnsum (stn ∘ f) f (λ i, idweq _)). Defined.
