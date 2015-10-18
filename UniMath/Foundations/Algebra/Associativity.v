@@ -13,7 +13,7 @@ Lemma curry_uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) : curry (uncurry g) =
   intros. apply funextsec. intros x. apply funextfun. intros y. reflexivity. Defined.
 
 Theorem nat_plus_associativity {n} {m:stn n->nat} (k:∀ (ij : Σ i, stn (m i)), nat) :
-  stnsum (λ i, stnsum (curry k i)) = stnsum (k ∘ lex_ordering m).
+  stnsum (λ i, stnsum (curry k i)) = stnsum (k ∘ lexicalEnumeration m).
 Proof.
   intros. apply weqtoeqstn.
   intermediate_weq (Σ i, stn (stnsum (curry k i))).
@@ -22,14 +22,14 @@ Proof.
   { apply weqfibtototal; intro i. apply invweq. apply weqstnsum_idweq. }
   intermediate_weq (Σ ij, stn (k ij)).
   { exact (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
-  intermediate_weq (Σ ij, stn (k (lex_ordering m ij))).
-  { apply (weqbandf (inverse_lex_ordering m)). intro ij. apply eqweqmap.
+  intermediate_weq (Σ ij, stn (k (lexicalEnumeration m ij))).
+  { apply (weqbandf (inverse_lexicalEnumeration m)). intro ij. apply eqweqmap.
     apply (maponpaths stn), (maponpaths k). apply pathsinv0, homotinvweqweq. }
-  { apply inverse_lex_ordering. }
+  { apply inverse_lexicalEnumeration. }
 Defined.
 
 Corollary nat_plus_associativity' n (m:stn n->nat) (k:∀ i, stn (m i) -> nat) :
-  stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lex_ordering m).
+  stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lexicalEnumeration m).
 Proof. intros. exact (nat_plus_associativity (uncurry k)). Defined.
 
 (** general associativity for monoids *)
@@ -109,27 +109,19 @@ Proof.
   intros ? [n x].
   induction n as [|n IHn].
   { reflexivity. }
-  { rewrite doubleProductStep.
-    
-
-
-
-
-(*
-    rewrite flattenStep, doubleProductStep.
+  { rewrite flattenStep, doubleProductStep.
     generalize (x (lastelement _)) as z.
-    generalize (x ∘ dni _ (lastelement _)) as y.
+    generalize (x ∘ dni_lastelement) as y.
     intros y [m z].
     induction m as [|m IHm].
     { change (sequenceProduct (0,, z)) with (unel M). rewrite runax.
-      change (concatenate (flatten (n,, y)) (0,, z)) with (flatten (n,, y)).
-      exact (IHn y). }
-    { rewrite sequenceProductStep, concatenateStep.
-      generalize (z (lastelement m)) as w; generalize (z ∘ dni _ (lastelement _)) as v; intros.
-      rewrite <- assocax.
-      rewrite sequenceProduct_append.
-      apply (maponpaths (λ u, u*w)).
-      apply IHm. } }
-Defined.
-*)
+    (*   change (concatenate (flatten (n,, y)) (0,, z)) with (flatten (n,, y)). *)
+    (*   exact (IHn y). } *)
+    (* { rewrite sequenceProductStep, concatenateStep. *)
+    (*   generalize (z (lastelement m)) as w; generalize (z ∘ dni _ (lastelement _)) as v; intros. *)
+    (*   rewrite <- assocax. *)
+    (*   rewrite sequenceProduct_append. *)
+    (*   apply (maponpaths (λ u, u*w)). *)
+    (*   apply IHm. } } *)
+(* Defined. *)
 Admitted.

@@ -87,11 +87,25 @@ Proof.
   intros. apply pair_path_in2. apply isapropifcontr. apply stn0_fun_iscontr.
 Defined.
 
-(* induction principle for contractible types, as a warmup *)
+Definition transport_f_b {X : UU} (P : X -> UU) {x y z : X} (e : y = x) (e' : y = z)
+           (p : P x) : transportf P e' (transportb P e p) = transportf P (!e @ e') p.
+Proof. intros. induction e'. induction e. reflexivity. Defined.
 
-Definition isaset_transport (X : UU) (x : X) (P : X -> UU) (p : P x) (i : isaset X) (e : x = x) :
-  transportf P e p = p.
-Proof. intros. induction (pr1 (i x x (idpath _) e)). reflexivity. Defined.
+Definition transport_f_f {X : UU} (P : X -> UU) {x y z : X} (e : x = y) (e' : y = z)
+           (p : P x) : transportf P e' (transportf P e p) = transportf P (e @ e') p.
+Proof. intros. induction e'. induction e. reflexivity. Defined.
+
+Definition isaset_transportf {X : UU} (P : X -> UU) {x : X} (e : x = x) (p : P x) :
+  isaset X -> transportf P e p = p.
+(* move upstream *)
+Proof. intros ? ? ? ? ? i. induction (pr1 (i x x (idpath _) e)). reflexivity. Defined.
+
+Definition isaset_transportb {X : UU} (P : X -> UU) {x : X} (e : x = x) (p : P x) :
+  isaset X -> transportb P e p = p.
+(* move upstream *)
+Proof. intros ? ? ? ? ? i. induction (pr1 (i x x (idpath _) e)). reflexivity. Defined.
+
+(* induction principle for contractible types, as a warmup *)
 
 (* Three ways.  Use induction: *)
 
@@ -323,28 +337,110 @@ Lemma uncurry_curry {X} {Y:X->UU} {Z} (f:(Σ x:X, Y x) -> Z): uncurry (curry f) 
 Lemma curry_uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) : curry (uncurry g) = g.
   intros. apply funextsec. intros x. apply funextfun. intros y. reflexivity. Defined.
 
-Definition lex_ordering {n} (m:stn n->nat) := invweq (weqstnsum_idweq m) : stn (stnsum m) ≃ (Σ i : stn n, stn (m i)).
-Definition inverse_lex_ordering {n} (m:stn n->nat) := weqstnsum_idweq m : (Σ i : stn n, stn (m i)) ≃ stn (stnsum m).
+Definition lexicalEnumeration {n} (m:stn n->nat) := invweq (weqstnsum_idweq m) : stn (stnsum m) ≃ (Σ i : stn n, stn (m i)).
+Definition inverse_lexicalEnumeration {n} (m:stn n->nat) := weqstnsum_idweq m : (Σ i : stn n, stn (m i)) ≃ stn (stnsum m).
 
 Definition lex_curry {X n} (m:stn n->nat) : (stn (stnsum m) -> X) -> (∀ (i:stn n), stn (m i) -> X).
-Proof. intros ? ? ? f ? j. exact (f (inverse_lex_ordering m (i,,j))). Defined.
+Proof. intros ? ? ? f ? j. exact (f (inverse_lexicalEnumeration m (i,,j))). Defined.
 Definition lex_uncurry {X n} (m:stn n->nat) : (∀ (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
-Proof. intros ? ? ? g ij. exact (uncurry g (lex_ordering m ij)). Defined.
+Proof. intros ? ? ? g ij. exact (uncurry g (lexicalEnumeration m ij)). Defined.
 
 Definition partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : Sequence (Sequence X).
-Proof. intros. exists n. intro i. exists (f i). intro j. exact (x(inverse_lex_ordering f (i,,j))).
+Proof. intros. exists n. intro i. exists (f i). intro j. exact (x(inverse_lexicalEnumeration f (i,,j))).
 Defined.
 
 Definition flatten {X} : Sequence (Sequence X) -> Sequence X.
-Proof. intros ? x. exists (stnsum (length ∘ x)). exact (λ j, uncurry (pr2 x) (lex_ordering _ j)).
+Proof. intros ? x. exists (stnsum (length ∘ x)). exact (λ j, uncurry (pr2 x) (lexicalEnumeration _ j)).
 Defined.
 
-Definition total2_step {n} (f:stn (S n) -> nat) : (Σ i, stn (f i)) ≃ (Σ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _)).
-Admitted.
+Definition total2_step_f {n} {X:stn (S n) -> UU} :
+  (Σ i, X i)
+    ->
+  (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
+Proof.
+  intros ? ? [[j J] x].
+  induction (natlehchoice4 j n J) as [J'|K].
+  - apply ii1.
+    exists (j,,J').
+    assert (e : (dni n (lastelement n) (j,, J')) = (j,, J) ).
+    { apply isinjstntonat. rewrite replace_dni_last. reflexivity. }
+    exact (transportb _ e x).
+  - apply ii2.
+    induction (!K); clear K.
+    assert (e : (n,, J) = (lastelement n)).
+    { apply isinjstntonat. reflexivity. }
+    exact (transportf _ e x).
+Defined.
+
+Definition total2_step_b {n} {X:stn (S n) -> UU} :
+  (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _)
+    ->
+  (Σ i, X i).
+Proof.
+  intros ? ? x.
+  induction x as [[j x]|x].
+  - exact (_ ,, x).
+  - exact (_ ,, x).
+Defined.
+
+Definition total2_step {n} (X:stn (S n) -> UU) :
+  (Σ i, X i)
+    ≃
+  (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
+Proof.
+  intros.
+  refine (total2_step_f,, gradth _ total2_step_b _ _).
+  - intros [[j J] x].
+    unfold total2_step_b, total2_step_f.
+    induction (natlehchoice4 j n J) as [J'|K].
+    + simpl.
+      refine (total2_paths _ _).
+      * simpl. apply isinjstntonat; simpl. rewrite replace_dni_last. reflexivity.
+      * rewrite replace_dni_last. unfold dni_lastelement.  simpl.
+        change (λ x0 : stn (S n), X x0) with X.
+        rewrite transport_f_b. apply isaset_transportf. apply isasetstn.
+    + induction (!K). simpl.
+      refine (total2_paths _ _).
+      * simpl. now apply isinjstntonat.
+      * simpl. assert (d : idpath n = K). { apply isasetnat. }
+        induction d. simpl. rewrite transport_f_f. apply isaset_transportf; apply isasetstn.
+  - intros [[[j J] x]|s].
+    + unfold total2_step_b, total2_step_f.
+      simpl.
+  (* too hard, start over *)
+Abort.
+
+Definition total2_step {n} (X:stn (S n) -> UU) :
+  (Σ i, X i)
+    ≃
+  (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
+Proof.
+  intros.
+  set (f := weqdnicoprod n (lastelement _)).
+  intermediate_weq (Σ x : stn n ⨿ unit, X (f x)).
+  { apply invweq. apply weqfp. }
+  intermediate_weq ((Σ i, X (f (ii1 i))) ⨿ Σ t, X (f (ii2 t))).
+  { apply weqtotal2overcoprod. }
+  apply weqcoprodf.
+  { apply weqfibtototal; intro i. apply idweq. }
+  apply weqtotal2overunit.
+Defined.
+
+Definition total2_step' {n} (f:stn (S n) -> nat) :
+  (Σ i, stn (f i))
+    ≃
+  (Σ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _)).
+Proof.
+  intros.
+  apply (total2_step (λ i, stn (f i))).
+Defined.
 
 Definition weqstnsum_idweq_step {n} (f:stn (S n) -> nat) :
-  weqstnsum_idweq f = ((weqfromcoprodofstn _ _) ∘ (weqcoprodf (weqstnsum_idweq _) (idweq _)) ∘ total2_step f)%weq.
+  weqstnsum_idweq f
+  =
+  ((weqfromcoprodofstn _ _) ∘ (weqcoprodf (weqstnsum_idweq _) (idweq _)) ∘ total2_step' f)%weq.
 Proof.
+
 Admitted.
 
 Definition flattenStep {X n} (x: stn (S n) -> Sequence X) :
@@ -375,5 +471,13 @@ Proof.
 
 
 Abort.
+
+
+
+(*
+Local Variables:
+compile-command: "make -C ../.. UniMath/Foundations/Sequences.vo"
+End:
+*)
 
 
