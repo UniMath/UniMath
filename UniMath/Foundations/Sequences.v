@@ -10,17 +10,33 @@ Local Notation "●" := (idpath _).
 
    and its inverse. *)
 
-Definition weqfp_compute_1 { X Y : UU } ( w : X ≃ Y )(P:Y-> UU) (xp: Σ x,P(w x)) :
-  weqfp w P xp = (w (pr1 xp),,pr2 xp).
-Proof. reflexivity. Defined.
+Definition weqfp_map { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : (Σ x,P(w x)) -> (Σ y, P y).
+Proof. intros ? ? ? ? xp. exact (w (pr1 xp),,pr2 xp).
+Defined.
 
-Definition weqfp_compute_2 { X Y : UU } ( w : X ≃ Y )(P:Y-> UU) (yp:Σ y,P y) :
-  invmap (weqfp w P) yp = (invmap w (pr1 yp),,transportf P (! homotweqinvweq w (pr1 yp)) (pr2 yp)).
-Proof. intros. induction yp as [y p].
+Definition weqfp_invmap { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : (Σ y, P y) -> (Σ x,P(w x)).
+Proof. intros ? ? ? ? yp. exact (invmap w (pr1 yp),,transportf P (! homotweqinvweq w (pr1 yp)) (pr2 yp)).
+Defined.
+
+Definition weqfp_compute_1 { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : weqfp w P ~ weqfp_map w P.
+Proof. intros. intros xp. reflexivity. Defined.
+
+Definition weqfp_compute_2 { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : invmap (weqfp w P) ~ weqfp_invmap w P.
+Proof. intros. intros yp. induction yp as [y p].
   intermediate_path (invmap (weqfp w P) (_,,transportf P (! homotweqinvweq w y) p)).
   { apply maponpaths. eapply total2_paths; reflexivity. }
   exact (homotinvweqweq _ (_,,_)).
 Defined.
+
+Definition weqfp_improved {X Y : UU} (w : X ≃ Y) (P:Y->UU) : (Σ x : X, P (w x)) ≃ (Σ y, P y).
+Proof.
+  intros.
+  exists (weqfp_map w P).
+  refine (gradth _ (weqfp_invmap w P) _ _).
+  { intros [x p]. refine (total2_paths _ _).
+    { simpl. apply homotinvweqweq. }
+    { simpl.
+Abort.
 
 (* end of move upstream *)
 
@@ -87,11 +103,7 @@ Proof.
 Defined.
 
 Definition append {X} : Sequence X -> X -> Sequence X.
-Proof.
-  intros ? x y.
-  exists (S (length x)).
-  induction x as [n x]; simpl.
-  exact (append_fun x y).
+Proof. intros ? x y. exact (S (length x),, append_fun (pr2 x) y).
 Defined.
 
 Local Notation "s □ x" := (append s x) (at level 65, left associativity).
@@ -108,24 +120,24 @@ Proof.
   intros. apply pair_path_in2. apply isapropifcontr. apply stn0_fun_iscontr.
 Defined.
 
-Definition transport_f_b {X : UU} (P : X -> UU) {x y z : X} (e : y = x) (e' : y = z)
+Definition transport_f_b {X : UU} (P : X ->UU) {x y z : X} (e : y = x) (e' : y = z)
            (p : P x) : transportf P e' (transportb P e p) = transportf P (!e @ e') p.
 Proof. intros. induction e'. induction e. reflexivity. Defined.
 
-Definition transport_f_f {X : UU} (P : X -> UU) {x y z : X} (e : x = y) (e' : y = z)
+Definition transport_f_f {X : UU} (P : X ->UU) {x y z : X} (e : x = y) (e' : y = z)
            (p : P x) : transportf P e' (transportf P e p) = transportf P (e @ e') p.
 Proof. intros. induction e'. induction e. reflexivity. Defined.
 
-Definition transport_b_b {X : UU} (P : X -> UU) {x y z : X} (e : x = y) (e' : y = z)
+Definition transport_b_b {X : UU} (P : X ->UU) {x y z : X} (e : x = y) (e' : y = z)
            (p : P z) : transportb P e (transportb P e' p) = transportb P (e @ e') p.
 Proof. intros. induction e'. induction e. reflexivity. Defined.
 
-Definition isaset_transportf {X : UU} (P : X -> UU) {x : X} (e : x = x) (p : P x) :
+Definition isaset_transportf {X : UU} (P : X ->UU) {x : X} (e : x = x) (p : P x) :
   isaset X -> transportf P e p = p.
 (* move upstream *)
 Proof. intros ? ? ? ? ? i. induction (pr1 (i x x (idpath _) e)). reflexivity. Defined.
 
-Definition isaset_transportb {X : UU} (P : X -> UU) {x : X} (e : x = x) (p : P x) :
+Definition isaset_transportb {X : UU} (P : X ->UU) {x : X} (e : x = x) (p : P x) :
   isaset X -> transportb P e p = p.
 (* move upstream *)
 Proof. intros ? ? ? ? ? i. induction (pr1 (i x x (idpath _) e)). reflexivity. Defined.
@@ -134,10 +146,10 @@ Proof. intros ? ? ? ? ? i. induction (pr1 (i x x (idpath _) e)). reflexivity. De
 
 (* Three ways.  Use induction: *)
 
-Definition iscontr_rect' X (i : iscontr X) (x0 : X) (P : X -> UU) (p0 : P x0) : ∀ x:X, P x.
+Definition iscontr_rect' X (i : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : ∀ x:X, P x.
 Proof. intros. induction (pr1 (isapropifcontr i x0 x)). exact p0. Defined.
 
-Definition iscontr_rect_compute' X (i : iscontr X) (x : X) (P : X -> UU) (p : P x) :
+Definition iscontr_rect_compute' X (i : iscontr X) (x : X) (P : X ->UU) (p : P x) :
   iscontr_rect' X i x P p x = p.
 Proof.
   intros.
@@ -149,10 +161,10 @@ Defined.
 
 (* ... or use weqsecovercontr, but specializing x to pr1 i: *)
 
-Definition iscontr_rect'' X (i : iscontr X) (P : X -> UU) (p0 : P (pr1 i)) : ∀ x:X, P x.
+Definition iscontr_rect'' X (i : iscontr X) (P : X ->UU) (p0 : P (pr1 i)) : ∀ x:X, P x.
 Proof. intros. exact (invmap (weqsecovercontr P i) p0 x). Defined.
        
-Definition iscontr_rect_compute'' X (i : iscontr X) (P : X -> UU) (p : P(pr1 i)) :
+Definition iscontr_rect_compute'' X (i : iscontr X) (P : X ->UU) (p : P(pr1 i)) :
   iscontr_rect'' X i P p (pr1 i) = p.
 Proof. try reflexivity. intros. exact (homotweqinvweq (weqsecovercontr _ i) _).
 Defined.
@@ -164,10 +176,10 @@ Definition iscontr_adjointness X (is:iscontr X) (x:X) : pr1 (isapropifcontr is x
    the weq [unit ≃ X] would give it to us, in the case where x is [pr1 is] *)
 Proof. intros. now apply isasetifcontr. Defined.
 
-Definition iscontr_rect X (is : iscontr X) (x0 : X) (P : X -> UU) (p0 : P x0) : ∀ x:X, P x.
+Definition iscontr_rect X (is : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : ∀ x:X, P x.
 Proof. intros. exact (transportf P (pr1 (isapropifcontr is x0 x)) p0). Defined.
 
-Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X -> UU) (p : P x) :
+Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X ->UU) (p : P x) :
   iscontr_rect X is x P p x = p.
 Proof. intros. unfold iscontr_rect. now rewrite iscontr_adjointness. Defined.
 
@@ -281,7 +293,7 @@ Proof.
   simpl. induction d; contradicts b (isirreflnatlth i).
 Defined.
 
-Definition Sequence_rect {X} {P : Sequence X -> UU}
+Definition Sequence_rect {X} {P : Sequence X ->UU}
            (p0 : P nil)
            (ind : ∀ (x : Sequence X) (y : X), P x -> P (append x y))
            (x : Sequence X) : P x.
@@ -293,7 +305,7 @@ Proof. intros. induction x as [n x]. induction n as [|n IH].
                            (IH (x ∘ dni_lastelement)))).
 Defined.
 
-Lemma Sequence_rect_compute_nil {X} {P : Sequence X -> UU} (p0 : P nil)
+Lemma Sequence_rect_compute_nil {X} {P : Sequence X ->UU} (p0 : P nil)
       (ind : ∀ (s : Sequence X) (x : X), P s -> P (append s x)) :
   Sequence_rect p0 ind nil = p0.
 Proof.
@@ -306,7 +318,7 @@ Proof.
 Defined.
 
 Lemma Sequence_rect_compute_cons
-      {X} {P : Sequence X -> UU} (p0 : P nil)
+      {X} {P : Sequence X ->UU} (p0 : P nil)
       (ind : ∀ (s : Sequence X) (x : X), P s -> P (append s x))
       (x:X) (l:Sequence X) :
   Sequence_rect p0 ind (append l x) = ind l x (Sequence_rect p0 ind l). 
@@ -364,7 +376,7 @@ Definition flatten {X} : Sequence (Sequence X) -> Sequence X.
 Proof. intros ? x. exists (stnsum (length ∘ x)). exact (λ j, uncurry (pr2 x) (lexicalEnumeration _ j)).
 Defined.
 
-Definition total2_step_f {n} (X:stn (S n) -> UU) :
+Definition total2_step_f {n} (X:stn (S n) ->UU) :
   (Σ i, X i)
     ->
   (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
@@ -383,7 +395,7 @@ Proof.
     exact (transportf _ e x).
 Defined.
 
-Definition total2_step_b {n} (X:stn (S n) -> UU) :
+Definition total2_step_b {n} (X:stn (S n) ->UU) :
   (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _)
     ->
   (Σ i, X i).
@@ -394,7 +406,7 @@ Proof.
   - exact (_ ,, x).
 Defined.
 
-Definition total2_step_bf {n} (X:stn (S n) -> UU) :
+Definition total2_step_bf {n} (X:stn (S n) ->UU) :
    total2_step_b X ∘ total2_step_f X ~ idfun _.
 Proof.
   intros.
@@ -416,7 +428,7 @@ Proof.
       induction d. simpl. rewrite transport_f_f. apply isaset_transportf; apply isasetstn.
 Defined.
 
-Definition total2_step {n} (X:stn (S n) -> UU) :
+Definition total2_step {n} (X:stn (S n) ->UU) :
   (Σ i, X i)
     ≃
   (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
@@ -430,7 +442,7 @@ Proof.
   (* too hard, start over *)
 Abort.
 
-Definition total2_step {n} (X:stn (S n) -> UU) :
+Definition total2_step {n} (X:stn (S n) ->UU) :
   (Σ i, X i) ≃ (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
 Proof.
   intros. set (f := weqdnicoprod n (lastelement _)).
@@ -442,13 +454,13 @@ Proof.
   apply weqtotal2overunit.
 Defined.
 
-Definition total2_step_compute_2 {n} (X:stn (S n) -> UU) :
+Definition total2_step_compute_2 {n} (X:stn (S n) ->UU) :
   invmap (total2_step X) ~ total2_step_b X.
 Proof.
   intros. intros [[i x]|y]; reflexivity. (* amazingly easy, why? *)
 Defined.
 
-Definition total2_step_compute_1 {n} (X:stn (S n) -> UU) :
+Definition total2_step_compute_1 {n} (X:stn (S n) ->UU) :
   total2_step X ~ total2_step_f X.
 Proof. intros. intros [i x].
        try reflexivity.
@@ -469,7 +481,7 @@ Proof. intros ? ? ? ? ? ? p q h x .
   { apply pathsinv0. apply p. }
   apply maponpaths. rewrite <- h. apply q. Defined.
 
-Definition total2_step_compute_1 {n} (X:stn (S n) -> UU) :
+Definition total2_step_compute_1 {n} (X:stn (S n) ->UU) :
   total2_step X ~ total2_step_f X.
 Proof.
   intros.
@@ -529,7 +541,7 @@ Proof.
                   (weqfp (weqdnicoprod n (lastelement n))
                      (λ i : stn (S n), stn (f i)))) (k,, p)).
   rewrite weqfp_compute_2.
-  unfold weqdnicoprod at 12.
+  unfold weqdnicoprod at 11.
   (* Sigh: if I try
 
   rewrite invmap_over_weqcomp.
