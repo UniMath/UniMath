@@ -32,7 +32,7 @@ Axiom funextempty : forall ( X : UU ) ( f g : X -> empty ) , paths f g .
 (** *** More results on propositions *)
 
 
-Theorem isapropneg (X:UU): isaprop (X -> empty).
+Theorem isapropneg (X:UU): isaprop (neg X).
 Proof. intro.  apply invproofirrelevance . intros x x' .   apply ( funextempty X x x' ) . Defined .  
 
 (** See also [ isapropneg2 ] *) 
