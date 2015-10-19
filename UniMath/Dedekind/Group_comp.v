@@ -15,8 +15,6 @@ Require Import UniMath.Dedekind.Monoid_comp.
 
 (** ** More About Groups *)
 
-Locate binop.
-
 (** *** "additive" group *)
 
 Definition isgr {X : hSet} (x0 : X) (op : binop X) (inv : unop X) : UU :=
@@ -41,31 +39,31 @@ Definition isgr_isrinv {X : hSet} {x0 : X} {op : binop X} {inv : unop X} (is : i
 (** *** "multiplicative" group *)
 (** group defined on a subset *)
 
-Definition isgr' {X : hSet} (x1 : X) (op : binop X) (exinv : subsetcond X) (inv : subset exinv -> X) : UU :=
+Definition isgr' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtypes X) (inv : subset exinv -> X) : UU :=
   (ismonoid x1 op) × (isinv' x1 op exinv inv).
 
-Definition isgr'_ismonoid {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition isgr'_ismonoid {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : isgr' x0 op exinv inv) : ismonoid x0 op :=
   pr1 is.
-Definition isgr'_isassoc {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition isgr'_isassoc {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : isgr' x0 op exinv inv) : isassoc op :=
   ismonoid_isassoc (isgr'_ismonoid is).
-Definition isgr'_islunit {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition isgr'_islunit {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : isgr' x0 op exinv inv) : islunit op x0 :=
   ismonoid_islunit (isgr'_ismonoid is).
-Definition isgr'_isrunit {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition isgr'_isrunit {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : isgr' x0 op exinv inv) : isrunit op x0 :=
   ismonoid_isrunit (isgr'_ismonoid is).
-Definition isgr'_islinv' {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition isgr'_islinv' {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : isgr' x0 op exinv inv) : islinv' x0 op exinv inv :=
   pr1 (pr2 is).
-Definition isgr'_isrinv' {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition isgr'_isrinv' {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : isgr' x0 op exinv inv) : isrinv' x0 op exinv inv :=
   pr2 (pr2 is).
 
 Section isgr'_isgr.
 
-Context {X : hSet} {x1 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}.
+Context {X : hSet} {x1 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}.
 Context (is : isgr' x1 op exinv inv).
 Context (Hx1 : exinv x1) (Hop : forall x y : X, exinv x -> exinv y -> exinv (op x y)) (Hinv : forall (x : X) (Hx : exinv x), exinv (inv (x ,, Hx))).
 
@@ -115,7 +113,7 @@ End isgr'_isgr.
 
 Print isgr'_isgr.
 
-Definition isgr'_isgr {X : hSet} {x1 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition isgr'_isgr {X : hSet} {x1 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : isgr' x1 op exinv inv)
            (Hx1 : exinv x1) (Hop : ∀ x y : X, exinv x -> exinv y -> exinv (op x y))
            (Hinv : ∀ (x : X) (Hx : exinv x), exinv (inv (x,, Hx))) : isgr (x1' Hx1) (op' Hop) (inv' Hinv) :=
@@ -146,34 +144,34 @@ Definition iscommgr_iscomm {X : hSet} {x0 : X} {op : binop X} {inv : unop X} (is
 
 (** *** "multiplicative" group *)
 
-Definition iscommgr' {X : hSet} (x1 : X) (op : binop X) (exinv : subsetcond X) (inv : subset exinv -> X) : UU :=
+Definition iscommgr' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtypes X) (inv : subset exinv -> X) : UU :=
   (isgr' x1 op exinv inv) × (iscomm op).
 
-Definition iscommgr'_isgr' {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition iscommgr'_isgr' {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : iscommgr' x0 op exinv inv) : isgr' x0 op exinv inv :=
   pr1 is.
-Definition iscommgr'_isassoc {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition iscommgr'_isassoc {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : iscommgr' x0 op exinv inv) : isassoc op :=
   isgr'_isassoc (iscommgr'_isgr' is).
-Definition iscommgr'_islunit {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition iscommgr'_islunit {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : iscommgr' x0 op exinv inv) : islunit op x0 :=
   isgr'_islunit (iscommgr'_isgr' is).
-Definition iscommgr'_isrunit {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition iscommgr'_isrunit {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : iscommgr' x0 op exinv inv) : isrunit op x0 :=
   isgr'_isrunit (iscommgr'_isgr' is).
-Definition iscommgr'_islinv' {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition iscommgr'_islinv' {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : iscommgr' x0 op exinv inv) : islinv' x0 op exinv inv :=
   isgr'_islinv' (iscommgr'_isgr' is).
-Definition iscommgr'_isrinv' {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition iscommgr'_isrinv' {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : iscommgr' x0 op exinv inv) : isrinv' x0 op exinv inv :=
   isgr'_isrinv' (iscommgr'_isgr' is).
-Definition iscommgr'_iscomm {X : hSet} {x0 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition iscommgr'_iscomm {X : hSet} {x0 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : iscommgr' x0 op exinv inv) : iscomm op :=
   pr2 is.
 
 Section iscommgr'_iscommgr.
 
-Context {X : hSet} {x1 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}.
+Context {X : hSet} {x1 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}.
 Context (is : iscommgr' x1 op exinv inv).
 Context (Hx1 : exinv x1) (Hop : forall x y : X, exinv x -> exinv y -> exinv (op x y)) (Hinv : forall (x : X) (Hx : exinv x), exinv (inv (x ,, Hx))).
 
@@ -187,7 +185,7 @@ Qed.
                                   
 End iscommgr'_iscommgr.
 
-Definition iscommgr'_iscommgr {X : hSet} {x1 : X} {op : binop X} {exinv : subsetcond X} {inv : subset exinv -> X}
+Definition iscommgr'_iscommgr {X : hSet} {x1 : X} {op : binop X} {exinv : hsubtypes X} {inv : subset exinv -> X}
            (is : iscommgr' x1 op exinv inv)
            (Hx1 : exinv x1) (Hop : ∀ x y : X, exinv x -> exinv y -> exinv (op x y))
            (Hinv : ∀ (x : X) (Hx : exinv x), exinv (inv (x,, Hx))) : iscommgr (x1' Hx1) (op' Hop) (inv' Hinv) :=

@@ -9,7 +9,6 @@ Require Import UniMath.Foundations.Algebra.BinaryOperations.
   
 (** ** Subsets *)
 
-(*Definition subsetcond (X : hSet) : UU := X -> hProp.*)
 Lemma isaset_hsubtypes {X : hSet} (Hsub : hsubtypes X) : isaset (carrier Hsub).
 Proof.
   intros.
@@ -24,11 +23,11 @@ Definition makeSubset {X : hSet} {Hsub : hsubtypes X} (x : X) (Hx : Hsub x) : su
 
 Definition unop (X : UU) := X -> X.
 
-Definition islinv' {X : hSet} (x1 : X) (op : binop X) (exinv : subsetcond X) (inv : subset exinv -> X) :=
+Definition islinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtypes X) (inv : subset exinv -> X) :=
   forall (x : X) (Hx : exinv x), op (inv (x ,, Hx)) x = x1.
-Definition isrinv' {X : hSet} (x1 : X) (op : binop X) (exinv : subsetcond X) (inv : subset exinv -> X) :=
+Definition isrinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtypes X) (inv : subset exinv -> X) :=
   forall (x : X) (Hx : exinv x), op x (inv (x ,, Hx)) = x1.
-Definition isinv' {X : hSet} (x1 : X) (op : binop X) (exinv : subsetcond X) (inv : subset exinv -> X)  :=
+Definition isinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtypes X) (inv : subset exinv -> X)  :=
   islinv' x1 op exinv inv × isrinv' x1 op exinv inv.
 
 (** ** Properties of [po] *)
