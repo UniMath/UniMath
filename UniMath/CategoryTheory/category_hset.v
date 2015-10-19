@@ -269,21 +269,21 @@ Section colimits.
 Variable g : graph.
 Variable D : diagram g HSET.
 
-Definition cobase : UU := Σ j : vertex g, pr1hSet (dob D j).
+Local Definition cobase : UU := Σ j : vertex g, pr1hSet (dob D j).
 
 (* Theory about hprop is in UniMath.Foundations.Propositions *)
-Definition rel0 : hrel cobase := λ (ia jb : cobase),
+Local Definition rel0 : hrel cobase := λ (ia jb : cobase),
   hProppair (ishinh (Σ f : pr1 ia --> pr1 jb, dmor D f (pr2 ia) = pr2 jb))
             (isapropishinh _).
 
-Definition rel : hrel cobase := eqrel_from_hrel rel0.
+Local Definition rel : hrel cobase := eqrel_from_hrel rel0.
 
 Lemma iseqrel_rel : iseqrel rel.
 Proof.
 now apply iseqrel_eqrel_from_hrel.
 Qed.
 
-Definition eqr : eqrel cobase := eqrelpair _ iseqrel_rel.
+Local Definition eqr : eqrel cobase := eqrelpair _ iseqrel_rel.
 
 (* Defined in UniMath.Foundations.Sets *)
 Definition colimHSET : HSET :=
@@ -302,7 +302,7 @@ Definition colimHSET : HSET :=
            X/~ ----------> (Y,=)
 *)
 
-Definition injections j : dob D j --> colimHSET.
+Local Definition injections j : dob D j --> colimHSET.
 Proof.
 intros Fj; apply (setquotpr _).
 exact (tpair _ j Fj).
@@ -313,18 +313,18 @@ Section from_colim.
 
 Variables (c : HSET) (cc : cocone _ D c).
 
-Definition from_cobase : cobase -> pr1hSet c.
+Local Definition from_cobase : cobase -> pr1hSet c.
 Proof.
 now intro iA; apply (coconeIn _ cc (pr1 iA) (pr2 iA)).
 Defined.
   
-Definition from_cobase_rel : hrel cobase.
+Local Definition from_cobase_rel : hrel cobase.
 Proof.
 intros x x'; exists (from_cobase x = from_cobase x').
 now apply setproperty.
 Defined.
 
-Definition from_cobase_eqrel : eqrel cobase.
+Local Definition from_cobase_eqrel : eqrel cobase.
 Proof.
 exists from_cobase_rel.
 repeat split.
@@ -353,14 +353,14 @@ Proof.
 now intros a b; apply rel_impl.
 Qed.
 
-Definition from_colim : colimHSET --> c.
+Definition from_colimHSET : colimHSET --> c.
 Proof.
 now simpl; apply (setquotuniv _ _ from_cobase iscomprel_from_base).
 Defined.
 
 End from_colim.
 
-Definition colimCocone : cocone HSET D colimHSET. 
+Definition colimCoconeHSET : cocone HSET D colimHSET. 
 Proof.
 refine (mk_cocone _ _ _ _ _).
 - now apply injections.
@@ -375,15 +375,15 @@ Definition ColimHSETArrow (c : HSET)
   (cc : cocone _ D c) : 
   Σ x : HSET ⟦ colimHSET, c ⟧, ∀ v : vertex g, injections v ;; x = coconeIn _ cc v.
 Proof.
-exists (from_colim _ cc); intro i; simpl.
-unfold injections, compose, from_colim; simpl.
+exists (from_colimHSET _ cc); intro i; simpl.
+unfold injections, compose, from_colimHSET; simpl.
 apply funextfun; intro Fi.
 now rewrite (setquotunivcomm eqr).
 Defined.
 
 Definition ColimCoconeHSET : ColimCocone HSET D.
 Proof.
-apply (mk_ColimCocone _ _ colimHSET colimCocone).
+apply (mk_ColimCocone _ _ colimHSET colimCoconeHSET).
 unfold isColimCocone; intros c cc.
 exists (ColimHSETArrow _ cc). 
 abstract (intro f; apply total2_paths_second_isaprop;
