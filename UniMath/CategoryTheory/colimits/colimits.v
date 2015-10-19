@@ -104,11 +104,11 @@ Definition colimCocone {g : graph} {d : diagram g C} (CC : ColimCocone d) :
 
 (* Maybe this is not needed now? *)
 Definition colimIn {g : graph} {d : diagram g C} (CC : ColimCocone d) :
-  ∀ (v : vertex g), C⟦dob d v,colim CC⟧ := pr1 (colimCocone CC).
+  ∀ (v : vertex g), C⟦dob d v,colim CC⟧ := coconeIn (colimCocone CC).
 
 Definition colimInCommutes {g : graph} {d : diagram g C}
   (CC : ColimCocone d) : ∀ (u v : vertex g) (e : edge u v),
-   dmor d e ;; colimIn CC v = colimIn CC u := pr2 (colimCocone CC).
+   dmor d e ;; colimIn CC v = colimIn CC u := coconeInCommutes (colimCocone CC).
 
 Definition colimUnivProp {g : graph} {d : diagram g C}
   (CC : ColimCocone d) : ∀ (c : C) (cc : cocone d c),
