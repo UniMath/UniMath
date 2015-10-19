@@ -262,9 +262,9 @@ Proof. intros. apply isofhleveltotal2. assumption. intro. assumption. Defined.
 
 Definition isaprop  := isofhlevel 1 . 
 
-Notation isapropunit := iscontrpathsinunit .
+Definition isapropunit : isaprop unit := iscontrpathsinunit .
 
-Notation isapropdirprod := ( isofhleveldirprod 1 ) . 
+Definition isapropdirprod X Y : isaprop X -> isaprop Y -> isaprop (X×Y) := isofhleveldirprod 1 X Y . 
 
 Lemma isapropifcontr { X : UU } ( is : iscontr X ) : isaprop X .
 Proof. intros . set (f:= fun x:X => tt). assert (isw : isweq f). apply isweqcontrtounit.  assumption. apply (isofhlevelweqb (S O) ( weqpair f isw ) ).  intros x x' . apply iscontrpathsinunit. Defined.
