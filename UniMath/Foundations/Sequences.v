@@ -162,7 +162,8 @@ Proof.
   set (fib  := P x0).
   set (destr := (λ f, f x0) : secs->fib).
   set (constr:= iscontr_rect X is x0 P : fib->secs).
-  refine (destr,,gradth destr constr _ _).
+  exists destr.
+  apply (gradth destr constr).
   - intros f. apply funextsec; intros x. apply transport_section.
   - apply iscontr_rect_compute.
 Defined.
@@ -243,8 +244,7 @@ Proof. reflexivity. Defined.
 
 Theorem SequenceAssembly {X} : Sequence X ≃ unit ⨿ (X × Sequence X).
 Proof.
-  intros.
-  refine (disassembleSequence,, gradth _ assembleSequence _ _).
+  intros. exists disassembleSequence. apply (gradth _ assembleSequence).
   - intros.
     induction x as [n x].
     induction n as [|n].
@@ -360,7 +360,7 @@ Definition flatten {X} : Sequence (Sequence X) -> Sequence X.
 Proof. intros ? x. exists (stnsum (length ∘ x)). exact (λ j, uncurry (pr2 x) (lexicalEnumeration _ j)).
 Defined.
 
-Definition total2_step_f {n} {X:stn (S n) -> UU} :
+Definition total2_step_f {n} (X:stn (S n) -> UU) :
   (Σ i, X i)
     ->
   (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
@@ -379,7 +379,7 @@ Proof.
     exact (transportf _ e x).
 Defined.
 
-Definition total2_step_b {n} {X:stn (S n) -> UU} :
+Definition total2_step_b {n} (X:stn (S n) -> UU) :
   (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _)
     ->
   (Σ i, X i).
@@ -390,27 +390,36 @@ Proof.
   - exact (_ ,, x).
 Defined.
 
+Definition total2_step_bf {n} (X:stn (S n) -> UU) :
+   total2_step_b X ∘ total2_step_f X ~ idfun _.
+Proof.
+  intros.
+  unfold homot, funcomp, idfun.
+  intros [[j J] x].
+  unfold total2_step_b, total2_step_f.
+  induction (natlehchoice4 j n J) as [J'|K].
+  + simpl.
+    refine (total2_paths _ _).
+    * simpl. apply isinjstntonat; simpl. rewrite replace_dni_last. reflexivity.
+    * rewrite replace_dni_last. unfold dni_lastelement.  simpl.
+      change (λ x0 : stn (S n), X x0) with X.
+      rewrite transport_f_b. apply isaset_transportf. apply isasetstn.
+  + induction (!K). simpl.
+    refine (total2_paths _ _).
+    * simpl. now apply isinjstntonat.
+    * simpl. assert (d : idpath n = K).
+      { apply isasetnat. }
+      induction d. simpl. rewrite transport_f_f. apply isaset_transportf; apply isasetstn.
+Defined.
+
 Definition total2_step {n} (X:stn (S n) -> UU) :
   (Σ i, X i)
     ≃
   (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
 Proof.
   intros.
-  refine (total2_step_f,, gradth _ total2_step_b _ _).
-  - intros [[j J] x].
-    unfold total2_step_b, total2_step_f.
-    induction (natlehchoice4 j n J) as [J'|K].
-    + simpl.
-      refine (total2_paths _ _).
-      * simpl. apply isinjstntonat; simpl. rewrite replace_dni_last. reflexivity.
-      * rewrite replace_dni_last. unfold dni_lastelement.  simpl.
-        change (λ x0 : stn (S n), X x0) with X.
-        rewrite transport_f_b. apply isaset_transportf. apply isasetstn.
-    + induction (!K). simpl.
-      refine (total2_paths _ _).
-      * simpl. now apply isinjstntonat.
-      * simpl. assert (d : idpath n = K). { apply isasetnat. }
-        induction d. simpl. rewrite transport_f_f. apply isaset_transportf; apply isasetstn.
+  refine (total2_step_f X,, gradth _ (total2_step_b X) _ _).
+  - apply total2_step_bf.
   - intros [[[j J] x]|s].
     + unfold total2_step_b, total2_step_f.
       simpl.
@@ -431,6 +440,46 @@ Proof.
   apply weqcoprodf.
   { apply weqfibtototal; intro i. apply idweq. }
   apply weqtotal2overunit.
+Defined.
+
+Definition total2_step_compute_2 {n} (X:stn (S n) -> UU) :
+  invmap (total2_step X) ~ total2_step_b X.
+Proof.
+  intros. intros [[i x]|y]; reflexivity. (* amazingly easy, why? *)
+Defined.
+
+Definition total2_step_compute_1 {n} (X:stn (S n) -> UU) :
+  total2_step X ~ total2_step_f X.
+Proof. intros. intros [i x].
+       try reflexivity.
+Abort.
+
+Definition isinjinvmap {X Y} (v w:X≃Y) : invmap v ~ invmap w -> v ~ w.
+Proof. intros ? ? ? ? h x.
+  intermediate_path (w ((invmap w) (v x))).
+  { apply pathsinv0. apply homotweqinvweq. }
+  rewrite <- h. rewrite homotinvweqweq. reflexivity. Defined.
+
+Definition isinjinvmap' {X Y} (v w:X->Y) (v' w':Y->X) :
+  w ∘ w' ~ idfun _ ->
+  v' ∘ v ~ idfun _ ->
+  v' ~ w' -> v ~ w.
+Proof. intros ? ? ? ? ? ? p q h x .
+  intermediate_path (w (w' (v x))).
+  { apply pathsinv0. apply p. }
+  apply maponpaths. rewrite <- h. apply q. Defined.
+
+Definition total2_step_compute_1 {n} (X:stn (S n) -> UU) :
+  total2_step X ~ total2_step_f X.
+Proof.
+  intros.
+  apply invhomot.
+  refine (isinjinvmap' (total2_step_f X) (total2_step X)
+                       (total2_step_b X) (invmap (total2_step X))
+                       _ _ _ ).
+  { intro x. apply homotweqinvweq. }
+  { apply total2_step_bf. }
+  { apply invhomot. apply total2_step_compute_2. }
 Defined.
 
 Corollary total2_step' {n} (f:stn (S n) -> nat) :
@@ -476,6 +525,21 @@ Proof.
   { exact (homotinvweqweq _ (_,,p')). }
 Defined.
 
+Definition invmap_over_weqcomp {X Y Z} (g:Y≃Z) (f:X≃Y) :
+  invmap (g∘f)%weq = invmap f ∘ invmap g.
+Proof.
+  intros.
+  apply funextfun; intro z.
+  set (a:=invmap (g ∘ f)%weq z).
+  rewrite <- (homotweqinvweq (g∘f)%weq z).
+  change a with (invmap (g ∘ f)%weq z).
+  rewrite weqcomp_to_funcomp.
+  unfold funcomp.
+  rewrite (homotinvweqweq g).
+  rewrite (homotinvweqweq f).
+  reflexivity.
+Defined.
+
 Definition weqstnsum_idweq_step {n} (f:stn (S n) -> nat) :
   weqstnsum_idweq f = weqstnsum_idweq' f.
 Proof.
@@ -493,7 +557,25 @@ Proof.
                   (weqfp (weqdnicoprod n (lastelement n))
                      (λ i : stn (S n), stn (f i)))) (k,, p)).
   rewrite weqfp_compute_2.
+  unfold weqdnicoprod at 12.
+  (* Sigh: if I try
 
+  rewrite invmap_over_weqcomp.
+
+  then I get
+
+    Toplevel input, characters 0-28:
+    Error: Cannot refine with term "..."
+    because a metavariable has several occurrences.
+  *)
+  (* And this doesn't work either:
+
+  rewrite (invmap_over_weqcomp
+             (weqrecompl (stn (S n)) (lastelement n)
+                    (isdeceqstn (S n) (lastelement n)))
+             (weqcoprodf (weqdnicompl n (lastelement n)) (idweq unit))).
+
+   *)
   
   (* probably the best way to prove this is by equipping everything in sight with a well-ordering, preserved by all the equivalences involved *)
 Admitted.
