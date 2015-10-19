@@ -431,18 +431,14 @@ Proof.
 Abort.
 
 Definition total2_step {n} (X:stn (S n) -> UU) :
-  (Σ i, X i)
-    ≃
-  (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
+  (Σ i, X i) ≃ (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
 Proof.
-  intros.
-  set (f := weqdnicoprod n (lastelement _)).
+  intros. set (f := weqdnicoprod n (lastelement _)).
   intermediate_weq (Σ x : stn n ⨿ unit, X (f x)).
   { apply invweq. apply weqfp. }
   intermediate_weq ((Σ i, X (f (ii1 i))) ⨿ Σ t, X (f (ii2 t))).
   { apply weqtotal2overcoprod. }
-  apply weqcoprodf.
-  { apply weqfibtototal; intro i. apply idweq. }
+  apply weqcoprodf. { apply weqfibtototal; intro i. apply idweq. }
   apply weqtotal2overunit.
 Defined.
 
@@ -493,14 +489,11 @@ Corollary total2_step' {n} (f:stn (S n) -> nat) :
 Proof. intros. apply (total2_step (stn ∘ f)). Defined.
 
 Definition weqstnsum_idweq' {n} (f:stn (S n)->nat ) : total2 (λ i, stn (f i)) ≃ stn (stnsum f).
-Proof.
-  intros.
+Proof. intros.
   intermediate_weq ((Σ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _))).
   { apply total2_step'. }
   intermediate_weq (stn (stnsum (f ∘ dni n (lastelement n))) ⨿ stn (f (lastelement n))).
-  { apply weqcoprodf.
-    { apply weqstnsum_idweq. }
-    apply idweq. }
+  { apply weqcoprodf. { apply weqstnsum_idweq. } apply idweq. }
   apply weqfromcoprodofstn.
 Defined.  
 
