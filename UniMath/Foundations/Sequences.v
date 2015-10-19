@@ -4,7 +4,25 @@ Local Notation "●" := (idpath _).
 
 (* move upstream *)
 
-(* *)
+(* Learn how to compute with
+
+   weqfp { X Y : UU } ( w : X ≃ Y )(P:Y-> UU) : (Σ x : X, P (w x)) ≃ (Σ y, P y)  
+
+   and its inverse. *)
+
+Definition weqfp_compute_1 { X Y : UU } ( w : X ≃ Y )(P:Y-> UU) (xp: Σ x,P(w x)) :
+  weqfp w P xp = (w (pr1 xp),,pr2 xp).
+Proof. reflexivity. Defined.
+
+Definition weqfp_compute_2 { X Y : UU } ( w : X ≃ Y )(P:Y-> UU) (yp:Σ y,P y) :
+  invmap (weqfp w P) yp = (invmap w (pr1 yp),,transportf P (! homotweqinvweq w (pr1 yp)) (pr2 yp)).
+Proof. intros. induction yp as [y p].
+  intermediate_path (invmap (weqfp w P) (_,,transportf P (! homotweqinvweq w y) p)).
+  { apply maponpaths. eapply total2_paths; reflexivity. }
+  exact (homotinvweqweq _ (_,,_)).
+Defined.
+
+(* end of move upstream *)
 
 Definition Sequence X := Σ n, stn n -> X.
 
@@ -268,9 +286,8 @@ Definition Sequence_rect {X} {P : Sequence X -> UU}
            (ind : ∀ (x : Sequence X) (y : X), P x -> P (append x y))
            (x : Sequence X) : P x.
 Proof. intros. induction x as [n x]. induction n as [|n IH].
-  - exact (transportf _ (nil_unique x) p0).
-  - exact (transportf _
-                      (drop_and_append x)
+  - exact (transportf P (nil_unique x) p0).
+  - exact (transportf P (drop_and_append x)
                       (ind (n,,x ∘ dni_lastelement)
                            (x (lastelement _))
                            (IH (x ∘ dni_lastelement)))).
@@ -486,31 +503,6 @@ Proof.
     apply idweq. }
   apply weqfromcoprodofstn.
 Defined.  
-
-(* compute ((invweq (weqfp _ _)) (p,, q)) *)
-Definition weqfp_compute_1 { X Y : UU } ( w : X ≃ Y )(P:Y-> UU) (x:X) (p:P(w x)) :
-  weqfp w P (x,,p) = (w x,,p).
-Proof. reflexivity. Defined.
-
-Definition weqfp_compute_2 { X Y : UU } ( w : X ≃ Y )(P:Y-> UU) (y:Y) (p:P y) :
-  invmap (weqfp w P) (y,,p) = (invmap w y,,transportb P (homotweqinvweq w y) p).
-Proof. 
-  intros.
-  set (e := homotweqinvweq w y).
-  set (p' := transportb P e p).
-  set (x := invmap w y).
-  change (invmap w y) with x in e, p'.
-  set (d := homotinvweqweq w x).
-  intermediate_path (invmap (weqfp w P) (w x,, p')).
-  { apply maponpaths.
-    refine (total2_paths_b _ _).
-    { simpl. exact (!e). }
-    { simpl. change p' with (transportb P e p).
-      rewrite transport_b_b.
-      rewrite pathsinv0l.
-      reflexivity. } }
-  { exact (homotinvweqweq _ (_,,p')). }
-Defined.
 
 Definition invmap_over_weqcomp {X Y Z} (g:Y≃Z) (f:X≃Y) :
   invmap (g∘f)%weq = invmap f ∘ invmap g.
