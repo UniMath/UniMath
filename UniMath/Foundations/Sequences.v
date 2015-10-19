@@ -245,35 +245,22 @@ Proof. reflexivity. Defined.
 Theorem SequenceAssembly {X} : Sequence X ≃ unit ⨿ (X × Sequence X).
 Proof.
   intros. exists disassembleSequence. apply (gradth _ assembleSequence).
-  - intros.
-    induction x as [n x].
-    induction n as [|n].
-    + apply nil_unique.
-    + apply drop_and_append'.
-  - intros co.
-    (* maybe isolate this case as a lemma *)
-    induction co as [t|p].
-    + simpl. apply maponpaths. apply proofirrelevancecontr.
-      apply iscontrunit.
-    + induction p as [x y].
-      induction y as [n y].
-      apply (maponpaths (@inr unit (X × Sequence X))).
-      simpl.
-      induction (natlehchoice4 n n (natgthsnn n)) as [b|c].
-      * contradicts (isirreflnatlth n) b.
-      * clear c.
-        unfold append_fun, lastelement, funcomp.
-        simpl.
-        induction (natlehchoice4 n n (natgthsnn n)) as [e|e].
-        { contradicts e (isirreflnatlth n). }
-        { simpl. apply maponpaths. apply maponpaths.
-          apply funextfun; intro i.
-          induction i as [i b].
-          unfold funcomp, dni_lastelement.
-          simpl.
-          induction (natlehchoice4 i n (natlthtolths i n b)) as [d|d].
-          { simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity. }
-          { simpl. induction d; contradicts b (isirreflnatlth i). } }
+  { intros. induction x as [n x]. induction n as [|n].
+    { apply nil_unique. }
+    apply drop_and_append'. }
+  intros co. induction co as [t|p].
+  { simpl. apply maponpaths. apply proofirrelevancecontr. apply iscontrunit. }
+  induction p as [x y]. induction y as [n y].
+  apply (maponpaths (@inr unit (X × Sequence X))).
+  unfold append_fun, lastelement, funcomp; simpl.
+  induction (natlehchoice4 n n (natgthsnn n)) as [e|e].
+  { contradicts e (isirreflnatlth n). }
+  simpl. apply maponpaths. apply maponpaths.
+  apply funextfun; intro i. clear e. induction i as [i b].
+  unfold funcomp, dni_lastelement; simpl.
+  induction (natlehchoice4 i n (natlthtolths i n b)) as [d|d].
+  { simpl. apply maponpaths. now apply isinjstntonat. }
+  simpl. induction d; contradicts b (isirreflnatlth i).
 Defined.
 
 Definition Sequence_rect {X} {P : Sequence X -> UU}
