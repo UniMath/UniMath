@@ -4,8 +4,7 @@
 
 (** see Bourbaki, Set Theory, III.1, where they are called totally ordered sets *)
 
-Require Import UniMath.Foundations.FiniteSets
-               UniMath.Ktheory.Utilities.
+Require Import UniMath.Foundations.FiniteSets.
 
 Unset Automatic Introduction.
 
@@ -29,7 +28,7 @@ Proof.
   split.
   { intros x y. apply istotalnatleh. }
   { intros ? ? ? ?.
-    apply (an_inclusion_is_injective _ (isinclstntonat _)).
+    apply (invmaponpathsincl _ (isinclstntonat _)).
     { apply isantisymmnatleh. assumption. assumption. }}
 Defined.
 
@@ -38,7 +37,7 @@ Definition isordered {X Y:Oset} (f:X->Y) := forall (x x':X), x ≤ x' -> f x ≤
 Lemma isapropisordered {X Y:Oset} (f:X->Y) : isaprop (isordered f).
 Proof.
   intros; apply impredtwice; intros ; apply impred; intros _.
-  apply isaprop_hProp.
+  apply propproperty.
 Defined.
 
 Definition Map (X Y:Oset) := total2 (fun f:X->Y => isordered f).

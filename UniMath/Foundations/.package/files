@@ -4,6 +4,7 @@ Integers.v
 Algebra/Commutativity.v
 Algebra/Associativity.v
 Sequences.v
+OrderedSets.v
 FiniteSets.v
 StandardFiniteSets.v
 NaturalNumbers.v
