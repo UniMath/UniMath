@@ -3,7 +3,7 @@
 
 Require Import UniMath.Dedekind.Sets_comp.
 Require Import UniMath.Dedekind.Complements.
-Require Import UniMath.Dedekind.HalfField.
+Require Import UniMath.Dedekind.DivisionRig.
 Require Import UniMath.Dedekind.NonnegativeRationals.
 
 Delimit Scope Dcuts_scope with Dcuts.
@@ -12,17 +12,17 @@ Open Scope Dcuts_scope.
 
 (** ** Definition of Dedekind cuts *)
 
-Definition Dcuts_def_bot (X : subsetcond NonnegativeRationals) : UU :=
+Definition Dcuts_def_bot (X : hsubtypes NonnegativeRationals) : UU :=
   forall x : NonnegativeRationals, X x ->
     forall y : NonnegativeRationals, y <= x -> X y.
-Definition Dcuts_def_open (X : subsetcond NonnegativeRationals) : UU :=
+Definition Dcuts_def_open (X : hsubtypes NonnegativeRationals) : UU :=
   forall x : NonnegativeRationals, X x ->
     hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y)).
-Definition Dcuts_def_bounded (X : subsetcond NonnegativeRationals) : hProp :=
+Definition Dcuts_def_bounded (X : hsubtypes NonnegativeRationals) : hProp :=
   hexists (fun ub : NonnegativeRationals => neg (X ub)).
 
-Definition Dcuts_hsubtypes : hsubtypes (subsetcond NonnegativeRationals) :=
-  fun X : subsetcond NonnegativeRationals => hconj (ishinh (Dcuts_def_bot X))
+Definition Dcuts_hsubtypes : hsubtypes (hsubtypes NonnegativeRationals) :=
+  fun X : hsubtypes NonnegativeRationals => hconj (ishinh (Dcuts_def_bot X))
                                                    (hconj (ishinh (Dcuts_def_open X))
                                                           (Dcuts_def_bounded X)).
 Lemma isaset_Dcuts : isaset (carrier Dcuts_hsubtypes).
@@ -34,7 +34,7 @@ Proof.
   apply pr2.
 Qed.
 Definition Dcuts : hSet := hSetpair _ isaset_Dcuts.
-Definition pr1Dcuts (x : Dcuts) : subsetcond NonnegativeRationals := pr1 x.
+Definition pr1Dcuts (x : Dcuts) : hsubtypes NonnegativeRationals := pr1 x.
 Notation "x ∈ X" := (pr1Dcuts X x) (at level 70, no associativity) : DC_scope.
 
 Open Scope DC_scope.
@@ -195,16 +195,16 @@ Qed.
 
 Section Dcuts_plus.
 
-  Context (X : subsetcond NonnegativeRationals).
+  Context (X : hsubtypes NonnegativeRationals).
   Context (X_bot : Dcuts_def_bot X).
   Context (X_open : Dcuts_def_open X).
   Context (X_bounded : Dcuts_def_bounded X).
-  Context (Y : subsetcond NonnegativeRationals).
+  Context (Y : hsubtypes NonnegativeRationals).
   Context (Y_bot : Dcuts_def_bot Y).
   Context (Y_open : Dcuts_def_open Y).
   Context (Y_bounded : Dcuts_def_bounded Y).
 
-Definition Dcuts_plus_val : subsetcond NonnegativeRationals :=
+Definition Dcuts_plus_val : hsubtypes NonnegativeRationals :=
   fun r => hdisj (hdisj (X r) (Y r))
                  (hexists (fun xy => dirprod (r = (fst xy + snd xy)%NRat)
                                              (dirprod (X (fst xy)) (Y (snd xy))))).
@@ -753,7 +753,7 @@ Qed.
 
 Section Dcuts_lub.
 
-Context (E : subsetcond Dcuts).
+Context (E : hsubtypes Dcuts).
 Context (E_bounded : hexists (@isUpperBound eo_Dcuts E)).
 
 Definition Dcuts_lub_val : NonnegativeRationals -> hProp :=
@@ -805,10 +805,10 @@ Qed.
 
 End Dcuts_lub.
 
-Definition Dcuts_lub (E : subsetcond eo_Dcuts) (E_bounded : hexists (isUpperBound E)) : Dcuts :=
+Definition Dcuts_lub (E : hsubtypes eo_Dcuts) (E_bounded : hexists (isUpperBound E)) : Dcuts :=
   mk_Dcuts (Dcuts_lub_val E) (Dcuts_lub_bot E) (Dcuts_lub_open E) (Dcuts_lub_bounded E E_bounded).
 
-Lemma isub_Dcuts_lub (E : subsetcond eo_Dcuts)
+Lemma isub_Dcuts_lub (E : hsubtypes eo_Dcuts)
                      (E_bounded : hexists (isUpperBound E)) :
   isUpperBound E (Dcuts_lub E E_bounded).
 Proof.
@@ -819,7 +819,7 @@ Proof.
   intros P HP ; apply HP ; clear P HP.
   now exists x.
 Qed.
-Lemma islbub_Dcuts_lub (E : subsetcond eo_Dcuts) (E_bounded : hexists (isUpperBound E)) :
+Lemma islbub_Dcuts_lub (E : hsubtypes eo_Dcuts) (E_bounded : hexists (isUpperBound E)) :
   isSmallerThanUpperBounds E (Dcuts_lub E E_bounded).
 Proof.
   intros.
@@ -831,7 +831,7 @@ Proof.
   apply hinhuniv.
   now intros H ; apply H.
 Qed.
-Lemma islub_Dcuts_lub (E : subsetcond eo_Dcuts) (E_bounded : hexists (isUpperBound E)) :
+Lemma islub_Dcuts_lub (E : hsubtypes eo_Dcuts) (E_bounded : hexists (isUpperBound E)) :
   isLeastUpperBound E (Dcuts_lub E E_bounded).
 Proof.
   split.
@@ -843,7 +843,7 @@ Qed.
 
 Section Dcuts_glb.
 
-Context (E : subsetcond Dcuts).
+Context (E : hsubtypes Dcuts).
 Context (E_not_empty : hexists E).  
 
 Definition Dcuts_glb_val : NonnegativeRationals -> hProp :=
@@ -889,10 +889,10 @@ Qed.
 
 End Dcuts_glb.
 
-Definition Dcuts_glb (E : subsetcond eo_Dcuts) (E_not_empty : hexists E) : Dcuts :=
+Definition Dcuts_glb (E : hsubtypes eo_Dcuts) (E_not_empty : hexists E) : Dcuts :=
   mk_Dcuts (Dcuts_glb_val E) (Dcuts_glb_bot E) (Dcuts_glb_open E) (Dcuts_glb_bounded E E_not_empty).
 
-Lemma isub_Dcuts_glb (E : subsetcond eo_Dcuts)
+Lemma isub_Dcuts_glb (E : hsubtypes eo_Dcuts)
                      (E_not_empty : hexists E) :
   isLowerBound E (Dcuts_glb E E_not_empty).
 Proof.
@@ -904,7 +904,7 @@ Proof.
   now apply Hn.
   now apply lt_leNonnegativeRationals.
 Qed.
-Lemma islbub_Dcuts_glb (E : subsetcond eo_Dcuts) (E_not_empty : hexists E) :
+Lemma islbub_Dcuts_glb (E : hsubtypes eo_Dcuts) (E_not_empty : hexists E) :
   isBiggerThanLowerBounds E (Dcuts_glb E E_not_empty).
 Proof.
   intros ;
@@ -922,7 +922,7 @@ Proof.
   apply hinhuniv.
   now intro H ; apply H.
 Qed.
-Lemma isglb_Dcuts_glb (E : subsetcond eo_Dcuts) (E_not_empty : hexists E) :
+Lemma isglb_Dcuts_glb (E : hsubtypes eo_Dcuts) (E_not_empty : hexists E) :
   isGreatestLowerBound E (Dcuts_glb E E_not_empty).
 Proof.
   split.
@@ -934,8 +934,8 @@ Qed.
 
 Definition NonnegativeReals : hSet := Dcuts.
 
-Definition NonnegativeReals_to_subsetcondNonnegativeRationals : NonnegativeReals -> (subsetcond NonnegativeRationals) := pr1.
-Definition subsetcondNonnegativeRationals_to_NonnegativeReals
+Definition NonnegativeReals_to_hsubtypesNonnegativeRationals : NonnegativeReals -> (hsubtypes NonnegativeRationals) := pr1.
+Definition hsubtypesNonnegativeRationals_to_NonnegativeReals
   (X : NonnegativeRationals -> hProp)
   (Xbot : forall x : NonnegativeRationals,
             X x -> forall y : NonnegativeRationals, (y <= x)%NRat -> X y)
@@ -952,11 +952,11 @@ Definition geNonnegativeReals : po NonnegativeReals := Dcuts_ge.
 Definition ltNonnegativeReals : StrongOrder NonnegativeReals := Dcuts_lt.
 Definition gtNonnegativeReals : StrongOrder NonnegativeReals := Dcuts_gt.
 
-Definition lubNonnegativeReals (E : subsetcond NonnegativeReals) (Eub : hexists (isUpperBound (X := eo_Dcuts) E)) :
+Definition lubNonnegativeReals (E : hsubtypes NonnegativeReals) (Eub : hexists (isUpperBound (X := eo_Dcuts) E)) :
   LeastUpperBound (X := eo_Dcuts) E :=
   tpair _ (Dcuts_lub E Eub) (islub_Dcuts_lub E Eub).
 
-Definition glbNonnegativeReals (E : subsetcond NonnegativeReals) (Ene : hexists E) : GreatestLowerBound (X := eo_Dcuts) E :=
+Definition glbNonnegativeReals (E : hsubtypes NonnegativeReals) (Ene : hexists E) : GreatestLowerBound (X := eo_Dcuts) E :=
   tpair _ (Dcuts_glb E Ene) (isglb_Dcuts_glb E Ene).
 
 (** ** Constants and functions *)
