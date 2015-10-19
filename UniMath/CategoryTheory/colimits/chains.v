@@ -11,6 +11,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.category_hset.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
@@ -430,3 +431,12 @@ Definition adaggerMorInitial : Initial (precategory_FunctorAlg C F hsC) := tpair
 End colim_initial_algebra.
 
 Check adaggerMorIsInitial.
+
+Section lists.
+
+Variable A : HSET.
+
+Definition listFunctor : functor_data HSET HSET.
+Admitted.
+
+End lists.
