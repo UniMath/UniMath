@@ -300,11 +300,13 @@ Let minv : iso (colim C (shift_colim C hsC initDiag CC)) (F L) := isopair _ Fcon
 (* Morally we need to insert colim_shift_iso (ie the identity iso) *)
 Local Definition m : C⟦F L,L⟧ := inv_from_iso minv.
 
-Local Definition malg : algebra_ob _ F. 
+Local Definition mAlg : algebra_ob _ F. 
 Proof.
 exists L.
 apply m.
 Defined. (* apply tpair didn't work here? *)
+
+Section algebra.
 
 Variable (Aa : algebra_ob _ F).
 Let A : C := alg_carrier _ _ Aa.
@@ -383,12 +385,48 @@ repeat rewrite assoc.
 now apply adaggerCommutes2.
 Qed.
 
-Lemma ad_is_algebra_mor : is_algebra_mor _ _ malg Aa ad.
+Lemma ad_is_algebra_mor : is_algebra_mor _ _ mAlg Aa ad.
 Proof.
-unfold is_algebra_mor; simpl; unfold malg.
+unfold is_algebra_mor; simpl; unfold mAlg.
 apply iso_inv_on_right.
 rewrite assoc.
 now apply adaggerDef.
 Qed.
 
+Definition adaggerMor : algebra_mor C F mAlg Aa := tpair _ _ ad_is_algebra_mor.
+
+End algebra.
+
+Lemma adaggerMorIsInitial : isInitial (precategory_FunctorAlg C F hsC) mAlg. 
+Proof.
+intro Aa.
+exists (adaggerMor Aa); simpl.
+intros Fa.
+apply (algebra_mor_eq _ _ hsC).
+simpl.
+unfold ad.
+apply colimArrowUnique; simpl; intro n.
+destruct Fa as [f hf]; simpl.
+unfold is_algebra_mor in hf.
+simpl in hf.
+induction n as [|n IHn].
+simpl.
+apply InitialArrowUnique.
+simpl.
+rewrite <- IHn.
+rewrite functor_comp.
+rewrite <- assoc.
+eapply pathscomp0.
+Focus 2.
+eapply maponpaths.
+apply hf.
+rewrite assoc.
+apply cancel_postcomposition.
+apply (mCommutes _ _ _ _ _ _ _ (S n)).
+Qed.
+
+Definition adaggerMorInitial : Initial (precategory_FunctorAlg C F hsC) := tpair _ _ adaggerMorIsInitial.
+
 End colim_initial_algebra.
+
+Check adaggerMorIsInitial.
