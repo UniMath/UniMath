@@ -810,6 +810,8 @@ Notation "X ≃ Y" := (weq X Y) (at level 80, no associativity) : type_scope.
 Definition pr1weq {X Y : UU} := pr1 : X ≃ Y -> (X -> Y).
 Coercion pr1weq : weq >-> Funclass.
 
+Definition weqproperty {X Y} (f:X≃Y) : isweq f := pr2 f.
+
 Definition weqccontrhfiber {X Y : UU} (w : X ≃ Y) (y : Y) : hfiber w y.
 Proof.
   intros. apply (pr1 (pr2 w y)).
