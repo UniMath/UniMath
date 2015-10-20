@@ -187,24 +187,56 @@ Proof.
   apply impred; intro z. apply isapropneg.
 Defined.
 
+Lemma B {X Y:Poset} (x:X) (e : X = Y) :
+      transportf (λ T : Poset, T) e x = (paths_to_PosetEquivalence e) x.
+Proof. intros. induction e. reflexivity.
+Defined.
+
+Definition posetTransport {C : ∀ (T:Poset) (t:T), UU}
+  {X Y : Poset} (e : X = Y) {x : X} : C X x -> C Y (paths_to_PosetEquivalence e x).
+(* compare with transportD *)
+Proof.  
+  intros ? ? ? ? ? c. induction e. exact c.
+Defined.
+
+Definition posetTransport2 {C : ∀ (T:Poset) (t u:T), UU}
+  {X Y : Poset} (e : X = Y) {x y : X} : C X x y -> C Y (paths_to_PosetEquivalence e x) (paths_to_PosetEquivalence e y).
+(* compare with transportD *)
+Proof.  
+  intros ? ? ? ? ? ? c. induction e. exact c.
+Defined.
+
+Definition posetTransportStructure  (C : ∀ (T:Poset) (t:T), UU)
+  {X Y : Poset} (f : X ≅ Y) (x : X) (c : C X x) : C Y (f x).
+Proof.  
+  intros.
+  assert (s := posetTransport (promotePosetEquivalence f) c).
+  rewrite <- (promotePosetEquivalence_compute f) in s.
+  exact s.
+Defined.
+
+Definition posetTransportRelation  (C : ∀ (T:Poset) (t u:T), UU)
+  {X Y : Poset} (f : X ≅ Y) (x y : X) (c : C X x y) : C Y (f x) (f y).
+Proof.  
+  intros.
+  assert (s := posetTransport2 (promotePosetEquivalence f) c).
+  rewrite <- (promotePosetEquivalence_compute f) in s.
+  exact s.
+Defined.
+
 Lemma isMinimal_preserved {X Y:Poset} {x:X} (is:isMinimal x) (f:X ≅ Y) : isMinimal (f x).
 Proof.
-  intros.
-  set (e := promotePosetEquivalence f).
-  set (d := promotePosetEquivalence_compute f).
-  change (promotePosetEquivalence f) with e in d.
-  set (c := transportf (λ T:Poset, Σ t:T, isMinimal t) e (x,,is)).
-  assert (b : pr1 c = f x).
-  { set (b := @transportf_total2 Poset (λ T, pr1hSet (carrierofposet T)) (@isMinimal) X Y e (x,,is)).
-    simpl in b.
-    intermediate_path (transportf (idfun Poset) e x).
-    { exact (maponpaths pr1 b). }
-    rewrite d.
-    generalize e; intro p.      (* make this a separate lemma *)
-    induction p.
-    reflexivity. }
-  rewrite <- b.
-  exact (pr2 c).
+  intros. apply posetTransportStructure. exact is.
+Defined.
+
+Lemma isMaximal_preserved {X Y:Poset} {x:X} (is:isMaximal x) (f:X ≅ Y) : isMaximal (f x).
+Proof.
+  intros. apply posetTransportStructure. exact is.
+Defined.
+
+Lemma consecutive_preserved {X Y:Poset} {x y:X} (is:consecutive x y) (f:X ≅ Y) : consecutive (f x) (f y).
+Proof.
+  intros. apply posetTransportRelation. exact is.
 Defined.
 
 (** * Ordered sets *)
