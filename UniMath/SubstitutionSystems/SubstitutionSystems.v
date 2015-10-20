@@ -191,7 +191,7 @@ Proof.
     intro c.
     simpl.  
     unfold coproduct_nat_trans_in1_data.
-    assert (Hyp_inst := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp c); clear Hyp.
+    assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
     apply (maponpaths (fun m =>  CoproductIn1 C (CP _ _);; m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] => 
          pathvia (f) end.
@@ -212,7 +212,7 @@ Proof.
     intro c.
     simpl.  
     unfold coproduct_nat_trans_in2_data.
-    assert (Hyp_inst := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp c); clear Hyp.
+    assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
     apply (maponpaths (fun m =>  CoproductIn2 C (CP _ _);; m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] => 
          pathvia (f) end.
@@ -244,7 +244,7 @@ Proof.
   intro c.
   apply CoproductArrow_eq_cor.
   + clear Hyp2.
-    assert (Hyp1_inst := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp1 c); clear Hyp1.
+    assert (Hyp1_inst := nat_trans_eq_pointwise Hyp1 c); clear Hyp1.
     rewrite <- assoc.
     apply CoproductIn1Commutes_right_in_ctx_dir.
     rewrite id_left.
@@ -255,7 +255,7 @@ Proof.
     simpl.
     apply assoc.
   + clear Hyp1.
-    assert (Hyp2_inst := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp2 c); clear Hyp2.
+    assert (Hyp2_inst := nat_trans_eq_pointwise Hyp2 c); clear Hyp2.
     rewrite <- assoc.
     apply CoproductIn2Commutes_right_in_ctx_dir.
     simpl.
@@ -325,7 +325,7 @@ Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ ptd_f
 Proof.
   intros α H12.
   set (t:= fbracket_unique _ _ α H12).
-  apply (nat_trans_eq_weq _ _ hs _ _ _ _ t).
+  apply (nat_trans_eq_weq hs _ _ t).
 Qed.
 
 (** Properties of [fbracket] by definition: commutative diagrams *)
@@ -360,7 +360,7 @@ Proof.
     rewrite <- H'; clear H'.
     rewrite <- assoc.
     apply maponpaths.
-    set (X:= nat_trans_eq_weq _ _ hs _ _ _ _  (fbracket_η T g)).
+    set (X:= nat_trans_eq_weq hs _ _  (fbracket_η T g)).
     simpl in X. exact (X _ ).
   - intro c; simpl.
     assert (H':=nat_trans_ax (tau_from_alg T)).
@@ -370,7 +370,7 @@ Proof.
     clear H'.
     set (H':=fbracket_τ T g).
     simpl in H'.
-    assert (X:= nat_trans_eq_pointwise _ _  _ _ _ _ H' c).
+    assert (X:= nat_trans_eq_pointwise H' c).
     simpl in X.
     rewrite  <- assoc.
     rewrite  <- assoc.
@@ -446,7 +446,7 @@ Proof.
   simpl in β_is_alg_mor_inst.
   apply nat_trans_eq; try (exact hs).
   intro c.
-  assert (β_is_alg_mor_inst':= nat_trans_eq_pointwise _ _ _ _ _ _ β_is_alg_mor_inst c); clear β_is_alg_mor_inst.
+  assert (β_is_alg_mor_inst':= nat_trans_eq_pointwise β_is_alg_mor_inst c); clear β_is_alg_mor_inst.
   simpl in β_is_alg_mor_inst'.
   rewrite assoc in β_is_alg_mor_inst'.
   eapply pathscomp0.
@@ -472,7 +472,7 @@ Proof.
   intro c.
   rewrite <- assoc.
   assert (X:=pr2 β).
-  assert (X':= nat_trans_eq_pointwise _ _ _ _ _ _ X c).
+  assert (X':= nat_trans_eq_pointwise X c).
   simpl in *.
   eapply pathscomp0. apply maponpaths. apply X'.
   unfold coproduct_nat_trans_in1_data.

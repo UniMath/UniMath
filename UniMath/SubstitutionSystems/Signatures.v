@@ -238,7 +238,7 @@ Proof.
   assert (TX:= T X).
   apply nat_trans_eq; try assumption.
   intro c; simpl.
-  assert (T2 := nat_trans_eq_pointwise _ _ _ _ _ _ TX c).
+  assert (T2 := nat_trans_eq_pointwise TX c).
   simpl in *.
   assert (X0 : λ_functor C X = identity (X : EndC)).
   { apply nat_trans_eq; try assumption; intros; apply idpath. }
@@ -254,7 +254,7 @@ Proof.
   assert (TX:= T X).
   apply nat_trans_eq; try assumption.
   intro c; simpl.
-  assert (T2 := nat_trans_eq_pointwise _ _ _ _ _ _ TX c).
+  assert (T2 := nat_trans_eq_pointwise TX c).
   simpl in *.
   assert (X0 : λ_functor C X = identity (X : EndC)).
   { apply nat_trans_eq; try assumption; intros; apply idpath. }
@@ -291,7 +291,7 @@ Proof.
   apply nat_trans_eq; try assumption.
   intro c.
   simpl.
-  assert (TXZZ'c := nat_trans_eq_pointwise _ _ _ _ _ _ TXZZ' c).
+  assert (TXZZ'c := nat_trans_eq_pointwise TXZZ' c).
   simpl in TXZZ'c.
   clear T TXZZ'.
   rewrite id_left in TXZZ'c.
@@ -300,7 +300,7 @@ Proof.
   apply maponpaths.
   clear TXZZ'c.
   assert (functor_comp_H := functor_comp H _ _ _ (α_functor C (pr1 Z) (pr1 Z') X) (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) ⇒ Y)).
-  assert (functor_comp_H_c := nat_trans_eq_pointwise _ _ _ _ _ _ functor_comp_H c).
+  assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   simpl in functor_comp_H_c.
   eapply pathscomp0.
 Focus 2.
@@ -333,7 +333,7 @@ Proof.
   eapply pathscomp0; [| apply id_right].
   apply maponpaths.
   assert (functor_id_H := functor_id H (functor_compose hs hs (pr1 Z) (functor_composite (pr1 Z') X))).
-  assert (functor_id_H_c := nat_trans_eq_pointwise _ _ _ _ _ _ functor_id_H c).
+  assert (functor_id_H_c := nat_trans_eq_pointwise functor_id_H c).
   eapply pathscomp0; [| apply functor_id_H_c].
   clear functor_id_H functor_id_H_c.
   revert c.
@@ -379,7 +379,7 @@ Lemma θ_nat_1_pointwise (X X' : EndC) (α : X ⇒ X') (Z : Ptd) (c : C)
        pr1 (θ (X ⊗ Z)) c;; pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
 Proof.
   set (t := θ_nat_1 _ _ α Z).
-  set (t' := nat_trans_eq_weq _ _ hs _ _ _ _ t c);
+  set (t' := nat_trans_eq_weq hs _ _ t c);
   clearbody t';  simpl in t'.
   set (H':= functor_id (H X') (pr1 (pr1 Z) c));
   clearbody H'; simpl in H'.
@@ -413,7 +413,7 @@ Lemma θ_nat_2_pointwise (X : EndC) (Z Z' : Ptd) (f : Z ⇒ Z') (c : C)
        pr1 (θ (X ⊗ Z)) c;; pr1 (# H (identity X ∙∙ pr1 f)) c .
 Proof.
   set (t:=θ_nat_2 X _ _ f).
-  set (t':=nat_trans_eq_weq _ _ hs _ _ _ _ t c).
+  set (t':=nat_trans_eq_weq hs _ _ t c).
   clearbody t'; clear t.
   simpl in t'.
   rewrite id_left in t'.

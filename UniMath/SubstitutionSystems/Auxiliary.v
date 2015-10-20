@@ -95,9 +95,9 @@ Defined.
 
 Section nat_trans_eq.
 
-Variables C D : precategory.
+Context {C D : precategory}.
 Variable hsD : has_homsets D.
-Variables F G : functor C D.
+Context {F G : functor C D}.
 Variables alpha beta : nat_trans F G.
 
 Definition nat_trans_eq_weq : weq (alpha = beta) (forall c, alpha c = beta c).

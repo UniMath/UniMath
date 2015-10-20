@@ -298,7 +298,7 @@ Proof.
   assert (h_eq' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (((aux_iso_1_inv Z):(_⟶_)) _);; m) h_eq); clear h_eq.
          simpl in h_eq'.
          assert (h_eq1' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (CoproductIn1 EndC (CPEndC _ _));; m) h_eq'); clear h_eq'.
-         assert (h_eq1'_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h_eq1' c);
+         assert (h_eq1'_inst := nat_trans_eq_pointwise h_eq1' c);
            clear h_eq1'.
 (* match goal right in the beginning in contrast with earlier approach - suggestion by Benedikt *)
          match goal with |[ H1 : _  = ?f |- _ = _   ] => 
@@ -352,7 +352,7 @@ Proof.
          
          assert (h_eq2' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (CoproductIn2 EndC (CPEndC _ _));; m) h_eq').
          clear h_eq'.
-         assert (h_eq2'_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h_eq2' c).
+         assert (h_eq2'_inst := nat_trans_eq_pointwise h_eq2' c).
          clear h_eq2'.
  (*        simpl in h_eq2'_inst. *)
          match goal with |[ H1 : _  = ?f |- _ = _   ] => 
@@ -468,7 +468,7 @@ Focus 2.
         clear h'_eq2.
         rewrite (id_left C).
 (*        unfold coproduct_nat_trans_in1_data; simpl. *)
-        assert (h'_eq1_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h'_eq1 c);
+        assert (h'_eq1_inst := nat_trans_eq_pointwise h'_eq1 c);
           clear h'_eq1.
         simpl in h'_eq1_inst.
         unfold coproduct_nat_trans_in1_data in h'_eq1_inst; simpl in h'_eq1_inst.
@@ -484,7 +484,7 @@ Focus 2.
       * clear h'_eq1.
         (*simpl.
         unfold coproduct_nat_trans_in2_data; simpl. *)
-        assert (h'_eq2_inst := nat_trans_eq_pointwise _ _ _ _ _ _ h'_eq2 c);
+        assert (h'_eq2_inst := nat_trans_eq_pointwise h'_eq2 c);
           clear h'_eq2.
         simpl in h'_eq2_inst.
         unfold coproduct_nat_trans_in2_data in h'_eq2_inst; simpl in h'_eq2_inst.
@@ -742,7 +742,7 @@ Proof.
         apply CoproductIn2Commutes_right_in_ctx_dir.
         simpl.
         assert (H_nat_inst := functor_comp H _ _ _ t β).
-        assert (H_nat_inst_c := nat_trans_eq_pointwise _ _ _ _ _ _ H_nat_inst c); clear H_nat_inst.
+        assert (H_nat_inst_c := nat_trans_eq_pointwise H_nat_inst c); clear H_nat_inst.
         match goal with |[ H1 : _  = ?f |- _ = _;; ?g ;; ?h  ] => 
          pathvia (f;;g;;h) end.
         + clear H_nat_inst_c.
@@ -753,7 +753,7 @@ Proof.
           simpl.
           unfold coproduct_nat_trans_in2_data, coproduct_nat_trans_data.
           assert (Hyp := τ_part_of_alg_mor _ hs CP _ _ _ (InitialArrow Alg IA (pr1 T'))).
-          assert (Hyp_c := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp c); clear Hyp.
+          assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
           simpl in Hyp_c.
           eapply pathscomp0.
             eapply pathsinv0.
@@ -801,7 +801,7 @@ Focus 2.
       eapply pathscomp0.
         eapply pathsinv0.
         assert (fbracket_η_inst := fbracket_η T' (f;; ptd_from_alg_mor _ hs CP H β0)).
-        assert (fbracket_η_inst_c := nat_trans_eq_pointwise _ _ _ _ _ _ fbracket_η_inst c); clear fbracket_η_inst.
+        assert (fbracket_η_inst_c := nat_trans_eq_pointwise fbracket_η_inst c); clear fbracket_η_inst.
         apply fbracket_η_inst_c.
     
       rewrite functor_comp.
@@ -832,7 +832,7 @@ Focus 2.
         apply cancel_postcomposition.
         eapply pathsinv0.
         assert (τ_part_of_alg_mor_inst := τ_part_of_alg_mor _ hs CP H _ _ β0).
-        assert (τ_part_of_alg_mor_inst_Zc := nat_trans_eq_pointwise _ _ _ _ _ _  τ_part_of_alg_mor_inst ((pr1 Z) c)); clear τ_part_of_alg_mor_inst.
+        assert (τ_part_of_alg_mor_inst_Zc := nat_trans_eq_pointwise τ_part_of_alg_mor_inst ((pr1 Z) c)); clear τ_part_of_alg_mor_inst.
         apply τ_part_of_alg_mor_inst_Zc.
       
       simpl.   
@@ -843,7 +843,7 @@ Focus 2.
         rewrite assoc.
         eapply pathsinv0.
         assert (fbracket_τ_inst := fbracket_τ T' (f;; ptd_from_alg_mor _ hs CP H β0)).
-        assert (fbracket_τ_inst_c := nat_trans_eq_pointwise _ _ _ _ _ _ fbracket_τ_inst c); clear fbracket_τ_inst.
+        assert (fbracket_τ_inst_c := nat_trans_eq_pointwise fbracket_τ_inst c); clear fbracket_τ_inst.
         apply fbracket_τ_inst_c.
 
       simpl.
@@ -854,7 +854,7 @@ Focus 2.
       assert (Hyp: ((# (pr1 (ℓ(U Z))) (# H β));; (theta H) ((alg_carrier _ _  T') ⊗ Z);; # H (fbracket T' (f;; ptd_from_alg_mor C hs CP H β0)) = θ (tpair (λ _ : functor C C, ptd_obj C) (pr1 (pr1 IA)) Z) ;; # H (# (pr1 (ℓ(U Z))) β ;; fbracket T' (f;; ptd_from_alg_mor C hs CP H β0)))).
       
 Focus 2.
-      assert (Hyp_c := nat_trans_eq_pointwise _ _ _ _ _ _ Hyp c); clear Hyp. 
+      assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp. 
       exact Hyp_c.    
 
       clear c.
@@ -876,7 +876,7 @@ Focus 2.
         simpl.
         rewrite functor_id.
         apply id_right. }
-      apply (nat_trans_eq_pointwise _ _ _ _ _ _ Hyp c).
+      apply (nat_trans_eq_pointwise Hyp c).
 Qed.
 
 Definition hss_InitMor : ∀ T' : hss CP H, hssMor InitHSS T'.

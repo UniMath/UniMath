@@ -359,7 +359,7 @@ refine (tpair _ _ _).
     * intro a.
       apply (colimArrow _ (HCg a) _ (λ v, pr1 (Fc v) a)).
       intros u v e.
-      now apply (nat_trans_eq_pointwise _ _ _ _ _ _ (Hc u v e)).
+      now apply (nat_trans_eq_pointwise (Hc u v e)).
     * intros a a' f; simpl.
       eapply pathscomp0; [now apply precompWithColimOfArrows|].
       apply pathsinv0.

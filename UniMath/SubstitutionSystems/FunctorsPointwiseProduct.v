@@ -215,8 +215,8 @@ Proof.
       simpl.
       unfold product_nat_trans_data.
       apply ProductArrowUnique.
-      * apply (nat_trans_eq_pointwise _ _ _ _ _ _ ta).
-      * apply (nat_trans_eq_pointwise _ _ _ _ _ _ tb).
+      * apply (nat_trans_eq_pointwise ta).
+      * apply (nat_trans_eq_pointwise tb).
 Qed.
 
 Definition functor_precat_product_cone 

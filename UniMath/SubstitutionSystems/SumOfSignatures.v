@@ -155,9 +155,9 @@ Proof.
     eapply pathscomp0. apply CoproductOfArrows_comp.
     apply CoproductOfArrows_eq.
     + assert (Ha:= nat_trans_ax θ1 _ _ (prodcatmor _ _ α β)).
-      apply (nat_trans_eq_pointwise _ _ _ _ _ _ Ha c).
+      apply (nat_trans_eq_pointwise Ha c).
     + assert (Ha:= nat_trans_ax θ2 _ _ (prodcatmor _ _ α β)).
-      apply (nat_trans_eq_pointwise _ _ _ _ _ _ Ha).
+      apply (nat_trans_eq_pointwise Ha).
 Qed.           
            
 
@@ -187,13 +187,13 @@ Proof.
      apply Coproduct_endo_is_identity.
      + rewrite CoproductOfArrowsIn1.
        unfold θ_Strength1 in S11.
-       assert (Ha := nat_trans_eq_pointwise _ _ _ _ _ _ (S11 X) x).
+       assert (Ha := nat_trans_eq_pointwise (S11 X) x).
        eapply pathscomp0; [ | apply id_left].
        apply cancel_postcomposition.
        apply Ha.
      + rewrite CoproductOfArrowsIn2.
        unfold θ_Strength1 in S21.
-       assert (Ha := nat_trans_eq_pointwise _ _ _ _ _ _ (S21 X) x).
+       assert (Ha := nat_trans_eq_pointwise (S21 X) x).
        eapply pathscomp0; [ | apply id_left].
        apply cancel_postcomposition.
        apply Ha.
@@ -220,11 +220,11 @@ Proof.
     apply CoproductOfArrows_eq.
        - assert (Ha:=S12 X Z Z' Y α).
          simpl in Ha.
-         assert (Ha_x := nat_trans_eq_pointwise _ _ _ _ _ _ Ha x).
+         assert (Ha_x := nat_trans_eq_pointwise Ha x).
          apply Ha_x.
        - assert (Ha:=S22 X Z Z' Y α).
          simpl in Ha.
-         assert (Ha_x := nat_trans_eq_pointwise _ _ _ _ _ _ Ha x).
+         assert (Ha_x := nat_trans_eq_pointwise Ha x).
          apply Ha_x.
 Qed.
 
@@ -250,14 +250,14 @@ Proof.
      apply Coproduct_endo_is_identity.
      + rewrite CoproductOfArrowsIn1.
        red in S11'.
-       assert (Ha := nat_trans_eq_pointwise _ _ _ _ _ _ (S11' X) x).
+       assert (Ha := nat_trans_eq_pointwise (S11' X) x).
        simpl in Ha.
        eapply pathscomp0; [ | apply id_left].
        apply cancel_postcomposition.
        apply Ha.
      + rewrite CoproductOfArrowsIn2.
        red in S21'.
-       assert (Ha := nat_trans_eq_pointwise _ _ _ _ _ _ (S21' X) x).
+       assert (Ha := nat_trans_eq_pointwise (S21' X) x).
        simpl in Ha.
        eapply pathscomp0; [ | apply id_left].
        apply cancel_postcomposition.
@@ -285,13 +285,13 @@ Proof.
     apply CoproductOfArrows_eq.
        - assert (Ha:=S12' X Z Z').
          simpl in Ha.
-         assert (Ha_x := nat_trans_eq_pointwise _ _ _ _ _ _ Ha x).
+         assert (Ha_x := nat_trans_eq_pointwise Ha x).
          simpl in Ha_x.
          rewrite id_left in Ha_x.
          apply Ha_x.
        - assert (Ha:=S22' X Z Z').
          simpl in Ha.
-         assert (Ha_x := nat_trans_eq_pointwise _ _ _ _ _ _ Ha x).
+         assert (Ha_x := nat_trans_eq_pointwise Ha x).
          simpl in Ha_x.
          rewrite id_left in Ha_x.
          apply Ha_x.

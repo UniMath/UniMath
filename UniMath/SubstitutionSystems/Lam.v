@@ -97,7 +97,7 @@ Let CPEndEndC:= Coproducts_functor_precat _ _ CPEndC hsEndC: Coproducts EndEndC.
 
 Local Notation "'ℓ'" := (pre_composition_functor_data _ _ _ _ _ ).
 
-Local Notation "'τ'" := (tau_from_alg _ _ _ _ ).
+Local Notation τ := tau_from_alg.
 
 Let one : C :=  @TerminalObject C terminal.
 
@@ -195,7 +195,7 @@ Proof.
   refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ). 
     + abstract
-        (intro c; rewrite id_right (* should be opaque *)
+        (intro c; rewrite id_right 
          ; apply CoproductIn1Commutes_left_dir;
          apply idpath).
 Defined.
@@ -205,7 +205,7 @@ Proof.
   refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ). 
     + abstract
-        (intro c; rewrite id_right ; (* should be opaque *)
+        (intro c; rewrite id_right ; 
          apply CoproductIn1Commutes_right_dir;
          apply idpath) .
 Defined.
@@ -246,7 +246,7 @@ Defined.
 (** Main lemma: our "model" for the flatten arity in pure lambda calculus is compatible with substitution *)
 
 Lemma bracket_property_for_LamE_algebra_on_Lam (Z : Ptd)
-  (f : Ptd ⟦ Z, ptd_from_alg C hs CC LamE_S LamE_algebra_on_Lam ⟧)
+  (f : Ptd ⟦ Z, ptd_from_alg LamE_algebra_on_Lam ⟧)
  :
    bracket_property C hs CC LamE_S LamE_algebra_on_Lam f
                     (fbracket_for_LamE_algebra_on_Lam Z f).
@@ -327,7 +327,7 @@ Proof.
   - eapply pathscomp0. apply assoc.
     eapply pathscomp0.
     apply cancel_postcomposition. apply CoproductIn1Commutes.
-    assert (T:= nat_trans_eq_pointwise _ _ _ _ _ _ Hyp2 c).
+    assert (T:= nat_trans_eq_pointwise Hyp2 c).
     clear Hyp2.
     match goal with | [H : ?e = _ |- _ ] => transitivity e end.
     Focus 2. apply idpath.
@@ -364,7 +364,7 @@ Proof.
     Local Notation "⦃ f ⦄" := (fbracket _ f)(at level 0).
     (* written '\{{' and '\}}', respectively *)
 
-    set (Tη := ptd_from_alg C hs CC Lam_S _ ).
+    set (Tη := ptd_from_alg _ ).
 
     rewrite functor_id.
     rewrite functor_id.
@@ -375,7 +375,7 @@ Proof.
 
     (* now we want to rewrite with T3 in 3 places *)
     
-    assert (T3':= nat_trans_eq_pointwise _ _ _ _ _ _ T3 c).
+    assert (T3':= nat_trans_eq_pointwise T3 c).
     simpl in *.
     match goal with |[ T3' : _ = ?f |- ?a ;; _ = _ ] => transitivity (a ;; f) end.
     { apply maponpaths. apply T3'. }
@@ -392,7 +392,7 @@ Proof.
 
     apply pathsinv0.
 
-    assert (T3':= nat_trans_eq_pointwise _ _ _ _ _ _ T3 (T (Z c))).
+    assert (T3':= nat_trans_eq_pointwise T3 (T (Z c))).
     
     eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition. 
                        apply maponpaths. apply T3'.
@@ -450,7 +450,7 @@ Proof.
 
     
     assert (X := third_monad_law_from_hss _ _ CC Lam_S LamHSS).
-    assert (X' := nat_trans_eq_pointwise _ _ _ _ _ _ X). clear X.
+    assert (X' := nat_trans_eq_pointwise X). clear X.
     simpl in X'.
 
     eapply pathscomp0. apply X'.
@@ -465,7 +465,7 @@ Qed.
 *)
 
 Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
-  (f : Ptd ⟦ Z, ptd_from_alg C hs CC LamE_S LamE_algebra_on_Lam ⟧)
+  (f : Ptd ⟦ Z, ptd_from_alg LamE_algebra_on_Lam ⟧)
  :
    ∀
    t : Σ
@@ -494,7 +494,7 @@ Proof.
   -  apply parts_from_whole in Ht. destruct Ht as [H1 _].
      apply nat_trans_eq; try assumption.
      intro c.
-     assert (HT:=nat_trans_eq_pointwise _ _ _ _ _ _ H1 c).
+     assert (HT:=nat_trans_eq_pointwise H1 c).
      simpl.
      rewrite id_right.
      match goal with |[ H : _ = ?a |- _ ] => transitivity a end.
@@ -508,7 +508,7 @@ Proof.
   - apply parts_from_whole in Ht. destruct Ht as [_ H2].
      apply nat_trans_eq; try assumption.
      intro c.
-     assert (HT := nat_trans_eq_pointwise _ _ _ _ _ _ H2 c).
+     assert (HT := nat_trans_eq_pointwise H2 c).
      match goal with |[H2 : ?e = ?f |- _ ] =>
                          assert (X: CoproductIn1 _ _ ;; e = CoproductIn1 _ _ ;; f) end.
      { apply maponpaths . assumption. }
@@ -550,7 +550,7 @@ Qed.
 
 
 Definition bracket_for_LamE_algebra_on_Lam_at (Z : Ptd)
-  (f : Ptd ⟦ Z, ptd_from_alg C hs CC LamE_S LamE_algebra_on_Lam ⟧)
+  (f : Ptd ⟦ Z, ptd_from_alg LamE_algebra_on_Lam ⟧)
   :
     bracket_at C hs CC LamE_S LamE_algebra_on_Lam f.
 Proof.

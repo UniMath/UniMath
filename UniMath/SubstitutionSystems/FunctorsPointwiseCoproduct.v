@@ -247,8 +247,8 @@ Proof.
       unfold coproduct_nat_trans_data.
       simpl.
       apply CoproductArrowUnique.
-      * apply (nat_trans_eq_pointwise _ _ _ _ _ _ ta).
-      * apply (nat_trans_eq_pointwise _ _ _ _ _ _ tb).
+      * apply (nat_trans_eq_pointwise ta).
+      * apply (nat_trans_eq_pointwise tb).
 Qed.
 
 
