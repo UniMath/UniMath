@@ -204,27 +204,24 @@ Proof.
   now apply isldistr_hnnq_plus_mult.
 Qed.
 Lemma isDivRig_hnnq:
-  isDivRig hnnq_zero hnnq_one hnnq_plus hnnq_mult 
-              (hnnq_lt hnnq_zero) (λ x, hnnq_inv (pr1 x)).
+  isDivRig hnnq_plus hnnq_mult (hnnq_lt hnnq_zero).
 Proof.
   repeat split.
   - exact isassoc_hnnq_plus.
-  - exact islunit_hnnq_zero_plus.
-  - exact isrunit_hnnq_zero_plus.
+  - exists hnnq_zero ; split.
+    + exact islunit_hnnq_zero_plus.
+    + exact isrunit_hnnq_zero_plus.
   - exact iscomm_hnnq_plus.
-  - exact isassoc_hnnq_mult.
-  - exact islunit_hnnq_one_mult.
-  - exact isrunit_hnnq_one_mult.
-  - exact islinv'_hnnq_inv.
-  - exact isrinv'_hnnq_inv.
+  - exists (isassoc_hnnq_mult,,(hnnq_one,,islunit_hnnq_one_mult,,isrunit_hnnq_one_mult)).
+    exists (λ x, hnnq_inv (pr1 x)) ; split.
+    + exact islinv'_hnnq_inv.
+    + exact isrinv'_hnnq_inv.
   - exact iscomm_hnnq_mult.
   - exact isldistr_hnnq_plus_mult.
   - exact isrdistr_hnnq_plus_mult.
-Qed.
+Defined.
 Definition DivRig_hnnq : DivRig := 
-  isDivRig_DivRig hnnq_zero hnnq_one hnnq_plus hnnq_mult
-                        (hnnq_lt hnnq_zero) (λ x : subset (hnnq_lt hnnq_zero), hnnq_inv (pr1 x))
-                        isDivRig_hnnq.
+  isDivRig_DivRig hnnq_plus hnnq_mult (hnnq_lt hnnq_zero) isDivRig_hnnq.
 
 (** * Exportable definitions and theorems *)
 

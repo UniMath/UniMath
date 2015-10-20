@@ -18,78 +18,84 @@ Require Import UniMath.Dedekind.Group_comp.
 (** ** Definition of a DivRig *)
 (** to be a DivRig *)
 
-Definition isDivRig {X : hSet} (x0 x1 : X) (plus mult : binop X) (Hnz : hsubtypes X) (inv : subset Hnz -> X) : UU :=
-  dirprod (dirprod (isabmonoid x0 plus)
-                   (iscommgr' x1 mult Hnz inv))
+Definition isDivRig {X : hSet} (plus mult : binop X) exinv : UU :=
+  dirprod (dirprod (isabmonoidop plus)
+                   (isabgrop' mult exinv))
           (isdistr plus mult).
 
-Definition isDivRig_isabmonoid {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : isabmonoid x0 plus :=
+Definition isDivRig_isabmonoid {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : isabmonoidop plus :=
   pr1 (pr1 is).
-Definition isDivRig_isassoc_plus {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : isassoc plus :=
-  isabmonoid_isassoc (isDivRig_isabmonoid is).
-Definition isDivRig_islunit_x0 {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : islunit plus x0 :=
-  isabmonoid_islunit (isDivRig_isabmonoid is).
-Definition isDivRig_isrunit_x0 {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : isrunit plus x0 :=
-  isabmonoid_isrunit (isDivRig_isabmonoid is).
-Definition isDivRig_iscomm_plus {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : iscomm plus :=
-  isabmonoid_iscomm (isDivRig_isabmonoid is).
-Definition isDivRig_iscommgr' {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : iscommgr' x1 mult Hnz inv :=
+Definition isDivRig_isassoc_plus {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : isassoc plus :=
+  pr1 (pr1 (isDivRig_isabmonoid is)).
+Definition isDivRig_unel_plus {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : X :=
+  unel_is (isDivRig_isabmonoid is).
+Definition isDivRig_islunit_x0 {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : islunit plus (isDivRig_unel_plus is) :=
+  lunax_is (isDivRig_isabmonoid is).
+Definition isDivRig_isrunit_x0 {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : isrunit plus (isDivRig_unel_plus is) :=
+  runax_is (isDivRig_isabmonoid is).
+Definition isDivRig_iscomm_plus {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : iscomm plus :=
+  commax_is (isDivRig_isabmonoid is).
+Definition isDivRig_isabgrop' {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : isabgrop' mult exinv :=
   pr2 (pr1 is).
-Definition isDivRig_isassoc_mult {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : isassoc mult :=
-  iscommgr'_isassoc (isDivRig_iscommgr' is).
-Definition isDivRig_islunit_x1 {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : islunit mult x1 :=
-  iscommgr'_islunit (isDivRig_iscommgr' is).
-Definition isDivRig_isrunit_x1 {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : isrunit mult x1 :=
-  iscommgr'_isrunit (isDivRig_iscommgr' is).
-Definition isDivRig_islinv' {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : islinv' x1 mult Hnz inv :=
-  iscommgr'_islinv' (isDivRig_iscommgr' is).
-Definition isDivRig_isrinv' {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : isrinv' x1 mult Hnz inv :=
-  iscommgr'_isrinv' (isDivRig_iscommgr' is).
-Definition isDivRig_iscomm_mult {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : iscomm mult :=
-  iscommgr'_iscomm (isDivRig_iscommgr' is).
-Definition isDivRig_isldistr {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : isldistr plus mult :=
+Definition isDivRig_isassoc_mult {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : isassoc mult :=
+  isabgrop'_isassoc (isDivRig_isabgrop' is).
+Definition isDivRig_unel_mult {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : X :=
+  isabgrop'_unel (isDivRig_isabgrop' is).
+Definition isDivRig_islunit_x1 {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : islunit mult (isDivRig_unel_mult is) :=
+  isabgrop'_islunit (isDivRig_isabgrop' is).
+Definition isDivRig_isrunit_x1 {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : isrunit mult (isDivRig_unel_mult is) :=
+  isabgrop'_isrunit (isDivRig_isabgrop' is).
+Definition isDivRig_inv' {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : subset exinv -> X :=
+  isabgrop'_inv' (isDivRig_isabgrop' is).
+Definition isDivRig_islinv' {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : islinv' mult (isDivRig_unel_mult is) exinv (isDivRig_inv' is) :=
+  isabgrop'_islinv' (isDivRig_isabgrop' is).
+Definition isDivRig_isrinv' {X : hSet}  {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : isrinv' mult (isDivRig_unel_mult is) exinv (isDivRig_inv' is) :=
+  isabgrop'_isrinv' (isDivRig_isabgrop' is).
+Definition isDivRig_iscomm_mult {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : iscomm mult :=
+  isabgrop'_iscomm (isDivRig_isabgrop' is).
+Definition isDivRig_isldistr {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : isldistr plus mult :=
   pr1 (pr2 is).
-Definition isDivRig_isrdistr {X : hSet} {x0 x1 : X} {plus mult : binop X} {Hnz : hsubtypes X} {inv : subset Hnz -> X}
-           (is : isDivRig x0 x1 plus mult Hnz inv) : isrdistr plus mult :=
+Definition isDivRig_isrdistr {X : hSet} {plus mult : binop X} {exinv}
+           (is : isDivRig plus mult exinv) : isrdistr plus mult :=
   pr2 (pr2 is).
 
 (** DivRig *)
 
 Definition DivRig : UU :=
-  Σ (X : hSet), Σ (x0 x1 : X) (plus mult : binop X)  (Hnz : hsubtypes X) (inv : subset Hnz -> X),
-    isDivRig x0 x1 plus mult Hnz inv.
+  Σ (X : setwith2binop), Σ exinv, @isDivRig X op1 op2 exinv.
 Definition pr1DivRig (F : DivRig) : hSet := pr1 F.
 Coercion pr1DivRig : DivRig >-> hSet.
 
-Definition zeroDivRig {F : DivRig} : F := pr1 (pr2 F).
-Definition oneDivRig {F : DivRig} : F := pr1 (pr2 (pr2 F)).
-Definition plusDivRig {F : DivRig} : binop F := pr1 (pr2 (pr2 (pr2 F))).
-Definition multDivRig {F : DivRig} : binop F := pr1 (pr2 (pr2 (pr2 (pr2 F)))).
-Definition nzDivRig {F : DivRig} : hsubtypes (pr1 F) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 F))))).
-Definition invDivRig {F : DivRig} : subset nzDivRig -> F := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 F)))))).
+Definition zeroDivRig {F : DivRig} : F := isDivRig_unel_plus (pr2 (pr2 F)).
+Definition oneDivRig {F : DivRig} : F := isDivRig_unel_mult (pr2 (pr2 F)).
+Definition plusDivRig {F : DivRig} : binop F := pr1 (pr2 (pr1 F)).
+Definition multDivRig {F : DivRig} : binop F := pr2 (pr2 (pr1 F)).
+Definition nzDivRig {F : DivRig} : hsubtypes (pr1 F) := pr1 (pr2 F).
+Definition invDivRig {F : DivRig} : subset nzDivRig -> F := isDivRig_inv' (pr2 (pr2 F)).
 Definition divDivRig {F : DivRig} : F -> subset nzDivRig -> F := fun x y => multDivRig x (invDivRig y).
 
 Definition DivRig_isDivRig (F : DivRig) :
-  isDivRig zeroDivRig oneDivRig plusDivRig multDivRig nzDivRig invDivRig :=
-  (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 F))))))).
+  isDivRig plusDivRig multDivRig nzDivRig :=
+  pr2 (pr2 F).
 
-Definition isDivRig_DivRig {X : hSet}
-           (x0 x1 : X) (plus mult : binop X) (Hnz : hsubtypes X) (inv : subset Hnz -> X)
-  : isDivRig x0 x1 plus mult Hnz inv -> DivRig :=
-  λ is : isDivRig x0 x1 plus mult Hnz inv, X ,, x0,, x1,, plus,, mult,, Hnz,, inv,, is.
+Definition isDivRig_DivRig {X : hSet} (plus mult : binop X) exinv: isDivRig plus mult exinv -> DivRig :=
+λ is : isDivRig plus mult exinv, (X,, plus,, mult),, exinv,, is.
 
 Delimit Scope hf_scope with hf.
 
@@ -146,6 +152,3 @@ Definition DivRig_isrdistr:
 Close Scope hf_scope.
                                                  
 End DivRig_pty.
-
-
-
