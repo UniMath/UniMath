@@ -148,7 +148,7 @@ Definition is_equivariant_identity {G:gr} {X Y:Action G}
            (p:ac_set X = ac_set Y) :
   weq (p # ac_str X = ac_str Y) (is_equivariant (cast (ap pr1hSet p))).
 Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
-       (* should just apply uahp at this point! *)
+       (* should just apply uahp at this point, as in Poset_univalence_prelim! *)
        simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
        refine (weqpair _ _).
        { intros p g x. simpl in x. simpl. 
