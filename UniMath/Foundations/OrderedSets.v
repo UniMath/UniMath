@@ -26,6 +26,27 @@ Defined.
 
 (** preliminaries on relations, move upstream *)
 
+Lemma isaprop_istrans {X:hSet} (R:hrel X) : isaprop (istrans R).
+Proof.
+  intros. repeat (apply impred;intro). apply propproperty.
+Defined.
+
+Lemma isaprop_isrefl {X:hSet} (R:hrel X) : isaprop (isrefl R).
+Proof.
+  intros. apply impred; intro. apply propproperty.
+Defined.
+
+Lemma isaprop_istotal {X:hSet} (R:hrel X) : isaprop (istotal R).
+Proof.
+  intros. unfold istotal. apply impred; intro x. apply impred; intro y. apply propproperty.
+Defined.
+
+Lemma isaprop_isantisymm {X:hSet} (R:hrel X) : isaprop (isantisymm R).
+Proof.
+  intros. unfold isantisymm. apply impred; intro x. apply impred; intro y.
+  apply impred; intro r. apply impred; intro s. apply setproperty.
+Defined.
+
 Definition isaset_hrel (X:hSet) : isaset (hrel X).
   intros.
   unfold hrel.
@@ -41,8 +62,8 @@ Proof.
   intros.
   unfold ispo.
   apply isapropdirprod.
-  { unfold istrans. repeat (apply impred;intro). apply propproperty. }
-  { unfold isrefl. apply impred; intro. apply propproperty. }
+  { apply isaprop_istrans. }
+  { apply isaprop_isrefl. }
 Defined.
 
 Definition isaset_po (X:hSet) : isaset (po X).
@@ -164,28 +185,24 @@ Proof.
   intros. apply pathsinv0. exact (homotweqinvweq (@Poset_univalence_weq X Y) f).
 Defined.
 
-Open Scope poset.
-Notation "m < n" := (m ≤ n × m != n)%poset (only parsing) :poset_scope.
-Definition isMinimal {X:Poset} (x:X) := ∀ y, x≤y.
-Definition isMaximal {X:Poset} (x:X) := ∀ y, y≤x.
-Definition consecutive {X:Poset} (x y:X) := x<y × ∀ z, ¬ (x<z × z<y).
+(* now we try to mimic this construction:
 
-Lemma isaprop_isMinimal {X:Poset} (x:X) : isaprop (isMaximal x).
-Proof.
-  intros. unfold isMaximal. apply impred; intros z. apply propproperty.
-Defined.
+    Inductive PosetEquivalence (X Y:Poset) : Type := pathToEq : (X=Y) -> PosetEquivalence X Y.
 
-Lemma isaprop_isMaximal {X:Poset} (x:X) : isaprop (isMaximal x).
-Proof.
-  intros. unfold isMaximal. apply impred; intros z. apply propproperty.
-Defined.
+    PosetEquivalence_rect
+         : ∀ (X Y : Poset) (P : PosetEquivalence X Y -> Type),
+           (∀ e : X = Y, P (pathToEq X Y e)) ->
+           ∀ p : PosetEquivalence X Y, P p
 
-Lemma isaprop_consecutive {X:Poset} (x y:X) : isaprop (consecutive x y).
+*)
+
+Theorem PosetEquivalence_rect
+         : ∀ (X Y : Poset) (P : PosetEquivalence X Y -> Type),
+           (∀ e : X = Y, P (paths_to_PosetEquivalence e)) ->
+           ∀ f : PosetEquivalence X Y, P f.
 Proof.
-  intros. unfold consecutive. apply isapropdirprod.
-  { apply isapropdirprod. { apply pr2. } simpl. apply isapropneg. }
-  apply impred; intro z. apply isapropneg.
-Defined.
+  intros ? ? ? ih ?.
+Admitted.
 
 Lemma B {X Y:Poset} (x:X) (e : X = Y) :
       transportf (λ T : Poset, T) e x = (paths_to_PosetEquivalence e) x.
@@ -224,19 +241,52 @@ Proof.
   exact s.
 Defined.
 
+(* applications: *)
+
+Notation "m < n" := (m ≤ n × m != n)%poset (only parsing) :poset_scope.
+Definition isMinimal {X:Poset} (x:X) := ∀ y, x≤y.
+Definition isMaximal {X:Poset} (x:X) := ∀ y, y≤x.
+Definition consecutive {X:Poset} (x y:X) := x<y × ∀ z, ¬ (x<z × z<y).
+
+Lemma isaprop_isMinimal {X:Poset} (x:X) : isaprop (isMaximal x).
+Proof.
+  intros. unfold isMaximal. apply impred; intros z. apply propproperty.
+Defined.
+
+Lemma isaprop_isMaximal {X:Poset} (x:X) : isaprop (isMaximal x).
+Proof.
+  intros. unfold isMaximal. apply impred; intros z. apply propproperty.
+Defined.
+
+Lemma isaprop_consecutive {X:Poset} (x y:X) : isaprop (consecutive x y).
+Proof.
+  intros. unfold consecutive. apply isapropdirprod.
+  { apply isapropdirprod. { apply pr2. } simpl. apply isapropneg. }
+  apply impred; intro z. apply isapropneg.
+Defined.
+
 Lemma isMinimal_preserved {X Y:Poset} {x:X} (is:isMinimal x) (f:X ≅ Y) : isMinimal (f x).
 Proof.
   intros. apply posetTransportStructure. exact is.
 Defined.
 
-Lemma isMaximal_preserved {X Y:Poset} {x:X} (is:isMaximal x) (f:X ≅ Y) : isMaximal (f x).
+Lemma isMinimal_preserved' {X Y:Poset} {x:X} (is:isMinimal x) (f:X ≅ Y) : isMinimal (f x).
 Proof.
-  intros. apply posetTransportStructure. exact is.
+  intros. generalize f; apply PosetEquivalence_rect; intro e; clear f.
+  induction e. exact is.
 Defined.
 
 Lemma consecutive_preserved {X Y:Poset} {x y:X} (is:consecutive x y) (f:X ≅ Y) : consecutive (f x) (f y).
 Proof.
   intros. apply posetTransportRelation. exact is.
+Defined.
+
+Lemma consecutive_preserved' {X Y:Poset} {x y:X} (is:consecutive x y) (f:X ≅ Y) : consecutive (f x) (f y).
+Proof.
+  intros.
+  (* Anders says " induction f. " should look for PosetEquivalence_rect.  Why doesn't it? *)
+  generalize f; apply PosetEquivalence_rect; intro e; clear f.
+  induction e. exact is.
 Defined.
 
 (** * Ordered sets *)
@@ -246,6 +296,11 @@ Defined.
 
 Definition isOrdered (X:Poset) := istotal (pr1 (pr2 X)) × isantisymm (pr1 (pr2 X)).
 
+Lemma isaprop_isOrdered (X:Poset) : isaprop (isOrdered X).
+Proof.
+  intros. apply isapropdirprod. { apply isaprop_istotal. } { apply isaprop_isantisymm. }
+Defined.
+
 Definition OrderedSet := Σ X, isOrdered X.
 
 Local Definition underlyingPoset (X:OrderedSet) : Poset := pr1 X.
@@ -253,47 +308,47 @@ Coercion underlyingPoset : OrderedSet >-> Poset.
 
 Local Definition underlyingRelation (X:OrderedSet) := pr1 (pr2 (pr1 X)).
 
+Lemma isincl_underlyingPoset : isincl underlyingPoset.
+Proof.
+  apply isinclpr1. intros X. apply isaprop_isOrdered.
+Defined.
+
+Lemma isinj_underlyingPoset : isinj underlyingPoset.
+Proof.
+  apply invmaponpathsincl. apply isincl_underlyingPoset.
+Defined.
+
+Lemma weq_on_paths_underlyingPoset (X Y:OrderedSet) : isweq (@maponpaths _ _ underlyingPoset X Y).
+Proof.
+  intros. apply isweqonpathsincl. apply isincl_underlyingPoset.
+Defined.
+
 Delimit Scope oset_scope with oset. 
+Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 80, no associativity) : oset_scope.
 Notation "m ≤ n" := (underlyingRelation _ m n) (no associativity, at level 70) : oset_scope.
 Notation "m < n" := (m ≤ n × m != n)%oset (only parsing) :oset_scope.
-Open Scope oset_scope.
+Close Scope poset.
+Local Open Scope oset.
 
-Definition isOrderedMap {X Y:OrderedSet} (f:X->Y) := isaposetmorphism f.
-
-Local Lemma idfun_ordered {X:OrderedSet} : isOrderedMap (idfun X).
-Proof. intros ? x y le. exact le. Defined.
-
-Definition OrderedMap (X Y:OrderedSet) := Σ f:X->Y, isOrderedMap f.
-
-Definition identityOrderedMap (X:OrderedSet) : OrderedMap X X.
-Proof. intros. exists (idfun X). apply idfun_ordered. Defined.
-
-Definition OrderedEquivalence (X Y:OrderedSet) := Σ f:X≃Y, isOrderedMap f.
-
-Notation "X ≅ Y" := (OrderedEquivalence X Y) (at level 80, no associativity) : oset_scope.
-(* written \cong in Agda input method *) 
-
-Definition OrderedEquivalence_to_weq {X Y} : X≅Y -> X≃Y := pr1.
-Coercion OrderedEquivalence_to_weq : OrderedEquivalence >-> weq.
-
-Definition identityOrderedEquivalence (X:OrderedSet) : X ≅ X.
-Proof. intros. exists (idweq X). apply idfun_ordered. Defined.
-
-Definition paths_to_equivalences {X Y:OrderedSet} : X=Y -> X≅Y.
+Definition paths_to_OrderedSetEquivalence {X Y:OrderedSet} : X=Y -> X≅Y.
 Proof.
   intros ? ? e.
-  induction e.
-  apply identityOrderedEquivalence.
+  Set Printing Coercions.
+  apply paths_to_PosetEquivalence.
+  apply maponpaths.
+  exact e.
+  Unset Printing Coercions.
 Defined.
 
 Theorem OrderedSet_univalence {X Y:OrderedSet} :
-    isweq (@paths_to_equivalences X Y).
+    isweq (@paths_to_OrderedSetEquivalence X Y).
 Proof.
   intros.
-  set (f := total2_paths_equiv _ X Y).
-  set (g := total2_paths_equiv _ (pr1 X) (pr1 Y)).
-
-Abort.
+  unfold paths_to_OrderedSetEquivalence.
+  apply (twooutof3c (@maponpaths _ _ underlyingPoset X Y) paths_to_PosetEquivalence).
+  { apply weq_on_paths_underlyingPoset. }
+  apply Poset_univalence.
+Defined.
   
 (* standard ordered sets *)
 
@@ -306,16 +361,14 @@ Defined.
 
 Local Notation "⟦ n ⟧" := (standardOrderedSet n) (at level 0). (* in agda-mode \[[ n \]] *)
 
-Definition FiniteStructure (X:OrderedSet) := Σ n, Σ f:standardOrderedSet n ≃ X, isOrderedMap f.
+Definition FiniteStructure (X:OrderedSet) := Σ n, standardOrderedSet n ≅ X.
 
-Local Lemma std_auto n : iscontr (OrderedEquivalence ⟦ n ⟧ ⟦ n ⟧).
+Local Lemma std_auto n : iscontr (⟦ n ⟧ ≅ ⟦ n ⟧).
 Proof.
-  intros. exists (identityOrderedEquivalence _). intros f.
+  intros. exists (identityPosetEquivalence _). intros f.
   apply total2_paths_isaprop.
-  { intros g. apply isaprop_isaposetmorphism. }
+  { intros g. apply isaprop_isPosetEquivalence. }
   simpl. apply isinjpr1weq. simpl. apply funextfun. intros i.
-  induction i as [i l]; induction f as [f is]. induction i as [|i h].
-  { simpl. 
     
 
 Abort.
@@ -343,6 +396,6 @@ Proof.
         
         admit. }
       apply isapropisweq. }
-    intros; apply impredtwice; intros; apply impred; intros. apply pr2.
+    apply isaprop_isPosetEquivalence.
   }
 Abort.
