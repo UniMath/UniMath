@@ -392,6 +392,29 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
+Lemma functtransportb {X Y : UU} (f : X -> Y) (P : Y -> UU) {x x' : X}
+  (e : x' = x) (p : P (f x)) :
+    transportb (fun x => P (f x)) e p = transportb P (maponpaths f e) p.
+Proof.
+  intros. induction e. apply idpath.
+Defined.
+
+Definition transport_f_b {X : UU} (P : X ->UU) {x y z : X} (e : y = x) (e' : y = z)
+           (p : P x) : transportf P e' (transportb P e p) = transportf P (!e @ e') p.
+Proof. intros. induction e'. induction e. reflexivity. Defined.
+
+Definition transport_b_f {X : UU} (P : X ->UU) {x y z : X} (e : x = y) (e' : z = y)
+           (p : P x) : transportb P e' (transportf P e p) = transportf P (e @ !e') p.
+Proof. intros. induction e'. induction e. reflexivity. Defined.
+
+Definition transport_f_f {X : UU} (P : X ->UU) {x y z : X} (e : x = y) (e' : y = z)
+           (p : P x) : transportf P e' (transportf P e p) = transportf P (e @ e') p.
+Proof. intros. induction e'. induction e. reflexivity. Defined.
+
+Definition transport_b_b {X : UU} (P : X ->UU) {x y z : X} (e : x = y) (e' : y = z)
+           (p : P z) : transportb P e (transportb P e' p) = transportb P (e @ e') p.
+Proof. intros. induction e'. induction e. reflexivity. Defined.
+
 Definition transport_section X (x:X) (P:X -> UU) (f:∀ x:X, P x) (y:X) (e:x=y) :
   transportf P e (f x) = f y.
 Proof. intros. induction e. reflexivity. Defined.
@@ -899,6 +922,25 @@ Proof.
   unfold homotweqinvweq.
   apply diaglemma2.
   apply (@hfibertriangle1 _ _ w _ hfid hfcc (weqccontrhfiber2 w (w x) hfid)).
+Defined.
+
+(* another way the adjointness relation may occur: *)
+Definition weq_transportf_adjointness {X Y : UU} (w : X ≃ Y) (P:Y->UU) (x : X) (p : P (w x)) :
+   transportf (P∘w) (! homotinvweqweq w x) p = transportf P (! homotweqinvweq w (w x)) p.
+Proof.
+  intros. refine (functtransportf w P (!homotinvweqweq w x) p @ _).
+  apply (maponpaths (λ e, transportf P e p)).
+  rewrite maponpathsinv0. apply maponpaths. apply homotweqinvweqweq.
+Defined.
+
+(* another way the adjointness relation may occur: *)
+Definition weq_transportb_adjointness {X Y : UU} (w : X ≃ Y) (P:Y->UU) (x : X) (p : P (w x)) :
+   transportb (P∘w) (homotinvweqweq w x) p = transportb P (homotweqinvweq w (w x)) p.
+Proof.
+  intros.
+  refine (functtransportb w P (homotinvweqweq w x) p @ _).
+  apply (maponpaths (λ e, transportb P e p)).
+  apply homotweqinvweqweq.
 Defined.
 
 Definition invmaponpathsweq {X Y : UU} (w : X ≃ Y) (x x' : X) : 
@@ -2361,8 +2403,31 @@ Proof. intros. unfold isweq.   intro y.  set (h:=hfiberfpmap w P y).
 assert (X1:isweq h). apply isweqhfiberfp. 
 assert (is: iscontr (hfiber w (pr1  y))). apply ( pr2 w ). apply (iscontrweqb  ( weqpair h X1 ) is). Defined. 
 
-Definition weqfp { X Y : UU } ( w : X ≃ Y )(P:Y-> UU) := weqpair _ ( isweqfpmap w P ) .
+(** weq on total2 given by weq on base *)
 
+Definition weqfp_map { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : (Σ x,P(w x)) -> (Σ y, P y).
+Proof. intros ? ? ? ? xp. exact (w (pr1 xp),,pr2 xp).
+Defined.
+
+Definition weqfp_invmap { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : (Σ y, P y) -> (Σ x,P(w x)).
+Proof. intros ? ? ? ? yp. exact (invmap w (pr1 yp),,transportf P (! homotweqinvweq w (pr1 yp)) (pr2 yp)).
+Defined.
+
+Definition weqfp {X Y : UU} (w : X ≃ Y) (P:Y->UU) : (Σ x : X, P (w x)) ≃ (Σ y, P y).
+Proof. intros. exists (weqfp_map w P). refine (gradth _ (weqfp_invmap w P) _ _).
+  { intros xp. refine (total2_paths _ _).
+    { simpl. apply homotinvweqweq. }
+    simpl. rewrite <- weq_transportf_adjointness. rewrite transport_f_f. rewrite pathsinv0l. reflexivity. }
+  { intros yp. refine (total2_paths _ _).
+    { simpl. apply homotweqinvweq. }
+    simpl. rewrite transport_f_f. rewrite pathsinv0l. reflexivity. }
+Defined.
+
+Definition weqfp_compute_1 { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : weqfp w P ~ weqfp_map w P.
+Proof. intros. intros xp. reflexivity. Defined.
+
+Definition weqfp_compute_2 { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : invmap (weqfp w P) ~ weqfp_invmap w P.
+Proof. intros. intros yp. reflexivity. Defined.
 
 (** *** Total spaces of families over a contractible base *)
 

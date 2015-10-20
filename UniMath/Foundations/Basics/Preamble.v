@@ -126,7 +126,11 @@ Proof . intros .  induction t as [ t p ] . exact p . Defined.
 
 Arguments pr2 {_ _} _.
 
+Definition rewrite_pr1_tpair {X} {P:X->UU} x p : pr1 (tpair P x p) = x.
+reflexivity. Defined.
 
+Definition rewrite_pr2_tpair {X} {P:X->UU} x p : pr2 (tpair P x p) = p.
+reflexivity. Defined.
 
 (*
 

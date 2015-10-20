@@ -284,6 +284,7 @@ Proof. intros. destruct p. reflexivity. Defined.
 
   (** *** Transport a pair *)
 
+  (* replace this with transportf_total2 (?) : *)
   Definition transportf_pair X (Y:X->Type) (Z:∀ x, Y x->Type)
              x x' (p:x = x') (y:Y x) (z:Z x y) :
     transportf (fun x => totalSpace (Z x)) p (tpair (Z x) y z)
