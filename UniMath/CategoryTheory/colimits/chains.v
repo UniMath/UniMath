@@ -1,6 +1,16 @@
-(****************************************************
-  Benedikt Ahrens and Anders Mörtberg, October 2015
-*****************************************************)
+(************************************************************
+      Benedikt Ahrens and Anders Mörtberg, October 2015
+*************************************************************)
+
+(** *********************************************************
+
+Contents :
+
+   Definition of chains of endofunctors
+
+   Construction of the initial algebra of the initial chain
+
+*************************************************************)
 
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
@@ -295,7 +305,7 @@ Proof.
 induction n as [|n IHn].
 - now apply InitialArrowUnique.
 - rewrite <- assoc.
-  eapply pathscomp0; 
+  eapply pathscomp0;
     [ eapply cancel_postcomposition; apply (minvCommutes hsC F _ _ CC Fcont (S n))|].
   rewrite assoc; simpl; rewrite <- functor_comp.
   now apply cancel_postcomposition, maponpaths, adaggerCommutes.
