@@ -4,6 +4,7 @@
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Foundations.FunctionalExtensionality
+               UniMath.Foundations.OrderedSets
                UniMath.Ktheory.Utilities.
 
 (** ** Move upstream *)
@@ -147,6 +148,7 @@ Definition is_equivariant_identity {G:gr} {X Y:Action G}
            (p:ac_set X = ac_set Y) :
   weq (p # ac_str X = ac_str Y) (is_equivariant (cast (ap pr1hSet p))).
 Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
+       (* should just apply uahp at this point! *)
        simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
        refine (weqpair _ _).
        { intros p g x. simpl in x. simpl. 
@@ -225,8 +227,7 @@ Definition Action_univalence_prelim {G:gr} {X Y:Action G} :
 Proof. intros.
        refine (weqcomp (total2_paths_equiv (ActionStructure G) X Y) _).
        refine (weqbandf _ _ _ _).
-       { refine (weqcomp _ (weqpair (@eqweqmap (pr1 X) (pr1 Y)) (univalenceaxiom _ _))).
-         { apply total2_paths_isaprop_equiv. apply isapropisaset. } }
+       { apply hSet_paths_to_weq_weq. }
        simpl. intro p. refine (weqcomp (is_equivariant_identity p) _).
        exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap set_to_type p)))).
 Defined.
