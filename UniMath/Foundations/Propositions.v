@@ -379,6 +379,9 @@ Definition weqeqweqhProp ( P P' : hProp ) := weqpair _ ( univfromtwoaxiomshProp 
 Corollary isasethProp : isaset hProp.
 Proof. unfold isaset.  simpl. intros x x'. apply (isofhlevelweqb (S O) ( weqeqweqhProp x x' ) (isapropweqtoprop x x' (pr2 x'))). Defined.
 
+Definition weqpathsweqhProp' { P P' : hProp } (e : P = P'): weqtopathshProp (eqweqmaphProp e) = e.
+Proof. intros. apply isasethProp.
+Defined.
 
 Lemma iscontrtildehProp : iscontr tildehProp .
 Proof . split with ( tpair _ htrue tt )  .   intro tP .  destruct tP as [ P p ] . apply ( invmaponpathsincl _ ( isinclpr1 ( fun P : hProp => P ) ( fun P => pr2 P ) ) ) .   simpl . apply uahp . apply ( fun x => tt ) .  intro t.  apply p . Defined .
