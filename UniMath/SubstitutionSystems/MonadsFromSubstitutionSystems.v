@@ -1,3 +1,29 @@
+
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents : 
+
+- Construction of a monad from a substitution system
+- Proof that morphism of hss gives morphism of monads
+- Bundling that into a functor
+- Proof that the functor is faithful
+                	
+           
+************************************************************)
+
+
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -94,7 +120,7 @@ Section mu_from_fbracket.
 
 Variable T : hss CP H.
 
-Local Notation "'p' T" := (ptd_from_alg _ _ _ _ T) (at level 3).
+Local Notation "'p' T" := (ptd_from_alg  T) (at level 3).
 (*
 Coercion functor_from_algebra_ob (X : algebra_ob _ Id_H) : functor C C := pr1 X.
 *)
@@ -103,13 +129,13 @@ Local Notation "`` T" := (alg_carrier _ _ T : EndC) (at level 3).
 
 Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 
-Local Notation "'τ'" := (tau_from_alg _ _ _ _ ). (* could put [T] as fixed argument as in [η] *)
+Local Notation τ := tau_from_alg. (* could put [T] as fixed argument as in [η] *)
 
-Local Notation "'η'" := (eta_from_alg _ _ _ _ T).
+Local Notation η := eta_from_alg.
 
 Coercion alg_from_hss (T : hss CP H) : algebra_ob _  _ := pr1 T.
 
-Definition μ_0 : functor_identity C ⟶ functor_data_from_functor _ _ `T := η. (*ptd_pt _ (pr1 (pr1 T)).*)
+Definition μ_0 : functor_identity C ⟶ functor_data_from_functor _ _ `T := η T. (*ptd_pt _ (pr1 (pr1 T)).*)
 
 Definition μ_0_ptd : id_Ptd C hs ⇒ p T.
 Proof.
@@ -222,7 +248,7 @@ Proof.
         + apply nat_trans_eq; simpl.
           apply hs.
           intro c.
-          assert (H':=nat_trans_ax (η)).
+          assert (H':=nat_trans_ax (η T)).
           simpl in H'.
           rewrite assoc.
           rewrite <- H'; clear H'.
@@ -245,7 +271,7 @@ Proof.
            rewrite <- horcomp_id_postwhisker.
            repeat rewrite assoc.
            simpl in *.
-           pathvia ( # (pr1 (H ( (` T)))) (μ_0 c);; pr1 (θ ((`T) ⊗ (ptd_from_alg _ _ _ _ T))) c ;; 
+           pathvia ( # (pr1 (H ( (` T)))) (μ_0 c);; pr1 (θ ((`T) ⊗ (p T))) c ;; 
                           pr1 (# H μ_2) c ;; pr1 (τ T) c).
            unfold tau_from_alg; simpl.
            repeat rewrite assoc.
@@ -262,7 +288,7 @@ Proof.
            simpl in *.
            repeat rewrite <- assoc.
            pathvia (  # (pr1 (H (` T))) (μ_0 c);;
-                             (pr1 (τ T) (pr1 (`T) c);; pr1 (fbracket T (identity (ptd_from_alg _ _ _ _ T))) c)).
+                             (pr1 (τ T) (pr1 (`T) c);; pr1 (fbracket T (identity (p T))) c)).
              apply maponpaths.
              rewrite assoc.
              apply H2; clear H2. (* rewrite done *)
@@ -280,21 +306,21 @@ Qed.
 
 Definition T_squared : Ptd.
 Proof.
-  exact (ptd_composite _ (ptd_from_alg _ _  _ _ T) (ptd_from_alg _ _  _ _ T)).
+  exact (ptd_composite _ (p T) (p T)).
 Defined.
 
 (** [μ_2] is not just a natural transformation from [T∙T] to [T], but also compatible with 
     the pointed structure given by [η] *)
 
 Lemma μ_2_is_ptd_mor :
-  ∀ c : C, (ptd_pt C T_squared) c;; μ_2 c = pr1 η c.
+  ∀ c : C, (ptd_pt C T_squared) c;; μ_2 c = pr1 (η T) c.
 Proof.
   intro c.
   unfold μ_2.
   unfold T_squared. simpl.
   assert (H':=Monad_law_2_from_hss c).
   simpl in H'.
-  pathvia (pr1 η c ;; identity _ ).
+  pathvia (pr1 (η T) c ;; identity _ ).
   - unfold eta_from_alg; simpl.
     repeat rewrite <- assoc.
     apply maponpaths.
@@ -303,7 +329,7 @@ Proof.
   - apply id_right.
 Qed.
 
-Definition μ_2_ptd : T_squared ⇒ ptd_from_alg _ _ _ _ T.
+Definition μ_2_ptd : T_squared ⇒ p T.
 Proof.
   exists μ_2.
   unfold is_ptd_mor.
@@ -332,7 +358,7 @@ Proof.
   split.
   - apply nat_trans_eq; try assumption.
     intro c; simpl.
-    assert (H2 := nat_trans_ax η); simpl in H2.
+    assert (H2 := nat_trans_ax (η T)); simpl in H2.
     rewrite assoc.
     rewrite <- H2 ; clear H2.
     rewrite <- assoc.
@@ -435,7 +461,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
     + apply idpath.*)
  (*   + rewrite H3. *)
       clear H3.
-      set (A':= θ ((`T) ⊗ (ptd_from_alg _ _ _ _ T)) øø `T ;; θ ((functor_compose hs hs (`T) (`T)) ⊗ (ptd_from_alg _ _ _ _ T))). 
+      set (A':= θ ((`T) ⊗ (ptd_from_alg  T)) øø `T ;; θ ((functor_compose hs hs (`T) (`T)) ⊗ (ptd_from_alg T))). 
       simpl in *.
       
       apply nat_trans_eq; try assumption.

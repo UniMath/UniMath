@@ -1,3 +1,27 @@
+
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents : 
+
+-    Definition of signatures
+-    Proof that two forms of strength laws are equivalent
+              	
+           
+************************************************************)
+
+
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -29,6 +53,9 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
 Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50).
 
+(** Goal: define signatures as pairs of a rank-2 functor and a "strength" *)
+
+(** * Definition of signatures *)
 
 Section bla.
 
@@ -185,6 +212,9 @@ Proof.
 Qed.      
 
 Definition θ_target : functor _ _ := tpair _ _ is_functor_θ_target_functor_data.
+
+(** * Two alternative versions of the strength laws *)
+
 
 (** We assume a suitable (bi)natural transformation [θ] *)
 Hypothesis θ : θ_source ⟶ θ_target.

@@ -1,3 +1,29 @@
+
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents : 
+
+-    Definition of heterogeneous substitution systems
+-    Various lemmas about the substitution ("bracket") operation
+-    Definition of precategory of substitution systems
+
+              	
+           
+************************************************************)
+
+
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -99,17 +125,20 @@ Definition eta_from_alg (T : algebra_ob _ Id_H) : EndC ⟦ functor_identity _,  
 Proof.
   exact (CoproductIn1 _ _ ;; alg_map _ _ T).
 Defined.
-  
+
+Local Notation η := eta_from_alg.  
+
 Definition ptd_from_alg (T : algebra_ob _ Id_H) : Ptd.
 Proof.
   exists (pr1 T).
-  exact (eta_from_alg T).
+  exact (η T).
 Defined.
 
 Definition tau_from_alg (T : algebra_ob _ Id_H) : EndC ⟦H T, T⟧.
 Proof.
   exact (CoproductIn2 _ _ ;; alg_map _ _ T).
 Defined.
+Local Notation τ := tau_from_alg.
 
 Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
 
@@ -120,15 +149,6 @@ Local Notation "` T" := (alg_carrier _ _ T : functor C C) (at level 3).
 
 Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 
-(*
-Definition bracket (T : algebra_ob _ Id_H) : UU := 
-  ∀ (Z : Ptd) (f : Z ⇒ ptd_from_alg T), iscontr 
-   (Σ h : `T ∙ (U Z)  ⇒ T,
-          alg_map _ _ T øø (U Z) ;; h =
-          CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) (identity (U Z)) (θ (`T ⊗ Z)) ;;
-          CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) (identity (U Z)) (#H h) ;;
-          CoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T )).                
-*)                    
 
 Definition bracket_property (T : algebra_ob _ Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
            (h : `T ∙ (U Z)  ⇒ T) : UU
@@ -148,8 +168,8 @@ Definition bracket (T : algebra_ob _ Id_H) : UU
 Definition bracket_property_parts (T : algebra_ob _ Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
            (h : `T ∙ (U Z)  ⇒ T) : UU
   :=
-    (#U f = eta_from_alg T øø (U Z) ;; h) ×
-     (θ (`T ⊗ Z) ;; #H h ;; tau_from_alg T  = tau_from_alg T øø (U Z) ;;  h).
+    (#U f = η T øø (U Z) ;; h) ×
+     (θ (`T ⊗ Z) ;; #H h ;; τ T  = τ T øø (U Z) ;;  h).
     
 Definition bracket_parts_at (T : algebra_ob _ Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T) : UU := 
    iscontr 
@@ -163,20 +183,8 @@ Definition bracket_parts (T : algebra_ob _ Id_H) : UU
 Lemma parts_from_whole (T : algebra_ob _ Id_H) (Z : Ptd) (f : Z ⇒ ptd_from_alg T)
       (h :  `T ∙ (U Z)  ⇒ T) :
   bracket_property T f h → bracket_property_parts T f h.
-  (*
-    alg_map _ _ T øø (U Z) ;; h =
-          identity (U Z) ⊕ θ (`T ⊗ Z) ;;
-          identity (U Z) ⊕ #H h ;;
-          CoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T ) → 
-   (#U f = eta_from_alg T øø (U Z) ;; h) ×
-     (θ (`T ⊗ Z) ;; #H h ;; tau_from_alg T  = tau_from_alg T øø (U Z) ;;  h ).
-*)
 Proof.
   intro Hyp.
-(*  assert (Hyp_inst :=  maponpaths (fun m:EndC⟦_,_⟧ => CoproductIn1 ([C, C] hs)
-      (CPEndC
-         ((constant_functor ([C, C] hs) ([C, C] hs) (functor_identity C)) T)
-         (H T));;m) Hyp). *)
   split.
   + unfold eta_from_alg.
     apply nat_trans_eq; try (exact hs).
@@ -230,15 +238,6 @@ Qed.
 Lemma whole_from_parts (T : algebra_ob _ Id_H) (Z : Ptd) (f : Z ⇒ ptd_from_alg T)
       (h :  `T ∙ (U Z)  ⇒ T) :
   bracket_property_parts T f h → bracket_property T f h.
-(*
-  (#U f = eta_from_alg T øø (U Z) ;; h) ×
-  (θ (`T ⊗ Z) ;; #H h ;; tau_from_alg T  = tau_from_alg T øø (U Z) ;;  h )
-   →                                       
-    alg_map _ _ T øø (U Z) ;; h =
-          identity (U Z) ⊕ θ (`T ⊗ Z) ;;
-          identity (U Z) ⊕ #H h ;;
-          CoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T ).
-*)
 Proof.
   intros [Hyp1 Hyp2].
   apply nat_trans_eq; try (exact hs).
@@ -296,9 +295,9 @@ Definition fbracket (T : hss) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
 
 Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ ptd_from_alg T) 
   : ∀ (α : functor_composite (U Z) `T ⟶ `T),
-     (∀ c : C, pr1 (#U f) c = pr1 (eta_from_alg T) (pr1 (U Z) c) ;; α c) →
-     (∀ c : C, pr1 (θ (`T ⊗ Z))  c ;; pr1 (#H α) c ;; pr1 (tau_from_alg T) c = 
-        pr1 (tau_from_alg T) (pr1 (U Z) c) ;; α c) → α = fbracket T f.
+     (∀ c : C, pr1 (#U f) c = pr1 (η T) (pr1 (U Z) c) ;; α c) →
+     (∀ c : C, pr1 (θ (`T ⊗ Z))  c ;; pr1 (#H α) c ;; pr1 (τ T) c = 
+        pr1 (τ T) (pr1 (U Z) c) ;; α c) → α = fbracket T f.
 Proof.
   intros α H1 H2.
   apply path_to_ctr.
@@ -311,10 +310,6 @@ Qed.
 Definition fbracket_unique (T : hss) {Z : Ptd} (f : Z ⇒ ptd_from_alg T) 
 : ∀ α : functor_composite (U Z)(`T) ⟶ `T,
     bracket_property_parts T f α
-(*                           
-     (#U f = eta_from_alg T øø ((U Z)) ;; α) →
-     (θ (`T ⊗ Z) ;; #H α ;; tau_from_alg T = tau_from_alg T øø (U Z) ;; α) 
-*)
    → α = fbracket T f.
 Proof.
   intros α [H1 H2].
@@ -326,10 +321,6 @@ Qed.
 Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ ptd_from_alg T) 
 : ∀ α : functor_composite (U Z)(`T) ⟶ `T,
         bracket_property_parts T f α
-(*
-     (#U f =  eta_from_alg T øø U Z ;; α) →
-     (θ (`T ⊗ Z) ;; #H α ;; tau_from_alg T = tau_from_alg T øø U Z ;; α) 
-*)
    → ∀ c, α c = pr1 (fbracket T f) c.
 Proof.
   intros α H12.
@@ -340,7 +331,7 @@ Qed.
 (** Properties of [fbracket] by definition: commutative diagrams *)
 
 Lemma fbracket_η (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ ptd_from_alg T),
-   #U f = eta_from_alg T øø U Z ;; fbracket T f.
+   #U f = η T øø U Z ;; fbracket T f.
 Proof.
   intros Z f.
   (* assert (H' := parts_from_whole T Z f (fbracket _ f)) . *)
@@ -348,9 +339,9 @@ Proof.
 Qed.
 
 Lemma fbracket_τ (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ ptd_from_alg T),
-    θ (`T ⊗ Z) ;; #H (fbracket T f) ;; tau_from_alg T  
+    θ (`T ⊗ Z) ;; #H (fbracket T f) ;; τ T  
     = 
-    tau_from_alg T øø U Z ;; (fbracket T f).
+    τ T øø U Z ;; (fbracket T f).
 Proof.
   intros Z f.
   exact (pr2 (parts_from_whole _ _ _ _ (pr2 (pr1 (pr2 T Z f))))).
@@ -447,7 +438,7 @@ Qed.
 
 (** a little preparation for much later *)
 Lemma τ_part_of_alg_mor  (T T' : algebra_ob ([C, C] hs) Id_H)
-  (β : algebra_mor ([C, C] hs) Id_H T T'): #H β ;; tau_from_alg T' = compose (C:=EndC) (tau_from_alg T) β.
+  (β : algebra_mor ([C, C] hs) Id_H T T'): #H β ;; τ T' = compose (C:=EndC) (τ T) β.
 Proof.
   assert (β_is_alg_mor := pr2 β).
   simpl in β_is_alg_mor. 
@@ -502,7 +493,7 @@ Proof.
   apply is_ptd_mor_alg_mor.
 Defined.
 
-(* show functor laws for [ptd_from_alg] and [ptd_from_alg_mor] *)
+(** show functor laws for [ptd_from_alg] and [ptd_from_alg_mor] *)
 
 Definition ptd_from_alg_functor_data : functor_data (precategory_FunctorAlg _ Id_H hsEndC) Ptd.
 Proof.
@@ -692,3 +683,6 @@ Arguments fbracket_unique_target_pointwise {_ _ _ _ } _ {_ _ _} _ _  .
 Arguments fbracket_unique {_ _ _ _ } _ {_} _ _ _  .
 (* Arguments Alg {_ _} _. *)
 Arguments hss_precategory {_ _} _ _ .
+Arguments eta_from_alg {_ _ _ _} _.
+Arguments tau_from_alg {_ _ _ _} _.
+Arguments ptd_from_alg {_ _ _ _} _.

@@ -1,3 +1,28 @@
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents : 
+
+- Derivation of Generalized Mendler Iteration
+- Instantiation to a special case, Specialized Mendler Iteration
+- Proof of a fusion law à la Bird-Paterson (Generalised folds for nested datatypes) for Generalized Mendler Iteration
+
+
+                	
+           
+************************************************************)
+
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -24,6 +49,9 @@ Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Notation "↓ f" := (mor_from_algebra_mor _ _ _ _ f) (at level 3, format "↓ f").
 (* in Agda mode \downarrow *)
 
+(** Goal: derive Generalized Mendler Iteration and a fusion law *)
+
+(** * Generalized Mendler Iteration *)
 
 Section GenMenIt.
 
@@ -89,15 +117,7 @@ Variable ψ : ψ_source ⟶ ψ_target.
 
 Definition preIt : L μF ⇒ X := φ_inv (iter (φ (ψ (R X) (ε X)))).
 
-(* what is the usual name of the following lemma? it is toforallpaths
-Lemma aux0 (A B: UU)(f g: A -> B)(a: A): f = g -> f a = g a.
-Proof.
-  intro Hyp.
-  rewrite Hyp.
-  apply idpath.
-Qed.
-*)
-   
+  
 Lemma ψ_naturality (A B: C)(h: B ⇒ A)(f: L A ⇒ X): ψ B (#L h;; f) = #L (#F h);; ψ A f.
 Proof.
   assert (ψ_is_nat := nat_trans_ax ψ);
@@ -201,6 +221,7 @@ Qed.
 
 End general_case.
 
+(** * Specialized Mendler Iteration *)
 
 Section special_case.
 
@@ -245,6 +266,8 @@ Section special_case.
 End special_case.
 
 End the_iteration_principle.
+
+(** * Fusion law for Generalized Mendler Iteration *)
 
 Variable X X': C'.
 Let Yon : functor C'^op HSET := yoneda_objects C' hsC' X.

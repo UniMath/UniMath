@@ -1,3 +1,28 @@
+
+
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents : 
+
+-    Definition of the sum of two signatures, in particular proof of strength laws for the sum
+
+              	
+           
+************************************************************)
+
+
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -44,8 +69,6 @@ Variable CC : Coproducts C.
 
 Section construction.
 
-(* should be proved somewhere *)
-
 Local Notation "'CCC'" := (Coproducts_functor_precat C C CC hs : Coproducts [C, C, hs]).
 
 
@@ -59,6 +82,7 @@ Variable S12 : θ_Strength2 θ1.
 Variable S21 : θ_Strength1 θ2.
 Variable S22 : θ_Strength2 θ2.
 
+(** * Definition of the data of the sum of two signatures *)
 
 Definition H : functor [C, C, hs] [C, C, hs] := coproduct_functor _ _ CCC H1 H2.
 
@@ -87,26 +111,7 @@ Proof.
   unfold bla1; simpl.
   unfold coproduct_functor_mor.
   eapply pathscomp0; [ apply CoproductOfArrows_comp | ].
-  eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp].
-(*  
-  assert (T:= CoproductOfArrows_comp C CC).
-  assert (T1 := T _ _ _ _ _ _ 
-           (# (pr1 (H1 X)) (# (pr1 Z) f)) (# (pr1 (H2 X)) (# (pr1 Z) f))
-         (pr1 (θ1 (prodcatpair C hs X Z)) x') 
-         (pr1 (θ2 (prodcatpair C hs X Z)) x')
-         ).
-  simpl in *.
-  match goal with |[H : _ = ?g |- _ ] => transitivity g end.
-  - apply T1.
-  - clear T1.
-    assert (T2 := T _ _ _ _ _ _ 
-                   (pr1 (θ1 (prodcatpair C hs X Z)) x) 
-                   (pr1 (θ2 (prodcatpair C hs X Z)) x)
-                   (# (pr1 (H1 (functor_composite (pr1 Z) X))) f)
-                   (# (pr1 (H2 (functor_composite (pr1 Z) X))) f) ).
-    match goal with |[H : _ = ?g |- _ ] => transitivity g end.
-*)
-    
+  eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp].    
   apply CoproductOfArrows_eq.
   * apply (nat_trans_ax (θ1 (prodcatpair _ _ X Z))).
   * apply (nat_trans_ax (θ2 (prodcatpair _ _ X Z))).
@@ -145,62 +150,10 @@ Proof.
     unfold coproduct_nat_trans_in2_data.
     unfold coproduct_nat_trans_in1_data.
     (* on the right-hand side, there is a second but unfolded CoproductOfArrows in the row - likewise a first such on the left-hand side, to be treater further below *)
-    
-    eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp]. (* replaces commented code below *)
-    
-    
-(*    
-    assert (T:=CoproductOfArrows_comp C CC).
-    
-    match goal with |[ |- _ = (CoproductOfArrows C (CC ?a ?b) (CC ?c ?d) ?f ?g) ;; _ ] =>
-                       assert (T2 := T a b c d) end.
-    clear T.
-    assert (T3:= T2 (pr1 (H1 (functor_composite (pr1 Z') X')) c)
-                 (pr1 (H2 (functor_composite (pr1 Z') X')) c)).
-    clear T2.
-    match goal with |[ |- _ = (CoproductOfArrows _ _ _  ?f ?g) ;; _ ] =>
-            assert (T4 := T3 f g) end.
-    clear T3.
-    match goal with |[ |- _ = _ ;; CoproductArrow _ _ (?a ;; _ ) (?b ;; _ ) ] =>
-          assert (T5 := T4 a b) end.
-    clear T4.
-    match goal with |[H : _ = ?g |- _ ] => transitivity g end.
-     Focus 2.
-     apply (!T5).
-
-    clear T5.
-*)
+    eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp].     
     eapply pathscomp0. apply cancel_postcomposition. apply CoproductOfArrows_comp.
-(*
-    assert (T:=CoproductOfArrows_comp C CC).
-    assert (T':= T _ _ _ _ _ _ 
-             (pr1 (# H1 α) ((pr1 Z) c))
-             (pr1 (# H2 α) ((pr1 Z) c))
-             (# (pr1 (H1 X')) ((pr1 β) c))
-             (# (pr1 (H2 X')) ((pr1 β) c))).
-    simpl in *. clear T.
-    match goal with |[T' : _ = ?e |- _ ;; _ ;; ?h = _ ] =>
-       transitivity (e ;; h) end.
-    + apply cancel_postcomposition.
-      apply T'.
-*)
     eapply pathscomp0. apply CoproductOfArrows_comp.
-    
     apply CoproductOfArrows_eq.
-
-(*
-    + clear T'.
-      assert (T := CoproductOfArrows_comp C CC 
-                   _ _ _ _ _ _ 
-                   (pr1 (# H1 α) ((pr1 Z) c);; # (pr1 (H1 X')) ((pr1 β) c))
-                   (pr1 (# H2 α) ((pr1 Z) c);; # (pr1 (H2 X')) ((pr1 β) c))
-                   (pr1 (θ1 (prodcatpair C hs X' Z')) c)
-                   (pr1 (θ2 (prodcatpair C hs X' Z')) c)).
-      match goal with | [T : _ = ?e |- _ ] => transitivity e end.
-      * apply T.
-      * clear T. 
-        apply CoproductOfArrows_eq.
-*)        
     + assert (Ha:= nat_trans_ax θ1 _ _ (prodcatmor _ _ α β)).
       apply (nat_trans_eq_pointwise _ _ _ _ _ _ Ha c).
     + assert (Ha:= nat_trans_ax θ2 _ _ (prodcatmor _ _ α β)).
@@ -215,6 +168,8 @@ Proof.
   exists θ_ob.
   apply is_nat_trans_θ_ob.
 Defined.
+
+(** * Proof of the laws of the sum of two signatures *)
 
 Lemma SumStrength1 : θ_Strength1 θ.
 Proof.
