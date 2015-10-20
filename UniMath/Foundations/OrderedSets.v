@@ -1,7 +1,27 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Foundations.FiniteSets.
+Require Import UniMath.Foundations.FunctionalExtensionality.
 Unset Automatic Introduction.
+
+(** preliminaries on sets, move upstream *)
+
+Definition set_paths_to_equivalences_map {X Y:hSet} : (X = Y) -> (pr1 X ≃ pr1 Y).
+Proof. intros ? ? e. induction e. exact (idweq _). Defined.
+
+Lemma set_paths_to_equivalences_weq {X Y:hSet} : (X = Y) ≃ (pr1 X ≃ pr1 Y).
+Proof.
+  intros. Set Printing Coercions.
+  set (f := @set_paths_to_equivalences_map X Y). exists f.
+  set (g := @eqweqmap (pr1 X) (pr1 Y)).
+  set (h := λ e:X=Y, maponpaths pr1hSet e).
+  assert (comp : f = g ∘ h).
+  { apply funextfun; intro e. induction e. reflexivity. }
+  induction (!comp). apply twooutof3c.
+  { apply isweqonpathsincl. apply isinclpr1. exact isapropisaset. }
+  apply univalenceaxiom.
+  Unset Printing Coercions.
+Defined.
 
 (** preliminaries on posets, move upstream *)
 
@@ -15,11 +35,16 @@ Definition paths_to_poset_equivalences {X Y:Poset} : X=Y -> PosetEquivalence X Y
 Proof. intros ? ? e. induction e. apply identityPosetEquivalence.
 Defined.
 
-Theorem Poset_univalence {X Y:Poset} :
-    isweq (@paths_to_poset_equivalences X Y).
+Theorem Poset_univalence_1 {X Y:Poset} :
+    X=Y ≃ PosetEquivalence X Y.
 Proof.
   intros.
-  set (f := total2_paths_equiv _ X Y).
+  Set Printing Coercions.
+  refine (_ ∘ total2_paths_equiv _ X Y)%weq.
+  refine (weqbandf _ _ _ _).
+  { 
+
+
 
 
 Abort.  
