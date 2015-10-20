@@ -27,14 +27,27 @@ Require Import UniMath.CategoryTheory.FunctorAlgebras.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 
+Section move_upstream.
+
 (* Move to limits.initial *)
-Lemma InitialArrowUnique (D : precategory) (I : Initial D) (a : D) (f : D⟦InitialObject _ I,a⟧) :
-  f = InitialArrow _ I _.
+Lemma InitialArrowUnique (D : precategory) (I : Initial D) (a : D)
+  (f : D⟦InitialObject _ I,a⟧) : f = InitialArrow _ I _.
 Proof.
 now apply (pr2 (pr2 I a)).
 Defined.
 
-Section nat_graph.
+Definition iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C.
+Proof.
+induction n as [|n Fn].
+  now apply functor_identity.
+now apply (functor_composite _ _ _ Fn F).
+Defined.
+
+End move_upstream.
+
+(* Local Notation "F ^ n" := (iter_functor _ F n) (at level 10, format "F ^ n"). *)
+
+Section chains.
 
 Variables (C : precategory) (hsC : has_homsets C).
 
@@ -160,22 +173,14 @@ Proof.
 now apply identity_iso.
 Defined.
 
-End nat_graph.
+End chains.
 
-Section functor_diagram.
+Section functor_chain.
 
 Context {C : precategory} (hsC : has_homsets C) (F : functor C C).
 Context (c : C) (s : C⟦c,F c⟧).
 
-(* TODO: add notation F^n for iter n *)
-Definition iter (n : nat) : functor C C.
-Proof.
-induction n as [|n Fn].
-  now apply functor_identity.
-now apply (functor_composite _ _ _ Fn F).
-Defined.
-
-(* Construct the diagram:
+(* Construct the chain:
 
          s          Fs            F^2 s
      c -----> F c ------> F^2 c --------> F^3 c ---> ...
@@ -183,7 +188,7 @@ Defined.
 *)
 Definition Fdiagram : diagram nat_graph C.
 Proof.
-exists (λ n, iter n c); simpl; intros m n Hmn.
+exists (λ n, iter_functor F n c); simpl; intros m n Hmn.
 destruct Hmn; simpl.
 induction m; simpl.
 - exact s.
@@ -232,10 +237,15 @@ Proof.
 now apply (colimArrowCommutes _ _ Fcocone).
 Qed.
 
-End functor_diagram.
+End functor_chain.
 
-(* Arguments iter _ _ n : simpl never. *)
+(* Proves that (L,m : F L -> L) is the initial algebra where L is the
+   colimit of the inital chain:
 
+         !          F !           F^2 !
+     0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
+
+*)
 Section colim_initial_algebra.
 
 Variables (C : precategory) (F : functor C C).
@@ -251,7 +261,7 @@ Let minv : iso (colim (shift_colim C hsC initDiag CC)) (F L) := isopair _ Fcont.
 
 Local Definition m : C⟦F L,L⟧ := inv_from_iso minv.
 
-Local Definition mAlg : algebra_ob _ F := tpair (λ X : C, C ⟦ F X, X ⟧) L m.
+Local Definition colimAlg : algebra_ob _ F := tpair (λ X : C, C ⟦ F X, X ⟧) L m.
 
 Section algebra.
 
@@ -269,19 +279,16 @@ Defined.
 (* a_n : F^n 0 -> A *)
 Local Notation an := cocone_over_alg.
 
-Lemma unfold_cocone_over_alg n : cocone_over_alg (S n) = # F (cocone_over_alg n) ;; a.
-Proof.
-now apply idpath.
-Qed.
+(* This makes Coq not unfold dmor during simpl *)
+Arguments dmor : simpl never.
 
 Lemma isCoconeOverAlg n Sn (e : edge n Sn) : dmor initDiag e ;; an Sn = an n.
 Proof.
 destruct e.
 induction n as [|n IHn].
 - now apply InitialArrowUnique.
-- rewrite unfold_cocone_over_alg, assoc.
-  apply cancel_postcomposition.
-  apply pathsinv0.
+- simpl; rewrite assoc.
+  apply cancel_postcomposition, pathsinv0.
   eapply pathscomp0; [|simpl; apply functor_comp].
   now apply maponpaths, pathsinv0, IHn.
 Qed.
@@ -318,19 +325,19 @@ rewrite !assoc.
 now apply adaggerCommutes2.
 Qed.
 
-Lemma ad_is_algebra_mor : is_algebra_mor _ _ mAlg Aa ad.
+Lemma ad_is_algebra_mor : is_algebra_mor _ _ colimAlg Aa ad.
 Proof.
-unfold is_algebra_mor; simpl; unfold mAlg.
+unfold is_algebra_mor; simpl; unfold colimAlg.
 apply iso_inv_on_right.
 rewrite assoc.
 now apply adaggerDef.
 Qed.
 
-Definition adaggerMor : algebra_mor C F mAlg Aa := tpair _ _ ad_is_algebra_mor.
+Definition adaggerMor : algebra_mor C F colimAlg Aa := tpair _ _ ad_is_algebra_mor.
 
 End algebra.
 
-Lemma adaggerMorIsInitial : isInitial (precategory_FunctorAlg C F hsC) mAlg.
+Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg C F hsC) colimAlg.
 Proof.
 intro Aa.
 exists (adaggerMor Aa); simpl; intro Fa.
@@ -348,8 +355,8 @@ induction n as [|n IHn]; simpl.
   now apply cancel_postcomposition, (mCommutes _ _ _ _ _ _ (S n)).
 Qed.
 
-Definition adaggerMorInitial : Initial (precategory_FunctorAlg C F hsC) :=
-  tpair _ _ adaggerMorIsInitial.
+Definition colimAlgInitial : Initial (precategory_FunctorAlg C F hsC) :=
+  tpair _ _ colimAlgIsInitial.
 
 End colim_initial_algebra.
 
