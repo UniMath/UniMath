@@ -64,7 +64,7 @@ End diagram_def.
 
 Section colim_def.
 
-Variables (C : precategory) (hsC : has_homsets C).
+Context {C : precategory} (hsC : has_homsets C).
 
 (* A cocone with tip c over a diagram d *)
 Definition cocone {g : graph} (d : diagram g C) (c : C) : UU :=
@@ -285,6 +285,8 @@ Defined.
 
 End colim_def.
 
+Arguments Colims : clear implicits.
+
 (* Defines colimits in functor categories when the target has colimits *)
 Section ColimFunctor.
 
@@ -302,12 +304,12 @@ Defined.
 
 Let HCg a := HC g (diagram_pointwise a).
 
-Definition ColimFunctor_ob (a : A) : C := colim _ (HCg a).
+Definition ColimFunctor_ob (a : A) : C := colim (HCg a).
 
 Definition ColimFunctor_mor (a a' : A) (f : A⟦a, a'⟧) :
   C⟦ColimFunctor_ob a,ColimFunctor_ob a'⟧.
 Proof.
-refine (colimOfArrows _ _ _ _ _).
+refine (colimOfArrows _ _ _ _).
 - now intro u; apply (# (pr1 (dob D u)) f).
 - abstract (now intros u v e; simpl; apply pathsinv0, (nat_trans_ax (dmor D e))).
 Defined.
@@ -335,27 +337,27 @@ Definition ColimFunctor : functor A C := tpair _ _ is_functor_ColimFunctor_data.
 Definition colim_nat_trans_in_data v : [A, C, hsC] ⟦ dob D v, ColimFunctor ⟧.
 Proof.
 refine (tpair _ _ _).
-- intro a; exact (colimIn C (HCg a) v).
+- intro a; exact (colimIn (HCg a) v).
 - abstract (intros a a' f;
-            now apply pathsinv0, (colimOfArrowsIn _ _ _ (HCg a) (HCg a'))).
+            now apply pathsinv0, (colimOfArrowsIn _ _ (HCg a) (HCg a'))).
 Defined.
 
-Definition cocone_pointwise (F : [A,C,hsC]) (cc : cocone [A,C,hsC] D F) a :
-  cocone C (diagram_pointwise a) (pr1 F a).
+Definition cocone_pointwise (F : [A,C,hsC]) (cc : cocone D F) a :
+  cocone (diagram_pointwise a) (pr1 F a).
 Proof.
-refine (mk_cocone _ _ _ _ _).
-- now intro v; apply (pr1 (coconeIn _ cc v) a).
+refine (mk_cocone _ _ _ _).
+- now intro v; apply (pr1 (coconeIn cc v) a).
 - abstract (intros u v e;
-    now apply (nat_trans_eq_pointwise _ _ _ _ _ _ (coconeInCommutes _ cc u v e))).
+    now apply (nat_trans_eq_pointwise _ _ _ _ _ _ (coconeInCommutes cc u v e))).
 Defined.
 
-Lemma ColimFunctor_unique (F : [A, C, hsC]) (cc : cocone _ D F) :
+Lemma ColimFunctor_unique (F : [A, C, hsC]) (cc : cocone D F) :
   iscontr (Σ x : [A, C, hsC] ⟦ ColimFunctor, F ⟧,
-            ∀ v : vertex g, colim_nat_trans_in_data v ;; x = coconeIn _ cc v).
+            ∀ v : vertex g, colim_nat_trans_in_data v ;; x = coconeIn cc v).
 Proof.
 refine (tpair _ _ _).
 - refine (tpair _ _ _).
-  + apply (tpair _ (fun a => colimArrow _ (HCg a) _ (cocone_pointwise F cc a))).
+  + apply (tpair _ (fun a => colimArrow (HCg a) _ (cocone_pointwise F cc a))).
     abstract (intros a a' f; simpl;
               eapply pathscomp0;
                 [ now apply precompWithColimOfArrows
@@ -366,7 +368,7 @@ refine (tpair _ _ _).
                       [ now apply colimArrowCommutes
                       | now apply pathsinv0, nat_trans_ax ]]]).
   + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
-              now apply (colimArrowCommutes _ (HCg a))).
+              now apply (colimArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
             apply (total2_paths_second_isaprop); simpl;
               [ apply impred; intro u; apply functor_category_has_homsets
@@ -375,14 +377,14 @@ refine (tpair _ _ _).
                 now apply (nat_trans_eq_pointwise _ _ _ _ _ _ (t2 u))]).
 Defined.
 
-Lemma ColimFunctorCocone : ColimCocone [A,C,hsC] D.
+Lemma ColimFunctorCocone : ColimCocone D.
 Proof.
-refine (mk_ColimCocone _ _ _ _ _).
+refine (mk_ColimCocone _ _ _ _).
 - exact ColimFunctor.
-- refine (mk_cocone _ _ _ _ _).
+- refine (mk_cocone _ _ _ _).
   + now apply colim_nat_trans_in_data.
   + abstract (now intros u v e; apply (nat_trans_eq hsC);
-                  intro a; apply (colimInCommutes C (HCg a))).
+                  intro a; apply (colimInCommutes (HCg a))).
 - now intros F cc; simpl; apply (ColimFunctor_unique _ cc).
 Defined.
 

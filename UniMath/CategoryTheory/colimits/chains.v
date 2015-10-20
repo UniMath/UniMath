@@ -61,22 +61,22 @@ now apply (pr2 d).
 Defined.
 
 Definition cocone_shift {D : diagram nat_graph C}
-  {x : C} (cx : cocone _ (shift D) x) : cocone _ D x.
+  {x : C} (cx : cocone (shift D) x) : cocone D x.
   (* (fx : ∀ v : nat, C ⟦ dob (shift D) v, x ⟧) *)
   (* (Hx : ∀ u v (e : edge u v), dmor (shift D) e ;; fx v = fx u) : *)
   (* Σ (f : ∀ v, C ⟦ dob D v, x ⟧),  *)
   (*   (∀ u v (e : edge u v), dmor D e ;; f v = f u). *)
 Proof.
-refine (mk_cocone _ _ _ _ _).
+refine (mk_cocone _ _ _ _).
 - intro n.
   set (p := @dmor _ _ D n (S n) (idpath _)).
-  now apply (p ;; coconeIn _ cx n). 
+  now apply (p ;; coconeIn cx n).
 - abstract (now intros m n Hmn; destruct Hmn; simpl;
-            apply maponpaths, (coconeInCommutes _ cx _ _ (idpath _))).
+            apply maponpaths, (coconeInCommutes cx _ _ (idpath _))).
 Defined.
 
 Definition shift_cocone {D : diagram nat_graph C}
-  {x : C} (cx : cocone _ D x) : cocone _ (shift D) x.
+  {x : C} (cx : cocone D x) : cocone (shift D) x.
  (* (fx : ∀ v : nat, C ⟦ dob D v, x ⟧) *)
  (*  (Hx : ∀ u v (e : edge u v), dmor D e ;; fx v = fx u) : *)
   (* Σ (f : ∀ v, C ⟦ dob (shift D) v, x ⟧),  *)
@@ -84,49 +84,49 @@ Definition shift_cocone {D : diagram nat_graph C}
 Proof.
 refine (tpair _ _ _).
 - intro n.
-  now apply (coconeIn _ cx).
+  now apply (coconeIn cx).
   (* set (p := @dmor _ _ D (S n) _ (idpath _)). *)
   (* now apply (p ;; coconeIn _ cx (S (S n))). *)
-- abstract (intros m n Hmn; destruct Hmn; apply (coconeInCommutes _ cx)).
+- abstract (intros m n Hmn; destruct Hmn; apply (coconeInCommutes cx)).
 Defined.
 
 Lemma shift_cocone_cocone_shift (D : diagram nat_graph C)
-  (x : C) (cx : cocone _ D x) : cocone_shift (shift_cocone cx) = cx.
+  (x : C) (cx : cocone D x) : cocone_shift (shift_cocone cx) = cx.
 Proof.
 apply total2_paths_second_isaprop; simpl.
 - now repeat (apply impred; intro); apply hsC.
-- now apply funextsec; intro n; apply (coconeInCommutes _ cx).
+- now apply funextsec; intro n; apply (coconeInCommutes cx).
 Qed.
 
 Lemma cocone_shift_shift_cocone (D : diagram nat_graph C)
-  (x : C) (cx : cocone _ (shift D) x) : shift_cocone (cocone_shift cx) = cx.
+  (x : C) (cx : cocone (shift D) x) : shift_cocone (cocone_shift cx) = cx.
 Proof.
 apply total2_paths_second_isaprop; simpl.
 - now repeat (apply impred; intro); apply hsC.
-- now apply funextsec; intro n; apply (coconeInCommutes _ cx _ _ (idpath _)).
+- now apply funextsec; intro n; apply (coconeInCommutes cx _ _ (idpath _)).
 Qed.
 
 (**** TODO: Continue from here *)
 
-Definition shift_colim (D : diagram nat_graph C) (CC : ColimCocone C D) :
-  ColimCocone C (shift D).
+Definition shift_colim (D : diagram nat_graph C) (CC : ColimCocone D) :
+  ColimCocone (shift D).
 Proof.
-refine (mk_ColimCocone _ _ _ _ _).
-- apply (colim _ CC).
-- apply (shift_cocone (colimCocone _ CC)).
+refine (mk_ColimCocone _ _ _ _).
+- apply (colim CC).
+- apply (shift_cocone (colimCocone CC)).
 - simpl.
 intros x fx.
 refine (tpair _ _ _).
 + set (cs := cocone_shift fx).
-set (ca := colimArrow _ CC x cs).
+set (ca := colimArrow CC x cs).
 exists ca.
 simpl; intro n.
 unfold ca; simpl.
-set (Hp := colimArrowCommutes _ CC x cs (S n)).
+set (Hp := colimArrowCommutes CC x cs (S n)).
 simpl in Hp.
 eapply pathscomp0.
 apply Hp.
-apply (coconeInCommutes _ fx _ _ (idpath _)).
+apply (coconeInCommutes fx _ _ (idpath _)).
 + simpl.
 intro f.
 apply total2_paths_second_isaprop; simpl.
@@ -138,23 +138,23 @@ rewrite <- (Hf n).
 rewrite assoc.
 apply cancel_postcomposition.
 apply pathsinv0.
-now apply colimInCommutes.
+now apply (@colimInCommutes C).
 Defined. (* parts of this should be opaque? *)
 
-Definition colim_shift (D : diagram nat_graph C) (CC : ColimCocone C (shift D)) :
-  ColimCocone C D.
+Definition colim_shift (D : diagram nat_graph C) (CC : ColimCocone (shift D)) :
+  ColimCocone D.
 Proof.
-refine (mk_ColimCocone _ _ _ _ _).
-- apply (colim _ CC).
-- apply (cocone_shift (colimCocone _ CC)).
+refine (mk_ColimCocone _ _ _ _).
+- apply (colim CC).
+- apply (cocone_shift (colimCocone CC)).
 - (* simpl; intros m n Hmn; destruct Hmn. *)
   (* now rewrite <- (colimInCommutes _ CC m (S m) (idpath _)). *)
 intros x fx.
 refine (tpair _ _ _).
-+ 
++
 (* set (cs := cocone_shift D (colim _ CC) (colimIn _ CC) (colimInCommutes _ CC)). *)
 set (test := shift_cocone fx).
-set (ca := colimArrow _ CC x test).
+set (ca := colimArrow CC x test).
 exists ca.
 simpl.
 intro n.
@@ -162,31 +162,31 @@ unfold ca.
 rewrite <- assoc.
 eapply pathscomp0.
 apply maponpaths.
-apply (colimArrowCommutes _ CC x test n).
+apply (colimArrowCommutes CC x test n).
 unfold test.
 simpl.
-eapply pathscomp0; [|apply (coconeInCommutes _ fx _ _ (idpath _))].
+eapply pathscomp0; [|apply (coconeInCommutes fx _ _ (idpath _))].
 apply idpath.
 +
 simpl; intro f.
-apply total2_paths_second_isaprop; 
+apply total2_paths_second_isaprop;
   [now apply impred; intro; apply hsC|]; simpl.
 apply colimArrowUnique; simpl; intro n.
 destruct f as [f Hf]; simpl.
-rewrite <- Hf. 
+rewrite <- Hf.
 apply cancel_postcomposition, pathsinv0.
-apply (colimInCommutes _ CC _ _ (idpath _)).
+apply (colimInCommutes CC _ _ (idpath _)).
 Defined.
 
 Definition colim_shift_iso (D : diagram nat_graph C)
- (CC : ColimCocone C D) : iso (colim _ CC) (colim _ (shift_colim D CC)).
+ (CC : ColimCocone D) : iso (colim CC) (colim (shift_colim D CC)).
 Proof.
 now apply identity_iso.
 Defined.
 
 End nat_graph.
 
-Section functor_diagram. 
+Section functor_diagram.
 
 Variables (C : precategory) (F : functor C C).
 Variables (c : C) (s : C⟦c,F c⟧).
@@ -208,31 +208,31 @@ induction m; simpl.
 (* now apply (# (iter m) s). *)
 Defined.
 
-Variables (hsC : has_homsets C) (CC : ColimCocone _ Fdiagram).
+Variables (hsC : has_homsets C) (CC : ColimCocone Fdiagram).
 
-Local Notation L := (colim _ CC).
-Local Notation LF := (colim C (shift_colim C hsC Fdiagram CC)).
+Local Notation L := (colim CC).
+Local Notation LF := (colim (shift_colim C hsC Fdiagram CC)).
 
-Definition Fcocone : cocone C Fdiagram (F L).
+Definition Fcocone : cocone Fdiagram (F L).
 Proof.
-refine (mk_cocone _ _ _ _ _).
+refine (mk_cocone _ _ _ _).
 - simpl; intro n.
 destruct n; simpl.
-+ set (x := # F (colimIn _ CC 0)).
++ set (x := # F (colimIn CC 0)).
 simpl in x.
 exact (s ;; x).
-+ set (x := # F (colimIn _ CC n)).
++ set (x := # F (colimIn CC n)).
 simpl in *.
 apply x.
 - abstract (simpl; intros m n Hmn; destruct Hmn; simpl; destruct m; simpl ;
-     [apply idpath|];simpl;rewrite <- functor_comp;apply maponpaths;apply (colimInCommutes _ CC _ _ (idpath _))).
+     [apply idpath|];simpl;rewrite <- functor_comp;apply maponpaths;apply (colimInCommutes CC _ _ (idpath _))).
 Defined.
 
 (* this is m^-1 : L -> FL in TACL slides page 9 *)
 Definition from_colim_shift : C⟦LF,F L⟧.
 Proof.
-change (colim C (shift_colim C hsC Fdiagram CC)) with (colim C CC).
-refine (colimArrow _ _ _ _).
+change (colim (shift_colim C hsC Fdiagram CC)) with (colim CC).
+refine (colimArrow _ _ _).
 apply Fcocone.
 
 (* refine (colimArrow _ _ _ _). *)
@@ -259,7 +259,7 @@ Variable Hcc : chain_cocontinuous.
 Let minv : iso L (F L) := isopair _ Hcc.
 Let m : C⟦F L,L⟧ := inv_from_iso minv.
 
-Lemma mCommutes (n : nat) : coconeIn _ (colimCocone _ CC) n = coconeIn _ Fcocone n ;; m.
+Lemma mCommutes (n : nat) : coconeIn (colimCocone CC) n = coconeIn Fcocone n ;; m.
 Proof.
 unfold m.
 apply iso_inv_on_left.
@@ -268,7 +268,7 @@ apply pathsinv0.
 now apply (@colimArrowCommutes C _ _ CC (F L) Fcocone n).
 Qed.
 
-Lemma minvCommutes (n : nat) : coconeIn _ (colimCocone _ CC) n ;; minv = coconeIn _ Fcocone n.
+Lemma minvCommutes (n : nat) : coconeIn (colimCocone CC) n ;; minv = coconeIn Fcocone n.
 Proof.
 now apply (@colimArrowCommutes C _ _ CC (F L) Fcocone n).
 Qed.
@@ -293,16 +293,16 @@ Variables (C : precategory) (F : functor C C).
 Variables (hsC : has_homsets C) (Init : Initial C).
 Let initDiag : diagram nat_graph C := Fdiagram C F Init (InitialArrow C Init (F Init)).
 
-Variable (CC : ColimCocone C initDiag).
+Variable (CC : ColimCocone initDiag).
 Variable (Fcont : chain_cocontinuous C F (InitialObject _ Init) (InitialArrow _ Init _) hsC CC).
 
-Let L := colim _ CC.
-Let minv : iso (colim C (shift_colim C hsC initDiag CC)) (F L) := isopair _ Fcont.
+Let L := colim CC.
+Let minv : iso (colim (shift_colim C hsC initDiag CC)) (F L) := isopair _ Fcont.
 
 (* Morally we need to insert colim_shift_iso (ie the identity iso) *)
 Local Definition m : C⟦F L,L⟧ := inv_from_iso minv.
 
-Local Definition mAlg : algebra_ob _ F. 
+Local Definition mAlg : algebra_ob _ F.
 Proof.
 exists L.
 apply m.
@@ -352,18 +352,18 @@ Qed.
 (* ad = a† = a dagger *)
 Local Definition ad : C⟦L,A⟧.
 Proof.
-refine (colimArrow _ _ _ _).
-refine (mk_cocone _ _ _ _ _).
+refine (colimArrow _ _ _).
+refine (mk_cocone _ _ _ _).
 - apply cocone_over_alg.
 - apply isCoconeOverAlg.
 Defined.
 
-Lemma adaggerCommutes (n : nat) : colimIn C CC n ;; ad = an n.
+Lemma adaggerCommutes (n : nat) : colimIn CC n ;; ad = an n.
 Proof.
 apply colimArrowCommutes.
 Qed.
 
-Lemma adaggerCommutes2 (n : nat) : colimIn C CC n ;; minv ;; # F ad ;; a = an n.
+Lemma adaggerCommutes2 (n : nat) : colimIn CC n ;; minv ;; # F ad ;; a = an n.
 Proof.
 induction n as [|n IHn].
 - now apply InitialArrowUnique.
@@ -399,7 +399,7 @@ Definition adaggerMor : algebra_mor C F mAlg Aa := tpair _ _ ad_is_algebra_mor.
 
 End algebra.
 
-Lemma adaggerMorIsInitial : isInitial (precategory_FunctorAlg C F hsC) mAlg. 
+Lemma adaggerMorIsInitial : isInitial (precategory_FunctorAlg C F hsC) mAlg.
 Proof.
 intro Aa.
 exists (adaggerMor Aa); simpl.
@@ -483,7 +483,7 @@ Definition listFunctor : functor HSET HSET :=
                     (constant_functor HSET HSET unitHSET)
                     streamFunctor.
 
-Definition temp : ColimCocone HSET
+Definition temp : ColimCocone
    (Fdiagram HSET listFunctor InitialHSET
       (InitialArrow HSET InitialHSET (listFunctor InitialHSET))).
 Proof.
@@ -497,7 +497,7 @@ Proof.
 unfold chain_cocontinuous.
 Admitted.
 
-(* 
+(*
 
 P(F), P(G) |- P(F * G)
 P(F), P(G) |- P(F + G)

@@ -16,7 +16,7 @@ Contents :
             Precategory HSET of hSets
 
 	    HSET is a category
-	    
+
 	    Colimits in HSET
 
 
@@ -289,7 +289,7 @@ Local Definition eqr : eqrel cobase := eqrelpair _ iseqrel_rel.
 Definition colimHSET : HSET :=
   hSetpair (setquot eqr) (isasetsetquot _).
 
-(*        
+(*
            (X,~)
             | \
             |   \
@@ -311,13 +311,13 @@ Defined.
 (* Define the morphism out of the colimit *)
 Section from_colim.
 
-Variables (c : HSET) (cc : cocone _ D c).
+Variables (c : HSET) (cc : cocone D c).
 
 Local Definition from_cobase : cobase -> pr1hSet c.
 Proof.
-now intro iA; apply (coconeIn _ cc (pr1 iA) (pr2 iA)).
+now intro iA; apply (coconeIn cc (pr1 iA) (pr2 iA)).
 Defined.
-  
+
 Local Definition from_cobase_rel : hrel cobase.
 Proof.
 intros x x'; exists (from_cobase x = from_cobase x').
@@ -338,7 +338,7 @@ Lemma rel0_impl a b (Hab : rel0 a b) : from_cobase_eqrel a b.
 Proof.
 apply Hab; clear Hab; intro H; simpl.
 destruct H as [f Hf].
-generalize (toforallpaths _ _ _ (coconeInCommutes _ cc (pr1 a) (pr1 b) f) (pr2 a)).
+generalize (toforallpaths _ _ _ (coconeInCommutes cc (pr1 a) (pr1 b) f) (pr2 a)).
 unfold compose, from_cobase; simpl; intro H.
 now rewrite <- H, Hf.
 Qed.
@@ -360,9 +360,9 @@ Defined.
 
 End from_colim.
 
-Definition colimCoconeHSET : cocone HSET D colimHSET. 
+Definition colimCoconeHSET : cocone D colimHSET.
 Proof.
-refine (mk_cocone _ _ _ _ _).
+refine (mk_cocone _ _ _ _).
 - now apply injections.
 - intros u v e.
   apply funextfun; intros Fi; simpl.
@@ -372,8 +372,8 @@ refine (mk_cocone _ _ _ _ _).
 Defined.
 
 Definition ColimHSETArrow (c : HSET)
-  (cc : cocone _ D c) : 
-  Σ x : HSET ⟦ colimHSET, c ⟧, ∀ v : vertex g, injections v ;; x = coconeIn _ cc v.
+  (cc : cocone D c) :
+  Σ x : HSET ⟦ colimHSET, c ⟧, ∀ v : vertex g, injections v ;; x = coconeIn cc v.
 Proof.
 exists (from_colimHSET _ cc); intro i; simpl.
 unfold injections, compose, from_colimHSET; simpl.
@@ -381,11 +381,11 @@ apply funextfun; intro Fi.
 now rewrite (setquotunivcomm eqr).
 Defined.
 
-Definition ColimCoconeHSET : ColimCocone HSET D.
+Definition ColimCoconeHSET : ColimCocone D.
 Proof.
-apply (mk_ColimCocone _ _ colimHSET colimCoconeHSET).
+apply (mk_ColimCocone _ colimHSET colimCoconeHSET).
 unfold isColimCocone; intros c cc.
-exists (ColimHSETArrow _ cc). 
+exists (ColimHSETArrow _ cc).
 abstract (intro f; apply total2_paths_second_isaprop;
            [ now apply impred; intro i; apply has_homsets_HSET
            | apply funextfun; intro x; simpl;
