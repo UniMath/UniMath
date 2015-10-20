@@ -335,6 +335,11 @@ The proof of theorem [ univfromtwoaxiomshProp ] is modeled on the proof of [ uni
 
 Axiom uahp : ∀ P P':hProp,  (P -> P') -> (P' -> P) -> @paths hProp P P'.
 
+Corollary uahp' : ∀ P Q, isaprop P -> isaprop Q -> (P -> Q) -> (Q -> P) -> P=Q.
+Proof.
+  intros ? ? i j f g. exact (maponpaths hProptoType (uahp (P,,i) (Q,,j) f g)).
+Defined.
+
 Definition eqweqmaphProp { P P': hProp }  ( e: @paths hProp P P' ) : weq P P'.
 Proof. intros . destruct e . apply idweq.  Defined.
 
