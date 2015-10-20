@@ -275,6 +275,7 @@ Qed.
 
 End functor_diagram.
 
+(* TODO: Move up *)
 (* Arguments iter _ _ n : simpl never. *)
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
@@ -426,7 +427,8 @@ apply cancel_postcomposition.
 apply (mCommutes _ _ _ _ _ _ _ (S n)).
 Qed.
 
-Definition adaggerMorInitial : Initial (precategory_FunctorAlg C F hsC) := tpair _ _ adaggerMorIsInitial.
+Definition adaggerMorInitial : Initial (precategory_FunctorAlg C F hsC) :=
+  tpair _ _ adaggerMorIsInitial.
 
 End colim_initial_algebra.
 
@@ -434,9 +436,96 @@ Check adaggerMorIsInitial.
 
 Section lists.
 
+(* TODO: Move *)
+Require Import UniMath.SubstitutionSystems.Auxiliary.
+Require Import UniMath.SubstitutionSystems.FunctorsPointwiseProduct.
+Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.terminal.
+
 Variable A : HSET.
 
-Definition listFunctor : functor_data HSET HSET.
+Lemma ProductsHSET : Products HSET.
 Admitted.
+
+Lemma CoproductsHSET : Coproducts HSET.
+Admitted.
+
+Lemma TerminalHSET : Terminal HSET.
+Admitted.
+
+Lemma InitialHSET : Initial HSET.
+Admitted.
+
+(*
+F(X) = A * X
+*)
+Definition streamFunctor : functor HSET HSET :=
+  product_functor HSET HSET ProductsHSET
+                  (constant_functor HSET HSET A)
+                  (functor_identity HSET).
+
+
+Definition unitHSET : HSET.
+Proof.
+exists unit.
+apply isasetaprop.
+apply isapropifcontr.
+apply iscontrunit.
+Defined.
+
+(*
+F(X) = 1 + (A * X)
+*)
+Definition listFunctor : functor HSET HSET :=
+  coproduct_functor HSET HSET CoproductsHSET
+                    (constant_functor HSET HSET unitHSET)
+                    streamFunctor.
+
+Definition temp : ColimCocone HSET
+   (Fdiagram HSET listFunctor InitialHSET
+      (InitialArrow HSET InitialHSET (listFunctor InitialHSET))).
+Proof.
+apply ColimCoconeHSET.
+Defined.
+
+Lemma listFunctor_chain_cocontinuous : chain_cocontinuous HSET listFunctor
+  (InitialObject _ InitialHSET) (InitialArrow _ InitialHSET _) has_homsets_HSET
+  temp.
+Proof.
+unfold chain_cocontinuous.
+Admitted.
+
+(* 
+
+P(F), P(G) |- P(F * G)
+P(F), P(G) |- P(F + G)
+           |- P(constant_functor A)
+           |- P(identity_functor)
+
+*)
+
+Lemma listFunctor_Initial :
+  Initial (precategory_FunctorAlg HSET listFunctor has_homsets_HSET).
+Proof.
+refine (adaggerMorInitial _ _ _ _ _ _).
+- apply InitialHSET.
+- apply temp.
+- apply listFunctor_chain_cocontinuous.
+Defined.
+
+(*
+
+Get recursion/iteration scheme:
+
+   x : X           f : A × X -> X
+------------------------------------
+      iter x f : List A -> X
+
+
+Get induction as well?
+
+*)
 
 End lists.
