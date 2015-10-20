@@ -71,8 +71,14 @@ Defined.
 
 Definition PosetEquivalence (X Y:Poset) := Σ f:X≃Y, isPosetEquivalence f.
 
-Lemma isinj_pr1_PosetEquivalence (X Y:Poset) :
-  isinj (pr1 : PosetEquivalence X Y -> X≃Y).
+Local Open Scope poset.
+Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 80, no associativity) : poset_scope.
+(* written \cong in Agda input method *) 
+
+Definition underlyingEquivalence {X Y} : X≅Y -> X≃Y := pr1.
+Coercion underlyingEquivalence : PosetEquivalence >-> weq.
+
+Lemma isinj_pr1_PosetEquivalence (X Y:Poset) : isinj (pr1 : X≅Y -> X≃Y).
 Proof.
   intros ? ? f g.
   apply total2_paths_second_isaprop.
@@ -144,10 +150,18 @@ Proof.
   apply weqproperty.
 Defined.
 
-Corollary Poset_univalence_weq {X Y:Poset} : X=Y ≃ PosetEquivalence X Y.
+Corollary Poset_univalence_weq {X Y:Poset} : (X=Y) ≃ (X≅Y).
+Proof. intros. exact (weqpair _ Poset_univalence).
+Defined.
+
+Corollary promotePosetEquivalence {X Y:Poset} : X≅Y -> X=Y.
+Proof. intros ? ? f. exact (invmap Poset_univalence_weq f).
+Defined.
+
+Corollary promotePosetEquivalence_compute {X Y:Poset} (f:X≅Y) :
+  f = paths_to_PosetEquivalence (promotePosetEquivalence f).
 Proof.
-  intros.
-  exact (weqpair _ Poset_univalence).
+  intros. apply pathsinv0. exact (homotweqinvweq (@Poset_univalence_weq X Y) f).
 Defined.
 
 Open Scope poset.
@@ -173,19 +187,25 @@ Proof.
   apply impred; intro z. apply isapropneg.
 Defined.
 
-(*
-
-Coq takes forever to parse this statement now:
-
 Lemma isMinimal_preserved {X Y:Poset} {x:X} (is:isMinimal x) (f:X ≅ Y) : isMinimal (f x).
 Proof.
   intros.
-
-
-Abort.
-
-*)
-
+  set (e := promotePosetEquivalence f).
+  set (d := promotePosetEquivalence_compute f).
+  change (promotePosetEquivalence f) with e in d.
+  set (c := transportf (λ T:Poset, Σ t:T, isMinimal t) e (x,,is)).
+  assert (b : pr1 c = f x).
+  { set (b := @transportf_total2 Poset (λ T, pr1hSet (carrierofposet T)) (@isMinimal) X Y e (x,,is)).
+    simpl in b.
+    intermediate_path (transportf (idfun Poset) e x).
+    { exact (maponpaths pr1 b). }
+    rewrite d.
+    generalize e; intro p.      (* make this a separate lemma *)
+    induction p.
+    reflexivity. }
+  rewrite <- b.
+  exact (pr2 c).
+Defined.
 
 (** * Ordered sets *)
 
@@ -221,8 +241,8 @@ Definition OrderedEquivalence (X Y:OrderedSet) := Σ f:X≃Y, isOrderedMap f.
 Notation "X ≅ Y" := (OrderedEquivalence X Y) (at level 80, no associativity) : oset_scope.
 (* written \cong in Agda input method *) 
 
-Definition underlyingEquivalence {X Y} : X≅Y -> X≃Y := pr1.
-Coercion underlyingEquivalence : OrderedEquivalence >-> weq.
+Definition OrderedEquivalence_to_weq {X Y} : X≅Y -> X≃Y := pr1.
+Coercion OrderedEquivalence_to_weq : OrderedEquivalence >-> weq.
 
 Definition identityOrderedEquivalence (X:OrderedSet) : X ≅ X.
 Proof. intros. exists (idweq X). apply idfun_ordered. Defined.
