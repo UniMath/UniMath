@@ -110,19 +110,6 @@ Proof.
   intros ? ? ? ? ? e. induction f. induction e. apply isPosetEquivalence_idweq.
 Defined.
 
-Definition posetEquality {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
-  @isPosetEquivalence (X,,R) (Y,,S) (hSet_paths_to_weq_map f)
-  -> Posetpair X R = Posetpair Y S.
-Proof. intros ? ? ? ? ? i. eapply total2_paths. apply poTransport. exact i.
-Defined.
-
-Definition posetEquality' {X Y:Poset} (f:carrierofposet X = carrierofposet Y) :
-  @isPosetEquivalence X Y (hSet_paths_to_weq_weq f)
-  -> X = Y.
-Proof. intros ? ? ? i. induction X as [X R]; induction Y as [Y S]; simpl in f.
-       exact (posetEquality _ _ _ i).
-Defined.
-
 Definition identityPosetEquivalence (X:Poset) : PosetEquivalence X X.
 Proof. intros. exists (idweq X). apply isPosetEquivalence_idweq.
 Defined.
