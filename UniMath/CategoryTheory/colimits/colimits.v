@@ -2,6 +2,18 @@
   Benedikt Ahrens and Anders Mörtberg, October 2015
 *****************************************************)
 
+(** *************************************************
+
+Contents :
+
+            Definition of cocones
+
+	    Definition of colimits
+
+	    Colimits in functor categories
+
+*****************************************************)
+
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -11,8 +23,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
+Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 
 Section move_upstream.
 
@@ -71,7 +82,7 @@ Definition cocone {g : graph} (d : diagram g C) (c : C) : UU :=
   Σ (f : ∀ (v : vertex g), C⟦dob d v,c⟧),
     ∀ (u v : vertex g) (e : edge u v), dmor d e ;; f v = f u.
 
-Definition mk_cocone {g : graph} (d : diagram g C) (c : C) (f : ∀ (v : vertex g), C⟦dob d v,c⟧)
+Definition mk_cocone {g : graph} {d : diagram g C} {c : C} (f : ∀ (v : vertex g), C⟦dob d v,c⟧)
   (Hf : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; f v = f u) : cocone d c := tpair _ f Hf.
 
 (* The injections to c in the cocone *)
@@ -149,7 +160,7 @@ now apply path_to_ctr, Hk.
 Qed.
 
 Lemma Cocone_postcompose {g : graph} {d : diagram g C}
-  (c : C) (cc : cocone d c) (x : C) (f : C⟦c,x⟧) :
+  {c : C} (cc : cocone d c) (x : C) (f : C⟦c,x⟧) :
     ∀ u v (e : edge u v), dmor d e ;; (coconeIn cc v ;; f) = coconeIn cc u ;; f.
 Proof.
 now intros u v e; rewrite assoc, coconeInCommutes.
@@ -158,7 +169,7 @@ Qed.
 Lemma colimArrowEta {g : graph} {d : diagram g C} (CC : ColimCocone d)
   (c : C) (f : C⟦colim CC,c⟧) :
   f = colimArrow CC c (tpair _ (λ u, colimIn CC u ;; f)
-                 (Cocone_postcompose _ (colimCocone CC) c f)).
+                 (Cocone_postcompose (colimCocone CC) c f)).
 Proof.
 now apply colimArrowUnique.
 Qed.
@@ -169,7 +180,7 @@ Definition colimOfArrows {g : graph} {d1 d2 : diagram g C}
   (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e) :
   C⟦colim CC1,colim CC2⟧.
 Proof.
-apply colimArrow; refine (mk_cocone _ _ _ _).
+apply colimArrow; refine (mk_cocone _ _).
 - now intro u; apply (f u ;; colimIn CC2 u).
 - abstract (intros u v e; simpl;
             now rewrite assoc, fNat, <- assoc, colimInCommutes).
@@ -202,7 +213,7 @@ Lemma precompWithColimOfArrows {g : graph} (d1 d2 : diagram g C)
   (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e)
   (x : C) (cc : cocone d2 x) :
   colimOfArrows CC1 CC2 f fNat ;; colimArrow CC2 x cc =
-  colimArrow CC1 x (mk_cocone _ _ (λ u, f u ;; coconeIn cc u)
+  colimArrow CC1 x (mk_cocone (λ u, f u ;; coconeIn cc u)
      (preCompWithColimOfArrows_subproof CC1 CC2 f fNat x cc)).
 Proof.
 apply colimArrowUnique.
@@ -212,8 +223,8 @@ Qed.
 Lemma postcompWithColimArrow {g : graph} (D : diagram g C)
  (CC : ColimCocone D) (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) :
    colimArrow CC c cc ;; k =
-   colimArrow CC d (mk_cocone _ _ (λ u, coconeIn cc u ;; k)
-              (Cocone_postcompose c cc d k)).
+   colimArrow CC d (mk_cocone (λ u, coconeIn cc u ;; k)
+              (Cocone_postcompose cc d k)).
 Proof.
 apply colimArrowUnique.
 now intro u; rewrite assoc, colimArrowCommutes.
@@ -345,7 +356,7 @@ Defined.
 Definition cocone_pointwise (F : [A,C,hsC]) (cc : cocone D F) a :
   cocone (diagram_pointwise a) (pr1 F a).
 Proof.
-refine (mk_cocone _ _ _ _).
+refine (mk_cocone _ _).
 - now intro v; apply (pr1 (coconeIn cc v) a).
 - abstract (intros u v e;
     now apply (nat_trans_eq_pointwise _ _ _ _ _ _ (coconeInCommutes cc u v e))).
@@ -381,7 +392,7 @@ Lemma ColimFunctorCocone : ColimCocone D.
 Proof.
 refine (mk_ColimCocone _ _ _ _).
 - exact ColimFunctor.
-- refine (mk_cocone _ _ _ _).
+- refine (mk_cocone _ _).
   + now apply colim_nat_trans_in_data.
   + abstract (now intros u v e; apply (nat_trans_eq hsC);
                   intro a; apply (colimInCommutes (HCg a))).

@@ -4,7 +4,7 @@ Started by: Benedikt Ahrens, Chris Kapulkin, Mike Shulman
 
 january 2013
 
-Extended by: Anders Mörtberg
+Extended by: Anders Mörtberg (October 2015)
 
 ************************************************************)
 
@@ -19,7 +19,6 @@ Contents :
 
 	    Colimits in HSET
 
-
 ************************************************************)
 
 Require Import UniMath.Foundations.Basics.All.
@@ -28,14 +27,14 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.FunctionalExtensionality.
 
 Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.HLevel_n_is_of_hlevel_Sn.
+Require Import UniMath.CategoryTheory.colimits.colimits.
 
 Local Notation "a --> b" :=
   (precategory_morphisms a b) (at level 50).
-Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 
 (* This should be moved upstream. Constructs the smallest eqrel
    containing a given relation *)
@@ -86,6 +85,7 @@ End extras.
 Arguments eqrel_from_hrel {_} _ _ _.
 
 (** * Precategory of hSets *)
+Section HSET_precategory.
 
 Lemma isaset_set_fun_space (A B : hSet) : isaset (A -> B).
 Proof.
@@ -114,7 +114,7 @@ Qed.
 Definition hset_precategory : precategory :=
   tpair _ _ is_precategory_hset_precategory_data.
 
-Notation HSET := hset_precategory.
+Local Notation HSET := hset_precategory.
 
 Lemma has_homsets_HSET : has_homsets HSET.
 Proof. intros a b; apply isaset_set_fun_space. Qed.
@@ -123,8 +123,13 @@ Proof. intros a b; apply isaset_set_fun_space. Qed.
   Canonical Structure hset_precategory. :-)
 *)
 
+End HSET_precategory.
+
+Notation HSET := hset_precategory.
 
 (** * The precategory of hSets is a category. *)
+
+Section HSET_category.
 
 (** ** Equivalence between isomorphisms and weak equivalences
        of two hsets.
@@ -133,7 +138,6 @@ Proof. intros a b; apply isaset_set_fun_space. Qed.
 (** Given an iso, we construct a weak equivalence.
    This is basically unpacking and packing again.
 *)
-
 
 Lemma hset_iso_is_equiv (A B : ob HSET)
    (f : iso A B) : isweq (pr1 f).
@@ -261,9 +265,9 @@ Proof.
   - apply has_homsets_HSET.
 Defined.
 
-(** * colimits in HSET *)
-Require Import UniMath.CategoryTheory.colimits.colimits.
+End HSET_category.
 
+(** colimits in HSET *)
 Section colimits.
 
 Variable g : graph.
@@ -362,29 +366,26 @@ End from_colim.
 
 Definition colimCoconeHSET : cocone D colimHSET.
 Proof.
-refine (mk_cocone _ _ _ _).
+refine (mk_cocone _ _).
 - now apply injections.
-- intros u v e.
-  apply funextfun; intros Fi; simpl.
-  unfold compose, injections; simpl.
-  apply (weqpathsinsetquot eqr), (eqrelsymm eqr), eqrel_impl, hinhpr; simpl.
-  now exists e.
+- abstract (intros u v e;
+            apply funextfun; intros Fi; simpl;
+            unfold compose, injections; simpl;
+            apply (weqpathsinsetquot eqr), (eqrelsymm eqr), eqrel_impl, hinhpr; simpl;
+            now exists e).
 Defined.
 
-Definition ColimHSETArrow (c : HSET)
-  (cc : cocone D c) :
+Definition ColimHSETArrow (c : HSET) (cc : cocone D c) :
   Σ x : HSET ⟦ colimHSET, c ⟧, ∀ v : vertex g, injections v ;; x = coconeIn cc v.
 Proof.
-exists (from_colimHSET _ cc); intro i; simpl.
-unfold injections, compose, from_colimHSET; simpl.
-apply funextfun; intro Fi.
-now rewrite (setquotunivcomm eqr).
+exists (from_colimHSET _ cc).
+abstract (intro i; simpl; unfold injections, compose, from_colimHSET; simpl;
+          apply funextfun; intro Fi; now rewrite (setquotunivcomm eqr)).
 Defined.
 
 Definition ColimCoconeHSET : ColimCocone D.
 Proof.
-apply (mk_ColimCocone _ colimHSET colimCoconeHSET).
-unfold isColimCocone; intros c cc.
+apply (mk_ColimCocone _ colimHSET colimCoconeHSET); intros c cc.
 exists (ColimHSETArrow _ cc).
 abstract (intro f; apply total2_paths_second_isaprop;
            [ now apply impred; intro i; apply has_homsets_HSET
@@ -400,4 +401,4 @@ End colimits.
 Lemma ColimsHSET : Colims HSET.
 Proof.
 now intros g d; apply ColimCoconeHSET.
-Qed.
+Defined.

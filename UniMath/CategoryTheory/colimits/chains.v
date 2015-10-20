@@ -14,7 +14,6 @@ Require Import UniMath.CategoryTheory.colimits.colimits.
 Require Import UniMath.CategoryTheory.category_hset.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
 
 (* Definition graph := Σ (D : UU) , D -> D -> UU. *)
 
@@ -67,7 +66,7 @@ Definition cocone_shift {D : diagram nat_graph C}
   (* Σ (f : ∀ v, C ⟦ dob D v, x ⟧),  *)
   (*   (∀ u v (e : edge u v), dmor D e ;; f v = f u). *)
 Proof.
-refine (mk_cocone _ _ _ _).
+refine (mk_cocone _ _).
 - intro n.
   set (p := @dmor _ _ D n (S n) (idpath _)).
   now apply (p ;; coconeIn cx n).
@@ -215,7 +214,7 @@ Local Notation LF := (colim (shift_colim C hsC Fdiagram CC)).
 
 Definition Fcocone : cocone Fdiagram (F L).
 Proof.
-refine (mk_cocone _ _ _ _).
+refine (mk_cocone _ _).
 - simpl; intro n.
 destruct n; simpl.
 + set (x := # F (colimIn CC 0)).
@@ -353,7 +352,7 @@ Qed.
 Local Definition ad : C⟦L,A⟧.
 Proof.
 refine (colimArrow _ _ _).
-refine (mk_cocone _ _ _ _).
+refine (mk_cocone _ _).
 - apply cocone_over_alg.
 - apply isCoconeOverAlg.
 Defined.
