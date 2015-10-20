@@ -80,6 +80,8 @@ Variable CP : Coproducts C.
 Local Notation "'EndC'":= ([C, C, hs]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 Local Notation "'U'" := (functor_ptd_forget C hs).
+Local Notation τ := tau_from_alg.
+Local Notation η := eta_from_alg.
 
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CP hs.
@@ -413,7 +415,7 @@ Check bracket_Thm15_ok_part2.
 
 
 Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):
- bracket_property_parts _ hs CP H InitAlg f (bracket_Thm15 Z f).
+ bracket_property_parts f (bracket_Thm15 Z f).
 Proof.
   split.
   + exact (bracket_Thm15_ok_part1 Z f).
@@ -421,7 +423,7 @@ Proof.
 Qed.
 
 Lemma bracket_Thm15_ok_cor (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):
- bracket_property _ hs CP H InitAlg f (bracket_Thm15 Z f).
+ bracket_property f (bracket_Thm15 Z f).
 Proof.
   apply whole_from_parts.
   apply bracket_Thm15_ok.
@@ -434,13 +436,13 @@ Lemma foo' (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
        h : [C, C] hs
            ⟦ functor_composite (U Z) (pr1  InitAlg),
             pr1 InitAlg ⟧,
-       bracket_property _ hs CP H InitAlg f h,
+       bracket_property f h,
    t =
    tpair
      (λ h : [C, C] hs
             ⟦ functor_composite (U Z) (pr1 InitAlg),
               pr1 InitAlg ⟧,
-      bracket_property _ hs CP H InitAlg f h)
+      bracket_property f h)
      (bracket_Thm15 Z f) (bracket_Thm15_ok_cor Z f).
 Proof.
    intros [h' h'_eq].
@@ -504,7 +506,7 @@ Focus 2.
         apply CoproductIn2Commutes.
 Qed. 
 
-Definition bracket_for_InitAlg : bracket _ _ CP H (InitAlg).
+Definition bracket_for_InitAlg : bracket InitAlg.
 Proof.
   intros Z f.
   refine (tpair _ _ _ ).
@@ -612,7 +614,7 @@ Definition iso2' (Z : Ptd) : EndEndC ⟦
   CoproductObject EndEndC
   (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (pr1 InitAlg))
              (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z)),
-  functor_composite (ℓ (U Z) ) (Ghat) ⟧.
+  functor_composite (ℓ (U Z)) Ghat ⟧.
 Proof.
     refine (tpair _ _ _).
   - intro X.

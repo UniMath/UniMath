@@ -686,3 +686,7 @@ Arguments hss_precategory {_ _} _ _ .
 Arguments eta_from_alg {_ _ _ _} _.
 Arguments tau_from_alg {_ _ _ _} _.
 Arguments ptd_from_alg {_ _ _ _} _.
+Arguments ptd_from_alg_functor {_ _} _ _ .
+Arguments bracket_property {_ _ _ _ _ _} _ _ .
+Arguments bracket_property_parts {_ _ _ _ _ _} _ _ .
+Arguments bracket {_ _ _ _} _.

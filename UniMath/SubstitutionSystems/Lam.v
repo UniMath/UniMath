@@ -190,7 +190,7 @@ Defined.
 (** now define bracket operation for a given [Z] and [f] *)
 
 (** preparations for typedness *)
-Definition bla': (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam) ⇒ (ptd_from_alg_functor C hs CC _ Lam).
+Definition bla': (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) ⇒ (ptd_from_alg_functor CC _ Lam).
 Proof.
   refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ). 
@@ -200,7 +200,7 @@ Proof.
          apply idpath).
 Defined.
 
-Definition bla'_inv: (ptd_from_alg_functor C hs CC _ Lam) ⇒ (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam).
+Definition bla'_inv: (ptd_from_alg_functor CC _ Lam) ⇒ (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
 Proof.
   refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ). 
@@ -213,7 +213,7 @@ Defined.
 (** this iso does nothing, but is needed to make the argument to [fbracket] below well-typed *)
 (* maybe a better definition somewhere above could make this iso superfluous *)
 (* maybe don't need iso, but only morphism *)
-Definition bla : iso (ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor C hs CC _ Lam).
+Definition bla : iso (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) (ptd_from_alg_functor CC _ Lam).
 Proof.
   unfold iso.
   exists bla'.
@@ -236,7 +236,7 @@ Defined.
 
 
 Definition fbracket_for_LamE_algebra_on_Lam (Z : Ptd)
-   (f : Ptd ⟦ Z, ptd_from_alg_functor C hs CC LamE_S LamE_algebra_on_Lam ⟧ ) :
+   (f : Ptd ⟦ Z, ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam ⟧ ) :
    [C, C] hs
    ⟦ functor_composite (U Z) `LamE_algebra_on_Lam, `LamE_algebra_on_Lam ⟧ .
 Proof.
@@ -248,8 +248,7 @@ Defined.
 Lemma bracket_property_for_LamE_algebra_on_Lam (Z : Ptd)
   (f : Ptd ⟦ Z, ptd_from_alg LamE_algebra_on_Lam ⟧)
  :
-   bracket_property C hs CC LamE_S LamE_algebra_on_Lam f
-                    (fbracket_for_LamE_algebra_on_Lam Z f).
+   bracket_property f (fbracket_for_LamE_algebra_on_Lam Z f).
 Proof.
   (* Could we have this in a more declarative style? *)
   assert (Hyp := pr2 (pr1 (pr2 LamHSS _ (f;; bla)))).
@@ -473,14 +472,14 @@ Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
            ⟦ functor_composite (U Z)
                (` LamE_algebra_on_Lam),
            `LamE_algebra_on_Lam ⟧,
-       bracket_property C hs CC LamE_S LamE_algebra_on_Lam f h,
+       bracket_property f h,
    t =
    tpair
      (λ h : [C, C] hs
             ⟦ functor_composite (U Z)
                 (` LamE_algebra_on_Lam),
             `LamE_algebra_on_Lam ⟧,
-      bracket_property C hs CC LamE_S LamE_algebra_on_Lam f h)
+      bracket_property f h)
      (fbracket_for_LamE_algebra_on_Lam Z f) (bracket_property_for_LamE_algebra_on_Lam Z f).
 Proof.
   intro t.
@@ -560,7 +559,7 @@ Proof.
   - apply bracket_for_LamE_algebra_on_Lam_unique.
 Defined.
   
-Definition bracket_for_LamE_algebra_on_Lam : bracket C hs CC LamE_S LamE_algebra_on_Lam.
+Definition bracket_for_LamE_algebra_on_Lam : bracket LamE_algebra_on_Lam.
 Proof.
   intros Z f.
   simpl.
