@@ -292,8 +292,12 @@ Definition Poset := total2 ( fun X : hSet => po X ) .
 Definition Posetpair ( X : hSet ) ( R : po X ) : Poset := tpair ( fun X : hSet => po X ) X R .
 Definition carrierofposet : Poset -> hSet := @pr1 _ _ .
 Coercion carrierofposet : Poset >-> hSet . 
+Definition posetRelation (X:Poset) : hrel X := pr1 (pr2 X).
 
-Definition isaposetmorphism { X Y : Poset } ( f : X -> Y ) := forall x x' : X , ( pr1 ( pr2 X ) x x' ) -> ( pr1 ( pr2 Y ) ( f x ) ( f x' ) ) .
+
+Delimit Scope poset_scope with poset. 
+Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) : poset_scope.
+Definition isaposetmorphism { X Y : Poset } ( f : X -> Y ) := (∀ x x' : X, x ≤ x' -> f x ≤ f x')%poset .
 Definition posetmorphism ( X Y : Poset ) := total2 ( fun f : X -> Y => isaposetmorphism f ) .
 Definition posetmorphismpair ( X Y : Poset ) := tpair ( fun f : X -> Y => isaposetmorphism f ) .
 Definition carrierofposetmorphism ( X Y : Poset ) : posetmorphism X Y -> ( X -> Y ) := @pr1 _ _ .
