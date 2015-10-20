@@ -82,8 +82,9 @@ Definition cocone {g : graph} (d : diagram g C) (c : C) : UU :=
   Σ (f : ∀ (v : vertex g), C⟦dob d v,c⟧),
     ∀ (u v : vertex g) (e : edge u v), dmor d e ;; f v = f u.
 
-Definition mk_cocone {g : graph} {d : diagram g C} {c : C} (f : ∀ (v : vertex g), C⟦dob d v,c⟧)
-  (Hf : ∀ (u v : vertex g) (e : edge u v), dmor d e ;; f v = f u) : cocone d c := tpair _ f Hf.
+Definition mk_cocone {g : graph} {d : diagram g C} {c : C}
+  (f : ∀ v, C⟦dob d v,c⟧) (Hf : ∀ u v e, dmor d e ;; f v = f u) :
+  cocone d c := tpair _ f Hf.
 
 (* The injections to c in the cocone *)
 Definition coconeIn {g : graph} {d : diagram g C} {c : C} (cc : cocone d c) :
@@ -100,7 +101,7 @@ Qed.
    of cc *)
 Definition isColimCocone {g : graph} (d : diagram g C) (c0 : C)
   (cc0 : cocone d c0) : UU := ∀ (c : C) (cc : cocone d c),
-    iscontr (Σ x : C⟦c0,c⟧, ∀ (v : vertex g), coconeIn cc0 v ;; x = coconeIn cc v).
+    iscontr (Σ x : C⟦c0,c⟧, ∀ v, coconeIn cc0 v ;; x = coconeIn cc v).
 
 Definition ColimCocone {g : graph} (d : diagram g C) : UU :=
   Σ (A : (Σ c0 : C, cocone d c0)), isColimCocone d (pr1 A) (pr2 A).
