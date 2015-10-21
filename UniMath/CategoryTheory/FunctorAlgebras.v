@@ -304,18 +304,21 @@ Local Definition FAa : algebra_ob F := tpair (λ X, C ⟦F X,X⟧) (F A) (# F a)
 
 Lemma initialAlg_is_iso : is_iso a.
 Proof.
-case (AaIsInitial FAa); simpl; intros Fa' HFa'.
-destruct Fa' as [a' Ha']; unfold is_algebra_mor in Ha'; simpl in *.
+set (Fa' := pr1 (AaIsInitial FAa)); set (HFa' := pr2 (AaIsInitial FAa)).
+set (a' := pr1 Fa'); set (Ha' := pr2 Fa').
+unfold is_algebra_mor in Ha'; simpl in *.
 assert (Ha'a : a' ;; a = identity A).
   assert (algMor_a'a : is_algebra_mor _ _ _ (a' ;; a)).
-    unfold is_algebra_mor.
-    now rewrite functor_comp, <- Ha', assoc.
-  apply pathsinv0.
-  set (X := tpair _ _ algMor_a'a).
-  now apply (maponpaths pr1 (InitialEndo_is_identity _ AaInitial X)).
+    abstract (unfold is_algebra_mor, a'; rewrite functor_comp;
+              eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'];
+              now apply assoc).
+  abstract (apply pathsinv0; set (X := tpair _ _ algMor_a'a);
+            now apply (maponpaths pr1 (InitialEndo_is_identity _ AaInitial X))).
 apply (is_iso_qinv _ a').
 abstract (split; simpl; trivial;
-          now rewrite Ha', <- functor_comp, Ha'a, functor_id).
+          eapply pathscomp0; [apply Ha'|]; rewrite <- functor_comp;
+          eapply pathscomp0; [eapply maponpaths; apply Ha'a|];
+          now apply functor_id).
 Defined.
 
 End Lambeks_lemma.
