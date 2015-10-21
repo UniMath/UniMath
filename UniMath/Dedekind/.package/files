@@ -1,6 +1,4 @@
 Sets_comp.v
-Monoid_comp.v
-Group_comp.v
 DivisionRig.v
 Fields_comp.v
 Complements.v

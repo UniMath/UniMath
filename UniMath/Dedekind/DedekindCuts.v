@@ -199,6 +199,26 @@ Proof.
   - now apply isnonnegative_NonnegativeRationals'.
   - easy.
 Qed.
+Lemma Dcuts_notempty :
+  forall x : Dcuts, 0%NRat ∈ x = hexists (λ r, r ∈ x × 0%NRat < r).
+Proof.
+  intros x ; simpl.
+  apply weqtopathshProp, logeqweq ; simpl.
+  - intro H.
+    now apply is_Dcuts_open.
+  - apply hinhuniv ; intros (r,(Xr,Hr0)).
+    apply is_Dcuts_bot with r.
+    + exact Xr.
+    + now apply lt_leNonnegativeRationals.
+Qed.
+Lemma Dcuts_notempty_notzero :
+  forall x, 0%NRat ∈ x -> x != 0.
+Proof.
+  intros x Hx Hx0.
+  rewrite Hx0 in Hx.
+  now rewrite (Dcuts_zero_empty 0%NRat) in Hx.
+Qed.
+
 
 (** ** [Dcuts] is an [abmonoid] *)
 
@@ -642,6 +662,61 @@ Lemma issymm_Dcuts_ap : issymm Dcuts_ap.
 Proof.
   intros x y.
   apply islogeqcommhdisj.
+Qed.
+
+Lemma Dcuts_eq_notap :
+  forall x y, x = y -> neg (Dcuts_ap x y).
+Proof.
+  intros x y ->.
+  now apply isirrefl_Dcuts_ap.
+Qed.
+Lemma Dcuts_notap_eq :
+  forall x y, neg (Dcuts_ap x y) -> x = y.
+Proof.
+  intros x y H.
+  apply Dcuts_eq_is_eq.
+  intros P HP ; apply HP ; clear P HP.
+  intros r ; split ; intros Hr.
+  - assert (Yr : neg (neg (r ∈ y))).
+    { intro ; apply H.
+      intros P HP ; apply HP ; clear P HP.
+      right.
+      intros P HP ; apply HP ; clear P HP.
+      exists r ; now split. }
+    revert Yr ; admit.
+  - assert (Xr : neg (neg (r ∈ x))).
+    { intro ; apply H.
+      intros P HP ; apply HP ; clear P HP.
+      left.
+      intros P HP ; apply HP ; clear P HP.
+      exists r ; now split. }
+    revert Xr ; admit.
+Admitted.
+
+Lemma Dcuts_apzero_notempty :
+  forall x, Dcuts_ap x 0 = (0%NRat ∈ x).
+Proof.
+  intros x.
+  rewrite Dcuts_notempty.
+  apply weqtopathshProp, logeqweq ; apply hinhuniv.
+  - intros [Hr|Hr] ; revert Hr.
+    + apply hinhfun ; intros (r,(Xr,Or)).
+      now rewrite Dcuts_zero_empty in Or.
+    + apply hinhuniv ; intros (r,(_,Xr)).
+      generalize (is_Dcuts_open _ _ Xr).
+      apply hinhfun ; intros (q,(Xq,Hq)).
+      exists q ; split.
+      exact Xq.
+      apply istrans_le_lt_ltNonnegativeRationals with r.
+      now apply isnonnegative_NonnegativeRationals.
+      exact Hq.
+  - intros (r,(Xr,Hr0)).
+    intros P HP ; apply HP ; clear P HP.
+    right.
+    intros P HP ; apply HP ; clear P HP.
+    exists r ; split.
+    now rewrite Dcuts_zero_empty.
+    exact Xr.
 Qed.
 
 (** *** Various basic theorems about order, equality and apartness *)

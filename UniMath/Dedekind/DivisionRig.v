@@ -1,7 +1,7 @@
 (** * Division Rig *)
 (** Definition of an algebraic structure (F,0,1,+,*,/) where:
-- (F,0,+) is an abelian monoid
-- (F\{0},1,*,/) is a group
+- (F,0,+,* ) is a commutative
+- / is a multiplicative inverse
 - * distribute over + on both sides *)
 (** Examples of such structure : non-negative rationnal numbers, non-negative real numbers *)
 
@@ -12,13 +12,11 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 Unset Kernel Term Sharing.
 
 Require Import UniMath.Dedekind.Sets_comp.
-Require Import UniMath.Dedekind.Monoid_comp.
-Require Import UniMath.Dedekind.Group_comp.
+Require Import UniMath.Foundations.Algebra.Domains_and_Fields.
 
 (** ** Definition of a DivRig *)
 (** to be a DivRig *)
 
-Require Import UniMath.Foundations.Algebra.Domains_and_Fields.
 
 Definition isnonzerorig (X : rig) : UU := (1%rig : X) != 0%rig.
 
