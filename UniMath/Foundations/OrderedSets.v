@@ -6,6 +6,10 @@ Local Open Scope poset.
 
 (** partially ordered sets and ordered sets *)
 
+Definition Poset_univalence_map {X Y:Poset} : X=Y -> PosetEquivalence X Y.
+Proof. intros ? ? e. induction e. apply identityPosetEquivalence.
+Defined.
+
 Lemma posetStructureIdentity {X:hSet} (R S:po X) :
   @isPosetEquivalence (X,,R) (X,,S) (idweq X) -> R=S.
 Proof.
@@ -17,64 +21,50 @@ Proof.
   induction e as [e e']. apply uahp. { apply e. } { apply e'. }
 Defined.
 
-Lemma poTransport {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
+Lemma poTransport_logeq {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
   @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
-  -> transportf (po∘pr1hSet) f R = S.
+  <-> transportf (po∘pr1hSet) f R = S.
 Proof.
-  intros ? ? ? ? ? i. induction f. apply posetStructureIdentity. apply i.
+  split.
+  { intros i. induction f. apply posetStructureIdentity. apply i. }
+  { intros e. induction f. induction e. apply isPosetEquivalence_idweq. }
 Defined.
 
-Lemma poTransport' {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
-  transportf (po∘pr1hSet) f R = S
-  ->
-  @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f).
-Proof.
-  intros ? ? ? ? ? e. induction f. induction e. apply isPosetEquivalence_idweq.
-Defined.
-
-Definition Poset_univalence_map {X Y:Poset} : X=Y -> PosetEquivalence X Y.
-Proof. intros ? ? e. induction e. apply identityPosetEquivalence.
-Defined.
-
-Local Lemma Poset_univalence_prelim (X Y:Poset) : X=Y ≃ PosetEquivalence X Y.
-Proof.
-  Set Printing Coercions.
-  intros. refine (weqcomp (total2_paths_equiv _ X Y) _).
-  refine (weqbandf _ _ _ _).
-  { apply hSet_univalence_weq. }
-  intros e. apply eqweqmap. apply uahp'.
-  { apply isaset_po. } { apply isaprop_isPosetEquivalence. }
-  { apply poTransport'. } { apply poTransport. }
-  Unset Printing Coercions.
-Defined.
-
-Local Definition Poset_univalence_compute {X Y:Poset} (f:X=Y) :
-  Poset_univalence_prelim X Y f = Poset_univalence_map f.
-Proof.
-  intros. apply isinj_pr1_PosetEquivalence. induction f. reflexivity.
-Defined.
-
-Theorem Poset_univalence {X Y:Poset} : isweq (@Poset_univalence_map X Y).
+Corollary poTransport_weq {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
+  @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
+  ≃ transportf (po∘pr1hSet) f R = S.
 Proof.
   intros.
-  apply (isweqhomot (Poset_univalence_prelim X Y)).
-  { intros f. apply Poset_univalence_compute. }
-  apply weqproperty.
+  apply eqweqmap. apply uahp'.
+  { apply isaprop_isPosetEquivalence. } { apply isaset_po. }
+  { apply (pr1 (poTransport_logeq _ _ _)). } { apply (pr2 (poTransport_logeq _ _ _)). }
 Defined.
 
-Corollary Poset_univalence_weq {X Y:Poset} : (X=Y) ≃ (X≅Y).
-Proof. intros. exact (weqpair _ Poset_univalence).
-Defined.
-
-Corollary Poset_univalence_invmap {X Y:Poset} : X≅Y -> X=Y.
-Proof. intros ? ? f. exact (invmap Poset_univalence_weq f).
-Defined.
-
-Corollary Poset_univalence_invmap_compute {X Y:Poset} (f:X≅Y) :
-  f = Poset_univalence_map (Poset_univalence_invmap f).
+Local Lemma posetTransport_weq (X Y:Poset) : X≡Y ≃ X≅Y.
 Proof.
-  intros. apply pathsinv0. exact (homotweqinvweq (@Poset_univalence_weq X Y) f).
+  intros.
+  refine (weqbandf _ _ _ _).
+  { apply hSet_univalence_weq. }
+  intros e. apply invweq. apply poTransport_weq.
 Defined.
+
+Theorem Poset_univalence (X Y:Poset) : X=Y ≃ X≅Y.
+Proof.
+  intros.
+  set (f := @Poset_univalence_map X Y).
+  set (g := total2_paths_equiv _ X Y).
+  set (h := posetTransport_weq X Y).
+  set (f' := weqcomp g h).
+  assert (k : pr1weq f' ~ f).
+  { intro e. apply isinj_pr1_PosetEquivalence. induction e. reflexivity. }
+  assert (l : isweq f).
+  { apply (isweqhomot f'). exact k. apply weqproperty. }
+  exact (f,,l).
+Defined.
+
+Definition Poset_univalence_compute {X Y:Poset} (f:X=Y) :
+  Poset_univalence X Y f = Poset_univalence_map f.
+Proof. reflexivity. Defined.
 
 (* now we try to mimic this construction:
 
@@ -109,7 +99,6 @@ Defined.
 
 Definition posetTransport2 {C : ∀ (T:Poset) (t u:T), UU}
   {X Y : Poset} (e : X = Y) {x y : X} : C X x y -> C Y (Poset_univalence_map e x) (Poset_univalence_map e y).
-(* compare with transportD *)
 Proof.  
   intros ? ? ? ? ? ? c. induction e. exact c.
 Defined.
@@ -118,8 +107,9 @@ Definition posetTransportStructure  (C : ∀ (T:Poset) (t:T), UU)
   {X Y : Poset} (f : X ≅ Y) (x : X) (c : C X x) : C Y (f x).
 Proof.  
   intros.
-  assert (s := posetTransport (Poset_univalence_invmap f) c).
-  rewrite <- (Poset_univalence_invmap_compute f) in s.
+  assert (s := posetTransport (invmap (Poset_univalence _ _) f) c).
+  assert (t := homotweqinvweq (Poset_univalence X Y) f).
+  rewrite <- t.
   exact s.
 Defined.
 
@@ -127,8 +117,9 @@ Definition posetTransportRelation  (C : ∀ (T:Poset) (t u:T), UU)
   {X Y : Poset} (f : X ≅ Y) (x y : X) (c : C X x y) : C Y (f x) (f y).
 Proof.  
   intros.
-  assert (s := posetTransport2 (Poset_univalence_invmap f) c).
-  rewrite <- (Poset_univalence_invmap_compute f) in s.
+  assert (s := posetTransport2 (invmap (Poset_univalence _ _) f) c).
+  assert (t := homotweqinvweq (Poset_univalence X Y) f).
+  rewrite <- t.
   exact s.
 Defined.
 
@@ -193,13 +184,13 @@ Proof.
 Defined.
 
 Delimit Scope oset_scope with oset. 
-Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 80, no associativity) : oset_scope.
+Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : oset_scope.
 Notation "m ≤ n" := (underlyingRelation _ m n) (no associativity, at level 70) : oset_scope.
 Notation "m < n" := (m ≤ n × m != n)%oset (only parsing) :oset_scope.
 Close Scope poset.
 Local Open Scope oset.
 
-Definition paths_to_OrderedSetEquivalence {X Y:OrderedSet} : X=Y -> X≅Y.
+Definition OrderedSetEquivalence_map {X Y:OrderedSet} : X=Y -> X≅Y.
 Proof.
   intros ? ? e.
   Set Printing Coercions.
@@ -209,14 +200,15 @@ Proof.
   Unset Printing Coercions.
 Defined.
 
-Theorem OrderedSet_univalence {X Y:OrderedSet} :
-    isweq (@paths_to_OrderedSetEquivalence X Y).
+Theorem OrderedSet_univalence {X Y:OrderedSet} : X=Y ≃ X≅Y.
 Proof.
+  (* shorten this *)
   intros.
-  unfold paths_to_OrderedSetEquivalence.
+  exists OrderedSetEquivalence_map.
+  unfold OrderedSetEquivalence_map.
   apply (twooutof3c (@maponpaths _ _ underlyingPoset X Y) Poset_univalence_map).
   { apply weq_on_paths_underlyingPoset. }
-  apply Poset_univalence.
+  apply (pr2 (Poset_univalence _ _)).
 Defined.
   
 (* standard ordered sets *)
