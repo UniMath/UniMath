@@ -15,7 +15,7 @@ Contents :
 
 - Saturated if base precategory is
 
-- Lambek's lemma: if (A,a) is inital F-algebra then a is an iso
+- Lambek's lemma: if (A,a) is an inital F-algebra then a is an iso
 
 ******************************************************************)
 
@@ -35,8 +35,7 @@ Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
 
 Section Algebra_Definition.
 
-Variable C : precategory.
-Variable F : functor C C.
+Context {C : precategory} (F : functor C C).
 
 Definition algebra_ob : UU := Σ X : C, F X ⇒ X.
 
@@ -293,22 +292,22 @@ Notation FunctorAlg := precategory_FunctorAlg.
 Section Lambeks_lemma.
 
 Variables (C : precategory) (hsC : has_homsets C) (F : functor C C).
-Variables (Aa : algebra_ob _ F) (AaIsInitial : isInitial (FunctorAlg C F hsC) Aa).
+Variables (Aa : algebra_ob F) (AaIsInitial : isInitial (FunctorAlg F hsC) Aa).
 
-Definition AaInitial : Initial (FunctorAlg C F hsC) := tpair _ _ AaIsInitial.
+Local Definition AaInitial : Initial (FunctorAlg F hsC) := tpair _ _ AaIsInitial.
 
-Notation A := (alg_carrier _ _ Aa).
-Notation a := (alg_map _ _ Aa).
+Local Notation A := (alg_carrier _ Aa).
+Local Notation a := (alg_map _ Aa).
 
 (* (FA,Fa) is an F-algebra *)
-Definition FAa : algebra_ob C F := tpair (λ X : C, C ⟦ F X, X ⟧) (F A) (# F a).
+Local Definition FAa : algebra_ob F := tpair (λ X, C ⟦F X,X⟧) (F A) (# F a).
 
 Lemma initialAlg_is_iso : is_iso a.
 Proof.
 case (AaIsInitial FAa); simpl; intros Fa' HFa'.
 destruct Fa' as [a' Ha']; unfold is_algebra_mor in Ha'; simpl in *.
 assert (Ha'a : a' ;; a = identity A).
-  assert (algMor_a'a : is_algebra_mor _ _ _ _ (a' ;; a)).
+  assert (algMor_a'a : is_algebra_mor _ _ _ (a' ;; a)).
     unfold is_algebra_mor.
     now rewrite functor_comp, <- Ha', assoc.
   apply pathsinv0.
