@@ -662,8 +662,7 @@ Proof.
         rewrite <- isrdistr_mult_plusNonnegativeRationals, <- Hr.
         rewrite multdivNonnegativeRationals.
         reflexivity.
-        apply notge_ltNonnegativeRationals ; intro ; apply Hr0.
-        now rewrite NonnegativeRationals_eq0_le0.
+        exact Hr0.
       * apply X_bot with (1 := Hrx).
         apply multrle1NonnegativeRationals.
         now apply ledivle1NonnegativeRationals.

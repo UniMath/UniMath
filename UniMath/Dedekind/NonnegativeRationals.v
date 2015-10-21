@@ -203,25 +203,63 @@ Proof.
   rewrite !(iscomm_hnnq_mult _ z).
   now apply isldistr_hnnq_plus_mult.
 Qed.
-Lemma isDivRig_hnnq:
-  isDivRig hnnq_plus hnnq_mult (hnnq_lt hnnq_zero).
+
+Definition isabmonoidop_hnnq_plus: isabmonoidop hnnq_plus.
 Proof.
   repeat split.
   - exact isassoc_hnnq_plus.
   - exists hnnq_zero ; split.
     + exact islunit_hnnq_zero_plus.
     + exact isrunit_hnnq_zero_plus.
-  - exact iscomm_hnnq_plus.
-  - exists (isassoc_hnnq_mult,,(hnnq_one,,islunit_hnnq_one_mult,,isrunit_hnnq_one_mult)).
-    exists (λ x, hnnq_inv (pr1 x)) ; split.
-    + exact islinv'_hnnq_inv.
-    + exact isrinv'_hnnq_inv.
-  - exact iscomm_hnnq_mult.
+  - exact iscomm_hnnq_plus.  
+Defined.
+Definition ismonoidop_hnnq_mult : ismonoidop hnnq_mult.
+Proof.
+  split.
+  - exact isassoc_hnnq_mult.
+  - exists hnnq_one ; split.
+    + exact islunit_hnnq_one_mult.
+    + exact isrunit_hnnq_one_mult.
+Defined.
+Definition commrig_hnnq: commrig.
+Proof.
+  exists (hnnq_set,,hnnq_plus,,hnnq_mult).
+  repeat split.
+  - exists (isabmonoidop_hnnq_plus,,ismonoidop_hnnq_mult) ; split.
+    + intro x.
+      apply total2_paths_second_isaprop.
+      * now apply pr2.
+      * apply hqmult0x.
+    + intro x.
+      apply total2_paths_second_isaprop.
+      * now apply pr2.
+      * apply hqmultx0.
   - exact isldistr_hnnq_plus_mult.
   - exact isrdistr_hnnq_plus_mult.
+  - exact iscomm_hnnq_mult.
 Defined.
-Definition DivRig_hnnq : DivRig := 
-  isDivRig_DivRig hnnq_plus hnnq_mult (hnnq_lt hnnq_zero) isDivRig_hnnq.
+Definition DivRig_hnnq: DivRig.
+Proof.
+  exists commrig_hnnq.
+  split.
+  - intro H.
+    apply base_paths in H.
+    apply hqgth_hqneq in H.
+    exact H.
+    exact hq1_gt0.
+  - intros x Hx.
+    assert (Hx' : hnnq_lt hnnq_zero x).
+    { apply neghqlehtogth.
+      intro Hx0 ; apply Hx.
+      apply total2_paths_second_isaprop.
+      - apply pr2.
+      - apply isantisymmhqleh.
+        apply Hx0.
+        apply (pr2 x). }
+    exists (hnnq_inv x) ; split.
+    + now apply (islinv'_hnnq_inv x Hx').
+    + now apply (isrinv'_hnnq_inv x Hx').
+Defined.
 
 (** * Exportable definitions and theorems *)
 
@@ -455,11 +493,11 @@ Definition isrunit_oneNonnegativeRationals:
   ∀ x : NonnegativeRationals, x * 1 = x :=
   DivRig_isrunit_one.
 Definition islinv_NonnegativeRationals:
-  ∀ x : NonnegativeRationals, 0 < x -> / x * x = 1 :=
-  DivRig_islinv'.
+  ∀ x : NonnegativeRationals, x != 0 -> / x * x = 1 :=
+  DivRig_islinv.
 Definition isrinv_NonnegativeRationals:
-  ∀ x : NonnegativeRationals, 0 < x -> x * / x = 1 :=
-  DivRig_isrinv'.
+  ∀ x : NonnegativeRationals, x != 0 -> x * / x = 1 :=
+  DivRig_isrinv.
 Definition iscomm_multNonnegativeRationals:
   ∀ x y : NonnegativeRationals, x * y = y * x :=
   DivRig_iscomm_mult.
@@ -471,7 +509,7 @@ Definition isrdistr_mult_plusNonnegativeRationals:
   DivRig_isrdistr.
 
 Lemma multdivNonnegativeRationals :
-  forall q r : NonnegativeRationals, 0 < r -> (r * (q / r)) = q.
+  forall q r : NonnegativeRationals, r != 0 -> (r * (q / r)) = q.
 Proof. (** todo generalize *)
   intros q r Hr0.
   unfold divNonnegativeRationals.
