@@ -302,23 +302,30 @@ Local Notation a := (alg_map _ Aa).
 (* (FA,Fa) is an F-algebra *)
 Local Definition FAa : algebra_ob F := tpair (λ X, C ⟦F X,X⟧) (F A) (# F a).
 
-Lemma initialAlg_is_iso : is_iso a.
+Local Notation Fa' := (pr1 (AaIsInitial FAa)).
+Local Notation HFa' := (pr2 (AaIsInitial FAa)).
+Local Notation a' := (pr1 Fa').
+Local Notation Ha' := (pr2 Fa').
+
+Lemma initialAlg_is_iso_subproof : is_inverse_in_precat a a'.
 Proof.
-set (Fa' := pr1 (AaIsInitial FAa)); set (HFa' := pr2 (AaIsInitial FAa)).
-set (a' := pr1 Fa'); set (Ha' := pr2 Fa').
-unfold is_algebra_mor in Ha'; simpl in *.
 assert (Ha'a : a' ;; a = identity A).
   assert (algMor_a'a : is_algebra_mor _ _ _ (a' ;; a)).
-    abstract (unfold is_algebra_mor, a'; rewrite functor_comp;
-              eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'];
-              now apply assoc).
-  abstract (apply pathsinv0; set (X := tpair _ _ algMor_a'a);
-            now apply (maponpaths pr1 (InitialEndo_is_identity _ AaInitial X))).
-apply (is_iso_qinv _ a').
-abstract (split; simpl; trivial;
-          eapply pathscomp0; [apply Ha'|]; rewrite <- functor_comp;
-          eapply pathscomp0; [eapply maponpaths; apply Ha'a|];
-          now apply functor_id).
+    unfold is_algebra_mor, a'; rewrite functor_comp.
+    eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
+    now apply assoc.
+  apply pathsinv0; set (X := tpair _ _ algMor_a'a).
+  now apply (maponpaths pr1 (InitialEndo_is_identity _ AaInitial X)).
+split; simpl; trivial.
+eapply pathscomp0; [apply Ha'|]; simpl.
+rewrite <- functor_comp.
+eapply pathscomp0; [eapply maponpaths; apply Ha'a|].
+now apply functor_id.
+Qed.
+
+Lemma initialAlg_is_iso : is_iso a.
+Proof.
+exact (is_iso_qinv _ a' initialAlg_is_iso_subproof).
 Defined.
 
 End Lambeks_lemma.
