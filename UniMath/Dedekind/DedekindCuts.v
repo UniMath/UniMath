@@ -21,9 +21,22 @@ Definition Dcuts_def_open (X : hsubtypes NonnegativeRationals) : UU :=
 Definition Dcuts_def_bounded (X : hsubtypes NonnegativeRationals) : hProp :=
   hexists (fun ub : NonnegativeRationals => neg (X ub)).
 
+Lemma isaprop_Dcuts_def_bot {X : hsubtypes NonnegativeRationals} : isaprop (Dcuts_def_bot X).
+Proof.
+  intros X.
+  repeat (apply impred_isaprop ; intro).
+  now apply pr2.
+Qed.
+Lemma isaprop_Dcuts_def_open {X : hsubtypes NonnegativeRationals} : isaprop (Dcuts_def_open X).
+Proof.
+  intros X.
+  repeat (apply impred_isaprop ; intro).
+  now apply pr2.
+Qed.
+  
 Definition Dcuts_hsubtypes : hsubtypes (hsubtypes NonnegativeRationals) :=
-  fun X : hsubtypes NonnegativeRationals => hconj (ishinh (Dcuts_def_bot X))
-                                                   (hconj (ishinh (Dcuts_def_open X))
+  fun X : hsubtypes NonnegativeRationals => hconj (hProppair (Dcuts_def_bot X) (isaprop_Dcuts_def_bot))
+                                                   (hconj (hProppair (Dcuts_def_open X) isaprop_Dcuts_def_open)
                                                           (Dcuts_def_bounded X)).
 Lemma isaset_Dcuts : isaset (carrier Dcuts_hsubtypes).
 Proof.
@@ -42,16 +55,12 @@ Open Scope DC_scope.
 Lemma is_Dcuts_bot (X : Dcuts) : Dcuts_def_bot (pr1 X).
 Proof.
   destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
-  intros r Xr y Hxy.
-  revert Hbot ; apply hinhuniv ; intros Hbot.
-  now apply Hbot with r.
+  exact Hbot.
 Qed.
 Lemma is_Dcuts_open (X : Dcuts) : Dcuts_def_open (pr1 X).
 Proof.
   destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
-  intros r Xr.
-  revert Hopen ; apply (hinhuniv (P := ishinh _)) ; intros Hopen.
-  now apply Hopen.
+  exact Hopen.
 Qed.
 
 Lemma is_Dcuts_bounded (X : Dcuts) :
@@ -68,8 +77,8 @@ Definition mk_Dcuts (X : NonnegativeRationals -> hProp)
 Proof.
   intros X Hbot Hopen Hbound.
   exists X ; repeat split.
-  now apply hinhpr.
-  now apply hinhpr.
+  now apply Hbot.
+  now apply Hopen.
   exact Hbound.
 Defined.
 
@@ -508,30 +517,6 @@ Definition Dcuts_addmonoid : abmonoid :=
 
 (** ** [Dcuts] is a effectively ordered set *)
 
-(** Partial order on [Dcuts] *)
-
-Definition Dcuts_le_rel : hrel Dcuts :=
-  fun (X Y : Dcuts) => ishinh (forall x : NonnegativeRationals, x ∈ X -> x ∈ Y).
-
-Lemma istrans_Dcuts_le_rel : istrans Dcuts_le_rel.
-Proof.
-  intros x y z.
-  apply hinhfun2.
-  intros Hxy Hyz r Xr.
-  now apply Hyz, Hxy.
-Qed.
-Lemma isrefl_Dcuts_le_rel : isrefl Dcuts_le_rel.
-Proof.
-  now intros x P HP ; apply HP ; clear P HP.
-Qed.
-
-Lemma ispo_Dcuts_le_rel : ispo Dcuts_le_rel.
-Proof.
-  split.
-  exact istrans_Dcuts_le_rel.
-  exact isrefl_Dcuts_le_rel.
-Qed.
-
 (** Strict partial order on [Dcuts] *)
 
 Definition Dcuts_lt_rel : hrel Dcuts :=
@@ -564,6 +549,30 @@ Proof.
   split.
   exact istrans_Dcuts_lt_rel.
   exact isirrefl_Dcuts_lt_rel.
+Qed.
+
+(** Partial order on [Dcuts] *)
+
+Definition Dcuts_le_rel : hrel Dcuts :=
+  fun (X Y : Dcuts) => ishinh (forall x : NonnegativeRationals, x ∈ X -> x ∈ Y).
+
+Lemma istrans_Dcuts_le_rel : istrans Dcuts_le_rel.
+Proof.
+  intros x y z.
+  apply hinhfun2.
+  intros Hxy Hyz r Xr.
+  now apply Hyz, Hxy.
+Qed.
+Lemma isrefl_Dcuts_le_rel : isrefl Dcuts_le_rel.
+Proof.
+  now intros x P HP ; apply HP ; clear P HP.
+Qed.
+
+Lemma ispo_Dcuts_le_rel : ispo Dcuts_le_rel.
+Proof.
+  split.
+  exact istrans_Dcuts_le_rel.
+  exact isrefl_Dcuts_le_rel.
 Qed.
 
 (** Effectively Ordered Set *)
