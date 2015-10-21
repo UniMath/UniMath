@@ -16,6 +16,10 @@ Ltac isaprop_goal x :=
   let G := match goal with |- ?G => constr:(G) end in
   assert (x : isaprop(G)).
 
+(* less fancy than [isaprop_goal ig.] is [apply isaprop_goal; intro ig.] *)
+Definition isaprop_goal X (ig:isaprop X) (f:isaprop X -> X) : X.
+Proof. intros. exact (f ig). Defined.
+
 Ltac isaset_goal x :=
   let G := match goal with |- ?G => constr:(G) end in
   assert (x : isaset(G)).

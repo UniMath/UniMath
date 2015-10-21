@@ -168,7 +168,7 @@ Module Presentation.
   Proof. intros. exact (issurjsetquotpr (smallestAdequateRelation R)). Qed.
   Lemma is_left_unit_univ_binop {X I} (R:I->reln X) (w:universalMarkedPreAbelianGroup0 R) :
     ((univ_binop _) (setquotpr _ word_unit) w) = w.
-  Proof. intros ? ? ? w'. isaprop_goal ig. { apply setproperty. } 
+  Proof. intros ? ? ? w'. apply isaprop_goal; intro ig. (* was: isaprop_goal ig. *) { apply setproperty. } 
     apply (squash_to_prop (lift R w') ig); intros [w []].
     exact (iscompsetquotpr (smallestAdequateRelation R) _ _ 
                            (fun r ra => left_unit R r ra w)). Qed.
