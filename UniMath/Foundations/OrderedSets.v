@@ -2,8 +2,11 @@
 
 Require Import UniMath.Foundations.FiniteSets.
 Unset Automatic Introduction.
+Local Open Scope poset.
 
-Lemma poEquality {X:hSet} (R S:po X) :
+(** partially ordered sets and ordered sets *)
+
+Lemma posetStructureIdentity {X:hSet} (R S:po X) :
   @isPosetEquivalence (X,,R) (X,,S) (idweq X) -> R=S.
 Proof.
   intros ? ? ? e. apply total2_paths_second_isaprop. { apply isaprop_ispo. }
@@ -14,16 +17,11 @@ Proof.
   induction e as [e e']. apply uahp. { apply e. } { apply e'. }
 Defined.
 
-Definition isPosetEquivalence_idweq (X:Poset) : isPosetEquivalence (idweq X).
-Proof.
-  intros. split. { intros x y le. exact le. } { intros x y le. exact le. }  
-Defined.
-
 Lemma poTransport {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
   @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
   -> transportf (po∘pr1hSet) f R = S.
 Proof.
-  intros ? ? ? ? ? i. induction f. apply poEquality. apply i.
+  intros ? ? ? ? ? i. induction f. apply posetStructureIdentity. apply i.
 Defined.
 
 Lemma poTransport' {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
@@ -32,10 +30,6 @@ Lemma poTransport' {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
   @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f).
 Proof.
   intros ? ? ? ? ? e. induction f. induction e. apply isPosetEquivalence_idweq.
-Defined.
-
-Definition identityPosetEquivalence (X:Poset) : PosetEquivalence X X.
-Proof. intros. exists (idweq X). apply isPosetEquivalence_idweq.
 Defined.
 
 Definition Poset_univalence_map {X Y:Poset} : X=Y -> PosetEquivalence X Y.
@@ -67,8 +61,6 @@ Proof.
   { intros f. apply Poset_univalence_compute. }
   apply weqproperty.
 Defined.
-
-Local Open Scope poset.
 
 Corollary Poset_univalence_weq {X Y:Poset} : (X=Y) ≃ (X≅Y).
 Proof. intros. exact (weqpair _ Poset_univalence).
@@ -141,28 +133,6 @@ Proof.
 Defined.
 
 (* applications: *)
-
-Notation "m < n" := (m ≤ n × m != n)%poset (only parsing) :poset_scope.
-Definition isMinimal {X:Poset} (x:X) := ∀ y, x≤y.
-Definition isMaximal {X:Poset} (x:X) := ∀ y, y≤x.
-Definition consecutive {X:Poset} (x y:X) := x<y × ∀ z, ¬ (x<z × z<y).
-
-Lemma isaprop_isMinimal {X:Poset} (x:X) : isaprop (isMaximal x).
-Proof.
-  intros. unfold isMaximal. apply impred; intros z. apply propproperty.
-Defined.
-
-Lemma isaprop_isMaximal {X:Poset} (x:X) : isaprop (isMaximal x).
-Proof.
-  intros. unfold isMaximal. apply impred; intros z. apply propproperty.
-Defined.
-
-Lemma isaprop_consecutive {X:Poset} (x y:X) : isaprop (consecutive x y).
-Proof.
-  intros. unfold consecutive. apply isapropdirprod.
-  { apply isapropdirprod. { apply pr2. } simpl. apply isapropneg. }
-  apply impred; intro z. apply isapropneg.
-Defined.
 
 Lemma isMinimal_preserved {X Y:Poset} {x:X} (is:isMinimal x) (f:X ≅ Y) : isMinimal (f x).
 Proof.

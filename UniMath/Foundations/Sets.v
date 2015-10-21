@@ -367,6 +367,11 @@ Proof.
   apply isapropdirprod;apply isaprop_isaposetmorphism.
 Defined.
 
+Definition isPosetEquivalence_idweq (X:Poset) : isPosetEquivalence (idweq X).
+Proof.
+  intros. split. { intros x y le. exact le. } { intros x y le. exact le. }  
+Defined.
+
 Definition PosetEquivalence (X Y:Poset) := Σ f:X≃Y, isPosetEquivalence f.
 
 Local Open Scope poset.
@@ -376,6 +381,10 @@ Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 80, no associativity) : p
 Definition posetUnderlyingEquivalence {X Y} : X≅Y -> X≃Y := pr1.
 Coercion posetUnderlyingEquivalence : PosetEquivalence >-> weq.
 
+Definition identityPosetEquivalence (X:Poset) : PosetEquivalence X X.
+Proof. intros. exists (idweq X). apply isPosetEquivalence_idweq.
+Defined.
+
 Lemma isincl_pr1_PosetEquivalence (X Y:Poset) : isincl (pr1 : X≅Y -> X≃Y).
 Proof. intros. apply isinclpr1. apply isaprop_isPosetEquivalence.
 Defined.
@@ -384,6 +393,30 @@ Lemma isinj_pr1_PosetEquivalence (X Y:Poset) : isinj (pr1 : X≅Y -> X≃Y).
 Proof.
   intros ? ? f g. apply total2_paths_second_isaprop.
   apply isaprop_isPosetEquivalence.
+Defined.
+
+(** poset concepts *)
+
+Notation "m < n" := (m ≤ n × m != n)%poset (only parsing) :poset_scope.
+Definition isMinimal {X:Poset} (x:X) := ∀ y, x≤y.
+Definition isMaximal {X:Poset} (x:X) := ∀ y, y≤x.
+Definition consecutive {X:Poset} (x y:X) := x<y × ∀ z, ¬ (x<z × z<y).
+
+Lemma isaprop_isMinimal {X:Poset} (x:X) : isaprop (isMaximal x).
+Proof.
+  intros. unfold isMaximal. apply impred; intros z. apply propproperty.
+Defined.
+
+Lemma isaprop_isMaximal {X:Poset} (x:X) : isaprop (isMaximal x).
+Proof.
+  intros. unfold isMaximal. apply impred; intros z. apply propproperty.
+Defined.
+
+Lemma isaprop_consecutive {X:Poset} (x y:X) : isaprop (consecutive x y).
+Proof.
+  intros. unfold consecutive. apply isapropdirprod.
+  { apply isapropdirprod. { apply pr2. } simpl. apply isapropneg. }
+  apply impred; intro z. apply isapropneg.
 Defined.
 
 (** *** Eqivalence relations and associated types . *)
