@@ -7,7 +7,8 @@ Local Open Scope poset.
 
 (* types and univalence *)
 
-Theorem UU_rect (X Y : UU) (P : X ≃ Y -> UU) : (∀ e : X=Y, P (univalence _ _ e)) -> ∀ f, P f.
+Theorem UU_rect (X Y : UU) (P : X ≃ Y -> UU) :
+  (∀ e : X=Y, P (univalence _ _ e)) -> ∀ f, P f.
 Proof.
   intros ? ? ? ih ?.
   set (p := ih (invmap (univalence _ _) f)).
@@ -26,7 +27,8 @@ Proof.
   (* this is a case where applying UU_rect is not as good as induction would be... *)
 Abort.
 
-Theorem hSet_rect (X Y : hSet) (P : X ≃ Y -> UU) : (∀ e : X=Y, P (hSet_univalence _ _ e)) -> ∀ f, P f.
+Theorem hSet_rect (X Y : hSet) (P : X ≃ Y -> UU) :
+  (∀ e : X=Y, P (hSet_univalence _ _ e)) -> ∀ f, P f.
 Proof.
   intros ? ? ? ih ?.
   Set Printing Coercions.
@@ -44,15 +46,21 @@ Definition Poset_univalence_map {X Y:Poset} : X=Y -> PosetEquivalence X Y.
 Proof. intros ? ? e. induction e. apply identityPosetEquivalence.
 Defined.
 
+Local Arguments isPosetEquivalence : clear implicits.
+Local Arguments isaposetmorphism : clear implicits.
+
 Lemma posetStructureIdentity {X:hSet} (R S:po X) :
   @isPosetEquivalence (X,,R) (X,,S) (idweq X) -> R=S.
 Proof.
-  intros ? ? ? e. apply total2_paths_second_isaprop. { apply isaprop_ispo. }
+  intros ? ? ? e.
+  apply total2_paths_second_isaprop. { apply isaprop_ispo. }
   induction R as [R r]; induction S as [S s]; simpl.
   apply funextfun; intro x; apply funextfun; intro y.
   unfold isPosetEquivalence in e.
   unfold isaposetmorphism in e; simpl in e.
-  induction e as [e e']. apply uahp. { apply e. } { apply e'. }
+  induction e as [e e'].
+  unfold posetRelation in *. unfold invmap in *; simpl in *.
+  apply uahp. { apply e. } { apply e'. }
 Defined.
 
 Lemma poTransport_logeq {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
@@ -68,10 +76,11 @@ Corollary poTransport_weq {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
   @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
   ≃ transportf (po∘pr1hSet) f R = S.
 Proof.
-  intros.
-  apply eqweqmap. apply uahp'.
-  { apply isaprop_isPosetEquivalence. } { apply isaset_po. }
-  { apply (pr1 (poTransport_logeq _ _ _)). } { apply (pr2 (poTransport_logeq _ _ _)). }
+  intros. apply weqimplimpl.
+  { apply (pr1 (poTransport_logeq _ _ _)). }
+  { apply (pr2 (poTransport_logeq _ _ _)). }
+  { apply isaprop_isPosetEquivalence. }
+  { apply isaset_po. }
 Defined.
 
 Local Lemma posetTransport_weq (X Y:Poset) : X≡Y ≃ X≅Y.
@@ -90,19 +99,21 @@ Proof.
   set (h := posetTransport_weq X Y).
   set (f' := weqcomp g h).
   assert (k : pr1weq f' ~ f).
+  try reflexivity.              (* this doesn't work *)
   { intro e. apply isinj_pr1_PosetEquivalence. induction e. reflexivity. }
   assert (l : isweq f).
   { apply (isweqhomot f'). exact k. apply weqproperty. }
   exact (f,,l).
 Defined.
 
-Definition Poset_univalence_compute {X Y:Poset} (f:X=Y) :
-  Poset_univalence X Y f = Poset_univalence_map f.
+Definition Poset_univalence_compute {X Y:Poset} (e:X=Y) :
+  Poset_univalence X Y e = Poset_univalence_map e.
 Proof. reflexivity. Defined.
 
 (* now we try to mimic this construction:
 
-    Inductive PosetEquivalence (X Y:Poset) : Type := pathToEq : (X=Y) -> PosetEquivalence X Y.
+    Inductive PosetEquivalence (X Y:Poset) : Type := 
+                  pathToEq : (X=Y) -> PosetEquivalence X Y.
 
     PosetEquivalence_rect
          : ∀ (X Y : Poset) (P : PosetEquivalence X Y -> Type),
@@ -120,18 +131,22 @@ Proof.
   exact (transportf P h p).
 Defined.
 
-Ltac poset_induction f e := generalize f; apply PosetEquivalence_rect; intro e; clear f.
+Ltac poset_induction f e :=
+  generalize f; apply PosetEquivalence_rect; intro e; clear f.
 
 (* applications of poset equivalence induction: *)
 
-Lemma isMinimal_preserved {X Y:Poset} {x:X} (is:isMinimal x) (f:X ≅ Y) : isMinimal (f x).
+Lemma isMinimal_preserved {X Y:Poset} {x:X} (is:isMinimal x) (f:X ≅ Y) :
+  isMinimal (f x).
 Proof.
   intros.
-  (* Anders says " induction f. " should look for PosetEquivalence_rect.  Why doesn't it? *)
+  (* Anders says " induction f. " should look for PosetEquivalence_rect.  
+     Why doesn't it? *)
   poset_induction f e. induction e. simpl. exact is.
 Defined.
 
-Lemma isMaximal_preserved {X Y:Poset} {x:X} (is:isMaximal x) (f:X ≅ Y) : isMaximal (f x).
+Lemma isMaximal_preserved {X Y:Poset} {x:X} (is:isMaximal x) (f:X ≅ Y) :
+  isMaximal (f x).
 Proof. intros. poset_induction f e. induction e. simpl. exact is.
 Defined.
 
@@ -177,7 +192,8 @@ Proof.
   apply invmaponpathsincl. apply isincl_underlyingPoset.
 Defined.
 
-Definition underlyingPoset_weq (X Y:OrderedSet) : X=Y ≃ (underlyingPoset X)=(underlyingPoset Y).
+Definition underlyingPoset_weq (X Y:OrderedSet) :
+  X=Y ≃ (underlyingPoset X)=(underlyingPoset Y).
 Proof.
   Set Printing Coercions.
   intros. refine (weqpair _ _).
@@ -222,15 +238,21 @@ Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0). (* in a
 
 Definition FiniteStructure (X:OrderedSet) := Σ n, ⟦ n ⟧ ≅ X.
 
-Lemma subset_finiteness {X} : isfinite X -> ∀ P : hsubtypes X, isfinite P.
+(* Definition characteristicFunction {X}  *)
+
+Lemma subset_finiteness {X} (P : hsubtypes X) :
+  (∀ x, isdecprop (P x)) -> isfinite X -> isfinite P.
 Proof.
-  intros ? isfin ?.
+  intros ? ? isdec isfin.
   apply isfin; intro fin; clear isfin.
   unfold finstruct in fin.
-  induction fin as [n w].
+  induction fin as [m w].
   unfold nelstruct in w.
-
-
+  type_induction w e.
+  induction e.
+  apply hinhpr.
+  unfold finstruct.
+  unfold hsubtypes in P.
 
 
 
