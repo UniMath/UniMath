@@ -1,9 +1,11 @@
 git checkout dev
+git submodule update
 git pull https://github.com/cathlelay/UniMath dev
 make
 if [ "$?" -eq 0 ]
 then
     git checkout master
+    git submodule update
     git pull
     git pull upstream
     git merge upstream/master
