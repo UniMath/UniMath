@@ -1,3 +1,29 @@
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents : 
+
+- Derivation of the data of an adjunction in terms of equivalence 
+  of hom-types from the definition of 
+  adjunction in terms of unit and counit
+                	
+           
+************************************************************)
+
+
+
+
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -15,6 +41,7 @@ Local Notation "G ∙ F" := (functor_composite _ _ _ F G) (at level 35).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
+(** Goal: extract hom-isomorphisms from an adjunction defined via unit and counit *)
 
 Section HomSetIso_from_Adjunction.
 
@@ -26,11 +53,15 @@ Let G := right_adjoint H.
 Let η := eta_from_left_adjoint H.
 Let ε := eps_from_left_adjoint H.
 
+(** * Definition of the maps on hom-types *)
+
 Definition φ_adj {A : C} {B : D} : F A ⇒ B → A ⇒ G B 
   := λ f : F A ⇒ B, η _ ;; #G f.
 
 Definition φ_adj_inv {A : C} {B : D} : A ⇒ G B → F A ⇒ B
   := λ g : A ⇒ G B, #F g ;; ε _ .
+
+(** * Proof that those maps are inverse to each other *)
 
 Lemma φ_adj_after_φ_adj_inv {A : C} {B : D} (g : A ⇒ G B) 
   : φ_adj (φ_adj_inv g) = g.
@@ -72,6 +103,7 @@ Proof.
   - apply φ_adj_after_φ_adj_inv.
 Defined.
 
+(** * Proof of the equations (naturality squares) of the adjunction *)
 
 Lemma φ_adj_natural_precomp (A : C) (B : D) (f : F A ⇒ B) (X : C) (h : X ⇒ A)
   : φ_adj (#F h ;; f) = h ;; φ_adj f.

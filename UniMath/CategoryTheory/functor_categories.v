@@ -550,8 +550,8 @@ Proof.
   apply hs.
 Qed.
 
-Definition nat_trans_eq_pointwise (C C' : precategory_data)
-   (F F' : functor_data C C') (a a' : nat_trans F F'):
+Definition nat_trans_eq_pointwise {C C' : precategory_data}
+   {F F' : functor_data C C'} {a a' : nat_trans F F'}:
       a = a' -> forall x, a x = a' x.
 Proof.
   intro h.
@@ -743,8 +743,8 @@ Proof.
   simpl in *.
   unfold is_inverse_in_precat in *; simpl; split.
   - unfold T. 
-    set (H1' := nat_trans_eq_pointwise _ _ _ _ _ _ TA). apply H1'.
-  - apply (nat_trans_eq_pointwise _ _ _ _ _ _ TA').
+    set (H1' := nat_trans_eq_pointwise TA). apply H1'.
+  - apply (nat_trans_eq_pointwise TA').
 Defined.
 
 Lemma nat_trans_inv_pointwise_inv_before (C : precategory_data) (C' : precategory) 
@@ -756,7 +756,7 @@ Proof.
   set (T:= inv_from_iso (isopair A Aiso)). 
   set (TA:=iso_inv_after_iso (isopair A Aiso)).
   set (TA':= iso_after_iso_inv (isopair A Aiso)).
-  apply (nat_trans_eq_pointwise _  _ _ _ _ _ TA').
+  apply (nat_trans_eq_pointwise TA').
 Defined.  
 
 Lemma nat_trans_inv_pointwise_inv_after (C : precategory_data) (C' : precategory) 
@@ -768,7 +768,7 @@ Proof.
   set (T:= inv_from_iso (isopair A Aiso)). 
   set (TA:=iso_inv_after_iso (isopair A Aiso)).
   set (TA':= iso_after_iso_inv (isopair A Aiso)).
-  apply (nat_trans_eq_pointwise _  _ _ _ _ _ TA).
+  apply (nat_trans_eq_pointwise TA).
 Defined.  
 
 
@@ -791,7 +791,7 @@ Proof.
   simpl.  
   set (TA:=iso_inv_after_iso (isopair A Aiso)).
   simpl in TA.
-  apply (nat_trans_eq_pointwise _ _ _ _ _ _ TA).
+  apply (nat_trans_eq_pointwise TA).
 Defined.
 
 Definition pr1_pr1_functor_eq_from_functor_iso (C : precategory_data) (D : precategory) 
