@@ -77,76 +77,32 @@ Proof. reflexivity. Defined.
 
 *)
 
-Theorem PosetEquivalence_rect
-         : ∀ (X Y : Poset) (P : PosetEquivalence X Y -> Type),
-           (∀ e : X = Y, P (Poset_univalence_map e)) ->
-           ∀ f : PosetEquivalence X Y, P f.
+Theorem PosetEquivalence_rect (X Y : Poset) (P : X ≅ Y -> Type) :
+  (∀ e : X = Y, P (Poset_univalence_map e)) -> ∀ f, P f.
 Proof.
   intros ? ? ? ih ?.
-Admitted.
-
-Lemma B {X Y:Poset} (x:X) (e : X = Y) :
-      transportf (λ T : Poset, T) e x = (Poset_univalence_map e) x.
-Proof. intros. induction e. reflexivity.
+  set (p := ih (invmap (Poset_univalence _ _) f)).
+  set (h := homotweqinvweq (Poset_univalence _ _) f).
+  exact (transportf P h p).
 Defined.
 
-Definition posetTransport {C : ∀ (T:Poset) (t:T), UU}
-  {X Y : Poset} (e : X = Y) {x : X} : C X x -> C Y (Poset_univalence_map e x).
-(* compare with transportD *)
-Proof.  
-  intros ? ? ? ? ? c. induction e. exact c.
-Defined.
+Ltac poset_induction f e := generalize f; apply PosetEquivalence_rect; intro e; clear f.
 
-Definition posetTransport2 {C : ∀ (T:Poset) (t u:T), UU}
-  {X Y : Poset} (e : X = Y) {x y : X} : C X x y -> C Y (Poset_univalence_map e x) (Poset_univalence_map e y).
-Proof.  
-  intros ? ? ? ? ? ? c. induction e. exact c.
-Defined.
-
-Definition posetTransportStructure  (C : ∀ (T:Poset) (t:T), UU)
-  {X Y : Poset} (f : X ≅ Y) (x : X) (c : C X x) : C Y (f x).
-Proof.  
-  intros.
-  assert (s := posetTransport (invmap (Poset_univalence _ _) f) c).
-  assert (t := homotweqinvweq (Poset_univalence X Y) f).
-  rewrite <- t.
-  exact s.
-Defined.
-
-Definition posetTransportRelation  (C : ∀ (T:Poset) (t u:T), UU)
-  {X Y : Poset} (f : X ≅ Y) (x y : X) (c : C X x y) : C Y (f x) (f y).
-Proof.  
-  intros.
-  assert (s := posetTransport2 (invmap (Poset_univalence _ _) f) c).
-  assert (t := homotweqinvweq (Poset_univalence X Y) f).
-  rewrite <- t.
-  exact s.
-Defined.
-
-(* applications: *)
+(* applications of poset equivalence induction: *)
 
 Lemma isMinimal_preserved {X Y:Poset} {x:X} (is:isMinimal x) (f:X ≅ Y) : isMinimal (f x).
 Proof.
-  intros. apply posetTransportStructure. exact is.
+  intros.
+  (* Anders says " induction f. " should look for PosetEquivalence_rect.  Why doesn't it? *)
+  poset_induction f e. induction e. simpl. exact is.
 Defined.
 
-Lemma isMinimal_preserved' {X Y:Poset} {x:X} (is:isMinimal x) (f:X ≅ Y) : isMinimal (f x).
-Proof.
-  intros. generalize f; apply PosetEquivalence_rect; intro e; clear f.
-  induction e. exact is.
+Lemma isMaximal_preserved {X Y:Poset} {x:X} (is:isMaximal x) (f:X ≅ Y) : isMaximal (f x).
+Proof. intros. poset_induction f e. induction e. simpl. exact is.
 Defined.
 
 Lemma consecutive_preserved {X Y:Poset} {x y:X} (is:consecutive x y) (f:X ≅ Y) : consecutive (f x) (f y).
-Proof.
-  intros. apply posetTransportRelation. exact is.
-Defined.
-
-Lemma consecutive_preserved' {X Y:Poset} {x y:X} (is:consecutive x y) (f:X ≅ Y) : consecutive (f x) (f y).
-Proof.
-  intros.
-  (* Anders says " induction f. " should look for PosetEquivalence_rect.  Why doesn't it? *)
-  generalize f; apply PosetEquivalence_rect; intro e; clear f.
-  induction e. exact is.
+Proof. intros. poset_induction f e. induction e. simpl. exact is.
 Defined.
 
 (** * Ordered sets *)
@@ -168,6 +124,15 @@ Coercion underlyingPoset : OrderedSet >-> Poset.
 
 Local Definition underlyingRelation (X:OrderedSet) := pr1 (pr2 (pr1 X)).
 
+Delimit Scope oset with oset. 
+
+Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : oset.
+Notation "m ≤ n" := (underlyingRelation _ m n) (no associativity, at level 70) : oset.
+Notation "m < n" := (m ≤ n × m != n)%oset (only parsing) :oset.
+
+Close Scope poset.
+Local Open Scope oset.
+
 Lemma isincl_underlyingPoset : isincl underlyingPoset.
 Proof.
   apply isinclpr1. intros X. apply isaprop_isOrdered.
@@ -178,38 +143,29 @@ Proof.
   apply invmaponpathsincl. apply isincl_underlyingPoset.
 Defined.
 
-Lemma weq_on_paths_underlyingPoset (X Y:OrderedSet) : isweq (@maponpaths _ _ underlyingPoset X Y).
+Definition underlyingPoset_weq (X Y:OrderedSet) : X=Y ≃ (underlyingPoset X)=(underlyingPoset Y).
 Proof.
-  intros. apply isweqonpathsincl. apply isincl_underlyingPoset.
-Defined.
-
-Delimit Scope oset_scope with oset. 
-Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : oset_scope.
-Notation "m ≤ n" := (underlyingRelation _ m n) (no associativity, at level 70) : oset_scope.
-Notation "m < n" := (m ≤ n × m != n)%oset (only parsing) :oset_scope.
-Close Scope poset.
-Local Open Scope oset.
-
-Definition OrderedSetEquivalence_map {X Y:OrderedSet} : X=Y -> X≅Y.
-Proof.
-  intros ? ? e.
   Set Printing Coercions.
-  apply Poset_univalence_map.
-  apply maponpaths.
-  exact e.
+  intros. refine (weqpair _ _).
+  { apply maponpaths. }
+  apply isweqonpathsincl. apply isincl_underlyingPoset.
   Unset Printing Coercions.
 Defined.
 
-Theorem OrderedSet_univalence {X Y:OrderedSet} : X=Y ≃ X≅Y.
-Proof.
-  (* shorten this *)
-  intros.
-  exists OrderedSetEquivalence_map.
-  unfold OrderedSetEquivalence_map.
-  apply (twooutof3c (@maponpaths _ _ underlyingPoset X Y) Poset_univalence_map).
-  { apply weq_on_paths_underlyingPoset. }
-  apply (pr2 (Poset_univalence _ _)).
+Theorem OrderedSet_univalence (X Y:OrderedSet) : X=Y ≃ X≅Y.
+Proof. intros. exact ((Poset_univalence _ _) ∘ (underlyingPoset_weq _ _))%weq.
 Defined.
+
+Theorem OrderedSetEquivalence_rect (X Y : OrderedSet) (P : X ≅ Y -> Type) :
+  (∀ e : X = Y, P (OrderedSet_univalence _ _ e)) -> ∀ f, P f.
+Proof.
+  intros ? ? ? ih ?.
+  set (p := ih (invmap (OrderedSet_univalence _ _) f)).
+  set (h := homotweqinvweq (OrderedSet_univalence _ _) f).
+  exact (transportf P h p).
+Defined.
+
+Ltac oset_induction f e := generalize f; apply OrderedSetEquivalence_rect; intro e; clear f.
   
 (* standard ordered sets *)
 

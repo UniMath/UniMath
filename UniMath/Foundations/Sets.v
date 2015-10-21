@@ -332,8 +332,8 @@ Coercion carrierofposet : Poset >-> hSet .
 Definition posetRelation (X:Poset) : hrel X := pr1 (pr2 X).
 
 
-Delimit Scope poset_scope with poset. 
-Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) : poset_scope.
+Delimit Scope poset with poset. 
+Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) : poset.
 Definition isaposetmorphism { X Y : Poset } ( f : X -> Y ) := (∀ x x' : X, x ≤ x' -> f x ≤ f x')%poset .
 Definition posetmorphism ( X Y : Poset ) := total2 ( fun f : X -> Y => isaposetmorphism f ) .
 Definition posetmorphismpair ( X Y : Poset ) := tpair ( fun f : X -> Y => isaposetmorphism f ) .
@@ -375,7 +375,7 @@ Defined.
 Definition PosetEquivalence (X Y:Poset) := Σ f:X≃Y, isPosetEquivalence f.
 
 Local Open Scope poset.
-Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : poset_scope.
+Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : poset.
 (* written \cong in Agda input method *) 
 
 Definition posetUnderlyingEquivalence {X Y} : X≅Y -> X≃Y := pr1.
@@ -397,7 +397,7 @@ Defined.
 
 (** poset concepts *)
 
-Notation "m < n" := (m ≤ n × m != n)%poset (only parsing) :poset_scope.
+Notation "m < n" := (m ≤ n × m != n)%poset (only parsing) :poset.
 Definition isMinimal {X:Poset} (x:X) := ∀ y, x≤y.
 Definition isMaximal {X:Poset} (x:X) := ∀ y, y≤x.
 Definition consecutive {X:Poset} (x y:X) := x<y × ∀ z, ¬ (x<z × z<y).
