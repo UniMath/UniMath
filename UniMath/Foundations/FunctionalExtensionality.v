@@ -18,6 +18,9 @@ Require Export UniMath.Foundations.Basics.All.
 (** ** Univalence axiom. *)
 
 Axiom univalenceaxiom :  forall T1 T2 : UU ,  isweq ( @eqweqmap T1 T2 ).
+
+Corollary univalence X Y : (X=Y) ≃ (X≃Y).
+Proof. intros. exact (weqpair _ (univalenceaxiom X Y)). Defined.
  
 Definition weqtopaths { T1 T2 : UU } ( w : weq T1 T2 ) : paths T1 T2  :=  invmap ( weqpair _ ( univalenceaxiom T1 T2 ) ) w.
 

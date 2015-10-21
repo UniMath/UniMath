@@ -1217,24 +1217,20 @@ Definition hSet_univalence_map (X Y:hSet) : (X = Y) -> (pr1 X ≃ pr1 Y).
 Proof. intros ? ? e. exact (eqweqmap (maponpaths pr1hSet e)).
 Defined.                     
 
-Lemma hSet_univalence (X Y:hSet) : isweq (hSet_univalence_map X Y).
+Theorem hSet_univalence (X Y:hSet) : (X = Y) ≃ (X ≃ Y).
 Proof.
-  intros.
   Set Printing Coercions.
+  intros.
+  set (f := hSet_univalence_map X Y).
+  exists f.
   set (g := @eqweqmap (pr1 X) (pr1 Y)).
   set (h := λ e:X=Y, maponpaths pr1hSet e).
-  assert (comp : hSet_univalence_map X Y = g ∘ h).
+  assert (comp : f = g ∘ h).
   { apply funextfun; intro e. induction e. reflexivity. }
   induction (!comp). apply twooutof3c.
   { apply isweqonpathsincl. apply isinclpr1. exact isapropisaset. }
   { apply univalenceaxiom. }
   Unset Printing Coercions.
 Defined.
-
-Lemma hSet_univalence_weq (X Y:hSet) : (X = Y) ≃ (pr1hSet X ≃ pr1hSet Y).
-Proof. intros. exact (weqpair _ (hSet_univalence _ _)).
-Defined.
-
-Definition hSet_univalence_invmap (X Y:hSet) := invmap (hSet_univalence_weq X Y).
 
 (* End of the file hSet.v *)

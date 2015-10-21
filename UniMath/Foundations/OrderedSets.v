@@ -2,7 +2,41 @@
 
 Require Import UniMath.Foundations.FiniteSets.
 Unset Automatic Introduction.
+Require Import UniMath.Foundations.FunctionalExtensionality.
 Local Open Scope poset.
+
+(* types and univalence *)
+
+Theorem UU_rect (X Y : UU) (P : X ≃ Y -> UU) : (∀ e : X=Y, P (univalence _ _ e)) -> ∀ f, P f.
+Proof.
+  intros ? ? ? ih ?.
+  set (p := ih (invmap (univalence _ _) f)).
+  set (h := homotweqinvweq (univalence _ _) f).
+  exact (transportf P h p).
+Defined.
+
+Ltac type_induction f e := generalize f; apply UU_rect; intro e; clear f.
+
+Definition weqbandf' { X Y : UU } (w : X ≃ Y ) (P:X -> UU) (Q: Y -> UU) ( fw : ∀ x:X, P x ≃ Q (w x) ) :
+  (Σ x, P x) ≃ (Σ y, Q y).
+Proof.
+  intros.
+  generalize w.
+  apply UU_rect; intro e.
+  (* this is a case where applying UU_rect is not as good as induction would be... *)
+Abort.
+
+Theorem hSet_rect (X Y : hSet) (P : X ≃ Y -> UU) : (∀ e : X=Y, P (hSet_univalence _ _ e)) -> ∀ f, P f.
+Proof.
+  intros ? ? ? ih ?.
+  Set Printing Coercions.
+  set (p := ih (invmap (hSet_univalence _ _) f)).
+  set (h := homotweqinvweq (hSet_univalence _ _) f).
+  exact (transportf P h p).
+  Unset Printing Coercions.
+Defined.
+
+Ltac hSet_induction f e := generalize f; apply UU_rect; intro e; clear f.
 
 (** partially ordered sets and ordered sets *)
 
@@ -44,7 +78,7 @@ Local Lemma posetTransport_weq (X Y:Poset) : X≡Y ≃ X≅Y.
 Proof.
   intros.
   refine (weqbandf _ _ _ _).
-  { apply hSet_univalence_weq. }
+  { apply hSet_univalence. }
   intros e. apply invweq. apply poTransport_weq.
 Defined.
 
@@ -77,7 +111,7 @@ Proof. reflexivity. Defined.
 
 *)
 
-Theorem PosetEquivalence_rect (X Y : Poset) (P : X ≅ Y -> Type) :
+Theorem PosetEquivalence_rect (X Y : Poset) (P : X ≅ Y -> UU) :
   (∀ e : X = Y, P (Poset_univalence_map e)) -> ∀ f, P f.
 Proof.
   intros ? ? ? ih ?.
@@ -156,7 +190,7 @@ Theorem OrderedSet_univalence (X Y:OrderedSet) : X=Y ≃ X≅Y.
 Proof. intros. exact ((Poset_univalence _ _) ∘ (underlyingPoset_weq _ _))%weq.
 Defined.
 
-Theorem OrderedSetEquivalence_rect (X Y : OrderedSet) (P : X ≅ Y -> Type) :
+Theorem OrderedSetEquivalence_rect (X Y : OrderedSet) (P : X ≅ Y -> UU) :
   (∀ e : X = Y, P (OrderedSet_univalence _ _ e)) -> ∀ f, P f.
 Proof.
   intros ? ? ? ih ?.
@@ -169,16 +203,38 @@ Ltac oset_induction f e := generalize f; apply OrderedSetEquivalence_rect; intro
   
 (* standard ordered sets *)
 
-Definition standardOrderedSet (n:nat) : OrderedSet.
+Definition FiniteOrderedSet := Σ X:OrderedSet, isfinite X.
+Definition underlyingOrderedSet (X:FiniteOrderedSet) : OrderedSet := pr1 X.
+Coercion underlyingOrderedSet : FiniteOrderedSet >-> OrderedSet.
+Definition finitenessProperty (X:FiniteOrderedSet) : isfinite X := pr2 X.
+
+Definition standardFiniteOrderedSet (n:nat) : FiniteOrderedSet.
 Proof.
-  intros. exists (stnposet n). split.
-  { intros x y. apply istotalnatleh. }
-  intros ? ? ? ?. apply isinjstntonat. now apply isantisymmnatleh.
+  intros.
+  refine (_,,_).
+  { exists (stnposet n). split.
+    { intros x y. apply istotalnatleh. }
+    intros ? ? ? ?. apply isinjstntonat. now apply isantisymmnatleh. }
+  { apply isfinitestn. }
 Defined.
 
-Local Notation "⟦ n ⟧" := (standardOrderedSet n) (at level 0). (* in agda-mode \[[ n \]] *)
+Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0). (* in agda-mode \[[ n \]] *)
 
-Definition FiniteStructure (X:OrderedSet) := Σ n, standardOrderedSet n ≅ X.
+Definition FiniteStructure (X:OrderedSet) := Σ n, ⟦ n ⟧ ≅ X.
+
+Lemma subset_finiteness {X} : isfinite X -> ∀ P : hsubtypes X, isfinite P.
+Proof.
+  intros ? isfin ?.
+  apply isfin; intro fin; clear isfin.
+  unfold finstruct in fin.
+  induction fin as [n w].
+  unfold nelstruct in w.
+
+
+
+
+
+Abort.
 
 Local Lemma std_auto n : iscontr (⟦ n ⟧ ≅ ⟦ n ⟧).
 Proof.
@@ -216,3 +272,12 @@ Proof.
     apply isaprop_isPosetEquivalence.
   }
 Abort.
+
+Theorem enumeration_FiniteOrderedSet (X:FiniteOrderedSet) : iscontr (FiniteStructure X).
+Proof.
+  intros.
+  refine (_,,_).
+  { exists (fincard (finitenessProperty X)).
+
+Abort.
+
