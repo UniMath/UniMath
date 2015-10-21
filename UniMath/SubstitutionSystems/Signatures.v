@@ -57,7 +57,7 @@ Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50).
 
 (** * Definition of signatures *)
 
-Section bla.
+Section fix_a_category.
 
 Variable C : precategory.
 Variable hs : has_homsets C.
@@ -440,7 +440,7 @@ Definition Sig_strength_law1 (H : Signature) : θ_Strength1_int _ _ := pr1 (pr2 
 
 Definition Sig_strength_law2 (H : Signature) : θ_Strength2_int _ _ := pr2 (pr2 (pr2 H)).
 
-End bla.
+End fix_a_category.
 
 
 

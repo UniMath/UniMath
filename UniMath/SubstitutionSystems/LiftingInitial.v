@@ -16,7 +16,8 @@ SubstitutionSystems
 Contents : 
 
 - Construction of a substitution system from an initial algebra
-- Proof that the substitution system constructed from an initial algebra is an initial substitution system
+- Proof that the substitution system constructed from an 
+  initial algebra is an initial substitution system
                 	
            
 ************************************************************)
@@ -35,6 +36,9 @@ Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.yoneda.
+Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.SubstitutionSystems.Auxiliary.
 Require Import UniMath.SubstitutionSystems.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.ProductPrecategory.
@@ -133,7 +137,7 @@ Definition InitAlg : Alg := InitialObject _ IA.
   { admit. }
  *)
 
-Lemma aux_iso_1_is_nat_trans (Z : Ptd) :
+Local Lemma aux_iso_1_is_nat_trans (Z : Ptd) :
    is_nat_trans
      (functor_composite Id_H (ℓ (U Z)))
      (pr1 (CoproductObject EndEndC
@@ -176,11 +180,12 @@ Definition aux_iso_1 (Z: Ptd): EndEndC ⟦ functor_composite Id_H
 Proof.
   refine (tpair _ _ _).
   - intro X.
-    exact (CoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functor _ (U Z)) (nat_trans_id (θ_source H (X⊗Z):functor C C))).
+    exact (CoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functor _ (U Z)) 
+            (nat_trans_id (θ_source H (X⊗Z):functor C C))).
   - exact (aux_iso_1_is_nat_trans Z).
 Defined.
 
-Lemma aux_iso_1_inv_is_nat_trans (Z : Ptd) :
+Local Lemma aux_iso_1_inv_is_nat_trans (Z : Ptd) :
    is_nat_trans
      (pr1 (CoproductObject EndEndC
         (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
@@ -214,14 +219,15 @@ Focus 2.
       apply id_left.
 Qed.
   
-Definition aux_iso_1_inv (Z: Ptd): EndEndC ⟦ CoproductObject EndEndC
+Local Definition aux_iso_1_inv (Z: Ptd): EndEndC ⟦ CoproductObject EndEndC
            (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
               (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z)),
              functor_composite Id_H (ℓ (U Z)) ⟧.
 Proof.
   refine (tpair _ _ _).
   - intro X.
-    exact (CoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functor _ (U Z)) (nat_trans_id (θ_source H (X⊗Z):functor C C))).
+    exact (CoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functor _ (U Z)) 
+           (nat_trans_id (θ_source H (X⊗Z):functor C C))).
   - exact (aux_iso_1_inv_is_nat_trans Z). 
 Defined.
 
@@ -231,7 +237,7 @@ Definition G_Thm15 (X : EndC) := coproduct_functor _ _ CPEndC
                        H.
  *)
 
-Lemma aux_iso_2_inv_is_nat_trans (Z : Ptd) :
+Local Lemma aux_iso_2_inv_is_nat_trans (Z : Ptd) :
    is_nat_trans
      (pr1 (CoproductObject EndEndC
         (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
@@ -266,7 +272,7 @@ Proof.
       apply id_left.
 Qed.
 
-Definition aux_iso_2_inv (Z: Ptd): EndEndC ⟦
+Local Definition aux_iso_2_inv (Z: Ptd): EndEndC ⟦
                            CoproductObject EndEndC
          (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
                     (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z)),
@@ -275,15 +281,24 @@ Definition aux_iso_2_inv (Z: Ptd): EndEndC ⟦
   Proof.
   refine (tpair _ _ _).
   - intro X.
-    exact (nat_trans_id ((@CoproductObject EndC (U Z) (θ_target H (X⊗Z)) (CPEndC _ _) ): functor C C)).
+    exact (nat_trans_id ((@CoproductObject EndC (U Z) (θ_target H (X⊗Z)) (CPEndC _ _) )
+             : functor C C)).
   - exact (aux_iso_2_inv_is_nat_trans Z). 
 Defined.
 
-Definition θ'_Thm15 (Z: Ptd):= CoproductOfArrows EndEndC (CPEndEndC _ _) (CPEndEndC _ _) (identity (constant_functor EndC _ (U Z): functor_precategory EndC EndC hsEndC)) (θ_in_first_arg Z).
+Definition θ'_Thm15 (Z: Ptd):= CoproductOfArrows 
+   EndEndC (CPEndEndC _ _) (CPEndEndC _ _) 
+   (identity (constant_functor EndC _ (U Z): functor_precategory EndC EndC hsEndC)) 
+   (θ_in_first_arg Z).
 
-Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):= @CoproductArrow EndC _ _  (CPEndC (U Z) (H (pr1 InitAlg))) (pr1 InitAlg) (#U f)(CoproductIn2 _ _ ;; (alg_map _ _ InitAlg)).
+Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):= @CoproductArrow 
+   EndC _ _  (CPEndC (U Z) 
+   (H (pr1 InitAlg))) (pr1 InitAlg) (#U f)
+   (CoproductIn2 _ _ ;; (alg_map _ _ InitAlg)).
 
-Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) := SpecializedGMIt Z (pr1 InitAlg) (Const_plus_H (U Z)) (ρ_Thm15 Z f) (aux_iso_1 Z ;; θ'_Thm15 Z ;; aux_iso_2_inv Z).
+Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) := 
+   SpecializedGMIt Z (pr1 InitAlg) (Const_plus_H (U Z)) 
+     (ρ_Thm15 Z f) (aux_iso_1 Z ;; θ'_Thm15 Z ;; aux_iso_2_inv Z).
 
 Definition bracket_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :=
    pr1 (pr1 (SpecializedGMIt_Thm15 Z f)).
@@ -291,51 +306,54 @@ Definition bracket_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :=
 
 (* we prove the individual components for ease of compilation *)
 Lemma bracket_Thm15_ok_part1 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg  InitAlg ⟧):
-# U f =
+ # U f 
+ =
  # (pr1 (ℓ (U Z))) (eta_from_alg InitAlg) ;; bracket_Thm15 Z f.
 Proof.
   apply nat_trans_eq; try (exact hs).
   intro c.
   assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
-  assert (h_eq' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (((aux_iso_1_inv Z):(_⟶_)) _);; m) h_eq); clear h_eq.
-         simpl in h_eq'.
-         assert (h_eq1' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (CoproductIn1 EndC (CPEndC _ _));; m) h_eq'); clear h_eq'.
-         assert (h_eq1'_inst := nat_trans_eq_pointwise h_eq1' c);
-           clear h_eq1'.
+  assert (h_eq' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => 
+               (((aux_iso_1_inv Z):(_⟶_)) _);; m) h_eq); 
+  clear h_eq.
+  simpl in h_eq'.
+  assert (h_eq1' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => 
+               (CoproductIn1 EndC (CPEndC _ _));; m) h_eq'); 
+  clear h_eq'.
+  assert (h_eq1'_inst := nat_trans_eq_pointwise h_eq1' c);
+  clear h_eq1'.
 (* match goal right in the beginning in contrast with earlier approach - suggestion by Benedikt *)
-         match goal with |[ H1 : _  = ?f |- _ = _   ] => 
-         pathvia (f) end.
+  match goal with |[ H1 : _  = ?f |- _ = _   ] => 
+         pathvia f end.
 
-  *      clear h_eq1'_inst.
-         unfold coproduct_nat_trans_data; simpl.
-         unfold coproduct_nat_trans_in1_data ; simpl.
-         repeat rewrite <- assoc .
-         apply CoproductIn1Commutes_right_in_ctx_dir.
-         unfold λ_functor; simpl.
-         rewrite id_left.
-         apply CoproductIn1Commutes_right_in_ctx_dir.
-         unfold ρ_functor; simpl.
-         rewrite id_left.
-         apply CoproductIn1Commutes_right_in_ctx_dir.
-         rewrite (id_left EndC).
-(*         rewrite (id_left EndC). *)
-         rewrite id_left.
-         apply CoproductIn1Commutes_right_in_ctx_dir.
-         rewrite (id_left EndC).
-         apply CoproductIn1Commutes_right_dir.
-         apply idpath.
-  *      rewrite <- h_eq1'_inst.
-         clear h_eq1'_inst.
-
-         apply CoproductIn1Commutes_left_in_ctx_dir.
-         unfold λ_functor, nat_trans_id; simpl.
-         rewrite id_left.
-         repeat rewrite (id_left EndEndC).
-         repeat rewrite (id_left EndC).
-         unfold functor_fix_snd_arg_ob.
-         repeat rewrite assoc.
-         apply maponpaths.
-         apply idpath.
+  * clear h_eq1'_inst.
+    unfold coproduct_nat_trans_data; simpl.
+    unfold coproduct_nat_trans_in1_data ; simpl.
+    repeat rewrite <- assoc .
+    apply CoproductIn1Commutes_right_in_ctx_dir.
+    unfold λ_functor; simpl.
+    rewrite id_left.
+    apply CoproductIn1Commutes_right_in_ctx_dir.
+    unfold ρ_functor; simpl.
+    rewrite id_left.
+    apply CoproductIn1Commutes_right_in_ctx_dir.
+    rewrite (id_left EndC).
+    rewrite id_left.
+    apply CoproductIn1Commutes_right_in_ctx_dir.
+    rewrite (id_left EndC).
+    apply CoproductIn1Commutes_right_dir.
+    apply idpath.
+  * rewrite <- h_eq1'_inst.
+    clear h_eq1'_inst.
+    apply CoproductIn1Commutes_left_in_ctx_dir.
+    unfold λ_functor, nat_trans_id; simpl.
+    rewrite id_left.
+    repeat rewrite (id_left EndEndC).
+    repeat rewrite (id_left EndC).
+    unfold functor_fix_snd_arg_ob.
+    repeat rewrite assoc.
+    apply maponpaths.
+    apply idpath.
 Qed.   (* one may consider Admitted for speedup during development *)
 
 (* produce some output to keep TRAVIS running *)
@@ -349,37 +367,35 @@ Proof.
   apply nat_trans_eq; try (exact hs).
   intro c.
   assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
-  assert (h_eq' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (((aux_iso_1_inv Z):(_⟶_)) _);; m) h_eq); clear h_eq.
+  assert (h_eq' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => 
+                  (((aux_iso_1_inv Z):(_⟶_)) _);; m) h_eq); 
+  clear h_eq.
  (*        simpl in h_eq'. (* until here same as in previous lemma *) *)
          
-         assert (h_eq2' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => (CoproductIn2 EndC (CPEndC _ _));; m) h_eq').
-         clear h_eq'.
-         assert (h_eq2'_inst := nat_trans_eq_pointwise h_eq2' c).
-         clear h_eq2'.
- (*        simpl in h_eq2'_inst. *)
-         match goal with |[ H1 : _  = ?f |- _ = _   ] => 
-         pathvia (f) end.
-         + clear h_eq2'_inst.
- (*          unfold coproduct_nat_trans_data.
-           unfold coproduct_nat_trans_in2_data.
-*)
-           apply CoproductIn2Commutes_right_in_ctx_dir.
-           unfold aux_iso_1; simpl.
-           rewrite id_right.
-           rewrite id_left.
-           do 3 rewrite <- assoc.
-           apply CoproductIn2Commutes_right_in_ctx_dir.
-           unfold nat_trans_id; simpl. rewrite id_left.
-           apply CoproductIn2Commutes_right_in_ctx_dir.
-           unfold nat_trans_fix_snd_arg_data.
-           apply CoproductIn2Commutes_right_in_double_ctx_dir.
-           rewrite <- assoc.
-           apply maponpaths.
-           eapply pathscomp0. Focus 2. apply assoc.
-           apply maponpaths.
-           apply pathsinv0.
-           apply CoproductIn2Commutes.
-
+  assert (h_eq2' := maponpaths (fun m:EndC⟦_,pr1 InitAlg⟧ => 
+                (CoproductIn2 EndC (CPEndC _ _));; m) h_eq').
+  clear h_eq'.
+  assert (h_eq2'_inst := nat_trans_eq_pointwise h_eq2' c).
+  clear h_eq2'.
+  match goal with |[ H1 : _  = ?f |- _ = _   ] => 
+                   pathvia (f) end.
+  + clear h_eq2'_inst.
+    apply CoproductIn2Commutes_right_in_ctx_dir.
+    unfold aux_iso_1; simpl.
+    rewrite id_right.
+    rewrite id_left.
+    do 3 rewrite <- assoc.
+    apply CoproductIn2Commutes_right_in_ctx_dir.
+    unfold nat_trans_id; simpl. rewrite id_left.
+    apply CoproductIn2Commutes_right_in_ctx_dir.
+    unfold nat_trans_fix_snd_arg_data.
+    apply CoproductIn2Commutes_right_in_double_ctx_dir.
+    rewrite <- assoc.
+    apply maponpaths.
+    eapply pathscomp0. Focus 2. apply assoc.
+    apply maponpaths.
+    apply pathsinv0.
+    apply CoproductIn2Commutes.
 
 (* alternative with slightly less precise control:
            do 4 rewrite <- assoc.
@@ -396,19 +412,13 @@ Proof.
            apply pathsinv0.
            apply CoproductIn2Commutes.
 *)
-         + rewrite <- h_eq2'_inst. clear h_eq2'_inst.
-           apply CoproductIn2Commutes_left_in_ctx_dir.
-           (* unfold Coproducts_functor_precat.
-              unfold functor_precat_coproduct_cocone. *)
-(*           simpl. *)
-           (* unfold coproduct_nat_trans_in2_data. *)
-           repeat rewrite id_left.
-           apply assoc.
-(*           repeat rewrite <- assoc.
-           (* apply maponpaths.
-              apply maponpaths. *)
-           apply idpath. *)  
-Qed. (* Qed works fine but takes quite some time, hence Admitted for the purpose of development *)
+
+  + rewrite <- h_eq2'_inst. clear h_eq2'_inst.
+    apply CoproductIn2Commutes_left_in_ctx_dir.
+    repeat rewrite id_left.
+    apply assoc.
+Qed. (* Qed works fine but takes quite some time, 
+        hence Admitted for the purpose of development *)
 
 (* produce some output to keep TRAVIS running *)
 Check bracket_Thm15_ok_part2.
@@ -430,71 +440,65 @@ Proof.
 Qed.
 
 
-Lemma foo' (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
- ∀
-   t : Σ
-       h : [C, C] hs
-           ⟦ functor_composite (U Z) (pr1  InitAlg),
-            pr1 InitAlg ⟧,
+Local Lemma foo' (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
+ ∀ t : Σ h : [C, C] hs ⟦ functor_composite (U Z) (pr1  InitAlg),
+                         pr1 InitAlg ⟧,
        bracket_property f h,
-   t =
+   t 
+   =
    tpair
      (λ h : [C, C] hs
             ⟦ functor_composite (U Z) (pr1 InitAlg),
               pr1 InitAlg ⟧,
-      bracket_property f h)
+       bracket_property f h)
      (bracket_Thm15 Z f) (bracket_Thm15_ok_cor Z f).
 Proof.
-   intros [h' h'_eq].
-    (* simpl in *. *)
-    apply total2_paths_second_isaprop.
-    + unfold bracket_property.
-      apply isaset_nat_trans. exact hs.
-    + simpl.
-      apply parts_from_whole in h'_eq.
-      destruct h'_eq as [h'_eq1 h'_eq2].
-      unfold bracket_Thm15.
-      apply path_to_ctr.
-      apply nat_trans_eq; try (exact hs).
-      intro c; simpl.
-      unfold coproduct_nat_trans_data.
-      repeat rewrite (id_left EndC).
-      rewrite id_right.
-      repeat rewrite <- assoc.
+  intros [h' h'_eq].
+  apply total2_paths_second_isaprop.
+  + unfold bracket_property.
+    apply isaset_nat_trans. exact hs.
+  + simpl.
+    apply parts_from_whole in h'_eq.
+    destruct h'_eq as [h'_eq1 h'_eq2].
+    unfold bracket_Thm15.
+    apply path_to_ctr.
+    apply nat_trans_eq; try (exact hs).
+    intro c; simpl.
+    unfold coproduct_nat_trans_data.
+    repeat rewrite (id_left EndC).
+    rewrite id_right.
+    repeat rewrite <- assoc.
+    eapply pathscomp0.
+    Focus 2.
+    eapply pathsinv0.
+    apply postcompWithCoproductArrow.
+    apply CoproductArrowUnique.
+    * simpl.
+      clear h'_eq2.
+      rewrite (id_left C).
+      assert (h'_eq1_inst := nat_trans_eq_pointwise h'_eq1 c);
+        clear h'_eq1.
+      simpl in h'_eq1_inst.
+      unfold coproduct_nat_trans_in1_data in h'_eq1_inst; simpl in h'_eq1_inst.
+      rewrite <- assoc in h'_eq1_inst.
       eapply pathscomp0.
-Focus 2.
       eapply pathsinv0.
-      apply postcompWithCoproductArrow.
-      apply CoproductArrowUnique.
-      * simpl.
-        clear h'_eq2.
-        rewrite (id_left C).
-(*        unfold coproduct_nat_trans_in1_data; simpl. *)
-        assert (h'_eq1_inst := nat_trans_eq_pointwise h'_eq1 c);
-          clear h'_eq1.
-        simpl in h'_eq1_inst.
-        unfold coproduct_nat_trans_in1_data in h'_eq1_inst; simpl in h'_eq1_inst.
-        rewrite <- assoc in h'_eq1_inst.
-        eapply pathscomp0.
-          eapply pathsinv0.
-          exact h'_eq1_inst. 
-        clear h'_eq1_inst.
-        apply CoproductIn1Commutes_right_in_ctx_dir.
-        apply CoproductIn1Commutes_right_in_ctx_dir.
-        apply CoproductIn1Commutes_right_dir.
+      exact h'_eq1_inst. 
+      clear h'_eq1_inst.
+      apply CoproductIn1Commutes_right_in_ctx_dir.
+      apply CoproductIn1Commutes_right_in_ctx_dir.
+      apply CoproductIn1Commutes_right_dir.
         apply idpath.
-      * clear h'_eq1.
-        (*simpl.
-        unfold coproduct_nat_trans_in2_data; simpl. *)
-        assert (h'_eq2_inst := nat_trans_eq_pointwise h'_eq2 c);
-          clear h'_eq2.
-        simpl in h'_eq2_inst.
+    * clear h'_eq1.
+      assert (h'_eq2_inst := nat_trans_eq_pointwise h'_eq2 c);
+        clear h'_eq2.
+      simpl in h'_eq2_inst.
         unfold coproduct_nat_trans_in2_data in h'_eq2_inst; simpl in h'_eq2_inst.
         apply pathsinv0 in h'_eq2_inst.
         rewrite <- assoc in h'_eq2_inst.
         eapply pathscomp0.
-          exact h'_eq2_inst. clear h'_eq2_inst.
-
+        exact h'_eq2_inst. clear h'_eq2_inst.
+        
         apply CoproductIn2Commutes_right_in_ctx_dir.
         apply CoproductIn2Commutes_right_in_double_ctx_dir.
         unfold nat_trans_fix_snd_arg_data; simpl.
@@ -534,9 +538,12 @@ Proof.
 Defined.
 
 
-Definition Ghat : EndEndC := Const_plus_H (pr1 InitAlg).
+Local Definition Ghat : EndEndC := Const_plus_H (pr1 InitAlg).
 
-Definition constant_nat_trans (C' D : precategory) (hsD : has_homsets D) (d d' : D) (m : d ⇒ d')
+Definition constant_nat_trans (C' D : precategory) 
+   (hsD : has_homsets D) 
+   (d d' : D) 
+   (m : d ⇒ d')
     : [C', D, hsD] ⟦constant_functor C' D d, constant_functor C' D d'⟧.
 Proof.
   exists (fun _ => m).
@@ -563,7 +570,7 @@ Proof.
                            (θ_in_first_arg Z)).
 Defined.
 
-Definition iso1' (Z : Ptd) :  EndEndC ⟦ functor_composite Id_H
+Local Definition iso1' (Z : Ptd) :  EndEndC ⟦ functor_composite Id_H
                                         (ℓ (U Z)),
  CoproductObject EndEndC
     (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
@@ -573,7 +580,7 @@ Proof.
 Defined.  
 
 
-Lemma is_nat_trans_iso2' (Z : Ptd) :
+Local Lemma is_nat_trans_iso2' (Z : Ptd) :
    is_nat_trans
      (pr1 (CoproductObject EndEndC
         (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (pr1 InitAlg))
@@ -588,29 +595,29 @@ Lemma is_nat_trans_iso2' (Z : Ptd) :
          :functor C C)).
 Proof.
   unfold is_nat_trans; simpl.
-    intros X X' α.
-    rewrite (id_left EndC).
-    rewrite (id_right EndC).
+  intros X X' α.
+  rewrite (id_left EndC).
+  rewrite (id_right EndC).
+  apply nat_trans_eq; try (exact hs).
+  intro c; simpl.
+  unfold coproduct_nat_trans_data; simpl.
+  unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
+  apply CoproductOfArrows_eq.
+  + apply idpath.
+  + unfold functor_fix_snd_arg_mor; simpl.
+    unfold θ_target_mor; simpl.
+    revert c.
+    apply nat_trans_eq_pointwise.
+    apply maponpaths.
     apply nat_trans_eq; try (exact hs).
-    intro c; simpl.
-    unfold coproduct_nat_trans_data; simpl.
-    unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
-    apply CoproductOfArrows_eq.
-    + apply idpath.
-    + unfold functor_fix_snd_arg_mor; simpl.
-      unfold θ_target_mor; simpl.
-      revert c.
-      apply nat_trans_eq_pointwise.
-      apply maponpaths.
-      apply nat_trans_eq; try (exact hs).
-      intro c.
-      simpl.
-      rewrite <- (nat_trans_ax α).
-      rewrite functor_id.
-      apply id_left.
+    intro c.
+    simpl.
+    rewrite <- (nat_trans_ax α).
+    rewrite functor_id.
+    apply id_left.
 Qed.
 
-Definition iso2' (Z : Ptd) : EndEndC ⟦
+Local Definition iso2' (Z : Ptd) : EndEndC ⟦
   CoproductObject EndEndC
   (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (pr1 InitAlg))
              (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z)),
@@ -618,7 +625,8 @@ Definition iso2' (Z : Ptd) : EndEndC ⟦
 Proof.
     refine (tpair _ _ _).
   - intro X.
-    exact (nat_trans_id ((@CoproductObject EndC _ (θ_target H (X⊗Z)) (CPEndC _ _) ): functor C C)).
+    exact (nat_trans_id ((@CoproductObject EndC _ (θ_target H (X⊗Z)) (CPEndC _ _) )
+            : functor C C)).
   - exact (is_nat_trans_iso2' Z).
 Defined.
 
@@ -631,9 +639,6 @@ Proof.
 Defined.
 
 
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.yoneda.
-Require Import UniMath.CategoryTheory.category_hset.
  
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
@@ -689,7 +694,7 @@ Proof.
     set (T5 := T4 Φ).
     pathvia (Φ _ (fbracket InitHSS f)).
       apply idpath.
-    eapply pathscomp0.
+      eapply pathscomp0.
       Focus 2.
         eapply T5.
       (* hypothesis of fusion law *)
@@ -779,7 +784,9 @@ Proof.
     + repeat rewrite <- assoc.
       apply CoproductIn1Commutes_right_in_ctx_dir.
       simpl.
-      unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data, coproduct_nat_trans_data.
+      unfold coproduct_nat_trans_in1_data, 
+             coproduct_nat_trans_in2_data, 
+             coproduct_nat_trans_data.
       rewrite id_left.
       apply CoproductIn1Commutes_right_in_ctx_dir.
 
@@ -834,7 +841,9 @@ Focus 2.
         apply cancel_postcomposition.
         eapply pathsinv0.
         assert (τ_part_of_alg_mor_inst := τ_part_of_alg_mor _ hs CP H _ _ β0).
-        assert (τ_part_of_alg_mor_inst_Zc := nat_trans_eq_pointwise τ_part_of_alg_mor_inst ((pr1 Z) c)); clear τ_part_of_alg_mor_inst.
+        assert (τ_part_of_alg_mor_inst_Zc := 
+                  nat_trans_eq_pointwise τ_part_of_alg_mor_inst ((pr1 Z) c)); 
+          clear τ_part_of_alg_mor_inst.
         apply τ_part_of_alg_mor_inst_Zc.
       
       simpl.   
@@ -853,7 +862,14 @@ Focus 2.
       repeat rewrite assoc.
       apply cancel_postcomposition.
       apply cancel_postcomposition.
-      assert (Hyp: ((# (pr1 (ℓ(U Z))) (# H β));; (theta H) ((alg_carrier _ _  T') ⊗ Z);; # H (fbracket T' (f;; ptd_from_alg_mor C hs CP H β0)) = θ (tpair (λ _ : functor C C, ptd_obj C) (pr1 (pr1 IA)) Z) ;; # H (# (pr1 (ℓ(U Z))) β ;; fbracket T' (f;; ptd_from_alg_mor C hs CP H β0)))).
+      assert (Hyp: 
+                 ((# (pr1 (ℓ(U Z))) (# H β));; 
+                 (theta H) ((alg_carrier _ _  T') ⊗ Z);; 
+                 # H (fbracket T' (f;; ptd_from_alg_mor C hs CP H β0)) 
+                 = 
+                 θ (tpair (λ _ : functor C C, ptd_obj C) (pr1 (pr1 IA)) Z) ;; 
+                 # H (# (pr1 (ℓ(U Z))) β ;; 
+                 fbracket T' (f;; ptd_from_alg_mor C hs CP H β0)))).
       
 Focus 2.
       assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp. 
@@ -892,7 +908,6 @@ Lemma hss_InitMor_unique (T' : hss_precategory CP H):
   ∀ t : hss_precategory CP H ⟦ InitHSS, T' ⟧, t = hss_InitMor T'.
 Proof.
   intro t.
-  (* show lemma that says that two hss morphisms are equal if their underlying alg morphisms are *)
   apply (invmap (hssMor_eq1 _ _ _ _ _ _ _ _ )).
   set (T2:= pr2 IA).
   simpl in T2.
@@ -912,7 +927,7 @@ Proof.
 Defined.
 
 
-Lemma Ihss : Initial (hss_precategory CP H).
+Lemma InitialHSS : Initial (hss_precategory CP H).
 Proof.
   exists InitHSS.
   apply isInitial_InitHSS.

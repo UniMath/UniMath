@@ -14,7 +14,8 @@ SubstitutionSystems
 
 Contents : 
 
-- Definition of a coproduct structure on a functor category by taking pointwise coproducts in the target category
+- Definition of a coproduct structure on a functor category 
+  by taking pointwise coproducts in the target category
 
                 	
            

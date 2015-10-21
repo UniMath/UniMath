@@ -87,7 +87,7 @@ Variable S22 : θ_Strength2 θ2.
 Definition H : functor [C, C, hs] [C, C, hs] := coproduct_functor _ _ CCC H1 H2.
 
 
-Definition bla1 (X : [C, C] hs) (Z : precategory_Ptd C hs) :
+Local Definition bla1 (X : [C, C] hs) (Z : precategory_Ptd C hs) :
    ∀ c : C, 
     (functor_composite_data (pr1 Z)
      (coproduct_functor_data C C CC (H1 X) (H2 X))) c
@@ -100,7 +100,7 @@ Proof.
   - exact (pr1 (θ2 (prodcatpair _ _ X Z)) c).
 Defined.
 
-Lemma bar (X : [C, C] hs) (Z : precategory_Ptd C hs):
+Local Lemma bar (X : [C, C] hs) (Z : precategory_Ptd C hs):
    is_nat_trans
      (functor_composite_data (pr1 Z)
         (coproduct_functor_data C C CC (H1 X) (H2 X)))
@@ -117,7 +117,7 @@ Proof.
   * apply (nat_trans_ax (θ2 (prodcatpair _ _ X Z))).
 Qed.
 
-Definition bla (X : [C, C] hs) (Z : precategory_Ptd C hs) :
+Local Definition bla (X : [C, C] hs) (Z : precategory_Ptd C hs) :
    functor_composite_data (pr1 Z)
      (coproduct_functor_data C C CC (H1 X) (H2 X))
    ⟶ coproduct_functor_data C C CC (H1 (functor_composite (pr1 Z) X))
@@ -136,7 +136,7 @@ Proof.
 Defined.
   
 
-Lemma is_nat_trans_θ_ob : 
+Local Lemma is_nat_trans_θ_ob : 
  is_nat_trans (θ_source_functor_data C hs H) (θ_target_functor_data C hs H)
      θ_ob.
 Proof.
@@ -163,7 +163,7 @@ Qed.
 
 
    
-Definition θ : θ_source H ⟶ θ_target H.
+Local Definition θ : θ_source H ⟶ θ_target H.
 Proof.
   exists θ_ob.
   apply is_nat_trans_θ_ob.

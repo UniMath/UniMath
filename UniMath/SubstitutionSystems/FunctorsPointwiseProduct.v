@@ -14,7 +14,8 @@ SubstitutionSystems
 
 Contents : 
 
-- Definition of a product structure on a functor category by taking pointwise products in the target category
+- Definition of a product structure on a functor category 
+  by taking pointwise products in the target category
 
                 	
            

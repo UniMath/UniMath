@@ -16,7 +16,8 @@ Contents :
 
 - Derivation of Generalized Mendler Iteration
 - Instantiation to a special case, Specialized Mendler Iteration
-- Proof of a fusion law à la Bird-Paterson (Generalised folds for nested datatypes) for Generalized Mendler Iteration
+- Proof of a fusion law à la Bird-Paterson (Generalised folds 
+  for nested datatypes) for Generalized Mendler Iteration
 
 
                 	

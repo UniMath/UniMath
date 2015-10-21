@@ -14,7 +14,9 @@ SubstitutionSystems
 
 Contents : 
 
-- Derivation of the data of an adjunction in terms of equivalence of hom-types from the definition of adjunction in terms of unit and counit
+- Derivation of the data of an adjunction in terms of equivalence 
+  of hom-types from the definition of 
+  adjunction in terms of unit and counit
                 	
            
 ************************************************************)
