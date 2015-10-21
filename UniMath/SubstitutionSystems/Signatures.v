@@ -299,7 +299,8 @@ Proof.
   rewrite <- assoc.
   apply maponpaths.
   clear TXZZ'c.
-  assert (functor_comp_H := functor_comp H _ _ _ (α_functor C (pr1 Z) (pr1 Z') X) (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) ⇒ Y)).
+  assert (functor_comp_H := functor_comp H _ _ _ (α_functor C (pr1 Z) (pr1 Z') X) 
+           (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) ⇒ Y)).
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   simpl in functor_comp_H_c.
   eapply pathscomp0.
@@ -321,7 +322,8 @@ Lemma θ_Strength2_implies_θ_Strength2_int : θ_Strength2 → θ_Strength2_int.
 Proof.
   unfold θ_Strength2_int, θ_Strength2.
   intros T X Z Z'.
-  assert (TXZZ'_inst := T X Z Z' (functor_compose hs hs (U Z) (functor_composite (U Z') X)) (α_functor C (pr1 Z) (pr1 Z') X)).
+  assert (TXZZ'_inst := T X Z Z' (functor_compose hs hs (U Z) 
+          (functor_composite (U Z') X)) (α_functor C (pr1 Z) (pr1 Z') X)).
   eapply pathscomp0. apply TXZZ'_inst.
   clear T TXZZ'_inst.
   apply nat_trans_eq; try assumption.
