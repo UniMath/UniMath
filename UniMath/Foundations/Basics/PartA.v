@@ -1263,10 +1263,14 @@ Defined.
     http://github.com/HoTT/HoTT.
  *)
 
-Theorem total2_paths_equiv {A : UU} (B : A -> UU)
-  (x y : Σ x, B x) :
-    weq (x = y)
-        (Σ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y).
+Definition PathPair {A : UU} {B : A -> UU} (x y : Σ x, B x) :=
+  Σ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y.
+
+Notation "a ≡ b" := (PathPair a b) (at level 70, no associativity) : type_scope.
+(* the three horizontal lines are reminiscent of a path lying above a path in a fibration *)
+(* use \equiv in agda input mode *)
+
+Theorem total2_paths_equiv {A : UU} (B : A -> UU) (x y : Σ x, B x) :  x = y  ≃  x ≡ y.
 Proof.
   intros A B x y.
   exists (fun (r : x = y) =>  
