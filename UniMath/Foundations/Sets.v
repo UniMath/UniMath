@@ -207,7 +207,44 @@ Definition iscoantisymm { X : UU } ( R : hrel X ) := forall x1 x2 , neg ( R x1 x
 
 Definition neqchoice { X : UU } ( R : hrel X ) := forall x1 x2 , neg ( x1 = x2 ) -> coprod ( R x1 x2 ) ( R x2 x1 ) .
 
+(** proofs that the properties are propositions  *)
 
+Lemma isaprop_istrans {X:hSet} (R:hrel X) : isaprop (istrans R).
+Proof.
+  intros. repeat (apply impred;intro). apply propproperty.
+Defined.
+
+Lemma isaprop_isrefl {X:hSet} (R:hrel X) : isaprop (isrefl R).
+Proof.
+  intros. apply impred; intro. apply propproperty.
+Defined.
+
+Lemma isaprop_istotal {X:hSet} (R:hrel X) : isaprop (istotal R).
+Proof.
+  intros. unfold istotal. apply impred; intro x. apply impred; intro y. apply propproperty.
+Defined.
+
+Lemma isaprop_isantisymm {X:hSet} (R:hrel X) : isaprop (isantisymm R).
+Proof.
+  intros. unfold isantisymm. apply impred; intro x. apply impred; intro y.
+  apply impred; intro r. apply impred; intro s. apply setproperty.
+Defined.
+
+Lemma isaprop_ispo {X:hSet} (R:hrel X) : isaprop (ispo R).
+Proof.
+  intros.
+  unfold ispo.
+  apply isapropdirprod.
+  { apply isaprop_istrans. }
+  { apply isaprop_isrefl. }
+Defined.
+
+(** the relations on a set form a set *)
+
+Definition isaset_hrel (X:hSet) : isaset (hrel X).
+  intros. unfold hrel. apply impred_isaset; intro x. apply impred_isaset; intro y.
+  exact isasethProp.
+Defined.
 
 (** *** Elementary implications between properties of relations *)
 
@@ -303,6 +340,51 @@ Definition posetmorphismpair ( X Y : Poset ) := tpair ( fun f : X -> Y => isapos
 Definition carrierofposetmorphism ( X Y : Poset ) : posetmorphism X Y -> ( X -> Y ) := @pr1 _ _ .
 Coercion  carrierofposetmorphism : posetmorphism >-> Funclass . 
 
+Lemma isaprop_isaposetmorphism {X Y:Poset} (f:X->Y) : isaprop (isaposetmorphism f).
+Proof.
+  intros. apply impredtwice; intros. apply impred; intros _. apply propproperty.
+Defined.
+
+(** the partial orders on a set form a set *)
+
+Definition isaset_po (X:hSet) : isaset (po X).
+  intros.
+  unfold po.
+  apply (isofhleveltotal2 2).
+  { apply isaset_hrel. }
+  intros x. apply hlevelntosn. apply isaprop_ispo.
+Defined.
+
+(** poset equivalences *)
+
+Definition isPosetEquivalence {X Y:Poset} (f:X≃Y) :=
+  isaposetmorphism f × isaposetmorphism (invmap f).
+
+Lemma isaprop_isPosetEquivalence {X Y:Poset} (f:X≃Y) :
+  isaprop (isPosetEquivalence f).
+Proof.
+  intros. unfold isPosetEquivalence.
+  apply isapropdirprod;apply isaprop_isaposetmorphism.
+Defined.
+
+Definition PosetEquivalence (X Y:Poset) := Σ f:X≃Y, isPosetEquivalence f.
+
+Local Open Scope poset.
+Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 80, no associativity) : poset_scope.
+(* written \cong in Agda input method *) 
+
+Definition posetUnderlyingEquivalence {X Y} : X≅Y -> X≃Y := pr1.
+Coercion posetUnderlyingEquivalence : PosetEquivalence >-> weq.
+
+Lemma isincl_pr1_PosetEquivalence (X Y:Poset) : isincl (pr1 : X≅Y -> X≃Y).
+Proof. intros. apply isinclpr1. apply isaprop_isPosetEquivalence.
+Defined.
+
+Lemma isinj_pr1_PosetEquivalence (X Y:Poset) : isinj (pr1 : X≅Y -> X≃Y).
+Proof.
+  intros ? ? f g. apply total2_paths_second_isaprop.
+  apply isaprop_isPosetEquivalence.
+Defined.
 
 (** *** Eqivalence relations and associated types . *)
 
@@ -1094,13 +1176,32 @@ Proof .  intros . apply weqimplimpl .  apply iscompsetquot2pr . set ( int := set
 Definition setquottosetquot2 (X: UU) (R: hrel X) (is: iseqrel R) : setquot R -> setquot2 R.
 Proof. intros X R is X0. apply (setquotuniv R (hSetpair _ (isasetsetquot2 R)) (setquot2pr R) (iscompsetquot2pr R) X0).  Defined.
 
+(** consequences of univalence *)
 
+Require Import UniMath.Foundations.FunctionalExtensionality.
 
+Definition hSet_univalence_map (X Y:hSet) : (X = Y) -> (pr1 X ≃ pr1 Y).
+Proof. intros ? ? e. exact (eqweqmap (maponpaths pr1hSet e)).
+Defined.                     
 
+Lemma hSet_univalence (X Y:hSet) : isweq (hSet_univalence_map X Y).
+Proof.
+  intros.
+  Set Printing Coercions.
+  set (g := @eqweqmap (pr1 X) (pr1 Y)).
+  set (h := λ e:X=Y, maponpaths pr1hSet e).
+  assert (comp : hSet_univalence_map X Y = g ∘ h).
+  { apply funextfun; intro e. induction e. reflexivity. }
+  induction (!comp). apply twooutof3c.
+  { apply isweqonpathsincl. apply isinclpr1. exact isapropisaset. }
+  { apply univalenceaxiom. }
+  Unset Printing Coercions.
+Defined.
 
+Lemma hSet_univalence_weq (X Y:hSet) : (X = Y) ≃ (pr1hSet X ≃ pr1hSet Y).
+Proof. intros. exact (weqpair _ (hSet_univalence _ _)).
+Defined.
 
-
-
-
+Definition hSet_univalence_invmap (X Y:hSet) := invmap (hSet_univalence_weq X Y).
 
 (* End of the file hSet.v *)
