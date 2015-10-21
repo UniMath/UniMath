@@ -1,4 +1,5 @@
 colimits/colimits.v
+colimits/chains.v
 slicecat.v
 rezk_completion.v
 precomp_ess_surj.v
