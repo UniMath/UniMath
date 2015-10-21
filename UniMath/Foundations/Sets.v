@@ -375,7 +375,7 @@ Defined.
 Definition PosetEquivalence (X Y:Poset) := Σ f:X≃Y, isPosetEquivalence f.
 
 Local Open Scope poset.
-Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 80, no associativity) : poset_scope.
+Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : poset_scope.
 (* written \cong in Agda input method *) 
 
 Definition posetUnderlyingEquivalence {X Y} : X≅Y -> X≃Y := pr1.
