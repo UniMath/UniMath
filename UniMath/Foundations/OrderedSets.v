@@ -48,26 +48,17 @@ Notation " x >? y " := ( natgth_decidableProposition x y ) (at level 70, no asso
 Notation " x =? y " := ( nateq_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
 Notation " x !=? y " := ( natneq_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
 
-Definition decidable_to_bool : decidableProposition -> bool.
+Definition decidableChoice {W} : decidableProposition -> W -> W -> W.
 Proof.
-  intros P. induction P as [P dec]. induction (iscontrpr1 dec) as [yes|no].
-  - exact true.
-  - exact false.
+  intros ? P yes no. induction P as [P dec]. induction (iscontrpr1 dec) as [p|q].
+  - exact yes.
+  - exact no.
 Defined.
 
-Definition decidable_to_nat : decidableProposition -> nat.
-Proof.
-  intros P. induction P as [P dec]. induction (iscontrpr1 dec) as [yes|no].
-  - exact 1.
-  - exact 0.
-Defined.
-
-Definition characteristicFunction {X} (P:X->decidableProposition) : X -> nat.
-Proof. intros ? P. exact (decidable_to_nat ∘ P).
-Defined.
+Notation "P ? a # b" := (decidableChoice P a b) (at level 100).
 
 Definition tallyStandardSubset {n} (P: decidableSubtype (stn n)) : nat.
-Proof. intros. exact (stnsum (characteristicFunction P)).
+Proof. intros. exact (stnsum (λ x, P x ? 1 # 0)).
 Defined.
 
 (* verify computability: *)
@@ -244,6 +235,36 @@ Local Definition underlyingPoset (X:OrderedSet) : Poset := pr1 X.
 Coercion underlyingPoset : OrderedSet >-> Poset.
 
 Local Definition underlyingRelation (X:OrderedSet) := pr1 (pr2 (pr1 X)).
+
+Lemma A (X:OrderedSet) : isdeceq X -> ∀ (x y:X), isdecprop (x ≤ y).
+Proof.
+  intros ? i ? ?.
+  apply isdecpropif.
+  { apply propproperty. }
+  assert (refl := pr2 (pr2 (pr2 (pr1 X))) x); simpl in refl.
+  assert (asymm := pr2 (pr2 X) x y).
+  assert (total := pr1 (pr2 X) x y).
+  change (pr1 (pr2 (pr1 X)) x y) with (x ≤ y) in *.
+  change (pr1 (pr2 (pr1 X)) y x) with (y ≤ x) in *.
+  change (pr1 (pr2 (pr1 X)) x x) with (x ≤ x) in *.
+  set (l := isapropdec (x ≤ y) (pr2 (x ≤ y))).
+  change ((x ≤ y)->False) with (¬ (x ≤ y)) in l.
+  set (o := total (hProppair _ l)); simpl in o.
+  apply o; intro s; clear o l total.
+  assert (j := i x y); clear i.
+  induction s as [s|s].
+  { now apply ii1. }
+  induction j as [j|j].
+  { apply ii1. rewrite <-j. apply refl. }
+  apply ii2.
+  intro le.
+  apply j.
+  now apply asymm.
+Defined.
+
+Corollary B (X:OrderedSet) : isfinite X -> ∀ (x y:X), isdecprop (x ≤ y).
+Proof. intros ? i ? ?. apply A. now apply isfinite_isdeceq.
+Defined.
 
 Delimit Scope oset with oset. 
 
