@@ -18,7 +18,11 @@ Coercion decidableProposition_to_hProp : decidableProposition >-> hProp.
 Definition decidabilityProperty (X:decidableProposition) :
   isdecprop X := pr2 X.
 
-Definition decidableSubset (X:UU) := X -> decidableProposition.
+Definition decidableSubtype (X:UU) := X -> decidableProposition.
+
+Definition underlyingType {X} : decidableSubtype X -> UU.
+Proof. intros ? S. exact (Σ x, S x). Defined.
+Coercion underlyingType : decidableSubtype >-> UU.
 
 Definition decidableRelation (X:UU) := X -> X -> decidableProposition.
 
@@ -34,6 +38,15 @@ Definition natgth_decidableProposition := decrel_to_decidableProposition natgthd
 Definition natgeh_decidableProposition := decrel_to_decidableProposition natgehdec.
 Definition nateq_decidableProposition := decrel_to_decidableProposition natdeceq.
 Definition natneq_decidableProposition := decrel_to_decidableProposition natdecneq.
+
+Notation " x <? y " := ( natlth_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x <=? y " := ( natleh_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x ≤? y " := ( natleh_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x >=? y " := ( natgeh_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x ≥? y " := ( natgeh_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x >? y " := ( natgth_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x =? y " := ( nateq_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x !=? y " := ( natneq_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
 
 Definition decidable_to_bool : decidableProposition -> bool.
 Proof.
@@ -53,13 +66,14 @@ Definition characteristicFunction {X} (P:X->decidableProposition) : X -> nat.
 Proof. intros ? P. exact (decidable_to_nat ∘ P).
 Defined.
 
-Definition tallyStandardSubset {n} (P: decidableSubset (stn n)) : nat.
+Definition tallyStandardSubset {n} (P: decidableSubtype (stn n)) : nat.
 Proof. intros. exact (stnsum (characteristicFunction P)).
 Defined.
 
 (* verify computability: *)
-Goal tallyStandardSubset (λ i:stn 7, natlth_decidableProposition i 3) = 3.
-Proof. reflexivity. Defined.
+Goal tallyStandardSubset (λ i:stn 7, 2*i <? 6) = 3. Proof. reflexivity. Defined.
+Goal tallyStandardSubset (λ i:stn 7, 2*i =? 6) = 1. Proof. reflexivity. Defined.
+Goal tallyStandardSubset (λ i:stn 7, 2*i !=? 4) = 6. Proof. reflexivity. Defined.
 
 (* types and univalence *)
 
@@ -74,7 +88,9 @@ Defined.
 
 Ltac type_induction f e := generalize f; apply UU_rect; intro e; clear f.
 
-Definition weqbandf' { X Y : UU } (w : X ≃ Y ) (P:X -> UU) (Q: Y -> UU) ( fw : ∀ x:X, P x ≃ Q (w x) ) :
+Definition weqbandf' { X Y : UU } (w : X ≃ Y )
+           (P:X -> UU) (Q: Y -> UU)
+           ( fw : ∀ x:X, P x ≃ Q (w x) ) :
   (Σ x, P x) ≃ (Σ y, Q y).
 Proof.
   intros.
@@ -290,23 +306,23 @@ Proof.
   { apply isfinitestn. }
 Defined.
 
-Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0). (* in agda-mode \[[ n \]] *)
+Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0).
+(* in agda-mode \[[ n \]] *)
 
 Definition FiniteStructure (X:OrderedSet) := Σ n, ⟦ n ⟧ ≅ X.
 
-Lemma subset_finiteness {X} (P : hsubtypes X) :
-  (∀ x, isdecprop (P x)) -> isfinite X -> isfinite P.
+Lemma subsetFiniteness {X} (P : decidableSubtype X) : isfinite X -> isfinite P.
 Proof.
-  intros ? ? isdec isfin.
+  intros ? ? isfin.
   apply isfin; intro fin; clear isfin.
-  unfold finstruct in fin.
   induction fin as [m w].
   unfold nelstruct in w.
-  type_induction w e.
-  induction e.
   apply hinhpr.
   unfold finstruct.
-  unfold hsubtypes in P.
+  exists (tallyStandardSubset (P ∘ w)).
+  { unfold nelstruct.
+    
+
 
 
 
