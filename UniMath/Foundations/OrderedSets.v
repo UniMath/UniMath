@@ -5,6 +5,62 @@ Unset Automatic Introduction.
 Require Import UniMath.Foundations.FunctionalExtensionality.
 Local Open Scope poset.
 
+(* propositions, move upstream *)
+
+Definition decidableProposition := Σ X:UU, isdecprop X.
+
+Definition decidableProposition_to_hProp : decidableProposition -> hProp.
+Proof.
+  intros X.
+  exact (pr1 X,, isdecproptoisaprop (pr1 X) (pr2 X)).
+Defined.
+Coercion decidableProposition_to_hProp : decidableProposition >-> hProp.
+Definition decidabilityProperty (X:decidableProposition) :
+  isdecprop X := pr2 X.
+
+Definition decidableSubset (X:UU) := X -> decidableProposition.
+
+Definition decidableRelation (X:UU) := X -> X -> decidableProposition.
+
+Definition decrel_to_decidableProposition {X} : decrel X -> decidableRelation X.
+Proof.
+  intros ? R x y. induction R as [R is]. exists (R x y).
+  apply isdecpropif. { apply propproperty. } apply is.
+Defined.
+
+Definition natlth_decidableProposition := decrel_to_decidableProposition natlthdec.
+Definition natleh_decidableProposition := decrel_to_decidableProposition natlehdec.
+Definition natgth_decidableProposition := decrel_to_decidableProposition natgthdec.
+Definition natgeh_decidableProposition := decrel_to_decidableProposition natgehdec.
+Definition nateq_decidableProposition := decrel_to_decidableProposition natdeceq.
+Definition natneq_decidableProposition := decrel_to_decidableProposition natdecneq.
+
+Definition decidable_to_bool : decidableProposition -> bool.
+Proof.
+  intros P. induction P as [P dec]. induction (iscontrpr1 dec) as [yes|no].
+  - exact true.
+  - exact false.
+Defined.
+
+Definition decidable_to_nat : decidableProposition -> nat.
+Proof.
+  intros P. induction P as [P dec]. induction (iscontrpr1 dec) as [yes|no].
+  - exact 1.
+  - exact 0.
+Defined.
+
+Definition characteristicFunction {X} (P:X->decidableProposition) : X -> nat.
+Proof. intros ? P. exact (decidable_to_nat ∘ P).
+Defined.
+
+Definition tallyStandardSubset {n} (P: decidableSubset (stn n)) : nat.
+Proof. intros. exact (stnsum (characteristicFunction P)).
+Defined.
+
+(* verify computability: *)
+Goal tallyStandardSubset (λ i:stn 7, natlth_decidableProposition i 3) = 3.
+Proof. reflexivity. Defined.
+
 (* types and univalence *)
 
 Theorem UU_rect (X Y : UU) (P : X ≃ Y -> UU) :
@@ -237,8 +293,6 @@ Defined.
 Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0). (* in agda-mode \[[ n \]] *)
 
 Definition FiniteStructure (X:OrderedSet) := Σ n, ⟦ n ⟧ ≅ X.
-
-(* Definition characteristicFunction {X}  *)
 
 Lemma subset_finiteness {X} (P : hsubtypes X) :
   (∀ x, isdecprop (P x)) -> isfinite X -> isfinite P.
