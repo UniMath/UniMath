@@ -237,17 +237,17 @@ Proof. intros. *)
 (* The cardinality of finite sets defined using the "impredicative" ishinh *)
 
 (** ** Test computations. *)
-Check (idpath _ : fincard (isfiniteempty) = 0).
-Check (idpath _ : fincard (isfiniteunit) = 1).
-Check (idpath _ : fincard (isfinitebool) = 2).
-Check (idpath _ : fincard (isfinitecompl true isfinitebool) = 1).
-Check (idpath _ : fincard (isfinitedirprod  isfinitebool isfinitebool) = 4).
-Check (idpath _ : fincard (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool)) = 8).
-Check (idpath _ : fincard (isfinitecompl (ii1 tt) (isfinitecoprod  (isfiniteunit) (isfinitebool))) = 2).
-Check (idpath _ : fincard (isfinitecompl (ii1 tt) (isfinitecoprod (isfiniteunit) (isfinitebool))) = 2).
-Check (idpath _ : fincard (isfinitecompl (dirprodpair tt tt) (isfinitedirprod  isfiniteunit isfiniteunit)) = 0).
-Check (idpath _ : fincard (isfinitecompl (dirprodpair  true (dirprodpair  true false)) (isfinitedirprod  (isfinitebool) (isfinitedirprod  (isfinitebool) (isfinitebool)))) = 7).
-Check (idpath _ : fincard (isfiniteweq ( isfinitedirprod ( isfinitedirprod isfinitebool isfinitebool ) isfinitebool )) = 40320).
+Goal fincard (isfiniteempty) = 0. reflexivity. Qed.
+Goal fincard (isfiniteunit) = 1. reflexivity. Qed.
+Goal fincard (isfinitebool) = 2. reflexivity. Qed.
+Goal fincard (isfinitecompl true isfinitebool) = 1. reflexivity. Qed.
+Goal fincard (isfinitedirprod  isfinitebool isfinitebool) = 4. reflexivity. Qed.
+Goal fincard (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool)) = 8. reflexivity. Qed.
+Goal fincard (isfinitecompl (ii1 tt) (isfinitecoprod  (isfiniteunit) (isfinitebool))) = 2. reflexivity. Qed.
+Goal fincard (isfinitecompl (ii1 tt) (isfinitecoprod (isfiniteunit) (isfinitebool))) = 2. reflexivity. Qed.
+Goal fincard (isfinitecompl (dirprodpair tt tt) (isfinitedirprod  isfiniteunit isfiniteunit)) = 0. reflexivity. Qed.
+Goal fincard (isfinitecompl (dirprodpair  true (dirprodpair  true false)) (isfinitedirprod  (isfinitebool) (isfinitedirprod  (isfinitebool) (isfinitebool)))) = 7. reflexivity. Qed.
+Goal fincard (isfiniteweq ( isfinitedirprod ( isfinitedirprod isfinitebool isfinitebool ) isfinitebool )) = 40320. reflexivity. Qed.
 
 (* Eval compute in (carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))). *)
 (* Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)
