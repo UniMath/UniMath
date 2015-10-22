@@ -360,7 +360,7 @@ Proof.
 refine (mk_cocone _ _).
 - now intro v; apply (pr1 (coconeIn cc v) a).
 - abstract (intros u v e;
-    now apply (nat_trans_eq_pointwise _ _ _ _ _ _ (coconeInCommutes cc u v e))).
+    now apply (nat_trans_eq_pointwise  (coconeInCommutes cc u v e))).
 Defined.
 
 Lemma ColimFunctor_unique (F : [A, C, hsC]) (cc : cocone D F) :
@@ -386,7 +386,7 @@ refine (tpair _ _ _).
               [ apply impred; intro u; apply functor_category_has_homsets
               | apply (nat_trans_eq hsC); simpl; intro a;
                 apply colimArrowUnique; intro u;
-                now apply (nat_trans_eq_pointwise _ _ _ _ _ _ (t2 u))]).
+                now apply (nat_trans_eq_pointwise (t2 u))]).
 Defined.
 
 Lemma ColimFunctorCocone : ColimCocone D.

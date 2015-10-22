@@ -1,3 +1,25 @@
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents : 
+
+- Definition of the (weak) monoidal structure on endofunctors
+                	
+           
+************************************************************)
+
+
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -14,6 +36,12 @@ Local Notation "G ∙ F" := (functor_composite _ _ _ F G) (at level 35).
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Arguments functor_composite {_ _ _} _ _ .
+
+(** There is a monoidal structure on endofunctors, given by composition.
+    While this is considered to be strict in set-theoretic category theory,
+    it ain't strict in type theory with respect to convertibility.
+    So we consider it to be a weak monoidal structure instead.
+*)
 
 Section Monoidal_Structure_on_Endofunctors.
 

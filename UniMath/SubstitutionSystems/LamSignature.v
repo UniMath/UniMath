@@ -1,3 +1,28 @@
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents : 
+
+- Definition of the arities of the constructors of lambda calculus
+- Definition of the signatures of lambda calculus and lambda calculus with explicit flattening
+
+
+                	
+           
+************************************************************)
+
+
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.

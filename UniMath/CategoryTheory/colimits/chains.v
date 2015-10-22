@@ -256,18 +256,18 @@ Definition initDiag : diagram nat_graph C := Fdiagram F Init (InitialArrow C Ini
 Variable (CC : ColimCocone initDiag).
 Variable (Fcont : chain_cocontinuous hsC F (InitialObject _ Init) (InitialArrow _ Init _) CC).
 
-Let L := colim CC.
-Let minv : iso (colim (shift_colim C hsC initDiag CC)) (F L) := isopair _ Fcont.
+Local Notation L := (colim CC).
+Local Notation minv := (isopair _ Fcont).
 
 Local Definition m : C⟦F L,L⟧ := inv_from_iso minv.
-
-Local Definition colimAlg : algebra_ob _ F := tpair (λ X : C, C ⟦ F X, X ⟧) L m.
+Local Definition colimAlg : algebra_ob F := tpair (λ X : C, C ⟦ F X, X ⟧) L m.
 
 Section algebra.
 
-Variable (Aa : algebra_ob _ F).
-Let A : C := alg_carrier _ _ Aa.
-Let a : C⟦F A,A⟧:= alg_map _ _ Aa.
+Variable (Aa : algebra_ob F).
+
+Local Notation A := (alg_carrier _ Aa).
+Local Notation a := (alg_map _ Aa).
 
 Definition cocone_over_alg (n : nat) : C ⟦ dob initDiag n, A ⟧.
 Proof.
@@ -325,7 +325,7 @@ rewrite !assoc.
 now apply adaggerCommutes2.
 Qed.
 
-Lemma ad_is_algebra_mor : is_algebra_mor _ _ colimAlg Aa ad.
+Lemma ad_is_algebra_mor : is_algebra_mor _ colimAlg Aa ad.
 Proof.
 unfold is_algebra_mor; simpl; unfold colimAlg.
 apply iso_inv_on_right.
@@ -333,15 +333,15 @@ rewrite assoc.
 now apply adaggerDef.
 Qed.
 
-Definition adaggerMor : algebra_mor C F colimAlg Aa := tpair _ _ ad_is_algebra_mor.
+Definition adaggerMor : algebra_mor F colimAlg Aa := tpair _ _ ad_is_algebra_mor.
 
 End algebra.
 
-Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg C F hsC) colimAlg.
+Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) colimAlg.
 Proof.
 intro Aa.
 exists (adaggerMor Aa); simpl; intro Fa.
-apply (algebra_mor_eq _ _ hsC); simpl.
+apply (algebra_mor_eq _ hsC); simpl.
 unfold ad.
 apply colimArrowUnique; simpl; intro n.
 destruct Fa as [f hf]; simpl.
@@ -355,7 +355,7 @@ induction n as [|n IHn]; simpl.
   now apply cancel_postcomposition, (mCommutes _ _ _ _ _ _ (S n)).
 Qed.
 
-Definition colimAlgInitial : Initial (precategory_FunctorAlg C F hsC) :=
+Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
   tpair _ _ colimAlgIsInitial.
 
 End colim_initial_algebra.

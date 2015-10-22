@@ -1,3 +1,27 @@
+
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents : 
+
+-    Definition of signatures
+-    Proof that two forms of strength laws are equivalent
+              	
+           
+************************************************************)
+
+
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -29,8 +53,11 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
 Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50, left associativity).
 
+(** Goal: define signatures as pairs of a rank-2 functor and a "strength" *)
 
-Section bla.
+(** * Definition of signatures *)
+
+Section fix_a_category.
 
 Variable C : precategory.
 Variable hs : has_homsets C.
@@ -186,6 +213,9 @@ Qed.
 
 Definition θ_target : functor _ _ := tpair _ _ is_functor_θ_target_functor_data.
 
+(** * Two alternative versions of the strength laws *)
+
+
 (** We assume a suitable (bi)natural transformation [θ] *)
 Hypothesis θ : θ_source ⟶ θ_target.
 
@@ -208,7 +238,7 @@ Proof.
   assert (TX:= T X).
   apply nat_trans_eq; try assumption.
   intro c; simpl.
-  assert (T2 := nat_trans_eq_pointwise _ _ _ _ _ _ TX c).
+  assert (T2 := nat_trans_eq_pointwise TX c).
   simpl in *.
   assert (X0 : λ_functor C X = identity (X : EndC)).
   { apply nat_trans_eq; try assumption; intros; apply idpath. }
@@ -224,7 +254,7 @@ Proof.
   assert (TX:= T X).
   apply nat_trans_eq; try assumption.
   intro c; simpl.
-  assert (T2 := nat_trans_eq_pointwise _ _ _ _ _ _ TX c).
+  assert (T2 := nat_trans_eq_pointwise TX c).
   simpl in *.
   assert (X0 : λ_functor C X = identity (X : EndC)).
   { apply nat_trans_eq; try assumption; intros; apply idpath. }
@@ -261,7 +291,7 @@ Proof.
   apply nat_trans_eq; try assumption.
   intro c.
   simpl.
-  assert (TXZZ'c := nat_trans_eq_pointwise _ _ _ _ _ _ TXZZ' c).
+  assert (TXZZ'c := nat_trans_eq_pointwise TXZZ' c).
   simpl in TXZZ'c.
   clear T TXZZ'.
   rewrite id_left in TXZZ'c.
@@ -269,8 +299,9 @@ Proof.
   rewrite <- assoc.
   apply maponpaths.
   clear TXZZ'c.
-  assert (functor_comp_H := functor_comp H _ _ _ (α_functor C (pr1 Z) (pr1 Z') X) (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) ⇒ Y)).
-  assert (functor_comp_H_c := nat_trans_eq_pointwise _ _ _ _ _ _ functor_comp_H c).
+  assert (functor_comp_H := functor_comp H _ _ _ (α_functor C (pr1 Z) (pr1 Z') X) 
+           (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) ⇒ Y)).
+  assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   simpl in functor_comp_H_c.
   eapply pathscomp0.
 Focus 2.
@@ -291,7 +322,8 @@ Lemma θ_Strength2_implies_θ_Strength2_int : θ_Strength2 → θ_Strength2_int.
 Proof.
   unfold θ_Strength2_int, θ_Strength2.
   intros T X Z Z'.
-  assert (TXZZ'_inst := T X Z Z' (functor_compose hs hs (U Z) (functor_composite (U Z') X)) (α_functor C (pr1 Z) (pr1 Z') X)).
+  assert (TXZZ'_inst := T X Z Z' (functor_compose hs hs (U Z) 
+          (functor_composite (U Z') X)) (α_functor C (pr1 Z) (pr1 Z') X)).
   eapply pathscomp0. apply TXZZ'_inst.
   clear T TXZZ'_inst.
   apply nat_trans_eq; try assumption.
@@ -303,7 +335,7 @@ Proof.
   eapply pathscomp0; [| apply id_right].
   apply maponpaths.
   assert (functor_id_H := functor_id H (functor_compose hs hs (pr1 Z) (functor_composite (pr1 Z') X))).
-  assert (functor_id_H_c := nat_trans_eq_pointwise _ _ _ _ _ _ functor_id_H c).
+  assert (functor_id_H_c := nat_trans_eq_pointwise functor_id_H c).
   eapply pathscomp0; [| apply functor_id_H_c].
   clear functor_id_H functor_id_H_c.
   revert c.
@@ -349,7 +381,7 @@ Lemma θ_nat_1_pointwise (X X' : EndC) (α : X ⇒ X') (Z : Ptd) (c : C)
        pr1 (θ (X ⊗ Z)) c;; pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
 Proof.
   set (t := θ_nat_1 _ _ α Z).
-  set (t' := nat_trans_eq_weq _ _ hs _ _ _ _ t c);
+  set (t' := nat_trans_eq_weq hs _ _ t c);
   clearbody t';  simpl in t'.
   set (H':= functor_id (H X') (pr1 (pr1 Z) c));
   clearbody H'; simpl in H'.
@@ -383,7 +415,7 @@ Lemma θ_nat_2_pointwise (X : EndC) (Z Z' : Ptd) (f : Z ⇒ Z') (c : C)
        pr1 (θ (X ⊗ Z)) c;; pr1 (# H (identity X ∙∙ pr1 f)) c .
 Proof.
   set (t:=θ_nat_2 X _ _ f).
-  set (t':=nat_trans_eq_weq _ _ hs _ _ _ _ t c).
+  set (t':=nat_trans_eq_weq hs _ _ t c).
   clearbody t'; clear t.
   simpl in t'.
   rewrite id_left in t'.
@@ -410,7 +442,7 @@ Definition Sig_strength_law1 (H : Signature) : θ_Strength1_int _ _ := pr1 (pr2 
 
 Definition Sig_strength_law2 (H : Signature) : θ_Strength2_int _ _ := pr2 (pr2 (pr2 H)).
 
-End bla.
+End fix_a_category.
 
 
 
