@@ -236,45 +236,22 @@ Proof. intros. *)
 
 (* The cardinality of finite sets defined using the "impredicative" ishinh *)
 
-
-
 (** ** Test computations. *)
+Check (idpath _ : fincard (isfiniteempty) = 0).
+Check (idpath _ : fincard (isfiniteunit) = 1).
+Check (idpath _ : fincard (isfinitebool) = 2).
+Check (idpath _ : fincard (isfinitecompl true isfinitebool) = 1).
+Check (idpath _ : fincard (isfinitedirprod  isfinitebool isfinitebool) = 4).
+Check (idpath _ : fincard (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool)) = 8).
+Check (idpath _ : fincard (isfinitecompl (ii1 tt) (isfinitecoprod  (isfiniteunit) (isfinitebool))) = 2).
+Check (idpath _ : fincard (isfinitecompl (ii1 tt) (isfinitecoprod (isfiniteunit) (isfinitebool))) = 2).
+Check (idpath _ : fincard (isfinitecompl (dirprodpair tt tt) (isfinitedirprod  isfiniteunit isfiniteunit)) = 0).
+Check (idpath _ : fincard (isfinitecompl (dirprodpair  true (dirprodpair  true false)) (isfinitedirprod  (isfinitebool) (isfinitedirprod  (isfinitebool) (isfinitebool)))) = 7).
+Check (idpath _ : fincard (isfiniteweq ( isfinitedirprod ( isfinitedirprod isfinitebool isfinitebool ) isfinitebool )) = 40320).
 
-
-
-(*Eval compute in carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O))))).*)
-
-Eval compute in fincard (isfiniteempty).
-
-Eval compute in fincard (isfiniteunit).
-
-Eval compute in fincard (isfinitebool).
-
-
-
-
-(*Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))).*)
+(* Eval compute in (carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))). *)
+(* Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)
  
-
-
-
-Eval compute in fincard (isfinitecompl  true isfinitebool).
-
-Eval compute in fincard (isfinitedirprod  isfinitebool isfinitebool).
-
-Eval compute in fincard (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool)).
-
-Eval lazy in fincard (isfinitecompl (ii1 tt) (isfinitecoprod  (isfiniteunit) (isfinitebool))).
-
-Eval lazy in  fincard (isfinitecompl (ii1 tt) (isfinitecoprod (isfiniteunit) (isfinitebool))). 
-
-Eval lazy in fincard (isfinitecompl (dirprodpair tt tt) (isfinitedirprod  isfiniteunit isfiniteunit)).
- 
-Eval lazy in fincard (isfinitecompl (dirprodpair  true (dirprodpair  true false)) (isfinitedirprod  (isfinitebool) (isfinitedirprod  (isfinitebool) (isfinitebool)))).
-
-Eval lazy in fincard ( isfiniteweq ( isfinitedirprod ( isfinitedirprod isfinitebool isfinitebool ) isfinitebool ) ) . 
-
-
 
 
 
