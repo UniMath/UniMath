@@ -115,7 +115,7 @@ Definition Const_plus_H (X : EndC) : functor EndC EndC
 Definition Id_H := Const_plus_H (functor_identity _ : EndC).
  
 
-Let Alg : precategory := precategory_FunctorAlg _ Id_H hsEndC.
+Let Alg : precategory := FunctorAlg Id_H hsEndC.
 
 
 Variable IA : Initial Alg.
@@ -294,7 +294,7 @@ Definition θ'_Thm15 (Z: Ptd):= CoproductOfArrows
 Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):= @CoproductArrow 
    EndC _ _  (CPEndC (U Z) 
    (H (pr1 InitAlg))) (pr1 InitAlg) (#U f)
-   (CoproductIn2 _ _ ;; (alg_map _ _ InitAlg)).
+   (CoproductIn2 _ _ ;; (alg_map _ InitAlg)).
 
 Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) := 
    SpecializedGMIt Z (pr1 InitAlg) (Const_plus_H (U Z)) 
@@ -671,7 +671,7 @@ Defined.
 Lemma ishssMor_InitAlg (T' : hss CP H) :
   @ishssMor C hs CP H
         InitHSS T'        
-           (InitialArrow Alg IA (pr1 T') : algebra_mor EndC Id_H InitAlg T' ).  
+           (InitialArrow Alg IA (pr1 T') : @algebra_mor EndC Id_H InitAlg T' ).  
 Proof.
   unfold ishssMor.
   unfold isbracketMor.
@@ -864,7 +864,7 @@ Focus 2.
       apply cancel_postcomposition.
       assert (Hyp: 
                  ((# (pr1 (ℓ(U Z))) (# H β));; 
-                 (theta H) ((alg_carrier _ _  T') ⊗ Z);; 
+                 (theta H) ((alg_carrier _  T') ⊗ Z);;
                  # H (fbracket T' (f;; ptd_from_alg_mor C hs CP H β0)) 
                  = 
                  θ (tpair (λ _ : functor C C, ptd_obj C) (pr1 (pr1 IA)) Z) ;; 
