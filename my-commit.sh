@@ -1,13 +1,19 @@
-git checkout dev
-git submodule update
+echo "Mise a jour branche dev"
 git pull https://github.com/cathlelay/UniMath dev
+echo "Mise à jour sous-modules"
+git submodule update
+echo "Compilation"
 make
 if [ "$?" -eq 0 ]
 then
     git checkout master
+    echo "Mise à jour sous-modules"
     git submodule update
+    echo "Mise à jour branche master"
     git pull
+    echo "Mise à jour upstream"
     git pull upstream
+    echo "Fusion de upstream dans master"
     git merge upstream/master
     git gui
     make

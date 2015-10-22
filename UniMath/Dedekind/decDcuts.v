@@ -43,21 +43,20 @@ Lemma is_zero_dec :
   forall x : Dcuts, isdecDcuts x -> hdisj (x = 0) (neg (x = 0)).
 Proof.
   intros x Hx.
-  generalize (Hx 0%NnR) ; apply hinhfun ; intros [Hx0 | Hx0].
+  generalize (Hx 0%NRat) ; apply hinhfun ; intros [Hx0 | Hx0].
   - right ; intro H.
     rewrite H in Hx0.
     now rewrite Dcuts_zero_empty in Hx0.
   - left ; apply Dcuts_eq_is_eq.
+    intros P HP ; apply HP ; clear P HP.
     split.
-    + apply hinhpr.
-      intros r Hr.
+    + intros Hr.
       rewrite Dcuts_zero_empty.
       apply Hx0.
       apply (is_Dcuts_bot x r).
       now apply Hr.
       apply isnonnegative_NonnegativeRationals.
-    + apply hinhpr.
-      intros r Hr.
+    + intros Hr.
       now rewrite Dcuts_zero_empty in Hr.
 Qed.
   
