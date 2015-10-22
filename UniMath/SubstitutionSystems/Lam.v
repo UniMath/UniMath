@@ -60,7 +60,7 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
 Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50).
 Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
-Local Notation "` T" := (alg_carrier _ _ T) (at level 3).
+Local Notation "` T" := (alg_carrier _ T) (at level 3).
 Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
 
 
@@ -113,7 +113,7 @@ Let LamE_S : Signature _ _ := LamE_Sig C hs terminal CC CP.
 (* assume initial algebra for signature Lam *)
 
 Variable Lam_Initial : Initial
-     (precategory_FunctorAlg ([C, C] hs)
+     (@precategory_FunctorAlg ([C, C] hs)
                              (Id_H C hs CC Lam_S) hsEndC).
 
 Let Lam := InitialObject _ Lam_Initial.
@@ -136,26 +136,26 @@ Let LamHSS := InitialObject _ LamHSS_Initial.
 
 Definition Lam_Var : EndC ⟦functor_identity C, `Lam ⟧.
 Proof.
-  exact (CoproductIn1 _ _ ;; alg_map _ _ Lam).
+  exact (CoproductIn1 _ _ ;; alg_map _ Lam).
 Defined.
 
 (* we later prefer leaving App and Abs bundled in the definition of LamE_algebra_on_Lam *)
 
 Definition Lam_App : [C, C] hs ⟦ (App_H C hs CP) `Lam , `Lam ⟧.
 Proof.
-  exact (CoproductIn1 _ _ ;; (CoproductIn2 _ _ ;; alg_map _ _ Lam)).
+  exact (CoproductIn1 _ _ ;; (CoproductIn2 _ _ ;; alg_map _ Lam)).
 Defined.
 
 Definition Lam_Abs : [C, C] hs ⟦ (Abs_H C hs terminal CC) `Lam, `Lam ⟧.
 Proof.
-  exact (CoproductIn2 _ _ ;; (CoproductIn2 _ _ ;; alg_map _ _ Lam)).
+  exact (CoproductIn2 _ _ ;; (CoproductIn2 _ _ ;; alg_map _ Lam)).
 Defined.
 
 
 Definition Lam_App_Abs :  [C, C] hs
    ⟦ (H C hs CC (App_H C hs CP) (Abs_H C hs terminal CC)) `Lam , `Lam ⟧.
 Proof.
-  exact (CoproductIn2 _ _ ;; alg_map _ _ Lam).
+  exact (CoproductIn2 _ _ ;; alg_map _ Lam).
 Defined.
 
 (** * Definition of a "model" of the flattening arity in pure lambda calculus *)
@@ -171,7 +171,7 @@ Defined.
 
 (** now get a LamE-algebra *)
 
-Definition LamE_algebra_on_Lam : precategory_FunctorAlg _ (Id_H _ _ CC LamE_S) hsEndC.
+Definition LamE_algebra_on_Lam : FunctorAlg (Id_H _ _ CC LamE_S) hsEndC.
 Proof.
   exists ((*ob_from_algebra_ob _ _*) `Lam).
   refine (CoproductArrow _ (CPEndC _ _ )  _ _ ) .
@@ -576,7 +576,7 @@ Defined.
 (* assume initial algebra for signature LamE *)
 
 Variable  LamE_Initial : Initial
-     (precategory_FunctorAlg ([C, C] hs)
+     (@precategory_FunctorAlg ([C, C] hs)
         (Id_H C hs CC LamE_S) hsEndC).
 
 

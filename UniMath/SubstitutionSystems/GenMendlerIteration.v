@@ -47,7 +47,7 @@ Arguments nat_trans_comp {_ _ _ _ _} _ _ .
 Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-Notation "↓ f" := (mor_from_algebra_mor _ _ _ _ f) (at level 3, format "↓ f").
+Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
 (* in Agda mode \downarrow *)
 
 (** Goal: derive Generalized Mendler Iteration and a fusion law *)
@@ -61,7 +61,7 @@ Variable hsC : has_homsets C.
 
 Variable F : functor C C.
 
-Let AF := precategory_FunctorAlg _ F hsC.
+Let AF := FunctorAlg F hsC.
 
 Definition AlgConstr (A : C) (α : F A ⇒ A) : AF.
 Proof.
@@ -75,8 +75,7 @@ Notation "⟨ A , α ⟩" := (AlgConstr A α).
 Variable μF_Initial : Initial AF.
 
 Let μF : C := pr1 (pr1 μF_Initial).
-Let inF : F μF ⇒ μF := alg_map _ _ (pr1 μF_Initial).
-
+Let inF : F μF ⇒ μF := alg_map _ (pr1 μF_Initial).
 
 Let iter {A : C} (α : F A ⇒ A) : μF ⇒ A :=
   ↓(InitialArrow _ μF_Initial ⟨A,α⟩).
@@ -173,7 +172,7 @@ Proof.
     unfold preIt.
     rewrite φ_adj_after_φ_adj_inv.
     rewrite (φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L).
-    assert (iter_eq := algebra_mor_commutes _ _ _ _ (InitialArrow _ μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
+    assert (iter_eq := algebra_mor_commutes _ _ _ (InitialArrow _ μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
     exact iter_eq.
 Qed.
 

@@ -124,8 +124,8 @@ Local Notation "'p' T" := (ptd_from_alg  T) (at level 3).
 (*
 Coercion functor_from_algebra_ob (X : algebra_ob _ Id_H) : functor C C := pr1 X.
 *)
-Local Notation "` T" := (alg_carrier _ _ T) (at level 3).
-Local Notation "`` T" := (alg_carrier _ _ T : EndC) (at level 3).
+Local Notation "` T" := (alg_carrier _ T) (at level 3).
+Local Notation "`` T" := (alg_carrier _ T : EndC) (at level 3).
 
 Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 
@@ -133,7 +133,7 @@ Local Notation τ := tau_from_alg. (* could put [T] as fixed argument as in [η]
 
 Local Notation η := eta_from_alg.
 
-Coercion alg_from_hss (T : hss CP H) : algebra_ob _  _ := pr1 T.
+Coercion alg_from_hss (T : hss CP H) : algebra_ob  _ := pr1 T.
 
 Definition μ_0 : functor_identity C ⟶ functor_data_from_functor _ _ `T := η T. (*ptd_pt _ (pr1 (pr1 T)).*)
 
