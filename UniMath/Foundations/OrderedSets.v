@@ -70,14 +70,26 @@ Defined.
 
 Notation "P ? a # b" := (decidableChoice P a b) (at level 100).
 
-Definition tallyStandardSubset {n} (P: decidableSubtype (stn n)) : nat.
-Proof. intros. exact (stnsum (λ x, P x ? 1 # 0)).
+Local Definition bound01 (P:decidableProposition) : ((P ? 1 # 0) ≤ 1)%nat.
+Proof.
+  intros.
+  induction P as [P dec]. simpl. induction (iscontrpr1 dec) as [p|q].
+  { simpl. now apply falsetonegtrue. }
+  { simpl. now apply falsetonegtrue. }
+Defined.  
+
+Definition tallyStandardSubset {n} (P: decidableSubtype (stn n)) : stn (S n).
+Proof. intros. exists (stnsum (λ x, P x ? 1 # 0)). apply natlehtolthsn.
+       apply istransnatleh with (m := stnsum(λ _ : stn n, 1)).
+       { apply stnsum_le; intro i. apply bound01. }
+       assert ( p : ∀ r s, r = s -> (r ≤ s)%nat). { intros ? ? e. destruct e. apply isreflnatleh. }
+       apply p. apply stnsum_1.
 Defined.
 
 (* verify computability: *)
-Goal tallyStandardSubset (λ i:stn 7, 2*i <? 6) = 3. Proof. reflexivity. Defined.
-Goal tallyStandardSubset (λ i:stn 7, 2*i =? 6) = 1. Proof. reflexivity. Defined.
-Goal tallyStandardSubset (λ i:stn 7, 2*i !=? 4) = 6. Proof. reflexivity. Defined.
+Goal pr1 (tallyStandardSubset (λ i:stn 7, 2*i <? 6)) = 3. Proof. reflexivity. Defined.
+Goal pr1 (tallyStandardSubset (λ i:stn 7, 2*i =? 6)) = 1. Proof. reflexivity. Defined.
+Goal pr1 (tallyStandardSubset (λ i:stn 7, 2*i !=? 4)) = 6. Proof. reflexivity. Defined.
 
 (* types and univalence *)
 
@@ -249,48 +261,6 @@ Coercion underlyingPoset : OrderedSet >-> Poset.
 
 Local Definition underlyingRelation (X:OrderedSet) := pr1 (pr2 (pr1 X)).
 
-Lemma A (X:OrderedSet) : isdeceq X -> ∀ (x y:X), isdecprop (x ≤ y).
-Proof.
-  intros ? i ? ?.
-  apply isdecpropif.
-  { apply propproperty. }
-  assert (refl := pr2 (pr2 (pr2 (pr1 X))) x); simpl in refl.
-  assert (asymm := pr2 (pr2 X) x y).
-  assert (total := pr1 (pr2 X) x y).
-  change (pr1 (pr2 (pr1 X)) x y) with (x ≤ y) in *.
-  change (pr1 (pr2 (pr1 X)) y x) with (y ≤ x) in *.
-  change (pr1 (pr2 (pr1 X)) x x) with (x ≤ x) in *.
-  set (l := isapropdec (x ≤ y) (pr2 (x ≤ y))).
-  change ((x ≤ y)->False) with (¬ (x ≤ y)) in l.
-  set (o := total (hProppair _ l)); simpl in o.
-  apply o; intro s; clear o l total.
-  assert (j := i x y); clear i.
-  induction s as [s|s].
-  { now apply ii1. }
-  induction j as [j|j].
-  { apply ii1. rewrite <-j. apply refl. }
-  apply ii2.
-  intro le.
-  apply j.
-  now apply asymm.
-Defined.
-
-Corollary B (X:OrderedSet) : isfinite X -> ∀ (x y:X), isdecprop (x ≤ y).
-Proof. intros ? i ? ?. apply A. now apply isfinite_isdeceq.
-Defined.
-
-Corollary C (X:OrderedSet) : isdeceq X -> ∀ (x y:X), isdecprop (x < y).
-Proof.
-  intros ? i ? ?. apply isdecpropdirprod.
-  { now apply A. }
-  apply neg_isdecprop. apply isdecpropif.
-  { apply setproperty. } apply i.
-Defined.
-
-Corollary D (X:OrderedSet) : isfinite X -> ∀ (x y:X), isdecprop (x < y).
-Proof. intros ? i ? ?. apply C. now apply isfinite_isdeceq.
-Defined.
-
 Delimit Scope oset with oset. 
 
 Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : oset.
@@ -299,6 +269,39 @@ Notation "m < n" := (m ≤ n × m != n)%oset (only parsing) :oset.
 
 Close Scope poset.
 Local Open Scope oset.
+  
+Lemma isdeceq_isdec_ordering (X:OrderedSet) : isdeceq X -> isdec_ordering X.
+Proof.
+  intros ? i ? ?. apply isdecpropif. { apply propproperty. }
+  assert (refl := pr2 (pr2 (pr2 (pr1 X))) x); simpl in refl.
+  assert (asymm := pr2 (pr2 X) x y).
+  assert (total := pr1 (pr2 X) x y).
+  change (pr1 (pr2 (pr1 X)) x y) with (x ≤ y) in *.
+  change (pr1 (pr2 (pr1 X)) y x) with (y ≤ x) in *.
+  change (pr1 (pr2 (pr1 X)) x x) with (x ≤ x) in *.
+  set (l := isapropdec (x ≤ y) (pr2 (x ≤ y))); change ((x ≤ y)->False) with (¬ (x ≤ y)) in l.
+  set (o := total (hProppair _ l)); simpl in o. apply o; intro s; clear o l total.
+  assert (j := i x y); clear i.
+  induction s as [s|s]. { now apply ii1. }
+  induction j as [j|j]. { apply ii1. rewrite <-j. apply refl. }
+  apply ii2. intro le. apply j. now apply asymm.
+Defined.
+
+Corollary isfinite_isdec_ordering (X:OrderedSet) : isfinite X -> isdec_ordering X.
+Proof. intros ? i ? ?. apply isdeceq_isdec_ordering. now apply isfinite_isdeceq.
+Defined.
+
+Corollary isdeceq_isdec_lessthan (X:OrderedSet) : isdeceq X -> ∀ (x y:X), isdecprop (x < y).
+Proof.
+  intros ? i ? ?. apply isdecpropdirprod.
+  { now apply isdeceq_isdec_ordering. }
+  apply neg_isdecprop. apply isdecpropif.
+  { apply setproperty. } apply i.
+Defined.
+
+Corollary isfinite_isdec_lessthan (X:OrderedSet) : isfinite X -> ∀ (x y:X), isdecprop (x < y).
+Proof. intros ? i ? ?. apply isdeceq_isdec_lessthan. now apply isfinite_isdeceq.
+Defined.
 
 Lemma isincl_underlyingPoset : isincl underlyingPoset.
 Proof.
