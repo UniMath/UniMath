@@ -256,14 +256,18 @@ Qed.
 Definition functor_precat_coproduct_cocone 
   : CoproductCocone [C, D, hsD] F G.
 Proof.
-  exists (tpair _ coproduct_functor (dirprodpair coproduct_nat_trans_in1 
-                                                 coproduct_nat_trans_in2)).
-  intros A f g.
-  exists (tpair _ (coproduct_nat_trans A f g)
+  refine (mk_CoproductCocone _ _ _ _ _ _ _ ).
+  - apply coproduct_functor.
+  - apply coproduct_nat_trans_in1.
+  - apply coproduct_nat_trans_in2.
+  - refine (mk_isCoproductCocone _ _ _ _ _ _ _ _ ).
+    + apply functor_category_has_homsets.
+    + intros A f g.
+     exists (tpair _ (coproduct_nat_trans A f g)
              (dirprodpair (coproduct_nat_trans_In1Commutes _ _ _ )
                           (coproduct_nat_trans_In2Commutes _ _ _ ))).
-  simpl.
-  apply coproduct_nat_trans_univ_prop.
+     simpl.
+     apply coproduct_nat_trans_univ_prop.
 Defined.
 
 End coproduct_functor.
