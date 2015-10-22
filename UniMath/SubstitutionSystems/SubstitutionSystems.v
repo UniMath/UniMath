@@ -121,22 +121,22 @@ Definition τ (T : Alg) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
 
 (* An Id_H algebra is a pointed functor *)
 
-Definition eta_from_alg (T : algebra_ob _ Id_H) : EndC ⟦ functor_identity _,  T ⟧.
+Definition eta_from_alg (T : algebra_ob Id_H) : EndC ⟦ functor_identity _,  T ⟧.
 Proof.
-  exact (CoproductIn1 _ _ ;; alg_map _ _ T).
+  exact (CoproductIn1 _ _ ;; alg_map _ T).
 Defined.
 
 Local Notation η := eta_from_alg.  
 
-Definition ptd_from_alg (T : algebra_ob _ Id_H) : Ptd.
+Definition ptd_from_alg (T : algebra_ob Id_H) : Ptd.
 Proof.
   exists (pr1 T).
   exact (η T).
 Defined.
 
-Definition tau_from_alg (T : algebra_ob _ Id_H) : EndC ⟦H T, T⟧.
+Definition tau_from_alg (T : algebra_ob Id_H) : EndC ⟦H T, T⟧.
 Proof.
-  exact (CoproductIn2 _ _ ;; alg_map _ _ T).
+  exact (CoproductIn2 _ _ ;; alg_map _ T).
 Defined.
 Local Notation τ := tau_from_alg.
 
@@ -145,42 +145,42 @@ Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
 (*
 Coercion functor_from_algebra_ob (X : algebra_ob _ Id_H) : functor C C  := pr1 X.
 *)
-Local Notation "` T" := (alg_carrier _ _ T : functor C C) (at level 3).
+Local Notation "` T" := (alg_carrier _ T : functor C C) (at level 3).
 
 Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 
 
-Definition bracket_property (T : algebra_ob _ Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
+Definition bracket_property (T : algebra_ob Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
            (h : `T ∙ (U Z)  ⇒ T) : UU
   :=
-    alg_map _ _ T øø (U Z) ;; h =
+    alg_map _ T øø (U Z) ;; h =
           identity (U Z) ⊕ θ (`T ⊗ Z) ;;
           identity (U Z) ⊕ #H h ;;
           CoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T).
 
-Definition bracket_at (T : algebra_ob _ Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T): UU := 
+Definition bracket_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T): UU := 
   iscontr 
    (Σ h : `T ∙ (U Z)  ⇒ T, bracket_property T f h).
  
-Definition bracket (T : algebra_ob _ Id_H) : UU
+Definition bracket (T : algebra_ob Id_H) : UU
   := ∀ (Z : Ptd) (f : Z ⇒ ptd_from_alg T), bracket_at T f.
 
-Definition bracket_property_parts (T : algebra_ob _ Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
+Definition bracket_property_parts (T : algebra_ob Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
            (h : `T ∙ (U Z)  ⇒ T) : UU
   :=
     (#U f = η T øø (U Z) ;; h) ×
      (θ (`T ⊗ Z) ;; #H h ;; τ T  = τ T øø (U Z) ;;  h).
     
-Definition bracket_parts_at (T : algebra_ob _ Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T) : UU := 
+Definition bracket_parts_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T) : UU := 
    iscontr 
    (Σ h : `T ∙ (U Z)  ⇒ T, bracket_property_parts T f h).
 
-Definition bracket_parts (T : algebra_ob _ Id_H) : UU
+Definition bracket_parts (T : algebra_ob Id_H) : UU
   := ∀ (Z : Ptd) (f : Z ⇒ ptd_from_alg T), bracket_parts_at T f.
 
 (* show that for any h of suitable type, the following are equivalent *)
 
-Lemma parts_from_whole (T : algebra_ob _ Id_H) (Z : Ptd) (f : Z ⇒ ptd_from_alg T)
+Lemma parts_from_whole (T : algebra_ob Id_H) (Z : Ptd) (f : Z ⇒ ptd_from_alg T)
       (h :  `T ∙ (U Z)  ⇒ T) :
   bracket_property T f h → bracket_property_parts T f h.
 Proof.
@@ -235,7 +235,7 @@ Proof.
       apply idpath.
 Qed.
 
-Lemma whole_from_parts (T : algebra_ob _ Id_H) (Z : Ptd) (f : Z ⇒ ptd_from_alg T)
+Lemma whole_from_parts (T : algebra_ob Id_H) (Z : Ptd) (f : Z ⇒ ptd_from_alg T)
       (h :  `T ∙ (U Z)  ⇒ T) :
   bracket_property_parts T f h → bracket_property T f h.
 Proof.
@@ -284,7 +284,7 @@ Qed.
 
 Definition hss : UU := Σ T, bracket T.
 
-Coercion alg_from_hss (T : hss) : algebra_ob _ Id_H := pr1 T.
+Coercion alg_from_hss (T : hss) : algebra_ob Id_H := pr1 T.
 
 
 Definition fbracket (T : hss) {Z : Ptd} (f : Z ⇒ ptd_from_alg T) 
@@ -437,8 +437,8 @@ Qed.
 *)
 
 (** a little preparation for much later *)
-Lemma τ_part_of_alg_mor  (T T' : algebra_ob ([C, C] hs) Id_H)
-  (β : algebra_mor ([C, C] hs) Id_H T T'): #H β ;; τ T' = compose (C:=EndC) (τ T) β.
+Lemma τ_part_of_alg_mor  (T T' : @algebra_ob ([C, C] hs) Id_H)
+  (β : @algebra_mor ([C, C] hs) Id_H T T'): #H β ;; τ T' = compose (C:=EndC) (τ T) β.
 Proof.
   assert (β_is_alg_mor := pr2 β).
   simpl in β_is_alg_mor. 
@@ -463,8 +463,8 @@ Qed.
 
 (** A morphism [β] of pointed functors is a bracket morphism when... *)
 
-Lemma is_ptd_mor_alg_mor (T T' : algebra_ob ([C, C] hs) Id_H)
-  (β : algebra_mor ([C, C] hs) Id_H T T') :
+Lemma is_ptd_mor_alg_mor (T T' : @algebra_ob ([C, C] hs) Id_H)
+  (β : @algebra_mor ([C, C] hs) Id_H T T') :
   @is_ptd_mor C (ptd_from_alg T) (ptd_from_alg T') (pr1 β).
 Proof.
   simpl.
@@ -486,7 +486,7 @@ Proof.
   apply id_left.
 Qed.
   
-Definition ptd_from_alg_mor {T T' : algebra_ob _ Id_H} (β : algebra_mor _ _ T T')
+Definition ptd_from_alg_mor {T T' : algebra_ob Id_H} (β : algebra_mor _ T T')
 : ptd_from_alg T ⇒ ptd_from_alg T'.
 Proof.
   exists (pr1 β).
@@ -495,7 +495,7 @@ Defined.
 
 (** show functor laws for [ptd_from_alg] and [ptd_from_alg_mor] *)
 
-Definition ptd_from_alg_functor_data : functor_data (precategory_FunctorAlg _ Id_H hsEndC) Ptd.
+Definition ptd_from_alg_functor_data : functor_data (precategory_FunctorAlg Id_H hsEndC) Ptd.
 Proof.
   exists ptd_from_alg.
   intros T T' β.
@@ -520,18 +520,18 @@ Proof.
     apply idpath.
 Qed.
 
-Definition ptd_from_alg_functor: functor (precategory_FunctorAlg _ Id_H hsEndC) Ptd :=
+Definition ptd_from_alg_functor: functor (precategory_FunctorAlg Id_H hsEndC) Ptd :=
   tpair _ _ is_functor_ptd_from_alg_functor_data.
 
 
-Definition isbracketMor {T T' : hss} (β : algebra_mor _ _ T T') : UU :=
+Definition isbracketMor {T T' : hss} (β : algebra_mor _ T T') : UU :=
     ∀ (Z : Ptd) (f : Z ⇒ ptd_from_alg T), 
        fbracket _ f ;;  β
        = 
        (β)øø (U Z) ;; fbracket _ (f ;; # ptd_from_alg_functor β ).
 
 
-Lemma isaprop_isbracketMor (T T':hss) (β : algebra_mor _ _ T T') : isaprop (isbracketMor β).
+Lemma isaprop_isbracketMor (T T':hss) (β : algebra_mor _ T T') : isaprop (isbracketMor β).
 Proof.
   do 2 (apply impred; intro).
   apply isaset_nat_trans.
@@ -541,13 +541,13 @@ Qed.
 (** A morphism of hss is a pointed morphism that is compatible with both 
     [τ] and [fbracket] *)
 
-Definition ishssMor {T T' : hss} (β : algebra_mor _ _ T T') : UU 
+Definition ishssMor {T T' : hss} (β : algebra_mor _ T T') : UU 
   :=   isbracketMor β.
   
 Definition hssMor (T T' : hss) : UU 
-  := Σ β : algebra_mor _ _ T T', ishssMor β.
+  := Σ β : algebra_mor _ T T', ishssMor β.
 
-Coercion ptd_mor_from_hssMor (T T' : hss) (β : hssMor T T') : algebra_mor _ _ T T' := pr1 β.
+Coercion ptd_mor_from_hssMor (T T' : hss) (β : hssMor T T') : algebra_mor _ T T' := pr1 β.
 
 (*
 Definition isAlgMor_hssMor {T T' : hss} (β : hssMor T T') 
@@ -596,7 +596,7 @@ Qed.
 
 (** *** Identity morphism of hss *)
 
-Lemma ishssMor_id (T : hss) : ishssMor (identity (C:=precategory_FunctorAlg _ _ hsEndC ) (pr1 T)).
+Lemma ishssMor_id (T : hss) : ishssMor (identity (C:=precategory_FunctorAlg _ hsEndC ) (pr1 T)).
 Proof.
   unfold ishssMor.
   unfold isbracketMor.
@@ -618,7 +618,7 @@ Definition hssMor_id (T : hss) : hssMor _ _ := tpair _ _ (ishssMor_id T).
 (** *** Composition of morphisms of hss *)
 
 Lemma ishssMor_comp {T T' T'' : hss} (β : hssMor T T') (γ : hssMor T' T'') 
-  : ishssMor (compose (C:=precategory_FunctorAlg _ _ hsEndC) (pr1 β)  (pr1 γ)).
+  : ishssMor (compose (C:=precategory_FunctorAlg _ hsEndC) (pr1 β)  (pr1 γ)).
 Proof.
   unfold ishssMor.
   unfold isbracketMor.
