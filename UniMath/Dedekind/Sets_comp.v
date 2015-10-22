@@ -8,8 +8,16 @@ Require Export UniMath.Foundations.Sets
 
 (** ** Subsets *)
 
-Definition subset (X : hSet) : hSet :=
-  hSetpair _ (isasethsubtypes X).
+(*Definition subsetcond (X : hSet) : UU := X -> hProp.*)
+Lemma isaset_hsubtypes {X : hSet} (Hsub : hsubtypes X) : isaset (carrier Hsub).
+Proof.
+  intros.
+  apply (isasetsubset pr1 (pr2 X) (isinclpr1 (λ x : X, Hsub x) (λ x : X, pr2 (Hsub x)))).
+Qed.
+Definition subset {X : hSet} (Hsub : hsubtypes X) : hSet :=
+  hSetpair (carrier Hsub) (isaset_hsubtypes Hsub).
+Definition makeSubset {X : hSet} {Hsub : hsubtypes X} (x : X) (Hx : Hsub x) : subset Hsub :=
+  x,, Hx.
 
 (** ** Properties of [po] *)
 
@@ -239,19 +247,19 @@ Section LeastUpperBound.
 Context {X : Poset}.
 Local Notation "x <= y" := (pr2 X x y).
   
-Definition isUpperBound (E : subset X) (ub : X) : UU :=
+Definition isUpperBound (E : hsubtypes X) (ub : X) : UU :=
   forall x : X, E x -> x <= ub.
-Definition isSmallerThanUpperBounds (E : subset X) (lub : X) : UU :=
+Definition isSmallerThanUpperBounds (E : hsubtypes X) (lub : X) : UU :=
   forall ub : X, isUpperBound E ub -> lub <= ub.
 
-Definition isLeastUpperBound (E : subset X) (lub : X) : UU :=
+Definition isLeastUpperBound (E : hsubtypes X) (lub : X) : UU :=
   dirprod (isUpperBound E lub) (isSmallerThanUpperBounds E lub).
-Definition LeastUpperBound (E : subset X) : UU :=
+Definition LeastUpperBound (E : hsubtypes X) : UU :=
   total2 (isLeastUpperBound E).
-Definition pairLeastUpperBound (E : subset X) (lub : X)
+Definition pairLeastUpperBound (E : hsubtypes X) (lub : X)
            (is : isLeastUpperBound E lub) : LeastUpperBound E :=
   tpair (isLeastUpperBound E) lub is.
-Definition pr1LeastUpperBound {E : subset X} :
+Definition pr1LeastUpperBound {E : hsubtypes X} :
   LeastUpperBound E -> X := pr1.
 
 End LeastUpperBound.
@@ -261,25 +269,25 @@ Section GreatestLowerBound.
 Context {X : Poset}.
 Local Notation "x >= y" := (pr2 X y x).
   
-Definition isLowerBound (E : subset X) (ub : X) : UU :=
+Definition isLowerBound (E : hsubtypes X) (ub : X) : UU :=
   forall x : X, E x -> x >= ub.
-Definition isBiggerThanLowerBounds (E : subset X) (lub : X) : UU :=
+Definition isBiggerThanLowerBounds (E : hsubtypes X) (lub : X) : UU :=
   forall ub : X, isLowerBound E ub -> lub >= ub.
 
-Definition isGreatestLowerBound (E : subset X) (lub : X) : UU :=
+Definition isGreatestLowerBound (E : hsubtypes X) (lub : X) : UU :=
   dirprod (isLowerBound E lub) (isBiggerThanLowerBounds E lub).
-Definition GreatestLowerBound (E : subset X) : UU :=
+Definition GreatestLowerBound (E : hsubtypes X) : UU :=
   total2 (isGreatestLowerBound E).
-Definition pairGreatestLowerBound (E : subset X) (lub : X)
+Definition pairGreatestLowerBound (E : hsubtypes X) (lub : X)
            (is : isGreatestLowerBound E lub) : GreatestLowerBound E :=
   tpair (isGreatestLowerBound E) lub is.
-Definition pr1GreatestLowerBound {E : subset X} :
+Definition pr1GreatestLowerBound {E : hsubtypes X} :
   GreatestLowerBound E -> X := pr1.
 
 End GreatestLowerBound.
 
 Definition isCompleteSpace (X : Poset) :=
-  forall E : subset X,
+  forall E : hsubtypes X,
     hexists (isUpperBound E) -> hexists E -> LeastUpperBound E.
 Definition CompleteSpace  :=
   total2 (fun X : Poset => isCompleteSpace X).

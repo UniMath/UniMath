@@ -27,6 +27,26 @@ Proof.
   exact hzone_neg_hzzero.
 Defined.
 
+Opaque hz.
+Lemma hqinv0 : / 0 = 1.
+Proof.
+  unfold hqmultinv, fldfracmultinv0, hqzero, hqone, unel ; simpl.
+  unfold commrngfracunel1 ; simpl.
+  rewrite (setquotfuncomm (eqrelcommrngfrac hz (intdomnonzerosubmonoid hzintdom))
+                          (eqrelcommrngfrac hz (intdomnonzerosubmonoid hzintdom))
+                          (fldfracmultinvint hzintdom isdeceqhz)
+                          (fldfracmultinvintcomp hzintdom isdeceqhz) _).
+  unfold fldfracmultinvint.
+  destruct isdeceqhz as [H|H] ; simpl in H.
+  - apply (iscompsetquotpr (eqrelcommrngfrac hz (intdomnonzerosubmonoid hzintdom))).
+    intros P HP ; apply HP ; clear P HP ; simpl pr1.
+    exists one_intdomnonzerosubmonoid.
+    simpl.
+    change 1%multmonoid with 1%hz.
+    now rewrite !hzmultr1.
+  - now apply fromempty, H, paths_refl.
+Qed.
+
 Lemma hq2eq1plus1 :
   2 = 1 + 1.
 Proof.
@@ -113,6 +133,28 @@ Proof.
   intros n m Hn Hm.
   eapply istranshqleh, hqlehandplusl, Hm.
   now rewrite hqplusr0.
+Qed.
+
+Lemma hq0leminus :
+  forall r q : hq, r <= q -> 0 <= q - r.
+Proof.
+  intros r q Hr.
+  apply hqlehandplusrinv with r.
+  unfold hqminus.
+  rewrite hqplusassoc, hqlminus.
+  now rewrite hqplusl0, hqplusr0.
+Qed.
+
+Lemma hqinv_gt0 (x : hq) : 0 < x -> 0 < / x.
+Proof.
+  intros Hx.
+  apply hqlthandmultlinv with x.
+  - exact Hx.
+  - rewrite hqmultx0.
+    rewrite hqisrinvmultinv.
+    + exact hq1_gt0.
+    + apply hqgth_hqneq.
+      exact Hx.
 Qed.
 
 Close Scope hq_scope.
