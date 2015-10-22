@@ -18,9 +18,12 @@ Definition Dcuts_def_bot (X : hsubtypes NonnegativeRationals) : UU :=
 Definition Dcuts_def_open (X : hsubtypes NonnegativeRationals) : UU :=
   forall x : NonnegativeRationals, X x ->
     hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y)).
-Definition Dcuts_def_bounded (X : hsubtypes NonnegativeRationals) : hProp :=
+Definition Dcuts_def_finite (X : hsubtypes NonnegativeRationals) : hProp :=
   hexists (fun ub : NonnegativeRationals => neg (X ub)).
-
+Definition Dcuts_def_error (X : hsubtypes NonnegativeRationals) : UU :=
+  forall r, 0 < r -> hexists (λ q, coprod (dirprod (q < r) (neg (X q)))
+                                          (dirprod (X q) (neg (X (q + r))))).
+  
 Lemma isaprop_Dcuts_def_bot {X : hsubtypes NonnegativeRationals} : isaprop (Dcuts_def_bot X).
 Proof.
   intros X.
@@ -36,8 +39,8 @@ Qed.
   
 Definition Dcuts_hsubtypes : hsubtypes (hsubtypes NonnegativeRationals) :=
   fun X : hsubtypes NonnegativeRationals => hconj (hProppair (Dcuts_def_bot X) (isaprop_Dcuts_def_bot))
-                                                   (hconj (hProppair (Dcuts_def_open X) isaprop_Dcuts_def_open)
-                                                          (Dcuts_def_bounded X)).
+                                                  (hconj (hProppair (Dcuts_def_open X) isaprop_Dcuts_def_open)
+                                                         (Dcuts_def_finite X)).
 Lemma isaset_Dcuts : isaset (carrier Dcuts_hsubtypes).
 Proof.
   apply isasetsubset with pr1.
@@ -54,35 +57,35 @@ Open Scope DC_scope.
 
 Lemma is_Dcuts_bot (X : Dcuts) : Dcuts_def_bot (pr1 X).
 Proof.
-  destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
+  destruct X as [X (Hbot,(Hopen,Hfinite))] ; simpl.
   exact Hbot.
 Qed.
 Lemma is_Dcuts_open (X : Dcuts) : Dcuts_def_open (pr1 X).
 Proof.
-  destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
+  destruct X as [X (Hbot,(Hopen,Hfinite))] ; simpl.
   exact Hopen.
 Qed.
 
-Lemma is_Dcuts_bounded (X : Dcuts) :
+Lemma is_Dcuts_finite (X : Dcuts) :
   hexists (fun ub : NonnegativeRationals => neg (ub ∈ X)).
 Proof.
-  destruct X as [X (Hbot,(Hopen,Hbound))] ; simpl.
-  now apply Hbound.
+  destruct X as [X (Hbot,(Hopen,Hfinite))] ; simpl.
+  now apply Hfinite.
 Qed.
 
 Definition mk_Dcuts (X : NonnegativeRationals -> hProp)
                     (Hbot : Dcuts_def_bot X)
                     (Hopen : Dcuts_def_open X)
-                    (Hbound : Dcuts_def_bounded X) : Dcuts.
+                    (Hfinite : Dcuts_def_finite X) : Dcuts.
 Proof.
-  intros X Hbot Hopen Hbound.
+  intros X Hbot Hopen Hfinite.
   exists X ; repeat split.
   now apply Hbot.
   now apply Hopen.
-  exact Hbound.
+  exact Hfinite.
 Defined.
 
-Lemma Dcuts_bounded :
+Lemma Dcuts_finite :
   forall X : Dcuts, forall r : NonnegativeRationals,
     neg (r ∈ X) -> forall n : NonnegativeRationals, n ∈ X -> n < r.
 Proof.
@@ -170,8 +173,8 @@ Proof.
   exists n.
   now split.
 Qed.
-Lemma NonnegativeRationals_to_Dcuts_bounded (q : NonnegativeRationals) :
-  Dcuts_def_bounded (λ r : NonnegativeRationals, (r < q)%NRat).
+Lemma NonnegativeRationals_to_Dcuts_finite (q : NonnegativeRationals) :
+  Dcuts_def_finite (λ r : NonnegativeRationals, (r < q)%NRat).
 Proof.
   intros q.
   apply hinhpr.
@@ -183,7 +186,7 @@ Definition NonnegativeRationals_to_Dcuts (q : NonnegativeRationals) : Dcuts :=
   mk_Dcuts (fun r => (r < q)%NRat)
            (NonnegativeRationals_to_Dcuts_bot q)
            (NonnegativeRationals_to_Dcuts_open q)
-           (NonnegativeRationals_to_Dcuts_bounded q).
+           (NonnegativeRationals_to_Dcuts_finite q).
 
 Definition Dcuts_zero : Dcuts := NonnegativeRationals_to_Dcuts 0%NRat.
 Definition Dcuts_one : Dcuts := NonnegativeRationals_to_Dcuts 1%NRat.
@@ -227,11 +230,11 @@ Section Dcuts_plus.
   Context (X : hsubtypes NonnegativeRationals).
   Context (X_bot : Dcuts_def_bot X).
   Context (X_open : Dcuts_def_open X).
-  Context (X_bounded : Dcuts_def_bounded X).
+  Context (X_finite : Dcuts_def_finite X).
   Context (Y : hsubtypes NonnegativeRationals).
   Context (Y_bot : Dcuts_def_bot Y).
   Context (Y_open : Dcuts_def_open Y).
-  Context (Y_bounded : Dcuts_def_bounded Y).
+  Context (Y_finite : Dcuts_def_finite Y).
 
 Definition Dcuts_plus_val : hsubtypes NonnegativeRationals :=
   fun r => hdisj (hdisj (X r) (Y r))
@@ -311,9 +314,9 @@ Proof.
     + rewrite Hr.
       now apply NonnegativeRationals_plusltcompat.
 Qed.
-Lemma Dcuts_plus_bounded : Dcuts_def_bounded Dcuts_plus_val.
+Lemma Dcuts_plus_finite : Dcuts_def_finite Dcuts_plus_val.
 Proof.
-  revert X_bounded Y_bounded.
+  revert X_finite Y_finite.
   apply hinhfun2.
   intros (r,Xr) (n,Yn).
   exists (r + n).
@@ -353,8 +356,8 @@ Definition Dcuts_plus (X Y : Dcuts) : Dcuts :=
                            (pr1 Y) (is_Dcuts_bot Y))
            (Dcuts_plus_open (pr1 X) (is_Dcuts_open X)
                             (pr1 Y) (is_Dcuts_open Y))
-           (Dcuts_plus_bounded (pr1 X) (is_Dcuts_bot X) (is_Dcuts_bounded X)
-                               (pr1 Y) (is_Dcuts_bot Y) (is_Dcuts_bounded Y)).
+           (Dcuts_plus_finite (pr1 X) (is_Dcuts_bot X) (is_Dcuts_finite X)
+                              (pr1 Y) (is_Dcuts_bot Y) (is_Dcuts_finite Y)).
 
 Lemma iscomm_Dcuts_plus : iscomm Dcuts_plus.
 Proof.
@@ -552,7 +555,7 @@ Proof.
   apply is_Dcuts_bot with n.
   exact Zn.
   apply lt_leNonnegativeRationals.
-  now apply Dcuts_bounded with y.
+  now apply Dcuts_finite with y.
 Qed.
 Lemma isirrefl_Dcuts_lt_rel : isirrefl Dcuts_lt_rel.
 Proof.
@@ -562,6 +565,40 @@ Proof.
   intros (r,(nXr,Xr)).
   now apply nXr.
 Qed.
+
+Lemma iscotrans_Dcuts_lt_rel (Herror : forall X : Dcuts, Dcuts_def_error (pr1 X)) :
+  iscotrans Dcuts_lt_rel.
+Proof.
+  intro.
+  intros x y z.
+  apply hinhuniv ; intros (r,(Xr,Zr)).
+  generalize (is_Dcuts_open z r Zr) ; apply hinhuniv ; intros (r',(Zr',Hr)).
+  assert (Hr0 : 0%NRat < r' - r) by (revert Hr ;  admit).
+  generalize (Herror y _ Hr0) ; apply hinhfun ; intros (q,Yq).
+  destruct Yq as [(Hq,Yq) | (Hq,Yq)].
+  - right ; apply Utilities.squash_element.
+    exists r' ; split.
+    + intro H0 ; apply Yq.
+      apply is_Dcuts_bot with r'.
+      exact H0.
+      revert Hq ; admit.
+    + exact Zr'.
+  - destruct (hqgthorleh (pr1 (q + (r' - r))) (pr1 r')) as [Hdec | Hdec].
+    + left ; apply Utilities.squash_element.
+      exists q ; split.
+      intro Xq ; apply Xr.
+      apply is_Dcuts_bot with q.
+      exact Xq.
+      revert Hr Hdec ; admit.
+      exact Hq.
+    + right ; apply Utilities.squash_element.
+      exists r' ; split.
+      * intro H0 ; apply Yq.
+        apply is_Dcuts_bot with r'.
+        exact H0.
+        revert Hq ; admit.
+      * exact Zr'.
+Admitted.
 
 Lemma isstpo_Dcuts_lt_rel : isStrongOrder Dcuts_lt_rel.
 Proof.
@@ -604,7 +641,7 @@ Proof.
   apply is_Dcuts_bot with r.
   exact Yr.
   apply lt_leNonnegativeRationals.
-  now apply Dcuts_bounded with x.
+  now apply Dcuts_finite with x.
 Qed.
 
 Lemma Dcuts_le_ngt_rel :
@@ -832,7 +869,7 @@ Proof.
   now apply Hyz.
 Qed.
 
-(** ** Least Upper Bound *)
+(** ** Least Upper Finite *)
 
 Section Dcuts_lub.
 
@@ -867,13 +904,13 @@ Proof.
   exact Xn.
   exact Hrn.
 Qed.
-Lemma Dcuts_lub_bounded :
+Lemma Dcuts_lub_finite :
    hexists (fun ub : NonnegativeRationals => neg (Dcuts_lub_val ub)).
 Proof.
   revert E_bounded.
   apply hinhuniv.
   intros (M,HM).
-  generalize (is_Dcuts_bounded M).
+  generalize (is_Dcuts_finite M).
   apply hinhfun.
   intros (ub,Hub).
   exists ub.
@@ -888,12 +925,12 @@ Qed.
 
 End Dcuts_lub.
 
-Definition Dcuts_lub (E : hsubtypes eo_Dcuts) (E_bounded : hexists (isUpperBound E)) : Dcuts :=
-  mk_Dcuts (Dcuts_lub_val E) (Dcuts_lub_bot E) (Dcuts_lub_open E) (Dcuts_lub_bounded E E_bounded).
+Definition Dcuts_lub (E : hsubtypes eo_Dcuts) (E_finite : hexists (isUpperBound E)) : Dcuts :=
+  mk_Dcuts (Dcuts_lub_val E) (Dcuts_lub_bot E) (Dcuts_lub_open E) (Dcuts_lub_finite E E_finite).
 
 Lemma isub_Dcuts_lub (E : hsubtypes eo_Dcuts)
-                     (E_bounded : hexists (isUpperBound E)) :
-  isUpperBound E (Dcuts_lub E E_bounded).
+                     (E_finite : hexists (isUpperBound E)) :
+  isUpperBound E (Dcuts_lub E E_finite).
 Proof.
   intros ;
   intros x Ex.
@@ -902,8 +939,8 @@ Proof.
   intros P HP ; apply HP ; clear P HP.
   now exists x.
 Qed.
-Lemma islbub_Dcuts_lub (E : hsubtypes eo_Dcuts) (E_bounded : hexists (isUpperBound E)) :
-  isSmallerThanUpperBounds E (Dcuts_lub E E_bounded).
+Lemma islbub_Dcuts_lub (E : hsubtypes eo_Dcuts) (E_finite : hexists (isUpperBound E)) :
+  isSmallerThanUpperBounds E (Dcuts_lub E E_finite).
 Proof.
   intros.
   intros x Hx ; simpl.
@@ -914,12 +951,12 @@ Proof.
   apply hinhuniv.
   now intros H ; apply H.
 Qed.
-Lemma islub_Dcuts_lub (E : hsubtypes eo_Dcuts) (E_bounded : hexists (isUpperBound E)) :
-  isLeastUpperBound E (Dcuts_lub E E_bounded).
+Lemma islub_Dcuts_lub (E : hsubtypes eo_Dcuts) (E_finite : hexists (isUpperBound E)) :
+  isLeastUpperBound E (Dcuts_lub E E_finite).
 Proof.
   split.
-  exact (isub_Dcuts_lub E E_bounded).
-  exact (islbub_Dcuts_lub E E_bounded).
+  exact (isub_Dcuts_lub E E_finite).
+  exact (islbub_Dcuts_lub E E_finite).
 Qed.
 
 (** ** Greatest Lower Bound *)
@@ -955,11 +992,11 @@ Proof.
   now split.
   exact Hrt.
 Qed.
-Lemma Dcuts_glb_bounded :
+Lemma Dcuts_glb_finite :
    hexists (fun ub : NonnegativeRationals => neg (Dcuts_glb_val ub)).
 Proof.
   revert E_not_empty ; apply hinhuniv ; intros (x,Hx).
-  generalize (is_Dcuts_bounded x) ; apply hinhfun ; intros (ub,Hub).
+  generalize (is_Dcuts_finite x) ; apply hinhfun ; intros (ub,Hub).
   exists ub.
   unfold neg.
   apply (hinhuniv (P := hProppair _ isapropempty)).
@@ -973,7 +1010,7 @@ Qed.
 End Dcuts_glb.
 
 Definition Dcuts_glb (E : hsubtypes eo_Dcuts) (E_not_empty : hexists E) : Dcuts :=
-  mk_Dcuts (Dcuts_glb_val E) (Dcuts_glb_bot E) (Dcuts_glb_open E) (Dcuts_glb_bounded E E_not_empty).
+  mk_Dcuts (Dcuts_glb_val E) (Dcuts_glb_bot E) (Dcuts_glb_open E) (Dcuts_glb_finite E E_not_empty).
 
 Lemma isub_Dcuts_glb (E : hsubtypes eo_Dcuts)
                      (E_not_empty : hexists E) :
