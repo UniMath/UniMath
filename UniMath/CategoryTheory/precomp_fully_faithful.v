@@ -76,7 +76,7 @@ Proof.
       repeat rewrite nat_trans_ax.
       change (gamma (H a)) with (pr1 gamma ((pr1 H) a)).
       apply cancel_postcomposition.
-      apply (nat_trans_eq_pointwise _ _ _ _ _ _ ex a).
+      apply (nat_trans_eq_pointwise ex a).
 Qed.
   
 
