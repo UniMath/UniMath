@@ -7,6 +7,19 @@ Local Open Scope poset.
 
 (* propositions, move upstream *)
 
+Lemma neg_isdecprop {X} : isdecprop X -> isdecprop (¬ X).
+Proof.
+  intros ? i.
+  assert (j := isdecproptoisaprop X i).
+  apply isdecpropif.
+  { apply isapropneg. }
+  unfold isdecprop in i.
+  assert (k := pr1 i); clear i.
+  induction k as [k|k].
+  { apply ii2. now apply todneg. }
+  now apply ii1.
+Defined.
+
 Definition decidableProposition := Σ X:UU, isdecprop X.
 
 Definition decidableProposition_to_hProp : decidableProposition -> hProp.
@@ -264,6 +277,18 @@ Defined.
 
 Corollary B (X:OrderedSet) : isfinite X -> ∀ (x y:X), isdecprop (x ≤ y).
 Proof. intros ? i ? ?. apply A. now apply isfinite_isdeceq.
+Defined.
+
+Corollary C (X:OrderedSet) : isdeceq X -> ∀ (x y:X), isdecprop (x < y).
+Proof.
+  intros ? i ? ?. apply isdecpropdirprod.
+  { now apply A. }
+  apply neg_isdecprop. apply isdecpropif.
+  { apply setproperty. } apply i.
+Defined.
+
+Corollary D (X:OrderedSet) : isfinite X -> ∀ (x y:X), isdecprop (x < y).
+Proof. intros ? i ? ?. apply C. now apply isfinite_isdeceq.
 Defined.
 
 Delimit Scope oset with oset. 
