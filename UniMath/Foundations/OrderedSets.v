@@ -4,6 +4,7 @@ Require Import UniMath.Foundations.FiniteSets.
 Unset Automatic Introduction.
 Require Import UniMath.Foundations.FunctionalExtensionality.
 Local Open Scope poset.
+Local Notation "● x" := (x,,idpath _) (at level 35).
 
 (* propositions, move upstream *)
 
@@ -20,23 +21,25 @@ Proof.
   now apply ii1.
 Defined.
 
-Definition decidableProposition := Σ X:UU, isdecprop X.
+(* decidable propositions, move upstream *)
 
-Definition decidableProposition_to_hProp : decidableProposition -> hProp.
+Definition DecidableProposition := Σ X:UU, isdecprop X.
+
+Definition DecidableProposition_to_hProp : DecidableProposition -> hProp.
 Proof.
   intros X.
   exact (pr1 X,, isdecproptoisaprop (pr1 X) (pr2 X)).
 Defined.
-Coercion decidableProposition_to_hProp : decidableProposition >-> hProp.
-Definition decidabilityProperty (X:decidableProposition) :
+Coercion DecidableProposition_to_hProp : DecidableProposition >-> hProp.
+Definition decidabilityProperty (X:DecidableProposition) :
   isdecprop X := pr2 X.
 
-Definition decidableSubtype (X:UU) := X -> decidableProposition.
-Definition decidableRelation (X:UU) := X -> X -> decidableProposition.
+Definition DecidableSubtype (X:UU) := X -> DecidableProposition.
+Definition DecidableRelation (X:UU) := X -> X -> DecidableProposition.
 
 Ltac choose P yes no := induction (iscontrpr1 (decidabilityProperty P)) as [yes|no].
 
-Definition decidableChoice {W} : decidableProposition -> W -> W -> W.
+Definition decidableChoice {W} : DecidableProposition -> W -> W -> W.
 Proof.
   intros ? P yes no.
   choose P p q.
@@ -46,16 +49,36 @@ Defined.
 
 Notation "P ? a # b" := (decidableChoice P a b) (at level 100).
 
-Definition underlyingType {X} : decidableSubtype X -> UU.
+Definition decidableChoice_compute_yes {W} (P:DecidableProposition) (p:P) (yes no:W) :
+  (P ? yes # no) = yes.
+Proof.
+  intros.
+  unfold decidableChoice.
+  choose P a b.
+  - simpl. reflexivity.
+  - simpl. contradicts p b.
+Defined.  
+
+Definition decidableChoice_compute_no {W} (P:DecidableProposition) (p:¬P) (yes no:W) :
+  (P ? yes # no) = no.
+Proof.
+  intros.
+  unfold decidableChoice.
+  choose P a b.
+  - simpl. contradicts p a.
+  - simpl. reflexivity.
+Defined.  
+
+Definition underlyingType {X} : DecidableSubtype X -> UU.
 Proof. intros ? S. exact (Σ x, S x). Defined.
 
-Definition underlyingType' {X} : decidableSubtype X -> UU.
+Definition underlyingType' {X} : DecidableSubtype X -> UU.
 Proof. intros ? P.
        (* for use with isfinitedecsubset *)
        exact (hfiber (λ x, P x ? true # false) true).
 Defined.
 
-Definition underlyingType_weq {X} (P:decidableSubtype X) :
+Definition underlyingType_weq {X} (P:DecidableSubtype X) :
   underlyingType' P ≃ underlyingType P.
 Proof.
   intros.
@@ -70,61 +93,50 @@ Proof.
       * reflexivity.
       * assumption.
     + apply isasetbool.    
-    + apply (propproperty (decidableProposition_to_hProp _)).
+    + apply (propproperty (DecidableProposition_to_hProp _)).
   - simpl. apply weqiff.
     + apply logeq_both_false.
       * now apply falsetonegtrue.
       * assumption.
     + apply isasetbool.    
-    + apply (propproperty (decidableProposition_to_hProp _)).
+    + apply (propproperty (DecidableProposition_to_hProp _)).
 Defined.
 
-Coercion underlyingType : decidableSubtype >-> UU.
+Lemma subsetFiniteness {X} (P : DecidableSubtype X) :
+  isfinite X -> isfinite (underlyingType P).
+Proof.
+  intros ? ? is.
+  assert (fin : isfinite (underlyingType' P)).
+  { now apply isfinitedecsubset. }
+  refine (isfiniteweqf _ fin).
+  apply underlyingType_weq.
+Defined.
 
+Coercion underlyingType : DecidableSubtype >-> UU.
 
-Definition decrel_to_decidableProposition {X} : decrel X -> decidableRelation X.
+Definition decrel_to_DecidableRelation {X} : decrel X -> DecidableRelation X.
 Proof.
   intros ? R x y. induction R as [R is]. exists (R x y).
   apply isdecpropif. { apply propproperty. } apply is.
 Defined.
 
-Definition natlth_decidableProposition := decrel_to_decidableProposition natlthdec.
-Definition natleh_decidableProposition := decrel_to_decidableProposition natlehdec.
-Definition natgth_decidableProposition := decrel_to_decidableProposition natgthdec.
-Definition natgeh_decidableProposition := decrel_to_decidableProposition natgehdec.
-Definition nateq_decidableProposition := decrel_to_decidableProposition natdeceq.
-Definition natneq_decidableProposition := decrel_to_decidableProposition natdecneq.
+Definition natlth_DecidableProposition := decrel_to_DecidableRelation natlthdec.
+Definition natleh_DecidableProposition := decrel_to_DecidableRelation natlehdec.
+Definition natgth_DecidableProposition := decrel_to_DecidableRelation natgthdec.
+Definition natgeh_DecidableProposition := decrel_to_DecidableRelation natgehdec.
+Definition nateq_DecidableProposition := decrel_to_DecidableRelation natdeceq.
+Definition natneq_DecidableProposition := decrel_to_DecidableRelation natdecneq.
 
-Notation " x <? y " := ( natlth_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x <=? y " := ( natleh_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x ≤? y " := ( natleh_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x >=? y " := ( natgeh_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x ≥? y " := ( natgeh_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x >? y " := ( natgth_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x =? y " := ( nateq_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x !=? y " := ( natneq_decidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x <? y " := ( natlth_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x <=? y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x ≤? y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x >=? y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x ≥? y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x >? y " := ( natgth_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x !=? y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
 
-Definition decidableChoice_compute_yes {W} (P:decidableProposition) (p:P) (yes no:W) :
-  (P ? yes # no) = yes.
-Proof.
-  intros.
-  unfold decidableChoice.
-  choose P a b.
-  - simpl. reflexivity.
-  - simpl. contradicts p b.
-Defined.  
-
-Definition decidableChoice_compute_no {W} (P:decidableProposition) (p:¬P) (yes no:W) :
-  (P ? yes # no) = no.
-Proof.
-  intros.
-  unfold decidableChoice.
-  choose P a b.
-  - simpl. contradicts p a.
-  - simpl. reflexivity.
-Defined.  
-
-Local Definition bound01 (P:decidableProposition) : ((P ? 1 # 0) ≤ 1)%nat.
+Local Definition bound01 (P:DecidableProposition) : ((P ? 1 # 0) ≤ 1)%nat.
 Proof.
   intros.
   unfold decidableChoice.
@@ -133,15 +145,18 @@ Proof.
   { simpl. now apply falsetonegtrue. }
 Defined.  
 
-Definition tallyStandardSubset {n} (P: decidableSubtype (stn n)) : stn (S n).
+Definition tallyStandardSubset {n} (P: DecidableSubtype (stn n)) : stn (S n).
 Proof. intros. exists (stnsum (λ x, P x ? 1 # 0)). apply natlehtolthsn.
        apply istransnatleh with (m := stnsum(λ _ : stn n, 1)).
        { apply stnsum_le; intro i. apply bound01. }
        assert ( p : ∀ r s, r = s -> (r ≤ s)%nat). { intros ? ? e. destruct e. apply isreflnatleh. }
        apply p. apply stnsum_1.
 Defined.
+Goal 3 = tallyStandardSubset (λ i:stn 7, 2*i <? 6). Proof. reflexivity. Defined.
+Goal 1 = tallyStandardSubset (λ i:stn 7, 2*i =? 6). Proof. reflexivity. Defined.
+Goal 6 = tallyStandardSubset (λ i:stn 7, 2*i !=? 4). Proof. reflexivity. Defined.
 
-Definition tallyStandardSubsetSegment {n} (P: decidableSubtype (stn n))
+Definition tallyStandardSubsetSegment {n} (P: DecidableSubtype (stn n))
            (i:stn n) : stn n.
 (* count how many elements less than i satisfy P *)
 Proof.
@@ -152,11 +167,8 @@ Proof.
   { apply natlthtolehsn. exact (pr2 i). }
   exact k.
 Defined.
-
-(* verify computability: *)
-Goal pr1 (tallyStandardSubset (λ i:stn 7, 2*i <? 6)) = 3. Proof. reflexivity. Defined.
-Goal pr1 (tallyStandardSubset (λ i:stn 7, 2*i =? 6)) = 1. Proof. reflexivity. Defined.
-Goal pr1 (tallyStandardSubset (λ i:stn 7, 2*i !=? 4)) = 6. Proof. reflexivity. Defined.
+Goal 3 = tallyStandardSubsetSegment (λ i:stn 14, 2*i <? 6) (●7). Proof. reflexivity. Defined.
+Goal 6 = tallyStandardSubsetSegment (λ i:stn 14, 2*i !=? 4) (●7). Proof. reflexivity. Defined.
 
 (* types and univalence *)
 
@@ -431,16 +443,6 @@ Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0).
 (* in agda-mode \[[ n \]] *)
 
 Definition FiniteStructure (X:OrderedSet) := Σ n, ⟦ n ⟧ ≅ X.
-
-(* a decidable subset of a finite set is finite *)
-Lemma subsetFiniteness {X} (P : decidableSubtype X) : isfinite X -> isfinite P.
-Proof.
-  intros ? ? fin.
-  assert (t : isfinite (underlyingType' P)).
-  { now apply isfinitedecsubset. }
-  refine (isfiniteweqf _ t).
-  apply underlyingType_weq.
-Defined.
 
 Local Lemma std_auto n : iscontr (⟦ n ⟧ ≅ ⟦ n ⟧).
 Proof.

@@ -1,6 +1,6 @@
 Require Export UniMath.Foundations.StandardFiniteSets.
 Unset Automatic Introduction.
-Local Notation "●" := (idpath _).
+Local Notation "● x" := (x,,idpath _) (at level 35).
 
 (* move upstream *)
 (* end of move upstream *)

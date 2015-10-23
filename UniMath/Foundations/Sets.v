@@ -86,7 +86,7 @@ Lemma ischoicebasecontr { X : UU } ( is : iscontr X ) : ischoicebase X .
 Proof . intros . apply ( ischoicebaseweqb ( weqcontrtounit is )  ischoicebaseunit ) . Defined . 
 
 Lemma ischoicebaseempty : ischoicebase empty .
-Proof . unfold ischoicebase . intros P fs .  apply ( hinhpr _ ( fun x : empty => fromempty x ) ) .  Defined .
+Proof . unfold ischoicebase . intros P fs .  apply ( hinhpr ( fun x : empty => fromempty x ) ) .  Defined .
 
 Lemma ischoicebaseempty2 { X : UU } ( is : ¬ X ) : ischoicebase X .
 Proof . intros . apply ( ischoicebaseweqb ( weqtoempty is ) ischoicebaseempty ) . Defined .
@@ -660,7 +660,7 @@ Proof. intros.  apply ( isasetsubset ( @pr1 _ _ )  ( isasethsubtypes X )  ) . ap
 Definition setquotinset { X : UU } ( R : hrel X ) : hSet := hSetpair _ ( isasetsetquot R ) . 
 
 Theorem setquotpr { X : UU } ( R : eqrel X ) : X -> setquot R.
-Proof. intros X R X0. set ( rax:= eqrelrefl R ). set ( sax := eqrelsymm R  ) . set (tax:= eqreltrans R ). split with (fun x:X =>  R X0 x). split with (hinhpr _ (tpair _ X0 (rax X0))).  
+Proof. intros X R X0. set ( rax:= eqrelrefl R ). set ( sax := eqrelsymm R  ) . set (tax:= eqreltrans R ). split with (fun x:X =>  R X0 x). split with (hinhpr (tpair _ X0 (rax X0))).  
 assert (a1: (∀ x1 x2 : X, R x1 x2 -> R X0 x1 -> R X0 x2)). intros x1 x2 X1 X2.  apply (tax X0 x1 x2 X2 X1). split with a1.
 assert (a2: (∀ x1 x2 : X, R X0 x1 -> R X0 x2 -> R x1 x2)). intros x1 x2 X1 X2. apply (tax x1 X0 x2 (sax X0 x1 X1) X2). 
 assumption. Defined. 
@@ -1015,7 +1015,7 @@ Defined in this way [ proofirrelevance ] will have the required property and wil
 
 Definition pathshrel ( X : UU ) := fun x x' : X  =>  ishinh ( x = x')  .
 Definition istranspathshrel ( X : UU ) : istrans ( pathshrel X ) := fun x x' x'' : _ => fun a : _ => fun b : _ =>  hinhfun2 (fun e1 : x = x' => fun e2 : x' = x'' => e1 @ e2 ) a b .
-Definition isreflpathshrel ( X : UU ) : isrefl ( pathshrel X ) := fun x : _ =>  hinhpr _ ( idpath x ) .
+Definition isreflpathshrel ( X : UU ) : isrefl ( pathshrel X ) := fun x : _ =>  hinhpr ( idpath x ) .
 Definition issymmpathshrel ( X : UU ) : issymm ( pathshrel X ) := fun x x': _ => fun a : _ => hinhfun ( fun e : x = x' => ! e ) a . 
 
 Definition pathseqrel ( X : UU ) := eqrelconstr ( pathshrel X ) ( istranspathshrel X ) ( isreflpathshrel X ) ( issymmpathshrel X ) . 
@@ -1177,7 +1177,7 @@ Definition setquot2inset { X : UU } ( R : hrel X ) : hSet := hSetpair _ ( isaset
 
 (** We will be asuming below that setquot2 is in UU.  In the future it should be proved using [ issurjsetquot2pr ] below and a resizing axiom. The appropriate resizing axiom for this should say that if X -> Y is a surjection, Y is an hset and X : UU then Y : UU . *)  
 
-Definition setquot2pr { X : UU }  ( R : hrel X ) : X -> setquot2 R := fun x : X => imagepair ( compevmapset R ) _ ( hinhpr _ ( hfiberpair ( compevmapset R ) x ( idpath _ ) ) ) .
+Definition setquot2pr { X : UU }  ( R : hrel X ) : X -> setquot2 R := fun x : X => imagepair ( compevmapset R ) _ ( hinhpr ( hfiberpair ( compevmapset R ) x ( idpath _ ) ) ) .
 
 Lemma issurjsetquot2pr { X : UU } ( R : hrel X ) : issurjective ( setquot2pr R ) .
 Proof. intros. apply issurjprtoimage. Defined.    

@@ -467,7 +467,7 @@ Proof. intros.
 Defined.
 
 Definition map {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : 
-  squash T -> GuidedHomotopy f s.
+  ∥ T ∥ -> GuidedHomotopy f s.
 Proof. intros ? ? ? ? t'. 
        (* try to use transport as in Halfline.map *)
        apply (squash_to_prop t').
@@ -496,13 +496,13 @@ Proof. intros. exact (map f s (torsor_nonempty T)). Defined.
 
 (** ** The construction of the affine line *)
 
-Definition affine_line (T:Torsor ℤ) := squash T.
+Definition affine_line (T:Torsor ℤ) := ∥ T ∥.
 
 Definition affine_line_point (T:Torsor ℤ) : affine_line T.
 Proof. intros. exact (torsor_nonempty T). Defined.
 
 Lemma iscontr_affine_line (T:Torsor ℤ) : iscontr (affine_line T).
-Proof. intros. apply iscontraprop1. { apply isaprop_squash. }
+Proof. intros. apply iscontraprop1. { apply propproperty. }
        exact (torsor_nonempty T). Defined.
 
 Lemma affine_line_path {T:Torsor ℤ} (t u:affine_line T) : t = u.
@@ -526,7 +526,7 @@ Definition check_paths_any {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) (t:T)
            (p : squash_element t = squash_element (one + t)) :
   ap (affine_line_map f s) p = s t.
 Proof. intros. set (p' := squash_path t (one + t)).
-       assert (e : p' = p). { apply (hlevelntosn 1). apply isaprop_squash. }
+       assert (e : p' = p). { apply (hlevelntosn 1). apply propproperty. }
        destruct e. apply check_paths. Defined.
 
 Definition add_one {T:Torsor ℤ} : affine_line T -> affine_line T.

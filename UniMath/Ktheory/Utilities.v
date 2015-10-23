@@ -360,45 +360,35 @@ Proof. intros ? ? ? ? x. apply invproofirrelevance. intros [r i] [s j].
 
 (** ** Squashing *)
 
-Notation squash := ishinh_UU.
-Notation squash_fun := hinhfun.
-Lemma squash_fun2 {X Y Z} : (X -> Y -> Z) -> (squash X -> squash Y -> squash Z).
-Proof. intros ? ? ? f x y P h.
-  exact (y P 
-           (x (hProppair 
-                 (Y -> P) 
-                 (impred 1 _ (fun _ => propproperty P))) 
-              (fun a b => h (f a b)))). Qed.
+Notation squash_fun := hinhfun (only parsing).
+Notation squash_fun2 := hinhfun2 (only parsing).
+Notation squash_element := hinhpr (only parsing).
 
-Definition squash_element {X} : X -> squash X.
-Proof. intros ? x P f. exact (f x). Defined.
+(* can we eliminate the next two?  Or does unification order matter? *)
 
-Definition squash_to_prop {X Y} : squash X -> isaprop Y -> (X -> Y) -> Y.
-  intros ? ? h is f. exact (h (Y,,is) f). Defined.
+Lemma factor_through_squash {X Q} : isaprop Q -> (X -> Q) -> ∥ X ∥ -> Q.
+Proof. intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h). Defined.
+
+Definition squash_to_prop {X Q} : ∥ X ∥ -> isaprop Q -> (X -> Q) -> Q.
+Proof. intros ? ? h i f. exact (@hinhuniv X (Q,,i) f h). Defined.
 
 Definition squash_to_prop_compute {X Y} (x:X) (is:isaprop Y) (f:X->Y) :
   squash_to_prop (squash_element x) is f = f x.
 Proof. reflexivity. Defined.
 
-Lemma isaprop_squash X : isaprop (squash X).
-Proof. prop_logic. Qed.
-
 Lemma squash_path {X} (x y:X) : squash_element x = squash_element y.
-Proof. intros. apply isaprop_squash. Defined.
-
-Lemma factor_through_squash {X Q} : isaprop Q -> (X -> Q) -> (squash X -> Q).
-Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Defined.
+Proof. intros. apply propproperty. Defined.
 
 Lemma isaprop_NullHomotopyTo {X} {Y} (is:isaset Y) (f:X->Y) :
-  squash X -> isaprop (NullHomotopyTo f).
+  ∥ X ∥ -> isaprop (NullHomotopyTo f).
 Proof. intros ? ? ? ?. apply factor_through_squash. apply isapropisaprop. 
        apply isaprop_NullHomotopyTo_0. exact is. Defined.
 
-(** We can get a map from 'squash X' to any type 'Y' provided paths
+(** We can get a map from '∥ X ∥' to any type 'Y' provided paths
     are given that allow us to map first into a cone in 'Y'.  *)
 
 Definition cone_squash_map {X Y} (f:X->Y) (y:Y) : 
-  nullHomotopyTo f y -> squash X -> Y.
+  nullHomotopyTo f y -> ∥ X ∥ -> Y.
 Proof. intros ? ? ? ? e h. 
        exact (point_from (h (paths_to_prop y) (fun x => f x,,e x))). Defined.
 
@@ -408,14 +398,14 @@ Proof. reflexivity. Qed.
 
 (** ** Factoring maps through squash *)
  
-Lemma squash_uniqueness {X} (x:X) (h:squash X) : squash_element x = h.
-Proof. intros. apply isaprop_squash. Qed.
+Lemma squash_uniqueness {X} (x:X) (h:∥ X ∥) : squash_element x = h.
+Proof. intros. apply propproperty. Qed.
 
 Goal ∀ X Q (i:isaprop Q) (f:X -> Q) (x:X),
    factor_through_squash i f (squash_element x) = f x.
 Proof. reflexivity. Defined.
 
-Lemma factor_dep_through_squash {X} {Q:squash X->UU} : 
+Lemma factor_dep_through_squash {X} {Q:∥ X ∥->UU} : 
   (∀ h, isaprop (Q h)) -> 
   (∀ x, Q(squash_element x)) -> 
   (∀ h, Q h).
@@ -424,7 +414,7 @@ Proof.
   intro x. simpl. destruct (squash_uniqueness x h). exact (f x).
 Defined.
 
-Lemma factor_through_squash_hProp {X} : ∀ hQ:hProp, (X -> hQ) -> (squash X -> hQ).
+Lemma factor_through_squash_hProp {X} : ∀ hQ:hProp, (X -> hQ) -> ∥ X ∥ -> hQ.
 Proof. intros ? [Q i] f h. apply h. assumption. Defined.
 
 Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
@@ -436,7 +426,7 @@ Proof. intros ? i p. exists p. intros p'. apply i. Defined.
 (** ** Show that squashing is a set-quotient *)
 
 Definition squash_to_set {X Y} (is:isaset Y)
-  (f:X->Y) (e:∀ x x', f x = f x') : squash X -> Y.
+  (f:X->Y) (e:∀ x x', f x = f x') : ∥ X ∥ -> Y.
 Proof. intros ? ? ? ? ? h. apply (NullHomotopyTo_center f).
   refine (factor_through_squash _ _ h).
   { apply isaprop_NullHomotopyTo. exact is. exact h. }
@@ -455,7 +445,7 @@ Proof. reflexivity. Qed.
 
     "I think one can get another proof using "isapropimeqclass" (hSet.v) with "R :=
     fun x1 x1 => unit". This Lemma will show that under your assumptions "Im f" is
-    a proposition. Therefore "X -> Im f" factors through "squash X"." 
+    a proposition. Therefore "X -> Im f" factors through "∥ X ∥"." 
 
     Here is a start.
 
@@ -468,7 +458,7 @@ Proof. intros ? ? ? ? ?.
 Defined.
 *)
 
-Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : squash X -> S) : 
+Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) : 
   g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
 Proof.
   intros ? ? ? ? ? h.
@@ -478,7 +468,7 @@ Proof.
   intro x. apply h.
 Qed.
 
-Lemma squash_map_epi {X S} (ip : isaset S) (g g' : squash X -> S) : 
+Lemma squash_map_epi {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) : 
   g ∘ squash_element = g'∘ squash_element -> g = g'.
 Proof.
   intros ? ? ? ? ? e.

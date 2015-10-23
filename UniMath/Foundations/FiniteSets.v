@@ -72,21 +72,21 @@ Definition isofnel ( n : nat ) ( X : UU ) : hProp := ishinh ( weq ( stn n ) X ) 
 Lemma isofneluniv { n : nat} { X : UU }  ( P : hProp ) : ( ( nelstruct n X ) -> P ) -> ( isofnel n X -> P ) .
 Proof. intros.  apply @hinhuniv with ( weq ( stn n ) X ) . assumption. assumption. Defined. 
 
-Definition isofnelstn ( n : nat ) : isofnel n ( stn n ) := hinhpr _ ( nelstructonstn n ) . 
+Definition isofnelstn ( n : nat ) : isofnel n ( stn n ) := hinhpr ( nelstructonstn n ) . 
 
 Definition isofnelweqf { X Y : UU } { n : nat } ( w : weq X Y ) ( sx : isofnel n X ) : isofnel n Y := hinhfun ( fun sx0 : _ =>  nelstructweqf w sx0 ) sx . 
 
 Definition isofnelweqb { X Y : UU } { n : nat } ( w : weq X Y ) ( sy : isofnel n Y ) : isofnel n X :=  hinhfun ( fun sy0 : _ => nelstructweqb w sy0 ) sy . 
 
-Definition isofnelempty : isofnel 0 empty := hinhpr _ nelstructonempty . 
+Definition isofnelempty : isofnel 0 empty := hinhpr nelstructonempty . 
 
-Definition isofnelempty2 { X : UU } ( is : neg X ) : isofnel 0 X :=  hinhpr _ ( nelstructonempty2 is ) . 
+Definition isofnelempty2 { X : UU } ( is : neg X ) : isofnel 0 X :=  hinhpr ( nelstructonempty2 is ) . 
 
-Definition isofnelunit : isofnel 1 unit := hinhpr _ nelstructonunit  .
+Definition isofnelunit : isofnel 1 unit := hinhpr nelstructonunit  .
 
-Definition isofnelcontr { X : UU } ( is : iscontr X ) : isofnel 1 X := hinhpr _ ( nelstructoncontr is ) .
+Definition isofnelcontr { X : UU } ( is : iscontr X ) : isofnel 1 X := hinhpr ( nelstructoncontr is ) .
 
-Definition isofnelbool : isofnel 2 bool := hinhpr _ nelstructonbool .
+Definition isofnelbool : isofnel 2 bool := hinhpr nelstructonbool .
 
 Definition isofnelcoprodwithunit { X : UU } { n : nat } ( sx : isofnel n X ) : isofnel ( S n ) ( coprod X unit ) :=   hinhfun ( fun sx0 : _ =>  nelstructoncoprodwithunit sx0 ) sx . 
 
@@ -172,27 +172,27 @@ Proof.
 Defined.
 
 Definition fincard { X : UU } ( is : isfinite X ) : nat .
-Proof . intros . set ( int := carrier ( fun n : nat => isofnel n X ) ) .  set ( f1  := ( fun nw : finstruct X => tpair  ( fun n : nat => isofnel n X ) ( pr1 nw ) ( hinhpr _ ( pr2 nw ) ) ) : finstruct X -> int ) .  assert ( isp : isaprop int ) . apply isapropsubtype .   intros x1 x2 is1 is2 . apply ( @hinhuniv2 ( nelstruct x1 X ) ( nelstruct x2 X ) ( hProppair _ ( isasetnat x1 x2 ) ) ) .  intros sx1 sx2 . apply ( weqtoeqstn ( weqcomp sx1 ( invweq sx2 ) ) ) .  apply is1 .  apply is2 .  apply ( @hinhuniv _ ( hProppair _ isp ) f1 ) .  apply is .  Defined . 
+Proof . intros . set ( int := carrier ( fun n : nat => isofnel n X ) ) .  set ( f1  := ( fun nw : finstruct X => tpair  ( fun n : nat => isofnel n X ) ( pr1 nw ) ( hinhpr ( pr2 nw ) ) ) : finstruct X -> int ) .  assert ( isp : isaprop int ) . apply isapropsubtype .   intros x1 x2 is1 is2 . apply ( @hinhuniv2 ( nelstruct x1 X ) ( nelstruct x2 X ) ( hProppair _ ( isasetnat x1 x2 ) ) ) .  intros sx1 sx2 . apply ( weqtoeqstn ( weqcomp sx1 ( invweq sx2 ) ) ) .  apply is1 .  apply is2 .  apply ( @hinhuniv _ ( hProppair _ isp ) f1 ) .  apply is .  Defined . 
 
 Theorem ischoicebasefiniteset { X : UU } ( is : isfinite X ) : ischoicebase X . 
 Proof . intros . apply ( @hinhuniv ( finstruct X ) ( ischoicebase X ) ) .  intro nw . destruct nw as [ n w ] .   apply ( ischoicebaseweqf w ( ischoicebasestn n ) ) .  apply is .  Defined . 
 
 
-Definition isfinitestn ( n : nat ) : isfinite ( stn n ) := hinhpr _ ( finstructonstn n ) . 
+Definition isfinitestn ( n : nat ) : isfinite ( stn n ) := hinhpr ( finstructonstn n ) . 
 
 Definition isfiniteweqf { X Y : UU } ( w : weq X Y ) ( sx : isfinite X ) : isfinite Y :=  hinhfun ( fun sx0 : _ =>  finstructweqf w sx0 ) sx .
 
 Definition isfiniteweqb { X Y : UU } ( w : weq X Y ) ( sy : isfinite Y ) : isfinite X :=   hinhfun ( fun sy0 : _ =>  finstructweqb w sy0 ) sy .
 
-Definition isfiniteempty : isfinite empty := hinhpr _ finstructonempty .
+Definition isfiniteempty : isfinite empty := hinhpr finstructonempty .
 
-Definition isfiniteempty2 { X : UU } ( is : neg X ) : isfinite X :=  hinhpr _ ( finstructonempty2 is ) . 
+Definition isfiniteempty2 { X : UU } ( is : neg X ) : isfinite X :=  hinhpr ( finstructonempty2 is ) . 
 
-Definition isfiniteunit : isfinite unit := hinhpr _ finstructonunit .
+Definition isfiniteunit : isfinite unit := hinhpr finstructonunit .
 
-Definition isfinitecontr { X : UU } ( is : iscontr X ) : isfinite X := hinhpr _ ( finstructoncontr is ) .
+Definition isfinitecontr { X : UU } ( is : iscontr X ) : isfinite X := hinhpr ( finstructoncontr is ) .
 
-Definition isfinitebool : isfinite bool := hinhpr _ finstructonbool .
+Definition isfinitebool : isfinite bool := hinhpr finstructonbool .
 
 Definition isfinitecoprodwithunit { X : UU } ( sx : isfinite X ) : isfinite ( coprod X unit ) :=  hinhfun ( fun sx0 : _ => finstructoncoprodwithunit sx0 ) sx .
 
@@ -236,7 +236,7 @@ Proof. intros X is X0.  set (c:= carddneg X is). set (dnw:= pr2 (isfiniteimplisf
 assert (f: dirprod (finitestruct X) (dneg (weq (stn c) X)) -> weq (stn c) X). intro H. destruct H as [ t x ].  destruct t as [ t x0 ]. 
 assert (dw: dneg (weq (stn t) (stn c))). set (ff:= fun ab:dirprod (weq (stn t) X)(weq (stn c) X) => weqcomp _ _ _ (pr1 ab) (invweq (pr2 ab))).  apply (dnegf _ _ ff (inhdnegand _ _ (todneg _ x0) x)). 
 assert (e:paths t c). apply (stnsdnegweqtoeq _ _  dw). clear dnw. destruct e. assumption. unfold isofnel. 
-apply (hinhfun _ _ f (hinhand (finitestruct X) _ is (hinhpr _ dnw))). Defined. 
+apply (hinhfun _ _ f (hinhand (finitestruct X) _ is (hinhpr dnw))). Defined. 
 
 *)
 
