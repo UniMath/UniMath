@@ -262,6 +262,18 @@ Local Notation "●" := (idpath _).
 Goal ∀ (f : stn 3 -> nat), stnsum f = f(0,,●) + f(1,,●) + f(2,,●).
 Proof. reflexivity. Defined.
 
+Definition stnsum_le {n} (f g:stn n->nat) : (∀ i, f i ≤ g i) -> stnsum f ≤ stnsum g.
+Proof.
+  intros ? ? ? le. induction n as [|n IH]. { simpl. now apply falsetonegtrue. }
+  apply natlehandplus. { apply IH. intro i. apply le. } apply le.
+Defined.  
+
+Definition stnsum_1 n : stnsum(λ i:stn n, 1) = n.
+Proof.
+  intros. induction n as [|n IH]. { reflexivity. } simpl. rewrite natpluscomm. apply maponpaths.
+  exact IH.
+Defined.  
+
 Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
   (∀ i, stn (f i) ≃ P i) -> total2 P ≃ stn (stnsum f).
 Proof.
