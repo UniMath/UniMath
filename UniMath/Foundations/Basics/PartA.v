@@ -144,6 +144,22 @@ Notation " X <-> Y " := (logeq X Y) : type_scope .
 Definition logeqnegs {X Y : UU} (l : X <-> Y ) : (¬ X) <-> (¬ Y) :=
   dirprodpair (negf (pr2 l)) (negf (pr1 l)). 
 
+Definition logeq_both_true {X Y} : X -> Y -> (X<->Y).
+Proof.
+  intros ? ? x y.
+  split.
+  - intros x'. exact y.
+  - intros y'. exact x.
+Defined.
+
+Definition logeq_both_false {X Y} : ¬X -> ¬Y -> (X<->Y).
+Proof.
+  intros ? ? nx ny.
+  split.
+  - intros x. induction (nx x).
+  - intros y. induction (ny y).
+Defined.
+
 (* end of "Some standard constructions not using idenity types (paths)". *)
 
 
