@@ -329,6 +329,8 @@ apply (gradth  f g isx0 isy0).  Defined.
 
 Definition weqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isaprop X ) ( isy : isaprop Y ) := weqpair _ ( isweqimplimpl f g isx isy ) .
 
+Definition weqiff { X Y : UU } ( f : X <-> Y ) ( isx : isaprop X ) ( isy : isaprop Y ) := weqpair _ ( isweqimplimpl (pr1 f) (pr2 f) isx isy ) .
+
 Theorem isapropempty: isaprop empty.
 Proof. unfold isaprop. unfold isofhlevel. intros x x' . induction x. Defined. 
 
