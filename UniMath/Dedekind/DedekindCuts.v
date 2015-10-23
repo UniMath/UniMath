@@ -24,23 +24,37 @@ Definition Dcuts_def_error (X : hsubtypes NonnegativeRationals) : UU :=
   forall r, 0 < r -> hexists (λ q, coprod (dirprod (q < r) (neg (X q)))
                                           (dirprod (X q) (neg (X (q + r))))).
   
-Lemma isaprop_Dcuts_def_bot {X : hsubtypes NonnegativeRationals} : isaprop (Dcuts_def_bot X).
+Lemma isaprop_Dcuts_def_bot (X : hsubtypes NonnegativeRationals) : isaprop (Dcuts_def_bot X).
 Proof.
   intros X.
   repeat (apply impred_isaprop ; intro).
   now apply pr2.
 Qed.
-Lemma isaprop_Dcuts_def_open {X : hsubtypes NonnegativeRationals} : isaprop (Dcuts_def_open X).
+Lemma isaprop_Dcuts_def_open (X : hsubtypes NonnegativeRationals) : isaprop (Dcuts_def_open X).
 Proof.
   intros X.
   repeat (apply impred_isaprop ; intro).
   now apply pr2.
+Qed.
+Lemma isaprop_Dcuts_def_error (X : hsubtypes NonnegativeRationals) : isaprop (Dcuts_def_error X).
+Proof.
+  intros X.
+  repeat (apply impred_isaprop ; intro).
+  now apply pr2.
+Qed.
+
+Lemma isaprop_Dcuts_hsubtypes (X : hsubtypes NonnegativeRationals) :
+  isaprop (Dcuts_def_bot X × Dcuts_def_open X × Dcuts_def_error X).
+Proof.
+  intro X.
+  apply isofhleveldirprod, isofhleveldirprod.
+  - exact (isaprop_Dcuts_def_bot X).
+  - exact (isaprop_Dcuts_def_open X).
+  - exact (isaprop_Dcuts_def_error X).
 Qed.
   
 Definition Dcuts_hsubtypes : hsubtypes (hsubtypes NonnegativeRationals) :=
-  fun X : hsubtypes NonnegativeRationals => hconj (hProppair (Dcuts_def_bot X) (isaprop_Dcuts_def_bot))
-                                                  (hconj (hProppair (Dcuts_def_open X) isaprop_Dcuts_def_open)
-                                                         (Dcuts_def_finite X)).
+  fun X : hsubtypes NonnegativeRationals => hProppair _ (isaprop_Dcuts_hsubtypes X).
 Lemma isaset_Dcuts : isaset (carrier Dcuts_hsubtypes).
 Proof.
   apply isasetsubset with pr1.
@@ -69,6 +83,11 @@ Qed.
 Lemma is_Dcuts_finite (X : Dcuts) :
   hexists (fun ub : NonnegativeRationals => neg (ub ∈ X)).
 Proof.
+  destruct X as [X (Hbot,(Hopen,Herror))] ; simpl.
+  admit.
+Admitted.
+Lemma is_Dcuts_error (X : Dcuts) : Dcuts_def_error (pr1 X).
+Proof.
   destruct X as [X (Hbot,(Hopen,Hfinite))] ; simpl.
   now apply Hfinite.
 Qed.
@@ -76,13 +95,13 @@ Qed.
 Definition mk_Dcuts (X : NonnegativeRationals -> hProp)
                     (Hbot : Dcuts_def_bot X)
                     (Hopen : Dcuts_def_open X)
-                    (Hfinite : Dcuts_def_finite X) : Dcuts.
+                    (Herror : Dcuts_def_error X) : Dcuts.
 Proof.
-  intros X Hbot Hopen Hfinite.
+  intros X Hbot Hopen Herror.
   exists X ; repeat split.
   now apply Hbot.
   now apply Hopen.
-  exact Hfinite.
+  now apply Herror.
 Defined.
 
 Lemma Dcuts_finite :
@@ -173,20 +192,17 @@ Proof.
   exists n.
   now split.
 Qed.
-Lemma NonnegativeRationals_to_Dcuts_finite (q : NonnegativeRationals) :
-  Dcuts_def_finite (λ r : NonnegativeRationals, (r < q)%NRat).
+Lemma NonnegativeRationals_to_Dcuts_error (q : NonnegativeRationals) :
+  Dcuts_def_error (λ r : NonnegativeRationals, (r < q)%NRat).
 Proof.
   intros q.
-  apply hinhpr.
-  exists q.
-  now apply isirrefl_StrongOrder.
-Qed.
+Admitted.
 
 Definition NonnegativeRationals_to_Dcuts (q : NonnegativeRationals) : Dcuts :=
   mk_Dcuts (fun r => (r < q)%NRat)
            (NonnegativeRationals_to_Dcuts_bot q)
            (NonnegativeRationals_to_Dcuts_open q)
-           (NonnegativeRationals_to_Dcuts_finite q).
+           (NonnegativeRationals_to_Dcuts_error q).
 
 Definition Dcuts_zero : Dcuts := NonnegativeRationals_to_Dcuts 0%NRat.
 Definition Dcuts_one : Dcuts := NonnegativeRationals_to_Dcuts 1%NRat.
