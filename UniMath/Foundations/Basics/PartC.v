@@ -57,7 +57,7 @@ Proof. intros.
 set (f:= todneg (neg X)). set (g:= negf  (todneg X)). set (is1:= isapropneg X). set (is2:= isapropneg (dneg X)). apply (isweqimplimpl  f g is1 is2).  Defined.
 
 
-Theorem isapropdec (X:UU): (isaprop X) -> (isaprop (coprod X (X-> empty))).
+Theorem isapropdec (X:UU): isaprop X -> isaprop (X ⨿ ¬X).
 Proof. intros X X0. 
 assert (X1: forall (x x': X), paths x x'). apply (proofirrelevance _ X0).  
 assert (X2: forall (x x': coprod X (X -> empty)), paths x x'). intros.  
@@ -655,14 +655,13 @@ Proof. intros. apply (isweqinvmap  ( weqtocompltodisjoint X ) ). Defined.
 
 (** *** Decidable propositions [ isdecprop ] *)
 
-Definition isdecprop ( X : UU ) := iscontr ( coprod X ( neg X ) ) .
-
+Definition isdecprop ( X : UU ) := iscontr ( X ⨿ ¬ X ).
 
 Lemma isdecproptoisaprop ( X : UU ) ( is : isdecprop X ) : isaprop X .
 Proof. intros X is . apply ( isofhlevelsnsummand1 0 _ _ ( isapropifcontr is ) ) . Defined .  
 Coercion isdecproptoisaprop : isdecprop >-> isaprop .
 
-Lemma isdecpropif ( X : UU ) : isaprop X -> ( coprod X ( neg X ) ) -> isdecprop X .
+Lemma isdecpropif ( X : UU ) : isaprop X -> X ⨿ ¬ X -> isdecprop X .
 Proof. intros X is a . assert ( is1 : isaprop ( coprod X ( neg X ) ) ) . apply isapropdec . assumption .   apply ( iscontraprop1 is1 a ) . Defined.
 
 Lemma isdecpropfromiscontr { X : UU } ( is : iscontr X ) : isdecprop X .
