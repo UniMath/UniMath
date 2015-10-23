@@ -85,15 +85,13 @@ Proof.
   intros. apply pair_path_in2. apply isapropifcontr. apply stn0_fun_iscontr.
 Defined.
 
-Definition isaset_transportf {X : UU} (P : X ->UU) {x : X} (e : x = x) (p : P x) :
-  isaset X -> transportf P e p = p.
+Definition isaset_transportf {X : hSet} (P : X ->UU) {x : X} (e : x = x) (p : P x) :
+  transportf P e p = p.
 (* move upstream *)
-Proof. intros ? ? ? ? ? i. induction (pr1 (i x x (idpath _) e)). reflexivity. Defined.
-
-Definition isaset_transportb {X : UU} (P : X ->UU) {x : X} (e : x = x) (p : P x) :
-  isaset X -> transportb P e p = p.
-(* move upstream *)
-Proof. intros ? ? ? ? ? i. induction (pr1 (i x x (idpath _) e)). reflexivity. Defined.
+Proof. intros ? ? ? ? ?.
+       induction (pr1 ((setproperty _) _ _ (idpath _) e)).
+       reflexivity.
+Defined.
 
 (* induction principle for contractible types, as a warmup *)
 
@@ -348,7 +346,7 @@ Proof.
     exact (transportf _ e x).
 Defined.
 
-Definition total2_step_b {n} (X:stn (S n) ->UU) :
+Definition total2_step_b {n} (X:stnset (S n) ->UU) :
   (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _)
     ->
   (Σ i, X i).
@@ -359,7 +357,7 @@ Proof.
   - exact (lastelement _,,x).
 Defined.
 
-Definition total2_step_bf {n} (X:stn (S n) ->UU) :
+Definition total2_step_bf {n} (X:stnset (S n) ->UU) :
    total2_step_b X ∘ total2_step_f X ~ idfun _.
 Proof.
   intros.
@@ -372,16 +370,16 @@ Proof.
     * simpl. apply isinjstntonat; simpl. rewrite replace_dni_last. reflexivity.
     * rewrite replace_dni_last. unfold dni_lastelement.  simpl.
       change (λ x0 : stn (S n), X x0) with X.
-      rewrite transport_f_b. apply isaset_transportf. apply isasetstn.
+      rewrite transport_f_b. apply (isaset_transportf X).
   + induction (!K). simpl.
     refine (total2_paths _ _).
     * simpl. now apply isinjstntonat.
     * simpl. assert (d : idpath n = K).
       { apply isasetnat. }
-      induction d. simpl. rewrite transport_f_f. apply isaset_transportf; apply isasetstn.
+      induction d. simpl. rewrite transport_f_f. apply (isaset_transportf X).
 Defined.
 
-Definition total2_step {n} (X:stn (S n) ->UU) :
+Definition total2_step {n} (X:stnset (S n) ->UU) :
   (Σ i, X i)
     ≃
   (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
@@ -395,7 +393,7 @@ Proof.
   (* too hard, start over *)
 Abort.
 
-Definition total2_step {n} (X:stn (S n) ->UU) :
+Definition total2_step {n} (X:stnset (S n) ->UU) :
   (Σ i, X i) ≃ (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
 Proof.
   intros. set (f := weqdnicoprod n (lastelement _)).
@@ -407,13 +405,13 @@ Proof.
   apply weqtotal2overunit.
 Defined.
 
-Definition total2_step_compute_2 {n} (X:stn (S n) ->UU) :
+Definition total2_step_compute_2 {n} (X:stnset (S n) ->UU) :
   invmap (total2_step X) ~ total2_step_b X.
 Proof.
   intros. intros [[i x]|y]; reflexivity. (* amazingly easy, why? *)
 Defined.
 
-Definition total2_step_compute_1 {n} (X:stn (S n) ->UU) :
+Definition total2_step_compute_1 {n} (X:stnset (S n) ->UU) :
   total2_step X ~ total2_step_f X.
 Proof. intros. intros [i x].
        try reflexivity.

@@ -264,8 +264,6 @@ Definition isaprop  := isofhlevel 1 .
 
 Definition isapropunit : isaprop unit := iscontrpathsinunit .
 
-Notation True := unit.
-
 Definition isapropdirprod X Y : isaprop X -> isaprop Y -> isaprop (X×Y) := isofhleveldirprod 1 X Y . 
 
 Lemma isapropifcontr { X : UU } ( is : iscontr X ) : isaprop X .
@@ -333,8 +331,6 @@ Definition weqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isapro
 
 Theorem isapropempty: isaprop empty.
 Proof. unfold isaprop. unfold isofhlevel. intros x x' . induction x. Defined. 
-
-Notation False := empty.
 
 Theorem isapropifnegtrue { X : UU } ( a : X -> empty ) : isaprop X .
 Proof . intros . set ( w := weqpair _ ( isweqtoempty a ) ) . apply ( isofhlevelweqb 1 w isapropempty ) .  Defined .
@@ -410,33 +406,24 @@ Definition  isapropinclb { X Y : UU } ( f : X -> Y ) ( isf : isincl f ) : isapro
 Lemma iscontrhfiberofincl { X Y : UU } (f:X -> Y): isincl  f -> (forall x:X, iscontr (hfiber  f (f x))).
 Proof. intros X Y f X0 x. unfold isofhlevelf in X0. set (isy:= X0 (f x)).  apply (iscontraprop1 isy (hfiberpair  f _ (idpath (f x)))). Defined.
 
+(* see incl_injectivity for the equivalence between isincl and isInjective *)
+Definition isInjective { X Y : UU } (f:X -> Y) := ∀ (x x':X), isweq (maponpaths f : x = x' -> f x = f x').
 
-Lemma isweqonpathsincl { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X): isweq (@maponpaths _ _ f x x').
-Proof. intros. apply (isofhlevelfonpaths O  f x x' is). Defined.
+Lemma isweqonpathsincl { X Y : UU } (f:X -> Y) : isincl f -> isInjective f.
+Proof. intros ? ? ? is x x'. apply (isofhlevelfonpaths O  f x x' is). Defined.
 
 Definition weqonpathsincl  { X Y : UU } (f:X -> Y) (is: isincl  f)(x x':X) := weqpair _ ( isweqonpathsincl f is x x' ) .
 
-Definition isinj { X Y : UU } (f:X -> Y) := ∀ (x x':X), f x = f x' -> x = x'.
-
-Definition invmaponpathsincl { X Y : UU } (f:X -> Y) : isincl f -> isinj f.
+Definition invmaponpathsincl { X Y : UU } (f:X -> Y) : isincl f -> ∀ x x', f x = f x' -> x = x'.
 Proof.
   intros ? ? ? is x x'.
   exact (invmap (weqonpathsincl  f is x x')).
 Defined.
 
-Lemma isinclweqonpaths { X Y : UU } (f:X -> Y): (forall x x':X, isweq (@maponpaths _ _ f x x')) -> isincl  f.
+Lemma isinclweqonpaths { X Y : UU } (f:X -> Y): isInjective f -> isincl  f.
 Proof. intros X Y f X0.  apply (isofhlevelfsn O f X0). Defined.
 
-
 Definition isinclpr1 { X : UU } (P:X -> UU)(is: forall x:X, isaprop (P x)): isincl  (@pr1 X P):= isofhlevelfpr1 (S O) P is.
-
-Lemma total2_paths_isaprop (A : UU) (B : A -> UU) (is : ∀ a, isaprop (B a)) : isinj (@pr1 A B).
-Proof.
-  intros A B H s s'.
-  apply invmaponpathsincl.
-  apply isinclpr1.
-  apply H.
-Defined.
 
 Theorem total2_paths_isaprop_equiv {A : UU} (B : A -> UU) (hB: ∀ a, isaprop (B a))
   (x y : total2 B): (x = y) ≃ (pr1 x = pr1 y).
@@ -448,7 +435,11 @@ Proof.
   assumption.
 Defined.
 
-
+Corollary total2_paths_isaprop (A : UU) (B : A -> UU) (is : forall a, isaprop (B a))
+   (s s' : total2 (fun x => B x)) : pr1 s = pr1 s' -> s = s'.
+Proof.
+  intros A B H s s'. apply invmap. now apply total2_paths_isaprop_equiv.
+Defined.
 
 Theorem samehfibers { X Y Z : UU } (f: X -> Y) (g: Y -> Z) (is1: isincl  g) ( y: Y): weq ( hfiber f y ) ( hfiber ( fun x => g ( f x ) ) ( g y ) ) .
 Proof. intros. split with (@hfibersftogf  _ _ _ f g (g y) (hfiberpair  g y (idpath _ ))) .

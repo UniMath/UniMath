@@ -25,7 +25,7 @@ Require Export UniMath.Foundations.Propositions .
 (** ** The type of sets i.e. of types of h-level 2 in [ UU ] *) 
 
 Definition hSet:= total2 (fun X : UU => isaset X) .
-Definition hSetpair := tpair (fun X : UU => isaset X).
+Definition hSetpair X i := tpair isaset X i : hSet.
 Definition pr1hSet:= @pr1 UU (fun X : UU => isaset X) : hSet -> UU.
 Coercion pr1hSet: hSet >-> UU .
 
@@ -47,6 +47,14 @@ Definition hPropset : hSet := tpair _ hProp isasethProp .
 Definition boolset : hSet := hSetpair bool isasetbool .
 (* Canonical Structure boolset .  *)
 
+(* properties of functions between sets *)
+
+Definition isInjectiveFunction { X Y : hSet } (f:X -> Y) : hProp.
+Proof. intros. exists ( ∀ (x x':X), f x = f x' -> x = x' ).
+       abstract (
+           intros; apply impred; intro x; apply impred; intro y;
+           apply impred; intro e; apply setproperty) using isaprop_isInjectiveFunction.
+Defined.
 
 (** ** Types [ X ] which satisfy " weak " axiom of choice for all families [ P : X -> UU ] 
 
@@ -183,7 +191,7 @@ Definition iseqrelconstr { X : UU } { R : hrel X } ( trans0 : istrans R ) ( refl
 
 Definition isirrefl { X : UU } ( R : hrel X ) := ∀ x : X , ¬ R x x . 
 
-Definition isasymm { X : UU } ( R : hrel X ) := ∀ ( x1 x2 : X ), R x1 x2 -> R x2 x1 -> False . 
+Definition isasymm { X : UU } ( R : hrel X ) := ∀ ( x1 x2 : X ), R x1 x2 -> R x2 x1 -> empty . 
 
 Definition iscoasymm { X : UU } ( R : hrel X ) := ∀ x1 x2 , ¬ R x1 x2 -> R x2 x1 .
 
@@ -390,10 +398,9 @@ Lemma isincl_pr1_PosetEquivalence (X Y:Poset) : isincl (pr1 : X≅Y -> X≃Y).
 Proof. intros. apply isinclpr1. apply isaprop_isPosetEquivalence.
 Defined.
 
-Lemma isinj_pr1_PosetEquivalence (X Y:Poset) : isinj (pr1 : X≅Y -> X≃Y).
+Lemma isinj_pr1_PosetEquivalence (X Y:Poset) : isInjective (pr1 : X≅Y -> X≃Y).
 Proof.
-  intros ? ? f g. apply total2_paths_second_isaprop.
-  apply isaprop_isPosetEquivalence.
+  intros ? ? f g. apply isweqonpathsincl. apply isincl_pr1_PosetEquivalence.
 Defined.
 
 (** poset concepts *)

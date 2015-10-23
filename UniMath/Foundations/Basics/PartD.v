@@ -612,17 +612,33 @@ Proof . intros . unfold isofhlevelf .    apply impred . intro y . apply isapropi
 
 Definition isapropisincl { X Y : UU } ( f : X -> Y ) := isapropisofhlevelf 1 f . 
 
+Lemma isaprop_isInjective { X Y : UU } (f:X -> Y): isaprop (isInjective f).
+Proof.
+  intros.
+  unfold isInjective.
+  apply impred; intro.
+  apply impred; intro.
+  apply isapropisweq.
+Defined.
 
-
+Lemma incl_injectivity { X Y : UU } (f:X -> Y): isincl f ≃ isInjective f.
+Proof.
+  intros.
+  apply weqimplimpl.
+  - apply isweqonpathsincl.
+  - apply isinclweqonpaths.
+  - apply isapropisincl.
+  - apply isaprop_isInjective.
+Defined.
 
 (** ** Theorems saying that various [ pr1 ] maps are inclusions *)
 
 
-Theorem isinclpr1weq ( X Y : UU ) : isincl ( @pr1weq X Y ) .
+Theorem isinclpr1weq ( X Y : UU ) : isincl ( pr1weq : X≃Y -> X->Y ) .
 Proof. intros . apply isinclpr1 . intro f.   apply isapropisweq .  Defined . 
 
-Corollary isinjpr1weq ( X Y : UU ) : isinj ( @pr1weq X Y ) .
-Proof. intros. apply invmaponpathsincl. apply isinclpr1weq. Defined.
+Corollary isinjpr1weq ( X Y : UU ) : isInjective ( pr1weq : X≃Y -> X->Y ) .
+Proof. intros. apply isweqonpathsincl. apply isinclpr1weq. Defined.
 
 Theorem isinclpr1isolated ( T : UU ) : isincl ( pr1isolated T ) .
 Proof . intro . apply ( isinclpr1 _ ( fun t : T => isapropisisolated T t ) ) . Defined . 

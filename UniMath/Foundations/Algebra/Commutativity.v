@@ -1,7 +1,7 @@
 Require Export UniMath.Foundations.Algebra.Associativity.
 Require Export UniMath.Foundations.FunctionalExtensionality.
 Unset Automatic Introduction.
-Local Notation "●" := (idpath _).
+Local Notation "● x" := (x,,idpath _) (at level 35).
 Local Notation "s □ x" := (append s x) (at level 65, left associativity).
 
 Theorem commutativityOfProducts {M:abmonoid} {n} (x:stn n->M) (f:stn n ≃ stn n) :
@@ -35,7 +35,7 @@ Proof.
     Open Scope nat.
     set (m := nil □ j □ 1 □ n-j).
     set (m' := nil □ j □ n-j □ 1).
-    set (sw := nil □ (0,,●) □ (2,,●) □ (1,,●) : Sequence (stn 3)).
+    set (sw := nil □ ●0 □ ●2 □ ●1 : Sequence (stn 3)).
     assert (B : stnsum m = S n). 
     { unfold stnsum; simpl. repeat unfold append_fun; simpl. rewrite natplusassoc. rewrite (natpluscomm 1). rewrite <- natplusassoc.
       rewrite natpluscomm. apply (maponpaths S). rewrite natpluscomm. now apply minusplusnmm. }                                 

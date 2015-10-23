@@ -42,9 +42,6 @@ Notation " 'stnel' ( i , j ) " := ( stnpair _ _  ( ctlong natlth isdecrelnatlth 
 Lemma isinclstntonat ( n : nat ) : isincl ( stntonat n ) .
 Proof. intro .  apply isinclpr1 .  intro x .  apply ( pr2 ( natlth x n ) ) .  Defined.
 
-Lemma isinjstntonat n : isinj (pr1 : stn n -> nat).
-Proof. intros ? i j. apply (invmaponpathsincl pr1). apply isinclstntonat. Defined.
-
 Lemma isdecinclstntonat ( n : nat ) : isdecincl ( stntonat n ) .
 Proof. intro . apply isdecinclpr1 .  intro x . apply isdecpropif . apply ( pr2 _ ) .   apply isdecrelnatgth .  Defined . 
 
@@ -66,6 +63,10 @@ Proof . intro . apply weqpr1 . intro x .   apply iscontraprop1 .  apply ( isapro
 
 Corollary isasetstn ( n : nat ) : isaset ( stn n ) .
 Proof. intro . apply ( isasetifdeceq _ ( isdeceqstn n ) ) . Defined . 
+
+Definition stnset n := hSetpair (stn n) (isasetstn n).
+
+Definition stn_to_nat n : stnset n -> natset := pr1.
 
 Definition stnposet ( i : nat ) : Poset .
 Proof. intro. unfold Poset . split with ( hSetpair ( stn i ) ( isasetstn i ) ) . unfold po. split with ( fun j1 j2 : stn i => natleh j1 j2 ) . split with ( fun j1 j2 j3 : stn i => istransnatleh j1 j2 j3 ) . exact ( fun j : stn i => isreflnatleh j ) . Defined. 
@@ -244,7 +245,7 @@ Proof.
   intros.
   intros abc.
   rewrite 4? weqcomp_to_funcomp.
-  apply isinjstntonat.
+  apply (invmaponpathsincl pr1). apply isinclstntonat.
   rewrite <- funcomp_assoc. unfold funcomp at 1. rewrite pr1_eqweqmap.
   induction abc as [[a|b]|c].
   - simpl. reflexivity.
@@ -513,15 +514,18 @@ assert ( is' : isdecprop ( F' n' ) ) . apply ( isdecbexists n' F is ) .   destru
 
 apply ( X n ( hinhpr _ ( tpair _ n ( dirprodpair ( isreflnatleh n ) l ) ) ) ) .  Defined . 
 
+Lemma isinjstntonat n : isInjectiveFunction (pr1 : stnset n -> natset).
+Proof. intros ? i j. apply (invmaponpathsincl pr1). apply isinclstntonat. Defined.
+
 (* a tactic for proving things by induction over a finite number of cases *)
 Ltac inductive_reflexivity i b :=
-  (* Here i is a variable natural number and b is a bound on
-     i of the form i<k, where k is a numeral. *)
+  (* Here i is a variable natural number and b is a bound on *)
+  (*      i of the form i<k, where k is a numeral. *)
   induction i as [|i];
   [ try apply isinjstntonat ; reflexivity |
     contradicts (negnatlthn0 i) b || inductive_reflexivity i b ].
 
-Local Definition f : stn 3 -> stn 10.
+Local Definition testfun : stn 3 -> stn 10.
   Proof.
     intros n.
     induction n as [n b].
@@ -532,9 +536,9 @@ Local Definition f : stn 3 -> stn 10.
       + induction n as [|n].
         * exact (4,,idpath _).
         * contradicts (negnatlthn0 n) b.
-  Defined.          
+  Defined.
 
-Local Definition lt : ∀ n, f n < 5.
+Goal ∀ n, testfun n < 5.
   Proof.
     intros.
     induction n as [i c].

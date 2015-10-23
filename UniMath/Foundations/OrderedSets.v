@@ -318,11 +318,6 @@ Proof.
   apply isinclpr1. intros X. apply isaprop_isOrdered.
 Defined.
 
-Lemma isinj_underlyingPoset : isinj underlyingPoset.
-Proof.
-  apply invmaponpathsincl. apply isincl_underlyingPoset.
-Defined.
-
 Definition underlyingPoset_weq (X Y:OrderedSet) :
   X=Y ≃ (underlyingPoset X)=(underlyingPoset Y).
 Proof.
