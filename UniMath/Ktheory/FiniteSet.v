@@ -8,9 +8,4 @@ Module Import Coercions.
   Coercion ToType : Data >-> Sortclass.
 End Coercions.
 Lemma Isdeceq (I:Data) : isdeceq I.
-Proof. intros [I i]; simpl. apply @factor_through_squash with (X := finstruct I).
-       { apply isapropisdeceq. }
-       { intros [n [f j]]. apply @isdeceqweqf with (X := stn n).
-         { exists f. assumption. }
-         { apply isdeceqstn. } }
-       { assumption. } Qed.
+Proof. intros [I i]; simpl. apply isfinite_isdeceq. assumption. Qed.                            

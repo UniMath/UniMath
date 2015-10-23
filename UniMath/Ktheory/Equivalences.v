@@ -10,7 +10,7 @@ Definition Equivalence X Y :=
   Σ (f:X->Y) (g:Y->X) (p:∀ y, f(g y) = y) (q:∀ x, g(f x) = x),
       ∀ x, ap f (q x) = p(f x).
 
-Notation "X ≅ Y" := (Equivalence X Y) (at level 80, no associativity) : type_scope.
+Notation "X ≅ Y" := (Equivalence X Y) (at level 60, no associativity) : type_scope.
 
 Definition makeEquivalence X Y f g p q h := (f,,g,,p,,q,,h) : X ≅ Y.
 

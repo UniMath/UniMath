@@ -227,7 +227,7 @@ Definition Action_univalence_prelim {G:gr} {X Y:Action G} :
 Proof. intros.
        refine (weqcomp (total2_paths_equiv (ActionStructure G) X Y) _).
        refine (weqbandf _ _ _ _).
-       { apply hSet_paths_to_weq_weq. }
+       { apply hSet_univalence. }
        simpl. intro p. refine (weqcomp (is_equivariant_identity p) _).
        exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap set_to_type p)))).
 Defined.

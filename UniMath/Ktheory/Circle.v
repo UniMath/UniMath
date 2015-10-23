@@ -250,8 +250,6 @@ Proof. intros. assert (p := pr1_GH_weq_compute l).
            exact (ap (fun r => ap (circle_map l) circle_loop @ r) p). } }
        { exact (ap (fun r => r @ l) p). } Defined. 
 
-Print Assumptions circle_map_check_paths.
-
 (** *** The induction principle (dependent functions) *)
 
 
