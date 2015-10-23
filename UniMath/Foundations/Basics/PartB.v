@@ -264,6 +264,8 @@ Definition isaprop  := isofhlevel 1 .
 
 Definition isapropunit : isaprop unit := iscontrpathsinunit .
 
+Notation True := unit.
+
 Definition isapropdirprod X Y : isaprop X -> isaprop Y -> isaprop (X×Y) := isofhleveldirprod 1 X Y . 
 
 Lemma isapropifcontr { X : UU } ( is : iscontr X ) : isaprop X .
@@ -332,6 +334,7 @@ Definition weqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isapro
 Theorem isapropempty: isaprop empty.
 Proof. unfold isaprop. unfold isofhlevel. intros x x' . induction x. Defined. 
 
+Notation False := empty.
 
 Theorem isapropifnegtrue { X : UU } ( a : X -> empty ) : isaprop X .
 Proof . intros . set ( w := weqpair _ ( isweqtoempty a ) ) . apply ( isofhlevelweqb 1 w isapropempty ) .  Defined .
