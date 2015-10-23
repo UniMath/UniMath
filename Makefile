@@ -142,6 +142,8 @@ latex: Makefile $(GLOBFILES) $(VFILES)
 pdf: latex
 	cd $(LATEXTARGET) ;\
 	latexmk -pdf $(subst /,.,$(VFILES:.v=.tex))
+world: all html doc pdf
+
 #################################
 # targets best used with INCLUDE=no
 git-clean:

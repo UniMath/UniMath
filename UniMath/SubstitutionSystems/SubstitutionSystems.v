@@ -251,6 +251,7 @@ Proof.
     apply CoproductIn1Commutes_right_in_ctx_dir.
     rewrite id_left.
     apply CoproductIn1Commutes_right_dir.
+    simpl. simpl in Hyp1_inst.
     rewrite Hyp1_inst.
     simpl.
     apply assoc.
