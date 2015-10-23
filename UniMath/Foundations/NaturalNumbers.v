@@ -505,6 +505,12 @@ Definition natlehandplusl ( n m k : nat ) : natleh n m -> natleh ( k + n ) ( k +
 
 Definition natlehandplusr ( n m k : nat ) : natleh n m -> natleh ( n + k ) ( m + k ) := negf ( natgthandplusrinv n m k )  . 
 
+Definition natlehandplus i j k l : i≤j -> k≤l -> i+k ≤ j+l.
+Proof.
+  intros ? ? ? ? r s. eapply istransnatleh. { apply natlehandplusr. apply r. }
+  apply natlehandplusl. apply s.
+Defined.
+ 
 Definition natlehandpluslinv  ( n m k : nat ) : natleh ( k + n ) ( k + m ) -> natleh n m := negf ( natgthandplusl n m k )  .  
 
 Definition natlehandplusrinv ( n m k : nat ) :  natleh ( n + k ) ( m + k ) -> natleh n m :=  negf ( natgthandplusr n m k ) . 
