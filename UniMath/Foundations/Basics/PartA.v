@@ -1719,7 +1719,7 @@ Proof. intros . set ( PX :=  fun x : X => P ( ii1 x ) ) . set ( PY :=  fun y : Y
 Definition tototal2overcoprod { X Y : UU } ( P : X ⨿ Y -> UU ) ( xpyp :  coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) ) : total2 P .
 Proof . intros . induction xpyp as [ xp | yp ] . induction xp as [ x p ] . apply ( tpair P ( ii1 x ) p ) .   induction yp as [ y p ] . apply ( tpair P ( ii2 y ) p ) . Defined . 
  
-Theorem weqtotal2overcoprod { X Y : UU } ( P : X ⨿ Y -> UU ) : weq ( total2 P ) ( coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) ) .
+Theorem weqtotal2overcoprod { X Y : UU } ( P : X ⨿ Y -> UU ) : ( Σ xy, P xy ) ≃ ( Σ x : X, P ( ii1 x ) ) ⨿ ( Σ y : Y, P ( ii2 y ) ) .
 Proof. intros .  set ( f := fromtotal2overcoprod P ) . set ( g := tototal2overcoprod P ) . split with f . 
 assert ( egf : ∀ a : _ , ( g ( f a ) ) = a ) . intro a . induction a as [ xy p ] . induction xy as [ x | y ] . simpl . apply idpath . simpl .  apply idpath .     
 assert ( efg : ∀ a : _ , ( f ( g a ) ) = a ) . intro a . induction a as [ xp | yp ] . induction xp as [ x p ] . simpl . apply idpath .  induction yp as [ y p ] . apply idpath .
@@ -1758,7 +1758,7 @@ apply (gradth  f g egf efg). Defined.
 Definition sumofmaps {X Y Z:UU}(fx: X -> Z)(fy: Y -> Z): (X ⨿ Y) -> Z := fun xy:_ => match xy with ii1 x => fx x | ii2 y => fy y end.
 
 
-Definition boolascoprod: weq (coprod unit unit) bool.
+Definition boolascoprod: unit ⨿ unit ≃ bool.
 Proof. set (f:= fun xx: coprod unit unit => match xx with ii1 t => true | ii2 t => false end). split with f. 
 set (g:= fun t:bool => match t with true => ii1  tt | false => ii2  tt end). 
 assert (egf: ∀ xx:_, (g (f xx)) = xx). intro xx .  induction xx as [ u | u ] . induction u. apply idpath. induction u. apply idpath. 
@@ -1766,10 +1766,10 @@ assert (efg: ∀ t:_, (f (g t)) = t). induction t. apply idpath. apply idpath.
 apply (gradth  f g egf efg). Defined.  
 
 
-Definition coprodasstor (X Y Z:UU): coprod (X ⨿ Y) Z -> coprod X (Y ⨿ Z).
+Definition coprodasstor (X Y Z:UU): (X ⨿ Y) ⨿ Z -> X ⨿ (Y ⨿ Z).
 Proof. intros X Y Z X0. induction X0 as [ c | z ] .  induction c as [ x | y ] .  apply (ii1  x). apply (ii2  (ii1  y)). apply (ii2  (ii2  z)). Defined.
 
-Definition coprodasstol (X Y Z: UU): coprod X (Y ⨿ Z) -> coprod (X ⨿ Y) Z.
+Definition coprodasstol (X Y Z: UU): X ⨿ (Y ⨿ Z) -> (X ⨿ Y) ⨿ Z.
 Proof. intros X Y Z X0. induction X0 as [ x | c ] .  apply (ii1  (ii1  x)). induction c as [ y | z ] .   apply (ii1  (ii2  y)). apply (ii2  z). Defined.
 
 Definition sumofmaps_assoc_left {X Y Z T} (f:X->T) (g:Y->T) (h:Z->T) :
@@ -1793,7 +1793,7 @@ Proof. intros. apply (isweqinvmap ( weqcoprodasstor X Y Z)  ). Defined.
 
 Definition weqcoprodasstol (X Y Z:UU):= weqpair  _ (isweqcoprodasstol X Y Z).
 
-Definition coprodcomm (X Y:UU): X ⨿ Y -> coprod Y X := fun xy:_ => match xy with ii1 x => ii2  x | ii2 y => ii1  y end. 
+Definition coprodcomm (X Y:UU): X ⨿ Y -> Y ⨿ X := fun xy:_ => match xy with ii1 x => ii2  x | ii2 y => ii1  y end. 
 
 Theorem isweqcoprodcomm (X Y:UU): isweq (coprodcomm X Y).
 Proof. intros. set (f:= coprodcomm X Y). set (g:= coprodcomm Y X).
