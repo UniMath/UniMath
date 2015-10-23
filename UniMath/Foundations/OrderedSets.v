@@ -86,6 +86,18 @@ Proof. intros. exists (stnsum (λ x, P x ? 1 # 0)). apply natlehtolthsn.
        apply p. apply stnsum_1.
 Defined.
 
+Definition tallyStandardSubsetSegment {n} (P: decidableSubtype (stn n))
+           (i:stn n) : stn n.
+(* count how many elements less than i satisfy P *)
+Proof.
+  intros.
+  assert (k := tallyStandardSubset
+                 (λ j:stn i, P (stnincl i n (natlthtoleh i n (pr2 i)) j))).
+  apply (stnincl (S i) n).
+  { apply natlthtolehsn. exact (pr2 i). }
+  exact k.
+Defined.
+
 (* verify computability: *)
 Goal pr1 (tallyStandardSubset (λ i:stn 7, 2*i <? 6)) = 3. Proof. reflexivity. Defined.
 Goal pr1 (tallyStandardSubset (λ i:stn 7, 2*i =? 6)) = 1. Proof. reflexivity. Defined.
@@ -365,6 +377,8 @@ Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0).
 
 Definition FiniteStructure (X:OrderedSet) := Σ n, ⟦ n ⟧ ≅ X.
 
+(* a decidable subset of a finite set is finite *)
+(* move upstream *)
 Lemma subsetFiniteness {X} (P : decidableSubtype X) : isfinite X -> isfinite P.
 Proof.
   intros ? ? isfin.
@@ -374,12 +388,11 @@ Proof.
   apply hinhpr.
   unfold finstruct.
   exists (tallyStandardSubset (P ∘ w)).
-  { unfold nelstruct.
-    
-
-
-
-
+  unfold nelstruct.
+  intermediate_weq (underlyingType (P ∘ w)).
+  { 
+      admit. }
+  exact (weqfp w P).
 Abort.
 
 Local Lemma std_auto n : iscontr (⟦ n ⟧ ≅ ⟦ n ⟧).

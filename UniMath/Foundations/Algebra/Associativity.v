@@ -32,6 +32,17 @@ Corollary nat_plus_associativity' n (m:stn n->nat) (k:∀ i, stn (m i) -> nat) :
   stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lexicalEnumeration m).
 Proof. intros. exact (nat_plus_associativity (uncurry k)). Defined.
 
+Lemma stnsum_dni {n i} (f:stn(S n)->nat) : stnsum f = stnsum (f ∘ dni n i) + f i.
+Proof.
+  intros.
+
+Abort.
+  
+Lemma stnsum_lt {n} (f g:stn n->nat) : (∀ i, f i ≤ g i) -> (∃ i, f i < g i) -> stnsum f < stnsum g.
+Proof.
+
+Abort.
+
 (** general associativity for monoids *)
 
 Open Scope multmonoid.

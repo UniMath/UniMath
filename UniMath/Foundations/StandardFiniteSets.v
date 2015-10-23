@@ -28,16 +28,28 @@ Require Export UniMath.Foundations.NaturalNumbers .
 
 (** ** Standard finite sets [ stn ] . *)
 
-
-
-Definition stn ( n : nat ) := total2 ( fun m : nat => natlth m n ) .
+Definition stn ( n : nat ) := Σ m, m < n.
 Definition stnpair n m (l:m<n) := (m,,l) : stn n.
 Definition stntonat ( n : nat ) : stn n -> nat := @pr1 _ _ .
 Coercion stntonat : stn >-> nat .
 Lemma stnlt {n} (i:stn n) : i < n.
 Proof. intros. exact (pr2 i). Defined.
 
-Notation " 'stnel' ( i , j ) " := ( stnpair _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) ) ( at level 70 ) .
+(* old way:
+   Notation " 'stnel' ( i , j ) " := 
+      ( stnpair _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) )
+      ( at level 70 ) . *)
+Notation " 'stnpr' j " := (j,,idpath _) ( at level 70 ) .
+Notation " 'stnel' ( i , j ) " := ( (j,,idpath _) : stn i ) ( at level 70 ) .
+Goal stn 6. exact (stnel(6,3)). Qed.
+Goal stn 6. exact (stnpr 3). Qed.
+
+Definition stnincl m n (l:m≤n) : stn m -> stn n.
+Proof.
+  intros ? ? ? i. exists i. eapply natlthlehtrans.
+  - exact (pr2 i).
+  - exact l.
+Defined.
 
 Lemma isinclstntonat ( n : nat ) : isincl ( stntonat n ) .
 Proof. intro .  apply isinclpr1 .  intro x .  apply ( pr2 ( natlth x n ) ) .  Defined.
@@ -263,7 +275,7 @@ Local Notation "●" := (idpath _).
 Goal ∀ (f : stn 3 -> nat), stnsum f = f(0,,●) + f(1,,●) + f(2,,●).
 Proof. reflexivity. Defined.
 
-Definition stnsum_le {n} (f g:stn n->nat) : (∀ i, f i ≤ g i) -> stnsum f ≤ stnsum g.
+Lemma stnsum_le {n} (f g:stn n->nat) : (∀ i, f i ≤ g i) -> stnsum f ≤ stnsum g.
 Proof.
   intros ? ? ? le. induction n as [|n IH]. { simpl. now apply falsetonegtrue. }
   apply natlehandplus. { apply IH. intro i. apply le. } apply le.
