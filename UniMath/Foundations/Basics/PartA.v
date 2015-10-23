@@ -401,6 +401,11 @@ Definition transportf {X : UU} (P : X -> UU) {x x' : X}
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
   (e : x = x') : P x' -> P x := transportf P (!e).
 
+Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
+Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
+Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
+Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
+
 Lemma functtransportf {X Y : UU} (f : X -> Y) (P : Y -> UU) {x x' : X}
   (e : x = x') (p : P (f x)) :
     transportf (fun x => P (f x)) e p = transportf P (maponpaths f e) p.

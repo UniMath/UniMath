@@ -112,7 +112,7 @@ Proof. intros. apply (isofhlevelweqf 2 (Pack.weq G X)).
        intro un. apply impred; intro g. apply impred; intro h. apply impred; intro x.
        apply hlevelntosn. apply setproperty. Qed.
 
-Definition Action (G:gr) := totalSpace (ActionStructure G).
+Definition Action (G:gr) := total2 (ActionStructure G).
 Definition makeAction {G:gr} (X:hSet) (ac:ActionStructure G X) :=
   X,,ac : Action G.
 
@@ -173,7 +173,7 @@ Definition is_equivariant_comp {G:gr} {X Y Z:Action G}
            (q:Y->Z) (j:is_equivariant q) : is_equivariant (funcomp p q).
 Proof. intros. intros g x. exact (ap q (i g x) @ j g (p x)). Defined.
 
-Definition ActionMap {G:gr} (X Y:Action G) := totalSpace (@is_equivariant _ X Y).
+Definition ActionMap {G:gr} (X Y:Action G) := total2 (@is_equivariant _ X Y).
 
 Definition underlyingFunction {G:gr} {X Y:Action G} (f:ActionMap X Y) := pr1 f.
 
@@ -276,7 +276,7 @@ Lemma is_torsor_isaprop {G:gr} (X:Action G) : isaprop (is_torsor X).
 Proof. intros. apply isofhleveldirprod. { apply propproperty. }
        { apply impred; intro x. apply isapropisweq. } Qed.
 
-Definition Torsor (G:gr) := totalSpace (@is_torsor G).
+Definition Torsor (G:gr) := total2 (@is_torsor G).
 
 Definition underlyingAction {G} (X:Torsor G) := pr1 X : Action G.
 Coercion underlyingAction : Torsor >-> Action.

@@ -12,7 +12,7 @@ Definition gHomotopy {Y} (f:ℕ->Y) (s:target_paths f) := fun
      y:Y => Σ (h:nullHomotopyFrom f y), ∀ n, h(S n) = h n @ s n.
 
 Definition GuidedHomotopy {Y} (f:ℕ->Y) (s:target_paths f) :=
-  totalSpace (gHomotopy f s).
+  total2 (gHomotopy f s).
 
 Theorem iscontrGuidedHomotopy {Y} {f:ℕ->Y} (s:target_paths f) :
   iscontr (GuidedHomotopy f s).

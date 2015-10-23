@@ -39,7 +39,7 @@ Definition DecidableRelation (X:UU) := X -> X -> DecidableProposition.
 
 Ltac choose P yes no := induction (iscontrpr1 (decidabilityProperty P)) as [yes|no].
 
-Definition decidableChoice {W} : DecidableProposition -> W -> W -> W.
+Definition choice {W} : DecidableProposition -> W -> W -> W.
 Proof.
   intros ? P yes no.
   choose P p q.
@@ -47,23 +47,21 @@ Proof.
   - exact no.
 Defined.
 
-Notation "P ? a # b" := (decidableChoice P a b) (at level 100).
-
-Definition decidableChoice_compute_yes {W} (P:DecidableProposition) (p:P) (yes no:W) :
-  (P ? yes # no) = yes.
+Definition choice_compute_yes {W} (P:DecidableProposition) (p:P) (yes no:W) :
+  choice P yes no = yes.
 Proof.
   intros.
-  unfold decidableChoice.
+  unfold choice.
   choose P a b.
   - simpl. reflexivity.
   - simpl. contradicts p b.
 Defined.  
 
-Definition decidableChoice_compute_no {W} (P:DecidableProposition) (p:¬P) (yes no:W) :
-  (P ? yes # no) = no.
+Definition choice_compute_no {W} (P:DecidableProposition) (p:¬P) (yes no:W) :
+  choice P yes no = no.
 Proof.
   intros.
-  unfold decidableChoice.
+  unfold choice.
   choose P a b.
   - simpl. contradicts p a.
   - simpl. reflexivity.
@@ -75,7 +73,7 @@ Proof. intros ? S. exact (Σ x, S x). Defined.
 Definition underlyingType' {X} : DecidableSubtype X -> UU.
 Proof. intros ? P.
        (* for use with isfinitedecsubset *)
-       exact (hfiber (λ x, P x ? true # false) true).
+       exact (hfiber (λ x, choice (P x) true false) true).
 Defined.
 
 Definition underlyingType_weq {X} (P:DecidableSubtype X) :
@@ -84,7 +82,7 @@ Proof.
   intros.
   apply weqfibtototal.
   intros x.
-  unfold decidableChoice.
+  unfold choice.
   simpl.
   change (iscontrpr1 (decidabilityProperty (P x))) with (iscontrpr1 (decidabilityProperty (P x))).
   choose (P x) p q.
@@ -136,17 +134,17 @@ Notation " x >? y " := ( natgth_DecidableProposition x y ) (at level 70, no asso
 Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
 Notation " x !=? y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
 
-Local Definition bound01 (P:DecidableProposition) : ((P ? 1 # 0) ≤ 1)%nat.
+Local Definition bound01 (P:DecidableProposition) : ((choice P 1 0) ≤ 1)%nat.
 Proof.
   intros.
-  unfold decidableChoice.
+  unfold choice.
   choose P p q.
   { simpl. now apply falsetonegtrue. }
   { simpl. now apply falsetonegtrue. }
 Defined.  
 
 Definition tallyStandardSubset {n} (P: DecidableSubtype (stn n)) : stn (S n).
-Proof. intros. exists (stnsum (λ x, P x ? 1 # 0)). apply natlehtolthsn.
+Proof. intros. exists (stnsum (λ x, choice (P x) 1 0)). apply natlehtolthsn.
        apply istransnatleh with (m := stnsum(λ _ : stn n, 1)).
        { apply stnsum_le; intro i. apply bound01. }
        assert ( p : ∀ r s, r = s -> (r ≤ s)%nat). { intros ? ? e. destruct e. apply isreflnatleh. }

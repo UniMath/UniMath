@@ -2,7 +2,7 @@ Require Export UniMath.Foundations.Algebra.Associativity.
 Require Export UniMath.Foundations.FunctionalExtensionality.
 Unset Automatic Introduction.
 Local Notation "● x" := (x,,idpath _) (at level 35).
-Local Notation "s □ x" := (append s x) (at level 65, left associativity).
+Local Notation "s □ x" := (append s x) (at level 64, left associativity).
 
 Theorem commutativityOfProducts {M:abmonoid} {n} (x:stn n->M) (f:stn n ≃ stn n) :
   sequenceProduct (n,,x) = sequenceProduct (n,,x∘f).

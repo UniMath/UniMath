@@ -45,7 +45,7 @@ Definition ℤRecursionData (P:ℤ->Type)
 Lemma ℤRecursionUniq (P:ℤ->Type) (p0:P zero) 
       (IH :∀ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∀ n, P(- toℤ n) -> P(- toℤ (S n))) :
-  iscontr (totalSpace (ℤRecursionData0 P p0 IH IH')).
+  iscontr (total2 (ℤRecursionData0 P p0 IH IH')).
 Proof. intros.
        unfold ℤRecursionData0.
        (* use hNatRecursion_weq *)
@@ -125,9 +125,9 @@ Defined.
 Lemma A (P:ℤ->Type) (p0:P zero) 
       (IH :∀ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∀ n, P(- toℤ n) -> P(- toℤ (S n))) :
-  weq (totalSpace (ℤRecursionData0 P p0 IH IH'))
+  weq (total2 (ℤRecursionData0 P p0 IH IH'))
       (@hfiber
-         (totalSpace (ℤRecursionData P IH IH'))
+         (total2 (ℤRecursionData P IH IH'))
          (P zero)
          (fun fh => pr1 fh zero)
          p0).
@@ -141,14 +141,14 @@ Proof. intros.
 Lemma ℤRecursion_weq (P:ℤ->Type) 
       (IH :∀ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∀ n, P(- toℤ n) -> P(- toℤ (S n))) :
-  weq (totalSpace (ℤRecursionData P IH IH')) (P 0).
+  weq (total2 (ℤRecursionData P IH IH')) (P 0).
 Proof. intros. exists (fun f => pr1 f zero). intro p0.
        apply (iscontrweqf (A _ _ _ _)). apply ℤRecursionUniq. Defined.
 
 Lemma ℤRecursion_weq_compute (P:ℤ->Type) 
       (IH :∀ n, P(  toℤ n) -> P(  toℤ (S n)))
       (IH':∀ n, P(- toℤ n) -> P(- toℤ (S n))) 
-      (fh : totalSpace (ℤRecursionData P IH IH')) :
+      (fh : total2 (ℤRecursionData P IH IH')) :
   ℤRecursion_weq P IH IH' fh = pr1 fh zero.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
@@ -159,7 +159,7 @@ Definition ℤBiRecursionData (P:ℤ->Type) (IH :∀ i, P(i) -> P(1+i)) :=
   fun f:∀ i, P i => ∀ i, f(1+i)=IH i (f i).
 
 Definition ℤBiRecursion_weq (P:ℤ->Type) (IH :∀ i, weq (P i) (P(1+i))) :
-  weq (totalSpace (ℤBiRecursionData P IH)) (P 0).
+  weq (total2 (ℤBiRecursionData P IH)) (P 0).
 Proof. intros.
        assert (k : ∀ n, one + toℤ n = toℤ (S n)).
        { intro. rewrite nattohzandS. reflexivity. }
@@ -192,7 +192,7 @@ Proof. intros.
 
 Definition ℤBiRecursion_weq_compute (P:ℤ->Type)
            (IH :∀ i, weq (P i) (P(1+i))) 
-      (fh : totalSpace (ℤBiRecursionData P IH)) :
+      (fh : total2 (ℤBiRecursionData P IH)) :
   ℤBiRecursion_weq P IH fh = pr1 fh 0.
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
@@ -210,7 +210,7 @@ Definition GuidedSection {T:Torsor ℤ}
 
 Definition ℤTorsorRecursion_weq {T:Torsor ℤ} (P:T->Type) 
       (IH:∀ t, weq (P t) (P (one + t))) (t0:T) :
-  weq (totalSpace (GuidedSection P IH)) (P t0).
+  weq (total2 (GuidedSection P IH)) (P t0).
 Proof. intros. exists (fun fh => pr1 fh t0). intro q.
        set (w := triviality_isomorphism T t0).
        assert (k0 : ∀ i, one + w i = w (1+i)%hz).
@@ -253,7 +253,7 @@ Proof. intros.
 Definition ℤTorsorRecursion_transition {T:Torsor ℤ} (P:T->Type) 
       (IH:∀ t, weq (P t) (P (one + t)))
       (t:T)
-      (h:totalSpace (GuidedSection P IH)) :
+      (h:total2 (GuidedSection P IH)) :
   ℤTorsorRecursion_weq P IH (one+t) h
   = 
   IH t (ℤTorsorRecursion_weq P IH t h).
@@ -300,7 +300,7 @@ Definition GHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) := fun
         y:Y => Σ h:nullHomotopyFrom f y, ∀ n, h(one + n) = h n @ s n.
 
 Definition GuidedHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) := 
-  totalSpace (GHomotopy f s).
+  total2 (GHomotopy f s).
 
 Definition GH_to_cone {Y} {T:Torsor ℤ}
            {f:T->Y} {s:target_paths f} (t:T)  :

@@ -71,7 +71,7 @@ Definition append {X} : Sequence X -> X -> Sequence X.
 Proof. intros ? x y. exact (S (length x),, append_fun (pr2 x) y).
 Defined.
 
-Local Notation "s □ x" := (append s x) (at level 65, left associativity).
+Local Notation "s □ x" := (append s x) (at level 64, left associativity).
 
 Definition stn0_fun_iscontr X : iscontr (stn 0 -> X).
 Proof.
