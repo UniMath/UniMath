@@ -176,12 +176,12 @@ Definition isrefl { X : UU } ( R : hrel X ) := ∀ x : X , R x x.
 
 Definition issymm { X : UU } ( R : hrel X ) := ∀ ( x1 x2 : X ), R x1 x2 -> R x2 x1 .
 
-Definition ispo { X : UU } ( R : hrel X ) := dirprod ( istrans R ) ( isrefl R ) .
+Definition ispo { X : UU } ( R : hrel X ) := istrans R × isrefl R .
 
-Definition iseqrel { X : UU } ( R : hrel X ) := dirprod ( ispo R ) ( issymm R ) .
+Definition iseqrel { X : UU } ( R : hrel X ) := ispo R × issymm R .
 Definition iseqrelconstr { X : UU } { R : hrel X } ( trans0 : istrans R ) ( refl0 : isrefl R ) ( symm0 : issymm R ) : iseqrel R := dirprodpair ( dirprodpair trans0 refl0 ) symm0 .
 
-Definition isirrefl { X : UU } ( R : hrel X ) := ∀  x : X , ¬ R x x . 
+Definition isirrefl { X : UU } ( R : hrel X ) := ∀ x : X , ¬ R x x . 
 
 Definition isasymm { X : UU } ( R : hrel X ) := ∀ ( x1 x2 : X ), R x1 x2 -> R x2 x1 -> False . 
 
@@ -339,7 +339,7 @@ Definition posetmorphismpair ( X Y : Poset ) := tpair ( fun f : X -> Y => isapos
 Definition carrierofposetmorphism ( X Y : Poset ) : posetmorphism X Y -> ( X -> Y ) := @pr1 _ _ .
 Coercion  carrierofposetmorphism : posetmorphism >-> Funclass . 
 
-Definition isdec_ordering (X:Poset) := ∀ (x y:X), isdecprop (x≤y)%poset.
+Definition isdec_ordering (X:Poset) := ∀ (x y:X), decidable (x≤y)%poset.
 
 Lemma isaprop_isaposetmorphism {X Y:Poset} (f:X->Y) : isaprop (isaposetmorphism f).
 Proof.

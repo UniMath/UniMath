@@ -68,9 +68,6 @@ assert (e: paths y0 y). apply (proofirrelevance _ (isapropneg X) y0 y). apply (m
 apply (invproofirrelevance _ X2).  Defined. 
 
 
-
-
-
 (** ** Isolated points and types with decidable equality. *)
 
 

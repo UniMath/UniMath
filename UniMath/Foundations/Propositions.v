@@ -53,6 +53,10 @@ Definition propproperty (P:hProp) := pr2 P : isaprop (pr1 P).
 Definition tildehProp := total2 ( fun P : hProp => P ) .
 Definition tildehProppair { P : hProp } ( p : P ) : tildehProp := tpair _ P p . 
 
+(* decidability *)
+
+Definition decidable (X:hProp) : hProp :=
+  hProppair (X ⨿ ¬X) (isapropdec X (propproperty X)).
 
 (** The following re-definitions should make proofs easier in the future when the unification algorithms in Coq are improved . At the moment they create more complications than they eliminate ( e.g. try to prove [ isapropishinh ] with [ isaprop ] in [ hProp ] ) so for the time being they are commented out .
 
@@ -211,6 +215,16 @@ Definition hconj ( P Q : hProp ) : hProp := hProppair ( P × Q ) ( isapropdirpro
 
 Notation "A ∧ B" := (hconj A B) (at level 80, right associativity) : type_scope. (* precedence same as /\ *)
   (* in agda-input method, type \and or \wedge *)
+
+Definition decidable_dirprod (X Y:hProp) : decidable X -> decidable Y -> decidable (X ∧ Y).
+Proof.
+  intros ? ? b c.
+  induction b as [b|b].
+  - induction c as [c|c].
+    + now apply ii1.
+    + apply ii2. intro k. apply c. exact (pr2 k).
+  - apply ii2. intro k. apply b. exact (pr1 k).
+Defined.
 
 Definition hdisj ( P Q : UU ) : hProp :=  ishinh ( coprod P Q ) . 
 

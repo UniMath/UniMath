@@ -263,43 +263,53 @@ Local Definition underlyingRelation (X:OrderedSet) := pr1 (pr2 (pr1 X)).
 
 Delimit Scope oset with oset. 
 
+Definition Poset_lessthan {X:Poset} (x y:X) := (x ≤ y) ∧ (hneg (x = y)).
+
 Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : oset.
 Notation "m ≤ n" := (underlyingRelation _ m n) (no associativity, at level 70) : oset.
-Notation "m < n" := (m ≤ n × m != n)%oset (only parsing) :oset.
+Notation "m < n" := (Poset_lessthan m n) :oset.
 
 Close Scope poset.
 Local Open Scope oset.
+
+Definition OrderedSet_isrefl {X:OrderedSet} (x:X) :
+  x ≤ x :=
+  pr2 (pr2 (pr2 (pr1 X))) x.
+
+Definition OrderedSet_isantisymm {X:OrderedSet} (x y:X) :
+  x ≤ y -> y ≤ x -> x = y :=
+  pr2 (pr2 X) x y.
+
+Definition OrderedSet_istotal {X:OrderedSet} (x y:X) :
+  x ≤ y ∨ y ≤ x :=
+  pr1 (pr2 X) x y.
   
 Lemma isdeceq_isdec_ordering (X:OrderedSet) : isdeceq X -> isdec_ordering X.
 Proof.
-  intros ? i ? ?. apply isdecpropif. { apply propproperty. }
-  assert (refl := pr2 (pr2 (pr2 (pr1 X))) x); simpl in refl.
-  assert (asymm := pr2 (pr2 X) x y).
-  assert (total := pr1 (pr2 X) x y).
-  change (pr1 (pr2 (pr1 X)) x y) with (x ≤ y) in *.
-  change (pr1 (pr2 (pr1 X)) y x) with (y ≤ x) in *.
-  change (pr1 (pr2 (pr1 X)) x x) with (x ≤ x) in *.
-  set (l := isapropdec (x ≤ y) (pr2 (x ≤ y))); change ((x ≤ y)->False) with (¬ (x ≤ y)) in l.
-  set (o := total (hProppair _ l)); simpl in o. apply o; intro s; clear o l total.
-  assert (j := i x y); clear i.
-  induction s as [s|s]. { now apply ii1. }
-  induction j as [j|j]. { apply ii1. rewrite <-j. apply refl. }
-  apply ii2. intro le. apply j. now apply asymm.
+  intros ? deceq ? ?.
+  apply (OrderedSet_istotal x y); intro s. induction s as [s|s].
+  { now apply ii1. }
+  induction (deceq x y) as [j|j].
+  { apply ii1. rewrite <- j. apply OrderedSet_isrefl. }
+  apply ii2. intro le. apply j. now apply OrderedSet_isantisymm.
 Defined.
 
 Corollary isfinite_isdec_ordering (X:OrderedSet) : isfinite X -> isdec_ordering X.
 Proof. intros ? i ? ?. apply isdeceq_isdec_ordering. now apply isfinite_isdeceq.
 Defined.
 
-Corollary isdeceq_isdec_lessthan (X:OrderedSet) : isdeceq X -> ∀ (x y:X), isdecprop (x < y).
+Corollary isdeceq_isdec_lessthan (X:OrderedSet) :
+  isdeceq X -> ∀ (x y:X), decidable (x < y).
 Proof.
-  intros ? i ? ?. apply isdecpropdirprod.
-  { now apply isdeceq_isdec_ordering. }
-  apply neg_isdecprop. apply isdecpropif.
-  { apply setproperty. } apply i.
+  intros ? i ? ?. apply decidable_dirprod.
+  - now apply isdeceq_isdec_ordering.
+  - apply neg_isdecprop.
+    apply isdecpropif.
+    * apply setproperty.
+    * apply i.
 Defined.
 
-Corollary isfinite_isdec_lessthan (X:OrderedSet) : isfinite X -> ∀ (x y:X), isdecprop (x < y).
+Corollary isfinite_isdec_lessthan (X:OrderedSet) : isfinite X -> ∀ (x y:X), decidable (x < y).
 Proof. intros ? i ? ?. apply isdeceq_isdec_lessthan. now apply isfinite_isdeceq.
 Defined.
 
