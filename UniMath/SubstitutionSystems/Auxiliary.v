@@ -418,10 +418,10 @@ Variable CC : Products C.
 Variables a b c d x y : C.
 
 Definition ProductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y) 
-  : ProductOfArrows _ (CC c d) (CC a b) f f' ;; 
-    ProductOfArrows _ (CC _ _) (CC _ _) g g' 
+  : ProductOfArrows (CC c d) (CC a b) f f' ;; 
+    ProductOfArrows (CC _ _) (CC _ _) g g' 
     =
-    ProductOfArrows _ (CC _ _) (CC _ _)(f ;; g) (f' ;; g').
+    ProductOfArrows (CC _ _) (CC _ _)(f ;; g) (f' ;; g').
 Proof.
   apply ProductArrowUnique.
   - rewrite <- assoc.
@@ -440,7 +440,7 @@ Qed.
 
 Definition ProductOfArrows_eq (f f' : a ⇒ c) (g g' : b ⇒ d) 
   : f = f' → g = g' → 
-      ProductOfArrows _ _ _ f g = ProductOfArrows _ (CC _ _) (CC _ _) f' g'. 
+      ProductOfArrows _ _ f g = ProductOfArrows (CC _ _) (CC _ _) f' g'. 
 Proof.
   induction 1.
   induction 1.
@@ -455,10 +455,10 @@ Variable C : precategory.
 Variable CC : Products C.
 Variables a b : C.
 
-Lemma Product_endo_is_identity (P : ProductCone _ a b) 
-  (k : ProductObject _ P ⇒ ProductObject _ P) 
-  (H1 : k ;; ProductPr1 _ P = ProductPr1 _ P)
-  (H2 : k ;; ProductPr2 _ P = ProductPr2 _ P)
+Lemma Product_endo_is_identity (P : ProductCone a b) 
+  (k : ProductObject P ⇒ ProductObject P) 
+  (H1 : k ;; ProductPr1 P = ProductPr1 P)
+  (H2 : k ;; ProductPr2 P = ProductPr2 P)
   : identity _ = k.
 Proof.
   apply pathsinv0.

@@ -61,9 +61,6 @@ Defined.
 
 Definition ProductCone (a b : C) := LimCone (product_diagram a b).
 
-Definition Products := forall (a b : C), ProductCone a b.
-Definition hasProducts := ishinh Products.
-
 Definition ProductObject {c d : C} (P : ProductCone c d) : C := lim P.
 Definition ProductPr1 {c d : C} (P : ProductCone c d): C⟦ProductObject P,c⟧ :=
   limOut P true.
@@ -154,3 +151,8 @@ apply ProductArrowUnique.
 Qed.
 
 End product_def.
+
+Definition Products (C : precategory) := forall (a b : C), ProductCone a b.
+
+(* What is the best definition of this? *)
+(* Definition hasProducts (C : precategory) := ishinh (Products C). *)
