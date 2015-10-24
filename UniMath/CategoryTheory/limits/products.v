@@ -13,7 +13,7 @@ Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Section product_def.
 
-Context {C : precategory}.
+Variable (C : precategory).
 
 Definition two_graph : graph.
 Proof.
@@ -60,6 +60,22 @@ refine (tpair _ _ _).
 Defined.
 
 Definition ProductCone (a b : C) := LimCone (product_diagram a b).
+
+Definition mk_ProductCone (a b : C) :
+  ∀ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
+   isProductCone _ _ _ f g -> ProductCone a b.
+Proof.
+  intros.
+  refine (tpair _ _ _ ).
+  - exists c.
+    apply (ProdCone f g).
+  - apply X.
+Defined.
+
+Definition Products := forall (a b : C), ProductCone a b.
+
+(* What is the best definition of this? *)
+(* Definition hasProducts (C : precategory) := ishinh (Products C). *)
 
 Definition ProductObject {c d : C} (P : ProductCone c d) : C := lim P.
 Definition ProductPr1 {c d : C} (P : ProductCone c d): C⟦ProductObject P,c⟧ :=
@@ -151,8 +167,3 @@ apply ProductArrowUnique.
 Qed.
 
 End product_def.
-
-Definition Products (C : precategory) := forall (a b : C), ProductCone a b.
-
-(* What is the best definition of this? *)
-(* Definition hasProducts (C : precategory) := ishinh (Products C). *)

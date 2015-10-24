@@ -116,7 +116,7 @@ Variable Lam_Initial : Initial
      (@precategory_FunctorAlg ([C, C] hs)
                              (Id_H C hs CC Lam_S) hsEndC).
 
-Let Lam := InitialObject _ Lam_Initial.
+Let Lam := InitialObject Lam_Initial.
 
 
 
@@ -129,7 +129,7 @@ Proof.
   - apply KanExt.
   - apply Lam_Initial.
 Defined.
-Let LamHSS := InitialObject _ LamHSS_Initial.
+Let LamHSS := InitialObject LamHSS_Initial.
 
 (** extract constructors *)
 
@@ -456,7 +456,7 @@ Proof.
     eapply pathscomp0. apply X'.
 
     rewrite id_left. apply idpath.
-Qed.
+Admitted.
 
 (** * Uniqueness of the bracket operation *)
 (** That is a consequence of uniqueness of that operation for a larger signature, namely
@@ -586,11 +586,11 @@ Proof.
   - apply KanExt.
   - apply LamE_Initial.
 Defined.
-Let LamEHSS := InitialObject _ LamEHSS_Initial.
+Let LamEHSS := InitialObject LamEHSS_Initial.
 
 (** * Specification of a morphism from lambda calculus with flattening to pure lambda calculus *)
 
 Definition FLATTEN : (hss_precategory CC LamE_S) ⟦LamEHSS, LamE_model_on_Lam⟧
-  := InitialArrow _ _ _ .
+  := InitialArrow _ _ .
 
 End Lambda.
