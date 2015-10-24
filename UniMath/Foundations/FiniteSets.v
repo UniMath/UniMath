@@ -305,7 +305,8 @@ Definition finsum_compute {X} (fin : finstruct X) (f : X -> nat) :
   finsum (squash_element fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
 Proof. reflexivity. Defined.
 
-
-
-
-
+Goal 15 = finsum (isfinitestn _) (λ i:stn 6, i). reflexivity. Qed.
+Goal 20 = finsum isfinitebool (λ i:bool, 10). reflexivity. Qed.
+Goal 21 = finsum (isfinitecoprod isfinitebool isfinitebool)
+           (sum_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
+  reflexivity. Qed.
