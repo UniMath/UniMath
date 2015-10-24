@@ -31,6 +31,8 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.HLevel_n_is_of_hlevel_Sn.
 Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.initial.
 
 Local Notation "a --> b" :=
   (precategory_morphisms a b) (at level 50).
@@ -401,4 +403,14 @@ End colimits.
 Lemma ColimsHSET : Colims HSET.
 Proof.
 now intros g d; apply ColimCoconeHSET.
+Defined.
+
+Lemma CoproductsHSET : Coproducts HSET.
+Proof.
+now apply Coproducts_from_Colims, ColimsHSET.
+Defined.
+
+Lemma InitialHSET : Initial HSET.
+Proof.
+now apply Initial_from_Colims, ColimsHSET.
 Defined.
