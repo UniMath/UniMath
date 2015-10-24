@@ -83,7 +83,7 @@ Defined.
 Definition Coproducts := ∀ (a b : C), CoproductCocone a b.
 Definition hasCoproducts := ishinh Coproducts.
 
-Definition CoproductObject {a b : C} (CC : CoproductCocone a b) : C := pr1 (pr1 CC).
+Definition CoproductObject {a b : C} (CC : CoproductCocone a b) : C := colim CC.
 Definition CoproductIn1 {a b : C} (CC : CoproductCocone a b): a ⇒ CoproductObject CC
   := colimIn CC true.
 

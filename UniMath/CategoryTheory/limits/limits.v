@@ -24,8 +24,6 @@ Require Import UniMath.CategoryTheory.colimits.colimits.
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
-
-
 Section lim_def.
 
 Context {C : precategory} (hsC : has_homsets C).
@@ -38,8 +36,6 @@ Definition cocone {g : graph} (d : diagram g C) (c : C) : UU :=
 *)
 
 Definition opp_diagram g C := diagram g C^op.
-
-
 
 Definition cone {g : graph} (d : diagram g C^op) (c : C) : UU :=
   @cocone C^op g d c.
