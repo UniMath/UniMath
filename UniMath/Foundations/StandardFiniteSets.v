@@ -17,15 +17,6 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 Require Export UniMath.Foundations.NaturalNumbers .
 
-
-(* To up-stream files *)
-
-
-
-
-
-
-
 (** ** Standard finite sets [ stn ] . *)
 
 Definition stn ( n : nat ) := Σ m, m < n.
@@ -311,6 +302,16 @@ Proof. intros. apply (weqstnsum (stn ∘ f) f (λ i, idweq _)). Defined.
 Corollary weqstnsum2 { X : UU } ( n : nat ) ( f : stn n -> nat ) ( g : X -> stn n ) ( ww : forall i : stn n , weq ( stn ( f i ) ) ( hfiber g i ) ) : weq X ( stn ( stnsum f ) ) .
 Proof. intros . assert ( w : weq X ( total2 ( fun i : stn n => hfiber g i ) ) ) . apply weqtococonusf . apply ( weqcomp w ( weqstnsum ( fun i : stn n => hfiber g i ) f ww ) ) .   Defined . 
 
+(** lexical enumeration of pairs of natural numbers *)
+
+Definition lexicalEnumeration {n} (m:stn n->nat) := invweq (weqstnsum_idweq m) : stn (stnsum m) ≃ (Σ i : stn n, stn (m i)).
+Definition inverse_lexicalEnumeration {n} (m:stn n->nat) := weqstnsum_idweq m : (Σ i : stn n, stn (m i)) ≃ stn (stnsum m).
+
+Definition lex_curry {X n} (m:stn n->nat) : (stn (stnsum m) -> X) -> (∀ (i:stn n), stn (m i) -> X).
+Proof. intros ? ? ? f ? j. exact (f (inverse_lexicalEnumeration m (i,,j))). Defined.
+Definition lex_uncurry {X n} (m:stn n->nat) : (∀ (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
+Proof. intros ? ? ? g ij. exact (uncurry g (lexicalEnumeration m ij)). Defined.
+
 (** two generalizations of stnsum, potentially useful *)
 
 Definition foldleft {E} (e:E) (m:binop E) {n} (x:stn n -> E) : E.
@@ -558,6 +559,38 @@ Goal ∀ n, testfun n < 5.
     inductive_reflexivity i c.
   Defined.
 
-(* End of the file stnfsets.v *)
+(** general associativity for addition in nat *)
+
+Theorem nat_plus_associativity {n} {m:stn n->nat} (k:∀ (ij : Σ i, stn (m i)), nat) :
+  stnsum (λ i, stnsum (curry k i)) = stnsum (k ∘ lexicalEnumeration m).
+Proof.
+  intros. apply weqtoeqstn.
+  intermediate_weq (Σ i, stn (stnsum (curry k i))).
+  { apply invweq. apply weqstnsum_idweq. }
+  intermediate_weq (Σ i j, stn (curry k i j)).
+  { apply weqfibtototal; intro i. apply invweq. apply weqstnsum_idweq. }
+  intermediate_weq (Σ ij, stn (k ij)).
+  { exact (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
+  intermediate_weq (Σ ij, stn (k (lexicalEnumeration m ij))).
+  { apply (weqbandf (inverse_lexicalEnumeration m)). intro ij. apply eqweqmap.
+    apply (maponpaths stn), (maponpaths k). apply pathsinv0, homotinvweqweq. }
+  { apply inverse_lexicalEnumeration. }
+Defined.
+
+Corollary nat_plus_associativity' n (m:stn n->nat) (k:∀ i, stn (m i) -> nat) :
+  stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lexicalEnumeration m).
+Proof. intros. exact (nat_plus_associativity (uncurry k)). Defined.
+
+(** general commutativity for addition in nat *)
+
+Theorem nat_plus_commutativity {n} (x:stn n -> nat)
+        (f:stn n ≃ stn n) : stnsum x = stnsum (x∘f).
+Proof.
+  intros. apply weqtoeqstn. intermediate_weq (Σ i, stn (x i)).
+  { apply invweq. apply weqstnsum_idweq. }
+  intermediate_weq (Σ i, stn (x(f i))).
+  { apply invweq. apply (weqfp _ (stn∘x)). }
+  apply weqstnsum_idweq.
+Defined.
 
 

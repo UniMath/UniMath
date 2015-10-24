@@ -58,6 +58,22 @@ Definition funcomp_assoc {X Y Z W : UU} (f : X -> Y) (g : Y -> Z) (h : Z -> W)
   :  h ∘ (g ∘ f) = (h ∘ g) ∘ f
   := idpath _.
 
+(** back and forth between functions of pairs and functions returning functions *)
+
+Definition curry {X} {Y:X->UU} {Z} (f: (Σ x:X, Y x) -> Z) : ∀ x, Y x -> Z.
+Proof. intros ? ? ? ? ? y. exact (f(x,,y)). Defined.
+
+Definition uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) : (Σ x, Y x) -> Z.
+Proof. intros ? ? ? ? xy. exact (g (pr1 xy) (pr2 xy)). Defined.
+
+Lemma uncurry_curry {X} {Y:X->UU} {Z} (f:(Σ x:X, Y x) -> Z):
+  ∀ p, uncurry (curry f) p = f p.
+Proof. intros. induction p as [x y]. reflexivity. Defined.
+
+Lemma curry_uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) :
+  ∀ x y, curry (uncurry g) x y = g x y.
+Proof. reflexivity. Defined.
+
 (** *** Iteration of an endomorphism *)
 
 Definition iteration {T : UU} (f : T -> T) (n : nat) : T -> T.
@@ -2070,18 +2086,18 @@ Proof . intros . set ( w1 := weqtococonusf f ) .  set ( w2 := weqtotal2overcopro
 Definition boolchoice ( x : bool ) : coprod ( x = true ) ( x = false ) .
 Proof. intro . induction x . apply ( ii1 ( idpath _ ) ) .  apply ( ii2 ( idpath _ ) ) . Defined . 
 
-Definition curry :  bool -> UU := fun x : bool =>
-match x  with
-false => empty|
-true => unit
-end.
+Definition bool_to_type : bool -> UU.
+Proof. intros b. induction b as [|]. { exact unit. } { exact empty. }
+Defined.
 
+Goal bool_to_type true  = unit . reflexivity. Qed.
+Goal bool_to_type false = empty. reflexivity. Qed.
 
 Theorem nopathstruetofalse: true = false -> empty.
-Proof. intro X.  apply (transportf curry  X tt).  Defined.
+Proof. intro X.  apply (transportf bool_to_type X tt).  Defined.
 
 Corollary nopathsfalsetotrue: false = true -> empty.
-Proof. intro X. apply (transportb curry  X tt). Defined. 
+Proof. intro X. apply (transportb bool_to_type X tt). Defined. 
 
 Definition truetonegfalse ( x : bool ) : x = true -> x != false.
 Proof . intros x e . rewrite e . unfold neg . apply nopathstruetofalse . Defined . 

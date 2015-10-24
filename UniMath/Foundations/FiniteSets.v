@@ -258,14 +258,54 @@ Goal fincard (isfinitecompl (ii1 tt) (isfinitecoprod  (isfiniteunit) (isfinitebo
 Goal fincard (isfinitecompl (ii1 tt) (isfinitecoprod (isfiniteunit) (isfinitebool))) = 2. reflexivity. Qed.
 Goal fincard (isfinitecompl (dirprodpair tt tt) (isfinitedirprod  isfiniteunit isfiniteunit)) = 0. reflexivity. Qed.
 Goal fincard (isfinitecompl (dirprodpair  true (dirprodpair  true false)) (isfinitedirprod  (isfinitebool) (isfinitedirprod  (isfinitebool) (isfinitebool)))) = 7. reflexivity. Qed.
+
+Goal fincard (
+       isfiniteweq (isfinitedirprod isfinitebool isfinitebool)
+     ) = 24. reflexivity. Qed.
+
+(*
+
+stack overflow:
+
 Goal fincard (isfiniteweq ( isfinitedirprod ( isfinitedirprod isfinitebool isfinitebool ) isfinitebool )) = 40320. reflexivity. Qed.
+
+*)
 
 (* Eval compute in (carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))). *)
 (* Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)
+
  
+(** finite sums of natural numbers *)
+
+Definition finsum {X} (fin : isfinite X) (f : X -> nat) : nat.
+Proof.
+  intros.
+  unfold isfinite in fin.
+  unfold finstruct in fin.
+  unfold nelstruct in fin.
+  set (sum := λ (x : Σ n, stn n ≃ X), stnsum (f ∘ pr2 x)).
+  apply (squash_to_set isasetnat sum).
+  { intros.
+    induction x as [n x].
+    induction x' as [n' x'].
+    assert (p := weqtoeqstn (invweq x' ∘ x)%weq).
+    induction p.
+    unfold sum; simpl.
+    set (k := nat_plus_commutativity (f ∘ x') (invweq x' ∘ x)%weq).
+    assert (e : f ∘ x' ∘ (invweq x' ∘ x)%weq = f ∘ x).
+    { rewrite weqcomp_to_funcomp. apply funextfun.
+      intro i. unfold funcomp. apply maponpaths.
+      exact (homotweqinvweq x' (x i)). }
+    rewrite e in k.
+    exact (!k). }
+  assumption.
+Defined.
+
+Definition finsum_compute {X} (fin : finstruct X) (f : X -> nat) :
+  finsum (squash_element fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
+Proof. reflexivity. Defined.
 
 
 
 
 
-(* End of the file finitesets.v *)

@@ -3,35 +3,6 @@ Require Export UniMath.Foundations.Algebra.Monoids_and_Groups.
 Require Export UniMath.Foundations.FunctionalExtensionality.
 Unset Automatic Introduction.
 
-(** general associativity for addition in nat, as a warmup exercise *)
-
-Definition curry {X} {Y:X->UU} {Z} (f: (Σ x:X, Y x) -> Z) x y := f(x,,y).
-Definition uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) xy := g (pr1 xy) (pr2 xy).
-Lemma uncurry_curry {X} {Y:X->UU} {Z} (f:(Σ x:X, Y x) -> Z): uncurry (curry f) = f.
-  intros. apply funextfun. intros [x y]. reflexivity. Defined.
-Lemma curry_uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) : curry (uncurry g) = g.
-  intros. apply funextsec. intros x. apply funextfun. intros y. reflexivity. Defined.
-
-Theorem nat_plus_associativity {n} {m:stn n->nat} (k:∀ (ij : Σ i, stn (m i)), nat) :
-  stnsum (λ i, stnsum (curry k i)) = stnsum (k ∘ lexicalEnumeration m).
-Proof.
-  intros. apply weqtoeqstn.
-  intermediate_weq (Σ i, stn (stnsum (curry k i))).
-  { apply invweq. apply weqstnsum_idweq. }
-  intermediate_weq (Σ i j, stn (curry k i j)).
-  { apply weqfibtototal; intro i. apply invweq. apply weqstnsum_idweq. }
-  intermediate_weq (Σ ij, stn (k ij)).
-  { exact (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
-  intermediate_weq (Σ ij, stn (k (lexicalEnumeration m ij))).
-  { apply (weqbandf (inverse_lexicalEnumeration m)). intro ij. apply eqweqmap.
-    apply (maponpaths stn), (maponpaths k). apply pathsinv0, homotinvweqweq. }
-  { apply inverse_lexicalEnumeration. }
-Defined.
-
-Corollary nat_plus_associativity' n (m:stn n->nat) (k:∀ i, stn (m i) -> nat) :
-  stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lexicalEnumeration m).
-Proof. intros. exact (nat_plus_associativity (uncurry k)). Defined.
-
 Lemma stnsum_dni {n i} (f:stn(S n)->nat) : stnsum f = stnsum (f ∘ dni n i) + f i.
 Proof.
   intros.

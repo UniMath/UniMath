@@ -37,6 +37,14 @@ Definition decidabilityProperty (X:DecidableProposition) :
 Definition DecidableSubtype (X:UU) := X -> DecidableProposition.
 Definition DecidableRelation (X:UU) := X -> X -> DecidableProposition.
 
+Definition DecidableSubtype_to_hsubtypes {X} (P:DecidableSubtype X) : hsubtypes X
+  := λ x, DecidableProposition_to_hProp(P x).
+Coercion DecidableSubtype_to_hsubtypes : DecidableSubtype >-> hsubtypes.
+
+Definition DecidableRelation_to_hsubtypes {X} (P:DecidableRelation X) : hrel X
+  := λ x y, DecidableProposition_to_hProp(P x y).
+Coercion DecidableRelation_to_hsubtypes : DecidableRelation >-> hrel.
+
 Ltac choose P yes no := induction (iscontrpr1 (decidabilityProperty P)) as [yes|no].
 
 Definition choice {W} : DecidableProposition -> W -> W -> W.
