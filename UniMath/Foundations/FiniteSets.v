@@ -172,7 +172,11 @@ Proof.
 Defined.
 
 Definition fincard { X : UU } ( is : isfinite X ) : nat .
-Proof . intros . set ( int := carrier ( fun n : nat => isofnel n X ) ) .  set ( f1  := ( fun nw : finstruct X => tpair  ( fun n : nat => isofnel n X ) ( pr1 nw ) ( hinhpr ( pr2 nw ) ) ) : finstruct X -> int ) .  assert ( isp : isaprop int ) . apply isapropsubtype .   intros x1 x2 is1 is2 . apply ( @hinhuniv2 ( nelstruct x1 X ) ( nelstruct x2 X ) ( hProppair _ ( isasetnat x1 x2 ) ) ) .  intros sx1 sx2 . apply ( weqtoeqstn ( weqcomp sx1 ( invweq sx2 ) ) ) .  apply is1 .  apply is2 .  apply ( @hinhuniv _ ( hProppair _ isp ) f1 ) .  apply is .  Defined . 
+Proof.
+  intros. apply (squash_pairs_to_set (λ n, stn n ≃ X) isasetnat).
+  { intros n n' w w'. apply weqtoeqstn. exact (invweq w' ∘ w)%weq. }
+  assumption.
+Defined.
 
 Theorem ischoicebasefiniteset { X : UU } ( is : isfinite X ) : ischoicebase X . 
 Proof . intros . apply ( @hinhuniv ( finstruct X ) ( ischoicebase X ) ) .  intro nw . destruct nw as [ n w ] .   apply ( ischoicebaseweqf w ( ischoicebasestn n ) ) .  apply is .  Defined . 
@@ -302,7 +306,7 @@ Proof.
 Defined.
 
 Definition finsum_compute {X} (fin : finstruct X) (f : X -> nat) :
-  finsum (squash_element fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
+  finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
 Proof. reflexivity. Defined.
 
 Goal 15 = finsum (isfinitestn _) (λ i:stn 6, i). reflexivity. Qed.

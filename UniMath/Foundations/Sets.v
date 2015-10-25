@@ -154,6 +154,54 @@ Proof. intros.  apply invproofirrelevance. intros x x' .
 assert ( isincl ( @pr1 _ A )).  apply isinclpr1. intro x0. apply ( pr2 ( A x0 )).  
 apply ( invmaponpathsincl ( @pr1 _ A ) X0 ). destruct x as [ x0 is0 ]. destruct x' as [ x0' is0' ] . simpl. apply is. assumption. assumption. Defined. 
 
+Definition squash_pairs_to_set {Y} (F:Y->UU) :
+  (isaset Y) -> (∀ y y', F y -> F y' -> y=y') ->
+  (∃ y, F y) -> Y.
+Proof.
+  intros ? ? is e.
+  set (P := Σ y, ∥ F y ∥).
+  assert (iP : isaprop P).
+  { apply isapropsubtype. intros y y' f f'.
+    apply (squash_to_prop f). { apply is. } clear f; intro f.
+    apply (squash_to_prop f'). { apply is. } clear f'; intro f'.
+    now apply e. }
+  intros w.
+  assert (p : P).
+  { apply (squash_to_prop w). exact iP. clear w; intro w.
+    exact (pr1 w,,hinhpr (pr2 w)). }
+  clear w.
+  exact (pr1 p).
+Defined.
+
+(** Verify that the map above factors judgmentally. *)
+Goal ∀ Y (is:isaset Y) (F:Y->UU) (e :∀ y y', F y -> F y' -> y=y')
+       y (f:F y), squash_pairs_to_set F is e (hinhpr (y,,f)) = y.
+Proof. reflexivity. Qed.
+
+Definition squash_to_set {X Y} (is:isaset Y) (f:X->Y) :
+          (∀ x x', f x = f x') -> ∥ X ∥ -> Y.
+Proof.
+  intros ? ? ? ? e w.
+  set (P := Σ y, ∃ x, f x = y).
+  assert (j : isaprop P).
+  { apply isapropsubtype; intros y y' j j'.
+    apply (squash_to_prop j). { apply is. } clear j; intros [j k].
+    apply (squash_to_prop j'). { apply is. } clear j'; intros [j' k'].
+    intermediate_path (f j).
+    { exact (!k). }
+    intermediate_path (f j').
+    { apply e. }
+    exact k'. }
+  assert (p : P).
+  { apply (squash_to_prop w). exact j. intro x0.
+    exists (f x0). apply hinhpr. exists x0. reflexivity. }
+  exact (pr1 p).
+Defined.
+
+(** Verify that the map above factors judgmentally. *)
+Goal ∀ X Y (is:isaset Y) (f:X->Y) (e:∀ x x', f x = f x'),
+       f = funcomp hinhpr (squash_to_set is f e).
+Proof. reflexivity. Qed.
 
 (* End of " the type of monic subtypes of a type " . *)
 

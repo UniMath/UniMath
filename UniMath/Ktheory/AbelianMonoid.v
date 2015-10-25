@@ -277,6 +277,8 @@ Proof.
     { simpl.
 Abort.
 
+Definition decidable_type (X:UU) := X ⨿ ¬X.
+
 Lemma uniqueness0 (X:abmonoid) n : ∀ I (f g:nelstruct n I) (x:I->X),
      finiteOperation0 X n (funcomp (pr1 f) x) 
   = finiteOperation0 X n (funcomp (pr1 g) x).
@@ -284,7 +286,7 @@ Proof.
   intros ? ?. induction n as [|n IH].
   { reflexivity. }
   { intros. 
-    assert (dec : decidable ( pr1 f (lastelement n) = pr1 g (lastelement n) )).
+    assert (dec : decidable_type (pr1 f (lastelement n) = pr1 g (lastelement n))).
     { apply (isdeceqweqf f). apply isdeceqstn. }
     induction dec as [e|b].
     { apply (aptwice (fun x y => x + y)).

@@ -332,7 +332,7 @@ Defined.
 (** see Bourbaki, Set Theory, III.1, where they are called totally ordered sets *)
 
 
-Definition isOrdered (X:Poset) := istotal (pr1 (pr2 X)) × isantisymm (pr1 (pr2 X)).
+Definition isOrdered (X:Poset) := istotal (posetRelation X) × isantisymm (posetRelation X).
 
 Lemma isaprop_isOrdered (X:Poset) : isaprop (isOrdered X).
 Proof.
@@ -344,14 +344,12 @@ Definition OrderedSet := Σ X, isOrdered X.
 Local Definition underlyingPoset (X:OrderedSet) : Poset := pr1 X.
 Coercion underlyingPoset : OrderedSet >-> Poset.
 
-Local Definition underlyingRelation (X:OrderedSet) := pr1 (pr2 (pr1 X)).
-
 Delimit Scope oset with oset. 
 
 Definition Poset_lessthan {X:Poset} (x y:X) := (x ≤ y) ∧ (hneg (x = y)).
 
 Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : oset.
-Notation "m ≤ n" := (underlyingRelation _ m n) (no associativity, at level 70) : oset.
+Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) : oset.
 Notation "m < n" := (Poset_lessthan m n) :oset.
 
 Close Scope poset.

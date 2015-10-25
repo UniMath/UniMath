@@ -6,18 +6,141 @@ Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.FunctionalExtensionality.
 Require Export UniMath.Ktheory.Tactics.
 
-Notation "'∃!'  x .. y , P" := (iscontr (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
-Notation "'not' X" := (X -> empty) (at level 35).
+
+(** ** Null homotopies, an aid for proving things about propositional truncation *)
+
+Open Scope transport_scope.
+
+Definition nullHomotopyTo {X Y} (f:X->Y) (y:Y) := ∀ x:X, f x = y.
+Definition NullHomotopyTo {X Y} (f:X->Y) := total2 (nullHomotopyTo f).
+Definition NullHomotopyTo_center {X Y} (f:X->Y) : NullHomotopyTo f -> Y := pr1.
+Definition NullHomotopyTo_path {X Y} {f:X->Y} (r:NullHomotopyTo f) := pr2 r.
+
+Definition nullHomotopyFrom {X Y} (f:X->Y) (y:Y) := ∀ x:X, y = f x.
+Definition NullHomotopyFrom {X Y} (f:X->Y) := total2 (nullHomotopyFrom f).
+Definition NullHomotopyFrom_center {X Y} (f:X->Y) : NullHomotopyFrom f -> Y := pr1.
+Definition NullHomotopyFrom_path {X Y} {f:X->Y} (r:NullHomotopyFrom f) := pr2 r.
+
+Definition nullHomotopyTo_transport {X Y} {f:X->Y} {y:Y} (h : nullHomotopyTo f y)
+           {y':Y} (p:y = y') (x:X) : (p # h) x = h x @ p.
+Proof. intros. destruct p. apply pathsinv0. apply pathscomp0rid. Defined.
+
+Lemma isaset_NullHomotopyTo {X Y} (i:isaset Y) (f:X->Y) : isaset (NullHomotopyTo f).
+Proof. intros. apply (isofhleveltotal2 2). { apply i. }
+       intros y. apply impred; intros x. apply isasetaprop. apply i. Defined.
+
+Lemma isaprop_nullHomotopyTo {X Y} (is:isaset Y) (f:X->Y) (y:Y) :
+  isaprop (nullHomotopyTo f y).
+Proof. intros ? ? ? ? ?. apply impred; intros x. apply is. Defined.
+
+Lemma isaprop_NullHomotopyTo_0 {X} {Y} (is:isaset Y) (f:X->Y) : 
+  X -> isaprop (NullHomotopyTo f).
+(** The point of X is needed, for when X is empty, then NullHomotopyTo f is
+    equivalent to Y. *)
+Proof. intros ? ? ? ? x. apply invproofirrelevance. intros [r i] [s j].
+       apply (total2_paths2_second_isaprop (!i x @ j x)).
+       apply (isaprop_nullHomotopyTo is). Defined.
+
+(** ** Variants on paths and coconus *)
+
+Definition paths_from {X} (x:X) := coconusfromt X x.
+Definition point_to {X} {x:X} : paths_from x -> X := coconusfromtpr1 _ _.
+Definition paths_from_path {X} {x:X} (w:paths_from x) := pr2 w.
+Definition paths' {X} (x:X) := λ y, paths y x.
+Definition idpath' {X} (x:X) := idpath x : paths' x x.
+Definition paths_to {X} (x:X) := coconustot X x.
+Definition point_from {X} {x:X} : paths_to x -> X := coconustotpr1 _ _.
+Definition paths_to_path {X} {x:X} (w:paths_to x) := pr2 w.
+
+Lemma iscontr_paths_to {X} (x:X) : iscontr (paths_to x).
+Proof. apply iscontrcoconustot. Defined.
+Lemma iscontr_paths_from {X} (x:X) : iscontr (paths_from x).
+Proof. apply iscontrcoconusfromt. Defined.
+Definition paths_to_prop {X} (x:X) := 
+  hProppair (paths_to x) (isapropifcontr (iscontr_paths_to x)).
+Definition paths_from_prop {X} (x:X) := 
+  hProppair (paths_from x) (isapropifcontr (iscontr_paths_from x)).
+
+(** ** Squashing *)
+
+Notation squash_fun := hinhfun (only parsing).
+Notation squash_fun2 := hinhfun2 (only parsing).
+Notation squash_element := hinhpr (only parsing).
+
+Lemma squash_path {X} (x y:X) : squash_element x = squash_element y.
+Proof. intros. apply propproperty. Defined.
+
+Lemma isaprop_NullHomotopyTo {X} {Y} (is:isaset Y) (f:X->Y) :
+  ∥ X ∥ -> isaprop (NullHomotopyTo f).
+Proof. intros ? ? ? ?.
+       apply factor_through_squash.
+       apply isapropisaprop. 
+       apply isaprop_NullHomotopyTo_0. exact is. Defined.
+
+(** We can get a map from '∥ X ∥' to any type 'Y' provided paths
+    are given that allow us to map first into a cone in 'Y'.  *)
+
+Definition cone_squash_map {X Y} (f:X->Y) (y:Y) : 
+  nullHomotopyTo f y -> ∥ X ∥ -> Y.
+Proof. intros ? ? ? ? e h. 
+       exact (point_from (h (paths_to_prop y) (fun x => f x,,e x))). Defined.
+
+Goal ∀ X Y (y:Y) (f:X->Y) (e:∀ m:X, f m = y),
+       f = funcomp squash_element (cone_squash_map f y e).
+Proof. reflexivity. Qed.
+
+(** ** Factoring maps through squash *)
+ 
+Lemma squash_uniqueness {X} (x:X) (h:∥ X ∥) : squash_element x = h.
+Proof. intros. apply propproperty. Qed.
+
+Goal ∀ X Q (i:isaprop Q) (f:X -> Q) (x:X),
+   factor_through_squash i f (squash_element x) = f x.
+Proof. reflexivity. Defined.
+
+Lemma factor_dep_through_squash {X} {Q:∥ X ∥->UU} : 
+  (∀ h, isaprop (Q h)) -> 
+  (∀ x, Q(squash_element x)) -> 
+  (∀ h, Q h).
+Proof.
+  intros ? ? i f ?.  apply (h (hProppair (Q h) (i h))). 
+  intro x. simpl. destruct (squash_uniqueness x h). exact (f x).
+Defined.
+
+Lemma factor_through_squash_hProp {X} : ∀ hQ:hProp, (X -> hQ) -> ∥ X ∥ -> hQ.
+Proof. intros ? [Q i] f h. apply h. assumption. Defined.
+
+Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
+Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.    
+
+Lemma iscontr_if_inhab_prop {P} : isaprop P -> P -> iscontr P.
+Proof. intros ? i p. exists p. intros p'. apply i. Defined.
+
+Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) : 
+  g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
+Proof.
+  intros ? ? ? ? ? h.
+  set ( Q := fun y => g y = g' y ).
+  unfold homot.
+  apply (@factor_dep_through_squash X). intros y. apply ip.
+  intro x. apply h.
+Qed.
+
+Lemma squash_map_epi {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) : 
+  g ∘ squash_element = g'∘ squash_element -> g = g'.
+Proof.
+  intros ? ? ? ? ? e.
+  apply funextsec.
+  apply squash_map_uniqueness. exact ip.
+  intro x. destruct e. apply idpath.
+Qed.
+
 Notation set_to_type := pr1hSet.
 Notation ap := maponpaths.
 (* see table 3.1 in the coq manual for parsing levels *)
 Notation "f ;; g" := (funcomp f g) (at level 50).
 (* funcomp' is like funcomp, but with the arguments in the other order *)
 Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
-Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
-Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
-Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
-Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
 Open Scope transport_scope.
 
 (* some jargon reminders: *)
@@ -282,10 +405,9 @@ Proof. intros. destruct p. reflexivity. Defined.
 
 (** ** Decidability *)
 
-Definition decidable X := coprod X (not X).
-Definition LEM := ∀ P, isaprop P -> decidable P.
+Definition LEM := ∀ P:hProp, decidable P.
 Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
-Proof. intros X lem is x y. exact (lem (x = y) (is x y)). Qed.
+Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Qed.
 
 (** ** h-levels and paths *)
 
