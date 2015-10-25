@@ -305,12 +305,23 @@ Proof.
   assumption.
 Defined.
 
-Definition finsum_compute {X} (fin : finstruct X) (f : X -> nat) :
+Goal ∀ X (fin : finstruct X) (f : X -> nat),
   finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
-Proof. reflexivity. Defined.
+Proof. reflexivity. Qed.
 
 Goal 15 = finsum (isfinitestn _) (λ i:stn 6, i). reflexivity. Qed.
 Goal 20 = finsum isfinitebool (λ i:bool, 10). reflexivity. Qed.
 Goal 21 = finsum (isfinitecoprod isfinitebool isfinitebool)
            (sum_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
   reflexivity. Qed.
+
+(* A simpler definition isn't as computable (why?) : *)
+
+Definition finsum' {X} (fin : isfinite X) (f : X -> nat) : nat.
+Proof.
+  intros.
+  exact (fincard (isfinitetotal2 (stn∘f) fin (λ i, isfinitestn (f i)))).
+Defined.
+
+Goal 15 = finsum' (isfinitestn _) (λ i:stn 6, i). try reflexivity. Abort.
+
