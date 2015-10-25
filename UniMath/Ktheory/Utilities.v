@@ -403,12 +403,6 @@ Proof. intros. destruct p. reflexivity. Defined.
     tpair (Z x) (transportb Y p y') (transportb2 _ p y' z').
   Proof. intros. destruct p. reflexivity. Defined.
 
-(** ** Decidability *)
-
-Definition LEM := ∀ P:hProp, decidable P.
-Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
-Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Qed.
-
 (** ** h-levels and paths *)
 
 Lemma isaprop_wma_inhab X : (X -> isaprop X) -> isaprop X.

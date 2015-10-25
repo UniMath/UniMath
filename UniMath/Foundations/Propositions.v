@@ -58,6 +58,11 @@ Definition tildehProppair { P : hProp } ( p : P ) : tildehProp := tpair _ P p .
 Definition decidable (X:hProp) : hProp :=
   hProppair (X ⨿ ¬X) (isapropdec X (propproperty X)).
 
+Definition LEM := ∀ P:hProp, decidable P.
+
+Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
+Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Qed.
+
 (** The following re-definitions should make proofs easier in the future when the unification algorithms in Coq are improved . At the moment they create more complications than they eliminate ( e.g. try to prove [ isapropishinh ] with [ isaprop ] in [ hProp ] ) so for the time being they are commented out .
 
 
@@ -242,13 +247,19 @@ Notation "X ∨ Y" := (hdisj X Y) (at level 85, right associativity) : type_scop
 
 Definition hneg ( P : UU ) : hProp := hProppair ( ¬ P ) ( isapropneg P ) . 
 
+(* use scope "logic" for notations that might conflict with others *)
+
+Notation "'¬' X" := (hneg X) (at level 35, right associativity) : logic.
+  (* type this in emacs in agda-input method with \neg *)
+
 Definition himpl ( P : UU ) ( Q : hProp ) : hProp.
 Proof. intros. split with ( P -> Q ) . apply impred. intro. apply (pr2  Q). Defined. 
 
-Local Notation "A ⇒ B" := (himpl A B) (at level 95, no associativity) : type_scope.
+Notation "A ⇒ B" := (himpl A B) (at level 95, no associativity) : logic.
   (* precedence same as <-> *)
   (* in agda-input method, type \r= or \Rightarrow or \=> *)
   (* can't make it global, because it's defined differently in CategoryTheory/UnicodeNotations.v *)
+Local Open Scope logic.
 
 Definition hexists { X : UU } ( P : X -> UU ) := ∥ total2 P ∥.
 

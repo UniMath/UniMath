@@ -493,3 +493,36 @@ Proof.
 
 Abort.
 
+
+(** * computably ordered sets *)
+
+(* Here we abstract from Chapter 11 of the HoTT book just the order
+   properties of the real numbers, as constructed there. *)
+
+Definition isLattice {X:UU} (le:hrel X) (min max:binop X) :=
+  Σ lub : ∀ x y z, le x z ∧ le y z <-> le (max x y) z,
+  Σ glb : ∀ x y t, le t x ∧ le t y <-> le t (min x y),
+  Σ trans: ∀ x y z, le x y -> le y z -> le x z,
+  unit.
+
+Definition isComputablyOrdered {X:UU}
+           (lt:hrel X) (min max:binop X) := 
+  let le x y := hneg(lt y x) in
+  let apart x y := lt x y ∨ lt y x in
+  Σ latt: isLattice le min max,
+  Σ irrefl: ∀ x, ¬ lt x x,
+  Σ wklin: ∀ x y z, lt x y -> lt x z ∨ lt z y,
+  Σ irrefl': ∀ x, ¬ apart x x,
+  Σ cotrans: ∀ x y z, apart x y -> apart x z ∨ apart y z,
+  Σ transltle: ∀ x y z, lt x y -> le y z -> lt x z,
+  Σ translelt: ∀ x y z, le x y -> lt y z -> lt x z,
+  unit.
+
+Local Theorem classical {X:UU} (lt:hrel X) (min max:binop X) :
+  let le x y := hneg(lt y x) in
+  isComputablyOrdered lt min max -> LEM -> istotal le.
+Proof.      
+  intros ? ? ? ? ? is lem.
+
+
+Abort.
