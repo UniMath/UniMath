@@ -4,7 +4,7 @@ Require Import UniMath.Foundations.Algebra.BinaryOperations
         UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Sets.
 Local Notation "x * y" := (op x y). 
-Local Notation "g ∘ f" := (binopfuncomp f g) (at level 50, only parsing).
+Local Notation "g ∘ f" := (binopfuncomp f g) (at level 50, left associativity, only parsing).
 Local Notation magma := setwithbinop.
 Local Notation Hom := binopfun.
 (** maps between magmas are equal if their underlying functions are equal *)

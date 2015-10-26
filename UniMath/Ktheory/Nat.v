@@ -27,7 +27,7 @@ Module Uniqueness.
              rewrite <- maponpathscomp0. rewrite IHn. rewrite pathsinv0l.
              simpl. reflexivity. } }
          { intros [h0 h']. apply pair_path_in2. apply funextsec; intro n; simpl.
-           rewrite <- path_assoc. rewrite <- maponpathscomp0. rewrite pathsinv0r. 
+           rewrite <- path_assoc. rewrite <- maponpathscomp0. rewrite pathsinv0r.
            apply pathscomp0rid. } Defined.
 
   Lemma helper_B (P:nat->Type) (p0:P 0) (IH:∀ n, P n->P(S n))
@@ -51,8 +51,8 @@ Module Uniqueness.
   Lemma helper_D (P:nat->Type) (p0:P 0) (IH:∀ n, P n->P(S n)) :
      (Σ f:∀ n, P n, (f 0=p0) × (∀ n, f(S n)=IH n (f n)))
        ≃
-        (@hfiber 
-           (Σ (f:∀ n, P n), ∀ n, f(S n)=IH n (f n)) 
+        (@hfiber
+           (Σ (f:∀ n, P n), ∀ n, f(S n)=IH n (f n))
            (P 0)
            (fun fh => pr1 fh 0)
            p0).
@@ -64,7 +64,7 @@ Module Uniqueness.
   Defined.
 
   Lemma hNatRecursion_weq (P:nat->Type) (IH:∀ n, P n->P(S n)) :
-    weq (totalSpace (fun f:∀ n, P n => ∀ n, f(S n)=IH n (f n))) (P 0).
+    weq (total2 (fun f:∀ n, P n => ∀ n, f(S n)=IH n (f n))) (P 0).
   Proof. intros. exists (fun f => pr1 f 0). intro p0.
          apply (iscontrweqf (helper_D _ _ _)). apply hNatRecursionUniq.
   Defined.
@@ -96,11 +96,11 @@ Module Discern.
   Defined.
 
   Lemma nat_discern_isaprop m n : isaprop (nat_discern m n).
-  Proof. intros m. induction m. 
+  Proof. intros m. induction m.
          { intros n. induction n.
            { apply isapropifcontr. apply iscontrunit. }
            { simpl. apply isapropempty. } }
-         { intros n. induction n. 
+         { intros n. induction n.
            { simpl. apply isapropempty. }
            { simpl. apply IHm. } } Defined.
 
@@ -125,7 +125,7 @@ Module Discern.
            { intros _. reflexivity. } { simpl. exact fromempty. } }
          { destruct n as [|n'].
            { simpl. exact fromempty. }
-           { simpl. intro i. assert(b := helper_B _ _ i); clear i. 
+           { simpl. intro i. assert(b := helper_B _ _ i); clear i.
              destruct b. reflexivity. } } Defined.
 
   Goal ∀ m n (e:nat_discern m n), ap S (helper_B m n e) = helper_B (S m) (S n) e.
@@ -134,7 +134,7 @@ Module Discern.
   Fixpoint helper_C m n : m = n -> nat_discern m n.
   Proof. intros ? ? e. destruct e.
          (* alternatively:
-          destruct m. { exact tt. } { simpl. exact (the (nat_discern_iscontr _)). }  
+          destruct m. { exact tt. } { simpl. exact (the (nat_discern_iscontr _)). }
           *)
          exact (cast (! nat_discern_unit m) tt).
   Defined.
@@ -148,7 +148,7 @@ Module Discern.
            apply proofirrelevancecontr. apply nat_discern_iscontr. }
          { intro e. destruct e. induction m.
            { reflexivity. }
-           { exact (  ap (helper_B (S m) (S m)) (! apSC _ _ (idpath m)) 
+           { exact (  ap (helper_B (S m) (S m)) (! apSC _ _ (idpath m))
                     @ ap (ap S) IHm). } } Defined.
 
   Definition E m n : weq (nat_discern m n) (m = n).
@@ -162,7 +162,7 @@ End Discern.
 Fixpoint nat_dist_symm m n : nat_dist m n = nat_dist n m.
 Proof. intros ? ?. destruct m as [|m'].
        { destruct n as [|n']. { reflexivity. } { simpl. reflexivity. } }
-       { destruct n as [|n']. 
+       { destruct n as [|n'].
          { simpl. reflexivity. }
          { simpl. apply nat_dist_symm. } } Defined.
 
@@ -188,7 +188,7 @@ Fixpoint nat_dist_le m n : m ≤ n -> nat_dist m n = n-m.
 Proof. intros ? ?. destruct m as [|m'].
        { destruct n as [|n']. { reflexivity. } { simpl. intros _. reflexivity. } }
        { destruct n as [|n'].
-         { simpl. intro f. apply fromempty. apply f. reflexivity. } 
+         { simpl. intro f. apply fromempty. apply f. reflexivity. }
          { simpl. apply nat_dist_le. } } Defined.
 
 Definition nat_dist_minus m n : m ≤ n -> nat_dist (n - m) n = m.
@@ -198,7 +198,7 @@ Proof. intros ? ? e. set (k := n-m). assert(b := ! minusplusnmm n m e).
 
 Fixpoint nat_dist_gt m n : m > n -> S (nat_dist m (S n)) = nat_dist m n.
 Proof. intros ? ?. destruct m as [|m'].
-       { unfold natgth; simpl. intro x. 
+       { unfold natgth; simpl. intro x.
          apply fromempty. apply nopathsfalsetotrue. exact x. }
        { intro i. simpl.
          destruct n as [|n'].
@@ -212,7 +212,7 @@ Definition natminuseqlr m n x : m≤n -> n-m = x -> n = x+m.
 Proof. intros ? ? ? i j.
        rewrite <- (minusplusnmm _ _ i). rewrite j. reflexivity. Defined.
 
-Definition nat_dist_between_le m n a b : m ≤ n -> nat_dist m n = a + b -> 
+Definition nat_dist_between_le m n a b : m ≤ n -> nat_dist m n = a + b ->
   Σ x, nat_dist x m = a × nat_dist x n = b.
 Proof. intros ? ? ? ? i j. exists (m+a). split.
        { apply nat_dist_plus. }
@@ -222,9 +222,9 @@ Proof. intros ? ? ? ? i j. exists (m+a). split.
          rewrite nat_dist_symm. rewrite (natpluscomm (a+b) m) in k.
          rewrite (natplusassoc m a b) in l. rewrite <- k in l. exact l. } Defined.
 
-Definition nat_dist_between_ge m n a b : 
+Definition nat_dist_between_ge m n a b :
   n ≤ m -> nat_dist m n = a + b -> Σ x:nat, nat_dist x m = a × nat_dist x n = b.
-Proof. intros ? ? ? ? i j. 
+Proof. intros ? ? ? ? i j.
        rewrite nat_dist_symm in j.
        rewrite natpluscomm in j.
        exists (pr1 (nat_dist_between_le n m b a i j)).
@@ -232,9 +232,9 @@ Proof. intros ? ? ? ? i j.
        exact (pr2 (nat_dist_between_le n m b a i j)).
 Defined.
 
-Definition nat_dist_between m n a b : 
+Definition nat_dist_between m n a b :
   nat_dist m n = a + b -> Σ x:nat, nat_dist x m = a × nat_dist x n = b.
-Proof. intros ? ? ? ? j. 
+Proof. intros ? ? ? ? j.
        induction (natgthorleh m n) as [r|s].
        { apply nat_dist_between_ge. apply natlthtoleh. exact r. exact j. }
        { apply nat_dist_between_le. exact s. exact j. }
@@ -267,9 +267,9 @@ Proof. intros. induction (natleorle x y) as [r|s].
              { apply natlehandplusr. exact u. }
              { apply natlehandplusl. exact u. } }
            { rewrite (nat_dist_ge _ _ q). apply (natlehandplusrinv _ _ z).
-             rewrite (minusplusnmm _ _ q). rewrite natplusassoc.                              
+             rewrite (minusplusnmm _ _ q). rewrite natplusassoc.
              rewrite (minusplusnmm _ _ u). rewrite natpluscomm.
-             apply (natlehandplusrinv _ _ x). rewrite natplusassoc.                              
+             apply (natlehandplusrinv _ _ x). rewrite natplusassoc.
              rewrite (minusplusnmm _ _ r). apply (istransnatleh _ (x+y)).
              { apply natlehandplusl. assumption. }
              { apply natlehandplusr. assumption. } } } }
@@ -277,15 +277,15 @@ Proof. intros. induction (natleorle x y) as [r|s].
          induction (natleorle z y) as [u|t].
          { assert (w := istransnatleh _ _ _ u s). rewrite (nat_dist_ge _ _ w).
            rewrite (nat_dist_ge _ _ u). apply (natlehandplusrinv _ _ z).
-           rewrite (minusplusnmm _ _ w). rewrite natplusassoc.                              
-           rewrite (minusplusnmm _ _ u). rewrite (minusplusnmm _ _ s). 
+           rewrite (minusplusnmm _ _ w). rewrite natplusassoc.
+           rewrite (minusplusnmm _ _ u). rewrite (minusplusnmm _ _ s).
            apply isirreflnatgth. }
          { rewrite (nat_dist_le _ _ t).
            induction (natleorle x z) as [p|q].
            { rewrite (nat_dist_le _ _ p). apply (natlehandplusrinv _ _ x).
              rewrite (minusplusnmm _ _ p). apply (natlehandpluslinv _ _ y).
              rewrite (natplusassoc (x-y)). rewrite <- (natplusassoc y).
-             rewrite (natpluscomm y (x-y)). rewrite (minusplusnmm _ _ s).                              
+             rewrite (natpluscomm y (x-y)). rewrite (minusplusnmm _ _ s).
              apply (natlehandplusrinv _ _ y). rewrite (natplusassoc x).
              rewrite (natplusassoc _ x y). rewrite (natpluscomm x y).
              rewrite <- (natplusassoc _ y x). rewrite (minusplusnmm _ _ t).
@@ -293,18 +293,18 @@ Proof. intros. induction (natleorle x y) as [r|s].
              rewrite (natplusassoc y). rewrite (natpluscomm z y).
              rewrite <- (natplusassoc y). apply (natlehandplusr _ _ z).
              apply (istransnatleh _ (x+y)).
-             { apply natlehandplusr. assumption. } 
+             { apply natlehandplusr. assumption. }
              { apply natlehandplusl. assumption. } }
            { rewrite (nat_dist_ge _ _ q). apply (natlehandplusrinv _ _ z).
              rewrite (minusplusnmm _ _ q). apply (natlehandpluslinv _ _ y).
              rewrite (natplusassoc (x-y)). rewrite <- (natplusassoc y).
-             rewrite (natpluscomm y (x-y)). rewrite (minusplusnmm _ _ s).                              
+             rewrite (natpluscomm y (x-y)). rewrite (minusplusnmm _ _ s).
              apply (natlehandplusrinv _ _ y). rewrite (natplusassoc x).
              rewrite (natplusassoc _ z y). rewrite (natpluscomm z y).
              rewrite <- (natplusassoc _ y z). rewrite (minusplusnmm _ _ t).
              rewrite (natpluscomm y x). rewrite (natplusassoc x).
              apply natlehandplusl. apply (istransnatleh _ (z+y)).
-             { apply natlehandplusr. assumption. } 
+             { apply natlehandplusr. assumption. }
              { apply natlehandplusl. assumption. } } } } Defined.
 
 Lemma plusmn0n0 m n : m + n = 0 -> n = 0.
@@ -357,7 +357,7 @@ Definition natminusplusltcomm m n k : k ≤ n -> m ≤ n - k -> k ≤ n - m.
 Proof. intros ? ? ? i p.
        assert (a := natlehandplusr m (n-k) k p); clear p.
        assert (b := minusplusnmm n k i); clear i.
-       rewrite b in a; clear b. apply natleplusminus. 
+       rewrite b in a; clear b. apply natleplusminus.
        rewrite natpluscomm. exact a. Qed.
 
 (*

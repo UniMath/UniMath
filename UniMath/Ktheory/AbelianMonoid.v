@@ -249,7 +249,7 @@ Proof.
     admit.
     }
   { apply lthnatrem. assumption. }
-Admitted.
+Abort.
 
 Open Scope addmonoid_scope.
 
@@ -275,8 +275,9 @@ Proof.
   { induction k as [k K].
     apply (an_inclusion_is_injective _ (isinclstntonat _)).
     { simpl.
+Abort.
 
-Admitted.
+Definition decidable_type (X:UU) := X ⨿ ¬X.
 
 Lemma uniqueness0 (X:abmonoid) n : ∀ I (f g:nelstruct n I) (x:I->X),
      finiteOperation0 X n (funcomp (pr1 f) x) 
@@ -285,7 +286,7 @@ Proof.
   intros ? ?. induction n as [|n IH].
   { reflexivity. }
   { intros. 
-    assert (dec : decidable ( pr1 f (lastelement n) = pr1 g (lastelement n) )).
+    assert (dec : decidable_type (pr1 f (lastelement n) = pr1 g (lastelement n))).
     { apply (isdeceqweqf f). apply isdeceqstn. }
     induction dec as [e|b].
     { apply (aptwice (fun x y => x + y)).
@@ -302,7 +303,7 @@ Proof.
     { 
       
       admit. } }
-Admitted.       
+Abort.
 
 Definition finiteOperation1 (X:abmonoid) I : finstruct I -> (I->X) -> X.
   intros ? ? [n f] x.
@@ -314,8 +315,11 @@ Definition finiteOperation {I} (is:isfinite I) (X:abmonoid) (x:I->X) : X.
   refine (squash_to_set _ _ _). 
   { apply setproperty. }
   { intros fs. apply (finiteOperation1 X I fs x). }
-  { intros [m f] [n g]. assert (e := same_n f g). induction e. apply uniqueness0. }
-Defined.
+  { intros [m f] [n g]. assert (e := same_n f g). induction e.
+    try apply uniqueness0.      (* not proved yet *)
+    admit.
+  }
+Abort.
 
 (** * abelian monoids by generators and relations *)
 Module Presentation.
@@ -683,5 +687,5 @@ Module NN_agreement.
     { intros m.
       admit.
       }
-    Admitted.
+  Abort.
 End NN_agreement.
