@@ -68,7 +68,7 @@ Definition algebra_mor_eq (hs : has_homsets C) {X Y : algebra_ob} {f g : algebra
   : (f : X ⇒ Y) = g ≃ f = g.
 Proof.
   apply invweq.
-  apply (subtypeInjectivity).
+  apply subtypeInjectivity.
   intro a. apply hs.
 Defined.
 

@@ -278,20 +278,20 @@ split.
               now apply pathsinv0, (colimArrowEta (mk_ColimCocone D c cc H))).
   + abstract (simpl; intro k;
               apply subtypeEquality;
-                [ intros; now repeat (apply impred; intro); apply hsC
-                | intros; destruct k as [k Hk]; simpl; apply funextsec; intro u;
+                [ intro; now repeat (apply impred; intro); apply hsC
+                | destruct k as [k Hk]; simpl; apply funextsec; intro u;
                   now apply (colimArrowCommutes (mk_ColimCocone D c cc H))]).
 - intros H d cd.
   refine (tpair _ _ _).
   + exists (invmap (weqpair _ (H d)) cd).
     abstract (intro u; now apply isColim_weq_subproof2).
   + abstract (intro t; apply subtypeEquality;
-                [ intros; now apply impred; intro; apply hsC
-                | intros; destruct t as [t Ht]; simpl;
+                [ intro; now apply impred; intro; apply hsC
+                | destruct t as [t Ht]; simpl;
                   apply (invmaponpathsweq (weqpair _ (H d))); simpl;
                   apply subtypeEquality;
-                    [ intros; now repeat (apply impred; intro); apply hsC
-                    | intros; simpl; apply pathsinv0, funextsec; intro u; rewrite Ht;
+                    [ intro; now repeat (apply impred; intro); apply hsC
+                    | simpl; apply pathsinv0, funextsec; intro u; rewrite Ht;
                       now apply isColim_weq_subproof2]]).
 Defined.
 
@@ -383,8 +383,8 @@ refine (tpair _ _ _).
               now apply (colimArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
             apply subtypeEquality; simpl;
-              [ intros; apply impred; intro u; apply functor_category_has_homsets
-              | intros; apply (nat_trans_eq hsC); simpl; intro a;
+              [ intro; apply impred; intro u; apply functor_category_has_homsets
+              | apply (nat_trans_eq hsC); simpl; intro a;
                 apply colimArrowUnique; intro u;
                 now apply (nat_trans_eq_pointwise (t2 u))]).
 Defined.

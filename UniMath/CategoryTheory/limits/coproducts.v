@@ -62,8 +62,8 @@ Proof.
               [ apply (pr1 T) | apply (pr2 T)]).
   - intros. abstract (intros;
               apply subtypeEquality;
-              [ intros; apply impred; intro; apply hsC
-              | intros; apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false)] ]).
+              [ intro; apply impred; intro; apply hsC
+              | apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false)] ]).
 Defined.
 
 Definition CoproductCocone (a b : C) :=

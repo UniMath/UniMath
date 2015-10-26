@@ -419,15 +419,25 @@ Theorem subtypeInjectivity {A : UU} (B : A -> UU) :
 Proof. intros. apply Injectivity. apply isweqonpathsincl. now apply isinclpr1.
 Defined.
 
-Corollary subtypeEquality (A : UU) (B : A -> UU) (is : isPredicate B)
-   (s s' : total2 (fun x => B x)) : pr1 s = pr1 s' -> s = s'.
+Corollary subtypeEquality {A : UU} {B : A -> UU} (is : isPredicate B)
+   {s s' : total2 (fun x => B x)} : pr1 s = pr1 s' -> s = s'.
 Proof. intros A B H s s'. apply invmap. now apply subtypeInjectivity.
 Defined.
+
+Corollary subtypeEquality' {A : UU} {B : A -> UU} 
+   {s s' : total2 (fun x => B x)} : pr1 s = pr1 s' -> isaprop (B (pr1 s')) -> s = s'.
+Proof. intros ? ? ? ? e is. apply (total2_paths e). apply is. Defined.
 
 Definition subtypePairEquality {X} {P:X -> UU} (is: isPredicate P)
            {x y:X} {p:P x} {q:P y} :
   x = y -> (x,,p) = (y,,q).
 Proof. intros X P is x y p q e. apply (total2_paths2 e). apply is. Defined.    
+
+Definition subtypePairEquality' {X} {P:X -> UU}
+           {x y:X} {p:P x} {q:P y} :
+  x = y -> isaprop(P y) -> (x,,p) = (y,,q).
+(* This variant of subtypePairEquality is not often needed. *)
+Proof. intros X P x y p q e is. apply (total2_paths2 e). apply is. Defined.
 
 Theorem samehfibers { X Y Z : UU } (f: X -> Y) (g: Y -> Z) (is1: isincl  g) ( y: Y): weq ( hfiber f y ) ( hfiber ( fun x => g ( f x ) ) ( g y ) ) .
 Proof. intros. split with (@hfibersftogf  _ _ _ f g (g y) (hfiberpair  g y (idpath _ ))) .

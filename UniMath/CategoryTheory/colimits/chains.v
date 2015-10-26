@@ -110,16 +110,16 @@ Lemma unshift_shift_cocone (D : diagram nat_graph C)
   (x : C) (cx : cocone D x) : unshift_cocone (shift_cocone cx) = cx.
 Proof.
 apply subtypeEquality; simpl.
-- intros. now repeat (apply impred; intro); apply hsC.
-- intros. now apply funextsec; intro n; apply (coconeInCommutes cx).
+- intro. now repeat (apply impred; intro); apply hsC.
+- now apply funextsec; intro n; apply (coconeInCommutes cx).
 Qed.
 
 Lemma shift_unshift_cocone (D : diagram nat_graph C)
   (x : C) (cx : cocone (shift D) x) : shift_cocone (unshift_cocone cx) = cx.
 Proof.
 apply subtypeEquality; simpl.
-- intros. now repeat (apply impred; intro); apply hsC.
-- intros. now apply funextsec; intro n; apply (coconeInCommutes cx _ _ (idpath _)).
+- intro. now repeat (apply impred; intro); apply hsC.
+- now apply funextsec; intro n; apply (coconeInCommutes cx _ _ (idpath _)).
 Qed.
 
 (* Construct the colimit of the shifted diagram *)
@@ -136,7 +136,7 @@ refine (tpair _ _ _).
               | now apply (coconeInCommutes fx _ _ (idpath _)) ]).
 + abstract (simpl; intro f;
             apply subtypeEquality; simpl;
-              [ intros; now apply impred; intro; apply hsC | ];
+              [ intro; now apply impred; intro; apply hsC | ];
             apply colimArrowUnique; simpl; intro n;
             destruct f as [f Hf]; simpl;
             rewrite <- (Hf n), assoc;
@@ -159,7 +159,7 @@ refine (tpair _ _ _).
                   [|apply (coconeInCommutes fx _ _ (idpath _))]]).
 + abstract (simpl; intro f;
             apply subtypeEquality;
-              [ intros; now apply impred; intro; apply hsC|]; simpl;
+              [ intro; now apply impred; intro; apply hsC|]; simpl;
             apply colimArrowUnique; simpl; intro n;
             destruct f as [f Hf]; simpl;
             rewrite <- Hf;

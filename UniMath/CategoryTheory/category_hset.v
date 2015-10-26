@@ -200,12 +200,12 @@ Defined.
 Lemma hset_equiv_iso_is_equiv (A B : ob HSET) : isweq (hset_equiv_iso A B).
 Proof.
   apply (gradth _ (hset_iso_equiv A B)).
-  intro f.
-  apply subtypeEquality.
-    apply isapropisweq.
-    reflexivity.
+  { intro f.
+    apply subtypeEquality.
+    { intro; apply isapropisweq. }
+    reflexivity. }
   intro; apply eq_iso.
-  - reflexivity.
+  reflexivity.
 Qed.
 
 Definition hset_equiv_iso_weq (A B : ob HSET) :
@@ -383,8 +383,8 @@ Proof.
 apply (mk_ColimCocone _ colimHSET colimCoconeHSET); intros c cc.
 exists (ColimHSETArrow _ cc).
 abstract (intro f; apply subtypeEquality;
-           [ intros; now apply impred; intro i; apply has_homsets_HSET
-           | intros; apply funextfun; intro x; simpl;
+           [ intro; now apply impred; intro i; apply has_homsets_HSET
+           | apply funextfun; intro x; simpl;
              apply (surjectionisepitosets (setquotpr eqr));
                [now apply issurjsetquotpr | now apply pr2 | ];
              intro y; destruct y as [u fu]; destruct f as [f Hf];
