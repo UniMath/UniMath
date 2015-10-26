@@ -708,11 +708,11 @@ apply ( isdecpropif _ isp ( ii2  ( negf f ny ) ) ) . Defined.
 Theorem isdecpropdirprod { X Y : UU } ( isx : isdecprop X ) ( isy : isdecprop Y ) : isdecprop ( dirprod X Y ) .
 Proof. intros . assert ( isp : isaprop ( dirprod X Y ) ) . apply ( isofhleveldirprod 1 _ _ ( isdecproptoisaprop _ isx ) ( isdecproptoisaprop _ isy ) ) .  induction ( pr1 isx ) as [ x | nx ] . induction ( pr1 isy ) as [ y | ny ] .  apply ( isdecpropif _ isp ( ii1 ( dirprodpair x y ) ) ) . assert ( nxy : neg ( dirprod X Y ) ) . intro xy . induction xy as [ x0  y0 ] . apply ( ny y0 ) .  apply ( isdecpropif _ isp ( ii2 nxy ) ) .  assert ( nxy : neg ( dirprod X Y ) ) . intro xy . induction xy as [ x0  y0 ] . apply ( nx x0 ) .  apply ( isdecpropif _ isp ( ii2 nxy ) ) . Defined.
 
-Lemma fromneganddecx { X Y : UU } ( isx : isdecprop X ) ( nf : neg ( dirprod X Y ) ) : coprod ( neg X ) ( neg Y ) .
-Proof . intros .  induction ( pr1 isx ) as [ x | nx ] .  set ( ny := negf ( fun y : Y => dirprodpair x y ) nf ) . apply ( ii2 ny ) .   apply ( ii1 nx ) . Defined .
+Lemma fromneganddecx { X Y : UU } : isdecprop X -> ¬ ( X × Y ) -> ¬X ⨿ ¬Y.
+Proof . intros ? ? isx nf.  induction ( pr1 isx ) as [ x | nx ] .  assert ( ny := negf ( λ y : Y, dirprodpair x y ) nf ) . exact ( ii2 ny ) .   exact ( ii1 nx ) . Defined .
 
-Lemma fromneganddecy { X Y : UU } ( isy : isdecprop Y ) ( nf : neg ( dirprod X Y ) ) : coprod ( neg X ) ( neg Y ) .
-Proof . intros .  induction ( pr1 isy ) as [ y | ny ] .  set ( nx := negf ( fun x : X => dirprodpair x y ) nf ) . apply ( ii1 nx ) . apply ( ii2 ny ) .   Defined .
+Lemma fromneganddecy { X Y : UU } : isdecprop Y -> ¬ ( X × Y ) -> ¬X ⨿ ¬Y.
+Proof . intros ? ? isy nf.  induction ( pr1 isy ) as [ y | ny ] .  assert ( nx := negf ( λ x:X, dirprodpair x y ) nf ) . exact ( ii1 nx ) . exact ( ii2 ny ) .   Defined .
 
 
 (** *** Paths to and from an isolated point form a decidable proposition *)
