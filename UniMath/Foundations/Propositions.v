@@ -53,16 +53,6 @@ Definition propproperty (P:hProp) := pr2 P : isaprop (pr1 P).
 Definition tildehProp := total2 ( fun P : hProp => P ) .
 Definition tildehProppair { P : hProp } ( p : P ) : tildehProp := tpair _ P p . 
 
-(* decidability *)
-
-Definition decidable (X:hProp) : hProp :=
-  hProppair (X ⨿ ¬X) (isapropdec X (propproperty X)).
-
-Definition LEM := ∀ P:hProp, decidable P.
-
-Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
-Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Qed.
-
 (** The following re-definitions should make proofs easier in the future when the unification algorithms in Coq are improved . At the moment they create more complications than they eliminate ( e.g. try to prove [ isapropishinh ] with [ isaprop ] in [ hProp ] ) so for the time being they are commented out .
 
 
@@ -229,16 +219,6 @@ Definition hconj ( P Q : hProp ) : hProp := hProppair ( P × Q ) ( isapropdirpro
 Notation "A ∧ B" := (hconj A B) (at level 80, right associativity) : type_scope. (* precedence same as /\ *)
   (* in agda-input method, type \and or \wedge *)
 
-Definition decidable_dirprod (X Y:hProp) : decidable X -> decidable Y -> decidable (X ∧ Y).
-Proof.
-  intros ? ? b c.
-  induction b as [b|b].
-  - induction c as [c|c].
-    + now apply ii1.
-    + apply ii2. intro k. apply c. exact (pr2 k).
-  - apply ii2. intro k. apply b. exact (pr1 k).
-Defined.
-
 Definition hdisj ( P Q : UU ) : hProp :=  ishinh ( coprod P Q ) . 
 
 Notation "X ∨ Y" := (hdisj X Y) (at level 85, right associativity) : type_scope.
@@ -310,28 +290,28 @@ Proof . intros . apply ( weqimplimpl ( forallnegtoneghexists F ) ( neghexisttofo
 
 (** *** Negation and conjunction ( "and" ) and disjunction ( "or" ) . 
 
-There are four implications in classical logic ( ( ¬ X ) and ( ¬ Y ) ) <-> ( ¬ ( X or Y ) ) and ( ( ¬ X ) or ( ¬ Y ) ) <-> ( ¬ ( X and Y ) ) . Of these four, three are provable unconditionally in the intuitionistic logic and the remaining one ( ¬ ( X and Y ) ) -> ( ( ¬ X ) or ( ¬ Y ) ) is provable only if one of the propositions is deidable. These two cases are proved in uu0.v under the names [ fromneganddecx ] and [ fromneganddecy ] .  *)
+There are four implications in classical logic ( ( ¬ X ) and ( ¬ Y ) ) <-> ( ¬ ( X or Y ) ) and ( ( ¬ X ) or ( ¬ Y ) ) <-> ( ¬ ( X and Y ) ) . Of these four, three are provable unconditionally in the intuitionistic logic and the remaining one ( ¬ ( X and Y ) ) -> ( ( ¬ X ) or ( ¬ Y ) ) is provable only if one of the propositions is deidable. These two cases are proved in PartC.v under the names [ fromneganddecx ] and [ fromneganddecy ] .  *)
 
-Lemma tonegdirprod { X Y : UU } ( is : hdisj ( ¬ X ) ( ¬ Y ) ) : ¬ ( X × Y ) .
+Lemma tonegdirprod { X Y : UU } : ¬ X ∨ ¬Y -> ¬ ( X × Y ) .
 Proof. intros X Y . simpl .  apply ( @hinhuniv _ ( hProppair _ ( isapropneg ( X × Y ) ) ) ) . intro c . destruct c as [ nx | ny ] . simpl .  intro xy .  apply ( nx ( pr1 xy ) ) .  simpl . intro xy . apply ( ny ( pr2 xy ) ) .  Defined .
 
-Lemma tonegcoprod { X Y : UU } ( is : ( ¬ X ) × ( ¬ Y ) ) : ¬ ( coprod X Y ) . 
-Proof . intros. intro c . destruct c as [ x | y ] . apply ( pr1 is x ) . apply ( pr2 is y ) . Defined . 
+Lemma tonegcoprod { X Y : UU } : ¬ X × ¬ Y -> ¬ ( X ⨿ Y ) . 
+Proof . intros ? ? is. intro c . destruct c as [ x | y ] . apply ( pr1 is x ) . apply ( pr2 is y ) . Defined . 
 
-Lemma toneghdisj { X Y : UU } ( is : ( ¬ X ) × ( ¬ Y ) ) : ¬ ( hdisj X Y ) .
-Proof . intros . unfold hdisj.  apply ( weqnegtonegishinh ) . apply tonegcoprod .  apply is .  Defined . 
+Lemma toneghdisj { X Y : UU } : ¬X × ¬Y -> ¬ (X ∨ Y) .
+Proof . intros ? ? is. unfold hdisj.  apply ( weqnegtonegishinh ) . apply tonegcoprod .  apply is .  Defined . 
 
-Lemma fromnegcoprod { X Y : UU } ( is : ¬ ( coprod X Y ) ) : ( ¬ X ) × ( ¬ Y ) .
-Proof .  intros . split .  exact ( fun x => is ( ii1 x ) ) . exact ( fun y => is ( ii2 y ) ) . Defined .
+Lemma fromnegcoprod { X Y : UU } : ¬ (X ⨿ Y) -> ¬X × ¬Y.
+Proof .  intros ? ? is. split .  exact ( fun x => is ( ii1 x ) ) . exact ( fun y => is ( ii2 y ) ) . Defined .
 
-Lemma hdisjtoimpl { P : UU } { Q : hProp } : hdisj P Q -> ( ¬ P -> Q ) .
+Lemma hdisjtoimpl { P : UU } { Q : hProp } : P ∨ Q -> ¬P -> Q.
 Proof . intros P Q . assert ( int : isaprop ( ¬ P -> Q ) ) . apply impred . intro . apply ( pr2 Q ) .  simpl .  apply ( @hinhuniv _ ( hProppair _ int ) ) .  simpl .  intro pq . destruct pq as [ p | q ] . intro np . destruct ( np p ) .  intro np . apply q . Defined . 
 
 
 
 (** *** Property of being decidable and [ hdisj ] ( "or" ) .
 
-For being deidable [ hconj ] see [ isdecpropdirprod ] in uu0.v  *)
+For being decidable [ hconj ] see [ isdecpropdirprod ] in uu0.v  *)
 
 Lemma isdecprophdisj { X Y : UU } ( isx : isdecprop X ) ( isy : isdecprop Y ) : isdecprop ( hdisj X Y ) .
 Proof . intros . apply isdecpropif . apply ( pr2 ( hdisj X Y ) ) . destruct ( pr1 isx ) as [ x | nx ] . apply ( ii1 ( hinhpr ( ii1 x ) ) ) . destruct ( pr1 isy ) as [ y | ny ] . apply ( ii1 ( hinhpr ( ii2 y ) ) ) .  apply ( ii2 ( toneghdisj ( dirprodpair nx ny ) ) ) .  Defined .    
@@ -355,6 +335,56 @@ Definition inhdnegand (X Y:UU)(inx0: isinhdneg X)(iny0: isinhdneg Y) : isinhdneg
 
 Definition hinhimplinhdneg (X:UU)(inx1: ishinh X): isinhdneg X := inx1 hfalse.
 
+
+(* decidability *)
+
+Definition decidable (X:hProp) : hProp :=
+  hProppair (X ⨿ ¬X) (isapropdec X (propproperty X)).
+
+Definition decidable_dirprod (X Y:hProp) : decidable X -> decidable Y -> decidable (X ∧ Y).
+Proof.
+  intros ? ? b c.
+  induction b as [b|b].
+  - induction c as [c|c].
+    + now apply ii1.
+    + apply ii2. intro k. apply c. exact (pr2 k).
+  - apply ii2. intro k. apply b. exact (pr1 k).
+Defined.
+
+(* Law of Excluded Middle
+   
+   We don't state LEM as an axiom, because we want to force it
+   to be a hypothesis of any corollaries of any theorems that
+   appeal to it. *)
+Definition LEM := ∀ P:hProp, decidable P.
+
+Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
+Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Qed.
+
+Lemma isaprop_LEM : isaprop LEM.
+Proof. apply impred; intro P. apply propproperty. Defined.  
+
+Lemma dneg_LEM (P:hProp) : LEM -> ¬¬ P -> P.
+Proof.
+  intros ? lem nnP.
+  induction (lem P) as [a|a].
+  { assumption. }
+  { contradiction. }
+Defined.
+
+Lemma weak_deMorgan_1 (P Q:hProp) : ¬ P ⨿ ¬ Q -> ¬ (P ∧ Q).
+Proof.
+  intros ? ? [m|n].
+  - exact (negf dirprod_pr1 m).
+  - exact (negf dirprod_pr2 n).
+Defined.
+
+Lemma weak_deMorgan_2 (P Q:hProp) : ¬¬(¬ P ⨿ ¬ Q) -> ¬ (P ∧ Q).
+Proof.
+  intros ? ?.
+  intros n [p q]. apply n; clear n. intro m.
+  induction m; contradiction.
+Defined.
 
 (** ** Univalence axiom for hProp 
 
