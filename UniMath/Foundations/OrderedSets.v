@@ -499,10 +499,18 @@ Abort.
 (* Here we abstract from Chapter 11 of the HoTT book just the order
    properties of the real numbers, as constructed there. *)
 
+Open Scope logic.
+
 Definition isLattice {X:hSet} (le:hrel X) (min max:binop X) :=
+  Σ po : ispo le,
   Σ lub : ∀ x y z, le x z ∧ le y z <-> le (max x y) z,
   Σ glb : ∀ x y t, le t x ∧ le t y <-> le t (min x y),
-  Σ trans: ∀ x y z, le x y -> le y z -> le x z,
+  Σ transle: ∀ x y z, le x y -> le y z -> le x z,
+  unit.
+
+Definition istrans2 {X:hSet} (le lt:hrel X) :=
+  Σ transltle: ∀ x y z, lt x y -> le y z -> lt x z,
+  Σ translelt: ∀ x y z, le x y -> lt y z -> lt x z,
   unit.
 
 Definition iswklin {X} (lt:hrel X) := ∀ x y z, lt x y -> lt x z ∨ lt z y.
@@ -516,21 +524,29 @@ Defined.
 
 Definition isComputablyOrdered {X:hSet}
            (lt:hrel X) (min max:binop X) := 
-  let le x y := hneg(lt y x) in
+  let le x y := ¬ lt y x in
   Σ latt: isLattice le min max,
+  Σ trans2: istrans2 le lt,
+  Σ asymm: isasymm lt,          (* ? not on Andrej's list *)
+  Σ translt: istrans lt,
   Σ irrefl: isirrefl lt,
   Σ cotrans: iscotrans lt,
-  Σ transltle: ∀ x y z, lt x y -> le y z -> lt x z,
-  Σ translelt: ∀ x y z, le x y -> lt y z -> lt x z,
   unit.
 
-Set Printing All.
-
 Local Theorem classical {X:hSet} (lt:hrel X) (min max:binop X) :
-  let le x y := hneg(lt y x) in
+  let le x y := ¬ lt y x in
   isComputablyOrdered lt min max -> LEM -> istotal le.
 Proof.      
-  intros ? ? ? ? ? is lem.
-
-
-Abort.
+  intros ? ? ? ? ?
+         [[po[lub[glb[transle _]]]]
+            [[transltle [translelt _]][asymm[translt[irrefl[cotrans _]]]]]] lem
+  x y.
+  apply hinhpr.
+  induction (lem (le x y)) as [a|a].
+  { now apply ii1. }
+  induction (lem (le y x)) as [b|b].
+  { now apply ii2. }
+  assert (a' := dneg_LEM _ lem a); clear a.
+  assert (b' := dneg_LEM _ lem b); clear b.
+  induction (asymm _ _ a' b').
+Defined.

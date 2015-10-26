@@ -225,6 +225,14 @@ Notation "X ∨ Y" := (hdisj X Y) (at level 85, right associativity) : type_scop
   (* in agda-input method, type \or *)
   (* precedence same as ‌\/, whereas ⨿ has the opposite associativity *)
 
+Definition hdisj_in1 ( P Q : UU ) : P -> P∨Q.
+Proof. intros. apply hinhpr. now apply ii1.
+Defined.
+
+Definition hdisj_in2 ( P Q : UU ) : Q -> P∨Q.
+Proof. intros. apply hinhpr. now apply ii2.
+Defined.
+
 Definition hneg ( P : UU ) : hProp := hProppair ( ¬ P ) ( isapropneg P ) . 
 
 (* use scope "logic" for notations that might conflict with others *)
@@ -294,6 +302,19 @@ There are four implications in classical logic ( ( ¬ X ) and ( ¬ Y ) ) <-> ( �
 
 Lemma tonegdirprod { X Y : UU } : ¬ X ∨ ¬Y -> ¬ ( X × Y ) .
 Proof. intros X Y . simpl .  apply ( @hinhuniv _ ( hProppair _ ( isapropneg ( X × Y ) ) ) ) . intro c . destruct c as [ nx | ny ] . simpl .  intro xy .  apply ( nx ( pr1 xy ) ) .  simpl . intro xy . apply ( ny ( pr2 xy ) ) .  Defined .
+
+Lemma weak_fromnegdirprod (P Q:hProp) : ¬ (P ∧ Q) -> ¬¬(¬ P ∨ ¬ Q).
+(* this is also called a weak deMorgan law *)
+Proof.
+  intros ? ? npq k.
+  assert (e : ¬¬ Q).
+  { intro n. apply k. now apply hdisj_in2. }
+  assert (d : ¬¬ P).
+  { intro n. apply k. now apply hdisj_in1. }
+  clear k.
+  apply d; clear d. intro p. apply e; clear e. intro q.
+  apply npq. exact (p,,q).
+Defined.
 
 Lemma tonegcoprod { X Y : UU } : ¬ X × ¬ Y -> ¬ ( X ⨿ Y ) . 
 Proof . intros ? ? is. intro c . destruct c as [ x | y ] . apply ( pr1 is x ) . apply ( pr2 is y ) . Defined . 
@@ -370,20 +391,6 @@ Proof.
   induction (lem P) as [a|a].
   { assumption. }
   { contradiction. }
-Defined.
-
-Lemma weak_deMorgan_1 (P Q:hProp) : ¬ P ⨿ ¬ Q -> ¬ (P ∧ Q).
-Proof.
-  intros ? ? [m|n].
-  - exact (negf dirprod_pr1 m).
-  - exact (negf dirprod_pr2 n).
-Defined.
-
-Lemma weak_deMorgan_2 (P Q:hProp) : ¬¬(¬ P ⨿ ¬ Q) -> ¬ (P ∧ Q).
-Proof.
-  intros ? ?.
-  intros n [p q]. apply n; clear n. intro m.
-  induction m; contradiction.
 Defined.
 
 (** ** Univalence axiom for hProp 
