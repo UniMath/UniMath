@@ -12,13 +12,13 @@ SubstitutionSystems
 
 (** **********************************************************
 
-Contents : 
+Contents :
 
-- Definition of a product structure on a functor category 
+- Definition of a product structure on a functor category
   by taking pointwise products in the target category
 
-                	
-           
+
+
 ************************************************************)
 
 
@@ -55,7 +55,7 @@ Local Notation "c ⊗ d" := (ProductObject _ (HD c d))(at level 45).
 
 Definition product_functor_ob (c : C) : D := F c ⊗ G c.
 
-Definition product_functor_mor (c c' : C) (f : c ⇒ c') 
+Definition product_functor_mor (c c' : C) (f : c ⇒ c')
   : product_functor_ob c ⇒ product_functor_ob c'
   := ProductOfArrows _ _ _ (#F f) (#G f).
 
@@ -67,7 +67,7 @@ Defined.
 
 
 Lemma is_functor_product_functor_data : is_functor product_functor_data.
-Proof. 
+Proof.
   split; simpl; intros.
   - red; intros; simpl in *.
     apply pathsinv0.
@@ -91,7 +91,7 @@ Definition product_functor : functor C D := tpair _ _ is_functor_product_functor
 Definition product_nat_trans_pr1_data : ∀ c, product_functor c ⇒ F c
   := λ c : C, ProductPr1 _ (HD (F c) (G c)).
 
-Lemma is_nat_trans_product_nat_trans_pr1_data 
+Lemma is_nat_trans_product_nat_trans_pr1_data
   : is_nat_trans _ _ product_nat_trans_pr1_data.
 Proof.
   red.
@@ -100,16 +100,16 @@ Proof.
   unfold product_functor. simpl.
   unfold product_functor_mor.
   apply ProductOfArrowsPr1.
-Qed.  
+Qed.
 
-Definition product_nat_trans_pr1 : nat_trans _ _ 
+Definition product_nat_trans_pr1 : nat_trans _ _
   := tpair _ _ is_nat_trans_product_nat_trans_pr1_data.
 
 
 Definition product_nat_trans_pr2_data : ∀ c, product_functor c ⇒ G c
   := λ c : C, ProductPr2 _ (HD (F c) (G c)).
 
-Lemma is_nat_trans_product_nat_trans_pr2_data 
+Lemma is_nat_trans_product_nat_trans_pr2_data
   : is_nat_trans _ _ product_nat_trans_pr2_data.
 Proof.
   red.
@@ -118,9 +118,9 @@ Proof.
   unfold product_functor. simpl.
   unfold product_functor_mor.
   apply ProductOfArrowsPr2.
-Qed.  
+Qed.
 
-Definition product_nat_trans_pr2 : nat_trans _ _ 
+Definition product_nat_trans_pr2 : nat_trans _ _
   := tpair _ _ is_nat_trans_product_nat_trans_pr2_data.
 
 
@@ -152,33 +152,33 @@ Proof.
   rewrite X2.
   clear X2 X1 XX.
   set (XX:=precompWithProductArrow).
-  set (X1 := XX D _ _ (HD (F b) (G b))). 
+  set (X1 := XX D _ _ (HD (F b) (G b))).
   rewrite X1.
   rewrite (nat_trans_ax f).
   rewrite (nat_trans_ax g).
   apply idpath.
 Qed.
 
-Definition product_nat_trans : nat_trans _ _ 
+Definition product_nat_trans : nat_trans _ _
   := tpair _ _ is_nat_trans_product_nat_trans_data.
 
-Lemma product_nat_trans_Pr1Commutes : 
+Lemma product_nat_trans_Pr1Commutes :
   nat_trans_comp _ _ _ product_nat_trans product_nat_trans_pr1  = f.
 Proof.
   apply nat_trans_eq.
   - apply hsD.
   - intro c; simpl.
     apply ProductPr1Commutes.
-Qed. 
+Qed.
 
-Lemma product_nat_trans_Pr2Commutes : 
+Lemma product_nat_trans_Pr2Commutes :
   nat_trans_comp _ _ _ product_nat_trans product_nat_trans_pr2  = g.
 Proof.
   apply nat_trans_eq.
   - apply hsD.
   - intro c; simpl.
     apply ProductPr2Commutes.
-Qed. 
+Qed.
 
 End vertex.
 
@@ -186,14 +186,14 @@ Lemma product_nat_trans_univ_prop (A : [C, D, hsD])
   (f : (A ⇒ (F:[C,D,hsD]))) (g : A ⇒ (G:[C,D,hsD])) :
    ∀
    t : Σ fg : A ⇒ (product_functor:[C,D,hsD]),
-       fg ;; (product_nat_trans_pr1 : (product_functor:[C,D,hsD]) ⇒ F) = f 
-      × 
+       fg ;; (product_nat_trans_pr1 : (product_functor:[C,D,hsD]) ⇒ F) = f
+      ×
        fg ;; (product_nat_trans_pr2 : (product_functor:[C,D,hsD]) ⇒ G) = g,
    t =
    tpair
      (λ fg : A ⇒ (product_functor:[C,D,hsD]),
       fg ;; (product_nat_trans_pr1 : (product_functor:[C,D,hsD]) ⇒ F) = f
-   × 
+   ×
       fg ;; (product_nat_trans_pr2 : (product_functor:[C,D,hsD]) ⇒ G) = g)
      (product_nat_trans A f g)
      (dirprodpair (product_nat_trans_Pr1Commutes A f g)
@@ -203,8 +203,9 @@ Proof.
   simpl in *.
   destruct t as [t1 [ta tb]].
   simpl in *.
-  apply (total2_paths_second_isaprop).
-  - simpl.
+  apply subtypeEquality.
+  - intros.
+    simpl.
     apply isapropdirprod;
     apply isaset_nat_trans;
     apply hsD.
@@ -220,10 +221,10 @@ Proof.
       * apply (nat_trans_eq_pointwise tb).
 Qed.
 
-Definition functor_precat_product_cone 
+Definition functor_precat_product_cone
   : ProductCone [C, D, hsD] F G.
 Proof.
-  exists (tpair _ product_functor (dirprodpair product_nat_trans_pr1 
+  exists (tpair _ product_functor (dirprodpair product_nat_trans_pr1
                                                  product_nat_trans_pr2)).
   intros A f g.
   exists (tpair _ (product_nat_trans A f g)

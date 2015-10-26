@@ -29,14 +29,14 @@ Proof.
 Qed.
 
 Lemma PullbackArrowUnique {a b c d : C} (f : b --> a) (g : c --> a)
-        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g) 
+        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g)
      (P : isPullback f g p1 p2 H) e (h : e --> b) (k : e --> c)
      (Hcomm : h ;; f = k ;; g)
      (w : e --> d)
      (H1 : w ;; p1 = h) (H2 : w ;; p2 = k) :
      w = (pr1 (pr1 (P e h k Hcomm))).
 Proof.
-  set (T := tpair (fun hk : e --> d => dirprod (hk ;; p1 = h)(hk ;; p2 = k)) 
+  set (T := tpair (fun hk : e --> d => dirprod (hk ;; p1 = h)(hk ;; p2 = k))
                     w (dirprodpair H1 H2)).
   set (T' := pr2 (P e h k Hcomm) T).
   exact (base_paths _ _ T').
@@ -55,42 +55,42 @@ Definition hasPullbacks := forall (a b c : C) (f : b --> a) (g : c --> a),
          ishinh (Pullback f g).
 
 
-Definition PullbackObject {a b c : C} {f : b --> a} {g : c --> a}: 
+Definition PullbackObject {a b c : C} {f : b --> a} {g : c --> a}:
    Pullback f g -> C := fun H => pr1 (pr1 H).
 Coercion PullbackObject : Pullback >-> ob.
 
-Definition PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a} 
+Definition PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a}
    (Pb : Pullback f g) : Pb --> b := pr1 (pr2 (pr1 Pb)).
 
-Definition PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a} 
+Definition PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a}
    (Pb : Pullback f g) : Pb --> c := pr2 (pr2 (pr1 Pb)).
 
-Definition PullbackSqrCommutes {a b c : C} {f : b --> a} {g : c --> a} 
-   (Pb : Pullback f g) : 
-    PullbackPr1 Pb ;; f = PullbackPr2 Pb ;; g . 
-Proof. 
+Definition PullbackSqrCommutes {a b c : C} {f : b --> a} {g : c --> a}
+   (Pb : Pullback f g) :
+    PullbackPr1 Pb ;; f = PullbackPr2 Pb ;; g .
+Proof.
   exact (pr1 (pr2 Pb)).
 Qed.
 
-Definition isPullback_Pullback {a b c : C} {f : b --> a}{g : c --> a} 
-   (P : Pullback f g) : 
+Definition isPullback_Pullback {a b c : C} {f : b --> a}{g : c --> a}
+   (P : Pullback f g) :
   isPullback f g (PullbackPr1 P) (PullbackPr2 P) (PullbackSqrCommutes P).
 Proof.
   exact (pr2 (pr2 P)).
 Qed.
 
-Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a} 
+Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a}
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) : e --> Pb :=
    pr1 (pr1 (isPullback_Pullback Pb e h k H)).
 
-Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a} 
+Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a}
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) :
    PullbackArrow Pb e h k H ;; PullbackPr1 Pb = h.
 Proof.
   exact (pr1 (pr2 (pr1 (isPullback_Pullback Pb e h k H)))).
 Qed.
 
-Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a} 
+Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a}
    (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) :
    PullbackArrow Pb e h k H ;; PullbackPr2 Pb = k.
 Proof.
@@ -99,8 +99,8 @@ Qed.
 
 
 
-Definition identity_is_Pullback_input {a b c : C}{f : b --> a} {g : c --> a} (Pb : Pullback f g) : 
- total2 (fun hk : Pb --> Pb => 
+Definition identity_is_Pullback_input {a b c : C}{f : b --> a} {g : c --> a} (Pb : Pullback f g) :
+ total2 (fun hk : Pb --> Pb =>
    dirprod (hk ;; PullbackPr1 Pb = PullbackPr1 Pb)(hk ;; PullbackPr2 Pb = PullbackPr2 Pb)).
 Proof.
   exists (identity Pb).
@@ -131,7 +131,7 @@ Defined.
 
 
 Lemma are_inverses_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
-   (Pb Pb': Pullback f g) : 
+   (Pb Pb': Pullback f g) :
 is_inverse_in_precat (from_Pullback_to_Pullback Pb Pb')
   (from_Pullback_to_Pullback Pb' Pb).
 Proof.
@@ -146,7 +146,7 @@ Qed.
 
 
 Lemma isiso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
-   (Pb Pb': Pullback f g) : 
+   (Pb Pb': Pullback f g) :
       is_isomorphism (from_Pullback_to_Pullback Pb Pb').
 Proof.
   apply (is_iso_qinv _ (from_Pullback_to_Pullback Pb' Pb)).
@@ -201,11 +201,11 @@ Proof.
    { rewrite assoc.
      set (X := pr2 (pr2 (pr1 rt'))). simpl in X.
            unfold awe. rewrite X.
-           exact (pr2 (pr2 (pr1 rt))). 
+           exact (pr2 (pr2 (pr1 rt))).
    }
   exists (tpair _ awe (dirprodpair Hawe1 Hawe2)).
   intro t.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   - intro a0. apply isapropdirprod;
     apply hs.
   - simpl. destruct t as [t [Ht1 Ht2]].
@@ -248,11 +248,11 @@ Proof.
   apply impred; intro g;
   apply invproofirrelevance.
   intros Pb Pb'.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   - intro; apply isofhleveltotal2.
     + apply hs.
     + intros; apply isaprop_isPullback.
-  - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))). 
+  - apply (total2_paths  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).
     rewrite transportf_dirprod, transportf_isotoid.
     rewrite inv_from_iso_iso_from_Pullback.
     rewrite transportf_isotoid.
@@ -262,7 +262,7 @@ Proof.
     simpl in *.
     destruct Cone as [p [h k]];
     destruct Cone' as [p' [h' k']];
-    simpl in *. 
+    simpl in *.
     unfold from_Pullback_to_Pullback;
     rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.
     apply idpath.

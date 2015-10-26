@@ -241,7 +241,7 @@ Lemma Dcuts_eq_is_eq :
     Dcuts_eq x y -> x = y.
 Proof.
   intros x y (Hle,Hge).
-  apply total2_paths_second_isaprop.
+  apply subtypeEquality; intros.
   apply pr2.
   apply funextsec.
   intro r.

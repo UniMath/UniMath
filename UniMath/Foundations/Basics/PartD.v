@@ -646,7 +646,7 @@ Proof . intro . apply ( isinclpr1 _ ( fun t : T => isapropisisolated T t ) ) . D
 (** associativity of weqcomp **)
 
 Definition weqcomp_assoc {W X Y Z : UU} (f:W≃X) (g:X≃Y) (h:Y≃Z) : (h∘(g∘f) = (h∘g)∘f) %weq.
-Proof. intros. apply total2_paths_isaprop. { intros. apply isapropisweq. } simpl. reflexivity.
+Proof. intros. apply subtypeEquality. { intros p. apply isapropisweq. } simpl. reflexivity.
 Defined.
 
 (** ** Various weak equivalences between spaces of weak equivalences *)

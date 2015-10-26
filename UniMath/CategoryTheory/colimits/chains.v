@@ -109,17 +109,17 @@ Defined.
 Lemma unshift_shift_cocone (D : diagram nat_graph C)
   (x : C) (cx : cocone D x) : unshift_cocone (shift_cocone cx) = cx.
 Proof.
-apply total2_paths_second_isaprop; simpl.
-- now repeat (apply impred; intro); apply hsC.
-- now apply funextsec; intro n; apply (coconeInCommutes cx).
+apply subtypeEquality; simpl.
+- intros. now repeat (apply impred; intro); apply hsC.
+- intros. now apply funextsec; intro n; apply (coconeInCommutes cx).
 Qed.
 
 Lemma shift_unshift_cocone (D : diagram nat_graph C)
   (x : C) (cx : cocone (shift D) x) : shift_cocone (unshift_cocone cx) = cx.
 Proof.
-apply total2_paths_second_isaprop; simpl.
-- now repeat (apply impred; intro); apply hsC.
-- now apply funextsec; intro n; apply (coconeInCommutes cx _ _ (idpath _)).
+apply subtypeEquality; simpl.
+- intros. now repeat (apply impred; intro); apply hsC.
+- intros. now apply funextsec; intro n; apply (coconeInCommutes cx _ _ (idpath _)).
 Qed.
 
 (* Construct the colimit of the shifted diagram *)
@@ -135,8 +135,8 @@ refine (tpair _ _ _).
               [ apply (colimArrowCommutes _ _ (unshift_cocone _))
               | now apply (coconeInCommutes fx _ _ (idpath _)) ]).
 + abstract (simpl; intro f;
-            apply total2_paths_second_isaprop; simpl;
-              [ now apply impred; intro; apply hsC | ];
+            apply subtypeEquality; simpl;
+              [ intros; now apply impred; intro; apply hsC | ];
             apply colimArrowUnique; simpl; intro n;
             destruct f as [f Hf]; simpl;
             rewrite <- (Hf n), assoc;
@@ -158,8 +158,8 @@ refine (tpair _ _ _).
               | simpl; now eapply pathscomp0;
                   [|apply (coconeInCommutes fx _ _ (idpath _))]]).
 + abstract (simpl; intro f;
-            apply total2_paths_second_isaprop;
-              [ now apply impred; intro; apply hsC|]; simpl;
+            apply subtypeEquality;
+              [ intros; now apply impred; intro; apply hsC|]; simpl;
             apply colimArrowUnique; simpl; intro n;
             destruct f as [f Hf]; simpl;
             rewrite <- Hf;
