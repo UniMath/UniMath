@@ -571,112 +571,90 @@ Section third_monad_law_with_assoc.
 Lemma third_monad_law_from_hss : (`T) ∘ μ_2 ;; μ_2 = 
      (α_functor _ _ _ _ : functor_compose hs hs _ _  ⇒ _) ;; (μ_2 øø `T) ;; μ_2.
 Proof.
-  pathvia μ_3.
-  - apply pathsinv0. apply μ_3_T_μ_2_μ_2.
-  -  unfold μ_3.
-     apply pathsinv0.
-     apply (fbracket_unique (*_pointwise*) T  μ_2_ptd).
-     split.
-     + apply nat_trans_eq; try assumption; intro c.
-       simpl.
-       rewrite assoc.
-       pathvia (identity _ ;; μ_2 c).
-       * apply pathsinv0, id_left. 
-       * apply cancel_postcomposition.
-         rewrite id_left.
-         assert (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
-         simpl in H1.
-         apply (!H1).
-     + 
-       (* unfold θ_Strength2_int in HTT. *)
-       rewrite functor_comp.
-       rewrite functor_comp.
-       
-       rewrite assoc.
-       rewrite assoc.
-       rewrite assoc.
-       rewrite assoc.
-       unfold T_squared.
-       apply nat_trans_eq; try assumption.
-       intro x; simpl.
-      
-       assert (HTT := θ_strength2_int).
-       assert (HX := HTT (`T) (ptd_from_alg T) (ptd_from_alg T)); clear HTT.
-       assert (HX':= nat_trans_eq_pointwise HX x); clear HX.
-       simpl in HX'.
-
-       match goal with | [ H : _  = ?f |- _ ;; _ ;; ?g ;; ?h ;; ?i = _ ] => 
-               pathvia (f ;; g ;; h ;; i) end.
-       * apply cancel_postcomposition.
-         apply cancel_postcomposition.
-         apply cancel_postcomposition.
-         apply HX'.
-       * clear HX'.
-         rewrite id_left.
-         rewrite id_right.
-         assert (HX:=θ_nat_1 _ _ H θ _ _ μ_2).
-         assert (HX1:= HX (ptd_from_alg T)); clear HX.
-         simpl in HX1.
-         assert (HXX:=nat_trans_eq_pointwise HX1 x); clear HX1.
-         simpl in HXX.
-         match goal with | [ H : ?x = _ |- ?e ;; _ ;; _ ;; ?f ;; ?g = _ ] => 
+  pathvia μ_3; [apply pathsinv0, μ_3_T_μ_2_μ_2 | ].
+  apply pathsinv0.
+  apply (fbracket_unique (*_pointwise*) T  μ_2_ptd).
+  split.
+  - apply nat_trans_eq; try assumption; intro c.
+    simpl.
+    rewrite assoc.
+    pathvia (identity _ ;; μ_2 c).
+    + apply pathsinv0, id_left. 
+    + apply cancel_postcomposition.
+      rewrite id_left.
+      assert (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
+      simpl in H1.
+      apply (!H1).
+  - rewrite functor_comp.
+    rewrite functor_comp.
+    rewrite assoc.
+    rewrite assoc.
+    rewrite assoc.
+    rewrite assoc.
+    unfold T_squared.
+    apply nat_trans_eq; try assumption.
+    intro x; simpl.
+    assert (HTT := θ_strength2_int).
+    assert (HX := HTT (`T) (ptd_from_alg T) (ptd_from_alg T)); clear HTT.
+    assert (HX':= nat_trans_eq_pointwise HX x); clear HX.
+    simpl in HX'.
+    match goal with | [ H : _  = ?f |- _ ;; _ ;; ?g ;; ?h ;; ?i = _ ] => 
+                      pathvia (f ;; g ;; h ;; i) end.
+    + apply cancel_postcomposition.
+      apply cancel_postcomposition.
+      apply cancel_postcomposition.
+      apply HX'.
+    + clear HX'.
+      rewrite id_left.
+      rewrite id_right.
+      assert (HX:=θ_nat_1 _ _ H θ _ _ μ_2).
+      assert (HX1:= HX (ptd_from_alg T)); clear HX.
+      simpl in HX1.
+      assert (HXX:=nat_trans_eq_pointwise HX1 x); clear HX1.
+      simpl in HXX.
+      match goal with | [ H : ?x = _ |- ?e ;; _ ;; _ ;; ?f ;; ?g = _ ] => 
                  pathvia (e ;; x ;; f ;; g) end.
-           apply cancel_postcomposition.
-           apply cancel_postcomposition.
-           repeat rewrite <- assoc.
-           apply maponpaths. apply pathsinv0. 
-           match goal with | [ H : _ = ?x |- _ ] => pathvia x end.
-             repeat rewrite assoc.
-             repeat rewrite assoc in HXX.
-             apply HXX.
-
-             clear HXX.
+      * apply cancel_postcomposition.
+        apply cancel_postcomposition.
+        repeat rewrite <- assoc.
+        apply maponpaths. apply pathsinv0. 
+        {
+          match goal with | [ H : _ = ?x |- _ ] => pathvia x end.
+          - repeat rewrite assoc.
+            repeat rewrite assoc in HXX.
+            apply HXX.
+          -  clear HXX.
              apply maponpaths.
              match goal with | [ |- _  ?a ?x = _  ?b ?y ] => assert (TTT : a = b) end.
-             match goal with | [ |- _ ?a = _ ?b ] => assert (TTTT : a = b) end.
-               apply nat_trans_eq; try assumption.
-               intros. simpl. rewrite functor_id. apply id_right.
-
-               rewrite TTTT. apply idpath.
-               
-               rewrite TTT. apply idpath.
-
-               clear HXX.
-               
-      
-         
-         assert (H4 := fbracket_τ T (identity _ )).
-         assert (H5:= nat_trans_eq_pointwise H4 x); clear H4.
-         unfold μ_2.
-         simpl in H5.
-         repeat rewrite <- assoc.
-         repeat rewrite <- assoc in H5.
-         simpl.
-         eapply pathscomp0. apply maponpaths. apply maponpaths. apply maponpaths.
-          apply H5.
-(*      match goal with |[ H5 : _ = ?e |- ?a ;; ?b ;; ?c ;; _ ;; _ ;; _ = _ ] =>
-            transitivity (a ;; b ;; c;; e) end.
-      
+             {
+               match goal with | [ |- _ ?a = _ ?b ] => assert (TTTT : a = b) end.
+               { apply nat_trans_eq; try assumption.
+                 intros. simpl. rewrite functor_id. apply id_right.
+               }
+               apply maponpaths. apply TTTT.
+             }
+             apply (nat_trans_eq_pointwise TTT).
+         }
+      * clear HXX.
+        assert (H4 := fbracket_τ T (identity _ )).
+        assert (H5:= nat_trans_eq_pointwise H4 x); clear H4.
+        unfold μ_2.
+        simpl in H5.
         repeat rewrite <- assoc.
-        apply maponpaths.
-        apply maponpaths.
-        apply maponpaths.
         repeat rewrite <- assoc in H5.
-        apply H5.
- *)
-          
-         rewrite functor_id.
-         rewrite id_left.
-         assert (H4':= fbracket_τ T (identity _ )).
-         assert (H6:= nat_trans_eq_pointwise H4' (pr1 `T x)); clear H4'.
-         repeat rewrite assoc.
-         apply cancel_postcomposition.
-         simpl in H6.
-         unfold coproduct_nat_trans_in2_data in H6. simpl in H6.
-         rewrite assoc in H6.
-         eapply pathscomp0.
-         apply H6.
-         repeat rewrite assoc. apply idpath.
+        simpl.
+        eapply pathscomp0. apply maponpaths. apply maponpaths. apply maponpaths. apply H5.  
+        clear H5.
+        rewrite functor_id.
+        rewrite id_left.
+        repeat rewrite assoc. 
+        apply cancel_postcomposition.
+        assert (H4':= fbracket_τ T (identity _ )).
+        assert (H6:= nat_trans_eq_pointwise H4' (pr1 `T x)); clear H4'.
+        simpl in H6.
+        unfold coproduct_nat_trans_in2_data in H6. simpl in H6.
+        rewrite assoc in H6. 
+        apply H6.
 Qed.
 
 End third_monad_law_with_assoc.
