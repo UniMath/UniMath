@@ -241,14 +241,13 @@ Lemma Dcuts_eq_is_eq :
     Dcuts_eq x y -> x = y.
 Proof.
   intros x y (Hle,Hge).
-  apply subtypeEquality; intros.
-  apply pr2.
+  apply subtypeEquality.
+  { intro. apply pr2. }
   apply funextsec.
   intro r.
   apply weqtopathshProp.
   apply logeqweq ; intros Hr.
-  revert Hle ; apply hinhuniv ; intro Hle.
-  now apply Hle.
+  { revert Hle ; apply hinhuniv ; intro Hle. now apply Hle. }
   revert Hge ; apply hinhuniv ; intro Hge.
   now apply Hge.
 Qed.

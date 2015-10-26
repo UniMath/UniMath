@@ -236,7 +236,7 @@ Proof.
   destruct t as [t1 [ta tb]].
   simpl in *.
   apply subtypeEquality.
-  - intros.
+  - intro.
     apply isapropdirprod;
     apply isaset_nat_trans;
     apply hsD.

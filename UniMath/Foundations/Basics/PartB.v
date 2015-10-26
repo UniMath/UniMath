@@ -426,6 +426,7 @@ Defined.
 
 Corollary subtypeEquality' {A : UU} {B : A -> UU} 
    {s s' : total2 (fun x => B x)} : pr1 s = pr1 s' -> isaprop (B (pr1 s')) -> s = s'.
+(* This variant of subtypeEquality is not often needed. *)
 Proof. intros ? ? ? ? e is. apply (total2_paths e). apply is. Defined.
 
 Definition subtypePairEquality {X} {P:X -> UU} (is: isPredicate P)
@@ -436,7 +437,7 @@ Proof. intros X P is x y p q e. apply (total2_paths2 e). apply is. Defined.
 Definition subtypePairEquality' {X} {P:X -> UU}
            {x y:X} {p:P x} {q:P y} :
   x = y -> isaprop(P y) -> (x,,p) = (y,,q).
-(* This variant of subtypePairEquality is not often needed. *)
+(* This variant of subtypePairEquality is never needed. *)
 Proof. intros X P x y p q e is. apply (total2_paths2 e). apply is. Defined.
 
 Theorem samehfibers { X Y Z : UU } (f: X -> Y) (g: Y -> Z) (is1: isincl  g) ( y: Y): weq ( hfiber f y ) ( hfiber ( fun x => g ( f x ) ) ( g y ) ) .

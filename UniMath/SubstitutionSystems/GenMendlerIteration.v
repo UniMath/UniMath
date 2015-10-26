@@ -183,7 +183,7 @@ Proof.
     assert (same: h = preIt).
 Focus 2.
     apply subtypeEquality.
-    + intros.
+    + intro.
       simpl.
       apply hsC'.
 Focus 2.

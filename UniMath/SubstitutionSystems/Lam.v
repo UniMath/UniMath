@@ -485,7 +485,7 @@ Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
 Proof.
   intro t.
   apply subtypeEquality.
-  { intros.
+  { intro.
     apply isaset_nat_trans. apply hs. }
   simpl.
   destruct t as [t Ht]; simpl.
