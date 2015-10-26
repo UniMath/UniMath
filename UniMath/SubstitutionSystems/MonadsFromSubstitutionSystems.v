@@ -558,7 +558,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
             rewrite assoc in H6.
             apply H6. 
          }
-Admitted.    (* only admitted in order to reduce compile time - the proof is complete in that there are no more subgoals *)
+Qed.    (* only admitted in order to reduce compile time - the proof is complete in that there are no more subgoals *)
 
 (* for Travis *)
 Check  μ_3_μ_2_T_μ_2.

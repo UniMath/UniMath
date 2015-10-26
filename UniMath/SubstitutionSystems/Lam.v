@@ -326,13 +326,6 @@ Proof.
       clear Hyp2.
       apply pathsinv0.
       assumption.
-(*
-      match goal with | [H : ?e = _ |- _ ] => transitivity e end.
-      Focus 2. apply idpath.
-      match goal with | [H : _ = ?f |- _ ] => transitivity f end.
-      Focus 1. apply idpath.
-      apply pathsinv0. assumption.
-*)  
     
     (* There should be a more general hypothesis than 'Hyp' defined above,
        one where one has a quantification over maps 'f', no? *)
@@ -381,36 +374,29 @@ Proof.
 *)
     
       match goal with |[ T3' : _ = ?f |- _ = ?a ;; ?b ;; _ ;; ?d  ] => transitivity (a ;; b ;; #T f ;; d) end.
-      Focus 2. apply cancel_postcomposition. apply maponpaths. apply maponpaths. apply (!T3'). 
+        Focus 2. apply cancel_postcomposition. apply maponpaths. apply maponpaths. apply (!T3'). 
       clear T3'.
-
       apply pathsinv0.
 
       assert (T3':= nat_trans_eq_pointwise T3 (T (Z c))).
     
       eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition. apply maponpaths. apply T3'.
-
       clear T3'.                   
       apply pathsinv0.
-
       destruct f as [f fptdmor]. simpl in *.
-      simpl.
-
       rewrite id_right.
       rewrite id_right.
 
       repeat rewrite assoc.
 
       assert (X := fptdmor (T (Z c))). clear T3 fptdmor.
-      assert (X' := maponpaths (#T) X).
+      assert (X' := maponpaths (#T) X); clear X.
       rewrite functor_comp in X'.
 
       apply pathsinv0.
       eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition.
                        apply cancel_postcomposition. apply X'.
                        clear X'.
-
-      clear X.
     
       assert (X := Monad_law_2_from_hss _ _ CC Lam_S LamHSS (T (Z c))).
       unfold μ_0 in X. unfold μ_2 in X.
@@ -418,12 +404,7 @@ Proof.
       match goal with |[ X : ?e = _ |- ?a ;; ?b ;; _ ;; _  = _ ] =>
                      assert (X' : e = a ;; b) end.
       { apply cancel_postcomposition. apply maponpaths.
-        simpl.
-        unfold coproduct_nat_trans_in1_data. simpl.
-        repeat rewrite  assoc.
-        unfold coproduct_nat_trans_data.
-        apply pathsinv0. eapply pathscomp0. apply CoproductIn1Commutes.
-        apply idpath. 
+        apply pathsinv0, CoproductIn1Commutes.
       }
 
       rewrite X' in X. clear X'.
@@ -441,14 +422,13 @@ Proof.
       rewrite functor_comp.
       repeat rewrite <- assoc.
       apply maponpaths.
-
     
       assert (X := third_monad_law_from_hss _ _ CC Lam_S LamHSS).
       assert (X' := nat_trans_eq_pointwise X). clear X.
       simpl in X'.
       
       eapply pathscomp0. apply X'.
-      rewrite id_left. apply idpath.
+      clear X'. apply cancel_postcomposition. apply id_left. 
 Qed.
 
 (** * Uniqueness of the bracket operation *)
@@ -478,67 +458,54 @@ Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
 Proof.
   intro t.
   apply total2_paths_second_isaprop.
-  apply isaset_nat_trans. apply hs.
-  simpl.
-  destruct t as [t Ht]; simpl.
-  unfold fbracket_for_LamE_algebra_on_Lam.
-  apply (fbracket_unique LamHSS).
-  split.
-  -  apply parts_from_whole in Ht. destruct Ht as [H1 _].
-     apply nat_trans_eq; try assumption.
-     intro c.
-     assert (HT:=nat_trans_eq_pointwise H1 c).
-     simpl.
-     rewrite id_right.
-     match goal with |[ H : _ = ?a |- _ ] => transitivity a end.
-     + apply HT.
-     + simpl. repeat rewrite assoc. apply cancel_postcomposition.
-       repeat rewrite <- assoc.
-       unfold coproduct_nat_trans_in1_data.
-       unfold coproduct_nat_trans_data.
-       eapply pathscomp0. apply CoproductIn1Commutes.
-       apply idpath.
-  - apply parts_from_whole in Ht. destruct Ht as [_ H2].
-     apply nat_trans_eq; try assumption.
-     intro c.
-     assert (HT := nat_trans_eq_pointwise H2 c).
-     match goal with |[H2 : ?e = ?f |- _ ] =>
+  - apply isaset_nat_trans. apply hs.
+  - simpl.
+    destruct t as [t Ht]; simpl.
+    unfold fbracket_for_LamE_algebra_on_Lam.
+    apply (fbracket_unique LamHSS).
+    split.
+    + apply parts_from_whole in Ht. destruct Ht as [H1 _].
+      apply nat_trans_eq; try assumption.
+      intro c.
+      assert (HT:=nat_trans_eq_pointwise H1 c).
+      simpl.
+      rewrite id_right.
+      eapply pathscomp0. apply HT.
+      simpl. repeat rewrite assoc. apply cancel_postcomposition.
+      apply CoproductIn1Commutes.
+    + apply parts_from_whole in Ht. destruct Ht as [_ H2].
+      apply nat_trans_eq; try assumption.
+      intro c.
+      assert (HT := nat_trans_eq_pointwise H2 c).
+      match goal with |[H2 : ?e = ?f |- _ ] =>
                          assert (X: CoproductIn1 _ _ ;; e = CoproductIn1 _ _ ;; f) end.
-     { apply maponpaths . assumption. }
-     clear HT. clear H2.
+      { apply maponpaths . assumption. }
+      clear HT. clear H2.
 
-     match goal with |[X : _ = ?f |- _ ] => transitivity f end.
-     Focus 2. rewrite τ_LamE_algebra_on_Lam.
-     eapply pathscomp0. apply assoc.
-     eapply pathscomp0. apply cancel_postcomposition. apply CoproductIn1Commutes.
-     apply idpath.
+      match goal with |[X : _ = ?f |- _ ] => transitivity f end.
+       Focus 2. rewrite τ_LamE_algebra_on_Lam.
+       eapply pathscomp0. apply assoc.
+       apply cancel_postcomposition. apply CoproductIn1Commutes.
+   
+      match goal with |[X : ?e = _ |- _ ] => transitivity e end.
+       Focus 2. apply X.
 
-     match goal with |[X : ?e = _ |- _ ] => transitivity e end.
-     Focus 2. apply X.
-
-     rewrite τ_LamE_algebra_on_Lam.
+      rewrite τ_LamE_algebra_on_Lam.
      
-     apply pathsinv0.
-     eapply pathscomp0. apply assoc.
-     eapply pathscomp0.
-     apply cancel_postcomposition. apply assoc.
-     eapply pathscomp0.
-     apply cancel_postcomposition.
-     apply cancel_postcomposition.
-     apply CoproductIn1Commutes.
+      apply pathsinv0.
+      eapply pathscomp0. apply assoc.
+      eapply pathscomp0. apply cancel_postcomposition. apply assoc.
+      eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition.
+      apply CoproductIn1Commutes.
 
-     repeat rewrite <- assoc.
+      repeat rewrite <- assoc.
+      eapply pathscomp0. apply maponpaths. apply assoc.
 
-     eapply pathscomp0. apply maponpaths.
-     apply assoc.
+      eapply pathscomp0. apply maponpaths. apply cancel_postcomposition. apply CoproductIn1Commutes.
 
-     eapply pathscomp0. apply maponpaths. apply cancel_postcomposition.
-     apply CoproductIn1Commutes.
-
-     eapply pathscomp0. apply maponpaths. apply (!assoc _ _ _ _ _ _ _ _ ).
-     eapply pathscomp0. apply maponpaths. apply maponpaths.
-     apply CoproductIn1Commutes.
-     apply idpath.
+      eapply pathscomp0. apply maponpaths. apply (!assoc _ _ _ _ _ _ _ _ ).
+      simpl. apply maponpaths. apply maponpaths.
+      apply CoproductIn1Commutes.
 Qed.     
 
 
