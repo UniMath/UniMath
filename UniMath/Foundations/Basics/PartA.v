@@ -99,6 +99,9 @@ Definition dirprod (X Y : UU) := Σ x:X, Y.
 Notation "A × B" := (dirprod A B) (at level 75, right associativity) : type_scope.
   (* type this in emacs in agda-input method with \times *)
 
+Definition dirprod_pr1 {X Y:UU} := pr1 : X×Y -> X.
+Definition dirprod_pr2 {X Y:UU} := pr2 : X×Y -> Y.
+
 Definition dirprodpair {X Y : UU} := tpair (fun x : X => Y).
 
 Definition dirprodadj {X Y Z : UU} (f : dirprod X Y -> Z) : X -> Y -> Z :=  
@@ -133,14 +136,17 @@ Definition negf {X Y : UU} (f : X -> Y) : ¬ Y -> ¬ X := λ phi x, phi (f x).
 
 Definition dneg (X : UU) : UU := ¬ ¬ X.
 
+Notation "'¬¬' X" := (dneg X) (at level 35, right associativity).
+  (* type this in emacs in agda-input method with \neg *)
+
 Definition dnegf {X Y : UU} (f : X -> Y) : dneg X -> dneg Y :=
   negf (negf f).
 
 Definition todneg (X : UU) : X -> dneg X := adjev.
 
-Definition dnegnegtoneg { X : UU } : dneg (¬ X) -> ¬ X := adjev2.
+Definition dnegnegtoneg { X : UU } : ¬¬ ¬ X -> ¬ X := adjev2.
 
-Lemma dneganddnegl1 {X Y : UU} (dnx : dneg X) (dny : dneg Y) : ¬ (X -> ¬ Y).
+Lemma dneganddnegl1 {X Y : UU} (dnx : ¬¬ X) (dny : ¬¬ Y) : ¬ (X -> ¬ Y).
 Proof.
   intros.
   intros X2.
@@ -150,7 +156,7 @@ Proof.
 Defined.
 
 Definition dneganddnegimpldneg {X Y : UU}
-  (dnx : dneg X) (dny : dneg Y) : dneg (dirprod X Y) := ddualand dnx dny. 
+  (dnx : ¬¬ X) (dny : ¬¬ Y) : ¬¬ (X × Y) := ddualand dnx dny. 
 
 (** *** Logical equivalence *)
 
