@@ -8,19 +8,6 @@ Local Notation "● x" := (x,,idpath _) (at level 35).
 
 (* propositions, move upstream *)
 
-Lemma neg_isdecprop {X} : isdecprop X -> isdecprop (¬ X).
-Proof.
-  intros ? i.
-  assert (j := isdecproptoisaprop X i).
-  apply isdecpropif.
-  { apply isapropneg. }
-  unfold isdecprop in i.
-  assert (k := pr1 i); clear i.
-  induction k as [k|k].
-  { apply ii2. now apply todneg. }
-  now apply ii1.
-Defined.
-
 (* decidable propositions, move upstream *)
 
 Definition DecidableProposition := Σ X:UU, isdecprop X.
@@ -498,10 +485,9 @@ Abort.
 Open Scope logic.
 
 Definition isLattice {X:hSet} (le:hrel X) (min max:binop X) :=
-  Σ po : ispo le,
+  Σ po : ( ispo le × isantisymm le ),
   Σ lub : ∀ x y z, le x z ∧ le y z <-> le (max x y) z,
   Σ glb : ∀ x y t, le t x ∧ le t y <-> le t (min x y),
-  Σ transle: ∀ x y z, le x y -> le y z -> le x z,
   unit.
 
 Definition istrans2 {X:hSet} (le lt:hrel X) :=
@@ -523,18 +509,26 @@ Definition isComputablyOrdered {X:hSet}
   let le x y := ¬ lt y x in
   Σ latt: isLattice le min max,
   Σ trans2: istrans2 le lt,
-  Σ asymm: isasymm lt,          (* ? not on Andrej's list *)
+  Σ asymm: isasymm lt,
+     (* not on Andrej's list, but assuming x<y and y<x one has
+          x ≤ min x y ≤ y ≤ min x y ≤ x, so x = y, but ¬ x<x holds *)
   Σ translt: istrans lt,
   Σ irrefl: isirrefl lt,
   Σ cotrans: iscotrans lt,
   unit.
+
+Definition switch2 {X Y Z} (f : X -> Y -> Z) : Y -> X -> Z.
+Proof.
+  intros ? ? ? ? y x.
+  now apply f.
+Defined.
 
 Local Theorem classical {X:hSet} (lt:hrel X) (min max:binop X) :
   let le x y := ¬ lt y x in
   isComputablyOrdered lt min max -> LEM -> istotal le.
 Proof.      
   intros ? ? ? ? ?
-         [[po[lub[glb[transle _]]]]
+         [[po[lub[glb _]]]
             [[transltle [translelt _]][asymm[translt[irrefl[cotrans _]]]]]] lem
   x y.
   apply hinhpr.

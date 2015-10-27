@@ -679,7 +679,18 @@ Proof . intros. set ( w := weqimplimpl ( pr1 lg ) ( pr2 lg ) isx isy ) . apply (
 Lemma isdecproplogeqb { X Y : UU } ( isx : isaprop X ) ( isy : isdecprop Y ) ( lg : X <-> Y ) : isdecprop X .
 Proof . intros. set ( w := weqimplimpl ( pr1 lg ) ( pr2 lg ) isx isy ) . apply ( isdecpropweqb w isy ) . Defined .    
 
-
+Lemma neg_isdecprop {X} : isdecprop X -> isdecprop (¬ X).
+Proof.
+  intros ? i.
+  assert (j := isdecproptoisaprop X i).
+  apply isdecpropif.
+  { apply isapropneg. }
+  unfold isdecprop in i.
+  assert (k := pr1 i); clear i.
+  induction k as [k|k].
+  { apply ii2. now apply todneg. }
+  now apply ii1.
+Defined.
 
 Lemma isdecpropfromneg { X : UU } ( ne : neg X ) : isdecprop X .
 Proof. intros . apply ( isdecpropweqb ( weqtoempty ne ) isdecpropempty ) . Defined .  
