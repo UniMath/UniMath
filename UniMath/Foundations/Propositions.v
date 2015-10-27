@@ -401,6 +401,15 @@ Proof.
   { contradiction. }
 Defined.
 
+Corollary reversal_LEM (P Q:hProp) : LEM -> (¬P -> Q) -> (¬Q -> P).
+Proof.
+  intros ? ? lem f n.
+  assert (g := negf f); clear f.
+  assert (h := g n); clear g n.
+  apply (dneg_LEM _ lem).
+  exact h.
+Defined.
+
 (** ** Univalence axiom for hProp 
 
 We introduce here the weakest form of the univalence axiom - the univalence axiom for hProp which is equivalent to the second part of the extensionality axiom in Church simple type theory.  This axiom is easily shown to be equivalent to its version with [P = P'] as a target and to [ weqtopathshProp ] (see below) as well as to the version of [ weqtopathshProp ] with [P = P'] as a target. 
