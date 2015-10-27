@@ -50,7 +50,7 @@ Proof.
   choose P a b.
   - simpl. reflexivity.
   - simpl. contradicts p b.
-Defined.  
+Defined.
 
 Definition choice_compute_no {W} (P:DecidableProposition) (p:¬P) (yes no:W) :
   choice P yes no = no.
@@ -60,7 +60,7 @@ Proof.
   choose P a b.
   - simpl. contradicts p a.
   - simpl. reflexivity.
-Defined.  
+Defined.
 
 Definition underlyingType {X} : DecidableSubtype X -> UU.
 Proof. intros ? S. exact (Σ x, S x). Defined.
@@ -85,13 +85,13 @@ Proof.
     + apply logeq_both_true.
       * reflexivity.
       * assumption.
-    + apply isasetbool.    
+    + apply isasetbool.
     + apply (propproperty (DecidableProposition_to_hProp _)).
   - simpl. apply weqiff.
     + apply logeq_both_false.
       * exact nopathsfalsetotrue.
       * assumption.
-    + apply isasetbool.    
+    + apply isasetbool.
     + apply (propproperty (DecidableProposition_to_hProp _)).
 Defined.
 
@@ -132,7 +132,7 @@ Notation " x !=? y " := ( natneq_DecidableProposition x y ) (at level 70, no ass
 Local Definition bound01 (P:DecidableProposition) : ((choice P 1 0) ≤ 1)%nat.
 Proof.
   intros. unfold choice. choose P p q; exact nopathsfalsetotrue.
-Defined.  
+Defined.
 
 Definition tallyStandardSubset {n} (P: DecidableSubtype (stn n)) : stn (S n).
 Proof. intros. exists (stnsum (λ x, choice (P x) 1 0)). apply natlehtolthsn.
@@ -268,7 +268,7 @@ Proof. reflexivity. Defined.
 
 (* now we try to mimic this construction:
 
-    Inductive PosetEquivalence (X Y:Poset) : Type := 
+    Inductive PosetEquivalence (X Y:Poset) : Type :=
                   pathToEq : (X=Y) -> PosetEquivalence X Y.
 
     PosetEquivalence_rect
@@ -296,7 +296,7 @@ Lemma isMinimal_preserved {X Y:Poset} {x:X} (is:isMinimal x) (f:X ≅ Y) :
   isMinimal (f x).
 Proof.
   intros.
-  (* Anders says " induction f. " should look for PosetEquivalence_rect.  
+  (* Anders says " induction f. " should look for PosetEquivalence_rect.
      Why doesn't it? *)
   poset_induction f e. induction e. simpl. exact is.
 Defined.
@@ -327,7 +327,7 @@ Definition OrderedSet := Σ X, isOrdered X.
 Local Definition underlyingPoset (X:OrderedSet) : Poset := pr1 X.
 Coercion underlyingPoset : OrderedSet >-> Poset.
 
-Delimit Scope oset with oset. 
+Delimit Scope oset with oset.
 
 Definition Poset_lessthan {X:Poset} (x y:X) := (x ≤ y) ∧ (hneg (x = y)).
 
@@ -349,7 +349,7 @@ Definition OrderedSet_isantisymm {X:OrderedSet} (x y:X) :
 Definition OrderedSet_istotal {X:OrderedSet} (x y:X) :
   x ≤ y ∨ y ≤ x :=
   pr1 (pr2 X) x y.
-  
+
 Lemma isdeceq_isdec_ordering (X:OrderedSet) : isdeceq X -> isdec_ordering X.
 Proof.
   intros ? deceq ? ?.
@@ -408,7 +408,7 @@ Proof.
 Defined.
 
 Ltac oset_induction f e := generalize f; apply OrderedSetEquivalence_rect; intro e; clear f.
-  
+
 (* standard ordered sets *)
 
 Definition FiniteOrderedSet := Σ X:OrderedSet, isfinite X.
@@ -437,7 +437,7 @@ Proof.
   apply total2_paths_isaprop.
   { intros g. apply isaprop_isPosetEquivalence. }
   simpl. apply isinjpr1weq. simpl. apply funextfun. intros i.
-    
+
 
 Abort.
 
@@ -448,7 +448,7 @@ Proof.
   destruct r as [m p].
   destruct s as [n q].
   apply total2_paths2_second_isaprop.
-  { 
+  {
     apply weqtoeqstn.
     exact (weqcomp (pr1 p) (invweq (pr1 q))).
   }
@@ -456,12 +456,12 @@ Proof.
     intros k.
     apply invproofirrelevance; intros [[r b] i] [[s c] j]; simpl in r,s,i,j.
     apply total2_paths2_second_isaprop.
-    { 
+    {
       apply total2_paths2_second_isaprop.
-      { 
-        
-        
-        
+      {
+
+
+
         admit. }
       apply isapropisweq. }
     apply isaprop_isPosetEquivalence.
@@ -505,38 +505,118 @@ Proof.
 Defined.
 
 Definition isComputablyOrdered {X:hSet}
-           (lt:hrel X) (min max:binop X) := 
+           (lt:hrel X) (min max:binop X) :=
   let le x y := ¬ lt y x in
   Σ latt: isLattice le min max,
   Σ trans2: istrans2 le lt,
-  Σ asymm: isasymm lt,
-     (* not on Andrej's list, but assuming x<y and y<x one has
-          x ≤ min x y ≤ y ≤ min x y ≤ x, so x = y, but ¬ x<x holds *)
   Σ translt: istrans lt,
   Σ irrefl: isirrefl lt,
   Σ cotrans: iscotrans lt,
   unit.
 
-Definition switch2 {X Y Z} (f : X -> Y -> Z) : Y -> X -> Z.
-Proof.
-  intros ? ? ? ? y x.
-  now apply f.
-Defined.
+Section OtherProperties.
 
-Local Theorem classical {X:hSet} (lt:hrel X) (min max:binop X) :
-  let le x y := ¬ lt y x in
-  isComputablyOrdered lt min max -> LEM -> istotal le.
-Proof.      
-  intros ? ? ? ? ?
-         [[po[lub[glb _]]]
-            [[transltle [translelt _]][asymm[translt[irrefl[cotrans _]]]]]] lem
-  x y.
-  apply hinhpr.
-  induction (lem (le x y)) as [a|a].
-  { now apply ii1. }
-  induction (lem (le y x)) as [b|b].
-  { now apply ii2. }
-  assert (a' := dneg_LEM _ lem a); clear a.
-  assert (b' := dneg_LEM _ lem b); clear b.
-  induction (asymm _ _ a' b').
-Defined.
+  Variable (X:hSet)
+            (lt:hrel X)
+            (min max:binop X)
+            (ic:isComputablyOrdered lt min max).
+
+  Let le x y := ¬ lt y x.
+  Let apart x y := lt y x ∨ lt x y.
+  Let eq x y := @eqset X x y.
+  Let ne x y := hneg (eq x y).
+
+  Local Ltac expand ic :=
+    induction ic as
+      [[[[transle reflle]antisymmle][lub[glb _]]]
+         [[transltle [translelt _]][translt[irrefl[cotrans _]]]]].
+
+  Local Lemma apart_isirrefl : isirrefl apart.
+  Proof.
+    expand ic.
+    intros x a.
+    unfold apart in a.
+    apply (a hfalse); clear a; intros b.
+    induction b as [b|b]; exact (irrefl _ b).
+  Defined.
+
+  Local Lemma lt_implies_le x y : lt x y -> le x y.
+  Proof.
+    intros ? ? l.
+    intro m.
+    expand ic.
+    assert (n := translt _ _ _ l m).
+    exact (irrefl _ n).
+  Qed.
+
+  Local Lemma apart_implies_ne x y : apart x y -> ne x y.
+  Proof.
+    expand ic.
+    intros ? ? a e.
+    induction e.
+    apply (apart_isirrefl _ a).
+  Defined.
+
+  Local Lemma ne_implies_dnegapart x y : ne x y -> ¬¬ apart x y.
+  Proof.
+    expand ic.
+    intros ? ? n m.
+    unfold apart in m.
+    assert (p := fromnegcoprod_prop m); clear m.
+    induction p as [p q].
+    assert (r := antisymmle _ _ p q).
+    contradiction.
+  Defined.
+
+  Section ClassicalProperties.
+
+    Variable lem:LEM.
+
+    Local Lemma ne_implies_apart x y : ne x y -> apart x y.
+    Proof.
+      intros ? ? a.
+      apply (dneg_LEM _ lem).
+      now apply ne_implies_dnegapart.
+    Defined.
+
+    Local Lemma trichotomy x y : lt x y ∨ eq x y ∨ lt y x.
+    Proof.
+      intros.
+      induction (lem (eq x y)) as [a|b].
+      - apply hdisj_in2.
+        apply hdisj_in1.
+        exact a.
+      - assert (l := ne_implies_apart _ _ b).
+        unfold apart in l.
+        apply l; intro m.
+        induction m as [n|o].
+        * apply hdisj_in2.
+          apply hdisj_in2.
+          exact n.
+        * apply hdisj_in1.
+          exact o.
+    Defined.
+
+    Local Lemma le_istotal : istotal le.
+    Proof.
+      intros.
+      intros x y.
+      assert (m := trichotomy x y).
+      apply m; clear m; intros [m|m].
+      - apply hdisj_in1.
+        apply lt_implies_le.
+        exact m.
+      - apply m; clear m; intros [m|m].
+        apply hdisj_in1.
+        induction m.
+        unfold le.
+        expand ic.
+        apply irrefl.
+        apply hdisj_in2.
+        apply lt_implies_le.
+        exact m.
+    Defined.
+
+  End ClassicalProperties.
+
+End OtherProperties.
