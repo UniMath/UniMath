@@ -325,6 +325,14 @@ Proof . intros ? ? is. unfold hdisj.  apply ( weqnegtonegishinh ) . apply tonegc
 Lemma fromnegcoprod { X Y : UU } : ¬ (X ⨿ Y) -> ¬X × ¬Y.
 Proof .  intros ? ? is. split .  exact ( fun x => is ( ii1 x ) ) . exact ( fun y => is ( ii2 y ) ) . Defined .
 
+Corollary fromnegcoprod_prop { X Y : hProp } : ¬ (X ∨ Y) -> ¬X ∧ ¬Y.
+Proof.
+  intros ? ? n.
+  simpl in *.
+  assert (n' := negf hinhpr n); simpl in n'; clear n.
+  now apply fromnegcoprod.
+Defined.
+
 Lemma hdisjtoimpl { P : UU } { Q : hProp } : P ∨ Q -> ¬P -> Q.
 Proof . intros P Q . assert ( int : isaprop ( ¬ P -> Q ) ) . apply impred . intro . apply ( pr2 Q ) .  simpl .  apply ( @hinhuniv _ ( hProppair _ int ) ) .  simpl .  intro pq . destruct pq as [ p | q ] . intro np . destruct ( np p ) .  intro np . apply q . Defined . 
 
