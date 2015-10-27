@@ -202,10 +202,9 @@ Lemma preCompWithColimOfArrows_subproof {g : graph} {d1 d2 : diagram g C}
   (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e)
   (x : C) (cc : cocone d2 x) u v (e : edge u v) :
-      dmor d1 e ;; (λ u0 : vertex g, f u0 ;; coconeIn cc u0) v =
-      (λ u0 : vertex g, f u0;; coconeIn cc u0) u.
+     dmor d1 e ;; (f v ;; coconeIn cc v) = f u ;; coconeIn cc u.
 Proof.
-now simpl; rewrite <- (coconeInCommutes cc u v e), !assoc, fNat.
+  now rewrite <- (coconeInCommutes cc u v e), !assoc, fNat.
 Qed.
 
 Lemma precompWithColimOfArrows {g : graph} (d1 d2 : diagram g C)

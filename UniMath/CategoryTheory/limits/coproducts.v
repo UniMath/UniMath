@@ -44,7 +44,6 @@ Variable C : precategory.
 Definition isCoproductCocone (a b co : C) (ia : a ⇒ co) (ib : b ⇒ co) :=
   isColimCocone (coproduct_diagram a b) co (CopCocone ia ib).
 
-
 Definition mk_isCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a ⇒ co) (ib : b ⇒ co) :
    (∀ (c : C) (f : a ⇒ c) (g : b ⇒ c),
     ∃! k : C ⟦co, c⟧,
@@ -83,7 +82,7 @@ Defined.
 Definition Coproducts := ∀ (a b : C), CoproductCocone a b.
 Definition hasCoproducts := ishinh Coproducts.
 
-Definition CoproductObject {a b : C} (CC : CoproductCocone a b) : C := pr1 (pr1 CC).
+Definition CoproductObject {a b : C} (CC : CoproductCocone a b) : C := colim CC.
 Definition CoproductIn1 {a b : C} (CC : CoproductCocone a b): a ⇒ CoproductObject CC
   := colimIn CC true.
 
@@ -282,3 +281,9 @@ Qed.
 
 End coproduct_unique.
 End coproduct_def.
+
+Lemma Coproducts_from_Colims (C : precategory) :
+  Colims C -> Coproducts C.
+Proof.
+now intros H a b; apply H.
+Defined.

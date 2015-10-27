@@ -125,7 +125,7 @@ Definition SpecializedGMIt (Z : Ptd) (X : EndC) :=
 
 Definition θ_in_first_arg (Z: Ptd) := nat_trans_fix_snd_arg _ _ _ _ _ θ Z.
 
-Definition InitAlg : Alg := InitialObject _ IA.
+Definition InitAlg : Alg := InitialObject IA.
 
 
 
@@ -446,7 +446,7 @@ Local Lemma foo' (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
      (bracket_Thm15 Z f) (bracket_Thm15_ok_cor Z f).
 Proof.
   intros [h' h'_eq].
-  apply subtypeInjectivity.
+  apply subtypeEquality.
   - intro.
     unfold bracket_property.
     apply isaset_nat_trans. exact hs.
@@ -659,12 +659,12 @@ Defined.
 Lemma ishssMor_InitAlg (T' : hss CP H) :
   @ishssMor C hs CP H
         InitHSS T'
-           (InitialArrow Alg IA (pr1 T') : @algebra_mor EndC Id_H InitAlg T' ).
+           (InitialArrow IA (pr1 T') : @algebra_mor EndC Id_H InitAlg T' ).
 Proof.
   unfold ishssMor.
   unfold isbracketMor.
   intros Z f.
-  set (β0 := InitialArrow Alg IA (pr1 T')).
+  set (β0 := InitialArrow IA (pr1 T')).
   match goal with | [|- _ ;; ?b = _ ] => set (β := b) end.
   set ( rhohat := CoproductArrow EndC  (CPEndC _ _ )  β (tau_from_alg T')
                   :  pr1 Ghat T' ⇒ T').
@@ -746,7 +746,7 @@ Proof.
             apply CoproductIn2Commutes_left_in_ctx_dir.
             simpl.
             unfold coproduct_nat_trans_in2_data, coproduct_nat_trans_data.
-            assert (Hyp := τ_part_of_alg_mor _ hs CP _ _ _ (InitialArrow Alg IA (pr1 T'))).
+            assert (Hyp := τ_part_of_alg_mor _ hs CP _ _ _ (InitialArrow IA (pr1 T'))).
             assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
             simpl in Hyp_c.
             eapply pathscomp0. eapply pathsinv0. exact Hyp_c.
@@ -834,7 +834,7 @@ Proof.
                  (theta H) ((alg_carrier _  T') ⊗ Z);;
                  # H (fbracket T' (f;; ptd_from_alg_mor C hs CP H β0))
                  =
-                 θ (tpair (λ _ : functor C C, ptd_obj C) (pr1 (pr1 IA)) Z) ;;
+                 θ (tpair (λ _ : functor C C, ptd_obj C) (alg_carrier _ (InitialObject IA)) Z) ;;
                  # H (# (pr1 (ℓ(U Z))) β ;;
                  fbracket T' (f;; ptd_from_alg_mor C hs CP H β0)))).
 
@@ -867,7 +867,7 @@ Qed.
 Definition hss_InitMor : ∀ T' : hss CP H, hssMor InitHSS T'.
 Proof.
   intro T'.
-  exists (InitialArrow Alg IA (pr1 T')).
+  exists (InitialArrow IA (pr1 T')).
   apply ishssMor_InitAlg.
 Defined.
 
@@ -876,18 +876,12 @@ Lemma hss_InitMor_unique (T' : hss_precategory CP H):
 Proof.
   intro t.
   apply (invmap (hssMor_eq1 _ _ _ _ _ _ _ _ )).
-  set (T2:= pr2 IA).
-  simpl in T2.
-  set (T3 := T2 (pr1 T')).
-  simpl.
-  set (T4 := pr2 T3).
-  simpl in T4.
-  set (T5 := T4 (pr1 t)).
-  apply T5.
+  apply (@InitialArrowUnique _ IA (pr1 T') (pr1 t)).
 Qed.
 
 Lemma isInitial_InitHSS : isInitial (hss_precategory CP H) InitHSS.
 Proof.
+  refine (mk_isInitial _ _).
   intro T.
   exists (hss_InitMor T).
   apply hss_InitMor_unique.
@@ -896,7 +890,7 @@ Defined.
 
 Lemma InitialHSS : Initial (hss_precategory CP H).
 Proof.
-  exists InitHSS.
+  refine (mk_Initial InitHSS _).
   apply isInitial_InitHSS.
 Defined.
 

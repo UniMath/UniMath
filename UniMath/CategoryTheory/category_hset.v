@@ -31,10 +31,21 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.HLevel_n_is_of_hlevel_Sn.
 Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.limits.limits.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
 
+
+(*
 Local Notation "a --> b" :=
   (precategory_morphisms a b) (at level 50).
+*)
+
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 (* This should be moved upstream. Constructs the smallest eqrel
    containing a given relation *)
@@ -272,7 +283,7 @@ Local Definition cobase : UU := Σ j : vertex g, pr1hSet (dob D j).
 
 (* Theory about hprop is in UniMath.Foundations.Propositions *)
 Local Definition rel0 : hrel cobase := λ (ia jb : cobase),
-  hProppair (ishinh (Σ f : pr1 ia --> pr1 jb, dmor D f (pr2 ia) = pr2 jb))
+  hProppair (ishinh (Σ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb))
             (isapropishinh _).
 
 Local Definition rel : hrel cobase := eqrel_from_hrel rel0.
@@ -301,7 +312,7 @@ Definition colimHSET : HSET :=
            X/~ ----------> (Y,=)
 *)
 
-Local Definition injections j : dob D j --> colimHSET.
+Local Definition injections j : HSET ⟦dob D j, colimHSET⟧.
 Proof.
 intros Fj; apply (setquotpr _).
 exact (tpair _ j Fj).
@@ -352,7 +363,7 @@ Proof.
 now intros a b; apply rel_impl.
 Qed.
 
-Definition from_colimHSET : colimHSET --> c.
+Definition from_colimHSET : HSET ⟦colimHSET, c⟧.
 Proof.
 now simpl; apply (setquotuniv _ _ from_cobase iscomprel_from_base).
 Defined.
@@ -396,4 +407,99 @@ End colimits.
 Lemma ColimsHSET : Colims HSET.
 Proof.
 now intros g d; apply ColimCoconeHSET.
+Defined.
+
+Lemma CoproductsHSET : Coproducts HSET.
+Proof.
+now apply Coproducts_from_Colims, ColimsHSET.
+Defined.
+
+Lemma InitialHSET : Initial HSET.
+Proof.
+now apply Initial_from_Colims, ColimsHSET.
+Defined.
+
+
+Section limits.
+
+Variable g : graph.
+Variable D : diagram g HSET^op.
+
+Definition limset_UU : UU :=
+  Σ (f : ∀ u : vertex g, pr1hSet (dob D u)),
+    ∀ u v (e : edge u v), dmor D e (f v) = f u.
+
+Definition limset : HSET.
+Proof.
+  exists limset_UU.
+  abstract (apply (isofhleveltotal2 2);
+            [ apply impred; intro; apply pr2 |
+              intro f; repeat (apply impred; intro);
+              apply isasetaprop;
+              apply (pr2 (dob D t))]).
+Defined.
+
+Lemma LimConeHSET : LimCone D.
+Proof.
+  refine (mk_LimCone _ _ _ _ ).
+  - apply limset.
+  - refine (mk_cone _ _ ).
+    + intro u. simpl.
+      intro f.
+      exact (pr1 f u).
+    + intros u v e; simpl.
+      apply funextfun.
+      intro f; simpl.
+      apply (pr2 f).
+  - intros X CC.
+    refine (tpair _ _ _ ).
+    + refine (tpair _ _ _ ).
+      * simpl.
+        intro x.
+        {
+          refine (tpair _ _ _ ).
+          - intro u.
+            apply (coconeIn CC u x). (* TODO : hide implementation of limits *)
+          - intros u v e. simpl.
+            set (T := coconeInCommutes CC _ _ e).
+            apply (toforallpaths _ _ _ T).
+        }
+      * intro v. apply idpath.
+   + intro t.
+     apply subtypeEquality.
+     * intro; apply impred; intro.
+       apply isaset_set_fun_space.
+     * simpl.
+       destruct t as [t p]; simpl.
+       apply funextfun.
+       intro x; simpl.
+       unfold compose. simpl.
+       {
+         apply subtypeEquality.
+         - intro; repeat (apply impred; intro).
+           apply (setproperty (dob D t0)).
+         - simpl.
+           apply funextsec.
+           intro u.
+           simpl in p.
+           set (p' := toforallpaths _ _ _ (p u)).
+           apply p'.
+       }
+Defined.
+
+End limits.
+
+Lemma LimsHSET : Lims HSET.
+Proof.
+now intros g d; apply LimConeHSET.
+Defined.
+
+Lemma ProductsHSET : Products HSET.
+Proof.
+now apply Products_from_Lims, LimsHSET.
+Defined.
+
+Lemma PullbacksHSET : Pullbacks HSET.
+Proof.
+now apply Pullbacks_from_Lims, LimsHSET.
 Defined.
