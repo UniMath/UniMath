@@ -66,20 +66,20 @@ Definition GH_path3_comp2 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} {y':Y}
   ap pr12_GH (GH_path3 l u) = idpath y'.
 Proof. intros. destruct u. reflexivity. Defined.
 
-Definition irr {Y} {y:Y} {l:y = y} (T:Torsor ℤ) := proofirrGuidedHomotopy T (confun T y) (confun T l).
+Local Definition irr {Y} {y:Y} (l:y = y) (T:Torsor ℤ) := proofirrGuidedHomotopy T (confun T y) (confun T l).
 
-Definition sec {Y} {y:Y} {l:y = y} (T:Torsor ℤ) := makeGuidedHomotopy2 T (confun T y) (confun T l).
+Local Definition sec {Y} {y:Y} (l:y = y) (T:Torsor ℤ) := makeGuidedHomotopy2 T (confun T y) (confun T l).
 
-Definition pr1_GH_weq {Y} {y:Y} {l:y = y} : weq (GH l) (Torsor ℤ) := weqpr1_irr_sec irr sec.
+Definition pr1_GH_weq {Y} {y:Y} {l:y = y} : weq (GH l) (Torsor ℤ) := weqpr1_irr_sec (irr l) (sec l).
 
 Definition homotinvweqweq_GH_comp {Y} {y:Y} {l:y = y}
            (T:Torsor ℤ) (gh:ZGuidedHomotopy l T) : 
   @paths (@paths (GH l)
              (invweq (@pr1_GH_weq _ _ l) T) (T,,gh))
-            (homotinvweqweq' irr sec (T,,gh))
+            (homotinvweqweq' (irr l) (sec l) (T,,gh))
             (@pair_path_in2 _ (ZGuidedHomotopy l) 
-                            _ (sec T) gh 
-                            (irr T (sec T) gh)).
+                            _ (sec l T) gh 
+                            (irr l T (sec l T) gh)).
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
 
@@ -98,7 +98,7 @@ Definition pr1_GH_weq_compute {Y} {y:Y} (l:y = y) :
   let T0 := trivialTorsor ℤ in 
   let t0 := 0 : T0 in 
     @paths (y = y)
-              (ap pr12_GH (homotinvweqweq' irr sec (makeGH1 l T0 t0)))
+              (ap pr12_GH (homotinvweqweq' (irr l) (sec l) (makeGH1 l T0 t0)))
               (idpath y).
 Proof. intros.
        unfold makeGH1,makeGH,GHpair.
@@ -110,16 +110,16 @@ Proof. intros.
                   @ _).
        refine (pr12_pair_path_in2 
                  l T0 
-                 (irr T0 (sec T0)
+                 (irr l T0 (sec l T0)
                       (makeGuidedHomotopy (fun _ : T0 => y) (confun T0 l) t0 (idpath y)))
                  @ _).
        unfold sec.
        change (makeGuidedHomotopy (fun _ : T0 => y) (confun T0 l) t0 (idpath y))
-       with (sec (l:=l) T0).
+       with (sec l T0).
        change (makeGuidedHomotopy2 T0 (confun T0 y) (confun T0 l))
-       with (sec (l:=l) T0).
-       change (idpath y) with (ap pr1 (idpath (sec (l:=l) T0))).
-       apply (ap (ap pr1)). apply irrel_paths. apply irr. Defined.
+       with (sec l T0).
+       change (idpath y) with (ap pr1 (idpath (sec l T0))).
+       apply (ap (ap pr1)). apply irrel_paths. apply (irr l). Defined.
 
 (** ** Various paths in GH *)
 
@@ -241,7 +241,7 @@ Defined.
 Definition circle_map_check_paths {Y} {y:Y} (l:y = y) : 
   ap (circle_map l) circle_loop = l.
 Proof. intros. assert (p := pr1_GH_weq_compute l).
-       refine (_ @ loop_correspondence' irr sec pr12_GH 
+       refine (_ @ loop_correspondence' (irr l) (sec l) pr12_GH 
                       (makeGH_diagonalLoop_comp1 l _ _ (loop_compute 0))
                       (makeGH_diagonalLoop_comp2 l _ _ (loop_compute 0)) @ _).
        { intermediate_path (ap (circle_map l) circle_loop @ idpath y).
@@ -250,22 +250,25 @@ Proof. intros. assert (p := pr1_GH_weq_compute l).
            exact (ap (fun r => ap (circle_map l) circle_loop @ r) p). } }
        { exact (ap (fun r => r @ l) p). } Defined. 
 
-Print Assumptions circle_map_check_paths.
-
 (** *** The induction principle (dependent functions) *)
 
 
 Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)} 
            (l:circle_loop#y = y) : ∀ c:circle, Y c.
-Proof. (** (not proved yet) *) admit. Admitted.
+Proof. (** (not proved yet) *)
+Abort.
 
 (* One approach to the theorem above would be through the results of the paper
  "Higher Inductive Types as Homotopy-Initial Algebras", by Kristina Sojakova,
  http://arxiv.org/abs/1402.0761 *)
 
-Lemma circle_map_check_paths' {Y} (f:circle->Y) : circle_map (ap f circle_loop) = f .
+Lemma circle_map_check_paths'
+      (circle_map': ∀ (Y:circle->UU) (y:Y(basepoint circle))
+           (l:circle_loop#y = y) (c:circle), Y c)
+      {Y} (f:circle->Y) :
+  circle_map (ap f circle_loop) = f .
 Proof. intros. apply funextsec; intro T. generalize T; clear T.
-       refine (circle_map' _).
+       refine (circle_map' _ _ _).
        { reflexivity. }
        { set (y := f (basepoint circle)). set (l := ap f circle_loop).
          set (P := fun T : underlyingType circle => circle_map _ T = f T).

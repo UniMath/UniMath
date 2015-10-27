@@ -17,27 +17,30 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 Require Export UniMath.Foundations.NaturalNumbers .
 
-
-(* To up-stream files *)
-
-
-
-
-
-
-
 (** ** Standard finite sets [ stn ] . *)
 
-
-
-Definition stn ( n : nat ) := total2 ( fun m : nat => natlth m n ) .
-Definition stnpair ( n : nat ) := tpair ( fun m : nat => natlth m n ) .
+Definition stn ( n : nat ) := Σ m, m < n.
+Definition stnpair n m (l:m<n) := (m,,l) : stn n.
 Definition stntonat ( n : nat ) : stn n -> nat := @pr1 _ _ .
 Coercion stntonat : stn >-> nat .
 Lemma stnlt {n} (i:stn n) : i < n.
 Proof. intros. exact (pr2 i). Defined.
 
-Notation " 'stnel' ( i , j ) " := ( stnpair _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) ) ( at level 70 ) .
+(* old way:
+   Notation " 'stnel' ( i , j ) " := 
+      ( stnpair _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) )
+      ( at level 70 ) . *)
+Notation " 'stnpr' j " := (j,,idpath _) ( at level 70 ) .
+Notation " 'stnel' ( i , j ) " := ( (j,,idpath _) : stn i ) ( at level 70 ) .
+Goal stn 6. exact (stnel(6,3)). Qed.
+Goal stn 6. exact (stnpr 3). Qed.
+
+Definition stnincl m n (l:m≤n) : stn m -> stn n.
+Proof.
+  intros ? ? ? i. exists i. eapply natlthlehtrans.
+  - exact (pr2 i).
+  - exact l.
+Defined.
 
 Lemma isinclstntonat ( n : nat ) : isincl ( stntonat n ) .
 Proof. intro .  apply isinclpr1 .  intro x .  apply ( pr2 ( natlth x n ) ) .  Defined.
@@ -64,12 +67,16 @@ Proof . intro . apply weqpr1 . intro x .   apply iscontraprop1 .  apply ( isapro
 Corollary isasetstn ( n : nat ) : isaset ( stn n ) .
 Proof. intro . apply ( isasetifdeceq _ ( isdeceqstn n ) ) . Defined . 
 
+Definition stnset n := hSetpair (stn n) (isasetstn n).
+
+Definition stn_to_nat n : stnset n -> natset := pr1.
+
 Definition stnposet ( i : nat ) : Poset .
 Proof. intro. unfold Poset . split with ( hSetpair ( stn i ) ( isasetstn i ) ) . unfold po. split with ( fun j1 j2 : stn i => natleh j1 j2 ) . split with ( fun j1 j2 j3 : stn i => istransnatleh j1 j2 j3 ) . exact ( fun j : stn i => isreflnatleh j ) . Defined. 
 
 
 Definition lastelement ( n : nat ) : stn ( S n ) .
-Proof. intro .   split with n .  apply ( natgthsnn ( S n ) ) .  Defined . 
+Proof. intro .   split with n .  apply ( natgthsnn n ) .  Defined . 
 
 Definition firstelement (n:nat) : stn(S n).
 Proof. intro. exists 0. apply natgthsn0. Defined.
@@ -86,9 +93,12 @@ Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : stn m -> stn n := 
 Definition dni ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn ( S n ) .
 Proof. intros n i x .  destruct ( natlthorgeh x i ) . apply ( stnpair ( S n ) x ( natgthtogths _ _ ( pr2 x ) ) ) .  apply ( stnpair ( S n ) ( S x ) ( pr2 x ) ) .  Defined.  
 
-Definition dni_allButLast n : stn n -> stn (S n).
+Definition dni_lastelement {n} : stn n -> stn (S n).
 (* this definition is simpler than that of [dni n (lastelement n)], since no choice is involved, so it's useful in special situations *)
-Proof. intros ? h. destruct h as [h hm]. exists h. now apply natlthtolths. Defined.
+Proof. intros ? h. exists (pr1 h). exact (natlthtolths _ _ (pr2 h)). Defined.
+
+Definition pr1_dni_lastelement {n} {i:stn n} : pr1 (dni_lastelement i) = pr1 i.
+Proof. reflexivity. Defined.
 
 Lemma dnicommsq ( n : nat ) ( i : stn ( S n ) ) : commsqstr( dni n i )  ( stntonat ( S n ) ) ( stntonat n ) ( di i )  .
 Proof. intros . intro x . unfold dni . unfold di . destruct ( natlthorgeh x i ) .  simpl .  apply idpath . simpl .  apply idpath . Defined . 
@@ -115,7 +125,12 @@ Lemma iscontrhfiberdni ( n : nat ) ( i j : stn ( S n ) ) ( ne : neg ( paths i j 
 Proof . intros . set ( ne' := negf ( invmaponpathsincl _ ( isinclstntonat ( S n ) ) _ _ ) ne ) .  apply ( iscontrweqb ( weqhfiberdnihfiberdi n i j ) ( iscontrhfiberdi i j ne' ) ) .  Defined . 
 
 Lemma isdecincldni ( n : nat ) ( i : stn ( S n ) ) : isdecincl ( dni n i ) .
-Proof.  intros . intro j . destruct ( isdeceqstn _ i j ) as [i0|] . rewrite i0 .  apply ( isdecpropfromneg ( neghfiberdni n j ) ) . apply ( isdecpropfromiscontr ( iscontrhfiberdni _ _ _ e ) ) .  Defined . 
+Proof.  intros . intro j .
+        induction ( isdeceqstn _ i j ) as [i0|e].
+        rewrite i0.
+        apply ( isdecpropfromneg ( neghfiberdni n j ) ) .
+        apply ( isdecpropfromiscontr (iscontrhfiberdni _ _ _ e) ) .
+Defined . 
  
 Lemma isincldni ( n : nat ) ( i : stn ( S n ) ) : isincl ( dni n i ) .
 Proof. intros . apply ( isdecincltoisincl _  ( isdecincldni n i ) ) .  Defined . 
@@ -141,8 +156,20 @@ Proof. intros . intro jni . destruct jni as [ j ni ] . set ( jni := complpair _ 
 
 Definition weqdnicompl ( n : nat ) ( i : stn ( S n ) ) := weqpair _ ( isweqdnitocompl n i ) . 
 
+Definition weqdnicompl_compute_first n i : pr1 (pr1 (weqdnicompl n (firstelement n) i)) = S (pr1 i).
+Proof. reflexivity. Defined.
 
+Definition weqdnicompl_compute_last n i : pr1 (pr1 (weqdnicompl n (lastelement n) i)) = pr1 i.
+Proof.
+  intros. induction i as [i b]. simpl. unfold dni; simpl.
+  induction (natlthorgeh i n) as [p|p]. { reflexivity. } { contradicts b p. }
+Defined.
 
+Definition inv_weqdnicompl_compute_last n i : pr1 (invweq (weqdnicompl n (lastelement n)) i) = pr1 (pr1 i).
+Proof.
+  intros.
+  exact ( ! (weqdnicompl_compute_last _ _) @ (maponpaths pr1 (maponpaths pr1 (homotweqinvweq _ i)))).
+Defined.
 
 (** *** Weak equivalence from [ coprod ( stn n ) unit ] to [ stn ( S n ) ] defined by [ dni n i ] *)
 
@@ -187,35 +214,103 @@ Theorem weqfromcoprodofstn ( n m : nat ) : weq ( coprod ( stn n ) ( stn m ) ) ( 
 Proof. intros . 
 
 assert ( i1 : forall i : nat , natlth i n -> natlth i ( n + m ) ) . intros i1 l . apply ( natlthlehtrans _ _ _ l ( natlehnplusnm n m ) ) .    
-assert ( i2 : forall i : nat , natlth i m -> natlth ( i + n ) ( n + m ) ) .  intros i2 l .  rewrite ( natpluscomm i2  n ) .  apply natgthandplusl . assumption . 
-set ( f := fun ab : coprod ( stn n ) ( stn m ) => match ab with ii1 a =>  stnpair ( n + m ) a ( i1 a ( pr2 a ) ) | ii2 b => stnpair ( n + m ) ( b + n ) ( i2 b ( pr2 b ) ) end ) . 
+assert ( i2 : forall i : nat , natlth i m -> natlth ( n + i ) ( n + m ) ) .  intros i2 l .  apply natgthandplusl . assumption . 
+set ( f := fun ab : coprod ( stn n ) ( stn m ) => match ab with ii1 a =>  stnpair ( n + m ) a ( i1 a ( pr2 a ) ) | ii2 b => stnpair ( n + m ) ( n + b ) ( i2 b ( pr2 b ) ) end ) . 
 split with f . 
 
 assert ( is : isincl f ) .  apply  isinclbetweensets . apply ( isofhlevelssncoprod 0 _ _ ( isasetstn n ) ( isasetstn m ) ) .  apply ( isasetstn ( n + m ) ) .  intros x x' . intro e .   destruct x as [ xn | xm ] .
 
-destruct x' as [ xn' | xm' ] . apply ( maponpaths (@ii1 _ _ ) ) .  apply ( invmaponpathsincl _ ( isinclstntonat n ) _ _ ) .  destruct xn as [ x ex ] . destruct xn' as [ x' ex' ] . simpl in e .  simpl .  apply ( maponpaths ( stntonat ( n + m ) ) e  )  .   destruct xn as [ x ex ] . destruct xm' as [ x' ex' ] . simpl in e . assert ( l : natleh n x ) . set ( e' := maponpaths ( stntonat _ ) e ) .   simpl in e' . rewrite e' .  apply ( natlehmplusnm x' n  ) . destruct ( natlehtonegnatgth _ _ l ex ) .  
+destruct x' as [ xn' | xm' ] . apply ( maponpaths (@ii1 _ _ ) ) .  apply ( invmaponpathsincl _ ( isinclstntonat n ) _ _ ) .  destruct xn as [ x ex ] . destruct xn' as [ x' ex' ] . simpl in e .  simpl .  apply ( maponpaths ( stntonat ( n + m ) ) e  )  .   destruct xn as [ x ex ] . destruct xm' as [ x' ex' ] . simpl in e . assert ( l : natleh n x ) . set ( e' := maponpaths ( stntonat _ ) e ) .   simpl in e' . rewrite e' .  apply ( natlehnplusnm n x' ) . destruct ( natlehtonegnatgth _ _ l ex ) .  
 
-destruct x' as [ xn' | xm' ] . destruct xm as [ x ex ] . destruct xn' as [ x' ex' ] . simpl in e .  assert ( e' := maponpaths ( stntonat _ ) e ) .  simpl in e' .  assert ( a : empty ) . clear e . rewrite ( pathsinv0 e' ) in ex' .  apply ( negnatgthmplusnm _ _ ex' )  .   destruct a . destruct xm as [ x ex ] . destruct xm' as [ x' ex' ] .  simpl in e .  apply ( maponpaths ( @ii2 _ _ ) ) .   simpl .  apply ( invmaponpathsincl _ ( isinclstntonat m ) _ _ ) .  simpl .  apply ( invmaponpathsincl _ ( isinclnatplusr n ) _ _ ( maponpaths ( stntonat _ ) e ) ) .  
+destruct x' as [ xn' | xm' ] . destruct xm as [ x ex ] . destruct xn' as [ x' ex' ] . simpl in e .  assert ( e' := maponpaths ( stntonat _ ) e ) .  simpl in e' .  assert ( a : empty ) . clear e . rewrite ( pathsinv0 e' ) in ex' .  apply ( negnatgthnplusnm _ _ ex' )  .   destruct a . destruct xm as [ x ex ] . destruct xm' as [ x' ex' ] .  simpl in e .  apply ( maponpaths ( @ii2 _ _ ) ) .   simpl .  apply ( invmaponpathsincl _ ( isinclstntonat m ) _ _ ) .  simpl .  apply ( invmaponpathsincl _ ( isinclnatplusl n ) ) .  apply ( maponpaths ( stntonat _ ) e ).
 
 intro jl . apply iscontraprop1 .  apply ( is jl ) .   destruct jl as [ j l ] . destruct ( natgthorleh n j ) as [ i | ni ] .
  
 split with ( ii1 ( stnpair _ j i ) ) . simpl .   apply ( invmaponpathsincl _ ( isinclstntonat ( n + m ) )  (stnpair (n + m) j (i1 j i)) ( stnpair _ j l )  ( idpath j ) ) .
 
-set ( jmn := pr1 ( iscontrhfibernatplusr n j ni ) ) .   destruct jmn as [ k e ] . assert ( is'' : natlth k m ) . rewrite ( pathsinv0 e ) in l .  rewrite ( natpluscomm k n ) in l .  apply ( natgthandpluslinv _ _ _ l ) . split with ( ii2 ( stnpair _ k is'' ) ) .  simpl .  apply ( invmaponpathsincl _ ( isinclstntonat _ ) (stnpair _ (k + n) (i2 k is'')) ( stnpair _ j l ) e ) . Defined .
+set ( jmn := pr1 ( iscontrhfibernatplusl n j ni ) ) .   destruct jmn as [ k e ] . assert ( is'' : natlth k m ) . rewrite ( pathsinv0 e ) in l .  apply ( natgthandpluslinv _ _ _ l ) . split with ( ii2 ( stnpair _ k is'' ) ) .  simpl .  apply ( invmaponpathsincl _ ( isinclstntonat _ ) (stnpair _ (n + k) (i2 k is'')) ( stnpair _ j l ) e ) . Defined .
 
+(** Associativity of [weqfromcoprodofstn] *)
 
+Definition pr1_eqweqmap m n (e:m=n) (i:stn m) : pr1 (pr1weq (eqweqmap (maponpaths stn e)) i) = pr1 i.
+Proof. intros. induction e. reflexivity. Defined.
+
+Definition coprod_stn_assoc l m n : (
+  eqweqmap (maponpaths stn (natplusassoc l m n))
+           ∘ weqfromcoprodofstn (l+m) n
+           ∘ weqcoprodf (weqfromcoprodofstn l m) (idweq _)
+  ~
+  weqfromcoprodofstn l (m+n)
+           ∘ weqcoprodf (idweq _) (weqfromcoprodofstn m n)
+           ∘ weqcoprodasstor _ _ _
+  ) %weq.
+Proof.                     
+  intros.
+  intros abc.
+  rewrite 4? weqcomp_to_funcomp.
+  apply (invmaponpathsincl pr1). apply isinclstntonat.
+  rewrite <- funcomp_assoc. unfold funcomp at 1. rewrite pr1_eqweqmap.
+  induction abc as [[a|b]|c].
+  - simpl. reflexivity.
+  - simpl. reflexivity.    
+  - simpl. apply natplusassoc.
+Defined.
 
 (** *** Weak equivalence from the total space of a family [ stn ( f x ) ]  over [ stn n ] to [ stn ( stnsum n f ) ] *)
 
 Definition stnsum { n : nat } ( f : stn n -> nat ) : nat .
 Proof. intro n . induction n as [ | n IHn ] . intro. apply 0 . intro f . apply (  ( IHn ( fun i : stn n => f ( dni n ( lastelement n ) i ) ) ) + f ( lastelement n ) ) . Defined . 
 
-Theorem weqstnsum { n : nat } ( P : stn n -> UU ) ( f : stn n -> nat ) ( ww : forall i : stn n , weq ( stn ( f i ) )  ( P i ) ) : weq ( total2 P ) ( stn ( stnsum f ) ) .
-Proof . intro n . induction n as [ | n IHn ] . intros . simpl .  apply weqtoempty2 .  apply ( @pr1 _ _ ) .  apply negstn0 . intros .  simpl .  set ( a := stnsum (fun i : stn n => f (dni n (lastelement n) i)) ) . set ( b :=  f (lastelement n) ) . set ( w1 := invweq ( weqfp ( weqdnicoprod n ( lastelement n ) ) P ) ) . set ( w2 := weqcomp w1 ( weqtotal2overcoprod (fun x : coprod (stn n) unit => P ( weqdnicoprod n ( lastelement n )  x)) ) ) .  simpl in w2 . assert ( w3 : weq (total2 (fun x : stn n => P (dni n (lastelement n) x))) ( stn a ) ) .  assert ( int : forall x : stn n , weq  ( stn ( f ( dni n (lastelement n) x) ) ) ( P (dni n (lastelement n) x) ) ) .  intro x . apply ( ww ( dni n (lastelement n) x) ) .  apply ( IHn ( fun x : stn n => P (dni n (lastelement n) x)) ( fun x : stn n => f ( dni n (lastelement n) x ) ) int ) .  assert ( w4 : weq (total2 (fun _ : unit => P (lastelement n))) ( stn b) ) . apply ( weqcomp ( weqtotal2overunit (fun _ : unit => P (lastelement n)) ) ( invweq ( ww ( lastelement n ) ) ) ) .   apply ( weqcomp w2 ( weqcomp ( weqcoprodf w3 w4 ) ( weqfromcoprodofstn a b ) ) ) .  Defined . 
+(* confirm that [stnsum] is associative in the same way as the parser *)
+Local Notation "●" := (idpath _).
+Goal ∀ (f : stn 3 -> nat), stnsum f = f(0,,●) + f(1,,●) + f(2,,●).
+Proof. reflexivity. Defined.
 
+Lemma stnsum_le {n} (f g:stn n->nat) : (∀ i, f i ≤ g i) -> stnsum f ≤ stnsum g.
+Proof.
+  intros ? ? ? le. induction n as [|n IH]. { simpl. now apply falsetonegtrue. }
+  apply natlehandplus. { apply IH. intro i. apply le. } apply le.
+Defined.  
+
+Definition stnsum_1 n : stnsum(λ i:stn n, 1) = n.
+Proof.
+  intros. induction n as [|n IH]. { reflexivity. } simpl. rewrite natpluscomm. apply maponpaths.
+  exact IH.
+Defined.  
+
+Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
+  (∀ i, stn (f i) ≃ P i) -> total2 P ≃ stn (stnsum f).
+Proof.
+  intros ? ? ? ww. induction n as [ | n IHn ].
+  { intros. simpl. apply weqtoempty2. { exact pr1. } exact negstn0. }
+  intermediate_weq (Σ x : stn n ⨿ unit, P ((weqdnicoprod n (lastelement n)) x)).
+  { apply invweq. apply weqfp. }
+  intermediate_weq ((Σ x, P (dni n (lastelement n) x)) ⨿ (Σ _ : unit, P (lastelement n))).
+  { apply weqtotal2overcoprod. }
+  intermediate_weq (stn (stnsum (λ i, f (dni n (lastelement n) i))) ⨿ stn (f(lastelement n))).
+  { apply weqcoprodf.
+    { apply IHn. intro x. apply ww. }
+    intermediate_weq (P (lastelement n)).
+    { apply weqtotal2overunit. }
+    apply invweq. apply ww. }
+  apply weqfromcoprodofstn. 
+Defined.
+
+Corollary weqstnsum_idweq {n} (f:stn n->nat ) : total2 (λ i, stn (f i)) ≃ stn (stnsum f).
+Proof. intros. apply (weqstnsum (stn ∘ f) f (λ i, idweq _)). Defined.
 
 Corollary weqstnsum2 { X : UU } ( n : nat ) ( f : stn n -> nat ) ( g : X -> stn n ) ( ww : forall i : stn n , weq ( stn ( f i ) ) ( hfiber g i ) ) : weq X ( stn ( stnsum f ) ) .
 Proof. intros . assert ( w : weq X ( total2 ( fun i : stn n => hfiber g i ) ) ) . apply weqtococonusf . apply ( weqcomp w ( weqstnsum ( fun i : stn n => hfiber g i ) f ww ) ) .   Defined . 
+
+(** lexical enumeration of pairs of natural numbers *)
+
+Definition lexicalEnumeration {n} (m:stn n->nat) := invweq (weqstnsum_idweq m) : stn (stnsum m) ≃ (Σ i : stn n, stn (m i)).
+Definition inverse_lexicalEnumeration {n} (m:stn n->nat) := weqstnsum_idweq m : (Σ i : stn n, stn (m i)) ≃ stn (stnsum m).
+
+Definition lex_curry {X n} (m:stn n->nat) : (stn (stnsum m) -> X) -> (∀ (i:stn n), stn (m i) -> X).
+Proof. intros ? ? ? f ? j. exact (f (inverse_lexicalEnumeration m (i,,j))). Defined.
+Definition lex_uncurry {X n} (m:stn n->nat) : (∀ (i:stn n), stn (m i) -> X) -> (stn (stnsum m) -> X).
+Proof. intros ? ? ? g ij. exact (uncurry g (lexicalEnumeration m ij)). Defined.
 
 (** two generalizations of stnsum, potentially useful *)
 
@@ -237,22 +332,52 @@ Defined.
 
 (** *** Weak equivalence between the direct product of [ stn n ] and [ stn m ] and [ stn n * m ] *)
 
-Theorem weqfromprodofstn ( n m : nat ) : weq ( dirprod ( stn n ) ( stn m ) ) ( stn ( n * m ) ) .
-Proof .  intros . destruct ( natgthorleh m 0 ) as [ is | i ] . 
-
-assert ( i1 : forall i j : nat , natlth i n -> natlth j m ->  natlth ( j + i * m ) ( n * m ) ).  intros i j li lj . apply ( natlthlehtrans ( j + i * m ) ( ( S i ) * m ) ( n * m ) ( natgthandplusr m j ( i * m ) lj ) ( natlehandmultr ( S i ) n m ( natgthtogehsn _ _ li ) ) ) .     
-
-set ( f := fun ij : dirprod ( stn n ) ( stn m ) => match ij with tpair _ i j => stnpair ( n * m ) ( j + i * m ) ( i1 i j ( pr2 i ) ( pr2 j ) ) end ) .  split with f . 
-
-assert ( isinf : isincl f ) . apply isinclbetweensets . apply ( isofhleveldirprod 2 _ _ ( isasetstn n ) ( isasetstn m ) ) .  apply ( isasetstn ( n * m ) ) . intros ij ij' e .  destruct ij as [ i j ] . destruct ij' as [ i' j' ] .  destruct i as [ i li ] . destruct i' as [ i' li' ] .  destruct j as [ j lj ] . destruct j' as [ j' lj' ] . simpl in e . assert ( e' := maponpaths ( stntonat ( n * m ) ) e )  .   simpl in e' .
-assert ( eei : paths i i' ) . apply ( pr1 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ) .    
-set ( eeis := invmaponpathsincl _ ( isinclstntonat _ ) ( stnpair _ i li ) ( stnpair _ i' li' ) eei ) .
-assert ( eej : paths j j' ) . apply ( pr2 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ) . 
-set ( eejs := invmaponpathsincl _ ( isinclstntonat _ ) ( stnpair _ j lj ) ( stnpair _ j' lj' ) eej ) . apply ( pathsdirprod eeis eejs ) . 
-
-intro xnm .  apply iscontraprop1 . apply ( isinf xnm ) . set ( e := pathsinv0 ( natdivremrule xnm m ( natgthtoneq _ _ is ) ) ) .  set ( i := natdiv xnm m ) .   set ( j := natrem xnm m ) . destruct xnm as [ xnm lxnm ] .   set ( li := natlthandmultrinv _ _ _ ( natlehlthtrans _ _ _ ( natlehmultnatdiv xnm m ( natgthtoneq _ _ is ) ) lxnm ) ) .  set ( lj := lthnatrem xnm m ( natgthtoneq _ _ is ) ) .  split with ( dirprodpair ( stnpair n i li ) ( stnpair m j lj ) ) .  simpl . apply ( invmaponpathsincl _ ( isinclstntonat _ ) _ _ ) .  simpl . apply e .
-
-set ( e := natleh0tois0 _ i ) .  rewrite e .  rewrite ( natmultn0 n ) . split with ( @pr2 _ _ ) .   apply ( isweqtoempty2 _ ( weqstn0toempty ) ) . Defined . 
+Theorem weqfromprodofstn ( n m : nat ) : stn n × stn m ≃ stn (n * m).
+Proof.
+  intros.
+  induction ( natgthorleh m 0 ) as [ is | i ] . 
+  - assert ( i1 : ∀ i j : nat, i < n -> j < m -> j + i * m < n * m).
+    + intros i j li lj.
+      apply (natlthlehtrans ( j + i * m ) ( ( S i ) * m ) ( n * m )).
+      * change (S i * m) with (i*m + m). 
+        rewrite natpluscomm.
+        exact (natgthandplusl m j ( i * m ) lj ).
+      * exact ( natlehandmultr ( S i ) n m ( natgthtogehsn _ _ li ) ).
+    + set ( f := fun ij : stn n × stn m =>
+                   match ij
+                   with tpair _ i j =>
+                        stnpair ( n * m ) ( j + i * m ) ( i1 i j ( pr2 i ) ( pr2 j ) )
+                   end ).
+      split with f.
+      assert ( isinf : isincl f ) .
+      * apply isinclbetweensets .
+        apply ( isofhleveldirprod 2 _ _ ( isasetstn n ) ( isasetstn m ) ) .
+        apply ( isasetstn ( n * m ) ) .
+        intros ij ij' e .  destruct ij as [ i j ] . destruct ij' as [ i' j' ] .
+        destruct i as [ i li ] . destruct i' as [ i' li' ] .
+        destruct j as [ j lj ] . destruct j' as [ j' lj' ] .
+        simpl in e .
+        assert ( e' := maponpaths ( stntonat ( n * m ) ) e )  . simpl in e' .
+        assert ( eei : paths i i' ) .
+        { apply ( pr1 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ) . }
+        set ( eeis := invmaponpathsincl _ ( isinclstntonat _ ) ( stnpair _ i li ) ( stnpair _ i' li' ) eei ) .
+        assert ( eej : paths j j' ) .
+        { apply ( pr2 ( natdivremunique m i j i' j' lj lj' ( maponpaths ( stntonat _ ) e ) ) ) . }
+        set ( eejs := invmaponpathsincl _ ( isinclstntonat _ ) ( stnpair _ j lj ) ( stnpair _ j' lj' ) eej ) .
+        apply ( pathsdirprod eeis eejs ) . 
+      * intro xnm .
+        apply iscontraprop1 . apply ( isinf xnm ) .
+        set ( e := pathsinv0 ( natdivremrule xnm m ( natgthtoneq _ _ is ) ) ) .
+        set ( i := natdiv xnm m ) .   set ( j := natrem xnm m ) .
+        destruct xnm as [ xnm lxnm ] .
+        set ( li := natlthandmultrinv _ _ _ ( natlehlthtrans _ _ _ ( natlehmultnatdiv xnm m ( natgthtoneq _ _ is ) ) lxnm ) ) .
+        set ( lj := lthnatrem xnm m ( natgthtoneq _ _ is ) ) .
+        split with ( dirprodpair ( stnpair n i li ) ( stnpair m j lj ) ) .
+        simpl .
+        apply ( invmaponpathsincl _ ( isinclstntonat _ ) _ _ ) .  simpl .
+        apply e .
+  - set ( e := natleh0tois0 _ i ) .  rewrite e .  rewrite ( natmultn0 n ) . split with ( @pr2 _ _ ) .   apply ( isweqtoempty2 _ ( weqstn0toempty ) ) .
+Defined. 
 
 
 (** *** Weak equivalences between decidable subsets of [ stn n ] and [ stn x ] *)
@@ -290,8 +415,13 @@ intro m . set ( w1 := weqfromcoprodofstn 1 n ) . assert ( w2 : weq ( stn ( S n )
 
 (** *** Weak equivalence from the space of functions of a family [ stn ( f x ) ]  over [ stn n ] to [ stn ( stnprod n f ) ] ( uses functional extensionality ) *)
 
+
 Definition stnprod { n : nat } ( f : stn n -> nat ) : nat .
 Proof. intro n . induction n as [ | n IHn ] . intro. apply 1 . intro f . apply (  ( IHn ( fun i : stn n => f ( dni n ( lastelement n ) i ) ) ) * f ( lastelement n ) ) . Defined . 
+
+(* confirm that [stnprod] is associative in the same way as the parser *)
+Goal ∀ (f : stn 3 -> nat), stnprod f = f(0,,●) * f(1,,●) * f(2,,●).
+Proof. reflexivity. Defined.
 
 Theorem weqstnprod { n : nat } ( P : stn n -> UU ) ( f : stn n -> nat ) ( ww : forall i : stn n , weq ( stn ( f i ) )  ( P i ) ) : weq ( forall x : stn n , P x  ) ( stn ( stnprod f ) ) .
 Proof . intro n . induction n as [ | n IHn ] . intros . simpl . apply ( weqcontrcontr ) .  apply ( iscontrsecoverempty2 _ ( negstn0 ) ) .   apply iscontrstn1 . intros .  set ( w1 := weqdnicoprod n ( lastelement n ) ) . set ( w2 := weqonsecbase P w1 ) .   set ( w3 := weqsecovercoprodtoprod ( fun x : _ => P ( w1 x ) ) ) .  set ( w4 := weqcomp w2 w3 ) .  set ( w5 := IHn ( fun x : stn n => P ( w1 ( ii1 x ) ) ) ( fun x : stn n => f ( w1 ( ii1 x ) ) ) ( fun i : stn n => ww ( w1 ( ii1 i ) ) ) ) . set ( w6 := weqcomp w4 ( weqdirprodf w5 ( weqsecoverunit _ ) ) ) .  simpl in w6 .  set ( w7 := weqcomp w6 ( weqdirprodf ( idweq _ ) ( invweq ( ww ( lastelement n ) ) ) ) ) .  apply ( weqcomp w7 ( weqfromprodofstn _ _ ) ) .   Defined . 
@@ -341,10 +471,10 @@ Lemma weqcutforstn ( n n' : nat ) ( w : weq (stn (S n)) (stn (S n')) ) : weq (st
 Proof. intros. set ( nn := lastelement n  ) . set ( w1 := weqoncompl w nn ) .  set ( w2 := weqdnicompl n nn ) . set ( w3 := weqdnicompl n' ( w nn ) ) .   apply ( weqcomp w2 ( weqcomp w1 ( invweq w3 ) ) ) . Defined .   
 
 
-Theorem weqtoeqstn ( n n' : nat ) ( w : weq (stn n) (stn n') ) : paths n n'.
-Proof. intro. induction n as [ | n IHn ] . intro. destruct n' as [ | n' ] .  intros. apply idpath. intro X. apply (fromempty (negweqstn0sn  n' X)).  
- intro n'. destruct n' as [ | n' ] . intro X. set (int:= isdeceqnat (S n) 0 ).  destruct int as [ i | e ] .  assumption. apply (fromempty ( negweqstnsn0 n X)).  intro X. 
-set (e:= IHn n' ( weqcutforstn _ _ X)). apply (maponpaths S e). Defined. 
+Theorem weqtoeqstn { n n' : nat } ( w : weq (stn n) (stn n') ) : paths n n'.
+Proof. intro. induction n as [ | n IHn ] . intro. destruct n' as [ | n' ] .  reflexivity. intro X. apply (fromempty (negweqstn0sn _ X)). intro n'. destruct n' as [ | n' ] . intro X. apply (fromempty ( negweqstnsn0 n X)).  intro X. 
+ apply (maponpaths S). apply IHn. now apply weqcutforstn.
+Defined. 
 
 Corollary stnsdnegweqtoeq ( n n' : nat ) ( dw : dneg (weq (stn n) (stn n')) ) : paths n n'.
 Proof. intros n n' X. apply (eqfromdnegeq nat isdeceqnat _ _  (dnegf (@weqtoeqstn n n') X)). Defined. 
@@ -392,23 +522,75 @@ Proof . intros . set ( P := fun n' : nat => hProppair _ ( is n' ) ) . assert ( i
 Theorem accth ( F : nat -> UU ) ( is : forall n , isdecprop ( F n ) )  ( is' : hexists F ) : natdecleast F is .
 Proof . intros F is . simpl . apply (@hinhuniv _ ( hProppair _ ( isapropnatdecleast F is ) ) ) . intro t2. destruct t2 as [ n l ] . simpl .
 
-set ( F' := fun n' : nat => hexists ( fun n'' => dirprod ( natleh n'' n' ) ( F n'' ) ) ) .  assert ( X : forall n' , F' n' -> natdecleast F is ) .  intro n' .  simpl .    induction n' as [ | n' IHn' ] . apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ) . simpl .   intro t2 . destruct t2 as [ n'' is'' ] . destruct is'' as [ l'' d'' ] .  split with 0 .  split . set ( e := natleh0tois0 _ l'' ) . clearbody e . destruct e . apply d'' .  apply ( fun n' => fun f : _ => natleh0n n' ) .  apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ) . intro t2 .  destruct t2 as [ n'' is'' ] . set ( j := natlehchoice2 _ _ ( pr1 is'' ) ) .  destruct j as [ jl | je ] .  simpl .  apply ( IHn' ( hinhpr _ ( tpair _ n'' ( dirprodpair jl ( pr2 is'' ) ) ) ) ) .  simpl . rewrite je in is''  .  destruct is'' as [ nn is'' ] .  clear nn. clear je . clear n'' . 
+set ( F' := fun n' : nat => hexists ( fun n'' => dirprod ( natleh n'' n' ) ( F n'' ) ) ) .  assert ( X : forall n' , F' n' -> natdecleast F is ) .  intro n' .  simpl .    induction n' as [ | n' IHn' ] . apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ) . simpl .   intro t2 . destruct t2 as [ n'' is'' ] . destruct is'' as [ l'' d'' ] .  split with 0 .  split . set ( e := natleh0tois0 _ l'' ) . clearbody e . destruct e . apply d'' .  apply ( fun n' => fun f : _ => natleh0n n' ) .  apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ) . intro t2 .  destruct t2 as [ n'' is'' ] . set ( j := natlehchoice2 _ _ ( pr1 is'' ) ) .  destruct j as [ jl | je ] .  simpl .  apply ( IHn' ( hinhpr ( tpair _ n'' ( dirprodpair jl ( pr2 is'' ) ) ) ) ) .  simpl . rewrite je in is''  .  destruct is'' as [ nn is'' ] .  clear nn. clear je . clear n'' . 
 
-assert ( is' : isdecprop ( F' n' ) ) . apply ( isdecbexists n' F is ) .   destruct ( pr1 is' ) as [ f | nf ] .  apply ( IHn'  f ) .  split with ( S n' ) .  split with is'' . intros n0 fn0 . destruct ( natlthorgeh n0 ( S n' ) )  as [ l' | g' ] .  set ( i' := natlthtolehsn _ _ l' ) .  destruct ( nf ( hinhpr _ ( tpair _ n0 ( dirprodpair i' fn0 ) ) ) ) .   apply g' . 
+assert ( is' : isdecprop ( F' n' ) ) . apply ( isdecbexists n' F is ) .   destruct ( pr1 is' ) as [ f | nf ] .  apply ( IHn'  f ) .  split with ( S n' ) .  split with is'' . intros n0 fn0 . destruct ( natlthorgeh n0 ( S n' ) )  as [ l' | g' ] .  set ( i' := natlthtolehsn _ _ l' ) .  destruct ( nf ( hinhpr ( tpair _ n0 ( dirprodpair i' fn0 ) ) ) ) .   apply g' . 
 
-apply ( X n ( hinhpr _ ( tpair _ n ( dirprodpair ( isreflnatleh n ) l ) ) ) ) .  Defined . 
+apply ( X n ( hinhpr ( tpair _ n ( dirprodpair ( isreflnatleh n ) l ) ) ) ) .  Defined . 
 
+Lemma isinjstntonat n : isInjectiveFunction (pr1 : stnset n -> natset).
+Proof. intros ? i j. apply (invmaponpathsincl pr1). apply isinclstntonat. Defined.
 
-  
+(* a tactic for proving things by induction over a finite number of cases *)
+Ltac inductive_reflexivity i b :=
+  (* Here i is a variable natural number and b is a bound on *)
+  (*      i of the form i<k, where k is a numeral. *)
+  induction i as [|i];
+  [ try apply isinjstntonat ; reflexivity |
+    contradicts (negnatlthn0 i) b || inductive_reflexivity i b ].
 
+Local Definition testfun : stn 3 -> stn 10.
+  Proof.
+    intros n.
+    induction n as [n b].
+    induction n as [|n].
+    - exact (2,,idpath _).
+    - induction n as [|n].
+      + exact (3,,idpath _).
+      + induction n as [|n].
+        * exact (4,,idpath _).
+        * contradicts (negnatlthn0 n) b.
+  Defined.
 
+Goal ∀ n, testfun n < 5.
+  Proof.
+    intros.
+    induction n as [i c].
+    inductive_reflexivity i c.
+  Defined.
 
+(** general associativity for addition in nat *)
 
+Theorem nat_plus_associativity {n} {m:stn n->nat} (k:∀ (ij : Σ i, stn (m i)), nat) :
+  stnsum (λ i, stnsum (curry k i)) = stnsum (k ∘ lexicalEnumeration m).
+Proof.
+  intros. apply weqtoeqstn.
+  intermediate_weq (Σ i, stn (stnsum (curry k i))).
+  { apply invweq. apply weqstnsum_idweq. }
+  intermediate_weq (Σ i j, stn (curry k i j)).
+  { apply weqfibtototal; intro i. apply invweq. apply weqstnsum_idweq. }
+  intermediate_weq (Σ ij, stn (k ij)).
+  { exact (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
+  intermediate_weq (Σ ij, stn (k (lexicalEnumeration m ij))).
+  { apply (weqbandf (inverse_lexicalEnumeration m)). intro ij. apply eqweqmap.
+    apply (maponpaths stn), (maponpaths k). apply pathsinv0, homotinvweqweq. }
+  { apply inverse_lexicalEnumeration. }
+Defined.
 
+Corollary nat_plus_associativity' n (m:stn n->nat) (k:∀ i, stn (m i) -> nat) :
+  stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lexicalEnumeration m).
+Proof. intros. exact (nat_plus_associativity (uncurry k)). Defined.
 
+(** general commutativity for addition in nat *)
 
-
-
-(* End of the file stnfsets.v *)
+Theorem nat_plus_commutativity {n} (x:stn n -> nat)
+        (f:stn n ≃ stn n) : stnsum x = stnsum (x∘f).
+Proof.
+  intros. apply weqtoeqstn. intermediate_weq (Σ i, stn (x i)).
+  { apply invweq. apply weqstnsum_idweq. }
+  intermediate_weq (Σ i, stn (x(f i))).
+  { apply invweq. apply (weqfp _ (stn∘x)). }
+  apply weqstnsum_idweq.
+Defined.
 
 

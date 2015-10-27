@@ -126,7 +126,11 @@ Proof . intros .  induction t as [ t p ] . exact p . Defined.
 
 Arguments pr2 {_ _} _.
 
+Definition rewrite_pr1_tpair {X} {P:X->UU} x p : pr1 (tpair P x p) = x.
+reflexivity. Defined.
 
+Definition rewrite_pr2_tpair {X} {P:X->UU} x p : pr2 (tpair P x p) = p.
+reflexivity. Defined.
 
 (*
 
@@ -144,6 +148,28 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 Check (O = O) .
 
 
+(* confirm and repair some aspects of multiplication on [nat] *)
+Goal ∀ n, 0*n = 0.     reflexivity. Qed.
+Goal ∀ n, n*1 = n. try reflexivity. Abort.
+Goal ∀ n, 1*n = n. try reflexivity. Abort.
 
+(* Those two failures are not good.  The cause is that Nat.mul defines
+   multiplication as a right-associative sum.  Note also that the parser treats
+   "+" and "*" as left associative.  We redefine multiplication in nat here,
+   avoiding "Fixpoint", too. *)
 
-(* End of the file uuu.v *)
+Definition mul : nat -> nat -> nat.
+Proof.
+  intros n m.
+  induction n as [|p pm].
+  - exact O.
+  - exact (pm + m).
+Defined.
+Notation mult := mul.           (* this overrides the notation "mult" defined in Coq's Peano.v *)
+Notation "n * m" := (mul n m) : nat_scope.
+
+(* confirm: *)
+Goal ∀ n, 0*n = 0.             reflexivity. Qed.
+Goal ∀ n m, S n * m = n*m + m. reflexivity. Qed.
+Goal ∀ n, 1*n = n.             reflexivity. Qed.
+Goal 3*5=15.                   reflexivity. Qed.

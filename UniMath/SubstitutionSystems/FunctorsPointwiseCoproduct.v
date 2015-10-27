@@ -1,3 +1,28 @@
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents : 
+
+- Definition of a coproduct structure on a functor category 
+  by taking pointwise coproducts in the target category
+
+                	
+           
+************************************************************)
+
+
+
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -14,6 +39,8 @@ Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
+(** Goal: lift coproducts from the target (pre)category to the functor (pre)category *)
+
 Section def_functor_pointwise_coprod.
 
 Variable C D : precategory.
@@ -23,7 +50,6 @@ Variable hsD : has_homsets D.
 Section coproduct_functor.
 
 Variables F G : functor C D.
-
 
 Local Notation "c ⊗ d" := (CoproductObject _ (HD c d))(at level 45).
 
@@ -222,22 +248,26 @@ Proof.
       unfold coproduct_nat_trans_data.
       simpl.
       apply CoproductArrowUnique.
-      * apply (nat_trans_eq_pointwise _ _ _ _ _ _ ta).
-      * apply (nat_trans_eq_pointwise _ _ _ _ _ _ tb).
+      * apply (nat_trans_eq_pointwise ta).
+      * apply (nat_trans_eq_pointwise tb).
 Qed.
 
 
 Definition functor_precat_coproduct_cocone 
   : CoproductCocone [C, D, hsD] F G.
 Proof.
-  exists (tpair _ coproduct_functor (dirprodpair coproduct_nat_trans_in1 
-                                                 coproduct_nat_trans_in2)).
-  intros A f g.
-  exists (tpair _ (coproduct_nat_trans A f g)
+  refine (mk_CoproductCocone _ _ _ _ _ _ _ ).
+  - apply coproduct_functor.
+  - apply coproduct_nat_trans_in1.
+  - apply coproduct_nat_trans_in2.
+  - refine (mk_isCoproductCocone _ _ _ _ _ _ _ _ ).
+    + apply functor_category_has_homsets.
+    + intros A f g.
+     exists (tpair _ (coproduct_nat_trans A f g)
              (dirprodpair (coproduct_nat_trans_In1Commutes _ _ _ )
                           (coproduct_nat_trans_In2Commutes _ _ _ ))).
-  simpl.
-  apply coproduct_nat_trans_univ_prop.
+     simpl.
+     apply coproduct_nat_trans_univ_prop.
 Defined.
 
 End coproduct_functor.
