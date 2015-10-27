@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import 
+Require Import
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
@@ -17,11 +17,11 @@ Definition zerocomp_type_isaset {C: precategory}(hs: has_homsets C) (z:hasZeroOb
 Proof. intros ? ? ? ? ? ? x.
   apply (isofhleveltotal2 2).
   { apply hs. }
-  { intro g.  
+  { intro g.
     assert( t:isofhlevel 3 (Hom c x) ).
     { apply hlevelntosn.  apply hs. }
     exact (t _ _).            (* why doesn't apply t work here? *)
-    } Qed.  
+    } Qed.
 Definition zerocomp_set {C:precategory}(hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ob C -> ob SET.
 Proof. intros ? ? ? ? ? ? x.
@@ -33,12 +33,12 @@ Proof. intros ? ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc. rewrite 
        apply zeroMap_left_composition. Defined.
 Definition zerocomp_data {C:precategory} (hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   functor_data (Precategories.Precategory_obmor C) (Precategories.Precategory_obmor SET).
-Proof. intros. 
+Proof. intros.
        exact (zerocomp_set hs z f,, zerocomp_map hs z f). Defined.
 Definition zerocomp {C:precategory}(hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d):C ==> SET.
   intros. exists (zerocomp_data hs z f). split.
   { intros x. apply funextsec; intros [r rf0].
-    apply (total2_paths2_second_isaprop (id_right _ _ _ r)). 
+    apply (total2_paths2_second_isaprop (id_right _ _ _ r)).
     intro g. apply hs. }
   { intros w x y t u. apply funextsec. intros [r rf0].
     apply (total2_paths2_second_isaprop (assoc _ _ _ _ _ r t u)).
