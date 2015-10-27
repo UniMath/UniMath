@@ -149,7 +149,7 @@ Lemma iscoantisymmnatgth ( n m : nat ) : neg ( natgth n m ) -> coprod ( natgth m
 Proof . apply isantisymmnegtoiscoantisymm . apply isdecrelnatgth .  intros n m . apply isantisymmnegnatgth . Defined .  
 
 Lemma iscotransnatgth ( n m k : nat ) : natgth n k -> hdisj ( natgth n m ) ( natgth m k ) .
-Proof . intros x y z gxz .  destruct ( isdecrelnatgth x y ) as [ gxy | ngxy ] . apply ( hinhpr _ ( ii1 gxy ) ) . apply hinhpr .   apply ii2 .  destruct ( isdecrelnatgth y x ) as [ gyx | ngyx ] . apply ( istransnatgth _ _ _ gyx gxz ) .  set ( e := isantisymmnegnatgth _ _ ngxy ngyx ) . rewrite e in gxz .  apply gxz .  Defined .   
+Proof . intros x y z gxz .  destruct ( isdecrelnatgth x y ) as [ gxy | ngxy ] . apply ( hinhpr ( ii1 gxy ) ) . apply hinhpr .   apply ii2 .  destruct ( isdecrelnatgth y x ) as [ gyx | ngyx ] . apply ( istransnatgth _ _ _ gyx gxz ) .  set ( e := isantisymmnegnatgth _ _ ngxy ngyx ) . rewrite e in gxz .  apply gxz .  Defined .   
 
 
 
@@ -229,7 +229,7 @@ Proof . apply isdecreltoisnegrel . apply isdecrelnatleh . Defined .
 Definition iscoasymmnatleh ( n m : nat ) ( nl : neg ( natleh n m ) ) : natleh m n := negf ( isasymmnatgth _ _ ) nl . 
 
 Definition istotalnatleh : istotal natleh . 
-Proof . intros x y . destruct ( isdecrelnatleh x y ) as [ lxy | lyx ] . apply ( hinhpr _ ( ii1 lxy ) ) . apply hinhpr .   apply ii2 . apply ( iscoasymmnatleh _ _ lyx ) .   Defined . 
+Proof . intros x y . destruct ( isdecrelnatleh x y ) as [ lxy | lyx ] . apply ( hinhpr ( ii1 lxy ) ) . apply hinhpr .   apply ii2 . apply ( iscoasymmnatleh _ _ lyx ) .   Defined . 
 
 
 
@@ -505,6 +505,12 @@ Definition natlehandplusl ( n m k : nat ) : natleh n m -> natleh ( k + n ) ( k +
 
 Definition natlehandplusr ( n m k : nat ) : natleh n m -> natleh ( n + k ) ( m + k ) := negf ( natgthandplusrinv n m k )  . 
 
+Definition natlehandplus i j k l : i≤j -> k≤l -> i+k ≤ j+l.
+Proof.
+  intros ? ? ? ? r s. eapply istransnatleh. { apply natlehandplusr. apply r. }
+  apply natlehandplusl. apply s.
+Defined.
+ 
 Definition natlehandpluslinv  ( n m k : nat ) : natleh ( k + n ) ( k + m ) -> natleh n m := negf ( natgthandplusl n m k )  .  
 
 Definition natlehandplusrinv ( n m k : nat ) :  natleh ( n + k ) ( m + k ) -> natleh n m :=  negf ( natgthandplusr n m k ) . 
@@ -624,6 +630,9 @@ Proof . intros . rewrite ( natpluscomm _ _ ) in is . rewrite ( natpluscomm c b )
 
 Lemma iscontrhfibernatplusr ( n m : nat ) ( is : natgeh m n ) : iscontr ( hfiber ( fun i : nat => i + n ) m ) .
 Proof. intros . apply iscontraprop1 .    apply isinclnatplusr . induction m as [ | m IHm ] . set ( e := natleh0tois0 _ is ) .   split with 0 . apply e .  destruct ( natlehchoice2 _ _ is ) as [ l | e ] .  set ( j := IHm l ) .  destruct j as [ j e' ] . split with ( S j ) .  simpl . apply ( maponpaths S e' ) .  split with 0 . simpl .  assumption .  Defined . 
+
+Lemma iscontrhfibernatplusl ( n m : nat ) ( is : natgeh m n ) : iscontr ( hfiber ( fun i : nat => n + i ) m ) .
+Proof. intros . apply iscontraprop1 .    apply isinclnatplusl . induction m as [ | m IHm ] . set ( e := natleh0tois0 _ is ) .   split with 0 . rewrite <- plus_n_O. apply e .  destruct ( natlehchoice2 _ _ is ) as [ l | e ] .  set ( j := IHm l ) .  destruct j as [ j e' ] . split with ( S j ) .  simpl . rewrite <- plus_n_Sm. apply ( maponpaths S e' ) .  split with 0 . simpl .  rewrite <- plus_n_O. assumption .  Defined . 
 
 Lemma neghfibernatplusr ( n m : nat ) ( is : natlth m n ) : neg ( hfiber  ( fun i : nat => i + n ) m ) .
 Proof. intros. intro h . destruct h as [ i e ] . rewrite ( pathsinv0 e )  in is . destruct ( natlehtonegnatgth _ _ ( natlehmplusnm i n ) is ) .  Defined .    

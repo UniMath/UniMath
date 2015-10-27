@@ -52,7 +52,27 @@ Definition idfun (T : UU) := fun (t : T) => t.
 Definition funcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z) := 
   fun (x : X) => g (f x).
 
-Notation "g ∘ f" := (funcomp f g) (at level 50, no associativity).
+Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
+
+Definition funcomp_assoc {X Y Z W : UU} (f : X -> Y) (g : Y -> Z) (h : Z -> W)
+  :  h ∘ (g ∘ f) = (h ∘ g) ∘ f
+  := idpath _.
+
+(** back and forth between functions of pairs and functions returning functions *)
+
+Definition curry {X} {Y:X->UU} {Z} (f: (Σ x:X, Y x) -> Z) : ∀ x, Y x -> Z.
+Proof. intros ? ? ? ? ? y. exact (f(x,,y)). Defined.
+
+Definition uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) : (Σ x, Y x) -> Z.
+Proof. intros ? ? ? ? xy. exact (g (pr1 xy) (pr2 xy)). Defined.
+
+Lemma uncurry_curry {X} {Y:X->UU} {Z} (f:(Σ x:X, Y x) -> Z):
+  ∀ p, uncurry (curry f) p = f p.
+Proof. intros. induction p as [x y]. reflexivity. Defined.
+
+Lemma curry_uncurry {X} {Y:X->UU} {Z} (g:∀ x (y:Y x), Z) :
+  ∀ x y, curry (uncurry g) x y = g x y.
+Proof. reflexivity. Defined.
 
 (** *** Iteration of an endomorphism *)
 
@@ -139,6 +159,22 @@ Notation " X <-> Y " := (logeq X Y) : type_scope .
 
 Definition logeqnegs {X Y : UU} (l : X <-> Y ) : (¬ X) <-> (¬ Y) :=
   dirprodpair (negf (pr2 l)) (negf (pr1 l)). 
+
+Definition logeq_both_true {X Y} : X -> Y -> (X<->Y).
+Proof.
+  intros ? ? x y.
+  split.
+  - intros x'. exact y.
+  - intros y'. exact x.
+Defined.
+
+Definition logeq_both_false {X Y} : ¬X -> ¬Y -> (X<->Y).
+Proof.
+  intros ? ? nx ny.
+  split.
+  - intros x. induction (nx x).
+  - intros y. induction (ny y).
+Defined.
 
 (* end of "Some standard constructions not using idenity types (paths)". *)
 
@@ -381,12 +417,40 @@ Definition transportf {X : UU} (P : X -> UU) {x x' : X}
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
   (e : x = x') : P x' -> P x := transportf P (!e).
 
+Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
+Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
+Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
+Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
+
 Lemma functtransportf {X Y : UU} (f : X -> Y) (P : Y -> UU) {x x' : X}
   (e : x = x') (p : P (f x)) :
     transportf (fun x => P (f x)) e p = transportf P (maponpaths f e) p.
 Proof.
   intros. induction e. apply idpath.
 Defined.
+
+Lemma functtransportb {X Y : UU} (f : X -> Y) (P : Y -> UU) {x x' : X}
+  (e : x' = x) (p : P (f x)) :
+    transportb (fun x => P (f x)) e p = transportb P (maponpaths f e) p.
+Proof.
+  intros. induction e. apply idpath.
+Defined.
+
+Definition transport_f_b {X : UU} (P : X ->UU) {x y z : X} (e : y = x) (e' : y = z)
+           (p : P x) : transportf P e' (transportb P e p) = transportf P (!e @ e') p.
+Proof. intros. induction e'. induction e. reflexivity. Defined.
+
+Definition transport_b_f {X : UU} (P : X ->UU) {x y z : X} (e : x = y) (e' : z = y)
+           (p : P x) : transportb P e' (transportf P e p) = transportf P (e @ !e') p.
+Proof. intros. induction e'. induction e. reflexivity. Defined.
+
+Definition transport_f_f {X : UU} (P : X ->UU) {x y z : X} (e : x = y) (e' : y = z)
+           (p : P x) : transportf P e' (transportf P e p) = transportf P (e @ e') p.
+Proof. intros. induction e'. induction e. reflexivity. Defined.
+
+Definition transport_b_b {X : UU} (P : X ->UU) {x y z : X} (e : x = y) (e' : y = z)
+           (p : P z) : transportb P e (transportb P e' p) = transportb P (e @ e') p.
+Proof. intros. induction e'. induction e. reflexivity. Defined.
 
 Definition transport_section X (x:X) (P:X -> UU) (f:∀ x:X, P x) (y:X) (e:x=y) :
   transportf P e (f x) = f y.
@@ -404,7 +468,7 @@ Defined.
 
 Lemma total2_paths {A : UU} {B : A -> UU} {s s' : Σ x, B x} 
     (p : pr1 s = pr1 s') 
-    (q : transportf (fun x => B x) p (pr2 s) = pr2 s') : s = s'.
+    (q : transportf B p (pr2 s) = pr2 s') : s = s'.
 Proof.
   intros.
   induction s as [a b].
@@ -412,6 +476,18 @@ Proof.
   induction p.
   induction q. 
   apply idpath.
+Defined.
+
+Lemma total2_paths_b {A : UU} {B : A -> UU} {s s' : Σ x, B x} 
+    (p : pr1 s = pr1 s') 
+    (q : pr2 s = transportb B p (pr2 s')) : s = s'.
+Proof.
+  intros.
+  induction s as [a b].
+  induction s' as [a' b']; simpl in *.
+  induction p.
+  induction (!q). 
+  reflexivity.
 Defined.
 
 Lemma total2_paths2 {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1} 
@@ -532,7 +608,7 @@ Defined.
 Definition homot {X : UU} {P : X -> UU} (f g : ∀ x : X, P x) :=
   ∀ x : X , f x = g x.
 
-Notation "f ~ g" := (homot f g) (at level 70, right associativity).
+Notation "f ~ g" := (homot f g) (at level 70, no associativity).
 
 Definition homotcomp {X Y : UU} {f f' f'' : X -> Y}
   (h : f ~ f') (h' : f' ~ f'') : f ~ f'' := fun (x : X) => h x @ h' x.
@@ -667,11 +743,31 @@ Proof.
   intros. induction e. simpl. apply idpath.
 Defined.
 
+Corollary hfibertriangle1' {X Y : UU} (f : X -> Y) {x : X} {xe1: hfiber f (f x)}
+  (e : xe1 = (x,,idpath (f x))) :
+    pr2 xe1 = maponpaths f (maponpaths pr1 e).
+Proof.
+  intros.
+  intermediate_path (maponpaths f (maponpaths pr1 e) @ idpath (f x)).
+  - apply hfibertriangle1.
+  - apply pathscomp0rid.
+Defined.
+
 Lemma hfibertriangle1inv0 {X Y : UU} (f : X -> Y) {y : Y} {xe1 xe2: hfiber f y}
   (e : xe1 = xe2) :
     maponpaths f (! (maponpaths pr1 e)) @ (pr2 xe1) = pr2 xe2. 
 Proof.
   intros. induction e. apply idpath.
+Defined.
+
+Corollary hfibertriangle1inv0' {X Y : UU} (f : X -> Y) {x : X} {xe2: hfiber f (f x)}
+  (e : (x,,idpath (f x)) = xe2) :
+    maponpaths f (! (maponpaths pr1 e)) = pr2 xe2. 
+Proof.
+  intros.
+  intermediate_path (maponpaths f (! (maponpaths pr1 e)) @ idpath (f x)).
+  - apply pathsinv0, pathscomp0rid.
+  - apply hfibertriangle1inv0.
 Defined.
 
 Lemma hfibertriangle2 {X Y : UU} (f : X -> Y) {y : Y} (xe1 xe2: hfiber f y)
@@ -774,6 +870,8 @@ Notation "X ≃ Y" := (weq X Y) (at level 80, no associativity) : type_scope.
 Definition pr1weq {X Y : UU} := pr1 : X ≃ Y -> (X -> Y).
 Coercion pr1weq : weq >-> Funclass.
 
+Definition weqproperty {X Y} (f:X≃Y) : isweq f := pr2 f.
+
 Definition weqccontrhfiber {X Y : UU} (w : X ≃ Y) (y : Y) : hfiber w y.
 Proof.
   intros. apply (pr1 (pr2 w y)).
@@ -790,6 +888,9 @@ Definition weqpair {X Y : UU} (f : X -> Y) (is: isweq f) : X ≃ Y :=
  
 Definition idweq (X : UU) : X ≃ X :=
   tpair (fun (f : X -> X) => isweq f) (fun (x : X) => x) (idisweq X).
+
+Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
+Proof. intros ? ? []. apply idweq. Defined. 
 
 Definition isweqtoempty {X : UU} (f : X -> empty) : isweq f.
 Proof.
@@ -846,6 +947,7 @@ Proof.
   intros. induction e1. simpl in *. apply ee.
 Defined.
 
+(* this is the adjointness relation for w and its homotopy inverse: *)
 Definition homotweqinvweqweq {X Y : UU} (w : X ≃ Y) (x : X) :
   maponpaths w (homotinvweqweq w x) = homotweqinvweq w (w x).
 Proof.
@@ -857,6 +959,25 @@ Proof.
   unfold homotweqinvweq.
   apply diaglemma2.
   apply (@hfibertriangle1 _ _ w _ hfid hfcc (weqccontrhfiber2 w (w x) hfid)).
+Defined.
+
+(* another way the adjointness relation may occur: *)
+Definition weq_transportf_adjointness {X Y : UU} (w : X ≃ Y) (P:Y->UU) (x : X) (p : P (w x)) :
+   transportf (P∘w) (! homotinvweqweq w x) p = transportf P (! homotweqinvweq w (w x)) p.
+Proof.
+  intros. refine (functtransportf w P (!homotinvweqweq w x) p @ _).
+  apply (maponpaths (λ e, transportf P e p)).
+  rewrite maponpathsinv0. apply maponpaths. apply homotweqinvweqweq.
+Defined.
+
+(* another way the adjointness relation may occur: *)
+Definition weq_transportb_adjointness {X Y : UU} (w : X ≃ Y) (P:Y->UU) (x : X) (p : P (w x)) :
+   transportb (P∘w) (homotinvweqweq w x) p = transportb P (homotweqinvweq w (w x)) p.
+Proof.
+  intros.
+  refine (functtransportb w P (homotinvweqweq w x) p @ _).
+  apply (maponpaths (λ e, transportb P e p)).
+  apply homotweqinvweqweq.
 Defined.
 
 Definition invmaponpathsweq {X Y : UU} (w : X ≃ Y) (x x' : X) : 
@@ -1179,10 +1300,15 @@ Defined.
     http://github.com/HoTT/HoTT.
  *)
 
-Theorem total2_paths_equiv {A : UU} (B : A -> UU)
-  (x y : Σ x, B x) :
-    weq (x = y)
-        (Σ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y).
+Definition PathPair {A : UU} {B : A -> UU} (x y : Σ x, B x) :=
+  Σ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y.
+
+Notation "a ≡ b" := (PathPair a b) (at level 70, no associativity) : type_scope.
+(* the three horizontal lines are reminiscent of a path lying above a path in a fibration *)
+(* use \equiv in agda input mode *)
+
+Theorem total2_paths_equiv {A : UU} (B : A -> UU) (x y : Σ x, B x) :
+  x = y  ≃  x ≡ y.
 Proof.
   intros A B x y.
   exists (fun (r : x = y) =>  
@@ -1507,7 +1633,19 @@ Defined.
 Definition weqcomp {X Y Z : UU} (w1 : weq X Y) (w2 : weq Y Z) : (weq X Z) :=
   weqpair (fun (x : X) => w2 (w1 x)) (twooutof3c w1 w2 (pr2 w1) (pr2 w2)). 
 
+Notation "g ∘ f" := (weqcomp f g) (at level 50, left associativity) : weq_scope.
+
+Delimit Scope weq_scope with weq. 
+
 Ltac intermediate_weq Y' := apply (weqcomp (Y := Y')).
+
+Definition weqcomp_to_funcomp_app {X Y Z} {x:X} {f:X≃Y} {g:Y≃Z} :
+  (weqcomp f g) x = pr1weq g (pr1weq f x).
+Proof. reflexivity. Defined.
+
+Definition weqcomp_to_funcomp {X Y Z} {f:X≃Y} {g:Y≃Z} :
+  pr1weq (weqcomp f g) = pr1weq g ∘ pr1weq f.
+Proof. reflexivity. Defined.
 
 (** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences. *)
 
@@ -1618,7 +1756,7 @@ Proof. intros . set ( PX :=  fun x : X => P ( ii1 x ) ) . set ( PY :=  fun y : Y
 Definition tototal2overcoprod { X Y : UU } ( P : X ⨿ Y -> UU ) ( xpyp :  coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) ) : total2 P .
 Proof . intros . induction xpyp as [ xp | yp ] . induction xp as [ x p ] . apply ( tpair P ( ii1 x ) p ) .   induction yp as [ y p ] . apply ( tpair P ( ii2 y ) p ) . Defined . 
  
-Theorem weqtotal2overcoprod { X Y : UU } ( P : X ⨿ Y -> UU ) : weq ( total2 P ) ( coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) ) .
+Theorem weqtotal2overcoprod { X Y : UU } ( P : X ⨿ Y -> UU ) : ( Σ xy, P xy ) ≃ ( Σ x : X, P ( ii1 x ) ) ⨿ ( Σ y : Y, P ( ii2 y ) ) .
 Proof. intros .  set ( f := fromtotal2overcoprod P ) . set ( g := tototal2overcoprod P ) . split with f . 
 assert ( egf : ∀ a : _ , ( g ( f a ) ) = a ) . intro a . induction a as [ xy p ] . induction xy as [ x | y ] . simpl . apply idpath . simpl .  apply idpath .     
 assert ( efg : ∀ a : _ , ( f ( g a ) ) = a ) . intro a . induction a as [ xp | yp ] . induction xp as [ x p ] . simpl . apply idpath .  induction yp as [ y p ] . apply idpath .
@@ -1657,7 +1795,7 @@ apply (gradth  f g egf efg). Defined.
 Definition sumofmaps {X Y Z:UU}(fx: X -> Z)(fy: Y -> Z): (X ⨿ Y) -> Z := fun xy:_ => match xy with ii1 x => fx x | ii2 y => fy y end.
 
 
-Definition boolascoprod: weq (coprod unit unit) bool.
+Definition boolascoprod: unit ⨿ unit ≃ bool.
 Proof. set (f:= fun xx: coprod unit unit => match xx with ii1 t => true | ii2 t => false end). split with f. 
 set (g:= fun t:bool => match t with true => ii1  tt | false => ii2  tt end). 
 assert (egf: ∀ xx:_, (g (f xx)) = xx). intro xx .  induction xx as [ u | u ] . induction u. apply idpath. induction u. apply idpath. 
@@ -1665,11 +1803,19 @@ assert (efg: ∀ t:_, (f (g t)) = t). induction t. apply idpath. apply idpath.
 apply (gradth  f g egf efg). Defined.  
 
 
-Definition coprodasstor (X Y Z:UU): coprod (X ⨿ Y) Z -> coprod X (Y ⨿ Z).
+Definition coprodasstor (X Y Z:UU): (X ⨿ Y) ⨿ Z -> X ⨿ (Y ⨿ Z).
 Proof. intros X Y Z X0. induction X0 as [ c | z ] .  induction c as [ x | y ] .  apply (ii1  x). apply (ii2  (ii1  y)). apply (ii2  (ii2  z)). Defined.
 
-Definition coprodasstol (X Y Z: UU): coprod X (Y ⨿ Z) -> coprod (X ⨿ Y) Z.
+Definition coprodasstol (X Y Z: UU): X ⨿ (Y ⨿ Z) -> (X ⨿ Y) ⨿ Z.
 Proof. intros X Y Z X0. induction X0 as [ x | c ] .  apply (ii1  (ii1  x)). induction c as [ y | z ] .   apply (ii1  (ii2  y)). apply (ii2  z). Defined.
+
+Definition sumofmaps_assoc_left {X Y Z T} (f:X->T) (g:Y->T) (h:Z->T) :
+  sumofmaps (sumofmaps f g) h ∘ coprodasstol _ _ _ ~ sumofmaps f (sumofmaps g h).
+Proof. intros. intros [x|[y|z]]; reflexivity. Defined.
+
+Definition sumofmaps_assoc_right {X Y Z T} (f:X->T) (g:Y->T) (h:Z->T) :
+  sumofmaps f (sumofmaps g h) ∘ coprodasstor _ _ _ ~ sumofmaps (sumofmaps f g) h.
+Proof. intros. intros [[x|y]|z]; reflexivity. Defined.
 
 Theorem isweqcoprodasstor (X Y Z:UU): isweq (coprodasstor X Y Z).
 Proof. intros. set (f:= coprodasstor X Y Z). set (g:= coprodasstol X Y Z).
@@ -1684,7 +1830,7 @@ Proof. intros. apply (isweqinvmap ( weqcoprodasstor X Y Z)  ). Defined.
 
 Definition weqcoprodasstol (X Y Z:UU):= weqpair  _ (isweqcoprodasstol X Y Z).
 
-Definition coprodcomm (X Y:UU): X ⨿ Y -> coprod Y X := fun xy:_ => match xy with ii1 x => ii2  x | ii2 y => ii1  y end. 
+Definition coprodcomm (X Y:UU): X ⨿ Y -> Y ⨿ X := fun xy:_ => match xy with ii1 x => ii2  x | ii2 y => ii1  y end. 
 
 Theorem isweqcoprodcomm (X Y:UU): isweq (coprodcomm X Y).
 Proof. intros. set (f:= coprodcomm X Y). set (g:= coprodcomm Y X).
@@ -1940,18 +2086,18 @@ Proof . intros . set ( w1 := weqtococonusf f ) .  set ( w2 := weqtotal2overcopro
 Definition boolchoice ( x : bool ) : coprod ( x = true ) ( x = false ) .
 Proof. intro . induction x . apply ( ii1 ( idpath _ ) ) .  apply ( ii2 ( idpath _ ) ) . Defined . 
 
-Definition curry :  bool -> UU := fun x : bool =>
-match x  with
-false => empty|
-true => unit
-end.
+Definition bool_to_type : bool -> UU.
+Proof. intros b. induction b as [|]. { exact unit. } { exact empty. }
+Defined.
 
+Goal bool_to_type true  = unit . reflexivity. Qed.
+Goal bool_to_type false = empty. reflexivity. Qed.
 
 Theorem nopathstruetofalse: true = false -> empty.
-Proof. intro X.  apply (transportf curry  X tt).  Defined.
+Proof. intro X.  apply (transportf bool_to_type X tt).  Defined.
 
 Corollary nopathsfalsetotrue: false = true -> empty.
-Proof. intro X. apply (transportb curry  X tt). Defined. 
+Proof. intro X. apply (transportb bool_to_type X tt). Defined. 
 
 Definition truetonegfalse ( x : bool ) : x = true -> x != false.
 Proof . intros x e . rewrite e . unfold neg . apply nopathstruetofalse . Defined . 
@@ -2299,8 +2445,31 @@ Proof. intros. unfold isweq.   intro y.  set (h:=hfiberfpmap w P y).
 assert (X1:isweq h). apply isweqhfiberfp. 
 assert (is: iscontr (hfiber w (pr1  y))). apply ( pr2 w ). apply (iscontrweqb  ( weqpair h X1 ) is). Defined. 
 
-Definition weqfp { X Y : UU } ( w : X ≃ Y )(P:Y-> UU) := weqpair _ ( isweqfpmap w P ) .
+(** weq on total2 given by weq on base *)
 
+Definition weqfp_map { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : (Σ x,P(w x)) -> (Σ y, P y).
+Proof. intros ? ? ? ? xp. exact (w (pr1 xp),,pr2 xp).
+Defined.
+
+Definition weqfp_invmap { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : (Σ y, P y) -> (Σ x,P(w x)).
+Proof. intros ? ? ? ? yp. exact (invmap w (pr1 yp),,transportf P (! homotweqinvweq w (pr1 yp)) (pr2 yp)).
+Defined.
+
+Definition weqfp {X Y : UU} (w : X ≃ Y) (P:Y->UU) : (Σ x : X, P (w x)) ≃ (Σ y, P y).
+Proof. intros. exists (weqfp_map w P). refine (gradth _ (weqfp_invmap w P) _ _).
+  { intros xp. refine (total2_paths _ _).
+    { simpl. apply homotinvweqweq. }
+    simpl. rewrite <- weq_transportf_adjointness. rewrite transport_f_f. rewrite pathsinv0l. reflexivity. }
+  { intros yp. refine (total2_paths _ _).
+    { simpl. apply homotweqinvweq. }
+    simpl. rewrite transport_f_f. rewrite pathsinv0l. reflexivity. }
+Defined.
+
+Definition weqfp_compute_1 { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : weqfp w P ~ weqfp_map w P.
+Proof. intros. intros xp. reflexivity. Defined.
+
+Definition weqfp_compute_2 { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : invmap (weqfp w P) ~ weqfp_invmap w P.
+Proof. intros. intros yp. reflexivity. Defined.
 
 (** *** Total spaces of families over a contractible base *)
 

@@ -230,9 +230,9 @@ Definition pr1fld : fld -> commrng := @pr1 _ _ .
 Definition fldtointdom ( X : fld ) : intdom .
 Proof . intro . split with ( pr1 X ) .  split with ( pr1 ( pr2 X ) ) . intros a1 a2 . destruct ( pr2 ( pr2 X ) a1 ) as [ a1' | e0 ] . 
 
-intro e12 . rewrite ( pathsinv0 ( rngmultx0 ( pr1 X ) a1 ) ) in e12 . set ( e2 := lcanfromlinv _ _ _ _ ( invtolinv _ _ a1' ) e12 ) .  apply ( hinhpr _ ( ii2 e2 ) ) .      
+intro e12 . rewrite ( pathsinv0 ( rngmultx0 ( pr1 X ) a1 ) ) in e12 . set ( e2 := lcanfromlinv _ _ _ _ ( invtolinv _ _ a1' ) e12 ) .  apply ( hinhpr ( ii2 e2 ) ) .      
 
-intro e12 . apply ( hinhpr _ ( ii1 e0 ) ) . Defined .  
+intro e12 . apply ( hinhpr ( ii1 e0 ) ) . Defined .  
 
 Coercion fldtointdom : fld >-> intdom . 
 

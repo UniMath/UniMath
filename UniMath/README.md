@@ -26,7 +26,9 @@ accidentally commit and push, add its name to the head of the list in
 ## UniMath coding style
 
 We purposely restrict our use of Coq to a subset whose semantics is more likely
-to be rigorously verifiable, according to the following principles.
+to be rigorously verifiable and portable to new proof checking systems,
+according to the following principles.
+
 * Do not use ```Prop``` or ```Set```, and ensure definitions don't produce
   elements of them.
 * Do not use ```Type```, except in ```Foundations/Basics/Preamble.v```.
@@ -34,8 +36,10 @@ to be rigorously verifiable, according to the following principles.
   added to ```Foundations/Basics/Preamble.v```.
 * Do not use ```Inductive``` or ```Record```, except in ```Foundations/Basics/Preamble.v```.
 * Do not use ```Module``` or ```Structure```.
+* Do not use ```destruct```, ```match```, or square brackets with ```intros```.
 
-Some of the files in ```Ktheory``` don't adhere (yet) to these conventions.
+Our files don't adhere yet to all of these conventions, but it's a goal we
+strive for.
 
 Another advantage of coding in this style is that the proofs should be easier
 to transport to another proof assistant.

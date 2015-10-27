@@ -45,16 +45,11 @@ Section extras.
 Variable A : UU.
 Variable R0 : hrel A.
 
-Definition isaprop_hProp (X : hProp) : isaprop X.
-Proof.
-exact (pr2 X).
-Qed.
-
 Lemma isaprop_eqrel_from_hrel a b :
   isaprop (∀ R : eqrel A, (∀ x y, R0 x y -> R x y) -> R a b).
 Proof.
 apply impred; intro R; apply impred; intro HR.
-now apply isaprop_hProp.
+now apply propproperty.
 Qed.
 
 Definition eqrel_from_hrel : hrel A :=

@@ -31,7 +31,6 @@ ZeroObject.v
 InitialAndFinalObject.v
 Precategories.v
 Interval.v
-OrderedSet.v
 Utilities.v
 Tactics.v
 
