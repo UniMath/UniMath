@@ -205,35 +205,43 @@ Lemma PullbackArrowUnique {a b c d : C} (f : C⟦b , a⟧) (g : C⟦c , a⟧)
      (Hcomm : h ;; f = k ;; g)
      (w : C⟦e , d⟧)
      (H1 : w ;; p1 = h) (H2 : w ;; p2 = k) :
-     w =  (pr1 (pr1 (P e h k Hcomm))).
+     w =  (pr1 (pr1 (P e (PullbCone f g _ h k Hcomm)))).
 Proof.
-  set (T := tpair (fun hk : C⟦e , d⟧ => dirprod (hk ;; p1 = h)(hk ;; p2 = k)) 
-                    w (dirprodpair H1 H2)).
-  set (T' := pr2 (P e h k Hcomm) T).
-  exact (base_paths _ _ T').
+  apply path_to_ctr.
+  intro v; induction v; simpl.
+  - assumption.
+  - unfold compose; simpl.
+    eapply pathscomp0. apply assoc.
+    rewrite H1.
+    apply idpath.
+  - assumption.
 Qed.
 
 
-
 Lemma PullbackEndo_is_identity {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb : Pullback f g) (k : PC⟦b , P⟧b) (kH1 : k ;; PullbackPr1 Pb = PullbackPr1 Pb)
+   (Pb : Pullback f g) (k : C⟦lim Pb , lim Pb⟧) (kH1 : k ;; PullbackPr1 Pb = PullbackPr1 Pb)
                                        (kH2 : k ;; PullbackPr2 Pb = PullbackPr2 Pb) :
-       identity Pb = k.
+       identity (lim Pb) = k.
 Proof.
-  set (H1 := tpair ((fun hk : PC⟦b , P⟧b => dirprod (hk ;; _ = _)(hk ;; _ = _))) k (dirprodpair kH1 kH2)).
-  assert (H2 : identity_is_Pullback_input Pb = H1).
-  - apply proofirrelevance.
-    apply isapropifcontr.
-    apply (isPullback_Pullback Pb).
-    apply PullbackSqrCommutes.
-  - apply (base_paths _ _ H2).
+  apply lim_endo_is_identity.
+  intro u; induction u; simpl.
+  - apply kH1.
+  - unfold limOut. simpl.
+    assert (T:= coneOutCommutes (limCone Pb) Two Three tt).
+    rewrite <- T.
+    simpl.
+    rewrite assoc.
+    eapply pathscomp0. apply cancel_postcomposition.
+       apply kH2.
+       apply idpath.
+ - assumption.
 Qed.
 
 
 Definition from_Pullback_to_Pullback {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb Pb': Pullback f g) : PC⟦b , P⟧b'.
+   (Pb Pb': Pullback f g) : C⟦lim Pb , lim Pb'⟧.
 Proof.
-  apply (PullbackArrow Pb' Pb (PullbackPr1 _ ) (PullbackPr2 _)).
+  apply (PullbackArrow Pb' (lim Pb) (PullbackPr1 _ ) (PullbackPr2 _)).
   exact (PullbackSqrCommutes _ ).
 Defined.
 
@@ -263,7 +271,7 @@ Defined.
 
 
 Definition iso_from_Pullback_to_Pullback {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb Pb': Pullback f g) : iso Pb Pb' :=
+   (Pb Pb': Pullback f g) : iso (lim Pb) (lim Pb') :=
   tpair _ _ (isiso_from_Pullback_to_Pullback Pb Pb').
 
 
@@ -288,9 +296,10 @@ Proof.
   apply idpath.
 Qed.
 
+(*
 Lemma isPullbackGluedSquare : isPullback (i ;; f) g m (j ;; k) glueSquares.
 Proof.
-  unfold isPullback.
+  apply mk_isPullback.
   intros y p q.
   intro Hrt.
   assert (ex : (p;; i);; f = q;; g).
@@ -328,6 +337,7 @@ Proof.
       * rewrite <- assoc.
         assumption.
 Qed.
+ *)
 
 End pullback_lemma.
 
@@ -346,7 +356,7 @@ Proof.
   apply (pr1 T).
 Qed.
 
-
+(*
 Lemma isaprop_Pullbacks: isaprop Pullbacks.
 Proof.
   apply impred; intro a;
@@ -375,6 +385,7 @@ Proof.
     rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.
     apply idpath.
 Qed.
+ *)
 
 End Universal_Unique.
 
