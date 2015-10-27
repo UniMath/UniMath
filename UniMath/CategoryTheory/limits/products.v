@@ -167,3 +167,9 @@ apply ProductArrowUnique.
 Qed.
 
 End product_def.
+
+Lemma Products_from_Lims (C : precategory) :
+  Lims C -> Products C.
+Proof.
+now intros H a b; apply H.
+Defined.

@@ -53,7 +53,7 @@ Definition mk_cone {g : graph} {d : diagram g C^op} {c : C}
 
 (* The injections to c in the cocone *)
 Definition coneOut {g : graph} {d : diagram g C^op} {c : C} (cc : cone d c) :
-  ∀ v, C⟦c, dob d v⟧ := coconeIn cc. 
+  ∀ v, C⟦c, dob d v⟧ := coconeIn cc.
 
 Lemma coneOutCommutes {g : graph} {d : diagram g C^op} {c : C} (cc : cone d c) :
   ∀ u v (e : edge u v), coneOut cc v ;; dmor d e = coneOut cc u.
@@ -65,11 +65,11 @@ Qed.
    diagram there is a unique morphism from the tip of cc0 to the tip
    of cc *)
 Definition isLimCone {g : graph} (d : diagram g C^op) (c0 : C)
-  (cc0 : cone d c0) : UU := 
+  (cc0 : cone d c0) : UU :=
    isColimCocone _ _ cc0.
 (*
 ∀ (c : C) (cc : cone d c),
-      isColimCocone 
+      isColimCocone
     iscontr (Σ x : C⟦c0,c⟧, ∀ v, coconeIn cc0 v ;; x = coconeIn cc v).
 *)
 
@@ -90,14 +90,14 @@ Definition hasLims : UU  :=
   ∀ {g : graph} (d : diagram g C^op), ishinh (LimCone d).
 
 (* lim is the tip of the lim cone *)
-Definition lim {g : graph} {d : diagram g C^op} (CC : LimCone d) : C 
+Definition lim {g : graph} {d : diagram g C^op} (CC : LimCone d) : C
   := colim CC.
 
 Definition limCone {g : graph} {d : diagram g C^op} (CC : LimCone d) :
   cone d (lim CC) := colimCocone CC.
 
 Definition limOut {g : graph} {d : diagram g C^op} (CC : LimCone d) :
-  ∀ (v : vertex g), C⟦lim CC, dob d v⟧ := coneOut (limCone CC). 
+  ∀ (v : vertex g), C⟦lim CC, dob d v⟧ := coneOut (limCone CC).
 
 Lemma limOutCommutes {g : graph} {d : diagram g C^op}
   (CC : LimCone d) : ∀ (u v : vertex g) (e : edge u v),
@@ -114,8 +114,8 @@ apply (colimUnivProp CC).
 Qed.
 
 Definition isLimCone_LimCone {g : graph} {d : diagram g C^op}
-    (CC : LimCone d) 
-  : isLimCone d (lim CC) (tpair _ (limOut CC) (limOutCommutes CC)) 
+    (CC : LimCone d)
+  : isLimCone d (lim CC) (tpair _ (limOut CC) (limOutCommutes CC))
   := isColimCocone_ColimCocone CC.
 
 Definition limArrow {g : graph} {d : diagram g C^op} (CC : LimCone d)
@@ -157,14 +157,14 @@ Qed.
 Definition limOfArrows {g : graph} {d1 d2 : diagram g C^op}
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∀ u v (e : edge u v), f v ;; (dmor d2 e : C⟦dob d2 v, dob d2 u⟧)  
-                              = 
+  (fNat : ∀ u v (e : edge u v), f v ;; (dmor d2 e : C⟦dob d2 v, dob d2 u⟧)
+                              =
                                 (dmor d1 e : C⟦dob d1 v, dob d1 u⟧);; f u) :
   C⟦lim CC1 , lim CC2⟧.
 Proof.
-  refine (colimOfArrows CC2 CC1 _ _ ). 
-  - apply f. 
-  - apply fNat. 
+  refine (colimOfArrows CC2 CC1 _ _ ).
+  - apply f.
+  - apply fNat.
 Defined.
 
 Lemma limOfArrowsOut {g : graph} (d1 d2 : diagram g C^op)
@@ -283,8 +283,10 @@ Defined.
 *)
 End lim_def.
 
+
+Arguments Lims : clear implicits.
+
 (*
-Arguments Colims : clear implicits.
 
 (* Defines colimits in functor categories when the target has colimits *)
 Section ColimFunctor.
