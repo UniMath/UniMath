@@ -102,7 +102,7 @@ Proof.
     + apply (propproperty (DecidableProposition_to_hProp _)).
   - simpl. apply weqiff.
     + apply logeq_both_false.
-      * now apply falsetonegtrue.
+      * exact nopathsfalsetotrue.
       * assumption.
     + apply isasetbool.    
     + apply (propproperty (DecidableProposition_to_hProp _)).
@@ -144,11 +144,7 @@ Notation " x !=? y " := ( natneq_DecidableProposition x y ) (at level 70, no ass
 
 Local Definition bound01 (P:DecidableProposition) : ((choice P 1 0) ≤ 1)%nat.
 Proof.
-  intros.
-  unfold choice.
-  choose P p q.
-  { simpl. now apply falsetonegtrue. }
-  { simpl. now apply falsetonegtrue. }
+  intros. unfold choice. choose P p q; exact nopathsfalsetotrue.
 Defined.  
 
 Definition tallyStandardSubset {n} (P: DecidableSubtype (stn n)) : stn (S n).

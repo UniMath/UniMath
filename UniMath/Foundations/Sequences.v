@@ -5,6 +5,7 @@ Local Notation "● x" := (x,,idpath _) (at level 35).
 (* move upstream *)
 (* end of move upstream *)
 
+
 Definition Sequence X := Σ n, stn n -> X.
 
 Definition length {X} : Sequence X -> nat := pr1.

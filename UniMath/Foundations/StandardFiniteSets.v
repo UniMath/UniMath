@@ -268,7 +268,7 @@ Proof. reflexivity. Defined.
 
 Lemma stnsum_le {n} (f g:stn n->nat) : (∀ i, f i ≤ g i) -> stnsum f ≤ stnsum g.
 Proof.
-  intros ? ? ? le. induction n as [|n IH]. { simpl. now apply falsetonegtrue. }
+  intros ? ? ? le. induction n as [|n IH]. { simpl. exact nopathsfalsetotrue. }
   apply natlehandplus. { apply IH. intro i. apply le. } apply le.
 Defined.  
 
