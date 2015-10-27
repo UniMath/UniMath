@@ -12,13 +12,13 @@ SubstitutionSystems
 
 (** **********************************************************
 
-Contents : 
+Contents :
 
-- Specification of an initial morphism of substitution systems from 
+- Specification of an initial morphism of substitution systems from
   lambda calculus with explicit flattening to lambda calculus
 
-                	
-           
+
+
 ************************************************************)
 
 
@@ -116,7 +116,7 @@ Variable Lam_Initial : Initial
      (@precategory_FunctorAlg ([C, C] hs)
                              (Id_H C hs CC Lam_S) hsEndC).
 
-Let Lam := InitialObject _ Lam_Initial.
+Let Lam := InitialObject Lam_Initial.
 
 
 
@@ -129,7 +129,7 @@ Proof.
   - apply KanExt.
   - apply Lam_Initial.
 Defined.
-Let LamHSS := InitialObject _ LamHSS_Initial.
+Let LamHSS := InitialObject LamHSS_Initial.
 
 (** extract constructors *)
 
@@ -162,7 +162,7 @@ Defined.
 
 (** we need a flattening in order to get a model for LamE *)
 
-Definition Lam_Flatten : 
+Definition Lam_Flatten :
   [C, C] hs ⟦ (Flat_H C hs) `Lam , `Lam ⟧.
 Proof.
   exact (fbracket LamHSS (identity _ )).
@@ -194,9 +194,9 @@ Defined.
 Local Definition bla': (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) ⇒ (ptd_from_alg_functor CC _ Lam).
 Proof.
   refine (tpair _ _ _ ).
-    + apply (nat_trans_id _ ). 
+    + apply (nat_trans_id _ ).
     + abstract
-        (intro c; rewrite id_right 
+        (intro c; rewrite id_right
          ; apply CoproductIn1Commutes_left_dir;
          apply idpath).
 Defined.
@@ -204,9 +204,9 @@ Defined.
 Local Definition bla'_inv: (ptd_from_alg_functor CC _ Lam) ⇒ (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
 Proof.
   refine (tpair _ _ _ ).
-    + apply (nat_trans_id _ ). 
+    + apply (nat_trans_id _ ).
     + abstract
-        (intro c; rewrite id_right ; 
+        (intro c; rewrite id_right ;
          apply CoproductIn1Commutes_right_dir;
          apply idpath) .
 Defined.
@@ -267,12 +267,12 @@ Proof.
     clear Hyp.
     fold (fbracket LamHSS (f ;; bla)).
     unfold fbracket_for_LamE_algebra_on_Lam.
-    match goal with |[ |- _;; _ ;; ?h = _  ] => 
+    match goal with |[ |- _;; _ ;; ?h = _  ] =>
          assert (idness : h = nat_trans_id _) end.
     { apply nat_trans_eq; try (exact hs).
       intro c.
       unfold functor_ptd_forget.
-      apply id_left. 
+      apply id_left.
     }
     rewrite idness. clear idness.
     rewrite id_right.
@@ -296,7 +296,7 @@ Proof.
     intro c.
     apply cancel_postcomposition.
     apply CoproductIn1Commutes_right_dir.
-    apply idpath.   
+    apply idpath.
     (* this proof did not work with pointedness but with brute force *)
   - (* now the difficult case of the domain-specific constructors *)
     destruct Hyp as [_ Hyp2].
@@ -307,7 +307,7 @@ Proof.
 
     (* from here slightly interesting, because it is crucial to see that
        the τ considered here is a Coproduct arrow *)
-    
+
     rewrite τ_LamE_algebra_on_Lam.
     eapply pathscomp0; [apply cancel_postcomposition ; apply CoproductOfArrows_comp | ].
     eapply pathscomp0. apply precompWithCoproductArrow.
@@ -316,9 +316,9 @@ Proof.
     (* showing that a diagram of coproduct arrows splits into two is slightly cumbersome,
        but a general theorem seems difficult to formulate
 
-       instead we apply [CoproductArrowUnique] and then use the coproduct beta laws in 
+       instead we apply [CoproductArrowUnique] and then use the coproduct beta laws in
        each branch; this gives precisely what we want *)
-    
+
     apply CoproductArrowUnique.
     + eapply pathscomp0. apply assoc.
       eapply pathscomp0. apply cancel_postcomposition. apply CoproductIn1Commutes.
@@ -326,7 +326,7 @@ Proof.
       clear Hyp2.
       apply pathsinv0.
       assumption.
-    
+
     (* There should be a more general hypothesis than 'Hyp' defined above,
        one where one has a quantification over maps 'f', no? *)
 
@@ -335,12 +335,12 @@ Proof.
       eapply pathscomp0. apply cancel_postcomposition. apply CoproductIn2Commutes.
       unfold Lam_Flatten.
 
-    (* from here on 'simpl' is feasible 
+    (* from here on 'simpl' is feasible
        after some opacification, at least *)
       Opaque fbracket.
       Opaque LamHSS.
       set (X:= f ;; bla).
-    
+
       assert (TT:=compute_fbracket C hs CC Lam_S LamHSS(Z:=Z)).
       simpl in *.
       assert (T3 := TT  X); clear TT.
@@ -361,27 +361,27 @@ Proof.
       set (T := ` Lam).
 
       (* now we want to rewrite with T3 in 3 places *)
-    
+
       assert (T3':= nat_trans_eq_pointwise T3 c).
       simpl in *.
       match goal with |[ T3' : _ = ?f |- ?a ;; _ = _ ] => transitivity (a ;; f) end.
       { apply maponpaths. apply T3'. }
-    
+
       repeat rewrite assoc.
 (*
     apply cancel_postcomposition. (* that's a bad idea, because it fucks up use of third monad law and
                                       leads to something that is generally false *)
 *)
-    
+
       match goal with |[ T3' : _ = ?f |- _ = ?a ;; ?b ;; _ ;; ?d  ] => transitivity (a ;; b ;; #T f ;; d) end.
-        Focus 2. apply cancel_postcomposition. apply maponpaths. apply maponpaths. apply (!T3'). 
+        Focus 2. apply cancel_postcomposition. apply maponpaths. apply maponpaths. apply (!T3').
       clear T3'.
       apply pathsinv0.
 
       assert (T3':= nat_trans_eq_pointwise T3 (T (Z c))).
-    
+
       eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition. apply maponpaths. apply T3'.
-      clear T3'.                   
+      clear T3'.
       apply pathsinv0.
       destruct f as [f fptdmor]. simpl in *.
       rewrite id_right.
@@ -397,7 +397,7 @@ Proof.
       eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition.
                        apply cancel_postcomposition. apply X'.
                        clear X'.
-    
+
       assert (X := Monad_law_2_from_hss _ _ CC Lam_S LamHSS (T (Z c))).
       unfold μ_0 in X. unfold μ_2 in X.
 
@@ -422,13 +422,13 @@ Proof.
       rewrite functor_comp.
       repeat rewrite <- assoc.
       apply maponpaths.
-    
+
       assert (X := third_monad_law_from_hss _ _ CC Lam_S LamHSS).
       assert (X' := nat_trans_eq_pointwise X). clear X.
       simpl in X'.
-      
+
       eapply pathscomp0. apply X'.
-      clear X'. apply cancel_postcomposition. apply id_left. 
+      clear X'. apply cancel_postcomposition. apply id_left.
 Qed.
 
 (** * Uniqueness of the bracket operation *)
@@ -486,12 +486,12 @@ Proof.
        Focus 2. rewrite τ_LamE_algebra_on_Lam.
        eapply pathscomp0. apply assoc.
        apply cancel_postcomposition. apply CoproductIn1Commutes.
-   
+
       match goal with |[X : ?e = _ |- _ ] => transitivity e end.
        Focus 2. apply X.
 
       rewrite τ_LamE_algebra_on_Lam.
-     
+
       apply pathsinv0.
       eapply pathscomp0. apply assoc.
       eapply pathscomp0. apply cancel_postcomposition. apply assoc.
@@ -506,7 +506,7 @@ Proof.
       eapply pathscomp0. apply maponpaths. apply (!assoc _ _ _ _ _ _ _ _ ).
       simpl. apply maponpaths. apply maponpaths.
       apply CoproductIn1Commutes.
-Qed.     
+Qed.
 
 
 Definition bracket_for_LamE_algebra_on_Lam_at (Z : Ptd)
@@ -519,14 +519,14 @@ Proof.
     apply (bracket_property_for_LamE_algebra_on_Lam Z f).
   - apply bracket_for_LamE_algebra_on_Lam_unique.
 Defined.
-  
+
 Definition bracket_for_LamE_algebra_on_Lam : bracket LamE_algebra_on_Lam.
 Proof.
   intros Z f.
   simpl.
   apply bracket_for_LamE_algebra_on_Lam_at.
 Defined.
-  
+
 Definition LamE_model_on_Lam : hss CC LamE_S.
 Proof.
   exists LamE_algebra_on_Lam.
@@ -546,11 +546,11 @@ Proof.
   - apply KanExt.
   - apply LamE_Initial.
 Defined.
-Let LamEHSS := InitialObject _ LamEHSS_Initial.
+Let LamEHSS := InitialObject LamEHSS_Initial.
 
 (** * Specification of a morphism from lambda calculus with flattening to pure lambda calculus *)
 
 Definition FLATTEN : (hss_precategory CC LamE_S) ⟦LamEHSS, LamE_model_on_Lam⟧
-  := InitialArrow _ _ _ .
+  := InitialArrow _ _ .
 
 End Lambda.

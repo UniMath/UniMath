@@ -74,11 +74,11 @@ Notation "⟨ A , α ⟩" := (AlgConstr A α).
 
 Variable μF_Initial : Initial AF.
 
-Let μF : C := pr1 (pr1 μF_Initial).
-Let inF : F μF ⇒ μF := alg_map _ (pr1 μF_Initial).
+Let μF : C := alg_carrier _ (InitialObject μF_Initial).
+Let inF : F μF ⇒ μF := alg_map _ (InitialObject μF_Initial).
 
 Let iter {A : C} (α : F A ⇒ A) : μF ⇒ A :=
-  ↓(InitialArrow _ μF_Initial ⟨A,α⟩).
+  ↓(InitialArrow μF_Initial ⟨A,α⟩).
 
 Variable C' : precategory.
 Variable hsC' : has_homsets C'.
@@ -172,7 +172,7 @@ Proof.
     unfold preIt.
     rewrite φ_adj_after_φ_adj_inv.
     rewrite (φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L).
-    assert (iter_eq := algebra_mor_commutes _ _ _ (InitialArrow _ μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
+    assert (iter_eq := algebra_mor_commutes _ _ _ (InitialArrow μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
     exact iter_eq.
 Qed.
 
@@ -192,8 +192,9 @@ Focus 2.
     apply cancel_φ.
     unfold preIt.
     rewrite (φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L).
-    assert (iter_uniq := pr2 (pr2 μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)).
-    simpl in iter_uniq.
+    (* assert (iter_uniq := algebra_mor_commutes _ _ _ *)
+    (*                        (InitialArrow μF_Initial ⟨_,φ (ψ (R X) (ε X))⟩)). *)
+    (* simpl in iter_uniq. *)
     assert(φh_is_alg_mor: inF ;; φ h = #F(φ h) ;; φ (ψ (R X) (ε X))).
       (* remark: I am missing a definition of the algebra morphism property in UniMath.CategoryTheory.FunctorAlgebras *)
     + rewrite <- φ_ψ_μF_eq. 
@@ -201,8 +202,9 @@ Focus 2.
       apply maponpaths.
       exact h_rec_eq.
     + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial ⇒ ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
-      apply path_to_ctr.
-      exact φh_is_alg_mor.
+       refine (let X : AF ⟦ μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
+       * apply (tpair _ (φ h)); assumption.
+       * apply (maponpaths pr1 (InitialArrowUnique _ _ X0)).
 Qed.
 
 Theorem GenMendlerIteration : iscontr (Σ h : L μF ⇒ X, #L inF ;; h = ψ μF h).
