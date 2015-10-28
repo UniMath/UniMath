@@ -232,7 +232,7 @@ Definition isrefl { X : UU } ( R : hrel X ) := ∀ x : X , R x x.
 
 Definition issymm { X : UU } ( R : hrel X ) := ∀ ( x1 x2 : X ), R x1 x2 -> R x2 x1 .
 
-Definition ispreorder { X : UU } ( R : hrel X ) := istrans R × isrefl R . (* preorder relation *)
+Definition ispreorder { X : UU } ( R : hrel X ) := istrans R × isrefl R .
 
 Definition iseqrel { X : UU } ( R : hrel X ) := ispreorder R × issymm R .
 Definition iseqrelconstr { X : UU } { R : hrel X } ( trans0 : istrans R ) ( refl0 : isrefl R ) ( symm0 : issymm R ) : iseqrel R := dirprodpair ( dirprodpair trans0 refl0 ) symm0 .
