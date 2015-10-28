@@ -63,7 +63,7 @@ Proof.
   choose P a b.
   - simpl. reflexivity.
   - simpl. contradicts p b.
-Defined.  
+Defined.
 
 Definition choice_compute_no {W} (P:DecidableProposition) (p:¬P) (yes no:W) :
   choice P yes no = no.
@@ -73,7 +73,7 @@ Proof.
   choose P a b.
   - simpl. contradicts p a.
   - simpl. reflexivity.
-Defined.  
+Defined.
 
 Definition underlyingType {X} : DecidableSubtype X -> UU.
 Proof. intros ? S. exact (Σ x, S x). Defined.
@@ -98,13 +98,13 @@ Proof.
     + apply logeq_both_true.
       * reflexivity.
       * assumption.
-    + apply isasetbool.    
+    + apply isasetbool.
     + apply (propproperty (DecidableProposition_to_hProp _)).
   - simpl. apply weqiff.
     + apply logeq_both_false.
       * now apply falsetonegtrue.
       * assumption.
-    + apply isasetbool.    
+    + apply isasetbool.
     + apply (propproperty (DecidableProposition_to_hProp _)).
 Defined.
 
@@ -149,7 +149,7 @@ Proof.
   choose P p q.
   { simpl. now apply falsetonegtrue. }
   { simpl. now apply falsetonegtrue. }
-Defined.  
+Defined.
 
 Definition tallyStandardSubset {n} (P: DecidableSubtype (stn n)) : stn (S n).
 Proof. intros. exists (stnsum (λ x, choice (P x) 1 0)). apply natlehtolthsn.
@@ -222,11 +222,11 @@ Defined.
 Local Arguments isPosetEquivalence : clear implicits.
 Local Arguments isaposetmorphism : clear implicits.
 
-Lemma posetStructureIdentity {X:hSet} (R S:po X) :
+Lemma posetStructureIdentity {X:hSet} (R S:PartialOrder X) :
   @isPosetEquivalence (X,,R) (X,,S) (idweq X) -> R=S.
 Proof.
   intros ? ? ? e.
-  apply total2_paths_second_isaprop. { apply isaprop_ispo. }
+  apply total2_paths_second_isaprop. { apply isaprop_isPartialOrder. }
   induction R as [R r]; induction S as [S s]; simpl.
   apply funextfun; intro x; apply funextfun; intro y.
   unfold isPosetEquivalence in e.
@@ -236,24 +236,26 @@ Proof.
   apply uahp. { apply e. } { apply e'. }
 Defined.
 
-Lemma poTransport_logeq {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
+Open Scope transport_scope.
+
+Lemma poTransport_logeq {X Y:hSet} (R:PartialOrder X) (S:PartialOrder Y) (f:X=Y) :
   @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
-  <-> transportf (po∘pr1hSet) f R = S.
+  <-> f#R = S.
 Proof.
   split.
   { intros i. induction f. apply posetStructureIdentity. apply i. }
   { intros e. induction f. induction e. apply isPosetEquivalence_idweq. }
 Defined.
 
-Corollary poTransport_weq {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
+Corollary poTransport_weq {X Y:hSet} (R:PartialOrder X) (S:PartialOrder Y) (f:X=Y) :
   @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
-  ≃ transportf (po∘pr1hSet) f R = S.
+  ≃ f#R = S.
 Proof.
   intros. apply weqimplimpl.
   { apply (pr1 (poTransport_logeq _ _ _)). }
   { apply (pr2 (poTransport_logeq _ _ _)). }
   { apply isaprop_isPosetEquivalence. }
-  { apply isaset_po. }
+  { apply isaset_PartialOrder. }
 Defined.
 
 Local Lemma posetTransport_weq (X Y:Poset) : X≡Y ≃ X≅Y.
@@ -285,7 +287,7 @@ Proof. reflexivity. Defined.
 
 (* now we try to mimic this construction:
 
-    Inductive PosetEquivalence (X Y:Poset) : Type := 
+    Inductive PosetEquivalence (X Y:Poset) : Type :=
                   pathToEq : (X=Y) -> PosetEquivalence X Y.
 
     PosetEquivalence_rect
@@ -313,7 +315,7 @@ Lemma isMinimal_preserved {X Y:Poset} {x:X} (is:isMinimal x) (f:X ≅ Y) :
   isMinimal (f x).
 Proof.
   intros.
-  (* Anders says " induction f. " should look for PosetEquivalence_rect.  
+  (* Anders says " induction f. " should look for PosetEquivalence_rect.
      Why doesn't it? *)
   poset_induction f e. induction e. simpl. exact is.
 Defined.
@@ -331,20 +333,20 @@ Defined.
 
 (** see Bourbaki, Set Theory, III.1, where they are called totally ordered sets *)
 
+Definition OrderedSet := Σ X:Poset, istotal (posetRelation X).
 
-Definition isOrdered (X:Poset) := istotal (posetRelation X) × isantisymm (posetRelation X).
-
-Lemma isaprop_isOrdered (X:Poset) : isaprop (isOrdered X).
-Proof.
-  intros. apply isapropdirprod. { apply isaprop_istotal. } { apply isaprop_isantisymm. }
-Defined.
-
-Definition OrderedSet := Σ X, isOrdered X.
+Ltac unwrap_OrderedSet X :=
+  induction X as [X total];
+  induction X as [X _po_];
+  induction _po_ as [R _i_];
+  unwrap_isPartialOrder _i_;
+  unfold posetRelation in total;
+  simpl in total.
 
 Local Definition underlyingPoset (X:OrderedSet) : Poset := pr1 X.
 Coercion underlyingPoset : OrderedSet >-> Poset.
 
-Delimit Scope oset with oset. 
+Delimit Scope oset with oset.
 
 Definition Poset_lessthan {X:Poset} (x y:X) := (x ≤ y) ∧ (hneg (x = y)).
 
@@ -355,18 +357,15 @@ Notation "m < n" := (Poset_lessthan m n) :oset.
 Close Scope poset.
 Local Open Scope oset.
 
-Definition OrderedSet_isrefl {X:OrderedSet} (x:X) :
-  x ≤ x :=
-  pr2 (pr2 (pr2 (pr1 X))) x.
+Definition OrderedSet_isrefl {X:OrderedSet} (x:X) : x ≤ x.
+Proof. intros. unwrap_OrderedSet X; simpl in x. apply refl. Qed.
 
-Definition OrderedSet_isantisymm {X:OrderedSet} (x y:X) :
-  x ≤ y -> y ≤ x -> x = y :=
-  pr2 (pr2 X) x y.
+Definition OrderedSet_isantisymm {X:OrderedSet} (x y:X) : x ≤ y -> y ≤ x -> x = y.
+Proof. intros ? ? ? r s. unwrap_OrderedSet X; simpl in x, y. now apply antisymm. Qed.
 
-Definition OrderedSet_istotal {X:OrderedSet} (x y:X) :
-  x ≤ y ∨ y ≤ x :=
-  pr1 (pr2 X) x y.
-  
+Definition OrderedSet_istotal {X:OrderedSet} (x y:X) : x ≤ y ∨ y ≤ x.
+Proof. intros. unwrap_OrderedSet X; simpl in x,y. apply total. Qed.
+
 Lemma isdeceq_isdec_ordering (X:OrderedSet) : isdeceq X -> isdec_ordering X.
 Proof.
   intros ? deceq ? ?.
@@ -397,9 +396,7 @@ Proof. intros ? i ? ?. apply isdeceq_isdec_lessthan. now apply isfinite_isdeceq.
 Defined.
 
 Lemma isincl_underlyingPoset : isincl underlyingPoset.
-Proof.
-  apply isinclpr1. intros X. apply isaprop_isOrdered.
-Defined.
+Proof. apply isinclpr1. intros X. apply isaprop_istotal. Defined.
 
 Definition underlyingPoset_weq (X Y:OrderedSet) :
   X=Y ≃ (underlyingPoset X)=(underlyingPoset Y).
@@ -425,7 +422,7 @@ Proof.
 Defined.
 
 Ltac oset_induction f e := generalize f; apply OrderedSetEquivalence_rect; intro e; clear f.
-  
+
 (* standard ordered sets *)
 
 Definition FiniteOrderedSet := Σ X:OrderedSet, isfinite X.
@@ -435,12 +432,9 @@ Definition finitenessProperty (X:FiniteOrderedSet) : isfinite X := pr2 X.
 
 Definition standardFiniteOrderedSet (n:nat) : FiniteOrderedSet.
 Proof.
-  intros.
-  refine (_,,_).
-  { exists (stnposet n). split.
-    { intros x y. apply istotalnatleh. }
-    intros ? ? ? ?. apply isinjstntonat. now apply isantisymmnatleh. }
-  { apply isfinitestn. }
+  intros. refine (_,,_).
+  - exists (stnposet n). intros x y; apply istotalnatleh.
+  - apply isfinitestn.
 Defined.
 
 Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0).
@@ -454,7 +448,7 @@ Proof.
   apply total2_paths_isaprop.
   { intros g. apply isaprop_isPosetEquivalence. }
   simpl. apply isinjpr1weq. simpl. apply funextfun. intros i.
-    
+
 
 Abort.
 
@@ -465,7 +459,7 @@ Proof.
   destruct r as [m p].
   destruct s as [n q].
   apply total2_paths2_second_isaprop.
-  { 
+  {
     apply weqtoeqstn.
     exact (weqcomp (pr1 p) (invweq (pr1 q))).
   }
@@ -473,12 +467,12 @@ Proof.
     intros k.
     apply invproofirrelevance; intros [[r b] i] [[s c] j]; simpl in r,s,i,j.
     apply total2_paths2_second_isaprop.
-    { 
+    {
       apply total2_paths2_second_isaprop.
-      { 
-        
-        
-        
+      {
+
+
+
         admit. }
       apply isapropisweq. }
     apply isaprop_isPosetEquivalence.
@@ -492,4 +486,3 @@ Proof.
   { exists (fincard (finitenessProperty X)).
 
 Abort.
-
