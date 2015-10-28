@@ -76,7 +76,7 @@ Proof.
 Qed.
 
 Lemma ispo_reverse {X : UU} (l : hrel X) :
-  ispo l -> ispo (hrel_reverse l).
+  ispreorder l -> ispreorder (hrel_reverse l).
 Proof.
   intros X l (Ht,Hr).
   split.
@@ -176,7 +176,7 @@ Qed.
 (** An alternative of total orders *)
 
 Definition isEffectiveOrder {X : UU} (le lt : hrel X) :=
-  dirprod (dirprod (ispo le) (isStrongOrder lt))
+  dirprod (dirprod (ispreorder le) (isStrongOrder lt))
           (dirprod (forall x y : X, lt x y -> le x y)
                    (forall x y : X, le x y -> lt y x -> empty)).
 Definition EffectiveOrder (X : UU) :=
@@ -202,9 +202,9 @@ Definition EOlt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
 Definition EOgt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
   StrongOrder_reverse (@EOlt X).
 
-Definition PosetEffectiveOrder (X : EffectivelyOrderedSet) : Poset :=
-  Posetpair _ (@EOle X).
-Coercion PosetEffectiveOrder : EffectivelyOrderedSet >-> Poset.
+Definition PosetEffectiveOrder (X : EffectivelyOrderedSet) : PreorderedSet :=
+  PreorderedSetPair _ (@EOle X).
+Coercion PosetEffectiveOrder : EffectivelyOrderedSet >-> PreorderedSet.
 
 Delimit Scope eo_scope with eo.
 

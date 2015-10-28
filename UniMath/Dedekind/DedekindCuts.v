@@ -101,7 +101,7 @@ Proof.
   now intros x P HP ; apply HP ; clear P HP.
 Qed.
 
-Lemma ispo_Dcuts_le_rel : ispo Dcuts_le_rel.
+Lemma ispo_Dcuts_le_rel : ispreorder Dcuts_le_rel.
 Proof.
   split.
   exact istrans_Dcuts_le_rel.
@@ -216,7 +216,7 @@ Proof.
   now apply isrefl_po.
 Qed.
 
-Lemma ispo_Dcuts_eq : ispo Dcuts_eq.
+Lemma ispo_Dcuts_eq : ispreorder Dcuts_eq.
 Proof.
   split.
   exact istrans_Dcuts_eq.
