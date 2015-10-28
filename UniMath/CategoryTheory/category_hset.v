@@ -36,6 +36,7 @@ Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.limits.limits.
 Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 
@@ -497,6 +498,11 @@ Defined.
 Lemma ProductsHSET : Products HSET.
 Proof.
 now apply Products_from_Lims, LimsHSET.
+Defined.
+
+Lemma TerminalHSET : Terminal HSET.
+Proof.
+now apply Terminal_from_Lims, LimsHSET.
 Defined.
 
 Lemma PullbacksHSET : Pullbacks HSET.

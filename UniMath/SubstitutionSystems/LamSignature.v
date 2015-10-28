@@ -12,14 +12,14 @@ SubstitutionSystems
 
 (** **********************************************************
 
-Contents : 
+Contents :
 
 - Definition of the arities of the constructors of lambda calculus
 - Definition of the signatures of lambda calculus and lambda calculus with explicit flattening
 
 
-                	
-           
+
+
 ************************************************************)
 
 
@@ -93,7 +93,7 @@ Variable CP : Products C.
 
 Let one : C :=  @TerminalObject C terminal.
 
-(** 
+(**
    [App_H (X) (A) :=  X(A) × X(A)]
 *)
 Definition App_H : functor EndC EndC.
@@ -103,9 +103,9 @@ Proof.
   exact CP.
 Defined.
 
-(** 
+(**
    [Abs_H (X) := X o option]
-*)  
+*)
 
 Definition Abs_H_ob (X: EndC): functor C C := functor_composite (option_functor _ CC terminal) X.
 
@@ -123,7 +123,7 @@ Proof.
   intro.
   apply α.
 Defined.
-  
+
 Lemma is_nat_trans_Abs_H_mor_nat_trans_data  (X X': EndC)(α: X ⇒ X'): is_nat_trans _ _ (Abs_H_mor_nat_trans_data X X' α).
 Proof.
   red.
@@ -133,13 +133,13 @@ Proof.
   simpl.
   apply α_nat_trans.
  Qed.
-  
+
 Definition Abs_H_mor (X X': EndC)(α: X ⇒ X'): (Abs_H_ob X: ob EndC) ⇒ Abs_H_ob X'.
 Proof.
   exists (Abs_H_mor_nat_trans_data X X' α).
   exact (is_nat_trans_Abs_H_mor_nat_trans_data X X' α).
 Defined.
-  
+
 Definition Abs_H_functor_data: functor_data EndC EndC.
 Proof.
   exists Abs_H_ob.
@@ -171,15 +171,15 @@ Qed.
 Definition Abs_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Abs_H_data.
 
 
-(** 
+(**
    [Flat_H (X) := X o X]
-   
+
    ingredients:
-     - functor_composite in CategoryTheory.functor_categories 
+     - functor_composite in CategoryTheory.functor_categories
      - map given by horizontal composition in Substsystems.HorizontalComposition
- 
+
  Alternatively : free in two arguments, then precomposed with diagonal
- 
+
 *)
 Definition Flat_H_ob (X: EndC): functor C C := functor_composite X X.
 Definition Flat_H_mor (X X': EndC)(α: X ⇒ X'): (Flat_H_ob X: EndC) ⇒ Flat_H_ob X' := α ∙∙ α.
@@ -266,13 +266,13 @@ Qed.
 Definition App_θ: nat_trans (θ_source App_H) (θ_target App_H) :=
   tpair _ _ is_nat_trans_App_θ_data.
 
-Lemma App_θ_strenght1_int: θ_Strength1_int App_θ.
+Lemma App_θ_strength1_int: θ_Strength1_int App_θ.
 Proof.
   red.
   intro.
-  unfold App_θ, App_H.  
+  unfold App_θ, App_H.
   simpl.
-  unfold App_θ_data. 
+  unfold App_θ_data.
   apply nat_trans_eq; try assumption.
   intro c.
   simpl.
@@ -283,25 +283,25 @@ Proof.
   + rewrite id_left.
     unfold EndofunctorsMonoidal.λ_functor.
     unfold EndofunctorsMonoidal.ρ_functor.
-    simpl.    
+    simpl.
     rewrite id_right.
     apply idpath.
   + rewrite id_left.
     unfold EndofunctorsMonoidal.λ_functor.
     unfold EndofunctorsMonoidal.ρ_functor.
-    simpl.    
+    simpl.
     rewrite id_right.
     apply idpath.
 Qed.
 
 
-Lemma App_θ_strenght2_int: θ_Strength2_int App_θ.
+Lemma App_θ_strength2_int: θ_Strength2_int App_θ.
 Proof.
   red.
   intros.
-  unfold App_θ, App_H.  
+  unfold App_θ, App_H.
   simpl.
-  unfold App_θ_data. 
+  unfold App_θ_data.
   apply nat_trans_eq; try assumption.
   intro c.
   simpl.
@@ -311,12 +311,12 @@ Proof.
   apply ProductArrowUnique.
   + rewrite id_left.
     unfold EndofunctorsMonoidal.α_functor.
-    simpl.    
+    simpl.
     rewrite id_right.
     apply idpath.
   + rewrite id_left.
     unfold EndofunctorsMonoidal.α_functor.
-    simpl.    
+    simpl.
     rewrite id_right.
     apply idpath.
 Qed.
@@ -334,13 +334,14 @@ Proof.
   unfold coproduct_functor_ob.
   unfold constant_functor.
   simpl.
-(*  
+(*
   destruct Z as [Z e].
 *)
   simpl.
   apply CoproductArrow.
-  + exact (CoproductIn1 _ _ ;; nat_trans_data (pr2 (pr2 XZ)) (CoproductObject C (CC terminal A))).
-  + exact (# (pr1 (pr2 XZ)) (CoproductIn2 _ (CC terminal A))).
+  + exact (CoproductIn1 _ _ ;;
+           nat_trans_data (pr2 (pr2 XZ)) (CoproductObject C (CC (TerminalObject terminal) A))).
+  + exact (# (pr1 (pr2 XZ)) (CoproductIn2 _ (CC (TerminalObject terminal) A))).
 Defined.
 
 Lemma is_nat_trans_Abs_θ_data_data: ∀ XZ, is_nat_trans _ _ (Abs_θ_data_data XZ).
@@ -366,19 +367,19 @@ Focus 2.
   rewrite <- functor_comp.
   simpl.
   apply CoproductArrow_eq.
-  + assert (NN :=  nat_trans_ax (pr2 (pr2 XZ)) _ _ (CoproductOfArrows C (CC terminal c) (CC terminal c')
-         (identity terminal) f)).
-    match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _ ] => 
+  + assert (NN :=  nat_trans_ax (pr2 (pr2 XZ)) _ _ (CoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
+         (identity (TerminalObject terminal)) f)).
+    match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _ ] =>
          pathvia (h;;(f;;g)) end.
     * rewrite <- NN.
       clear NN.
-      unfold functor_identity.   
+      unfold functor_identity.
       simpl.
       rewrite assoc.
       rewrite CoproductOfArrowsIn1.
       rewrite id_left.
       apply idpath.
-    * apply idpath. 
+    * apply idpath.
   + apply maponpaths.
     eapply pathscomp0.
 Focus 2.
@@ -386,7 +387,7 @@ Focus 2.
     apply idpath.
 
 
-(*  
+(*
   intros [X [Z e]].
   red.
   intros c c' f.
@@ -407,26 +408,26 @@ Focus 2.
   rewrite <- functor_comp.
   simpl.
   apply CoproductArrow_eq.
-  + assert (NN :=  nat_trans_ax e _ _ (CoproductOfArrows C (CC terminal c) (CC terminal c')
-         (identity terminal) f)).
-    match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _ ] => 
+  + assert (NN :=  nat_trans_ax e _ _ (CoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
+         (identity (TerminalObject terminal)) f)).
+    match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _ ] =>
          pathvia (h;;(f;;g)) end.
     * rewrite <- NN.
       clear NN.
-      unfold functor_identity.   
+      unfold functor_identity.
       simpl.
       rewrite assoc.
       rewrite CoproductOfArrowsIn1.
       rewrite id_left.
       apply idpath.
-    * apply idpath. 
+    * apply idpath.
   + apply maponpaths.
     eapply pathscomp0.
 Focus 2.
     apply (!(CoproductOfArrowsIn2 _ _ _ _ _ )).
     apply idpath.
 *)
-Qed.      
+Qed.
 
 
 Definition Abs_θ_data: ∀ XZ, (θ_source Abs_H)XZ ⇒ (θ_target Abs_H)XZ.
@@ -479,14 +480,14 @@ Qed.
 
 Definition Abs_θ: nat_trans (θ_source Abs_H) (θ_target Abs_H) :=
   tpair _ _ is_nat_trans_Abs_θ_data.
- 
-Lemma Abs_θ_strenght1_int: θ_Strength1_int Abs_θ.
+
+Lemma Abs_θ_strength1_int: θ_Strength1_int Abs_θ.
 Proof.
   red.
   intro.
-  unfold Abs_θ, Abs_H.  
+  unfold Abs_θ, Abs_H.
   simpl.
-  unfold Abs_θ_data. 
+  unfold Abs_θ_data.
   apply nat_trans_eq; try assumption.
   intro c.
   simpl.
@@ -498,13 +499,13 @@ Proof.
   + apply id_right.
 Qed.
 
-Lemma Abs_θ_strenght2_int: θ_Strength2_int Abs_θ.
+Lemma Abs_θ_strength2_int: θ_Strength2_int Abs_θ.
 Proof.
   red.
   intros.
-  unfold Abs_θ, Abs_H.  
+  unfold Abs_θ, Abs_H.
   simpl.
-  unfold Abs_θ_data. 
+  unfold Abs_θ_data.
   apply nat_trans_eq; try assumption.
   intro c.
   simpl.
@@ -524,23 +525,23 @@ Focus 2.
   simpl in *.
   apply CoproductArrow_eq.
   + rewrite <- assoc.
-    assert (NN := nat_trans_ax e' _ _ (e (CoproductObject C (CC terminal c)))).  
+    assert (NN := nat_trans_ax e' _ _ (e (CoproductObject C (CC (TerminalObject terminal) c)))).
     simpl in NN. (* is important for success of the trick *)
-    match goal with |[ H1: _ = ?f;;?g |- ?h ;; _ = _ ] => 
+    match goal with |[ H1: _ = ?f;;?g |- ?h ;; _ = _ ] =>
          pathvia (h;;(f;;g)) end.
     * apply idpath.
-    * simpl. rewrite <- NN.    
+    * simpl. rewrite <- NN.
       clear NN.
-      assert (NNN := nat_trans_ax e' _ _ (CoproductArrow C (CC terminal (Z c))
-         (CoproductIn1 C (CC terminal c);;
-          e (CoproductObject C (CC terminal c)))
-         (# Z (CoproductIn2 C (CC terminal c))))). 
+      assert (NNN := nat_trans_ax e' _ _ (CoproductArrow C (CC (TerminalObject terminal) (Z c))
+         (CoproductIn1 C (CC (TerminalObject terminal) c);;
+          e (CoproductObject C (CC (TerminalObject terminal) c)))
+         (# Z (CoproductIn2 C (CC (TerminalObject terminal) c))))).
       simpl in NNN.
-      match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _] => 
+      match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _] =>
          pathvia (h;;(f;;g)) end.
       - simpl. rewrite <- NNN.
         clear NNN.
-        do 2 rewrite assoc.        
+        do 2 rewrite assoc.
         rewrite CoproductIn1Commutes.
         apply idpath.
       - apply idpath.
@@ -557,7 +558,7 @@ Qed.
 Definition Flat_θ_data: ∀ XZ, (θ_source Flat_H)XZ ⇒ (θ_target Flat_H)XZ.
 Proof.
   intro XZ.
-(*  destruct XZ as [X [Z e]]. 
+(*  destruct XZ as [X [Z e]].
   simpl.
 *)
   set (h:= nat_trans_comp (λ_functor_inv _ (pr1 XZ)) ((nat_trans_id _) ∙∙ (pr2 (pr2 XZ)))).
@@ -600,11 +601,11 @@ Qed.
 Definition Flat_θ: nat_trans (θ_source Flat_H) (θ_target Flat_H) :=
   tpair _ _ is_nat_trans_Flat_θ_data.
 
-Lemma Flat_θ_strenght1_int: θ_Strength1_int Flat_θ.
+Lemma Flat_θ_strength1_int: θ_Strength1_int Flat_θ.
 Proof.
   red.
   intro.
-  unfold Flat_θ, Flat_H.  
+  unfold Flat_θ, Flat_H.
   simpl.
   apply nat_trans_eq; try assumption.
   intro c.
@@ -615,7 +616,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma Flat_θ_strenght2_int: θ_Strength2_int Flat_θ.
+Lemma Flat_θ_strength2_int: θ_Strength2_int Flat_θ.
 Proof.
   red.
   intros.
@@ -630,7 +631,7 @@ Proof.
   apply maponpaths.
   repeat rewrite functor_id.
   repeat rewrite id_right.
-  apply idpath.  
+  apply idpath.
 Qed.
 
 (** finally, constitute the 3 signatures *)
@@ -640,8 +641,8 @@ Proof.
   exists App_H.
   exists App_θ.
   split.
-  + exact App_θ_strenght1_int.      
-  + exact App_θ_strenght2_int.
+  + exact App_θ_strength1_int.
+  + exact App_θ_strength2_int.
 Defined.
 
 Definition Abs_Sig: Signature C hs.
@@ -649,8 +650,8 @@ Proof.
   exists Abs_H.
   exists Abs_θ.
   split.
-  + exact Abs_θ_strenght1_int.      
-  + exact Abs_θ_strenght2_int.
+  + exact Abs_θ_strength1_int.
+  + exact Abs_θ_strength2_int.
 Defined.
 
 Definition Flat_Sig: Signature C hs.
@@ -658,14 +659,14 @@ Proof.
   exists Flat_H.
   exists Flat_θ.
   split.
-  + exact Flat_θ_strenght1_int.      
-  + exact Flat_θ_strenght2_int.
+  + exact Flat_θ_strength1_int.
+  + exact Flat_θ_strength2_int.
 Defined.
 
 
 Definition Lam_Sig: Signature C hs :=
-  Sum_of_Signatures C hs CC App_Sig Abs_Sig.  
-  
+  Sum_of_Signatures C hs CC App_Sig Abs_Sig.
+
 Definition LamE_Sig: Signature C hs :=
   Sum_of_Signatures C hs CC Lam_Sig Flat_Sig.
 

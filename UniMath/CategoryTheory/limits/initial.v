@@ -1,4 +1,3 @@
-
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -60,9 +59,9 @@ refine (tpair _ _ _).
 Defined.
 
 Definition InitialObject (O : Initial) : C := colim O.
-Coercion InitialObject : Initial >-> ob.
+(* Coercion InitialObject : Initial >-> ob. *)
 
-Definition InitialArrow (O : Initial) (b : C) : C⟦O,b⟧ :=
+Definition InitialArrow (O : Initial) (b : C) : C⟦InitialObject O,b⟧ :=
   colimArrow _ _ (initCocone b).
 
 Lemma InitialArrowUnique (I : Initial) (a : C)
@@ -71,24 +70,30 @@ Proof.
 now apply colimArrowUnique; intro v; induction v.
 Defined.
 
-Lemma InitialEndo_is_identity (O : Initial) (f : C⟦O,O⟧) : identity O = f.
+Lemma ArrowsFromInitial (I : Initial) (a : C) (f g : C⟦InitialObject I,a⟧) : f = g.
+Proof.
+eapply pathscomp0.
+apply InitialArrowUnique.
+now apply pathsinv0, InitialArrowUnique.
+Qed.
+
+Lemma InitialEndo_is_identity (O : Initial) (f : C⟦InitialObject O,InitialObject O⟧) :
+  identity (InitialObject O) = f.
 Proof.
 now apply colim_endo_is_identity; intro u; induction u.
 Qed.
 
 Lemma isiso_from_Initial_to_Initial (O O' : Initial) :
-  is_isomorphism (InitialArrow O O').
+  is_isomorphism (InitialArrow O (InitialObject O')).
 Proof.
-  apply (is_iso_qinv _ (InitialArrow O' O)).
-  split; apply pathsinv0;
-   apply InitialEndo_is_identity.
+  apply (is_iso_qinv _ (InitialArrow O' (InitialObject O))).
+  split; apply pathsinv0, InitialEndo_is_identity.
 Defined.
 
-Definition iso_Initials (O O' : Initial) : iso O O' :=
-   tpair _ (InitialArrow O O') (isiso_from_Initial_to_Initial O O') .
+Definition iso_Initials (O O' : Initial) : iso (InitialObject O) (InitialObject O') :=
+   tpair _ (InitialArrow O (InitialObject O')) (isiso_from_Initial_to_Initial O O') .
 
 Definition hasInitial := ishinh Initial.
-
 
 (* TODO: This should be an instance of a general result for colimits *)
 (* Section Initial_Unique. *)

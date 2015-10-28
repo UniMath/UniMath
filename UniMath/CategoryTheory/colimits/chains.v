@@ -246,7 +246,8 @@ Section colim_initial_algebra.
 Variables (C : precategory) (F : functor C C).
 Variables (hsC : has_homsets C) (Init : Initial C).
 
-Definition initDiag : diagram nat_graph C := Fdiagram F Init (InitialArrow Init (F Init)).
+Definition initDiag : diagram nat_graph C :=
+  Fdiagram F (InitialObject Init) (InitialArrow Init (F (InitialObject Init))).
 
 Variable (CC : ColimCocone initDiag).
 Variable (Fcont : chain_cocontinuous hsC F (InitialObject Init) (InitialArrow Init _) CC).
