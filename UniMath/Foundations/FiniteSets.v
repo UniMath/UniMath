@@ -162,7 +162,7 @@ Definition isfinite  ( X : UU ) := ishinh ( finstruct X ) .
 
 Definition FiniteSet := Σ X:UU, isfinite X.
 
-Definition FiniteSet_pair {X:UU} (f:isfinite X) : FiniteSet := X,,f.
+Definition isfinite_to_FiniteSet {X:UU} (f:isfinite X) : FiniteSet := X,,f.
 
 Lemma isfinite_isdeceq X : isfinite X -> isdeceq X.
 Proof. intros ? isfin. apply (isfin (hProppair _ (isapropisdeceq X))); intro f; clear isfin; simpl.
@@ -194,7 +194,7 @@ Proof . intros . apply ( @hinhuniv ( finstruct X ) ( ischoicebase X ) ) .  intro
 
 Definition isfinitestn ( n : nat ) : isfinite ( stn n ) := hinhpr ( finstructonstn n ) . 
 
-Definition standardFiniteSet n : FiniteSet := FiniteSet_pair (isfinitestn n).
+Definition standardFiniteSet n : FiniteSet := isfinite_to_FiniteSet (isfinitestn n).
 
 Definition isfiniteweqf { X Y : UU } ( w : weq X Y ) ( sx : isfinite X ) : isfinite Y :=  hinhfun ( fun sx0 : _ =>  finstructweqf w sx0 ) sx .
 
@@ -270,6 +270,7 @@ Goal fincard (isfinitebool) = 2. reflexivity. Qed.
 Goal fincard (isfinitecompl true isfinitebool) = 1. reflexivity. Qed.
 Goal fincard (isfinitedirprod  isfinitebool isfinitebool) = 4. reflexivity. Qed.
 Goal fincard (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool)) = 8. reflexivity. Qed.
+Goal cardinalityFiniteSet (isfinite_to_FiniteSet (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool))) = 8. reflexivity. Qed.
 Goal fincard (isfinitecompl (ii1 tt) (isfinitecoprod  (isfiniteunit) (isfinitebool))) = 2. reflexivity. Qed.
 Goal fincard (isfinitecompl (ii1 tt) (isfinitecoprod (isfiniteunit) (isfinitebool))) = 2. reflexivity. Qed.
 Goal fincard (isfinitecompl (dirprodpair tt tt) (isfinitedirprod  isfiniteunit isfiniteunit)) = 0. reflexivity. Qed.

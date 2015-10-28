@@ -9,16 +9,17 @@ Local Notation "● x" := (x,,idpath _) (at level 35).
 (* propositions, move upstream *)
 
 Lemma subsetFiniteness {X} (is : isfinite X) (P : DecidableSubtype X) :
-  isfinite (underlyingType P).
+  isfinite (decidableSubtypeCarrier P).
 Proof.
   intros.
-  assert (fin : isfinite (underlyingType' P)).
+  assert (fin : isfinite (decidableSubtypeCarrier' P)).
   { now apply isfinitedecsubset. }
   refine (isfiniteweqf _ fin).
-  apply underlyingType_weq.
+  apply decidableSubtypeCarrier_weq.
 Defined.
 
 Definition subsetFiniteSet {X:FiniteSet} (P:DecidableSubtype X) : FiniteSet.
+Proof. intros X P. exact (isfinite_to_FiniteSet (subsetFiniteness (pr2 X) P)). Defined.
 
 Definition fincard_subset {X} (is : isfinite X) (P : DecidableSubtype X) : nat.
 Proof. intros ? fin ?. exact (fincard (subsetFiniteness fin P)). Defined.
@@ -27,8 +28,6 @@ Definition fincard_standardSubset {n} (P : DecidableSubtype (stn n)) : nat.
 Proof. intros. exact (fincard (subsetFiniteness (isfinitestn n) P)). Defined.
 
 Goal 3 = fincard_standardSubset (λ i:stn 10, 2*i <? 6). Proof. reflexivity. Defined.
-
-Coercion underlyingType : DecidableSubtype >-> UU.
 
 Local Definition bound01 (P:DecidableProposition) : ((choice P 1 0) ≤ 1)%nat.
 Proof.
@@ -312,25 +311,42 @@ Definition FiniteOrderedSet := Σ X:OrderedSet, isfinite X.
 Definition underlyingOrderedSet (X:FiniteOrderedSet) : OrderedSet := pr1 X.
 Coercion underlyingOrderedSet : FiniteOrderedSet >-> OrderedSet.
 Definition finitenessProperty (X:FiniteOrderedSet) : isfinite X := pr2 X.
+Definition underlyingFiniteSet : FiniteOrderedSet -> FiniteSet.
+Proof. intros. exists X. apply finitenessProperty. Defined.
+Coercion underlyingFiniteSet : FiniteOrderedSet >-> FiniteSet.
 
 Lemma FiniteOrderedSet_isdec_ordering (X:FiniteOrderedSet) : isdec_ordering X.
 Proof. intros. apply isfinite_isdec_ordering. apply finitenessProperty. Defined.
-Abort.
 
-Definition FiniteSetDecidableOrdering (X:FiniteOrderedSet) : DecidableRelation X.
+Definition FiniteOrderedSetDecidableOrdering (X:FiniteOrderedSet) : DecidableRelation X.
 Proof.
   intros ? x y.
-  assert (k := FiniteOrderedSet_isdec_ordering X x y).
-  unfold decidable in k.
+  refine (decidable_to_DecidableProposition _).
+  - exact (x ≤ y).
+  - apply FiniteOrderedSet_isdec_ordering.
+Defined.
 
-  (* exact (DecidableProposition_pair ). *)
-Abort.
+Notation " x ≤? y " := ( FiniteOrderedSetDecidableOrdering _ x y ) (at level 70, no associativity) : foset.
 
-Definition FiniteOrderedSet_segment (X:FiniteOrderedSet) (x:X) : FiniteSet.
+Definition FiniteOrderedSetDecidableLessThan (X:FiniteOrderedSet) : DecidableRelation X.
 Proof.
-  intros.
-Abort.
+  intros ? x y. refine (decidable_to_DecidableProposition _).
+  - exact (x < y).
+  - apply isfinite_isdec_lessthan. apply finitenessProperty.
+Defined.
 
+Notation " x <? y " := ( FiniteOrderedSetDecidableLessThan _ x y ) (at level 70, no associativity) : foset.
+
+Open Scope foset.
+Delimit Scope foset with foset.
+
+Definition FiniteOrderedSet_segment {X:FiniteOrderedSet} (x:X) : FiniteSet.
+Proof. intros. apply (@subsetFiniteSet X); intro y. exact (y <? x). Defined.
+
+Definition height {X:FiniteOrderedSet} : X -> nat.
+Proof. intros ? x. exact (cardinalityFiniteSet (FiniteOrderedSet_segment x)). Defined.
+
+(** making finite ordered sets in various ways *)
 
 Definition standardFiniteOrderedSet (n:nat) : FiniteOrderedSet.
 Proof.
@@ -341,6 +357,13 @@ Defined.
 
 Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0).
 (* in agda-mode \[[ n \]] *)
+
+Goal 3 = height ( ●3 : ⟦ 8 ⟧ ). reflexivity. Qed.
+
+Definition transportFiniteOrdering {n} {X:UU} : ⟦ n ⟧ ≃ X -> FiniteOrderedSet.
+Abort.
+
+(** sorting finite ordered sets *)
 
 Definition FiniteStructure (X:OrderedSet) := Σ n, ⟦ n ⟧ ≅ X.
 
@@ -471,7 +494,7 @@ Section OtherProperties.
 
   Local Lemma tightness x y : ¬ apart x y <-> x = y.
   Proof.
-    expand ic. 
+    expand ic.
     split.
     - intro m. assert (p := fromnegcoprod_prop m); clear m.
       induction p as [p q]. now apply antisymmle.
@@ -523,4 +546,3 @@ Section OtherProperties.
   End ClassicalProperties.
 
 End OtherProperties.
-

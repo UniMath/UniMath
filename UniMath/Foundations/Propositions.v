@@ -412,14 +412,17 @@ Defined.
 
 Definition DecidableProposition := Σ X:UU, isdecprop X.
 
+Definition DecidableProposition_pair {X:UU} (i:isdecprop X) : DecidableProposition := X,,i.
+
 Definition decidable_to_isdecprop (X:hProp) : decidable X -> isdecprop X.
 Proof. intros ? dec. apply isdecpropif. { apply propproperty. } { exact dec. }
 Defined.
 
+Definition decidable_to_DecidableProposition {X:hProp} : decidable X -> DecidableProposition.
+Proof. intros ? dec. exists X. now apply decidable_to_isdecprop. Defined.
+ 
 Definition DecidableProposition_to_isdecprop (X:DecidableProposition) : isdecprop (pr1 X).
 Proof. apply pr2. Defined.
-
-Definition DecidableProposition_pair {X:UU} (i:isdecprop X) : DecidableProposition := X,,i.
 
 Definition DecidableProposition_to_hProp : DecidableProposition -> hProp.
 Proof.
@@ -463,17 +466,17 @@ Proof.
   - simpl. reflexivity.
 Defined.
 
-Definition underlyingType {X} : DecidableSubtype X -> UU.
+Definition decidableSubtypeCarrier {X} : DecidableSubtype X -> UU.
 Proof. intros ? S. exact (Σ x, S x). Defined.
 
-Definition underlyingType' {X} : DecidableSubtype X -> UU.
+Definition decidableSubtypeCarrier' {X} : DecidableSubtype X -> UU.
 Proof. intros ? P.
        (* for use with isfinitedecsubset *)
        exact (hfiber (λ x, choice (P x) true false) true).
 Defined.
 
-Definition underlyingType_weq {X} (P:DecidableSubtype X) :
-  underlyingType' P ≃ underlyingType P.
+Definition decidableSubtypeCarrier_weq {X} (P:DecidableSubtype X) :
+  decidableSubtypeCarrier' P ≃ decidableSubtypeCarrier P.
 Proof.
   intros.
   apply weqfibtototal.
