@@ -302,7 +302,7 @@ Arguments Colims : clear implicits.
 Section ColimFunctor.
 
 Variable A C : precategory.
-Variable HC : Colims C.
+(* Variable HC : Colims C. *) (* Too strong! *)
 Variable hsC : has_homsets C.
 Variable g : graph.
 Variable D : diagram g [A, C, hsC].
@@ -313,7 +313,7 @@ exists (fun v => pr1 (dob D v) a); intros u v e.
 now apply (pr1 (dmor D e) a).
 Defined.
 
-Let HCg a := HC g (diagram_pointwise a).
+Variable (HCg : forall (a : A), ColimCocone (diagram_pointwise a)).
 
 Definition ColimFunctor_ob (a : A) : C := colim (HCg a).
 

@@ -283,8 +283,68 @@ Defined.
 *)
 End lim_def.
 
-
 Arguments Lims : clear implicits.
+
+Definition foo (A C : precategory) (hsC : has_homsets C) :
+  functor_data [A, C, hsC]^op [A^op, C^op, has_homsets_opp hsC].
+Proof.
+refine (tpair _ _ _).
+- simpl.
+  apply functor_opp.
+- simpl; intros F G α.
+  refine (tpair _ _ _).
+  + simpl; intro a. apply α.
+  + intros a b f; simpl in *.
+    apply pathsinv0, (nat_trans_ax α).
+Defined.
+
+Lemma is_functor_foo (A C : precategory) (hsC : has_homsets C) :
+  is_functor (foo A C hsC).
+Proof.
+split.
+- now intro F; simpl; apply (nat_trans_eq (has_homsets_opp hsC)); simpl; intro a.
+- now intros F G H α β; simpl; apply (nat_trans_eq (has_homsets_opp hsC)); simpl; intro a.
+Qed.
+
+Definition functor_foo (A C : precategory) (hsC : has_homsets C) :
+  functor _ _ := tpair _ _ (is_functor_foo A C hsC).
+
+Definition oof (A C : precategory) (hsC : has_homsets C) :
+  functor_data [A^op, C^op, has_homsets_opp hsC] [A, C, hsC]^op.
+Proof.
+refine (tpair _ _ _).
+- simpl.
+  intro F.
+  refine (tpair _ _ _).
+  + exists F.
+    apply (fun a b f => # F f).
+  + split.
+    * intro a; simpl. apply (functor_id F).
+    * intros a b c f g; simpl. apply (functor_comp F).
+- simpl; intros F G α.
+  exists (fun x => α x).
+  intros a b f; simpl.
+  apply pathsinv0, (nat_trans_ax α).
+Defined.
+
+(* TODO: Finish ooooooof! *)
+
+Definition get_diagram (A C : precategory) (hsC : has_homsets C)
+  (g : graph) (D : diagram g [A, C, hsC]^op) : diagram g [A^op, C^op, has_homsets_opp hsC].
+
+Lemma LimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
+  (HC : Lims C) : Lims [A,C,hsC].
+Proof.
+intros g D.
+set (ColimsFunctorCategory A^op C^op (has_homsets_opp hsC) HC g).
+(* refine (mk_LimCone _ _ _ _). *)
+unfold LimCone.
+simpl in *.
+eapply c.
+unfold
+now intros g d; apply ColimFunctorCocone.
+Defined.
+
 
 (*
 
