@@ -11,7 +11,7 @@ Local Notation "● x" := (x,,idpath _) (at level 35).
 Lemma subsetFiniteness {X} (is : isfinite X) (P : DecidableSubtype X) :
   isfinite (underlyingType P).
 Proof.
-  intros ? is ?.
+  intros.
   assert (fin : isfinite (underlyingType' P)).
   { now apply isfinitedecsubset. }
   refine (isfiniteweqf _ fin).
@@ -103,11 +103,11 @@ Defined.
 Local Arguments isPosetEquivalence : clear implicits.
 Local Arguments isaposetmorphism : clear implicits.
 
-Lemma posetStructureIdentity {X:hSet} (R S:po X) :
+Lemma posetStructureIdentity {X:hSet} (R S:PartialOrder X) :
   @isPosetEquivalence (X,,R) (X,,S) (idweq X) -> R=S.
 Proof.
   intros ? ? ? e.
-  apply total2_paths_second_isaprop. { apply isaprop_ispo. }
+  apply total2_paths_second_isaprop. { apply isaprop_isPartialOrder. }
   induction R as [R r]; induction S as [S s]; simpl.
   apply funextfun; intro x; apply funextfun; intro y.
   unfold isPosetEquivalence in e.
@@ -117,24 +117,26 @@ Proof.
   apply uahp. { apply e. } { apply e'. }
 Defined.
 
-Lemma poTransport_logeq {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
+Open Scope transport_scope.
+
+Lemma poTransport_logeq {X Y:hSet} (R:PartialOrder X) (S:PartialOrder Y) (f:X=Y) :
   @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
-  <-> transportf (po∘pr1hSet) f R = S.
+  <-> f#R = S.
 Proof.
   split.
   { intros i. induction f. apply posetStructureIdentity. apply i. }
   { intros e. induction f. induction e. apply isPosetEquivalence_idweq. }
 Defined.
 
-Corollary poTransport_weq {X Y:hSet} (R:po X) (S:po Y) (f:X=Y) :
+Corollary poTransport_weq {X Y:hSet} (R:PartialOrder X) (S:PartialOrder Y) (f:X=Y) :
   @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
-  ≃ transportf (po∘pr1hSet) f R = S.
+  ≃ f#R = S.
 Proof.
   intros. apply weqimplimpl.
   { apply (pr1 (poTransport_logeq _ _ _)). }
   { apply (pr2 (poTransport_logeq _ _ _)). }
   { apply isaprop_isPosetEquivalence. }
-  { apply isaset_po. }
+  { apply isaset_PartialOrder. }
 Defined.
 
 Local Lemma posetTransport_weq (X Y:Poset) : X≡Y ≃ X≅Y.
@@ -212,15 +214,15 @@ Defined.
 
 (** see Bourbaki, Set Theory, III.1, where they are called totally ordered sets *)
 
+Definition OrderedSet := Σ X:Poset, istotal (posetRelation X).
 
-Definition isOrdered (X:Poset) := istotal (posetRelation X) × isantisymm (posetRelation X).
-
-Lemma isaprop_isOrdered (X:Poset) : isaprop (isOrdered X).
-Proof.
-  intros. apply isapropdirprod. { apply isaprop_istotal. } { apply isaprop_isantisymm. }
-Defined.
-
-Definition OrderedSet := Σ X, isOrdered X.
+Ltac unwrap_OrderedSet X :=
+  induction X as [X total];
+  induction X as [X _po_];
+  induction _po_ as [R _i_];
+  unwrap_isPartialOrder _i_;
+  unfold posetRelation in total;
+  simpl in total.
 
 Local Definition underlyingPoset (X:OrderedSet) : Poset := pr1 X.
 Coercion underlyingPoset : OrderedSet >-> Poset.
@@ -236,17 +238,14 @@ Notation "m < n" := (Poset_lessthan m n) :oset.
 Close Scope poset.
 Local Open Scope oset.
 
-Definition OrderedSet_isrefl {X:OrderedSet} (x:X) :
-  x ≤ x :=
-  pr2 (pr2 (pr2 (pr1 X))) x.
+Definition OrderedSet_isrefl {X:OrderedSet} (x:X) : x ≤ x.
+Proof. intros. unwrap_OrderedSet X; simpl in x. apply refl. Qed.
 
-Definition OrderedSet_isantisymm {X:OrderedSet} (x y:X) :
-  x ≤ y -> y ≤ x -> x = y :=
-  pr2 (pr2 X) x y.
+Definition OrderedSet_isantisymm {X:OrderedSet} (x y:X) : x ≤ y -> y ≤ x -> x = y.
+Proof. intros ? ? ? r s. unwrap_OrderedSet X; simpl in x, y. now apply antisymm. Qed.
 
-Definition OrderedSet_istotal {X:OrderedSet} (x y:X) :
-  x ≤ y ∨ y ≤ x :=
-  pr1 (pr2 X) x y.
+Definition OrderedSet_istotal {X:OrderedSet} (x y:X): x ≤ y ∨ y ≤ x :=
+  pr2 X x y.
 
 Lemma isdeceq_isdec_ordering (X:OrderedSet) : isdeceq X -> isdec_ordering X.
 Proof.
@@ -278,9 +277,7 @@ Proof. intros ? i ? ?. apply isdeceq_isdec_lessthan. now apply isfinite_isdeceq.
 Defined.
 
 Lemma isincl_underlyingPoset : isincl underlyingPoset.
-Proof.
-  apply isinclpr1. intros X. apply isaprop_isOrdered.
-Defined.
+Proof. apply isinclpr1. intros X. apply isaprop_istotal. Defined.
 
 Definition underlyingPoset_weq (X Y:OrderedSet) :
   X=Y ≃ (underlyingPoset X)=(underlyingPoset Y).
@@ -316,12 +313,9 @@ Definition finitenessProperty (X:FiniteOrderedSet) : isfinite X := pr2 X.
 
 Definition standardFiniteOrderedSet (n:nat) : FiniteOrderedSet.
 Proof.
-  intros.
-  refine (_,,_).
-  { exists (stnposet n). split.
-    { intros x y. apply istotalnatleh. }
-    intros ? ? ? ?. apply isinjstntonat. now apply isantisymmnatleh. }
-  { apply isfinitestn. }
+  intros. refine (_,,_).
+  - exists (stnposet n). intros x y; apply istotalnatleh.
+  - apply isfinitestn.
 Defined.
 
 Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0).
@@ -374,7 +368,6 @@ Proof.
 
 Abort.
 
-
 (** * computably ordered sets *)
 
 (* Here we abstract from Chapter 11 of the HoTT book just the order
@@ -383,7 +376,7 @@ Abort.
 Open Scope logic.
 
 Definition isLattice {X:hSet} (le:hrel X) (min max:binop X) :=
-  Σ po : ( ispo le × isantisymm le ),
+  Σ po : isPartialOrder le,
   Σ lub : ∀ x y z, le x z ∧ le y z <-> le (max x y) z,
   Σ glb : ∀ x y t, le t x ∧ le t y <-> le t (min x y),
   unit.
@@ -504,3 +497,4 @@ Section OtherProperties.
   End ClassicalProperties.
 
 End OtherProperties.
+

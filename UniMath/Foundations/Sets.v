@@ -239,9 +239,9 @@ Definition isrefl { X : UU } ( R : hrel X ) := ∀ x : X , R x x.
 
 Definition issymm { X : UU } ( R : hrel X ) := ∀ ( x1 x2 : X ), R x1 x2 -> R x2 x1 .
 
-Definition ispo { X : UU } ( R : hrel X ) := istrans R × isrefl R .
+Definition ispreorder { X : UU } ( R : hrel X ) := istrans R × isrefl R .
 
-Definition iseqrel { X : UU } ( R : hrel X ) := ispo R × issymm R .
+Definition iseqrel { X : UU } ( R : hrel X ) := ispreorder R × issymm R .
 Definition iseqrelconstr { X : UU } { R : hrel X } ( trans0 : istrans R ) ( refl0 : isrefl R ) ( symm0 : issymm R ) : iseqrel R := dirprodpair ( dirprodpair trans0 refl0 ) symm0 .
 
 Definition isirrefl { X : UU } ( R : hrel X ) := ∀ x : X , ¬ R x x . 
@@ -261,6 +261,11 @@ Definition isnegrel { X : UU } ( R : hrel X ) := ∀ x1 x2 , ¬ ¬ R x1 x2 -> R 
 (** Note that the property of being (co-)antisymmetric is different from other properties of relations which we consider due to the presence of [ paths ] in its formulation . As a consequence it behaves differently relative to the quotients of types - the quotient relation can be (co-)antisymmetric while the original relation was not . *) 
 
 Definition isantisymm { X : UU } ( R : hrel X ) := ∀ ( x1 x2 : X ), R x1 x2 -> R x2 x1 -> x1 = x2 .
+
+Definition isPartialOrder { X : UU } ( R : hrel X ) := ispreorder R × isantisymm R.
+
+Ltac unwrap_isPartialOrder i :=
+  induction i as [transrefl antisymm]; induction transrefl as [trans refl].
 
 Definition isantisymmneg { X : UU } ( R : hrel X ) := ∀ ( x1 x2 : X ), ¬ R x1 x2 -> ¬ R x2 x1 -> x1 = x2 .
 
@@ -293,13 +298,22 @@ Proof.
   apply impred; intro r. apply impred; intro s. apply setproperty.
 Defined.
 
-Lemma isaprop_ispo {X:hSet} (R:hrel X) : isaprop (ispo R).
+Lemma isaprop_ispreorder {X:hSet} (R:hrel X) : isaprop (ispreorder R).
 Proof.
   intros.
-  unfold ispo.
+  unfold ispreorder.
   apply isapropdirprod.
   { apply isaprop_istrans. }
   { apply isaprop_isrefl. }
+Defined.
+
+Lemma isaprop_isPartialOrder {X:hSet} (R:hrel X) : isaprop (isPartialOrder R).
+Proof.
+  intros.
+  unfold isPartialOrder.
+  apply isapropdirprod.
+  { apply isaprop_ispreorder. }
+  { apply isaprop_isantisymm. }
 Defined.
 
 (** the relations on a set form a set *)
@@ -340,7 +354,7 @@ Proof . intros . intro x . apply ( pr1 ( lg _ _ ) ( isl x ) ) .  Defined .
 Definition issymmlogeqf { X : UU } { L R : hrel X } ( lg : ∀ x1 x2 , L x1 x2 <-> R x1 x2 ) ( isl : issymm L ) : issymm R . 
 Proof . intros . intros x1 x2 r12 . apply ( pr1 ( lg _ _ ) ( isl _ _ ( pr2 ( lg _ _ ) r12 ) ) ) . Defined .  
 
-Definition ispologeqf { X : UU } { L R : hrel X } ( lg : ∀ x1 x2 , L x1 x2 <-> R x1 x2 ) ( isl : ispo L ) : ispo R . 
+Definition ispologeqf { X : UU } { L R : hrel X } ( lg : ∀ x1 x2 , L x1 x2 <-> R x1 x2 ) ( isl : ispreorder L ) : ispreorder R . 
 Proof . intros . apply ( dirprodpair ( istranslogeqf lg ( pr1 isl ) ) ( isrefllogeqf lg ( pr2 isl ) ) ) . Defined . 
 
 Definition iseqrellogeqf { X : UU } { L R : hrel X } ( lg : ∀ x1 x2 , L x1 x2 <-> R x1 x2 ) ( isl : iseqrel L ) : iseqrel R . 
@@ -381,16 +395,33 @@ Proof . intros . intros x1 x2  ne .  apply ( coprodf ( pr1 ( lg x1 x2 ) ) ( pr1 
 
 
 
-(** *** Preorderings and associated types . *)
+(** *** Preorderings, partial orderings, and associated types . *)
 
-Definition po ( X : UU ) := total2 ( fun R : hrel X => ispo R ) .
-Definition popair { X : UU } ( R : hrel X ) ( is : ispo R ) : po X := tpair ( fun R : hrel X => ispo R ) R is .
-Definition carrierofpo ( X : UU ) :  po X  -> ( X -> X -> hProp ) :=  @pr1 _ ( fun R : hrel X => ispo R ) .
-Coercion carrierofpo : po >-> Funclass  . 
+(* preoderings *)
+Definition po (X:UU) := Σ R:hrel X, ispreorder R.
+Definition popair { X : UU } ( R : hrel X ) ( is : ispreorder R ) : po X := tpair ispreorder R is .
+Definition carrierofpo ( X : UU ) :  po X  -> ( X -> X -> hProp ) :=  @pr1 _ ispreorder .
+Coercion carrierofpo : po >-> Funclass. 
 
-Definition Poset := total2 ( fun X : hSet => po X ) .
-Definition Posetpair ( X : hSet ) ( R : po X ) : Poset := tpair ( fun X : hSet => po X ) X R .
-Definition carrierofposet : Poset -> hSet := @pr1 _ _ .
+Definition PreorderedSet := Σ X:hSet, po X.
+Definition PreorderedSetPair (X:hSet) (R:po X) : PreorderedSet
+  := tpair _ X R .
+Definition carrierofPreorderedSet : PreorderedSet -> hSet := pr1.
+Coercion carrierofPreorderedSet : PreorderedSet >-> hSet . 
+Definition PreorderedSetRelation (X:PreorderedSet) : hrel X := pr1 (pr2 X).
+
+(* partial orderings *)
+Definition PartialOrder (X:hSet) := Σ R:hrel X, isPartialOrder R.
+Definition PartialOrderpair {X:hSet} (R:hrel X) ( is : isPartialOrder R ) :
+  PartialOrder X
+  := tpair isPartialOrder R is .
+Definition carrierofPartialOrder {X:hSet} : PartialOrder X -> hrel X := pr1.
+Coercion carrierofPartialOrder : PartialOrder >-> hrel. 
+
+Definition Poset := Σ X, PartialOrder X.
+Definition Posetpair (X:hSet) (R:PartialOrder X) : Poset
+  := tpair PartialOrder X R .
+Definition carrierofposet : Poset -> hSet := pr1.
 Coercion carrierofposet : Poset >-> hSet . 
 Definition posetRelation (X:Poset) : hrel X := pr1 (pr2 X).
 
@@ -409,14 +440,24 @@ Proof.
   intros. apply impredtwice; intros. apply impred; intros _. apply propproperty.
 Defined.
 
-(** the partial orders on a set form a set *)
+(** the preorders on a set form a set *)
 
 Definition isaset_po (X:hSet) : isaset (po X).
   intros.
   unfold po.
   apply (isofhleveltotal2 2).
   { apply isaset_hrel. }
-  intros x. apply hlevelntosn. apply isaprop_ispo.
+  intros x. apply hlevelntosn. apply isaprop_ispreorder.
+Defined.
+
+(** the partial orders on a set form a set *)
+
+Definition isaset_PartialOrder X : isaset (PartialOrder X).
+  intros.
+  unfold PartialOrder.
+  apply (isofhleveltotal2 2).
+  { apply isaset_hrel. }
+  intros x. apply hlevelntosn. apply isaprop_isPartialOrder.
 Defined.
 
 (** poset equivalences *)
@@ -608,7 +649,7 @@ Proof . intros . intro x . apply isl . Defined .
 Definition issymmresrel { X : UU } ( L : hrel X ) ( P : hsubtypes X ) ( isl : issymm L ) : issymm ( resrel L P ) . 
 Proof . intros . intros x1 x2 r12 . apply isl . apply r12 .  Defined .  
 
-Definition isporesrel { X : UU } ( L : hrel X ) ( P : hsubtypes X ) ( isl : ispo L ) : ispo ( resrel L P ) . 
+Definition isporesrel { X : UU } ( L : hrel X ) ( P : hsubtypes X ) ( isl : ispreorder L ) : ispreorder ( resrel L P ) . 
 Proof . intros . apply ( dirprodpair ( istransresrel L P ( pr1 isl ) ) ( isreflresrel L P ( pr2 isl ) ) ) . Defined . 
 
 Definition iseqrelresrel { X : UU } ( L : hrel X ) ( P : hsubtypes X ) ( isl : iseqrel L ) : iseqrel ( resrel L P ) . 
@@ -955,7 +996,7 @@ Proof . intros . unfold issymm.  assert ( int : ∀ x1 x2 : setquot R , isaprop 
 Lemma isreflquotrel { X : UU } { R : eqrel X } { L : hrel X } ( is : iscomprelrel R L ) ( isl : isrefl L ) : isrefl ( quotrel is ) .  
 Proof . intros . unfold isrefl .  apply ( setquotunivprop R ) .   intro x .  apply ( isl x ) . Defined . 
 
-Lemma ispoquotrel  { X : UU } { R : eqrel X } { L : hrel X } ( is : iscomprelrel R L ) ( isl : ispo L ) : ispo ( quotrel is ) .
+Lemma ispoquotrel  { X : UU } { R : eqrel X } { L : hrel X } ( is : iscomprelrel R L ) ( isl : ispreorder L ) : ispreorder ( quotrel is ) .
 Proof . intros . split with ( istransquotrel is ( pr1 isl ) ) .  apply ( isreflquotrel is ( pr2 isl ) ) .  Defined . 
 
 Lemma iseqrelquotrel  { X : UU } { R : eqrel X } { L : hrel X } ( is : iscomprelrel R L ) ( isl : iseqrel L ) : iseqrel ( quotrel is ) .
