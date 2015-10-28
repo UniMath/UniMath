@@ -18,6 +18,8 @@ Proof.
   apply underlyingType_weq.
 Defined.
 
+Definition subsetFiniteSet {X:FiniteSet} (P:DecidableSubtype X) : FiniteSet.
+
 Definition fincard_subset {X} (is : isfinite X) (P : DecidableSubtype X) : nat.
 Proof. intros ? fin ?. exact (fincard (subsetFiniteness fin P)). Defined.
 
@@ -311,6 +313,25 @@ Definition underlyingOrderedSet (X:FiniteOrderedSet) : OrderedSet := pr1 X.
 Coercion underlyingOrderedSet : FiniteOrderedSet >-> OrderedSet.
 Definition finitenessProperty (X:FiniteOrderedSet) : isfinite X := pr2 X.
 
+Lemma FiniteOrderedSet_isdec_ordering (X:FiniteOrderedSet) : isdec_ordering X.
+Proof. intros. apply isfinite_isdec_ordering. apply finitenessProperty. Defined.
+Abort.
+
+Definition FiniteSetDecidableOrdering (X:FiniteOrderedSet) : DecidableRelation X.
+Proof.
+  intros ? x y.
+  assert (k := FiniteOrderedSet_isdec_ordering X x y).
+  unfold decidable in k.
+
+  (* exact (DecidableProposition_pair ). *)
+Abort.
+
+Definition FiniteOrderedSet_segment (X:FiniteOrderedSet) (x:X) : FiniteSet.
+Proof.
+  intros.
+Abort.
+
+
 Definition standardFiniteOrderedSet (n:nat) : FiniteOrderedSet.
 Proof.
   intros. refine (_,,_).
@@ -448,15 +469,20 @@ Section OtherProperties.
     apply (apart_isirrefl _ a).
   Defined.
 
+  Local Lemma tightness x y : ¬ apart x y <-> x = y.
+  Proof.
+    expand ic. 
+    split.
+    - intro m. assert (p := fromnegcoprod_prop m); clear m.
+      induction p as [p q]. now apply antisymmle.
+    - intro e. induction e. apply apart_isirrefl.
+  Defined.
+
   Local Lemma ne_implies_dnegapart x y : ne x y -> ¬¬ apart x y.
   Proof.
-    expand ic.
     intros ? ? n m.
-    unfold apart in m.
-    assert (p := fromnegcoprod_prop m); clear m.
-    induction p as [p q].
-    assert (r := antisymmle _ _ p q).
-    contradicts n r.
+    apply n; clear n.
+    now apply tightness.
   Defined.
 
   Section ClassicalProperties.

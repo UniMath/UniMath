@@ -160,6 +160,10 @@ Definition finstructonweq { X : UU }  ( sx : finstruct X ) : finstruct ( weq X X
 
 Definition isfinite  ( X : UU ) := ishinh ( finstruct X ) .
 
+Definition FiniteSet := Σ X:UU, isfinite X.
+
+Definition FiniteSet_pair {X:UU} (f:isfinite X) : FiniteSet := X,,f.
+
 Lemma isfinite_isdeceq X : isfinite X -> isdeceq X.
 Proof. intros ? isfin. apply (isfin (hProppair _ (isapropisdeceq X))); intro f; clear isfin; simpl.
   apply (isdeceqweqf (pr2 f)). apply isdeceqstn.
@@ -171,6 +175,11 @@ Proof.
   apply (isofhlevelweqf 2 (pr2 f)). apply isasetstn.
 Defined.
 
+Definition FiniteSet_to_hSet : FiniteSet -> hSet.
+Proof. intro X. exact (hSetpair (pr1 X) (isfinite_isaset (pr1 X) (pr2 X))).
+Defined.
+Coercion FiniteSet_to_hSet : FiniteSet >-> hSet.
+
 Definition fincard { X : UU } ( is : isfinite X ) : nat .
 Proof.
   intros. apply (squash_pairs_to_set (λ n, stn n ≃ X) isasetnat).
@@ -178,11 +187,14 @@ Proof.
   assumption.
 Defined.
 
+Definition cardinalityFiniteSet (X:FiniteSet) : nat := fincard (pr2 X).
+
 Theorem ischoicebasefiniteset { X : UU } ( is : isfinite X ) : ischoicebase X . 
 Proof . intros . apply ( @hinhuniv ( finstruct X ) ( ischoicebase X ) ) .  intro nw . destruct nw as [ n w ] .   apply ( ischoicebaseweqf w ( ischoicebasestn n ) ) .  apply is .  Defined . 
 
-
 Definition isfinitestn ( n : nat ) : isfinite ( stn n ) := hinhpr ( finstructonstn n ) . 
+
+Definition standardFiniteSet n : FiniteSet := FiniteSet_pair (isfinitestn n).
 
 Definition isfiniteweqf { X Y : UU } ( w : weq X Y ) ( sx : isfinite X ) : isfinite Y :=  hinhfun ( fun sx0 : _ =>  finstructweqf w sx0 ) sx .
 

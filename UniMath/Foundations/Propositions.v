@@ -412,6 +412,15 @@ Defined.
 
 Definition DecidableProposition := Σ X:UU, isdecprop X.
 
+Definition decidable_to_isdecprop (X:hProp) : decidable X -> isdecprop X.
+Proof. intros ? dec. apply isdecpropif. { apply propproperty. } { exact dec. }
+Defined.
+
+Definition DecidableProposition_to_isdecprop (X:DecidableProposition) : isdecprop (pr1 X).
+Proof. apply pr2. Defined.
+
+Definition DecidableProposition_pair {X:UU} (i:isdecprop X) : DecidableProposition := X,,i.
+
 Definition DecidableProposition_to_hProp : DecidableProposition -> hProp.
 Proof.
   intros X.
