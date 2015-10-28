@@ -223,16 +223,19 @@ Qed.
 Definition functor_precat_product_cone 
   : ProductCone [C, D, hsD] F G.
 Proof.
-  exists (tpair _ product_functor (dirprodpair product_nat_trans_pr1 
-                                                 product_nat_trans_pr2)).
-  intros A f g.
-  exists (tpair _ (product_nat_trans A f g)
+refine (mk_ProductCone _ _ _ _ _ _ _).
+- apply product_functor.
+- apply product_nat_trans_pr1.
+- apply product_nat_trans_pr2.
+- refine (mk_isProductCone _ _ _ _ _ _ _ _).
+  + apply functor_category_has_homsets.
+  + intros A f g.
+    exists (tpair _ (product_nat_trans A f g)
              (dirprodpair (product_nat_trans_Pr1Commutes _ _ _ )
                           (product_nat_trans_Pr2Commutes _ _ _ ))).
-  simpl.
-  apply product_nat_trans_univ_prop.
+    simpl.
+    apply product_nat_trans_univ_prop.
 Defined.
-
 
 End product_functor.
 

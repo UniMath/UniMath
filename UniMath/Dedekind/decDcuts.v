@@ -37,7 +37,7 @@ Proof.
   exact isaset_boolDcuts.
 Defined.
 Definition mk_boolDcuts (x : Dcuts) (Hdec : forall r, coprod (r ∈ x) (neg (r ∈ x))) : boolDcuts :=
-  tpair (fun x0 : Dcuts => isboolDcuts x0) x (fun r => hinhpr _ (Hdec r)).
+  tpair (fun x0 : Dcuts => isboolDcuts x0) x (fun r => hinhpr (Hdec r)).
 
 Lemma is_zero_dec :
   forall x : Dcuts, isboolDcuts x -> hdisj (x = 0) (neg (x = 0)).
@@ -59,7 +59,7 @@ Proof.
     + intros Hr.
       now rewrite Dcuts_zero_empty in Hr.
 Qed.
-  
+
 (** ** Cotransitivity *)
 
 Lemma iscotrans_Dcuts_lt :

@@ -294,18 +294,17 @@ Section Lambeks_lemma.
 Variables (C : precategory) (hsC : has_homsets C) (F : functor C C).
 Variables (Aa : algebra_ob F) (AaIsInitial : isInitial (FunctorAlg F hsC) Aa).
 
-Local Definition AaInitial : Initial (FunctorAlg F hsC) := tpair _ _ AaIsInitial.
+Local Definition AaInitial : Initial (FunctorAlg F hsC) :=
+  mk_Initial _ AaIsInitial.
 
 Local Notation A := (alg_carrier _ Aa).
 Local Notation a := (alg_map _ Aa).
 
 (* (FA,Fa) is an F-algebra *)
 Local Definition FAa : algebra_ob F := tpair (λ X, C ⟦F X,X⟧) (F A) (# F a).
-
-Local Notation Fa' := (pr1 (AaIsInitial FAa)).
-Local Notation HFa' := (pr2 (AaIsInitial FAa)).
-Local Notation a' := (pr1 Fa').
-Local Notation Ha' := (pr2 Fa').
+Local Definition Fa' := InitialArrow AaInitial FAa.
+Local Definition a' : C⟦A,F A⟧ := mor_from_algebra_mor _ _ _ Fa'.
+Local Definition Ha' := algebra_mor_commutes _ _ _ Fa'.
 
 Lemma initialAlg_is_iso_subproof : is_inverse_in_precat a a'.
 Proof.
@@ -315,7 +314,7 @@ assert (Ha'a : a' ;; a = identity A).
     eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
     now apply assoc.
   apply pathsinv0; set (X := tpair _ _ algMor_a'a).
-  now apply (maponpaths pr1 (InitialEndo_is_identity _ AaInitial X)).
+  now apply (maponpaths pr1 (InitialEndo_is_identity AaInitial X)).
 split; simpl; trivial.
 eapply pathscomp0; [apply Ha'|]; simpl.
 rewrite <- functor_comp.

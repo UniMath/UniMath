@@ -6,11 +6,7 @@
 
 Contents :
 
-            Definition of cocones
-
-	    Definition of colimits
-
-	    Colimits in functor categories
+	    Definition of limits
 
 *****************************************************)
 
@@ -22,226 +18,217 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.colimits.colimits.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
-Section move_upstream.
-
-Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (fun a => B a)))
-           (a : A) (p : B a) : a = pr1 (pr1 isc).
-Proof.
-exact (maponpaths pr1 (pr2 isc (tpair _ a p))).
-Defined.
-
-Lemma uniqueExists (A : UU) (P : A -> UU)
-  (Hexists : iscontr (total2 (fun a => P a)))
-  (a b : A) (Ha : P a) (Hb : P b) : a = b.
-Proof.
-assert (H : tpair _ _ Ha = tpair _ _ Hb).
-  now apply proofirrelevance, isapropifcontr.
-exact (base_paths _ _ H).
-Defined.
-
-End move_upstream.
-
-Section diagram_def.
-
-Definition graph := Σ (D : UU), D -> D -> UU.
-
-Definition vertex : graph -> UU := pr1.
-Definition edge {g : graph} : vertex g -> vertex g -> UU := pr2 g.
-
-Definition diagram (g : graph) (C : precategory) : UU :=
-  Σ (f : vertex g -> C), ∀ (a b : vertex g), edge a b -> C⟦f a, f b⟧.
-
-Definition dob {g : graph} {C : precategory} (d : diagram g C) : vertex g -> C :=
-  pr1 d.
-
-Definition dmor {g : graph} {C : precategory} (d : diagram g C) :
-  ∀ {a b}, edge a b -> C⟦dob d a,dob d b⟧ := pr2 d.
-
-Section diagram_from_functor.
-
-Variables (J C : precategory).
-Variable (F : functor J C).
-
-Definition graph_from_precategory : graph := pr1 (pr1 J).
-Definition diagram_from_functor : diagram graph_from_precategory C :=
-  tpair _ _ (pr2 (pr1 F)).
-
-End diagram_from_functor.
-
-End diagram_def.
-
-Section colim_def.
+Section lim_def.
 
 Context {C : precategory} (hsC : has_homsets C).
 
-(* A cocone with tip c over a diagram d *)
+(* A cone with tip c over a diagram d *)
+(*
 Definition cocone {g : graph} (d : diagram g C) (c : C) : UU :=
   Σ (f : ∀ (v : vertex g), C⟦dob d v,c⟧),
     ∀ (u v : vertex g) (e : edge u v), dmor d e ;; f v = f u.
+*)
 
+Definition opp_diagram g C := diagram g C^op.
+
+Definition cone {g : graph} (d : diagram g C^op) (c : C) : UU :=
+  @cocone C^op g d c.
+
+(*
 Definition mk_cocone {g : graph} {d : diagram g C} {c : C}
   (f : ∀ v, C⟦dob d v,c⟧) (Hf : ∀ u v e, dmor d e ;; f v = f u) :
   cocone d c := tpair _ f Hf.
+*)
+
+Definition mk_cone {g : graph} {d : diagram g C^op} {c : C}
+  (f : ∀ v, C⟦c, dob d v⟧) (Hf : ∀ u v (e : edge u v) , f v ;; dmor d e  = f u) :
+  cone d c
+  := tpair _ f Hf.
 
 (* The injections to c in the cocone *)
-Definition coconeIn {g : graph} {d : diagram g C} {c : C} (cc : cocone d c) :
-  ∀ v, C⟦dob d v,c⟧ := pr1 cc.
+Definition coneOut {g : graph} {d : diagram g C^op} {c : C} (cc : cone d c) :
+  ∀ v, C⟦c, dob d v⟧ := coconeIn cc.
 
-Lemma coconeInCommutes {g : graph} {d : diagram g C} {c : C} (cc : cocone d c) :
-  ∀ u v (e : edge u v), dmor d e ;; coconeIn cc v = coconeIn cc u.
+Lemma coneOutCommutes {g : graph} {d : diagram g C^op} {c : C} (cc : cone d c) :
+  ∀ u v (e : edge u v), coneOut cc v ;; dmor d e = coneOut cc u.
 Proof.
-exact (pr2 cc).
+  apply (coconeInCommutes cc).
 Qed.
 
 (* cc0 is a colimit cocone if for any other cocone cc over the same
    diagram there is a unique morphism from the tip of cc0 to the tip
    of cc *)
-Definition isColimCocone {g : graph} (d : diagram g C) (c0 : C)
-  (cc0 : cocone d c0) : UU := ∀ (c : C) (cc : cocone d c),
+Definition isLimCone {g : graph} (d : diagram g C^op) (c0 : C)
+  (cc0 : cone d c0) : UU :=
+   isColimCocone _ _ cc0.
+(*
+∀ (c : C) (cc : cone d c),
+      isColimCocone
     iscontr (Σ x : C⟦c0,c⟧, ∀ v, coconeIn cc0 v ;; x = coconeIn cc v).
+*)
 
-Definition ColimCocone {g : graph} (d : diagram g C) : UU :=
-  Σ (A : (Σ c0 : C, cocone d c0)), isColimCocone d (pr1 A) (pr2 A).
+Definition LimCone {g : graph} (d : diagram g C^op) : UU :=
+  ColimCocone d.
 
-Definition mk_ColimCocone {g : graph} (d : diagram g C)
-  (c : C) (cc : cocone d c) (isCC : isColimCocone d c cc) : ColimCocone d :=
-    tpair _ (tpair _ c cc) isCC.
-
-Definition Colims : UU := ∀ {g : graph} (d : diagram g C), ColimCocone d.
-Definition hasColims : UU  :=
-  ∀ {g : graph} (d : diagram g C), ishinh (ColimCocone d).
-
-(* colim is the tip of the colim cocone *)
-Definition colim {g : graph} {d : diagram g C} (CC : ColimCocone d) : C :=
-  pr1 (pr1 CC).
-
-Definition colimCocone {g : graph} {d : diagram g C} (CC : ColimCocone d) :
-  cocone d (colim CC) := pr2 (pr1 CC).
-
-Definition colimIn {g : graph} {d : diagram g C} (CC : ColimCocone d) :
-  ∀ (v : vertex g), C⟦dob d v,colim CC⟧ := coconeIn (colimCocone CC).
-
-Lemma colimInCommutes {g : graph} {d : diagram g C}
-  (CC : ColimCocone d) : ∀ (u v : vertex g) (e : edge u v),
-   dmor d e ;; colimIn CC v = colimIn CC u.
+Definition mk_LimCone {g : graph} (d : diagram g C^op)
+  (c : C) (cc : cone d c) (isCC : isLimCone d c cc) : LimCone d.
 Proof.
-exact (coconeInCommutes (colimCocone CC)).
-Qed.
-
-Lemma colimUnivProp {g : graph} {d : diagram g C}
-  (CC : ColimCocone d) : ∀ (c : C) (cc : cocone d c),
-  iscontr (Σ x : C⟦colim CC,c⟧, ∀ (v : vertex g), colimIn CC v ;; x = coconeIn cc v).
-Proof.
-exact (pr2 CC).
-Qed.
-
-Definition isColimCocone_ColimCocone {g : graph} {d : diagram g C}
-  (CC : ColimCocone d) :
-  isColimCocone d (colim CC) (tpair _ (colimIn CC) (colimInCommutes CC)) := pr2 CC.
-
-Definition colimArrow {g : graph} {d : diagram g C} (CC : ColimCocone d)
-  (c : C) (cc : cocone d c) : C⟦colim CC,c⟧ := pr1 (pr1 (isColimCocone_ColimCocone CC c cc)).
-
-Lemma colimArrowCommutes {g : graph} {d : diagram g C} (CC : ColimCocone d)
-  (c : C) (cc : cocone d c) (u : vertex g) :
-  colimIn CC u ;; colimArrow CC c cc = coconeIn cc u.
-Proof.
-exact ((pr2 (pr1 (isColimCocone_ColimCocone CC _ cc))) u).
-Qed.
-
-Lemma colimArrowUnique {g : graph} {d : diagram g C} (CC : ColimCocone d)
-  (c : C) (cc : cocone d c) (k : C⟦colim CC,c⟧)
-  (Hk : ∀ (u : vertex g), colimIn CC u ;; k = coconeIn cc u) :
-  k = colimArrow CC c cc.
-Proof.
-now apply path_to_ctr, Hk.
-Qed.
-
-Lemma Cocone_postcompose {g : graph} {d : diagram g C}
-  {c : C} (cc : cocone d c) (x : C) (f : C⟦c,x⟧) :
-    ∀ u v (e : edge u v), dmor d e ;; (coconeIn cc v ;; f) = coconeIn cc u ;; f.
-Proof.
-now intros u v e; rewrite assoc, coconeInCommutes.
-Qed.
-
-Lemma colimArrowEta {g : graph} {d : diagram g C} (CC : ColimCocone d)
-  (c : C) (f : C⟦colim CC,c⟧) :
-  f = colimArrow CC c (tpair _ (λ u, colimIn CC u ;; f)
-                 (Cocone_postcompose (colimCocone CC) c f)).
-Proof.
-now apply colimArrowUnique.
-Qed.
-
-Definition colimOfArrows {g : graph} {d1 d2 : diagram g C}
-  (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
-  (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e) :
-  C⟦colim CC1,colim CC2⟧.
-Proof.
-apply colimArrow; refine (mk_cocone _ _).
-- now intro u; apply (f u ;; colimIn CC2 u).
-- abstract (intros u v e; simpl;
-            now rewrite assoc, fNat, <- assoc, colimInCommutes).
+refine (mk_ColimCocone _ _ _ _  ).
+- apply c.
+- apply cc.
+- apply isCC.
 Defined.
 
-Lemma colimOfArrowsIn {g : graph} (d1 d2 : diagram g C)
-  (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
+Definition Lims : UU := ∀ {g : graph} (d : diagram g C^op), LimCone d.
+Definition hasLims : UU  :=
+  ∀ {g : graph} (d : diagram g C^op), ishinh (LimCone d).
+
+(* lim is the tip of the lim cone *)
+Definition lim {g : graph} {d : diagram g C^op} (CC : LimCone d) : C
+  := colim CC.
+
+Definition limCone {g : graph} {d : diagram g C^op} (CC : LimCone d) :
+  cone d (lim CC) := colimCocone CC.
+
+Definition limOut {g : graph} {d : diagram g C^op} (CC : LimCone d) :
+  ∀ (v : vertex g), C⟦lim CC, dob d v⟧ := coneOut (limCone CC).
+
+Lemma limOutCommutes {g : graph} {d : diagram g C^op}
+  (CC : LimCone d) : ∀ (u v : vertex g) (e : edge u v),
+   limOut CC v ;; dmor d e = limOut CC u.
+Proof.
+exact (coneOutCommutes (limCone CC)).
+Qed.
+
+Lemma limUnivProp {g : graph} {d : diagram g C^op}
+  (CC : LimCone d) : ∀ (c : C) (cc : cone d c),
+  iscontr (Σ x : C⟦c, lim CC⟧, ∀ (v : vertex g), x ;; limOut CC v = coneOut cc v).
+Proof.
+apply (colimUnivProp CC).
+Qed.
+
+Definition isLimCone_LimCone {g : graph} {d : diagram g C^op}
+    (CC : LimCone d)
+  : isLimCone d (lim CC) (tpair _ (limOut CC) (limOutCommutes CC))
+  := isColimCocone_ColimCocone CC.
+
+Definition limArrow {g : graph} {d : diagram g C^op} (CC : LimCone d)
+  (c : C) (cc : cone d c) : C⟦c, lim CC⟧.
+Proof.
+ exact (colimArrow CC _ cc).
+Defined.
+
+Lemma limArrowCommutes {g : graph} {d : diagram g C^op} (CC : LimCone d)
+  (c : C) (cc : cone d c) (u : vertex g) :
+   limArrow CC c cc ;; limOut CC u = coneOut cc u.
+Proof.
+  exact (colimArrowCommutes CC _ cc _ ).
+Qed.
+
+Lemma limArrowUnique {g : graph} {d : diagram g C^op} (CC : LimCone d)
+  (c : C) (cc : cone d c) (k : C⟦c, lim CC⟧)
+  (Hk : ∀ (u : vertex g), k ;; limOut CC u = coneOut cc u) :
+  k = limArrow CC c cc.
+Proof.
+  apply (colimArrowUnique CC c cc k Hk).
+Qed.
+
+Lemma Cone_precompose {g : graph} {d : diagram g C^op}
+  {c : C} (cc : cone d c) (x : C) (f : C⟦x,c⟧) :
+    ∀ u v (e : edge u v), (f ;; coneOut cc v) ;; dmor d e = f ;; coneOut cc u.
+Proof.
+  apply (Cocone_postcompose cc x f).
+Qed.
+
+Lemma limArrowEta {g : graph} {d : diagram g C^op} (CC : LimCone d)
+  (c : C) (f : C⟦c, lim CC⟧) :
+  f = limArrow CC c (tpair _ (λ u, f ;; limOut CC u)
+                 (Cone_precompose (limCone CC) c f)).
+Proof.
+now apply limArrowUnique.
+Qed.
+
+Definition limOfArrows {g : graph} {d1 d2 : diagram g C^op}
+  (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e) :
-    ∀ u, colimIn CC1 u ;; colimOfArrows CC1 CC2 f fNat =
-         f u ;; colimIn CC2 u.
+  (fNat : ∀ u v (e : edge u v), f v ;; (dmor d2 e : C⟦dob d2 v, dob d2 u⟧)
+                              =
+                                (dmor d1 e : C⟦dob d1 v, dob d1 u⟧);; f u) :
+  C⟦lim CC1 , lim CC2⟧.
 Proof.
-now unfold colimOfArrows; intro u; rewrite colimArrowCommutes.
-Qed.
+  refine (colimOfArrows CC2 CC1 _ _ ).
+  - apply f.
+  - apply fNat.
+Defined.
 
-Lemma preCompWithColimOfArrows_subproof {g : graph} {d1 d2 : diagram g C}
-  (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
+Lemma limOfArrowsOut {g : graph} (d1 d2 : diagram g C^op)
+  (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e)
-  (x : C) (cc : cocone d2 x) u v (e : edge u v) :
-     dmor d1 e ;; (f v ;; coconeIn cc v) = f u ;; coconeIn cc u.
+  (fNat : ∀ u v (e : edge u v), f v ;; dmor d2 e = (dmor d1 e : C ⟦ _ , _ ⟧)  ;; f u) :
+    ∀ u, limOfArrows CC1 CC2 f fNat ;; limOut CC2 u =
+          limOut CC1 u ;; f u.
 Proof.
-  now rewrite <- (coconeInCommutes cc u v e), !assoc, fNat.
+  apply (colimOfArrowsIn _ _ CC2 CC1 f fNat).
 Qed.
 
-Lemma precompWithColimOfArrows {g : graph} (d1 d2 : diagram g C)
-  (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
+Lemma postCompWithLimOfArrows_subproof {g : graph} {d1 d2 : diagram g C^op}
+  (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
-  (fNat : ∀ u v (e : edge u v), dmor d1 e ;; f v = f u ;; dmor d2 e)
-  (x : C) (cc : cocone d2 x) :
-  colimOfArrows CC1 CC2 f fNat ;; colimArrow CC2 x cc =
-  colimArrow CC1 x (mk_cocone (λ u, f u ;; coconeIn cc u)
-     (preCompWithColimOfArrows_subproof CC1 CC2 f fNat x cc)).
+  (fNat : ∀ u v (e : edge u v), f v ;; dmor d2 e = (dmor d1 e : C ⟦ _ , _ ⟧)  ;; f u)
+  (x : C) (cc : cone d1 x) u v (e : edge u v) :
+    (coneOut cc v ;; f v) ;; dmor d2 e = coneOut cc u ;; f u.
 Proof.
-apply colimArrowUnique.
-now intro u; rewrite assoc, colimOfArrowsIn, <- assoc, colimArrowCommutes.
+  apply (preCompWithColimOfArrows_subproof CC2 CC1 f fNat x cc _ _ e).
+Defined.
+
+Lemma postcompWithColimOfArrows {g : graph} (d1 d2 : diagram g C^op)
+  (CC1 : LimCone d1) (CC2 : LimCone d2)
+  (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (fNat : ∀ u v (e : edge u v), f v ;; dmor d2 e = (dmor d1 e : C ⟦ _ , _ ⟧)  ;; f u)
+  (x : C) (cc : cone d1 x) :
+     limArrow CC1 x cc ;; limOfArrows CC1 CC2 f fNat =
+       limArrow CC2 x (mk_cone (λ u, coneOut cc u ;; f u)
+         (postCompWithLimOfArrows_subproof CC1 CC2 f fNat x cc)).
+Proof.
+  apply limArrowUnique.
+  intro.
+  rewrite <- assoc.
+  rewrite limOfArrowsOut.
+  rewrite assoc.
+  rewrite limArrowCommutes.
+  apply idpath.
 Qed.
 
-Lemma postcompWithColimArrow {g : graph} (D : diagram g C)
- (CC : ColimCocone D) (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) :
-   colimArrow CC c cc ;; k =
-   colimArrow CC d (mk_cocone (λ u, coconeIn cc u ;; k)
-              (Cocone_postcompose cc d k)).
+Lemma precompWithLimArrow {g : graph} (D : diagram g C^op)
+ (CC : LimCone D) (c : C) (cc : cone D c) (d : C) (k : C⟦d,c⟧) :
+   k ;; limArrow CC c cc  =
+   limArrow CC d (mk_cone (λ u, k ;; coneOut cc u)
+              (Cone_precompose cc d k)).
 Proof.
-apply colimArrowUnique.
-now intro u; rewrite assoc, colimArrowCommutes.
+  apply limArrowUnique.
+  now intro u; rewrite <- assoc, limArrowCommutes.
 Qed.
 
-Lemma colim_endo_is_identity {g : graph} (D : diagram g C)
-  (CC : ColimCocone D) (k : colim CC ⇒ colim CC)
-  (H : ∀ u, colimIn CC u ;; k = colimIn CC u) :
+Lemma lim_endo_is_identity {g : graph} (D : diagram g C^op)
+  (CC : LimCone D) (k : lim CC ⇒ lim CC)
+  (H : ∀ u, k ;; limOut CC u = limOut CC u) :
   identity _ = k.
 Proof.
-refine (uniqueExists _ _ (colimUnivProp CC _ _) _ _ _ _).
-- now apply (colimCocone CC).
+refine (uniqueExists _ _ (limUnivProp CC _ _) _ _ _ _).
+- now apply (limCone CC).
 - intros v; simpl.
-  now apply id_right.
+  unfold compose. simpl.
+  now apply id_left.
 - now apply H.
 Qed.
 
+(*
 Definition Cocone_by_postcompose {g : graph} (D : diagram g C)
  (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) : cocone D d.
 Proof.
@@ -293,10 +280,13 @@ split.
                     | simpl; apply pathsinv0, funextsec; intro u; rewrite Ht;
                       now apply isColim_weq_subproof2]]).
 Defined.
+*)
+End lim_def.
 
-End colim_def.
 
-Arguments Colims : clear implicits.
+Arguments Lims : clear implicits.
+
+(*
 
 (* Defines colimits in functor categories when the target has colimits *)
 Section ColimFunctor.
@@ -406,3 +396,4 @@ Lemma ColimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
 Proof.
 now intros g d; apply ColimFunctorCocone.
 Defined.
+*)

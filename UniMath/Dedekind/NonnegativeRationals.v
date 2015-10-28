@@ -25,17 +25,17 @@ Local Definition hq_to_hnnq_set (r : hq) (Hr : hqleh 0 r) : hnnq_set :=
 
 Definition hnnq_zero: hnnq_set := hq_to_hnnq_set 0 (isreflhqleh 0).
 Definition hnnq_one: hnnq_set := hq_to_hnnq_set 1 (hqlthtoleh 0 1 hq1_gt0).
-Definition hnnq_plus: binop hnnq_set := 
+Definition hnnq_plus: binop hnnq_set :=
   λ x y : hnnq_set, hq_to_hnnq_set (pr1 x + pr1 y) (hq0lehandplus _ _ (pr2 x) (pr2 y)).
-Definition hnnq_minus: binop hnnq_set := 
+Definition hnnq_minus: binop hnnq_set :=
   λ x y : hnnq_set,
           match (hqgthorleh (pr1 y) (pr1 x)) with
           | ii1 _ => hnnq_zero
           | ii2 H => hq_to_hnnq_set (pr1 x - pr1 y) (hq0leminus _ _ H)
           end.
-Definition hnnq_mult: binop hnnq_set := 
+Definition hnnq_mult: binop hnnq_set :=
   λ x y : hnnq_set, hq_to_hnnq_set (pr1 x * pr1 y) (hqmultgeh0geh0 (pr2 x) (pr2 y)).
-Definition hnnq_inv: unop hnnq_set := 
+Definition hnnq_inv: unop hnnq_set :=
   λ x : hnnq_set,
         match (hqlehchoice 0 (pr1 x) (pr2 x)) with
         | ii1 Hx0 => hq_to_hnnq_set (/ pr1 x) (hqlthtoleh 0 (/ pr1 x) (hqinv_gt0 (pr1 x) Hx0))
@@ -55,8 +55,8 @@ Proof.
   now apply istranshqleh.
   intros x.
   now apply isreflhqleh.
-Qed.  
-  
+Qed.
+
 Local Definition hnnq_ge : hrel hnnq_set := resrel hqgeh (hqleh 0).
 
 Lemma isPartialOrder_hnnq_ge : ispo hnnq_ge.
@@ -211,7 +211,7 @@ Proof.
   - exists hnnq_zero ; split.
     + exact islunit_hnnq_zero_plus.
     + exact isrunit_hnnq_zero_plus.
-  - exact iscomm_hnnq_plus.  
+  - exact iscomm_hnnq_plus.
 Defined.
 Definition ismonoidop_hnnq_mult : ismonoidop hnnq_mult.
 Proof.
@@ -276,14 +276,14 @@ Delimit Scope NRat_scope with NRat.
 Lemma isdeceq_NonnegativeRationals : isdeceq NonnegativeRationals.
 Proof.
   intros (x,Hx) (y,Hy).
-  destruct (isdeceqhq x y).
+  destruct (isdeceqhq x y) as [H|H].
   - left.
     apply total2_paths_second_isaprop; simpl pr1.
     + now apply pr2.
-    + exact p.
+    + exact H.
   - right.
-    intro ; apply e.
-    revert X.
+    intros H0 ; apply H.
+    revert H0.
     apply base_paths.
 Qed.
 
@@ -356,7 +356,7 @@ Proof.
   - reflexivity.
 Qed.
 Lemma minusNonnegativeRationals_correct :
-  forall (x y : NonnegativeRationals) (Hxy : y <= x), 
+  forall (x y : NonnegativeRationals) (Hxy : y <= x),
     x - y = Rationals_to_NonnegativeRationals (pr1 x - pr1 y)%hq (hq0leminus (pr1 y) (pr1 x) Hxy).
 Proof.
   intros (x,Hx) (y,Hy) H ; simpl in H.
@@ -455,7 +455,7 @@ Proof.
   intros x y H.
   destruct (hqlth_between (pr1 x) (pr1 y) H) as [z (Hxz,Hzy)].
   assert (Hz : hqleh 0%hq z).
-  { apply istranshqleh with (pr1 x). 
+  { apply istranshqleh with (pr1 x).
     now apply (pr2 x).
     apply (hqlthtoleh (pr1 x) z), Hxz. }
   exists (hq_to_hnnq_set z Hz).
@@ -520,7 +520,7 @@ Proof. (** todo generalize *)
   apply total2_paths_second_isaprop ; simpl pr1.
   - now apply pr2.
   - now apply hqmult0x.
-Qed.                                
+Qed.
 Lemma israbsorb_zero_multNonnegativeRationals:
   ∀ x : NonnegativeRationals, x * 0 = 0.
 Proof. (** todo generalize *)

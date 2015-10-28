@@ -10,7 +10,7 @@ Definition Equivalence X Y :=
   Σ (f:X->Y) (g:Y->X) (p:∀ y, f(g y) = y) (q:∀ x, g(f x) = x),
       ∀ x, ap f (q x) = p(f x).
 
-Notation "X ≅ Y" := (Equivalence X Y) (at level 80, no associativity) : type_scope.
+Notation "X ≅ Y" := (Equivalence X Y) (at level 60, no associativity) : type_scope.
 
 Definition makeEquivalence X Y f g p q h := (f,,g,,p,,q,,h) : X ≅ Y.
 
@@ -27,20 +27,66 @@ Definition Equivalence_toTargetHomotopy {X Y} (f:Equivalence X Y) : ∀ y, f (Eq
 Definition Equivalence_toSourceHomotopy {X Y} (f:Equivalence X Y) : ∀ x, Equivalence_toInverseFunction f (f x) = x
   := pr1 (pr2 (pr2 (pr2 f))).
 
-Definition EquivalenceAdjointness {X Y} (f:Equivalence X Y)
+Definition Equivalence_toAdjointness {X Y} (f:Equivalence X Y)
   : ∀ x, ap f (Equivalence_toSourceHomotopy f x) = Equivalence_toTargetHomotopy f (f x)
   := pr2 (pr2 (pr2 (pr2 f))).
 
-Definition Equivalence_to_weq X Y : Equivalence X Y -> X ≃ Y.
-Proof. intros ? ? [f [g [p [q h]]]]. exists f. unfold isweq. intro y.
-       exists (g y,,p y). intros [x []]. apply (total2_paths2 (!q x)). 
-       refine (_ @ h x). destruct (q x). reflexivity. Defined.
-
 Lemma transportf_fun_idpath {X Y} {f:X->Y} x x' (w:x = x') (t:f x = f x) :
-              transportf (fun x' => f x' = f x) w (idpath (f x)) = ap f (!w).
-Proof. intros ? ? k. destruct w. reflexivity. Qed.
+              transportf (fun x' => f x' = f x) w (idpath (f x)) = maponpaths f (!w).
+Proof. intros ? ? k. induction w. reflexivity. Qed.
 
-Definition weq_to_Equivalence X Y : X ≃ Y -> Equivalence X Y.
+Definition Equivalence_to_weq {X Y} : X ≅ Y -> X ≃ Y.
+Proof. intros ? ? w.
+       set (f := Equivalence_toFunction w).
+       set (g := Equivalence_toInverseFunction w).
+       set (p := Equivalence_toTargetHomotopy w).
+       set (q := Equivalence_toSourceHomotopy w).
+       set (h := Equivalence_toAdjointness w).
+       exists f. intro y.
+       exists (g y,,p y).
+       intros xe.
+       refine (hfibertriangle2 _ _ _ _ _).
+       - simpl.
+         exact (! (q (pr1 xe)) @ maponpaths g (pr2 xe)).
+       - induction xe as [x e]; simpl. induction e; simpl.
+         rewrite pathscomp0rid.
+         rewrite maponpathsinv0.
+         rewrite h.
+         now rewrite pathsinv0l.
+Defined.
+
+Definition weq_to_Equivalence {X Y} : X ≃ Y -> X ≅ Y.
+  intros ? ? f.
+  exact (makeEquivalence X Y f (invmap f)
+                         (homotweqinvweq f) (homotinvweqweq f)
+                         (homotweqinvweqweq f)).
+Defined.
+
+Lemma check1 X Y (w:X≅Y) :
+  Equivalence_toFunction (weq_to_Equivalence (Equivalence_to_weq w)) = Equivalence_toFunction w.
+Proof. reflexivity. Defined.
+
+Lemma check2 X Y (w:X≅Y) :
+  Equivalence_toInverseFunction (weq_to_Equivalence (Equivalence_to_weq w)) = Equivalence_toInverseFunction w.
+Proof. reflexivity. Defined.
+
+Lemma check3 X Y (w:X≅Y) :
+  Equivalence_toTargetHomotopy (weq_to_Equivalence (Equivalence_to_weq w)) = Equivalence_toTargetHomotopy w.
+Proof. reflexivity. Defined.
+
+Lemma check4 X Y (w:X≅Y) :
+  Equivalence_toSourceHomotopy (weq_to_Equivalence (Equivalence_to_weq w)) = Equivalence_toSourceHomotopy w.
+Proof.
+  try reflexivity.
+  intros ? ? [f [g [p [q h]]]].
+  unfold Equivalence_toSourceHomotopy; simpl.
+  apply funextsec; intros x.
+  try reflexivity.
+Abort.
+                         
+
+(* another proof *)
+Definition weq_to_Equivalence' X Y : X ≃ Y -> Equivalence X Y.
   intros ? ? [f r].
   unfold isweq in r.
   set (g := fun y => hfiberpr1 f y (pr1 (r y))).

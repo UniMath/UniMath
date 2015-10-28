@@ -22,7 +22,7 @@ Definition Dcuts_def_finite (X : hsubtypes NonnegativeRationals) : hProp :=
   hexists (fun ub : NonnegativeRationals => neg (X ub)).
 Definition Dcuts_def_error (X : hsubtypes NonnegativeRationals) : UU :=
   forall r, 0 < r -> hdisj (neg (X r)) (hexists (λ q, dirprod (X q) (neg (X (q + r))))).
-  
+
 Lemma isaprop_Dcuts_def_bot (X : hsubtypes NonnegativeRationals) : isaprop (Dcuts_def_bot X).
 Proof.
   intros X.
@@ -51,7 +51,7 @@ Proof.
   - exact (isaprop_Dcuts_def_open X).
   - exact (isaprop_Dcuts_def_error X).
 Qed.
-  
+
 Definition Dcuts_hsubtypes : hsubtypes (hsubtypes NonnegativeRationals) :=
   fun X : hsubtypes NonnegativeRationals => hProppair _ (isaprop_Dcuts_hsubtypes X).
 Lemma isaset_Dcuts : isaset (carrier Dcuts_hsubtypes).
@@ -103,7 +103,7 @@ Lemma Dcuts_finite :
 Proof.
   intros X r Hr n Hn.
   apply notge_ltNonnegativeRationals ; intro Hn'.
-  apply Hr.  
+  apply Hr.
   apply is_Dcuts_bot with n.
   exact Hn.
   exact Hn'.
@@ -681,7 +681,7 @@ Defined.
 Definition Dcuts_with_plus : setwithbinop :=
   setwithbinoppair Dcuts Dcuts_plus.
 
-Definition Dcuts_addmonoid : abmonoid := 
+Definition Dcuts_addmonoid : abmonoid :=
   abmonoidpair Dcuts_with_plus isabmonoidop_Dcuts.
 
 (** ** [Dcuts] is a effectively ordered set *)
@@ -829,7 +829,7 @@ Definition Dcuts_gt : StrongOrder Dcuts := @EOgt eo_Dcuts.
 Notation "x <= y" := (Dcuts_le x y) : Dcuts_scope.
 Notation "x >= y" := (Dcuts_ge x y) : Dcuts_scope.
 Notation "x < y" := (Dcuts_lt x y) : Dcuts_scope.
-Notation "x > y" := (Dcuts_gt x y) : Dcuts_scope.     
+Notation "x > y" := (Dcuts_gt x y) : Dcuts_scope.
 
 (** ** Apartness on [Dcuts] *)
 (* todo : define apartness relation *)
@@ -839,7 +839,7 @@ Definition Dcuts_ap (X Y : Dcuts) : hProp :=
 
 Lemma isirrefl_Dcuts_ap : isirrefl Dcuts_ap.
 Proof.
-  intros x. 
+  intros x.
   unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
   intros [Hap|Hap].
   now apply isirrefl_StrongOrder with (1 := Hap).
@@ -999,7 +999,7 @@ Lemma istrans_Dcuts_le_lt :
   forall x y z : Dcuts,
     x <= y -> y < z -> x < z.
 Proof.
-  intros x y z. 
+  intros x y z.
   apply hinhfun2.
   intros Hxy (r,(Yr,Zr)).
   exists r ; split.
@@ -1011,7 +1011,7 @@ Lemma istrans_Dcuts_lt_le :
   forall x y z : Dcuts,
     x < y -> y <= z -> x < z.
 Proof.
-  intros x y z. 
+  intros x y z.
   apply hinhfun2.
   intros (r,(Xr,Yr)) Hyz.
   exists r ; split.
@@ -1029,7 +1029,7 @@ Context (E_cauchy: forall c, (0 < c)%NRat -> hdisj (@isUpperBound eo_Dcuts E (No
 
 Definition Dcuts_lub_val : NonnegativeRationals -> hProp :=
   fun r : NonnegativeRationals => hexists (fun X : Dcuts => dirprod (E X) (r ∈ X)).
-Lemma Dcuts_lub_bot : 
+Lemma Dcuts_lub_bot :
   forall (x : NonnegativeRationals),
     Dcuts_lub_val x -> forall y : NonnegativeRationals, (y <= x)%NRat -> Dcuts_lub_val y.
 Proof.
@@ -1046,7 +1046,7 @@ Lemma Dcuts_lub_open :
 Proof.
   intros r.
   apply hinhuniv ; intros (X,(Ex,Xr)).
-  generalize (is_Dcuts_open X r Xr). 
+  generalize (is_Dcuts_open X r Xr).
   apply hinhfun ; intros (n,(Xn,Hrn)).
   exists n ; split.
   intros P HP ; apply HP ; clear P HP.
@@ -1199,11 +1199,11 @@ Qed.
 Section Dcuts_glb.
 
 Context (E : hsubtypes Dcuts).
-Context (E_not_empty : hexists E).  
+Context (E_not_empty : hexists E).
 
 Definition Dcuts_glb_val : NonnegativeRationals -> hProp :=
   fun r : NonnegativeRationals => hexists (fun n => dirprod (r < n)%NRat (forall X : Dcuts, E X -> n ∈ X)).
-Lemma Dcuts_glb_bot : 
+Lemma Dcuts_glb_bot :
   forall (x : NonnegativeRationals),
     Dcuts_glb_val x -> forall y : NonnegativeRationals, (y <= x)%NRat -> Dcuts_glb_val y.
 Proof.
@@ -1254,7 +1254,7 @@ Proof.
     apply Xc, is_Dcuts_bot with (1 := Hn' _ EX).
     now apply lt_leNonnegativeRationals.
   - right.
-    
+
 Qed.
 
 End Dcuts_glb.

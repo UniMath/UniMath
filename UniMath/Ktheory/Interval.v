@@ -2,9 +2,9 @@
 
 Require Import UniMath.Ktheory.Utilities.
 
-Definition interval := squash bool.
-Definition left := hinhpr _ true : interval.
-Definition right := hinhpr _ false : interval.
+Definition interval := ∥ bool ∥.
+Definition left := hinhpr true : interval.
+Definition right := hinhpr false : interval.
 Definition interval_path : left = right := squash_path true false.
 Definition interval_map {Y} {y y':Y} : y = y' -> interval -> Y.
 Proof. intros ? ? ? e. set (f := fun t:bool => if t then y else y').
