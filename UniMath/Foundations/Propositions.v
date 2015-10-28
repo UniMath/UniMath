@@ -225,11 +225,11 @@ Notation "X ∨ Y" := (hdisj X Y) (at level 85, right associativity) : type_scop
   (* in agda-input method, type \or *)
   (* precedence same as ‌\/, whereas ⨿ has the opposite associativity *)
 
-Definition hdisj_in1 ( P Q : UU ) : P -> P∨Q.
+Definition hdisj_in1 { P Q : UU } : P -> P∨Q.
 Proof. intros. apply hinhpr. now apply ii1.
 Defined.
 
-Definition hdisj_in2 ( P Q : UU ) : Q -> P∨Q.
+Definition hdisj_in2 { P Q : UU } : Q -> P∨Q.
 Proof. intros. apply hinhpr. now apply ii2.
 Defined.
 
@@ -365,7 +365,7 @@ Definition inhdnegand (X Y:UU)(inx0: isinhdneg X)(iny0: isinhdneg Y) : isinhdneg
 Definition hinhimplinhdneg (X:UU)(inx1: ishinh X): isinhdneg X := inx1 hfalse.
 
 
-(* decidability *)
+(** decidability *)
 
 Definition decidable (X:hProp) : hProp :=
   hProppair (X ⨿ ¬X) (isapropdec X (propproperty X)).
@@ -408,6 +408,83 @@ Proof.
   assert (h := g n); clear g n.
   apply (dneg_LEM _ lem).
   exact h.
+Defined.
+
+Definition DecidableProposition := Σ X:UU, isdecprop X.
+
+Definition DecidableProposition_to_hProp : DecidableProposition -> hProp.
+Proof.
+  intros X.
+  exact (pr1 X,, isdecproptoisaprop (pr1 X) (pr2 X)).
+Defined.
+Coercion DecidableProposition_to_hProp : DecidableProposition >-> hProp.
+Definition decidabilityProperty (X:DecidableProposition) :
+  isdecprop X := pr2 X.
+
+Definition DecidableSubtype (X:UU) := X -> DecidableProposition.
+Definition DecidableRelation (X:UU) := X -> X -> DecidableProposition.
+
+Ltac choose P yes no := induction (iscontrpr1 (decidabilityProperty P)) as [yes|no].
+
+Definition choice {W} : DecidableProposition -> W -> W -> W.
+Proof.
+  intros ? P yes no.
+  choose P p q.
+  - exact yes.
+  - exact no.
+Defined.
+
+Definition choice_compute_yes {W} (P:DecidableProposition) (p:P) (yes no:W) :
+  choice P yes no = yes.
+Proof.
+  intros.
+  unfold choice.
+  choose P a b.
+  - simpl. reflexivity.
+  - simpl. contradicts p b.
+Defined.
+
+Definition choice_compute_no {W} (P:DecidableProposition) (p:¬P) (yes no:W) :
+  choice P yes no = no.
+Proof.
+  intros.
+  unfold choice.
+  choose P a b.
+  - simpl. contradicts p a.
+  - simpl. reflexivity.
+Defined.
+
+Definition underlyingType {X} : DecidableSubtype X -> UU.
+Proof. intros ? S. exact (Σ x, S x). Defined.
+
+Definition underlyingType' {X} : DecidableSubtype X -> UU.
+Proof. intros ? P.
+       (* for use with isfinitedecsubset *)
+       exact (hfiber (λ x, choice (P x) true false) true).
+Defined.
+
+Definition underlyingType_weq {X} (P:DecidableSubtype X) :
+  underlyingType' P ≃ underlyingType P.
+Proof.
+  intros.
+  apply weqfibtototal.
+  intros x.
+  unfold choice.
+  simpl.
+  change (iscontrpr1 (decidabilityProperty (P x))) with (iscontrpr1 (decidabilityProperty (P x))).
+  choose (P x) p q.
+  - simpl. apply weqiff.
+    + apply logeq_both_true.
+      * reflexivity.
+      * assumption.
+    + apply isasetbool.
+    + apply (propproperty (DecidableProposition_to_hProp _)).
+  - simpl. apply weqiff.
+    + apply logeq_both_false.
+      * exact nopathsfalsetotrue.
+      * assumption.
+    + apply isasetbool.
+    + apply (propproperty (DecidableProposition_to_hProp _)).
 Defined.
 
 (** ** Univalence axiom for hProp 

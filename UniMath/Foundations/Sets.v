@@ -124,6 +124,9 @@ Definition totalsubtype ( X : UU ) : hsubtypes X := fun x => htrue .
 Definition weqtotalsubtype ( X : UU ) : totalsubtype X ≃ X .
 Proof . intro . apply weqpr1 .   intro . apply iscontrunit .  Defined . 
 
+Definition DecidableSubtype_to_hsubtypes {X} (P:DecidableSubtype X) : hsubtypes X
+  := λ x, DecidableProposition_to_hProp(P x).
+Coercion DecidableSubtype_to_hsubtypes : DecidableSubtype >-> hsubtypes.
 
 (** *** Direct product of two subtypes *)
 
@@ -221,6 +224,10 @@ Identity Coercion idhrel : hrel >-> Funclass .
 
 Definition brel ( X : UU ) := X -> X -> bool .
 Identity Coercion idbrel : brel >-> Funclass . 
+
+Definition DecidableRelation_to_hrel {X} (P:DecidableRelation X) : hrel X
+  := λ x y, DecidableProposition_to_hProp(P x y).
+Coercion DecidableRelation_to_hrel : DecidableRelation >-> hrel.
 
 (** *** Standard properties of relations *)
 
@@ -554,6 +561,12 @@ Definition decreltobrel { X : UU } ( R : decrel X ) : brel X .
 Proof . intros . intros x x' . destruct ( ( pr2 R ) x x' ) . apply true . apply false . Defined .
 
 Definition breltodecrel { X : UU } ( B : brel X ) : decrel X := @decrelpair _ ( fun x x' => hProppair ( paths ( B x x' ) true ) ( isasetbool _ _ ) ) ( fun x x' => ( isdeceqbool _ _ ) ) .  
+
+Definition decrel_to_DecidableRelation {X} : decrel X -> DecidableRelation X.
+Proof.
+  intros ? R x y. induction R as [R is]. exists (R x y).
+  apply isdecpropif. { apply propproperty. } apply is.
+Defined.
  
 Definition pathstor { X : UU } ( R : decrel X ) ( x x' : X ) ( e : decreltobrel R x x' = true ) : R x x' .
 Proof . unfold decreltobrel . intros .  destruct ( pr2 R x x' ) as [ e' | ne ]  .  apply e' . destruct ( nopathsfalsetotrue e ) . Defined .  

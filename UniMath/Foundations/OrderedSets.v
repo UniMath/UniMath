@@ -8,126 +8,25 @@ Local Notation "● x" := (x,,idpath _) (at level 35).
 
 (* propositions, move upstream *)
 
-(* decidable propositions, move upstream *)
-
-Definition DecidableProposition := Σ X:UU, isdecprop X.
-
-Definition DecidableProposition_to_hProp : DecidableProposition -> hProp.
+Lemma subsetFiniteness {X} (is : isfinite X) (P : DecidableSubtype X) :
+  isfinite (underlyingType P).
 Proof.
-  intros X.
-  exact (pr1 X,, isdecproptoisaprop (pr1 X) (pr2 X)).
-Defined.
-Coercion DecidableProposition_to_hProp : DecidableProposition >-> hProp.
-Definition decidabilityProperty (X:DecidableProposition) :
-  isdecprop X := pr2 X.
-
-Definition DecidableSubtype (X:UU) := X -> DecidableProposition.
-Definition DecidableRelation (X:UU) := X -> X -> DecidableProposition.
-
-Definition DecidableSubtype_to_hsubtypes {X} (P:DecidableSubtype X) : hsubtypes X
-  := λ x, DecidableProposition_to_hProp(P x).
-Coercion DecidableSubtype_to_hsubtypes : DecidableSubtype >-> hsubtypes.
-
-Definition DecidableRelation_to_hsubtypes {X} (P:DecidableRelation X) : hrel X
-  := λ x y, DecidableProposition_to_hProp(P x y).
-Coercion DecidableRelation_to_hsubtypes : DecidableRelation >-> hrel.
-
-Ltac choose P yes no := induction (iscontrpr1 (decidabilityProperty P)) as [yes|no].
-
-Definition choice {W} : DecidableProposition -> W -> W -> W.
-Proof.
-  intros ? P yes no.
-  choose P p q.
-  - exact yes.
-  - exact no.
-Defined.
-
-Definition choice_compute_yes {W} (P:DecidableProposition) (p:P) (yes no:W) :
-  choice P yes no = yes.
-Proof.
-  intros.
-  unfold choice.
-  choose P a b.
-  - simpl. reflexivity.
-  - simpl. contradicts p b.
-Defined.
-
-Definition choice_compute_no {W} (P:DecidableProposition) (p:¬P) (yes no:W) :
-  choice P yes no = no.
-Proof.
-  intros.
-  unfold choice.
-  choose P a b.
-  - simpl. contradicts p a.
-  - simpl. reflexivity.
-Defined.
-
-Definition underlyingType {X} : DecidableSubtype X -> UU.
-Proof. intros ? S. exact (Σ x, S x). Defined.
-
-Definition underlyingType' {X} : DecidableSubtype X -> UU.
-Proof. intros ? P.
-       (* for use with isfinitedecsubset *)
-       exact (hfiber (λ x, choice (P x) true false) true).
-Defined.
-
-Definition underlyingType_weq {X} (P:DecidableSubtype X) :
-  underlyingType' P ≃ underlyingType P.
-Proof.
-  intros.
-  apply weqfibtototal.
-  intros x.
-  unfold choice.
-  simpl.
-  change (iscontrpr1 (decidabilityProperty (P x))) with (iscontrpr1 (decidabilityProperty (P x))).
-  choose (P x) p q.
-  - simpl. apply weqiff.
-    + apply logeq_both_true.
-      * reflexivity.
-      * assumption.
-    + apply isasetbool.
-    + apply (propproperty (DecidableProposition_to_hProp _)).
-  - simpl. apply weqiff.
-    + apply logeq_both_false.
-      * exact nopathsfalsetotrue.
-      * assumption.
-    + apply isasetbool.
-    + apply (propproperty (DecidableProposition_to_hProp _)).
-Defined.
-
-Lemma subsetFiniteness {X} (P : DecidableSubtype X) :
-  isfinite X -> isfinite (underlyingType P).
-Proof.
-  intros ? ? is.
+  intros ? is ?.
   assert (fin : isfinite (underlyingType' P)).
   { now apply isfinitedecsubset. }
   refine (isfiniteweqf _ fin).
   apply underlyingType_weq.
 Defined.
 
+Definition fincard_subset {X} (is : isfinite X) (P : DecidableSubtype X) : nat.
+Proof. intros ? fin ?. exact (fincard (subsetFiniteness fin P)). Defined.
+
+Definition fincard_standardSubset {n} (P : DecidableSubtype (stn n)) : nat.
+Proof. intros. exact (fincard (subsetFiniteness (isfinitestn n) P)). Defined.
+
+Goal 3 = fincard_standardSubset (λ i:stn 10, 2*i <? 6). Proof. reflexivity. Defined.
+
 Coercion underlyingType : DecidableSubtype >-> UU.
-
-Definition decrel_to_DecidableRelation {X} : decrel X -> DecidableRelation X.
-Proof.
-  intros ? R x y. induction R as [R is]. exists (R x y).
-  apply isdecpropif. { apply propproperty. } apply is.
-Defined.
-
-Definition natlth_DecidableProposition := decrel_to_DecidableRelation natlthdec.
-Definition natleh_DecidableProposition := decrel_to_DecidableRelation natlehdec.
-Definition natgth_DecidableProposition := decrel_to_DecidableRelation natgthdec.
-Definition natgeh_DecidableProposition := decrel_to_DecidableRelation natgehdec.
-Definition nateq_DecidableProposition := decrel_to_DecidableRelation natdeceq.
-Definition natneq_DecidableProposition := decrel_to_DecidableRelation natdecneq.
-
-Notation " x <? y " := ( natlth_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x <=? y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x ≤? y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x >=? y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x ≥? y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x >? y " := ( natgth_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x !=? y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
 
 Local Definition bound01 (P:DecidableProposition) : ((choice P 1 0) ≤ 1)%nat.
 Proof.
@@ -141,9 +40,8 @@ Proof. intros. exists (stnsum (λ x, choice (P x) 1 0)). apply natlehtolthsn.
        assert ( p : ∀ r s, r = s -> (r ≤ s)%nat). { intros ? ? e. destruct e. apply isreflnatleh. }
        apply p. apply stnsum_1.
 Defined.
-Goal 3 = tallyStandardSubset (λ i:stn 7, 2*i <? 6). Proof. reflexivity. Defined.
-Goal 1 = tallyStandardSubset (λ i:stn 7, 2*i =? 6). Proof. reflexivity. Defined.
-Goal 6 = tallyStandardSubset (λ i:stn 7, 2*i !=? 4). Proof. reflexivity. Defined.
+
+Goal 3 = tallyStandardSubset (λ i:stn 10, 2*i <? 6). Proof. reflexivity. Defined.
 
 Definition tallyStandardSubsetSegment {n} (P: DecidableSubtype (stn n))
            (i:stn n) : stn n.
@@ -514,6 +412,11 @@ Definition isComputablyOrdered {X:hSet}
   Σ cotrans: iscotrans lt,
   unit.
 
+Local Ltac expand ic :=
+  induction ic as
+    [[[[transle reflle]antisymmle][lub[glb _]]]
+       [[transltle [translelt _]][translt[irrefl[cotrans _]]]]].
+
 Section OtherProperties.
 
   Variable (X:hSet)
@@ -525,11 +428,6 @@ Section OtherProperties.
   Let apart x y := lt y x ∨ lt x y.
   Let eq x y := @eqset X x y.
   Let ne x y := hneg (eq x y).
-
-  Local Ltac expand ic :=
-    induction ic as
-      [[[[transle reflle]antisymmle][lub[glb _]]]
-         [[transltle [translelt _]][translt[irrefl[cotrans _]]]]].
 
   Local Lemma apart_isirrefl : isirrefl apart.
   Proof.
@@ -565,7 +463,7 @@ Section OtherProperties.
     assert (p := fromnegcoprod_prop m); clear m.
     induction p as [p q].
     assert (r := antisymmle _ _ p q).
-    contradiction.
+    contradicts n r.
   Defined.
 
   Section ClassicalProperties.
@@ -583,38 +481,24 @@ Section OtherProperties.
     Proof.
       intros.
       induction (lem (eq x y)) as [a|b].
-      - apply hdisj_in2.
-        apply hdisj_in1.
-        exact a.
-      - assert (l := ne_implies_apart _ _ b).
+      - apply hdisj_in2; apply hdisj_in1; exact a.
+      - assert (l := ne_implies_apart _ _ b); clear b.
         unfold apart in l.
-        apply l; intro m.
+        apply l; intro m; clear l.
         induction m as [n|o].
-        * apply hdisj_in2.
-          apply hdisj_in2.
-          exact n.
-        * apply hdisj_in1.
-          exact o.
+        * apply hdisj_in2; apply hdisj_in2; exact n.
+        * apply hdisj_in1; exact o.
     Defined.
 
     Local Lemma le_istotal : istotal le.
     Proof.
-      intros.
       intros x y.
       assert (m := trichotomy x y).
-      apply m; clear m; intros [m|m].
-      - apply hdisj_in1.
-        apply lt_implies_le.
-        exact m.
-      - apply m; clear m; intros [m|m].
-        apply hdisj_in1.
-        induction m.
-        unfold le.
-        expand ic.
-        apply irrefl.
-        apply hdisj_in2.
-        apply lt_implies_le.
-        exact m.
+      apply m; clear m; intro m; induction m as [m|m].
+      - apply hdisj_in1. apply lt_implies_le. exact m.
+      - apply m; clear m; intro m; induction m as [m|m].
+        * apply hdisj_in1. induction m. unfold le. expand ic. apply irrefl.
+        * apply hdisj_in2. apply lt_implies_le. exact m.
     Defined.
 
   End ClassicalProperties.

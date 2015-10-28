@@ -266,6 +266,21 @@ Definition iscoasymmnatgeh ( n m : nat ) ( nl : neg ( natgeh n m ) ) : natgeh m 
 Definition istotalnatgeh : istotal natgeh := fun n m => istotalnatleh m n .
 
 
+Definition natlth_DecidableProposition := decrel_to_DecidableRelation natlthdec.
+Definition natleh_DecidableProposition := decrel_to_DecidableRelation natlehdec.
+Definition natgth_DecidableProposition := decrel_to_DecidableRelation natgthdec.
+Definition natgeh_DecidableProposition := decrel_to_DecidableRelation natgehdec.
+Definition nateq_DecidableProposition := decrel_to_DecidableRelation natdeceq.
+Definition natneq_DecidableProposition := decrel_to_DecidableRelation natdecneq.
+
+Notation " x <? y " := ( natlth_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x <=? y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x ≤? y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x >=? y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x ≥? y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x >? y " := ( natgth_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Notation " x !=? y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
 
 
 (** *** Simple implications between comparisons *)
