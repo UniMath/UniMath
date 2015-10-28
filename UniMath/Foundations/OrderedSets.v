@@ -360,7 +360,19 @@ Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0).
 
 Goal 3 = height ( ●3 : ⟦ 8 ⟧ ). reflexivity. Qed.
 
-Definition transportFiniteOrdering {n} {X:UU} : ⟦ n ⟧ ≃ X -> FiniteOrderedSet.
+Definition transportFiniteOrdering {n} {X:UU} : X ≃ ⟦ n ⟧ -> FiniteOrderedSet.
+Proof.
+  intros ? ? w.
+  refine (_,,_).
+  - refine (_,,_).
+    * refine (_,,_).
+      + exists X. apply (isofhlevelweqb 2 w). apply setproperty.
+      + unfold PartialOrder; simpl.
+        refine (_,,_).
+        { intros x y. exact (w x ≤ w y). }
+        assert (r := pr2 (pr2 (stnposet n))); simpl in r.
+
+
 Abort.
 
 (** sorting finite ordered sets *)
