@@ -94,9 +94,9 @@ Proof.
       * unfold compose. simpl.
         set (X := pr2 (pr2 (pr1 H2))). simpl in *. apply X.
     +  intro t.
-       apply total2_paths_second_isaprop.
+       apply subtypeEquality.
        * simpl.
-         apply impred; intro. apply hs.
+         intro; apply impred; intro. apply hs.
        * destruct t; simpl.
          apply path_to_ctr.
          { split.
@@ -358,7 +358,7 @@ Proof.
    }
   exists (tpair _ awe (dirprodpair Hawe1 Hawe2)).
   intro t.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   - intro a0. apply isapropdirprod;
     apply hs.
   - simpl. destruct t as [t [Ht1 Ht2]].
@@ -402,7 +402,7 @@ Proof.
   apply impred; intro g;
   apply invproofirrelevance.
   intros Pb Pb'.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   - intro; apply isofhleveltotal2.
     + apply hs.
     + intros; apply isaprop_isPullback.

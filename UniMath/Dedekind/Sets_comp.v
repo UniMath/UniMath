@@ -76,7 +76,7 @@ Proof.
 Qed.
 
 Lemma ispo_reverse {X : UU} (l : hrel X) :
-  ispo l -> ispo (hrel_reverse l).
+  ispreorder l -> ispreorder (hrel_reverse l).
 Proof.
   intros X l (Ht,Hr).
   split.
@@ -171,12 +171,12 @@ Proof.
   apply islogeqcommhdisj.
   now apply Hl.
 Qed.
-  
+
 (** ** Effectively Ordered *)
 (** An alternative of total orders *)
 
 Definition isEffectiveOrder {X : UU} (le lt : hrel X) :=
-  dirprod (dirprod (ispo le) (isStrongOrder lt))
+  dirprod (dirprod (ispreorder le) (isStrongOrder lt))
           (dirprod (forall x y : X, lt x y -> le x y)
                    (forall x y : X, le x y -> lt y x -> empty)).
 Definition EffectiveOrder (X : UU) :=
@@ -202,9 +202,9 @@ Definition EOlt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
 Definition EOgt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
   StrongOrder_reverse (@EOlt X).
 
-Definition PosetEffectiveOrder (X : EffectivelyOrderedSet) : Poset :=
-  Posetpair _ (@EOle X).
-Coercion PosetEffectiveOrder : EffectivelyOrderedSet >-> Poset.
+Definition PreorderedSetEffectiveOrder (X : EffectivelyOrderedSet) : PreorderedSet :=
+  PreorderedSetPair _ (@EOle X).
+Coercion PreorderedSetEffectiveOrder : EffectivelyOrderedSet >-> PreorderedSet.
 
 Delimit Scope eo_scope with eo.
 
@@ -236,9 +236,9 @@ Open Scope eo_scope.
 
 Section LeastUpperBound.
 
-Context {X : Poset}.
+Context {X : PreorderedSet}.
 Local Notation "x <= y" := (pr2 X x y).
-  
+
 Definition isUpperBound (E : subset X) (ub : X) : UU :=
   forall x : X, E x -> x <= ub.
 Definition isSmallerThanUpperBounds (E : subset X) (lub : X) : UU :=
@@ -258,9 +258,9 @@ End LeastUpperBound.
 
 Section GreatestLowerBound.
 
-Context {X : Poset}.
+Context {X : PreorderedSet}.
 Local Notation "x >= y" := (pr2 X y x).
-  
+
 Definition isLowerBound (E : subset X) (ub : X) : UU :=
   forall x : X, E x -> x >= ub.
 Definition isBiggerThanLowerBounds (E : subset X) (lub : X) : UU :=
@@ -278,11 +278,11 @@ Definition pr1GreatestLowerBound {E : subset X} :
 
 End GreatestLowerBound.
 
-Definition isCompleteSpace (X : Poset) :=
+Definition isCompleteSpace (X : PreorderedSet) :=
   forall E : subset X,
     hexists (isUpperBound E) -> hexists E -> LeastUpperBound E.
 Definition CompleteSpace  :=
-  total2 (fun X : Poset => isCompleteSpace X).
+  total2 (fun X : PreorderedSet => isCompleteSpace X).
 Definition pr1CompleteSpace : CompleteSpace -> UU := pr1.
 Coercion pr1CompleteSpace : CompleteSpace >-> UU.
 
