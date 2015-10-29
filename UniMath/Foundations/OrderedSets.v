@@ -118,7 +118,7 @@ Proof.
   apply uahp. { apply e. } { apply e'. }
 Defined.
 
-Open Scope transport_scope.
+Open Scope transport.
 
 Lemma poTransport_logeq {X Y:hSet} (R:PartialOrder X) (S:PartialOrder Y) (f:X=Y) :
   @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
@@ -360,30 +360,150 @@ Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0).
 
 Goal 3 = height ( ●3 : ⟦ 8 ⟧ ). reflexivity. Qed.
 
-Lemma inducedPartialOrder {X Y} (f:X->Y) (incl:isincl f) (R:hrel Y) (po:isPartialOrder R) :
+Lemma inducedPartialOrder {X Y} (f:X->Y) (incl:isInjective f) (R:hrel Y) (po:isPartialOrder R) :
   isPartialOrder (λ x x' : X, R (f x) (f x')).
 Proof.
   intros.
+  split.
+  - split.
+    * intros x y z a b. exact (pr1 (pr1 po) (f x) (f y) (f z) a b).
+    * intros x. exact (pr2 (pr1 po) (f x)).
+  - intros x y a b. apply incl. exact (pr2 po (f x) (f y) a b).
+Defined.
 
-
-
-Abort.
+Corollary inducedPartialOrder_weq {X Y} (f:X≃Y) (R:hrel Y) (po:isPartialOrder R) :
+  isPartialOrder (λ x x' : X, R (f x) (f x')).
+Proof. intros. exact (inducedPartialOrder f (incl_injectivity  f (weqproperty f)) R po). Defined.
 
 Definition transportFiniteOrdering {n} {X:UU} : X ≃ ⟦ n ⟧ -> FiniteOrderedSet.
+(* The new finite ordered set has X as its underlying set. *)
 Proof.
   intros ? ? w.
   refine (_,,_).
   - refine (_,,_).
     * refine (_,,_).
-      + exists X. apply (isofhlevelweqb 2 w). apply setproperty.
-      + unfold PartialOrder; simpl.
-        refine (_,,_).
+    + exists X. apply (isofhlevelweqb 2 w). apply setproperty.
+      + unfold PartialOrder; simpl. refine (_,,_).
         { intros x y. exact (w x ≤ w y). }
-        assert (r := pr2 (pr2 (stnposet n))); simpl in r.
+        apply inducedPartialOrder_weq.
+        exact (pr2 (pr2 (pr1 (pr1 ⟦ n ⟧)))).
+    * intros x y. apply (pr2 (pr1 ⟦ n ⟧)).
+  - simpl.
+    apply (isfiniteweqb w).
+    exact (pr2 ⟦ n ⟧).
+Defined.
+
+(** concatenating finite ordered families of finite ordered sets *)
+
+Lemma isaset_total2 (X:hSet) (Y:X->hSet) : isaset (Σ x, Y x).
+Proof.
+  intros.
+  apply (isofhleveltotal2 2).
+  - apply setproperty.
+  - intro x. apply setproperty.
+Defined.
+
+Definition total2_hSet {X:hSet} (Y:X->hSet) : hSet := hSetpair (Σ x, Y x) (isaset_total2 X Y).
+
+Notation "'Σ'  x .. y , P" := (total2_hSet (fun x => .. (total2_hSet (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : set.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Definition lexicographicOrder (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) : hrel (Σ x, Y x)%set.
+  intros ? ? ? ? u u'.
+  set (x := pr1 u). set (y := pr2 u). set (x' := pr1 u'). set (y' := pr2 u').
+  exact ((x ≠ x' ∧ R x x') ∨ (∃ e : x = x', S x' (transportf Y e y) y'))%set.
+Defined.
+
+Lemma lex_isrefl (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
+  (∀ x, isrefl(S x)) -> isrefl (lexicographicOrder X Y R S).
+Proof.
+  intros ? ? ? ? Srefl u. induction u as [x y]. apply hdisj_in2; simpl.
+  apply hinhpr. exists (idpath x). apply Srefl.
+Qed.
+
+Lemma lex_istrans (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
+  isantisymm R -> istrans R -> (∀ x, istrans(S x)) -> istrans (lexicographicOrder X Y R S).
+Proof.
+  intros ? ? ? ? Ranti Rtrans Strans u u' u'' p q.
+  induction u as [x y]. induction u' as [x' y']. induction u'' as [x'' y''].
+  apply p; clear p; intro p; simpl in p.
+  induction p as [p|p].
+  - induction p as [pn pl].
+    apply q; clear q; intro q; simpl in q.
+    induction q as [q|q].
+    + apply hinhpr; simpl.
+      induction q as [qn ql].
+      apply ii1. split. intro ne. induction ne.
+      assert (k := Ranti x x' pl ql).
+      contradicts pn k.
+      exact (Rtrans x x' x'' pl ql).
+    + apply q; clear q; intro q; simpl in q. induction q as [e l].
+      apply hinhpr; simpl.
+      apply ii1.
+      induction e.
+      exact (pn,,pl).
+  - apply p; clear p; intro p. induction p as [e s].
+    induction e; unfold transportf in s; simpl in s; unfold idfun in s.
+    apply q; clear q; intro q; simpl in q.
+    induction q as [q|q].
+    + induction q as [n r].
+      apply hdisj_in1; simpl.
+      exact (n,,r).
+    + apply q; clear q; intro q. induction q as [e' s']. induction e'.
+      unfold transportf in s'; simpl in s'; unfold idfun in s'.
+      apply hdisj_in2; simpl. apply hinhpr.
+      exists (idpath x).
+      exact (Strans x y y' y'' s s').
+Qed.
+
+Local Ltac unwrap a := apply (squash_to_prop a); [ apply isaset_total2 | simpl; clear a; intro a; simpl in a ].
+
+Lemma lex_isantisymm (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
+  isantisymm R -> (∀ x, isantisymm(S x)) -> isantisymm (lexicographicOrder X Y R S).
+Proof.
+  intros ? ? ? ? Ranti Santi u u' a b.
+  induction u as [x y]; induction u' as [x' y'].
+  unwrap a. unwrap b. induction a as [[m r]|a].
+  - induction b as [[n s]|b].
+    + assert (eq := Ranti x x' r s). contradicts m eq.
+    + unwrap b. induction b as [eq s]. contradicts (!eq) m.
+  - unwrap a. induction a as [eq s]. induction b as [[n r]|b].
+    { contradicts n (!eq). }
+    unwrap b. induction b as [eq' s']. assert ( c : eq = !eq' ).
+    { apply setproperty. }
+    induction (!c); clear c. induction eq'. assert ( t : y = y' ).
+    { apply (Santi x' y y' s s'). }
+    induction t. reflexivity. Qed.
+
+Lemma lex_istotal (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
+  isdeceq X -> istotal R -> (∀ x, istotal(S x)) -> istotal (lexicographicOrder X Y R S).
+Proof.
+  intros ? ? ? ? Xdec Rtot Stot u u'. induction u as [x y]. induction u' as [x' y'].
+  induction (Xdec x x') as [eq|ne].
+  { apply (Stot x' (transportf Y eq y) y'); intro P. induction P as [P|P].
+    { apply hdisj_in1. unfold lexicographicOrder; simpl. apply hdisj_in2. apply hinhpr. exact (eq,,P). }
+    { apply hdisj_in2. unfold lexicographicOrder; simpl. apply hdisj_in2. apply hinhpr.
+      induction eq. exact (idpath _,,P). }}
+  { apply (Rtot x x'); intro P. induction P as [P|P].
+    { apply hdisj_in1. apply hdisj_in1. simpl. exact (ne,,P). }
+    { apply hdisj_in2. apply hdisj_in1. simpl. exact (ne ∘ pathsinv0,,P). }} Qed.
+
+Definition concatenateFiniteOrderedSets
+           (X:FiniteOrderedSet) (i : isdeceq X)
+           (Y:X->FiniteOrderedSet) (j : ∀ x, isdeceq (Y x)) : FiniteOrderedSet.
+Proof.
+  (* we use lexicographic order *)
+  intros.
+  refine (_,,_).
+  {
+    refine (_,,_).
+
 
 
 
 Abort.
+
 
 (** sorting finite ordered sets *)
 
@@ -411,7 +531,7 @@ Proof.
     apply invproofirrelevance; intros [[r b] i] [[s c] j]; simpl in r,s,i,j.
     admit.
     }
-  { 
+  {
     apply weqtoeqstn.
     exact (weqcomp (pr1 p) (invweq (pr1 q))).
   }

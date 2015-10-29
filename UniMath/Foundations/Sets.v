@@ -29,12 +29,21 @@ Definition hSetpair X i := tpair isaset X i : hSet.
 Definition pr1hSet:= @pr1 UU (fun X : UU => isaset X) : hSet -> UU.
 Coercion pr1hSet: hSet >-> UU .
 
-Definition eqset { X : hSet } ( x x' : X ) : hProp := hProppair _ ( pr2 X x x' ) . 
+Definition eqset { X : hSet } ( x x' : X ) : hProp := hProppair (x = x') (pr2 X x x') . 
+Notation "a = b" := (eqset a b) (at level 70, no associativity) : set.
+
+Definition neqset { X : hSet } ( x x' : X ) : hProp := hProppair (x ≠ x') (isapropneg _) . 
+Notation "a != b" := (neqset a b) (at level 70, no associativity) : set.
+Notation "a ≠ b" := (neqset a b) (at level 70, no associativity) : set.
+Delimit Scope set with set.
 
 Definition setproperty ( X : hSet ) := pr2 X . 
 
 Definition setdirprod ( X Y : hSet ) : hSet .
-Proof . intros . split with ( dirprod X Y ) . apply ( isofhleveldirprod 2 ) .  apply ( pr2 X ) . apply ( pr2 Y ) . Defined . 
+Proof. intros. exists(X×Y) . apply (isofhleveldirprod 2); apply setproperty. Defined . 
+
+Definition setcoprod (X Y:hSet) : hSet.
+Proof. intros. exists(X⨿Y). apply isasetcoprod; apply setproperty. Defined.  
 
 (** [ hProp ] as a set *)
 

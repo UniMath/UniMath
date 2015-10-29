@@ -128,6 +128,7 @@ Notation "'¬' X" := (neg X) (at level 35, right associativity).
   (* type this in emacs in agda-input method with \neg *)
 
 Notation "x != y" := (neg (x = y)) (at level 70).
+Notation "x ≠ y" := (neg (x = y)) (at level 70).
 
 (* Apply this tactic to a proof of [X] and [neg X], in either order: *)
 Ltac contradicts a b := solve [ induction (a b) | induction (b a) ].
@@ -423,10 +424,11 @@ Definition transportf {X : UU} (P : X -> UU) {x x' : X}
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
   (e : x = x') : P x' -> P x := transportf P (!e).
 
-Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
-Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
-Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
-Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
+Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport.
+Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport.
+Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport.
+Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport.
+Delimit Scope transport with transport.
 
 Lemma functtransportf {X Y : UU} (f : X -> Y) (P : Y -> UU) {x x' : X}
   (e : x = x') (p : P (f x)) :
