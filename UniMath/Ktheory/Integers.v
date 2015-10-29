@@ -89,7 +89,10 @@ Proof. apply isweqpr1; intro i.
          assert (c := proofirrelevance _ (isinclnattohz (-i)) (S m,,p') (S n,,q')).
          assert (d := ap pr1 c); simpl in d.
          assert (e := invmaponpathsS _ _ d); clear d.
-         apply (total2_paths2_second_isaprop (!e)). intro k. apply setproperty. } Defined.
+         apply subtypeEquality.
+         - intro; apply setproperty.
+         - exact (!e). }
+Defined.
 
 Definition negpos_weq := weqpair _ negpos' : weq (total2 hz_normal_form) ℤ.
 

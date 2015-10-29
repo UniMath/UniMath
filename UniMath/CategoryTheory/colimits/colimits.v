@@ -276,20 +276,20 @@ split.
   + abstract (intro k; simpl;
               now apply pathsinv0, (colimArrowEta (mk_ColimCocone D c cc H))).
   + abstract (simpl; intro k;
-              apply total2_paths_second_isaprop;
-                [ now repeat (apply impred; intro); apply hsC
+              apply subtypeEquality;
+                [ intro; now repeat (apply impred; intro); apply hsC
                 | destruct k as [k Hk]; simpl; apply funextsec; intro u;
                   now apply (colimArrowCommutes (mk_ColimCocone D c cc H))]).
 - intros H d cd.
   refine (tpair _ _ _).
   + exists (invmap (weqpair _ (H d)) cd).
     abstract (intro u; now apply isColim_weq_subproof2).
-  + abstract (intro t; apply total2_paths_second_isaprop;
-                [ now apply impred; intro; apply hsC
+  + abstract (intro t; apply subtypeEquality;
+                [ intro; now apply impred; intro; apply hsC
                 | destruct t as [t Ht]; simpl;
                   apply (invmaponpathsweq (weqpair _ (H d))); simpl;
-                  apply total2_paths_second_isaprop;
-                    [ now repeat (apply impred; intro); apply hsC
+                  apply subtypeEquality;
+                    [ intro; now repeat (apply impred; intro); apply hsC
                     | simpl; apply pathsinv0, funextsec; intro u; rewrite Ht;
                       now apply isColim_weq_subproof2]]).
 Defined.
@@ -381,8 +381,8 @@ refine (tpair _ _ _).
   + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
               now apply (colimArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
-            apply (total2_paths_second_isaprop); simpl;
-              [ apply impred; intro u; apply functor_category_has_homsets
+            apply subtypeEquality; simpl;
+              [ intro; apply impred; intro u; apply functor_category_has_homsets
               | apply (nat_trans_eq hsC); simpl; intro a;
                 apply colimArrowUnique; intro u;
                 now apply (nat_trans_eq_pointwise (t2 u))]).

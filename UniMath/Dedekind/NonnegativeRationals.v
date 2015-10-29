@@ -35,7 +35,7 @@ Local Definition hnnq_set : hSet :=
 (** *** Order *)
 
 Local Definition hnnq_le : hrel hnnq_def := resrel hqleh (hqleh 0).
-Lemma isPartialOrder_hnnq_le : ispo hnnq_le.
+Lemma isPreorder_hnnq_le : ispreorder hnnq_le.
 Proof.
   split.
   intros x y z.
@@ -45,9 +45,9 @@ Proof.
 Qed.  
   
 Local Definition hnnq_ge : hrel hnnq_def := resrel hqgeh (hqleh 0).
-Lemma isPartialOrder_hnnq_ge : ispo hnnq_ge.
+Lemma ispo_hnnq_ge : ispreorder hnnq_ge.
 Proof.
-  destruct isPartialOrder_hnnq_le as [Htrans Hrefl].
+  destruct isPreorder_hnnq_le as [Htrans Hrefl].
   split.
   intros x y z Hxy Hyz.
   now apply Htrans with y.
@@ -126,9 +126,9 @@ Delimit Scope NnR_scope with NnR.
 (** ** Order *)
 
 Definition leNonnegativeRationals : po NonnegativeRationals :=
-  popair hnnq_le isPartialOrder_hnnq_le.
+  popair hnnq_le isPreorder_hnnq_le.
 Definition geNonnegativeRationals : po NonnegativeRationals :=
-  popair hnnq_ge isPartialOrder_hnnq_ge.
+  popair hnnq_ge ispo_hnnq_ge.
 Definition ltNonnegativeRationals : StrongOrder NonnegativeRationals :=
   pairStrongOrder hnnq_lt isStrongOrder_hnnq_lt.
 Definition gtNonnegativeRationals : StrongOrder NonnegativeRationals :=

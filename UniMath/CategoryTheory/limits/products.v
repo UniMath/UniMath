@@ -54,8 +54,8 @@ refine (tpair _ _ _).
 - exists (pr1 (pr1 H')).
   set (T := pr2 (pr1 H')); simpl in T.
   abstract (intro u; induction u; simpl; [exact (pr1 T)|exact (pr2 T)]).
-- abstract (intros; apply total2_paths_second_isaprop;
-              [apply impred;intro; apply hsC|]; simpl;
+- abstract (intros; apply subtypeEquality;
+              [intro; apply impred;intro; apply hsC|]; simpl;
             apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false) ]).
 Defined.
 

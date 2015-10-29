@@ -182,8 +182,9 @@ Proof.
     destruct t as [h h_rec_eq]; simpl.
     assert (same: h = preIt).
 Focus 2.
-    apply (total2_paths_second_isaprop).
-    + simpl.
+    apply subtypeEquality.
+    + intro.
+      simpl.
       apply hsC'.
 Focus 2.
     simpl.
