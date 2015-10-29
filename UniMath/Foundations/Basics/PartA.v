@@ -128,6 +128,7 @@ Notation "'¬' X" := (neg X) (at level 35, right associativity).
   (* type this in emacs in agda-input method with \neg *)
 
 Notation "x != y" := (neg (x = y)) (at level 70).
+Notation "x ≠ y" := (neg (x = y)) (at level 70).
 
 (* Apply this tactic to a proof of [X] and [neg X], in either order: *)
 Ltac contradicts a b := solve [ induction (a b) | induction (b a) ].
