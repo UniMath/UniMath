@@ -360,30 +360,38 @@ Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0).
 
 Goal 3 = height ( ●3 : ⟦ 8 ⟧ ). reflexivity. Qed.
 
-Lemma inducedPartialOrder {X Y} (f:X->Y) (incl:isincl f) (R:hrel Y) (po:isPartialOrder R) :
+Lemma inducedPartialOrder {X Y} (f:X->Y) (incl:isInjective f) (R:hrel Y) (po:isPartialOrder R) :
   isPartialOrder (λ x x' : X, R (f x) (f x')).
 Proof.
   intros.
+  split.
+  - split.
+    * intros x y z a b. exact (pr1 (pr1 po) (f x) (f y) (f z) a b).
+    * intros x. exact (pr2 (pr1 po) (f x)).
+  - intros x y a b. apply incl. exact (pr2 po (f x) (f y) a b).
+Defined.
 
-
-
-Abort.
+Corollary inducedPartialOrder_weq {X Y} (f:X≃Y) (R:hrel Y) (po:isPartialOrder R) :
+  isPartialOrder (λ x x' : X, R (f x) (f x')).
+Proof. intros. exact (inducedPartialOrder f (incl_injectivity  f (weqproperty f)) R po). Defined.
 
 Definition transportFiniteOrdering {n} {X:UU} : X ≃ ⟦ n ⟧ -> FiniteOrderedSet.
+(* The new finite ordered set has X as its underlying set. *)
 Proof.
   intros ? ? w.
   refine (_,,_).
   - refine (_,,_).
     * refine (_,,_).
-      + exists X. apply (isofhlevelweqb 2 w). apply setproperty.
-      + unfold PartialOrder; simpl.
-        refine (_,,_).
+    + exists X. apply (isofhlevelweqb 2 w). apply setproperty.
+      + unfold PartialOrder; simpl. refine (_,,_).
         { intros x y. exact (w x ≤ w y). }
-        assert (r := pr2 (pr2 (stnposet n))); simpl in r.
-
-
-
-Abort.
+        apply inducedPartialOrder_weq.
+        exact (pr2 (pr2 (pr1 (pr1 ⟦ n ⟧)))).
+    * intros x y. apply (pr2 (pr1 ⟦ n ⟧)).
+  - simpl.
+    apply (isfiniteweqb w).
+    exact (pr2 ⟦ n ⟧).
+Defined.
 
 (** sorting finite ordered sets *)
 
@@ -411,7 +419,7 @@ Proof.
     apply invproofirrelevance; intros [[r b] i] [[s c] j]; simpl in r,s,i,j.
     admit.
     }
-  { 
+  {
     apply weqtoeqstn.
     exact (weqcomp (pr1 p) (invweq (pr1 q))).
   }
