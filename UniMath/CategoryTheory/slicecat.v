@@ -81,12 +81,12 @@ Proof.
 repeat split; simpl.
 * intros a b f.
   case f; clear f; intros h hP.
-  apply total2_paths2_second_isaprop; [ apply id_left | apply hsC ].
+  apply subtypePairEquality; [ intro; apply hsC | apply id_left ].
 * intros a b f.
   case f; clear f; intros h hP.
-  apply total2_paths2_second_isaprop; [ apply id_right | apply hsC ].
+  apply subtypePairEquality; [ intro; apply hsC | apply id_right ].
 * intros a b c d f g h.
-  apply total2_paths2_second_isaprop; [ apply assoc | apply hsC ].
+  apply subtypePairEquality; [ intro; apply hsC | apply assoc ].
 Qed.
 
 Definition slice_precat (hsC : has_homsets C) : precategory :=
@@ -116,7 +116,9 @@ Proof. intro heq; apply (total2_paths heq); apply hsC. Qed.
 Lemma eq_iso_slicecat (af bg : C / x) (f g : iso af bg) : pr1 f = pr1 g -> f = g.
 Proof.
 case g; case f; clear f g; simpl; intros f fP g gP eq.
-apply (total2_paths2_second_isaprop eq); apply isaprop_is_iso.
+refine (subtypePairEquality _ eq).
+intro.
+apply isaprop_is_iso.
 Qed.
 
 (* It suffices that the underlying morphism is an iso to get an iso in
@@ -131,7 +133,7 @@ assert (pinv : hinv ;; pr2 af = pr2 bg).
   apply idpath.
 apply is_iso_from_is_z_iso.
 exists (tpair _ hinv pinv).
-split; apply total2_paths2_second_isaprop; trivial; apply hsC.
+split; ( apply subtypePairEquality ; [ intro; apply hsC | trivial ]).
 Qed.
 
 (* An iso in the slice category gives an iso in the base category *)
@@ -274,7 +276,7 @@ apply funextsec; intro h; case h; clear h; intros h hh.
 rewrite transport_of_functor_map_is_pointwise; simpl in *.
 unfold slicecat_mor.
 rewrite transportf_total2.
-apply total2_paths2_second_isaprop; [| apply hsC ].
+apply subtypePairEquality; [intro; apply hsC | ].
 rewrite transportf_total2; simpl.
 unfold slicecat_functor_identity_ob.
 rewrite toforallpaths_funextsec; simpl.
@@ -308,7 +310,7 @@ apply funextsec; intro h; case h; clear h; intros h hh.
 rewrite transport_of_functor_map_is_pointwise; simpl in *.
 unfold slicecat_mor.
 rewrite transportf_total2.
-apply total2_paths2_second_isaprop; [| apply hsC ].
+apply subtypePairEquality; [intro; apply hsC | ].
 rewrite transportf_total2; simpl.
 unfold slicecat_functor_comp_ob.
 rewrite toforallpaths_funextsec; simpl.

@@ -71,9 +71,22 @@ Definition stnset n := hSetpair (stn n) (isasetstn n).
 
 Definition stn_to_nat n : stnset n -> natset := pr1.
 
-Definition stnposet ( i : nat ) : Poset .
-Proof. intro. unfold Poset . split with ( hSetpair ( stn i ) ( isasetstn i ) ) . unfold po. split with ( fun j1 j2 : stn i => natleh j1 j2 ) . split with ( fun j1 j2 j3 : stn i => istransnatleh j1 j2 j3 ) . exact ( fun j : stn i => isreflnatleh j ) . Defined. 
-
+Definition stnposet ( n : nat ) : Poset .
+Proof.
+  intro.
+  unfold Poset.
+  exists (_,,isasetstn n).
+  unfold PartialOrder.
+  exists (λ i j:stn n, i ≤ j).
+  unfold isPartialOrder.
+  split.
+  - unfold ispreorder.
+    split.
+    * intros i j k. apply istransnatleh.
+    * intros i. apply isreflnatleh.
+  - intros i j r s. apply (invmaponpathsincl _ ( isinclstntonat _ )).
+    now apply isantisymmnatleh.
+Defined.
 
 Definition lastelement ( n : nat ) : stn ( S n ) .
 Proof. intro .   split with n .  apply ( natgthsnn n ) .  Defined . 

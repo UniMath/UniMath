@@ -101,7 +101,7 @@ Proof.
   now intros x P HP ; apply HP ; clear P HP.
 Qed.
 
-Lemma ispo_Dcuts_le_rel : ispo Dcuts_le_rel.
+Lemma ispo_Dcuts_le_rel : ispreorder Dcuts_le_rel.
 Proof.
   split.
   exact istrans_Dcuts_le_rel.
@@ -216,7 +216,7 @@ Proof.
   now apply isrefl_po.
 Qed.
 
-Lemma ispo_Dcuts_eq : ispo Dcuts_eq.
+Lemma ispo_Dcuts_eq : ispreorder Dcuts_eq.
 Proof.
   split.
   exact istrans_Dcuts_eq.
@@ -241,14 +241,13 @@ Lemma Dcuts_eq_is_eq :
     Dcuts_eq x y -> x = y.
 Proof.
   intros x y (Hle,Hge).
-  apply total2_paths_second_isaprop.
-  apply pr2.
+  apply subtypeEquality.
+  { intro. apply pr2. }
   apply funextsec.
   intro r.
   apply weqtopathshProp.
   apply logeqweq ; intros Hr.
-  revert Hle ; apply hinhuniv ; intro Hle.
-  now apply Hle.
+  { revert Hle ; apply hinhuniv ; intro Hle. now apply Hle. }
   revert Hge ; apply hinhuniv ; intro Hge.
   now apply Hge.
 Qed.

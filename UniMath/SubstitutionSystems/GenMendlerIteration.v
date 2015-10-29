@@ -12,16 +12,16 @@ SubstitutionSystems
 
 (** **********************************************************
 
-Contents : 
+Contents :
 
 - Derivation of Generalized Mendler Iteration
 - Instantiation to a special case, Specialized Mendler Iteration
-- Proof of a fusion law à la Bird-Paterson (Generalised folds 
+- Proof of a fusion law à la Bird-Paterson (Generalised folds
   for nested datatypes) for Generalized Mendler Iteration
 
 
-                	
-           
+
+
 ************************************************************)
 
 Require Import UniMath.Foundations.Basics.All.
@@ -69,7 +69,7 @@ Proof.
   exact α.
 Defined.
 
-Notation "⟨ A , α ⟩" := (AlgConstr A α). 
+Notation "⟨ A , α ⟩" := (AlgConstr A α).
 (* \<  , \> *)
 
 Variable μF_Initial : Initial AF.
@@ -117,7 +117,7 @@ Variable ψ : ψ_source ⟶ ψ_target.
 
 Definition preIt : L μF ⇒ X := φ_inv (iter (φ (ψ (R X) (ε X)))).
 
-  
+
 Lemma ψ_naturality (A B: C)(h: B ⇒ A)(f: L A ⇒ X): ψ B (#L h;; f) = #L (#F h);; ψ A f.
 Proof.
   assert (ψ_is_nat := nat_trans_ax ψ);
@@ -141,7 +141,7 @@ Proof.
   apply maponpaths.
   eapply pathscomp0.
 Focus 2.
-  apply ψ_naturality.  
+  apply ψ_naturality.
   apply maponpaths.
   rewrite truth_about_ε.
   rewrite <- (φ_adj_inv_natural_precomp _ _ _ is_left_adj_L).
@@ -182,8 +182,9 @@ Proof.
     destruct t as [h h_rec_eq]; simpl.
     assert (same: h = preIt).
 Focus 2.
-    apply (total2_paths_second_isaprop).
-    + simpl.
+    apply subtypeEquality.
+    + intro.
+      simpl.
       apply hsC'.
 Focus 2.
     simpl.
@@ -197,7 +198,7 @@ Focus 2.
     (* simpl in iter_uniq. *)
     assert(φh_is_alg_mor: inF ;; φ h = #F(φ h) ;; φ (ψ (R X) (ε X))).
       (* remark: I am missing a definition of the algebra morphism property in UniMath.CategoryTheory.FunctorAlgebras *)
-    + rewrite <- φ_ψ_μF_eq. 
+    + rewrite <- φ_ψ_μF_eq.
       rewrite <- φ_adj_natural_precomp.
       apply maponpaths.
       exact h_rec_eq.
@@ -241,7 +242,7 @@ Section special_case.
       intro f.
       simpl.
       unfold compose at 1 5; simpl.
-      rewrite functor_comp. 
+      rewrite functor_comp.
       repeat rewrite assoc.
       assert (θ_nat_trans_ax := nat_trans_ax θ).
       unfold functor_composite in θ_nat_trans_ax.
@@ -249,7 +250,7 @@ Section special_case.
       rewrite <- θ_nat_trans_ax.
       apply idpath.
    Qed.
-  
+
   Definition ψ_from_comps : ψ_source ⟶ ψ_target.
   Proof.
     refine (tpair _ _ _ ).
@@ -257,7 +258,7 @@ Section special_case.
       unfold yoneda_objects_ob in *.
       exact (θ A ;; #G f ;; ρ).
     - apply is_nat_trans_ψ_from_comps.
-  Defined.   
+  Defined.
 
 
   Definition SpecialGenMendlerIteration :
@@ -284,7 +285,7 @@ Variable ψ' : ψ_source X' L' ⟶ ψ_target X' L'.
 Variable Φ : functor_composite (functor_opp L) Yon ⟶ functor_composite (functor_opp L') Yon'.
 
 Section fusion_law.
-  
+
   Variable H : ψ μF ;; Φ (F μF) = Φ μF ;; ψ' μF.
 
   Theorem fusion_law : Φ μF (It X L is_left_adj_L ψ) = It X' L' is_left_adj_L' ψ'.
@@ -303,12 +304,11 @@ Section fusion_law.
     rewrite <- H_inst.
     apply maponpaths.
     rewrite It_is_preIt.
-    apply preIt_ok.    
+    apply preIt_ok.
   Qed.
-    
+
 End fusion_law.
 
 
 
 End GenMenIt.
-
