@@ -579,7 +579,7 @@ Theorem total2_paths_hProp_equiv {A : UU} (B : A -> hProp)
    (x y : total2 (fun x => B x)): weq (x = y) (pr1 x = pr1 y).
 Proof.
   intros.
-  apply total2_paths_isaprop_equiv.
+  apply subtypeInjectivity.
   intro a. apply (pr2 (B a)).
 Defined.
 

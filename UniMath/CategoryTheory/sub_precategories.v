@@ -10,13 +10,13 @@ january 2013
 
 (** **********************************************************
 
-Contents :  
-                
+Contents :
+
                 Subcategories, Full subcats
-                  
+
                   Image of a functor, full subcat specified
                                        by a functor
-                  
+
                   Subcategories, back to
                     Inclusion functor
                     Full image of a functor
@@ -25,16 +25,16 @@ Contents :
                     This factorization is fully faithful
                        if the functor is
                        [functor_full_img_fully_faithful_if_fun_is]
-                                           
+
                     Isos in full subcategory are equiv
                       to isos in the precategory
 
-                    Full subcategory of a category is 
+                    Full subcategory of a category is
                       a category
                       [is_category_full_subcat]
-                      
-                      	   
-           
+
+
+
 ************************************************************)
 
 
@@ -51,7 +51,7 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 (** * Sub-precategories *)
 
-(** A sub-precategory is specified through a predicate on objects 
+(** A sub-precategory is specified through a predicate on objects
     and a dependent predicate on morphisms
     which is compatible with identity and composition
 *)
@@ -77,7 +77,7 @@ Proof.
   split;
   intros; exact tt.
 Defined.
-  
+
 Definition full_sub_precategory {C : precategory}
          (C': hsubtypes (ob C)) :
    sub_precategories C :=
@@ -86,8 +86,8 @@ Definition full_sub_precategory {C : precategory}
 
 (** We have a coercion [carrier] turning every predicate [P] on a type [A] into the
      total space [ { a : A & P a} ].
-   
-   For later, we define some projections with the appropriate type, also to 
+
+   For later, we define some projections with the appropriate type, also to
    avoid confusion with the aforementioned coercion.
 *)
 
@@ -111,14 +111,14 @@ Definition sub_precategory_morphisms {C : precategory}(C':sub_precategories C)
 
 Definition sub_precategory_id (C : precategory)(C':sub_precategories C) :
    forall a : ob C,
-       sub_precategory_predicate_objects C' a -> 
+       sub_precategory_predicate_objects C' a ->
        sub_precategory_predicate_morphisms  C' _ _ (identity a) :=
          pr1 (pr2 C').
 
 Definition sub_precategory_comp (C : precategory)(C':sub_precategories C) :
    forall (a b c: ob C) (f: a --> b) (g : b --> c),
-          sub_precategory_predicate_morphisms C' _ _ f -> 
-          sub_precategory_predicate_morphisms C' _ _ g -> 
+          sub_precategory_predicate_morphisms C' _ _ f ->
+          sub_precategory_predicate_morphisms C' _ _ g ->
           sub_precategory_predicate_morphisms C' _ _  (f ;; g) :=
         pr2 (pr2 C').
 
@@ -131,15 +131,15 @@ Lemma is_set_sub_precategory_morphisms {C : precategory}(hs: has_homsets C)(C':s
       (a b : ob C) : isaset (sub_precategory_morphisms C' a b).
 Proof.
   change (isaset) with (isofhlevel 2).
-  apply isofhleveltotal2. 
+  apply isofhleveltotal2.
   apply hs.
   intro f.
-  apply isasetaprop. 
+  apply isasetaprop.
   apply pr2.
 Qed.
 
 Definition sub_precategory_morphisms_set {C : precategory}(hs: has_homsets C)
-  (C':sub_precategories C) (a b : ob C) : hSet := 
+  (C':sub_precategories C) (a b : ob C) : hSet :=
     tpair _ (sub_precategory_morphisms C' a b)
         (is_set_sub_precategory_morphisms hs C' a b).
 
@@ -147,9 +147,9 @@ Definition sub_precategory_morphisms_set {C : precategory}(hs: has_homsets C)
 (** An object of a subcategory is an object of the original precategory. *)
 
 Definition precategory_object_from_sub_precategory_object (C:precategory)
-         (C':sub_precategories C) (a : sub_ob C') : 
+         (C':sub_precategories C) (a : sub_ob C') :
     ob C := pr1 a.
-Coercion precategory_object_from_sub_precategory_object : 
+Coercion precategory_object_from_sub_precategory_object :
      sub_ob >-> ob.
 
 (** A morphism of a subcategory is also a morphism of the original precategory. *)
@@ -157,7 +157,7 @@ Coercion precategory_object_from_sub_precategory_object :
 Definition precategory_morphism_from_sub_precategory_morphism (C:precategory)
           (C':sub_precategories C) (a b : ob C)
            (f : sub_precategory_morphisms C' a b) : a --> b := pr1 f .
-Coercion precategory_morphism_from_sub_precategory_morphism : 
+Coercion precategory_morphism_from_sub_precategory_morphism :
          sub_precategory_morphisms >-> precategory_morphisms.
 
 
@@ -200,16 +200,16 @@ Proof.
   destruct f as [f p].
   destruct g as [g p'].
   apply (total2_paths H).
-  apply proofirrelevance. 
+  apply proofirrelevance.
   apply pr2.
 Qed.
 
 (*
 Lemma eq_in_sub_precategory2 (C : precategory)(C':sub_precategories C)
-     (a b : sub_ob C') (f g : a --> b) 
- (pf : sub_precategory_predicate_morphisms C' _ _ f) 
- (pg : sub_precategory_predicate_morphisms C' _ _ g): 
-  f = g -> (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) f pf) = 
+     (a b : sub_ob C') (f g : a --> b)
+ (pf : sub_precategory_predicate_morphisms C' _ _ f)
+ (pg : sub_precategory_predicate_morphisms C' _ _ g):
+  f = g -> (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) f pf) =
       (tpair (fun f => sub_precategory_predicate_morphisms _ _ _ f) g pg).
 Proof.
   intro H.
@@ -252,14 +252,14 @@ Definition precategory_morphisms_in_subcat {C : precategory} {C':sub_precategori
 (** ** Functor from a sub-precategory to the ambient precategory *)
 
 Definition sub_precategory_inclusion_data (C : precategory) (C':sub_precategories C):
-  functor_data C' C. 
+  functor_data C' C.
 Proof.
-  exists (@pr1 _ _ ). 
-  intros a b. 
+  exists (@pr1 _ _ ).
+  intros a b.
   exact (@pr1 _ _ ).
 Defined.
 
-Definition is_functor_sub_precategory_inclusion (C : precategory) 
+Definition is_functor_sub_precategory_inclusion (C : precategory)
          (C':sub_precategories C) :
     is_functor  (sub_precategory_inclusion_data C C').
 Proof.
@@ -268,14 +268,14 @@ Proof.
   unfold functor_compax . intros.  apply (idpath _ ).
 Qed.
 
- 
+
 Definition sub_precategory_inclusion (C : precategory)(C': sub_precategories C) :
     functor C' C := tpair _ _ (is_functor_sub_precategory_inclusion C C').
 
 (** ** The (full) image of a functor *)
 
 Definition full_img_sub_precategory {C D : precategory}(F : functor C D) :
-    sub_precategories D := 
+    sub_precategories D :=
        full_sub_precategory (sub_img_functor F).
 
 (** ** Given a functor F : C -> D, we obtain a functor F : C -> Img(F) *)
@@ -303,9 +303,9 @@ Defined.
 Lemma is_functor_full_img (C D: precategory) (F : functor C D) :
   is_functor (full_img_functor_data F).
 Proof.
-  split. 
+  split.
   intro a; simpl.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
     intro; apply pr2.
   apply functor_id.
   intros a b c f g.
@@ -314,7 +314,7 @@ Proof.
   simpl; apply functor_comp.
 Qed.
 
-Definition functor_full_img {C D: precategory} 
+Definition functor_full_img {C D: precategory}
        (F : functor C D) :
    functor C (full_img_sub_precategory F) :=
    tpair _ _ (is_functor_full_img C D F).
@@ -323,40 +323,40 @@ Definition functor_full_img {C D: precategory}
 (** *** Morphisms in the full subprecat are equiv to morphisms in the precategory *)
 (** does of course not need the category hypothesis *)
 
-Definition hom_in_subcat_from_hom_in_precat (C : precategory) 
+Definition hom_in_subcat_from_hom_in_precat (C : precategory)
  (C' : hsubtypes (ob C))
   (a b : ob (full_sub_precategory C'))
-      (f : pr1 a --> pr1 b) : a --> b := 
+      (f : pr1 a --> pr1 b) : a --> b :=
        tpair _ f tt.
 
-Definition hom_in_precat_from_hom_in_full_subcat (C : precategory) 
+Definition hom_in_precat_from_hom_in_full_subcat (C : precategory)
  (C' : hsubtypes (ob C))
   (a b : ob (full_sub_precategory C')) :
      a --> b -> pr1 a --> pr1 b := @pr1 _ _ .
 
 
-Lemma isweq_hom_in_precat_from_hom_in_full_subcat (C : precategory) 
+Lemma isweq_hom_in_precat_from_hom_in_full_subcat (C : precategory)
  (C' : hsubtypes (ob C))
-    (a b : ob (full_sub_precategory C')): 
+    (a b : ob (full_sub_precategory C')):
  isweq (hom_in_precat_from_hom_in_full_subcat _ _ a b).
 Proof.
-  apply (gradth _ 
+  apply (gradth _
          (hom_in_subcat_from_hom_in_precat _ _ a b)).
-  intro f. 
+  intro f.
   destruct f. simpl.
   apply eq_in_sub_precategory.
   apply idpath.
   intros. apply idpath.
 Defined.
 
-Lemma isweq_hom_in_subcat_from_hom_in_precat (C : precategory) 
+Lemma isweq_hom_in_subcat_from_hom_in_precat (C : precategory)
  (C' : hsubtypes (ob C))
-    (a b : ob (full_sub_precategory C')): 
+    (a b : ob (full_sub_precategory C')):
  isweq (hom_in_subcat_from_hom_in_precat  _ _ a b).
 Proof.
-  apply (gradth _ 
+  apply (gradth _
          (hom_in_precat_from_hom_in_full_subcat _ _ a b)).
-  intro f. 
+  intro f.
   intros. apply idpath.
   intro f.
   destruct f. simpl.
@@ -364,13 +364,13 @@ Proof.
   apply idpath.
 Defined.
 
-Definition weq_hom_in_subcat_from_hom_in_precat (C : precategory) 
+Definition weq_hom_in_subcat_from_hom_in_precat (C : precategory)
      (C' : hsubtypes (ob C))
     (a b : ob (full_sub_precategory C')): weq (pr1 a --> pr1 b) (a-->b) :=
   tpair _ _ (isweq_hom_in_subcat_from_hom_in_precat C C' a b).
 
 
-Lemma image_is_in_image (C D : precategory) (F : functor C D) 
+Lemma image_is_in_image (C D : precategory) (F : functor C D)
      (a : ob C): is_in_img_functor F (F a).
 Proof.
   apply hinhpr.
@@ -381,19 +381,19 @@ Defined.
 
 
 Lemma functor_full_img_fully_faithful_if_fun_is (C D : precategory)
-   (F : functor C D) (H : fully_faithful F) : 
+   (F : functor C D) (H : fully_faithful F) :
    fully_faithful (functor_full_img F).
 Proof.
   unfold fully_faithful in *.
   intros a b.
   set (H' := weq_hom_in_subcat_from_hom_in_precat).
   set (H'' := H' D (is_in_img_functor F)).
-  set (Fa := tpair (fun a : ob D => is_in_img_functor F a) 
+  set (Fa := tpair (fun a : ob D => is_in_img_functor F a)
         (F a) (image_is_in_image _ _ F a)).
-  set (Fb := tpair (fun a : ob D => is_in_img_functor F a) 
+  set (Fb := tpair (fun a : ob D => is_in_img_functor F a)
         (F b) (image_is_in_image _ _ F b)).
   set (H3 := (H'' Fa Fb)).
-  assert (H2 : functor_on_morphisms (functor_full_img F) (a:=a) (b:=b) = 
+  assert (H2 : functor_on_morphisms (functor_full_img F) (a:=a) (b:=b) =
                   funcomp (functor_on_morphisms F (a:=a) (b:=b))
                           ((H3))).
   apply funextsec. intro f.
@@ -403,17 +403,17 @@ Proof.
   apply H.
   apply pr2.
 Qed.
-  
- 
+
+
 
 
 (** *** Image factorization C -> Img(F) -> D *)
 
-Lemma functor_full_img_factorization_ob (C D: precategory) 
+Lemma functor_full_img_factorization_ob (C D: precategory)
    (F : functor C D):
-  functor_on_objects F = 
-  functor_on_objects (functor_composite _ _ _ 
-       (functor_full_img F) 
+  functor_on_objects F =
+  functor_on_objects (functor_composite _ _ _
+       (functor_full_img F)
             (sub_precategory_inclusion D _)).
 Proof.
   simpl.
@@ -424,16 +424,16 @@ Defined.
 (**  works up to eta conversion *)
 
 (*
-Lemma functor_full_img_factorization (C D: precategory) 
+Lemma functor_full_img_factorization (C D: precategory)
                 (F : functor C D) :
-    F = functor_composite _ _ _ (functor_full_img F) 
+    F = functor_composite _ _ _ (functor_full_img F)
             (sub_precategory_inclusion D _).
 Proof.
   apply functor_eq. About functor_full_img_factorization_ob.
   set (H := functor_full_img_factorization_ob C D F).
   simpl in *.
   destruct F as [F Fax].
-  simpl. 
+  simpl.
   destruct F as [Fob Fmor]; simpl in *.
   apply (total2_paths2 (H)).
   unfold functor_full_img_factorization_ob in H.
@@ -444,7 +444,7 @@ Proof.
   intro b.
   apply funextfunax.
   intro f.
-  
+
   generalize Fmor.
   clear Fax.
   assert (H' : Fob = (fun a : ob C => Fob a)).
@@ -452,7 +452,7 @@ Proof.
 
   generalize dependent a .
   generalize dependent b.
-  clear Fmor. 
+  clear Fmor.
     generalize H.
   clear H.
   intro H.
@@ -462,7 +462,7 @@ Proof.
   induction  H'.
   induction H'.
   clear H.
-  
+
 *)
 
 
@@ -480,7 +480,7 @@ Variable C' : hsubtypes (ob C).
 (** *** Isos in the full subcategory are equivalent to isos in the precategory *)
 
 Lemma iso_in_subcat_is_iso_in_precat (a b : ob (full_sub_precategory C'))
-       (f : iso a b): is_isomorphism (C:=C) (a:=pr1 a) (b:=pr1 b) 
+       (f : iso a b): is_isomorphism (C:=C) (a:=pr1 a) (b:=pr1 b)
      (pr1 (pr1 f)).
 Proof.
   set (T:= pr1 (inv_from_iso f)).
@@ -494,11 +494,11 @@ Proof.
 Defined.
 
 Lemma iso_in_precat_is_iso_in_subcat (a b : ob (full_sub_precategory C'))
-     (f : iso (pr1 a) (pr1 b)) : 
-   is_isomorphism (C:=full_sub_precategory C')  
+     (f : iso (pr1 a) (pr1 b)) :
+   is_isomorphism (C:=full_sub_precategory C')
      (precategory_morphisms_in_subcat f tt).
 Proof.
-  apply (is_iso_qinv _ (precategory_morphisms_in_subcat (inv_from_iso f) tt)).  
+  apply (is_iso_qinv _ (precategory_morphisms_in_subcat (inv_from_iso f) tt)).
   split; simpl.
   - apply eq_in_sub_precategory; simpl.
     apply iso_inv_after_iso.
@@ -521,7 +521,7 @@ Proof.
   intro f.
   apply eq_iso; simpl.
   - apply eq_in_sub_precategory, idpath.
-  - intro f; apply eq_iso, idpath. 
+  - intro f; apply eq_iso, idpath.
 Defined.
 
 Lemma isweq_iso_in_sub_from_iso (a b : ob (full_sub_precategory C')):
@@ -543,7 +543,7 @@ Definition Id_in_sub_to_iso (a b : ob (full_sub_precategory C')):
      a = b -> iso (pr1 a) (pr1 b) :=
        funcomp (@idtoiso _ a b) (iso_from_iso_in_sub a b).
 
-Lemma Id_in_sub_to_iso_equal_iso 
+Lemma Id_in_sub_to_iso_equal_iso
   (a b : ob (full_sub_precategory C')) :
     Id_in_sub_to_iso a b = funcomp (total2_paths_hProp_equiv C' a b)
                                     (@idtoiso _ (pr1 a) (pr1 b)).
@@ -568,7 +568,7 @@ Defined.
 
 Lemma precat_paths_in_sub_as_3_maps
    (a b : ob (full_sub_precategory C')):
-     @idtoiso _ a b = funcomp (Id_in_sub_to_iso a b) 
+     @idtoiso _ a b = funcomp (Id_in_sub_to_iso a b)
                                         (iso_in_sub_from_iso a b).
 Proof.
   apply funextfunax.
@@ -580,7 +580,7 @@ Qed.
 
 (** *** The aforementioned decomposed map is a weak equivalence  *)
 
-Lemma isweq_sub_precat_paths_to_iso 
+Lemma isweq_sub_precat_paths_to_iso
   (a b : ob (full_sub_precategory C')) :
  isweq (@idtoiso _ a b).
 Proof.

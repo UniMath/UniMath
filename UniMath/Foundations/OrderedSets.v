@@ -108,7 +108,7 @@ Lemma posetStructureIdentity {X:hSet} (R S:PartialOrder X) :
   @isPosetEquivalence (X,,R) (X,,S) (idweq X) -> R=S.
 Proof.
   intros ? ? ? e.
-  apply total2_paths_second_isaprop. { apply isaprop_isPartialOrder. }
+  apply subtypeEquality. { intros T. apply isaprop_isPartialOrder. }
   induction R as [R r]; induction S as [S s]; simpl.
   apply funextfun; intro x; apply funextfun; intro y.
   unfold isPosetEquivalence in e.
@@ -392,7 +392,7 @@ Definition FiniteStructure (X:OrderedSet) := Σ n, ⟦ n ⟧ ≅ X.
 Local Lemma std_auto n : iscontr (⟦ n ⟧ ≅ ⟦ n ⟧).
 Proof.
   intros. exists (identityPosetEquivalence _). intros f.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   { intros g. apply isaprop_isPosetEquivalence. }
   simpl. apply isinjpr1weq. simpl. apply funextfun. intros i.
 
@@ -405,24 +405,15 @@ Proof.
   apply invproofirrelevance; intros r s.
   destruct r as [m p].
   destruct s as [n q].
-  apply total2_paths2_second_isaprop.
-  {
-    apply weqtoeqstn.
-    exact (weqcomp (pr1 p) (invweq (pr1 q))).
-  }
+  apply subtypePairEquality.
   {
     intros k.
     apply invproofirrelevance; intros [[r b] i] [[s c] j]; simpl in r,s,i,j.
-    apply total2_paths2_second_isaprop.
-    {
-      apply total2_paths2_second_isaprop.
-      {
-
-
-
-        admit. }
-      apply isapropisweq. }
-    apply isaprop_isPosetEquivalence.
+    admit.
+    }
+  { 
+    apply weqtoeqstn.
+    exact (weqcomp (pr1 p) (invweq (pr1 q))).
   }
 Abort.
 

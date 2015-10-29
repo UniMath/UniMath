@@ -59,9 +59,9 @@ Proof.
     set (T := pr2 (pr1 H')). simpl in T.
     abstract (intro u; induction u;
               [ apply (pr1 T) | apply (pr2 T)]).
-  - abstract (intros;
-              apply total2_paths_second_isaprop;
-              [ apply impred; intro; apply hsC
+  - intros. abstract (intros;
+              apply subtypeEquality;
+              [ intro; apply impred; intro; apply hsC
               | apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false)] ]).
 Defined.
 
@@ -260,7 +260,7 @@ Lemma isaprop_CoproductCocone : isaprop (CoproductCocone a b).
 Proof.
   apply invproofirrelevance.
   intros CC CC'.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   + intros.
     unfold isColimCocone.
     do 2 (apply impred; intro); apply isapropiscontr.
