@@ -149,14 +149,8 @@ Proof.
   apply (!limOutCommutes Pb Two Three tt) .
 Qed.
 
-(*
-Definition isPullback_Pullback {a b c : C} {f : C⟦b, a⟧}{g : C⟦c, a⟧}
-   (P : Pullback f g) :
-  isPullback f g (PullbackPr1 P) (PullbackPr2 P) (PullbackSqrCommutes P).
-Proof.
-  exact (pr2 (pr2 P)).
-Qed.
- *)
+
+
 
 Definition PullbackArrow {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
            (Pb : Pullback f g) e (h : C⟦e, b⟧) (k : C⟦e, c⟧)(H : h ;; f = k ;; g)
@@ -185,6 +179,48 @@ Proof.
   refine (limArrowCommutes Pb e _ Three).
 Qed.
 
+Lemma PullbackArrowUnique {a b c d : C} (f : C⟦b , a⟧) (g : C⟦c , a⟧)
+     (Pb : Pullback f g)
+     e (h : C⟦e , b⟧) (k : C⟦e , c⟧)
+     (Hcomm : h ;; f = k ;; g)
+     (w : C⟦e , PullbackObject Pb⟧)
+     (H1 : w ;; PullbackPr1 Pb  = h) (H2 : w ;; PullbackPr2 Pb = k) :
+  w = PullbackArrow Pb _ h k Hcomm.
+Proof.
+  apply path_to_ctr.
+  intro v; induction v; simpl; try assumption.
+  set (X:= limOutCommutes Pb Two Three tt).
+  unfold compose. simpl.
+  eapply pathscomp0. apply maponpaths.
+   eapply pathsinv0.
+   apply X.
+  simpl.
+  rewrite assoc.
+  eapply pathscomp0. apply cancel_postcomposition. apply H2.
+  apply (!Hcomm).
+Qed.
+
+Definition isPullback_Pullback {a b c : C} {f : C⟦b, a⟧}{g : C⟦c, a⟧}
+   (P : Pullback f g) :
+  isPullback f g (PullbackPr1 P) (PullbackPr2 P) (PullbackSqrCommutes P).
+Proof.
+  apply mk_isPullback.
+  intros e h k HK.
+  refine (tpair _ _ _ ).
+  - refine (tpair _ _ _ ).
+    + apply (PullbackArrow P _ h k HK).
+    + split.
+      * apply PullbackArrow_PullbackPr1.
+      * apply PullbackArrow_PullbackPr2.
+  - intro t.
+    apply total2_paths_second_isaprop.
+    + apply isapropdirprod; apply hs.
+    + destruct t as [t p]. simpl.
+      refine (PullbackArrowUnique _ _ P _ _ _ _ _ _ _ ).
+      * apply e.
+      * apply (pr1 p).
+      * apply (pr2 p).
+Qed.
 
 
 Definition identity_is_Pullback_input {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧} (Pb : Pullback f g) :
@@ -198,8 +234,8 @@ Defined.
 
 
 
-
-Lemma PullbackArrowUnique {a b c d : C} (f : C⟦b , a⟧) (g : C⟦c , a⟧)
+(* was PullbackArrowUnique *)
+Lemma PullbackArrowUnique' {a b c d : C} (f : C⟦b , a⟧) (g : C⟦c , a⟧)
         (p1 : C⟦d , b⟧) (p2 : C⟦d , c⟧) (H : p1 ;; f = p2;; g)
      (P : isPullback f g p1 p2 H) e (h : C⟦e , b⟧) (k : C⟦e , c⟧)
      (Hcomm : h ;; f = k ;; g)
