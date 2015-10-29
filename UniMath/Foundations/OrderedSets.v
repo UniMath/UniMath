@@ -360,6 +360,15 @@ Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0).
 
 Goal 3 = height ( ●3 : ⟦ 8 ⟧ ). reflexivity. Qed.
 
+Lemma inducedPartialOrder {X Y} (f:X->Y) (incl:isincl f) (R:hrel Y) (po:isPartialOrder R) :
+  isPartialOrder (λ x x' : X, R (f x) (f x')).
+Proof.
+  intros.
+
+
+
+Abort.
+
 Definition transportFiniteOrdering {n} {X:UU} : X ≃ ⟦ n ⟧ -> FiniteOrderedSet.
 Proof.
   intros ? ? w.
@@ -371,6 +380,7 @@ Proof.
         refine (_,,_).
         { intros x y. exact (w x ≤ w y). }
         assert (r := pr2 (pr2 (stnposet n))); simpl in r.
+
 
 
 Abort.
