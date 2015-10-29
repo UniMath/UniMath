@@ -117,6 +117,19 @@ Qed.
 Definition Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧) :=
      LimCone (pullback_diagram f g).
 
+Definition mk_Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧)
+    (d : C) (p1 : C⟦d,b⟧) (p2 : C ⟦d,c⟧)
+    (H : p1 ;; f = p2 ;; g)
+    (ispb : isPullback f g p1 p2 H)
+  : Pullback f g.
+Proof.
+  refine (tpair _ _ _ ).
+  - refine (tpair _ _ _ ).
+    + apply d.
+    + refine (PullbCone _ _ _ _ _ _ ); assumption.
+  - apply ispb.
+Defined.
+
 (*
 Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
      total2 (fun pfg : total2 (fun p : C => dirprod (p --> b) (p --> c)) =>
