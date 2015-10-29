@@ -4,24 +4,144 @@ Global Unset Automatic Introduction.
 Require Export UniMath.Foundations.Basics.All.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.FunctionalExtensionality.
-Require Import UniMath.Ktheory.Equivalences.
 Require Export UniMath.Ktheory.Tactics.
 
-Notation "'∃!'  x .. y , P" := (iscontr (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
-Notation "'not' X" := (X -> empty) (at level 35).
+
+(** ** Null homotopies, an aid for proving things about propositional truncation *)
+
+Open Scope transport_scope.
+
+Definition nullHomotopyTo {X Y} (f:X->Y) (y:Y) := ∀ x:X, f x = y.
+Definition NullHomotopyTo {X Y} (f:X->Y) := total2 (nullHomotopyTo f).
+Definition NullHomotopyTo_center {X Y} (f:X->Y) : NullHomotopyTo f -> Y := pr1.
+Definition NullHomotopyTo_path {X Y} {f:X->Y} (r:NullHomotopyTo f) := pr2 r.
+
+Definition nullHomotopyFrom {X Y} (f:X->Y) (y:Y) := ∀ x:X, y = f x.
+Definition NullHomotopyFrom {X Y} (f:X->Y) := total2 (nullHomotopyFrom f).
+Definition NullHomotopyFrom_center {X Y} (f:X->Y) : NullHomotopyFrom f -> Y := pr1.
+Definition NullHomotopyFrom_path {X Y} {f:X->Y} (r:NullHomotopyFrom f) := pr2 r.
+
+Definition nullHomotopyTo_transport {X Y} {f:X->Y} {y:Y} (h : nullHomotopyTo f y)
+           {y':Y} (p:y = y') (x:X) : (p # h) x = h x @ p.
+Proof. intros. destruct p. apply pathsinv0. apply pathscomp0rid. Defined.
+
+Lemma isaset_NullHomotopyTo {X Y} (i:isaset Y) (f:X->Y) : isaset (NullHomotopyTo f).
+Proof. intros. apply (isofhleveltotal2 2). { apply i. }
+       intros y. apply impred; intros x. apply isasetaprop. apply i. Defined.
+
+Lemma isaprop_nullHomotopyTo {X Y} (is:isaset Y) (f:X->Y) (y:Y) :
+  isaprop (nullHomotopyTo f y).
+Proof. intros ? ? ? ? ?. apply impred; intros x. apply is. Defined.
+
+Lemma isaprop_NullHomotopyTo_0 {X} {Y} (is:isaset Y) (f:X->Y) : 
+  X -> isaprop (NullHomotopyTo f).
+(** The point of X is needed, for when X is empty, then NullHomotopyTo f is
+    equivalent to Y. *)
+Proof. intros ? ? ? ? x. apply invproofirrelevance. intros [r i] [s j].
+       apply (total2_paths2_second_isaprop (!i x @ j x)).
+       apply (isaprop_nullHomotopyTo is). Defined.
+
+(** ** Variants on paths and coconus *)
+
+Definition paths_from {X} (x:X) := coconusfromt X x.
+Definition point_to {X} {x:X} : paths_from x -> X := coconusfromtpr1 _ _.
+Definition paths_from_path {X} {x:X} (w:paths_from x) := pr2 w.
+Definition paths' {X} (x:X) := λ y, paths y x.
+Definition idpath' {X} (x:X) := idpath x : paths' x x.
+Definition paths_to {X} (x:X) := coconustot X x.
+Definition point_from {X} {x:X} : paths_to x -> X := coconustotpr1 _ _.
+Definition paths_to_path {X} {x:X} (w:paths_to x) := pr2 w.
+
+Lemma iscontr_paths_to {X} (x:X) : iscontr (paths_to x).
+Proof. apply iscontrcoconustot. Defined.
+Lemma iscontr_paths_from {X} (x:X) : iscontr (paths_from x).
+Proof. apply iscontrcoconusfromt. Defined.
+Definition paths_to_prop {X} (x:X) := 
+  hProppair (paths_to x) (isapropifcontr (iscontr_paths_to x)).
+Definition paths_from_prop {X} (x:X) := 
+  hProppair (paths_from x) (isapropifcontr (iscontr_paths_from x)).
+
+(** ** Squashing *)
+
+Notation squash_fun := hinhfun (only parsing).
+Notation squash_fun2 := hinhfun2 (only parsing).
+Notation squash_element := hinhpr (only parsing).
+
+Lemma squash_path {X} (x y:X) : squash_element x = squash_element y.
+Proof. intros. apply propproperty. Defined.
+
+Lemma isaprop_NullHomotopyTo {X} {Y} (is:isaset Y) (f:X->Y) :
+  ∥ X ∥ -> isaprop (NullHomotopyTo f).
+Proof. intros ? ? ? ?.
+       apply factor_through_squash.
+       apply isapropisaprop. 
+       apply isaprop_NullHomotopyTo_0. exact is. Defined.
+
+(** We can get a map from '∥ X ∥' to any type 'Y' provided paths
+    are given that allow us to map first into a cone in 'Y'.  *)
+
+Definition cone_squash_map {X Y} (f:X->Y) (y:Y) : 
+  nullHomotopyTo f y -> ∥ X ∥ -> Y.
+Proof. intros ? ? ? ? e h. 
+       exact (point_from (h (paths_to_prop y) (fun x => f x,,e x))). Defined.
+
+Goal ∀ X Y (y:Y) (f:X->Y) (e:∀ m:X, f m = y),
+       f = funcomp squash_element (cone_squash_map f y e).
+Proof. reflexivity. Qed.
+
+(** ** Factoring maps through squash *)
+ 
+Lemma squash_uniqueness {X} (x:X) (h:∥ X ∥) : squash_element x = h.
+Proof. intros. apply propproperty. Qed.
+
+Goal ∀ X Q (i:isaprop Q) (f:X -> Q) (x:X),
+   factor_through_squash i f (squash_element x) = f x.
+Proof. reflexivity. Defined.
+
+Lemma factor_dep_through_squash {X} {Q:∥ X ∥->UU} : 
+  (∀ h, isaprop (Q h)) -> 
+  (∀ x, Q(squash_element x)) -> 
+  (∀ h, Q h).
+Proof.
+  intros ? ? i f ?.  apply (h (hProppair (Q h) (i h))). 
+  intro x. simpl. destruct (squash_uniqueness x h). exact (f x).
+Defined.
+
+Lemma factor_through_squash_hProp {X} : ∀ hQ:hProp, (X -> hQ) -> ∥ X ∥ -> hQ.
+Proof. intros ? [Q i] f h. apply h. assumption. Defined.
+
+Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
+Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.    
+
+Lemma iscontr_if_inhab_prop {P} : isaprop P -> P -> iscontr P.
+Proof. intros ? i p. exists p. intros p'. apply i. Defined.
+
+Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) : 
+  g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
+Proof.
+  intros ? ? ? ? ? h.
+  set ( Q := fun y => g y = g' y ).
+  unfold homot.
+  apply (@factor_dep_through_squash X). intros y. apply ip.
+  intro x. apply h.
+Qed.
+
+Lemma squash_map_epi {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) : 
+  g ∘ squash_element = g'∘ squash_element -> g = g'.
+Proof.
+  intros ? ? ? ? ? e.
+  apply funextsec.
+  apply squash_map_uniqueness. exact ip.
+  intro x. destruct e. apply idpath.
+Qed.
+
 Notation set_to_type := pr1hSet.
 Notation ap := maponpaths.
 (* see table 3.1 in the coq manual for parsing levels *)
 Notation "f ;; g" := (funcomp f g) (at level 50).
 (* funcomp' is like funcomp, but with the arguments in the other order *)
 Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
-Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
-Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
-Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
-Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport_scope.
 Open Scope transport_scope.
-
-Notation totalSpace := total2.
 
 (* some jargon reminders: *)
 Goal forall X (i:isaprop X) (x x':X), x = x'.
@@ -35,30 +155,11 @@ Proof. intros. apply proofirrelevancecontr. assumption. Defined.
 Definition an_inclusion_is_injective {X Y} (f:X->Y) (inj:isincl f) x x': f x = f x' -> x = x'.
 Proof. intros ? ? ? ? ? ?. exact (invmaponpathsincl _ inj _ _). Defined.
 
-Lemma isaprop_hProp (X:hProp) : isaprop X.
-Proof. intro. exact (pr2 X). Qed.
-
 (* paths *)
 Definition confun T {Y} (y:Y) := fun _:T => y.
 Definition path_type {X} {x x':X} (p:x = x') := X.
 Definition path_start {X} {x x':X} (p:x = x') := x.
 Definition path_end {X} {x x':X} (p:x = x') := x'.
-Definition paths_from {X} (x:X) := totalSpace (paths x).
-Definition point_to {X} {x:X} : paths_from x -> X := pr1.
-Definition paths_from_path {X} {x:X} (w:paths_from x) := pr2 w.
-Definition paths' {X} (x:X) := fun y => paths y x.
-Definition idpath' {X} (x:X) := idpath x : paths' x x.
-Definition paths_to {X} (x:X) := totalSpace (paths' x).
-Definition point_from {X} {x:X} : paths_to x -> X := pr1.
-Definition paths_to_path {X} {x:X} (w:paths_to x) := pr2 w.
-Definition iscontr_paths_to {X} (x:X) : iscontr (paths_to x).
-Proof. apply iscontrcoconustot. Defined.
-Definition paths_to_prop {X} (x:X) := 
-  hProppair (paths_to x) (isapropifcontr (iscontr_paths_to x)).
-Definition iscontr_paths_from {X} (x:X) : iscontr (paths_from x).
-Proof. apply iscontrcoconusfromt. Defined.
-Definition paths_from_prop {X} (x:X) := 
-  hProppair (paths_from x) (isapropifcontr (iscontr_paths_from x)).
 
 Definition thePoint {T} : iscontr T -> T.
 Proof. intros ? is. exact (pr1 is). Defined.
@@ -163,7 +264,7 @@ Proof. intros. destruct p, q. reflexivity. Defined.
 
 (** ** Maps from pair types *)
 
-Definition from_total2 {X} {P:X->Type} {Y} : (∀ x, P x->Y) -> totalSpace P -> Y.
+Definition from_total2 {X} {P:X->Type} {Y} : (∀ x, P x->Y) -> total2 P -> Y.
 Proof. intros ? ? ? f [x p]. exact (f x p). Defined.
 
 (** ** Sections and functions *)
@@ -285,9 +386,10 @@ Proof. intros. destruct p. reflexivity. Defined.
 
   (** *** Transport a pair *)
 
+  (* replace this with transportf_total2 (?) : *)
   Definition transportf_pair X (Y:X->Type) (Z:∀ x, Y x->Type)
              x x' (p:x = x') (y:Y x) (z:Z x y) :
-    transportf (fun x => totalSpace (Z x)) p (tpair (Z x) y z)
+    transportf (fun x => total2 (Z x)) p (tpair (Z x) y z)
     =
     tpair (Z x') (transportf Y p y) (transportf2 _ p y z).
   Proof. intros. destruct p. reflexivity. Defined.
@@ -296,17 +398,16 @@ Proof. intros. destruct p. reflexivity. Defined.
              x x' (p:x = x')
              (y':Y x') (z':Z x' y') 
              (z' : (Z x' y')) :
-    transportb (fun x => totalSpace (Z x)) p (tpair (Z x') y' z')
+    transportb (fun x => total2 (Z x)) p (tpair (Z x') y' z')
     =
     tpair (Z x) (transportb Y p y') (transportb2 _ p y' z').
   Proof. intros. destruct p. reflexivity. Defined.
 
 (** ** Decidability *)
 
-Definition decidable X := coprod X (not X).
-Definition LEM := ∀ P, isaprop P -> decidable P.
+Definition LEM := ∀ P:hProp, decidable P.
 Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
-Proof. intros X lem is x y. exact (lem (x = y) (is x y)). Qed.
+Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Qed.
 
 (** ** h-levels and paths *)
 
@@ -325,172 +426,6 @@ Proof. intros ? ? ? ? ? is. apply is. Defined.
 
 Definition funset X (Y:hSet) : hSet
   := hSetpair (X->Y) (impredfun 2 _ _ (setproperty Y)).
-
-(** ** Null homotopies *)
-
-Definition nullHomotopyTo {X Y} (f:X->Y) (y:Y) := ∀ x:X, f x = y.
-Definition NullHomotopyTo {X Y} (f:X->Y) := totalSpace (nullHomotopyTo f).
-Definition NullHomotopyTo_center {X Y} (f:X->Y) : NullHomotopyTo f -> Y := pr1.
-Definition NullHomotopyTo_path {X Y} {f:X->Y} (r:NullHomotopyTo f) := pr2 r.
-
-Definition nullHomotopyFrom {X Y} (f:X->Y) (y:Y) := ∀ x:X, y = f x.
-Definition NullHomotopyFrom {X Y} (f:X->Y) := totalSpace (nullHomotopyFrom f).
-Definition NullHomotopyFrom_center {X Y} (f:X->Y) : NullHomotopyFrom f -> Y := pr1.
-Definition NullHomotopyFrom_path {X Y} {f:X->Y} (r:NullHomotopyFrom f) := pr2 r.
-
-Definition nullHomotopyTo_transport {X Y} {f:X->Y} {y:Y} (h : nullHomotopyTo f y)
-           {y':Y} (p:y = y') (x:X) : (p # h) x = h x @ p.
-Proof. intros. destruct p. apply pathsinv0. apply pathscomp0rid. Defined.
-
-Lemma isaset_NullHomotopyTo {X Y} (i:isaset Y) (f:X->Y) : isaset (NullHomotopyTo f).
-Proof. intros. apply (isofhleveltotal2 2). { apply i. }
-       intros y. apply impred; intros x. apply isasetaprop. apply i. Defined.
-
-Lemma isaprop_nullHomotopyTo {X Y} (is:isaset Y) (f:X->Y) (y:Y) :
-  isaprop (nullHomotopyTo f y).
-Proof. intros ? ? ? ? ?. apply impred; intros x. apply is. Defined.
-
-Lemma isaprop_NullHomotopyTo_0 {X} {Y} (is:isaset Y) (f:X->Y) : 
-  X -> isaprop (NullHomotopyTo f).
-(** The point of X is needed, for when X is empty, then NullHomotopyTo f is
-    equivalent to Y. *)
-Proof. intros ? ? ? ? x. apply invproofirrelevance. intros [r i] [s j].
-       apply (total2_paths2_second_isaprop (!i x @ j x)).
-       apply (isaprop_nullHomotopyTo is). Defined.
-
-(** ** Squashing *)
-
-Notation squash := ishinh_UU.
-Notation squash_fun := hinhfun.
-Lemma squash_fun2 {X Y Z} : (X -> Y -> Z) -> (squash X -> squash Y -> squash Z).
-Proof. intros ? ? ? f x y P h.
-  exact (y P 
-           (x (hProppair 
-                 (Y -> P) 
-                 (impred 1 _ (fun _ => propproperty P))) 
-              (fun a b => h (f a b)))). Qed.
-
-Definition squash_element {X} : X -> squash X.
-Proof. intros ? x P f. exact (f x). Defined.
-
-Definition squash_to_prop {X Y} : squash X -> isaprop Y -> (X -> Y) -> Y.
-  intros ? ? h is f. exact (h (Y,,is) f). Defined.
-
-Definition squash_to_prop_compute {X Y} (x:X) (is:isaprop Y) (f:X->Y) :
-  squash_to_prop (squash_element x) is f = f x.
-Proof. reflexivity. Defined.
-
-Lemma isaprop_squash X : isaprop (squash X).
-Proof. prop_logic. Qed.
-
-Lemma squash_path {X} (x y:X) : squash_element x = squash_element y.
-Proof. intros. apply isaprop_squash. Defined.
-
-Lemma factor_through_squash {X Q} : isaprop Q -> (X -> Q) -> (squash X -> Q).
-Proof. intros ? ? i f h. apply (h (hProppair _ i)). intro x. exact (f x). Defined.
-
-Lemma isaprop_NullHomotopyTo {X} {Y} (is:isaset Y) (f:X->Y) :
-  squash X -> isaprop (NullHomotopyTo f).
-Proof. intros ? ? ? ?. apply factor_through_squash. apply isapropisaprop. 
-       apply isaprop_NullHomotopyTo_0. exact is. Defined.
-
-(** We can get a map from 'squash X' to any type 'Y' provided paths
-    are given that allow us to map first into a cone in 'Y'.  *)
-
-Definition cone_squash_map {X Y} (f:X->Y) (y:Y) : 
-  nullHomotopyTo f y -> squash X -> Y.
-Proof. intros ? ? ? ? e h. 
-       exact (point_from (h (paths_to_prop y) (fun x => f x,,e x))). Defined.
-
-Goal ∀ X Y (y:Y) (f:X->Y) (e:∀ m:X, f m = y),
-       f = funcomp squash_element (cone_squash_map f y e).
-Proof. reflexivity. Qed.
-
-(** ** Factoring maps through squash *)
- 
-Lemma squash_uniqueness {X} (x:X) (h:squash X) : squash_element x = h.
-Proof. intros. apply isaprop_squash. Qed.
-
-Goal ∀ X Q (i:isaprop Q) (f:X -> Q) (x:X),
-   factor_through_squash i f (squash_element x) = f x.
-Proof. reflexivity. Defined.
-
-Lemma factor_dep_through_squash {X} {Q:squash X->UU} : 
-  (∀ h, isaprop (Q h)) -> 
-  (∀ x, Q(squash_element x)) -> 
-  (∀ h, Q h).
-Proof.
-  intros ? ? i f ?.  apply (h (hProppair (Q h) (i h))). 
-  intro x. simpl. destruct (squash_uniqueness x h). exact (f x).
-Defined.
-
-Lemma factor_through_squash_hProp {X} : ∀ hQ:hProp, (X -> hQ) -> (squash X -> hQ).
-Proof. intros ? [Q i] f h. apply h. assumption. Defined.
-
-Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
-Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.    
-
-Lemma iscontr_if_inhab_prop {P} : isaprop P -> P -> iscontr P.
-Proof. intros ? i p. exists p. intros p'. apply i. Defined.
-
-(** ** Show that squashing is a set-quotient *)
-
-Definition squash_to_set {X Y} (is:isaset Y)
-  (f:X->Y) (e:∀ x x', f x = f x') : squash X -> Y.
-Proof. intros ? ? ? ? ? h. apply (NullHomotopyTo_center f).
-  refine (factor_through_squash _ _ h).
-  { apply isaprop_NullHomotopyTo. exact is. exact h. }
-  intros x. exists (f x). intros x'. apply e. Defined.
-
-(** Verify that the map factors judgmentally. *)
-Goal ∀ X Y (is:isaset Y) (f:X->Y) (e:∀ x x', f x = f x'),
-       f = funcomp squash_element (squash_to_set is f e).
-Proof. reflexivity. Qed.
-
-(** Note: the hypothesis in [squash_to_set] that Y is a set cannot be removed.
-    Consider, for example, the inclusion map f for the vertices of a triangle,
-    and let e be given by the edges and reflexivity. *)
-
-(** From Voevodsky, an idea for another proof of squash_to_set:
-
-    "I think one can get another proof using "isapropimeqclass" (hSet.v) with "R :=
-    fun x1 x1 => unit". This Lemma will show that under your assumptions "Im f" is
-    a proposition. Therefore "X -> Im f" factors through "squash X"." 
-
-    Here is a start.
-
-Definition True := hProppair unit (isapropifcontr iscontrunit).
-
-Proof. intros ? ? ? ? ?. 
-       set (R := (fun _ _ => True) : hrel X).
-       assert (ic : iscomprelfun R f). { intros x x' _. exact (e x x'). }
-       assert (im := isapropimeqclass R (hSetpair Y is) f ic).
-Defined.
-*)
-
-Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : squash X -> S) : 
-  g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
-Proof.
-  intros ? ? ? ? ? h.
-  set ( Q := fun y => g y = g' y ).
-  unfold homot.
-  apply (@factor_dep_through_squash X). intros y. apply ip.
-  intro x. apply h.
-Qed.
-
-Lemma squash_map_epi {X S} (ip : isaset S) (g g' : squash X -> S) : 
-  g ∘ squash_element = g'∘ squash_element -> g = g'.
-Proof.
-  intros ? ? ? ? ? e.
-  apply funextsec.
-  apply squash_map_uniqueness. exact ip.
-  intro x. destruct e. apply idpath.
-Qed.
-
-Lemma isaxiomfuncontr { X : UU } (P:X -> UU) : 
-  isaprop ((∀ x:X, iscontr (P x)) -> iscontr (∀ x:X, P x)).
-Proof.                         (* the statement of [funcontr] is a proposition *)
-  intros. apply impred; intro. apply isapropiscontr. Defined.
 
 (** ** Connected types *)
 
@@ -558,8 +493,8 @@ Definition weqbandfrel {X Y T}
            (e:Y->T) (t:T) (f : X ≃ Y) 
            (P:X -> Type) (Q: Y -> Type)
            (g:∀ x:X, weq (P x) (Q (f x))) :
-  weq (hfiber (fun xp:totalSpace P => e(f(pr1 xp))) t)
-      (hfiber (fun yq:totalSpace Q => e(  pr1 yq )) t).
+  weq (hfiber (fun xp:total2 P => e(f(pr1 xp))) t)
+      (hfiber (fun yq:total2 Q => e(  pr1 yq )) t).
 Proof. intros. refine (weqbandf (weqbandf f _ _ g) _ _ _).
        intros [x p]. simpl. apply idweq. Defined.
 
@@ -570,8 +505,8 @@ Definition weq_over_sections {S T} (w:S ≃ T)
            (H:Section P -> Type) 
            (J:Section (funcomp w P) -> Type)
            (g:∀ f:Section P, weq (H f) (J (maponsec1 P w f))) :
-  weq (hfiber (fun fh:totalSpace H => pr1 fh t0) p0 )
-      (hfiber (fun fh:totalSpace J => pr1 fh s0) pw0).
+  weq (hfiber (fun fh:total2 H => pr1 fh t0) p0 )
+      (hfiber (fun fh:total2 J => pr1 fh s0) pw0).
 Proof. intros. refine (weqbandf _ _ _ _).
        { refine (weqbandf _ _ _ _).
          { exact (weqonsecbase P w). }

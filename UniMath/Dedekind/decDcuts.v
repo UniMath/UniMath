@@ -12,7 +12,7 @@ Open Scope Dcuts_scope.
 
 (** ** Definition *)
 
-Lemma isdecDcuts_isaprop (x : Dcuts) :
+Lemma isboolDcuts_isaprop (x : Dcuts) :
   isaprop (forall r, hdisj (r ∈ x) (neg (r ∈ x))).
 Proof.
   intros x.
@@ -20,10 +20,10 @@ Proof.
   intros r.
   apply pr2.
 Qed.
-Definition isdecDcuts : hsubtypes Dcuts :=
-  (fun x : Dcuts => hProppair _ (isdecDcuts_isaprop x)).
+Definition isboolDcuts : hsubtypes Dcuts :=
+  (fun x : Dcuts => hProppair _ (isboolDcuts_isaprop x)).
 
-Lemma isaset_decDcuts : isaset isdecDcuts.
+Lemma isaset_boolDcuts : isaset isboolDcuts.
 Proof.
   apply isasetsubset with pr1.
   apply pr2.
@@ -31,16 +31,16 @@ Proof.
   intro x.
   apply pr2.
 Qed.
-Definition decDcuts : hSet.
+Definition boolDcuts : hSet.
 Proof.
-  apply (hSetpair (carrier isdecDcuts)).
-  exact isaset_decDcuts.
+  apply (hSetpair (carrier isboolDcuts)).
+  exact isaset_boolDcuts.
 Defined.
-Definition mk_decDcuts (x : Dcuts) (Hdec : forall r, coprod (r ∈ x) (neg (r ∈ x))) : decDcuts :=
-  tpair (fun x0 : Dcuts => isdecDcuts x0) x (fun r => hinhpr _ (Hdec r)).
+Definition mk_boolDcuts (x : Dcuts) (Hdec : forall r, coprod (r ∈ x) (neg (r ∈ x))) : boolDcuts :=
+  tpair (fun x0 : Dcuts => isboolDcuts x0) x (fun r => hinhpr (Hdec r)).
 
 Lemma is_zero_dec :
-  forall x : Dcuts, isdecDcuts x -> hdisj (x = 0) (neg (x = 0)).
+  forall x : Dcuts, isboolDcuts x -> hdisj (x = 0) (neg (x = 0)).
 Proof.
   intros x Hx.
   generalize (Hx 0%NRat) ; apply hinhfun ; intros [Hx0 | Hx0].
@@ -59,11 +59,11 @@ Proof.
     + intros Hr.
       now rewrite Dcuts_zero_empty in Hr.
 Qed.
-  
+
 (** ** Cotransitivity *)
 
 Lemma iscotrans_Dcuts_lt :
-  forall x y z : Dcuts, isdecDcuts y ->
+  forall x y z : Dcuts, isboolDcuts y ->
     x < z -> hdisj (x < y) (y < z).
 Proof.
   intros x y z Hy.
@@ -80,7 +80,7 @@ Proof.
 Qed.
 
 Lemma iscotrans_Dcuts_gt :
-  forall x y z : Dcuts, isdecDcuts y ->
+  forall x y z : Dcuts, isboolDcuts y ->
     x > z -> hdisj (x > y) (y > z).
 Proof.
   intros.
@@ -89,7 +89,7 @@ Proof.
 Qed.
 
 Lemma iscotrans_Dcuts_ap :
-  forall x y z : Dcuts, isdecDcuts y ->
+  forall x y z : Dcuts, isboolDcuts y ->
     Dcuts_ap x z -> hdisj (Dcuts_ap x y) (Dcuts_ap y z).
 Proof.
   intros x y z Hy Hxz.

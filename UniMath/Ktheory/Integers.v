@@ -42,9 +42,9 @@ Definition hz_normal_form (i:ℤ) :=
   coprod (Σ n, natnattohz n 0 = i)
          (Σ n, natnattohz 0 (S n) = i).
 
-Definition hznf_pos n := _,, inl (n,,idpath _) : totalSpace hz_normal_form.
+Definition hznf_pos n := _,, inl (n,,idpath _) : total2 hz_normal_form.
 
-Definition hznf_neg n := _,, inr (n,,idpath _) : totalSpace hz_normal_form.
+Definition hznf_neg n := _,, inr (n,,idpath _) : total2 hz_normal_form.
 
 Definition hznf_zero := hznf_pos 0.
 
@@ -91,24 +91,24 @@ Proof. apply isweqpr1; intro i.
          assert (e := invmaponpathsS _ _ d); clear d.
          apply (total2_paths2_second_isaprop (!e)). intro k. apply setproperty. } Defined.
 
-Definition negpos_weq := weqpair _ negpos' : weq (totalSpace hz_normal_form) ℤ.
+Definition negpos_weq := weqpair _ negpos' : weq (total2 hz_normal_form) ℤ.
 
 Definition negpos : weq (coprod nat nat) ℤ. (* ℤ = (-inf,-1) + (0,inf) *)
 Proof. refine (weqpair _ (gradth _ _ _ _)).
-       { intros [n'|n]. 
+       { intros [n'|n].
          { exact (natnattohz 0 (S n')). } { exact (natnattohz n 0). } }
        { intro i. destruct (hz_to_normal_form i) as [[n p]|[m q]].
          { exact (inr n). } { exact (inl m). } }
        { intros [n'|n].
          { simpl. rewrite natminuseqn. reflexivity. }
-         { simpl. rewrite hzabsvalnat. reflexivity. } } 
-       { simpl. intro i. 
+         { simpl. rewrite hzabsvalnat. reflexivity. } }
+       { simpl. intro i.
          destruct (hz_to_normal_form i) as [[n p]|[m q]].
          { exact p. } { exact q. } }
 Defined.
 
 Lemma hzminusplus (x y:hz) : -(x+y) = (-x) + (-y). (* move to hz.v *)
-Proof. intros. apply (hzplusrcan _ _ (x+y)). rewrite hzlminus. 
+Proof. intros. apply (hzplusrcan _ _ (x+y)). rewrite hzlminus.
        rewrite (hzpluscomm (-x)). rewrite (hzplusassoc (-y)).
        rewrite <- (hzplusassoc (-x)). rewrite hzlminus. rewrite hzplusl0.
        rewrite hzlminus. reflexivity. Defined.

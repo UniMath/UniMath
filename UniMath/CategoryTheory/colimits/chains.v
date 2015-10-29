@@ -30,11 +30,6 @@ Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Section move_upstream.
 
 (* Move to limits.initial *)
-Lemma InitialArrowUnique (D : precategory) (I : Initial D) (a : D)
-  (f : D⟦InitialObject _ I,a⟧) : f = InitialArrow _ I _.
-Proof.
-now apply (pr2 (pr2 I a)).
-Defined.
 
 Definition iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C.
 Proof.
@@ -251,10 +246,10 @@ Section colim_initial_algebra.
 Variables (C : precategory) (F : functor C C).
 Variables (hsC : has_homsets C) (Init : Initial C).
 
-Definition initDiag : diagram nat_graph C := Fdiagram F Init (InitialArrow C Init (F Init)).
+Definition initDiag : diagram nat_graph C := Fdiagram F Init (InitialArrow Init (F Init)).
 
 Variable (CC : ColimCocone initDiag).
-Variable (Fcont : chain_cocontinuous hsC F (InitialObject _ Init) (InitialArrow _ Init _) CC).
+Variable (Fcont : chain_cocontinuous hsC F (InitialObject Init) (InitialArrow Init _) CC).
 
 Local Notation L := (colim CC).
 Local Notation minv := (isopair _ Fcont).
@@ -339,7 +334,8 @@ End algebra.
 
 Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) colimAlg.
 Proof.
-intro Aa.
+refine (mk_isInitial _ _).
+intros Aa.
 exists (adaggerMor Aa); simpl; intro Fa.
 apply (algebra_mor_eq _ hsC); simpl.
 unfold ad.
@@ -356,7 +352,7 @@ induction n as [|n IHn]; simpl.
 Qed.
 
 Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
-  tpair _ _ colimAlgIsInitial.
+  mk_Initial _ colimAlgIsInitial.
 
 End colim_initial_algebra.
 

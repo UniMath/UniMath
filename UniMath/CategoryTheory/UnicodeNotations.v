@@ -6,9 +6,6 @@ Notation "x → y" := (x -> y)
   (at level 90, y at level 200, right associativity): type_scope.
 (* written \to in Agda input method *)
 
-Notation "∥ A ∥" := (ishinh A) (at level 200) : type_scope.
-(* written \|| *)
-
 Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
   (* \=> in Agda input method *)
 

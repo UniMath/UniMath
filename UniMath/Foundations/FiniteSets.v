@@ -72,21 +72,21 @@ Definition isofnel ( n : nat ) ( X : UU ) : hProp := ishinh ( weq ( stn n ) X ) 
 Lemma isofneluniv { n : nat} { X : UU }  ( P : hProp ) : ( ( nelstruct n X ) -> P ) -> ( isofnel n X -> P ) .
 Proof. intros.  apply @hinhuniv with ( weq ( stn n ) X ) . assumption. assumption. Defined. 
 
-Definition isofnelstn ( n : nat ) : isofnel n ( stn n ) := hinhpr _ ( nelstructonstn n ) . 
+Definition isofnelstn ( n : nat ) : isofnel n ( stn n ) := hinhpr ( nelstructonstn n ) . 
 
 Definition isofnelweqf { X Y : UU } { n : nat } ( w : weq X Y ) ( sx : isofnel n X ) : isofnel n Y := hinhfun ( fun sx0 : _ =>  nelstructweqf w sx0 ) sx . 
 
 Definition isofnelweqb { X Y : UU } { n : nat } ( w : weq X Y ) ( sy : isofnel n Y ) : isofnel n X :=  hinhfun ( fun sy0 : _ => nelstructweqb w sy0 ) sy . 
 
-Definition isofnelempty : isofnel 0 empty := hinhpr _ nelstructonempty . 
+Definition isofnelempty : isofnel 0 empty := hinhpr nelstructonempty . 
 
-Definition isofnelempty2 { X : UU } ( is : neg X ) : isofnel 0 X :=  hinhpr _ ( nelstructonempty2 is ) . 
+Definition isofnelempty2 { X : UU } ( is : neg X ) : isofnel 0 X :=  hinhpr ( nelstructonempty2 is ) . 
 
-Definition isofnelunit : isofnel 1 unit := hinhpr _ nelstructonunit  .
+Definition isofnelunit : isofnel 1 unit := hinhpr nelstructonunit  .
 
-Definition isofnelcontr { X : UU } ( is : iscontr X ) : isofnel 1 X := hinhpr _ ( nelstructoncontr is ) .
+Definition isofnelcontr { X : UU } ( is : iscontr X ) : isofnel 1 X := hinhpr ( nelstructoncontr is ) .
 
-Definition isofnelbool : isofnel 2 bool := hinhpr _ nelstructonbool .
+Definition isofnelbool : isofnel 2 bool := hinhpr nelstructonbool .
 
 Definition isofnelcoprodwithunit { X : UU } { n : nat } ( sx : isofnel n X ) : isofnel ( S n ) ( coprod X unit ) :=   hinhfun ( fun sx0 : _ =>  nelstructoncoprodwithunit sx0 ) sx . 
 
@@ -160,28 +160,43 @@ Definition finstructonweq { X : UU }  ( sx : finstruct X ) : finstruct ( weq X X
 
 Definition isfinite  ( X : UU ) := ishinh ( finstruct X ) .
 
+Lemma isfinite_isdeceq X : isfinite X -> isdeceq X.
+Proof. intros ? isfin. apply (isfin (hProppair _ (isapropisdeceq X))); intro f; clear isfin; simpl.
+  apply (isdeceqweqf (pr2 f)). apply isdeceqstn.
+Defined.
+
+Lemma isfinite_isaset X : isfinite X -> isaset X.
+Proof.
+  intros ? isfin. apply (isfin (hProppair _ (isapropisaset X))); intro f; clear isfin; simpl.
+  apply (isofhlevelweqf 2 (pr2 f)). apply isasetstn.
+Defined.
+
 Definition fincard { X : UU } ( is : isfinite X ) : nat .
-Proof . intros . set ( int := carrier ( fun n : nat => isofnel n X ) ) .  set ( f1  := ( fun nw : finstruct X => tpair  ( fun n : nat => isofnel n X ) ( pr1 nw ) ( hinhpr _ ( pr2 nw ) ) ) : finstruct X -> int ) .  assert ( isp : isaprop int ) . apply isapropsubtype .   intros x1 x2 is1 is2 . apply ( @hinhuniv2 ( nelstruct x1 X ) ( nelstruct x2 X ) ( hProppair _ ( isasetnat x1 x2 ) ) ) .  intros sx1 sx2 . apply ( weqtoeqstn x1 x2 ( weqcomp sx1 ( invweq sx2 ) ) ) .  apply is1 .  apply is2 .  apply ( @hinhuniv _ ( hProppair _ isp ) f1 ) .  apply is .  Defined . 
+Proof.
+  intros. apply (squash_pairs_to_set (λ n, stn n ≃ X) isasetnat).
+  { intros n n' w w'. apply weqtoeqstn. exact (invweq w' ∘ w)%weq. }
+  assumption.
+Defined.
 
 Theorem ischoicebasefiniteset { X : UU } ( is : isfinite X ) : ischoicebase X . 
 Proof . intros . apply ( @hinhuniv ( finstruct X ) ( ischoicebase X ) ) .  intro nw . destruct nw as [ n w ] .   apply ( ischoicebaseweqf w ( ischoicebasestn n ) ) .  apply is .  Defined . 
 
 
-Definition isfinitestn ( n : nat ) : isfinite ( stn n ) := hinhpr _ ( finstructonstn n ) . 
+Definition isfinitestn ( n : nat ) : isfinite ( stn n ) := hinhpr ( finstructonstn n ) . 
 
 Definition isfiniteweqf { X Y : UU } ( w : weq X Y ) ( sx : isfinite X ) : isfinite Y :=  hinhfun ( fun sx0 : _ =>  finstructweqf w sx0 ) sx .
 
 Definition isfiniteweqb { X Y : UU } ( w : weq X Y ) ( sy : isfinite Y ) : isfinite X :=   hinhfun ( fun sy0 : _ =>  finstructweqb w sy0 ) sy .
 
-Definition isfiniteempty : isfinite empty := hinhpr _ finstructonempty .
+Definition isfiniteempty : isfinite empty := hinhpr finstructonempty .
 
-Definition isfiniteempty2 { X : UU } ( is : neg X ) : isfinite X :=  hinhpr _ ( finstructonempty2 is ) . 
+Definition isfiniteempty2 { X : UU } ( is : neg X ) : isfinite X :=  hinhpr ( finstructonempty2 is ) . 
 
-Definition isfiniteunit : isfinite unit := hinhpr _ finstructonunit .
+Definition isfiniteunit : isfinite unit := hinhpr finstructonunit .
 
-Definition isfinitecontr { X : UU } ( is : iscontr X ) : isfinite X := hinhpr _ ( finstructoncontr is ) .
+Definition isfinitecontr { X : UU } ( is : iscontr X ) : isfinite X := hinhpr ( finstructoncontr is ) .
 
-Definition isfinitebool : isfinite bool := hinhpr _ finstructonbool .
+Definition isfinitebool : isfinite bool := hinhpr finstructonbool .
 
 Definition isfinitecoprodwithunit { X : UU } ( sx : isfinite X ) : isfinite ( coprod X unit ) :=  hinhfun ( fun sx0 : _ => finstructoncoprodwithunit sx0 ) sx .
 
@@ -225,7 +240,7 @@ Proof. intros X is X0.  set (c:= carddneg X is). set (dnw:= pr2 (isfiniteimplisf
 assert (f: dirprod (finitestruct X) (dneg (weq (stn c) X)) -> weq (stn c) X). intro H. destruct H as [ t x ].  destruct t as [ t x0 ]. 
 assert (dw: dneg (weq (stn t) (stn c))). set (ff:= fun ab:dirprod (weq (stn t) X)(weq (stn c) X) => weqcomp _ _ _ (pr1 ab) (invweq (pr2 ab))).  apply (dnegf _ _ ff (inhdnegand _ _ (todneg _ x0) x)). 
 assert (e:paths t c). apply (stnsdnegweqtoeq _ _  dw). clear dnw. destruct e. assumption. unfold isofnel. 
-apply (hinhfun _ _ f (hinhand (finitestruct X) _ is (hinhpr _ dnw))). Defined. 
+apply (hinhfun _ _ f (hinhand (finitestruct X) _ is (hinhpr dnw))). Defined. 
 
 *)
 
@@ -236,48 +251,66 @@ Proof. intros. *)
 
 (* The cardinality of finite sets defined using the "impredicative" ishinh *)
 
-
-
 (** ** Test computations. *)
+Goal fincard (isfiniteempty) = 0. reflexivity. Qed.
+Goal fincard (isfiniteunit) = 1. reflexivity. Qed.
+Goal fincard (isfinitebool) = 2. reflexivity. Qed.
+Goal fincard (isfinitecompl true isfinitebool) = 1. reflexivity. Qed.
+Goal fincard (isfinitedirprod  isfinitebool isfinitebool) = 4. reflexivity. Qed.
+Goal fincard (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool)) = 8. reflexivity. Qed.
+Goal fincard (isfinitecompl (ii1 tt) (isfinitecoprod  (isfiniteunit) (isfinitebool))) = 2. reflexivity. Qed.
+Goal fincard (isfinitecompl (ii1 tt) (isfinitecoprod (isfiniteunit) (isfinitebool))) = 2. reflexivity. Qed.
+Goal fincard (isfinitecompl (dirprodpair tt tt) (isfinitedirprod  isfiniteunit isfiniteunit)) = 0. reflexivity. Qed.
+Goal fincard (isfinitecompl (dirprodpair  true (dirprodpair  true false)) (isfinitedirprod  (isfinitebool) (isfinitedirprod  (isfinitebool) (isfinitebool)))) = 7. reflexivity. Qed.
 
+Goal fincard (
+       isfiniteweq (isfinitedirprod isfinitebool isfinitebool)
+     ) = 24. reflexivity. Qed.
 
+(*
 
-(*Eval compute in carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O))))).*)
+stack overflow:
 
-Eval compute in fincard (isfiniteempty).
+Goal fincard (isfiniteweq ( isfinitedirprod ( isfinitedirprod isfinitebool isfinitebool ) isfinitebool )) = 40320. reflexivity. Qed.
 
-Eval compute in fincard (isfiniteunit).
+*)
 
-Eval compute in fincard (isfinitebool).
+(* Eval compute in (carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))). *)
+(* Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)
 
-
-
-
-(*Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))).*)
  
+(** finite sums of natural numbers *)
 
+Definition finsum {X} (fin : isfinite X) (f : X -> nat) : nat.
+Proof.
+  intros.
+  unfold isfinite in fin.
+  unfold finstruct in fin.
+  unfold nelstruct in fin.
+  set (sum := λ (x : Σ n, stn n ≃ X), stnsum (f ∘ pr2 x)).
+  apply (squash_to_set isasetnat sum).
+  { intros.
+    induction x as [n x].
+    induction x' as [n' x'].
+    assert (p := weqtoeqstn (invweq x' ∘ x)%weq).
+    induction p.
+    unfold sum; simpl.
+    set (k := nat_plus_commutativity (f ∘ x') (invweq x' ∘ x)%weq).
+    assert (e : f ∘ x' ∘ (invweq x' ∘ x)%weq = f ∘ x).
+    { rewrite weqcomp_to_funcomp. apply funextfun.
+      intro i. unfold funcomp. apply maponpaths.
+      exact (homotweqinvweq x' (x i)). }
+    rewrite e in k.
+    exact (!k). }
+  assumption.
+Defined.
 
+Definition finsum_compute {X} (fin : finstruct X) (f : X -> nat) :
+  finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
+Proof. reflexivity. Defined.
 
-Eval compute in fincard (isfinitecompl  true isfinitebool).
-
-Eval compute in fincard (isfinitedirprod  isfinitebool isfinitebool).
-
-Eval compute in fincard (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool)).
-
-Eval lazy in fincard (isfinitecompl (ii1 tt) (isfinitecoprod  (isfiniteunit) (isfinitebool))).
-
-Eval lazy in  fincard (isfinitecompl (ii1 tt) (isfinitecoprod (isfiniteunit) (isfinitebool))). 
-
-Eval lazy in fincard (isfinitecompl (dirprodpair tt tt) (isfinitedirprod  isfiniteunit isfiniteunit)).
- 
-Eval lazy in fincard (isfinitecompl (dirprodpair  true (dirprodpair  true false)) (isfinitedirprod  (isfinitebool) (isfinitedirprod  (isfinitebool) (isfinitebool)))).
-
-Eval lazy in fincard ( isfiniteweq ( isfinitedirprod ( isfinitedirprod isfinitebool isfinitebool ) isfinitebool ) ) . 
-
-
-
-
-
-
-
-(* End of the file finitesets.v *)
+Goal 15 = finsum (isfinitestn _) (λ i:stn 6, i). reflexivity. Qed.
+Goal 20 = finsum isfinitebool (λ i:bool, 10). reflexivity. Qed.
+Goal 21 = finsum (isfinitecoprod isfinitebool isfinitebool)
+           (sum_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
+  reflexivity. Qed.
