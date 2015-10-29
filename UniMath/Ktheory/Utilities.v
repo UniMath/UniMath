@@ -9,7 +9,7 @@ Require Export UniMath.Ktheory.Tactics.
 
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
 
-Open Scope transport_scope.
+Open Scope transport.
 
 Definition nullHomotopyTo {X Y} (f:X->Y) (y:Y) := ∀ x:X, f x = y.
 Definition NullHomotopyTo {X Y} (f:X->Y) := total2 (nullHomotopyTo f).
@@ -143,7 +143,7 @@ Notation ap := maponpaths.
 Notation "f ;; g" := (funcomp f g) (at level 50).
 (* funcomp' is like funcomp, but with the arguments in the other order *)
 Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
-Open Scope transport_scope.
+Open Scope transport.
 
 (* some jargon reminders: *)
 Goal forall X (i:isaprop X) (x x':X), x = x'.
