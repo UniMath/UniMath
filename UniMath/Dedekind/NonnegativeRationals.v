@@ -7,7 +7,7 @@ Unset Kernel Term Sharing.
 
 Require Import UniMath.Dedekind.Sets_comp.
 Require Import UniMath.Dedekind.Fields_comp.
-Require Import UniMath.Dedekind.DivisionRig.
+Require Export UniMath.Dedekind.DivisionRig.
 Require Import UniMath.Dedekind.Complements.
 
 Opaque hq.
@@ -514,6 +514,9 @@ Definition isrdistr_mult_plusNonnegativeRationals:
   ∀ x y z : NonnegativeRationals, (x + y) * z = x * z + y * z :=
   DivRig_isrdistr.
 
+Lemma ispositive_twoNonnegativeRationals : 0 < 2.
+Admitted.
+
 Lemma multdivNonnegativeRationals :
   forall q r : NonnegativeRationals, r != 0 -> (r * (q / r)) = q.
 Proof. (** todo generalize *)
@@ -539,12 +542,46 @@ Proof. (** todo generalize *)
   rewrite iscomm_multNonnegativeRationals.
   now apply islabsorb_zero_multNonnegativeRationals.
 Qed.
-Lemma NQhalf_is_pos : forall x, (0 < x)%NRat -> (0 < x / 2)%NRat.
+Lemma multNonnegativeRationals_lt_l :
+  forall k x y, 0 < k -> (k * x < k * y) = (x < y).
 Admitted.
-Lemma NQhalf_double : forall x, x = (x / 2 + x / 2)%NRat.
+Lemma multNonnegativeRationals_lt_r :
+  forall k x y, 0 < k -> (x * k < y * k) = (x < y).
+Admitted.
+Lemma ltNonnegativeRationals_noteq :
+  forall x y, x < y -> x != y.
+Admitted.
+Lemma gtNonnegativeRationals_noteq :
+  forall x y, x > y -> x != y.
+Admitted.
+Lemma invNonnegativeRationals_pos :
+  forall x, (0 < / x) = (0 < x).
+Admitted.
+Lemma NQhalf_is_pos : forall x, (0 < x) = (0 < x / 2).
+Proof.
+  intro x.
+  apply uahp ; intro Hx.
+  - rewrite <- (multNonnegativeRationals_lt_r 2).
+    unfold divNonnegativeRationals ;
+      rewrite isassoc_multNonnegativeRationals, islabsorb_zero_multNonnegativeRationals.
+    rewrite islinv_NonnegativeRationals.
+    now rewrite isrunit_oneNonnegativeRationals.
+    apply gtNonnegativeRationals_noteq.
+    now apply ispositive_twoNonnegativeRationals.
+    now apply ispositive_twoNonnegativeRationals.
+  - rewrite <- (multNonnegativeRationals_lt_r (/2)).
+    rewrite islabsorb_zero_multNonnegativeRationals.
+    exact Hx.
+    rewrite invNonnegativeRationals_pos.
+    now apply ispositive_twoNonnegativeRationals.
+Qed.
+Lemma NQhalf_double : forall x, x = x / 2 + x / 2.
 Admitted.
 Lemma notlt_geNonnegativeRationals:
   ∀ x y : NonnegativeRationals, ¬ (x < y) -> x >= y.
+Admitted.
+Lemma NQminusle :
+  forall x y, x - y <= x.
 Admitted.
 
 Lemma multrle1NonnegativeRationals :
@@ -706,11 +743,6 @@ Close Scope NRat_scope.
 
 (** ** Opacify *)
 
-Global Opaque NonnegativeRationals.
-Global Opaque leNonnegativeRationals geNonnegativeRationals.
-Global Opaque ltNonnegativeRationals gtNonnegativeRationals.
-Global Opaque zeroNonnegativeRationals plusNonnegativeRationals minusNonnegativeRationals.
-Global Opaque oneNonnegativeRationals multNonnegativeRationals.
-Global Opaque invNonnegativeRationals divNonnegativeRationals.
+Global Opaque NonnegativeRationals NonnegativeRationals_EffectivelyOrderedSet.
 
 (* End of the file hnnq.v *)

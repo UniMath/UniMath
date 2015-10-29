@@ -3,5 +3,6 @@ DivisionRig.v
 Fields_comp.v
 Complements.v
 NonnegativeRationals.v
+Apartness.v
 DedekindCuts.v
 decDcuts.v

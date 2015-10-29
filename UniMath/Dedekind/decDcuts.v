@@ -13,7 +13,7 @@ Open Scope Dcuts_scope.
 (** ** Definition *)
 
 Lemma isboolDcuts_isaprop (x : Dcuts) :
-  isaprop (forall r, hdisj (r ∈ x) (neg (r ∈ x))).
+  isaprop (forall r, (r ∈ x) ∨ (neg (r ∈ x))).
 Proof.
   intros x.
   apply impred_isaprop.
@@ -36,11 +36,11 @@ Proof.
   apply (hSetpair (carrier isboolDcuts)).
   exact isaset_boolDcuts.
 Defined.
-Definition mk_boolDcuts (x : Dcuts) (Hdec : forall r, coprod (r ∈ x) (neg (r ∈ x))) : boolDcuts :=
-  tpair (fun x0 : Dcuts => isboolDcuts x0) x (fun r => hinhpr (Hdec r)).
+Definition mk_boolDcuts (x : Dcuts) (Hdec : ∀ r : NonnegativeRationals, (r ∈ x) ⨿ ¬ (r ∈ x)) : boolDcuts :=
+  x,, (λ r : NonnegativeRationals, hinhpr (Hdec r)).
 
 Lemma is_zero_dec :
-  forall x : Dcuts, isboolDcuts x -> hdisj (x = 0) (neg (x = 0)).
+  forall x : Dcuts, isboolDcuts x -> (x = 0) ∨ (¬ (x = 0)).
 Proof.
   intros x Hx.
   generalize (Hx 0%NRat) ; apply hinhfun ; intros [Hx0 | Hx0].
@@ -48,7 +48,6 @@ Proof.
     rewrite H in Hx0.
     now rewrite Dcuts_zero_empty in Hx0.
   - left ; apply Dcuts_eq_is_eq.
-    intros P HP ; apply HP ; clear P HP.
     split.
     + intros Hr.
       rewrite Dcuts_zero_empty.
@@ -58,54 +57,4 @@ Proof.
       apply isnonnegative_NonnegativeRationals.
     + intros Hr.
       now rewrite Dcuts_zero_empty in Hr.
-Qed.
-
-(** ** Cotransitivity *)
-
-Lemma iscotrans_Dcuts_lt :
-  forall x y z : Dcuts, isboolDcuts y ->
-    x < z -> hdisj (x < y) (y < z).
-Proof.
-  intros x y z Hy.
-  apply hinhuniv.
-  intros (r,(Xr,Zr)).
-  generalize (Hy r) ; clear Hy.
-  apply hinhfun ; intros [Hy | Hy].
-  - left.
-    apply hinhpr.
-    now exists r ; split.
-  - right.
-    apply hinhpr.
-    now exists r ; split.
-Qed.
-
-Lemma iscotrans_Dcuts_gt :
-  forall x y z : Dcuts, isboolDcuts y ->
-    x > z -> hdisj (x > y) (y > z).
-Proof.
-  intros.
-  apply islogeqcommhdisj.
-  now apply iscotrans_Dcuts_lt.
-Qed.
-
-Lemma iscotrans_Dcuts_ap :
-  forall x y z : Dcuts, isboolDcuts y ->
-    Dcuts_ap x z -> hdisj (Dcuts_ap x y) (Dcuts_ap y z).
-Proof.
-  intros x y z Hy Hxz.
-  revert Hxz ; apply hinhuniv ; intros [Hxz | Hxz].
-  - apply iscotrans_Dcuts_lt with x y z in Hxz.
-    2: exact Hy.
-    revert Hxz ; apply hinhfun ; intros [Hxz | Hxz].
-    + left ; apply hinhpr.
-      now left.
-    + right ; apply hinhpr.
-      now left.
-  - apply iscotrans_Dcuts_gt with x y z in Hxz.
-    2: exact Hy.
-    revert Hxz ; apply hinhfun ; intros [Hxz | Hxz].
-    + left ; apply hinhpr.
-      now right.
-    + right ; apply hinhpr.
-      now right.
 Qed.
