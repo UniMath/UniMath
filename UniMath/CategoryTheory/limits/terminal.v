@@ -43,8 +43,8 @@ intros a ca.
 refine (tpair _ _ _).
 - exists (pr1 (H a)); intro v; induction v.
 - intro t.
-  apply total2_paths_second_isaprop; simpl;
-    [apply impred; intro v; induction v|].
+  apply subtypeEquality; simpl;
+    [ intro f; apply impred; intro v; induction v|].
   apply (pr2 (H a)).
 Defined.
 
