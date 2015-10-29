@@ -315,6 +315,12 @@ Definition underlyingFiniteSet : FiniteOrderedSet -> FiniteSet.
 Proof. intros. exists X. apply finitenessProperty. Defined.
 Coercion underlyingFiniteSet : FiniteOrderedSet >-> FiniteSet.
 
+Lemma istotal_FiniteOrderedSet (X:FiniteOrderedSet) : istotal (posetRelation X).
+Proof. intros. exact (pr2 (pr1 X)). Qed.
+
+Lemma FiniteOrderedSet_isdeceq (X:FiniteOrderedSet) : isdeceq X.
+Proof. intros. apply isfinite_isdeceq. apply finitenessProperty. Qed.
+
 Lemma FiniteOrderedSet_isdec_ordering (X:FiniteOrderedSet) : isdec_ordering X.
 Proof. intros. apply isfinite_isdec_ordering. apply finitenessProperty. Defined.
 
@@ -498,12 +504,29 @@ Proof.
   refine (_,,_).
   {
     refine (_,,_).
-
-
-
-
-Abort.
-
+    { refine (_,,_).
+      { exact (Σ x, Y x)%set. }
+      refine (_,,_).
+      { apply lexicographicOrder. apply posetRelation. intro. apply posetRelation. }
+      split.
+      { split.
+        { apply lex_istrans.
+          { apply isantisymm_posetRelation. }
+          { apply istrans_posetRelation. }
+          { intro. apply istrans_posetRelation. } }
+        apply lex_isrefl.
+        intro; apply isrefl_posetRelation. }
+      apply lex_isantisymm.
+      { apply isantisymm_posetRelation. }
+      intro. apply isantisymm_posetRelation. }
+    apply lex_istotal.
+    { apply FiniteOrderedSet_isdeceq. }
+    { apply istotal_FiniteOrderedSet. }
+    intro; apply istotal_FiniteOrderedSet. }
+  apply isfinitetotal2.
+  { apply finitenessProperty. }
+  intro; apply finitenessProperty.
+Defined.
 
 (** sorting finite ordered sets *)
 
