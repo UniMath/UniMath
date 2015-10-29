@@ -185,38 +185,25 @@ Proof.
   exists n.
   now split.
 Qed.
-Lemma NQlt_dec : isdecrel ltNonnegativeRationals.
-Admitted.
-Lemma NQminus_gt_0 : forall x y, (0 < y - x) = (x < y).
-Admitted.
-Lemma NQplus_lt_compat_r :
-  forall x y z, (y + x < z + x) = (y < z).
-Admitted.
-Lemma NQplus_lt_compat_l :
-  forall x y z, (x + y < x + z) = (y < z).
-Admitted.
-Lemma NQminus_plus :
-  forall x y, x <= y -> y - x + x = y.
-Admitted.
 Lemma NonnegativeRationals_to_Dcuts_error (q : NonnegativeRationals) :
   Dcuts_def_error (λ r : NonnegativeRationals, (r < q)%NRat).
 Proof.
   intros q.
   intros r Hr0.
   intros P HP ; apply HP ; clear P HP.
-  destruct (NQlt_dec r q) as [Hqr|Hqr].
+  destruct (isdecrel_ltNonnegativeRationals r q) as [Hqr|Hqr].
   - right.
-    assert (Hn0 : 0 < q - r) by (now rewrite NQminus_gt_0).
+    assert (Hn0 : 0 < q - r) by (now rewrite minusNonnegativeRationals_gt0).
     intros P HP ; apply HP ; clear P HP.
     exists (q - r).
     split.
-    + rewrite <- (NQplus_lt_compat_r r).
-      rewrite NQminus_plus.
+    + rewrite <- (plusNonnegativeRationals_ltcompat_r r).
+      rewrite minusNonegativeRationals_plusr.
       pattern q at 1 ;
         rewrite <- isrunit_zeroNonnegativeRationals.
-      now rewrite NQplus_lt_compat_l.
+      now rewrite plusNonnegativeRationals_ltcompat_l.
       now apply lt_leNonnegativeRationals.
-    + rewrite NQminus_plus.
+    + rewrite minusNonegativeRationals_plusr.
       now apply isirrefl_StrongOrder.
       now apply lt_leNonnegativeRationals.
   - now left.
@@ -264,17 +251,6 @@ Qed.
 
 
 (** ** [Dcuts] is an [abmonoid] *)
-
-Definition NQtwo : NonnegativeRationals :=
-  Rationals_to_NonnegativeRationals 2 (hqlthtoleh _ _ hq2_gt0).
-Notation "2" := NQtwo : NRat_scope.
-Lemma NQhalf_is_pos : forall x, (0 < x)%NRat -> (0 < x / 2)%NRat.
-Admitted.
-Lemma NQhalf_double : forall x, x = (x / 2 + x / 2)%NRat.
-Admitted.
-Lemma notlt_geNonnegativeRationals:
-  ∀ x y : NonnegativeRationals, ¬ (x < y) -> x >= y.
-Admitted.
 
 Section Dcuts_plus.
 
@@ -383,8 +359,8 @@ Proof.
         apply NonnegativeRationals_leplus_r.
     + apply hinhuniv ; intros ((rx,ry),(Hz,(Xr,Yr))).
       simpl in Hz,Xr,Yr.
-      destruct (NQlt_dec rx (c / 2)) as [Hx' | Hx'].
-      destruct (NQlt_dec ry (c / 2)) as [Hy' | Hy'].
+      destruct (isdecrel_ltNonnegativeRationals rx (c / 2)) as [Hx' | Hx'].
+      destruct (isdecrel_ltNonnegativeRationals ry (c / 2)) as [Hy' | Hy'].
       * apply (isirrefl_StrongOrder ltNonnegativeRationals c).
         pattern c at 1 ; rewrite Hz.
         rewrite (NQhalf_double c).
@@ -722,7 +698,7 @@ Proof.
   intros x y z.
   apply hinhuniv ; intros (r,(Xr,Zr)).
   generalize (is_Dcuts_open z r Zr) ; apply hinhuniv ; intros (r',(Zr',Hr)).
-  assert (Hr0 : 0%NRat < r' - r) by (revert Hr ;  admit).
+  assert (Hr0 : 0%NRat < r' - r) by (now rewrite minusNonnegativeRationals_gt0).
   generalize (Herror y _ Hr0) ; apply hinhuniv ; intros [Yq | Yq].
   - apply Utilities.squash_element ;
     right ; apply Utilities.squash_element.
@@ -733,22 +709,25 @@ Proof.
       now apply NQminusle.
     + exact Zr'.
   - revert Yq ; apply hinhfun ; intros (q,(Yq,nYq)).
-    destruct (hqgthorleh (pr1 (q + (r' - r))) (pr1 r')) as [Hdec | Hdec].
-    + left ; apply Utilities.squash_element.
-      exists q ; split.
-      intro Xq ; apply Xr.
-      apply is_Dcuts_bot with q.
-      exact Xq.
-      revert Hr Hdec ; admit.
-      exact Yq.
-    + right ; apply Utilities.squash_element.
+    destruct (isdecrel_leNonnegativeRationals (q + (r' - r)) r') as [Hdec | Hdec].
+    + right ; apply hinhpr.
       exists r' ; split.
-      * intro H0 ; apply nYq.
-        apply is_Dcuts_bot with r'.
-        exact H0.
-        apply Hdec.
-      * exact Zr'.
-Admitted.
+      intro Yr' ; apply nYq.
+      apply is_Dcuts_bot with r'.
+      exact Yr'.
+      exact Hdec.
+      exact Zr'.
+    + left ; apply hinhpr.
+      exists q ; split.
+      * intro Xq ; apply Xr.
+        apply is_Dcuts_bot with q.
+        exact Xq.
+        apply notge_ltNonnegativeRationals in Hdec.
+        rewrite <- (plusNonnegativeRationals_ltcompat_r r), isassoc_plusNonnegativeRationals, minusNonegativeRationals_plusr, iscomm_plusNonnegativeRationals, plusNonnegativeRationals_ltcompat_r in Hdec.
+        now apply lt_leNonnegativeRationals.
+        now apply lt_leNonnegativeRationals.
+      * exact Yq.
+Qed.
 
 Lemma isstpo_Dcuts_lt_rel : isStrongOrder Dcuts_lt_rel.
 Proof.
