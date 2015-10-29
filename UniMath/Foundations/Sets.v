@@ -434,6 +434,15 @@ Definition carrierofposet : Poset -> hSet := pr1.
 Coercion carrierofposet : Poset >-> hSet . 
 Definition posetRelation (X:Poset) : hrel X := pr1 (pr2 X).
 
+Lemma isrefl_posetRelation (X:Poset) : isrefl (posetRelation X).
+Proof. intros ? x. exact (pr2 (pr1 (pr2 (pr2 X))) x). Qed.
+
+Lemma istrans_posetRelation (X:Poset) : istrans (posetRelation X).
+Proof. intros ? x y z l m. exact (pr1 (pr1 (pr2 (pr2 X))) x y z l m). Qed.
+
+Lemma isantisymm_posetRelation (X:Poset) : isantisymm (posetRelation X).
+Proof. intros ? x y l m. exact (pr2 (pr2 (pr2 X)) x y l m). Qed.
+
 Delimit Scope poset with poset. 
 Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) : poset.
 Definition isaposetmorphism { X Y : Poset } ( f : X -> Y ) := (∀ x x' : X, x ≤ x' -> f x ≤ f x')%poset .
