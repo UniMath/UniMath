@@ -213,8 +213,8 @@ Proof.
       * apply PullbackArrow_PullbackPr1.
       * apply PullbackArrow_PullbackPr2.
   - intro t.
-    apply total2_paths_second_isaprop.
-    + apply isapropdirprod; apply hs.
+    apply subtypeEquality.
+    + intro. apply isapropdirprod; apply hs.
     + destruct t as [t p]. simpl.
       refine (PullbackArrowUnique _ _ P _ _ _ _ _ _ _ ).
       * apply e.
