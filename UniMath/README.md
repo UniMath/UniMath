@@ -36,6 +36,7 @@ according to the following principles.
   added to ```Foundations/Basics/Preamble.v```.
 * Do not use ```Inductive``` or ```Record```, except in ```Foundations/Basics/Preamble.v```.
 * Do not use ```Module``` or ```Structure```.
+* Do not use ```Fixpoint```.
 * Do not use ```destruct```, ```match```, square brackets with ```intros```, or
   nested square brackets with ```induction```.
 
