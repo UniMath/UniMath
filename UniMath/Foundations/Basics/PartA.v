@@ -897,6 +897,8 @@ Definition weqpair {X Y : UU} (f : X -> Y) (is: isweq f) : X ≃ Y :=
 Definition idweq (X : UU) : X ≃ X :=
   tpair (fun (f : X -> X) => isweq f) (fun (x : X) => x) (idisweq X).
 
+Goal ∀ X x, idweq X x = x. reflexivity. Defined.
+
 Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
 Proof. intros ? ? []. apply idweq. Defined. 
 
@@ -1291,6 +1293,8 @@ Defined.
 
 Definition invweq {X Y : UU} (w : weq X Y) : weq Y X :=
   weqpair (invmap w) (isweqinvmap w).
+
+Goal ∀ X x, invweq (idweq X) x = x. reflexivity. Defined.
 
 Corollary invinv {X Y :UU} (w : weq X Y) (x : X)  :
   invmap (invweq w) x = w x.
