@@ -79,7 +79,7 @@ Proof.
   intros. apply (@iscontrweqb _ (empty -> X)).
   - apply invweq. apply weqbfun. apply weqstn0toempty.
   - apply iscontrfunfromempty.
-Qed.  
+Defined.  
 
 Definition nil_unique {X} (x : stn 0 -> X) : nil = (0,,x).
 Proof.

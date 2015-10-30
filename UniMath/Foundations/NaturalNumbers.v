@@ -280,9 +280,15 @@ Notation " x >= y " := ( natgeh_DecidableProposition x y ) (at level 70, no asso
 Notation " x ≥ y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Notation " x > y " := ( natgth_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
-Notation " x != y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x !=? y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Notation " x ≠ y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Delimit Scope decidable_nat with dnat.
+
+Goal choice (3 < 4)%dnat true false = true. reflexivity. Defined.
+Goal choice (3 < 4 ∧ 4 < 5)%dnat%declog true false = true. reflexivity. Defined.
+Goal choice (¬ (3 < 4))%dnat%declog true false = false. reflexivity. Defined.
+Goal choice (3 < 4 ∨ 4 < 3)%dnat%declog true false = true. reflexivity. Defined.
+Goal choice (4 < 3 ∨ 2 < 1)%dnat%declog true false = false. reflexivity. Defined.
 
 (** *** Simple implications between comparisons *)
 

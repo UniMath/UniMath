@@ -389,7 +389,7 @@ Defined.
 Definition LEM := ∀ P:hProp, decidable P.
 
 Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
-Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Qed.
+Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Defined.
 
 Lemma isaprop_LEM : isaprop LEM.
 Proof. apply impred; intro P. apply propproperty. Defined.  
@@ -413,7 +413,7 @@ Defined.
 
 Definition DecidableProposition := Σ X:UU, isdecprop X.
 
-Definition DecidableProposition_pair {X:UU} (i:isdecprop X) : DecidableProposition := X,,i.
+Definition isdecprop_to_DecidableProposition {X:UU} (i:isdecprop X) : DecidableProposition := X,,i.
 
 Definition decidable_to_isdecprop {X:hProp} : decidable X -> isdecprop X.
 Proof. intros ? dec. apply isdecpropif. { apply propproperty. } { exact dec. }
@@ -440,6 +440,23 @@ Definition decidabilityProperty (X:DecidableProposition) :
 
 Definition DecidableSubtype (X:UU) := X -> DecidableProposition.
 Definition DecidableRelation (X:UU) := X -> X -> DecidableProposition.
+
+Definition decidableAnd (P Q:DecidableProposition) : DecidableProposition.
+  intros. exists (P × Q). apply isdecpropdirprod; apply decidabilityProperty.
+Defined.
+
+Definition decidableOr (P Q:DecidableProposition) : DecidableProposition.
+  intros. exists (P ∨ Q). apply isdecprophdisj; apply decidabilityProperty.
+Defined.
+
+Definition decidableNot (P:DecidableProposition) : DecidableProposition.
+  intros. exists (¬ P). apply neg_isdecprop; apply decidabilityProperty.
+Defined.
+
+Notation "X ∨ Y" := (decidableOr X Y) (at level 85, right associativity) : decidable_logic.
+Notation "A ∧ B" := (decidableAnd A B) (at level 80, right associativity) : decidable_logic.
+Notation "'¬' X" := (decidableNot X) (at level 35, right associativity) : decidable_logic.
+Delimit Scope decidable_logic with declog.
 
 Ltac choose P yes no := induction (iscontrpr1 (decidabilityProperty P)) as [yes|no].
 

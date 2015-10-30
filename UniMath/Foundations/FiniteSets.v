@@ -165,8 +165,11 @@ Definition FiniteSet := Σ X:UU, isfinite X.
 Definition isfinite_to_FiniteSet {X:UU} (f:isfinite X) : FiniteSet := X,,f.
 
 Lemma isfinite_isdeceq X : isfinite X -> isdeceq X.
-Proof. intros ? isfin. apply (isfin (hProppair _ (isapropisdeceq X))); intro f; clear isfin; simpl.
-  apply (isdeceqweqf (pr2 f)). apply isdeceqstn.
+(* see Test_isfinite_isdeceq for a computability test *)
+Proof. intros ? isfin.
+       apply (isfin (hProppair _ (isapropisdeceq X))); intro f; clear isfin; simpl.
+       apply (isdeceqweqf (pr2 f)).
+       apply isdeceqstn.
 Defined.
 
 Lemma isfinite_isaset X : isfinite X -> isaset X.
@@ -193,6 +196,30 @@ Theorem ischoicebasefiniteset { X : UU } ( is : isfinite X ) : ischoicebase X .
 Proof . intros . apply ( @hinhuniv ( finstruct X ) ( ischoicebase X ) ) .  intro nw . destruct nw as [ n w ] .   apply ( ischoicebaseweqf w ( ischoicebasestn n ) ) .  apply is .  Defined . 
 
 Definition isfinitestn ( n : nat ) : isfinite ( stn n ) := hinhpr ( finstructonstn n ) . 
+
+Module Test_isfinite_isdeceq.
+
+  (* The proofs of isfinite_isdeceq and isfinite_isaset depend on funextfunax
+     and funextempty, so here we do an experiment to see if that impedes
+     computability of equality using it. *)
+
+  (* This module exports nothing. *)
+
+  Notation "● x" := (x,,idpath _) (at level 35).
+  Let X := stnset 10.
+  Let fin : isfinite X := isfinitestn 10.
+  Let eq x y := @isdecprop_to_DecidableProposition
+                  (x=y)
+                  (isdecpropif (x=y)
+                               (isfinite_isaset X fin x y)
+                               (isfinite_isdeceq X fin x y)).
+  Let x := ●3 : X.
+  Let y := ●4 : X.
+  Let decide P := choice P true false.
+  Goal decide (eq x y) = false. reflexivity. Defined.
+  Goal decide (eq x x) = true. reflexivity. Defined.
+
+End Test_isfinite_isdeceq.
 
 Definition standardFiniteSet n : FiniteSet := isfinite_to_FiniteSet (isfinitestn n).
 
