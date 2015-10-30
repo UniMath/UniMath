@@ -312,6 +312,20 @@ Defined.
 Corollary weqstnsum_idweq {n} (f:stn n->nat ) : total2 (λ i, stn (f i)) ≃ stn (stnsum f).
 Proof. intros. apply (weqstnsum (stn ∘ f) f (λ i, idweq _)). Defined.
 
+Module Test_weqstnsum.
+  (* this module exports nothing *)
+  Notation "● x" := (x,,idpath _) (at level 35).
+  Let X := stnset 6.
+  Let Y (x:X) := stnset (pr1 x).
+  Let W := Σ x, Y x.
+  Let w := (●3,,●2) : W.
+  Let w' := (●4,,●2) : W.
+  Let f : W ≃ stn 15 := weqstnsum_idweq _.
+  Let f' : stn 15 ≃ W := invweq f.
+  Goal f(●1,,●0) = ●0. try reflexivity. Abort. (* fix *)
+  Goal f'(●0) = (●1,,●0). try reflexivity. Abort. (* fix *)
+End Test_weqstnsum.
+
 Corollary weqstnsum2 { X : UU } ( n : nat ) ( f : stn n -> nat ) ( g : X -> stn n ) ( ww : forall i : stn n , weq ( stn ( f i ) ) ( hfiber g i ) ) : weq X ( stn ( stnsum f ) ) .
 Proof. intros . assert ( w : weq X ( total2 ( fun i : stn n => hfiber g i ) ) ) . apply weqtococonusf . apply ( weqcomp w ( weqstnsum ( fun i : stn n => hfiber g i ) f ww ) ) .   Defined . 
 
@@ -392,6 +406,20 @@ Proof.
   - set ( e := natleh0tois0 _ i ) .  rewrite e .  rewrite ( natmultn0 n ) . split with ( @pr2 _ _ ) .   apply ( isweqtoempty2 _ ( weqstn0toempty ) ) .
 Defined. 
 
+Module Test_weqfromprodofstn.
+  (* verify computability in both directions *)
+  (* this module exports nothing *)
+  Notation "● x" := (x,,idpath _) (at level 35).
+  Let f : stn 5 × stn 4 ≃ stn 20 := weqfromprodofstn 5 4.
+  Goal f(●0,,●0) = ●0. reflexivity. Defined.
+  Goal f(●0,,●1) = ●1. reflexivity. Defined.
+  Goal f(●2,,●0) = ●8. reflexivity. Defined.
+  Goal f(●4,,●3) = ●19. reflexivity. Defined.
+  Let f' := invweq f.
+  Goal f'(●19) = (●4,,●3). reflexivity. Defined. 
+  Goal f'(●18) = (●4,,●2). reflexivity. Defined. 
+  Goal f'(●14) = (●3,,●2). reflexivity. Defined. 
+End Test_weqfromprodofstn.
 
 (** *** Weak equivalences between decidable subsets of [ stn n ] and [ stn x ] *)
 
