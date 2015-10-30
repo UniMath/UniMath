@@ -165,7 +165,6 @@ Definition FiniteSet := Σ X:UU, isfinite X.
 Definition isfinite_to_FiniteSet {X:UU} (f:isfinite X) : FiniteSet := X,,f.
 
 Lemma isfinite_isdeceq X : isfinite X -> isdeceq X.
-(* see Test_isfinite_isdeceq for a computability test *)
 Proof. intros ? isfin.
        apply (isfin (hProppair _ (isapropisdeceq X))); intro f; clear isfin; simpl.
        apply (isdeceqweqf (pr2 f)).
@@ -196,30 +195,6 @@ Theorem ischoicebasefiniteset { X : UU } ( is : isfinite X ) : ischoicebase X .
 Proof . intros . apply ( @hinhuniv ( finstruct X ) ( ischoicebase X ) ) .  intro nw . destruct nw as [ n w ] .   apply ( ischoicebaseweqf w ( ischoicebasestn n ) ) .  apply is .  Defined . 
 
 Definition isfinitestn ( n : nat ) : isfinite ( stn n ) := hinhpr ( finstructonstn n ) . 
-
-Module Test_isfinite_isdeceq.
-
-  (* The proofs of isfinite_isdeceq and isfinite_isaset depend on funextfunax
-     and funextempty, so here we do an experiment to see if that impedes
-     computability of equality using it. *)
-
-  (* This module exports nothing. *)
-
-  Notation "● x" := (x,,idpath _) (at level 35).
-  Let X := stnset 10.
-  Let fin : isfinite X := isfinitestn 10.
-  Let eq x y := @isdecprop_to_DecidableProposition
-                  (x=y)
-                  (isdecpropif (x=y)
-                               (isfinite_isaset X fin x y)
-                               (isfinite_isdeceq X fin x y)).
-  Let x := ●3 : X.
-  Let y := ●4 : X.
-  Let decide P := choice P true false.
-  Goal decide (eq x y) = false. reflexivity. Defined.
-  Goal decide (eq x x) = true. reflexivity. Defined.
-
-End Test_isfinite_isdeceq.
 
 Definition standardFiniteSet n : FiniteSet := isfinite_to_FiniteSet (isfinitestn n).
 
@@ -365,3 +340,72 @@ Defined.
 
 Goal 15 = finsum' (isfinitestn _) (λ i:stn 6, i). try reflexivity. Abort.
 
+Definition isfinite_to_DecidableEquality {X} : isfinite X -> DecidableRelation X.
+  intros ? fin x y.
+  exact (@isdecprop_to_DecidableProposition
+                  (x=y)
+                  (isdecpropif (x=y)
+                               (isfinite_isaset X fin x y)
+                               (isfinite_isdeceq X fin x y))).
+Defined.
+
+Module Test_isfinite_isdeceq.
+
+  (* This module exports nothing. *)
+
+  (* The proofs of isfinite_isdeceq and isfinite_isaset depend on funextfunax
+     and funextempty, so here we do an experiment to see if that impedes
+     computability of equality using it. *)
+
+  Notation "● x" := (x,,idpath _) (at level 35).
+  Let X := stnset 5.
+  Let finX : isfinite X := isfinitestn _.
+  Let eqX := isfinite_to_DecidableEquality finX.
+  Let x := ●3 : X.
+  Let x' := ●4 : X.
+  Let decide P := choice P true false.
+  Goal decide (eqX x x') = false. reflexivity. Defined.
+  Goal decide (eqX x x) = true. reflexivity. Defined.
+
+  (* test isfinitebool *)
+
+  Let eqbool := isfinite_to_DecidableEquality isfinitebool : DecidableRelation bool.
+  Goal decide (eqbool true true) = true. reflexivity. Defined.
+  Goal decide (eqbool false true) = false. reflexivity. Defined.
+
+  (* test isfinitecoprod *)
+
+  Let C := X ⨿ X.
+  Let eqQ : DecidableRelation C :=
+    isfinite_to_DecidableEquality (isfinitecoprod finX finX).
+  Let c := ii1 x : C.
+  Let c' := ii1 x' : C.
+  Let c'' := ii2 x : C.
+  Goal decide (eqQ c c') = false. reflexivity. Defined.
+  Goal decide (eqQ c c) = true. reflexivity. Defined.
+  Goal decide (eqQ c c'') = false. reflexivity. Defined.
+
+  (* test isfinitedirprod *)
+  Let Y := stnset 4.
+  Let y := ●1 : Y.
+  Let y' := ●2 : Y.
+  Let finY : isfinite Y := isfinitestn _.
+  Let V := X × Y.
+  Let eqV := isfinite_to_DecidableEquality (isfinitedirprod finX finY).
+  Goal decide (eqV (x,,y) (x',,y')) = false. reflexivity. Defined.
+
+  (* test isfinitetotal2 *)
+
+  Let Y' (x:X) : hSet := Y.
+  Let W := Σ x, Y' x.
+  Let eqW : DecidableRelation W :=
+    isfinite_to_DecidableEquality (isfinitetotal2 Y' finX (λ _, finY)).
+  Goal decide (eqW (x,,y) (x',,y')) = false. try reflexivity. Abort. (* fix *)
+
+  (* test isfiniteforall *)
+  Let T := ∀ x, Y' x.
+  Let eqT : DecidableRelation T :=
+    isfinite_to_DecidableEquality (isfiniteforall Y' finX (λ _, finY)).
+  Goal decide (eqT (λ _, y) (λ _, y)) = true. try reflexivity. Abort. (* fix *)
+
+End Test_isfinite_isdeceq.
