@@ -402,7 +402,7 @@ Proof.
     apply isrefl_po.
   - intros Hr0.
     apply subtypeEquality.
-    + now intro ;apply pr2.
+    + now intro ; apply pr2.
     + apply isantisymmhqleh.
       apply Hr0.
       apply (pr2 r).

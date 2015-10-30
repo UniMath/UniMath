@@ -351,8 +351,8 @@ Qed.
 Lemma Dcuts_notempty :
   forall x : Dcuts, 0%NRat ∈ x = hexists (λ r, r ∈ x × (0 < r)%NRat).
 Proof.
-  intros x ; simpl.
-  apply weqtopathshProp, logeqweq ; simpl.
+  intros x.
+  apply uahp.
   - intro H.
     now apply is_Dcuts_open.
   - apply hinhuniv ; intros (r,(Xr,Hr0)).
