@@ -6,8 +6,6 @@ Require Import UniMath.Foundations.FunctionalExtensionality.
 Local Open Scope poset.
 Local Notation "● x" := (x,,idpath _) (at level 35).
 
-(* propositions, move upstream *)
-
 Lemma subsetFiniteness {X} (is : isfinite X) (P : DecidableSubtype X) :
   isfinite (decidableSubtypeCarrier P).
 Proof.
@@ -27,7 +25,7 @@ Proof. intros ? fin ?. exact (fincard (subsetFiniteness fin P)). Defined.
 Definition fincard_standardSubset {n} (P : DecidableSubtype (stn n)) : nat.
 Proof. intros. exact (fincard (subsetFiniteness (isfinitestn n) P)). Defined.
 
-Goal 3 = fincard_standardSubset (λ i:stn 10, 2*i <? 6). Proof. reflexivity. Defined.
+Goal 3 = fincard_standardSubset (λ i:stn 10, 2*i < 6)%dnat. Proof. reflexivity. Qed.
 
 Local Definition bound01 (P:DecidableProposition) : ((choice P 1 0) ≤ 1)%nat.
 Proof.
@@ -42,12 +40,11 @@ Proof. intros. exists (stnsum (λ x, choice (P x) 1 0)). apply natlehtolthsn.
        apply p. apply stnsum_1.
 Defined.
 
-Goal 3 = tallyStandardSubset (λ i:stn 10, 2*i <? 6). Proof. reflexivity. Defined.
+Goal 3 = tallyStandardSubset (λ i:stn 10, 2*i < 6)%dnat. Proof. reflexivity. Qed.
 
 Definition tallyStandardSubsetSegment {n} (P: DecidableSubtype (stn n))
            (i:stn n) : stn n.
-(* count how many elements less than i satisfy P *)
-Proof.
+  (* count how many elements less than i satisfy P *)
   intros.
   assert (k := tallyStandardSubset
                  (λ j:stn i, P (stnincl i n (natlthtoleh i n (pr2 i)) j))).
@@ -55,8 +52,9 @@ Proof.
   { apply natlthtolehsn. exact (pr2 i). }
   exact k.
 Defined.
-Goal 3 = tallyStandardSubsetSegment (λ i:stn 14, 2*i <? 6) (●7). Proof. reflexivity. Defined.
-Goal 6 = tallyStandardSubsetSegment (λ i:stn 14, 2*i !=? 4) (●7). Proof. reflexivity. Defined.
+
+Goal 3 = tallyStandardSubsetSegment (λ i:stn 14, 2*i < 6)%dnat (●7). Proof. reflexivity. Qed.
+Goal 6 = tallyStandardSubsetSegment (λ i:stn 14, 2*i != 4)%dnat (●7). Proof. reflexivity. Qed.
 
 (* types and univalence *)
 
@@ -234,7 +232,11 @@ Definition Poset_lessthan {X:Poset} (x y:X) := (x ≤ y) ∧ (hneg (x = y)).
 
 Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : oset.
 Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) : oset.
+Notation "m <= n" := (posetRelation _ m n) (no associativity, at level 70) : oset.
 Notation "m < n" := (Poset_lessthan m n) :oset.
+Notation "n \ge m" := (posetRelation _ m n) (no associativity, at level 70) : oset.
+Notation "n >= m" := (posetRelation _ m n) (no associativity, at level 70) : oset.
+Notation "n > m" := (Poset_lessthan m n) :oset.
 
 Close Scope poset.
 Local Open Scope oset.
@@ -318,39 +320,52 @@ Coercion underlyingFiniteSet : FiniteOrderedSet >-> FiniteSet.
 Lemma istotal_FiniteOrderedSet (X:FiniteOrderedSet) : istotal (posetRelation X).
 Proof. intros. exact (pr2 (pr1 X)). Qed.
 
-Lemma FiniteOrderedSet_isdeceq (X:FiniteOrderedSet) : isdeceq X.
+Lemma FiniteOrderedSet_isdeceq {X:FiniteOrderedSet} : isdeceq X.
 Proof. intros. apply isfinite_isdeceq. apply finitenessProperty. Qed.
 
-Lemma FiniteOrderedSet_isdec_ordering (X:FiniteOrderedSet) : isdec_ordering X.
+Lemma FiniteOrderedSet_isdec_ordering {X:FiniteOrderedSet} : isdec_ordering X.
 Proof. intros. apply isfinite_isdec_ordering. apply finitenessProperty. Defined.
 
-Definition FiniteOrderedSetDecidableOrdering (X:FiniteOrderedSet) : DecidableRelation X.
-Proof.
+Definition FiniteOrderedSetDecidableOrdering (X:FiniteOrderedSet) : DecidableRelation X :=
+  λ (x y:X), decidable_to_DecidableProposition (FiniteOrderedSet_isdec_ordering x y).
+
+Definition FiniteOrderedSetDecidableEquality (X:FiniteOrderedSet) : DecidableRelation X :=
+  λ (x y:X), @decidable_to_DecidableProposition (eqset x y) (FiniteOrderedSet_isdeceq x y).
+
+Definition FiniteOrderedSetDecidableInequality (X:FiniteOrderedSet) : DecidableRelation X.
   intros ? x y.
-  refine (decidable_to_DecidableProposition _).
-  - exact (x ≤ y).
-  - apply FiniteOrderedSet_isdec_ordering.
+  apply (@decidable_to_DecidableProposition (¬ (x = y)))%logic.
+  unfold decidable; simpl.
+  apply neg_isdecprop.
+  apply decidable_to_isdecprop_2.
+  { apply setproperty. }
+  apply FiniteOrderedSet_isdeceq.
 Defined.
 
-Notation " x ≤? y " := ( FiniteOrderedSetDecidableOrdering _ x y ) (at level 70, no associativity) : foset.
-
 Definition FiniteOrderedSetDecidableLessThan (X:FiniteOrderedSet) : DecidableRelation X.
-Proof.
   intros ? x y. refine (decidable_to_DecidableProposition _).
   - exact (x < y).
   - apply isfinite_isdec_lessthan. apply finitenessProperty.
 Defined.
 
-Notation " x <? y " := ( FiniteOrderedSetDecidableLessThan _ x y ) (at level 70, no associativity) : foset.
-
-Open Scope foset.
+Notation "x = y" := (FiniteOrderedSetDecidableEquality x y) (at level 70, no associativity) : foset.
+Notation "x != y" := (FiniteOrderedSetDecidableInequality x y) (at level 70, no associativity) : foset.
+Notation "x ≠ y" := (FiniteOrderedSetDecidableInequality x y) (at level 70, no associativity) : foset.
+Notation " x ≤ y " := ( FiniteOrderedSetDecidableOrdering _ x y ) (at level 70, no associativity) : foset.
+Notation " x <= y " := ( FiniteOrderedSetDecidableOrdering _ x y ) (at level 70, no associativity) : foset.
+Notation " x ≥ y " := ( FiniteOrderedSetDecidableOrdering _ y x ) (at level 70, no associativity) : foset.
+Notation " x >= y " := ( FiniteOrderedSetDecidableOrdering _ y x ) (at level 70, no associativity) : foset.
+Notation " x < y " := ( FiniteOrderedSetDecidableLessThan _ x y ) (at level 70, no associativity) : foset.
+Notation " x > y " := ( FiniteOrderedSetDecidableLessThan _ y x ) (at level 70, no associativity) : foset.
 Delimit Scope foset with foset.
 
 Definition FiniteOrderedSet_segment {X:FiniteOrderedSet} (x:X) : FiniteSet.
-Proof. intros. apply (@subsetFiniteSet X); intro y. exact (y <? x). Defined.
+  intros. apply (@subsetFiniteSet X); intro y. exact (y < x)%foset.
+Defined.
 
 Definition height {X:FiniteOrderedSet} : X -> nat.
-Proof. intros ? x. exact (cardinalityFiniteSet (FiniteOrderedSet_segment x)). Defined.
+  intros ? x. exact (cardinalityFiniteSet (FiniteOrderedSet_segment x)).
+Defined.
 
 (** making finite ordered sets in various ways *)
 
@@ -415,11 +430,39 @@ Notation "'Σ'  x .. y , P" := (total2_hSet (fun x => .. (total2_hSet (fun y => 
   (at level 200, x binder, y binder, right associativity) : set.
   (* type this in emacs in agda-input method with \Sigma *)
 
-Definition lexicographicOrder (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) : hrel (Σ x, Y x)%set.
+Definition lexicographicOrder
+           (X:hSet) (Y:X->hSet)
+           (R:hrel X) (S : ∀ x, hrel (Y x)) : hrel (Σ x, Y x)%set.
   intros ? ? ? ? u u'.
   set (x := pr1 u). set (y := pr2 u). set (x' := pr1 u'). set (y' := pr2 u').
   exact ((x ≠ x' ∧ R x x') ∨ (∃ e : x = x', S x' (transportf Y e y) y'))%set.
 Defined.
+
+Module TestLex.
+  (* we want lex order to be computable if R and S both are *)
+  Let X := stnset 5.
+  Let R := λ (x x':X), (pr1 x ≤ pr1 x')%dnat.
+  Let Y := λ x:X, stnset (pr1 x).
+  Let S := λ (x:X) (y y':Y x), (pr1 y ≤ pr1 y')%dnat.
+  Let Z := Σ x, Y x.
+  Let T := lexicographicOrder X Y R S.
+
+  Let x2 := ●2 : X.
+  Let x3 := ●3 : X.
+
+  Goal pr1 (R x2 x3) = (false ≠ true). reflexivity. Qed.
+  Goal pr1 (R x2 x2) = (false ≠ true). reflexivity. Qed.
+  Goal pr1 (R x3 x2) = (true  ≠ true). reflexivity. Qed.
+  Goal (choice (R x2 x3) true false = true). reflexivity. Qed.
+  Goal (choice (R x2 x2) true false = true). reflexivity. Qed.
+  Goal (choice (R x3 x2) true false = false). reflexivity. Qed.
+
+  Let y1 := ●1 : Y x2.
+  Let y2 := ●2 : Y x3.
+  Let t  := (x2,,y1) : Z.
+  Let t' := (x3,,y2) : Z.
+
+End TestLex.
 
 Lemma lex_isrefl (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
   (∀ x, isrefl(S x)) -> isrefl (lexicographicOrder X Y R S).
@@ -496,8 +539,7 @@ Proof.
     { apply hdisj_in2. apply hdisj_in1. simpl. exact (ne ∘ pathsinv0,,P). }} Qed.
 
 Definition concatenateFiniteOrderedSets
-           (X:FiniteOrderedSet) (i : isdeceq X)
-           (Y:X->FiniteOrderedSet) (j : ∀ x, isdeceq (Y x)) : FiniteOrderedSet.
+           {X:FiniteOrderedSet} (Y:X->FiniteOrderedSet) : FiniteOrderedSet.
 Proof.
   (* we use lexicographic order *)
   intros.
@@ -527,6 +569,20 @@ Proof.
   { apply finitenessProperty. }
   intro; apply finitenessProperty.
 Defined.
+
+Notation "'Σ'  x .. y , P" := (concatenateFiniteOrderedSets (fun x => .. (concatenateFiniteOrderedSets (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : foset.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Module TestLex2.
+
+  Let X := (Σ i:⟦ 4 ⟧, ⟦ pr1 i ⟧)%foset.
+  Let x := ( ●2 ,, ●1 ):X.
+  Goal 2 = height x.
+    try reflexivity.            (* we want this to work *)
+  Abort.
+
+End TestLex2.
 
 (** sorting finite ordered sets *)
 

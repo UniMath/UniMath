@@ -273,15 +273,16 @@ Definition natgeh_DecidableProposition := decrel_to_DecidableRelation natgehdec.
 Definition nateq_DecidableProposition := decrel_to_DecidableRelation natdeceq.
 Definition natneq_DecidableProposition := decrel_to_DecidableRelation natdecneq.
 
-Notation " x <? y " := ( natlth_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x <=? y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x ≤? y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x >=? y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x ≥? y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x >? y " := ( natgth_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x !=? y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-
+Notation " x < y " := ( natlth_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x <= y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x ≤ y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x >= y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x ≥ y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x > y " := ( natgth_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x != y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x ≠ y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Delimit Scope decidable_nat with dnat.
 
 (** *** Simple implications between comparisons *)
 

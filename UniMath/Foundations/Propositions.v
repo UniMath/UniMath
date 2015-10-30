@@ -239,6 +239,7 @@ Definition hneg ( P : UU ) : hProp := hProppair ( ¬ P ) ( isapropneg P ) .
 
 Notation "'¬' X" := (hneg X) (at level 35, right associativity) : logic.
   (* type this in emacs in agda-input method with \neg *)
+Delimit Scope logic with logic.
 
 Definition himpl ( P : UU ) ( Q : hProp ) : hProp.
 Proof. intros. split with ( P -> Q ) . apply impred. intro. apply (pr2  Q). Defined. 
@@ -414,8 +415,12 @@ Definition DecidableProposition := Σ X:UU, isdecprop X.
 
 Definition DecidableProposition_pair {X:UU} (i:isdecprop X) : DecidableProposition := X,,i.
 
-Definition decidable_to_isdecprop (X:hProp) : decidable X -> isdecprop X.
+Definition decidable_to_isdecprop {X:hProp} : decidable X -> isdecprop X.
 Proof. intros ? dec. apply isdecpropif. { apply propproperty. } { exact dec. }
+Defined.
+
+Definition decidable_to_isdecprop_2 {X:UU} : isaprop X -> X ⨿ ¬X -> isdecprop X.
+Proof. intros ? i dec. apply isdecpropif. { exact i. } { exact dec. }
 Defined.
 
 Definition decidable_to_DecidableProposition {X:hProp} : decidable X -> DecidableProposition.

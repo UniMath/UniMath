@@ -77,7 +77,7 @@ Proof.
   unfold Poset.
   exists (_,,isasetstn n).
   unfold PartialOrder.
-  exists (λ i j:stn n, i ≤ j).
+  exists (λ i j:stn n, i ≤ j)%dnat.
   unfold isPartialOrder.
   split.
   - unfold ispreorder.
