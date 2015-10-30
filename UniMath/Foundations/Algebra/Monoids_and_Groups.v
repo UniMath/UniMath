@@ -394,10 +394,10 @@ Proof . intros . intro xa . unfold abmonoidfracrelint .  simpl . apply hinhpr . 
 Lemma isreflabmonoidfracrel ( X : abmonoid ) ( A : @subabmonoids X ) { L : hrel X } ( is : ispartbinophrel A L ) ( isl : isrefl L ) : isrefl ( abmonoidfracrel X A is ) .
 Proof . intros .  apply isreflquotrel . apply isreflabmonoidfracrelint .  apply is . apply isl . Defined . 
 
-Lemma ispoabmonoidfracrelint ( X : abmonoid ) ( A : @subabmonoids X ) { L : hrel X } ( is : ispartbinophrel A L ) ( isl : ispo L ) : ispo ( abmonoidfracrelint X A L ) .
+Lemma ispoabmonoidfracrelint ( X : abmonoid ) ( A : @subabmonoids X ) { L : hrel X } ( is : ispartbinophrel A L ) ( isl : ispreorder L ) : ispreorder ( abmonoidfracrelint X A L ) .
 Proof . intros . split with ( istransabmonoidfracrelint X A is ( pr1 isl ) ) .  apply ( isreflabmonoidfracrelint X A is ( pr2 isl ) ) .  Defined . 
 
-Lemma ispoabmonoidfracrel ( X : abmonoid ) ( A : @subabmonoids X ) { L : hrel X } ( is : ispartbinophrel A L ) ( isl : ispo L ) : ispo ( abmonoidfracrel X A is ) .
+Lemma ispoabmonoidfracrel ( X : abmonoid ) ( A : @subabmonoids X ) { L : hrel X } ( is : ispartbinophrel A L ) ( isl : ispreorder L ) : ispreorder ( abmonoidfracrel X A is ) .
 Proof . intros .  apply ispoquotrel . apply ispoabmonoidfracrelint .  apply is . apply isl . Defined . 
 
 Lemma iseqrelabmonoidfracrelint ( X : abmonoid ) ( A : @subabmonoids X ) { L : hrel X } ( is : ispartbinophrel A L ) ( isl : iseqrel L ) : iseqrel ( abmonoidfracrelint X A L ) .
@@ -902,10 +902,10 @@ Proof . intros . intro xa . unfold abgrfracrelint .  simpl . apply hinhpr . spli
 Lemma isreflabgrfracrel ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : isrefl L ) : isrefl ( abgrfracrel X is ) .
 Proof . intros .  apply isreflquotrel . apply isreflabgrfracrelint .  apply is . apply isl . Defined . 
 
-Lemma ispoabgrfracrelint ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : ispo L ) : ispo ( abgrfracrelint X L ) .
+Lemma ispoabgrfracrelint ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : ispreorder L ) : ispreorder ( abgrfracrelint X L ) .
 Proof . intros . split with ( istransabgrfracrelint X is ( pr1 isl ) ) .  apply ( isreflabgrfracrelint X is ( pr2 isl ) ) .  Defined . 
 
-Lemma ispoabgrfracrel ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : ispo L ) : ispo ( abgrfracrel X is ) .
+Lemma ispoabgrfracrel ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : ispreorder L ) : ispreorder ( abgrfracrel X is ) .
 Proof . intros .  apply ispoquotrel . apply ispoabgrfracrelint .  apply is . apply isl . Defined . 
 
 Lemma iseqrelabgrfracrelint ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : iseqrel L ) : iseqrel ( abgrfracrelint X L ) .

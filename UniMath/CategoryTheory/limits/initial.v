@@ -40,8 +40,8 @@ intros b cb.
 refine (tpair _ _ _).
 - exists (pr1 (H b)); intro v; induction v.
 - intro t.
-  apply total2_paths_second_isaprop; simpl;
-    [apply impred; intro v; induction v|].
+  apply subtypeEquality; simpl;
+    [intro; apply impred; intro v; induction v|].
   apply (pr2 (H b)).
 Defined.
 

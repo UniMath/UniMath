@@ -138,7 +138,7 @@ Proof.
   intros x r.
   now split.
 Qed.
-Lemma ispo_Dcuts_eq : ispo Dcuts_eq.
+Lemma ispreorder_Dcuts_eq : ispreorder Dcuts_eq.
 Proof.
   split.
   exact istrans_Dcuts_eq.
@@ -156,7 +156,7 @@ Qed.
 Lemma iseqrel_Dcuts_eq : iseqrel Dcuts_eq.
 Proof.
   split.
-  exact ispo_Dcuts_eq.
+  exact ispreorder_Dcuts_eq.
   exact issymm_Dcuts_eq.
 Qed.
 
@@ -165,8 +165,8 @@ Lemma Dcuts_eq_is_eq :
     Dcuts_eq x y -> x = y.
 Proof.
   intros x y Heq.
-  apply total2_paths_second_isaprop.
-  - apply pr2.
+  apply subtypeEquality.
+  - now intro ; apply pr2.
   - apply funextsec.
     intro r.
     apply uahp.
@@ -351,8 +351,8 @@ Qed.
 Lemma Dcuts_notempty :
   forall x : Dcuts, 0%NRat ∈ x = hexists (λ r, r ∈ x × (0 < r)%NRat).
 Proof.
-  intros x ; simpl.
-  apply weqtopathshProp, logeqweq ; simpl.
+  intros x.
+  apply uahp.
   - intro H.
     now apply is_Dcuts_open.
   - apply hinhuniv ; intros (r,(Xr,Hr0)).
@@ -808,7 +808,7 @@ Proof.
   now intros x P HP ; apply HP ; clear P HP.
 Qed.
 
-Lemma ispo_Dcuts_le_rel : ispo Dcuts_le_rel.
+Lemma ispreorder_Dcuts_le_rel : ispreorder Dcuts_le_rel.
 Proof.
   split.
   exact istrans_Dcuts_le_rel.
@@ -842,7 +842,7 @@ Lemma iseo_Dcuts_le_lt_rel :
 Proof.
   split.
   - split.
-    + exact ispo_Dcuts_le_rel.
+    + exact ispreorder_Dcuts_le_rel.
     + exact isstpo_Dcuts_lt_rel.
   - split.
     + exact Dcuts_lt_le_rel.

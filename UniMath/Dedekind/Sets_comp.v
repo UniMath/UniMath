@@ -6,7 +6,7 @@ Require Export UniMath.Foundations.Sets
                UniMath.Ktheory.Sets
                UniMath.Ktheory.QuotientSet.
 Require Import UniMath.Foundations.Algebra.BinaryOperations.
-  
+
 (** ** Subsets *)
 
 Lemma isaset_hsubtypes {X : hSet} (Hsub : hsubtypes X) : isaset (carrier Hsub).
@@ -94,8 +94,8 @@ Proof.
   now apply Hl.
 Qed.
 
-Lemma ispo_reverse {X : UU} (l : hrel X) :
-  ispo l -> ispo (hrel_reverse l).
+Lemma ispreorder_reverse {X : UU} (l : hrel X) :
+  ispreorder l -> ispreorder (hrel_reverse l).
 Proof.
   intros X l (Ht,Hr).
   split.
@@ -103,7 +103,7 @@ Proof.
   now apply isrefl_reverse.
 Qed.
 Definition po_reverse {X : UU} (l : po X) :=
-  popair (hrel_reverse l) (ispo_reverse l (pr2 l)).
+  popair (hrel_reverse l) (ispreorder_reverse l (pr2 l)).
 Lemma po_reverse_correct {X : UU} (l : po X) :
   forall x y : X, po_reverse l x y = l y x.
 Proof.
@@ -124,7 +124,7 @@ Lemma iseqrel_reverse {X : UU} (l : hrel X) :
 Proof.
   intros X l (Hpo,Hs).
   split.
-  now apply ispo_reverse.
+  now apply ispreorder_reverse.
   now apply issymm_reverse.
 Qed.
 Definition eqrel_reverse {X : UU} (l : eqrel X) :=
@@ -190,12 +190,12 @@ Proof.
   apply islogeqcommhdisj.
   now apply Hl.
 Qed.
-  
+
 (** ** Effectively Ordered *)
 (** An alternative of total orders *)
 
 Definition isEffectiveOrder {X : UU} (le lt : hrel X) :=
-  dirprod (dirprod (ispo le) (isStrongOrder lt))
+  dirprod (dirprod (ispreorder le) (isStrongOrder lt))
           (dirprod (forall x y : X, lt x y -> le x y)
                    (forall x y : X, le x y -> lt y x -> empty)).
 Definition EffectiveOrder (X : UU) :=
@@ -221,9 +221,9 @@ Definition EOlt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
 Definition EOgt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
   StrongOrder_reverse (@EOlt X).
 
-Definition PosetEffectiveOrder (X : EffectivelyOrderedSet) : Poset :=
-  Posetpair _ (@EOle X).
-Coercion PosetEffectiveOrder : EffectivelyOrderedSet >-> Poset.
+Definition PreorderedSetEffectiveOrder (X : EffectivelyOrderedSet) : PreorderedSet :=
+  PreorderedSetPair _ (@EOle X).
+Coercion PreorderedSetEffectiveOrder : EffectivelyOrderedSet >-> PreorderedSet.
 
 Delimit Scope eo_scope with eo.
 
@@ -244,7 +244,7 @@ Definition EOlt_EOle :
 Definition EOle_not_EOlt :
   forall x y : X, x <= y -> y < x -> empty :=
   (pr2 (pr2 (pr2 (pr2 X)))).
-                                         
+
 Close Scope eo_scope.
 
 End eo_pty.
@@ -255,9 +255,9 @@ Open Scope eo_scope.
 
 Section LeastUpperBound.
 
-Context {X : Poset}.
+Context {X : PreorderedSet}.
 Local Notation "x <= y" := (pr2 X x y).
-  
+
 Definition isUpperBound (E : hsubtypes X) (ub : X) : UU :=
   forall x : X, E x -> x <= ub.
 Definition isSmallerThanUpperBounds (E : hsubtypes X) (lub : X) : UU :=
@@ -277,9 +277,9 @@ End LeastUpperBound.
 
 Section GreatestLowerBound.
 
-Context {X : Poset}.
+Context {X : PreorderedSet}.
 Local Notation "x >= y" := (pr2 X y x).
-  
+
 Definition isLowerBound (E : hsubtypes X) (ub : X) : UU :=
   forall x : X, E x -> x >= ub.
 Definition isBiggerThanLowerBounds (E : hsubtypes X) (lub : X) : UU :=
@@ -297,11 +297,11 @@ Definition pr1GreatestLowerBound {E : hsubtypes X} :
 
 End GreatestLowerBound.
 
-Definition isCompleteSpace (X : Poset) :=
+Definition isCompleteSpace (X : PreorderedSet) :=
   forall E : hsubtypes X,
     hexists (isUpperBound E) -> hexists E -> LeastUpperBound E.
 Definition CompleteSpace  :=
-  total2 (fun X : Poset => isCompleteSpace X).
+  total2 (fun X : PreorderedSet => isCompleteSpace X).
 Definition pr1CompleteSpace : CompleteSpace -> UU := pr1.
 Coercion pr1CompleteSpace : CompleteSpace >-> UU.
 

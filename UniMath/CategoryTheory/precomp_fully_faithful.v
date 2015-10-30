@@ -118,7 +118,7 @@ Lemma isaprop_aux_space (b : B) :
 Proof.
   apply invproofirrelevance.
   intros x x'.
-  apply total2_paths_isaprop.  
+  apply subtypeEquality.  
     intro; repeat (apply impred; intro).
     apply hsC.
   destruct x as [g q].
