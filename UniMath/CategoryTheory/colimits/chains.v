@@ -359,37 +359,25 @@ End colim_initial_algebra.
 
 
 (* WIP below of here *)
-(* Section lists. *)
+Section lists.
 
-(* (* TODO: Move *) *)
-(* Require Import UniMath.SubstitutionSystems.Auxiliary. *)
-(* Require Import UniMath.SubstitutionSystems.FunctorsPointwiseProduct. *)
-(* Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct. *)
-(* Require Import UniMath.CategoryTheory.limits.products. *)
-(* Require Import UniMath.CategoryTheory.limits.coproducts. *)
-(* Require Import UniMath.CategoryTheory.limits.terminal. *)
+(* TODO: Move *)
+Require Import UniMath.SubstitutionSystems.Auxiliary.
+Require Import UniMath.SubstitutionSystems.FunctorsPointwiseProduct.
+Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.terminal.
 
-(* Variable A : HSET. *)
+Variable A : HSET.
 
-(* Lemma ProductsHSET : Products HSET. *)
-(* Admitted. *)
-
-(* Lemma CoproductsHSET : Coproducts HSET. *)
-(* Admitted. *)
-
-(* Lemma TerminalHSET : Terminal HSET. *)
-(* Admitted. *)
-
-(* Lemma InitialHSET : Initial HSET. *)
-(* Admitted. *)
-
-(* (* *)
+(* *)
 (* F(X) = A * X *)
-(* *) *)
-(* Definition streamFunctor : functor HSET HSET := *)
-(*   product_functor HSET HSET ProductsHSET *)
-(*                   (constant_functor HSET HSET A) *)
-(*                   (functor_identity HSET). *)
+(* *)
+Definition streamFunctor : functor HSET HSET :=
+  product_functor HSET HSET ProductsHSET
+                  (constant_functor HSET HSET A)
+                  (functor_identity HSET).
 
 
 (* Definition unitHSET : HSET. *)
@@ -400,46 +388,56 @@ End colim_initial_algebra.
 (* apply iscontrunit. *)
 (* Defined. *)
 
-(* (* *)
 (* F(X) = 1 + (A * X) *)
-(* *) *)
-(* Definition listFunctor : functor HSET HSET := *)
-(*   coproduct_functor HSET HSET CoproductsHSET *)
-(*                     (constant_functor HSET HSET unitHSET) *)
-(*                     streamFunctor. *)
+Definition listFunctor : functor HSET HSET :=
+  coproduct_functor HSET HSET CoproductsHSET
+                    (constant_functor HSET HSET (TerminalObject TerminalHSET))
+                    streamFunctor.
 
-(* Definition temp : ColimCocone *)
-(*    (Fdiagram listFunctor InitialHSET *)
-(*       (InitialArrow HSET InitialHSET (listFunctor InitialHSET))). *)
-(* Proof. *)
-(* apply ColimCoconeHSET. *)
-(* Defined. *)
+(* Let ColimCoconeF F := ColimCocone *)
+(*          (Fdiagram F (InitialObject InitialHSET) *)
+(*             (InitialArrow InitialHSET (F (InitialObject InitialHSET)))). *)
 
-(* Lemma listFunctor_chain_cocontinuous : chain_cocontinuous has_homsets_HSET listFunctor *)
-(*   (InitialObject _ InitialHSET) (InitialArrow _ InitialHSET _) temp. *)
-(* Proof. *)
-(* unfold chain_cocontinuous. *)
-(* Admitted. *)
+(* Definition temp : ColimCoconeF listFunctor := ColimCoconeHSET _ _. *)
 
-(* (* *)
 
-(* P(F), P(G) |- P(F * G) *)
-(* P(F), P(G) |- P(F + G) *)
-(*            |- P(constant_functor A) *)
-(*            |- P(identity_functor) *)
+Let good F := chain_cocontinuous has_homsets_HSET F
+    (InitialObject InitialHSET) (InitialArrow InitialHSET _) (ColimCoconeHSET _ _).
+(* TODO: *)
+(* good(F), good(G) |- good(F * G) *)
+(* good(F), good(G) |- good(F + G) *)
+(*                  |- good(constant_functor A) *)
+(*                  |- good(identity_functor) *)
 
-(* *) *)
+Lemma goodIdentity : good (functor_identity _).
+Admitted.
 
-(* Lemma listFunctor_Initial : *)
-(*   Initial (precategory_FunctorAlg HSET listFunctor has_homsets_HSET). *)
-(* Proof. *)
-(* refine (adaggerMorInitial _ _ _ _ _ _). *)
-(* - apply InitialHSET. *)
-(* - apply temp. *)
-(* - apply listFunctor_chain_cocontinuous. *)
-(* Defined. *)
+Lemma goodConstant (B : HSET) : good (constant_functor _ _ B).
+Admitted.
 
-(* (* *)
+Lemma goodProduct (F G : functor HSET HSET) :
+  good F -> good G -> good (product_functor _ _ ProductsHSET F G).
+Admitted.
+
+Lemma goodCoproduct (F G : functor HSET HSET) :
+  good F -> good G -> good (coproduct_functor _ _ CoproductsHSET F G).
+Admitted.
+
+Lemma listFunctor_chain_cocontinuous : good listFunctor.
+Proof.
+unfold listFunctor, streamFunctor.
+apply goodCoproduct; [ apply goodConstant |].
+apply goodProduct; [ apply goodConstant | apply goodIdentity].
+Defined.
+
+Lemma listFunctor_Initial :
+  Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
+Proof.
+refine (colimAlgInitial _ _ _ _ _ _).
+- apply InitialHSET.
+- apply ColimCoconeHSET.
+- apply listFunctor_chain_cocontinuous.
+Defined.
 
 (* Get recursion/iteration scheme: *)
 
@@ -447,9 +445,6 @@ End colim_initial_algebra.
 (* ------------------------------------ *)
 (*       iter x f : List A -> X *)
 
-
 (* Get induction as well? *)
 
-(* *) *)
-
-(* End lists. *)
+End lists.
