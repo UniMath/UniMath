@@ -345,16 +345,39 @@ Defined.
 
 Definition weqstnsum_invmap { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) <- stn (stnsum f).
 Proof.
-  intros ? ? [l L]. induction n as [|n IH].
-  { induction (nopathsfalsetotrue L). }
+  intros ? ?. induction n as [|n IH].
+  { intros l. induction (negstn0 l). }
+  intros l. induction l as [l L].
   choose (l < f (firstelement _))%dnat a b.
   { exact (firstelement _,, (l,,a)). }
-  set (f' := f ∘ dni _ (firstelement _)).
-  set (l' := l - f(firstelement _)).
   assert (b' : f (firstelement _) ≤ l). { exact b. } clear b.
-  assert (L' : l' < stnsum f').
+  rewrite stnsum_reverse_step in L.
+  assert ( c := minusplusnmm l (f (firstelement _)) b'); clear b'.
+  rewrite natpluscomm in c.
+  rewrite <- c in L; clear c.
+  assert ( d := natlthandpluslinv _ _ _ L); clear L.
+  set (l' := (l - f (firstelement n),,d) : stn _).
+  assert ( e := IH (f ∘ dni n (firstelement n)) l' ).
+  induction e as [r s].
+  exact (dni _ (firstelement _) r,,s).
+Defined.
 
-Abort.                                                                 
+Module Test_weqstnsum_invmap.
+  (* this module exports nothing *)
+  Notation "● x" := (x,,idpath _) (at level 35).
+  Let X := stnset 7.
+  Let f (x:X) : nat := pr1 x.
+  Let h : stn _ -> Σ x, stnset (f x) := weqstnsum_invmap f.
+  Goal h(●0) = (●1,,●0). reflexivity. Defined.
+  Goal h(●1) = (●2,,●0). reflexivity. Defined.
+  Goal h(●2) = (●2,,●1). reflexivity. Defined.
+  Goal h(●3) = (●3,,●0). reflexivity. Defined.
+  Goal h(●4) = (●3,,●1). reflexivity. Defined.
+  Goal h(●5) = (●3,,●2). reflexivity. Defined.
+  Goal h(●6) = (●4,,●0). reflexivity. Defined.
+  Goal h(●10) = (●5,,●0). reflexivity. Defined.
+  Goal h(●15) = (●6,,●0). reflexivity. Defined.
+End Test_weqstnsum_invmap.
 
 Definition weqstnsum_map { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) -> stn (stnsum f).
 Proof.
