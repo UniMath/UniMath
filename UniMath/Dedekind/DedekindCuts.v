@@ -2,9 +2,8 @@
 (** Catherine Lelay. Sep. 2015 *)
 
 Require Import UniMath.Dedekind.Sets_comp.
-Require Export UniMath.Dedekind.Apartness.
+Require Export UniMath.Dedekind.ConstructiveStructures.
 Require Import UniMath.Dedekind.Complements.
-Require Import UniMath.Dedekind.DivisionRig.
 Require Import UniMath.Dedekind.NonnegativeRationals.
 
 Delimit Scope Dcuts_scope with Dcuts.
@@ -333,6 +332,32 @@ Definition NonnegativeRationals_to_Dcuts (q : NonnegativeRationals) : Dcuts :=
            (NonnegativeRationals_to_Dcuts_bot q)
            (NonnegativeRationals_to_Dcuts_open q)
            (NonnegativeRationals_to_Dcuts_error q).
+
+
+Local Lemma isapfun_NonnegativeRationals_to_Dcuts_aux :
+  forall q q' : NonnegativeRationals,
+    NonnegativeRationals_to_Dcuts q < NonnegativeRationals_to_Dcuts q'
+    -> (q < q')%NRat.
+Proof.
+  intros q q'.
+  apply hinhuniv.
+  intros (r,(Qr,Q'r)).
+  apply istrans_le_lt_ltNonnegativeRationals with r.
+  - apply notlt_geNonnegativeRationals.
+    exact Qr.
+  - exact Q'r.
+Qed.
+Lemma isapfun_NonnegativeRationals_to_Dcuts :
+  forall q q' : NonnegativeRationals,
+    NonnegativeRationals_to_Dcuts q # NonnegativeRationals_to_Dcuts q'
+    -> q != q'.
+Proof.
+  intros q q'.
+  apply (hinhuniv (P := hProppair _ (isapropneg _))).
+  intros [Hap | Hap].
+  now apply ltNonnegativeRationals_noteq, isapfun_NonnegativeRationals_to_Dcuts_aux.
+  now apply gtNonnegativeRationals_noteq, isapfun_NonnegativeRationals_to_Dcuts_aux.
+Qed.
 
 Definition Dcuts_zero : Dcuts := NonnegativeRationals_to_Dcuts 0%NRat.
 Definition Dcuts_one : Dcuts := NonnegativeRationals_to_Dcuts 1%NRat.

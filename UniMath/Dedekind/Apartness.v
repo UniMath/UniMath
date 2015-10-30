@@ -5,7 +5,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 Unset Kernel Term Sharing.
 
-Require Import UniMath.Dedekind.Sets_comp.
+Require Export UniMath.Dedekind.Sets_comp.
 Require Export UniMath.Foundations.Algebra.BinaryOperations.
 
 (** ** Additionals theorems about relations *)
@@ -111,11 +111,13 @@ Coercion apbinop_pr1 : apbinop >-> binop.
 
 Definition apsetwithbinop := Σ X : apSet, apbinop X.
 Definition apsetwithbinop_pr1 (X : apsetwithbinop) : apSet := pr1 X.
-Coercion apsetwithbinop_pr1 : apsetwithbinop >-> apSet.
-Definition op {X : apsetwithbinop} : binop X := pr1 (pr2 X).
+Definition apsetwithbinop_setwithbinop : apsetwithbinop -> setwithbinop :=
+  λ X : apsetwithbinop, (apSet_pr1 (apsetwithbinop_pr1 X)),, (pr1 (pr2 X)).
+Coercion apsetwithbinop_setwithbinop : apsetwithbinop >-> setwithbinop.
 
 Definition apsetwith2binop := Σ X : apSet, apbinop X × apbinop X.
 Definition apsetwith2binop_pr1 (X : apsetwith2binop) : apSet := pr1 X.
-Coercion apsetwith2binop_pr1 : apsetwith2binop >-> apSet.
-Definition op1 {X : apsetwith2binop} : binop X := pr1 (pr1 (pr2 X)).
-Definition op2 {X : apsetwith2binop} : binop X := pr1 (pr2 (pr2 X)).
+Definition apsetwith2binop_setwith2binop : apsetwith2binop -> setwith2binop :=
+  λ X : apsetwith2binop,
+        apSet_pr1 (apsetwith2binop_pr1 X),, pr1 (pr1 (pr2 X)),, pr1 (pr2 (pr2 X)).
+Coercion apsetwith2binop_setwith2binop : apsetwith2binop >-> setwith2binop.
