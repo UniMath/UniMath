@@ -21,6 +21,7 @@ Contents :
 
 ************************************************************)
 
+Set Kernel Term Sharing.
 
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
