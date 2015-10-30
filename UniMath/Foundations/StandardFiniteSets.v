@@ -96,8 +96,9 @@ Proof. intro. exists 0. apply natgthsn0. Defined.
 
 Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : stn m -> stn n := fun x : stn m => match x with tpair _ i is => stnpair _ i ( natlthlehtrans i m n is isnatleh ) end .  
 
-
-
+Goal ∀ m n (i:m≤n) (j:stn m), pr1 (stnmtostnn m n i j) = pr1 j.
+  intros. induction j as [j J]. reflexivity.
+Defined.
 
 (** ** "Boundary" maps [ dni : stn n -> stn ( S n ) ] and their properties . *) 
 
@@ -362,27 +363,62 @@ Proof.
   exact (dni _ (firstelement _) r,,s).
 Defined.
 
-Module Test_weqstnsum_invmap.
-  (* this module exports nothing *)
-  Notation "● x" := (x,,idpath _) (at level 35).
-  Let X := stnset 7.
-  Let f (x:X) : nat := pr1 x.
-  Let h : stn _ -> Σ x, stnset (f x) := weqstnsum_invmap f.
-  Goal h(●0) = (●1,,●0). reflexivity. Defined.
-  Goal h(●1) = (●2,,●0). reflexivity. Defined.
-  Goal h(●2) = (●2,,●1). reflexivity. Defined.
-  Goal h(●3) = (●3,,●0). reflexivity. Defined.
-  Goal h(●4) = (●3,,●1). reflexivity. Defined.
-  Goal h(●5) = (●3,,●2). reflexivity. Defined.
-  Goal h(●6) = (●4,,●0). reflexivity. Defined.
-  Goal h(●10) = (●5,,●0). reflexivity. Defined.
-  Goal h(●15) = (●6,,●0). reflexivity. Defined.
-End Test_weqstnsum_invmap.
+Axiom OOPS:empty.
 
 Definition weqstnsum_map { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) -> stn (stnsum f).
 Proof.
   intros ? ? ij.
-Abort.                                                                 
+  induction ij as [i j].
+  induction i as [i I].
+  induction j as [j J].
+  assert (I' := natlthtoleh _ _ I).
+  set (p := stnmtostnn i n I').
+  set (r := stnsum (f ∘ p) + j).
+  exists r.
+  induction i as [|i IHi].
+  { change r with j; clear r.
+    induction n as [|n IHn].
+    { induction (isirreflnatlth _ I). }
+    assert (s := stnsum_first_le f).
+    apply (natlthlehtrans _ (f (firstelement n)) _).
+    { assert (e : f (0,, I) = f (firstelement n)).
+      { apply maponpaths. apply subtypeEquality. intro m. apply propproperty. reflexivity. }
+      induction e. exact J. }
+    exact s. }
+
+Abort.
+
+Module Test_weqstnsum.
+  (* this module exports nothing *)
+  Notation "● x" := (x,,idpath _) (at level 35).
+  Let X := stnset 7.
+  Let f (x:X) : nat := pr1 x.
+
+  (* Let h  : stn _ <- Σ x, stnset (f x) := weqstnsum_map f. *)
+  (* Goal pr1 (h(●1,,●0)) = pr1(●0). reflexivity. Defined. *)
+  (* Goal pr1 (h(●4,,●0)) = pr1(●6). reflexivity. Defined. *)
+  (* Goal h(●1,,●0) = (●0). compute. try reflexivity. Defined. *)
+  (* Goal h(●1) = (●2,,●0). reflexivity. Defined. *)
+  (* Goal h(●2) = (●2,,●1). reflexivity. Defined. *)
+  (* Goal h(●3) = (●3,,●0). reflexivity. Defined. *)
+  (* Goal h(●4) = (●3,,●1). reflexivity. Defined. *)
+  (* Goal h(●5) = (●3,,●2). reflexivity. Defined. *)
+  (* Goal h(●6) = (●4,,●0). reflexivity. Defined. *)
+  (* Goal h(●10) = (●5,,●0). reflexivity. Defined. *)
+  (* Goal h(●15) = (●6,,●0). reflexivity. Defined. *)
+
+  Let h' : stn _ -> Σ x, stnset (f x) := weqstnsum_invmap f.
+  Goal h'(●0) = (●1,,●0). reflexivity. Defined.
+  Goal h'(●1) = (●2,,●0). reflexivity. Defined.
+  Goal h'(●2) = (●2,,●1). reflexivity. Defined.
+  Goal h'(●3) = (●3,,●0). reflexivity. Defined.
+  Goal h'(●4) = (●3,,●1). reflexivity. Defined.
+  Goal h'(●5) = (●3,,●2). reflexivity. Defined.
+  Goal h'(●6) = (●4,,●0). reflexivity. Defined.
+  Goal h'(●10) = (●5,,●0). reflexivity. Defined.
+  Goal h'(●15) = (●6,,●0). reflexivity. Defined.
+
+End Test_weqstnsum.
 
 Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
   (∀ i, stn (f i) ≃ P i) -> total2 P ≃ stn (stnsum f).
@@ -405,7 +441,7 @@ Defined.
 Corollary weqstnsum_idweq {n} (f:stn n->nat ) : total2 (λ i, stn (f i)) ≃ stn (stnsum f).
 Proof. intros. apply (weqstnsum (stn ∘ f) f (λ i, idweq _)). Defined.
 
-Module Test_weqstnsum.
+Module Test_old_weqstnsum.
   (* this module exports nothing *)
   Notation "● x" := (x,,idpath _) (at level 35).
   Let X := stnset 6.
@@ -417,7 +453,7 @@ Module Test_weqstnsum.
   Let f' : stn 15 ≃ W := invweq f.
   Goal f(●1,,●0) = ●0. try reflexivity. Abort. (* fix *)
   Goal f'(●0) = (●1,,●0). try reflexivity. Abort. (* fix *)
-End Test_weqstnsum.
+End Test_old_weqstnsum.
 
 Corollary weqstnsum2 { X : UU } ( n : nat ) ( f : stn n -> nat ) ( g : X -> stn n ) ( ww : forall i : stn n , weq ( stn ( f i ) ) ( hfiber g i ) ) : weq X ( stn ( stnsum f ) ) .
 Proof. intros . assert ( w : weq X ( total2 ( fun i : stn n => hfiber g i ) ) ) . apply weqtococonusf . apply ( weqcomp w ( weqstnsum ( fun i : stn n => hfiber g i ) f ww ) ) .   Defined . 
