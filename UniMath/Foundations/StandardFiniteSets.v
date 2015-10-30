@@ -106,6 +106,17 @@ Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : stn m -> stn n := 
 Definition dni ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn ( S n ) .
 Proof. intros n i x .  destruct ( natlthorgeh x i ) . apply ( stnpair ( S n ) x ( natgthtogths _ _ ( pr2 x ) ) ) .  apply ( stnpair ( S n ) ( S x ) ( pr2 x ) ) .  Defined.  
 
+Lemma dni_last n (i:stn n) : pr1 (dni n (lastelement n) i) = i.
+Proof.
+  intros. induction i as [i I]. unfold dni. simpl. induction (natlthorgeh i n) as [g|g].
+  { reflexivity. } contradiction.
+Defined.
+
+Lemma dni_first n (i:stn n) : pr1 (dni n (firstelement n) i) = S i.
+Proof.
+  reflexivity.
+Defined.
+
 Definition dni_lastelement {n} : stn n -> stn (S n).
 (* this definition is simpler than that of [dni n (lastelement n)], since no choice is involved, so it's useful in special situations *)
 Proof. intros ? h. exists (pr1 h). exact (natlthtolths _ _ (pr2 h)). Defined.
@@ -274,10 +285,23 @@ Defined.
 Definition stnsum { n : nat } ( f : stn n -> nat ) : nat .
 Proof. intro n . induction n as [ | n IHn ] . intro. apply 0 . intro f . apply (  ( IHn ( fun i : stn n => f ( dni n ( lastelement n ) i ) ) ) + f ( lastelement n ) ) . Defined . 
 
-(* confirm that [stnsum] is associative in the same way as the parser *)
+(* confirm that [stnsum] is associative in the same way as the parser, which is left associative *)
 Local Notation "●" := (idpath _).
-Goal ∀ (f : stn 3 -> nat), stnsum f = f(0,,●) + f(1,,●) + f(2,,●).
-Proof. reflexivity. Defined.
+Goal ∀ (f : stn 3 -> nat), stnsum f =  f(0,,●) + f(1,,●)  +  f(2,,●). reflexivity. Defined.
+Goal ∀ (f : stn 3 -> nat), stnsum f = (f(0,,●) + f(1,,●)) +  f(2,,●). reflexivity. Defined.
+
+Lemma stnsum_step {n} (f:stn (S n) -> nat) : stnsum f = stnsum (f ∘ (dni n (lastelement n))) + f (lastelement n).
+Proof.
+  intros. reflexivity.
+Defined.
+
+Lemma stnsum_eq {n} (f g:stn n->nat) : f ~ g -> stnsum f = stnsum g.
+Proof.
+  intros ? ? ? le. induction n as [|n IH].
+  { reflexivity. }
+  rewrite 2? stnsum_step. induction (le (lastelement _)). apply (maponpaths (λ i, i + f (lastelement _))).
+  apply IH. intro x. apply le.
+Defined.  
 
 Lemma stnsum_le {n} (f g:stn n->nat) : (∀ i, f i ≤ g i) -> stnsum f ≤ stnsum g.
 Proof.
@@ -285,11 +309,57 @@ Proof.
   apply natlehandplus. { apply IH. intro i. apply le. } apply le.
 Defined.  
 
-Definition stnsum_1 n : stnsum(λ i:stn n, 1) = n.
+Lemma stnsum_1 n : stnsum(λ i:stn n, 1) = n.
 Proof.
   intros. induction n as [|n IH]. { reflexivity. } simpl. rewrite natpluscomm. apply maponpaths.
   exact IH.
 Defined.  
+
+Lemma stnsum_last_le {n} (f:stn (S n) -> nat) : f(lastelement _) ≤ stnsum f.
+Proof.
+  intros. rewrite stnsum_step. apply natlehmplusnm.
+Defined.
+
+Lemma stnsum_reverse_step {n} (f:stn (S n) -> nat) :
+  stnsum f = f (firstelement n) + stnsum (f ∘ (dni n (firstelement n))).
+Proof.
+  intros. rewrite natpluscomm. induction n as [|n IH]. { reflexivity. }
+  rewrite stnsum_step. apply pathsinv0; rewrite stnsum_step; apply pathsinv0.
+  change ((f ∘ dni (S n) (firstelement (S n))) (lastelement n)) with (f (lastelement (S n))).
+  rewrite natplusassoc. rewrite (natpluscomm (f (lastelement (S n)))).  rewrite <- natplusassoc.
+  apply (maponpaths (λ i, i + f (lastelement (S n)))). rewrite IH.
+  change ((f ∘ dni (S n) (lastelement (S n))) (firstelement n)) with (f (firstelement (S n))).
+  apply (maponpaths (λ i, i + f (firstelement (S n)))). apply stnsum_eq; intro i.
+  unfold funcomp. apply maponpaths. apply subtypeEquality. { intros m. apply propproperty. }
+  rewrite dni_last.  rewrite dni_first. unfold stntonat. rewrite dni_last. reflexivity.
+Defined.
+
+Lemma stnsum_first_le {n} (f:stn (S n) -> nat) : f(firstelement _) ≤ stnsum f.
+Proof.
+  intros. induction n as [|n IH].
+  { apply isreflnatleh. }
+  rewrite stnsum_step. assert (W := IH (f ∘ dni _ (lastelement _))).
+  change ((f ∘ dni _ (lastelement _)) (firstelement _)) with (f (firstelement _)) in W.
+  apply (istransnatleh _ _ _ W); clear W. apply natlehnplusnm.
+Defined.
+
+Definition weqstnsum_invmap { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) <- stn (stnsum f).
+Proof.
+  intros ? ? [l L]. induction n as [|n IH].
+  { induction (nopathsfalsetotrue L). }
+  choose (l < f (firstelement _))%dnat a b.
+  { exact (firstelement _,, (l,,a)). }
+  set (f' := f ∘ dni _ (firstelement _)).
+  set (l' := l - f(firstelement _)).
+  assert (b' : f (firstelement _) ≤ l). { exact b. } clear b.
+  assert (L' : l' < stnsum f').
+
+Abort.                                                                 
+
+Definition weqstnsum_map { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) -> stn (stnsum f).
+Proof.
+  intros ? ? ij.
+Abort.                                                                 
 
 Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
   (∀ i, stn (f i) ≃ P i) -> total2 P ≃ stn (stnsum f).

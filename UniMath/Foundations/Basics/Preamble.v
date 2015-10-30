@@ -147,6 +147,9 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 
 Check (O = O) .
 
+(* notation *)
+
+Notation "X <- Y" := (Y -> X) (at level 90, only parsing, left associativity) : type_scope.
 
 (* confirm and repair some aspects of multiplication on [nat] *)
 Goal ∀ n, 0*n = 0.     reflexivity. Qed.
