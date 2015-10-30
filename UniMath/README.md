@@ -39,6 +39,13 @@ according to the following principles.
 * Do not use ```Fixpoint```.
 * Do not use ```destruct```, ```match```, square brackets with ```intros```, or
   nested square brackets with ```induction```.
+* Do not end a proof with ```Qed.```, except with ```Goal```, for that may prevent later computations.
+* Start all proofs with ```Proof.``` on a separate line and end it with
+  ```Defined.``` on a separate line, as this makes it possible for us to generate
+  HTML with expansible/collapsible proofs.
+
+* Use Unicode notation freely, but make the parsing conventions uniform across files, and consider
+  putting them into a scope.
 
 Our files don't adhere yet to all of these conventions, but it's a goal we
 strive for.
