@@ -401,24 +401,24 @@ abstract (intro f; apply subtypeEquality;
                [now apply issurjsetquotpr | now apply pr2 | ];
              intro y; destruct y as [u fu]; destruct f as [f Hf];
              now apply (toforallpaths _ _ _ (Hf u) fu)]).
-Defined.
+Qed.
 
 End colimits.
 
 Lemma ColimsHSET : Colims HSET.
 Proof.
 now intros g d; apply ColimCoconeHSET.
-Defined.
+Qed.
 
 Lemma CoproductsHSET : Coproducts HSET.
 Proof.
 now apply Coproducts_from_Colims, ColimsHSET.
-Defined.
+Qed.
 
 Lemma InitialHSET : Initial HSET.
 Proof.
 now apply Initial_from_Colims, ColimsHSET.
-Defined.
+Qed.
 
 
 Section limits.
@@ -486,26 +486,26 @@ Proof.
            set (p' := toforallpaths _ _ _ (p u)).
            apply p'.
        }
-Defined.
+Qed.
 
 End limits.
 
 Lemma LimsHSET : Lims HSET.
 Proof.
 now intros g d; apply LimConeHSET.
-Defined.
+Qed.
 
 Lemma ProductsHSET : Products HSET.
 Proof.
 now apply Products_from_Lims, LimsHSET.
-Defined.
+Qed.
 
 Lemma TerminalHSET : Terminal HSET.
 Proof.
 now apply Terminal_from_Lims, LimsHSET.
-Defined.
+Qed.
 
 Lemma PullbacksHSET : Pullbacks HSET.
 Proof.
 now apply Pullbacks_from_Lims, LimsHSET.
-Defined.
+Qed.

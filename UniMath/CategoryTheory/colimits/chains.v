@@ -190,6 +190,29 @@ induction m; simpl.
 - exact (# F IHm).
 Defined.
 
+(** Experiment with shift and Fdiagram *)
+(* Definition shift_Fdiagram (x : C) : cocone Fdiagram x -> cocone (shift C Fdiagram) (F x). *)
+(* Proof. *)
+(* intro H. *)
+(* refine (mk_cocone _ _). *)
+(* - simpl. *)
+(*   intro n. *)
+(*   destruct n. *)
+(*   + exact (# F (coconeIn H 0)). *)
+(*   + exact (# F (coconeIn H (S n))). *)
+(* - simpl; intros m n e; destruct e. *)
+(*   destruct m; simpl. *)
+(*   + rewrite <- functor_comp. *)
+(*     apply maponpaths, (pr2 H 0 1 (idpath _)). (* remove pr2 ... *) *)
+(*   + rewrite <- functor_comp. *)
+(*     apply maponpaths, (pr2 H (S m) (S (S m)) (idpath _)). (* remove pr2 *) *)
+(* Defined. *)
+
+(* Definition Fcocone (x : C) (cx : cocone Fdiagram x) : cocone Fdiagram (F x). *)
+(* Proof. *)
+(* apply unshift_cocone, shift_Fdiagram; assumption. *)
+(* Defined. *)
+
 Variables (CC : ColimCocone Fdiagram).
 
 Local Notation L := (colim CC).
@@ -357,7 +380,8 @@ Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
 
 End colim_initial_algebra.
 
-
+About Fcocone.
+Check unshift_cocone.
 (* WIP below of here *)
 Section lists.
 
@@ -410,6 +434,55 @@ Let good F := chain_cocontinuous has_homsets_HSET F
 (*                  |- good(identity_functor) *)
 
 Lemma goodIdentity : good (functor_identity _).
+Proof.
+(* unfold good, chain_cocontinuous. *)
+(* unfold from_colim_shift. *)
+(* set (X1 := ColimCoconeHSET _ _). *)
+(* set (X3 := Fcocone _ _ _ _). *)
+(* apply (isColim_is_iso _ X1). *)
+(* intros a ca. *)
+(* refine (tpair _ _ _). *)
+(* refine (tpair _ _ _). *)
+(* apply colimArrow. *)
+(* apply ca. *)
+(* intros v. *)
+(* set (H:=colimArrowCommutes X1 a ca v). *)
+(* unfold colimIn in H. *)
+(* unfold X3. *)
+(* rewrite <- H. *)
+(* apply cancel_postcomposition. *)
+(* assert (test : Fcocone (functor_identity HSET) (InitialObject InitialHSET) *)
+(*         (InitialArrow InitialHSET *)
+(*            ((functor_identity HSET) (InitialObject InitialHSET))) X1 = colimCocone X1). *)
+(* simpl. *)
+(* apply subtypeEquality. *)
+(* intro x. *)
+(* repeat (apply impred; intro). *)
+(* apply has_homsets_HSET. *)
+(* simpl. *)
+(* apply funextsec; intro n. *)
+(* induction n; simpl. *)
+(* apply (ArrowsFromInitial InitialHSET). *)
+(* simpl. *)
+(* admit. *)
+(* rewrite test. *)
+(* apply idpath. *)
+
+(* apply InitialArrowUnique. *)
+
+(* intro a; simpl. *)
+(* unfold Fcocone. *)
+(* unfold colimCocone. *)
+
+
+(* induction v. *)
+(* simpl. *)
+(* apply idpath. *)
+(* f_equal. *)
+(* apply H. *)
+(* simpl. *)
+(* simpl. *)
+(* simpl in *. *)
 Admitted.
 
 Lemma goodConstant (B : HSET) : good (constant_functor _ _ B).

@@ -73,6 +73,8 @@ End diagram_from_functor.
 
 End diagram_def.
 
+(* Definition diagram_after_functor (C : precategory) (F : functor C C) :  *)
+
 Section colim_def.
 
 Context {C : precategory} (hsC : has_homsets C).
@@ -292,6 +294,25 @@ split.
                     [ intro; now repeat (apply impred; intro); apply hsC
                     | simpl; apply pathsinv0, funextsec; intro u; rewrite Ht;
                       now apply isColim_weq_subproof2]]).
+Defined.
+
+Lemma isColim_is_iso {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C) (cd : cocone D d) :
+  isColimCocone D d cd -> is_iso (colimArrow CC d cd).
+Proof.
+intro H.
+apply is_iso_from_is_z_iso.
+set (CD := mk_ColimCocone D d cd H).
+refine (tpair _ _ _).
+- apply (colimArrow CD _ (colimCocone CC)).
+- split.
+  + apply pathsinv0, colim_endo_is_identity; simpl; intro u.
+    rewrite assoc.
+    eapply pathscomp0; [eapply cancel_postcomposition; apply colimArrowCommutes|].
+    apply (colimArrowCommutes CD).
+  + apply pathsinv0, (colim_endo_is_identity _ CD); simpl; intro u.
+    rewrite assoc.
+    eapply pathscomp0; [eapply cancel_postcomposition; apply (colimArrowCommutes CD)|].
+    apply colimArrowCommutes.
 Defined.
 
 End colim_def.
