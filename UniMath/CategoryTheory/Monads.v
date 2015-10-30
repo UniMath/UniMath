@@ -147,7 +147,7 @@ Definition Monad_Mor_equiv {C : precategory} (hs : has_homsets C)
   {T T' : Monad C} (α β : Monad_Mor T T') 
   : α = β ≃ (pr1 α = pr1 β).
 Proof.
-  apply total2_paths_isaprop_equiv.
+  apply subtypeInjectivity.
   intro a. apply isaprop_Monad_Mor_laws, hs.
 Defined.
 

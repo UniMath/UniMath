@@ -457,8 +457,8 @@ Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
      (fbracket_for_LamE_algebra_on_Lam Z f) (bracket_property_for_LamE_algebra_on_Lam Z f).
 Proof.
   intro t.
-  apply total2_paths_second_isaprop.
-  - apply isaset_nat_trans. apply hs.
+  apply subtypeEquality.
+  - intro; apply isaset_nat_trans. apply hs.
   - simpl.
     destruct t as [t Ht]; simpl.
     unfold fbracket_for_LamE_algebra_on_Lam.

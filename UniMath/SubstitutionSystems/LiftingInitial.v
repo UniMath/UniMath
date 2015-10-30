@@ -446,8 +446,9 @@ Local Lemma foo' (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
      (bracket_Thm15 Z f) (bracket_Thm15_ok_cor Z f).
 Proof.
   intros [h' h'_eq].
-  apply total2_paths_second_isaprop.
-  - unfold bracket_property.
+  apply subtypeEquality.
+  - intro.
+    unfold bracket_property.
     apply isaset_nat_trans. exact hs.
   - simpl.
     apply parts_from_whole in h'_eq.

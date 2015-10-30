@@ -197,7 +197,7 @@ Proof.
   apply (gradth _ (hset_equiv_iso A B)).
   intro; apply eq_iso.
   - reflexivity.
-  - intro; apply total2_paths_isaprop.
+  - intro; apply subtypeEquality.
     + intro; apply isapropisweq.
     + reflexivity.
 Qed.
@@ -211,12 +211,12 @@ Defined.
 Lemma hset_equiv_iso_is_equiv (A B : ob HSET) : isweq (hset_equiv_iso A B).
 Proof.
   apply (gradth _ (hset_iso_equiv A B)).
-  intro f.
-  apply total2_paths_isaprop.
-    apply isapropisweq.
-    reflexivity.
+  { intro f.
+    apply subtypeEquality.
+    { intro; apply isapropisweq. }
+    reflexivity. }
   intro; apply eq_iso.
-  - reflexivity.
+  reflexivity.
 Qed.
 
 Definition hset_equiv_iso_weq (A B : ob HSET) :
@@ -393,8 +393,8 @@ Definition ColimCoconeHSET : ColimCocone D.
 Proof.
 apply (mk_ColimCocone _ colimHSET colimCoconeHSET); intros c cc.
 exists (ColimHSETArrow _ cc).
-abstract (intro f; apply total2_paths_second_isaprop;
-           [ now apply impred; intro i; apply has_homsets_HSET
+abstract (intro f; apply subtypeEquality;
+           [ intro; now apply impred; intro i; apply has_homsets_HSET
            | apply funextfun; intro x; simpl;
              apply (surjectionisepitosets (setquotpr eqr));
                [now apply issurjsetquotpr | now apply pr2 | ];
@@ -466,8 +466,8 @@ Proof.
         }
       * intro v. apply idpath.
    + intro t.
-     apply total2_paths_second_isaprop.
-     * apply impred; intro.
+     apply subtypeEquality.
+     * intro; apply impred; intro.
        apply isaset_set_fun_space.
      * simpl.
        destruct t as [t p]; simpl.
@@ -475,8 +475,8 @@ Proof.
        intro x; simpl.
        unfold compose. simpl.
        {
-         apply total2_paths_second_isaprop.
-         - repeat (apply impred; intro).
+         apply subtypeEquality.
+         - intro; repeat (apply impred; intro).
            apply (setproperty (dob D t0)).
          - simpl.
            apply funextsec.

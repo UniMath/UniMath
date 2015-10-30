@@ -48,7 +48,7 @@ Definition hnnq_div : binop hnnq_set := λ x y : hnnq_set, hnnq_mult x (hnnq_inv
 (** *** Order *)
 
 Local Definition hnnq_le : hrel hnnq_set := resrel hqleh (hqleh 0).
-Lemma isPartialOrder_hnnq_le : ispo hnnq_le.
+Lemma ispreorder_hnnq_le : ispreorder hnnq_le.
 Proof.
   split.
  intros x y z.
@@ -58,10 +58,9 @@ Proof.
 Qed.
 
 Local Definition hnnq_ge : hrel hnnq_set := resrel hqgeh (hqleh 0).
-
-Lemma isPartialOrder_hnnq_ge : ispo hnnq_ge.
+Lemma ispreorder_hnnq_ge : ispreorder hnnq_ge.
 Proof.
-  destruct isPartialOrder_hnnq_le as [Htrans Hrefl].
+  destruct ispreorder_hnnq_le as [Htrans Hrefl].
   split.
   intros x y z Hxy Hyz.
   now apply Htrans with y.
@@ -93,7 +92,7 @@ Qed.
 Lemma isEffectiveOrder_hnnq : isEffectiveOrder hnnq_le hnnq_lt.
 Proof.
   split ; split.
-  - exact isPartialOrder_hnnq_le.
+  - exact ispreorder_hnnq_le.
   - exact isStrongOrder_hnnq_lt.
   - intros x y.
     now apply hqlthtoleh.
@@ -107,24 +106,24 @@ Lemma iscomm_hnnq_plus:
   iscomm hnnq_plus.
 Proof.
   intros (x,Hx) (y,Hy).
-  apply total2_paths_second_isaprop ; simpl pr1.
-  - now apply pr2.
+  apply subtypeEquality ; simpl pr1.
+  - now intro ; apply pr2.
   - now apply hqpluscomm.
 Qed.
 Lemma isassoc_hnnq_plus :
   isassoc hnnq_plus.
 Proof.
   intros (x,Hx) (y,Hy) (z,Hz).
-  apply total2_paths_second_isaprop ; simpl pr1.
-  - now apply pr2.
+  apply subtypeEquality ; simpl pr1.
+  - now intro ; apply pr2.
   - now apply hqplusassoc.
 Qed.
 Lemma islunit_hnnq_zero_plus:
   islunit hnnq_plus hnnq_zero.
 Proof.
   intros (x,Hx).
-  apply total2_paths_second_isaprop ; simpl pr1.
-  - now apply pr2.
+  apply subtypeEquality ; simpl pr1.
+  - now intro ; apply pr2.
   - now apply hqplusl0.
 Qed.
 Lemma isrunit_hnnq_zero_plus:
@@ -138,24 +137,24 @@ Lemma iscomm_hnnq_mult:
   iscomm hnnq_mult.
 Proof.
   intros (x,Hx) (y,Hy).
-  apply total2_paths_second_isaprop ; simpl pr1.
-  - now apply pr2.
+  apply subtypeEquality ; simpl pr1.
+  - now intro ; apply pr2.
   - now apply hqmultcomm.
 Qed.
 Lemma isassoc_hnnq_mult:
   isassoc hnnq_mult.
 Proof.
   intros (x,Hx) (y,Hy) (z,Hz).
-  apply total2_paths_second_isaprop ; simpl pr1.
-  - now apply pr2.
+  apply subtypeEquality ; simpl pr1.
+  - now intro ; apply pr2.
   - now apply hqmultassoc.
 Qed.
 Lemma islunit_hnnq_one_mult:
   islunit hnnq_mult hnnq_one.
 Proof.
   intros (x,Hx).
-  apply total2_paths_second_isaprop ; simpl pr1.
-  - now apply pr2.
+  apply subtypeEquality ; simpl pr1.
+  - now intro ; apply pr2.
   - now apply hqmultl1.
 Qed.
 Lemma isrunit_hnnq_one_mult:
@@ -172,8 +171,8 @@ Proof.
   intros (x,Hx) Hx0.
   unfold hnnq_inv.
   destruct hqlehchoice as [Hx0' | Hx0'] ; simpl in Hx0'.
-  - apply total2_paths_second_isaprop; simpl pr1.
-    + now apply pr2.
+  - apply subtypeEquality; simpl pr1.
+    + now intro ; apply pr2.
     + apply hqislinvmultinv.
       now apply hqgth_hqneq.
   - apply pathsinv0 in Hx0'.
@@ -192,8 +191,8 @@ Lemma isldistr_hnnq_plus_mult:
   isldistr hnnq_plus hnnq_mult.
 Proof.
   intros (x,Hx) (y,Hy) (z,Hz).
-  apply total2_paths_second_isaprop ; simpl pr1.
-  - now apply pr2.
+  apply subtypeEquality ; simpl pr1.
+  - now intro ; apply pr2.
   - now apply hqldistr.
 Qed.
 Lemma isrdistr_hnnq_plus_mult:
@@ -227,12 +226,12 @@ Proof.
   repeat split.
   - exists (isabmonoidop_hnnq_plus,,ismonoidop_hnnq_mult) ; split.
     + intro x.
-      apply total2_paths_second_isaprop.
-      * now apply pr2.
+      apply subtypeEquality.
+      * now intro ; apply pr2.
       * apply hqmult0x.
     + intro x.
-      apply total2_paths_second_isaprop.
-      * now apply pr2.
+      apply subtypeEquality.
+      * now intro ; apply pr2.
       * apply hqmultx0.
   - exact isldistr_hnnq_plus_mult.
   - exact isrdistr_hnnq_plus_mult.
@@ -251,8 +250,8 @@ Proof.
     assert (Hx' : hnnq_lt hnnq_zero x).
     { apply neghqlehtogth.
       intro Hx0 ; apply Hx.
-      apply total2_paths_second_isaprop.
-      - apply pr2.
+      apply subtypeEquality.
+      - now intro ;apply pr2.
       - apply isantisymmhqleh.
         apply Hx0.
         apply (pr2 x). }
@@ -278,8 +277,8 @@ Proof.
   intros (x,Hx) (y,Hy).
   destruct (isdeceqhq x y) as [H|H].
   - left.
-    apply total2_paths_second_isaprop; simpl pr1.
-    + now apply pr2.
+    apply subtypeEquality; simpl pr1.
+    + now intro ; apply pr2.
     + exact H.
   - right.
     intros H0 ; apply H.
@@ -340,14 +339,14 @@ Open Scope NRat_scope.
 Lemma zeroNonnegativeRationals_correct :
   0 = Rationals_to_NonnegativeRationals 0%hq (isreflhqleh 0%hq).
 Proof.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   - now intro ; apply pr2.
   - reflexivity.
 Qed.
 Lemma oneNonnegativeRationals_correct :
   1 = Rationals_to_NonnegativeRationals 1%hq hq1ge0.
 Proof.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   - now intro ; apply pr2.
   - reflexivity.
 Qed.
@@ -356,7 +355,7 @@ Lemma plusNonnegativeRationals_correct :
     x + y = Rationals_to_NonnegativeRationals (pr1 x + pr1 y)%hq (hq0lehandplus _ _ (pr2 x) (pr2 y)).
 Proof.
   intros (x,Hx) (y,Hy).
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   - now intro ; apply pr2.
   - reflexivity.
 Qed.
@@ -365,7 +364,7 @@ Lemma minusNonnegativeRationals_correct :
     x - y = Rationals_to_NonnegativeRationals (pr1 x - pr1 y)%hq (hq0leminus (pr1 y) (pr1 x) Hxy).
 Proof.
   intros (x,Hx) (y,Hy) H ; simpl in H.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   - now intro ; apply pr2.
   - unfold minusNonnegativeRationals, hnnq_minus.
     destruct hqgthorleh.
@@ -402,8 +401,8 @@ Proof.
     rewrite Hr.
     apply isrefl_po.
   - intros Hr0.
-    apply total2_paths_second_isaprop.
-    + apply pr2.
+    apply subtypeEquality.
+    + now intro ;apply pr2.
     + apply isantisymmhqleh.
       apply Hr0.
       apply (pr2 r).
@@ -531,8 +530,8 @@ Lemma islabsorb_zero_multNonnegativeRationals:
   ∀ x : NonnegativeRationals, 0 * x = 0.
 Proof. (** todo generalize *)
   intros (x,Hx).
-  apply total2_paths_second_isaprop ; simpl pr1.
-  - now apply pr2.
+  apply subtypeEquality ; simpl pr1.
+  - now intro ; apply pr2.
   - now apply hqmult0x.
 Qed.
 Lemma israbsorb_zero_multNonnegativeRationals:
@@ -614,8 +613,8 @@ Proof.
   now apply hqgth_hqneq.
   apply fromempty, Hr0.
   apply pathsinv0.
-  apply total2_paths_second_isaprop.
-  now apply pr2.
+  apply subtypeEquality.
+  now intro ; apply pr2.
   exact p.
 Qed.
 
@@ -673,7 +672,7 @@ Lemma NonnegativeRationals_plusr_minus :
 Proof.
   intros (q,Hq) (r,Hr).
   rewrite (minusNonnegativeRationals_correct _ _ (NonnegativeRationals_leplus_l _ _)).
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   - now intro ; apply pr2.
   - simpl pr1.
     unfold hqminus.
@@ -694,7 +693,7 @@ Proof.
   unfold minusNonnegativeRationals, hnnq_minus.
   destruct hqgthorleh as [H'|H'].
   - now apply fromempty, H.
-  - apply total2_paths_isaprop.
+  - apply subtypeEquality.
     + intro ; apply pr2.
     + unfold hqminus ; simpl.
       now rewrite hqplusassoc, hqlminus, hqplusr0.

@@ -9,5 +9,7 @@
 	     (setq coq-prog-name (concat unimath-topdir "sub/coq/bin/coqtop"))
 	     (make-local-variable 'before-save-hook)
 	     (add-hook 'before-save-hook 'delete-trailing-whitespace)
+	     (modify-syntax-entry ?' "w")
+	     (modify-syntax-entry ?_ "w")
 	     (if (not (memq 'agda-input features)) (load (concat unimath-topdir "emacs/agda/agda-input")))
 	     (set-input-method "Agda"))))))
