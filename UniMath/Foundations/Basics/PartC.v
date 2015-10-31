@@ -183,13 +183,15 @@ assert (ee: paths e0 x0). apply (proofirrelevance _ (isapropneg (paths x t))). i
 unfold f. unfold g. simpl. induction u. induction (is x).  apply idpath. induction (e (idpath x)).
 apply (gradth  f g egf efg). Defined.
 
-Definition weqrecompl ( X : UU ) ( x : X ) ( is : isisolated _ x ) : weq ( coprod ( compl X x ) unit ) X := weqpair _ ( isweqrecompl X x is ) .
-
+Definition weqrecompl (X : UU) (x:X) (is:isisolated _ x): compl X x ⨿ unit ≃ X
+  := weqpair _ ( isweqrecompl X x is ) .
 
 (** *** Theorem saying that [ recompl ] commutes up to homotopy with [ maponcomplweq ] *)
 
-
-Theorem homotrecomplnat { X Y : UU } ( w : weq X Y ) ( x : X ) : forall a : coprod ( compl X x ) unit , paths  ( recompl Y ( w x ) ( coprodf ( maponcomplweq w x ) ( fun x: unit => x ) a ) ) ( w ( recompl X x a ) )  .   
+Theorem homotrecomplnat {X Y : UU} (w : X ≃ Y) (x : X) (a : compl X x ⨿ unit) :
+    recompl Y (w x) (coprodf (maponcomplweq w x) (idfun unit) a)
+    =
+    w (recompl X x a).   
 Proof . intros . induction a as [ ane | t ] . induction ane as [ a ne ] .  simpl . apply idpath . induction t . simpl . apply idpath .  Defined . 
 
 
