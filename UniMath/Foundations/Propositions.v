@@ -53,6 +53,20 @@ Definition propproperty (P:hProp) := pr2 P : isaprop (pr1 P).
 Definition tildehProp := total2 ( fun P : hProp => P ) .
 Definition tildehProppair { P : hProp } ( p : P ) : tildehProp := tpair _ P p . 
 
+
+(* convenient corollaries of some theorems that take separate isaprop arguments: *)
+
+Corollary subtypeInjectivity_prop {A : UU} (B : A -> hProp) :
+  ∀ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
+Proof. intros. apply subtypeInjectivity. intro. apply propproperty. Defined.
+
+Corollary subtypeEquality_prop {A : UU} {B : A -> hProp}
+   {s s' : total2 (fun x => B x)} : pr1 s = pr1 s' -> s = s'.
+Proof. intros A B s s'. apply invmap. apply subtypeInjectivity_prop. Defined.
+
+Corollary impred_prop {T:UU} (P:T -> hProp) : isaprop (∀ t:T, P t).
+Proof. intros. apply impred; intro. apply propproperty. Defined.
+
 (** The following re-definitions should make proofs easier in the future when the unification algorithms in Coq are improved . At the moment they create more complications than they eliminate ( e.g. try to prove [ isapropishinh ] with [ isaprop ] in [ hProp ] ) so for the time being they are commented out .
 
 
@@ -392,7 +406,7 @@ Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
 Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Defined.
 
 Lemma isaprop_LEM : isaprop LEM.
-Proof. apply impred; intro P. apply propproperty. Defined.  
+Proof. apply impred_prop. Defined.  
 
 Lemma dneg_LEM (P:hProp) : LEM -> ¬¬ P -> P.
 Proof.

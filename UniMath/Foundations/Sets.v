@@ -455,7 +455,7 @@ Definition isdec_ordering (X:Poset) := ∀ (x y:X), decidable (x≤y)%poset.
 
 Lemma isaprop_isaposetmorphism {X Y:Poset} (f:X->Y) : isaprop (isaposetmorphism f).
 Proof.
-  intros. apply impredtwice; intros. apply impred; intros _. apply propproperty.
+  intros. apply impredtwice; intros. apply impred_prop.
 Defined.
 
 (** the preorders on a set form a set *)
@@ -526,12 +526,12 @@ Definition consecutive {X:Poset} (x y:X) := x<y × ∀ z, ¬ (x<z × z<y).
 
 Lemma isaprop_isMinimal {X:Poset} (x:X) : isaprop (isMaximal x).
 Proof.
-  intros. unfold isMaximal. apply impred; intros z. apply propproperty.
+  intros. unfold isMaximal. apply impred_prop.
 Defined.
 
 Lemma isaprop_isMaximal {X:Poset} (x:X) : isaprop (isMaximal x).
 Proof.
-  intros. unfold isMaximal. apply impred; intros z. apply propproperty.
+  intros. unfold isMaximal. apply impred_prop.
 Defined.
 
 Lemma isaprop_consecutive {X:Poset} (x y:X) : isaprop (consecutive x y).

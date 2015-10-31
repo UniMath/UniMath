@@ -80,7 +80,7 @@ Module Presentation'.
     { refine (_,,_).
       { intros v w.
         exists (∀ r, isAdequateRelation R r -> r v w).
-        apply impred; intros r; apply impred; intros ad. apply propproperty. }
+        apply impred; intros r; apply impred_prop. }
       { refine (_,,_).
         { refine (_,,_).
           { intros u v w uv vw r ad; simpl in uv, vw.
@@ -255,7 +255,7 @@ Module Presentation.
   Definition smallestAdequateRelation0 {X I} (R:I->reln X) : hrel (word X).
     intros ? ? ? v w.
     exists (∀ r: hrel (word X), AdequateRelation R r -> r v w).
-    abstract (apply impred; intro r; apply impred; intros _; apply propproperty).
+    abstract (apply impred; intro r; apply impred_prop).
   Defined.
   Lemma adequacy {X I} (R:I->reln X) : 
     AdequateRelation R (smallestAdequateRelation0 R).

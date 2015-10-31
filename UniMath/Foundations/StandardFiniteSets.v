@@ -117,9 +117,9 @@ Definition stn_right_compute m n (i:stn n) : pr1 (stn_right m n i) = m+i.
   intros. reflexivity.
 Defined.
 
-Lemma stn_left_0 m i (e:m=m+0) : stn_left m 0 i = transportf stn e i.
+Lemma stn_left_0 {m i} (e:m=m+0) : stn_left m 0 i = transportf stn e i.
 Proof.
-  intros. apply subtypeEquality. { intro. apply propproperty. } induction e. reflexivity.
+  intros. apply subtypeEquality_prop. induction e. reflexivity.
 Defined.
 
 (** ** "Boundary" maps [ dni : stn n -> stn ( S n ) ] and their properties . *) 
@@ -256,8 +256,7 @@ Module Test2.
     { intro. exact (firstelement _). }
     { intro. exact tt. }
     { intro u. simpl. induction u. reflexivity. }
-    { intro i. simpl. apply subtypeEquality.
-      { intro. apply propproperty. }
+    { intro i. simpl. apply subtypeEquality_prop.
       simpl. induction i as [i I]. simpl. apply pathsinv0. apply natlth1tois0. exact I. }
   Defined.
   Goal w tt = firstelement 0. reflexivity. Defined.
@@ -394,11 +393,6 @@ Proof.
   apply natlehandplus. { apply IH. intro i. apply le. } apply le.
 Defined.  
 
-Lemma plus_two_equalities a b c d : a=b -> c=d -> a+c = b+d.
-Proof.
-  intros ? ? ? ? r s. induction r. induction s. reflexivity.
-Defined.  
-
 (* move upstream and remove from Ktheory/Utilities *)
 Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
   transportf P (idpath x) p = p.
@@ -409,28 +403,22 @@ Lemma stnsum_left_right m n (f:stn(m+n)->nat) :
 Proof.
   (* why is this proof so obnoxious and fragile? *)
   intros. induction n as [|n IHn].
-  { change (stnsum (f ∘ stn_right m 0)) with 0.
-    rewrite natplusr0. assert (e := natplusr0 m).
-    apply pathsinv0. apply (stnsum_eq_2 (!e)). intro. unfold funcomp. apply maponpaths.
-    exact (stn_left_0 m i (!e)). }
-  rewrite stnsum_step. assert (e : m + S n = S (m+n)).
-  { apply natplusnsm. }
-  set (f' := (λ i, f (transportf stn (!e) i)) : stn(S(m+n)) -> nat).
-  intermediate_path (stnsum f').
-  { apply pathsinv0. apply (stnsum_eq_2 (!e) f' f). reflexivity. }
-  rewrite stnsum_step. rewrite <- natplusassoc. apply plus_two_equalities.
-  { rewrite (IHn (f' ∘ dni (m + n) (lastelement (m + n)))); clear IHn.
-    apply plus_two_equalities.
-    { apply stnsum_eq; intro i. unfold funcomp, f'. apply maponpaths. apply subtypeEquality.
-      { intro. apply propproperty. }
-      rewrite stn_left_compute. induction i as [i I]. induction (!e).
-      rewrite idpath_transportf. rewrite dni_last. reflexivity. }
-    { apply stnsum_eq; intro i. unfold funcomp, f'. apply maponpaths. apply subtypeEquality.
-      { intro. apply propproperty. }
-      rewrite stn_right_compute. unfold stntonat. induction (!e).
+  { change (stnsum (f ∘ stn_right m 0)) with 0. rewrite natplusr0. assert (e := ! natplusr0 m).
+    apply pathsinv0. apply (stnsum_eq_2 e); intro. unfold funcomp. apply maponpaths.
+    apply stn_left_0. }
+  rewrite stnsum_step. assert (e : S (m+n) = m + S n).
+  { apply pathsinv0. apply natplusnsm. }
+  intermediate_path (stnsum (λ i, f (transportf stn e i))).
+  { apply pathsinv0. apply (stnsum_eq_2 e _ f). reflexivity. }
+  rewrite stnsum_step. rewrite <- natplusassoc. apply map_on_two_paths.
+  { rewrite IHn; clear IHn. apply map_on_two_paths.
+    { apply stnsum_eq; intro i. unfold funcomp. apply maponpaths. apply subtypeEquality_prop.
+      rewrite stn_left_compute. induction e. rewrite idpath_transportf. rewrite dni_last.
+      reflexivity. }
+    { apply stnsum_eq; intro i. unfold funcomp. apply maponpaths. apply subtypeEquality_prop.
+      rewrite stn_right_compute. unfold stntonat. induction e.
       rewrite idpath_transportf. rewrite 2? dni_last. reflexivity. } }
-  unfold funcomp, f'. apply maponpaths. apply subtypeEquality.
-  { intro. apply propproperty. } induction (!e). reflexivity.
+  unfold funcomp. apply maponpaths. apply subtypeEquality_prop. induction e. reflexivity.
 Defined.  
 
 Lemma stnsum_pos {n} (f:stn n->nat) (j:stn n) : f j ≤ stnsum f.
@@ -471,7 +459,7 @@ Proof.
   apply (maponpaths (λ i, i + f (lastelement (S n)))). rewrite IH.
   change ((f ∘ dni (S n) (lastelement (S n))) (firstelement n)) with (f (firstelement (S n))).
   apply (maponpaths (λ i, i + f (firstelement (S n)))). apply stnsum_eq; intro i.
-  unfold funcomp. apply maponpaths. apply subtypeEquality. { intros m. apply propproperty. }
+  unfold funcomp. apply maponpaths. apply subtypeEquality_prop.
   rewrite dni_last.  rewrite dni_first. unfold stntonat. rewrite dni_last. reflexivity.
 Defined.
 
@@ -520,7 +508,7 @@ Proof.
     assert (s := stnsum_first_le f).
     apply (natlthlehtrans _ (f (firstelement n)) _).
     { assert (e : f (0,, I) = f (firstelement n)).
-      { apply maponpaths. apply subtypeEquality. intro m. apply propproperty. reflexivity. }
+      { apply maponpaths. apply subtypeEquality_prop. reflexivity. }
       induction e. exact J. }
     exact s. }
 

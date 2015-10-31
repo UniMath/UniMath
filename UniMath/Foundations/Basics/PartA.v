@@ -393,6 +393,12 @@ Proof.
   apply pathssec2id.
 Defined.
 
+Lemma map_on_two_paths {X Y Z} (f:X -> Y -> Z) {x x' y y'} : x=x' -> y=y' -> f x y = f x' y'.
+(* useful with apply, to save typing *)
+Proof.
+  intros ? ? ? ? ? ? ? ? r s. induction r. induction s. reflexivity.
+Defined.  
+
 (* end of "Operations on [ paths ]". *) 
 
 
