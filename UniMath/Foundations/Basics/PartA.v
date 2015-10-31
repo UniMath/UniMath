@@ -424,10 +424,10 @@ Definition transportf {X : UU} (P : X -> UU) {x x' : X}
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
   (e : x = x') : P x' -> P x := transportf P (!e).
 
-Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport.
-Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport.
-Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport.
-Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport.
+Notation "p # x" := (transportf _ p x) (only parsing, right associativity, at level 65) : transport.
+Notation "p #' x" := (transportb _ p x) (only parsing, right associativity, at level 65) : transport.
+Notation "p # x" := (transportf _ p x) (only parsing, right associativity, at level 65) : transport.
+Notation "p #' x" := (transportb _ p x) (only parsing, right associativity, at level 65) : transport.
 Delimit Scope transport with transport.
 
 Lemma functtransportf {X Y : UU} (f : X -> Y) (P : Y -> UU) {x x' : X}
@@ -1278,6 +1278,16 @@ Definition weqgradth {X Y : UU} (f : X -> Y) (g : Y -> X)
   (efg: ∀ y : Y, f (g y) = y) : X ≃ Y :=
     weqpair _ (gradth _ _ egf efg). 
  
+Module Test_gradth.
+  Let f := idfun nat.
+  Definition w : nat ≃ nat := weqgradth f f (λ _, idpath _) (λ _, idpath _).
+  Goal homotinvweqweq w 3 = idpath _. reflexivity. Defined.
+  Goal homotweqinvweq w 3 = idpath _. reflexivity. Defined.
+  Definition v : bool ≃ bool.
+    refine (weqgradth negb negb _ _); intro x; induction x; reflexivity. Defined.
+  Goal homotinvweqweq v true = idpath _. reflexivity. Defined.
+  Goal homotweqinvweq v true = idpath _. reflexivity. Defined.
+End Test_gradth.
 
 (** *** Some basic weak equivalences *)
 
@@ -1659,6 +1669,10 @@ Definition weqcomp_to_funcomp {X Y Z} {f:X≃Y} {g:Y≃Z} :
   pr1weq (weqcomp f g) = pr1weq g ∘ pr1weq f.
 Proof. reflexivity. Defined.
 
+Definition invmap_weqcomp_expand {X Y Z} {f:X≃Y} {g:Y≃Z} :
+  invmap (weqcomp f g) = invmap f ∘ invmap g.
+Proof. reflexivity. Defined.
+
 (** *** The 2-out-of-6 (two-out-of-six) property of weak equivalences. *)
 
 
@@ -1768,13 +1782,37 @@ Proof. intros . set ( PX :=  fun x : X => P ( ii1 x ) ) . set ( PY :=  fun y : Y
 Definition tototal2overcoprod { X Y : UU } ( P : X ⨿ Y -> UU ) ( xpyp :  coprod ( Σ x : X, P ( ii1 x ) ) ( Σ y : Y, P ( ii2 y ) ) ) : total2 P .
 Proof . intros . induction xpyp as [ xp | yp ] . induction xp as [ x p ] . apply ( tpair P ( ii1 x ) p ) .   induction yp as [ y p ] . apply ( tpair P ( ii2 y ) p ) . Defined . 
  
-Theorem weqtotal2overcoprod { X Y : UU } ( P : X ⨿ Y -> UU ) : ( Σ xy, P xy ) ≃ ( Σ x : X, P ( ii1 x ) ) ⨿ ( Σ y : Y, P ( ii2 y ) ) .
-Proof. intros .  set ( f := fromtotal2overcoprod P ) . set ( g := tototal2overcoprod P ) . split with f . 
-assert ( egf : ∀ a : _ , ( g ( f a ) ) = a ) . intro a . induction a as [ xy p ] . induction xy as [ x | y ] . simpl . apply idpath . simpl .  apply idpath .     
-assert ( efg : ∀ a : _ , ( f ( g a ) ) = a ) . intro a . induction a as [ xp | yp ] . induction xp as [ x p ] . simpl . apply idpath .  induction yp as [ y p ] . apply idpath .
-apply ( gradth _ _ egf efg ) . Defined . 
+Theorem weqtotal2overcoprod {X Y : UU} (P : X ⨿ Y -> UU) :
+  (Σ xy, P xy) ≃ (Σ x : X, P (ii1 x)) ⨿ (Σ y : Y, P (ii2 y)).
+Proof.
+  intros. set (f := fromtotal2overcoprod P). set (g := tototal2overcoprod P).
+  split with f.
+  assert (egf : ∀ a : _ , (g (f a)) = a).
+  { intro a.
+    induction a as [ xy p ].
+    induction xy as [ x | y ].
+    simpl.
+    apply idpath.
+    simpl.
+    apply idpath. }
+  assert (efg : ∀ a : _ , (f (g a)) = a).
+  { intro a.
+    induction a as [ xp | yp ].
+    induction xp as [ x p ].
+    simpl.
+    apply idpath.
+    induction yp as [ y p ].
+    apply idpath. }
+  apply (gradth _ _ egf efg).
+Defined.
 
-
+Module Test_weqtotal2overcoprod.
+  Let P (t : bool ⨿ bool) := nat.
+  Goal weqtotal2overcoprod P (ii1 true,,3) = ii1 (true,,3). reflexivity. Defined.
+  Goal weqtotal2overcoprod P (ii2 false,,3) = ii2 (false,,3). reflexivity. Defined.
+  Goal invmap (weqtotal2overcoprod P) (ii1 (true,,3)) = ii1 true,,3. reflexivity. Defined.
+  Goal invmap (weqtotal2overcoprod P) (ii2 (false,,3)) = ii2 false,,3. reflexivity. Defined.
+End Test_weqtotal2overcoprod.
 
 (** *** Weak equivalences and pairwise direct products *)
 
@@ -1891,8 +1929,14 @@ assert (efg: ∀ xy': coprod X' Y', (ff (gg xy')) = xy'). intro. induction xy' a
 apply (gradth  ff gg egf efg). Defined. 
 
 
-Definition weqcoprodf { X Y X' Y' : UU } (w1: weq X Y)(w2: weq X' Y') : weq (coprod X X') (coprod Y Y') := weqpair _ ( isweqcoprodf w1 w2 ) .
+Definition weqcoprodf { X Y X' Y' : UU } : X≃X' -> Y≃Y' -> X ⨿ Y ≃ X' ⨿ Y'.
+  intros ? ? ? ? w1 w2. exact (weqpair _ ( isweqcoprodf w1 w2)).
+Defined.
 
+Goal weqcoprodf (idweq nat) (idweq nat) (ii1 3) = ii1 3. reflexivity. Defined.
+Goal weqcoprodf (idweq nat) (idweq nat) (ii2 3) = ii2 3. reflexivity. Defined.
+Goal invmap (weqcoprodf (idweq nat) (idweq nat)) (ii1 3) = ii1 3. reflexivity. Defined.
+Goal invmap (weqcoprodf (idweq nat) (idweq nat)) (ii2 3) = ii2 3. reflexivity. Defined.
 
 Lemma negpathsii1ii2 { X Y : UU } (x:X)(y:Y): ((ii1  x) != (ii2  y)).
 Proof. intros. unfold neg. intro X0. set (dist:= fun xy: X ⨿ Y => match xy with ii1 x => unit | ii2 y => empty end). apply (transportf dist  X0 tt). Defined.
@@ -2399,12 +2443,13 @@ assert (is2: isweq diag).  apply (twooutof3c (f x) iqx (pr2 ( f x) ) (isweqezmap
 set (intmap:= invezmaphf  fpq pr1q x xqe). apply (iscontrweqf  ( weqpair intmap (isweqinvezmaphf fpq pr1q x xqe) ) isint). 
 Defined.
 
-Definition weqfibtototal { X : UU } ( P Q : X -> UU) (f: ∀ x:X, weq ( P x ) ( Q x ) ) := weqpair _ ( isweqfibtototal P Q f ) .
+Definition weqfibtototal {X : UU} (P Q : X -> UU) (f: ∀ x, P x ≃ Q x) : (Σ x, P x) ≃ (Σ x, Q x)
+  := weqpair _ ( isweqfibtototal P Q f ).
 
-
-
-
-
+Goal @weqfibtototal bool _ _ (λ _, idweq bool) (true,,true) = (true,,true).
+  reflexivity. Defined.
+Goal invmap (@weqfibtototal bool _ _ (λ _, idweq bool)) (true,,true) = (true,,true).
+  reflexivity. Defined.
 
 (** ** Homotopy fibers of the function [fpmap: total2 X (P f) -> total2 Y P].
 
@@ -2463,9 +2508,15 @@ Definition weqfp_map { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : (Σ x,P(w x)) -> (
 Proof. intros ? ? ? ? xp. exact (w (pr1 xp),,pr2 xp).
 Defined.
 
+Goal @weqfp_map nat nat (idweq _) (λ _,nat) (3,,4) = (3,,4). reflexivity. Defined.
+Goal @weqfp_map _ _ boolascoprod (λ _,nat) (ii1 tt,,4) = (true,,4). reflexivity. Defined.
+
 Definition weqfp_invmap { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : (Σ y, P y) -> (Σ x,P(w x)).
 Proof. intros ? ? ? ? yp. exact (invmap w (pr1 yp),,transportf P (! homotweqinvweq w (pr1 yp)) (pr2 yp)).
 Defined.
+
+Goal @weqfp_invmap nat nat (idweq _) (λ _,nat) (3,,4) = (3,,4). reflexivity. Defined.
+Goal @weqfp_invmap _ _ boolascoprod (λ _,nat) (true,,4) = (ii1 tt,,4). reflexivity. Defined.
 
 Definition weqfp {X Y : UU} (w : X ≃ Y) (P:Y->UU) : (Σ x : X, P (w x)) ≃ (Σ y, P y).
 Proof. intros. exists (weqfp_map w P). refine (gradth _ (weqfp_invmap w P) _ _).
@@ -2476,6 +2527,9 @@ Proof. intros. exists (weqfp_map w P). refine (gradth _ (weqfp_invmap w P) _ _).
     { simpl. apply homotweqinvweq. }
     simpl. rewrite transport_f_f. rewrite pathsinv0l. reflexivity. }
 Defined.
+
+Goal weqfp (idweq nat) (λ _,nat) (3,,4) = (3,,4). reflexivity. Defined.
+Goal invmap (weqfp (idweq nat) (λ _,nat)) (3,,4) = (3,,4). reflexivity. Defined.
 
 Definition weqfp_compute_1 { X Y : UU } ( w : X ≃ Y ) (P:Y->UU) : weqfp w P ~ weqfp_map w P.
 Proof. intros. intros xp. reflexivity. Defined.
@@ -2490,13 +2544,15 @@ Proof . intros . induction tp as [ t p ] . induction t . apply p . Defined .
 
 Definition tototal2overunit   ( P : unit -> UU ) ( p : P tt ) : total2 P  := tpair P tt p . 
 
-Theorem weqtotal2overunit ( P : unit -> UU ) : weq ( total2 P ) ( P tt ) .
+Theorem weqtotal2overunit ( P : unit -> UU ) : (Σ u, P u) ≃ P tt .
 Proof. intro . set ( f := fromtotal2overunit P ) . set ( g := tototal2overunit P ) . split with f . 
 assert ( egf : ∀ a : _ , ( g ( f a ) ) = a ) . intro a . induction a as [ t p ] . induction t . apply idpath .
 assert ( efg : ∀ a : _ , ( f ( g a ) ) = a ) . intro a . apply idpath .    
 apply ( gradth _ _ egf efg ) . Defined . 
 
-
+Goal ∀ u:unit, weqtotal2overunit (λ _,nat) (u,,3) = 3. try reflexivity. Abort.
+Goal weqtotal2overunit (λ _,nat) (tt,,3) = 3. reflexivity. Abort.
+Goal invmap (weqtotal2overunit (λ _,nat)) 3 = (tt,,3). reflexivity. Defined.
 
 (** ** The maps between total spaces of families given by a map between the bases of the families and maps between the corresponding members of the families *)
 
