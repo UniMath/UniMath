@@ -102,23 +102,19 @@ Defined.
 
 Definition stn_left m n : stn m -> stn (m+n).
 Proof.
-  intros ? ? i. induction i as [i I]. exists i.
-  apply (natlthlehtrans i m (m+n) I). apply natlehnplusnm.
+  intros ? ? i. exists (pr1 i). apply (natlthlehtrans (pr1 i) m (m+n) (pr2 i)). apply natlehnplusnm.
 Defined.
 
 Definition stn_right m n : stn n -> stn (m+n).
-Proof.
-  intros ? ? i. induction i as [i I]. exists (m+i). now apply natlthandplusl.
+  intros ? ? i. exists (m+pr1 i). apply natlthandplusl. exact (pr2 i).
 Defined.
 
 Definition stn_left_compute m n (i:stn m) : pr1 (stn_left m n i) = i.
-Proof.
-  intros. induction i as [i I]. reflexivity.
+  intros. reflexivity.
 Defined.
 
 Definition stn_right_compute m n (i:stn n) : pr1 (stn_right m n i) = m+i.
-Proof.
-  intros. induction i as [i I]. reflexivity.
+  intros. reflexivity.
 Defined.
 
 (** ** "Boundary" maps [ dni : stn n -> stn ( S n ) ] and their properties . *) 
@@ -198,7 +194,8 @@ Lemma isweqdnitocompl  ( n : nat ) ( i : stn ( S n ) ) : isweq ( dnitocompl n i 
 Proof. intros . intro jni . destruct jni as [ j ni ] . set ( jni := complpair _ i j ni ) .  destruct ( isdeceqnat i j ) as [i0|] .  destruct ( ni ( invmaponpathsincl _ ( isinclstntonat _ ) _ _ i0 ) ) .  set ( w := samehfibers ( dnitocompl n i )  _ ( isinclpr1compl _ i ) jni ) .   simpl in w . assert ( is : iscontr (hfiber (fun x : stn n => dni n i x) j) ) . apply iscontrhfiberdni .  assumption . apply ( iscontrweqb w is ) .  Defined . 
 
 
-Definition weqdnicompl ( n : nat ) ( i : stn ( S n ) ) := weqpair _ ( isweqdnitocompl n i ) . 
+Definition weqdnicompl n (i:stn(S n)): stn n ≃ compl (stn (S n)) i
+  := weqpair _ ( isweqdnitocompl n i ) . 
 
 Definition weqdnicompl_compute_first n i : pr1 (pr1 (weqdnicompl n (firstelement n) i)) = S (pr1 i).
 Proof. reflexivity. Defined.
@@ -226,32 +223,61 @@ Proof.
 Defined . 
 
 Local Notation "● x" := (x,,idpath _) (at level 35).
-Goal weqdnicoprod 4 (firstelement _) (ii1 (●0)) = ●1. reflexivity. Defined.
-Goal weqdnicoprod 4 (firstelement _) (ii1 (●3)) = ●4. reflexivity. Defined.
-Goal invmap (weqdnicoprod 4 (firstelement _)) (●1) = (ii1 (●0)). reflexivity. Defined.
-Goal invmap (weqdnicoprod 4 (firstelement _)) (●4) = (ii1 (●3)). reflexivity. Defined.
-Goal weqdnicoprod 4 (lastelement _) (ii1 (●3)) = ●3. reflexivity. Defined.
-Goal weqdnicoprod 4 (lastelement _) (ii2 tt) = ●4. reflexivity. Defined.
-Goal invmap (weqdnicoprod 4 (lastelement _)) (●1) = (ii1 (●1)). reflexivity. Defined.
-Goal invmap (weqdnicoprod 4 (lastelement _)) (●4) = (ii2 tt). reflexivity. Defined.
-Goal homotweqinvweq (weqdnicoprod 4 (lastelement 4)) (● 0) = idpath _.
-  (* The definition of weqfp_invmap transports along this path, so for computability of
-     it on closed terms, we need this to work. *)
-  try reflexivity.
-Abort.                          (* fix *)
-Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii2 tt) = idpath _. reflexivity. Defined.
-Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (●1)) = idpath _.
-  try reflexivity. Abort. (* fix *)
-Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (firstelement _)) = idpath _.
-  try reflexivity. Abort. (* fix *)
-Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (lastelement _)) = idpath _.
-  try reflexivity. Abort. (* fix *)
 
-Definition weqdnicoprod' n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
-  intros.
-  refine (weqgradth _ _ _ _).
-  { intro x.
-Abort.
+Module Test2.
+  Goal weqdnicoprod 4 (firstelement _) (ii1 (●0)) = ●1. reflexivity. Defined.
+  Goal weqdnicoprod 4 (firstelement _) (ii1 (●3)) = ●4. reflexivity. Defined.
+  Goal invmap (weqdnicoprod 4 (firstelement _)) (●1) = (ii1 (●0)). reflexivity. Defined.
+  Goal invmap (weqdnicoprod 4 (firstelement _)) (●4) = (ii1 (●3)). reflexivity. Defined.
+  Goal weqdnicoprod 4 (lastelement _) (ii1 (●3)) = ●3. reflexivity. Defined.
+  Goal weqdnicoprod 4 (lastelement _) (ii2 tt) = ●4. reflexivity. Defined.
+  Goal invmap (weqdnicoprod 4 (lastelement _)) (●1) = (ii1 (●1)). reflexivity. Defined.
+  Goal invmap (weqdnicoprod 4 (lastelement _)) (●4) = (ii2 tt). reflexivity. Defined.
+  Goal homotweqinvweq (weqdnicoprod 4 (lastelement 4)) (● 0) = idpath _.
+    (* The definition of weqfp_invmap transports along this path, so for computability of
+       it on closed terms, we need this to work. *)
+    try reflexivity.
+  Abort.                          (* fix *)
+  Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii2 tt) = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (●1)) = idpath _.
+    try reflexivity. Abort. (* fix *)
+  Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (firstelement _)) = idpath _.
+    try reflexivity. Abort. (* fix *)
+  Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (lastelement _)) = idpath _.
+    try reflexivity. Abort. (* fix *)
+  (* here's an example that shows complications need not impede that sort of computability: *)
+  Local Definition w : unit ≃ stn 1.
+    refine (weqgradth _ _ _ _).
+    { intro. exact (firstelement _). }
+    { intro. exact tt. }
+    { intro u. simpl. induction u. reflexivity. }
+    { intro i. simpl. apply subtypeEquality.
+      { intro. apply propproperty. }
+      simpl. induction i as [i I]. simpl. apply pathsinv0. apply natlth1tois0. exact I. }
+  Defined.
+  Goal w tt = firstelement 0. reflexivity. Defined.
+  Goal invmap w (firstelement 0) = tt. reflexivity. Defined.
+  Goal homotweqinvweq w (firstelement 0) = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq w tt = idpath _. reflexivity. Defined.
+
+  (* so try to re-implement weqdnicoprod: *)
+  Definition weqdnicoprod n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
+    intros.
+    refine (weqgradth _ _ _ _).
+    { intro x. induction x as [i|t].
+      { exact (dni n j i). }
+      { exact j. } }
+    { intro i.
+      induction (isdeceqstn (S n) i j) as [eq|ne].
+      { exact (ii2 tt). }
+      { exact (ii1 (hfiberpr1 _ _ (iscontrpr1 (iscontrhfiberdni n i j ne)))). }}
+    { intro x. induction x as [i|t]. 
+      { 
+
+      
+  Abort.
+
+End Test2.
 
 (** *** Weak equivalences from [ stn n ] for [ n = 0 , 1 , 2 ] to [ empty ] , [ unit ] and [ bool ] ( see also the section on [ nelstruct ] in finitesets.v ) . *)
 
@@ -373,26 +399,25 @@ Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
   transportf P (idpath x) p = p.
 Proof. reflexivity. Defined.
 
-
 Lemma stnsum_left_right m n (f:stn(m+n)->nat) :
   stnsum f = stnsum (f ∘ stn_left m n) + stnsum (f ∘ stn_right m n).
 Proof.
-  intros.
-  induction n as [|n IHn].
+  (* why is this proof so obnoxious and fragile? *)
+  intros. induction n as [|n IHn].
   { change (stnsum (f ∘ stn_right m 0)) with 0.
-    rewrite natplusr0. assert (e := natplusr0 m). apply (stnsum_eq_2 e).
-    intro. unfold funcomp. apply maponpaths. apply subtypeEquality.
+    rewrite natplusr0. assert (e := natplusr0 m).
+    apply (stnsum_eq_2 e).
+    intro. unfold funcomp. apply maponpaths.
+    apply subtypeEquality.
     { intro. apply propproperty. }
-    rewrite stn_left_compute. induction i as [i I]. induction e. reflexivity. }
-  rewrite stnsum_step.
-  assert (e : m + S n = S (m+n)).
+    induction e. (* could instead have a lemma that equates stn_left, when it's a weq, as a transport *)
+    reflexivity. }
+  rewrite stnsum_step. assert (e : m + S n = S (m+n)).
   { apply natplusnsm. }
   set (f' := (λ i, f (transportf stn (!e) i)) : stn(S(m+n)) -> nat).
   intermediate_path (stnsum f').
   { apply pathsinv0. apply (stnsum_eq_2 (!e) f' f). reflexivity. }
-  rewrite stnsum_step.
-  rewrite <- natplusassoc.
-  apply plus_two_equalities.
+  rewrite stnsum_step. rewrite <- natplusassoc. apply plus_two_equalities.
   { rewrite (IHn (f' ∘ dni (m + n) (lastelement (m + n)))); clear IHn.
     apply plus_two_equalities.
     { apply stnsum_eq; intro i. unfold funcomp, f'. apply maponpaths. apply subtypeEquality.
@@ -401,13 +426,8 @@ Proof.
       rewrite idpath_transportf. rewrite dni_last. reflexivity. }
     { apply stnsum_eq; intro i. unfold funcomp, f'. apply maponpaths. apply subtypeEquality.
       { intro. apply propproperty. }
-      rewrite stn_right_compute. unfold stntonat. rewrite (dni_last n i).
-      induction (!e).
-      rewrite idpath_transportf.
-      rewrite dni_last.
-      unfold stntonat.
-      rewrite stn_right_compute.
-      reflexivity. } }
+      rewrite stn_right_compute. unfold stntonat. induction (!e).
+      rewrite idpath_transportf. rewrite 2? dni_last. reflexivity. } }
   unfold funcomp, f'. apply maponpaths. apply subtypeEquality.
   { intro. apply propproperty. } induction (!e). reflexivity.
 Defined.  
