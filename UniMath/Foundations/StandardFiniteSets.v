@@ -340,6 +340,11 @@ Proof.
   intros ? ? ? ? r s. induction r. induction s. reflexivity.
 Defined.  
 
+(* move upstream and remove from Ktheory/Utilities *)
+Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
+  transportf P (idpath x) p = p.
+Proof. reflexivity. Defined.
+
 Lemma stnsum_left_right m n (f:stn(m+n)->nat) :
   stnsum f = stnsum (f ∘ stn_left m n) + stnsum (f ∘ stn_right m n).
 Proof.
@@ -359,13 +364,24 @@ Proof.
   rewrite stnsum_step.
   rewrite <- natplusassoc.
   apply plus_two_equalities.
-  { 
-    
-    
-    admit. }
-  { unfold funcomp, f'. apply maponpaths. apply subtypeEquality.
-    { intro. apply propproperty. } induction (!e). reflexivity. }
-Abort.
+  { rewrite (IHn (f' ∘ dni (m + n) (lastelement (m + n)))); clear IHn.
+    apply plus_two_equalities.
+    { apply stnsum_eq; intro i. unfold funcomp, f'. apply maponpaths. apply subtypeEquality.
+      { intro. apply propproperty. }
+      rewrite stn_left_compute. induction i as [i I]. induction (!e).
+      rewrite idpath_transportf. rewrite dni_last. reflexivity. }
+    { apply stnsum_eq; intro i. unfold funcomp, f'. apply maponpaths. apply subtypeEquality.
+      { intro. apply propproperty. }
+      rewrite stn_right_compute. unfold stntonat. rewrite (dni_last n i).
+      induction (!e).
+      rewrite idpath_transportf.
+      rewrite dni_last.
+      unfold stntonat.
+      rewrite stn_right_compute.
+      reflexivity. } }
+  unfold funcomp, f'. apply maponpaths. apply subtypeEquality.
+  { intro. apply propproperty. } induction (!e). reflexivity.
+Defined.  
 
 Lemma stnsum_pos {n} (f:stn n->nat) (j:stn n) : f j ≤ stnsum f.
 Proof.
