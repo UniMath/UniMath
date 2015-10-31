@@ -117,6 +117,11 @@ Definition stn_right_compute m n (i:stn n) : pr1 (stn_right m n i) = m+i.
   intros. reflexivity.
 Defined.
 
+Lemma stn_left_0 m i (e:m=m+0) : stn_left m 0 i = transportf stn e i.
+Proof.
+  intros. apply subtypeEquality. { intro. apply propproperty. } induction e. reflexivity.
+Defined.
+
 (** ** "Boundary" maps [ dni : stn n -> stn ( S n ) ] and their properties . *) 
 
 Definition dni ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn ( S n ) .
@@ -406,12 +411,8 @@ Proof.
   intros. induction n as [|n IHn].
   { change (stnsum (f ∘ stn_right m 0)) with 0.
     rewrite natplusr0. assert (e := natplusr0 m).
-    apply (stnsum_eq_2 e).
-    intro. unfold funcomp. apply maponpaths.
-    apply subtypeEquality.
-    { intro. apply propproperty. }
-    induction e. (* could instead have a lemma that equates stn_left, when it's a weq, as a transport *)
-    reflexivity. }
+    apply pathsinv0. apply (stnsum_eq_2 (!e)). intro. unfold funcomp. apply maponpaths.
+    exact (stn_left_0 m i (!e)). }
   rewrite stnsum_step. assert (e : m + S n = S (m+n)).
   { apply natplusnsm. }
   set (f' := (λ i, f (transportf stn (!e) i)) : stn(S(m+n)) -> nat).
