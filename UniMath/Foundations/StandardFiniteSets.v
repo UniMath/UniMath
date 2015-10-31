@@ -218,11 +218,40 @@ Defined.
 (** *** Weak equivalence from [ coprod ( stn n ) unit ] to [ stn ( S n ) ] defined by [ dni n i ] *)
 
 
-Definition weqdnicoprod  ( n : nat ) ( j : stn ( S n ) ) : weq ( coprod ( stn n ) unit ) ( stn ( S n ) ) .
-Proof . intros . apply ( weqcomp ( weqcoprodf ( weqdnicompl n j ) ( idweq unit ) ) ( weqrecompl ( stn ( S n ) ) j ( isdeceqstn ( S n ) j ) ) ) .  Defined . 
+Definition weqdnicoprod n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
+Proof.
+  intros.
+  apply (weqcomp (weqcoprodf (weqdnicompl n j) (idweq unit))
+                 (weqrecompl (stn (S n)) j (isdeceqstn (S n) j))).
+Defined . 
 
+Local Notation "● x" := (x,,idpath _) (at level 35).
+Goal weqdnicoprod 4 (firstelement _) (ii1 (●0)) = ●1. reflexivity. Defined.
+Goal weqdnicoprod 4 (firstelement _) (ii1 (●3)) = ●4. reflexivity. Defined.
+Goal invmap (weqdnicoprod 4 (firstelement _)) (●1) = (ii1 (●0)). reflexivity. Defined.
+Goal invmap (weqdnicoprod 4 (firstelement _)) (●4) = (ii1 (●3)). reflexivity. Defined.
+Goal weqdnicoprod 4 (lastelement _) (ii1 (●3)) = ●3. reflexivity. Defined.
+Goal weqdnicoprod 4 (lastelement _) (ii2 tt) = ●4. reflexivity. Defined.
+Goal invmap (weqdnicoprod 4 (lastelement _)) (●1) = (ii1 (●1)). reflexivity. Defined.
+Goal invmap (weqdnicoprod 4 (lastelement _)) (●4) = (ii2 tt). reflexivity. Defined.
+Goal homotweqinvweq (weqdnicoprod 4 (lastelement 4)) (● 0) = idpath _.
+  (* The definition of weqfp_invmap transports along this path, so for computability of
+     it on closed terms, we need this to work. *)
+  try reflexivity.
+Abort.                          (* fix *)
+Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii2 tt) = idpath _. reflexivity. Defined.
+Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (●1)) = idpath _.
+  try reflexivity. Abort. (* fix *)
+Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (firstelement _)) = idpath _.
+  try reflexivity. Abort. (* fix *)
+Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (lastelement _)) = idpath _.
+  try reflexivity. Abort. (* fix *)
 
-
+Definition weqdnicoprod' n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
+  intros.
+  refine (weqgradth _ _ _ _).
+  { intro x.
+Abort.
 
 (** *** Weak equivalences from [ stn n ] for [ n = 0 , 1 , 2 ] to [ empty ] , [ unit ] and [ bool ] ( see also the section on [ nelstruct ] in finitesets.v ) . *)
 
@@ -306,9 +335,8 @@ Definition stnsum { n : nat } ( f : stn n -> nat ) : nat .
 Proof. intro n . induction n as [ | n IHn ] . intro. apply 0 . intro f . apply (  ( IHn ( fun i : stn n => f ( dni n ( lastelement n ) i ) ) ) + f ( lastelement n ) ) . Defined . 
 
 (* confirm that [stnsum] is associative in the same way as the parser, which is left associative *)
-Local Notation "●" := (idpath _).
-Goal ∀ (f : stn 3 -> nat), stnsum f =  f(0,,●) + f(1,,●)  +  f(2,,●). reflexivity. Defined.
-Goal ∀ (f : stn 3 -> nat), stnsum f = (f(0,,●) + f(1,,●)) +  f(2,,●). reflexivity. Defined.
+Goal ∀ (f : stn 3 -> nat), stnsum f =  f(●0) + f(●1)  +  f(●2). reflexivity. Defined.
+Goal ∀ (f : stn 3 -> nat), stnsum f = (f(●0) + f(●1)) +  f(●2). reflexivity. Defined.
 
 Lemma stnsum_step {n} (f:stn (S n) -> nat) : stnsum f = stnsum (f ∘ (dni n (lastelement n))) + f (lastelement n).
 Proof.
@@ -344,6 +372,7 @@ Defined.
 Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
   transportf P (idpath x) p = p.
 Proof. reflexivity. Defined.
+
 
 Lemma stnsum_left_right m n (f:stn(m+n)->nat) :
   stnsum f = stnsum (f ∘ stn_left m n) + stnsum (f ∘ stn_right m n).
@@ -478,7 +507,6 @@ Abort.
 
 Module Test_weqstnsum.
   (* this module exports nothing *)
-  Notation "● x" := (x,,idpath _) (at level 35).
   Let X := stnset 7.
   Let f (x:X) : nat := pr1 x.
 
@@ -531,7 +559,6 @@ Proof. intros. apply (weqstnsum (stn ∘ f) f (λ i, idweq _)). Defined.
 
 Module Test_old_weqstnsum.
   (* this module exports nothing *)
-  Notation "● x" := (x,,idpath _) (at level 35).
   Let X := stnset 6.
   Let Y (x:X) := stnset (pr1 x).
   Let W := Σ x, Y x.
@@ -626,7 +653,6 @@ Defined.
 Module Test_weqfromprodofstn.
   (* verify computability in both directions *)
   (* this module exports nothing *)
-  Notation "● x" := (x,,idpath _) (at level 35).
   Let f : stn 5 × stn 4 ≃ stn 20 := weqfromprodofstn 5 4.
   Goal f(●0,,●0) = ●0. reflexivity. Defined.
   Goal f(●0,,●1) = ●1. reflexivity. Defined.
@@ -678,7 +704,7 @@ Definition stnprod { n : nat } ( f : stn n -> nat ) : nat .
 Proof. intro n . induction n as [ | n IHn ] . intro. apply 1 . intro f . apply (  ( IHn ( fun i : stn n => f ( dni n ( lastelement n ) i ) ) ) * f ( lastelement n ) ) . Defined . 
 
 (* confirm that [stnprod] is associative in the same way as the parser *)
-Goal ∀ (f : stn 3 -> nat), stnprod f = f(0,,●) * f(1,,●) * f(2,,●).
+Goal ∀ (f : stn 3 -> nat), stnprod f = f(●0) * f(●1) * f(●2).
 Proof. reflexivity. Defined.
 
 Theorem weqstnprod { n : nat } ( P : stn n -> UU ) ( f : stn n -> nat ) ( ww : forall i : stn n , weq ( stn ( f i ) )  ( P i ) ) : weq ( forall x : stn n , P x  ) ( stn ( stnprod f ) ) .
