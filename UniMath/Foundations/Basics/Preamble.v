@@ -151,16 +151,29 @@ Check (O = O) .
 
 Notation "X <- Y" := (Y -> X) (at level 90, only parsing, left associativity) : type_scope.
 
+(* exhibit some aspects of addition on [nat] *)
+(* parsing is left associative: *)
+Goal ∀ i j k, i+j+k = (i+j)+k. reflexivity. Defined.
+Goal ∀ n, 1+n = S n. reflexivity. Defined.
+Goal ∀ n, n+1 = S n. try reflexivity. Abort.
+
 (* confirm and repair some aspects of multiplication on [nat] *)
-Goal ∀ n, 0*n = 0.     reflexivity. Qed.
+(* parsing is left associative: *)
+Goal ∀ i j k, i*j*k = (i*j)*k. reflexivity. Defined.
+Goal ∀ n, 0*n = 0.     reflexivity. Defined.
+
+(* one of these should have worked: *)
 Goal ∀ n, n*1 = n. try reflexivity. Abort.
 Goal ∀ n, 1*n = n. try reflexivity. Abort.
 
-(* Those two failures are not good.  The cause is that Nat.mul defines
-   multiplication as a right-associative sum.  Note also that the parser treats
-   "+" and "*" as left associative.  We redefine multiplication in nat here,
-   avoiding "Fixpoint", too. *)
+(* here we see the problem: *)
+Goal ∀ n, 1*n = n+0. reflexivity. Defined.
+Goal ∀ n, 4*n = n+(n+(n+(n+0))). reflexivity. Defined.
 
+(* not that 0+n reduces to n: *)
+Goal ∀ n, 0+n = n. reflexivity. Defined.
+
+(* so we do it the other way around: *)
 Definition mul : nat -> nat -> nat.
 Proof.
   intros n m.
@@ -172,7 +185,7 @@ Notation mult := mul.           (* this overrides the notation "mult" defined in
 Notation "n * m" := (mul n m) : nat_scope.
 
 (* confirm: *)
-Goal ∀ n, 0*n = 0.             reflexivity. Qed.
-Goal ∀ n m, S n * m = n*m + m. reflexivity. Qed.
-Goal ∀ n, 1*n = n.             reflexivity. Qed.
-Goal 3*5=15.                   reflexivity. Qed.
+Goal ∀ n, 0*n = 0.             reflexivity. Defined.
+Goal ∀ n m, S n * m = n*m + m. reflexivity. Defined.
+Goal ∀ n, 1*n = n.             reflexivity. Defined.
+Goal ∀ n, 4*n = n+n+n+n.       reflexivity. Defined.
