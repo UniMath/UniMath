@@ -43,20 +43,20 @@ Require Import UniMath.SubstitutionSystems.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.SubstitutionSystems.Notation.
 
+(*
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
-Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
+Local Notation "G • F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
 Local Notation "α ∙∙ β" := (hor_comp β α) (at level 20).
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
 Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50, left associativity).
-
-Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
-
+*)
 
 Section def_hss.
 
@@ -99,11 +99,18 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Local Notation "A 'XX' B" := (product_precategory A B) (at level 2).
 (** Pre-whiskering defined as morphism part of the functor given by precomposition
     with a fixed functor *)
-Local Notation "α 'øø' Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).
+(*Local Notation "α 'øø' Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).*)
+
+Local Notation "α •• Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).
 
 Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
 
+(*
 Local Coercion alg_carrier : algebra_ob >-> ob.
+*)
+
+Local Notation "` T" := (alg_carrier _ T (*: functor C C*)) (at level 3).
+
 
 (* Local Notation "'τ'" := (tau). *)
 
@@ -121,7 +128,7 @@ Definition τ (T : Alg) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
 
 (* An Id_H algebra is a pointed functor *)
 
-Definition eta_from_alg (T : algebra_ob Id_H) : EndC ⟦ functor_identity _,  T ⟧.
+Definition eta_from_alg (T : algebra_ob Id_H) : EndC ⟦ functor_identity _,  `T ⟧.
 Proof.
   exact (CoproductIn1 _ _ ;; alg_map _ T).
 Defined.
@@ -134,7 +141,7 @@ Proof.
   exact (η T).
 Defined.
 
-Definition tau_from_alg (T : algebra_ob Id_H) : EndC ⟦H T, T⟧.
+Definition tau_from_alg (T : algebra_ob Id_H) : EndC ⟦H `T, `T⟧.
 Proof.
   exact (CoproductIn2 _ _ ;; alg_map _ T).
 Defined.
@@ -145,35 +152,32 @@ Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
 (*
 Coercion functor_from_algebra_ob (X : algebra_ob _ Id_H) : functor C C  := pr1 X.
 *)
-Local Notation "` T" := (alg_carrier _ T : functor C C) (at level 3).
 
 Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 
 
 Definition bracket_property (T : algebra_ob Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
-           (h : `T ∙ (U Z)  ⇒ T) : UU
+           (h : `T • (U Z)  ⇒ `T) : UU
   :=
-    alg_map _ T øø (U Z) ;; h =
+    alg_map _ T •• (U Z) ;; h =
           identity (U Z) ⊕ θ (`T ⊗ Z) ;;
           identity (U Z) ⊕ #H h ;;
           CoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T).
 
 Definition bracket_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T): UU :=
-  iscontr
-   (Σ h : `T ∙ (U Z)  ⇒ T, bracket_property T f h).
+  ∃! h : `T • (U Z)  ⇒ `T, bracket_property T f h.
 
 Definition bracket (T : algebra_ob Id_H) : UU
   := ∀ (Z : Ptd) (f : Z ⇒ ptd_from_alg T), bracket_at T f.
 
 Definition bracket_property_parts (T : algebra_ob Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
-           (h : `T ∙ (U Z)  ⇒ T) : UU
+           (h : `T • (U Z)  ⇒ `T) : UU
   :=
-    (#U f = η T øø (U Z) ;; h) ×
-     (θ (`T ⊗ Z) ;; #H h ;; τ T  = τ T øø (U Z) ;;  h).
+    (#U f = η T •• (U Z) ;; h) ×
+     (θ (`T ⊗ Z) ;; #H h ;; τ T  = τ T •• (U Z) ;;  h).
 
 Definition bracket_parts_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z ⇒ ptd_from_alg T) : UU :=
-   iscontr
-   (Σ h : `T ∙ (U Z)  ⇒ T, bracket_property_parts T f h).
+   ∃! h : `T • (U Z)  ⇒ `T, bracket_property_parts T f h.
 
 Definition bracket_parts (T : algebra_ob Id_H) : UU
   := ∀ (Z : Ptd) (f : Z ⇒ ptd_from_alg T), bracket_parts_at T f.
@@ -181,7 +185,7 @@ Definition bracket_parts (T : algebra_ob Id_H) : UU
 (* show that for any h of suitable type, the following are equivalent *)
 
 Lemma parts_from_whole (T : algebra_ob Id_H) (Z : Ptd) (f : Z ⇒ ptd_from_alg T)
-      (h :  `T ∙ (U Z)  ⇒ T) :
+      (h :  `T • (U Z)  ⇒ `T) :
   bracket_property T f h → bracket_property_parts T f h.
 Proof.
   intro Hyp.
@@ -236,7 +240,7 @@ Proof.
 Qed.
 
 Lemma whole_from_parts (T : algebra_ob Id_H) (Z : Ptd) (f : Z ⇒ ptd_from_alg T)
-      (h :  `T ∙ (U Z)  ⇒ T) :
+      (h :  `T • (U Z)  ⇒ `T) :
   bracket_property_parts T f h → bracket_property T f h.
 Proof.
   intros [Hyp1 Hyp2].
@@ -289,16 +293,20 @@ Coercion alg_from_hss (T : hss) : algebra_ob Id_H := pr1 T.
 
 
 Definition fbracket (T : hss) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
-  : `T ∙ (U Z) ⇒ T
+  : `T • (U Z) ⇒ `T
   := pr1 (pr1 (pr2 T Z f)).
+
+Notation "⦃ f ⦄" := (fbracket _ f)(at level 0).
 
 (** The bracket operation [fbracket] is unique *)
 
 Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
-  : ∀ (α : functor_composite (U Z) `T ⟶ `T),
+  : ∀ (α : functor_composite (U Z) `T ⟶ pr1 `T),
      (∀ c : C, pr1 (#U f) c = pr1 (η T) (pr1 (U Z) c) ;; α c) →
      (∀ c : C, pr1 (θ (`T ⊗ Z))  c ;; pr1 (#H α) c ;; pr1 (τ T) c =
-        pr1 (τ T) (pr1 (U Z) c) ;; α c) → α = fbracket T f.
+        pr1 (τ T) (pr1 (U Z) c) ;; α c)
+     →
+     α = ⦃f⦄.
 Proof.
   intros α H1 H2.
   apply path_to_ctr.
@@ -309,9 +317,10 @@ Proof.
 Qed.
 
 Definition fbracket_unique (T : hss) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
-: ∀ α : functor_composite (U Z)(`T) ⟶ `T,
+: ∀ α : (*functor_composite (C:=C)*) `T • (U Z)  ⇒ `T,
     bracket_property_parts T f α
-   → α = fbracket T f.
+   →
+   α = ⦃f⦄.
 Proof.
   intros α [H1 H2].
   apply path_to_ctr.
@@ -320,9 +329,10 @@ Proof.
 Qed.
 
 Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ ptd_from_alg T)
-: ∀ α : functor_composite (U Z)(`T) ⟶ `T,
+  : ∀ α : `T • U Z ⇒ `T,
         bracket_property_parts T f α
-   → ∀ c, α c = pr1 (fbracket T f) c.
+   →
+   ∀ c, pr1 α c =  pr1 ⦃ f ⦄ c.
 Proof.
   intros α H12.
   set (t:= fbracket_unique _ _ α H12).
@@ -332,7 +342,7 @@ Qed.
 (** Properties of [fbracket] by definition: commutative diagrams *)
 
 Lemma fbracket_η (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ ptd_from_alg T),
-   #U f = η T øø U Z ;; fbracket T f.
+   #U f = η T •• U Z ;; ⦃f⦄.
 Proof.
   intros Z f.
   (* assert (H' := parts_from_whole T Z f (fbracket _ f)) . *)
@@ -340,9 +350,9 @@ Proof.
 Qed.
 
 Lemma fbracket_τ (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ ptd_from_alg T),
-    θ (`T ⊗ Z) ;; #H (fbracket T f) ;; τ T
+    θ (`T ⊗ Z) ;; #H ⦃f⦄ ;; τ T
     =
-    τ T øø U Z ;; (fbracket T f).
+    τ T •• U Z ;; ⦃f⦄.
 Proof.
   intros Z f.
   exact (pr2 (parts_from_whole _ _ _ _ (pr2 (pr1 (pr2 T Z f))))).
@@ -529,7 +539,7 @@ Definition isbracketMor {T T' : hss} (β : algebra_mor _ T T') : UU :=
     ∀ (Z : Ptd) (f : Z ⇒ ptd_from_alg T),
        fbracket _ f ;;  β
        =
-       (β)øø (U Z) ;; fbracket _ (f ;; # ptd_from_alg_functor β ).
+       β •• (U Z) ;; fbracket _ (f ;; # ptd_from_alg_functor β ).
 
 
 Lemma isaprop_isbracketMor (T T':hss) (β : algebra_mor _ T T') : isaprop (isbracketMor β).
