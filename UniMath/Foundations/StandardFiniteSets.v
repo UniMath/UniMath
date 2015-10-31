@@ -100,9 +100,28 @@ Goal ∀ m n (i:m≤n) (j:stn m), pr1 (stnmtostnn m n i j) = pr1 j.
   intros. induction j as [j J]. reflexivity.
 Defined.
 
+Definition stn_left m n : stn m -> stn (m+n).
+Proof.
+  intros ? ? i. induction i as [i I]. exists i.
+  apply (natlthlehtrans i m (m+n) I). apply natlehnplusnm.
+Defined.
+
+Definition stn_right m n : stn n -> stn (m+n).
+Proof.
+  intros ? ? i. induction i as [i I]. exists (m+i). now apply natlthandplusl.
+Defined.
+
+Definition stn_left_compute m n (i:stn m) : pr1 (stn_left m n i) = i.
+Proof.
+  intros. induction i as [i I]. reflexivity.
+Defined.
+
+Definition stn_right_compute m n (i:stn n) : pr1 (stn_right m n i) = m+i.
+Proof.
+  intros. induction i as [i I]. reflexivity.
+Defined.
+
 (** ** "Boundary" maps [ dni : stn n -> stn ( S n ) ] and their properties . *) 
-
-
 
 Definition dni ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn ( S n ) .
 Proof. intros n i x .  destruct ( natlthorgeh x i ) . apply ( stnpair ( S n ) x ( natgthtogths _ _ ( pr2 x ) ) ) .  apply ( stnpair ( S n ) ( S x ) ( pr2 x ) ) .  Defined.  
@@ -298,17 +317,72 @@ Defined.
 
 Lemma stnsum_eq {n} (f g:stn n->nat) : f ~ g -> stnsum f = stnsum g.
 Proof.
-  intros ? ? ? le. induction n as [|n IH].
+  intros ? ? ? h. induction n as [|n IH].
   { reflexivity. }
-  rewrite 2? stnsum_step. induction (le (lastelement _)). apply (maponpaths (λ i, i + f (lastelement _))).
-  apply IH. intro x. apply le.
+  rewrite 2? stnsum_step. induction (h (lastelement _)).
+  apply (maponpaths (λ i, i + f (lastelement _))). apply IH. intro x. apply h.
 Defined.  
+
+Lemma stnsum_eq_2 {m n} (e:m=n) (f:stn m->nat) (g:stn n->nat) :
+  (∀ i, f i = g(transportf stn e i)) -> stnsum f = stnsum g.
+Proof.
+  intros ? ? ? ? ? h. induction e. now apply stnsum_eq.
+Defined.
 
 Lemma stnsum_le {n} (f g:stn n->nat) : (∀ i, f i ≤ g i) -> stnsum f ≤ stnsum g.
 Proof.
   intros ? ? ? le. induction n as [|n IH]. { simpl. exact nopathsfalsetotrue. }
   apply natlehandplus. { apply IH. intro i. apply le. } apply le.
 Defined.  
+
+Lemma plus_two_equalities a b c d : a=b -> c=d -> a+c = b+d.
+Proof.
+  intros ? ? ? ? r s. induction r. induction s. reflexivity.
+Defined.  
+
+Lemma stnsum_left_right m n (f:stn(m+n)->nat) :
+  stnsum f = stnsum (f ∘ stn_left m n) + stnsum (f ∘ stn_right m n).
+Proof.
+  intros.
+  induction n as [|n IHn].
+  { change (stnsum (f ∘ stn_right m 0)) with 0.
+    rewrite natplusr0. assert (e := natplusr0 m). apply (stnsum_eq_2 e).
+    intro. unfold funcomp. apply maponpaths. apply subtypeEquality.
+    { intro. apply propproperty. }
+    rewrite stn_left_compute. induction i as [i I]. induction e. reflexivity. }
+  rewrite stnsum_step.
+  assert (e : m + S n = S (m+n)).
+  { apply natplusnsm. }
+  set (f' := (λ i, f (transportf stn (!e) i)) : stn(S(m+n)) -> nat).
+  intermediate_path (stnsum f').
+  { apply pathsinv0. apply (stnsum_eq_2 (!e) f' f). reflexivity. }
+  rewrite stnsum_step.
+  rewrite <- natplusassoc.
+  apply plus_two_equalities.
+  { 
+    
+    
+    admit. }
+  { unfold funcomp, f'. apply maponpaths. apply subtypeEquality.
+    { intro. apply propproperty. } induction (!e). reflexivity. }
+Abort.
+
+Lemma stnsum_pos {n} (f:stn n->nat) (j:stn n) : f j ≤ stnsum f.
+Proof.
+  intros ? ? j.
+  induction j as [j J].
+
+
+
+Abort.
+
+Lemma stnsum_lt {n} (f g:stn n->nat) :
+  (∀ i, f i ≤ g i) -> (Σ j, f j < g j) -> stnsum f < stnsum g.
+Proof.
+  intros ? ? ? le lt.
+  induction lt as [j lt].
+
+Abort.
 
 Lemma stnsum_1 n : stnsum(λ i:stn n, 1) = n.
 Proof.
@@ -362,8 +436,6 @@ Proof.
   induction e as [r s].
   exact (dni _ (firstelement _) r,,s).
 Defined.
-
-Axiom OOPS:empty.
 
 Definition weqstnsum_map { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) -> stn (stnsum f).
 Proof.

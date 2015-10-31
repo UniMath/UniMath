@@ -329,7 +329,7 @@ Definition FiniteOrderedSetDecidableOrdering (X:FiniteOrderedSet) : DecidableRel
   λ (x y:X), decidable_to_DecidableProposition (FiniteOrderedSet_isdec_ordering x y).
 
 Definition FiniteOrderedSetDecidableEquality (X:FiniteOrderedSet) : DecidableRelation X :=
-  λ (x y:X), @decidable_to_DecidableProposition (eqset x y) (FiniteOrderedSet_isdeceq x y).
+  λ (x y:X), @decidable_to_DecidableProposition (eqset x y) (FiniteOrderedSet_isdecgeq x y).
 
 Definition FiniteOrderedSetDecidableInequality (X:FiniteOrderedSet) : DecidableRelation X.
   intros ? x y.

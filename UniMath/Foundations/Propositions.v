@@ -468,6 +468,14 @@ Proof.
   - exact no.
 Defined.
 
+Definition dependent_choice {W} (P:DecidableProposition): (P->W) -> (¬P->W) -> W.
+Proof.
+  intros ? P yes no.
+  choose P p q.
+  - exact (yes p).
+  - exact (no q).
+Defined.
+
 Definition choice_compute_yes {W} (P:DecidableProposition) (p:P) (yes no:W) :
   choice P yes no = yes.
 Proof.
