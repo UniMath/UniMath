@@ -436,6 +436,10 @@ Notation "p # x" := (transportf _ p x) (only parsing, right associativity, at le
 Notation "p #' x" := (transportb _ p x) (only parsing, right associativity, at level 65) : transport.
 Delimit Scope transport with transport.
 
+Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
+  transportf P (idpath x) p = p.
+Proof. reflexivity. Defined.
+
 Lemma functtransportf {X Y : UU} (f : X -> Y) (P : Y -> UU) {x x' : X}
   (e : x = x') (p : P (f x)) :
     transportf (fun x => P (f x)) e p = transportf P (maponpaths f e) p.
