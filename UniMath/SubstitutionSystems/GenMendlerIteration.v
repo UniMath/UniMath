@@ -203,7 +203,7 @@ Focus 2.
       apply maponpaths.
       exact h_rec_eq.
     + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial ⇒ ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
-       refine (let X : AF ⟦ μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
+       refine (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
        * apply (tpair _ (φ h)); assumption.
        * apply (maponpaths pr1 (InitialArrowUnique _ _ X0)).
 Qed.

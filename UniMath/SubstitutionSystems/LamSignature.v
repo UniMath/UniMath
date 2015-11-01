@@ -257,7 +257,7 @@ Qed.
 Definition App_θ: nat_trans (θ_source App_H) (θ_target App_H) :=
   tpair _ _ is_nat_trans_App_θ_data.
 
-Lemma App_θ_strenght1_int: θ_Strength1_int App_θ.
+Lemma App_θ_strength1_int: θ_Strength1_int App_θ.
 Proof.
   red.
   intro.
@@ -286,7 +286,7 @@ Proof.
 Qed.
 
 
-Lemma App_θ_strenght2_int: θ_Strength2_int App_θ.
+Lemma App_θ_strength2_int: θ_Strength2_int App_θ.
 Proof.
   red.
   intros.
@@ -330,8 +330,9 @@ Proof.
 *)
   simpl.
   apply CoproductArrow.
-  + exact (CoproductIn1 _ _ ;; nat_trans_data (pr2 (pr2 XZ)) (CoproductObject C (CC terminal A))).
-  + exact (# (pr1 (pr2 XZ)) (CoproductIn2 _ (CC terminal A))).
+  + exact (CoproductIn1 _ _ ;;
+           nat_trans_data (pr2 (pr2 XZ)) (CoproductObject C (CC (TerminalObject terminal) A))).
+  + exact (# (pr1 (pr2 XZ)) (CoproductIn2 _ (CC (TerminalObject terminal) A))).
 Defined.
 
 Lemma is_nat_trans_Abs_θ_data_data: ∀ XZ, is_nat_trans _ _ (Abs_θ_data_data XZ).
@@ -357,8 +358,8 @@ Focus 2.
   rewrite <- functor_comp.
   simpl.
   apply CoproductArrow_eq.
-  + assert (NN :=  nat_trans_ax (pr2 (pr2 XZ)) _ _ (CoproductOfArrows C (CC terminal c) (CC terminal c')
-         (identity terminal) f)).
+  + assert (NN :=  nat_trans_ax (pr2 (pr2 XZ)) _ _ (CoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
+         (identity (TerminalObject terminal)) f)).
     match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _ ] =>
          pathvia (h;;(f;;g)) end.
     * rewrite <- NN.
@@ -398,8 +399,8 @@ Focus 2.
   rewrite <- functor_comp.
   simpl.
   apply CoproductArrow_eq.
-  + assert (NN :=  nat_trans_ax e _ _ (CoproductOfArrows C (CC terminal c) (CC terminal c')
-         (identity terminal) f)).
+  + assert (NN :=  nat_trans_ax e _ _ (CoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
+         (identity (TerminalObject terminal)) f)).
     match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _ ] =>
          pathvia (h;;(f;;g)) end.
     * rewrite <- NN.
@@ -471,7 +472,7 @@ Qed.
 Definition Abs_θ: nat_trans (θ_source Abs_H) (θ_target Abs_H) :=
   tpair _ _ is_nat_trans_Abs_θ_data.
 
-Lemma Abs_θ_strenght1_int: θ_Strength1_int Abs_θ.
+Lemma Abs_θ_strength1_int: θ_Strength1_int Abs_θ.
 Proof.
   red.
   intro.
@@ -489,7 +490,7 @@ Proof.
   + apply id_right.
 Qed.
 
-Lemma Abs_θ_strenght2_int: θ_Strength2_int Abs_θ.
+Lemma Abs_θ_strength2_int: θ_Strength2_int Abs_θ.
 Proof.
   red.
   intros.
@@ -515,17 +516,17 @@ Focus 2.
   simpl in *.
   apply CoproductArrow_eq.
   + rewrite <- assoc.
-    assert (NN := nat_trans_ax e' _ _ (e (CoproductObject C (CC terminal c)))).
+    assert (NN := nat_trans_ax e' _ _ (e (CoproductObject C (CC (TerminalObject terminal) c)))).
     simpl in NN. (* is important for success of the trick *)
     match goal with |[ H1: _ = ?f;;?g |- ?h ;; _ = _ ] =>
          pathvia (h;;(f;;g)) end.
     * apply idpath.
     * simpl. rewrite <- NN.
       clear NN.
-      assert (NNN := nat_trans_ax e' _ _ (CoproductArrow C (CC terminal (Z c))
-         (CoproductIn1 C (CC terminal c);;
-          e (CoproductObject C (CC terminal c)))
-         (# Z (CoproductIn2 C (CC terminal c))))).
+      assert (NNN := nat_trans_ax e' _ _ (CoproductArrow C (CC (TerminalObject terminal) (Z c))
+         (CoproductIn1 C (CC (TerminalObject terminal) c);;
+          e (CoproductObject C (CC (TerminalObject terminal) c)))
+         (# Z (CoproductIn2 C (CC (TerminalObject terminal) c))))).
       simpl in NNN.
       match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _] =>
          pathvia (h;;(f;;g)) end.
@@ -591,7 +592,7 @@ Qed.
 Definition Flat_θ: nat_trans (θ_source Flat_H) (θ_target Flat_H) :=
   tpair _ _ is_nat_trans_Flat_θ_data.
 
-Lemma Flat_θ_strenght1_int: θ_Strength1_int Flat_θ.
+Lemma Flat_θ_strength1_int: θ_Strength1_int Flat_θ.
 Proof.
   red.
   intro.
@@ -606,7 +607,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma Flat_θ_strenght2_int: θ_Strength2_int Flat_θ.
+Lemma Flat_θ_strength2_int: θ_Strength2_int Flat_θ.
 Proof.
   red.
   intros.
@@ -631,8 +632,8 @@ Proof.
   exists App_H.
   exists App_θ.
   split.
-  + exact App_θ_strenght1_int.
-  + exact App_θ_strenght2_int.
+  + exact App_θ_strength1_int.
+  + exact App_θ_strength2_int.
 Defined.
 
 Definition Abs_Sig: Signature C hs.
@@ -640,8 +641,8 @@ Proof.
   exists Abs_H.
   exists Abs_θ.
   split.
-  + exact Abs_θ_strenght1_int.
-  + exact Abs_θ_strenght2_int.
+  + exact Abs_θ_strength1_int.
+  + exact Abs_θ_strength2_int.
 Defined.
 
 Definition Flat_Sig: Signature C hs.
@@ -649,8 +650,8 @@ Proof.
   exists Flat_H.
   exists Flat_θ.
   split.
-  + exact Flat_θ_strenght1_int.
-  + exact Flat_θ_strenght2_int.
+  + exact Flat_θ_strength1_int.
+  + exact Flat_θ_strength2_int.
 Defined.
 
 

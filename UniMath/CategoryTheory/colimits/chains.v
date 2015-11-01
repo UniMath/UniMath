@@ -190,6 +190,29 @@ induction m; simpl.
 - exact (# F IHm).
 Defined.
 
+(** Experiment with shift and Fdiagram *)
+(* Definition shift_Fdiagram (x : C) : cocone Fdiagram x -> cocone (shift C Fdiagram) (F x). *)
+(* Proof. *)
+(* intro H. *)
+(* refine (mk_cocone _ _). *)
+(* - simpl. *)
+(*   intro n. *)
+(*   destruct n. *)
+(*   + exact (# F (coconeIn H 0)). *)
+(*   + exact (# F (coconeIn H (S n))). *)
+(* - simpl; intros m n e; destruct e. *)
+(*   destruct m; simpl. *)
+(*   + rewrite <- functor_comp. *)
+(*     apply maponpaths, (pr2 H 0 1 (idpath _)). (* remove pr2 ... *) *)
+(*   + rewrite <- functor_comp. *)
+(*     apply maponpaths, (pr2 H (S m) (S (S m)) (idpath _)). (* remove pr2 *) *)
+(* Defined. *)
+
+(* Definition Fcocone (x : C) (cx : cocone Fdiagram x) : cocone Fdiagram (F x). *)
+(* Proof. *)
+(* apply unshift_cocone, shift_Fdiagram; assumption. *)
+(* Defined. *)
+
 Variables (CC : ColimCocone Fdiagram).
 
 Local Notation L := (colim CC).
@@ -246,7 +269,8 @@ Section colim_initial_algebra.
 Variables (C : precategory) (F : functor C C).
 Variables (hsC : has_homsets C) (Init : Initial C).
 
-Definition initDiag : diagram nat_graph C := Fdiagram F Init (InitialArrow Init (F Init)).
+Definition initDiag : diagram nat_graph C :=
+  Fdiagram F (InitialObject Init) (InitialArrow Init (F (InitialObject Init))).
 
 Variable (CC : ColimCocone initDiag).
 Variable (Fcont : chain_cocontinuous hsC F (InitialObject Init) (InitialArrow Init _) CC).
@@ -356,39 +380,28 @@ Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
 
 End colim_initial_algebra.
 
-
+About Fcocone.
+Check unshift_cocone.
 (* WIP below of here *)
-(* Section lists. *)
+Section lists.
 
-(* (* TODO: Move *) *)
-(* Require Import UniMath.SubstitutionSystems.Auxiliary. *)
-(* Require Import UniMath.SubstitutionSystems.FunctorsPointwiseProduct. *)
-(* Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct. *)
-(* Require Import UniMath.CategoryTheory.limits.products. *)
-(* Require Import UniMath.CategoryTheory.limits.coproducts. *)
-(* Require Import UniMath.CategoryTheory.limits.terminal. *)
+(* TODO: Move *)
+Require Import UniMath.SubstitutionSystems.Auxiliary.
+Require Import UniMath.SubstitutionSystems.FunctorsPointwiseProduct.
+Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.terminal.
 
-(* Variable A : HSET. *)
+Variable A : HSET.
 
-(* Lemma ProductsHSET : Products HSET. *)
-(* Admitted. *)
-
-(* Lemma CoproductsHSET : Coproducts HSET. *)
-(* Admitted. *)
-
-(* Lemma TerminalHSET : Terminal HSET. *)
-(* Admitted. *)
-
-(* Lemma InitialHSET : Initial HSET. *)
-(* Admitted. *)
-
-(* (* *)
+(* *)
 (* F(X) = A * X *)
-(* *) *)
-(* Definition streamFunctor : functor HSET HSET := *)
-(*   product_functor HSET HSET ProductsHSET *)
-(*                   (constant_functor HSET HSET A) *)
-(*                   (functor_identity HSET). *)
+(* *)
+Definition streamFunctor : functor HSET HSET :=
+  product_functor HSET HSET ProductsHSET
+                  (constant_functor HSET HSET A)
+                  (functor_identity HSET).
 
 
 (* Definition unitHSET : HSET. *)
@@ -399,46 +412,105 @@ End colim_initial_algebra.
 (* apply iscontrunit. *)
 (* Defined. *)
 
-(* (* *)
 (* F(X) = 1 + (A * X) *)
-(* *) *)
-(* Definition listFunctor : functor HSET HSET := *)
-(*   coproduct_functor HSET HSET CoproductsHSET *)
-(*                     (constant_functor HSET HSET unitHSET) *)
-(*                     streamFunctor. *)
+Definition listFunctor : functor HSET HSET :=
+  coproduct_functor HSET HSET CoproductsHSET
+                    (constant_functor HSET HSET (TerminalObject TerminalHSET))
+                    streamFunctor.
 
-(* Definition temp : ColimCocone *)
-(*    (Fdiagram listFunctor InitialHSET *)
-(*       (InitialArrow HSET InitialHSET (listFunctor InitialHSET))). *)
-(* Proof. *)
-(* apply ColimCoconeHSET. *)
-(* Defined. *)
+(* Let ColimCoconeF F := ColimCocone *)
+(*          (Fdiagram F (InitialObject InitialHSET) *)
+(*             (InitialArrow InitialHSET (F (InitialObject InitialHSET)))). *)
 
-(* Lemma listFunctor_chain_cocontinuous : chain_cocontinuous has_homsets_HSET listFunctor *)
-(*   (InitialObject _ InitialHSET) (InitialArrow _ InitialHSET _) temp. *)
-(* Proof. *)
-(* unfold chain_cocontinuous. *)
-(* Admitted. *)
+(* Definition temp : ColimCoconeF listFunctor := ColimCoconeHSET _ _. *)
 
-(* (* *)
 
-(* P(F), P(G) |- P(F * G) *)
-(* P(F), P(G) |- P(F + G) *)
-(*            |- P(constant_functor A) *)
-(*            |- P(identity_functor) *)
+Let good F := chain_cocontinuous has_homsets_HSET F
+    (InitialObject InitialHSET) (InitialArrow InitialHSET _) (ColimCoconeHSET _ _).
+(* TODO: *)
+(* good(F), good(G) |- good(F * G) *)
+(* good(F), good(G) |- good(F + G) *)
+(*                  |- good(constant_functor A) *)
+(*                  |- good(identity_functor) *)
 
-(* *) *)
+Lemma goodIdentity : good (functor_identity _).
+Proof.
+(* unfold good, chain_cocontinuous. *)
+(* unfold from_colim_shift. *)
+(* set (X1 := ColimCoconeHSET _ _). *)
+(* set (X3 := Fcocone _ _ _ _). *)
+(* apply (isColim_is_iso _ X1). *)
+(* intros a ca. *)
+(* refine (tpair _ _ _). *)
+(* refine (tpair _ _ _). *)
+(* apply colimArrow. *)
+(* apply ca. *)
+(* intros v. *)
+(* set (H:=colimArrowCommutes X1 a ca v). *)
+(* unfold colimIn in H. *)
+(* unfold X3. *)
+(* rewrite <- H. *)
+(* apply cancel_postcomposition. *)
+(* assert (test : Fcocone (functor_identity HSET) (InitialObject InitialHSET) *)
+(*         (InitialArrow InitialHSET *)
+(*            ((functor_identity HSET) (InitialObject InitialHSET))) X1 = colimCocone X1). *)
+(* simpl. *)
+(* apply subtypeEquality. *)
+(* intro x. *)
+(* repeat (apply impred; intro). *)
+(* apply has_homsets_HSET. *)
+(* simpl. *)
+(* apply funextsec; intro n. *)
+(* induction n; simpl. *)
+(* apply (ArrowsFromInitial InitialHSET). *)
+(* simpl. *)
+(* admit. *)
+(* rewrite test. *)
+(* apply idpath. *)
 
-(* Lemma listFunctor_Initial : *)
-(*   Initial (precategory_FunctorAlg HSET listFunctor has_homsets_HSET). *)
-(* Proof. *)
-(* refine (adaggerMorInitial _ _ _ _ _ _). *)
-(* - apply InitialHSET. *)
-(* - apply temp. *)
-(* - apply listFunctor_chain_cocontinuous. *)
-(* Defined. *)
+(* apply InitialArrowUnique. *)
 
-(* (* *)
+(* intro a; simpl. *)
+(* unfold Fcocone. *)
+(* unfold colimCocone. *)
+
+
+(* induction v. *)
+(* simpl. *)
+(* apply idpath. *)
+(* f_equal. *)
+(* apply H. *)
+(* simpl. *)
+(* simpl. *)
+(* simpl in *. *)
+Admitted.
+
+Lemma goodConstant (B : HSET) : good (constant_functor _ _ B).
+Admitted.
+
+Lemma goodProduct (F G : functor HSET HSET) :
+  good F -> good G -> good (product_functor _ _ ProductsHSET F G).
+Admitted.
+
+Lemma goodCoproduct (F G : functor HSET HSET) :
+  good F -> good G -> good (coproduct_functor _ _ CoproductsHSET F G).
+Admitted.
+
+Lemma listFunctor_chain_cocontinuous : good listFunctor.
+Proof.
+unfold listFunctor, streamFunctor.
+apply goodCoproduct; [ apply goodConstant |].
+apply goodProduct; [ apply goodConstant | apply goodIdentity].
+Defined.
+
+Lemma listFunctor_Initial :
+  Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
+Proof.
+refine (colimAlgInitial _ _ _ _ _ _).
+- apply InitialHSET.
+- apply ColimCoconeHSET.
+- apply listFunctor_chain_cocontinuous.
+Defined.
 
 (* Get recursion/iteration scheme: *)
 
@@ -446,9 +518,6 @@ End colim_initial_algebra.
 (* ------------------------------------ *)
 (*       iter x f : List A -> X *)
 
-
 (* Get induction as well? *)
 
-(* *) *)
-
-(* End lists. *)
+End lists.
