@@ -1347,7 +1347,18 @@ Proof. intros . set ( is1 := isaprople n m ) . set ( is2 := pr2 ( natleh n m )  
 
 Definition weqletoleh ( n m : nat ) := weqpair _ ( isweqletoleh n m ) .
 
+(* more lemmas about natural numbers *)
 
+Lemma natsubsub n i j : n-i-j = n-(i+j).
+Proof.
+  intros n; induction n as [|n N].
+  { reflexivity. }
+  intros i; induction i as [|i _].
+  { reflexivity. }
+  { apply N. }
+Defined.  
 
-
-(* End of the file hnat.v *)
+Lemma natltplusS n i : i < i + S n.
+Proof.
+  intros. rewrite <- (natplusr0 i). rewrite natplusassoc. apply natlthandplusl. reflexivity.
+Defined.
