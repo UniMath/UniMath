@@ -45,18 +45,6 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
 Require Import UniMath.SubstitutionSystems.Notation.
 
-(*
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Arguments functor_composite {_ _ _} _ _ .
-Arguments nat_trans_comp {_ _ _ _ _} _ _ .
-Local Notation "G • F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
-Local Notation "α ∙∙ β" := (hor_comp β α) (at level 20).
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
-Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
-Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50, left associativity).
-*)
 
 Section def_hss.
 
@@ -95,35 +83,6 @@ Local Notation "'U'" := (functor_ptd_forget C hs).
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C, hs]) .
-(** The product of two precategories *)
-Local Notation "A 'XX' B" := (product_precategory A B) (at level 2).
-(** Pre-whiskering defined as morphism part of the functor given by precomposition
-    with a fixed functor *)
-(*Local Notation "α 'øø' Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).*)
-
-Local Notation "α •• Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).
-
-Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
-
-(*
-Local Coercion alg_carrier : algebra_ob >-> ob.
-*)
-
-Local Notation "` T" := (alg_carrier _ T (*: functor C C*)) (at level 3).
-
-
-(* Local Notation "'τ'" := (tau). *)
-
-(** ** Definition of algebra structure [τ] of a pointed functor *)
-(*
-Definition AlgStruct (T : Ptd) : UU := pr1 (H(U T)) ⟶ pr1 (U T).
-
-Definition Alg : UU := Σ T : Ptd, AlgStruct T.
-
-Coercion PtdFromAlg (T : Alg) : Ptd := pr1 T.
-
-Definition τ (T : Alg) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
-*)
 
 
 (* An Id_H algebra is a pointed functor *)
@@ -361,7 +320,7 @@ Qed.
 (** [fbracket] is also natural *)
 
 Lemma fbracket_natural (T : hss) {Z Z' : Ptd} (f : Z ⇒ Z') (g : Z' ⇒ ptd_from_alg T)
-  : post_whisker _ _ _ _ (#U f)(`T) ;; fbracket T g = fbracket T (f ;; g).
+  :  ` T ∘ # U f ;; ⦃ g ⦄ = ⦃ f ;; g ⦄.
 Proof.
   apply fbracket_unique_pointwise.
   - simpl. intro c.
@@ -419,7 +378,7 @@ Qed.
 (** As a consequence of naturality, we can compute [fbracket f] from [fbracket identity] *)
 
 Lemma compute_fbracket (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ ptd_from_alg T),
-  fbracket T f = post_whisker _ _ _ _ (#U f)(`T) ;; fbracket T (identity _ ).
+      ⦃ f ⦄ = ` T ∘ # U f ;; ⦃ identity p T ⦄.
 Proof.
   intros Z f.
   assert (A : f = f ;; identity _ ).
@@ -537,9 +496,7 @@ Definition ptd_from_alg_functor: functor (precategory_FunctorAlg Id_H hsEndC) Pt
 
 Definition isbracketMor {T T' : hss} (β : algebra_mor _ T T') : UU :=
     ∀ (Z : Ptd) (f : Z ⇒ ptd_from_alg T),
-       fbracket _ f ;;  β
-       =
-       β •• (U Z) ;; fbracket _ (f ;; # ptd_from_alg_functor β ).
+      ⦃ f ⦄ ;; β = β •• U Z ;; ⦃ f ;; # ptd_from_alg_functor β ⦄.
 
 
 Lemma isaprop_isbracketMor (T T':hss) (β : algebra_mor _ T T') : isaprop (isbracketMor β).
@@ -701,3 +658,6 @@ Arguments ptd_from_alg_functor {_ _} _ _ .
 Arguments bracket_property {_ _ _ _ _ _} _ _ .
 Arguments bracket_property_parts {_ _ _ _ _ _} _ _ .
 Arguments bracket {_ _ _ _} _.
+
+Notation τ := tau_from_alg.
+Notation η := eta_from_alg.
