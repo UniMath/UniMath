@@ -431,8 +431,10 @@ Proof. intros. induction e. reflexivity. Defined.
 Lemma stnsum_dni {n} (f:stn (S n)->nat) (j:stn (S n)) : stnsum f = stnsum (f ∘ dni n j) + f j.
 Proof.
   intros.
-  assert (e : (S j) + (n - j) = S n). admit.
-  assert (e2 : j + (n - j) = n). admit.
+  assert (e2 : j + (n - j) = n).
+  { rewrite natpluscomm. apply minusplusnmm. apply natlthsntoleh. exact (pr2 j). } 
+  assert (e : (S j) + (n - j) = S n).
+  { change (S j + (n - j)) with (S (j + (n - j))). apply maponpaths. exact e2. }
   intermediate_path (stnsum (λ i, f (transportf stn e i))).
   { apply (transport_stnsum e). }
   unfold funcomp.
@@ -523,17 +525,24 @@ Proof.
   apply subtypeEquality_prop.
   induction e.
   reflexivity.
-Abort.    
-
+Defined.
 
 Lemma stnsum_pos {n} (f:stn n->nat) (j:stn n) : f j ≤ stnsum f.
 Proof.
   intros ? ? j.
-  induction j as [j J].
-
-
-
-Abort.
+  assert (m : 0 < n).
+  { apply (natlehlthtrans _ j). { apply natleh0n. } exact (pr2 j). }
+  assert (l : 1 ≤ n). { now apply natlthtolehsn. }
+  assert (e : n = S (n - 1)).
+  { change (S (n - 1)) with (1 + (n - 1)). rewrite natpluscomm.
+    apply pathsinv0. now apply minusplusnmm. }
+  rewrite (transport_stnsum (!e) f).
+  rewrite (stnsum_dni _ (transportf stn e j)).
+  unfold funcomp.
+  assert (K : f (transportf stn (! e) (transportf stn e j)) = f j).
+  { apply maponpaths. induction e. reflexivity. }
+  rewrite K. apply natlehmplusnm.
+Defined.
 
 Lemma stnsum_lt {n} (f g:stn n->nat) :
   (∀ i, f i ≤ g i) -> (Σ j, f j < g j) -> stnsum f < stnsum g.
