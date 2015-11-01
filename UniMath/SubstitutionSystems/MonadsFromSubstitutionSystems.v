@@ -76,23 +76,13 @@ Let Id_H
                        H.
 
 
-(*
-(** [H] is a rank-2 endofunctor on endofunctors *)
-Variable H : functor [C, C, hs] [C, C, hs].
-*)
-(** The forgetful functor from pointed endofunctors to endofunctors *)
-Local Notation "'U'" := (functor_ptd_forget C hs).
 (** The precategory of pointed endofunctors on [C] *)
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C, hs]) .
 (** The product of two precategories *)
 
-(** Pre-whiskering defined as morphism part of the functor given by precomposition
-    with a fixed functor *)
-(* Local Notation "α •• Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25). *)
 
-(* Local Notation "'τ'" := (tau). *)
 
 (** ** Definition of algebra structure [τ] of a pointed functor *)
 

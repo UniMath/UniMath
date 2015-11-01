@@ -73,12 +73,6 @@ Let Id_H
                        (constant_functor _ _ (functor_identity _ : EndC))
                        H.
 
-(*
-(** [H] is a rank-2 endofunctor on endofunctors *)
-Variable H : functor [C, C, hs] [C, C, hs].
-*)
-(** The forgetful functor from pointed endofunctors to endofunctors *)
-Local Notation "'U'" := (functor_ptd_forget C hs).
 (** The precategory of pointed endofunctors on [C] *)
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 (** The category of endofunctors on [C] *)
