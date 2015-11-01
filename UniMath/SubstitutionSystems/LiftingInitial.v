@@ -52,21 +52,12 @@ Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
 Require Import UniMath.SubstitutionSystems.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
 Require Import UniMath.SubstitutionSystems.EndofunctorsMonoidal.
+Require Import UniMath.SubstitutionSystems.Notation.
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Arguments functor_composite {_ _ _} _ _ .
-Arguments nat_trans_comp {_ _ _ _ _} _ _ .
-Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
-Local Notation "α ∙∙ β" := (hor_comp β α) (at level 20).
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
-Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
-Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50, left associativity).
-Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
-Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
 
 Local Coercion alg_carrier : algebra_ob >-> ob.
+
 
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .
@@ -84,23 +75,12 @@ Variable CP : Coproducts C.
 
 Local Notation "'EndC'":= ([C, C, hs]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
-Local Notation "'U'" := (functor_ptd_forget C hs).
-Local Notation τ := tau_from_alg.
-Local Notation η := eta_from_alg.
 
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CP hs.
 Let EndEndC := [EndC, EndC, hsEndC].
 Let CPEndEndC:= Coproducts_functor_precat _ _ CPEndC hsEndC: Coproducts EndEndC.
-(*Opaque CPEndEndC.*)
 
-Definition ℓ (X : EndC) : EndEndC := (pre_composition_functor C C C hs hs X).
-(*   in Agda mode \ell *)
-
-(*
-Opaque hsEndC.
-*)
-(*Opaque CPEndC.*)
 
 Variable KanExt : ∀ Z : Ptd, GlobalRightKanExtensionExists _ _ (U Z) _ hs hs.
 
@@ -286,7 +266,7 @@ Definition θ'_Thm15 (Z: Ptd):= CoproductOfArrows
 
 Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):= @CoproductArrow
    EndC _ _  (CPEndC (U Z)
-   (H (pr1 InitAlg))) (pr1 InitAlg) (#U f)
+   (H (alg_carrier _ InitAlg))) (alg_carrier _ InitAlg) (#U f)
    (CoproductIn2 _ _ ;; (alg_map _ InitAlg)).
 
 Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :=
@@ -296,12 +276,13 @@ Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg �
 Definition bracket_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :=
    pr1 (pr1 (SpecializedGMIt_Thm15 Z f)).
 
+Notation "⦃ f ⦄" := (bracket_Thm15 _ f) (at level 0).
 
 (* we prove the individual components for ease of compilation *)
 Lemma bracket_Thm15_ok_part1 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg  InitAlg ⟧):
  # U f
  =
- # (pr1 (ℓ (U Z))) (eta_from_alg InitAlg) ;; bracket_Thm15 Z f.
+ # (pr1 (ℓ (U Z))) (η InitAlg) ;; ⦃f⦄.
 Proof.
   apply nat_trans_eq; try (exact hs).
   intro c.
@@ -353,9 +334,9 @@ Qed.   (* one may consider Admitted for speedup during development *)
 Check bracket_Thm15_ok_part1.
 
 Lemma bracket_Thm15_ok_part2 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg  InitAlg ⟧):
- (theta H) ((pr1 InitAlg) ⊗ Z) ;;  # H (bracket_Thm15 Z f) ;; tau_from_alg InitAlg
+ (theta H) ((alg_carrier _  InitAlg) ⊗ Z) ;;  # H ⦃f⦄ ;; τ InitAlg
   =
-   # (pr1 (ℓ (U Z))) (tau_from_alg   InitAlg) ;; bracket_Thm15 Z f.
+   # (pr1 (ℓ (U Z))) (τ InitAlg) ;; ⦃f⦄.
 Proof.
   apply nat_trans_eq; try (exact hs).
   intro c.
@@ -418,7 +399,7 @@ Check bracket_Thm15_ok_part2.
 
 
 Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):
- bracket_property_parts f (bracket_Thm15 Z f).
+ bracket_property_parts f ⦃f⦄.
 Proof.
   split.
   + exact (bracket_Thm15_ok_part1 Z f).
@@ -444,7 +425,7 @@ Local Lemma foo' (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
             ⟦ functor_composite (U Z) (pr1 InitAlg),
               pr1 InitAlg ⟧,
        bracket_property f h)
-     (bracket_Thm15 Z f) (bracket_Thm15_ok_cor Z f).
+      ⦃f⦄ (bracket_Thm15_ok_cor Z f).
 Proof.
   intros [h' h'_eq].
   apply subtypeEquality.

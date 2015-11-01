@@ -45,19 +45,7 @@ Require Import UniMath.SubstitutionSystems.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-
-
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Arguments functor_composite {_ _ _} _ _ .
-Arguments nat_trans_comp {_ _ _ _ _} _ _ .
-Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
-Local Notation "α ∙∙ β" := (hor_comp β α) (at level 20).
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
-Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
-
-Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
+Require Import UniMath.SubstitutionSystems.Notation.
 
 
 Section monad_from_hss.
@@ -73,7 +61,6 @@ Variable CP : Coproducts C.
 Local Notation "'EndC'":= ([C, C, hs]) .
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CP hs.
-Local Notation "Z ∘ α" := (post_whisker hs hs _ _ α Z) (at level 50, left associativity).
 
 Variable H : Signature C hs.
 
@@ -89,26 +76,13 @@ Let Id_H
                        H.
 
 
-(*
-(** [H] is a rank-2 endofunctor on endofunctors *)
-Variable H : functor [C, C, hs] [C, C, hs].
-*)
-(** The forgetful functor from pointed endofunctors to endofunctors *)
-Local Notation "'U'" := (functor_ptd_forget C hs).
 (** The precategory of pointed endofunctors on [C] *)
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C, hs]) .
 (** The product of two precategories *)
-Local Notation "A 'XX' B" := (product_precategory A B) (at level 2).
-(** Pre-whiskering defined as morphism part of the functor given by precomposition
-    with a fixed functor *)
-Local Notation "α 'øø' Z" :=  (# (pre_composition_functor_data _ _ _ hs _  Z) α) (at level 25).
 
-Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
-(*
-Local Notation "'τ'" := (tau).
-*)
+
 
 (** ** Definition of algebra structure [τ] of a pointed functor *)
 
@@ -121,20 +95,9 @@ Section mu_from_fbracket.
 
 Variable T : hss CP H.
 
-Local Notation "'p' T" := (ptd_from_alg  T) (at level 3).
-(*
-Coercion functor_from_algebra_ob (X : algebra_ob _ Id_H) : functor C C := pr1 X.
-*)
-Local Notation "` T" := (alg_carrier _ T) (at level 3).
-Local Notation "`` T" := (alg_carrier _ T : EndC) (at level 3).
-
+Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
 Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 
-Local Notation τ := tau_from_alg. (* could put [T] as fixed argument as in [η] *)
-
-Local Notation η := eta_from_alg.
-
-Coercion alg_from_hss (T : hss CP H) : algebra_ob  _ := pr1 T.
 
 Definition μ_0 : functor_identity C ⟶ functor_data_from_functor _ _ `T := η T. (*ptd_pt _ (pr1 (pr1 T)).*)
 
@@ -148,7 +111,7 @@ Definition μ_1 : functor_composite (U (id_Ptd C hs)) (`T) ⟶ functor_data_from
   := fbracket _ μ_0_ptd.
 
 
-Lemma μ_1_identity : μ_1 = identity ``T .
+Lemma μ_1_identity : μ_1 = identity `T .
 Proof.
   apply pathsinv0.
   apply fbracket_unique.
@@ -304,7 +267,7 @@ Qed.
 
 Definition T_squared : Ptd.
 Proof.
-  exact (ptd_composite _ (p T) (p T)).
+  exact (ptd_composite _ _ (p T) (p T)).
 Defined.
 
 (** [μ_2] is not just a natural transformation from [T∙T] to [T], but also compatible with
@@ -334,7 +297,7 @@ Proof.
   apply μ_2_is_ptd_mor.
 Defined.
 
-Definition μ_3 : EndC ⟦ U T_squared ∙ `T,  `T⟧ := fbracket T μ_2_ptd.
+Definition μ_3 : EndC ⟦ U T_squared • `T,  `T⟧ := fbracket T μ_2_ptd.
 
 (* for Travis *)
 
@@ -428,7 +391,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
                  (* (@functor_composite C C C ((functor_ptd_forget C hs) T)
                     ((functor_ptd_forget C hs) T))
                  ((functor_ptd_forget C hs) T) *)
-          ((μ_2 øø `T) (* :  TtimesTthenT' ⇒ _ *)
+          ((μ_2 •• `T) (* :  TtimesTthenT' ⇒ _ *)
                   (*:@functor_compose C C C hs hs
                     (@functor_composite C C C ((functor_ptd_forget C hs) T)
                                               ((functor_ptd_forget C hs) T))
@@ -481,7 +444,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
 
                     pr1 (θ (`T ⊗ T_squared)) c ;; pr1 (# H α) c =
                      pr1 (θ ((`T) ⊗ (ptd_from_alg T))) ((pr1 (pr1 (pr1 T))) c);;
-                     pr1 (θ ((functor_composite (`T) (`T)) ⊗ (ptd_from_alg T))) c;;
+                     pr1 (θ (( (`T) • (`T)) ⊗ (ptd_from_alg T))) c;;
                      pr1 (# H (α : functor_compose hs hs (`T) (functor_composite (`T) (` T))⇒ _)) c       ).
       { (intro α;
           assert (HA := θ_Strength2_int_implies_θ_Strength2 _ _ _ _ θ_strength2_int);
@@ -537,7 +500,7 @@ Check  μ_3_μ_2_T_μ_2.
 Section third_monad_law_with_assoc.
 
 Lemma third_monad_law_from_hss : (`T) ∘ μ_2 ;; μ_2 =
-     (α_functor _ _ _ _ : functor_compose hs hs _ _  ⇒ _) ;; (μ_2 øø `T) ;; μ_2.
+     (α_functor _ _ _ _ : functor_compose hs hs _ _  ⇒ _) ;; (μ_2 •• `T) ;; μ_2.
 Proof.
   pathvia μ_3; [apply pathsinv0, μ_3_T_μ_2_μ_2 | ].
   apply pathsinv0.

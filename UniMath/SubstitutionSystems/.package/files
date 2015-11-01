@@ -1,4 +1,5 @@
 AdjunctionHomTypesWeq.v
+Notation.v
 Auxiliary.v
 EndofunctorsMonoidal.v
 FunctorsPointwiseCoproduct.v

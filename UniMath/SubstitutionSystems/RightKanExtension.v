@@ -13,11 +13,11 @@ SubstitutionSystems
 
 (** **********************************************************
 
-Contents : 
+Contents :
 
 - Definition of global right Kan extension as right adjoint to precomposition
-               	
-           
+
+
 ************************************************************)
 
 
@@ -32,12 +32,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.SubstitutionSystems.Auxiliary.
 Require Import UniMath.SubstitutionSystems.AdjunctionHomTypesWeq.
-
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G ∙ F" := (functor_composite _ _ _ F G) (at level 35).
-
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
+Require Import UniMath.SubstitutionSystems.Notation.
 
 
 Section RightKanExtension.
@@ -49,20 +44,13 @@ Variable E : precategory.
 Variable hsD : has_homsets D.
 Variable hsE : has_homsets E.
 
-Let PrecompWithF : functor _ _ 
+Let PrecompWithF : functor _ _
   := pre_composition_functor _ _ E hsD hsE F.
 
-Definition GlobalRightKanExtensionExists : UU 
+Definition GlobalRightKanExtensionExists : UU
   := is_left_adjoint PrecompWithF.
 
-Definition GlobalRan (H : GlobalRightKanExtensionExists) 
+Definition GlobalRan (H : GlobalRightKanExtensionExists)
   : functor _ _ := right_adjoint H.
 
 End RightKanExtension.
-
-
-
-
-
-
-
