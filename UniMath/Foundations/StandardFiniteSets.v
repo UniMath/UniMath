@@ -391,11 +391,6 @@ Proof.
   apply natlehandplus. { apply IH. intro i. apply le. } apply le.
 Defined.  
 
-(* move upstream and remove from Ktheory/Utilities *)
-Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
-  transportf P (idpath x) p = p.
-Proof. reflexivity. Defined.
-
 Lemma transport_stn {m n} (e:m=n) (i:stn m) :
   transportf stn e i = stnpair n (pr1 i) (transportf (λ k, pr1 i < k) e (pr2 i)).
 Proof.
@@ -467,10 +462,12 @@ Proof.
   rewrite (transport_stnsum (!e) f).
   rewrite (stnsum_dni _ (transportf stn e j)).
   unfold funcomp.
-  assert (K : f (transportf stn (! e) (transportf stn e j)) = f j).
-  { apply maponpaths. induction e. reflexivity. }
-  rewrite K. apply natlehmplusnm.
+  generalize (stnsum (λ x, f (transportf stn (! e) (dni _ (transportf stn e j) x)))); intro s.
+  induction e. apply natlehmplusnm.
 Defined.
+
+Corollary stnsum_pos_0 {n} (f:stn (S n)->nat) : f (firstelement _) ≤ stnsum f.
+Proof. intros. exact (stnsum_pos f (firstelement _)). Defined.
 
 Lemma stnsum_lt {n} (f g:stn n->nat) :
   (∀ i, f i ≤ g i) -> (Σ j, f j < g j) -> stnsum f < stnsum g.
@@ -491,20 +488,6 @@ Proof.
   intros. rewrite stnsum_step. apply natlehmplusnm.
 Defined.
 
-Lemma stnsum_reverse_step {n} (f:stn (S n) -> nat) :
-  stnsum f = f (firstelement n) + stnsum (f ∘ (dni n (firstelement n))).
-Proof.
-  intros. rewrite natpluscomm. induction n as [|n IH]. { reflexivity. }
-  rewrite stnsum_step. apply pathsinv0; rewrite stnsum_step; apply pathsinv0.
-  change ((f ∘ dni (S n) (firstelement (S n))) (lastelement n)) with (f (lastelement (S n))).
-  rewrite natplusassoc. rewrite (natpluscomm (f (lastelement (S n)))).  rewrite <- natplusassoc.
-  apply (maponpaths (λ i, i + f (lastelement (S n)))). rewrite IH.
-  change ((f ∘ dni (S n) (lastelement (S n))) (firstelement n)) with (f (firstelement (S n))).
-  apply (maponpaths (λ i, i + f (firstelement (S n)))). apply stnsum_eq; intro i.
-  unfold funcomp. apply maponpaths. apply subtypeEquality_prop.
-  rewrite dni_last.  rewrite dni_first. unfold stntonat. rewrite dni_last. reflexivity.
-Defined.
-
 Lemma stnsum_first_le {n} (f:stn (S n) -> nat) : f(firstelement _) ≤ stnsum f.
 Proof.
   intros. induction n as [|n IH].
@@ -522,7 +505,8 @@ Proof.
   choose (l < f (firstelement _))%dnat a b.
   { exact (firstelement _,, (l,,a)). }
   assert (b' : f (firstelement _) ≤ l). { exact b. } clear b.
-  rewrite stnsum_reverse_step in L.
+  rewrite (stnsum_dni _ (firstelement _)) in L.
+  rewrite natpluscomm in L.
   assert ( c := minusplusnmm l (f (firstelement _)) b'); clear b'.
   rewrite natpluscomm in c.
   rewrite <- c in L; clear c.
@@ -533,46 +517,54 @@ Proof.
   exact (dni _ (firstelement _) r,,s).
 Defined.
 
+Lemma stn_right_first n i : stn_right i (S n) (firstelement n) = stnpair (i + S n) i (natltplusS n i).
+Proof.
+  intros.
+  apply subtypeEquality_prop.
+  simpl.
+  apply natplusr0.
+Defined.
+
 Definition weqstnsum_map { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) -> stn (stnsum f).
 Proof.
-  intros ? ? ij.
-  induction ij as [i j].
-  induction i as [i I].
-  induction j as [j J].
-  assert (I' := natlthtoleh _ _ I).
-  set (p := stnmtostnn i n I').
-  set (r := stnsum (f ∘ p) + j).
-  exists r.
-  induction i as [|i IHi].
-  { change r with j; clear r.
-    induction n as [|n IHn].
-    { induction (isirreflnatlth _ I). }
-    assert (s := stnsum_first_le f).
-    apply (natlthlehtrans _ (f (firstelement n)) _).
-    { assert (e : f (0,, I) = f (firstelement n)).
-      { apply maponpaths. apply subtypeEquality_prop. reflexivity. }
-      induction e. exact J. }
-    exact s. }
-
-Abort.
+  intros ? ? ij; induction ij as [i j]; induction i as [i I]; induction j as [j J].
+  (* assert (I' := natlthtoleh _ _ I). *)
+  assert (e : i + S (n - i - 1) = n).
+  { intermediate_path (S i + (n - i - 1)).
+    { change (S i) with (1+i). rewrite (natpluscomm 1 i). rewrite natplusassoc. reflexivity. }      
+    { change (S i) with (1 + i). rewrite (natpluscomm 1 i). rewrite natpluscomm.
+      assert (t : n-i - 1 = n-(i+1)). { apply natsubsub. }
+      rewrite t. apply minusplusnmm. rewrite natpluscomm. now apply natlthtolehsn. } }
+  rewrite (transport_stnsum e).
+  set (f' := λ l : stn (i + S(n - i - 1)), f (transportf stn e l)).
+  exists (stnsum (f' ∘ (stn_left i (S(n - i - 1)))) + j).
+  rewrite (stnsum_left_right _ _ f'). apply natlthandplusl.
+  assert (K := stnsum_pos_0 (f' ∘ stn_right i (S (n - i - 1)))).
+  assert (M : j < (f' ∘ stn_right i (S (n - i - 1))) (firstelement (n - i - 1))).
+  { assert (D : f (i,, I) = (f' ∘ stn_right i (S (n - i - 1))) (firstelement (n - i - 1))).
+    { unfold f', funcomp. apply maponpaths. apply subtypeEquality_prop. simpl.
+      rewrite stn_right_first. rewrite transport_stn. simpl. reflexivity. }
+    now rewrite (!D). }
+  exact (natlthlehtrans j _ _ M K).
+Defined.
 
 Module Test_weqstnsum.
   (* this module exports nothing *)
   Let X := stnset 7.
   Let f (x:X) : nat := pr1 x.
 
-  (* Let h  : stn _ <- Σ x, stnset (f x) := weqstnsum_map f. *)
-  (* Goal pr1 (h(●1,,●0)) = pr1(●0). reflexivity. Defined. *)
-  (* Goal pr1 (h(●4,,●0)) = pr1(●6). reflexivity. Defined. *)
-  (* Goal h(●1,,●0) = (●0). compute. try reflexivity. Defined. *)
-  (* Goal h(●1) = (●2,,●0). reflexivity. Defined. *)
-  (* Goal h(●2) = (●2,,●1). reflexivity. Defined. *)
-  (* Goal h(●3) = (●3,,●0). reflexivity. Defined. *)
-  (* Goal h(●4) = (●3,,●1). reflexivity. Defined. *)
-  (* Goal h(●5) = (●3,,●2). reflexivity. Defined. *)
-  (* Goal h(●6) = (●4,,●0). reflexivity. Defined. *)
-  (* Goal h(●10) = (●5,,●0). reflexivity. Defined. *)
-  (* Goal h(●15) = (●6,,●0). reflexivity. Defined. *)
+  Let h  : stn _ <- Σ x, stnset (f x) := weqstnsum_map f.
+  Goal h(●1,,●0) = ●0. reflexivity. Defined.
+  Goal h(●4,,●0) = ●6. reflexivity. Defined.
+  Goal h(●1,,●0) = ●0. reflexivity. Defined.
+  Goal h(●2,,●0) = ●1. reflexivity. Defined.
+  Goal h(●2,,●1) = ●2. reflexivity. Defined.
+  Goal h(●3,,●0) = ●3. reflexivity. Defined.
+  Goal h(●3,,●1) = ●4. reflexivity. Defined.
+  Goal h(●3,,●2) = ●5. reflexivity. Defined.
+  Goal h(●4,,●0) = ●6. reflexivity. Defined.
+  Goal h(●5,,●0) = ●10. reflexivity. Defined.
+  Goal h(●6,,●0) = ●15. reflexivity. Defined.
 
   Let h' : stn _ -> Σ x, stnset (f x) := weqstnsum_invmap f.
   Goal h'(●0) = (●1,,●0). reflexivity. Defined.
