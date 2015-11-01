@@ -125,7 +125,7 @@ Defined.
 (** ** "Boundary" maps [ dni : stn n -> stn ( S n ) ] and their properties . *) 
 
 Definition dni ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn ( S n ) .
-Proof. intros n i x .  destruct ( natlthorgeh x i ) . apply ( stnpair ( S n ) x ( natgthtogths _ _ ( pr2 x ) ) ) .  apply ( stnpair ( S n ) ( S x ) ( pr2 x ) ) .  Defined.  
+Proof. intros n i x .  induction (natlthorgeh x i). apply ( stnpair ( S n ) x ( natgthtogths _ _ ( pr2 x ) ) ) .  apply ( stnpair ( S n ) ( S x ) ( pr2 x ) ) .  Defined.  
 
 Lemma dni_last n (i:stn n) : pr1 (dni n (lastelement n) i) = i.
 Proof.
@@ -424,107 +424,35 @@ Proof.
   unfold funcomp. apply maponpaths. apply subtypeEquality_prop. induction e. reflexivity.
 Defined.  
 
-Lemma transport_stntonat {m n} (e:m=n) (i:stn m) : pr1 (transportf stn e i) = pr1 i.
-(* move upstream *)
-Proof. intros. induction e. reflexivity. Defined.
-
 Lemma stnsum_dni {n} (f:stn (S n)->nat) (j:stn (S n)) : stnsum f = stnsum (f ∘ dni n j) + f j.
 Proof.
   intros.
+  induction j as [j J].
   assert (e2 : j + (n - j) = n).
-  { rewrite natpluscomm. apply minusplusnmm. apply natlthsntoleh. exact (pr2 j). } 
+  { rewrite natpluscomm. apply minusplusnmm. apply natlthsntoleh. exact J. } 
   assert (e : (S j) + (n - j) = S n).
   { change (S j + (n - j)) with (S (j + (n - j))). apply maponpaths. exact e2. }
   intermediate_path (stnsum (λ i, f (transportf stn e i))).
   { apply (transport_stnsum e). }
-  unfold funcomp.
-  rewrite (stnsum_left_right (S j) (n - j)).
-  unfold funcomp.
-  apply pathsinv0.
-  rewrite (transport_stnsum e2 (λ x : stn n, f (dni n j x))).
-  rewrite (stnsum_left_right j (n-j)).
-  unfold funcomp.
-  rewrite (stnsum_step (λ x, f (transportf stn e (stn_left (S j) (n - j) x)))).
-  unfold funcomp.
-  apply pathsinv0.
-  rewrite natplusassoc.
-  rewrite (natpluscomm (f (transportf stn e (stn_left (S j) (n - j) (lastelement j))))).
-  rewrite <- natplusassoc.
+  rewrite (stnsum_left_right (S j) (n - j)); unfold funcomp.
+  apply pathsinv0. rewrite (transport_stnsum e2). rewrite (stnsum_left_right j (n-j)); unfold funcomp.
+  rewrite (stnsum_step (λ x, f (transportf stn e _))); unfold funcomp. apply pathsinv0.
+  rewrite natplusassoc. rewrite (natpluscomm (f _)). rewrite <- natplusassoc.
   apply map_on_two_paths.
   { apply map_on_two_paths.
-    { apply stnsum_eq; intro i.
-      apply maponpaths.
-      apply subtypeEquality_prop.
-      induction e.
-      simpl.
-      unfold dni.
-      simpl.
+    { apply stnsum_eq; intro i. induction i as [i I]. apply maponpaths. apply subtypeEquality_prop.
+      induction e. rewrite idpath_transportf. rewrite stn_left_compute. unfold dni, stntonat; simpl.
       induction (natlthorgeh i j) as [R|R].
-      { unfold stntonat.
-        simpl.
-        induction (natlthorgeh
-            (@pr1 nat (fun m : nat => @paths bool (natgtb n m) true)
-               (@transportf nat stn
-                  (Nat.add
-                     (@pr1 nat
-                        (fun m : nat =>
-                         @paths bool
-                           match m return bool with
-                           | O => true
-                           | S m0 => natgtb n m0
-                           end true) j)
-                     (Nat.sub n
-                        (@pr1 nat
-                           (fun m : nat =>
-                            @paths bool
-                              match m return bool with
-                              | O => true
-                              | S m0 => natgtb n m0
-                              end true) j))) n e2
-                  (stn_left
-                     (@pr1 nat
-                        (fun m : nat =>
-                         @paths bool
-                           match m return bool with
-                           | O => true
-                           | S m0 => natgtb n m0
-                           end true) j)
-                     (Nat.sub n
-                        (@pr1 nat
-                           (fun m : nat =>
-                            @paths bool
-                              match m return bool with
-                              | O => true
-                              | S m0 => natgtb n m0
-                              end true) j)) i)))
-            (@pr1 nat
-               (fun m : nat =>
-                @paths bool
-                  match m return bool with
-                  | O => true
-                  | S m0 => natgtb n m0
-                  end true) j)).
-        { simpl.
-          induction e2. reflexivity. }
-        { induction e2. simpl in b. contradicts R b. } }
-      { simpl.
-        induction (natlthorgeh (transportf stn e2 (stn_left j (n - j) i)) j) as [V|W].
-        { contradicts (pr2 i) R. }
-        { induction e2. simpl. reflexivity. }}}
-    { apply stnsum_eq. intro i. apply maponpaths. unfold dni.
-      induction (natlthorgeh (transportf stn e2 (stn_right j (n - j) i)) j) as [X|X].
-      { rewrite transport_stn in X; simpl in X.
-        induction (negnatlthplusnmn j (pr1 i) X). }
-      { rewrite transport_stn in X; simpl in X. clear X.
-        repeat rewrite transport_stn; simpl.
-        apply subtypeEquality_prop.
-        induction e2.
-        induction e.
-        reflexivity. } } }
-  apply maponpaths.
-  apply subtypeEquality_prop.
-  induction e.
-  reflexivity.
+      { unfold stntonat; simpl; repeat rewrite transport_stn; simpl.
+        induction (natlthorgeh i j). { simpl. reflexivity. } { simpl. contradicts R b. }}
+      { unfold stntonat; simpl; repeat rewrite transport_stn; simpl.
+        induction (natlthorgeh i j) as [V|V]. { simpl. contradicts I R. } { simpl. reflexivity. }}}
+    { apply stnsum_eq; intro i. induction i as [i I]. apply maponpaths.
+      unfold dni, stn_right, stntonat; repeat rewrite transport_stn; simpl.
+      induction (natlthorgeh (j+i) j) as [X|X].
+      { contradicts (negnatlthplusnmn j i) X. }
+      { apply subtypeEquality_prop. simpl. reflexivity. }}}
+  apply maponpaths. rewrite transport_stn; simpl. apply subtypeEquality_prop. reflexivity.
 Defined.
 
 Lemma stnsum_pos {n} (f:stn n->nat) (j:stn n) : f j ≤ stnsum f.
