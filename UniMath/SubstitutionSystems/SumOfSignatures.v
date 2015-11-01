@@ -14,12 +14,12 @@ SubstitutionSystems
 
 (** **********************************************************
 
-Contents : 
+Contents :
 
 -    Definition of the sum of two signatures, in particular proof of strength laws for the sum
 
-              	
-           
+
+
 ************************************************************)
 
 
@@ -41,17 +41,8 @@ Require Import UniMath.SubstitutionSystems.HorizontalComposition.
 Require Import UniMath.SubstitutionSystems.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.SubstitutionSystems.Notation.
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Arguments functor_composite {_ _ _} _ _ .
-Arguments nat_trans_comp {_ _ _ _ _} _ _ .
-Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
-Local Notation "α ∙∙ β" := (hor_comp β α) (at level 20).
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
-Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
-Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50, left associativity).
 
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .
@@ -88,7 +79,7 @@ Definition H : functor [C, C, hs] [C, C, hs] := coproduct_functor _ _ CCC H1 H2.
 
 
 Local Definition bla1 (X : [C, C] hs) (Z : precategory_Ptd C hs) :
-   ∀ c : C, 
+   ∀ c : C,
     (functor_composite_data (pr1 Z)
      (coproduct_functor_data C C CC (H1 X) (H2 X))) c
    ⇒ (coproduct_functor_data C C CC (H1 (functor_composite (pr1 Z) X))
@@ -96,8 +87,8 @@ Local Definition bla1 (X : [C, C] hs) (Z : precategory_Ptd C hs) :
 Proof.
   intro c.
   apply CoproductOfArrows.
-  - exact (pr1 (θ1 (prodcatpair _ _ X Z)) c).
-  - exact (pr1 (θ2 (prodcatpair _ _ X Z)) c).
+  - exact (pr1 (θ1 (X ⊗ Z)) c).
+  - exact (pr1 (θ2 (X ⊗ Z)) c).
 Defined.
 
 Local Lemma bar (X : [C, C] hs) (Z : precategory_Ptd C hs):
@@ -111,10 +102,10 @@ Proof.
   unfold bla1; simpl.
   unfold coproduct_functor_mor.
   eapply pathscomp0; [ apply CoproductOfArrows_comp | ].
-  eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp].    
+  eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp].
   apply CoproductOfArrows_eq.
-  * apply (nat_trans_ax (θ1 (prodcatpair _ _ X Z))).
-  * apply (nat_trans_ax (θ2 (prodcatpair _ _ X Z))).
+  * apply (nat_trans_ax (θ1 (X ⊗ Z))).
+  * apply (nat_trans_ax (θ2 (X ⊗ Z))).
 Qed.
 
 Local Definition bla (X : [C, C] hs) (Z : precategory_Ptd C hs) :
@@ -125,44 +116,47 @@ Local Definition bla (X : [C, C] hs) (Z : precategory_Ptd C hs) :
 Proof.
   exists (bla1 X Z).
   apply bar.
-Defined.  
+Defined.
 
 
-Definition θ_ob : ∀ XF, θ_source H XF ⇒ θ_target H XF. 
+Definition θ_ob : ∀ XF, θ_source H XF ⇒ θ_target H XF.
 Proof.
   intro XZ.
   destruct XZ as [X Z].
   apply bla.
 Defined.
-  
 
-Local Lemma is_nat_trans_θ_ob : 
+
+Local Lemma is_nat_trans_θ_ob :
  is_nat_trans (θ_source_functor_data C hs H) (θ_target_functor_data C hs H)
      θ_ob.
 Proof.
-  intros [X Z] [X' Z'] [α β]. simpl in *.
+  intros XZ X'Z' αβ.
+  assert (Hyp1:= nat_trans_ax θ1 _ _ αβ).
+  assert (Hyp2:= nat_trans_ax θ2 _ _ αβ).
   apply nat_trans_eq.
   - exact hs.
   - intro c; simpl.
+    destruct XZ as [X Z].
+    destruct X'Z' as [X' Z'].
+    destruct αβ as [α β]. simpl in *.
     unfold coproduct_nat_trans_data;
     unfold bla1; simpl.
     unfold coproduct_functor_mor.
     unfold coproduct_nat_trans_in2_data.
     unfold coproduct_nat_trans_in1_data.
     (* on the right-hand side, there is a second but unfolded CoproductOfArrows in the row - likewise a first such on the left-hand side, to be treater further below *)
-    eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp].     
+    eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp].
     eapply pathscomp0. apply cancel_postcomposition. apply CoproductOfArrows_comp.
     eapply pathscomp0. apply CoproductOfArrows_comp.
     apply CoproductOfArrows_eq.
-    + assert (Ha:= nat_trans_ax θ1 _ _ (prodcatmor _ _ α β)).
-      apply (nat_trans_eq_pointwise Ha c).
-    + assert (Ha:= nat_trans_ax θ2 _ _ (prodcatmor _ _ α β)).
-      apply (nat_trans_eq_pointwise Ha).
-Qed.           
-           
+    + apply (nat_trans_eq_pointwise Hyp1 c).
+    + apply (nat_trans_eq_pointwise Hyp2 c).
+Qed.
 
 
-   
+
+
 Local Definition θ : θ_source H ⟶ θ_target H.
 Proof.
   exists θ_ob.
@@ -175,13 +169,13 @@ Lemma SumStrength1 : θ_Strength1 θ.
 Proof.
   unfold θ_Strength1.
   intro X.
-  apply nat_trans_eq. 
+  apply nat_trans_eq.
   - apply hs.
   - intro x.
     simpl.
     unfold bla1.
     unfold coproduct_nat_trans_data.
-    
+
     eapply pathscomp0. apply CoproductOfArrows_comp.
      apply pathsinv0.
      apply Coproduct_endo_is_identity.
@@ -238,13 +232,13 @@ Proof.
   clear S11 S12 S21 S22 S12' S22'.
   unfold θ_Strength1_int.
   intro X.
-  apply nat_trans_eq. 
+  apply nat_trans_eq.
   - apply hs.
   - intro x.
     simpl.
     unfold bla1.
     unfold coproduct_nat_trans_data.
-    
+
     eapply pathscomp0. apply CoproductOfArrows_comp.
      apply pathsinv0.
      apply Coproduct_endo_is_identity.
@@ -273,7 +267,7 @@ Proof.
   apply nat_trans_eq; try assumption.
     intro x.
     simpl.
-    rewrite id_left. 
+    rewrite id_left.
     unfold bla1.
     simpl.
     unfold coproduct_nat_trans_data.
