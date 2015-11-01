@@ -396,6 +396,12 @@ Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
   transportf P (idpath x) p = p.
 Proof. reflexivity. Defined.
 
+Lemma transport_stn {m n} (e:m=n) (i:stn m) :
+  transportf stn e i = stnpair n (pr1 i) (transportf (λ k, pr1 i < k) e (pr2 i)).
+Proof.
+  intros. induction e. apply subtypeEquality_prop. reflexivity.
+Defined.
+
 Lemma stnsum_left_right m n (f:stn(m+n)->nat) :
   stnsum f = stnsum (f ∘ stn_left m n) + stnsum (f ∘ stn_right m n).
 Proof.
@@ -418,22 +424,106 @@ Proof.
   unfold funcomp. apply maponpaths. apply subtypeEquality_prop. induction e. reflexivity.
 Defined.  
 
+Lemma transport_stntonat {m n} (e:m=n) (i:stn m) : pr1 (transportf stn e i) = pr1 i.
+(* move upstream *)
+Proof. intros. induction e. reflexivity. Defined.
+
 Lemma stnsum_dni {n} (f:stn (S n)->nat) (j:stn (S n)) : stnsum f = stnsum (f ∘ dni n j) + f j.
 Proof.
   intros.
   assert (e : (S j) + (n - j) = S n). admit.
+  assert (e2 : j + (n - j) = n). admit.
   intermediate_path (stnsum (λ i, f (transportf stn e i))).
   { apply (transport_stnsum e). }
+  unfold funcomp.
   rewrite (stnsum_left_right (S j) (n - j)).
+  unfold funcomp.
   apply pathsinv0.
-  assert (e2 : j + (n - j) = n). admit.
-  assert (e3 : stnsum (f ∘ dni n j) = stnsum (λ i, f (dni n j (transportf stn e2 i)))).
-  { 
-    
-    (* apply (stnsum_eq_2 (!e2) (f ∘ dni n j)); intro i. unfold funcomp. *)
-    (* apply maponpaths. apply subtypeEquality_prop. simpl.  *)
+  rewrite (transport_stnsum e2 (λ x : stn n, f (dni n j x))).
+  rewrite (stnsum_left_right j (n-j)).
+  unfold funcomp.
+  rewrite (stnsum_step (λ x, f (transportf stn e (stn_left (S j) (n - j) x)))).
+  unfold funcomp.
+  apply pathsinv0.
+  rewrite natplusassoc.
+  rewrite (natpluscomm (f (transportf stn e (stn_left (S j) (n - j) (lastelement j))))).
+  rewrite <- natplusassoc.
+  apply map_on_two_paths.
+  { apply map_on_two_paths.
+    { apply stnsum_eq; intro i.
+      apply maponpaths.
+      apply subtypeEquality_prop.
+      induction e.
+      simpl.
+      unfold dni.
+      simpl.
+      induction (natlthorgeh i j) as [R|R].
+      { unfold stntonat.
+        simpl.
+        induction (natlthorgeh
+            (@pr1 nat (fun m : nat => @paths bool (natgtb n m) true)
+               (@transportf nat stn
+                  (Nat.add
+                     (@pr1 nat
+                        (fun m : nat =>
+                         @paths bool
+                           match m return bool with
+                           | O => true
+                           | S m0 => natgtb n m0
+                           end true) j)
+                     (Nat.sub n
+                        (@pr1 nat
+                           (fun m : nat =>
+                            @paths bool
+                              match m return bool with
+                              | O => true
+                              | S m0 => natgtb n m0
+                              end true) j))) n e2
+                  (stn_left
+                     (@pr1 nat
+                        (fun m : nat =>
+                         @paths bool
+                           match m return bool with
+                           | O => true
+                           | S m0 => natgtb n m0
+                           end true) j)
+                     (Nat.sub n
+                        (@pr1 nat
+                           (fun m : nat =>
+                            @paths bool
+                              match m return bool with
+                              | O => true
+                              | S m0 => natgtb n m0
+                              end true) j)) i)))
+            (@pr1 nat
+               (fun m : nat =>
+                @paths bool
+                  match m return bool with
+                  | O => true
+                  | S m0 => natgtb n m0
+                  end true) j)).
+        { simpl.
+          induction e2. reflexivity. }
+        { induction e2. simpl in b. contradicts R b. } }
+      { simpl.
+        induction (natlthorgeh (transportf stn e2 (stn_left j (n - j) i)) j) as [V|W].
+        { contradicts (pr2 i) R. }
+        { induction e2. simpl. reflexivity. }}}
+    { apply stnsum_eq. intro i. apply maponpaths. unfold dni.
+      induction (natlthorgeh (transportf stn e2 (stn_right j (n - j) i)) j) as [X|X].
+      { rewrite transport_stn in X; simpl in X.
+        induction (negnatlthplusnmn j (pr1 i) X). }
+      { rewrite transport_stn in X; simpl in X. clear X.
+        repeat rewrite transport_stn; simpl.
+        apply subtypeEquality_prop.
+        induction e2.
+        induction e.
+        reflexivity. } } }
+  apply maponpaths.
+  apply subtypeEquality_prop.
+  induction e.
+  reflexivity.
 Abort.    
-  
 
 
 Lemma stnsum_pos {n} (f:stn n->nat) (j:stn n) : f j ≤ stnsum f.
