@@ -381,11 +381,9 @@ Proof.
   apply (maponpaths (λ i, i + f (lastelement _))). apply IH. intro x. apply h.
 Defined.  
 
-Lemma stnsum_eq_2 {m n} (e:m=n) (f:stn m->nat) (g:stn n->nat) :
-  (∀ i, f i = g(transportf stn e i)) -> stnsum f = stnsum g.
-Proof.
-  intros ? ? ? ? ? h. induction e. now apply stnsum_eq.
-Defined.
+Lemma transport_stnsum {m n} (e:m=n) (g:stn n->nat) :
+  stnsum g = stnsum (λ i, g(transportf stn e i)).
+Proof. intros. induction e. reflexivity. Defined.
 
 Lemma stnsum_le {n} (f g:stn n->nat) : (∀ i, f i ≤ g i) -> stnsum f ≤ stnsum g.
 Proof.
@@ -404,12 +402,11 @@ Proof.
   (* why is this proof so obnoxious and fragile? *)
   intros. induction n as [|n IHn].
   { change (stnsum (f ∘ stn_right m 0)) with 0. rewrite natplusr0. assert (e := ! natplusr0 m).
-    apply pathsinv0. apply (stnsum_eq_2 e); intro. unfold funcomp. apply maponpaths.
-    apply stn_left_0. }
+    rewrite (transport_stnsum e). apply stnsum_eq; intro i. unfold funcomp.
+    apply maponpaths. apply pathsinv0. apply stn_left_0. }
   rewrite stnsum_step. assert (e : S (m+n) = m + S n).
   { apply pathsinv0. apply natplusnsm. }
-  intermediate_path (stnsum (λ i, f (transportf stn e i))).
-  { apply pathsinv0. apply (stnsum_eq_2 e _ f). reflexivity. }
+  rewrite (transport_stnsum e).
   rewrite stnsum_step. rewrite <- natplusassoc. apply map_on_two_paths.
   { rewrite IHn; clear IHn. apply map_on_two_paths.
     { apply stnsum_eq; intro i. unfold funcomp. apply maponpaths. apply subtypeEquality_prop.
@@ -420,6 +417,24 @@ Proof.
       rewrite idpath_transportf. rewrite 2? dni_last. reflexivity. } }
   unfold funcomp. apply maponpaths. apply subtypeEquality_prop. induction e. reflexivity.
 Defined.  
+
+Lemma stnsum_dni {n} (f:stn (S n)->nat) (j:stn (S n)) : stnsum f = stnsum (f ∘ dni n j) + f j.
+Proof.
+  intros.
+  assert (e : (S j) + (n - j) = S n). admit.
+  intermediate_path (stnsum (λ i, f (transportf stn e i))).
+  { apply (transport_stnsum e). }
+  rewrite (stnsum_left_right (S j) (n - j)).
+  apply pathsinv0.
+  assert (e2 : j + (n - j) = n). admit.
+  assert (e3 : stnsum (f ∘ dni n j) = stnsum (λ i, f (dni n j (transportf stn e2 i)))).
+  { 
+    
+    (* apply (stnsum_eq_2 (!e2) (f ∘ dni n j)); intro i. unfold funcomp. *)
+    (* apply maponpaths. apply subtypeEquality_prop. simpl.  *)
+Abort.    
+  
+
 
 Lemma stnsum_pos {n} (f:stn n->nat) (j:stn n) : f j ≤ stnsum f.
 Proof.
