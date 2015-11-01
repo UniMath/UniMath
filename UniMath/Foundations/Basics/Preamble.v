@@ -73,6 +73,7 @@ Implicit Arguments ii1 [ A B ] .
 Implicit Arguments ii2 [ A B ] .
 
 Notation coprod_rect := sum_rect.
+Implicit Arguments sum_rect [A B P].
 
 Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity) : type_scope.
   (* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)
