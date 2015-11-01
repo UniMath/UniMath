@@ -300,10 +300,6 @@ Definition transport_type_path {X Y:Type} (p:X = Y) (x:X) :
   transportf (fun T:Type => T) p x = cast p x.
 Proof. intros. destruct p. reflexivity. Defined.
 
-Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
-  transportf P (idpath x) p = p.
-Proof. reflexivity. Defined.
-
 Definition transportbfinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) : e#'e#p = p.
 Proof. intros. destruct e. reflexivity. Defined.
 
