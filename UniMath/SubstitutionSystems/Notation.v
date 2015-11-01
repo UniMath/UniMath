@@ -62,3 +62,4 @@ Notation "A ⊗ B" := (prodcatpair A B) (at level 10).
 Notation "A 'XX' B" := (product_precategory A B) (at level 2).
 Notation "'ℓ'" := (pre_composition_functor(*_data*) _ _ _ _ _ ).
 Notation "Z 'p•' Z'" := (ptd_composite _ _ Z Z') (at level 25).
+Notation "'U'" := (functor_ptd_forget _ _ ).

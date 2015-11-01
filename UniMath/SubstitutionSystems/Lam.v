@@ -50,7 +50,6 @@ Require Import UniMath.SubstitutionSystems.LiftingInitial.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 
-Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
 
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .
@@ -74,8 +73,6 @@ Variable CP : Products C.
 
 Local Notation "'EndC'":= ([C, C, hs]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
-Local Notation "'U'" := (functor_ptd_forget C hs).
-
 
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CC hs.

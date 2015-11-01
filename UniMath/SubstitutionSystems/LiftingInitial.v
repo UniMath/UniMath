@@ -75,7 +75,6 @@ Variable CP : Coproducts C.
 
 Local Notation "'EndC'":= ([C, C, hs]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
-Local Notation "'U'" := (functor_ptd_forget C hs).
 
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CP hs.

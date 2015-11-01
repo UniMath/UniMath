@@ -33,11 +33,6 @@ Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.SubstitutionSystems.Auxiliary.
 Require Import UniMath.SubstitutionSystems.AdjunctionHomTypesWeq.
 Require Import UniMath.SubstitutionSystems.Notation.
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G ∙ F" := (functor_composite _ _ _ F G) (at level 35).
-
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 
 Section RightKanExtension.
