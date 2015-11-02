@@ -7,7 +7,7 @@ Unset Kernel Term Sharing.
 
 Require Import UniMath.Dedekind.Sets_comp.
 Require Import UniMath.Dedekind.Fields_comp.
-Require Export UniMath.Dedekind.DivisionRig.
+Require Export UniMath.Foundations.Algebra.DivisionRig.
 Require Import UniMath.Dedekind.Complements.
 
 Opaque hq.

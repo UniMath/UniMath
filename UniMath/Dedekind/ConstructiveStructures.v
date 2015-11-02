@@ -5,8 +5,8 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 Unset Kernel Term Sharing.
 
-Require Export UniMath.Dedekind.Apartness.
-Require Export UniMath.Dedekind.DivisionRig.
+Require Export UniMath.Foundations.Algebra.Apartness.
+Require Export UniMath.Foundations.Algebra.DivisionRig.
 Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
 
 (** ** Constructive monoid *)
