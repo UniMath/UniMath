@@ -5,7 +5,6 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 Unset Kernel Term Sharing.
 
-Require Export UniMath.Dedekind.Sets_comp.
 Require Export UniMath.Foundations.Algebra.BinaryOperations.
 
 (** ** Additionals theorems about relations *)
