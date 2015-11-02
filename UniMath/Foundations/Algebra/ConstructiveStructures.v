@@ -68,6 +68,10 @@ Definition ConstructiveCommutativeRing_CommutativeRing :
   ConstructiveCommutativeRing -> ConstructiveRing :=
   λ X : ConstructiveCommutativeRing, pr1 X,, pr1 (pr2 X).
 Coercion ConstructiveCommutativeRing_CommutativeRing : ConstructiveCommutativeRing >-> ConstructiveRing.
+Definition ConstructiveCommutativeRing_ConstructiveCommutativeRig :
+  ConstructiveCommutativeRing -> ConstructiveCommutativeRig :=
+  λ X : ConstructiveCommutativeRing, pr1 X,, (iscommrngopstoiscommrigops _ _ _ (pr2 X)).
+Coercion ConstructiveCommutativeRing_ConstructiveCommutativeRig : ConstructiveCommutativeRing >-> ConstructiveCommutativeRig.
 
 (** ** Constructive rig with division *)
 
@@ -78,7 +82,4 @@ Definition ConstructiveDivisionRig := Σ X : ConstructiveCommutativeRig, isConst
 
 (** ** Constructive Field *)
 
-Definition isConstrField (X : ConstructiveCommutativeRing) :=
-  isnonzerorng X × (∀ x : X, multinvpair X x ⨿ (x = 0%rng)).
-
-Definition ConstructiveField := Σ X : ConstructiveCommutativeRing, isConstrField X.
+Definition ConstructiveField := Σ X : ConstructiveCommutativeRing, isConstrDivRig X.
