@@ -575,6 +575,12 @@ Theorem isapropisweq { X Y : UU } (f:X-> Y) : isaprop (isweq f).
 Proof. intros. unfold isweq.  apply (impred (S O) (fun y:Y => iscontr (hfiber f y)) (fun y:Y => isapropiscontr (hfiber  f y))).  Defined. 
 
 
+Lemma isapropIsComplement P Q : isaprop (isComplement P Q).
+Proof.
+  intros.
+Abort.
+
+
 Theorem isapropisisolated ( X : UU ) ( x : X ) : isaprop ( isisolated X x ) .
 Proof. intros . apply isofhlevelsn .  intro is . apply impred . intro x' .  apply ( isapropdec _ ( isaproppathsfromisolated X x is x' ) ) .  Defined .  
 

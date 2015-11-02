@@ -117,36 +117,109 @@ Definition homotweqoncomplcomp { X Y Z : UU } ( f : weq X Y ) ( g : weq Y Z ) ( 
 Proof . intros . intro x' . induction x' as [ x' nexx' ] . apply ( invmaponpathsincl _ ( isinclpr1compl Z _ ) _ _ ) . simpl .  apply idpath .    Defined . 
 
 
+(** Basic facts about complementary propositions  *)
 
+Lemma isapropretract {P Q} (i: isaprop Q) (f:P->Q) (g:Q->P) (h: g∘f ~ idfun _): isaprop P.
+Proof.
+  intros.
+  apply invproofirrelevance; intros p p'.
+  refine (_ @ (_ : g (f p) = g (f p')) @ _).
+  - apply pathsinv0. apply h.
+  - apply maponpaths. now apply proofirrelevance.
+  - apply h.
+Defined.
 
+Lemma isapropcomponent1 P Q : isaprop ( P ⨿ Q ) -> isaprop P.
+Proof.
+  intros ? ? i. apply iscontraprop1inv; intro p. apply iscontraprop1.
+  { refine (isapropretract i _ _ _).
+    { exact (@ii1 P Q). }
+    { intro pq. induction pq as [p'|q'].
+      { exact p'. }
+      { exact p. }}
+    { intro p'. unfold idfun, funcomp; simpl. reflexivity. } }
+  exact p.
+Defined.
+
+Lemma isapropcomponent2 P Q : isaprop ( P ⨿ Q ) -> isaprop Q.
+Proof.
+  intros ? ? i. apply iscontraprop1inv; intro q. apply iscontraprop1.
+  { refine (isapropretract i _ _ _).
+    { exact (@ii2 P Q). }
+    { intro pq. induction pq as [p'|q'].
+      { exact q. }
+      { exact q'. }}
+    { intro q'. unfold idfun, funcomp; simpl. reflexivity. } }
+  exact q.
+Defined.
+
+(* In the following definition, we ask the user to provide a proposition Y to *)
+(* serve as the complement of Y, instead of taking Y to be ¬X.  The idea is *)
+(* that it might be possible to construct Y without using axioms and to prove Y *)
+(* is a proposition without using axioms.  It follows from [funextempty] that *)
+(* [Y ≃ ¬ X], but if [Y] is used instead of [¬X] in applications, computation *)
+(* will not be impeded.  The user can always provide [¬X] as [Y], using *)
+(* [funextempty] to prove it works. *)
+
+Definition isComplement P Q := iscontr( P ⨿ Q ).
+
+Lemma isComplement_weq {P P' Q Q'} : P ≃ P' -> Q ≃ Q' -> isComplement P Q -> isComplement P' Q'.
+Proof.
+  intros ? ? ? ? v w i.
+  unfold isComplement in *.
+  apply (@iscontrweqf (P ⨿ Q) (P' ⨿ Q')).
+  - apply weqcoprodf.
+    + exact v.
+    + exact w.
+  - exact i.
+Defined.
+
+Definition isdecprop ( X : UU ) := Σ Y, isComplement X Y.
+
+Lemma isdecprop_to_isaprop X : isdecprop X -> isaprop X.
+Proof.
+  intros ? i. induction i as [Y i]. unfold isComplement in i.
+  apply (isapropcomponent1 X Y).
+  now apply isapropifcontr.
+Defined.  
+
+Lemma isdecprop_weq {X X'} : X≃X' -> isdecprop X -> isdecprop X'.
+Proof.
+  intros ? ? w i.
+  unfold isdecprop in *.
+  induction i as [Y i].
+  exists Y.
+  exact (isComplement_weq w (idweq Y) i).
+Defined.  
 
 (** *** Basic results on types with an isolated point. *)
 
-
-
-
-Definition isisolated (X:UU)(x:X):= ∀ x':X, (x=x') ⨿ (x≠x').
+Definition isisolated (X:UU)(x:X):= ∀ x':X, isdecprop (x=x').
 
 Definition isolated ( T : UU ) := total2 ( fun t : T => isisolated T t ) .
 Definition isolatedpair ( T : UU ) := tpair ( fun t : T => isisolated T t ) . 
 Definition pr1isolated ( T : UU )  := fun x : isolated T => pr1 x . 
 
 
-Theorem isaproppathsfromisolated ( X : UU ) ( x : X ) ( is : isisolated X x ) : forall x' : X, isaprop ( paths x x' ) .
-Proof. intros . apply iscontraprop1inv .  intro e .  induction e . 
-set (f:= fun e: paths x x => coconusfromtpair _ e). 
-assert (is' : isweq f). apply (onefiber (fun x':X => paths x x' ) x (fun x':X => is x' )).
-assert (is2: iscontr (coconusfromt _ x)). apply iscontrcoconusfromt. 
-apply (iscontrweqb ( weqpair f is' ) ). assumption. Defined. 
+Theorem isaproppathsfromisolated ( X : UU ) ( x : X ) ( is : isisolated X x ) : ∀ x', isaprop(x = x') .
+Proof.
+  intros. apply isdecprop_to_isaprop. apply is.
+Defined.
 
 Theorem isaproppathstoisolated  ( X : UU ) ( x : X ) ( is : isisolated X x ) : forall x' : X, isaprop ( paths x' x ) .
 Proof . intros . apply ( isofhlevelweqf 1 ( weqpathsinv0 x x' ) ( isaproppathsfromisolated X x is x' ) ) . Defined . 
 
 
 Lemma isisolatedweqf { X Y : UU } (  f : weq X Y ) (x:X) (is2: isisolated _ x) : isisolated _ (f x).
-Proof.  intros. unfold isisolated. intro y.  set (g:=invmap  f ). set (x':= g y). induction (is2 x') as [ x0 | y0 ].  apply (ii1  (pathsweq1'  f x y x0) ). 
-assert (phi: paths y (f x)  -> empty). 
-assert (psi: (paths (g y) x -> empty) -> (paths y (f x) -> empty)). intros X0 X1.  apply (X0  (pathsinv0 (pathsweq1  f x y (pathsinv0 X1)))). apply (psi ( ( negf ( @pathsinv0 _ _ _ ) ) y0) ) . apply (ii2  ( negf ( @pathsinv0 _ _ _ )  phi ) ). Defined.
+Proof.  intros. unfold isisolated. intro y.  set (g:=invweq  f ). set (x':= g y).
+        unfold isisolated in is2.
+        assert (i := is2 (g y)).
+        assert (w : f x = y ≃ x = g y).
+        { intermediate_weq (g(f x) = g y).
+          { apply weqonpaths. }
+          { apply paths_weq'. apply pathsinv0. apply homotinvweqweq. }}
+        exact (isdecprop_weq (invweq w) i).
+Defined.
 
 
 Theorem isisolatedinclb { X Y : UU } ( f : X -> Y ) ( is : isincl f ) ( x : X ) ( is0 : isisolated _ ( f x ) ) : isisolated _ x .
@@ -279,7 +352,7 @@ rewrite ( pathsfuntransposofnet1t2 _ _ _ _ _ net1t net2t ) . rewrite ( pathsfunt
 (** *** Types with decidable equality *)
 
 
-Definition isdeceq (X:UU) : UU := ∀ (x x':X), (x=x') ⨿ (x!=x').
+Definition isdeceq (X:UU) : UU := ∀ (x x':X), isdecprop (x=x').
 
 Lemma isdeceqweqf { X Y : UU } ( w : weq X Y ) ( is : isdeceq X ) : isdeceq Y .
 Proof. intros . intros y y' . set ( w' := weqonpaths ( invweq w ) y y' ) .  set ( int := is ( ( invweq w ) y ) ( ( invweq w ) y' ) ) . induction int as [ i | ni ] .    apply ( ii1 ( ( invweq w' ) i ) ) . apply ( ii2 ( ( negf w' ) ni ) ) .  Defined . 
@@ -653,8 +726,6 @@ Proof. intros. apply (isweqinvmap  ( weqtocompltodisjoint X ) ). Defined.
 (** ** Decidable propositions and decidable inclusions *)
 
 (** *** Decidable propositions [ isdecprop ] *)
-
-Definition isdecprop ( X : UU ) := iscontr ( X ⨿ ¬ X ).
 
 Lemma isdecproptoisaprop ( X : UU ) ( is : isdecprop X ) : isaprop X .
 Proof. intros X is . apply ( isofhlevelsnsummand1 0 _ _ ( isapropifcontr is ) ) . Defined .  

@@ -30,6 +30,7 @@ Identity Coercion fromUUtoType : UU >-> Sortclass.
 
 Notation empty := Empty_set. 
 Notation empty_rect := Empty_set_rect. 
+Notation "∅" := Empty_set.
 
 (** Identity Types. Identity types are introduced in Coq.Init.Datatypes by the lines : 
 
