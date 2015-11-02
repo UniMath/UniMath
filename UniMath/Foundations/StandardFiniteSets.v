@@ -282,6 +282,15 @@ Module Test2.
   Goal homotweqinvweq w_w (ii2 (firstelement 0)) = idpath _. reflexivity. Defined.
   Goal homotinvweqweq w_w (ii1 tt) = idpath _. reflexivity. Defined.
 
+  Definition A : ¬empty -> ¬empty.
+    intros t e. unfold neg in *. exact e. Defined.
+  Definition B : ¬empty -> ¬empty.
+    intros t e. unfold neg in *. exact (t e). Defined.
+  Definition C : ¬empty -> ¬empty.
+    intros t e. unfold neg in *. exact (t (t e)). Defined.
+  Goal A=B. try reflexivity. Abort.
+  Goal A=C. try reflexivity. Abort.
+
   Definition i := ●1 : stn 4.
   Definition j := ●0 : stn 4.
   Lemma ne : i ≠ j.

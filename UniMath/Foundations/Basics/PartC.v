@@ -25,7 +25,7 @@ Require Export UniMath.Foundations.Basics.PartB.
 
 (** *** Functional extensionality for functions to the empty type *)
 
-Axiom funextempty : forall ( X : UU ) ( f g : X -> empty ) , paths f g . 
+Axiom funextempty : ∀ (X:UU) (f g : X->empty), f = g. 
 
 
 
@@ -74,7 +74,7 @@ apply (invproofirrelevance _ X2).  Defined.
 (** *** Basic results on complements to a point *)
 
 
-Definition compl ( X : UU ) ( x : X ):= total2 (fun x':X => neg (paths x x' ) ) .
+Definition compl (X:UU) (x:X):= Σ x', x ≠ x'.
 Definition complpair ( X : UU ) ( x : X ) := tpair (fun x':X => neg (paths x x' ) ) .
 Definition pr1compl ( X : UU ) ( x : X ) := @pr1 _ (fun x':X => neg (paths x x' ) ) .
 
@@ -82,12 +82,12 @@ Definition pr1compl ( X : UU ) ( x : X ) := @pr1 _ (fun x':X => neg (paths x x' 
 Lemma isinclpr1compl ( X : UU ) ( x : X ) : isincl ( pr1compl X x ) .
 Proof. intros . apply ( isinclpr1 _ ( fun x' : X => isapropneg _ ) ) . Defined. 
 
-
-Definition recompl ( X : UU ) (x:X): coprod (compl X x) unit -> X := fun u:_ =>
-match u with
-ii1 x0 => pr1  x0|
-ii2 t => x
-end.
+Definition recompl (X:UU) (x:X): compl X x ⨿ unit -> X
+  := fun u:_ =>
+       match u with
+         | ii1 x0 => pr1  x0
+         | ii2 t => x
+       end.
 
 Definition maponcomplincl { X Y : UU } (f:X -> Y)(is: isincl f)(x:X): compl X x -> compl Y (f x):= fun x0':_ =>
 match x0' with
@@ -125,7 +125,7 @@ Proof . intros . intro x' . induction x' as [ x' nexx' ] . apply ( invmaponpaths
 
 
 
-Definition isisolated (X:UU)(x:X):= forall x':X, coprod (paths x x' ) (paths x x' -> empty).
+Definition isisolated (X:UU)(x:X):= ∀ x':X, (x=x') ⨿ (x≠x').
 
 Definition isolated ( T : UU ) := total2 ( fun t : T => isisolated T t ) .
 Definition isolatedpair ( T : UU ) := tpair ( fun t : T => isisolated T t ) . 
