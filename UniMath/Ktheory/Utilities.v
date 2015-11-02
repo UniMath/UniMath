@@ -9,7 +9,7 @@ Require Export UniMath.Ktheory.Tactics.
 
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
 
-Open Scope transport_scope.
+Open Scope transport.
 
 Definition nullHomotopyTo {X Y} (f:X->Y) (y:Y) := ∀ x:X, f x = y.
 Definition NullHomotopyTo {X Y} (f:X->Y) := total2 (nullHomotopyTo f).
@@ -143,7 +143,7 @@ Notation ap := maponpaths.
 Notation "f ;; g" := (funcomp f g) (at level 50).
 (* funcomp' is like funcomp, but with the arguments in the other order *)
 Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) . 
-Open Scope transport_scope.
+Open Scope transport.
 
 (* some jargon reminders: *)
 Goal forall X (i:isaprop X) (x x':X), x = x'.
@@ -300,10 +300,6 @@ Definition transport_type_path {X Y:Type} (p:X = Y) (x:X) :
   transportf (fun T:Type => T) p x = cast p x.
 Proof. intros. destruct p. reflexivity. Defined.
 
-Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
-  transportf P (idpath x) p = p.
-Proof. reflexivity. Defined.
-
 Definition transportbfinv {T} (P:T->Type) {t u:T} (e:t = u) (p:P t) : e#'e#p = p.
 Proof. intros. destruct e. reflexivity. Defined.
 
@@ -404,12 +400,6 @@ Proof. intros. destruct p. reflexivity. Defined.
     =
     tpair (Z x) (transportb Y p y') (transportb2 _ p y' z').
   Proof. intros. destruct p. reflexivity. Defined.
-
-(** ** Decidability *)
-
-Definition LEM := ∀ P:hProp, decidable P.
-Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
-Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Qed.
 
 (** ** h-levels and paths *)
 
