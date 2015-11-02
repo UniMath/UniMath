@@ -21,6 +21,7 @@ Contents :
 
 ************************************************************)
 
+Set Kernel Term Sharing.
 
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
@@ -47,22 +48,7 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
 Require Import UniMath.SubstitutionSystems.LiftingInitial.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
-
-
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Arguments functor_composite {_ _ _} _ _ .
-Arguments nat_trans_comp {_ _ _ _ _} _ _ .
-Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
-(*Local Notation "α ∙∙ β" := (hor_comp β α) (at level 20).*)
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
-Local Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
-Local Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50, left associativity).
-Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
-Local Notation "` T" := (alg_carrier _ T) (at level 3).
-Local Notation "A ⊗ B" := (prodcatpair _ _ A B) (at level 10).
-
+Require Import UniMath.SubstitutionSystems.Notation.
 
 
 Arguments θ_source {_ _} _ .
@@ -87,8 +73,6 @@ Variable CP : Products C.
 
 Local Notation "'EndC'":= ([C, C, hs]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
-Local Notation "'U'" := (functor_ptd_forget C hs).
-
 
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CC hs.
@@ -96,9 +80,7 @@ Let EndEndC := [EndC, EndC, hsEndC].
 Let CPEndEndC:= Coproducts_functor_precat _ _ CPEndC hsEndC: Coproducts EndEndC.
 
 
-Local Notation "'ℓ'" := (pre_composition_functor_data _ _ _ _ _ ).
 
-Local Notation τ := tau_from_alg.
 
 Let one : C :=  @TerminalObject C terminal.
 

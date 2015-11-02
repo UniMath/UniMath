@@ -1,85 +1,129 @@
-
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.limits.limits.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f ;; g" := (compose f g)(at level 50).
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Section def_terminal.
 
-Variable C : precategory.
+Context {C : precategory}.
 
-Definition isTerminal (b : C) := forall a : C, iscontr (a --> b).
-
-Definition Terminal := total2 (fun a => isTerminal a).
-
-Definition TerminalObject (T : Terminal) : C := pr1 T.
-Coercion TerminalObject : Terminal >-> ob.
-
-Definition TerminalArrow (T : Terminal) (b : C) : b --> T :=  pr1 (pr2 T b).
-
-Lemma ArrowsToTerminal (T : Terminal) (b : C) (f g : b --> T) : f = g.
+Definition empty_graph : graph.
 Proof.
-  apply proofirrelevance.
-  apply isapropifcontr.
-  apply (pr2 T _).
-Qed.
-
-Lemma TerminalEndo_is_identity (T : Terminal) (f : T --> T) : identity T = f.
-Proof.
-  apply ArrowsToTerminal.
-Qed.
-
-Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) : 
-   is_isomorphism (TerminalArrow T T').
-Proof.
-  apply (is_iso_qinv _ (TerminalArrow T' T)).
-  split.
-  - apply pathsinv0. apply TerminalEndo_is_identity.
-  - apply pathsinv0. apply TerminalEndo_is_identity.
+  exists empty.
+  exact (fun _ _ => empty).
 Defined.
 
-Definition iso_Terminals (T T' : Terminal) : iso T T' := 
-   tpair _ (TerminalArrow T' T) (isiso_from_Terminal_to_Terminal T' T) .
+Definition termDiagram : diagram empty_graph C^op.
+Proof.
+exists fromempty.
+intros u; induction u.
+Defined.
+
+
+Definition termCone (c : C) : cone termDiagram c.
+Proof.
+refine (mk_cocone _ _); intro v; induction v.
+Defined.
+
+Definition isTerminal (a : C) :=
+  isLimCone termDiagram a (termCone a).
+
+Definition mk_isTerminal (b : C) (H : ∀ (a : C), iscontr (a ⇒ b)) :
+  isTerminal b.
+Proof.
+intros a ca.
+refine (tpair _ _ _).
+- exists (pr1 (H a)); intro v; induction v.
+- intro t.
+  apply subtypeEquality; simpl;
+    [ intro f; apply impred; intro v; induction v|].
+  apply (pr2 (H a)).
+Defined.
+
+Definition Terminal : UU := LimCone termDiagram.
+(* Definition Terminal := total2 (fun a => isTerminal a). *)
+
+Definition mk_Terminal (b : C) (H : isTerminal b) : Terminal.
+Proof.
+refine (mk_LimCone _ b (termCone b) _).
+apply mk_isTerminal.
+intro a.
+set (x := H a (termCone a)).
+refine (tpair _ _ _).
+- apply (pr1 x).
+- simpl; intro f; apply path_to_ctr; intro v; induction v.
+Defined.
+
+Definition TerminalObject (T : Terminal) : C := lim T.
+(* Coercion TerminalObject : Terminal >-> ob. *)
+
+Definition TerminalArrow (T : Terminal) (b : C) : C⟦b,TerminalObject T⟧ :=
+  limArrow _ _ (termCone b).
+
+Lemma TerminalArrowUnique (T : Terminal) (b : C)
+  (f : C⟦b,TerminalObject T⟧) : f = TerminalArrow T _.
+Proof.
+now apply limArrowUnique; intro v; induction v.
+Defined.
+
+Lemma ArrowsToTerminal (T : Terminal) (b : C) (f g : C⟦b,TerminalObject T⟧) : f = g.
+Proof.
+eapply pathscomp0.
+apply TerminalArrowUnique.
+now apply pathsinv0, TerminalArrowUnique.
+Qed.
+
+Lemma TerminalEndo_is_identity (T : Terminal) (f : C⟦TerminalObject T,TerminalObject T⟧) :
+  identity (TerminalObject T) = f.
+Proof.
+now apply ArrowsToTerminal.
+Qed.
+
+Lemma isiso_from_Terminal_to_Terminal (T T' : Terminal) :
+   is_isomorphism (TerminalArrow T (TerminalObject T')).
+Proof.
+  apply (is_iso_qinv _ (TerminalArrow T' (TerminalObject T))).
+  split; apply pathsinv0, TerminalEndo_is_identity.
+Defined.
+
+Definition iso_Terminals (T T' : Terminal) : iso (TerminalObject T) (TerminalObject T') :=
+   tpair _ (TerminalArrow T' (TerminalObject T)) (isiso_from_Terminal_to_Terminal T' T) .
 
 Definition hasTerminal := ishinh Terminal.
 
-Section Terminal_Unique.
+(* TODO: This should be an instance of a general result for limits *)
+(* Section Terminal_Unique. *)
 
-Hypothesis H : is_category C.
+(* Hypothesis H : is_category C. *)
 
-Lemma isaprop_Terminal : isaprop Terminal.
-Proof.
-  apply invproofirrelevance.
-  intros T T'.
-  apply (total2_paths (isotoid _ H (iso_Terminals T T')) ).
-  apply proofirrelevance.
-  unfold isTerminal.
-  apply impred.
-  intro t ; apply isapropiscontr.
-Qed.
+(* Lemma isaprop_Terminal : isaprop Terminal. *)
+(* Proof. *)
+(*   apply invproofirrelevance. *)
+(*   intros T T'. *)
+(*   apply (total2_paths (isotoid _ H (iso_Terminals T T')) ). *)
+(*   apply proofirrelevance. *)
+(*   unfold isTerminal. *)
+(*   apply impred. *)
+(*   intro t ; apply isapropiscontr. *)
+(* Qed. *)
 
-
-End Terminal_Unique.
+(* End Terminal_Unique. *)
 
 End def_terminal.
 
+Arguments Terminal : clear implicits.
+Arguments isTerminal : clear implicits.
 
-(*
-Section test.
-Variable C : precategory.
-Variable T : Terminal C.
-
-Arguments TerminalObject [C]{_}.
-Arguments TerminalArrow [C]{T} b.
-
-End test.
-*)
-
-Arguments TerminalObject [C]{_}.
-Arguments TerminalArrow [C]{T} b.
-
+Lemma Terminal_from_Lims (C : precategory) :
+  Lims C -> Terminal C.
+Proof.
+now intros H; apply H.
+Defined.

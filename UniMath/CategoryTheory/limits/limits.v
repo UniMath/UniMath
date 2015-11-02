@@ -283,8 +283,104 @@ Defined.
 *)
 End lim_def.
 
-
 Arguments Lims : clear implicits.
+
+Section LimFunctor.
+
+(* TODO: move to opp_precat *)
+
+
+Definition get_diagram (A C : precategory) (hsC : has_homsets C)
+  (g : graph) (D : diagram g [A, C, hsC]^op) :
+    diagram g [A^op, C^op, has_homsets_opp hsC].
+Proof.
+apply (tpair _ (fun u => from_opp_to_opp_opp _ _ _ (pr1 D u))).
+intros u v e; simpl.
+refine (tpair _ _ _); simpl.
+  + apply (pr2 D _ _ e).
+  + abstract (intros a b f; apply pathsinv0, (pr2 (pr2 D u v e) b a f)).
+Defined.
+
+Definition get_cocone  (A C : precategory) (hsC : has_homsets C)
+  (g : graph) (D : diagram g [A, C, hsC]^op) (F : functor A C) (ccF : cocone D F) :
+  cocone (get_diagram A C hsC g D) (functor_opp F).
+Proof.
+destruct ccF. (* If I remove this destruct the Qed for LimsFunctorCategory
+                 takes twice as long *)
+refine (mk_cocone _ _).
+- intro u; apply (tpair _ (pr1 (t u))).
+  abstract (intros a b f; apply pathsinv0, (pr2 (t u) b a f)).
+- abstract (intros u v e; apply (nat_trans_eq (has_homsets_opp hsC));
+            now intro a; simpl; rewrite <- (p u v e)).
+Defined.
+
+Lemma LimFunctorCone (A C : precategory) (hsC : has_homsets C)
+  (g : graph)
+  (D : diagram g [A, C, hsC]^op)
+  (HC : ∀ a : A^op,
+            LimCone
+              (diagram_pointwise A^op C^op (has_homsets_opp hsC) g
+                 (get_diagram A C hsC g D) a))
+
+  : LimCone D.
+Proof.
+set (HColim := ColimFunctorCocone A^op C^op  (has_homsets_opp hsC) g (get_diagram _ _ _ _ D) HC).
+destruct HColim as [pr1x pr2x].
+destruct pr1x as [pr1pr1x pr2pr1x].
+destruct pr2pr1x as [pr1pr2pr1x pr2pr2pr1x].
+simpl in *.
+refine (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x) _ _).
+- refine (mk_cocone _ _).
+  + simpl; intros.
+    refine (tpair _ _ _).
+    * intro a; apply (pr1pr2pr1x v a).
+    * abstract (intros a b f; apply pathsinv0, (nat_trans_ax (pr1pr2pr1x v) (*b a f*))).
+  + abstract (intros u v e; apply (nat_trans_eq hsC); simpl; intro a;
+              now rewrite <- (pr2pr2pr1x u v e)).
+- intros F ccF.
+  set (H := pr2x (from_opp_to_opp_opp _ _ _ F) (get_cocone _ _ _ _ _ _ ccF)).
+  destruct H as [H1 H2].
+  destruct H1 as [α Hα].
+  simpl in *.
+  refine (tpair _ _ _).
+  + refine (tpair _ _ _).
+    * exists α.
+      abstract (intros a b f; simpl; now apply pathsinv0, (nat_trans_ax α b a f)).
+    * abstract (intro u; apply (nat_trans_eq hsC); intro a;
+        destruct ccF; apply (toforallpaths _ _ _ (maponpaths pr1 (Hα u)) a)).
+  + intro H; destruct H as [f Hf]; apply subtypeEquality.
+    * abstract (intro β; repeat (apply impred; intro);
+        now apply (has_homsets_opp (functor_category_has_homsets A C hsC))).
+    * match goal with |[ H2 : ∀ _ : ?TT ,  _ = _ ,,_   |- _ ] =>
+                       refine (let T : TT := _ in _ ) end.
+      (*
+      refine (let T : Σ x : nat_trans pr1pr1x (functor_opp F),
+                         ∀ v, nat_trans_comp (functor_opp (pr1 D v)) _ _
+                                (pr1pr2pr1x v) x =
+                               coconeIn (get_cocone A C hsC g D F ccF) v :=
+                  _ in _).
+      *)
+      { refine (tpair _ (tpair _ (pr1 f) _) _); simpl.
+        - abstract (intros x y fxy; apply pathsinv0, (pr2 f y x fxy)).
+        - abstract (intro u; apply (nat_trans_eq (has_homsets_opp hsC)); intro x;
+            destruct ccF; apply (toforallpaths _ _ _ (maponpaths pr1 (Hf u)) x)).
+      }
+      set (T' := maponpaths pr1 (H2 T)); simpl in T'.
+      apply (nat_trans_eq hsC); intro a; simpl.
+      now rewrite <- T'.
+Defined.
+
+Lemma LimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
+  (HC : Lims C) : Lims [A,C,hsC].
+Proof.
+intros g D.
+apply LimFunctorCone.
+intros.
+apply HC.
+Defined.
+
+
+End LimFunctor.
 
 (*
 
