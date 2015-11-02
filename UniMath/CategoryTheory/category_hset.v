@@ -58,8 +58,7 @@ Variable R0 : hrel A.
 Lemma isaprop_eqrel_from_hrel a b :
   isaprop (∀ R : eqrel A, (∀ x y, R0 x y -> R x y) -> R a b).
 Proof.
-apply impred; intro R; apply impred; intro HR.
-now apply propproperty.
+  apply impred; intro R; apply impred_prop.
 Qed.
 
 Definition eqrel_from_hrel : hrel A :=

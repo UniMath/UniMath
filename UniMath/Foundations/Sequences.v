@@ -5,6 +5,7 @@ Local Notation "● x" := (x,,idpath _) (at level 35).
 (* move upstream *)
 (* end of move upstream *)
 
+
 Definition Sequence X := Σ n, stn n -> X.
 
 Definition length {X} : Sequence X -> nat := pr1.
@@ -78,7 +79,7 @@ Proof.
   intros. apply (@iscontrweqb _ (empty -> X)).
   - apply invweq. apply weqbfun. apply weqstn0toempty.
   - apply iscontrfunfromempty.
-Qed.  
+Defined.  
 
 Definition nil_unique {X} (x : stn 0 -> X) : nil = (0,,x).
 Proof.
@@ -362,19 +363,10 @@ Proof.
       induction d. simpl. rewrite transport_f_f. apply (isaset_transportf X).
 Defined.
 
-Definition total2_step {n} (X:stnset (S n) ->UU) :
-  (Σ i, X i)
-    ≃
-  (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
-Proof.
-  intros.
-  refine (total2_step_f X,, gradth _ (total2_step_b X) _ _).
-  - apply total2_step_bf.
-  - intros [[[j J] x]|s].
-    + unfold total2_step_b, total2_step_f.
-      simpl.
-  (* too hard, start over *)
-Abort.
+Goal (idweq nat ∘ idweq _ ∘ idweq _)%weq 3 = 3. reflexivity. Defined.
+Goal (idweq nat ∘ invweq (idweq _) ∘ idweq _)%weq 3 = 3. reflexivity. Defined.
+Goal invmap (idweq nat ∘ idweq _ ∘ idweq _)%weq 3 = 3. reflexivity. Defined.
+Goal invmap (idweq nat ∘ invweq (idweq _) ∘ idweq _)%weq 3 = 3. reflexivity. Defined.
 
 Definition total2_step {n} (X:stnset (S n) ->UU) :
   (Σ i, X i) ≃ (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
@@ -387,6 +379,46 @@ Proof.
   apply weqcoprodf. { apply weqfibtototal; intro i. apply idweq. }
   apply weqtotal2overunit.
 Defined.
+
+Lemma invweq_to_invmap {X Y x} (f:X≃Y) : invweq f x = invmap f x.
+Proof. reflexivity. Defined.
+
+Goal invmap (@total2_step 0 (λ _,unit)) (ii2 tt) = (●0,,tt). reflexivity. Defined.
+Goal invmap (@total2_step 1 (λ _,unit)) (ii2 tt) = ●1,,tt. reflexivity. Defined.
+Goal invmap (@total2_step 1 (λ _,unit)) (ii1 (●0,,tt)) = ●0,,tt. reflexivity. Defined.
+
+Goal @total2_step 0 (λ _,unit) (●0,,tt) = ii2 tt. reflexivity. Defined.
+Goal @total2_step 1 (λ _,unit) (●1,,tt) = ii2 tt. reflexivity. Defined.
+Goal @total2_step 1 (λ _,unit) (●0,,tt) = ii1 (●0,,tt).
+  try reflexivity.
+Abort. (* fix *)
+(* Here is part of the problem: *)
+Goal invmap (weqfp (weqdnicoprod 1 (lastelement 1)) (λ _ : stn 2, unit)) (● 0,, tt) = (ii1 (● 0),, tt).
+  try reflexivity.
+  intermediate_path (weqfp_invmap (weqdnicoprod 1 (lastelement 1)) (λ _ : stn 2, unit) (● 0,, tt)).
+  { reflexivity. }
+  refine (total2_paths _ _).
+  { reflexivity. }
+  rewrite rewrite_pr2_tpair.
+  rewrite idpath_transportf.
+  unfold weqfp_invmap.
+  rewrite rewrite_pr2_tpair.
+  rewrite rewrite_pr2_tpair.
+  rewrite rewrite_pr1_tpair.
+  apply pathsinv0.
+  intermediate_path (transportf (λ _ : stn 2, unit) (idpath (●0:stn 2)) tt).
+  { reflexivity. }
+  apply (maponpaths (λ r, transportf (λ _ : stn 2, unit) r tt)).
+  try reflexivity.
+  (*
+    Goal now is:
+
+      idpath (● 0) = ! homotweqinvweq (weqdnicoprod 1 (lastelement 1)) (● 0)
+
+    Fix the definition of weqdnicoprod.
+    *)
+
+Abort.
 
 Definition total2_step_compute_2 {n} (X:stnset (S n) ->UU) :
   invmap (total2_step X) ~ total2_step_b X.

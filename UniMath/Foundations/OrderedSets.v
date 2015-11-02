@@ -6,149 +6,30 @@ Require Import UniMath.Foundations.FunctionalExtensionality.
 Local Open Scope poset.
 Local Notation "● x" := (x,,idpath _) (at level 35).
 
-(* propositions, move upstream *)
-
-Lemma neg_isdecprop {X} : isdecprop X -> isdecprop (¬ X).
-Proof.
-  intros ? i.
-  assert (j := isdecproptoisaprop X i).
-  apply isdecpropif.
-  { apply isapropneg. }
-  unfold isdecprop in i.
-  assert (k := pr1 i); clear i.
-  induction k as [k|k].
-  { apply ii2. now apply todneg. }
-  now apply ii1.
-Defined.
-
-(* decidable propositions, move upstream *)
-
-Definition DecidableProposition := Σ X:UU, isdecprop X.
-
-Definition DecidableProposition_to_hProp : DecidableProposition -> hProp.
-Proof.
-  intros X.
-  exact (pr1 X,, isdecproptoisaprop (pr1 X) (pr2 X)).
-Defined.
-Coercion DecidableProposition_to_hProp : DecidableProposition >-> hProp.
-Definition decidabilityProperty (X:DecidableProposition) :
-  isdecprop X := pr2 X.
-
-Definition DecidableSubtype (X:UU) := X -> DecidableProposition.
-Definition DecidableRelation (X:UU) := X -> X -> DecidableProposition.
-
-Definition DecidableSubtype_to_hsubtypes {X} (P:DecidableSubtype X) : hsubtypes X
-  := λ x, DecidableProposition_to_hProp(P x).
-Coercion DecidableSubtype_to_hsubtypes : DecidableSubtype >-> hsubtypes.
-
-Definition DecidableRelation_to_hsubtypes {X} (P:DecidableRelation X) : hrel X
-  := λ x y, DecidableProposition_to_hProp(P x y).
-Coercion DecidableRelation_to_hsubtypes : DecidableRelation >-> hrel.
-
-Ltac choose P yes no := induction (iscontrpr1 (decidabilityProperty P)) as [yes|no].
-
-Definition choice {W} : DecidableProposition -> W -> W -> W.
-Proof.
-  intros ? P yes no.
-  choose P p q.
-  - exact yes.
-  - exact no.
-Defined.
-
-Definition choice_compute_yes {W} (P:DecidableProposition) (p:P) (yes no:W) :
-  choice P yes no = yes.
+Lemma subsetFiniteness {X} (is : isfinite X) (P : DecidableSubtype X) :
+  isfinite (decidableSubtypeCarrier P).
 Proof.
   intros.
-  unfold choice.
-  choose P a b.
-  - simpl. reflexivity.
-  - simpl. contradicts p b.
-Defined.
-
-Definition choice_compute_no {W} (P:DecidableProposition) (p:¬P) (yes no:W) :
-  choice P yes no = no.
-Proof.
-  intros.
-  unfold choice.
-  choose P a b.
-  - simpl. contradicts p a.
-  - simpl. reflexivity.
-Defined.
-
-Definition underlyingType {X} : DecidableSubtype X -> UU.
-Proof. intros ? S. exact (Σ x, S x). Defined.
-
-Definition underlyingType' {X} : DecidableSubtype X -> UU.
-Proof. intros ? P.
-       (* for use with isfinitedecsubset *)
-       exact (hfiber (λ x, choice (P x) true false) true).
-Defined.
-
-Definition underlyingType_weq {X} (P:DecidableSubtype X) :
-  underlyingType' P ≃ underlyingType P.
-Proof.
-  intros.
-  apply weqfibtototal.
-  intros x.
-  unfold choice.
-  simpl.
-  change (iscontrpr1 (decidabilityProperty (P x))) with (iscontrpr1 (decidabilityProperty (P x))).
-  choose (P x) p q.
-  - simpl. apply weqiff.
-    + apply logeq_both_true.
-      * reflexivity.
-      * assumption.
-    + apply isasetbool.
-    + apply (propproperty (DecidableProposition_to_hProp _)).
-  - simpl. apply weqiff.
-    + apply logeq_both_false.
-      * now apply falsetonegtrue.
-      * assumption.
-    + apply isasetbool.
-    + apply (propproperty (DecidableProposition_to_hProp _)).
-Defined.
-
-Lemma subsetFiniteness {X} (P : DecidableSubtype X) :
-  isfinite X -> isfinite (underlyingType P).
-Proof.
-  intros ? ? is.
-  assert (fin : isfinite (underlyingType' P)).
+  assert (fin : isfinite (decidableSubtypeCarrier' P)).
   { now apply isfinitedecsubset. }
   refine (isfiniteweqf _ fin).
-  apply underlyingType_weq.
+  apply decidableSubtypeCarrier_weq.
 Defined.
 
-Coercion underlyingType : DecidableSubtype >-> UU.
+Definition subsetFiniteSet {X:FiniteSet} (P:DecidableSubtype X) : FiniteSet.
+Proof. intros X P. exact (isfinite_to_FiniteSet (subsetFiniteness (pr2 X) P)). Defined.
 
-Definition decrel_to_DecidableRelation {X} : decrel X -> DecidableRelation X.
-Proof.
-  intros ? R x y. induction R as [R is]. exists (R x y).
-  apply isdecpropif. { apply propproperty. } apply is.
-Defined.
+Definition fincard_subset {X} (is : isfinite X) (P : DecidableSubtype X) : nat.
+Proof. intros ? fin ?. exact (fincard (subsetFiniteness fin P)). Defined.
 
-Definition natlth_DecidableProposition := decrel_to_DecidableRelation natlthdec.
-Definition natleh_DecidableProposition := decrel_to_DecidableRelation natlehdec.
-Definition natgth_DecidableProposition := decrel_to_DecidableRelation natgthdec.
-Definition natgeh_DecidableProposition := decrel_to_DecidableRelation natgehdec.
-Definition nateq_DecidableProposition := decrel_to_DecidableRelation natdeceq.
-Definition natneq_DecidableProposition := decrel_to_DecidableRelation natdecneq.
+Definition fincard_standardSubset {n} (P : DecidableSubtype (stn n)) : nat.
+Proof. intros. exact (fincard (subsetFiniteness (isfinitestn n) P)). Defined.
 
-Notation " x <? y " := ( natlth_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x <=? y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x ≤? y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x >=? y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x ≥? y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x >? y " := ( natgth_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
-Notation " x !=? y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : nat_scope.
+Goal 3 = fincard_standardSubset (λ i:stn 10, 2*i < 6)%dnat. Proof. reflexivity. Defined.
 
 Local Definition bound01 (P:DecidableProposition) : ((choice P 1 0) ≤ 1)%nat.
 Proof.
-  intros.
-  unfold choice.
-  choose P p q.
-  { simpl. now apply falsetonegtrue. }
-  { simpl. now apply falsetonegtrue. }
+  intros. unfold choice. choose P p q; exact nopathsfalsetotrue.
 Defined.
 
 Definition tallyStandardSubset {n} (P: DecidableSubtype (stn n)) : stn (S n).
@@ -158,14 +39,12 @@ Proof. intros. exists (stnsum (λ x, choice (P x) 1 0)). apply natlehtolthsn.
        assert ( p : ∀ r s, r = s -> (r ≤ s)%nat). { intros ? ? e. destruct e. apply isreflnatleh. }
        apply p. apply stnsum_1.
 Defined.
-Goal 3 = tallyStandardSubset (λ i:stn 7, 2*i <? 6). Proof. reflexivity. Defined.
-Goal 1 = tallyStandardSubset (λ i:stn 7, 2*i =? 6). Proof. reflexivity. Defined.
-Goal 6 = tallyStandardSubset (λ i:stn 7, 2*i !=? 4). Proof. reflexivity. Defined.
+
+Goal 6 = tallyStandardSubset (λ i:stn 10, 3 ≤ i ∧ i ≤ 8)%dnat%declog. Proof. reflexivity. Defined.
 
 Definition tallyStandardSubsetSegment {n} (P: DecidableSubtype (stn n))
            (i:stn n) : stn n.
-(* count how many elements less than i satisfy P *)
-Proof.
+  (* count how many elements less than i satisfy P *)
   intros.
   assert (k := tallyStandardSubset
                  (λ j:stn i, P (stnincl i n (natlthtoleh i n (pr2 i)) j))).
@@ -173,8 +52,8 @@ Proof.
   { apply natlthtolehsn. exact (pr2 i). }
   exact k.
 Defined.
-Goal 3 = tallyStandardSubsetSegment (λ i:stn 14, 2*i <? 6) (●7). Proof. reflexivity. Defined.
-Goal 6 = tallyStandardSubsetSegment (λ i:stn 14, 2*i !=? 4) (●7). Proof. reflexivity. Defined.
+
+Goal 6 = tallyStandardSubsetSegment (λ i:stn 14, 2*i !=? 4)%dnat (●7). Proof. reflexivity. Defined.
 
 (* types and univalence *)
 
@@ -236,7 +115,7 @@ Proof.
   apply uahp. { apply e. } { apply e'. }
 Defined.
 
-Open Scope transport_scope.
+Open Scope transport.
 
 Lemma poTransport_logeq {X Y:hSet} (R:PartialOrder X) (S:PartialOrder Y) (f:X=Y) :
   @isPosetEquivalence (X,,R) (Y,,S) (hSet_univalence_map _ _ f)
@@ -352,19 +231,23 @@ Definition Poset_lessthan {X:Poset} (x y:X) := (x ≤ y) ∧ (hneg (x = y)).
 
 Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) : oset.
 Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) : oset.
+Notation "m <= n" := (posetRelation _ m n) (no associativity, at level 70) : oset.
 Notation "m < n" := (Poset_lessthan m n) :oset.
+Notation "n \ge m" := (posetRelation _ m n) (no associativity, at level 70) : oset.
+Notation "n >= m" := (posetRelation _ m n) (no associativity, at level 70) : oset.
+Notation "n > m" := (Poset_lessthan m n) :oset.
 
 Close Scope poset.
 Local Open Scope oset.
 
 Definition OrderedSet_isrefl {X:OrderedSet} (x:X) : x ≤ x.
-Proof. intros. unwrap_OrderedSet X; simpl in x. apply refl. Qed.
+Proof. intros. unwrap_OrderedSet X; simpl in x. apply refl. Defined.
 
 Definition OrderedSet_isantisymm {X:OrderedSet} (x y:X) : x ≤ y -> y ≤ x -> x = y.
-Proof. intros ? ? ? r s. unwrap_OrderedSet X; simpl in x, y. now apply antisymm. Qed.
+Proof. intros ? ? ? r s. unwrap_OrderedSet X; simpl in x, y. now apply antisymm. Defined.
 
-Definition OrderedSet_istotal {X:OrderedSet} (x y:X) : x ≤ y ∨ y ≤ x.
-Proof. intros. unwrap_OrderedSet X; simpl in x,y. apply total. Qed.
+Definition OrderedSet_istotal {X:OrderedSet} (x y:X): x ≤ y ∨ y ≤ x :=
+  pr2 X x y.
 
 Lemma isdeceq_isdec_ordering (X:OrderedSet) : isdeceq X -> isdec_ordering X.
 Proof.
@@ -429,6 +312,61 @@ Definition FiniteOrderedSet := Σ X:OrderedSet, isfinite X.
 Definition underlyingOrderedSet (X:FiniteOrderedSet) : OrderedSet := pr1 X.
 Coercion underlyingOrderedSet : FiniteOrderedSet >-> OrderedSet.
 Definition finitenessProperty (X:FiniteOrderedSet) : isfinite X := pr2 X.
+Definition underlyingFiniteSet : FiniteOrderedSet -> FiniteSet.
+Proof. intros. exists X. apply finitenessProperty. Defined.
+Coercion underlyingFiniteSet : FiniteOrderedSet >-> FiniteSet.
+
+Lemma istotal_FiniteOrderedSet (X:FiniteOrderedSet) : istotal (posetRelation X).
+Proof. intros. exact (pr2 (pr1 X)). Defined.
+
+Lemma FiniteOrderedSet_isdeceq {X:FiniteOrderedSet} : isdeceq X.
+Proof. intros. apply isfinite_isdeceq. apply finitenessProperty. Defined.
+
+Lemma FiniteOrderedSet_isdec_ordering {X:FiniteOrderedSet} : isdec_ordering X.
+Proof. intros. apply isfinite_isdec_ordering. apply finitenessProperty. Defined.
+
+Definition FiniteOrderedSetDecidableOrdering (X:FiniteOrderedSet) : DecidableRelation X :=
+  λ (x y:X), decidable_to_DecidableProposition (FiniteOrderedSet_isdec_ordering x y).
+
+Definition FiniteOrderedSetDecidableEquality (X:FiniteOrderedSet) : DecidableRelation X :=
+  λ (x y:X), @decidable_to_DecidableProposition (eqset x y) (FiniteOrderedSet_isdeceq x y).
+
+Definition FiniteOrderedSetDecidableInequality (X:FiniteOrderedSet) : DecidableRelation X.
+  intros ? x y.
+  apply (@decidable_to_DecidableProposition (¬ (x = y)))%logic.
+  unfold decidable; simpl.
+  apply neg_isdecprop.
+  apply decidable_to_isdecprop_2.
+  { apply setproperty. }
+  apply FiniteOrderedSet_isdeceq.
+Defined.
+
+Definition FiniteOrderedSetDecidableLessThan (X:FiniteOrderedSet) : DecidableRelation X.
+  intros ? x y. refine (decidable_to_DecidableProposition _).
+  - exact (x < y).
+  - apply isfinite_isdec_lessthan. apply finitenessProperty.
+Defined.
+
+Notation "x = y" := (FiniteOrderedSetDecidableEquality _ x y) (at level 70, no associativity) : foset.
+Notation "x != y" := (FiniteOrderedSetDecidableInequality _ x y) (at level 70, no associativity) : foset.
+Notation "x ≠ y" := (FiniteOrderedSetDecidableInequality _ x y) (at level 70, no associativity) : foset.
+Notation " x ≤ y " := ( FiniteOrderedSetDecidableOrdering _ x y ) (at level 70, no associativity) : foset.
+Notation " x <= y " := ( FiniteOrderedSetDecidableOrdering _ x y ) (at level 70, no associativity) : foset.
+Notation " x ≥ y " := ( FiniteOrderedSetDecidableOrdering _ y x ) (at level 70, no associativity) : foset.
+Notation " x >= y " := ( FiniteOrderedSetDecidableOrdering _ y x ) (at level 70, no associativity) : foset.
+Notation " x < y " := ( FiniteOrderedSetDecidableLessThan _ x y ) (at level 70, no associativity) : foset.
+Notation " x > y " := ( FiniteOrderedSetDecidableLessThan _ y x ) (at level 70, no associativity) : foset.
+Delimit Scope foset with foset.
+
+Definition FiniteOrderedSet_segment {X:FiniteOrderedSet} (x:X) : FiniteSet.
+  intros. apply (@subsetFiniteSet X); intro y. exact (y < x)%foset.
+Defined.
+
+Definition height {X:FiniteOrderedSet} : X -> nat.
+  intros ? x. exact (cardinalityFiniteSet (FiniteOrderedSet_segment x)).
+Defined.
+
+(** making finite ordered sets in various ways *)
 
 Definition standardFiniteOrderedSet (n:nat) : FiniteOrderedSet.
 Proof.
@@ -439,6 +377,239 @@ Defined.
 
 Local Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 0).
 (* in agda-mode \[[ n \]] *)
+
+Goal 3 = height ( ●3 : ⟦ 8 ⟧ ). reflexivity. Defined.
+
+Lemma inducedPartialOrder {X Y} (f:X->Y) (incl:isInjective f) (R:hrel Y) (po:isPartialOrder R) :
+  isPartialOrder (λ x x' : X, R (f x) (f x')).
+Proof.
+  intros.
+  split.
+  - split.
+    * intros x y z a b. exact (pr1 (pr1 po) (f x) (f y) (f z) a b).
+    * intros x. exact (pr2 (pr1 po) (f x)).
+  - intros x y a b. apply incl. exact (pr2 po (f x) (f y) a b).
+Defined.
+
+Corollary inducedPartialOrder_weq {X Y} (f:X≃Y) (R:hrel Y) (po:isPartialOrder R) :
+  isPartialOrder (λ x x' : X, R (f x) (f x')).
+Proof. intros. exact (inducedPartialOrder f (incl_injectivity  f (weqproperty f)) R po). Defined.
+
+Definition transportFiniteOrdering {n} {X:UU} : X ≃ ⟦ n ⟧ -> FiniteOrderedSet.
+(* The new finite ordered set has X as its underlying set. *)
+Proof.
+  intros ? ? w.
+  refine (_,,_).
+  - refine (_,,_).
+    * refine (_,,_).
+    + exists X. apply (isofhlevelweqb 2 w). apply setproperty.
+      + unfold PartialOrder; simpl. refine (_,,_).
+        { intros x y. exact (w x ≤ w y). }
+        apply inducedPartialOrder_weq.
+        exact (pr2 (pr2 (pr1 (pr1 ⟦ n ⟧)))).
+    * intros x y. apply (pr2 (pr1 ⟦ n ⟧)).
+  - simpl.
+    apply (isfiniteweqb w).
+    exact (pr2 ⟦ n ⟧).
+Defined.
+
+(** concatenating finite ordered families of finite ordered sets *)
+
+Lemma isaset_total2 (X:hSet) (Y:X->hSet) : isaset (Σ x, Y x).
+Proof.
+  intros.
+  apply (isofhleveltotal2 2).
+  - apply setproperty.
+  - intro x. apply setproperty.
+Defined.
+
+Definition total2_hSet {X:hSet} (Y:X->hSet) : hSet := hSetpair (Σ x, Y x) (isaset_total2 X Y).
+
+Notation "'Σ'  x .. y , P" := (total2_hSet (fun x => .. (total2_hSet (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : set.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Definition lexicographicOrder
+           (X:hSet) (Y:X->hSet)
+           (R:hrel X) (S : ∀ x, hrel (Y x)) : hrel (Σ x, Y x)%set.
+  intros ? ? ? ? u u'.
+  set (x := pr1 u). set (y := pr2 u). set (x' := pr1 u'). set (y' := pr2 u').
+  exact ((x ≠ x' ∧ R x x') ∨ (∃ e : x = x', S x' (transportf Y e y) y'))%set.
+Defined.
+
+Module TestLex.
+  (* we want lex order to be computable if R and S both are *)
+  Let X := stnset 5.
+  Let R := λ (x x':X), (pr1 x ≤ pr1 x')%dnat.
+  Let Y := λ x:X, stnset (pr1 x).
+  Let S := λ (x:X) (y y':Y x), (pr1 y ≤ pr1 y')%dnat.
+  Let Z := Σ x, Y x.
+  Let T := lexicographicOrder X Y R S.
+
+  Let x2 := ●2 : X.
+  Let x3 := ●3 : X.
+
+  Goal pr1 (R x2 x3) = (false ≠ true). reflexivity. Defined.
+  Goal pr1 (R x2 x2) = (false ≠ true). reflexivity. Defined.
+  Goal pr1 (R x3 x2) = (true  ≠ true). reflexivity. Defined.
+  Goal (choice (R x2 x3) true false = true). reflexivity. Defined.
+  Goal (choice (R x2 x2) true false = true). reflexivity. Defined.
+  Goal (choice (R x3 x2) true false = false). reflexivity. Defined.
+
+  Let y1 := ●1 : Y x2.
+  Let y2 := ●2 : Y x3.
+  Let t  := (x2,,y1) : Z.
+  Let t' := (x3,,y2) : Z.
+
+End TestLex.
+
+Lemma lex_isrefl (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
+  (∀ x, isrefl(S x)) -> isrefl (lexicographicOrder X Y R S).
+Proof.
+  intros ? ? ? ? Srefl u. induction u as [x y]. apply hdisj_in2; simpl.
+  apply hinhpr. exists (idpath x). apply Srefl.
+Defined.
+
+Lemma lex_istrans (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
+  isantisymm R -> istrans R -> (∀ x, istrans(S x)) -> istrans (lexicographicOrder X Y R S).
+Proof.
+  intros ? ? ? ? Ranti Rtrans Strans u u' u'' p q.
+  induction u as [x y]. induction u' as [x' y']. induction u'' as [x'' y''].
+  apply p; clear p; intro p; simpl in p.
+  induction p as [p|p].
+  - induction p as [pn pl].
+    apply q; clear q; intro q; simpl in q.
+    induction q as [q|q].
+    + apply hinhpr; simpl.
+      induction q as [qn ql].
+      apply ii1. split. intro ne. induction ne.
+      assert (k := Ranti x x' pl ql).
+      contradicts pn k.
+      exact (Rtrans x x' x'' pl ql).
+    + apply q; clear q; intro q; simpl in q. induction q as [e l].
+      apply hinhpr; simpl.
+      apply ii1.
+      induction e.
+      exact (pn,,pl).
+  - apply p; clear p; intro p. induction p as [e s].
+    induction e; unfold transportf in s; simpl in s; unfold idfun in s.
+    apply q; clear q; intro q; simpl in q.
+    induction q as [q|q].
+    + induction q as [n r].
+      apply hdisj_in1; simpl.
+      exact (n,,r).
+    + apply q; clear q; intro q. induction q as [e' s']. induction e'.
+      unfold transportf in s'; simpl in s'; unfold idfun in s'.
+      apply hdisj_in2; simpl. apply hinhpr.
+      exists (idpath x).
+      exact (Strans x y y' y'' s s').
+Defined.
+
+Local Ltac unwrap a := apply (squash_to_prop a); [ apply isaset_total2 | simpl; clear a; intro a; simpl in a ].
+
+Lemma lex_isantisymm (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
+  isantisymm R -> (∀ x, isantisymm(S x)) -> isantisymm (lexicographicOrder X Y R S).
+Proof.
+  intros ? ? ? ? Ranti Santi u u' a b.
+  induction u as [x y]; induction u' as [x' y'].
+  unwrap a. unwrap b. induction a as [[m r]|a].
+  - induction b as [[n s]|b].
+    + assert (eq := Ranti x x' r s). contradicts m eq.
+    + unwrap b. induction b as [eq s]. contradicts (!eq) m.
+  - unwrap a. induction a as [eq s]. induction b as [[n r]|b].
+    { contradicts n (!eq). }
+    unwrap b. induction b as [eq' s']. assert ( c : eq = !eq' ).
+    { apply setproperty. }
+    induction (!c); clear c. induction eq'. assert ( t : y = y' ).
+    { apply (Santi x' y y' s s'). }
+    induction t. reflexivity. Defined.
+
+Lemma lex_istotal (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
+  isdeceq X -> istotal R -> (∀ x, istotal(S x)) -> istotal (lexicographicOrder X Y R S).
+Proof.
+  intros ? ? ? ? Xdec Rtot Stot u u'. induction u as [x y]. induction u' as [x' y'].
+  induction (Xdec x x') as [eq|ne].
+  { apply (Stot x' (transportf Y eq y) y'); intro P. induction P as [P|P].
+    { apply hdisj_in1. unfold lexicographicOrder; simpl. apply hdisj_in2. apply hinhpr. exact (eq,,P). }
+    { apply hdisj_in2. unfold lexicographicOrder; simpl. apply hdisj_in2. apply hinhpr.
+      induction eq. exact (idpath _,,P). }}
+  { apply (Rtot x x'); intro P. induction P as [P|P].
+    { apply hdisj_in1. apply hdisj_in1. simpl. exact (ne,,P). }
+    { apply hdisj_in2. apply hdisj_in1. simpl. exact (ne ∘ pathsinv0,,P). }} Defined.
+
+Definition concatenateFiniteOrderedSets
+           {X:FiniteOrderedSet} (Y:X->FiniteOrderedSet) : FiniteOrderedSet.
+Proof.
+  (* we use lexicographic order *)
+  intros.
+  refine (_,,_).
+  {
+    refine (_,,_).
+    { refine (_,,_).
+      { exact (Σ x, Y x)%set. }
+      refine (_,,_).
+      { apply lexicographicOrder. apply posetRelation. intro. apply posetRelation. }
+      split.
+      { split.
+        { apply lex_istrans.
+          { apply isantisymm_posetRelation. }
+          { apply istrans_posetRelation. }
+          { intro. apply istrans_posetRelation. } }
+        apply lex_isrefl.
+        intro; apply isrefl_posetRelation. }
+      apply lex_isantisymm.
+      { apply isantisymm_posetRelation. }
+      intro. apply isantisymm_posetRelation. }
+    apply lex_istotal.
+    { apply FiniteOrderedSet_isdeceq. }
+    { apply istotal_FiniteOrderedSet. }
+    intro; apply istotal_FiniteOrderedSet. }
+  apply isfinitetotal2.
+  { apply finitenessProperty. }
+  intro; apply finitenessProperty.
+Defined.
+
+Notation "'Σ'  x .. y , P" := (concatenateFiniteOrderedSets (fun x => .. (concatenateFiniteOrderedSets (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : foset.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Module TestLex2.
+
+  Let i := ●2 : ⟦ 4 ⟧.
+  Let j := ●3 : ⟦ 4 ⟧.
+
+  Goal choice (i < j)%foset true false = true. reflexivity. Defined.
+
+  Let X := (Σ i:⟦ 4 ⟧, ⟦ pr1 i ⟧)%foset.
+  Let x := ( ●2 ,, ●1 ):X.
+  Let y := ( ●3 ,, ●1 ):X.
+
+  (* we want these to work: *)
+
+  Goal choice (x < y)%foset true false = true.
+    try reflexivity.
+  Abort.
+
+  Goal choice (x = y)%foset true false = true.
+    try reflexivity.
+    unfold choice.
+    Unset Printing Notations.
+    unfold decidabilityProperty.
+    (* Print Assumptions FiniteOrderedSetDecidableEquality. *)
+    (* uses: funextfunax funextempty *)
+  Abort.
+
+  Goal choice (x != y)%foset true false = false.
+    try reflexivity.
+  Abort.
+
+  Goal 2 = height x.
+    try reflexivity.
+  Abort.
+
+End TestLex2.
+
+(** sorting finite ordered sets *)
 
 Definition FiniteStructure (X:OrderedSet) := Σ n, ⟦ n ⟧ ≅ X.
 
@@ -464,7 +635,7 @@ Proof.
     apply invproofirrelevance; intros [[r b] i] [[s c] j]; simpl in r,s,i,j.
     admit.
     }
-  { 
+  {
     apply weqtoeqstn.
     exact (weqcomp (pr1 p) (invweq (pr1 q))).
   }
@@ -477,3 +648,138 @@ Proof.
   { exists (fincard (finitenessProperty X)).
 
 Abort.
+
+(** * computably ordered sets *)
+
+(* Here we abstract from Chapter 11 of the HoTT book just the order
+   properties of the real numbers, as constructed there. *)
+
+Open Scope logic.
+
+Definition isLattice {X:hSet} (le:hrel X) (min max:binop X) :=
+  Σ po : isPartialOrder le,
+  Σ lub : ∀ x y z, le x z ∧ le y z <-> le (max x y) z,
+  Σ glb : ∀ x y t, le t x ∧ le t y <-> le t (min x y),
+  unit.
+
+Definition istrans2 {X:hSet} (le lt:hrel X) :=
+  Σ transltle: ∀ x y z, lt x y -> le y z -> lt x z,
+  Σ translelt: ∀ x y z, le x y -> lt y z -> lt x z,
+  unit.
+
+Definition iswklin {X} (lt:hrel X) := ∀ x y z, lt x y -> lt x z ∨ lt z y.
+
+Goal ∀ X (lt:hrel X), iscotrans lt <-> iswklin lt.
+Proof.
+  intros. unfold iscotrans, iswklin. split.
+  { intros i x1 x3 x2. apply i. }
+  { intros i x z y. apply i. }
+Defined.
+
+Definition isComputablyOrdered {X:hSet}
+           (lt:hrel X) (min max:binop X) :=
+  let le x y := ¬ lt y x in
+  Σ latt: isLattice le min max,
+  Σ trans2: istrans2 le lt,
+  Σ translt: istrans lt,
+  Σ irrefl: isirrefl lt,
+  Σ cotrans: iscotrans lt,
+  unit.
+
+Local Ltac expand ic :=
+  induction ic as
+    [[[[transle reflle]antisymmle][lub[glb _]]]
+       [[transltle [translelt _]][translt[irrefl[cotrans _]]]]].
+
+Section OtherProperties.
+
+  Variable (X:hSet)
+            (lt:hrel X)
+            (min max:binop X)
+            (ic:isComputablyOrdered lt min max).
+
+  Let le x y := ¬ lt y x.
+  Let apart x y := lt y x ∨ lt x y.
+  Let eq x y := @eqset X x y.
+  Let ne x y := hneg (eq x y).
+
+  Local Lemma apart_isirrefl : isirrefl apart.
+  Proof.
+    expand ic.
+    intros x a.
+    unfold apart in a.
+    apply (a hfalse); clear a; intros b.
+    induction b as [b|b]; exact (irrefl _ b).
+  Defined.
+
+  Local Lemma lt_implies_le x y : lt x y -> le x y.
+  Proof.
+    intros ? ? l.
+    intro m.
+    expand ic.
+    assert (n := translt _ _ _ l m).
+    exact (irrefl _ n).
+  Defined.
+
+  Local Lemma apart_implies_ne x y : apart x y -> ne x y.
+  Proof.
+    expand ic.
+    intros ? ? a e.
+    induction e.
+    apply (apart_isirrefl _ a).
+  Defined.
+
+  Local Lemma tightness x y : ¬ apart x y <-> x = y.
+  Proof.
+    expand ic.
+    split.
+    - intro m. assert (p := fromnegcoprod_prop m); clear m.
+      induction p as [p q]. now apply antisymmle.
+    - intro e. induction e. apply apart_isirrefl.
+  Defined.
+
+  Local Lemma ne_implies_dnegapart x y : ne x y -> ¬¬ apart x y.
+  Proof.
+    intros ? ? n m.
+    apply n; clear n.
+    now apply tightness.
+  Defined.
+
+  Section ClassicalProperties.
+
+    Variable lem:LEM.
+
+    Local Lemma ne_implies_apart x y : ne x y -> apart x y.
+    Proof.
+      intros ? ? a.
+      apply (dneg_LEM _ lem).
+      now apply ne_implies_dnegapart.
+    Defined.
+
+    Local Lemma trichotomy x y : lt x y ∨ eq x y ∨ lt y x.
+    Proof.
+      intros.
+      induction (lem (eq x y)) as [a|b].
+      - apply hdisj_in2; apply hdisj_in1; exact a.
+      - assert (l := ne_implies_apart _ _ b); clear b.
+        unfold apart in l.
+        apply l; intro m; clear l.
+        induction m as [n|o].
+        * apply hdisj_in2; apply hdisj_in2; exact n.
+        * apply hdisj_in1; exact o.
+    Defined.
+
+    Local Lemma le_istotal : istotal le.
+    Proof.
+      intros x y.
+      assert (m := trichotomy x y).
+      apply m; clear m; intro m; induction m as [m|m].
+      - apply hdisj_in1. apply lt_implies_le. exact m.
+      - apply m; clear m; intro m; induction m as [m|m].
+        * apply hdisj_in1. induction m. unfold le. expand ic. apply irrefl.
+        * apply hdisj_in2. apply lt_implies_le. exact m.
+    Defined.
+
+  End ClassicalProperties.
+
+End OtherProperties.
