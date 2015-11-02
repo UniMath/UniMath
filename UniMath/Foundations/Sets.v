@@ -29,12 +29,21 @@ Definition hSetpair X i := tpair isaset X i : hSet.
 Definition pr1hSet:= @pr1 UU (fun X : UU => isaset X) : hSet -> UU.
 Coercion pr1hSet: hSet >-> UU .
 
-Definition eqset { X : hSet } ( x x' : X ) : hProp := hProppair _ ( pr2 X x x' ) . 
+Definition eqset { X : hSet } ( x x' : X ) : hProp := hProppair (x = x') (pr2 X x x') . 
+Notation "a = b" := (eqset a b) (at level 70, no associativity) : set.
+
+Definition neqset { X : hSet } ( x x' : X ) : hProp := hProppair (x ≠ x') (isapropneg _) . 
+Notation "a != b" := (neqset a b) (at level 70, no associativity) : set.
+Notation "a ≠ b" := (neqset a b) (at level 70, no associativity) : set.
+Delimit Scope set with set.
 
 Definition setproperty ( X : hSet ) := pr2 X . 
 
 Definition setdirprod ( X Y : hSet ) : hSet .
-Proof . intros . split with ( dirprod X Y ) . apply ( isofhleveldirprod 2 ) .  apply ( pr2 X ) . apply ( pr2 Y ) . Defined . 
+Proof. intros. exists(X×Y) . apply (isofhleveldirprod 2); apply setproperty. Defined . 
+
+Definition setcoprod (X Y:hSet) : hSet.
+Proof. intros. exists(X⨿Y). apply isasetcoprod; apply setproperty. Defined.  
 
 (** [ hProp ] as a set *)
 
@@ -124,6 +133,9 @@ Definition totalsubtype ( X : UU ) : hsubtypes X := fun x => htrue .
 Definition weqtotalsubtype ( X : UU ) : totalsubtype X ≃ X .
 Proof . intro . apply weqpr1 .   intro . apply iscontrunit .  Defined . 
 
+Definition DecidableSubtype_to_hsubtypes {X} (P:DecidableSubtype X) : hsubtypes X
+  := λ x, DecidableProposition_to_hProp(P x).
+Coercion DecidableSubtype_to_hsubtypes : DecidableSubtype >-> hsubtypes.
 
 (** *** Direct product of two subtypes *)
 
@@ -221,6 +233,10 @@ Identity Coercion idhrel : hrel >-> Funclass .
 
 Definition brel ( X : UU ) := X -> X -> bool .
 Identity Coercion idbrel : brel >-> Funclass . 
+
+Definition DecidableRelation_to_hrel {X} (P:DecidableRelation X) : hrel X
+  := λ x y, DecidableProposition_to_hProp(P x y).
+Coercion DecidableRelation_to_hrel : DecidableRelation >-> hrel.
 
 (** *** Standard properties of relations *)
 
@@ -418,6 +434,15 @@ Definition carrierofposet : Poset -> hSet := pr1.
 Coercion carrierofposet : Poset >-> hSet . 
 Definition posetRelation (X:Poset) : hrel X := pr1 (pr2 X).
 
+Lemma isrefl_posetRelation (X:Poset) : isrefl (posetRelation X).
+Proof. intros ? x. exact (pr2 (pr1 (pr2 (pr2 X))) x). Defined.
+
+Lemma istrans_posetRelation (X:Poset) : istrans (posetRelation X).
+Proof. intros ? x y z l m. exact (pr1 (pr1 (pr2 (pr2 X))) x y z l m). Defined.
+
+Lemma isantisymm_posetRelation (X:Poset) : isantisymm (posetRelation X).
+Proof. intros ? x y l m. exact (pr2 (pr2 (pr2 X)) x y l m). Defined.
+
 Delimit Scope poset with poset. 
 Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) : poset.
 Definition isaposetmorphism { X Y : Poset } ( f : X -> Y ) := (∀ x x' : X, x ≤ x' -> f x ≤ f x')%poset .
@@ -430,7 +455,7 @@ Definition isdec_ordering (X:Poset) := ∀ (x y:X), decidable (x≤y)%poset.
 
 Lemma isaprop_isaposetmorphism {X Y:Poset} (f:X->Y) : isaprop (isaposetmorphism f).
 Proof.
-  intros. apply impredtwice; intros. apply impred; intros _. apply propproperty.
+  intros. apply impredtwice; intros. apply impred_prop.
 Defined.
 
 (** the preorders on a set form a set *)
@@ -501,12 +526,12 @@ Definition consecutive {X:Poset} (x y:X) := x<y × ∀ z, ¬ (x<z × z<y).
 
 Lemma isaprop_isMinimal {X:Poset} (x:X) : isaprop (isMaximal x).
 Proof.
-  intros. unfold isMaximal. apply impred; intros z. apply propproperty.
+  intros. unfold isMaximal. apply impred_prop.
 Defined.
 
 Lemma isaprop_isMaximal {X:Poset} (x:X) : isaprop (isMaximal x).
 Proof.
-  intros. unfold isMaximal. apply impred; intros z. apply propproperty.
+  intros. unfold isMaximal. apply impred_prop.
 Defined.
 
 Lemma isaprop_consecutive {X:Poset} (x y:X) : isaprop (consecutive x y).
@@ -595,6 +620,12 @@ Definition decreltobrel { X : UU } ( R : decrel X ) : brel X .
 Proof . intros . intros x x' . destruct ( ( pr2 R ) x x' ) . apply true . apply false . Defined .
 
 Definition breltodecrel { X : UU } ( B : brel X ) : decrel X := @decrelpair _ ( fun x x' => hProppair ( paths ( B x x' ) true ) ( isasetbool _ _ ) ) ( fun x x' => ( isdeceqbool _ _ ) ) .  
+
+Definition decrel_to_DecidableRelation {X} : decrel X -> DecidableRelation X.
+Proof.
+  intros ? R x y. induction R as [R is]. exists (R x y).
+  apply isdecpropif. { apply propproperty. } apply is.
+Defined.
  
 Definition pathstor { X : UU } ( R : decrel X ) ( x x' : X ) ( e : decreltobrel R x x' = true ) : R x x' .
 Proof . unfold decreltobrel . intros .  destruct ( pr2 R x x' ) as [ e' | ne ]  .  apply e' . destruct ( nopathsfalsetotrue e ) . Defined .  

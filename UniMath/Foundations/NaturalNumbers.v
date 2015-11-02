@@ -266,7 +266,29 @@ Definition iscoasymmnatgeh ( n m : nat ) ( nl : neg ( natgeh n m ) ) : natgeh m 
 Definition istotalnatgeh : istotal natgeh := fun n m => istotalnatleh m n .
 
 
+Definition natlth_DecidableProposition := decrel_to_DecidableRelation natlthdec.
+Definition natleh_DecidableProposition := decrel_to_DecidableRelation natlehdec.
+Definition natgth_DecidableProposition := decrel_to_DecidableRelation natgthdec.
+Definition natgeh_DecidableProposition := decrel_to_DecidableRelation natgehdec.
+Definition nateq_DecidableProposition := decrel_to_DecidableRelation natdeceq.
+Definition natneq_DecidableProposition := decrel_to_DecidableRelation natdecneq.
 
+Notation " x < y " := ( natlth_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x <= y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x ≤ y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x >= y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x ≥ y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x > y " := ( natgth_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x !=? y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x ≠ y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Delimit Scope decidable_nat with dnat.
+
+Goal choice (3 < 4)%dnat true false = true. reflexivity. Defined.
+Goal choice (3 < 4 ∧ 4 < 5)%dnat%declog true false = true. reflexivity. Defined.
+Goal choice (¬ (3 < 4))%dnat%declog true false = false. reflexivity. Defined.
+Goal choice (3 < 4 ∨ 4 < 3)%dnat%declog true false = true. reflexivity. Defined.
+Goal choice (4 < 3 ∨ 2 < 1)%dnat%declog true false = false. reflexivity. Defined.
 
 (** *** Simple implications between comparisons *)
 
@@ -1325,7 +1347,18 @@ Proof. intros . set ( is1 := isaprople n m ) . set ( is2 := pr2 ( natleh n m )  
 
 Definition weqletoleh ( n m : nat ) := weqpair _ ( isweqletoleh n m ) .
 
+(* more lemmas about natural numbers *)
 
+Lemma natsubsub n i j : n-i-j = n-(i+j).
+Proof.
+  intros n; induction n as [|n N].
+  { reflexivity. }
+  intros i; induction i as [|i _].
+  { reflexivity. }
+  { apply N. }
+Defined.  
 
-
-(* End of the file hnat.v *)
+Lemma natltplusS n i : i < i + S n.
+Proof.
+  intros. rewrite <- (natplusr0 i). rewrite natplusassoc. apply natlthandplusl. reflexivity.
+Defined.
