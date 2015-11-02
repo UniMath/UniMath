@@ -264,21 +264,133 @@ Module Test2.
   Goal homotweqinvweq w (firstelement 0) = idpath _. reflexivity. Defined.
   Goal homotinvweqweq w tt = idpath _. reflexivity. Defined.
 
-  (* so try to re-implement weqdnicoprod: *)
-  Definition weqdnicoprod n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
-    intros.
-    refine (weqgradth _ _ _ _).
-    { intro x. induction x as [i|t].
-      { exact (dni n j i). }
-      { exact j. } }
-    { intro i.
-      induction (isdeceqstn (S n) i j) as [eq|ne].
-      { exact (ii2 tt). }
-      { exact (ii1 (hfiberpr1 _ _ (iscontrpr1 (iscontrhfiberdni n i j ne)))). }}
-    { intro x. induction x as [i|t]. 
-      { 
+  Local Definition w' := invweq w.
+  Goal w' (firstelement 0) = tt. reflexivity. Defined.
+  Goal invmap w' tt= (firstelement 0). reflexivity. Defined.
+  Goal homotweqinvweq w' tt = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq w' (firstelement 0) = idpath _. reflexivity. Defined.
 
-      
+  Definition ww' := weqcomp w w'.
+  Goal ww' tt = tt. reflexivity. Defined.
+  Goal invmap ww' tt = tt. reflexivity. Defined.
+  Goal homotweqinvweq ww' tt = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq ww' tt = idpath _. reflexivity. Defined.
+
+  Definition w_w := weqcoprodf w w.
+  Goal w_w (ii1 tt) = ii1 (firstelement 0). reflexivity. Defined.
+  Goal invmap w_w (ii2 (firstelement 0)) = ii2 tt. reflexivity. Defined.
+  Goal homotweqinvweq w_w (ii2 (firstelement 0)) = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq w_w (ii1 tt) = idpath _. reflexivity. Defined.
+
+  Definition i := ●1 : stn 4.
+  Definition j := ●0 : stn 4.
+  Lemma ne : i ≠ j.
+  Proof. induction (isisolatedinstn i j).
+         - intros b. induction (negpathssx0 0 (maponpaths pr1 b)).
+         - assumption.
+  Defined.           
+  Definition re := weqrecompl (stn 4) i (isisolatedinstn _).
+  Definition c := complpair (stn 4) i j ne : compl _ i.
+  Goal re (ii2 tt) = i. reflexivity. Defined.
+  Goal re (ii1 c) = j. reflexivity. Defined.
+  Goal invmap re i = (ii2 tt). reflexivity. Defined.
+  Goal invmap re j = (ii1 c). reflexivity. Defined.
+  Goal homotweqinvweq re i = idpath _. reflexivity. Defined.
+  Goal homotweqinvweq re j = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq re (ii2 tt) = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq re (ii1 c) = idpath _.
+    try reflexivity.
+    (* It must be the use of funextempty in the proof of isweqrecompl, which seems unavoidable. *)
+  Abort.
+
+  (* so re-implement weqdnicoprod *)
+  (* notice that natgeh, and thus dni and iscontrhfiberdni, also use funextempty, but unnecessarily *)
+  Definition weqdnicoprod_map    {n} (j : stn(S n)) : stn n ⨿ unit -> stn (S n).
+    intros n j x. induction x as [i|t].
+      { exact (dni n j i). }
+      { exact j. }
+  Defined.
+  Lemma natltltSlt i j n : i<j -> j<S n -> i<n.
+  Proof.
+    intros i j n l.
+    
+  Admitted.
+  Definition weqdnicoprod_invmap {n} (j : stn(S n)) : stn n ⨿ unit <- stn (S n).
+    intros n j i. 
+    induction (isdeceqstn (S n) i j) as [eq|ne].
+    { exact (ii2 tt). }
+    { apply ii1. induction i as [i I]. induction j as [j J].
+      choose (i < j)%dnat a a.
+      { exists i. exact (natltltSlt _ _ _ a J). }
+      { exists (i - 1).
+        induction (natlehchoice _ _ a) as [b|b].
+        { induction (natlehchoice4 _ _ I) as [c|c].
+          { apply (natlehlthtrans (i - 1) i n).
+            { apply natminuslehn. }
+            { exact c. } }
+          { induction c. apply natminuslthn.
+            { apply (natlehlthtrans _ j _).
+              { apply natleh0n. }
+              { exact b. } }
+            { apply natlthnsn. } } }
+        { induction b.
+          induction (ne (@subtypeEquality_prop _ _ (stnpair _ j I) (stnpair _ j J) (idpath j))). } } }
+  Defined.    
+
+  Goal @weqdnicoprod_map 4 (●2) (ii2 tt) = (●2). reflexivity. Defined.
+  Goal @weqdnicoprod_map 4 (●2) (ii1 (●2)) = (●3). reflexivity. Defined.
+  Goal @weqdnicoprod_map 4 (●2) (ii1 (●1)) = (●1). reflexivity. Defined.
+  Goal @weqdnicoprod_invmap 4 (●2) (●2) = (ii2 tt). reflexivity. Defined.
+  Goal @weqdnicoprod_invmap 4 (●2) (●3) = (ii1 (●2)). reflexivity. Defined.
+  Goal @weqdnicoprod_invmap 4 (●2) (●1) = (ii1 (●1)). try reflexivity. Abort.
+
+  Definition coprod_rect_compute_1
+             (A B : UU) (P : A ⨿ B -> UU)
+             (f : ∀ a : A, P (ii1 a))
+             (g : ∀ b : B, P (ii2 b)) (a:A) :
+    coprod_rect P f g (ii1 a) = f a.
+  Proof.
+    reflexivity.
+  Defined.
+
+  Definition coprod_rect_compute_2
+             (A B : UU) (P : A ⨿ B -> UU)
+             (f : ∀ a : A, P (ii1 a))
+             (g : ∀ b : B, P (ii2 b)) (b:B) :
+    coprod_rect P f g (ii2 b) = g b.
+  Proof.
+    reflexivity.
+  Defined.
+
+  Definition weqdnicoprod n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
+    intros n j.
+    apply (weqgradth (weqdnicoprod_map j) (weqdnicoprod_invmap j)).
+    { intro x. induction x as [i|t].
+      { induction i as [i I]. induction j as [j J].
+        unfold weqdnicoprod_map, dni; simpl.
+        induction (natlthorgeh i j) as [a|a].
+        { simpl. unfold weqdnicoprod_invmap.
+          induction
+            (isdeceqstn (S n) (stnpair (S n) i (natgthtogths n i I))
+                        (@tpair nat
+                                (fun m : nat =>
+                                   @paths bool
+                                          match m return bool with
+                                            | O => true
+                                            | S m0 => natgtb n m0
+                                          end true) j J)) as [b|b].
+          { simpl. assert (b' := maponpaths (stntonat _) b); simpl in b'.
+            induction b'. induction (isirreflnatlth _ a). }
+          { rewrite coprod_rect_compute_2.
+            apply maponpaths.
+            apply subtypeEquality_prop.
+            Set Printing Coercions.
+            unfold hfiberpr1.
+            unfold iscontrhfiberdni. 
+
+            
+            
+
   Abort.
 
 End Test2.
@@ -582,6 +694,9 @@ End Test_weqstnsum.
 Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
   (∀ i, stn (f i) ≃ P i) -> total2 P ≃ stn (stnsum f).
 Proof.
+  (* The problem with the computability of this equivalence comes from the use
+     of [invweq (weqfp (weqdnicoprod ...) ...)] in it, and the use of
+     [funextempty] in [weqdnicoprod]. *)
   intros ? ? ? ww. induction n as [ | n IHn ].
   { intros. simpl. apply weqtoempty2. { exact pr1. } exact negstn0. }
   intermediate_weq (Σ x : stn n ⨿ unit, P ((weqdnicoprod n (lastelement n)) x)).
