@@ -119,6 +119,32 @@ Proof . intros . intro x' . induction x' as [ x' nexx' ] . apply ( invmaponpaths
 
 (** Basic facts about complementary propositions  *)
 
+Definition pp1 {X Y} (x:X) : X ⨿ Y -> X.
+  intros ? ? ?. exact (coprod_rect (λ _,X) (λ x,x) (λ _,x)). Defined.
+
+Definition pp2 {X Y} (y:Y) : X ⨿ Y -> Y.
+  intros ? ? ?. exact (coprod_rect (λ _,Y) (λ _,y) (λ y,y)). Defined.
+
+Definition pp1ii1 {X Y} (x:X) (xy : X ⨿ Y) (e: ii1 x = xy) : ii1 (pp1 x xy) = xy.
+Proof. intros. induction e. reflexivity. Defined.
+
+Definition pp2ii2 {X Y} (y:Y) (xy : X ⨿ Y) (e: ii2 y = xy) : ii2 (pp2 y xy) = xy.
+Proof. intros. induction e. reflexivity. Defined.
+
+Lemma ii1_inj {X Y} (x x':X) : @ii1 X Y x = @ii1 X Y x' -> x = x'.
+Proof. intros ? ? ? ? e. exact (maponpaths (pp1 x) e). Defined.
+
+Lemma ii2_inj {X Y} (y y':Y) : @ii2 X Y y = @ii2 X Y y' -> y = y'.
+Proof. intros ? ? ? ? e. exact (maponpaths (pp2 y) e). Defined.
+
+Lemma A {X Y} (m:X ⨿ Y) (n:Y) (f : @ii2 X Y n = m) : 
+   transportb (λ y, ii2 y = m) (maponpaths (pp2 n) f) (???) = f.
+Proof.
+  intros.
+  
+
+Abort.
+
 Lemma isapropretract {P Q} (i: isaprop Q) (f:P->Q) (g:Q->P) (h: g∘f ~ idfun _): isaprop P.
 Proof.
   intros.
@@ -187,6 +213,21 @@ Proof.
     + contradicts c np.
     + apply maponpaths. apply funextempty.
 Defined.
+
+Lemma isaprop_neg_decprop {P} (i:isdecprop P) : isaprop (neg_decprop i).
+Proof.
+  intros.
+  unfold neg_decprop.
+  apply invproofirrelevance; intros m n.
+  induction m as [m e].
+  induction n as [n f].
+  refine (total2_paths _ _).
+  - simpl.
+    apply (@ii2_inj P (¬P)).
+    exact (e @ !f).
+  - induction e. simpl.
+    
+Abort.
 
 Definition decision {P} (i: P ⨿ ¬ P) : bool
   := coprod_rect (λ _, bool) (λ _, true) (λ _, false) i.
@@ -558,14 +599,6 @@ Proof. intros . intro ye . induction ye as [ y e ] . apply ( negpathsii2ii1 _ _ 
 Lemma negintersectii1ii2 { X Y : UU } (z: coprod X Y): hfiber  (@ii1 X Y) z -> hfiber  (@ii2 _ _) z -> empty.
 Proof. intros X Y z X0 X1. induction X0 as [ t x ]. induction X1 as [ t0 x0 ].  
 set (e:= pathscomp0   x (pathsinv0 x0)). apply (negpathsii1ii2 _ _  e). Defined. 
-
-
-Lemma isaprop_neg_decprop {P} (i:isdecprop P) : isaprop (neg_decprop i).
-Proof.
-  intros.
-  unfold neg_decprop.
-  (* to do, using that ii2 is an inclusion *)
-Defined.
 
 (** *** [ ii1 ] and [ ii2 ] map isolated points to isoloated points *)
 
