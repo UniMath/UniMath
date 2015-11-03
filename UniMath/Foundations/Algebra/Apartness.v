@@ -6,6 +6,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 Unset Kernel Term Sharing.
 
 Require Export UniMath.Foundations.Algebra.BinaryOperations.
+Require Import UniMath.Foundations.Propositions.
 
 (** ** Additionals theorems about relations *)
 
@@ -59,7 +60,104 @@ Coercion aprel_pr1 : aprel >-> hrel.
 Definition apSet := Σ X : hSet, aprel X.
 Definition apSet_pr1 (X : apSet) : hSet := pr1 X.
 Coercion apSet_pr1 : apSet >-> hSet.
-Notation "x # y" := (pr2 (_ : apSet) x y).
+Notation "x # y" := (pr2 (_ : apSet) x y) : constructive_logic.
+
+Delimit Scope constructive_logic with cl.
+Local Open Scope constructive_logic.
+
+(** Lemmas about apartness *)
+
+Lemma isirreflapSet {X : apSet} :
+  ∀ x : X, ¬ (x # x).
+Proof.
+  intros ?.
+  exact (pr1 (pr2 (pr2 X))).
+Qed.
+
+Lemma issymmapSet {X : apSet} :
+  ∀ x y : X, x # y -> y # x.
+Proof.
+  intros ?.
+  exact (pr1 (pr2 (pr2 (pr2 X)))).
+Qed.
+
+Lemma iscotransapSet {X : apSet} :
+  ∀ x y z : X, x # z -> x # y ∨ y # z.
+Proof.
+  intros ?.
+  exact (pr2 (pr2 (pr2 (pr2 X)))).
+Qed.
+
+(** ** Tight apartness *)
+
+Definition istight {X : UU} (R : hrel X) :=
+  forall x y : X, ¬ (R x y) -> x = y.
+Definition istightap {X : UU} (ap : hrel X) :=
+  isaprel ap × istight ap.
+
+Definition tightap (X : UU) := Σ ap : hrel X, istightap ap.
+Definition tightap_aprel {X : UU} (ap : tightap X) : aprel X := pr1 ap ,, (pr1 (pr2 ap)).
+Coercion tightap_aprel : tightap >-> aprel.
+
+Definition tightapSet := Σ X : hSet, tightap X.
+Definition tightapSet_apSet (X : tightapSet) : apSet := pr1 X ,, (tightap_aprel (pr2 X)).
+Coercion tightapSet_apSet : tightapSet >-> apSet.
+
+(** Some lemmas *)
+
+Lemma isirrefltightapSet {X : tightapSet} :
+  ∀ x : X, ¬ (x # x).
+Proof.
+  intros ?.
+  exact isirreflapSet.
+Qed.
+
+Lemma issymmtightapSet {X : tightapSet} :
+  ∀ x y : X, x # y -> y # x.
+Proof.
+  intros ?.
+  exact issymmapSet.
+Qed.
+
+Lemma iscotranstightapSet {X : tightapSet} :
+  ∀ x y z : X, x # z -> x # y ∨ y # z.
+Proof.
+  intros ?.
+  exact iscotransapSet.
+Qed.
+
+Lemma istighttightapSet {X : tightapSet} :
+  forall x y : X, ¬ (x # y) -> x = y.
+Proof.
+  intros ?.
+  exact (pr2 (pr2 (pr2 X))).
+Qed.
+
+Lemma istighttightapSet_rev {X : tightapSet} :
+  forall x y : X, x = y -> ¬ (x # y).
+Proof.
+  intros ? x _ <-.
+  now apply isirrefltightapSet.
+Qed.
+
+Lemma tightapSet_dec {X : tightapSet} :
+  LEM -> forall x y : X, (x ≠ y <-> x # y).
+Proof.
+  intros ? Hdec x y.
+  destruct (Hdec (x # y)) as [ Hneq | Heq ].
+  - split.
+    + intros _ ; apply Hneq.
+    + intros _ Heq.
+      rewrite <- Heq in Hneq.
+      revert Hneq.
+      now apply isirrefltightapSet.
+  - split.
+    + intros Hneq.
+      apply fromempty, Hneq.
+      now apply istighttightapSet.
+    + intros Hneq.
+      now apply fromempty, Heq.
+Qed.
 
 (** ** Operations and apartness *)
 
