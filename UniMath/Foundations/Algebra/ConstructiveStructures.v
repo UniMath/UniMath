@@ -9,6 +9,8 @@ Require Export UniMath.Foundations.Algebra.Apartness.
 Require Export UniMath.Foundations.Algebra.DivisionRig.
 Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
 
+Local Open Scope constructive_logic.
+
 (** ** Constructive monoid *)
 
 Definition ConstructiveMonoid :=

@@ -59,7 +59,10 @@ Coercion aprel_pr1 : aprel >-> hrel.
 Definition apSet := Σ X : hSet, aprel X.
 Definition apSet_pr1 (X : apSet) : hSet := pr1 X.
 Coercion apSet_pr1 : apSet >-> hSet.
-Notation "x # y" := (pr2 (_ : apSet) x y).
+Notation "x # y" := (pr2 (_ : apSet) x y) : constructive_logic.
+
+Delimit Scope constructive_logic with cl.
+Local Open Scope constructive_logic.
 
 (** ** Operations and apartness *)
 
