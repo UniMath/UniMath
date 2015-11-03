@@ -203,8 +203,52 @@ Definition isdecprop (P:UU) := isaprop P × (P ⨿ ¬P).
 
 Definition neg_decprop {P} (i: isdecprop P) := Σ n:¬P, ii2 n = pr2 i.
 
+Definition decision {P} (i: P ⨿ ¬ P) : bool
+  := coprod_rect (λ _, bool) (λ _, true) (λ _, false) i.
+
+Module Test_reflect.
+
+  (* an experiment: *)
+
+  Inductive ref (P:UU) : bool -> UU :=
+  | refT : P -> ref P true
+  | refF : ¬P -> ref P false.
+
+  Lemma A (P:UU) (i:isaprop P) : isaprop (Σ b, ref P b).
+  Proof.
+    (* uses [funextempty] *)
+    intros.
+    apply invproofirrelevance.
+    intros [b r] [c s].
+    induction r as [p|np].
+    - induction s as [q|nq].
+      + apply maponpaths, maponpaths, i.
+      + contradicts p nq.
+    - induction s as [q|nq].
+      + contradicts np q.
+      + apply maponpaths, maponpaths.
+        apply funextempty.
+  Defined.
+
+  Lemma B (P:UU) (i:isaprop P) : (Σ b, ref P b) ≃ P ⨿ ¬ P.
+  Proof.
+    intros.
+    apply weqiff.
+    { split.
+      - intros [b r]. induction r as [p|np].
+        + exact (ii1 p).
+        + exact (ii2 np).
+      - intros c. induction c as [p|np].
+        + exact (true,,refT P p).
+        + exact (false,,refF P np). }
+    { now apply A. }
+    { now apply isapropdec. }
+  Defined.
+                                        
+End Test_reflect.
+
 Lemma neg_decprop_negates {P} (i:isdecprop P) : neg_decprop i <-> ¬ P.
-(* uses [funextempty], but we won't use it *)
+(* uses [funextempty] *)
 Proof.
   intros. split.
   - apply pr1.
@@ -218,23 +262,24 @@ Proof.
   intros.
   induction i as [i c].
   unfold neg_decprop; simpl.
+  assert (k := @weqtotal2overcoprod P (¬P)
+                                    (@coprod_rect P (¬P) (λ _,UU) (λ p, ii1 p = c) (λ n, ii2 n = c)));
+    simpl in k.
+  apply (isapropcomponent2 (Σ x : P, ii1 x = c) (Σ y : ¬ P, ii2 y = c)).
+  apply (isofhlevelweqf 1 k); clear k.
+  (* now show that type is equivalent to the type of paths from xy to c *)
 
-  (*
-   try using 
+Abort.
 
-weqtotal2overcoprod:
-  ∀ (X Y : UU) (P : X ⨿ Y -> UU),
-  (Σ xy : X ⨿ Y, P xy) ≃ (Σ x : X, P (ii1 x)) ⨿ (Σ y : Y, P (ii2 y))
-
-*)
-
-
+Lemma isaprop_neg_decprop {P} (i:isdecprop P) : isaprop (neg_decprop i).
+Proof.
+  intros.
+  induction i as [i c].
   apply invproofirrelevance; intros m n.
   induction m as [m e].
   induction c as [p|np].
   { contradicts p m. }
   induction n as [n f]; simpl in *.
-  clear i.
   refine (total2_paths _ _).
   - simpl.
     apply (@ii2_inj P (¬P)).
@@ -243,12 +288,7 @@ weqtotal2overcoprod:
     induction e; simpl.
     clear np.
     
-
-    
 Abort.
-
-Definition decision {P} (i: P ⨿ ¬ P) : bool
-  := coprod_rect (λ _, bool) (λ _, true) (λ _, false) i.
 
 Definition isaprop_with_decision P := isaprop P × Σ (b:bool), P <-> b=true.
 
