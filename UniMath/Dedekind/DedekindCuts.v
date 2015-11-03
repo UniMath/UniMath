@@ -2,13 +2,14 @@
 (** Catherine Lelay. Sep. 2015 *)
 
 Require Import UniMath.Dedekind.Sets_comp.
-Require Export UniMath.Dedekind.ConstructiveStructures.
+Require Export UniMath.Foundations.Algebra.ConstructiveStructures.
 Require Import UniMath.Dedekind.Complements.
 Require Import UniMath.Dedekind.NonnegativeRationals.
 
 Delimit Scope Dcuts_scope with Dcuts.
-Open Scope NRat_scope.
-Open Scope Dcuts_scope.
+Local Open Scope NRat_scope.
+Local Open Scope Dcuts_scope.
+Local Open Scope constructive_logic.
 
 (** ** Definition of Dedekind cuts *)
 
@@ -215,7 +216,7 @@ Proof.
     + intro H0 ; apply Yq.
       apply is_Dcuts_bot with r'.
       exact H0.
-      now apply NQminusle.
+      now apply NonnegativeRationals_leminus.
     + exact Zr'.
   - revert Yq ; apply hinhfun ; intros (q,(Yq,nYq)).
     destruct (isdecrel_leNonnegativeRationals (q + (r' - r)) r') as [Hdec | Hdec].
