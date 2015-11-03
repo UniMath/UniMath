@@ -137,11 +137,10 @@ Proof. intros ? ? ? ? e. exact (maponpaths (pp1 x) e). Defined.
 Lemma ii2_inj {X Y} (y y':Y) : @ii2 X Y y = @ii2 X Y y' -> y = y'.
 Proof. intros ? ? ? ? e. exact (maponpaths (pp2 y) e). Defined.
 
-Lemma A {X Y} (m:X ⨿ Y) (n:Y) (f : @ii2 X Y n = m) : 
-   transportb (λ y, ii2 y = m) (maponpaths (pp2 n) f) (???) = f.
+Lemma A {X Y} (m n : Y) (f : @ii2 X Y n = @ii2 X Y m) :
+   transportb (λ y, ii2 y = ii2 m) (maponpaths (pp2 m) f) (idpath (ii2 m)) = f.
 Proof.
   intros.
-  
 
 Abort.
 
@@ -217,15 +216,34 @@ Defined.
 Lemma isaprop_neg_decprop {P} (i:isdecprop P) : isaprop (neg_decprop i).
 Proof.
   intros.
-  unfold neg_decprop.
+  induction i as [i c].
+  unfold neg_decprop; simpl.
+
+  (*
+   try using 
+
+weqtotal2overcoprod:
+  ∀ (X Y : UU) (P : X ⨿ Y -> UU),
+  (Σ xy : X ⨿ Y, P xy) ≃ (Σ x : X, P (ii1 x)) ⨿ (Σ y : Y, P (ii2 y))
+
+*)
+
+
   apply invproofirrelevance; intros m n.
   induction m as [m e].
-  induction n as [n f].
+  induction c as [p|np].
+  { contradicts p m. }
+  induction n as [n f]; simpl in *.
+  clear i.
   refine (total2_paths _ _).
   - simpl.
     apply (@ii2_inj P (¬P)).
     exact (e @ !f).
-  - induction e. simpl.
+  - simpl in *.
+    induction e; simpl.
+    clear np.
+    
+
     
 Abort.
 
