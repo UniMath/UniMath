@@ -77,10 +77,14 @@ Coercion ConstructiveCommutativeRing_ConstructiveCommutativeRig : ConstructiveCo
 
 (** ** Constructive rig with division *)
 
-Definition isConstrDivRig (X : ConstructiveCommutativeRig) :=
+Definition isConstrDivRig (X : ConstructiveRig) :=
   isnonzeroCR X × (∀ x : X, x # CRigzero -> multinvpair X x).
 
-Definition ConstructiveDivisionRig := Σ X : ConstructiveCommutativeRig, isConstrDivRig X.
+Definition ConstructiveDivisionRig := Σ X : ConstructiveRig, isConstrDivRig X.
+
+(** ** Constructive commutative rig with division *)
+
+Definition ConstructiveCommutativeDivisionRig := Σ X : ConstructiveCommutativeRig, isConstrDivRig X.
 
 (** ** Constructive Field *)
 
