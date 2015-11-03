@@ -161,12 +161,12 @@ Defined.
 (* will not be impeded.  The user can always provide [¬X] as [Y], using *)
 (* [funextempty] to prove it works. *)
 
-Definition isComplement P Q := iscontr( P ⨿ Q ).
+Definition complementary P Q := iscontr( P ⨿ Q ).
 
-Lemma isComplement_weq {P P' Q Q'} : P ≃ P' -> Q ≃ Q' -> isComplement P Q -> isComplement P' Q'.
+Lemma complementary_weq {P P' Q Q'} : P ≃ P' -> Q ≃ Q' -> complementary P Q -> complementary P' Q'.
 Proof.
   intros ? ? ? ? v w i.
-  unfold isComplement in *.
+  unfold complementary in *.
   apply (@iscontrweqf (P ⨿ Q) (P' ⨿ Q')).
   - apply weqcoprodf.
     + exact v.
@@ -174,34 +174,101 @@ Proof.
   - exact i.
 Defined.
 
-Definition isdecprop ( X : UU ) := Σ Y, isComplement X Y.
+Definition isdecprop (P:UU) := isaprop P × (P ⨿ ¬P).
+
+Definition neg_decprop {P} (i: isdecprop P) := Σ n:¬P, ii2 n = pr2 i.
+
+Lemma neg_decprop_negates {P} (i:isdecprop P) : neg_decprop i <-> ¬ P.
+(* uses [funextempty], but we won't use it *)
+Proof.
+  intros. split.
+  - apply pr1.
+  - intro np. induction i as [i c]. exists np. simpl. induction c as [c|c].
+    + contradicts c np.
+    + apply maponpaths. apply funextempty.
+Defined.
+
+Definition decision {P} (i: P ⨿ ¬ P) : bool
+  := coprod_rect (λ _, bool) (λ _, true) (λ _, false) i.
+
+Definition isaprop_with_decision P := isaprop P × Σ (b:bool), P <-> b=true.
+
+Lemma correct_decision {P} (i:P ⨿ ¬ P) : P <-> decision i = true.
+Proof.
+  intros. split.
+  { intro p. unfold decision. induction i as [yes|no].
+    - simpl. reflexivity.
+    - simpl. contradicts no p. }
+  { unfold decision. induction i as [yes|no].
+    - simpl. intros _. exact yes.
+    - simpl. intro c. apply fromempty. now apply nopathsfalsetotrue. }
+Defined.
+
+Lemma correct_decision_neg {P} (i:P ⨿ ¬ P) : ¬P <-> decision i = false.
+Proof.
+  intros. split.
+  { intro not. unfold decision. induction i as [yes|no].
+    - simpl. contradicts not yes.
+    - simpl. reflexivity. }
+  { unfold decision. induction i as [yes|no].
+    - simpl. intro c. apply fromempty. now apply nopathsfalsetotrue.
+    - simpl. intros _. exact no. }
+Defined.
+
+Lemma to_decision P : (P ⨿ ¬ P) -> (Σ (b:bool), P <-> b=true).
+Proof. intros ? i. exists (decision i). apply correct_decision. Defined.
+
+Lemma isdecprop_if_decision {P} (i:isaprop P) (b:bool) : (P <-> b=true) -> isdecprop P.
+Proof.
+  intros ? ? ? e. unfold isdecprop, complementary.
+  split.
+  { exact i. }
+  { induction b.
+    - apply ii1. now apply (pr2 e).
+    - apply ii2. intro p. apply nopathsfalsetotrue. apply e. exact p. }
+Defined.
 
 Lemma isdecprop_to_isaprop X : isdecprop X -> isaprop X.
+Proof. intros ? i. exact (pr1 i). Defined.  
+
+Lemma isdecprop_to_isaprop_with_decision {P} :
+  isdecprop P -> isaprop_with_decision P.
 Proof.
-  intros ? i. induction i as [Y i]. unfold isComplement in i.
-  apply (isapropcomponent1 X Y).
-  now apply isapropifcontr.
+  intros ? i. unfold isaprop_with_decision. split.
+  { now apply isdecprop_to_isaprop. }
+  { unfold isdecprop in i. exists (decision (pr2 i)). apply correct_decision. }
 Defined.  
+
+Lemma isaprop_with_decision_to_isdecprop {P} :
+  isdecprop P <- isaprop_with_decision P.
+Proof.
+  intros ? i. unfold isdecprop, complementary. unfold isaprop_with_decision in i.
+  induction i as [i c]. induction c as [b [d e]].
+  assert (f := negf d); clear d. exists i. induction b as [b|b].
+  - apply ii1. now apply e. 
+  - apply ii2. apply f. exact nopathsfalsetotrue.
+Defined.
 
 Lemma isdecprop_weq {X X'} : X≃X' -> isdecprop X -> isdecprop X'.
 Proof.
-  intros ? ? w i.
-  unfold isdecprop in *.
-  induction i as [Y i].
-  exists Y.
-  exact (isComplement_weq w (idweq Y) i).
-Defined.  
+  intros ? ? w i. unfold isdecprop in *. induction i as [i xnx]. split.
+  - apply (isofhlevelweqf 1 (X:=X)).
+    { exact w. }
+    { exact i. }
+  - clear i. induction xnx as [x|nx].
+    * apply ii1. now apply w.
+    * apply ii2. intro x'. apply nx. now apply (invmap w).
+Defined.      
 
 (** *** Basic results on types with an isolated point. *)
 
-Definition isisolated (X:UU)(x:X):= ∀ x':X, isdecprop (x=x').
+Definition isisolated (X:UU) (x:X) := ∀ x':X, isdecprop (x=x').
 
-Definition isolated ( T : UU ) := total2 ( fun t : T => isisolated T t ) .
-Definition isolatedpair ( T : UU ) := tpair ( fun t : T => isisolated T t ) . 
-Definition pr1isolated ( T : UU )  := fun x : isolated T => pr1 x . 
+Definition isolated ( T : UU ) := Σ t:T, isisolated _ t.
+Definition isolatedpair ( T : UU ) (t:T) (i:isisolated _ t) : isolated T := (t,,i).
+Definition pr1isolated ( T : UU ) (x:isolated T) : T := pr1 x. 
 
-
-Theorem isaproppathsfromisolated ( X : UU ) ( x : X ) ( is : isisolated X x ) : ∀ x', isaprop(x = x') .
+Theorem isaproppathsfromisolated ( X : UU ) ( x : X ) ( is : isisolated _ x ) : ∀ x', isaprop(x = x') .
 Proof.
   intros. apply isdecprop_to_isaprop. apply is.
 Defined.
@@ -211,23 +278,32 @@ Proof . intros . apply ( isofhlevelweqf 1 ( weqpathsinv0 x x' ) ( isaproppathsfr
 
 
 Lemma isisolatedweqf { X Y : UU } (  f : weq X Y ) (x:X) (is2: isisolated _ x) : isisolated _ (f x).
-Proof.  intros. unfold isisolated. intro y.  set (g:=invweq  f ). set (x':= g y).
-        unfold isisolated in is2.
-        assert (i := is2 (g y)).
-        assert (w : f x = y ≃ x = g y).
-        { intermediate_weq (g(f x) = g y).
-          { apply weqonpaths. }
-          { apply paths_weq'. apply pathsinv0. apply homotinvweqweq. }}
-        exact (isdecprop_weq (invweq w) i).
+Proof.
+  intros. unfold isisolated. intro y.  set (g:=invweq  f ). set (x':= g y).
+  unfold isisolated in is2.
+  assert (i := is2 (g y)).
+  assert (w : f x = y ≃ x = g y).
+  { intermediate_weq (g(f x) = g y).
+    { apply weqonpaths. }
+    { apply paths_weq'. apply pathsinv0. apply homotinvweqweq. }}
+  exact (isdecprop_weq (invweq w) i).
 Defined.
 
 
 Theorem isisolatedinclb { X Y : UU } ( f : X -> Y ) ( is : isincl f ) ( x : X ) ( is0 : isisolated _ ( f x ) ) : isisolated _ x .
-Proof. intros .  unfold isisolated .  intro x' .  set ( a := is0 ( f x' ) ) .  induction a as [ a1 | a2 ] . apply ( ii1 ( invmaponpathsincl f is _ _ a1 ) ) . apply ( ii2 ( ( negf ( @maponpaths _ _ f _ _ ) ) a2 ) ) .  Defined. 
-
+Proof. intros .  unfold isisolated; intro x' .  assert ( a := is0 ( f x' ) ) .
+       split.
+       - induction a as [i a]. assert (w := weqonpathsincl _ is x x').
+         now apply (isofhlevelweqb _ w).
+       - induction a as [_ a].
+         induction a as [ a1 | a2 ] .
+         + apply ( ii1 ( invmaponpathsincl f is _ _ a1 ) ) .
+         + apply ( ii2 ( ( negf ( @maponpaths _ _ f _ _ ) ) a2 ) ) .
+Defined. 
 
 Lemma disjointl1 (X:UU): isisolated (coprod X unit) (ii2  tt).
-Proof. intros.  unfold isisolated. intros x' .  induction x' as [ x | u ] . apply (ii2  (negpathsii2ii1 x tt )).  induction u.  apply (ii1  (idpath _ )). Defined.
+Proof. intros.  unfold isisolated. intros x' .  induction x' as [ x | u ] .
+       apply (ii2  (negpathsii2ii1 x tt )).  induction u.  apply (ii1  (idpath _ )). Defined.
 
 
 (** *** Weak equivalence [ weqrecompl ] from the coproduct of the complement to an isolated point with [ unit ] and the original type *)
@@ -482,6 +558,13 @@ Lemma negintersectii1ii2 { X Y : UU } (z: coprod X Y): hfiber  (@ii1 X Y) z -> h
 Proof. intros X Y z X0 X1. induction X0 as [ t x ]. induction X1 as [ t0 x0 ].  
 set (e:= pathscomp0   x (pathsinv0 x0)). apply (negpathsii1ii2 _ _  e). Defined. 
 
+
+Lemma isaprop_neg_decprop {P} (i:isdecprop P) : isaprop (neg_decprop i).
+Proof.
+  intros.
+  unfold neg_decprop.
+  (* to do, using that ii2 is an inclusion *)
+Defined.
 
 (** *** [ ii1 ] and [ ii2 ] map isolated points to isoloated points *)
 
