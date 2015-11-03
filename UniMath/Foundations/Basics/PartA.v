@@ -1062,20 +1062,6 @@ Proof.
   apply (! e4 @ e5 @ e1).
 Defined.
 
-Definition paths_weq {X} (x y z:X) : y=z -> x=y ≃ x=z.
-Proof.
-  intros ? ? ? ? e.
-  induction e.
-  apply idweq.
-Defined.
-
-Definition paths_weq' {X} (x y z:X) : x=y -> y=z ≃ x=z.
-Proof.
-  intros ? ? ? ? e.
-  induction e.
-  apply idweq.
-Defined.
-
 (** *** Weak equivalences between contractible types (other
         implications are proved below). *)
 
