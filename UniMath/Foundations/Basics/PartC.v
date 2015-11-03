@@ -285,10 +285,11 @@ Proof.
   assert (w : f x = y ≃ x = g y).
   { intermediate_weq (g(f x) = g y).
     { apply weqonpaths. }
-    { apply paths_weq'. apply pathsinv0. apply homotinvweqweq. }}
+    { assert (e : g(f x) = x).
+      { apply homotinvweqweq. }
+      induction (!e). apply idweq. }}
   exact (isdecprop_weq (invweq w) i).
 Defined.
-
 
 Theorem isisolatedinclb { X Y : UU } ( f : X -> Y ) ( is : isincl f ) ( x : X ) ( is0 : isisolated _ ( f x ) ) : isisolated _ x .
 Proof. intros .  unfold isisolated; intro x' .  assert ( a := is0 ( f x' ) ) .
