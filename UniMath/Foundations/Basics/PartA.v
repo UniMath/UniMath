@@ -1737,8 +1737,6 @@ apply ( gradth _ _ egf efg ) . Defined.
 
 Definition weqtotal2asstol { X : UU } ( P : X -> UU ) ( Q : total2 P -> UU ) : weq ( Σ x : X, Σ p : P x, Q ( tpair P x p ) ) ( total2 Q ) := invweq ( weqtotal2asstor P Q ) .
 
-
-
 (** *** Associativity and commutativity of [ dirprod ] *)
 
 Definition weqdirprodasstor ( X Y Z : UU ) : weq ( dirprod ( dirprod X Y ) Z ) ( dirprod X ( dirprod Y Z ) ) .
@@ -1752,10 +1750,34 @@ assert ( egf : ∀ xy : _ , ( g ( f xy ) ) = xy ) . intro . induction xy . apply
 assert ( efg : ∀ yx : _ , ( f ( g yx ) ) = yx ) . intro . induction yx . apply idpath .
 split with f . apply ( gradth _ _ egf  efg ) . Defined .
 
+Definition weqtotal2dirprodcomm {X Y:UU} (P: X × Y -> UU) : (Σ xy : X×Y, P xy) ≃ (Σ xy : Y×X, P (weqdirprodcomm _ _ xy)).
+Proof.
+  intros.
+  refine (weqgradth _ _ _ _).
+  - intros xyp. induction xyp as [xy p]. induction xy as [x y]. exact ((y,,x),,p).
+  - intros yxp. induction yxp as [yx p]. induction yx as [y x]. exact ((x,,y),,p).
+  - intros xyp. induction xyp as [xy p]. induction xy as [x y]. reflexivity.
+  - intros yxp. induction yxp as [yx p]. induction yx as [y x]. reflexivity.
+Defined.
+ 
+Definition weqtotal2dirprodassoc  {X Y:UU} (P: X × Y -> UU) : (Σ xy : X×Y, P xy) ≃ (Σ (x:X) (y:Y), P (x,,y)).
+  intros.
+  refine (weqgradth _ _ _ _).
+  - intros xyp. induction xyp as [xy p]. induction xy as [x y]. exact (x,,y,,p).
+  - intros xyp. induction xyp as [x yp]. induction yp as [y p]. exact ((x,,y),,p).
+  - intros xyp. induction xyp as [xy p]. induction xy as [x y]. reflexivity.
+  - intros xyp. induction xyp as [x yp]. induction yp as [y p]. reflexivity.
+Defined.
 
-
-
-
+Definition weqtotal2dirprodassoc' {X Y:UU} (P: X × Y -> UU) : (Σ xy : X×Y, P xy) ≃ (Σ (y:Y) (x:X), P (x,,y)).
+Proof.
+  intros.
+  refine (weqgradth _ _ _ _).
+  - intros xyp. induction xyp as [xy p]. induction xy as [x y]. exact (y,,x,,p).
+  - intros yxp. induction yxp as [x yp]. induction yp as [y p]. exact ((y,,x),,p).
+  - intros xyp. induction xyp as [xy p]. induction xy as [x y]. reflexivity.
+  - intros yxp. induction yxp as [x yp]. induction yp as [y p]. reflexivity.
+Defined.
 
 (** *** Coproducts and direct products *)
 
