@@ -20,7 +20,7 @@ BUILD_COQ ?= yes
 BUILD_COQIDE ?= no
 COQBIN ?=
 ############################################
-.PHONY: all everything install lc lcp wc describe publish-dan clean clean2 distclean distclean_coq cleanconfig clean-enhanced git-clean build-coq doc build-coqide
+.PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide
 COQIDE_OPTION ?= no
 ifeq "$(BUILD_COQ)" "yes"
 COQBIN=sub/coq/bin/
@@ -37,6 +37,7 @@ endif
 # override the definition in build/CoqMakefile.make, to eliminate the -utf8 option
 COQDOC := coqdoc
 COQDOCFLAGS := -interpolate --charset utf-8
+COQDOC_OPTIONS := -toc $(COQDOCFLAGS) $(COQDOCLIBS) -utf8
 
 PACKAGE_FILES := $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
 
@@ -65,7 +66,6 @@ lc:; wc -l $(VFILES)
 lcp:; for i in $(PACKAGES) ; do echo ; echo ==== $$i ==== ; for f in $(VFILES) ; do echo "$$f" ; done | grep "UniMath/$$i" | xargs wc -l ; done
 wc:; wc -w $(VFILES)
 describe:; git describe --dirty --long --always --abbrev=40 --all
-publish-dan:html; rsync -ai html/. u00:public_html/UniMath/.
 .coq_makefile_input: $(PACKAGE_FILES) $(UMAKEFILES)
 	@ echo making $@ ; ( \
 	echo '# -*- makefile-gmake -*-' ;\
@@ -88,21 +88,17 @@ build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output $@
 
-# "clean::" occurs also in build/CoqMakefile.make
-clean:: clean2 clean-enhanced clean-latex
-distclean:clean cleanconfig distclean_coq
-clean2:
+# "clean::" occurs also in build/CoqMakefile.make, hence both colons
+clean::
 	rm -f .coq_makefile_output build/CoqMakefile.make
 	find UniMath \( -name .\*.aux -o -name \*.glob -o -name \*.v.d -o -name \*.vo \) -delete
 	find UniMath -type d -empty -delete
-distclean_coq:
-	- $(MAKE) -C sub/coq distclean
-cleanconfig:
-	rm -f build/Makefile-configuration
-clean-enhanced:
-	rm -rf $(ENHANCEDDOCTARGET)
-clean-latex:
-	rm -rf $(LATEXTARGET)
+clean::          ; rm -rf $(ENHANCEDDOCTARGET)
+clean::          ; rm -rf $(LATEXTARGET)
+
+distclean:: clean
+distclean::          ; - $(MAKE) -C sub/coq distclean
+distclean::          ; rm -f build/Makefile-configuration
 
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
@@ -139,11 +135,19 @@ doc: $(GLOBFILES) $(VFILES)
 	sed -i'.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
 latex: Makefile $(GLOBFILES) $(VFILES)
 	mkdir -p $(LATEXTARGET)
-	$(COQDOC) -toc $(COQDOCFLAGS) -latex $(COQDOCLATEXOPTIONS) $(COQDOCLIBS) -utf8 -d $(LATEXTARGET) $(VFILES)
+	$(COQDOC) -latex $(COQDOC_OPTIONS) $(COQDOCLATEXOPTIONS) -d $(LATEXTARGET) $(VFILES)
 pdf: latex
 	cd $(LATEXTARGET) ;\
 	latexmk -pdf $(subst /,.,$(VFILES:.v=.tex))
 world: all html doc pdf
+
+texfiles : $(VFILES:%.v=$(LATEXTARGET)/%.tex)
+$(foreach F, $(VFILES:.v=),								\
+        $(eval $(LATEXTARGET)/$F.tex : $F.glob $F.v ;					\
+                set -x &&								\
+		mkdir -p $(shell dirname $(LATEXTARGET)/$F) &&				\
+		$(COQDOC) $(COQDOC_OPTIONS) $(COQDOCLATEXOPTIONS) -latex $F.v -o $$@	\
+                ))
 
 #################################
 # targets best used with INCLUDE=no
