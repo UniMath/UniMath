@@ -207,6 +207,7 @@ Definition negatePair (C:DecidablePair) : DecidablePair
   := (Part2 C,, Part1 C) ,, (λ q p, pair_contradiction C p q),, coprodcomm _ _ (chooser C).
 Definition isTrue  (C:DecidablePair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
 Definition isFalse (C:DecidablePair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
+Definition isTrueWitness ***
 
 Ltac unpack_pair C P Q con c := induction C as [_PQ_ c]; induction _PQ_ as [P Q];
                             induction c as [con c]; simpl in c, P, Q.
@@ -254,10 +255,9 @@ Proof.
 Defined.
 
 Lemma pair_truth (C:DecidablePair) (i:isaprop (Part1 C)) : Part1 C <-> isTrue C.
-(* we will see later that [isTrue C] is the propositional truncation of [Part1 C], in general *)
 Proof.
   intros.
-  unpack_pair C P Q con c; unfold Part1, isTrue, hfiber, Part1, chooser in *; simpl in *.
+  unpack_pair C P Q con c; unfold isTrue, hfiber, Part1, Part2, chooser in *; simpl in *.
   split.
   - intros p. exists p. induction c as [p'|q].
     * apply maponpaths, i.
@@ -266,10 +266,9 @@ Proof.
 Defined.
 
 Lemma pair_falsehood (C:DecidablePair) (i:isaprop (Part2 C)) : Part2 C <-> isFalse C.
-(* we will see later that [isFalse C] is the propositional truncation of [Part2 C], in general *)
 Proof.
   intros.
-  unpack_pair C P Q con c; unfold Part1, isFalse, hfiber, Part2, chooser in *; simpl in *.
+  unpack_pair C P Q con c; unfold isFalse, hfiber, Part1, Part2, chooser in *; simpl in *.
   split.
   - intros q. exists q. induction c as [p|q'].
     * apply fromempty. contradicts (con p) q.
