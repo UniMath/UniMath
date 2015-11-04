@@ -328,67 +328,8 @@ Definition decprop_to_DecidablePair {P} (i:isdecprop P) : DecidablePair
   (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P] by a propositional subtype of it.  *)
   := ((P,,¬P),,((λ p n, n p),,pr2 i)).
 
-(* maybe we don't need this: *)
-Definition isaprop_with_decision P := isaprop P × Σ (b:bool), P <-> b=true.
-
-Definition decision {P} (i: P ⨿ ¬ P) : bool
-  := coprod_rect (λ _, bool) (λ _, true) (λ _, false) i.
-
-Lemma correct_decision {P} (i:P ⨿ ¬ P) : P <-> decision i = true.
-Proof.
-  intros. split.
-  { intro p. unfold decision. induction i as [yes|no].
-    - simpl. reflexivity.
-    - simpl. contradicts no p. }
-  { unfold decision. induction i as [yes|no].
-    - simpl. intros _. exact yes.
-    - simpl. intro c. apply fromempty. now apply nopathsfalsetotrue. }
-Defined.
-
-Lemma correct_decision_neg {P} (i:P ⨿ ¬ P) : ¬P <-> decision i = false.
-Proof.
-  intros. split.
-  { intro not. unfold decision. induction i as [yes|no].
-    - simpl. contradicts not yes.
-    - simpl. reflexivity. }
-  { unfold decision. induction i as [yes|no].
-    - simpl. intro c. apply fromempty. now apply nopathsfalsetotrue.
-    - simpl. intros _. exact no. }
-Defined.
-
-Lemma to_decision P : (P ⨿ ¬ P) -> (Σ (b:bool), P <-> b=true).
-Proof. intros ? i. exists (decision i). apply correct_decision. Defined.
-
-Lemma isdecprop_if_decision {P} (i:isaprop P) (b:bool) : (P <-> b=true) -> isdecprop P.
-Proof.
-  intros ? ? ? e. unfold isdecprop, complementary.
-  split.
-  { exact i. }
-  { induction b.
-    - apply ii1. now apply (pr2 e).
-    - apply ii2. intro p. apply nopathsfalsetotrue. apply e. exact p. }
-Defined.
-
 Lemma isdecprop_to_isaprop X : isdecprop X -> isaprop X.
 Proof. intros ? i. exact (pr1 i). Defined.  
-
-Lemma isdecprop_to_isaprop_with_decision {P} :
-  isdecprop P -> isaprop_with_decision P.
-Proof.
-  intros ? i. unfold isaprop_with_decision. split.
-  { now apply isdecprop_to_isaprop. }
-  { unfold isdecprop in i. exists (decision (pr2 i)). apply correct_decision. }
-Defined.  
-
-Lemma isaprop_with_decision_to_isdecprop {P} :
-  isdecprop P <- isaprop_with_decision P.
-Proof.
-  intros ? i. unfold isdecprop, complementary. unfold isaprop_with_decision in i.
-  induction i as [i c]. induction c as [b [d e]].
-  assert (f := negf d); clear d. exists i. induction b as [b|b].
-  - apply ii1. now apply e. 
-  - apply ii2. apply f. exact nopathsfalsetotrue.
-Defined.
 
 Lemma isdecprop_weq {X X'} : X≃X' -> isdecprop X -> isdecprop X'.
 Proof.
