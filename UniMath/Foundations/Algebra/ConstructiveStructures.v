@@ -11,26 +11,6 @@ Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
 
 Local Open Scope constructive_logic.
 
-(** ** Constructive monoid *)
-
-Definition ConstructiveMonoid :=
-  Σ X : apsetwithbinop, @ismonoidop X op.
-
-(** ** Constructive abelian monoid *)
-
-Definition ConstructiveAbelianMonoid :=
-  Σ X : apsetwithbinop, @isabmonoidop X op.
-
-(** ** Constructive group *)
-
-Definition ConstructiveGroup :=
-  Σ X : apsetwithbinop, @isgrop X op.
-
-(** ** Constructive abelian group *)
-
-Definition ConstructiveAbelianGroup :=
-  Σ X : apsetwithbinop, @isabgrop X op.
-
 (** ** Constructive rig *)
 
 Definition ConstructiveRig :=
