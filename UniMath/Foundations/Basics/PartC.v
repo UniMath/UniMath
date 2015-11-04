@@ -281,6 +281,46 @@ Defined.
 
 Definition isdecprop (P:UU) := isaprop P × (P ⨿ ¬P).
 
+Lemma isdecpropempty : isdecprop ∅.
+Proof.
+  unfold isdecprop.
+  split.
+  - exact isapropempty.
+  - exact (ii2 (idfun ∅)).
+Defined.
+
+Lemma isdecpropunit : isdecprop unit.
+Proof.
+  unfold isdecprop.
+  split.
+  - exact isapropunit.
+  - exact (ii1 tt).  
+Defined.
+
+Lemma isdecpropifnegtrue P : ¬P -> isdecprop P.
+Proof.
+  intros ? n.
+  split.
+  - now apply isapropifnegtrue.
+  - exact (ii2 n).  
+Defined.
+
+Lemma isdecpropifcontr P : iscontr P -> isdecprop P.
+Proof.
+  intros ? i.
+  split.
+  - now apply isapropifcontr.
+  - exact (ii1 (iscontrpr1 i)).   
+Defined.
+
+Lemma isdecpropiftrueprop P : isaprop P -> P -> isdecprop P.
+Proof.
+  intros ? i p.
+  split.
+  - exact i.
+  - exact (ii1 p).
+Defined.
+
 Definition decprop_to_DecidablePair {P} (i:isdecprop P) : DecidablePair
   (* We discard the proof that P is a proposition. *)
   (* By using [isTrue _] instead, we're effectively replacing P by a propositional subtype of it: *)
@@ -363,49 +403,35 @@ Defined.
 
 (** *** Basic results on types with an isolated point. *)
 
-Definition isisolated (X:UU) (x:X) := ∀ x':X, isdecprop (x=x').
+Definition isisolated (X:UU) (x:X) := ∀ x':X, (x=x') ⨿ (x≠x').
 
 Definition isolated ( T : UU ) := Σ t:T, isisolated _ t.
 Definition isolatedpair ( T : UU ) (t:T) (i:isisolated _ t) : isolated T := (t,,i).
 Definition pr1isolated ( T : UU ) (x:isolated T) : T := pr1 x. 
 
-Theorem isaproppathsfromisolated ( X : UU ) ( x : X ) ( is : isisolated _ x ) : ∀ x', isaprop(x = x') .
-Proof.
-  intros. apply isdecprop_to_isaprop. apply is.
-Defined.
+Theorem isaproppathsfromisolated ( X : UU ) ( x : X ) ( is : isisolated X x ) : ∀ x', isaprop(x = x') .
+Proof. intros . apply iscontraprop1inv .  intro e .  induction e . 
+set (f:= fun e: paths x x => coconusfromtpair _ e). 
+assert (is' : isweq f). apply (onefiber (fun x':X => paths x x' ) x (fun x':X => is x' )).
+assert (is2: iscontr (coconusfromt _ x)). apply iscontrcoconusfromt. 
+apply (iscontrweqb ( weqpair f is' ) ). assumption. Defined. 
 
 Theorem isaproppathstoisolated  ( X : UU ) ( x : X ) ( is : isisolated X x ) : forall x' : X, isaprop ( paths x' x ) .
 Proof . intros . apply ( isofhlevelweqf 1 ( weqpathsinv0 x x' ) ( isaproppathsfromisolated X x is x' ) ) . Defined . 
 
 
 Lemma isisolatedweqf { X Y : UU } (  f : weq X Y ) (x:X) (is2: isisolated _ x) : isisolated _ (f x).
-Proof.
-  intros. unfold isisolated. intro y.  set (g:=invweq  f ). set (x':= g y).
-  unfold isisolated in is2.
-  assert (i := is2 (g y)).
-  assert (w : f x = y ≃ x = g y).
-  { intermediate_weq (g(f x) = g y).
-    { apply weqonpaths. }
-    { assert (e : g(f x) = x).
-      { apply homotinvweqweq. }
-      induction (!e). apply idweq. }}
-  exact (isdecprop_weq (invweq w) i).
-Defined.
+Proof.  intros. unfold isisolated. intro y.  set (g:=invmap  f ). set (x':= g y). induction (is2 x') as [ x0 | y0 ].  apply (ii1  (pathsweq1'  f x y x0) ). 
+assert (phi: paths y (f x)  -> empty). 
+assert (psi: (paths (g y) x -> empty) -> (paths y (f x) -> empty)). intros X0 X1.  apply (X0  (pathsinv0 (pathsweq1  f x y (pathsinv0 X1)))). apply (psi ( ( negf ( @pathsinv0 _ _ _ ) ) y0) ) . apply (ii2  ( negf ( @pathsinv0 _ _ _ )  phi ) ). Defined.
+
 
 Theorem isisolatedinclb { X Y : UU } ( f : X -> Y ) ( is : isincl f ) ( x : X ) ( is0 : isisolated _ ( f x ) ) : isisolated _ x .
-Proof. intros .  unfold isisolated; intro x' .  assert ( a := is0 ( f x' ) ) .
-       split.
-       - induction a as [i a]. assert (w := weqonpathsincl _ is x x').
-         now apply (isofhlevelweqb _ w).
-       - induction a as [_ a].
-         induction a as [ a1 | a2 ] .
-         + apply ( ii1 ( invmaponpathsincl f is _ _ a1 ) ) .
-         + apply ( ii2 ( ( negf ( @maponpaths _ _ f _ _ ) ) a2 ) ) .
-Defined. 
+Proof. intros .  unfold isisolated .  intro x' .  set ( a := is0 ( f x' ) ) .  induction a as [ a1 | a2 ] . apply ( ii1 ( invmaponpathsincl f is _ _ a1 ) ) . apply ( ii2 ( ( negf ( @maponpaths _ _ f _ _ ) ) a2 ) ) .  Defined. 
+
 
 Lemma disjointl1 (X:UU): isisolated (coprod X unit) (ii2  tt).
-Proof. intros.  unfold isisolated. intros x' .  induction x' as [ x | u ] .
-       apply (ii2  (negpathsii2ii1 x tt )).  induction u.  apply (ii1  (idpath _ )). Defined.
+Proof. intros.  unfold isisolated. intros x' .  induction x' as [ x | u ] . apply (ii2  (negpathsii2ii1 x tt )).  induction u.  apply (ii1  (idpath _ )). Defined.
 
 
 (** *** Weak equivalence [ weqrecompl ] from the coproduct of the complement to an isolated point with [ unit ] and the original type *)
@@ -659,6 +685,7 @@ Proof. intros . intro ye . induction ye as [ y e ] . apply ( negpathsii2ii1 _ _ 
 Lemma negintersectii1ii2 { X Y : UU } (z: coprod X Y): hfiber  (@ii1 X Y) z -> hfiber  (@ii2 _ _) z -> empty.
 Proof. intros X Y z X0 X1. induction X0 as [ t x ]. induction X1 as [ t0 x0 ].  
 set (e:= pathscomp0   x (pathsinv0 x0)). apply (negpathsii1ii2 _ _  e). Defined. 
+
 
 (** *** [ ii1 ] and [ ii2 ] map isolated points to isoloated points *)
 
