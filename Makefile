@@ -53,7 +53,7 @@ endif
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
 LATEXTARGET = latex
-COQDOCLATEXOPTIONS := -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}\DeclareUnicodeCharacter{10815}{{\(\amalg\)}}"
+COQDOCLATEXOPTIONS := -utf8 -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}\DeclareUnicodeCharacter{10815}{{\(\amalg\)}}\DeclareUnicodeCharacter{9679}{{\(\bullet\)}}"
 COQDEFS := --language=none -r '/^[[:space:]]*\(Local[[:space:]]+\)?\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\3/'
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
@@ -142,12 +142,22 @@ pdf: latex
 world: all html doc pdf
 
 texfiles : $(VFILES:%.v=$(LATEXTARGET)/%.tex)
+
 $(foreach F, $(VFILES:.v=),								\
         $(eval $(LATEXTARGET)/$F.tex : $F.glob $F.v ;					\
                 set -x &&								\
 		mkdir -p $(shell dirname $(LATEXTARGET)/$F) &&				\
-		$(COQDOC) $(COQDOC_OPTIONS) $(COQDOCLATEXOPTIONS) -latex $F.v -o $$@	\
+		$(COQDOC) $(COQDOCLATEXOPTIONS) -latex $F.v -o $$@	\
                 ))
+
+pdffiles : $(VFILES:%.v=$(LATEXTARGET)/%.pdf)
+
+$(foreach F, $(VFILES:.v=),								\
+	$(eval $(LATEXTARGET)/$F.pdf : $(LATEXTARGET)/$F.tex ;				\
+		set -x &&								\
+		cd $(shell dirname $(LATEXTARGET)/$F) &&				\
+		pdflatex $(shell basename $(LATEXTARGET)/$F.tex)			\
+		)) 
 
 #################################
 # targets best used with INCLUDE=no
