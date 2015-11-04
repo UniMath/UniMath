@@ -1779,6 +1779,31 @@ Proof.
   - intros yxp. induction yxp as [x yp]. induction yp as [y p]. reflexivity.
 Defined.
 
+Definition hpullback {X Y Z:UU} (f:X->Z) (g:Y->Z) := Σ (xy : X × Y), f(pr1 xy) = g(pr2 xy).
+
+Lemma hpullback_left  {X Y Z:UU} (f:X->Z) (g:Y->Z) : hpullback f g ≃ Σ x, hfiber g (f x).
+Proof.
+  intros. refine (weqgradth _ _ _ _).
+  - intros [[x y] e]. exact (x,,y,,!e).
+  - intros [x [y e]]. exists (x,,y). exact (!e).
+  - intros [[x y] e]. apply maponpaths, pathsinv0inv0.
+  - intros [x [y e]]. apply maponpaths, maponpaths, pathsinv0inv0.
+Defined.
+
+Definition hpullback_right {X Y Z:UU} (f:X->Z) (g:Y->Z) : hpullback f g ≃ Σ y, hfiber f (g y).
+Proof.
+  intros. apply weqtotal2dirprodassoc'.
+Defined.
+
+Definition hfiber_comm {X Y Z:UU} (f:X->Z) (g:Y->Z) : (Σ x, hfiber g (f x)) ≃ (Σ y, hfiber f (g y)).
+Proof.
+  intros. refine (weqgradth _ _ _ _).
+  - intros [x [y e]]. exact (y,,x,,!e).
+  - intros [y [x e]]. exact (x,,y,,!e).
+  - intros [x [y e]]. apply maponpaths, maponpaths, pathsinv0inv0.
+  - intros [y [x e]]. apply maponpaths, maponpaths, pathsinv0inv0.
+Defined.
+
 (** *** Coproducts and direct products *)
 
 
