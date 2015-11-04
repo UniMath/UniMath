@@ -206,60 +206,76 @@ Definition neg_decprop {P} (i: isdecprop P) := Σ n:¬P, ii2 n = pr2 i.
 Definition decision {P} (i: P ⨿ ¬ P) : bool
   := coprod_rect (λ _, bool) (λ _, true) (λ _, false) i.
 
-Module Test_reflect.
-
-  (* an experiment: *)
-
-  Inductive ref (P:UU) : bool -> UU :=
-  | refT : P -> ref P true
-  | refF : ¬P -> ref P false.
-
-  Lemma A (P:UU) (i:isaprop P) : isaprop (Σ b, ref P b).
-  Proof.
-    (* uses [funextempty] *)
-    intros.
-    apply invproofirrelevance.
-    intros [b r] [c s].
-    induction r as [p|np].
-    - induction s as [q|nq].
-      + apply maponpaths, maponpaths, i.
-      + contradicts p nq.
-    - induction s as [q|nq].
-      + contradicts np q.
-      + apply maponpaths, maponpaths.
-        apply funextempty.
-  Defined.
-
-  Lemma B (P:UU) (i:isaprop P) : (Σ b, ref P b) ≃ P ⨿ ¬ P.
-  Proof.
-    intros.
-    apply weqiff.
-    { split.
-      - intros [b r]. induction r as [p|np].
-        + exact (ii1 p).
-        + exact (ii2 np).
-      - intros c. induction c as [p|np].
-        + exact (true,,refT P p).
-        + exact (false,,refF P np). }
-    { now apply A. }
-    { now apply isapropdec. }
-  Defined.
-                                        
-End Test_reflect.
-
 Lemma neg_decprop_negates {P} (i:isdecprop P) : neg_decprop i <-> ¬ P.
 (* uses [funextempty] *)
+
+Definition DecidablePair := Σ (C:UU×UU), pr1 C ⨿ pr2 C.
+Definition Part1 (C:DecidablePair) : UU := pr1 (pr1 C).
+Definition Part2 (C:DecidablePair) : UU := pr2 (pr1 C).
+Definition chooser (C:DecidablePair) := pr2 C.
+Definition decprop_to_pair {P} (i:isdecprop P) : DecidablePair := ((P,,¬P),,pr2 i).
+Definition negatePair (C:DecidablePair) : DecidablePair := (Part2 C,, Part1 C) ,, coprodcomm _ _ (chooser C).
+Definition isTrue  (C:DecidablePair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
+Definition isFalse (C:DecidablePair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
+
+Ltac unpack_pair C P Q c := induction C as [_PQ_ c]; induction _PQ_ as [P Q].
+
+Lemma pair_contradiction (C:DecidablePair) : isTrue C -> isFalse C -> ∅. 
 Proof.
-  intros. split.
-  - apply pr1.
-  - intro np. induction i as [i c]. exists np. simpl. induction c as [c|c].
-    + contradicts c np.
-    + apply maponpaths. apply funextempty.
+  intros ? t u. unpack_pair C P Q c; induction t as [p r]; induction u as [q s];
+  unfold Part1, Part2 in *; simpl in *.
+  assert (u := r @ !s).
+  apply (negpathsii1ii2 _ _ u).
 Defined.
 
-Lemma isaprop_neg_decprop {P} (i:isdecprop P) : isaprop (neg_decprop i).
+Definition pair_disjunction (C:DecidablePair) : isTrue C ⨿ isFalse C. 
+Proof.
+  intros. unfold isTrue, isFalse, hfiber; simpl.
+  induction (chooser C) as [p|q].
+  - exact (ii1 (p,,idpath _)).
+  - exact (ii2 (q,,idpath _)).
+Defined.
+
+Definition hpullback {X Y Z} (f:X->Z) (g:Y->Z) := Σ (xy : X × Y), f(pr1 xy) = g(pr2 xy).
+
+Lemma hpullback_left  {X Y Z} (f:X->Z) (g:Y->Z) : hpullback f g ≃ Σ x, hfiber g (f x).
+Proof.
+  intros. refine (weqgradth _ _ _ _).
+  - intros [[x y] e]. exact (x,,y,,!e).
+  - intros [x [y e]]. exists (x,,y). exact (!e).
+  - intros [[x y] e]. apply maponpaths, pathsinv0inv0.
+  - intros [x [y e]]. apply maponpaths, maponpaths, pathsinv0inv0.
+Defined.
+
+Definition hpullback_right {X Y Z} (f:X->Z) (g:Y->Z) : hpullback f g ≃ Σ y, hfiber f (g y).
+Proof.
+  intros. apply weqtotal2dirprodassoc'.
+Defined.
+
+Definition hfiber_comm {X Y Z} (f:X->Z) (g:Y->Z) : (Σ x, hfiber g (f x)) ≃ (Σ y, hfiber f (g y)).
+Proof.
+  intros. refine (weqgradth _ _ _ _).
+  - intros [x [y e]]. exact (y,,x,,!e).
+  - intros [y [x e]]. exact (x,,y,,!e).
+  - intros [x [y e]]. apply maponpaths, maponpaths, pathsinv0inv0.
+  - intros [y [x e]]. apply maponpaths, maponpaths, pathsinv0inv0.
+Defined.
+
+Lemma complementaryDecisions (C:DecidablePair) : complementary (isTrue C) (isFalse C).
 Proof.
   intros.
+  unfold pair_disjunction, complementary.
+  set (f (_:unit) := chooser C : Part1 C ⨿ Part2 C).
+  assert (w := weqcoprodsplit f).
+
+Defined.
+
+
+weqcoprodsplit:
+  ∀ (X Y Z : UU) (f : X -> Y ⨿ Z),
+  X ≃ (Σ y : Y, hfiber f (ii1 y)) ⨿ (Σ z : Z, hfiber f (ii2 z))
+
+
   induction i as [i c].
   unfold neg_decprop; simpl.
   assert (k := @weqtotal2overcoprod P (¬P)
