@@ -171,51 +171,36 @@ Proof.
   exact q.
 Defined.
 
-(* In the following definition, we ask the user to provide a proposition Y to *)
-(* serve as the complement of Y, instead of taking Y to be ¬X.  The idea is *)
-(* that it might be possible to construct Y without using axioms and to prove Y *)
-(* is a proposition without using axioms.  It follows from [funextempty] that *)
-(* [Y ≃ ¬ X], but if [Y] is used instead of [¬X] in applications, computation *)
-(* will not be impeded.  The user can always provide [¬X] as [Y], using *)
-(* [funextempty] to prove it works. *)
+Definition complementary P Q := (P -> Q -> ∅) × (P ⨿ Q).
 
-Definition complementary P Q := iscontr( P ⨿ Q ).
+Definition ComplementaryPair := Σ (PQ:UU×UU), complementary (pr1 PQ) (pr2 PQ).
 
-Lemma complements_contradict P Q : complementary P Q -> P -> Q -> ∅.
-Proof.
-  intros ? ? co p q. induction co as [c h]. assert (r := h (ii1 p)).
-  assert (s := h (ii2 q)). assert (u := r @ !s). apply (negpathsii1ii2 _ _ u).
-Defined.
+Definition Part1 (C:ComplementaryPair) : UU := pr1 (pr1 C).
+Definition Part2 (C:ComplementaryPair) : UU := pr2 (pr1 C).
+Definition pair_contradiction (C:ComplementaryPair) := pr1 (pr2 C).
+Definition chooser (C:ComplementaryPair) := pr2 (pr2 C).
 
-Lemma complementary_weq {P P' Q Q'} : P ≃ P' -> Q ≃ Q' -> complementary P Q -> complementary P' Q'.
-Proof.
-  intros ? ? ? ? v w i.
-  unfold complementary in *.
-  apply (@iscontrweqf (P ⨿ Q) (P' ⨿ Q')).
-  - apply weqcoprodf.
-    + exact v.
-    + exact w.
-  - exact i.
-Defined.
-
-Definition DecidablePair := Σ (PQ:UU×UU), (pr1 PQ -> pr2 PQ -> ∅) × (pr1 PQ ⨿ pr2 PQ).
-Definition Part1 (C:DecidablePair) : UU := pr1 (pr1 C).
-Definition Part2 (C:DecidablePair) : UU := pr2 (pr1 C).
-Definition pair_contradiction (C:DecidablePair) := pr1 (pr2 C).
-Definition chooser (C:DecidablePair) := pr2 (pr2 C).
-Definition negatePair (C:DecidablePair) : DecidablePair
+Definition negatePair (C:ComplementaryPair) : ComplementaryPair
   := (Part2 C,, Part1 C) ,, (λ q p, pair_contradiction C p q),, coprodcomm _ _ (chooser C).
-Definition isTrue  (C:DecidablePair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
-Definition isFalse (C:DecidablePair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
-Definition  trueWitness (C:DecidablePair) : isTrue  C -> Part1 C := pr1.
-Definition falseWitness (C:DecidablePair) : isFalse C -> Part2 C := pr1.
+
+Definition isTrue  (C:ComplementaryPair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
+Definition isFalse (C:ComplementaryPair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
+
+Definition  trueWitness (C:ComplementaryPair) : isTrue  C -> Part1 C := pr1.
+Definition falseWitness (C:ComplementaryPair) : isFalse C -> Part2 C := pr1.
+
 Coercion  trueWitness : isTrue  >-> Part1.
 Coercion falseWitness : isFalse >-> Part2.
+
+(* this is what apartness looks like in the presence of decidable equality *)
+Definition Nonequality (X:UU)
+  := Σ P : X -> X -> UU,
+           ∀ x y, isaprop (P x y) × complementary (x=y) (P x y).
 
 Ltac unpack_pair C P Q con c := induction C as [_PQ_ c]; induction _PQ_ as [P Q];
                                 induction c as [con c]; simpl in c, P, Q.
 
-Lemma pair_truth_contradiction (C:DecidablePair) : isTrue C -> isFalse C -> ∅. 
+Lemma pair_truth_contradiction (C:ComplementaryPair) : isTrue C -> isFalse C -> ∅. 
 Proof.
   intros ? t u. unpack_pair C P Q con c; induction t as [p r]; induction u as [q s];
   unfold Part1, Part2 in *; simpl in *.
@@ -223,22 +208,14 @@ Proof.
   apply (negpathsii1ii2 _ _ u).
 Defined.
 
-Definition pair_truth_disjunction (C:DecidablePair) : isTrue C ⨿ isFalse C. 
+Lemma complementaryDecisions (C:ComplementaryPair) : iscontr (isTrue C ⨿ isFalse C).
 Proof.
-  intros. unfold isTrue, isFalse, hfiber; simpl.
-  induction (chooser C) as [p|q].
-  - exact (ii1 (p,,idpath _)).
-  - exact (ii2 (q,,idpath _)).
-Defined.
-
-Lemma complementaryDecisions (C:DecidablePair) : complementary (isTrue C) (isFalse C).
-Proof.
-  intros. unfold pair_truth_disjunction, complementary.
+  intros. 
   apply iscontrifweqtounit. assert (w := weqcoprodsplit (λ _:unit, chooser C)).
   apply invweq. apply (weqcomp w). apply weqcoprodf; apply weqhfiberunit.
 Defined.
 
-Lemma isaprop_isTrue (C:DecidablePair) : isaprop (isTrue C).
+Lemma isaprop_isTrue (C:ComplementaryPair) : isaprop (isTrue C).
 (* No axioms are used. *)
 Proof.
   intros.
@@ -247,7 +224,7 @@ Proof.
   apply complementaryDecisions.
 Defined.
 
-Lemma isaprop_isFalse (C:DecidablePair) : isaprop (isTrue C).
+Lemma isaprop_isFalse (C:ComplementaryPair) : isaprop (isTrue C).
 (* No axioms are used. *)
 (* By contrast, to prove [¬P] is a proposition requires the use of functional extensionality. *)
 Proof.
@@ -257,7 +234,7 @@ Proof.
   apply complementaryDecisions.
 Defined.
 
-Lemma pair_truth (C:DecidablePair) (i:isaprop (Part1 C)) : Part1 C <-> isTrue C.
+Lemma pair_truth (C:ComplementaryPair) (i:isaprop (Part1 C)) : Part1 C <-> isTrue C.
 (* in light of [isaprop_isTrue], these are both propositions *)
 Proof.
   intros. split.
@@ -268,7 +245,7 @@ Proof.
   - apply trueWitness.
 Defined.
 
-Lemma pair_falsehood (C:DecidablePair) (i:isaprop (Part2 C)) : Part2 C <-> isFalse C.
+Lemma pair_falsehood (C:ComplementaryPair) (i:isaprop (Part2 C)) : Part2 C <-> isFalse C.
 (* in light of [isaprop_isFalse], these are both propositions *)
 Proof.
   intros. split.
@@ -321,7 +298,7 @@ Proof.
   - exact (ii1 p).
 Defined.
 
-Definition decprop_to_DecidablePair {P} (i:isdecprop P) : DecidablePair
+Definition decprop_to_ComplementaryPair {P} (i:isdecprop P) : ComplementaryPair
   (* We discard the proof that P is a proposition. *)
   (* By using [isTrue _] instead, we're effectively replacing P by a propositional subtype of it: *)
   (* the part connected to the element of [P ⨿ ¬P]. *)
