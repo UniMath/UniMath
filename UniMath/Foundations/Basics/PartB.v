@@ -290,6 +290,19 @@ Proof. intros . split with ( hfiberpr1 f y ) . apply ( isofhlevelfhfiberpr1 0 f 
 
 
 
+Definition weqhfiberunit {X Z} (i:X->Z) (z:Z) : (Σ x, hfiber (λ _:unit, z) (i x)) ≃ hfiber i z.
+Proof.
+  intros. refine (weqgradth _ _ _ _).
+  + intros [x [t e]]. exact (x,,!e).
+  + intros [x e]. exact (x,,tt,,!e).
+  + intros [x [t e]]. apply maponpaths. refine (total2_paths2 _ _).
+    * apply isapropunit.
+    * simpl. induction e. rewrite pathsinv0inv0. induction t. reflexivity.
+  + intros [x e]. apply maponpaths. apply pathsinv0inv0.
+Defined.
+
+
+
 Corollary weqhfibertounit ( X : UU ) : weq ( hfiber ( fun x : X => tt ) tt ) X .
 Proof.  intro . apply ( weqhfibertocontr _ tt iscontrunit ) . Defined.  
 
