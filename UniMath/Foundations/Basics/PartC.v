@@ -207,10 +207,13 @@ Definition negatePair (C:DecidablePair) : DecidablePair
   := (Part2 C,, Part1 C) ,, (λ q p, pair_contradiction C p q),, coprodcomm _ _ (chooser C).
 Definition isTrue  (C:DecidablePair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
 Definition isFalse (C:DecidablePair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
-Definition isTrueWitness ***
+Definition  trueWitness (C:DecidablePair) : isTrue  C -> Part1 C := pr1.
+Definition falseWitness (C:DecidablePair) : isFalse C -> Part2 C := pr1.
+Coercion  trueWitness : isTrue  >-> Part1.
+Coercion falseWitness : isFalse >-> Part2.
 
 Ltac unpack_pair C P Q con c := induction C as [_PQ_ c]; induction _PQ_ as [P Q];
-                            induction c as [con c]; simpl in c, P, Q.
+                                induction c as [con c]; simpl in c, P, Q.
 
 Lemma pair_truth_contradiction (C:DecidablePair) : isTrue C -> isFalse C -> ∅. 
 Proof.
@@ -236,7 +239,7 @@ Proof.
 Defined.
 
 Lemma isaprop_isTrue (C:DecidablePair) : isaprop (isTrue C).
-(* no axioms are used *)
+(* No axioms are used. *)
 Proof.
   intros.
   apply (isapropcomponent1 _ (isFalse C)).
@@ -255,32 +258,35 @@ Proof.
 Defined.
 
 Lemma pair_truth (C:DecidablePair) (i:isaprop (Part1 C)) : Part1 C <-> isTrue C.
+(* in light of [isaprop_isTrue], these are both propositions *)
 Proof.
-  intros.
-  unpack_pair C P Q con c; unfold isTrue, hfiber, Part1, Part2, chooser in *; simpl in *.
-  split.
-  - intros p. exists p. induction c as [p'|q].
+  intros. split.
+  - unpack_pair C P Q con c; unfold isTrue, hfiber, Part1, Part2, chooser in *; simpl in *.
+    intros p. exists p. induction c as [p'|q].
     * apply maponpaths, i.
     * apply fromempty. contradicts (con p) q.
-  - intros w. exact (pr1 w).
+  - apply trueWitness.
 Defined.
 
 Lemma pair_falsehood (C:DecidablePair) (i:isaprop (Part2 C)) : Part2 C <-> isFalse C.
+(* in light of [isaprop_isFalse], these are both propositions *)
 Proof.
-  intros.
-  unpack_pair C P Q con c; unfold isFalse, hfiber, Part1, Part2, chooser in *; simpl in *.
-  split.
-  - intros q. exists q. induction c as [p|q'].
+  intros. split.
+  - unpack_pair C P Q con c; unfold isFalse, hfiber, Part1, Part2, chooser in *; simpl in *.
+    intros q. exists q. induction c as [p|q'].
     * apply fromempty. contradicts (con p) q.
     * apply maponpaths, i.
-  - intros w. exact (pr1 w).
+  - apply falseWitness.
 Defined.
 
 Definition isdecprop (P:UU) := isaprop P × (P ⨿ ¬P).
 
 Definition decprop_to_DecidablePair {P} (i:isdecprop P) : DecidablePair
-  (* we discard the proof that P is a proposition *)
-  := ((P,,¬P),,pr2 i).
+  (* We discard the proof that P is a proposition. *)
+  (* By using [isTrue _] instead, we're effectively replacing P by a propositional subtype of it: *)
+  (* the part connected to the element of [P ⨿ ¬P]. *)
+  (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P] by a propositional subtype of it.  *)
+  := ((P,,¬P),,((λ p n, n p),,pr2 i)).
 
 (* maybe we don't need this: *)
 Definition isaprop_with_decision P := isaprop P × Σ (b:bool), P <-> b=true.
