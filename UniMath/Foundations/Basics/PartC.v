@@ -137,13 +137,6 @@ Proof. intros ? ? ? ? e. exact (maponpaths (pp1 x) e). Defined.
 Lemma ii2_inj {X Y} (y y':Y) : @ii2 X Y y = @ii2 X Y y' -> y = y'.
 Proof. intros ? ? ? ? e. exact (maponpaths (pp2 y) e). Defined.
 
-Lemma A {X Y} (m n : Y) (f : @ii2 X Y n = @ii2 X Y m) :
-   transportb (λ y, ii2 y = ii2 m) (maponpaths (pp2 m) f) (idpath (ii2 m)) = f.
-Proof.
-  intros.
-
-Abort.
-
 Lemma isapropretract {P Q} (i: isaprop Q) (f:P->Q) (g:Q->P) (h: g∘f ~ idfun _): isaprop P.
 Proof.
   intros.
@@ -188,6 +181,12 @@ Defined.
 
 Definition complementary P Q := iscontr( P ⨿ Q ).
 
+Lemma complements_contradict P Q : complementary P Q -> P -> Q -> ∅.
+Proof.
+  intros ? ? co p q. induction co as [c h]. assert (r := h (ii1 p)).
+  assert (s := h (ii2 q)). assert (u := r @ !s). apply (negpathsii1ii2 _ _ u).
+Defined.
+
 Lemma complementary_weq {P P' Q Q'} : P ≃ P' -> Q ≃ Q' -> complementary P Q -> complementary P' Q'.
 Proof.
   intros ? ? ? ? v w i.
@@ -199,36 +198,28 @@ Proof.
   - exact i.
 Defined.
 
-Definition isdecprop (P:UU) := isaprop P × (P ⨿ ¬P).
-
-Definition neg_decprop {P} (i: isdecprop P) := Σ n:¬P, ii2 n = pr2 i.
-
-Definition decision {P} (i: P ⨿ ¬ P) : bool
-  := coprod_rect (λ _, bool) (λ _, true) (λ _, false) i.
-
-Lemma neg_decprop_negates {P} (i:isdecprop P) : neg_decprop i <-> ¬ P.
-(* uses [funextempty] *)
-
-Definition DecidablePair := Σ (C:UU×UU), pr1 C ⨿ pr2 C.
+Definition DecidablePair := Σ (PQ:UU×UU), (pr1 PQ -> pr2 PQ -> ∅) × (pr1 PQ ⨿ pr2 PQ).
 Definition Part1 (C:DecidablePair) : UU := pr1 (pr1 C).
 Definition Part2 (C:DecidablePair) : UU := pr2 (pr1 C).
-Definition chooser (C:DecidablePair) := pr2 C.
-Definition decprop_to_pair {P} (i:isdecprop P) : DecidablePair := ((P,,¬P),,pr2 i).
-Definition negatePair (C:DecidablePair) : DecidablePair := (Part2 C,, Part1 C) ,, coprodcomm _ _ (chooser C).
+Definition pair_contradiction (C:DecidablePair) := pr1 (pr2 C).
+Definition chooser (C:DecidablePair) := pr2 (pr2 C).
+Definition negatePair (C:DecidablePair) : DecidablePair
+  := (Part2 C,, Part1 C) ,, (λ q p, pair_contradiction C p q),, coprodcomm _ _ (chooser C).
 Definition isTrue  (C:DecidablePair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
 Definition isFalse (C:DecidablePair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
 
-Ltac unpack_pair C P Q c := induction C as [_PQ_ c]; induction _PQ_ as [P Q].
+Ltac unpack_pair C P Q con c := induction C as [_PQ_ c]; induction _PQ_ as [P Q];
+                            induction c as [con c]; simpl in c, P, Q.
 
-Lemma pair_contradiction (C:DecidablePair) : isTrue C -> isFalse C -> ∅. 
+Lemma pair_truth_contradiction (C:DecidablePair) : isTrue C -> isFalse C -> ∅. 
 Proof.
-  intros ? t u. unpack_pair C P Q c; induction t as [p r]; induction u as [q s];
+  intros ? t u. unpack_pair C P Q con c; induction t as [p r]; induction u as [q s];
   unfold Part1, Part2 in *; simpl in *.
   assert (u := r @ !s).
   apply (negpathsii1ii2 _ _ u).
 Defined.
 
-Definition pair_disjunction (C:DecidablePair) : isTrue C ⨿ isFalse C. 
+Definition pair_truth_disjunction (C:DecidablePair) : isTrue C ⨿ isFalse C. 
 Proof.
   intros. unfold isTrue, isFalse, hfiber; simpl.
   induction (chooser C) as [p|q].
@@ -236,77 +227,67 @@ Proof.
   - exact (ii2 (q,,idpath _)).
 Defined.
 
-Definition hpullback {X Y Z} (f:X->Z) (g:Y->Z) := Σ (xy : X × Y), f(pr1 xy) = g(pr2 xy).
-
-Lemma hpullback_left  {X Y Z} (f:X->Z) (g:Y->Z) : hpullback f g ≃ Σ x, hfiber g (f x).
-Proof.
-  intros. refine (weqgradth _ _ _ _).
-  - intros [[x y] e]. exact (x,,y,,!e).
-  - intros [x [y e]]. exists (x,,y). exact (!e).
-  - intros [[x y] e]. apply maponpaths, pathsinv0inv0.
-  - intros [x [y e]]. apply maponpaths, maponpaths, pathsinv0inv0.
-Defined.
-
-Definition hpullback_right {X Y Z} (f:X->Z) (g:Y->Z) : hpullback f g ≃ Σ y, hfiber f (g y).
-Proof.
-  intros. apply weqtotal2dirprodassoc'.
-Defined.
-
-Definition hfiber_comm {X Y Z} (f:X->Z) (g:Y->Z) : (Σ x, hfiber g (f x)) ≃ (Σ y, hfiber f (g y)).
-Proof.
-  intros. refine (weqgradth _ _ _ _).
-  - intros [x [y e]]. exact (y,,x,,!e).
-  - intros [y [x e]]. exact (x,,y,,!e).
-  - intros [x [y e]]. apply maponpaths, maponpaths, pathsinv0inv0.
-  - intros [y [x e]]. apply maponpaths, maponpaths, pathsinv0inv0.
-Defined.
-
 Lemma complementaryDecisions (C:DecidablePair) : complementary (isTrue C) (isFalse C).
 Proof.
-  intros.
-  unfold pair_disjunction, complementary.
-  set (f (_:unit) := chooser C : Part1 C ⨿ Part2 C).
-  assert (w := weqcoprodsplit f).
-
+  intros. unfold pair_truth_disjunction, complementary.
+  apply iscontrifweqtounit. assert (w := weqcoprodsplit (λ _:unit, chooser C)).
+  apply invweq. apply (weqcomp w). apply weqcoprodf; apply weqhfiberunit.
 Defined.
 
-
-weqcoprodsplit:
-  ∀ (X Y Z : UU) (f : X -> Y ⨿ Z),
-  X ≃ (Σ y : Y, hfiber f (ii1 y)) ⨿ (Σ z : Z, hfiber f (ii2 z))
-
-
-  induction i as [i c].
-  unfold neg_decprop; simpl.
-  assert (k := @weqtotal2overcoprod P (¬P)
-                                    (@coprod_rect P (¬P) (λ _,UU) (λ p, ii1 p = c) (λ n, ii2 n = c)));
-    simpl in k.
-  apply (isapropcomponent2 (Σ x : P, ii1 x = c) (Σ y : ¬ P, ii2 y = c)).
-  apply (isofhlevelweqf 1 k); clear k.
-  (* now show that type is equivalent to the type of paths from xy to c *)
-
-Abort.
-
-Lemma isaprop_neg_decprop {P} (i:isdecprop P) : isaprop (neg_decprop i).
+Lemma isaprop_isTrue (C:DecidablePair) : isaprop (isTrue C).
+(* no axioms are used *)
 Proof.
   intros.
-  induction i as [i c].
-  apply invproofirrelevance; intros m n.
-  induction m as [m e].
-  induction c as [p|np].
-  { contradicts p m. }
-  induction n as [n f]; simpl in *.
-  refine (total2_paths _ _).
-  - simpl.
-    apply (@ii2_inj P (¬P)).
-    exact (e @ !f).
-  - simpl in *.
-    induction e; simpl.
-    clear np.
-    
-Abort.
+  apply (isapropcomponent1 _ (isFalse C)).
+  apply isapropifcontr.
+  apply complementaryDecisions.
+Defined.
 
+Lemma isaprop_isFalse (C:DecidablePair) : isaprop (isTrue C).
+(* No axioms are used. *)
+(* By contrast, to prove [¬P] is a proposition requires the use of functional extensionality. *)
+Proof.
+  intros.
+  apply (isapropcomponent1 _ (isFalse C)).
+  apply isapropifcontr.
+  apply complementaryDecisions.
+Defined.
+
+Lemma pair_truth (C:DecidablePair) (i:isaprop (Part1 C)) : Part1 C <-> isTrue C.
+(* we will see later that [isTrue C] is the propositional truncation of [Part1 C], in general *)
+Proof.
+  intros.
+  unpack_pair C P Q con c; unfold Part1, isTrue, hfiber, Part1, chooser in *; simpl in *.
+  split.
+  - intros p. exists p. induction c as [p'|q].
+    * apply maponpaths, i.
+    * apply fromempty. contradicts (con p) q.
+  - intros w. exact (pr1 w).
+Defined.
+
+Lemma pair_falsehood (C:DecidablePair) (i:isaprop (Part2 C)) : Part2 C <-> isFalse C.
+(* we will see later that [isFalse C] is the propositional truncation of [Part2 C], in general *)
+Proof.
+  intros.
+  unpack_pair C P Q con c; unfold Part1, isFalse, hfiber, Part2, chooser in *; simpl in *.
+  split.
+  - intros q. exists q. induction c as [p|q'].
+    * apply fromempty. contradicts (con p) q.
+    * apply maponpaths, i.
+  - intros w. exact (pr1 w).
+Defined.
+
+Definition isdecprop (P:UU) := isaprop P × (P ⨿ ¬P).
+
+Definition decprop_to_DecidablePair {P} (i:isdecprop P) : DecidablePair
+  (* we discard the proof that P is a proposition *)
+  := ((P,,¬P),,pr2 i).
+
+(* maybe we don't need this: *)
 Definition isaprop_with_decision P := isaprop P × Σ (b:bool), P <-> b=true.
+
+Definition decision {P} (i: P ⨿ ¬ P) : bool
+  := coprod_rect (λ _, bool) (λ _, true) (λ _, false) i.
 
 Lemma correct_decision {P} (i:P ⨿ ¬ P) : P <-> decision i = true.
 Proof.
