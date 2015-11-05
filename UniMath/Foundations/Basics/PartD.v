@@ -575,21 +575,11 @@ Theorem isapropisweq { X Y : UU } (f:X-> Y) : isaprop (isweq f).
 Proof. intros. unfold isweq.  apply (impred (S O) (fun y:Y => iscontr (hfiber f y)) (fun y:Y => isapropiscontr (hfiber  f y))).  Defined. 
 
 
-Lemma isapropIsComplement P Q : isaprop (isComplement P Q).
-Proof.
-  intros.
-Abort.
-
-
 Theorem isapropisisolated ( X : UU ) ( x : X ) : isaprop ( isisolated X x ) .
 Proof. intros . apply isofhlevelsn .  intro is . apply impred . intro x' .  apply ( isapropdec _ ( isaproppathsfromisolated X x is x' ) ) .  Defined .  
 
 Theorem isapropisdeceq (X:UU): isaprop (isdeceq X).
 Proof. intro. apply ( isofhlevelsn 0 ) .  intro is . unfold isdeceq. apply impred . intro x .  apply ( isapropisisolated X x ) .   Defined . 
-
-Definition isapropisdecprop ( X : UU ) : isaprop ( isdecprop X ) := isapropiscontr ( coprod X ( neg X ) ) .
-
-
 
 Theorem isapropisofhlevel (n:nat)(X:UU): isaprop (isofhlevel n X).
 Proof. intro.  unfold isofhlevel.    induction n as [ | n IHn ] . apply isapropiscontr.  intro X . 
@@ -608,6 +598,15 @@ assert (is1:
 
 Corollary isapropisaprop (X:UU) : isaprop (isaprop X).
 Proof. intro. apply (isapropisofhlevel (S O)). Defined. 
+
+Definition isapropisdecprop ( X : UU ) : isaprop ( isdecprop X ).
+Proof.
+  intros.
+  unfold isdecprop.
+  apply isofhleveltotal2.
+  - apply isapropisaprop.
+  - intro i. now apply isapropdec.
+Defined.
 
 Corollary isapropisaset (X:UU): isaprop (isaset X).
 Proof. intro. apply (isapropisofhlevel (S (S O))). Defined.
