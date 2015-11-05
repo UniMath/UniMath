@@ -96,11 +96,14 @@ Proof.
 Qed.
 
 Lemma CRigmultapCRigzero :
-  forall x y : X, x * y # (0%rig : X) -> x # (0%rig : X) ∨ y # (0%rig : X).
+  forall x y : X, x * y # (0%rig : X) -> x # (0%rig : X) ∧ y # (0%rig : X).
 Proof.
   intros x y Hmult.
-  apply apCRigmult.
-  now rewrite israbsorb_CRigzero_CRigmult.
+  split.
+  - apply islapbinop_op2 with y.
+    now rewrite islabsorb_CRigzero_CRigmult.
+  - apply israpbinop_op2 with x.
+    now rewrite israbsorb_CRigzero_CRigmult.
 Qed.
 
 End CRig_pty.
