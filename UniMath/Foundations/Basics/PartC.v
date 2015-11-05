@@ -293,45 +293,45 @@ Proof.
   - apply falseWitness.
 Defined.
 
-Definition isdecprop (P:UU) := isaprop P × (P ⨿ ¬P).
+Definition isdecprop (P:UU) := (P ⨿ ¬P) × isaprop P.
 
 Lemma isdecpropempty : isdecprop ∅.
 Proof.
   unfold isdecprop.
   split.
-  - exact isapropempty.
   - exact (ii2 (idfun ∅)).
+  - exact isapropempty.
 Defined.
 
 Lemma isdecpropunit : isdecprop unit.
 Proof.
   unfold isdecprop.
   split.
-  - exact isapropunit.
   - exact (ii1 tt).
+  - exact isapropunit.
 Defined.
 
 Lemma isdecpropfromneg P : ¬P -> isdecprop P.
 Proof.
   intros ? n. split.
-  - now apply isapropifnegtrue.
   - exact (ii2 n).
+  - now apply isapropifnegtrue.
 Defined.
 
 Lemma isdecpropfromiscontr {P} : iscontr P -> isdecprop P.
 Proof.
   intros ? i.
   split.
-  - now apply isapropifcontr.
   - exact (ii1 (iscontrpr1 i)).
+  - now apply isapropifcontr.
 Defined.
 
 Lemma isdecpropiftrueprop P : isaprop P -> P -> isdecprop P.
 Proof.
   intros ? i p.
   split.
-  - exact i.
   - exact (ii1 p).
+  - exact i.
 Defined.
 
 Definition decprop_to_ComplementaryPair {P} (i:isdecprop P) : ComplementaryPair
@@ -339,31 +339,31 @@ Definition decprop_to_ComplementaryPair {P} (i:isdecprop P) : ComplementaryPair
   (* By using [isTrue _] instead, we're effectively replacing P by a propositional subtype of it: *)
   (* the part connected to the element of [P ⨿ ¬P]. *)
   (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P] by a propositional subtype of it.  *)
-  := ((P,,¬P),,((λ p n, n p),,pr2 i)).
+  := ((P,,¬P),,((λ p n, n p),,pr1 i)).
 
 Lemma isdecprop_to_isaprop X : isdecprop X -> isaprop X.
-Proof. intros ? i. exact (pr1 i). Defined.
+Proof. intros ? i. exact (pr2 i). Defined.
 
 Lemma isdecpropweqf {X Y} : X≃Y -> isdecprop X -> isdecprop Y.
 Proof.
-  intros ? ? w i. unfold isdecprop in *. induction i as [i xnx]. split.
-  - apply (isofhlevelweqf 1 (X:=X)).
-    { exact w. }
-    { exact i. }
+  intros ? ? w i. unfold isdecprop in *. induction i as [xnx i]. split.
   - clear i. induction xnx as [x|nx].
     * apply ii1. now apply w.
     * apply ii2. intro x'. apply nx. now apply (invmap w).
+  - apply (isofhlevelweqf 1 (X:=X)).
+    { exact w. }
+    { exact i. }
 Defined.
 
 Lemma isdecpropweqb {X Y} : X≃Y -> isdecprop Y -> isdecprop X.
 Proof.
-  intros ? ? w i. unfold isdecprop in *. induction i as [i yny]. split.
-  - apply (isofhlevelweqb 1 (Y:=Y)).
-    { exact w. }
-    { exact i. }
+  intros ? ? w i. unfold isdecprop in *. induction i as [yny i]. split.
   - clear i. induction yny as [y|ny].
     * apply ii1. now apply (invmap w).
     * apply ii2. intro x. apply ny. now apply w.
+  - apply (isofhlevelweqb 1 (Y:=Y)).
+    { exact w. }
+    { exact i. }
 Defined.
 
 (** *** Basic results on types with an isolated point. *)
@@ -896,11 +896,11 @@ Proof. intros. apply (isweqinvmap  ( weqtocompltodisjoint X ) ). Defined.
 
 (** *** Decidable propositions [ isdecprop ] *)
 
-Definition isdecproptoisaprop ( X : UU ) ( is : isdecprop X ) : isaprop X := pr1 is.
+Definition isdecproptoisaprop ( X : UU ) ( is : isdecprop X ) : isaprop X := pr2 is.
 Coercion isdecproptoisaprop : isdecprop >-> isaprop .
 
 Lemma isdecpropif ( X : UU ) : isaprop X -> X ⨿ ¬ X -> isdecprop X.
-Proof. intros ? i c. exact (i,,c). Defined.
+Proof. intros ? i c. exact (c,,i). Defined.
 
 Lemma isdecpropif' ( X : UU ) : isaprop X -> X ⨿ ¬ X -> iscontr (X ⨿ ¬ X) .
 (* This contractibility was the old definition of isdecpropif.  We can probably do without it. *)
@@ -916,12 +916,12 @@ Lemma isdecproppaths { X : UU } ( is : isdeceq X ) ( x x' : X ) : isdecprop ( pa
 Proof. intros . apply ( isdecpropif _ ( isasetifdeceq _ is x x' ) ( is x x' ) ) .  Defined .
 
 Lemma isdeceqif { X : UU } ( is : forall x x' : X , isdecprop ( paths x x' ) ) : isdeceq X .
-Proof . intros . intros x x' . apply ( pr2 ( is x x' ) ) . Defined .
+Proof . intros . intros x x' . apply ( pr1 ( is x x' ) ) . Defined .
 
 Lemma isaninv1 (X:UU): isdecprop X  -> isaninvprop X.
 Proof.
   intros X is1. unfold isaninvprop.
-  assert (is2:= pr2  is1); simpl in is2.
+  assert (is2:= pr1  is1); simpl in is2.
   assert (adjevinv: dneg X -> X).
   { intro X0. induction is2 as [ a | b ].
     - assumption.
@@ -937,17 +937,17 @@ Proof . intros X Y Z f g z fs isx isz .  assert ( isc : iscontr Z ) . apply ( is
 Theorem isdecpropfibseq0 { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( z : Z ) ( fs : fibseqstr f g z ) : isdecprop Y -> isdeceq Z -> isdecprop X .
 Proof . intros X Y Z f g z fs isy isz . assert ( isg : isofhlevelf 1 g ) . apply ( isofhlevelffromXY 1 g ( isdecproptoisaprop _ isy ) ( isasetifdeceq _ isz ) ) .
 assert ( isp : isaprop X ) . apply ( isofhlevelXfromg 1 f g z fs isg ) .
-induction ( pr2 isy ) as [ y | ny ] .  apply ( isdecpropfibseq1 _ _ y ( fibseq1 f g z fs y ) ( isdecproppaths isz ( g y ) z ) ( isdecproptoisaprop _ isy ) ) .
+induction ( pr1 isy ) as [ y | ny ] .  apply ( isdecpropfibseq1 _ _ y ( fibseq1 f g z fs y ) ( isdecproppaths isz ( g y ) z ) ( isdecproptoisaprop _ isy ) ) .
 apply ( isdecpropif _ isp ( ii2  ( negf f ny ) ) ) . Defined.
 
 Theorem isdecpropdirprod { X Y : UU } ( isx : isdecprop X ) ( isy : isdecprop Y ) : isdecprop ( dirprod X Y ) .
-Proof. intros . assert ( isp : isaprop ( dirprod X Y ) ) . apply ( isofhleveldirprod 1 _ _ ( isdecproptoisaprop _ isx ) ( isdecproptoisaprop _ isy ) ) .  induction ( pr2 isx ) as [ x | nx ] . induction ( pr2 isy ) as [ y | ny ] .  apply ( isdecpropif _ isp ( ii1 ( dirprodpair x y ) ) ) . assert ( nxy : neg ( dirprod X Y ) ) . intro xy . induction xy as [ x0  y0 ] . apply ( ny y0 ) .  apply ( isdecpropif _ isp ( ii2 nxy ) ) .  assert ( nxy : neg ( dirprod X Y ) ) . intro xy . induction xy as [ x0  y0 ] . apply ( nx x0 ) .  apply ( isdecpropif _ isp ( ii2 nxy ) ) . Defined.
+Proof. intros . assert ( isp : isaprop ( dirprod X Y ) ) . apply ( isofhleveldirprod 1 _ _ ( isdecproptoisaprop _ isx ) ( isdecproptoisaprop _ isy ) ) .  induction ( pr1 isx ) as [ x | nx ] . induction ( pr1 isy ) as [ y | ny ] .  apply ( isdecpropif _ isp ( ii1 ( dirprodpair x y ) ) ) . assert ( nxy : neg ( dirprod X Y ) ) . intro xy . induction xy as [ x0  y0 ] . apply ( ny y0 ) .  apply ( isdecpropif _ isp ( ii2 nxy ) ) .  assert ( nxy : neg ( dirprod X Y ) ) . intro xy . induction xy as [ x0  y0 ] . apply ( nx x0 ) .  apply ( isdecpropif _ isp ( ii2 nxy ) ) . Defined.
 
 Lemma fromneganddecx { X Y : UU } : isdecprop X -> ¬ ( X × Y ) -> ¬X ⨿ ¬Y.
-Proof . intros ? ? isx nf.  induction ( pr2 isx ) as [ x | nx ] .  assert ( ny := negf ( λ y : Y, dirprodpair x y ) nf ) . exact ( ii2 ny ) .   exact ( ii1 nx ) . Defined .
+Proof . intros ? ? isx nf.  induction ( pr1 isx ) as [ x | nx ] .  assert ( ny := negf ( λ y : Y, dirprodpair x y ) nf ) . exact ( ii2 ny ) .   exact ( ii1 nx ) . Defined .
 
 Lemma fromneganddecy { X Y : UU } : isdecprop Y -> ¬ ( X × Y ) -> ¬X ⨿ ¬Y.
-Proof . intros ? ? isy nf.  induction ( pr2 isy ) as [ y | ny ] .  assert ( nx := negf ( λ x:X, dirprodpair x y ) nf ) . exact ( ii1 nx ) . exact ( ii2 ny ) .   Defined .
+Proof . intros ? ? isy nf.  induction ( pr1 isy ) as [ y | ny ] .  assert ( nx := negf ( λ x:X, dirprodpair x y ) nf ) . exact ( ii1 nx ) . exact ( ii2 ny ) .   Defined .
 
 
 (** *** Paths to and from an isolated point form a decidable proposition *)
@@ -972,7 +972,7 @@ Lemma isdecinclfromisweq { X Y : UU } ( f : X -> Y ) : isweq f -> isdecincl f .
 Proof. intros X Y f iswf .  intro y .  apply ( isdecpropfromiscontr ( iswf y ) ) . Defined .
 
 Lemma isdecpropfromdecincl { X Y : UU } ( f : X -> Y ) : isdecincl f -> isdecprop Y -> isdecprop X .
-Proof. intros X Y f isf isy .  induction ( pr2 isy ) as [ y | n ] . assert ( w : weq ( hfiber f y ) X ) . apply ( weqhfibertocontr f y ( iscontraprop1 ( isdecproptoisaprop _ isy )  y ) ) . apply ( isdecpropweqf w ( isf y ) ) .  apply isdecpropif . apply ( isapropinclb _ isf isy ) .  apply ( ii2 ( negf f n ) ) .  Defined .
+Proof. intros X Y f isf isy .  induction ( pr1 isy ) as [ y | n ] . assert ( w : weq ( hfiber f y ) X ) . apply ( weqhfibertocontr f y ( iscontraprop1 ( isdecproptoisaprop _ isy )  y ) ) . apply ( isdecpropweqf w ( isf y ) ) .  apply isdecpropif . apply ( isapropinclb _ isf isy ) .  apply ( ii2 ( negf f n ) ) .  Defined .
 
 
 Lemma isdecinclii1 (X Y: UU): isdecincl ( @ii1 X Y ) .
@@ -996,7 +996,7 @@ Proof. intros . intro y . apply ( isdecpropweqf ( weqhfibershomot f g h y ) ( is
 Theorem isdecinclcomp { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( isf : isdecincl f ) ( isg : isdecincl g ) : isdecincl ( fun x : X => g ( f x ) ) .
 Proof. intros. intro z .  set ( gf := fun x : X => g ( f x ) ) . assert ( wy : forall ye : hfiber g z , weq ( hfiber f ( pr1 ye ) ) ( hfiber ( hfibersgftog f g z ) ye ) ) . apply  ezweqhf .
 assert ( ww : forall y : Y , weq ( hfiber f y ) ( hfiber gf ( g y ) ) ) . intro .  apply ( samehfibers f g ) . apply ( isdecincltoisincl _ isg ) .
-  induction ( pr2 ( isg z ) ) as [ ye | nye ] . induction ye as [ y e ] .  induction e . apply ( isdecpropweqf ( ww y ) ( isf y ) ) .   assert ( wz : weq ( hfiber gf z ) ( hfiber g z ) ) . split with ( hfibersgftog f g z ) . intro ye .   induction ( nye ye ) .  apply ( isdecpropweqb wz ( isg z ) ) .  Defined .
+  induction ( pr1 ( isg z ) ) as [ ye | nye ] . induction ye as [ y e ] .  induction e . apply ( isdecpropweqf ( ww y ) ( isf y ) ) .   assert ( wz : weq ( hfiber gf z ) ( hfiber g z ) ) . split with ( hfibersgftog f g z ) . intro ye .   induction ( nye ye ) .  apply ( isdecpropweqb wz ( isg z ) ) .  Defined .
 
 (** The conditions of the following theorem can be weakened by assuming only that the h-fibers of g satisfy [ isdeceq ] i.e. are "sets with decidable equality". *)
 
@@ -1014,7 +1014,7 @@ Proof. intros . intro z . set ( gf := fun x : X => g ( f x ) ) . assert ( w : we
 (** *** Decidable inclusions and isolated points *)
 
 Theorem isisolateddecinclf { X Y : UU } ( f : X -> Y ) ( x : X ) : isdecincl f -> isisolated X x -> isisolated Y ( f x ) .
-Proof .  intros X Y f x isf isx .   assert ( is' : forall y : Y , isdecincl ( d1g  f y x ) ) . intro y .  intro xe .  set ( w := ezweq2g f x xe ) . apply ( isdecpropweqf w ( isdecproppathstoisolated X x isx _ ) ) .  assert ( is'' : forall y : Y , isdecprop ( paths ( f x ) y ) ) . intro .  apply ( isdecpropfromdecincl _ ( is' y ) ( isf y ) ) . intro y' .   apply ( pr2 ( is'' y' ) ) .  Defined .
+Proof .  intros X Y f x isf isx .   assert ( is' : forall y : Y , isdecincl ( d1g  f y x ) ) . intro y .  intro xe .  set ( w := ezweq2g f x xe ) . apply ( isdecpropweqf w ( isdecproppathstoisolated X x isx _ ) ) .  assert ( is'' : forall y : Y , isdecprop ( paths ( f x ) y ) ) . intro .  apply ( isdecpropfromdecincl _ ( is' y ) ( isf y ) ) . intro y' .   apply ( pr1 ( is'' y' ) ) .  Defined .
 
 
 
@@ -1033,7 +1033,7 @@ Definition iscoproj { X Y : UU } ( f : X -> Y ) := isweq ( sumofmaps f ( @pr1 _ 
 Definition weqcoproj { X Y : UU } ( f : X -> Y ) ( is : iscoproj f ) : weq ( coprod X ( negimage f ) ) Y := weqpair _ is .
 
 Theorem iscoprojfromisdecincl { X Y : UU } ( f : X -> Y ) ( is : isdecincl f ) : iscoproj f .
-Proof. intros . set ( p := sumofmaps f ( @pr1 _ ( fun y : Y => neg ( hfiber f y ) ) ) ) .  assert ( is' : isincl p ) .  apply isinclfromcoprodwithnegimage .   apply ( isdecincltoisincl _ is ) . unfold iscoproj .   intro y . induction ( pr2 ( is y ) ) as [ h | nh ] .   induction h as [ x e ] .  induction e .  change ( f x ) with ( p ( ii1 x ) ) . apply iscontrhfiberofincl .  assumption .  change y with ( p ( ii2 ( negimagepair _ y nh ) ) ) .  apply iscontrhfiberofincl .  assumption .  Defined .
+Proof. intros . set ( p := sumofmaps f ( @pr1 _ ( fun y : Y => neg ( hfiber f y ) ) ) ) .  assert ( is' : isincl p ) .  apply isinclfromcoprodwithnegimage .   apply ( isdecincltoisincl _ is ) . unfold iscoproj .   intro y . induction ( pr1 ( is y ) ) as [ h | nh ] .   induction h as [ x e ] .  induction e .  change ( f x ) with ( p ( ii1 x ) ) . apply iscontrhfiberofincl .  assumption .  change y with ( p ( ii2 ( negimagepair _ y nh ) ) ) .  apply iscontrhfiberofincl .  assumption .  Defined .
 
 Theorem isdecinclfromiscoproj { X Y : UU } ( f : X -> Y ) ( is : iscoproj f ) : isdecincl f .
 Proof . intros . set ( g := ( sumofmaps f ( @pr1 _ ( fun y : Y => neg ( hfiber f y ) ) ) ) ) . set ( f' :=  fun x : X => g ( ii1 x ) ) . assert ( is' : isdecincl f' ) . apply ( isdecinclcomp _ _ ( isdecinclii1 _ _ ) ( isdecinclfromisweq _ is ) ) .    assumption .  Defined .

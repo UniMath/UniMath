@@ -603,6 +603,7 @@ Definition isapropisdecprop ( X : UU ) : isaprop ( isdecprop X ).
 Proof.
   intros.
   unfold isdecprop.
+  apply (isofhlevelweqf 1 (weqdirprodcomm _ _)).
   apply isofhleveltotal2.
   - apply isapropisaprop.
   - intro i. now apply isapropdec.
