@@ -116,185 +116,6 @@ Proof. intros. induction x' as [x' b]. reflexivity. Defined.
 Definition homotweqoncomplcomp { X Y Z : UU } ( f : weq X Y ) ( g : weq Y Z ) ( x : X ) : homot ( weqcomp ( weqoncompl f x ) ( weqoncompl g ( f x ) ) ) ( weqoncompl  ( weqcomp f g ) x ) .
 Proof . intros . intro x' . induction x' as [ x' nexx' ] . apply ( invmaponpathsincl _ ( isinclpr1compl Z _ ) _ _ ) . simpl .  apply idpath .    Defined .
 
-
-(** Basic facts about complementary propositions  *)
-
-Definition pp1 {X Y} (x:X) : X ⨿ Y -> X.
-  intros ? ? ?. exact (coprod_rect (λ _,X) (λ x,x) (λ _,x)). Defined.
-
-Definition pp2 {X Y} (y:Y) : X ⨿ Y -> Y.
-  intros ? ? ?. exact (coprod_rect (λ _,Y) (λ _,y) (λ y,y)). Defined.
-
-Definition pp1ii1 {X Y} (x:X) (xy : X ⨿ Y) (e: ii1 x = xy) : ii1 (pp1 x xy) = xy.
-Proof. intros. induction e. reflexivity. Defined.
-
-Definition pp2ii2 {X Y} (y:Y) (xy : X ⨿ Y) (e: ii2 y = xy) : ii2 (pp2 y xy) = xy.
-Proof. intros. induction e. reflexivity. Defined.
-
-Lemma ii1_inj {X Y} (x x':X) : @ii1 X Y x = @ii1 X Y x' -> x = x'.
-Proof. intros ? ? ? ? e. exact (maponpaths (pp1 x) e). Defined.
-
-Lemma ii2_inj {X Y} (y y':Y) : @ii2 X Y y = @ii2 X Y y' -> y = y'.
-Proof. intros ? ? ? ? e. exact (maponpaths (pp2 y) e). Defined.
-
-Lemma isapropretract {P Q} (i: isaprop Q) (f:P->Q) (g:Q->P) (h: g∘f ~ idfun _): isaprop P.
-Proof.
-  intros.
-  apply invproofirrelevance; intros p p'.
-  refine (_ @ (_ : g (f p) = g (f p')) @ _).
-  - apply pathsinv0. apply h.
-  - apply maponpaths. now apply proofirrelevance.
-  - apply h.
-Defined.
-
-Lemma isapropcomponent1 P Q : isaprop ( P ⨿ Q ) -> isaprop P.
-Proof.
-  intros ? ? i. apply iscontraprop1inv; intro p. apply iscontraprop1.
-  { refine (isapropretract i _ _ _).
-    { exact (@ii1 P Q). }
-    { intro pq. induction pq as [p'|q'].
-      { exact p'. }
-      { exact p. }}
-    { intro p'. unfold idfun, funcomp; simpl. reflexivity. } }
-  exact p.
-Defined.
-
-Lemma isapropcomponent2 P Q : isaprop ( P ⨿ Q ) -> isaprop Q.
-Proof.
-  intros ? ? i. apply iscontraprop1inv; intro q. apply iscontraprop1.
-  { refine (isapropretract i _ _ _).
-    { exact (@ii2 P Q). }
-    { intro pq. induction pq as [p'|q'].
-      { exact q. }
-      { exact q'. }}
-    { intro q'. unfold idfun, funcomp; simpl. reflexivity. } }
-  exact q.
-Defined.
-
-Definition complementary P Q := (P -> Q -> ∅) × (P ⨿ Q).
-
-Definition dnegelim {P Q} : complementary P Q -> ¬¬ Q -> Q.
-Proof.
-  intros ? ? c nnp. induction c as [n c].
-  induction c as [p|q].
-  - contradicts nnp (n p).
-  - assumption.
-Defined.
-
-Definition ComplementaryPair := Σ (PQ:UU×UU), complementary (pr1 PQ) (pr2 PQ).
-
-Ltac unpack_pair C P Q con c := induction C as [_PQ_ c]; induction _PQ_ as [P Q];
-                                induction c as [con c]; simpl in c, P, Q.
-
-Definition Part1 (C:ComplementaryPair) : UU := pr1 (pr1 C).
-Definition Part2 (C:ComplementaryPair) : UU := pr2 (pr1 C).
-Definition pair_contradiction (C:ComplementaryPair) := pr1 (pr2 C).
-Definition chooser (C:ComplementaryPair) := pr2 (pr2 C).
-
-Definition pairNegation (C:ComplementaryPair) : ComplementaryPair
-  := (Part2 C,, Part1 C) ,, (λ q p, pair_contradiction C p q),, coprodcomm _ _ (chooser C).
-
-Definition pairConjunction (C C':ComplementaryPair) : ComplementaryPair.
-Proof.
-  intros.
-  unpack_pair C P Q con c; unpack_pair C' P' Q' con' c'; simpl in *.
-  unfold ComplementaryPair.
-  exists ((P × P') ,, (Q ⨿ Q')).
-  split.
-  - simpl. intros a b. induction a as [p p']. induction b as [b|b].
-    + induction c' as [_|q'].
-      * contradicts (con p) b.
-      * contradicts (con p) b.
-    + contradicts (con' p') b.
-  - simpl. induction c as [p|q].
-    + induction c' as [p'|q'].
-      * apply ii1. exact (p,,p').
-      * apply ii2, ii2. exact q'.
-    + induction c' as [p'|q'].
-      * apply ii2, ii1. exact q.
-      * apply ii2, ii2. exact q'.
-Defined.
-
-Definition pairDisjunction (C C':ComplementaryPair) : ComplementaryPair.
-Proof.
-  intros.
-  exact (pairNegation (pairConjunction (pairNegation C) (pairNegation C'))).
-Defined.
-
-Definition isTrue  (C:ComplementaryPair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
-Definition isFalse (C:ComplementaryPair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
-
-Definition  trueWitness (C:ComplementaryPair) : isTrue  C -> Part1 C := pr1.
-Definition falseWitness (C:ComplementaryPair) : isFalse C -> Part2 C := pr1.
-
-Coercion  trueWitness : isTrue  >-> Part1.
-Coercion falseWitness : isFalse >-> Part2.
-
-(* this is what apartness looks like in the presence of decidable equality *)
-Definition Nonequality (X:UU)
-  := Σ P : X -> X -> UU,
-           ∀ x y, isaprop (P x y) × complementary (x=y) (P x y).
-
-Lemma complementaryDecisions (C:ComplementaryPair) : iscontr (isTrue C ⨿ isFalse C).
-Proof.
-  intros.
-  apply iscontrifweqtounit. assert (w := weqcoprodsplit (λ _:unit, chooser C)).
-  apply invweq. apply (weqcomp w). apply weqcoprodf; apply weqhfiberunit.
-Defined.
-
-Lemma isaprop_isTrue (C:ComplementaryPair) : isaprop (isTrue C).
-(* No axioms are used. *)
-Proof.
-  intros.
-  apply (isapropcomponent1 (isTrue C) (isFalse C)).
-  apply isapropifcontr.
-  apply complementaryDecisions.
-Defined.
-
-Lemma isaprop_isFalse (C:ComplementaryPair) : isaprop (isFalse C).
-(* No axioms are used. *)
-(* By contrast, to prove [¬P] is a proposition requires the use of functional extensionality. *)
-Proof.
-  intros.
-  apply (isapropcomponent2 (isTrue C) (isFalse C)).
-  apply isapropifcontr.
-  apply complementaryDecisions.
-Defined.
-
-Lemma pair_truth (C:ComplementaryPair) (i:isaprop (Part1 C)) : Part1 C <-> isTrue C.
-(* in light of [isaprop_isTrue], these are both propositions *)
-Proof.
-  intros. split.
-  - unpack_pair C P Q con c; unfold isTrue, hfiber, Part1, Part2, chooser in *; simpl in *.
-    intros p. exists p. induction c as [p'|q].
-    * apply maponpaths, i.
-    * apply fromempty. contradicts (con p) q.
-  - apply trueWitness.
-Defined.
-
-Lemma pair_falsehood (C:ComplementaryPair) (i:isaprop (Part2 C)) : Part2 C <-> isFalse C.
-(* in light of [isaprop_isFalse], these are both propositions *)
-Proof.
-  intros. split.
-  - unpack_pair C P Q con c; unfold isFalse, hfiber, Part1, Part2, chooser in *; simpl in *.
-    intros q. exists q. induction c as [p|q'].
-    * apply fromempty. contradicts (con p) q.
-    * apply maponpaths, i.
-  - apply falseWitness.
-Defined.
-
-Definition isdecprop (P:UU) := (P ⨿ ¬P) × isaprop P.
-
-Definition decprop_to_ComplementaryPair {P} (i:isdecprop P) : ComplementaryPair
-  (* We discard the proof that P is a proposition. *)
-  (* By using [isTrue _] instead, we're effectively replacing P by a propositional subtype of it: *)
-  (* the part connected to the element of [P ⨿ ¬P]. *)
-  (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P] by a propositional subtype of it.  *)
-  := ((P,,¬P),,((λ p n, n p),,pr1 i)).
-
-Lemma isdecprop_to_isaprop X : isdecprop X -> isaprop X.
-Proof. intros ? i. exact (pr2 i). Defined.
-
 (** *** Basic results on types with an isolated point. *)
 
 Definition isisolated (X:UU) (x:X) := ∀ x':X, (x=x') ⨿ (x≠x').
@@ -825,6 +646,8 @@ Proof. intros. apply (isweqinvmap  ( weqtocompltodisjoint X ) ). Defined.
 
 (** *** Decidable propositions [ isdecprop ] *)
 
+Definition isdecprop (P:UU) := (P ⨿ ¬P) × isaprop P.
+
 Definition isdecproptoisaprop ( X : UU ) ( is : isdecprop X ) : isaprop X := pr2 is.
 Coercion isdecproptoisaprop : isdecprop >-> isaprop .
 
@@ -860,22 +683,6 @@ Proof.
   - apply (isofhlevelweqf 1 (X:=X)).
     { exact w. }
     { exact i. }
-Defined.
-
-Lemma isdecpropiftrueprop P : isaprop P -> P -> isdecprop P.
-Proof.
-  intros ? i p.
-  split.
-  - exact (ii1 p).
-  - exact i.
-Defined.
-
-Lemma isdecpropunit : isdecprop unit.
-Proof.
-  unfold isdecprop.
-  split.
-  - exact (ii1 tt).
-  - exact isapropunit.
 Defined.
 
 Lemma isdecpropweqb {X Y} : X≃Y -> isdecprop Y -> isdecprop X.
