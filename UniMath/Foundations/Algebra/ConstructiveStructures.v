@@ -10,8 +10,11 @@ Require Export UniMath.Foundations.Algebra.DivisionRig.
 Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
 
 Local Open Scope constructive_logic.
+Local Open Scope rig_scope.
+Local Open Scope rng_scope.
 
 (** ** Constructive rig *)
+
 
 Definition ConstructiveRig :=
   Σ X : apsetwith2binop, @isrigops X op1 op2.
@@ -20,12 +23,87 @@ Definition ConstructiveRig_rig : ConstructiveRig -> rig :=
   λ X : ConstructiveRig, (apsetwith2binop_setwith2binop (ConstructiveRig_set X)),, pr2 X.
 Coercion ConstructiveRig_rig : ConstructiveRig >-> rig.
 
-Definition CRigzero {X : ConstructiveRig} : X := rigunel1_is (pr2 X).
-Definition CRigone {X : ConstructiveRig} : X := rigunel2_is (pr2 X).
-Definition CRigplus {X : ConstructiveRig} : binop X := op1.
-Definition CRigmult {X : ConstructiveRig} : binop X := op2.
+Definition isnonzeroCR (X : ConstructiveRig) := (1%rig : X) # (0%rig : X).
 
-Definition isnonzeroCR (X : ConstructiveRig) := @CRigone X # @CRigzero X.
+(** Lemmas *)
+
+Section CRig_pty.
+
+Context {X : ConstructiveRig}.
+
+Lemma apCRigplus :
+  forall x x' y y' : X,
+    x + y # x' + y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op1.
+Qed.
+Lemma apCRigmult :
+  forall x x' y y' : X,
+    x * y # x' * y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op2.
+Qed.
+
+Lemma islunit_CRigzero_CRigplus :
+  forall x : X, 0%rig + x = x.
+Proof.
+  now apply riglunax1.
+Qed.
+Lemma isrunit_CRigzero_CRigplus :
+  forall x : X, x + 0%rig = x.
+Proof.
+  now apply rigrunax1.
+Qed.
+Lemma isassoc_CRigplus :
+  forall x y z : X, x + y + z = x + (y + z).
+Proof.
+  now apply rigassoc1.
+Qed.
+Lemma iscomm_CRigplus :
+  forall x y : X, x + y = y + x.
+Proof.
+  now apply rigcomm1.
+Qed.
+Lemma islunit_CRigone_CRigmult :
+  forall x : X, 1%rig * x = x.
+Proof.
+  now apply riglunax2.
+Qed.
+Lemma isrunit_CRigone_CRigmult :
+  forall x : X, x * 1%rig = x.
+Proof.
+  now apply rigrunax2.
+Qed.
+Lemma isassoc_CRigmult :
+  forall x y z : X, x * y * z = x * (y * z).
+Proof.
+  now apply rigassoc2.
+Qed.
+Lemma islabsorb_CRigzero_CRigmult :
+  ∀ x : X, 0%rig * x = 0%rig.
+Proof.
+  now apply rigmult0x.
+Qed.
+Lemma israbsorb_CRigzero_CRigmult :
+  ∀ x : X, x * 0%rig = 0%rig.
+Proof.
+  now apply rigmultx0.
+Qed.
+Lemma isldistr_CRigplus_CRigmult :
+  ∀ x y z : X, z * (x + y) = z * x + z * y.
+Proof.
+  now apply rigdistraxs.
+Qed.
+
+Lemma CRigmultapCRigzero :
+  forall x y : X, x * y # (0%rig : X) -> x # (0%rig : X) ∨ y # (0%rig : X).
+Proof.
+  intros x y Hmult.
+  apply apCRigmult.
+  now rewrite israbsorb_CRigzero_CRigmult.
+Qed.
+
+End CRig_pty.
 
 (** ** Constructive commutative rig *)
 
@@ -58,7 +136,7 @@ Coercion ConstructiveCommutativeRing_ConstructiveCommutativeRig : ConstructiveCo
 (** ** Constructive rig with division *)
 
 Definition isConstrDivRig (X : ConstructiveRig) :=
-  isnonzeroCR X × (∀ x : X, x # CRigzero -> multinvpair X x).
+  isnonzeroCR X × (∀ x : X, x # (0%rig : X) -> multinvpair X x).
 
 Definition ConstructiveDivisionRig := Σ X : ConstructiveRig, isConstrDivRig X.
 
