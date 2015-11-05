@@ -5,9 +5,9 @@ Unset Automatic Introduction.
 
 (** Imports *)
 
-Require Import Foundations.Generalities.uu0
-               Foundations.hlevel1.hProp
-               Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Basics.All
+               UniMath.Foundations.Propositions
+               UniMath.Foundations.Sets.
 
 Implicit Arguments tpair [ T P ].
 
@@ -15,8 +15,8 @@ Implicit Arguments tpair [ T P ].
 
 Module Export Notation.
   Notation ap := maponpaths.
-  Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport_scope.
-  Open Scope transport_scope.
+  Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport.
+  Open Scope transport.
   Notation "{ x : X & P }" := (total2 (fun x:X => P)) : type_scope.
   Notation "X ** Y" := (dirprod X Y) (right associativity, at level 80) : type_scope.
 End Notation.
@@ -33,7 +33,7 @@ Ltac check_cons f g :=
 Ltac id_check T := idtac.
 
 Ltac make_hyp_check e :=
-  let T0 := type of e in 
+  let T0 := type of e in
   let f T :=
       match T with
         | T0 => fail 1

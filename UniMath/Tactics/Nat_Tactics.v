@@ -10,7 +10,7 @@
 Unset Automatic Introduction.
 
 Require Import
-        Foundations.hlevel2.hnat
+        UniMath.Foundations.NaturalNumbers
         UniMath.Tactics.Utilities
         UniMath.Tactics.Abmonoids_Tactics.
 
@@ -1091,4 +1091,4 @@ Section Tests.
   Close Scope nat_scope.
   
 End Tests.
-*)
+ *)

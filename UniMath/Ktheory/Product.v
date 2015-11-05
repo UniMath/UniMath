@@ -1,12 +1,12 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import 
-        UniMath.Foundations.hlevel2.hSet
-        UniMath.RezkCompletion.precategories
-        UniMath.RezkCompletion.functors_transformations
+        UniMath.Foundations.Sets
+        UniMath.CategoryTheory.precategories
+        UniMath.CategoryTheory.functor_categories
+        UniMath.Ktheory.Precategories
         UniMath.Ktheory.Utilities.
-Require UniMath.Ktheory.Precategories UniMath.Ktheory.Representation UniMath.Ktheory.HomFamily.
-Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
+Require UniMath.Ktheory.Representation UniMath.Ktheory.HomFamily.
 Definition type (C:precategory) (hs: has_homsets C) {I} (c:I -> ob C) :=
   Representation.Data (HomFamily.precat C^op (Precategories.has_homsets_opp_precat C hs) c).
 Definition Object {C:precategory} (hs: has_homsets C) {I} {c:I -> ob C} (r:type C hs c)

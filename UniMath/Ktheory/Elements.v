@@ -1,16 +1,15 @@
 (** *** the category of elements of a functor *)
 
-Require Export UniMath.RezkCompletion.precategories
-               UniMath.RezkCompletion.functors_transformations 
-               UniMath.Foundations.hlevel2.hSet 
+Require Export UniMath.CategoryTheory.precategories
+               UniMath.CategoryTheory.functor_categories 
+               UniMath.Foundations.Sets 
                UniMath.Ktheory.Utilities.
 Require Export UniMath.Ktheory.Precategories.
-Export Ktheory.Utilities.Notation
-       Ktheory.Precategories.Notation.
+
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
-  intros. exists (total2 (fun c : ob C => set_to_type (X c))).
+  intros. exists (Σ c:ob C, set_to_type (X c)).
   intros a b. 
-  exact (total2 (fun f : pr1 a → pr1 b => #X f (pr2 a) = (pr2 b))).
+  exact (Σ f : pr1 a → pr1 b, #X f (pr2 a) = (pr2 b)).
 Defined.
 
 
@@ -35,7 +34,7 @@ Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr1 f.
 Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x → y) :
       get_mor f = get_mor g -> f = g.
 Proof. intros ? ? ? ? [f i] [g j] p. simpl in p. destruct p.
-       assert (k : i=j). { apply equality_proof_irrelevance. }
+       assert (k : i=j). { apply setproperty. }
        destruct k. reflexivity. Qed.
 Lemma isPrecategory {C:precategory} (X:C==>SET) : is_precategory (cat_data X).
 Proof. intros. split.
@@ -82,7 +81,7 @@ Proof.
 
 Module pr1.
   Definition fun_data {C:precategory} (X:C==>SET) : 
-      functor_data (Precategories.Precategory.obmor (cat X)) (Precategories.Precategory.obmor C).
+      functor_data (Precategories.Precategory_obmor (cat X)) (Precategories.Precategory_obmor C).
     intros. exists pr1. intros x x'. exact pr1. Defined.
   Definition func {C:precategory} (X:C==>SET) : cat X ==> C.
     intros. exists (fun_data _).

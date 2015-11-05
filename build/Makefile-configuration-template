@@ -18,6 +18,9 @@
 # it with ocamlc and gcc:
 BUILD_COQ = yes
 
+# When coq is being built, whether also to build coqide.
+BUILD_COQIDE = no
+
 # When BUILD_COQ is "no", give the path to the coq binary "coqtop", including the
 # final "/" (if nonempty), unless it is on the PATH:
 COQBIN =

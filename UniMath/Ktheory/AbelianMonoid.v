@@ -1,49 +1,310 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.hlevel2.algebra1b
-               UniMath.Foundations.hlevel2.finitesets
+Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
+               UniMath.Foundations.FiniteSets
                UniMath.Ktheory.Utilities.
-Import UniMath.Ktheory.Utilities.Notation.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.
 Local Notation Hom := monoidfun.
-Definition incl n : stn n -> stn (S n).
-  (* use dni instead *)
-  intros n [i l]. exists i.
-  apply (natlthlehtrans i n (S n)). { assumption. } { exact (natlehnsn n). }
-Defined.
+Definition dni_first n : stn n -> stn (S n) := dni n (firstelement n).
+Definition dni_last  n : stn n -> stn (S n) := dni n (lastelement n).
 Definition finiteOperation0 (X:abmonoid) n (x:stn n->X) : X.
 Proof. (* return (...((x0*x1)*x2)*...)  *)
   intros. induction n as [|n x'].
-  { exact (unel _). } { exact ((x' (funcomp (incl n) x)) + x (lastelement n)). } Defined.
-Goal forall (X:abmonoid) n (x:stn (S n)->X),
+  { exact (unel _). } { exact ((x' (funcomp (dni_last n) x)) + x (lastelement n)). } Defined.
+Goal ∀ (X:abmonoid) n (x:stn (S n)->X),
      finiteOperation0 X (S n) x 
-  = finiteOperation0 X n (funcomp (incl n) x) + x (lastelement n).
+  = finiteOperation0 X n (funcomp (dni_last n) x) + x (lastelement n).
 Proof. reflexivity. Qed.
 Lemma same_n {I m n} (f:nelstruct m I) (g:nelstruct n I) : m = n.
 Proof. intros. apply weqtoeqstn. exact (weqcomp f (invweq g)). Qed.
 Lemma fun_assoc {W X Y Z} (f:W->X) (g:X->Y) (h:Y->Z) :
   funcomp (funcomp f g) h = funcomp f (funcomp g h).
 Proof. reflexivity. Defined.
-Lemma uniqueness0 (X:abmonoid) n : forall I (f g:nelstruct n I) (x:I->X),
+Lemma nelstructoncomplmap  {I:UU} {n}
+      (x:I) (sx:nelstruct (S n) I) :
+    pr1 (nelstructoncompl x sx) ;; pr1compl I x
+  = dni n (invmap sx x) ;; pr1weq sx.
+Proof. reflexivity. Defined.                                             
+Lemma nelstructoncomplmap'  {I:UU} {n}
+      (i:stn(S n)) (sx:nelstruct (S n) I) :
+    pr1 (nelstructoncompl (pr1weq sx i) sx) ;; pr1compl I (pr1weq sx i)
+  = dni n (invmap sx (pr1weq sx i)) ;; pr1weq sx.
+Proof. reflexivity. Defined.
+Lemma nelstructoncomplmap''  {I:UU} {n}
+      (i:stn(S n)) (sx:nelstruct (S n) I) :
+    pr1 (nelstructoncompl (pr1weq sx i) sx) ;; pr1compl I (pr1weq sx i)
+  = dni n i ;; pr1weq sx.
+Proof. intros.
+       intermediate_path (dni n (invmap sx (pr1weq sx i));; pr1weq sx).
+       { reflexivity. }
+       { rewrite <- (homotinvweqweq0 sx i). reflexivity. }
+Defined.
+Lemma nelstructoncomplmap'''  {I:UU} {n} (sx:nelstruct (S n) I) :
+    pr1 (nelstructoncompl (pr1weq sx (lastelement n)) sx) ;; pr1compl I (pr1weq sx (lastelement n))
+  = dni_last n ;; pr1weq sx.
+Proof. intros. apply nelstructoncomplmap''. Defined.
+
+Lemma isdeceq_refl {X} (dec:isdeceq X) (x:X) : dec x x = ii1 (idpath x).
+Proof. intros.
+  induction (dec x) as [eq|ne].
+  { assert( c : eq = idpath x ). { apply isasetifdeceq. assumption. }
+    induction c.
+    reflexivity. }
+  { induction (ne (idpath x)). }
+Defined.
+
+Lemma isdeceq_neq {X} (dec:isdeceq X) (i j:X) (ne : i != j) : dec i j = ii2 ne.
+Proof.
+  intros.
+  induction (dec i j) as [ieqj | inej].
+  { induction (ne ieqj). }
+  { assert ( H : inej = ne ).
+    { apply funextfun. intros. induction (ne x). }
+    induction H.
+    reflexivity. }
+Defined.
+
+Definition transposition0 {X} (dec: isdeceq X) (i j:X) : X -> X.
+  intros ? ? ? ? k.
+  induction (dec k i).
+  { exact j. }
+  { induction (dec k j).
+    { exact i. }
+    { exact k. }}
+Defined.
+
+Lemma transposition1 {X} (dec: isdeceq X) (i j:X) : transposition0 dec i j i = j.
+Proof.
+  intros.
+  unfold transposition0.
+  induction (!isdeceq_refl dec i).
+  reflexivity.
+Defined.
+
+Lemma transposition2 {X} (dec: isdeceq X) (i j:X) : transposition0 dec i j j = i.
+Proof.
+  intros.
+  unfold transposition0.
+  induction (dec j i) as [jeqi|jnei].
+  - induction jeqi.
+    induction (!isdeceq_refl dec j).
+    simpl.
+    reflexivity.
+  - simpl.
+    induction (!isdeceq_refl dec j).
+    reflexivity.
+Defined.
+
+Lemma transpositionk {X} (dec: isdeceq X) (i j k : X) : k != i -> k != j -> transposition0 dec i j k = k.
+Proof.
+  intros ? ? ? ? ? knei knej.
+  unfold transposition0.
+  induction (dec k i) as [ki|ki'].
+  - induction (knei ki).
+  - simpl.
+    induction (dec k j) as [kj|kj'].
+    * induction (knej kj).
+    * reflexivity.
+Defined.
+  
+Lemma transposition_squared {X} (dec: isdeceq X) (i j:X) : transposition0 dec i j ;; transposition0 dec i j ~ idfun X.
+Proof.
+  intros.
+  unfold homot.
+  intros k.  
+  unfold funcomp.
+  induction (dec k i) as [keqi | knei].
+  { induction (!keqi).
+    induction (!transposition1 dec i j).
+    induction (!transposition2 dec i j).
+    reflexivity. }
+  { induction (dec k j) as [keqj | knej].
+    { induction (!keqj).
+      induction (!transposition2 dec i j).
+      induction (!transposition1 dec i j).
+      reflexivity. }
+    induction (!transpositionk dec i j k knei knej).
+    induction (!transpositionk dec i j k knei knej).
+    reflexivity. }    
+Defined.
+
+Definition transposition_weq {X} (dec: isdeceq X) (i j:X) : isweq (transposition0 dec i j).
+Proof.
+  intros.
+  apply (gradth _ (transposition0 dec i j)).
+  { apply transposition_squared. }
+  { apply transposition_squared. }
+Defined.
+
+Definition transposition {X} (dec: isdeceq X) (i j:X) : weq X X.
+  intros.
+  exists (transposition0 dec i j).
+  apply transposition_weq.
+Defined.
+
+Definition transposition_stn {n} (i j:stn n) : weq (stn n) (stn n).
+Proof.
+  intros.
+  refine (transposition _ i j).
+  apply isdeceqstn.
+Defined.
+
+Lemma isdeceq_nelstruct {n} {I} (f:nelstruct n I) : isdeceq I.
+Proof.
+  intros.
+  apply (isdeceqweqf f).
+  apply isdeceqstn.
+Defined.
+
+Definition rotate_left_stn_0 n (i:nat) : stn n -> stn n.
+Proof.
+  (* 0 1 2 ... n-1 becomes i i+1 i+2 ...  *)
+  intros ? ? j.
+  induction n.
+  { exact j. }
+  { exists (natrem (i + j) (S n)).
+    apply lthnatrem.
+    apply negpathssx0. }
+Defined.
+
+Open Scope nat_scope.
+
+Notation " x % y " := (natrem x y) (at level 40, left associativity) : nat_scope .
+Notation " x / y " := (natdiv x y) (at level 40, left associativity) : nat_scope .
+
+Lemma natnzero m n : m<n -> neg (0=n).
+Proof.
+  intros ? ? l.
+  exact (natlthtoneq 0 n (natlehlthtrans 0 m n (natleh0n m) l)).
+Defined.
+
+Lemma natnzero' m n : m<n -> neg (n=0).
+Proof.
+  intros ? ? l f.
+  exact (natlthtoneq 0 n (natlehlthtrans 0 m n (natleh0n m) l) (pathsinv0 f)).
+Defined.
+
+Theorem natdivremunique' (n m i j:nat) : j+i*m=n -> j<m ->
+                                         dirprod (natdiv n m = i) (natrem n m = j).
+Proof.
+  intros ? ? ? ? e l.
+  apply (natdivremunique m (natdiv n m) (natrem n m) i j).
+  { apply lthnatrem. apply (natnzero' j m l). }
+  { assumption. }
+  { rewrite e. apply pathsinv0. apply natdivremrule; simpl. exact (natnzero' j m l). }
+Defined.  
+
+Theorem natdivunique (n m i j:nat) : j+i*m=n -> j<m -> natdiv n m = i.
+Proof.
+  intros ? ? ? ? e l.
+  exact (pr1 (natdivremunique' n m i j e l)).
+Defined.
+
+Theorem natremunique (n m i j:nat) : j+i*m=n -> j<m -> natrem n m = j.
+Proof.
+  intros ? ? ? ? e l.
+  exact (pr2 (natdivremunique' n m i j e l)).
+Defined.
+
+Theorem natremunique' (m j:nat) : j<m -> natrem j m = j.
+Proof.
+  intros ? ? l.
+  refine (natremunique j m 0 j _ l).
+  apply natplusr0.
+Defined.
+
+Lemma natremplusden n m : natrem (m+n) m = natrem n m.
+Proof.
+  intros.
+  induction (isdeceqnat m 0).
+  { rewrite a. reflexivity. }
+  { set (j := natrem n m).
+    set (i := natdiv n m).
+    apply (natremunique (m+n) m (S i) j).
+    { set (r := natdivremrule n m b).
+      rewrite r; simpl.
+      clear r b.
+      change (natrem n m) with j.
+      change (natdiv n m) with i.
+      rewrite natpluscomm.
+      rewrite natplusassoc.
+      rewrite (natpluscomm (i*m) (m+j)).
+      rewrite <- natplusassoc.
+      reflexivity. }
+    { apply lthnatrem. assumption. } }
+Defined.
+
+Lemma natremplus i j m : m!=0 -> natrem (i + natrem j m) m = natrem (i+j) m.
+Proof.
+  intros ? ? ? ne.
+  apply pathsinv0.
+  set (p := natdiv (i+natrem j m) m).
+  set (q := natrem (i+natrem j m) m).
+  refine (natremunique (i+j) m (p + natdiv j m) q _ _).
+  { 
+    assert (t := natdivremrule j m ne).
+    rewrite t.
+    admit.
+    }
+  { apply lthnatrem. assumption. }
+Abort.
+
+Open Scope addmonoid_scope.
+
+Lemma rotate_left_stn_1 n : rotate_left_stn_0 n n ~ idfun (stn n).
+Proof.
+  intros ? i.
+  destruct n.
+  { reflexivity. }
+  { induction i as [i I].
+    apply (an_inclusion_is_injective _ (isinclstntonat _)).
+    { simpl.
+      intermediate_path (natrem i (S n)).
+      { apply (natremplusden i (S n)). }
+      { apply natremunique'. assumption. } } }
+Defined.
+
+Lemma rotate_left_stn_2 n i j :
+  rotate_left_stn_0 n (i+j) ~ rotate_left_stn_0 n j ;; rotate_left_stn_0 n i.
+Proof.
+  intros ? ? ? k.
+  destruct n.
+  { reflexivity. }
+  { induction k as [k K].
+    apply (an_inclusion_is_injective _ (isinclstntonat _)).
+    { simpl.
+Abort.
+
+Definition decidable_type (X:UU) := X ⨿ ¬X.
+
+Lemma uniqueness0 (X:abmonoid) n : ∀ I (f g:nelstruct n I) (x:I->X),
      finiteOperation0 X n (funcomp (pr1 f) x) 
   = finiteOperation0 X n (funcomp (pr1 g) x).
-Proof. intros ? ?. induction n as [|n IH].
-       { reflexivity. }
-       { intros. simpl.
-         assert (dec : decidable ( pr1 f (lastelement n) = pr1 g (lastelement n) )).
-         { apply (isdeceqweqf f). apply isdeceqstn. }
-         destruct dec as [e|b].
-         { apply (aptwice (fun x y => x + y)).
-           { rewrite <- 2 ! fun_assoc. 
-             assert (f' := nelstructoncompl (pr1 f (lastelement n)) f).
-             assert (g' := nelstructoncompl (pr1 g (lastelement n)) g).
-             destruct e.
-             (* try using weqcutonweq, dni, dnitocompl, weqdnicompl, weqdnicoprod, ... *)
-             admit. }
-           { exact (ap x e). } }
-         { admit. } } Admitted.
+Proof.
+  intros ? ?. induction n as [|n IH].
+  { reflexivity. }
+  { intros. 
+    assert (dec : decidable_type (pr1 f (lastelement n) = pr1 g (lastelement n))).
+    { apply (isdeceqweqf f). apply isdeceqstn. }
+    induction dec as [e|b].
+    { apply (aptwice (fun x y => x + y)).
+      { rewrite <- 2 ! fun_assoc. 
+        set (f' := nelstructoncompl (pr1 f (lastelement n)) f).
+        set (g' := nelstructoncompl (pr1 g (lastelement n)) g).
+        set (p' := nelstructoncomplmap''' f).
+        set (q' := nelstructoncomplmap''' g).
+        unfold pr1weq in p', q'.
+        induction p', q', e.
+        apply (IH (compl I (pr1 f (lastelement n)))
+                  f' g' (pr1compl I (pr1 f (lastelement n)) ;; x)). }
+      { exact (ap x e). } }
+    { 
+      
+      admit. } }
+Abort.
+
 Definition finiteOperation1 (X:abmonoid) I : finstruct I -> (I->X) -> X.
   intros ? ? [n f] x.
   apply (finiteOperation0 X n).
@@ -54,8 +315,11 @@ Definition finiteOperation {I} (is:isfinite I) (X:abmonoid) (x:I->X) : X.
   refine (squash_to_set _ _ _). 
   { apply setproperty. }
   { intros fs. apply (finiteOperation1 X I fs x). }
-  { intros [m f] [n g]. assert (e := same_n f g). destruct e. apply uniqueness0. }
-Defined.
+  { intros [m f] [n g]. assert (e := same_n f g). induction e.
+    try apply uniqueness0.      (* not proved yet *)
+    admit.
+  }
+Abort.
 
 (** * abelian monoids by generators and relations *)
 Module Presentation.
@@ -99,16 +363,16 @@ Module Presentation.
 
   Record AdequateRelation {X I} (R:I->reln X) (r : hrel (word X)) := 
     make_AdequateRelation {
-        base: forall i, r (lhs (R i)) (rhs (R i));
-        reflex : forall w, r w w;
-        symm : forall v w, r v w -> r w v;
-        trans : forall u v w, r u v -> r v w -> r u w;
-        left_compat : forall u v w, r v w -> r (word_op u v) (word_op u w);
-        right_compat: forall u v w, r u v -> r (word_op u w) (word_op v w);
-        left_unit : forall w, r (word_op word_unit w) w;
-        right_unit : forall w, r (word_op w word_unit) w;
-        assoc : forall u v w, r (word_op (word_op u v) w) (word_op u (word_op v w));
-        comm : forall v w, r (word_op v w) (word_op w v)
+        base: ∀ i, r (lhs (R i)) (rhs (R i));
+        reflex : ∀ w, r w w;
+        symm : ∀ v w, r v w -> r w v;
+        trans : ∀ u v w, r u v -> r v w -> r u w;
+        left_compat : ∀ u v w, r v w -> r (word_op u v) (word_op u w);
+        right_compat: ∀ u v w, r u v -> r (word_op u w) (word_op v w);
+        left_unit : ∀ w, r (word_op word_unit w) w;
+        right_unit : ∀ w, r (word_op w word_unit) w;
+        assoc : ∀ u v w, r (word_op (word_op u v) w) (word_op u (word_op v w));
+        comm : ∀ v w, r (word_op v w) (word_op w v)
       }.
   Arguments make_AdequateRelation {X I} R r _ _ _ _ _ _ _ _ _ _.
   Arguments base {X I R r} _ _.
@@ -125,8 +389,8 @@ Module Presentation.
 
   Definition smallestAdequateRelation0 {X I} (R:I->reln X) : hrel (word X).
     intros ? ? ? v w.
-    exists (forall r: hrel (word X), AdequateRelation R r -> r v w).
-    abstract (apply impred; intro r; apply impred; intros _; apply propproperty).
+    exists (∀ r: hrel (word X), AdequateRelation R r -> r v w).
+    abstract (apply impred; intro r; apply impred_prop).
   Defined.
   Lemma adequacy {X I} (R:I->reln X) : 
     AdequateRelation R (smallestAdequateRelation0 R).
@@ -191,27 +455,27 @@ Module Presentation.
   Lemma isassoc_univ_binop {X I} (R:I->reln X) : isassoc(univ_binop R).
   Proof. intros. set (e := smallestAdequateRelation R). intros u' v' w'. 
          isaprop_goal ig. { apply setproperty. } 
-         apply (squash_to_prop (lift R u') ig); intros [u i]; destruct i.
-         apply (squash_to_prop (lift R v') ig); intros [v j]; destruct j.
+         apply (squash_to_prop (lift R u') ig); intros [u i]; induction i.
+         apply (squash_to_prop (lift R v') ig); intros [v j]; induction j.
          apply (squash_to_prop (lift R w') ig); intros [w []].
          exact (iscompsetquotpr e _ _ (fun r ra => assoc R r ra u v w)). Qed.
   Lemma iscomm_univ_binop {X I} (R:I->reln X) : iscomm(univ_binop R).
   Proof. intros. set (e := smallestAdequateRelation R). intros v' w'. 
          isaprop_goal ig. { apply setproperty. }
-         apply (squash_to_prop (lift R v') ig); intros [v j]; destruct j.
+         apply (squash_to_prop (lift R v') ig); intros [v j]; induction j.
          apply (squash_to_prop (lift R w') ig); intros [w []].
          exact (iscompsetquotpr e _ _ (fun r ra => comm R r ra v w)). Qed.
   Fixpoint reassemble_pr {X I} (R:I->reln X) (v:word X) : 
     evalword (universalMarkedPreAbelianMonoid R) v = setquotpr _ v.
   Proof. intros ? ? ? [|x|v w]. { reflexivity. } { reflexivity. }
-         { simpl. assert (p := ! reassemble_pr _ _ R v). destruct p.
-                  assert (q := ! reassemble_pr _ _ R w). destruct q.
+         { simpl. assert (p := ! reassemble_pr _ _ R v). induction p.
+                  assert (q := ! reassemble_pr _ _ R w). induction q.
                   reflexivity. } Qed.
   Lemma pr_eval_compat {X I} (R:I->reln X) (w:word X) :
     setquotpr (smallestAdequateRelation R) (evalword (wordop X) w) 
     = evalword (universalMarkedPreAbelianMonoid R) w.
   Proof. intros. destruct w as [|x|v w]. { reflexivity. } { reflexivity. } 
-    { assert (p := !reassemble R (word_op v w)). destruct p. 
+    { assert (p := !reassemble R (word_op v w)). induction p. 
       exact (!reassemble_pr R (word_op v w)). } Qed.
 
   (** *** abelian groups over X modulo R *)
@@ -224,7 +488,7 @@ Module Presentation.
     make_MarkedAbelianMonoid {
         m_base :> abmonoid;
         m_mark : X -> m_base;
-        m_reln : forall i, evalword (toMarkedPreAbelianMonoid R m_base m_mark) (lhs (R i)) =
+        m_reln : ∀ i, evalword (toMarkedPreAbelianMonoid R m_base m_mark) (lhs (R i)) =
                            evalword (toMarkedPreAbelianMonoid R m_base m_mark) (rhs (R i)) }.
   Arguments make_MarkedAbelianMonoid {X I} R _ _ _.
   Arguments m_base {X I R} _.
@@ -243,23 +507,23 @@ Module Presentation.
          { exact (fun i => m_reln M i). } { reflexivity. }
          { intros ? ?. exact pathsinv0. } { intros ? ? ?. exact pathscomp0. }
          { intros ? ? ? p. simpl in p; simpl. 
-           unfold evalwordMM,evalword in *. destruct p. reflexivity. }
+           unfold evalwordMM,evalword in *. induction p. reflexivity. }
          { intros ? ? ? p. simpl in p; simpl. 
-           unfold evalwordMM,evalword in *. destruct p. reflexivity. }
+           unfold evalwordMM,evalword in *. induction p. reflexivity. }
          { intros. apply lunax. } { intros. apply runax. } { intros. apply assocax. } 
          { intros. apply commax. }
   Qed.
   Record MarkedAbelianMonoidMap {X I} {R:I->reln X} (M N:MarkedAbelianMonoid R) :=
     make_MarkedAbelianMonoidMap {
         map_base :> Hom M N;
-        map_mark : forall x, map_base (m_mark M x) = m_mark N x }.
+        map_mark : ∀ x, map_base (m_mark M x) = m_mark N x }.
   Arguments map_base {X I R M N} m.
   Arguments map_mark {X I R M N} m x.
   Lemma MarkedAbelianMonoidMapEquality {X I} {R:I->reln X} {M N:MarkedAbelianMonoid R}
         (f g:MarkedAbelianMonoidMap M N) : map_base f = map_base g -> f = g.
   Proof. intros ? ? ? ? ? ? ? j.
-         destruct f as [f ft], g as [g gt]; simpl in j. destruct j.
-         assert(k : ft = gt). { apply funextsec; intro x. apply setproperty. } destruct k. 
+         induction f as [f ft], g as [g gt]; simpl in j. induction j.
+         assert(k : ft = gt). { apply funextsec; intro x. apply setproperty. } induction k. 
          reflexivity. Qed.
   Fixpoint MarkedAbelianMonoidMap_compat {X I} {R:I->reln X}
            {M N:MarkedAbelianMonoid R} (f:MarkedAbelianMonoidMap M N) (w:word X) :
@@ -310,7 +574,7 @@ Module Presentation.
                 (universalMarkedAbelianMonoid3 R).
   Fixpoint agreement_on_gens0 {X I} {R:I->reln X} {M:abmonoid}
         (f g:Hom (universalMarkedAbelianMonoid R) M)
-        (p:forall i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
+        (p:∀ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i)))
         (w:word X) :
           pr1 f (setquotpr (smallestAdequateRelation R) w) =
@@ -330,7 +594,7 @@ Module Presentation.
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:abmonoid}
         (f g:Hom (universalMarkedAbelianMonoid R) M) :
-        (forall i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
+        (∀ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i))) 
           -> f = g.
     intros ? ? ? ? ? ? p. apply Monoid.funEquality.
@@ -347,7 +611,7 @@ Module Presentation.
                            (M:MarkedAbelianMonoid R) (v w:universalMarkedAbelianMonoid0 R) :
     universality0 M (v + w) = universality0 M v + universality0 M w.
   Proof. intros. isaprop_goal ig. { apply setproperty. }
-    apply (squash_to_prop (lift R v) ig); intros [v' j]; destruct j.
+    apply (squash_to_prop (lift R v) ig); intros [v' j]; induction j.
     apply (squash_to_prop (lift R w) ig); intros [w' []].
     reflexivity. Qed.
   Definition universality2 {X I} {R:I->reln X} (M:MarkedAbelianMonoid R) : 
@@ -388,7 +652,7 @@ Module NN_agreement.
   Lemma mult_fun {X Y:abmonoid} (f:Hom X Y) (n:nat) (x:X) : f(n*x) = n*f x.
   Proof. intros. induction n. { exact (Monoid.unitproperty f). }
          { refine (Monoid.multproperty f x (n*x) @ _).
-           { simpl. simpl in IHn. destruct IHn. reflexivity. } } Qed.
+           { simpl. simpl in IHn. induction IHn. reflexivity. } } Qed.
   Lemma uniq_fun {X:abmonoid} (f g:Hom nataddabmonoid X) :
     f 1 = g 1 -> homot f g.
   Proof. intros ? ? ? e n.
@@ -397,13 +661,13 @@ Module NN_agreement.
          { exact (Monoid.multproperty f 1 n 
                 @ aptwice (fun x y => x+y) e IHn 
                 @ !Monoid.multproperty g 1 n). } Qed.
-  Definition weq_NN_nataddabmonoid : weq NN nataddabmonoid.
+  Definition weq_NN_nataddabmonoid : NN ≃ nataddabmonoid.
   Proof.
     set (R := Presentation.relations NN).
     set (one := Presentation.m_mark NN tt).
     set (markednat := 
            make_MarkedAbelianMonoid R nataddabmonoid (fun _ => 1) fromemptysec).
-    exists (map_base (the (iscontrMarkedAbelianMonoidMap markednat))).
+    exists (map_base (thePoint (iscontrMarkedAbelianMonoidMap markednat))).
     refine (gradth _ _ _ _).
     { intros m. { exact (m * one). } }
     { intros w.
@@ -423,5 +687,5 @@ Module NN_agreement.
     { intros m.
       admit.
       }
-    Admitted.
+  Abort.
 End NN_agreement.

@@ -1,12 +1,12 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import 
-        UniMath.Foundations.hlevel2.hSet
-        UniMath.RezkCompletion.precategories
-        UniMath.RezkCompletion.functors_transformations
-        UniMath.Ktheory.Utilities.
-Require UniMath.Ktheory.Precategories UniMath.Ktheory.Sets.
-Import Ktheory.Utilities.Notation Ktheory.Precategories.Notation.
+        UniMath.Foundations.Sets
+        UniMath.CategoryTheory.precategories
+        UniMath.CategoryTheory.functor_categories
+        UniMath.Ktheory.Utilities
+        UniMath.Ktheory.Precategories
+        UniMath.Ktheory.Sets.
 Definition set (C:precategory) (hs:has_homsets C) {I} (c:I -> ob C) : ob C -> ob SET.
   intros ? ? ? ? x. 
    apply (Sets.Product (fun i => hSetpair (Hom (c i) x) (hs _ _ ) )).
@@ -16,7 +16,7 @@ Definition map (C:precategory)(hs: has_homsets C) {I} (c:I -> ob C) (x y:ob C) (
   intros ? ? ? ? ? ? ? g j; unfold funcomp.
   exact (f ∘ (g j)). Defined.
 Definition data (C:precategory) (hs: has_homsets C) {I} (c:I -> ob C)
-     : functor_data (Precategories.Precategory.obmor C) (Precategories.Precategory.obmor SET).
+     : functor_data (Precategories.Precategory_obmor C) (Precategories.Precategory_obmor SET).
   intros.  exact (set C hs c,, map C hs c). Defined.
 Definition precat (C:precategory) (hs: has_homsets C) {I} (c:I -> ob C) : C ==> SET.
   intros. exists (data C hs c). split.

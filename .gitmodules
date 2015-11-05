@@ -8,3 +8,7 @@
 [submodule "sub/coq-tools"]
 	path = sub/coq-tools
 	url = https://github.com/JasonGross/coq-tools
+[submodule "sub/lablgtk"]
+	path = sub/lablgtk
+	url = http://forge.ocamlcore.org/anonscm/git/lablgtk/lablgtk.git
+	branch = master
