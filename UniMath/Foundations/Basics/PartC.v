@@ -199,20 +199,20 @@ Proof.
   intros.
   unpack_pair C P Q con c; unpack_pair C' P' Q' con' c'; simpl in *.
   unfold ComplementaryPair.
-  exists ((P×P') ,, ((P×Q') ⨿ (Q×P') ⨿ (Q×Q'))).
+  exists ((P × P') ,, (Q ⨿ Q')).
   split.
   - simpl. intros a b. induction a as [p p']. induction b as [b|b].
-    + induction b as [b|b].
-      * induction b as [_ q']. contradicts (con' p') q'.
-      * induction b as [q _]. contradicts (con p) q.
-    + induction b as [q q']. contradicts (con p) q.
+    + induction c' as [_|q'].
+      * contradicts (con p) b.
+      * contradicts (con p) b.
+    + contradicts (con' p') b.
   - simpl. induction c as [p|q].
     + induction c' as [p'|q'].
       * apply ii1. exact (p,,p').
-      * apply ii2, ii1, ii1. exact (p,,q').
+      * apply ii2, ii2. exact q'.
     + induction c' as [p'|q'].
-      * apply ii2, ii1, ii2. exact (q,,p').
-      * apply ii2, ii2. exact (q,,q').
+      * apply ii2, ii1. exact q.
+      * apply ii2, ii2. exact q'.
 Defined.
 
 Definition pairDisjunction (C C':ComplementaryPair) : ComplementaryPair.
