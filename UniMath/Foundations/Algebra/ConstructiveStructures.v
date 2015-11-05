@@ -115,6 +115,8 @@ Definition ConstructiveCommutativeRig :=
 Definition ConstructiveCommutativeRig_CommutativeRig (X : ConstructiveCommutativeRig) : ConstructiveRig :=
   pr1 X,, pr1 (pr2 X).
 Coercion ConstructiveCommutativeRig_CommutativeRig : ConstructiveCommutativeRig >-> ConstructiveRig.
+Definition ConstructiveCommutativeRig_commrig : ConstructiveCommutativeRig -> commrig :=
+  λ X : ConstructiveCommutativeRig, (apsetwith2binop_setwith2binop (ConstructiveRig_set X)),, pr2 X.
 
 (** Lemmas *)
 
@@ -173,7 +175,7 @@ Qed.
 Lemma iscomm_CCRigmult :
   forall x y : X, x * y = y * x.
 Proof.
-  now apply rigcomm2.
+  now apply (rigcomm2 (ConstructiveCommutativeRig_commrig X)).
 Qed.
 Lemma islabsorb_CCRigzero_CCRigmult :
   ∀ x : X, 0%rig * x = 0%rig.
@@ -201,6 +203,78 @@ Definition ConstructiveRing_rng : ConstructiveRing -> rng :=
   λ X : ConstructiveRing, (apsetwith2binop_setwith2binop (ConstructiveRing_set X)),, pr2 X.
 Coercion ConstructiveRing_rng : ConstructiveRing >-> rng.
 
+(** Lemmas *)
+
+Section CRing_pty.
+
+Context {X : ConstructiveRing}.
+
+Lemma apCRingplus :
+  forall x x' y y' : X,
+    x + y # x' + y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op1.
+Qed.
+Lemma apCRingmult :
+  forall x x' y y' : X,
+    x * y # x' * y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op2.
+Qed.
+
+Lemma islunit_CRingzero_CRingplus :
+  forall x : X, 0 + x = x.
+Proof.
+  now apply rnglunax1.
+Qed.
+Lemma isrunit_CRingzero_CRingplus :
+  forall x : X, x + 0 = x.
+Proof.
+  now apply rngrunax1.
+Qed.
+Lemma isassoc_CRingplus :
+  forall x y z : X, x + y + z = x + (y + z).
+Proof.
+  now apply rngassoc1.
+Qed.
+Lemma islinv_CRingopp :
+  ∀ x : X, - x + x = 0.
+Proof.
+  now apply rnglinvax1.
+Qed.
+Lemma isrinv_CRingopp :
+  ∀ x : X, x + - x = 0.
+Proof.
+  now apply rngrinvax1.
+Qed.
+Lemma iscomm_CRingplus :
+  forall x y : X, x + y = y + x.
+Proof.
+  now apply rngcomm1.
+Qed.
+Lemma islunit_CRingone_CRingmult :
+  forall x : X, 1 * x = x.
+Proof.
+  now apply rnglunax2.
+Qed.
+Lemma isrunit_CRingone_CRingmult :
+  forall x : X, x * 1 = x.
+Proof.
+  now apply rngrunax2.
+Qed.
+Lemma isassoc_CRingmult :
+  forall x y z : X, x * y * z = x * (y * z).
+Proof.
+  now apply rngassoc2.
+Qed.
+Lemma isldistr_CRingplus_CRingmult :
+  ∀ x y z : X, z * (x + y) = z * x + z * y.
+Proof.
+  now apply rngdistraxs.
+Qed.
+
+End CRing_pty.
+
 (** ** Constructive commutative ring *)
 
 Definition ConstructiveCommutativeRing := Σ X : apsetwith2binop, @iscommrngops X op1 op2.
@@ -212,6 +286,87 @@ Definition ConstructiveCommutativeRing_ConstructiveCommutativeRig :
   ConstructiveCommutativeRing -> ConstructiveCommutativeRig :=
   λ X : ConstructiveCommutativeRing, pr1 X,, (iscommrngopstoiscommrigops _ _ _ (pr2 X)).
 Coercion ConstructiveCommutativeRing_ConstructiveCommutativeRig : ConstructiveCommutativeRing >-> ConstructiveCommutativeRig.
+Definition ConstructiveCommutativeRing_commrng :
+  ConstructiveCommutativeRing -> commrng :=
+  λ X : ConstructiveCommutativeRing, (apsetwith2binop_setwith2binop (pr1 X)),, (pr2 X).
+Coercion ConstructiveCommutativeRing_commrng : ConstructiveCommutativeRing >-> commrng.
+
+(** Lemmas *)
+
+Section CCRing_pty.
+
+Context {X : ConstructiveCommutativeRing}.
+
+Lemma apCCRingplus :
+  forall x x' y y' : X,
+    x + y # x' + y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op1.
+Qed.
+Lemma apCCRingmult :
+  forall x x' y y' : X,
+    x * y # x' * y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op2.
+Qed.
+
+Lemma islunit_CCRingzero_CCRingplus :
+  forall x : X, 0 + x = x.
+Proof.
+  now apply rnglunax1.
+Qed.
+Lemma isrunit_CCRingzero_CCRingplus :
+  forall x : X, x + 0 = x.
+Proof.
+  now apply rngrunax1.
+Qed.
+Lemma isassoc_CCRingplus :
+  forall x y z : X, x + y + z = x + (y + z).
+Proof.
+  now apply rngassoc1.
+Qed.
+Lemma islinv_CCRingopp :
+  ∀ x : X, - x + x = 0.
+Proof.
+  now apply rnglinvax1.
+Qed.
+Lemma isrinv_CCRingopp :
+  ∀ x : X, x + - x = 0.
+Proof.
+  now apply rngrinvax1.
+Qed.
+Lemma iscomm_CCRingplus :
+  forall x y : X, x + y = y + x.
+Proof.
+  now apply rngcomm1.
+Qed.
+Lemma islunit_CCRingone_CCRingmult :
+  forall x : X, 1 * x = x.
+Proof.
+  now apply rnglunax2.
+Qed.
+Lemma isrunit_CCRingone_CCRingmult :
+  forall x : X, x * 1 = x.
+Proof.
+  now apply rngrunax2.
+Qed.
+Lemma isassoc_CCRingmult :
+  forall x y z : X, x * y * z = x * (y * z).
+Proof.
+  now apply rngassoc2.
+Qed.
+Lemma iscomm_CCRingmult :
+  forall x y : X, x * y = y * x.
+Proof.
+  apply (rngcomm2 (ConstructiveCommutativeRing_commrng X)).
+Qed.
+Lemma isldistr_CCRingplus_CCRingmult :
+  ∀ x y z : X, z * (x + y) = z * x + z * y.
+Proof.
+  now apply rngdistraxs.
+Qed.
+
+End CCRing_pty.
 
 (** ** Constructive rig with division *)
 
