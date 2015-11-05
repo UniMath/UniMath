@@ -133,19 +133,13 @@ doc: $(GLOBFILES) $(VFILES)
 	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d $(ENHANCEDDOCTARGET) \
 	--with-header $(ENHANCEDDOCSOURCE)/header.html $(VFILES)
 	sed -i'.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
-latex: Makefile $(GLOBFILES) $(VFILES)
-	mkdir -p $(LATEXTARGET)
-	$(COQDOC) -latex $(COQDOC_OPTIONS) $(COQDOCLATEXOPTIONS) -d $(LATEXTARGET) $(VFILES)
-pdf: latex
-	cd $(LATEXTARGET) ;\
-	latexmk -pdf $(subst /,.,$(VFILES:.v=.tex))
-world: all html doc pdf
+
+world: all html doc pdffiles
 
 texfiles : $(VFILES:%.v=$(LATEXTARGET)/%.tex)
 
 $(foreach F, $(VFILES:.v=),								\
         $(eval $(LATEXTARGET)/$F.tex : $F.glob $F.v ;					\
-                set -x &&								\
 		mkdir -p $(shell dirname $(LATEXTARGET)/$F) &&				\
 		$(COQDOC) $(COQDOCLATEXOPTIONS) -latex $F.v -o $$@	\
                 ))
@@ -154,7 +148,6 @@ pdffiles : $(VFILES:%.v=$(LATEXTARGET)/%.pdf)
 
 $(foreach F, $(VFILES:.v=),								\
 	$(eval $(LATEXTARGET)/$F.pdf : $(LATEXTARGET)/$F.tex ;				\
-		set -x &&								\
 		cd $(shell dirname $(LATEXTARGET)/$F) &&				\
 		pdflatex $(shell basename $(LATEXTARGET)/$F.tex)			\
 		)) 
