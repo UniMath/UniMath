@@ -259,14 +259,16 @@ Proof.
   apply complementaryDecisions.
 Defined.
 
-Lemma isaprop_isFalse (C:ComplementaryPair) : isaprop (isTrue C).
+Lemma isaprop_isFalse (C:ComplementaryPair) : isaprop (isFalse C).
 (* No axioms are used. *)
 (* By contrast, to prove [¬P] is a proposition requires the use of functional extensionality. *)
 Proof.
   intros.
-  apply (isapropcomponent1 _ (isFalse C)).
+  apply (isapropcomponent1 _ (isTrue C)).
   apply isapropifcontr.
-  apply complementaryDecisions.
+  apply (@iscontrweqb (isFalse C ⨿ isTrue C) (isTrue C ⨿ isFalse C)).
+  - apply weqcoprodcomm.
+  - apply complementaryDecisions.
 Defined.
 
 Lemma pair_truth (C:ComplementaryPair) (i:isaprop (Part1 C)) : Part1 C <-> isTrue C.
