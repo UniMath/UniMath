@@ -235,14 +235,6 @@ Definition Nonequality (X:UU)
   := Σ P : X -> X -> UU,
            ∀ x y, isaprop (P x y) × complementary (x=y) (P x y).
 
-Lemma pair_truth_contradiction (C:ComplementaryPair) : isTrue C -> isFalse C -> ∅.
-Proof.
-  intros ? t u. unpack_pair C P Q con c; induction t as [p r]; induction u as [q s];
-  unfold Part1, Part2 in *; simpl in *.
-  assert (u := r @ !s).
-  apply (negpathsii1ii2 _ _ u).
-Defined.
-
 Lemma complementaryDecisions (C:ComplementaryPair) : iscontr (isTrue C ⨿ isFalse C).
 Proof.
   intros.
@@ -254,7 +246,7 @@ Lemma isaprop_isTrue (C:ComplementaryPair) : isaprop (isTrue C).
 (* No axioms are used. *)
 Proof.
   intros.
-  apply (isapropcomponent1 _ (isFalse C)).
+  apply (isapropcomponent1 (isTrue C) (isFalse C)).
   apply isapropifcontr.
   apply complementaryDecisions.
 Defined.
@@ -264,11 +256,9 @@ Lemma isaprop_isFalse (C:ComplementaryPair) : isaprop (isFalse C).
 (* By contrast, to prove [¬P] is a proposition requires the use of functional extensionality. *)
 Proof.
   intros.
-  apply (isapropcomponent1 _ (isTrue C)).
+  apply (isapropcomponent2 (isTrue C) (isFalse C)).
   apply isapropifcontr.
-  apply (@iscontrweqb (isFalse C ⨿ isTrue C) (isTrue C ⨿ isFalse C)).
-  - apply weqcoprodcomm.
-  - apply complementaryDecisions.
+  apply complementaryDecisions.
 Defined.
 
 Lemma pair_truth (C:ComplementaryPair) (i:isaprop (Part1 C)) : Part1 C <-> isTrue C.
@@ -295,45 +285,6 @@ Defined.
 
 Definition isdecprop (P:UU) := (P ⨿ ¬P) × isaprop P.
 
-Lemma isdecpropempty : isdecprop ∅.
-Proof.
-  unfold isdecprop.
-  split.
-  - exact (ii2 (idfun ∅)).
-  - exact isapropempty.
-Defined.
-
-Lemma isdecpropunit : isdecprop unit.
-Proof.
-  unfold isdecprop.
-  split.
-  - exact (ii1 tt).
-  - exact isapropunit.
-Defined.
-
-Lemma isdecpropfromneg P : ¬P -> isdecprop P.
-Proof.
-  intros ? n. split.
-  - exact (ii2 n).
-  - now apply isapropifnegtrue.
-Defined.
-
-Lemma isdecpropfromiscontr {P} : iscontr P -> isdecprop P.
-Proof.
-  intros ? i.
-  split.
-  - exact (ii1 (iscontrpr1 i)).
-  - now apply isapropifcontr.
-Defined.
-
-Lemma isdecpropiftrueprop P : isaprop P -> P -> isdecprop P.
-Proof.
-  intros ? i p.
-  split.
-  - exact (ii1 p).
-  - exact i.
-Defined.
-
 Definition decprop_to_ComplementaryPair {P} (i:isdecprop P) : ComplementaryPair
   (* We discard the proof that P is a proposition. *)
   (* By using [isTrue _] instead, we're effectively replacing P by a propositional subtype of it: *)
@@ -343,28 +294,6 @@ Definition decprop_to_ComplementaryPair {P} (i:isdecprop P) : ComplementaryPair
 
 Lemma isdecprop_to_isaprop X : isdecprop X -> isaprop X.
 Proof. intros ? i. exact (pr2 i). Defined.
-
-Lemma isdecpropweqf {X Y} : X≃Y -> isdecprop X -> isdecprop Y.
-Proof.
-  intros ? ? w i. unfold isdecprop in *. induction i as [xnx i]. split.
-  - clear i. induction xnx as [x|nx].
-    * apply ii1. now apply w.
-    * apply ii2. intro x'. apply nx. now apply (invmap w).
-  - apply (isofhlevelweqf 1 (X:=X)).
-    { exact w. }
-    { exact i. }
-Defined.
-
-Lemma isdecpropweqb {X Y} : X≃Y -> isdecprop Y -> isdecprop X.
-Proof.
-  intros ? ? w i. unfold isdecprop in *. induction i as [yny i]. split.
-  - clear i. induction yny as [y|ny].
-    * apply ii1. now apply (invmap w).
-    * apply ii2. intro x. apply ny. now apply w.
-  - apply (isofhlevelweqb 1 (Y:=Y)).
-    { exact w. }
-    { exact i. }
-Defined.
 
 (** *** Basic results on types with an isolated point. *)
 
@@ -906,11 +835,71 @@ Lemma isdecpropif' ( X : UU ) : isaprop X -> X ⨿ ¬ X -> iscontr (X ⨿ ¬ X) 
 (* This contractibility was the old definition of isdecpropif.  We can probably do without it. *)
 Proof. intros X is a . assert ( is1 : isaprop ( coprod X ( neg X ) ) ) . apply isapropdec . assumption .   apply ( iscontraprop1 is1 a ) . Defined.
 
+Lemma isdecpropfromiscontr {P} : iscontr P -> isdecprop P.
+Proof.
+  intros ? i.
+  split.
+  - exact (ii1 (iscontrpr1 i)).
+  - now apply isapropifcontr.
+Defined.
+
+Lemma isdecpropempty : isdecprop ∅.
+Proof.
+  unfold isdecprop.
+  split.
+  - exact (ii2 (idfun ∅)).
+  - exact isapropempty.
+Defined.
+
+Lemma isdecpropweqf {X Y} : X≃Y -> isdecprop X -> isdecprop Y.
+Proof.
+  intros ? ? w i. unfold isdecprop in *. induction i as [xnx i]. split.
+  - clear i. induction xnx as [x|nx].
+    * apply ii1. now apply w.
+    * apply ii2. intro x'. apply nx. now apply (invmap w).
+  - apply (isofhlevelweqf 1 (X:=X)).
+    { exact w. }
+    { exact i. }
+Defined.
+
+Lemma isdecpropiftrueprop P : isaprop P -> P -> isdecprop P.
+Proof.
+  intros ? i p.
+  split.
+  - exact (ii1 p).
+  - exact i.
+Defined.
+
+Lemma isdecpropunit : isdecprop unit.
+Proof.
+  unfold isdecprop.
+  split.
+  - exact (ii1 tt).
+  - exact isapropunit.
+Defined.
+
+Lemma isdecpropweqb {X Y} : X≃Y -> isdecprop Y -> isdecprop X.
+Proof.
+  intros ? ? w i. unfold isdecprop in *. induction i as [yny i]. split.
+  - clear i. induction yny as [y|ny].
+    * apply ii1. now apply (invmap w).
+    * apply ii2. intro x. apply ny. now apply w.
+  - apply (isofhlevelweqb 1 (Y:=Y)).
+    { exact w. }
+    { exact i. }
+Defined.
+
 Lemma isdecproplogeqf { X Y : UU } ( isx : isdecprop X ) ( isy : isaprop Y ) ( lg : X <-> Y ) : isdecprop Y .
 Proof . intros. set ( w := weqimplimpl ( pr1 lg ) ( pr2 lg ) isx isy ) . apply ( isdecpropweqf w isx ) . Defined .
 
 Lemma isdecproplogeqb { X Y : UU } ( isx : isaprop X ) ( isy : isdecprop Y ) ( lg : X <-> Y ) : isdecprop X .
 Proof . intros. set ( w := weqimplimpl ( pr1 lg ) ( pr2 lg ) isx isy ) . apply ( isdecpropweqb w isy ) . Defined .
+
+Lemma isdecpropfromneg P : ¬P -> isdecprop P.
+Proof. intros ? n. split.
+       - exact (ii2 n).
+       - now apply isapropifnegtrue.
+Defined .
 
 Lemma isdecproppaths { X : UU } ( is : isdeceq X ) ( x x' : X ) : isdecprop ( paths x x' ) .
 Proof. intros . apply ( isdecpropif _ ( isasetifdeceq _ is x x' ) ( is x x' ) ) .  Defined .
