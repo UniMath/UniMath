@@ -382,61 +382,92 @@ Definition hinhimplinhdneg (X:UU)(inx1: ishinh X): isinhdneg X := inx1 hfalse.
 
 (** decidability *)
 
-(** Basic facts about complementary propositions  *)
-
-Lemma isapropretract {P Q} (i: isaprop Q) (f:P->Q) (g:Q->P) (h: g∘f ~ idfun _): isaprop P.
-Proof.
-  intros.
-  apply invproofirrelevance; intros p p'.
-  refine (_ @ (_ : g (f p) = g (f p')) @ _).
-  - apply pathsinv0. apply h.
-  - apply maponpaths. now apply proofirrelevance.
-  - apply h.
-Defined.
-
-Lemma isapropcomponent1 P Q : isaprop ( P ⨿ Q ) -> isaprop P.
-Proof.
-  intros ? ? i. apply iscontraprop1inv; intro p. apply iscontraprop1.
-  { refine (isapropretract i _ _ _).
-    { exact (@ii1 P Q). }
-    { intro pq. induction pq as [p'|q'].
-      { exact p'. }
-      { exact p. }}
-    { intro p'. unfold idfun, funcomp; simpl. reflexivity. } }
-  exact p.
-Defined.
-
-Lemma isapropcomponent2 P Q : isaprop ( P ⨿ Q ) -> isaprop Q.
-Proof.
-  intros ? ? i. apply iscontraprop1inv; intro q. apply iscontraprop1.
-  { refine (isapropretract i _ _ _).
-    { exact (@ii2 P Q). }
-    { intro pq. induction pq as [p'|q'].
-      { exact q. }
-      { exact q'. }}
-    { intro q'. unfold idfun, funcomp; simpl. reflexivity. } }
-  exact q.
-Defined.
-
 Definition complementary P Q := (P -> Q -> ∅) × (P ⨿ Q).
 
-Definition dnegelim {P Q} : complementary P Q -> ¬¬ Q -> Q.
-Proof.
-  intros ? ? c nnp. induction c as [n c].
-  induction c as [p|q].
-  - contradicts nnp (n p).
-  - assumption.
-Defined.
-
 Definition ComplementaryPair := Σ (PQ:UU×UU), complementary (pr1 PQ) (pr2 PQ).
-
-Ltac unpack_pair C P Q con c := induction C as [_PQ_ c]; induction _PQ_ as [P Q];
-                                induction c as [con c]; simpl in c, P, Q.
-
 Definition Part1 (C:ComplementaryPair) : UU := pr1 (pr1 C).
 Definition Part2 (C:ComplementaryPair) : UU := pr2 (pr1 C).
 Definition pair_contradiction (C:ComplementaryPair) := pr1 (pr2 C).
 Definition chooser (C:ComplementaryPair) := pr2 (pr2 C).
+
+Definition isTrue  (C:ComplementaryPair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
+Definition isFalse (C:ComplementaryPair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
+
+Definition  trueWitness {C:ComplementaryPair} : isTrue  C -> Part1 C := pr1.
+Definition falseWitness {C:ComplementaryPair} : isFalse C -> Part2 C := pr1.
+
+Coercion  trueWitness : isTrue  >-> Part1.
+Coercion falseWitness : isFalse >-> Part2.
+
+Lemma complementaryDecisions (C:ComplementaryPair) : iscontr (isTrue C ⨿ isFalse C).
+Proof.
+  intros.
+  apply iscontrifweqtounit. assert (w := weqcoprodsplit (λ _:unit, chooser C)).
+  apply invweq. apply (weqcomp w). apply weqcoprodf; apply weqhfiberunit.
+Defined.
+
+Lemma isaprop_isTrue (C:ComplementaryPair) : isaprop (isTrue C).
+(* No axioms are used. *)
+Proof.
+  intros.
+  apply (isapropcomponent1 (isTrue C) (isFalse C)).
+  apply isapropifcontr.
+  apply complementaryDecisions.
+Defined.
+
+Lemma isaprop_isFalse (C:ComplementaryPair) : isaprop (isFalse C).
+(* No axioms are used. *)
+(* By contrast, to prove [¬P] is a proposition requires the use of functional extensionality. *)
+Proof.
+  intros.
+  apply (isapropcomponent2 (isTrue C) (isFalse C)).
+  apply isapropifcontr.
+  apply complementaryDecisions.
+Defined.
+
+Ltac unpack_pair C P Q con c := induction C as [_PQ_ c]; induction _PQ_ as [P Q];
+                                induction c as [con c]; simpl in c, P, Q.
+
+Lemma pair_truth (C:ComplementaryPair) (i:isaprop (Part1 C)) : Part1 C -> isTrue C.
+Proof.
+  intros ? ? p.
+  unpack_pair C P Q con c; unfold isTrue, hfiber, Part1, Part2, chooser in *; simpl in *.
+  exists p. induction c as [p'|q].
+  * apply maponpaths, i.
+  * apply fromempty. contradicts (con p) q.
+Defined.
+
+Lemma pair_falsehood (C:ComplementaryPair) (i:isaprop (Part2 C)) : Part2 C -> isFalse C.
+Proof.
+  intros ? ? q.
+  unpack_pair C P Q con c; unfold isFalse, hfiber, Part1, Part2, chooser in *; simpl in *.
+  exists q. induction c as [p|q'].
+  * apply fromempty. contradicts (con p) q.
+  * apply maponpaths, i.
+Defined.
+
+Definition to_ComplementaryPair {P} (c:P ⨿ neg P) : ComplementaryPair
+  (* By using [isTrue _] instead, we're effectively replacing P by a propositional subtype of it: *)
+  (* the part connected to the element of [P ⨿ ¬P]. *)
+  (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P] by a propositional subtype of it.  *)
+  (* Both are proved to be propositions without [funextempty] *)
+  := ((P,,neg P),,((λ p n, n p),,c)).
+
+(* Relate isolated points to complementary pairs *)
+
+Definition isolation {X:UU} (x:X) (is:isisolated X x) (y:X) : UU := isFalse (to_ComplementaryPair (is y)).
+
+Definition isaprop_isolation {X:UU} (x:X) (is:isisolated X x) (y:X) : isaprop (isolation x is y) :=
+  isaprop_isFalse _.
+
+Definition isolation_to_inequality {X:UU} (x:X) (is:isisolated X x) (y:X) : isolation x is y -> x ≠ y :=
+  falseWitness.
+
+Definition inequality_to_isolation {X:UU} (x:X) (is:isisolated X x) (y:X) : x ≠ y -> isolation x is y :=
+  (* uses [funextempty] *)
+  pair_falsehood (to_ComplementaryPair (is y)) (isapropneg (x = y)).
+
+(* operations on complementary pairs *)
 
 Definition pairNegation (C:ComplementaryPair) : ComplementaryPair
   := (Part2 C,, Part1 C) ,, (λ q p, pair_contradiction C p q),, coprodcomm _ _ (chooser C).
@@ -468,76 +499,13 @@ Proof.
   exact (pairNegation (pairConjunction (pairNegation C) (pairNegation C'))).
 Defined.
 
-Definition isTrue  (C:ComplementaryPair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
-Definition isFalse (C:ComplementaryPair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
-
-Definition  trueWitness (C:ComplementaryPair) : isTrue  C -> Part1 C := pr1.
-Definition falseWitness (C:ComplementaryPair) : isFalse C -> Part2 C := pr1.
-
-Coercion  trueWitness : isTrue  >-> Part1.
-Coercion falseWitness : isFalse >-> Part2.
-
-(* this is what apartness looks like in the presence of decidable equality *)
-Definition Nonequality (X:UU)
-  := Σ P : X -> X -> UU,
-           ∀ x y, isaprop (P x y) × complementary (x=y) (P x y).
-
-Lemma complementaryDecisions (C:ComplementaryPair) : iscontr (isTrue C ⨿ isFalse C).
+Definition dnegelim {P Q} : complementary P Q -> ¬¬ Q -> Q.
 Proof.
-  intros.
-  apply iscontrifweqtounit. assert (w := weqcoprodsplit (λ _:unit, chooser C)).
-  apply invweq. apply (weqcomp w). apply weqcoprodf; apply weqhfiberunit.
+  intros ? ? c nnp. induction c as [n c].
+  induction c as [p|q].
+  - contradicts nnp (n p).
+  - assumption.
 Defined.
-
-Lemma isaprop_isTrue (C:ComplementaryPair) : isaprop (isTrue C).
-(* No axioms are used. *)
-Proof.
-  intros.
-  apply (isapropcomponent1 (isTrue C) (isFalse C)).
-  apply isapropifcontr.
-  apply complementaryDecisions.
-Defined.
-
-Lemma isaprop_isFalse (C:ComplementaryPair) : isaprop (isFalse C).
-(* No axioms are used. *)
-(* By contrast, to prove [¬P] is a proposition requires the use of functional extensionality. *)
-Proof.
-  intros.
-  apply (isapropcomponent2 (isTrue C) (isFalse C)).
-  apply isapropifcontr.
-  apply complementaryDecisions.
-Defined.
-
-Lemma pair_truth (C:ComplementaryPair) (i:isaprop (Part1 C)) : Part1 C <-> isTrue C.
-(* in light of [isaprop_isTrue], these are both propositions *)
-Proof.
-  intros. split.
-  - unpack_pair C P Q con c; unfold isTrue, hfiber, Part1, Part2, chooser in *; simpl in *.
-    intros p. exists p. induction c as [p'|q].
-    * apply maponpaths, i.
-    * apply fromempty. contradicts (con p) q.
-  - apply trueWitness.
-Defined.
-
-Lemma pair_falsehood (C:ComplementaryPair) (i:isaprop (Part2 C)) : Part2 C <-> isFalse C.
-(* in light of [isaprop_isFalse], these are both propositions *)
-Proof.
-  intros. split.
-  - unpack_pair C P Q con c; unfold isFalse, hfiber, Part1, Part2, chooser in *; simpl in *.
-    intros q. exists q. induction c as [p|q'].
-    * apply fromempty. contradicts (con p) q.
-    * apply maponpaths, i.
-  - apply falseWitness.
-Defined.
-
-Close Scope logic.
-
-Definition decprop_to_ComplementaryPair {P} (i:isdecprop P) : ComplementaryPair
-  (* We discard the proof that P is a proposition. *)
-  (* By using [isTrue _] instead, we're effectively replacing P by a propositional subtype of it: *)
-  (* the part connected to the element of [P ⨿ ¬P]. *)
-  (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P] by a propositional subtype of it.  *)
-  := ((P,,¬P),,((λ p n, n p),,pr1 i)).
 
 Definition decidable (X:hProp) : hProp :=
   hProppair (X ⨿ ¬X) (isapropdec X (propproperty X)).
@@ -798,4 +766,4 @@ Proof.
   apply subtypeInjectivity.
   intro a. apply (pr2 (B a)).
 Defined.
-
+ 
