@@ -116,6 +116,83 @@ Definition ConstructiveCommutativeRig_CommutativeRig (X : ConstructiveCommutativ
   pr1 X,, pr1 (pr2 X).
 Coercion ConstructiveCommutativeRig_CommutativeRig : ConstructiveCommutativeRig >-> ConstructiveRig.
 
+(** Lemmas *)
+
+Section CCRig_pty.
+
+Context {X : ConstructiveCommutativeRig}.
+
+Lemma apCCRigplus :
+  forall x x' y y' : X,
+    x + y # x' + y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op1.
+Qed.
+Lemma apCCRigmult :
+  forall x x' y y' : X,
+    x * y # x' * y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op2.
+Qed.
+
+Lemma islunit_CCRigzero_CCRigplus :
+  forall x : X, 0%rig + x = x.
+Proof.
+  now apply riglunax1.
+Qed.
+Lemma isrunit_CCRigzero_CCRigplus :
+  forall x : X, x + 0%rig = x.
+Proof.
+  now apply rigrunax1.
+Qed.
+Lemma isassoc_CCRigplus :
+  forall x y z : X, x + y + z = x + (y + z).
+Proof.
+  now apply rigassoc1.
+Qed.
+Lemma iscomm_CCRigplus :
+  forall x y : X, x + y = y + x.
+Proof.
+  now apply rigcomm1.
+Qed.
+Lemma islunit_CCRigone_CCRigmult :
+  forall x : X, 1%rig * x = x.
+Proof.
+  now apply riglunax2.
+Qed.
+Lemma isrunit_CCRigone_CCRigmult :
+  forall x : X, x * 1%rig = x.
+Proof.
+  now apply rigrunax2.
+Qed.
+Lemma isassoc_CCRigmult :
+  forall x y z : X, x * y * z = x * (y * z).
+Proof.
+  now apply rigassoc2.
+Qed.
+Lemma iscomm_CCRigmult :
+  forall x y : X, x * y = y * x.
+Proof.
+  now apply rigcomm2.
+Qed.
+Lemma islabsorb_CCRigzero_CCRigmult :
+  ∀ x : X, 0%rig * x = 0%rig.
+Proof.
+  now apply rigmult0x.
+Qed.
+Lemma israbsorb_CCRigzero_CCRigmult :
+  ∀ x : X, x * 0%rig = 0%rig.
+Proof.
+  now apply rigmultx0.
+Qed.
+Lemma isldistr_CCRigplus_CCRigmult :
+  ∀ x y z : X, z * (x + y) = z * x + z * y.
+Proof.
+  now apply rigdistraxs.
+Qed.
+
+End CCRig_pty.
+
 (** ** Constructive ring *)
 
 Definition ConstructiveRing := Σ X : apsetwith2binop, @isrngops X op1 op2.
