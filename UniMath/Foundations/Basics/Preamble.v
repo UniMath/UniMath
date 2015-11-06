@@ -1,6 +1,6 @@
-(** * Introduction. Vladimir Voevodsky . Feb. 2010 - Sep. 2011 
+(** * Introduction. Vladimir Voevodsky . Feb. 2010 - Sep. 2011
 
-This is the first in the group of files which contain the (current state of) the mathematical library for the proof assistant Coq based on the Univalent Foundations. 
+This is the first in the group of files which contain the (current state of) the mathematical library for the proof assistant Coq based on the Univalent Foundations.
 It contains some new notations for constructions defined in Coq.Init library as well as the definition of dependent sum.
 
 
@@ -28,14 +28,14 @@ Identity Coercion fromUUtoType : UU >-> Sortclass.
 
 *)
 
-Notation empty := Empty_set. 
-Notation empty_rect := Empty_set_rect. 
+Notation empty := Empty_set.
+Notation empty_rect := Empty_set_rect.
 
-(** Identity Types. Identity types are introduced in Coq.Init.Datatypes by the lines : 
+(** Identity Types. Identity types are introduced in Coq.Init.Datatypes by the lines :
 
-[ Inductive identity ( A : Type ) ( a : A ) : A -> Type := identity_refl : identity _ a a .    
-    
-Hint Resolve identity_refl : core . ] 
+[ Inductive identity ( A : Type ) ( a : A ) : A -> Type := identity_refl : identity _ a a .
+
+Hint Resolve identity_refl : core . ]
 
 *)
 
@@ -53,7 +53,7 @@ that is interpreted by the Bezm-Coquand-Huber cubical set model of 2014. *)
 
 
 
-(** Coproducts . 
+(** Coproducts .
 
 The coproduct of two types is introduced in Coq.Init.Datatypes by the lines:
 
@@ -86,27 +86,27 @@ Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
   (at level 200, x binder, y binder, right associativity).
   (* type this in emacs in agda-input method with \lambda *)
 
-(** Dependent sums. 
+(** Dependent sums.
 
-One can not use a new record each time one needs it because the general theorems about this 
-construction would not apply to new instances of "Record" due to the "generativity" of inductive 
-definitions in Coq. 
+One can not use a new record each time one needs it because the general theorems about this
+construction would not apply to new instances of "Record" due to the "generativity" of inductive
+definitions in Coq.
 
 We use "Inductive" instead of "Record" here.
 
-Using "Record" which is equivalent to "Structure" would allow us later to use the mechanism of 
-canonical structures with total2. 
-By using "Structure", we could also get eta for dependent pairs, by adding the option 
+Using "Record" which is equivalent to "Structure" would allow us later to use the mechanism of
+canonical structures with total2.
+By using "Structure", we could also get eta for dependent pairs, by adding the option
 "Set Primitive Projections.".
 
-However, the use of "Inductive" allows us to obtain proof terms that are expressed in terms of 
-the eliminator total2_rect that, unlike the "match" construct that would appear in the proof terms 
+However, the use of "Inductive" allows us to obtain proof terms that are expressed in terms of
+the eliminator total2_rect that, unlike the "match" construct that would appear in the proof terms
 if we used "Record", has a known interpretation in the framework of the univalent model.
 
 *)
 
 
-Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . 
+Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P .
 
 Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
@@ -117,12 +117,12 @@ Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser
 Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
 
 Definition pr1 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : T .
-Proof . intros .  induction t as [ t p ] . exact t . Defined. 
+Proof . intros .  induction t as [ t p ] . exact t . Defined.
 
 Arguments pr1 {_ _} _.
 
 Definition pr2 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : P ( pr1 t ) .
-Proof . intros .  induction t as [ t p ] . exact p . Defined. 
+Proof . intros .  induction t as [ t p ] . exact p . Defined.
 
 Arguments pr2 {_ _} _.
 
