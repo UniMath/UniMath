@@ -146,7 +146,7 @@ isolate-bug: sub/coq-tools/find-bug.py
 		-R . UniMath \
 		--arg " -indices-matter" \
 		--arg " -type-in-type" \
-		Foundations/Basics/PartA.v \
+		Foundations/Basics/PartB.v \
 		isolated-bug.v
 
 world: all html doc pdffiles
