@@ -129,6 +129,11 @@ Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser
 (* Example: *)
 Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
 
+(* demonstrate eta expansion for pairs, if primitive projections are on *)
+Goal ∀ X (Y:X->UU) (w:Σ x, Y x), w = (pr1 w,, pr2 w).
+(* Proof. try reflexivity. Abort. *)
+Proof. reflexivity. Defined.
+
 Arguments pr1 {_ _} _.
 Arguments pr2 {_ _} _.
 
