@@ -382,8 +382,6 @@ Definition hinhimplinhdneg (X:UU)(inx1: ishinh X): isinhdneg X := inx1 hfalse.
 
 (** decidability *)
 
-Definition complementary P Q := (P -> Q -> ∅) × (P ⨿ Q).
-
 Definition ComplementaryPair := Σ (PQ:UU×UU), complementary (pr1 PQ) (pr2 PQ).
 Definition Part1 (C:ComplementaryPair) : UU := pr1 (pr1 C).
 Definition Part2 (C:ComplementaryPair) : UU := pr2 (pr1 C).
@@ -499,12 +497,12 @@ Proof.
   exact (pairNegation (pairConjunction (pairNegation C) (pairNegation C'))).
 Defined.
 
-Definition dnegelim {P Q} : complementary P Q -> ¬¬ Q -> Q.
+Definition dnegelim {P Q} : complementary P Q -> ¬¬ P -> P.
 Proof.
   intros ? ? c nnp. induction c as [n c].
   induction c as [p|q].
-  - contradicts nnp (n p).
   - assumption.
+  - contradicts nnp (λ p, n p q).
 Defined.
 
 Definition decidable (X:hProp) : hProp :=
@@ -534,11 +532,7 @@ Lemma isaprop_LEM : isaprop LEM.
 Proof. apply impred_prop. Defined.  
 
 Lemma dneg_LEM (P:hProp) : LEM -> ¬¬ P -> P.
-Proof.
-  intros ? lem nnP.
-  induction (lem P) as [a|a].
-  { assumption. }
-  { contradiction. }
+Proof. intros P lem. exact (dnegelim ((λ p np, np p),,lem P)).
 Defined.
 
 Corollary reversal_LEM (P Q:hProp) : LEM -> (¬P -> Q) -> (¬Q -> P).
