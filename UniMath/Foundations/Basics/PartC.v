@@ -702,7 +702,7 @@ Proof . intros. set ( w := weqimplimpl ( pr1 lg ) ( pr2 lg ) isx isy ) . apply (
 Lemma isdecproplogeqb { X Y : UU } ( isx : isaprop X ) ( isy : isdecprop Y ) ( lg : X <-> Y ) : isdecprop X .
 Proof . intros. set ( w := weqimplimpl ( pr1 lg ) ( pr2 lg ) isx isy ) . apply ( isdecpropweqb w isy ) . Defined .
 
-Lemma isdecpropfromneg P : ¬P -> isdecprop P.
+Lemma isdecpropfromneg {P} : ¬P -> isdecprop P.
 Proof. intros ? n. split.
        - exact (ii2 n).
        - now apply isapropifnegtrue.
