@@ -189,7 +189,7 @@ Proof. intros . apply ( isdecincltoisincl _  ( isdecincldni n i ) ) .  Defined .
 
 
 
-(** *** The weak equivalence from [ stn n ] to the compl of a point [ j ] in [ stn ( S n ) ] defined by [ dni n j ] *)
+(** *** The weak equivalence from [ stn n ] to the complement of a point [ j ] in [ stn ( S n ) ] defined by [ dni n j ] *)
 
 
 Definition dnitocompl ( n : nat ) ( i : stn ( S n ) ) ( j : stn n ) : compl ( stn ( S n ) ) i .

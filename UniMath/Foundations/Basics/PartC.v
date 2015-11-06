@@ -82,12 +82,55 @@ Definition pr1compl ( X : UU ) ( x : X ) := @pr1 _ (fun x':X => neg (paths x x' 
 Lemma isinclpr1compl ( X : UU ) ( x : X ) : isincl ( pr1compl X x ) .
 Proof. intros . apply ( isinclpr1 _ ( fun x' : X => isapropneg _ ) ) . Defined.
 
+Definition complementary P Q := (P -> Q -> ∅) × (P ⨿ Q).
+Definition isNegProp P Q := isaprop Q × (¬P <-> Q).
+Definition negProp P := Σ Q, isNegProp P Q.
+Definition negProp_to_type {P} (negP : negProp P) := pr1 negP.
+Coercion negProp_to_type : negProp >-> UU.
+Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop nP := pr1 (pr2 nP).
+Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> nP := pr2 (pr2 nP).
+Definition neg_to_neg {P} {nP : negProp P} (np : pr1 nP) : ¬P.
+Proof. intros. exact (pr2 (pr2 (pr2 (nP))) np). Defined.
+Coercion neg_to_neg : negProp >-> Funclass.
+Definition awayProp {X:UU} (x:X) := ∀ y, negProp (x=y).
+Definition uneqProp (X:UU) := ∀ (x y:X), negProp (x=y).
+Definition compl_ne (X:UU) (x:X) (nex : ∀ y, negProp (x=y)) := Σ y, pr1 (nex y).
+Definition compl_ne_pair ( X : UU ) ( x : X ) (nex : ∀ y, negProp (x=y)) (y:X) (ne:pr1 (nex y)) : compl_ne X x nex := (y,,ne).
+Definition pr1compl_ne ( X : UU ) ( x : X ) (nex : ∀ y, negProp (x=y)) (c:compl_ne X x nex) : X := pr1 c.
+Definition compl_neg {X:UU} (x y:X) : negProp (x=y).
+  (* proof uses [funextempty] *)
+Proof. intros. exists (x≠y). split.
+  - apply isapropneg.
+  - apply logeq_refl.
+Defined.
+Lemma isinclpr1compl_ne ( X : UU ) ( x : X ) (nex : awayProp x) : isincl ( pr1compl_ne X x nex ) .
+Proof.
+  intros. apply isinclpr1. intro y. unfold negProp,isNegProp in nex.
+  exact (pr1 (pr2 (nex y))).
+Defined.
+Lemma compl_ne_weq_compl ( X : UU ) ( x : X ) (nex : awayProp x) : compl X x ≃ compl_ne X x nex.
+Proof.
+  (* uses [funextempty] *)
+  intros. apply weqfibtototal; intro y. apply weqiff.
+  - apply negProp_to_iff.
+  - apply isapropneg.
+  - apply negProp_to_isaprop.
+Defined.
+
 Definition recompl (X:UU) (x:X): compl X x ⨿ unit -> X
   := fun u:_ =>
        match u with
-         | ii1 x0 => pr1  x0
+         | ii1 x0 => pr1compl _ _ x0
          | ii2 t => x
        end.
+
+Definition recompl_ne (X:UU) (x:X) (nex:awayProp x) : compl_ne X x nex ⨿ unit -> X.
+Proof.
+  intros ? ? ? w.
+  induction w as [c|t].
+  - exact (pr1compl_ne _ _ _ c).
+  - exact x.
+Defined.
 
 Definition maponcomplincl { X Y : UU } (f:X -> Y)(is: isincl f)(x:X): compl X x -> compl Y (f x):= fun x0':_ =>
 match x0' with
@@ -134,7 +177,6 @@ apply (iscontrweqb ( weqpair f is' ) ). assumption. Defined.
 Theorem isaproppathstoisolated  ( X : UU ) ( x : X ) ( is : isisolated X x ) : forall x' : X, isaprop ( paths x' x ) .
 Proof . intros . apply ( isofhlevelweqf 1 ( weqpathsinv0 x x' ) ( isaproppathsfromisolated X x is x' ) ) . Defined .
 
-
 Lemma isisolatedweqf { X Y : UU } (  f : weq X Y ) (x:X) (is2: isisolated _ x) : isisolated _ (f x).
 Proof.  intros. unfold isisolated. intro y.  set (g:=invmap  f ). set (x':= g y). induction (is2 x') as [ x0 | y0 ].  apply (ii1  (pathsweq1'  f x y x0) ).
 assert (phi: paths y (f x)  -> empty).
@@ -157,7 +199,42 @@ ii1 e => ii2  tt|
 ii2 phi => ii1  (complpair _ _ x' phi)
 end.
 
+Definition invrecompl_ne (X:UU)(x:X)(nex:awayProp x)(is: isisolated X x): X -> compl_ne X x nex ⨿ unit.
+Proof.
+  intros ? ? ? ? y. induction (is y) as [k|k].
+  - exact (ii2 tt).
+  - exact (ii1 (compl_ne_pair X x nex y (pr1 (pr2 (pr2 (nex y))) k))).
+Defined.
 
+Theorem isweqrecompl_ne (X:UU) (x:X) (is:isisolated X x) (nex:awayProp x): isweq (recompl_ne _ x nex).
+Proof.
+  (* does not use [funextempty] *)
+  intros. set (f:= recompl_ne X x nex). set (g:= invrecompl_ne X x nex is).
+  refine (gradth f g _ _).
+  { intro u. induction (is (f u)) as [ eq | ne ] .
+    - induction u as [ c | u].
+      + simpl. induction c as [ t neq ]; simpl; simpl in eq. contradicts (neg_to_neg neq) eq.
+      + induction u.
+        intermediate_path (g x).
+        { apply maponpaths. exact (pathsinv0 eq). }
+        { unfold g, invrecompl_ne. induction (is x) as [ i | e ].
+          { apply idpath. }
+          { induction (e (idpath x)). } }
+    - induction u as [ c | u ]. simpl.
+      + induction c as [ y neq ]; simpl. unfold g, invrecompl_ne. induction (is y) as [ eq' | ne' ] .
+        { induction (neg_to_neg neq eq'). }
+        { induction (ii2 ne') as [eq|neq'].
+          { simpl. contradicts eq ne'. }
+          { simpl. apply maponpaths. unfold compl_ne_pair. apply maponpaths.
+            apply proofirrelevance. exact (pr1 (pr2 (nex y))). } }
+      + induction u. unfold f,g,invrecompl_ne;simpl. induction (is x) as [eq|neq].
+        { simpl. reflexivity. }
+        { apply fromempty. now apply neq. } }
+  { intro y. unfold f,g,invrecompl_ne;simpl.
+    induction (is y) as [eq|neq].
+    - induction eq. reflexivity.
+    - simpl. reflexivity. }
+Defined.
 
 Theorem isweqrecompl (X:UU)(x:X)(is:isisolated X x): isweq (recompl _ x).
 Proof. intros. set (f:= recompl _ x). set (g:= invrecompl X x is). unfold invrecompl in g. simpl in g.

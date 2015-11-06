@@ -164,6 +164,9 @@ Definition dneganddnegimpldneg {X Y : UU}
 Definition logeq (X Y : UU) := dirprod (X -> Y)  (Y -> X) .
 Notation " X <-> Y " := (logeq X Y) : type_scope .
 
+Lemma logeq_refl (X:UU) : X<->X.
+Proof. intros. split; apply idfun. Defined.
+
 Definition logeqnegs {X Y : UU} (l : X <-> Y ) : (¬ X) <-> (¬ Y) :=
   dirprodpair (negf (pr2 l)) (negf (pr1 l)).
 
@@ -183,7 +186,7 @@ Proof.
   - intros y. induction (ny y).
 Defined.
 
-(* end of "Some standard constructions not using idenity types (paths)". *)
+(* end of "Some standard constructions not using identity types (paths)". *)
 
 
 (** ** Operations on [ paths ] *)
