@@ -582,6 +582,7 @@ Lemma iscoasymmgenrel { X : UU } ( R : hrel X  ) ( isr : isasymm R ) : iscoasymm
 Proof . intros . intros x1 x2 nr12 . apply ( negf ( isr _ _ ) nr12 ) .  Defined . 
 
 Lemma isdecnegrel { X : UU } ( R : hrel X  ) ( isr : isdecrel R ) : isdecrel ( negrel R ) .
+(* uses [funextempty] *)
 Proof . intros . intros x1 x2 . destruct ( isr x1 x2 ) as [ r | nr ] . apply ii2 .   apply ( todneg _ r ) .  apply ( ii1 nr ) . Defined . 
 
 Lemma isnegnegrel { X : UU } ( R : hrel X ) : isnegrel ( negrel R ) .

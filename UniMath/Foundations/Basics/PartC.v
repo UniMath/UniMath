@@ -86,12 +86,11 @@ Definition complementary P Q := (P -> Q -> ∅) × (P ⨿ Q).
 Definition isNegProp P Q := isaprop Q × (¬P <-> Q).
 Definition negProp P := Σ Q, isNegProp P Q.
 Definition negProp_to_type {P} (negP : negProp P) := pr1 negP.
-Coercion negProp_to_type : negProp >-> UU.
-Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop nP := pr1 (pr2 nP).
-Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> nP := pr2 (pr2 nP).
-Definition neg_to_neg {P} {nP : negProp P} (np : nP) : ¬P.
+Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop (negProp_to_type nP) := pr1 (pr2 nP).
+Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> (negProp_to_type nP) := pr2 (pr2 nP).
+Definition neg_to_neg {P} {nP : negProp P} (np : negProp_to_type nP) : ¬P.
 Proof. intros. exact (pr2 (negProp_to_iff nP) np). Defined.
-Definition neg_from_neg {P} {nP : negProp P} (np : ¬P) : nP.
+Definition neg_from_neg {P} {nP : negProp P} (np : ¬P) : negProp_to_type nP.
 Proof. intros. exact (pr1 (negProp_to_iff nP) np). Defined.
 Coercion neg_to_neg : negProp >-> Funclass.
 Definition awayProp {X:UU} (x:X) := ∀ y, negProp (x=y).
@@ -281,11 +280,13 @@ Proof.
       now induction (proofirrelevance _ (pr1 (pr2 (nex z))) neq (neg_from_neg ne)). } }
 Defined.
 
+Definition weqrecompl_ne (X:UU) (x:X) (is:isisolated X x) (nex:awayProp x): compl_ne X x nex ⨿ unit ≃ X
+  := weqpair _ (isweqrecompl_ne' X x is nex).
+
 Theorem isweqrecompl (X:UU)(x:X)(is:isisolated X x): isweq (recompl _ x).
 Proof. intros. set (f:= recompl _ x). set (g:= invrecompl X x is). unfold invrecompl in g. simpl in g.
 
 assert (efg: forall x':X, paths (f (g x')) x'). intro.   induction (is x') as [ x0 | e ].   induction x0. unfold f. unfold g. simpl. unfold recompl. simpl.  induction (is x) as [ x0 | e ] .  simpl. apply idpath. induction (e (idpath x)).  unfold f. unfold g. simpl. unfold recompl. simpl.  induction  (is x') as [ x0 | e0 ].  induction (e x0). simpl. apply idpath.
-
 
 assert (egf: forall u: coprod  (compl X x) unit, paths (g (f u)) u). unfold isisolated in is. intro. induction (is (f u)) as [ p | e ] . induction u as [ c | u].    simpl. induction c as [ t x0 ]. simpl in p. induction (x0 p).
 
@@ -296,6 +297,15 @@ assert (e2: paths (g x) (ii2 tt)). unfold g.  induction (is x) as [ i | e ].   a
 assert (ee: paths e0 x0). apply (proofirrelevance _ (isapropneg (paths x t))). induction ee.  apply idpath.
 unfold f. unfold g. simpl. induction u. induction (is x).  apply idpath. induction (e (idpath x)).
 apply (gradth  f g egf efg). Defined.
+
+Theorem isweqrecompl' (X:UU)(x:X)(is:isisolated X x): isweq (recompl _ x).
+Proof.
+  (* alternative proof, spoils a computation below if used in [weqrecompl], so unused *)
+  intros. set (nex := λ y, compl_neg x y).
+  apply (isweqhomot (weqrecompl_ne X x is nex ∘ weqcoprodf (compl_ne_weq_compl X x nex) (idweq unit))%weq).
+  { intro y. induction y as [y|t]; reflexivity. }
+  apply weqproperty.
+Defined.
 
 Definition weqrecompl (X : UU) (x:X) (is:isisolated _ x): compl X x ⨿ unit ≃ X
   := weqpair _ ( isweqrecompl X x is ) .

@@ -52,6 +52,70 @@ Proof.  apply (isasetifdeceq _ isdeceqnat). Defined.
 
 Definition natset : hSet := hSetpair _ isasetnat . 
 
+Fixpoint natneq_type (n m : nat) : UU :=
+match n , m with
+ | S n , S m => natneq_type n m
+ | O, O => empty
+ | _, _ => unit
+end.
+
+Lemma natneq_isaprop n m : isaprop (natneq_type n m).
+  intros n.
+  induction n as [|n N].
+  - intro m. induction m as [|m M].
+    + exact isapropempty.
+    + exact isapropunit.
+  - intro m. induction m as [|m M].
+    + exact isapropunit.
+    + simpl. exact (N m).
+Defined.
+
+Lemma natneq_type_iff_neq n m : n != m <-> natneq_type n m.
+Proof.
+  intros n.
+  induction n as [|n N].
+  - intro m. induction m as [|m _].
+    + apply logeq_both_false.
+      * intro n. exact (n (idpath 0)).
+      * simpl. exact (idfun ∅).
+    + apply logeq_both_true.
+      * apply negpaths0sx.
+      * simpl. exact tt.
+  - intro m. induction m as [|m _].
+    + apply logeq_both_true.
+      * apply negpathssx0.
+      * simpl. exact tt.
+    + split.
+      * intro ne. apply (pr1 (N m)).
+        intro r. exact (ne (maponpaths S r)).
+      * intro neq. apply noeqinjS.
+        apply (pr2 (N m)). exact neq.
+Defined.
+
+Definition natneq_negProp (m n:nat) : negProp (m=n).
+Proof.
+  intros. exists (natneq_type m n). split.
+  - apply natneq_isaprop.
+  - apply natneq_type_iff_neq. 
+Defined.
+
+Notation " x !=? y " := ( natneq_negProp x y ) (at level 70, no associativity) : nat_scope.
+Notation " x ≠? y " := ( natneq_negProp x y ) (at level 70, no associativity) : nat_scope.
+
+Goal 3 !=? 5. exact tt. Defined.
+Goal ¬ (3 !=? 3). exact (idfun ∅). Defined.
+
+Definition isdecrel_natneq_negProp : isdecrel (λ m n, m !=? n).
+Proof.
+  intros n. induction n as [|n N].
+  - intro m. induction m as [|m _].
+    + simpl. exact (ii2 (idfun ∅)).
+    + simpl. exact (ii1 tt).
+  - intro m. induction m as [|m _].
+    + simpl. exact (ii1 tt).
+    + exact (N m).
+Defined.
+
 Definition nateq ( x y : nat ) : hProp := hProppair ( paths x y ) ( isasetnat _ _  )  .
 Definition isdecrelnateq : isdecrel nateq  := fun a b => isdeceqnat a b .
 Definition natdeceq : decrel nat := decrelpair isdecrelnateq . 
@@ -62,9 +126,12 @@ Definition natbooleq := decreltobrel natdeceq .
     Goal ∀ i j, neg (i = j) -> natbooleq i j = false.
     Proof. intros ? ? inej. apply negrtopaths. exact inej. Defined.
 
-Definition natneq ( x y : nat ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
+Definition natneq ( x y : nat ) : hProp
+  (* uses [funextempty] *)
+  := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
 
 Definition isdecrelnatneq : isdecrel natneq  := isdecnegrel _ isdecrelnateq . 
+
 Definition natdecneq : decrel nat := decrelpair isdecrelnatneq . 
 
 Definition natboolneq := decreltobrel natdecneq .  
@@ -90,15 +157,13 @@ match n , m with
  | _, _ => true
 end.
 
-
-
 (** *** Semi-boolean "greater" on [ nat ] or [ natgth ]  
 
 1. Note that due to its definition [ natgth ] automatically has the property that [ natgth n m <-> natgth ( S n ) ( S m ) ] and the same applies to all other inequalities defined in this section.
 2. We choose "greater" as the root relation from which we define all other relations on [ nat ] because it is more natural to extend "greater" to integers and then to rationals than it is to extend "less".   *) 
 
 
-Definition natgth ( n m : nat ) := hProppair ( paths ( natgtb n m ) true ) ( isasetbool _ _ ) .
+Definition natgth ( n m : nat ) := hProppair ( natgtb n m = true ) ( isasetbool _ _ ) .
 
 Notation " x > y " := ( natgth x y ) : nat_scope .
 
@@ -282,6 +347,7 @@ Notation " x > y " := ( natgth_DecidableProposition x y ) (at level 70, no assoc
 Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Notation " x !=? y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Notation " x ≠ y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x ≠? y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Delimit Scope decidable_nat with dnat.
 
 Goal choice (3 < 4)%dnat true false = true. reflexivity. Defined.

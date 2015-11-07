@@ -219,13 +219,20 @@ Defined.
 
 (** *** Weak equivalence from [ coprod ( stn n ) unit ] to [ stn ( S n ) ] defined by [ dni n i ] *)
 
-
 Definition weqdnicoprod n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
 Proof.
   intros.
   apply (weqcomp (weqcoprodf (weqdnicompl n j) (idweq unit))
+                 (weqrecompl_ne (stn (S n)) j (isdeceqstn (S n) j) (λ k, j !=? k))).
+Defined.  
+
+Definition weqdnicoprod' n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
+Proof.                          (* old proof *)
+  intros.
+  apply (weqcomp (weqcoprodf (weqdnicompl n j) (idweq unit))
                  (weqrecompl (stn (S n)) j (isdeceqstn (S n) j))).
 Defined . 
+
 
 Local Notation "● x" := (x,,idpath _) (at level 35).
 
