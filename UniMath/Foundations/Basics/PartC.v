@@ -213,49 +213,33 @@ Proof.
   intros. unfold isisolated in is.
   set (P := λ y, (x = y) ⨿ (x ≠ y)).
   apply invproofirrelevance. intros s' s''.
-  assert (R : ∀ y (r:x=y) z (s:y=z), transportf P s (ii1 r) = ii1 (r@s)).
-  { intros. induction s. induction (! pathscomp0rid r). reflexivity. }
-  assert (K : ∀ y z (s:y=z), transportf P s (is y) = is z).
+  assert (K : ∀ z (s:x=z), transportf P s (is x) = is z).
   { intros. induction s. reflexivity. }
-  assert (K' := K _ _ s').
-  assert (K'' := K _ _ s'').
-  induction (is x) as [j|j].
-  - assert (R' := R _ j _ s').
-    assert (R'' := R _ j _ s'').
-    assert (T := !R' @ K' @ !K'' @ R''); clear K' K'' R' R'' R K.
+  assert (K' := K t s'); assert (K'' := K t s''); clear K.
+  induction (is x) as [j|k].
+  - assert (R : ∀ z (s:x=z), transportf P s (ii1 j) = ii1 (j@s)).
+    { intros. induction s. induction (! pathscomp0rid j). reflexivity. }
+    assert (R' := R t s'); assert (R'' := R t s''); clear R.
+    assert (T := !R' @ K' @ !K'' @ R''); clear K' K'' R' R''.
     set (q := @coprod_rect (x=t) (x≠t) (λ _, x=t) (λ e,e) (λ _,s')).
-    assert (U := maponpaths q T). simpl in U.
-    assert (V := maponpaths (λ v, !j@v) U); simpl in V.
-    refine (!_ @ V @ _).
-    + rewrite path_assoc.
-      rewrite (pathsinv0l j).
-      reflexivity.
-    + rewrite path_assoc.
-      rewrite (pathsinv0l j).
-      reflexivity.
-  - contradicts j (idpath x).
+    assert (U := maponpaths q T); simpl in U.
+    now apply (pathscomp_cancel_left j).
+  - contradicts k (idpath x).
 Defined.
 
 Theorem isweqrecompl_ne' (X:UU) (x:X) (is:isisolated X x) (nex:awayProp x): isweq (recompl_ne _ x nex).
 Proof.
-  intros.
-  set (f:= recompl_ne X x nex).
-  intro y.
-  unfold awayProp,negProp,isNegProp in nex.
-  unfold isisolated in is.
-  apply (iscontrweqb (weqtotal2overcoprod _)).
-  induction (is y) as [eq|ne].
+  intros. set (f:= recompl_ne X x nex). intro y.
+  unfold awayProp,negProp,isNegProp in nex; unfold isisolated in is.
+  apply (iscontrweqb (weqtotal2overcoprod _)). induction (is y) as [eq|ne].
   { induction eq. refine (iscontrweqf (weqii2withneg _ _) _).
     { intros z; induction z as [z e]; induction z as [z neq]; simpl in *.
       contradicts (!e) (neg_to_neg neq). }
-    { change x with (f (ii2 tt)).
-      refine ((_,,_),,_).
+    { change x with (f (ii2 tt)). refine ((_,,_),,_).
       { exact tt. }
       { reflexivity. }
       { intro w. induction w as [t e]. unfold f in *; simpl in *. induction t.
-        apply maponpaths.
-        apply isolated_loops.
-        exact is. }}}
+        apply maponpaths. apply isolated_loops. exact is. }}}
   { refine (iscontrweqf (weqii1withneg _ _) _).
     { intros z; induction z as [z e]; simpl in *. contradicts ne e. }
     { refine ((_,,_),,_).
