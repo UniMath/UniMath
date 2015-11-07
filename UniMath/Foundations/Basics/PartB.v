@@ -354,30 +354,40 @@ Proof.
   - apply h.
 Defined.
 
+Definition equality_cases {P Q:UU} (x x':P ⨿ Q) : UU.
+Proof.                          (* "codes" *)
+  intros. induction x as [p|q].
+  - induction x' as [p'|q'].
+    + exact (p=p').
+    + exact empty.
+  - induction x' as [p'|q'].
+    + exact empty.
+    + exact (q=q').
+Defined.  
+
+Definition equality_by_case {P Q:UU} {x x':P ⨿ Q} : x=x'-> equality_cases x x'.
+Proof.
+  intros ? ? ? ? e. induction x as [p|q].
+  - induction x' as [p'|q'].
+    + exact (maponpaths (@coprod_rect P Q (λ _,P) (λ p,p) (λ _,p)) e).
+    + contradicts (negpathsii1ii2 p q') e.
+  - induction x' as [p'|q'].
+    + contradicts (negpathsii2ii1 p' q) e.
+    + exact (maponpaths (@coprod_rect P Q (λ _,Q) (λ _,q) (λ q,q)) e).
+Defined.  
+
 Lemma isapropcomponent1 P Q : isaprop ( P ⨿ Q ) -> isaprop P.
 Proof.
   (* see also [isofhlevelsnsummand1] *)
-  intros ? ? i. apply iscontraprop1inv; intro p. apply iscontraprop1.
-  { refine (isapropretract i _ _ _).
-    { exact (@ii1 P Q). }
-    { intro pq. induction pq as [p'|q'].
-      { exact p'. }
-      { exact p. }}
-    { intro p'. unfold idfun, funcomp; simpl. reflexivity. } }
-  exact p.
+  intros ? ? i. apply invproofirrelevance; intros p p'.
+  exact (equality_by_case (proofirrelevance _ i (ii1 p) (ii1 p'))).
 Defined.
 
 Lemma isapropcomponent2 P Q : isaprop ( P ⨿ Q ) -> isaprop Q.
 Proof.
   (* see also [isofhlevelsnsummand2] *)
-  intros ? ? i. apply iscontraprop1inv; intro q. apply iscontraprop1.
-  { refine (isapropretract i _ _ _).
-    { exact (@ii2 P Q). }
-    { intro pq. induction pq as [p'|q'].
-      { exact q. }
-      { exact q'. }}
-    { intro q'. unfold idfun, funcomp; simpl. reflexivity. } }
-  exact q.
+  intros ? ? i. apply invproofirrelevance; intros q q'.
+  exact (equality_by_case (proofirrelevance _ i (ii2 q) (ii2 q'))).
 Defined.
 
 (** *** Two pairs are equal if their first components are and the type of the second
