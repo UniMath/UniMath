@@ -208,7 +208,35 @@ Proof.
   - exact (ii1 (compl_ne_pair X x nex y (pr1 (pr2 (pr2 (nex y))) k))).
 Defined.
 
-Theorem isweqrecompl_ne (X:UU) (x:X) (is:isisolated X x) (nex:awayProp x): isweq (recompl_ne _ x nex).
+Theorem isolated_loops (X:UU) (x:X) (is:isisolated X x) (t:X) : isaprop (x=t).
+Proof.
+  intros. unfold isisolated in is.
+  set (P := λ y, (x = y) ⨿ (x ≠ y)).
+  apply invproofirrelevance. intros s' s''.
+  assert (R : ∀ y (r:x=y) z (s:y=z), transportf P s (ii1 r) = ii1 (r@s)).
+  { intros. induction s. induction (! pathscomp0rid r). reflexivity. }
+  assert (K : ∀ y z (s:y=z), transportf P s (is y) = is z).
+  { intros. induction s. reflexivity. }
+  assert (K' := K _ _ s').
+  assert (K'' := K _ _ s'').
+  induction (is x) as [j|j].
+  - assert (R' := R _ j _ s').
+    assert (R'' := R _ j _ s'').
+    assert (T := !R' @ K' @ !K'' @ R''); clear K' K'' R' R'' R K.
+    set (q := @coprod_rect (x=t) (x≠t) (λ _, x=t) (λ e,e) (λ _,s')).
+    assert (U := maponpaths q T). simpl in U.
+    assert (V := maponpaths (λ v, !j@v) U); simpl in V.
+    refine (!_ @ V @ _).
+    + rewrite path_assoc.
+      rewrite (pathsinv0l j).
+      reflexivity.
+    + rewrite path_assoc.
+      rewrite (pathsinv0l j).
+      reflexivity.
+  - contradicts j (idpath x).
+Defined.
+
+Theorem isweqrecompl_ne' (X:UU) (x:X) (is:isisolated X x) (nex:awayProp x): isweq (recompl_ne _ x nex).
 Proof.
   intros.
   set (f:= recompl_ne X x nex).
@@ -221,16 +249,13 @@ Proof.
     { intros z; induction z as [z e]; induction z as [z neq]; simpl in *.
       contradicts (!e) (neg_to_neg neq). }
     { change x with (f (ii2 tt)).
-      
       refine ((_,,_),,_).
       { exact tt. }
       { reflexivity. }
-      { intro w. induction w as [t e]. unfold f in *; simpl in *. induction t. 
-
-
-        
-        
-        admit. }}}
+      { intro w. induction w as [t e]. unfold f in *; simpl in *. induction t.
+        apply maponpaths.
+        apply isolated_loops.
+        exact is. }}}
   { refine (iscontrweqf (weqii1withneg _ _) _).
     { intros z; induction z as [z e]; simpl in *. contradicts ne e. }
     { refine ((_,,_),,_).
@@ -238,9 +263,8 @@ Proof.
       { simpl. reflexivity. }
       intros z; induction z as [z e]; induction z as [z neq]; induction e; simpl in *.
       now induction (proofirrelevance _ (pr1 (pr2 (nex z))) neq (neg_from_neg ne)). } }
-Abort.
+Defined.
 
-                                                                         
 Theorem isweqrecompl_ne (X:UU) (x:X) (is:isisolated X x) (nex:awayProp x): isweq (recompl_ne _ x nex).
 Proof.
   (* does not use [funextempty] *)
@@ -1007,4 +1031,3 @@ Definition sectohfibertosec { X : UU } (P:X -> UU): forall a: forall x:X, P x, p
 
 
 (* End of the file uu0c.v *)
-
