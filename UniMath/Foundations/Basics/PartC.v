@@ -176,6 +176,26 @@ assert (is' : isweq f). apply (onefiber (fun x':X => paths x x' ) x (fun x':X =>
 assert (is2: iscontr (coconusfromt _ x)). apply iscontrcoconusfromt.
 apply (iscontrweqb ( weqpair f is' ) ). assumption. Defined.
 
+Theorem isaproppathsfromisolated' (X:UU) (x:X) (is:isisolated X x) (t:X) : isaprop (x=t).
+Proof.
+  (* an alternative proof *)
+  intros. unfold isisolated in is.
+  set (P := λ y, (x = y) ⨿ (x ≠ y)).
+  apply invproofirrelevance. intros s' s''.
+  assert (K : ∀ z (s:x=z), transportf P s (is x) = is z).
+  { intros. induction s. reflexivity. }
+  assert (K' := K t s'); assert (K'' := K t s''); clear K.
+  induction (is x) as [j|k].
+  - assert (R : ∀ z (s:x=z), transportf P s (ii1 j) = ii1 (j@s)).
+    { intros. induction s. induction (! pathscomp0rid j). reflexivity. }
+    assert (R' := R t s'); assert (R'' := R t s''); clear R.
+    assert (T := !R' @ K' @ !K'' @ R''); clear K' K'' R' R''.
+    set (q := @coprod_rect (x=t) (x≠t) (λ _, x=t) (λ e,e) (λ _,s')).
+    assert (U := maponpaths q T); simpl in U.
+    now apply (pathscomp_cancel_left j).
+  - contradicts k (idpath x).
+Defined.
+
 Theorem isaproppathstoisolated  ( X : UU ) ( x : X ) ( is : isisolated X x ) : forall x' : X, isaprop ( paths x' x ) .
 Proof . intros . apply ( isofhlevelweqf 1 ( weqpathsinv0 x x' ) ( isaproppathsfromisolated X x is x' ) ) . Defined .
 
@@ -208,47 +228,6 @@ Proof.
   - exact (ii1 (compl_ne_pair X x nex y (pr1 (pr2 (pr2 (nex y))) k))).
 Defined.
 
-Theorem isolated_loops (X:UU) (x:X) (is:isisolated X x) (t:X) : isaprop (x=t).
-Proof.
-  intros. unfold isisolated in is.
-  set (P := λ y, (x = y) ⨿ (x ≠ y)).
-  apply invproofirrelevance. intros s' s''.
-  assert (K : ∀ z (s:x=z), transportf P s (is x) = is z).
-  { intros. induction s. reflexivity. }
-  assert (K' := K t s'); assert (K'' := K t s''); clear K.
-  induction (is x) as [j|k].
-  - assert (R : ∀ z (s:x=z), transportf P s (ii1 j) = ii1 (j@s)).
-    { intros. induction s. induction (! pathscomp0rid j). reflexivity. }
-    assert (R' := R t s'); assert (R'' := R t s''); clear R.
-    assert (T := !R' @ K' @ !K'' @ R''); clear K' K'' R' R''.
-    set (q := @coprod_rect (x=t) (x≠t) (λ _, x=t) (λ e,e) (λ _,s')).
-    assert (U := maponpaths q T); simpl in U.
-    now apply (pathscomp_cancel_left j).
-  - contradicts k (idpath x).
-Defined.
-
-Theorem isweqrecompl_ne' (X:UU) (x:X) (is:isisolated X x) (nex:awayProp x): isweq (recompl_ne _ x nex).
-Proof.
-  intros. set (f:= recompl_ne X x nex). intro y.
-  unfold awayProp,negProp,isNegProp in nex; unfold isisolated in is.
-  apply (iscontrweqb (weqtotal2overcoprod _)). induction (is y) as [eq|ne].
-  { induction eq. refine (iscontrweqf (weqii2withneg _ _) _).
-    { intros z; induction z as [z e]; induction z as [z neq]; simpl in *.
-      contradicts (!e) (neg_to_neg neq). }
-    { change x with (f (ii2 tt)). refine ((_,,_),,_).
-      { exact tt. }
-      { reflexivity. }
-      { intro w. induction w as [t e]. unfold f in *; simpl in *. induction t.
-        apply maponpaths. apply isolated_loops. exact is. }}}
-  { refine (iscontrweqf (weqii1withneg _ _) _).
-    { intros z; induction z as [z e]; simpl in *. contradicts ne e. }
-    { refine ((_,,_),,_).
-      { exists y. now apply neg_from_neg. }
-      { simpl. reflexivity. }
-      intros z; induction z as [z e]; induction z as [z neq]; induction e; simpl in *.
-      now induction (proofirrelevance _ (pr1 (pr2 (nex z))) neq (neg_from_neg ne)). } }
-Defined.
-
 Theorem isweqrecompl_ne (X:UU) (x:X) (is:isisolated X x) (nex:awayProp x): isweq (recompl_ne _ x nex).
 Proof.
   (* does not use [funextempty] *)
@@ -277,6 +256,29 @@ Proof.
     induction (is y) as [eq|neq].
     - induction eq. reflexivity.
     - simpl. reflexivity. }
+Defined.
+
+Theorem isweqrecompl_ne' (X:UU) (x:X) (is:isisolated X x) (nex:awayProp x): isweq (recompl_ne _ x nex).
+Proof.
+  (* an alternative proof *)
+  intros. set (f:= recompl_ne X x nex). intro y.
+  unfold awayProp,negProp,isNegProp in nex; unfold isisolated in is.
+  apply (iscontrweqb (weqtotal2overcoprod _)). induction (is y) as [eq|ne].
+  { induction eq. refine (iscontrweqf (weqii2withneg _ _) _).
+    { intros z; induction z as [z e]; induction z as [z neq]; simpl in *.
+      contradicts (!e) (neg_to_neg neq). }
+    { change x with (f (ii2 tt)). refine ((_,,_),,_).
+      { exact tt. }
+      { reflexivity. }
+      { intro w. induction w as [t e]. unfold f in *; simpl in *. induction t.
+        apply maponpaths. apply isaproppathsfromisolated. exact is. }}}
+  { refine (iscontrweqf (weqii1withneg _ _) _).
+    { intros z; induction z as [z e]; simpl in *. contradicts ne e. }
+    { refine ((_,,_),,_).
+      { exists y. now apply neg_from_neg. }
+      { simpl. reflexivity. }
+      intros z; induction z as [z e]; induction z as [z neq]; induction e; simpl in *.
+      now induction (proofirrelevance _ (pr1 (pr2 (nex z))) neq (neg_from_neg ne)). } }
 Defined.
 
 Theorem isweqrecompl (X:UU)(x:X)(is:isisolated X x): isweq (recompl _ x).
