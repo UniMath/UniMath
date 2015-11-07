@@ -89,8 +89,10 @@ Definition negProp_to_type {P} (negP : negProp P) := pr1 negP.
 Coercion negProp_to_type : negProp >-> UU.
 Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop nP := pr1 (pr2 nP).
 Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> nP := pr2 (pr2 nP).
-Definition neg_to_neg {P} {nP : negProp P} (np : pr1 nP) : ¬P.
-Proof. intros. exact (pr2 (pr2 (pr2 (nP))) np). Defined.
+Definition neg_to_neg {P} {nP : negProp P} (np : nP) : ¬P.
+Proof. intros. exact (pr2 (negProp_to_iff nP) np). Defined.
+Definition neg_from_neg {P} {nP : negProp P} (np : ¬P) : nP.
+Proof. intros. exact (pr1 (negProp_to_iff nP) np). Defined.
 Coercion neg_to_neg : negProp >-> Funclass.
 Definition awayProp {X:UU} (x:X) := ∀ y, negProp (x=y).
 Definition uneqProp (X:UU) := ∀ (x y:X), negProp (x=y).
@@ -208,6 +210,39 @@ Defined.
 
 Theorem isweqrecompl_ne (X:UU) (x:X) (is:isisolated X x) (nex:awayProp x): isweq (recompl_ne _ x nex).
 Proof.
+  intros.
+  set (f:= recompl_ne X x nex).
+  intro y.
+  unfold awayProp,negProp,isNegProp in nex.
+  unfold isisolated in is.
+  apply (iscontrweqb (weqtotal2overcoprod _)).
+  induction (is y) as [eq|ne].
+  { induction eq. refine (iscontrweqf (weqii2withneg _ _) _).
+    { intros z; induction z as [z e]; induction z as [z neq]; simpl in *.
+      contradicts (!e) (neg_to_neg neq). }
+    { change x with (f (ii2 tt)).
+      
+      refine ((_,,_),,_).
+      { exact tt. }
+      { reflexivity. }
+      { intro w. induction w as [t e]. unfold f in *; simpl in *. induction t. 
+
+
+        
+        
+        admit. }}}
+  { refine (iscontrweqf (weqii1withneg _ _) _).
+    { intros z; induction z as [z e]; simpl in *. contradicts ne e. }
+    { refine ((_,,_),,_).
+      { exists y. now apply neg_from_neg. }
+      { simpl. reflexivity. }
+      intros z; induction z as [z e]; induction z as [z neq]; induction e; simpl in *.
+      now induction (proofirrelevance _ (pr1 (pr2 (nex z))) neq (neg_from_neg ne)). } }
+Abort.
+
+                                                                         
+Theorem isweqrecompl_ne (X:UU) (x:X) (is:isisolated X x) (nex:awayProp x): isweq (recompl_ne _ x nex).
+Proof.
   (* does not use [funextempty] *)
   intros. set (f:= recompl_ne X x nex). set (g:= invrecompl_ne X x nex is).
   refine (gradth f g _ _).
@@ -219,10 +254,10 @@ Proof.
         { apply maponpaths. exact (pathsinv0 eq). }
         { unfold g, invrecompl_ne. induction (is x) as [ i | e ].
           { apply idpath. }
-          { induction (e (idpath x)). } }
+          { simpl. contradicts e (idpath x). } }
     - induction u as [ c | u ]. simpl.
       + induction c as [ y neq ]; simpl. unfold g, invrecompl_ne. induction (is y) as [ eq' | ne' ] .
-        { induction (neg_to_neg neq eq'). }
+        { contradicts (neg_to_neg neq) eq'. }
         { induction (ii2 ne') as [eq|neq'].
           { simpl. contradicts eq ne'. }
           { simpl. apply maponpaths. unfold compl_ne_pair. apply maponpaths.
@@ -972,3 +1007,4 @@ Definition sectohfibertosec { X : UU } (P:X -> UU): forall a: forall x:X, P x, p
 
 
 (* End of the file uu0c.v *)
+
