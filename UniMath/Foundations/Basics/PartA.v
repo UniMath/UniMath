@@ -255,6 +255,14 @@ Proof.
   intros. induction e. apply idpath.
 Defined.
 
+Lemma pathscomp_cancel_left {X:UU} {x y z:X} (p:x=y) (r s:y=z) : p@r=p@s -> r=s.
+Proof. intros ? ? ? ? ? ? ? e. induction p. exact e. Defined.
+
+Lemma pathscomp_cancel_right {X:UU} {x y z:X} (p q:x=y) (s:y=z) : p@s=q@s -> p=q.
+Proof. intros ? ? ? ? ? ? ? e. induction s. refine (_@e@_).
+       - apply pathsinv0, pathscomp0rid.
+       - apply pathscomp0rid.
+Defined.
 
 (** *** Direct product of paths  *)
 
