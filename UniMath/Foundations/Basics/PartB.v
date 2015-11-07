@@ -288,7 +288,14 @@ Proof. intros . apply ( isofhlevelfffromZ 0 f g z fs ( isapropifcontr isz ) ) . 
 Corollary weqhfibertocontr { X Y : UU } ( f : X -> Y ) ( y : Y ) ( is : iscontr Y ) : weq ( hfiber f y ) X .
 Proof. intros . split with ( hfiberpr1 f y ) . apply ( isofhlevelfhfiberpr1 0 f y ( hlevelntosn 0 _ is ) ) . Defined.
 
+Corollary weqhfibertounit ( X : UU ) : weq ( hfiber ( fun x : X => tt ) tt ) X .
+Proof.  intro . apply ( weqhfibertocontr _ tt iscontrunit ) . Defined.
 
+Corollary isofhleveltofun ( n : nat ) ( X : UU ) : isofhlevel n X -> isofhlevelf n ( fun x : X => tt ) .
+Proof. intros n X is .  intro t . induction t . apply ( isofhlevelweqb n ( weqhfibertounit X ) is ) .  Defined .
+
+Corollary isofhlevelfromfun ( n : nat ) ( X : UU ) : isofhlevelf n ( fun x : X => tt ) ->  isofhlevel n X .
+Proof. intros n X is .  apply ( isofhlevelweqf n ( weqhfibertounit X ) ( is tt ) ) .  Defined .
 
 Definition weqhfiberunit {X Z} (i:X->Z) (z:Z) : (Σ x, hfiber (λ _:unit, z) (i x)) ≃ hfiber i z.
 Proof.
@@ -300,23 +307,6 @@ Proof.
     * simpl. induction e. rewrite pathsinv0inv0. induction t. reflexivity.
   + intros [x e]. apply maponpaths. apply pathsinv0inv0.
 Defined.
-
-
-
-Corollary weqhfibertounit ( X : UU ) : weq ( hfiber ( fun x : X => tt ) tt ) X .
-Proof.  intro . apply ( weqhfibertocontr _ tt iscontrunit ) . Defined.
-
-Corollary isofhleveltofun ( n : nat ) ( X : UU ) : isofhlevel n X -> isofhlevelf n ( fun x : X => tt ) .
-Proof. intros n X is .  intro t . induction t . apply ( isofhlevelweqb n ( weqhfibertounit X ) is ) .  Defined .
-
-Corollary isofhlevelfromfun ( n : nat ) ( X : UU ) : isofhlevelf n ( fun x : X => tt ) ->  isofhlevel n X .
-Proof. intros n X is .  apply ( isofhlevelweqf n ( weqhfibertounit X ) ( is tt ) ) .  Defined .
-
-
-
-
-
-
 
 Lemma isofhlevelsnprop (n:nat) { X : UU } ( is : isaprop X ) : isofhlevel (S n) X.
 Proof. intros n X X0. simpl. unfold isaprop in X0.  simpl in X0. intros x x' . apply isofhlevelcontr. apply (X0 x x'). Defined.
