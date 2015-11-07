@@ -1762,7 +1762,7 @@ Proof.
   - intros xyp. induction xyp as [xy p]. induction xy as [x y]. reflexivity.
   - intros yxp. induction yxp as [yx p]. induction yx as [y x]. reflexivity.
 Defined.
- 
+
 Definition weqtotal2dirprodassoc  {X Y:UU} (P: X × Y -> UU) : (Σ xy : X×Y, P xy) ≃ (Σ (x:X) (y:Y), P (x,,y)).
   intros.
   refine (weqgradth _ _ _ _).
@@ -2189,13 +2189,12 @@ Definition weqboolsumtocoprod ( X Y : UU ) := weqpair _ ( isweqboolsumtocoprod X
 
 
 
-(** *** Splitting of [ X ] into a coproduct defined by a function [ X -> coprod Y Z ] *)
+(** *** Splitting of [ X ] into a coproduct defined by a function [ X -> Y ⨿ Z ] *)
 
 
-Definition weqcoprodsplit { X Y Z : UU } ( f : X -> coprod Y Z ) : weq  X  ( coprod ( Σ y : Y, hfiber f ( ii1 y ) ) ( Σ z : Z, hfiber f ( ii2 z ) ) ) .
+Definition weqcoprodsplit { X Y Z : UU } ( f : X -> coprod Y Z ) :
+  X ≃  ( Σ y : Y, hfiber f ( ii1 y ) ) ⨿ ( Σ z : Z, hfiber f ( ii2 z ) ) .
 Proof . intros . set ( w1 := weqtococonusf f ) .  set ( w2 := weqtotal2overcoprod ( fun yz : coprod Y Z => hfiber f yz ) ) . apply ( weqcomp w1 w2 ) .  Defined .
-
-
 
 (** *** Some properties of [ bool ] *)
 
