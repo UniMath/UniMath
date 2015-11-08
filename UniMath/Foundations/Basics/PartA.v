@@ -481,9 +481,13 @@ Definition transport_b_b {X : UU} (P : X ->UU) {x y z : X} (e : x = y) (e' : y =
            (p : P z) : transportb P e (transportb P e' p) = transportb P (e @ e') p.
 Proof. intros. induction e'. induction e. reflexivity. Defined.
 
-Definition transport_section X (x:X) (P:X -> UU) (f:∀ x:X, P x) (y:X) (e:x=y) :
-  transportf P e (f x) = f y.
+Definition transport_map {X} (P Q:X -> UU) (f : ∀x, P x -> Q x) {x:X} {y:X} (e:x=y) (p:P x) :
+  transportf Q e (f x p) = f y (transportf P e p).
 Proof. intros. induction e. reflexivity. Defined.
+
+Definition transport_section {X} (P:X -> UU) (f:∀ x, P x) {x:X} {y:X} (e:x=y) :
+  transportf P e (f x) = f y.
+Proof. intros. exact (transport_map (λ _,unit) P (λ x _,f x) e tt). Defined.
 
 (** A series of lemmas about paths and sigma types.
     Adapted from the HoTT library http://github.com/HoTT/HoTT *)
@@ -609,21 +613,21 @@ Proof.
   apply tppr.
 Defined.
 
-Definition transportf_id1 {A : UU} {B : A -> UU} {a x1 x2 : A}
+Definition transportf_id1 {A : UU} {a x1 x2 : A}
   (p : x1 = x2) (q : a = x1) :
     transportf (fun (x : A) => a = x) p q = q @ p.
 Proof.
   intros. induction p. induction q. apply idpath.
 Defined.
 
-Definition transportf_id2 {A : UU} {B : A -> UU} {a x1 x2 : A}
+Definition transportf_id2 {A : UU} {a x1 x2 : A}
   (p : x1 = x2) (q : x1 = a) :
     transportf (fun (x : A) => x = a) p q = !p @ q.
 Proof.
   intros. induction p. induction q. apply idpath.
 Defined.
 
-Definition transportf_id3 {A : UU} {B : A -> UU} {x1 x2 : A}
+Definition transportf_id3 {A : UU} {x1 x2 : A}
   (p : x1 = x2) (q : x1 = x1) :
     transportf (fun (x : A) => x = x) p q = !p @ q @ p.
 Proof.
