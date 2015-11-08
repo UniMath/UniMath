@@ -21,19 +21,9 @@ Contents :
 
 ************************************************************)
 
-
-
-
-Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -145,3 +135,10 @@ Proof.
 Qed.
 
 End HomSetIso_from_Adjunction.
+
+
+
+
+
+
+
