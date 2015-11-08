@@ -57,6 +57,38 @@ Proof. intros .  apply ( iscontrhfiberofincl ( stntonat n ) ( isinclstntonat n )
 Lemma isisolatedinstn { n : nat } ( x : stn n ) : isisolated _ x.
 Proof. intros . apply ( isisolatedinclb ( stntonat n ) ( isinclstntonat n ) x ( isisolatedn x ) ) .  Defined. 
 
+Lemma stn_ne_iff_neq {n} (i j:stn n) : i ≠ j <-> natneq_type i j.
+Proof.
+  Set Printing Coercions.
+  intros. split.
+  - intro ne.
+    apply (pr1 (natneq_type_iff_neq i j)).
+    intro e. apply ne. apply (isweqonpathsincl _ (isinclstntonat n) _ _ e).
+  - simpl. intros neq e. apply (pr2 (natneq_type_iff_neq i j) neq). 
+    exact (maponpaths (stntonat _) e).
+  Unset Printing Coercions.
+Defined.
+
+Lemma stnneq {n} (i j:stn n) : negProp (i=j).
+Proof. (* compare with [natneq_negProp] *)
+  intros. exists (natneq_type i j). split.
+  - apply natneq_isaprop.
+  - apply stn_ne_iff_neq.
+Defined.
+
+Notation " x !=? y " := ( stnneq x y ) (at level 70, no associativity) : stn.
+Notation " x ≠? y " := ( stnneq x y ) (at level 70, no associativity) : stn.
+Delimit Scope stn with stn.
+
+Lemma stnneq_iff_nopath {n} (i j:stn n) : i ≠ j <-> (i ≠? j)%stn.
+Proof. intros. apply stn_ne_iff_neq. Defined.
+
+Definition stnneq_to_nopath {n} (i j:stn n) : i ≠ j <- (i ≠? j)%stn
+  := pr2 (stnneq_iff_nopath i j).
+
+Goal (stnel(6,3) !=? stnel(6,4))%stn. easy. Defined.
+Goal ¬(stnel(6,3) !=? stnel(6,3))%stn. easy. Defined.
+
 Corollary isdeceqstn ( n : nat ) : isdeceq (stn n).
 Proof. intro.  unfold isdeceq. intros x x' . apply (isisolatedinstn x x' ). Defined.
 
@@ -192,14 +224,27 @@ Proof. intros . apply ( isdecincltoisincl _  ( isdecincldni n i ) ) .  Defined .
 (** *** The weak equivalence from [ stn n ] to the complement of a point [ j ] in [ stn ( S n ) ] defined by [ dni n j ] *)
 
 
-Definition dnitocompl ( n : nat ) ( i : stn ( S n ) ) ( j : stn n ) : compl ( stn ( S n ) ) i .
-Proof. intros . split with ( dni n i j ) .  intro e .  apply ( neghfiberdni n i ( hfiberpair _ j ( pathsinv0 e ) ) ) .  Defined .
+Definition dnitocompl ( n : nat ) ( i : stn ( S n ) ) ( j : stn n ) : compl_ne ( stn ( S n ) ) i (stnneq i).
+Proof. intros . split with ( dni n i j ) .
+       apply stn_ne_iff_neq.
+       intro e .  apply ( neghfiberdni n i ( hfiberpair _ j ( pathsinv0 e ) ) ) .
+Defined .
 
 Lemma isweqdnitocompl  ( n : nat ) ( i : stn ( S n ) ) : isweq ( dnitocompl n i ) .
-Proof. intros . intro jni . destruct jni as [ j ni ] . set ( jni := complpair _ i j ni ) .  destruct ( isdeceqnat i j ) as [i0|] .  destruct ( ni ( invmaponpathsincl _ ( isinclstntonat _ ) _ _ i0 ) ) .  set ( w := samehfibers ( dnitocompl n i )  _ ( isinclpr1compl _ i ) jni ) .   simpl in w . assert ( is : iscontr (hfiber (fun x : stn n => dni n i x) j) ) . apply iscontrhfiberdni .  assumption . apply ( iscontrweqb w is ) .  Defined . 
+Proof.
+  intros. intro jni.
+  induction jni as [ j ni ].
+  set ( jni := compl_ne_pair _ i _ j ni ).
+  assert ( w := samehfibers ( dnitocompl n i )  _ ( isinclpr1compl_ne _ i _ ) jni ) .
+  simpl in w .
+  apply (iscontrweqb w).
+  apply iscontrhfiberdni.
+  apply stnneq_to_nopath.
+  simpl.
+  exact ni.
+Defined. 
 
-
-Definition weqdnicompl n (i:stn(S n)): stn n ≃ compl (stn (S n)) i
+Definition weqdnicompl n (i:stn(S n)): stn n ≃ compl_ne (stn (S n)) i _
   := weqpair _ ( isweqdnitocompl n i ) . 
 
 Definition weqdnicompl_compute_first n i : pr1 (pr1 (weqdnicompl n (firstelement n) i)) = S (pr1 i).
@@ -223,16 +268,8 @@ Definition weqdnicoprod n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
 Proof.
   intros.
   apply (weqcomp (weqcoprodf (weqdnicompl n j) (idweq unit))
-                 (weqrecompl_ne (stn (S n)) j (isdeceqstn (S n) j) (λ k, j !=? k))).
+                 (weqrecompl_ne (stn (S n)) j (isdeceqstn (S n) j) (λ k, j !=? k)%stn)).
 Defined.  
-
-Definition weqdnicoprod' n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
-Proof.                          (* old proof *)
-  intros.
-  apply (weqcomp (weqcoprodf (weqdnicompl n j) (idweq unit))
-                 (weqrecompl (stn (S n)) j (isdeceqstn (S n) j))).
-Defined . 
-
 
 Local Notation "● x" := (x,,idpath _) (at level 35).
 
@@ -245,18 +282,14 @@ Module Test2.
   Goal weqdnicoprod 4 (lastelement _) (ii2 tt) = ●4. reflexivity. Defined.
   Goal invmap (weqdnicoprod 4 (lastelement _)) (●1) = (ii1 (●1)). reflexivity. Defined.
   Goal invmap (weqdnicoprod 4 (lastelement _)) (●4) = (ii2 tt). reflexivity. Defined.
-  Goal homotweqinvweq (weqdnicoprod 4 (lastelement 4)) (● 0) = idpath _.
-    (* The definition of weqfp_invmap transports along this path, so for computability of
-       it on closed terms, we need this to work. *)
-    try reflexivity.
-  Abort.                          (* fix *)
+  Goal homotweqinvweq (weqdnicoprod 4 (lastelement 4)) (● 0) = idpath _. reflexivity. Defined. (* fixed! *)
   Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii2 tt) = idpath _. reflexivity. Defined.
   Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (●1)) = idpath _.
-    try reflexivity. Abort. (* fix *)
+    (* try reflexivity. *) Abort. (* fix *)
   Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (firstelement _)) = idpath _.
-    try reflexivity. Abort. (* fix *)
+    (* try reflexivity.  *) Abort. (* fix *)
   Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (lastelement _)) = idpath _.
-    try reflexivity. Abort. (* fix *)
+    (* try reflexivity.  *) Abort. (* fix *)
   (* here's an example that shows complications need not impede that sort of computability: *)
   Local Definition w : unit ≃ stn 1.
     refine (weqgradth _ _ _ _).
@@ -889,7 +922,7 @@ Proof . intro n . induction n as [ | n IHn ] . intros . simpl . apply ( weqcontr
 
 (** *** Weak equivalence between [ weq ( stn n ) ( stn n ) ] and [ stn ( factorial n ) ] ( uses functional extensionality ) *)
 
-Theorem  weqweqstnsn ( n : nat ) : weq ( weq ( stn ( S n ) ) ( stn ( S n ) ) ) ( dirprod ( stn ( S n ) ) ( weq ( stn n ) ( stn n ) ) ) .
+Theorem  weqweqstnsn ( n : nat ) : (stn(S n) ≃ stn (S n))  ≃  stn(S n) × ( stn n ≃ stn n ).
 Proof . intro . set ( nn := lastelement n ) . set ( is := isdeceqstn _ nn ) . set ( w1 := weqcutonweq ( stn ( S n ) ) nn is ) . set ( w2 := weqisolatedstntostn ( S n ) ) .  set ( w3 := invweq ( weqdnicompl n nn ) ) .  apply ( weqcomp w1 ( weqdirprodf w2 ( weqcomp ( weqbweq _ ( invweq w3 )) ( weqfweq _ w3 ) ) ) ) .  Defined .   
 
 
