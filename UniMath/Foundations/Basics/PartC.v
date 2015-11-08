@@ -176,22 +176,16 @@ assert (is2: iscontr (coconusfromt _ x)). apply iscontrcoconusfromt.
 apply (iscontrweqb ( weqpair f is' ) ). assumption. Defined.
 
 Theorem isaproppathsfromisolated' (X:UU) (x:X) (is:isisolated X x) (t:X) : isaprop (x=t).
+(* an alternative proof *)
 Proof.
-  (* an alternative proof *)
-  intros. unfold isisolated in is.
-  set (P := λ y, (x = y) ⨿ (x ≠ y)).
-  apply invproofirrelevance. intros s' s''.
-  assert (K : ∀ z (s:x=z), transportf P s (is x) = is z).
-  { intros. induction s. reflexivity. }
-  assert (K' := K t s'); assert (K'' := K t s''); clear K.
+  intros. unfold isisolated in is. apply invproofirrelevance. intros s' s''.
+  set (Q y := (x = y) ⨿ (x ≠ y)).
+  assert (e := (transport_section _ is s') @ !(transport_section _ is s'')).
   induction (is x) as [j|k].
-  - assert (R : ∀ z (s:x=z), transportf P s (ii1 j) = ii1 (j@s)).
-    { intros. induction s. induction (! pathscomp0rid j). reflexivity. }
-    assert (R' := R t s'); assert (R'' := R t s''); clear R.
-    assert (T := !R' @ K' @ !K'' @ R''); clear K' K'' R' R''.
-    set (q := @coprod_rect (x=t) (x≠t) (λ _, x=t) (λ e,e) (λ _,s')).
-    assert (U := maponpaths q T); simpl in U.
-    now apply (pathscomp_cancel_left j).
+  - assert (S'  := transport_map _ Q (λ w (p:x = w), ii1 p) s'  j).
+    assert (S'' := transport_map _ Q (λ w (p:x = w), ii1 p) s'' j).
+    assert (c := equality_by_case (!S' @ e @ S'')); clear e; simpl in c.
+    rewrite 2? transportf_id1 in c. now apply (pathscomp_cancel_left j).
   - contradicts k (idpath x).
 Defined.
 
