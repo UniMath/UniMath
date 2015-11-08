@@ -354,28 +354,6 @@ Proof.
   - apply h.
 Defined.
 
-Definition equality_cases {P Q:UU} (x x':P ⨿ Q) : UU.
-Proof.                          (* "codes" *)
-  intros. induction x as [p|q].
-  - induction x' as [p'|q'].
-    + exact (p=p').
-    + exact empty.
-  - induction x' as [p'|q'].
-    + exact empty.
-    + exact (q=q').
-Defined.  
-
-Definition equality_by_case {P Q:UU} {x x':P ⨿ Q} : x=x'-> equality_cases x x'.
-Proof.
-  intros ? ? ? ? e. induction x as [p|q].
-  - induction x' as [p'|q'].
-    + exact (maponpaths (@coprod_rect P Q (λ _,P) (λ p,p) (λ _,p)) e).
-    + contradicts (negpathsii1ii2 p q') e.
-  - induction x' as [p'|q'].
-    + contradicts (negpathsii2ii1 p' q) e.
-    + exact (maponpaths (@coprod_rect P Q (λ _,Q) (λ _,q) (λ q,q)) e).
-Defined.  
-
 Lemma isapropcomponent1 P Q : isaprop ( P ⨿ Q ) -> isaprop P.
 Proof.
   (* see also [isofhlevelsnsummand1] *)
