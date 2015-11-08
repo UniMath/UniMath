@@ -175,17 +175,19 @@ assert (is' : isweq f). apply (onefiber (fun x':X => paths x x' ) x (fun x':X =>
 assert (is2: iscontr (coconusfromt _ x)). apply iscontrcoconusfromt.
 apply (iscontrweqb ( weqpair f is' ) ). assumption. Defined.
 
-Theorem isaproppathsfromisolated' (X:UU) (x:X) (is:isisolated X x) (t:X) : isaprop (x=t).
+Local Open Scope transport.
+
+Theorem isaproppathsfromisolated' (X:UU) (x:X) (is:isisolated X x) (y:X) : isaprop (x=y).
 (* an alternative proof *)
 Proof.
-  intros. unfold isisolated in is. apply invproofirrelevance. intros s' s''.
+  intros. unfold isisolated in is. apply invproofirrelevance. intros m n.
   set (Q y := (x = y) ⨿ (x ≠ y)).
-  assert (e := (transport_section _ is s') @ !(transport_section _ is s'')).
+  assert (a := (transport_section is m) @ !(transport_section is n)).
   induction (is x) as [j|k].
-  - assert (S'  := transport_map _ Q (λ w (p:x = w), ii1 p) s'  j).
-    assert (S'' := transport_map _ Q (λ w (p:x = w), ii1 p) s'' j).
-    assert (c := equality_by_case (!S' @ e @ S'')); clear e; simpl in c.
-    rewrite 2? transportf_id1 in c. now apply (pathscomp_cancel_left j).
+  - assert (b := transport_map (λ y p, ii1 p : Q y) m j); simpl in b;
+    assert (c := transport_map (λ y p, ii1 p : Q y) n j); simpl in c.
+    assert (d := equality_by_case (!b @ a @ c)); simpl in d.
+    rewrite 2? transportf_id1 in d. now apply (pathscomp_cancel_left j).
   - contradicts k (idpath x).
 Defined.
 
