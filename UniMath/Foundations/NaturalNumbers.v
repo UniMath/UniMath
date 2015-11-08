@@ -92,20 +92,23 @@ Proof.
         apply (pr2 (N m)). exact neq.
 Defined.
 
-Definition natneq_negProp (m n:nat) : negProp (m=n).
+Definition natneq_to_nopath n m : n != m <- natneq_type n m
+  := pr2 (natneq_type_iff_neq n m).
+
+Definition natneq_prop (m n:nat) : negProp (m=n).
 Proof.
   intros. exists (natneq_type m n). split.
   - apply natneq_isaprop.
   - apply natneq_type_iff_neq. 
 Defined.
 
-Notation " x !=? y " := ( natneq_negProp x y ) (at level 70, no associativity) : nat_scope.
-Notation " x ≠? y " := ( natneq_negProp x y ) (at level 70, no associativity) : nat_scope.
+Notation " x !=? y " := ( natneq_prop x y ) (at level 70, no associativity) : nat_scope.
+Notation " x ≠? y " := ( natneq_prop x y ) (at level 70, no associativity) : nat_scope.
 
-Goal 3 !=? 5. exact tt. Defined.
-Goal ¬ (3 !=? 3). exact (idfun ∅). Defined.
+Goal 3 !=? 5. easy. Defined.
+Goal ¬ (3 !=? 3). easy. Defined.
 
-Definition isdecrel_natneq_negProp : isdecrel (λ m n, m !=? n).
+Definition isdecrel_natneq_prop : isdecrel natneq_prop.
 Proof.
   intros n. induction n as [|n N].
   - intro m. induction m as [|m _].
@@ -115,6 +118,28 @@ Proof.
     + simpl. exact (ii1 tt).
     + exact (N m).
 Defined.
+
+Module Test_A.
+  Let C  := compl nat 0.
+  Let C' := compl_ne nat 0 (λ m, 0 !=? m).
+  Let w := compl_ne_weq_compl nat 0 (λ m, 0 !=? m) : C ≃ C'.
+  Let cn : C := (3,,negpaths0sx _).
+  Let cn' : C' := (3,,tt).
+  Goal w cn = cn'. reflexivity. Defined.
+  Goal invmap w cn' = cn. reflexivity. Defined.
+  Goal homotinvweqweq w cn = idpath _. try reflexivity. Abort. (* prevented by funextfun *)
+  Goal homotweqinvweq w cn' = idpath _. reflexivity. Defined. (* slow; why? *)
+  Let f := weqrecompl nat 0 (isdeceqnat 0).
+  Let f' := weqrecompl_ne nat 0 (isdeceqnat 0) (λ m, 0 !=? m).
+  Goal f (ii1 cn) = 3. reflexivity. Defined.
+  Goal f' (ii1 cn') = 3. reflexivity. Defined.
+  Goal invmap f 3 = (ii1 cn). reflexivity. Defined.
+  Goal invmap f' 3 = (ii1 cn'). reflexivity. Defined.
+  Goal homotweqinvweq f 3 = idpath _. reflexivity. Defined.
+  Goal homotweqinvweq f' 3 = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq f (ii1 cn) = idpath _. try reflexivity. Abort. (* prevented by funextfun *)
+  Goal homotinvweqweq f' (ii1 cn') = idpath _. reflexivity. Defined. (* succeeds by avoiding funextfun *)
+End Test_A.
 
 Definition nateq ( x y : nat ) : hProp := hProppair ( paths x y ) ( isasetnat _ _  )  .
 Definition isdecrelnateq : isdecrel nateq  := fun a b => isdeceqnat a b .
@@ -1316,7 +1341,7 @@ S n' => ( S n' ) * ( factorial n' ) end .
 
 
 
-(** ** The order-preserving functions [ di i : nat -> nat ] whose image is the complement to one element [ i ] . *)
+(** ** The order-preserving functions [ di i : nat -> nat ] whose image is the complement of one element [ i ] . *)
 
 
 
