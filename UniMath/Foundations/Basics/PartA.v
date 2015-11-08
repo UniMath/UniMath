@@ -2030,14 +2030,21 @@ Proof.
     + exact (maponpaths (@coprod_rect P Q (λ _,Q) (λ _,q) (λ q,q)) e).
 Defined.  
 
-Goal ∀ P Q (p p':P), ii1 (B:=Q) p = ii1 (B:=Q) p' -> p = p'. intros ? ? ? ?. exact equality_by_case. Defined.
-Goal ∀ P Q (q q':Q), ii2 (A:=P) q = ii2 (A:=P) q' -> q = q'. intros ? ? ? ?. exact equality_by_case. Defined.
- 
+(* the same proof proves 4 lemmas: *)
+
+Lemma ii1_injectivity {P Q} (p p':P): ii1 (B:=Q) p = ii1 (B:=Q) p' -> p = p'.
+Proof. intros ? ? ? ?. exact equality_by_case. Defined.
+
+Lemma ii2_injectivity {P Q} (q q':Q): ii2 (A:=P) q = ii2 (A:=P) q' -> q = q'.
+Proof. intros ? ? ? ?. exact equality_by_case. Defined.
+
 Lemma negpathsii1ii2 { X Y : UU } (x:X) (y:Y): ii1 x ≠ ii2 y.
-Proof. intros. exact equality_by_case. Defined.
+Proof. intros ? ? ? ?. exact equality_by_case. Defined.
 
 Lemma negpathsii2ii1 { X Y : UU } (x:X) (y:Y): ii2 y ≠ ii1 x.
-Proof. intros. exact equality_by_case. Defined.
+Proof. intros ? ? ? ?. exact equality_by_case. Defined.
+
+(* ... but we still need the lemmas so we can find them by searching for ii1 or ii2 *)
 
 (** *** Fibrations with only one non-empty fiber.
 
