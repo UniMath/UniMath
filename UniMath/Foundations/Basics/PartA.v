@@ -441,10 +441,8 @@ Definition transportf {X : UU} (P : X -> UU) {x x' : X}
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
   (e : x = x') : P x' -> P x := transportf P (!e).
 
-Notation "p # x" := (transportf _ p x) (only parsing, right associativity, at level 65) : transport.
-Notation "p #' x" := (transportb _ p x) (only parsing, right associativity, at level 65) : transport.
-Notation "p # x" := (transportf _ p x) (only parsing, right associativity, at level 65) : transport.
-Notation "p #' x" := (transportb _ p x) (only parsing, right associativity, at level 65) : transport.
+Notation "p # x" := (transportf _ p x) (right associativity, at level 65) : transport.
+Notation "p #' x" := (transportb _ p x) (right associativity, at level 65) : transport.
 Delimit Scope transport with transport.
 
 Definition idpath_transportf {X} (P:X->Type) {x:X} (p:P x) :
@@ -481,13 +479,13 @@ Definition transport_b_b {X : UU} (P : X ->UU) {x y z : X} (e : x = y) (e' : y =
            (p : P z) : transportb P e (transportb P e' p) = transportb P (e @ e') p.
 Proof. intros. induction e'. induction e. reflexivity. Defined.
 
-Definition transport_map {X} (P Q:X -> UU) (f : ∀x, P x -> Q x) {x:X} {y:X} (e:x=y) (p:P x) :
+Definition transport_map {X} {P Q:X -> UU} (f : ∀x, P x -> Q x) {x:X} {y:X} (e:x=y) (p:P x) :
   transportf Q e (f x p) = f y (transportf P e p).
 Proof. intros. induction e. reflexivity. Defined.
 
-Definition transport_section {X} (P:X -> UU) (f:∀ x, P x) {x:X} {y:X} (e:x=y) :
+Definition transport_section {X} {P:X -> UU} (f:∀ x, P x) {x:X} {y:X} (e:x=y) :
   transportf P e (f x) = f y.
-Proof. intros. exact (transport_map (λ _,unit) P (λ x _,f x) e tt). Defined.
+Proof. intros. exact (transport_map (P:= λ _,unit) (λ x _,f x) e tt). Defined.
 
 (** A series of lemmas about paths and sigma types.
     Adapted from the HoTT library http://github.com/HoTT/HoTT *)
@@ -2010,17 +2008,36 @@ Goal weqcoprodf (idweq nat) (idweq nat) (ii2 3) = ii2 3. reflexivity. Defined.
 Goal invmap (weqcoprodf (idweq nat) (idweq nat)) (ii1 3) = ii1 3. reflexivity. Defined.
 Goal invmap (weqcoprodf (idweq nat) (idweq nat)) (ii2 3) = ii2 3. reflexivity. Defined.
 
-Lemma negpathsii1ii2 { X Y : UU } (x:X)(y:Y): ((ii1  x) != (ii2  y)).
-Proof. intros. unfold neg. intro X0. set (dist:= fun xy: X ⨿ Y => match xy with ii1 x => unit | ii2 y => empty end). apply (transportf dist  X0 tt). Defined.
+Definition equality_cases {P Q:UU} (x x':P ⨿ Q) : UU.
+Proof.                          (* "codes" *)
+  intros. induction x as [p|q].
+  - induction x' as [p'|q'].
+    + exact (p=p').
+    + exact empty.
+  - induction x' as [p'|q'].
+    + exact empty.
+    + exact (q=q').
+Defined.  
 
-Lemma negpathsii2ii1 { X Y : UU } (x:X)(y:Y): ((ii2  y) != (ii1  x)).
-Proof. intros. unfold neg. intro X0. set (dist:= fun xy: X ⨿ Y => match xy with ii1 x => empty | ii2 y => unit end). apply (transportf dist  X0 tt). Defined.
+Definition equality_by_case {P Q:UU} {x x':P ⨿ Q} : x=x'-> equality_cases x x'.
+Proof.
+  intros ? ? ? ? e. induction x as [p|q].
+  - induction x' as [p'|q'].
+    + exact (maponpaths (@coprod_rect P Q (λ _,P) (λ p,p) (λ _,p)) e).
+    + exact (transportf (@coprod_rect P Q (λ _,UU) (λ _,unit) (λ _,empty)) e tt).
+  - induction x' as [p'|q'].
+    + exact (transportb (@coprod_rect P Q (λ _,UU) (λ _,unit) (λ _,empty)) e tt).
+    + exact (maponpaths (@coprod_rect P Q (λ _,Q) (λ _,q) (λ q,q)) e).
+Defined.  
 
+Goal ∀ P Q (p p':P), ii1 (B:=Q) p = ii1 (B:=Q) p' -> p = p'. intros ? ? ? ?. exact equality_by_case. Defined.
+Goal ∀ P Q (q q':Q), ii2 (A:=P) q = ii2 (A:=P) q' -> q = q'. intros ? ? ? ?. exact equality_by_case. Defined.
+ 
+Lemma negpathsii1ii2 { X Y : UU } (x:X) (y:Y): ii1 x ≠ ii2 y.
+Proof. intros. exact equality_by_case. Defined.
 
-
-
-
-
+Lemma negpathsii2ii1 { X Y : UU } (x:X) (y:Y): ii2 y ≠ ii1 x.
+Proof. intros. exact equality_by_case. Defined.
 
 (** *** Fibrations with only one non-empty fiber.
 
