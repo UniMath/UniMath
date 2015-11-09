@@ -162,7 +162,8 @@ Proof. intros n i x .  induction (natlthorgeh x i). apply ( stnpair ( S n ) x ( 
 Lemma dni_last n (i:stn n) : pr1 (dni n (lastelement n) i) = i.
 Proof.
   intros. induction i as [i I]. unfold dni. simpl. induction (natlthorgeh i n) as [g|g].
-  { reflexivity. } contradiction.
+  { reflexivity. }
+  simpl. contradicts (natlehtonegnatgth _ _ g) I.
 Defined.
 
 Lemma dni_first n (i:stn n) : pr1 (dni n (firstelement n) i) = S i.
@@ -187,7 +188,10 @@ assert ( is1 : iscontr ( hfiber ( stntonat n ) x ) ) . apply iscontrhfiberstnton
 assert ( is2 : iscontr ( hfiber ( stntonat ( S n ) ) ( di i x )  ) ) .    apply iscontrhfiberstntonat . apply ( natlehlthtrans _ ( S x ) ( S n ) ( natlehdinsn i x ) g ) .  
 apply isweqcontrcontr . assumption . assumption . 
 
-assert ( is1 : neg ( hfiber ( stntonat ( S n ) ) ( di i x ) ) ) . apply neghfiberstntonat . unfold di .   destruct ( natlthorgeh x i ) as [ l'' | g' ] .  destruct ( natgehchoice2 _ _ l ) as [ g' | e ] .   apply g' .  rewrite e in l'' .  set ( int := natlthtolehsn _ _ l'' ) .  destruct ( int ( pr2 i ) ) .  apply l .  apply ( isweqtoempty2 _ is1 ) .
+assert ( is1 : neg ( hfiber ( stntonat ( S n ) ) ( di i x ) ) ) . apply neghfiberstntonat . unfold di .   destruct ( natlthorgeh x i ) as [ l'' | g' ] .  destruct ( natgehchoice2 _ _ l ) as [ g' | e ] .   apply g' .  rewrite e in l'' .  assert ( int := natlthtolehsn _ _ l'' ) .
+
+
+destruct ( int ( pr2 i ) ) .  apply l .  apply ( isweqtoempty2 _ is1 ) .
 Defined . 
 
 
