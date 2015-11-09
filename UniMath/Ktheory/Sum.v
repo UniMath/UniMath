@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 (* sums (coproducts) *)
-Require Import 
+Require Import
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories

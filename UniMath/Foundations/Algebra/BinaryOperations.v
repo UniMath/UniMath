@@ -472,10 +472,6 @@ Definition invbinopiso { X Y : setwithbinop } ( f : binopiso X Y ) : binopiso Y 
 (** **** Transport of properties of a binary operation  *)
 
 
-Lemma isincltwooutof3a { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( isg : isincl g ) ( isgf : isincl ( funcomp f g ) ) : isincl f .
-Proof . intros . apply ( isofhlevelff 1 f g isgf ) .  apply ( isofhlevelfsnincl 1 g isg ) . Defined .
-
-
 Lemma islcancelablemonob { X Y : setwithbinop } ( f : binopmono X Y ) ( x : X ) ( is : islcancelable ( @op Y ) ( f x ) ) : islcancelable ( @op X ) x .
 Proof . intros .  unfold islcancelable . apply ( isincltwooutof3a (fun x0 : X => op x x0) f ( pr2 ( pr1 f ) ) ) .    
 

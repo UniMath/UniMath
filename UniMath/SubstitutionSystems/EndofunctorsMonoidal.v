@@ -12,11 +12,11 @@ SubstitutionSystems
 
 (** **********************************************************
 
-Contents : 
+Contents :
 
 - Definition of the (weak) monoidal structure on endofunctors
-                	
-           
+
+
 ************************************************************)
 
 
@@ -47,24 +47,24 @@ Section Monoidal_Structure_on_Endofunctors.
 
 Variable C : precategory.
 
-Definition ρ_functor (X : functor C C) 
+Definition ρ_functor (X : functor C C)
   : nat_trans (functor_composite X (functor_identity C)) X.
 Proof.
   exists (λ x, identity (X x) ) .
-  intros a b f. simpl. 
+  intros a b f. simpl.
   pathvia (#X f).
   - apply id_right.
   - apply pathsinv0, id_left.
 Defined.
 
-Definition ρ_functor_inv (X : functor C C) 
+Definition ρ_functor_inv (X : functor C C)
   : nat_trans X (functor_composite X (functor_identity C)) := ρ_functor X.
 
-Definition λ_functor (X : functor C C) 
+Definition λ_functor (X : functor C C)
   : nat_trans (functor_composite (functor_identity C) X) X
   := ρ_functor X.
 
-Definition λ_functor_inv (X : functor C C) 
+Definition λ_functor_inv (X : functor C C)
   : nat_trans X (functor_composite (functor_identity C) X)
   := ρ_functor X.
 
@@ -73,7 +73,7 @@ Definition α_functor (X Y Z : functor C C)
               (functor_composite X (functor_composite Y Z)).
 Proof.
   exists (λ x, identity _ ).
-  intros a b f; 
+  intros a b f;
   simpl.
   rewrite id_right.
   apply pathsinv0, id_left.
@@ -85,10 +85,3 @@ Definition α_functor_inv (X Y Z : functor C C)
 
 
 End Monoidal_Structure_on_Endofunctors.
-
-
-
-
-
-
-

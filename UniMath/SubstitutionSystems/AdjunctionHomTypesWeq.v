@@ -12,13 +12,13 @@ SubstitutionSystems
 
 (** **********************************************************
 
-Contents : 
+Contents :
 
-- Derivation of the data of an adjunction in terms of equivalence 
-  of hom-types from the definition of 
+- Derivation of the data of an adjunction in terms of equivalence
+  of hom-types from the definition of
   adjunction in terms of unit and counit
-                	
-           
+
+
 ************************************************************)
 
 
@@ -55,7 +55,7 @@ Let ε := eps_from_left_adjoint H.
 
 (** * Definition of the maps on hom-types *)
 
-Definition φ_adj {A : C} {B : D} : F A ⇒ B → A ⇒ G B 
+Definition φ_adj {A : C} {B : D} : F A ⇒ B → A ⇒ G B
   := λ f : F A ⇒ B, η _ ;; #G f.
 
 Definition φ_adj_inv {A : C} {B : D} : A ⇒ G B → F A ⇒ B
@@ -63,7 +63,7 @@ Definition φ_adj_inv {A : C} {B : D} : A ⇒ G B → F A ⇒ B
 
 (** * Proof that those maps are inverse to each other *)
 
-Lemma φ_adj_after_φ_adj_inv {A : C} {B : D} (g : A ⇒ G B) 
+Lemma φ_adj_after_φ_adj_inv {A : C} {B : D} (g : A ⇒ G B)
   : φ_adj (φ_adj_inv g) = g.
 Proof.
   unfold φ_adj.
@@ -93,7 +93,7 @@ Proof.
   - apply cancel_postcomposition.
     apply triangle_id_left_ad.
   - apply id_left.
-Qed.  
+Qed.
 
 Definition adjunction_hom_weq (A : C) (B : D) : F A ⇒ B ≃ A ⇒ G B.
 Proof.
@@ -145,10 +145,3 @@ Proof.
 Qed.
 
 End HomSetIso_from_Adjunction.
-
-
-
-
-
-
-

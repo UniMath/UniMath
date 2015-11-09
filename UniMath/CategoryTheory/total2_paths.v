@@ -3,7 +3,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 
-Definition propproperty ( X : hProp ) := pr2 X . 
+Definition propproperty ( X : hProp ) := pr2 X .
 
 (** * Paths in total spaces are equivalent to pairs of paths *)
 
@@ -15,9 +15,9 @@ Definition propproperty ( X : hProp ) := pr2 X .
 
 
 
-Lemma total2_paths_UU  {B : UU -> UU} {s s' : total2 (fun x => B x)} 
-    (p : pr1 s = pr1 s') 
-    (q : transportf (fun x => B x) p (pr2 s) = pr2 s') : 
+Lemma total2_paths_UU  {B : UU -> UU} {s s' : total2 (fun x => B x)}
+    (p : pr1 s = pr1 s')
+    (q : transportf (fun x => B x) p (pr2 s) = pr2 s') :
                s = s'.
 Proof.
   induction s as [a b].
@@ -29,11 +29,11 @@ Defined.
 
 
 
-Lemma total2_paths2_UU {B : UU -> UU} {A A': UU} {b : B A} 
-     {b' : B A'} (p : A = A') (q : transportf (fun x => B x) p b = b') : 
+Lemma total2_paths2_UU {B : UU -> UU} {A A': UU} {b : B A}
+     {b' : B A'} (p : A = A') (q : transportf (fun x => B x) p b = b') :
     tpair (fun x => B x) A b = tpair (fun x => B x) A' b'.
 Proof.
-  apply (@total2_paths _ _  
+  apply (@total2_paths _ _
      (tpair (fun x => B x) A b)(tpair (fun x => B x) A' b') p q).
 Defined.
 
@@ -52,7 +52,7 @@ Proof.
 Defined.
 
 
-Lemma total2_fiber_paths_UU {B : UU -> UU} {x y : total2 (fun x => B x)} 
+Lemma total2_fiber_paths_UU {B : UU -> UU} {x y : total2 (fun x => B x)}
  (p : x = y) : total2_paths_UU  _ (fiber_paths_UU p) = p.
 Proof.
   induction p.
@@ -66,8 +66,8 @@ Lemma base_total2_paths_UU {B : UU -> UU} {x y : total2 (fun x => B x)}
   (base_paths_UU _ _ (total2_paths_UU _ q)) = p.
 Proof.
   induction x as [x H]. induction y as [y K].
-  simpl in *. 
-  induction p. 
+  simpl in *.
+  induction p.
   induction q.
   apply idpath.
 Defined.
@@ -78,10 +78,10 @@ Lemma transportf_fiber_total2_paths_UU (B : UU -> UU) (x y : total2 (fun x => B 
   transportf (fun p' : pr1 x = pr1 y => transportf _ p' (pr2 x) = pr2 y)
   (base_total2_paths_UU q)  (fiber_paths_UU (total2_paths_UU _ q)) = q.
 Proof.
-  induction x as [x H]. 
+  induction x as [x H].
   induction y as [y K].
   simpl in *.
-  induction p. 
+  induction p.
   induction q.
   apply idpath.
 Defined.
@@ -89,7 +89,7 @@ Defined.
 
 
 Lemma eq_equalities_between_pairs (A : UU)(B : A -> UU)(x y : total2 (fun x => B x))
-    (p q : x = y) (H : base_paths _ _ p = base_paths _ _ q) 
+    (p q : x = y) (H : base_paths _ _ p = base_paths _ _ q)
     (H2 : transportf (fun p : pr1 x = pr1 y =>  transportf _ p (pr2 x) = pr2 y )
          H (fiber_paths p) = fiber_paths q) :  p = q.
 Proof.
