@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import 
+Require Import
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
@@ -8,7 +8,7 @@ Require Import
         UniMath.Ktheory.Precategories
         UniMath.Ktheory.Sets.
 Definition set (C:precategory) (hs:has_homsets C) {I} (c:I -> ob C) : ob C -> ob SET.
-  intros ? ? ? ? x. 
+  intros ? ? ? ? x.
    apply (Sets.Product (fun i => hSetpair (Hom (c i) x) (hs _ _ ) )).
 Defined.
 Definition map (C:precategory)(hs: has_homsets C) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :

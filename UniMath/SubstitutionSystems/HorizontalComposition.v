@@ -12,12 +12,12 @@ SubstitutionSystems
 
 (** **********************************************************
 
-Contents : 
+Contents :
 
 - Definition of horizontal composition for natural transformations
 
-                	
-           
+
+
 ************************************************************)
 
 
@@ -69,11 +69,11 @@ Arguments hor_comp { _ _ _ } { _ _ _ _ } _ _ .
 
 (*
 Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)(f : nat_trans Z Z')
-  : 
+  :
   hor_comp (nat_trans_id X) f = pre_whisker f.
 *)
 Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)(f : nat_trans Z Z')
-  : 
+  :
   forall c : C, hor_comp (nat_trans_id X) f c = f (X c).
 Proof.
   simpl.
@@ -81,11 +81,11 @@ Proof.
   rewrite functor_id.
   rewrite id_right.
   apply idpath.
-Qed.  
+Qed.
 
-Lemma horcomp_id_postwhisker (A B C : precategory) 
+Lemma horcomp_id_postwhisker (A B C : precategory)
    (hsB : has_homsets B) (hsC : has_homsets C) (X X' : [A, B, hsB]) (α : X ⇒ X')
-   (Z : [B ,C, hsC]) 
+   (Z : [B ,C, hsC])
   : hor_comp α (nat_trans_id _ ) = post_whisker hsB hsC _ _ α Z.
 Proof.
   apply nat_trans_eq.
@@ -93,7 +93,3 @@ Proof.
   - intro a.
     apply id_left.
 Qed.
-
-
-
-

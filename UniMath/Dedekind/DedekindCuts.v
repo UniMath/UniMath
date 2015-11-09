@@ -76,7 +76,7 @@ Lemma Dcuts_bounded :
 Proof.
   intros X r Hr n Hn.
   apply notge_ltNonnegativeRationals ; intro Hn'.
-  apply Hr.  
+  apply Hr.
   apply is_Dcuts_bot with n.
   exact Hn.
   exact Hn'.
@@ -195,7 +195,7 @@ Notation "x <= y" := (Dcuts_le x y) : Dcuts_scope.
 Notation "x >= y" := (Dcuts_ge x y) : Dcuts_scope.
 Notation "x < y" := (Dcuts_lt x y) : Dcuts_scope.
 Notation "x > y" := (Dcuts_gt x y) : Dcuts_scope.
-     
+
 (** ** Equality on [Dcuts] *)
 
 Definition Dcuts_eq : hrel Dcuts :=
@@ -260,7 +260,7 @@ Definition Dcuts_ap (X Y : Dcuts) : hProp :=
 
 Lemma isirrefl_Dcuts_ap : isirrefl Dcuts_ap.
 Proof.
-  intros x. 
+  intros x.
   unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
   intros [Hap|Hap].
   now apply isirrefl_StrongOrder with (1 := Hap).
@@ -361,7 +361,7 @@ Lemma istrans_Dcuts_le_lt :
   forall x y z : Dcuts,
     x <= y -> y < z -> x < z.
 Proof.
-  intros x y z. 
+  intros x y z.
   apply hinhfun2.
   intros Hxy (r,(Yr,Zr)).
   exists r ; split.
@@ -373,7 +373,7 @@ Lemma istrans_Dcuts_lt_le :
   forall x y z : Dcuts,
     x < y -> y <= z -> x < z.
 Proof.
-  intros x y z. 
+  intros x y z.
   apply hinhfun2.
   intros (r,(Xr,Yr)) Hyz.
   exists r ; split.
@@ -390,7 +390,7 @@ Context (E_bounded : hexists (@isUpperBound eo_Dcuts E)).
 
 Definition Dcuts_lub_val : NonnegativeRationals -> hProp :=
   fun r : NonnegativeRationals => hexists (fun X : Dcuts => dirprod (E X) (r ∈ X)).
-Lemma Dcuts_lub_bot : 
+Lemma Dcuts_lub_bot :
   forall (x : NonnegativeRationals),
     Dcuts_lub_val x -> forall y : NonnegativeRationals, (y <= x)%NnR -> Dcuts_lub_val y.
 Proof.
@@ -407,7 +407,7 @@ Lemma Dcuts_lub_open :
 Proof.
   intros r.
   apply hinhuniv ; intros (X,(Ex,Xr)).
-  generalize (is_Dcuts_open X r Xr). 
+  generalize (is_Dcuts_open X r Xr).
   apply hinhfun ; intros (n,(Xn,Hrn)).
   exists n ; split.
   intros P HP ; apply HP ; clear P HP.
@@ -476,11 +476,11 @@ Qed.
 Section Dcuts_glb.
 
 Context (E : subset Dcuts).
-Context (E_not_empty : hexists E).  
+Context (E_not_empty : hexists E).
 
 Definition Dcuts_glb_val : NonnegativeRationals -> hProp :=
   fun r : NonnegativeRationals => hexists (fun n => dirprod (r < n)%NnR (forall X : Dcuts, E X -> n ∈ X)).
-Lemma Dcuts_glb_bot : 
+Lemma Dcuts_glb_bot :
   forall (x : NonnegativeRationals),
     Dcuts_glb_val x -> forall y : NonnegativeRationals, (y <= x)%NnR -> Dcuts_glb_val y.
 Proof.
