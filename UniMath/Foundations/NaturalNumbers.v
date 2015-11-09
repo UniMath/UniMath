@@ -241,9 +241,6 @@ Proof . apply isantisymmnegtoiscoantisymm . apply isdecrelnatgth .  intros n m .
 Lemma iscotransnatgth ( n m k : nat ) : natgth n k -> hdisj ( natgth n m ) ( natgth m k ) .
 Proof . intros x y z gxz .  destruct ( isdecrelnatgth x y ) as [ gxy | ngxy ] . apply ( hinhpr ( ii1 gxy ) ) . apply hinhpr .   apply ii2 .  destruct ( isdecrelnatgth y x ) as [ gyx | ngyx ] . apply ( istransnatgth _ _ _ gyx gxz ) .  set ( e := isantisymmnegnatgth _ _ ngxy ngyx ) . rewrite e in gxz .  apply gxz .  Defined .   
 
-
-
-
 (** *** Semi-boolean "less" on [ nat ] or [ natlth ] *)
 
 Definition natlth ( n m : nat ) := natgth m n .
@@ -289,27 +286,61 @@ Proof . intros n m k lnk . apply ( ( pr1 islogeqcommhdisj ) ( iscotransnatgth _ 
 
 (** *** Semi-boolean "less or equal " on [ nat ] or [ natleh ] *)
 
-Definition natleh ( n m : nat ) := hProppair ( neg ( natgth n m ) ) ( isapropneg _ )  .
+Definition natleh ( n m : nat ) := S m > n.
 
 Notation " x <= y " := ( natleh x y ) : nat_scope .
 Notation " x ≤ y " := ( natleh x y ) (at level 70, no associativity) : nat_scope .
 
-Definition natleh0tois0 ( n : nat ) ( l : natleh n 0 ) : paths n 0 := negnatgth0tois0 _ l .
+Definition isdecrelnatleh : isdecrel natleh := λ m n, isdecrelnatgth _ _.
 
-Definition natleh0n ( n : nat ) : natleh 0 n := negnatgth0n _ .
+(* these two lemmas show agreement with our old definition: *)
+    
+Lemma natlehneggth n m : ¬ (n > m) <- n ≤ m.
+Proof.
+  unfold natleh. intro n. induction n as [|n N].
+  - intros m r s. induction (negnatgth0n _ s).
+  - intros m r s. induction m as [|m _].
+    + contradicts (negnatgth0n n) r.
+    + change (S m > S n) with (m > n) in *.
+      change (S n > S m) with (n > m) in *.
+      change (S (S m) > S n) with (S m > n) in *.
+      contradicts (N m r) s.
+Defined.
 
-Definition negnatlehsn0 ( n : nat ) : neg ( natleh ( S n ) 0 ) := todneg _ ( natgthsn0 n ) . 
+Lemma natneggthleh n m : ¬ (n > m) -> n ≤ m.
+Proof.
+  unfold natleh. intro n. induction n as [|n N].
+  - intros m r. exact (natgthsn0 m).
+  - intro m. change (S m > S n) with (m > n). induction m as [|m _].
+    * intro r. contradicts (natgthsn0 n) r.
+    * change (S n > S m) with (n > m). intro r. exact (N m r).
+Defined.
 
-Definition negnatlehsnn ( n : nat ) : neg ( natleh ( S n ) n ) := todneg _ ( natgthsnn _ ) . 
+Lemma natneglehgth n m : n > m <- ¬ (n ≤ m).
+Proof.
+  intros ? ? r. apply (isdecreltoisnegrel isdecrelnatgth).
+  intro s. contradicts (natneggthleh n m s) r.
+Defined.  
 
-Definition  istransnatleh ( n m k : nat ) : natleh n m -> natleh m k -> natleh n k .
+Lemma natgthnegleh n m : n > m -> ¬ (n ≤ m).
+Proof.
+  intros ? ? r s. exact (natlehneggth n m s r).
+Defined.
+
+Definition natleh0tois0 ( n : nat ) ( l : n ≤ 0 ) : n = 0 := natlth1tois0 n l.
+
+Definition natleh0n ( n : nat ) : 0 ≤ n := natgthsn0 _ .
+
+Definition negnatlehsn0 ( n : nat ) : ¬ ( S n ≤ 0 ) := negnatlthn0 _.
+
+Definition negnatlehsnn ( n : nat ) : ¬ ( S n ≤ n ) := isirreflnatlth _.
+
+Definition istransnatleh ( n m k : nat ) : n ≤ m -> m ≤ k -> n ≤ k .
 Proof. apply istransnegrel . unfold iscotrans. apply iscotransnatgth .  Defined.   
 
 Definition isreflnatleh ( n : nat ) : natleh n n := isirreflnatgth n .  
 
 Definition isantisymmnatleh : isantisymm natleh := isantisymmnegnatgth .   
-
-Definition isdecrelnatleh : isdecrel natleh := isdecnegrel _ isdecrelnatgth . 
 
 Definition natlehdec := decrelpair isdecrelnatleh .
 
@@ -326,7 +357,7 @@ Proof . intros x y . destruct ( isdecrelnatleh x y ) as [ lxy | lyx ] . apply ( 
 (** *** Semi-boolean "greater or equal" on [ nat ] or [ natgeh ] . *)
 
 
-Definition natgeh ( n m : nat ) : hProp := hProppair ( neg ( natgth m n ) ) ( isapropneg _ ) .
+Definition natgeh ( n m : nat ) : hProp := natleh m n.
 
 Notation " x >= y " := ( natgeh x y ) : nat_scope .
 Notation " x ≥ y " := ( natgeh x y ) (at level 70, no associativity) : nat_scope .
