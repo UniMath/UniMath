@@ -374,6 +374,122 @@ Definition isConstrDivRig (X : ConstructiveRig) :=
   isnonzeroCR X × (∀ x : X, x # (0%rig : X) -> multinvpair X x).
 
 Definition ConstructiveDivisionRig := Σ X : ConstructiveRig, isConstrDivRig X.
+Definition ConstructiveDivisionRig_ConstructiveRig : ConstructiveDivisionRig -> ConstructiveRig := pr1.
+Coercion ConstructiveDivisionRig_ConstructiveRig : ConstructiveDivisionRig >-> ConstructiveRig.
+
+Definition CDRinv {X : ConstructiveDivisionRig} (x : X) (Hx0 : x # (0%rig : X)) : X :=
+  (pr1 (pr2 (pr2 X) x Hx0)).
+Definition CDRdiv {X : ConstructiveDivisionRig} (x y : X) (Hy0 : y # (0%rig : X)) : X :=
+  (x * CDRinv y Hy0).
+
+Notation "/ x" := (CDRinv (pr1 x) (pr2 x)).
+Notation "x / y" := (CDRdiv x (pr1 y) (pr2 y)).
+
+(** Lemmas *)
+
+Section CDR_pty.
+
+Context {X : ConstructiveDivisionRig}.
+
+Lemma isnonzeroCDR : (1%rig : X) # (0%rig : X).
+Proof.
+  exact (pr1 (pr2 X)).
+Qed.
+Lemma apCDRplus :
+  forall x x' y y' : X,
+    x + y # x' + y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op1.
+Qed.
+Lemma apCDRmult :
+  forall x x' y y' : X,
+    x * y # x' * y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op2.
+Qed.
+
+Lemma islunit_CDRzero_CDRplus :
+  forall x : X, 0%rig + x = x.
+Proof.
+  now apply riglunax1.
+Qed.
+Lemma isrunit_CDRzero_CDRplus :
+  forall x : X, x + 0%rig = x.
+Proof.
+  now apply rigrunax1.
+Qed.
+Lemma isassoc_CDRplus :
+  forall x y z : X, x + y + z = x + (y + z).
+Proof.
+  now apply rigassoc1.
+Qed.
+Lemma iscomm_CDRplus :
+  forall x y : X, x + y = y + x.
+Proof.
+  now apply rigcomm1.
+Qed.
+Lemma islunit_CDRone_CDRmult :
+  forall x : X, 1%rig * x = x.
+Proof.
+  now apply riglunax2.
+Qed.
+Lemma isrunit_CDRone_CDRmult :
+  forall x : X, x * 1%rig = x.
+Proof.
+  now apply rigrunax2.
+Qed.
+Lemma isassoc_CDRmult :
+  forall x y z : X, x * y * z = x * (y * z).
+Proof.
+  now apply rigassoc2.
+Qed.
+Lemma islinv_CDRinv :
+  ∀ (x : X) (Hx0 : x # (0%rig : X)),
+    (CDRinv x Hx0) * x = 1%rig.
+Proof.
+  intros x Hx0.
+  apply (pr1 (pr2 (pr2 (pr2 X) x Hx0))).
+Qed.
+Lemma islinv_CDRinv' :
+  ∀ (x : Σ x : X, x # (0%rig : X)),
+    / x * (pr1 x) = 1%rig.
+Proof.
+  intros x.
+  now apply islinv_CDRinv.
+Qed.
+Lemma isrinv_CDRinv :
+  ∀ (x : X) (Hx0 : x # (0%rig : X)),
+    x * (CDRinv x Hx0) = 1%rig.
+Proof.
+  intros x Hx0.
+  apply (pr2 (pr2 (pr2 (pr2 X) x Hx0))).
+Qed.
+Lemma isrinv_CDRinv' :
+  ∀ (x : Σ x : X, x # (0%rig : X)),
+    (pr1 x) * / x = 1%rig.
+Proof.
+  intros x.
+  now apply isrinv_CDRinv.
+Qed.
+Lemma islabsorb_CDRzero_CDRmult :
+  ∀ x : X, 0%rig * x = 0%rig.
+Proof.
+  now apply rigmult0x.
+Qed.
+Lemma israbsorb_CDRzero_CDRmult :
+  ∀ x : X, x * 0%rig = 0%rig.
+Proof.
+  now apply rigmultx0.
+Qed.
+Lemma isldistr_CDRplus_CDRmult :
+  ∀ x y z : X, z * (x + y) = z * x + z * y.
+Proof.
+  now apply rigdistraxs.
+Qed.
+
+Print invpair.
+
+End CDR_pty.
 
 (** ** Constructive commutative rig with division *)
 
