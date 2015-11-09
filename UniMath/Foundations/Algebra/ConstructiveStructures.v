@@ -112,9 +112,9 @@ End CRig_pty.
 
 Definition ConstructiveCommutativeRig :=
   Σ X : apsetwith2binop, @iscommrigops X op1 op2.
-Definition ConstructiveCommutativeRig_CommutativeRig (X : ConstructiveCommutativeRig) : ConstructiveRig :=
+Definition ConstructiveCommutativeRig_ConstructiveRig (X : ConstructiveCommutativeRig) : ConstructiveRig :=
   pr1 X,, pr1 (pr2 X).
-Coercion ConstructiveCommutativeRig_CommutativeRig : ConstructiveCommutativeRig >-> ConstructiveRig.
+Coercion ConstructiveCommutativeRig_ConstructiveRig : ConstructiveCommutativeRig >-> ConstructiveRig.
 Definition ConstructiveCommutativeRig_commrig : ConstructiveCommutativeRig -> commrig :=
   λ X : ConstructiveCommutativeRig, (apsetwith2binop_setwith2binop (ConstructiveRig_set X)),, pr2 X.
 
@@ -382,8 +382,8 @@ Definition CDRinv {X : ConstructiveDivisionRig} (x : X) (Hx0 : x # (0%rig : X)) 
 Definition CDRdiv {X : ConstructiveDivisionRig} (x y : X) (Hy0 : y # (0%rig : X)) : X :=
   (x * CDRinv y Hy0).
 
-Notation "/ x" := (CDRinv (pr1 x) (pr2 x)).
-Notation "x / y" := (CDRdiv x (pr1 y) (pr2 y)).
+Notation "/ x" := (CDRinv (pr1 x) (pr2 x)) : constructive_logic.
+Notation "x / y" := (CDRdiv x (pr1 y) (pr2 y)) : constructive_logic.
 
 (** Lemmas *)
 
@@ -487,14 +487,231 @@ Proof.
   now apply rigdistraxs.
 Qed.
 
-Print invpair.
-
 End CDR_pty.
 
 (** ** Constructive commutative rig with division *)
 
 Definition ConstructiveCommutativeDivisionRig := Σ X : ConstructiveCommutativeRig, isConstrDivRig X.
+Definition ConstructiveCommutativeDivisionRig_ConstructiveCommutativeRig :
+  ConstructiveCommutativeDivisionRig -> ConstructiveCommutativeRig := pr1.
+Coercion ConstructiveCommutativeDivisionRig_ConstructiveCommutativeRig :
+  ConstructiveCommutativeDivisionRig >-> ConstructiveCommutativeRig.
+Definition ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig :
+  ConstructiveCommutativeDivisionRig -> ConstructiveDivisionRig :=
+  λ X, (ConstructiveCommutativeRig_ConstructiveRig (pr1 X)) ,, (pr2 X).
+Coercion ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig :
+  ConstructiveCommutativeDivisionRig >-> ConstructiveDivisionRig.
+
+(** Lemmas *)
+
+Section CCDR_pty.
+
+Context {X : ConstructiveCommutativeDivisionRig}.
+
+Lemma isnonzeroCCDR : (1%rig : X) # (0%rig : X).
+Proof.
+  exact (pr1 (pr2 X)).
+Qed.
+Lemma apCCDRplus :
+  forall x x' y y' : X,
+    x + y # x' + y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op1.
+Qed.
+Lemma apCCDRmult :
+  forall x x' y y' : X,
+    x * y # x' * y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op2.
+Qed.
+
+Lemma islunit_CCDRzero_CCDRplus :
+  forall x : X, 0%rig + x = x.
+Proof.
+  now apply riglunax1.
+Qed.
+Lemma isrunit_CCDRzero_CCDRplus :
+  forall x : X, x + 0%rig = x.
+Proof.
+  now apply rigrunax1.
+Qed.
+Lemma isassoc_CCDRplus :
+  forall x y z : X, x + y + z = x + (y + z).
+Proof.
+  now apply rigassoc1.
+Qed.
+Lemma iscomm_CCDRplus :
+  forall x y : X, x + y = y + x.
+Proof.
+  now apply rigcomm1.
+Qed.
+Lemma islunit_CCDRone_CCDRmult :
+  forall x : X, 1%rig * x = x.
+Proof.
+  now apply riglunax2.
+Qed.
+Lemma isrunit_CCDRone_CCDRmult :
+  forall x : X, x * 1%rig = x.
+Proof.
+  now apply rigrunax2.
+Qed.
+Lemma isassoc_CCDRmult :
+  forall x y z : X, x * y * z = x * (y * z).
+Proof.
+  now apply rigassoc2.
+Qed.
+Lemma iscomm_CCDRmult :
+  forall x y : X, x * y = y * x.
+Proof.
+  now apply (rigcomm2 (ConstructiveCommutativeRig_commrig X)).
+Qed.
+Lemma islinv_CCDRinv :
+  ∀ (x : X) (Hx0 : x # (0%rig : X)),
+    (CDRinv (X := X) x Hx0) * x = 1%rig.
+Proof.
+  intros x Hx0.
+  apply (pr1 (pr2 (pr2 (pr2 X) x Hx0))).
+Qed.
+Lemma isrinv_CCDRinv :
+  ∀ (x : X) (Hx0 : x # (0%rig : X)),
+    x * (CDRinv (X := X) x Hx0) = 1%rig.
+Proof.
+  intros x Hx0.
+  apply (pr2 (pr2 (pr2 (pr2 X) x Hx0))).
+Qed.
+Lemma islabsorb_CCDRzero_CCDRmult :
+  ∀ x : X, 0%rig * x = 0%rig.
+Proof.
+  now apply rigmult0x.
+Qed.
+Lemma israbsorb_CCDRzero_CCDRmult :
+  ∀ x : X, x * 0%rig = 0%rig.
+Proof.
+  now apply rigmultx0.
+Qed.
+Lemma isldistr_CCDRplus_CCDRmult :
+  ∀ x y z : X, z * (x + y) = z * x + z * y.
+Proof.
+  now apply rigdistraxs.
+Qed.
+
+End CCDR_pty.
 
 (** ** Constructive Field *)
 
 Definition ConstructiveField := Σ X : ConstructiveCommutativeRing, isConstrDivRig X.
+Definition ConstructiveField_ConstructiveCommutativeRing :
+  ConstructiveField -> ConstructiveCommutativeRing := pr1.
+Coercion ConstructiveField_ConstructiveCommutativeRing :
+  ConstructiveField >-> ConstructiveCommutativeRing.
+Definition ConstructiveField_ConstructiveCommutativeDivisionRig :
+  ConstructiveField -> ConstructiveCommutativeDivisionRig :=
+  λ X, (ConstructiveCommutativeRing_ConstructiveCommutativeRig (pr1 X)) ,, (pr2 X).
+Coercion ConstructiveField_ConstructiveCommutativeDivisionRig :
+  ConstructiveField >-> ConstructiveCommutativeDivisionRig.
+
+(** Lemmas *)
+
+Section CF_pty.
+
+Context {X : ConstructiveField}.
+
+Lemma isnonzeroCF : (1%rng : X) # (0%rng : X).
+Proof.
+  exact (pr1 (pr2 X)).
+Qed.
+Lemma apCFplus :
+  forall x x' y y' : X,
+    x + y # x' + y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op1.
+Qed.
+Lemma apCFmult :
+  forall x x' y y' : X,
+    x * y # x' * y' -> x # x' ∨ y # y'.
+Proof.
+  exact isapbinop_op2.
+Qed.
+
+Lemma islunit_CFzero_CFplus :
+  forall x : X, 0%rng + x = x.
+Proof.
+  now apply rnglunax1.
+Qed.
+Lemma isrunit_CFzero_CFplus :
+  forall x : X, x + 0%rng = x.
+Proof.
+  now apply rngrunax1.
+Qed.
+Lemma isassoc_CFplus :
+  forall x y z : X, x + y + z = x + (y + z).
+Proof.
+  now apply rngassoc1.
+Qed.
+Lemma islinv_CFopp :
+  ∀ x : X, - x + x = 0.
+Proof.
+  now apply rnglinvax1.
+Qed.
+Lemma isrinv_CFopp :
+  ∀ x : X, x + - x = 0.
+Proof.
+  now apply rngrinvax1.
+Qed.
+
+Lemma iscomm_CFplus :
+  forall x y : X, x + y = y + x.
+Proof.
+  now apply rngcomm1.
+Qed.
+Lemma islunit_CFone_CFmult :
+  forall x : X, 1%rng * x = x.
+Proof.
+  now apply rnglunax2.
+Qed.
+Lemma isrunit_CFone_CFmult :
+  forall x : X, x * 1%rng = x.
+Proof.
+  now apply rngrunax2.
+Qed.
+Lemma isassoc_CFmult :
+  forall x y z : X, x * y * z = x * (y * z).
+Proof.
+  now apply rngassoc2.
+Qed.
+Lemma iscomm_CFmult :
+  forall x y : X, x * y = y * x.
+Proof.
+  now apply (rngcomm2 (ConstructiveCommutativeRing_commrng X)).
+Qed.
+Lemma islinv_CFinv :
+  ∀ (x : X) (Hx0 : x # (0%rng : X)),
+    (CDRinv (X := X) x Hx0) * x = (1%rng : X).
+Proof.
+  intros x Hx0.
+  apply (pr1 (pr2 (pr2 (pr2 X) x Hx0))).
+Qed.
+Lemma isrinv_CFinv :
+  ∀ (x : X) (Hx0 : x # (0%rng : X)),
+    x * (CDRinv (X := X) x Hx0) = 1%rng.
+Proof.
+  intros x Hx0.
+  apply (pr2 (pr2 (pr2 (pr2 X) x Hx0))).
+Qed.
+Lemma islabsorb_CFzero_CFmult :
+  ∀ x : X, 0%rng * x = 0%rng.
+Proof.
+  now apply rngmult0x.
+Qed.
+Lemma israbsorb_CFzero_CFmult :
+  ∀ x : X, x * 0%rng = 0%rng.
+Proof.
+  now apply rngmultx0.
+Qed.
+Lemma isldistr_CFplus_CFmult :
+  ∀ x y z : X, z * (x + y) = z * x + z * y.
+Proof.
+  now apply rngdistraxs.
+Qed.
+
+End CF_pty.
