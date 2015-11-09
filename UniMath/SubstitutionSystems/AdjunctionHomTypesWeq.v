@@ -17,16 +17,12 @@ Contents :
 - Derivation of the data of an adjunction in terms of equivalence
   of hom-types from the definition of
   adjunction in terms of unit and counit
-
-
+                	
+           
 ************************************************************)
 
 
-
-
-Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+************************************************************)
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -145,3 +141,10 @@ Proof.
 Qed.
 
 End HomSetIso_from_Adjunction.
+
+
+
+
+
+
+
