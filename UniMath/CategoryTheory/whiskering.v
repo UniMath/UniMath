@@ -10,15 +10,15 @@ january 2013
 
 (** **********************************************************
 
-Contents : 
+Contents :
 
-- Precomposition with a functor for 
+- Precomposition with a functor for
    - functors and
    - natural transformations (whiskering)
 
-- Functoriality of precomposition	
+- Functoriality of precomposition
 
-- Precomposition with an essentially surjective 
+- Precomposition with an essentially surjective
 	   functor yields a faithful functor
 
 ************************************************************)
@@ -39,15 +39,15 @@ Notation "[ C , D ]" := (functor_precategory C D).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 
-Definition functor_compose {A B C : precategory} (hsB: has_homsets B) 
+Definition functor_compose {A B C : precategory} (hsB: has_homsets B)
                            (hsC: has_homsets C) (F : ob [A, B, hsB])
-      (G : ob [B , C, hsC]) : ob [A , C, hsC] := 
+      (G : ob [B , C, hsC]) : ob [A , C, hsC] :=
    functor_composite _ _ _ F G.
 
 (*
-Local Notation "G 'O' F '{' hsB  hsC '}'" := 
+Local Notation "G 'O' F '{' hsB  hsC '}'" :=
         (functor_compose hsB hsC F G) (at level 200).
-Local Notation "G 'o' F '{' hsB  hsC '}'" := 
+Local Notation "G 'o' F '{' hsB  hsC '}'" :=
         (functor_compose hsB hsC  F G : functor _ _ ) (at level 200).
 *)
 (** * Whiskering: Composition of a natural transformation with a functor *)
@@ -56,20 +56,20 @@ Local Notation "G 'o' F '{' hsB  hsC '}'" :=
 
 Lemma is_nat_trans_pre_whisker (A B C : precategory_data)
    (F : functor_data A B) (G H : functor_data B C) (gamma : nat_trans G H) :
-   is_nat_trans 
-        (functor_composite_data F G) 
-        (functor_composite_data F H) 
+   is_nat_trans
+        (functor_composite_data F G)
+        (functor_composite_data F H)
    (fun a : A => gamma (F a)).
 Proof.
   intros a b f; simpl.
   apply nat_trans_ax.
 Defined.
- 
+
 (*
-Lemma is_nat_trans_pre_whisker (A B C : precategory) (hsB: has_homsets B) 
+Lemma is_nat_trans_pre_whisker (A B C : precategory) (hsB: has_homsets B)
    (hsC: has_homsets C) (F : functor A B)
-   (G H : functor B C) (gamma : nat_trans G H) : 
-  is_nat_trans (functor_compose hsB hsC F G : functor _ _ ) 
+   (G H : functor B C) (gamma : nat_trans G H) :
+  is_nat_trans (functor_compose hsB hsC F G : functor _ _ )
                (functor_compose hsB hsC F H : functor _ _ )
      (fun a : ob A =>  gamma (F a)).
 Proof.
@@ -81,8 +81,8 @@ Qed.
 *)
 
 (*
-Definition pre_whisker (A B C : precategory) (hsB : has_homsets B) (hsC : has_homsets C) 
-   (F : ob [A, B, hsB])  (G H : ob [B, C, hsC]) (gamma : G --> H) : 
+Definition pre_whisker (A B C : precategory) (hsB : has_homsets B) (hsC : has_homsets C)
+   (F : ob [A, B, hsB])  (G H : ob [B, C, hsC]) (gamma : G --> H) :
    functor_compose _ _ F G --> functor_compose _ _ F H.
 Proof.
   exists (fun a => pr1 gamma (pr1 F a)).
@@ -91,7 +91,7 @@ Defined.
 *)
 
 Definition pre_whisker {A B C : precategory_data}
-   (F : functor_data A B)  {G H : functor_data B C} (gamma : nat_trans G H) : 
+   (F : functor_data A B)  {G H : functor_data B C} (gamma : nat_trans G H) :
    nat_trans (functor_composite_data F G)  (functor_composite_data F H).
 Proof.
   exists (fun a => pr1 gamma (pr1 F a)).
@@ -102,11 +102,11 @@ Defined.
 
 (** Postwhiskering *)
 
-Lemma is_nat_trans_post_whisker (B C D : precategory_data) 
-   (G H : functor_data B C) (gamma : nat_trans G  H) 
-        (K : functor C D): 
-  is_nat_trans (functor_composite_data  G K) 
-                         (functor_composite_data H K) 
+Lemma is_nat_trans_post_whisker (B C D : precategory_data)
+   (G H : functor_data B C) (gamma : nat_trans G  H)
+        (K : functor C D):
+  is_nat_trans (functor_composite_data  G K)
+                         (functor_composite_data H K)
      (fun b : B => #K (gamma b)).
 Proof.
   unfold is_nat_trans.
@@ -118,8 +118,8 @@ Proof.
 Qed.
 
 Definition post_whisker {B C D : precategory_data}
-   {G H : functor_data B C} (gamma : nat_trans G H) 
-        (K : functor C D) 
+   {G H : functor_data B C} (gamma : nat_trans G H)
+        (K : functor C D)
   : nat_trans (functor_composite_data G K) (functor_composite_data H K).
 Proof.
   exists (fun a : ob B => #(pr1 K) (pr1 gamma  a)).
@@ -129,8 +129,8 @@ Defined.
 (** Precomposition with a functor is functorial *)
 (** Postcomposition is, too, but that's not of our concern for now. *)
 
-Definition pre_composition_functor_data (A B C : precategory) 
-  (hsB: has_homsets B) (hsC: has_homsets C) 
+Definition pre_composition_functor_data (A B C : precategory)
+  (hsB: has_homsets B) (hsC: has_homsets C)
       (H : ob [A, B, hsB]) : functor_data [B,C,hsC] [A,C,hsC].
 Proof.
   exists (fun G => functor_compose _ _ H G).
@@ -161,7 +161,7 @@ Proof.
     apply idpath.
 Qed.
 
-Lemma pre_composition_is_functor (A B C : precategory) (hsB: has_homsets B) 
+Lemma pre_composition_is_functor (A B C : precategory) (hsB: has_homsets B)
   (hsC: has_homsets C)  (H : [A, B, hsB]) :
     is_functor (pre_composition_functor_data A B C hsB hsC H).
 Proof.
@@ -176,19 +176,9 @@ Proof.
     assumption.
 Qed.
 
-Definition pre_composition_functor (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) 
+Definition pre_composition_functor (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C)
    (H : [A , B, hsB]) : functor [B, C, hsC] [A, C, hsC].
 Proof.
   exists (pre_composition_functor_data A B C hsB hsC H).
   apply pre_composition_is_functor.
 Defined.
-
-
-
-  
-
-
-
-
-
-
