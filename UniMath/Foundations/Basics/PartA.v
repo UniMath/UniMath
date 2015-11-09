@@ -2077,15 +2077,11 @@ end).
 
 assert (efg: ∀ pp: total2 P, (f (g pp)) = pp).  intro. induction pp as [ t x0 ]. set (cnewt:= cnew t).  unfold g. unfold f. simpl. change (cnew t) with cnewt. induction cnewt as [ x1 | y ].  apply (pathsinv0 (pr1  (pr2  (constr1 P (pathsinv0 x1))) x0)). induction (y x0).
 
-
 set (cnewx:= cnew x).
 assert (e1: (cnew x) = cnewx). apply idpath.
 unfold cnew in cnewx. change (c x) with cx in cnewx.
 induction cx as [ x0 | e0 ].
 assert (e: (cnewx) = (ii1  (idpath x))).  apply (maponpaths (@ii1 (x = x) (P x -> empty))  (pathsinv0l x0)).
-
-
-
 
 assert (egf: ∀ p: P x, (g (f p)) = p).  intro. simpl in g. unfold g.  unfold f.   simpl.
 
@@ -2226,7 +2222,6 @@ Definition weqboolsumtocoprod ( X Y : UU ) := weqpair _ ( isweqboolsumtocoprod X
 
 
 (** *** Splitting of [ X ] into a coproduct defined by a function [ X -> Y ⨿ Z ] *)
-
 
 Definition weqcoprodsplit { X Y Z : UU } ( f : X -> coprod Y Z ) :
   X ≃  ( Σ y : Y, hfiber f ( ii1 y ) ) ⨿ ( Σ z : Z, hfiber f ( ii2 z ) ) .

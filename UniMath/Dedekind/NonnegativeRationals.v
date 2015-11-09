@@ -23,11 +23,11 @@ Coercion hnnq_def_to_hq : hnnq_def >-> pr1hSet.
 Local Definition hq_to_hnnq_def (r : hq) (Hr : hqleh 0 r) : hnnq_def :=
   tpair (fun x : hq => hqleh 0 x) r Hr.
 
-Lemma isincl_hnnq_to_hq : isincl hnnq_def_to_hq. 
-Proof. 
+Lemma isincl_hnnq_to_hq : isincl hnnq_def_to_hq.
+Proof.
   apply (isinclpr1 (fun x : hq => hqleh 0 x) (fun x : hq => isapropneg (hqgth 0 x))).
 Qed.
-Local Definition hnnq_set : hSet := 
+Local Definition hnnq_set : hSet :=
   hSetpair _ (isasetsubset hnnq_def_to_hq isasethq isincl_hnnq_to_hq).
 
 (** ** Equality and order on non-negative rational numbers *)
@@ -42,8 +42,8 @@ Proof.
   now apply istranshqleh.
   intros x.
   now apply isreflhqleh.
-Qed.  
-  
+Qed.
+
 Local Definition hnnq_ge : hrel hnnq_def := resrel hqgeh (hqleh 0).
 Lemma ispo_hnnq_ge : ispreorder hnnq_ge.
 Proof.
@@ -106,7 +106,7 @@ Proof.
   apply hnnq_subrigs.
 Defined.
 
-Local Definition hnnq_commrig_to_def : hnnq_commrig -> hnnq_def := 
+Local Definition hnnq_commrig_to_def : hnnq_commrig -> hnnq_def :=
   fun X : hnnq_commrig =>
     match X with
     | tpair _ r Hr => tpair (fun x : hq => 0 <= x) r Hr
@@ -188,7 +188,7 @@ Proof.
   intros x y H.
   destruct (hqlth_between (pr1 x) (pr1 y) H) as [z (Hxz,Hzy)].
   assert (Hz : hqleh 0%hq z).
-  { apply istranshqleh with (pr1 x). 
+  { apply istranshqleh with (pr1 x).
     now apply (pr2 x).
     apply (hqlthtoleh (pr1 x) z), Hxz. }
   exists (hq_to_hnnq_def z Hz).

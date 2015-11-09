@@ -10,7 +10,7 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
 
 (** ** Definitions *)
 
-Record Tree := 
+Record Tree :=
   make {
       mt_set:> Type;
       mt_dist: mt_set -> mt_set -> nat;
@@ -21,7 +21,7 @@ Record Tree :=
       mt_step: ∀ x z, x != z ->
                       Σ y, (S (mt_dist x y) = mt_dist x z) × (mt_dist y z = 1)
     }.
-      
+
 Lemma mt_path_refl (T:Tree) (x y:T) : x = y -> mt_dist _ x y = 0.
 Proof. intros ? ? ? e. destruct e. apply mt_refl. Qed.
 
@@ -43,9 +43,9 @@ Proof. intros ? ? ? ? ?.
        assert(d_ind : ∀ n z, mt_dist _ x z = n -> P z).
        { intros ?.
          induction n as [|n IH].
-         { intros. assert (k:x=z). 
+         { intros. assert (k:x=z).
            { apply mt_anti. assumption. } destruct k. assumption. }
-         { intros. 
+         { intros.
            assert (ne : x != z).
            { intros s. exact (negpaths0sx _ (! mt_path_refl _ _ _ s @ H)). }
            refine (pn z ne _).
@@ -62,7 +62,7 @@ Require Import UniMath.Ktheory.Nat.
 Definition nat_tree : Tree.
 Proof. refine (make nat nat_dist _ _ _ _ _).
        { intro m. induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
-       { apply nat_dist_anti. } { apply nat_dist_symm. } 
+       { apply nat_dist_anti. } { apply nat_dist_symm. }
        { apply nat_dist_trans. }
        { intros m n e. assert (d := natneqchoice _ _ e). clear e.
          destruct d as [h|h].
@@ -70,7 +70,7 @@ Proof. refine (make nat nat_dist _ _ _ _ _).
            { split.
              { apply nat_dist_gt. exact h. }
              { destruct (natgthorleh (S n) n) as [_|j].
-               { clear h. induction n. { reflexivity. } { apply IHn. } } 
+               { clear h. induction n. { reflexivity. } { apply IHn. } }
                { apply fromempty. clear h. exact (j (natgthsnn n)). }}} }
          { exists (n - 1).
            { split.
@@ -81,7 +81,7 @@ Proof. refine (make nat nat_dist _ _ _ _ _).
                rewrite <- natminusminusassoc. rewrite natpluscomm.
                apply (minusplusnmm (n-m) 1).
                apply (natminusplusltcomm m n 1).
-               { assert(e := natleh0n m). 
+               { assert(e := natleh0n m).
                  assert(f := natlehlthtrans _ _ _ e h).
                  exact (natlthtolehsn _ _ f). }
                { exact a. } }
