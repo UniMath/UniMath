@@ -336,18 +336,53 @@ Definition negnatlehsn0 ( n : nat ) : ¬ ( S n ≤ 0 ) := negnatlthn0 _.
 Definition negnatlehsnn ( n : nat ) : ¬ ( S n ≤ n ) := isirreflnatlth _.
 
 Definition istransnatleh ( n m k : nat ) : n ≤ m -> m ≤ k -> n ≤ k .
-Proof. apply istransnegrel . unfold iscotrans. apply iscotransnatgth .  Defined.   
+Proof. intros ? ? ? r s. apply natneggthleh. refine (istransnegrel _ _ n m k _ _).
+       - exact iscotransnatgth.
+       - now apply natlehneggth. 
+       - now apply natlehneggth. 
+Defined.
 
-Definition isreflnatleh ( n : nat ) : natleh n n := isirreflnatgth n .  
+Definition isreflnatleh ( n : nat ) : n ≤ n.
+Proof.
+  intros. unfold natleh. apply natgthsnn.
+Defined.
 
-Definition isantisymmnatleh : isantisymm natleh := isantisymmnegnatgth .   
+Definition isantisymmnatleh : isantisymm natleh.
+Proof.
+  intros m. induction m as [|m M].
+  - intros n _ s. unfold natleh in s. apply pathsinv0. apply nat1gthtois0. exact s.
+  - intros n. induction n as [|n _].
+    + intros r _. contradicts r (negnatlehsn0 m).
+    + intros r s.
+      change (S m ≤ S n) with (m ≤ n) in r.
+      change (S n ≤ S m) with (n ≤ m) in s.
+      apply (maponpaths S).
+      now apply M.
+Defined.
 
 Definition natlehdec := decrelpair isdecrelnatleh .
 
 Definition isnegrelnatleh : isnegrel natleh .
 Proof . apply isdecreltoisnegrel . apply isdecrelnatleh . Defined . 
 
-Definition iscoasymmnatleh ( n m : nat ) ( nl : neg ( natleh n m ) ) : natleh m n := negf ( isasymmnatgth _ _ ) nl . 
+Definition natlthleh m n : m < n -> m ≤ n.
+Proof.
+  intros ? ? r. unfold natleh. unfold natlth in r.
+  generalize r. clear r. generalize m. clear m.
+  induction n as [|n N].
+  - intros ? r. contradicts r (negnatgth0n m).
+  - intros ? r. induction m as [|m _].
+    + apply natgthsn0.
+    + change (S n > S m) with (n > m) in r.
+      change (S (S n) > S m) with (S n > m).
+      now apply N.
+Defined.
+
+Definition iscoasymmnatleh ( n m : nat ) : ¬ ( n ≤ m ) -> m ≤ n.
+Proof.
+  intros ? ? r. apply natneggthleh. intros s. unfold natleh in r.
+  apply r. now apply natlthleh.
+Defined.
 
 Definition istotalnatleh : istotal natleh . 
 Proof . intros x y . destruct ( isdecrelnatleh x y ) as [ lxy | lyx ] . apply ( hinhpr ( ii1 lxy ) ) . apply hinhpr .   apply ii2 . apply ( iscoasymmnatleh _ _ lyx ) .   Defined . 
