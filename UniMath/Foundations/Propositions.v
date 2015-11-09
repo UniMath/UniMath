@@ -172,7 +172,7 @@ Lemma isapropissurjective { X Y : UU } ( f : X -> Y) : isaprop (issurjective f).
 Proof. intros.  apply impred. intro t. apply  (pr2 (ishinh (hfiber f t))). Defined. 
 
 Lemma isinclpr1image { X Y : UU } (f:X -> Y): isincl (pr1image f).
-Proof. intros. apply isofhlevelfpr1. intro. apply ( pr2 ( ishinh ( hfiber f x ) ) ) . Defined.
+Proof. intros. refine (isofhlevelfpr1 _ _ _). intro. apply ( pr2 ( ishinh ( hfiber f x ) ) ) . Defined.
 
 Lemma issurjprtoimage { X Y : UU } ( f : X -> Y) : issurjective (prtoimage f ).
 Proof. intros. intro z.  set (f' := prtoimage f ). set (g:= pr1image f ). set (gf':= fun x:_ => g ( f' x )).
@@ -328,7 +328,7 @@ Proof.
   { intro n. apply k. now apply hdisj_in1. }
   clear k.
   apply d; clear d. intro p. apply e; clear e. intro q.
-  apply npq. exact (p,,q).
+  refine (npq _). exact (p,,q).
 Defined.
 
 Lemma tonegcoprod { X Y : UU } : ¬ X × ¬ Y -> ¬ ( X ⨿ Y ) . 
@@ -391,8 +391,8 @@ Proof.
   induction b as [b|b].
   - induction c as [c|c].
     + now apply ii1.
-    + apply ii2. intro k. apply c. exact (pr2 k).
-  - apply ii2. intro k. apply b. exact (pr1 k).
+    + apply ii2. intro k. refine (c _). exact (pr2 k).
+  - apply ii2. intro k. refine (b _). exact (pr1 k).
 Defined.
 
 (* Law of Excluded Middle

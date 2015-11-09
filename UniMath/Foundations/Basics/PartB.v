@@ -509,7 +509,7 @@ Proof. intros. apply  (isofhlevelsninclb (S O)  f is2). apply is1. Defined.
 (** The morphism from hfiber of a map to a set is an inclusion. *)
 
 Theorem isinclfromhfiber { X Y : UU } (f: X -> Y) (is : isaset Y) ( y: Y ) : @isincl (hfiber  f y) X ( @pr1 _ _  ).
-Proof. intros. apply isofhlevelfhfiberpr1. assumption. Defined.
+Proof. intros. refine (isofhlevelfhfiberpr1 _ _ _ _). assumption. Defined.
 
 
 (** Criterion for a function between sets being an inclusion.  *)

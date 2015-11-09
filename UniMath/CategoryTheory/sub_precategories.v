@@ -610,7 +610,7 @@ Lemma functor_full_img_essentially_surjective (A B : precategory)
   essentially_surjective (functor_full_img F).
 Proof.
   intro b.
-  apply (pr2 b).
+  refine (pr2 b _).
   intros [c h] q Hq.
   apply Hq.
   exists c.

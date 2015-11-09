@@ -110,7 +110,7 @@ Proof.
 Defined.
 
 Lemma factor_through_squash_hProp {X} : ∀ hQ:hProp, (X -> hQ) -> ∥ X ∥ -> hQ.
-Proof. intros ? [Q i] f h. apply h. assumption. Defined.
+Proof. intros ? [Q i] f h. refine (h _ _). assumption. Defined.
 
 Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
 Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.    
