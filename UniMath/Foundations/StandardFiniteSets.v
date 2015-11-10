@@ -54,9 +54,6 @@ Proof. intros . intro h . destruct h as [ j e ] .  destruct j as [ j is' ] .  si
 Lemma iscontrhfiberstntonat ( n m : nat ) ( is : natlth m n ) : iscontr ( hfiber ( stntonat n ) m ) .
 Proof. intros .  apply ( iscontrhfiberofincl ( stntonat n ) ( isinclstntonat n ) ( stnpair n m is ) ) .  Defined . 
 
-Lemma isisolatedinstn { n : nat } ( x : stn n ) : isisolated _ x.
-Proof. intros . apply ( isisolatedinclb ( stntonat n ) ( isinclstntonat n ) x ( isisolatedn x ) ) .  Defined. 
-
 Lemma stn_ne_iff_neq {n} (i j:stn n) : ¬ (i = j) <-> stntonat _ i ≠ stntonat _ j.
 Proof.
   intros. split.
@@ -77,6 +74,10 @@ Notation " x != y " := ( stnneq x y ) (at level 70, no associativity) : stn.
 Notation " x ≠ y " := ( stnneq x y ) (at level 70, no associativity) : stn.
 Delimit Scope stn with stn.
 Open Scope stn.
+
+
+Lemma isisolatedinstn { n : nat } ( x : stn n ) : isisolated _ x.
+Proof. intros . apply ( isisolatedinclb ( stntonat n ) ( isinclstntonat n ) x ( isisolatedn x ) ) .  Defined. 
 
 Lemma stnneq_iff_nopath {n} (i j:stn n) : ¬ (i = j) <-> i ≠ j.
 Proof. intros. apply negProp_to_iff. Defined.
@@ -269,7 +270,7 @@ Definition weqdnicoprod n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
 Proof.
   intros.
   apply (weqcomp (weqcoprodf (weqdnicompl n j) (idweq unit))
-                 (weqrecompl_ne (stn (S n)) j (isdeceqstn (S n) j) (λ k, j != k)%stn)).
+                 (weqrecompl_ne (stn (S n)) j (isdeceqstn (S n) j) (stnneq j))).
 Defined.  
 
 Local Notation "● x" := (x,,idpath _) (at level 35).
@@ -287,10 +288,9 @@ Module Test2.
   Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii2 tt) = idpath _. reflexivity. Defined.
   Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (●1)) = idpath _.
     (* try reflexivity. *) Abort. (* fix *)
-  Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (firstelement _)) = idpath _.
-    (* try reflexivity.  *) Abort. (* fix *)
-  Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (lastelement _)) = idpath _.
-    (* try reflexivity.  *) Abort. (* fix *)
+  (* Print Opaque Dependencies weqdnicoprod. *)
+  (* Print Opaque Dependencies homotinvweqweq. *)
+
   (* here's an example that shows complications need not impede that sort of computability: *)
   Local Definition w : unit ≃ stn 1.
     refine (weqgradth _ _ _ _).
@@ -323,21 +323,14 @@ Module Test2.
   Goal homotweqinvweq w_w (ii2 (firstelement 0)) = idpath _. reflexivity. Defined.
   Goal homotinvweqweq w_w (ii1 tt) = idpath _. reflexivity. Defined.
 
-  Definition A : ¬empty -> ¬empty.
-    intros t e. unfold neg in *. exact e. Defined.
-  Definition B : ¬empty -> ¬empty.
-    intros t e. unfold neg in *. exact (t e). Defined.
-  Definition C : ¬empty -> ¬empty.
-    intros t e. unfold neg in *. exact (t (t e)). Defined.
-  Goal A=B. try reflexivity. Abort.
-  Goal A=C. try reflexivity. Abort.
-
   Definition i := ●1 : stn 4.
   Definition j := ●0 : stn 4.
   Lemma ne : ¬ (i = j).
   Proof. apply stnneq_to_nopath. easy. Defined.           
   Definition re := weqrecompl (stn 4) i (isisolatedinstn _).
+  Definition re' := weqrecompl_ne (stn 4) i (isisolatedinstn i) (stnneq i).
   Definition c := complpair (stn 4) i j ne : compl _ i.
+  Definition c' := compl_ne_pair (stn 4) i (stnneq i) j tt : compl_ne _ i (stnneq i).
   Goal re (ii2 tt) = i. reflexivity. Defined.
   Goal re (ii1 c) = j. reflexivity. Defined.
   Goal invmap re i = (ii2 tt). reflexivity. Defined.
@@ -347,12 +340,22 @@ Module Test2.
   Goal homotinvweqweq re (ii2 tt) = idpath _. reflexivity. Defined.
   Goal homotinvweqweq re (ii1 c) = idpath _.
     try reflexivity.
-    (* It must be the use of funextempty in the proof of isweqrecompl, which seems unavoidable. *)
+    (* This quickly returns, without success.
+       It must be the use of funextempty in the proof of isweqrecompl.
+       Write weqrecompl_ne and isisolatedinstn_ne.
+       *)
   Abort.
+  
+  Goal re' (ii2 tt) = i. reflexivity. Defined.
+  Goal re' (ii1 c') = j. reflexivity. Defined.
+  Goal invmap re' i = (ii2 tt). reflexivity. Defined.
+  Goal invmap re' j = (ii1 c'). reflexivity. Defined.
+  Goal homotweqinvweq re' i = idpath _. reflexivity. Defined.
+  Goal homotweqinvweq re' j = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq re' (ii2 tt) = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq re' (ii1 c') = idpath _. reflexivity. Defined. (* fixed! *)
 
-  (* so re-implement weqdnicoprod *)
-  (* notice that natgeh, and thus dni and iscontrhfiberdni, also use funextempty, but unnecessarily *)
-  Definition weqdnicoprod_map    {n} (j : stn(S n)) : stn n ⨿ unit -> stn (S n).
+  Definition weqdnicoprod_map {n} (j : stn(S n)) : stn n ⨿ unit -> stn (S n).
     intros n j x. induction x as [i|t].
       { exact (dni n j i). }
       { exact j. }

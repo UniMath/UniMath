@@ -156,8 +156,8 @@ Defined.
 
 Module Test_A.
   Let C  := compl nat 0.
-  Let C' := compl_ne nat 0 (λ m, 0 != m).
-  Let w := compl_ne_weq_compl nat 0 (λ m, 0 != m) : C ≃ C'.
+  Let C' := compl_ne nat 0 (λ m, 0 ≠ m).
+  Let w := compl_ne_weq_compl nat 0 (λ m, 0 ≠ m) : C ≃ C'.
   Let cn : C := (3,,negpaths0sx _).
   Let cn' : C' := (3,,tt).
   Goal w cn = cn'. reflexivity. Defined.

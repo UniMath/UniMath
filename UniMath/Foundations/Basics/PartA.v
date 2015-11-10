@@ -2017,18 +2017,18 @@ Proof.                          (* "codes" *)
   - induction x' as [p'|q'].
     + exact empty.
     + exact (q=q').
-Defined.  
+Defined.
 
 Definition equality_by_case {P Q:UU} {x x':P ⨿ Q} : x=x'-> equality_cases x x'.
 Proof.
   intros ? ? ? ? e. induction x as [p|q].
   - induction x' as [p'|q'].
-    + exact (maponpaths (@coprod_rect P Q (λ _,P) (λ p,p) (λ _,p)) e).
-    + exact (transportf (@coprod_rect P Q (λ _,UU) (λ _,unit) (λ _,empty)) e tt).
+    + simpl. exact (maponpaths (@coprod_rect P Q (λ _,P) (λ p,p) (λ _,p)) e).
+    + simpl. exact (transportf (@coprod_rect P Q (λ _,UU) (λ _,unit) (λ _,empty)) e tt).
   - induction x' as [p'|q'].
-    + exact (transportb (@coprod_rect P Q (λ _,UU) (λ _,unit) (λ _,empty)) e tt).
-    + exact (maponpaths (@coprod_rect P Q (λ _,Q) (λ _,q) (λ q,q)) e).
-Defined.  
+    + simpl. exact (transportb (@coprod_rect P Q (λ _,UU) (λ _,unit) (λ _,empty)) e tt).
+    + simpl. exact (maponpaths (@coprod_rect P Q (λ _,Q) (λ _,q) (λ q,q)) e).
+Defined.
 
 (* the same proof proves 4 lemmas: *)
 
