@@ -204,7 +204,7 @@ Defined .
 Lemma weqhfiberdnihfiberdi ( n : nat ) ( i j : stn ( S n ) ) : weq ( hfiber ( dni n i ) j ) ( hfiber ( di i ) j ) .
 Proof.  intros . apply ( weqhfibersg'tof _ _ _ _ ( dnihfsq n i ) j ) . Defined .
 
-Lemma neghfiberdni ( n : nat ) ( i : stn ( S n ) ) : neg ( hfiber ( dni n i ) i ) . 
+Lemma neghfiberdni ( n : nat ) ( i : stn ( S n ) ) : ¬ ( hfiber ( dni n i ) i ) . 
 Proof. intros . apply ( negf ( weqhfiberdnihfiberdi n i i ) ( neghfiberdi i ) ) . Defined .  
 
 Lemma iscontrhfiberdni ( n : nat ) ( i j : stn ( S n ) ) : i ≠ j -> iscontr ( hfiber ( dni n i ) j ) .
@@ -230,9 +230,11 @@ Proof. intros . apply ( isdecincltoisincl _  ( isdecincldni n i ) ) .  Defined .
 
 (** *** The weak equivalence from [ stn n ] to the complement of a point [ j ] in [ stn ( S n ) ] defined by [ dni n j ] *)
 
+Definition stn_compl {n} (i:stn n) := compl_ne _ i (stnneq i).
 
-Definition dnitocompl ( n : nat ) ( i : stn ( S n ) ) ( j : stn n ) : compl_ne ( stn ( S n ) ) i (stnneq i).
-Proof. intros . split with ( dni n i j ) .
+Definition dnitocompl ( n : nat ) ( i : stn ( S n ) ) ( j : stn n ) : stn_compl i.
+Proof. intros .
+       exists ( dni n i j ) .
        apply stn_ne_iff_neq.
        intro e .  apply ( neghfiberdni n i ( hfiberpair _ j ( pathsinv0 e ) ) ) .
 Defined .
@@ -244,8 +246,24 @@ Proof.
   apply (iscontrweqb w). apply iscontrhfiberdni. exact (pr2 jni).
 Defined. 
 
-Definition weqdnicompl n (i:stn(S n)): stn n ≃ compl_ne (stn (S n)) i _
+Definition weqdnicompl n (i:stn(S n)): stn n ≃ stn_compl i
   := weqpair _ ( isweqdnitocompl n i ) . 
+
+Local Notation "● x" := (x,,idpath _) (at level 35).
+
+Module Test_weqdnicompl.
+
+  Let X := stn 5.
+  Let Y := @stn_compl 6 (●3).
+  Let w := weqdnicompl 5 (●3) : X ≃ Y.
+  Let i := (●2) : X.
+  Let j := (●2,,tt) : Y.
+  Goal w i = j. reflexivity. Defined.
+  Goal invmap w j = i. reflexivity. Defined.
+  Goal homotweqinvweq w j = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq w i = idpath _. (* reflexivity. *) Abort.  (* fix *)
+
+End Test_weqdnicompl.
 
 Definition weqdnicompl_compute_first n i : pr1 (pr1 (weqdnicompl n (firstelement n) i)) = S (pr1 i).
 Proof. reflexivity. Defined.
@@ -272,8 +290,6 @@ Proof.
   apply (weqcomp (weqcoprodf (weqdnicompl n j) (idweq unit))
                  (weqrecompl_ne (stn (S n)) j (isdeceqstn (S n) j) (stnneq j))).
 Defined.  
-
-Local Notation "● x" := (x,,idpath _) (at level 35).
 
 Module Test2.
   Goal weqdnicoprod 4 (firstelement _) (ii1 (●0)) = ●1. reflexivity. Defined.
@@ -330,7 +346,7 @@ Module Test2.
   Definition re := weqrecompl (stn 4) i (isisolatedinstn _).
   Definition re' := weqrecompl_ne (stn 4) i (isisolatedinstn i) (stnneq i).
   Definition c := complpair (stn 4) i j ne : compl _ i.
-  Definition c' := compl_ne_pair (stn 4) i (stnneq i) j tt : compl_ne _ i (stnneq i).
+  Definition c' := compl_ne_pair (stn 4) i (stnneq i) j tt : stn_compl i.
   Goal re (ii2 tt) = i. reflexivity. Defined.
   Goal re (ii1 c) = j. reflexivity. Defined.
   Goal invmap re i = (ii2 tt). reflexivity. Defined.
@@ -774,7 +790,7 @@ Module Test_old_weqstnsum.
   Let w' := (●4,,●2) : W.
   Let f : W ≃ stn 15 := weqstnsum_idweq _.
   Let f' : stn 15 ≃ W := invweq f.
-  Goal f(●1,,●0) = ●0. try reflexivity. Abort. (* fix *)
+  Goal f(●1,,●0) = ●0. reflexivity. Defined. (* fixed! (formerly, it failed quickly) *)
   Goal f'(●0) = (●1,,●0). try reflexivity. Abort. (* fix *)
 End Test_old_weqstnsum.
 
@@ -925,10 +941,8 @@ Proof . intro n . induction n as [ | n IHn ] . intros . simpl . apply ( weqcontr
 
 Theorem weqweqstnsn ( n : nat ) : (stn(S n) ≃ stn (S n))  ≃  stn(S n) × ( stn n ≃ stn n ).
 Proof.
-  intro.
-  assert ( nn := lastelement n ) .
-  set (W := compl_ne (stn (S n)) nn (stnneq nn)).
-  intermediate_weq ( isolated_ne (stn (S n)) stnneq × (W ≃ W) ).
+  intro. assert ( l := lastelement n ) .
+  intermediate_weq ( isolated_ne (stn (S n)) stnneq × (stn_compl l ≃ stn_compl l) ).
   { apply weqcutonweq_ne. intro i. apply stn_eq_or_neq. }
   apply weqdirprodf.
   - apply weqisolatedstntostn_ne.
