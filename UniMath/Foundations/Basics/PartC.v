@@ -82,8 +82,7 @@ Definition pr1compl ( X : UU ) ( x : X ) := @pr1 _ (fun x':X => neg (paths x x' 
 Lemma isinclpr1compl ( X : UU ) ( x : X ) : isincl ( pr1compl X x ) .
 Proof. intros . apply ( isinclpr1 _ ( fun x' : X => isapropneg _ ) ) . Defined.
 
-Definition isNegProp P Q := isaprop Q × (¬P <-> Q).
-Definition negProp P := Σ Q, isNegProp P Q.
+Definition negProp P := Σ Q, isaprop Q × (¬P <-> Q).
 Definition negProp_to_type {P} (negP : negProp P) := pr1 negP.
 Coercion negProp_to_type : negProp >-> UU.
 Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop (negProp_to_type nP) := pr1 (pr2 nP).
@@ -108,7 +107,7 @@ Proof. intros. exists (x≠y). split.
 Defined.
 Lemma isinclpr1compl_ne ( X : UU ) ( x : X ) (neq_x : neqPred x) : isincl ( pr1compl_ne X x neq_x ) .
 Proof.
-  intros. apply isinclpr1. intro y. unfold negProp,isNegProp in neq_x.
+  intros. apply isinclpr1. intro y. unfold negProp in neq_x.
   exact (pr1 (pr2 (neq_x y))).
 Defined.
 Lemma compl_ne_weq_compl ( X : UU ) ( x : X ) (neq_x : neqPred x) : compl X x ≃ compl_ne X x neq_x.
@@ -178,12 +177,51 @@ Proof.
     * intros p. exact (n p q).
 Defined.
 
+Lemma negProp_to_complementary P (Q:negProp P) : P ⨿ Q <-> complementary P Q.
+Proof.
+  intros ? [Q [i [r s]]]; simpl in *.
+  split.
+  * intros pq. split.
+    - assumption.
+    - split.
+      + intros p q. now apply s.
+      + assumption.
+  * intros [j [n c]]. assumption.
+Defined.
+
+Lemma negProp_to_uniqueChoice P (Q:negProp P) : (isaprop P × (P ⨿ Q)) <-> iscontr (P ⨿ Q).
+Proof.
+  intros ? [Q [j [r s]]]; simpl in *. split.
+  * intros [i v]. exists v. intro w.
+    induction v as [v|v].
+    - induction w as [w|w].
+      + apply maponpaths, i.
+      + contradicts (s w) v.
+    - induction w as [w|w].
+      + contradicts (s v) w.
+      + apply maponpaths, j.
+  * intros [c e]. split.
+    - induction c as [c|c].
+      + apply invproofirrelevance; intros p p'.
+        exact (equality_by_case (e (ii1 p) @ !e (ii1 p'))).
+      + apply invproofirrelevance; intros p p'.
+        contradicts (s c) p.
+    - exact c.
+Defined.
+
 Definition isisolated (X:UU) (x:X) := ∀ x':X, (x=x') ⨿ (x≠x').
-Definition isisolated_ne (X:UU) (x:X) := ∀ y:X, Σ Q, complementary (x=y) Q.
+Definition isisolated_ne (X:UU) (x:X) (neq_x:neqPred x) := ∀ y:X, (x=y) ⨿ neq_x y.
 
 Definition isolated ( T : UU ) := Σ t:T, isisolated _ t.
-Definition isolatedpair ( T : UU ) (t:T) (i:isisolated _ t) : isolated T := (t,,i).
+Definition isolated_ne ( T : UU ) (neq:neqReln T) := Σ t:T, isisolated_ne _ t (neq t).
+
+Definition isolatedpair ( T : UU ) (t:T) (i:isisolated _ t) : isolated T
+  := (t,,i).
+Definition isolatedpair_ne ( T : UU ) (t:T) (neq:neqReln T) (i:isisolated_ne _ t (neq t)) : isolated_ne T neq
+  := (t,,i).
+
 Definition pr1isolated ( T : UU ) (x:isolated T) : T := pr1 x.
+Definition pr1isolated_ne ( T : UU ) (neq:neqReln T) (x:isolated_ne T neq) : T := pr1 x.
 
 Theorem isaproppathsfromisolated ( X : UU ) ( x : X ) ( is : isisolated X x ) : ∀ x', isaprop(x = x') .
 Proof. intros . apply iscontraprop1inv .  intro e .  induction e .
@@ -194,21 +232,22 @@ apply (iscontrweqb ( weqpair f is' ) ). assumption. Defined.
 
 Local Open Scope transport.
 
-Theorem isaproppathsfromisolated' (X:UU) (x:X) (is:isisolated X x) (y:X) : isaprop (x=y).
-(* an alternative proof *)
+Theorem isaproppathsfromisolated_ne (X:UU) (x:X) (neq_x:neqPred x) (is:isisolated_ne X x neq_x) (y:X)
+  : isaprop (x=y).
 Proof.
-  intros. unfold isisolated in is. apply invproofirrelevance. intros m n.
-  set (Q y := (x = y) ⨿ (x ≠ y)).
+  (* we could follow the proof of isaproppathsfromisolated here, but we try a different way *)
+  intros. unfold isisolated_ne in is. apply invproofirrelevance; intros m n.
+  set (Q y := (x = y) ⨿ (neq_x y)).
   assert (a := (transport_section is m) @ !(transport_section is n)).
   induction (is x) as [j|k].
   - assert (b := transport_map (λ y p, ii1 p : Q y) m j); simpl in b;
     assert (c := transport_map (λ y p, ii1 p : Q y) n j); simpl in c.
     assert (d := equality_by_case (!b @ a @ c)); simpl in d.
     rewrite 2? transportf_id1 in d. now apply (pathscomp_cancel_left j).
-  - contradicts k (idpath x).
+  - contradicts (neq_x x k) (idpath x).
 Defined.
 
-Theorem isaproppathstoisolated  ( X : UU ) ( x : X ) ( is : isisolated X x ) : forall x' : X, isaprop ( paths x' x ) .
+Theorem isaproppathstoisolated  ( X : UU ) ( x : X ) ( is : isisolated X x ) : ∀ x' : X, isaprop ( x' = x ) .
 Proof . intros . apply ( isofhlevelweqf 1 ( weqpathsinv0 x x' ) ( isaproppathsfromisolated X x is x' ) ) . Defined .
 
 Lemma isisolatedweqf { X Y : UU } (  f : weq X Y ) (x:X) (is2: isisolated _ x) : isisolated _ (f x).
@@ -274,7 +313,7 @@ Theorem isweqrecompl_ne' (X:UU) (x:X) (is:isisolated X x) (neq_x:neqPred x): isw
 Proof.
   (* an alternative proof *)
   intros. set (f:= recompl_ne X x neq_x). intro y.
-  unfold neqPred,negProp,isNegProp in neq_x; unfold isisolated in is.
+  unfold neqPred,negProp in neq_x; unfold isisolated in is.
   apply (iscontrweqb (weqtotal2overcoprod _)). induction (is y) as [eq|ne].
   { induction eq. refine (iscontrweqf (weqii2withneg _ _) _).
     { intros z; induction z as [z e]; induction z as [z neq]; simpl in *.
