@@ -299,21 +299,23 @@ Notation " x ≤ y " := ( natleh x y ) (at level 70, no associativity) : nat_sco
 
 Definition isdecrelnatleh : isdecrel natleh := λ m n, isdecrelnatgth _ _.
 
-(* these two lemmas show agreement with our old definition: *)
+Definition negnatlehsn0 ( n : nat ) : ¬ ( S n ≤ 0 ) := negnatlthn0 _.
+
+(* these two lemmas show agreement with the old definition: *)
     
-Lemma natlehneggth n m : ¬ (n > m) <- n ≤ m.
-Proof.
-  unfold natleh. intro n. induction n as [|n N].
-  - intros m r s. induction (negnatgth0n _ s).
-  - intros m r s. induction m as [|m _].
-    + contradicts (negnatgth0n n) r.
-    + change (S m > S n) with (m > n) in *.
-      change (S n > S m) with (n > m) in *.
-      change (S (S m) > S n) with (S m > n) in *.
-      contradicts (N m r) s.
+Lemma natlehneggth {n m} : n ≤ m -> ¬ (n > m).
+  intro n. induction n as [|n N].
+  - intros m _. exact (negnatgth0n m).
+  - intros m. induction m as [|m _].
+    + intros r _. exact (negnatlehsn0 n r).
+    + exact (N m).
 Defined.
 
-Lemma natneggthleh n m : ¬ (n > m) -> n ≤ m.
+Lemma natgthnegleh {n m} : n > m -> ¬ (n ≤ m).
+  intros ? ? r s. exact (natlehneggth s r).
+Defined.
+
+Lemma negnatgthtoleh {n m} : ¬ (n > m) -> n ≤ m.
 Proof.
   unfold natleh. intro n. induction n as [|n N].
   - intros m r. exact (natgthsn0 m).
@@ -322,33 +324,29 @@ Proof.
     * change (S n > S m) with (n > m). intro r. exact (N m r).
 Defined.
 
-Lemma negnatlehtogth n m : n > m <- ¬ (n ≤ m).
+Lemma negnatlehtogth {n m} : n > m <- ¬ (n ≤ m).
 Proof.
   intros ? ? r. apply (isdecreltoisnegrel isdecrelnatgth).
-  intro s. contradicts (natneggthleh n m s) r.
+  intro s. exact (r (negnatgthtoleh s)).
 Defined.  
 
-Lemma natgthnegleh n m : n > m -> ¬ (n ≤ m).
-Proof.
-  intros ? ? r s. exact (natlehneggth n m s r).
+Definition neggth_logeq_leh n m : ¬ (n > m) <-> n ≤ m
+  := (negnatgthtoleh,,natlehneggth).
+
+Definition natleh0tois0 {n} ( l : n ≤ 0 ) : n = 0 := natlth1tois0 n l.
+
+
+Definition natleh0n n : 0 ≤ n := natgthsn0 _ .
+
+Definition negnatlehsnn n : ¬ ( S n ≤ n ) := isirreflnatlth _.
+
+Definition istransnatleh {n m k} : n ≤ m -> m ≤ k -> n ≤ k .
+Proof. intros ? ? ? r s.
+       apply negnatgthtoleh.
+       exact (istransnegrel _ iscotransnatgth n m k (natlehneggth r) (natlehneggth s)).
 Defined.
 
-Definition natleh0tois0 ( n : nat ) ( l : n ≤ 0 ) : n = 0 := natlth1tois0 n l.
-
-Definition natleh0n ( n : nat ) : 0 ≤ n := natgthsn0 _ .
-
-Definition negnatlehsn0 ( n : nat ) : ¬ ( S n ≤ 0 ) := negnatlthn0 _.
-
-Definition negnatlehsnn ( n : nat ) : ¬ ( S n ≤ n ) := isirreflnatlth _.
-
-Definition istransnatleh ( n m k : nat ) : n ≤ m -> m ≤ k -> n ≤ k .
-Proof. intros ? ? ? r s. apply natneggthleh. refine (istransnegrel _ _ n m k _ _).
-       - exact iscotransnatgth.
-       - now apply natlehneggth. 
-       - now apply natlehneggth. 
-Defined.
-
-Definition isreflnatleh ( n : nat ) : n ≤ n.
+Definition isreflnatleh n : n ≤ n.
 Proof.
   intros. unfold natleh. apply natgthsnn.
 Defined.
@@ -386,7 +384,7 @@ Defined.
 
 Definition iscoasymmnatleh ( n m : nat ) : ¬ ( n ≤ m ) -> m ≤ n.
 Proof.
-  intros ? ? r. apply natneggthleh. intros s. unfold natleh in r.
+  intros ? ? r. apply negnatgthtoleh. intros s. unfold natleh in r.
   apply r. now apply natlthtoleh.
 Defined.
 
@@ -404,7 +402,7 @@ Notation " x >= y " := ( natgeh x y ) : nat_scope .
 Notation " x ≥ y " := ( natgeh x y ) (at level 70, no associativity) : nat_scope .
 
 Definition nat0gehtois0 ( n : nat ) ( g : 0 ≥ n ) : n = 0
-  := natleh0tois0 _ g . 
+  := natleh0tois0 g . 
 
 Definition natgehn0 ( n : nat ) : n ≥ 0 := natleh0n n .  
 
@@ -412,7 +410,7 @@ Definition negnatgeh0sn ( n : nat ) : ¬ ( 0 ≥ ( S n ) ) := negnatlehsn0 n .
 
 Definition negnatgehnsn ( n : nat ) : ¬ ( n ≥ ( S n ) ) := negnatlehsnn n . 
 
-Definition istransnatgeh ( n m k : nat ) : n ≥ m -> m ≥ k -> n ≥ k := fun gnm gmk => istransnatleh _ _ _ gmk gnm . 
+Definition istransnatgeh ( n m k : nat ) : n ≥ m -> m ≥ k -> n ≥ k := fun gnm gmk => istransnatleh gmk gnm . 
 
 Definition isreflnatgeh ( n : nat ) : n ≥ n := isreflnatleh _ . 
 
@@ -460,7 +458,7 @@ Definition natgthtogeh ( n m : nat ) : n > m -> n ≥ m .
 Proof. intros ? ?. apply natlthtoleh. Defined.
 
 Definition natlehtonegnatgth ( n m : nat ) : n ≤ m -> ¬ ( n > m )  .
-Proof. intros n m r. now apply natlehneggth. Defined . 
+Proof. intros n m r. now apply @natlehneggth. Defined . 
 
 Definition  natgthtonegnatleh ( n m : nat ) : n > m -> ¬ ( n ≤ m )
   := fun g l  => natlehtonegnatgth _ _ l g .   
@@ -473,10 +471,7 @@ Definition natlthtonegnatgeh ( n m : nat ) : n < m -> ¬ ( n ≥ m ) := fun gnm 
 Definition negnatgehtolth ( n m : nat ) : ¬ ( n ≥ m ) -> n < m.
 Proof. intros ? ? r. now apply negnatlehtogth. Defined.
 
-Definition negnatgthtoleh ( n m : nat ) : ¬ ( n > m ) -> n ≤ m .
-Proof . intros n m ng . destruct ( isdecrelnatleh n m ) as [ l | nl ] . apply l . contradicts nl (natneggthleh _ _ ng) .  Defined . 
-
-Definition negnatlthtogeh ( n m : nat ) : ¬ ( n < m ) -> n ≥ m := fun nl => negnatgthtoleh _ _ nl . 
+Definition negnatlthtogeh ( n m : nat ) : ¬ ( n < m ) -> n ≥ m := fun nl => negnatgthtoleh nl . 
 
 
 (* *** Simple corollaries of implications *** *)
@@ -494,7 +489,7 @@ Definition natgthorleh ( n m : nat ) : ( n > m ) ⨿ ( n ≤ m ) .
 Proof . intros .
         induction ( isdecrelnatgth n m ) as [a|a].
         - now apply ii1.
-        - apply ii2. now apply natneggthleh.
+        - apply ii2. now apply negnatgthtoleh.
 Defined.
 
 Definition natlthorgeh ( n m : nat ) : ( n < m ) ⨿ ( n ≥ m ) := natgthorleh _ _ .
@@ -645,8 +640,8 @@ Proof. intros n m is . apply ( istransnatgth _ _ _ ( natgthsnn n ) is ) . Define
 Definition negnatgthmplusnm ( n m : nat ) : ¬ ( m > n + m ) .
 Proof. intros . induction n as [ | n IHn ] .  apply isirreflnatgth .
        apply natlehtonegnatgth.
-       assert (r := negnatgthtoleh _ _ IHn); clear IHn.
-       apply ( istransnatleh _ _ _ r ( natlthtoleh _ _ ( natlthnsn _ ) ) ) .
+       assert (r := negnatgthtoleh IHn); clear IHn.
+       apply ( istransnatleh r ( natlthtoleh _ _ ( natlthnsn _ ) ) ) .
 Defined . 
 
 Definition negnatgthnplusnm ( n m : nat ) : ¬ ( n > ( n + m ) ) .
@@ -700,7 +695,7 @@ Definition natlthandplusrinv ( n m k : nat ) :  n + k < m + k -> n < m
 
 
 Definition natlehtolehs ( n m : nat ) : n ≤ m -> n ≤ S m .  
-Proof . intros n m is . apply ( istransnatleh _ _ _ is ( natlthtoleh _ _ ( natlthnsn _ ) ) ) . Defined .
+Proof . intros n m is . apply ( istransnatleh is ( natlthtoleh _ _ ( natlthnsn _ ) ) ) . Defined .
 
 Definition natlehmplusnm ( n m : nat ) : m ≤ n + m.
 Proof. intros. induction n as [|n N].
@@ -852,10 +847,10 @@ Proof . intros . rewrite ( natpluscomm _ _ ) in is . rewrite ( natpluscomm c b )
 
 
 Lemma iscontrhfibernatplusr ( n m : nat ) ( is : m ≥ n ) : iscontr ( hfiber ( fun i : nat => i + n ) m ) .
-Proof. intros . apply iscontraprop1 .    apply isinclnatplusr . induction m as [ | m IHm ] . set ( e := natleh0tois0 _ is ) .   split with 0 . apply e .  destruct ( natlehchoice2 _ _ is ) as [ l | e ] .  set ( j := IHm l ) .  destruct j as [ j e' ] . split with ( S j ) .  simpl . apply ( maponpaths S e' ) .  split with 0 . simpl .  assumption .  Defined . 
+Proof. intros . apply iscontraprop1 .    apply isinclnatplusr . induction m as [ | m IHm ] . set ( e := natleh0tois0 is ) .   split with 0 . apply e .  destruct ( natlehchoice2 _ _ is ) as [ l | e ] .  set ( j := IHm l ) .  destruct j as [ j e' ] . split with ( S j ) .  simpl . apply ( maponpaths S e' ) .  split with 0 . simpl .  assumption .  Defined . 
 
 Lemma iscontrhfibernatplusl ( n m : nat ) ( is : m ≥ n ) : iscontr ( hfiber ( fun i : nat => n + i ) m ) .
-Proof. intros . apply iscontraprop1 .    apply isinclnatplusl . induction m as [ | m IHm ] . set ( e := natleh0tois0 _ is ) .   split with 0 . rewrite <- plus_n_O. apply e .  destruct ( natlehchoice2 _ _ is ) as [ l | e ] .  set ( j := IHm l ) .  destruct j as [ j e' ] . split with ( S j ) .  simpl . rewrite <- plus_n_Sm. apply ( maponpaths S e' ) .  split with 0 . simpl .  rewrite <- plus_n_O. assumption .  Defined . 
+Proof. intros . apply iscontraprop1 .    apply isinclnatplusl . induction m as [ | m IHm ] . set ( e := natleh0tois0 is ) .   split with 0 . rewrite <- plus_n_O. apply e .  destruct ( natlehchoice2 _ _ is ) as [ l | e ] .  set ( j := IHm l ) .  destruct j as [ j e' ] . split with ( S j ) .  simpl . rewrite <- plus_n_Sm. apply ( maponpaths S e' ) .  split with 0 . simpl .  rewrite <- plus_n_O. assumption .  Defined . 
 
 Lemma neghfibernatplusr ( n m : nat ) ( is : m < n ) : ¬ ( hfiber  ( fun i : nat => i + n ) m ) .
 Proof. intros. intro h . destruct h as [ i e ] . rewrite ( pathsinv0 e )  in is . destruct ( natlehtonegnatgth _ _ ( natlehmplusnm i n ) is ) .  Defined .    
@@ -883,7 +878,7 @@ where "n - m" := (minus n m) : nat_scope.
 
 
 Definition minuseq0 ( n m : nat ) ( is : n <= m ) : n - m = 0 .
-Proof. intros n m . generalize n . clear n . induction m .  intros n is . rewrite ( natleh0tois0 n is ) . simpl . apply idpath. intro n . destruct n . intro . apply idpath .  apply (IHm n ) . Defined. 
+Proof. intros n m . generalize n . clear n . induction m .  intros n is . rewrite ( natleh0tois0 is ) . simpl . apply idpath. intro n . destruct n . intro . apply idpath .  apply (IHm n ) . Defined. 
 
 Definition minusgeh0 ( n m : nat ) ( is : n ≥ m ) : n - m ≥ 0 .
 Proof. intro . induction n as [ | n IHn ] . intros.  apply isreflnatgeh. intros .
@@ -905,7 +900,7 @@ Proof . intro. destruct n . apply idpath . apply idpath. Defined.
 Definition natminuslehn ( n m : nat ) : n - m <= n .
 Proof . intro n. induction n as [ | n IHn ] . intro. apply isreflnatleh .
         intro . destruct m as [ | m ]. apply isreflnatleh . simpl .
-        apply ( istransnatleh _ _ _ (IHn m) ( natlehnsn n ) ) .
+        apply ( istransnatleh (IHn m) ( natlehnsn n ) ) .
 
 Defined.
 
@@ -921,7 +916,7 @@ Proof. intro .   induction n as [ | n IHn ] . intros .  destruct ( negnatlthn0 _
 
 
 Definition minusplusnmm ( n m : nat ) ( is : n ≥ m ) : ( n - m ) + m = n .
-Proof . intro n . induction n as [ | n IHn] . intro m . intro is . simpl . apply ( natleh0tois0 _ is ) . intro m . destruct m as [ | m ] . intro .   simpl . rewrite ( natplusr0 n ) .  apply idpath .  simpl . intro is .  rewrite ( natplusnsm ( n - m ) m ) . apply ( maponpaths S ( IHn m is ) ) .  Defined . 
+Proof . intro n . induction n as [ | n IHn] . intro m . intro is . simpl . apply ( natleh0tois0 is ) . intro m . destruct m as [ | m ] . intro .   simpl . rewrite ( natplusr0 n ) .  apply idpath .  simpl . intro is .  rewrite ( natplusnsm ( n - m ) m ) . apply ( maponpaths S ( IHn m is ) ) .  Defined . 
 
 Definition minusplusnmmineq ( n m : nat ) : ( n - m ) + m ≥ n .
 Proof. intros. destruct ( natlthorgeh n m ) as [ lt | ge ] .  rewrite ( minuseq0 _ _ ( natlthtoleh _ _ lt ) ). apply ( natgthtogeh _ _ lt ) . rewrite ( minusplusnmm _ _ ge ) . apply isreflnatgeh . Defined. 
@@ -1570,7 +1565,7 @@ Lemma letoleh ( n m : nat ) : le n m -> n ≤ m .
 Proof .  intros n m H . induction H as [ | m H0 IHH0 ] . apply isreflnatleh .  apply natlehtolehs .  assumption .  Defined . 
 
 Lemma natlehtole ( n m : nat ) : n ≤ m ->  le n m .
-Proof. intros n m H .  induction m .  assert ( int := natleh0tois0 n H ) .   clear H . destruct int . apply le_n . 
+Proof. intros n m H .  induction m .  assert ( int := natleh0tois0 H ) .   clear H . destruct int . apply le_n . 
  set ( int2 := natlehchoice2 n ( S m ) H ) .  destruct int2 as [ isnatleh | iseq ] . apply ( le_S n m ( IHm isnatleh ) ) . destruct iseq .   apply le_n . Defined .
 
 Lemma isweqletoleh ( n m : nat ) : isweq ( letoleh n m ) .

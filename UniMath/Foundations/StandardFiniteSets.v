@@ -188,10 +188,7 @@ assert ( is1 : iscontr ( hfiber ( stntonat n ) x ) ) . apply iscontrhfiberstnton
 assert ( is2 : iscontr ( hfiber ( stntonat ( S n ) ) ( di i x )  ) ) .    apply iscontrhfiberstntonat . apply ( natlehlthtrans _ ( S x ) ( S n ) ( natlehdinsn i x ) g ) .  
 apply isweqcontrcontr . assumption . assumption . 
 
-assert ( is1 : neg ( hfiber ( stntonat ( S n ) ) ( di i x ) ) ) . apply neghfiberstntonat . unfold di .   destruct ( natlthorgeh x i ) as [ l'' | g' ] .  destruct ( natgehchoice2 _ _ l ) as [ g' | e ] .   apply g' .  rewrite e in l'' .  assert ( int := natlthtolehsn _ _ l'' ) .
-
-
-destruct ( int ( pr2 i ) ) .  apply l .  apply ( isweqtoempty2 _ is1 ) .
+assert ( is1 : neg ( hfiber ( stntonat ( S n ) ) ( di i x ) ) ) . apply neghfiberstntonat . unfold di .   destruct ( natlthorgeh x i ) as [ l'' | g' ] .  destruct ( natgehchoice2 _ _ l ) as [ g' | e ] .   apply g' .  rewrite e in l'' .  assert ( int := natlthtolehsn _ _ l'' ) . contradicts (natgthnegleh (pr2 i)) int. apply l .  apply ( isweqtoempty2 _ is1 ) .
 Defined . 
 
 
@@ -257,7 +254,9 @@ Proof. reflexivity. Defined.
 Definition weqdnicompl_compute_last n i : pr1 (pr1 (weqdnicompl n (lastelement n) i)) = pr1 i.
 Proof.
   intros. induction i as [i b]. simpl. unfold dni; simpl.
-  induction (natlthorgeh i n) as [p|p]. { reflexivity. } { contradicts b p. }
+  induction (natlthorgeh i n) as [p|p].
+  { reflexivity. }
+  { contradicts (natlehneggth p) b. }
 Defined.
 
 Definition inv_weqdnicompl_compute_last n i : pr1 (invweq (weqdnicompl n (lastelement n)) i) = pr1 (pr1 i).
@@ -376,7 +375,7 @@ Module Test2.
       choose (i < j)%dnat a a.
       { exists i. exact (natltltSlt _ _ _ a J). }
       { exists (i - 1).
-        induction (natlehchoice _ _ a) as [b|b].
+        induction (natlehchoice _ _ (negnatgthtoleh a)) as [b|b].
         { induction (natlehchoice4 _ _ I) as [c|c].
           { apply (natlehlthtrans (i - 1) i n).
             { apply natminuslehn. }
@@ -552,7 +551,7 @@ Proof. intros. induction e. reflexivity. Defined.
 
 Lemma stnsum_le {n} (f g:stn n->nat) : (∀ i, f i ≤ g i) -> stnsum f ≤ stnsum g.
 Proof.
-  intros ? ? ? le. induction n as [|n IH]. { simpl. exact nopathsfalsetotrue. }
+  intros ? ? ? le. induction n as [|n IH]. { simpl. reflexivity. }
   apply natlehandplus. { apply IH. intro i. apply le. } apply le.
 Defined.  
 
@@ -604,9 +603,9 @@ Proof.
       induction e. rewrite idpath_transportf. rewrite stn_left_compute. unfold dni, stntonat; simpl.
       induction (natlthorgeh i j) as [R|R].
       { unfold stntonat; simpl; repeat rewrite transport_stn; simpl.
-        induction (natlthorgeh i j). { simpl. reflexivity. } { simpl. contradicts R b. }}
+        induction (natlthorgeh i j). { simpl. reflexivity. } { simpl. contradicts R (natlehneggth b). }}
       { unfold stntonat; simpl; repeat rewrite transport_stn; simpl.
-        induction (natlthorgeh i j) as [V|V]. { simpl. contradicts I R. } { simpl. reflexivity. }}}
+        induction (natlthorgeh i j) as [V|V]. { simpl. contradicts I (natlehneggth R). } { simpl. reflexivity. }}}
     { apply stnsum_eq; intro i. induction i as [i I]. apply maponpaths.
       unfold dni, stn_right, stntonat; repeat rewrite transport_stn; simpl.
       induction (natlthorgeh (j+i) j) as [X|X].
@@ -659,7 +658,7 @@ Proof.
   { apply isreflnatleh. }
   rewrite stnsum_step. assert (W := IH (f ∘ dni _ (lastelement _))).
   change ((f ∘ dni _ (lastelement _)) (firstelement _)) with (f (firstelement _)) in W.
-  apply (istransnatleh _ _ _ W); clear W. apply natlehnplusnm.
+  apply (istransnatleh W); clear W. apply natlehnplusnm.
 Defined.
 
 Definition weqstnsum_invmap { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) <- stn (stnsum f).
@@ -669,7 +668,7 @@ Proof.
   intros l. induction l as [l L].
   choose (l < f (firstelement _))%dnat a b.
   { exact (firstelement _,, (l,,a)). }
-  assert (b' : f (firstelement _) ≤ l). { exact b. } clear b.
+  assert (b' : f (firstelement _) ≤ l). { exact (negnatgthtoleh b). } clear b.
   rewrite (stnsum_dni _ (firstelement _)) in L.
   rewrite natpluscomm in L.
   assert ( c := minusplusnmm l (f (firstelement _)) b'); clear b'.
@@ -858,7 +857,7 @@ Proof.
         simpl .
         apply ( invmaponpathsincl _ ( isinclstntonat _ ) _ _ ) .  simpl .
         apply e .
-  - set ( e := natleh0tois0 _ i ) .  rewrite e .  rewrite ( natmultn0 n ) . split with ( @pr2 _ _ ) .   apply ( isweqtoempty2 _ ( weqstn0toempty ) ) .
+  - set ( e := natleh0tois0 i ) .  rewrite e .  rewrite ( natmultn0 n ) . split with ( @pr2 _ _ ) .   apply ( isweqtoempty2 _ ( weqstn0toempty ) ) .
 Defined. 
 
 Module Test_weqfromprodofstn.
