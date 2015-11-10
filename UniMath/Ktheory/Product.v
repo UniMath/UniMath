@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import 
+Require Import
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
@@ -12,7 +12,7 @@ Definition type (C:precategory) (hs: has_homsets C) {I} (c:I -> ob C) :=
 Definition Object {C:precategory} (hs: has_homsets C) {I} {c:I -> ob C} (r:type C hs c)
            (* the representing object of r is in C^op, so here we convert it *)
            : ob C := Representation.Object r.
-Definition Proj {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C} (B:type C hs b) i : 
+Definition Proj {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C} (B:type C hs b) i :
   Hom (Object hs B) (b i).
 Proof. intros. exact (Representation.Element B i). Defined.
 Module Coercions.

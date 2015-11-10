@@ -19,7 +19,7 @@ Proof.
   apply (hzgthtoneq 1%hz 0%hz).
   rewrite <- nattohzand1.
   apply nattohzandgth.
-  apply paths_refl. 
+  apply paths_refl.
 Qed.
 Definition one_intdomnonzerosubmonoid : intdomnonzerosubmonoid hzintdom.
 Proof.

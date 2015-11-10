@@ -17,7 +17,7 @@ Proof. intros ? ? ? ? p q. exact (pathscomp0 q p). Defined.
 Definition pre_cat {X} {x y z:X} {q:x = y} : y = z -> x = z.
 Proof. intros ? ? ? ? p q. exact (pathscomp0 p q). Defined.
 
-Ltac maponpaths_pre_post_cat := 
-  repeat rewrite path_assoc; repeat apply (ap post_cat); repeat rewrite <- path_assoc; 
-  repeat apply (ap pre_cat); repeat rewrite path_assoc; repeat rewrite maponpathsinv0; 
+Ltac maponpaths_pre_post_cat :=
+  repeat rewrite path_assoc; repeat apply (ap post_cat); repeat rewrite <- path_assoc;
+  repeat apply (ap pre_cat); repeat rewrite path_assoc; repeat rewrite maponpathsinv0;
   try reflexivity.

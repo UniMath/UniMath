@@ -218,3 +218,84 @@ Definition apsetwith2binop_setwith2binop : apsetwith2binop -> setwith2binop :=
   λ X : apsetwith2binop,
         apSet_pr1 (apsetwith2binop_pr1 X),, pr1 (pr1 (pr2 X)),, pr1 (pr2 (pr2 X)).
 Coercion apsetwith2binop_setwith2binop : apsetwith2binop >-> setwith2binop.
+
+(** Lemmas about sets with binops *)
+
+Section apsetwithbinop_pty.
+
+Context {X : apsetwithbinop}.
+
+Lemma islapbinop_op :
+  ∀ x x' y : X, op x y # op x' y -> x # x'.
+Proof.
+  intros x y y'.
+  now apply (pr1 (pr2 (pr2 X))).
+Qed.
+
+Lemma israpbinop_op :
+  ∀ x y y' : X, op x y # op x y' -> y # y'.
+Proof.
+  intros x y y'.
+  now apply (pr2 (pr2 (pr2 X))).
+Qed.
+
+Lemma isapbinop_op :
+  ∀ x x' y y' : X, op x y # op x' y' -> x # x' ∨ y # y'.
+Proof.
+  intros x x' y y' Hop.
+  apply (iscotransapSet _ (op x' y)) in Hop.
+  revert Hop ; apply hinhfun ; intros [Hop | Hop].
+  - left ; revert Hop.
+    now apply islapbinop_op.
+  - right ; revert Hop.
+    now apply israpbinop_op.
+Qed.
+
+End apsetwithbinop_pty.
+
+Section apsetwith2binop_pty.
+
+Context {X : apsetwith2binop}.
+
+Definition apsetwith2binop_apsetwithbinop1 : apsetwithbinop :=
+  (pr1 X) ,, (pr1 (pr2 X)).
+Definition apsetwith2binop_apsetwithbinop2 : apsetwithbinop :=
+  (pr1 X) ,, (pr2 (pr2 X)).
+
+Lemma islapbinop_op1 :
+  ∀ x x' y : X, op1 x y # op1 x' y -> x # x'.
+Proof.
+  exact (islapbinop_op (X := apsetwith2binop_apsetwithbinop1)).
+Qed.
+
+Lemma israpbinop_op1 :
+  ∀ x y y' : X, op1 x y # op1 x y' -> y # y'.
+Proof.
+  exact (israpbinop_op (X := apsetwith2binop_apsetwithbinop1)).
+Qed.
+
+Lemma isapbinop_op1 :
+  ∀ x x' y y' : X, op1 x y # op1 x' y' -> x # x' ∨ y # y'.
+Proof.
+  exact (isapbinop_op (X := apsetwith2binop_apsetwithbinop1)).
+Qed.
+
+Lemma islapbinop_op2 :
+  ∀ x x' y : X, op2 x y # op2 x' y -> x # x'.
+Proof.
+  exact (islapbinop_op (X := apsetwith2binop_apsetwithbinop2)).
+Qed.
+
+Lemma israpbinop_op2 :
+  ∀ x y y' : X, op2 x y # op2 x y' -> y # y'.
+Proof.
+  exact (israpbinop_op (X := apsetwith2binop_apsetwithbinop2)).
+Qed.
+
+Lemma isapbinop_op2 :
+  ∀ x x' y y' : X, op2 x y # op2 x' y' -> x # x' ∨ y # y'.
+Proof.
+  exact (isapbinop_op (X := apsetwith2binop_apsetwithbinop2)).
+Qed.
+
+End apsetwith2binop_pty.
