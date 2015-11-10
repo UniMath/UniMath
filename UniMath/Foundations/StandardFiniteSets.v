@@ -57,15 +57,12 @@ Proof. intros .  apply ( iscontrhfiberofincl ( stntonat n ) ( isinclstntonat n )
 Lemma isisolatedinstn { n : nat } ( x : stn n ) : isisolated _ x.
 Proof. intros . apply ( isisolatedinclb ( stntonat n ) ( isinclstntonat n ) x ( isisolatedn x ) ) .  Defined. 
 
-Lemma stn_ne_iff_neq {n} (i j:stn n) : i ≠ j <-> natneq_type i j.
+Lemma stn_ne_iff_neq {n} (i j:stn n) : ¬ (i = j) <-> stntonat _ i ≠ stntonat _ j.
 Proof.
-  Set Printing Coercions.
   intros. split.
-  - intro ne.
-    apply (pr1 (natneq_type_iff_neq i j)).
-    intro e. apply ne. apply (isweqonpathsincl _ (isinclstntonat n) _ _ e).
-  - simpl. intros neq e. apply (pr2 (natneq_type_iff_neq i j) neq). 
-    exact (maponpaths (stntonat _) e).
+  - intro ne. apply nat_nopath_to_neq. Set Printing Coercions. idtac.
+    intro e; apply ne; clear ne. now apply subtypeEquality_prop.
+  - simpl. intros neq e. now apply (nat_neq_to_nopath neq), maponpaths.
   Unset Printing Coercions.
 Defined.
 
@@ -76,21 +73,29 @@ Proof. (* compare with [natneq_negProp] *)
   - apply stn_ne_iff_neq.
 Defined.
 
-Notation " x !=? y " := ( stnneq x y ) (at level 70, no associativity) : stn.
-Notation " x ≠? y " := ( stnneq x y ) (at level 70, no associativity) : stn.
+Notation " x != y " := ( stnneq x y ) (at level 70, no associativity) : stn.
+Notation " x ≠ y " := ( stnneq x y ) (at level 70, no associativity) : stn.
 Delimit Scope stn with stn.
+Open Scope stn.
 
-Lemma stnneq_iff_nopath {n} (i j:stn n) : i ≠ j <-> (i ≠? j)%stn.
-Proof. intros. apply stn_ne_iff_neq. Defined.
+Lemma stnneq_iff_nopath {n} (i j:stn n) : ¬ (i = j) <-> i ≠ j.
+Proof. intros. apply negProp_to_iff. Defined.
 
-Definition stnneq_to_nopath {n} (i j:stn n) : i ≠ j <- (i ≠? j)%stn
-  := pr2 (stnneq_iff_nopath i j).
+Definition stnneq_to_nopath {n} (i j:stn n) : ¬ (i = j) <- i ≠ j
+  := pr2 (stn_ne_iff_neq i j).
 
-Goal (stnel(6,3) !=? stnel(6,4))%stn. easy. Defined.
-Goal ¬(stnel(6,3) !=? stnel(6,3))%stn. easy. Defined.
+Goal (stnel(6,3) ≠ stnel(6,4)). easy. Defined.
+Goal ¬(stnel(6,3) ≠ stnel(6,3)). easy. Defined.
 
 Corollary isdeceqstn ( n : nat ) : isdeceq (stn n).
 Proof. intro.  unfold isdeceq. intros x x' . apply (isisolatedinstn x x' ). Defined.
+
+Lemma stn_decide_eq_neq {n} (i j:stn n) : (i=j) ⨿ (i≠j).
+Proof.
+  intros. induction (nat_decide_eq_neq i j) as [eq|ne].
+  - now apply ii1, subtypeEquality_prop.
+  - now apply ii2.
+Defined.
 
 Definition weqisolatedstntostn ( n : nat ) : weq ( isolated ( stn n ) ) ( stn n ) .
 Proof . intro . apply weqpr1 . intro x .   apply iscontraprop1 .  apply ( isapropisisolated ) . set ( int := isdeceqstn n x  ) . assumption .  Defined . 
@@ -199,15 +204,13 @@ Proof.  intros . apply ( weqhfibersg'tof _ _ _ _ ( dnihfsq n i ) j ) . Defined .
 Lemma neghfiberdni ( n : nat ) ( i : stn ( S n ) ) : neg ( hfiber ( dni n i ) i ) . 
 Proof. intros . apply ( negf ( weqhfiberdnihfiberdi n i i ) ( neghfiberdi i ) ) . Defined .  
 
-Lemma iscontrhfiberdni ( n : nat ) ( i j : stn ( S n ) ) ( ne : neg ( paths i j ) ) : iscontr ( hfiber ( dni n i ) j ) .
-Proof . intros . set ( ne' := negf ( invmaponpathsincl _ ( isinclstntonat ( S n ) ) _ _ ) ne ) .  apply ( iscontrweqb ( weqhfiberdnihfiberdi n i j ) ( iscontrhfiberdi i j ne' ) ) .  Defined . 
+Lemma iscontrhfiberdni ( n : nat ) ( i j : stn ( S n ) ) : i ≠ j -> iscontr ( hfiber ( dni n i ) j ) .
+Proof . intros ? ? ? ne . exact ( iscontrweqb ( weqhfiberdnihfiberdi n i j ) ( iscontrhfiberdi i j ne ) ) . Defined . 
 
 Lemma isdecincldni ( n : nat ) ( i : stn ( S n ) ) : isdecincl ( dni n i ) .
-Proof.  intros . intro j .
-        induction ( isdeceqstn _ i j ) as [i0|e].
-        rewrite i0.
-        apply ( isdecpropfromneg ( neghfiberdni n j ) ) .
-        apply ( isdecpropfromiscontr (iscontrhfiberdni _ _ _ e) ) .
+Proof.  intros . intro j . induction ( stn_decide_eq_neq i j ) as [eq|ne].
+        - induction eq. apply ( isdecpropfromneg ( neghfiberdni n i ) ) .
+        - apply ( isdecpropfromiscontr (iscontrhfiberdni _ _ _ ne) ) .
 Defined . 
  
 Lemma isincldni ( n : nat ) ( i : stn ( S n ) ) : isincl ( dni n i ) .
@@ -233,16 +236,9 @@ Defined .
 
 Lemma isweqdnitocompl  ( n : nat ) ( i : stn ( S n ) ) : isweq ( dnitocompl n i ) .
 Proof.
-  intros. intro jni.
-  induction jni as [ j ni ].
-  set ( jni := compl_ne_pair _ i _ j ni ).
-  assert ( w := samehfibers ( dnitocompl n i )  _ ( isinclpr1compl_ne _ i _ ) jni ) .
-  simpl in w .
-  apply (iscontrweqb w).
-  apply iscontrhfiberdni.
-  apply stnneq_to_nopath.
-  simpl.
-  exact ni.
+  intros ? ? jni.
+  assert ( w := samehfibers ( dnitocompl n i )  _ ( isinclpr1compl_ne _ i _ ) jni ) ; simpl in w .
+  apply (iscontrweqb w). apply iscontrhfiberdni. exact (pr2 jni).
 Defined. 
 
 Definition weqdnicompl n (i:stn(S n)): stn n ≃ compl_ne (stn (S n)) i _
@@ -271,7 +267,7 @@ Definition weqdnicoprod n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
 Proof.
   intros.
   apply (weqcomp (weqcoprodf (weqdnicompl n j) (idweq unit))
-                 (weqrecompl_ne (stn (S n)) j (isdeceqstn (S n) j) (λ k, j !=? k)%stn)).
+                 (weqrecompl_ne (stn (S n)) j (isdeceqstn (S n) j) (λ k, j != k)%stn)).
 Defined.  
 
 Local Notation "● x" := (x,,idpath _) (at level 35).
@@ -336,11 +332,8 @@ Module Test2.
 
   Definition i := ●1 : stn 4.
   Definition j := ●0 : stn 4.
-  Lemma ne : i ≠ j.
-  Proof. induction (isisolatedinstn i j).
-         - intros b. induction (negpathssx0 0 (maponpaths pr1 b)).
-         - assumption.
-  Defined.           
+  Lemma ne : ¬ (i = j).
+  Proof. apply stnneq_to_nopath. easy. Defined.           
   Definition re := weqrecompl (stn 4) i (isisolatedinstn _).
   Definition c := complpair (stn 4) i j ne : compl _ i.
   Goal re (ii2 tt) = i. reflexivity. Defined.
