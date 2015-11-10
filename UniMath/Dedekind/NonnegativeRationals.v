@@ -641,7 +641,6 @@ Lemma notlt_geNonnegativeRationals:
   ∀ x y : NonnegativeRationals, ¬ (x < y) -> x >= y.
 Proof.
   intros x y.
-  Search neg hqlth.
   now apply neghqlthtogeh.
 Qed.
 
