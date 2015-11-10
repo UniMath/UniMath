@@ -66,9 +66,9 @@ Proof.
   Unset Printing Coercions.
 Defined.
 
-Lemma stnneq {n} (i j:stn n) : negProp (i=j).
-Proof. (* compare with [natneq_negProp] *)
-  intros. exists (natneq_type i j). split.
+Lemma stnneq {n} : neqReln (stn n).
+Proof. (* here we use no axioms *)
+  intros n i j. exists (natneq_type i j). split.
   - apply natneq_isaprop.
   - apply stn_ne_iff_neq.
 Defined.
@@ -90,9 +90,9 @@ Goal ¬(stnel(6,3) ≠ stnel(6,3)). easy. Defined.
 Corollary isdeceqstn ( n : nat ) : isdeceq (stn n).
 Proof. intro.  unfold isdeceq. intros x x' . apply (isisolatedinstn x x' ). Defined.
 
-Lemma stn_decide_eq_neq {n} (i j:stn n) : (i=j) ⨿ (i≠j).
+Lemma stn_eq_or_neq {n} (i j:stn n) : (i=j) ⨿ (i≠j).
 Proof.
-  intros. induction (nat_decide_eq_neq i j) as [eq|ne].
+  intros. induction (nat_eq_or_neq i j) as [eq|ne].
   - now apply ii1, subtypeEquality_prop.
   - now apply ii2.
 Defined.
@@ -100,6 +100,8 @@ Defined.
 Definition weqisolatedstntostn ( n : nat ) : weq ( isolated ( stn n ) ) ( stn n ) .
 Proof . intro . apply weqpr1 . intro x .   apply iscontraprop1 .  apply ( isapropisisolated ) . set ( int := isdeceqstn n x  ) . assumption .  Defined . 
 
+Definition weqisolatedstntostn_ne ( n : nat ) : weq ( isolated_ne ( stn n ) stnneq ) ( stn n ) .
+Admitted.
 
 Corollary isasetstn ( n : nat ) : isaset ( stn n ) .
 Proof. intro . apply ( isasetifdeceq _ ( isdeceqstn n ) ) . Defined . 
@@ -208,7 +210,7 @@ Lemma iscontrhfiberdni ( n : nat ) ( i j : stn ( S n ) ) : i ≠ j -> iscontr ( 
 Proof . intros ? ? ? ne . exact ( iscontrweqb ( weqhfiberdnihfiberdi n i j ) ( iscontrhfiberdi i j ne ) ) . Defined . 
 
 Lemma isdecincldni ( n : nat ) ( i : stn ( S n ) ) : isdecincl ( dni n i ) .
-Proof.  intros . intro j . induction ( stn_decide_eq_neq i j ) as [eq|ne].
+Proof.  intros . intro j . induction ( stn_eq_or_neq i j ) as [eq|ne].
         - induction eq. apply ( isdecpropfromneg ( neghfiberdni n i ) ) .
         - apply ( isdecpropfromiscontr (iscontrhfiberdni _ _ _ ne) ) .
 Defined . 
@@ -918,9 +920,17 @@ Proof . intro n . induction n as [ | n IHn ] . intros . simpl . apply ( weqcontr
 
 (** *** Weak equivalence between [ weq ( stn n ) ( stn n ) ] and [ stn ( factorial n ) ] ( uses functional extensionality ) *)
 
-Theorem  weqweqstnsn ( n : nat ) : (stn(S n) ≃ stn (S n))  ≃  stn(S n) × ( stn n ≃ stn n ).
-Proof . intro . set ( nn := lastelement n ) . set ( is := isdeceqstn _ nn ) . set ( w1 := weqcutonweq ( stn ( S n ) ) nn is ) . set ( w2 := weqisolatedstntostn ( S n ) ) .  set ( w3 := invweq ( weqdnicompl n nn ) ) .  apply ( weqcomp w1 ( weqdirprodf w2 ( weqcomp ( weqbweq _ ( invweq w3 )) ( weqfweq _ w3 ) ) ) ) .  Defined .   
-
+Theorem weqweqstnsn ( n : nat ) : (stn(S n) ≃ stn (S n))  ≃  stn(S n) × ( stn n ≃ stn n ).
+Proof.
+  intro.
+  assert ( nn := lastelement n ) .
+  set (W := compl_ne (stn (S n)) nn (stnneq nn)).
+  intermediate_weq ( isolated_ne (stn (S n)) stnneq × (W ≃ W) ).
+  { apply weqcutonweq_ne. intro i. apply stn_eq_or_neq. }
+  apply weqdirprodf.
+  - apply weqisolatedstntostn_ne.
+  - apply weqweq. apply invweq. apply weqdnicompl.
+Defined .   
 
 Theorem weqfromweqstntostn ( n : nat ) : weq ( weq ( stn n ) ( stn n ) ) ( stn ( factorial n ) ) . 
 Proof . intro . induction n as [ | n IHn ] . simpl . apply ( weqcontrcontr ) . apply ( iscontraprop1 ) .    apply ( isapropweqtoempty2 _ ( negstn0 ) ) .  apply idweq . apply iscontrstn1 . change ( factorial ( S n ) ) with ( ( S n ) * ( factorial n ) ) .   set ( w1 := weqweqstnsn n ) . apply ( weqcomp w1 ( weqcomp ( weqdirprodf ( idweq _ ) IHn ) ( weqfromprodofstn _ _ ) ) ) .  Defined . 
@@ -999,7 +1009,7 @@ Lemma negbforalldectototal2neg ( n : nat ) ( P : nat -> UU ) ( is : forall n' : 
 Proof . intros n P is . set ( P' := fun n' : nat => hProppair _ ( is n' ) ) . induction n as [ | n IHn ] . intro nf . set ( nf0 := negf ( invweq ( weqforallnatlehn0 P' ) ) nf ) . split with 0 . apply ( dirprodpair ( isreflnatleh 0 ) nf0 ) .   intro nf . set ( nf2 := negf ( invweq ( weqforallnatlehnsn' n P' ) ) nf ) . set ( nf3 := fromneganddecy ( is ( S n ) ) nf2 ) . destruct nf3 as [ f1 | f2 ] . set ( int := IHn f1 ) .  destruct int as [ n' d2 ] . destruct d2 as [ l np ] . split with n' .  split with ( natlehtolehs _ _ l ) .  apply np . split with ( S n ) . split with ( isreflnatleh _ ) . apply f2 .  Defined . 
 
 
-(** ** Accesibility - the least element of an inhabited decidable subset of [nat] *)
+(** ** Accessibility - the least element of an inhabited decidable subset of [nat] *)
 
 Definition natdecleast ( F : nat -> UU ) ( is : forall n , isdecprop ( F n ) ) := total2 ( fun  n : nat => dirprod ( F n ) ( forall n' : nat , F n' -> natleh n n' ) ) .
 

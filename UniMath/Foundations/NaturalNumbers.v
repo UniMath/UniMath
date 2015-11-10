@@ -129,7 +129,7 @@ Proof.  apply (isasetifdeceq _ isdeceqnat). Defined.
 
 Definition natset : hSet := hSetpair _ isasetnat . 
 
-Lemma nat_decide_eq_neq m n : (m=n) ⨿ (m≠n).
+Lemma nat_eq_or_neq m n : (m=n) ⨿ (m≠n).
 Proof.
   intros n. induction n as [|n N].
   - intro m. induction m as [|m _].
@@ -1549,7 +1549,7 @@ Lemma isdecincldi ( i : nat ) : isdecincl ( di i ) .
 Proof.
   intros i j. apply isdecpropif .
   - apply ( isincldi i j ) .
-  - destruct ( nat_decide_eq_neq i j )  as [ eq | neq ] .
+  - destruct ( nat_eq_or_neq i j )  as [ eq | neq ] .
     + apply ii2. destruct eq .  apply ( neghfiberdi i ) .
     + apply ii1. apply ( pr1 ( iscontrhfiberdi i j neq ) ) .
 Defined .

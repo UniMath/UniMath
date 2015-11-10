@@ -671,7 +671,12 @@ assert ( egf : forall a : _ , paths ( g ( f a ) ) a ) . intro a .  apply ( invma
 assert ( efg : forall b : _ , paths ( f ( g b ) ) b ) . intro b .  apply ( invmaponpathsincl _ ( isinclpr1weq _ _ ) ) . apply funextfun . intro x . apply ( maponpaths b ( homotinvweqweq w x ) ) .
 apply ( gradth _ _ egf efg ) . Defined .
 
-
+Theorem weqweq {X Y:UU} (w:X≃Y) : (X≃X) ≃ (Y≃Y).
+Proof.
+  intros. intermediate_weq (X≃Y).
+  - now apply weqfweq.
+  - apply invweq. now apply weqbweq.
+Defined.
 
 (** *** Invertion on weak equivalences as a weak equivalence *)
 
@@ -833,6 +838,10 @@ Proof.
     simpl. apply idpath. }
 Defined.
 
+Definition weqcutonweq_ne (T:UU) (neq : neqReln T) (t:T) (is:isisolated_ne T t (neq t))
+  : (T ≃ T) ≃ isolated_ne T neq × (compl_ne T t (neq t) ≃ compl_ne T t (neq t)) .
+Proof.
+Admitted.
 
 (* Coprojections i.e. functions which are weakly equivalent to functions of the form ii1: X -> coprod X Y
 

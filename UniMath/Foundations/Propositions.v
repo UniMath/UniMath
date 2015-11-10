@@ -385,11 +385,11 @@ Definition hinhimplinhdneg (X:UU)(inx1: ishinh X): isinhdneg X := inx1 hfalse.
 
 (** decidability *)
 
-Definition ComplementaryPair := Σ (PQ:UU×UU), complementary (pr1 PQ) (pr2 PQ).
-Definition Part1 (C:ComplementaryPair) : UU := pr1 (pr1 C).
-Definition Part2 (C:ComplementaryPair) : UU := pr2 (pr1 C).
-Definition pair_contradiction (C:ComplementaryPair) := pr1 (pr2 C).
-Definition chooser (C:ComplementaryPair) := pr2 (pr2 C).
+Definition ComplementaryPair := Σ (P Q:UU), complementary P Q.
+Definition Part1 (C:ComplementaryPair) : UU := pr1 C.
+Definition Part2 (C:ComplementaryPair) : UU := pr1 (pr2 C).
+Definition pair_contradiction (C:ComplementaryPair) : Part1 C -> Part2 C -> ∅ := pr1 (pr2 (pr2 C)).
+Definition chooser (C:ComplementaryPair) : Part1 C ⨿ Part2 C := pr2 (pr2 (pr2 C)).
 
 Definition isTrue  (C:ComplementaryPair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
 Definition isFalse (C:ComplementaryPair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
@@ -402,6 +402,8 @@ Coercion falseWitness : isFalse >-> Part2.
 
 Lemma complementaryDecisions (C:ComplementaryPair) : iscontr (isTrue C ⨿ isFalse C).
 Proof.
+  (* the idea of this proof is to show that [isTrue C ⨿ isFalse C] is the same
+     as the decomposition provided by [weqcoprodsplit] *)
   intros.
   apply iscontrifweqtounit. assert (w := weqcoprodsplit (λ _:unit, chooser C)).
   apply invweq. apply (weqcomp w). apply weqcoprodf; apply weqhfiberunit.
@@ -426,7 +428,7 @@ Proof.
   apply complementaryDecisions.
 Defined.
 
-Ltac unpack_pair C P Q con c := induction C as [_PQ_ c]; induction _PQ_ as [P Q];
+Ltac unpack_pair C P Q con c := induction C as [P Qc]; induction Qc as [Q c];
                                 induction c as [con c]; simpl in c, P, Q.
 
 Lemma pair_truth (C:ComplementaryPair) (i:isaprop (Part1 C)) : Part1 C -> isTrue C.
@@ -452,7 +454,7 @@ Definition to_ComplementaryPair {P} (c:P ⨿ neg P) : ComplementaryPair
   (* the part connected to the element of [P ⨿ ¬P]. *)
   (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P] by a propositional subtype of it.  *)
   (* Both are proved to be propositions without [funextempty] *)
-  := ((P,,neg P),,((λ p n, n p),,c)).
+  := (P,,neg P,,(λ p n, n p),,c).
 
 (* Relate isolated points to complementary pairs *)
 
@@ -471,15 +473,12 @@ Definition inequality_to_isolation {X:UU} (x:X) (is:isisolated X x) (y:X) : x �
 (* operations on complementary pairs *)
 
 Definition pairNegation (C:ComplementaryPair) : ComplementaryPair
-  := (Part2 C,, Part1 C) ,, (λ q p, pair_contradiction C p q),, coprodcomm _ _ (chooser C).
+  := Part2 C,, Part1 C ,, (λ q p, pair_contradiction C p q),, coprodcomm _ _ (chooser C).
 
 Definition pairConjunction (C C':ComplementaryPair) : ComplementaryPair.
 Proof.
-  intros.
-  unpack_pair C P Q con c; unpack_pair C' P' Q' con' c'; simpl in *.
-  unfold ComplementaryPair.
-  exists ((P × P') ,, (Q ⨿ Q')).
-  split.
+  intros. unpack_pair C P Q con c; unpack_pair C' P' Q' con' c'; simpl in *.
+  unfold ComplementaryPair. exists (P × P'); exists (Q ⨿ Q'). split.
   - simpl. intros a b. induction a as [p p']. induction b as [b|b].
     + induction c' as [_|q'].
       * contradicts (con p) b.
@@ -509,6 +508,7 @@ Proof.
 Defined.
 
 Definition decidable (X:hProp) : hProp :=
+  (* uses [funextempty] *)
   hProppair (X ⨿ ¬X) (isapropdec X (propproperty X)).
 
 Definition decidable_dirprod (X Y:hProp) : decidable X -> decidable Y -> decidable (X ∧ Y).

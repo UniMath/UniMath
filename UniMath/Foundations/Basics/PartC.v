@@ -58,6 +58,7 @@ set (f:= todneg (neg X)). set (g:= negf  (todneg X)). set (is1:= isapropneg X). 
 
 
 Theorem isapropdec (X:UU): isaprop X -> isaprop (X ⨿ ¬X).
+(* uses [funextempty] *)
 Proof. intros X X0.
 assert (X1: forall (x x': X), paths x x'). apply (proofirrelevance _ X0).
 assert (X2: forall (x x': coprod X (X -> empty)), paths x x'). intros.
@@ -89,9 +90,9 @@ Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop (negProp_to_type nP
 Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> (negProp_to_type nP) := pr2 (pr2 nP).
 Definition neg_to_neg {P} {nP : negProp P} (np : negProp_to_type nP) : ¬P.
 Proof. intros. exact (pr2 (negProp_to_iff nP) np). Defined.
+Coercion neg_to_neg : negProp >-> Funclass.
 Definition neg_from_neg {P} {nP : negProp P} (np : ¬P) : negProp_to_type nP.
 Proof. intros. exact (pr1 (negProp_to_iff nP) np). Defined.
-Coercion neg_to_neg : negProp >-> Funclass.
 Definition neqProp {X:UU} (x y:X) :=            negProp (x=y).
 Definition neqPred {X:UU} (x  :X) := ∀ y,       negProp (x=y).
 Definition neqReln (X:UU)         := ∀ (x y:X), negProp (x=y).
@@ -163,11 +164,11 @@ Proof . intros . intro x' . induction x' as [ x' nexx' ] . apply ( invmaponpaths
 
 (** *** Basic results on types with an isolated point. *)
 
-Definition complementary P Q := isaprop Q × (P -> Q -> ∅) × (P ⨿ Q).
+Definition complementary P Q := (P -> Q -> ∅) × (P ⨿ Q).
+Definition complementary_prop P Q := isaprop Q × complementary P Q.
 Definition complementary_to_neg_iff {P Q} : complementary P Q -> ¬P <-> Q.
 Proof.
   intros ? ? c.
-  induction c as [ _ c].
   induction c as [n c]. split.
   - intro np. induction c as [p|q].
     * contradicts p np.
@@ -182,11 +183,9 @@ Proof.
   intros ? [Q [i [r s]]]; simpl in *.
   split.
   * intros pq. split.
+    - intros p q. now apply s.
     - assumption.
-    - split.
-      + intros p q. now apply s.
-      + assumption.
-  * intros [j [n c]]. assumption.
+  * intros [j c]. assumption.
 Defined.
 
 Lemma negProp_to_uniqueChoice P (Q:negProp P) : (isaprop P × (P ⨿ Q)) <-> iscontr (P ⨿ Q).
@@ -276,7 +275,7 @@ Definition invrecompl_ne (X:UU)(x:X)(neq_x:neqPred x)(is: isisolated X x): X -> 
 Proof.
   intros ? ? ? ? y. induction (is y) as [k|k].
   - exact (ii2 tt).
-  - exact (ii1 (compl_ne_pair X x neq_x y (pr1 (pr2 (pr2 (neq_x y))) k))).
+  - exact (ii1 (compl_ne_pair X x neq_x y (neg_from_neg k))).
 Defined.
 
 Theorem isweqrecompl_ne (X:UU) (x:X) (is:isisolated X x) (neq_x:neqPred x): isweq (recompl_ne _ x neq_x).
