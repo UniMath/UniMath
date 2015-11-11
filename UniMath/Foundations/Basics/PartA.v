@@ -1792,31 +1792,6 @@ Proof.
   - intros yxp. induction yxp as [x yp]. induction yp as [y p]. reflexivity.
 Defined.
 
-Definition hpullback {X Y Z:UU} (f:X->Z) (g:Y->Z) := Σ (xy : X × Y), f(pr1 xy) = g(pr2 xy).
-
-Lemma hpullback_left  {X Y Z:UU} (f:X->Z) (g:Y->Z) : hpullback f g ≃ Σ x, hfiber g (f x).
-Proof.
-  intros. refine (weqgradth _ _ _ _).
-  - intros [[x y] e]. exact (x,,y,,!e).
-  - intros [x [y e]]. exists (x,,y). exact (!e).
-  - intros [[x y] e]. apply maponpaths, pathsinv0inv0.
-  - intros [x [y e]]. apply maponpaths, maponpaths, pathsinv0inv0.
-Defined.
-
-Definition hpullback_right {X Y Z:UU} (f:X->Z) (g:Y->Z) : hpullback f g ≃ Σ y, hfiber f (g y).
-Proof.
-  intros. apply weqtotal2dirprodassoc'.
-Defined.
-
-Definition hfiber_comm {X Y Z:UU} (f:X->Z) (g:Y->Z) : (Σ x, hfiber g (f x)) ≃ (Σ y, hfiber f (g y)).
-Proof.
-  intros. refine (weqgradth _ _ _ _).
-  - intros [x [y e]]. exact (y,,x,,!e).
-  - intros [y [x e]]. exact (x,,y,,!e).
-  - intros [x [y e]]. apply maponpaths, maponpaths, pathsinv0inv0.
-  - intros [y [x e]]. apply maponpaths, maponpaths, pathsinv0inv0.
-Defined.
-
 (** *** Coproducts and direct products *)
 
 
@@ -2765,11 +2740,28 @@ assert ( egf : ∀ xe : _ , ( gg ( ff xe ) ) = xe ) . intro . induction xe . app
 assert ( efg : ∀ hf : _ , ( ff ( gg hf ) ) = hf ) . intro . induction hf as [ tx e ] . induction tx as [ t x ] . induction t .   apply idpath .
 apply ( gradth _ _ egf efg ) . Defined .
 
+Lemma hfp_left  {X Y Z:UU} (f:X->Z) (g:Y->Z) : hfp f g ≃ Σ x, hfiber g (f x).
+Proof.
+  intros. apply weqtotal2dirprodassoc.
+Defined.
 
+Definition hfp_right {X Y Z:UU} (f:X->Z) (g:Y->Z) : hfp f g ≃ Σ y, hfiber f (g y).
+Proof.
+  intros. refine (weqgradth _ _ _ _).
+  - intros [[x y] e]. exact (y,,x,,!e).
+  - intros [x [y e]]. exact ((y,,x),,!e).
+  - intros [[x y] e]. apply maponpaths, pathsinv0inv0.
+  - intros [x [y e]]. apply maponpaths, maponpaths, pathsinv0inv0.
+Defined.
 
-
-
-
+Definition hfiber_comm {X Y Z:UU} (f:X->Z) (g:Y->Z) : (Σ x, hfiber g (f x)) ≃ (Σ y, hfiber f (g y)).
+Proof.
+  intros. refine (weqgradth _ _ _ _).
+  - intros [x [y e]]. exact (y,,x,,!e).
+  - intros [y [x e]]. exact (x,,y,,!e).
+  - intros [x [y e]]. apply maponpaths, maponpaths, pathsinv0inv0.
+  - intros [y [x e]]. apply maponpaths, maponpaths, pathsinv0inv0.
+Defined.
 
 (** *** Homotopy fiber squares *)
 
