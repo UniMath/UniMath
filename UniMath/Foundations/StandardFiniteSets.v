@@ -253,15 +253,26 @@ Local Notation "● x" := (x,,idpath _) (at level 35).
 
 Module Test_weqdnicompl.
 
-  Let X := stn 5.
-  Let Y := @stn_compl 6 (●3).
-  Let w := weqdnicompl 5 (●3) : X ≃ Y.
-  Let i := (●2) : X.
-  Let j := (●2,,tt) : Y.
-  Goal w i = j. reflexivity. Defined.
-  Goal invmap w j = i. reflexivity. Defined.
-  Goal homotweqinvweq w j = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq w i = idpath _. (* reflexivity. *) Abort.  (* fix *)
+  Let n := 5.
+  Let X := stn n.
+  Let i := (●3) : stn (S n).
+  Let Y := @stn_compl (S n) i.
+  Let v := weqdnicompl n i : X ≃ Y.
+  Let j := (●2) : X.
+  Let jni := (●2,,tt) : Y.
+
+  (* an ingredient of isweqdnitocompl: *)
+  Let w := samehfibers ( dnitocompl n i )  _ ( isinclpr1compl_ne _ i _ ) jni
+     : hfiber (dnitocompl n i) jni ≃ hfiber (dni n i) (●2).
+  Goal w (j,,idpath _) = (j,,idpath _). reflexivity. Defined.
+  Goal invmap w (j,,idpath _) = (j,,idpath _). reflexivity. Defined.
+  Goal homotweqinvweq w (j,,idpath _) = idpath _. reflexivity. (* 2 seconds *) Defined. (* 2 seconds *)
+  Goal homotinvweqweq w (j,,idpath _) = idpath _. reflexivity. Defined.
+
+  Goal v j = jni. reflexivity. Defined.
+  Goal invmap v jni = j. reflexivity. Defined.
+  Goal homotweqinvweq v jni = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq v j = idpath _. (* reflexivity. *) Abort.  (* fix *)
 
 End Test_weqdnicompl.
 
@@ -981,12 +992,20 @@ Proof. unfold neg. intro. assert (lp: stn (S n)). apply lastelement.  intro X.  
 Lemma negweqstn0sn (n:nat): neg (weq (stn O) (stn (S n))).
 Proof.  unfold neg. intro. assert (lp: stn (S n)). apply lastelement.  intro X.  apply weqstn0toempty .  apply (pr1 ( invweq X ) lp). Defined.
 
-Lemma weqcutforstn ( n n' : nat ) ( w : weq (stn (S n)) (stn (S n')) ) : weq (stn n) (stn n').
-Proof. intros. set ( nn := lastelement n  ) . set ( w1 := weqoncompl w nn ) .  set ( w2 := weqdnicompl n nn ) . set ( w3 := weqdnicompl n' ( w nn ) ) .   apply ( weqcomp w2 ( weqcomp w1 ( invweq w3 ) ) ) . Defined .   
+Lemma weqcutforstn ( n n' : nat ) : stn (S n) ≃ stn (S n') -> stn n ≃ stn n'.
+Proof.
+  intros ? ? w.
+  assert ( nn := lastelement n  ).
+  assert ( w1 := weqoncompl_ne w nn _ ).
+  assert ( w2 := weqdnicompl n nn ).
+  assert ( w3 := weqdnicompl n' ( w nn ) ).
+  assert ( weqcomp w2 ( weqcomp w1 ( invweq w3 ) ) ) .
+Defined .   
 
 
-Theorem weqtoeqstn { n n' : nat } ( w : weq (stn n) (stn n') ) : paths n n'.
-Proof. intro. induction n as [ | n IHn ] . intro. destruct n' as [ | n' ] .  reflexivity. intro X. apply (fromempty (negweqstn0sn _ X)). intro n'. destruct n' as [ | n' ] . intro X. apply (fromempty ( negweqstnsn0 n X)).  intro X. 
+Theorem weqtoeqstn { n n' : nat } : stn n ≃ stn n' -> n = n'.
+Proof. intros ? ? w.
+       induction n as [ | n IHn ] . intro. destruct n' as [ | n' ] .  reflexivity. intro X. apply (fromempty (negweqstn0sn _ X)). intro n'. destruct n' as [ | n' ] . intro X. apply (fromempty ( negweqstnsn0 n X)).  intro X. 
  apply (maponpaths S). apply IHn. now apply weqcutforstn.
 Defined. 
 
