@@ -408,12 +408,6 @@ Proof.
     now apply (isirrefl_ltNonnegativeRationals q).
     exact H.
 Qed.
-Lemma lt_gtNonnegativeRationals :
-  forall x y : NonnegativeRationals, (x > y)%NRat = (y < x)%NRat.
-Admitted.
-Lemma noteq_ltorgtNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, x ≠ y -> (x < y)%NRat ⨿ (x > y).
-Admitted.
 Lemma isapfun_NonnegativeRationals_to_Dcuts :
   forall q q' : NonnegativeRationals,
     NonnegativeRationals_to_Dcuts q # NonnegativeRationals_to_Dcuts q'
@@ -546,7 +540,7 @@ Proof.
         rewrite <- isrdistr_mult_plusNonnegativeRationals, <- Hr.
         rewrite multdivNonnegativeRationals.
         reflexivity.
-        intro ; now apply Hr0.
+        now rewrite <- NonnegativeRationals_neq0_gt0.
       * apply X_bot with (1 := Hrx).
         apply multrle1NonnegativeRationals.
         now apply ledivle1NonnegativeRationals.
@@ -740,18 +734,6 @@ Definition Dcuts_plus (X Y : Dcuts) : Dcuts :=
 
 (** ** Multiplication *)
 
-Lemma multNonnegativeRationals_lt:
-  ∀ x x' y y' : NonnegativeRationals,
-    (x < x')%NRat -> (y < y')%NRat -> (x * y < x' * y')%NRat.
-Admitted.
-Lemma ispositive_oneNonnegativeRationals : (0 < 1)%NRat.
-Admitted.
-Lemma istrans_lt_le_ltNonnegativeRationals:
-  ∀ x y z : NonnegativeRationals, (x < y)%NRat -> (y <= z)%NRat -> (x < z)%NRat.
-Admitted.
-Lemma ispositive_invNonnegativeRationals :
-  forall x y, (0 < x)%NRat -> (0 < y)%NRat -> (0 < x / y)%NRat.
-Admitted.
 Section Dcuts_NQmult.
 
   Context (x : NonnegativeRationals).
@@ -786,7 +768,7 @@ Proof.
       rewrite <- isassoc_multNonnegativeRationals, <- Hr.
       rewrite multdivNonnegativeRationals.
       reflexivity.
-      intro ; now apply Hr0.
+      now rewrite <- NonnegativeRationals_neq0_gt0.
     + apply Y_bot with (1 := Hry).
       apply multrle1NonnegativeRationals.
       now apply ledivle1NonnegativeRationals.
@@ -846,7 +828,7 @@ Proof.
     apply (notge_ltNonnegativeRationals ry (c / x)%NRat).
     intro Hy' ; apply Hy.
     now apply Y_bot with ry.
-    now rewrite NonnegativeRationals_neq0_gt0.
+    exact Hx.
   - right.
     revert Hy ; apply hinhfun ; intros (q,(Yq,nYq)).
     exists (x * q).
@@ -866,7 +848,7 @@ Proof.
       apply (notge_ltNonnegativeRationals ry (q + c / x)%NRat).
       intro Hy' ; apply nYq.
       now apply Y_bot with ry.
-      now rewrite NonnegativeRationals_neq0_gt0.
+      exact Hx.
 Qed.
 
 End Dcuts_NQmult.
@@ -918,7 +900,7 @@ Proof.
       rewrite <- isassoc_multNonnegativeRationals, <- Hr.
       rewrite multdivNonnegativeRationals.
       reflexivity.
-      intro ; now apply Hr0.
+      now rewrite <- NonnegativeRationals_neq0_gt0.
     + exact Hrx.
     + apply Y_bot with (1 := Hry).
       apply multrle1NonnegativeRationals.
@@ -1006,7 +988,7 @@ Proof.
       apply notge_ltNonnegativeRationals ; intro H0.
       apply H, X_bot with (1 := Xr).
       exact H0.
-      now apply gtNonnegativeRationals_noteq.
+      exact Hq1.
       rewrite <- (islunit_zeroNonnegativeRationals (c / 2)%NRat).
       pattern c at 2 ; rewrite (NQhalf_double c).
       now rewrite plusNonnegativeRationals_ltcompat_r.
@@ -1037,7 +1019,7 @@ Proof.
         apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
         intro H ; apply Hx1.
         now apply X_bot with (1 := Xx).
-        now apply gtNonnegativeRationals_noteq.
+        exact Hq1.
 Qed.
 
 End Dcuts_mult.
@@ -1062,9 +1044,8 @@ Proof.
   apply hinhuniv ; intros [Hx1 | Hx].
   - now apply Dcuts_mult_error_aux.
   - revert Hx ; apply hinhuniv ; intros (x,(Xx,nXx)).
-    assert (Hx1 :  x + 1%NRat ≠ 0%NRat).
-    { apply gtNonnegativeRationals_noteq.
-      apply istrans_lt_le_ltNonnegativeRationals with (1 := ispositive_oneNonnegativeRationals).
+    assert (Hx1 : (0 < x + 1)%NRat).
+    { apply istrans_lt_le_ltNonnegativeRationals with (1 := ispositive_oneNonnegativeRationals).
       apply NonnegativeRationals_leplus_l. }
     assert (Heq : Dcuts_mult_val X Y = (Dcuts_NQmult_val (x + 1%NRat) (Dcuts_mult_val (Dcuts_NQmult_val (/ (x + 1))%NRat X) Y))).
     { apply funextfun ; intro r.
@@ -1094,13 +1075,13 @@ Proof.
     rewrite Heq.
     revert c Hc.
     apply Dcuts_NQmult_error.
-    + now rewrite <- NonnegativeRationals_neq0_gt0.
+    + exact Hx1.
     + apply Dcuts_mult_bot, Y_bot.
       now apply Dcuts_NQmult_bot.
     + apply Dcuts_mult_error_aux.
       now apply Dcuts_NQmult_bot.
       apply Dcuts_NQmult_error.
-      now rewrite invNonnegativeRationals_pos,  <- NonnegativeRationals_neq0_gt0.
+      now rewrite invNonnegativeRationals_pos.
       exact X_bot.
       exact X_error.
       exact Y_bot.
@@ -1401,13 +1382,11 @@ Proof.
     + simpl.
       rewrite iscomm_multNonnegativeRationals, multdivNonnegativeRationals.
       reflexivity.
-      apply gtNonnegativeRationals_noteq.
       apply istrans_le_lt_ltNonnegativeRationals with (2 := Hrq).
       apply isnonnegative_NonnegativeRationals.
     +  change (r / q < 1)%NRat.
        rewrite <- (multNonnegativeRationals_lt_l q), multdivNonnegativeRationals, isrunit_oneNonnegativeRationals.
        exact Hrq.
-       apply gtNonnegativeRationals_noteq.
        apply istrans_le_lt_ltNonnegativeRationals with (2 := Hrq).
        apply isnonnegative_NonnegativeRationals.
        apply istrans_le_lt_ltNonnegativeRationals with (2 := Hrq).
@@ -1437,21 +1416,6 @@ Proof.
   rewrite iscomm_Dcuts_mult.
   now apply islabsorb_Dcuts_mult_zero.
 Qed.
-Definition NQmax : binop NonnegativeRationals.
-Admitted.
-Lemma NQmax_eq_zero :
-  forall x y : NonnegativeRationals, NQmax x y = 0%NRat -> x = 0%NRat × y = 0%NRat.
-Admitted.
-Lemma NQmax_case :
-  forall (P : NonnegativeRationals -> UU),
-  forall x y : NonnegativeRationals, P x -> P y -> P (NQmax x y).
-Admitted.
-Lemma NQmax_le_l :
-  forall x y : NonnegativeRationals, x <= NQmax x y.
-Admitted.
-Lemma NQmax_le_r :
-  forall x y : NonnegativeRationals, y <= NQmax x y.
-Admitted.
 Lemma isldistr_Dcuts_plus_mult : isldistr Dcuts_plus Dcuts_mult.
 Proof.
   intros x y z.
@@ -1504,9 +1468,7 @@ Proof.
         unfold divNonnegativeRationals.
         rewrite <- isrdistr_mult_plusNonnegativeRationals, <- Hr.
         change (r * (/ NQmax zx zy)%NRat) with (r / NQmax zx zy)%NRat.
-        rewrite multdivNonnegativeRationals.
-        reflexivity.
-        now rewrite NonnegativeRationals_neq0_gt0.
+        now rewrite multdivNonnegativeRationals.
         now apply NQmax_case.
         apply hinhpr ; right.
         apply hinhpr.
