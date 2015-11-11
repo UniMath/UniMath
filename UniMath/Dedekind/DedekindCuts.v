@@ -1437,11 +1437,101 @@ Proof.
   rewrite iscomm_Dcuts_mult.
   now apply islabsorb_Dcuts_mult_zero.
 Qed.
+Definition NQmax : binop NonnegativeRationals.
+Admitted.
+Lemma NQmax_eq_zero :
+  forall x y : NonnegativeRationals, NQmax x y = 0%NRat -> x = 0%NRat × y = 0%NRat.
+Admitted.
+Lemma NQmax_case :
+  forall (P : NonnegativeRationals -> UU),
+  forall x y : NonnegativeRationals, P x -> P y -> P (NQmax x y).
+Admitted.
+Lemma NQmax_le_l :
+  forall x y : NonnegativeRationals, x <= NQmax x y.
+Admitted.
+Lemma NQmax_le_r :
+  forall x y : NonnegativeRationals, y <= NQmax x y.
+Admitted.
 Lemma isldistr_Dcuts_plus_mult : isldistr Dcuts_plus Dcuts_mult.
 Proof.
   intros x y z.
   apply Dcuts_eq_is_eq ; intro r ; split.
-Admitted.
+  - apply hinhuniv ; intros ((rz,rxy),(Hr,(Zr))) ; simpl in Hr, Zr.
+    apply hinhuniv ; intros [|] ; apply hinhfun ;
+    [ intros [Xr|Yr] ; [simpl in Xr| simpl in Yr]
+    | intros ((rx,ry),(Hrxy,(Xr,Yr))) ; simpl in Hrxy,Xr,Yr].
+    + left ; apply hinhpr.
+      left ; apply hinhpr.
+      exists (rz,rxy) ; now repeat split.
+    + left ; apply hinhpr.
+      right ; apply hinhpr.
+      exists (rz,rxy) ; now repeat split.
+    + rewrite Hrxy, isldistr_mult_plusNonnegativeRationals in Hr ; clear rxy Hrxy.
+      right ; apply hinhpr.
+      exists (rz * rx, rz * ry) ; simpl ; repeat split.
+      * exact Hr.
+      * now apply hinhpr ; exists (rz,rx).
+      * now apply hinhpr ; exists (rz,ry).
+  - apply hinhuniv ; intros [|] ; apply hinhuniv ;
+    [ intros [|]
+    | intros ((rzx,rzy),(Hr,())) ; simpl in Hr ].
+    + apply hinhfun ; intros ((rz,rx)) ; simpl ; intros (Hr,(Zr,XYr)).
+      exists (rz,rx) ; simpl ; repeat split.
+      * exact Hr.
+      * exact Zr.
+      * apply hinhpr ; left.
+        now apply hinhpr ; left.
+    + apply hinhfun ; intros ((rz,ry)) ; simpl ; intros (Hr,(Zr,Yr)).
+      exists (rz,ry) ; simpl ; repeat split.
+      * exact Hr.
+      * exact Zr.
+      * apply hinhpr ; left.
+        now apply hinhpr ; right.
+    + apply hinhfun2 ; intros ((zx,rx),(Hzx,(Zrx,Xr))) ((zy,ry),(Hzy,(Zry,Yr))) ;
+      simpl in * |- .
+      destruct (isdecrel_leNonnegativeRationals (NQmax zx zy) 0%NRat) as [Heq|Hlt].
+      rewrite <- NonnegativeRationals_eq0_le0 in Heq.
+      * apply NQmax_eq_zero in Heq ; destruct Heq as [Hx Hy].
+        exists (0%NRat,rx) ; simpl ; repeat split.
+        rewrite Hr, Hzx, Hzy, Hx,Hy, !islabsorb_zero_multNonnegativeRationals.
+        now apply isrunit_zeroNonnegativeRationals.
+        now rewrite <- Hx.
+        apply hinhpr ; left.
+        now apply hinhpr ; left.
+      * apply notge_ltNonnegativeRationals in Hlt.
+        exists (NQmax zx zy, (rzx / NQmax zx zy)%NRat + (rzy / NQmax zx zy)%NRat) ;
+          simpl ; repeat split.
+        unfold divNonnegativeRationals.
+        rewrite <- isrdistr_mult_plusNonnegativeRationals, <- Hr.
+        change (r * (/ NQmax zx zy)%NRat) with (r / NQmax zx zy)%NRat.
+        rewrite multdivNonnegativeRationals.
+        reflexivity.
+        now rewrite NonnegativeRationals_neq0_gt0.
+        now apply NQmax_case.
+        apply hinhpr ; right.
+        apply hinhpr.
+        exists ((rzx / NQmax zx zy)%NRat , (rzy / NQmax zx zy)%NRat) ; simpl ; repeat split.
+        apply is_Dcuts_bot with (1 := Xr).
+        rewrite Hzx, iscomm_multNonnegativeRationals.
+        unfold divNonnegativeRationals ;
+          rewrite isassoc_multNonnegativeRationals.
+        apply multrle1NonnegativeRationals, ledivle1NonnegativeRationals.
+        now rewrite NonnegativeRationals_neq0_gt0.
+        now apply NQmax_le_l.
+        apply is_Dcuts_bot with (1 := Yr).
+        rewrite Hzy, iscomm_multNonnegativeRationals.
+        unfold divNonnegativeRationals ;
+          rewrite isassoc_multNonnegativeRationals.
+        apply multrle1NonnegativeRationals, ledivle1NonnegativeRationals.
+        now rewrite NonnegativeRationals_neq0_gt0.
+        now apply NQmax_le_r.
+Qed.
+Lemma isrdistr_Dcuts_plus_mult : isrdistr Dcuts_plus Dcuts_mult.
+Proof.
+  intros x y z.
+  rewrite <- ! (iscomm_Dcuts_mult z).
+  now apply isldistr_Dcuts_plus_mult.
+Qed.
 
 Definition Dcuts_apsetwith2binop : apsetwith2binop.
 Proof.
@@ -1484,10 +1574,15 @@ Proof.
     + exact islabsorb_Dcuts_mult_zero.
     + exact israbsorb_Dcuts_mult_zero.
   - exact isldistr_Dcuts_plus_mult.
-Admitted.
+  - exact isrdistr_Dcuts_plus_mult.
+  - exact iscomm_Dcuts_mult.
+Defined.
 Definition isnonzeroCR_Dcuts_ConstructiveCommutativeRig : isnonzeroCR Dcuts_ConstructiveCommutativeRig.
 Proof.
-Admitted.
+  apply isapfun_NonnegativeRationals_to_Dcuts'.
+  apply gtNonnegativeRationals_noteq.
+  exact ispositive_oneNonnegativeRationals.
+Qed.
 Definition isinv_Dcuts_inv :
 ∀ x : Dcuts_ConstructiveCommutativeRig,
   x # (0%rig : Dcuts_ConstructiveCommutativeRig) -> multinvpair Dcuts_ConstructiveCommutativeRig x.
