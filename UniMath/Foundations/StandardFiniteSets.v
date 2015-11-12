@@ -226,10 +226,34 @@ Defined .
 Lemma isincldni ( n : nat ) ( i : stn ( S n ) ) : isincl ( dni n i ) .
 Proof. intros . apply ( isdecincltoisincl _  ( isdecincldni n i ) ) .  Defined . 
 
+(** ** The order-preserving functions [ sni n i : stn (S n) -> stn n ] that take the value [i] twice. *)
+
+Definition sni {n} ( i : stn n ) : stn n <- stn ( S n ) .
+Proof.
+  intros ? ? j. exists (si i j). unfold si. induction (natlthorgeh i j) as [lt|ge].
+  - induction j as [j J]. induction i as [i I]. simpl.
+    induction j as [|j _].
+    + contradicts (negnatlthn0 i) lt.
+    + change (S j - 1 < n).
+      change (S j) with (1 + j).
+      rewrite natpluscomm.
+      rewrite plusminusnmm.
+      exact J.
+  - induction i as [i I].
+    exact (natlehlthtrans _ _ _ ge I).
+Defined.
+
+Local Notation "● x" := (x,,idpath _) (at level 35).
+
+Goal @sni 6 (●3) (dni 6 (●3) (●2)) = ●2. reflexivity. Defined.
+Goal @sni 6 (●3) (dni 6 (●3) (●3)) = ●3. reflexivity. Defined.
+Goal @sni 6 (●3) (dni 6 (●3) (●4)) = ●4. reflexivity. Defined.
 
 
-
-
+Goal @sni 6 (●3) (●2) = ●2. reflexivity. Defined.
+Goal @sni 6 (●3) (●3) = ●3. reflexivity. Defined.
+Goal @sni 6 (●3) (●4) = ●3. reflexivity. Defined.
+Goal @sni 6 (●3) (●5) = ●4. reflexivity. Defined.
 
 (** ** Weak equivalences between standard finite sets and constructions on these sets *)
 
@@ -239,8 +263,8 @@ Proof. intros . apply ( isdecincltoisincl _  ( isdecincldni n i ) ) .  Defined .
 
 Definition stn_compl {n} (i:stn n) := compl_ne _ i (stnneq i).
 
-Definition dnitocompl ( n : nat ) ( i : stn ( S n ) ) ( j : stn n ) : stn_compl i.
-Proof. intros . exists ( dni n i j ) . apply dni_neq_i. Defined.
+Definition dnitocompl ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn_compl i.
+Proof. intros ? ? j. exists ( dni n i j ) . apply dni_neq_i. Defined.
 
 Lemma isweqdnitocompl  ( n : nat ) ( i : stn ( S n ) ) : isweq ( dnitocompl n i ) .
 Proof.
@@ -249,10 +273,22 @@ Proof.
   apply (iscontrweqb w). apply iscontrhfiberdni. exact (pr2 jni).
 Defined. 
 
-Definition weqdnicompl n (i:stn(S n)): stn n ≃ stn_compl i
-  := weqpair _ ( isweqdnitocompl n i ) . 
-
-Local Notation "● x" := (x,,idpath _) (at level 35).
+Definition weqdnicompl n (i:stn(S n)): stn n ≃ stn_compl i.
+Proof.
+  intros.
+  set (w := weqdicompl (stntonat _ i)).
+  assert (eq : ∀ j, j < n <-> pr1 (w j) < S n).
+  { simpl in w. intros j. unfold w.
+    change (pr1 ((weqdicompl i) j)) with (di (stntonat _ i) j).
+    unfold di.
+    induction (natlthorgeh j i) as [lt|ge].
+    - split.
+      + apply natlthtolths.
+      + intros _. exact (natlehlthtrans (S j) i (S n) lt (pr2 i)).
+    - split; exact (idfun _). }
+  refine (_ ∘ (weq_subtypes w (λ j, j < n) (λ j, pr1 j < S n) eq))%weq.
+  refine (weqtotal2comm12 _ _).
+Defined.
 
 Module Test_weqdnicompl.
 
@@ -261,43 +297,32 @@ Module Test_weqdnicompl.
   Let i := ●3 : stn (S n).
   Let Y := @stn_compl (S n) i.
   Let v := weqdnicompl n i : X ≃ Y.
-  Let j := ●2 : X.
-  Let jni := ●2,,tt : Y.
+  Let j := ●4 : X.
+  Let jni := ●5,,tt : Y.
 
   Goal v j = jni. reflexivity. Defined.
   Goal invmap v jni = j. reflexivity. Defined.
   Goal homotweqinvweq v jni = idpath _. reflexivity. Defined.
   Goal homotinvweqweq v j = idpath _.
-    (* reflexivity. *)
-  Abort.  (* fix *)
-  
-  (* an ingredient: *) 
-  Goal pr2 (pr2 v (v j)) (hfiberpair v j (idpath _)) = idpath _.
-    (* reflexivity. *)
-  Abort.  (* fix *)
-
-  (* an ingredient of isweqdnitocompl: *)
-  Let w := samehfibers ( dnitocompl n i )  _ ( isinclpr1compl_ne _ i _ ) jni
-     : hfiber (dnitocompl n i) jni ≃ hfiber (dni n i) (●2).
-  Goal w (j,,idpath _) = (j,,idpath _). reflexivity. Defined.
-  Goal invmap w (j,,idpath _) = (j,,idpath _). reflexivity. Defined.
-  Goal homotweqinvweq w (j,,idpath _) = idpath _.
-    reflexivity. (* 2 seconds *)
-  Defined. (* 2 seconds *)
-  Goal homotinvweqweq w (j,,idpath _) = idpath _. reflexivity. Defined.
-
+    reflexivity.                (* fixed; 2 seconds *)
+  Defined.                      (* fixed, 2 seconds *)
+  Goal homotweqinvweqweq v j = idpath _. (* 2 seconds *)
+    reflexivity.                         (* 2 seconds *)
+  Defined.                               (* 3 seconds *)
 
 End Test_weqdnicompl.
 
-Definition weqdnicompl_compute_first n i : pr1 (pr1 (weqdnicompl n (firstelement n) i)) = S (pr1 i).
-Proof. reflexivity. Defined.
-
 Definition weqdnicompl_compute_last n i : pr1 (pr1 (weqdnicompl n (lastelement n) i)) = pr1 i.
 Proof.
-  intros. induction i as [i b]. simpl. unfold dni,di; simpl.
+  intros. induction i as [i b]. simpl. unfold di; simpl.
   induction (natlthorgeh i n) as [p|p].
   { reflexivity. }
   { contradicts (natlehneggth p) b. }
+Defined.
+
+Definition weqdnicompl_compute_first n i : pr1 (pr1 (weqdnicompl n (firstelement n) i)) = S (pr1 i).
+Proof.
+  intros. induction i as [i b]. simpl. unfold di; simpl. reflexivity.
 Defined.
 
 Definition inv_weqdnicompl_compute_last n i : pr1 (invweq (weqdnicompl n (lastelement n)) i) = pr1 (pr1 i).
@@ -315,6 +340,17 @@ Proof.
                  (weqrecompl_ne (stn (S n)) j (isdeceqstn (S n) j) (stnneq j))).
 Defined.  
 
+Opaque weqdnicoprod.
+
+Definition weqdnicoprod_compute_1 n (i : stn n) : 
+  weqdnicoprod n (lastelement n) (ii1 i) = dni n (lastelement n) i.
+Proof.   
+  intros.
+  apply subtypeEquality_prop.
+  induction i as [i I].
+  reflexivity.
+Defined.
+
 Module Test2.
   Goal weqdnicoprod 4 (firstelement _) (ii1 (●0)) = ●1. reflexivity. Defined.
   Goal weqdnicoprod 4 (firstelement _) (ii1 (●3)) = ●4. reflexivity. Defined.
@@ -327,9 +363,8 @@ Module Test2.
   Goal homotweqinvweq (weqdnicoprod 4 (lastelement 4)) (● 0) = idpath _. reflexivity. Defined. (* fixed! *)
   Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii2 tt) = idpath _. reflexivity. Defined.
   Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (●1)) = idpath _.
-    (* try reflexivity. *) Abort. (* fix *)
-  (* Print Opaque Dependencies weqdnicoprod. *)
-  (* Print Opaque Dependencies homotinvweqweq. *)
+    try reflexivity.            (* fixed; 5 seconds *)
+  Defined.                      (* 5 seconds *)
 
   (* here's an example that shows complications need not impede that sort of computability: *)
   Local Definition w : unit ≃ stn 1.
@@ -781,50 +816,53 @@ Module Test_weqstnsum.
 
 End Test_weqstnsum.
 
+Theorem weqstnsum1 { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) ≃ stn (stnsum f).
+Proof.
+  intros. induction n as [ | n IHn ].
+  { simpl. apply weqtoempty2. { exact pr1. } exact negstn0. }
+  refine (_ ∘ weqtotal2overcoprod _ ∘ invweq (weqfp (weqdnicoprod n (lastelement n)) (λ i, stn (f i))))%weq.
+  intermediate_weq (stn (stnsum (λ i, f (weqdnicoprod n (lastelement n) (ii1 i)))) ⨿ stn (f(lastelement n))).
+  { apply weqcoprodf.
+    { apply IHn. }
+    { apply weqtotal2overunit. } }
+  refine (weqfromcoprodofstn _ _ ∘ _)%weq.
+  apply weqcoprodf.
+  { apply eqweqmap. apply maponpaths.
+    intermediate_path (stnsum (λ i : stn n, f (dni n (lastelement n) i))).
+    - apply stnsum_eq; intro i. apply maponpaths. apply weqdnicoprod_compute_1.
+    - reflexivity. }
+  { apply idweq. }
+Defined.
+
 Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
   (∀ i, stn (f i) ≃ P i) -> total2 P ≃ stn (stnsum f).
 Proof.
-  (* The problem with the computability of this equivalence comes from the use
-     of [invweq (weqfp (weqdnicoprod ...) ...)] in it, and the use of
-     [funextempty] in [weqdnicoprod]. *)
-  intros ? ? ? ww. induction n as [ | n IHn ].
-  { intros. simpl. apply weqtoempty2. { exact pr1. } exact negstn0. }
-  intermediate_weq (Σ x : stn n ⨿ unit, P ((weqdnicoprod n (lastelement n)) x)).
-  { apply invweq. apply weqfp. }
-  intermediate_weq ((Σ x, P (dni n (lastelement n) x)) ⨿ (Σ _ : unit, P (lastelement n))).
-  { apply weqtotal2overcoprod. }
-  intermediate_weq (stn (stnsum (λ i, f (dni n (lastelement n) i))) ⨿ stn (f(lastelement n))).
-  { apply weqcoprodf.
-    { apply IHn. intro x. apply ww. }
-    intermediate_weq (P (lastelement n)).
-    { apply weqtotal2overunit. }
-    apply invweq. apply ww. }
-  apply weqfromcoprodofstn. 
+  intros ? ? ? w.
+  intermediate_weq (Σ i, stn (f i)).
+  - apply invweq. now apply weqfibtototal.
+  - apply weqstnsum1.
 Defined.
 
-Corollary weqstnsum_idweq {n} (f:stn n->nat ) : total2 (λ i, stn (f i)) ≃ stn (stnsum f).
-Proof. intros. apply (weqstnsum (stn ∘ f) f (λ i, idweq _)). Defined.
-
-Module Test_old_weqstnsum.
+Module Test_weqstnsum_2.
   (* this module exports nothing *)
   Let X := stnset 6.
   Let Y (x:X) := stnset (pr1 x).
   Let W := Σ x, Y x.
   Let w := (●3,,●2) : W.
   Let w' := (●4,,●2) : W.
-  Let f : W ≃ stn 15 := weqstnsum_idweq _.
+  Let f : W ≃ stn 15 := weqstnsum1 _.
   Let f' : stn 15 ≃ W := invweq f.
   Goal f(●1,,●0) = ●0. reflexivity. Defined. (* fixed! (formerly, it failed quickly) *)
-  Goal f'(●0) = (●1,,●0). try reflexivity. Abort. (* fix *)
-End Test_old_weqstnsum.
+  Goal f'(●0) = (●1,,●0). try reflexivity. Abort. (* fix; fails quickly *)
+End Test_weqstnsum_2.
 
 Corollary weqstnsum2 { X : UU } ( n : nat ) ( f : stn n -> nat ) ( g : X -> stn n ) ( ww : forall i : stn n , weq ( stn ( f i ) ) ( hfiber g i ) ) : weq X ( stn ( stnsum f ) ) .
 Proof. intros . assert ( w : weq X ( total2 ( fun i : stn n => hfiber g i ) ) ) . apply weqtococonusf . apply ( weqcomp w ( weqstnsum ( fun i : stn n => hfiber g i ) f ww ) ) .   Defined . 
 
 (** lexical enumeration of pairs of natural numbers *)
 
-Definition lexicalEnumeration {n} (m:stn n->nat) := invweq (weqstnsum_idweq m) : stn (stnsum m) ≃ (Σ i : stn n, stn (m i)).
-Definition inverse_lexicalEnumeration {n} (m:stn n->nat) := weqstnsum_idweq m : (Σ i : stn n, stn (m i)) ≃ stn (stnsum m).
+Definition lexicalEnumeration {n} (m:stn n->nat) := invweq (weqstnsum1 m) : stn (stnsum m) ≃ (Σ i : stn n, stn (m i)).
+Definition inverse_lexicalEnumeration {n} (m:stn n->nat) := weqstnsum1 m : (Σ i : stn n, stn (m i)) ≃ stn (stnsum m).
 
 Definition lex_curry {X n} (m:stn n->nat) : (stn (stnsum m) -> X) -> (∀ (i:stn n), stn (m i) -> X).
 Proof. intros ? ? ? f ? j. exact (f (inverse_lexicalEnumeration m (i,,j))). Defined.
@@ -955,11 +993,46 @@ Proof. intro n . induction n as [ | n IHn ] . intro. apply 1 . intro f . apply (
 Goal ∀ (f : stn 3 -> nat), stnprod f = f(●0) * f(●1) * f(●2).
 Proof. reflexivity. Defined.
 
+Definition stnprod_step { n : nat } ( f : stn (S n) -> nat ) :
+  stnprod f = stnprod (f ∘ dni n (lastelement n)) * f (lastelement n).
+Proof. reflexivity. Defined.
+
+Lemma stnprod_eq {n} (f g:stn n->nat) : f ~ g -> stnprod f = stnprod g.
+Proof.
+  intros ? ? ? h. induction n as [|n IH].
+  { reflexivity. }
+  rewrite 2? stnprod_step. induction (h (lastelement _)).
+  apply (maponpaths (λ i, i * f (lastelement _))). apply IH. intro x. apply h.
+Defined.  
+
 Theorem weqstnprod { n : nat } ( P : stn n -> UU ) ( f : stn n -> nat ) ( ww : forall i : stn n , weq ( stn ( f i ) )  ( P i ) ) : weq ( forall x : stn n , P x  ) ( stn ( stnprod f ) ) .
-Proof . intro n . induction n as [ | n IHn ] . intros . simpl . apply ( weqcontrcontr ) .  apply ( iscontrsecoverempty2 _ ( negstn0 ) ) .   apply iscontrstn1 . intros .  set ( w1 := weqdnicoprod n ( lastelement n ) ) . set ( w2 := weqonsecbase P w1 ) .   set ( w3 := weqsecovercoprodtoprod ( fun x : _ => P ( w1 x ) ) ) .  set ( w4 := weqcomp w2 w3 ) .  set ( w5 := IHn ( fun x : stn n => P ( w1 ( ii1 x ) ) ) ( fun x : stn n => f ( w1 ( ii1 x ) ) ) ( fun i : stn n => ww ( w1 ( ii1 i ) ) ) ) . set ( w6 := weqcomp w4 ( weqdirprodf w5 ( weqsecoverunit _ ) ) ) .  simpl in w6 .  set ( w7 := weqcomp w6 ( weqdirprodf ( idweq _ ) ( invweq ( ww ( lastelement n ) ) ) ) ) .  apply ( weqcomp w7 ( weqfromprodofstn _ _ ) ) .   Defined . 
-
-
-
+Proof .
+  intro n .
+  induction n as [ | n IHn ] .
+  - intros . simpl . apply ( weqcontrcontr ) .
+    + apply ( iscontrsecoverempty2 _ ( negstn0 ) ) .
+    + apply iscontrstn1 .
+  - intros .
+    set ( w1 := weqdnicoprod n ( lastelement n ) ) .
+    assert ( w2 := weqonsecbase P w1 ). 
+    assert ( w3 := weqsecovercoprodtoprod ( fun x : _ => P ( w1 x ) ) ) .
+    assert ( w4 := weqcomp w2 w3 ) ; clear w2 w3.
+    assert ( w5 := IHn ( fun x : stn n => P ( w1 ( ii1 x ) ) ) ( fun x : stn n => f ( w1 ( ii1 x ) ) ) ( fun i : stn n => ww ( w1 ( ii1 i ) ) ) ) .
+    assert ( w6 := weqcomp w4 ( weqdirprodf w5 ( weqsecoverunit _ ) ) ) ; clear w4 w5.
+    simpl in w6 .
+    assert ( w7 := weqcomp w6 ( weqdirprodf ( idweq _ ) ( invweq ( ww ( lastelement n ) ) ) ) ) .
+    refine ( _ ∘ w7 )%weq .
+    unfold w1.
+    refine ( _ ∘ weqfromprodofstn _ _ )%weq .
+    induction (!stnprod_step f).
+    apply eqweqmap.
+    apply maponpaths.
+    apply (maponpaths (λ i, i * f (lastelement n))).
+    apply stnprod_eq; intro i.
+    unfold funcomp.
+    apply maponpaths.
+    apply weqdnicoprod_compute_1.
+Defined . 
 
 (** *** Weak equivalence between [ weq ( stn n ) ( stn n ) ] and [ stn ( factorial n ) ] ( uses functional extensionality ) *)
 
@@ -1113,9 +1186,9 @@ Theorem nat_plus_associativity {n} {m:stn n->nat} (k:∀ (ij : Σ i, stn (m i)),
 Proof.
   intros. apply weqtoeqstn.
   intermediate_weq (Σ i, stn (stnsum (curry k i))).
-  { apply invweq. apply weqstnsum_idweq. }
+  { apply invweq. apply weqstnsum1. }
   intermediate_weq (Σ i j, stn (curry k i j)).
-  { apply weqfibtototal; intro i. apply invweq. apply weqstnsum_idweq. }
+  { apply weqfibtototal; intro i. apply invweq. apply weqstnsum1. }
   intermediate_weq (Σ ij, stn (k ij)).
   { exact (weqtotal2asstol (stn ∘ m) (stn ∘ k)). }
   intermediate_weq (Σ ij, stn (k (lexicalEnumeration m ij))).
@@ -1134,10 +1207,10 @@ Theorem nat_plus_commutativity {n} (x:stn n -> nat)
         (f:stn n ≃ stn n) : stnsum x = stnsum (x∘f).
 Proof.
   intros. apply weqtoeqstn. intermediate_weq (Σ i, stn (x i)).
-  { apply invweq. apply weqstnsum_idweq. }
+  { apply invweq. apply weqstnsum1. }
   intermediate_weq (Σ i, stn (x(f i))).
   { apply invweq. apply (weqfp _ (stn∘x)). }
-  apply weqstnsum_idweq.
+  apply weqstnsum1.
 Defined.
 
 
