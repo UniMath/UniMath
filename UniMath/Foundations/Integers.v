@@ -684,7 +684,27 @@ Definition hzgehtogehs ( n m : hz ) : hzgeh n m -> hzgeh ( n + 1 ) m := hzlehtol
 (** *** Two comparisons and [ n -> n + 1 ] *)
 
 Lemma hzgthtogehsn ( n m : hz ) : hzgth n m -> hzgeh n ( m + 1 ) .
-Proof. assert ( int : forall n m , isaprop ( hzgth n m -> hzgeh n ( m + 1 )  ) ) . intros . apply impred . intro . apply ( pr2 _ ) .  unfold hzgth in * .  apply ( setquotuniv2prop _ ( fun n m => hProppair _ ( int n m ) ) ) . set ( R := abgrfracrelint nataddabmonoid natgth ) . intros x x' .  change ( R x x' -> ( neg ( R ( @op ( abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig) ) x' ( dirprodpair 1%nat 0%nat ) ) x ) ) ) .  unfold R . unfold abgrfracrelint . simpl . apply ( @hinhuniv _  (hProppair ( neg ( ishinh_UU _ ) ) ( isapropneg _ ) ) ) .  intro t2 . simpl . unfold neg .  apply ( @hinhuniv _ ( hProppair _ isapropempty ) ) .  intro t2' . set ( x1 := pr1 x ) . set ( a1 := pr2 x ) . set ( x2 := pr1 x' ) . set ( a2 := pr2 x' ) . set ( c1 := pr1 t2 ) . set ( r1 := pr2 t2 ) . clearbody r1 . change ( pr1 ( natgth ( x1 + a2 + c1 ) (  x2 + a1 + c1 ) ) ) in r1 . set ( c2 := pr1 t2' ) . set ( r2 := pr2 t2' ) . clearbody r2 .  change ( pr1 ( natgth ( ( x2 + 1 ) + a1 + c2 ) ( x1 + ( a2 + 0 ) + c2 ) ) ) in r2 .  set ( r1' := natgthandplusrinv _ _ c1 r1 ) .  set ( r2' := natgthandplusrinv _ _ c2 r2 ) .  rewrite ( natplusr0 _ ) in r2' . rewrite ( natpluscomm _ 1 ) in r2' .  rewrite ( natplusassoc _ _ _ ) in r2' . apply ( natgthtogehsn _ _ r1' r2' ) . Defined .
+Proof. assert ( int : forall n m , isaprop ( hzgth n m -> hzgeh n ( m + 1 )  ) ) .
+       { intros . apply impred . intro . apply ( pr2 _ ) . }
+       unfold hzgth in * .  apply ( setquotuniv2prop _ ( fun n m => hProppair _ ( int n m ) ) ) . set ( R := abgrfracrelint nataddabmonoid natgth ) .
+       intros x x' .  change ( R x x' -> ( neg ( R ( @op ( abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig) ) x' ( dirprodpair 1%nat 0%nat ) ) x ) ) ) .
+       unfold R . unfold abgrfracrelint . simpl .
+       apply ( @hinhuniv _  (hProppair ( neg ( ishinh_UU _ ) ) ( isapropneg _ ) ) ) .
+       intro t2 . simpl . unfold neg .  apply ( @hinhuniv _ ( hProppair _ isapropempty ) ) .
+       intro t2' .
+       set ( x1 := pr1 x ) . set ( a1 := pr2 x ) . set ( x2 := pr1 x' ) .
+       set ( a2 := pr2 x' ) . set ( c1 := pr1 t2 ) . assert ( r1 := pr2 t2 ) .
+       change ( pr1 (  ( x1 + a2 + c1 ) > (  x2 + a1 + c1 ) ) ) in r1 .
+       set ( c2 := pr1 t2' ) . assert ( r2 := pr2 t2' ) .
+       change ( pr1 (  ( ( x2 + 1 ) + a1 + c2 ) > ( x1 + ( a2 + 0 ) + c2 ) ) ) in r2 .
+       assert ( r1' := natgthandplusrinv _ _ c1 r1 ) .
+       assert ( r2' := natgthandplusrinv _ _ c2 r2 ) .
+       rewrite ( natplusr0 _ ) in r2' .
+       rewrite ( natpluscomm _ 1 ) in r2' .
+       rewrite ( natplusassoc _ _ _ ) in r2' .
+       change (1 + (x2 + a1) > x1 + a2) with (x1 + a2 ≤ x2 + a1) in r2'.
+       contradicts (natlehneggth r2') r1'.
+Defined .
 
 Lemma hzgthsntogeh ( n m : hz ) : hzgth ( n + 1 ) m -> hzgeh n m .
 Proof. intros n m a . apply (hzgehandplusrinv n m 1) . apply ( hzgthtogehsn ( n + 1 ) m a ) . Defined. (* PeWa *)
@@ -738,7 +758,7 @@ Definition nattohz : nat -> hz := fun n => setquotpr _ ( dirprodpair n 0%nat ) .
 
 Definition isinclnattohz : isincl nattohz := isincltorngdiff natcommrig ( fun n => isinclnatplusr n ) .
 
-Definition nattohzandneq ( n m : nat ) ( is : natneq n m ) : hzneq ( nattohz n ) ( nattohz m ) := negf ( invmaponpathsincl _ isinclnattohz n m ) is .
+Definition nattohzandneq ( n m : nat ) ( is : ¬ (n = m) ) : hzneq ( nattohz n ) ( nattohz m ) := negf ( invmaponpathsincl _ isinclnattohz n m ) is .
 
 Definition nattohzand0 : paths ( nattohz 0%nat ) 0 := idpath _ .
 
@@ -802,7 +822,8 @@ Proof . assert ( int : forall x : hz , isaprop ( hzgth x 0 ->  paths ( nattohz (
 
 rewrite ( minusplusnmm _ _ ( natlthtoleh _ _ g'' ) ) . apply idpath .
 
-destruct ( l g' ) .  Defined .
+contradicts (natlehneggth l) g'.
+Defined .
 
 Opaque hzabsvalgth0 .
 
