@@ -570,10 +570,23 @@ Definition eqreldirprod { X Y : UU } ( RX : eqrel X ) ( RY : eqrel Y ) : eqrel (
 
 (** *** Negation of a relation and its properties *)
 
-Definition negrel { X : UU } ( R : hrel X ) : hrel X := fun x x' => hProppair _ ( isapropneg ( R x x' ) ) .
+Definition negrel { X : UU } ( R : hrel X ) : hrel X
+  := λ x x', hProppair (¬ R x x') (isapropneg _) . (* uses [funextempty] *)
 
 Lemma istransnegrel { X : UU } ( R : hrel X  ) ( isr : iscotrans R ) : istrans ( negrel R ) .  
+(* uses [funextfun] and [funextempty] *)
 Proof . intros . intros x1 x2 x3 r12 r23 .  apply ( negf ( isr x1 x2 x3 ) ) .  apply ( toneghdisj ( dirprodpair r12 r23 ) ) . Defined . 
+
+Lemma iscotrans_to_istrans_negReln {X} {R:hrel X} (NR : negReln R) :
+  (∀ x y z , R x z -> R x y ⨿ R y z) -> ∀ x y z, NR x y -> NR y z -> NR x z.
+Proof.                                             
+  intros ? ? ? i ? ? ? nxy nyz.
+  apply neg_from_neg.
+  apply (negf (i x y z)).
+  intro c. induction c as [c|c].
+  - exact (neg_to_neg nxy c).
+  - exact (neg_to_neg nyz c).
+Defined.
 
 Lemma isasymmnegrel { X : UU } ( R : hrel X  ) ( isr : iscoasymm R ) : isasymm ( negrel R ) .  
 Proof . intros . intros x1 x2 r12 r21 . apply ( r21 ( isr _ _ r12 ) ) .   Defined . 
