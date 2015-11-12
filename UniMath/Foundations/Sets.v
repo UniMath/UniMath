@@ -136,34 +136,11 @@ Proof . intro . apply weqpr1 .   intro . apply iscontrunit .  Defined .
 Definition weq_subtypes {X Y} (w : X≃Y) (S: hsubtypes X) (T: hsubtypes Y) :
            (∀ x, S x <-> T (w x)) -> carrier S ≃ carrier T.
 Proof.
-  intros ? ? ? ? ? eq.
-  exists (λ s, carrierpair T (w (pr1 s)) (pr1 (eq (pr1 s)) (pr2 s))).
-  intro r.
-  assert (c := weqproperty w (pr1carrier _ r)).
-  refine (iscontrweqb _ c); clear c.
-  unfold hfiber.
-  induction r as [y t]; simpl.
-  refine (weqgradth (λ z, pr1 (pr1 z),,maponpaths pr1 (pr2 z)) _ _ _).
-  - intros z. exists (pr1 z,, pr2 (eq (pr1 z)) (transportb T (pr2 z) t)).
-    simpl. apply subtypeEquality.
-    { intros y'. apply propproperty. }
-    simpl. exact (pr2 z).
-  - simpl.
-    intros [[z11 z21] z2]. simpl. simpl in z2.
-    refine (total2_paths2 _ _).
-    + apply maponpaths. apply propproperty.
-    + simpl. 
-      apply (invmaponpathsweq ((weqonpathsincl _ (isinclpr1carrier T)) _ _)).
-      simpl.
-      change (maponpaths pr1 z2) with (maponpaths (pr1carrier T) z2).
-      set (r := maponpaths (pr1carrier T) z2);simpl in r.
-
-      
-
-
-
-Abort.
-
+  intros ? ? ? ? ? eq. apply (weqbandf w). intro x. apply weqiff.
+  - apply eq.
+  - apply propproperty.
+  - apply propproperty.
+Defined.
 
 Definition DecidableSubtype_to_hsubtypes {X} (P:DecidableSubtype X) : hsubtypes X
   := λ x, DecidableProposition_to_hProp(P x).
