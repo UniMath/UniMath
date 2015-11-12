@@ -116,6 +116,15 @@ Proof.
   intros x x' r. now apply nat_nopath_to_neq, noeqinjS, nat_neq_to_nopath.
 Defined.
 
+Lemma isirrefl_natneq i : ¬ (i ≠ i).
+Proof. intros ? ne. now apply (nat_neq_to_nopath ne). Defined.
+
+Lemma issymm_natneq i j : i ≠ j -> j ≠ i.
+Proof.
+  intros ? ? ne. apply nat_nopath_to_neq. intro eq. induction eq.
+  exact (isirrefl_natneq j ne).
+Defined.
+
 (** *** Basic properties of [ paths ] on [ nat ] and the proofs of [ isdeceq ] and [ isaset ] for [ nat ] .  *) 
  
 Definition isdeceqnat: isdeceq nat.
@@ -272,8 +281,15 @@ Proof . apply isdecreltoisnegrel . apply isdecrelnatgth . Defined .
 Lemma iscoantisymmnatgth ( n m : nat ) : ¬ ( n > m ) -> ( m > n ) ⨿ ( n = m ) .
 Proof . apply isantisymmnegtoiscoantisymm . apply isdecrelnatgth .  intros n m . apply isantisymmnegnatgth . Defined .  
 
-Lemma iscotransnatgth ( n m k : nat ) : n > k -> hdisj ( n > m ) ( natgth m k ) .
-Proof . intros x y z gxz .  destruct ( isdecrelnatgth x y ) as [ gxy | ngxy ] . apply ( hinhpr ( ii1 gxy ) ) . apply hinhpr .   apply ii2 .  destruct ( isdecrelnatgth y x ) as [ gyx | ngyx ] . apply ( istransnatgth _ _ _ gyx gxz ) .  set ( e := isantisymmnegnatgth _ _ ngxy ngyx ) . rewrite e in gxz .  apply gxz .  Defined .   
+Lemma iscotransnatgth ( n m k : nat ) : n > k -> ( n > m ) ⨿ ( m > k ) .
+Proof.
+  intros x y z gxz. destruct ( isdecrelnatgth x y ) as [ p | np ] .
+  - now apply ii1 .
+  - apply ii2. destruct ( isdecrelnatgth y x ) as [r|nr] .
+    + apply ( istransnatgth _ _ _ r gxz ) .
+    + assert ( e := isantisymmnegnatgth _ _ np nr ); clear np nr.
+      now induction e.
+Defined.
 
 (** *** Semi-boolean "less" on [ nat ] or [ natlth ] *)
 
@@ -319,10 +335,8 @@ Definition isnegrelnatlth : isnegrel natlth := fun n m => isnegrelnatgth m n .
 Definition iscoantisymmnatlth ( n m : nat ) : ¬ ( natlth n m ) -> ( natlth m n ) ⨿ ( n = m ) .
 Proof . intros n m nlnm . destruct ( iscoantisymmnatgth m n nlnm ) as [ l | e ] . apply ( ii1 l ) . apply ( ii2 ( pathsinv0 e ) ) . Defined . 
 
-Definition iscotransnatlth ( n m k : nat ) : natlth n k -> hdisj ( natlth n m ) ( natlth m k ) . 
-Proof . intros n m k lnk . apply ( ( pr1 islogeqcommhdisj ) ( iscotransnatgth _ _ _ lnk ) )  .  Defined .      
-
-
+Definition iscotransnatlth ( n m k : nat ) : n < k -> ( n < m ) ⨿ ( m < k ) . 
+Proof . intros n m k lnk. now apply coprodcomm, iscotransnatgth. Defined.
 
 (** *** Semi-boolean "less or equal " on [ nat ] or [ natleh ] *)
 
@@ -377,7 +391,12 @@ Definition negnatlehsnn n : ¬ ( S n ≤ n ) := isirreflnatlth _.
 Definition istransnatleh {n m k} : n ≤ m -> m ≤ k -> n ≤ k .
 Proof. intros ? ? ? r s.
        apply negnatgthtoleh.
-       exact (istransnegrel _ iscotransnatgth n m k (natlehneggth r) (natlehneggth s)).
+       assert (b := natlehneggth r); clear r.
+       assert (c := natlehneggth s); clear s.
+       intro r.
+       induction (iscotransnatgth _ m _ r) as [t|t].
+       - contradicts b t.
+       - contradicts c t.
 Defined.
 
 Definition isreflnatleh n : n ≤ n.
@@ -1511,15 +1530,19 @@ S n' => ( S n' ) * ( factorial n' ) end .
 
 (** ** The order-preserving functions [ di i : nat -> nat ] whose image is the complement of one element [ i ] . *)
 
-
-
-
 Definition di ( i : nat ) ( x : nat ) : nat :=
-match natlthorgeh x i with 
-ii1 _ => x |
-ii2 _ => S x 
-end .
+  match natlthorgeh x i with 
+    | ii1 _ => x
+    | ii2 _ => S x 
+  end .
 
+Lemma di_neq_i i x : i ≠ di i x.
+Proof.
+  intros. apply nat_nopath_to_neq. intro eq. 
+  unfold di in eq. induction (natlthorgeh x i) as [lt|ge].
+  - induction eq. exact (isirreflnatlth i lt).
+  - induction (!eq); clear eq. exact (negnatgehnsn _ ge).
+Defined.
 
 Lemma natlehdinsn ( i n : nat ) : ( di i n ) ≤ ( S n ) .
 Proof . intros . unfold di . destruct ( natlthorgeh n i ) . apply natlthtoleh . apply natlthnsn . apply isreflnatleh .  Defined . 
@@ -1554,6 +1577,63 @@ Proof.
     + apply ii1. apply ( pr1 ( iscontrhfiberdi i j neq ) ) .
 Defined .
 
+
+(** ** The order-preserving functions [ si i : nat -> nat ] that take the value [i] twice. *)
+
+Definition si ( i : nat ) ( x : nat ) : nat :=
+  match natlthorgeh x i with 
+    | ii1 _ => x
+    | ii2 _ => x - 1
+  end .
+
+Goal si 3 (di 3 2) = 2. reflexivity. Defined.
+Goal si 3 (di 3 3) = 3. reflexivity. Defined.
+Goal si 3 (di 3 4) = 4. reflexivity. Defined.
+
+Definition nat_compl (i:nat) := compl_ne _ i (λ j, i ≠ j).
+
+Lemma natleh_neq {i j} : i ≤ j -> i ≠ j -> i < j.
+Proof.
+  intros ? ? le ne.
+  induction (natlehchoice _ _ le) as [lt|eq].
+  - exact lt.
+  - induction eq. apply fromempty. exact (isirrefl_natneq _ ne).
+Defined.
+
+Theorem weqdicompl i : nat ≃ nat_compl i.
+Proof.
+  intros i.
+  refine (weqgradth _ _ _ _).
+  - intro j. exists (di i j). apply di_neq_i.
+  - intro j. exact (si i (pr1 j)).
+  - simpl. intro j. unfold di. induction (natlthorgeh j i) as [lt|ge].
+    + unfold si. induction (natlthorgeh j i) as [lt'|ge'].
+      * reflexivity.
+      * contradicts (natlehtonegnatgth _ _ ge') lt.
+    + unfold si. induction (natlthorgeh (S j) i) as [lt'|ge'].
+      * contradicts (natlehtonegnatgth _ _ (natlehtolehs _ _ ge)) lt'.
+      * change (S j) with (1 + j). rewrite natpluscomm. apply plusminusnmm.
+  - simpl. intro j. induction j as [j ne]; simpl.
+    apply subtypeEquality.
+    + intro k. apply negProp_to_isaprop.
+    + simpl. unfold si. induction (natlthorgeh j i) as [lt|ge].
+      * unfold di. induction (natlthorgeh j i) as [lt'|ge'].
+        { reflexivity. }
+        { contradicts (natlehtonegnatgth _ _ ge') lt. }
+      * assert (lt := natleh_neq ge ne); clear ne ge.
+        unfold di. induction (natlthorgeh (j - 1) i) as [lt'|ge'].
+        { apply fromempty.
+          induction j as [|j _].
+          { exact (negnatlthn0 _ lt). }
+          { change (S j) with (1 + j) in lt'.
+            rewrite natpluscomm in lt'.
+            rewrite plusminusnmm in lt'.
+            change (i < S j) with (i ≤ j) in lt.
+            exact (natlehneggth lt lt'). } }
+        { induction j as [|j _].
+          - contradicts (negnatlthn0 i) lt.
+          - simpl. apply maponpaths. apply natminuseqn. }
+Defined.
 
 (** ** Inductive types [ le ] with values in [ UU ] . 
 
