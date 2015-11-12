@@ -93,6 +93,8 @@ Proof. intros. exact (pr2 (negProp_to_iff nP) np). Defined.
 Coercion neg_to_neg : negProp >-> Funclass.
 Definition neg_from_neg {P} {nP : negProp P} (np : ¬P) : negProp_to_type nP.
 Proof. intros. exact (pr1 (negProp_to_iff nP) np). Defined.
+Definition negPred {X:UU} (x  :X) (P:∀ y:X, UU)      := ∀ y  , negProp (P y).
+Definition negReln {X:UU}         (P:∀ (x y:X), UU)  := ∀ x y, negProp (P x y).
 Definition neqProp {X:UU} (x y:X) :=            negProp (x=y).
 Definition neqPred {X:UU} (x  :X) := ∀ y,       negProp (x=y).
 Definition neqReln (X:UU)         := ∀ (x y:X), negProp (x=y).
@@ -150,7 +152,7 @@ Defined.
 
 Definition maponcomplweq { X Y : UU } (f : weq X Y ) (x:X):= maponcomplincl  f (isofhlevelfweq (S O) f ) x.
 
-Definition maponcomplweq_ne { X Y : UU } (f : weq X Y ) (x:X) (neq_x : neqPred x) (neq_fx : neqPred (f x)) 
+Definition maponcomplweq_ne { X Y : UU } (f : weq X Y ) (x:X) (neq_x : neqPred x) (neq_fx : neqPred (f x))
   := maponcomplincl_ne  f (isofhlevelfweq (S O) f ) x neq_x neq_fx.
 
 Theorem isweqmaponcompl { X Y : UU } ( f : weq X Y ) (x:X): isweq (maponcomplweq  f x).
@@ -163,14 +165,14 @@ assert (h: forall x0':_, paths (map2 (map1 x0')) (maponcomplweq  f x x0')). intr
 apply (isweqhomot _ _ h (twooutof3c _ _ is3 is4)).
 Defined.
 
-Theorem isweqmaponcompl_ne { X Y : UU } ( f : weq X Y ) (x:X) (neq_x : neqPred x) (neq_fx : neqPred (f x)) 
+Theorem isweqmaponcompl_ne { X Y : UU } ( f : weq X Y ) (x:X) (neq_x : neqPred x) (neq_fx : neqPred (f x))
   : isweq (maponcomplweq_ne  f x neq_x neq_fx).
 Proof.
 Admitted.
 
 Definition weqoncompl { X Y : UU } (w: weq X Y) ( x : X ) : weq (compl X x) (compl Y (w x)):= weqpair  _ (isweqmaponcompl w x).
 
-Definition weqoncompl_ne { X Y : UU } (w: X ≃ Y) ( x : X ) (neq_x : neqPred x) (neq_wx : neqPred (w x)) 
+Definition weqoncompl_ne { X Y : UU } (w: X ≃ Y) ( x : X ) (neq_x : neqPred x) (neq_wx : neqPred (w x))
   : compl_ne X x neq_x ≃ compl_ne Y (w x) neq_wx
   := weqpair  _ (isweqmaponcompl_ne w x neq_x neq_wx).
 

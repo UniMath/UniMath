@@ -40,7 +40,7 @@ Defined.
 
 Definition compute_pr1_dni_last n i : pr1 (dni n (lastelement _) i) = pr1 i.
 Proof.
-  intros. unfold dni; simpl. induction (natlthorgeh i n) as [q|q].
+  intros. unfold dni,di; simpl. induction (natlthorgeh i n) as [q|q].
   - reflexivity.
   - contradicts (pr2 i) q.
 Defined.

@@ -165,11 +165,15 @@ Defined.
 (** ** "Boundary" maps [ dni : stn n -> stn ( S n ) ] and their properties . *) 
 
 Definition dni ( n : nat ) ( i : stn ( S n ) ) : stn n -> stn ( S n ) .
-Proof. intros n i x .  induction (natlthorgeh x i). apply ( stnpair ( S n ) x ( natgthtogths _ _ ( pr2 x ) ) ) .  apply ( stnpair ( S n ) ( S x ) ( pr2 x ) ) .  Defined.  
+Proof. intros n i x . exists (di i x). unfold di.
+       induction (natlthorgeh x i) as [lt|ge].
+       - apply natgthtogths. exact (pr2 x).
+       - exact (pr2 x).
+Defined.
 
 Lemma dni_last n (i:stn n) : pr1 (dni n (lastelement n) i) = i.
 Proof.
-  intros. induction i as [i I]. unfold dni. simpl. induction (natlthorgeh i n) as [g|g].
+  intros. induction i as [i I]. unfold dni,di. simpl. induction (natlthorgeh i n) as [g|g].
   { reflexivity. }
   simpl. contradicts (natlehtonegnatgth _ _ g) I.
 Defined.
@@ -199,7 +203,10 @@ apply isweqcontrcontr . assumption . assumption .
 assert ( is1 : neg ( hfiber ( stntonat ( S n ) ) ( di i x ) ) ) . apply neghfiberstntonat . unfold di .   destruct ( natlthorgeh x i ) as [ l'' | g' ] .  destruct ( natgehchoice2 _ _ l ) as [ g' | e ] .   apply g' .  rewrite e in l'' .  assert ( int := natlthtolehsn _ _ l'' ) . contradicts (natgthnegleh (pr2 i)) int. apply l .  apply ( isweqtoempty2 _ is1 ) .
 Defined . 
 
-
+Lemma dni_neq_i {n} i j : i ≠ dni n i j.
+Proof.
+  intros. simpl. apply di_neq_i.
+Defined.
 
 Lemma weqhfiberdnihfiberdi ( n : nat ) ( i j : stn ( S n ) ) : weq ( hfiber ( dni n i ) j ) ( hfiber ( di i ) j ) .
 Proof.  intros . apply ( weqhfibersg'tof _ _ _ _ ( dnihfsq n i ) j ) . Defined .
@@ -233,11 +240,7 @@ Proof. intros . apply ( isdecincltoisincl _  ( isdecincldni n i ) ) .  Defined .
 Definition stn_compl {n} (i:stn n) := compl_ne _ i (stnneq i).
 
 Definition dnitocompl ( n : nat ) ( i : stn ( S n ) ) ( j : stn n ) : stn_compl i.
-Proof. intros .
-       exists ( dni n i j ) .
-       apply stn_ne_iff_neq.
-       intro e .  apply ( neghfiberdni n i ( hfiberpair _ j ( pathsinv0 e ) ) ) .
-Defined .
+Proof. intros . exists ( dni n i j ) . apply dni_neq_i. Defined.
 
 Lemma isweqdnitocompl  ( n : nat ) ( i : stn ( S n ) ) : isweq ( dnitocompl n i ) .
 Proof.
@@ -255,24 +258,34 @@ Module Test_weqdnicompl.
 
   Let n := 5.
   Let X := stn n.
-  Let i := (●3) : stn (S n).
+  Let i := ●3 : stn (S n).
   Let Y := @stn_compl (S n) i.
   Let v := weqdnicompl n i : X ≃ Y.
-  Let j := (●2) : X.
-  Let jni := (●2,,tt) : Y.
+  Let j := ●2 : X.
+  Let jni := ●2,,tt : Y.
+
+  Goal v j = jni. reflexivity. Defined.
+  Goal invmap v jni = j. reflexivity. Defined.
+  Goal homotweqinvweq v jni = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq v j = idpath _.
+    (* reflexivity. *)
+  Abort.  (* fix *)
+  
+  (* an ingredient: *) 
+  Goal pr2 (pr2 v (v j)) (hfiberpair v j (idpath _)) = idpath _.
+    (* reflexivity. *)
+  Abort.  (* fix *)
 
   (* an ingredient of isweqdnitocompl: *)
   Let w := samehfibers ( dnitocompl n i )  _ ( isinclpr1compl_ne _ i _ ) jni
      : hfiber (dnitocompl n i) jni ≃ hfiber (dni n i) (●2).
   Goal w (j,,idpath _) = (j,,idpath _). reflexivity. Defined.
   Goal invmap w (j,,idpath _) = (j,,idpath _). reflexivity. Defined.
-  Goal homotweqinvweq w (j,,idpath _) = idpath _. reflexivity. (* 2 seconds *) Defined. (* 2 seconds *)
+  Goal homotweqinvweq w (j,,idpath _) = idpath _.
+    reflexivity. (* 2 seconds *)
+  Defined. (* 2 seconds *)
   Goal homotinvweqweq w (j,,idpath _) = idpath _. reflexivity. Defined.
 
-  Goal v j = jni. reflexivity. Defined.
-  Goal invmap v jni = j. reflexivity. Defined.
-  Goal homotweqinvweq v jni = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq v j = idpath _. (* reflexivity. *) Abort.  (* fix *)
 
 End Test_weqdnicompl.
 
@@ -281,7 +294,7 @@ Proof. reflexivity. Defined.
 
 Definition weqdnicompl_compute_last n i : pr1 (pr1 (weqdnicompl n (lastelement n) i)) = pr1 i.
 Proof.
-  intros. induction i as [i b]. simpl. unfold dni; simpl.
+  intros. induction i as [i b]. simpl. unfold dni,di; simpl.
   induction (natlthorgeh i n) as [p|p].
   { reflexivity. }
   { contradicts (natlehneggth p) b. }
@@ -445,25 +458,25 @@ Module Test2.
     { intro x. induction x as [i|t].
       { induction i as [i I]. induction j as [j J].
         unfold weqdnicoprod_map, dni; simpl.
-        induction (natlthorgeh i j) as [a|a].
-        { simpl. unfold weqdnicoprod_invmap.
-          induction
-            (isdeceqstn (S n) (stnpair (S n) i (natgthtogths n i I))
-                        (@tpair nat
-                                (fun m : nat =>
-                                   @paths bool
-                                          match m return bool with
-                                            | O => true
-                                            | S m0 => natgtb n m0
-                                          end true) j J)) as [b|b].
-          { simpl. assert (b' := maponpaths (stntonat _) b); simpl in b'.
-            induction b'. induction (isirreflnatlth _ a). }
-          { rewrite coprod_rect_compute_2.
-            apply maponpaths.
-            apply subtypeEquality_prop.
-            Set Printing Coercions.
-            unfold hfiberpr1.
-            unfold iscontrhfiberdni. 
+        (* induction (natlthorgeh i j) as [a|a]. *)
+        (* { simpl. unfold weqdnicoprod_invmap. *)
+        (*   induction *)
+        (*     (isdeceqstn (S n) (stnpair (S n) i (natgthtogths n i I)) *)
+        (*                 (@tpair nat *)
+        (*                         (fun m : nat => *)
+        (*                            @paths bool *)
+        (*                                   match m return bool with *)
+        (*                                     | O => true *)
+        (*                                     | S m0 => natgtb n m0 *)
+        (*                                   end true) j J)) as [b|b]. *)
+        (*   { simpl. assert (b' := maponpaths (stntonat _) b); simpl in b'. *)
+        (*     induction b'. induction (isirreflnatlth _ a). } *)
+        (*   { rewrite coprod_rect_compute_2. *)
+        (*     apply maponpaths. *)
+        (*     apply subtypeEquality_prop. *)
+        (*     Set Printing Coercions. *)
+        (*     unfold hfiberpr1. *)
+        (*     unfold iscontrhfiberdni.  *)
 
             
             
@@ -625,14 +638,14 @@ Proof.
   apply map_on_two_paths.
   { apply map_on_two_paths.
     { apply stnsum_eq; intro i. induction i as [i I]. apply maponpaths. apply subtypeEquality_prop.
-      induction e. rewrite idpath_transportf. rewrite stn_left_compute. unfold dni, stntonat; simpl.
+      induction e. rewrite idpath_transportf. rewrite stn_left_compute. unfold dni,di, stntonat; simpl.
       induction (natlthorgeh i j) as [R|R].
       { unfold stntonat; simpl; repeat rewrite transport_stn; simpl.
         induction (natlthorgeh i j). { simpl. reflexivity. } { simpl. contradicts R (natlehneggth b). }}
       { unfold stntonat; simpl; repeat rewrite transport_stn; simpl.
         induction (natlthorgeh i j) as [V|V]. { simpl. contradicts I (natlehneggth R). } { simpl. reflexivity. }}}
     { apply stnsum_eq; intro i. induction i as [i I]. apply maponpaths.
-      unfold dni, stn_right, stntonat; repeat rewrite transport_stn; simpl.
+      unfold dni,di, stn_right, stntonat; repeat rewrite transport_stn; simpl.
       induction (natlthorgeh (j+i) j) as [X|X].
       { contradicts (negnatlthplusnmn j i) X. }
       { apply subtypeEquality_prop. simpl. reflexivity. }}}
@@ -994,41 +1007,42 @@ Proof.  unfold neg. intro. assert (lp: stn (S n)). apply lastelement.  intro X. 
 
 Lemma weqcutforstn ( n n' : nat ) : stn (S n) ≃ stn (S n') -> stn n ≃ stn n'.
 Proof.
-  intros ? ? w.
-  assert ( nn := lastelement n  ).
-  assert ( w1 := weqoncompl_ne w nn _ ).
-  assert ( w2 := weqdnicompl n nn ).
-  assert ( w3 := weqdnicompl n' ( w nn ) ).
-  assert ( weqcomp w2 ( weqcomp w1 ( invweq w3 ) ) ) .
-Defined .   
-
+  intros ? ? w. assert ( k := lastelement n  ).
+  intermediate_weq (stn_compl k).
+  - apply weqdnicompl.
+  - intermediate_weq (stn_compl (w k)).
+    + apply weqoncompl_ne.
+    + apply invweq, weqdnicompl.
+Defined.   
 
 Theorem weqtoeqstn { n n' : nat } : stn n ≃ stn n' -> n = n'.
-Proof. intros ? ? w.
-       induction n as [ | n IHn ] . intro. destruct n' as [ | n' ] .  reflexivity. intro X. apply (fromempty (negweqstn0sn _ X)). intro n'. destruct n' as [ | n' ] . intro X. apply (fromempty ( negweqstnsn0 n X)).  intro X. 
- apply (maponpaths S). apply IHn. now apply weqcutforstn.
+Proof. intro.
+       induction n as [ | n IHn ] .
+       - intro. destruct n' as [ | n' ] .
+         + reflexivity.
+         + intro X. apply (fromempty (negweqstn0sn _ X)).
+       - intro n'. destruct n' as [ | n' ] .
+         + intro X. apply (fromempty ( negweqstnsn0 n X)).
+         + intro X. apply maponpaths. apply IHn. now apply weqcutforstn.
 Defined. 
 
 Corollary stnsdnegweqtoeq ( n n' : nat ) ( dw : dneg (weq (stn n) (stn n')) ) : paths n n'.
 Proof. intros n n' X. apply (eqfromdnegeq nat isdeceqnat _ _  (dnegf (@weqtoeqstn n n') X)). Defined. 
 
-
-
-
 (** ** Some results on bounded quantification *)
 
 
 Lemma weqforallnatlehn0 ( F : nat -> hProp ) : weq ( forall n : nat , natleh n 0 -> F n ) ( F 0 ) .
-Proof . intros .  assert ( lg : ( forall n : nat , natleh n 0 -> F n ) <-> ( F 0 ) ) . split . intro f .  apply ( f 0 ( isreflnatleh 0 ) ) .  intros f0 n l .  set ( e := natleh0tois0 _ l ) .  rewrite e .  apply f0 . assert ( is1 : isaprop ( forall n : nat , natleh n 0 -> F n ) ) . apply impred . intro n . apply impred .   intro l .  apply ( pr2 ( F n ) ) .  apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) is1 ( pr2 ( F 0 ) ) ) . Defined . 
+Proof . intros .  assert ( lg : ( forall n : nat , natleh n 0 -> F n ) <-> ( F 0 ) ) . split . intro f .  apply ( f 0 ( isreflnatleh 0 ) ) .  intros f0 n l .  set ( e := natleh0tois0 l ) .  rewrite e .  apply f0 . assert ( is1 : isaprop ( forall n : nat , natleh n 0 -> F n ) ) . apply impred . intro n . apply impred .   intro l .  apply ( pr2 ( F n ) ) .  apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) is1 ( pr2 ( F 0 ) ) ) . Defined . 
 
 Lemma weqforallnatlehnsn' ( n' : nat ) ( F : nat -> hProp ) : weq ( forall n : nat , natleh n ( S n' ) -> F n ) ( dirprod ( forall n : nat , natleh n n' -> F n ) ( F ( S n' ) ) ) . 
 Proof . intros . assert ( lg : ( forall n : nat , natleh n ( S n' ) -> F n ) <-> dirprod ( forall n : nat , natleh n n' -> F n ) ( F ( S n' ) ) ) .  split . intro f.  apply ( dirprodpair ( fun n => fun l => ( f n ( natlehtolehs _ _ l ) ) ) ( f ( S n' ) ( isreflnatleh _ ) ) ) .  intro d2 . intro n .  intro l .  destruct ( natlehchoice2 _ _ l ) as [ h | e ] . simpl in h .  apply ( pr1 d2 n h ) . destruct d2 as [ f2 d2 ] .  rewrite e .  apply d2 . assert ( is1 : isaprop ( forall n : nat , natleh n ( S n' ) -> F n ) ) . apply impred . intro n . apply impred . intro l . apply ( pr2 ( F n ) ) . assert ( is2 : isaprop ( dirprod ( forall n : nat , natleh n n' -> F n ) ( F ( S n' ) ) ) ) . apply isapropdirprod . apply impred . intro n . apply impred . intro l . apply ( pr2 ( F n ) ) .   apply ( pr2 ( F ( S n' ) ) ) .  apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) is1 is2 ) . Defined .
 
 Lemma weqexistsnatlehn0 ( P : nat -> hProp  ) : weq ( hexists ( fun n : nat => dirprod ( natleh n 0 ) ( P n ) ) ) ( P 0 ) .
-Proof . intro . assert ( lg : hexists ( fun n : nat => dirprod ( natleh n 0 ) ( P n ) ) <-> P 0  ) . split .  simpl . apply ( @hinhuniv _ ( P 0 ) ) .  intro t2 .  destruct t2 as [ n d2 ] . destruct d2 as [ l p ] . set ( e := natleh0tois0 _ l ) . clearbody e .  destruct e . apply p . intro p . apply hinhpr . split with 0 .  split with ( isreflnatleh 0 ) .  apply p . apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( pr2 _ ) ( pr2 _ ) ) .  Defined .
+Proof . intro . assert ( lg : hexists ( fun n : nat => dirprod ( natleh n 0 ) ( P n ) ) <-> P 0  ) . split .  simpl . apply ( @hinhuniv _ ( P 0 ) ) .  intro t2 .  destruct t2 as [ n d2 ] . destruct d2 as [ l p ] . set ( e := natleh0tois0 l ) . clearbody e .  destruct e . apply p . intro p . apply hinhpr . split with 0 .  split with ( isreflnatleh 0 ) .  apply p . apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( pr2 _ ) ( pr2 _ ) ) .  Defined .
 
 Lemma weqexistsnatlehnsn' ( n' : nat ) ( P : nat -> hProp  ) : weq ( hexists ( fun n : nat => dirprod ( natleh n ( S n' ) ) ( P n ) ) ) ( hdisj ( hexists ( fun n : nat => dirprod ( natleh n n' ) ( P n ) ) )  ( P ( S n' ) ) ) .
-Proof . intros . assert ( lg : hexists ( fun n : nat => dirprod ( natleh n ( S n' ) ) ( P n ) )  <-> hdisj ( hexists ( fun n : nat => dirprod ( natleh n n' ) ( P n ) ) )  ( P ( S n' ) )  ) . split .  simpl . apply hinhfun .   intro t2 .  destruct t2 as [ n d2 ] . destruct d2 as [ l p ] . destruct ( natlehchoice2 _ _ l ) as [ h | nh ] . simpl in h . apply ii1 .  apply hinhpr . split with n .  apply ( dirprodpair h p ) . destruct nh .  apply ( ii2 p ) . simpl . apply ( @hinhuniv _ ( ishinh _ ) ) . intro c .  destruct c as [ t | p ] .  generalize t . simpl . apply hinhfun .  clear t . intro t . destruct t as [ n d2 ] . destruct d2 as [ l p ] . split with n .  split with ( natlehtolehs _ _ l ) .  apply p .  apply hinhpr . split with ( S n' ) .  split with ( isreflnatleh _ ) . apply p .  apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( pr2 _ ) ( pr2 _ ) ) .  Defined .  
+Proof . intros . assert ( lg : hexists ( fun n : nat => dirprod ( natleh n ( S n' ) ) ( P n ) )  <-> hdisj ( hexists ( fun n : nat => dirprod ( natleh n n' ) ( P n ) ) )  ( P ( S n' ) )  ) . split . apply hinhfun .   intro t2 .  destruct t2 as [ n d2 ] . destruct d2 as [ l p ] . destruct ( natlehchoice2 _ _ l ) as [ h | nh ] . simpl in h . apply ii1 .  apply hinhpr . split with n .  apply ( dirprodpair h p ) . destruct nh .  apply ( ii2 p ) . simpl . apply ( @hinhuniv _ ( ishinh _ ) ) . intro c .  destruct c as [ t | p ] .  generalize t . simpl . apply hinhfun .  clear t . intro t . destruct t as [ n d2 ] . destruct d2 as [ l p ] . split with n .  split with ( natlehtolehs _ _ l ) .  apply p .  apply hinhpr . split with ( S n' ) .  split with ( isreflnatleh _ ) . apply p .  apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( pr2 _ ) ( pr2 _ ) ) .  Defined .  
 
 
 Lemma isdecbexists ( n : nat ) ( P : nat -> UU ) ( is : forall n' , isdecprop ( P n' ) ) : isdecprop ( hexists ( fun n' => dirprod ( natleh n' n ) ( P n' ) ) ) .
@@ -1055,7 +1069,7 @@ Proof . intros . set ( P := fun n' : nat => hProppair _ ( is n' ) ) . assert ( i
 Theorem accth ( F : nat -> UU ) ( is : forall n , isdecprop ( F n ) )  ( is' : hexists F ) : natdecleast F is .
 Proof . intros F is . simpl . apply (@hinhuniv _ ( hProppair _ ( isapropnatdecleast F is ) ) ) . intro t2. destruct t2 as [ n l ] . simpl .
 
-set ( F' := fun n' : nat => hexists ( fun n'' => dirprod ( natleh n'' n' ) ( F n'' ) ) ) .  assert ( X : forall n' , F' n' -> natdecleast F is ) .  intro n' .  simpl .    induction n' as [ | n' IHn' ] . apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ) . simpl .   intro t2 . destruct t2 as [ n'' is'' ] . destruct is'' as [ l'' d'' ] .  split with 0 .  split . set ( e := natleh0tois0 _ l'' ) . clearbody e . destruct e . apply d'' .  apply ( fun n' => fun f : _ => natleh0n n' ) .  apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ) . intro t2 .  destruct t2 as [ n'' is'' ] . set ( j := natlehchoice2 _ _ ( pr1 is'' ) ) .  destruct j as [ jl | je ] .  simpl .  apply ( IHn' ( hinhpr ( tpair _ n'' ( dirprodpair jl ( pr2 is'' ) ) ) ) ) .  simpl . rewrite je in is''  .  destruct is'' as [ nn is'' ] .  clear nn. clear je . clear n'' . 
+set ( F' := fun n' : nat => hexists ( fun n'' => dirprod ( natleh n'' n' ) ( F n'' ) ) ) .  assert ( X : forall n' , F' n' -> natdecleast F is ) .  intro n' .  simpl .    induction n' as [ | n' IHn' ] . apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ) . simpl .   intro t2 . destruct t2 as [ n'' is'' ] . destruct is'' as [ l'' d'' ] .  split with 0 .  split . set ( e := natleh0tois0 l'' ) . clearbody e . destruct e . apply d'' .  apply ( fun n' => fun f : _ => natleh0n n' ) .  apply ( @hinhuniv _  ( hProppair _ ( isapropnatdecleast F is ) ) ) . intro t2 .  destruct t2 as [ n'' is'' ] . set ( j := natlehchoice2 _ _ ( pr1 is'' ) ) .  destruct j as [ jl | je ] .  simpl .  apply ( IHn' ( hinhpr ( tpair _ n'' ( dirprodpair jl ( pr2 is'' ) ) ) ) ) .  simpl . rewrite je in is''  .  destruct is'' as [ nn is'' ] .  clear nn. clear je . clear n'' . 
 
 assert ( is' : isdecprop ( F' n' ) ) . apply ( isdecbexists n' F is ) .   destruct ( pr1 is' ) as [ f | nf ] .  apply ( IHn'  f ) .  split with ( S n' ) .  split with is'' . intros n0 fn0 . destruct ( natlthorgeh n0 ( S n' ) )  as [ l' | g' ] .  set ( i' := natlthtolehsn _ _ l' ) .  destruct ( nf ( hinhpr ( tpair _ n0 ( dirprodpair i' fn0 ) ) ) ) .   apply g' . 
 
