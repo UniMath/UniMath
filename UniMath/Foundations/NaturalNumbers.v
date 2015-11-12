@@ -1581,14 +1581,19 @@ Defined .
 (** ** The order-preserving functions [ si i : nat -> nat ] that take the value [i] twice. *)
 
 Definition si ( i : nat ) ( x : nat ) : nat :=
-  match natlthorgeh x i with 
-    | ii1 _ => x
-    | ii2 _ => x - 1
+  match natlthorgeh i x with 
+    | ii1 _ => x - 1
+    | ii2 _ => x
   end .
 
 Goal si 3 (di 3 2) = 2. reflexivity. Defined.
 Goal si 3 (di 3 3) = 3. reflexivity. Defined.
 Goal si 3 (di 3 4) = 4. reflexivity. Defined.
+
+Goal si 3 2 = 2. reflexivity. Defined.
+Goal si 3 3 = 3. reflexivity. Defined.
+Goal si 3 4 = 3. reflexivity. Defined.
+Goal si 3 5 = 4. reflexivity. Defined.
 
 Definition nat_compl (i:nat) := compl_ne _ i (λ j, i ≠ j).
 
@@ -1607,32 +1612,36 @@ Proof.
   - intro j. exists (di i j). apply di_neq_i.
   - intro j. exact (si i (pr1 j)).
   - simpl. intro j. unfold di. induction (natlthorgeh j i) as [lt|ge].
-    + unfold si. induction (natlthorgeh j i) as [lt'|ge'].
+    + unfold si. induction (natlthorgeh i j) as [lt'|ge'].
+      * contradicts (isasymmnatlth _ _ lt') lt.
       * reflexivity.
-      * contradicts (natlehtonegnatgth _ _ ge') lt.
-    + unfold si. induction (natlthorgeh (S j) i) as [lt'|ge'].
-      * contradicts (natlehtonegnatgth _ _ (natlehtolehs _ _ ge)) lt'.
+    + unfold si. induction (natlthorgeh i (S j)) as [lt'|ge'].
       * change (S j) with (1 + j). rewrite natpluscomm. apply plusminusnmm.
+      * unfold natgeh,natleh in ge. contradicts (natlehneggth ge') ge.
   - simpl. intro j. induction j as [j ne]; simpl.
     apply subtypeEquality.
     + intro k. apply negProp_to_isaprop.
     + simpl. unfold si. induction (natlthorgeh j i) as [lt|ge].
-      * unfold di. induction (natlthorgeh j i) as [lt'|ge'].
-        { reflexivity. }
-        { contradicts (natlehtonegnatgth _ _ ge') lt. }
+      * clear ne.
+        induction (natlthorgeh i j) as [lt'|_].
+        { contradicts (isasymmnatlth _ _ lt') lt. }
+        { unfold di. induction (natlthorgeh j i) as [lt'|ge'].
+          + reflexivity.
+          + contradicts (natgehtonegnatlth _ _ ge') lt. }
       * assert (lt := natleh_neq ge ne); clear ne ge.
-        unfold di. induction (natlthorgeh (j - 1) i) as [lt'|ge'].
-        { apply fromempty.
-          induction j as [|j _].
-          { exact (negnatlthn0 _ lt). }
-          { change (S j) with (1 + j) in lt'.
-            rewrite natpluscomm in lt'.
-            rewrite plusminusnmm in lt'.
-            change (i < S j) with (i ≤ j) in lt.
-            exact (natlehneggth lt lt'). } }
-        { induction j as [|j _].
-          - contradicts (negnatlthn0 i) lt.
-          - simpl. apply maponpaths. apply natminuseqn. }
+        induction (natlthorgeh i j) as [_|ge'].
+        { unfold di. induction (natlthorgeh (j - 1) i) as [lt'|ge'].
+          { apply fromempty. induction j as [|j _].
+            { exact (negnatlthn0 _ lt). }
+            { change (S j) with (1 + j) in lt'.
+              rewrite natpluscomm in lt'.
+              rewrite plusminusnmm in lt'.
+              change (i < S j) with (i ≤ j) in lt.
+              exact (natlehneggth lt lt'). } }
+          { induction j as [|j _].
+            - contradicts (negnatlthn0 i) lt.
+            - simpl. apply maponpaths. apply natminuseqn. } }
+        { contradicts (natgehtonegnatlth _ _ ge') lt. }
 Defined.
 
 (** ** Inductive types [ le ] with values in [ UU ] . 
