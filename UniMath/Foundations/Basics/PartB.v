@@ -469,25 +469,20 @@ Definition subtypePairEquality' {X} {P:X -> UU}
 (* This variant of subtypePairEquality is never needed. *)
 Proof. intros X P x y p q e is. apply (total2_paths2 e). apply is. Defined.
 
-Theorem samehfibers { X Y Z : UU } (f: X -> Y) (g: Y -> Z) (is1: isincl  g) ( y: Y): weq ( hfiber f y ) ( hfiber ( fun x => g ( f x ) ) ( g y ) ) .
-Proof. intros. split with (@hfibersftogf  _ _ _ f g (g y) (hfiberpair  g y (idpath _ ))) .
-
-set (z:= g y). set (ye:= hfiberpair  g y (idpath _ )).  unfold isweq. intro xe.
-set (is3:= isweqezmap1 _ _ _ ( fibseqhf f g z ye ) xe).
-assert (w1: weq (paths (hfibersgftog f g z xe) ye) (hfiber  (hfibersftogf  f g z ye) xe)). split with (ezmap (d1 (hfibersftogf f g z ye) (hfibersgftog f g z) ye ( fibseqhf f g z ye ) xe) (hfibersftogf f g z ye) xe ( fibseq1 (hfibersftogf f g z ye) (hfibersgftog f g z) ye ( fibseqhf f g z ye ) xe) ). apply is3. apply (iscontrweqf w1 ).
-assert (is4: iscontr (hfiber g z)). apply iscontrhfiberofincl. assumption.
-apply ( isapropifcontr is4  ). Defined.
-
-
-
-
-
-
-
+Theorem samehfibers { X Y Z : UU } (f: X -> Y) (g: Y -> Z) (is1: isincl g) (y:Y) :
+  hfiber f y ≃ hfiber (g ∘ f) (g y) .
+Proof.
+  intros. exists (hfibersftogf f g (g y) (hfiberpair g y (idpath _))).
+  set (z := g y). set (ye := hfiberpair g y (idpath _)). intro xe.
+  apply (iscontrweqf (X := hfibersgftog f g z xe = ye)).
+  { exists (ezmap _ _ _ (fibseq1 _ _ _ (fibseqhf f g z ye) _)).
+    exact (isweqezmap1 _ _ _ _ _). }
+  apply isapropifcontr. now apply iscontrhfiberofincl.
+Defined.
 
 (** *** Basics about types of h-level 2 - "sets" *)
 
-Definition isaset ( X : UU ) : UU := forall x x' : X , isaprop ( paths x x' ) .
+Definition isaset ( X : UU ) : UU := ∀ x x' : X , isaprop ( x = x' ) .
 
 (* document an equality for the reader *)
 Goal isaset = isofhlevel 2.
@@ -511,7 +506,7 @@ Proof . intros . apply ( isofhlevelsnprop 1 is ) . Defined .
 
 (** The following lemma assert "uniqueness of identity proofs" (uip) for sets. *)
 
-Lemma uip { X : UU } ( is : isaset X ) { x x' : X } ( e e' : paths x x' ) : paths e e' .
+Lemma uip { X : UU } ( is : isaset X ) { x x' : X } ( e e' : x = x' ) : e = e' .
 Proof. intros . apply ( proofirrelevance _ ( is x x' ) e e' ) . Defined .
 
 (** For the theorem about the coproduct of two sets see [ isasetcoprod ] below. *)
