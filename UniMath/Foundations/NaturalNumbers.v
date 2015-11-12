@@ -1644,6 +1644,22 @@ Proof.
         { contradicts (natgehtonegnatlth _ _ ge') lt. }
 Defined.
 
+Module Test_weqdicompl.
+
+  Let w := weqdicompl 3 : nat ≃ nat_compl 3.
+  Goal w 2 = (2,,tt). reflexivity. Defined.
+  Goal w 3 = (4,,tt). reflexivity. Defined.
+  Goal invmap w (2,,tt) = 2. reflexivity. Defined.
+  Goal invmap w (4,,tt) = 3. reflexivity. Defined.
+  Goal homotweqinvweq w (2,,tt) = idpath _. reflexivity. Defined.
+  Goal homotweqinvweq w (4,,tt) = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq w 2 = idpath _. reflexivity. Defined.
+  Goal homotinvweqweq w 4 = idpath _. reflexivity. Defined.
+  Goal homotweqinvweqweq w 2 = idpath _. reflexivity. Defined.
+  Goal homotweqinvweqweq w 4 = idpath _. reflexivity. Defined.
+
+End Test_weqdicompl.
+
 (** ** Inductive types [ le ] with values in [ UU ] . 
 
 This part is included for illustration purposes only . In practice it is easier to work with [ natleh ] than with [ le ] . 
