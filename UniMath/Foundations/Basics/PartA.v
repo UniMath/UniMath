@@ -1306,10 +1306,13 @@ Module Test_gradth.
   Definition w : nat ≃ nat := weqgradth f f (λ _, idpath _) (λ _, idpath _).
   Goal homotinvweqweq w 3 = idpath _. reflexivity. Defined.
   Goal homotweqinvweq w 3 = idpath _. reflexivity. Defined.
+  Goal homotweqinvweqweq w 3 = idpath _. reflexivity. Defined.
+
   Definition v : bool ≃ bool.
     refine (weqgradth negb negb _ _); intro x; induction x; reflexivity. Defined.
   Goal homotinvweqweq v true = idpath _. reflexivity. Defined.
   Goal homotweqinvweq v true = idpath _. reflexivity. Defined.
+  Goal homotweqinvweqweq v true = idpath _. reflexivity. Defined.
 End Test_gradth.
 
 (** *** Some basic weak equivalences *)
@@ -1790,6 +1793,17 @@ Proof.
   - intros yxp. induction yxp as [x yp]. induction yp as [y p]. exact ((y,,x),,p).
   - intros xyp. induction xyp as [xy p]. induction xy as [x y]. reflexivity.
   - intros yxp. induction yxp as [x yp]. induction yp as [y p]. reflexivity.
+Defined.
+
+Definition weqtotal2comm12 {X} (P Q : X -> UU) :
+  (Σ (w : Σ x, P x), Q (pr1 w)) ≃ (Σ (w : Σ x, Q x), P (pr1 w)).
+Proof.
+  intros.
+  refine (weqgradth _ _ _ _).
+  - intros [[x p] q]. exact ((x,,q),,p).
+  - intros [[x q] p]. exact ((x,,p),,q).
+  - intros [[x p] q]. reflexivity.
+  - intros [[x q] p]. reflexivity.
 Defined.
 
 (** *** Coproducts and direct products *)
