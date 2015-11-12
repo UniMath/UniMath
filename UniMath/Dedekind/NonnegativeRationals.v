@@ -723,7 +723,7 @@ Proof.
       now apply isirrefl_ltNonnegativeRationals.
 Qed.
 
-Lemma ispositive_invNonnegativeRationals :
+Lemma ispositive_divNonnegativeRationals :
   ∀ x y, 0 < x -> 0 < y -> 0 < x / y.
 Proof.
   intros x y Hx Hy.
