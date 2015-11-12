@@ -1478,14 +1478,12 @@ Proof.
         unfold divNonnegativeRationals ;
           rewrite isassoc_multNonnegativeRationals.
         apply multrle1NonnegativeRationals, ledivle1NonnegativeRationals.
-        now rewrite NonnegativeRationals_neq0_gt0.
         now apply NQmax_le_l.
         apply is_Dcuts_bot with (1 := Yr).
         rewrite Hzy, iscomm_multNonnegativeRationals.
         unfold divNonnegativeRationals ;
           rewrite isassoc_multNonnegativeRationals.
         apply multrle1NonnegativeRationals, ledivle1NonnegativeRationals.
-        now rewrite NonnegativeRationals_neq0_gt0.
         now apply NQmax_le_r.
 Qed.
 Lemma isrdistr_Dcuts_plus_mult : isrdistr Dcuts_plus Dcuts_mult.
