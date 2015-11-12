@@ -261,7 +261,11 @@ Definition iscoasymm { X : UU } ( R : hrel X ) := ∀ x1 x2 , ¬ R x1 x2 -> R x2
 
 Definition istotal { X : UU } ( R : hrel X ) := ∀ x1 x2 , R x1 x2 ∨ R x2 x1 .
 
+Definition isdectotal { X : UU } ( R : hrel X ) := ∀ x1 x2 , R x1 x2 ⨿ R x2 x1 .
+
 Definition iscotrans { X : UU } ( R : hrel X ) := ∀ x1 x2 x3 , R x1 x3 -> R x1 x2 ∨ R x2 x3 .
+
+Definition isdeccotrans { X : UU } ( R : hrel X ) := ∀ x1 x2 x3 , R x1 x3 -> R x1 x2 ⨿ R x2 x3 .
 
 Definition isdecrel { X : UU } ( R : hrel X ) := ∀ x1 x2 , R x1 x2 ⨿ ¬ R x1 x2 .
 
@@ -578,12 +582,11 @@ Lemma istransnegrel { X : UU } ( R : hrel X  ) ( isr : iscotrans R ) : istrans (
 Proof . intros . intros x1 x2 x3 r12 r23 .  apply ( negf ( isr x1 x2 x3 ) ) .  apply ( toneghdisj ( dirprodpair r12 r23 ) ) . Defined . 
 
 Lemma iscotrans_to_istrans_negReln {X} {R:hrel X} (NR : negReln R) :
-  (∀ x y z , R x z -> R x y ⨿ R y z) -> ∀ x y z, NR x y -> NR y z -> NR x z.
+  isdeccotrans R -> istrans NR.
+(* uses no axioms; compare to istransnegrel *)
 Proof.                                             
-  intros ? ? ? i ? ? ? nxy nyz.
-  apply neg_from_neg.
-  apply (negf (i x y z)).
-  intro c. induction c as [c|c].
+  intros ? ? ? i ? ? ? nxy nyz. apply neg_from_neg.
+  apply (negf (i x1 x2 x3)). intro c. induction c as [c|c].
   - exact (neg_to_neg nxy c).
   - exact (neg_to_neg nyz c).
 Defined.
