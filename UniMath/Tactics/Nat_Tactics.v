@@ -18,7 +18,7 @@ Local Open Scope nat_scope.
 
 (** * Basic definitions and hints. *)
 
-Definition natneqtwist n (p : natneq 0 n) : natneq n 0 :=
+Definition natneqtwist n (p : ¬ (0 = n)) : ¬ (n = 0) :=
   fun f => p (pathsinv0 f).
 
 Definition nat_plus_perm021 :

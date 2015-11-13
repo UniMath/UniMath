@@ -128,7 +128,6 @@ Notation "'¬' X" := (neg X) (at level 35, right associativity).
   (* type this in emacs in agda-input method with \neg *)
 
 Notation "x != y" := (neg (x = y)) (at level 70).
-Notation "x ≠ y" := (neg (x = y)) (at level 70).
 
 (* Apply this tactic to a proof of [X] and [neg X], in either order: *)
 Ltac contradicts a b := solve [ induction (a b) | induction (b a) ].
@@ -2027,10 +2026,10 @@ Proof. intros ? ? ? ?. exact equality_by_case. Defined.
 Lemma ii2_injectivity {P Q} (q q':Q): ii2 (A:=P) q = ii2 (A:=P) q' -> q = q'.
 Proof. intros ? ? ? ?. exact equality_by_case. Defined.
 
-Lemma negpathsii1ii2 { X Y : UU } (x:X) (y:Y): ii1 x ≠ ii2 y.
+Lemma negpathsii1ii2 { X Y : UU } (x:X) (y:Y): ii1 x != ii2 y.
 Proof. intros ? ? ? ?. exact equality_by_case. Defined.
 
-Lemma negpathsii2ii1 { X Y : UU } (x:X) (y:Y): ii2 y ≠ ii1 x.
+Lemma negpathsii2ii1 { X Y : UU } (x:X) (y:Y): ii2 y != ii1 x.
 Proof. intros ? ? ? ?. exact equality_by_case. Defined.
 
 (* ... but we still need the lemmas so we can find them by searching for ii1 or ii2 *)

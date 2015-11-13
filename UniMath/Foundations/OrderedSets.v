@@ -348,7 +348,6 @@ Definition FiniteOrderedSetDecidableLessThan (X:FiniteOrderedSet) : DecidableRel
 Defined.
 
 Notation "x = y" := (FiniteOrderedSetDecidableEquality _ x y) (at level 70, no associativity) : foset.
-Notation "x != y" := (FiniteOrderedSetDecidableInequality _ x y) (at level 70, no associativity) : foset.
 Notation "x ≠ y" := (FiniteOrderedSetDecidableInequality _ x y) (at level 70, no associativity) : foset.
 Notation " x ≤ y " := ( FiniteOrderedSetDecidableOrdering _ x y ) (at level 70, no associativity) : foset.
 Notation " x <= y " := ( FiniteOrderedSetDecidableOrdering _ x y ) (at level 70, no associativity) : foset.
@@ -434,7 +433,7 @@ Definition lexicographicOrder
            (R:hrel X) (S : ∀ x, hrel (Y x)) : hrel (Σ x, Y x)%set.
   intros ? ? ? ? u u'.
   set (x := pr1 u). set (y := pr2 u). set (x' := pr1 u'). set (y' := pr2 u').
-  exact ((x ≠ x' ∧ R x x') ∨ (∃ e : x = x', S x' (transportf Y e y) y'))%set.
+  exact ((x != x' ∧ R x x') ∨ (∃ e : x = x', S x' (transportf Y e y) y'))%set.
 Defined.
 
 Module TestLex.
@@ -596,7 +595,7 @@ Module TestLex2.
     (* uses: funextfunax funextempty *)
   Abort.
 
-  Goal choice (x != y)%foset true false = false.
+  Goal choice (x ≠ y)%foset true false = false.
     try reflexivity.
   Abort.
 

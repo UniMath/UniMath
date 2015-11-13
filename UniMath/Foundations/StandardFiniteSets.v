@@ -72,7 +72,6 @@ Proof. (* here we use no axioms *)
   - apply stn_ne_iff_neq.
 Defined.
 
-Notation " x != y " := ( stnneq x y ) (at level 70, no associativity) : stn.
 Notation " x ≠ y " := ( stnneq x y ) (at level 70, no associativity) : stn.
 Delimit Scope stn with stn.
 Local Open Scope stn.
@@ -335,22 +334,36 @@ Defined.
 
 (** *** Weak equivalence from [ coprod ( stn n ) unit ] to [ stn ( S n ) ] defined by [ dni n i ] *)
 
-Definition weqdnicoprod n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
+Definition weqdnicoprod_provisional n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
 Proof.
   intros.
   apply (weqcomp (weqcoprodf (weqdnicompl n j) (idweq unit))
                  (weqrecompl_ne (stn (S n)) j (isdeceqstn (S n) j) (stnneq j))).
 Defined.  
 
-Opaque weqdnicoprod.
+Opaque weqdnicoprod_provisional.
 
-Definition weqdnicoprod_compute_1 n (i : stn n) : 
-  weqdnicoprod n (lastelement n) (ii1 i) = dni n (lastelement n) i.
+Definition weqdnicoprod_map {n} (j : stn(S n)) : stn n ⨿ unit -> stn (S n).
+  intros n j x. induction x as [i|t].
+    { exact (dni n j i). }
+    { exact j. }
+Defined.
+
+Definition weqdnicoprod_compute {n} (j : stn(S n)) : weqdnicoprod_provisional n j ~ weqdnicoprod_map j.
 Proof.   
   intros.
-  apply subtypeEquality_prop.
-  induction i as [i I].
-  reflexivity.
+  intros i.
+  induction i as [i|i].
+  - apply subtypeEquality_prop. now induction i as [i I]. 
+  - reflexivity.
+Defined.
+
+Definition weqdnicoprod n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
+Proof.
+  intros.
+  apply (weqpair (weqdnicoprod_map j)).
+  apply (isweqhomot _ _ (weqdnicoprod_compute _)).
+  apply weqproperty.
 Defined.
 
 Module Test2.
@@ -365,7 +378,7 @@ Module Test2.
   Goal homotweqinvweq (weqdnicoprod 4 (lastelement 4)) (● 0) = idpath _. reflexivity. Defined. (* fixed! *)
   Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii2 tt) = idpath _. reflexivity. Defined.
   Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (●1)) = idpath _.
-    try reflexivity.            (* fixed; 5 seconds *)
+    reflexivity.                (* fixed; 5 seconds *)
   Defined.                      (* 5 seconds *)
 
   (* here's an example that shows complications need not impede that sort of computability: *)
@@ -432,16 +445,6 @@ Module Test2.
   Goal homotinvweqweq re' (ii2 tt) = idpath _. reflexivity. Defined.
   Goal homotinvweqweq re' (ii1 c') = idpath _. reflexivity. Defined. (* fixed! *)
 
-  Definition weqdnicoprod_map {n} (j : stn(S n)) : stn n ⨿ unit -> stn (S n).
-    intros n j x. induction x as [i|t].
-      { exact (dni n j i). }
-      { exact j. }
-  Defined.
-  Lemma natltltSlt i j n : i<j -> j<S n -> i<n.
-  Proof.
-    intros i j n l.
-    
-  Admitted.
   Definition weqdnicoprod_invmap {n} (j : stn(S n)) : stn n ⨿ unit <- stn (S n).
     intros n j i. 
     induction (isdeceqstn (S n) i j) as [eq|ne].
@@ -827,13 +830,7 @@ Proof.
   { apply weqcoprodf.
     { apply IHn. }
     { apply weqtotal2overunit. } }
-  refine (weqfromcoprodofstn _ _ ∘ _)%weq.
-  apply weqcoprodf.
-  { apply eqweqmap. apply maponpaths.
-    intermediate_path (stnsum (λ i : stn n, f (dni n (lastelement n) i))).
-    - apply stnsum_eq; intro i. apply maponpaths. apply weqdnicoprod_compute_1.
-    - reflexivity. }
-  { apply idweq. }
+  exact (weqfromcoprodofstn _ _).
 Defined.
 
 Theorem weqstnsum { n : nat } (P : stn n -> UU) (f : stn n -> nat) :
@@ -853,9 +850,15 @@ Module Test_weqstnsum_2.
   Let w := (●3,,●2) : W.
   Let w' := (●4,,●2) : W.
   Let f : W ≃ stn 15 := weqstnsum1 _.
-  Let f' : stn 15 ≃ W := invweq f.
+  Let f' : stn 15 -> W := invmap f.
   Goal f(●1,,●0) = ●0. reflexivity. Defined. (* fixed! (formerly, it failed quickly) *)
+
   Goal f'(●0) = (●1,,●0). try reflexivity. Abort. (* fix; fails quickly *)
+  (* let's extract the problematic component: *)
+  Goal (pr2 (pr2 (f'(●0)))) = idpath true.
+    try reflexivity. (* fix; fails quickly; might be a Coq bug *)
+  Abort. 
+                  
 End Test_weqstnsum_2.
 
 Corollary weqstnsum2 { X : UU } ( n : nat ) ( f : stn n -> nat ) ( g : X -> stn n ) ( ww : forall i : stn n , weq ( stn ( f i ) ) ( hfiber g i ) ) : weq X ( stn ( stnsum f ) ) .
@@ -1025,15 +1028,7 @@ Proof .
     assert ( w7 := weqcomp w6 ( weqdirprodf ( idweq _ ) ( invweq ( ww ( lastelement n ) ) ) ) ) .
     refine ( _ ∘ w7 )%weq .
     unfold w1.
-    refine ( _ ∘ weqfromprodofstn _ _ )%weq .
-    induction (!stnprod_step f).
-    apply eqweqmap.
-    apply maponpaths.
-    apply (maponpaths (λ i, i * f (lastelement n))).
-    apply stnprod_eq; intro i.
-    unfold funcomp.
-    apply maponpaths.
-    apply weqdnicoprod_compute_1.
+    exact (weqfromprodofstn _ _ ).
 Defined . 
 
 (** *** Weak equivalence between [ weq ( stn n ) ( stn n ) ] and [ stn ( factorial n ) ] ( uses functional extensionality ) *)

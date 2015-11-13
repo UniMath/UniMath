@@ -32,9 +32,8 @@ Coercion pr1hSet: hSet >-> UU .
 Definition eqset { X : hSet } ( x x' : X ) : hProp := hProppair (x = x') (pr2 X x x') . 
 Notation "a = b" := (eqset a b) (at level 70, no associativity) : set.
 
-Definition neqset { X : hSet } ( x x' : X ) : hProp := hProppair (x ≠ x') (isapropneg _) . 
+Definition neqset { X : hSet } ( x x' : X ) : hProp := hProppair (x != x') (isapropneg _) . 
 Notation "a != b" := (neqset a b) (at level 70, no associativity) : set.
-Notation "a ≠ b" := (neqset a b) (at level 70, no associativity) : set.
 Delimit Scope set with set.
 
 Definition setproperty ( X : hSet ) := pr2 X . 

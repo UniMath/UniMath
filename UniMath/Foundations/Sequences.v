@@ -292,6 +292,16 @@ Definition concatenate_length {X} (x y:Sequence X) :
   length (concatenate x y) = length x + length y.
 Proof. intros. reflexivity. Defined.
 
+Definition concatenate_0 {X} (s:Sequence X) (t:stn 0 -> X) : concatenate s (0,,t) = s.
+Proof.
+  intros.
+  induction s as [n s].
+  refine (total2_paths2 _ _).
+  { simpl. apply natplusr0. }
+  { simpl. apply funextsec; intro i.
+    (* this should be easier! *)
+Abort.
+
 Definition concatenateStep {X}  (x : Sequence X) {n} (y : stn (S n) -> X) :
   concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni_lastelement)) (y (lastelement _)).
 Proof. intros.
@@ -346,7 +356,7 @@ Proof.
   induction (natlehchoice4 j n J) as [J'|K].
   + simpl.
     refine (total2_paths _ _).
-    * simpl. apply isinjstntonat; simpl. rewrite replace_dni_last. reflexivity.
+    * simpl. rewrite replace_dni_last. apply isinjstntonat. reflexivity.
     * rewrite replace_dni_last. unfold dni_lastelement.  simpl.
       change (λ x0 : stn (S n), X x0) with X.
       rewrite transport_f_b. apply (isaset_transportf X).
@@ -385,35 +395,8 @@ Goal invmap (@total2_step 1 (λ _,unit)) (ii1 (●0,,tt)) = ●0,,tt. reflexivit
 Goal @total2_step 0 (λ _,unit) (●0,,tt) = ii2 tt. reflexivity. Defined.
 Goal @total2_step 1 (λ _,unit) (●1,,tt) = ii2 tt. reflexivity. Defined.
 Goal @total2_step 1 (λ _,unit) (●0,,tt) = ii1 (●0,,tt).
-  try reflexivity.
-Abort. (* fix *)
-(* Here is part of the problem: *)
-Goal invmap (weqfp (weqdnicoprod 1 (lastelement 1)) (λ _ : stn 2, unit)) (● 0,, tt) = (ii1 (● 0),, tt).
-  try reflexivity.
-  intermediate_path (weqfp_invmap (weqdnicoprod 1 (lastelement 1)) (λ _ : stn 2, unit) (● 0,, tt)).
-  { reflexivity. }
-  refine (total2_paths _ _).
-  { reflexivity. }
-  rewrite rewrite_pr2_tpair.
-  rewrite idpath_transportf.
-  unfold weqfp_invmap.
-  rewrite rewrite_pr2_tpair.
-  rewrite rewrite_pr2_tpair.
-  rewrite rewrite_pr1_tpair.
-  apply pathsinv0.
-  intermediate_path (transportf (λ _ : stn 2, unit) (idpath (●0:stn 2)) tt).
-  { reflexivity. }
-  apply (maponpaths (λ r, transportf (λ _ : stn 2, unit) r tt)).
-  try reflexivity.
-  (*
-    Goal now is:
-
-      idpath (● 0) = ! homotweqinvweq (weqdnicoprod 1 (lastelement 1)) (● 0)
-
-    Fix the definition of weqdnicoprod.
-    *)
-
-Abort.
+  reflexivity. (* fixed, failed quickly before *)
+Defined.
 
 Definition total2_step_compute_2 {n} (X:stnset (S n) ->UU) :
   invmap (total2_step X) ~ total2_step_b X.
@@ -458,12 +441,12 @@ Corollary total2_step' {n} (f:stn (S n) -> nat) :
   (Σ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _)).
 Proof. intros. apply (total2_step (stn ∘ f)). Defined.
 
-Definition weqstnsum_idweq' {n} (f:stn (S n)->nat ) : total2 (λ i, stn (f i)) ≃ stn (stnsum f).
+Definition weqstnsum1' {n} (f:stn (S n)->nat ) : (Σ i, stn (f i)) ≃ stn (stnsum f).
 Proof. intros.
   intermediate_weq ((Σ (i:stn n), stn (f (dni _ (lastelement _) i))) ⨿ stn (f (lastelement _))).
   { apply total2_step'. }
   intermediate_weq (stn (stnsum (f ∘ dni n (lastelement n))) ⨿ stn (f (lastelement n))).
-  { apply weqcoprodf. { apply weqstnsum_idweq. } apply idweq. }
+  { apply weqcoprodf. { apply weqstnsum1. } apply idweq. }
   apply weqfromcoprodofstn.
 Defined.  
 
@@ -482,13 +465,13 @@ Proof.
   reflexivity.
 Defined.
 
-Definition weqstnsum_idweq_step {n} (f:stn (S n) -> nat) :
-  weqstnsum_idweq f = weqstnsum_idweq' f.
+Definition weqstnsum1_step {n} (f:stn (S n) -> nat) :
+  weqstnsum1 f = weqstnsum1' f.
 Proof.
   intros.
   apply isinjpr1weq.
   apply funextfun; intros [k p].
-  unfold weqstnsum_idweq'.
+  unfold weqstnsum1'.
   unfold total2_step', total2_step. 
   rewrite 4? weqcomp_to_funcomp.
   unfold funcomp.

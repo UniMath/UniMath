@@ -463,10 +463,10 @@ Definition isolation {X:UU} (x:X) (is:isisolated X x) (y:X) : UU := isFalse (to_
 Definition isaprop_isolation {X:UU} (x:X) (is:isisolated X x) (y:X) : isaprop (isolation x is y) :=
   isaprop_isFalse _.
 
-Definition isolation_to_inequality {X:UU} (x:X) (is:isisolated X x) (y:X) : isolation x is y -> x ≠ y :=
+Definition isolation_to_inequality {X:UU} (x:X) (is:isisolated X x) (y:X) : isolation x is y -> x != y :=
   falseWitness.
 
-Definition inequality_to_isolation {X:UU} (x:X) (is:isisolated X x) (y:X) : x ≠ y -> isolation x is y :=
+Definition inequality_to_isolation {X:UU} (x:X) (is:isisolated X x) (y:X) : x != y -> isolation x is y :=
   (* uses [funextempty] *)
   pair_falsehood (to_ComplementaryPair (is y)) (isapropneg (x = y)).
 

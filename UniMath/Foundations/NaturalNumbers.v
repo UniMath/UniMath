@@ -37,12 +37,11 @@ match n , m with
 end.
 
 (* Provisional notation, to be replaced below: *)
-Notation " x != y " := ( natneq x y ) (at level 70, no associativity) : nat_scope.
 Notation " x ≠ y " := ( natneq x y ) (at level 70, no associativity) : nat_scope.
 Local Open Scope nat_scope.           (* it's already open, but we want it first in line *)
 
-Goal 3 != 5. easy. Defined.
-Goal ¬ (3 != 3). easy. Defined.
+Goal 3 ≠ 5. easy. Defined.
+Goal ¬ (3 ≠ 3). easy. Defined.
 
 Lemma negpaths0sx ( x : nat ) : ¬ (0 = S x) .
 Proof. intro. set (f:= fun n : nat => match n with O => true | S m => false end ) . apply ( negf ( @maponpaths _ _ f 0 ( S x ) ) nopathstruetofalse ) . Defined. 
@@ -92,7 +91,6 @@ Proof.
 Defined.
 
 (* this replaces the provisional notation above: *)
-Notation " x != y " := ( natneq_prop x y ) (at level 70, no associativity) : nat_scope.
 Notation " x ≠ y " := ( natneq_prop x y ) (at level 70, no associativity) : nat_scope.
 Local Open Scope nat_scope.           (* it's already open, but we want it first in line *)
 
@@ -165,7 +163,7 @@ Module Test_A.
   Goal homotinvweqweq w cn = idpath _. try reflexivity. Abort. (* prevented by funextfun *)
   Goal homotweqinvweq w cn' = idpath _. reflexivity. Defined. (* slow; why? *)
   Let f := weqrecompl nat 0 (isdeceqnat 0).
-  Let f' := weqrecompl_ne nat 0 (isdeceqnat 0) (λ m, 0 != m).
+  Let f' := weqrecompl_ne nat 0 (isdeceqnat 0) (λ m, 0 ≠ m).
   Goal f (ii1 cn) = 3. reflexivity. Defined.
   Goal f' (ii1 cn') = 3. reflexivity. Defined.
   Goal invmap f 3 = (ii1 cn). reflexivity. Defined.
@@ -354,6 +352,9 @@ Lemma natgthnegleh {n m} : n > m -> ¬ (n ≤ m).
   intros ? ? r s. exact (natlehneggth s r).
 Defined.
 
+Lemma negnatSleh n : ¬ (S n ≤ n).
+Proof. intros. unfold natleh. apply isirreflnatgth. Defined.
+
 Lemma negnatgthtoleh {n m} : ¬ (n > m) -> n ≤ m.
 Proof.
   unfold natleh. intro n. induction n as [|n N].
@@ -485,7 +486,6 @@ Notation " x ≥ y " := ( natgeh_DecidableProposition x y ) (at level 70, no ass
 Notation " x ≥ y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Notation " x > y " := ( natgth_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
-Notation " x != y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Notation " x ≠ y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Delimit Scope decidable_nat with dnat.
 
@@ -570,7 +570,8 @@ Proof . intros n m k l1 l2 . apply ( natgehgthtrans k m n l2 l1 ) . Defined .
 Lemma natlehlthtrans ( n m k : nat ) : n ≤ m -> m < k -> n < k .
 Proof . intros n m k l1 l2 . apply ( natgthgehtrans k m n l2 l1 ) . Defined . 
 
-
+Lemma natltltSlt i j n : i<j -> j<S n -> i<n.
+Proof. intros i j n l. now apply natlthlehtrans. Defined.
 
 (** *** Two comparisons and [ S ] *)
 
@@ -922,10 +923,6 @@ where "n - m" := (minus n m) : nat_scope.
 
 Definition minuseq0 ( n m : nat ) ( is : n <= m ) : n - m = 0 .
 Proof. intros n m . generalize n . clear n . induction m .  intros n is . rewrite ( natleh0tois0 is ) . simpl . apply idpath. intro n . destruct n . intro . apply idpath .  apply (IHm n ) . Defined. 
-
-Definition minusgeh0 ( n m : nat ) ( is : n ≥ m ) : n - m ≥ 0 .
-Proof. intro . induction n as [ | n IHn ] . intros.  apply isreflnatgeh. intros .
-       apply natgehn0 . Defined. 
 
 Definition minusgth0 ( n m : nat ) ( is : n > m ) : n - m > 0.
 Proof . intro n . induction n as [ | n IHn ] .  intros .  destruct (negnatgth0n _ is ) .
@@ -1423,7 +1420,7 @@ Defined .
 
 Opaque natdivremrule . 
 
-Lemma natlehmultnatdiv (n m : nat) (is : m != 0):  natdiv n m * m ≤ n .
+Lemma natlehmultnatdiv (n m : nat) (is : m ≠ 0):  natdiv n m * m ≤ n .
 Proof . intros .
         set ( e := natdivremrule n m is) .
         set ( int := ( natdiv n m ) * m ) .

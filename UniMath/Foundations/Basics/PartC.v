@@ -75,7 +75,7 @@ apply (invproofirrelevance _ X2).  Defined.
 (** *** Basic results on complements to a point *)
 
 
-Definition compl (X:UU) (x:X):= Σ x', x ≠ x'.
+Definition compl (X:UU) (x:X):= Σ x', x != x'.
 Definition complpair ( X : UU ) ( x : X ) := tpair (fun x':X => neg (paths x x' ) ) .
 Definition pr1compl ( X : UU ) ( x : X ) := @pr1 _ (fun x':X => neg (paths x x' ) ) .
 
@@ -146,7 +146,9 @@ Definition maponcomplincl_ne { X Y : UU } (f:X -> Y) (is: isincl f) (x:X)
            (neq_x : neqPred x) (neq_fx : neqPred (f x))
   : compl_ne X x neq_x -> compl_ne Y (f x) neq_fx.
 Proof.
-  intros ? ? ? ? ? ? ? c. induction c as [x' neqx].
+  intros ? ? ? ? ? ? ? c.
+  set (x' := pr1 c).
+  set (neqx := pr2 c).
   exact (f x',,neg_from_neg (nP := neq_fx (f x')) (negf  (invmaponpathsincl  _ is x x' ) (neg_to_neg neqx))).
 Defined.
 
@@ -174,10 +176,15 @@ Definition weqoncompl { X Y : UU } (w: weq X Y) ( x : X ) : weq (compl X x) (com
 
 Definition weqoncompl_ne { X Y : UU } (w: X ≃ Y) ( x : X ) (neq_x : neqPred x) (neq_wx : neqPred (w x))
   : compl_ne X x neq_x ≃ compl_ne Y (w x) neq_wx
-  := weqpair  _ (isweqmaponcompl_ne w x neq_x neq_wx).
+  := weqpair (maponcomplweq_ne w x neq_x neq_wx) (isweqmaponcompl_ne w x neq_x neq_wx).
 
 Definition weqoncompl_compute { X Y : UU } (w: weq X Y) ( x : X ) : ∀ x', pr1 (weqoncompl w x x') = w (pr1 x').
 Proof. intros. induction x' as [x' b]. reflexivity. Defined.
+
+Definition weqoncompl_ne_compute { X Y : UU }
+           (w: X ≃ Y) ( x : X ) (neq_x : neqPred x) (neq_wx : neqPred (w x)) x' :
+  pr1 (weqoncompl_ne w x neq_x neq_wx x') = w (pr1 x').
+Proof. reflexivity. Defined.
 
 Definition homotweqoncomplcomp { X Y Z : UU } ( f : weq X Y ) ( g : weq Y Z ) ( x : X ) : homot ( weqcomp ( weqoncompl f x ) ( weqoncompl g ( f x ) ) ) ( weqoncompl  ( weqcomp f g ) x ) .
 Proof . intros . intro x' . induction x' as [ x' nexx' ] . apply ( invmaponpathsincl _ ( isinclpr1compl Z _ ) _ _ ) . simpl .  apply idpath .    Defined .
@@ -227,7 +234,7 @@ Proof.
     - exact c.
 Defined.
 
-Definition isisolated (X:UU) (x:X) := ∀ x':X, (x=x') ⨿ (x≠x').
+Definition isisolated (X:UU) (x:X) := ∀ x':X, (x = x') ⨿ (x != x').
 Definition isisolated_ne (X:UU) (x:X) (neq_x:neqPred x) := ∀ y:X, (x=y) ⨿ neq_x y.
 
 Definition isolated ( T : UU ) := Σ t:T, isisolated _ t.
