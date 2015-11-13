@@ -319,12 +319,12 @@ Definition invNonnegativeRationals (x : NonnegativeRationals) : NonnegativeRatio
 Definition divNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRationals :=
   multNonnegativeRationals x (invNonnegativeRationals y).
 
-Definition NQtwo : NonnegativeRationals :=
+Definition twoNonnegativeRationals : NonnegativeRationals :=
   Rationals_to_NonnegativeRationals 2 (hqlthtoleh _ _ hq2_gt0).
 
 Notation "0" := zeroNonnegativeRationals : NRat_scope.
 Notation "1" := oneNonnegativeRationals : NRat_scope.
-Notation "2" := NQtwo : NRat_scope.
+Notation "2" := twoNonnegativeRationals : NRat_scope.
 
 Notation "x + y" := (plusNonnegativeRationals x y) : NRat_scope.
 Notation "x - y" := (minusNonnegativeRationals x y) : NRat_scope.
@@ -763,14 +763,15 @@ Qed.
 Lemma NQhalf_double : ∀ x, x = x / 2 + x / 2.
 Proof.
   intros (x,Hx).
-  unfold divNonnegativeRationals, invNonnegativeRationals, hnnq_inv.
+
+  unfold divNonnegativeRationals, invNonnegativeRationals, hnnq_inv, twoNonnegativeRationals, Rationals_to_NonnegativeRationals ; simpl pr1.
   destruct hqlehchoice as [H2 | H2].
   apply subtypeEquality_prop ; simpl pr1.
   rewrite !(hqmultcomm x), <- hqldistr, hqmultcomm.
   apply hqplusdiv2.
   apply fromempty ; generalize hq2_gt0.
   rewrite H2.
-  now apply isirreflhqlth.
+  now apply (isirreflhqlth 2%hq).
 Qed.
 Lemma notlt_geNonnegativeRationals:
   ∀ x y : NonnegativeRationals, ¬ (x < y) -> x >= y.
@@ -945,6 +946,149 @@ Proof.
     apply NonnegativeRationals_leplus_l.
     apply lt_leNonnegativeRationals.
     now apply notge_ltNonnegativeRationals.
+Qed.
+
+Lemma le_geNonnegativeRationals:
+  ∀ x y : NonnegativeRationals, (x >= y) = (y <= x).
+Proof.
+  reflexivity.
+Qed.
+Lemma one_lt_twoNonnegativeRationals : 1 < 2.
+Proof.
+  change (1 < 2)%hq.
+  rewrite <- (hqplusr0 1%hq), hq2eq1plus1.
+  apply hqlthandplusl.
+  exact hq1_gt0.
+Qed.
+Lemma ispositive_plusNonnegativeRationals_l :
+  forall x y : NonnegativeRationals, (0 < x)%NRat -> (0 < x + y)%NRat.
+Proof.
+  intros x y Hx.
+  apply istrans_lt_le_ltNonnegativeRationals with (1 := Hx).
+  now apply NonnegativeRationals_leplus_r.
+Qed.
+Lemma div_le_plusNonnegativeRationals :
+  forall x y : NonnegativeRationals, / (x + y) <= / x + / y.
+Proof.
+  intros x y.
+  destruct (eq0orgt0NonnegativeRationals x) as [Hx0 | Hx0].
+  rewrite Hx0, islunit_zeroNonnegativeRationals ; clear Hx0 x.
+  now apply NonnegativeRationals_leplus_l.
+  destruct (eq0orgt0NonnegativeRationals y) as [Hy0 | Hy0].
+  rewrite Hy0, isrunit_zeroNonnegativeRationals ; clear Hy0 y.
+  now apply NonnegativeRationals_leplus_r.
+  rewrite <- (multNonnegativeRationals_le_l _ _ _ Hx0), isldistr_mult_plusNonnegativeRationals, (isrinv_NonnegativeRationals _ Hx0), !(iscomm_multNonnegativeRationals x).
+  rewrite <- (multNonnegativeRationals_le_l _ _ _ Hy0), isldistr_mult_plusNonnegativeRationals, <- (isassoc_multNonnegativeRationals _ (/ y)%NRat), (isrinv_NonnegativeRationals _ Hy0), islunit_oneNonnegativeRationals, isrunit_oneNonnegativeRationals, (iscomm_multNonnegativeRationals y).
+  rewrite <- (multNonnegativeRationals_le_l (x + y)), <- ! isassoc_multNonnegativeRationals , isrinv_NonnegativeRationals, islunit_oneNonnegativeRationals, isldistr_mult_plusNonnegativeRationals, !isrdistr_mult_plusNonnegativeRationals, !isassoc_plusNonnegativeRationals.
+  now apply NonnegativeRationals_leplus_r.
+  now apply ispositive_plusNonnegativeRationals_l.
+  now apply ispositive_plusNonnegativeRationals_l.
+Qed.
+Lemma div_leNonnegativeRationals :
+  forall x y : NonnegativeRationals, 0 < x -> x <= y -> / y <= / x.
+Proof.
+  intros x y Hx0 Hxy.
+  rewrite <- (multNonnegativeRationals_le_l x), isrinv_NonnegativeRationals.
+  now apply ledivle1NonnegativeRationals.
+  exact Hx0.
+  exact Hx0.
+Qed.
+Lemma minus_leNonnegativeRationals_l :
+  forall k x y : NonnegativeRationals, x <= y -> x - k <= y - k.
+Proof.
+  intros k x y Hxy.
+  case (isdecrel_leNonnegativeRationals k x) ; intros Hkx.
+  - apply (NonnegativeRationals_pluslecancel_r k).
+    rewrite !minusNonegativeRationals_plusr.
+    exact Hxy.
+    now apply istrans_leNonnegativeRationals with (2 := Hxy).
+    exact Hkx.
+  - rewrite minusNonegativeRationals_eq_zero.
+    now apply isnonnegative_NonnegativeRationals.
+    now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
+Qed.
+Lemma minus_ltNonnegativeRationals_l' :
+  forall x y z : NonnegativeRationals, x - z < y - z -> x < y.
+Proof.
+  intros x y z Hlt.
+  assert (Hyz : (z < y)%NRat).
+  { rewrite <- minusNonnegativeRationals_gt0.
+    apply istrans_le_lt_ltNonnegativeRationals with (x - z).
+    now apply isnonnegative_NonnegativeRationals.
+    exact Hlt. }
+  case (isdecrel_leNonnegativeRationals x z) ; intro Hxz.
+  - apply istrans_le_lt_ltNonnegativeRationals with (1 := Hxz).
+    exact Hyz.
+  - apply notge_ltNonnegativeRationals, lt_leNonnegativeRationals in Hxz.
+    apply lt_leNonnegativeRationals in Hyz.
+    rewrite <- (minusNonegativeRationals_plusr _ _ Hxz), <- (minusNonegativeRationals_plusr _ _ Hyz).
+    rewrite plusNonnegativeRationals_ltcompat_r.
+    exact Hlt.
+Qed.
+Lemma inv_zeroNonnegativeRationals :
+  / 0 = 0.
+Proof.
+  unfold zeroNonnegativeRationals, invNonnegativeRationals, hnnq_zero, hnnq_inv ; simpl pr1.
+  case hqlehchoice ; intro H0.
+  - now apply fromempty ; apply isirreflhqlth in H0.
+  - reflexivity.
+Qed.
+Lemma isinvolutive_invNonnegativeRationals :
+  forall x, (/ (/ x))%NRat = x.
+Proof.
+  intros x.
+  case (eq0orgt0NonnegativeRationals x) ; intro Hx0.
+  - now rewrite Hx0, !inv_zeroNonnegativeRationals.
+  -
+Admitted.
+Lemma NonnegativeRationals_ltplus_r :
+  ∀ r q : NonnegativeRationals, (0 < q)%NRat -> (r < r + q)%NRat.
+Admitted.
+Lemma div_lt_plusNonnegativeRationals_l :
+  forall x y : NonnegativeRationals, (0 < x)%NRat -> (0 < y)%NRat -> (/ (x + y) < / x + / y)%NRat.
+Proof.
+  intros x y Hx0 Hy0.
+  rewrite <- (multNonnegativeRationals_lt_l _ _ _ Hx0), isldistr_mult_plusNonnegativeRationals, (isrinv_NonnegativeRationals _ Hx0), !(iscomm_multNonnegativeRationals x).
+  rewrite <- (multNonnegativeRationals_lt_l _ _ _ Hy0), isldistr_mult_plusNonnegativeRationals, <- (isassoc_multNonnegativeRationals _ (/ y)%NRat), (isrinv_NonnegativeRationals _ Hy0), islunit_oneNonnegativeRationals, isrunit_oneNonnegativeRationals, (iscomm_multNonnegativeRationals y).
+  rewrite <- (multNonnegativeRationals_lt_l (x + y)), <- ! isassoc_multNonnegativeRationals , isrinv_NonnegativeRationals, islunit_oneNonnegativeRationals, isldistr_mult_plusNonnegativeRationals, !isrdistr_mult_plusNonnegativeRationals, !isassoc_plusNonnegativeRationals.
+  apply NonnegativeRationals_ltplus_r.
+  apply ispositive_plusNonnegativeRationals_l.
+  now apply ispositive_multNonnegativeRationals.
+  now apply ispositive_plusNonnegativeRationals_l.
+  now apply ispositive_plusNonnegativeRationals_l.
+Qed.
+Lemma multNonnegativeRationals_eq_l:
+  ∀ k x y : NonnegativeRationals,
+    (0 < k)%NRat -> (k * x = k * y) -> (x = y).
+Admitted.
+Lemma multNonnegativeRationals_eq_r:
+  ∀ k x y : NonnegativeRationals,
+    (0 < k)%NRat -> (x * k = y * k) -> (x = y).
+Admitted.
+Lemma zero_minusNonnegativeRationals :
+  forall x, (0 - x = 0)%NRat.
+Admitted.
+Lemma isldistr_mult_minusNonnegativeRationals:
+  ∀ x y z : NonnegativeRationals, z * (x - y) = z * x - z * y.
+Admitted.
+Lemma isrdistr_mult_minusNonnegativeRationals:
+  ∀ x y z : NonnegativeRationals, (x - y) * z = x * z - y * z.
+Admitted.
+Lemma minus_divNonnegativeRationals :
+  forall x y : NonnegativeRationals, (0 < y)%NRat -> (/ x - / y = (y - x) / (x * y))%NRat.
+Proof.
+  intros x y Hy0.
+  destruct (eq0orgt0NonnegativeRationals x) as [Hx0 | Hx0].
+  - unfold divNonnegativeRationals.
+    now rewrite Hx0, islabsorb_zero_multNonnegativeRationals, inv_zeroNonnegativeRationals, israbsorb_zero_multNonnegativeRationals, zero_minusNonnegativeRationals.
+  - apply multNonnegativeRationals_eq_l with (x * y).
+    now apply ispositive_multNonnegativeRationals.
+    rewrite multdivNonnegativeRationals.
+    2: now apply ispositive_multNonnegativeRationals.
+    rewrite isldistr_mult_minusNonnegativeRationals.
+    rewrite iscomm_multNonnegativeRationals, <- isassoc_multNonnegativeRationals, islinv_NonnegativeRationals, islunit_oneNonnegativeRationals.
+    2: exact Hx0.
+    now rewrite isassoc_multNonnegativeRationals, isrinv_NonnegativeRationals, isrunit_oneNonnegativeRationals.
 Qed.
 
 (** NQmax *)
