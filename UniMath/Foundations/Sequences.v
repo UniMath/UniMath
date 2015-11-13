@@ -166,7 +166,7 @@ Definition drop {X} (x:Sequence X) : length x != 0 -> Sequence X.
 Proof.
   intros ? [n x] h.
   induction n as [|n].
-  - simpl in h. now apply fromempty.
+  - simpl in h. contradicts h (idpath 0).
   - exact (n,,x ∘ dni_lastelement).
 Defined.
 

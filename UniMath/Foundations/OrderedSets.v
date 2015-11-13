@@ -29,12 +29,12 @@ Goal 3 = fincard_standardSubset (λ i:stn 10, 2*i < 6)%dnat. Proof. reflexivity.
 
 Local Definition bound01 (P:DecidableProposition) : ((choice P 1 0) ≤ 1)%nat.
 Proof.
-  intros. unfold choice. choose P p q; exact nopathsfalsetotrue.
+  intros. unfold choice. choose P p q; reflexivity.
 Defined.
 
 Definition tallyStandardSubset {n} (P: DecidableSubtype (stn n)) : stn (S n).
 Proof. intros. exists (stnsum (λ x, choice (P x) 1 0)). apply natlehtolthsn.
-       apply istransnatleh with (m := stnsum(λ _ : stn n, 1)).
+       apply (istransnatleh (m := stnsum(λ _ : stn n, 1))).
        { apply stnsum_le; intro i. apply bound01. }
        assert ( p : ∀ r s, r = s -> (r ≤ s)%nat). { intros ? ? e. destruct e. apply isreflnatleh. }
        apply p. apply stnsum_1.
@@ -53,7 +53,7 @@ Definition tallyStandardSubsetSegment {n} (P: DecidableSubtype (stn n))
   exact k.
 Defined.
 
-Goal 6 = tallyStandardSubsetSegment (λ i:stn 14, 2*i !=? 4)%dnat (●7). Proof. reflexivity. Defined.
+Goal 6 = tallyStandardSubsetSegment (λ i:stn 14, 2*i ≠ 4)%dnat (●7). Proof. reflexivity. Defined.
 
 (* types and univalence *)
 
@@ -449,9 +449,6 @@ Module TestLex.
   Let x2 := ●2 : X.
   Let x3 := ●3 : X.
 
-  Goal pr1 (R x2 x3) = (false ≠ true). reflexivity. Defined.
-  Goal pr1 (R x2 x2) = (false ≠ true). reflexivity. Defined.
-  Goal pr1 (R x3 x2) = (true  ≠ true). reflexivity. Defined.
   Goal (choice (R x2 x3) true false = true). reflexivity. Defined.
   Goal (choice (R x2 x2) true false = true). reflexivity. Defined.
   Goal (choice (R x3 x2) true false = false). reflexivity. Defined.

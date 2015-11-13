@@ -68,7 +68,7 @@ Defined.
 Lemma stnneq {n} : neqReln (stn n).
 Proof. (* here we use no axioms *)
   intros n i j. exists (natneq i j). split.
-  - apply natneq_isaprop.
+  - apply propproperty.
   - apply stn_ne_iff_neq.
 Defined.
 

@@ -47,7 +47,13 @@ Definition nelstructonbool : nelstruct 2 bool := weqstn2tobool .
 
 Definition nelstructoncoprodwithunit { X : UU } { n : nat } ( sx : nelstruct n X ) : nelstruct ( S n ) ( coprod X unit ) :=  weqcomp ( invweq ( weqdnicoprod n ( lastelement n ) ) ) ( weqcoprodf sx ( idweq unit ) ) .
 
-Definition nelstructoncompl { X : UU } { n : nat } ( x : X ) ( sx : nelstruct ( S n ) X ) : nelstruct n ( compl X x ) :=  weqcomp ( weqdnicompl n ( invweq sx x ) ) ( invweq ( weqoncompl ( invweq sx ) x ) ) . 
+Definition nelstructoncompl {X} {n} (x:X) : nelstruct (S n) X -> nelstruct n (compl X x).
+Proof.
+  intros ? ? ? sx.
+  refine (invweq ( weqoncompl ( invweq sx ) x) ∘ _ ∘ weqdnicompl n (invweq sx x))%weq.
+  apply invweq.
+  apply compl_ne_weq_compl.
+Defined.
 
 Definition nelstructoncoprod { X  Y : UU } { n m : nat } ( sx : nelstruct n X ) ( sy : nelstruct m Y ) : nelstruct ( n + m ) ( coprod X Y ) := weqcomp ( invweq ( weqfromcoprodofstn n m ) ) ( weqcoprodf sx sy ) .
 
@@ -400,12 +406,16 @@ Module Test_isfinite_isdeceq.
   Let W := Σ x, Y' x.
   Let eqW : DecidableRelation W :=
     isfinite_to_DecidableEquality (isfinitetotal2 Y' finX (λ _, finY)).
-  Goal decide (eqW (x,,y) (x',,y')) = false. try reflexivity. Abort. (* fix *)
+  Goal decide (eqW (x,,y) (x',,y')) = false.
+    reflexivity. (* fixed *)
+  Defined.
 
   (* test isfiniteforall *)
   Let T := ∀ x, Y' x.
   Let eqT : DecidableRelation T :=
     isfinite_to_DecidableEquality (isfiniteforall Y' finX (λ _, finY)).
-  Goal decide (eqT (λ _, y) (λ _, y)) = true. try reflexivity. Abort. (* fix *)
+  Goal decide (eqT (λ _, y) (λ _, y)) = true.
+    reflexivity. (* fixed *)
+  Defined.
 
 End Test_isfinite_isdeceq.

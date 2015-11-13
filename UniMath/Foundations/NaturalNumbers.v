@@ -29,11 +29,11 @@ Require Export UniMath.Foundations.Algebra.Domains_and_Fields .
 
 Definition natnegpaths ( x y : nat ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
 
-Fixpoint natneq (n m : nat) : UU :=
+Fixpoint natneq (n m : nat) : hProp :=
 match n , m with
  | S n , S m => natneq n m
- | O, O => empty
- | _, _ => unit
+ | O, O => hfalse
+ | _, _ => htrue
 end.
 
 (* Provisional notation, to be replaced below: *)
@@ -43,17 +43,6 @@ Local Open Scope nat_scope.           (* it's already open, but we want it first
 
 Goal 3 != 5. easy. Defined.
 Goal ¬ (3 != 3). easy. Defined.
-
-Lemma natneq_isaprop n m : isaprop (natneq n m).
-  intros n.
-  induction n as [|n N].
-  - intro m. induction m as [|m M].
-    + exact isapropempty.
-    + exact isapropunit.
-  - intro m. induction m as [|m M].
-    + exact isapropunit.
-    + simpl. exact (N m).
-Defined.
 
 Lemma negpaths0sx ( x : nat ) : ¬ (0 = S x) .
 Proof. intro. set (f:= fun n : nat => match n with O => true | S m => false end ) . apply ( negf ( @maponpaths _ _ f 0 ( S x ) ) nopathstruetofalse ) . Defined. 
@@ -98,7 +87,7 @@ Proof. intros ? ?. exact (pr1 (natneq_iff_neq n m)). Defined.
 Definition natneq_prop (m n:nat) : negProp (m=n).
 Proof.
   intros. exists (m ≠ n). split.
-  - apply natneq_isaprop.
+  - apply propproperty.
   - apply natneq_iff_neq. 
 Defined.
 
