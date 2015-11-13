@@ -169,7 +169,7 @@ Proof.
     apply negpathssx0. }
 Defined.
 
-Open Scope nat_scope.
+Local Open Scope nat_scope.
 
 Notation " x % y " := (natrem x y) (at level 40, left associativity) : nat_scope .
 Notation " x / y " := (natdiv x y) (at level 40, left associativity) : nat_scope .

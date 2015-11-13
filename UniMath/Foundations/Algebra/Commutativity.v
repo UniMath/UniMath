@@ -32,7 +32,7 @@ Proof.
     set (j := f (lastelement n)).
     induction j as [j jlt].
     assert (jle := natlthsntoleh _ _ jlt).
-    Open Scope nat.
+    Local Open Scope nat.
     set (m := nil □ j □ 1 □ n-j).
     set (m' := nil □ j □ n-j □ 1).
     set (sw := nil □ ●0 □ ●2 □ ●1 : Sequence (stn 3)).

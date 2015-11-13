@@ -42,7 +42,7 @@ Definition compute_pr1_dni_last n i : pr1 (dni n (lastelement _) i) = pr1 i.
 Proof.
   intros. unfold dni,di; simpl. induction (natlthorgeh i n) as [q|q].
   - reflexivity.
-  - contradicts (pr2 i) q.
+  - contradicts (pr2 i) (natlehneggth q).
 Defined.
 
 Definition replace_dni_last n : dni n (lastelement _) = dni_lastelement.
@@ -146,7 +146,9 @@ Proof.
   set (constr:= iscontr_rect X is x0 P : fib->secs).
   exists destr.
   apply (gradth destr constr).
-  - intros f. apply funextsec; intros x. apply transport_section.
+  - intros f. apply funextsec; intros x.
+    unfold destr, constr.
+    apply transport_section.
   - apply iscontr_rect_compute.
 Defined.
 
@@ -154,24 +156,17 @@ Defined.
 
 Definition nil_length {X} (x : Sequence X) : length x = 0 <-> x = nil.
 Proof.
-  intros.
-  split.
-  - intro e.
-    induction x as [n x].
-    simpl in e.
-    induction (!e).
-    apply pathsinv0.
-    apply nil_unique.
-  - intro h.
-    induction (!h).
-    reflexivity.
+  intros. split.
+  - intro e. induction x as [n x]. simpl in e.
+    induction (!e). apply pathsinv0. apply nil_unique.
+  - intro h. induction (!h). reflexivity.
 Defined.
 
 Definition drop {X} (x:Sequence X) : length x != 0 -> Sequence X.
 Proof.
   intros ? [n x] h.
   induction n as [|n].
-  - contradicts h (idpath 0).
+  - simpl in h. now apply fromempty.
   - exact (n,,x ∘ dni_lastelement).
 Defined.
 

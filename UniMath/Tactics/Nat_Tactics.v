@@ -14,7 +14,7 @@ Require Import
         UniMath.Tactics.Utilities
         UniMath.Tactics.Abmonoids_Tactics.
 
-Open Scope nat_scope.
+Local Open Scope nat_scope.
 
 (** * Basic definitions and hints. *)
 

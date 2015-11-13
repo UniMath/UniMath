@@ -27,22 +27,24 @@ Require Export UniMath.Foundations.Algebra.Domains_and_Fields .
 
 (* we will write m≠n for algorithmic inequality and ¬(m=n) for negation of equality *)
 
-Fixpoint natneq_type (n m : nat) : UU :=
+Definition natnegpaths ( x y : nat ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
+
+Fixpoint natneq (n m : nat) : UU :=
 match n , m with
- | S n , S m => natneq_type n m
+ | S n , S m => natneq n m
  | O, O => empty
  | _, _ => unit
 end.
 
 (* Provisional notation, to be replaced below: *)
-Notation " x != y " := ( natneq_type x y ) (at level 70, no associativity) : nat_scope.
-Notation " x ≠ y " := ( natneq_type x y ) (at level 70, no associativity) : nat_scope.
-Open Scope nat_scope.           (* it's already open, but we want it first in line *)
+Notation " x != y " := ( natneq x y ) (at level 70, no associativity) : nat_scope.
+Notation " x ≠ y " := ( natneq x y ) (at level 70, no associativity) : nat_scope.
+Local Open Scope nat_scope.           (* it's already open, but we want it first in line *)
 
 Goal 3 != 5. easy. Defined.
 Goal ¬ (3 != 3). easy. Defined.
 
-Lemma natneq_isaprop n m : isaprop (natneq_type n m).
+Lemma natneq_isaprop n m : isaprop (natneq n m).
   intros n.
   induction n as [|n N].
   - intro m. induction m as [|m M].
@@ -65,7 +67,7 @@ Proof. intros n m e . set ( f := fun n : nat => match n with O => O | S m => m e
 Lemma noeqinjS ( x x' : nat ) : ¬ ( x = x' ) -> ¬ ( S x = S x' ) .
 Proof. intros x x'. apply ( negf ( invmaponpathsS x x' ) ) .  Defined. 
 
-Lemma natneq_type_iff_neq n m : ¬ (n = m) <-> natneq_type n m.
+Lemma natneq_iff_neq n m : ¬ (n = m) <-> natneq n m.
 Proof.
   intros n.
   induction n as [|n N].
@@ -88,22 +90,22 @@ Proof.
 Defined.
 
 Lemma nat_neq_to_nopath {n m} : ¬ (n = m) <- n ≠ m.
-Proof. intros ? ?. exact (pr2 (natneq_type_iff_neq n m)). Defined.
+Proof. intros ? ?. exact (pr2 (natneq_iff_neq n m)). Defined.
 
 Lemma nat_nopath_to_neq {n m} : ¬ (n = m) -> n ≠ m.
-Proof. intros ? ?. exact (pr1 (natneq_type_iff_neq n m)). Defined.
+Proof. intros ? ?. exact (pr1 (natneq_iff_neq n m)). Defined.
 
 Definition natneq_prop (m n:nat) : negProp (m=n).
 Proof.
   intros. exists (m ≠ n). split.
   - apply natneq_isaprop.
-  - apply natneq_type_iff_neq. 
+  - apply natneq_iff_neq. 
 Defined.
 
 (* this replaces the provisional notation above: *)
 Notation " x != y " := ( natneq_prop x y ) (at level 70, no associativity) : nat_scope.
 Notation " x ≠ y " := ( natneq_prop x y ) (at level 70, no associativity) : nat_scope.
-Open Scope nat_scope.           (* it's already open, but we want it first in line *)
+Local Open Scope nat_scope.           (* it's already open, but we want it first in line *)
 
 Lemma natneq0sx ( x : nat ) : 0 ≠ S x.
 Proof. intro. apply nat_nopath_to_neq, negpaths0sx. Defined.
@@ -193,7 +195,7 @@ Lemma isdecrelnatneq : isdecrel natneq_prop.
 Proof.
   intros m. induction m as [|m M].
   - intro n. induction n as [|n _].
-    + apply ii2. intro r. now apply (pr2 (natneq_type_iff_neq 0 0)). 
+    + apply ii2. intro r. now apply (pr2 (natneq_iff_neq 0 0)). 
     + apply ii1. easy.
   - intro n. induction n as [|n _].
     + apply ii1. easy.

@@ -758,7 +758,7 @@ Definition nattohz : nat -> hz := fun n => setquotpr _ ( dirprodpair n 0%nat ) .
 
 Definition isinclnattohz : isincl nattohz := isincltorngdiff natcommrig ( fun n => isinclnatplusr n ) .
 
-Definition nattohzandneq ( n m : nat ) ( is : ¬ (n = m) ) : hzneq ( nattohz n ) ( nattohz m ) := negf ( invmaponpathsincl _ isinclnattohz n m ) is .
+Definition nattohzandneq ( n m : nat ) ( is : natnegpaths n m ) : hzneq ( nattohz n ) ( nattohz m ) := negf ( invmaponpathsincl _ isinclnattohz n m ) is .
 
 Definition nattohzand0 : paths ( nattohz 0%nat ) 0 := idpath _ .
 

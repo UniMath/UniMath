@@ -54,6 +54,8 @@ Proof. intros . intro h . destruct h as [ j e ] .  destruct j as [ j is' ] .  si
 Lemma iscontrhfiberstntonat ( n m : nat ) ( is : natlth m n ) : iscontr ( hfiber ( stntonat n ) m ) .
 Proof. intros .  apply ( iscontrhfiberofincl ( stntonat n ) ( isinclstntonat n ) ( stnpair n m is ) ) .  Defined . 
 
+Local Open Scope nat.
+
 Lemma stn_ne_iff_neq {n} (i j:stn n) : ¬ (i = j) <-> stntonat _ i ≠ stntonat _ j.
 Proof.
   intros. split.
@@ -65,7 +67,7 @@ Defined.
 
 Lemma stnneq {n} : neqReln (stn n).
 Proof. (* here we use no axioms *)
-  intros n i j. exists (natneq_type i j). split.
+  intros n i j. exists (natneq i j). split.
   - apply natneq_isaprop.
   - apply stn_ne_iff_neq.
 Defined.
@@ -73,7 +75,7 @@ Defined.
 Notation " x != y " := ( stnneq x y ) (at level 70, no associativity) : stn.
 Notation " x ≠ y " := ( stnneq x y ) (at level 70, no associativity) : stn.
 Delimit Scope stn with stn.
-Open Scope stn.
+Local Open Scope stn.
 
 
 Lemma isisolatedinstn { n : nat } ( x : stn n ) : isisolated _ x.
