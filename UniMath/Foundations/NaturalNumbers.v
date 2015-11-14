@@ -29,19 +29,16 @@ Require Export UniMath.Foundations.Algebra.Domains_and_Fields .
 
 Definition natnegpaths ( x y : nat ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
 
-Fixpoint natneq (n m : nat) : hProp :=
+Fixpoint natneq_hProp (n m : nat) : hProp :=
 match n , m with
- | S n , S m => natneq n m
+ | S n , S m => natneq_hProp n m
  | O, O => hfalse
  | _, _ => htrue
 end.
 
 (* Provisional notation, to be replaced below: *)
-Notation " x ≠ y " := ( natneq x y ) (at level 70, no associativity) : nat_scope.
+Notation " x ≠ y " := ( natneq_hProp x y ) (at level 70, no associativity) : nat_scope.
 Local Open Scope nat_scope.           (* it's already open, but we want it first in line *)
-
-Goal 3 ≠ 5. easy. Defined.
-Goal ¬ (3 ≠ 3). easy. Defined.
 
 Lemma negpaths0sx ( x : nat ) : ¬ (0 = S x) .
 Proof. intro. set (f:= fun n : nat => match n with O => true | S m => false end ) . apply ( negf ( @maponpaths _ _ f 0 ( S x ) ) nopathstruetofalse ) . Defined. 
@@ -55,7 +52,7 @@ Proof. intros n m e . set ( f := fun n : nat => match n with O => O | S m => m e
 Lemma noeqinjS ( x x' : nat ) : ¬ ( x = x' ) -> ¬ ( S x = S x' ) .
 Proof. intros x x'. apply ( negf ( invmaponpathsS x x' ) ) .  Defined. 
 
-Lemma natneq_iff_neq n m : ¬ (n = m) <-> natneq n m.
+Lemma natneq_iff_neq n m : ¬ (n = m) <-> n ≠ m.
 Proof.
   intros n.
   induction n as [|n N].
@@ -83,7 +80,7 @@ Proof. intros ? ?. exact (pr2 (natneq_iff_neq n m)). Defined.
 Lemma nat_nopath_to_neq {n m} : ¬ (n = m) -> n ≠ m.
 Proof. intros ? ?. exact (pr1 (natneq_iff_neq n m)). Defined.
 
-Definition natneq_prop (m n:nat) : negProp (m=n).
+Definition natneq (m n:nat) : negProp (m=n).
 Proof.
   intros. exists (m ≠ n). split.
   - apply propproperty.
@@ -91,7 +88,7 @@ Proof.
 Defined.
 
 (* this replaces the provisional notation above: *)
-Notation " x ≠ y " := ( natneq_prop x y ) (at level 70, no associativity) : nat_scope.
+Notation " x ≠ y " := ( natneq x y ) (at level 70, no associativity) : nat_scope.
 Local Open Scope nat_scope.           (* it's already open, but we want it first in line *)
 
 Lemma natneq0sx ( x : nat ) : 0 ≠ S x.
@@ -140,7 +137,7 @@ Proof.
       * now apply ii2.
 Defined.
 
-Definition isdecrel_natneq_prop : isdecrel natneq_prop.
+Definition isdecrel_natneq : isdecrel natneq.
 Proof.
   intros n. induction n as [|n N].
   - intro m. induction m as [|m _].
@@ -151,45 +148,11 @@ Proof.
     + exact (N m).
 Defined.
 
-
-Module Test_A.
-  Let C  := compl nat 0.
-  Let C' := compl_ne nat 0 (λ m, 0 ≠ m).
-  Let w := compl_ne_weq_compl nat 0 (λ m, 0 ≠ m) : C ≃ C'.
-  Let cn : C := (3,,negpaths0sx _).
-  Let cn' : C' := (3,,tt).
-  Goal w cn = cn'. reflexivity. Defined.
-  Goal invmap w cn' = cn. reflexivity. Defined.
-  Goal homotinvweqweq w cn = idpath _. try reflexivity. Abort. (* prevented by funextfun *)
-  Goal homotweqinvweq w cn' = idpath _. reflexivity. Defined. (* slow; why? *)
-  Let f := weqrecompl nat 0 (isdeceqnat 0).
-  Let f' := weqrecompl_ne nat 0 (isdeceqnat 0) (λ m, 0 ≠ m).
-  Goal f (ii1 cn) = 3. reflexivity. Defined.
-  Goal f' (ii1 cn') = 3. reflexivity. Defined.
-  Goal invmap f 3 = (ii1 cn). reflexivity. Defined.
-  Goal invmap f' 3 = (ii1 cn'). reflexivity. Defined.
-  Goal homotweqinvweq f 3 = idpath _. reflexivity. Defined.
-  Goal homotweqinvweq f' 3 = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq f (ii1 cn) = idpath _. try reflexivity. Abort. (* prevented by funextfun *)
-  Goal homotinvweqweq f' (ii1 cn') = idpath _. reflexivity. Defined. (* succeeds by avoiding funextfun *)
-End Test_A.
-
 Definition nateq ( x y : nat ) : hProp := hProppair ( x = y ) ( isasetnat _ _  )  .
 Definition isdecrelnateq : isdecrel nateq  := fun a b => isdeceqnat a b .
 Definition natdeceq : decrel nat := decrelpair isdecrelnateq . 
 
-Lemma isdecrelnatneq : isdecrel natneq_prop.
-Proof.
-  intros m. induction m as [|m M].
-  - intro n. induction n as [|n _].
-    + apply ii2. intro r. now apply (pr2 (natneq_iff_neq 0 0)). 
-    + apply ii1. easy.
-  - intro n. induction n as [|n _].
-    + apply ii1. easy.
-    + exact (M n).
-Defined.
-
-Definition natdecneq : decrel nat := decrelpair isdecrelnatneq . 
+Definition natdecneq : decrel nat := decrelpair isdecrel_natneq . 
 
 Definition natboolneq := decreltobrel natdecneq .  
 
@@ -488,12 +451,6 @@ Notation " x > y " := ( natgth_DecidableProposition x y ) (at level 70, no assoc
 Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Notation " x ≠ y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
 Delimit Scope decidable_nat with dnat.
-
-Goal choice (3 < 4)%dnat true false = true. reflexivity. Defined.
-Goal choice (3 < 4 ∧ 4 < 5)%dnat%declog true false = true. reflexivity. Defined.
-Goal choice (¬ (3 < 4))%dnat%declog true false = false. reflexivity. Defined.
-Goal choice (3 < 4 ∨ 4 < 3)%dnat%declog true false = true. reflexivity. Defined.
-Goal choice (4 < 3 ∨ 2 < 1)%dnat%declog true false = false. reflexivity. Defined.
 
 (** *** Simple implications between comparisons *)
 
@@ -1383,7 +1340,7 @@ Close Scope rig_scope .
 (** *** Submonoid of non-zero elements in [ nat ] *)
 
 Definition natnonzero : @subabmonoids natmultabmonoid . 
-Proof . split with ( λ a, a ≠ 0 ) .  unfold issubmonoid .  split .  unfold issubsetwithbinop . intros a a' .  apply ( natneq0andmult _ _ ( pr2 a ) ( pr2 a' ) ) . apply ( ct ( natneq_prop , isdecrelnatneq, 1 , 0 ) ) . Defined . 
+Proof . split with ( λ a, a ≠ 0 ) .  unfold issubmonoid .  split .  unfold issubsetwithbinop . intros a a' .  apply ( natneq0andmult _ _ ( pr2 a ) ( pr2 a' ) ) . apply ( ct ( natneq , isdecrel_natneq, 1 , 0 ) ) . Defined . 
 
 Lemma natnonzerocomm ( a b : natnonzero ) : ( @op natnonzero a b ) = ( @op natnonzero b a ) . 
 Proof . intros . apply ( invmaponpathsincl _ ( isinclpr1carrier _ ) ( @op natnonzero a b ) ( @op natnonzero b a ) ) .  simpl . apply natmultcomm . Defined . 
@@ -1401,7 +1358,10 @@ Proof. intros . induction n as [ | n IHn ] . intros . apply ( dirprodpair 0 0 ) 
 Definition natdiv ( n m : nat )  := pr1 ( natdivrem n m ) .
 Definition natrem ( n m : nat ) : nat := pr2 ( natdivrem n m ) .
 
-Lemma lthnatrem ( n m : nat ) : m ≠ 0 -> natrem n m < m .
+Notation " x /+ y " := (natrem x y) (at level 40, left associativity) : nat_scope .
+Notation " x / y " := (natdiv x y) (at level 40, left associativity) : nat_scope .
+
+Lemma lthnatrem ( n m : nat ) : m ≠ 0 -> n /+ m < m .
 Proof. unfold natrem . intros ? ? is . destruct n as [ | n ] .
        - simpl . intros.  apply ( natneq0togth0 _ is ) .
        - simpl . destruct ( natlthorgeh (S (pr2 (natdivrem n m))) m )  as [ nt | t ] .
@@ -1574,15 +1534,6 @@ Definition si ( i : nat ) ( x : nat ) : nat :=
     | ii2 _ => x
   end .
 
-Goal si 3 (di 3 2) = 2. reflexivity. Defined.
-Goal si 3 (di 3 3) = 3. reflexivity. Defined.
-Goal si 3 (di 3 4) = 4. reflexivity. Defined.
-
-Goal si 3 2 = 2. reflexivity. Defined.
-Goal si 3 3 = 3. reflexivity. Defined.
-Goal si 3 4 = 3. reflexivity. Defined.
-Goal si 3 5 = 4. reflexivity. Defined.
-
 Definition nat_compl (i:nat) := compl_ne _ i (λ j, i ≠ j).
 
 Lemma natleh_neq {i j} : i ≤ j -> i ≠ j -> i < j.
@@ -1631,22 +1582,6 @@ Proof.
             - simpl. apply maponpaths. apply natminuseqn. } }
         { contradicts (natgehtonegnatlth _ _ ge') lt. }
 Defined.
-
-Module Test_weqdicompl.
-
-  Let w := weqdicompl 3 : nat ≃ nat_compl 3.
-  Goal w 2 = (2,,tt). reflexivity. Defined.
-  Goal w 3 = (4,,tt). reflexivity. Defined.
-  Goal invmap w (2,,tt) = 2. reflexivity. Defined.
-  Goal invmap w (4,,tt) = 3. reflexivity. Defined.
-  Goal homotweqinvweq w (2,,tt) = idpath _. reflexivity. Defined.
-  Goal homotweqinvweq w (4,,tt) = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq w 2 = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq w 4 = idpath _. reflexivity. Defined.
-  Goal homotweqinvweqweq w 2 = idpath _. reflexivity. Defined.
-  Goal homotweqinvweqweq w 4 = idpath _. reflexivity. Defined.
-
-End Test_weqdicompl.
 
 (** ** Inductive types [ le ] with values in [ UU ] . 
 

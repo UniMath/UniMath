@@ -32,8 +32,10 @@ Proof. intros. exact (pr2 i). Defined.
       ( at level 70 ) . *)
 Notation " 'stnpr' j " := (j,,idpath _) ( at level 70 ) .
 Notation " 'stnel' ( i , j ) " := ( (j,,idpath _) : stn i ) ( at level 70 ) .
-Goal stn 6. exact (stnel(6,3)). Qed.
-Goal stn 6. exact (stnpr 3). Qed.
+
+Delimit Scope stn with stn.
+
+Notation "● x" := (x ,, idpath _) (at level 35) : stn.
 
 Definition stnincl m n (l:m≤n) : stn m -> stn n.
 Proof.
@@ -67,7 +69,7 @@ Defined.
 
 Lemma stnneq {n} : neqReln (stn n).
 Proof. (* here we use no axioms *)
-  intros n i j. exists (natneq i j). split.
+  intros n i j. exists (i ≠ j)%nat. split.
   - apply propproperty.
   - apply stn_ne_iff_neq.
 Defined.
@@ -85,9 +87,6 @@ Proof. intros. apply negProp_to_iff. Defined.
 
 Definition stnneq_to_nopath {n} (i j:stn n) : ¬ (i = j) <- i ≠ j
   := pr2 (stn_ne_iff_neq i j).
-
-Goal (stnel(6,3) ≠ stnel(6,4)). easy. Defined.
-Goal ¬(stnel(6,3) ≠ stnel(6,3)). easy. Defined.
 
 Corollary isdeceqstn ( n : nat ) : isdeceq (stn n).
 Proof. intro.  unfold isdeceq. intros x x' . apply (isisolatedinstn x x' ). Defined.
@@ -136,10 +135,6 @@ Definition firstelement (n:nat) : stn(S n).
 Proof. intro. exists 0. apply natgthsn0. Defined.
 
 Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : stn m -> stn n := fun x : stn m => match x with tpair _ i is => stnpair _ i ( natlthlehtrans i m n is isnatleh ) end .  
-
-Goal ∀ m n (i:m≤n) (j:stn m), pr1 (stnmtostnn m n i j) = pr1 j.
-  intros. induction j as [j J]. reflexivity.
-Defined.
 
 Definition stn_left m n : stn m -> stn (m+n).
 Proof.
@@ -244,18 +239,6 @@ Proof.
     exact (natlehlthtrans _ _ _ ge I).
 Defined.
 
-Local Notation "● x" := (x,,idpath _) (at level 35).
-
-Goal @sni 6 (●3) (dni 6 (●3) (●2)) = ●2. reflexivity. Defined.
-Goal @sni 6 (●3) (dni 6 (●3) (●3)) = ●3. reflexivity. Defined.
-Goal @sni 6 (●3) (dni 6 (●3) (●4)) = ●4. reflexivity. Defined.
-
-
-Goal @sni 6 (●3) (●2) = ●2. reflexivity. Defined.
-Goal @sni 6 (●3) (●3) = ●3. reflexivity. Defined.
-Goal @sni 6 (●3) (●4) = ●3. reflexivity. Defined.
-Goal @sni 6 (●3) (●5) = ●4. reflexivity. Defined.
-
 (** ** Weak equivalences between standard finite sets and constructions on these sets *)
 
 
@@ -290,28 +273,6 @@ Proof.
   refine (_ ∘ (weq_subtypes w (λ j, j < n) (λ j, pr1 j < S n) eq))%weq.
   refine (weqtotal2comm12 _ _).
 Defined.
-
-Module Test_weqdnicompl.
-
-  Let n := 5.
-  Let X := stn n.
-  Let i := ●3 : stn (S n).
-  Let Y := @stn_compl (S n) i.
-  Let v := weqdnicompl n i : X ≃ Y.
-  Let j := ●4 : X.
-  Let jni := ●5,,tt : Y.
-
-  Goal v j = jni. reflexivity. Defined.
-  Goal invmap v jni = j. reflexivity. Defined.
-  Goal homotweqinvweq v jni = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq v j = idpath _.
-    reflexivity.                (* fixed; 2 seconds *)
-  Defined.                      (* fixed, 2 seconds *)
-  Goal homotweqinvweqweq v j = idpath _. (* 2 seconds *)
-    reflexivity.                         (* 2 seconds *)
-  Defined.                               (* 3 seconds *)
-
-End Test_weqdnicompl.
 
 Definition weqdnicompl_compute_last n i : pr1 (pr1 (weqdnicompl n (lastelement n) i)) = pr1 i.
 Proof.
@@ -366,164 +327,57 @@ Proof.
   apply weqproperty.
 Defined.
 
-Module Test2.
-  Goal weqdnicoprod 4 (firstelement _) (ii1 (●0)) = ●1. reflexivity. Defined.
-  Goal weqdnicoprod 4 (firstelement _) (ii1 (●3)) = ●4. reflexivity. Defined.
-  Goal invmap (weqdnicoprod 4 (firstelement _)) (●1) = (ii1 (●0)). reflexivity. Defined.
-  Goal invmap (weqdnicoprod 4 (firstelement _)) (●4) = (ii1 (●3)). reflexivity. Defined.
-  Goal weqdnicoprod 4 (lastelement _) (ii1 (●3)) = ●3. reflexivity. Defined.
-  Goal weqdnicoprod 4 (lastelement _) (ii2 tt) = ●4. reflexivity. Defined.
-  Goal invmap (weqdnicoprod 4 (lastelement _)) (●1) = (ii1 (●1)). reflexivity. Defined.
-  Goal invmap (weqdnicoprod 4 (lastelement _)) (●4) = (ii2 tt). reflexivity. Defined.
-  Goal homotweqinvweq (weqdnicoprod 4 (lastelement 4)) (● 0) = idpath _. reflexivity. Defined. (* fixed! *)
-  Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii2 tt) = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq (weqdnicoprod 4 (●4)) (ii1 (●1)) = idpath _.
-    reflexivity.                (* fixed; 5 seconds *)
-  Defined.                      (* 5 seconds *)
+Definition weqdnicoprod_invmap {n} (j : stn(S n)) : stn n ⨿ unit <- stn (S n).
+  (* perhaps use this to improve weqdnicoprod *)
+  intros n j i. 
+  induction (isdeceqstn (S n) i j) as [eq|ne].
+  { exact (ii2 tt). }
+  { apply ii1. induction i as [i I]. induction j as [j J].
+    choose (i < j)%dnat a a.
+    { exists i. exact (natltltSlt _ _ _ a J). }
+    { exists (i - 1).
+      induction (natlehchoice _ _ (negnatgthtoleh a)) as [b|b].
+      { induction (natlehchoice4 _ _ I) as [c|c].
+        { apply (natlehlthtrans (i - 1) i n).
+          { apply natminuslehn. }
+          { exact c. } }
+        { induction c. apply natminuslthn.
+          { apply (natlehlthtrans _ j _).
+            { apply natleh0n. }
+            { exact b. } }
+          { apply natlthnsn. } } }
+      { induction b.
+        induction (ne (@subtypeEquality_prop _ _ (stnpair _ j I) (stnpair _ j J) (idpath j))). } } }
+Defined.    
 
-  (* here's an example that shows complications need not impede that sort of computability: *)
-  Local Definition w : unit ≃ stn 1.
-    refine (weqgradth _ _ _ _).
-    { intro. exact (firstelement _). }
-    { intro. exact tt. }
-    { intro u. simpl. induction u. reflexivity. }
-    { intro i. simpl. apply subtypeEquality_prop.
-      simpl. induction i as [i I]. simpl. apply pathsinv0. apply natlth1tois0. exact I. }
-  Defined.
-  Goal w tt = firstelement 0. reflexivity. Defined.
-  Goal invmap w (firstelement 0) = tt. reflexivity. Defined.
-  Goal homotweqinvweq w (firstelement 0) = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq w tt = idpath _. reflexivity. Defined.
-
-  Local Definition w' := invweq w.
-  Goal w' (firstelement 0) = tt. reflexivity. Defined.
-  Goal invmap w' tt= (firstelement 0). reflexivity. Defined.
-  Goal homotweqinvweq w' tt = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq w' (firstelement 0) = idpath _. reflexivity. Defined.
-
-  Definition ww' := weqcomp w w'.
-  Goal ww' tt = tt. reflexivity. Defined.
-  Goal invmap ww' tt = tt. reflexivity. Defined.
-  Goal homotweqinvweq ww' tt = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq ww' tt = idpath _. reflexivity. Defined.
-
-  Definition w_w := weqcoprodf w w.
-  Goal w_w (ii1 tt) = ii1 (firstelement 0). reflexivity. Defined.
-  Goal invmap w_w (ii2 (firstelement 0)) = ii2 tt. reflexivity. Defined.
-  Goal homotweqinvweq w_w (ii2 (firstelement 0)) = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq w_w (ii1 tt) = idpath _. reflexivity. Defined.
-
-  Definition i := ●1 : stn 4.
-  Definition j := ●0 : stn 4.
-  Lemma ne : ¬ (i = j).
-  Proof. apply stnneq_to_nopath. easy. Defined.           
-  Definition re := weqrecompl (stn 4) i (isisolatedinstn _).
-  Definition re' := weqrecompl_ne (stn 4) i (isisolatedinstn i) (stnneq i).
-  Definition c := complpair (stn 4) i j ne : compl _ i.
-  Definition c' := compl_ne_pair (stn 4) i (stnneq i) j tt : stn_compl i.
-  Goal re (ii2 tt) = i. reflexivity. Defined.
-  Goal re (ii1 c) = j. reflexivity. Defined.
-  Goal invmap re i = (ii2 tt). reflexivity. Defined.
-  Goal invmap re j = (ii1 c). reflexivity. Defined.
-  Goal homotweqinvweq re i = idpath _. reflexivity. Defined.
-  Goal homotweqinvweq re j = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq re (ii2 tt) = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq re (ii1 c) = idpath _.
-    try reflexivity.
-    (* This quickly returns, without success.
-       It must be the use of funextempty in the proof of isweqrecompl.
-       Write weqrecompl_ne and isisolatedinstn_ne.
-       *)
-  Abort.
-  
-  Goal re' (ii2 tt) = i. reflexivity. Defined.
-  Goal re' (ii1 c') = j. reflexivity. Defined.
-  Goal invmap re' i = (ii2 tt). reflexivity. Defined.
-  Goal invmap re' j = (ii1 c'). reflexivity. Defined.
-  Goal homotweqinvweq re' i = idpath _. reflexivity. Defined.
-  Goal homotweqinvweq re' j = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq re' (ii2 tt) = idpath _. reflexivity. Defined.
-  Goal homotinvweqweq re' (ii1 c') = idpath _. reflexivity. Defined. (* fixed! *)
-
-  Definition weqdnicoprod_invmap {n} (j : stn(S n)) : stn n ⨿ unit <- stn (S n).
-    intros n j i. 
-    induction (isdeceqstn (S n) i j) as [eq|ne].
-    { exact (ii2 tt). }
-    { apply ii1. induction i as [i I]. induction j as [j J].
-      choose (i < j)%dnat a a.
-      { exists i. exact (natltltSlt _ _ _ a J). }
-      { exists (i - 1).
-        induction (natlehchoice _ _ (negnatgthtoleh a)) as [b|b].
-        { induction (natlehchoice4 _ _ I) as [c|c].
-          { apply (natlehlthtrans (i - 1) i n).
-            { apply natminuslehn. }
-            { exact c. } }
-          { induction c. apply natminuslthn.
-            { apply (natlehlthtrans _ j _).
-              { apply natleh0n. }
-              { exact b. } }
-            { apply natlthnsn. } } }
-        { induction b.
-          induction (ne (@subtypeEquality_prop _ _ (stnpair _ j I) (stnpair _ j J) (idpath j))). } } }
-  Defined.    
-
-  Goal @weqdnicoprod_map 4 (●2) (ii2 tt) = (●2). reflexivity. Defined.
-  Goal @weqdnicoprod_map 4 (●2) (ii1 (●2)) = (●3). reflexivity. Defined.
-  Goal @weqdnicoprod_map 4 (●2) (ii1 (●1)) = (●1). reflexivity. Defined.
-  Goal @weqdnicoprod_invmap 4 (●2) (●2) = (ii2 tt). reflexivity. Defined.
-  Goal @weqdnicoprod_invmap 4 (●2) (●3) = (ii1 (●2)). reflexivity. Defined.
-  Goal @weqdnicoprod_invmap 4 (●2) (●1) = (ii1 (●1)). try reflexivity. Abort.
-
-  Definition coprod_rect_compute_1
-             (A B : UU) (P : A ⨿ B -> UU)
-             (f : ∀ a : A, P (ii1 a))
-             (g : ∀ b : B, P (ii2 b)) (a:A) :
-    coprod_rect P f g (ii1 a) = f a.
-  Proof.
-    reflexivity.
-  Defined.
-
-  Definition coprod_rect_compute_2
-             (A B : UU) (P : A ⨿ B -> UU)
-             (f : ∀ a : A, P (ii1 a))
-             (g : ∀ b : B, P (ii2 b)) (b:B) :
-    coprod_rect P f g (ii2 b) = g b.
-  Proof.
-    reflexivity.
-  Defined.
-
-  Definition weqdnicoprod n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
-    intros n j.
-    apply (weqgradth (weqdnicoprod_map j) (weqdnicoprod_invmap j)).
-    { intro x. induction x as [i|t].
-      { induction i as [i I]. induction j as [j J].
-        unfold weqdnicoprod_map, dni; simpl.
-        (* induction (natlthorgeh i j) as [a|a]. *)
-        (* { simpl. unfold weqdnicoprod_invmap. *)
-        (*   induction *)
-        (*     (isdeceqstn (S n) (stnpair (S n) i (natgthtogths n i I)) *)
-        (*                 (@tpair nat *)
-        (*                         (fun m : nat => *)
-        (*                            @paths bool *)
-        (*                                   match m return bool with *)
-        (*                                     | O => true *)
-        (*                                     | S m0 => natgtb n m0 *)
-        (*                                   end true) j J)) as [b|b]. *)
-        (*   { simpl. assert (b' := maponpaths (stntonat _) b); simpl in b'. *)
-        (*     induction b'. induction (isirreflnatlth _ a). } *)
-        (*   { rewrite coprod_rect_compute_2. *)
-        (*     apply maponpaths. *)
-        (*     apply subtypeEquality_prop. *)
-        (*     Set Printing Coercions. *)
-        (*     unfold hfiberpr1. *)
-        (*     unfold iscontrhfiberdni.  *)
-
-            
-            
-
-  Abort.
-
-End Test2.
+Definition weqdnicoprod_new n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
+  intros n j.
+  apply (weqgradth (weqdnicoprod_map j) (weqdnicoprod_invmap j)).
+  { intro x. induction x as [i|t].
+    { try reflexivity.
+      induction i as [i I]. induction j as [j J].
+      try reflexivity.
+      unfold weqdnicoprod_map, dni, di; simpl.
+      induction (natlthorgeh i j) as [a|a].
+      { simpl. unfold weqdnicoprod_invmap.
+        induction
+          (isdeceqstn (S n) (stnpair (S n) i (natgthtogths n i I))
+                      (@tpair nat
+                              (fun m : nat =>
+                                 @paths bool
+                                        match m return bool with
+                                          | O => true
+                                          | S m0 => natgtb n m0
+                                        end true) j J)) as [b|b].
+        { simpl. assert (b' := maponpaths (stntonat _) b); simpl in b'.
+          induction b'. induction (isirreflnatlth _ a). }
+        { (* rewrite coprod_rect_compute_2. *)
+          (* apply maponpaths. *)
+          (* apply subtypeEquality_prop. *)
+          (* Set Printing Coercions. *)
+          (* unfold hfiberpr1. *)
+          (* unfold iscontrhfiberdni. *)
+Abort.
 
 (** *** Weak equivalences from [ stn n ] for [ n = 0 , 1 , 2 ] to [ empty ] , [ unit ] and [ bool ] ( see also the section on [ nelstruct ] in finitesets.v ) . *)
 
@@ -605,10 +459,6 @@ Defined.
 
 Definition stnsum { n : nat } ( f : stn n -> nat ) : nat .
 Proof. intro n . induction n as [ | n IHn ] . intro. apply 0 . intro f . apply (  ( IHn ( fun i : stn n => f ( dni n ( lastelement n ) i ) ) ) + f ( lastelement n ) ) . Defined . 
-
-(* confirm that [stnsum] is associative in the same way as the parser, which is left associative *)
-Goal ∀ (f : stn 3 -> nat), stnsum f =  f(●0) + f(●1)  +  f(●2). reflexivity. Defined.
-Goal ∀ (f : stn 3 -> nat), stnsum f = (f(●0) + f(●1)) +  f(●2). reflexivity. Defined.
 
 Lemma stnsum_step {n} (f:stn (S n) -> nat) : stnsum f = stnsum (f ∘ (dni n (lastelement n))) + f (lastelement n).
 Proof.
@@ -790,37 +640,6 @@ Proof.
   exact (natlthlehtrans j _ _ M K).
 Defined.
 
-Module Test_weqstnsum.
-  (* this module exports nothing *)
-  Let X := stnset 7.
-  Let f (x:X) : nat := pr1 x.
-
-  Let h  : stn _ <- Σ x, stnset (f x) := weqstnsum_map f.
-  Goal h(●1,,●0) = ●0. reflexivity. Defined.
-  Goal h(●4,,●0) = ●6. reflexivity. Defined.
-  Goal h(●1,,●0) = ●0. reflexivity. Defined.
-  Goal h(●2,,●0) = ●1. reflexivity. Defined.
-  Goal h(●2,,●1) = ●2. reflexivity. Defined.
-  Goal h(●3,,●0) = ●3. reflexivity. Defined.
-  Goal h(●3,,●1) = ●4. reflexivity. Defined.
-  Goal h(●3,,●2) = ●5. reflexivity. Defined.
-  Goal h(●4,,●0) = ●6. reflexivity. Defined.
-  Goal h(●5,,●0) = ●10. reflexivity. Defined.
-  Goal h(●6,,●0) = ●15. reflexivity. Defined.
-
-  Let h' : stn _ -> Σ x, stnset (f x) := weqstnsum_invmap f.
-  Goal h'(●0) = (●1,,●0). reflexivity. Defined.
-  Goal h'(●1) = (●2,,●0). reflexivity. Defined.
-  Goal h'(●2) = (●2,,●1). reflexivity. Defined.
-  Goal h'(●3) = (●3,,●0). reflexivity. Defined.
-  Goal h'(●4) = (●3,,●1). reflexivity. Defined.
-  Goal h'(●5) = (●3,,●2). reflexivity. Defined.
-  Goal h'(●6) = (●4,,●0). reflexivity. Defined.
-  Goal h'(●10) = (●5,,●0). reflexivity. Defined.
-  Goal h'(●15) = (●6,,●0). reflexivity. Defined.
-
-End Test_weqstnsum.
-
 Theorem weqstnsum1 { n : nat } (f : stn n -> nat) : (Σ i, stn (f i)) ≃ stn (stnsum f).
 Proof.
   intros. induction n as [ | n IHn ].
@@ -841,25 +660,6 @@ Proof.
   - apply invweq. now apply weqfibtototal.
   - apply weqstnsum1.
 Defined.
-
-Module Test_weqstnsum_2.
-  (* this module exports nothing *)
-  Let X := stnset 6.
-  Let Y (x:X) := stnset (pr1 x).
-  Let W := Σ x, Y x.
-  Let w := (●3,,●2) : W.
-  Let w' := (●4,,●2) : W.
-  Let f : W ≃ stn 15 := weqstnsum1 _.
-  Let f' : stn 15 -> W := invmap f.
-  Goal f(●1,,●0) = ●0. reflexivity. Defined. (* fixed! (formerly, it failed quickly) *)
-
-  Goal f'(●0) = (●1,,●0). try reflexivity. Abort. (* fix; fails quickly *)
-  (* let's extract the problematic component: *)
-  Goal (pr2 (pr2 (f'(●0)))) = idpath true.
-    try reflexivity. (* fix; fails quickly; might be a Coq bug *)
-  Abort. 
-                  
-End Test_weqstnsum_2.
 
 Corollary weqstnsum2 { X : UU } ( n : nat ) ( f : stn n -> nat ) ( g : X -> stn n ) ( ww : forall i : stn n , weq ( stn ( f i ) ) ( hfiber g i ) ) : weq X ( stn ( stnsum f ) ) .
 Proof. intros . assert ( w : weq X ( total2 ( fun i : stn n => hfiber g i ) ) ) . apply weqtococonusf . apply ( weqcomp w ( weqstnsum ( fun i : stn n => hfiber g i ) f ww ) ) .   Defined . 
@@ -941,20 +741,6 @@ Proof.
   - set ( e := natleh0tois0 i ) .  rewrite e .  rewrite ( natmultn0 n ) . split with ( @pr2 _ _ ) .   apply ( isweqtoempty2 _ ( weqstn0toempty ) ) .
 Defined. 
 
-Module Test_weqfromprodofstn.
-  (* verify computability in both directions *)
-  (* this module exports nothing *)
-  Let f : stn 5 × stn 4 ≃ stn 20 := weqfromprodofstn 5 4.
-  Goal f(●0,,●0) = ●0. reflexivity. Defined.
-  Goal f(●0,,●1) = ●1. reflexivity. Defined.
-  Goal f(●2,,●0) = ●8. reflexivity. Defined.
-  Goal f(●4,,●3) = ●19. reflexivity. Defined.
-  Let f' := invweq f.
-  Goal f'(●19) = (●4,,●3). reflexivity. Defined. 
-  Goal f'(●18) = (●4,,●2). reflexivity. Defined. 
-  Goal f'(●14) = (●3,,●2). reflexivity. Defined. 
-End Test_weqfromprodofstn.
-
 (** *** Weak equivalences between decidable subsets of [ stn n ] and [ stn x ] *)
 
 Theorem weqfromdecsubsetofstn { n : nat } ( f : stn n -> bool ) : total2 ( fun x : nat => weq ( hfiber f true ) ( stn x ) ) .
@@ -993,10 +779,6 @@ intro m . set ( w1 := weqfromcoprodofstn 1 n ) . assert ( w2 : weq ( stn ( S n )
 
 Definition stnprod { n : nat } ( f : stn n -> nat ) : nat .
 Proof. intro n . induction n as [ | n IHn ] . intro. apply 1 . intro f . apply (  ( IHn ( fun i : stn n => f ( dni n ( lastelement n ) i ) ) ) * f ( lastelement n ) ) . Defined . 
-
-(* confirm that [stnprod] is associative in the same way as the parser *)
-Goal ∀ (f : stn 3 -> nat), stnprod f = f(●0) * f(●1) * f(●2).
-Proof. reflexivity. Defined.
 
 Definition stnprod_step { n : nat } ( f : stn (S n) -> nat ) :
   stnprod f = stnprod (f ∘ dni n (lastelement n)) * f (lastelement n).
@@ -1155,26 +937,6 @@ Ltac inductive_reflexivity i b :=
   induction i as [|i];
   [ try apply isinjstntonat ; reflexivity |
     contradicts (negnatlthn0 i) b || inductive_reflexivity i b ].
-
-Local Definition testfun : stn 3 -> stn 10.
-  Proof.
-    intros n.
-    induction n as [n b].
-    induction n as [|n].
-    - exact (2,,idpath _).
-    - induction n as [|n].
-      + exact (3,,idpath _).
-      + induction n as [|n].
-        * exact (4,,idpath _).
-        * contradicts (negnatlthn0 n) b.
-  Defined.
-
-Goal ∀ n, testfun n < 5.
-  Proof.
-    intros.
-    induction n as [i c].
-    inductive_reflexivity i c.
-  Defined.
 
 (** general associativity for addition in nat *)
 

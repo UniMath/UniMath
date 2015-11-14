@@ -32,10 +32,6 @@ O => iscontr X |
 S m => forall x:X, forall x':X, (isofhlevel m (paths x x'))
 end.
 
-(* document an equality for the reader *)
-Goal isofhlevel 0 = iscontr.
-Proof. trivial. Qed.
-
 (* induction induction *)
 
 Theorem hlevelretract (n:nat) { X Y : UU } ( p : X -> Y ) ( s : Y -> X ) ( eps : forall y : Y , paths ( p ( s y ) ) y ) : isofhlevel n X -> isofhlevel n Y .
@@ -248,7 +244,6 @@ Proof. intros. apply isofhleveltotal2. assumption. intro. assumption. Defined.
 
 
 
-
 (** ** Propositions, inclusions  and sets *)
 
 
@@ -334,7 +329,11 @@ apply (gradth  f g isx0 isy0).  Defined.
 
 Definition weqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isaprop X ) ( isy : isaprop Y ) := weqpair _ ( isweqimplimpl f g isx isy ) .
 
-Definition weqiff { X Y : UU } ( f : X <-> Y ) ( isx : isaprop X ) ( isy : isaprop Y ) := weqpair _ ( isweqimplimpl (pr1 f) (pr2 f) isx isy ) .
+Definition weqiff { X Y : UU } : (X <-> Y) -> isaprop X -> isaprop Y -> X ≃ Y
+  := λ f i j, weqpair _ ( isweqimplimpl (pr1 f) (pr2 f) i j).
+
+Definition weq_to_iff { X Y : UU } : X ≃ Y -> (X <-> Y)
+  := λ f, (pr1weq f ,, invmap f).
 
 Theorem isapropempty: isaprop empty.
 Proof. unfold isaprop. unfold isofhlevel. intros x x' . induction x. Defined.
@@ -483,10 +482,6 @@ Defined.
 (** *** Basics about types of h-level 2 - "sets" *)
 
 Definition isaset ( X : UU ) : UU := ∀ x x' : X , isaprop ( x = x' ) .
-
-(* document an equality for the reader *)
-Goal isaset = isofhlevel 2.
-Proof. trivial. Qed.
 
 (* Definition isaset := isofhlevel 2 . *)
 

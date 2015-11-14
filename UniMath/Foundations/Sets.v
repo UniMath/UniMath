@@ -44,6 +44,14 @@ Proof. intros. exists(X×Y) . apply (isofhleveldirprod 2); apply setproperty. De
 Definition setcoprod (X Y:hSet) : hSet.
 Proof. intros. exists(X⨿Y). apply isasetcoprod; apply setproperty. Defined.  
 
+Lemma isaset_total2 (X:hSet) (Y:X->hSet) : isaset (Σ x, Y x).
+Proof.
+  intros.
+  apply (isofhleveltotal2 2).
+  - apply setproperty.
+  - intro x. apply setproperty.
+Defined.
+
 (** [ hProp ] as a set *)
 
 Definition hPropset : hSet := tpair _ hProp isasethProp .  
@@ -193,11 +201,6 @@ Proof.
   exact (pr1 p).
 Defined.
 
-(** Verify that the map above factors judgmentally. *)
-Goal ∀ Y (is:isaset Y) (F:Y->UU) (e :∀ y y', F y -> F y' -> y=y')
-       y (f:F y), squash_pairs_to_set F is e (hinhpr (y,,f)) = y.
-Proof. reflexivity. Qed.
-
 Definition squash_to_set {X Y} (is:isaset Y) (f:X->Y) :
           (∀ x x', f x = f x') -> ∥ X ∥ -> Y.
 Proof.
@@ -217,11 +220,6 @@ Proof.
     exists (f x0). apply hinhpr. exists x0. reflexivity. }
   exact (pr1 p).
 Defined.
-
-(** Verify that the map above factors judgmentally. *)
-Goal ∀ X Y (is:isaset Y) (f:X->Y) (e:∀ x x', f x = f x'),
-       f = funcomp hinhpr (squash_to_set is f e).
-Proof. reflexivity. Qed.
 
 (* End of " the type of monic subtypes of a type " . *)
 

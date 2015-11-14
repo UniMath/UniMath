@@ -571,9 +571,9 @@ Ltac natgth_simple :=
     | |- hProptoType ((S ?x) > ?x) => apply (natgthsnn x)
     | |- hProptoType ((S ?x) > 0) => apply (natgthsn0 x)
     | P : hProptoType (?x > ?y) |- hProptoType ((S ?x) > (S ?y)) => apply P
-    | P : hProptoType (natneq ?x 0) |- hProptoType (?x > 0) =>
+    | P : hProptoType (?x ≠ 0)%nat |- hProptoType (?x > 0) =>
       apply (natneq0togth0 x P)
-    | P : hProptoType (natneq 0 ?x) |- hProptoType (?x > 0) =>
+    | P : hProptoType (0 ≠ ?x)%nat |- hProptoType (?x > 0) =>
       apply (natneq0togth0 x (natneqtwist x P))
     | P : (?x = 0) -> empty |- hProptoType (?x > 0) =>
       apply (natneq0togth0 x P)
@@ -697,10 +697,10 @@ Ltac nat_eq_contr :=
     | H : neg (?x = ?y), _ : ?x = ?y |- _ => f H
     | H : ?x = ?x -> empty |- _ => i H
     | H : neg (?x = ?x) |- _ => i H
-    | H : hProptoType (natneq ?x ?y), _ : ?x = ?y |- _ => f H
-    | H : hProptoType (natneq ?x ?x) |- _ => i H
-    | H : hProptoType (natneq ?x ?y), _ : ?x = ?y |- _ => f H
-    | H : hProptoType (natneq ?x ?x) |- _ => i H
+    | H : hProptoType (?x ≠ ?y)%nat, _ : ?x = ?y |- _ => f H
+    | H : hProptoType (?x ≠ ?x)%nat |- _ => i H
+    | H : hProptoType (?x ≠ ?y)%nat, _ : ?x = ?y |- _ => f H
+    | H : hProptoType (?x ≠ ?x)%nat |- _ => i H
   end.
 
 Ltac nat_simple_contr :=
@@ -1018,13 +1018,13 @@ Section Tests.
     intros. nat_dfs.
   Qed.
 
-  Lemma test_nat_dfs_10 (i1 : natneq x 0) (i2 : natgeh x 0) :
+  Lemma test_nat_dfs_10 (i1 : x ≠ 0)%nat (i2 : natgeh x 0) :
     natgth x 0.
   Proof.
     intros. nat_dfs.
   Qed.
 
-  Lemma test_nat_dfs_11 (i2 : natneq 0 x) (i2 : natgeh x 0) :
+  Lemma test_nat_dfs_11 (i2 : 0 ≠ x)%nat (i2 : natgeh x 0) :
     natgth x 0.
   Proof.
     intros. nat_dfs.

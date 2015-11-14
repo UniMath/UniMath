@@ -1,6 +1,8 @@
+Tests.v
 SimplicialSets.v
 RationalNumbers.v
 Integers.v
+Algebra/Tests.v
 Algebra/Commutativity.v
 Algebra/Associativity.v
 Sequences.v
@@ -16,6 +18,7 @@ Sets.v
 Propositions.v
 FunctionalExtensionality.v
 Tactics.v
+Basics/Tests.v
 Basics/All.v
 Basics/PartD.v
 Basics/PartC.v

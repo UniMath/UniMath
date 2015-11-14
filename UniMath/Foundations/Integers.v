@@ -850,7 +850,7 @@ assert ( e' := hzabsvalgth0 g ) . rewrite e in e' . change ( paths 0 x ) in e' .
 
 assert ( e' := hzabsvallth0 l ) . rewrite e in e' . change ( paths 0 ( - x ) ) in e' . assert ( g := hzlth0andminus l ) .  rewrite e' in g .  destruct ( isirreflhzgth _ g ) . Defined .
 
-Definition hzabsvalneq0 { x : hz } ne := neg_from_neg (nP := natneq_prop _ _) (negf ( @hzabsvaleq0 x ) ne).
+Definition hzabsvalneq0 { x : hz } ne := neg_from_neg (nP := natneq _ _) (negf ( @hzabsvaleq0 x ) ne).
 
 Lemma hzabsvalandmult ( a b : hz ) : paths ( ( hzabsval a ) * ( hzabsval b ) )%nat ( hzabsval ( a * b ) ) .
 Proof . intros . apply ( invmaponpathsincl _ isinclnattohz ) . rewrite ( nattohzandmult _ _ ) .  destruct ( hzgthorleh a 0 ) as [ ga | lea ] . destruct ( hzgthorleh b 0 ) as [ gb | leb ] .
@@ -862,12 +862,5 @@ rewrite ( hzabsvalgth0 ga ) .  rewrite ( hzabsvalleh0 leb ) . rewrite ( hzabsval
 rewrite ( hzabsvalgth0 gb ) .  rewrite ( hzabsvalleh0 lea ) . rewrite ( hzabsvalleh0 ( hzmultleh0gth0 lea gb ) ) . apply ( rnglmultminus hz ) .
 
 rewrite ( hzabsvalleh0 lea ) . rewrite ( hzabsvalleh0 leb ) . rewrite ( hzabsvalgeh0 ( hzmultleh0leh0 lea leb ) ) .  apply (rngmultminusminus hz ) . Defined .
-
-Goal true = (hzbooleq (natnattohz 3 4) (natnattohz 17 18)) . reflexivity. Qed.
-Goal false = (hzbooleq (natnattohz 3 4) (natnattohz 17 19)) . reflexivity. Qed.
-Goal 274 = (hzabsval (natnattohz 58 332)) . reflexivity. Qed.
-Goal O = (hzabsval (hzplus (natnattohz 2 3) (natnattohz 3 2))) . reflexivity. Qed.
-Goal 2 = (hzabsval (hzminus (natnattohz 2 3) (natnattohz 3 2))) . reflexivity. Qed.
-Goal 300 =  (hzabsval (hzmult (natnattohz 20 50) (natnattohz 30 20))) . reflexivity. Qed.
 
 (* End of the file hz.v *)

@@ -3,30 +3,9 @@ Require Export UniMath.Foundations.Algebra.Monoids_and_Groups.
 Require Export UniMath.Foundations.FunctionalExtensionality.
 Unset Automatic Introduction.
 
-Lemma stnsum_dni {n i} (f:stn(S n)->nat) : stnsum f = stnsum (f ∘ dni n i) + f i.
-Proof.
-  intros.
-
-Abort.
-  
-Lemma stnsum_lt {n} (f g:stn n->nat) : (∀ i, f i ≤ g i) -> (∃ i, f i < g i) -> stnsum f < stnsum g.
-Proof.
-
-Abort.
-
 (** general associativity for monoids *)
 
-Open Scope multmonoid.
-
-(* demonstrate that the Coq parser is left-associative with "*" *)
-Goal ∀ (M:monoid) (x y z:M), x*y*z = (x*y)*z. Proof. reflexivity. Defined.
-Goal ∀ (M:monoid) (x y z:M), x*y*z = x*(y*z). Proof. apply assocax. Defined.
-
-(* demonstrate that the Coq parser is left-associative with "+" *)
-Open Scope addmonoid.
-Goal ∀ (M:monoid) (x y z:M), x+y+z = (x+y)+z. Proof. reflexivity. Defined.
-Goal ∀ (M:monoid) (x y z:M), x+y+z = x+(y+z). Proof. apply assocax. Defined.
-Close Scope addmonoid.
+Local Open Scope multmonoid.
 
 (* we define iterated products in the same way now, with left associativity: *)
 Definition sequenceProduct {M:monoid} : Sequence M -> M.
@@ -44,18 +23,6 @@ Proof.
   { exact 1. }
   { exact ((doubleProduct (x ∘ dni_lastelement) * sequenceProduct (x (lastelement _)))). }
 Defined.
-
-(* verify that our associativity matches that of the parser, with an extra "1" *)
-Local Notation "●" := (idpath _).
-Goal ∀ (M:monoid) (f:stn 3 -> M), sequenceProduct(3,,f) = 1 * f(O,,●) * f(S O,,●) * f(S(S O),,●).
-Proof. reflexivity. Defined.
-
-Goal ∀ (M:monoid) (f:stn 3 -> Sequence M),
-       doubleProduct(3,,f) =
-          1 * sequenceProduct (f(O,,●))
-            * sequenceProduct (f(S O,,●))
-            * sequenceProduct (f(S(S O),,●)).
-Proof. reflexivity. Defined.
 
 (* some rewriting rules *)
 
@@ -97,13 +64,13 @@ Proof.
     intros y [m z].
     induction m as [|m IHm].
     { change (sequenceProduct (0,, z)) with (unel M). rewrite runax.
-      change (concatenate (flatten (n,, y)) (0,, z)) with (flatten (n,, y)).
-      exact (IHn y). }
-    { rewrite sequenceProductStep, concatenateStep.
-      generalize (z (lastelement m)) as w; generalize (z ∘ dni _ (lastelement _)) as v; intros.
-      rewrite <- assocax.
-      rewrite sequenceProduct_append.
-      apply (maponpaths (λ u, u*w)).
-      apply IHm. } }
-Defined.
-
+(*       change (concatenate (flatten (n,, y)) (0,, z)) with (flatten (n,, y)). *)
+(*       exact (IHn y). } *)
+(*     { rewrite sequenceProductStep, concatenateStep. *)
+(*       generalize (z (lastelement m)) as w; generalize (z ∘ dni _ (lastelement _)) as v; intros. *)
+(*       rewrite <- assocax. *)
+(*       rewrite sequenceProduct_append. *)
+(*       apply (maponpaths (λ u, u*w)). *)
+(*       apply IHm. } } *)
+(* Defined. *)
+Abort.

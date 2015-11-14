@@ -70,6 +70,14 @@ Proof. intros A B s s'. apply invmap. apply subtypeInjectivity_prop. Defined.
 Corollary impred_prop {T:UU} (P:T -> hProp) : isaprop (∀ t:T, P t).
 Proof. intros. apply impred; intro. apply propproperty. Defined.
 
+Corollary isaprop_total2 (X:hProp) (Y:X->hProp) : isaprop (Σ x, Y x).
+Proof.
+  intros.
+  apply (isofhleveltotal2 1).
+  - apply propproperty.
+  - intro x. apply propproperty.
+Defined.
+
 (** The following re-definitions should make proofs easier in the future when the unification algorithms in Coq are improved . At the moment they create more complications than they eliminate ( e.g. try to prove [ isapropishinh ] with [ isaprop ] in [ hProp ] ) so for the time being they are commented out .
 
 

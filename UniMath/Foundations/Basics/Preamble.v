@@ -78,7 +78,6 @@ Notation coprod_rect := sum_rect.
 Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity) : type_scope.
   (* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)
 
-
 Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
   (at level 200, x binder, y binder, right associativity) : type_scope.
   (* type this in emacs in agda-input method with \forall *)
@@ -86,6 +85,20 @@ Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
 Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
   (at level 200, x binder, y binder, right associativity).
   (* type this in emacs in agda-input method with \lambda *)
+
+Definition coprod_rect_compute_1
+           (A B : UU) (P : A ⨿ B -> UU)
+           (f : ∀ a : A, P (ii1 a))
+           (g : ∀ b : B, P (ii2 b)) (a:A) :
+  coprod_rect P f g (ii1 a) = f a.
+Proof. reflexivity. Defined.
+
+Definition coprod_rect_compute_2
+           (A B : UU) (P : A ⨿ B -> UU)
+           (f : ∀ a : A, P (ii1 a))
+           (g : ∀ b : B, P (ii2 b)) (b:B) :
+  coprod_rect P f g (ii2 b) = g b.
+Proof. reflexivity. Defined.
 
 (** Dependent sums.
 
@@ -114,8 +127,6 @@ Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (* type this in emacs in agda-input method with \Sigma *)
 
 Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
-(* Example: *)
-Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
 
 Definition pr1 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : T .
 Proof . intros .  induction t as [ t p ] . exact t . Defined.
@@ -152,27 +163,6 @@ Check (O = O) .
 
 Notation "X <- Y" := (Y -> X) (at level 90, only parsing, left associativity) : type_scope.
 
-(* exhibit some aspects of addition on [nat] *)
-(* parsing is left associative: *)
-Goal ∀ i j k, i+j+k = (i+j)+k. reflexivity. Defined.
-Goal ∀ n, 1+n = S n. reflexivity. Defined.
-Goal ∀ n, n+1 = S n. try reflexivity. Abort.
-
-(* confirm and repair some aspects of multiplication on [nat] *)
-(* parsing is left associative: *)
-Goal ∀ i j k, i*j*k = (i*j)*k. reflexivity. Defined.
-Goal ∀ n, 0*n = 0.     reflexivity. Defined.
-
-(* one of these should have worked: *)
-Goal ∀ n, n*1 = n. try reflexivity. Abort.
-Goal ∀ n, 1*n = n. try reflexivity. Abort.
-
-(* here we see the problem: *)
-Goal ∀ n, 1*n = n+0. reflexivity. Defined.
-Goal ∀ n, 4*n = n+(n+(n+(n+0))). reflexivity. Defined.
-
-(* not that 0+n reduces to n: *)
-Goal ∀ n, 0+n = n. reflexivity. Defined.
 
 (* so we do it the other way around: *)
 Definition mul : nat -> nat -> nat.
@@ -184,9 +174,3 @@ Proof.
 Defined.
 Notation mult := mul.           (* this overrides the notation "mult" defined in Coq's Peano.v *)
 Notation "n * m" := (mul n m) : nat_scope.
-
-(* confirm: *)
-Goal ∀ n, 0*n = 0.             reflexivity. Defined.
-Goal ∀ n m, S n * m = n*m + m. reflexivity. Defined.
-Goal ∀ n, 1*n = n.             reflexivity. Defined.
-Goal ∀ n, 4*n = n+n+n+n.       reflexivity. Defined.

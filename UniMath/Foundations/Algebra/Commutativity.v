@@ -1,8 +1,9 @@
 Require Export UniMath.Foundations.Algebra.Associativity.
 Require Export UniMath.Foundations.FunctionalExtensionality.
 Unset Automatic Introduction.
-Local Notation "● x" := (x,,idpath _) (at level 35).
+
 Local Notation "s □ x" := (append s x) (at level 64, left associativity).
+Local Open Scope multmonoid.
 
 Theorem commutativityOfProducts {M:abmonoid} {n} (x:stn n->M) (f:stn n ≃ stn n) :
   sequenceProduct (n,,x) = sequenceProduct (n,,x∘f).
@@ -28,30 +29,33 @@ Proof.
         rewrite 3? weqcomp_to_funcomp_app. rewrite inv_weqdnicompl_compute_last. rewrite pr1_h.
         unfold pr1weq.
         unfold weqoncompl_ne.
-        change (pr1
-           (weqpair
-              (maponcomplweq_ne g (lastelement n) 
-                 (stnneq (lastelement n)) (stnneq (pr1 g (lastelement n))))
-              (isweqmaponcompl_ne g (lastelement n)
-                 (stnneq (lastelement n)) (stnneq (pr1 g (lastelement n)))))
-           (pr1 wc i))
-        with (maponcomplweq_ne g (lastelement n) 
-                               (stnneq (lastelement n)) (stnneq (pr1 g (lastelement n)))
-                               (pr1 wc i)
-             ).
-        unfold wc.
-        unfold weqdnicompl.
+        (* change (pr1 *)
+        (*    (weqpair *)
+        (*       (maponcomplweq_ne g (lastelement n)  *)
+        (*          (stnneq (lastelement n)) (stnneq (pr1 g (lastelement n)))) *)
+        (*       (isweqmaponcompl_ne g (lastelement n) *)
+        (*          (stnneq (lastelement n)) (stnneq (pr1 g (lastelement n))))) *)
+        (*    (pr1 wc i)) *)
+        (* with (maponcomplweq_ne g (lastelement n)  *)
+        (*                        (stnneq (lastelement n)) (stnneq (pr1 g (lastelement n))) *)
+        (*                        (pr1 wc i) *)
+        (*      ). *)
+        (* unfold wc. *)
+        (* unfold weqdnicompl. *)
 
-        induction (natlthorgeh j (lastelement n)) as [t|t].
+        (* induction (natlthorgeh j (lastelement n)) as [t|t]. *)
 
-        (* rewrite weqdnicompl_compute_last. *) (* rewrite pr1_dni_lastelement. *) reflexivity. }}
+        (* rewrite weqdnicompl_compute_last. *) (* rewrite pr1_dni_lastelement. *)
+        (* reflexivity. *)
+        admit.
+      }}
     set (j := f (lastelement n)).
     induction j as [j jlt].
     assert (jle := natlthsntoleh _ _ jlt).
     Local Open Scope nat.
     set (m := nil □ j □ 1 □ n-j).
     set (m' := nil □ j □ n-j □ 1).
-    set (sw := nil □ ●0 □ ●2 □ ●1 : Sequence (stn 3)).
+    set (sw := (nil □ ●0 □ ●2 □ ●1 : Sequence (stn 3)) % stn).
     assert (B : stnsum m = S n). 
     { unfold stnsum; simpl. repeat unfold append_fun; simpl. rewrite natplusassoc. rewrite (natpluscomm 1). rewrite <- natplusassoc.
       rewrite natpluscomm. apply (maponpaths S). rewrite natpluscomm. now apply minusplusnmm. }                                 

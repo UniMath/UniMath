@@ -84,34 +84,55 @@ Lemma isinclpr1compl ( X : UU ) ( x : X ) : isincl ( pr1compl X x ) .
 Proof. intros . apply ( isinclpr1 _ ( fun x' : X => isapropneg _ ) ) . Defined.
 
 Definition negProp P := Σ Q, isaprop Q × (¬P <-> Q).
+
 Definition negProp_to_type {P} (negP : negProp P) := pr1 negP.
+
 Coercion negProp_to_type : negProp >-> UU.
-Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop (negProp_to_type nP) := pr1 (pr2 nP).
-Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> (negProp_to_type nP) := pr2 (pr2 nP).
-Definition neg_to_neg {P} {nP : negProp P} (np : negProp_to_type nP) : ¬P.
-Proof. intros. exact (pr2 (negProp_to_iff nP) np). Defined.
+
+Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop nP
+  := pr1 (pr2 nP).
+
+Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> nP
+  := pr2 (pr2 nP).
+
+Definition neg_to_neg {P} {nP : negProp P} : nP -> ¬P.
+Proof. intros ? ? np. exact (pr2 (negProp_to_iff nP) np). Defined.
+
 Coercion neg_to_neg : negProp >-> Funclass.
-Definition neg_from_neg {P} {nP : negProp P} (np : ¬P) : negProp_to_type nP.
-Proof. intros. exact (pr1 (negProp_to_iff nP) np). Defined.
+
+Definition neg_from_neg {P} {nP : negProp P} : ¬P -> nP.
+Proof. intros ? ? np. exact (pr1 (negProp_to_iff nP) np). Defined.
+
 Definition negPred {X:UU} (x  :X) (P:∀ y:X, UU)      := ∀ y  , negProp (P y).
+
 Definition negReln {X:UU}         (P:∀ (x y:X), UU)  := ∀ x y, negProp (P x y).
+
 Definition neqProp {X:UU} (x y:X) :=            negProp (x=y).
+
 Definition neqPred {X:UU} (x  :X) := ∀ y,       negProp (x=y).
+
 Definition neqReln (X:UU)         := ∀ (x y:X), negProp (x=y).
+
 Definition compl_ne (X:UU) (x:X) (neq_x : neqPred x) := Σ y, neq_x y.
+
 Definition compl_ne_pair ( X : UU ) ( x : X ) (neq_x : neqPred x) (y:X) (ne:neq_x y) : compl_ne X x neq_x
   := (y,,ne).
+
 Definition pr1compl_ne ( X : UU ) ( x : X ) (neq_x : neqPred x) (c:compl_ne X x neq_x) : X
   := pr1 c.
+
 Definition make_negProp {P:UU} : negProp P.
 Proof. intros. exists (¬ P). split.
   - apply isapropneg.  (* uses [funextempty] *)
-  - apply logeq_refl.
+  - apply isrefl_logeq.
 Defined.
+
 Definition make_neqProp {X:UU} (x y:X) : neqProp x y.
 Proof. intros. apply make_negProp. Defined.
+
 Lemma isinclpr1compl_ne ( X : UU ) ( x : X ) (neq_x : neqPred x) : isincl ( pr1compl_ne X x neq_x ) .
 Proof. intros. apply isinclpr1. intro y. apply negProp_to_isaprop. Defined.
+
 Lemma compl_ne_weq_compl ( X : UU ) ( x : X ) (neq_x : neqPred x) : compl X x ≃ compl_ne X x neq_x.
 Proof.
   (* uses [funextempty] *)
@@ -119,6 +140,15 @@ Proof.
   - apply negProp_to_iff.
   - apply isapropneg.
   - apply negProp_to_isaprop.
+Defined.
+
+Lemma compl_weq_compl_ne ( X : UU ) ( x : X ) (neq_x : neqPred x) : compl_ne X x neq_x ≃ compl X x.
+Proof.
+  (* uses [funextempty] *)
+  intros. apply weqfibtototal; intro y. apply weqiff.
+  - apply issymm_logeq. apply negProp_to_iff.
+  - apply negProp_to_isaprop.
+  - apply isapropneg.
 Defined.
 
 Definition recompl (X:UU) (x:X): compl X x ⨿ unit -> X
@@ -149,34 +179,35 @@ Proof.
   intros ? ? ? ? ? ? ? c.
   set (x' := pr1 c).
   set (neqx := pr2 c).
-  exact (f x',,neg_from_neg (nP := neq_fx (f x')) (negf  (invmaponpathsincl  _ is x x' ) (neg_to_neg neqx))).
+  exact (f x',,neg_from_neg (nP := neq_fx (f x')) (negf  (invmaponpathsincl _ is x x' ) (neg_to_neg neqx))).
 Defined.
 
-Definition maponcomplweq { X Y : UU } (f : weq X Y ) (x:X):= maponcomplincl  f (isofhlevelfweq (S O) f ) x.
-
-Definition maponcomplweq_ne { X Y : UU } (f : weq X Y ) (x:X) (neq_x : neqPred x) (neq_fx : neqPred (f x))
-  := maponcomplincl_ne  f (isofhlevelfweq (S O) f ) x neq_x neq_fx.
-
-Theorem isweqmaponcompl { X Y : UU } ( f : weq X Y ) (x:X): isweq (maponcomplweq  f x).
-Proof. intros.  set (is1:= isofhlevelfweq (S O)  f).   set (map1:= totalfun (fun x':X => neg (paths x x' )) (fun x':X => neg (paths (f x) (f x'))) (fun x':X => negf  (invmaponpathsincl  _ is1 x x' ))). set (map2:= fpmap  f (fun y:Y => neg (paths (f x) y ))).
-assert (is2: forall x':X, isweq  (negf  (invmaponpathsincl  _ is1 x x'))). intro.
-set (invimpll:= (negf  (@maponpaths _ _ f x x'))). apply (isweqimplimpl  (negf  (invmaponpathsincl  _ is1 x x')) (negf  (@maponpaths _ _ f x x')) (isapropneg _) (isapropneg _)).
-assert (is3: isweq map1).  unfold map1 . apply ( isweqfibtototal  _ _  (fun x':X => weqpair _  ( is2 x' )) ) .
-assert (is4: isweq map2). apply (isweqfpmap  f  (fun y:Y => neg (paths (f x) y )) ).
-assert (h: forall x0':_, paths (map2 (map1 x0')) (maponcomplweq  f x x0')). intro.  simpl. induction x0'. simpl. apply idpath.
-apply (isweqhomot _ _ h (twooutof3c _ _ is3 is4)).
-Defined.
-
-Theorem isweqmaponcompl_ne { X Y : UU } ( f : weq X Y ) (x:X) (neq_x : neqPred x) (neq_fx : neqPred (f x))
-  : isweq (maponcomplweq_ne  f x neq_x neq_fx).
+Definition weqoncompl { X Y : UU } (w: X ≃ Y) x : compl X x ≃ compl Y (w x).
 Proof.
-Admitted.
+  (* uses [funextempty] *)
+  intros. intermediate_weq (Σ x', w x != w x').
+  - apply weqfibtototal; intro x'. apply weqiff.
+    { apply logeqnegs. apply weq_to_iff. apply weqonpaths. }
+    { apply isapropneg. }
+    { apply isapropneg. }
+  - refine (weqfp _ _).
+Defined.
 
-Definition weqoncompl { X Y : UU } (w: weq X Y) ( x : X ) : weq (compl X x) (compl Y (w x)):= weqpair  _ (isweqmaponcompl w x).
-
-Definition weqoncompl_ne { X Y : UU } (w: X ≃ Y) ( x : X ) (neq_x : neqPred x) (neq_wx : neqPred (w x))
-  : compl_ne X x neq_x ≃ compl_ne Y (w x) neq_wx
-  := weqpair (maponcomplweq_ne w x neq_x neq_wx) (isweqmaponcompl_ne w x neq_x neq_wx).
+Definition weqoncompl_ne { X Y : UU } (w: X ≃ Y) x (neq_x : neqPred x) (neq_wx : neqPred (w x))
+  : compl_ne X x neq_x ≃ compl_ne Y (w x) neq_wx.
+Proof.
+  intros. intermediate_weq (Σ x', neq_wx (w x')).
+  - apply weqfibtototal; intro x'.
+    apply weqiff.
+    { intermediate_logeq (x != x').
+      { apply issymm_logeq, negProp_to_iff. }
+      intermediate_logeq (w x != w x').
+      { apply logeqnegs. apply weq_to_iff. apply weqonpaths. }
+      apply negProp_to_iff. }
+    { apply negProp_to_isaprop. }
+    { apply negProp_to_isaprop. }
+  - refine (weqfp _ _).
+Defined.
 
 Definition weqoncompl_compute { X Y : UU } (w: weq X Y) ( x : X ) : ∀ x', pr1 (weqoncompl w x x') = w (pr1 x').
 Proof. intros. induction x' as [x' b]. reflexivity. Defined.
@@ -390,7 +421,7 @@ Definition weqrecompl (X : UU) (x:X) (is:isisolated _ x): compl X x ⨿ unit ≃
 (** *** Theorem saying that [ recompl ] commutes up to homotopy with [ maponcomplweq ] *)
 
 Theorem homotrecomplnat {X Y : UU} (w : X ≃ Y) (x : X) (a : compl X x ⨿ unit) :
-    recompl Y (w x) (coprodf (maponcomplweq w x) (idfun unit) a)
+    recompl Y (w x) (coprodf (weqoncompl w x) (idfun unit) a)
     =
     w (recompl X x a).
 Proof . intros . induction a as [ ane | t ] . induction ane as [ a ne ] .  simpl . apply idpath . induction t . simpl . apply idpath .  Defined .

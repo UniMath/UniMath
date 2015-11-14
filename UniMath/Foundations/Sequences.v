@@ -1,6 +1,5 @@
 Require Export UniMath.Foundations.StandardFiniteSets.
 Unset Automatic Introduction.
-Local Notation "● x" := (x,,idpath _) (at level 35).
 
 (* move upstream *)
 (* end of move upstream *)
@@ -272,6 +271,8 @@ Lemma Sequence_rect_compute_cons
 Proof.
   intros.
 
+  (* proof in progress... *)
+
 Abort.
 
 Lemma append_length {X} (x:Sequence X) (y:X) :
@@ -298,7 +299,8 @@ Proof.
   induction s as [n s].
   refine (total2_paths2 _ _).
   { simpl. apply natplusr0. }
-  { simpl. apply funextsec; intro i.
+  { simpl. generalize (natplusr0 n). intro e. apply funextsec; intro i.
+
     (* this should be easier! *)
 Abort.
 
@@ -368,11 +370,6 @@ Proof.
       induction d. simpl. rewrite transport_f_f. apply (isaset_transportf X).
 Defined.
 
-Goal (idweq nat ∘ idweq _ ∘ idweq _)%weq 3 = 3. reflexivity. Defined.
-Goal (idweq nat ∘ invweq (idweq _) ∘ idweq _)%weq 3 = 3. reflexivity. Defined.
-Goal invmap (idweq nat ∘ idweq _ ∘ idweq _)%weq 3 = 3. reflexivity. Defined.
-Goal invmap (idweq nat ∘ invweq (idweq _) ∘ idweq _)%weq 3 = 3. reflexivity. Defined.
-
 Definition total2_step {n} (X:stnset (S n) ->UU) :
   (Σ i, X i) ≃ (Σ (i:stn n), X (dni _ (lastelement _) i)) ⨿ X (lastelement _).
 Proof.
@@ -387,16 +384,6 @@ Defined.
 
 Lemma invweq_to_invmap {X Y x} (f:X≃Y) : invweq f x = invmap f x.
 Proof. reflexivity. Defined.
-
-Goal invmap (@total2_step 0 (λ _,unit)) (ii2 tt) = (●0,,tt). reflexivity. Defined.
-Goal invmap (@total2_step 1 (λ _,unit)) (ii2 tt) = ●1,,tt. reflexivity. Defined.
-Goal invmap (@total2_step 1 (λ _,unit)) (ii1 (●0,,tt)) = ●0,,tt. reflexivity. Defined.
-
-Goal @total2_step 0 (λ _,unit) (●0,,tt) = ii2 tt. reflexivity. Defined.
-Goal @total2_step 1 (λ _,unit) (●1,,tt) = ii2 tt. reflexivity. Defined.
-Goal @total2_step 1 (λ _,unit) (●0,,tt) = ii1 (●0,,tt).
-  reflexivity. (* fixed, failed quickly before *)
-Defined.
 
 Definition total2_step_compute_2 {n} (X:stnset (S n) ->UU) :
   invmap (total2_step X) ~ total2_step_b X.
