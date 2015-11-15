@@ -95,12 +95,12 @@ Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop nP
 Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> nP
   := pr2 (pr2 nP).
 
-Definition neg_to_neg {P} {nP : negProp P} : nP -> ¬P.
+Definition negProp_to_neg {P} {nP : negProp P} : nP -> ¬P.
 Proof. intros ? ? np. exact (pr2 (negProp_to_iff nP) np). Defined.
 
-Coercion neg_to_neg : negProp >-> Funclass.
+Coercion negProp_to_neg : negProp >-> Funclass.
 
-Definition neg_from_neg {P} {nP : negProp P} : ¬P -> nP.
+Definition neg_to_negProp {P} {nP : negProp P} : ¬P -> nP.
 Proof. intros ? ? np. exact (pr1 (negProp_to_iff nP) np). Defined.
 
 Definition negPred {X:UU} (x  :X) (P:∀ y:X, UU)      := ∀ y  , negProp (P y).
@@ -179,7 +179,7 @@ Proof.
   intros ? ? ? ? ? ? ? c.
   set (x' := pr1 c).
   set (neqx := pr2 c).
-  exact (f x',,neg_from_neg (nP := neq_fx (f x')) (negf  (invmaponpathsincl _ is x x' ) (neg_to_neg neqx))).
+  exact (f x',,neg_to_negProp (nP := neq_fx (f x')) (negf  (invmaponpathsincl _ is x x' ) (negProp_to_neg neqx))).
 Defined.
 
 Definition weqoncompl { X Y : UU } (w: X ≃ Y) x : compl X x ≃ compl Y (w x).
@@ -268,6 +268,22 @@ Defined.
 Definition isisolated (X:UU) (x:X) := ∀ x':X, (x = x') ⨿ (x != x').
 Definition isisolated_ne (X:UU) (x:X) (neq_x:neqPred x) := ∀ y:X, (x=y) ⨿ neq_x y.
 
+Definition isisolated_to_isisolated_ne {X x neq_x} :
+  isisolated X x -> isisolated_ne X x neq_x.
+Proof.
+  intros ? ? ? i y. induction (i y) as [eq|ne].
+  - exact (ii1 eq).
+  - apply ii2. now apply neg_to_negProp.
+Defined.
+
+Definition isisolated_ne_to_isisolated {X x neq_x} :
+  isisolated_ne X x neq_x -> isisolated X x.
+Proof.
+  intros ? ? ? i y. induction (i y) as [eq|ne].
+  - exact (ii1 eq).
+  - apply ii2. now refine (negProp_to_neg _).
+Defined.
+
 Definition isolated ( T : UU ) := Σ t:T, isisolated _ t.
 Definition isolated_ne ( T : UU ) (neq:neqReln T) := Σ t:T, isisolated_ne _ t (neq t).
 
@@ -306,11 +322,13 @@ Defined.
 Theorem isaproppathstoisolated  ( X : UU ) ( x : X ) ( is : isisolated X x ) : ∀ x' : X, isaprop ( x' = x ) .
 Proof . intros . apply ( isofhlevelweqf 1 ( weqpathsinv0 x x' ) ( isaproppathsfromisolated X x is x' ) ) . Defined .
 
-Lemma isisolatedweqf { X Y : UU } (  f : weq X Y ) (x:X) (is2: isisolated _ x) : isisolated _ (f x).
-Proof.  intros. unfold isisolated. intro y.  set (g:=invmap  f ). set (x':= g y). induction (is2 x') as [ x0 | y0 ].  apply (ii1  (pathsweq1'  f x y x0) ).
-assert (phi: paths y (f x)  -> empty).
-assert (psi: (paths (g y) x -> empty) -> (paths y (f x) -> empty)). intros X0 X1.  apply (X0  (pathsinv0 (pathsweq1  f x y (pathsinv0 X1)))). apply (psi ( ( negf ( @pathsinv0 _ _ _ ) ) y0) ) . apply (ii2  ( negf ( @pathsinv0 _ _ _ )  phi ) ). Defined.
-
+Lemma isisolatedweqf { X Y : UU } (f : X ≃ Y) (x:X) : isisolated X x -> isisolated Y (f x).
+Proof.
+  intros ? ? ? ? is. unfold isisolated. intro y.
+  induction (is (invmap f y)) as [ eq | ne ].
+  { apply ii1. now apply pathsweq1'. }
+  { apply ii2. intro eq. apply ne; clear ne. now apply pathsweq1. }
+Defined.
 
 Theorem isisolatedinclb { X Y : UU } ( f : X -> Y ) ( is : isincl f ) ( x : X ) ( is0 : isisolated _ ( f x ) ) : isisolated _ x .
 Proof. intros .  unfold isisolated .  intro x' .  set ( a := is0 ( f x' ) ) .  induction a as [ a1 | a2 ] . apply ( ii1 ( invmaponpathsincl f is _ _ a1 ) ) . apply ( ii2 ( ( negf ( @maponpaths _ _ f _ _ ) ) a2 ) ) .  Defined.
@@ -332,7 +350,7 @@ Definition invrecompl_ne (X:UU)(x:X)(neq_x:neqPred x)(is: isisolated X x): X -> 
 Proof.
   intros ? ? ? ? y. induction (is y) as [k|k].
   - exact (ii2 tt).
-  - exact (ii1 (compl_ne_pair X x neq_x y (neg_from_neg k))).
+  - exact (ii1 (compl_ne_pair X x neq_x y (neg_to_negProp k))).
 Defined.
 
 Theorem isweqrecompl_ne (X:UU) (x:X) (is:isisolated X x) (neq_x:neqPred x): isweq (recompl_ne _ x neq_x).
@@ -342,7 +360,7 @@ Proof.
   refine (gradth f g _ _).
   { intro u. induction (is (f u)) as [ eq | ne ] .
     - induction u as [ c | u].
-      + simpl. induction c as [ t neq ]; simpl; simpl in eq. contradicts (neg_to_neg neq) eq.
+      + simpl. induction c as [ t neq ]; simpl; simpl in eq. contradicts (negProp_to_neg neq) eq.
       + induction u.
         intermediate_path (g x).
         { apply maponpaths. exact (pathsinv0 eq). }
@@ -351,7 +369,7 @@ Proof.
           { simpl. contradicts e (idpath x). } }
     - induction u as [ c | u ]. simpl.
       + induction c as [ y neq ]; simpl. unfold g, invrecompl_ne. induction (is y) as [ eq' | ne' ] .
-        { contradicts (neg_to_neg neq) eq'. }
+        { contradicts (negProp_to_neg neq) eq'. }
         { induction (ii2 ne') as [eq|neq'].
           { simpl. contradicts eq ne'. }
           { simpl. apply maponpaths. unfold compl_ne_pair. apply maponpaths.
@@ -373,7 +391,7 @@ Proof.
   apply (iscontrweqb (weqtotal2overcoprod _)). induction (is y) as [eq|ne].
   { induction eq. refine (iscontrweqf (weqii2withneg _ _) _).
     { intros z; induction z as [z e]; induction z as [z neq]; simpl in *.
-      contradicts (!e) (neg_to_neg neq). }
+      contradicts (!e) (negProp_to_neg neq). }
     { change x with (f (ii2 tt)). refine ((_,,_),,_).
       { exact tt. }
       { reflexivity. }
@@ -382,10 +400,10 @@ Proof.
   { refine (iscontrweqf (weqii1withneg _ _) _).
     { intros z; induction z as [z e]; simpl in *. contradicts ne e. }
     { refine ((_,,_),,_).
-      { exists y. now apply neg_from_neg. }
+      { exists y. now apply neg_to_negProp. }
       { simpl. reflexivity. }
       intros z; induction z as [z e]; induction z as [z neq]; induction e; simpl in *.
-      now induction (proofirrelevance _ (pr1 (pr2 (neq_x z))) neq (neg_from_neg ne)). } }
+      now induction (proofirrelevance _ (pr1 (pr2 (neq_x z))) neq (neg_to_negProp ne)). } }
 Defined.
 
 Definition weqrecompl_ne (X:UU) (x:X) (is:isisolated X x) (neq_x:neqPred x): compl_ne X x neq_x ⨿ unit ≃ X
@@ -459,19 +477,43 @@ Proof . intros . induction x'n as [ x' nexx' ] . induction y'n as [ y' neyy' ] .
 
 (** *** Standard weak equivalence between [ compl T t1 ] and [ compl T t2 ] for isolated [ t1 t2 ] *)
 
-Definition funtranspos0 { T : UU } ( t1 t2 : T ) ( is2 : isisolated T t2 ) ( x :compl T t1 ) : compl T t2  :=  match ( is2 ( pr1 x ) ) with
-ii1 e => match ( is2 t1 ) with ii1 e' => fromempty ( pr2 x ( pathscomp0 ( pathsinv0 e' ) e ) ) | ii2 ne' => complpair T t2 t1 ne' end |
-ii2 ne => complpair T t2 ( pr1 x ) ne end .
+Definition funtranspos0 {T:UU} (t1 t2 : T) (is2 : isisolated T t2) (x : compl T t1) :
+  compl T t2
+  := match ( is2 ( pr1 x ) ) with
+       | ii1 e =>
+         match ( is2 t1 ) with
+           | ii1 e' => fromempty ( pr2 x ( pathscomp0 ( pathsinv0 e' ) e ) )
+           | ii2 ne' => complpair T t2 t1 ne' end
+       | ii2 ne => complpair T t2 ( pr1 x ) ne end .
 
-Definition homottranspos0t2t1t1t2 { T : UU } ( t1 t2 : T ) ( is1 : isisolated T t1 ) ( is2 : isisolated T t2 ) : homot ( funcomp ( funtranspos0 t1 t2 is2 ) ( funtranspos0 t2 t1 is1 ) ) ( idfun _ ) .
-Proof. intros. intro x . unfold funtranspos0 . unfold funcomp . induction x as [ t net1 ] .  simpl .  induction ( is2 t ) as [ et2 | net2 ] . induction ( is2 t1 ) as [ et2t1 | net2t1 ] . induction (net1 (pathscomp0 (pathsinv0 et2t1) et2)) .  simpl . induction ( is1 t1 ) as [ e | ne ] .  induction ( is1 t2 ) as [ et1t2 | net1t2 ] .  induction (net2t1 (pathscomp0 (pathsinv0 et1t2) e)) . apply ( invmaponpathsincl _ ( isinclpr1compl _ _ ) _ _ ) . simpl . apply et2 . induction ( ne ( idpath _ ) ) .  simpl . induction ( is1 t ) as [ et1t | net1t ] .   induction ( net1 et1t ) .  apply ( invmaponpathsincl _ ( isinclpr1compl _ _ ) _ _ ) . simpl .  apply idpath . Defined .
+Definition homottranspos0t2t1t1t2 { T : UU } ( t1 t2 : T )
+           ( is1 : isisolated T t1 ) ( is2 : isisolated T t2 ) :
+  funtranspos0 t2 t1 is1 ∘ funtranspos0 t1 t2 is2 ~ idfun _.
+Proof. intros. intro x. unfold funtranspos0. unfold funcomp.
+       induction x as [ t net1 ]; simpl.
+       induction ( is2 t ) as [ et2 | net2 ] .
+       - induction ( is2 t1 ) as [ et2t1 | net2t1 ] .
+         + induction (net1 (pathscomp0 (pathsinv0 et2t1) et2)) .
+         + simpl . induction ( is1 t1 ) as [ e | ne ] .
+           * induction ( is1 t2 ) as [ et1t2 | net1t2 ] .
+             { induction (net2t1 (pathscomp0 (pathsinv0 et1t2) e)) . }
+             { apply ( invmaponpathsincl _ ( isinclpr1compl _ _ ) ) .
+               simpl . exact et2 . }
+           * induction ( ne ( idpath _ ) ) .
+       - simpl . induction ( is1 t ) as [ et1t | net1t ] .
+         + induction ( net1 et1t ) .
+         + apply ( invmaponpathsincl _ ( isinclpr1compl _ _ ) ) . simpl .
+           apply idpath .
+Defined .
 
-Definition weqtranspos0 { T : UU } ( t1 t2 : T ) ( is1 : isisolated T t1 ) ( is2 : isisolated T t2 ) : weq ( compl T t1 ) ( compl T t2 ) .
-Proof . intros . set ( f := funtranspos0 t1 t2 is2 ) . set ( g := funtranspos0 t2 t1 is1 ) . split with f .
-assert ( egf : forall x : _ , paths ( g ( f x ) ) x ) . intro x . apply ( homottranspos0t2t1t1t2 t1 t2 is1 is2 ) .
-assert ( efg : forall x : _ , paths ( f ( g x ) ) x ) . intro x . apply ( homottranspos0t2t1t1t2 t2 t1 is2 is1 ) .
-apply ( gradth _ _ egf efg ) . Defined .
-
+Definition weqtranspos0 { T : UU } ( t1 t2 : T ) :
+  isisolated T t1 -> isisolated T t2 -> compl T t1 ≃ compl T t2.
+Proof.
+  intros ? ? ? is1 is2.
+  refine (weqgradth (funtranspos0 t1 t2 is2) (funtranspos0 t2 t1 is1) _ _).
+  - intro x. apply ( homottranspos0t2t1t1t2 t1 t2 is1 is2 ) .
+  - intro x. apply ( homottranspos0t2t1t1t2 t2 t1 is2 is1 ) .
+Defined .
 
 (** *** Transposition of two isolated points *)
 

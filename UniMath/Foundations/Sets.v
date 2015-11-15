@@ -591,10 +591,10 @@ Lemma iscotrans_to_istrans_negReln {X} {R:hrel X} (NR : negReln R) :
   isdeccotrans R -> istrans NR.
 (* uses no axioms; compare to istransnegrel *)
 Proof.                                             
-  intros ? ? ? i ? ? ? nxy nyz. apply neg_from_neg.
+  intros ? ? ? i ? ? ? nxy nyz. apply neg_to_negProp.
   apply (negf (i x1 x2 x3)). intro c. induction c as [c|c].
-  - exact (neg_to_neg nxy c).
-  - exact (neg_to_neg nyz c).
+  - exact (negProp_to_neg nxy c).
+  - exact (negProp_to_neg nyz c).
 Defined.
 
 Lemma isasymmnegrel { X : UU } ( R : hrel X  ) ( isr : iscoasymm R ) : isasymm ( negrel R ) .  

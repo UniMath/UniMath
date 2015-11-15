@@ -64,7 +64,7 @@ Proof. refine (make nat nat_dist _ _ _ _ _).
        { intro m. induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
        { apply nat_dist_anti. } { apply nat_dist_symm. }
        { apply nat_dist_trans. }
-       { intros m n e. assert (d := natneqchoice _ _ (neg_from_neg e)). clear e.
+       { intros m n e. assert (d := natneqchoice _ _ (neg_to_negProp e)). clear e.
          destruct d as [h|h].
          { exists (S n).
            { split.

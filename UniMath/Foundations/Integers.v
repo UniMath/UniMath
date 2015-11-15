@@ -850,7 +850,7 @@ assert ( e' := hzabsvalgth0 g ) . rewrite e in e' . change ( paths 0 x ) in e' .
 
 assert ( e' := hzabsvallth0 l ) . rewrite e in e' . change ( paths 0 ( - x ) ) in e' . assert ( g := hzlth0andminus l ) .  rewrite e' in g .  destruct ( isirreflhzgth _ g ) . Defined .
 
-Definition hzabsvalneq0 { x : hz } ne := neg_from_neg (nP := natneq _ _) (negf ( @hzabsvaleq0 x ) ne).
+Definition hzabsvalneq0 { x : hz } ne := neg_to_negProp (nP := natneq _ _) (negf ( @hzabsvaleq0 x ) ne).
 
 Lemma hzabsvalandmult ( a b : hz ) : paths ( ( hzabsval a ) * ( hzabsval b ) )%nat ( hzabsval ( a * b ) ) .
 Proof . intros . apply ( invmaponpathsincl _ isinclnattohz ) . rewrite ( nattohzandmult _ _ ) .  destruct ( hzgthorleh a 0 ) as [ ga | lea ] . destruct ( hzgthorleh b 0 ) as [ gb | leb ] .
