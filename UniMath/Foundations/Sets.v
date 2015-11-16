@@ -45,6 +45,22 @@ Proof. intros. exists(X×Y) . apply (isofhleveldirprod 2); apply setproperty. De
 Definition setcoprod (X Y:hSet) : hSet.
 Proof. intros. exists(X⨿Y). apply isasetcoprod; apply setproperty. Defined.  
 
+Lemma isaset_hSet (X:hSet) (Y:X->hSet) : isaset (Σ x, Y x).
+Proof.
+  intros. apply isaset_total2.
+  - apply setproperty.
+  - intro x. apply setproperty.
+Defined.
+
+Definition total2_hSet {X:hSet} (Y:X->hSet) : hSet := hSetpair (Σ x, Y x) (isaset_hSet X Y).
+
+Delimit Scope set with set.
+
+Notation "'Σ'  x .. y , P" := (total2_hSet (fun x => .. (total2_hSet (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : set.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+
 (** [ hProp ] as a set *)
 
 Definition hPropset : hSet := tpair _ hProp isasethProp .  
