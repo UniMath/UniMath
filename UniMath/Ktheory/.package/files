@@ -20,6 +20,7 @@ DirectSum.v
 RawMatrix.v
 Sum.v
 Product.v
+DiagramColimit.v
 HomFamily.v
 TerminalObject.v
 FiniteSet.v

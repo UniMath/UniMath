@@ -1,4 +1,5 @@
 Require Export UniMath.Ktheory.InitialAndFinalObject UniMath.Ktheory.Elements.
+Local Open Scope cat.
 Definition Data {C:precategory} (X:C==>SET) := InitialObject (Elements.cat X).
 Definition Property {C:precategory} (X:C==>SET) := ∥ Data X ∥.
 Definition Pair {C:precategory} {X:C==>SET} (r:Data X) : ob (Elements.cat X)

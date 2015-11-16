@@ -415,20 +415,6 @@ Defined.
 
 (** concatenating finite ordered families of finite ordered sets *)
 
-Lemma isaset_total2 (X:hSet) (Y:X->hSet) : isaset (Σ x, Y x).
-Proof.
-  intros.
-  apply (isofhleveltotal2 2).
-  - apply setproperty.
-  - intro x. apply setproperty.
-Defined.
-
-Definition total2_hSet {X:hSet} (Y:X->hSet) : hSet := hSetpair (Σ x, Y x) (isaset_total2 X Y).
-
-Notation "'Σ'  x .. y , P" := (total2_hSet (fun x => .. (total2_hSet (fun y => P)) ..))
-  (at level 200, x binder, y binder, right associativity) : set.
-  (* type this in emacs in agda-input method with \Sigma *)
-
 Definition lexicographicOrder
            (X:hSet) (Y:X->hSet)
            (R:hrel X) (S : ∀ x, hrel (Y x)) : hrel (Σ x, Y x)%set.

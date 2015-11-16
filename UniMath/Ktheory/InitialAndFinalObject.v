@@ -7,6 +7,8 @@ Require Import
         UniMath.CategoryTheory.total2_paths
         UniMath.Foundations.Sets.
 
+Local Open Scope cat.
+
 (** *** terminal objects *)
 
   Definition isTerminalObject (C:precategory) (a:ob C) :=

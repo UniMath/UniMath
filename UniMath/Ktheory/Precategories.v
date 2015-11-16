@@ -5,18 +5,36 @@ Require Import UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
                UniMath.CategoryTheory.category_hset
-               UniMath.CategoryTheory.functor_categories
-               .
+               UniMath.CategoryTheory.functor_categories .
 Require Import UniMath.Foundations.Sets.
 
-Notation "b ← a" := (precategory_morphisms a b) (at level 50). (* agda input \l- or \leftarrow or \<- or \gets or or \l menu *)
-Notation "a → b" := (precategory_morphisms a b) (at level 50). (* agda input \r- or \to or \-> or \rightarrow or \r menu *)
-Notation "a ==> b" := (functor a b) (at level 50).
-Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing).
-Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativity, only parsing). (* agda input \circ *)
-Notation "# F" := (functor_on_morphisms F) (at level 3).
-Notation "C '^op'" := (opp_precat C) (at level 3).
+Delimit Scope cat with cat.
+
+Local Open Scope cat.
+
+Notation "b ← a" := (precategory_morphisms a b) (at level 50) : cat.
+(* agda input \l- or \leftarrow or \<- or \gets or or \l menu *)
+
+Notation "a → b" := (precategory_morphisms a b) (at level 50) : cat.
+(* agda input \r- or \to or \-> or \rightarrow or \r menu *)
+
+Notation "a ==> b" := (functor a b) (at level 50) : cat.
+
+Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing) : cat.
+
+Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativity) : cat.
+(* agda input \circ *)
+
+Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
+
+Notation "C '^op'" := (opp_precat C) (at level 3) : cat.
+
 Notation SET := hset_precategory.
+
+Definition Precategory := Σ C:precategory, has_homsets C.
+Definition Precategory_to_precategory : Precategory -> precategory := pr1.
+Coercion Precategory_to_precategory : Precategory >-> precategory.
+Definition homset_property (C:Precategory) : has_homsets C := pr2 C.
 
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := C,,i.
@@ -75,21 +93,22 @@ Defined.
 Definition makePrecategory
     (obj : UU)
     (mor : obj -> obj -> UU)
+    (homsets : ∀ a b, isaset (mor a b))
     (identity : ∀ i, mor i i)
     (compose : ∀ i j k (f:mor i j) (g:mor j k), mor i k)
     (right : ∀ i j (f:mor i j), compose _ _ _ (identity i) f = f)
     (left  : ∀ i j (f:mor i j), compose _ _ _ f (identity j) = f)
     (associativity : ∀ a b c d (f:mor a b) (g:mor b c) (h:mor c d),
         compose _ _ _ f (compose _ _ _ g h) = compose _ _ _ (compose _ _ _ f g) h)
-    : precategory.
+    : Precategory.
   intros.
-  apply (precategory_pair
+  exact ((precategory_pair
            (precategory_data_pair
               (precategory_ob_mor_pair
                  obj
                  (fun i j => mor i j))
               identity compose)
-           ((right,,left),,associativity)). Defined.
+           ((right,,left),,associativity)),,homsets). Defined.
 
 Lemma has_homsets_opp_precat (C: precategory) (hs: has_homsets C) : has_homsets (C^op).
 Proof.

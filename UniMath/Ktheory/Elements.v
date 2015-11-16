@@ -6,6 +6,8 @@ Require Export UniMath.CategoryTheory.precategories
                UniMath.Ktheory.Utilities.
 Require Export UniMath.Ktheory.Precategories.
 
+Local Open Scope cat.
+
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
   intros. exists (Σ c:ob C, set_to_type (X c)).
   intros a b.
