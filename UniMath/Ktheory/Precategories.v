@@ -9,11 +9,11 @@ Require Import UniMath.CategoryTheory.precategories
                .
 Require Import UniMath.Foundations.Sets.
 
-Notation "b ← a" := (precategory_morphisms a b) (at level 50).
-Notation "a → b" := (precategory_morphisms a b) (at level 50).
+Notation "b ← a" := (precategory_morphisms a b) (at level 50). (* agda input \l- or \leftarrow or \<- or \gets or or \l menu *)
+Notation "a → b" := (precategory_morphisms a b) (at level 50). (* agda input \r- or \to or \-> or \rightarrow or \r menu *)
 Notation "a ==> b" := (functor a b) (at level 50).
 Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing).
-Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativity, only parsing).
+Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativity, only parsing). (* agda input \circ *)
 Notation "# F" := (functor_on_morphisms F) (at level 3).
 Notation "C '^op'" := (opp_precat C) (at level 3).
 Notation SET := hset_precategory.

@@ -1,5 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
+(* this module is meant to be used without importing it *)
+
 Require Import
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
