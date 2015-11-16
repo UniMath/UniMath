@@ -1802,13 +1802,6 @@ Proof.
   apply gtNonnegativeRationals_noteq.
   exact ispositive_oneNonnegativeRationals.
 Qed.
-Lemma multNonnegativeRationals_le_lt:
-  ∀ x x' y y' : NonnegativeRationals,
-  (0 < x)%NRat -> (x <= x')%NRat -> (y < y')%NRat -> (x * y < x' * y')%NRat.
-Admitted.
-Lemma minus_ltNonnegativeRationals_l:
-  ∀ x y z : NonnegativeRationals, (x < y)%NRat -> (z < y)%NRat -> (x - z < y - z)%NRat.
-Admitted.
 Definition islinv_Dcuts_inv :
   ∀ x : Dcuts, forall Hx0 : x # 0, Dcuts_mult (Dcuts_inv x Hx0) x = 1.
 Proof.
