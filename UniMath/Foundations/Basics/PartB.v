@@ -480,6 +480,9 @@ Proof . intros . apply ( isofhlevelcontr 2 is ) . Defined .
 Lemma isasetaprop { X : UU } ( is : isaprop X ) : isaset X .
 Proof . intros . apply ( isofhlevelsnprop 1 is ) . Defined .
 
+Corollary isaset_total2 {X:UU} (P:X->UU) : isaset X -> (∀ x, isaset (P x)) -> isaset (Σ x, P x).
+Proof. intros. apply (isofhleveltotal2 2); assumption. Defined.
+
 (** The following lemma assert "uniqueness of identity proofs" (uip) for sets. *)
 
 Lemma uip { X : UU } ( is : isaset X ) { x x' : X } ( e e' : paths x x' ) : paths e e' .
