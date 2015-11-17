@@ -351,6 +351,8 @@ Definition weqdnicoprod_invmap {n} (j : stn(S n)) : stn n ⨿ unit <- stn (S n).
 Defined.    
 
 Definition weqdnicoprod_new n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
+Proof.
+  (* this version might be more computable than weqdnicoprod *)
   intros n j.
   apply (weqgradth (weqdnicoprod_map j) (weqdnicoprod_invmap j)).
   { intro x. induction x as [i|t].
@@ -818,11 +820,14 @@ Defined .
 Theorem weqweqstnsn ( n : nat ) : (stn(S n) ≃ stn (S n))  ≃  stn(S n) × ( stn n ≃ stn n ).
 Proof.
   intro. assert ( l := lastelement n ) .
-  intermediate_weq ( isolated_ne (stn (S n)) stnneq × (stn_compl l ≃ stn_compl l) ).
-  { apply weqcutonweq_ne. intro i. apply stn_eq_or_neq. }
+  intermediate_weq ( isolated (stn (S n)) × (compl _ l ≃ compl _ l) ).
+  { apply weqcutonweq. intro i. apply isdeceqstn. }
   apply weqdirprodf.
-  - apply weqisolatedstntostn_ne.
-  - apply weqweq. apply invweq. apply weqdnicompl.
+  - apply weqisolatedstntostn.
+  - apply weqweq. apply invweq.
+    intermediate_weq (compl_ne (stn (S n)) l (stnneq l)).
+    + apply weqdnicompl.
+    + apply compl_weq_compl_ne.
 Defined .   
 
 Theorem weqfromweqstntostn ( n : nat ) : weq ( weq ( stn n ) ( stn n ) ) ( stn ( factorial n ) ) . 
