@@ -852,22 +852,6 @@ Proof.
   Unset Printing Coercions.
 Defined.
 
-Definition cutonweq_ne {T:UU} (neq : neqReln T) t (is:isisolated_ne T t (neq t)) (w : T ≃ T ) :
-  isolated_ne T neq × (compl_ne T t (neq t) ≃ compl_ne T t (neq t)).
-Proof.
-  intros. split.
-  - exists (w t). apply isisolated_to_isisolated_ne, isisolatedweqf.
-    refine (isisolated_ne_to_isisolated _).
-    + exact (neq t).
-    + exact is.
-  - intermediate_weq (compl_ne T (w t) (neq (w t))).
-    + apply weqoncompl_ne.
-(*     + apply weqtranspos0_ne. *)
-(*       * now apply isisolatedweqf. *)
-(*       * assumption. *)
-(* Defined. *)
-Abort.
-
 (* Coprojections i.e. functions which are weakly equivalent to functions of the form ii1: X -> coprod X Y
 
 

@@ -321,6 +321,18 @@ Proof. intros . unfold isaprop. unfold isofhlevel .  intro x .
 assert ( is1 : iscontr X ).  split with x. intro t .  apply ( ee t x). assert ( is2 : isaprop X).  apply isapropifcontr. assumption.
 unfold isaprop in is2. unfold isofhlevel in is2.  apply (is2 x). Defined.
 
+Lemma isapropcoprod P Q : isaprop P -> isaprop Q -> (P -> Q -> ∅) -> isaprop (P ⨿ Q).
+Proof.
+  intros ? ? i j n. apply invproofirrelevance. intros a b. apply inv_equality_by_case.
+  induction a as [a|a].
+  - induction b as [b|b].
+    + apply i.
+    + contradicts (n a) b.
+  - induction b as [b|b].
+    + contradicts (n b) a.
+    + apply j.
+Defined.
+
 Lemma isweqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isaprop X ) ( isy : isaprop Y ) : isweq f.
 Proof. intros.
 assert (isx0: forall x:X, paths (g (f x)) x). intro. apply proofirrelevance . apply isx .

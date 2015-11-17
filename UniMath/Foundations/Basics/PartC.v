@@ -59,15 +59,12 @@ set (f:= todneg (neg X)). set (g:= negf  (todneg X)). set (is1:= isapropneg X). 
 
 Theorem isapropdec (X:UU): isaprop X -> isaprop (X ⨿ ¬X).
 (* uses [funextempty] *)
-Proof. intros X X0.
-assert (X1: forall (x x': X), paths x x'). apply (proofirrelevance _ X0).
-assert (X2: forall (x x': coprod X (X -> empty)), paths x x'). intros.
-induction x as  [ x0 | y0 ].  induction x' as [ x | y ].   apply (maponpaths (fun x:X => ii1  x)  (X1 x0 x)).
-apply (fromempty (y x0)).
-induction x' as [ x | y ].   apply (fromempty (y0 x)).
-assert (e: paths y0 y). apply (proofirrelevance _ (isapropneg X) y0 y). apply (maponpaths (fun f: X -> empty => ii2  f)  e).
-apply (invproofirrelevance _ X2).  Defined.
-
+Proof.
+  intros ? i. apply isapropcoprod.
+  - exact i.
+  - apply isapropneg.
+  - exact (λ x n, n x).
+Defined.       
 
 (** ** Isolated points and types with decidable equality. *)
 

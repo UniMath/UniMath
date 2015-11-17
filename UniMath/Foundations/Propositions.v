@@ -258,6 +258,11 @@ Definition hdisj_in2 { P Q : UU } : Q -> P∨Q.
 Proof. intros. apply hinhpr. now apply ii2.
 Defined.
 
+Lemma disjoint_disjunction (P Q:hProp) : (P -> Q -> ∅) -> hProp.
+Proof.
+  intros ? ? n. exact (P ⨿ Q,, isapropcoprod P Q (propproperty P) (propproperty Q) n).
+Defined.
+
 Definition hneg ( P : UU ) : hProp := hProppair ( ¬ P ) ( isapropneg P ) . 
 
 (* use scope "logic" for notations that might conflict with others *)

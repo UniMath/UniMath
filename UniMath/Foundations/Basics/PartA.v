@@ -1994,6 +1994,18 @@ Proof.
     + simpl. exact (maponpaths (@coprod_rect P Q (λ _,Q) (λ _,q) (λ q,q)) e).
 Defined.
 
+Definition inv_equality_by_case {P Q:UU} {x x':P ⨿ Q} : equality_cases x x' -> x=x'.
+Proof.
+  intros ? ? ? ? e.
+  induction x as [p|q].
+  - induction x' as [p'|q'].
+    + exact (maponpaths (@ii1 P Q) e).
+    + induction e.
+  - induction x' as [p'|q'].
+    + induction e.
+    + exact (maponpaths (@ii2 P Q) e).
+Defined.
+
 (* the same proof proves 4 lemmas: *)
 
 Lemma ii1_injectivity {P Q} (p p':P): ii1 (B:=Q) p = ii1 (B:=Q) p' -> p = p'.

@@ -101,9 +101,6 @@ Defined.
 Definition weqisolatedstntostn ( n : nat ) : weq ( isolated ( stn n ) ) ( stn n ) .
 Proof . intro . apply weqpr1 . intro x .   apply iscontraprop1 .  apply ( isapropisisolated ) . set ( int := isdeceqstn n x  ) . assumption .  Defined . 
 
-Definition weqisolatedstntostn_ne ( n : nat ) : weq ( isolated_ne ( stn n ) stnneq ) ( stn n ) .
-Admitted.
-
 Corollary isasetstn ( n : nat ) : isaset ( stn n ) .
 Proof. intro . apply ( isasetifdeceq _ ( isdeceqstn n ) ) . Defined . 
 
@@ -352,6 +349,7 @@ Defined.
 
 Definition weqdnicoprod_new n (j : stn(S n)) : stn n ⨿ unit ≃ stn (S n).
 Proof.
+  (* in progress *)
   (* this version might be more computable than weqdnicoprod *)
   intros n j.
   apply (weqgradth (weqdnicoprod_map j) (weqdnicoprod_invmap j)).
@@ -373,12 +371,7 @@ Proof.
                                         end true) j J)) as [b|b].
         { simpl. assert (b' := maponpaths (stntonat _) b); simpl in b'.
           induction b'. induction (isirreflnatlth _ a). }
-        { (* rewrite coprod_rect_compute_2. *)
-          (* apply maponpaths. *)
-          (* apply subtypeEquality_prop. *)
-          (* Set Printing Coercions. *)
-          (* unfold hfiberpr1. *)
-          (* unfold iscontrhfiberdni. *)
+        {
 Abort.
 
 (** *** Weak equivalences from [ stn n ] for [ n = 0 , 1 , 2 ] to [ empty ] , [ unit ] and [ bool ] ( see also the section on [ nelstruct ] in finitesets.v ) . *)
@@ -562,14 +555,6 @@ Defined.
 
 Corollary stnsum_pos_0 {n} (f:stn (S n)->nat) : f (firstelement _) ≤ stnsum f.
 Proof. intros. exact (stnsum_pos f (firstelement _)). Defined.
-
-Lemma stnsum_lt {n} (f g:stn n->nat) :
-  (∀ i, f i ≤ g i) -> (Σ j, f j < g j) -> stnsum f < stnsum g.
-Proof.
-  intros ? ? ? le lt.
-  induction lt as [j lt].
-
-Abort.
 
 Lemma stnsum_1 n : stnsum(λ i:stn n, 1) = n.
 Proof.
