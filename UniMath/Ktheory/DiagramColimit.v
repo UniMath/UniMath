@@ -70,6 +70,55 @@ Proof.
   - simpl. intros i j e. exact ((dmor D e : _ ⟶ _) a).
 Defined.
 
+Definition diagram_map {C I} (D D' : diagram I C) :=
+  Σ (f : ∀ i, D i → D' i), ∀ i j (e:edge i j), f j ∘ dmor D e = dmor D' e ∘ f i.
+
+Definition diagram_map_on_vertex {C I} {D D' : diagram I C} (f : diagram_map D D') i :
+  D i → D' i
+  := pr1 f i.
+
+Coercion diagram_map_on_vertex : diagram_map >-> Funclass.
+
+Definition diagram_map_comm {C I} {D D' : diagram I C}
+           (f : diagram_map D D') {i j : I} (e : edge i j) :
+  f j ∘ dmor D e = dmor D' e ∘ f i
+  := pr2 f i j e.
+
+Definition diagram_map_on_cocone_functor {C:Precategory} {I} {D D' : diagram I C}
+           (f : diagram_map D D') :
+  cocone_functor D' ⟶ cocone_functor D.
+Proof.
+  intros. refine (_,,_).
+  - intros c φ. unfold cocone_functor in φ; simpl in φ. refine (_,,_).
+    + intros i. exact (φ i ∘ f i).
+    + simpl.
+      abstract (
+          intros i j e;
+          refine (_ @ maponpaths (λ p, p ∘ f i) (coconeInCommutes φ i j e));
+          refine (assoc _ _ _ @ _ @ ! assoc _ _ _);
+          apply (maponpaths (λ p, _ ∘ p));
+          apply diagram_map_comm ) using L.
+  - abstract eqn_logic using L.
+Defined.
+
+Definition diagram_map_on_colim {C:Precategory} {I} {D D' : diagram I C}
+           (colimD : Colimit D) (colimD' : Colimit D') (f : diagram_map D D') :
+  Object colimD → Object colimD'.
+Proof.
+  intros.
+
+
+Abort.
+
+
+Definition diagram_eval_map {A B I} (D : diagram I [A, B]) {a a':A} (f:a→a') :
+  diagram_map (diagram_eval D a) (diagram_eval D a').
+Proof.
+  intros. refine (_,,_).
+  - intro i. unfold diagram_eval; simpl. exact (# (D i : _ ==> _) f).
+  - abstract eqn_logic using L.
+Defined.
+
 Theorem functorPrecategoryColimits (A B:Precategory) :
   hasColimits B -> hasColimits [A,B].
 Proof.
@@ -80,9 +129,18 @@ Proof.
     + refine (_,,_).
       * refine (_,,_).
         { intro a. exact (Object (colim I (diagram_eval D a))). }
+        { simpl. intros a a' f.
+          assert ( k := diagram_eval_map D f).
+
+
 
 
 
 Abort.
 
-(*  *)
+
+(*
+Local Variables:
+compile-command: "make -C ../.. TAGS TAGS-Ktheory UniMath/Ktheory/DiagramColimit.vo"
+End:
+*)

@@ -2,7 +2,8 @@
 
 Require Import UniMath.Foundations.Sets
                UniMath.Foundations.FunctionalExtensionality
-               UniMath.CategoryTheory.precategories.
+               UniMath.CategoryTheory.precategories
+               UniMath.CategoryTheory.functor_categories.
 
 Ltac prop_logic := 
   intros; simpl;
@@ -34,4 +35,6 @@ Ltac set_logic :=
 Ltac eqn_logic :=
   repeat (
       try intro; try split; try apply id_right; try apply id_left; try apply assoc;
-      try apply funextsec; try apply homset_property; try refine (total2_paths _ _)).
+      try apply funextsec; try apply homset_property; try refine (total2_paths _ _);
+      try refine (nat_trans_ax _ _ _ _); try refine (! nat_trans_ax _ _ _ _)
+    ).
