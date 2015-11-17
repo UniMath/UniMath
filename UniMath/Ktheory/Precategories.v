@@ -20,6 +20,9 @@ Notation "a → b" := (precategory_morphisms a b) (at level 50) : cat.
 
 Notation "a ==> b" := (functor a b) (at level 50) : cat.
 
+Notation "F ⟶ G" := (nat_trans F G) (at level 39) : cat.
+(* agda-input \--> or \r-- or \r menu *)
+
 Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing) : cat.
 
 Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativity) : cat.

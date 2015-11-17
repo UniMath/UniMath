@@ -15,8 +15,6 @@ Local Coercion dob : diagram >-> Funclass.
 Arguments id_left [C a b] f.
 Arguments id_right [C a b] f.
 Arguments assoc [C a b c d] f g h.
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-(* agda-input \--> or \r-- or \r menu *)
 
 Definition cocone_functor_data {C:Precategory} {I: graph} (D: diagram I C) : functor_data C SET.
 Proof.
@@ -105,11 +103,9 @@ Definition diagram_map_on_colim {C:Precategory} {I} {D D' : diagram I C}
            (colimD : Colimit D) (colimD' : Colimit D') (f : diagram_map D D') :
   Object colimD → Object colimD'.
 Proof.
-  intros.
-
-
-Abort.
-
+  intros. apply Representation.objectMap.
+  apply diagram_map_on_cocone_functor. exact f.
+Defined.
 
 Definition diagram_eval_map {A B I} (D : diagram I [A, B]) {a a':A} (f:a→a') :
   diagram_map (diagram_eval D a) (diagram_eval D a').
@@ -129,11 +125,13 @@ Proof.
     + refine (_,,_).
       * refine (_,,_).
         { intro a. exact (Object (colim I (diagram_eval D a))). }
-        { simpl. intros a a' f.
-          assert ( k := diagram_eval_map D f).
-
-
-
+        { simpl. intros a a' f. apply diagram_map_on_colim.
+          apply diagram_eval_map. exact f. }
+      * split.
+        { intro a; simpl. unfold diagram_map_on_colim.
+          unfold Representation.objectMap.
+          unfold invmap.
+          simpl.
 
 
 Abort.
