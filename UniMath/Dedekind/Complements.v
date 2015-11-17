@@ -140,6 +140,13 @@ Proof.
   now rewrite hqplusr0.
 Qed.
 
+Lemma hq0lehandmult:
+  ∀ n m : hq, 0 <= n -> 0 <= m -> 0 <= n * m.
+Proof.
+  intros n m.
+  exact hqmultgeh0geh0.
+Qed.
+
 Lemma hq0leminus :
   forall r q : hq, r <= q -> 0 <= q - r.
 Proof.
