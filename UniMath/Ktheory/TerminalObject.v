@@ -7,7 +7,7 @@ Require Import
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.Sets UniMath.Ktheory.Representation.
-
+Local Open Scope cat.
 Definition unitFunctor_data (C:precategory)
      : functor_data (Precategories.Precategory_obmor C) (Precategories.Precategory_obmor SET).
   intros. refine (tpair _ _ _).

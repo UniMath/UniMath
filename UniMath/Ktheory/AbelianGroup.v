@@ -10,6 +10,7 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Ktheory.InitialAndFinalObject.
 Require UniMath.Ktheory.Group UniMath.Ktheory.Product
         UniMath.Ktheory.Sum.
+Local Open Scope cat.
 Local Notation Hom := monoidfun.
 Local Notation "0" := (unel _).
 Local Notation "x + y" := ( op x y ).

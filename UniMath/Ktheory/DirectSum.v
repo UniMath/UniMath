@@ -12,6 +12,7 @@ Require Import
         UniMath.Ktheory.ZeroObject.
 Require UniMath.Ktheory.RawMatrix
         UniMath.Ktheory.Sum UniMath.Ktheory.Product UniMath.Ktheory.FiniteSet.
+Local Open Scope cat.
 Import FiniteSet.Coercions Sum.Coercions Product.Coercions.
 Definition identity_matrix {C:precategory} (hs: has_homsets C) (h:hasZeroObject C)
            {I} (d:I -> ob C) (dec : isdeceq I) : ∀ i j, Hom (d j) (d i).

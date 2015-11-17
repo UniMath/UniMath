@@ -8,6 +8,7 @@ Require Import
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.Representation.
+Local Open Scope cat.
 Definition zerocomp_type {C:precategory} (hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ob C -> Type.
 Proof. intros ? ? ? ? ? ? x.

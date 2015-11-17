@@ -1,6 +1,8 @@
 (** * Tactics *)
 
-Require Import UniMath.Foundations.Sets UniMath.Foundations.FunctionalExtensionality.
+Require Import UniMath.Foundations.Sets
+               UniMath.Foundations.FunctionalExtensionality
+               UniMath.CategoryTheory.precategories.
 
 Ltac prop_logic := 
   intros; simpl;
@@ -23,3 +25,13 @@ Proof. intros. exact (f ig). Defined.
 Ltac isaset_goal x :=
   let G := match goal with |- ?G => constr:(G) end in
   assert (x : isaset(G)).
+
+Ltac set_logic :=
+  repeat (
+      try intro; try apply isaset_total2; try apply isasetdirprod; try apply homset_property;
+      try apply impred_isaset; try apply isasetaprop).
+
+Ltac eqn_logic :=
+  repeat (
+      try intro; try split; try apply id_right; try apply id_left; try apply assoc;
+      try apply funextsec; try apply homset_property; try refine (total2_paths _ _)).

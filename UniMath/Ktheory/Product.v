@@ -6,6 +6,7 @@ Require Import
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Precategories
         UniMath.Ktheory.Utilities.
+Local Open Scope cat.
 Require UniMath.Ktheory.Representation UniMath.Ktheory.HomFamily.
 Definition type (C:precategory) (hs: has_homsets C) {I} (c:I -> ob C) :=
   Representation.Data (HomFamily.precat C^op (Precategories.has_homsets_opp_precat C hs) c).

@@ -12,6 +12,7 @@ Require Import
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.Sum UniMath.Ktheory.Product.
+Local Open Scope cat.
 Import UniMath.Ktheory.Sum.Coercions UniMath.Ktheory.Product.Coercions.
 Definition to_row {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C}
            (B:Sum.type C hs b) {d:ob C} :

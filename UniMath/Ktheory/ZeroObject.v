@@ -2,6 +2,7 @@
 
 Require Import UniMath.CategoryTheory.precategories UniMath.Foundations.Sets UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories .
 Require Import UniMath.Ktheory.InitialAndFinalObject.
+Local Open Scope cat.
 Definition ZeroObject (C:precategory) := Σ z:ob C, isInitialObject C z × isTerminalObject C z.
 Definition zero_opp (C:precategory) : ZeroObject C -> ZeroObject C^op.
   intros C [z [i t]]. exact (z,,t,,i). Defined.

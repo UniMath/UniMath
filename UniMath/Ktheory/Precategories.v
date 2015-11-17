@@ -31,11 +31,6 @@ Notation "C '^op'" := (opp_precat C) (at level 3) : cat.
 
 Notation SET := hset_precategory.
 
-Definition Precategory := Σ C:precategory, has_homsets C.
-Definition Precategory_to_precategory : Precategory -> precategory := pr1.
-Coercion Precategory_to_precategory : Precategory >-> precategory.
-Definition homset_property (C:Precategory) : has_homsets C := pr2 C.
-
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := C,,i.
 

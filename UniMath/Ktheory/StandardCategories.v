@@ -3,6 +3,7 @@
 Require Import UniMath.CategoryTheory.precategories
                UniMath.Foundations.Sets.
 Require Import UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories.
+Local Open Scope cat.
 
 Definition compose' { C:precategory_data } { a b c:ob C }
   (g:b → c) (f:a → b) : a → c.
@@ -32,13 +33,14 @@ Proof. intros ? ? ig  .
   assumption.
 Qed.
 
-Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> precategory.
+Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> Precategory.
   (* Later we'll define a version of this with no hlevel assumption on X,
      where [mor i j] will be defined with [pi0].  This version will still
      be useful, because in it, each arrow is a path, rather than an
      equivalence class of paths. *)
   intros obj iobj.
-  refine (Precategories.makePrecategory obj (fun x y => x = y)  _ _ _ _ _).
+  refine (Precategories.makePrecategory obj (fun x y => x = y) _  _ _ _ _ _).
+  { intros. refine (iobj _ _). }
   { reflexivity. }
   { intros. exact (f @ g). }
   { reflexivity. }

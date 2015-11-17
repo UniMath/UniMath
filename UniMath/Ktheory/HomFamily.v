@@ -9,6 +9,7 @@ Require Import
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories
         UniMath.Ktheory.Sets.
+Local Open Scope cat.
 Definition set (C:precategory) (hs:has_homsets C) {I} (c:I -> ob C) : ob C -> ob SET.
   intros ? ? ? ? x.
    apply (Sets.Product (fun i => hSetpair (Hom (c i) x) (hs _ _ ) )).
