@@ -29,28 +29,37 @@ Lemma has_homsets_cat_ob_mor (C:precategory) (hsC: has_homsets C)(X:C==>SET) :
 Proof.
   intros C hsC X a b. simpl. apply (isofhleveltotal2 2).
   - apply hsC.
-  - intro f; apply (isofhlevelsnprop 1). apply setproperty.
+  - intro f. apply isasetaprop. apply setproperty.
 Qed.
 
 Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr1 f.
+
 Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x → y) :
       get_mor f = get_mor g -> f = g.
-Proof. intros ? ? ? ? [f i] [g j] p. simpl in p. destruct p.
-       assert (k : i=j). { apply setproperty. }
-       destruct k. reflexivity. Qed.
+Proof. intros ? ? ? ? ? ? p. apply subtypeEquality.
+       - intro r. apply setproperty.
+       - exact p.
+Qed.
+
 Lemma isPrecategory {C:precategory} (X:C==>SET) : is_precategory (cat_data X).
 Proof. intros. split.
        { split.
          { intros.  apply mor_equality. apply id_left. }
          { intros. apply mor_equality. apply id_right. } }
        { intros. apply mor_equality. apply assoc. } Qed.
+
 Definition cat {C:precategory} (X:C==>SET) : precategory.
   intros. exact (cat_data X ,, isPrecategory X). Defined.
+
 Definition get_ob {C:precategory} {X:C==>SET} (x:ob (cat X)) := pr1 x.
+
 Definition get_el {C:precategory} {X:C==>SET} (x:ob (cat X)) := pr2 x.
+
 Definition get_eqn {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr2 f.
+
 Definition make_ob {C:precategory} (X:C==>SET) (c:ob C) (x:set_to_type (X c)) : ob (cat X)
   := (c,,x).
+
 Definition make_mor {C:precategory} (X:C==>SET) (r s : ob (cat X))
            (f : Hom (pr1 r) (pr1 s))
            (i : #X f (pr2 r) = pr2 s) : Hom r s
@@ -82,9 +91,11 @@ Proof.
 (** *** properties of projection to the original category *)
 
 Module pr1.
+
   Definition fun_data {C:precategory} (X:C==>SET) :
       functor_data (Precategories.Precategory_obmor (cat X)) (Precategories.Precategory_obmor C).
     intros. exists pr1. intros x x'. exact pr1. Defined.
+
   Definition func {C:precategory} (X:C==>SET) : cat X ==> C.
     intros. exists (fun_data _).
     split. { intros a . reflexivity. } { intros a b c f g . reflexivity. } Defined.

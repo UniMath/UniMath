@@ -115,8 +115,7 @@ Proof.
   - abstract eqn_logic using L.
 Defined.
 
-Theorem functorPrecategoryColimits (A B:Precategory) :
-  hasColimits B -> hasColimits [A,B].
+Theorem functorPrecategoryColimits (A B:Precategory) : hasColimits B -> hasColimits [A,B].
 Proof.
   intros ? ? colim ? ?.
   unfold Colimit. unfold Representation.Data.
@@ -129,9 +128,6 @@ Proof.
           apply diagram_eval_map. exact f. }
       * split.
         { intro a; simpl. unfold diagram_map_on_colim.
-          unfold Representation.objectMap.
-          unfold invmap.
-          simpl.
 
 
 Abort.
