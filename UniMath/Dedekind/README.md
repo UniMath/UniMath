@@ -18,8 +18,6 @@ For any question about this library, send an email to Catherine Lelay.
   * definition of a strict partial order
   * definition of a complete partial order
   * definition of effectively ordered sets
-* *HalfField.v*
-  * definition of an useful algebraic structure for non-negative rational and real numbers
 * *Field_comp.v*
   * additional results about fields
 * *Complements.v*
@@ -27,10 +25,13 @@ For any question about this library, send an email to Catherine Lelay.
 * *NonnegativeRationals.v*
   * definition of non-negative rational numbers
   * large and strict orders
-  * half field structure
+  * commutative division rig structure
 * *DedekindCuts.v*
   * definition of Dedekind cuts on non-negative rational numbers
-  * equality on Dedekind cuts
+  * equality and tight apartness on Dedekind cuts
+  * constructive commutative division rig of Dedekind cuts
   * large and strict orders
-  * definition of the least upper bound and the greatest lower bound
+  * definition of the least upper bound
+* *decDCuts.v*
+  * results about decidable Dedekind cuts 
   

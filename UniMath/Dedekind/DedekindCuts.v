@@ -2179,16 +2179,6 @@ Proof.
   now apply Dcuts_gt_nle.
 Qed.
 
-Lemma Dcuts_eq_nap :
-  forall x y : Dcuts, Dcuts_eq x y -> neg (x # y).
-Proof.
-  intros X Y Heq.
-  unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
-  intros [Hap|Hap].
-  - now apply Dcuts_eq_ge, Dcuts_ge_nlt in Heq.
-  - now apply Dcuts_eq_le, (Dcuts_le_ngt_rel X Y) in Heq.
-Qed.
-
 (** Mixed transitivity *)
 
 Lemma istrans_Dcuts_le_lt :
