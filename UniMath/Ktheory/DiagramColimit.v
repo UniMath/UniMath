@@ -115,13 +115,7 @@ Defined.
 Definition diagram_map_on_diagram_identity_map {C:Precategory} {I} (D:diagram I C) :
    diagram_map_on_cocone_functor (diagram_identity_map D) = nat_trans_id (cocone_functor D).
 Proof.
-  intros.
-  refine (total2_paths2 _ _).
-  - apply funextsec; intro c; apply funextsec; intro coco.
-    refine (total2_paths _ _).
-    + abstract (apply funextsec; intro i; apply id_left) using L.
-    + abstract eqn_logic using L.
-  - abstract (apply isaprop_is_nat_trans, category_hset.has_homsets_HSET) using L.
+  intros. abstract eqn_logic using L.
 Defined.
 
 Definition diagram_map_on_colim {C:Precategory} {I} {D D' : diagram I C}
@@ -143,21 +137,14 @@ Defined.
 Definition diagram_eval_map_on_identity {A B I} (D : diagram I [A, B]) a :
   diagram_eval_map D (identity a) = diagram_identity_map (diagram_eval D a).
 Proof.
-  intros.
-  unfold diagram_eval_map, diagram_identity_map.
-  refine (total2_paths2 _ _).
-  - simpl. apply funextsec; intro i.
-    exact (pr1 (pr2 (D i : _ ==> _)) a). (* there must be an abbreviation for this *)
-  - eqn_logic.
+  intros. abstract eqn_logic using L.
 Defined.
 
 Definition diagram_eval_map_on_composite {A B I} (D : diagram I [A, B]) {a a' a'':A} (f:a→a') (g:a'→a'') :
   diagram_eval_map D (g ∘ f) = diagram_map_composite (diagram_eval_map D f) (diagram_eval_map D g).
 Proof.
-  intros.
-
-
-Abort.
+  intros. abstract eqn_logic using L.
+Defined.
 
 Theorem functorPrecategoryColimits (A B:Precategory) : hasColimits B -> hasColimits [A,B].
 Proof.
