@@ -32,6 +32,10 @@ Ltac set_logic :=
       try intro; try apply isaset_total2; try apply isasetdirprod; try apply homset_property;
       try apply impred_isaset; try apply isasetaprop).
 
+Arguments id_left [C a b] f.
+Arguments id_right [C a b] f.
+Arguments assoc [C a b c d] f g h.
+
 Ltac eqn_logic :=
   repeat (
       try intro; try split; try apply id_right; try apply id_left; try apply assoc;

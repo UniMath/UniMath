@@ -12,11 +12,9 @@ Local Open Scope cat.
 Local Coercion coconeIn : cocone >-> Funclass.
 Local Coercion vertex : graph >-> UU.
 Local Coercion dob : diagram >-> Funclass.
-Arguments id_left [C a b] f.
-Arguments id_right [C a b] f.
-Arguments assoc [C a b c d] f g h.
 
 Definition cocone_functor_data {C:Precategory} {I: graph} (D: diagram I C) : functor_data C SET.
+(* [cocone D c] is the set of cocones from the base D to the vertex c in C *)
 Proof.
   intros. refine (_,,_).
   - intro c. exists (cocone D c). abstract (set_logic) using L.
@@ -71,11 +69,24 @@ Defined.
 Definition diagram_map {C I} (D D' : diagram I C) :=
   Σ (f : ∀ i, D i → D' i), ∀ i j (e:edge i j), f j ∘ dmor D e = dmor D' e ∘ f i.
 
-Definition diagram_map_on_vertex {C I} {D D' : diagram I C} (f : diagram_map D D') i :
-  D i → D' i
+Definition diagram_map_on_vertex {C I} {D D' : diagram I C} (f : diagram_map D D') i : D i → D' i
   := pr1 f i.
 
 Coercion diagram_map_on_vertex : diagram_map >-> Funclass.
+
+Definition diagram_identity_map {C I} (D : diagram I C) : diagram_map D D.
+Proof.
+  intros. exists (λ i, identity (D i)). intros. exact (id_right _ @ ! id_left _).
+Defined.
+
+Definition diagram_map_composite {C I} {D D' D'': diagram I C}
+           (f : diagram_map D D') (g : diagram_map D' D'') : diagram_map D D''.
+Proof.
+  intros. exists (λ i, g i ∘ f i). intros.
+  refine (assoc _ _ _ @ _ @ assoc _ _ _). intermediate_path (g j ∘ (dmor D' e ∘ f i)).
+  - apply (maponpaths (λ q, g j ∘ q)). apply (pr2 f).
+  - refine (! assoc _ _ _ @ _). apply (maponpaths (λ q, q ∘ f i)). apply (pr2 g).
+Defined.
 
 Definition diagram_map_comm {C I} {D D' : diagram I C}
            (f : diagram_map D D') {i j : I} (e : edge i j) :
@@ -84,7 +95,7 @@ Definition diagram_map_comm {C I} {D D' : diagram I C}
 
 Definition diagram_map_on_cocone_functor {C:Precategory} {I} {D D' : diagram I C}
            (f : diagram_map D D') :
-  cocone_functor D' ⟶ cocone_functor D.
+  cocone_functor D' ⟶ cocone_functor D. (* the notation means the result is a natural transformation *)
 Proof.
   intros. refine (_,,_).
   - intros c φ. unfold cocone_functor in φ; simpl in φ. refine (_,,_).
@@ -97,6 +108,20 @@ Proof.
           apply (maponpaths (λ p, _ ∘ p));
           apply diagram_map_comm ) using L.
   - abstract eqn_logic using L.
+Defined.
+
+(* we should make [diagram I C] into the objects of a category *)
+
+Definition diagram_map_on_diagram_identity_map {C:Precategory} {I} (D:diagram I C) :
+   diagram_map_on_cocone_functor (diagram_identity_map D) = nat_trans_id (cocone_functor D).
+Proof.
+  intros.
+  refine (total2_paths2 _ _).
+  - apply funextsec; intro c; apply funextsec; intro coco.
+    refine (total2_paths _ _).
+    + abstract (apply funextsec; intro i; apply id_left) using L.
+    + abstract eqn_logic using L.
+  - abstract (apply isaprop_is_nat_trans, category_hset.has_homsets_HSET) using L.
 Defined.
 
 Definition diagram_map_on_colim {C:Precategory} {I} {D D' : diagram I C}
@@ -115,6 +140,25 @@ Proof.
   - abstract eqn_logic using L.
 Defined.
 
+Definition diagram_eval_map_on_identity {A B I} (D : diagram I [A, B]) a :
+  diagram_eval_map D (identity a) = diagram_identity_map (diagram_eval D a).
+Proof.
+  intros.
+  unfold diagram_eval_map, diagram_identity_map.
+  refine (total2_paths2 _ _).
+  - simpl. apply funextsec; intro i.
+    exact (pr1 (pr2 (D i : _ ==> _)) a). (* there must be an abbreviation for this *)
+  - eqn_logic.
+Defined.
+
+Definition diagram_eval_map_on_composite {A B I} (D : diagram I [A, B]) {a a' a'':A} (f:a→a') (g:a'→a'') :
+  diagram_eval_map D (g ∘ f) = diagram_map_composite (diagram_eval_map D f) (diagram_eval_map D g).
+Proof.
+  intros.
+
+
+Abort.
+
 Theorem functorPrecategoryColimits (A B:Precategory) : hasColimits B -> hasColimits [A,B].
 Proof.
   intros ? ? colim ? ?.
@@ -127,9 +171,13 @@ Proof.
         { simpl. intros a a' f. apply diagram_map_on_colim.
           apply diagram_eval_map. exact f. }
       * split.
-        { intro a; simpl. unfold diagram_map_on_colim.
-          assert (k := (Representation.objectMapIdentity (colim I (diagram_eval D a)))).
-
+        { intro a; simpl.
+          refine (_ @ Representation.objectMapIdentity _).
+          unfold diagram_map_on_colim.
+          apply maponpaths.
+          rewrite diagram_eval_map_on_identity.
+          apply diagram_map_on_diagram_identity_map. }
+        { intros a a' a'' f g. simpl.
 
 Abort.
 
