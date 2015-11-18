@@ -60,10 +60,12 @@ Coercion aprel_pr1 : aprel >-> hrel.
 Definition apSet := Σ X : hSet, aprel X.
 Definition apSet_pr1 (X : apSet) : hSet := pr1 X.
 Coercion apSet_pr1 : apSet >-> hSet.
-Notation "x # y" := (pr2 (_ : apSet) x y) : constructive_logic.
+Arguments apSet_pr1 !X: simpl never.
+Definition apSet_pr2 (X : apSet) : aprel X := pr2 X.
+Notation "x # y" := (apSet_pr2 _ x y) : ap_scope.
 
-Delimit Scope constructive_logic with cl.
-Local Open Scope constructive_logic.
+Delimit Scope ap_scope with ap.
+Open Scope ap_scope.
 
 (** Lemmas about apartness *)
 
@@ -87,6 +89,7 @@ Proof.
   intros ?.
   exact (pr2 (pr2 (pr2 (pr2 X)))).
 Qed.
+Close Scope ap_scope.
 
 (** ** Tight apartness *)
 
@@ -102,6 +105,12 @@ Coercion tightap_aprel : tightap >-> aprel.
 Definition tightapSet := Σ X : hSet, tightap X.
 Definition tightapSet_apSet (X : tightapSet) : apSet := pr1 X ,, (tightap_aprel (pr2 X)).
 Coercion tightapSet_apSet : tightapSet >-> apSet.
+
+Definition tightapSet_rel (X : tightapSet) : hrel X := (pr1 (pr2 X)).
+Notation "x # y" := (tightapSet_rel _ x y) : tap_scope.
+
+Delimit Scope tap_scope with tap.
+Open Scope tap_scope.
 
 (** Some lemmas *)
 
@@ -208,16 +217,19 @@ Coercion apbinop_pr1 : apbinop >-> binop.
 
 Definition apsetwithbinop := Σ X : tightapSet, apbinop X.
 Definition apsetwithbinop_pr1 (X : apsetwithbinop) : tightapSet := pr1 X.
+Coercion apsetwithbinop_pr1 : apsetwithbinop >-> tightapSet.
 Definition apsetwithbinop_setwithbinop : apsetwithbinop -> setwithbinop :=
   λ X : apsetwithbinop, (apSet_pr1 (apsetwithbinop_pr1 X)),, (pr1 (pr2 X)).
-Coercion apsetwithbinop_setwithbinop : apsetwithbinop >-> setwithbinop.
+Definition op {X : apsetwithbinop} : binop X := op (X := apsetwithbinop_setwithbinop X).
 
 Definition apsetwith2binop := Σ X : tightapSet, apbinop X × apbinop X.
 Definition apsetwith2binop_pr1 (X : apsetwith2binop) : tightapSet := pr1 X.
+Coercion apsetwith2binop_pr1 : apsetwith2binop >-> tightapSet.
 Definition apsetwith2binop_setwith2binop : apsetwith2binop -> setwith2binop :=
   λ X : apsetwith2binop,
         apSet_pr1 (apsetwith2binop_pr1 X),, pr1 (pr1 (pr2 X)),, pr1 (pr2 (pr2 X)).
-Coercion apsetwith2binop_setwith2binop : apsetwith2binop >-> setwith2binop.
+Definition op1 {X : apsetwith2binop} : binop X := op1 (X := apsetwith2binop_setwith2binop X).
+Definition op2 {X : apsetwith2binop} : binop X := op2 (X := apsetwith2binop_setwith2binop X).
 
 (** Lemmas about sets with binops *)
 
@@ -299,3 +311,5 @@ Proof.
 Qed.
 
 End apsetwith2binop_pty.
+
+Close Scope tap_scope.

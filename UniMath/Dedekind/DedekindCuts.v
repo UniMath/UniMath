@@ -9,7 +9,7 @@ Require Import UniMath.Dedekind.NonnegativeRationals.
 Delimit Scope Dcuts_scope with Dcuts.
 Local Open Scope NRat_scope.
 Local Open Scope Dcuts_scope.
-Local Open Scope constructive_logic.
+Local Open Scope tap_scope.
 
 (** ** Definition of Dedekind cuts *)
 
@@ -2000,6 +2000,7 @@ Proof.
     + exact islunit_Dcuts_mult_one.
     + exact isrunit_Dcuts_mult_one.
 Defined.
+
 Definition Dcuts_ConstructiveCommutativeRig : ConstructiveCommutativeRig.
 Proof.
   exists Dcuts_apsetwith2binop.
@@ -2012,7 +2013,8 @@ Proof.
   - exact isrdistr_Dcuts_plus_mult.
   - exact iscomm_Dcuts_mult.
 Defined.
-Definition Dcuts_ConstructiveDivisionRig : ConstructiveDivisionRig.
+
+Definition Dcuts_ConstructiveCommutativeDivisionRig : ConstructiveCommutativeDivisionRig.
 Proof.
   exists Dcuts_ConstructiveCommutativeRig.
   split.
@@ -2024,7 +2026,6 @@ Proof.
 Defined.
 
 (** ** [Dcuts] is a effectively ordered set *)
-
 
 (** Partial order on [Dcuts] *)
 
@@ -2102,7 +2103,6 @@ Notation "x > y" := (Dcuts_gt x y) : Dcuts_scope.
 
 (** *** Various basic theorems about order, equality and apartness *)
 
-
 Open Scope Dcuts.
 
 (** Compatibility between order predicates *)
@@ -2151,7 +2151,6 @@ Lemma Dcuts_lt_gt :
 Proof.
   easy.
 Qed.
-
 
 Lemma Dcuts_gt_ge :
   forall x y : Dcuts, x > y -> x >= y.
@@ -2508,9 +2507,10 @@ Qed.*)
 
 (** * Definition of non-negative real numbers *)
 
-Definition NonnegativeReals : hSet := Dcuts.
+Definition NonnegativeReals : ConstructiveCommutativeDivisionRig := Dcuts_ConstructiveCommutativeDivisionRig.
 
-Definition NonnegativeReals_to_hsubtypesNonnegativeRationals : NonnegativeReals -> (hsubtypes NonnegativeRationals) := pr1.
+Definition NonnegativeReals_to_hsubtypesNonnegativeRationals :
+  NonnegativeReals -> (hsubtypes NonnegativeRationals) := pr1.
 Definition hsubtypesNonnegativeRationals_to_NonnegativeReals
   (X : NonnegativeRationals -> hProp)
   (Xbot : forall x : NonnegativeRationals,
@@ -2521,7 +2521,27 @@ Definition hsubtypesNonnegativeRationals_to_NonnegativeReals
   (Xtop : Dcuts_def_error X) : NonnegativeReals :=
   mk_Dcuts X Xbot Xopen Xtop.
 
-(** ** Order *)
+(** ** Constants and functions *)
+
+Definition apNonnegativeReals : hrel NonnegativeReals := CCDRap.
+Definition zeroNonnegativeReals : NonnegativeReals := CCDRzero.
+Definition oneNonnegativeReals : NonnegativeReals := CCDRone.
+Definition plusNonnegativeReals : binop NonnegativeReals := CCDRplus.
+Definition multNonnegativeReals : binop NonnegativeReals := CCDRmult.
+
+Delimit Scope NR_scope with NR.
+Open Scope NR_scope.
+
+Notation "x # y" := (apNonnegativeReals x y) : NR_scope.
+Notation "0" := zeroNonnegativeReals : NR_scope.
+Notation "1" := oneNonnegativeReals : NR_scope.
+Notation "x + y" := (plusNonnegativeReals x y) : NR_scope.
+Notation "x * y" := (multNonnegativeReals x y) : NR_scope.
+
+Definition invNonnegativeReals (x : NonnegativeReals) (Hx0 : x # 0) : NonnegativeReals :=
+  CCDRinv x Hx0.
+Definition divNonnegativeReals (x y : NonnegativeReals) (Hy0 : y # 0) : NonnegativeReals :=
+  multNonnegativeReals x (invNonnegativeReals y Hy0).
 
 Definition leNonnegativeReals : po NonnegativeReals := Dcuts_le.
 Definition geNonnegativeReals : po NonnegativeReals := Dcuts_ge.
@@ -2531,16 +2551,69 @@ Definition gtNonnegativeReals : StrongOrder NonnegativeReals := Dcuts_gt.
 Definition lubNonnegativeReals (E : hsubtypes NonnegativeReals) Eub :
   LeastUpperBound (X := eo_Dcuts) E :=
   tpair _ (Dcuts_lub E Eub) (islub_Dcuts_lub E Eub).
-
 (*Definition glbNonnegativeReals (E : hsubtypes NonnegativeReals) (Ene : hexists E) : GreatestLowerBound (X := eo_Dcuts) E :=
   tpair _ (Dcuts_glb E Ene) (isglb_Dcuts_glb E Ene).*)
 
-(** ** Constants and functions *)
-
 (** ** Theorems *)
+
+Definition isnonzeroNonnegativeReals: 1 # 0
+  := isnonzeroCCDR (X := NonnegativeReals).
+
+Definition ap_plusNonnegativeReals:
+  ∀ x x' y y' : NonnegativeReals,
+    x + y # x' + y' -> x # x' ∨ y # y' :=
+  apCCDRplus (X := NonnegativeReals).
+Definition ap_multNonnegativeReals:
+  ∀ x x' y y' : NonnegativeReals,
+    x * y # x' * y' -> x # x' ∨ y # y'
+  := apCCDRmult (X := NonnegativeReals).
+
+Definition islunit_zero_plusNonnegativeReals:
+  ∀ x : NonnegativeReals, 0 + x = x
+  := islunit_CCDRzero_CCDRplus (X := NonnegativeReals).
+Definition isrunit_zero_plusNonnegativeReals:
+  ∀ x : NonnegativeReals, x + 0 = x
+  := isrunit_CCDRzero_CCDRplus (X := NonnegativeReals).
+Definition isassoc_plusNonnegativeReals:
+  ∀ x y z : NonnegativeReals, x + y + z = x + (y + z)
+  := isassoc_CCDRplus (X := NonnegativeReals).
+Definition iscomm_plusNonnegativeReals:
+  ∀ x y : NonnegativeReals, x + y = y + x
+  := iscomm_CCDRplus (X := NonnegativeReals).
+
+Definition islunit_one_multNonnegativeReals:
+  ∀ x : NonnegativeReals, 1 * x = x
+  := islunit_CCDRone_CCDRmult (X := NonnegativeReals).
+Definition isrunit_one_multNonnegativeReals:
+  ∀ x : NonnegativeReals, x * 1 = x
+  := isrunit_CCDRone_CCDRmult (X := NonnegativeReals).
+Definition isassoc_multNonnegativeReals:
+  ∀ x y z : NonnegativeReals, x * y * z = x * (y * z)
+  := isassoc_CCDRmult (X := NonnegativeReals).
+Definition iscomm_multNonnegativeReals:
+  ∀ x y : NonnegativeReals, x * y = y * x
+  := iscomm_CCDRmult (X := NonnegativeReals).
+Definition islabsorb_zero_multNonnegativeReals:
+  ∀ x : NonnegativeReals, 0 * x = 0
+  := islabsorb_CCDRzero_CCDRmult (X := NonnegativeReals).
+Definition israbsorb_zero_multNonnegativeReals:
+  ∀ x : NonnegativeReals, x * 0 = 0
+  := israbsorb_CCDRzero_CCDRmult (X := NonnegativeReals).
+
+Definition islinv_invNonnegativeReals:
+  ∀ (x : NonnegativeReals) (Hx0 : x # 0), invNonnegativeReals x Hx0 * x = 1
+  := islinv_CCDRinv (X := NonnegativeReals).
+Definition isrinv_invNonnegativeReals:
+  ∀ (x : NonnegativeReals) (Hx0 : x # 0), x * invNonnegativeReals x Hx0 = 1
+  := isrinv_CCDRinv (X := NonnegativeReals).
+
+Definition isldistr_plus_multNonnegativeReals:
+  ∀ x y z : NonnegativeReals, z * (x + y) = z * x + z * y
+  := isldistr_CCDRplus_CCDRmult (X := NonnegativeReals).
 
 (** ** Opacify *)
 
+Global Opaque NonnegativeReals.
 Global Opaque leNonnegativeReals geNonnegativeReals.
 Global Opaque ltNonnegativeReals gtNonnegativeReals.
 Global Opaque lubNonnegativeReals (*glbNonnegativeReals*).
