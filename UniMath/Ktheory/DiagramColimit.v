@@ -128,6 +128,7 @@ Proof.
           apply diagram_eval_map. exact f. }
       * split.
         { intro a; simpl. unfold diagram_map_on_colim.
+          assert (k := (Representation.objectMapIdentity (colim I (diagram_eval D a)))).
 
 
 Abort.
