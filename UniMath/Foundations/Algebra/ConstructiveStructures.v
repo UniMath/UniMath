@@ -15,7 +15,6 @@ Local Open Scope rng_scope.
 
 (** ** Constructive rig *)
 
-
 Definition ConstructiveRig :=
   Σ X : apsetwith2binop, @isrigops X op1 op2.
 Definition ConstructiveRig_set (X : ConstructiveRig) : apsetwith2binop := pr1 X.

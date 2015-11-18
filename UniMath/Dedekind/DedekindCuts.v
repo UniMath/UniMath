@@ -322,6 +322,34 @@ Qed.
 
 Local Notation "x < y" := (Dcuts_lt_rel x y) : Dcuts_scope.
 
+Lemma not_Dcuts_lt_le :
+  forall X Y : Dcuts_set, neg (Y < X) -> forall x, x ∈ X -> x ∈ Y.
+Proof.
+  intros X Y Hlt x Xx.
+  generalize (is_Dcuts_open _ _ Xx) ; apply hinhuniv ; intros (x',(Xx',Hx)).
+  rewrite <- minusNonnegativeRationals_gt0 in Hx.
+  generalize (is_Dcuts_error Y _ Hx) ; apply hinhuniv ; intros [nYc | ].
+  - apply fromempty, Hlt.
+    apply hinhpr.
+    exists x' ; split.
+    + intro Yx' ; apply nYc.
+      apply is_Dcuts_bot with (1 := Yx').
+      now apply minusNonnegativeRationals_le.
+    + exact Xx'.
+  - apply hinhuniv ; intros (y,(Yy,Hy)).
+    apply is_Dcuts_bot with (1 := Yy).
+    rewrite <- notlt_geNonnegativeRationals ; intro H ; apply Hlt.
+    apply hinhpr.
+    exists (y + (x' - x)) ; split.
+    + exact Hy.
+    + apply is_Dcuts_bot with (1 := Xx').
+      pattern x' at 2 ; rewrite <- (minusNonegativeRationals_plus_r x x').
+      rewrite iscomm_plusNonnegativeRationals, plusNonnegativeRationals_lecompat_l.
+      now apply lt_leNonnegativeRationals, H.
+      apply lt_leNonnegativeRationals ; rewrite <- minusNonnegativeRationals_gt0.
+      exact Hx.
+Qed.
+
 (** ** Apartness on [Dcuts] *)
 
 Definition Dcuts_ap_rel (X Y : Dcuts_set) : hProp :=
@@ -354,15 +382,34 @@ Proof.
     + now left ; apply hinhpr ; right.
 Qed.
 
-Definition Dcuts : apSet :=
-  Dcuts_set,, Dcuts_ap_rel,,
-       isirrefl_Dcuts_ap_rel,, issymm_Dcuts_ap_rel,, iscotrans_Dcuts_ap_rel.
-
-Lemma Dcuts_eq_notap :
-  forall x y : Dcuts, x = y -> neg (x # y).
+Lemma istight_Dcuts_ap_rel : istight Dcuts_ap_rel.
 Proof.
-  intros x y ->.
-  now apply isirrefl_Dcuts_ap_rel.
+  intros X Y Hap.
+  apply Dcuts_eq_is_eq.
+  intros r ; split ; revert r.
+  - apply not_Dcuts_lt_le.
+    intro Hlt ; apply Hap.
+    now apply hinhpr ; right.
+  - apply not_Dcuts_lt_le.
+    intro Hlt ; apply Hap.
+    now apply hinhpr ; left.
+Qed.
+
+Definition Dcuts : tightapSet :=
+  Dcuts_set ,, Dcuts_ap_rel ,,
+    (isirrefl_Dcuts_ap_rel ,, issymm_Dcuts_ap_rel ,, iscotrans_Dcuts_ap_rel) ,,
+    istight_Dcuts_ap_rel.
+
+Lemma not_Dcuts_ap_eq :
+  forall x y : Dcuts, (neg (x # y)) = (x = y).
+Proof.
+  intros x y.
+  apply uahp'.
+  - apply isapropneg.
+  - apply (pr2 Dcuts_set).
+  - now apply istight_Dcuts_ap_rel.
+  - intros ->.
+    now apply isirrefl_Dcuts_ap_rel.
 Qed.
 
 (** * Algebraic structures on Dcuts *)
@@ -471,7 +518,8 @@ Lemma Dcuts_zero_empty :
 Proof.
   intros r ; simpl.
   apply uahp ; simpl.
-  - now apply isnonnegative_NonnegativeRationals'.
+  - change (neg (r < 0)%NRat).
+    now apply isnonnegative_NonnegativeRationals'.
   - easy.
 Qed.
 Lemma Dcuts_notempty :

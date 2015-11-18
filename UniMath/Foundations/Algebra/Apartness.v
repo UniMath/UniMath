@@ -161,9 +161,9 @@ Qed.
 
 (** ** Operations and apartness *)
 
-Definition isapunop {X : apSet} (op :unop X) :=
+Definition isapunop {X : tightapSet} (op :unop X) :=
   forall x y : X, op x # op y -> x # y.
-Lemma isaprop_isapunop {X : apSet} (op :unop X) :
+Lemma isaprop_isapunop {X : tightapSet} (op :unop X) :
   isaprop (isapunop op).
 Proof.
   intros ? ap op.
@@ -173,27 +173,27 @@ Proof.
   now apply pr2.
 Qed.
 
-Definition islapbinop {X : apSet} (op : binop X) :=
+Definition islapbinop {X : tightapSet} (op : binop X) :=
   forall x, isapunop (λ y, op y x).
-Definition israpbinop {X : apSet} (op : binop X) :=
+Definition israpbinop {X : tightapSet} (op : binop X) :=
   forall x, isapunop (λ y, op x y).
-Definition isapbinop {X : apSet} (op : binop X) :=
+Definition isapbinop {X : tightapSet} (op : binop X) :=
   (islapbinop op) × (israpbinop op).
-Lemma isaprop_islapbinop {X : apSet} (op : binop X) :
+Lemma isaprop_islapbinop {X : tightapSet} (op : binop X) :
   isaprop (islapbinop op).
 Proof.
   intros ? op.
   apply impred_isaprop ; intro x.
   now apply isaprop_isapunop.
 Qed.
-Lemma isaprop_israpbinop {X : apSet} (op : binop X) :
+Lemma isaprop_israpbinop {X : tightapSet} (op : binop X) :
   isaprop (israpbinop op).
 Proof.
   intros ? op.
   apply impred_isaprop ; intro x.
   now apply isaprop_isapunop.
 Qed.
-Lemma isaprop_isapbinop {X : apSet} (op :binop X) :
+Lemma isaprop_isapbinop {X : tightapSet} (op :binop X) :
   isaprop (isapbinop op).
 Proof.
   intros ? ap op.
@@ -202,18 +202,18 @@ Proof.
   now apply isaprop_israpbinop.
 Qed.
 
-Definition apbinop (X : apSet) := Σ op : binop X, isapbinop op.
-Definition apbinop_pr1 {X : apSet} (op : apbinop X) : binop X := pr1 op.
+Definition apbinop (X : tightapSet) := Σ op : binop X, isapbinop op.
+Definition apbinop_pr1 {X : tightapSet} (op : apbinop X) : binop X := pr1 op.
 Coercion apbinop_pr1 : apbinop >-> binop.
 
-Definition apsetwithbinop := Σ X : apSet, apbinop X.
-Definition apsetwithbinop_pr1 (X : apsetwithbinop) : apSet := pr1 X.
+Definition apsetwithbinop := Σ X : tightapSet, apbinop X.
+Definition apsetwithbinop_pr1 (X : apsetwithbinop) : tightapSet := pr1 X.
 Definition apsetwithbinop_setwithbinop : apsetwithbinop -> setwithbinop :=
   λ X : apsetwithbinop, (apSet_pr1 (apsetwithbinop_pr1 X)),, (pr1 (pr2 X)).
 Coercion apsetwithbinop_setwithbinop : apsetwithbinop >-> setwithbinop.
 
-Definition apsetwith2binop := Σ X : apSet, apbinop X × apbinop X.
-Definition apsetwith2binop_pr1 (X : apsetwith2binop) : apSet := pr1 X.
+Definition apsetwith2binop := Σ X : tightapSet, apbinop X × apbinop X.
+Definition apsetwith2binop_pr1 (X : apsetwith2binop) : tightapSet := pr1 X.
 Definition apsetwith2binop_setwith2binop : apsetwith2binop -> setwith2binop :=
   λ X : apsetwith2binop,
         apSet_pr1 (apsetwith2binop_pr1 X),, pr1 (pr1 (pr2 X)),, pr1 (pr2 (pr2 X)).
@@ -243,7 +243,7 @@ Lemma isapbinop_op :
   ∀ x x' y y' : X, op x y # op x' y' -> x # x' ∨ y # y'.
 Proof.
   intros x x' y y' Hop.
-  apply (iscotransapSet _ (op x' y)) in Hop.
+  apply (iscotranstightapSet _ (op x' y)) in Hop.
   revert Hop ; apply hinhfun ; intros [Hop | Hop].
   - left ; revert Hop.
     now apply islapbinop_op.
