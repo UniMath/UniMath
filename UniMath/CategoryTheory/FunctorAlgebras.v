@@ -282,6 +282,15 @@ Proof.
   - apply (pr2 _ ).
 Defined.
 
+Lemma is_category_FunctorAlg : is_category (FunctorAlg (pr2 H)).
+Proof.
+  split.
+  - apply isweq_idtoiso_FunctorAlg.
+  - intros a b.
+    apply isaset_algebra_mor.
+    apply (pr2 H).
+Defined.
+
 End FunctorAlg_saturated.
 
 End Algebra_Definition.
