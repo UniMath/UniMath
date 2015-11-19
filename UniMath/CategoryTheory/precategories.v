@@ -148,11 +148,6 @@ Proof.
   apply isapropisaset.
 Qed.
 
-Definition Precategory := Σ C:precategory, has_homsets C.
-Definition Precategory_to_precategory : Precategory -> precategory := pr1.
-Coercion Precategory_to_precategory : Precategory >-> precategory.
-Definition homset_property (C:Precategory) : has_homsets C := pr2 C.
-
 Lemma isaprop_is_precategory (C : precategory_data)(hs: has_homsets C)
   : isaprop (is_precategory C).
 Proof.

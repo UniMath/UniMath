@@ -26,25 +26,3 @@ Proof. intros. exact (f ig). Defined.
 Ltac isaset_goal x :=
   let G := match goal with |- ?G => constr:(G) end in
   assert (x : isaset(G)).
-
-Ltac set_logic :=
-  repeat (
-      try intro; try apply isaset_total2; try apply isasetdirprod; try apply homset_property;
-      try apply impred_isaset; try apply isasetaprop).
-
-Arguments id_left [C a b] f.
-Arguments id_right [C a b] f.
-Arguments assoc [C a b c d] f g h.
-
-Require Import UniMath.CategoryTheory.category_hset.
-
-Ltac eqn_logic :=
-  repeat (
-      try intro; try split; try apply id_right; try apply id_left; try apply assoc;
-      try apply funextsec; try apply homset_property; try refine (total2_paths _ _);
-      try refine (nat_trans_ax _ _ _ _); try refine (! nat_trans_ax _ _ _ _);
-      try apply functor_id;
-      try apply functor_comp;
-      try apply isaprop_is_nat_trans;
-      try apply category_hset.has_homsets_HSET
-    ).

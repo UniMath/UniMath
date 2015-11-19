@@ -7,6 +7,8 @@ Require Import
         UniMath.CategoryTheory.colimits.colimits.
 Require UniMath.Ktheory.Representation.
 
+(* I've abandoned this file and switched to working on Colimit.v *)
+
 Local Open Scope cat.
 
 Local Coercion coconeIn : cocone >-> Funclass.
@@ -50,14 +52,6 @@ Definition InCommutes {C:Precategory}
 Proof. intros. apply coconeInCommutes. Defined.
 
 Definition hasColimits (C:Precategory) := ∀ I (D: diagram I C), Colimit D.
-
-Definition functorPrecategory (C D:Precategory) : Precategory.
-Proof.
-  intros. exists (functor_precategory C D (homset_property D)).
-  abstract set_logic using L.
-Defined.
-
-Notation "[ C , D ]" := (functorPrecategory C D) : cat.
 
 Definition diagram_eval {A B I} : diagram I [A, B] -> A -> diagram I B.
 Proof.

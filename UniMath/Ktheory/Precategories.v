@@ -7,10 +7,44 @@ Require Import UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.category_hset
                UniMath.CategoryTheory.functor_categories .
 Require Import UniMath.Foundations.Sets.
-
+Require Import UniMath.CategoryTheory.category_hset.
 Delimit Scope cat with cat.
-
 Local Open Scope cat.
+
+Arguments id_left [C a b] f.
+Arguments id_right [C a b] f.
+Arguments assoc [C a b c d] f g h.
+
+Definition Precategory := Σ C:precategory, has_homsets C.
+Definition Precategory_pair C h : Precategory := C,,h.
+Definition Precategory_to_precategory : Precategory -> precategory := pr1.
+Coercion Precategory_to_precategory : Precategory >-> precategory.
+Definition homset_property (C:Precategory) : has_homsets C := pr2 C.
+
+Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
+
+Ltac eqn_logic :=
+  repeat (
+      try intro; try split; try apply id_right; try apply id_left; try apply assoc;
+      try apply funextsec; try apply homset_property; try refine (total2_paths _ _);
+      try refine (nat_trans_ax _ _ _ _); try refine (! nat_trans_ax _ _ _ _);
+      try apply functor_id;
+      try apply functor_comp;
+      try apply isaprop_is_nat_trans
+    ).
+
+Ltac set_logic :=
+  repeat (
+      try intro; try apply isaset_total2; try apply isasetdirprod; try apply homset_property;
+      try apply impred_isaset; try apply isasetaprop).
+
+Definition functorPrecategory (C D:Precategory) : Precategory.
+Proof.
+  intros. exists (functor_precategory C D (homset_property D)).
+  abstract set_logic using L.
+Defined.
+
+Notation "[ C , D ]" := (functorPrecategory C D) : cat.
 
 Notation "b ← a" := (precategory_morphisms a b) (at level 50) : cat.
 (* agda input \l- or \leftarrow or \<- or \gets or or \l menu *)
@@ -23,7 +57,7 @@ Notation "a ==> b" := (functor a b) (at level 50) : cat.
 Notation "F ⟶ G" := (nat_trans F G) (at level 39) : cat.
 (* agda-input \--> or \r-- or \r menu *)
 
-Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing) : cat.
+(* Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing) : cat. *)
 
 Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativity) : cat.
 (* agda input \circ *)
@@ -31,8 +65,6 @@ Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativi
 Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
 
 Notation "C '^op'" := (opp_precat C) (at level 3) : cat.
-
-Notation SET := hset_precategory.
 
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := C,,i.
