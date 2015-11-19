@@ -88,13 +88,15 @@ Qed.
 
 Local Lemma isEffectiveOrder_hnnq : isEffectiveOrder hnnq_le hnnq_lt.
 Proof.
-  split ; split.
+  split ; [ split | repeat split ].
   - exact ispreorder_hnnq_le.
   - exact isStrongOrder_hnnq_lt.
   - intros x y.
     now apply hqlthtoleh.
-  - intros x y.
-    now apply hqlehtoneghqgth.
+  - intros x y z.
+    now apply hqlthlehtrans.
+  - intros x y z.
+    now apply hqlehlthtrans.
 Qed.
 
 (** ** hnnq is a half field *)
@@ -271,22 +273,18 @@ Definition NonnegativeRationals_EffectivelyOrderedSet :=
   @pairEffectivelyOrderedSet NonnegativeRationals (pairEffectiveOrder _ _ isEffectiveOrder_hnnq).
 
 Definition leNonnegativeRationals : po NonnegativeRationals :=
-  @EOle NonnegativeRationals_EffectivelyOrderedSet.
-Arguments leNonnegativeRationals:simpl never.
+  EOle (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition geNonnegativeRationals : po NonnegativeRationals :=
-  @EOge NonnegativeRationals_EffectivelyOrderedSet.
-Arguments geNonnegativeRationals:simpl never.
+  EOge (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition ltNonnegativeRationals : StrongOrder NonnegativeRationals :=
-  @EOlt NonnegativeRationals_EffectivelyOrderedSet.
-Arguments ltNonnegativeRationals:simpl never.
+  EOlt (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition gtNonnegativeRationals : StrongOrder NonnegativeRationals :=
-  @EOgt NonnegativeRationals_EffectivelyOrderedSet.
-Arguments gtNonnegativeRationals:simpl never.
+  EOgt (X := NonnegativeRationals_EffectivelyOrderedSet).
 
-Notation "x <= y" := (leNonnegativeRationals x y) : NRat_scope.
-Notation "x >= y" := (geNonnegativeRationals x y) : NRat_scope.
-Notation "x < y" := (ltNonnegativeRationals x y) : NRat_scope.
-Notation "x > y" := (gtNonnegativeRationals x y) : NRat_scope.
+Notation "x <= y" := (EOle_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) : NRat_scope.
+Notation "x >= y" := (EOge_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) : NRat_scope.
+Notation "x < y" := (EOlt_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) : NRat_scope.
+Notation "x > y" := (EOgt_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) : NRat_scope.
 
 Definition zeroNonnegativeRationals : NonnegativeRationals := hnnq_zero.
 Definition oneNonnegativeRationals : NonnegativeRationals := hnnq_one.
@@ -410,7 +408,8 @@ Qed.
 
 (** *** Decidability *)
 
-Lemma isdeceq_NonnegativeRationals : isdeceq NonnegativeRationals.
+Lemma isdeceq_NonnegativeRationals :
+  ∀ x y : NonnegativeRationals, (x = y) ⨿ (x ≠ y).
 Proof.
   intros (x,Hx) (y,Hy).
   destruct (isdeceqhq x y) as [H|H].
@@ -423,12 +422,14 @@ Proof.
     revert H0.
     apply base_paths.
 Qed.
-Lemma isdecrel_leNonnegativeRationals : isdecrel leNonnegativeRationals.
+Lemma isdecrel_leNonnegativeRationals :
+  ∀ x y : NonnegativeRationals, (x <= y) ⨿ ¬ (x <= y).
 Proof.
   intros x y.
   apply isdecrelhqleh.
 Qed.
-Lemma isdecrel_ltNonnegativeRationals : isdecrel ltNonnegativeRationals.
+Lemma isdecrel_ltNonnegativeRationals :
+  ∀ x y : NonnegativeRationals, (x < y) ⨿ ¬ (x < y).
 Proof.
   intros x y.
   apply isdecrelhqlth.
@@ -471,52 +472,45 @@ Qed.
 (** *** Basic theorems about order *)
 
 Definition lt_leNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, x < y -> x <= y :=
-  @EOlt_EOle NonnegativeRationals_EffectivelyOrderedSet.
+  ∀ x y : NonnegativeRationals, x < y -> x <= y
+  := EOlt_le (X := NonnegativeRationals_EffectivelyOrderedSet).
 
 Definition isrefl_leNonnegativeRationals:
   ∀ x : NonnegativeRationals, x <= x :=
-  isrefl_po _.
+  isrefl_EOle (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition istrans_leNonnegativeRationals:
   ∀ x y z : NonnegativeRationals, x <= y -> y <= z -> x <= z :=
-  istrans_po _.
+  istrans_EOle (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition isirrefl_ltNonnegativeRationals:
   ∀ x : NonnegativeRationals, ¬ (x < x) :=
-  isirrefl_StrongOrder _.
-Definition istrans_ltNonnegativeRationals : istrans ltNonnegativeRationals :=
-  istrans_StrongOrder _.
-Lemma istrans_lt_le_ltNonnegativeRationals:
-  ∀ x y z : NonnegativeRationals, x < y -> y <= z -> x < z.
-Proof.
-  intros x y z.
-  now apply hqlthlehtrans.
-Qed.
-Lemma istrans_le_lt_ltNonnegativeRationals :
-  ∀ x y z : NonnegativeRationals,
-    x <= y -> y < z -> x < z.
-Proof.
-  intros x y z.
-  now apply hqlehlthtrans.
-Qed.
+  isirrefl_EOlt (X := NonnegativeRationals_EffectivelyOrderedSet).
+Definition istrans_ltNonnegativeRationals :
+  ∀ x y z : NonnegativeRationals, x < y -> y < z -> x < z
+  := istrans_EOlt (X := NonnegativeRationals_EffectivelyOrderedSet).
+Definition istrans_lt_le_ltNonnegativeRationals:
+  ∀ x y z : NonnegativeRationals, x < y -> y <= z -> x < z
+  := istrans_EOlt_le (X := NonnegativeRationals_EffectivelyOrderedSet).
+Definition istrans_le_lt_ltNonnegativeRationals :
+  ∀ x y z : NonnegativeRationals, x <= y -> y < z -> x < z
+  := istrans_EOle_lt (X := NonnegativeRationals_EffectivelyOrderedSet).
 
-Lemma isantisymm_leNonnegativeRationals : isantisymm leNonnegativeRationals.
+Lemma isantisymm_leNonnegativeRationals :
+  ∀ x y : NonnegativeRationals, x <= y -> y <= x -> x = y.
 Proof.
   intros x y Hle Hge.
   apply subtypeEquality_prop.
   now apply isantisymmhqleh.
 Qed.
 
-Lemma le_geNonnegativeRationals:
-  ∀ x y : NonnegativeRationals, (x >= y) = (y <= x).
-Proof.
-  reflexivity.
-Qed.
-Lemma lt_gtNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, (x > y) = (y < x).
-Proof.
-  intros x y.
-  now apply uahp ; intro H ; apply H.
-Qed.
+Definition ge_leNonnegativeRationals:
+  ∀ x y : NonnegativeRationals, (x >= y) = (y <= x)
+  := EOge_le (X := NonnegativeRationals_EffectivelyOrderedSet).
+Definition lt_gtNonnegativeRationals:
+  ∀ x y : NonnegativeRationals, (x > y) = (y < x)
+  := EOgt_lt (X := NonnegativeRationals_EffectivelyOrderedSet).
+Definition notlt_geNonnegativeRationals:
+  ∀ x y : NonnegativeRationals, (¬ (x < y)) = (y <= x)
+  := not_EOlt_le (X := NonnegativeRationals_EffectivelyOrderedSet).
 Lemma notge_ltNonnegativeRationals :
   ∀ x y : NonnegativeRationals, (¬ (y <= x)) = (x < y).
 Proof.
@@ -527,27 +521,13 @@ Proof.
   - now apply neghqgehtolth.
   - now apply hqlthtoneghqgeh.
 Qed.
-Lemma notlt_geNonnegativeRationals:
-  ∀ x y : NonnegativeRationals, (¬ (x < y)) = (y <= x).
-Proof.
-  intros x y.
-  reflexivity.
-Qed.
 
-Lemma ltNonnegativeRationals_noteq :
-  ∀ x y, x < y -> x ≠ y.
-Proof.
-  intros x y Hlt Heq.
-  revert Hlt ; rewrite Heq.
-  now apply isirrefl_ltNonnegativeRationals.
-Qed.
-Lemma gtNonnegativeRationals_noteq :
-  ∀ x y, x > y -> x ≠ y.
-Proof.
-  intros x y Hgt Heq.
-  revert Hgt ; rewrite Heq.
-  now apply isirrefl_ltNonnegativeRationals.
-Qed.
+Definition ltNonnegativeRationals_noteq :
+  ∀ x y, x < y -> x ≠ y
+  := EOlt_noteq (X := NonnegativeRationals_EffectivelyOrderedSet).
+Definition gtNonnegativeRationals_noteq :
+  ∀ x y, x > y -> x ≠ y
+  := EOgt_noteq (X := NonnegativeRationals_EffectivelyOrderedSet).
 
 Lemma between_ltNonnegativeRationals :
   ∀ x y : NonnegativeRationals,
@@ -970,7 +950,7 @@ Proof.
   - rewrite minusNonegativeRationals_eq_zero, minusNonnegativeRationals_gt0.
     exact Hyz.
     exact Hxz.
-  - rewrite notge_ltNonnegativeRationals in Hxz.
+  - rewrite (notge_ltNonnegativeRationals z x) in Hxz.
     rewrite <- (plusNonnegativeRationals_ltcompat_r z), !minusNonegativeRationals_plus_r.
     exact Hxy.
     now apply lt_leNonnegativeRationals, Hyz.
