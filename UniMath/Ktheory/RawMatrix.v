@@ -9,6 +9,7 @@ Require Import
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
+        UniMath.Ktheory.Representation
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.Sum UniMath.Ktheory.Product.
@@ -17,7 +18,7 @@ Import UniMath.Ktheory.Sum.Coercions UniMath.Ktheory.Product.Coercions.
 Definition to_row {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C}
            (B:Sum.type C hs b) {d:ob C} :
   weq (Hom B d) (∀ j, Hom (b j) d).
-Proof. intros. exact (Representation.Iso B d). Defined.
+Proof. intros. exact (universalProperty B d). Defined.
 Definition from_row {C:precategory} (hs: has_homsets C)  {I} {b:I -> ob C}
            (B:Sum.type C hs b) {d:ob C} :
   weq (∀ j, Hom (b j) d) (Hom B d).
@@ -28,7 +29,7 @@ Lemma from_row_entry {C:precategory} (hs: has_homsets C) {I} {b:I -> ob C}
 Proof. intros. exact (apevalat j (homotweqinvweq (to_row hs B) f)). Qed.
 Definition to_col {C:precategory} (hs: has_homsets C) {I} {d:I -> ob C} (D:Product.type C hs d) {b:ob C} :
   weq (Hom b D) (∀ i, Hom b (d i)).
-Proof. intros. exact (Representation.Iso D b). Defined.
+Proof. intros. exact (universalProperty D b). Defined.
 Definition from_col {C:precategory} (hs: has_homsets C) {I} {d:I -> ob C}
            (D:Product.type C hs d) {b:ob C} :
   weq (∀ i, Hom b (d i)) (Hom b D).

@@ -3,44 +3,44 @@ Require Import UniMath.Ktheory.Precategories.
 
 Local Open Scope cat.
 
-Definition Data {C:precategory} (X:C==>SET) := InitialObject (Elements.cat X).
+Definition Representation {C:Precategory} (X:C==>SET) := InitialObject (Elements.cat X).
 
-Definition Property {C:precategory} (X:C==>SET) := ∥ Data X ∥.
+Definition isRepresentable {C:Precategory} (X:C==>SET) := ∥ Representation X ∥.
 
-Definition Pair {C:precategory} {X:C==>SET} (r:Data X) : (Elements.cat X)
-  := theInitialObject r.
+Definition Object {C:Precategory} {X:C==>SET} (r:Representation X) : C.
+Proof.
+  intros.
+  exact (get_ob (theInitialObject r)).
+Defined.
 
-Definition IsInitial {C:precategory} {X:C==>SET} (r:Data X) :
-  isInitialObject (Elements.cat X) (Pair r).
-Proof. intros. exact (theInitialProperty r). Qed.
+Definition Element {C:Precategory} {X:C==>SET} (r:Representation X) : set_to_type (X (Object r)).
+Proof.
+  intros.
+  exact (get_el (theInitialObject r)).
+Defined.
 
-Definition Object {C:precategory} {X:C==>SET} (r:Data X) := pr1 (Pair r) : C .
+Definition universalProperty {C:Precategory} {X:C==>SET} (r:Representation X) (c:C) :
+  Object r → c ≃ set_to_type (X c).
+Proof.
+  intros.
+  exists (λ f, # X f (Element r)).
+  exact (λ x, theInitialProperty r (c,, x)).
+Defined.
 
-Definition Element {C:precategory} {X:C==>SET} (r:Data X) : set_to_type (X (Object r))
-  := pr2 (Pair r).
+Definition objectMap {C:Precategory} {X X':C==>SET} (r:Representation X) (r':Representation X')
+           (p : X ⟶ X') : Object r' → Object r.
+Proof.
+  intros.
+  exact (get_mor (thePoint (theInitialProperty r' (cat_on_nat_trans p (theInitialObject r))))).
+Defined.
 
-Definition Map {C:precategory} {X:C==>SET} (r:Data X) (c:C) :
-  Hom (Object r) c -> set_to_type (X c).
-Proof. intros ? ? ? ? p. exact (#X p (Element r)). Defined.
-
-Lemma MapIsweq {C:precategory} {X:C==>SET} (r:Data X) (c:C) : isweq (Map r c).
-Proof. intros. intros y. exact (IsInitial r (c,,y)). Qed.
-
-Definition Iso {C:precategory} {X:C==>SET} (r:Data X) (c:C) :
-  Object r → c ≃ set_to_type (X c)
-  := weqpair (Map r c) (MapIsweq r c).
-
-Definition objectMap {C:precategory} {X X':C==>SET} (r:Data X) (r':Data X')
-           (p : X ⟶ X') : Object r' → Object r
-  := get_mor (thePoint (theInitialProperty r' (cat_on_nat_trans p (theInitialObject r)))).
-
-Definition objectMapUniqueness {C:precategory} {X X':C==>SET} (r:Data X) (r':Data X') (p : X ⟶ X')
+Definition objectMapUniqueness {C:Precategory} {X X':C==>SET} (r:Representation X) (r':Representation X') (p : X ⟶ X')
            (f : get_ob (theInitialObject r') → get_ob (theInitialObject r))
            (e : # X' f (get_el (theInitialObject r')) = get_el (cat_on_nat_trans p (theInitialObject r)))
   : f = objectMap r r' p
   := maponpaths get_mor (uniqueness (theInitialProperty r' (cat_on_nat_trans p (theInitialObject r))) (f,,e)).
 
-Definition objectMapIdentity {C:precategory} {X:C==>SET} (r:Data X) :
+Definition objectMapIdentity {C:Precategory} {X:C==>SET} (r:Representation X) :
   objectMap r r (nat_trans_id X) = identity (Object r)
   := maponpaths
        get_mor

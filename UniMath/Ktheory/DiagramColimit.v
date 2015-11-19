@@ -3,9 +3,9 @@ Require Import
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Sets
+        UniMath.Ktheory.Representation
         UniMath.Ktheory.Precategories
         UniMath.CategoryTheory.colimits.colimits.
-Require UniMath.Ktheory.Representation.
 
 (* I've abandoned this file and switched to working on Colimit.v *)
 
@@ -31,13 +31,13 @@ Definition cocone_functor {C:Precategory}
 Proof. intros. exists (cocone_functor_data D). abstract eqn_logic using L. Defined.
 
 Definition Colimit {C:Precategory} {I} (D: diagram I C)
-  := Representation.Data (cocone_functor D).
+  := Representation (cocone_functor D).
 
 Definition Object {C:Precategory} {I} {D: diagram I C} (r:Colimit D) : ob C
-  := Representation.Object r.
+  := Object r.
 
 Definition Cocone {C:Precategory} {I} {D: diagram I C} (r:Colimit D) : cocone D (Object r)
-  := Representation.Element r.
+  := Element r.
 
 Coercion Cocone : Colimit >-> cocone.
 
@@ -143,7 +143,7 @@ Defined.
 Theorem functorPrecategoryColimits (A B:Precategory) : hasColimits B -> hasColimits [A,B].
 Proof.
   intros ? ? colim ? ?.
-  unfold Colimit. unfold Representation.Data.
+  unfold Colimit. unfold Representation.
   refine (InitialAndFinalObject.make_InitialObject _ _ _).
   - refine (_,,_).
     + refine (_,,_).
@@ -153,7 +153,7 @@ Proof.
           apply diagram_eval_map. exact f. }
       * split.
         { intro a; simpl.
-          refine (_ @ Representation.objectMapIdentity _).
+          refine (_ @ objectMapIdentity _).
           unfold diagram_map_on_colim.
           apply maponpaths.
           rewrite diagram_eval_map_on_identity.

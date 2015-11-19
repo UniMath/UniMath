@@ -46,6 +46,11 @@ Proof.
   abstract set_logic using L.
 Defined.
 
+Definition oppositePrecategory (C:Precategory) : Precategory.
+Proof.
+  intros. exists (opp_precat C). apply has_homsets_opp, homset_property.
+Defined.
+
 Notation "[ C , D ]" := (functorPrecategory C D) : cat.
 
 Notation "b ← a" := (precategory_morphisms a b) (at level 50) : cat.
@@ -66,7 +71,7 @@ Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativi
 
 Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
 
-Notation "C '^op'" := (opp_precat C) (at level 3) : cat.
+Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat.
 
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := C,,i.
@@ -142,12 +147,6 @@ Definition makePrecategory
               identity compose)
            ((right,,left),,associativity)),,homsets). Defined.
 
-Lemma has_homsets_opp_precat (C: precategory) (hs: has_homsets C) : has_homsets (C^op).
-Proof.
-  intros C hs a b.
-  apply hs.
-Qed.
-
 (** *** opposite category of opposite category *)
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
@@ -168,19 +167,13 @@ Proof.
   apply hs.
 Qed.
 
-Lemma has_homsets_opp_precat_opp_precat_data (C : precategory_data)(hs : has_homsets C) :
-  has_homsets (opp_precat_data (opp_precat_data C)).
+Lemma opp_opp_precat (C:Precategory) : C = C^op^op.
 Proof.
-  intros C hs a b.
-  apply hs.
-Qed.
-
-Lemma opp_opp_precat (C : precategory)(hsC: has_homsets (pr1 C)) : C = C^op^op.
-Proof. intros.
-       apply subtypeEquality'.
-       (* the only reason we can't use subtypeEquality is because the homset condition is divorced from the precategory *)
-       { apply opp_opp_precat_data. }
-       apply isaprop_is_precategory.
-       apply has_homsets_opp_precat_opp_precat_data.
-       apply hsC.
+  intros.
+  apply subtypeEquality'.
+  (* the only reason we can't use subtypeEquality is because the homset condition is divorced from the precategory *)
+  { apply subtypeEquality'.
+    { apply opp_opp_precat_data. }
+    { apply isaprop_is_precategory. apply has_homsets_opp, homset_property. } }
+  { apply isaprop_has_homsets. }
 Defined.

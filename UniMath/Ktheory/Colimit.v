@@ -4,8 +4,8 @@ Require Import
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Sets
         UniMath.Ktheory.Precategories
+        UniMath.Ktheory.Representation
         UniMath.CategoryTheory.colimits.colimits.
-Require UniMath.Ktheory.Representation.
 
 Local Open Scope cat.
 
@@ -21,6 +21,10 @@ Definition cocone' {C I:Precategory} (D: I==>C) (c:C) : UU
   := cocone (diagram_from_functor D) c.
 
 Identity Coercion cocone'_to_cocone : cocone' >-> cocone.
+
+Ltac see := set (PATHS := @paths).
+
+Local Notation PATHS := @paths.
 
 Definition cocone_functor {C I:Precategory} : [I,C]^op ==> [C,SET].
 Proof.
@@ -71,15 +75,15 @@ Proof.
       - apply isaprop_is_nat_trans. exact (homset_property SET). } }
 Defined.
 
-Definition Colimit {C I:Precategory} (D: I==>C) := Representation.Data (cocone_functor D).
+Definition Colimit {C I:Precategory} (D: I==>C) := Representation (cocone_functor D).
 
 Definition colimitObject {C I:Precategory} {D: I==>C} (colim:Colimit D) : ob C
-  := Representation.Object colim.
+  := Object colim.
 
 Coercion colimitObject : Colimit >-> ob.
 
 Definition colimitCocone {C I:Precategory} {D: I==>C} (colim:Colimit D) : cocone' D colim
-  := Representation.Element colim.
+  := Element colim.
 
 Coercion colimitCocone : Colimit >-> cocone'.
 
@@ -105,8 +109,6 @@ Proof.
       exact (maponpaths (λ F : _⟶_, F _) (functor_comp D _ _ _ _ _)).
 Defined.
 
-Ltac see := set (PATHS := @paths).
-
 Definition bifunctor_comm {I A B:Precategory} : [I, [A, B] ] ==> [A, [I, B] ].
 Proof.
   intros.
@@ -124,39 +126,40 @@ Proof.
                       [abstract (intro i; simpl;
                         exact (maponpaths (λ F : _⟶_, F _) (functor_id D _)))
                       |(intros i j k f g; simpl;
-                        exact (maponpaths (λ F : _⟶_, F _) (functor_comp D _ _ _ _ _)))]).
+                        exact (maponpaths (λ F : _⟶_, F _) (functor_comp D _ _ _ _ _)))])
+            using is_functor_0.
           }
         intros a a' f.
         refine (_,,_).
         { simpl. intro i. exact (# ((D:_==>_) i :_==>_) f). }
-        { abstract (intros i j r; simpl; eqn_logic). } }
+        { abstract (intros i j r; simpl; eqn_logic) using is_nat_trans_0. } }
       { abstract ( split;
                    [intros a; simpl; eqn_logic
                    |
                    intros a b g r s; simpl;
                    refine (total2_paths2 _ _) ;
                    [ abstract (apply funextsec; intro i; simpl; apply functor_comp) |
-                     eqn_logic ]]). } }
+                     eqn_logic ]]) using is_functor_0. } }
     { intros D D' p. simpl.
       refine (_,,_).
       { intros a. simpl.
         refine (_,,_).
         { intros i; simpl. exact (((p : _ ⟶ _) i : _ ⟶ _) a). }
         { abstract (intros i j e; simpl;
-                    exact (maponpaths (λ v : _ ⟶ _, v a) (nat_trans_ax p _ _ e))). } }
+                    exact (maponpaths (λ v : _ ⟶ _, v a) (nat_trans_ax p _ _ e))) using is_nat_trans_0. } }
       { abstract (intros a b f; simpl;
                   refine (total2_paths2 _ _);
                   [ apply funextsec; intro i; simpl;
                     exact (nat_trans_ax ((p : _ ⟶ _) i) _ _ f)
-                    | simpl; apply isaprop_is_nat_trans, homset_property ]). } } }
-  { split.
-    { abstract (
+                    | simpl; apply isaprop_is_nat_trans, homset_property ]) using is_nat_trans_0. } } }
+  { abstract (split;
+    [ abstract (
           intros D; simpl; refine (total2_paths2 _ _);
           [ abstract (apply funextsec; intro a; refine (total2_paths2 _ _) ;
             [ reflexivity | apply isaprop_is_nat_trans, homset_property ] )
           |
-          simpl; apply isaprop_is_nat_trans; apply (homset_property [I,B]) ]). }
-    { abstract (
+          simpl; apply isaprop_is_nat_trans; apply (homset_property [I,B]) ]) using functor_idax_0 |
+      abstract (
           simpl; intros D D' D'' p q; simpl; refine (total2_paths2 _ _);
           [abstract (
                 apply funextsec; intro a; refine (total2_paths2 _ _);
@@ -165,14 +168,15 @@ Proof.
                   apply funextsec; intro j;
                   apply funextsec; intro e;
                   apply homset_property])
-          | apply isaprop_is_nat_trans; exact (homset_property [I,B]) ]). } }
+          | apply isaprop_is_nat_trans; exact (homset_property [I,B]) ]) using functor_compax_0 ])
+    using is_functor_0. }
 Defined.
 
 
 Theorem functorPrecategoryColimits (A B:Precategory) : hasColimits B -> hasColimits [A,B].
 Proof.
   intros ? ? colim ? ?.
-  unfold Colimit. unfold Representation.Data.
+  unfold Colimit. unfold Representation.
   refine (InitialAndFinalObject.make_InitialObject _ _ _).
   - refine (_,,_).
     + refine (_,,_).

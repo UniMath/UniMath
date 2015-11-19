@@ -10,20 +10,31 @@ Require Import
         UniMath.Ktheory.Precategories
         UniMath.Ktheory.Sets.
 Local Open Scope cat.
-Definition set (C:precategory) (hs:has_homsets C) {I} (c:I -> ob C) : ob C -> ob SET.
-  intros ? ? ? ? x.
-   apply (Sets.Product (fun i => hSetpair (Hom (c i) x) (hs _ _ ) )).
+
+Definition set (C:Precategory) {I} (c:I -> ob C) : ob C -> ob SET.
+Proof.
+  intros ? ? ? x.
+   apply (Sets.Product (fun i => hSetpair (Hom (c i) x) (homset_property C _ _ ) )).
 Defined.
-Definition map (C:precategory)(hs: has_homsets C) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :
-    set_to_type (set C hs c x) -> set_to_type (set C hs c y).
-  intros ? ? ? ? ? ? ? g j; unfold funcomp.
-  exact (f ∘ (g j)). Defined.
-Definition data (C:precategory) (hs: has_homsets C) {I} (c:I -> ob C)
+
+Definition map (C:Precategory) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :
+    set_to_type (set C c x) -> set_to_type (set C c y).
+Proof.
+  intros ? ? ? ? ? ? g j; unfold funcomp.
+  exact (f ∘ (g j)).
+Defined.
+
+Definition data (C:Precategory) {I} (c:I -> ob C)
      : functor_data (Precategories.Precategory_obmor C) (Precategories.Precategory_obmor SET).
-  intros.  exact (set C hs c,, map C hs c). Defined.
-Definition precat (C:precategory) (hs: has_homsets C) {I} (c:I -> ob C) : C ==> SET.
-  intros. exists (data C hs c). split.
+Proof.
+  intros. exact (set C c,, map C c).
+Defined.
+
+Definition precat (C:Precategory) {I} (c:I -> ob C) : C ==> SET.
+Proof.
+  intros. exists (data C c). split.
   { intros a. apply funextsec; intros f.  apply funextsec; intros i.
     apply id_right. }
   { intros x y z p q. apply funextsec; intros f. apply funextsec; intros i.
-    apply assoc. } Defined.
+    apply assoc. }
+Defined.
