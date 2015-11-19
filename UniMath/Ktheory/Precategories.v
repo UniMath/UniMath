@@ -26,7 +26,9 @@ Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HS
 Ltac eqn_logic :=
   repeat (
       try intro; try split; try apply id_right; try apply id_left; try apply assoc;
-      try apply funextsec; try apply homset_property; try refine (total2_paths _ _);
+      try apply funextsec; try apply homset_property;
+      try refine (total2_paths2 _ _);
+      try refine (total2_paths _ _);
       try refine (nat_trans_ax _ _ _ _); try refine (! nat_trans_ax _ _ _ _);
       try apply functor_id;
       try apply functor_comp;

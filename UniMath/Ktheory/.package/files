@@ -21,6 +21,7 @@ RawMatrix.v
 Sum.v
 Product.v
 DiagramColimit.v
+Colimit.v
 HomFamily.v
 TerminalObject.v
 FiniteSet.v

@@ -73,8 +73,8 @@ Defined.
 
 Definition Colimit {C I:Precategory} (D: I==>C) := Representation.Data (cocone_functor D).
 
-Definition colimitObject {C I:Precategory} {D: I==>C} (r:Colimit D) : ob C
-  := Representation.Object r.
+Definition colimitObject {C I:Precategory} {D: I==>C} (colim:Colimit D) : ob C
+  := Representation.Object colim.
 
 Coercion colimitObject : Colimit >-> ob.
 
@@ -83,8 +83,7 @@ Definition colimitCocone {C I:Precategory} {D: I==>C} (colim:Colimit D) : cocone
 
 Coercion colimitCocone : Colimit >-> cocone'.
 
-Definition colimitIn {C I:Precategory} {D: I==>C} (colim:Colimit D) (i:I) :
-  Hom (D i) colim.
+Definition colimitIn {C I:Precategory} {D: I==>C} (colim:Colimit D) (i:I) : D i → colim.
 Proof. intros. exact (colim i). Defined.
 
 Definition colimitInTriangle {C I:Precategory} {D: I==>C} (colim:Colimit D) {i j:I} (f:i→j) :
@@ -92,16 +91,6 @@ Definition colimitInTriangle {C I:Precategory} {D: I==>C} (colim:Colimit D) {i j
 Proof. intros. exact (coconeInCommutes colim i j f). Defined.
 
 Definition hasColimits (C:Precategory) := ∀ (I:Precategory) (D: I==>C), Colimit D.
-
-Definition functor_eval {A B:Precategory} : A -> [A,B] ==> B.
-Proof.
-  intros ? ? a.
-  refine (_,,_).
-  - refine (_,,_).
-    + intro F. exact ((F:_==>_) a).
-    + intros F G p. simpl. exact (pr1 p a). (* change pr1 to the appropriate notation *)
-  - eqn_logic.
-Defined.
 
 Definition diagram_eval {A B I:Precategory} : I ==> [A, B] -> A -> I ==> B.
 Proof.
@@ -111,46 +100,74 @@ Proof.
     + simpl. intros i j e. exact ((# D e : _ ⟶ _) a).
   - split.
     + intro i; simpl.
-      exact (maponpaths (λ F : _⟶_, F _) (functor_id D _)). (* how to add this to eqn_logic? *)
+      exact (maponpaths (λ F : _⟶_, F _) (functor_id D _)).
     + intros i j k f g; simpl.
       exact (maponpaths (λ F : _⟶_, F _) (functor_comp D _ _ _ _ _)).
 Defined.
 
-(* we should make [diagram I C] into the objects of a category *)
+Ltac see := set (PATHS := @paths).
 
-Definition diagram_map_on_diagram_identity_map {C:Precategory} {I} (D:diagram I C) :
-   diagram_map_on_cocone_functor (diagram_identity_map D) = nat_trans_id (cocone_functor D).
+Definition bifunctor_comm {I A B:Precategory} : [I, [A, B] ] ==> [A, [I, B] ].
 Proof.
-  intros. abstract eqn_logic using L.
+  intros.
+  refine (_,,_).
+  { refine (_,,_).
+    { intros D.
+      refine (_,,_).
+      { refine (_,,_).
+        { intros a.
+          refine (_,,_).
+          - refine (_,,_).
+            + intro i. exact (((D : _ ==> _) i : _ ==> _) a).
+            + simpl. intros i j e. exact ((# (D : _ ==> _) e : _ ⟶ _) a).
+          - abstract (split ;
+                      [abstract (intro i; simpl;
+                        exact (maponpaths (λ F : _⟶_, F _) (functor_id D _)))
+                      |(intros i j k f g; simpl;
+                        exact (maponpaths (λ F : _⟶_, F _) (functor_comp D _ _ _ _ _)))]).
+          }
+        intros a a' f.
+        refine (_,,_).
+        { simpl. intro i. exact (# ((D:_==>_) i :_==>_) f). }
+        { abstract (intros i j r; simpl; eqn_logic). } }
+      { abstract ( split;
+                   [intros a; simpl; eqn_logic
+                   |
+                   intros a b g r s; simpl;
+                   refine (total2_paths2 _ _) ;
+                   [ abstract (apply funextsec; intro i; simpl; apply functor_comp) |
+                     eqn_logic ]]). } }
+    { intros D D' p. simpl.
+      refine (_,,_).
+      { intros a. simpl.
+        refine (_,,_).
+        { intros i; simpl. exact (((p : _ ⟶ _) i : _ ⟶ _) a). }
+        { abstract (intros i j e; simpl;
+                    exact (maponpaths (λ v : _ ⟶ _, v a) (nat_trans_ax p _ _ e))). } }
+      { abstract (intros a b f; simpl;
+                  refine (total2_paths2 _ _);
+                  [ apply funextsec; intro i; simpl;
+                    exact (nat_trans_ax ((p : _ ⟶ _) i) _ _ f)
+                    | simpl; apply isaprop_is_nat_trans, homset_property ]). } } }
+  { split.
+    { abstract (
+          intros D; simpl; refine (total2_paths2 _ _);
+          [ abstract (apply funextsec; intro a; refine (total2_paths2 _ _) ;
+            [ reflexivity | apply isaprop_is_nat_trans, homset_property ] )
+          |
+          simpl; apply isaprop_is_nat_trans; apply (homset_property [I,B]) ]). }
+    { abstract (
+          simpl; intros D D' D'' p q; simpl; refine (total2_paths2 _ _);
+          [abstract (
+                apply funextsec; intro a; refine (total2_paths2 _ _);
+                [ reflexivity |
+                  apply funextsec; intro i;
+                  apply funextsec; intro j;
+                  apply funextsec; intro e;
+                  apply homset_property])
+          | apply isaprop_is_nat_trans; exact (homset_property [I,B]) ]). } }
 Defined.
 
-Definition diagram_map_on_colim {C:Precategory} {I} {D D' : diagram I C}
-           (colimD : Colimit D) (colimD' : Colimit D') (f : diagram_map D D') :
-  colimitObject colimD → colimitObject colimD'.
-Proof.
-  intros. apply Representation.objectMap.
-  apply diagram_map_on_cocone_functor. exact f.
-Defined.
-
-Definition diagram_eval_map {A B I} (D : diagram I [A, B]) {a a':A} (f:a→a') :
-  diagram_map (diagram_eval D a) (diagram_eval D a').
-Proof.
-  intros. refine (_,,_).
-  - intro i. unfold diagram_eval; simpl. exact (# (D i : _ ==> _) f).
-  - abstract eqn_logic using L.
-Defined.
-
-Definition diagram_eval_map_on_identity {A B I} (D : diagram I [A, B]) a :
-  diagram_eval_map D (identity a) = diagram_identity_map (diagram_eval D a).
-Proof.
-  intros. abstract eqn_logic using L.
-Defined.
-
-Definition diagram_eval_map_on_composite {A B I} (D : diagram I [A, B]) {a a' a'':A} (f:a→a') (g:a'→a'') :
-  diagram_eval_map D (g ∘ f) = diagram_map_composite (diagram_eval_map D f) (diagram_eval_map D g).
-Proof.
-  intros. abstract eqn_logic using L.
-Defined.
 
 Theorem functorPrecategoryColimits (A B:Precategory) : hasColimits B -> hasColimits [A,B].
 Proof.
@@ -161,16 +178,16 @@ Proof.
     + refine (_,,_).
       * refine (_,,_).
         { intro a. exact (colimitObject (colim I (diagram_eval D a))). }
-        { simpl. intros a a' f. apply diagram_map_on_colim.
-          apply diagram_eval_map. exact f. }
-      * split.
-        { intro a; simpl.
-          refine (_ @ Representation.objectMapIdentity _).
-          unfold diagram_map_on_colim.
-          apply maponpaths.
-          rewrite diagram_eval_map_on_identity.
-          apply diagram_map_on_diagram_identity_map. }
-        { intros a a' a'' f g. simpl.
+      (*   { simpl. intros a a' f. apply diagram_map_on_colim. *)
+      (*     apply diagram_eval_map. exact f. } *)
+      (* * split. *)
+      (*   { intro a; simpl. *)
+      (*     refine (_ @ Representation.objectMapIdentity _). *)
+      (*     unfold diagram_map_on_colim. *)
+      (*     apply maponpaths. *)
+      (*     rewrite diagram_eval_map_on_identity. *)
+      (*     apply diagram_map_on_diagram_identity_map. } *)
+      (*   { intros a a' a'' f g. simpl. *)
 
 Abort.
 
