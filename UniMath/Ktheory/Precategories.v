@@ -53,6 +53,16 @@ Defined.
 
 Notation "[ C , D ]" := (functorPrecategory C D) : cat.
 
+Definition category_to_Precategory (C:category) : Precategory.
+Proof.
+  intros.
+  refine (_,,_).
+  - exact C.
+  - exact (pr2 (pr2 C)).
+Defined.
+
+Coercion category_to_Precategory : category >-> Precategory.
+
 Notation "b ← a" := (precategory_morphisms a b) (at level 50) : cat.
 (* agda input \l- or \leftarrow or \<- or \gets or or \l menu *)
 
@@ -159,13 +169,6 @@ Proof. intros [ob mor]. reflexivity. Defined.
 Lemma opp_opp_precat_data (C : precategory_data)
    : C = opp_precat_data (opp_precat_data C).
 Proof. intros [[ob mor] [id co]]. reflexivity. Defined.
-
-Lemma has_homsets_opp_precat_data (C : precategory_data) (hs : has_homsets C) :
-  has_homsets (opp_precat_data C).
-Proof.
-  intros C hs a b.
-  apply hs.
-Qed.
 
 Lemma opp_opp_precat (C:Precategory) : C = C^op^op.
 Proof.

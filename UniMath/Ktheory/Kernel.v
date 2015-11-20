@@ -9,45 +9,53 @@ Require Import
         UniMath.Ktheory.Representation
         UniMath.Ktheory.Precategories.
 Local Open Scope cat.
+
 Definition zerocomp_type {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ob C -> Type.
 Proof. intros ? ? ? ? ? x.
   exact (Σ g:Hom d x, g ∘ f = zeroMap c x z). Defined.
+
 Definition zerocomp_type_isaset {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
-  ∀ x:ob C, isaset (zerocomp_type hs z f x).
-Proof. intros ? ? ? ? ? ? x.
+  ∀ x:ob C, isaset (zerocomp_type z f x).
+Proof. intros ? ? ? ? ? x.
   apply (isofhleveltotal2 2).
-  { apply hs. }
+  { apply homset_property. }
   { intro g.
     assert( t:isofhlevel 3 (Hom c x) ).
-    { apply hlevelntosn.  apply hs. }
+    { apply hlevelntosn.  apply homset_property. }
     exact (t _ _).            (* why doesn't apply t work here? *)
     } Qed.
-Definition zerocomp_set {C:Precategory}(hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
+
+Definition zerocomp_set {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ob C -> ob SET.
-Proof. intros ? ? ? ? ? ? x.
-  exact (zerocomp_type _ z f x,, zerocomp_type_isaset hs z f x). Defined.
-Definition zerocomp_map {C:Precategory}(hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
+Proof. intros ? ? ? ? ? x.
+  exact (zerocomp_type z f x,, zerocomp_type_isaset z f x). Defined.
+
+Definition zerocomp_map {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ∀ x y:ob C, Hom x y ->
-  set_to_type (zerocomp_set hs z f x) -> set_to_type (zerocomp_set hs z f y).
-Proof. intros ? ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc. rewrite s.
+  set_to_type (zerocomp_set z f x) -> set_to_type (zerocomp_set z f y).
+Proof. intros ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc. rewrite s.
        apply zeroMap_left_composition. Defined.
-Definition zerocomp_data {C:Precategory} (hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
+
+Definition zerocomp_data {C:Precategory}  (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   functor_data (Precategories.Precategory_obmor C) (Precategories.Precategory_obmor SET).
 Proof. intros.
-       exact (zerocomp_set hs z f,, zerocomp_map hs z f). Defined.
-Definition zerocomp {C:Precategory}(hs: has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d):C ==> SET.
-  intros. exists (zerocomp_data hs z f). split.
+       exact (zerocomp_set z f,, zerocomp_map z f). Defined.
+
+Definition zerocomp {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d):C ==> SET.
+  intros. exists (zerocomp_data z f). split.
   { intros x. apply funextsec; intros [r rf0].
     apply subtypeEquality.
-    { intro; apply hs. }
+    { intro; apply homset_property. }
     apply id_right. }
   { intros w x y t u. apply funextsec. intros [r rf0].
     apply subtypeEquality.
-    { intro; apply hs. }
+    { intro; apply homset_property. }
     apply assoc. }
 Defined.
-Definition Cokernel {C:Precategory}(hs:has_homsets C) (z:hasZeroObject C) {c d:ob C} (f:c → d) :=
-  Representation (zerocomp hs z f).
-Definition Kernel (C:Precategory)(hs: has_homsets C) (z:hasZeroObject C) (c d:ob C) (f:c → d) :=
-  Representation (zerocomp (Precategories.has_homsets_opp_precat _ hs ) (haszero_opp C z) f).
+
+Definition Cokernel {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d) :=
+  Representation (zerocomp z f).
+
+Definition Kernel (C:Precategory) (z:hasZeroObject C) (c d:ob C) (f:c → d) :=
+  Representation (zerocomp (haszero_opp C z) f).

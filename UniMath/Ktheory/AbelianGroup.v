@@ -463,39 +463,42 @@ Definition power (I:Type) (X:abgr) : abgr.
 Module Category.
   Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                  UniMath.CategoryTheory.precategories.
+
   Definition Ob := abgr.
+
   Identity Coercion Ob_to_abgr : Ob >-> abgr.
+
   Definition Mor : Ob -> Ob -> hSet.
     intros G H. exists (monoidfun G H). exact (isasetmonoidfun G H). Defined.
+
   Definition ObMor : precategory_ob_mor.
-  Proof.
-    exists Ob.
-    intros F G. apply (monoidfun F G).
-  Defined.
+  Proof. exists Ob. exact monoidfun. Defined.
+
   Definition Data : precategory_data.
     exists ObMor. split. intro G. exists (idfun (G : abgr)). split.
     split. reflexivity. intros a b c.  exact monoidfuncomp. Defined.
+
   Definition MorEquality G H (p q : Mor G H) : pr1 p = pr1 q -> p = q.
     intros. apply Monoid.funEquality. assumption. Qed.
-  Definition Precat : precategory.
-    exists Data. split; simpl. split; simpl.
-    - intros. apply MorEquality. reflexivity.
-    - intros. apply MorEquality. reflexivity.
-    - intros. apply MorEquality. reflexivity. Defined.
 
-  Lemma has_homsets_Precat: has_homsets Precat.
-  Proof.
-    intros F G. apply isasetmonoidfun.
-  Qed.
+  Definition Precat : Precategory.
+    refine (_,,_).
+    { exists Data. split.
+      { simpl. split.
+        { simpl. intros. apply MorEquality. reflexivity. }
+        { intros. apply MorEquality. reflexivity. } }
+      { intros. apply MorEquality. reflexivity. } }
+    { simpl. intros F G. exact (setproperty (Mor F G)). }
+  Defined.
 
   (** *** products in the category of abelian groups *)
 
   Module Product.
     Definition Object {I} (X:I->ob Precat) : ob Precat
       := Product.make X.
-    Definition make {I} (X:I->ob Precat) : Product.type Precat has_homsets_Precat X.
+    Definition make {I} (X:I->ob Precat) : Product.type Precat X.
       intros.
-      set (Q := Elements.make_ob (HomFamily.precat Precat^op  (has_homsets_opp_precat _ has_homsets_Precat) X) (Object X)
+      set (Q := Elements.make_ob (HomFamily.precat Precat^op X) (Object X)
                                  (Product.Proj X)).
       exists Q. intros T. assert ( k' : Precategory_mor Q T ).
       { destruct T as [T_ob T_el].
@@ -511,9 +514,9 @@ Module Category.
   Module Sum.
     Definition Object {I} (X:I->ob Precat) : ob Precat
       := Sum.make X.
-    Definition make {I} (X:I->ob Precat) : Sum.type Precat has_homsets_Precat X.
+    Definition make {I} (X:I->ob Precat) : Sum.type Precat X.
       intros.
-      set (Q := Elements.make_ob (HomFamily.precat Precat  has_homsets_Precat X) (Object X)
+      set (Q := Elements.make_ob (HomFamily.precat Precat X) (Object X)
                                  (Sum.Incl X)).
       exists Q. intros T. assert ( k' : Precategory_mor Q T ).
       { destruct T as [T_ob T_el].
