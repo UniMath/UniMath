@@ -529,11 +529,20 @@ Proof. intros . apply ( isinclbetweensets f ( isofhlevelcontr 2 ( iscontrunit ) 
 
 
 
-
-
-
-
-
+Corollary set_bijection_to_weq {X Y:UU} (f:X->Y) : bijective f -> isaset Y -> isweq f.
+Proof.
+  (* compare with bijection_to_weq: this one doesn't use gradth *)
+  intros ? ? ? bij i y. set (sur := pr1 bij); set (inj := pr2 bij).
+  refine (_,,_).
+  - exists (pr1 (sur y)). exact (pr2 (sur y)).
+  - intro w.
+    refine (total2_paths _ _).
+    + simpl. apply inj. intermediate_path y.
+      * exact (pr2 w).
+      * exact (! pr2 (sur y)).
+    + induction w as [x e]; simpl. induction e.
+      apply i.
+Defined.
 
 
 (* End of the file uu0b.v *)
