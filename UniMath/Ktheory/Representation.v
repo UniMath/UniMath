@@ -27,6 +27,22 @@ Proof.
   exact (λ x, theInitialProperty r (c,, x)).
 Defined.
 
+(* maybe switch to this as the primary notion of representability: *)
+Definition Representation' {C:Precategory} (X:C==>SET)
+  := Σ (c:C) (x:set_to_type (X c)), ∀ (c':C), isweq (λ f : c → c', # X f x).
+
+Definition Rep_to_Rep' {C:Precategory} {X:C==>SET} : Representation X -> Representation' X.
+Proof.
+  intros ? ? r. exists (Object r). exists (Element r).
+  intros. exact (λ x', theInitialProperty r (c',,x')).
+Defined.
+
+Definition Rep'_to_Rep {C:Precategory} {X:C==>SET} : Representation' X -> Representation X.
+Proof.
+  intros ? ? r'. exists (pr1 r',, pr1 (pr2 r')).
+  intros cx. exact (pr2 (pr2 r') (pr1 cx) (pr2 cx)).
+Defined.
+
 Definition objectMap {C:Precategory} {X X':C==>SET} (r:Representation X) (r':Representation X')
            (p : X ⟶ X') : Object r' → Object r.
 Proof.

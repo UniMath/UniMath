@@ -22,10 +22,6 @@ Definition cocone' {C I:Precategory} (D: I==>C) (c:C) : UU
 
 Identity Coercion cocone'_to_cocone : cocone' >-> cocone.
 
-Ltac see := set (PATHS := @paths).
-
-Local Notation PATHS := @paths.
-
 Definition cocone_functor {C I:Precategory} : [I,C]^op ==> [C,SET].
 Proof.
   intros.
