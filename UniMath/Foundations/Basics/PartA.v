@@ -1288,6 +1288,18 @@ Definition weqgradth {X Y : UU} (f : X -> Y) (g : Y -> X)
   (efg: ∀ y : Y, f (g y) = y) : X ≃ Y :=
     weqpair _ (gradth _ _ egf efg).
 
+Definition bijective {X Y:UU} (f:X->Y) :=
+  (∀ y, Σ x, f x = y) × (∀ x x', f x = f x' -> x = x').
+
+Corollary bijection_to_weq {X Y:UU} (f:X->Y) : bijective f -> isweq f.
+Proof.
+  intros ? ? ? bij. assert (sur := pr1 bij). assert (inj := pr2 bij).
+  refine (gradth f _ _ _).
+  - intros y. exact (pr1 (sur y)).
+  - intros. simpl. apply inj. exact (pr2 (sur (f x))).
+  - intros. simpl. exact (pr2 (sur y)).
+Defined.
+
 Module Test_gradth.
   Let f := idfun nat.
   Definition w : nat ≃ nat := weqgradth f f (λ _, idpath _) (λ _, idpath _).
