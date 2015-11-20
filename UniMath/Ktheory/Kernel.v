@@ -32,8 +32,8 @@ Proof. intros ? ? ? ? ? x.
   exact (zerocomp_type z f x,, zerocomp_type_isaset z f x). Defined.
 
 Definition zerocomp_map {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
-  ∀ x y:ob C, Hom C x y ->
-  set_to_type (zerocomp_set z f x) -> set_to_type (zerocomp_set z f y).
+  ∀ x y:ob C,
+    Hom C x y -> (zerocomp_set z f x : hSet) -> (zerocomp_set z f y : hSet).
 Proof. intros ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc. rewrite s.
        apply zeroMap_left_composition. Defined.
 

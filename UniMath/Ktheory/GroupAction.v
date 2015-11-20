@@ -229,7 +229,7 @@ Proof. intros.
        refine (weqbandf _ _ _ _).
        { apply hSet_univalence. }
        simpl. intro p. refine (weqcomp (is_equivariant_identity p) _).
-       exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap set_to_type p)))).
+       exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap pr1hSet p)))).
 Defined.
 
 Definition Action_univalence_prelim_comp {G:gr} {X Y:Action G} (p:X = Y) :

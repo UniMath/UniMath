@@ -137,7 +137,6 @@ Proof.
   intro x. destruct e. apply idpath.
 Qed.
 
-Notation set_to_type := pr1hSet.
 Notation ap := maponpaths.
 (* see table 3.1 in the coq manual for parsing levels *)
 Notation "f ;; g" := (funcomp f g) (at level 50).

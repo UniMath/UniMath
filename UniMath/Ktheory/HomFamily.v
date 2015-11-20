@@ -18,7 +18,7 @@ Proof.
 Defined.
 
 Definition map (C:Precategory) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :
-    set_to_type (set C c x) -> set_to_type (set C c y).
+    (set C c x : hSet) -> (set C c y : hSet).
 Proof.
   intros ? ? ? ? ? ? g j; unfold funcomp.
   exact (f ∘ (g j)).
