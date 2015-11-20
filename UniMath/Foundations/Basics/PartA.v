@@ -1009,8 +1009,8 @@ Definition invmaponpathsweqid {X Y : UU} (w : X ≃ Y) (x : X) :
     pathssec2id w (invmap w) (homotinvweqweq w) x.
 
 Definition pathsweq1 {X Y : UU} (w : X ≃ Y) (x : X) (y : Y) :
-  w x = y -> x = invmap w y :=
-    pathssec1 w (invmap w) (homotinvweqweq w) _ _.
+  w x = y -> x = invmap w y
+  := λ e, maponpaths pr1 (pr2 (weqproperty w y) (x,,e)).
 
 Definition pathsweq1' {X Y : UU} (w : weq X Y) (x : X) (y : Y)
   (e : x = invmap w y) : w x = y :=
