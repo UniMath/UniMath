@@ -34,15 +34,15 @@ Definition Colimit {C:Precategory} {I} (D: diagram I C)
   := Representation (cocone_functor D).
 
 Definition Object {C:Precategory} {I} {D: diagram I C} (r:Colimit D) : ob C
-  := Object r.
+  := universalObject r.
 
 Definition Cocone {C:Precategory} {I} {D: diagram I C} (r:Colimit D) : cocone D (Object r)
-  := Element r.
+  := universalElement r.
 
 Coercion Cocone : Colimit >-> cocone.
 
 Definition In {C:Precategory} {I} {D: diagram I C} (r:Colimit D) (i:I) :
-  Hom (D i) (Object r).
+  Hom C (D i) (Object r).
 Proof. intros. exact (r i). Defined.
 
 Definition InCommutes {C:Precategory}
@@ -144,21 +144,16 @@ Theorem functorPrecategoryColimits (A B:Precategory) : hasColimits B -> hasColim
 Proof.
   intros ? ? colim ? ?.
   unfold Colimit. unfold Representation.
-  refine (InitialAndFinalObject.make_InitialObject _ _ _).
+  refine (_,,_).
   - refine (_,,_).
     + refine (_,,_).
-      * refine (_,,_).
-        { intro a. exact (Object (colim I (diagram_eval D a))). }
-        { simpl. intros a a' f. apply diagram_map_on_colim.
-          apply diagram_eval_map. exact f. }
-      * split.
-        { intro a; simpl.
-          refine (_ @ objectMapIdentity _).
-          unfold diagram_map_on_colim.
-          apply maponpaths.
-          rewrite diagram_eval_map_on_identity.
-          apply diagram_map_on_diagram_identity_map. }
-        { intros a a' a'' f g. simpl.
+      { intro a. exact (Object (colim I (diagram_eval D a))). }
+      { simpl. intros a a' f. apply diagram_map_on_colim.
+        apply diagram_eval_map. exact f. }
+    + split.
+      { intro a; simpl.
+
+
 
 Abort.
 

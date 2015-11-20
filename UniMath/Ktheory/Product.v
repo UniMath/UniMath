@@ -15,11 +15,11 @@ Definition type (C:Precategory) {I} (c:I -> ob C) :=
 
 Definition Object {C:Precategory} {I} {c:I -> ob C} (r:type C c)
            (* the representing object of r is in C^op, so here we convert it *)
-           : ob C := Object r.
+           : ob C := universalObject r.
 
 Definition Proj {C:Precategory} {I} {b:I -> ob C} (B:type C b) i :
-  Hom (Object B) (b i).
-Proof. intros. exact (Representation.Element B i). Defined.
+  Hom C (Object B) (b i).
+Proof. intros. exact (universalElement B i). Defined.
 
 Module Coercions.
   Coercion Object : type >-> ob.

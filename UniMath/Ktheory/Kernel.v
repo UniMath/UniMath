@@ -13,7 +13,7 @@ Local Open Scope cat.
 Definition zerocomp_type {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ob C -> Type.
 Proof. intros ? ? ? ? ? x.
-  exact (Σ g:Hom d x, g ∘ f = zeroMap c x z). Defined.
+  exact (Σ g:Hom C d x, g ∘ f = zeroMap c x z). Defined.
 
 Definition zerocomp_type_isaset {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   ∀ x:ob C, isaset (zerocomp_type z f x).
@@ -21,7 +21,7 @@ Proof. intros ? ? ? ? ? x.
   apply (isofhleveltotal2 2).
   { apply homset_property. }
   { intro g.
-    assert( t:isofhlevel 3 (Hom c x) ).
+    assert( t:isofhlevel 3 (Hom C c x) ).
     { apply hlevelntosn.  apply homset_property. }
     exact (t _ _).            (* why doesn't apply t work here? *)
     } Qed.
@@ -32,7 +32,7 @@ Proof. intros ? ? ? ? ? x.
   exact (zerocomp_type z f x,, zerocomp_type_isaset z f x). Defined.
 
 Definition zerocomp_map {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d) :
-  ∀ x y:ob C, Hom x y ->
+  ∀ x y:ob C, Hom C x y ->
   set_to_type (zerocomp_set z f x) -> set_to_type (zerocomp_set z f y).
 Proof. intros ? ? ? ? ? ? ? p [k s]. exists (p ∘ k). rewrite assoc. rewrite s.
        apply zeroMap_left_composition. Defined.

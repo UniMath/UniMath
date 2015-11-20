@@ -1,66 +1,62 @@
-Require Export UniMath.Ktheory.InitialAndFinalObject UniMath.Ktheory.Elements.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Ktheory.Utilities.
 Require Import UniMath.Ktheory.Precategories.
-
+Require Import UniMath.Ktheory.Elements. (* should not be needed *)
 Local Open Scope cat.
 
-Definition Representation {C:Precategory} (X:C==>SET) := InitialObject (Elements.cat X).
+Definition Representation {C:Precategory} (X:C==>SET)
+  := Σ (c:C) (x:set_to_type (X c)), ∀ (c':C), isweq (λ f : c → c', # X f x).
+
+Definition makeRepresentation {C:Precategory} (X:C==>SET) (c:C) (x:set_to_type (X c)) :
+  (∀ (c':C), bijective (λ f : c → c', # X f x)) -> Representation X.
+Proof.
+  intros ? ? ? ? bij. exists c. exists x. intros.
+  apply bijection_to_weq, bij.
+Defined.
 
 Definition isRepresentable {C:Precategory} (X:C==>SET) := ∥ Representation X ∥.
 
-Definition Object {C:Precategory} {X:C==>SET} (r:Representation X) : C.
+Definition universalObject {C:Precategory} {X:C==>SET} (r:Representation X) : C
+  := pr1 r.
+
+Definition universalElement {C:Precategory} {X:C==>SET} (r:Representation X) :
+  set_to_type (X (universalObject r))
+  := pr1 (pr2 r).
+
+Definition universalProperty {C:Precategory} {X:C==>SET} (r:Representation X) (c':C) :
+  universalObject r → c' ≃ set_to_type (X c')
+  := weqpair _ (pr2 (pr2 r) c').
+
+Definition universalMap {C:Precategory} {X:C==>SET} (r:Representation X) (c':C) :
+           set_to_type(X c') -> universalObject r → c'.
 Proof.
-  intros.
-  exact (get_ob (theInitialObject r)).
+  intros ? ? ? ? x'. exact (invmap (universalProperty r c') x').
 Defined.
 
-Definition Element {C:Precategory} {X:C==>SET} (r:Representation X) : set_to_type (X (Object r)).
+Definition mapUniqueness {C:Precategory} (X:C==>SET) (r : Representation X) (c':C)
+           (f g:universalObject r → c') : # X f (universalElement r) = # X g (universalElement r) -> f = g.
 Proof.
-  intros.
-  exact (get_el (theInitialObject r)).
+  intros ? ? ? ? ? ?. exact (invmaponpathsweq (universalProperty r c') f g).
 Defined.
 
-Definition universalProperty {C:Precategory} {X:C==>SET} (r:Representation X) (c:C) :
-  Object r → c ≃ set_to_type (X c).
+Definition objectMap {C:Precategory} {X X':C==>SET} (r:Representation X) (r':Representation X') :
+           (X' ⟶ X) -> (universalObject r → universalObject r').
 Proof.
-  intros.
-  exists (λ f, # X f (Element r)).
-  exact (λ x, theInitialProperty r (c,, x)).
+  intros ? ? ? ? ? p.
+  exact (invmap (universalProperty r (universalObject r')) (p (universalObject r') (universalElement r'))).
 Defined.
 
-(* maybe switch to this as the primary notion of representability: *)
-Definition Representation' {C:Precategory} (X:C==>SET)
-  := Σ (c:C) (x:set_to_type (X c)), ∀ (c':C), isweq (λ f : c → c', # X f x).
-
-Definition Rep_to_Rep' {C:Precategory} {X:C==>SET} : Representation X -> Representation' X.
-Proof.
-  intros ? ? r. exists (Object r). exists (Element r).
-  intros. exact (λ x', theInitialProperty r (c',,x')).
-Defined.
-
-Definition Rep'_to_Rep {C:Precategory} {X:C==>SET} : Representation' X -> Representation X.
-Proof.
-  intros ? ? r'. exists (pr1 r',, pr1 (pr2 r')).
-  intros cx. exact (pr2 (pr2 r') (pr1 cx) (pr2 cx)).
-Defined.
-
-Definition objectMap {C:Precategory} {X X':C==>SET} (r:Representation X) (r':Representation X')
-           (p : X ⟶ X') : Object r' → Object r.
-Proof.
-  intros.
-  exact (get_mor (thePoint (theInitialProperty r' (cat_on_nat_trans p (theInitialObject r))))).
-Defined.
-
-Definition objectMapUniqueness {C:Precategory} {X X':C==>SET} (r:Representation X) (r':Representation X') (p : X ⟶ X')
-           (f : get_ob (theInitialObject r') → get_ob (theInitialObject r))
-           (e : # X' f (get_el (theInitialObject r')) = get_el (cat_on_nat_trans p (theInitialObject r)))
-  : f = objectMap r r' p
-  := maponpaths get_mor (uniqueness (theInitialProperty r' (cat_on_nat_trans p (theInitialObject r))) (f,,e)).
+Definition objectMapUniqueness {C:Precategory} {X X':C==>SET}
+           (r:Representation X) (r':Representation X')
+           (p : X ⟶ X')
+           (f : universalObject r' → universalObject r)
+           (e : # X' f (universalElement r') = p (universalObject r) (universalElement r))
+  : f = objectMap r' r p.
+Proof. intros. now apply pathsweq1. Defined.
 
 Definition objectMapIdentity {C:Precategory} {X:C==>SET} (r:Representation X) :
-  objectMap r r (nat_trans_id X) = identity (Object r)
-  := maponpaths
-       get_mor
-       (theInitialIdentity r
-          (thePoint
-             (theInitialProperty
-                r (cat_on_nat_trans (nat_trans_id X) (theInitialObject r))))).
+  identity (universalObject r) = objectMap r r (nat_trans_id X).
+Proof.
+Admitted.

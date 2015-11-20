@@ -14,7 +14,7 @@ Local Open Scope cat.
 Definition set (C:Precategory) {I} (c:I -> ob C) : ob C -> ob SET.
 Proof.
   intros ? ? ? x.
-   apply (Sets.Product (fun i => hSetpair (Hom (c i) x) (homset_property C _ _ ) )).
+   apply (Sets.Product (fun i => hSetpair (Hom C (c i) x) (homset_property C _ _ ) )).
 Defined.
 
 Definition map (C:Precategory) {I} (c:I -> ob C) (x y:ob C) (f : x → y) :

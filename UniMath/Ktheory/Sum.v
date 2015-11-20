@@ -14,11 +14,11 @@ Definition type (C:Precategory) {I} (c:I -> ob C) :=
   Representation (HomFamily.precat C c).
 
 Definition Object {C:Precategory} {I} {c:I -> ob C} (r:type C c)
-           : ob C := Object r.
+           : ob C := universalObject r.
 
 Definition In {C:Precategory} {I} {b:I -> ob C} (B:type C b) i :
-     Hom (b i) (Object B).
-Proof. intros. exact (Element B i). Defined.
+     Hom C (b i) (universalObject B).
+Proof. intros. exact (universalElement B i). Defined.
 
 Module Coercions.
   Coercion Object : type >-> ob.

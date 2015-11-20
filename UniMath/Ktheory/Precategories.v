@@ -93,7 +93,7 @@ Definition Precategory_obj (C:precategory) : Type :=
   ob (
       precategory_ob_mor_from_precategory_data (
           precategory_data_from_precategory C)).
-Definition Precategory_mor {C:precategory} : ob C -> ob C -> UU :=
+Definition Precategory_mor (C:precategory) : ob C -> ob C -> UU :=
   pr2 (
       precategory_ob_mor_from_precategory_data (
           precategory_data_from_precategory C)).

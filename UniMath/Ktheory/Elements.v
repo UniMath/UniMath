@@ -61,8 +61,8 @@ Definition make_ob {C:Precategory} (X:C==>SET) (c:ob C) (x:set_to_type (X c)) : 
   := (c,,x).
 
 Definition make_mor {C:Precategory} (X:C==>SET) (r s : ob (cat X))
-           (f : Hom (pr1 r) (pr1 s))
-           (i : #X f (pr2 r) = pr2 s) : Hom r s
+           (f : Hom C (pr1 r) (pr1 s))
+           (i : #X f (pr2 r) = pr2 s) : Hom _ r s
   := (f,,i).
 
 

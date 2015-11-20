@@ -74,12 +74,12 @@ Defined.
 Definition Colimit {C I:Precategory} (D: I==>C) := Representation (cocone_functor D).
 
 Definition colimitObject {C I:Precategory} {D: I==>C} (colim:Colimit D) : ob C
-  := Object colim.
+  := universalObject colim.
 
 Coercion colimitObject : Colimit >-> ob.
 
 Definition colimitCocone {C I:Precategory} {D: I==>C} (colim:Colimit D) : cocone' D colim
-  := Element colim.
+  := universalElement colim.
 
 Coercion colimitCocone : Colimit >-> cocone'.
 
@@ -173,7 +173,6 @@ Theorem functorPrecategoryColimits (A B:Precategory) : hasColimits B -> hasColim
 Proof.
   intros ? ? colim ? ?.
   unfold Colimit. unfold Representation.
-  refine (InitialAndFinalObject.make_InitialObject _ _ _).
   - refine (_,,_).
     + refine (_,,_).
       * refine (_,,_).
