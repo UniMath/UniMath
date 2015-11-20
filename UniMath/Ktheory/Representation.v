@@ -6,14 +6,22 @@ Require Import UniMath.Ktheory.Precategories.
 Require Import UniMath.Ktheory.Elements. (* should not be needed *)
 Local Open Scope cat.
 
-Definition Representation {C:Precategory} (X:C==>SET)
-  := Σ (c:C) (x:set_to_type (X c)), ∀ (c':C), isweq (λ f : c → c', # X f x).
+Definition isUniversal {C:Precategory} {X:C==>SET} {c:C} (x:set_to_type (X c))
+  := ∀ (c':C), isweq (λ f : c → c', # X f x).
 
-Definition makeRepresentation {C:Precategory} (X:C==>SET) (c:C) (x:set_to_type (X c)) :
+Lemma isaprop_isUniversal {C:Precategory} {X:C==>SET} {c:C} (x:set_to_type (X c)) :
+  isaprop (isUniversal x).
+Proof.
+  intros. apply impred_isaprop; intro c'. apply isapropisweq.
+Defined.
+
+Definition Representation {C:Precategory} (X:C==>SET)
+  := Σ (c:C) (x:set_to_type (X c)), isUniversal x.
+
+Definition makeRepresentation {C:Precategory} {X:C==>SET} {c:C} (x:set_to_type (X c)) :
   (∀ (c':C), bijective (λ f : c → c', # X f x)) -> Representation X.
 Proof.
-  intros ? ? ? ? bij. exists c. exists x. intros.
-  apply bijection_to_weq, bij.
+  intros ? ? ? ? bij. exists c. exists x. intros c'. apply bijection_to_weq, bij.
 Defined.
 
 Definition isRepresentable {C:Precategory} (X:C==>SET) := ∥ Representation X ∥.
@@ -36,7 +44,8 @@ Proof.
 Defined.
 
 Definition mapUniqueness {C:Precategory} (X:C==>SET) (r : Representation X) (c':C)
-           (f g:universalObject r → c') : # X f (universalElement r) = # X g (universalElement r) -> f = g.
+           (f g:universalObject r → c') :
+  # X f (universalElement r) = # X g (universalElement r) -> f = g.
 Proof.
   intros ? ? ? ? ? ?. exact (invmaponpathsweq (universalProperty r c') f g).
 Defined.
@@ -49,11 +58,11 @@ Proof.
 Defined.
 
 Definition objectMapUniqueness {C:Precategory} {X X':C==>SET}
-           (r:Representation X) (r':Representation X')
+           {r:Representation X} {r':Representation X'}
            (p : X ⟶ X')
-           (f : universalObject r' → universalObject r)
-           (e : # X' f (universalElement r') = p (universalObject r) (universalElement r))
-  : f = objectMap r' r p.
+           (f : universalObject r' → universalObject r) :
+  (# X' f (universalElement r') = p (universalObject r) (universalElement r)) ->
+  f = objectMap r' r p.
 Proof. intros. now apply pathsweq1. Defined.
 
 Definition objectMapIdentity {C:Precategory} {X:C==>SET} (r:Representation X) :

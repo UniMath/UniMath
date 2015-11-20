@@ -497,7 +497,7 @@ Module Category.
 
   Module Product.
     Definition make {I} (X:I->ob Precat) : Product.type Precat X.
-      intros. refine (makeRepresentation _ _ _ _).
+      intros. refine (makeRepresentation _ _).
       - exact (Product.make X).
       - exact (Product.Proj X).
       - intros T. split.
@@ -512,7 +512,7 @@ Module Category.
 
   Module Sum.
     Definition make {I} (X:I->ob Precat) : Sum.type Precat X.
-      intros. refine (makeRepresentation _ _ _ _).
+      intros. refine (makeRepresentation _ _).
       - exact (Sum.make X).
       - exact (Sum.Incl X).
       - intros T. split.
