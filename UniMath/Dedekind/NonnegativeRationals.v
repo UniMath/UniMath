@@ -760,7 +760,7 @@ Qed.
 (** *** Substraction *)
 (** Rewriting *)
 
-Lemma minusNonegativeRationals_eq_zero:
+Lemma minusNonnegativeRationals_eq_zero:
   ∀ x y : NonnegativeRationals, x <= y -> x - y = 0.
 Proof.
   intros (x,Hx) (y,Hy) Hle.
@@ -819,7 +819,7 @@ Lemma minusNonnegativeRationals_zero_l :
   forall x : NonnegativeRationals, 0 - x = 0.
 Proof.
   intros x.
-  apply minusNonegativeRationals_eq_zero.
+  apply minusNonnegativeRationals_eq_zero.
   now apply isnonnegative_NonnegativeRationals.
 Qed.
 Lemma minusNonnegativeRationals_zero_r :
@@ -874,7 +874,7 @@ Proof.
   - rewrite minusNonegativeRationals_plus_r.
     now apply plusNonnegativeRationals_le_r.
     exact Hle.
-  - rewrite minusNonegativeRationals_eq_zero.
+  - rewrite minusNonnegativeRationals_eq_zero.
     rewrite islunit_zeroNonnegativeRationals.
     apply plusNonnegativeRationals_le_l.
     apply lt_leNonnegativeRationals.
@@ -891,7 +891,7 @@ Proof.
     exact Hxy.
     now apply istrans_leNonnegativeRationals with (2 := Hxy).
     exact Hkx.
-  - rewrite minusNonegativeRationals_eq_zero.
+  - rewrite minusNonnegativeRationals_eq_zero.
     now apply isnonnegative_NonnegativeRationals.
     now apply lt_leNonnegativeRationals ; rewrite <- notge_ltNonnegativeRationals.
 Qed.
@@ -922,7 +922,7 @@ Proof.
     exact Hxy.
     exact Hky.
     exact Hky.
-  - rewrite minusNonegativeRationals_eq_zero.
+  - rewrite minusNonnegativeRationals_eq_zero.
     now apply isnonnegative_NonnegativeRationals.
     now apply lt_leNonnegativeRationals ; rewrite <- notge_ltNonnegativeRationals.
 Qed.
@@ -947,7 +947,7 @@ Lemma minusNonnegativeRationals_ltcompat_l:
 Proof.
   intros x y z Hxy Hyz.
   case (isdecrel_leNonnegativeRationals x z) ; intros Hxz.
-  - rewrite minusNonegativeRationals_eq_zero, minusNonnegativeRationals_gt0.
+  - rewrite minusNonnegativeRationals_eq_zero, minusNonnegativeRationals_gt0.
     exact Hyz.
     exact Hxz.
   - rewrite (notge_ltNonnegativeRationals z x) in Hxz.
@@ -988,7 +988,7 @@ Proof.
     now apply lt_leNonnegativeRationals, Hxy.
     now apply lt_leNonnegativeRationals, Hxz.
     exact Hky.
-  - rewrite minusNonegativeRationals_eq_zero.
+  - rewrite minusNonnegativeRationals_eq_zero.
     now rewrite minusNonnegativeRationals_gt0.
     now apply lt_leNonnegativeRationals ; rewrite <- notge_ltNonnegativeRationals.
 Qed.
@@ -1180,7 +1180,7 @@ Lemma isldistr_mult_minusNonnegativeRationals:
 Proof.
   intros x y z.
   destruct (isdecrel_leNonnegativeRationals x y) as [Hle | Hlt].
-  - rewrite !minusNonegativeRationals_eq_zero.
+  - rewrite !minusNonnegativeRationals_eq_zero.
     now apply israbsorb_zero_multNonnegativeRationals.
     now apply multNonnegativeRationals_lecompat_l, Hle.
     exact Hle.
@@ -1437,7 +1437,7 @@ Proof.
   now apply (isirreflhqlth 2%hq).
 Qed.
 
-Lemma NQhalf_is_pos : ∀ x, (0 < x) = (0 < x / 2).
+Lemma ispositive_NQhalf : ∀ x, (0 < x) = (0 < x / 2).
 Proof.
   intro x.
   apply uahp ; intro Hx.
