@@ -83,6 +83,9 @@ Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
 
 Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat.
 
+Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35) : cat.
+(* agda input \square *)
+
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := C,,i.
 
