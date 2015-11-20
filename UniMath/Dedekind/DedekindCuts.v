@@ -609,10 +609,12 @@ Notation "1" := Dcuts_one : Dcuts_scope.
 (** Various usefull theorems *)
 
 Lemma Dcuts_zero_empty :
-  forall r : NonnegativeRationals, r ∈ 0 = hProppair empty isapropempty.
+  forall r : NonnegativeRationals, (r ∈ 0 : UU) = empty.
 Proof.
   intros r ; simpl.
-  apply uahp ; simpl.
+  apply uahp' ; simpl.
+  - now apply pr2.
+  - now apply isapropempty.
   - change (neg (r < 0)%NRat).
     now apply isnonnegative_NonnegativeRationals'.
   - easy.
@@ -2211,12 +2213,127 @@ Proof.
       * simpl.
         now apply NQmax_case.
 Qed.
-Definition isrinv_Dcuts_inv :
+Lemma isrinv_Dcuts_inv :
   ∀ x : Dcuts, forall Hx0 : x # 0, Dcuts_mult x (Dcuts_inv x Hx0) = 1.
 Proof.
   intros x Hx0.
   rewrite iscomm_Dcuts_mult.
   now apply islinv_Dcuts_inv.
+Qed.
+
+Lemma Dcuts_minus_correct_l:
+  ∀ x y z : Dcuts, x = Dcuts_plus y z -> z = Dcuts_minus x y.
+Proof.
+  intros _ Y Z ->.
+  apply Dcuts_eq_is_eq ; intro r ; split.
+  - intros Zr.
+    generalize (is_Dcuts_open _ _ Zr) ; apply hinhuniv ; intros (q,(Zq,Hq)).
+    rewrite <- minusNonnegativeRationals_gt0 in Hq.
+    generalize (is_Dcuts_error Y _ Hq) ; apply hinhuniv ; intros [nYy | ].
+    + apply hinhpr ; exists q ; split.
+      * apply hinhpr ; left.
+        now apply hinhpr ; right.
+      * intros y [Yy | Hy0].
+        rewrite <- (plusNonnegativeRationals_ltcompat_r y), minusNonegativeRationals_plus_r.
+        apply minusNonnegativeRationals_ltcompat_l' with r.
+        rewrite plusNonnegativeRationals_minus_l.
+        now apply (Dcuts_finite Y).
+        apply istrans_leNonnegativeRationals with (q - r).
+        now apply lt_leNonnegativeRationals, (Dcuts_finite Y).
+        now apply minusNonnegativeRationals_le.
+        now rewrite Hy0, minusNonnegativeRationals_zero_r, <- minusNonnegativeRationals_gt0.
+    + apply hinhfun ; intros (y,(Yy,Hy)).
+      exists (y + q) ; split.
+      apply hinhpr ; right.
+      apply hinhpr ; exists (y,q) ; simpl ; repeat split.
+      * exact Yy.
+      * exact Zq.
+      * intros y' [Yy' | Hy0].
+        rewrite <- (plusNonnegativeRationals_ltcompat_r y'), minusNonegativeRationals_plus_r.
+        apply minusNonnegativeRationals_ltcompat_l' with r.
+        rewrite plusNonnegativeRationals_minus_l.
+        rewrite iscomm_plusNonnegativeRationals, <- minusNonnegativeRationals_plus_exchange, iscomm_plusNonnegativeRationals.
+        now apply (Dcuts_finite Y).
+        now apply lt_leNonnegativeRationals ; rewrite <- minusNonnegativeRationals_gt0.
+        apply istrans_leNonnegativeRationals with (y + (q - r)).
+        now apply lt_leNonnegativeRationals, (Dcuts_finite Y).
+        rewrite plusNonnegativeRationals_lecompat_l.
+        now apply minusNonnegativeRationals_le.
+        rewrite Hy0, minusNonnegativeRationals_zero_r.
+        apply istrans_lt_le_ltNonnegativeRationals with q.
+        now rewrite <- minusNonnegativeRationals_gt0.
+        now apply plusNonnegativeRationals_le_l.
+  - apply hinhuniv ; intros (q,(YZq,Hq)).
+    revert YZq ; apply hinhuniv ; intros [ | ] ; apply hinhuniv ; [intros [ Yq | Zq ] | intros ((qy,qz)) ; simpl ; intros (H,(Yq,Zq)) ].
+    + apply fromempty, (isnonnegative_NonnegativeRationals' r).
+      rewrite <- (minusNonnegativeRationals_eq_zero q _ (isrefl_leNonnegativeRationals _)).
+      apply Hq.
+      now left.
+    + apply is_Dcuts_bot with (1 := Zq), lt_leNonnegativeRationals.
+      rewrite <- (minusNonnegativeRationals_zero_r q).
+      apply Hq.
+      now right.
+    + apply is_Dcuts_bot with (1 := Zq), lt_leNonnegativeRationals.
+      rewrite <- (plusNonnegativeRationals_minus_l qy qz), <- H.
+      apply Hq.
+      now left.
+Qed.
+Lemma Dcuts_minus_correct_r:
+  ∀ x y z : Dcuts, x = Dcuts_plus y z -> y = Dcuts_minus x z.
+Proof.
+  intros x y z Hx.
+  apply Dcuts_minus_correct_l.
+  rewrite Hx.
+  now apply iscomm_Dcuts_plus.
+Qed.
+Lemma Dcuts_minus_eq_zero:
+  ∀ x y : Dcuts, x <= y -> Dcuts_minus x y = 0.
+Proof.
+  intros X Y Hxy.
+  apply Dcuts_eq_is_eq ; intros r ; split.
+  - apply hinhuniv ; intros (x,(Xx,Hx)).
+    simpl ; rewrite <- (minusNonnegativeRationals_eq_zero x _ (isrefl_leNonnegativeRationals _)).
+    apply Hx.
+    now left ; apply Hxy.
+  - intro H.
+    now apply fromempty ; rewrite <- (Dcuts_zero_empty r).
+Qed.
+Lemma Dcuts_minus_plus_r:
+  ∀ x y z : Dcuts, z <= y -> x = Dcuts_minus y z -> y = Dcuts_plus x z.
+Proof.
+  intros _ Y Z Hyz ->.
+  apply Dcuts_eq_is_eq ; intro r ; split.
+  - intros Yr.
+    apply hinhpr ; left.
+    apply hinhpr ; left.
+    generalize (is_Dcuts_open _ _ Yr) ; apply hinhuniv ; intros (q,(Yq,Hq)).
+    rewrite <- minusNonnegativeRationals_gt0 in Hq.
+    generalize (is_Dcuts_error Z _ Hq).
+    apply hinhuniv ; intros [nZ | ].
+    + apply hinhpr.
+      exists q ; split.
+      exact Yq.
+      intros z [Zz | Hz0].
+      * rewrite <- (plusNonnegativeRationals_ltcompat_r z), minusNonegativeRationals_plus_r.
+        apply (minusNonnegativeRationals_ltcompat_l' _ _ r).
+        rewrite plusNonnegativeRationals_minus_l.
+        now apply (Dcuts_finite Z).
+        apply istrans_leNonnegativeRationals with (q - r).
+        now apply lt_leNonnegativeRationals, (Dcuts_finite Z).
+        now apply minusNonnegativeRationals_le.
+      * now rewrite Hz0, minusNonnegativeRationals_zero_r, <- minusNonnegativeRationals_gt0.
+    + apply hinhfun ; intros (z,(Zz,nZz)).
+      exists q ; split.
+      exact Yq.
+      intros z' [Zz' | Hz0].
+      * rewrite <- (plusNonnegativeRationals_ltcompat_r z'), minusNonegativeRationals_plus_r.
+        apply (minusNonnegativeRationals_ltcompat_l' _ _ r).
+        rewrite plusNonnegativeRationals_minus_l.
+        now apply (Dcuts_finite Z).
+        apply istrans_leNonnegativeRationals with (q - r).
+        now apply lt_leNonnegativeRationals, (Dcuts_finite Z).
+        now apply minusNonnegativeRationals_le.
+      * now rewrite Hz0, minusNonnegativeRationals_zero_r, <- minusNonnegativeRationals_gt0.
 Qed.
 
 (** ** Structures *)
