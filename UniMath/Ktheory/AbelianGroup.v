@@ -8,8 +8,7 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Ktheory.Utilities
                UniMath.CategoryTheory.functor_categories
                UniMath.Ktheory.Representation
-               UniMath.Ktheory.Precategories
-               UniMath.Ktheory.InitialAndFinalObject.
+               UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.Group UniMath.Ktheory.Product
         UniMath.Ktheory.Sum.
 Local Open Scope cat.

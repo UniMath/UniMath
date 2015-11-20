@@ -4,8 +4,8 @@ Require Import UniMath.Ktheory.Utilities.
 Require Import UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
-               UniMath.CategoryTheory.category_hset
-               UniMath.CategoryTheory.functor_categories .
+               UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.category_hset.
 Delimit Scope cat with cat.

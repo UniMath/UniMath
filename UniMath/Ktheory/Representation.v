@@ -2,8 +2,8 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Ktheory.Utilities.
+Require Import UniMath.CategoryTheory.precategories. (* get its coercions *)
 Require Import UniMath.Ktheory.Precategories.
-Require Import UniMath.Ktheory.Elements. (* should not be needed *)
 Local Open Scope cat.
 
 Definition isUniversal {C:Precategory} {X:C==>SET} {c:C} (x:set_to_type (X c))
@@ -21,7 +21,10 @@ Definition Representation {C:Precategory} (X:C==>SET)
 Definition makeRepresentation {C:Precategory} {X:C==>SET} {c:C} (x:set_to_type (X c)) :
   (∀ (c':C), bijective (λ f : c → c', # X f x)) -> Representation X.
 Proof.
-  intros ? ? ? ? bij. exists c. exists x. intros c'. apply bijection_to_weq, bij.
+  intros ? ? ? ? bij. exists c. exists x. intros c'.
+  apply set_bijection_to_weq.
+  - exact (bij c').
+  - apply setproperty.
 Defined.
 
 Definition isRepresentable {C:Precategory} (X:C==>SET) := ∥ Representation X ∥.
