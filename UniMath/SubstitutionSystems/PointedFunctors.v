@@ -1,10 +1,32 @@
+
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents :
+
+-    Definition of precategory of pointed endofunctors
+-    Forgetful functor to precategory of endofunctors
+
+
+************************************************************)
+
+
 Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.SubstitutionSystems.UnicodeNotations.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -25,21 +47,21 @@ Definition ptd_pt (F : ptd_obj) : functor_identity C ⟶ F := pr2 F.
 
 Definition is_ptd_mor {F G : ptd_obj}(α: F ⟶ G) : UU := ∀ c : C, ptd_pt F c ;; α c = ptd_pt G c.
 
-Definition ptd_mor (F G : ptd_obj) : UU := 
+Definition ptd_mor (F G : ptd_obj) : UU :=
   Σ α : F ⟶ G, is_ptd_mor α.
 
 Coercion nat_trans_from_ptd_mor {F G : ptd_obj} (a : ptd_mor F G) : nat_trans F G := pr1 a.
 
-Lemma eq_ptd_mor {F G : ptd_obj} (a b : ptd_mor F G) 
+Lemma eq_ptd_mor {F G : ptd_obj} (a b : ptd_mor F G)
   : a = b ≃ (a : F ⟶ G) = b.
 Proof.
-  apply total2_paths_isaprop_equiv.
+  apply subtypeInjectivity.
   intro x.
   apply impred; intros ?.
   apply hs.
 Defined.
 
-Definition ptd_mor_commutes {F G : ptd_obj} (α : ptd_mor F G) 
+Definition ptd_mor_commutes {F G : ptd_obj} (α : ptd_mor F G)
   : ∀ c : C, ptd_pt F c ;; α c = ptd_pt G c.
 Proof.
   exact (pr2 α).
@@ -63,7 +85,7 @@ Proof.
       set (H:=ptd_mor_commutes α c); simpl in H; rewrite H; clear H ;
       set (H:=ptd_mor_commutes α' c); simpl in H; rewrite H; clear H ;
       apply idpath ).
-Defined.  
+Defined.
 
 Definition ptd_ob_mor : precategory_ob_mor.
 Proof.
@@ -88,7 +110,7 @@ Proof.
   - apply (invmap (eq_ptd_mor _ _ )).
     apply (assoc (functor_precategory _ _ hs)).
 Qed.
-   
+
 Definition precategory_Ptd : precategory := tpair _ _ is_precategory_ptd.
 
 Definition id_Ptd : precategory_Ptd.
@@ -97,7 +119,7 @@ Proof.
   exact (nat_trans_id _ ).
 Defined.
 
-Lemma eq_ptd_mor_precat {F G : precategory_Ptd} (a b : F ⇒ G) 
+Lemma eq_ptd_mor_precat {F G : precategory_Ptd} (a b : F ⇒ G)
   : a = b ≃ (a : ptd_mor F G) = b.
 Proof.
   refine (tpair _ _ _).
@@ -124,16 +146,3 @@ Qed.
 Definition functor_ptd_forget : functor _ _ := tpair _ _ is_functor_ptd_forget.
 
 End def_ptd.
-
-
-
-
-
-
-
-
-
-
-
-
-

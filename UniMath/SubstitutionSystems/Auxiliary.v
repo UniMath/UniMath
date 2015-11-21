@@ -1,22 +1,65 @@
-Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+(** **********************************************************
 
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents :
+
+- Various helper lemmas that should be moved upstream
+
+
+************************************************************)
+
+
+Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.SubstitutionSystems.UnicodeNotations.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
+
+(** to Foundations *)
 
 Lemma transportf_idpath (A : UU) (B : A -> UU) (a : A) (b : B a)
 : transportf _ (idpath a) b = b.
 Proof.
   apply idpath.
 Defined.
+
+Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (fun a => B a)))
+           (a : A) (p : B a) : a = pr1 (pr1 isc).
+Proof.
+  set (Hi := tpair _ a p).
+  apply (maponpaths pr1 (pr2 isc Hi)).
+Defined.
+
+Lemma dirprodeq (A B : UU) (ab ab' : A × B) :
+  pr1 ab = pr1 ab' → pr2 ab = pr2 ab' → ab = ab'.
+Proof.
+  intros H H'.
+  destruct ab as [a b].
+  destruct ab' as [a' b']; simpl in *.
+  induction H.
+  induction H'.
+  apply idpath.
+Defined.
+
+
+(** to functor_categories.v *)
+
 
 Section Constant_Functor.
 Variables C D : precategory.
@@ -47,23 +90,24 @@ Proof.
   apply functor_id.
 Defined.
 
-Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (fun a => B a))) 
-           (a : A) (p : B a) : a = pr1 (pr1 isc).
-Proof.
-  set (Hi := tpair _ a p).
-  apply (maponpaths pr1 (pr2 isc Hi)).
-Defined.
+Section nat_trans_eq.
 
-Lemma dirprodeq (A B : UU) (ab ab' : A × B) : 
-  pr1 ab = pr1 ab' → pr2 ab = pr2 ab' → ab = ab'.
+Context {C D : precategory}.
+Variable hsD : has_homsets D.
+Context {F G : functor C D}.
+Variables alpha beta : nat_trans F G.
+
+Definition nat_trans_eq_weq : weq (alpha = beta) (forall c, alpha c = beta c).
 Proof.
-  intros H H'.
-  destruct ab as [a b].
-  destruct ab' as [a' b']; simpl in *.
-  induction H.
-  induction H'.
-  apply idpath.
+  eapply weqcomp.
+  - apply subtypeInjectivity.
+    intro x. apply isaprop_is_nat_trans. apply hsD.
+  - apply weqtoforallpaths.
 Defined.
+End nat_trans_eq.
+
+
+(** to whiskering.v *)
 
 Lemma is_nat_trans_post_whisker (B C D : precategory)
    (G H : functor B C) (gamma : nat_trans G H) (K : functor C D):
@@ -81,29 +125,16 @@ Proof.
 Qed.
 
 Definition post_whisker {B C D : precategory} (hsC : has_homsets C) (hsD : has_homsets D)
-   (G H: ob [B, C, hsC]) (gamma : G --> H) (I : ob [C, D, hsD]) 
+   (G H: ob [B, C, hsC]) (gamma : G --> H) (I : ob [C, D, hsD])
   : functor_compose _ _ G I --> functor_compose _ _ H I.
 Proof.
   exists (fun b : B => #(pr1 I) (pr1 gamma b)).
   apply is_nat_trans_post_whisker.
 Defined.
 
-Section nat_trans_eq.
 
-Variables C D : precategory.
-Variable hsD : has_homsets D.
-Variables F G : functor C D.
-Variables alpha beta : nat_trans F G.
 
-Definition nat_trans_eq_weq : weq (alpha = beta) (forall c, alpha c = beta c).
-Proof.
-  eapply weqcomp.
-  - apply total2_paths_isaprop_equiv. 
-    intro x. apply isaprop_is_nat_trans. apply hsD.
-  - apply weqtoforallpaths.
-Defined.
-End nat_trans_eq.
-
+(** to CategoryTheory/limits/coproducts.v *)
 
 Section Coproducts.
 
@@ -111,18 +142,18 @@ Variable C : precategory.
 Variable CC : Coproducts C.
 Variables a b c d x y : C.
 
-Lemma CoproductArrow_eq (f f' : a ⇒ c) (g g' : b ⇒ c) 
-  : f = f' → g = g' → 
-      CoproductArrow _ (CC _ _) f g = CoproductArrow _ _ f' g'. 
+Lemma CoproductArrow_eq (f f' : a ⇒ c) (g g' : b ⇒ c)
+  : f = f' → g = g' →
+      CoproductArrow _ (CC _ _) f g = CoproductArrow _ _ f' g'.
 Proof.
   induction 1.
   induction 1.
   apply idpath.
 Qed.
 
-Lemma CoproductArrow_eq_cor (f f' : CoproductObject C (CC a b) ⇒ c) 
-  : CoproductIn1 _ _;; f = CoproductIn1 _ _;; f' → CoproductIn2 _ _;; f = CoproductIn2 _ _;; f' → 
-      f = f' . 
+Lemma CoproductArrow_eq_cor (f f' : CoproductObject C (CC a b) ⇒ c)
+  : CoproductIn1 _ _;; f = CoproductIn1 _ _;; f' → CoproductIn2 _ _;; f = CoproductIn2 _ _;; f' →
+      f = f' .
 Proof.
   intros Hyp1 Hyp2.
   rewrite (CoproductArrowEta _ _ _ _ _ f).
@@ -132,43 +163,43 @@ Qed.
 
 (** specialized versions of beta rules for coproducts *)
 (* all the following lemmas for manipulation of the hypothesis
-Lemma CoproductIn1Commutes_left (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h -> f = h. 
+Lemma CoproductIn1Commutes_left (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h -> f = h.
 Proof.
   intro Hyp.
-  rewrite CoproductIn1Commutes in Hyp. 
+  rewrite CoproductIn1Commutes in Hyp.
   exact Hyp.
 Qed.
 
-Lemma CoproductIn1Commutes_right (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): h = CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g -> h = f. 
+Lemma CoproductIn1Commutes_right (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): h = CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g -> h = f.
 Proof.
   intro Hyp.
-  rewrite CoproductIn1Commutes in Hyp. 
+  rewrite CoproductIn1Commutes in Hyp.
   exact Hyp.
 Qed.
 
-Lemma CoproductIn2Commutes_left (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h -> g = h. 
+Lemma CoproductIn2Commutes_left (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h -> g = h.
 Proof.
   intro Hyp.
-  rewrite CoproductIn2Commutes in Hyp. 
+  rewrite CoproductIn2Commutes in Hyp.
   exact Hyp.
 Qed.
 
-Lemma CoproductIn2Commutes_right (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): h = CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g -> h = g. 
+Lemma CoproductIn2Commutes_right (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): h = CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g -> h = g.
 Proof.
   intro Hyp.
-  rewrite CoproductIn2Commutes in Hyp. 
+  rewrite CoproductIn2Commutes in Hyp.
   exact Hyp.
 Qed.
 
-Lemma CoproductIn1Commutes_left_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h' -> f ;; h = h'. 
+Lemma CoproductIn1Commutes_left_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h' -> f ;; h = h'.
 Proof.
   intro Hyp.
   rewrite assoc in Hyp.
-  rewrite CoproductIn1Commutes in Hyp. 
+  rewrite CoproductIn1Commutes in Hyp.
   exact Hyp.
 Qed.
 
-Lemma CoproductIn1Commutes_right_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): h' = CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h)  -> h' = f ;; h. 
+Lemma CoproductIn1Commutes_right_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): h' = CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h)  -> h' = f ;; h.
 Proof.
   intro Hyp.
   apply pathsinv0 in Hyp.
@@ -176,15 +207,15 @@ Proof.
   exact (CoproductIn1Commutes_left_in_ctx _ _ _ _ Hyp).
 Qed.
 
-Lemma CoproductIn2Commutes_left_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h' -> g ;; h = h'. 
+Lemma CoproductIn2Commutes_left_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h' -> g ;; h = h'.
 Proof.
   intro Hyp.
   rewrite assoc in Hyp.
-  rewrite CoproductIn2Commutes in Hyp. 
+  rewrite CoproductIn2Commutes in Hyp.
   exact Hyp.
 Qed.
 
-Lemma CoproductIn2Commutes_right_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): h' = CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h)  -> h' = g ;; h. 
+Lemma CoproductIn2Commutes_right_in_ctx (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): h' = CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h)  -> h' = g ;; h.
 Proof.
   intro Hyp.
   apply pathsinv0 in Hyp.
@@ -192,37 +223,37 @@ Proof.
   exact (CoproductIn2Commutes_left_in_ctx _ _ _ _ Hyp).
 Qed.
 
-Lemma CoproductIn2Commutes_right_in_double_ctx (g0 : x ⇒ b)(f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : x ⇒ d): h' = g0 ;; CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h)  -> h' = g0 ;; g ;; h. 
+Lemma CoproductIn2Commutes_right_in_double_ctx (g0 : x ⇒ b)(f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : x ⇒ d): h' = g0 ;; CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h)  -> h' = g0 ;; g ;; h.
 Proof.
   intro Hyp.
   rewrite Hyp.
   repeat rewrite <- assoc.
   apply maponpaths.
   rewrite assoc.
-  rewrite CoproductIn2Commutes.  
+  rewrite CoproductIn2Commutes.
   apply idpath.
 Qed.
 *)
 
 
 (* optimized versions in direct style *)
-Lemma CoproductIn1Commutes_right_dir (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): h = f -> h = CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g. 
+Lemma CoproductIn1Commutes_right_dir (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): h = f -> h = CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g.
 Proof.
   intro Hyp.
   rewrite Hyp.
   apply pathsinv0.
-  apply CoproductIn1Commutes. 
+  apply CoproductIn1Commutes.
 Qed.
 
-Lemma CoproductIn2Commutes_right_dir (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): h = g -> h = CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g. 
+Lemma CoproductIn2Commutes_right_dir (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): h = g -> h = CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g.
 Proof.
   intro Hyp.
   rewrite Hyp.
   apply pathsinv0.
-  apply CoproductIn2Commutes. 
+  apply CoproductIn2Commutes.
 Qed.
 
-Lemma CoproductIn1Commutes_right_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): h' = f ;; h -> h' = CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h). 
+Lemma CoproductIn1Commutes_right_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): h' = f ;; h -> h' = CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h).
 Proof.
   intro Hyp.
   rewrite Hyp.
@@ -231,7 +262,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma CoproductIn2Commutes_right_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): h' = g ;; h -> h' = CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h). 
+Lemma CoproductIn2Commutes_right_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): h' = g ;; h -> h' = CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h).
 Proof.
   intro Hyp.
   rewrite Hyp.
@@ -240,21 +271,21 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma CoproductIn1Commutes_left_dir (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): f = h -> CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h. 
+Lemma CoproductIn1Commutes_left_dir (f : a ⇒ c)(g : b ⇒ c)(h : a ⇒ c): f = h -> CoproductIn1 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h.
 Proof.
   intro Hyp.
   rewrite Hyp.
-  apply CoproductIn1Commutes. 
+  apply CoproductIn1Commutes.
 Qed.
 
-Lemma CoproductIn2Commutes_left_dir (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): g = h -> CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h. 
+Lemma CoproductIn2Commutes_left_dir (f : a ⇒ c)(g : b ⇒ c)(h : b ⇒ c): g = h -> CoproductIn2 C (CC _ _) ;; CoproductArrow C (CC _ _) f g = h.
 Proof.
   intro Hyp.
   rewrite Hyp.
-  apply CoproductIn2Commutes. 
+  apply CoproductIn2Commutes.
 Qed.
 
-Lemma CoproductIn1Commutes_left_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): f ;; h = h' -> CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h'. 
+Lemma CoproductIn1Commutes_left_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : a ⇒ d): f ;; h = h' -> CoproductIn1 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h'.
 Proof.
   intro Hyp.
   rewrite <- Hyp.
@@ -263,7 +294,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma CoproductIn2Commutes_left_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): g ;; h = h' -> CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h'. 
+Lemma CoproductIn2Commutes_left_in_ctx_dir (f : a ⇒ c)(g : b ⇒ c)(h : c ⇒ d)(h' : b ⇒ d): g ;; h = h' -> CoproductIn2 C (CC _ _) ;; (CoproductArrow C (CC _ _) f g ;; h) = h'.
 Proof.
   intro Hyp.
   rewrite <- Hyp.
@@ -290,10 +321,10 @@ Proof.
   repeat rewrite <- assoc.
   apply maponpaths.
   rewrite assoc.
-  rewrite CoproductIn2Commutes.  
+  rewrite CoproductIn2Commutes.
   apply idpath.
 Qed.
-(** end of specialized versions of the beta laws for coproducts *) 
+(** end of specialized versions of the beta laws for coproducts *)
 
 
 (* do we ever want to create a multitude of similar lemmas for other rewrite rules?
@@ -330,9 +361,9 @@ Proof.
 Qed.
 *)
 
-Definition CoproductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y) 
-  : CoproductOfArrows _ (CC a b) (CC c d) f f' ;; 
-    CoproductOfArrows _ (CC _ _) (CC _ _) g g' 
+Definition CoproductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y)
+  : CoproductOfArrows _ (CC a b) (CC c d) f f' ;;
+    CoproductOfArrows _ (CC _ _) (CC _ _) g g'
     =
     CoproductOfArrows _ (CC _ _) (CC _ _)(f ;; g) (f' ;; g').
 Proof.
@@ -349,16 +380,16 @@ Proof.
     apply assoc.
 Qed.
 
-Definition CoproductOfArrows_eq (f f' : a ⇒ c) (g g' : b ⇒ d) 
-  : f = f' → g = g' → 
-      CoproductOfArrows _ _ _ f g = CoproductOfArrows _ (CC _ _) (CC _ _) f' g'. 
+Definition CoproductOfArrows_eq (f f' : a ⇒ c) (g g' : b ⇒ d)
+  : f = f' → g = g' →
+      CoproductOfArrows _ _ _ f g = CoproductOfArrows _ (CC _ _) (CC _ _) f' g'.
 Proof.
   induction 1.
   induction 1.
   apply idpath.
 Qed.
 
-Lemma precompWithCoproductArrow_eq  (CCab : CoproductCocone _ a b) 
+Lemma precompWithCoproductArrow_eq  (CCab : CoproductCocone _ a b)
     (CCcd : CoproductCocone _ c d) (f : a ⇒ c) (g : b ⇒ d)
      (k : c ⇒ x) (h : d ⇒ x) (fk : a ⇒ x) (gh : b ⇒ x):
       fk = f ;; k → gh = g ;; h →
@@ -373,15 +404,19 @@ Qed.
 
 End Coproducts.
 
+
+(** to CategoryTheory/limits/products.v *)
+
+
 Section Products.
 
 Variable C : precategory.
 Variable CC : Products C.
 Variables a b c d x y : C.
 
-Definition ProductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y) 
-  : ProductOfArrows _ (CC c d) (CC a b) f f' ;; 
-    ProductOfArrows _ (CC _ _) (CC _ _) g g' 
+Definition ProductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y)
+  : ProductOfArrows _ (CC c d) (CC a b) f f' ;;
+    ProductOfArrows _ (CC _ _) (CC _ _) g g'
     =
     ProductOfArrows _ (CC _ _) (CC _ _)(f ;; g) (f' ;; g').
 Proof.
@@ -400,9 +435,9 @@ Proof.
     apply assoc.
 Qed.
 
-Definition ProductOfArrows_eq (f f' : a ⇒ c) (g g' : b ⇒ d) 
-  : f = f' → g = g' → 
-      ProductOfArrows _ _ _ f g = ProductOfArrows _ (CC _ _) (CC _ _) f' g'. 
+Definition ProductOfArrows_eq (f f' : a ⇒ c) (g g' : b ⇒ d)
+  : f = f' → g = g' →
+      ProductOfArrows _ _ _ f g = ProductOfArrows _ (CC _ _) (CC _ _) f' g'.
 Proof.
   induction 1.
   induction 1.
@@ -417,8 +452,8 @@ Variable C : precategory.
 Variable CC : Products C.
 Variables a b : C.
 
-Lemma Product_endo_is_identity (P : ProductCone _ a b) 
-  (k : ProductObject _ P ⇒ ProductObject _ P) 
+Lemma Product_endo_is_identity (P : ProductCone _ a b)
+  (k : ProductObject _ P ⇒ ProductObject _ P)
   (H1 : k ;; ProductPr1 _ P = ProductPr1 _ P)
   (H2 : k ;; ProductPr2 _ P = ProductPr2 _ P)
   : identity _ = k.

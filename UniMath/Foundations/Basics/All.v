@@ -1,6 +1,6 @@
-(** * Univalent Basics. 
+(** * Univalent Basics.
 
-Vladimir Voevodsky. 
+Vladimir Voevodsky.
 Feb. 2010 - Sep. 2011.
 
 
@@ -22,8 +22,8 @@ of sections of a family with contractible fibers is contractible.
 (* Port to coq trunk (8.4-8.5) in March 2014.  *)
 
 
-(* The original file uu0 was split into the files uu0a, uu0b, uu0c and uu0d by 
-Vladimir Voevodsdy on Dec. 3, 2014. *)
+(* The original file uu0 was split into the files uu0a, uu0b, uu0c and uu0d by
+Vladimir Voevodsky on Dec. 3, 2014. *)
 
 Require Export UniMath.Foundations.Basics.PartD.
 

@@ -1,11 +1,33 @@
+
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents :
+
+-    Definition of the cartesian product of two precategories
+-    From a functor on a product of precategories to a functor on one of the categories by fixing the argument in the other component
+
+
+
+************************************************************)
+
+
 Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.SubstitutionSystems.UnicodeNotations.
-Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.SubstitutionSystems.Auxiliary.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -42,7 +64,7 @@ Proof.
   - apply dirprodeq; apply assoc.
 Qed.
 
-Definition product_precategory : precategory 
+Definition product_precategory : precategory
   := tpair _ _ is_precategory_product_precategory_data.
 
 Definition has_homsets_product_precategory (hsC : has_homsets C) (hsD : has_homsets D) :
@@ -53,7 +75,7 @@ Proof.
   - apply hsC.
   - apply hsD.
 Qed.
- 
+
 Section functor_fix_snd_arg.
 
 Variable E : precategory.
@@ -63,14 +85,14 @@ Variable d: D.
 Definition functor_fix_snd_arg_ob (c:C): E := F(tpair _ c d).
 Definition functor_fix_snd_arg_mor (c c':C)(f: c ⇒ c'): functor_fix_snd_arg_ob c ⇒ functor_fix_snd_arg_ob c'.
 Proof.
-  apply (#F). 
+  apply (#F).
   split; simpl.
   exact f.
   exact (identity d).
 Defined.
 Definition functor_fix_snd_arg_data : functor_data C E.
 Proof.
-  red. 
+  red.
   exists functor_fix_snd_arg_ob.
   exact functor_fix_snd_arg_mor.
 Defined.
@@ -98,12 +120,12 @@ Proof.
     rewrite id_left.
     apply idpath.
 Qed.
-  
+
 Definition functor_fix_snd_arg: functor C E.
 Proof.
   exists functor_fix_snd_arg_data.
   exact is_functor_functor_fix_snd_arg_data.
-Defined.    
+Defined.
 
 End functor_fix_snd_arg.
 
@@ -136,3 +158,17 @@ End nat_trans_fix_snd_arg.
 
 
 End one_product_precategory.
+
+(** Objects and morphisms in the product precategory of two precategories *)
+Definition prodcatpair {C D : precategory} (X : C) (Y : D) : product_precategory C D.
+Proof.
+  exists X.
+  exact Y.
+Defined.
+Local Notation "A ⊗ B" := (prodcatpair A B) (at level 10).
+Definition prodcatmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X ⇒ X') (β : Z ⇒ Z')
+  : X ⊗ Z ⇒ X' ⊗ Z'.
+Proof.
+  exists α.
+  exact β.
+Defined.

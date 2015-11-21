@@ -1,10 +1,31 @@
+
+(** **********************************************************
+
+Benedikt Ahrens, Ralph Matthes
+
+SubstitutionSystems
+
+2015
+
+
+************************************************************)
+
+
+(** **********************************************************
+
+Contents :
+
+-  Definition of composition of pointed functors
+
+
+************************************************************)
+
+
 Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.SubstitutionSystems.UnicodeNotations.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.SubstitutionSystems.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.HorizontalComposition.
 
@@ -17,24 +38,12 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Section def_ptd.
 
 Variable C : precategory.
+Variable hs : has_homsets C.
 
-Definition ptd_composite (Z Z' : ptd_obj C) : ptd_obj C.
+Definition ptd_composite (Z Z' : ptd_obj C) : precategory_Ptd C hs.
 Proof.
   exists (functor_composite _ _ _ Z Z').
   apply (hor_comp (ptd_pt _ Z) (ptd_pt _ Z')).
 Defined.
 
 End def_ptd.
-
-
-
-
-
-
-
-
-
-
-
-
-
