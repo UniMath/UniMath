@@ -50,17 +50,35 @@ Definition boolset : hSet := hSetpair bool isasetbool .
 
 (** ** Types [ X ] which satisfy " weak " axiom of choice for all families [ P : X -> UU ] 
 
-Weak axiom of choice for [ X ] is the condition that for any family [ P : X -> UU ] over [ X ] such that all members of the family are inhabited the space of sections of the family is inhabited . Equivalently one can formulate it as an assertion that for any surjection ( see below ) [ p : Y -> X ] the space of sections of this surjection i.e. functions [ s : X -> Y ] together with a homotopy from [ funcomp s p ] to [ idfun X ] is inhabited . It does not provide a choice of a section for such a family or a surjection . In topos-theoretic semantics this condition corresponds to " local projectivity " of [ X ] . It automatically holds for the point [ unit ] but need not hold for sub-objects of [ unit ] i.e. for types of h-level 1 ( propositions ) . In particular it does not have to hold for general types with decidable equality . 
+Weak axiom of choice for [ X ] is the condition that for any family [ P : X -> UU ] over [ X ] such 
+that all members of the family are inhabited the space of sections of the family is inhabited . 
+Equivalently one can formulate it as an assertion that for any surjection ( see below ) 
+[ p : Y -> X ] the space of sections of this surjection i.e. functions [ s : X -> Y ] together 
+with a homotopy from [ funcomp s p ] to [ idfun X ] is inhabited . It does not provide a choice 
+of a section for such a family or a surjection . In topos-theoretic semantics this condition 
+corresponds to " local projectivity " of [ X ] . It automatically holds for the point [ unit ]
+ but need not hold for sub-objects of [ unit ] i.e. for types of h-level 1 ( propositions ) . 
+In particular it does not have to hold for general types with decidable equality . 
 
-Intuition based on standard univalent models suggests that any type satisfying weak axiom of choice is a set . Indeed it seems to be possible to show that if both a type and the set of connected components of this type ( see below ) satisfy weak  axiom of choice then the type is a set . In particular , if one imposes weak axiom of choice for sets as an axiom then it would follow that every type satisfying weak axiom of choice is a set . I do not know however if there are models which would validate a possibility of types other than sets to satisfy weak axiom of choice . 
+Intuition based on standard univalent models suggests that any type satisfying weak axiom of 
+choice is a set . Indeed it seems to be possible to show that if both a type and the set of 
+connected components of this type ( see below ) satisfy weak  axiom of choice then the type is 
+a set . In particular , if one imposes weak axiom of choice for sets as an axiom then it would 
+follow that every type satisfying weak axiom of choice is a set . I do not know however if there 
+are models which would validate a possibility of types other than sets to satisfy weak axiom of 
+choice . 
 
 
 *)
 
-Definition ischoicebase_uu1 ( X : UU ) := forall P : X -> UU , ( forall x : X , ishinh ( P x ) ) -> ishinh ( forall x : X , P x ) .
+Definition ischoicebase_uu1 ( X : UU ) :=
+  forall P : X -> UU , ( forall x : X , ishinh ( P x ) ) -> ishinh ( forall x : X , P x ) .
 
 Lemma isapropischoicebase ( X : UU ) : isaprop ( ischoicebase_uu1 X ) .  (** Uses RR1 *)
-Proof .  intro . apply impred . intro P .  apply impred . intro fs . apply ( pr2 ( ishinh _ ) ) .  Defined . 
+Proof .
+  intro . apply impred . intro P .  apply impred . intro fs .
+  apply ( pr2 ( ishinh _ ) ) .
+Defined . 
 
 Definition ischoicebase ( X : UU ) : hProp := hProppair _ ( isapropischoicebase X ) . 
 
@@ -503,9 +521,22 @@ set (is3:= is2 (g1 y) (g2 y)). simpl in is3. apply (@hinhuniv (paths (g1 y) (g2 
 
 (** ** Set quotients of types. 
 
-In this file we study the set quotients of types by equivalence relations. While the general notion of a quotient of a type by a relation is complicated due to the existence of different kinds of quotients (e.g. homotopy quotients or categorical quotients in the homotopy category which are usually different from each other) there is one particular class of quotients which is both very important for applications and semantically straightforward. These quotients are the universal functions from a type to an hset which respect a given relation. Some of the proofs in this section depend on the proerties of the hinhabited construction and some also depend on the univalence axiom for [ hProp ] which allows us to prove that the type of monic subtypes of a type is a set. 
+In this file we study the set quotients of types by equivalence relations. While the general 
+notion of a quotient of a type by a relation is complicated due to the existence of different 
+kinds of quotients (e.g. homotopy quotients or categorical quotients in the homotopy category 
+which are usually different from each other) there is one particular class of quotients which is 
+both very important for applications and semantically straightforward. These quotients are the 
+universal functions from a type to an hset which respect a given relation. Some of the proofs in 
+this section depend on the proerties of the hinhabited construction and some also depend on the 
+univalence axiom for [ hProp ] which allows us to prove that the type of monic subtypes of a type 
+is a set. 
 
-Our main construction is analogous to the usual construction of quotient as a set of equivalence classes. Wev also consider another construction of [ setquot ] which is analogous ( on the next h-level ) to our construction of [ ishinh ] . Both have generalizations to the "higher" quotients (i.e. groupoid quotients etc.) which will be considered separately. In particular, the quotients the next h-level appear to be closely related to the localizations of categories and will be considered in the section about types of h-level 3.  
+Our main construction is analogous to the usual construction of quotient as a set of equivalence 
+classes. Wev also consider another construction of [ setquot ] which is analogous 
+( on the next h-level ) to our construction of [ ishinh ] . Both have generalizations to the 
+"higher" quotients (i.e. groupoid quotients etc.) which will be considered separately. 
+In particular, the quotients the next h-level appear to be closely related to the localizations 
+of categories and will be considered in the section about types of h-level 3.  
 
 
 *)
@@ -619,8 +650,22 @@ Proof . intros . assert ( int1 : forall c0 c0' c0'' : _ , P c c0 c0' c0'' ) .  a
 
 
 
-
-(** Important note : theorems proved above can not be used ( al least at the moment ) to construct terms whose complete normalization ( evaluation ) is important . For example they should not be used * directly * to construct [ isdeceq ] property of [ setquot ] since [ isdeceq ] is in turn used to construct boolean equality [ booleq ] and evaluation of [ booleq x y ] is important for computational purposes . Terms produced using these universality theorems will not fully normalize even in simple cases due to the following steps in the proof of [ setquotunivprop ] . As a part of the proof term of this theorem there appears the composition of an application of [ uahp ] , transfer of the resulting term of the identity type by [ maponpaths ] along [ P ] followed by the reconstruction of a equivalence ( two directional implication ) between the corresponding propositions through [  eqweqmaphProp ] . The resulting implications are " opaque " and the proofs of disjunctions [ P \/ Q ]  produced with the use of such implications can not be evaluated to one of the summands of the disjunction . An example is given by the following theorem [ isdeceqsetquot_non_constr ] which , as simple experiments show, can not be used to compute the value of [ isdeceqsetquot ] . Below we give another proof of [ isdeceq ( setquot R ) ] using the same assumptions which is " constructive " i.e. usable for the evaluation purposes . *)
+(** Important note : theorems proved above can not be used ( al least at the moment ) to 
+construct terms whose complete normalization ( evaluation ) is important . For example they 
+should not be used * directly * to construct [ isdeceq ] property of [ setquot ] since [ isdeceq ]
+ is in turn used to construct boolean equality [ booleq ] and evaluation of [ booleq x y ] is
+ important for computational purposes . Terms produced using these universality theorems will 
+not fully normalize even in simple cases due to the following steps in the proof of 
+[ setquotunivprop ] . As a part of the proof term of this theorem there appears the composition 
+of an application of [ uahp ] , transfer of the resulting term of the identity type by 
+[ maponpaths ] along [ P ] followed by the reconstruction of a equivalence ( two directional 
+implication ) between the corresponding propositions through [  eqweqmaphProp ] . The resulting 
+implications are " opaque " and the proofs of disjunctions [ P \/ Q ]  produced with the use 
+of such implications can not be evaluated to one of the summands of the disjunction . An example 
+is given by the following theorem [ isdeceqsetquot_non_constr ] which , as simple experiments 
+show, can not be used to compute the value of [ isdeceqsetquot ] . Below we give another proof 
+of [ isdeceq ( setquot R ) ] using the same assumptions which is " constructive " i.e. usable 
+for the evaluation purposes . *)
 
 
 
