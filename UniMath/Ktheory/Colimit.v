@@ -82,6 +82,7 @@ Proof.
     + refine (_,,_).
       * refine (_,,_).
         { intro a. exact (colimitObject (colim I (diagram_eval D a))). }
+        { intros a a' f; simpl.
       (*   { simpl. intros a a' f. apply diagram_map_on_colim. *)
       (*     apply diagram_eval_map. exact f. } *)
       (* * split. *)

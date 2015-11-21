@@ -21,8 +21,6 @@ Definition Precategory_to_precategory : Precategory -> precategory := pr1.
 Coercion Precategory_to_precategory : Precategory >-> precategory.
 Definition homset_property (C:Precategory) : has_homsets C := pr2 C.
 
-Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
-
 Ltac eqn_logic :=
   repeat (
       try intro; try split; try apply id_right; try apply id_left; try apply assoc;
@@ -160,6 +158,15 @@ Definition makePrecategory
               identity compose)
            ((right,,left),,associativity)),,homsets). Defined.
 
+Definition makeFunctor {C D:Precategory}
+           (obj : C -> D)
+           (mor : ∀ c c' : C, c → c' -> obj c → obj c')
+           (identity : ∀ c, mor c c (identity c) = identity (obj c))
+           (compax : ∀ (a b c : C) (f : a → b) (g : b → c),
+                       mor a c (g ∘ f) = mor b c g ∘ mor a b f) :
+  C ==> D
+  := (obj,, mor),, identity,, compax.
+
 (** *** opposite category of opposite category *)
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
@@ -183,3 +190,42 @@ Proof.
     { apply isaprop_is_precategory. apply has_homsets_opp, homset_property. } }
   { apply isaprop_has_homsets. }
 Defined.
+
+(* new categories from old *)
+
+Definition categoryWithStructure {C:Precategory} (P:ob C -> UU) : Precategory.
+Proof.
+  intros. refine (makePrecategory _ _ _ _ _ _ _ _).
+  (* add a new component to each object: *)
+  - exact (Σ c:C, P c).
+  (* the homsets ignore the extra structure: *)
+  - intros x y. exact (pr1 x → pr1 y).
+  (* the rest is the same: *)
+  - intros. apply homset_property.
+  - intros x. apply identity.
+  - intros x y z f g. exact (g ∘ f).
+  - intros. apply id_left.
+  - intros. apply id_right.
+  - intros. apply assoc.
+Defined.
+
+Definition functorWithStructures {C:Precategory} {P Q:ob C -> UU}
+           (F : ∀ c, P c -> Q c) : categoryWithStructure P ==> categoryWithStructure Q.
+Proof.
+  intros. refine (makeFunctor _ _ _ _).
+  (* transport the structure: *)
+  - exact (λ c, (pr1 c,, F (pr1 c) (pr2 c))).
+  (* the rest is the same: *)
+  - intros c c' f. exact f.
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
+
+Lemma identityFunction : ∀ (T:SET) (f:T→T) (t:T:hSet), f = identity T -> f t = t.
+Proof. intros ? ? ?. exact (apevalat t). Defined.
+
+
+
+(*  *)
