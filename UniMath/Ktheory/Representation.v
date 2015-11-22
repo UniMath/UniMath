@@ -32,6 +32,10 @@ Abort.
 Definition RepresentedFunctor (C:Precategory) : Precategory
   := @categoryWithStructure [C,SET] Representation.
 
+Definition toRepresentation {C:Precategory} (X : RepresentedFunctor C) :
+  Representation (pr1 X)
+  := pr2 X.
+
 Definition RepresentableFunctor (C:Precategory) : Precategory
   := @categoryWithStructure [C,SET] isRepresentable.
 
@@ -71,7 +75,7 @@ Definition universalElement {C:Precategory} {X:C==>SET} (r:Representation X) :
 
 Definition universalProperty {C:Precategory} {X:C==>SET} (r:Representation X) (c':C) :
   universalObject r → c' ≃ (X c' : hSet)
-  := weqpair (evalFunctorAt (universalElement r)) (pr2 (pr2 r) _).
+  := weqpair _ (pr2 (pr2 r) _).
 
 Definition universalMap {C:Precategory} {X:C==>SET} (r:Representation X) {c':C} :
   (X c' : hSet) -> universalObject r → c'
@@ -87,7 +91,45 @@ Definition universalMapUniqueness {C:Precategory} {X:C==>SET} {r:Representation 
   # X f (universalElement r) = x' -> f = universalMap r x'
   := pathsweq1 (universalProperty r c') f x'.
 
+Lemma universalMapNaturality {C:Precategory} {a:C} {Y Z:C ==> SET}
+      (s : Representation Y)
+      (t : Representation Z)
+      (q : Y ⟶ Z) (f : universalObject s → a) :
+  universalMap t (q _ (# Y f (universalElement s)))
+  =
+  f ∘ universalMap t (q _ (universalElement s)).
+Proof.
+  (* This lemma says that if the source and target of a natural transformation
+  q are represented by objects of C, then q is represented by composition with
+  an arrow of C. *)
+  set (y := universalElement s).
+  apply pathsinv0, universalMapUniqueness, pathsinv0.
+  set (z := universalElement t).
+  intermediate_path (# Z f (q _ y)).
+  { exact (apevalat y (nat_trans_ax q _ _ f)). }
+  intermediate_path (# Z f (# Z (universalMap t (q _ y)) z)).
+  { apply maponpaths. exact (! homotweqinvweq (universalProperty t _) _). }
+  exact (! apevalat z (functor_comp Z _ _ _ (universalMap t (q _ y)) f)).
+Defined.
+
 (*  *)
+
+Definition universalObjectFunctor (C:Precategory) : RepresentedFunctor C ==> C^op.
+Proof.
+  refine (makeFunctor _ _ _ _).
+  - intro X. exact (universalObject (pr2 X)).
+  - intros X Y p; simpl. apply universalMap. apply p. apply universalElement.
+  - intros X; simpl. apply pathsinv0. apply universalMapUniqueness.
+    apply identityFunction. apply (functor_id (pr1 X)).
+  - intros X Y Z p q; simpl. set (p__ := p : _ ⟶ _).
+    (* why did those matches appear in the goal? *)
+    refine (_ @ (universalMapNaturality _ _ q
+                   (universalMap _ (p__ _ (universalElement _))))).
+    apply maponpaths. unfold compose; simpl. apply maponpaths.
+    exact (! homotweqinvweq
+                (universalProperty _ (universalObject (pr2 X)) )
+                (p__ _ (universalElement (pr2 X)))).
+Defined.
 
 Definition embeddingRepresentability {C D:Precategory}
            {i:C==>D} (emb:fully_faithful i) {Y:D==>SET} (s:Representation Y) :
@@ -99,35 +141,6 @@ Proof.
   - apply emb.
   - induction (pr2 ce). exact (weqproperty (universalProperty _ _)).
 Defined.
-
-Definition universalObjectFunctor (C:Precategory) : RepresentedFunctor C ==> C^op.
-Proof.
-  refine (makeFunctor _ _ _ _).
-  - intro X. exact (universalObject (pr2 X)).
-  - intros X Y p; simpl. apply universalMap. apply p. apply universalElement.
-  - intros X; simpl. apply pathsinv0. apply universalMapUniqueness.
-    apply identityFunction. apply (functor_id (pr1 X)).
-  - intros X Y Z p q; simpl.
-    intermediate_path (
-        (universalMap
-           (pr2 Y)
-           (pr1 p (universalObject (pr2 X)) (universalElement (pr2 X))))
-          ∘
-          (universalMap (pr2 Z)
-                        (pr1 q (universalObject (pr2 Y)) (universalElement (pr2 Y))))).
-    {
-      apply (invmaponpathsweq (universalProperty _ _)).
-      unfold universalMap. rewrite homotweqinvweq. unfold universalProperty.
-      simpl. rewrite evalFunctorAtComposite. (* this seems delicate *)
-      assert (L : forall X Y (f:X->Y) (i:isweq f) y , f ((invmap (weqpair f i)) y) = y).
-      { intros. exact (homotweqinvweq (weqpair f i) y). }
-      rewrite L.
-      fold (@universalMap C).
-
-
-
-Abort.
-
 
 
 (*  *)
