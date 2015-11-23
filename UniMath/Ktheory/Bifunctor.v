@@ -71,19 +71,19 @@ Proof.
     using is_functor_0. }
 Defined.
 
-Definition bifunctor_assoc {B C:Precategory} : [B^op, [C,SET] ] -> [[B,C],SET].
+Definition bifunctor_assoc {B C:Precategory} : [B^op, [C,SET]] -> [[B,C],SET].
 Proof.
   intros X.
-  set (ρ := λ (X : [B ^op, [C, SET]]) (F : [B, C]),
+  set (ρ := λ (X : [B^op, [C, SET]]) (F : [B, C]),
             ∀ b, ((X:_==>_) b : _==>_) ((F:_==>_) b) : hSet).
-  set (ρ' := λ (X : [B ^op, [C, SET]]) (F F' : [B, C]) (p : F → F') (x : ρ X F),
+  set (ρ' := λ (X : [B^op, [C, SET]]) (F F' : [B, C]) (p : F → F') (x : ρ X F),
              (λ b, # ((X:_==>_) b : _==>_) ((p:_⟶_) b) (x b)) : ρ X F').
-  set (σ := λ (X : [B ^op, [C, SET]]) (F : [B, C]) (x : ρ X F),
-            ∀ b b' (f:b'→b),
+  set (σ := λ (X : [B^op, [C, SET]]) (F : [B, C]) (x : ρ X F),
+            ∀ (b b':B) (f:b→b'),
                      # ((X:_==>_) b : _==>_) (# (F:_==>_) f) (x b)
                      =
                      ((# (X:_==>_) f) : _⟶_) _ (x b')).
-  set (θ := λ (X : [B ^op, [C, SET]]) (F : [B, C]), Σ x : ρ X F, σ X F x).
+  set (θ := λ (X : [B^op, [C, SET]]) (F : [B, C]), Σ x : ρ X F, σ X F x).
   assert (S : ∀ X F, isaset (θ X F)).
   { intros. apply isaset_total2.
     { apply impred_isaset; intro b. apply setproperty. }
@@ -94,8 +94,23 @@ Proof.
   { intro F. exists (θ X F). abstract apply S using S. }
   { intros F F' p xe; simpl. induction xe as [x e].
     exists (ρ' _ _ _ p x).
-    intros b' b f.
+    intros b b' f.
     unfold ρ'.
+    assert ( L := e b b' f ).
+    set (X_ := X:_==>_).
+    set (X_b := X_ b : _==>_).
+    set (F_ := F : _==>_).
+    set (F'_ := F' : _==>_).
+    set (p_ := p : _⟶_).
+    intermediate_path (((# (X_b) (# F'_ f)) ∘ (# (X_b) (p_ b))) (x b)).
+    { reflexivity. }
+    intermediate_path ((# (X_b) (# F'_ f ∘ p_ b)) (x b)).
+    { refine (apevalat (x b) _). apply pathsinv0. refine (functor_comp X_b _ _ _ _ _). }
+    intermediate_path ((# (X_b) (p_ b' ∘ # F_ f)) (x b)).
+    { refine (apevalat (x b) _). apply maponpaths.
+      (* refine (nat_trans_ax p_ _ _ _). *)
+
+
 
 
 Abort.
