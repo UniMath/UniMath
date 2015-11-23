@@ -2998,6 +2998,7 @@ Definition apNonnegativeReals : hrel NonnegativeReals := CCDRap.
 Definition zeroNonnegativeReals : NonnegativeReals := CCDRzero.
 Definition oneNonnegativeReals : NonnegativeReals := CCDRone.
 Definition plusNonnegativeReals : binop NonnegativeReals := CCDRplus.
+Definition minusNonnegativeReals : binop NonnegativeReals := Dcuts_minus.
 Definition multNonnegativeReals : binop NonnegativeReals := CCDRmult.
 
 Delimit Scope NR_scope with NR.
@@ -3013,6 +3014,8 @@ Definition invNonnegativeReals (x : NonnegativeReals) (Hx0 : x # 0) : Nonnegativ
   CCDRinv x Hx0.
 Definition divNonnegativeReals (x y : NonnegativeReals) (Hy0 : y # 0) : NonnegativeReals :=
   multNonnegativeReals x (invNonnegativeReals y Hy0).
+
+Definition maxNonnegativeReals : binop NonnegativeReals := Dcuts_max.
 
 Definition leNonnegativeReals : po NonnegativeReals := Dcuts_le.
 Definition geNonnegativeReals : po NonnegativeReals := Dcuts_ge.
@@ -3282,10 +3285,6 @@ Qed.
 (** ** Opacify *)
 
 Global Opaque NonnegativeReals.
-Global Opaque zeroNonnegativeReals oneNonnegativeReals.
-Global Opaque plusNonnegativeReals multNonnegativeReals invNonnegativeRationals.
-Global Opaque leNonnegativeReals geNonnegativeReals.
-Global Opaque ltNonnegativeReals gtNonnegativeReals.
-Global Opaque lubNonnegativeReals (*glbNonnegativeReals*).
+Global Opaque minusNonnegativeReals maxNonnegativeReals.
 
 (* End of the file Dcuts.v *)
