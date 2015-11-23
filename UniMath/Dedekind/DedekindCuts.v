@@ -2054,6 +2054,66 @@ Proof.
   now apply islinv_Dcuts_inv.
 Qed.
 
+(** ** Structures *)
+
+Definition Dcuts_apsetwith2binop : apsetwith2binop.
+Proof.
+  exists Dcuts.
+  split.
+  - exists Dcuts_plus ; repeat split.
+    exact islapbinop_Dcuts_plus.
+    exact israpbinop_Dcuts_plus.
+  - exists Dcuts_mult ; repeat split.
+    exact islapbinop_Dcuts_mult.
+    exact israpbinop_Dcuts_mult.
+Defined.
+
+Definition isabmonoidop_Dcuts_plus : isabmonoidop Dcuts_plus.
+Proof.
+  repeat split.
+  - exact isassoc_Dcuts_plus.
+  - exists Dcuts_zero.
+    split.
+    + exact islunit_Dcuts_plus_zero.
+    + exact isrunit_Dcuts_plus_zero.
+  - exact iscomm_Dcuts_plus.
+Defined.
+
+Definition ismonoidop_Dcuts_mult : ismonoidop Dcuts_mult.
+Proof.
+  split.
+  - exact isassoc_Dcuts_mult.
+  - exists Dcuts_one.
+    split.
+    + exact islunit_Dcuts_mult_one.
+    + exact isrunit_Dcuts_mult_one.
+Defined.
+
+Definition Dcuts_ConstructiveCommutativeRig : ConstructiveCommutativeRig.
+Proof.
+  exists Dcuts_apsetwith2binop.
+  repeat split.
+  - exists (isabmonoidop_Dcuts_plus,,ismonoidop_Dcuts_mult).
+    split.
+    + exact islabsorb_Dcuts_mult_zero.
+    + exact israbsorb_Dcuts_mult_zero.
+  - exact isldistr_Dcuts_plus_mult.
+  - exact isrdistr_Dcuts_plus_mult.
+  - exact iscomm_Dcuts_mult.
+Defined.
+
+Definition Dcuts_ConstructiveCommutativeDivisionRig : ConstructiveCommutativeDivisionRig.
+Proof.
+  exists Dcuts_ConstructiveCommutativeRig.
+  split.
+  - exact Dcuts_ap_one_zero.
+  - intros x Hx.
+    exists (Dcuts_inv x Hx) ; split.
+    + exact (islinv_Dcuts_inv x Hx).
+    + exact (isrinv_Dcuts_inv x Hx).
+Defined.
+
+(** ** Additional usefull definitions *)
 (** *** Dcuts_minus *)
 
 Section Dcuts_minus.
@@ -2384,64 +2444,109 @@ Proof.
         now left.
 Qed.
 
-(** ** Structures *)
+(** *** Dcuts_max *)
 
-Definition Dcuts_apsetwith2binop : apsetwith2binop.
-Proof.
-  exists Dcuts.
-  split.
-  - exists Dcuts_plus ; repeat split.
-    exact islapbinop_Dcuts_plus.
-    exact israpbinop_Dcuts_plus.
-  - exists Dcuts_mult ; repeat split.
-    exact islapbinop_Dcuts_mult.
-    exact israpbinop_Dcuts_mult.
-Defined.
+Section Dcuts_max.
 
-Definition isabmonoidop_Dcuts_plus : isabmonoidop Dcuts_plus.
-Proof.
-  repeat split.
-  - exact isassoc_Dcuts_plus.
-  - exists Dcuts_zero.
-    split.
-    + exact islunit_Dcuts_plus_zero.
-    + exact isrunit_Dcuts_plus_zero.
-  - exact iscomm_Dcuts_plus.
-Defined.
+  Context (X : hsubtypes NonnegativeRationals).
+  Context (X_bot : Dcuts_def_bot X).
+  Context (X_open : Dcuts_def_open X).
+  Context (X_finite : Dcuts_def_finite X).
+  Context (X_error : Dcuts_def_error X).
+  Context (Y : hsubtypes NonnegativeRationals).
+  Context (Y_bot : Dcuts_def_bot Y).
+  Context (Y_open : Dcuts_def_open Y).
+  Context (Y_finite : Dcuts_def_finite Y).
+  Context (Y_error : Dcuts_def_error Y).
 
-Definition ismonoidop_Dcuts_mult : ismonoidop Dcuts_mult.
-Proof.
-  split.
-  - exact isassoc_Dcuts_mult.
-  - exists Dcuts_one.
-    split.
-    + exact islunit_Dcuts_mult_one.
-    + exact isrunit_Dcuts_mult_one.
-Defined.
+Definition Dcuts_max_val : hsubtypes NonnegativeRationals :=
+  λ r : NonnegativeRationals, X r ∨ Y r.
 
-Definition Dcuts_ConstructiveCommutativeRig : ConstructiveCommutativeRig.
+Lemma Dcuts_max_bot : Dcuts_def_bot Dcuts_max_val.
 Proof.
-  exists Dcuts_apsetwith2binop.
-  repeat split.
-  - exists (isabmonoidop_Dcuts_plus,,ismonoidop_Dcuts_mult).
-    split.
-    + exact islabsorb_Dcuts_mult_zero.
-    + exact israbsorb_Dcuts_mult_zero.
-  - exact isldistr_Dcuts_plus_mult.
-  - exact isrdistr_Dcuts_plus_mult.
-  - exact iscomm_Dcuts_mult.
-Defined.
+  intros r Hr q Hqr.
+  revert Hr ; apply hinhfun ; intros [Xr|Yr].
+  - left ; now apply X_bot with (1 := Xr).
+  - right ; now apply Y_bot with (1 := Yr).
+Qed.
 
-Definition Dcuts_ConstructiveCommutativeDivisionRig : ConstructiveCommutativeDivisionRig.
+Lemma Dcuts_max_open : Dcuts_def_open Dcuts_max_val.
 Proof.
-  exists Dcuts_ConstructiveCommutativeRig.
-  split.
-  - exact Dcuts_ap_one_zero.
-  - intros x Hx.
-    exists (Dcuts_inv x Hx) ; split.
-    + exact (islinv_Dcuts_inv x Hx).
-    + exact (isrinv_Dcuts_inv x Hx).
-Defined.
+  intros r ; apply hinhuniv ; intros [Xr | Yr].
+  - generalize (X_open _ Xr).
+    apply hinhfun ; intros (q,(Xq,Hq)).
+    exists q ; split.
+    now apply hinhpr ; left.
+    exact Hq.
+  - generalize (Y_open _ Yr).
+    apply hinhfun ; intros (q,(Yq,Hq)).
+    exists q ; split.
+    now apply hinhpr ; right.
+    exact Hq.
+Qed.
+
+Lemma Dcuts_max_error : Dcuts_def_error Dcuts_max_val.
+Proof.
+  intros c Hc.
+  generalize (X_error _ Hc) (Y_error _ Hc) ; apply hinhfun2 ; intros [nXc | Hx] ; intros [nYc | Hy].
+  - left ; unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; intros [Xc | Yc].
+    + now apply nXc.
+    + now apply nYc.
+  - right ; revert Hy ; apply hinhfun ; intros (y,(Yy,nYy)).
+    exists y ; split.
+    + now apply hinhpr ; right.
+    + unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; intros [Xy | Yy'].
+      * now apply nXc, X_bot with (1 := Xy), plusNonnegativeRationals_le_l.
+      * now apply nYy.
+  - right ; revert Hx ; apply hinhfun ; intros (x,(Xx,nXx)).
+    exists x ; split.
+    + now apply hinhpr ; left.
+    + unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; intros [Xx' | Yx].
+      * now apply nXx.
+      * now apply nYc, Y_bot with (1 := Yx), plusNonnegativeRationals_le_l.
+  - right ; revert Hx Hy ; apply hinhfun2 ; intros (x,(Xx,nXx)) (y,(Yy,nYy)).
+    exists (NQmax x y) ; split.
+    + apply NQmax_case.
+      * now apply hinhpr ; left.
+      * now apply hinhpr ; right.
+    + unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; intros [Xxy | Yxy].
+      * apply nXx, X_bot with (1 := Xxy).
+        rewrite plusNonnegativeRationals_lecompat_r.
+        now apply NQmax_le_l.
+      * apply nYy, Y_bot with (1 := Yxy).
+        rewrite plusNonnegativeRationals_lecompat_r.
+        now apply NQmax_le_r.
+Qed.
+
+End Dcuts_max.
+
+Definition Dcuts_max (X Y : Dcuts) : Dcuts :=
+  mk_Dcuts (Dcuts_max_val (pr1 X) (pr1 Y))
+           (Dcuts_max_bot (pr1 X) (is_Dcuts_bot X)
+                          (pr1 Y) (is_Dcuts_bot Y))
+           (Dcuts_max_open (pr1 X) (is_Dcuts_open X)
+                           (pr1 Y) (is_Dcuts_open Y))
+           (Dcuts_max_error (pr1 X) (is_Dcuts_bot X) (is_Dcuts_error X)
+                            (pr1 Y) (is_Dcuts_bot Y) (is_Dcuts_error Y)).
+
+Lemma iscomm_Dcuts_max :
+  forall x y : Dcuts, Dcuts_max x y = Dcuts_max y x.
+Proof.
+Qed.
+
+Lemma Dcuts_max_carac_l :
+  forall x y : Dcuts, y <= x -> Dcuts_max x y = x.
+Proof.
+Qed.
+Lemma Dcuts_max_carac_r :
+  forall x y : Dcuts, x <= y -> Dcuts_max x y = y.
+Proof.
+Qed.
+
+Lemma Dcuts_minus_plus_max :
+  forall x y : Dcuts, Dcuts_plus (Dcuts_minus x y) y = Dcuts_max x y.
+Proof.
+Qed.
 
 (** *** Various basic theorems about order, equality and apartness *)
 
