@@ -7,9 +7,10 @@ Require Import
 
 Local Open Scope cat.
 
+Set Automatic Introduction.
+
 Definition bifunctor_comm {I A B:Precategory} : [I, [A, B] ] ==> [A, [I, B] ].
 Proof.
-  intros.
   refine (_,,_).
   { refine (_,,_).
     { intros D.
@@ -69,3 +70,35 @@ Proof.
           | apply isaprop_is_nat_trans; exact (homset_property [I,B]) ]) using functor_compax_0 ])
     using is_functor_0. }
 Defined.
+
+Definition bifunctor_assoc {B C:Precategory} : [B^op, [C,SET] ] -> [[B,C],SET].
+Proof.
+  intros X.
+  set (ρ := λ (X : [B ^op, [C, SET]]) (F : [B, C]),
+            ∀ b, ((X:_==>_) b : _==>_) ((F:_==>_) b) : hSet).
+  set (ρ' := λ (X : [B ^op, [C, SET]]) (F F' : [B, C]) (p : F → F') (x : ρ X F),
+             (λ b, # ((X:_==>_) b : _==>_) ((p:_⟶_) b) (x b)) : ρ X F').
+  set (σ := λ (X : [B ^op, [C, SET]]) (F : [B, C]) (x : ρ X F),
+            ∀ b b' (f:b'→b),
+                     # ((X:_==>_) b : _==>_) (# (F:_==>_) f) (x b)
+                     =
+                     ((# (X:_==>_) f) : _⟶_) _ (x b')).
+  set (θ := λ (X : [B ^op, [C, SET]]) (F : [B, C]), Σ x : ρ X F, σ X F x).
+  assert (S : ∀ X F, isaset (θ X F)).
+  { intros. apply isaset_total2.
+    { apply impred_isaset; intro b. apply setproperty. }
+    { intros x. apply impred_isaset; intro b;
+                apply impred_isaset; intro b'; apply impred_isaset; intro f.
+      apply isasetaprop; apply setproperty. } }
+  refine (makeFunctor _ _ _ _).
+  { intro F. exists (θ X F). abstract apply S using S. }
+  { intros F F' p xe; simpl. induction xe as [x e].
+    exists (ρ' _ _ _ p x).
+    intros b' b f.
+    unfold ρ'.
+
+
+Abort.
+
+
+     (*  *)

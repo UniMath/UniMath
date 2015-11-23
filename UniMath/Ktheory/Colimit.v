@@ -40,7 +40,9 @@ Proof.
   refine (_,,_).
   - refine (_,,_).
     + exact (colim _).
-    + intros D D' p; simpl. apply objectMap. now apply (# cocone_functor).
+    + intros D D' p; simpl.
+      apply universalObjectFunctor.
+      now apply (# cocone_functor).
   - split.
     + intro D. simpl. refine (_ @ objectMapIdentity (colim I D)).
       apply maponpaths. apply subtypeEquality.

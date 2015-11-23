@@ -45,16 +45,6 @@ Definition toRepresentableFunctor {C:Precategory} :
 
 (* make a representation of a functor *)
 
-Definition evalFunctorAt {C:Precategory} {X:C==>SET} {c c':C}
-           (x:X c:hSet) (f : c → c') : X c' : hSet
-  := # X f x.
-
-Definition evalFunctorAtComposite {C:Precategory} {X:C==>SET} {c c' c'':C}
-           (x:X c:hSet) (f : c → c') (g : c' → c'') :
-  evalFunctorAt x (g ∘ f) = evalFunctorAt (evalFunctorAt x f) g.
-Proof.
-  unfold evalFunctorAt. rewrite functor_comp. reflexivity.
-Defined.
 
 Definition makeRepresentation {C:Precategory} {X:C==>SET} {c:C} (x:X c:hSet) :
   (∀ (c':C), bijective (λ f : c → c', # X f x)) -> Representation X.
@@ -90,6 +80,29 @@ Definition universalMapUniqueness {C:Precategory} {X:C==>SET} {r:Representation 
       {c':C} (x' : X c' : hSet) (f : universalObject r → c') :
   # X f (universalElement r) = x' -> f = universalMap r x'
   := pathsweq1 (universalProperty r c') f x'.
+
+Definition universalMapUniqueness' {C:Precategory} {X:C==>SET} {r:Representation X}
+      {c':C} (x' : X c' : hSet) (f : universalObject r → c') :
+  f = universalMap r x' -> # X f (universalElement r) = x'
+  := pathsweq1' (universalProperty r c') f x'.
+
+Definition Representation_to_is_functor  {C:Precategory} (X:C ==> SET) :
+  Representation X -> is_functor X.
+Proof.
+  unfold Representation, isUniversal. intros r. split.
+  - intro c'. apply funextfun; intro x'.
+    change (identity (X c') x') with x'.
+    set (c := universalObject r).
+    set (f := universalMap r x').
+    set (x := universalElement r).
+    change (universalObject r) with c in f, x.
+    assert (L := universalMapUniqueness' x' f (idpath _)).
+    admit.
+  - intros c b a g f.
+
+
+
+Abort.
 
 Lemma universalMapNaturality {C:Precategory} {a:C} {Y Z:C ==> SET}
       (s : Representation Y)
