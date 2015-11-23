@@ -2719,6 +2719,36 @@ Proof.
   now right.
 Qed.
 
+Lemma ispositive_Dcuts_minus :
+  ∀ x y : Dcuts, (0 < Dcuts_minus x y) = (y < x).
+Proof.
+  intros X Y.
+  apply uahp.
+  - apply hinhuniv ; intros (r,(_)).
+    apply hinhfun ; intros (x,(Xx,Hx)).
+    exists x ; split.
+    + intros Yx ; apply (isnonnegative_NonnegativeRationals' r).
+      rewrite <- (minusNonnegativeRationals_eq_zero x _ (isrefl_leNonnegativeRationals _)).
+      now apply Hx ; left.
+    + exact Xx.
+  - apply hinhuniv ; intros (x,(nYx,Xx)).
+    generalize (is_Dcuts_open _ _ Xx) ; apply hinhfun ; intros (x',(Xx',Hx')).
+    exists 0%NRat ; split.
+    + now apply (isnonnegative_NonnegativeRationals' 0%NRat).
+    + apply hinhpr.
+      exists x' ; split.
+      exact Xx'.
+      intros y [Yy | ->].
+      * rewrite minusNonnegativeRationals_gt0.
+        apply istrans_ltNonnegativeRationals with x.
+        now apply (Dcuts_finite Y).
+        exact Hx'.
+      * rewrite minusNonnegativeRationals_zero_r.
+        apply istrans_le_lt_ltNonnegativeRationals with x.
+        now apply isnonnegative_NonnegativeRationals.
+        exact Hx'.
+Qed.
+
 (** *** Dcuts_max *)
 
 Section Dcuts_max.
@@ -2883,12 +2913,10 @@ Proof.
       now apply hinhpr ; right.
 Qed.
 
-(** *** Various basic theorems about order, equality and apartness *)
+(** *** Dcuts_half *)
 
-Open Scope Dcuts.
-
-(** Compatibility between order predicates *)
-
+Definition Dcuts_two : Dcuts.
+Defined.
 
 (** ** Least Upper Finite *)
 
@@ -3140,6 +3168,7 @@ Definition hsubtypesNonnegativeRationals_to_NonnegativeReals
 Definition apNonnegativeReals : hrel NonnegativeReals := CCDRap.
 Definition zeroNonnegativeReals : NonnegativeReals := CCDRzero.
 Definition oneNonnegativeReals : NonnegativeReals := CCDRone.
+Definition twoNonnegativeReals : NonnegativeReals := Dcuts_two.
 Definition plusNonnegativeReals : binop NonnegativeReals := CCDRplus.
 Definition minusNonnegativeReals : binop NonnegativeReals := Dcuts_minus.
 Definition multNonnegativeReals : binop NonnegativeReals := CCDRmult.
@@ -3151,6 +3180,7 @@ Notation "x # y" := (apNonnegativeReals x y) : NR_scope.
 Notation "0" := zeroNonnegativeReals : NR_scope.
 Notation "1" := oneNonnegativeReals : NR_scope.
 Notation "x + y" := (plusNonnegativeReals x y) : NR_scope.
+Notation "x - y" := (minusNonnegativeReals x y) : NR_scope.
 Notation "x * y" := (multNonnegativeReals x y) : NR_scope.
 
 Definition invNonnegativeReals (x : NonnegativeReals) (Hx0 : x # 0) : NonnegativeReals :=
@@ -3172,6 +3202,18 @@ Definition lubNonnegativeReals (E : hsubtypes NonnegativeReals) Eub :
   tpair _ (Dcuts_glb E Ene) (isglb_Dcuts_glb E Ene).*)
 
 (** ** Theorems *)
+
+Lemma notapNonnegativeReals_eq:
+  ∀ x y : NonnegativeReals, (¬ (x # y)) = (x = y).
+Proof.
+  intros x y.
+  apply uahp'.
+  - now apply isapropneg.
+  - now apply (pr2 Dcuts_set).
+  - now apply istight_Dcuts_ap_rel.
+  - intros ->.
+    now apply isirrefl_Dcuts_ap_rel.
+Qed.
 
 Definition isnonzeroNonnegativeReals: 1 # 0
   := isnonzeroCCDR (X := NonnegativeReals).
@@ -3266,6 +3308,58 @@ Definition multNonnegativeReals_lecompat_r :
 Definition multNonnegativeReals_lecompat_r' :
   ∀ x y z: NonnegativeReals, (y <= z) -> (x * y <= x * z)
   := Dcuts_mult_lecompat_r'.
+
+(** ** Convergence of Cauchy sequences *)
+
+Definition Cauchy_seq (u : nat -> NonnegativeReals) : hProp
+  := hProppair (∀ eps : NonnegativeReals,
+                   0 < eps ->
+                   hexists
+                     (λ N : nat,
+                            ∀ n m : nat, N ≤ n -> N ≤ m -> u n <= u m + eps × u m <= u n + eps))
+               (impred_isaprop _ (λ _, isapropimpl _ _ (pr2 _))).
+Definition is_lim_seq (u : nat -> NonnegativeReals) (l : NonnegativeReals) : hProp
+  := hProppair (∀ eps : NonnegativeReals,
+                   0 < eps ->
+                   hexists
+                     (λ N : nat,
+                            ∀ n : nat, N ≤ n -> u n <= l + eps × l <= u n + eps))
+               (impred_isaprop _ (λ _, isapropimpl _ _ (pr2 _))).
+
+Lemma is_lim_seq_unique_aux (u : nat -> NonnegativeReals) (l l' : NonnegativeReals) :
+  is_lim_seq u l -> is_lim_seq u l' -> l < l' -> empty.
+Proof.
+  intros u l l' Hl Hl' Hlt.
+  assert (0 < l' - l).
+  { admit. }
+  assert (0 < (l' - l) / 2).
+  { admit. }
+Qed.
+Lemma is_lim_seq_unique (u : nat -> NonnegativeReals) (l l' : NonnegativeReals) :
+  is_lim_seq u l -> is_lim_seq u l' -> l = l.
+Proof.
+  intros u l l' Hl Hl'.
+  rewrite <- notapNonnegativeReals_eq.
+
+Qed.
+Definition ex_lim_seq  (u : nat -> NonnegativeReals) : hProp.
+Proof.
+Defined.
+
+Lemma isaprop_Cauchy_seq :
+  ∀ (u : nat -> NonnegativeReals), isaprop (Cauchy_seq u).
+Proof.
+  intros u.
+  apply impred_isaprop ; intro
+    isapropimpl
+Qed.
+
+Section Cauchy_seq.
+
+  Context (u : nat -> NonnegativeReals).
+  Context (u_cauchy : is_Cauchy_seq u).
+
+End Cauchy_seq.
 
 (** ** Opacify *)
 
