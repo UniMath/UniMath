@@ -14,17 +14,17 @@ Local Open Scope tap_scope.
 (** ** Definition of Dedekind cuts *)
 
 Definition Dcuts_def_bot (X : hsubtypes NonnegativeRationals) : UU :=
-  forall x : NonnegativeRationals, X x ->
-    forall y : NonnegativeRationals, y <= x -> X y.
+  ∀ x : NonnegativeRationals, X x ->
+    ∀ y : NonnegativeRationals, y <= x -> X y.
 Definition Dcuts_def_open (X : hsubtypes NonnegativeRationals) : UU :=
-  forall x : NonnegativeRationals, X x ->
+  ∀ x : NonnegativeRationals, X x ->
     hexists (fun y : NonnegativeRationals => (X y) × (x < y)).
 Definition Dcuts_def_finite (X : hsubtypes NonnegativeRationals) : hProp :=
   hexists (fun ub : NonnegativeRationals => ¬ (X ub)).
 Definition Dcuts_def_error (X : hsubtypes NonnegativeRationals) : UU :=
-  forall r, 0 < r -> (¬ (X r)) ∨ (hexists (λ q, (X q) × (¬ (X (q + r))))).
+  ∀ r, 0 < r -> (¬ (X r)) ∨ (hexists (λ q, (X q) × (¬ (X (q + r))))).
 Definition Dcuts_def_error' (X : hsubtypes NonnegativeRationals) (k : NonnegativeRationals) : UU :=
-  forall r, 0 < r -> r <= k -> (¬ (X r)) ∨ (hexists (λ q, (0 < q) × (X q) × (¬ (X (q + r))))).
+  ∀ r, 0 < r -> r <= k -> (¬ (X r)) ∨ (hexists (λ q, (0 < q) × (X q) × (¬ (X (q + r))))).
 
 Lemma Dcuts_def_error'_correct1 (X : hsubtypes NonnegativeRationals) (k : NonnegativeRationals) :
   Dcuts_def_bot X -> Dcuts_def_open X ->
@@ -85,7 +85,7 @@ Qed.
 
 Lemma Dcuts_def_error_not_empty (X : hsubtypes NonnegativeRationals) :
   X 0 -> Dcuts_def_error X ->
-  forall c : NonnegativeRationals,
+  ∀ c : NonnegativeRationals,
     (0 < c)%NRat -> hexists (λ x : NonnegativeRationals, X x × ¬ X (x + c)).
 Proof.
   intros X X0 Hx c Hc.
@@ -172,8 +172,8 @@ Proof.
 Defined.
 
 Lemma Dcuts_finite :
-  forall X : Dcuts_set, forall r : NonnegativeRationals,
-    neg (r ∈ X) -> forall n : NonnegativeRationals, n ∈ X -> n < r.
+  ∀ X : Dcuts_set, ∀ r : NonnegativeRationals,
+    neg (r ∈ X) -> ∀ n : NonnegativeRationals, n ∈ X -> n < r.
 Proof.
   intros X r Hr n Hn.
   rewrite <- notge_ltNonnegativeRationals ; intro Hn'.
@@ -282,7 +282,7 @@ Qed.
 (** Effectively Ordered Set *)
 
 Lemma Dcuts_lt_le_rel :
-  forall x y : Dcuts_set, Dcuts_lt_rel x y -> Dcuts_le_rel x y.
+  ∀ x y : Dcuts_set, Dcuts_lt_rel x y -> Dcuts_le_rel x y.
 Proof.
   intros x y ; apply hinhuniv ; intros (r,(Xr,Yr)).
   intros n Xn.
@@ -293,7 +293,7 @@ Proof.
 Qed.
 
 Lemma Dcuts_le_ngt_rel :
-  forall x y : Dcuts_set, ¬ Dcuts_lt_rel x y = Dcuts_le_rel y x.
+  ∀ x y : Dcuts_set, ¬ Dcuts_lt_rel x y = Dcuts_le_rel y x.
 Proof.
   intros X Y.
   apply uahp'.
@@ -382,7 +382,7 @@ Notation "x > y" := (@EOgt_rel eo_Dcuts x y) : Dcuts_scope.
 
 Definition Dcuts_eq_rel :=
   λ X Y : Dcuts_set, ∀ r : NonnegativeRationals, (r ∈ X -> r ∈ Y) × (r ∈ Y -> r ∈ X).
-Lemma isaprop_Dcuts_eq_rel : forall X Y : Dcuts_set, isaprop (Dcuts_eq_rel X Y).
+Lemma isaprop_Dcuts_eq_rel : ∀ X Y : Dcuts_set, isaprop (Dcuts_eq_rel X Y).
 Proof.
   intros X Y.
   apply impred_isaprop ; intro r.
@@ -391,7 +391,7 @@ Proof.
   - now apply isapropimpl, pr2.
 Qed.
 Definition Dcuts_eq : hrel Dcuts_set :=
-  λ X Y : Dcuts_set, hProppair (forall r, dirprod (r ∈ X -> r ∈ Y) (r ∈ Y -> r ∈ X)) (isaprop_Dcuts_eq_rel X Y).
+  λ X Y : Dcuts_set, hProppair (∀ r, dirprod (r ∈ X -> r ∈ Y) (r ∈ Y -> r ∈ X)) (isaprop_Dcuts_eq_rel X Y).
 
 Lemma istrans_Dcuts_eq : istrans Dcuts_eq.
 Proof.
@@ -430,7 +430,7 @@ Proof.
 Qed.
 
 Lemma Dcuts_eq_is_eq :
-  forall x y : Dcuts_set,
+  ∀ x y : Dcuts_set,
     Dcuts_eq x y -> x = y.
 Proof.
   intros x y Heq.
@@ -496,7 +496,7 @@ Definition Dcuts : tightapSet :=
     istight_Dcuts_ap_rel.
 
 Lemma not_Dcuts_ap_eq :
-  forall x y : Dcuts, (neg (x # y)) = (x = y).
+  ∀ x y : Dcuts, (neg (x # y)) = (x = y).
 Proof.
   intros x y.
   apply uahp'.
@@ -559,7 +559,7 @@ Definition NonnegativeRationals_to_Dcuts (q : NonnegativeRationals) : Dcuts :=
 
 
 Local Lemma isapfun_NonnegativeRationals_to_Dcuts_aux :
-  forall q q' : NonnegativeRationals,
+  ∀ q q' : NonnegativeRationals,
     NonnegativeRationals_to_Dcuts q < NonnegativeRationals_to_Dcuts q'
     = (q < q')%NRat.
 Proof.
@@ -578,7 +578,7 @@ Proof.
     exact H.
 Qed.
 Lemma isapfun_NonnegativeRationals_to_Dcuts :
-  forall q q' : NonnegativeRationals,
+  ∀ q q' : NonnegativeRationals,
     NonnegativeRationals_to_Dcuts q # NonnegativeRationals_to_Dcuts q'
     -> q != q'.
 Proof.
@@ -589,7 +589,7 @@ Proof.
   now apply gtNonnegativeRationals_noteq ; rewrite lt_gtNonnegativeRationals, <- isapfun_NonnegativeRationals_to_Dcuts_aux.
 Qed.
 Lemma isapfun_NonnegativeRationals_to_Dcuts' :
-  forall q q' : NonnegativeRationals,
+  ∀ q q' : NonnegativeRationals,
     q != q'
     -> NonnegativeRationals_to_Dcuts q # NonnegativeRationals_to_Dcuts q'.
 Proof.
@@ -609,7 +609,7 @@ Notation "1" := Dcuts_one : Dcuts_scope.
 (** Various usefull theorems *)
 
 Lemma Dcuts_zero_empty :
-  forall r : NonnegativeRationals, (r ∈ 0 : UU) = empty.
+  ∀ r : NonnegativeRationals, (r ∈ 0 : UU) = empty.
 Proof.
   intros r ; simpl.
   apply uahp' ; simpl.
@@ -620,7 +620,7 @@ Proof.
   - easy.
 Qed.
 Lemma Dcuts_notempty :
-  forall x : Dcuts, 0%NRat ∈ x = hexists (λ r, r ∈ x × (0 < r)%NRat).
+  ∀ x : Dcuts, 0%NRat ∈ x = hexists (λ r, r ∈ x × (0 < r)%NRat).
 Proof.
   intros x.
   apply uahp.
@@ -632,7 +632,7 @@ Proof.
     + now apply lt_leNonnegativeRationals.
 Qed.
 Lemma Dcuts_notempty_notzero :
-  forall x, 0%NRat ∈ x -> x != 0.
+  ∀ x, 0%NRat ∈ x -> x != 0.
 Proof.
   intros x Hx Hx0.
   rewrite Hx0 in Hx.
@@ -640,7 +640,7 @@ Proof.
 Qed.
 
 Lemma Dcuts_apzero_notempty :
-  forall x, (x # 0) = (0%NRat ∈ x).
+  ∀ x, (x # 0) = (0%NRat ∈ x).
 Proof.
   intros x.
   rewrite Dcuts_notempty.
@@ -1319,7 +1319,7 @@ Proof.
   exact Hx0.
 Qed.
 Local Lemma Dcuts_inv_out :
-  ∀ x, ¬ (X x) -> forall y, (x < y)%NRat -> Dcuts_inv_val (/ y)%NRat.
+  ∀ x, ¬ (X x) -> ∀ y, (x < y)%NRat -> Dcuts_inv_val (/ y)%NRat.
 Proof.
   intros x nXx y Hy.
   apply hinhpr.
@@ -1420,7 +1420,7 @@ Context (X_1 : X 1%NRat).
 
 Lemma Dcuts_inv_error_aux : Dcuts_def_error Dcuts_inv_val.
 Proof.
-  assert (forall c, (0 < c)%NRat -> hexists (λ q : NonnegativeRationals, X q × ¬ X (q + c))).
+  assert (∀ c, (0 < c)%NRat -> hexists (λ q : NonnegativeRationals, X q × ¬ X (q + c))).
   { intros c Hc0.
     generalize (X_error c Hc0) ; apply hinhuniv ; intros [nXc | H].
     - apply hinhpr.
@@ -1553,7 +1553,7 @@ Defined.
 
 Lemma iscomm_Dcuts_plus : iscomm Dcuts_plus.
 Proof.
-  assert (H : forall x y, ∀ x0 : NonnegativeRationals, x0 ∈ Dcuts_plus x y -> x0 ∈ Dcuts_plus y x).
+  assert (H : ∀ x y, ∀ x0 : NonnegativeRationals, x0 ∈ Dcuts_plus x y -> x0 ∈ Dcuts_plus y x).
   { intros x y r.
     apply hinhuniv, sumofmaps ; apply hinhuniv ; simpl pr1.
     - apply sumofmaps ; intros Hr.
@@ -1942,7 +1942,7 @@ Proof.
   exact ispositive_oneNonnegativeRationals.
 Qed.
 Lemma islinv_Dcuts_inv :
-  ∀ x : Dcuts, forall Hx0 : x # 0, Dcuts_mult (Dcuts_inv x Hx0) x = 1.
+  ∀ x : Dcuts, ∀ Hx0 : x # 0, Dcuts_mult (Dcuts_inv x Hx0) x = 1.
 Proof.
   intros x Hx0.
   apply Dcuts_eq_is_eq ; intro q ; split.
@@ -2047,7 +2047,7 @@ Proof.
         now apply NQmax_case.
 Qed.
 Lemma isrinv_Dcuts_inv :
-  ∀ x : Dcuts, forall Hx0 : x # 0, Dcuts_mult x (Dcuts_inv x Hx0) = 1.
+  ∀ x : Dcuts, ∀ Hx0 : x # 0, Dcuts_mult x (Dcuts_inv x Hx0) = 1.
 Proof.
   intros x Hx0.
   rewrite iscomm_Dcuts_mult.
@@ -2214,7 +2214,7 @@ Proof.
     now right.
   - revert Hx ; apply hinhfun ; intros (x,(Xx,nXx)).
     case (isdecrel_leNonnegativeRationals (y + c / 2) x) ; intro Hxy.
-    + assert (HY : forall y', coprod (Y y') (y' = 0%NRat) -> (y' < y + c / 2)%NRat).
+    + assert (HY : ∀ y', coprod (Y y') (y' = 0%NRat) -> (y' < y + c / 2)%NRat).
       { intros y' [Yy' | Yy'].
         rewrite <- notge_ltNonnegativeRationals ; intro H ; apply nYy.
         now apply Y_bot with (1 := Yy').
@@ -2444,6 +2444,17 @@ Proof.
         now left.
 Qed.
 
+Lemma Dcuts_minus_le :
+  ∀ x y, Dcuts_minus x y <= x.
+Proof.
+  intros X Y r.
+  apply hinhuniv ; intros (x,(Xx,Hx)).
+  apply is_Dcuts_bot with (1 := Xx).
+  apply lt_leNonnegativeRationals ; rewrite <- (minusNonnegativeRationals_zero_r x).
+  apply Hx.
+  now right.
+Qed.
+
 (** *** Dcuts_max *)
 
 Section Dcuts_max.
@@ -2530,22 +2541,83 @@ Definition Dcuts_max (X Y : Dcuts) : Dcuts :=
                             (pr1 Y) (is_Dcuts_bot Y) (is_Dcuts_error Y)).
 
 Lemma iscomm_Dcuts_max :
-  forall x y : Dcuts, Dcuts_max x y = Dcuts_max y x.
+  ∀ x y : Dcuts, Dcuts_max x y = Dcuts_max y x.
 Proof.
+  intros x y.
+  apply Dcuts_eq_is_eq ; intros r.
+  split ; apply islogeqcommhdisj.
 Qed.
 
 Lemma Dcuts_max_carac_l :
-  forall x y : Dcuts, y <= x -> Dcuts_max x y = x.
+  ∀ x y : Dcuts, y <= x -> Dcuts_max x y = x.
 Proof.
+  intros x y Hxy.
+  apply Dcuts_eq_is_eq ; intros r ; split.
+  apply hinhuniv ; intros [Xr|Yr].
+  - exact Xr.
+  - now apply Hxy.
+  - intros Xr.
+    now apply hinhpr ; left.
 Qed.
 Lemma Dcuts_max_carac_r :
-  forall x y : Dcuts, x <= y -> Dcuts_max x y = y.
+  ∀ x y : Dcuts, x <= y -> Dcuts_max x y = y.
 Proof.
+  intros x y Hxy.
+  rewrite iscomm_Dcuts_max.
+  now apply Dcuts_max_carac_l.
 Qed.
 
 Lemma Dcuts_minus_plus_max :
-  forall x y : Dcuts, Dcuts_plus (Dcuts_minus x y) y = Dcuts_max x y.
+  ∀ x y : Dcuts, Dcuts_plus (Dcuts_minus x y) y = Dcuts_max x y.
 Proof.
+  intros X Y.
+  apply Dcuts_eq_is_eq ; intros r ; split.
+  - apply hinhuniv ; intros [ | ] ; apply hinhuniv ; [intros [XYr | Yr] | intros ((rxy,ry),(->,(XYr,Yr)))].
+    + apply hinhpr ; left.
+      revert XYr ; now apply Dcuts_minus_le.
+    + now apply hinhpr ; right.
+    + revert XYr ; apply hinhfun ; intros (x,(Xx,Hx)) ; simpl in * |- *.
+      left ; apply is_Dcuts_bot with (1 := Xx).
+      apply lt_leNonnegativeRationals, minusNonnegativeRationals_ltcompat_l' with ry.
+      rewrite plusNonnegativeRationals_minus_r.
+      apply Hx.
+      now left.
+  - apply hinhuniv ; intros [Xr|Yr].
+    + generalize (is_Dcuts_open _ _ Xr) ; apply hinhuniv ; intros (x,(Xx,Hx)).
+      rewrite <- minusNonnegativeRationals_gt0 in Hx.
+      generalize (is_Dcuts_error Y _ Hx) ; apply hinhuniv ;
+      intros [nYx | Hyx ] ; rewrite minusNonnegativeRationals_gt0 in Hx.
+      * rewrite <- (Dcuts_minus_plus_r (Dcuts_minus X Y) X Y).
+        exact Xr.
+        apply Dcuts_lt_le_rel.
+        apply hinhpr ; exists (x - r) ; split.
+        exact nYx.
+        apply is_Dcuts_bot with (1 := Xx).
+        now apply minusNonnegativeRationals_le.
+        reflexivity.
+      * revert Hyx ; apply hinhuniv ; intros (y,(Yy,nYy)).
+        rewrite iscomm_plusNonnegativeRationals, minusNonnegativeRationals_plus_exchange in nYy.
+        2: now apply lt_leNonnegativeRationals.
+        case (isdecrel_leNonnegativeRationals r y) ; intros Hle.
+        { apply hinhpr ; left.
+          apply hinhpr ; right.
+          now apply is_Dcuts_bot with (1 := Yy). }
+        rewrite notge_ltNonnegativeRationals in Hle.
+        Search Dcuts_minus Dcuts_plus.
+        rewrite <- (Dcuts_minus_plus_r (Dcuts_minus X Y) X Y).
+        exact Xr.
+        apply Dcuts_lt_le_rel.
+        apply hinhpr ; exists ((x + y) - r) ; split.
+        exact nYy.
+        apply is_Dcuts_bot with (1 := Xx).
+        pattern x at 2 ;
+          rewrite <- (plusNonnegativeRationals_minus_r r x).
+        apply minusNonnegativeRationals_lecompat_l.
+        rewrite plusNonnegativeRationals_lecompat_l.
+        now apply lt_leNonnegativeRationals.
+        reflexivity.
+    + apply hinhpr ; left.
+      now apply hinhpr ; right.
 Qed.
 
 (** *** Various basic theorems about order, equality and apartness *)
@@ -2555,31 +2627,31 @@ Open Scope Dcuts.
 (** Compatibility between order predicates *)
 
 Lemma Dcuts_ge_le :
-  forall x y : Dcuts, x >= y -> y <= x.
+  ∀ x y : Dcuts, x >= y -> y <= x.
 Proof.
   easy.
 Qed.
 Lemma Dcuts_le_ge :
-  forall x y : Dcuts, x <= y -> y >= x.
+  ∀ x y : Dcuts, x <= y -> y >= x.
 Proof.
   easy.
 Qed.
 Lemma Dcuts_eq_le :
-  forall x y : Dcuts, Dcuts_eq x y -> x <= y.
+  ∀ x y : Dcuts, Dcuts_eq x y -> x <= y.
 Proof.
   intros x y Heq.
   intro r ;
     now apply (pr1 (Heq _)).
 Qed.
 Lemma Dcuts_eq_ge :
-  forall x y : Dcuts, Dcuts_eq x y -> x >= y.
+  ∀ x y : Dcuts, Dcuts_eq x y -> x >= y.
 Proof.
   intros x y Heq.
   apply Dcuts_eq_le.
   now apply issymm_Dcuts_eq.
 Qed.
 Lemma Dcuts_le_ge_eq :
-  forall x y : Dcuts, x <= y -> x >= y -> x = y.
+  ∀ x y : Dcuts, x <= y -> x >= y -> x = y.
 Proof.
   intros x y le_xy ge_xy.
   apply Dcuts_eq_is_eq.
@@ -2589,31 +2661,31 @@ Proof.
 Qed.
 
 Lemma Dcuts_gt_lt :
-  forall x y : Dcuts, (x > y) = (y < x).
+  ∀ x y : Dcuts, (x > y) = (y < x).
 Proof.
   reflexivity.
 Qed.
 Lemma Dcuts_gt_ge :
-  forall x y : Dcuts, x > y -> x >= y.
+  ∀ x y : Dcuts, x > y -> x >= y.
 Proof.
   intros x y.
   now apply Dcuts_lt_le_rel.
 Qed.
 
 Lemma Dcuts_gt_nle :
-  forall x y : Dcuts, x > y -> neg (x <= y).
+  ∀ x y : Dcuts, x > y -> neg (x <= y).
 Proof.
   intros x y Hlt Hle.
   now rewrite <- Dcuts_le_ngt_rel in Hle.
 Qed.
 Lemma Dcuts_nlt_ge :
-  forall x y : Dcuts, neg (x < y) = (x >= y).
+  ∀ x y : Dcuts, neg (x < y) = (x >= y).
 Proof.
   intros X Y.
   now apply Dcuts_le_ngt_rel.
 Qed.
 Lemma Dcuts_lt_nge :
-  forall x y : Dcuts, x < y -> neg (x >= y).
+  ∀ x y : Dcuts, x < y -> neg (x >= y).
 Proof.
   intros x y.
   now apply Dcuts_gt_nle.
@@ -2625,13 +2697,13 @@ Section Dcuts_lub.
 
 Context (E : hsubtypes Dcuts).
 Context (E_bounded : hexists (@isUpperBound eo_Dcuts E)).
-Context (E_cauchy: forall c, (0 < c)%NRat -> hdisj (@isUpperBound eo_Dcuts E (NonnegativeRationals_to_Dcuts c)) (hexists (λ P, E P × @isUpperBound eo_Dcuts E (Dcuts_plus P (NonnegativeRationals_to_Dcuts c))))).
+Context (E_cauchy: ∀ c, (0 < c)%NRat -> hdisj (@isUpperBound eo_Dcuts E (NonnegativeRationals_to_Dcuts c)) (hexists (λ P, E P × @isUpperBound eo_Dcuts E (Dcuts_plus P (NonnegativeRationals_to_Dcuts c))))).
 
 Definition Dcuts_lub_val : NonnegativeRationals -> hProp :=
   fun r : NonnegativeRationals => hexists (fun X : Dcuts => dirprod (E X) (r ∈ X)).
 Lemma Dcuts_lub_bot :
-  forall (x : NonnegativeRationals),
-    Dcuts_lub_val x -> forall y : NonnegativeRationals, (y <= x)%NRat -> Dcuts_lub_val y.
+  ∀ (x : NonnegativeRationals),
+    Dcuts_lub_val x -> ∀ y : NonnegativeRationals, (y <= x)%NRat -> Dcuts_lub_val y.
 Proof.
   intros r Xr n Xn.
   revert Xr ; apply hinhfun ; intros (X,(Ex,Xr)).
@@ -2640,7 +2712,7 @@ Proof.
   now apply is_Dcuts_bot with r.
 Qed.
 Lemma Dcuts_lub_open :
-  forall (x : NonnegativeRationals),
+  ∀ (x : NonnegativeRationals),
     Dcuts_lub_val x ->
     hexists (fun y : NonnegativeRationals => dirprod (Dcuts_lub_val y) (x < y)%NRat).
 Proof.
@@ -2799,17 +2871,17 @@ Context (E : hsubtypes Dcuts).
 Context (E_not_empty : hexists E).
 
 Definition Dcuts_glb_val : NonnegativeRationals -> hProp :=
-  fun r : NonnegativeRationals => hexists (fun n => dirprod (r < n)%NRat (forall X : Dcuts, E X -> n ∈ X)).
+  fun r : NonnegativeRationals => hexists (fun n => dirprod (r < n)%NRat (∀ X : Dcuts, E X -> n ∈ X)).
 =======
 Context (E : subset Dcuts).
 Context (E_not_empty : hexists E).
 
 Definition Dcuts_glb_val : NonnegativeRationals -> hProp :=
-  fun r : NonnegativeRationals => hexists (fun n => dirprod (r < n)%NnR (forall X : Dcuts, E X -> n ∈ X)).
+  fun r : NonnegativeRationals => hexists (fun n => dirprod (r < n)%NnR (∀ X : Dcuts, E X -> n ∈ X)).
 >>>>>>> apartness
 Lemma Dcuts_glb_bot :
-  forall (x : NonnegativeRationals),
-    Dcuts_glb_val x -> forall y : NonnegativeRationals, (y <= x)%NRat -> Dcuts_glb_val y.
+  ∀ (x : NonnegativeRationals),
+    Dcuts_glb_val x -> ∀ y : NonnegativeRationals, (y <= x)%NRat -> Dcuts_glb_val y.
 Proof.
   intros r Hr n Hn.
   revert Hr ; apply hinhfun ; intros (m,(Hrm,Hr)).
@@ -2818,7 +2890,7 @@ Proof.
   easy.
 Qed.
 Lemma Dcuts_glb_open :
-  forall (x : NonnegativeRationals),
+  ∀ (x : NonnegativeRationals),
     Dcuts_glb_val x ->
     hexists (fun y : NonnegativeRationals => dirprod (Dcuts_glb_val y) (x < y)%NRat).
 Proof.
@@ -2912,9 +2984,9 @@ Definition NonnegativeReals_to_hsubtypesNonnegativeRationals :
   NonnegativeReals -> (hsubtypes NonnegativeRationals) := pr1.
 Definition hsubtypesNonnegativeRationals_to_NonnegativeReals
   (X : NonnegativeRationals -> hProp)
-  (Xbot : forall x : NonnegativeRationals,
-            X x -> forall y : NonnegativeRationals, (y <= x)%NRat -> X y)
-  (Xopen : forall x : NonnegativeRationals,
+  (Xbot : ∀ x : NonnegativeRationals,
+            X x -> ∀ y : NonnegativeRationals, (y <= x)%NRat -> X y)
+  (Xopen : ∀ x : NonnegativeRationals,
              X x ->
              hexists (fun y : NonnegativeRationals => dirprod (X y) (x < y)%NRat))
   (Xtop : Dcuts_def_error X) : NonnegativeReals :=
@@ -3011,7 +3083,7 @@ Definition isldistr_plus_multNonnegativeReals:
   := isldistr_CCDRplus_CCDRmult (X := NonnegativeReals).
 
 Lemma plusNonnegativeReals_ltcompat_l :
-  forall x y z: NonnegativeReals, (y + x < z + x) = (y < z).
+  ∀ x y z: NonnegativeReals, (y + x < z + x) = (y < z).
 Proof.
   intros x y z.
   apply uahp.
@@ -3061,7 +3133,7 @@ Proof.
         exact Xq.
 Qed.
 Lemma plusNonnegativeReals_lecompat_l :
-  forall x y z: NonnegativeReals, (y + x <= z + x) = (y <= z).
+  ∀ x y z: NonnegativeReals, (y + x <= z + x) = (y <= z).
 Proof.
   intros x y z.
   apply uahp ;
@@ -3074,14 +3146,14 @@ Proof.
     now rewrite <- (plusNonnegativeReals_ltcompat_l x).
 Qed.
 Lemma plusNonnegativeReals_ltcompat_r :
-  forall x y z: NonnegativeReals, (x + y < x + z) = (y < z).
+  ∀ x y z: NonnegativeReals, (x + y < x + z) = (y < z).
 Proof.
   intros x y z.
   rewrite ! (iscomm_plusNonnegativeReals x).
   now apply plusNonnegativeReals_ltcompat_l.
 Qed.
 Lemma plusNonnegativeReals_lecompat_r :
-  forall x y z: NonnegativeReals, (x + y <= x + z) = (y <= z).
+  ∀ x y z: NonnegativeReals, (x + y <= x + z) = (y <= z).
 Proof.
   intros x y z.
   rewrite ! (iscomm_plusNonnegativeReals x).
@@ -3089,7 +3161,7 @@ Proof.
 Qed.
 
 Lemma multNonnegativeReals_ltcompat_l :
-  forall x y z: NonnegativeReals, (0 < x) -> (y < z) -> (y * x < z * x).
+  ∀ x y z: NonnegativeReals, (0 < x) -> (y < z) -> (y * x < z * x).
 Proof.
   intros X Y Z.
   apply hinhuniv2 ; intros (x,(_,Xx)) (r,(nYr,Zr)).
@@ -3152,13 +3224,13 @@ Proof.
         now apply istrans_ltNonnegativeRationals with r.
 Qed.
 Lemma multNonnegativeReals_ltcompat_l' :
-  forall x y z: NonnegativeReals, (y * x < z * x) -> (y < z).
+  ∀ x y z: NonnegativeReals, (y * x < z * x) -> (y < z).
 Proof.
   intros x y z.
   now apply Dcuts_mult_lt_l.
 Qed.
 Lemma multNonnegativeReals_lecompat_l :
-  forall x y z: NonnegativeReals, (0 < x) -> (y * x <= z * x) -> (y <= z).
+  ∀ x y z: NonnegativeReals, (0 < x) -> (y * x <= z * x) -> (y <= z).
 Proof.
   intros x y z Hx0.
   change (y * x <= z * x) with (z * x >= y * x) ;
@@ -3168,7 +3240,7 @@ Proof.
   now apply multNonnegativeReals_ltcompat_l.
 Qed.
 Lemma multNonnegativeReals_lecompat_l' :
-  forall x y z: NonnegativeReals, (y <= z) -> (y * x <= z * x).
+  ∀ x y z: NonnegativeReals, (y <= z) -> (y * x <= z * x).
 Proof.
   intros x y z.
   change (y * x <= z * x) with (z * x >= y * x) ;
@@ -3179,28 +3251,28 @@ Proof.
 Qed.
 
 Lemma multNonnegativeReals_ltcompat_r :
-  forall x y z: NonnegativeReals, (0 < x) -> (y < z) -> (x * y < x * z).
+  ∀ x y z: NonnegativeReals, (0 < x) -> (y < z) -> (x * y < x * z).
 Proof.
   intros x y z.
   rewrite ! (iscomm_multNonnegativeReals x).
   now apply multNonnegativeReals_ltcompat_l.
 Qed.
 Lemma multNonnegativeReals_ltcompat_r' :
-  forall x y z: NonnegativeReals, (x * y < x *  z) -> (y < z).
+  ∀ x y z: NonnegativeReals, (x * y < x *  z) -> (y < z).
 Proof.
   intros x y z.
   rewrite ! (iscomm_multNonnegativeReals x).
   now apply multNonnegativeReals_ltcompat_l'.
 Qed.
 Lemma multNonnegativeReals_lecompat_r :
-  forall x y z: NonnegativeReals, (0 < x) -> (x * y <= x * z) -> (y <= z).
+  ∀ x y z: NonnegativeReals, (0 < x) -> (x * y <= x * z) -> (y <= z).
 Proof.
   intros x y z.
   rewrite ! (iscomm_multNonnegativeReals x).
   now apply multNonnegativeReals_lecompat_l.
 Qed.
 Lemma multNonnegativeReals_lecompat_r' :
-  forall x y z: NonnegativeReals, (y <= z) -> (x * y <= x * z).
+  ∀ x y z: NonnegativeReals, (y <= z) -> (x * y <= x * z).
 Proof.
   intros x y z.
   rewrite ! (iscomm_multNonnegativeReals x).
