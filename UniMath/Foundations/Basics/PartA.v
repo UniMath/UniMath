@@ -1012,9 +1012,9 @@ Definition pathsweq1 {X Y : UU} (w : X ≃ Y) (x : X) (y : Y) :
   w x = y -> x = invmap w y
   := λ e, maponpaths pr1 (pr2 (weqproperty w y) (x,,e)).
 
-Definition pathsweq1' {X Y : UU} (w : weq X Y) (x : X) (y : Y)
-  (e : x = invmap w y) : w x = y :=
-    maponpaths w e @ homotweqinvweq w y.
+Definition pathsweq1' {X Y : UU} (w : weq X Y) (x : X) (y : Y) :
+  x = invmap w y -> w x = y
+  := λ e, maponpaths w e @ homotweqinvweq w y.
 
 Definition pathsweq3 {X Y : UU} (w : weq X Y) {x x' : X}
   (e : x = x') : invmaponpathsweq w x x' (maponpaths w e) = e :=
