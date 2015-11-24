@@ -43,15 +43,15 @@ Definition CDRmult {X : ConstructiveDivisionRig} : binop X := λ x y : X, op2 (X
 Delimit Scope CDR_scope with CDR.
 Open Scope CDR_scope.
 
-Notation "x # y" := (CDRap x y) : CDR_scope.
+Notation "x ≠ y" := (CDRap x y) (at level 70, no associativity) : CDR_scope.
 Notation "0" := CDRzero : CDR_scope.
 Notation "1" := CDRone : CDR_scope.
 Notation "x + y" := (CDRplus x y) : CDR_scope.
 Notation "x * y" := (CDRmult x y) : CDR_scope.
 
-Definition CDRinv {X : ConstructiveDivisionRig} (x : X) (Hx0 : x # 0) : X :=
+Definition CDRinv {X : ConstructiveDivisionRig} (x : X) (Hx0 : x ≠ 0) : X :=
   (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 X)))) x Hx0)).
-Definition CDRdiv {X : ConstructiveDivisionRig} (x y : X) (Hy0 : y # 0) : X :=
+Definition CDRdiv {X : ConstructiveDivisionRig} (x y : X) (Hy0 : y ≠ 0) : X :=
   CDRmult x (CDRinv y Hy0).
 
 (** Lemmas *)
@@ -60,19 +60,19 @@ Section CDR_pty.
 
 Context {X : ConstructiveDivisionRig}.
 
-Lemma isnonzeroCDR : (1 : X) # (0 : X).
+Lemma isnonzeroCDR : (1 : X) ≠ (0 : X).
 Proof.
   exact (pr1 (pr2 (pr2 (pr2 (pr2 X))))).
 Qed.
 Lemma apCDRplus :
   forall x x' y y' : X,
-    x + y # x' + y' -> x # x' ∨ y # y'.
+    x + y ≠ x' + y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (isapbinop_op1 (X := ConstructiveDivisionRig_apsetwith2binop X)).
 Qed.
 Lemma apCDRmult :
   forall x x' y y' : X,
-    x * y # x' * y' -> x # x' ∨ y # y'.
+    x * y ≠ x' * y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (isapbinop_op2 (X := ConstructiveDivisionRig_apsetwith2binop X)).
 Qed.
@@ -113,14 +113,14 @@ Proof.
   now apply rigassoc2.
 Qed.
 Lemma islinv_CDRinv :
-  ∀ (x : X) (Hx0 : x # (0 : X)),
+  ∀ (x : X) (Hx0 : x ≠ (0 : X)),
     (CDRinv x Hx0) * x = 1.
 Proof.
   intros x Hx0.
   apply (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 X)))) x Hx0))).
 Qed.
 Lemma isrinv_CDRinv :
-  ∀ (x : X) (Hx0 : x # (0 : X)),
+  ∀ (x : X) (Hx0 : x ≠ (0 : X)),
     x * (CDRinv x Hx0) = 1.
 Proof.
   intros x Hx0.
@@ -143,7 +143,7 @@ Proof.
 Qed.
 
 Lemma CDRmultapCDRzero :
-  forall x y : X, x * y # 0 -> x # 0 ∧ y # 0.
+  forall x y : X, x * y ≠ 0 -> x ≠ 0 ∧ y ≠ 0.
 Proof.
   intros x y Hmult.
   split.
@@ -187,15 +187,15 @@ Definition CCDRmult {X : ConstructiveCommutativeDivisionRig} : binop X := λ x y
 Delimit Scope CCDR_scope with CCDR.
 Open Scope CCDR_scope.
 
-Notation "x # y" := (CCDRap x y) : CCDR_scope.
+Notation "x ≠ y" := (CCDRap x y) (at level 70, no associativity) : CCDR_scope.
 Notation "0" := CCDRzero : CCDR_scope.
 Notation "1" := CCDRone : CCDR_scope.
 Notation "x + y" := (CCDRplus x y) : CCDR_scope.
 Notation "x * y" := (CCDRmult x y) : CCDR_scope.
 
-Definition CCDRinv {X : ConstructiveCommutativeDivisionRig} (x : X) (Hx0 : x # CCDRzero) : X :=
+Definition CCDRinv {X : ConstructiveCommutativeDivisionRig} (x : X) (Hx0 : x ≠ CCDRzero) : X :=
   CDRinv (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X) x Hx0.
-Definition CCDRdiv {X : ConstructiveCommutativeDivisionRig} (x y : X) (Hy0 : y # CCDRzero) : X :=
+Definition CCDRdiv {X : ConstructiveCommutativeDivisionRig} (x y : X) (Hy0 : y ≠ CCDRzero) : X :=
   CCDRmult x (CCDRinv y Hy0).
 
 (** Lemmas *)
@@ -204,19 +204,19 @@ Section CCDR_pty.
 
 Context {X : ConstructiveCommutativeDivisionRig}.
 
-Lemma isnonzeroCCDR : (1 : X) # (0 : X).
+Lemma isnonzeroCCDR : (1 : X) ≠ (0 : X).
 Proof.
   exact isnonzeroCDR.
 Qed.
 Lemma apCCDRplus :
   forall x x' y y' : X,
-    x + y # x' + y' -> x # x' ∨ y # y'.
+    x + y ≠ x' + y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (apCDRplus (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma apCCDRmult :
   forall x x' y y' : X,
-    x * y # x' * y' -> x # x' ∨ y # y'.
+    x * y ≠ x' * y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (apCDRmult (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
@@ -262,13 +262,13 @@ Proof.
   now apply rigcomm2.
 Qed.
 Lemma islinv_CCDRinv :
-  ∀ (x : X) (Hx0 : x # (0 : X)),
+  ∀ (x : X) (Hx0 : x ≠ (0 : X)),
     (CDRinv (X := X) x Hx0) * x = 1.
 Proof.
   exact (islinv_CDRinv (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma isrinv_CCDRinv :
-  ∀ (x : X) (Hx0 : x # (0 : X)),
+  ∀ (x : X) (Hx0 : x ≠ (0 : X)),
     x * (CDRinv (X := X) x Hx0) = 1.
 Proof.
   exact (isrinv_CDRinv (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
@@ -322,7 +322,7 @@ Definition CFmult {X : ConstructiveField} : binop X := λ x y : X, CCDRmult (X :
 Delimit Scope CF_scope with CF.
 Open Scope CF_scope.
 
-Notation "x # y" := (CFap x y) : CF_scope.
+Notation "x ≠ y" := (CFap x y) (at level 70, no associativity) : CF_scope.
 Notation "0" := CFzero : CF_scope.
 Notation "1" := CFone : CF_scope.
 Notation "x + y" := (CFplus x y) : CF_scope.
@@ -330,9 +330,9 @@ Notation "- x" := (CFopp x) : CF_scope.
 Notation "x - y" := (x + (- y)) : CF_scope.
 Notation "x * y" := (CFmult x y) : CF_scope.
 
-Definition CFinv {X : ConstructiveField} (x : X) (Hx0 : x # CFzero) : X :=
+Definition CFinv {X : ConstructiveField} (x : X) (Hx0 : x ≠ CFzero) : X :=
   CCDRinv (X := ConstructiveField_ConstructiveCommutativeDivisionRig X) x Hx0.
-Definition CFdiv {X : ConstructiveField} (x y : X) (Hy0 : y # CFzero) : X :=
+Definition CFdiv {X : ConstructiveField} (x y : X) (Hy0 : y ≠ CFzero) : X :=
   CFmult x (CFinv y Hy0).
 
 (** Lemmas *)
@@ -341,19 +341,19 @@ Section CF_pty.
 
 Context {X : ConstructiveField}.
 
-Lemma isnonzeroCF : (1 : X) # (0 : X).
+Lemma isnonzeroCF : (1 : X) ≠ (0 : X).
 Proof.
   exact (isnonzeroCCDR (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma apCFplus :
   forall x x' y y' : X,
-    x + y # x' + y' -> x # x' ∨ y # y'.
+    x + y ≠ x' + y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (apCCDRplus (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma apCFmult :
   forall x x' y y' : X,
-    x * y # x' * y' -> x # x' ∨ y # y'.
+    x * y ≠ x' * y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (apCCDRmult (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
@@ -410,13 +410,13 @@ Proof.
   now apply rngcomm2.
 Qed.
 Lemma islinv_CFinv :
-  ∀ (x : X) (Hx0 : x # 0),
+  ∀ (x : X) (Hx0 : x ≠ 0),
     (CFinv x Hx0) * x = 1.
 Proof.
   exact (islinv_CCDRinv (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma isrinv_CFinv :
-  ∀ (x : X) (Hx0 : x # 0),
+  ∀ (x : X) (Hx0 : x ≠ 0),
     x * (CFinv x Hx0) = 1.
 Proof.
   exact (isrinv_CCDRinv (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).

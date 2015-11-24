@@ -401,7 +401,7 @@ Definition Dcuts : tightapSet :=
     istight_Dcuts_ap_rel.
 
 Lemma not_Dcuts_ap_eq :
-  forall x y : Dcuts, (neg (x # y)) = (x = y).
+  forall x y : Dcuts, (neg (x ≠ y)) = (x = y).
 Proof.
   intros x y.
   apply uahp'.
@@ -484,7 +484,7 @@ Proof.
 Qed.
 Lemma isapfun_NonnegativeRationals_to_Dcuts :
   forall q q' : NonnegativeRationals,
-    NonnegativeRationals_to_Dcuts q # NonnegativeRationals_to_Dcuts q'
+    NonnegativeRationals_to_Dcuts q ≠ NonnegativeRationals_to_Dcuts q'
     -> q != q'.
 Proof.
   intros q q'.
@@ -496,7 +496,7 @@ Qed.
 Lemma isapfun_NonnegativeRationals_to_Dcuts' :
   forall q q' : NonnegativeRationals,
     q != q'
-    -> NonnegativeRationals_to_Dcuts q # NonnegativeRationals_to_Dcuts q'.
+    -> NonnegativeRationals_to_Dcuts q ≠ NonnegativeRationals_to_Dcuts q'.
 Proof.
   intros q q' H.
   apply hinhpr.
@@ -543,7 +543,7 @@ Proof.
 Qed.
 
 Lemma Dcuts_apzero_notempty :
-  forall x, (x # 0) = (0%NRat ∈ x).
+  forall x, (x ≠ 0) = (0%NRat ∈ x).
 Proof.
   intros x.
   rewrite Dcuts_notempty.
@@ -1437,7 +1437,7 @@ Qed.
 
 End Dcuts_inv'.
 
-Definition Dcuts_inv (X : Dcuts) (X_0 : X # 0) : Dcuts.
+Definition Dcuts_inv (X : Dcuts) (X_0 : X ≠ 0) : Dcuts.
 Proof.
   intros.
   apply (mk_Dcuts (Dcuts_inv_val (pr1 X))).
@@ -1838,14 +1838,14 @@ Proof.
   now apply isldistr_Dcuts_plus_mult.
 Qed.
 
-Definition Dcuts_ap_one_zero : 1 # 0.
+Definition Dcuts_ap_one_zero : 1 ≠ 0.
 Proof.
   apply isapfun_NonnegativeRationals_to_Dcuts'.
   apply gtNonnegativeRationals_noteq.
   exact ispositive_oneNonnegativeRationals.
 Qed.
 Definition islinv_Dcuts_inv :
-  ∀ x : Dcuts, forall Hx0 : x # 0, Dcuts_mult (Dcuts_inv x Hx0) x = 1.
+  ∀ x : Dcuts, forall Hx0 : x ≠ 0, Dcuts_mult (Dcuts_inv x Hx0) x = 1.
 Proof.
   intros x Hx0.
   apply Dcuts_eq_is_eq ; intro q ; split.
@@ -1950,7 +1950,7 @@ Proof.
         now apply NQmax_case.
 Qed.
 Definition isrinv_Dcuts_inv :
-  ∀ x : Dcuts, forall Hx0 : x # 0, Dcuts_mult x (Dcuts_inv x Hx0) = 1.
+  ∀ x : Dcuts, forall Hx0 : x ≠ 0, Dcuts_mult x (Dcuts_inv x Hx0) = 1.
 Proof.
   intros x Hx0.
   rewrite iscomm_Dcuts_mult.
@@ -2504,15 +2504,15 @@ Definition multNonnegativeReals : binop NonnegativeReals := CCDRmult.
 Delimit Scope NR_scope with NR.
 Open Scope NR_scope.
 
-Notation "x # y" := (apNonnegativeReals x y) : NR_scope.
+Notation "x ≠ y" := (apNonnegativeReals x y) (at level 70, no associativity) : NR_scope.
 Notation "0" := zeroNonnegativeReals : NR_scope.
 Notation "1" := oneNonnegativeReals : NR_scope.
 Notation "x + y" := (plusNonnegativeReals x y) : NR_scope.
 Notation "x * y" := (multNonnegativeReals x y) : NR_scope.
 
-Definition invNonnegativeReals (x : NonnegativeReals) (Hx0 : x # 0) : NonnegativeReals :=
+Definition invNonnegativeReals (x : NonnegativeReals) (Hx0 : x ≠ 0) : NonnegativeReals :=
   CCDRinv x Hx0.
-Definition divNonnegativeReals (x y : NonnegativeReals) (Hy0 : y # 0) : NonnegativeReals :=
+Definition divNonnegativeReals (x y : NonnegativeReals) (Hy0 : y ≠ 0) : NonnegativeReals :=
   multNonnegativeReals x (invNonnegativeReals y Hy0).
 
 Definition leNonnegativeReals : po NonnegativeReals := Dcuts_le.
@@ -2528,16 +2528,16 @@ Definition lubNonnegativeReals (E : hsubtypes NonnegativeReals) Eub :
 
 (** ** Theorems *)
 
-Definition isnonzeroNonnegativeReals: 1 # 0
+Definition isnonzeroNonnegativeReals: 1 ≠ 0
   := isnonzeroCCDR (X := NonnegativeReals).
 
 Definition ap_plusNonnegativeReals:
   ∀ x x' y y' : NonnegativeReals,
-    x + y # x' + y' -> x # x' ∨ y # y' :=
+    x + y ≠ x' + y' -> x ≠ x' ∨ y ≠ y' :=
   apCCDRplus (X := NonnegativeReals).
 Definition ap_multNonnegativeReals:
   ∀ x x' y y' : NonnegativeReals,
-    x * y # x' * y' -> x # x' ∨ y # y'
+    x * y ≠ x' * y' -> x ≠ x' ∨ y ≠ y'
   := apCCDRmult (X := NonnegativeReals).
 
 Definition islunit_zero_plusNonnegativeReals:
@@ -2573,10 +2573,10 @@ Definition israbsorb_zero_multNonnegativeReals:
   := israbsorb_CCDRzero_CCDRmult (X := NonnegativeReals).
 
 Definition islinv_invNonnegativeReals:
-  ∀ (x : NonnegativeReals) (Hx0 : x # 0), invNonnegativeReals x Hx0 * x = 1
+  ∀ (x : NonnegativeReals) (Hx0 : x ≠ 0), invNonnegativeReals x Hx0 * x = 1
   := islinv_CCDRinv (X := NonnegativeReals).
 Definition isrinv_invNonnegativeReals:
-  ∀ (x : NonnegativeReals) (Hx0 : x # 0), x * invNonnegativeReals x Hx0 = 1
+  ∀ (x : NonnegativeReals) (Hx0 : x ≠ 0), x * invNonnegativeReals x Hx0 = 1
   := isrinv_CCDRinv (X := NonnegativeReals).
 
 Definition isldistr_plus_multNonnegativeReals:
