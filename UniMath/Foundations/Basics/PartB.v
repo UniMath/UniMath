@@ -32,10 +32,6 @@ O => iscontr X |
 S m => forall x:X, forall x':X, (isofhlevel m (paths x x'))
 end.
 
-(* document an equality for the reader *)
-Goal isofhlevel 0 = iscontr.
-Proof. trivial. Qed.
-
 (* induction induction *)
 
 Theorem hlevelretract (n:nat) { X Y : UU } ( p : X -> Y ) ( s : Y -> X ) ( eps : forall y : Y , paths ( p ( s y ) ) y ) : isofhlevel n X -> isofhlevel n Y .
@@ -248,7 +244,6 @@ Proof. intros. apply isofhleveltotal2. assumption. intro. assumption. Defined.
 
 
 
-
 (** ** Propositions, inclusions  and sets *)
 
 
@@ -288,8 +283,6 @@ Proof. intros . apply ( isofhlevelfffromZ 0 f g z fs ( isapropifcontr isz ) ) . 
 Corollary weqhfibertocontr { X Y : UU } ( f : X -> Y ) ( y : Y ) ( is : iscontr Y ) : weq ( hfiber f y ) X .
 Proof. intros . split with ( hfiberpr1 f y ) . apply ( isofhlevelfhfiberpr1 0 f y ( hlevelntosn 0 _ is ) ) . Defined.
 
-
-
 Corollary weqhfibertounit ( X : UU ) : weq ( hfiber ( fun x : X => tt ) tt ) X .
 Proof.  intro . apply ( weqhfibertocontr _ tt iscontrunit ) . Defined.
 
@@ -299,11 +292,16 @@ Proof. intros n X is .  intro t . induction t . apply ( isofhlevelweqb n ( weqhf
 Corollary isofhlevelfromfun ( n : nat ) ( X : UU ) : isofhlevelf n ( fun x : X => tt ) ->  isofhlevel n X .
 Proof. intros n X is .  apply ( isofhlevelweqf n ( weqhfibertounit X ) ( is tt ) ) .  Defined .
 
-
-
-
-
-
+Definition weqhfiberunit {X Z} (i:X->Z) (z:Z) : (Σ x, hfiber (λ _:unit, z) (i x)) ≃ hfiber i z.
+Proof.
+  intros. refine (weqgradth _ _ _ _).
+  + intros [x [t e]]. exact (x,,!e).
+  + intros [x e]. exact (x,,tt,,!e).
+  + intros [x [t e]]. apply maponpaths. refine (total2_paths2 _ _).
+    * apply isapropunit.
+    * simpl. induction e. rewrite pathsinv0inv0. induction t. reflexivity.
+  + intros [x e]. apply maponpaths. apply pathsinv0inv0.
+Defined.
 
 Lemma isofhlevelsnprop (n:nat) { X : UU } ( is : isaprop X ) : isofhlevel (S n) X.
 Proof. intros n X X0. simpl. unfold isaprop in X0.  simpl in X0. intros x x' . apply isofhlevelcontr. apply (X0 x x'). Defined.
@@ -323,6 +321,18 @@ Proof. intros . unfold isaprop. unfold isofhlevel .  intro x .
 assert ( is1 : iscontr X ).  split with x. intro t .  apply ( ee t x). assert ( is2 : isaprop X).  apply isapropifcontr. assumption.
 unfold isaprop in is2. unfold isofhlevel in is2.  apply (is2 x). Defined.
 
+Lemma isapropcoprod P Q : isaprop P -> isaprop Q -> (P -> Q -> ∅) -> isaprop (P ⨿ Q).
+Proof.
+  intros ? ? i j n. apply invproofirrelevance. intros a b. apply inv_equality_by_case.
+  induction a as [a|a].
+  - induction b as [b|b].
+    + apply i.
+    + contradicts (n a) b.
+  - induction b as [b|b].
+    + contradicts (n b) a.
+    + apply j.
+Defined.
+
 Lemma isweqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isaprop X ) ( isy : isaprop Y ) : isweq f.
 Proof. intros.
 assert (isx0: forall x:X, paths (g (f x)) x). intro. apply proofirrelevance . apply isx .
@@ -331,13 +341,43 @@ apply (gradth  f g isx0 isy0).  Defined.
 
 Definition weqimplimpl { X Y : UU } ( f : X -> Y ) ( g : Y -> X ) ( isx : isaprop X ) ( isy : isaprop Y ) := weqpair _ ( isweqimplimpl f g isx isy ) .
 
-Definition weqiff { X Y : UU } ( f : X <-> Y ) ( isx : isaprop X ) ( isy : isaprop Y ) := weqpair _ ( isweqimplimpl (pr1 f) (pr2 f) isx isy ) .
+Definition weqiff { X Y : UU } : (X <-> Y) -> isaprop X -> isaprop Y -> X ≃ Y
+  := λ f i j, weqpair _ ( isweqimplimpl (pr1 f) (pr2 f) i j).
+
+Definition weq_to_iff { X Y : UU } : X ≃ Y -> (X <-> Y)
+  := λ f, (pr1weq f ,, invmap f).
 
 Theorem isapropempty: isaprop empty.
 Proof. unfold isaprop. unfold isofhlevel. intros x x' . induction x. Defined.
 
 Theorem isapropifnegtrue { X : UU } ( a : X -> empty ) : isaprop X .
 Proof . intros . set ( w := weqpair _ ( isweqtoempty a ) ) . apply ( isofhlevelweqb 1 w isapropempty ) .  Defined .
+
+(** Basic facts about complementary propositions  *)
+
+Lemma isapropretract {P Q} (i: isaprop Q) (f:P->Q) (g:Q->P) (h: g∘f ~ idfun _): isaprop P.
+Proof.
+  intros.
+  apply invproofirrelevance; intros p p'.
+  refine (_ @ (_ : g (f p) = g (f p')) @ _).
+  - apply pathsinv0. apply h.
+  - apply maponpaths. now apply proofirrelevance.
+  - apply h.
+Defined.
+
+Lemma isapropcomponent1 P Q : isaprop ( P ⨿ Q ) -> isaprop P.
+Proof.
+  (* see also [isofhlevelsnsummand1] *)
+  intros ? ? i. apply invproofirrelevance; intros p p'.
+  exact (equality_by_case (proofirrelevance _ i (ii1 p) (ii1 p'))).
+Defined.
+
+Lemma isapropcomponent2 P Q : isaprop ( P ⨿ Q ) -> isaprop Q.
+Proof.
+  (* see also [isofhlevelsnsummand2] *)
+  intros ? ? i. apply invproofirrelevance; intros q q'.
+  exact (equality_by_case (proofirrelevance _ i (ii2 q) (ii2 q'))).
+Defined.
 
 (** *** Two pairs are equal if their first components are and the type of the second
         component is a proposition for one of the components *)
@@ -440,29 +480,20 @@ Definition subtypePairEquality' {X} {P:X -> UU}
 (* This variant of subtypePairEquality is never needed. *)
 Proof. intros X P x y p q e is. apply (total2_paths2 e). apply is. Defined.
 
-Theorem samehfibers { X Y Z : UU } (f: X -> Y) (g: Y -> Z) (is1: isincl  g) ( y: Y): weq ( hfiber f y ) ( hfiber ( fun x => g ( f x ) ) ( g y ) ) .
-Proof. intros. split with (@hfibersftogf  _ _ _ f g (g y) (hfiberpair  g y (idpath _ ))) .
-
-set (z:= g y). set (ye:= hfiberpair  g y (idpath _ )).  unfold isweq. intro xe.
-set (is3:= isweqezmap1 _ _ _ ( fibseqhf f g z ye ) xe).
-assert (w1: weq (paths (hfibersgftog f g z xe) ye) (hfiber  (hfibersftogf  f g z ye) xe)). split with (ezmap (d1 (hfibersftogf f g z ye) (hfibersgftog f g z) ye ( fibseqhf f g z ye ) xe) (hfibersftogf f g z ye) xe ( fibseq1 (hfibersftogf f g z ye) (hfibersgftog f g z) ye ( fibseqhf f g z ye ) xe) ). apply is3. apply (iscontrweqf w1 ).
-assert (is4: iscontr (hfiber g z)). apply iscontrhfiberofincl. assumption.
-apply ( isapropifcontr is4  ). Defined.
-
-
-
-
-
-
-
+Theorem samehfibers { X Y Z : UU } (f: X -> Y) (g: Y -> Z) (is1: isincl g) (y:Y) :
+  hfiber f y ≃ hfiber (g ∘ f) (g y) .
+Proof.
+  intros. exists (hfibersftogf f g (g y) (hfiberpair g y (idpath _))).
+  set (z := g y). set (ye := hfiberpair g y (idpath _)). intro xe.
+  apply (iscontrweqf (X := hfibersgftog f g z xe = ye)).
+  { exists (ezmap _ _ _ (fibseq1 _ _ _ (fibseqhf f g z ye) _)).
+    exact (isweqezmap1 _ _ _ _ _). }
+  apply isapropifcontr. now apply iscontrhfiberofincl.
+Defined.
 
 (** *** Basics about types of h-level 2 - "sets" *)
 
-Definition isaset ( X : UU ) : UU := forall x x' : X , isaprop ( paths x x' ) .
-
-(* document an equality for the reader *)
-Goal isaset = isofhlevel 2.
-Proof. trivial. Qed.
+Definition isaset ( X : UU ) : UU := ∀ x x' : X , isaprop ( x = x' ) .
 
 (* Definition isaset := isofhlevel 2 . *)
 
@@ -485,7 +516,7 @@ Proof. intros. apply (isofhleveltotal2 2); assumption. Defined.
 
 (** The following lemma assert "uniqueness of identity proofs" (uip) for sets. *)
 
-Lemma uip { X : UU } ( is : isaset X ) { x x' : X } ( e e' : paths x x' ) : paths e e' .
+Lemma uip { X : UU } ( is : isaset X ) { x x' : X } ( e e' : x = x' ) : e = e' .
 Proof. intros . apply ( proofirrelevance _ ( is x x' ) e e' ) . Defined .
 
 (** For the theorem about the coproduct of two sets see [ isasetcoprod ] below. *)
