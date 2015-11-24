@@ -1,7 +1,7 @@
 (** * Definition of Dedekind cuts for non-negative real numbers *)
 (** Catherine Lelay. Sep. 2015 *)
 
-Require Import UniMath.Dedekind.Sets_comp.
+Require Import UniMath.Dedekind.Sets.
 Require Export UniMath.Foundations.Algebra.ConstructiveStructures.
 Require Import UniMath.Dedekind.Complements.
 Require Import UniMath.Dedekind.NonnegativeRationals.
@@ -1959,16 +1959,12 @@ Qed.
 
 (** ** Structures *)
 
-Definition Dcuts_apsetwith2binop : apsetwith2binop.
+Definition Dcuts_setwith2binop : setwith2binop.
 Proof.
   exists Dcuts.
   split.
-  - exists Dcuts_plus ; repeat split.
-    exact islapbinop_Dcuts_plus.
-    exact israpbinop_Dcuts_plus.
-  - exists Dcuts_mult ; repeat split.
-    exact islapbinop_Dcuts_mult.
-    exact israpbinop_Dcuts_mult.
+  - exact Dcuts_plus.
+  - exact Dcuts_mult.
 Defined.
 
 Definition isabmonoidop_Dcuts_plus : isabmonoidop Dcuts_plus.
@@ -1992,9 +1988,9 @@ Proof.
     + exact isrunit_Dcuts_mult_one.
 Defined.
 
-Definition Dcuts_ConstructiveCommutativeRig : ConstructiveCommutativeRig.
+Definition Dcuts_commrig : commrig.
 Proof.
-  exists Dcuts_apsetwith2binop.
+  exists Dcuts_setwith2binop.
   repeat split.
   - exists (isabmonoidop_Dcuts_plus,,ismonoidop_Dcuts_mult).
     split.
@@ -2007,8 +2003,13 @@ Defined.
 
 Definition Dcuts_ConstructiveCommutativeDivisionRig : ConstructiveCommutativeDivisionRig.
 Proof.
-  exists Dcuts_ConstructiveCommutativeRig.
-  split.
+  exists Dcuts_commrig.
+  exists (pr2 Dcuts).
+  repeat split.
+  - exact islapbinop_Dcuts_plus.
+  - exact israpbinop_Dcuts_plus.
+  - exact islapbinop_Dcuts_mult.
+  - exact israpbinop_Dcuts_mult.
   - exact Dcuts_ap_one_zero.
   - intros x Hx.
     exists (Dcuts_inv x Hx) ; split.
