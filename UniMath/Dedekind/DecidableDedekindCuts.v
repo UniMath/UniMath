@@ -4,9 +4,9 @@
 (** without decidability *)
 
 Require Import UniMath.Dedekind.Complements.
-Require Import UniMath.Dedekind.Sets_comp.
+Require Import UniMath.Dedekind.Sets.
 Require Import UniMath.Dedekind.NonnegativeRationals.
-Require Export UniMath.Dedekind.DedekindCuts.
+Require Export UniMath.Dedekind.NonnegativeReals.
 
 Open Scope Dcuts_scope.
 

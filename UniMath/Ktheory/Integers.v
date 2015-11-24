@@ -25,7 +25,7 @@ Open Scope hz_scope.
 Definition hzabsvalnat n : hzabsval (natnattohz n 0) = n. (* move to hz.v *)
 Proof. intros. unfold hzabsval. unfold setquotuniv. simpl.
        unfold hzabsvalint. simpl. destruct (natgthorleh n 0).
-       { apply natminuseqn. } { exact (! (natleh0tois0 _ h)). } Defined.
+       { apply natminuseqn. } { exact (! (natleh0tois0 h)). } Defined.
 
 Lemma hzsign_natnattohz m n : - natnattohz m n = natnattohz n m. (* move to hz.v *)
 Proof. reflexivity.             (* don't change the proof *)

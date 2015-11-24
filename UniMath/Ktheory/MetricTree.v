@@ -64,14 +64,14 @@ Proof. refine (make nat nat_dist _ _ _ _ _).
        { intro m. induction m. { reflexivity. } { rewrite nat_dist_S. assumption. } }
        { apply nat_dist_anti. } { apply nat_dist_symm. }
        { apply nat_dist_trans. }
-       { intros m n e. assert (d := natneqchoice _ _ e). clear e.
+       { intros m n e. assert (d := natneqchoice _ _ (neg_to_negProp e)). clear e.
          destruct d as [h|h].
          { exists (S n).
            { split.
              { apply nat_dist_gt. exact h. }
              { destruct (natgthorleh (S n) n) as [_|j].
                { clear h. induction n. { reflexivity. } { apply IHn. } }
-               { apply fromempty. clear h. exact (j (natgthsnn n)). }}} }
+               { apply fromempty. clear h. contradicts j (negnatSleh n). }}} }
          { exists (n - 1).
            { split.
              { assert (a := natltminus1 m n h). assert (b := natlthtoleh m n h).

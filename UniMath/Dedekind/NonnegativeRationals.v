@@ -4,8 +4,8 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 Unset Kernel Term Sharing.
 
-Require Import UniMath.Dedekind.Sets_comp.
-Require Import UniMath.Dedekind.Fields_comp.
+Require Import UniMath.Dedekind.Sets.
+Require Import UniMath.Dedekind.Fields.
 Require Export UniMath.Foundations.Algebra.DivisionRig.
 Require Import UniMath.Dedekind.Complements.
 
@@ -409,7 +409,7 @@ Qed.
 (** *** Decidability *)
 
 Lemma isdeceq_NonnegativeRationals :
-  ∀ x y : NonnegativeRationals, (x = y) ⨿ (x ≠ y).
+  ∀ x y : NonnegativeRationals, (x = y) ⨿ (x != y).
 Proof.
   intros (x,Hx) (y,Hy).
   destruct (isdeceqhq x y) as [H|H].
@@ -446,7 +446,7 @@ Proof.
     now apply subtypeEquality_prop, Heq.
 Qed.
 Lemma noteq_ltorgtNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, x ≠ y -> (x < y) ⨿ (x > y).
+  ∀ x y : NonnegativeRationals, x != y -> (x < y) ⨿ (x > y).
 Proof.
   intros x y Hneq.
   destruct (isdecrel_leNonnegativeRationals x y) as [Hle|Hlt].
@@ -523,10 +523,10 @@ Proof.
 Qed.
 
 Definition ltNonnegativeRationals_noteq :
-  ∀ x y, x < y -> x ≠ y
+  ∀ x y, x < y -> x != y
   := EOlt_noteq (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition gtNonnegativeRationals_noteq :
-  ∀ x y, x > y -> x ≠ y
+  ∀ x y, x > y -> x != y
   := EOgt_noteq (X := NonnegativeRationals_EffectivelyOrderedSet).
 
 Lemma between_ltNonnegativeRationals :
@@ -578,7 +578,7 @@ Proof.
     apply (pr2 r).
 Qed.
 Lemma NonnegativeRationals_neq0_gt0 :
-  ∀ r : NonnegativeRationals, (r ≠ 0) = (0 < r).
+  ∀ r : NonnegativeRationals, (r != 0) = (0 < r).
 Proof.
   intros r.
   rewrite NonnegativeRationals_eq0_le0.
