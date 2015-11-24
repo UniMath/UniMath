@@ -99,6 +99,18 @@ Definition apply4 {B C:Precategory} {b b':B} (F:[B,C]) (f:b→b') : F @@ b → F
 
 Notation "F ## f" := (apply4 F f) (at level 40) : cat.
 
+Definition assoc1 {C:Precategory} {X:[C,SET]} {c c' c'':C} (x:X--->c) (f:c→c') (g:c'→c'') :
+  (g ∘ f) ◎ x = g ◎ (f ◎ x)
+  := apevalat x (functor_comp X c c' c'' f g).
+
+Definition nattransax {B C:Precategory} {F F':[B, C]} (p:F→F') {b b':B} (f:b→b') :
+  p ** b' ∘ F ## f = F' ## f ∘ p ** b
+  := nat_trans_ax p _ _ f.
+
+Definition assoc2 {C:Precategory} {X X':[C,SET]^op} {c c':C} (p:X'→X) (x:X--->c) (g:c→c') :
+  g ◎ (x ○ p) = (g ◎ x) ○ p
+  := !apevalat x (nat_trans_ax p _ _ g).
+
 Definition bifunctor_assoc {B C:Precategory} : [B^op, [C,SET]] -> [[B,C],SET].
 Proof.
   intros X.
@@ -118,20 +130,18 @@ Proof.
   { intro F. exists (θ X F). abstract apply S using S. }
   { intros F F' p xe; simpl. induction xe as [x e].
     exists (ρ' _ _ _ p x).
-    intros b b' f.
-    unfold ρ'.
-
-
-    assert ( L := e b b' f ).
-    intermediate_path ((((X @@ b) ## (F' ## f)) ∘ ((X @@ b) ## (p ** b))) (x b)).
-    { reflexivity. }
-    intermediate_path (((X @@ b) ## (F' ## f ∘ p ** b)) (x b)).
-    { refine (apevalat (x b) _). apply pathsinv0. refine (functor_comp (X @@ b) _ _ _ _ _). }
-    intermediate_path (((X @@ b) ## (p ** b' ∘ F ## f)) (x b)).
-    { refine (apevalat (x b) _). apply maponpaths.
-      (* refine (nat_trans_ax p_ _ _ _). *)
-
-
+    unfold ρ'. intros b b' f.
+    intermediate_path ((F' ## f ∘ p ** b) ◎ x b).
+    { apply pathsinv0, assoc1. }
+    intermediate_path ((p ** b' ∘ F ## f) ◎ x b).
+    { apply maponpaths. apply pathsinv0, nattransax. }
+    intermediate_path (p ** b' ◎ (F ## f ◎ x b)).
+    { apply assoc1. }
+    intermediate_path (p ** b' ◎ (x b' ○ X ## f)).
+    { apply (maponpaths (λ k, (p ** b') ◎ k)). exact (e b b' f ). }
+    apply assoc2. }
+  { intros F. apply funextsec; intro xe.
+    set (P := @paths).
 
 
 Abort.
