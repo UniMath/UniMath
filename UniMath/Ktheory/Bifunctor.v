@@ -24,12 +24,17 @@ Notation "X ⇒ c" := (arrow X c)  (at level 50) : cat. (* \r= *)
 Definition arrow_morphism_composition {C:Precategory} {X:[C,SET]} {c c':C} :
   X⇒c -> c→c' -> X⇒c'
   := λ x f, # (X:_==>_) f x.
-Notation "f ◎ x" := (arrow_morphism_composition x f) (at level 50) : cat. (* agda mode: \ci. *)
+Notation "f ⟳ x" := (arrow_morphism_composition x f) (at level 50) : cat. (* ⟳ agda-input \r C-N C-N C-N 3 the first time, \r the second time *)
+(* motivation for the notation:
+   the morphisms of C act on the left of the elements of X *)
 
 Definition nattrans_arrow_composition {C:Precategory} {X X':[C,SET]^op} {c:C} :
   X'→X -> X⇒c -> X'⇒c
   := λ q x, (q:_⟶_) c (x:(X:_==>_) c:hSet).
-Notation "x ○ q" := (nattrans_arrow_composition q x) (at level 50) : cat. (* agda mode: \ciw *)
+Notation "x ⟲ q" := (nattrans_arrow_composition q x) (at level 50) : cat. (* ⟲ agda-input \l C-N C-N C-N 2 the first time, \l the second time *)
+(* motivation for the notation:
+   the natural transformations between functors act on the
+   right of the elements of the functors *)
 
 Definition nattrans_object_application {B C:Precategory} {F F' : [B,C]} (b:B) :
   F → F'  ->  F ◾ b → F' ◾ b
@@ -37,12 +42,12 @@ Definition nattrans_object_application {B C:Precategory} {F F' : [B,C]} (b:B) :
 Notation "p ◽ b" := (nattrans_object_application b p) (at level 40) : cat. (* \sqw3 *)
 
 Definition arrow_mor_id {C:Precategory} {X:[C,SET]} {c:C} (x:X⇒c) :
-  identity c ◎ x = x
+  identity c ⟳ x = x
   := apevalat x (functor_id X c).
 
 Definition arrow_mor_mor_assoc {C:Precategory} {X:[C,SET]} {c c' c'':C}
            (x:X⇒c) (f:c→c') (g:c'→c'') :
-  (g ∘ f) ◎ x = g ◎ (f ◎ x)
+  (g ∘ f) ⟳ x = g ⟳ (f ⟳ x)
   := apevalat x (functor_comp X c c' c'' f g).
 
 Definition nattrans_naturality {B C:Precategory} {F F':[B, C]} {b b':B}
@@ -52,58 +57,28 @@ Definition nattrans_naturality {B C:Precategory} {F F':[B, C]} {b b':B}
 
 Definition nattrans_arrow_mor_assoc {C:Precategory} {X X':[C,SET]^op} {c c':C}
            (p:X'→X) (x:X⇒c) (g:c→c') :
-  g ◎ (x ○ p) = (g ◎ x) ○ p
+  g ⟳ (x ⟲ p) = (g ⟳ x) ⟲ p
   := !apevalat x (nat_trans_ax p _ _ g).
 
 Definition nattrans_arrow_id {C:Precategory} {X:[C,SET]^op} {c:C} (x:X⇒c) :
-  x ○ nat_trans_id _ = x
+  x ⟲ nat_trans_id _ = x
   := idpath _.
-
-Notation "p ● q" := (nat_trans_comp _ _ _ p q) (at level 50) : cat. (* agda mode: \cib *)
 
 Definition nattrans_nattrans_arrow_assoc {C:Precategory} {X X' X'':[C,SET]^op} {c:C}
            (q:X''→X') (p:X'→X) (x:X⇒c) :
-  (x ○ p) ○ q = x ○ (p ● q)
+  (x ⟲ p) ⟲ q = x ⟲ (p ∘ q)
   := idpath _.
-
-(* move upstream *)
-
-Lemma isaset_total2_subset (X:hSet) (Y:X->hProp) : isaset (Σ x, Y x).
-Proof.
-  intros. apply isaset_total2.
-  - apply setproperty.
-  - intro x. apply isasetaprop, propproperty.
-Defined.
-
-Definition total2_subset {X:hSet} (Y:X->hProp) : hSet
-  := hSetpair (Σ x, Y x) (isaset_total2_subset X Y).
-
-Delimit Scope set with set.
-
-Notation "'Σ'  x .. y , P" := (total2_subset (fun x => .. (total2_subset (fun y => P)) ..))
-  (at level 200, x binder, y binder, right associativity) : subset.
-  (* type this in emacs in agda-input method with \Sigma *)
-
-Delimit Scope subset with subset.
-
-Lemma isaset_forall_hProp (X:UU) (Y:X->hProp) : isaprop (∀ x, Y x).
-Proof. intros. apply impred_isaprop. intro x. apply propproperty. Defined.
-
-Definition forall_hProp {X:UU} (Y:X->hProp) : hProp := hProppair (∀ x, Y x) (isaset_forall_hProp X Y).
-
-Notation "∀  x .. y , P" := (forall_hProp (fun x => .. (forall_hProp (fun y => P)) ..))
-  (at level 200, x binder, y binder, right associativity) : prop.
-  (* type this in emacs in agda-input method with \Sigma *)
-
-Delimit Scope prop with prop.
 
 Definition θ {B C:Precategory} (X : [B^op, [C, SET]]) (F : [B, C]) : hSet
   := (
       Σ x : (∀ b, X ◾ b ⇒ F ◾ b) % set,
-            (∀ (b b':B) (f:b→b'), F ▭ f ◎ x b = x b' ○ X ▭ f)
+            (∀ (b b':B) (f:b→b'), F ▭ f ⟳ x b = x b' ⟲ X ▭ f)
     ) % set.
 
-Definition θ_subset {B C:Precategory} {X : [B^op, [C, SET]]} {F : [B, C]} (t u : θ X F) :
+Notation "X ⟹ F" := (θ X F) (at level 50) : cat.
+
+Definition θ_subset {B C:Precategory} {X : [B^op, [C, SET]]} {F : [B, C]}
+           (t u : X ⟹ F) :
   pr1 t = pr1 u -> t = u.
 Proof.
   apply subtypeEquality.
@@ -111,33 +86,37 @@ Proof.
   apply setproperty.
 Defined.
 
-Definition θ_map {B C:Precategory} {X : [B^op, [C, SET]]} {F F':[B, C]} (p:F→F') :
-  θ X F -> θ X F'.
+Definition θ_map {B C:Precategory} {X : [B^op, [C, SET]]} {F F':[B, C]} :
+  X ⟹ F -> F → F' -> X ⟹ F'.
 Proof.
-  intro xe. set (x := pr1 xe). refine (_,,_).
-  { exact (λ b:B, p ◽ b  ◎  x b). }
+  intros xe p. set (x := pr1 xe). refine (_,,_).
+  { exact (λ b:B, p ◽ b ⟳ x b). }
   intros b b' f; simpl.
-  intermediate_path ((F' ▭ f  ∘  p ◽ b) ◎ x b).
+  intermediate_path ((F' ▭ f ∘ p ◽ b) ⟳ x b).
   { apply pathsinv0, arrow_mor_mor_assoc. }
-  intermediate_path ((p ◽ b'  ∘  F ▭ f) ◎ x b).
+  intermediate_path ((p ◽ b' ∘ F ▭ f) ⟳ x b).
   { apply maponpaths. apply pathsinv0, nattrans_naturality. }
-  intermediate_path (p ◽ b'  ◎  (F ▭ f  ◎  x b)).
+  intermediate_path (p ◽ b' ⟳ (F ▭ f ⟳ x b)).
   { apply arrow_mor_mor_assoc. }
-  intermediate_path (p ◽ b'  ◎  (x b'  ○  X ▭ f)).
-  { apply (maponpaths (λ k, p ◽ b'  ◎  k)). apply (pr2 xe). }
+  intermediate_path (p ◽ b' ⟳ (x b' ⟲ X ▭ f)).
+  { apply (maponpaths (λ k, p ◽ b' ⟳ k)). apply (pr2 xe). }
   apply nattrans_arrow_mor_assoc.
 Defined.
+
+Notation "xe ⟲⟲ p" := (θ_map xe p) (at level 50) : cat. (* ⟲ agda-input \l C-N C-N C-N 2 the first time, \l the second time *)
 
 Definition bifunctor_assoc {B C:Precategory} : [B^op, [C,SET]] -> [[B,C],SET].
 Proof.
   intros X. refine (makeFunctor _ _ _ _).
-  { intro F. exact (θ X F). }
-  { intros F F' p xe. exact (θ_map p xe). }
+  { intro F. exact (X ⟹ F). }
+  { intros F F' p xe. exact (xe ⟲⟲ p). }
   { intros F. apply funextsec; intro xe. apply θ_subset.
     simpl. apply funextsec; intro b. apply arrow_mor_id. }
   { intros F F' F'' p q; simpl. apply funextsec; intro xe. apply θ_subset.
     simpl. apply funextsec; intro b. apply arrow_mor_mor_assoc. }
 Defined.
+
+(** bifunctor commutativity *)
 
 Definition bifunctor_comm_functor_data {I A B:Precategory} :
   [I, [A, B] ] -> A -> functor_data I B
@@ -205,9 +184,9 @@ Proof.
     intros i; simpl. eqn_logic. }
 Qed.
 
-Definition bifunctor_comm (I A B:Precategory) : [I,[A,B]] ==> [A,[I,B]].
+Definition bifunctor_comm (A B C:Precategory) : [A,[B,C]] ==> [B,[A,C]].
 Proof.
-  exists (bifunctor_comm_functor_data_2 I A B).
+  exists (bifunctor_comm_functor_data_2 A B C).
   apply isfunctor_bifunctor_comm_functor_data_2.
 Defined.
 
