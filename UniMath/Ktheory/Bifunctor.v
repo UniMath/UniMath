@@ -9,71 +9,14 @@ Local Open Scope cat.
 
 Set Automatic Introduction.
 
-Definition bifunctor_comm {I A B:Precategory} : [I, [A, B] ] ==> [A, [I, B] ].
-Proof.
-  refine (_,,_).
-  { refine (_,,_).
-    { intros D.
-      refine (_,,_).
-      { refine (_,,_).
-        { intros a.
-          refine (_,,_).
-          - refine (_,,_).
-            + intro i. exact (((D : _ ==> _) i : _ ==> _) a).
-            + simpl. intros i j e. exact ((# (D : _ ==> _) e : _ ⟶ _) a).
-          - abstract (split ;
-                      [abstract (intro i; simpl;
-                        exact (maponpaths (λ F : _⟶_, F _) (functor_id D _)))
-                      |(intros i j k f g; simpl;
-                        exact (maponpaths (λ F : _⟶_, F _) (functor_comp D _ _ _ _ _)))])
-            using is_functor_0.
-          }
-        intros a a' f.
-        refine (_,,_).
-        { simpl. intro i. exact (# ((D:_==>_) i :_==>_) f). }
-        { abstract (intros i j r; simpl; eqn_logic) using is_nat_trans_0. } }
-      { abstract ( split;
-                   [intros a; simpl; eqn_logic
-                   |
-                   intros a b g r s; simpl;
-                   refine (total2_paths2 _ _) ;
-                   [ abstract (apply funextsec; intro i; simpl; apply functor_comp) |
-                     eqn_logic ]]) using is_functor_0. } }
-    { intros D D' p. simpl.
-      refine (_,,_).
-      { intros a. simpl.
-        refine (_,,_).
-        { intros i; simpl. exact (((p : _ ⟶ _) i : _ ⟶ _) a). }
-        { abstract (intros i j e; simpl;
-                    exact (maponpaths (λ v : _ ⟶ _, v a) (nat_trans_ax p _ _ e))) using is_nat_trans_0. } }
-      { abstract (intros a b f; simpl;
-                  refine (total2_paths2 _ _);
-                  [ apply funextsec; intro i; simpl;
-                    exact (nat_trans_ax ((p : _ ⟶ _) i) _ _ f)
-                    | simpl; apply isaprop_is_nat_trans, homset_property ]) using is_nat_trans_0. } } }
-  { abstract (split;
-    [ abstract (
-          intros D; simpl; refine (total2_paths2 _ _);
-          [ abstract (apply funextsec; intro a; refine (total2_paths2 _ _) ;
-            [ reflexivity | apply isaprop_is_nat_trans, homset_property ] )
-          |
-          simpl; apply isaprop_is_nat_trans; apply (homset_property [I,B]) ]) using functor_idax_0 |
-      abstract (
-          simpl; intros D D' D'' p q; simpl; refine (total2_paths2 _ _);
-          [abstract (
-                apply funextsec; intro a; refine (total2_paths2 _ _);
-                [ reflexivity |
-                  apply funextsec; intro i;
-                  apply funextsec; intro j;
-                  apply funextsec; intro e;
-                  apply homset_property])
-          | apply isaprop_is_nat_trans; exact (homset_property [I,B]) ]) using functor_compax_0 ])
-    using is_functor_0. }
-Defined.
-
 Definition functor_object_application {B C:Precategory} (F : [B,C]) (b:B) : C
   := (F:_==>_) b.
-Notation "F ◾ b" := (functor_object_application F b) (at level 40) : cat. (* \sqb3 *)
+Notation "F ◾ b" := (functor_object_application F b) (at level 40, left associativity) : cat. (* \sqb3 *)
+
+Definition functor_mor_application {B C:Precategory} {b b':B} (F:[B,C]) :
+  b → b'  ->  F ◾ b → F ◾ b'
+  := λ f, # (F:_==>_) f.
+Notation "F ▭ f" := (functor_mor_application F f) (at level 40, left associativity) : cat. (* \rew1 *)
 
 Definition arrow {C:Precategory} (X : [C,SET]) (c : C) : hSet := (X:_==>_) c.
 Notation "X ⇒ c" := (arrow X c)  (at level 50) : cat. (* \r= *)
@@ -92,11 +35,6 @@ Definition nattrans_object_application {B C:Precategory} {F F' : [B,C]} (b:B) :
   F → F'  ->  F ◾ b → F' ◾ b
   := λ p, (p:_⟶_) b.
 Notation "p ◽ b" := (nattrans_object_application b p) (at level 40) : cat. (* \sqw3 *)
-
-Definition functor_mor_application {B C:Precategory} {b b':B} (F:[B,C]) :
-  b → b'  ->  F ◾ b → F ◾ b'
-  := λ f, # (F:_==>_) f.
-Notation "F ▭ f" := (functor_mor_application F f) (at level 40) : cat. (* \rew1 *)
 
 Definition arrow_mor_id {C:Precategory} {X:[C,SET]} {c:C} (x:X⇒c) :
   identity c ◎ x = x
@@ -199,6 +137,78 @@ Proof.
     simpl. apply funextsec; intro b. apply arrow_mor_id. }
   { intros F F' F'' p q; simpl. apply funextsec; intro xe. apply θ_subset.
     simpl. apply funextsec; intro b. apply arrow_mor_mor_assoc. }
+Defined.
+
+Definition bifunctor_comm_functor_data {I A B:Precategory} :
+  [I, [A, B] ] -> A -> functor_data I B
+  := λ D a, functor_data_constr I B (λ i, D ◾ i ◾ a) (λ i j e, D ▭ e ◽ a).
+
+Lemma isfunctor_bifunctor_comm_functor_data {I A B:Precategory} :
+  ∀ (D:[I,[A,B]]) (a:A), is_functor (bifunctor_comm_functor_data D a).
+Proof.
+  split.
+  { unfold functor_idax. intro i; simpl. unfold functor_mor_application.
+    now rewrite functor_id. }
+  { intros i j k f g; simpl. unfold functor_mor_application.
+    now rewrite functor_comp. }
+Qed.
+
+Definition bifunctor_comm_functor {I A B:Precategory} :
+  [I, [A, B] ] -> A -> [I,B].
+Proof.
+  intros D a.
+  exists (bifunctor_comm_functor_data D a).
+  exact (isfunctor_bifunctor_comm_functor_data D a).
+Defined.
+
+Definition bifunctor_comm_functor_data_2 (I A B:Precategory) : functor_data [I,[A,B]] [A,[I,B]].
+Proof.
+  refine (_,,_).
+  { intros D.
+    refine (_,,_).
+    { refine (_,,_).
+      { intros a. exact (bifunctor_comm_functor D a). }
+      intros a a' f; simpl.
+      refine (_,,_).
+      { simpl; intro i. exact (D ◾ i ▭ f). }
+      { abstract (intros i j r; simpl; eqn_logic) using L. } }
+    { abstract ( split;
+                 [ intros a; simpl; apply nat_trans_eq;
+                   [ apply homset_property
+                   | intros i; simpl; apply functor_id ]
+                 | intros a b g r s; simpl; apply nat_trans_eq;
+                   [ apply homset_property
+                   | simpl; intros i; apply functor_comp ] ] ) using M. } }
+  { intros D D' p. simpl.
+    refine (_,,_).
+    { intros a. simpl.
+      refine (_,,_).
+      { exact (λ i, p ◽ i ◽ a). }
+      { abstract (exact (λ i j e, maponpaths (λ v : _ ⟶ _, v a) (nat_trans_ax p _ _ e))) using N. } }
+    { abstract (intros a b f; apply nat_trans_eq;
+                [ apply homset_property
+                | intros i; simpl; apply nat_trans_ax]) using O. } }
+Defined.
+
+Definition isfunctor_bifunctor_comm_functor_data_2 {I A B:Precategory} :
+  is_functor (bifunctor_comm_functor_data_2 I A B).
+Proof.
+  split.
+  { intros D. simpl. apply nat_trans_eq.
+    { exact (homset_property [I,B]). }
+    simpl; intros a. apply nat_trans_eq.
+    { apply homset_property. }
+    reflexivity. }
+  { intros D D' D'' p q; simpl. apply nat_trans_eq. exact (homset_property [I,B]).
+    intros a; simpl. apply nat_trans_eq.
+    { apply homset_property. }
+    intros i; simpl. eqn_logic. }
+Qed.
+
+Definition bifunctor_comm (I A B:Precategory) : [I,[A,B]] ==> [A,[I,B]].
+Proof.
+  exists (bifunctor_comm_functor_data_2 I A B).
+  apply isfunctor_bifunctor_comm_functor_data_2.
 Defined.
 
 (* *)

@@ -82,7 +82,7 @@ Theorem functorPrecategoryColimits (A B:Precategory) : hasColimits B -> hasColim
 Proof.
   intros colim ? ?.
   unfold Colimit. unfold Representation.
-  set (D' := bifunctor_comm D).
+  set (D' := bifunctor_comm _ _ _ D).
   - refine (_,,_).
     + refine (_,,_).
       * refine (_,,_).
