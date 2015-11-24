@@ -184,7 +184,7 @@ Proof.
     { intros a. simpl.
       refine (_,,_).
       { exact (λ i, p ◽ i ◽ a). }
-      { abstract (exact (λ i j e, maponpaths (λ v : _ ⟶ _, v a) (nat_trans_ax p _ _ e))) using N. } }
+      { abstract (exact (λ i j e, maponpaths (λ v, v ◽ a) (nat_trans_ax p _ _ e))) using N. } }
     { abstract (intros a b f; apply nat_trans_eq;
                 [ apply homset_property
                 | intros i; simpl; apply nat_trans_ax]) using O. } }
