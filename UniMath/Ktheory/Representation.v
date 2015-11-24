@@ -86,24 +86,6 @@ Definition universalMapUniqueness' {C:Precategory} {X:C==>SET} {r:Representation
   f = universalMap r x' -> # X f (universalElement r) = x'
   := pathsweq1' (universalProperty r c') f x'.
 
-Definition Representation_to_is_functor  {C:Precategory} (X:C ==> SET) :
-  Representation X -> is_functor X.
-Proof.
-  unfold Representation, isUniversal. intros r. split.
-  - intro c'. apply funextfun; intro x'.
-    change (identity (X c') x') with x'.
-    set (c := universalObject r).
-    set (f := universalMap r x').
-    set (x := universalElement r).
-    change (universalObject r) with c in f, x.
-    assert (L := universalMapUniqueness' x' f (idpath _)).
-    admit.
-  - intros c b a g f.
-
-
-
-Abort.
-
 Lemma universalMapNaturality {C:Precategory} {a:C} {Y Z:C ==> SET}
       (s : Representation Y)
       (t : Representation Z)

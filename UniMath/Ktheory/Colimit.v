@@ -41,18 +41,21 @@ Proof.
   - refine (_,,_).
     + exact (colim _).
     + intros D D' p; simpl.
-      apply universalObjectFunctor.
-      now apply (# cocone_functor).
+      (* apply universalObjectFunctor. *)
+      (* now apply (# cocone_functor). *)
+      admit.
   - split.
-    + intro D. simpl. refine (_ @ objectMapIdentity (colim I D)).
-      apply maponpaths. apply subtypeEquality.
-      { intro p; simpl in p. apply isaprop_is_nat_trans, homset_property. }
-      { simpl. apply funextsec; intro c.
-        apply funextsec; intro φ.
-        refine (total2_paths _ _).
-        { simpl. apply funextsec; intro i. exact (id_left _). }
-        { apply funextsec; intro i; apply funextsec; intro j; apply funextsec; intro e.
-          apply homset_property. } }
+    + intro D. simpl.
+      (* refine (_ @ objectMapIdentity (colim I D)). *)
+      (* apply maponpaths. apply subtypeEquality. *)
+      (* { intro p; simpl in p. apply isaprop_is_nat_trans, homset_property. } *)
+      (* { simpl. apply funextsec; intro c. *)
+      (*   apply funextsec; intro φ. *)
+      (*   refine (total2_paths _ _). *)
+      (*   { simpl. apply funextsec; intro i. exact (id_left _). } *)
+      (*   { apply funextsec; intro i; apply funextsec; intro j; apply funextsec; intro e. *)
+      (*     apply homset_property. } } *)
+      admit.
     + intros D D' D'' p q.
 
 

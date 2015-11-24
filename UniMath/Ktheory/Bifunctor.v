@@ -71,80 +71,79 @@ Proof.
     using is_functor_0. }
 Defined.
 
+Definition functor_object_application {B C:Precategory} (F : [B,C]) (b:B) : C
+  := (F:_==>_) b.
+Notation "F ◾ b" := (functor_object_application F b) (at level 40) : cat. (* \sqb3 *)
+
 Definition arrow {C:Precategory} (X : [C,SET]) (c : C) : hSet := (X:_==>_) c.
+Notation "X ⇒ c" := (arrow X c)  (at level 50) : cat. (* \r= *)
 
-Notation "X ---> c" := (arrow X c)  (at level 50) : cat.
-
-Definition apply0 {C:Precategory} {X X':[C,SET]^op} {c:C} : (X'→X) -> (X--->c) -> (X'--->c)
+Definition nattrans_arrow_composition {C:Precategory} {X X':[C,SET]^op} {c:C} :
+  X'→X -> X⇒c -> X'⇒c
   := λ q x, (q:_⟶_) c (x:(X:_==>_) c:hSet).
+Notation "x ○ q" := (nattrans_arrow_composition q x) (at level 50) : cat. (* agda mode: \ciw *)
 
-Notation "x ○ q" := (apply0 q x) (at level 50) : cat. (* agda mode: \ciw *)
-
-Definition apply2 {C:Precategory} {X:[C,SET]} {c c':C} : (X--->c) -> (c→c') -> X--->c'
+Definition arrow_morphism_composition {C:Precategory} {X:[C,SET]} {c c':C} :
+  X⇒c -> c→c' -> X⇒c'
   := λ x f, # (X:_==>_) f x.
+Notation "f ◎ x" := (arrow_morphism_composition x f) (at level 50) : cat. (* agda mode: \ci. *)
 
-Notation "f ◎ x" := (apply2 x f) (at level 50) : cat. (* agda mode: \ci. *)
+Definition nattrans_object_application {B C:Precategory} {F F' : [B,C]} (b:B) :
+  F → F'  ->  F ◾ b → F' ◾ b
+  := λ p, (p:_⟶_) b.
+Notation "p ◽ b" := (nattrans_object_application b p) (at level 40) : cat. (* \sqw3 *)
 
-Definition apply {B C:Precategory} (F : [B,C]) (b:B) : C := (F:_==>_) b.
+Definition functor_mor_application {B C:Precategory} {b b':B} (F:[B,C]) :
+  b → b'  ->  F ◾ b → F ◾ b'
+  := λ f, # (F:_==>_) f.
+Notation "F ▭ f" := (functor_mor_application F f) (at level 40) : cat. (* \rew1 *)
 
-Notation "F @@ b" := (apply F b) (at level 40) : cat.
-
-Definition apply3 {B C:Precategory} {F F' : [B,C]} (p:F→F') (b:B) : F @@ b → F' @@ b
-  := (p:_⟶_) b.
-
-Notation "p ** b" := (apply3 p b) (at level 40) : cat.
-
-Definition apply4 {B C:Precategory} {b b':B} (F:[B,C]) (f:b→b') : F @@ b → F @@ b'
-  := # (F:_==>_) f.
-
-Notation "F ## f" := (apply4 F f) (at level 40) : cat.
-
-Definition assoc1 {C:Precategory} {X:[C,SET]} {c c' c'':C} (x:X--->c) (f:c→c') (g:c'→c'') :
+Definition arrow_mor_mor_assoc {C:Precategory} {X:[C,SET]} {c c' c'':C}
+           (x:X⇒c) (f:c→c') (g:c'→c'') :
   (g ∘ f) ◎ x = g ◎ (f ◎ x)
   := apevalat x (functor_comp X c c' c'' f g).
 
-Definition nattransax {B C:Precategory} {F F':[B, C]} (p:F→F') {b b':B} (f:b→b') :
-  p ** b' ∘ F ## f = F' ## f ∘ p ** b
+Definition nattrans_naturality {B C:Precategory} {F F':[B, C]} {b b':B}
+           (p : F → F') (f : b → b') :
+  p ◽ b'  ∘  F ▭ f  =  F' ▭ f  ∘  p ◽ b
   := nat_trans_ax p _ _ f.
 
-Definition assoc2 {C:Precategory} {X X':[C,SET]^op} {c c':C} (p:X'→X) (x:X--->c) (g:c→c') :
+Definition nattrans_arrow_mor_assoc {C:Precategory} {X X':[C,SET]^op} {c c':C}
+           (p:X'→X) (x:X⇒c) (g:c→c') :
   g ◎ (x ○ p) = (g ◎ x) ○ p
   := !apevalat x (nat_trans_ax p _ _ g).
 
+Definition θ {B C:Precategory} (X : [B^op, [C, SET]]) (F : [B, C]) : hSet
+  := (
+      Σ x : (∀ b, X ◾ b ⇒ F ◾ b) % set,
+            (∀ (b b':B) (f:b→b'), F ▭ f ◎ x b = x b' ○ X ▭ f)
+    ) % set.
+
+Definition θ_map {B C:Precategory} {X : [B^op, [C, SET]]} {F F':[B, C]} (p:F→F') :
+  θ X F -> θ X F'.
+Proof.
+  intro xe. set (x := pr1 xe). refine (_,,_).
+  { exact (λ b:B, p ◽ b  ◎  x b). }
+  intros b b' f; simpl.
+  intermediate_path ((F' ▭ f  ∘  p ◽ b) ◎ x b).
+  { apply pathsinv0, arrow_mor_mor_assoc. }
+  intermediate_path ((p ◽ b'  ∘  F ▭ f) ◎ x b).
+  { apply maponpaths. apply pathsinv0, nattrans_naturality. }
+  intermediate_path (p ◽ b'  ◎  (F ▭ f  ◎  x b)).
+  { apply arrow_mor_mor_assoc. }
+  intermediate_path (p ◽ b'  ◎  (x b'  ○  X ▭ f)).
+  { apply (maponpaths (λ k, p ◽ b'  ◎  k)). apply (pr2 xe). }
+  apply nattrans_arrow_mor_assoc.
+Defined.
+
 Definition bifunctor_assoc {B C:Precategory} : [B^op, [C,SET]] -> [[B,C],SET].
 Proof.
-  intros X.
-  set (ρ := λ (X : [B^op, [C, SET]]) (F : [B, C]), ∀ b, X @@ b ---> F @@ b).
-  set (ρ' := λ (X : [B^op, [C, SET]]) (F F' : [B, C]) (p : F → F') (x : ρ X F),
-             (λ b, (p ** b) ◎ x b) : ρ X F').
-  set (σ := λ (X : [B^op, [C, SET]]) (F : [B, C]) (x : ρ X F), ∀ (b b':B) (f:b→b'),
-                     (F ## f) ◎ x b = x b' ○ (X ## f)).
-  set (θ := λ (X : [B^op, [C, SET]]) (F : [B, C]), Σ x : ρ X F, σ X F x).
-  assert (S : ∀ X F, isaset (θ X F)).
-  { intros. apply isaset_total2.
-    { apply impred_isaset; intro b. apply setproperty. }
-    { intros x. apply impred_isaset; intro b;
-                apply impred_isaset; intro b'; apply impred_isaset; intro f.
-      apply isasetaprop; apply setproperty. } }
-  refine (makeFunctor _ _ _ _).
-  { intro F. exists (θ X F). abstract apply S using S. }
-  { intros F F' p xe; simpl. induction xe as [x e].
-    exists (ρ' _ _ _ p x).
-    unfold ρ'. intros b b' f.
-    intermediate_path ((F' ## f ∘ p ** b) ◎ x b).
-    { apply pathsinv0, assoc1. }
-    intermediate_path ((p ** b' ∘ F ## f) ◎ x b).
-    { apply maponpaths. apply pathsinv0, nattransax. }
-    intermediate_path (p ** b' ◎ (F ## f ◎ x b)).
-    { apply assoc1. }
-    intermediate_path (p ** b' ◎ (x b' ○ X ## f)).
-    { apply (maponpaths (λ k, (p ** b') ◎ k)). exact (e b b' f ). }
-    apply assoc2. }
-  { intros F. apply funextsec; intro xe.
-    set (P := @paths).
-
-
-Abort.
+  intros X. refine (makeFunctor _ _ _ _).
+  { intro F. exact (θ X F). }
+  { intros F F' p xe. exact (θ_map p xe). }
+  { intros F. apply funextsec; intro xe. postponeProof. }
+  { postponeProof. }
+Defined.
 
 
      (*  *)

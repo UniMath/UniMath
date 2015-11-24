@@ -6,6 +6,11 @@ Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.FunctionalExtensionality.
 Require Export UniMath.Ktheory.Tactics.
 
+(* axiom for postponing a proof until later *)
+
+Axiom PostponedProof : empty.
+
+Ltac postponeProof := apply fromempty, PostponedProof.
 
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
 

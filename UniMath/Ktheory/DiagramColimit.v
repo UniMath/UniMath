@@ -116,9 +116,11 @@ Definition diagram_map_on_colim {C:Precategory} {I} {D D' : diagram I C}
            (colimD : Colimit D) (colimD' : Colimit D') (f : diagram_map D D') :
   Object colimD → Object colimD'.
 Proof.
-  intros. apply Representation.objectMap.
-  apply diagram_map_on_cocone_functor. exact f.
-Defined.
+  intros. apply universalMap.
+  unfold cocone_functor; simpl.
+(*   apply diagram_map_on_cocone_functor. exact f. *)
+(* Defined. *)
+Abort.
 
 Definition diagram_eval_map {A B I} (D : diagram I [A, B]) {a a':A} (f:a→a') :
   diagram_map (diagram_eval D a) (diagram_eval D a').
@@ -148,8 +150,11 @@ Proof.
   - refine (_,,_).
     + refine (_,,_).
       { intro a. exact (Object (colim I (diagram_eval D a))). }
-      { simpl. intros a a' f. apply diagram_map_on_colim.
-        apply diagram_eval_map. exact f. }
+      { simpl. intros a a' f.
+        (* apply diagram_map_on_colim. *)
+        (* apply diagram_eval_map. exact f. *)
+        admit.
+      }
     + split.
       { intro a; simpl.
 
