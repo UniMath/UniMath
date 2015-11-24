@@ -71,18 +71,42 @@ Proof.
     using is_functor_0. }
 Defined.
 
+Definition arrow {C:Precategory} (X : [C,SET]) (c : C) : hSet := (X:_==>_) c.
+
+Notation "X ---> c" := (arrow X c)  (at level 50) : cat.
+
+Definition apply0 {C:Precategory} {X X':[C,SET]^op} {c:C} : (X'→X) -> (X--->c) -> (X'--->c)
+  := λ q x, (q:_⟶_) c (x:(X:_==>_) c:hSet).
+
+Notation "x ○ q" := (apply0 q x) (at level 50) : cat. (* agda mode: \ciw *)
+
+Definition apply2 {C:Precategory} {X:[C,SET]} {c c':C} : (X--->c) -> (c→c') -> X--->c'
+  := λ x f, # (X:_==>_) f x.
+
+Notation "f ◎ x" := (apply2 x f) (at level 50) : cat. (* agda mode: \ci. *)
+
+Definition apply {B C:Precategory} (F : [B,C]) (b:B) : C := (F:_==>_) b.
+
+Notation "F @@ b" := (apply F b) (at level 40) : cat.
+
+Definition apply3 {B C:Precategory} {F F' : [B,C]} (p:F→F') (b:B) : F @@ b → F' @@ b
+  := (p:_⟶_) b.
+
+Notation "p ** b" := (apply3 p b) (at level 40) : cat.
+
+Definition apply4 {B C:Precategory} {b b':B} (F:[B,C]) (f:b→b') : F @@ b → F @@ b'
+  := # (F:_==>_) f.
+
+Notation "F ## f" := (apply4 F f) (at level 40) : cat.
+
 Definition bifunctor_assoc {B C:Precategory} : [B^op, [C,SET]] -> [[B,C],SET].
 Proof.
   intros X.
-  set (ρ := λ (X : [B^op, [C, SET]]) (F : [B, C]),
-            ∀ b, ((X:_==>_) b : _==>_) ((F:_==>_) b) : hSet).
+  set (ρ := λ (X : [B^op, [C, SET]]) (F : [B, C]), ∀ b, X @@ b ---> F @@ b).
   set (ρ' := λ (X : [B^op, [C, SET]]) (F F' : [B, C]) (p : F → F') (x : ρ X F),
-             (λ b, # ((X:_==>_) b : _==>_) ((p:_⟶_) b) (x b)) : ρ X F').
-  set (σ := λ (X : [B^op, [C, SET]]) (F : [B, C]) (x : ρ X F),
-            ∀ (b b':B) (f:b→b'),
-                     # ((X:_==>_) b : _==>_) (# (F:_==>_) f) (x b)
-                     =
-                     ((# (X:_==>_) f) : _⟶_) _ (x b')).
+             (λ b, (p ** b) ◎ x b) : ρ X F').
+  set (σ := λ (X : [B^op, [C, SET]]) (F : [B, C]) (x : ρ X F), ∀ (b b':B) (f:b→b'),
+                     (F ## f) ◎ x b = x b' ○ (X ## f)).
   set (θ := λ (X : [B^op, [C, SET]]) (F : [B, C]), Σ x : ρ X F, σ X F x).
   assert (S : ∀ X F, isaset (θ X F)).
   { intros. apply isaset_total2.
@@ -96,17 +120,14 @@ Proof.
     exists (ρ' _ _ _ p x).
     intros b b' f.
     unfold ρ'.
+
+
     assert ( L := e b b' f ).
-    set (X_ := X:_==>_).
-    set (X_b := X_ b : _==>_).
-    set (F_ := F : _==>_).
-    set (F'_ := F' : _==>_).
-    set (p_ := p : _⟶_).
-    intermediate_path (((# (X_b) (# F'_ f)) ∘ (# (X_b) (p_ b))) (x b)).
+    intermediate_path ((((X @@ b) ## (F' ## f)) ∘ ((X @@ b) ## (p ** b))) (x b)).
     { reflexivity. }
-    intermediate_path ((# (X_b) (# F'_ f ∘ p_ b)) (x b)).
-    { refine (apevalat (x b) _). apply pathsinv0. refine (functor_comp X_b _ _ _ _ _). }
-    intermediate_path ((# (X_b) (p_ b' ∘ # F_ f)) (x b)).
+    intermediate_path (((X @@ b) ## (F' ## f ∘ p ** b)) (x b)).
+    { refine (apevalat (x b) _). apply pathsinv0. refine (functor_comp (X @@ b) _ _ _ _ _). }
+    intermediate_path (((X @@ b) ## (p ** b' ∘ F ## f)) (x b)).
     { refine (apevalat (x b) _). apply maponpaths.
       (* refine (nat_trans_ax p_ _ _ _). *)
 
