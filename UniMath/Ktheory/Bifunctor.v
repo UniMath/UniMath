@@ -78,15 +78,15 @@ Notation "F ◾ b" := (functor_object_application F b) (at level 40) : cat. (* \
 Definition arrow {C:Precategory} (X : [C,SET]) (c : C) : hSet := (X:_==>_) c.
 Notation "X ⇒ c" := (arrow X c)  (at level 50) : cat. (* \r= *)
 
-Definition nattrans_arrow_composition {C:Precategory} {X X':[C,SET]^op} {c:C} :
-  X'→X -> X⇒c -> X'⇒c
-  := λ q x, (q:_⟶_) c (x:(X:_==>_) c:hSet).
-Notation "x ○ q" := (nattrans_arrow_composition q x) (at level 50) : cat. (* agda mode: \ciw *)
-
 Definition arrow_morphism_composition {C:Precategory} {X:[C,SET]} {c c':C} :
   X⇒c -> c→c' -> X⇒c'
   := λ x f, # (X:_==>_) f x.
 Notation "f ◎ x" := (arrow_morphism_composition x f) (at level 50) : cat. (* agda mode: \ci. *)
+
+Definition nattrans_arrow_composition {C:Precategory} {X X':[C,SET]^op} {c:C} :
+  X'→X -> X⇒c -> X'⇒c
+  := λ q x, (q:_⟶_) c (x:(X:_==>_) c:hSet).
+Notation "x ○ q" := (nattrans_arrow_composition q x) (at level 50) : cat. (* agda mode: \ciw *)
 
 Definition nattrans_object_application {B C:Precategory} {F F' : [B,C]} (b:B) :
   F → F'  ->  F ◾ b → F' ◾ b
@@ -97,6 +97,10 @@ Definition functor_mor_application {B C:Precategory} {b b':B} (F:[B,C]) :
   b → b'  ->  F ◾ b → F ◾ b'
   := λ f, # (F:_==>_) f.
 Notation "F ▭ f" := (functor_mor_application F f) (at level 40) : cat. (* \rew1 *)
+
+Definition arrow_mor_id {C:Precategory} {X:[C,SET]} {c:C} (x:X⇒c) :
+  identity c ◎ x = x
+  := apevalat x (functor_id X c).
 
 Definition arrow_mor_mor_assoc {C:Precategory} {X:[C,SET]} {c c' c'':C}
            (x:X⇒c) (f:c→c') (g:c'→c'') :
@@ -113,11 +117,61 @@ Definition nattrans_arrow_mor_assoc {C:Precategory} {X X':[C,SET]^op} {c c':C}
   g ◎ (x ○ p) = (g ◎ x) ○ p
   := !apevalat x (nat_trans_ax p _ _ g).
 
+Definition nattrans_arrow_id {C:Precategory} {X:[C,SET]^op} {c:C} (x:X⇒c) :
+  x ○ nat_trans_id _ = x
+  := idpath _.
+
+Notation "p ● q" := (nat_trans_comp _ _ _ p q) (at level 50) : cat. (* agda mode: \cib *)
+
+Definition nattrans_nattrans_arrow_assoc {C:Precategory} {X X' X'':[C,SET]^op} {c:C}
+           (q:X''→X') (p:X'→X) (x:X⇒c) :
+  (x ○ p) ○ q = x ○ (p ● q)
+  := idpath _.
+
+(* move upstream *)
+
+Lemma isaset_total2_subset (X:hSet) (Y:X->hProp) : isaset (Σ x, Y x).
+Proof.
+  intros. apply isaset_total2.
+  - apply setproperty.
+  - intro x. apply isasetaprop, propproperty.
+Defined.
+
+Definition total2_subset {X:hSet} (Y:X->hProp) : hSet
+  := hSetpair (Σ x, Y x) (isaset_total2_subset X Y).
+
+Delimit Scope set with set.
+
+Notation "'Σ'  x .. y , P" := (total2_subset (fun x => .. (total2_subset (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : subset.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Delimit Scope subset with subset.
+
+Lemma isaset_forall_hProp (X:UU) (Y:X->hProp) : isaprop (∀ x, Y x).
+Proof. intros. apply impred_isaprop. intro x. apply propproperty. Defined.
+
+Definition forall_hProp {X:UU} (Y:X->hProp) : hProp := hProppair (∀ x, Y x) (isaset_forall_hProp X Y).
+
+Notation "∀  x .. y , P" := (forall_hProp (fun x => .. (forall_hProp (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : prop.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Delimit Scope prop with prop.
+
 Definition θ {B C:Precategory} (X : [B^op, [C, SET]]) (F : [B, C]) : hSet
   := (
       Σ x : (∀ b, X ◾ b ⇒ F ◾ b) % set,
             (∀ (b b':B) (f:b→b'), F ▭ f ◎ x b = x b' ○ X ▭ f)
     ) % set.
+
+Definition θ_subset {B C:Precategory} {X : [B^op, [C, SET]]} {F : [B, C]} (t u : θ X F) :
+  pr1 t = pr1 u -> t = u.
+Proof.
+  apply subtypeEquality.
+  intros x. apply impred; intro b;apply impred; intro b'; apply impred; intro f.
+  apply setproperty.
+Defined.
 
 Definition θ_map {B C:Precategory} {X : [B^op, [C, SET]]} {F F':[B, C]} (p:F→F') :
   θ X F -> θ X F'.
@@ -141,9 +195,10 @@ Proof.
   intros X. refine (makeFunctor _ _ _ _).
   { intro F. exact (θ X F). }
   { intros F F' p xe. exact (θ_map p xe). }
-  { intros F. apply funextsec; intro xe. postponeProof. }
-  { postponeProof. }
+  { intros F. apply funextsec; intro xe. apply θ_subset.
+    simpl. apply funextsec; intro b. apply arrow_mor_id. }
+  { intros F F' F'' p q; simpl. apply funextsec; intro xe. apply θ_subset.
+    simpl. apply funextsec; intro b. apply arrow_mor_mor_assoc. }
 Defined.
 
-
-     (*  *)
+(* *)
