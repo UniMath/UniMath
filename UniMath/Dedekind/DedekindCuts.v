@@ -401,15 +401,10 @@ Definition Dcuts : tightapSet :=
     istight_Dcuts_ap_rel.
 
 Lemma not_Dcuts_ap_eq :
-  forall x y : Dcuts, (neg (x ≠ y)) = (x = y).
+  forall x y : Dcuts, ¬ (x ≠ y) -> (x = y).
 Proof.
   intros x y.
-  apply uahp'.
-  - apply isapropneg.
-  - apply (pr2 Dcuts_set).
-  - now apply istight_Dcuts_ap_rel.
-  - intros ->.
-    now apply isirrefl_Dcuts_ap_rel.
+  now apply istight_Dcuts_ap_rel.
 Qed.
 
 (** * Algebraic structures on Dcuts *)
@@ -514,13 +509,11 @@ Notation "1" := Dcuts_one : Dcuts_scope.
 (** Various usefull theorems *)
 
 Lemma Dcuts_zero_empty :
-  forall r : NonnegativeRationals, r ∈ 0 = hProppair empty isapropempty.
+  forall r : NonnegativeRationals, neg (r ∈ 0).
 Proof.
   intros r ; simpl.
-  apply uahp ; simpl.
-  - change (neg (r < 0)%NRat).
-    now apply isnonnegative_NonnegativeRationals'.
-  - easy.
+  change (neg (r < 0)%NRat).
+  now apply isnonnegative_NonnegativeRationals'.
 Qed.
 Lemma Dcuts_notempty :
   forall x : Dcuts, 0%NRat ∈ x = hexists (λ r, r ∈ x × (0 < r)%NRat).
@@ -539,7 +532,7 @@ Lemma Dcuts_notempty_notzero :
 Proof.
   intros x Hx Hx0.
   rewrite Hx0 in Hx.
-  now rewrite (Dcuts_zero_empty 0%NRat) in Hx.
+  now apply (Dcuts_zero_empty 0%NRat) in Hx.
 Qed.
 
 Lemma Dcuts_apzero_notempty :
@@ -550,7 +543,7 @@ Proof.
   apply weqtopathshProp, logeqweq ; apply hinhuniv.
   - intros [Hr|Hr] ; revert Hr.
     + apply hinhfun ; intros (r,(Xr,Or)).
-      now rewrite Dcuts_zero_empty in Or.
+      now apply Dcuts_zero_empty in Or.
     + apply hinhuniv ; intros (r,(_,Xr)).
       generalize (is_Dcuts_open _ _ Xr).
       apply hinhfun ; intros (q,(Xq,Hq)).
@@ -564,7 +557,7 @@ Proof.
     right.
     intros P HP ; apply HP ; clear P HP.
     exists r ; split.
-    now rewrite Dcuts_zero_empty.
+    now apply Dcuts_zero_empty.
     exact Xr.
 Qed.
 
@@ -1679,10 +1672,10 @@ Proof.
   apply Dcuts_eq_is_eq ; intro r ; split.
   - apply hinhuniv, sumofmaps ; apply hinhuniv.
     + apply sumofmaps ; intro Hr.
-      * now rewrite Dcuts_zero_empty in Hr.
+      * now apply Dcuts_zero_empty in Hr.
       * exact Hr.
     + intros ((r0,rx),(_,(Hr,_))).
-      now rewrite Dcuts_zero_empty in Hr.
+      now apply Dcuts_zero_empty in Hr.
   - intros Hr.
     apply hinhpr ; left.
     now apply hinhpr ; right.
@@ -1750,8 +1743,9 @@ Proof.
   intros x.
   apply Dcuts_eq_is_eq ; intro r ; split.
   - apply hinhuniv ; intros ((ri,rx),(Hr,(Or,Xr))).
-    now rewrite Dcuts_zero_empty in Or |- *.
-  - rewrite Dcuts_zero_empty.
+    now apply Dcuts_zero_empty in Or.
+  - intro Hr0.
+    apply Dcuts_zero_empty in Hr0.
     now apply fromempty.
 Qed.
 Lemma israbsorb_Dcuts_mult_zero :
@@ -2057,12 +2051,9 @@ Proof.
 Qed.
 
 Lemma Dcuts_le_ngt_rel :
-  forall x y : Dcuts, ¬ Dcuts_lt_rel x y = Dcuts_le_rel y x.
+  forall x y : Dcuts, ¬ Dcuts_lt_rel x y <-> Dcuts_le_rel y x.
 Proof.
-  intros x y.
-  apply uahp'.
-  - now apply isapropneg.
-  - now apply pr2.
+  intros x y ; split.
   - intros Hnlt r Yr.
     now apply (not_Dcuts_lt_le y x).
   - intros Hxy ; unfold neg.
@@ -2100,8 +2091,8 @@ Proof.
     + exact isstpo_Dcuts_lt_rel.
   - repeat split.
     + exact Dcuts_lt_le_rel.
-    + now rewrite Dcuts_le_ngt_rel.
-    + now rewrite Dcuts_le_ngt_rel.
+    + now apply Dcuts_le_ngt_rel.
+    + now apply (pr2 (Dcuts_le_ngt_rel _ _)).
     + exact istrans_Dcuts_lt_le_rel.
     + exact istrans_Dcuts_le_lt_rel.
 Qed.
@@ -2178,10 +2169,10 @@ Lemma Dcuts_gt_nle :
   forall x y : Dcuts, x > y -> neg (x <= y).
 Proof.
   intros x y Hlt Hle.
-  now rewrite <- Dcuts_le_ngt_rel in Hle.
+  now apply (pr2 (Dcuts_le_ngt_rel _ _)) in Hle.
 Qed.
 Lemma Dcuts_nlt_ge :
-  forall x y : Dcuts, neg (x < y) = (x >= y).
+  forall x y : Dcuts, (neg (x < y)) <-> (x >= y).
 Proof.
   intros X Y.
   now apply Dcuts_le_ngt_rel.
@@ -2640,11 +2631,13 @@ Proof.
   intros x y z.
   apply uahp ;
   change (y + x <= z + x) with (z + x >= y + x) ;
-  change (y <= z) with (z >= y) ;
-  rewrite <- ! Dcuts_nlt_ge.
-  - intros H H0 ; apply H.
+  change (y <= z) with (z >= y).
+  - intros H.
+    apply Dcuts_nlt_ge ; intro H0.
+    apply (pr2 (Dcuts_nlt_ge _ _) H).
     now rewrite plusNonnegativeReals_ltcompat_l.
-  - intros H H0 ; apply H.
+  - intros H ; apply Dcuts_nlt_ge ; intro H0 ;
+    apply (pr2 (Dcuts_nlt_ge _ _) H).
     now rewrite <- (plusNonnegativeReals_ltcompat_l x).
 Qed.
 Lemma plusNonnegativeReals_ltcompat_r :
@@ -2735,20 +2728,16 @@ Lemma multNonnegativeReals_lecompat_l :
   forall x y z: NonnegativeReals, (0 < x) -> (y * x <= z * x) -> (y <= z).
 Proof.
   intros x y z Hx0.
-  change (y * x <= z * x) with (z * x >= y * x) ;
-  change (y <= z) with (z >= y) ;
-  rewrite <- ! Dcuts_nlt_ge.
-  intros H H0 ; apply H.
+  intros H ; apply Dcuts_nlt_ge ; intro H0 ;
+  apply (pr2 (Dcuts_nlt_ge _ _) H).
   now apply multNonnegativeReals_ltcompat_l.
 Qed.
 Lemma multNonnegativeReals_lecompat_l' :
   forall x y z: NonnegativeReals, (y <= z) -> (y * x <= z * x).
 Proof.
   intros x y z.
-  change (y * x <= z * x) with (z * x >= y * x) ;
-  change (y <= z) with (z >= y) ;
-  rewrite <- ! Dcuts_nlt_ge.
-  intros H H0 ; apply H.
+  intros H ; apply Dcuts_nlt_ge ; intro H0 ;
+  apply (pr2 (Dcuts_nlt_ge _ _) H).
   now apply (multNonnegativeReals_ltcompat_l' x).
 Qed.
 
