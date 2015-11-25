@@ -93,6 +93,8 @@ Proof.
   - exact isStrongOrder_hnnq_lt.
   - intros x y.
     now apply hqlthtoleh.
+  - easy.
+  - easy.
   - intros x y z.
     now apply hqlthlehtrans.
   - intros x y z.
@@ -503,21 +505,19 @@ Proof.
 Qed.
 
 Definition ge_leNonnegativeRationals:
-  ∀ x y : NonnegativeRationals, (x >= y) = (y <= x)
+  ∀ x y : NonnegativeRationals, (x >= y) <-> (y <= x)
   := EOge_le (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition lt_gtNonnegativeRationals:
-  ∀ x y : NonnegativeRationals, (x > y) = (y < x)
+  ∀ x y : NonnegativeRationals, (x > y) <-> (y < x)
   := EOgt_lt (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition notlt_geNonnegativeRationals:
-  ∀ x y : NonnegativeRationals, (¬ (x < y)) = (y <= x)
+  ∀ x y : NonnegativeRationals, (¬ (x < y)) <-> (y <= x)
   := not_EOlt_le (X := NonnegativeRationals_EffectivelyOrderedSet).
 Lemma notge_ltNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, (¬ (y <= x)) = (x < y).
+  ∀ x y : NonnegativeRationals, (¬ (y <= x)) <-> (x < y).
 Proof.
   intros x y.
-  apply uahp'.
-  - apply isapropneg.
-  - apply pr2.
+  split.
   - now apply neghqgehtolth.
   - now apply hqlthtoneghqgeh.
 Qed.
@@ -561,32 +561,21 @@ Proof.
 Qed.
 
 Lemma NonnegativeRationals_eq0_le0 :
-  ∀ r : NonnegativeRationals, (r = 0) = (r <= 0).
+  ∀ r : NonnegativeRationals, (r <= 0) -> (r = 0).
 Proof.
-  intro r.
-  apply uahp'.
-  - apply isaproppathstoisolated.
-    intro.
-    now apply isdeceq_NonnegativeRationals.
-  - now apply pr2.
-  - intros ->.
-    apply isrefl_po.
-  - intros Hr0.
-    apply subtypeEquality_prop.
-    apply isantisymmhqleh.
-    apply Hr0.
-    apply (pr2 r).
+  intros r Hr0.
+  apply subtypeEquality_prop.
+  apply isantisymmhqleh.
+  apply Hr0.
+  apply (pr2 r).
 Qed.
 Lemma NonnegativeRationals_neq0_gt0 :
-  ∀ r : NonnegativeRationals, (r != 0) = (0 < r).
+  ∀ r : NonnegativeRationals, (r != 0) -> (0 < r).
 Proof.
-  intros r.
-  rewrite NonnegativeRationals_eq0_le0.
-  apply uahp'.
-  - now apply isapropneg.
-  - now apply pr2.
-  - now apply neghqlehtogth.
-  - now apply hqgthtoneghqleh.
+  intros r Hr0.
+  apply neghqlehtogth.
+  intro H ; apply Hr0.
+  now apply NonnegativeRationals_eq0_le0.
 Qed.
 
 Lemma ispositive_oneNonnegativeRationals : 0 < 1.
@@ -878,7 +867,7 @@ Proof.
     rewrite islunit_zeroNonnegativeRationals.
     apply plusNonnegativeRationals_le_l.
     apply lt_leNonnegativeRationals.
-    now rewrite <- notge_ltNonnegativeRationals.
+    now apply notge_ltNonnegativeRationals.
 Qed.
 
 Lemma minusNonnegativeRationals_lecompat_l :
@@ -893,7 +882,7 @@ Proof.
     exact Hkx.
   - rewrite minusNonegativeRationals_eq_zero.
     now apply isnonnegative_NonnegativeRationals.
-    now apply lt_leNonnegativeRationals ; rewrite <- notge_ltNonnegativeRationals.
+    now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
 Qed.
 Lemma minusNonnegativeRationals_lecompat_l' :
   forall k x y : NonnegativeRationals, k <= y -> x - k <= y - k -> x <= y.
@@ -905,7 +894,7 @@ Proof.
     exact H.
   - apply istrans_leNonnegativeRationals with k.
     apply lt_leNonnegativeRationals.
-    now rewrite <- notge_ltNonnegativeRationals.
+    now apply notge_ltNonnegativeRationals.
     exact Hky.
 Qed.
 
@@ -924,7 +913,7 @@ Proof.
     exact Hky.
   - rewrite minusNonegativeRationals_eq_zero.
     now apply isnonnegative_NonnegativeRationals.
-    now apply lt_leNonnegativeRationals ; rewrite <- notge_ltNonnegativeRationals.
+    now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
 Qed.
 Lemma minusNonnegativeRationals_lecompat_r' :
   forall k x y : NonnegativeRationals, x <= k -> k - y <= k - x -> x <= y.
@@ -939,7 +928,7 @@ Proof.
   - apply istrans_leNonnegativeRationals with k.
     exact Hkx.
     apply lt_leNonnegativeRationals.
-    now rewrite <- notge_ltNonnegativeRationals.
+    now apply notge_ltNonnegativeRationals.
 Qed.
 
 Lemma minusNonnegativeRationals_ltcompat_l:
@@ -950,7 +939,7 @@ Proof.
   - rewrite minusNonegativeRationals_eq_zero, minusNonnegativeRationals_gt0.
     exact Hyz.
     exact Hxz.
-  - rewrite (notge_ltNonnegativeRationals z x) in Hxz.
+  - apply (notge_ltNonnegativeRationals z x) in Hxz.
     rewrite <- (plusNonnegativeRationals_ltcompat_r z), !minusNonegativeRationals_plus_r.
     exact Hxy.
     now apply lt_leNonnegativeRationals, Hyz.
@@ -968,7 +957,7 @@ Proof.
   case (isdecrel_leNonnegativeRationals x z) ; intro Hxz.
   - apply istrans_le_lt_ltNonnegativeRationals with (1 := Hxz).
     exact Hyz.
-  - rewrite notge_ltNonnegativeRationals in Hxz ;
+  - apply notge_ltNonnegativeRationals in Hxz ;
     apply lt_leNonnegativeRationals in Hxz.
     apply lt_leNonnegativeRationals in Hyz.
     rewrite <- (minusNonegativeRationals_plus_r _ _ Hxz), <- (minusNonegativeRationals_plus_r _ _ Hyz).
@@ -990,16 +979,16 @@ Proof.
     exact Hky.
   - rewrite minusNonegativeRationals_eq_zero.
     now rewrite minusNonnegativeRationals_gt0.
-    now apply lt_leNonnegativeRationals ; rewrite <- notge_ltNonnegativeRationals.
+    now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
 Qed.
 Lemma minusNonnegativeRationals_ltcompat_r':
   ∀ x y z : NonnegativeRationals, z - y < z - x -> x < y.
 Proof.
   intros x y z H.
-  rewrite <- notge_ltNonnegativeRationals.
+  apply notge_ltNonnegativeRationals.
   intro H0 ; revert H.
   change (neg (z - y < z - x)).
-  rewrite notlt_geNonnegativeRationals.
+  apply notlt_geNonnegativeRationals.
   now apply minusNonnegativeRationals_lecompat_r, H0.
 Qed.
 
@@ -1093,13 +1082,14 @@ Proof.
   intros k x y Hk0 H.
   rewrite <- (islunit_oneNonnegativeRationals x).
   change 1 with (1%dr : NonnegativeRationals).
-  rewrite <- NonnegativeRationals_neq0_gt0 in Hk0.
-  rewrite <- (CommDivRig_islinv k Hk0).
+  assert (Hk : k != 0).
+  { apply gtNonnegativeRationals_noteq, Hk0. }
+  rewrite <- (CommDivRig_islinv k Hk).
   rewrite isassoc_multNonnegativeRationals.
   rewrite H.
   rewrite <- isassoc_multNonnegativeRationals.
-  change ((/ (k,, Hk0))%dr * k) with (/ (k,, Hk0) * k)%dr.
-  rewrite (CommDivRig_islinv k Hk0).
+  change ((/ (k,, Hk))%dr * k) with (/ (k,, Hk) * k)%dr.
+  rewrite (CommDivRig_islinv k Hk).
   now apply islunit_oneNonnegativeRationals.
 Qed.
 Lemma multNonnegativeRationals_eqcompat_r:
@@ -1184,7 +1174,7 @@ Proof.
     now apply israbsorb_zero_multNonnegativeRationals.
     now apply multNonnegativeRationals_lecompat_l, Hle.
     exact Hle.
-  - rewrite notge_ltNonnegativeRationals in Hlt ;
+  - apply notge_ltNonnegativeRationals in Hlt ;
     apply lt_leNonnegativeRationals in Hlt.
     apply plusNonnegativeRationals_eqcompat_r with (z * y).
     rewrite <- isldistr_mult_plusNonnegativeRationals.
@@ -1207,18 +1197,19 @@ Qed.
 Definition islinv_NonnegativeRationals:
   ∀ x : NonnegativeRationals, 0 < x -> / x * x = 1.
 Proof.
-  intros x.
-  rewrite <- NonnegativeRationals_neq0_gt0.
-  revert x.
+  intros x Hx0.
+  assert (Hx : x != 0).
+  { apply gtNonnegativeRationals_noteq, Hx0. }
+  clear Hx0.
+  revert x Hx.
   apply @CommDivRig_islinv.
 Qed.
 Definition isrinv_NonnegativeRationals:
   ∀ x : NonnegativeRationals, 0 < x -> x * / x = 1.
 Proof.
   intros x.
-  rewrite <- NonnegativeRationals_neq0_gt0.
-  revert x.
-  apply @CommDivRig_isrinv.
+  rewrite iscomm_multNonnegativeRationals.
+  now apply islinv_NonnegativeRationals.
 Qed.
 
 Local Lemma inv_zeroNonnegativeRationals :
@@ -1239,7 +1230,7 @@ Proof.
     islabsorb_zero_multNonnegativeRationals,
     isrinv_NonnegativeRationals.
     + exact ispositive_oneNonnegativeRationals.
-    + rewrite <- NonnegativeRationals_neq0_gt0 ; intros Hx0.
+    + apply NonnegativeRationals_neq0_gt0 ; intros Hx0.
       revert Hx ; rewrite Hx0.
       unfold invNonnegativeRationals, hnnq_inv.
       destruct hqlehchoice as [Hx | Hx].
@@ -1250,7 +1241,7 @@ Proof.
     israbsorb_zero_multNonnegativeRationals,
     isrinv_NonnegativeRationals.
     + exact ispositive_oneNonnegativeRationals.
-    + rewrite <- NonnegativeRationals_neq0_gt0 ; intros Hx0.
+    + apply NonnegativeRationals_neq0_gt0 ; intros Hx0.
       revert Hx ; rewrite Hx0.
       now apply isirrefl_ltNonnegativeRationals.
 Qed.
@@ -1303,10 +1294,10 @@ Lemma invNonnegativeRationals_ltcompat :
   forall x y : NonnegativeRationals, 0 < x -> x < y -> / y < / x.
 Proof.
   intros x y Hx0 Hxy.
-  rewrite <- notge_ltNonnegativeRationals.
+  apply notge_ltNonnegativeRationals.
   intros H ; revert Hxy.
   change (neg (x < y)).
-  rewrite notlt_geNonnegativeRationals.
+  apply notlt_geNonnegativeRationals.
   apply invNonnegativeRationals_lecompat'.
   exact Hx0.
   exact H.
@@ -1409,9 +1400,9 @@ Lemma divNonnegativeRationals_le1 :
 Proof.
   intros q r Hrq.
   destruct (eq0orgt0NonnegativeRationals r) as [Hr0 | Hr0].
-  - rewrite Hr0, <- NonnegativeRationals_eq0_le0 in Hrq.
-    unfold divNonnegativeRationals.
-    rewrite Hrq, islabsorb_zero_multNonnegativeRationals.
+  - unfold divNonnegativeRationals.
+    rewrite Hr0, inv_zeroNonnegativeRationals.
+    rewrite israbsorb_zero_multNonnegativeRationals.
     now apply isnonnegative_NonnegativeRationals.
   - apply (multNonnegativeRationals_lecompat_r' r).
     exact Hr0.
@@ -1469,13 +1460,13 @@ Proof.
   intros x y.
   unfold NQmax.
   destruct isdecrel_leNonnegativeRationals as [Hle | Hlt] ; intro H ; split.
-  - rewrite NonnegativeRationals_eq0_le0.
+  - apply NonnegativeRationals_eq0_le0.
     apply istrans_leNonnegativeRationals with (1 := Hle).
-    now rewrite <- NonnegativeRationals_eq0_le0.
+    now rewrite H ; apply isrefl_leNonnegativeRationals.
   - exact H.
   - exact H.
-  - rewrite NonnegativeRationals_eq0_le0, <- H.
-    now apply lt_leNonnegativeRationals ; rewrite <- notge_ltNonnegativeRationals.
+  - apply NonnegativeRationals_eq0_le0 ; rewrite <- H.
+    now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
 Qed.
 Lemma NQmax_case :
   ∀ (P : NonnegativeRationals -> UU),
@@ -1494,7 +1485,7 @@ Proof.
   destruct isdecrel_leNonnegativeRationals as [Hle | Hlt].
   - now apply Hy.
   - apply Hx.
-    now apply lt_leNonnegativeRationals ; rewrite <- notge_ltNonnegativeRationals.
+    now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
 Qed.
 Lemma iscomm_NQmax :
   ∀ x y, NQmax x y = NQmax y x.

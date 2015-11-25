@@ -194,7 +194,7 @@ Qed.
 Definition isEffectiveOrder {X : UU} (le lt : hrel X) :=
   dirprod ((ispreorder le) × (isStrongOrder lt))
           ((forall x y : X, lt x y -> le x y)
-             × (forall x y : X, (¬ lt x y) = (le y x))
+             × (forall x y : X, (¬ lt x y) <-> (le y x))
              × (forall x y z : X, lt x y -> le y z -> lt x z)
              × (forall x y z : X, le x y -> lt y z -> lt x z)).
 Definition EffectiveOrder (X : UU) :=
@@ -251,17 +251,17 @@ Context {X : EffectivelyOrderedSet}.
 Open Scope eo_scope.
 
 Definition not_EOlt_le :
-  ∀ x y : X, (¬ (x < y)) = (y <= x)
+  ∀ x y : X, (¬ (x < y)) <-> (y <= x)
   := (pr1 (pr2 (pr2 (pr2 (pr2 X))))).
 Lemma EOge_le:
-  ∀ x y : X, (x >= y) = (y <= x).
+  ∀ x y : X, (x >= y) <-> (y <= x).
 Proof.
-  reflexivity.
+  now split.
 Qed.
 Lemma EOgt_lt:
-  ∀ x y : X, (x > y) = (y < x).
+  ∀ x y : X, (x > y) <-> (y < x).
 Proof.
-  reflexivity.
+  now split.
 Qed.
 
 Definition EOlt_le :
