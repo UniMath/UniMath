@@ -106,11 +106,11 @@ Proof.
   apply setproperty.
 Defined.
 
-Definition θ_map_1 {B C:Precategory} {X : [B^op, [C, SET]]} {F F':[B, C]} :
+Definition θ_map_1 {B C:Precategory} {X : [B^op, [C, SET]]^op} {F F':[B, C]} :
   X ⟹ F -> F → F' -> θ_1 X F'
   := λ xe p (b:B), p ◽ b ⟳ pr1 xe b.
 
-Definition θ_map_2 {B C:Precategory} {X : [B^op, [C, SET]]} {F F':[B, C]}
+Definition θ_map_2 {B C:Precategory} {X : [B^op, [C, SET]]^op} {F F':[B, C]}
   (xe : X ⟹ F) (p : F → F') : θ_2 X F' (θ_map_1 xe p).
 Proof.
   induction xe as [x e]. unfold θ_map_1; unfold θ_1 in x; unfold θ_2 in e.
@@ -123,21 +123,53 @@ Proof.
   reflexivity.
 Qed.
 
-Definition θ_map {B C:Precategory} {X : [B^op, [C, SET]]} {F F':[B, C]} :
+Definition θ_map {B C:Precategory} {X : [B^op, [C, SET]]^op} {F F':[B, C]} :
   X ⟹ F -> F → F' -> X ⟹ F'
   := λ xe p, θ_map_1 xe p ,, θ_map_2 xe p.
 
 Notation "xe ⟲⟲ p" := (θ_map xe p) (at level 50) : cat. (* ⟲ agda-input \l C-N C-N C-N 2 the first time, \l the second time *)
 
-Definition bifunctor_assoc {B C:Precategory} : [B^op, [C,SET]] -> [[B,C],SET].
+Definition φ_map_1 {B C:Precategory} {X X': [B^op, [C, SET]]^op} {F:[B, C]} :
+  X' → X -> X ⟹ F -> θ_1 X' F
+  := λ p x b, pr1 x b ⟲ p ◽ b.
+
+Definition φ_map_2 {B C:Precategory} {X X': [B^op, [C, SET]]^op} {F:[B, C]}
+  (p : X' → X) (x : X ⟹ F) : θ_2 X' F (φ_map_1 p x).
 Proof.
-  intros X. refine (makeFunctor _ _ _ _).
-  { intro F. exact (X ⟹ F). }
-  { intros F F' p xe. exact (xe ⟲⟲ p). }
-  { intros F. apply funextsec; intro xe. apply θ_subset.
-    simpl. apply funextsec; intro b. apply arrow_mor_id. }
-  { intros F F' F'' p q; simpl. apply funextsec; intro xe. apply θ_subset.
-    simpl. apply funextsec; intro b. apply arrow_mor_mor_assoc. }
+  induction x as [x e]. unfold φ_map_1; unfold θ_1 in x; unfold θ_2 in e; unfold θ_2.
+  intros b b' f; simpl.
+  rewrite nattrans_arrow_mor_assoc.
+  rewrite e.
+  rewrite 2? nattrans_nattrans_arrow_assoc.
+  exact (maponpaths (λ k, x b' ⟲ k) (nattrans_naturality p f)).
+Qed.
+
+Definition φ_map {B C:Precategory} {X X': [B^op, [C, SET]]^op} {F:[B, C]} :
+  X' → X -> X ⟹ F -> X' ⟹ F
+  := λ p x, φ_map_1 p x,, φ_map_2 p x.
+
+Definition bifunctor_assoc {B C:Precategory} : [B^op, [C,SET]] ==> [[B,C],SET].
+Proof.
+  refine (makeFunctor _ _ _ _).
+  { intros X.
+    refine (makeFunctor _ _ _ _).
+    { intro F. exact (X ⟹ F). }
+    { intros F F' p xe. exact (xe ⟲⟲ p). }
+    { abstract (
+          intros F; apply funextsec; intro xe; apply θ_subset;
+          simpl; apply funextsec; intro b; apply arrow_mor_id) using K. }
+    { abstract (
+          intros F F' F'' p q; simpl; apply funextsec; intro xe; apply θ_subset;
+          simpl; apply funextsec; intro b; apply arrow_mor_mor_assoc) using K. } }
+  { intros X Y p. simpl.
+    refine (_,,_).
+    { intros F. simpl. intro x. exact (φ_map p x). }
+    { postponeProof. } }
+  { intros X.
+
+
+
+
 Defined.
 
 (* *)
