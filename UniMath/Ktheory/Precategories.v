@@ -240,7 +240,7 @@ Definition functor_mor_application {B C:Precategory} {b b':B} (F:[B,C]) :
   := λ f, # (F:_==>_) f.
 Notation "F ▭ f" := (functor_mor_application F f) (at level 40, left associativity) : cat. (* \rew1 *)
 
-Definition arrow {C:Precategory} (X : [C,SET]) (c : C) : hSet := (X:_==>_) c.
+Definition arrow {C:Precategory} (X : [C,SET]) (c : C) : hSet := X ◾ c.
 Notation "X ⇒ c" := (arrow X c)  (at level 50) : cat. (* \r= *)
 
 Definition arrow_morphism_composition {C:Precategory} {X:[C,SET]} {c c':C} :

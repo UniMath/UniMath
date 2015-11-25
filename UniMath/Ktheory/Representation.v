@@ -98,10 +98,10 @@ Definition universalMapUniqueness' {C:Precategory} {X:[C,SET]} {r:Representation
   f = x // r -> f ⟳ r = x
   := pathsweq1' (universalProperty r c) f x.
 
-Lemma universalMapNaturality {C:Precategory} {a:C} {Y Z:[C,SET]}
+Lemma universalMapNaturality {C:Precategory} {a:C} {Y Z:[C,SET]^op}
       (s : Representation Y)
       (t : Representation Z)
-      (q : Y → Z) (f : universalObject s → a) :
+      (q : Z → Y) (f : universalObject s → a) :
   f ∘ (s ⟲ q // t) = f ⟳ s ⟲ q // t.
 Proof.
   (* This lemma says that if the source and target of a natural transformation
