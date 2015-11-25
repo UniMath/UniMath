@@ -461,10 +461,10 @@ Definition NonnegativeRationals_to_Dcuts (q : NonnegativeRationals) : Dcuts :=
 Local Lemma isapfun_NonnegativeRationals_to_Dcuts_aux :
   forall q q' : NonnegativeRationals,
     NonnegativeRationals_to_Dcuts q < NonnegativeRationals_to_Dcuts q'
-    = (q < q')%NRat.
+    <-> (q < q')%NRat.
 Proof.
   intros q q'.
-  apply uahp.
+  split.
   - apply hinhuniv.
     intros (r,(Qr,Q'r)).
     apply istrans_le_lt_ltNonnegativeRationals with r.
@@ -485,9 +485,9 @@ Proof.
   intros q q'.
   apply (hinhuniv (P := hProppair _ (isapropneg _))).
   intros [Hap | Hap].
-  now apply ltNonnegativeRationals_noteq ; rewrite <- isapfun_NonnegativeRationals_to_Dcuts_aux.
+  now apply ltNonnegativeRationals_noteq ; apply isapfun_NonnegativeRationals_to_Dcuts_aux.
   apply gtNonnegativeRationals_noteq ; apply (pr2 (lt_gtNonnegativeRationals _ _)).
-  now rewrite <- isapfun_NonnegativeRationals_to_Dcuts_aux.
+  now apply isapfun_NonnegativeRationals_to_Dcuts_aux.
 Qed.
 Lemma isapfun_NonnegativeRationals_to_Dcuts' :
   forall q q' : NonnegativeRationals,
@@ -496,8 +496,10 @@ Lemma isapfun_NonnegativeRationals_to_Dcuts' :
 Proof.
   intros q q' H.
   apply hinhpr.
-  rewrite ! isapfun_NonnegativeRationals_to_Dcuts_aux.
-  now apply noteq_ltorgtNonnegativeRationals.
+  apply noteq_ltorgtNonnegativeRationals in H.
+  destruct H.
+  now left ; apply (pr2 (isapfun_NonnegativeRationals_to_Dcuts_aux _ _)).
+  now right ; apply (pr2 (isapfun_NonnegativeRationals_to_Dcuts_aux _ _)).
 Qed.
 
 Definition Dcuts_zero : Dcuts := NonnegativeRationals_to_Dcuts 0%NRat.
