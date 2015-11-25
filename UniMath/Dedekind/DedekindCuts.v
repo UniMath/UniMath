@@ -480,26 +480,20 @@ Qed.
 Lemma isapfun_NonnegativeRationals_to_Dcuts :
   forall q q' : NonnegativeRationals,
     NonnegativeRationals_to_Dcuts q ≠ NonnegativeRationals_to_Dcuts q'
-    -> q != q'.
+    <-> q != q'.
 Proof.
   intros q q'.
-  apply (hinhuniv (P := hProppair _ (isapropneg _))).
-  intros [Hap | Hap].
-  now apply ltNonnegativeRationals_noteq ; apply isapfun_NonnegativeRationals_to_Dcuts_aux.
-  apply gtNonnegativeRationals_noteq ; apply (pr2 (lt_gtNonnegativeRationals _ _)).
-  now apply isapfun_NonnegativeRationals_to_Dcuts_aux.
-Qed.
-Lemma isapfun_NonnegativeRationals_to_Dcuts' :
-  forall q q' : NonnegativeRationals,
-    q != q'
-    -> NonnegativeRationals_to_Dcuts q ≠ NonnegativeRationals_to_Dcuts q'.
-Proof.
-  intros q q' H.
-  apply hinhpr.
-  apply noteq_ltorgtNonnegativeRationals in H.
-  destruct H.
-  now left ; apply (pr2 (isapfun_NonnegativeRationals_to_Dcuts_aux _ _)).
-  now right ; apply (pr2 (isapfun_NonnegativeRationals_to_Dcuts_aux _ _)).
+  split.
+  - apply (hinhuniv (P := hProppair _ (isapropneg _))).
+    intros [Hap | Hap].
+    now apply ltNonnegativeRationals_noteq ; apply isapfun_NonnegativeRationals_to_Dcuts_aux.
+    apply gtNonnegativeRationals_noteq ; apply_logeq lt_gtNonnegativeRationals.
+    now apply isapfun_NonnegativeRationals_to_Dcuts_aux.
+  - intro H ; apply hinhpr.
+    apply noteq_ltorgtNonnegativeRationals in H.
+    destruct H.
+    now left ; apply_logeq isapfun_NonnegativeRationals_to_Dcuts_aux.
+    now right ; apply_logeq isapfun_NonnegativeRationals_to_Dcuts_aux.
 Qed.
 
 Definition Dcuts_zero : Dcuts := NonnegativeRationals_to_Dcuts 0%NRat.
@@ -872,7 +866,7 @@ Proof.
   intros (ry,(Hz,Yr)) ; simpl in Hz,Yr.
   revert Hz.
   apply gtNonnegativeRationals_noteq.
-  apply (pr2 (lt_gtNonnegativeRationals _ _)).
+  apply_logeq lt_gtNonnegativeRationals.
   rewrite (multNonnegativeRationals_ltcompat_l x ry y Hx).
   apply notge_ltNonnegativeRationals.
   intro Hy' ; apply Hy.
@@ -891,7 +885,7 @@ Proof.
     revert Hz.
     apply gtNonnegativeRationals_noteq.
     rewrite <- (multdivNonnegativeRationals c x).
-    apply (pr2 (lt_gtNonnegativeRationals _ _)).
+    apply_logeq lt_gtNonnegativeRationals.
     rewrite (multNonnegativeRationals_ltcompat_l x ry (c / x)%NRat Hx).
     apply notge_ltNonnegativeRationals.
     intro Hy' ; apply Hy.
@@ -909,7 +903,7 @@ Proof.
       revert Hz.
       apply gtNonnegativeRationals_noteq.
       rewrite <- (multdivNonnegativeRationals c x), <-isldistr_mult_plusNonnegativeRationals.
-      apply (pr2 (lt_gtNonnegativeRationals _ _)).
+      apply_logeq lt_gtNonnegativeRationals.
       rewrite (multNonnegativeRationals_ltcompat_l x ry (q + c / x)%NRat Hx).
       apply notge_ltNonnegativeRationals.
       intro Hy' ; apply nYq.
@@ -1836,7 +1830,7 @@ Qed.
 
 Definition Dcuts_ap_one_zero : 1 ≠ 0.
 Proof.
-  apply isapfun_NonnegativeRationals_to_Dcuts'.
+  apply_logeq isapfun_NonnegativeRationals_to_Dcuts.
   apply gtNonnegativeRationals_noteq.
   exact ispositive_oneNonnegativeRationals.
 Qed.
@@ -2094,7 +2088,7 @@ Proof.
   - repeat split.
     + exact Dcuts_lt_le_rel.
     + now apply Dcuts_le_ngt_rel.
-    + now apply (pr2 (Dcuts_le_ngt_rel _ _)).
+    + now intro ; apply_logeq Dcuts_le_ngt_rel.
     + exact istrans_Dcuts_lt_le_rel.
     + exact istrans_Dcuts_le_lt_rel.
 Qed.

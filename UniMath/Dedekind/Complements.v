@@ -152,3 +152,15 @@ Proof.
 Qed.
 
 Close Scope hq_scope.
+
+(** ** A new tactic *)
+
+Ltac apply_logeq T :=
+  try (refine (pr1 (T) _)) ;
+  try (refine (pr2 (T) _)) ;
+  try (refine (pr1 (T _) _)) ;
+  try (refine (pr2 (T _) _)) ;
+  try (refine (pr1 (T _ _) _)) ;
+  try (refine (pr2 (T _ _) _)) ;
+  try (refine (pr1 (T _ _ _) _)) ;
+  try (refine (pr2 (T _ _ _) _)).
