@@ -46,15 +46,15 @@ Proof.
   generalize (Hx 0%NRat) ; apply hinhfun ; intros [Hx0 | Hx0].
   - right ; intro H.
     rewrite H in Hx0.
-    now rewrite Dcuts_zero_empty in Hx0.
+    now apply Dcuts_zero_empty in Hx0.
   - left ; apply Dcuts_eq_is_eq.
     split.
     + intros Hr.
-      rewrite Dcuts_zero_empty.
+      apply fromempty.
       apply Hx0.
       apply (is_Dcuts_bot x r).
       now apply Hr.
       apply isnonnegative_NonnegativeRationals.
     + intros Hr.
-      now rewrite Dcuts_zero_empty in Hr.
+      now apply Dcuts_zero_empty in Hr.
 Qed.
