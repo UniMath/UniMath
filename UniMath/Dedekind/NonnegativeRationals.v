@@ -281,10 +281,10 @@ Definition ltNonnegativeRationals : StrongOrder NonnegativeRationals :=
 Definition gtNonnegativeRationals : StrongOrder NonnegativeRationals :=
   EOgt (X := NonnegativeRationals_EffectivelyOrderedSet).
 
-Notation "x <= y" := (EOle_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) : NRat_scope.
-Notation "x >= y" := (EOge_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) : NRat_scope.
-Notation "x < y" := (EOlt_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) : NRat_scope.
-Notation "x > y" := (EOgt_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) : NRat_scope.
+Notation "x <= y" := (EOle_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) (at level 70, no associativity) : NRat_scope.
+Notation "x >= y" := (EOge_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) (at level 70, no associativity) : NRat_scope.
+Notation "x < y" := (EOlt_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) (at level 70, no associativity) : NRat_scope.
+Notation "x > y" := (EOgt_rel (X := NonnegativeRationals_EffectivelyOrderedSet) x y) (at level 70, no associativity) : NRat_scope.
 
 Definition zeroNonnegativeRationals : NonnegativeRationals := hnnq_zero.
 Definition oneNonnegativeRationals : NonnegativeRationals := hnnq_one.
@@ -307,11 +307,11 @@ Notation "0" := zeroNonnegativeRationals : NRat_scope.
 Notation "1" := oneNonnegativeRationals : NRat_scope.
 Notation "2" := twoNonnegativeRationals : NRat_scope.
 
-Notation "x + y" := (plusNonnegativeRationals x y) : NRat_scope.
-Notation "x - y" := (minusNonnegativeRationals x y) : NRat_scope.
-Notation "x * y" := (multNonnegativeRationals x y) : NRat_scope.
-Notation "/ x" := (invNonnegativeRationals x) : NRat_scope.
-Notation "x / y" := (divNonnegativeRationals x y) : NRat_scope.
+Notation "x + y" := (plusNonnegativeRationals x y) (at level 50, left associativity) : NRat_scope.
+Notation "x - y" := (minusNonnegativeRationals x y) (at level 50, left associativity) : NRat_scope.
+Notation "x * y" := (multNonnegativeRationals x y) (at level 40, left associativity) : NRat_scope.
+Notation "/ x" := (invNonnegativeRationals x) (at level 35, right associativity) : NRat_scope.
+Notation "x / y" := (divNonnegativeRationals x y) (at level 40, left associativity) : NRat_scope.
 
 Open Scope NRat_scope.
 

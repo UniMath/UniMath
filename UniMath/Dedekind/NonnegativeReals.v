@@ -2916,8 +2916,44 @@ Qed.
 
 (** *** Dcuts_half *)
 
-Definition Dcuts_two : Dcuts.
-Defined.
+Definition Dcuts_two : Dcuts :=
+  NonnegativeRationals_to_Dcuts 2.
+Lemma Dcuts_two_ap_zero : Dcuts_two ≠ 0.
+Proof.
+  apply isapfun_NonnegativeRationals_to_Dcuts'.
+  apply gtNonnegativeRationals_noteq.
+  exact ispositive_twoNonnegativeRationals.
+Qed.
+
+Definition Dcuts_half (x : Dcuts) : Dcuts := Dcuts_mult x (Dcuts_inv Dcuts_two Dcuts_two_ap_zero).
+
+Lemma ispositive_Dcuts_half:
+  ∀ x : Dcuts, (0 < x) = (0 < Dcuts_half x).
+Proof.
+  intros.
+  unfold Dcuts_half.
+  pattern 0 at 2 ; rewrite <- (islabsorb_Dcuts_mult_zero (Dcuts_inv Dcuts_two Dcuts_two_ap_zero)).
+  apply uahp.
+  - intro Hx0.
+    apply Dcuts_mult_ltcompat_l.
+    apply Dcuts_mult_ltcompat_l' with Dcuts_two.
+    rewrite islabsorb_Dcuts_mult_zero, islinv_Dcuts_inv.
+    unfold Dcuts_zero, Dcuts_one.
+    rewrite (isapfun_NonnegativeRationals_to_Dcuts_aux 0%NRat 1%NRat).
+    now apply ispositive_oneNonnegativeRationals.
+    exact Hx0.
+  - now apply Dcuts_mult_ltcompat_l'.
+Qed.
+Lemma isdistr_Dcuts_half_plus :
+  forall x y : Dcuts, Dcuts_half (Dcuts_plus x y) = Dcuts_plus (Dcuts_half x) (Dcuts_half y).
+Admitted.
+Lemma isdistr_Dcuts_half_minus :
+  forall x y : Dcuts, Dcuts_half (Dcuts_minus x y) = Dcuts_minus (Dcuts_half x) (Dcuts_half y).
+Admitted.
+Lemma double_Dcuts_half :
+  ∀ x : Dcuts, x = Dcuts_plus (Dcuts_half x) (Dcuts_half x).
+Admitted.
+
 
 (** ** Least Upper Finite *)
 
@@ -3173,6 +3209,7 @@ Definition twoNonnegativeReals : NonnegativeReals := Dcuts_two.
 Definition plusNonnegativeReals : binop NonnegativeReals := CCDRplus.
 Definition minusNonnegativeReals : binop NonnegativeReals := Dcuts_minus.
 Definition multNonnegativeReals : binop NonnegativeReals := CCDRmult.
+Definition halfNonnegativeReals : unop NonnegativeReals := Dcuts_half.
 
 Delimit Scope NR_scope with NR.
 Open Scope NR_scope.
@@ -3180,9 +3217,11 @@ Open Scope NR_scope.
 Notation "x ≠ y" := (apNonnegativeReals x y) (at level 70, no associativity) : NR_scope.
 Notation "0" := zeroNonnegativeReals : NR_scope.
 Notation "1" := oneNonnegativeReals : NR_scope.
-Notation "x + y" := (plusNonnegativeReals x y) : NR_scope.
-Notation "x - y" := (minusNonnegativeReals x y) : NR_scope.
-Notation "x * y" := (multNonnegativeReals x y) : NR_scope.
+Notation "2" := twoNonnegativeReals : NR_scope.
+Notation "x + y" := (plusNonnegativeReals x y) (at level 50, left associativity) : NR_scope.
+Notation "x - y" := (minusNonnegativeReals x y) (at level 50, left associativity) : NR_scope.
+Notation "x * y" := (multNonnegativeReals x y) (at level 40, left associativity) : NR_scope.
+Notation "x / 2" := (halfNonnegativeReals x) (at level 35, no associativity) : NR_scope.
 
 Definition invNonnegativeReals (x : NonnegativeReals) (Hx0 : x ≠ 0) : NonnegativeReals :=
   CCDRinv x Hx0.
@@ -3196,9 +3235,14 @@ Definition geNonnegativeReals : po NonnegativeReals := Dcuts_ge.
 Definition ltNonnegativeReals : StrongOrder NonnegativeReals := Dcuts_lt.
 Definition gtNonnegativeReals : StrongOrder NonnegativeReals := Dcuts_gt.
 
-Definition lubNonnegativeReals (E : hsubtypes NonnegativeReals) Eub :
+Definition lubNonnegativeReals (E : hsubtypes NonnegativeReals)
+           (Eub : ∀ c : NonnegativeReals,
+               0 < c ->
+               isUpperBound (X := eo_Dcuts) E c
+               ∨ hexists (λ x : Dcuts, E x × isUpperBound (X := eo_Dcuts) E (x + c))) :
   LeastUpperBound (X := eo_Dcuts) E :=
   tpair _ (Dcuts_lub E Eub) (islub_Dcuts_lub E Eub).
+
 (*Definition glbNonnegativeReals (E : hsubtypes NonnegativeReals) (Ene : hexists E) : GreatestLowerBound (X := eo_Dcuts) E :=
   tpair _ (Dcuts_glb E Ene) (isglb_Dcuts_glb E Ene).*)
 
@@ -3240,6 +3284,25 @@ Definition isassoc_plusNonnegativeReals:
 Definition iscomm_plusNonnegativeReals:
   ∀ x y : NonnegativeReals, x + y = y + x
   := iscomm_CCDRplus (X := NonnegativeReals).
+
+Definition ispositive_minusNonnegativeReals :
+  ∀ x y : NonnegativeReals, (0 < x - y) = (y < x)
+  := ispositive_Dcuts_minus.
+Definition minusNonnegativeReals_le :
+  ∀ x y : NonnegativeReals, x - y <= x
+  := Dcuts_minus_le.
+Definition minusNonnegativeReals_plus_r :
+  ∀ x y z : NonnegativeReals, z <= y -> x = y - z -> y = x + z
+  := Dcuts_minus_plus_r.
+Definition minusNonnegativeReals_eq_zero :
+  ∀ x y : NonnegativeReals, x <= y -> x - y = 0
+  := Dcuts_minus_eq_zero.
+Definition minusNonnegativeReals_correct_r :
+  ∀ x y z : NonnegativeReals, x = y + z -> y = x - z
+  := Dcuts_minus_correct_r.
+Definition minusNonnegativeReals_correct_l :
+  ∀ x y z : NonnegativeReals, x = y + z -> z = x - y
+  := Dcuts_minus_correct_l.
 
 Definition islunit_one_multNonnegativeReals:
   ∀ x : NonnegativeReals, 1 * x = x
@@ -3317,51 +3380,125 @@ Definition Cauchy_seq (u : nat -> NonnegativeReals) : hProp
                    0 < eps ->
                    hexists
                      (λ N : nat,
-                            ∀ n m : nat, N ≤ n -> N ≤ m -> u n <= u m + eps × u m <= u n + eps))
+                            ∀ n m : nat, N ≤ n -> N ≤ m -> u n < u m + eps × u m < u n + eps))
                (impred_isaprop _ (λ _, isapropimpl _ _ (pr2 _))).
 Definition is_lim_seq (u : nat -> NonnegativeReals) (l : NonnegativeReals) : hProp
   := hProppair (∀ eps : NonnegativeReals,
                    0 < eps ->
                    hexists
                      (λ N : nat,
-                            ∀ n : nat, N ≤ n -> u n <= l + eps × l <= u n + eps))
+                            ∀ n : nat, N ≤ n -> u n < l + eps × l < u n + eps))
                (impred_isaprop _ (λ _, isapropimpl _ _ (pr2 _))).
+Lemma max_le_l : ∀ n m : nat, (n <= Nat.max n m)%nat.
+Admitted.
+Lemma max_le_r : ∀ n m : nat, (m <= Nat.max n m)%nat.
+Admitted.
 
 Lemma is_lim_seq_unique_aux (u : nat -> NonnegativeReals) (l l' : NonnegativeReals) :
   is_lim_seq u l -> is_lim_seq u l' -> l < l' -> empty.
 Proof.
   intros u l l' Hl Hl' Hlt.
-  assert (0 < l' - l).
-  { admit. }
-(*  assert (0 < (l' - l) / 2).
-  { admit. }*)
+  assert (Hlt0 : 0 < l' - l).
+  { now rewrite ispositive_minusNonnegativeReals. }
+  assert (Hlt0' : 0 < (l' - l) / 2).
+  { now rewrite <- ispositive_Dcuts_half. }
+  generalize (Hl _ Hlt0') (Hl' _ Hlt0') ; clear Hl Hl'.
+  apply (hinhuniv2 (P := hProppair _ isapropempty)).
+  intros (N,Hn) (M,Hm).
+  specialize (Hn (Nat.max N M) (max_le_l _ _)).
+  specialize (Hm (Nat.max N M) (max_le_r _ _)).
+  apply (isirrefl_Dcuts_lt_rel ((l + l') / 2)).
+  apply istrans_Dcuts_lt_rel with (u (Nat.max N M)).
+  - rewrite <- (plusNonnegativeReals_ltcompat_l ((l' - l) / 2)).
+    rewrite <- isdistr_Dcuts_half_plus.
+    rewrite (iscomm_plusNonnegativeReals l), isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals l).
+    rewrite <- (minusNonnegativeReals_plus_r (l' - l) l' l), isdistr_Dcuts_half_plus, <- double_Dcuts_half.
+    exact (pr2 Hm).
+    now apply Dcuts_lt_le_rel.
+    reflexivity.
+  - rewrite (minusNonnegativeReals_plus_r (l' - l) l' l), (iscomm_plusNonnegativeReals _ l), <- isassoc_plusNonnegativeReals, !isdistr_Dcuts_half_plus, <-double_Dcuts_half.
+    exact (pr1 Hn).
+    now apply Dcuts_lt_le_rel.
+    reflexivity.
 Qed.
 Lemma is_lim_seq_unique (u : nat -> NonnegativeReals) (l l' : NonnegativeReals) :
-  is_lim_seq u l -> is_lim_seq u l' -> l = l.
+  is_lim_seq u l -> is_lim_seq u l' -> l = l'.
 Proof.
   intros u l l' Hl Hl'.
   rewrite <- notapNonnegativeReals_eq.
-
+  unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; intros [ | ].
+  - now apply (is_lim_seq_unique_aux u).
+  - now apply (is_lim_seq_unique_aux u).
 Qed.
 Definition ex_lim_seq  (u : nat -> NonnegativeReals) : hProp.
 Proof.
+  intro u.
+  apply (hProppair (Σ l : NonnegativeReals, is_lim_seq u l)).
+  intros Hl Hl'.
+  apply (iscontrweqf (X := (pr1 Hl = pr1 Hl'))).
+  now apply invweq, total2_paths_hProp_equiv.
+  rewrite (is_lim_seq_unique _ _ _ (pr2 Hl) (pr2 Hl')).
+  apply iscontrloopsifisaset.
+  apply pr2.
 Defined.
+Definition Lim_seq (u : nat -> NonnegativeReals) (Lu : ex_lim_seq u) : NonnegativeReals
+  := pr1 Lu.
 
-Lemma isaprop_Cauchy_seq :
-  ∀ (u : nat -> NonnegativeReals), isaprop (Cauchy_seq u).
+Lemma Cauchy_seq_impl_ex_lim_seq (u : nat -> NonnegativeReals) :
+  Cauchy_seq u -> ex_lim_seq u.
 Proof.
-  intros u.
-  apply impred_isaprop ; intro.
-  apply isapropimpl.
-  now apply pr2.
+  intros u Cu.
+  set (E := λ n : nat, (λ x : NonnegativeReals, hexists (λ m : nat, x = u m × (n <= m)%nat))).
+  set (v := λ n : nat, lubNonnegativeReals (E n)).
+  assert (E_cauchy : ∀ n : nat, (∀ c : NonnegativeReals,
+                                    0 < c ->
+                                    isUpperBound (X := eo_Dcuts) (E n) c
+                                    ∨ hexists (λ x : Dcuts, E n x × isUpperBound (X := eo_Dcuts) (E n) (x + c)))).
+  { intros n c Hc0.
+    generalize (Cu c Hc0) ; clear.
+
+    apply hinhfun ; intros (N,Hu).
+    right.
+    Search pr1.
+    case (natgthorleh N n) ; intro Hind.
+    revert u Hu E.
+    - induction N ; intros u Hu E.
+      + now apply fromempty, (negnatgth0n n).
+      + apply natgthsntogeh, natgehchoice in Hind.
+        case Hind ; clear Hind ; intro Hind.
+        * set (u' := λ m : nat, match nat_eq_or_neq N m with
+                                | ii1 _ => u (S N)
+                                | ii2 _ => u m
+                                end).
+          assert (Hu' : ∀ n m : nat, N ≤ n -> N ≤ m -> u' n < u' m + c × u' m < u' n + c).
+          { clear -Hu.
+            intros n m Hn Hm.
+            unfold u' ;
+            case nat_eq_or_neq ; intros Hn' ;
+            case nat_eq_or_neq ; intros Hm' ;
+            apply Hu.
+            - now apply isreflnatleh.
+            - now apply isreflnatleh.
+            - now apply isreflnatleh.
+            - now apply natlthtolehsn, natleh_neq.
+            - now apply natlthtolehsn, natleh_neq.
+            - now apply isreflnatleh.
+            - now apply natlthtolehsn, natleh_neq.
+            - now apply natlthtolehsn, natleh_neq.
+          }
+          generalize (IHN Hind u' Hu').
+          apply hinhuniv ; intros (um,(Eum,Hum)).
+          revert Eum ; apply hinhfun ; intros (m,(->,Hmn)).
+          exists (maxNonnegativeReals (u N) (u' m)) ; split.
+          admit.
+          intros x.
+          apply hinhuniv ; intros (k,(->,Hkn)).
+          admit.
+
+    generalize (λ m Hm, pr2 (Hn (Nat.max N n) m (max_le_l _ _) Hm)) ; clear Hn ; intros Hn.
+
+  }
 Qed.
-
-Section Cauchy_seq.
-
-  Context (u : nat -> NonnegativeReals).
-  Context (u_cauchy : Cauchy_seq u).
-
-End Cauchy_seq.
 
 (** ** Opacify *)
 
@@ -3369,6 +3506,6 @@ Global Opaque NonnegativeReals.
 Global Opaque leNonnegativeReals ltNonnegativeReals.
 Global Opaque geNonnegativeReals gtNonnegativeReals.
 Global Opaque lubNonnegativeReals.
-Global Opaque minusNonnegativeReals maxNonnegativeReals.
+Global Opaque minusNonnegativeReals maxNonnegativeReals halfNonnegativeReals.
 
 (* End of the file Dcuts.v *)
