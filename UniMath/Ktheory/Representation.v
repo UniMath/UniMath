@@ -89,6 +89,10 @@ Definition universalMapUniqueness {C:Precategory} {X:[C,SET]} {r:Representation 
   f ⟳ r = x -> f = x // r
   := pathsweq1 (universalProperty r c) f x.
 
+Definition universalMapIdentity {C:Precategory} {X:[C,SET]} (r:Representation X) :
+  r // r = identity _.
+Proof. apply pathsinv0. apply universalMapUniqueness. apply arrow_mor_id. Qed.
+
 Definition universalMapUniqueness' {C:Precategory} {X:[C,SET]} {r:Representation X}
       {c:C} (x : X ⇒ c) (f : universalObject r → c) :
   f = x // r -> f ⟳ r = x
@@ -104,28 +108,40 @@ Proof.
   q are represented by objects of C, then q is represented by composition with
   an arrow of C. *)
   apply universalMapUniqueness.
-  intermediate_path (f ⟳ (s ⟲ q // t ⟳ t)).
-  { apply arrow_mor_mor_assoc. }
-  intermediate_path (f ⟳ (s ⟲ q)).
-  { apply (maponpaths (λ r, f ⟳ r)). apply universalMapProperty. }
-  apply nattrans_arrow_mor_assoc.
-Defined.
+  rewrite arrow_mor_mor_assoc.
+  rewrite universalMapProperty.
+  now rewrite nattrans_arrow_mor_assoc.
+Qed.
 
 (*  *)
+
+Lemma B {C:Precategory} {X:[C,SET]^op} (r:Representation X) :
+    r ⟲ identity X // r = identity _.
+Proof.
+  unfold nat_trans_id; simpl.
+  rewrite identityFunction'. apply universalMapIdentity.
+Qed.
+
+Lemma B' {C:Precategory} {X Y Z:[C,SET]^op}
+      (r:Representation X)
+      (s:Representation Y)
+      (t:Representation Z)
+      (p:X→Y) (q:Y→Z) :
+    t ⟲ (q ∘ p) // r = (t ⟲ q // s) ∘ (s ⟲ p // r).
+Proof.
+  rewrite <- nattrans_nattrans_arrow_assoc.
+  rewrite universalMapNaturality.
+  rewrite universalMapProperty.
+  reflexivity.
+Qed.
 
 Definition universalObjectFunctor (C:Precategory) : RepresentedFunctor C ==> C^op.
 Proof.
   refine (makeFunctor _ _ _ _).
   - intro X. exact (universalObject (pr2 X)).
-  - intros X Y p; simpl. apply universalMap. apply p. apply universalElement.
-  - intros X; simpl. apply pathsinv0. apply universalMapUniqueness.
-    apply identityFunction. apply (functor_id (pr1 X)).
-  - intros X Y Z p q; simpl.
-    (* why did those matches appear in the goal? *)
-    refine (! _ @ ! universalMapNaturality (pr2 Y) (pr2 Z) q
-                (universalMap (pr2 Y) (pr2 X ⟲ p))).
-    apply maponpaths. unfold compose; simpl. apply maponpaths.
-    apply universalMapProperty.
+  - intros X Y p; simpl. exact (pr2 X ⟲ p // pr2 Y).
+  - intros X; simpl. apply B.
+  - intros X Y Z p q; simpl. apply B'.
 Defined.
 
 Definition embeddingRepresentability {C D:Precategory}

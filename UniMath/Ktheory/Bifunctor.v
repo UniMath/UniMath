@@ -85,11 +85,15 @@ Defined.
 
 (** bifunctors related to representable functors  *)
 
+Definition θ_1 {B C:Precategory} (X : [B^op, [C, SET]]) (F : [B, C]) : hSet
+  := (∀ b, X ◾ b ⇒ F ◾ b) % set.
+
+Definition θ_2 {B C:Precategory} (X : [B^op, [C, SET]]) (F : [B, C])
+           (x : θ_1 X F) : hSet
+  := (∀ (b b':B) (f:b→b'), F ▭ f ⟳ x b = x b' ⟲ X ▭ f) % set.
+
 Definition θ {B C:Precategory} (X : [B^op, [C, SET]]) (F : [B, C]) : hSet
-  := (
-      Σ x : (∀ b, X ◾ b ⇒ F ◾ b) % set,
-            (∀ (b b':B) (f:b→b'), F ▭ f ⟳ x b = x b' ⟲ X ▭ f)
-    ) % set.
+  := ( Σ x : θ_1 X F, θ_2 X F x ) % set.
 
 Notation "X ⟹ F" := (θ X F) (at level 50) : cat.
 
@@ -102,22 +106,26 @@ Proof.
   apply setproperty.
 Defined.
 
-Definition θ_map {B C:Precategory} {X : [B^op, [C, SET]]} {F F':[B, C]} :
-  X ⟹ F -> F → F' -> X ⟹ F'.
+Definition θ_map_1 {B C:Precategory} {X : [B^op, [C, SET]]} {F F':[B, C]} :
+  X ⟹ F -> F → F' -> θ_1 X F'
+  := λ xe p (b:B), p ◽ b ⟳ pr1 xe b.
+
+Definition θ_map_2 {B C:Precategory} {X : [B^op, [C, SET]]} {F F':[B, C]}
+  (xe : X ⟹ F) (p : F → F') : θ_2 X F' (θ_map_1 xe p).
 Proof.
-  intros xe p. set (x := pr1 xe). refine (_,,_).
-  { exact (λ b:B, p ◽ b ⟳ x b). }
+  induction xe as [x e]. unfold θ_map_1; unfold θ_1 in x; unfold θ_2 in e.
   intros b b' f; simpl.
-  intermediate_path ((F' ▭ f ∘ p ◽ b) ⟳ x b).
-  { apply pathsinv0, arrow_mor_mor_assoc. }
-  intermediate_path ((p ◽ b' ∘ F ▭ f) ⟳ x b).
-  { apply maponpaths. apply pathsinv0, nattrans_naturality. }
-  intermediate_path (p ◽ b' ⟳ (F ▭ f ⟳ x b)).
-  { apply arrow_mor_mor_assoc. }
-  intermediate_path (p ◽ b' ⟳ (x b' ⟲ X ▭ f)).
-  { apply (maponpaths (λ k, p ◽ b' ⟳ k)). apply (pr2 xe). }
-  apply nattrans_arrow_mor_assoc.
-Defined.
+  rewrite <- arrow_mor_mor_assoc.
+  rewrite <- nattrans_naturality.
+  rewrite arrow_mor_mor_assoc.
+  rewrite e.
+  rewrite nattrans_arrow_mor_assoc.
+  reflexivity.
+Qed.
+
+Definition θ_map {B C:Precategory} {X : [B^op, [C, SET]]} {F F':[B, C]} :
+  X ⟹ F -> F → F' -> X ⟹ F'
+  := λ xe p, θ_map_1 xe p ,, θ_map_2 xe p.
 
 Notation "xe ⟲⟲ p" := (θ_map xe p) (at level 50) : cat. (* ⟲ agda-input \l C-N C-N C-N 2 the first time, \l the second time *)
 

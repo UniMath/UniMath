@@ -226,6 +226,9 @@ Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HS
 Lemma identityFunction : ∀ (T:SET) (f:T→T) (t:T:hSet), f = identity T -> f t = t.
 Proof. intros ? ? ?. exact (apevalat t). Defined.
 
+Lemma identityFunction' : ∀ (T:SET) (t:T:hSet), identity T t = t.
+Proof. intros. reflexivity. Defined.
+
 (** notation for dealing with functors, natural transformations, etc.  *)
 
 Definition functor_object_application {B C:Precategory} (F : [B,C]) (b:B) : C
@@ -250,7 +253,8 @@ Notation "f ⟳ x" := (arrow_morphism_composition x f) (at level 50, left associ
 Definition nattrans_arrow_composition {C:Precategory} {X X':[C,SET]^op} {c:C} :
   X'→X -> X⇒c -> X'⇒c
   := λ q x, (q:_⟶_) c (x:(X:_==>_) c:hSet).
-Notation "x ⟲ q" := (nattrans_arrow_composition q x) (at level 50, left associativity) : cat. (* ⟲ agda-input \l C-N C-N C-N 2 the first time, \l the second time *)
+Notation "x ⟲ q" := (nattrans_arrow_composition q x) (at level 50, left associativity) : cat.
+(* ⟲ agda-input \l C-N C-N C-N 2 the first time, \l the second time *)
 (* motivation for the notation:
    the natural transformations between functors act on the
    right of the elements of the functors *)
