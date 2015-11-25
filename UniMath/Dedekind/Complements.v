@@ -155,12 +155,14 @@ Close Scope hq_scope.
 
 (** ** A new tactic *)
 
-Ltac apply_logeq T :=
-  try (refine (pr1 (T) _)) ;
-  try (refine (pr2 (T) _)) ;
-  try (refine (pr1 (T _) _)) ;
-  try (refine (pr2 (T _) _)) ;
-  try (refine (pr1 (T _ _) _)) ;
-  try (refine (pr2 (T _ _) _)) ;
-  try (refine (pr1 (T _ _ _) _)) ;
-  try (refine (pr2 (T _ _ _) _)).
+Ltac apply_pr2 T :=
+  first [ refine (pr2 (T) _)
+        | refine (pr2 (T _) _)
+        | refine (pr2 (T _ _) _)
+        | refine (pr2 (T _ _ _) _) ].
+
+Ltac apply_pr2_in T H :=
+  first [ apply (pr2 (T)) in H
+        | apply (pr2 (T _)) in H
+        | apply (pr2 (T _ _)) in H
+        | apply (pr2 (T _ _ _)) in H ].

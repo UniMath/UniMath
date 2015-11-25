@@ -617,15 +617,15 @@ Definition iscomm_plusNonnegativeRationals:
 (** Order *)
 
 Lemma plusNonnegativeRationals_ltcompat_r :
-  ∀ x y z : NonnegativeRationals, (y + x < z + x) = (y < z).
+  ∀ x y z : NonnegativeRationals, (y < z) <-> (y + x < z + x).
 Proof.
   intros x y z.
-  apply uahp.
-  now apply hqlthandplusrinv.
+  split.
   now apply hqlthandplusr.
+  now apply hqlthandplusrinv.
 Qed.
 Lemma plusNonnegativeRationals_ltcompat_l :
-  ∀ x y z : NonnegativeRationals, (x + y < x + z) = (y < z).
+  ∀ x y z : NonnegativeRationals, (y < z) <-> (x + y < x + z).
 Proof.
   intros x y z.
   rewrite !(iscomm_plusNonnegativeRationals x).
@@ -633,15 +633,15 @@ Proof.
 Qed.
 
 Lemma plusNonnegativeRationals_lecompat_r :
-  ∀ r q n : NonnegativeRationals, (q + r <= n + r) = (q <= n).
+  ∀ r q n : NonnegativeRationals, (q <= n) <-> (q + r <= n + r).
 Proof.
   intros r q n.
-  apply uahp.
-  - now apply hqlehandplusrinv.
+  split.
   - now apply hqlehandplusr.
+  - now apply hqlehandplusrinv.
 Qed.
 Lemma plusNonnegativeRationals_lecompat_l :
-  ∀ r q n : NonnegativeRationals, (r + q <= r + n) = (q <= n).
+  ∀ r q n : NonnegativeRationals, (q <= n) <-> (r + q <= r + n).
 Proof.
   intros r q n.
   rewrite ! (iscomm_plusNonnegativeRationals r).
@@ -654,7 +654,7 @@ Lemma plusNonnegativeRationals_eqcompat_l:
 Proof.
   intros k x y H.
   apply isantisymm_leNonnegativeRationals ;
-    rewrite <- (plusNonnegativeRationals_lecompat_l k) ;
+    apply_pr2 (plusNonnegativeRationals_lecompat_l k) ;
     rewrite H ;
     apply isrefl_leNonnegativeRationals.
 Qed.
@@ -735,7 +735,7 @@ Proof.
   intros x y Hy0.
   pattern x at 1.
   rewrite <- (isrunit_zeroNonnegativeRationals x).
-  rewrite plusNonnegativeRationals_ltcompat_l.
+  apply plusNonnegativeRationals_ltcompat_l.
   exact Hy0.
 Qed.
 Lemma plusNonnegativeRationals_lt_l :
@@ -848,7 +848,7 @@ Proof.
     destruct hqgthorleh as [H0 | H0] ; intro Hlt.
     + exact H0.
     + now apply isirrefl_ltNonnegativeRationals in Hlt.
-  - rewrite <- (plusNonnegativeRationals_ltcompat_r x).
+  - apply_pr2 (plusNonnegativeRationals_ltcompat_r x).
     rewrite islunit_zeroNonnegativeRationals, minusNonegativeRationals_plus_r.
     + exact Hlt.
     + now apply lt_leNonnegativeRationals.
@@ -858,7 +858,7 @@ Lemma minusNonnegativeRationals_le :
   ∀ x y : NonnegativeRationals, x - y <= x.
 Proof.
   intros x y.
-  rewrite <- (plusNonnegativeRationals_lecompat_r y).
+  apply_pr2 (plusNonnegativeRationals_lecompat_r y).
   destruct (isdecrel_leNonnegativeRationals y x) as [Hle | Hlt].
   - rewrite minusNonegativeRationals_plus_r.
     now apply plusNonnegativeRationals_le_r.
@@ -875,7 +875,7 @@ Lemma minusNonnegativeRationals_lecompat_l :
 Proof.
   intros k x y Hxy.
   case (isdecrel_leNonnegativeRationals k x) ; intros Hkx.
-  - rewrite <- (plusNonnegativeRationals_lecompat_r k).
+  - apply_pr2 (plusNonnegativeRationals_lecompat_r k).
     rewrite !minusNonegativeRationals_plus_r.
     exact Hxy.
     now apply istrans_leNonnegativeRationals with (2 := Hxy).
@@ -890,7 +890,7 @@ Proof.
   intros k x y Hky H.
   case (isdecrel_leNonnegativeRationals k x) ; intros Hkx.
   - rewrite <- (minusNonegativeRationals_plus_r _ _ Hkx), <- (minusNonegativeRationals_plus_r _ _ Hky).
-    rewrite plusNonnegativeRationals_lecompat_r.
+    apply plusNonnegativeRationals_lecompat_r.
     exact H.
   - apply istrans_leNonnegativeRationals with k.
     apply lt_leNonnegativeRationals.
@@ -903,7 +903,7 @@ Lemma minusNonnegativeRationals_lecompat_r :
 Proof.
   intros k x y Hxy.
   case (isdecrel_leNonnegativeRationals y k) ; intros Hky.
-  - rewrite <- (plusNonnegativeRationals_lecompat_r y).
+  - apply_pr2 (plusNonnegativeRationals_lecompat_r y).
     rewrite minusNonegativeRationals_plus_r, minusNonnegativeRationals_plus_exchange, iscomm_plusNonnegativeRationals, <- minusNonnegativeRationals_plus_exchange.
     apply plusNonnegativeRationals_le_l.
     exact Hxy.
@@ -920,9 +920,10 @@ Lemma minusNonnegativeRationals_lecompat_r' :
 Proof.
   intros k x y Hkx H.
   case (isdecrel_leNonnegativeRationals y k) ; intros Hky.
-  - rewrite <- (plusNonnegativeRationals_lecompat_r y), minusNonegativeRationals_plus_r, iscomm_plusNonnegativeRationals in H.
-    rewrite <- (plusNonnegativeRationals_lecompat_r x), isassoc_plusNonnegativeRationals, minusNonegativeRationals_plus_r, iscomm_plusNonnegativeRationals in H.
-    now rewrite <- (plusNonnegativeRationals_lecompat_r k).
+  - apply (plusNonnegativeRationals_lecompat_r y) in H.
+    rewrite minusNonegativeRationals_plus_r, iscomm_plusNonnegativeRationals in H.
+    apply (plusNonnegativeRationals_lecompat_r x) in H ; rewrite isassoc_plusNonnegativeRationals, minusNonegativeRationals_plus_r, iscomm_plusNonnegativeRationals in H.
+    now apply_pr2 (plusNonnegativeRationals_lecompat_r k).
     exact Hkx.
     exact Hky.
   - apply istrans_leNonnegativeRationals with k.
@@ -940,7 +941,7 @@ Proof.
     exact Hyz.
     exact Hxz.
   - apply (notge_ltNonnegativeRationals z x) in Hxz.
-    rewrite <- (plusNonnegativeRationals_ltcompat_r z), !minusNonegativeRationals_plus_r.
+    apply_pr2 (plusNonnegativeRationals_ltcompat_r z) ; rewrite !minusNonegativeRationals_plus_r.
     exact Hxy.
     now apply lt_leNonnegativeRationals, Hyz.
     now apply lt_leNonnegativeRationals, Hxz.
@@ -961,7 +962,7 @@ Proof.
     apply lt_leNonnegativeRationals in Hxz.
     apply lt_leNonnegativeRationals in Hyz.
     rewrite <- (minusNonegativeRationals_plus_r _ _ Hxz), <- (minusNonegativeRationals_plus_r _ _ Hyz).
-    rewrite plusNonnegativeRationals_ltcompat_r.
+    apply plusNonnegativeRationals_ltcompat_r.
     exact Hlt.
 Qed.
 Lemma minusNonnegativeRationals_ltcompat_r:
@@ -969,10 +970,10 @@ Lemma minusNonnegativeRationals_ltcompat_r:
 Proof.
   intros x y z Hxy Hxz.
   case (isdecrel_leNonnegativeRationals y z) ; intros Hky.
-  - rewrite <- (plusNonnegativeRationals_ltcompat_r y).
+  - apply_pr2 (plusNonnegativeRationals_ltcompat_r y).
     rewrite minusNonegativeRationals_plus_r, minusNonnegativeRationals_plus_exchange, iscomm_plusNonnegativeRationals, <- minusNonnegativeRationals_plus_exchange.
     pattern z at 1 ; rewrite <- (islunit_zeroNonnegativeRationals z).
-    rewrite plusNonnegativeRationals_ltcompat_r.
+    apply plusNonnegativeRationals_ltcompat_r.
     now rewrite minusNonnegativeRationals_gt0.
     now apply lt_leNonnegativeRationals, Hxy.
     now apply lt_leNonnegativeRationals, Hxz.
