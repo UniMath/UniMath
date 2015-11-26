@@ -85,6 +85,8 @@ Notation "'Σ'  x .. y , P" := (total2_subset (fun x => .. (total2_subset (fun y
 
 Delimit Scope subset with subset.
 
+Definition unitset : hSet := hSetpair unit isasetunit.
+
 (** [ hProp ] as a set *)
 
 Definition hPropset : hSet := tpair _ hProp isasethProp .
