@@ -13,7 +13,7 @@ Set Automatic Introduction.
 
 Local Open Scope cat.
 
-Definition Colimit {C I:Precategory} (D: I==>C) := Representation (cocone_functor D).
+Definition Colimit {C I:Precategory} (D: I==>C) := Representation (cone_functor D).
 
 Definition colimitObject {C I:Precategory} {D: I==>C} (colim:Colimit D) : ob C
   := universalObject colim.

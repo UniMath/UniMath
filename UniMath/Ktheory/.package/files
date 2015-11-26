@@ -21,7 +21,6 @@ Colimit.v
 Cocone.v
 Bifunctor.v
 TerminalObject.v
-Sets.v
 Representation.v
 Elements.v
 StandardCategories.v
