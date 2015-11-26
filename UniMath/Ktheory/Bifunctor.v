@@ -85,20 +85,20 @@ Defined.
 
 (** bifunctors related to representable functors  *)
 
-Definition θ_1 {B C:Precategory} (X : [B^op, [C, SET]]) (F : [B, C]) : hSet
-  := (∀ b, X ◾ b ⇒ F ◾ b) % set.
+Definition θ_1 {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
+  := (∀ b, F ◾ b ⇒ X ◾ b) % set.
 
-Definition θ_2 {B C:Precategory} (X : [B^op, [C, SET]]) (F : [B, C])
-           (x : θ_1 X F) : hSet
-  := (∀ (b b':B) (f:b→b'), F ▭ f ⟳ x b = x b' ⟲ X ▭ f) % set.
+Definition θ_2 {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]])
+           (x : θ_1 F X) : hSet
+  := (∀ (b' b:B) (f:b'→b), x b ⟲ F ▭ f = X ▭ f ⟳ x b' ) % set.
 
-Definition θ {B C:Precategory} (X : [B^op, [C, SET]]) (F : [B, C]) : hSet
-  := ( Σ x : θ_1 X F, θ_2 X F x ) % set.
+Definition θ {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
+  := ( Σ x : θ_1 F X, θ_2 F X x ) % set.
 
-Notation "X ⟹ F" := (θ X F) (at level 50) : cat.
+Notation "F ⟹ X" := (θ F X) (at level 50) : cat.
 
-Definition θ_subset {B C:Precategory} {X : [B^op, [C, SET]]} {F : [B, C]}
-           (t u : X ⟹ F) :
+Definition θ_subset {B C:Precategory} {F : [B, C]} {X : [B, [C^op, SET]]}
+           (t u : F ⟹ X) :
   pr1 t = pr1 u -> t = u.
 Proof.
   apply subtypeEquality.
@@ -106,70 +106,72 @@ Proof.
   apply setproperty.
 Defined.
 
-Definition θ_map_1 {B C:Precategory} {X : [B^op, [C, SET]]^op} {F F':[B, C]} :
-  X ⟹ F -> F → F' -> θ_1 X F'
-  := λ xe p (b:B), p ◽ b ⟳ pr1 xe b.
+Definition θ_map_1 {B C:Precategory} {F' F:[B, C]} {X : [B, [C^op, SET]]} :
+  F' → F -> F ⟹ X -> θ_1 F' X
+  := λ p xe b, pr1 xe b ⟲ p ◽ b.
 
-Definition θ_map_2 {B C:Precategory} {X : [B^op, [C, SET]]^op} {F F':[B, C]}
-  (xe : X ⟹ F) (p : F → F') : θ_2 X F' (θ_map_1 xe p).
+Definition θ_map_2 {B C:Precategory} {F' F:[B, C]} {X : [B, [C^op, SET]]}
+  (p : F' → F) (xe : F ⟹ X) : θ_2 F' X (θ_map_1 p xe).
 Proof.
   induction xe as [x e]. unfold θ_map_1; unfold θ_1 in x; unfold θ_2 in e.
-  intros b b' f; simpl.
+  intros b' b f; simpl.
   rewrite <- arrow_mor_mor_assoc.
-  rewrite <- nattrans_naturality.
+  rewrite nattrans_naturality.
   rewrite arrow_mor_mor_assoc.
   rewrite e.
   rewrite nattrans_arrow_mor_assoc.
   reflexivity.
 Qed.
 
-Definition θ_map {B C:Precategory} {X : [B^op, [C, SET]]^op} {F F':[B, C]} :
-  X ⟹ F -> F → F' -> X ⟹ F'
-  := λ xe p, θ_map_1 xe p ,, θ_map_2 xe p.
+Definition θ_map {B C:Precategory} {F' F:[B, C]} {X : [B, [C^op, SET]]} :
+  F' → F -> F ⟹ X -> F' ⟹ X
+  := λ p xe, θ_map_1 p xe ,, θ_map_2 p xe.
 
-Notation "xe ⟲⟲ p" := (θ_map xe p) (at level 50) : cat. (* ⟲ agda-input \l C-N C-N C-N 2 the first time, \l the second time *)
+Notation "xe ⟲⟲ p" := (θ_map p xe) (at level 50) : cat.
 
-Definition φ_map_1 {B C:Precategory} {X X': [B^op, [C, SET]]^op} {F:[B, C]} :
-  X' → X -> X ⟹ F -> θ_1 X' F
-  := λ p x b, pr1 x b ⟲ p ◽ b.
+Definition φ_map_1 {B C:Precategory} {F:[B, C]} {X' X: [B, [C^op, SET]]} :
+  F ⟹ X -> X → X' -> θ_1 F X'
+  := λ x p b, p ◽ b ⟳ pr1 x b.
 
-Definition φ_map_2 {B C:Precategory} {X X': [B^op, [C, SET]]^op} {F:[B, C]}
-  (p : X' → X) (x : X ⟹ F) : θ_2 X' F (φ_map_1 p x).
+Definition φ_map_2 {B C:Precategory} {F:[B, C]} {X' X: [B, [C^op, SET]]}
+  (x : F ⟹ X) (p : X → X') : θ_2 F X' (φ_map_1 x p).
 Proof.
   induction x as [x e]. unfold φ_map_1; unfold θ_1 in x; unfold θ_2 in e; unfold θ_2.
   intros b b' f; simpl.
-  rewrite nattrans_arrow_mor_assoc.
+  rewrite <- nattrans_arrow_mor_assoc.
   rewrite e.
   rewrite 2? nattrans_nattrans_arrow_assoc.
-  exact (maponpaths (λ k, x b' ⟲ k) (nattrans_naturality p f)).
+  exact (maponpaths (λ k, k ⟳ x b) (nattrans_naturality p f)).
 Qed.
 
-Definition φ_map {B C:Precategory} {X X': [B^op, [C, SET]]^op} {F:[B, C]} :
-  X' → X -> X ⟹ F -> X' ⟹ F
-  := λ p x, φ_map_1 p x,, φ_map_2 p x.
+Definition φ_map {B C:Precategory} {F:[B, C]} {X' X: [B, [C^op, SET]]} :
+  F ⟹ X -> X → X' -> F ⟹ X'
+  := λ x p, φ_map_1 x p,, φ_map_2 x p.
 
-Definition bifunctor_assoc {B C:Precategory} : [B^op, [C,SET]] ==> [[B,C],SET].
+Definition bifunctor_assoc {B C:Precategory} : [B, [C^op,SET]] ==> [[B,C]^op,SET].
 Proof.
   refine (makeFunctor _ _ _ _).
   { intros X.
     refine (makeFunctor _ _ _ _).
-    { intro F. exact (X ⟹ F). }
-    { intros F F' p xe. exact (xe ⟲⟲ p). }
+    { intro F. exact (F ⟹ X). }
+    { intros F' F p xe. exact (xe ⟲⟲ p). }
     { abstract (
           intros F; apply funextsec; intro xe; apply θ_subset;
           simpl; apply funextsec; intro b; apply arrow_mor_id) using K. }
     { abstract (
           intros F F' F'' p q; simpl; apply funextsec; intro xe; apply θ_subset;
-          simpl; apply funextsec; intro b; apply arrow_mor_mor_assoc) using K. } }
+          simpl; apply funextsec; intro b;
+          unfold θ_map_1; exact (arrow_mor_mor_assoc _ _ _)) using L. } }
   { intros X Y p. simpl.
     refine (_,,_).
-    { intros F. simpl. intro x. exact (φ_map p x). }
+    { intros F. simpl. intro x. exact (φ_map x p). }
     { postponeProof. } }
-  { intros X.
+   { intros X. postponeProof. }
+   { intros X X' X'' p q. postponeProof. }
+Defined.
 
 
 
 
-Admitted.
 
 (* *)

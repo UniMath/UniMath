@@ -15,11 +15,20 @@ Arguments id_left [C a b] f.
 Arguments id_right [C a b] f.
 Arguments assoc [C a b c d] f g h.
 
+Notation "a → b" := (precategory_morphisms a b) (at level 50) : cat.
+(* agda input \r- or \to or \-> or \rightarrow or \r menu *)
+
+Definition src {C:precategory} {a b:C} (f:a→b) : C := a.
+Definition tar {C:precategory} {a b:C} (f:a→b) : C := b.
+
 Definition Precategory := Σ C:precategory, has_homsets C.
 Definition Precategory_pair C h : Precategory := C,,h.
 Definition Precategory_to_precategory : Precategory -> precategory := pr1.
 Coercion Precategory_to_precategory : Precategory >-> precategory.
 Definition homset_property (C:Precategory) : has_homsets C := pr2 C.
+Definition Precategory_mor (C:Precategory) : ob C -> ob C -> hSet :=
+  λ c c', hSetpair (c → c') (homset_property C _ _ ).
+Notation Hom := Precategory_mor.
 
 Ltac eqn_logic :=
   repeat (
@@ -44,12 +53,20 @@ Proof.
   abstract set_logic using L.
 Defined.
 
+Notation "[ C , D ]" := (functorPrecategory C D) : cat.
+
 Definition oppositePrecategory (C:Precategory) : Precategory.
 Proof.
   intros. exists (opp_precat C). apply has_homsets_opp, homset_property.
 Defined.
 
-Notation "[ C , D ]" := (functorPrecategory C D) : cat.
+Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat.
+
+Definition opp_ob {C:Precategory} : ob C -> ob C^op
+  := λ c, c.
+
+Definition opp_mor {C:Precategory} {b c:C} : Hom C b c -> Hom C^op c b
+  := λ f, f.
 
 Definition category_to_Precategory (C:category) : Precategory.
 Proof.
@@ -61,11 +78,12 @@ Defined.
 
 Coercion category_to_Precategory : category >-> Precategory.
 
-Notation "b ← a" := (precategory_morphisms a b) (at level 50) : cat.
+Notation "b ← a" := (precategory_morphisms a b) (at level 50, only parsing) : cat.
 (* agda input \l- or \leftarrow or \<- or \gets or or \l menu *)
 
-Notation "a → b" := (precategory_morphisms a b) (at level 50) : cat.
-(* agda input \r- or \to or \-> or \rightarrow or \r menu *)
+(* Open scope cat' to see what categories maps are in.  This helps
+   especially when a category and its opposite are both in play. *)
+Notation "C [ a , b ]" := (@precategory_morphisms C a b) (at level 50) : cat'.
 
 Notation "a ==> b" := (functor a b) (at level 50) : cat.
 
@@ -79,8 +97,6 @@ Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativi
 
 Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
 
-Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat.
-
 Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35) : cat.
 (* agda input \square *)
 
@@ -90,15 +106,6 @@ Definition precategory_pair (C:precategory_data) (i:is_precategory C)
 Definition Precategory_obmor (C:precategory) : precategory_ob_mor :=
       precategory_ob_mor_from_precategory_data (
           precategory_data_from_precategory C).
-Definition Precategory_obj (C:precategory) : Type :=
-  ob (
-      precategory_ob_mor_from_precategory_data (
-          precategory_data_from_precategory C)).
-Definition Precategory_mor (C:precategory) : ob C -> ob C -> UU :=
-  pr2 (
-      precategory_ob_mor_from_precategory_data (
-          precategory_data_from_precategory C)).
-Notation Hom := Precategory_mor.
 
 Definition Functor_obmor {C D} (F:functor C D) := pr1 F.
 Definition Functor_obj {C D} (F:functor C D) := pr1 (pr1 F).
@@ -240,37 +247,39 @@ Definition functor_mor_application {B C:Precategory} {b b':B} (F:[B,C]) :
   := λ f, # (F:_==>_) f.
 Notation "F ▭ f" := (functor_mor_application F f) (at level 40, left associativity) : cat. (* \rew1 *)
 
-Definition arrow {C:Precategory} (X : [C,SET]) (c : C) : hSet := X ◾ c.
-Notation "X ⇒ c" := (arrow X c)  (at level 50) : cat. (* \r= *)
+Definition arrow {C:Precategory} (c : C) (X : [C^op,SET]) : hSet := X ◾ c.
+Notation "c ⇒ X" := (arrow c X)  (at level 50) : cat. (* \r= *)
 
-Definition arrow_morphism_composition {C:Precategory} {X:[C,SET]} {c c':C} :
-  X⇒c -> c→c' -> X⇒c'
-  := λ x f, # (X:_==>_) f x.
-Notation "f ⟳ x" := (arrow_morphism_composition x f) (at level 50, left associativity) : cat. (* ⟳ agda-input \r C-N C-N C-N 3 the first time, \r the second time *)
-(* motivation for the notation:
-   the morphisms of C act on the left of the elements of X *)
-
-Definition nattrans_arrow_composition {C:Precategory} {X X':[C,SET]^op} {c:C} :
-  X'→X -> X⇒c -> X'⇒c
-  := λ q x, (q:_⟶_) c (x:(X:_==>_) c:hSet).
-Notation "x ⟲ q" := (nattrans_arrow_composition q x) (at level 50, left associativity) : cat.
+Definition arrow_morphism_composition {C:Precategory} {c' c:C} {X:[C^op,SET]} :
+  c'→c -> c⇒X -> c'⇒X
+  := λ f x, # (X:_==>_) f x.
+Notation "x ⟲ f" := (arrow_morphism_composition f x) (at level 50, left associativity) : cat.
 (* ⟲ agda-input \l C-N C-N C-N 2 the first time, \l the second time *)
 (* motivation for the notation:
+   the morphisms of C act on the right of the elements of X *)
+
+Definition nattrans_arrow_composition {C:Precategory} {X X':[C^op,SET]} {c:C} :
+  c⇒X -> X→X' -> c⇒X'
+  := λ x q, (q:_⟶_) c (x:(X:_==>_) c:hSet).
+Notation "q ⟳ x" := (nattrans_arrow_composition x q) (at level 50, left associativity) : cat.
+(* ⟳ agda-input \r C-N C-N C-N 3 the first time, \r the second time *)
+(* motivation for the notation:
    the natural transformations between functors act on the
-   right of the elements of the functors *)
+   left of the elements of the functors *)
 
 Definition nattrans_object_application {B C:Precategory} {F F' : [B,C]} (b:B) :
   F → F'  ->  F ◾ b → F' ◾ b
   := λ p, (p:_⟶_) b.
-Notation "p ◽ b" := (nattrans_object_application b p) (at level 40) : cat. (* \sqw3 *)
+Notation "p ◽ b" := (nattrans_object_application b p) (at level 40) : cat.
+(* agda input : \sqw3 *)
 
-Definition arrow_mor_id {C:Precategory} {X:[C,SET]} {c:C} (x:X⇒c) :
-  identity c ⟳ x = x
+Definition arrow_mor_id {C:Precategory} {c:C} {X:[C^op,SET]} (x:c⇒X) :
+  x ⟲ identity c = x
   := apevalat x (functor_id X c).
 
-Definition arrow_mor_mor_assoc {C:Precategory} {X:[C,SET]} {c c' c'':C}
-           (x:X⇒c) (f:c→c') (g:c'→c'') :
-  (g ∘ f) ⟳ x = g ⟳ (f ⟳ x)
+Definition arrow_mor_mor_assoc {C:Precategory} {c c' c'':C} {X:[C^op,SET]}
+           (g:c''→c') (f:c'→c) (x:c⇒X) :
+  x ⟲ (f ∘ g) = (x ⟲ f) ⟲ g
   := apevalat x (functor_comp X c c' c'' f g).
 
 Definition nattrans_naturality {B C:Precategory} {F F':[B, C]} {b b':B}
@@ -278,18 +287,18 @@ Definition nattrans_naturality {B C:Precategory} {F F':[B, C]} {b b':B}
   p ◽ b'  ∘  F ▭ f  =  F' ▭ f  ∘  p ◽ b
   := nat_trans_ax p _ _ f.
 
-Definition nattrans_arrow_mor_assoc {C:Precategory} {X X':[C,SET]^op} {c c':C}
-           (p:X'→X) (x:X⇒c) (g:c→c') :
-  g ⟳ (x ⟲ p) = (g ⟳ x) ⟲ p
-  := !apevalat x (nat_trans_ax p _ _ g).
+Definition nattrans_arrow_mor_assoc {C:Precategory} {c' c:C} {X X':[C^op,SET]}
+           (g:c'→c) (x:c⇒X) (p:X→X') :
+  p ⟳ (x ⟲ g) = (p ⟳ x) ⟲ g
+  := apevalat x (nat_trans_ax p _ _ g).
 
-Definition nattrans_arrow_id {C:Precategory} {X:[C,SET]^op} {c:C} (x:X⇒c) :
-  x ⟲ nat_trans_id _ = x
+Definition nattrans_arrow_id {C:Precategory} {c:C} {X:[C^op,SET]} (x:c⇒X) :
+  nat_trans_id _ ⟳ x = x
   := idpath _.
 
-Definition nattrans_nattrans_arrow_assoc {C:Precategory} {X X' X'':[C,SET]^op} {c:C}
-           (q:X''→X') (p:X'→X) (x:X⇒c) :
-  (x ⟲ p) ⟲ q = x ⟲ (p ∘ q)
+Definition nattrans_nattrans_arrow_assoc {C:Precategory} {c:C} {X X' X'':[C^op,SET]}
+           (x:c⇒X) (p:X→X') (q:X'→X'') :
+  q ⟳ (p ⟳ x) = (q ∘ p) ⟳ x
   := idpath _.
 
 (*  *)
