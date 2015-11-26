@@ -7,19 +7,25 @@ Set Automatic Introduction.
 
 Definition ZeroObject (C:Precategory) := Σ z:ob C, isInitialObject C z × isTerminalObject C z.
 
-Definition zero_opp (C:Precategory) : ZeroObject C -> ZeroObject C^op.
-  intros [z [i t]]. exact (z,,t,,i). Defined.
-
-Definition zero_opp' (C:Precategory) : ZeroObject C^op -> ZeroObject C.
-  intros X. exact (zero_opp C^op X). Defined.
-
 Definition zero_object {C:Precategory} (z:ZeroObject C) : ob C := pr1  z.
 
-Definition map_from    {C:Precategory} (z:ZeroObject C) := pr1(pr2 z).
-
-Definition map_to      {C:Precategory} (z:ZeroObject C) := pr2(pr2 z).
-
 Coercion zero_object : ZeroObject >-> ob.
+
+Definition zero_opp (C:Precategory) : ZeroObject C -> ZeroObject C^op
+  := λ z, pr1 z,, pr2 (pr2 z),, pr1 (pr2 z).
+
+Lemma zero_opp_opp {C:Precategory} (z:ZeroObject C) :
+  zero_opp _ (zero_opp _ z) = z.
+Proof. induction z as [z it]. induction it as [i t]. reflexivity. Qed.
+
+Definition map_from {C:Precategory} (z:ZeroObject C) := pr1 (pr2 z).
+
+Definition map_to {C:Precategory} (z:ZeroObject C) := pr2 (pr2 z).
+
+Lemma zero_to_opp {C:Precategory} (z:ZeroObject C) (c:C) :
+  opp_mor (thePoint (map_from z c))
+  = thePoint (map_to (zero_opp C z) (opp_ob c)).
+Proof. reflexivity. Defined.
 
 Definition hasZeroObject (C:Precategory) := ∥ ZeroObject C ∥.
 
@@ -32,6 +38,10 @@ Proof. intros.
 
 Definition zeroMap' {C:Precategory} (a b:ob C) (o:ZeroObject C) :=
   thePoint (map_from o b) ∘ thePoint (map_to o a) : a → b.
+
+Definition zeroMap'_opp {C:Precategory} (a b:ob C) (o:ZeroObject C) :
+  zeroMap' (opp_ob b) (opp_ob a) (zero_opp C o) = zeroMap' a b o.
+Proof. reflexivity. Defined.
 
 Lemma path_right_composition {C:Precategory} (a b c:ob C) (g:a→b) (f f':b→c) :
   f = f' -> f ∘ g = f' ∘ g.
@@ -106,4 +116,4 @@ Proof.
 
 
 
-Defined.
+Abort.

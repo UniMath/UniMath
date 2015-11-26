@@ -1,23 +1,13 @@
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Ktheory.Utilities.
-Require Import UniMath.CategoryTheory.precategories. (* get its coercions *)
 Require Import UniMath.Ktheory.Precategories.
 Require Import UniMath.Ktheory.Bifunctor.
-Require Import UniMath.CategoryTheory.opp_precat.
 Set Automatic Introduction.
 Local Open Scope cat.
 
-Definition isUniversal {C:Precategory} {c:C} {X:[C^op,SET]} (x:c ⇒ X)
-  := ∀ (c':C), isweq (λ f : c' → c, x ⟲ f).
-
-Lemma isaprop_isUniversal {C:Precategory} {c:C} {X:[C^op,SET]} (x:c ⇒ X) :
-  isaprop (isUniversal x).
-Proof. intros. apply impred_isaprop; intro c'. apply isapropisweq. Defined.
+Definition Universal {C:Precategory} (X:[C^op,SET]) (c:C)
+  := Σ (x:c ⇒ X), ∀ (c':C), isweq (λ f : c' → c, x ⟲ f).
 
 Definition Representation {C:Precategory} (X:[C^op,SET]) : UU
-  := Σ (c:C) (x:c ⇒ X), isUniversal x.
+  := Σ (c:C), Universal X c.
 
 Definition isRepresentable {C:Precategory} (X:[C^op,SET]) := ∥ Representation X ∥.
 
@@ -157,7 +147,9 @@ Proof.
   - induction (pr2 ce). exact (weqproperty (universalProperty _ _)).
 Defined.
 
-(** Some standard functors to consider representing *)
+(*** Some standard functors to consider representing *)
+
+(** products and coproducts *)
 
 Definition HomFamily (C:Precategory) {I} (c:I -> ob C) : C^op ==> SET.
 Proof.
@@ -181,9 +173,9 @@ Definition Product {C:Precategory} {I} (c:I -> ob C)
 Definition Sum {C:Precategory} {I} (c:I -> ob C)
   := Representation (HomFamily C^op c).
 
-Require Import UniMath.Ktheory.ZeroObject.
-
 Local Open Scope cat'.
+
+Require Import UniMath.Ktheory.ZeroObject.
 
 Definition Annihilator (C:Precategory) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
   C^op ==> SET.
@@ -233,19 +225,29 @@ Definition cokernelEquation {C:Precategory} {z:hasZeroObject C} {c d:ob C} {f:c 
   cokernelMap coker ∘ f = zeroMap C z _ _.
   assert (L := pr2 (universalElement coker)). simpl in L.
 
+Abort.
+
 Module demo.
 
   Section A.
 
     Context {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d)
-            (ker: Kernel z f).
+            (ker: Kernel z f) (coker: Cokernel z f).
 
     Definition h := kernelMap ker.
 
     Definition b := src h.
 
-    Definition e : f ∘ h = zeroMap b d z
+    Definition e : f ∘ h = zeroMap C z b d
       := kernelEquation ker.
 
+    Definition k := cokernelMap coker.
+
+    Definition a := tar k.
+
+    (* Definition e' : k ∘ f = zeroMap C z c a *)
+    (*   := cokernelEquation ker. *)
+
+  End A.
 
 End demo.

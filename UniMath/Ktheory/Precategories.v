@@ -1,13 +1,14 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Ktheory.Utilities.
-Require Import UniMath.CategoryTheory.precategories
-               UniMath.CategoryTheory.opp_precat
+Require Export UniMath.Ktheory.Utilities.
+Require Export UniMath.CategoryTheory.precategories. (* export its coercions, especially *)
+Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
                UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.CategoryTheory.category_hset.
+Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.Foundations.Basics.Preamble.
+Require Export UniMath.Foundations.Sets.
+Require Export UniMath.CategoryTheory.category_hset.
 Delimit Scope cat with cat.
 Local Open Scope cat.
 
