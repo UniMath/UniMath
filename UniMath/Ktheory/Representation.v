@@ -48,11 +48,15 @@ Defined.
 Definition universalObject {C:Precategory} {X:[C^op,SET]} (r:Representation X) : C
   := pr1 r.
 
+Notation obj := universalObject.
+
 Definition universalElement {C:Precategory} {X:[C^op,SET]} (r:Representation X) :
   universalObject r ⇒ X
   := pr1 (pr2 r).
 
 Coercion universalElement : Representation >-> pr1hSet.
+
+Coercion universalObject : Representation >-> ob.
 
 Definition universalProperty {C:Precategory} {X:[C^op,SET]} (r:Representation X) (c:C) :
   c → universalObject r ≃ c ⇒ X
@@ -170,26 +174,34 @@ Defined.
 Definition Product {C:Precategory} {I} (c:I -> ob C)
   := Representation (HomFamily C c).
 
+Definition pr_ {C:Precategory} {I} {c:I -> ob C} (prod : Product c) (i:I) :
+  universalObject prod → c i
+  := universalElement prod i.
+
 Definition Sum {C:Precategory} {I} (c:I -> ob C)
   := Representation (HomFamily C^op c).
+
+Definition in_ {C:Precategory} {I} {c:I -> ob C} (sum : Sum c) (i:I) :
+  c i → universalObject sum
+  := universalElement sum i.
 
 Local Open Scope cat'.
 
 Require Import UniMath.Ktheory.ZeroObject.
 
-Definition Annihilator (C:Precategory) (z:hasZeroObject C) {c d:ob C} (f:c → d) :
+Definition Annihilator (C:Precategory) (zero:hasZeroMaps C) {c d:ob C} (f:c → d) :
   C^op ==> SET.
 Proof.
   refine (_,,_).
   { refine (_,,_).
-    { intro b. exists (Σ g:Hom C b c, f ∘ g = @zeroMap C z b d).
+    { intro b. exists (Σ g:Hom C b c, f ∘ g = pr1 zero b d).
       abstract (apply isaset_total2; [ apply setproperty |
       intro g; apply isasetaprop; apply homset_property ]) using L. }
     { intros a b p ge; simpl.
       exists (pr1 ge ∘ opp_mor p).
       { abstract (
             refine (! assoc _ _ _ @ _); rewrite (pr2 ge);
-            apply zeroMap_right_composition) using M. } } }
+            apply (pr2 (pr2 zero) _ _ _ _)) using M. } } }
   { abstract (split;
     [ intros x; apply funextsec; intros [r rf0];
       apply subtypeEquality;
@@ -201,52 +213,50 @@ Proof.
       | simpl; unfold opp_mor; apply pathsinv0, assoc ] ]) using N. }
 Defined.
 
-Definition Kernel {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d) :=
-  Representation (Annihilator C z f).
+Definition Kernel {C:Precategory} (zero:hasZeroMaps C) {c d:ob C} (f:c → d) :=
+  Representation (Annihilator C zero f).
 
-Definition Cokernel {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d) :=
-  Representation (Annihilator C^op (haszero_opp C z) f).
+Definition Cokernel {C:Precategory} (zero:hasZeroMaps C) {c d:ob C} (f:c → d) :=
+  Representation (Annihilator C^op (hasZeroMaps_opp C zero) f).
 
-Definition kernelMap {C:Precategory} {z:hasZeroObject C} {c d:ob C} {f:c → d}
-           (r : Kernel z f) : universalObject r → c
+Definition kernelMap {C:Precategory} {zero:hasZeroMaps C} {c d:ob C} {f:c → d}
+           (r : Kernel zero f) : universalObject r → c
   := pr1 (universalElement r).
 
-Definition kernelEquation {C:Precategory} {z:hasZeroObject C} {c d:ob C} {f:c → d}
-           (ker : Kernel z f) :
-  f ∘ kernelMap ker = zeroMap C z _ _
+Definition kernelEquation {C:Precategory} {zero:hasZeroMaps C} {c d:ob C} {f:c → d}
+           (ker : Kernel zero f) :
+  f ∘ kernelMap ker = pr1 zero _ _
   := pr2 (universalElement ker).
 
-Definition cokernelMap {C:Precategory} {z:hasZeroObject C} {c d:ob C} {f:c → d}
-           (r : Cokernel z f) : d → universalObject r
+Definition cokernelMap {C:Precategory} {zero:hasZeroMaps C} {c d:ob C} {f:c → d}
+           (r : Cokernel zero f) : d → universalObject r
   := pr1 (universalElement r).
 
-Definition cokernelEquation {C:Precategory} {z:hasZeroObject C} {c d:ob C} {f:c → d}
-           (coker : Cokernel z f) :
-  cokernelMap coker ∘ f = zeroMap C z _ _.
-  assert (L := pr2 (universalElement coker)). simpl in L.
-
-Abort.
+Definition cokernelEquation {C:Precategory} {zero:hasZeroMaps C} {c d:ob C} {f:c → d}
+           (coker : Cokernel zero f) :
+  cokernelMap coker ∘ f = pr1 zero _ _
+  := pr2 (universalElement coker).
 
 Module demo.
 
   Section A.
 
-    Context {C:Precategory} (z:hasZeroObject C) {c d:ob C} (f:c → d)
-            (ker: Kernel z f) (coker: Cokernel z f).
+    Context {C:Precategory} (zero:hasZeroMaps C) {c d:ob C} (f:c → d)
+            (ker: Kernel zero f) (coker: Cokernel zero f).
 
     Definition h := kernelMap ker.
 
     Definition b := src h.
 
-    Definition e : f ∘ h = zeroMap C z b d
+    Definition e : is zero (f ∘ h)
       := kernelEquation ker.
 
     Definition k := cokernelMap coker.
 
     Definition a := tar k.
 
-    (* Definition e' : k ∘ f = zeroMap C z c a *)
-    (*   := cokernelEquation ker. *)
+    Definition e' : is zero (k ∘ f)
+      := cokernelEquation coker.
 
   End A.
 

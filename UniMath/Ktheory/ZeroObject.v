@@ -107,13 +107,46 @@ Notation "C [[ g , f ]]" := (@precategories.compose C _ _ _ f g) (at level 50, l
 Local Open Scope cat'.
 
 Lemma opp_zeroMap {C:Precategory} (h:hasZeroObject C) {a b:C} :
-  zeroMap C h a b = zeroMap C^op (haszero_opp C h) b a.
+  zeroMap C^op (haszero_opp C h) b a = zeroMap C h a b.
 Proof.
   generalize h; clear h.
   apply (@factor_dep_through_squash (ZeroObject C)).
   { intro. apply homset_property. }
-  intro z. unfold zeroMap, squash_to_set, zeroMap'; simpl.
+  intro z. apply zeroMap'_opp.
+Defined.
+
+Definition hasZeroMaps (C:Precategory) :=
+  Σ (zero : ∀ a b:C, a → b),
+  (∀ a b c, ∀ f:b → c, f ∘ zero a b = zero a c)
+    ×
+    (∀ a b c, ∀ f:c → b, zero b a ∘ f = zero c a).
+
+Definition is {C:Precategory} (zero: hasZeroMaps C) {a b:C} (f:a→b)
+  := f = pr1 zero _ _.
+
+Definition hasZeroMaps_opp (C:Precategory) : hasZeroMaps C -> hasZeroMaps C^op
+  := λ z, (λ a b, pr1 z b a) ,, pr2 (pr2 z) ,, pr1 (pr2 z).
+
+Definition hasZeroMaps_opp_opp (C:Precategory) (zero:hasZeroMaps C) :
+  hasZeroMaps_opp C^op (hasZeroMaps_opp C zero) = zero.
+Proof.
+  refine (total2_paths _ _).
+  - reflexivity.
+  - refine (total2_paths _ _); reflexivity.
+Defined.
+
+Definition hasZeroObject_to_hasZeroMaps (C:Precategory) :
+  hasZeroObject C -> hasZeroMaps C.
+Proof.
+  intro h. refine (_,,_).
+  - exact (zeroMap C h).
+  - split.
+    + intros. apply zeroMap_left_composition.
+    + intros. apply zeroMap_right_composition.
+Defined.
 
 
 
-Abort.
+
+
+  (*  *)

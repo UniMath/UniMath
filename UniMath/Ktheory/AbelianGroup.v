@@ -495,7 +495,7 @@ Module Category.
   (** *** products in the category of abelian groups *)
 
   Module Product.
-    Definition make {I} (X:I->ob Precat) : Product.type Precat X.
+    Definition make {I} (X:I->ob Precat) : Product X.
       intros. refine (makeRepresentation _ _).
       - exact (Product.make X).
       - exact (Product.Proj X).
@@ -510,7 +510,7 @@ Module Category.
   (** *** sums (coproducts) in the category of abelian groups *)
 
   Module Sum.
-    Definition make {I} (X:I->ob Precat) : Sum.type Precat X.
+    Definition make {I} (X:I->ob Precat) : Sum X.
       intros. refine (makeRepresentation _ _).
       - exact (Sum.make X).
       - exact (Sum.Incl X).

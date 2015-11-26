@@ -8,13 +8,12 @@ Require Import
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Utilities
+        UniMath.Foundations.FiniteSets
         UniMath.Ktheory.Representation
         UniMath.Ktheory.Precategories
         UniMath.Ktheory.ZeroObject.
-Require UniMath.Ktheory.RawMatrix
-        UniMath.Ktheory.Sum UniMath.Ktheory.Product UniMath.Ktheory.FiniteSet.
+Require UniMath.Ktheory.RawMatrix UniMath.Ktheory.FiniteSet.
 Local Open Scope cat.
-Import FiniteSet.Coercions Sum.Coercions Product.Coercions.
 
 Definition identity_matrix {C:Precategory} (h:hasZeroObject C)
            {I} (d:I -> ob C) (dec : isdeceq I) : ∀ i j, Hom C (d j) (d i).
@@ -23,8 +22,8 @@ Proof. intros. destruct (dec i j) as [ [] | _ ].
 
 Definition identity_map {C:Precategory} (h:hasZeroObject C)
            {I} {d:I -> ob C} (dec : isdeceq I)
-           (B:Sum.type C d) (D:Product.type C d)
-      : Hom C B D.
+           (B:Sum d) (D:Product d)
+      : Hom C (obj B) (obj D).
 Proof. intros. apply RawMatrix.from_matrix. apply identity_matrix.
        assumption. assumption. Defined.
 
@@ -34,29 +33,29 @@ Record DirectSum {C:Precategory} (h:hasZeroObject C) I (dec : isdeceq I) (c : I 
       ds_pr : ∀ i, Hom C ds (c i);
       ds_in : ∀ i, Hom C (c i) ds;
       ds_id : ∀ i j, ds_pr i ∘ ds_in j = identity_matrix h c dec i j;
-      ds_isprod : ∀ c, isweq (fun f : Hom C c ds => fun i => ds_pr i ∘ f);
-      ds_issum  : ∀ c, isweq (fun f : Hom C ds c => fun i => f ∘ ds_in i) }.
+      ds_isprod : ∀ c, isweq (λ f : Hom C c ds, λ i, ds_pr i ∘ f);
+      ds_issum  : ∀ c, isweq (λ f : Hom C ds c, λ i, f ∘ ds_in i) }.
 Definition toDirectSum {C:Precategory} (h:hasZeroObject C) {I} (dec : isdeceq I) (d:I -> ob C)
-           (B:Sum.type C d) (D:Product.type C d)
+           (B:Sum d) (D:Product d)
            (is: is_isomorphism (identity_map h dec B D)) : DirectSum h I dec d.
 Proof. intros. set (id := identity_map h dec B D).
-  refine (make_DirectSum C h I dec d D
-                         (fun i => Product.Proj D i)
-                         (fun i => id ∘ Sum.In B i) _ _ _).
+  refine (make_DirectSum C h I dec d (obj D)
+                         (λ i, pr_ D i)
+                         (λ i, id ∘ in_ B i) _ _ _).
   { intros. exact (RawMatrix.from_matrix_entry_assoc D B (identity_matrix h d dec) i j). }
   { intros. exact (pr2 (universalProperty D c)). }
   { intros.
-    assert (b : (fun (f : Hom C D c) (i : I) => (f ∘ id) ∘ Sum.In B i)
-             = (fun (f : Hom C D c) (i : I) => f ∘ (id ∘ Sum.In B i))).
+    assert (b : (λ (f : Hom C (obj D) c) (i : I), (f ∘ id) ∘ in_ B i)
+             = (λ (f : Hom C (obj D) c) (i : I), f ∘ (id ∘ in_ B i))).
     { apply funextsec; intros f. apply funextsec; intros i. apply assoc. }
     destruct b.
-    exact (twooutof3c (fun f => f ∘ id)
-                      (fun g i => g ∘ Sum.In B i)
+    exact (twooutof3c (λ f, f ∘ id)
+                      (λ g i, g ∘ in_ B i)
                       (iso_comp_right_isweq (id,,is) c)
                       (pr2 (universalProperty B c))). }
 Defined.
 Definition FiniteDirectSums (C:Precategory) :=
              Σ h : hasZeroObject C,
-             ∀ I : FiniteSet.Data,
+             ∀ I : FiniteSet,
              ∀ d : I -> ob C,
-               DirectSum h I (FiniteSet.Isdeceq I) d.
+               DirectSum h I (isfinite_isdeceq I (pr2 I)) d.
