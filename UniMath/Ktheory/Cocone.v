@@ -94,3 +94,8 @@ Proof.
           apply homset_property ]
       | apply isaprop_is_nat_trans; exact (homset_property SET)] ]) using R. }
 Defined.
+
+Definition cocone_functor {I C:Precategory} : [I,C]^op ==> [C^op^op,SET]
+  := cone_functor □ op_move op_functor.
+
+(*  *)

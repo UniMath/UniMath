@@ -19,16 +19,18 @@ Definition unitFunctor (C:Precategory) : C ==> SET.
     { intros a. reflexivity. }
     { intros a b c f g. reflexivity. } } Defined.
 
-Definition InitialObject (C:Precategory) := Representation (unitFunctor C).
+Definition TerminalObject (C:Precategory) := Representation (unitFunctor C^op).
+
+Definition terminalObject {C} (t:TerminalObject C) : ob C := universalObject t.
+
+Definition terminalArrow {C} (t:TerminalObject C) (c:ob C) : c → terminalObject t
+  := t \\ tt.
+
+Definition InitialObject (C:Precategory) := TerminalObject C^op.
 
 Definition initialObject {C} (i:InitialObject C) : ob C := universalObject i.
 
 Definition initialArrow {C} (i:InitialObject C) (c:ob C) : initialObject i → c
-  := universalMap i tt.
+  := rm_opp_mor (i \\ tt).
 
-Definition TerminalObject (C:Precategory) := Representation (unitFunctor C^op).
-
-Definition terminalObject {C} (t:InitialObject C) : ob C := universalObject t.
-
-Definition terminalArrow {C} (t:TerminalObject C) (c:ob C) : c → terminalObject t
-  := universalMap t tt.
+(*  *)

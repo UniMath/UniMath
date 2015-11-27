@@ -69,6 +69,9 @@ Definition opp_ob {C:Precategory} : ob C -> ob C^op
 Definition opp_mor {C:Precategory} {b c:C} : Hom C b c -> Hom C^op c b
   := λ f, f.
 
+Definition rm_opp_mor {C:Precategory} {b c:C} : Hom C^op b c -> Hom C c b
+  := λ f, f.
+
 Definition category_to_Precategory (C:category) : Precategory.
 Proof.
   intros.
@@ -175,6 +178,11 @@ Definition makeFunctor {C D:Precategory}
   C ==> D
   := (obj,, mor),, identity,, compax.
 
+(*  *)
+
+Definition functor_to_opp_opp {C:Precategory} : C ==> C^op^op
+  := makeFunctor (λ c,c) (λ a b f,f) (λ c, idpath _) (λ a b c f g, idpath _).
+
 (** *** opposite category of opposite category *)
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
@@ -229,6 +237,16 @@ Proof.
   - reflexivity.
 Defined.
 
+Definition addStructure {B C:Precategory} {P:ob C -> UU}
+           (F:B==>C) (h : ∀ b, P(F b)) : B ==> categoryWithStructure P.
+Proof.
+  intros. refine (makeFunctor _ _ _ _).
+  - intros b. exact (F b,,h b).
+  - intros b b' f. exact (# F f).
+  - intros b; simpl. apply functor_id.
+  - intros b b' b'' f g; simpl. apply functor_comp.
+Defined.
+
 Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
 
 Lemma identityFunction : ∀ (T:SET) (f:T→T) (t:T:hSet), f = identity T -> f t = t.
@@ -241,7 +259,8 @@ Proof. intros. reflexivity. Defined.
 
 Definition functor_object_application {B C:Precategory} (F : [B,C]) (b:B) : C
   := (F:_==>_) b.
-Notation "F ◾ b" := (functor_object_application F b) (at level 40, left associativity) : cat. (* \sqb3 *)
+Notation "F ◾ b" := (functor_object_application F b) (at level 40, left associativity) : cat.
+(* \sqb3 *)
 
 Definition functor_mor_application {B C:Precategory} {b b':B} (F:[B,C]) :
   b → b'  ->  F ◾ b → F ◾ b'
@@ -302,4 +321,67 @@ Definition nattrans_nattrans_arrow_assoc {C:Precategory} {c:C} {X X' X'':[C^op,S
   q ⟳ (p ⟳ x) = (q ∘ p) ⟳ x
   := idpath _.
 
+Definition nattrans_nattrans_object_assoc {A B C:Precategory}
+           (F:[A,B]) (G:[B, C]) {a a' : A} (f : a → a') :
+  G □ F ▭ f = G ▭ (F ▭ f)
+  := idpath _.
+
 (*  *)
+
+Definition functor_op {C D:Precategory} : C==>D -> C^op==>D^op := functor_opp.
+
+Definition functor_rm_op {C D:Precategory} : C^op==>D^op -> C==>D := functor_opp.
+
+Definition op_functor {C D:Precategory} : [C,D] ==> [C^op,D^op]^op.
+Proof.
+  intros. refine (makeFunctor _ _ _ _).
+  - exact (λ F, functor_op F).
+  - intros F F' p; simpl. exists (λ c, p ◽ c).
+    exact (λ c c' f, ! nat_trans_ax p _ _ f).
+  - intros F; simpl.
+    now apply (nat_trans_eq (homset_property D^op)).
+  - intros F F' F'' p q; simpl.
+    now apply (nat_trans_eq (homset_property D^op)).
+Defined.
+
+Definition makeNattrans {C D:Precategory} {F G:C ==> D}
+           (mor : ∀ x : C, F x → G x)
+           (eqn : ∀ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
+  F ⟶ G
+  := (mor,,eqn).
+
+Definition functor_composite_functor {A B C:Precategory} (F:A==>B) :
+  [B,C] ==> [A,C].
+Proof.
+  intros. refine (makeFunctor _ _ _ _).
+  - exact (λ G, G □ F).
+  - intros G G' p; simpl.
+    refine (@makeNattrans A C (G □ F) (G' □ F) (λ a, p ◽ (F ◾ a)) _).
+    abstract (
+        intros a a' f; rewrite 2? nattrans_nattrans_object_assoc;
+        exact (nattrans_naturality p (F ▭ f))) using L.
+  - abstract (
+        intros G; now apply (nat_trans_eq (homset_property C))) using M.
+  - abstract (
+        intros G G' G'' p q; now apply (nat_trans_eq (homset_property C))) using N.
+Defined.
+
+Definition op_move {B C:Precategory} : [B,C^op] ==> [B^op,C]^op.
+Proof.
+  intros.
+  set (R := λ F:[B,C^op], @makeFunctor B^op C
+                                  (λ b, F ◾ b)
+                                  (λ b b' f, F ▭ f)
+                                  (λ b, functor_id F b)
+                                  (λ a b c f g, functor_comp F _ _ _ g f)).
+  refine (@makeFunctor [B,C^op] [B^op,C]^op R _ _ _).
+  - intros F G p. refine (makeNattrans _ _).
+    + exact (λ b, p ◽ (b:B)).
+    + abstract (exact (λ b b' f, ! nattrans_naturality p f)) using L.
+  - abstract (intros F; now apply (nat_trans_eq (homset_property C))) using L.
+  - abstract (intros F F' F'' p q; now apply (nat_trans_eq (homset_property C))) using L.
+Defined.
+
+
+
+      (*  *)
