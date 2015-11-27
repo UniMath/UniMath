@@ -24,8 +24,6 @@ TerminalObject.v
 Representation.v
 Elements.v
 StandardCategories.v
-ZeroObject.v
-InitialAndFinalObject.v
 Precategories.v
 Interval.v
 Utilities.v
