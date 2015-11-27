@@ -1284,6 +1284,14 @@ Proof.
   apply x0.
 Defined.
 
+Lemma isweq_to_isweq_unit {X:UU} (f g:X->unit) : isweq f -> isweq g.
+Proof.
+  intros ? ? ? i.
+  assert (h : f ~ g).
+  { intros t. apply isconnectedunit. }
+  exact (isweqhomot f g h i).
+Defined.  
+
 Theorem gradth {X Y : UU} (f : X -> Y) (g : Y -> X)
   (egf: ∀ x : X, g (f x) = x)
   (efg: ∀ y : Y, f (g y) = y) : isweq f.
