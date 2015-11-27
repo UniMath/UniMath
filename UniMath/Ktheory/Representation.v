@@ -6,6 +6,23 @@ Local Open Scope cat.
 Definition Universal {C:Precategory} (X:[C^op,SET]) (c:C)
   := Σ (x:c ⇒ X), ∀ (c':C), isweq (λ f : c' → c, x ⟲ f).
 
+Definition is_nat_iso_set {C:Precategory} {X Y:[C^op,SET]} (p : X → Y) :=
+  ∀ c, isweq (p ◽ c).
+
+Definition NatIsoSet {C:Precategory} (X Y:[C^op,SET]) :=
+  Σ (p : X → Y), is_nat_iso_set p.
+
+Lemma iso_uni {C:Precategory} {X Y:[C^op,SET]} (c:C) :
+  NatIsoSet X Y -> Universal X c ≃ Universal Y c.
+Proof.
+  intro i.
+  (* Set Printing Implicit. *)
+  (* idtac. *)
+  refine (weqgradth _ _ _ _).
+  - intro u. exists ((pr1 i: _ ⟶ _) c (pr1 u)).
+    intro c'.
+Abort.
+
 Definition Representation {C:Precategory} (X:[C^op,SET]) : UU
   := Σ (c:C), Universal X c.
 
@@ -186,8 +203,6 @@ Definition in_ {C:Precategory} {I} {c:I -> ob C} (sum : Sum c) (i:I) :
   := universalElement sum i.
 
 Local Open Scope cat'.
-
-Require Import UniMath.Ktheory.ZeroObject.
 
 Definition Annihilator (C:Precategory) (zero:hasZeroMaps C) {c d:ob C} (f:c → d) :
   C^op ==> SET.

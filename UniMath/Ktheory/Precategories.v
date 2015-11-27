@@ -196,16 +196,42 @@ Lemma opp_opp_precat_data (C : precategory_data)
    : C = opp_precat_data (opp_precat_data C).
 Proof. intros [[ob mor] [id co]]. reflexivity. Defined.
 
-Lemma opp_opp_precat (C:Precategory) : C = C^op^op.
+Lemma Precategory_eq (C D:Precategory) :
+  (C:precategory_data) = (D:precategory_data) -> C=D.
 Proof.
   intros.
+  apply subtypeEquality. intro. apply isaprop_has_homsets.
   apply subtypeEquality'.
-  (* the only reason we can't use subtypeEquality is because the homset condition is divorced from the precategory *)
-  { apply subtypeEquality'.
-    { apply opp_opp_precat_data. }
-    { apply isaprop_is_precategory. apply has_homsets_opp, homset_property. } }
-  { apply isaprop_has_homsets. }
+  { assumption. }
+  apply isaprop_is_precategory.
+  apply homset_property.
 Defined.
+
+Lemma total2_paths1 {A : UU} {B : A -> UU} (a:A) {b b':B a} :
+  b=b' -> tpair B a b = tpair B a b'.
+Proof.
+  intros ? ? ? ? ? e.
+  induction e.
+  reflexivity.
+Defined.
+
+Lemma dirprod_eq {X Y:UU} (p q:X×Y) : pr1 p = pr1 q -> pr2 p = pr2 q -> p = q.
+Proof.
+  intros ? ? ? ?. induction p as [x y]; induction q as [x' y']; simpl.
+  intros r s. induction r. induction s. reflexivity.
+Defined.
+
+Goal ∀ A : UU, ∀ B : A -> UU, ∀ p : (Σ a, B a), p = tpair B (pr1 p) (pr2 p).
+  intros. induction p as [a b]. reflexivity. Defined.
+
+Goal ∀ X Y (f:X->Y), f = λ x, f x.
+  intros. reflexivity. Defined.
+
+Lemma opp_opp_precat (C:Precategory) : C = C^op^op.
+Proof.
+  intros. apply Precategory_eq. induction C as [[[[obj mor] [id comp]] p] h].
+  reflexivity.
+Qed.
 
 (* new categories from old *)
 
@@ -382,6 +408,28 @@ Proof.
   - abstract (intros F F' F'' p q; now apply (nat_trans_eq (homset_property C))) using L.
 Defined.
 
+(* zero maps, definition: *)
+
+Definition hasZeroMaps (C:Precategory) :=
+  Σ (zero : ∀ a b:C, a → b),
+  (∀ a b c, ∀ f:b → c, f ∘ zero a b = zero a c)
+    ×
+    (∀ a b c, ∀ f:c → b, zero b a ∘ f = zero c a).
+
+Definition is {C:Precategory} (zero: hasZeroMaps C) {a b:C} (f:a→b)
+  := f = pr1 zero _ _.
+
+Definition hasZeroMaps_opp (C:Precategory) : hasZeroMaps C -> hasZeroMaps C^op
+  := λ z, (λ a b, pr1 z b a) ,, pr2 (pr2 z) ,, pr1 (pr2 z).
+
+Definition hasZeroMaps_opp_opp (C:Precategory) (zero:hasZeroMaps C) :
+  hasZeroMaps_opp C^op (hasZeroMaps_opp C zero) = zero.
+Proof.
+  intros.
+  refine (total2_paths _ _).
+  - reflexivity.
+  - refine (total2_paths _ _); reflexivity.
+Defined.
 
 
       (*  *)
