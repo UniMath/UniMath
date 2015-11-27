@@ -513,50 +513,31 @@ Proof.
   change (neg (r < 0)%NRat).
   now apply isnonnegative_NonnegativeRationals'.
 Qed.
-Lemma Dcuts_notempty :
-  forall x : Dcuts, 0%NRat ∈ x = hexists (λ r, r ∈ x × (0 < r)%NRat).
-Proof.
-  intros x.
-  apply uahp.
-  - intro H.
-    now apply is_Dcuts_open.
-  - apply hinhuniv ; intros (r,(Xr,Hr0)).
-    apply is_Dcuts_bot with r.
-    + exact Xr.
-    + now apply lt_leNonnegativeRationals.
-Qed.
 Lemma Dcuts_notempty_notzero :
-  forall x, 0%NRat ∈ x -> x != 0.
+  forall (x : Dcuts) (r : NonnegativeRationals), r ∈ x -> x != 0.
 Proof.
-  intros x Hx Hx0.
+  intros x r Hx Hx0.
+  apply (fun H => is_Dcuts_bot _ _ H 0%NRat) in Hx.
   rewrite Hx0 in Hx.
   now apply (Dcuts_zero_empty 0%NRat) in Hx.
+  now apply isnonnegative_NonnegativeRationals.
 Qed.
 
 Lemma Dcuts_apzero_notempty :
-  forall x, (x ≠ 0) = (0%NRat ∈ x).
+  forall (x : Dcuts), (0%NRat ∈ x) <-> x ≠ 0.
 Proof.
-  intros x.
-  rewrite Dcuts_notempty.
-  apply weqtopathshProp, logeqweq ; apply hinhuniv.
-  - intros [Hr|Hr] ; revert Hr.
-    + apply hinhfun ; intros (r,(Xr,Or)).
+  intros x ; split.
+  - intro Hx.
+    apply hinhpr ; right.
+    apply hinhpr ; exists 0%NRat ; split.
+    now apply Dcuts_zero_empty.
+    exact Hx.
+  - apply hinhuniv ; intros [ | ].
+    + apply hinhuniv ; intros (r,(_,Or)).
       now apply Dcuts_zero_empty in Or.
     + apply hinhuniv ; intros (r,(_,Xr)).
-      generalize (is_Dcuts_open _ _ Xr).
-      apply hinhfun ; intros (q,(Xq,Hq)).
-      exists q ; split.
-      exact Xq.
-      apply istrans_le_lt_ltNonnegativeRationals with r.
+      apply is_Dcuts_bot with (1 := Xr).
       now apply isnonnegative_NonnegativeRationals.
-      exact Hq.
-  - intros (r,(Xr,Hr0)).
-    intros P HP ; apply HP ; clear P HP.
-    right.
-    intros P HP ; apply HP ; clear P HP.
-    exists r ; split.
-    now apply Dcuts_zero_empty.
-    exact Xr.
 Qed.
 
 (** ** Addition in Dcuts *)
@@ -915,22 +896,6 @@ Proof.
 Qed.
 
 End Dcuts_NQmult.
-
-Lemma Dcuts_NQmult_id :
-  ∀ X x y, x * y = 1%NRat -> Dcuts_NQmult_val x (Dcuts_NQmult_val y X) = X.
-Proof.
-  intros X x y H1.
-  apply funextfun.
-  intros q.
-  apply uahp.
-  - apply hinhuniv ; intros (r,(->)).
-    apply hinhuniv ; intros (s,(->)).
-    now rewrite <- isassoc_multNonnegativeRationals, H1, islunit_oneNonnegativeRationals.
-  - intros Xq.
-    apply hinhpr ; exists (y * q) ; split.
-    now rewrite <- isassoc_multNonnegativeRationals, H1, islunit_oneNonnegativeRationals.
-    now apply hinhpr ; exists q ; split.
-Qed.
 
 Definition Dcuts_NQmult x (Y : Dcuts) Hx : Dcuts :=
   mk_Dcuts (Dcuts_NQmult_val x (pr1 Y))
@@ -1447,7 +1412,7 @@ Proof.
     now apply is_Dcuts_bot.
     now apply is_Dcuts_open.
     now apply is_Dcuts_error.
-    now rewrite <- Dcuts_apzero_notempty.
+    now apply_pr2 Dcuts_apzero_notempty.
 Defined.
 
 (** ** Algebraic properties *)
@@ -1857,7 +1822,7 @@ Proof.
     exact Hl1.
   - change (q ∈ 1) with (q < 1)%NRat ; intro Hq.
     generalize Hx0 ; intro Hx.
-    rewrite Dcuts_apzero_notempty in Hx0.
+    apply_pr2_in Dcuts_apzero_notempty Hx0.
     destruct (eq0orgt0NonnegativeRationals q) as [Hq0 | Hq0].
     + rewrite Hq0.
       apply hinhpr.
@@ -2589,11 +2554,10 @@ Definition isldistr_plus_multNonnegativeReals:
   := isldistr_CCDRplus_CCDRmult (X := NonnegativeReals).
 
 Lemma plusNonnegativeReals_ltcompat_l :
-  forall x y z: NonnegativeReals, (y + x < z + x) = (y < z).
+  forall x y z: NonnegativeReals, (y < z) <-> (y + x < z + x).
 Proof.
   intros x y z.
-  apply uahp.
-  - now apply Dcuts_plus_lt_l.
+  split.
   - apply hinhuniv ; intros (r,(nYr,Zr)).
     generalize (is_Dcuts_open _ _ Zr) ; apply hinhuniv ; intros (r',(Zr',Hr)).
     apply minusNonnegativeRationals_gt0 in Hr.
@@ -2637,31 +2601,31 @@ Proof.
         apply hinhpr ; exists (r',q) ; repeat split.
         exact Zr'.
         exact Xq.
+  - now apply Dcuts_plus_lt_l.
 Qed.
 Lemma plusNonnegativeReals_lecompat_l :
-  forall x y z: NonnegativeReals, (y + x <= z + x) = (y <= z).
+  forall x y z: NonnegativeReals, (y <= z) <-> (y + x <= z + x).
 Proof.
   intros x y z.
-  apply uahp ;
-  change (y + x <= z + x) with (z + x >= y + x) ;
-  change (y <= z) with (z >= y).
+  split.
+  - intros H ; apply Dcuts_nlt_ge ; intro H0 ;
+    apply_pr2_in Dcuts_nlt_ge H ; apply H.
+    now apply_pr2 (plusNonnegativeReals_ltcompat_l x).
   - intros H.
     apply Dcuts_nlt_ge ; intro H0.
     apply_pr2_in Dcuts_nlt_ge H.
-    apply H ; now rewrite plusNonnegativeReals_ltcompat_l.
-  - intros H ; apply Dcuts_nlt_ge ; intro H0 ;
-    apply_pr2_in Dcuts_nlt_ge H ; apply H.
-    now rewrite <- (plusNonnegativeReals_ltcompat_l x).
+    apply H.
+    now apply plusNonnegativeReals_ltcompat_l.
 Qed.
 Lemma plusNonnegativeReals_ltcompat_r :
-  forall x y z: NonnegativeReals, (x + y < x + z) = (y < z).
+  forall x y z: NonnegativeReals, (y < z) <-> (x + y < x + z).
 Proof.
   intros x y z.
   rewrite ! (iscomm_plusNonnegativeReals x).
   now apply plusNonnegativeReals_ltcompat_l.
 Qed.
 Lemma plusNonnegativeReals_lecompat_r :
-  forall x y z: NonnegativeReals, (x + y <= x + z) = (y <= z).
+  forall x y z: NonnegativeReals, (y <= z) <-> (x + y <= x + z).
 Proof.
   intros x y z.
   rewrite ! (iscomm_plusNonnegativeReals x).
