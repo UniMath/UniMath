@@ -20,7 +20,6 @@ RawMatrix.v
 Colimit.v
 Cocone.v
 Bifunctor.v
-TerminalObject.v
 Representation.v
 Elements.v
 StandardCategories.v
