@@ -10,24 +10,25 @@ Require Import
         UniMath.Ktheory.Utilities
         UniMath.Foundations.FiniteSets
         UniMath.Ktheory.Representation
-        UniMath.Ktheory.Precategories
-        UniMath.Ktheory.ZeroObject.
+        UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.RawMatrix UniMath.Ktheory.FiniteSet.
 Local Open Scope cat.
 
-Definition identity_matrix {C:Precategory} (h:hasZeroObject C)
+Definition identity_matrix {C:Precategory} (h:hasZeroMaps C)
            {I} (d:I -> ob C) (dec : isdeceq I) : ∀ i j, Hom C (d j) (d i).
-Proof. intros. destruct (dec i j) as [ [] | _ ].
-       { apply identity. } { apply zeroMap. apply h. } Defined.
+Proof. intros. induction (dec i j) as [ eq | ne ].
+       { induction eq. apply identity. }
+       { apply h. }
+Defined.
 
-Definition identity_map {C:Precategory} (h:hasZeroObject C)
+Definition identity_map {C:Precategory} (h:hasZeroMaps C)
            {I} {d:I -> ob C} (dec : isdeceq I)
            (B:Sum d) (D:Product d)
       : Hom C (obj B) (obj D).
 Proof. intros. apply RawMatrix.from_matrix. apply identity_matrix.
        assumption. assumption. Defined.
 
-Record DirectSum {C:Precategory} (h:hasZeroObject C) I (dec : isdeceq I) (c : I -> ob C) :=
+Record DirectSum {C:Precategory} (h:hasZeroMaps C) I (dec : isdeceq I) (c : I -> ob C) :=
   make_DirectSum {
       ds : C;
       ds_pr : ∀ i, Hom C ds (c i);
@@ -35,7 +36,7 @@ Record DirectSum {C:Precategory} (h:hasZeroObject C) I (dec : isdeceq I) (c : I 
       ds_id : ∀ i j, ds_pr i ∘ ds_in j = identity_matrix h c dec i j;
       ds_isprod : ∀ c, isweq (λ f : Hom C c ds, λ i, ds_pr i ∘ f);
       ds_issum  : ∀ c, isweq (λ f : Hom C ds c, λ i, f ∘ ds_in i) }.
-Definition toDirectSum {C:Precategory} (h:hasZeroObject C) {I} (dec : isdeceq I) (d:I -> ob C)
+Definition toDirectSum {C:Precategory} (h:hasZeroMaps C) {I} (dec : isdeceq I) (d:I -> ob C)
            (B:Sum d) (D:Product d)
            (is: is_isomorphism (identity_map h dec B D)) : DirectSum h I dec d.
 Proof. intros. set (id := identity_map h dec B D).
@@ -55,7 +56,7 @@ Proof. intros. set (id := identity_map h dec B D).
                       (pr2 (universalProperty B c))). }
 Defined.
 Definition FiniteDirectSums (C:Precategory) :=
-             Σ h : hasZeroObject C,
+             Σ h : hasZeroMaps C,
              ∀ I : FiniteSet,
              ∀ d : I -> ob C,
                DirectSum h I (isfinite_isdeceq I (pr2 I)) d.
