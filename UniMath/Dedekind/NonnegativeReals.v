@@ -43,7 +43,7 @@ Proof.
     + exact Xq0.
     + intro H ; apply nXq.
       apply Hbot with (1 := H).
-      now rewrite plusNonnegativeRationals_lecompat_r ; apply lt_leNonnegativeRationals.
+      now apply plusNonnegativeRationals_lecompat_r ; apply lt_leNonnegativeRationals.
 Qed.
 Lemma Dcuts_def_error'_correct2 (X : hsubtypes NonnegativeRationals) (k : NonnegativeRationals) :
   Dcuts_def_bot X -> (0 < k)%NRat ->
@@ -68,7 +68,7 @@ Proof.
       * exact Xq.
       * intro H ; apply nXq.
         apply Hbot with (1 := H).
-        now rewrite plusNonnegativeRationals_lecompat_l ; apply lt_leNonnegativeRationals.
+        now apply plusNonnegativeRationals_lecompat_l ; apply lt_leNonnegativeRationals.
 Qed.
 
 Lemma Dcuts_def_error_finite (X : hsubtypes NonnegativeRationals) :
@@ -241,7 +241,7 @@ Proof.
   intros x y z.
   apply hinhuniv ; intros (r,(Xr,Zr)).
   generalize (is_Dcuts_open z r Zr) ; apply hinhuniv ; intros (r',(Zr',Hr)).
-  assert (Hr0 : 0%NRat < r' - r) by (now rewrite minusNonnegativeRationals_gt0).
+  assert (Hr0 : 0%NRat < r' - r) by (now apply minusNonnegativeRationals_gt0).
   generalize (is_Dcuts_error y _ Hr0) ; apply hinhuniv ; intros [Yq | Yq].
   - apply Utilities.squash_element ;
     right ; apply Utilities.squash_element.
@@ -266,7 +266,9 @@ Proof.
         apply is_Dcuts_bot with q.
         exact Xq.
         apply notge_ltNonnegativeRationals in Hdec.
-        rewrite <- (plusNonnegativeRationals_ltcompat_r r), isassoc_plusNonnegativeRationals, minusNonegativeRationals_plus_r, iscomm_plusNonnegativeRationals, plusNonnegativeRationals_ltcompat_r in Hdec.
+        apply (plusNonnegativeRationals_ltcompat_r r) in Hdec ;
+          rewrite isassoc_plusNonnegativeRationals, minusNonegativeRationals_plus_r, iscomm_plusNonnegativeRationals in Hdec.
+        apply_pr2_in plusNonnegativeRationals_ltcompat_r Hdec.
         now apply lt_leNonnegativeRationals, Hdec.
         now apply lt_leNonnegativeRationals, Hr.
       * exact Yq.
@@ -299,7 +301,7 @@ Proof.
   split.
   - intros Hnlt y Yy.
     generalize (is_Dcuts_open _ _ Yy) ; apply hinhuniv ; intros (y',(Yy',Hy)).
-    rewrite <- minusNonnegativeRationals_gt0 in Hy.
+    apply minusNonnegativeRationals_gt0 in Hy.
     generalize (is_Dcuts_error X _ Hy) ; apply hinhuniv ; intros [nXc | ].
     + apply fromempty, Hnlt.
       apply hinhpr.
@@ -316,9 +318,10 @@ Proof.
       * exact Hx.
       * apply is_Dcuts_bot with (1 := Yy').
         pattern y' at 2 ; rewrite <- (minusNonegativeRationals_plus_r y y').
-        rewrite iscomm_plusNonnegativeRationals, plusNonnegativeRationals_lecompat_l.
+        rewrite iscomm_plusNonnegativeRationals.
+        apply plusNonnegativeRationals_lecompat_l.
         now apply lt_leNonnegativeRationals, H.
-        apply lt_leNonnegativeRationals ; rewrite <- minusNonnegativeRationals_gt0.
+        apply lt_leNonnegativeRationals ; apply_pr2 minusNonnegativeRationals_gt0.
         exact Hy.
   - intros Hxy ; unfold neg.
     apply (hinhuniv (P := hProppair _ isapropempty)) ;
@@ -495,15 +498,10 @@ Definition Dcuts : tightapSet :=
     istight_Dcuts_ap_rel.
 
 Lemma not_Dcuts_ap_eq :
-  ∀ x y : Dcuts, (neg (x ≠ y)) = (x = y).
+  forall x y : Dcuts, ¬ (x ≠ y) -> (x = y).
 Proof.
   intros x y.
-  apply uahp'.
-  - apply isapropneg.
-  - apply (pr2 Dcuts_set).
-  - now apply istight_Dcuts_ap_rel.
-  - intros ->.
-    now apply isirrefl_Dcuts_ap_rel.
+  now apply istight_Dcuts_ap_rel.
 Qed.
 
 (** *** Various theorems about order *)
@@ -543,9 +541,9 @@ Proof.
 Qed.
 
 Lemma Dcuts_gt_lt :
-  ∀ x y : Dcuts, (x > y) = (y < x).
+  ∀ x y : Dcuts, (x > y) <-> (y < x).
 Proof.
-  reflexivity.
+  now split.
 Qed.
 Lemma Dcuts_gt_ge :
   ∀ x y : Dcuts, x > y -> x >= y.
@@ -600,15 +598,15 @@ Proof.
   intros P HP ; apply HP ; clear P HP.
   destruct (isdecrel_ltNonnegativeRationals r q) as [Hqr|Hqr].
   - right.
-    assert (Hn0 : (0 < q - r)%NRat) by (now rewrite minusNonnegativeRationals_gt0).
+    assert (Hn0 : (0 < q - r)%NRat) by (now apply minusNonnegativeRationals_gt0).
     intros P HP ; apply HP ; clear P HP.
     exists (q - r).
     split.
-    + rewrite <- (plusNonnegativeRationals_ltcompat_r r).
+    + apply_pr2 (plusNonnegativeRationals_ltcompat_r r).
       rewrite minusNonegativeRationals_plus_r.
       pattern q at 1 ;
         rewrite <- isrunit_zeroNonnegativeRationals.
-      rewrite plusNonnegativeRationals_ltcompat_l.
+      apply plusNonnegativeRationals_ltcompat_l.
       exact Hr0.
       now apply lt_leNonnegativeRationals, Hqr.
     + rewrite minusNonegativeRationals_plus_r.
@@ -676,60 +674,37 @@ Notation "1" := Dcuts_one : Dcuts_scope.
 (** Various usefull theorems *)
 
 Lemma Dcuts_zero_empty :
-  ∀ r : NonnegativeRationals, (r ∈ 0 : UU) = empty.
+  forall r : NonnegativeRationals, neg (r ∈ 0).
 Proof.
   intros r ; simpl.
-  apply uahp' ; simpl.
-  - now apply pr2.
-  - now apply isapropempty.
-  - change (neg (r < 0)%NRat).
-    now apply isnonnegative_NonnegativeRationals'.
-  - easy.
-Qed.
-Lemma Dcuts_notempty :
-  ∀ x : Dcuts, 0%NRat ∈ x = hexists (λ r, r ∈ x × (0 < r)%NRat).
-Proof.
-  intros x.
-  apply uahp.
-  - intro H.
-    now apply is_Dcuts_open.
-  - apply hinhuniv ; intros (r,(Xr,Hr0)).
-    apply is_Dcuts_bot with r.
-    + exact Xr.
-    + now apply lt_leNonnegativeRationals.
+  change (neg (r < 0)%NRat).
+  now apply isnonnegative_NonnegativeRationals'.
 Qed.
 Lemma Dcuts_notempty_notzero :
-  ∀ x, 0%NRat ∈ x -> x != 0.
+  forall (x : Dcuts) (r : NonnegativeRationals), r ∈ x -> x != 0.
 Proof.
-  intros x Hx Hx0.
+  intros x r Hx Hx0.
+  apply (fun H => is_Dcuts_bot _ _ H 0%NRat) in Hx.
   rewrite Hx0 in Hx.
-  now rewrite (Dcuts_zero_empty 0%NRat) in Hx.
+  now apply (Dcuts_zero_empty 0%NRat) in Hx.
+  now apply isnonnegative_NonnegativeRationals.
 Qed.
 
 Lemma Dcuts_apzero_notempty :
-  ∀ x : Dcuts, (x ≠ 0) = (0%NRat ∈ x).
+  forall (x : Dcuts), (0%NRat ∈ x) <-> x ≠ 0.
 Proof.
-  intros x.
-  rewrite Dcuts_notempty.
-  apply weqtopathshProp, logeqweq ; apply hinhuniv.
-  - intros [Hr|Hr] ; revert Hr.
-    + apply hinhfun ; intros (r,(Xr,Or)).
-      now rewrite Dcuts_zero_empty in Or.
+  intros x ; split.
+  - intro Hx.
+    apply hinhpr ; right.
+    apply hinhpr ; exists 0%NRat ; split.
+    now apply Dcuts_zero_empty.
+    exact Hx.
+  - apply hinhuniv ; intros [ | ].
+    + apply hinhuniv ; intros (r,(_,Or)).
+      now apply Dcuts_zero_empty in Or.
     + apply hinhuniv ; intros (r,(_,Xr)).
-      generalize (is_Dcuts_open _ _ Xr).
-      apply hinhfun ; intros (q,(Xq,Hq)).
-      exists q ; split.
-      exact Xq.
-      apply istrans_le_lt_ltNonnegativeRationals with r.
+      apply is_Dcuts_bot with (1 := Xr).
       now apply isnonnegative_NonnegativeRationals.
-      exact Hq.
-  - intros (r,(Xr,Hr0)).
-    intros P HP ; apply HP ; clear P HP.
-    right.
-    intros P HP ; apply HP ; clear P HP.
-    exists r ; split.
-    now rewrite Dcuts_zero_empty.
-    exact Xr.
 Qed.
 
 (** ** Addition in Dcuts *)
@@ -826,7 +801,7 @@ Qed.
 Lemma Dcuts_plus_error : Dcuts_def_error Dcuts_plus_val.
 Proof.
   intros c Hc.
-  rewrite ispositive_NQhalf in Hc.
+  apply NQhalf_is_pos in Hc.
   generalize (X_error _ Hc) (Y_error _ Hc).
   apply hinhfun2 ; intros [Hx [Hy | Hy ] | Hx [Hy | Hy] ].
   - left.
@@ -1029,7 +1004,7 @@ Proof.
     + reflexivity.
     + exact Yn.
   - rewrite Hr.
-    now rewrite multNonnegativeRationals_ltcompat_l.
+    now apply multNonnegativeRationals_ltcompat_l.
 Qed.
 Lemma Dcuts_NQmult_finite : Dcuts_def_finite Dcuts_NQmult_val.
 Proof.
@@ -1042,7 +1017,7 @@ Proof.
   revert Hz.
   apply gtNonnegativeRationals_noteq.
   apply (pr2 (lt_gtNonnegativeRationals _ _)).
-  rewrite (multNonnegativeRationals_ltcompat_l x ry y Hx).
+  apply (multNonnegativeRationals_ltcompat_l x ry y Hx).
   apply notge_ltNonnegativeRationals.
   intro Hy' ; apply Hy.
   now apply Y_bot with ry.
@@ -1061,7 +1036,7 @@ Proof.
     apply gtNonnegativeRationals_noteq.
     rewrite <- (multdivNonnegativeRationals c x).
     apply (pr2 (lt_gtNonnegativeRationals _ _)).
-    rewrite (multNonnegativeRationals_ltcompat_l x ry (c / x)%NRat Hx).
+    apply (multNonnegativeRationals_ltcompat_l x ry (c / x)%NRat Hx).
     apply notge_ltNonnegativeRationals.
     intro Hy' ; apply Hy.
     now apply Y_bot with ry.
@@ -1079,7 +1054,7 @@ Proof.
       apply gtNonnegativeRationals_noteq.
       rewrite <- (multdivNonnegativeRationals c x), <-isldistr_mult_plusNonnegativeRationals.
       apply (pr2 ( lt_gtNonnegativeRationals _ _)).
-      rewrite (multNonnegativeRationals_ltcompat_l x ry (q + c / x)%NRat Hx).
+      apply (multNonnegativeRationals_ltcompat_l x ry (q + c / x)%NRat Hx).
       apply notge_ltNonnegativeRationals.
       intro Hy' ; apply nYq.
       now apply Y_bot with ry.
@@ -1199,7 +1174,7 @@ Context (Hx1 : ¬ X 1%NRat).
 Lemma Dcuts_mult_error_aux : Dcuts_def_error Dcuts_mult_val.
 Proof.
   intros c Hc0.
-  rewrite ispositive_NQhalf in Hc0.
+  apply NQhalf_is_pos in Hc0.
   generalize (Y_error _ Hc0).
   apply hinhuniv ; intros [Hy | Hy].
   - apply hinhpr ; left.
@@ -1242,7 +1217,7 @@ Proof.
       exact Hq1.
       rewrite <- (islunit_zeroNonnegativeRationals (c / 2)%NRat).
       pattern c at 2 ; rewrite (NQhalf_double c).
-      now rewrite plusNonnegativeRationals_ltcompat_r.
+      now apply plusNonnegativeRationals_ltcompat_r.
     + right.
       revert H ; apply hinhfun ; intros (x,(Xx,nXx)).
       exists (x * y) ; repeat split.
@@ -1262,9 +1237,9 @@ Proof.
         unfold cx ; rewrite multdivNonnegativeRationals.
         pattern c at 3 ;
           rewrite (NQhalf_double c), <- isassoc_plusNonnegativeRationals.
-        rewrite plusNonnegativeRationals_lecompat_r.
+        apply plusNonnegativeRationals_lecompat_r.
         rewrite isldistr_mult_plusNonnegativeRationals.
-        rewrite plusNonnegativeRationals_lecompat_l.
+        apply plusNonnegativeRationals_lecompat_l.
         rewrite iscomm_multNonnegativeRationals.
         apply multNonnegativeRationals_le1_r.
         apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
@@ -1332,7 +1307,7 @@ Proof.
     + apply Dcuts_mult_error_aux.
       now apply Dcuts_NQmult_bot.
       apply Dcuts_NQmult_error.
-      now rewrite ispositive_invNonnegativeRationals.
+      now apply ispositive_invNonnegativeRationals.
       exact X_bot.
       exact X_error.
       exact Y_bot.
@@ -1404,12 +1379,12 @@ Proof.
     now apply X_bot with (1 := X_0).
     apply istrans_le_lt_ltNonnegativeRationals with (2 := Hy).
     now apply isnonnegative_NonnegativeRationals.
-  - rewrite <- (multNonnegativeRationals_ltcompat_r y).
+  - apply_pr2 (multNonnegativeRationals_ltcompat_r y).
+    apply istrans_le_lt_ltNonnegativeRationals with (2 := Hy).
+    now apply isnonnegative_NonnegativeRationals.
     unfold divNonnegativeRationals.
     rewrite isassoc_multNonnegativeRationals, islinv_NonnegativeRationals, islunit_oneNonnegativeRationals, isrunit_oneNonnegativeRationals.
     exact Hy.
-    apply istrans_le_lt_ltNonnegativeRationals with (2 := Hy).
-    now apply isnonnegative_NonnegativeRationals.
     apply istrans_le_lt_ltNonnegativeRationals with (2 := Hy).
     now apply isnonnegative_NonnegativeRationals.
 Qed.
@@ -1457,9 +1432,11 @@ Proof.
         now apply X_bot with (1 := Xrx).
         exact Hr0.
         now apply ispositive_multNonnegativeRationals.
-      * now rewrite ispositive_invNonnegativeRationals.
-      * now rewrite <- (multNonnegativeRationals_ltcompat_l r), isrinv_NonnegativeRationals, isrunit_oneNonnegativeRationals.
-    + rewrite ispositive_invNonnegativeRationals.
+      * now apply ispositive_invNonnegativeRationals.
+      * apply_pr2 (multNonnegativeRationals_ltcompat_l r).
+        easy.
+        now rewrite isrinv_NonnegativeRationals, isrunit_oneNonnegativeRationals.
+    + apply ispositive_invNonnegativeRationals.
       now apply ispositive_multNonnegativeRationals.
   - apply between_ltNonnegativeRationals in Hl1.
     destruct Hl1 as [l' (Hl',Hl'1)].
@@ -1478,9 +1455,12 @@ Proof.
         now apply isnonnegative_NonnegativeRationals.
       * exact Hl'1.
     + pattern r at 1 ; rewrite <- (islunit_oneNonnegativeRationals r).
-      rewrite multNonnegativeRationals_ltcompat_r, <- (multNonnegativeRationals_ltcompat_r l _ _ Hl0), islunit_oneNonnegativeRationals.
-      now rewrite iscomm_multNonnegativeRationals, multdivNonnegativeRationals.
+      apply multNonnegativeRationals_ltcompat_r.
       exact Hr0.
+      apply_pr2 (multNonnegativeRationals_ltcompat_r l).
+      exact Hl0.
+      rewrite islunit_oneNonnegativeRationals.
+      now rewrite iscomm_multNonnegativeRationals, multdivNonnegativeRationals.
 Qed.
 
 Context (X_1 : X 1%NRat).
@@ -1499,14 +1479,14 @@ Proof.
 
   intros c Hc0.
   apply hinhpr ; right.
-  rewrite ispositive_NQhalf in Hc0.
+  apply NQhalf_is_pos in Hc0.
   specialize (X_error _ Hc0) ; revert X_error.
   apply hinhfun ; intros (r,(Xr,nXr)).
   exists (/ (NQmax 1%NRat r + c))%NRat ; split.
   - apply Dcuts_inv_out with (1 := nXr).
     pattern c at 2 ; rewrite (NQhalf_double c), <- isassoc_plusNonnegativeRationals.
     eapply istrans_le_lt_ltNonnegativeRationals, plusNonnegativeRationals_lt_r.
-    rewrite plusNonnegativeRationals_lecompat_r ; apply NQmax_le_r.
+    apply plusNonnegativeRationals_lecompat_r ; apply NQmax_le_r.
     exact Hc0.
   - assert (Xmax : X (NQmax 1%NRat r)) by (now apply NQmax_case).
     assert (Hmax : (0 < NQmax 1 r)%NRat).
@@ -1517,21 +1497,22 @@ Proof.
     rewrite plusNonnegativeRationals_minus_l.
     rewrite minus_divNonnegativeRationals, plusNonnegativeRationals_minus_l.
     unfold divNonnegativeRationals ;
-    rewrite <- (multNonnegativeRationals_ltcompat_r (NQmax 1 r * (NQmax 1 r + c))%NRat), isassoc_multNonnegativeRationals, islinv_NonnegativeRationals.
-    rewrite multNonnegativeRationals_ltcompat_l.
+      apply_pr2 (multNonnegativeRationals_ltcompat_r (NQmax 1 r * (NQmax 1 r + c))%NRat).
+    apply ispositive_multNonnegativeRationals.
+    exact Hmax.
+    now apply ispositive_plusNonnegativeRationals_l.
+    rewrite isassoc_multNonnegativeRationals, islinv_NonnegativeRationals.
+    apply multNonnegativeRationals_ltcompat_l.
+    now apply_pr2 NQhalf_is_pos.
     pattern 1%NRat at 1 ;
       rewrite <- (islunit_oneNonnegativeRationals 1%NRat).
     apply istrans_le_lt_ltNonnegativeRationals with (NQmax 1 r * 1)%NRat.
     now apply multNonnegativeRationals_lecompat_r, NQmax_le_l.
-    rewrite multNonnegativeRationals_ltcompat_l.
+    apply multNonnegativeRationals_ltcompat_l.
+    exact Hmax.
     apply istrans_le_lt_ltNonnegativeRationals with (1 := NQmax_le_l _ r).
     apply plusNonnegativeRationals_lt_r.
-    now rewrite ispositive_NQhalf.
-    exact Hmax.
-    now rewrite ispositive_NQhalf.
-    apply ispositive_multNonnegativeRationals.
-    exact Hmax.
-    now apply ispositive_plusNonnegativeRationals_l.
+    now apply_pr2 NQhalf_is_pos.
     apply ispositive_multNonnegativeRationals.
     exact Hmax.
     now apply ispositive_plusNonnegativeRationals_l.
@@ -1585,12 +1566,12 @@ Proof.
       exact Hl1. }
   rewrite Heq.
   apply Dcuts_NQmult_error.
-  now rewrite ispositive_invNonnegativeRationals.
+  now apply ispositive_invNonnegativeRationals.
   now apply Dcuts_inv_bot.
   apply Dcuts_inv_error_aux.
   now unfold Y ; apply Dcuts_NQmult_bot.
   unfold Y ; apply Dcuts_NQmult_error.
-  now rewrite ispositive_invNonnegativeRationals.
+  now apply ispositive_invNonnegativeRationals.
   exact X_bot.
   exact X_error.
   apply hinhpr ; exists 0%NRat ; split.
@@ -1613,7 +1594,7 @@ Proof.
     now apply is_Dcuts_bot.
     now apply is_Dcuts_open.
     now apply is_Dcuts_error.
-    now rewrite <- Dcuts_apzero_notempty.
+    now apply_pr2 Dcuts_apzero_notempty.
 Defined.
 
 (** ** Algebraic properties *)
@@ -1843,10 +1824,10 @@ Proof.
   apply Dcuts_eq_is_eq ; intro r ; split.
   - apply hinhuniv, sumofmaps ; apply hinhuniv.
     + apply sumofmaps ; intro Hr.
-      * now rewrite Dcuts_zero_empty in Hr.
+      * now apply Dcuts_zero_empty in Hr.
       * exact Hr.
     + intros ((r0,rx),(_,(Hr,_))).
-      now rewrite Dcuts_zero_empty in Hr.
+      now apply Dcuts_zero_empty in Hr.
   - intros Hr.
     apply hinhpr ; left.
     now apply hinhpr ; right.
@@ -1894,10 +1875,11 @@ Proof.
       apply istrans_le_lt_ltNonnegativeRationals with (2 := Hrq).
       apply isnonnegative_NonnegativeRationals.
     +  change (r / q < 1)%NRat.
-       rewrite <- (multNonnegativeRationals_ltcompat_l q), multdivNonnegativeRationals, isrunit_oneNonnegativeRationals.
-       exact Hrq.
+       apply_pr2 (multNonnegativeRationals_ltcompat_l q).
        apply istrans_le_lt_ltNonnegativeRationals with (2 := Hrq).
        apply isnonnegative_NonnegativeRationals.
+       rewrite multdivNonnegativeRationals, isrunit_oneNonnegativeRationals.
+       exact Hrq.
        apply istrans_le_lt_ltNonnegativeRationals with (2 := Hrq).
        apply isnonnegative_NonnegativeRationals.
     + exact Xq.
@@ -1914,9 +1896,9 @@ Proof.
   intros x.
   apply Dcuts_eq_is_eq ; intro r ; split.
   - apply hinhuniv ; intros ((ri,rx),(Hr,(Or,Xr))).
-    now rewrite Dcuts_zero_empty in Or |- *.
-  - rewrite Dcuts_zero_empty.
-    now apply fromempty.
+    now apply Dcuts_zero_empty in Or.
+  - intro Hr.
+    now apply Dcuts_zero_empty in Hr.
 Qed.
 Lemma israbsorb_Dcuts_mult_zero :
   ∀ x : Dcuts, Dcuts_mult x Dcuts_zero = Dcuts_zero.
@@ -2021,7 +2003,7 @@ Proof.
     exact Hl1.
   - change (q ∈ 1) with (q < 1)%NRat ; intro Hq.
     generalize Hx0 ; intro Hx.
-    rewrite Dcuts_apzero_notempty in Hx0.
+    apply_pr2_in Dcuts_apzero_notempty Hx0.
     destruct (eq0orgt0NonnegativeRationals q) as [Hq0 | Hq0].
     + rewrite Hq0.
       apply hinhpr.
@@ -2033,11 +2015,12 @@ Proof.
         rewrite islabsorb_zero_multNonnegativeRationals.
         now apply isnonnegative_NonnegativeRationals.
         split.
-        rewrite ispositive_invNonnegativeRationals.
+        apply (pr1 (ispositive_invNonnegativeRationals _)).
         exact ispositive_twoNonnegativeRationals.
-        rewrite <- (multNonnegativeRationals_ltcompat_l 2), isrunit_oneNonnegativeRationals, isrinv_NonnegativeRationals.
+        apply_pr2 (multNonnegativeRationals_ltcompat_l 2).
+        exact ispositive_twoNonnegativeRationals.
+        rewrite isrunit_oneNonnegativeRationals, isrinv_NonnegativeRationals.
         exact one_lt_twoNonnegativeRationals.
-        exact ispositive_twoNonnegativeRationals.
         exact ispositive_twoNonnegativeRationals.
       * exact Hx0.
     + generalize (is_Dcuts_open _ _ Hx0).
@@ -2049,10 +2032,12 @@ Proof.
       { unfold c.
         apply ispositive_multNonnegativeRationals.
         exact Hr0.
-        rewrite minusNonnegativeRationals_gt0.
-        rewrite <- (multNonnegativeRationals_ltcompat_l t), isrunit_oneNonnegativeRationals, isrinv_NonnegativeRationals.
+        apply minusNonnegativeRationals_gt0.
+        apply_pr2 (multNonnegativeRationals_ltcompat_l t).
+        now apply istrans_ltNonnegativeRationals with q.
+        rewrite isrunit_oneNonnegativeRationals, isrinv_NonnegativeRationals.
         exact Ht1.
-        now apply istrans_ltNonnegativeRationals with q.     now apply istrans_ltNonnegativeRationals with q. }
+        now apply istrans_ltNonnegativeRationals with q. }
       generalize (Dcuts_def_error_not_empty _ Hx0 (is_Dcuts_error x) _ Hc0).
       apply hinhfun ; intros (r',(Xr',nXr')).
       exists ((q * / (NQmax r r'))%NRat,NQmax r r') ; repeat split.
@@ -2070,7 +2055,7 @@ Proof.
         apply (Dcuts_finite x).
         intro H ; apply nXr'.
         apply is_Dcuts_bot with (1 := H).
-        now rewrite plusNonnegativeRationals_lecompat_r ; apply NQmax_le_r.
+        now apply plusNonnegativeRationals_lecompat_r ; apply NQmax_le_r.
         exact Xrx.
         apply ispositive_multNonnegativeRationals.
         apply ispositive_divNonnegativeRationals.
@@ -2081,13 +2066,15 @@ Proof.
         rewrite iscomm_plusNonnegativeRationals.
         now apply ispositive_plusNonnegativeRationals_l.
         unfold divNonnegativeRationals.
-        rewrite <- (multNonnegativeRationals_ltcompat_l (/ q)%NRat), isrunit_oneNonnegativeRationals, <- !isassoc_multNonnegativeRationals, islinv_NonnegativeRationals, islunit_oneNonnegativeRationals.
+        apply_pr2 (multNonnegativeRationals_ltcompat_l (/ q)%NRat).
+        now apply ispositive_invNonnegativeRationals.
+        rewrite isrunit_oneNonnegativeRationals, <- !isassoc_multNonnegativeRationals, islinv_NonnegativeRationals, islunit_oneNonnegativeRationals.
         2: exact Hq0.
-        2: now rewrite ispositive_invNonnegativeRationals.
-        rewrite <- (multNonnegativeRationals_ltcompat_l (NQmax r r')), <- !isassoc_multNonnegativeRationals, isrinv_NonnegativeRationals, islunit_oneNonnegativeRationals.
-        2: apply istrans_lt_le_ltNonnegativeRationals with r.
-        2: exact Hr0.
-        2: now apply NQmax_le_l.
+        apply_pr2 (multNonnegativeRationals_ltcompat_l (NQmax r r')).
+        apply istrans_lt_le_ltNonnegativeRationals with r.
+        exact Hr0.
+        now apply NQmax_le_l.
+        rewrite <- !isassoc_multNonnegativeRationals, isrinv_NonnegativeRationals, islunit_oneNonnegativeRationals.
         2: apply istrans_lt_le_ltNonnegativeRationals with r.
         2: exact Hr0.
         2: now apply NQmax_le_l.
@@ -2097,19 +2084,21 @@ Proof.
         apply multNonnegativeRationals_le_lt.
         exact Hr0.
         now apply NQmax_le_l.
-        rewrite <- (multNonnegativeRationals_ltcompat_l q), !isldistr_mult_minusNonnegativeRationals, isrinv_NonnegativeRationals, isrunit_oneNonnegativeRationals.
+        apply_pr2 (multNonnegativeRationals_ltcompat_l q).
+        exact Hq0.
+        rewrite !isldistr_mult_minusNonnegativeRationals, isrinv_NonnegativeRationals, isrunit_oneNonnegativeRationals.
         2: exact Hq0.
-        2: exact Hq0.
-        rewrite <- (multNonnegativeRationals_ltcompat_r t), !isrdistr_mult_minusNonnegativeRationals, isassoc_multNonnegativeRationals, islinv_NonnegativeRationals, isrunit_oneNonnegativeRationals, islunit_oneNonnegativeRationals.
-        2: now apply istrans_ltNonnegativeRationals with q.
+        apply_pr2 (multNonnegativeRationals_ltcompat_r t).
+        now apply istrans_ltNonnegativeRationals with q.
+        rewrite !isrdistr_mult_minusNonnegativeRationals, isassoc_multNonnegativeRationals, islinv_NonnegativeRationals, isrunit_oneNonnegativeRationals, islunit_oneNonnegativeRationals.
         2: now apply istrans_ltNonnegativeRationals with q.
         apply minusNonnegativeRationals_ltcompat_l.
         exact Ht.
         pattern t at 2 ;
           rewrite <- (islunit_oneNonnegativeRationals t).
-        rewrite multNonnegativeRationals_ltcompat_r.
-        now apply istrans_ltNonnegativeRationals with t.
+        apply multNonnegativeRationals_ltcompat_r.
         now apply istrans_ltNonnegativeRationals with q.
+        now apply istrans_ltNonnegativeRationals with t.
       * simpl.
         now apply NQmax_case.
 Qed.
@@ -2122,20 +2111,19 @@ Proof.
 Qed.
 
 Lemma Dcuts_plus_ltcompat_l :
-  ∀ x y z: Dcuts, (Dcuts_plus y x < Dcuts_plus z x) = (y < z).
+  ∀ x y z: Dcuts, (y < z) <-> (Dcuts_plus y x < Dcuts_plus z x).
 Proof.
   intros x y z.
-  apply uahp.
-  - now apply Dcuts_plus_lt_l.
+  split.
   - apply hinhuniv ; intros (r,(nYr,Zr)).
     generalize (is_Dcuts_open _ _ Zr) ; apply hinhuniv ; intros (r',(Zr',Hr)).
-    rewrite <- minusNonnegativeRationals_gt0 in Hr.
+    apply minusNonnegativeRationals_gt0 in Hr.
     generalize (is_Dcuts_error x _ Hr).
     apply hinhuniv ; intros [nXc | ].
     + apply hinhpr ; exists r' ; split.
       * unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; intros [ | ] ; apply hinhuniv ; [intros [Yr' | Xr'] | intros ((ry,rx),(Hr',(Yr',Xr')))].
         apply nYr, is_Dcuts_bot with (1 := Yr'), lt_leNonnegativeRationals.
-        now rewrite <- minusNonnegativeRationals_gt0.
+        now apply_pr2 minusNonnegativeRationals_gt0.
         apply nXc, is_Dcuts_bot with (1 := Xr'), minusNonnegativeRationals_le.
         simpl in Hr',Yr',Xr'.
         revert Hr' ; apply gtNonnegativeRationals_noteq.
@@ -2144,7 +2132,7 @@ Proof.
         now apply (Dcuts_finite y).
         now apply (Dcuts_finite x).
         apply lt_leNonnegativeRationals.
-        now rewrite <- minusNonnegativeRationals_gt0.
+        now apply_pr2 minusNonnegativeRationals_gt0.
       * apply hinhpr ; left.
         now apply hinhpr ; left.
     + apply hinhfun ; intros (q,(Xq,nXq)).
@@ -2153,10 +2141,11 @@ Proof.
         apply nYr, is_Dcuts_bot with (1 := Yr'), lt_leNonnegativeRationals.
         rewrite <- (isrunit_zeroNonnegativeRationals r).
         apply plusNonnegativeRationals_lt_le_ltcompat.
-        now rewrite <- minusNonnegativeRationals_gt0.
+        now apply_pr2 minusNonnegativeRationals_gt0.
         now apply isnonnegative_NonnegativeRationals.
         apply nXq, is_Dcuts_bot with (1 := Xr').
-        rewrite iscomm_plusNonnegativeRationals, plusNonnegativeRationals_lecompat_r.
+        rewrite iscomm_plusNonnegativeRationals.
+        apply plusNonnegativeRationals_lecompat_r.
         now apply minusNonnegativeRationals_le.
         simpl in Hr',Yr',Xr'.
         revert Hr' ; apply gtNonnegativeRationals_noteq.
@@ -2165,31 +2154,32 @@ Proof.
         now apply (Dcuts_finite y).
         now apply (Dcuts_finite x).
         apply lt_leNonnegativeRationals.
-        now rewrite <- minusNonnegativeRationals_gt0.
+        now apply_pr2 minusNonnegativeRationals_gt0.
       * apply hinhpr ; right.
         apply hinhpr ; exists (r',q) ; repeat split.
         exact Zr'.
         exact Xq.
+  - now apply Dcuts_plus_lt_l.
 Qed.
 Lemma Dcuts_plus_lecompat_l :
-  ∀ x y z: Dcuts, (Dcuts_plus y x <= Dcuts_plus z x) = (y <= z).
+  ∀ x y z: Dcuts, (y <= z) <-> (Dcuts_plus y x <= Dcuts_plus z x).
 Proof.
   intros x y z.
-  apply uahp.
+  split.
   - intros H ; apply Dcuts_nlt_ge ; intro H0 ; apply (pr2 (Dcuts_nlt_ge _ _) H).
-    now rewrite Dcuts_plus_ltcompat_l.
+    now apply_pr2 (Dcuts_plus_ltcompat_l x).
   - intros H ; apply Dcuts_nlt_ge ; intro H0 ; apply (pr2 (Dcuts_nlt_ge _ _) H).
-    now rewrite <- (Dcuts_plus_ltcompat_l x).
+    now apply Dcuts_plus_ltcompat_l.
 Qed.
 Lemma Dcuts_plus_ltcompat_r :
-  ∀ x y z: Dcuts, (Dcuts_plus x y < Dcuts_plus x z) = (y < z).
+  ∀ x y z: Dcuts, (y < z) <-> (Dcuts_plus x y < Dcuts_plus x z).
 Proof.
   intros x y z.
   rewrite ! (iscomm_Dcuts_plus x).
   now apply Dcuts_plus_ltcompat_l.
 Qed.
 Lemma Dcuts_plus_lecompat_r :
-  ∀ x y z: Dcuts, (Dcuts_plus x y <= Dcuts_plus x z) = (y <= z).
+  ∀ x y z: Dcuts, (y <= z) <-> (Dcuts_plus x y <= Dcuts_plus x z).
 Proof.
   intros x y z.
   rewrite ! (iscomm_Dcuts_plus x).
@@ -2221,7 +2211,7 @@ Proof.
     { unfold c.
       apply ispositive_multNonnegativeRationals.
       apply ispositive_divNonnegativeRationals.
-      now rewrite minusNonnegativeRationals_gt0.
+      now apply minusNonnegativeRationals_gt0.
       exact Hr0.
       exact Hx0. }
     generalize (Dcuts_def_error_not_empty _ X0 (is_Dcuts_error _) _ Hc0) ; apply hinhfun ; intros (x',(Xx',nXx')).
@@ -2233,7 +2223,7 @@ Proof.
       apply (Dcuts_finite X).
       intro ; apply nXx'.
       apply is_Dcuts_bot with (1 := X1).
-      rewrite plusNonnegativeRationals_lecompat_r.
+      apply plusNonnegativeRationals_lecompat_r.
       now apply NQmax_le_r.
       exact Xr.
     + apply hinhpr ; exists (r',((r * (NQmax x x' + c)) / r')%NRat) ; simpl ; repeat split.
@@ -2252,7 +2242,7 @@ Proof.
         rewrite plusNonnegativeRationals_minus_l.
         rewrite <- isldistr_mult_minusNonnegativeRationals, iscomm_multNonnegativeRationals.
         apply multNonnegativeRationals_lecompat_r' with (/ r).
-        now rewrite ispositive_invNonnegativeRationals.
+        now apply ispositive_invNonnegativeRationals.
         rewrite !isassoc_multNonnegativeRationals, isrinv_NonnegativeRationals, isrunit_oneNonnegativeRationals, iscomm_multNonnegativeRationals.
         apply multNonnegativeRationals_lecompat_l.
         now apply NQmax_le_l.
@@ -2410,7 +2400,7 @@ Proof.
     + intros y Yy.
       case (isdecrel_leNonnegativeRationals y x) ; intro Hxy.
       * apply istrans_lt_le_ltNonnegativeRationals with ((x - y) + (x' - x)).
-        rewrite plusNonnegativeRationals_ltcompat_r.
+        apply plusNonnegativeRationals_ltcompat_r.
         now apply Hx.
         rewrite minusNonnegativeRationals_plus_exchange.
         rewrite iscomm_plusNonnegativeRationals, minusNonegativeRationals_plus_r.
@@ -2424,7 +2414,7 @@ Proof.
         now apply isnonnegative_NonnegativeRationals'.
         now apply lt_leNonnegativeRationals.
   - apply plusNonnegativeRationals_lt_r.
-    now rewrite minusNonnegativeRationals_gt0.
+    now apply minusNonnegativeRationals_gt0.
 Qed.
 
 Lemma Dcuts_minus_error : Dcuts_def_error Dcuts_minus_val.
@@ -2448,7 +2438,7 @@ Proof.
           apply gtNonnegativeRationals_noteq.
           now apply ispositive_plusNonnegativeRationals_r. }
   intros c Hc.
-  rewrite ispositive_NQhalf in Hc.
+  apply NQhalf_is_pos in Hc.
   apply (fun X X0 Xerr => Dcuts_def_error_not_empty X X0 Xerr _ Hc) in Y_error'.
   revert Y_error' ; apply hinhuniv ; intros (y,(Yy,nYy)).
   revert Yy ; apply hinhuniv ; intros Yy.
@@ -2497,14 +2487,17 @@ Proof.
         apply notge_ltNonnegativeRationals ; intro H ; apply nXx.
         now apply X_bot with (1 := Xx').
         rewrite minusNonnegativeRationals_plus_exchange.
-        rewrite <- (plusNonnegativeRationals_lecompat_r y), minusNonegativeRationals_plus_r.
-        rewrite <- (plusNonnegativeRationals_lecompat_r (c / 2)), ! isassoc_plusNonnegativeRationals.
+        apply_pr2 (plusNonnegativeRationals_lecompat_r y).
+        rewrite minusNonegativeRationals_plus_r.
+        apply_pr2 (plusNonnegativeRationals_lecompat_r (c / 2)).
+        rewrite ! isassoc_plusNonnegativeRationals.
         rewrite <- NQhalf_double, minusNonegativeRationals_plus_r.
         now apply isrefl_leNonnegativeRationals.
         apply istrans_leNonnegativeRationals with x.
         exact Hxy.
         now apply plusNonnegativeRationals_le_r.
-        rewrite <- (plusNonnegativeRationals_lecompat_r (c / 2)), isassoc_plusNonnegativeRationals, <- NQhalf_double.
+        apply_pr2 (plusNonnegativeRationals_lecompat_r (c / 2)).
+        rewrite isassoc_plusNonnegativeRationals, <- NQhalf_double.
         apply istrans_leNonnegativeRationals with x.
         exact Hxy.
         now apply plusNonnegativeRationals_le_r.
@@ -2514,11 +2507,12 @@ Proof.
       generalize (Hx' _ Yy).
       change (¬ (c < x' - y)%NRat) ; apply (pr2 (notlt_geNonnegativeRationals _ _)).
       case (isdecrel_leNonnegativeRationals y x') ; intro Hxy'.
-      rewrite <- (plusNonnegativeRationals_lecompat_r y), minusNonegativeRationals_plus_r, iscomm_plusNonnegativeRationals, (NQhalf_double c), <- isassoc_plusNonnegativeRationals.
+      apply_pr2 (plusNonnegativeRationals_lecompat_r y).
+      rewrite minusNonegativeRationals_plus_r, iscomm_plusNonnegativeRationals, (NQhalf_double c), <- isassoc_plusNonnegativeRationals.
       apply istrans_leNonnegativeRationals with (x + c / 2).
       apply lt_leNonnegativeRationals ; apply notge_ltNonnegativeRationals ; intro ; apply nXx.
       now apply X_bot with (1 := Xx').
-      rewrite plusNonnegativeRationals_lecompat_r.
+      apply plusNonnegativeRationals_lecompat_r.
       now apply lt_leNonnegativeRationals.
       exact Hxy'.
       apply notge_ltNonnegativeRationals in Hxy'.
@@ -2544,20 +2538,22 @@ Proof.
   apply Dcuts_eq_is_eq ; intro r ; split.
   - intros Zr.
     generalize (is_Dcuts_open _ _ Zr) ; apply hinhuniv ; intros (q,(Zq,Hq)).
-    rewrite <- minusNonnegativeRationals_gt0 in Hq.
+    apply minusNonnegativeRationals_gt0 in Hq.
     generalize (is_Dcuts_error Y _ Hq) ; apply hinhuniv ; intros [nYy | ].
     + apply hinhpr ; exists q ; split.
       * apply hinhpr ; left.
         now apply hinhpr ; right.
       * intros y [Yy | Hy0].
-        rewrite <- (plusNonnegativeRationals_ltcompat_r y), minusNonegativeRationals_plus_r.
+        apply_pr2 (plusNonnegativeRationals_ltcompat_r y).
+        rewrite minusNonegativeRationals_plus_r.
         apply minusNonnegativeRationals_ltcompat_l' with r.
         rewrite plusNonnegativeRationals_minus_l.
         now apply (Dcuts_finite Y).
         apply istrans_leNonnegativeRationals with (q - r).
         now apply lt_leNonnegativeRationals, (Dcuts_finite Y).
         now apply minusNonnegativeRationals_le.
-        now rewrite Hy0, minusNonnegativeRationals_zero_r, <- minusNonnegativeRationals_gt0.
+        rewrite Hy0, minusNonnegativeRationals_zero_r.
+        now apply_pr2 minusNonnegativeRationals_gt0.
     + apply hinhfun ; intros (y,(Yy,Hy)).
       exists (y + q) ; split.
       apply hinhpr ; right.
@@ -2565,19 +2561,20 @@ Proof.
       * exact Yy.
       * exact Zq.
       * intros y' [Yy' | Hy0].
-        rewrite <- (plusNonnegativeRationals_ltcompat_r y'), minusNonegativeRationals_plus_r.
+        apply_pr2 (plusNonnegativeRationals_ltcompat_r y').
+        rewrite minusNonegativeRationals_plus_r.
         apply minusNonnegativeRationals_ltcompat_l' with r.
         rewrite plusNonnegativeRationals_minus_l.
         rewrite iscomm_plusNonnegativeRationals, <- minusNonnegativeRationals_plus_exchange, iscomm_plusNonnegativeRationals.
         now apply (Dcuts_finite Y).
-        now apply lt_leNonnegativeRationals ; rewrite <- minusNonnegativeRationals_gt0.
+        now apply lt_leNonnegativeRationals ; apply_pr2 minusNonnegativeRationals_gt0.
         apply istrans_leNonnegativeRationals with (y + (q - r)).
         now apply lt_leNonnegativeRationals, (Dcuts_finite Y).
-        rewrite plusNonnegativeRationals_lecompat_l.
+        apply plusNonnegativeRationals_lecompat_l.
         now apply minusNonnegativeRationals_le.
         rewrite Hy0, minusNonnegativeRationals_zero_r.
         apply istrans_lt_le_ltNonnegativeRationals with q.
-        now rewrite <- minusNonnegativeRationals_gt0.
+        now apply_pr2 minusNonnegativeRationals_gt0.
         now apply plusNonnegativeRationals_le_l.
   - apply hinhuniv ; intros (q,(YZq,Hq)).
     revert YZq ; apply hinhuniv ; intros [ | ] ; apply hinhuniv ; [intros [ Yq | Zq ] | intros ((qy,qz)) ; simpl ; intros (H,(Yq,Zq)) ].
@@ -2612,7 +2609,7 @@ Proof.
     apply Hx.
     now left ; apply Hxy.
   - intro H.
-    now apply fromempty ; rewrite <- (Dcuts_zero_empty r).
+    now apply fromempty ; apply (Dcuts_zero_empty r).
 Qed.
 Lemma Dcuts_minus_plus_r:
   ∀ x y z : Dcuts, z <= y -> x = Dcuts_minus y z -> y = Dcuts_plus x z.
@@ -2621,7 +2618,7 @@ Proof.
   apply Dcuts_eq_is_eq ; intro r ; split.
   - intros Yr.
     generalize (is_Dcuts_open _ _ Yr) ; apply hinhuniv ; intros (q,(Yq,Hq)).
-    rewrite <- minusNonnegativeRationals_gt0 in Hq.
+    apply minusNonnegativeRationals_gt0 in Hq.
     generalize (is_Dcuts_error Z _ Hq).
     apply hinhuniv ; intros [nZ | ].
     + apply hinhpr ; left.
@@ -2630,14 +2627,15 @@ Proof.
       exists q ; split.
       exact Yq.
       intros z [Zz | Hz0].
-      * rewrite <- (plusNonnegativeRationals_ltcompat_r z), minusNonegativeRationals_plus_r.
+      * apply_pr2 (plusNonnegativeRationals_ltcompat_r z).
+        rewrite minusNonegativeRationals_plus_r.
         apply (minusNonnegativeRationals_ltcompat_l' _ _ r).
         rewrite plusNonnegativeRationals_minus_l.
         now apply (Dcuts_finite Z).
         apply istrans_leNonnegativeRationals with (q - r).
         now apply lt_leNonnegativeRationals, (Dcuts_finite Z).
         now apply minusNonnegativeRationals_le.
-      * now rewrite Hz0, minusNonnegativeRationals_zero_r, <- minusNonnegativeRationals_gt0.
+      * now rewrite Hz0, minusNonnegativeRationals_zero_r ; apply_pr2 minusNonnegativeRationals_gt0.
     + apply hinhuniv ; intros (z,(Zz,nZz)).
       case (isdecrel_leNonnegativeRationals r z) ; intro Hzr.
       * apply hinhpr ; left.
@@ -2653,29 +2651,32 @@ Proof.
         exists q ; split.
         exact Yq.
         intros z' [Zz' | Hz0].
-        rewrite <- (plusNonnegativeRationals_ltcompat_r z), minusNonegativeRationals_plus_r.
+        apply_pr2 (plusNonnegativeRationals_ltcompat_r z).
+        rewrite minusNonegativeRationals_plus_r.
         rewrite minusNonnegativeRationals_plus_exchange.
-        rewrite <- (plusNonnegativeRationals_ltcompat_r z'), minusNonegativeRationals_plus_r.
+        apply_pr2 (plusNonnegativeRationals_ltcompat_r z').
+        rewrite minusNonegativeRationals_plus_r.
         apply (minusNonnegativeRationals_ltcompat_l' _ _ r) ; rewrite plusNonnegativeRationals_minus_l.
         rewrite <- minusNonnegativeRationals_plus_exchange, iscomm_plusNonnegativeRationals.
         now apply (Dcuts_finite Z).
-        now apply lt_leNonnegativeRationals ; rewrite <- minusNonnegativeRationals_gt0.
+        now apply lt_leNonnegativeRationals ; apply_pr2 minusNonnegativeRationals_gt0.
         apply istrans_leNonnegativeRationals with (z + (q - r)).
         now apply lt_leNonnegativeRationals, (Dcuts_finite Z).
         rewrite iscomm_plusNonnegativeRationals, minusNonnegativeRationals_plus_exchange.
         now apply minusNonnegativeRationals_le.
-        now apply lt_leNonnegativeRationals ; rewrite <- minusNonnegativeRationals_gt0.
+        now apply lt_leNonnegativeRationals ; apply_pr2 minusNonnegativeRationals_gt0.
         apply istrans_leNonnegativeRationals with (z + (q - r)).
         now apply lt_leNonnegativeRationals, (Dcuts_finite Z).
         pattern q at 2 ;
-          rewrite <- (minusNonegativeRationals_plus_r r q), iscomm_plusNonnegativeRationals, plusNonnegativeRationals_lecompat_l.
+          rewrite <- (minusNonegativeRationals_plus_r r q), iscomm_plusNonnegativeRationals.
+        apply plusNonnegativeRationals_lecompat_l.
         exact Hzr.
-        now apply lt_leNonnegativeRationals ; rewrite <- minusNonnegativeRationals_gt0.
+        now apply lt_leNonnegativeRationals ; apply_pr2 minusNonnegativeRationals_gt0.
         exact Hzr.
         rewrite Hz0, minusNonnegativeRationals_zero_r.
         apply istrans_le_lt_ltNonnegativeRationals with r.
         now apply minusNonnegativeRationals_le.
-        now rewrite <- minusNonnegativeRationals_gt0.
+        now apply_pr2 minusNonnegativeRationals_gt0.
         exact Zz.
   - apply hinhuniv ; intros [ | ] ; apply hinhuniv ; [intros [ YZr | Zr] | intros ((ryz,rz),(->,(YZr,Zr))) ].
     + revert YZr ; apply hinhuniv ; intros (y,(Yy,Hy)).
@@ -2712,17 +2713,10 @@ Proof.
 Qed.
 
 Lemma ispositive_Dcuts_minus :
-  ∀ x y : Dcuts, (0 < Dcuts_minus x y) = (y < x).
+  ∀ x y : Dcuts, (y < x) <-> (0 < Dcuts_minus x y).
 Proof.
   intros X Y.
-  apply uahp.
-  - apply hinhuniv ; intros (r,(_)).
-    apply hinhfun ; intros (x,(Xx,Hx)).
-    exists x ; split.
-    + intros Yx ; apply (isnonnegative_NonnegativeRationals' r).
-      rewrite <- (minusNonnegativeRationals_eq_zero x _ (isrefl_leNonnegativeRationals _)).
-      now apply Hx ; left.
-    + exact Xx.
+  split.
   - apply hinhuniv ; intros (x,(nYx,Xx)).
     generalize (is_Dcuts_open _ _ Xx) ; apply hinhfun ; intros (x',(Xx',Hx')).
     exists 0%NRat ; split.
@@ -2731,7 +2725,7 @@ Proof.
       exists x' ; split.
       exact Xx'.
       intros y [Yy | ->].
-      * rewrite minusNonnegativeRationals_gt0.
+      * apply minusNonnegativeRationals_gt0.
         apply istrans_ltNonnegativeRationals with x.
         now apply (Dcuts_finite Y).
         exact Hx'.
@@ -2739,6 +2733,13 @@ Proof.
         apply istrans_le_lt_ltNonnegativeRationals with x.
         now apply isnonnegative_NonnegativeRationals.
         exact Hx'.
+  - apply hinhuniv ; intros (r,(_)).
+    apply hinhfun ; intros (x,(Xx,Hx)).
+    exists x ; split.
+    + intros Yx ; apply (isnonnegative_NonnegativeRationals' r).
+      rewrite <- (minusNonnegativeRationals_eq_zero x _ (isrefl_leNonnegativeRationals _)).
+      now apply Hx ; left.
+    + exact Xx.
 Qed.
 
 (** *** Dcuts_max *)
@@ -2808,10 +2809,10 @@ Proof.
       * now apply hinhpr ; right.
     + unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; intros [Xxy | Yxy].
       * apply nXx, X_bot with (1 := Xxy).
-        rewrite plusNonnegativeRationals_lecompat_r.
+        apply plusNonnegativeRationals_lecompat_r.
         now apply NQmax_le_l.
       * apply nYy, Y_bot with (1 := Yxy).
-        rewrite plusNonnegativeRationals_lecompat_r.
+        apply plusNonnegativeRationals_lecompat_r.
         now apply NQmax_le_r.
 Qed.
 
@@ -2870,9 +2871,9 @@ Proof.
       now left.
   - apply hinhuniv ; intros [Xr|Yr].
     + generalize (is_Dcuts_open _ _ Xr) ; apply hinhuniv ; intros (x,(Xx,Hx)).
-      rewrite <- minusNonnegativeRationals_gt0 in Hx.
+      apply minusNonnegativeRationals_gt0 in Hx.
       generalize (is_Dcuts_error Y _ Hx) ; apply hinhuniv ;
-      intros [nYx | Hyx ] ; rewrite minusNonnegativeRationals_gt0 in Hx.
+      intros [nYx | Hyx ] ; apply_pr2_in minusNonnegativeRationals_gt0 Hx.
       * rewrite <- (Dcuts_minus_plus_r (Dcuts_minus X Y) X Y).
         exact Xr.
         apply Dcuts_lt_le_rel.
@@ -2898,7 +2899,7 @@ Proof.
         pattern x at 2 ;
           rewrite <- (plusNonnegativeRationals_minus_r r x).
         apply minusNonnegativeRationals_lecompat_l.
-        rewrite plusNonnegativeRationals_lecompat_l.
+        apply plusNonnegativeRationals_lecompat_l.
         now apply lt_leNonnegativeRationals.
         reflexivity.
     + apply hinhpr ; left.
@@ -2919,12 +2920,12 @@ Qed.
 Definition Dcuts_half (x : Dcuts) : Dcuts := Dcuts_mult x (Dcuts_inv Dcuts_two Dcuts_two_ap_zero).
 
 Lemma ispositive_Dcuts_half:
-  ∀ x : Dcuts, (0 < x) = (0 < Dcuts_half x).
+  ∀ x : Dcuts, (0 < x) <-> (0 < Dcuts_half x).
 Proof.
   intros.
   unfold Dcuts_half.
   pattern 0 at 2 ; rewrite <- (islabsorb_Dcuts_mult_zero (Dcuts_inv Dcuts_two Dcuts_two_ap_zero)).
-  apply uahp.
+  split.
   - intro Hx0.
     apply Dcuts_mult_ltcompat_l.
     apply Dcuts_mult_ltcompat_l' with Dcuts_two.
@@ -2984,7 +2985,7 @@ Proof.
       apply istrans_Dcuts_le_rel with (Dcuts_plus x (NonnegativeRationals_to_Dcuts c)).
       now apply Hx.
       change ((Dcuts_plus x (NonnegativeRationals_to_Dcuts c)) <= (Dcuts_plus x C)).
-      rewrite Dcuts_plus_lecompat_r.
+      apply Dcuts_plus_lecompat_r.
       intros r Hr.
       apply is_Dcuts_bot with (1 := Cc).
       now apply lt_leNonnegativeRationals, Hr.
@@ -3030,7 +3031,7 @@ Lemma Dcuts_lub_error:
   Dcuts_def_error Dcuts_lub_val.
 Proof.
   intros c Hc.
-  rewrite ispositive_NQhalf in Hc.
+  apply NQhalf_is_pos in Hc.
   apply (pr2 (isapfun_NonnegativeRationals_to_Dcuts_aux _ _)) in Hc.
   generalize (E_cauchy _ Hc).
   apply isapfun_NonnegativeRationals_to_Dcuts_aux in Hc.
@@ -3072,10 +3073,10 @@ Proof.
         intros ((cx,cy),(Hc',(Xc',Yc'))).
         simpl in Hc',Xc',Yc'.
         apply Xc, is_Dcuts_bot with (1 := Xc').
-        rewrite <- (plusNonnegativeRationals_lecompat_r cy).
+        apply_pr2 (plusNonnegativeRationals_lecompat_r cy).
         rewrite <- Hc'.
         pattern c at 2 ; rewrite (NQhalf_double c).
-        rewrite plusNonnegativeRationals_lecompat_l.
+        apply plusNonnegativeRationals_lecompat_l.
         now apply lt_leNonnegativeRationals.
     + intro ; right.
       revert h ; apply hinhfun ; intros (q,(Xq,nXq)).
@@ -3106,11 +3107,11 @@ Proof.
         intros ((cx,cy),(Hc',(Xc',Yc'))).
         simpl in Hc',Xc',Yc'.
         apply nXq, is_Dcuts_bot with (1 := Xc').
-        rewrite <- (plusNonnegativeRationals_lecompat_r cy).
+        apply_pr2 (plusNonnegativeRationals_lecompat_r cy).
         rewrite <- Hc'.
         pattern c at 2 ; rewrite (NQhalf_double c).
         rewrite <- isassoc_plusNonnegativeRationals.
-        rewrite plusNonnegativeRationals_lecompat_l.
+        apply plusNonnegativeRationals_lecompat_l.
         now apply lt_leNonnegativeRationals.
 Qed.
 
@@ -3240,12 +3241,10 @@ Definition lubNonnegativeReals (E : hsubtypes NonnegativeReals)
 (** ** Theorems *)
 
 Lemma notapNonnegativeReals_eq:
-  ∀ x y : NonnegativeReals, (¬ (x ≠ y)) = (x = y).
+  ∀ x y : NonnegativeReals, (¬ (x ≠ y)) <-> (x = y).
 Proof.
   intros x y.
-  apply uahp'.
-  - now apply isapropneg.
-  - now apply (pr2 Dcuts_set).
+  split.
   - now apply istight_Dcuts_ap_rel.
   - intros ->.
     now apply isirrefl_Dcuts_ap_rel.
@@ -3277,7 +3276,7 @@ Definition iscomm_plusNonnegativeReals:
   := iscomm_CCDRplus (X := NonnegativeReals).
 
 Definition ispositive_minusNonnegativeReals :
-  ∀ x y : NonnegativeReals, (0 < x - y) = (y < x)
+  ∀ x y : NonnegativeReals, (y < x) <-> (0 < x - y)
   := ispositive_Dcuts_minus.
 Definition minusNonnegativeReals_le :
   ∀ x y : NonnegativeReals, x - y <= x
@@ -3326,16 +3325,16 @@ Definition isldistr_plus_multNonnegativeReals:
   := isldistr_CCDRplus_CCDRmult (X := NonnegativeReals).
 
 Definition plusNonnegativeReals_ltcompat_l :
-  ∀ x y z: NonnegativeReals, (y + x < z + x) = (y < z)
+  ∀ x y z: NonnegativeReals, (y < z) <-> (y + x < z + x)
   := Dcuts_plus_ltcompat_l.
 Definition plusNonnegativeReals_lecompat_l :
-  ∀ x y z: NonnegativeReals, (y + x <= z + x) = (y <= z)
+  ∀ x y z: NonnegativeReals, (y <= z) <-> (y + x <= z + x)
   := Dcuts_plus_lecompat_l.
 Definition plusNonnegativeReals_ltcompat_r :
-  ∀ x y z: NonnegativeReals, (x + y < x + z) = (y < z)
+  ∀ x y z: NonnegativeReals, (y < z) <-> (x + y < x + z)
   := Dcuts_plus_ltcompat_r.
 Definition plusNonnegativeReals_lecompat_r :
-  ∀ x y z: NonnegativeReals, (x + y <= x + z) = (y <= z)
+  ∀ x y z: NonnegativeReals, (y <= z) <-> (x + y <= x + z)
   := Dcuts_plus_lecompat_r.
 
 Definition multNonnegativeReals_ltcompat_l :
@@ -3390,9 +3389,9 @@ Lemma is_lim_seq_unique_aux (u : nat -> NonnegativeReals) (l l' : NonnegativeRea
 Proof.
   intros u l l' Hl Hl' Hlt.
   assert (Hlt0 : 0 < l' - l).
-  { now rewrite ispositive_minusNonnegativeReals. }
+  { now apply ispositive_minusNonnegativeReals. }
   assert (Hlt0' : 0 < (l' - l) / 2).
-  { now rewrite <- ispositive_Dcuts_half. }
+  { now apply ispositive_Dcuts_half. }
   generalize (Hl _ Hlt0') (Hl' _ Hlt0') ; clear Hl Hl'.
   apply (hinhuniv2 (P := hProppair _ isapropempty)).
   intros (N,Hn) (M,Hm).
@@ -3400,7 +3399,7 @@ Proof.
   specialize (Hm (Nat.max N M) (max_le_r _ _)).
   apply (isirrefl_Dcuts_lt_rel ((l + l') / 2)).
   apply istrans_Dcuts_lt_rel with (u (Nat.max N M)).
-  - rewrite <- (plusNonnegativeReals_ltcompat_l ((l' - l) / 2)).
+  - apply_pr2 (plusNonnegativeReals_ltcompat_l ((l' - l) / 2)).
     rewrite <- isdistr_Dcuts_half_plus.
     rewrite (iscomm_plusNonnegativeReals l), isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals l).
     rewrite <- (minusNonnegativeReals_plus_r (l' - l) l' l), isdistr_Dcuts_half_plus, <- double_Dcuts_half.
@@ -3416,7 +3415,7 @@ Lemma is_lim_seq_unique (u : nat -> NonnegativeReals) (l l' : NonnegativeReals) 
   is_lim_seq u l -> is_lim_seq u l' -> l = l'.
 Proof.
   intros u l l' Hl Hl'.
-  rewrite <- notapNonnegativeReals_eq.
+  apply notapNonnegativeReals_eq.
   unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; intros [ | ].
   - now apply (is_lim_seq_unique_aux u).
   - now apply (is_lim_seq_unique_aux u).
