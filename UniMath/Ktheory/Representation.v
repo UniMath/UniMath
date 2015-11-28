@@ -6,14 +6,8 @@ Local Open Scope cat.
 Definition Universal {C:Precategory} (X:[C^op,SET]) (c:C)
   := Σ (x:c ⇒ X), ∀ (c':C), isweq (λ f : c' → c, x ⟲ f).
 
-Definition is_nat_iso_set {C:Precategory} {X Y:[C^op,SET]} (p : X → Y) :=
-  ∀ c, isweq (p ◽ c).
-
-Definition NatIsoSet {C:Precategory} (X Y:[C^op,SET]) :=
-  Σ (p : X → Y), is_nat_iso_set p.
-
 Lemma iso_uni {C:Precategory} {X Y:[C^op,SET]} (c:C) :
-  NatIsoSet X Y -> Universal X c ≃ Universal Y c.
+  nat_iso X Y -> Universal X c ≃ Universal Y c.
 Proof.
   intro i.
   (* Set Printing Implicit. *)
@@ -65,8 +59,6 @@ Defined.
 Definition universalObject {C:Precategory} {X:[C^op,SET]} (r:Representation X) : C
   := pr1 r.
 
-Notation obj := universalObject.
-
 Definition universalElement {C:Precategory} {X:[C^op,SET]} (r:Representation X) :
   universalObject r ⇒ X
   := pr1 (pr2 r).
@@ -85,6 +77,12 @@ Definition universalMap {C:Precategory} {X:[C^op,SET]} (r:Representation X) {c:C
   := invmap (universalProperty _ _).
 
 Notation "r \\ x" := (universalMap r x) (at level 50, left associativity) : cat.
+
+Definition universalMap' {C:Precategory} {X:[C^op^op,SET]} (r:Representation X) {c:C} :
+  X ⇐ c -> c ← universalObject r
+  := invmap (universalProperty _ _).
+
+Notation "x // r" := (universalMap' r x) (at level 50, left associativity) : cat.
 
 Definition universalMapProperty {C:Precategory} {X:[C^op,SET]} {r:Representation X}
       {c:C} (x : c ⇒ X) :
@@ -184,15 +182,17 @@ Definition TerminalObject (C:Precategory) := Representation (UnitFunctor C^op).
 
 Definition terminalObject {C} (t:TerminalObject C) : ob C := universalObject t.
 
-Definition terminalArrow {C} (t:TerminalObject C) (c:ob C) : c → terminalObject t
+Definition terminalArrow {C} (t:TerminalObject C) (c:ob C) :
+  Hom C c (terminalObject t)
   := t \\ tt.
 
 Definition InitialObject (C:Precategory) := TerminalObject C^op.
 
 Definition initialObject {C} (i:InitialObject C) : ob C := universalObject i.
 
-Definition initialArrow {C} (i:InitialObject C) (c:ob C) : initialObject i → c
-  := rm_opp_mor (i \\ tt).
+Definition initialArrow {C} (i:InitialObject C) (c:ob C) :
+  Hom C (initialObject i) c
+  := rm_opp_mor (tt // i).
 
 Definition init_to_opp {C:Precategory} : InitialObject C -> TerminalObject C^op
   := λ i, i.
@@ -237,16 +237,73 @@ Proof.
 
 Abort.
 
+(** binary products and coproducts *)
+
+Definition HomPair {C:Precategory} (a b:C) : C^op ==> SET.
+Proof.
+  refine (makeFunctor _ _ _ _).
+  - intro c. exists (Hom C c a × Hom C c b).
+    abstract (apply isaset_dirprod; apply homset_property) using A.
+  - simpl. intros c d f x. assert (f' := rm_opp_mor f); clear f.
+    exact (pr1 x ∘ f' ,, pr2 x ∘ f').
+  - abstract (simpl; intro c; apply funextsec; intro x;
+              apply dirprod_eq; apply id_left) using B.
+  - abstract (simpl; intros c d e f g;
+              apply funextsec; intro x;
+              apply dirprod_eq; apply pathsinv0, assoc) using C.
+Defined.
+
+Definition BinaryProduct {C:Precategory} (a b:C) :=
+  Representation (HomPair a b).
+
+Definition pr_1 {C:Precategory} {a b:C} (prod : BinaryProduct a b) :
+  universalObject prod → a
+  := pr1 (universalElement prod).
+
+Definition pr_2 {C:Precategory} {a b:C} (prod : BinaryProduct a b) :
+  universalObject prod → b
+  := pr2 (universalElement prod).
+
+Definition productMap {C:Precategory} {a b:C} (prod : BinaryProduct a b)
+           {c:C} : c → a -> c → b -> c → universalObject prod
+  := λ f g, prod \\ (f,,g).
+
+Lemma productMapUniqueness {C:Precategory} {a b:C} (prod : BinaryProduct a b)
+      {c:C} (f g : Hom C c (universalObject prod)) :
+  pr_1 prod ∘ f = pr_1 prod ∘ g ->
+  pr_2 prod ∘ f = pr_2 prod ∘ g -> f = g.
+Proof. intros r s. apply mapUniqueness, dirprod_eq; assumption. Defined.
+
+Definition BinarySum {C:Precategory} (a b:C) :=
+  Representation (HomPair (opp_ob a) (opp_ob b)).
+
+Definition in_1 {C:Precategory} {a b:C} (sum : BinarySum a b) :
+  Hom C a (universalObject sum)
+  := pr1 (universalElement sum).
+
+Definition in_2 {C:Precategory} {a b:C} (sum : BinarySum a b) :
+  Hom C b (universalObject sum)
+  := pr2 (universalElement sum).
+
+Definition sumMap {C:Precategory} {a b:C} (sum : BinarySum a b)
+           {c:C} : a → c -> b → c -> rm_opp_ob (universalObject sum) → c
+  := λ f g, rm_opp_mor (sum \\ (opp_mor f,,opp_mor g)).
+
+Lemma sumMapUniqueness {C:Precategory} {a b:C} (sum : BinarySum a b)
+      {c:C} (f g : Hom C (universalObject sum) c) :
+  f ∘ in_1 sum = g ∘ in_1 sum ->
+  f ∘ in_2 sum = g ∘ in_2 sum -> f = g.
+Proof. intros r s. apply opp_mor_eq, mapUniqueness, dirprod_eq; assumption. Defined.
+
 (** products and coproducts *)
 
 Definition HomFamily (C:Precategory) {I} (c:I -> ob C) : C^op ==> SET.
 Proof.
-  intros.
   refine (_,,_).
   - refine (_,,_).
     + intros x. exact (∀ i, Hom C x (c i)) % set.
     + intros x y f p i; simpl; simpl in p.
-      exact (p i ∘ (f : Hom C y x)).
+      exact (compose (C:=C) f (p i)).
   - split.
     + intros a. apply funextsec; intros f; apply funextsec; intros i; simpl.
       apply id_left.
@@ -267,7 +324,7 @@ Definition Sum {C:Precategory} {I} (c:I -> ob C)
 
 Definition in_ {C:Precategory} {I} {c:I -> ob C} (sum : Sum c) (i:I) :
   c i → universalObject sum
-  := universalElement sum i.
+  := rm_opp_mor (universalElement sum i).
 
 (** equalizers and coequalizers *)
 

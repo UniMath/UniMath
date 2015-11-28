@@ -11,13 +11,17 @@ Require Export UniMath.Foundations.Sets.
 Require Export UniMath.CategoryTheory.category_hset.
 Delimit Scope cat with cat.
 Local Open Scope cat.
+Set Automatic Introduction.
 
 Arguments id_left [C a b] f.
 Arguments id_right [C a b] f.
 Arguments assoc [C a b c d] f g h.
 
-Notation "a → b" := (precategory_morphisms a b) (at level 50) : cat.
-(* agda input \r- or \to or \-> or \rightarrow or \r menu *)
+Notation "a → b" := (@precategory_morphisms _ a b) (at level 50) : cat.
+(* agda input \r- *)
+
+Notation "a ← b" := (@precategory_morphisms (opp_precat _) a b) (at level 50) : cat.
+(* agda input \l- *)
 
 Definition src {C:precategory} {a b:C} (f:a→b) : C := a.
 Definition tar {C:precategory} {a b:C} (f:a→b) : C := b.
@@ -27,9 +31,12 @@ Definition Precategory_pair C h : Precategory := C,,h.
 Definition Precategory_to_precategory : Precategory -> precategory := pr1.
 Coercion Precategory_to_precategory : Precategory >-> precategory.
 Definition homset_property (C:Precategory) : has_homsets C := pr2 C.
-Definition Precategory_mor (C:Precategory) : ob C -> ob C -> hSet :=
+
+Definition hom (C:precategory_data) : ob C -> ob C -> UU :=
+  λ c c', c → c'.
+
+Definition Hom (C:Precategory) : ob C -> ob C -> hSet :=
   λ c c', hSetpair (c → c') (homset_property C _ _ ).
-Notation Hom := Precategory_mor.
 
 Ltac eqn_logic :=
   repeat (
@@ -50,7 +57,7 @@ Ltac set_logic :=
 
 Definition functorPrecategory (C D:Precategory) : Precategory.
 Proof.
-  intros. exists (functor_precategory C D (homset_property D)).
+  exists (functor_precategory C D (homset_property D)).
   abstract set_logic using L.
 Defined.
 
@@ -58,12 +65,15 @@ Notation "[ C , D ]" := (functorPrecategory C D) : cat.
 
 Definition oppositePrecategory (C:Precategory) : Precategory.
 Proof.
-  intros. exists (opp_precat C). apply has_homsets_opp, homset_property.
+  exists (opp_precat C). apply has_homsets_opp, homset_property.
 Defined.
 
 Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat.
 
 Definition opp_ob {C:Precategory} : ob C -> ob C^op
+  := λ c, c.
+
+Definition rm_opp_ob {C:Precategory} : ob C^op -> ob C
   := λ c, c.
 
 Definition opp_mor {C:Precategory} {b c:C} : Hom C b c -> Hom C^op c b
@@ -72,18 +82,18 @@ Definition opp_mor {C:Precategory} {b c:C} : Hom C b c -> Hom C^op c b
 Definition rm_opp_mor {C:Precategory} {b c:C} : Hom C^op b c -> Hom C c b
   := λ f, f.
 
+Definition opp_mor_eq {C:Precategory} {a b:C} (f g:a → b) :
+  opp_mor f = opp_mor g -> f = g
+  := idfun _.
+
 Definition category_to_Precategory (C:category) : Precategory.
 Proof.
-  intros.
   refine (_,,_).
   - exact C.
   - exact (pr2 (pr2 C)).
 Defined.
 
 Coercion category_to_Precategory : category >-> Precategory.
-
-Notation "b ← a" := (precategory_morphisms a b) (at level 50, only parsing) : cat.
-(* agda input \l- or \leftarrow or \<- or \gets or or \l menu *)
 
 (* Open scope cat' to see what categories maps are in.  This helps
    especially when a category and its opposite are both in play. *)
@@ -103,6 +113,8 @@ Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
 
 Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35) : cat.
 (* agda input \square *)
+
+Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
 
 Definition precategory_pair (C:precategory_data) (i:is_precategory C)
   : precategory := C,,i.
@@ -126,28 +138,23 @@ Definition reflects_isos {C D} (X:C==>D) :=
 
 Lemma isaprop_reflects_isos {C D} (X:C==>D) : isaprop (reflects_isos X).
 Proof.
-  intros. apply impred; intros. apply impred; intros. apply impred; intros.
+  apply impred; intros. apply impred; intros. apply impred; intros.
   apply impred; intros. apply isaprop_is_isomorphism. Qed.
 
 (** *** make a precategory *)
 
 Definition makePrecategory_ob_mor
     (obj : UU)
-    (mor : obj -> obj -> UU)
-    : precategory_ob_mor.
-  intros.
-  exact (precategory_ob_mor_pair obj (fun i j:obj => mor i j)).
-Defined.
+    (mor : obj -> obj -> UU) : precategory_ob_mor
+  := precategory_ob_mor_pair obj (fun i j:obj => mor i j).
 
 Definition makePrecategory_data
     (obj : UU)
     (mor : obj -> obj -> UU)
     (identity : ∀ i, mor i i)
     (compose : ∀ i j k (f:mor i j) (g:mor j k), mor i k)
-    : precategory_data.
-  intros.
-  exact (precategory_data_pair (makePrecategory_ob_mor obj mor) identity compose).
-Defined.
+    : precategory_data
+  := precategory_data_pair (makePrecategory_ob_mor obj mor) identity compose.
 
 Definition makePrecategory
     (obj : UU)
@@ -159,15 +166,14 @@ Definition makePrecategory
     (left  : ∀ i j (f:mor i j), compose _ _ _ f (identity j) = f)
     (associativity : ∀ a b c d (f:mor a b) (g:mor b c) (h:mor c d),
         compose _ _ _ f (compose _ _ _ g h) = compose _ _ _ (compose _ _ _ f g) h)
-    : Precategory.
-  intros.
-  exact ((precategory_pair
+  : Precategory
+  := (precategory_pair
            (precategory_data_pair
               (precategory_ob_mor_pair
                  obj
                  (fun i j => mor i j))
               identity compose)
-           ((right,,left),,associativity)),,homsets). Defined.
+           ((right,,left),,associativity)),,homsets.
 
 Definition makeFunctor {C D:Precategory}
            (obj : C -> D)
@@ -186,21 +192,20 @@ Definition functor_to_opp_opp {C:Precategory} : C ==> C^op^op
 (** *** opposite category of opposite category *)
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
-Proof. intros [ob mor]. reflexivity. Defined.
+Proof. induction C as [ob mor]. reflexivity. Defined.
 
 Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
   idpath _ = maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
-Proof. intros [ob mor]. reflexivity. Defined.
+Proof. induction C as [ob mor]. reflexivity. Defined.
 
 Lemma opp_opp_precat_data (C : precategory_data)
    : C = opp_precat_data (opp_precat_data C).
-Proof. intros [[ob mor] [id co]]. reflexivity. Defined.
+Proof. induction C as [[ob mor] [id co]]. reflexivity. Defined.
 
 Lemma Precategory_eq (C D:Precategory) :
   (C:precategory_data) = (D:precategory_data) -> C=D.
 Proof.
-  intros.
-  apply subtypeEquality. intro. apply isaprop_has_homsets.
+  intro e. apply subtypeEquality. intro. apply isaprop_has_homsets.
   apply subtypeEquality'.
   { assumption. }
   apply isaprop_is_precategory.
@@ -209,27 +214,17 @@ Defined.
 
 Lemma total2_paths1 {A : UU} {B : A -> UU} (a:A) {b b':B a} :
   b=b' -> tpair B a b = tpair B a b'.
-Proof.
-  intros ? ? ? ? ? e.
-  induction e.
-  reflexivity.
-Defined.
-
-Lemma dirprod_eq {X Y:UU} (p q:X×Y) : pr1 p = pr1 q -> pr2 p = pr2 q -> p = q.
-Proof.
-  intros ? ? ? ?. induction p as [x y]; induction q as [x' y']; simpl.
-  intros r s. induction r. induction s. reflexivity.
-Defined.
+Proof. intro e. induction e. reflexivity. Defined.
 
 Goal ∀ A : UU, ∀ B : A -> UU, ∀ p : (Σ a, B a), p = tpair B (pr1 p) (pr2 p).
-  intros. induction p as [a b]. reflexivity. Defined.
+  induction p as [a b]. reflexivity. Defined.
 
 Goal ∀ X Y (f:X->Y), f = λ x, f x.
-  intros. reflexivity. Defined.
+  reflexivity. Defined.
 
 Lemma opp_opp_precat (C:Precategory) : C = C^op^op.
 Proof.
-  intros. apply Precategory_eq. induction C as [[[[obj mor] [id comp]] p] h].
+  apply Precategory_eq. induction C as [[[[obj mor] [id comp]] p] h].
   reflexivity.
 Qed.
 
@@ -237,7 +232,7 @@ Qed.
 
 Definition categoryWithStructure {C:Precategory} (P:ob C -> UU) : Precategory.
 Proof.
-  intros. refine (makePrecategory _ _ _ _ _ _ _ _).
+  refine (makePrecategory _ _ _ _ _ _ _ _).
   (* add a new component to each object: *)
   - exact (Σ c:C, P c).
   (* the homsets ignore the extra structure: *)
@@ -254,7 +249,7 @@ Defined.
 Definition functorWithStructures {C:Precategory} {P Q:ob C -> UU}
            (F : ∀ c, P c -> Q c) : categoryWithStructure P ==> categoryWithStructure Q.
 Proof.
-  intros. refine (makeFunctor _ _ _ _).
+  refine (makeFunctor _ _ _ _).
   (* transport the structure: *)
   - exact (λ c, (pr1 c,, F (pr1 c) (pr2 c))).
   (* the rest is the same: *)
@@ -266,20 +261,18 @@ Defined.
 Definition addStructure {B C:Precategory} {P:ob C -> UU}
            (F:B==>C) (h : ∀ b, P(F b)) : B ==> categoryWithStructure P.
 Proof.
-  intros. refine (makeFunctor _ _ _ _).
+  refine (makeFunctor _ _ _ _).
   - intros b. exact (F b,,h b).
   - intros b b' f. exact (# F f).
   - intros b; simpl. apply functor_id.
   - intros b b' b'' f g; simpl. apply functor_comp.
 Defined.
 
-Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
-
 Lemma identityFunction : ∀ (T:SET) (f:T→T) (t:T:hSet), f = identity T -> f t = t.
 Proof. intros ? ? ?. exact (apevalat t). Defined.
 
 Lemma identityFunction' : ∀ (T:SET) (t:T:hSet), identity T t = t.
-Proof. intros. reflexivity. Defined.
+Proof. reflexivity. Defined.
 
 (** notation for dealing with functors, natural transformations, etc.  *)
 
@@ -295,6 +288,9 @@ Notation "F ▭ f" := (functor_mor_application F f) (at level 40, left associati
 
 Definition arrow {C:Precategory} (c : C) (X : [C^op,SET]) : hSet := X ◾ c.
 Notation "c ⇒ X" := (arrow c X)  (at level 50) : cat. (* \r= *)
+
+Definition arrow' {C:Precategory} (c : C) (X : [C^op^op,SET]) : hSet := X ◾ c.
+Notation "X ⇐ c" := (arrow' c X)  (at level 50) : cat. (* \l= *)
 
 Definition arrow_morphism_composition {C:Precategory} {c' c:C} {X:[C^op,SET]} :
   c'→c -> c⇒X -> c'⇒X
@@ -360,7 +356,7 @@ Definition functor_rm_op {C D:Precategory} : C^op==>D^op -> C==>D := functor_opp
 
 Definition op_functor {C D:Precategory} : [C,D] ==> [C^op,D^op]^op.
 Proof.
-  intros. refine (makeFunctor _ _ _ _).
+  refine (makeFunctor _ _ _ _).
   - exact (λ F, functor_op F).
   - intros F F' p; simpl. exists (λ c, p ◽ c).
     exact (λ c c' f, ! nat_trans_ax p _ _ f).
@@ -370,16 +366,59 @@ Proof.
     now apply (nat_trans_eq (homset_property D^op)).
 Defined.
 
+(** natural isomorphisms *)
+
 Definition makeNattrans {C D:Precategory} {F G:C ==> D}
            (mor : ∀ x : C, F x → G x)
            (eqn : ∀ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
   F ⟶ G
   := (mor,,eqn).
 
+Definition nat_iso {C D:Precategory} (F G:C==>D) :=
+  Σ p : F ⟶ G, ∀ c, Σ q : G c → F c, is_inverse_in_precat (p ◽ c) q.
+
+Lemma move_inv {C:Precategory} {a a' b' b:C} {f : a → b} {f' : a' → b'}
+      {i : a → a'} {i' : a' → a} {j : b → b'} {j' : b' → b} :
+  is_inverse_in_precat i i' -> is_inverse_in_precat j j' ->
+  j ∘ f = f' ∘ i -> j' ∘ f' = f ∘ i'.
+Proof.
+  intros I J r. rewrite <- id_right. rewrite (! pr1 J). rewrite assoc.
+  apply (maponpaths (λ k, j' ∘ k)). rewrite <- assoc. rewrite r.
+  rewrite assoc. rewrite (pr2 I). rewrite id_left. reflexivity.
+Defined.
+
+Definition nat_iso_inv {C D:Precategory} (F G:C==>D) : nat_iso F G -> nat_iso G F.
+Proof.
+  intro p. refine (_,,_).
+  - refine (makeNattrans _ _).
+    + intro c. exact (pr1 (pr2 p c)).
+    + intros c c' f. simpl.
+      refine (move_inv _ _ _).
+      * exact (pr1 p c).
+      * exact (pr1 p c').
+      * exact (pr2 (pr2 p c)).
+      * exact (pr2 (pr2 p c')).
+      * exact (nattrans_naturality (pr1 p) f).
+  - intro c. simpl. exists (pr1 p c).
+    split.
+    + exact (pr2 (pr2 (pr2 p c))).
+    + exact (pr1 (pr2 (pr2 p c))).
+Defined.
+
+Definition nat_iso_SET_to_weq {C:Precategory} {F G:C==>SET}
+           (p:nat_iso F G) (c c':C) : (F c : hSet) ≃ (G c : hSet).
+Proof.
+  apply hset_iso_equiv.
+  exists (pr1 p c).
+  exact (is_iso_qinv _ (pr1 (pr2 p c)) (pr2 (pr2 p c))).
+Defined.
+
+(*  *)
+
 Definition functor_composite_functor {A B C:Precategory} (F:A==>B) :
   [B,C] ==> [A,C].
 Proof.
-  intros. refine (makeFunctor _ _ _ _).
+  refine (makeFunctor _ _ _ _).
   - exact (λ G, G □ F).
   - intros G G' p; simpl.
     refine (@makeNattrans A C (G □ F) (G' □ F) (λ a, p ◽ (F ◾ a)) _).
@@ -394,7 +433,6 @@ Defined.
 
 Definition op_move {B C:Precategory} : [B,C^op] ==> [B^op,C]^op.
 Proof.
-  intros.
   set (R := λ F:[B,C^op], @makeFunctor B^op C
                                   (λ b, F ◾ b)
                                   (λ b b' f, F ▭ f)
@@ -425,7 +463,6 @@ Definition hasZeroMaps_opp (C:Precategory) : hasZeroMaps C -> hasZeroMaps C^op
 Definition hasZeroMaps_opp_opp (C:Precategory) (zero:hasZeroMaps C) :
   hasZeroMaps_opp C^op (hasZeroMaps_opp C zero) = zero.
 Proof.
-  intros.
   refine (total2_paths _ _).
   - reflexivity.
   - refine (total2_paths _ _); reflexivity.

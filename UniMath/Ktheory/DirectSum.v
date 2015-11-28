@@ -24,7 +24,7 @@ Defined.
 Definition identity_map {C:Precategory} (h:hasZeroMaps C)
            {I} {d:I -> ob C} (dec : isdeceq I)
            (B:Sum d) (D:Product d)
-      : Hom C (obj B) (obj D).
+      : Hom C (universalObject B) (universalObject D).
 Proof. intros. apply RawMatrix.from_matrix. apply identity_matrix.
        assumption. assumption. Defined.
 
@@ -40,14 +40,14 @@ Definition toDirectSum {C:Precategory} (h:hasZeroMaps C) {I} (dec : isdeceq I) (
            (B:Sum d) (D:Product d)
            (is: is_isomorphism (identity_map h dec B D)) : DirectSum h I dec d.
 Proof. intros. set (id := identity_map h dec B D).
-  refine (make_DirectSum C h I dec d (obj D)
+  refine (make_DirectSum C h I dec d (universalObject D)
                          (λ i, pr_ D i)
                          (λ i, id ∘ in_ B i) _ _ _).
   { intros. exact (RawMatrix.from_matrix_entry_assoc D B (identity_matrix h d dec) i j). }
   { intros. exact (pr2 (universalProperty D c)). }
   { intros.
-    assert (b : (λ (f : Hom C (obj D) c) (i : I), (f ∘ id) ∘ in_ B i)
-             = (λ (f : Hom C (obj D) c) (i : I), f ∘ (id ∘ in_ B i))).
+    assert (b : (λ (f : Hom C (universalObject D) c) (i : I), (f ∘ id) ∘ in_ B i)
+             = (λ (f : Hom C (universalObject D) c) (i : I), f ∘ (id ∘ in_ B i))).
     { apply funextsec; intros f. apply funextsec; intros i. apply assoc. }
     destruct b.
     exact (twooutof3c (λ f, f ∘ id)
