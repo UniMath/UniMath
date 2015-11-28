@@ -232,7 +232,7 @@ Lemma zero_eq_zero_opp (C:Precategory) (a b:ob C) (o:ZeroObject C) :
   opp_mor (zeroMap' C a b o).
 Proof.
   intros.
-  try reflexivity.              (* compare to zeroMap'_opp in ZeroObject.v *)
+  try reflexivity.
 
 
 Abort.
@@ -278,7 +278,7 @@ Definition Equalization {C:Precategory} {c d:C} (f g:c→d) :
 Proof.
   refine (makeFunctor _ _ _ _).
   - intro b. refine (_,,_).
-    + exact (Σ p:(b:C)→c, f∘p = g∘p).
+    + exact (Σ p:Hom C b c, f∘p = g∘p).
     + abstract (apply isaset_total2;
       [ apply homset_property
       | intro; apply isasetaprop; apply homset_property]) using L.
@@ -316,6 +316,65 @@ Definition coequalizerMap {C:Precategory} {c d:C} {f g:c→d} (coeq : Coequalize
 Definition coequalizerEquation {C:Precategory} {c d:C} {f g:c→d} (coeq : Coequalizer f g) :
   coequalizerMap coeq ∘ f = coequalizerMap coeq ∘ g
   := pr2 (universalElement coeq).
+
+(** pullbacks and pushouts  *)
+
+Definition PullbackCone {C:Precategory} {a b c:C} (f:a→c) (g:b→c) :
+  C^op ==> SET.
+Proof.
+  intros.
+  refine (makeFunctor _ _ _ _).
+  - intros t.
+    refine (_,,_).
+    + exact (Σ (p: Hom C t a × Hom C t b), f ∘ pr1 p = g ∘ pr2 p).
+    + abstract (apply isaset_total2;
+      [ apply isasetdirprod; apply homset_property
+      | intro; apply isasetaprop; apply homset_property]) using L.
+  - intros t u p w; simpl in *.
+    exists (pr1 (pr1 w) ∘ p,, pr2 (pr1 w) ∘ p).
+    abstract (
+        simpl; rewrite <- 2? assoc; apply maponpaths; exact (pr2 w)) using M.
+  - abstract (intros t; simpl; apply funextsec; intro w;
+              induction w as [w eq]; induction w as [p q];
+              simpl in *; refine (total2_paths2 _ _);
+              [ rewrite 2? id_left; reflexivity
+              | apply proofirrelevance; apply homset_property]) using N.
+  - abstract (
+        intros r s t p q; simpl in *; apply funextsec; intro w;
+        refine (total2_paths2 _ _);
+        [ simpl; rewrite 2? assoc; reflexivity
+        | apply proofirrelevance; apply homset_property]) using P.
+Defined.
+
+Definition Pullback {C:Precategory} {a b c:C} (f:a→c) (g:b→c) :=
+  Representation (PullbackCone f g).
+
+Definition pb_1 {C:Precategory} {a b c:C} {f:a→c} {g:b→c} (pb : Pullback f g) :
+  universalObject pb → a
+  := pr1 (pr1 (universalElement pb)).
+
+Definition pb_2 {C:Precategory} {a b c:C} {f:a→c} {g:b→c} (pb : Pullback f g) :
+  universalObject pb → b
+  := pr2 (pr1 (universalElement pb)).
+
+Definition pb_eqn {C:Precategory} {a b c:C} {f:a→c} {g:b→c} (pb : Pullback f g) :
+  f ∘ pb_1 pb = g ∘ pb_2 pb
+  := pr2 (universalElement pb).
+
+Definition Pushout {C:Precategory} {a b c:C} (f:a→b) (g:a→c) :=
+  Representation (PullbackCone (opp_mor f) (opp_mor g)).
+
+Definition po_1 {C:Precategory} {a b c:C} {f:a→b} {g:a→c} (po : Pushout f g) :
+  b → universalObject po
+  := pr1 (pr1 (universalElement po)).
+
+Definition po_2 {C:Precategory} {a b c:C} {f:a→b} {g:a→c} (po : Pushout f g) :
+  c → universalObject po
+  := pr2 (pr1 (universalElement po)).
+
+Definition po_eqn {C:Precategory} {a b c:C} {f:a→c} {g:a→c} (po : Pushout f g) :
+  po_1 po ∘ f = po_2 po ∘ g
+  := pr2 (universalElement po).
 
 (** kernels and cokernels *)
 
