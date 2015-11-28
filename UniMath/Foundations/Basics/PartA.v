@@ -1290,6 +1290,14 @@ Proof.
   apply x0.
 Defined.
 
+Corollary isweqhomot_iff {X Y : UU} (f1 f2 : X -> Y)
+  (h : f1 ~ f2) : isweq f1 <-> isweq f2.
+Proof.
+  intros. split.
+  - apply isweqhomot; assumption.
+  - apply isweqhomot, invhomot; assumption.
+Defined.
+
 Lemma isweq_to_isweq_unit {X:UU} (f g:X->unit) : isweq f -> isweq g.
 Proof.
   intros ? ? ? i.
@@ -1691,6 +1699,42 @@ Proof.
   }
 
   apply (gradth gf invgf egfinvgf einvgfgf).
+Defined.
+
+Corollary twooutof3c_iff_2 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :
+  isweq f -> (isweq g <-> isweq (g ∘ f)).
+Proof.
+  intros ? ? ? ? ? i. split.
+  - intro j. exact (twooutof3c f g i j).
+  - intro j. exact (twooutof3b f g i j).
+Defined.
+
+Corollary twooutof3c_iff_1 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :
+  isweq g -> (isweq f <-> isweq (g ∘ f)).
+Proof.
+  intros ? ? ? ? ? i. split.
+  - intro j. exact (twooutof3c f g j i).
+  - intro j. exact (twooutof3a f g j i).
+Defined.
+
+Corollary twooutof3c_iff_1_homot {X Y Z : UU}
+          (f : X -> Y) (g : Y -> Z) (h : X -> Z) :
+  g ∘ f ~ h  -> isweq g -> (isweq f <-> isweq h).
+Proof.
+  intros ? ? ? ? ? ? r i.
+  apply (logeq_trans (Y := isweq (g ∘ f))).
+  - apply twooutof3c_iff_1; assumption.
+  - apply isweqhomot_iff; assumption.
+Defined.
+
+Corollary twooutof3c_iff_2_homot {X Y Z : UU}
+          (f : X -> Y) (g : Y -> Z) (h : X -> Z) :
+  g ∘ f ~ h  -> isweq f -> (isweq g <-> isweq h).
+Proof.
+  intros ? ? ? ? ? ? r i.
+  apply (logeq_trans (Y := isweq (g ∘ f))).
+  - apply twooutof3c_iff_2; assumption.
+  - apply isweqhomot_iff; assumption.
 Defined.
 
 Definition weqcomp {X Y Z : UU} (w1 : weq X Y) (w2 : weq Y Z) : (weq X Z) :=
