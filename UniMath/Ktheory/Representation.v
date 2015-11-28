@@ -269,9 +269,59 @@ Definition in_ {C:Precategory} {I} {c:I -> ob C} (sum : Sum c) (i:I) :
   c i → universalObject sum
   := universalElement sum i.
 
+(** equalizers and coequalizers *)
+
 Local Open Scope cat'.
 
-Definition Annihilator (C:Precategory) (zero:hasZeroMaps C) {c d:ob C} (f:c → d) :
+Definition Equalization {C:Precategory} {c d:C} (f g:c→d) :
+  C^op ==> SET.
+Proof.
+  refine (makeFunctor _ _ _ _).
+  - intro b. refine (_,,_).
+    + exact (Σ p:(b:C)→c, f∘p = g∘p).
+    + abstract (apply isaset_total2;
+      [ apply homset_property
+      | intro; apply isasetaprop; apply homset_property]) using L.
+  - intros b a e w; simpl in *. exists (pr1 w ∘ e).
+    abstract (rewrite <- 2? assoc; apply maponpaths; exact (pr2 w)) using M.
+  - abstract (
+        intros b; apply funextsec; intro w; apply subtypeEquality;
+        [ intro; apply homset_property
+        | simpl; apply id_left]) using N.
+  - abstract (
+        intros a'' a' a r s; apply funextsec;
+        intro w; apply subtypeEquality;
+        [ intro; apply homset_property
+        | apply pathsinv0, assoc ]) using O.
+Defined.
+
+Definition Equalizer {C:Precategory} {c d:C} (f g:c→d) :=
+  Representation (Equalization f g).
+
+Definition equalizerMap {C:Precategory} {c d:C} {f g:c→d} (eq : Equalizer f g) :
+  universalObject eq → c
+  := pr1 (universalElement eq).
+
+Definition equalizerEquation {C:Precategory} {c d:C} {f g:c→d} (eq : Equalizer f g) :
+  f ∘ equalizerMap eq = g ∘ equalizerMap eq
+  := pr2 (universalElement eq).
+
+Definition Coequalizer {C:Precategory} {c d:C} (f g:c→d) :=
+  Representation (Equalization (opp_mor f) (opp_mor g)).
+
+Definition coequalizerMap {C:Precategory} {c d:C} {f g:c→d} (coeq : Coequalizer f g) :
+  d → universalObject coeq
+  := pr1 (universalElement coeq).
+
+Definition coequalizerEquation {C:Precategory} {c d:C} {f g:c→d} (coeq : Coequalizer f g) :
+  coequalizerMap coeq ∘ f = coequalizerMap coeq ∘ g
+  := pr2 (universalElement coeq).
+
+(** kernels and cokernels *)
+
+Local Open Scope cat'.
+
+Definition Annihilator (C:Precategory) (zero:hasZeroMaps C) {c d:C} (f:c → d) :
   C^op ==> SET.
 Proof.
   refine (_,,_).
@@ -318,28 +368,3 @@ Definition cokernelEquation {C:Precategory} {zero:hasZeroMaps C} {c d:ob C} {f:c
            (coker : Cokernel zero f) :
   cokernelMap coker ∘ f = pr1 zero _ _
   := pr2 (universalElement coker).
-
-Module demo.
-
-  Section A.
-
-    Context {C:Precategory} (zero:hasZeroMaps C) {c d:ob C} (f:c → d)
-            (ker: Kernel zero f) (coker: Cokernel zero f).
-
-    Definition h := kernelMap ker.
-
-    Definition b := src h.
-
-    Definition e : is zero (f ∘ h)
-      := kernelEquation ker.
-
-    Definition k := cokernelMap coker.
-
-    Definition a := tar k.
-
-    Definition e' : is zero (k ∘ f)
-      := cokernelEquation coker.
-
-  End A.
-
-End demo.
