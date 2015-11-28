@@ -374,8 +374,8 @@ Definition makeNattrans {C D:Precategory} {F G:C ==> D}
   F ⟶ G
   := (mor,,eqn).
 
-Definition nat_iso {C D:Precategory} (F G:C==>D) :=
-  Σ p : F ⟶ G, ∀ c, Σ q : G c → F c, is_inverse_in_precat (p ◽ c) q.
+Definition nat_iso {C D:Precategory} (F G:[C,D]) :=
+  Σ p : F → G, ∀ c, Σ q : G ◾ c → F ◾ c, is_inverse_in_precat (p ◽ c) q.
 
 Lemma move_inv {C:Precategory} {a a' b' b:C} {f : a → b} {f' : a' → b'}
       {i : a → a'} {i' : a' → a} {j : b → b'} {j' : b' → b} :
@@ -394,23 +394,30 @@ Proof.
     + intro c. exact (pr1 (pr2 p c)).
     + intros c c' f. simpl.
       refine (move_inv _ _ _).
-      * exact (pr1 p c).
-      * exact (pr1 p c').
+      * exact (pr1 p ◽ c).
+      * exact (pr1 p ◽ c').
       * exact (pr2 (pr2 p c)).
       * exact (pr2 (pr2 p c')).
       * exact (nattrans_naturality (pr1 p) f).
-  - intro c. simpl. exists (pr1 p c).
+  - intro c. simpl. exists (pr1 p ◽ c).
     split.
     + exact (pr2 (pr2 (pr2 p c))).
     + exact (pr1 (pr2 (pr2 p c))).
 Defined.
 
 Definition nat_iso_SET_to_weq {C:Precategory} {F G:C==>SET}
-           (p:nat_iso F G) (c c':C) : (F c : hSet) ≃ (G c : hSet).
+           (p:nat_iso F G) (c:C) : (F c : hSet) ≃ (G c : hSet).
 Proof.
   apply hset_iso_equiv.
-  exists (pr1 p c).
+  exists (pr1 p ◽ c).
   exact (is_iso_qinv _ (pr1 (pr2 p c)) (pr2 (pr2 p c))).
+Defined.
+
+Definition nat_iso_SET_to_isweq {C:Precategory} {F G:C==>SET}
+           (p:nat_iso F G) (c:C) :
+  isweq((λ x, (pr1 p ◽ c) x) : (F c : hSet) -> (G c : hSet)).
+Proof.
+  exact (weqproperty (nat_iso_SET_to_weq p c)).
 Defined.
 
 (*  *)
