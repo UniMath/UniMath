@@ -537,6 +537,12 @@ Proof.
     (tpair (fun x => B x) a1 b1) (tpair (fun x => B x) a2 b2) p q).
 Defined.
 
+Lemma dirprod_eq {X Y:UU} (p q:X×Y) : pr1 p = pr1 q -> pr2 p = pr2 q -> p = q.
+Proof.
+  intros ? ? ? ?. induction p as [x y]; induction q as [x' y']; simpl.
+  intros r s. induction r. induction s. reflexivity.
+Defined.
+
 Definition pair_path_in2 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) : x,,p = x,,q.
 Proof. intros. now apply maponpaths. Defined.
 
