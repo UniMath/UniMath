@@ -184,6 +184,15 @@ Definition makeFunctor {C D:Precategory}
   C ==> D
   := (obj,, mor),, identity,, compax.
 
+Definition makeFunctor_op {C D:Precategory}
+           (obj : ob C -> ob D)
+           (mor : ∀ a b : C, b → a -> obj a → obj b)
+           (identity : ∀ c, mor c c (identity c) = identity (obj c))
+           (compax : ∀ (a b c : C) (f : b → a) (g : c → b),
+                       mor a c (f ∘ g) = mor b c g ∘ mor a b f) :
+  C^op ==> D
+  := (obj,, mor),, identity,, compax.
+
 (*  *)
 
 Definition functor_to_opp_opp {C:Precategory} : C ==> C^op^op

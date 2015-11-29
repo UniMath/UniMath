@@ -11,9 +11,9 @@ Lemma iso_Universal_weq {C:Precategory} {X Y:[C^op,SET]} (c:C) :
 Proof.
   intro i. refine (weqbandf _ _ _ _).
   - exact (nat_iso_SET_to_weq i c).
-  - intro x; simpl. apply weqonsecfibers; intro c'. apply weqiff.
+  - intro x; simpl. apply weqonsecfibers; intro b. apply weqiff.
     + refine (twooutof3c_iff_1_homot _ _ _ _ _).
-      * exact (pr1 i ◽ opp_ob c').
+      * exact (pr1 i ◽ opp_ob b).
       * intro f; unfold funcomp; simpl.
         exact (apevalat x (nat_trans_ax (pr1 i) _ _ f)).
       * apply nat_iso_SET_to_isweq.
@@ -249,11 +249,10 @@ Abort.
 
 Definition HomPair {C:Precategory} (a b:C) : C^op ==> SET.
 Proof.
-  refine (makeFunctor _ _ _ _).
-  - intro c. exists (Hom C c a × Hom C c b).
+  refine (makeFunctor_op _ _ _ _).
+  - intro c. exists (c → a × c → b).
     abstract (apply isaset_dirprod; apply homset_property) using A.
-  - simpl. intros c d f x. assert (f' := rm_opp_mor f); clear f.
-    exact (pr1 x ∘ f' ,, pr2 x ∘ f').
+  - simpl. intros c d f x. exact (pr1 x ∘ f ,, pr2 x ∘ f).
   - abstract (simpl; intro c; apply funextsec; intro x;
               apply dirprod_eq; apply id_left) using B.
   - abstract (simpl; intros c d e f g;
@@ -365,9 +364,9 @@ Local Open Scope cat'.
 Definition Equalization {C:Precategory} {c d:C} (f g:c→d) :
   C^op ==> SET.
 Proof.
-  refine (makeFunctor _ _ _ _).
+  refine (makeFunctor_op _ _ _ _).
   - intro b. refine (_,,_).
-    + exact (Σ p:Hom C b c, f∘p = g∘p).
+    + exact (Σ p:b → c, f∘p = g∘p).
     + abstract (apply isaset_total2;
       [ apply homset_property
       | intro; apply isasetaprop; apply homset_property]) using L.
@@ -412,10 +411,9 @@ Definition PullbackCone {C:Precategory} {a b c:C} (f:a→c) (g:b→c) :
   C^op ==> SET.
 Proof.
   intros.
-  refine (makeFunctor _ _ _ _).
-  - intros t.
-    refine (_,,_).
-    + exact (Σ (p: Hom C t a × Hom C t b), f ∘ pr1 p = g ∘ pr2 p).
+  refine (makeFunctor_op _ _ _ _).
+  - intros t. refine (_,,_).
+    + exact (Σ (p: t → a × t → b), f ∘ pr1 p = g ∘ pr2 p).
     + abstract (apply isaset_total2;
       [ apply isasetdirprod; apply homset_property
       | intro; apply isasetaprop; apply homset_property]) using L.
@@ -522,9 +520,9 @@ Definition cokernelEquation {C:Precategory} {zero:hasZeroMaps C} {c d:ob C} {f:c
 Definition fiber {C:Precategory} {X Y:[C^op,SET]} (p : X → Y) {c:C} (y : c ⇒ Y) :
   C^op ==> SET.
 Proof.
-  refine (makeFunctor _ _ _ _).
-  - intro b. set (bb := b : C).
-    exists (Σ fx : (bb → c) × (bb ⇒ X), p ⟳ pr2 fx = y ⟲ pr1 fx).
+  refine (makeFunctor_op _ _ _ _).
+  - intro b.
+    exists (Σ fx : (b → c) × (b ⇒ X), p ⟳ pr2 fx = y ⟲ pr1 fx).
     abstract (apply isaset_total2;
         [ apply isaset_dirprod, setproperty; apply homset_property
         | intros [f x]; apply isasetaprop; apply setproperty ]) using K.
