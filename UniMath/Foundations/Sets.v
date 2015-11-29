@@ -87,6 +87,14 @@ Delimit Scope subset with subset.
 
 Definition unitset : hSet := hSetpair unit isasetunit.
 
+Definition dirprod_hSet (X Y:hSet) : hSet.
+Proof.
+  intros X Y. exists (X × Y).
+  abstract (exact (isasetdirprod _ _ (setproperty X) (setproperty Y))).
+Defined.
+
+Notation "A × B" := (dirprod_hSet A B) (at level 75, right associativity) : set.
+
 (** [ hProp ] as a set *)
 
 Definition hPropset : hSet := tpair _ hProp isasethProp .
