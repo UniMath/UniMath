@@ -525,38 +525,34 @@ Proof.
   refine (makeFunctor _ _ _ _).
   - intro b. set (bb := b : C).
     exists (Σ fx : (bb → c) × (bb ⇒ X), p ⟳ pr2 fx = y ⟲ pr1 fx).
-    abstract (
-        apply isaset_total2;
+    abstract (apply isaset_total2;
         [ apply isaset_dirprod, setproperty; apply homset_property
         | intros [f x]; apply isasetaprop; apply setproperty ]) using K.
   - simpl; intros b b' g fxe.
     exists (pr1 (pr1 fxe) ∘ g,, pr2 (pr1 fxe) ⟲ g).
     abstract (simpl; rewrite nattrans_arrow_mor_assoc, arrow_mor_mor_assoc;
               apply maponpaths; exact (pr2 fxe)) using M.
-  - abstract (intro b; simpl;
-              apply funextsec; intro w;
+  - abstract (intro b; apply funextsec; intro w;
               induction w as [w e]; induction w as [f x]; simpl;
               refine (total2_paths2 _ _);
-              [ refine (total2_paths2 _ _);
-                [ apply id_left
-                | induction (id_left f); simpl; rewrite idpath_transportf;
-                  apply arrow_mor_id ]
+              [ apply dirprod_eq; [ apply id_left | apply arrow_mor_id ]
               | apply setproperty]) using R.
-  - abstract (intros b b' b'' g g''; simpl in *;
-                apply funextsec; intro w;
+  - abstract (intros b b' b'' g g''; apply funextsec; intro w;
               induction w as [w e]; induction w as [f x]; simpl;
               refine (total2_paths2 _ _);
-              [ simpl; apply dirprod_eq;
-                [ apply pathsinv0, assoc
-                | simpl; apply arrow_mor_mor_assoc ]
+              [ apply dirprod_eq;
+                [ apply pathsinv0, assoc | apply arrow_mor_mor_assoc ]
               | apply setproperty ]) using T.
 Defined.
 
 (* this is representability of a map between two functors, in the sense of
    Grothendieck.  See EGA Chapter 0. *)
 
-Definition MapRepresentation  {C:Precategory} {X Y:[C^op,SET]} (p : X → Y) :=
-  ∀ (c:C) (y : c ⇒ Y), Representation (fiber p y).
+Definition Representation_Map {C:Precategory} {X Y:[C^op,SET]} (p : X → Y) :=
+  ∀ (c : C) (y : c ⇒ Y), Representation (fiber p y).
+
+Definition isRepresentable_Map {C:Precategory} {X Y:[C^op,SET]} (p : X → Y) :=
+  ∀ (c : C) (y : c ⇒ Y), isRepresentable (fiber p y).
 
 
 
