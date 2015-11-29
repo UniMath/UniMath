@@ -176,6 +176,48 @@ Defined.
 
 (*** Some standard functors to consider representing *)
 
+(** the functor represented by an object *)
+
+Definition Hom1 {C:Precategory} (c:C) : [C^op,SET].
+Proof.
+  refine (makeFunctor_op _ _ _ _).
+  - intro b. exact (Hom C b c).
+  - intros b a f g; simpl. exact (g ∘ f).
+  - abstract (intros b; simpl; apply funextsec; intro g; apply id_left) using L.
+  - abstract (intros i j k f g; simpl; apply funextsec; intro h;
+              rewrite <- assoc; reflexivity) using L.
+Defined.
+
+Lemma Hom1_Representation {C:Precategory} (c:C) : Representation (Hom1 c).
+Proof.
+  exists c. exists (identity c). intro b. apply (isweqhomot (idweq _)).
+  - abstract (intro f; unfold arrow_morphism_composition; unfold Hom1, idfun; simpl;
+              apply pathsinv0, id_right) using R.
+  - abstract (apply weqproperty) using T.
+Defined.
+
+(** maps from Hom1 to functors *)
+
+Lemma compose_SET {X Y Z:SET} (f:X→Y) (g:Y→Z) : g∘f = λ x, g(f x).
+Proof. reflexivity. Defined.
+
+Definition element_to_nattrans {C:Precategory} (X:[C^op,SET]) (c:C) :
+  c ⇒ X -> Hom1 c → X.
+Proof.
+  intros x. refine (makeNattrans_op _ _).
+  - unfold Hom1; simpl; intros b f. exact (x ⟲ f).
+  - abstract (intros a b f; apply funextsec; intro g; apply arrow_mor_mor_assoc) using L.
+Defined.
+
+(** representable functors are isomorphic to one represented by an object  *)
+
+Theorem Representation_to_iso {C:Precategory} (X:[C^op,SET]) (r:Representation X) :
+  iso (Hom1 (universalObject r)) X.
+Proof.
+  apply (functor_iso_from_pointwise_iso _ _ _ _ _ (element_to_nattrans X (universalObject r) (universalElement r))).
+  intro b. apply weq_to_iso_SET. exact (pr2 (pr2 r) b).
+Defined.
+
 (** initial and final objects and zero maps  *)
 
 Definition UnitFunctor (C:Precategory) : C ==> SET.
@@ -250,8 +292,7 @@ Abort.
 Definition HomPair {C:Precategory} (a b:C) : C^op ==> SET.
 Proof.
   refine (makeFunctor_op _ _ _ _).
-  - intro c. exists (c → a × c → b).
-    abstract (apply isaset_dirprod; apply homset_property) using A.
+  - intro c. exact (Hom C c a × Hom C c b) % set.
   - simpl. intros c d f x. exact (pr1 x ∘ f ,, pr2 x ∘ f).
   - abstract (simpl; intro c; apply funextsec; intro x;
               apply dirprod_eq; apply id_left) using B.

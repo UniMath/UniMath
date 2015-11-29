@@ -9,10 +9,12 @@ Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.Foundations.Basics.Preamble.
 Require Export UniMath.Foundations.Sets.
 Require Export UniMath.CategoryTheory.category_hset.
+
 Delimit Scope cat with cat.
 Local Open Scope cat.
 Set Automatic Introduction.
 
+(* move upstream *)
 Arguments id_left [C a b] f.
 Arguments id_right [C a b] f.
 Arguments assoc [C a b c d] f g h.
@@ -383,6 +385,12 @@ Definition makeNattrans {C D:Precategory} {F G:C ==> D}
   F ⟶ G
   := (mor,,eqn).
 
+Definition makeNattrans_op {C D:Precategory} {F G:C^op ==> D}
+           (mor : ∀ x : C, F x → G x)
+           (eqn : ∀ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
+  F ⟶ G
+  := (mor,,eqn).
+
 Definition nat_iso {C D:Precategory} (F G:[C,D]) :=
   Σ p : F → G, ∀ c, Σ q : G ◾ c → F ◾ c, is_inverse_in_precat (p ◽ c) q.
 
@@ -412,6 +420,11 @@ Proof.
     split.
     + exact (pr2 (pr2 (pr2 p c))).
     + exact (pr1 (pr2 (pr2 p c))).
+Defined.
+
+Lemma weq_to_iso_SET {X Y:SET} (f:X→Y) : isweq f -> is_iso f.
+Proof.
+  exact (λ i Z, weqproperty (weqbfun (Z:hSet) (weqpair f i))).
 Defined.
 
 Definition nat_iso_SET_to_weq {C:Precategory} {F G:C==>SET}
