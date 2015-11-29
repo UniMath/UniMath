@@ -391,9 +391,6 @@ Definition makeNattrans_op {C D:Precategory} {F G:C^op ==> D}
   F ⟶ G
   := (mor,,eqn).
 
-Definition nat_iso {C D:Precategory} (F G:[C,D]) :=
-  Σ p : F → G, ∀ c, Σ q : G ◾ c → F ◾ c, is_inverse_in_precat (p ◽ c) q.
-
 Lemma move_inv {C:Precategory} {a a' b' b:C} {f : a → b} {f' : a' → b'}
       {i : a → a'} {i' : a' → a} {j : b → b'} {j' : b' → b} :
   is_inverse_in_precat i i' -> is_inverse_in_precat j j' ->
@@ -404,42 +401,23 @@ Proof.
   rewrite assoc. rewrite (pr2 I). rewrite id_left. reflexivity.
 Defined.
 
-Definition nat_iso_inv {C D:Precategory} (F G:C==>D) : nat_iso F G -> nat_iso G F.
+Lemma weq_iff_iso_SET {X Y:SET} (f:X→Y) : is_iso f <-> isweq f.
 Proof.
-  intro p. refine (_,,_).
-  - refine (makeNattrans _ _).
-    + intro c. exact (pr1 (pr2 p c)).
-    + intros c c' f. simpl.
-      refine (move_inv _ _ _).
-      * exact (pr1 p ◽ c).
-      * exact (pr1 p ◽ c').
-      * exact (pr2 (pr2 p c)).
-      * exact (pr2 (pr2 p c')).
-      * exact (nattrans_naturality (pr1 p) f).
-  - intro c. simpl. exists (pr1 p ◽ c).
-    split.
-    + exact (pr2 (pr2 (pr2 p c))).
-    + exact (pr1 (pr2 (pr2 p c))).
+  split.
+  - intro i. set (F := isopair f i).
+    refine (gradth f (inv_from_iso F)
+                   (λ x, apevalat x (iso_inv_after_iso F))
+                   (λ y, apevalat y (iso_after_iso_inv F))).
+  - exact (λ i Z, weqproperty (weqbfun (Z:hSet) (weqpair f i))).
 Defined.
 
-Lemma weq_to_iso_SET {X Y:SET} (f:X→Y) : isweq f -> is_iso f.
+Lemma weq_to_iso_SET {X Y:SET} : iso X Y ≃ ((X:hSet) ≃ (Y:hSet)).
+(* same as hset_iso_equiv_weq *)
 Proof.
-  exact (λ i Z, weqproperty (weqbfun (Z:hSet) (weqpair f i))).
-Defined.
-
-Definition nat_iso_SET_to_weq {C:Precategory} {F G:C==>SET}
-           (p:nat_iso F G) (c:C) : (F c : hSet) ≃ (G c : hSet).
-Proof.
-  apply hset_iso_equiv.
-  exists (pr1 p ◽ c).
-  exact (is_iso_qinv _ (pr1 (pr2 p c)) (pr2 (pr2 p c))).
-Defined.
-
-Definition nat_iso_SET_to_isweq {C:Precategory} {F G:C==>SET}
-           (p:nat_iso F G) (c:C) :
-  isweq((λ x, (pr1 p ◽ c) x) : (F c : hSet) -> (G c : hSet)).
-Proof.
-  exact (weqproperty (nat_iso_SET_to_weq p c)).
+  intros. apply weqfibtototal; intro f. apply weqiff.
+  - apply weq_iff_iso_SET.
+  - apply isaprop_is_iso.
+  - apply isapropisweq.
 Defined.
 
 (*  *)

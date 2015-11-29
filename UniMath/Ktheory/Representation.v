@@ -1,5 +1,12 @@
-Require Import UniMath.Ktheory.Precategories.
-Require Import UniMath.Ktheory.Bifunctor.
+Require Import
+        UniMath.Ktheory.Precategories
+        UniMath.Ktheory.Bifunctor.
+Require Import
+        UniMath.CategoryTheory.precategories
+        UniMath.CategoryTheory.opp_precat
+        UniMath.CategoryTheory.yoneda
+        UniMath.CategoryTheory.functor_categories
+        UniMath.CategoryTheory.category_hset.
 Set Automatic Introduction.
 Local Open Scope cat.
 
@@ -7,16 +14,19 @@ Definition Universal {C:Precategory} (X:[C^op,SET]) (c:C)
   := Σ (x:c ⇒ X), ∀ (c':C), isweq (λ f : c' → c, x ⟲ f).
 
 Lemma iso_Universal_weq {C:Precategory} {X Y:[C^op,SET]} (c:C) :
-  nat_iso X Y -> Universal X c ≃ Universal Y c.
+  iso X Y -> Universal X c ≃ Universal Y c.
 Proof.
-  intro i. refine (weqbandf _ _ _ _).
-  - exact (nat_iso_SET_to_weq i c).
-  - intro x; simpl. apply weqonsecfibers; intro b. apply weqiff.
+  intro i.
+  set (I := (functor_iso_pointwise_if_iso
+             C^op SET (homset_property SET) X Y (pr1 i) (pr2 i))).
+  refine (weqbandf _ _ _ _).
+  - apply hset_iso_equiv_weq. unfold arrow, functor_object_application. exact (I c).
+  - simpl; intros x. apply weqonsecfibers; intro b. apply weqiff.
     + refine (twooutof3c_iff_1_homot _ _ _ _ _).
       * exact (pr1 i ◽ opp_ob b).
       * intro f; unfold funcomp; simpl.
         exact (apevalat x (nat_trans_ax (pr1 i) _ _ f)).
-      * apply nat_iso_SET_to_isweq.
+      * exact (hset_iso_is_equiv _ _ (I b)).
     + apply isapropisweq.
     + apply isapropisweq.
 Defined.
@@ -33,7 +43,7 @@ Proof.
 Abort.
 
 Definition iso_Representation_weq {C:Precategory} (X Y:[C^op,SET]) :
-  nat_iso X Y -> Representation X ≃ Representation Y.
+  iso X Y -> Representation X ≃ Representation Y.
 Proof.
   intros i. apply weqfibtototal; intro c. apply iso_Universal_weq; assumption.
 Defined.
@@ -215,7 +225,7 @@ Theorem Representation_to_iso {C:Precategory} (X:[C^op,SET]) (r:Representation X
   iso (Hom1 (universalObject r)) X.
 Proof.
   apply (functor_iso_from_pointwise_iso _ _ _ _ _ (element_to_nattrans X (universalObject r) (universalElement r))).
-  intro b. apply weq_to_iso_SET. exact (pr2 (pr2 r) b).
+  intro b. apply (pr2 (weq_iff_iso_SET _)). exact (pr2 (pr2 r) b).
 Defined.
 
 (** initial and final objects and zero maps  *)
