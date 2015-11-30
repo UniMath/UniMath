@@ -1,5 +1,6 @@
-Sets_comp.v
-Fields_comp.v
+Sets.v
+Fields.v
 Complements.v
 NonnegativeRationals.v
 DedekindCuts.v
+DecidableDedekindCuts.v

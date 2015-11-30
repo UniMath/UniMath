@@ -10,6 +10,9 @@ OrderedSets.v
 FiniteSets.v
 StandardFiniteSets.v
 NaturalNumbers.v
+Algebra/ConstructiveStructures.v
+Algebra/Apartness.v
+Algebra/DivisionRig.v
 Algebra/Domains_and_Fields.v
 Algebra/Rigs_and_Rings.v
 Algebra/Monoids_and_Groups.v

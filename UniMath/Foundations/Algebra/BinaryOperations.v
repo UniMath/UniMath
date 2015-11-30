@@ -22,6 +22,10 @@ Require Export UniMath.Foundations.Sets .
 
 (** ** Sets with one and two binary operations *)
 
+(** *** Unary operations *)
+
+Definition unop (X : UU) := X -> X.
+
 (** *** Binary operations *)
 
 (** **** General definitions *)
