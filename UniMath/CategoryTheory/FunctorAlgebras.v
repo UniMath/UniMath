@@ -1,21 +1,23 @@
-(** **********************************************************
+(** ****************************************************************
 
 Benedikt Ahrens
 started March 2015
 
+Extended by: Anders Mörtberg. October 2015
 
-************************************************************)
+*******************************************************************)
 
+(** ***************************************************************
 
-(** **********************************************************
+Contents :
 
-Contents :  
+- Precategory of algebras of an endofunctor
 
-        - precategory of algebras of an endofunctor
-        - saturated if base precategory is
-		           
-************************************************************)
+- Saturated if base precategory is
 
+- Lambek's lemma: if (A,a) is an inital F-algebra then a is an iso
+
+******************************************************************)
 
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
@@ -25,18 +27,15 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.limits.initial.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
-
-
 Section Algebra_Definition.
 
-Variable C : precategory.
-Variable F : functor C C.
+Context {C : precategory} (F : functor C C).
 
 Definition algebra_ob : UU := Σ X : C, F X ⇒ X.
 
@@ -69,11 +68,11 @@ Definition algebra_mor_eq (hs : has_homsets C) {X Y : algebra_ob} {f g : algebra
   : (f : X ⇒ Y) = g ≃ f = g.
 Proof.
   apply invweq.
-  apply (total2_paths_isaprop_equiv).
+  apply subtypeInjectivity.
   intro a. apply hs.
 Defined.
 
-Lemma algebra_mor_commutes (X Y : algebra_ob) (f : algebra_mor X Y) 
+Lemma algebra_mor_commutes (X Y : algebra_ob) (f : algebra_mor X Y)
   : alg_map X ;; f = #F f ;; alg_map Y.
 Proof.
   exact (pr2 f).
@@ -100,7 +99,7 @@ Proof.
             rewrite algebra_mor_commutes;
             rewrite functor_comp, assoc;
             apply idpath).
-Defined.  
+Defined.
 
 Definition precategory_alg_ob_mor : precategory_ob_mor.
 Proof.
@@ -115,7 +114,7 @@ Proof.
   exact algebra_mor_comp.
 Defined.
 
-Lemma is_precategory_precategory_alg_data (hs : has_homsets C) 
+Lemma is_precategory_precategory_alg_data (hs : has_homsets C)
   : is_precategory precategory_alg_data.
 Proof.
   repeat split; intros; simpl.
@@ -130,13 +129,15 @@ Proof.
     + apply assoc.
 Qed.
 
-Definition precategory_FunctorAlg (hs : has_homsets C) 
+Definition precategory_FunctorAlg (hs : has_homsets C)
   : precategory := tpair _ _ (is_precategory_precategory_alg_data hs).
 
-Lemma has_homsets_FunctorAlg (hs : has_homsets C) 
-  : has_homsets (precategory_FunctorAlg hs).
+Local Notation FunctorAlg := precategory_FunctorAlg.
+
+Lemma has_homsets_FunctorAlg (hs : has_homsets C)
+  : has_homsets (FunctorAlg hs).
 Proof.
-  intros f g.  
+  intros f g.
   apply isaset_algebra_mor.
   assumption.
 Qed.
@@ -145,10 +146,10 @@ Section FunctorAlg_saturated.
 
 Hypothesis H : is_category C.
 
-Definition algebra_eq_type (X Y : precategory_FunctorAlg (pr2 H)) : UU 
+Definition algebra_eq_type (X Y : FunctorAlg (pr2 H)) : UU
   := Σ p : iso (pr1 X) (pr1 Y), pr2 X ;; p = #F p ;; pr2 Y.
 
-Definition algebra_ob_eq (X Y : precategory_FunctorAlg (pr2 H)) : 
+Definition algebra_ob_eq (X Y : FunctorAlg (pr2 H)) :
   (X = Y) ≃ algebra_eq_type X Y.
 Proof.
   eapply weqcomp.
@@ -159,7 +160,7 @@ Proof.
     intro p.
     destruct X as [X α].
     destruct Y as [Y β]; simpl in *.
-    destruct p.  
+    destruct p.
     apply weqimplimpl.
     + intro x; simpl.
       rewrite functor_id.
@@ -171,7 +172,7 @@ Proof.
     + apply (pr2 H).
 Defined.
 
-Definition is_iso_from_is_algebra_iso (X Y : precategory_FunctorAlg (pr2 H)) (f : X ⇒ Y)
+Definition is_iso_from_is_algebra_iso (X Y : FunctorAlg (pr2 H)) (f : X ⇒ Y)
   : is_iso f → is_iso (pr1 f).
 Proof.
   intro p.
@@ -179,12 +180,12 @@ Proof.
   set (H' := iso_inv_after_iso (isopair f p)).
   set (H'':= iso_after_iso_inv (isopair f p)).
   exists (pr1 (inv_from_iso (isopair f p))).
-  split; simpl. 
+  split; simpl.
   - apply (maponpaths pr1 H').
   - apply (maponpaths pr1 H'').
 Defined.
 
-Definition inv_algebra_mor_from_is_iso {X Y : precategory_FunctorAlg (pr2 H)} (f : X ⇒ Y) 
+Definition inv_algebra_mor_from_is_iso {X Y : FunctorAlg (pr2 H)} (f : X ⇒ Y)
   : is_iso (pr1 f) → (Y ⇒ X).
 Proof.
   intro T.
@@ -203,7 +204,7 @@ Proof.
   apply (pr2 f).
 Defined.
 
-Definition is_algebra_iso_from_is_iso {X Y : precategory_FunctorAlg (pr2 H)} (f : X ⇒ Y) 
+Definition is_algebra_iso_from_is_iso {X Y : FunctorAlg (pr2 H)} (f : X ⇒ Y)
   : is_iso (pr1 f) → is_iso f.
 Proof.
   intro T.
@@ -219,7 +220,7 @@ Proof.
     + apply (iso_after_iso_inv (isopair (pr1 f) T)).
 Defined.
 
-Definition algebra_iso_first_iso {X Y : precategory_FunctorAlg (pr2 H)}
+Definition algebra_iso_first_iso {X Y : FunctorAlg (pr2 H)}
   : iso X Y ≃ Σ f : X ⇒ Y, is_iso (pr1 f).
 Proof.
   apply (weqbandf (idweq _ )).
@@ -236,17 +237,17 @@ Proof.
   intro ab.
   exists (pr2 ab).
   exact (pr1 ab).
-Defined.  
+Defined.
 
 Definition swapweq (A B : UU) : (A × B) ≃ (B × A).
 Proof.
   exists (swap A B).
   apply (gradth _ (swap B A)).
-  - intro ab. destruct ab. apply idpath. 
+  - intro ab. destruct ab. apply idpath.
   - intro ba. destruct ba. apply idpath.
 Defined.
 
-Definition algebra_iso_rearrange {X Y : precategory_FunctorAlg (pr2 H)}
+Definition algebra_iso_rearrange {X Y : FunctorAlg (pr2 H)}
   : (Σ f : X ⇒ Y, is_iso (pr1 f)) ≃ algebra_eq_type X Y.
 Proof.
   eapply weqcomp.
@@ -260,7 +261,7 @@ Proof.
       apply swapweq.
 Defined.
 
-Definition algebra_idtoiso (X Y : precategory_FunctorAlg (pr2 H)) : 
+Definition algebra_idtoiso (X Y : FunctorAlg (pr2 H)) :
   (X = Y) ≃ iso X Y.
 Proof.
   eapply weqcomp.
@@ -270,7 +271,7 @@ Proof.
     + apply (invweq algebra_iso_first_iso).
 Defined.
 
-Lemma isweq_idtoiso_FunctorAlg (X Y : precategory_FunctorAlg (pr2 H))
+Lemma isweq_idtoiso_FunctorAlg (X Y : FunctorAlg (pr2 H))
   : isweq (@idtoiso _ X Y).
 Proof.
   apply (isweqhomot (algebra_idtoiso X Y)).
@@ -280,8 +281,59 @@ Proof.
     + apply idpath.
   - apply (pr2 _ ).
 Defined.
-     
+
+Lemma is_category_FunctorAlg : is_category (FunctorAlg (pr2 H)).
+Proof.
+  split.
+  - apply isweq_idtoiso_FunctorAlg.
+  - intros a b.
+    apply isaset_algebra_mor.
+    apply (pr2 H).
+Defined.
 
 End FunctorAlg_saturated.
 
 End Algebra_Definition.
+
+Notation FunctorAlg := precategory_FunctorAlg.
+
+(* Lambek's lemma: If (A,a) is an initial F-algebra then a is an iso *)
+Section Lambeks_lemma.
+
+Variables (C : precategory) (hsC : has_homsets C) (F : functor C C).
+Variables (Aa : algebra_ob F) (AaIsInitial : isInitial (FunctorAlg F hsC) Aa).
+
+Local Definition AaInitial : Initial (FunctorAlg F hsC) :=
+  mk_Initial _ AaIsInitial.
+
+Local Notation A := (alg_carrier _ Aa).
+Local Notation a := (alg_map _ Aa).
+
+(* (FA,Fa) is an F-algebra *)
+Local Definition FAa : algebra_ob F := tpair (λ X, C ⟦F X,X⟧) (F A) (# F a).
+Local Definition Fa' := InitialArrow AaInitial FAa.
+Local Definition a' : C⟦A,F A⟧ := mor_from_algebra_mor _ _ _ Fa'.
+Local Definition Ha' := algebra_mor_commutes _ _ _ Fa'.
+
+Lemma initialAlg_is_iso_subproof : is_inverse_in_precat a a'.
+Proof.
+assert (Ha'a : a' ;; a = identity A).
+  assert (algMor_a'a : is_algebra_mor _ _ _ (a' ;; a)).
+    unfold is_algebra_mor, a'; rewrite functor_comp.
+    eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
+    now apply assoc.
+  apply pathsinv0; set (X := tpair _ _ algMor_a'a).
+  now apply (maponpaths pr1 (InitialEndo_is_identity AaInitial X)).
+split; simpl; trivial.
+eapply pathscomp0; [apply Ha'|]; simpl.
+rewrite <- functor_comp.
+eapply pathscomp0; [eapply maponpaths; apply Ha'a|].
+now apply functor_id.
+Qed.
+
+Lemma initialAlg_is_iso : is_iso a.
+Proof.
+exact (is_iso_qinv _ a' initialAlg_is_iso_subproof).
+Defined.
+
+End Lambeks_lemma.

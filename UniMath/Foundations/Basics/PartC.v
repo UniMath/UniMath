@@ -32,7 +32,7 @@ Axiom funextempty : forall ( X : UU ) ( f g : X -> empty ) , paths f g .
 (** *** More results on propositions *)
 
 
-Theorem isapropneg (X:UU): isaprop (X -> empty).
+Theorem isapropneg (X:UU): isaprop (neg X).
 Proof. intro.  apply invproofirrelevance . intros x x' .   apply ( funextempty X x x' ) . Defined .  
 
 (** See also [ isapropneg2 ] *) 
@@ -57,7 +57,7 @@ Proof. intros.
 set (f:= todneg (neg X)). set (g:= negf  (todneg X)). set (is1:= isapropneg X). set (is2:= isapropneg (dneg X)). apply (isweqimplimpl  f g is1 is2).  Defined.
 
 
-Theorem isapropdec (X:UU): (isaprop X) -> (isaprop (coprod X (X-> empty))).
+Theorem isapropdec (X:UU): isaprop X -> isaprop (X ⨿ ¬X).
 Proof. intros X X0. 
 assert (X1: forall (x x': X), paths x x'). apply (proofirrelevance _ X0).  
 assert (X2: forall (x x': coprod X (X -> empty)), paths x x'). intros.  
@@ -66,9 +66,6 @@ apply (fromempty (y x0)).
 induction x' as [ x | y ].   apply (fromempty (y0 x)). 
 assert (e: paths y0 y). apply (proofirrelevance _ (isapropneg X) y0 y). apply (maponpaths (fun f: X -> empty => ii2  f)  e).
 apply (invproofirrelevance _ X2).  Defined. 
-
-
-
 
 
 (** ** Isolated points and types with decidable equality. *)
@@ -113,7 +110,8 @@ Defined.
 
 Definition weqoncompl { X Y : UU } (w: weq X Y) ( x : X ) : weq (compl X x) (compl Y (w x)):= weqpair  _ (isweqmaponcompl w x).
 
-
+Definition weqoncompl_compute { X Y : UU } (w: weq X Y) ( x : X ) : ∀ x', pr1 (weqoncompl w x x') = w (pr1 x').
+Proof. intros. induction x' as [x' b]. reflexivity. Defined.
 
 Definition homotweqoncomplcomp { X Y Z : UU } ( f : weq X Y ) ( g : weq Y Z ) ( x : X ) : homot ( weqcomp ( weqoncompl f x ) ( weqoncompl g ( f x ) ) ) ( weqoncompl  ( weqcomp f g ) x ) .
 Proof . intros . intro x' . induction x' as [ x' nexx' ] . apply ( invmaponpathsincl _ ( isinclpr1compl Z _ ) _ _ ) . simpl .  apply idpath .    Defined . 
@@ -185,13 +183,15 @@ assert (ee: paths e0 x0). apply (proofirrelevance _ (isapropneg (paths x t))). i
 unfold f. unfold g. simpl. induction u. induction (is x).  apply idpath. induction (e (idpath x)).
 apply (gradth  f g egf efg). Defined.
 
-Definition weqrecompl ( X : UU ) ( x : X ) ( is : isisolated _ x ) : weq ( coprod ( compl X x ) unit ) X := weqpair _ ( isweqrecompl X x is ) .
-
+Definition weqrecompl (X : UU) (x:X) (is:isisolated _ x): compl X x ⨿ unit ≃ X
+  := weqpair _ ( isweqrecompl X x is ) .
 
 (** *** Theorem saying that [ recompl ] commutes up to homotopy with [ maponcomplweq ] *)
 
-
-Theorem homotrecomplnat { X Y : UU } ( w : weq X Y ) ( x : X ) : forall a : coprod ( compl X x ) unit , paths  ( recompl Y ( w x ) ( coprodf ( maponcomplweq w x ) ( fun x: unit => x ) a ) ) ( w ( recompl X x a ) )  .   
+Theorem homotrecomplnat {X Y : UU} (w : X ≃ Y) (x : X) (a : compl X x ⨿ unit) :
+    recompl Y (w x) (coprodf (maponcomplweq w x) (idfun unit) a)
+    =
+    w (recompl X x a).   
 Proof . intros . induction a as [ ane | t ] . induction ane as [ a ne ] .  simpl . apply idpath . induction t . simpl . apply idpath .  Defined . 
 
 
@@ -279,7 +279,7 @@ rewrite ( pathsfuntransposofnet1t2 _ _ _ _ _ net1t net2t ) . rewrite ( pathsfunt
 (** *** Types with decidable equality *)
 
 
-Definition isdeceq (X:UU) : UU :=  forall (x x':X), coprod (paths x x' ) (paths x x' -> empty).
+Definition isdeceq (X:UU) : UU := ∀ (x x':X), (x=x') ⨿ (x!=x').
 
 Lemma isdeceqweqf { X Y : UU } ( w : weq X Y ) ( is : isdeceq X ) : isdeceq Y .
 Proof. intros . intros y y' . set ( w' := weqonpaths ( invweq w ) y y' ) .  set ( int := is ( ( invweq w ) y ) ( ( invweq w ) y' ) ) . induction int as [ i | ni ] .    apply ( ii1 ( ( invweq w' ) i ) ) . apply ( ii2 ( ( negf w' ) ni ) ) .  Defined . 
@@ -654,14 +654,13 @@ Proof. intros. apply (isweqinvmap  ( weqtocompltodisjoint X ) ). Defined.
 
 (** *** Decidable propositions [ isdecprop ] *)
 
-Definition isdecprop ( X : UU ) := iscontr ( coprod X ( neg X ) ) .
-
+Definition isdecprop ( X : UU ) := iscontr ( X ⨿ ¬ X ).
 
 Lemma isdecproptoisaprop ( X : UU ) ( is : isdecprop X ) : isaprop X .
 Proof. intros X is . apply ( isofhlevelsnsummand1 0 _ _ ( isapropifcontr is ) ) . Defined .  
 Coercion isdecproptoisaprop : isdecprop >-> isaprop .
 
-Lemma isdecpropif ( X : UU ) : isaprop X -> ( coprod X ( neg X ) ) -> isdecprop X .
+Lemma isdecpropif ( X : UU ) : isaprop X -> X ⨿ ¬ X -> isdecprop X .
 Proof. intros X is a . assert ( is1 : isaprop ( coprod X ( neg X ) ) ) . apply isapropdec . assumption .   apply ( iscontraprop1 is1 a ) . Defined.
 
 Lemma isdecpropfromiscontr { X : UU } ( is : iscontr X ) : isdecprop X .
@@ -682,7 +681,18 @@ Proof . intros. set ( w := weqimplimpl ( pr1 lg ) ( pr2 lg ) isx isy ) . apply (
 Lemma isdecproplogeqb { X Y : UU } ( isx : isaprop X ) ( isy : isdecprop Y ) ( lg : X <-> Y ) : isdecprop X .
 Proof . intros. set ( w := weqimplimpl ( pr1 lg ) ( pr2 lg ) isx isy ) . apply ( isdecpropweqb w isy ) . Defined .    
 
-
+Lemma neg_isdecprop {X} : isdecprop X -> isdecprop (¬ X).
+Proof.
+  intros ? i.
+  assert (j := isdecproptoisaprop X i).
+  apply isdecpropif.
+  { apply isapropneg. }
+  unfold isdecprop in i.
+  assert (k := pr1 i); clear i.
+  induction k as [k|k].
+  { apply ii2. now apply todneg. }
+  now apply ii1.
+Defined.
 
 Lemma isdecpropfromneg { X : UU } ( ne : neg X ) : isdecprop X .
 Proof. intros . apply ( isdecpropweqb ( weqtoempty ne ) isdecpropempty ) . Defined .  
@@ -711,11 +721,11 @@ apply ( isdecpropif _ isp ( ii2  ( negf f ny ) ) ) . Defined.
 Theorem isdecpropdirprod { X Y : UU } ( isx : isdecprop X ) ( isy : isdecprop Y ) : isdecprop ( dirprod X Y ) .
 Proof. intros . assert ( isp : isaprop ( dirprod X Y ) ) . apply ( isofhleveldirprod 1 _ _ ( isdecproptoisaprop _ isx ) ( isdecproptoisaprop _ isy ) ) .  induction ( pr1 isx ) as [ x | nx ] . induction ( pr1 isy ) as [ y | ny ] .  apply ( isdecpropif _ isp ( ii1 ( dirprodpair x y ) ) ) . assert ( nxy : neg ( dirprod X Y ) ) . intro xy . induction xy as [ x0  y0 ] . apply ( ny y0 ) .  apply ( isdecpropif _ isp ( ii2 nxy ) ) .  assert ( nxy : neg ( dirprod X Y ) ) . intro xy . induction xy as [ x0  y0 ] . apply ( nx x0 ) .  apply ( isdecpropif _ isp ( ii2 nxy ) ) . Defined.
 
-Lemma fromneganddecx { X Y : UU } ( isx : isdecprop X ) ( nf : neg ( dirprod X Y ) ) : coprod ( neg X ) ( neg Y ) .
-Proof . intros .  induction ( pr1 isx ) as [ x | nx ] .  set ( ny := negf ( fun y : Y => dirprodpair x y ) nf ) . apply ( ii2 ny ) .   apply ( ii1 nx ) . Defined .
+Lemma fromneganddecx { X Y : UU } : isdecprop X -> ¬ ( X × Y ) -> ¬X ⨿ ¬Y.
+Proof . intros ? ? isx nf.  induction ( pr1 isx ) as [ x | nx ] .  assert ( ny := negf ( λ y : Y, dirprodpair x y ) nf ) . exact ( ii2 ny ) .   exact ( ii1 nx ) . Defined .
 
-Lemma fromneganddecy { X Y : UU } ( isy : isdecprop Y ) ( nf : neg ( dirprod X Y ) ) : coprod ( neg X ) ( neg Y ) .
-Proof . intros .  induction ( pr1 isy ) as [ y | ny ] .  set ( nx := negf ( fun x : X => dirprodpair x y ) nf ) . apply ( ii1 nx ) . apply ( ii2 ny ) .   Defined .
+Lemma fromneganddecy { X Y : UU } : isdecprop Y -> ¬ ( X × Y ) -> ¬X ⨿ ¬Y.
+Proof . intros ? ? isy nf.  induction ( pr1 isy ) as [ y | ny ] .  assert ( nx := negf ( λ x:X, dirprodpair x y ) nf ) . exact ( ii1 nx ) . exact ( ii2 ny ) .   Defined .
 
 
 (** *** Paths to and from an isolated point form a decidable proposition *)
@@ -779,7 +789,7 @@ Proof. intros . intro z . set ( gf := fun x : X => g ( f x ) ) . assert ( w : we
 
 
 
-(** *** Decibadle inclusions and isolated points *)
+(** *** Decidable inclusions and isolated points *)
 
 Theorem isisolateddecinclf { X Y : UU } ( f : X -> Y ) ( x : X ) : isdecincl f -> isisolated X x -> isisolated Y ( f x ) .
 Proof .  intros X Y f x isf isx .   assert ( is' : forall y : Y , isdecincl ( d1g  f y x ) ) . intro y .  intro xe .  set ( w := ezweq2g f x xe ) . apply ( isdecpropweqf w ( isdecproppathstoisolated X x isx _ ) ) .  assert ( is'' : forall y : Y , isdecprop ( paths ( f x ) y ) ) . intro .  apply ( isdecpropfromdecincl _ ( is' y ) ( isf y ) ) . intro y' .   apply ( pr1 ( is'' y' ) ) .  Defined . 

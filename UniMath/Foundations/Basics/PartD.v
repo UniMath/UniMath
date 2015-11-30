@@ -493,6 +493,15 @@ assert (is: forall t:T, isofhlevel n (paths (x t) (x' t))).  intro. apply (X t (
 assert (is2: isofhlevel n (forall t:T, paths (x t) (x' t))). apply (IHn _ (fun t0:T => paths (x t0) (x' t0)) is).
 set (u:=toforallpaths P x x').  assert (is3:isweq u). apply isweqtoforallpaths.  set (v:= invmap ( weqpair u is3) ). assert (is4: isweq v). apply isweqinvmap. apply (isofhlevelweqf n  ( weqpair v is4 )). assumption. Defined.
 
+Corollary impred_iscontr { T : UU } (P:T -> UU): (forall t:T, iscontr (P t)) -> (iscontr (forall t:T, P t)).
+Proof. intros. apply (impred 0). assumption. Defined.
+
+Corollary impred_isaprop { T : UU } (P:T -> UU): (forall t:T, isaprop (P t)) -> (isaprop (forall t:T, P t)).
+Proof. apply impred. Defined.
+
+Corollary impred_isaset { T : UU } (P:T -> UU): (forall t:T, isaset (P t)) -> (isaset (forall t:T, P t)).
+Proof. intros. apply (impred 2). assumption. Defined.
+
 Corollary impredtwice  (n:nat) { T T' : UU } (P:T -> T' -> UU): (forall (t:T)(t':T'), isofhlevel n (P t t')) -> (isofhlevel n (forall (t:T)(t':T'), P t t')).
 Proof.  intros n T T' P X. assert (is1: forall t:T, isofhlevel n (forall t':T', P t t')). intro. apply (impred n _ (X t)). apply (impred n _ is1). Defined.
 
@@ -603,29 +612,42 @@ Proof . intros . unfold isofhlevelf .    apply impred . intro y . apply isapropi
 
 Definition isapropisincl { X Y : UU } ( f : X -> Y ) := isapropisofhlevelf 1 f . 
 
+Lemma isaprop_isInjective { X Y : UU } (f:X -> Y): isaprop (isInjective f).
+Proof.
+  intros.
+  unfold isInjective.
+  apply impred; intro.
+  apply impred; intro.
+  apply isapropisweq.
+Defined.
 
-
+Lemma incl_injectivity { X Y : UU } (f:X -> Y): isincl f ≃ isInjective f.
+Proof.
+  intros.
+  apply weqimplimpl.
+  - apply isweqonpathsincl.
+  - apply isinclweqonpaths.
+  - apply isapropisincl.
+  - apply isaprop_isInjective.
+Defined.
 
 (** ** Theorems saying that various [ pr1 ] maps are inclusions *)
 
 
-Theorem isinclpr1weq ( X Y : UU ) : isincl ( @pr1weq X Y ) .
+Theorem isinclpr1weq ( X Y : UU ) : isincl ( pr1weq : X≃Y -> X->Y ) .
 Proof. intros . apply isinclpr1 . intro f.   apply isapropisweq .  Defined . 
+
+Corollary isinjpr1weq ( X Y : UU ) : isInjective ( pr1weq : X≃Y -> X->Y ) .
+Proof. intros. apply isweqonpathsincl. apply isinclpr1weq. Defined.
 
 Theorem isinclpr1isolated ( T : UU ) : isincl ( pr1isolated T ) .
 Proof . intro . apply ( isinclpr1 _ ( fun t : T => isapropisisolated T t ) ) . Defined . 
 
+(** associativity of weqcomp **)
 
-
-
-
-
-
-
-
-
-
-
+Definition weqcomp_assoc {W X Y Z : UU} (f:W≃X) (g:X≃Y) (h:Y≃Z) : (h∘(g∘f) = (h∘g)∘f) %weq.
+Proof. intros. apply subtypeEquality. { intros p. apply isapropisweq. } simpl. reflexivity.
+Defined.
 
 (** ** Various weak equivalences between spaces of weak equivalences *)
 

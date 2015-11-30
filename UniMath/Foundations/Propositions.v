@@ -46,11 +46,26 @@ Definition hProppair ( X : UU ) ( is : isaprop X ) : hProp := tpair (fun X : UU 
 Definition hProptoType := @pr1 _ _ : hProp -> UU .
 Coercion hProptoType: hProp >-> UU.
 
+Definition propproperty (P:hProp) := pr2 P : isaprop (pr1 P).
+
 (** ** The type [ tildehProp ] of pairs ( P , p : P ) where [ P : hProp ] *)
 
 Definition tildehProp := total2 ( fun P : hProp => P ) .
 Definition tildehProppair { P : hProp } ( p : P ) : tildehProp := tpair _ P p . 
 
+
+(* convenient corollaries of some theorems that take separate isaprop arguments: *)
+
+Corollary subtypeInjectivity_prop {A : UU} (B : A -> hProp) :
+  ∀ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
+Proof. intros. apply subtypeInjectivity. intro. apply propproperty. Defined.
+
+Corollary subtypeEquality_prop {A : UU} {B : A -> hProp}
+   {s s' : total2 (fun x => B x)} : pr1 s = pr1 s' -> s = s'.
+Proof. intros A B s s'. apply invmap. apply subtypeInjectivity_prop. Defined.
+
+Corollary impred_prop {T:UU} (P:T -> hProp) : isaprop (∀ t:T, P t).
+Proof. intros. apply impred; intro. apply propproperty. Defined.
 
 (** The following re-definitions should make proofs easier in the future when the unification algorithms in Coq are improved . At the moment they create more complications than they eliminate ( e.g. try to prove [ isapropishinh ] with [ isaprop ] in [ hProp ] ) so for the time being they are commented out .
 
@@ -82,49 +97,60 @@ Definition isdecEq ( X : UU ) : hProp := hProppair _ ( isapropisdeceq X ) .
 
 
 
-Definition ishinh_UU ( X : UU ) := forall P: hProp, ( ( X -> P ) -> P ). 
+Definition ishinh_UU ( X : UU ) := ∀ P: hProp, ( ( X -> P ) -> P ). 
 
 Lemma isapropishinh ( X : UU ) : isaprop ( ishinh_UU X ). 
 Proof. intro. apply impred . intro P . apply impred.  intro. apply ( pr2 P ) .  Defined . 
 
 Definition ishinh ( X : UU ) : hProp := hProppair ( ishinh_UU X ) ( isapropishinh X ) .
-(* Canonical Structure ishinh .  (** RR1 *) *)
 
+Notation nonempty := ishinh (only parsing).
 
-Definition hinhpr ( X : UU ) : X -> ishinh X := fun x : X => fun P : hProp  => fun f : X -> P => f x .
+Notation "∥ A ∥" := (ishinh A) (at level 20) : type_scope.
+(* written \|| in agda-input method *)
 
-Definition hinhfun { X Y : UU } ( f : X -> Y ) : ishinh_UU X -> ishinh_UU Y := fun isx : ishinh X => fun P : _ =>  fun yp : Y -> P => isx P ( fun x : X => yp ( f x ) ) .
+Definition hinhpr { X : UU } : X -> ∥ X ∥ := fun x : X => fun P : hProp  => fun f : X -> P => f x .
+
+Definition hinhfun { X Y : UU } ( f : X -> Y ) : ∥ X ∥ -> ∥ Y ∥ :=
+  fun isx : ∥ X ∥ => fun P : _ =>  fun yp : Y -> P => isx P ( fun x : X => yp ( f x ) ) .
 
 (** Note that the previous definitions do not require RR1 in an essential way ( except for the placing of [ ishinh ] in [ hProp UU ] - without RR1 it would be placed in [ hProp UU1 ] ) . The first place where RR1 is essentially required is in application of [ hinhuniv ] to a function [ X -> ishinh Y ] *)
 
-Definition hinhuniv { X : UU } { P : hProp } ( f : X -> P ) ( wit : ishinh_UU X ) : P :=  wit P f .
+Definition hinhuniv { X : UU } { P : hProp } ( f : X -> P ) ( wit : ∥ X ∥ ) : P :=  wit P f .
 
+Corollary factor_through_squash {X Q} : isaprop Q -> (X -> Q) -> ∥ X ∥ -> Q.
+Proof. intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h). Defined.
 
-Definition hinhand { X Y : UU } ( inx1 : ishinh_UU X ) ( iny1 : ishinh_UU Y) : ishinh ( dirprod X Y ) := fun P:_  => ddualand (inx1 P) (iny1 P).
+Corollary squash_to_prop {X Q} : ∥ X ∥ -> isaprop Q -> (X -> Q) -> Q.
+Proof. intros ? ? h i f. exact (@hinhuniv X (Q,,i) f h). Defined.
 
-Definition hinhuniv2 { X Y : UU } { P : hProp } ( f : X -> Y -> P ) ( isx : ishinh_UU X ) ( isy : ishinh_UU Y ) : P := hinhuniv ( fun xy : dirprod X Y => f ( pr1 xy ) ( pr2 xy ) ) ( hinhand isx isy ) . 
+Definition hinhand { X Y : UU } ( inx1 : ∥ X ∥ ) ( iny1 : ∥ Y ∥) : ∥ X × Y ∥ := fun P:_  => ddualand (inx1 P) (iny1 P).
 
-Definition hinhfun2 { X Y Z : UU } ( f : X -> Y -> Z ) ( isx : ishinh_UU X ) ( isy : ishinh_UU Y ) : ishinh Z := hinhfun ( fun xy: dirprod X Y => f ( pr1 xy ) ( pr2 xy ) ) ( hinhand isx isy ) .
+Definition hinhuniv2 { X Y : UU } { P : hProp } ( f : X -> Y -> P ) ( isx : ∥ X ∥ ) ( isy : ∥ Y ∥ ) : P :=
+  hinhuniv ( fun xy : X × Y => f ( pr1 xy ) ( pr2 xy ) ) ( hinhand isx isy ) . 
 
-Definition hinhunivcor1 ( P : hProp ) : ishinh_UU P -> P := hinhuniv ( idfun P ).
+Definition hinhfun2 { X Y Z : UU } ( f : X -> Y -> Z ) ( isx : ∥ X ∥ ) ( isy : ∥ Y ∥ ) : ∥ Z ∥ :=
+  hinhfun ( fun xy: X × Y => f ( pr1 xy ) ( pr2 xy ) ) ( hinhand isx isy ) .
+
+Definition hinhunivcor1 ( P : hProp ) : ∥ P ∥ -> P := hinhuniv ( idfun P ).
 Notation hinhprinv := hinhunivcor1 .
 
 
 (** *** [ ishinh ] and negation [ neg ] *)
 
 
-Lemma weqishinhnegtoneg ( X : UU ) : weq ( ishinh ( neg X ) ) ( neg X ) .
+Lemma weqishinhnegtoneg ( X : UU ) : ∥ ¬ X ∥ ≃ ¬ X.
 Proof . intro . assert ( lg : logeq ( ishinh ( neg X ) ) ( neg X ) ) . split . simpl . apply ( @hinhuniv _ ( hProppair _ ( isapropneg X ) ) ) .    simpl . intro nx . apply nx . apply hinhpr . apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( pr2 ( ishinh _ ) ) ( isapropneg X ) ) .  Defined . 
 
-Lemma weqnegtonegishinh ( X : UU ) : weq ( neg X ) ( neg ( ishinh X ) ) .
-Proof . intro .  assert ( lg : logeq ( neg ( ishinh X ) ) ( neg X ) ) . split . apply ( negf ( hinhpr X ) ) .  intro nx .  unfold neg .  simpl . apply ( @hinhuniv _ ( hProppair _ isapropempty ) ) .  apply nx . apply ( weqimplimpl ( pr2 lg ) ( pr1 lg ) ( isapropneg _ ) ( isapropneg _ ) ) .   Defined . 
+Lemma weqnegtonegishinh ( X : UU ) : ¬ X ≃ ¬ ∥ X ∥.
+Proof . intro .  assert ( lg : logeq ( neg ( ishinh X ) ) ( neg X ) ) . split . apply ( negf ( @hinhpr X ) ) .  intro nx .  unfold neg .  simpl . apply ( @hinhuniv _ ( hProppair _ isapropempty ) ) .  apply nx . apply ( weqimplimpl ( pr2 lg ) ( pr1 lg ) ( isapropneg _ ) ( isapropneg _ ) ) .   Defined . 
 
  
 (** *** [ ishinh ] and [ coprod ] *)
 
 
-Lemma hinhcoprod ( X Y : UU ) ( is : ishinh ( coprod ( ishinh X ) ( ishinh Y ) ) )  : ishinh ( coprod X Y ) .
-Proof. intros . unfold ishinh. intro P .  intro CP.  set (CPX := fun x : X => CP ( ii1 x ) ) . set (CPY := fun y : Y => CP (ii2 y) ).  set (is1P := is P).
+Lemma hinhcoprod ( X Y : UU ) : ∥ (∥ X ∥ ⨿ ∥ Y ∥) ∥ -> ∥ X ⨿ Y ∥.
+Proof. intros ? ? is . unfold ishinh. intro P .  intro CP.  set (CPX := fun x : X => CP ( ii1 x ) ) . set (CPY := fun y : Y => CP (ii2 y) ).  set (is1P := is P).
        assert ( f : coprod ( ishinh X ) ( ishinh Y ) -> P ) .  apply ( sumofmaps ( hinhuniv CPX ) ( hinhuniv CPY ) ).   apply (is1P f ) . Defined.
 
 
@@ -138,9 +164,9 @@ Definition pr1image { X Y : UU } ( f : X -> Y ) := @pr1 _  ( fun y : Y => ishinh
 
 
 Definition prtoimage { X Y : UU } (f : X -> Y) : X -> image f.
-Proof. intros X Y f X0. apply (imagepair _ (f X0) (hinhpr _ (hfiberpair f X0 (idpath _ )))). Defined. 
+Proof. intros X Y f X0. apply (imagepair _ (f X0) (hinhpr (hfiberpair f X0 (idpath _ )))). Defined. 
 
-Definition issurjective { X Y : UU } (f : X -> Y ) := forall y:Y, ishinh (hfiber f y). 
+Definition issurjective { X Y : UU } (f : X -> Y ) := ∀ y:Y, ishinh (hfiber f y). 
 
 Lemma isapropissurjective { X Y : UU } ( f : X -> Y) : isaprop (issurjective f).
 Proof. intros.  apply impred. intro t. apply  (pr2 (ishinh (hfiber f t))). Defined. 
@@ -202,20 +228,50 @@ Definition htrue : hProp := hProppair unit isapropunit.
 
 Definition hfalse : hProp := hProppair empty isapropempty.
 
-Definition hconj ( P Q : hProp ) : hProp := hProppair ( dirprod P Q ) ( isapropdirprod _ _ ( pr2 P ) ( pr2 Q ) ). 
+Definition hconj ( P Q : hProp ) : hProp := hProppair ( P × Q ) ( isapropdirprod _ _ ( pr2 P ) ( pr2 Q ) ). 
+
+Notation "A ∧ B" := (hconj A B) (at level 80, right associativity) : type_scope. (* precedence same as /\ *)
+  (* in agda-input method, type \and or \wedge *)
 
 Definition hdisj ( P Q : UU ) : hProp :=  ishinh ( coprod P Q ) . 
 
-Definition hneg ( P : UU ) : hProp := hProppair ( neg P ) ( isapropneg P ) . 
+Notation "X ∨ Y" := (hdisj X Y) (at level 85, right associativity) : type_scope.
+  (* in agda-input method, type \or *)
+  (* precedence same as ‌\/, whereas ⨿ has the opposite associativity *)
+
+Definition hdisj_in1 { P Q : UU } : P -> P∨Q.
+Proof. intros. apply hinhpr. now apply ii1.
+Defined.
+
+Definition hdisj_in2 { P Q : UU } : Q -> P∨Q.
+Proof. intros. apply hinhpr. now apply ii2.
+Defined.
+
+Definition hneg ( P : UU ) : hProp := hProppair ( ¬ P ) ( isapropneg P ) . 
+
+(* use scope "logic" for notations that might conflict with others *)
+
+Notation "'¬' X" := (hneg X) (at level 35, right associativity) : logic.
+  (* type this in emacs in agda-input method with \neg *)
+Delimit Scope logic with logic.
 
 Definition himpl ( P : UU ) ( Q : hProp ) : hProp.
 Proof. intros. split with ( P -> Q ) . apply impred. intro. apply (pr2  Q). Defined. 
 
-Definition hexists { X : UU } ( P : X -> UU ) := ishinh ( total2 P ) .
+Local Notation "A ⇒ B" := (himpl A B) (at level 95, no associativity) : logic.
+  (* precedence same as <-> *)
+  (* in agda-input method, type \r= or \Rightarrow or \=> *)
+  (* can't make it global, because it's defined differently in CategoryTheory/UnicodeNotations.v *)
+Local Open Scope logic.
 
-Definition wittohexists { X : UU } ( P : X -> UU ) ( x : X ) ( is : P x ) : hexists P := hinhpr ( total2 P ) (tpair _ x is ) .
+Definition hexists { X : UU } ( P : X -> UU ) := ∥ total2 P ∥.
 
-Definition total2tohexists { X : UU } ( P : X -> UU ) : total2 P -> hexists P := hinhpr _ . 
+Notation "'∃' x .. y , P" := (ishinh (Σ x , .. (Σ y , P) .. )) (at level 200, x binder, y binder, right associativity) : type_scope.
+  (* in agda-input method, type \ex *)
+
+Definition wittohexists { X : UU } ( P : X -> UU ) ( x : X ) ( is : P x ) : hexists P := @hinhpr ( total2 P ) (tpair _ x is ) .
+
+Definition total2tohexists { X : UU } ( P : X -> UU ) : total2 P -> hexists P := hinhpr. 
 
 Definition weqneghexistsnegtotal2   { X : UU } ( P : X -> UU ) : weq ( neg ( hexists P ) ) ( neg ( total2 P ) ) .
 Proof . intros . assert ( lg : ( neg ( hexists P ) ) <-> ( neg ( total2 P ) )  ) . split . apply ( negf ( total2tohexists P ) ) . intro nt2 . unfold neg . change ( ishinh_UU ( total2 P ) -> hfalse ) . apply ( hinhuniv ) .  apply nt2 . apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( isapropneg _ ) ( isapropneg _ ) ) .  Defined . 
@@ -231,60 +287,78 @@ Proof . intros . split . simpl .  apply hinhfun .  apply coprodcomm .  simpl .  
 (** *** Proof of the only non-trivial axiom of intuitionistic logic for our constructions. For the full list of axioms see e.g.  http://plato.stanford.edu/entries/logic-intuitionistic/ *)
 
 
-Lemma hconjtohdisj ( P Q : UU ) ( R : hProp ) :  hconj ( himpl P R ) ( himpl Q R ) -> himpl ( hdisj P Q ) R .
+Lemma hconjtohdisj (P Q : UU) (R : hProp) : (P ⇒ R) ∧ (Q ⇒ R)  ->  P ∨ Q ⇒ R .
 Proof.  intros P Q R X0. 
 assert (s1: hdisj P Q -> R) . intro X1.  
 assert (s2: coprod P Q -> R ) . intro X2. destruct X2 as [ XP | XQ ].  apply X0. apply XP . apply ( pr2 X0 ). apply XQ . 
 apply ( hinhuniv s2 ). apply X1 .   unfold himpl. simpl . apply s1 .  Defined.
 
-
-
-
 (** *** Negation and quantification.
 
-There are four standard implications in classical logic which can be summarized as ( neg ( forall P ) ) <-> ( exists ( neg P ) ) and ( neg ( exists P ) ) <-> ( forall ( neg P ) ) . Of these four implications three are provable in the intuitionistic logic.  The remaining implication ( neg ( forall P ) ) -> ( exists ( neg P ) ) is not provable in general . For a proof in the case of bounded quantification of decidable predicates on natural numbers see hnat.v . For some other cases when these implications hold see ??? . *)
+There are four standard implications in classical logic which can be summarized as ( neg ( ∀ P ) ) <-> ( exists ( neg P ) ) and ( neg ( exists P ) ) <-> ( ∀ ( neg P ) ) . Of these four implications three are provable in the intuitionistic logic.  The remaining implication ( neg ( ∀ P ) ) -> ( exists ( neg P ) ) is not provable in general . For a proof in the case of bounded quantification of decidable predicates on natural numbers see hnat.v . For some other cases when these implications hold see ??? . *)
 
-Lemma hexistsnegtonegforall { X : UU } ( F : X -> UU ) : hexists ( fun x : X => neg ( F x ) ) -> neg ( forall x : X , F x ) .
-Proof . intros X F . simpl . apply ( @hinhuniv _ ( hProppair _ ( isapropneg (forall x : X , F x ) ) ) ) .  simpl . intros t2 f2 . destruct t2 as [ x d2 ] .  apply ( d2 ( f2 x ) ) . Defined .
+Lemma hexistsnegtonegforall { X : UU } ( F : X -> UU ) : (∃ x : X, neg (F x)) -> neg ( ∀ x : X , F x ) .
+Proof . intros X F . simpl . apply ( @hinhuniv _ ( hProppair _ ( isapropneg (∀ x : X , F x ) ) ) ) .  simpl . intros t2 f2 . destruct t2 as [ x d2 ] .  apply ( d2 ( f2 x ) ) . Defined .
 
-Lemma forallnegtoneghexists { X : UU } ( F : X -> UU ) : ( forall x : X , neg ( F x ) ) -> neg ( hexists F ) .
+Lemma forallnegtoneghexists { X : UU } ( F : X -> UU ) : ( ∀ x : X , neg ( F x ) ) -> neg ( ∃ x, F x ) .
 Proof. intros X F nf . change ( ( ishinh_UU ( total2 F ) ) -> hfalse ) . apply hinhuniv .   intro t2 . destruct t2 as [ x f ] .  apply ( nf x f ) . Defined . 
 
-Lemma neghexisttoforallneg { X : UU } ( F : X -> UU ) : neg ( hexists F ) -> forall x : X , neg ( F x ) .
-Proof . intros X F nhe x . intro fx .  apply ( nhe ( hinhpr _ ( tpair F x fx ) ) ) . Defined . 
+Lemma neghexisttoforallneg { X : UU } ( F : X -> UU ) : ¬ ( ∃ x, F x ) -> ∀ x : X , ¬ ( F x ) .
+Proof . intros X F nhe x . intro fx .  apply ( nhe ( hinhpr ( tpair F x fx ) ) ) . Defined . 
 
-Definition weqforallnegtonegexists { X : UU } ( F : X -> UU ) : weq ( forall x : X , neg ( F x ) ) ( neg ( hexists F ) ) .
+Definition weqforallnegtonegexists { X : UU } ( F : X -> UU ) : weq (∀ x : X, ¬ F x) (¬ ∃ x, F x).
 Proof . intros . apply ( weqimplimpl ( forallnegtoneghexists F ) ( neghexisttoforallneg F ) ) . apply impred .   intro x . apply isapropneg . apply isapropneg . Defined . 
 
 
 
 (** *** Negation and conjunction ( "and" ) and disjunction ( "or" ) . 
 
-There are four implications in classical logic ( ( neg X ) and ( neg Y ) ) <-> ( neg ( X or Y ) ) and ( ( neg X ) or ( neg Y ) ) <-> ( neg ( X and Y ) ) . Of these four, three are provable unconditionally in the intuitionistic logic and the remaining one ( neg ( X and Y ) ) -> ( ( neg X ) or ( neg Y ) ) is provable only if one of the propositions is deidable. These two cases are proved in uu0.v under the names [ fromneganddecx ] and [ fromneganddecy ] .  *)
+There are four implications in classical logic ( ( ¬ X ) and ( ¬ Y ) ) <-> ( ¬ ( X or Y ) ) and ( ( ¬ X ) or ( ¬ Y ) ) <-> ( ¬ ( X and Y ) ) . Of these four, three are provable unconditionally in the intuitionistic logic and the remaining one ( ¬ ( X and Y ) ) -> ( ( ¬ X ) or ( ¬ Y ) ) is provable only if one of the propositions is deidable. These two cases are proved in PartC.v under the names [ fromneganddecx ] and [ fromneganddecy ] .  *)
 
-Lemma tonegdirprod { X Y : UU } ( is : hdisj ( neg X ) ( neg Y ) ) : neg ( dirprod X Y ) .
-Proof. intros X Y . simpl .  apply ( @hinhuniv _ ( hProppair _ ( isapropneg ( dirprod X Y ) ) ) ) . intro c . destruct c as [ nx | ny ] . simpl .  intro xy .  apply ( nx ( pr1 xy ) ) .  simpl . intro xy . apply ( ny ( pr2 xy ) ) .  Defined .
+Lemma tonegdirprod { X Y : UU } : ¬ X ∨ ¬Y -> ¬ ( X × Y ) .
+Proof. intros X Y . simpl .  apply ( @hinhuniv _ ( hProppair _ ( isapropneg ( X × Y ) ) ) ) . intro c . destruct c as [ nx | ny ] . simpl .  intro xy .  apply ( nx ( pr1 xy ) ) .  simpl . intro xy . apply ( ny ( pr2 xy ) ) .  Defined .
 
-Lemma tonegcoprod { X Y : UU } ( is : dirprod ( neg X ) ( neg Y ) ) : neg ( coprod X Y ) . 
-Proof . intros. intro c . destruct c as [ x | y ] . apply ( pr1 is x ) . apply ( pr2 is y ) . Defined . 
+Lemma weak_fromnegdirprod (P Q:hProp) : ¬ (P ∧ Q) -> ¬¬(¬ P ∨ ¬ Q).
+(* this is also called a weak deMorgan law *)
+Proof.
+  intros ? ? npq k.
+  assert (e : ¬¬ Q).
+  { intro n. apply k. now apply hdisj_in2. }
+  assert (d : ¬¬ P).
+  { intro n. apply k. now apply hdisj_in1. }
+  clear k.
+  apply d; clear d. intro p. apply e; clear e. intro q.
+  apply npq. exact (p,,q).
+Defined.
 
-Lemma toneghdisj { X Y : UU } ( is : dirprod ( neg X ) ( neg Y ) ) : neg ( hdisj X Y ) .
-Proof . intros . unfold hdisj.  apply ( weqnegtonegishinh ) . apply tonegcoprod .  apply is .  Defined . 
+Lemma tonegcoprod { X Y : UU } : ¬ X × ¬ Y -> ¬ ( X ⨿ Y ) . 
+Proof . intros ? ? is. intro c . destruct c as [ x | y ] . apply ( pr1 is x ) . apply ( pr2 is y ) . Defined . 
 
-Lemma fromnegcoprod { X Y : UU } ( is : neg ( coprod X Y ) ) : dirprod ( neg X ) ( neg Y ) .
-Proof .  intros . split .  exact ( fun x => is ( ii1 x ) ) . exact ( fun y => is ( ii2 y ) ) . Defined .
+Lemma toneghdisj { X Y : UU } : ¬X × ¬Y -> ¬ (X ∨ Y) .
+Proof . intros ? ? is. unfold hdisj.  apply ( weqnegtonegishinh ) . apply tonegcoprod .  apply is .  Defined . 
 
-Lemma hdisjtoimpl { P : UU } { Q : hProp } : hdisj P Q -> ( neg P -> Q ) .
-Proof . intros P Q . assert ( int : isaprop ( neg P -> Q ) ) . apply impred . intro . apply ( pr2 Q ) .  simpl .  apply ( @hinhuniv _ ( hProppair _ int ) ) .  simpl .  intro pq . destruct pq as [ p | q ] . intro np . destruct ( np p ) .  intro np . apply q . Defined . 
+Lemma fromnegcoprod { X Y : UU } : ¬ (X ⨿ Y) -> ¬X × ¬Y.
+Proof .  intros ? ? is. split .  exact ( fun x => is ( ii1 x ) ) . exact ( fun y => is ( ii2 y ) ) . Defined .
+
+Corollary fromnegcoprod_prop { X Y : hProp } : ¬ (X ∨ Y) -> ¬X ∧ ¬Y.
+Proof.
+  intros ? ? n.
+  simpl in *.
+  assert (n' := negf hinhpr n); simpl in n'; clear n.
+  now apply fromnegcoprod.
+Defined.
+
+Lemma hdisjtoimpl { P : UU } { Q : hProp } : P ∨ Q -> ¬P -> Q.
+Proof . intros P Q . assert ( int : isaprop ( ¬ P -> Q ) ) . apply impred . intro . apply ( pr2 Q ) .  simpl .  apply ( @hinhuniv _ ( hProppair _ int ) ) .  simpl .  intro pq . destruct pq as [ p | q ] . intro np . destruct ( np p ) .  intro np . apply q . Defined . 
 
 
 
 (** *** Property of being decidable and [ hdisj ] ( "or" ) .
 
-For being deidable [ hconj ] see [ isdecpropdirprod ] in uu0.v  *)
+For being decidable [ hconj ] see [ isdecpropdirprod ] in uu0.v  *)
 
 Lemma isdecprophdisj { X Y : UU } ( isx : isdecprop X ) ( isy : isdecprop Y ) : isdecprop ( hdisj X Y ) .
-Proof . intros . apply isdecpropif . apply ( pr2 ( hdisj X Y ) ) . destruct ( pr1 isx ) as [ x | nx ] . apply ( ii1 ( hinhpr _ ( ii1 x ) ) ) . destruct ( pr1 isy ) as [ y | ny ] . apply ( ii1 ( hinhpr _ ( ii2 y ) ) ) .  apply ( ii2 ( toneghdisj ( dirprodpair nx ny ) ) ) .  Defined .    
+Proof . intros . apply isdecpropif . apply ( pr2 ( hdisj X Y ) ) . destruct ( pr1 isx ) as [ x | nx ] . apply ( ii1 ( hinhpr ( ii1 x ) ) ) . destruct ( pr1 isy ) as [ y | ny ] . apply ( ii1 ( hinhpr ( ii2 y ) ) ) .  apply ( ii2 ( toneghdisj ( dirprodpair nx ny ) ) ) .  Defined .    
 
 
 
@@ -301,10 +375,173 @@ Definition inhdnegfun { X Y : UU } (f:X -> Y): isinhdneg X -> isinhdneg Y := dne
 
 Definition inhdneguniv (X: UU)(P:UU)(is:isweq  (todneg P)): (X -> P) -> ((isinhdneg X) -> P) := fun xp:_ => fun inx0:_ => (invmap ( weqpair _ is ) (dnegf  xp inx0)).
 
-Definition inhdnegand (X Y:UU)(inx0: isinhdneg X)(iny0: isinhdneg Y) : isinhdneg (dirprod X Y) := dneganddnegimpldneg  inx0 iny0.
+Definition inhdnegand (X Y:UU)(inx0: isinhdneg X)(iny0: isinhdneg Y) : isinhdneg (X × Y) := dneganddnegimpldneg  inx0 iny0.
 
 Definition hinhimplinhdneg (X:UU)(inx1: ishinh X): isinhdneg X := inx1 hfalse.
 
+
+(** decidability *)
+
+Definition decidable (X:hProp) : hProp :=
+  hProppair (X ⨿ ¬X) (isapropdec X (propproperty X)).
+
+Definition decidable_dirprod (X Y:hProp) : decidable X -> decidable Y -> decidable (X ∧ Y).
+Proof.
+  intros ? ? b c.
+  induction b as [b|b].
+  - induction c as [c|c].
+    + now apply ii1.
+    + apply ii2. intro k. apply c. exact (pr2 k).
+  - apply ii2. intro k. apply b. exact (pr1 k).
+Defined.
+
+(* Law of Excluded Middle
+   
+   We don't state LEM as an axiom, because we want to force it
+   to be a hypothesis of any corollaries of any theorems that
+   appeal to it. *)
+Definition LEM := ∀ P:hProp, decidable P.
+
+Lemma LEM_for_sets X : LEM -> isaset X -> isdeceq X.
+Proof. intros X lem is x y. exact (lem (hProppair (x = y) (is x y))). Defined.
+
+Lemma isaprop_LEM : isaprop LEM.
+Proof. apply impred_prop. Defined.  
+
+Lemma dneg_LEM (P:hProp) : LEM -> ¬¬ P -> P.
+Proof.
+  intros ? lem nnP.
+  induction (lem P) as [a|a].
+  { assumption. }
+  { contradiction. }
+Defined.
+
+Corollary reversal_LEM (P Q:hProp) : LEM -> (¬P -> Q) -> (¬Q -> P).
+Proof.
+  intros ? ? lem f n.
+  assert (g := negf f); clear f.
+  assert (h := g n); clear g n.
+  apply (dneg_LEM _ lem).
+  exact h.
+Defined.
+
+Definition DecidableProposition := Σ X:UU, isdecprop X.
+
+Definition isdecprop_to_DecidableProposition {X:UU} (i:isdecprop X) : DecidableProposition := X,,i.
+
+Definition decidable_to_isdecprop {X:hProp} : decidable X -> isdecprop X.
+Proof. intros ? dec. apply isdecpropif. { apply propproperty. } { exact dec. }
+Defined.
+
+Definition decidable_to_isdecprop_2 {X:UU} : isaprop X -> X ⨿ ¬X -> isdecprop X.
+Proof. intros ? i dec. apply isdecpropif. { exact i. } { exact dec. }
+Defined.
+
+Definition decidable_to_DecidableProposition {X:hProp} : decidable X -> DecidableProposition.
+Proof. intros ? dec. exists X. now apply decidable_to_isdecprop. Defined.
+ 
+Definition DecidableProposition_to_isdecprop (X:DecidableProposition) : isdecprop (pr1 X).
+Proof. apply pr2. Defined.
+
+Definition DecidableProposition_to_hProp : DecidableProposition -> hProp.
+Proof.
+  intros X.
+  exact (pr1 X,, isdecproptoisaprop (pr1 X) (pr2 X)).
+Defined.
+Coercion DecidableProposition_to_hProp : DecidableProposition >-> hProp.
+Definition decidabilityProperty (X:DecidableProposition) :
+  isdecprop X := pr2 X.
+
+Definition DecidableSubtype (X:UU) := X -> DecidableProposition.
+Definition DecidableRelation (X:UU) := X -> X -> DecidableProposition.
+
+Definition decidableAnd (P Q:DecidableProposition) : DecidableProposition.
+  intros. exists (P × Q). apply isdecpropdirprod; apply decidabilityProperty.
+Defined.
+
+Definition decidableOr (P Q:DecidableProposition) : DecidableProposition.
+  intros. exists (P ∨ Q). apply isdecprophdisj; apply decidabilityProperty.
+Defined.
+
+Definition decidableNot (P:DecidableProposition) : DecidableProposition.
+  intros. exists (¬ P). apply neg_isdecprop; apply decidabilityProperty.
+Defined.
+
+Notation "X ∨ Y" := (decidableOr X Y) (at level 85, right associativity) : decidable_logic.
+Notation "A ∧ B" := (decidableAnd A B) (at level 80, right associativity) : decidable_logic.
+Notation "'¬' X" := (decidableNot X) (at level 35, right associativity) : decidable_logic.
+Delimit Scope decidable_logic with declog.
+
+Ltac choose P yes no := induction (iscontrpr1 (decidabilityProperty P)) as [yes|no].
+
+Definition choice {W} : DecidableProposition -> W -> W -> W.
+Proof.
+  intros ? P yes no.
+  choose P p q.
+  - exact yes.
+  - exact no.
+Defined.
+
+Definition dependent_choice {W} (P:DecidableProposition): (P->W) -> (¬P->W) -> W.
+Proof.
+  intros ? P yes no.
+  choose P p q.
+  - exact (yes p).
+  - exact (no q).
+Defined.
+
+Definition choice_compute_yes {W} (P:DecidableProposition) (p:P) (yes no:W) :
+  choice P yes no = yes.
+Proof.
+  intros.
+  unfold choice.
+  choose P a b.
+  - simpl. reflexivity.
+  - simpl. contradicts p b.
+Defined.
+
+Definition choice_compute_no {W} (P:DecidableProposition) (p:¬P) (yes no:W) :
+  choice P yes no = no.
+Proof.
+  intros.
+  unfold choice.
+  choose P a b.
+  - simpl. contradicts p a.
+  - simpl. reflexivity.
+Defined.
+
+Definition decidableSubtypeCarrier {X} : DecidableSubtype X -> UU.
+Proof. intros ? S. exact (Σ x, S x). Defined.
+
+Definition decidableSubtypeCarrier' {X} : DecidableSubtype X -> UU.
+Proof. intros ? P.
+       (* for use with isfinitedecsubset *)
+       exact (hfiber (λ x, choice (P x) true false) true).
+Defined.
+
+Definition decidableSubtypeCarrier_weq {X} (P:DecidableSubtype X) :
+  decidableSubtypeCarrier' P ≃ decidableSubtypeCarrier P.
+Proof.
+  intros.
+  apply weqfibtototal.
+  intros x.
+  unfold choice.
+  simpl.
+  change (iscontrpr1 (decidabilityProperty (P x))) with (iscontrpr1 (decidabilityProperty (P x))).
+  choose (P x) p q.
+  - simpl. apply weqiff.
+    + apply logeq_both_true.
+      * reflexivity.
+      * assumption.
+    + apply isasetbool.
+    + apply (propproperty (DecidableProposition_to_hProp _)).
+  - simpl. apply weqiff.
+    + apply logeq_both_false.
+      * exact nopathsfalsetotrue.
+      * assumption.
+    + apply isasetbool.
+    + apply (propproperty (DecidableProposition_to_hProp _)).
+Defined.
 
 (** ** Univalence axiom for hProp 
 
@@ -316,7 +553,12 @@ The proof of theorem [ univfromtwoaxiomshProp ] is modeled on the proof of [ uni
 *)
 
 
-Axiom uahp : forall P P':hProp,  (P -> P') -> (P' -> P) -> @paths hProp P P'.
+Axiom uahp : ∀ P P':hProp,  (P -> P') -> (P' -> P) -> @paths hProp P P'.
+
+Corollary uahp' : ∀ P Q, isaprop P -> isaprop Q -> (P -> Q) -> (Q -> P) -> P=Q.
+Proof.
+  intros ? ? i j f g. exact (maponpaths hProptoType (uahp (P,,i) (Q,,j) f g)).
+Defined.
 
 Definition eqweqmaphProp { P P': hProp }  ( e: @paths hProp P P' ) : weq P P'.
 Proof. intros . destruct e . apply idweq.  Defined.
@@ -330,25 +572,25 @@ Proof. intros. apply proofirrelevance . apply (isapropweqtoprop P P' (pr2 P')). 
 Theorem univfromtwoaxiomshProp (P P':hProp): isweq (@eqweqmaphProp P P').
 Proof. intros. 
 
-set (P1:= fun XY: dirprod hProp hProp => paths ( pr1 XY ) ( pr2 XY ) ) . 
-set (P2:= fun XY: dirprod hProp hProp => weq ( pr1 XY ) ( pr2 XY ) ) . 
+set (P1:= fun XY: hProp × hProp => paths ( pr1 XY ) ( pr2 XY ) ) . 
+set (P2:= fun XY: hProp × hProp => weq ( pr1 XY ) ( pr2 XY ) ) . 
 set (Z1:=  total2 P1). 
 set (Z2:=  total2 P2). 
-set (f:= ( totalfun _ _ (fun XY: dirprod hProp hProp => 
+set (f:= ( totalfun _ _ (fun XY: hProp × hProp => 
                            @eqweqmaphProp ( pr1 XY ) ( pr2 XY )): Z1 -> Z2)). 
-set (g:= ( totalfun _ _ (fun XY: dirprod hProp hProp =>                         
+set (g:= ( totalfun _ _ (fun XY: hProp × hProp =>                         
                            @weqtopathshProp ( pr1 XY ) ( pr2 XY )): Z2 -> Z1)). 
-assert (efg : forall z2 : Z2 , paths ( f ( g z2 ) ) z2 ). intros. induction z2 as [ XY w] .  
+assert (efg : ∀ z2 : Z2 , paths ( f ( g z2 ) ) z2 ). intros. induction z2 as [ XY w] .  
 exact ( maponpaths (fun w: weq (pr1 XY) (pr2 XY) => tpair P2 XY w) (@weqpathsweqhProp (pr1 XY) (pr2 XY) w)). 
 
 set (h:= fun a1:Z1 => (pr1 ( pr1 a1))).
-assert (egf0: forall a1:Z1,  paths ( pr1 (g (f a1))) ( pr1 a1)). intro. apply  idpath.  
-assert (egf1: forall a1 a1':Z1,  paths ( pr1 a1') ( pr1 a1) -> paths a1' a1). intros ? ? X .  
+assert (egf0: ∀ a1:Z1,  paths ( pr1 (g (f a1))) ( pr1 a1)). intro. apply  idpath.  
+assert (egf1: ∀ a1 a1':Z1,  paths ( pr1 a1') ( pr1 a1) -> paths a1' a1). intros ? ? X .  
 set (X':=  maponpaths ( @pr1 _ _ )  X). 
 assert (is:  isweq h). apply ( isweqpr1pr1 hProp ). apply ( invmaponpathsweq ( weqpair h is ) _ _ X').
 set (egf:= fun a1:_ => (egf1 _ _ (egf0 a1))). 
 set (is2:= gradth _ _ egf efg). 
-apply ( isweqtotaltofib P1 P2  (fun XY: dirprod hProp hProp => 
+apply ( isweqtotaltofib P1 P2  (fun XY: hProp × hProp => 
                                   @eqweqmaphProp (pr1 XY) (pr2 XY)) is2 ( dirprodpair P P')).
 Defined. 
 
@@ -357,6 +599,9 @@ Definition weqeqweqhProp ( P P' : hProp ) := weqpair _ ( univfromtwoaxiomshProp 
 Corollary isasethProp : isaset hProp.
 Proof. unfold isaset.  simpl. intros x x'. apply (isofhlevelweqb (S O) ( weqeqweqhProp x x' ) (isapropweqtoprop x x' (pr2 x'))). Defined.
 
+Definition weqpathsweqhProp' { P P' : hProp } (e : P = P'): weqtopathshProp (eqweqmaphProp e) = e.
+Proof. intros. apply isasethProp.
+Defined.
 
 Lemma iscontrtildehProp : iscontr tildehProp .
 Proof . split with ( tpair _ htrue tt )  .   intro tP .  destruct tP as [ P p ] . apply ( invmaponpathsincl _ ( isinclpr1 ( fun P : hProp => P ) ( fun P => pr2 P ) ) ) .   simpl . apply uahp . apply ( fun x => tt ) .  intro t.  apply p . Defined .
@@ -378,8 +623,7 @@ Theorem total2_paths_hProp_equiv {A : UU} (B : A -> hProp)
    (x y : total2 (fun x => B x)): weq (x = y) (pr1 x = pr1 y).
 Proof.
   intros.
-  apply total2_paths_isaprop_equiv.
+  apply subtypeInjectivity.
   intro a. apply (pr2 (B a)).
 Defined.
 
-(* End of the file hProp.v *)

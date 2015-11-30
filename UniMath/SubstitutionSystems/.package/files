@@ -1,4 +1,5 @@
 AdjunctionHomTypesWeq.v
+Notation.v
 Auxiliary.v
 EndofunctorsMonoidal.v
 FunctorsPointwiseCoproduct.v
@@ -16,4 +17,3 @@ RightKanExtension.v
 Signatures.v
 SubstitutionSystems.v
 SumOfSignatures.v
-UnicodeNotations.v
