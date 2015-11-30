@@ -152,7 +152,7 @@ Definition bifunctor_assoc {B C:Precategory} : [B, [C^op,SET]] ==> [[B,C]^op,SET
 Proof.
   refine (makeFunctor _ _ _ _).
   { intros X.
-    refine (makeFunctor _ _ _ _).
+    refine (makeFunctor_op _ _ _ _).
     { intro F. exact (F ⟹ X). }
     { intros F' F p xe. exact (xe ⟲⟲ p). }
     { abstract (
@@ -165,13 +165,49 @@ Proof.
   { intros X Y p. simpl.
     refine (_,,_).
     { intros F. simpl. intro x. exact (φ_map x p). }
-    { postponeProof. } }
-   { intros X. postponeProof. }
-   { intros X X' X'' p q. postponeProof. }
+    { abstract (
+          intros F G q; simpl in F, G; simpl;
+          apply funextsec; intro w;
+          refine (total2_paths2 _ _);
+          [ apply funextsec; intro b;
+            unfold φ_map, φ_map_1, θ_map_1; simpl;
+            unfold θ_map_1; simpl;
+            apply nattrans_arrow_mor_assoc
+          | apply funextsec; intro b;
+            apply funextsec; intro b';
+            apply funextsec; intro b'';
+            apply setproperty ]) using L. } }
+  { abstract( simpl;
+    intro F;
+    apply nat_trans_eq;
+    [ exact (homset_property SET)
+    | intro G;
+      simpl;
+      unfold φ_map; simpl; unfold φ_map_1; simpl;
+      apply funextsec; intro w;
+      simpl;
+      refine (total2_paths _ _);
+      [ simpl; apply funextsec; intro b; reflexivity
+      | apply funextsec; intro b;
+        apply funextsec; intro b';
+        apply funextsec; intro f;
+        simpl;
+        apply setproperty] ]) using L. }
+  { abstract (intros F F' F'' p q;
+              simpl;
+              apply nat_trans_eq;
+              [ exact (homset_property SET)
+              | intro G;
+                simpl;
+                apply funextsec; intro w;
+                refine (total2_paths2 _ _);
+                [ unfold φ_map, φ_map_1; simpl;
+                  apply funextsec; intro b;
+                  apply pathsinv0, nattrans_nattrans_arrow_assoc
+                | apply funextsec; intro b;
+                  apply funextsec; intro b';
+                  apply funextsec; intro f;
+                  apply setproperty ]]) using L. }
 Defined.
-
-
-
-
 
 (* *)
