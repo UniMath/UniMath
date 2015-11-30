@@ -3070,20 +3070,37 @@ Proof.
 Qed.
 Lemma isdistr_Dcuts_half_plus :
   forall x y : Dcuts, Dcuts_half (Dcuts_plus x y) = Dcuts_plus (Dcuts_half x) (Dcuts_half y).
-Admitted.
-Lemma isdistr_Dcuts_half_minus :
-  forall x y : Dcuts, Dcuts_half (Dcuts_minus x y) = Dcuts_minus (Dcuts_half x) (Dcuts_half y).
-Admitted.
+Proof.
+  intros x y.
+  rewrite !Dcuts_half_correct.
+  now apply isrdistr_Dcuts_plus_mult.
+Qed.
 Lemma double_Dcuts_half :
   ∀ x : Dcuts, x = Dcuts_plus (Dcuts_half x) (Dcuts_half x).
-Admitted.
+Proof.
+  intros x.
+  rewrite  <- isdistr_Dcuts_half_plus.
+  apply Dcuts_eq_is_eq ; split.
+  - intros Hr.
+    apply hinhpr ; right.
+    apply hinhpr ; exists (r,r).
+    now repeat split.
+  - apply hinhuniv ; intros [|] ; apply hinhuniv ; [intros [Xr | Yr] | intros ((rx,ry)) ; simpl ; intros (Hr,(Xr,Yr)) ].
+    + apply is_Dcuts_bot with (1 := Xr).
+      now apply plusNonnegativeRationals_le_r.
+    + apply is_Dcuts_bot with (1 := Yr).
+      now apply plusNonnegativeRationals_le_r.
+    + case (isdecrel_leNonnegativeRationals r rx) ; intro Hrx.
+      now apply is_Dcuts_bot with (1 := Xr).
+      apply notge_ltNonnegativeRationals in Hrx.
+      apply is_Dcuts_bot with (1 := Yr).
+      apply_pr2 (plusNonnegativeRationals_lecompat_l r).
+      rewrite Hr.
+      apply plusNonnegativeRationals_lecompat_r.
+      now apply lt_leNonnegativeRationals.
+Qed.
 
 (** ** Limits of Cauchy sequences *)
-
-Lemma max_le_l : ∀ n m : nat, (n <= Nat.max n m)%nat.
-Admitted.
-Lemma max_le_r : ∀ n m : nat, (m <= Nat.max n m)%nat.
-Admitted.
 
 Section Dcuts_lim.
 
@@ -3376,17 +3393,102 @@ Proof.
     now apply (Hu n Hn).
     rewrite (double_Dcuts_half eps), <- isassoc_Dcuts_plus.
     eapply istrans_Dcuts_le_rel, Dcuts_plus_lecompat_l.
-    apply Dcuts_plus_lecompat_r.
-    intros r Hr.
-    simpl.
-
-    intros r Hr.
-    generalize (λ n Hn, Dcuts_lt_le_rel _ _ (pr2 (Hu n Hn)) r Hr) ; clear Hu ; intro Hu.
-
-    apply hinhpr ; left.
-    apply hinhpr ; left.
-    apply hinhpr.
-
+    + apply Dcuts_plus_lecompat_r.
+      intros r Hr.
+      simpl.
+      apply is_Dcuts_bot with (1 := Hc).
+      rewrite (NQhalf_double c).
+      now apply lt_leNonnegativeRationals, plusNonnegativeRationals_ltcompat ; apply Hr.
+    + intros r Hr.
+      case (isdecrel_ltNonnegativeRationals r (c / 2)) ; intro Hrc.
+      * apply hinhpr ; left.
+        apply hinhpr ; right.
+        apply is_Dcuts_bot with (1 := Hc).
+        rewrite (NQhalf_double c).
+        now apply lt_leNonnegativeRationals, plusNonnegativeRationals_ltcompat ; apply Hrc.
+      * apply notlt_geNonnegativeRationals in Hrc.
+        generalize (is_Dcuts_open _ _ Hr).
+        apply hinhuniv ; intros (q,(Hq,Hrq)).
+        apply hinhpr ; right.
+        apply hinhpr ; exists (r - c / 2, c / 2) ; repeat split.
+        now simpl ; rewrite minusNonegativeRationals_plus_r.
+        apply hinhpr ; exists (q - r) ; split.
+        apply minusNonnegativeRationals_gt0, Hrq.
+        exists N ; intros m Hm.
+        simpl.
+        rewrite minusNonnegativeRationals_plus_exchange, iscomm_plusNonnegativeRationals, minusNonegativeRationals_plus_r.
+        generalize (Dcuts_lt_le_rel _ _ (pr2 (Hu m Hm)) _ Hq) ; clear Hu.
+        apply hinhuniv ; intros [|] ; apply hinhuniv ; [ intros [Xr | Yr] | intros ((rx,ry)) ; simpl ; intros (->,(Xr,Yr))].
+        apply is_Dcuts_bot with (1 := Xr).
+        now apply minusNonnegativeRationals_le.
+        simpl in Yr.
+        apply_pr2_in notge_ltNonnegativeRationals Yr.
+        apply fromempty, Yr.
+        apply istrans_leNonnegativeRationals with r.
+        exact Hrc.
+        now apply lt_leNonnegativeRationals.
+        apply is_Dcuts_bot with (1 := Xr).
+        apply_pr2 (plusNonnegativeRationals_lecompat_r (c / 2)).
+        rewrite minusNonegativeRationals_plus_r.
+        now apply plusNonnegativeRationals_lecompat_l, lt_leNonnegativeRationals.
+        apply istrans_leNonnegativeRationals with r.
+        exact Hrc.
+        now apply lt_leNonnegativeRationals.
+        now apply lt_leNonnegativeRationals.
+        exact Hrc.
+        simpl ; unfold Dcuts_half_val.
+        now rewrite <- NQhalf_double.
+  - apply istrans_Dcuts_le_lt_rel with (Dcuts_plus (U N) (Dcuts_half eps)).
+    + intros r.
+      apply hinhuniv ; intros (c',(Hc'0,(N',Hc'))).
+      case (isdecrel_ltNonnegativeRationals r (c / 2)) ; intro Hrc.
+      * apply hinhpr ; left.
+        apply hinhpr ; right.
+        apply is_Dcuts_bot with (1 := Hc).
+        rewrite (NQhalf_double c).
+        now apply lt_leNonnegativeRationals, plusNonnegativeRationals_ltcompat ; apply Hrc.
+      * apply notlt_geNonnegativeRationals in Hrc.
+        apply hinhpr ; right.
+        apply hinhpr ; exists (r - c / 2, c / 2) ; simpl ; repeat split.
+        now rewrite minusNonegativeRationals_plus_r.
+        case (natgthorleh N N') ; intro HN.
+        { apply natlthtoleh in HN.
+          apply is_Dcuts_bot with (1 := Hc' _ HN).
+          apply istrans_leNonnegativeRationals with r.
+          now apply minusNonnegativeRationals_le.
+          now apply plusNonnegativeRationals_le_r. }
+        { generalize (Dcuts_lt_le_rel _ _ (pr1 (Hu _ HN)) _ (Hc' _ (isreflnatleh _))).
+          apply hinhuniv ; intros [|] ; apply hinhuniv ; [intros [Xr | Yr] | intros ((rx,ry)) ; simpl ; intros (Hr,(Xr,Yr))].
+          - apply is_Dcuts_bot with (1 := Xr).
+            apply istrans_leNonnegativeRationals with r.
+            now apply minusNonnegativeRationals_le.
+            now apply plusNonnegativeRationals_le_r.
+          - apply_pr2_in notge_ltNonnegativeRationals Yr.
+            apply fromempty, Yr.
+            apply istrans_leNonnegativeRationals with r.
+            exact Hrc.
+            now apply plusNonnegativeRationals_le_r.
+          - apply is_Dcuts_bot with (1 := Xr).
+            apply_pr2 (plusNonnegativeRationals_lecompat_r (c / 2)).
+            rewrite minusNonegativeRationals_plus_r.
+            apply istrans_leNonnegativeRationals with (r + c').
+            now apply plusNonnegativeRationals_le_r.
+            rewrite Hr.
+            apply plusNonnegativeRationals_lecompat_l.
+            now apply lt_leNonnegativeRationals.
+            exact Hrc. }
+        unfold Dcuts_half_val.
+        now rewrite <- NQhalf_double.
+    + pattern eps at 2 ;
+      rewrite (double_Dcuts_half eps), <- isassoc_Dcuts_plus.
+      apply Dcuts_plus_ltcompat_l.
+      apply istrans_Dcuts_lt_le_rel with (Dcuts_plus (U n) (NonnegativeRationals_to_Dcuts (c / 2))).
+      now apply (pr2 (Hu _ Hn)).
+      apply Dcuts_plus_lecompat_r.
+      intros r Hr.
+      apply is_Dcuts_bot with (1 := Hc).
+      rewrite (NQhalf_double c).
+      apply lt_leNonnegativeRationals, plusNonnegativeRationals_ltcompat ; apply Hr.
 Qed.
 
 (** ** Least Upper Finite *)
@@ -3815,10 +3917,6 @@ Definition is_lim_seq (u : nat -> NonnegativeReals) (l : NonnegativeReals) : hPr
                      (λ N : nat,
                             ∀ n : nat, N ≤ n -> u n < l + eps × l < u n + eps))
                (impred_isaprop _ (λ _, isapropimpl _ _ (pr2 _))).
-Lemma max_le_l : ∀ n m : nat, (n <= Nat.max n m)%nat.
-Admitted.
-Lemma max_le_r : ∀ n m : nat, (m <= Nat.max n m)%nat.
-Admitted.
 
 Lemma is_lim_seq_unique_aux (u : nat -> NonnegativeReals) (l l' : NonnegativeReals) :
   is_lim_seq u l -> is_lim_seq u l' -> l < l' -> empty.
@@ -3860,10 +3958,10 @@ Definition ex_lim_seq  (u : nat -> NonnegativeReals) : hProp.
 Proof.
   intro u.
   apply (hProppair (Σ l : NonnegativeReals, is_lim_seq u l)).
-  intros Hl Hl'.
-  apply (iscontrweqf (X := (pr1 Hl = pr1 Hl'))).
+  intros l l'.
+  apply (iscontrweqf (X := (pr1 l = pr1 l'))).
   now apply invweq, total2_paths_hProp_equiv.
-  rewrite (is_lim_seq_unique _ _ _ (pr2 Hl) (pr2 Hl')).
+  rewrite (is_lim_seq_unique _ _ _ (pr2 l) (pr2 l')).
   apply iscontrloopsifisaset.
   apply pr2.
 Defined.
@@ -3874,56 +3972,9 @@ Lemma Cauchy_seq_impl_ex_lim_seq (u : nat -> NonnegativeReals) :
   Cauchy_seq u -> ex_lim_seq u.
 Proof.
   intros u Cu.
-  set (E := λ n : nat, (λ x : NonnegativeReals, hexists (λ m : nat, x = u m × (n <= m)%nat))).
-  set (v := λ n : nat, lubNonnegativeReals (E n)).
-  assert (E_cauchy : ∀ n : nat, (∀ c : NonnegativeReals,
-                                    0 < c ->
-                                    isUpperBound (X := eo_Dcuts) (E n) c
-                                    ∨ hexists (λ x : Dcuts, E n x × isUpperBound (X := eo_Dcuts) (E n) (x + c)))).
-  { intros n c Hc0.
-    generalize (Cu c Hc0) ; clear.
-
-    apply hinhfun ; intros (N,Hu).
-    right.
-    Search pr1.
-    case (natgthorleh N n) ; intro Hind.
-    revert u Hu E.
-    - induction N ; intros u Hu E.
-      + now apply fromempty, (negnatgth0n n).
-      + apply natgthsntogeh, natgehchoice in Hind.
-        case Hind ; clear Hind ; intro Hind.
-        * set (u' := λ m : nat, match nat_eq_or_neq N m with
-                                | ii1 _ => u (S N)
-                                | ii2 _ => u m
-                                end).
-          assert (Hu' : ∀ n m : nat, N ≤ n -> N ≤ m -> u' n < u' m + c × u' m < u' n + c).
-          { clear -Hu.
-            intros n m Hn Hm.
-            unfold u' ;
-            case nat_eq_or_neq ; intros Hn' ;
-            case nat_eq_or_neq ; intros Hm' ;
-            apply Hu.
-            - now apply isreflnatleh.
-            - now apply isreflnatleh.
-            - now apply isreflnatleh.
-            - now apply natlthtolehsn, natleh_neq.
-            - now apply natlthtolehsn, natleh_neq.
-            - now apply isreflnatleh.
-            - now apply natlthtolehsn, natleh_neq.
-            - now apply natlthtolehsn, natleh_neq.
-          }
-          generalize (IHN Hind u' Hu').
-          apply hinhuniv ; intros (um,(Eum,Hum)).
-          revert Eum ; apply hinhfun ; intros (m,(->,Hmn)).
-          exists (maxNonnegativeReals (u N) (u' m)) ; split.
-          admit.
-          intros x.
-          apply hinhuniv ; intros (k,(->,Hkn)).
-          admit.
-        * admit.
-    - admit.
-  }
-Admitted.
+  exists (Dcuts_lim_cauchy_seq u Cu).
+  apply Dcuts_Cauchy_seq_impl_ex_lim_seq.
+Defined.
 
 (** ** Opacify *)
 

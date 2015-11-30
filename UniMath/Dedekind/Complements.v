@@ -1,5 +1,26 @@
 (** * Additionals theorems and definitions *)
 
+(** ** About nat *)
+
+Require Export UniMath.Foundations.NaturalNumbers.
+
+Lemma max_le_l : ∀ n m : nat, (n <= Nat.max n m)%nat.
+Proof.
+  induction n ; simpl Nat.max.
+  - intros ; reflexivity.
+  - destruct m.
+    + now apply isreflnatleh.
+    + now apply IHn.
+Qed.
+Lemma max_le_r : ∀ n m : nat, (m <= Nat.max n m)%nat.
+Proof.
+  induction n ; simpl Nat.max.
+  - intros ; now apply isreflnatleh.
+  - destruct m.
+    + reflexivity.
+    + now apply IHn.
+Qed.
+
 (** ** for RationalNumbers.v *)
 
 Require Export UniMath.Foundations.RationalNumbers.
