@@ -32,9 +32,8 @@ Coercion pr1hSet: hSet >-> UU .
 Definition eqset { X : hSet } ( x x' : X ) : hProp := hProppair (x = x') (pr2 X x x') .
 Notation "a = b" := (eqset a b) (at level 70, no associativity) : set.
 
-Definition neqset { X : hSet } ( x x' : X ) : hProp := hProppair (x ≠ x') (isapropneg _) .
+Definition neqset { X : hSet } ( x x' : X ) : hProp := hProppair (x != x') (isapropneg _) .
 Notation "a != b" := (neqset a b) (at level 70, no associativity) : set.
-Notation "a ≠ b" := (neqset a b) (at level 70, no associativity) : set.
 Delimit Scope set with set.
 
 Definition setproperty ( X : hSet ) := pr2 X .
@@ -44,6 +43,14 @@ Proof. intros. exists(X×Y) . apply (isofhleveldirprod 2); apply setproperty. De
 
 Definition setcoprod (X Y:hSet) : hSet.
 Proof. intros. exists(X⨿Y). apply isasetcoprod; apply setproperty. Defined.
+
+Lemma isaset_total2 (X:hSet) (Y:X->hSet) : isaset (Σ x, Y x).
+Proof.
+  intros.
+  apply (isofhleveltotal2 2).
+  - apply setproperty.
+  - intro x. apply setproperty.
+Defined.
 
 (** [ hProp ] as a set *)
 
@@ -158,6 +165,15 @@ Definition totalsubtype ( X : UU ) : hsubtypes X := fun x => htrue .
 Definition weqtotalsubtype ( X : UU ) : totalsubtype X ≃ X .
 Proof . intro . apply weqpr1 .   intro . apply iscontrunit .  Defined .
 
+Definition weq_subtypes {X Y} (w : X≃Y) (S: hsubtypes X) (T: hsubtypes Y) :
+           (∀ x, S x <-> T (w x)) -> carrier S ≃ carrier T.
+Proof.
+  intros ? ? ? ? ? eq. apply (weqbandf w). intro x. apply weqiff.
+  - apply eq.
+  - apply propproperty.
+  - apply propproperty.
+Defined.
+
 Definition DecidableSubtype_to_hsubtypes {X} (P:DecidableSubtype X) : hsubtypes X
   := λ x, DecidableProposition_to_hProp(P x).
 Coercion DecidableSubtype_to_hsubtypes : DecidableSubtype >-> hsubtypes.
@@ -210,11 +226,6 @@ Proof.
   exact (pr1 p).
 Defined.
 
-(** Verify that the map above factors judgmentally. *)
-Goal ∀ Y (is:isaset Y) (F:Y->UU) (e :∀ y y', F y -> F y' -> y=y')
-       y (f:F y), squash_pairs_to_set F is e (hinhpr (y,,f)) = y.
-Proof. reflexivity. Qed.
-
 Definition squash_to_set {X Y} (is:isaset Y) (f:X->Y) :
           (∀ x x', f x = f x') -> ∥ X ∥ -> Y.
 Proof.
@@ -234,11 +245,6 @@ Proof.
     exists (f x0). apply hinhpr. exists x0. reflexivity. }
   exact (pr1 p).
 Defined.
-
-(** Verify that the map above factors judgmentally. *)
-Goal ∀ X Y (is:isaset Y) (f:X->Y) (e:∀ x x', f x = f x'),
-       f = funcomp hinhpr (squash_to_set is f e).
-Proof. reflexivity. Qed.
 
 (* End of " the type of monic subtypes of a type " . *)
 
@@ -286,7 +292,11 @@ Definition iscoasymm { X : UU } ( R : hrel X ) := ∀ x1 x2 , ¬ R x1 x2 -> R x2
 
 Definition istotal { X : UU } ( R : hrel X ) := ∀ x1 x2 , R x1 x2 ∨ R x2 x1 .
 
+Definition isdectotal { X : UU } ( R : hrel X ) := ∀ x1 x2 , R x1 x2 ⨿ R x2 x1 .
+
 Definition iscotrans { X : UU } ( R : hrel X ) := ∀ x1 x2 x3 , R x1 x3 -> R x1 x2 ∨ R x2 x3 .
+
+Definition isdeccotrans { X : UU } ( R : hrel X ) := ∀ x1 x2 x3 , R x1 x3 -> R x1 x2 ⨿ R x2 x3 .
 
 Definition isdecrel { X : UU } ( R : hrel X ) := ∀ x1 x2 , R x1 x2 ⨿ ¬ R x1 x2 .
 
@@ -595,10 +605,22 @@ Definition eqreldirprod { X Y : UU } ( RX : eqrel X ) ( RY : eqrel Y ) : eqrel (
 
 (** *** Negation of a relation and its properties *)
 
-Definition negrel { X : UU } ( R : hrel X ) : hrel X := fun x x' => hProppair _ ( isapropneg ( R x x' ) ) .
+Definition negrel { X : UU } ( R : hrel X ) : hrel X
+  := λ x x', hProppair (¬ R x x') (isapropneg _) . (* uses [funextempty] *)
 
 Lemma istransnegrel { X : UU } ( R : hrel X  ) ( isr : iscotrans R ) : istrans ( negrel R ) .
+(* uses [funextfun] and [funextempty] *)
 Proof . intros . intros x1 x2 x3 r12 r23 .  apply ( negf ( isr x1 x2 x3 ) ) .  apply ( toneghdisj ( dirprodpair r12 r23 ) ) . Defined .
+
+Lemma iscotrans_to_istrans_negReln {X} {R:hrel X} (NR : negReln R) :
+  isdeccotrans R -> istrans NR.
+(* uses no axioms; compare to istransnegrel *)
+Proof.
+  intros ? ? ? i ? ? ? nxy nyz. apply neg_to_negProp.
+  apply (negf (i x1 x2 x3)). intro c. induction c as [c|c].
+  - exact (negProp_to_neg nxy c).
+  - exact (negProp_to_neg nyz c).
+Defined.
 
 Lemma isasymmnegrel { X : UU } ( R : hrel X  ) ( isr : iscoasymm R ) : isasymm ( negrel R ) .
 Proof . intros . intros x1 x2 r12 r21 . apply ( r21 ( isr _ _ r12 ) ) .   Defined .
@@ -607,6 +629,7 @@ Lemma iscoasymmgenrel { X : UU } ( R : hrel X  ) ( isr : isasymm R ) : iscoasymm
 Proof . intros . intros x1 x2 nr12 . apply ( negf ( isr _ _ ) nr12 ) .  Defined .
 
 Lemma isdecnegrel { X : UU } ( R : hrel X  ) ( isr : isdecrel R ) : isdecrel ( negrel R ) .
+(* uses [funextempty] *)
 Proof . intros . intros x1 x2 . destruct ( isr x1 x2 ) as [ r | nr ] . apply ii2 .   apply ( todneg _ r ) .  apply ( ii1 nr ) . Defined .
 
 Lemma isnegnegrel { X : UU } ( R : hrel X ) : isnegrel ( negrel R ) .

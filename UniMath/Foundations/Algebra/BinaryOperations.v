@@ -22,6 +22,10 @@ Require Export UniMath.Foundations.Sets .
 
 (** ** Sets with one and two binary operations *)
 
+(** *** Unary operations *)
+
+Definition unop (X : UU) := X -> X.
+
 (** *** Binary operations *)
 
 (** **** General definitions *)
@@ -472,8 +476,6 @@ Definition invbinopiso { X Y : setwithbinop } ( f : binopiso X Y ) : binopiso Y 
 (** **** Transport of properties of a binary operation  *)
 
 
-Lemma isincltwooutof3a { X Y Z : UU } ( f : X -> Y ) ( g : Y -> Z ) ( isg : isincl g ) ( isgf : isincl ( funcomp f g ) ) : isincl f .
-Proof . intros . apply ( isofhlevelff 1 f g isgf ) .  apply ( isofhlevelfsnincl 1 g isg ) . Defined .
 
 
 Lemma islcancelablemonob { X Y : setwithbinop } ( f : binopmono X Y ) ( x : X ) ( is : islcancelable ( @op Y ) ( f x ) ) : islcancelable ( @op X ) x .
