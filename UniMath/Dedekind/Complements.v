@@ -4,17 +4,17 @@
 
 Require Export UniMath.Foundations.NaturalNumbers.
 
-Lemma max_le_l : ∀ n m : nat, (n <= Nat.max n m)%nat.
+Lemma max_le_l : ∀ n m : nat, (n <= max n m)%nat.
 Proof.
-  induction n ; simpl Nat.max.
+  induction n ; simpl max.
   - intros ; reflexivity.
   - destruct m.
     + now apply isreflnatleh.
     + now apply IHn.
 Qed.
-Lemma max_le_r : ∀ n m : nat, (m <= Nat.max n m)%nat.
+Lemma max_le_r : ∀ n m : nat, (m <= max n m)%nat.
 Proof.
-  induction n ; simpl Nat.max.
+  induction n ; simpl max.
   - intros ; now apply isreflnatleh.
   - destruct m.
     + reflexivity.

@@ -3913,10 +3913,10 @@ Proof.
   generalize (Hl _ Hlt0') (Hl' _ Hlt0') ; clear Hl Hl'.
   apply (hinhuniv2 (P := hProppair _ isapropempty)).
   intros (N,Hn) (M,Hm).
-  specialize (Hn (Nat.max N M) (max_le_l _ _)).
-  specialize (Hm (Nat.max N M) (max_le_r _ _)).
+  specialize (Hn (max N M) (max_le_l _ _)).
+  specialize (Hm (max N M) (max_le_r _ _)).
   apply (isirrefl_Dcuts_lt_rel ((l + l') / 2)).
-  apply istrans_Dcuts_lt_rel with (u (Nat.max N M)).
+  apply istrans_Dcuts_lt_rel with (u (max N M)).
   - apply_pr2 (plusNonnegativeReals_ltcompat_l ((l' - l) / 2)).
     rewrite <- isdistr_Dcuts_half_plus.
     rewrite (iscomm_plusNonnegativeReals l), isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals l).
