@@ -131,7 +131,7 @@ Lemma univ_arrow_mor_assoc {C:Precategory} {a b:C} {Z:[C^op,SET]}
   (t \\ z) ∘ f = t \\ (z ⟲ f).
 Proof.
   apply universalMapUniqueness.
-  rewrite arrow_mor_mor_assoc.
+  refine (arrow_mor_mor_assoc _ _ _ @ _).
   apply maponpaths.
   apply universalMapProperty.
 Qed.
@@ -142,7 +142,8 @@ Lemma uOF_identity {C:Precategory} {X:[C^op,SET]} (r:Representation X) :
   r \\ (identity X ⟳ r) = identity _.
 Proof.
   unfold nat_trans_id; simpl.
-  rewrite identityFunction'. apply universalMapIdentity.
+  refine (transportb (λ k, _ \\ k = _) (identityFunction' _ _) _).
+  apply universalMapIdentity.
 Qed.
 
 Lemma uOF_comp {C:Precategory} {X Y Z:[C^op,SET]}
@@ -152,10 +153,10 @@ Lemma uOF_comp {C:Precategory} {X Y Z:[C^op,SET]}
       (p:X→Y) (q:Y→Z) :
     t \\ ((q ∘ p) ⟳ r) = (t \\ (q ⟳ s)) ∘ (s \\ (p ⟳ r)).
 Proof.
-  rewrite <- nattrans_nattrans_arrow_assoc.
-  rewrite univ_arrow_mor_assoc.
+  refine (transportf (λ k, _ \\ k = _) (nattrans_nattrans_arrow_assoc _ _ _) _).
+  refine (_ @ !univ_arrow_mor_assoc _ _ _).
   apply maponpaths.
-  rewrite <- nattrans_arrow_mor_assoc.
+  refine (_ @ nattrans_arrow_mor_assoc _ _ _).
   apply (maponpaths (λ k, q ⟳ k)).
   apply pathsinv0.
   apply universalMapProperty.
