@@ -95,8 +95,8 @@ Variable is_left_adj_L : is_left_adjoint L.
 Let φ := @φ_adj _ _ _ is_left_adj_L.
 Let φ_inv := @φ_adj_inv _ _ _ is_left_adj_L.
 Let R : functor _ _ := right_adjoint is_left_adj_L.
-Let η : nat_trans _ _ := eta_from_left_adjoint is_left_adj_L.
-Let ε : nat_trans _ _ := eps_from_left_adjoint is_left_adj_L.
+Let η : nat_trans _ _ := unit_from_left_adjoint is_left_adj_L.
+Let ε : nat_trans _ _ := counit_from_left_adjoint is_left_adj_L.
 (* Let φ_natural_precomp := @φ_adj_natural_precomp _ _ _ is_left_adj_L.
 Let φ_inv_natural_precomp := @φ_adj_inv_natural_precomp _ _ _ is_left_adj_L.
 Let φ_after_φ_inv := @φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L.
