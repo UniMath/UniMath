@@ -51,14 +51,14 @@ Defined.
 (* categories of functors with representations *)
 
 Definition RepresentedFunctor (C:Precategory) : Precategory
-  := @categoryWithStructure [C^op,SET] Representation.
+  := categoryWithStructure [C^op,SET] Representation.
 
 Definition toRepresentation {C:Precategory} (X : RepresentedFunctor C) :
   Representation (pr1 X)
   := pr2 X.
 
 Definition RepresentableFunctor (C:Precategory) : Precategory
-  := @categoryWithStructure [C^op,SET] isRepresentable.
+  := categoryWithStructure [C^op,SET] isRepresentable.
 
 Definition toRepresentableFunctor {C:Precategory} :
   RepresentedFunctor C ==> RepresentableFunctor C :=
@@ -603,6 +603,150 @@ Definition Representation_Map {C:Precategory} {X Y:[C^op,SET]} (p : X → Y) :=
 Definition isRepresentable_Map {C:Precategory} {X Y:[C^op,SET]} (p : X → Y) :=
   ∀ (c : C) (y : c ⇒ Y), isRepresentable (fiber p y).
 
+(** limits and colimits  *)
+
+Definition cone {I C:Precategory} (c:C) (D: [I,C]) : UU
+  := Σ (φ : ∀ i, Hom C c (D ◾ i)),
+     ∀ i j (e : i → j), D ▭ e ∘ φ i = φ j.
+
+Lemma cone_eq {C I:Precategory} (c:C^op) (D: I==>C) (p q:cone (C:=C) c D) :
+  pr1 p ~ pr1 q -> p = q.
+Proof.
+  intros h. apply subtypeEquality.
+  { intro r.
+    apply impred_isaprop; intro i;
+    apply impred_isaprop; intro j;
+    apply impred_isaprop; intro e.
+    apply homset_property. }
+  apply funextsec; intro i; apply h.
+Qed.
+
+Definition cone_functor {I C:Precategory} : [I,C] ==> [C^op,SET].
+Proof.
+  intros.
+  refine (_,,_).
+  { refine (_,,_).
+    { intros D. refine (_,,_).
+      { refine (_,,_).
+        - intro c. exists (cone (C:=C) c D).
+          abstract (
+              apply isaset_total2;
+              [ apply impred_isaset; intro i; apply homset_property
+              | intros φ;
+                apply impred_isaset; intro i;
+                apply impred_isaset; intro j;
+                apply impred_isaset; intro e; apply isasetaprop;
+                apply homset_property]) using LLL.
+        - simpl; intros a b f φ.
+          exists (λ i, pr1 φ i ∘ f).
+          abstract (
+              intros i j e; simpl;
+              rewrite <- assoc;
+              apply maponpaths;
+              apply (pr2 φ)) using M. }
+      { abstract (split;
+        [ intro c; simpl;
+          apply funextsec; intro p;
+          apply cone_eq;
+          intro i; simpl;
+          apply id_left
+        | intros a b c f g; simpl; apply funextsec; intro p;
+          apply cone_eq; simpl; intro i; apply pathsinv0, assoc ]) using N. } }
+    { intros D D' f; simpl.
+      refine (_,,_).
+      - simpl. unfold cone. intros c φ.
+        refine (_,,_).
+        + intros i. exact (pr1 f i ∘ pr1 φ i).
+        + abstract (
+              simpl; intros i j e; assert (L := pr2 φ i j e); simpl in L;
+              rewrite <- L; rewrite <- assoc; rewrite <- assoc;
+              apply maponpaths; apply pathsinv0; apply nat_trans_ax) using P.
+      - abstract (intros a b g; simpl;
+                  apply funextsec; intro p; apply cone_eq; intro i; simpl;
+                  apply pathsinv0, assoc) using Q. } }
+  { abstract ( unfold cone; split;
+    [ intros D; simpl;
+      refine (total2_paths2 _ _);
+      [ apply funextsec; intro c;
+        apply funextsec; intro φ; simpl;
+        refine (total2_paths _ _);
+        [ simpl; apply funextsec; intro i; apply id_right
+        | apply funextsec; intro i;
+          apply funextsec; intro j;
+          apply funextsec; intro e;
+          apply homset_property ]
+      | apply isaprop_is_nat_trans; exact (homset_property SET)]
+    | intros D D' D'' p q;
+      simpl;
+      refine (total2_paths2 _ _);
+      [ apply funextsec; intro c; simpl; apply funextsec; intro φ;
+        refine (total2_paths2 _ _);
+        [ simpl; apply funextsec; intro i; apply assoc
+        | apply funextsec; intro i;
+          apply funextsec; intro j;
+          apply funextsec; intro e;
+          apply homset_property ]
+      | apply isaprop_is_nat_trans; exact (homset_property SET)] ]) using R. }
+Defined.
+
+Definition cocone_functor {I C:Precategory} : [I,C]^op ==> [C^op^op,SET]
+  := cone_functor □ op_move op_functor.
+
+Definition Limit {C I:Precategory} (D: I==>C) := Representation (cone_functor D).
+
+Definition Colimit {C I:Precategory} (D: I==>C) := Representation (cocone_functor D).
+
+Definition proj_ {C I:Precategory} {D: I==>C} (lim:Limit D) (i:I) : universalObject lim → D i.
+Proof. intros. exact ((pr1 (universalElement lim) i)). Defined.
+
+Definition inj_ {C I:Precategory} {D: I==>C} (colim:Colimit D) (i:I) : D i → universalObject colim.
+Proof. intros. exact ((pr1 (universalElement colim) i)). Defined.
+
+Definition proj_comm {C I:Precategory} {D: I==>C} (lim:Limit D) {i j:I} (f:i→j) :
+  # D f ∘ proj_ lim i = proj_ lim j.
+Proof. intros. exact (pr2 (universalElement lim) _ _ f). Defined.
+
+Definition inj_comm {C I:Precategory} {D: I==>C} (colim:Colimit D) {i j:I} (f:i→j) :
+  inj_ colim j ∘ # D f = inj_ colim i.
+Proof. intros. exact (pr2 (universalElement colim) _ _ f). Defined.
+
+Definition hasLimits (C:Precategory) := ∀ (I:Precategory) (D: I==>C), Limit D.
+
+Definition hasColimits (C:Precategory) := ∀ (I:Precategory) (D: I==>C), Colimit D.
+
+Definition lim_functor (C:Precategory) (lim:hasLimits C) (I:Precategory) :
+  [I,C] ==> C
+  := universalObjectFunctor C □ addStructure cone_functor (lim I).
+
+Definition colim_functor (C:Precategory) (colim:hasColimits C) (I:Precategory) :
+  [I,C] ==> C
+  := functor_rm_op (
+         universalObjectFunctor C^op □ addStructure cocone_functor (colim I)).
+
+Theorem functorPrecategoryLimits (B C:Precategory) : hasLimits C -> hasLimits [B,C].
+Proof.
+  intros lim I D.
+  unfold hasLimits in lim.
+  set (D' := bifunctor_comm _ _ _ D).
+  set (Q := lim_functor C lim I □ D').
+  exists Q.
+  refine (_,,_).
+  { refine (_,,_).
+    { intro i. refine (makeNattrans _ _).
+      { intro b. exact (proj_ _ _). }
+      { intros b b' f; simpl.
+
+
+
+
+
+
+
+Abort.
+
+Theorem functorPrecategoryColimits (B C:Precategory) : hasColimits C -> hasColimits [B,C].
+Proof.
+Abort.
 
 
 (* --- *)

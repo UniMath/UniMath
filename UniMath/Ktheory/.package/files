@@ -17,8 +17,6 @@ QuotientSet.v
 Magma.v
 DirectSum.v
 RawMatrix.v
-Colimit.v
-Cocone.v
 Bifunctor.v
 Representation.v
 Elements.v

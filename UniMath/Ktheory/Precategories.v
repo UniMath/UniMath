@@ -241,7 +241,7 @@ Qed.
 
 (* new categories from old *)
 
-Definition categoryWithStructure {C:Precategory} (P:ob C -> UU) : Precategory.
+Definition categoryWithStructure (C:Precategory) (P:ob C -> UU) : Precategory.
 Proof.
   refine (makePrecategory _ _ _ _ _ _ _ _).
   (* add a new component to each object: *)
@@ -258,7 +258,7 @@ Proof.
 Defined.
 
 Definition functorWithStructures {C:Precategory} {P Q:ob C -> UU}
-           (F : ∀ c, P c -> Q c) : categoryWithStructure P ==> categoryWithStructure Q.
+           (F : ∀ c, P c -> Q c) : categoryWithStructure C P ==> categoryWithStructure C Q.
 Proof.
   refine (makeFunctor _ _ _ _).
   (* transport the structure: *)
@@ -270,7 +270,7 @@ Proof.
 Defined.
 
 Definition addStructure {B C:Precategory} {P:ob C -> UU}
-           (F:B==>C) (h : ∀ b, P(F b)) : B ==> categoryWithStructure P.
+           (F:B==>C) (h : ∀ b, P(F b)) : B ==> categoryWithStructure C P.
 Proof.
   refine (makeFunctor _ _ _ _).
   - intros b. exact (F b,,h b).
