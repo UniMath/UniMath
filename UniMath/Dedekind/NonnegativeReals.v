@@ -3762,6 +3762,43 @@ Definition lubNonnegativeReals (E : hsubtypes NonnegativeReals)
 
 (** ** Theorems *)
 
+Definition istrans_leNonnegativeReals :
+  ∀ x y z : NonnegativeReals, x <= y -> y <= z -> x <= z
+  := istrans_Dcuts_le_rel.
+Definition isrefl_leNonnegativeReals :
+  ∀ x : NonnegativeReals, x <= x
+  := isrefl_Dcuts_le_rel.
+Lemma isantisym_leNonnegativeReals :
+  ∀ x y : NonnegativeReals, x <= y × y <= x <-> x = y.
+Proof.
+  intros x y ; split.
+  - intros (Hle,Hge).
+    apply Dcuts_eq_is_eq ; intro r ; split.
+    now apply Hle.
+    now apply Hge.
+  -  intros ->.
+     split ; apply isrefl_leNonnegativeReals.
+Qed.
+Definition istrans_ltNonnegativeReals :
+  ∀ x y z : NonnegativeReals, x < y -> y < z -> x < z
+  := istrans_Dcuts_lt_rel.
+Definition isirrefl_ltNonnegativeReals :
+  ∀ x : NonnegativeReals, ¬ (x < x)
+  := isirrefl_Dcuts_lt_rel.
+Lemma isnotap_ltNonnegativeReals :
+  ∀ x y : NonnegativeReals, x < y ∨ y < x <-> x ≠ y.
+Proof.
+  intros x y ; split.
+  - auto.
+  - auto.
+Qed.
+Definition istrans_lt_le_ltNonnegativeReals :
+  ∀ x y z : NonnegativeReals, x < y -> y <= z -> x < z
+  := istrans_Dcuts_lt_le_rel.
+Definition istrans_le_lt_ltNonnegativeReals :
+  ∀ x y z : NonnegativeReals, x <= y -> y < z -> x < z
+  := istrans_Dcuts_le_lt_rel.
+
 Lemma notapNonnegativeReals_eq:
   ∀ x y : NonnegativeReals, (¬ (x ≠ y)) <-> (x = y).
 Proof.
@@ -3858,6 +3895,24 @@ Definition plusNonnegativeReals_ltcompat_r :
 Definition plusNonnegativeReals_lecompat_r :
   ∀ x y z: NonnegativeReals, (y <= z) <-> (x + y <= x + z)
   := Dcuts_plus_lecompat_r.
+
+Lemma plusNonnegativeReals_eqcompat_l :
+  ∀ x y z: NonnegativeReals, (y + x = z + x) -> (y = z).
+Proof.
+  intros x y z H.
+  apply isantisym_leNonnegativeReals ; split.
+  - apply_pr2 (plusNonnegativeReals_lecompat_l x).
+    rewrite H ; refine (isrefl_leNonnegativeReals _).
+  - apply_pr2 (plusNonnegativeReals_lecompat_l x).
+    rewrite H ; refine (isrefl_leNonnegativeReals _).
+Qed.
+Lemma plusNonnegativeReals_eqcompat_r :
+  ∀ x y z: NonnegativeReals, (x + y = x + z) -> (y = z).
+Proof.
+  intros x y z.
+  rewrite ! (iscomm_plusNonnegativeReals x).
+  now apply plusNonnegativeReals_eqcompat_l.
+Qed.
 
 Definition multNonnegativeReals_ltcompat_l :
   ∀ x y z: NonnegativeReals, (0 < x) -> (y < z) -> (y * x < z * x)
