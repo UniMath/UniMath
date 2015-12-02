@@ -126,42 +126,40 @@ Definition universalMapUniqueness' {C:Precategory} {X:[C^op,SET]} {r:Representat
   f = r \\ x -> r ⟲ f = x
   := pathsweq1' (universalProperty r c) f x.
 
-Lemma universalMapNaturality {C:Precategory} {a:C} {Y Z:[C^op,SET]}
-      (s : Representation Y)
-      (t : Representation Z)
-      (q : Y → Z) (f : a → universalObject s) :
-  (t \\ (q ⟳ s)) ∘ f = t \\ (q ⟳ s ⟲ f).
+Lemma univ_arrow_mor_assoc {C:Precategory} {a b:C} {Z:[C^op,SET]}
+      (f : a → b) (z : b ⇒ Z) (t : Representation Z) :
+  (t \\ z) ∘ f = t \\ (z ⟲ f).
 Proof.
-  (* This lemma says that if the source and target of a natural transformation
-  q are represented by objects of C, then q is represented by composition with
-  an arrow of C. *)
   apply universalMapUniqueness.
-  rewrite arrow_mor_mor_assoc.
-  rewrite universalMapProperty.
-  now rewrite <- nattrans_arrow_mor_assoc.
+  refine (arrow_mor_mor_assoc _ _ _ @ _).
+  apply maponpaths.
+  apply universalMapProperty.
 Qed.
 
 (*  *)
 
-Lemma B {C:Precategory} {X:[C^op,SET]} (r:Representation X) :
+Lemma uOF_identity {C:Precategory} {X:[C^op,SET]} (r:Representation X) :
   r \\ (identity X ⟳ r) = identity _.
 Proof.
   unfold nat_trans_id; simpl.
-  rewrite identityFunction'. apply universalMapIdentity.
+  refine (transportb (λ k, _ \\ k = _) (identityFunction' _ _) _).
+  apply universalMapIdentity.
 Qed.
 
-Lemma B' {C:Precategory} {X Y Z:[C^op,SET]}
+Lemma uOF_comp {C:Precategory} {X Y Z:[C^op,SET]}
       (r:Representation X)
       (s:Representation Y)
       (t:Representation Z)
       (p:X→Y) (q:Y→Z) :
     t \\ ((q ∘ p) ⟳ r) = (t \\ (q ⟳ s)) ∘ (s \\ (p ⟳ r)).
 Proof.
-  rewrite <- nattrans_nattrans_arrow_assoc.
-  rewrite universalMapNaturality.
-  rewrite <- nattrans_arrow_mor_assoc.
-  rewrite universalMapProperty.
-  reflexivity.
+  refine (transportf (λ k, _ \\ k = _) (nattrans_nattrans_arrow_assoc _ _ _) _).
+  refine (_ @ !univ_arrow_mor_assoc _ _ _).
+  apply maponpaths.
+  refine (_ @ nattrans_arrow_mor_assoc _ _ _).
+  apply (maponpaths (λ k, q ⟳ k)).
+  apply pathsinv0.
+  apply universalMapProperty.
 Qed.
 
 Definition universalObjectFunctor (C:Precategory) : RepresentedFunctor C ==> C.
@@ -169,8 +167,8 @@ Proof.
   refine (makeFunctor _ _ _ _).
   - intro X. exact (universalObject (pr2 X)).
   - intros X Y p; simpl. exact (pr2 Y \\ (p ⟳ pr2 X)).
-  - intros X; simpl. apply B.
-  - intros X Y Z p q; simpl. apply B'.
+  - intros X; simpl. apply uOF_identity.
+  - intros X Y Z p q; simpl. apply uOF_comp.
 Defined.
 
 Definition embeddingRepresentability {C D:Precategory}

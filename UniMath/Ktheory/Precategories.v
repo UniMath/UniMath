@@ -275,8 +275,8 @@ Proof.
   refine (makeFunctor _ _ _ _).
   - intros b. exact (F b,,h b).
   - intros b b' f. exact (# F f).
-  - intros b; simpl. apply functor_id.
-  - intros b b' b'' f g; simpl. apply functor_comp.
+  - abstract (intros b; simpl; apply functor_id) using L.
+  - abstract (intros b b' b'' f g; simpl; apply functor_comp) using L.
 Defined.
 
 Lemma identityFunction : ∀ (T:SET) (f:T→T) (t:T:hSet), f = identity T -> f t = t.
