@@ -2,7 +2,6 @@ Require Import
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Utilities
-        UniMath.Ktheory.Sets
         UniMath.Ktheory.Precategories.
 
 Local Open Scope cat.

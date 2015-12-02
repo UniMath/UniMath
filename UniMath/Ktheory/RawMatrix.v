@@ -12,7 +12,6 @@ Require Import
         UniMath.Ktheory.Representation
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories.
-Require UniMath.Ktheory.Sum UniMath.Ktheory.Product.
 Local Open Scope cat.
 
 Definition to_row {C:Precategory} {I} {b:I -> ob C}

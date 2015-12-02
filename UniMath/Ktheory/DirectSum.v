@@ -11,7 +11,7 @@ Require Import
         UniMath.Foundations.FiniteSets
         UniMath.Ktheory.Representation
         UniMath.Ktheory.Precategories.
-Require UniMath.Ktheory.RawMatrix UniMath.Ktheory.FiniteSet.
+Require UniMath.Ktheory.RawMatrix.
 Local Open Scope cat.
 
 Definition identity_matrix {C:Precategory} (h:hasZeroMaps C)
