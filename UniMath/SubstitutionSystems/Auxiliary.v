@@ -107,32 +107,6 @@ Defined.
 End nat_trans_eq.
 
 
-(** to whiskering.v *)
-
-Lemma is_nat_trans_post_whisker (B C D : precategory)
-   (G H : functor B C) (gamma : nat_trans G H) (K : functor C D):
-  is_nat_trans (functor_composite _ _ _ G K)
-                         (functor_composite _ _ _ H K)
-     (fun b : B => #K (gamma b)).
-Proof.
-  unfold is_nat_trans.
-  intros b b' f.
-  simpl.
-  rewrite <- functor_comp.
-  rewrite (nat_trans_ax gamma).
-  rewrite functor_comp.
-  apply idpath.
-Qed.
-
-Definition post_whisker {B C D : precategory} (hsC : has_homsets C) (hsD : has_homsets D)
-   (G H: ob [B, C, hsC]) (gamma : G --> H) (I : ob [C, D, hsD])
-  : functor_compose _ _ G I --> functor_compose _ _ H I.
-Proof.
-  exists (fun b : B => #(pr1 I) (pr1 gamma b)).
-  apply is_nat_trans_post_whisker.
-Defined.
-
-
 
 (** to CategoryTheory/limits/coproducts.v *)
 
