@@ -115,28 +115,60 @@ Proof.
                 | intro b; simpl; now rewrite id_right, id_left]]) using N. }
 Defined.
 
+Lemma A {X:UU} {Y:X->UU} {Z : ∀ x, Y x -> UU}
+      {f g : ∀ x, Y x} (e : f = g) {x : X} (z : Z x (f x)) :
+  transportf (λ f, Z x (f x)) e z =
+  transportf (λ y, Z x y) (toforallpaths _ _ _ e x) z.
+Proof. induction e. reflexivity. Defined.
+
+Lemma A' {X:UU} {Y:X->UU}
+      {f g : ∀ x, Y x} (e : f = g) {x : X} (z : Y x) :
+  transportf (λ f, Y x) e z =
+  transportf (λ y, Y x) (toforallpaths _ _ _ e x) z.
+Proof. induction e. reflexivity. Defined.
+
+Lemma transport_along_funextsec {X:UU} {Y:X->UU} {f g:∀ x, Y x}
+      (e:f~g) (x:X) : transportf _ (funextsec _ _ _ e) (f x) = g x.
+Proof.
+  unfold funextsec.
+  set (w := weqtoforallpaths _ f g).
+  rewrite A'.
+  induction (!(apevalat x (homotweqinvweq w e)
+               : toforallpaths Y f g (invmap w e) x = e x)).
+  now induction (e x).
+Defined.
+
 Lemma comm_comm_eq_id (A B C:Precategory) :
   bifunctor_comm B A C □ bifunctor_comm A B C = functor_identity _.
 Proof.
-  intros. refine (total2_paths _ _).
-  { refine (total2_paths _ _).
+  intros.
+  apply functor_eq.
+  { apply homset_property. }
+  refine (total2_paths _ _).
     { apply funextsec; intro F.
       change (pr1 (pr1 (functor_identity [A, [B, C]])) F) with F.
+      apply functor_eq.
+      { apply homset_property. }
       refine (total2_paths _ _).
-      { refine (total2_paths _ _).
-        { apply funextsec; intro a. apply functor_eq.
+      { apply funextsec; intro a. apply functor_eq.
           { apply homset_property. }
-          { refine (total2_paths _ _).
-            { abstract (apply funextsec; now intro b) using L. }
+          refine (total2_paths _ _).
+            { apply funextsec; now intro b. }
             { apply funextsec; intro b.
               apply funextsec; intro b'.
               apply funextsec; intro f.
-
+              Set Printing Coercions.
+              idtac.
 
               set (P:=@paths).
               set (MOR:=@precategory_morphisms).
 
+
               try reflexivity.
+
+
+
+
               (* how does one deal with such transports in Coq? *)
 
 Abort.

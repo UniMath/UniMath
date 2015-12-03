@@ -43,7 +43,7 @@ Proof.
 Abort.
 
 Definition iso_Representation_weq {C:Precategory} (X Y:[C^op,SET]) :
-  iso X Y -> Representation X ≃ Representation Y.
+  nat_iso X Y -> Representation X ≃ Representation Y.
 Proof.
   intros i. apply weqfibtototal; intro c. apply iso_Universal_weq; assumption.
 Defined.
@@ -246,7 +246,7 @@ Defined.
 
 Definition UnitFunctor (C:Precategory) : C ==> SET.
   refine (_,,_).
-  { exists (λ c, unitset). exact (λ a b f, idfun unit). }
+  { exists (λ c, unitset). exact (λ a b f t, t). }
   { split.
     { intros a. reflexivity. }
     { intros a b c f g. reflexivity. } }
@@ -344,25 +344,27 @@ Lemma binaryProductMapUniqueness {C:Precategory} {a b:C} (prod : BinaryProduct a
       {c:C} (f g : Hom C c (universalObject prod)) :
   pr_1 prod ∘ f = pr_1 prod ∘ g ->
   pr_2 prod ∘ f = pr_2 prod ∘ g -> f = g.
-Proof. intros r s. apply mapUniqueness, dirprod_eq; assumption. Defined.
+Proof. intros r s. apply mapUniqueness. apply dirprod_eq.
+       exact r. exact s.
+Defined.
 
 Definition BinarySum {C:Precategory} (a b:C) :=
-  Representation (HomPair (opp_ob a) (opp_ob b)).
+  BinaryProduct (opp_ob a) (opp_ob b).
 
 Definition in_1 {C:Precategory} {a b:C} (sum : BinarySum a b) :
   Hom C a (universalObject sum)
-  := pr1 (universalElement sum).
+  := pr_1 sum.
 
 Definition in_2 {C:Precategory} {a b:C} (sum : BinarySum a b) :
   Hom C b (universalObject sum)
-  := pr2 (universalElement sum).
+  := pr_2 sum.
 
 Definition binarySumMap {C:Precategory} {a b:C} (sum : BinarySum a b)
            {c:C} : a → c -> b → c -> rm_opp_ob (universalObject sum) → c
   := λ f g, rm_opp_mor (sum \\ (opp_mor f,,opp_mor g)).
 
 Lemma binarySumMapUniqueness {C:Precategory} {a b:C} (sum : BinarySum a b)
-      {c:C} (f g : Hom C (universalObject sum) c) :
+      {c:C} (f g : Hom C (rm_opp_ob (universalObject sum)) c) :
   f ∘ in_1 sum = g ∘ in_1 sum ->
   f ∘ in_2 sum = g ∘ in_2 sum -> f = g.
 Proof. intros r s. apply opp_mor_eq, mapUniqueness, dirprod_eq; assumption. Defined.
