@@ -102,7 +102,7 @@ Definition universalMap' {C:Precategory} {X:[C^op^op,SET]} (r:Representation X) 
 
 Notation "x // r" := (universalMap' r x) (at level 50, left associativity) : cat.
 
-Definition universalMapProperty {C:Precategory} {X:[C^op,SET]} {r:Representation X}
+Definition universalMapProperty {C:Precategory} {X:[C^op,SET]} (r:Representation X)
       {c:C} (x : c ⇒ X) :
   r ⟲ (r \\ x) = x
   := homotweqinvweq (universalProperty r c) x.
@@ -169,6 +169,22 @@ Proof.
   - intros X Y p; simpl. exact (pr2 Y \\ (p ⟳ pr2 X)).
   - intros X; simpl. apply uOF_identity.
   - intros X Y Z p q; simpl. apply uOF_comp.
+Defined.
+
+(* move upstream *)
+Definition comp_func_on_mor {A B C:Precategory} (F:[A,B]) (G:[B,C]) {a a':A} (f:a→a') :
+  G □ F ▭ f = G ▭ (F ▭ f).
+Proof. reflexivity. Defined.
+
+Definition universalObjectFunctor_on_map (C:Precategory) {X Y:RepresentedFunctor C} (p:X→Y) :
+  universalObjectFunctor C ▭ p = pr2 Y \\ (p ⟳ pr2 X).
+Proof. reflexivity. Defined.
+
+Lemma universalObjectFunctor_comm (C:Precategory) {X Y:RepresentedFunctor C} (p:X→Y) :
+  p ⟳ universalElement (pr2 X) = universalElement (pr2 Y) ⟲ universalObjectFunctor C ▭ p.
+Proof.
+  change (universalObjectFunctor C ▭ p) with (pr2 Y \\ (p ⟳ pr2 X)).
+  apply pathsinv0, universalMapProperty.
 Defined.
 
 Definition embeddingRepresentability {C D:Precategory}
@@ -720,6 +736,49 @@ Definition colim_functor (C:Precategory) (colim:hasColimits C) (I:Precategory) :
   [I,C] ==> C
   := functor_rm_op (
          universalObjectFunctor C^op □ addStructure cocone_functor (colim I)).
+
+Lemma bifunctor_assoc_repn {B C:Precategory} (X : [B, [C^op,SET]]) :
+  (∀ b, Representation (X ◾ b)) -> Representation (bifunctor_assoc X).
+Proof.
+  intro r. set (X' := addStructure X r).
+  change (categoryWithStructure [C ^op, SET] Representation) with (RepresentedFunctor C) in X'.
+  set (F := universalObjectFunctor C □ X').
+  exists F. refine (_,,_).
+  { refine (_,,_).
+    { intro b. exact (universalElement (r b)). }
+    { abstract (intros b b' f; exact (!universalObjectFunctor_comm C (X' ▭ f))) using K. } }
+  { intro F'. apply bijection_to_weq.
+    split.
+    { intro x'. unfold arrow in x'.
+      refine (_,,_).
+      { refine (makeNattrans _ _).
+        { intro b. exact (r b \\ pr1 x' b). }
+        { abstract (intros b b' f; simpl;
+                    refine (univ_arrow_mor_assoc (F' ▭ f) (pr1 x' b') (r b') @ _);
+                    intermediate_path (r b' \\ (X ▭ f ⟳ pr1 x' b));
+                    [ apply maponpaths, (pr2 x' b b' f)
+                    | unfold F;
+                      rewrite comp_func_on_mor;
+                      rewrite (universalObjectFunctor_on_map C (X' ▭ f));
+                      change (pr2 (X' ◾ b')) with (r b');
+                      change (pr2 (X' ◾ b)) with (r b);
+                      change (X' ▭ f) with (X ▭ f);
+                      refine (_ @ !univ_arrow_mor_assoc _ _ _);
+                      apply maponpaths;
+                      rewrite <- nattrans_arrow_mor_assoc;
+                      apply (maponpaths (λ k, X ▭ f ⟳ k));
+                      apply pathsinv0;
+                      exact (universalMapProperty (r b) (pr1 x' b)) ]) using R. } }
+      {
+
+
+
+
+      set (PATHS := @paths).
+
+Abort.
+
+
 
 Theorem functorPrecategoryLimits (B C:Precategory) : hasLimits C -> hasLimits [B,C].
 Proof.

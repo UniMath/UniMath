@@ -4,18 +4,26 @@ Require Import
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories.
 
+Require Export UniMath.CategoryTheory.precategories.
+Require Export UniMath.CategoryTheory.opp_precat
+               UniMath.CategoryTheory.yoneda
+               UniMath.CategoryTheory.category_hset.
+Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.CategoryTheory.category_hset.
+
+
 Local Open Scope cat.
 
 Set Automatic Introduction.
 
 (** bifunctor commutativity *)
 
-Definition bifunctor_comm_functor_data {I A B:Precategory} :
+Definition comm_functor_data {I A B:Precategory} :
   [I, [A, B] ] -> A -> functor_data I B
   := λ D a, functor_data_constr I B (λ i, D ◾ i ◾ a) (λ i j e, D ▭ e ◽ a).
 
-Lemma isfunctor_bifunctor_comm_functor_data {I A B:Precategory} :
-  ∀ (D:[I,[A,B]]) (a:A), is_functor (bifunctor_comm_functor_data D a).
+Lemma isfunctor_comm_functor_data {I A B:Precategory} :
+  ∀ (D:[I,[A,B]]) (a:A), is_functor (comm_functor_data D a).
 Proof.
   split.
   { unfold functor_idax. intro i; simpl. unfold functor_mor_application.
@@ -24,21 +32,21 @@ Proof.
     now rewrite functor_comp. }
 Qed.
 
-Definition bifunctor_comm_functor {I A B:Precategory} :
+Definition comm_functor {I A B:Precategory} :
   [I, [A, B] ] -> A -> [I,B].
 Proof.
   intros D a.
-  exists (bifunctor_comm_functor_data D a).
-  exact (isfunctor_bifunctor_comm_functor_data D a).
+  exists (comm_functor_data D a).
+  exact (isfunctor_comm_functor_data D a).
 Defined.
 
-Definition bifunctor_comm_functor_data_2 (I A B:Precategory) : functor_data [I,[A,B]] [A,[I,B]].
+Definition comm_functor_data_2 (I A B:Precategory) : functor_data [I,[A,B]] [A,[I,B]].
 Proof.
   refine (_,,_).
   { intros D.
     refine (_,,_).
     { refine (_,,_).
-      { intros a. exact (bifunctor_comm_functor D a). }
+      { intros a. exact (comm_functor D a). }
       intros a a' f; simpl.
       refine (_,,_).
       { simpl; intro i. exact (D ◾ i ▭ f). }
@@ -61,8 +69,8 @@ Proof.
                 | intros i; simpl; apply nat_trans_ax]) using O. } }
 Defined.
 
-Definition isfunctor_bifunctor_comm_functor_data_2 {I A B:Precategory} :
-  is_functor (bifunctor_comm_functor_data_2 I A B).
+Definition isfunctor_comm_functor_data_2 {I A B:Precategory} :
+  is_functor (comm_functor_data_2 I A B).
 Proof.
   split.
   { intros D. simpl. apply nat_trans_eq.
@@ -78,9 +86,61 @@ Qed.
 
 Definition bifunctor_comm (A B C:Precategory) : [A,[B,C]] ==> [B,[A,C]].
 Proof.
-  exists (bifunctor_comm_functor_data_2 A B C).
-  apply isfunctor_bifunctor_comm_functor_data_2.
+  exists (comm_functor_data_2 A B C).
+  apply isfunctor_comm_functor_data_2.
 Defined.
+
+Lemma transportOverSet {X:UU} {Y:X->UU} (i:isaset X) {x:X} (e:x=x) {y y':Y x} :
+  transportf Y e y = y.
+Proof.
+  exact ((transportf (λ k, transportf Y k y = y) (pr1 (i x x (idpath x) e))) (idpath y)).
+Defined.
+
+Lemma comm_comm_iso_id (A B C:Precategory) :
+  nat_iso (bifunctor_comm B A C □ bifunctor_comm A B C) (functor_identity _).
+Proof.
+  intros. refine (makeNatiso _ _).
+  { intro F.
+    { refine (makeNatiso _ _).
+      { intro a. refine (makeNatiso _ _).
+        { intro b. exact (identity_iso _). }
+        { abstract (intros b b' f; simpl; rewrite id_right, id_left; reflexivity) using L. } }
+      abstract (intros a a' f; apply nat_trans_eq;
+                [ apply homset_property
+                | intro b; simpl; now rewrite id_left, id_right]) using M. } }
+  { abstract (intros F F' p; simpl; apply nat_trans_eq;
+              [ exact (homset_property [B,C])
+              | intro a; apply nat_trans_eq;
+                [ apply homset_property
+                | intro b; simpl; now rewrite id_right, id_left]]) using N. }
+Defined.
+
+Lemma comm_comm_eq_id (A B C:Precategory) :
+  bifunctor_comm B A C □ bifunctor_comm A B C = functor_identity _.
+Proof.
+  intros. refine (total2_paths _ _).
+  { refine (total2_paths _ _).
+    { apply funextsec; intro F.
+      change (pr1 (pr1 (functor_identity [A, [B, C]])) F) with F.
+      refine (total2_paths _ _).
+      { refine (total2_paths _ _).
+        { apply funextsec; intro a. apply functor_eq.
+          { apply homset_property. }
+          { refine (total2_paths _ _).
+            { abstract (apply funextsec; now intro b) using L. }
+            { apply funextsec; intro b.
+              apply funextsec; intro b'.
+              apply funextsec; intro f.
+
+
+              set (P:=@paths).
+              set (MOR:=@precategory_morphisms).
+
+              try reflexivity.
+              (* how does one deal with such transports in Coq? *)
+
+Abort.
+
 
 (** bifunctors related to representable functors  *)
 

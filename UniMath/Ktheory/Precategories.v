@@ -361,6 +361,12 @@ Definition nattrans_nattrans_object_assoc {A B C:Precategory}
 
 (*  *)
 
+Lemma functor_identity_object {C:Precategory} (c:C) : functor_identity C ◾ c = c.
+Proof. reflexivity. Defined.
+
+Lemma functor_identity_arrow {C:Precategory} {c c':C} (f:c→c') : functor_identity C ▭ f = f.
+Proof. reflexivity. Defined.
+
 Definition functor_op {C D:Precategory} : C==>D -> C^op==>D^op := functor_opp.
 
 Definition functor_rm_op {C D:Precategory} : C^op==>D^op -> C==>D := functor_opp.
@@ -377,19 +383,37 @@ Proof.
     now apply (nat_trans_eq (homset_property D^op)).
 Defined.
 
-(** natural isomorphisms *)
+(** natural transformations and isomorphisms *)
 
-Definition makeNattrans {C D:Precategory} {F G:C ==> D}
-           (mor : ∀ x : C, F x → G x)
+Definition nat_iso {B C:Precategory} (F G:[B,C]) := iso F G.
+
+Definition makeNattrans {C D:Precategory} {F G:[C,D]}
+           (mor : ∀ x : C, F ◾ x → G ◾ x)
            (eqn : ∀ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
-  F ⟶ G
+  F → G
   := (mor,,eqn).
 
-Definition makeNattrans_op {C D:Precategory} {F G:C^op ==> D}
-           (mor : ∀ x : C, F x → G x)
+Definition makeNattrans_op {C D:Precategory} {F G:[C^op,D]}
+           (mor : ∀ x : C, F ◾ x → G ◾ x)
            (eqn : ∀ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
-  F ⟶ G
+  F → G
   := (mor,,eqn).
+
+Definition makeNatiso {C D:Precategory} {F G:[C,D]}
+           (mor : ∀ x : C, iso (F ◾ x) (G ◾ x))
+           (eqn : ∀ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
+  nat_iso F G.
+Proof.
+  refine (makeNattrans mor eqn,,_). apply functor_iso_if_pointwise_iso; intro c. apply pr2.
+Defined.
+
+Definition makeNatiso_op {C D:Precategory} {F G:[C^op,D]}
+           (mor : ∀ x : C, iso (F ◾ x) (G ◾ x))
+           (eqn : ∀ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
+  nat_iso F G.
+Proof.
+  refine (makeNattrans_op mor eqn,,_). apply functor_iso_if_pointwise_iso; intro c. apply pr2.
+Defined.
 
 Lemma move_inv {C:Precategory} {a a' b' b:C} {f : a → b} {f' : a' → b'}
       {i : a → a'} {i' : a' → a} {j : b → b'} {j' : b' → b} :
