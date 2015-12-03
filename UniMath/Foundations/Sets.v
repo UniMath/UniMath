@@ -809,7 +809,7 @@ Proof.
 intros X R. apply isinclpr1. intro x0. apply isapropiseqclass.
 Defined.
 
-Definition setquottouu0 {X : UU} (R : hrel X) (a : setquot R) : UU := carrier (pr1 a).
+Definition setquottouu0 {X : UU} (R : hrel X) (a : setquot R) := carrier (pr1 a).
 Coercion setquottouu0 : setquot >-> Sortclass.
 
 Theorem isasetsetquot {X : UU} (R : hrel X) : isaset (setquot R).
@@ -840,12 +840,11 @@ Defined.
 Lemma setquotl0 { X : UU } ( R : eqrel X ) ( c : setquot R ) ( x : c ) : setquotpr R ( pr1 x ) = c .
 Proof.
 intros X R c x.
-apply subtypeEquality.
-- now intro a; apply isapropiseqclass.
-- apply funextsec; intro x0.
-  apply uahp; intro r.
-  + exact (eqax1 (pr2 c) (pr1 x) x0 r (pr2 x)).
-  + exact (eqax2 (pr2 c) (pr1 x) x0 (pr2 x) r).
+apply (invmaponpathsincl _ (isinclpr1setquot R)).
+apply funextsec; intro x0.
+apply uahp; intro r.
++ exact (eqax1 (pr2 c) (pr1 x) x0 r (pr2 x)).
++ exact (eqax2 (pr2 c) (pr1 x) x0 (pr2 x) r).
 Defined.
 
 Theorem issurjsetquotpr { X : UU } ( R : eqrel X)  : issurjective (setquotpr R ).
