@@ -416,11 +416,12 @@ now apply Coproducts_from_Colims, ColimsHSET.
 Qed.
  *)
 
+(*
 Lemma InitialHSET : Initial HSET.
 Proof.
 now apply Initial_from_Colims, ColimsHSET.
 Qed.
-
+*)
 
 Section limits.
 
@@ -496,10 +497,12 @@ Proof.
 now intros g d; apply LimConeHSET.
 Qed.
 
+(*
 Lemma ProductsHSET : Products HSET.
 Proof.
 now apply Products_from_Lims, LimsHSET.
 Qed.
+*)
 
 Lemma TerminalHSET : Terminal HSET.
 Proof.

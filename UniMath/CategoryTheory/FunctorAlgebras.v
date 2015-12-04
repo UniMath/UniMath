@@ -304,7 +304,7 @@ Variables (C : precategory) (hsC : has_homsets C) (F : functor C C).
 Variables (Aa : algebra_ob F) (AaIsInitial : isInitial (FunctorAlg F hsC) Aa).
 
 Local Definition AaInitial : Initial (FunctorAlg F hsC) :=
-  mk_Initial _ AaIsInitial.
+  mk_Initial _ _ AaIsInitial.
 
 Local Notation A := (alg_carrier _ Aa).
 Local Notation a := (alg_map _ Aa).
@@ -323,7 +323,7 @@ assert (Ha'a : a' ;; a = identity A).
     eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
     now apply assoc.
   apply pathsinv0; set (X := tpair _ _ algMor_a'a).
-  now apply (maponpaths pr1 (InitialEndo_is_identity AaInitial X)).
+  now apply (maponpaths pr1 (InitialEndo_is_identity _ AaInitial X)).
 split; simpl; trivial.
 eapply pathscomp0; [apply Ha'|]; simpl.
 rewrite <- functor_comp.
