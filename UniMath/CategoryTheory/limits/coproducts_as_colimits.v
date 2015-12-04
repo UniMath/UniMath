@@ -10,55 +10,112 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.colimits.colimits.
 
 (** * Definition of binary coproduct of objects in a precategory *)
+
+Definition two_graph : graph.
+Proof.
+  exists bool.
+  exact (fun _ _ => empty).
+Defined.
+
+Definition coproduct_diagram {C : precategory} (a b : C) : diagram two_graph C.
+Proof.
+  exists (fun x : bool => if x then a else b).
+  intros u v F.
+  induction F.
+Defined.
+
+Definition CopCocone {C : precategory} {a b : C} {c : C} (ac : a ⇒ c) (bc : b ⇒ c) :
+   cocone (coproduct_diagram a b) c.
+refine (tpair _ _ _ ).
++ intro v.
+  induction v; simpl.
+  - exact ac.
+  - exact bc.
++ intros u v e; induction e.
+Defined.
 
 Section coproduct_def.
 
 Variable C : precategory.
 
 Definition isCoproductCocone (a b co : C) (ia : a ⇒ co) (ib : b ⇒ co) :=
-  ∀ (c : C) (f : a ⇒ c) (g : b ⇒ c),
-    iscontr (Σ fg : co ⇒ c, (ia ;; fg = f) × (ib ;; fg = g)).
+  isColimCocone (coproduct_diagram a b) co (CopCocone ia ib).
+
+Definition mk_isCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a ⇒ co) (ib : b ⇒ co) :
+   (∀ (c : C) (f : a ⇒ c) (g : b ⇒ c),
+    ∃! k : C ⟦co, c⟧,
+      ia ;; k = f ×
+      ib ;; k = g)
+   →
+   isCoproductCocone a b co ia ib.
+Proof.
+  intros H c cc.
+  set (H':= H c (coconeIn cc true) (coconeIn cc false)).
+  refine (tpair _ _ _ ).
+  - exists (pr1 (pr1 H')).
+    set (T := pr2 (pr1 H')). simpl in T.
+    abstract (intro u; induction u;
+              [ apply (pr1 T) | apply (pr2 T)]).
+  - intros. abstract (intros;
+              apply subtypeEquality;
+              [ intro; apply impred; intro; apply hsC
+              | apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false)] ]).
+Defined.
 
 Definition CoproductCocone (a b : C) :=
-   Σ coiaib : (Σ co : C, a ⇒ co × b ⇒ co),
-          isCoproductCocone a b (pr1 coiaib) (pr1 (pr2 coiaib)) (pr2 (pr2 coiaib)).
+  ColimCocone (coproduct_diagram a b).
 
+Definition mk_CoproductCocone (a b : C) :
+  ∀ (c : C) (f : a ⇒ c) (g : b ⇒ c),
+   isCoproductCocone _ _ _ f g →  CoproductCocone a b.
+Proof.
+  intros.
+  refine (tpair _ _ _ ).
+  - exists c.
+    apply (CopCocone f g).
+  - apply X.
+Defined.
 
 Definition Coproducts := ∀ (a b : C), CoproductCocone a b.
 Definition hasCoproducts := ishinh Coproducts.
 
-Definition CoproductObject {a b : C} (CC : CoproductCocone a b) : C := pr1 (pr1 CC).
-Definition CoproductIn1 {a b : C} (CC : CoproductCocone a b): a ⇒ CoproductObject CC :=
-  pr1 (pr2 (pr1 CC)).
-Definition CoproductIn2 {a b : C} (CC : CoproductCocone a b) : b ⇒ CoproductObject CC :=
-   pr2 (pr2 (pr1 CC)).
+Definition CoproductObject {a b : C} (CC : CoproductCocone a b) : C := colim CC.
+Definition CoproductIn1 {a b : C} (CC : CoproductCocone a b): a ⇒ CoproductObject CC
+  := colimIn CC true.
 
-Definition isCoproductCocone_CoproductCocone {a b : C} (CC : CoproductCocone a b) :
-   isCoproductCocone a b  (CoproductObject CC) (CoproductIn1 CC) (CoproductIn2 CC).
-Proof.
-  exact (pr2 CC).
-Defined.
+Definition CoproductIn2 {a b : C} (CC : CoproductCocone a b) : b ⇒ CoproductObject CC
+  := colimIn CC false.
 
 Definition CoproductArrow {a b : C} (CC : CoproductCocone a b) {c : C} (f : a ⇒ c) (g : b ⇒ c) :
       CoproductObject CC ⇒ c.
 Proof.
-  exact (pr1 (pr1 (isCoproductCocone_CoproductCocone CC _ f g))).
+  apply (colimArrow CC).
+  refine (mk_cocone _ _ ).
+  + intro v. induction v.
+    - apply f.
+    - apply g.
+  + simpl. intros ? ? e; induction e.
 Defined.
 
 Lemma CoproductIn1Commutes (a b : C) (CC : CoproductCocone a b):
      ∀ (c : C) (f : a ⇒ c) g, CoproductIn1 CC ;; CoproductArrow CC f g  = f.
 Proof.
   intros c f g.
-  exact (pr1 (pr2 (pr1 (isCoproductCocone_CoproductCocone CC _ f g)))).
+  unfold CoproductIn1.
+  set (H:=colimArrowCommutes CC  _ (CopCocone f g) true).
+  apply H.
 Qed.
 
 Lemma CoproductIn2Commutes (a b : C) (CC : CoproductCocone a b):
      ∀ (c : C) (f : a ⇒ c) g, CoproductIn2 CC ;; CoproductArrow CC f g = g.
 Proof.
   intros c f g.
-  exact (pr2 (pr2 (pr1 (isCoproductCocone_CoproductCocone CC _ f g)))).
+  unfold CoproductIn1.
+  set (H:=colimArrowCommutes CC  _ (CopCocone f g) false).
+  apply H.
 Qed.
 
 Lemma CoproductArrowUnique (a b : C) (CC : CoproductCocone a b) (x : C)
@@ -67,9 +124,10 @@ Lemma CoproductArrowUnique (a b : C) (CC : CoproductCocone a b) (x : C)
       k = CoproductArrow CC f g.
 Proof.
   intros H1 H2.
-  set (H := tpair (λ h, dirprod _ _ ) k (dirprodpair H1 H2)).
-  set (H' := (pr2 (isCoproductCocone_CoproductCocone CC _ f g)) H).
-  apply (base_paths _ _ H').
+  apply colimArrowUnique.
+  simpl. intro u; induction u; simpl.
+  - apply H1.
+  - apply H2.
 Qed.
 
 
@@ -102,32 +160,6 @@ Proof.
   unfold CoproductOfArrows.
   apply CoproductIn2Commutes.
 Qed.
-
-
-Definition mk_CoproductCocone (a b : C) :
-  ∀ (c : C) (f : a ⇒ c) (g : b ⇒ c),
-   isCoproductCocone _ _ _ f g →  CoproductCocone a b.
-Proof.
-  intros.
-  refine (tpair _ _ _ ).
-  - exists c.
-    exists f.
-    exact g.
-  - apply X.
-Defined.
-
-Definition mk_isCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a ⇒ co) (ib : b ⇒ co) :
-   (∀ (c : C) (f : a ⇒ c) (g : b ⇒ c),
-    ∃! k : C ⟦co, c⟧,
-      ia ;; k = f ×
-      ib ;; k = g)
-   →
-   isCoproductCocone a b co ia ib.
-Proof.
-  intros H c cc.
-  apply H.
-Defined.
-
 
 
 Lemma precompWithCoproductArrow {a b : C} (CCab : CoproductCocone a b) {c d : C}
@@ -179,19 +211,9 @@ Lemma Coproduct_endo_is_identity (CC : CoproductCocone a b)
   (H2 : CoproductIn2 CC ;; k = CoproductIn2 CC)
   : identity _ = k.
 Proof.
-  set (H' := pr2 CC _ (CoproductIn1 CC) (CoproductIn2 CC) ); simpl in *.
-  set (X := (Σ fg : pr1 (pr1 CC) ⇒ CoproductObject CC,
-          pr1 (pr2 (pr1 CC));; fg = CoproductIn1 CC
-          × pr2 (pr2 (pr1 CC));; fg = CoproductIn2 CC)).
-  set (t1 := tpair _ k (dirprodpair H1 H2) : X).
-  set (t2 := tpair _ (identity _ ) (dirprodpair (id_right _ _ _ _ ) (id_right _ _ _ _ ) ) : X).
-  assert (X' : t1 = t2).
-  { apply proofirrelevance.
-    apply isapropifcontr.
-    apply H'.
-  }
-  apply pathsinv0.
-  apply (base_paths _ _ X').
+(*  apply pathsinv0. *)
+  apply colim_endo_is_identity.
+  intro u; induction u; simpl; assumption.
 Defined.
 
 
@@ -231,13 +253,17 @@ Proof.
   apply idpath.
 Defined.
 
+
+(* should be an instance of a lemma about colimits *)
+(*
 Lemma isaprop_CoproductCocone : isaprop (CoproductCocone a b).
 Proof.
   apply invproofirrelevance.
   intros CC CC'.
   apply subtypeEquality.
   + intros.
-    intro. do 3 (apply impred; intro); apply isapropiscontr.
+    unfold isColimCocone.
+    do 2 (apply impred; intro); apply isapropiscontr.
   + apply (total2_paths (isotoid _ H (iso_from_Coproduct_to_Coproduct CC CC'))).
     rewrite transportf_dirprod.
     rewrite transportf_isotoid'. simpl.
@@ -251,6 +277,13 @@ Proof.
     rewrite CoproductIn2Commutes.
     apply idpath.
 Qed.
+*)
 
 End coproduct_unique.
 End coproduct_def.
+
+Lemma Coproducts_from_Colims (C : precategory) :
+  Colims C -> Coproducts C.
+Proof.
+now intros H a b; apply H.
+Defined.

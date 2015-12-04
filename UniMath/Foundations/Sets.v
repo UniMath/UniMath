@@ -178,8 +178,13 @@ Definition pr1carrier { X:UU } ( A : hsubtypes X ) := @pr1 _ _  : carrier A -> X
 Lemma isinclpr1carrier { X : UU } ( A : hsubtypes X ) : isincl ( @pr1carrier X A ) .
 Proof . intros . apply ( isinclpr1 A ( fun x : _ => pr2 ( A x ) ) ) . Defined .
 
-Lemma isasethsubtypes (X:UU): isaset (hsubtypes X).
-Proof. intro . change ( isofhlevel 2 ( hsubtypes X ) ) .  apply impred . intro. apply isasethProp. Defined.
+Lemma isasethsubtypes (X : UU) : isaset (hsubtypes X).
+Proof.
+intro X.
+change (isofhlevel 2 (hsubtypes X)).
+apply impred; intro x.
+exact isasethProp.
+Defined.
 
 Definition totalsubtype ( X : UU ) : hsubtypes X := fun x => htrue .
 
@@ -788,9 +793,18 @@ Definition eqax0 { X : UU } { R : hrel X } { A : hsubtypes X }  : iseqclass R A 
 Definition eqax1 { X : UU } { R : hrel X } { A : hsubtypes X } : iseqclass R A ->  ∀ x1 x2 : X,  R x1 x2 -> A x1 -> A x2 := fun is: iseqclass R A => pr1 ( pr2 is) .
 Definition eqax2 { X : UU } { R : hrel X } { A : hsubtypes X } : iseqclass R A ->  ∀ x1 x2 : X,  A x1 -> A x2 -> R x1 x2 := fun is: iseqclass R A => pr2 ( pr2 is) .
 
-Lemma isapropiseqclass  { X : UU } ( R : hrel X ) ( A : hsubtypes X ) : isaprop ( iseqclass R A ) .
-Proof. intros. unfold iseqclass. apply isofhleveldirprod. apply (isapropishinh (carrier A)). apply isofhleveldirprod. apply impredtwice. intros t t' . apply impred. intro. apply impred.  intro.
-apply (pr2 (A t')).  apply impredtwice. intros. apply impred. intro. apply impred.  intro.  apply (pr2 (R t t')).  Defined.
+Lemma isapropiseqclass {X : UU} (R : hrel X) (A : hsubtypes X) :
+  isaprop (iseqclass R A) .
+Proof.
+intros X R A.
+apply isofhleveldirprod.
+- exact (isapropishinh (carrier A)).
+- apply isofhleveldirprod.
+  + repeat (apply impred; intro).
+    exact (pr2 (A t0)).
+  + repeat (apply impred; intro).
+    exact (pr2 (R t t0)).
+Defined.
 
 
 (** *** Direct product of equivalence classes *)
@@ -836,28 +850,48 @@ Definition setquotpair { X : UU } ( R : hrel X ) ( A : hsubtypes X ) ( is : iseq
 Definition pr1setquot { X : UU } ( R : hrel X ) : setquot R -> ( hsubtypes X ) := @pr1 _ ( fun A : _ => iseqclass R A ) .
 Coercion pr1setquot : setquot >-> hsubtypes .
 
-Lemma isinclpr1setquot { X : UU } ( R : hrel X ) : isincl ( pr1setquot R ) .
-Proof . intros . apply isinclpr1.  intro x0. apply isapropiseqclass. Defined .
+Lemma isinclpr1setquot {X : UU} (R : hrel X) : isincl (pr1setquot R).
+Proof.
+intros X R. apply isinclpr1. intro x0. apply isapropiseqclass.
+Defined.
 
-Definition setquottouu0 { X : UU } ( R : hrel X ) ( a : setquot R )  := carrier ( pr1 a ).
+Definition setquottouu0 {X : UU} (R : hrel X) (a : setquot R) := carrier (pr1 a).
 Coercion setquottouu0 : setquot >-> Sortclass.
 
+Theorem isasetsetquot {X : UU} (R : hrel X) : isaset (setquot R).
+Proof.
+intros X R.
+apply (isasetsubset (@pr1 _ _) (isasethsubtypes X)).
+apply isinclpr1; intro x.
+now apply isapropiseqclass.
+Defined.
 
-Theorem isasetsetquot { X : UU } ( R : hrel X ) : isaset ( setquot R ) .
-Proof. intros.  apply ( isasetsubset ( @pr1 _ _ )  ( isasethsubtypes X )  ) . apply isinclpr1.  intro.  apply isapropiseqclass.  Defined.
-
-Definition setquotinset { X : UU } ( R : hrel X ) : hSet := hSetpair _ ( isasetsetquot R ) .
+Definition setquotinset { X : UU } ( R : hrel X ) : hSet :=
+  hSetpair _ ( isasetsetquot R ) .
 
 Theorem setquotpr { X : UU } ( R : eqrel X ) : X -> setquot R.
-Proof. intros X R X0. set ( rax:= eqrelrefl R ). set ( sax := eqrelsymm R  ) . set (tax:= eqreltrans R ). split with (fun x:X =>  R X0 x). split with (hinhpr (tpair _ X0 (rax X0))).
-assert (a1: (∀ x1 x2 : X, R x1 x2 -> R X0 x1 -> R X0 x2)). intros x1 x2 X1 X2.  apply (tax X0 x1 x2 X2 X1). split with a1.
-assert (a2: (∀ x1 x2 : X, R X0 x1 -> R X0 x2 -> R x1 x2)). intros x1 x2 X1 X2. apply (tax x1 X0 x2 (sax X0 x1 X1) X2).
-assumption. Defined.
+Proof.
+intros X R X0.
+set (rax := eqrelrefl R).
+set (sax := eqrelsymm R).
+set (tax := eqreltrans R).
+apply (tpair _ (fun x : X => R X0 x)).
+split.
+- exact (hinhpr (tpair _ X0 (rax X0))).
+- split; intros x1 x2 X1 X2.
+  + exact (tax X0 x1 x2 X2 X1).
+  + exact (tax x1 X0 x2 (sax X0 x1 X1) X2).
+Defined.
 
 Lemma setquotl0 { X : UU } ( R : eqrel X ) ( c : setquot R ) ( x : c ) : setquotpr R ( pr1 x ) = c .
-Proof . intros . apply ( invmaponpathsincl _ ( isinclpr1setquot R ) ) .  simpl . apply funextsec . intro x0 . destruct c as [ A iseq ] .  destruct x as [ x is ] .  simpl in is . simpl .  apply uahp . intro r . apply ( eqax1 iseq _ _ r is ) .  intro a . apply ( eqax2 iseq _ _ is a ) .  Defined .
-
-
+Proof.
+intros X R c x.
+apply (invmaponpathsincl _ (isinclpr1setquot R)).
+apply funextsec; intro x0.
+apply uahp; intro r.
++ exact (eqax1 (pr2 c) (pr1 x) x0 r (pr2 x)).
++ exact (eqax2 (pr2 c) (pr1 x) x0 (pr2 x) r).
+Defined.
 
 Theorem issurjsetquotpr { X : UU } ( R : eqrel X)  : issurjective (setquotpr R ).
 Proof. intros. unfold issurjective. intro c.   apply ( @hinhuniv ( carrier ( pr1 c ) ) ) .  intro x . apply hinhpr .  split with ( pr1 x ) . apply setquotl0 .  apply ( eqax0 ( pr2 c ) ) .
@@ -919,10 +953,17 @@ Proof . intros . simpl . apply idpath .  Defined .
 
 (** *** Universal property of [ setquot ] for predicates of one and several variables *)
 
-
-Theorem setquotunivprop { X : UU } ( R : eqrel X ) ( P : setquot R -> hProp ) ( is : ∀ x : X , P ( setquotpr R x ) ) : ∀ c : setquot R ,  P c .
-Proof . intros . apply ( @hinhuniv ( carrier ( pr1 c ) ) ( P c ) ) .  intro x .  set ( e := setquotl0 R c x ) .  apply ( eqweqmaphProp ( maponpaths P e ) ) .   apply ( is ( pr1 x ) ) .  apply ( eqax0 ( pr2 c ) ) .  Defined .
-
+Theorem setquotunivprop {X : UU} (R : eqrel X) (P : setquot (pr1 R) -> hProp)
+  (ps : ∀ x : X, pr1 (P (setquotpr R x))) : ∀ c : setquot (pr1 R), pr1 (P c).
+Proof.
+intros X R P ps c.
+apply (@hinhuniv (carrier (pr1 c)) (P c)).
+- intro x.
+  set (e := setquotl0 R c x).
+  apply (eqweqmaphProp (maponpaths P e)).
+  exact (ps (pr1 x)).
+- exact (eqax0 (pr2 c)).
+Defined.
 
 Theorem setquotuniv2prop { X : UU } ( R : eqrel X ) ( P : setquot R -> setquot R -> hProp ) ( is : ∀ x x' : X ,  P ( setquotpr R x ) ( setquotpr R x' ) ) : ∀ c c' : setquot R ,  P c c' .
 Proof . intros . assert ( int1 : ∀ c0' : _ , P c c0' ) .  apply ( setquotunivprop R ( fun c0' => P c c0' ) ) .  intro x . apply ( setquotunivprop R ( fun c0 : _ => P c0 ( setquotpr R x ) ) ) .  intro x0 . apply ( is x0 x ) . apply ( int1 c' ) .  Defined .

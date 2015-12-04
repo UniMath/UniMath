@@ -40,8 +40,8 @@ Variable F : functor C D.
 Variable H : is_left_adjoint F.
 
 Let G := right_adjoint H.
-Let η := eta_from_left_adjoint H.
-Let ε := eps_from_left_adjoint H.
+Let η := unit_from_left_adjoint H.
+Let ε := counit_from_left_adjoint H.
 
 (** * Definition of the maps on hom-types *)
 
@@ -135,10 +135,3 @@ Proof.
 Qed.
 
 End HomSetIso_from_Adjunction.
-
-
-
-
-
-
-

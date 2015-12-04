@@ -82,7 +82,7 @@ Qed.
 Lemma horcomp_id_postwhisker (A B C : precategory)
    (hsB : has_homsets B) (hsC : has_homsets C) (X X' : [A, B, hsB]) (α : X ⇒ X')
    (Z : [B ,C, hsC])
-  : hor_comp α (nat_trans_id _ ) = post_whisker hsB hsC _ _ α Z.
+  : hor_comp α (nat_trans_id _ ) = post_whisker α Z.
 Proof.
   apply nat_trans_eq.
   - apply hsC.

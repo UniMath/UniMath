@@ -379,9 +379,10 @@ Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
   mk_Initial _ colimAlgIsInitial.
 
 End colim_initial_algebra.
-
+(*
 About Fcocone.
 Check unshift_cocone.
+*)
 (* WIP below of here *)
 Section lists.
 
@@ -413,10 +414,13 @@ Definition streamFunctor : functor HSET HSET :=
 (* Defined. *)
 
 (* F(X) = 1 + (A * X) *)
+
+(*
 Definition listFunctor : functor HSET HSET :=
   coproduct_functor HSET HSET CoproductsHSET
                     (constant_functor HSET HSET (TerminalObject TerminalHSET))
                     streamFunctor.
+*)
 
 (* Let ColimCoconeF F := ColimCocone *)
 (*          (Fdiagram F (InitialObject InitialHSET) *)
@@ -492,9 +496,11 @@ Lemma goodProduct (F G : functor HSET HSET) :
   good F -> good G -> good (product_functor _ _ ProductsHSET F G).
 Admitted.
 
+(*
 Lemma goodCoproduct (F G : functor HSET HSET) :
   good F -> good G -> good (coproduct_functor _ _ CoproductsHSET F G).
 Admitted.
+
 
 Lemma listFunctor_chain_cocontinuous : good listFunctor.
 Proof.
@@ -511,6 +517,7 @@ refine (colimAlgInitial _ _ _ _ _ _).
 - apply ColimCoconeHSET.
 - apply listFunctor_chain_cocontinuous.
 Defined.
+ *)
 
 (* Get recursion/iteration scheme: *)
 
