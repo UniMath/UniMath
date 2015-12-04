@@ -166,35 +166,5 @@ Proof.
     apply functor_identity_right.
 Defined.
 
-(*
-Definition Rezk_completion_unique_functor (D D' : functor_from A)
-      (DH : is_initial_functor_from A D) (D'H : is_initial_functor_from A D') :
-  is_left_adjoint  (pr1 (pr1 (DH D'))).
-Proof.
-  refine (tpair _ _ _ ).
-  - apply (D'H D).
-  - simpl.
-    destruct (DH D') as [X H]. simpl.
-    destruct (D'H D) as [X' H']. simpl.
-    destruct X as [F H1].
-    destruct X' as [F' H2]. simpl in *.
-    set (TD:=Rezk_completion_endo_is_identity D DH).
-    set (TD':=Rezk_completion_endo_is_identity D' D'H).
-    destruct D as [D FF].
-    destruct D' as [D' FF'].
-    simpl in *.
-    refine (tpair _ _ _ ). simpl.
-    + refine (tpair _ _ _ ). simpl.
-      set (TD1 := TD (functor_composite F F')).
-      set (T:=Rezk_completion_endo_is_identity D DH).
-    de
-  apply (DH D').
-Defined.
-
-
-
-  : unit.
-      (X : initial_functor_from A
-*)
 
 End rezk_universal_property.
