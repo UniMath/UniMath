@@ -4,107 +4,22 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
-
-Require Import UniMath.CategoryTheory.limits.limits.
-Require Import UniMath.CategoryTheory.colimits.colimits.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.limits.terminal.
 
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
+
 
 Section def_pb.
 
 Variable C : precategory.
 Variable hs: has_homsets C.
 
-Inductive three := One | Two | Three.
-
-Definition pushout_graph : graph.
-Proof.
-  exists three.
-  exact (fun a b =>
-           match (a,b) with
-             | (Two, One) => unit
-             | (Two, Three) => unit
-             | _ => empty
-            end).
-Defined.
-
-Definition pullback_diagram {a b c : C} (f : C ⟦b,a⟧) (g : C⟦c,a⟧) :
-  diagram pushout_graph C^op.
-Proof.
-  exists (fun x => match x with
-                     | One => b
-                     | Two => a
-                     | Three => c end).
-  intros u v e.
-  induction u; induction v; simpl; try induction e; assumption.
-Defined.
-
-Definition PullbCone {a b c : C} (f : C ⟦b,a⟧) (g : C⟦c,a⟧)
-           (d : C) (f' : C ⟦d, b⟧) (g' : C ⟦d,c⟧)
-           (H : f' ;; f = g';; g)
-  : cone (pullback_diagram f g) d.
-Proof.
-  refine (mk_cone _ _  ).
-  - intro v; induction v; simpl; try assumption.
-    apply (f' ;; f).
-  - intros u v e;
-    induction u; induction v; try induction e; simpl.
-    + apply idpath.
-    + apply (!H).
-Defined.
-
-Definition isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
-           (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) : UU :=
-    isLimCone (pullback_diagram f g) d (PullbCone f g d p1 p2 H).
-(*
+Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
+        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g) : UU :=
    forall e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : e --> d => dirprod (hk ;; p1 = h)(hk ;; p2 = k))).
- *)
 
-Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
-           (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
-  (forall e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
-      iscontr (total2 (fun hk : C⟦e,d⟧ => dirprod (hk ;; p1 = h)(hk ;; p2 = k))))
-  →
-  isPullback f g p1 p2 H.
-Proof.
-  intros H' x cx; simpl in *.
-  set (H1 := H' x (coneOut cx One) (coneOut cx Three) ).
-  refine (let p : coneOut cx One ;; f = coneOut cx Three ;; g := _ in _ ).
-  - set (H2 := coneOutCommutes cx Two One tt).
-    eapply pathscomp0. apply H2.
-    clear H2.
-    apply pathsinv0.
-    apply (coneOutCommutes cx Two Three tt).
-  - set (H2 := H1 p).
-    refine (tpair _ _ _ ).
-    + exists (pr1 (pr1 H2)).
-      intro v; induction v; simpl.
-      * apply (pr1 (pr2 (pr1 H2))).
-      * unfold compose.
-        simpl.
-        eapply pathscomp0.
-        apply (assoc C).
-        eapply pathscomp0.
-        eapply cancel_postcomposition.
-        apply (pr2 (pr1 H2)).
-        apply (coneOutCommutes cx Two One tt ).
-      * unfold compose. simpl.
-        set (X := pr2 (pr2 (pr1 H2))). simpl in *. apply X.
-    +  intro t.
-       apply subtypeEquality.
-       * simpl.
-         intro; apply impred; intro. apply hs.
-       * destruct t; simpl.
-         apply path_to_ctr.
-         { split.
-           - apply (p0 One).
-           - apply (p0 Three). }
-Defined.
-
-(*
 Lemma isaprop_isPullback {a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2 ;; g) :
        isaprop (isPullback f g p1 p2 H).
@@ -112,10 +27,75 @@ Proof.
   repeat (apply impred; intro).
   apply isapropiscontr.
 Qed.
-*)
 
-Definition Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧) :=
-     LimCone (pullback_diagram f g).
+Lemma PullbackArrowUnique {a b c d : C} (f : b --> a) (g : c --> a)
+        (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g)
+     (P : isPullback f g p1 p2 H) e (h : e --> b) (k : e --> c)
+     (Hcomm : h ;; f = k ;; g)
+     (w : e --> d)
+     (H1 : w ;; p1 = h) (H2 : w ;; p2 = k) :
+     w = (pr1 (pr1 (P e h k Hcomm))).
+Proof.
+  set (T := tpair (fun hk : e --> d => dirprod (hk ;; p1 = h)(hk ;; p2 = k))
+                    w (dirprodpair H1 H2)).
+  set (T' := pr2 (P e h k Hcomm) T).
+  exact (base_paths _ _ T').
+Qed.
+
+
+Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
+     total2 (fun pfg : total2 (fun p : C => dirprod (p --> b) (p --> c)) =>
+         total2 (fun H : pr1 (pr2 pfg) ;; f = pr2 (pr2 pfg) ;; g =>
+        isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
+
+Definition Pullbacks := forall (a b c : C)(f : b --> a)(g : c --> a),
+       Pullback f g.
+
+Definition hasPullbacks := forall (a b c : C) (f : b --> a) (g : c --> a),
+         ishinh (Pullback f g).
+
+
+Definition PullbackObject {a b c : C} {f : b --> a} {g : c --> a}:
+   Pullback f g -> C := fun H => pr1 (pr1 H).
+Coercion PullbackObject : Pullback >-> ob.
+
+Definition PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a}
+   (Pb : Pullback f g) : Pb --> b := pr1 (pr2 (pr1 Pb)).
+
+Definition PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a}
+   (Pb : Pullback f g) : Pb --> c := pr2 (pr2 (pr1 Pb)).
+
+Definition PullbackSqrCommutes {a b c : C} {f : b --> a} {g : c --> a}
+   (Pb : Pullback f g) :
+    PullbackPr1 Pb ;; f = PullbackPr2 Pb ;; g .
+Proof.
+  exact (pr1 (pr2 Pb)).
+Qed.
+
+Definition isPullback_Pullback {a b c : C} {f : b --> a}{g : c --> a}
+   (P : Pullback f g) :
+  isPullback f g (PullbackPr1 P) (PullbackPr2 P) (PullbackSqrCommutes P).
+Proof.
+  exact (pr2 (pr2 P)).
+Qed.
+
+Definition PullbackArrow {a b c : C} {f : b --> a} {g : c --> a}
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) : e --> Pb :=
+   pr1 (pr1 (isPullback_Pullback Pb e h k H)).
+
+Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : b --> a} {g : c --> a}
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) :
+   PullbackArrow Pb e h k H ;; PullbackPr1 Pb = h.
+Proof.
+  exact (pr1 (pr2 (pr1 (isPullback_Pullback Pb e h k H)))).
+Qed.
+
+Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : b --> a} {g : c --> a}
+   (Pb : Pullback f g) e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g) :
+   PullbackArrow Pb e h k H ;; PullbackPr2 Pb = k.
+Proof.
+  exact (pr2 (pr2 (pr1 (isPullback_Pullback Pb e h k H)))).
+Qed.
 
 Definition mk_Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧)
     (d : C) (p1 : C⟦d,b⟧) (p2 : C ⟦d,c⟧)
@@ -126,176 +106,56 @@ Proof.
   refine (tpair _ _ _ ).
   - refine (tpair _ _ _ ).
     + apply d.
-    + refine (PullbCone _ _ _ _ _ _ ); assumption.
-  - apply ispb.
+    + exists p1.
+      exact p2.
+  - exists H.
+    apply ispb.
 Defined.
 
-(*
-Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
-     total2 (fun pfg : total2 (fun p : C => dirprod (p --> b) (p --> c)) =>
-         total2 (fun H : pr1 (pr2 pfg) ;; f = pr2 (pr2 pfg) ;; g =>
-        isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
- *)
-
-Definition Pullbacks := forall (a b c : C)(f : C⟦b, a⟧)(g : C⟦c, a⟧),
-       Pullback f g.
-
-Definition hasPullbacks := forall (a b c : C) (f : C⟦b, a⟧) (g : C⟦c, a⟧),
-         ishinh (Pullback f g).
-
-
-Definition PullbackObject {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}:
-   Pullback f g -> C := fun H => lim H.
-(* Coercion PullbackObject : Pullback >-> ob. *)
-
-Definition PullbackPr1 {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
-   (Pb : Pullback f g) : C⟦lim Pb, b⟧ := limOut Pb One.
-
-Definition PullbackPr2 {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
-   (Pb : Pullback f g) : C⟦lim Pb, c⟧ := limOut Pb Three.
-
-Definition PullbackSqrCommutes {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
-           (Pb : Pullback f g) :
-  PullbackPr1 Pb ;; f = PullbackPr2 Pb ;; g .
+Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
+           (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
+  (forall e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
+      iscontr (total2 (fun hk : C⟦e,d⟧ => dirprod (hk ;; p1 = h)(hk ;; p2 = k))))
+  →
+  isPullback f g p1 p2 H.
 Proof.
-  eapply pathscomp0; [apply (limOutCommutes Pb Two One tt) |].
-  apply (!limOutCommutes Pb Two Three tt) .
-Qed.
-
-
-
-
-Definition PullbackArrow {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
-           (Pb : Pullback f g) e (h : C⟦e, b⟧) (k : C⟦e, c⟧)(H : h ;; f = k ;; g)
-  : C⟦e, lim Pb⟧.
-Proof.
-  refine (limArrow _ _ _ ).
-  refine (mk_cone _ _ ).
-  - intro v; induction v; simpl; try assumption.
-    apply (h ;; f).
-  - intros u v edg; induction u; induction v; try induction edg; simpl.
-    + apply idpath.
-    + apply (!H).
+  intros H' x cx k sqr.
+  apply H'. assumption.
 Defined.
 
-Lemma PullbackArrow_PullbackPr1 {a b c : C} {f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb : Pullback f g) e (h : C⟦e , b⟧) (k : C⟦e , c⟧)(H : h ;; f = k ;; g) :
-   PullbackArrow Pb e h k H ;; PullbackPr1 Pb = h.
-Proof.
-  refine (limArrowCommutes Pb e _ One).
-Qed.
 
-Lemma PullbackArrow_PullbackPr2 {a b c : C} {f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb : Pullback f g) e (h : C⟦e , b⟧) (k : C⟦e , c⟧)(H : h ;; f = k ;; g) :
-   PullbackArrow Pb e h k H ;; PullbackPr2 Pb = k.
-Proof.
-  refine (limArrowCommutes Pb e _ Three).
-Qed.
-
-Lemma PullbackArrowUnique {a b c d : C} (f : C⟦b , a⟧) (g : C⟦c , a⟧)
-     (Pb : Pullback f g)
-     e (h : C⟦e , b⟧) (k : C⟦e , c⟧)
-     (Hcomm : h ;; f = k ;; g)
-     (w : C⟦e , PullbackObject Pb⟧)
-     (H1 : w ;; PullbackPr1 Pb  = h) (H2 : w ;; PullbackPr2 Pb = k) :
-  w = PullbackArrow Pb _ h k Hcomm.
-Proof.
-  apply path_to_ctr.
-  intro v; induction v; simpl; try assumption.
-  set (X:= limOutCommutes Pb Two Three tt).
-  unfold compose. simpl.
-  eapply pathscomp0. apply maponpaths.
-   eapply pathsinv0.
-   apply X.
-  simpl.
-  rewrite assoc.
-  eapply pathscomp0. apply cancel_postcomposition. apply H2.
-  apply (!Hcomm).
-Qed.
-
-Definition isPullback_Pullback {a b c : C} {f : C⟦b, a⟧}{g : C⟦c, a⟧}
-   (P : Pullback f g) :
-  isPullback f g (PullbackPr1 P) (PullbackPr2 P) (PullbackSqrCommutes P).
-Proof.
-  apply mk_isPullback.
-  intros e h k HK.
-  refine (tpair _ _ _ ).
-  - refine (tpair _ _ _ ).
-    + apply (PullbackArrow P _ h k HK).
-    + split.
-      * apply PullbackArrow_PullbackPr1.
-      * apply PullbackArrow_PullbackPr2.
-  - intro t.
-    apply subtypeEquality.
-    + intro. apply isapropdirprod; apply hs.
-    + destruct t as [t p]. simpl.
-      refine (PullbackArrowUnique _ _ P _ _ _ _ _ _ _ ).
-      * apply e.
-      * apply (pr1 p).
-      * apply (pr2 p).
-Qed.
-
-
-Definition identity_is_Pullback_input {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧} (Pb : Pullback f g) :
- total2 (fun hk : C⟦lim Pb , lim Pb⟧ =>
+Definition identity_is_Pullback_input {a b c : C}{f : b --> a} {g : c --> a} (Pb : Pullback f g) :
+ total2 (fun hk : Pb --> Pb =>
    dirprod (hk ;; PullbackPr1 Pb = PullbackPr1 Pb)(hk ;; PullbackPr2 Pb = PullbackPr2 Pb)).
 Proof.
-  exists (identity (lim Pb)).
+  exists (identity Pb).
   apply dirprodpair; apply id_left.
 Defined.
 
-
-
-
-(* was PullbackArrowUnique *)
-Lemma PullbackArrowUnique' {a b c d : C} (f : C⟦b , a⟧) (g : C⟦c , a⟧)
-        (p1 : C⟦d , b⟧) (p2 : C⟦d , c⟧) (H : p1 ;; f = p2;; g)
-     (P : isPullback f g p1 p2 H) e (h : C⟦e , b⟧) (k : C⟦e , c⟧)
-     (Hcomm : h ;; f = k ;; g)
-     (w : C⟦e , d⟧)
-     (H1 : w ;; p1 = h) (H2 : w ;; p2 = k) :
-     w =  (pr1 (pr1 (P e (PullbCone f g _ h k Hcomm)))).
-Proof.
-  apply path_to_ctr.
-  intro v; induction v; simpl.
-  - assumption.
-  - unfold compose; simpl.
-    eapply pathscomp0. apply assoc.
-    rewrite H1.
-    apply idpath.
-  - assumption.
-Qed.
-
-
-Lemma PullbackEndo_is_identity {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb : Pullback f g) (k : C⟦lim Pb , lim Pb⟧) (kH1 : k ;; PullbackPr1 Pb = PullbackPr1 Pb)
+Lemma PullbackEndo_is_identity {a b c : C}{f : b --> a} {g : c --> a}
+   (Pb : Pullback f g) (k : Pb --> Pb) (kH1 : k ;; PullbackPr1 Pb = PullbackPr1 Pb)
                                        (kH2 : k ;; PullbackPr2 Pb = PullbackPr2 Pb) :
-       identity (lim Pb) = k.
+       identity Pb = k.
 Proof.
-  apply lim_endo_is_identity.
-  intro u; induction u; simpl.
-  - apply kH1.
-  - unfold limOut. simpl.
-    assert (T:= coneOutCommutes (limCone Pb) Two Three tt).
-    rewrite <- T.
-    simpl.
-    rewrite assoc.
-    eapply pathscomp0. apply cancel_postcomposition.
-       apply kH2.
-       apply idpath.
- - assumption.
+  set (H1 := tpair ((fun hk : Pb --> Pb => dirprod (hk ;; _ = _)(hk ;; _ = _))) k (dirprodpair kH1 kH2)).
+  assert (H2 : identity_is_Pullback_input Pb = H1).
+  - apply proofirrelevance.
+    apply isapropifcontr.
+    apply (isPullback_Pullback Pb).
+    apply PullbackSqrCommutes.
+  - apply (base_paths _ _ H2).
 Qed.
 
 
-Definition from_Pullback_to_Pullback {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb Pb': Pullback f g) : C⟦lim Pb , lim Pb'⟧.
+Definition from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
+   (Pb Pb': Pullback f g) : Pb --> Pb'.
 Proof.
-  apply (PullbackArrow Pb' (lim Pb) (PullbackPr1 _ ) (PullbackPr2 _)).
+  apply (PullbackArrow Pb' Pb (PullbackPr1 _ ) (PullbackPr2 _)).
   exact (PullbackSqrCommutes _ ).
 Defined.
 
 
-Lemma are_inverses_from_Pullback_to_Pullback {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
+Lemma are_inverses_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
    (Pb Pb': Pullback f g) :
 is_inverse_in_precat (from_Pullback_to_Pullback Pb Pb')
   (from_Pullback_to_Pullback Pb' Pb).
@@ -310,7 +170,7 @@ Proof.
 Qed.
 
 
-Lemma isiso_from_Pullback_to_Pullback {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
+Lemma isiso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
    (Pb Pb': Pullback f g) :
       is_isomorphism (from_Pullback_to_Pullback Pb Pb').
 Proof.
@@ -319,8 +179,8 @@ Proof.
 Defined.
 
 
-Definition iso_from_Pullback_to_Pullback {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧}
-   (Pb Pb': Pullback f g) : iso (lim Pb) (lim Pb') :=
+Definition iso_from_Pullback_to_Pullback {a b c : C}{f : b --> a} {g : c --> a}
+   (Pb Pb': Pullback f g) : iso Pb Pb' :=
   tpair _ _ (isiso_from_Pullback_to_Pullback Pb Pb').
 
 
@@ -329,8 +189,8 @@ Definition iso_from_Pullback_to_Pullback {a b c : C}{f : C⟦b , a⟧} {g : C⟦
 Section pullback_lemma.
 
 Variables a b c d e x : C.
-Variables (f : C⟦b , a⟧) (g : C⟦c , a⟧) (h : C⟦e , b⟧) (k : C⟦e , c⟧)
-          (i : C⟦d , b⟧) (j : C⟦x , e⟧) (m : C⟦x , d⟧).
+Variables (f : b --> a) (g : c --> a) (h : e --> b) (k : e --> c)
+          (i : d --> b) (j : x --> e) (m : x --> d).
 Hypothesis H1 : h ;; f = k ;; g.
 Hypothesis H2 : m ;; i = j ;; h.
 Hypothesis P1 : isPullback _ _ _ _ H1.
@@ -345,10 +205,9 @@ Proof.
   apply idpath.
 Qed.
 
-(*
 Lemma isPullbackGluedSquare : isPullback (i ;; f) g m (j ;; k) glueSquares.
 Proof.
-  apply mk_isPullback.
+  unfold isPullback.
   intros y p q.
   intro Hrt.
   assert (ex : (p;; i);; f = q;; g).
@@ -386,7 +245,6 @@ Proof.
       * rewrite <- assoc.
         assumption.
 Qed.
- *)
 
 End pullback_lemma.
 
@@ -395,7 +253,7 @@ Section Universal_Unique.
 Hypothesis H : is_category C.
 
 
-Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : C⟦b , a⟧) (g : C⟦c , a⟧)
+Lemma inv_from_iso_iso_from_Pullback (a b c : C) (f : b --> a) (g : c --> a)
   (Pb : Pullback f g) (Pb' : Pullback f g):
     inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb') = from_Pullback_to_Pullback Pb' Pb.
 Proof.
@@ -405,7 +263,7 @@ Proof.
   apply (pr1 T).
 Qed.
 
-(*
+
 Lemma isaprop_Pullbacks: isaprop Pullbacks.
 Proof.
   apply impred; intro a;
@@ -434,14 +292,7 @@ Proof.
     rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.
     apply idpath.
 Qed.
- *)
 
 End Universal_Unique.
 
 End def_pb.
-
-Lemma Pullbacks_from_Lims (C : precategory) :
-  Lims C -> Pullbacks C.
-Proof.
-  intros H a b c f g; apply H.
-Defined.

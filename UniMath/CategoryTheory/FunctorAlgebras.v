@@ -323,7 +323,7 @@ assert (Ha'a : a' ;; a = identity A).
     eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
     now apply assoc.
   apply pathsinv0; set (X := tpair _ _ algMor_a'a).
-  now apply (maponpaths pr1 (InitialEndo_is_identity AaInitial X)).
+  now apply (maponpaths pr1 (InitialEndo_is_identity _ AaInitial X)).
 split; simpl; trivial.
 eapply pathscomp0; [apply Ha'|]; simpl.
 rewrite <- functor_comp.
