@@ -64,7 +64,7 @@ Proof.
   - exact i.
   - apply isapropneg.
   - exact (λ x n, n x).
-Defined.       
+Defined.
 
 (** ** Isolated points and types with decidable equality. *)
 
@@ -1146,7 +1146,7 @@ Definition etacorrection: forall T:UU, forall P:T -> UU, forall f: (forall t:T, 
 Proof. reflexivity. Defined.
 
 Lemma isweqetacorrection { T : UU } (P:T -> UU): isweq (fun f: forall t:T, P t => (fun t:T => f t)).
-Proof. intros.  apply (isweqhomot  (fun f: forall t:T, P t => f) (fun f: forall t:T, P t => (fun t:T => f t)) (fun f: forall t:T, P t => etacorrection _ P f) (idisweq _)). Defined.
+Proof. intros. apply idisweq. Defined.
 
 Definition weqeta { T : UU } (P:T -> UU) := weqpair _ ( isweqetacorrection P ) .
 
