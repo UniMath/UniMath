@@ -50,23 +50,23 @@ Proof.
       intros a a' f; simpl.
       refine (_,,_).
       { simpl; intro i. exact (D ◾ i ▭ f). }
-      { abstract (intros i j r; simpl; eqn_logic) using L. } }
-    { abstract ( split;
+      { intros i j r; simpl; eqn_logic. } }
+    { split;
                  [ intros a; simpl; apply nat_trans_eq;
                    [ apply homset_property
                    | intros i; simpl; apply functor_id ]
                  | intros a b g r s; simpl; apply nat_trans_eq;
                    [ apply homset_property
-                   | simpl; intros i; apply functor_comp ] ] ) using M. } }
+                   | simpl; intros i; apply functor_comp ] ]. } }
   { intros D D' p. simpl.
     refine (_,,_).
     { intros a. simpl.
       refine (_,,_).
       { exact (λ i, p ◽ i ◽ a). }
-      { abstract (exact (λ i j e, maponpaths (λ v, v ◽ a) (nat_trans_ax p _ _ e))) using N. } }
-    { abstract (intros a b f; apply nat_trans_eq;
+      { exact (λ i j e, maponpaths (λ v, v ◽ a) (nat_trans_ax p _ _ e)). } }
+    { intros a b f; apply nat_trans_eq;
                 [ apply homset_property
-                | intros i; simpl; apply nat_trans_ax]) using O. } }
+                | intros i; simpl; apply nat_trans_ax]. } }
 Defined.
 
 Definition isfunctor_comm_functor_data_2 {I A B:Precategory} :
@@ -138,38 +138,76 @@ Proof.
   now induction (e x).
 Defined.
 
+Lemma C (A B : UU) (Q : B -> UU) (F G : A -> B) (a : A)
+      (q : ∀ a : A, Q (F a))
+      (r : ∀ a : A, F a = G a) :
+  transportf (λ f : A -> B, ∀ a, Q (f a)) (funextfun _ _ r) q a =
+  transportf Q (r a) (q a).
+Proof.
+  unfold funextfun, funextsec.
+  set (w := weqtoforallpaths _ F G).
+
+
+
+Admitted.
+
+Definition ca := Σ ob:UU, ob -> UU.
+Definition fu (A B : ca) := Σ F : pr1 A -> pr1 B, ∀ a, pr2 B (F a).
+
+Lemma D (A B : ca) (F G : fu A B)
+      (r : ∀ a, pr1 F a = pr1 G a)
+      (s : ∀ a, transportf (λ k, pr2 B k) (r a) (pr2 F a) = pr2 G a) : F = G.
+Proof.
+  refine (total2_paths _ _).
+  { apply funextfun. exact r. }
+  { apply funextsec; intro a'. refine (_ @ s a'); clear s. apply C. }
+Defined.
+
+Lemma Functor_eq {A B: Precategory} {F G:[A,B]}
+      (ob : ∀ a, F ◾ a = G ◾ a)
+      (mor : ∀ a a' f, transportf (λ k, k → G ◾ a')
+                                  (ob a)
+                                  (transportf (λ k, F ◾ a → k)
+                                              (ob a')
+                                              (F ▭ f)) = G ▭ f) :
+  F = G.
+Proof.
+  apply functor_eq.
+  { apply homset_property. }
+  refine (total2_paths _ _).
+  { apply funextsec. exact ob. }
+  { apply funextsec; intro a.
+    apply funextsec; intro a'.
+    apply funextsec; intro f.
+    refine (_ @ mor a a' f).
+
+
+Admitted.
+
 Lemma comm_comm_eq_id (A B C:Precategory) :
   bifunctor_comm B A C □ bifunctor_comm A B C = functor_identity _.
 Proof.
   intros.
-  apply functor_eq.
-  { apply homset_property. }
-  refine (total2_paths _ _).
-    { apply funextsec; intro F.
-      change (pr1 (pr1 (functor_identity [A, [B, C]])) F) with F.
-      apply functor_eq.
+  refine (Functor_eq _ _).
+  { intro F.
+    change (functor_identity [A, [B, C]] ◾ F) with F.
+    refine (Functor_eq _ _).
+    { intro a. refine (Functor_eq _ _); reflexivity. }
+    { intros a a' f; simpl.
+      apply nat_trans_eq.
       { apply homset_property. }
-      refine (total2_paths _ _).
-      { apply funextsec; intro a. apply functor_eq.
-          { apply homset_property. }
-          refine (total2_paths _ _).
-            { apply funextsec; now intro b. }
-            { apply funextsec; intro b.
-              apply funextsec; intro b'.
-              apply funextsec; intro f.
-              Set Printing Coercions.
-              idtac.
-
-              set (P:=@paths).
-              set (MOR:=@precategory_morphisms).
-
-
-              try reflexivity.
+      intro b.
 
 
 
+      set (TR := @transportf).
 
-              (* how does one deal with such transports in Coq? *)
+
+            set (P:=@paths).
+            set (MOR:=@precategory_morphisms).
+
+
+            (* how does one deal with such transports in Coq? *)
 
 Abort.
 

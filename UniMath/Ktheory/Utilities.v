@@ -281,6 +281,7 @@ Definition homotsec {T} {P:T->UU} (f g:Section P) := ∀ t, f t = g t.
 
 Definition evalat {T} {P:T->UU} (t:T) (f:Section P) := f t.
 
+(* compare this with [toforallpaths]: *)
 Definition apevalat {T} {P:T->UU} (t:T) {f g:Section P}
   : f = g -> f t = g t
   := ap (evalat t).
