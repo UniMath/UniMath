@@ -154,13 +154,29 @@ Admitted.
 Definition ca := Σ ob:UU, ob -> UU.
 Definition fu (A B : ca) := Σ F : pr1 A -> pr1 B, ∀ a, pr2 B (F a).
 
-Lemma D (A B : ca) (F G : fu A B)
-      (r : ∀ a, pr1 F a = pr1 G a)
-      (s : ∀ a, transportf (λ k, pr2 B k) (r a) (pr2 F a) = pr2 G a) : F = G.
+Lemma D' {A B:UU} {Q:B->UU} (F G : Σ F : A -> B, ∀ a, Q (F a)) :
+  F = G ->
+  (Σ (eq : ∀ a, pr1 F a = pr1 G a), (∀ a, transportf Q (eq a) (pr2 F a) = pr2 G a)).
 Proof.
-  refine (total2_paths _ _).
-  { apply funextfun. exact r. }
-  { apply funextsec; intro a'. refine (_ @ s a'); clear s. apply C. }
+  intro e. induction e.
+  exists (λ a, idpath (pr1 F a)).
+  exact (λ a, idpath (pr2 F a)).
+Defined.
+
+Lemma Dweq {A B:UU} {Q:B->UU} (F G : Σ F : A -> B, ∀ a, Q (F a)) :
+  isweq (D' F G).
+Proof.
+  (* should be provable using the ideas in isweqtoforallpaths *)
+Abort.
+
+
+Lemma D (A B : ca) (F G : fu A B) :
+  (Σ (r : ∀ a, pr1 F a = pr1 G a), (∀ a, transportf (λ k, pr2 B k) (r a) (pr2 F a) = pr2 G a))
+  -> F = G.
+Proof.
+  intros v. refine (total2_paths _ _).
+  { apply funextfun. exact (pr1 v). }
+  { apply funextsec; intro a'. refine (_ @ pr2 v a'). apply C. }
 Defined.
 
 Lemma Functor_eq {A B: Precategory} {F G:[A,B]}
@@ -197,6 +213,7 @@ Proof.
       apply nat_trans_eq.
       { apply homset_property. }
       intro b.
+
 
 
 
