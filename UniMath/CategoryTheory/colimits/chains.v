@@ -358,7 +358,7 @@ End algebra.
 
 Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) colimAlg.
 Proof.
-refine (mk_isInitial _ _ _ ).
+refine (mk_isInitial _ _ ).
 intros Aa.
 exists (adaggerMor Aa); simpl; intro Fa.
 apply (algebra_mor_eq _ hsC); simpl.
@@ -376,7 +376,7 @@ induction n as [|n IHn]; simpl.
 Qed.
 
 Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
-  mk_Initial _ _ colimAlgIsInitial.
+  mk_Initial _ colimAlgIsInitial.
 
 End colim_initial_algebra.
 (*

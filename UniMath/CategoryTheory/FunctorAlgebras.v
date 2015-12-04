@@ -304,7 +304,7 @@ Variables (C : precategory) (hsC : has_homsets C) (F : functor C C).
 Variables (Aa : algebra_ob F) (AaIsInitial : isInitial (FunctorAlg F hsC) Aa).
 
 Local Definition AaInitial : Initial (FunctorAlg F hsC) :=
-  mk_Initial _ _ AaIsInitial.
+  mk_Initial _ AaIsInitial.
 
 Local Notation A := (alg_carrier _ Aa).
 Local Notation a := (alg_map _ Aa).

@@ -357,7 +357,7 @@ Proof.
     repeat rewrite assoc.
 (*    apply maponpaths. *)
     apply idpath.
-Qed.   (* one may consider Admitted for speedup during development *)
+Qed.
 
 (* produce some output to keep TRAVIS running *)
 Check bracket_Thm15_ok_part1.
@@ -420,8 +420,7 @@ Proof.
     apply CoproductIn2Commutes_left_in_ctx_dir.
     repeat rewrite id_left.
     apply assoc.
-Qed. (* Qed works fine but takes quite some time,
-        hence Admitted for the purpose of development *)
+Qed.
 
 (* produce some output to keep TRAVIS running *)
 Check bracket_Thm15_ok_part2.

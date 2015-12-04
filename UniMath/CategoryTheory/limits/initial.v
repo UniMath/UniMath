@@ -86,3 +86,5 @@ Arguments isInitial : clear implicits.
 Arguments InitialObject {_} _ .
 Arguments InitialArrow {_} _ _ .
 Arguments InitialArrowUnique {_} _ _ _ .
+Arguments mk_isInitial {_} _ _ _ .
+Arguments mk_Initial {_} _ _.
