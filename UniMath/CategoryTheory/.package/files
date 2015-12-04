@@ -15,6 +15,7 @@ limits/coproducts_as_colimits.v
 limits/coproducts.v
 limits/initial_as_colimit.v
 limits/initial.v
+limits/pullbacks_as_colimits.v
 limits/pullbacks.v
 limits/cones.v
 Monads.v
@@ -22,6 +23,7 @@ FunctorAlgebras.v
 functor_categories.v
 limits/products_as_colimit.v
 limits/products.v
+limits/terminal_as_colimit.v
 limits/terminal.v
 precategories.v
 total2_paths.v
