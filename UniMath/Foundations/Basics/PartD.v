@@ -52,41 +52,39 @@ assert (is1: forall x:X, iscontr (forall x':X, P x x')). intro. apply (funcontr 
 (** Proof of the fact that the [ toforallpaths ] from [paths s1 s2] to [forall t:T, paths (s1 t) (s2 t)] is a weak equivalence - a strong form
 of functional extensionality for sections of general families. The proof uses only [funcontr] which is an axiom i.e. its type satisfies [ isaprop ].  *)
 
+Lemma funextweql1 { T : UU } (P:T -> UU) (g: ∀ t, P t) : ∃! (f:∀ t, P t), ∀ t:T, f t = g t.
+Proof.
+  intros. refine (iscontrretract (X := ∀ t, Σ p, p = g t) _ _ _ _).
+  - intros x. refine (_,,_).
+    + intro t. exact (pr1 (x t)).
+    + intro t; simpl. exact (pr2 (x t)).
+  - intros y t. exists (pr1 y t). exact (pr2 y t).
+  - intros u. induction u as [t x]. reflexivity.
+  - apply funcontr. intro t. apply iscontrcoconustot.
+Defined.
 
-Lemma funextweql1 { T : UU } (P:T -> UU)(g: forall t:T, P t): iscontr (total2 (fun f:forall t:T, P t => forall t:T, paths (f t) (g t))).
-Proof. intros. set (X:= forall t:T, coconustot _ (g t)). assert (is1: iscontr X). apply (funcontr  (fun t:T => coconustot _ (g t)) (fun t:T => iscontrcoconustot _ (g t))).  set (Y:= total2 (fun f:forall t:T, P t => forall t:T, paths (f t) (g t))). set (p:= fun z: X => tpair (fun f:forall t:T, P t => forall t:T, paths (f t) (g t)) (fun t:T => pr1  (z t)) (fun t:T => pr2  (z t))).  set (s:= fun u:Y => (fun t:T => coconustotpair _ ((pr2  u) t))).  set (etap:= fun u: Y => tpair (fun f:forall t:T, P t => forall t:T, paths (f t) (g t)) (fun t:T => ((pr1  u) t)) (pr2  u)).
+Theorem isweqtoforallpaths { T : UU } (P:T -> UU) (f g: ∀ t:T, P t) :
+  isweq (toforallpaths P f g).
+Proof.
+  intros.
+  refine (isweqtotaltofib _ _ (λ (h:∀ t, P t), toforallpaths P h g) _ f).
+  refine (isweqcontrcontr (X := Σ (h: ∀ t, P t), h = g)
+            (λ ff, tpair _ (pr1 ff) (toforallpaths P (pr1 ff) g (pr2 ff))) _ _).
+  { exact (iscontrcoconustot _ g). }
+  { apply funextweql1. }
+Qed.
 
-assert (eps: forall u:Y, paths (p (s u)) (etap u)).  intro.  induction u as [ t x ]. unfold p. unfold s. unfold etap.   simpl. assert (ex: paths x (fun t0:T => x t0)). apply etacorrection.  induction ex. apply idpath.
+Theorem weqtoforallpaths { T : UU } (P:T -> UU)(f g : forall t:T, P t) :
+  (f = g) ≃ (∀ t:T, f t = g t).
+Proof. intros. exists (toforallpaths P f g). apply isweqtoforallpaths. Defined.
 
-assert (eetap: forall u:Y, paths (etap u) u). intro. unfold etap. induction u as [t x ]. simpl.
+Definition funextsec {T:UU} (P: T-> UU) (f g : ∀ t:T, P t) : (∀ t, f t = g t) -> f = g
+  := invmap (weqtoforallpaths _ f g) .
 
+Definition funextfun { X Y:UU } (f g:X->Y) : (∀ x:X, f x = g x) -> f = g
+  := funextsec _ _ _.
 
-set (ff:= fun fe: (total2  (fun f : forall t0 : T, P t0 => forall t0 : T, paths (f t0) (g t0))) => tpair (fun f : forall t0 : T, P t0 => forall t0 : T, paths (f t0) (g t0)) (fun t0:T => (pr1  fe) t0) (pr2  fe)).
-
-assert (isweqff: isweq ff). apply (isweqfpmap  ( weqeta P ) (fun f: forall t:T, P t => forall t:T, paths (f t) (g t)) ).
-
-assert (ee: forall fe: (total2 (fun f : forall t0 : T, P t0 => forall t0 : T, paths (f t0) (g t0))), paths (ff (ff fe)) (ff fe)). intro. apply idpath.  assert (eee: forall fe: (total2 (fun f : forall t0 : T, P t0 => forall t0 : T, paths (f t0) (g t0))), paths (ff  fe) fe). intro. apply (invmaponpathsweq ( weqpair ff isweqff )  _ _ (ee fe)).
-
-apply (eee (tpair _ t x)). assert (eps0: forall u: Y, paths (p (s u)) u). intro. apply (pathscomp0   (eps u) (eetap u)).
-
-apply ( iscontrretract p s eps0). assumption. Defined.
-
-
-
-Theorem isweqtoforallpaths { T : UU } (P:T -> UU)( f g: forall t:T, P t) : isweq (toforallpaths P f g).
-Proof. intros. set (tmap:= fun ff: total2 (fun f0: forall t:T, P t => paths f0 g) => tpair (fun f0:forall t:T, P t => forall t:T, paths (f0 t) (g t)) (pr1  ff) (toforallpaths P (pr1  ff) g (pr2  ff))). assert (is1: iscontr (total2 (fun f0: forall t:T, P t => paths f0 g))). apply (iscontrcoconustot _ g).   assert (is2:iscontr (total2 (fun f0:forall t:T, P t => forall t:T, paths (f0 t) (g t)))). apply funextweql1.
-assert (X: isweq tmap).  apply (isweqcontrcontr  tmap is1 is2).  apply (isweqtotaltofib (fun f0: forall t:T, P t => paths f0 g) (fun f0:forall t:T, P t => forall t:T, paths (f0 t) (g t)) (fun f0:forall t:T, P t =>  (toforallpaths P f0 g)) X f).  Qed.
-
-
-Theorem weqtoforallpaths { T : UU } (P:T -> UU)(f g : forall t:T, P t) : weq (paths f g) (forall t:T, paths (f t) (g t)) .
-Proof. intros. split with (toforallpaths P f g). apply isweqtoforallpaths. Defined.
-
-
-Definition funextsec { T : UU } (P: T-> UU) (s1 s2 : forall t:T, P t) : (forall t:T, paths (s1 t) (s2 t)) -> paths s1 s2 := invmap  (weqtoforallpaths _ s1 s2) .
-
-Definition funextfun { X Y:UU } (f g:X->Y) : (forall x:X, paths (f x) (g x)) -> (paths f g):= funextsec (fun x:X => Y) f g.
-
-(** I do not know at the moment whether [funextfun] is equal (homotopic) to [funextfunax]. It is advisable in all cases to use [funextfun] or, equivalently, [funextsec], since it can be produced from [funcontr] and therefore is well defined up to a canonbical equivalence.  In addition it is a homotopy inverse of [toforallpaths] which may be true or not for [funextsecax]. *)
+(** I do not know at the moment whether [funextfun] is equal (homotopic) to [funextfunax]. It is advisable in all cases to use [funextfun] or, equivalently, [funextsec], since it can be produced from [funcontr] and therefore is well defined up to a canonical equivalence.  In addition it is a homotopy inverse of [toforallpaths] which may be true or not for [funextsecax]. *)
 
 Theorem isweqfunextsec { T : UU } (P:T -> UU)(f g : forall t:T, P t) : isweq (funextsec P f g).
 Proof. intros. apply (isweqinvmap ( weqtoforallpaths _  f g ) ). Defined.
