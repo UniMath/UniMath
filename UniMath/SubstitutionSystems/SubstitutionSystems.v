@@ -310,7 +310,7 @@ Qed.
 (** [fbracket] is also natural *)
 
 Lemma fbracket_natural (T : hss) {Z Z' : Ptd} (f : Z ⇒ Z') (g : Z' ⇒ ptd_from_alg T)
-  :  ` T ∘ # U f ;; ⦃ g ⦄ = ⦃ f ;; g ⦄.
+:  (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U Z' ⟧) ;; ⦃ g ⦄ = ⦃ f ;; g ⦄.
 Proof.
   apply fbracket_unique_pointwise.
   - simpl. intro c.
@@ -368,7 +368,7 @@ Qed.
 (** As a consequence of naturality, we can compute [fbracket f] from [fbracket identity] *)
 
 Lemma compute_fbracket (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ ptd_from_alg T),
-      ⦃ f ⦄ = ` T ∘ # U f ;; ⦃ identity p T ⦄.
+    ⦃ f ⦄ = (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U (p T) ⟧) ;; ⦃ identity p T ⦄.
 Proof.
   intros Z f.
   assert (A : f = f ;; identity _ ).
