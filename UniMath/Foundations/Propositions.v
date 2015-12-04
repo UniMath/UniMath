@@ -713,7 +713,7 @@ Defined.
 Definition eqweqmaphProp { P P': hProp }  ( e: @paths hProp P P' ) : weq P P'.
 Proof. intros . destruct e . apply idweq.  Defined.
 
-Definition  weqtopathshProp { P P' : hProp } (w: weq P P' ): @paths hProp P P' := uahp P P' w ( invweq w ) .
+Definition weqtopathshProp { P P' : hProp } (w: weq P P' ): @paths hProp P P' := uahp P P' w ( invweq w ) .
 
 Definition weqpathsweqhProp { P P' : hProp } (w : weq P P'): eqweqmaphProp (weqtopathshProp w) = w.
 Proof. intros. apply proofirrelevance . apply (isapropweqtoprop P P' (pr2 P')). Defined.
