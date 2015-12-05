@@ -11,8 +11,8 @@
    the type of types of hlevel n is itself of hlevel n+1.
 *)
 
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.FunctionalExtensionality.
+Require Import UniMath.Foundations.Basics.Propositions.
+Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 
 
 

@@ -7,7 +7,7 @@ Require Import UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.category_hset
                UniMath.CategoryTheory.functor_categories
                .
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.Basics.Sets.
 
 Notation "b ← a" := (precategory_morphisms a b) (at level 50).
 Notation "a → b" := (precategory_morphisms a b) (at level 50).

@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.StandardFiniteSets
+Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets
                UniMath.Foundations.Algebra.Monoids_and_Groups
 	       UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
@@ -34,7 +34,7 @@ Proof. intros. exists (zero_map A zero).
 
 Module Presentation'.
 
-  Require Import UniMath.Foundations.Sequences.
+  Require Import UniMath.Foundations.Combinatorics.FiniteSequences.
 
   Definition word X := Sequence X.
   Definition word_length {X} : word X -> nat := length.

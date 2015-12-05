@@ -2,9 +2,9 @@
 
 Unset Automatic Introduction.
 
-Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.FunctionalExtensionality.
-Require Import UniMath.Foundations.Tactics.
+Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.Ktheory.Tactics.
 
 Definition Equivalence X Y :=
   Σ (f:X->Y) (g:Y->X) (p:∀ y, f(g y) = y) (q:∀ x, g(f x) = x),

@@ -1,6 +1,6 @@
-Require Export UniMath.Foundations.Sequences.
+Require Export UniMath.Foundations.Combinatorics.FiniteSequences.
 Require Export UniMath.Foundations.Algebra.Monoids_and_Groups.
-Require Export UniMath.Foundations.FunctionalExtensionality.
+Require Export UniMath.Foundations.Basics.UnivalenceAxiom.
 Unset Automatic Introduction.
 
 (** general associativity for monoids *)

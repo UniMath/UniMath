@@ -3,7 +3,7 @@ Unset Automatic Introduction.
 Module Test_assoc.
 
   Require Import UniMath.Foundations.Algebra.Associativity.
-  Require Import UniMath.Foundations.NaturalNumbers.
+  Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
 
   (* verify that our associativity matches that of the parser, with an extra "1" *)
 

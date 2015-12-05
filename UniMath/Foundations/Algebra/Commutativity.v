@@ -1,5 +1,5 @@
 Require Export UniMath.Foundations.Algebra.Associativity.
-Require Export UniMath.Foundations.FunctionalExtensionality.
+Require Export UniMath.Foundations.Basics.UnivalenceAxiom.
 Unset Automatic Introduction.
 
 Local Notation "s □ x" := (append s x) (at level 64, left associativity).

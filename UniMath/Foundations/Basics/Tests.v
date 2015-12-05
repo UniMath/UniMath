@@ -1,5 +1,5 @@
 Unset Automatic Introduction.
-Require Export UniMath.Foundations.Basics.All.
+Require Export UniMath.Foundations.Basics.PartD.
 
 Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
 Goal ∀ i j k, i+j+k = (i+j)+k. reflexivity. Defined.

@@ -2,7 +2,7 @@ Unset Automatic Introduction.
 
 Module Test_sets.
 
-  Require Import UniMath.Foundations.Sets.
+  Require Import UniMath.Foundations.Basics.Sets.
 
   Goal ∀ Y (is:isaset Y) (F:Y->UU) (e :∀ y y', F y -> F y' -> y=y')
          y (f:F y), squash_pairs_to_set F is e (hinhpr (y,,f)) = y.
@@ -18,7 +18,7 @@ Module Test_nat.
 
   Local Open Scope nat_scope.
 
-  Require Import UniMath.Foundations.NaturalNumbers.
+  Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
 
   Goal 3 ≠ 5. easy. Defined.
   Goal ¬ (3 ≠ 3). easy. Defined.
@@ -80,7 +80,7 @@ End Test_nat.
 
 Module Test_stn.
 
-  Require Import UniMath.Foundations.StandardFiniteSets.
+  Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
 
   Open Scope stn.
 
@@ -313,7 +313,7 @@ End Test_stn.
 
 Module Test_fin.
 
-  Require Import UniMath.Foundations.FiniteSets.
+  Require Import UniMath.Foundations.Combinatorics.FiniteSets.
 
   (** ** Test computations. *)
   Goal fincard (isfiniteempty) = 0. reflexivity. Qed.
@@ -425,7 +425,7 @@ End Test_fin.
 
 Module Test_int.
 
-  Require Import UniMath.Foundations.Integers.
+  Require Import UniMath.Foundations.NumberSystems.Integers.
 
   Goal true = (hzbooleq (natnattohz 3 4) (natnattohz 17 18)) . reflexivity. Qed.
   Goal false = (hzbooleq (natnattohz 3 4) (natnattohz 17 19)) . reflexivity. Qed.
@@ -438,7 +438,7 @@ End Test_int.
 
 Module Test_rat.
 
-  Require Import UniMath.Foundations.RationalNumbers.
+  Require Import UniMath.Foundations.NumberSystems.RationalNumbers.
 
   Open Scope hz_scope .
 
@@ -458,7 +458,7 @@ End Test_rat.
 
 Module Test_seq.
 
-  Require Import UniMath.Foundations.Sequences.
+  Require Import UniMath.Foundations.Combinatorics.FiniteSequences.
 
   Open Scope stn.
 
@@ -472,8 +472,8 @@ End Test_seq.
 
 Module Test_ord.
 
-  Require Import UniMath.Foundations.OrderedSets.
-  Require Import UniMath.Foundations.StandardFiniteSets.
+  Require Import UniMath.Foundations.Combinatorics.OrderedSets.
+  Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
 
   Open Scope stn.
 
