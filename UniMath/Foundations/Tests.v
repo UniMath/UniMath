@@ -427,12 +427,14 @@ Module Test_int.
 
   Require Import UniMath.Foundations.Integers.
 
-  Goal true = (hzbooleq (natnattohz 3 4) (natnattohz 17 18)) . reflexivity. Qed.
+  Open Scope hz_scope.
+
+  Goal true = hzbooleq (natnattohz 3 4) (natnattohz 17 18) . reflexivity. Qed.
   Goal false = (hzbooleq (natnattohz 3 4) (natnattohz 17 19)) . reflexivity. Qed.
   Goal 274 = (hzabsval (natnattohz 58 332)) . reflexivity. Qed.
-  Goal O = (hzabsval (hzplus (natnattohz 2 3) (natnattohz 3 2))) . reflexivity. Qed.
-  Goal 2 = (hzabsval (hzminus (natnattohz 2 3) (natnattohz 3 2))) . reflexivity. Qed.
-  Goal 300 =  (hzabsval (hzmult (natnattohz 20 50) (natnattohz 30 20))) . reflexivity. Qed.
+  Goal O = (hzabsval (natnattohz 2 3 + natnattohz 3 2)) . reflexivity. Qed.
+  Goal 2 = (hzabsval (natnattohz 2 3 - natnattohz 3 2)) . reflexivity. Qed.
+  Goal 300 =  (hzabsval (natnattohz 20 50 * natnattohz 30 20)) . reflexivity. Qed.
 
 End Test_int.
 

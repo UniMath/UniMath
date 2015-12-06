@@ -192,12 +192,23 @@ Proof . intros . apply iscancelableif .  intros a b . apply ( intdomlcan X a b x
 Definition intdomnonzerosubmonoid ( X : intdom ) : @subabmonoids ( rngmultabmonoid X ) .
 Proof . intros . split with ( fun x : X => hProppair _ ( isapropneg ( paths x 0 ) ) ) . split .
 
-intros a b . simpl in * .  intro e . set ( int := intdomax X ( pr1 a ) ( pr1 b ) e ) . clearbody int . generalize int . apply ( toneghdisj ) .  apply ( dirprodpair ( pr2 a ) ( pr2 b ) ) .
+intros a b . simpl in * .  intro e . set ( int := intdomax X ( pr1 a ) ( pr1 b ) e ) . clearbody int . generalize int . apply ( toneghdisj ) .  exact ( dirprodpair ( pr2 a ) ( pr2 b ) ) .
 
 simpl .  apply ( nonzeroax X ) . Defined .
 
+(* a version avoiding [funextempy] *)
 
-
+Definition intdomnonzerosubmonoid_ne ( X : intdom ) (neq : neqReln X) :
+  @subabmonoids ( rngmultabmonoid X ) .
+Proof.
+  intros. exists (λ x, neq x 0).
+  split.
+  - intros a b. apply neg_to_negProp. intros e.
+    assert ( int := intdomax X ( pr1 a ) ( pr1 b ) e ) .
+    generalize int . apply ( toneghdisj ) .
+    exact ( dirprodpair (negProp_to_neg (pr2 a)) (negProp_to_neg (pr2 b)) ) .
+  - apply neg_to_negProp. exact ( nonzeroax X ) .
+Defined .
 
 (** **** Relations similar to "greater" on integral domains *)
 

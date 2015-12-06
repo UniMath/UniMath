@@ -56,7 +56,7 @@ Notation " x * y " := ( hzmult x y ) : hz_scope .
 Delimit Scope hz_scope with hz .
 
 
-(** *** Properties of equlaity on [ hz ] *)
+(** *** Properties of equality on [ hz ] *)
 
 Theorem isdeceqhz : isdeceq hz .
 Proof . change ( isdeceq ( abgrfrac ( rigaddabmonoid natcommrig ) ) ) . apply isdeceqabgrfrac . apply isinclnatplusr .  apply isdeceqnat .  Defined .
@@ -72,6 +72,7 @@ Definition hzdeceq : decrel hz := decrelpair isdecrelhzeq .
 
 Definition hzbooleq := decreltobrel hzdeceq .
 
+(* the use of hzneq is deprecated, for it uses the axiom [funextempty].  Use [hzneq_hProp], instead. *)
 Definition hzneq ( x y : hz ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
 Definition isdecrelhzneq : isdecrel hzneq  := isdecnegrel _ isdecrelhzeq .
 Definition hzdecneq : decrel hz := decrelpair isdecrelhzneq .
@@ -80,8 +81,20 @@ Definition hzdecneq : decrel hz := decrelpair isdecrelhzneq .
 
 Definition hzboolneq := decreltobrel hzdecneq .
 
-
 Open Local Scope hz_scope .
+
+(* [funextempty]-free replacement proposition for hzneq *)
+
+Definition hzneq' (x y : hz) : negProp (x = y).
+Proof.
+  intros. exists (isFalse_hProp (isdecrelhzeq x y)). split.
+  - apply propproperty.
+  - apply isFalse_hProp_iff.
+Defined.
+
+Notation " x ≠ y " := ( hzneq' x y ) (at level 70, no associativity) : hz_scope.
+
+(*  *)
 
 
 (** *** [ hz ] is a non-zero ring *)

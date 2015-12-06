@@ -668,7 +668,7 @@ Definition negrtopaths { X : UU } ( R : decrel X ) ( x x' : X ) ( nr : neg ( R x
 Proof . unfold decreltobrel . intros .   destruct ( pr2 R x x' ) as [ r | nr' ] . destruct ( nr r ) . apply idpath. Defined .
 
 
-(** The following construction of "ct" ( "canonical term" ) is inspired by the ideas of George Gonthier. The expression [ ct ( R , x , y ) ] where [ R ] is in [ hrel X ] for some [ X ] and has a canonical structure of a decidable relation and [ x, y ] are closed terms of type [ X ] such that [ R x y ] is inhabited is the term of type [ R x y ] which relizes the canonical term in [ isdecrel R x y ] .
+(** The following construction of "ct" ( "canonical term" ) is inspired by the ideas of George Gonthier. The expression [ ct ( R , x , y ) ] where [ R ] is in [ hrel X ] for some [ X ] and has a canonical structure of a decidable relation and [ x, y ] are closed terms of type [ X ] such that [ R x y ] is inhabited is the term of type [ R x y ] which realizes the canonical term in [ isdecrel R x y ] .
 
 Definition pathstor_comp { X : UU } ( R : decrel X ) ( x x' : X ) ( e : paths ( decreltobrel R x x' ) true ) : R x x' .
 Proof . unfold decreltobrel . intros .  destruct ( pr2 R x x' ) as [ e' | ne ]  .  apply e' . destruct ( nopathsfalsetotrue e ) . Defined .
