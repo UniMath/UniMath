@@ -20,7 +20,7 @@ Proof.
   intros r.
   apply pr2.
 Qed.
-Definition isboolDcuts : hsubtypes Dcuts :=
+Definition isboolDcuts : subtype Dcuts :=
   (fun x : Dcuts => hProppair _ (isboolDcuts_isaprop x)).
 
 Lemma isaset_boolDcuts : isaset isboolDcuts.

@@ -9,25 +9,25 @@ Require Import UniMath.Foundations.Algebra.BinaryOperations.
 
 (** ** Subsets *)
 
-Lemma isaset_hsubtypes {X : hSet} (Hsub : hsubtypes X) : isaset (carrier Hsub).
+Lemma isaset_subtype {X : hSet} (Hsub : subtype X) : isaset (carrier Hsub).
 Proof.
   intros.
   apply (isasetsubset pr1 (pr2 X) (isinclpr1 (λ x : X, Hsub x) (λ x : X, pr2 (Hsub x)))).
 Qed.
-Definition subset {X : hSet} (Hsub : hsubtypes X) : hSet :=
-  hSetpair (carrier Hsub) (isaset_hsubtypes Hsub).
-Definition makeSubset {X : hSet} {Hsub : hsubtypes X} (x : X) (Hx : Hsub x) : subset Hsub :=
+Definition subset {X : hSet} (Hsub : subtype X) : hSet :=
+  hSetpair (carrier Hsub) (isaset_subtype Hsub).
+Definition makeSubset {X : hSet} {Hsub : subtype X} (x : X) (Hx : Hsub x) : subset Hsub :=
   x,, Hx.
 
 (** ** Additional definitions *)
 
 Definition unop (X : UU) := X -> X.
 
-Definition islinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtypes X) (inv : subset exinv -> X) :=
+Definition islinv' {X : hSet} (x1 : X) (op : binop X) (exinv : subtype X) (inv : subset exinv -> X) :=
   forall (x : X) (Hx : exinv x), op (inv (x ,, Hx)) x = x1.
-Definition isrinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtypes X) (inv : subset exinv -> X) :=
+Definition isrinv' {X : hSet} (x1 : X) (op : binop X) (exinv : subtype X) (inv : subset exinv -> X) :=
   forall (x : X) (Hx : exinv x), op x (inv (x ,, Hx)) = x1.
-Definition isinv' {X : hSet} (x1 : X) (op : binop X) (exinv : hsubtypes X) (inv : subset exinv -> X)  :=
+Definition isinv' {X : hSet} (x1 : X) (op : binop X) (exinv : subtype X) (inv : subset exinv -> X)  :=
   islinv' x1 op exinv inv × isrinv' x1 op exinv inv.
 
 (** ** Properties of [po] *)
@@ -315,22 +315,22 @@ Section LeastUpperBound.
 Context {X : PreorderedSet}.
 Local Notation "x <= y" := (pr1 (pr2 X) x y).
 
-Definition isUpperBound (E : hsubtypes X) (ub : X) : UU :=
+Definition isUpperBound (E : subtype X) (ub : X) : UU :=
   forall x : X, E x -> x <= ub.
-Definition isSmallerThanUpperBounds (E : hsubtypes X) (lub : X) : UU :=
+Definition isSmallerThanUpperBounds (E : subtype X) (lub : X) : UU :=
   forall ub : X, isUpperBound E ub -> lub <= ub.
 
-Definition isLeastUpperBound (E : hsubtypes X) (lub : X) : UU :=
+Definition isLeastUpperBound (E : subtype X) (lub : X) : UU :=
   dirprod (isUpperBound E lub) (isSmallerThanUpperBounds E lub).
-Definition LeastUpperBound (E : hsubtypes X) : UU :=
+Definition LeastUpperBound (E : subtype X) : UU :=
   total2 (isLeastUpperBound E).
-Definition pairLeastUpperBound (E : hsubtypes X) (lub : X)
+Definition pairLeastUpperBound (E : subtype X) (lub : X)
            (is : isLeastUpperBound E lub) : LeastUpperBound E :=
   tpair (isLeastUpperBound E) lub is.
-Definition pr1LeastUpperBound {E : hsubtypes X} :
+Definition pr1LeastUpperBound {E : subtype X} :
   LeastUpperBound E -> X := pr1.
 
-Lemma isapropLeastUpperBound (E : hsubtypes X) (H : isantisymm (λ x y : X, x <= y)) :
+Lemma isapropLeastUpperBound (E : subtype X) (H : isantisymm (λ x y : X, x <= y)) :
   isaprop (LeastUpperBound E).
 Proof.
   intros E H (x,Hx) (y,Hy).
@@ -360,22 +360,22 @@ Section GreatestLowerBound.
 Context {X : PreorderedSet}.
 Local Notation "x >= y" := (pr1 (pr2 X) y x).
 
-Definition isLowerBound (E : hsubtypes X) (ub : X) : UU :=
+Definition isLowerBound (E : subtype X) (ub : X) : UU :=
   forall x : X, E x -> x >= ub.
-Definition isBiggerThanLowerBounds (E : hsubtypes X) (lub : X) : UU :=
+Definition isBiggerThanLowerBounds (E : subtype X) (lub : X) : UU :=
   forall ub : X, isLowerBound E ub -> lub >= ub.
 
-Definition isGreatestLowerBound (E : hsubtypes X) (lub : X) : UU :=
+Definition isGreatestLowerBound (E : subtype X) (lub : X) : UU :=
   dirprod (isLowerBound E lub) (isBiggerThanLowerBounds E lub).
-Definition GreatestLowerBound (E : hsubtypes X) : UU :=
+Definition GreatestLowerBound (E : subtype X) : UU :=
   total2 (isGreatestLowerBound E).
-Definition pairGreatestLowerBound (E : hsubtypes X) (lub : X)
+Definition pairGreatestLowerBound (E : subtype X) (lub : X)
            (is : isGreatestLowerBound E lub) : GreatestLowerBound E :=
   tpair (isGreatestLowerBound E) lub is.
-Definition pr1GreatestLowerBound {E : hsubtypes X} :
+Definition pr1GreatestLowerBound {E : subtype X} :
   GreatestLowerBound E -> X := pr1.
 
-Lemma isapropGreatestLowerBound (E : hsubtypes X) (H : isantisymm (λ x y : X, x >= y)) :
+Lemma isapropGreatestLowerBound (E : subtype X) (H : isantisymm (λ x y : X, x >= y)) :
   isaprop (GreatestLowerBound E).
 Proof.
   intros E H (x,Hx) (y,Hy).
@@ -401,7 +401,7 @@ Qed.
 End GreatestLowerBound.
 
 Definition isCompleteSpace (X : PreorderedSet) :=
-  forall E : hsubtypes X,
+  forall E : subtype X,
     hexists (isUpperBound E) -> hexists E -> LeastUpperBound E.
 Definition CompleteSpace  :=
   total2 (fun X : PreorderedSet => isCompleteSpace X).

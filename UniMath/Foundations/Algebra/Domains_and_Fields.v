@@ -106,7 +106,7 @@ Definition rngneq0andmultrinv ( X : rng ) ( n m : X ) ( isnm : neg ( paths ( n *
 Proof . intros . intro e .  rewrite e in isnm .  rewrite ( rngmultx0 _ ) in isnm .  destruct ( isnm ( idpath _ ) ) .  Defined .
 
 
-Definition rngpossubmonoid ( X : rng ) { R : hrel X } ( is1 : isrngmultgt X R ) ( is2 : R 1 0 ) : @submonoids ( rngmultmonoid X ) .
+Definition rngpossubmonoid ( X : rng ) { R : hrel X } ( is1 : isrngmultgt X R ) ( is2 : R 1 0 ) : submonoid ( rngmultmonoid X ) .
 Proof . intros . split with ( fun x => R x 0 ) . split .  intros x1 x2 . apply is1 . apply ( pr2 x1 ) .  apply ( pr2 x2 ) .  apply is2 . Defined .
 
 Lemma isinvrngmultgtif ( X : rng ) { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R ) ( nc : neqchoice R ) ( isa : isasymm R ) : isinvrngmultgt X R .
@@ -189,7 +189,7 @@ Proof . intros . apply iscancelableif .  intros a b . apply ( intdomlcan X a b x
 (** **** Multiplicative submonoid of non-zero elements *)
 
 
-Definition intdomnonzerosubmonoid ( X : intdom ) : @subabmonoids ( rngmultabmonoid X ) .
+Definition intdomnonzerosubmonoid ( X : intdom ) : subabmonoid ( rngmultabmonoid X ) .
 Proof . intros . split with ( fun x : X => hProppair _ ( isapropneg ( paths x 0 ) ) ) . split .
 
 intros a b . simpl in * .  intro e . set ( int := intdomax X ( pr1 a ) ( pr1 b ) e ) . clearbody int . generalize int . apply ( toneghdisj ) .  exact ( dirprodpair ( pr2 a ) ( pr2 b ) ) .
@@ -199,7 +199,7 @@ simpl .  apply ( nonzeroax X ) . Defined .
 (* a version avoiding [funextempy] *)
 
 Definition intdomnonzerosubmonoid_ne ( X : intdom ) (neq : neqReln X) :
-  @subabmonoids ( rngmultabmonoid X ) .
+  subabmonoid ( rngmultabmonoid X ) .
 Proof.
   intros. exists (λ x, neq x 0).
   split.
@@ -261,31 +261,59 @@ Definition fldmultinv { X : fld } ( x : X ) ( ne : neg ( paths x 0 ) ) : X := pr
 Definition fldfracmultinvint ( X : intdom ) ( is : isdeceq X ) ( xa : dirprod X ( intdomnonzerosubmonoid X ) ) : dirprod X ( intdomnonzerosubmonoid X ) .
 Proof .  intros . destruct ( is ( pr1 xa ) 0 ) as [ e0 | ne0 ] . apply ( dirprodpair 1 ( tpair ( fun x => neg ( paths x 0 ) ) 1 ( nonzeroax X ) ) ) . apply ( dirprodpair ( pr1 ( pr2 xa ) ) ( tpair ( fun x => neg ( paths x 0 ) ) ( pr1 xa ) ne0 ) ) .  Defined .
 
-(** Note: we choose a strange from the mathematicians perspective approach to the definition of the multiplicative inverse on non-zero elements of a field due to the current, somewhat less than satisfactory, situation with computational behavior of our construction of set-quotients. The particular problem is that the weak equivalence between "quotient of subtype" and "subtype of a quotient" is not isomorphism in the syntactic category. This can be corrected by extension of the type system with tfc-terms. See discussion in hSet.v *)
+(* a version free of [funextempty]: *)
+Definition fldfracmultinvint_ne (X : intdom) (neq : neqReln X) (is : isdeceq X) :
+  let S := intdomnonzerosubmonoid_ne X neq in X × S -> X × S.
+Proof.
+  intros ? ? ? ? xa.
+  destruct ( is (pr1 xa) 0) as [ e0 | ne0 ] .
+  { (* when the numerator is 0, we arbitrarily assign 1/1 as the reciprocal: *)
+    exists 1. exists 1. exact (neg_to_negProp (nonzeroax X)). }
+  {                             (* interchange numerator and denominator *)
+    exists (pr1 (pr2 xa)). exists (pr1 xa). exact (neg_to_negProp ne0). }
+Defined .
 
-Lemma fldfracmultinvintcomp  ( X : intdom ) ( is : isdeceq X ) : iscomprelrelfun ( eqrelcommrngfrac X ( intdomnonzerosubmonoid X ) ) ( eqrelcommrngfrac X ( intdomnonzerosubmonoid X ) ) ( fldfracmultinvint X is ) .
-Proof . intros .  intros xa1 xa2 .  set ( x1 := pr1 xa1 ) . set ( aa1 := pr2 xa1 ) . set ( a1 := pr1 aa1 ) . set ( x2 := pr1 xa2 ) . set ( aa2 := pr2 xa2 ) . set ( a2 := pr1 aa2 ) .  simpl .  apply hinhfun . intro t2 .  unfold fldfracmultinvint .  destruct ( is (pr1 xa1) 0 ) as [ e1 | ne1 ] . destruct ( is (pr1 xa2) 0 ) as [ e2 | ne2 ] .
-
-simpl .  split with ( tpair ( fun x => neg ( paths x 0 ) ) 1 ( nonzeroax X ) ) . apply idpath .
-
-simpl . set ( aa0 := pr1 t2 ) . set ( a0 := pr1 aa0 ) . assert ( e := pr2 t2 ) . change ( paths ( x1 * a2 * a0 ) ( x2 * a1 * a0 ) ) in e .  change ( paths x1 0 ) in e1 . rewrite e1 in e . rewrite ( rngmult0x X _ ) in e .   rewrite ( rngmult0x X _ ) in e . assert ( e' := intdomax2r X _ _ ( pathsinv0 e ) ( pr2 aa0 ) ) .   assert ( e'' := intdomax2r X _ _ e' ( pr2 aa1 ) ) . destruct ( ne2 e'' ) .  destruct ( is (pr1 xa2) 0 ) as [ e2 | ne2 ] .
-
-simpl . set ( aa0 := pr1 t2 ) . set ( a0 := pr1 aa0 ) . assert ( e := pr2 t2 ) . change ( paths ( x1 * a2 * a0 ) ( x2 * a1 * a0 ) ) in e .  change ( paths x2 0 ) in e2 . rewrite e2 in e . rewrite ( rngmult0x X _ ) in e .   rewrite ( rngmult0x X _ ) in e . assert ( e' := intdomax2r X _ _  e ( pr2 aa0 ) ) .   assert ( e'' := intdomax2r X _ _ e' ( pr2 aa2 ) ) . destruct ( ne1 e'' ) .
-
-simpl .  set ( aa0 := pr1 t2 ) . set ( a0 := pr1 aa0 ) . assert ( e := pr2 t2 ) . split with aa0 . change ( paths ( a1 * x2 * a0 ) ( a2 * x1 * a0 ) ) .  change ( paths ( x1 * a2 * a0 ) ( x2 * a1 * a0 ) ) in e . rewrite ( rngcomm2 X a1 x2 ) .  rewrite ( rngcomm2 X a2 x1 ) .  apply ( pathsinv0 e ) .  Defined .
+Lemma fldfracmultinvintcomp  ( X : intdom ) ( is : isdeceq X ) :
+  let S := intdomnonzerosubmonoid X in
+  let R := eqrelcommrngfrac X S in
+  iscomprelrelfun R R ( fldfracmultinvint X is ) .
+Proof.
+  intros. intros xa1 xa2. apply hinhfun.
+  set ( x1 := pr1 xa1 ); set ( aa1 := pr2 xa1 ); set ( a1 := pr1 aa1 );
+  set ( x2 := pr1 xa2 ); set ( aa2 := pr2 xa2 ); set ( a2 := pr1 aa2 ); simpl.
+  intro t2.
+  set ( aa0 := pr1 t2 ). set ( a0 := pr1 aa0 ).
+  assert ( e := pr2 t2 ). change ( x1 * a2 * a0 = x2 * a1 * a0 ) in e.
+  unfold fldfracmultinvint. change (pr1 xa1) with x1. change (pr1 xa2) with x2.
+  destruct ( is x1 0 ) as [ e1 | ne1 ].
+  { destruct ( is x2 0 ) as [ e2 | ne2 ].
+    { simpl. now exists ( tpair ( fun x => x != 0 ) 1 ( nonzeroax X ) ). }
+    { simpl. rewrite e1 in e. rewrite ( rngmult0x X _ ) in e. rewrite ( rngmult0x X _ ) in e.
+      assert ( e'  := intdomax2r X _ _ ( !e ) ( pr2 aa0 ) ).
+      assert ( e'' := intdomax2r X _ _   e'   ( pr2 aa1 ) ).
+      destruct ( ne2 e'' ). } }
+  { destruct ( is x2 0 ) as [ e2 | ne2 ].
+    { simpl. rewrite e2 in e. rewrite ( rngmult0x X _ ) in e. rewrite ( rngmult0x X _ ) in e.
+      assert ( e'  := intdomax2r X _ _ e ( pr2 aa0 ) ).
+      assert ( e'' := intdomax2r X _ _ e' ( pr2 aa2 ) ).
+      destruct ( ne1 e'' ). }
+    { simpl. exists aa0. change ( a1 * x2 * a0 = a2 * x1 * a0 ).
+      rewrite ( rngcomm2 X a1 x2 ). rewrite ( rngcomm2 X a2 x1 ).
+      exact (!e). } }
+Defined.
 
 Opaque fldfracmultinvintcomp .
 
+Definition fldfracmultinv0 ( X : intdom ) ( is : isdeceq X ) :
+  commrngfrac X ( intdomnonzerosubmonoid X ) -> commrngfrac X ( intdomnonzerosubmonoid X )
+  := λ x, setquotfun _ _ _ ( fldfracmultinvintcomp X is ) x .
 
-Definition fldfracmultinv0 ( X : intdom ) ( is : isdeceq X ) ( x : commrngfrac X ( intdomnonzerosubmonoid X ) ) : commrngfrac X ( intdomnonzerosubmonoid X ) := setquotfun _ _ _ ( fldfracmultinvintcomp X is ) x .
-
-
-Lemma nonzeroincommrngfrac ( X : commrng ) ( S : @submonoids ( rngmultmonoid X ) ) ( xa : dirprod X S ) ( ne : neg ( paths ( setquotpr ( eqrelcommrngfrac X S ) xa ) ( setquotpr _ ( dirprodpair 0 ( unel S ) ) ) ) ) : neg ( paths ( pr1 xa ) 0 ) .
+Lemma nonzeroincommrngfrac ( X : commrng ) ( S : submonoid ( rngmultmonoid X ) ) ( xa : dirprod X S ) ( ne : neg ( paths ( setquotpr ( eqrelcommrngfrac X S ) xa ) ( setquotpr _ ( dirprodpair 0 ( unel S ) ) ) ) ) : neg ( paths ( pr1 xa ) 0 ) .
 Proof . intros . set ( x := pr1 xa ) . set ( aa := pr2 xa ) .  assert ( e' := negf ( weqpathsinsetquot ( eqrelcommrngfrac X S ) _ _ ) ne ) . simpl in e' . generalize e' .   apply negf .  intro e .  apply hinhpr .  split with ( unel S ) .  change ( paths ( x * 1 * 1 ) ( 0 * ( pr1 aa ) * 1 ) ) . rewrite e . rewrite ( rngmult0x X _ ) .  rewrite ( rngmult0x X _ ) .   rewrite ( rngmult0x X _ ) .  rewrite ( rngmult0x X _ ) . apply idpath . Defined .
 
 Opaque nonzeroincommrngfrac .
 
-Lemma zeroincommrngfrac ( X : intdom ) ( S : @submonoids ( rngmultmonoid X ) ) ( is : forall s : S , neg ( paths ( pr1 s ) 0 ) ) ( x : X ) ( aa : S ) ( e : paths ( setquotpr ( eqrelcommrngfrac X S ) ( dirprodpair x aa ) ) ( setquotpr _ ( dirprodpair 0 ( unel S ) ) ) )  : paths x 0 .
+Lemma zeroincommrngfrac ( X : intdom ) ( S : submonoid ( rngmultmonoid X ) ) ( is : forall s : S , neg ( paths ( pr1 s ) 0 ) ) ( x : X ) ( aa : S ) ( e : paths ( setquotpr ( eqrelcommrngfrac X S ) ( dirprodpair x aa ) ) ( setquotpr _ ( dirprodpair 0 ( unel S ) ) ) )  : paths x 0 .
 Proof . intros . assert ( e' := invweq ( weqpathsinsetquot _ _ _ ) e ) .  simpl in e' .  generalize e' .  apply ( @hinhuniv _ ( hProppair _ ( setproperty X _ _ ) ) ) . intro t2 . simpl . set ( aa0 := pr1 t2 ) . set ( a0 := pr1 aa0 ) . assert ( e2 := pr2 t2 ) . set ( a := pr1 aa ) .  simpl in e2 . change ( paths ( x * 1 * a0 ) ( 0 * a * a0 ) ) in e2 . rewrite ( rngmult0x X _ ) in e2 .  rewrite ( rngmult0x X _ ) in e2 . rewrite ( rngrunax2 X _ ) in e2 . apply ( intdomax2r X x a0 e2 ( is aa0 ) ) . Defined .
 
 Opaque zeroincommrngfrac .
@@ -293,6 +321,16 @@ Opaque zeroincommrngfrac .
 
 Lemma isdeceqfldfrac  ( X : intdom ) ( is : isdeceq X ) : isdeceq ( commrngfrac X ( intdomnonzerosubmonoid X ) ) .
 Proof . intros . apply isdeceqcommrngfrac .  intro a . apply isrcancelableif . intros b0 b1 e . apply ( intdomrcan X _ _ ( pr1 a ) ( pr2 a ) e ) .  apply is . Defined .
+
+Lemma isdeceqfldfrac_ne  ( X : intdom ) (neq : neqReln X) ( is : isdeceq X ) :
+  isdeceq ( commrngfrac X ( intdomnonzerosubmonoid_ne X neq) ) .
+Proof.
+  intros.
+  apply isdeceqcommrngfrac.
+  - intro a. apply isrcancelableif. intros b0 b1 e .
+    apply ( intdomrcan X _ _ ( pr1 a ) (negProp_to_neg ( pr2 a )) e ) .
+  - apply is .
+Defined .
 
 Lemma islinvinfldfrac ( X : intdom ) ( is : isdeceq X ) ( x : commrngfrac X ( intdomnonzerosubmonoid X ) ) ( ne : neg ( paths x 0 ) ) : paths ( ( fldfracmultinv0 X is x ) * x ) 1 .
 Proof . intros X is . assert ( int : forall x0 , isaprop ( neg ( paths x0 0 ) ->  paths ( ( fldfracmultinv0 X is x0 ) * x0 ) 1 ) ) . intro x0 . apply impred. intro . apply ( setproperty (commrngfrac X (intdomnonzerosubmonoid X)) (fldfracmultinv0 X is x0 * x0) _ ) . apply ( setquotunivprop _ ( fun x0 => hProppair _ ( int x0 ) ) ) .  simpl . intros xa ne .  change ( paths ( setquotpr (eqrelcommrngfrac X (intdomnonzerosubmonoid X)) ( dirprodpair ( ( pr1 ( fldfracmultinvint X is xa ) ) * ( pr1 xa ) ) ( @op ( intdomnonzerosubmonoid X ) ( pr2 ( fldfracmultinvint X is xa ) ) ( pr2 xa ) ) ) ) ( setquotpr _ ( dirprodpair 1 ( tpair _ 1 ( nonzeroax X ) ) ) ) )  . apply ( weqpathsinsetquot ) .  unfold fldfracmultinvint . simpl . destruct ( is (pr1 xa) 0  ) as [ e0 | ne0' ] .
@@ -307,22 +345,24 @@ Lemma isrinvinfldfrac ( X : intdom ) ( is : isdeceq X ) ( x : commrngfrac X ( in
 Proof . intros. rewrite ( rngcomm2 _ _ _ ) . apply islinvinfldfrac . apply ne . Defined .
 
 
-Definition fldfrac ( X : intdom ) ( is : isdeceq X ) : fld .
+Definition fldfrac ( X : intdom ) ( i : isdeceq X ) : fld .
 Proof.
   intros.
-  split with ( commrngfrac X ( intdomnonzerosubmonoid X ) ).
+  set (neq x y := decprop_to_negProp (pr2 (deceq_to_decrel i) x y)).
+  set (S := intdomnonzerosubmonoid_ne X neq).
+  set (F := commrngfrac X S).
+  exists F.
   split.
-  intro e.
-  assert ( e' := zeroincommrngfrac X ( intdomnonzerosubmonoid X ) ( fun a : ( intdomnonzerosubmonoid X ) => pr2 a ) 1 ( unel ( intdomnonzerosubmonoid X ) ) e ).
-  apply ( nonzeroax X e' ).
-  intro x.
-  destruct ( isdeceqfldfrac X is x 0 ) as [ e | ne ].
-  apply ( ii2 e ).
-  apply ii1.
-  split with ( fldfracmultinv0 X is x ).
-  split.
-  apply ( islinvinfldfrac X is x ne ).
-  apply ( isrinvinfldfrac X is x ne ).
+  - intro e.
+    assert ( e' := zeroincommrngfrac X S (λ a:S, negProp_to_neg (pr2 a)) 1 (unel S) e).
+    apply ( nonzeroax X e' ).
+  - intro x. destruct ( isdeceqfldfrac_ne X neq i x 0 ) as [ e | ne ].
+    + apply ( ii2 e ).
+    + apply ii1.
+      split with ( fldfracmultinv0_neq X neq i x ).
+      split.
+      apply ( islinvinfldfrac X is x ne ).
+      apply ( isrinvinfldfrac X is x ne ).
 Defined.
 
 
