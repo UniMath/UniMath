@@ -3,8 +3,7 @@ NumberSystems/Tests.v
 NumberSystems/RationalNumbers.v
 NumberSystems/Integers.v
 Algebra/Tests.v
-Algebra/Commutativity.v
-Algebra/Associativity.v
+Algebra/IteratedBinaryOperations.v
 Combinatorics/Tests.v
 Combinatorics/FiniteSequences.v
 Combinatorics/OrderedSets.v
