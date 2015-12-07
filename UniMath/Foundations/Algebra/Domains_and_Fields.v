@@ -287,13 +287,15 @@ Proof.
   unfold fldfracmultinvint. change (pr1 xa1) with x1. change (pr1 xa2) with x2.
   destruct ( is x1 0 ) as [ e1 | ne1 ].
   { destruct ( is x2 0 ) as [ e2 | ne2 ].
-    { simpl. now exists ( tpair ( fun x => x != 0 ) 1 ( nonzeroax X ) ). }
-    { simpl. rewrite e1 in e. rewrite ( rngmult0x X _ ) in e. rewrite ( rngmult0x X _ ) in e.
+    { simpl. exact ((@rngunel2 X,, nonzeroax X),, idpath _). }
+    { apply fromempty.
+      rewrite e1 in e. rewrite ( rngmult0x X _ ) in e. rewrite ( rngmult0x X _ ) in e.
       assert ( e'  := intdomax2r X _ _ ( !e ) ( pr2 aa0 ) ).
       assert ( e'' := intdomax2r X _ _   e'   ( pr2 aa1 ) ).
       destruct ( ne2 e'' ). } }
   { destruct ( is x2 0 ) as [ e2 | ne2 ].
-    { simpl. rewrite e2 in e. rewrite ( rngmult0x X _ ) in e. rewrite ( rngmult0x X _ ) in e.
+    { apply fromempty.
+      rewrite e2 in e. rewrite ( rngmult0x X _ ) in e. rewrite ( rngmult0x X _ ) in e.
       assert ( e'  := intdomax2r X _ _ e ( pr2 aa0 ) ).
       assert ( e'' := intdomax2r X _ _ e' ( pr2 aa2 ) ).
       destruct ( ne1 e'' ). }
