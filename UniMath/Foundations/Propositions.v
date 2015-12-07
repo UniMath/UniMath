@@ -265,10 +265,11 @@ Defined.
 
 Definition hneg ( P : UU ) : hProp := hProppair ( ¬ P ) ( isapropneg P ) .
 
+(* We introduce no notation (such as [¬P]) for [hneg], to discourage its use,
+   because it uses the axiom [funextempty]. *)
+
 (* use scope "logic" for notations that might conflict with others *)
 
-Notation "'¬' X" := (hneg X) (at level 35, right associativity) : logic.
-  (* type this in emacs in agda-input method with \neg *)
 Delimit Scope logic with logic.
 
 Definition himpl ( P : UU ) ( Q : hProp ) : hProp.
@@ -360,7 +361,7 @@ Defined.
 Lemma fromnegcoprod { X Y : UU } : ¬ (X ⨿ Y) -> ¬X × ¬Y.
 Proof .  intros ? ? is. split .  exact ( fun x => is ( ii1 x ) ) . exact ( fun y => is ( ii2 y ) ) . Defined .
 
-Corollary fromnegcoprod_prop { X Y : hProp } : ¬ (X ∨ Y) -> ¬X ∧ ¬Y.
+Corollary fromnegcoprod_prop { X Y : hProp } : ¬ (X ∨ Y) -> hneg X ∧ hneg Y.
 Proof.
   intros ? ? n.
   simpl in *.
@@ -490,6 +491,13 @@ Proof.
   intros. split.
   - intros p. now apply pair_falsehood.
   - intros t. exact (falseWitness t).
+Defined.
+
+Definition decprop_to_negProp {P:hProp} (c:P ⨿ neg P) : negProp P.
+Proof.
+  intros. exists (isFalse_hProp c). split.
+  - apply propproperty.
+  - apply isFalse_hProp_iff.
 Defined.
 
 (*

@@ -57,7 +57,7 @@ Proof . intros . assert ( e' := maponpaths ( fun x : X => x * ( pr1 c' ) ) e ) .
 Lemma pathslinvtorinv ( X : monoid ) ( x : X ) ( x' : linvpair X x ) ( x'' : rinvpair X x ) : paths ( pr1 x' ) ( pr1 x'' ) .
 Proof . intros .   destruct ( runax X ( pr1 x' ) ) . (*unfold p .*) destruct ( pr2 x'' ) . set ( int := x * pr1 x'' ) . change ( paths ( pr1 x' * int ) ( pr1 x'' ) ) .   destruct ( lunax X ( pr1 x'' ) ) . destruct ( pr2 x' ) .  (*unfold p1 .*) unfold int . apply ( pathsinv0 ( assocax X _ _ _ ) ) .  Defined .
 
-Definition invpair ( X : monoid ) ( x : X ) := total2 ( fun x' : X => dirprod ( paths ( x' * x ) 1 ) ( paths ( x * x' ) 1 ) ) .
+Definition invpair (X:monoid) (x:X) := Σ x':X, ( x' * x = 1 ) × ( x * x' = 1 ).
 Definition pr1invpair ( X : monoid ) ( x : X ) : invpair X x -> X := @pr1 _ _ .
 Definition invtolinv ( X : monoid ) ( x : X ) ( x' : invpair X x ) : linvpair X x := tpair _ ( pr1 x' ) ( pr1 ( pr2 x' ) ) .
 Definition invtorinv ( X : monoid ) ( x : X ) ( x' : invpair X x ) : rinvpair X x := tpair _ ( pr1 x' ) ( pr2 ( pr2 x' ) ) .
@@ -232,9 +232,10 @@ Proof . intros . destruct ( nc ( pr1 x ) 0 ( pr2 x ) ) as [ g | l ] . apply ( tp
 
 (** **** Main definitions *)
 
-Definition isafield ( X : commrng ) := dirprod ( isnonzerorng X ) ( forall x : X , coprod ( multinvpair X x ) ( paths x 0 ) ) .
+Definition isafield (X:commrng) := isnonzerorng X  ×  ∀ x:X, multinvpair X x ⨿ (x = 0).
 
-Definition fld := total2 ( fun X : commrng => isafield X ) .
+Definition fld := Σ X, isafield X.
+
 Definition fldpair ( X : commrng ) ( is : isafield X ) : fld := tpair _ X is .
 Definition pr1fld : fld -> commrng := @pr1 _ _ .
 
@@ -307,15 +308,22 @@ Proof . intros. rewrite ( rngcomm2 _ _ _ ) . apply islinvinfldfrac . apply ne . 
 
 
 Definition fldfrac ( X : intdom ) ( is : isdeceq X ) : fld .
-Proof . intros . split with ( commrngfrac X ( intdomnonzerosubmonoid X ) ) . split .
-
-intro e . assert ( e' := zeroincommrngfrac X ( intdomnonzerosubmonoid X ) ( fun a : ( intdomnonzerosubmonoid X ) => pr2 a ) 1 ( unel ( intdomnonzerosubmonoid X ) ) e ) . apply ( nonzeroax X e' ) .
-
-intro x .  destruct ( isdeceqfldfrac X is x 0 ) as [ e | ne ] .
-
-apply ( ii2 e ) .
-
-apply ii1 . split with ( fldfracmultinv0 X is x ) . split . apply ( islinvinfldfrac X is x ne )  .   apply ( isrinvinfldfrac X is x ne ) .  Defined .
+Proof.
+  intros.
+  split with ( commrngfrac X ( intdomnonzerosubmonoid X ) ).
+  split.
+  intro e.
+  assert ( e' := zeroincommrngfrac X ( intdomnonzerosubmonoid X ) ( fun a : ( intdomnonzerosubmonoid X ) => pr2 a ) 1 ( unel ( intdomnonzerosubmonoid X ) ) e ).
+  apply ( nonzeroax X e' ).
+  intro x.
+  destruct ( isdeceqfldfrac X is x 0 ) as [ e | ne ].
+  apply ( ii2 e ).
+  apply ii1.
+  split with ( fldfracmultinv0 X is x ).
+  split.
+  apply ( islinvinfldfrac X is x ne ).
+  apply ( isrinvinfldfrac X is x ne ).
+Defined.
 
 
 

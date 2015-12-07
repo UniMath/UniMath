@@ -64,7 +64,7 @@ Proof.
   - exact i.
   - apply isapropneg.
   - exact (λ x n, n x).
-Defined.       
+Defined.
 
 (** ** Isolated points and types with decidable equality. *)
 
@@ -96,6 +96,9 @@ Definition negProp_to_neg {P} {nP : negProp P} : nP -> ¬P.
 Proof. intros ? ? np. exact (pr2 (negProp_to_iff nP) np). Defined.
 
 Coercion negProp_to_neg : negProp >-> Funclass.
+
+(* inverse negation, by analogy with the notaion of "tight" "apartness" relation: *)
+Definition invnegProp P := Σ Q, isaprop Q × (P <-> ¬Q).
 
 Definition neg_to_negProp {P} {nP : negProp P} : ¬P -> nP.
 Proof. intros ? ? np. exact (pr1 (negProp_to_iff nP) np). Defined.

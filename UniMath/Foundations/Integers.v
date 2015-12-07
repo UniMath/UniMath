@@ -85,12 +85,8 @@ Open Local Scope hz_scope .
 
 (* [funextempty]-free replacement proposition for hzneq *)
 
-Definition hzneq' (x y : hz) : negProp (x = y).
-Proof.
-  intros. exists (isFalse_hProp (isdecrelhzeq x y)). split.
-  - apply propproperty.
-  - apply isFalse_hProp_iff.
-Defined.
+Definition hzneq' (x y : hz) : negProp (x = y)
+  := decprop_to_negProp (isdecrelhzeq x y).
 
 Notation " x ≠ y " := ( hzneq' x y ) (at level 70, no associativity) : hz_scope.
 
