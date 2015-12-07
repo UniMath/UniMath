@@ -1,5 +1,20 @@
-Require Import UniMath.Foundations.Basics.All.
 
+(** Interface file to the package SubstitutionSystems *)
+
+(**
+  The purpose of this file is to provide a stable interface to
+  the formalization of heterogeneous substitution systems as
+  defined by Matthes and Uustalu
+
+  PLEASE DO NOT RENAME THIS FILE - its name is referenced in
+  an article about this formalization
+
+  TODO: provide reference to the article/preprint
+
+*)
+
+
+Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -40,7 +55,7 @@ Notation "G • F" := (functor_composite F G).
 
 (** Lemma 8 *)
 
-Definition GenMendlerIteration : 
+Definition GenMendlerIteration :
    ∀ (C : precategory) (hsC : has_homsets C) (F : functor C C)
    (μF_Initial : Initial (FunctorAlg F hsC)) (C' : precategory)
    (hsC' : has_homsets C') (X : C') (L : functor C C'),
@@ -59,10 +74,10 @@ Arguments It {_ _ _} _ {_} _ _ _ _ _ .
 (** Lemma 9 *)
 
 Theorem fusion_law
-     : ∀ (C : precategory) (hsC : has_homsets C) 
+     : ∀ (C : precategory) (hsC : has_homsets C)
        (F : functor C C)
        (μF_Initial : Initial (precategory_FunctorAlg F hsC))
-       (C' : precategory) (hsC' : has_homsets C') 
+       (C' : precategory) (hsC' : has_homsets C')
        (X X' : C') (L : functor C C')
        (is_left_adj_L : equivalences.is_left_adjoint L)
        (ψ : ψ_source C C' hsC' X L ⟶ ψ_target C F C' hsC' X L)
@@ -74,7 +89,7 @@ Theorem fusion_law
             yoneda_objects C' hsC' X' • functor_opp L'),
        let T:= (` (InitialObject μF_Initial)) in
        ψ T ;; Φ (F T) = Φ T ;; ψ' T
-       → 
+       →
        Φ T (It μF_Initial hsC' X L is_left_adj_L ψ) =
        It μF_Initial hsC' X' L' is_left_adj_L' ψ'.
 Proof.
@@ -139,7 +154,7 @@ Defined.
 
 (** * Lifting initiality *)
 
-(** Theorem 28 in three steps: 
+(** Theorem 28 in three steps:
     - the operation itself
     - its compatibility with variables
     - its compatibility with signature-dependent constructions
@@ -152,7 +167,7 @@ Definition bracket_for_initial_algebra
            (IA : Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs)))
            (Z : precategory_Ptd C hs),
            precategory_Ptd C hs ⟦ Z, ptd_from_alg (InitAlg C hs CP H IA) ⟧
-           → 
+           →
            [C, C] hs ⟦ ℓ (U Z) ` (InitialObject IA), ` (InitAlg C hs CP H IA) ⟧.
 Proof.
   apply bracket_Thm15.
@@ -167,7 +182,7 @@ Lemma bracket_Thm15_ok_η
        (Z : precategory_Ptd C hs)
        (f : precategory_Ptd C hs ⟦ Z, ptd_from_alg (InitAlg C hs CP H IA)⟧),
        # U f =
-       # (pr1 (ℓ (U Z))) (η (InitAlg C hs CP H IA)) ;; 
+       # (pr1 (ℓ (U Z))) (η (InitAlg C hs CP H IA)) ;;
        bracket_Thm15 C hs CP KanExt H IA Z f.
 Proof.
   apply bracket_Thm15_ok_part1.
@@ -180,11 +195,11 @@ Lemma bracket_Thm15_ok_τ
       (IA : Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs)))
       (Z : precategory_Ptd C hs)
       (f : precategory_Ptd C hs ⟦ Z, ptd_from_alg (InitAlg C hs CP H IA) ⟧),
-    (theta H) (` (InitAlg C hs CP H IA) ⊗ Z) ;; 
-    # H (bracket_Thm15 C hs CP KanExt H IA Z f) ;; 
-    τ (InitAlg C hs CP H IA) 
+    (theta H) (` (InitAlg C hs CP H IA) ⊗ Z) ;;
+    # H (bracket_Thm15 C hs CP KanExt H IA Z f) ;;
+    τ (InitAlg C hs CP H IA)
     =
-    # (pr1 (ℓ (U Z))) (τ (InitAlg C hs CP H IA)) ;; 
+    # (pr1 (ℓ (U Z))) (τ (InitAlg C hs CP H IA)) ;;
       bracket_Thm15 C hs CP KanExt H IA Z f.
 Proof.
   apply bracket_Thm15_ok_part2.
@@ -192,7 +207,7 @@ Qed.
 
 (** Theorem 29 *)
 
-Definition Initial_HSS : 
+Definition Initial_HSS :
    ∀ (C : precategory) (hs : has_homsets C) (CP : Coproducts C),
      (∀ Z : precategory_Ptd C hs,
          GlobalRightKanExtensionExists C C (U Z) C hs hs)
@@ -200,7 +215,7 @@ Definition Initial_HSS :
        Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs))
        → Initial (hss_precategory CP H).
 Proof.
-  apply InitialHSS. 
+  apply InitialHSS.
 Defined.
 
 
@@ -220,7 +235,7 @@ Defined.
 
 (** Definition 31 *)
 
-Definition App_Sig 
+Definition App_Sig
   : ∀ (C : precategory) (hs : has_homsets C), Products C → Signature C hs.
 Proof.
   apply App_Sig.
@@ -247,8 +262,8 @@ Defined.
 
 (** Definition 36 *)
 
-Definition Lam_Flatten 
-  :  ∀ (C : precategory) (hs : has_homsets C) 
+Definition Lam_Flatten
+  :  ∀ (C : precategory) (hs : has_homsets C)
        (terminal : Terminal C)
        (CC : Coproducts C) (CP : Products C),
     (∀ Z : precategory_Ptd C hs,
@@ -269,7 +284,7 @@ Definition fbracket_for_LamE_algebra_on_Lam
       (Lam_Initial : Initial (FunctorAlg (Id_H C hs CC (Lam_Sig C hs terminal CC CP))
                                          (functor_category_has_homsets C C hs)))
       (Z : precategory_Ptd C hs),
-    precategory_Ptd C hs ⟦ Z , 
+    precategory_Ptd C hs ⟦ Z ,
                            (ptd_from_alg_functor CC (LamE_Sig C hs terminal CC CP))
                              (LamE_algebra_on_Lam C hs terminal CC CP KanExt Lam_Initial) ⟧
     → [C, C] hs
