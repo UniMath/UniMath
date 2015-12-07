@@ -12,51 +12,21 @@ Open Scope Dcuts_scope.
 
 (** ** Definition *)
 
+(** *** [commrng] *)
+
 Definition hr_commrng : commrng := commrigtocommrng NonnegativeReals.
 
-Definition NR_to_hr : NonnegativeReals × NonnegativeReals -> hr_commrng.
-Proof.
-  intros x.
-  assert (Hx : ∀ y : NonnegativeReals × NonnegativeReals, isaprop (pr1 x + pr2 y = pr1 y + pr2 x)).
-  { intros y ; apply (pr2 Dcuts_set). }
-  exists (λ y, hProppair _ (Hx y)).
-  split.
-  - apply hinhpr.
-    exists x ; simpl.
-    reflexivity.
-  - split.
-    + intros x1 x2 H Heq.
-      revert H ; apply hinhuniv ; intros (x0,H) ; simpl in * |- *.
-      apply plusNonnegativeReals_eqcompat_l with (pr1 x1 + x0).
-      rewrite !isassoc_plusNonnegativeReals, iscomm_plusNonnegativeReals, <- !isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 x2)).
-      change (pr1 x1 + pr2 x2 + x0) with (pr1 x1 + pr2 x2 + x0)%rng.
-      rewrite H.
-      change (pr1 x2 + pr2 x1 + x0)%rng with (pr1 x2 + pr2 x1 + x0).
-      rewrite !isassoc_plusNonnegativeReals.
-      apply_pr2 plusNonnegativeReals_eqcompat_r.
-      rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
-      rewrite Heq.
-      rewrite iscomm_plusNonnegativeReals, <- !isassoc_plusNonnegativeReals.
-      now rewrite (iscomm_plusNonnegativeReals (pr1 x1)).
-    + simpl ; intros x1 x2 Heq1 Heq2.
-      apply hinhpr.
-      change (Σ x0 : NonnegativeReals, (pr1 x1 + pr2 x2 + x0) = (pr1 x2 + pr2 x1 + x0)).
-      exists (pr1 x + pr2 x).
-      rewrite !isassoc_plusNonnegativeReals, <- (isassoc_plusNonnegativeReals (pr2 x2)), (iscomm_plusNonnegativeReals (pr2 x2)), (iscomm_plusNonnegativeReals _ (pr2 x)), <- (isassoc_plusNonnegativeReals (pr1 x1)).
-      simpl ; rewrite <- Heq1, Heq2.
-      rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
-      apply_pr2 plusNonnegativeReals_eqcompat_r.
-      rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
-      rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
-      apply_pr2 plusNonnegativeReals_eqcompat_r.
-      apply iscomm_plusNonnegativeReals.
-Defined.
-Definition hr_to_NR ( X : hr_commrng) :
-  hexists(λ x : NonnegativeReals × NonnegativeReals, pr1 X x).
+Definition NR_to_hr : NonnegativeReals × NonnegativeReals -> hr_commrng
+  := setquotpr (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals)).
+
+Lemma hr_to_NR (X : hr_commrng) :
+  ∃ x : NonnegativeReals × NonnegativeReals, pr1 X x.
 Proof.
   intros (X,(Hx,(Hx1,Hx2))) ; simpl.
   apply Hx.
-Defined.
+Qed.
+
+(** Caracterisation of equality *)
 
 Lemma hr_inside_carac :
   ∀ X : hr_commrng,
@@ -84,124 +54,214 @@ Proof.
   exact Hx.
 Qed.
 
-Definition hr_lt_rel : hrel hr_commrng :=
-  λ X Y : hr_commrng, ∃ x y : NonnegativeReals × NonnegativeReals, pr1 X x × pr1 Y y × pr1 x + pr2 y < pr1 y + pr2 x.
-Definition hr_le_rel : hrel hr_commrng :=
-  λ X Y : hr_commrng, ∃ x y : NonnegativeReals × NonnegativeReals, pr1 X x × pr1 Y y × pr1 x + pr2 y <= pr1 y + pr2 x.
+Lemma hr_eq_carac :
+  ∀ X Y : hr_commrng,
+    X = Y ->
+    ∀ x y : NonnegativeReals × NonnegativeReals,
+      pr1 X x -> pr1 Y y -> pr1 x + pr2 y = pr1 y + pr2 x.
+Proof.
+  intros X Y ->.
+  apply hr_inside_carac.
+Qed.
+Lemma hr_eq_carac' :
+  ∀ X Y : hr_commrng,
+  ∀ x y : NonnegativeReals × NonnegativeReals,
+    pr1 X x -> pr1 Y y -> pr1 x + pr2 y = pr1 y + pr2 x -> X = Y.
+Proof.
+  intros X Y x y Hx Hy Heq.
+  apply subtypeEquality.
+  - intros Z.
+    now apply isapropiseqclass.
+  - apply funextfunax ; simpl ; intro t.
+    apply weqtopathshProp, logeqweq.
+    + intros Ht.
+      revert Hy.
+      apply hr_inside_carac'.
+      apply plusNonnegativeReals_eqcompat_r with (pr2 x).
+      rewrite <- isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 x)), <- Heq, isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 y)), <-! isassoc_plusNonnegativeReals.
+      apply_pr2 plusNonnegativeReals_eqcompat_l.
+      rewrite (iscomm_plusNonnegativeReals (pr2 x)).
+      now apply (hr_inside_carac X).
+    + intros Ht.
+      revert Hx.
+      apply hr_inside_carac'.
+      apply plusNonnegativeReals_eqcompat_r with (pr2 y).
+      rewrite <- isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 y)), Heq, isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 x)), <-! isassoc_plusNonnegativeReals.
+      apply_pr2 plusNonnegativeReals_eqcompat_l.
+      rewrite (iscomm_plusNonnegativeReals (pr2 y)).
+      now apply (hr_inside_carac Y).
+Qed.
+
+Lemma NR_to_hr_unique :
+  ∀ X : hr_commrng, ∀ x: NonnegativeReals × NonnegativeReals, pr1 X x -> NR_to_hr x = X.
+Proof.
+  intros X x Hx.
+  apply (hr_eq_carac' _ _ x x).
+  - apply hinhpr.
+    now exists 0.
+  - exact Hx.
+  - reflexivity.
+Qed.
+
+(** *** Order *)
+(** [hr_lt_rel] *)
+
+Local Lemma isbinophrel_ltNonnegativeReals :
+  isbinophrel (X := rigaddabmonoid NonnegativeReals) ltNonnegativeReals.
+Proof.
+  split.
+  - intros x y z Hlt.
+    apply plusNonnegativeReals_ltcompat_r, Hlt.
+  - intros x y z Hlt.
+    apply plusNonnegativeReals_ltcompat_l, Hlt.
+Qed.
+Definition hr_lt_rel : hrel hr_commrng
+  := rigtorngrel NonnegativeReals isbinophrel_ltNonnegativeReals.
+Lemma hr_lt_carac :
+  ∀ X Y : hr_commrng,
+    hr_lt_rel X Y ->
+    ∀ x y : NonnegativeReals × NonnegativeReals,
+      pr1 X x -> pr1 Y y -> pr1 x + pr2 y < pr1 y + pr2 x.
+Proof.
+  intros X Y Hlt x y Hx Hy.
+  revert Hlt.
+  rewrite <- (NR_to_hr_unique _ _ Hx),  <- (NR_to_hr_unique _ _ Hy).
+  unfold hr_lt_rel, rigtorngrel, abgrfracrel, quotrel.
+  rewrite (setquotuniv2comm (eqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
+  apply hinhuniv ; intros (c,Hlt).
+  apply_pr2 (plusNonnegativeReals_ltcompat_l c).
+  exact Hlt.
+Qed.
+Lemma hr_lt_carac' :
+  ∀ X Y : hr_commrng,
+  ∀ x y : NonnegativeReals × NonnegativeReals,
+    pr1 X x -> pr1 Y y -> pr1 x + pr2 y < pr1 y + pr2 x -> hr_lt_rel X Y.
+Proof.
+  intros X Y x y Hx Hy Hlt.
+  rewrite <- (NR_to_hr_unique _ _ Hx),  <- (NR_to_hr_unique _ _ Hy).
+  unfold hr_lt_rel, rigtorngrel, abgrfracrel, quotrel.
+  rewrite (setquotuniv2comm (eqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
+  apply hinhpr ; exists 0.
+  apply (plusNonnegativeReals_ltcompat_l 0).
+  exact Hlt.
+Qed.
+
+(** [hr_le_rel] *)
+
+Local Lemma isbinophrel_leNonnegativeReals :
+  isbinophrel (X := rigaddabmonoid NonnegativeReals) leNonnegativeReals.
+Proof.
+  split.
+  - intros x y z Hlt.
+    apply plusNonnegativeReals_lecompat_r, Hlt.
+  - intros x y z Hlt.
+    apply plusNonnegativeReals_lecompat_l, Hlt.
+Qed.
+Definition hr_le_rel : hrel hr_commrng
+  := rigtorngrel NonnegativeReals isbinophrel_leNonnegativeReals.
+Lemma hr_le_carac :
+  ∀ X Y : hr_commrng,
+    hr_le_rel X Y ->
+    ∀ x y : NonnegativeReals × NonnegativeReals,
+      pr1 X x -> pr1 Y y -> pr1 x + pr2 y <= pr1 y + pr2 x.
+Proof.
+  intros X Y Hlt x y Hx Hy.
+  revert Hlt.
+  rewrite <- (NR_to_hr_unique _ _ Hx),  <- (NR_to_hr_unique _ _ Hy).
+  unfold hr_le_rel, rigtorngrel, abgrfracrel, quotrel.
+  rewrite (setquotuniv2comm (eqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
+  apply hinhuniv ; intros (c,Hlt).
+  apply_pr2 (plusNonnegativeReals_lecompat_l c).
+  exact Hlt.
+Qed.
+Lemma hr_le_carac' :
+  ∀ X Y : hr_commrng,
+  ∀ x y : NonnegativeReals × NonnegativeReals,
+    pr1 X x -> pr1 Y y -> pr1 x + pr2 y <= pr1 y + pr2 x -> hr_le_rel X Y.
+Proof.
+  intros X Y x y Hx Hy Hlt.
+  rewrite <- (NR_to_hr_unique _ _ Hx),  <- (NR_to_hr_unique _ _ Hy).
+  unfold hr_le_rel, rigtorngrel, abgrfracrel, quotrel.
+  rewrite (setquotuniv2comm (eqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
+  apply hinhpr ; exists 0.
+  apply (plusNonnegativeReals_lecompat_l 0).
+  exact Hlt.
+Qed.
+
+(** Theorems about order *)
+
 Lemma hr_notlt_le :
   ∀ X Y, ¬ hr_lt_rel X Y -> hr_le_rel Y X.
 Proof.
   intros X Y Hlt.
   generalize (hr_to_NR X) (hr_to_NR Y) ;
-    apply hinhfun2 ; intros (x,Hx) (y,Hy).
-  exists y, x ; repeat split.
+    apply hinhuniv2 ; intros (x,Hx) (y,Hy).
+  apply hr_le_carac' with y x.
   exact Hy.
   exact Hx.
   apply Dcuts_nlt_ge.
   intro H ; apply Hlt.
-  apply hinhpr.
-  now exists x,y ; repeat split.
+  now apply hr_lt_carac' with x y.
 Qed.
+
 Lemma isantisymm_hr_le :
   isantisymm hr_le_rel.
 Proof.
   intros X Y Hxy Hyx.
-  apply subtypeEquality.
-  + intros Z.
-    now apply isapropiseqclass.
-  + apply funextfunax ; simpl ; intro x.
-    apply weqtopathshProp, logeqweq.
-    * intros Hx.
-      revert Hxy Hyx ; apply hinhuniv2 ; intros (x1,(y1,(Hx1,(Hy1,Hxy)))) (y2,(x2,(Hy2,(Hx2,Hyx)))).
-      generalize Hy1 ; apply (pr1 (pr2 (pr2 Y)) y1).
-      apply hinhpr ; simpl.
-      exists 0.
-      change (pr1 y1 + pr2 x + 0 = pr1 x + pr2 y1 + 0).
-      rewrite !isrunit_zero_plusNonnegativeReals.
-      apply isantisym_leNonnegativeReals ; split.
-      { apply_pr2 (plusNonnegativeReals_lecompat_l (pr2 y2)).
-        rewrite iscomm_plusNonnegativeReals, <- isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 y2)), (hr_inside_carac _ _ _ Hy1 Hy2), <- !(iscomm_plusNonnegativeReals (pr2 y1)), !isassoc_plusNonnegativeReals.
-        apply plusNonnegativeReals_lecompat_r.
-        apply_pr2 (plusNonnegativeReals_lecompat_l (pr1 x2)).
-        rewrite isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 x)), (hr_inside_carac X _ _ Hx2), isassoc_plusNonnegativeReals, !(iscomm_plusNonnegativeReals (pr1 x)), <- isassoc_plusNonnegativeReals.
-        apply plusNonnegativeReals_lecompat_l.
-        now rewrite (iscomm_plusNonnegativeReals (pr2 y2)).
-        exact Hx. }
-      { apply_pr2 (plusNonnegativeReals_lecompat_r (pr2 x1)).
-        rewrite <- isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 x1)), (λ Hx, hr_inside_carac _ _ _ Hx Hx1), <-isassoc_plusNonnegativeReals, <- !(iscomm_plusNonnegativeReals (pr2 x)), !isassoc_plusNonnegativeReals.
-        apply plusNonnegativeReals_lecompat_r.
-        now rewrite (iscomm_plusNonnegativeReals (pr2 x1)).
-        exact Hx. }
-    * intros Hy ; rename x into y.
-      revert Hxy Hyx ; apply hinhuniv2 ; intros (x1,(y1,(Hx1,(Hy1,Hxy)))) (y2,(x2,(Hy2,(Hx2,Hyx)))).
-      generalize Hx1 ; apply (pr1 (pr2 (pr2 X)) x1).
-      apply hinhpr ; simpl.
-      exists 0.
-      change (pr1 x1 + pr2 y + 0 = pr1 y + pr2 x1 + 0).
-      rewrite !isrunit_zero_plusNonnegativeReals.
-
-      apply isantisym_leNonnegativeReals ; split.
-      { apply_pr2 (plusNonnegativeReals_lecompat_l (pr1 y1)).
-        rewrite isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 y)), (hr_inside_carac _ _ _ Hy1), isassoc_plusNonnegativeReals, !(iscomm_plusNonnegativeReals (pr1 y)), <- isassoc_plusNonnegativeReals.
-        apply plusNonnegativeReals_lecompat_l.
-        now rewrite (iscomm_plusNonnegativeReals (pr2 x1)).
-        exact Hy. }
-      { apply_pr2 (plusNonnegativeReals_lecompat_l (pr2 y2)).
-        rewrite iscomm_plusNonnegativeReals, <- isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 y2)), (λ H, hr_inside_carac _ _ _ H Hy2), <- !(iscomm_plusNonnegativeReals (pr2 y)), !isassoc_plusNonnegativeReals.
-        apply plusNonnegativeReals_lecompat_r.
-        apply_pr2 (plusNonnegativeReals_lecompat_l (pr1 x2)).
-        rewrite isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 x1)), (hr_inside_carac X _ _ Hx2 Hx1), (iscomm_plusNonnegativeReals (pr1 x1)), <- isassoc_plusNonnegativeReals, iscomm_plusNonnegativeReals, isassoc_plusNonnegativeReals.
-        apply plusNonnegativeReals_lecompat_r.
-        now rewrite (iscomm_plusNonnegativeReals (pr2 y2)).
-        exact Hy. }
+  generalize (hr_to_NR X) (hr_to_NR Y) ;
+    apply (hinhuniv2 (P := hProppair _ (pr2 (pr1 (pr1 (hr_commrng))) _ _))) ; intros (x,Hx) (y,Hy).
+  apply hr_eq_carac' with x y.
+  exact Hx.
+  exact Hy.
+  apply isantisym_leNonnegativeReals ; split.
+  now apply hr_le_carac with X Y.
+  now apply hr_le_carac with Y X.
 Qed.
 
 Lemma isStrongOrder_hr_lt : isStrongOrder hr_lt_rel.
 Proof.
   split.
-  - intros X Y Z.
-    apply hinhuniv2 ; intros (x,(y1,(Hx,(Hy1,Hxy)))) (y2,(z,(Hy2,(Hz,Hyz)))).
-    apply hinhpr.
-    exists x, z.
-    repeat split.
-    + exact Hx.
-    + exact Hz.
-    + apply_pr2 (plusNonnegativeReals_ltcompat_r (pr2 y1)).
-      rewrite <- isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 y1)).
+  - intros X Y Z Hxy Hyz.
+    generalize (hr_to_NR X) (hr_to_NR Z) ;
+      apply hinhuniv2 ; intros (x,Hx) (z,Hz).
+    apply hr_lt_carac' with x z.
+    exact Hx.
+    exact Hz.
+    generalize (hr_to_NR Y) ;
+      apply hinhuniv ; intros (y,Hy).
+    + apply_pr2 (plusNonnegativeReals_ltcompat_r (pr2 y)).
+      rewrite <- isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 y)).
       eapply istrans_ltNonnegativeReals.
       apply plusNonnegativeReals_ltcompat_l.
-      exact Hxy.
-      rewrite (iscomm_plusNonnegativeReals (pr1 y1)), isassoc_plusNonnegativeReals, iscomm_plusNonnegativeReals, <- !isassoc_plusNonnegativeReals.
+      now apply hr_lt_carac with X Y.
+      rewrite (iscomm_plusNonnegativeReals (pr1 y)), isassoc_plusNonnegativeReals, iscomm_plusNonnegativeReals, <- !isassoc_plusNonnegativeReals.
       apply plusNonnegativeReals_ltcompat_l.
-      apply_pr2 (plusNonnegativeReals_ltcompat_r (pr2 y2)).
-      rewrite <- isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (pr2 y2)).
-      rewrite (hr_inside_carac _ _ _ Hy1 Hy2).
-      rewrite (iscomm_plusNonnegativeReals (pr1 y2)), <- (iscomm_plusNonnegativeReals (pr1 z)), isassoc_plusNonnegativeReals, iscomm_plusNonnegativeReals, <- ! isassoc_plusNonnegativeReals, <- (iscomm_plusNonnegativeReals (pr1 z)).
-      now apply plusNonnegativeReals_ltcompat_l.
+      rewrite (iscomm_plusNonnegativeReals (pr2 y)).
+      now apply hr_lt_carac with Y Z.
   - intros X Hlt.
-    revert Hlt ; apply (hinhuniv (P := hProppair _ isapropempty)) ; intros (x,(y,(Hx,(Hy)))).
-    rewrite (hr_inside_carac _ _ _ Hx Hy).
-    apply isirrefl_ltNonnegativeReals.
+    generalize (hr_to_NR X) ; apply (hinhuniv (P := hProppair _ isapropempty)) ; intros (x,Hx).
+    apply (isirrefl_ltNonnegativeReals (pr1 x + pr2 x)).
+    now apply hr_lt_carac with X X.
 Qed.
 Lemma iscotrans_hr_lt :
   iscotrans hr_lt_rel.
 Proof.
-  intros X Y Z.
-  apply hinhuniv ; intros (x,(z,(Hx,(Hz,Hlt)))).
+  intros X Y Z Hxz.
+  generalize (hr_to_NR X) (hr_to_NR Z) ;
+    apply hinhuniv2 ; intros (x,Hx) (z,Hz).
   generalize (hr_to_NR Y) ;
     apply hinhuniv ; intros (y,Hy).
+  generalize (hr_lt_carac X Z Hxz x z Hx Hz) ; intro Hlt.
   apply (plusNonnegativeReals_ltcompat_r (pr2 y)) in Hlt.
   generalize (iscotrans_ltNonnegativeReals _ (pr1 y + pr2 x + pr2 z) _ Hlt).
   clear Hlt ; apply hinhfun ; intros [Hlt | Hlt].
-  - left ; apply hinhpr.
-    exists x, y ; repeat split.
+  - left ; apply hr_lt_carac' with x y.
     exact Hx.
     exact Hy.
     apply_pr2 (plusNonnegativeReals_ltcompat_l (pr2 z)).
     rewrite (iscomm_plusNonnegativeReals (pr1 x)), isassoc_plusNonnegativeReals.
     exact Hlt.
-  - right ; apply hinhpr.
-    exists y, z ; repeat split.
+  - right ; apply hr_lt_carac' with y z.
     exact Hy.
     exact Hz.
     apply_pr2 (plusNonnegativeReals_ltcompat_l (pr2 x)).
@@ -209,47 +269,89 @@ Proof.
     exact Hlt.
 Qed.
 
-Definition hr_ap_rel : hrel hr_commrng :=
-  λ X Y : hr_commrng, ∥ Σ x y : NonnegativeReals × NonnegativeReals, pr1 X x × pr1 Y y × pr1 x + pr2 y ≠ pr1 y + pr2 x ∥.
+(** *** Appartness *)
+
+Local Lemma isbinophrel_apNonnegativeReals :
+  isbinophrel (X := rigaddabmonoid NonnegativeReals) apNonnegativeReals.
+Proof.
+  split.
+  - intros x y z Hlt.
+    apply plusNonnegativeReals_apcompat_r, Hlt.
+  - intros x y z Hlt.
+    apply plusNonnegativeReals_apcompat_l, Hlt.
+Qed.
+Definition hr_ap_rel : hrel hr_commrng
+  := rigtorngrel NonnegativeReals isbinophrel_apNonnegativeReals.
+Lemma hr_ap_carac :
+  ∀ X Y : hr_commrng,
+    hr_ap_rel X Y ->
+    ∀ x y : NonnegativeReals × NonnegativeReals,
+      pr1 X x -> pr1 Y y -> pr1 x + pr2 y ≠ pr1 y + pr2 x.
+Proof.
+  intros X Y Hlt x y Hx Hy.
+  revert Hlt.
+  rewrite <- (NR_to_hr_unique _ _ Hx),  <- (NR_to_hr_unique _ _ Hy).
+  unfold hr_ap_rel, rigtorngrel, abgrfracrel, quotrel.
+  rewrite (setquotuniv2comm (eqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
+  apply hinhuniv ; intros (c,Hlt).
+  apply_pr2 (plusNonnegativeReals_apcompat_l c).
+  exact Hlt.
+Qed.
+Lemma hr_ap_carac' :
+  ∀ X Y : hr_commrng,
+  ∀ x y : NonnegativeReals × NonnegativeReals,
+    pr1 X x -> pr1 Y y -> pr1 x + pr2 y ≠ pr1 y + pr2 x -> hr_ap_rel X Y.
+Proof.
+  intros X Y x y Hx Hy Hlt.
+  rewrite <- (NR_to_hr_unique _ _ Hx),  <- (NR_to_hr_unique _ _ Hy).
+  unfold hr_ap_rel, rigtorngrel, abgrfracrel, quotrel.
+  rewrite (setquotuniv2comm (eqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
+  apply hinhpr ; exists 0.
+  apply (plusNonnegativeReals_apcompat_l 0).
+  exact Hlt.
+Qed.
+
+(** Theorems about apartness *)
+
 Lemma hr_ap_lt :
   ∀ X Y : hr_commrng, hr_ap_rel X Y <-> hr_lt_rel X Y ∨ hr_lt_rel Y X.
 Proof.
-  intros X Y ; split.
-  - apply hinhuniv ; intros (x,(y,(Hx,(Hy,Hap)))).
+  intros X Y.
+  split ; intro H.
+  - generalize (hr_to_NR X) (hr_to_NR Y) ;
+      apply hinhuniv2 ; intros (x,Hx) (y,Hy).
+    generalize (hr_ap_carac _ _ H _ _ Hx Hy) ; clear H ; intro Hap.
     apply_pr2_in ap_ltNonnegativeReals Hap.
     revert Hap ; apply hinhfun ; intros [Hlt | Hlt].
-    + left ; apply hinhpr.
-      now exists x, y ; repeat split.
-    + right ; apply hinhpr.
-      now exists y, x ; repeat split.
-  - apply hinhuniv ; intros [|] ; apply hinhfun ; intros (x,(y,(Hx,(Hy,Hlt)))).
-    + exists x, y ; repeat split.
-      exact Hx.
-      exact Hy.
-      apply ap_ltNonnegativeReals.
-      now apply hinhpr ; left.
-    + exists y, x ; repeat split.
-      exact Hy.
-      exact Hx.
-      apply ap_ltNonnegativeReals.
-      now apply hinhpr ; right.
+    + now left ; apply hr_lt_carac' with x y.
+    + now right ; apply hr_lt_carac' with y x.
+  - generalize (hr_to_NR X) (hr_to_NR Y) ;
+      apply hinhuniv2 ; intros (x,Hx) (y,Hy).
+    apply hr_ap_carac' with x y.
+    exact Hx.
+    exact Hy.
+    apply ap_ltNonnegativeReals.
+    revert H ; apply hinhfun ; intros [Hlt | Hlt].
+    + now left ; apply hr_lt_carac with X Y.
+    + now right ; apply hr_lt_carac with Y X.
 Qed.
 
 Lemma istightap_hr_ap : istightap hr_ap_rel.
 Proof.
   repeat split.
-  - intros X.
-    unfold neg.
-    apply (hinhuniv (P := hProppair _ isapropempty)) ; intros (x,(y,(Hx,(Hy)))).
-    rewrite (hr_inside_carac _ _ _ Hx Hy).
+  - intros X Hap.
+    generalize (hr_to_NR X) ;
+      apply (hinhuniv (P := hProppair _ isapropempty)) ; intros (x,Hx).
+    generalize (hr_ap_carac _ _ Hap _ _ Hx Hx).
     now apply isirrefl_apNonnegativeReals.
-  - intros X Y.
-    apply hinhfun ; intros (x,(y,(Hx,(Hy,Hap)))).
-    exists y, x ; repeat split.
+  - intros X Y Hap.
+    generalize (hr_to_NR X) (hr_to_NR Y) ;
+      apply hinhuniv2 ; intros (x,Hx) (y,Hy).
+    apply hr_ap_carac' with y x.
     exact Hy.
     exact Hx.
     apply issymm_apNonnegativeReals.
-    now apply Hap.
+    now apply hr_ap_carac with X Y.
   - intros X Y Z Hap.
     apply hr_ap_lt in Hap.
     revert Hap ; apply hinhuniv ; intros [Hlt|Hlt].
@@ -277,63 +379,97 @@ Proof.
       now apply hinhpr ; left.
 Qed.
 
+(** ** Constants and fonctions *)
+
 Definition hr_zero : hr_commrng := 0%rng.
 Definition hr_one : hr_commrng := 1%rng.
+
 Definition hr_plus : binop hr_commrng := λ x y, (x + y)%rng.
 Definition hr_mult : binop hr_commrng := λ x y, (x * y)%rng.
 
-Lemma hr_plus_carac :
-  ∀ X Y : hr_commrng,
-  ∀ z : NonnegativeReals × NonnegativeReals,
-    pr1 (hr_plus X Y) z
-    <-> ∃ x y : NonnegativeReals × NonnegativeReals, pr1 X x × pr1 Y y × pr1 z = pr1 x + pr1 y × pr2 z = pr2 x + pr2 y.
-Proof.
-  intros X Y ; split.
-  - intro Hz.
-    unfold hr_plus, BinaryOperations.op1 in Hz ;
-      simpl in Hz.
-    unfold rigtorngop1 in Hz ; simpl in Hz.
-    Opaque iscompbinoptransrel.
-    set (H := (iscompbinoptransrel
-                (X := setwithbinopdirprod _ _)
-                (hrelabgrfrac (rigaddabmonoid NonnegativeReals))
-                (eqreltrans
-                   (eqrelabgrfrac (rigaddabmonoid NonnegativeReals)))
-                (isbinophrelabgrfrac (rigaddabmonoid NonnegativeReals)))).
-    change  (iscompbinoptransrel
-                (X := setwithbinopdirprod _ _)
-                (hrelabgrfrac (rigaddabmonoid NonnegativeReals))
-                (eqreltrans
-                   (eqrelabgrfrac (rigaddabmonoid NonnegativeReals)))
-                (isbinophrelabgrfrac (rigaddabmonoid NonnegativeReals))) with H in Hz.
-    clearbody H ; clear -Hz.
-    unfold eqrelabgrfrac in Hz ; simpl in Hz.
-    Opaque iseqrelabgrfrac.
-    set (H0 := (iseqrelabgrfrac (rigaddabmonoid NonnegativeReals))).
-    change (iseqrelabgrfrac (rigaddabmonoid NonnegativeReals)) with H0 in Hz.
-    clearbody H0 ; clear -Hz.
-    unfold Sets.setquotfun2 in Hz ; simpl in Hz.
-    Opaque iscompsetquotpr.
-    set (H1 := λ x x' x0 x0' r r0, iscompsetquotpr (eqrelpair _ H0) _ _ (H x x' x0 x0' r r0)).
-    change (λ x x' x0 x0' r r0, iscompsetquotpr (eqrelpair _ H0) _ _ (H x x' x0 x0' r r0))
-    with H1 in Hz.
-    clearbody H1 ; clear -Hz ; simpl in H1.
-    unfold Sets.setquotuniv2 in Hz.
-    (context Hz [Sets.setquotfun2 _ _ _ ?is _ _]).
-Qed.
+
+(** Structures *)
 
 Lemma islapbinop_plus : islapbinop (X := _,,_,,istightap_hr_ap) hr_plus.
 Proof.
-  intros X Y Z.
-  apply hinhuniv ; intros (x,(y,(Hx,(Hy,Hap)))).
+  intros X Y Z Hap.
+  generalize (hr_to_NR X) ; apply hinhuniv ; intros (x,Hx).
+  generalize (hr_to_NR Y) ; apply hinhuniv ; intros (y,Hy).
+  generalize (hr_to_NR Z) ; apply hinhuniv ; intros (z,Hz).
+  revert Hap.
+  rewrite <- (NR_to_hr_unique _ _ Hx) ;
+  rewrite <- (NR_to_hr_unique _ _ Hy) ;
+  rewrite <- (NR_to_hr_unique _ _ Hz).
+  simpl.
+  apply hinhfun ; intros (c,Hap).
+  exists c.
 
-  destruct Hx.
-  simpl in Hx, Hy.
+Admitted.
+Lemma israpbinop_plus : israpbinop (X := _,,_,,istightap_hr_ap) hr_plus.
+  Admitted.
+Lemma islapbinop_mult : islapbinop (X := _,,_,,istightap_hr_ap) hr_mult.
+Proof.
+  intros X Y Z Hap.
+  generalize (hr_to_NR X) ; apply hinhuniv ; intros (x,Hx).
+  generalize (hr_to_NR Y) ; apply hinhuniv ; intros (y,Hy).
+  generalize (hr_to_NR Z) ; apply hinhuniv ; intros (z,Hz).
+  revert Hap.
+  rewrite <- (NR_to_hr_unique _ _ Hx) ;
+  rewrite <- (NR_to_hr_unique _ _ Hy) ;
+  rewrite <- (NR_to_hr_unique _ _ Hz).
+  simpl.
+  apply hinhfun ; intros (c,Hap).
+  exists c.
+
+Admitted.
+Lemma israpbinop_mult : israpbinop (X := _,,_,,istightap_hr_ap) hr_mult.
+Admitted.
+
+Lemma hr_ap_0_1 :
+  isnonzeroCR hr_commrng (hr_ap_rel,, istightap_hr_ap).
+Proof.
+  apply hinhpr ; simpl pr1 ; simpl.
+  exists 0 ; simpl.
+  change (1 + 0 + 0 ≠ 0 + 0 + 0).
+  rewrite !isrunit_zero_plusNonnegativeReals.
+  apply isnonzeroNonnegativeReals.
 Qed.
+Lemma isapropmultinvpair :
+  ∀ X x, isaprop (multinvpair X x).
+Proof.
+Admitted.
+Lemma hr_ex_inv :
+  ∀ x : hr_commrng,
+    hr_ap_rel x hr_zero -> multinvpair hr_commrng x.
+Proof.
+  intros X Hap.
+  apply hr_ap_lt in Hap.
+  revert Hap ; generalize (hr_to_NR X).
+  apply (hinhuniv2 (P := hProppair _ (isapropmultinvpair _ _))).
+  intros (x,Hx) [Hlt|Hlt] ; simpl.
+  - assert (pr1 x - pr2 x ≠ 0).
+    admit.
+    exists (NR_to_hr (invNonnegativeReals (pr1 x - pr2 x) X0,, 0)).
+    simpl ; split.
+    admit.
+    admit.
+  - assert (pr2 x - pr1 x ≠ 0).
+    admit.
+    exists (NR_to_hr (0,,invNonnegativeReals (pr2 x - pr1 x) X0)).
+    simpl ; split.
+    admit.
+    admit.
+Admitted.
 
 Definition hr_ConstructiveField : ConstructiveField.
 Proof.
   exists hr_commrng.
   exists (_,,istightap_hr_ap).
   repeat split.
+  - exact islapbinop_plus.
+  - exact israpbinop_plus.
+  - exact islapbinop_mult.
+  - exact israpbinop_mult.
+  - apply hr_ap_0_1.
+  - apply hr_ex_inv.
 Defined.
