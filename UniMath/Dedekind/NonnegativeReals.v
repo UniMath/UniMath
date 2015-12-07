@@ -3782,10 +3782,13 @@ Qed.
 Definition istrans_ltNonnegativeReals :
   ∀ x y z : NonnegativeReals, x < y -> y < z -> x < z
   := istrans_Dcuts_lt_rel.
+Definition iscotrans_ltNonnegativeReals :
+  ∀ x y z : NonnegativeReals, x < z -> x < y ∨ y < z
+  := iscotrans_Dcuts_lt_rel.
 Definition isirrefl_ltNonnegativeReals :
   ∀ x : NonnegativeReals, ¬ (x < x)
   := isirrefl_Dcuts_lt_rel.
-Lemma isnotap_ltNonnegativeReals :
+Lemma ap_ltNonnegativeReals :
   ∀ x y : NonnegativeReals, x < y ∨ y < x <-> x ≠ y.
 Proof.
   intros x y ; split.
@@ -3798,6 +3801,17 @@ Definition istrans_lt_le_ltNonnegativeReals :
 Definition istrans_le_lt_ltNonnegativeReals :
   ∀ x y z : NonnegativeReals, x <= y -> y < z -> x < z
   := istrans_Dcuts_le_lt_rel.
+
+Definition isirrefl_apNonnegativeReals :
+  ∀ x : NonnegativeReals, ¬ (x ≠ x)
+  := isirrefl_Dcuts_ap_rel.
+Definition issymm_apNonnegativeReals :
+  ∀ x y : NonnegativeReals, x ≠ y -> y ≠ x
+  := issymm_Dcuts_ap_rel.
+Definition iscotrans_apNonnegativeReals :
+  ∀ x y z : NonnegativeReals, x ≠ z -> x ≠ y ∨ y ≠ z
+  := iscotrans_Dcuts_ap_rel.
+
 
 Lemma notapNonnegativeReals_eq:
   ∀ x y : NonnegativeReals, (¬ (x ≠ y)) <-> (x = y).
@@ -3897,21 +3911,47 @@ Definition plusNonnegativeReals_lecompat_r :
   := Dcuts_plus_lecompat_r.
 
 Lemma plusNonnegativeReals_eqcompat_l :
-  ∀ x y z: NonnegativeReals, (y + x = z + x) -> (y = z).
+  ∀ x y z: NonnegativeReals, (y + x = z + x) <-> (y = z).
 Proof.
-  intros x y z H.
-  apply isantisym_leNonnegativeReals ; split.
-  - apply_pr2 (plusNonnegativeReals_lecompat_l x).
-    rewrite H ; refine (isrefl_leNonnegativeReals _).
-  - apply_pr2 (plusNonnegativeReals_lecompat_l x).
-    rewrite H ; refine (isrefl_leNonnegativeReals _).
+  intros x y z ; split.
+  - intro H ;
+    apply isantisym_leNonnegativeReals ; split.
+    + apply_pr2 (plusNonnegativeReals_lecompat_l x).
+      rewrite H ; refine (isrefl_leNonnegativeReals _).
+    + apply_pr2 (plusNonnegativeReals_lecompat_l x).
+      rewrite H ; refine (isrefl_leNonnegativeReals _).
+  - now intros ->.
 Qed.
 Lemma plusNonnegativeReals_eqcompat_r :
-  ∀ x y z: NonnegativeReals, (x + y = x + z) -> (y = z).
+  ∀ x y z: NonnegativeReals, (x + y = x + z) <-> (y = z).
 Proof.
   intros x y z.
   rewrite ! (iscomm_plusNonnegativeReals x).
   now apply plusNonnegativeReals_eqcompat_l.
+Qed.
+
+Lemma plusNonnegativeReals_apcompat_l :
+  ∀ x y z: NonnegativeReals, (y ≠ z) <-> (y + x ≠ z + x).
+Proof.
+  intros a b c.
+  split.
+  - intro H.
+    apply ap_ltNonnegativeReals.
+    apply_pr2_in ap_ltNonnegativeReals H.
+    revert H.
+    apply hinhfun ; intros [H | H].
+    + left ;
+      now apply plusNonnegativeReals_ltcompat_l.
+    + right ;
+      now apply plusNonnegativeReals_ltcompat_l.
+  - now apply islapbinop_Dcuts_plus.
+Qed.
+Lemma plusNonnegativeReals_apcompat_r :
+  ∀ x y z: NonnegativeReals, (y ≠ z) <-> (x + y ≠ x + z).
+Proof.
+  intros x y z.
+  rewrite ! (iscomm_plusNonnegativeReals x).
+  now apply plusNonnegativeReals_apcompat_l.
 Qed.
 
 Definition multNonnegativeReals_ltcompat_l :
