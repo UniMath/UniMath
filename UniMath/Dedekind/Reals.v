@@ -102,6 +102,19 @@ Proof.
   - exact Hx.
   - reflexivity.
 Qed.
+Lemma hr_repres :
+  ∀ X : hr_commrng, ∀ x : NonnegativeReals × NonnegativeReals,
+    pr1 X (pr1 x - pr2 x,, pr2 x - pr1 x) <-> pr1 X x.
+Proof.
+  intros X x.
+  split ; apply hr_inside_carac' ; simpl.
+  - rewrite (iscomm_plusNonnegativeReals (pr1 x)).
+    rewrite !Dcuts_minus_plus_max.
+    apply iscomm_Dcuts_max.
+  - rewrite (iscomm_plusNonnegativeReals (pr1 x)).
+    rewrite !Dcuts_minus_plus_max.
+    apply iscomm_Dcuts_max.
+Qed.
 
 (** *** Order *)
 (** [hr_lt_rel] *)
@@ -387,7 +400,6 @@ Definition hr_one : hr_commrng := 1%rng.
 Definition hr_plus : binop hr_commrng := λ x y, (x + y)%rng.
 Definition hr_mult : binop hr_commrng := λ x y, (x * y)%rng.
 
-
 (** Structures *)
 
 Lemma islapbinop_plus : islapbinop (X := _,,_,,istightap_hr_ap) hr_plus.
@@ -403,10 +415,35 @@ Proof.
   simpl.
   apply hinhfun ; intros (c,Hap).
   exists c.
-
-Admitted.
+  change (pr1 y + pr2 z + c ≠ pr1 z + pr2 y + c).
+  apply_pr2 (plusNonnegativeReals_apcompat_l (pr1 x + pr2 x)).
+  cut (pr1 y + pr2 z + c + (pr1 x + pr2 x) = pr1 y + pr1 x + (pr2 z + pr2 x) + c).
+  intros ->.
+  cut (pr1 z + pr2 y + c + (pr1 x + pr2 x) = pr1 z + pr1 x + (pr2 y + pr2 x) + c).
+  intros ->.
+  exact Hap.
+  - rewrite !isassoc_plusNonnegativeReals.
+    apply_pr2 plusNonnegativeReals_eqcompat_r.
+    do 2 rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
+    apply_pr2 plusNonnegativeReals_eqcompat_r.
+    rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
+    apply_pr2 plusNonnegativeReals_eqcompat_r.
+    apply iscomm_plusNonnegativeReals.
+  - rewrite !isassoc_plusNonnegativeReals.
+    apply_pr2 plusNonnegativeReals_eqcompat_r.
+    do 2 rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
+    apply_pr2 plusNonnegativeReals_eqcompat_r.
+    rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
+    apply_pr2 plusNonnegativeReals_eqcompat_r.
+    apply iscomm_plusNonnegativeReals.
+Qed.
 Lemma israpbinop_plus : israpbinop (X := _,,_,,istightap_hr_ap) hr_plus.
-  Admitted.
+Proof.
+  intros X Y Z Hap.
+  apply islapbinop_plus with X.
+  rewrite !(rngcomm1 _ _ X).
+  exact Hap.
+Qed.
 Lemma islapbinop_mult : islapbinop (X := _,,_,,istightap_hr_ap) hr_mult.
 Proof.
   intros X Y Z Hap.
@@ -419,11 +456,51 @@ Proof.
   rewrite <- (NR_to_hr_unique _ _ Hz).
   simpl.
   apply hinhfun ; intros (c,Hap).
-  exists c.
-
-Admitted.
+  apply_pr2_in plusNonnegativeReals_apcompat_l Hap.
+  exists 0.
+  change (pr1 y + pr2 z + 0 ≠ pr1 z + pr2 y + 0).
+  rewrite !isrunit_zero_plusNonnegativeReals.
+  change (pr1 y * pr1 x + pr2 y * pr2 x + (pr1 z * pr2 x + pr2 z * pr1 x))%rng
+  with (pr1 y * pr1 x + pr2 y * pr2 x + (pr1 z * pr2 x + pr2 z * pr1 x))
+    in Hap.
+  cut ((pr1 y * pr1 x + pr2 y * pr2 x + (pr1 z * pr2 x + pr2 z * pr1 x))
+       = (pr1 y + pr2 z) * pr1 x + (pr2 y + pr1 z) * pr2 x).
+  intro H ; rewrite H in Hap ; clear H.
+  change (pr1 z * pr1 x + pr2 z * pr2 x + (pr1 y * pr2 x + pr2 y * pr1 x))%rng
+  with (pr1 z * pr1 x + pr2 z * pr2 x + (pr1 y * pr2 x + pr2 y * pr1 x))
+    in Hap.
+  cut ((pr1 z * pr1 x + pr2 z * pr2 x + (pr1 y * pr2 x + pr2 y * pr1 x))
+       = (pr1 z + pr2 y) * pr1 x + (pr2 z + pr1 y) * pr2 x).
+  intro H ; rewrite H in Hap ; clear H.
+  apply ap_plusNonnegativeReals in Hap.
+  revert Hap ; apply hinhuniv ; intros [Hap | Hap].
+  - apply ap_multNonnegativeReals in Hap.
+    revert Hap ; apply hinhuniv ; intros [Hap | Hap].
+    + exact Hap.
+    + now apply fromempty, (isirrefl_apNonnegativeReals (pr1 x)), Hap .
+  - apply ap_multNonnegativeReals in Hap.
+    revert Hap ; apply hinhuniv ; intros [Hap | Hap].
+    + rewrite (iscomm_plusNonnegativeReals (pr1 z)), iscomm_plusNonnegativeReals.
+      now apply issymm_apNonnegativeReals, Hap.
+    + now apply fromempty, (isirrefl_apNonnegativeReals (pr2 x)), Hap.
+  - rewrite !isrdistr_plus_multNonnegativeReals.
+    rewrite !isassoc_plusNonnegativeReals.
+    apply_pr2 plusNonnegativeReals_eqcompat_r.
+    do 2 rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
+    reflexivity.
+  - rewrite !isrdistr_plus_multNonnegativeReals.
+    rewrite !isassoc_plusNonnegativeReals.
+    apply_pr2 plusNonnegativeReals_eqcompat_r.
+    do 2 rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
+    reflexivity.
+Qed.
 Lemma israpbinop_mult : israpbinop (X := _,,_,,istightap_hr_ap) hr_mult.
-Admitted.
+Proof.
+  intros X Y Z Hap.
+  apply islapbinop_mult with X.
+  rewrite !(rngcomm2 _ _ X).
+  exact Hap.
+Qed.
 
 Lemma hr_ap_0_1 :
   isnonzeroCR hr_commrng (hr_ap_rel,, istightap_hr_ap).
@@ -447,15 +524,31 @@ Proof.
   revert Hap ; generalize (hr_to_NR X).
   apply (hinhuniv2 (P := hProppair _ (isapropmultinvpair _ _))).
   intros (x,Hx) [Hlt|Hlt] ; simpl.
+  - assert (pr2 x - pr1 x ≠ 0).
+    { assert (H0 : pr1 hr_zero (0,, 0)) by (apply hinhpr ; exists 0 ; reflexivity).
+      set (H := hr_lt_carac _ _ Hlt x (0,,0) Hx H0) ; clearbody H ; simpl pr1 in H ; simpl pr2 in H.
+      rewrite isrunit_zero_plusNonnegativeReals, islunit_zero_plusNonnegativeReals in H.
+      apply ispositive_Dcuts_minus in H.
+      apply ap_ltNonnegativeReals.
+      apply hinhpr ; right.
+      exact H. }
+    exists (NR_to_hr (0,,invNonnegativeReals (pr2 x - pr1 x) X0)).
+    split.
+    + apply hr_eq_carac' with ((1,,0) : NonnegativeReals × NonnegativeReals) ((1,,0) : NonnegativeReals × NonnegativeReals).
+      apply_pr2_in hr_repres Hx.
+      rewrite <- (NR_to_hr_unique _ _ Hx).
+      simpl ; apply hinhpr.
+      exists 0.
+      rewrite !islabsorb_zero_multNonnegativeReals, !isrunit_zero_plusNonnegativeReals, !islunit_zero_plusNonnegativeReals.
+      rewrite islinv_invNonnegativeReals.
+      admit.
+      apply hinhpr ; exists 0 ; simpl.
+      reflexivity.
+      reflexivity.
+    + admit.
   - assert (pr1 x - pr2 x ≠ 0).
     admit.
     exists (NR_to_hr (invNonnegativeReals (pr1 x - pr2 x) X0,, 0)).
-    simpl ; split.
-    admit.
-    admit.
-  - assert (pr2 x - pr1 x ≠ 0).
-    admit.
-    exists (NR_to_hr (0,,invNonnegativeReals (pr2 x - pr1 x) X0)).
     simpl ; split.
     admit.
     admit.

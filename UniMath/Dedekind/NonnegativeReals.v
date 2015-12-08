@@ -3896,6 +3896,9 @@ Definition isrinv_invNonnegativeReals:
 Definition isldistr_plus_multNonnegativeReals:
   ∀ x y z : NonnegativeReals, z * (x + y) = z * x + z * y
   := isldistr_CCDRplus_CCDRmult (X := NonnegativeReals).
+Definition isrdistr_plus_multNonnegativeReals:
+  ∀ x y z : NonnegativeReals, (x + y) * z = x * z + y * z
+  := isrdistr_CCDRplus_CCDRmult (X := NonnegativeReals).
 
 Definition plusNonnegativeReals_ltcompat_l :
   ∀ x y z: NonnegativeReals, (y < z) <-> (y + x < z + x)
