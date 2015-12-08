@@ -392,17 +392,56 @@ Proof.
       now apply hinhpr ; left.
 Qed.
 
-(** ** Constants and fonctions *)
-
-Definition hr_zero : hr_commrng := 0%rng.
-Definition hr_one : hr_commrng := 1%rng.
-
-Definition hr_plus : binop hr_commrng := λ x y, (x + y)%rng.
-Definition hr_mult : binop hr_commrng := λ x y, (x * y)%rng.
-
 (** Structures *)
 
-Lemma islapbinop_plus : islapbinop (X := _,,_,,istightap_hr_ap) hr_plus.
+Lemma hr_NR_ap_0 :
+  ∀ (X : hr_commrng) (x : NonnegativeReals × NonnegativeReals),
+    pr1 X x ->
+    (hr_ap_rel X 0%rng <-> (pr2 x - pr1 x ≠ 0 ∨ pr1 x - pr2 x ≠ 0)).
+Proof.
+  intros X x Hx.
+  split.
+  - intros Hap.
+    apply hr_ap_lt in Hap.
+    revert Hap ; apply hinhfun ; intros [Hlt | Hlt].
+    + left.
+      apply (fun Hlt H0 => hr_lt_carac _ _ Hlt _ (0,,0) Hx H0) in Hlt ; simpl pr1 in Hlt ; simpl pr2 in Hlt.
+      rewrite islunit_zero_plusNonnegativeReals, isrunit_zero_plusNonnegativeReals in Hlt.
+      apply ap_ltNonnegativeReals, hinhpr.
+      right.
+      now apply ispositive_minusNonnegativeReals.
+      now apply hinhpr ; exists 0 ; simpl.
+    + right.
+      apply (fun Hlt H0 => hr_lt_carac _ _ Hlt (0,,0) _ H0 Hx) in Hlt ; simpl pr1 in Hlt ; simpl pr2 in Hlt.
+      rewrite islunit_zero_plusNonnegativeReals, isrunit_zero_plusNonnegativeReals in Hlt.
+      apply ap_ltNonnegativeReals, hinhpr.
+      right.
+      now apply ispositive_minusNonnegativeReals.
+      now apply hinhpr ; exists 0 ; simpl.
+  - intro Hlt.
+    apply (hr_ap_carac' _ _ x (0,,0) Hx).
+    now apply hinhpr ; exists 0 ; simpl.
+    simpl pr1 ; simpl pr2.
+    rewrite islunit_zero_plusNonnegativeReals, isrunit_zero_plusNonnegativeReals.
+    apply ap_ltNonnegativeReals.
+    revert Hlt ; apply hinhfun ; intros [Hap | Hap].
+    + left.
+      apply_pr2 ispositive_minusNonnegativeReals.
+      apply_pr2_in ap_ltNonnegativeReals Hap.
+      revert Hap ; apply hinhuniv ; intros [Hlt | Hlt].
+      revert Hlt ; apply hinhuniv ; intros (c,(_,Hc)).
+      now apply Dcuts_zero_empty in Hc.
+      exact Hlt.
+    + right.
+      apply_pr2 ispositive_minusNonnegativeReals.
+      apply_pr2_in ap_ltNonnegativeReals Hap.
+      revert Hap ; apply hinhuniv ; intros [Hlt | Hlt].
+      revert Hlt ; apply hinhuniv ; intros (c,(_,Hc)).
+      now apply Dcuts_zero_empty in Hc.
+      exact Hlt.
+Qed.
+
+Lemma islapbinop_plus : islapbinop (X := _,,_,,istightap_hr_ap) BinaryOperations.op1.
 Proof.
   intros X Y Z Hap.
   generalize (hr_to_NR X) ; apply hinhuniv ; intros (x,Hx).
@@ -437,14 +476,14 @@ Proof.
     apply_pr2 plusNonnegativeReals_eqcompat_r.
     apply iscomm_plusNonnegativeReals.
 Qed.
-Lemma israpbinop_plus : israpbinop (X := _,,_,,istightap_hr_ap) hr_plus.
+Lemma israpbinop_plus : israpbinop (X := _,,_,,istightap_hr_ap) BinaryOperations.op1.
 Proof.
   intros X Y Z Hap.
   apply islapbinop_plus with X.
   rewrite !(rngcomm1 _ _ X).
   exact Hap.
 Qed.
-Lemma islapbinop_mult : islapbinop (X := _,,_,,istightap_hr_ap) hr_mult.
+Lemma islapbinop_mult : islapbinop (X := _,,_,,istightap_hr_ap) BinaryOperations.op2.
 Proof.
   intros X Y Z Hap.
   generalize (hr_to_NR X) ; apply hinhuniv ; intros (x,Hx).
@@ -494,7 +533,7 @@ Proof.
     do 2 rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
     reflexivity.
 Qed.
-Lemma israpbinop_mult : israpbinop (X := _,,_,,istightap_hr_ap) hr_mult.
+Lemma israpbinop_mult : israpbinop (X := _,,_,,istightap_hr_ap) BinaryOperations.op2.
 Proof.
   intros X Y Z Hap.
   apply islapbinop_mult with X.
@@ -511,48 +550,90 @@ Proof.
   rewrite !isrunit_zero_plusNonnegativeReals.
   apply isnonzeroNonnegativeReals.
 Qed.
+
+Lemma hr_islinv_neg :
+  ∀ (x : NonnegativeReals) (Hap : x ≠ 0),
+   (NR_to_hr (0%NR,, invNonnegativeReals x Hap) * NR_to_hr (0%NR,, x))%rng = 1%rng.
+Proof.
+  intros x Hap.
+  apply hr_eq_carac' with ((1,,0) : NonnegativeReals × NonnegativeReals) ((1,,0) : NonnegativeReals × NonnegativeReals).
+  - simpl ; apply hinhpr.
+    exists 0.
+    rewrite  !islabsorb_zero_multNonnegativeReals, israbsorb_zero_multNonnegativeReals, !isrunit_zero_plusNonnegativeReals, !islunit_zero_plusNonnegativeReals.
+    now rewrite islinv_invNonnegativeReals.
+  - apply hinhpr ; exists 0 ; simpl.
+    reflexivity.
+  - reflexivity.
+Qed.
+Lemma hr_isrinv_neg :
+  ∀ (x : NonnegativeReals) (Hap : x ≠ 0),
+   (NR_to_hr (0%NR,, x) * NR_to_hr (0%NR,, invNonnegativeReals x Hap))%rng = 1%rng.
+Proof.
+  intros x Hap.
+  rewrite rngcomm2.
+  now apply (hr_islinv_neg x Hap).
+Qed.
+
+Lemma hr_islinv_pos :
+  ∀ (x : NonnegativeReals) (Hap : x ≠ 0),
+   (NR_to_hr (invNonnegativeReals x Hap,,0%NR) * NR_to_hr (x,,0%NR))%rng = 1%rng.
+Proof.
+  intros x Hap.
+  apply hr_eq_carac' with ((1,,0) : NonnegativeReals × NonnegativeReals) ((1,,0) : NonnegativeReals × NonnegativeReals).
+  - simpl ; apply hinhpr.
+    exists 0.
+    rewrite  !islabsorb_zero_multNonnegativeReals, israbsorb_zero_multNonnegativeReals, !isrunit_zero_plusNonnegativeReals.
+    now rewrite islinv_invNonnegativeReals.
+  - apply hinhpr ; exists 0 ; simpl.
+    reflexivity.
+  - reflexivity.
+Qed.
+Lemma hr_isrinv_pos :
+  ∀ (x : NonnegativeReals) (Hap : x ≠ 0),
+   (NR_to_hr (x,, 0%NR) * NR_to_hr (invNonnegativeReals x Hap,, 0%NR))%rng = 1%rng.
+Proof.
+  intros x Hap.
+  rewrite rngcomm2.
+  now apply (hr_islinv_pos x Hap).
+Qed.
+
 Lemma isapropmultinvpair :
   ∀ X x, isaprop (multinvpair X x).
 Proof.
 Admitted.
+Lemma ispositive_apNonnegativeReals :
+  ∀ x : NonnegativeReals, x ≠ 0 <-> 0 < x.
+Admitted.
 Lemma hr_ex_inv :
   ∀ x : hr_commrng,
-    hr_ap_rel x hr_zero -> multinvpair hr_commrng x.
+    hr_ap_rel x 0%rng -> multinvpair hr_commrng x.
 Proof.
   intros X Hap.
-  apply hr_ap_lt in Hap.
-  revert Hap ; generalize (hr_to_NR X).
-  apply (hinhuniv2 (P := hProppair _ (isapropmultinvpair _ _))).
-  intros (x,Hx) [Hlt|Hlt] ; simpl.
-  - assert (pr2 x - pr1 x ≠ 0).
-    { assert (H0 : pr1 hr_zero (0,, 0)) by (apply hinhpr ; exists 0 ; reflexivity).
-      set (H := hr_lt_carac _ _ Hlt x (0,,0) Hx H0) ; clearbody H ; simpl pr1 in H ; simpl pr2 in H.
-      rewrite isrunit_zero_plusNonnegativeReals, islunit_zero_plusNonnegativeReals in H.
-      apply ispositive_Dcuts_minus in H.
-      apply ap_ltNonnegativeReals.
-      apply hinhpr ; right.
-      exact H. }
-    exists (NR_to_hr (0,,invNonnegativeReals (pr2 x - pr1 x) X0)).
-    split.
-    + apply hr_eq_carac' with ((1,,0) : NonnegativeReals × NonnegativeReals) ((1,,0) : NonnegativeReals × NonnegativeReals).
-      apply_pr2_in hr_repres Hx.
-      rewrite <- (NR_to_hr_unique _ _ Hx).
-      simpl ; apply hinhpr.
-      exists 0.
-      rewrite !islabsorb_zero_multNonnegativeReals, !isrunit_zero_plusNonnegativeReals, !islunit_zero_plusNonnegativeReals.
-      rewrite islinv_invNonnegativeReals.
-      admit.
-      apply hinhpr ; exists 0 ; simpl.
-      reflexivity.
-      reflexivity.
-    + admit.
-  - assert (pr1 x - pr2 x ≠ 0).
-    admit.
-    exists (NR_to_hr (invNonnegativeReals (pr1 x - pr2 x) X0,, 0)).
-    simpl ; split.
-    admit.
-    admit.
-Admitted.
+  generalize (hr_to_NR X).
+  apply (hinhuniv (P := hProppair _ (isapropmultinvpair _ _))).
+  intros x.
+  apply (hr_NR_ap_0 _ _ (pr2 x)) in Hap.
+  revert Hap ;
+    apply hinhuniv ; intros [Hap|Hap] ; simpl.
+  - set (Hx := pr2 (hr_repres X (pr1 x)) (pr2 x)) ; clearbody Hx.
+    rewrite (minusNonnegativeReals_eq_zero (pr1 (pr1 x)) (pr2 (pr1 x))) in Hx.
+    rewrite <- (NR_to_hr_unique _ _ Hx).
+    eexists ; split.
+    + now apply hr_islinv_neg.
+    + exact (hr_isrinv_neg _ Hap).
+    + apply Dcuts_lt_le_rel.
+      apply_pr2 ispositive_minusNonnegativeReals.
+      now apply ispositive_apNonnegativeReals.
+  - set (Hx := pr2 (hr_repres X (pr1 x)) (pr2 x)) ; clearbody Hx.
+    rewrite (minusNonnegativeReals_eq_zero (pr2 (pr1 x)) (pr1 (pr1 x))) in Hx.
+    rewrite <- (NR_to_hr_unique _ _ Hx).
+    eexists ; split.
+    + now apply hr_islinv_pos.
+    + exact (hr_isrinv_pos _ Hap).
+    + apply Dcuts_lt_le_rel.
+      apply_pr2 ispositive_minusNonnegativeReals.
+      now apply ispositive_apNonnegativeReals.
+Qed.
 
 Definition hr_ConstructiveField : ConstructiveField.
 Proof.
@@ -563,6 +644,6 @@ Proof.
   - exact israpbinop_plus.
   - exact islapbinop_mult.
   - exact israpbinop_mult.
-  - apply hr_ap_0_1.
-  - apply hr_ex_inv.
+  - exact hr_ap_0_1.
+  - exact hr_ex_inv.
 Defined.
