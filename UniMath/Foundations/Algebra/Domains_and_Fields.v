@@ -278,29 +278,27 @@ Lemma fldfracmultinvintcomp  ( X : intdom ) ( is : isdeceq X ) :
   let R := eqrelcommrngfrac X S in
   iscomprelrelfun R R ( fldfracmultinvint X is ) .
 Proof.
-  intros. intros xa1 xa2. apply hinhfun.
-  set ( x1 := pr1 xa1 ); set ( aa1 := pr2 xa1 ); set ( a1 := pr1 aa1 );
-  set ( x2 := pr1 xa2 ); set ( aa2 := pr2 xa2 ); set ( a2 := pr1 aa2 ); simpl.
-  intro t2.
-  set ( aa0 := pr1 t2 ). set ( a0 := pr1 aa0 ).
-  assert ( e := pr2 t2 ). change ( x1 * a2 * a0 = x2 * a1 * a0 ) in e.
-  unfold fldfracmultinvint. change (pr1 xa1) with x1. change (pr1 xa2) with x2.
+  intros. intros xs1 xs2. apply hinhfun. intro se3.
+  induction xs1 as [x1 s1]. induction s1 as [s1 nz1].
+  induction xs2 as [x2 s2]. induction s2 as [s2 nz2].
+  induction se3 as [s3 e]; induction s3 as [s3 nz3]; simpl in nz3, e.
+  unfold S in nz1, nz2; simpl in nz1, nz2.
+  unfold fldfracmultinvint; simpl.
   destruct ( is x1 0 ) as [ e1 | ne1 ].
   { destruct ( is x2 0 ) as [ e2 | ne2 ].
     { simpl. exact ((@rngunel2 X,, nonzeroax X),, idpath _). }
-    { apply fromempty.
-      rewrite e1 in e. rewrite ( rngmult0x X _ ) in e. rewrite ( rngmult0x X _ ) in e.
-      assert ( e'  := intdomax2r X _ _ ( !e ) ( pr2 aa0 ) ).
-      assert ( e'' := intdomax2r X _ _   e'   ( pr2 aa1 ) ).
-      destruct ( ne2 e'' ). } }
+    { apply fromempty. apply ne2; clear ne2.
+      rewrite e1 in e. rewrite 2? ( rngmult0x X _ ) in e.
+      assert ( e'  := intdomax2r _ _ _ ( !e ) nz3 ).
+      exact (intdomax2r _ _ _ e' nz1 ). } }
   { destruct ( is x2 0 ) as [ e2 | ne2 ].
-    { apply fromempty.
-      rewrite e2 in e. rewrite ( rngmult0x X _ ) in e. rewrite ( rngmult0x X _ ) in e.
-      assert ( e'  := intdomax2r X _ _ e ( pr2 aa0 ) ).
-      assert ( e'' := intdomax2r X _ _ e' ( pr2 aa2 ) ).
-      destruct ( ne1 e'' ). }
-    { simpl. exists aa0. change ( a1 * x2 * a0 = a2 * x1 * a0 ).
-      rewrite ( rngcomm2 X a1 x2 ). rewrite ( rngcomm2 X a2 x1 ).
+    { apply fromempty. apply ne1; clear ne1.
+      rewrite e2 in e. rewrite 2? ( rngmult0x X ) in e. 
+      assert ( e'  := intdomax2r _ _ _ e nz3 ).
+      exact (intdomax2r _ _ _ e' nz2 ). }
+    { simpl. exists (s3,,nz3); simpl.
+      change (s1 * x2 * s3 = s2 * x1 * s3).
+      rewrite (rngcomm2 _ s1). rewrite (rngcomm2 _ s2).
       exact (!e). } }
 Defined.
 
