@@ -699,3 +699,52 @@ Proof.
   - exact hr_ap_0_1.
   - exact hr_ex_inv.
 Defined.
+
+Definition hr_abs (x : hr_ConstructiveField) : NonnegativeReals :=
+  Dcuts_max (pr1 (pr1 (hr_to_NR x))) (pr2 (pr1 (hr_to_NR x))).
+
+Definition Cauchy_seq (u : nat -> hr_ConstructiveField) : hProp.
+Proof.
+  intro u.
+  apply (hProppair (∀ c : NonnegativeReals, 0 < c -> ∃ N : nat, ∀ n m : nat, N ≤ n -> N ≤ m -> hr_abs (u m - u n)%rng < c)).
+  apply impred_isaprop ; intro.
+  apply isapropimpl.
+  apply pr2.
+Defined.
+
+Definition is_lim_seq (u : nat -> hr_ConstructiveField) (l : hr_ConstructiveField) : hProp.
+Proof.
+  intros u l.
+  apply (hProppair (∀ c : NonnegativeReals, 0 < c -> ∃ N : nat, ∀ n : nat, N ≤ n -> hr_abs (u n - l)%rng < c)).
+  apply impred_isaprop ; intro.
+  apply isapropimpl.
+  apply pr2.
+Defined.
+Definition ex_lim_seq (u : nat -> hr_ConstructiveField) := Σ l, is_lim_seq u l.
+
+Lemma Cauchy_seq_impl_ex_lim_seq (u : nat -> hr_ConstructiveField) :
+  Cauchy_seq u -> ex_lim_seq u.
+Proof.
+  intros u Cu.
+  set (x := λ n, pr1 (pr1 (hr_to_NR (u n)))).
+  set (y := λ n, pr2 (pr1 (hr_to_NR (u n)))) ; simpl in y.
+  destruct (Cauchy_seq_impl_ex_lim_seq x) as [lx Hx].
+  { intros c Hc.
+    generalize (Cu c Hc).
+    apply hinhfun.
+    intros (N,Hu).
+    exists N ; intros n m Hn Hm.
+    split.
+    admit.
+    admit. }
+  destruct (Cauchy_seq_impl_ex_lim_seq y) as [ly Hy].
+  { admit. }
+  exists (NR_to_hr (lx,,ly)).
+  intros c Hc.
+  apply ispositive_Dcuts_half in Hc.
+  generalize (Hx _ Hc) (Hy _ Hc) ;
+    apply hinhfun2 ; clear Hy Hx ;
+    intros (Nx,Hx) (Ny,Hy).
+  exists (max Nx Ny) ; intros n Hn.
+  admit.
+Admitted.
