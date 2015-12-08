@@ -597,20 +597,13 @@ Proof.
   now apply (hr_islinv_pos x Hap).
 Qed.
 
-Lemma isapropmultinvpair :
-  ∀ X x, isaprop (multinvpair X x).
-Proof.
-Admitted.
-Lemma ispositive_apNonnegativeReals :
-  ∀ x : NonnegativeReals, x ≠ 0 <-> 0 < x.
-Admitted.
 Lemma hr_ex_inv :
   ∀ x : hr_commrng,
     hr_ap_rel x 0%rng -> multinvpair hr_commrng x.
 Proof.
   intros X Hap.
   generalize (hr_to_NR X).
-  apply (hinhuniv (P := hProppair _ (isapropmultinvpair _ _))).
+  apply (hinhuniv (P := hProppair _ (isapropinvpair _ _))).
   intros x.
   apply (hr_NR_ap_0 _ _ (pr2 x)) in Hap.
   revert Hap ;

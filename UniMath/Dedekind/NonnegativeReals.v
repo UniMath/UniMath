@@ -3811,7 +3811,18 @@ Definition issymm_apNonnegativeReals :
 Definition iscotrans_apNonnegativeReals :
   ∀ x y z : NonnegativeReals, x ≠ z -> x ≠ y ∨ y ≠ z
   := iscotrans_Dcuts_ap_rel.
-
+Lemma ispositive_apNonnegativeReals :
+  ∀ x : NonnegativeReals, x ≠ 0 <-> 0 < x.
+Proof.
+  intros X ; split.
+  - apply hinhuniv ; intros [ | Hlt ].
+    apply hinhuniv ; intros (x,(_,Hx)).
+    now apply Dcuts_zero_empty in Hx.
+    exact Hlt.
+  - intros Hx.
+    apply hinhpr.
+    now right.
+Qed.
 
 Lemma notapNonnegativeReals_eq:
   ∀ x y : NonnegativeReals, (¬ (x ≠ y)) <-> (x = y).
