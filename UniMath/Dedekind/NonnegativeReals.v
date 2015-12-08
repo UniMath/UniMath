@@ -2890,6 +2890,29 @@ Proof.
       now apply hinhpr ; right.
 Qed.
 
+Lemma Dcuts_max_le :
+  ∀ x y z, x <= z -> y <= z -> Dcuts_max x y <= z.
+Proof.
+  intros x y z Hx Hy r.
+  apply hinhuniv ; intros [Xr|Yr].
+  now apply Hx.
+  now apply Hy.
+Qed.
+Lemma Dcuts_plus_le_l :
+  ∀ x y, x <= Dcuts_plus x y.
+Proof.
+  intros x y r Xr.
+  apply hinhpr ; left.
+  now apply hinhpr ; left.
+Qed.
+Lemma Dcuts_plus_le_r :
+  ∀ x y, y <= Dcuts_plus x y.
+Proof.
+  intros x y r Xr.
+  apply hinhpr ; left.
+  now apply hinhpr ; right.
+Qed.
+
 (** *** Dcuts_half *)
 
 Definition Dcuts_two : Dcuts :=
