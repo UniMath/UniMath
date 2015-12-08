@@ -51,7 +51,7 @@ Notation "G • F" := (functor_composite F G).
 
 
 
-(** * Generalized Mendler Iteration and fusion law *)
+(** * Generalized Iteration in Mendler-style and fusion law *)
 
 (** Lemma 8 *)
 
