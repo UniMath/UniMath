@@ -510,12 +510,12 @@ Lemma islapbinop_plus : islapbinop (X := _,,_,,istightap_hr_ap) BinaryOperations
 Proof.
   intros X Y Z Hap.
   generalize (hr_to_NR X) (hr_to_NR Y) (hr_to_NR Z) ; intros (x,(Hx,_)) (y,(Hy,_)) (z,(Hz,_)).
-  revert Hap.
-  rewrite <- (NR_to_hr_unique _ _ Hx) ;
-  rewrite <- (NR_to_hr_unique _ _ Hy) ;
-  rewrite <- (NR_to_hr_unique _ _ Hz).
-  simpl.
-  apply hinhfun ; intros (c,Hap).
+  rewrite <- (NR_to_hr_unique _ _ Hx) in Hap.
+  rewrite <- (NR_to_hr_unique _ _ Hy), <- (NR_to_hr_unique _ _ Hz) in Hap |- *.
+  unfold BinaryOperations.op1 in Hap ; simpl in Hap.
+  revert Hap ;
+  apply hinhfun ; simpl.
+  intros (c,Hap).
   exists c.
   change (pr1 y + pr2 z + c ≠ pr1 z + pr2 y + c).
   apply_pr2 (plusNonnegativeReals_apcompat_l (pr1 x + pr2 x)).
@@ -550,12 +550,12 @@ Lemma islapbinop_mult : islapbinop (X := _,,_,,istightap_hr_ap) BinaryOperations
 Proof.
   intros X Y Z Hap.
   generalize (hr_to_NR X) (hr_to_NR Y) (hr_to_NR Z) ; intros (x,(Hx,_)) (y,(Hy,_)) (z,(Hz,_)).
-  revert Hap.
-  rewrite <- (NR_to_hr_unique _ _ Hx) ;
-  rewrite <- (NR_to_hr_unique _ _ Hy) ;
-  rewrite <- (NR_to_hr_unique _ _ Hz).
-  simpl.
-  apply hinhfun ; intros (c,Hap).
+  rewrite <- (NR_to_hr_unique _ _ Hx) in Hap.
+  rewrite <- (NR_to_hr_unique _ _ Hy), <- (NR_to_hr_unique _ _ Hz) in Hap |- *.
+  unfold BinaryOperations.op2 in Hap ; simpl in Hap.
+  revert Hap ;
+  apply hinhfun ; simpl.
+  intros (c,Hap).
   apply_pr2_in plusNonnegativeReals_apcompat_l Hap.
   exists 0.
   change (pr1 y + pr2 z + 0 ≠ pr1 z + pr2 y + 0).
@@ -920,11 +920,10 @@ Proof.
     apply NR_to_hr_unique.
     unfold x, y ; rewrite <- tppr.
     apply (pr1 (pr2 (hr_to_NR (u n)))). }
-
-  destruct (Cauchy_seq_impl_ex_lim_seq x) as [lx Hx].
-  now apply Cauchy_seq_pr1.
-  destruct (Cauchy_seq_impl_ex_lim_seq y) as [ly Hy].
-  now apply Cauchy_seq_pr2.
+  generalize (Cauchy_seq_impl_ex_lim_seq x (Cauchy_seq_pr1 u Cu)).
+  set (lx := Cauchy_lim_seq x (Cauchy_seq_pr1 u Cu)) ; clearbody lx ; intro Hx.
+  generalize (Cauchy_seq_impl_ex_lim_seq y (Cauchy_seq_pr2 u Cu)).
+  set (ly := Cauchy_lim_seq y (Cauchy_seq_pr2 u Cu)) ; clearbody ly ; intro Hy.
   exists (NR_to_hr (lx,,ly)).
   intros c Hc.
   apply ispositive_Dcuts_half in Hc.
