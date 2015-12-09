@@ -85,8 +85,7 @@ Open Local Scope hz_scope .
 
 (* [funextempty]-free replacement proposition for hzneq *)
 
-Definition hzneq' (x y : hz) : negProp (x = y)
-  := decprop_to_negProp (isdecrelhzeq x y).
+Definition hzneq' : neqReln hz := deceq_to_neqReln isdeceqhz.
 
 Notation " x ≠ y " := ( hzneq' x y ) (at level 70, no associativity) : hz_scope.
 
@@ -656,6 +655,8 @@ Proof . split with isnonzerornghz .  intros a b e0 .  destruct ( isdeceqhz a 0 )
 
 
 Definition hzintdom : intdom := tpair _ _ isintdomhz .
+
+Definition hz_nonzero_submonoid := intdomnonzerosubmonoid hzintdom hzneq'.
 
 Definition hzneq0andmult ( n m : hz ) ( isn : hzneq n 0 ) ( ism : hzneq m 0 ) : hzneq ( n * m ) 0 := intdomneq0andmult hzintdom n m isn ism .
 

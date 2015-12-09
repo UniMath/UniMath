@@ -435,6 +435,7 @@ Module Test_int.
   Goal O = (hzabsval (natnattohz 2 3 + natnattohz 3 2)) . reflexivity. Qed.
   Goal 2 = (hzabsval (natnattohz 2 3 - natnattohz 3 2)) . reflexivity. Qed.
   Goal 300 =  (hzabsval (natnattohz 20 50 * natnattohz 30 20)) . reflexivity. Qed.
+  Goal nattohz 1 + nattohz 1 = nattohz 2. reflexivity. Defined.
 
 End Test_int.
 
@@ -454,7 +455,9 @@ Module Test_rat.
 
   Goal 4 = ( hzabsval ( intpart ( hqdiv ( hztohq ( nattohz ( 10 ) ) )  ( - ( 1 + 1 + 1 ) ) ) ) ) . reflexivity. Qed.
 
-
+  Goal hztohq(nattohz 1) + hztohq(nattohz 1) = hztohq(nattohz 2).
+    reflexivity.                  (* fixed, 11 seconds *)
+  Defined.                        (* fixed, 11 seconds *)
 
 End Test_rat.
 

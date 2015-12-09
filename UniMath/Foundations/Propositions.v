@@ -151,10 +151,10 @@ Notation hinhprinv := hinhunivcor1 .
 
 
 Lemma weqishinhnegtoneg ( X : UU ) : ∥ ¬ X ∥ ≃ ¬ X.
-Proof . intro . assert ( lg : logeq ( ishinh ( neg X ) ) ( neg X ) ) . split . simpl . apply ( @hinhuniv _ ( hProppair _ ( isapropneg X ) ) ) .    simpl . intro nx . apply nx . apply hinhpr . apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( pr2 ( ishinh _ ) ) ( isapropneg X ) ) .  Defined .
+Proof . intro . assert ( lg : logeq ( ishinh ( ¬ X ) ) ( ¬ X ) ) . split . simpl . apply ( @hinhuniv _ ( hProppair _ ( isapropneg X ) ) ) .    simpl . intro nx . apply nx . apply hinhpr . apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( pr2 ( ishinh _ ) ) ( isapropneg X ) ) .  Defined .
 
 Lemma weqnegtonegishinh ( X : UU ) : ¬ X ≃ ¬ ∥ X ∥.
-Proof . intro .  assert ( lg : logeq ( neg ( ishinh X ) ) ( neg X ) ) . split . apply ( negf ( @hinhpr X ) ) .  intro nx .  unfold neg .  simpl . apply ( @hinhuniv _ ( hProppair _ isapropempty ) ) .  apply nx . apply ( weqimplimpl ( pr2 lg ) ( pr1 lg ) ( isapropneg _ ) ( isapropneg _ ) ) .   Defined .
+Proof . intro .  assert ( lg : logeq ( ¬ ( ishinh X ) ) ( ¬ X ) ) . split . apply ( negf ( @hinhpr X ) ) .  intro nx .  unfold neg.  simpl . apply ( @hinhuniv _ ( hProppair _ isapropempty ) ) .  apply nx . apply ( weqimplimpl ( pr2 lg ) ( pr1 lg ) ( isapropneg _ ) ( isapropneg _ ) ) .   Defined .
 
 
 (** *** [ ishinh ] and [ coprod ] *)
@@ -290,8 +290,8 @@ Definition wittohexists { X : UU } ( P : X -> UU ) ( x : X ) ( is : P x ) : hexi
 
 Definition total2tohexists { X : UU } ( P : X -> UU ) : total2 P -> hexists P := hinhpr.
 
-Definition weqneghexistsnegtotal2   { X : UU } ( P : X -> UU ) : weq ( neg ( hexists P ) ) ( neg ( total2 P ) ) .
-Proof . intros . assert ( lg : ( neg ( hexists P ) ) <-> ( neg ( total2 P ) )  ) . split . apply ( negf ( total2tohexists P ) ) . intro nt2 . unfold neg . change ( ishinh_UU ( total2 P ) -> hfalse ) . apply ( hinhuniv ) .  apply nt2 . apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( isapropneg _ ) ( isapropneg _ ) ) .  Defined .
+Definition weqneghexistsnegtotal2   { X : UU } ( P : X -> UU ) : weq ( ¬ ( hexists P ) ) ( ¬ ( total2 P ) ) .
+Proof . intros . assert ( lg : ( ¬ ( hexists P ) ) <-> ( ¬ ( total2 P ) )  ) . split . apply ( negf ( total2tohexists P ) ) . intro nt2 . unfold neg. change ( ishinh_UU ( total2 P ) -> hfalse ) . apply ( hinhuniv ) .  apply nt2 . apply ( weqimplimpl ( pr1 lg ) ( pr2 lg ) ( isapropneg _ ) ( isapropneg _ ) ) .  Defined .
 
 
 (** *** Associativity and commutativity of [ hdisj ] and [ hconj ] up to logical equivalence *)
@@ -312,12 +312,12 @@ apply ( hinhuniv s2 ). apply X1 .   unfold himpl. simpl . apply s1 .  Defined.
 
 (** *** Negation and quantification.
 
-There are four standard implications in classical logic which can be summarized as ( neg ( ∀ P ) ) <-> ( exists ( neg P ) ) and ( neg ( exists P ) ) <-> ( ∀ ( neg P ) ) . Of these four implications three are provable in the intuitionistic logic.  The remaining implication ( neg ( ∀ P ) ) -> ( exists ( neg P ) ) is not provable in general . For a proof in the case of bounded quantification of decidable predicates on natural numbers see hnat.v . For some other cases when these implications hold see ??? . *)
+There are four standard implications in classical logic which can be summarized as ( ¬ ( ∀ P ) ) <-> ( exists ( ¬ P ) ) and ( ¬ ( exists P ) ) <-> ( ∀ ( ¬ P ) ) . Of these four implications three are provable in the intuitionistic logic.  The remaining implication ( ¬ ( ∀ P ) ) -> ( exists ( ¬ P ) ) is not provable in general . For a proof in the case of bounded quantification of decidable predicates on natural numbers see hnat.v . For some other cases when these implications hold see ??? . *)
 
-Lemma hexistsnegtonegforall { X : UU } ( F : X -> UU ) : (∃ x : X, neg (F x)) -> neg ( ∀ x : X , F x ) .
+Lemma hexistsnegtonegforall { X : UU } ( F : X -> UU ) : (∃ x : X, ¬ (F x)) -> ¬ ( ∀ x : X , F x ) .
 Proof . intros X F . simpl . apply ( @hinhuniv _ ( hProppair _ ( isapropneg (∀ x : X , F x ) ) ) ) .  simpl . intros t2 f2 . destruct t2 as [ x d2 ] .  apply ( d2 ( f2 x ) ) . Defined .
 
-Lemma forallnegtoneghexists { X : UU } ( F : X -> UU ) : ( ∀ x : X , neg ( F x ) ) -> neg ( ∃ x, F x ) .
+Lemma forallnegtoneghexists { X : UU } ( F : X -> UU ) : ( ∀ x : X , ¬ ( F x ) ) -> ¬ ( ∃ x, F x ) .
 Proof. intros X F nf . change ( ( ishinh_UU ( total2 F ) ) -> hfalse ) . apply hinhuniv .   intro t2 . destruct t2 as [ x f ] .  apply ( nf x f ) . Defined .
 
 Lemma neghexisttoforallneg { X : UU } ( F : X -> UU ) : ¬ ( ∃ x, F x ) -> ∀ x : X , ¬ ( F x ) .
@@ -348,10 +348,10 @@ Proof.
   apply npq. exact (p,,q).
 Defined.
 
-Lemma tonegcoprod { X Y : UU } : neg X × neg Y -> neg ( X ⨿ Y ) .
+Lemma tonegcoprod { X Y : UU } : ¬ X × ¬ Y -> ¬ ( X ⨿ Y ) .
 Proof . intros ? ? is. intro c . destruct c as [ x | y ] . apply ( pr1 is x ) . apply ( pr2 is y ) . Defined .
 
-Lemma toneghdisj { X Y : UU } : neg X × neg Y -> neg (X ∨ Y) .
+Lemma toneghdisj { X Y : UU } : ¬ X × ¬ Y -> ¬ (X ∨ Y) .
 Proof . intros ? ? is p. apply (p hfalse); clear p; intro p.
         induction p as [x|y].
         - exact (pr1 is x).
@@ -409,9 +409,9 @@ Definition Part2 (C:ComplementaryPair) : UU := pr1 (pr2 C).
 Definition pair_contradiction (C:ComplementaryPair) : Part1 C -> Part2 C -> ∅ := pr1 (pr2 (pr2 C)).
 Definition chooser (C:ComplementaryPair) : Part1 C ⨿ Part2 C := pr2 (pr2 (pr2 C)).
 
-Definition to_ComplementaryPair {P} (c:P ⨿ neg P) : ComplementaryPair
-  := (P,,neg P,,(λ p n, n p),,c).
-  (* we write [neg P] because here [¬P] gives [hneg P], as the "logic" scope is on *)
+Definition to_ComplementaryPair {P} (c:P ⨿ ¬ P) : ComplementaryPair
+  := (P,,¬ P,,(λ p n, n p),,c).
+  (* we write [¬ P] because here [¬P] gives [hneg P], as the "logic" scope is on *)
 
 Definition isTrue  (C:ComplementaryPair) := hfiber (@ii1 (Part1 C) (Part2 C)) (chooser C).
 Definition isFalse (C:ComplementaryPair) := hfiber (@ii2 (Part1 C) (Part2 C)) (chooser C).
@@ -471,29 +471,29 @@ Proof.
   * now exists q'.
 Defined.
 
-(* helper functions for the special case where [Q] is [neg P] *)
+(* helper functions for the special case where [Q] is [¬ P] *)
 
-Definition isTrue_hProp {P:UU} (c:P ⨿ neg P) : hProp :=
+Definition isTrue_hProp {P:UU} (c:P ⨿ ¬ P) : hProp :=
   let C := to_ComplementaryPair c in hProppair (isTrue C) (isaprop_isTrue C).
 
-Definition isFalse_hProp {P:UU} (c:P ⨿ neg P) : hProp :=
+Definition isFalse_hProp {P:UU} (c:P ⨿ ¬ P) : hProp :=
   let C := to_ComplementaryPair c in hProppair (isFalse C) (isaprop_isFalse C).
 
-Lemma isTrue_hProp_iff {P:UU} (c:P ⨿ neg P) : P <-> isTrue_hProp c.
+Lemma isTrue_hProp_iff {P:UU} (c:P ⨿ ¬ P) : P <-> isTrue_hProp c.
 Proof.
   intros. split.
   - intros p. now apply pair_truth.
   - intros t. exact (trueWitness t).
 Defined.
 
-Lemma isFalse_hProp_iff {P:UU} (c:P ⨿ neg P) : neg P <-> isFalse_hProp c.
+Lemma isFalse_hProp_iff {P:UU} (c:P ⨿ ¬ P) : ¬ P <-> isFalse_hProp c.
 Proof.
   intros. split.
   - intros p. now apply pair_falsehood.
   - intros t. exact (falseWitness t).
 Defined.
 
-Definition decprop_to_negProp {P:hProp} (c:P ⨿ neg P) : negProp P.
+Definition decprop_to_negProp {P:hProp} (c:P ⨿ ¬ P) : negProp P.
 Proof.
   intros. exists (isFalse_hProp c). split.
   - apply propproperty.

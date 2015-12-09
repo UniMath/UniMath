@@ -654,7 +654,7 @@ Proof. intros ? i. exists (λ x y, eqset x y). exact i. Defined.
 
 Definition deceq_to_neqReln {X:hSet} : isdeceq X -> neqReln X.
 Proof.
-  intros ? i x y. exact (decprop_to_negProp (pr2 (deceq_to_decrel i) x y)).
+  intros ? i x y. exact (decprop_to_negProp (P := eqset x y) (i x y)).
 Defined.
 
 Definition decrel_to_DecidableRelation {X} : decrel X -> DecidableRelation X.
