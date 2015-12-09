@@ -35,14 +35,16 @@ Notation "/ x" := (hqmultinv x) : hq_scope.
 Notation "x / y" := (hqdiv x y) : hq_scope.
 Notation "2" := (hztohq (nattohz 2)) : hq_scope.
 
-Lemma hzone_neg_hzzero : neg (1%hz = 0%hz).
+Lemma hzone_neg_hzzero : (1 ≠ 0)%hz.
 Proof.
+  apply neg_to_negProp.
   apply (hzgthtoneq 1%hz 0%hz).
   rewrite <- nattohzand1.
   apply nattohzandgth.
   apply paths_refl.
 Qed.
-Definition one_intdomnonzerosubmonoid : intdomnonzerosubmonoid hzintdom.
+
+Definition one_intdomnonzerosubmonoid : intdomnonzerosubmonoid hzintdom hzneq'.
 Proof.
   exists 1%hz ; simpl.
   exact hzone_neg_hzzero.

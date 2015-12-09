@@ -723,4 +723,8 @@ apply ( - ( 1 + (nattohz (intpart0 x)) ) )%hz .
 
 apply (nattohz (intpart0 x)) . Defined .
 
+  Goal hztohq(nattohz (S O)) + hztohq(nattohz (S O)) = hztohq(nattohz (S (S O))).
+    reflexivity.                  (* fixed, 11 seconds *)
+  Defined.                        (* fixed, 11 seconds *)
+
 (* End of the file hq.v *)
