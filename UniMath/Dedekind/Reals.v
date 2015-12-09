@@ -705,13 +705,6 @@ Defined.
 Definition hr_abs (x : hr_ConstructiveField) : NonnegativeReals :=
   maxNonnegativeReals (pr1 (pr1 (hr_to_NR x))) (pr2 (pr1 (hr_to_NR x))).
 
-Lemma Dcuts_max_le_l :
-  ∀ x y : Dcuts, x <= Dcuts_max x y.
-Admitted.
-Lemma Dcuts_max_le_r :
-  ∀ x y : Dcuts, y <= Dcuts_max x y.
-Admitted.
-
 Lemma hr_abs_pty1 :
   ∀ X : hr_ConstructiveField,
   ∀ x : NonnegativeReals × NonnegativeReals,
@@ -915,28 +908,6 @@ Proof.
   apply pr2.
 Defined.
 Definition ex_lim_seq (u : nat -> hr_ConstructiveField) := Σ l, is_lim_seq u l.
-
-Lemma Dcuts_max_lt :
-  ∀ x y z : Dcuts, x < z -> y < z -> Dcuts_max x y < z.
-Proof.
-  intros x y z.
-  apply hinhfun2 ; intros (rx,(Xrx,Zrx)) (ry,(Yry,Zry)).
-  exists (NQmax rx ry) ; split.
-  - apply NQmax_case_strong ; intro Hr.
-    + intro Hr' ; apply Yry.
-      revert Hr' ; apply hinhuniv ; intros [Xr | Yr].
-      now apply fromempty, Xrx.
-      now apply is_Dcuts_bot with (1 := Yr).
-Admitted.
-Lemma plusNonnegativeReals_ltcompat :
-  ∀ x y z t : NonnegativeReals, x < y -> z < t -> x + z < y + t.
-Admitted.
-Lemma plusNonnegativeReals_lt_l:
-  ∀ x y : NonnegativeReals, 0 < x <-> y < x + y.
-Admitted.
-Lemma plusNonnegativeReals_lt_r:
-  ∀ x y : NonnegativeReals, 0 < y <-> x < x + y.
-Admitted.
 
 Lemma Cauchy_seq_impl_ex_lim_seq (u : nat -> hr_ConstructiveField) :
   Cauchy_seq u -> ex_lim_seq u.

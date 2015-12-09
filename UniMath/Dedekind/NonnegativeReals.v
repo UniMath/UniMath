@@ -2170,6 +2170,21 @@ Proof.
   now apply Dcuts_plus_lecompat_l.
 Qed.
 
+Lemma Dcuts_plus_le_l :
+  ∀ x y, x <= Dcuts_plus x y.
+Proof.
+  intros x y r Xr.
+  apply hinhpr ; left.
+  now apply hinhpr ; left.
+Qed.
+Lemma Dcuts_plus_le_r :
+  ∀ x y, y <= Dcuts_plus x y.
+Proof.
+  intros x y r Xr.
+  apply hinhpr ; left.
+  now apply hinhpr ; right.
+Qed.
+
 Lemma Dcuts_mult_ltcompat_l :
   ∀ x y z: Dcuts, (0 < x) -> (y < z) -> (Dcuts_mult y x < Dcuts_mult z x).
 Proof.
@@ -2819,6 +2834,21 @@ Proof.
   split ; apply islogeqcommhdisj.
 Qed.
 
+Lemma Dcuts_max_le_l :
+  ∀ x y : Dcuts, x <= Dcuts_max x y.
+Proof.
+  intros x y r Xr.
+  apply hinhpr.
+  now left.
+Qed.
+Lemma Dcuts_max_le_r :
+  ∀ x y : Dcuts, y <= Dcuts_max x y.
+Proof.
+  intros x y r Xr.
+  apply hinhpr.
+  now right.
+Qed.
+
 Lemma Dcuts_max_carac_l :
   ∀ x y : Dcuts, y <= x -> Dcuts_max x y = x.
 Proof.
@@ -2898,19 +2928,22 @@ Proof.
   now apply Hx.
   now apply Hy.
 Qed.
-Lemma Dcuts_plus_le_l :
-  ∀ x y, x <= Dcuts_plus x y.
+Lemma Dcuts_max_lt :
+  ∀ x y z : Dcuts, x < z -> y < z -> Dcuts_max x y < z.
 Proof.
-  intros x y r Xr.
-  apply hinhpr ; left.
-  now apply hinhpr ; left.
-Qed.
-Lemma Dcuts_plus_le_r :
-  ∀ x y, y <= Dcuts_plus x y.
-Proof.
-  intros x y r Xr.
-  apply hinhpr ; left.
-  now apply hinhpr ; right.
+  intros x y z.
+  apply hinhfun2 ; intros (rx,(Xrx,Zrx)) (ry,(Yry,Zry)).
+  exists (NQmax rx ry) ; split.
+  - apply NQmax_case_strong ; intro Hr.
+    + intro Hr' ; apply Yry.
+      revert Hr' ; apply hinhuniv ; intros [Xr | Yr].
+      now apply fromempty, Xrx.
+      now apply is_Dcuts_bot with (1 := Yr).
+    + intro Hr' ; apply Xrx.
+      revert Hr' ; apply hinhuniv ; intros [Xr | Yr].
+      now apply is_Dcuts_bot with (1 := Xr).
+      now apply fromempty, Xrx.
+  - now apply NQmax_case.
 Qed.
 
 (** *** Dcuts_half *)
@@ -3937,12 +3970,38 @@ Definition isrdistr_plus_multNonnegativeReals:
 Definition plusNonnegativeReals_ltcompat_l :
   ∀ x y z: NonnegativeReals, (y < z) <-> (y + x < z + x)
   := Dcuts_plus_ltcompat_l.
-Definition plusNonnegativeReals_lecompat_l :
-  ∀ x y z: NonnegativeReals, (y <= z) <-> (y + x <= z + x)
-  := Dcuts_plus_lecompat_l.
 Definition plusNonnegativeReals_ltcompat_r :
   ∀ x y z: NonnegativeReals, (y < z) <-> (x + y < x + z)
   := Dcuts_plus_ltcompat_r.
+
+Lemma plusNonnegativeReals_ltcompat :
+  ∀ x y z t : NonnegativeReals, x < y -> z < t -> x + z < y + t.
+Proof.
+  intros x y z t Hxy Hzt.
+  eapply istrans_ltNonnegativeReals, plusNonnegativeReals_ltcompat_l.
+  now apply plusNonnegativeReals_ltcompat_r.
+  exact Hxy.
+Qed.
+Lemma plusNonnegativeReals_lt_l:
+  ∀ x y : NonnegativeReals, 0 < x <-> y < x + y.
+Proof.
+  intros x y.
+  pattern y at 1.
+  rewrite <- (islunit_zero_plusNonnegativeReals y).
+  now apply plusNonnegativeReals_ltcompat_l.
+Qed.
+Lemma plusNonnegativeReals_lt_r:
+  ∀ x y : NonnegativeReals, 0 < y <-> x < x + y.
+Proof.
+  intros x y.
+  pattern x at 1.
+  rewrite <- (isrunit_zero_plusNonnegativeReals x).
+  now apply plusNonnegativeReals_ltcompat_r.
+Qed.
+
+Definition plusNonnegativeReals_lecompat_l :
+  ∀ x y z: NonnegativeReals, (y <= z) <-> (y + x <= z + x)
+  := Dcuts_plus_lecompat_l.
 Definition plusNonnegativeReals_lecompat_r :
   ∀ x y z: NonnegativeReals, (y <= z) <-> (x + y <= x + z)
   := Dcuts_plus_lecompat_r.
