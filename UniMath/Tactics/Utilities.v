@@ -5,9 +5,9 @@ Unset Automatic Introduction.
 
 (** Imports *)
 
-Require Import UniMath.Foundations.Basics.All
-               UniMath.Foundations.Propositions
-               UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.Basics.PartD
+               UniMath.Foundations.Basics.Propositions
+               UniMath.Foundations.Basics.Sets.
 
 Implicit Arguments tpair [ T P ].
 

@@ -2,7 +2,7 @@
 
 (* sums (coproducts) *)
 Require Import
-        UniMath.Foundations.Sets
+        UniMath.Foundations.Basics.Sets
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Utilities

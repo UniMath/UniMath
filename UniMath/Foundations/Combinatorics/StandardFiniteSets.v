@@ -15,7 +15,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
-Require Export UniMath.Foundations.NaturalNumbers .
+Require Export UniMath.Foundations.NumberSystems.NaturalNumbers .
 
 (** ** Standard finite sets [ stn ] . *)
 

@@ -17,7 +17,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Require Export UniMath.Foundations.Propositions .
+Require Export UniMath.Foundations.Basics.Propositions .
 
 
 
@@ -1403,7 +1403,7 @@ Proof. intros X R is X0. apply (setquotuniv R (hSetpair _ (isasetsetquot2 R)) (s
 
 (** consequences of univalence *)
 
-Require Import UniMath.Foundations.FunctionalExtensionality.
+Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 
 Definition hSet_univalence_map (X Y:hSet) : (X = Y) -> (pr1 X ≃ pr1 Y).
 Proof. intros ? ? e. exact (eqweqmap (maponpaths pr1hSet e)).
