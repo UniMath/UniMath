@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import
-        UniMath.Foundations.Sets
+        UniMath.Foundations.Basics.Sets
         UniMath.Ktheory.Utilities.
 Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
            (f:X->Y->Z) : Type

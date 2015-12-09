@@ -1,8 +1,8 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.FiniteSets.
+Require Import UniMath.Foundations.Combinatorics.FiniteSets.
 Unset Automatic Introduction.
-Require Import UniMath.Foundations.FunctionalExtensionality.
+Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Local Open Scope poset.
 
 Lemma subsetFiniteness {X} (is : isfinite X) (P : DecidableSubtype X) :

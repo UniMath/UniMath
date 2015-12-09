@@ -1,9 +1,9 @@
 
 (** following discussions with J. Gross, D. Grayson and V. Voevodsky *)
 
-Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.Propositions.
+Require Import UniMath.Foundations.Basics.Sets.
 
 
 Require Import UniMath.CategoryTheory.total2_paths.

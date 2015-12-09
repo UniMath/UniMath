@@ -1,5 +1,5 @@
-Require Export UniMath.Foundations.Basics.All
-               UniMath.Foundations.Propositions
+Require Export UniMath.Foundations.Basics.PartD
+               UniMath.Foundations.Basics.Propositions
                UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.functor_categories.
 

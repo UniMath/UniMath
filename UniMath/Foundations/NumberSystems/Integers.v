@@ -17,7 +17,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Foundations.NaturalNumbers .
+Require Export UniMath.Foundations.NumberSystems.NaturalNumbers .
 
 
 

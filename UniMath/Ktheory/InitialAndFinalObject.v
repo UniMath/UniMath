@@ -5,7 +5,7 @@ Require Import
         UniMath.Ktheory.Precategories
         UniMath.CategoryTheory.precategories
         UniMath.CategoryTheory.total2_paths
-        UniMath.Foundations.Sets.
+        UniMath.Foundations.Basics.Sets.
 
 (** *** terminal objects *)
 
