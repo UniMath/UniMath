@@ -431,6 +431,9 @@ Proof.
   apply invweq. apply (weqcomp w). apply weqcoprodf; apply weqhfiberunit.
 Defined.
 
+Lemma isTrue_or_isFalse (C:ComplementaryPair) : isTrue C ⨿ isFalse C.
+Proof. intros. exact (pr1 (complementaryDecisions C)). Defined.
+
 Lemma isaprop_isTrue (C:ComplementaryPair) : isaprop (isTrue C).
 (* No axioms are used. *)
 Proof.

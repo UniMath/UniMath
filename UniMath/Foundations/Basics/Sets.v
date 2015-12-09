@@ -647,6 +647,26 @@ Coercion pr1decrel : decrel >-> hrel .
 Definition decreltobrel { X : UU } ( R : decrel X ) : brel X .
 Proof . intros . intros x x' . destruct ( ( pr2 R ) x x' ) . apply true . apply false . Defined .
 
+Lemma decreltobrel_iff { X : UU } ( R : decrel X ) (x y:X) : R x y <-> decreltobrel R x y = true.
+Proof.
+  intros.
+  - unfold decreltobrel. induction (pr2 R x y) as [yes|no].
+    + split; now intros _.
+    + split.
+      * intros r. apply fromempty. exact (no r).
+      * intros n. apply fromempty. exact (nopathsfalsetotrue n).
+Defined.
+
+Lemma decreltobrel_neg_iff { X : UU } ( R : decrel X ) (x y:X) : ¬ R x y <-> decreltobrel R x y = false.
+Proof.
+  intros.
+  - unfold decreltobrel. induction (pr2 R x y) as [yes|no].
+    + split.
+      * intros no. apply fromempty. exact (no yes).
+      * intros e. apply fromempty. exact (nopathstruetofalse e).
+    + split; now intros _.
+Defined.
+
 Definition breltodecrel { X : UU } ( B : brel X ) : decrel X := @decrelpair _ ( fun x x' => hProppair ( paths ( B x x' ) true ) ( isasetbool _ _ ) ) ( fun x x' => ( isdeceqbool _ _ ) ) .
 
 Definition deceq_to_decrel {X:hSet} : isdeceq X -> decrel X.
@@ -656,6 +676,57 @@ Definition deceq_to_neqReln {X:hSet} : isdeceq X -> neqReln X.
 Proof.
   intros ? i x y. exact (decprop_to_negProp (P := eqset x y) (i x y)).
 Defined.
+
+Definition deceq_to_neg_decrel {X:hSet} : isdeceq X -> decrel X.
+Proof.
+  (* the point of this is that the relation takes values in htrue or hfalse, so when it's true,
+     [tt] will always serve as a proof *)
+  intros ? i. refine (_,,_).
+  { intros x y.
+    induction (i x y) as [eq|neq].
+    { exact hfalse. }
+    { exact htrue. } }
+  { intros x y; simpl.
+    induction (i x y) as [eq|neq].
+    { simpl. apply ii2. exact (idfun _). }
+    { simpl. apply ii1. exact tt. } }
+Defined.
+
+Lemma deceq_to_neg_decrel_iff {X:hSet} (i:isdeceq X) (x y:X) :
+  x != y <-> deceq_to_neg_decrel i x y.
+Proof.
+  intros. split.
+  { intros ne.
+    unfold deceq_to_neg_decrel; simpl.
+    induction (i x y) as [eq|neq].
+    - simpl. exact (ne eq).
+    - simpl. exact tt. }
+  { unfold deceq_to_neg_decrel; simpl.
+    induction (i x y) as [eq|neq].
+    - simpl. exact fromempty.
+    - simpl. intros _. exact neq. }
+Defined.
+
+Lemma deceq_to_negProp_decrel_iff {X:hSet} (i:isdeceq X) (x y:X) :
+  let neq := deceq_to_neqReln i in
+  neq x y <-> deceq_to_neg_decrel i x y.
+Proof.
+  intros. split.
+  { intros ne.
+    unfold deceq_to_neg_decrel; simpl.
+    induction (i x y) as [e|n].
+    - simpl. exact (negProp_to_neg ne e).
+    - simpl. exact tt. }
+  { unfold deceq_to_neg_decrel; simpl.
+    induction (i x y) as [e|n].
+    - simpl. exact fromempty.
+    - simpl. intros _. apply pair_falsehood. exact n. }
+Defined.
+
+Notation confirm_eq := (idpath _).
+Notation "'confirm_neg' ( i , x , y ) " := (pr2 (deceq_to_neg_decrel_iff i x y) tt) (at level 50).
+Notation "'confirm_negProp' ( i , x , y ) " := (pr2 (deceq_to_negProp_decrel_iff i x y) tt) (at level 50).
+(* compare the notations above with "ct" and "ctlong" *)
 
 Definition decrel_to_DecidableRelation {X} : decrel X -> DecidableRelation X.
 Proof.

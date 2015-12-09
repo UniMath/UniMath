@@ -68,7 +68,11 @@ Module Test_int.
 
   Require Import UniMath.Foundations.NumberSystems.Integers.
 
-  Open Scope hz_scope.
+  Open Scope hz.
+
+  Goal nattohz 3 != 0. exact (confirm_neg ( isdeceqhz , nattohz 3 , 0 ) ). Defined.
+  Goal nattohz 3 ≠ 0. exact (confirm_negProp ( isdeceqhz , nattohz 3 , 0 ) ). Defined.
+  Goal nattohz 4 = nattohz 2 + nattohz 2. exact (confirm_eq). Defined.
 
   Goal true = hzbooleq (natnattohz 3 4) (natnattohz 17 18) . reflexivity. Qed.
   Goal false = (hzbooleq (natnattohz 3 4) (natnattohz 17 19)) . reflexivity. Qed.
@@ -90,29 +94,25 @@ Module Test_rat.
 
   Transparent hz .
 
-  Goal true = ( hqbooleq ( hzhztohq ( natnattohz 4 0 )
-                                    ( tpair _ ( natnattohz 3 0 )
-                                            ( neg_to_negProp (nP := _ ≠ 0)%hz
-                                                             (ct ( hzneq , isdecrelhzneq, ( natnattohz 3 0 ) , 0 %hz )) ) ) )
+  Goal true = hqbooleq ( hzhztohq ( nattohz 4 )
+                                    ( nattohz 3,, confirm_negProp (isdeceqhz, nattohz 3, 0%hz)))
                          ( hzhztohq ( natnattohz 13 1 )
-                                    ( tpair _ ( natnattohz 11 2 )
-                                            (neg_to_negProp (nP := hzneq' _ 0%hz)
-                                                            ( ct ( hzneq , isdecrelhzneq , ( natnattohz 11 2 ) , 0 %hz ) ) ) ) )) .
+                                    ( natnattohz 11 2,, confirm_negProp ( isdeceqhz, natnattohz 11 2, 0%hz))) .
                 reflexivity. Qed.
 
-  Goal true = ( decreltobrel hqgthdec
-                             ( hzhztohq ( natnattohz 5 0 )
-                                        ( tpair _ ( natnattohz 3 0 )
-                                                (neg_to_negProp (nP := hzneq' _ 0%hz)
-                                                                ( ct ( hzneq , isdecrelhzneq , ( natnattohz 3 0 ) , hzzero ) ) ) ) )
-
-                             ( hzhztohq ( natnattohz 13 1 )
-                                        ( tpair _ ( natnattohz 11 2 )
-                                                (neg_to_negProp (nP := hzneq' _ 0%hz)
-                                                                ( ct ( hzneq , isdecrelhzneq , ( natnattohz 11 2 ) , hzzero ) )) ) )).
+  Goal true = decreltobrel hqgthdec
+                           ( hzhztohq ( nattohz 5)
+                                      ( nattohz 3,, confirm_negProp(isdeceqhz, nattohz 3, 0%hz)))
+                           ( hzhztohq ( natnattohz 13 1 )
+                                        ( natnattohz 11 2,, confirm_negProp(isdeceqhz, natnattohz 11 2, 0%hz))).
     reflexivity. Qed.
 
   Goal 4 = ( hzabsval ( intpart ( hqdiv ( hztohq ( nattohz ( 10 ) ) )  ( - ( 1 + 1 + 1 ) ) ) ) ) . reflexivity. Qed.
+
+  Goal true = hqbooleq (hztohq(nattohz (S O)) + hztohq(nattohz (S O)))
+                       (hztohq(nattohz (S (S O)))).
+    reflexivity.
+  Qed.
 
   Unset Kernel Term Sharing.    (* needed for the following test: *)
 
