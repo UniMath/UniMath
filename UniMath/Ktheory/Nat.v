@@ -3,8 +3,8 @@
 (** * Natural numbers *)
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.NaturalNumbers
-               UniMath.Foundations.FunctionalExtensionality
+               UniMath.Foundations.NumberSystems.NaturalNumbers
+               UniMath.Foundations.Basics.UnivalenceAxiom
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
 

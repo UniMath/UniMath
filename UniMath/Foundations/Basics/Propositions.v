@@ -25,7 +25,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports *)
 
-Require Export UniMath.Foundations.Basics.All.
+Require Export UniMath.Foundations.Basics.PartD.
 
 (** Universe structure *)
 

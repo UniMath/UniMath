@@ -14,17 +14,17 @@ SubstitutionSystems
 
 Contents :
 
-- Derivation of Generalized Mendler Iteration
+- Derivation of Generalized Iteration in Mendler-style
 - Instantiation to a special case, Specialized Mendler Iteration
 - Proof of a fusion law à la Bird-Paterson (Generalised folds
-  for nested datatypes) for Generalized Mendler Iteration
+  for nested datatypes) for Generalized Iteration in Mendler-style
 
 
 
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.All.
+Require Import UniMath.Foundations.Basics.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -48,9 +48,9 @@ Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
 (* in Agda mode \downarrow *)
 
-(** Goal: derive Generalized Mendler Iteration and a fusion law *)
+(** Goal: derive Generalized Iteration in Mendler-style and a fusion law *)
 
-(** * Generalized Mendler Iteration *)
+(** * Generalized Iteration in Mendler-style *)
 
 Section GenMenIt.
 
@@ -268,7 +268,7 @@ End special_case.
 
 End the_iteration_principle.
 
-(** * Fusion law for Generalized Mendler Iteration *)
+(** * Fusion law for Generalized Iteration in Mendler-style *)
 
 Variable X X': C'.
 Let Yon : functor C'^op HSET := yoneda_objects C' hsC' X.

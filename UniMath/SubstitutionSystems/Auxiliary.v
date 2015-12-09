@@ -20,7 +20,7 @@ Contents :
 ************************************************************)
 
 
-Require Import UniMath.Foundations.Basics.All.
+Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.

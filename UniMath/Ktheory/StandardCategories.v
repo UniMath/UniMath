@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.CategoryTheory.precategories
-               UniMath.Foundations.Sets.
+               UniMath.Foundations.Basics.Sets.
 Require Import UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories.
 
 Definition compose' { C:precategory_data } { a b c:ob C }
@@ -66,7 +66,7 @@ Proof. intros ? iobj. apply (Precategories.category_pair (path_pregroupoid X iob
 
 (** *** the discrete category on n objects *)
 
-Require Import UniMath.Foundations.StandardFiniteSets.
+Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
 Definition cat_n (n:nat):category.
   intro. apply (path_groupoid (stn n)). apply hlevelntosn.
   apply isasetstn. Defined.

@@ -2,7 +2,7 @@
 
 (** Previous theorems about hSet and order *)
 
-Require Export UniMath.Foundations.Sets
+Require Export UniMath.Foundations.Basics.Sets
                UniMath.Ktheory.Sets
                UniMath.Ktheory.QuotientSet.
 Require Import UniMath.Foundations.Algebra.BinaryOperations.

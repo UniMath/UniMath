@@ -13,7 +13,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Require Export UniMath.Foundations.Sets .
+Require Export UniMath.Foundations.Basics.Sets .
 
 
 (** To upstream files *)
