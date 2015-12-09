@@ -669,31 +669,60 @@ Proof.
 Defined.
 
 Lemma isrngfunweqfldfracgt_b ( X : intdom ) ( is : isdeceq X ) { R : hrel X } ( is1 : isrngmultgt X R ) ( is2 : R 1 0 ) ( ir : isirrefl R ) : isrngfun ( weqfldfracgt_b X is is1 is2 ir ) .
-Proof . intros . set ( g :=  weqfldfracgt_b X is is1 is2 ir ) . set ( g0 := weqfldfracgtint_b X is1 is2 ir ) . split .
-
-split .
-
-unfold isbinopfun . change ( forall x x' : commrngfrac X ( rngpossubmonoid X is1 is2 )  , paths ( g ( x + x' ) ) ( ( g x ) + ( g x' ) ) ) .  apply ( setquotuniv2prop _ ( fun x x' : commrngfrac X ( rngpossubmonoid X is1 is2 ) => hProppair _ ( setproperty (fldfrac X is) ( g ( x + x' ) ) ( ( g x ) + ( g x' ) ) ) ) ) . intros xa1 xa2 .  change ( paths ( setquotpr (eqrelcommrngfrac X ( intdomnonzerosubmonoid X ) ) ( g0 ( commrngfracop1int X (rngpossubmonoid X is1 is2) xa1 xa2 ) ) ) ( setquotpr (eqrelcommrngfrac X ( intdomnonzerosubmonoid X )) ( commrngfracop1int  X ( intdomnonzerosubmonoid X ) ( g0 xa1 ) ( g0 xa2 ) ) ) )  . apply ( maponpaths ( setquotpr _ ) ) .  unfold g0 .  unfold weqfldfracgtint_b . unfold commrngfracop1int . simpl . apply ( pathsdirprod ) .  apply idpath . destruct xa1 as [ x1 aa1 ] .   destruct xa2 as [ x2 aa2 ] .  simpl . destruct aa1 as [ a1 ia1 ] . destruct aa2 as [ a2 ia2 ] . simpl .  apply ( invmaponpathsincl ( @pr1 _ _ ) ( isinclpr1 _ ( fun a => ( isapropneg ( paths a 0 ) ) ) ) ( tpair _ (a1 * a2) (rtoneq ir (is1 a1 a2 ia1 ia2)) ) (carrierpair
-        (fun x : pr1 X =>
-         hProppair (paths x 0 -> empty) (isapropneg (paths x 0)))
-        (a1 * a2)
-        (fun e : paths (a1 * a2) 0 =>
-         toneghdisj (dirprodpair (rtoneq ir ia1) (rtoneq ir ia2))
-           (intdomax X a1 a2 e))) ( idpath _ ) ) .
-
-change ( paths ( setquotpr (eqrelcommrngfrac X ( intdomnonzerosubmonoid X )) ( g0 ( dirprodpair 0 ( tpair _ 1 is2 ) ) ) ) ( setquotpr _ ( dirprodpair 0 ( tpair _ 1 ( nonzeroax X ) ) ) ) ) . apply ( maponpaths ( setquotpr _ ) ) .  unfold g0 .  unfold weqfldfracgtint_b . simpl . apply pathsdirprod . apply idpath .  apply ( invmaponpathsincl ( @pr1 _ _ ) ( isinclpr1 _ ( fun a => ( isapropneg ( paths a 0 ) ) ) ) ( tpair _ 1 ( rtoneq ir is2 ) ) ( tpair _  1 ( nonzeroax X ) ) ) .  simpl . apply idpath .
-
-split .
-
-unfold isbinopfun . change ( forall x x' : commrngfrac X ( rngpossubmonoid X is1 is2 )  , paths ( g ( x * x' ) ) ( ( g x ) * ( g x' ) ) ) .  apply ( setquotuniv2prop _ ( fun x x' : commrngfrac X ( rngpossubmonoid X is1 is2 ) => hProppair _ ( setproperty (fldfrac X is) ( g ( x * x' ) ) ( ( g x ) * ( g x' ) ) ) ) ) . intros xa1 xa2 .  change ( paths ( setquotpr (eqrelcommrngfrac X ( intdomnonzerosubmonoid X ) ) ( g0 ( commrngfracop2int X (rngpossubmonoid X is1 is2) xa1 xa2 ) ) ) ( setquotpr (eqrelcommrngfrac X ( intdomnonzerosubmonoid X )) ( commrngfracop2int  X ( intdomnonzerosubmonoid X ) ( g0 xa1 ) ( g0 xa2 ) ) ) )  . apply ( maponpaths ( setquotpr _ ) ) .  unfold g0 .  unfold weqfldfracgtint_b . unfold commrngfracop2int . unfold abmonoidfracopint .  simpl . apply ( pathsdirprod ) .  apply idpath . destruct xa1 as [ x1 aa1 ] .   destruct xa2 as [ x2 aa2 ] .  simpl . destruct aa1 as [ a1 ia1 ] . destruct aa2 as [ a2 ia2 ] . simpl .  apply ( invmaponpathsincl ( @pr1 _ _ ) ( isinclpr1 _ ( fun a => ( isapropneg ( paths a 0 ) ) ) ) ( tpair _ ( a1 * a2 ) ( rtoneq ir (is1 a1 a2 ia1 ia2) ) ) (carrierpair
-        (fun x : pr1 X =>
-         hProppair (paths x 0 -> empty) (isapropneg (paths x 0)))
-        (a1 * a2)
-        (fun e : paths (a1 * a2) 0 =>
-         toneghdisj (dirprodpair (rtoneq ir ia1) (rtoneq ir ia2))
-           (intdomax X a1 a2 e))) ( idpath _ ) ) .
-
-change ( paths ( setquotpr (eqrelcommrngfrac X ( intdomnonzerosubmonoid X )) ( g0 ( dirprodpair 1 ( tpair _ 1 is2 ) ) ) ) ( setquotpr _ ( dirprodpair 1 ( tpair _ 1 ( nonzeroax X ) ) ) ) ) . apply ( maponpaths ( setquotpr _ ) ) .  unfold g0 .  unfold weqfldfracgtint_b . simpl . apply pathsdirprod . apply idpath .  apply ( invmaponpathsincl ( @pr1 _ _ ) ( isinclpr1 _ ( fun a => ( isapropneg ( paths a 0 ) ) ) ) ( tpair _ 1 ( rtoneq ir is2 ) ) ( tpair _ 1 ( nonzeroax X ) ) ) .  simpl . apply idpath . Defined .
+Proof .
+  intros .
+  set ( g :=  weqfldfracgt_b X is is1 is2 ir ) .
+  set (neq := deceq_to_neqReln is).
+  set (S := intdomnonzerosubmonoid_ne X neq).
+  set (SX := eqrelcommrngfrac X S).
+  set ( g0 := weqfldfracgtint_b X is1 is2 ir neq ) .
+  split .
+  { split .
+    { unfold isbinopfun .
+      change ( forall x x' : commrngfrac X ( rngpossubmonoid X is1 is2 )  , paths ( g ( x + x' ) ) ( ( g x ) + ( g x' ) ) ) .
+      apply ( setquotuniv2prop _ ( fun x x' : commrngfrac X ( rngpossubmonoid X is1 is2 ) => hProppair _ ( setproperty (fldfrac X is) ( g ( x + x' ) ) ( ( g x ) + ( g x' ) ) ) ) ) .
+      intros xa1 xa2 .
+      change ( paths ( setquotpr SX ( g0 ( commrngfracop1int X (rngpossubmonoid X is1 is2) xa1 xa2 ) ) ) ( setquotpr SX ( commrngfracop1int  X S ( g0 xa1 ) ( g0 xa2 ) ) ) )  .
+      apply ( maponpaths ( setquotpr _ ) ) .
+      unfold g0 .
+      unfold weqfldfracgtint_b .
+      unfold commrngfracop1int .
+      simpl .
+      apply ( pathsdirprod ) .
+      { apply idpath . }
+      { destruct xa1 as [ x1 aa1 ] . destruct xa2 as [ x2 aa2 ] .
+        destruct aa1 as [ a1 ia1 ] . destruct aa2 as [ a2 ia2 ] .
+        simpl .
+        refine ( invmaponpathsincl _ ( isinclpr1 _ _ ) _ _ _ ) .
+        { intro. apply propproperty. }
+        { simpl. reflexivity. } } }
+    { change ( paths ( setquotpr SX ( g0 ( dirprodpair 0 ( tpair _ 1 is2 ) ) ) ) ( setquotpr _ ( dirprodpair 0 (unel S) ) ) ) .
+      apply ( maponpaths ( setquotpr _ ) ) .
+      unfold g0 .
+      unfold weqfldfracgtint_b .
+      simpl .
+      apply pathsdirprod .
+      { apply idpath .  }
+      { refine ( invmaponpathsincl _ ( isinclpr1 _ _ ) _ _ _ ) .
+        { intro. apply propproperty. }
+        { simpl. reflexivity. } } } }
+  split .
+  { 
+    unfold isbinopfun . change ( forall x x' : commrngfrac X ( rngpossubmonoid X is1 is2 )  , paths ( g ( x * x' ) ) ( ( g x ) * ( g x' ) ) ) .  apply ( setquotuniv2prop _ ( fun x x' : commrngfrac X ( rngpossubmonoid X is1 is2 ) => hProppair _ ( setproperty (fldfrac X is) ( g ( x * x' ) ) ( ( g x ) * ( g x' ) ) ) ) ) . intros xa1 xa2 .  change ( paths ( setquotpr SX ( g0 ( commrngfracop2int X (rngpossubmonoid X is1 is2) xa1 xa2 ) ) ) ( setquotpr SX ( commrngfracop2int  X S ( g0 xa1 ) ( g0 xa2 ) ) ) )  . apply ( maponpaths ( setquotpr _ ) ) .  unfold g0 .  unfold weqfldfracgtint_b . unfold commrngfracop2int . unfold abmonoidfracopint .  simpl . apply ( pathsdirprod ) .  apply idpath . destruct xa1 as [ x1 aa1 ] .   destruct xa2 as [ x2 aa2 ] .  simpl . destruct aa1 as [ a1 ia1 ] . destruct aa2 as [ a2 ia2 ] . simpl .
+    refine ( invmaponpathsincl _ ( isinclpr1 _ _ ) _ _ _ ) .
+    { intro. apply propproperty. }
+    { simpl. reflexivity. } }
+  { change ( paths ( setquotpr SX ( g0 ( dirprodpair 1 ( tpair _ 1 is2 ) ) ) ) ( setquotpr _ ( dirprodpair 1 (unel S) ) ) ) .
+    apply ( maponpaths ( setquotpr _ ) ) .
+    unfold g0 .
+    unfold weqfldfracgtint_b .
+    simpl .
+    apply pathsdirprod .
+    { apply idpath . }
+    { refine ( invmaponpathsincl _ ( isinclpr1 _ _ ) _ _ _ ) .
+      { intro. apply propproperty. }
+      { simpl. reflexivity. } } }
+Defined .
 
 Opaque isrngfunweqfldfracgt_b .
 
@@ -764,14 +793,45 @@ Proof . intros .  unfold fldfracgt . intros a b . apply isdecabmonoidfracrel .  
 (** **** Relations and the canonical homomorphism to the field of fractions *)
 
 
-Definition iscomptofldfrac ( X : intdom ) ( is : isdeceq X ) { L : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) L ) ( is1 : isrngmultgt X L )  ( is2 : L 1 0 ) ( nc : neqchoice L ) ( isa : isasymm L ) : iscomprelrelfun L ( fldfracgt X is is0 is1 is2 nc ) ( tofldfrac X is ) .
-Proof . intros . intros x1 x2 l . assert ( int := iscomptocommrngfrac X ( rngpossubmonoid X is1 is2 ) is0 is1 ( fun c r => r )  ) . simpl in int .  unfold fldfracgt . unfold iscomprelrelfun in int .  assert ( ee : forall x : X , paths (tocommrngfrac X (rngpossubmonoid X is1 is2) x) (weqfldfracgt_f X is is0 is1 is2 nc (tofldfrac X is x)) ) .  intros x .  change (tocommrngfrac X (rngpossubmonoid X is1 is2) x) with (  setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2)) ( dirprodpair x ( tpair ( fun a => L a 0 ) _ is2 ) ) ) . change (weqfldfracgt_f X is is0 is1 is2 nc (tofldfrac X is x)) with (  setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2)) ( weqfldfracgtint_f X is0 is1 is2 nc ( dirprodpair x ( tpair ( fun a => neg ( paths a 0 ) ) 1 ( nonzeroax X ) ) ) ) ) . apply ( maponpaths ( setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2)) ) ) . unfold weqfldfracgtint_f .  simpl . destruct ( nc 1 0 (nonzeroax X)  ) as [ l' | nl ] .
-
-apply pathsdirprod .  apply idpath .  apply ( invmaponpathsincl _ ( isinclpr1 _ ( fun a => ( pr2 ( L a 0 ) ) ) ) ) . apply idpath .
-
-destruct ( isa _ _ is2 nl ) .
-
-assert  ( int' := int x1 x2 ) .   rewrite ( ee x1 ) in int' .   rewrite ( ee x2 ) in int' . apply int' .  apply l . Defined .
+Definition iscomptofldfrac ( X : intdom ) ( is : isdeceq X )
+           { L : hrel X }
+           ( is0 : @isbinophrel ( rngaddabgr X ) L )
+           ( is1 : isrngmultgt X L )
+           ( is2 : L 1 0 )
+           ( nc : neqchoice L )
+           ( isa : isasymm L ) :
+  iscomprelrelfun L ( fldfracgt X is is0 is1 is2 nc ) ( tofldfrac X is ) .
+Proof.
+  intros.
+  intros x1 x2 l.
+  set (neq := deceq_to_neqReln is).
+  set (S := intdomnonzerosubmonoid_ne X neq).
+  assert ( int := iscomptocommrngfrac X ( rngpossubmonoid X is1 is2 ) is0 is1 ( fun c r => r )  ).
+  simpl in int.
+  unfold fldfracgt.
+  unfold iscomprelrelfun in int.
+  assert ( ee : forall x : X , paths (tocommrngfrac X (rngpossubmonoid X is1 is2) x) (weqfldfracgt_f X is is0 is1 is2 nc (tofldfrac X is x)) ).
+  intros x.
+  change (tocommrngfrac X (rngpossubmonoid X is1 is2) x) with (  setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2)) ( dirprodpair x ( tpair ( fun a => L a 0 ) _ is2 ) ) ).
+  change (weqfldfracgt_f X is is0 is1 is2 nc (tofldfrac X is x)) with (  setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2)) ( weqfldfracgtint_f X is0 is1 is2 neq nc ( dirprodpair x (unel S) ) ) ).
+  apply ( maponpaths ( setquotpr (eqrelcommrngfrac X (rngpossubmonoid X is1 is2)) ) ).
+  unfold weqfldfracgtint_f.
+  simpl.
+  match goal
+  with |- context [ nc ?x ?y ?z ] =>
+       destruct (nc x y z) as [ g' | l' ]
+  end.
+  apply pathsdirprod.
+  apply idpath.
+  apply ( invmaponpathsincl _ ( isinclpr1 _ ( fun a => ( pr2 ( L a 0 ) ) ) ) ).
+  apply idpath .
+  destruct ( isa _ _ is2 l' ) .
+  assert  ( int' := int x1 x2 ).
+  rewrite ( ee x1 ) in int'.
+  rewrite ( ee x2 ) in int'.
+  apply int'.
+  apply l.
+Defined .
 
 Opaque iscomptofldfrac .
 
