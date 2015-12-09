@@ -785,10 +785,6 @@ Proof.
   apply pr2.
 Defined.
 
-Lemma minusNonnegativeReals_ltcompat_l' :
-  forall x y z : NonnegativeReals, y - x < z - x -> y < z.
-Admitted.
-
 Lemma Cauchy_seq_pr1 (u : nat -> hr_ConstructiveField) :
   let x := λ n : nat, pr1 (pr1 (hr_to_NR (u n))) in
   Cauchy_seq u -> NonnegativeReals.Cauchy_seq x.
@@ -849,6 +845,66 @@ Proof.
     apply_pr2 plusNonnegativeReals_eqcompat_l.
     now rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
 Qed.
+Lemma Cauchy_seq_pr2 (u : nat -> hr_ConstructiveField) :
+  let y := λ n : nat, pr2 (pr1 (hr_to_NR (u n))) in
+  Cauchy_seq u -> NonnegativeReals.Cauchy_seq y.
+Proof.
+  intros u y ; simpl in y.
+  set (x := λ n : nat, pr1 (pr1 (hr_to_NR (u n)))).
+  assert (Hxy : ∀ n, NR_to_hr (x n ,, y n) = u n).
+  { intros n.
+    apply NR_to_hr_unique.
+    unfold x, y ; rewrite <- tppr.
+    apply (pr1 (pr2 (hr_to_NR (u n)))). }
+  intros Cu c Hc.
+  generalize (Cu c Hc).
+  apply hinhfun ; intros (N,Hu).
+  exists N ; intros n m Hn Hm.
+  specialize (Hu _ _ Hn Hm).
+  split.
+  - apply (plusNonnegativeReals_ltcompat_r (y m)) in Hu.
+    apply istrans_le_lt_ltNonnegativeReals with (y m + hr_abs (u m - u n)%rng).
+    2: exact Hu.
+    eapply istrans_leNonnegativeReals.
+    2: apply plusNonnegativeReals_lecompat_r.
+    2: apply Dcuts_max_le_l.
+    destruct (hr_to_NR (u m - u n)%rng) as (z,(Hz,Hz')) ; simpl pr1.
+    revert Hz.
+    rewrite <- ! Hxy ; apply hinhuniv ; intros (d,Hd) ;
+    simpl in Hd.
+    apply (fun H => pr2 (((pr2 (pr2 (hr_to_NR (u n)))) (x m + pr2 z ,, y m + pr1 z)) H)).
+    rewrite <- Hxy ; apply hinhpr ; simpl.
+    exists d.
+    rewrite <- isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (x n)), (iscomm_plusNonnegativeReals (y m + x n)).
+    change ((pr1 z + (y m + x n))%NR + d)%rng
+    with (pr1 z + (y m + x n) + d)%rng.
+    simpl in Hd |- * ; rewrite <- Hd.
+    rewrite !isassoc_plusNonnegativeReals.
+    apply_pr2 plusNonnegativeReals_eqcompat_r.
+    rewrite <- !isassoc_plusNonnegativeReals.
+    apply_pr2 plusNonnegativeReals_eqcompat_l.
+    apply iscomm_plusNonnegativeReals.
+  - apply (plusNonnegativeReals_ltcompat_r (y n)) in Hu.
+    apply istrans_le_lt_ltNonnegativeReals with (y n + hr_abs (u m - u n)%rng).
+    2: exact Hu.
+    eapply istrans_leNonnegativeReals.
+    2: apply plusNonnegativeReals_lecompat_r.
+    2: apply Dcuts_max_le_r.
+    destruct (hr_to_NR (u m - u n)%rng) as (z,(Hz,Hz')) ; simpl pr1.
+    revert Hz.
+    rewrite <- ! Hxy ; apply hinhuniv ; intros (d,Hd) ;
+    simpl in Hd.
+    apply (fun H => pr2 (((pr2 (pr2 (hr_to_NR (u m)))) (x n + pr1 z ,, y n + pr2 z)) H)).
+    rewrite <- Hxy ; apply hinhpr ; simpl.
+    exists d.
+    rewrite <- !isassoc_plusNonnegativeReals.
+    change ((x m + y n + pr2 z)%NR + d)%rng
+    with (x m + y n + pr2 z + d)%rng.
+    simpl in Hd |- * ; rewrite Hd.
+    rewrite <- !isassoc_plusNonnegativeReals.
+    apply_pr2 plusNonnegativeReals_eqcompat_l.
+    now rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
+Qed.
 
 Definition is_lim_seq (u : nat -> hr_ConstructiveField) (l : hr_ConstructiveField) : hProp.
 Proof.
@@ -860,23 +916,44 @@ Proof.
 Defined.
 Definition ex_lim_seq (u : nat -> hr_ConstructiveField) := Σ l, is_lim_seq u l.
 
+Lemma Dcuts_max_lt :
+  ∀ x y z : Dcuts, x < z -> y < z -> Dcuts_max x y < z.
+Proof.
+  intros x y z.
+  apply hinhfun2 ; intros (rx,(Xrx,Zrx)) (ry,(Yry,Zry)).
+  exists (NQmax rx ry) ; split.
+  - apply NQmax_case_strong ; intro Hr.
+    + intro Hr' ; apply Yry.
+      revert Hr' ; apply hinhuniv ; intros [Xr | Yr].
+      now apply fromempty, Xrx.
+      now apply is_Dcuts_bot with (1 := Yr).
+Admitted.
+Lemma plusNonnegativeReals_ltcompat :
+  ∀ x y z t : NonnegativeReals, x < y -> z < t -> x + z < y + t.
+Admitted.
+Lemma plusNonnegativeReals_lt_l:
+  ∀ x y : NonnegativeReals, 0 < x <-> y < x + y.
+Admitted.
+Lemma plusNonnegativeReals_lt_r:
+  ∀ x y : NonnegativeReals, 0 < y <-> x < x + y.
+Admitted.
+
 Lemma Cauchy_seq_impl_ex_lim_seq (u : nat -> hr_ConstructiveField) :
   Cauchy_seq u -> ex_lim_seq u.
 Proof.
   intros u Cu.
   set (x := λ n, pr1 (pr1 (hr_to_NR (u n)))).
   set (y := λ n, pr2 (pr1 (hr_to_NR (u n)))) ; simpl in y.
+  assert (Hxy : ∀ n, NR_to_hr (x n ,, y n) = u n).
+  { intros n.
+    apply NR_to_hr_unique.
+    unfold x, y ; rewrite <- tppr.
+    apply (pr1 (pr2 (hr_to_NR (u n)))). }
+
   destruct (Cauchy_seq_impl_ex_lim_seq x) as [lx Hx].
-  { intros c Hc.
-    generalize (Cu c Hc).
-    apply hinhfun.
-    intros (N,Hu).
-    exists N ; intros n m Hn Hm.
-    split.
-    admit.
-    admit. }
+  now apply Cauchy_seq_pr1.
   destruct (Cauchy_seq_impl_ex_lim_seq y) as [ly Hy].
-  { admit. }
+  now apply Cauchy_seq_pr2.
   exists (NR_to_hr (lx,,ly)).
   intros c Hc.
   apply ispositive_Dcuts_half in Hc.
@@ -884,5 +961,46 @@ Proof.
     apply hinhfun2 ; clear Hy Hx ;
     intros (Nx,Hx) (Ny,Hy).
   exists (max Nx Ny) ; intros n Hn.
-  admit.
-Admitted.
+  rewrite <- Hxy ; simpl pr1.
+  apply Dcuts_max_lt.
+  - destruct hr_to_NR as (z,(Hz',Hz)) ; simpl pr1 ; clear Hz'.
+    eapply istrans_le_lt_ltNonnegativeReals.
+    assert (Hlim : pr1 (NR_to_hr (x n,, y n) - NR_to_hr (lx,, ly))%rng (x n + ly ,, y n + lx)).
+    { apply hinhpr ; exists 0 ; reflexivity. }
+    apply_pr2_in hr_repres Hlim.
+    apply (Hz _ Hlim).
+    simpl pr1.
+    apply_pr2 (plusNonnegativeReals_ltcompat_r (y n + lx)).
+    rewrite iscomm_plusNonnegativeReals, Dcuts_minus_plus_max.
+    apply Dcuts_max_lt.
+    + rewrite (double_Dcuts_half c), (iscomm_plusNonnegativeReals (y n)), (isassoc_plusNonnegativeReals lx (y n)), <- (isassoc_plusNonnegativeReals (y n)), (iscomm_plusNonnegativeReals (y n)), <- !isassoc_plusNonnegativeReals, (isassoc_plusNonnegativeReals (lx + _)).
+      apply plusNonnegativeReals_ltcompat.
+      apply Hx.
+      apply istransnatleh with (2 := Hn).
+      apply max_le_l.
+      apply_pr2 Hy.
+      apply istransnatleh with (2 := Hn).
+      apply max_le_r.
+    + apply plusNonnegativeReals_lt_r .
+      now apply_pr2 ispositive_Dcuts_half.
+  - destruct hr_to_NR as (z,(Hz',Hz)) ; simpl pr1 ; clear Hz'.
+    eapply istrans_le_lt_ltNonnegativeReals.
+    assert (Hlim : pr1 (NR_to_hr (x n,, y n) - NR_to_hr (lx,, ly))%rng (x n + ly ,, y n + lx)).
+    { apply hinhpr ; exists 0 ; reflexivity. }
+    apply_pr2_in hr_repres Hlim.
+    apply_pr2 (Hz _ Hlim).
+    simpl pr2.
+    apply_pr2 (plusNonnegativeReals_ltcompat_r (x n + ly)).
+    rewrite iscomm_plusNonnegativeReals, Dcuts_minus_plus_max.
+    apply Dcuts_max_lt.
+    + rewrite (double_Dcuts_half c), (iscomm_plusNonnegativeReals (x n)), (isassoc_plusNonnegativeReals ly (x n)), <- (isassoc_plusNonnegativeReals (x n)), (iscomm_plusNonnegativeReals (x n)), <- !isassoc_plusNonnegativeReals, (isassoc_plusNonnegativeReals (ly + _)).
+      apply plusNonnegativeReals_ltcompat.
+      apply Hy.
+      apply istransnatleh with (2 := Hn).
+      apply max_le_r.
+      apply_pr2 Hx.
+      apply istransnatleh with (2 := Hn).
+      apply max_le_l.
+    + apply plusNonnegativeReals_lt_r .
+      now apply_pr2 ispositive_Dcuts_half.
+Qed.
