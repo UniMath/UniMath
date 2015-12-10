@@ -77,4 +77,12 @@ Module Test_sets.
          f = funcomp hinhpr (squash_to_set is f e).
   Proof. reflexivity. Qed.
 
+  Goal true != false.
+    exact (confirm_neg ( deceq_to_decrel isdeceqbool, true, false )).
+  Defined.
+
+  Goal true = true.
+    exact (confirm_pos ( deceq_to_decrel isdeceqbool, true, true )).
+  Defined.
+
 End Test_sets.

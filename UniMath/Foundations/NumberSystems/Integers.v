@@ -72,22 +72,13 @@ Definition hzdeceq : decrel hz := decrelpair isdecrelhzeq .
 
 Definition hzbooleq := decreltobrel hzdeceq .
 
-(* the use of hzneq is deprecated, for it uses the axiom [funextempty].  Use [hzneq_hProp], instead. *)
-Definition hzneq ( x y : hz ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
-Definition isdecrelhzneq : isdecrel hzneq  := isdecnegrel _ isdecrelhzeq .
-Definition hzdecneq : decrel hz := decrelpair isdecrelhzneq .
-
-(* Canonical Structure hzdecneq. *)
-
-Definition hzboolneq := decreltobrel hzdecneq .
-
 Open Local Scope hz_scope .
 
 (* [funextempty]-free replacement proposition for hzneq *)
 
-Definition hzneq' : neqReln hz := deceq_to_neqReln isdeceqhz.
+Definition hzneq : neqReln hz := deceq_to_neqReln isdeceqhz.
 
-Notation " x ≠ y " := ( hzneq' x y ) (at level 70, no associativity) : hz_scope.
+Notation " x ≠ y " := ( hzneq x y ) (at level 70, no associativity) : hz_scope.
 
 (*  *)
 
@@ -95,8 +86,7 @@ Notation " x ≠ y " := ( hzneq' x y ) (at level 70, no associativity) : hz_scop
 (** *** [ hz ] is a non-zero ring *)
 
 Lemma isnonzerornghz : isnonzerorng hz .
-Proof . apply  ( ct ( hzneq , isdecrelhzneq, 1 , 0 ) ) . Defined .
-
+Proof . exact (confirm_neg (deceq_to_decrel isdeceqhz, 1, 0 )). Defined.
 
 (** *** Properties of addition and subtraction on [ hz ] *)
 
@@ -156,11 +146,11 @@ Proof . intros . apply ( rngassoc2 hz x y z ) . Defined .
 Lemma hzmultcomm ( x y : hz ) : paths ( x * y ) ( y * x ) .
 Proof . intros .  apply ( rngcomm2 hz  x y ) . Defined .
 
-Definition hzneq0andmultlinv ( n m : hz ) ( isnm : hzneq ( n * m ) 0 ) : hzneq n 0 := rngneq0andmultlinv hz n m isnm .
+Definition hzneq0andmultlinv ( n m : hz ) : n * m != 0 -> n != 0
+  := rngneq0andmultlinv hz n m .
 
-Definition hzneq0andmultrinv ( n m : hz ) ( isnm : hzneq ( n * m ) 0 ) : hzneq m 0 := rngneq0andmultrinv hz n m isnm .
-
-
+Definition hzneq0andmultrinv ( n m : hz ) : n * m != 0 -> m != 0
+  := rngneq0andmultrinv hz n m.
 
 (** ** Definition and properties of "greater", "less", "greater or equal" and "less or equal" on [ hz ] . *)
 
@@ -656,9 +646,10 @@ Proof . split with isnonzerornghz .  intros a b e0 .  destruct ( isdeceqhz a 0 )
 
 Definition hzintdom : intdom := tpair _ _ isintdomhz .
 
-Definition hz_nonzero_submonoid := intdomnonzerosubmonoid hzintdom hzneq'.
+Definition hz_nonzero_submonoid := intdomnonzerosubmonoid hzintdom hzneq.
 
-Definition hzneq0andmult ( n m : hz ) ( isn : hzneq n 0 ) ( ism : hzneq m 0 ) : hzneq ( n * m ) 0 := intdomneq0andmult hzintdom n m isn ism .
+Definition hzneq0andmult ( n m : hz ) : n != 0 -> m != 0 ->  n * m != 0
+  := intdomneq0andmult hzintdom n m .
 
 Lemma hzmultlcan ( a b c : hz ) ( ne : neg ( paths c 0 ) ) ( e : paths ( c * a ) ( c * b ) ) : paths a b .
 Proof . intros . apply ( intdomlcan hzintdom _ _ _ ne e ) . Defined .
@@ -768,7 +759,8 @@ Definition nattohz : nat -> hz := fun n => setquotpr _ ( dirprodpair n 0%nat ) .
 
 Definition isinclnattohz : isincl nattohz := isincltorngdiff natcommrig ( fun n => isinclnatplusr n ) .
 
-Definition nattohzandneq ( n m : nat ) ( is : natnegpaths n m ) : hzneq ( nattohz n ) ( nattohz m ) := negf ( invmaponpathsincl _ isinclnattohz n m ) is .
+Definition nattohzandneq ( n m : nat ) : n != m -> nattohz n != nattohz m
+  := negf ( invmaponpathsincl _ isinclnattohz n m ) .
 
 Definition nattohzand0 : paths ( nattohz 0%nat ) 0 := idpath _ .
 

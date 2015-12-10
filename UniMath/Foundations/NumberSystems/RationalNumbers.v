@@ -66,7 +66,7 @@ Delimit Scope hq_scope with hq .
 
 (** *** Properties of equlaity on [ hq ] *)
 
-Definition isdeceqhq : isdeceq hq := isdeceqfldfrac hzintdom hzneq' isdeceqhz .
+Definition isdeceqhq : isdeceq hq := isdeceqfldfrac hzintdom hzneq isdeceqhz .
 
 Definition isasethq := setproperty hq .
 
@@ -79,6 +79,9 @@ Definition hqdeceq : decrel hq := decrelpair isdecrelhqeq .
 Definition hqbooleq := decreltobrel hqdeceq .
 
 Definition hqneq ( x y : hq ) : hProp := hProppair ( neg ( paths x y ) ) ( isapropneg _  )  .
+
+Notation " x ≠ y " := ( hqneq x y ) (at level 70, no associativity) : hq_scope.
+
 Definition isdecrelhqneq : isdecrel hqneq  := isdecnegrel _ isdecrelhqeq .
 Definition hqdecneq : decrel hq := decrelpair isdecrelhqneq .
 
@@ -154,13 +157,13 @@ Proof . intros .  apply ( rngcomm2 hq  x y ) . Defined .
 Note : in our definition it is possible to divide by 0 . The result in this case is 0 . *)
 
 Definition hqmultinv : hq -> hq
-  := λ x, fldfracmultinv0 hzintdom hzneq' isdeceqhz x .
+  := λ x, fldfracmultinv0 hzintdom hzneq isdeceqhz x .
 
-Lemma hqislinvmultinv ( x : hq ) ( ne : hqneq x 0 ) : paths ( ( hqmultinv x ) * x ) 1 .
-Proof. intros .  apply ( islinvinfldfrac hzintdom hzneq' isdeceqhz x ne ) . Defined .
+Lemma hqislinvmultinv ( x : hq ) ( ne : x ≠ 0 ) : paths ( ( hqmultinv x ) * x ) 1 .
+Proof. intros .  apply ( islinvinfldfrac hzintdom hzneq isdeceqhz x ne ) . Defined .
 
-Lemma hqisrinvmultinv ( x : hq ) ( ne : hqneq x 0 ) : paths (  x * ( hqmultinv x ) ) 1 .
-Proof. intros .  apply ( isrinvinfldfrac hzintdom hzneq' isdeceqhz x ne ) . Defined .
+Lemma hqisrinvmultinv ( x : hq ) ( ne : x ≠ 0 ) : paths (  x * ( hqmultinv x ) ) 1 .
+Proof. intros .  apply ( isrinvinfldfrac hzintdom hzneq isdeceqhz x ne ) . Defined .
 
 Definition hqdiv ( x y : hq ) : hq := hqmult x ( hqmultinv y ) .
 
@@ -673,7 +676,7 @@ Definition nattohq : nat -> hq := hztohq ∘ nattohz.
 
 Definition isinclhztohq : isincl hztohq := isincltofldfrac hzintdom isdeceqhz .
 
-Definition hztohqandneq ( n m : hz ) ( is : hzneq n m ) : hqneq ( hztohq n ) ( hztohq m ) := negf ( invmaponpathsincl _ isinclhztohq n m ) is .
+Definition hztohqandneq ( n m : hz ) ( is : n != m ) : hztohq n ≠ hztohq m := negf ( invmaponpathsincl _ isinclhztohq n m ) is .
 
 Definition hztohqand0 : paths ( hztohq 0%hz ) 0 := idpath _ .
 
@@ -699,9 +702,9 @@ Definition hztohqandgeh ( n m : hz ) ( is : hzgeh n m ) : hqgeh ( hztohq n ) ( h
 
 (** *** Integral part of a rational *)
 
-Definition intpartint0 ( xa : dirprod hz ( intdomnonzerosubmonoid hzintdom hzneq' ) ) : nat := natdiv ( hzabsval (pr1 xa ) ) ( hzabsval ( pr1 ( pr2 xa ) ) )  .
+Definition intpartint0 ( xa : dirprod hz ( intdomnonzerosubmonoid hzintdom hzneq ) ) : nat := natdiv ( hzabsval (pr1 xa ) ) ( hzabsval ( pr1 ( pr2 xa ) ) )  .
 
-Lemma iscompintpartint0 : iscomprelfun ( eqrelabmonoidfrac hzmultabmonoid ( intdomnonzerosubmonoid hzintdom hzneq' ) ) intpartint0 .
+Lemma iscompintpartint0 : iscomprelfun ( eqrelabmonoidfrac hzmultabmonoid ( intdomnonzerosubmonoid hzintdom hzneq ) ) intpartint0 .
 Proof . Opaque hq.  unfold iscomprelfun .  intros xa1 xa2 .  set ( x1 := pr1 xa1 ) . set ( aa1 := pr2 xa1 ) . set ( a1 := pr1 aa1 ) .  set ( x2 := pr1 xa2 ) . set ( aa2 := pr2 xa2 ) . set ( a2 := pr1 aa2 ) . simpl .  apply ( @hinhuniv _ ( hProppair _ ( setproperty natset _ _ ) ) ) .  intro t2 .  assert ( e := pr2 t2 ) .
 
 simpl in e .  assert ( e' := ( maponpaths hzabsval ( hzmultrcan _ _ _ (negProp_to_neg ( pr2 ( pr1 t2 ) )) e ) ) : paths ( hzabsval ( x1 * a2 )%hz ) ( hzabsval ( x2 * a1 )%hz ) ) .  clear e . clear t2 . rewrite ( pathsinv0 ( hzabsvalandmult _ _ ) ) in e' . rewrite ( pathsinv0 ( hzabsvalandmult _ _ ) ) in e' .

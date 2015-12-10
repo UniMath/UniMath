@@ -669,94 +669,54 @@ Defined.
 
 Definition breltodecrel { X : UU } ( B : brel X ) : decrel X := @decrelpair _ ( fun x x' => hProppair ( paths ( B x x' ) true ) ( isasetbool _ _ ) ) ( fun x x' => ( isdeceqbool _ _ ) ) .
 
-Definition deceq_to_decrel {X:hSet} : isdeceq X -> decrel X.
-Proof. intros ? i. exists (λ x y, eqset x y). exact i. Defined.
+Definition deceq_to_decrel {X:UU} : isdeceq X -> decrel X.
+Proof. intros ? i. refine (_,,_).
+       - intros x y. exists (x=y). now apply isasetifdeceq.
+       - exact i.
+Defined.
 
 Definition deceq_to_neqReln {X:hSet} : isdeceq X -> neqReln X.
 Proof.
   intros ? i x y. exact (decprop_to_negProp (P := eqset x y) (i x y)).
 Defined.
 
-Definition deceq_to_pos_decrel {X:hSet} : isdeceq X -> decrel X.
+Definition decrel_to_pos_decrel {X:UU} : decrel X -> decrel X.
 Proof.
-  (* the point of this is that the relation takes values in htrue or hfalse, so when it's true,
-     [tt] will always serve as a proof *)
+  (* the point of this is that the new relation takes values in htrue or hfalse, so
+     when it's true, [tt] will always serve as a proof, and when it's false,
+     no proof is needed, as implemented below. *)
   intros ? i. refine (_,,_).
   { intros x y.
-    induction (i x y) as [eq|neq].
+    induction (pr2 i x y) as [eq|neq].
     { exact htrue. }
     { exact hfalse. } }
   { intros x y; simpl.
-    induction (i x y) as [eq|neq].
+    induction (pr2 i x y) as [eq|neq].
     { simpl. apply ii1. exact tt. }
     { simpl. apply ii2. exact (idfun _). } }
 Defined.
 
-Definition deceq_to_neg_decrel {X:hSet} : isdeceq X -> decrel X.
-Proof.
-  (* the point of this is that the relation takes values in htrue or hfalse, so when it's true,
-     [tt] will always serve as a proof *)
-  intros ? i. refine (_,,_).
-  { intros x y.
-    induction (i x y) as [eq|neq].
-    { exact hfalse. }
-    { exact htrue. } }
-  { intros x y; simpl.
-    induction (i x y) as [eq|neq].
-    { simpl. apply ii2. exact (idfun _). }
-    { simpl. apply ii1. exact tt. } }
-Defined.
-
-Lemma deceq_to_pos_decrel_iff {X:hSet} (i:isdeceq X) (x y:X) :
-  x = y <-> deceq_to_pos_decrel i x y.
+Lemma decrel_to_pos_decrel_iff {X:UU} (R:decrel X) (x y:X) :
+  decrel_to_pos_decrel R x y <-> R x y.
 Proof.
   intros. split.
-  { intros e.
-    unfold deceq_to_pos_decrel; simpl.
-    induction (i x y) as [eq|neq].
-    - simpl. exact tt.
-    - simpl. exact (neq e). }
-  { unfold deceq_to_pos_decrel; simpl.
-    induction (i x y) as [eq|neq].
+  { unfold decrel_to_pos_decrel; simpl.
+    induction (pr2 R x y) as [eq|neq].
     - simpl. intros _. exact eq.
     - simpl. exact fromempty. }
+  { intros e. unfold decrel_to_pos_decrel. simpl.
+    induction (pr2 R x y) as [eq|neq].
+    - simpl. exact tt.
+    - simpl. exact (neq e). }
 Defined.
 
-Lemma deceq_to_neg_decrel_iff {X:hSet} (i:isdeceq X) (x y:X) :
-  x != y <-> deceq_to_neg_decrel i x y.
-Proof.
-  intros. split.
-  { intros ne.
-    unfold deceq_to_neg_decrel; simpl.
-    induction (i x y) as [eq|neq].
-    - simpl. exact (ne eq).
-    - simpl. exact tt. }
-  { unfold deceq_to_neg_decrel; simpl.
-    induction (i x y) as [eq|neq].
-    - simpl. exact fromempty.
-    - simpl. intros _. exact neq. }
-Defined.
+Notation "'confirm_pos' ( R , x , y ) " := (pr1 (decrel_to_pos_decrel_iff R x y) tt) (at level 200).
+Notation "'confirm_neg' ( R , x , y ) " := (pr2 (decrel_to_pos_decrel_iff R x y)) (at level 200).
+(* Compare the notations above with "ct" and "ctlong". The advantage of these over it
+   is that we don't have to prove decidability both for equality and for inequality. *)
 
-Lemma deceq_to_negProp_decrel_iff {X:hSet} (i:isdeceq X) (x y:X) :
-  let neq := deceq_to_neqReln i in
-  neq x y <-> deceq_to_neg_decrel i x y.
-Proof.
-  intros. split.
-  { intros ne.
-    unfold deceq_to_neg_decrel; simpl.
-    induction (i x y) as [e|n].
-    - simpl. exact (negProp_to_neg ne e).
-    - simpl. exact tt. }
-  { unfold deceq_to_neg_decrel; simpl.
-    induction (i x y) as [e|n].
-    - simpl. exact fromempty.
-    - simpl. intros _. apply pair_falsehood. exact n. }
-Defined.
-
-Notation "'confirm_eq' ( i , x , y ) " := (pr2 (deceq_to_pos_decrel_iff i x y) tt) (at level 200).
-Notation "'confirm_neg' ( i , x , y ) " := (pr2 (deceq_to_neg_decrel_iff i x y) tt) (at level 200).
-Notation "'confirm_negProp' ( i , x , y ) " := (pr2 (deceq_to_negProp_decrel_iff i x y) tt) (at level 200).
-(* compare the notations above with "ct" and "ctlong" *)
+Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification the opposite way *)
+  let T := type of x in match goal with |- ?G => exact ((@id G : T -> G) x) end.
 
 Definition decrel_to_DecidableRelation {X} : decrel X -> DecidableRelation X.
 Proof.
