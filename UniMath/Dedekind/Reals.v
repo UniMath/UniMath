@@ -154,10 +154,10 @@ Proof.
     destruct x as ((x,y),(Hx,Hx')) ; simpl.
     destruct x' as ((x',y'),(Hy,Hy')) ; simpl.
     apply Utilities.simple_pair_path.
-    apply isantisym_leNonnegativeReals ; split.
+    apply isantisymm_leNonnegativeReals ; split.
     now apply (Hx' _ Hy).
     now apply (Hy' _ Hx).
-    apply isantisym_leNonnegativeReals ; split.
+    apply isantisymm_leNonnegativeReals ; split.
     now apply (pr2 (Hx' _ Hy)).
     now apply (pr2 (Hy' _ Hx)). }
   apply (iscontrweqf (X := (pr1 x = pr1 x'))).
@@ -303,6 +303,44 @@ Proof.
   apply hinhpr ; simpl.
   exists 0.
   apply_pr2 plusNonnegativeReals_eqcompat_l.
+  exact Hz.
+Qed.
+
+(** minus *)
+
+Lemma hr_minus_carac :
+  ∀ X Y : hr_commrng,
+  ∀ z : NonnegativeReals × NonnegativeReals,
+    pr1 (X - Y)%rng z ->
+    ∀ x y : NonnegativeReals × NonnegativeReals,
+      pr1 X x -> pr1 Y y ->
+      pr1 x + pr2 y + pr2 z = pr1 z + pr2 x + pr1 y.
+Proof.
+  intros X Y z Hz x y Hx Hy.
+  revert Hz.
+  rewrite <- (NR_to_hr_unique _ _ Hx).
+  rewrite <- (NR_to_hr_unique _ _ Hy).
+  apply (hinhuniv (P := hProppair _ (pr2 (pr1 (pr1 (pr1 NonnegativeReals))) _ _))) ; simpl.
+  intros (c,Hz).
+  rewrite <-! isassoc_plusNonnegativeReals in Hz.
+  apply (plusNonnegativeReals_eqcompat_l c).
+  exact Hz.
+Qed.
+Lemma hr_minus_carac' :
+  ∀ X Y : hr_commrng,
+  ∀ x y : NonnegativeReals × NonnegativeReals,
+    pr1 X x -> pr1 Y y ->
+    ∀ z : NonnegativeReals × NonnegativeReals,
+      pr1 x + pr2 y + pr2 z = pr1 z + pr2 x + pr1 y ->
+      pr1 (X - Y)%rng z.
+Proof.
+  intros X Y x y Hx Hy z Hz.
+  rewrite <- (NR_to_hr_unique _ _ Hx).
+  rewrite <- (NR_to_hr_unique _ _ Hy).
+  apply hinhpr ; simpl.
+  exists 0.
+  apply_pr2 plusNonnegativeReals_eqcompat_l.
+  rewrite <-!isassoc_plusNonnegativeReals.
   exact Hz.
 Qed.
 
@@ -462,7 +500,7 @@ Proof.
   apply hr_eq_carac' with x y.
   exact Hx.
   exact Hy.
-  apply isantisym_leNonnegativeReals ; split.
+  apply isantisymm_leNonnegativeReals ; split.
   now apply hr_le_carac with X Y.
   now apply hr_le_carac with Y X.
 Qed.
@@ -512,6 +550,175 @@ Proof.
     apply_pr2 (plusNonnegativeReals_ltcompat_l (pr2 x)).
     rewrite isassoc_plusNonnegativeReals, <- (iscomm_plusNonnegativeReals (pr2 x)), (iscomm_plusNonnegativeReals (pr1 z)), isassoc_plusNonnegativeReals, <- isassoc_plusNonnegativeReals.
     exact Hlt.
+Qed.
+
+Lemma isnonnegative_NonnegativeReals :
+  ∀ x : NonnegativeReals, 0 <= x.
+Admitted.
+Lemma le0_NonnegativeReals :
+  ∀ x : NonnegativeReals, (x <= 0) <-> (x = 0).
+Admitted.
+
+Lemma hr_ispositive_carac :
+  ∀ X : hr_commrng,
+    hr_lt_rel 0%rng X ->
+    Σ x : NonnegativeReals, pr1 X (x ,, 0) × 0 < x.
+Proof.
+  intros X Hlt.
+  destruct (hr_to_NR X) as (x,(Hx, Hmin)).
+  eapply hr_lt_carac in Hlt.
+  2: now apply (hr_zero_carac' (0,,0)).
+  2: exact Hx.
+  rewrite islunit_zero_plusNonnegativeReals, isrunit_zero_plusNonnegativeReals in Hlt.
+  exists (pr1 x) ; split.
+  generalize Hx ; apply hr_inside_carac' ; simpl.
+  apply_pr2 plusNonnegativeReals_eqcompat_r.
+  apply pathsinv0, le0_NonnegativeReals.
+  eapply istrans_leNonnegativeReals.
+  apply_pr2 (Hmin (pr1 x - pr2 x ,, pr2 x - pr1 x)).
+  apply_pr2 hr_repres.
+  exact Hx.
+  simpl pr2.
+  apply_pr2 le0_NonnegativeReals.
+  apply minusNonnegativeReals_eq_zero.
+  apply Dcuts_lt_le_rel.
+  exact Hlt.
+  eapply istrans_le_lt_ltNonnegativeReals, Hlt.
+  apply isnonnegative_NonnegativeReals.
+Qed.
+Lemma hr_ispositive_carac' :
+  ∀ X : hr_commrng,
+  ∀ x : NonnegativeReals × NonnegativeReals,
+    pr1 X x ->
+    pr2 x < pr1 x ->
+    hr_lt_rel 0%rng X.
+Proof.
+  intros X x Hx Hlt.
+  eapply hr_lt_carac'.
+  now apply (hr_zero_carac' (0,,0)).
+  exact Hx.
+  rewrite islunit_zero_plusNonnegativeReals,  isrunit_zero_plusNonnegativeReals.
+  exact Hlt.
+Qed.
+
+Lemma hr_isnonnegative_carac :
+  ∀ X : hr_commrng,
+    hr_le_rel 0%rng X ->
+    Σ x : NonnegativeReals, pr1 X (x ,, 0).
+Proof.
+  intros X Hle.
+  destruct (hr_to_NR X) as (x,(Hx, Hmin)).
+  eapply hr_le_carac in Hle.
+  2: now apply (hr_zero_carac' (0,,0)).
+  2: exact Hx.
+  rewrite islunit_zero_plusNonnegativeReals, isrunit_zero_plusNonnegativeReals in Hle.
+  exists (pr1 x).
+  generalize Hx ; apply hr_inside_carac' ; simpl.
+  apply_pr2 plusNonnegativeReals_eqcompat_r.
+  apply pathsinv0, le0_NonnegativeReals.
+  eapply istrans_leNonnegativeReals.
+  apply_pr2 (Hmin (pr1 x - pr2 x ,, pr2 x - pr1 x)).
+  apply_pr2 hr_repres.
+  exact Hx.
+  simpl pr2.
+  apply_pr2 le0_NonnegativeReals.
+  apply minusNonnegativeReals_eq_zero.
+  exact Hle.
+Qed.
+Lemma hr_isnonnegative_carac' :
+  ∀ X : hr_commrng,
+  ∀ x : NonnegativeReals × NonnegativeReals,
+    pr1 X x ->
+    pr2 x <= pr1 x ->
+    hr_le_rel 0%rng X.
+Proof.
+  intros X x Hx Hle.
+  eapply hr_le_carac'.
+  now apply (hr_zero_carac' (0,,0)).
+  exact Hx.
+  rewrite islunit_zero_plusNonnegativeReals,  isrunit_zero_plusNonnegativeReals.
+  exact Hle.
+Qed.
+
+Lemma hr_isnegative_carac :
+  ∀ X : hr_commrng,
+    hr_lt_rel X 0%rng ->
+    Σ x : NonnegativeReals, pr1 X (0 ,, x) × 0 < x.
+Proof.
+  intros X Hlt.
+  destruct (hr_to_NR X) as (x,(Hx, Hmin)).
+  eapply hr_lt_carac in Hlt.
+  2: exact Hx.
+  2: now apply (hr_zero_carac' (0,,0)).
+  rewrite islunit_zero_plusNonnegativeReals, isrunit_zero_plusNonnegativeReals in Hlt.
+  exists (pr2 x) ; split.
+  generalize Hx ; apply hr_inside_carac' ; simpl.
+  apply_pr2 plusNonnegativeReals_eqcompat_l.
+  apply le0_NonnegativeReals.
+  eapply istrans_leNonnegativeReals.
+  apply (Hmin (pr1 x - pr2 x ,, pr2 x - pr1 x)).
+  apply_pr2 hr_repres.
+  exact Hx.
+  simpl pr1.
+  apply_pr2 le0_NonnegativeReals.
+  apply minusNonnegativeReals_eq_zero.
+  apply Dcuts_lt_le_rel.
+  exact Hlt.
+  eapply istrans_le_lt_ltNonnegativeReals, Hlt.
+  apply isnonnegative_NonnegativeReals.
+Qed.
+Lemma hr_isnegative_carac' :
+  ∀ X : hr_commrng,
+  ∀ x : NonnegativeReals × NonnegativeReals,
+    pr1 X x ->
+    pr1 x < pr2 x ->
+    hr_lt_rel X 0%rng.
+Proof.
+  intros X x Hx Hlt.
+  eapply hr_lt_carac'.
+  exact Hx.
+  now apply (hr_zero_carac' (0,,0)).
+  rewrite islunit_zero_plusNonnegativeReals,  isrunit_zero_plusNonnegativeReals.
+  exact Hlt.
+Qed.
+
+Lemma hr_isnonpositive_carac :
+  ∀ X : hr_commrng,
+    hr_le_rel X 0%rng ->
+    Σ x : NonnegativeReals, pr1 X (0 ,, x).
+Proof.
+  intros X Hle.
+  destruct (hr_to_NR X) as (x,(Hx, Hmin)).
+  eapply hr_le_carac in Hle.
+  2: exact Hx.
+  2: now apply (hr_zero_carac' (0,,0)).
+  rewrite islunit_zero_plusNonnegativeReals, isrunit_zero_plusNonnegativeReals in Hle.
+  exists (pr2 x).
+  generalize Hx ; apply hr_inside_carac' ; simpl.
+  apply_pr2 plusNonnegativeReals_eqcompat_l.
+  apply le0_NonnegativeReals.
+  eapply istrans_leNonnegativeReals.
+  apply (Hmin (pr1 x - pr2 x ,, pr2 x - pr1 x)).
+  apply_pr2 hr_repres.
+  exact Hx.
+  simpl pr1.
+  apply_pr2 le0_NonnegativeReals.
+  apply minusNonnegativeReals_eq_zero.
+  exact Hle.
+Qed.
+Lemma hr_isnonpositive_carac' :
+  ∀ X : hr_commrng,
+  ∀ x : NonnegativeReals × NonnegativeReals,
+    pr1 X x ->
+    pr1 x <= pr2 x ->
+    hr_le_rel X 0%rng.
+Proof.
+  intros X x Hx Hle.
+  eapply hr_le_carac'.
+  exact Hx.
+  now apply (hr_zero_carac' (0,,0)).
+  rewrite islunit_zero_plusNonnegativeReals,  isrunit_zero_plusNonnegativeReals.
+  exact Hle.
 Qed.
 
 Lemma hr_plus_ltcompat_l :
@@ -587,6 +794,117 @@ Proof.
   intros x y z.
   rewrite !(rngcomm1 _ x).
   apply hr_plus_lecompat_l.
+Qed.
+
+Lemma plusNonnegativeReals_le_ltcompat :
+  ∀ x y z t : NonnegativeReals,
+    x <= y -> z < t -> x + z < y + t.
+Admitted.
+
+
+Lemma hr_mult_ltcompat_l :
+  ∀ x y z : hr_commrng, hr_lt_rel 0%rng x -> hr_lt_rel y z -> hr_lt_rel (y * x)%rng (z * x)%rng.
+Proof.
+  intros X Y Z Hx0 Hlt.
+  destruct (hr_to_NR Y) as (y,(Hy,_)).
+  destruct (hr_to_NR Z) as (z,(Hz,_)).
+  eapply hr_ispositive_carac in Hx0.
+  destruct Hx0 as (x,(Hx,Hx0)).
+  eapply hr_lt_carac in Hlt.
+  2: exact Hy.
+  2: exact Hz.
+  eapply hr_lt_carac'.
+  - eapply hr_mult_carac'.
+    exact Hy.
+    exact Hx.
+    instantiate (1 := (pr1 y * x ,, pr2 y * x)).
+    simpl ; rewrite !israbsorb_zero_multNonnegativeReals, isrunit_zero_plusNonnegativeReals.
+    reflexivity.
+  - eapply hr_mult_carac'.
+    exact Hz.
+    exact Hx.
+    instantiate (1 := (pr1 z * x ,, pr2 z * x)).
+    simpl ; rewrite !israbsorb_zero_multNonnegativeReals, isrunit_zero_plusNonnegativeReals.
+    reflexivity.
+  - simpl pr1 ; simpl pr2.
+    rewrite <- !isrdistr_plus_multNonnegativeReals.
+    apply multNonnegativeReals_ltcompat_l.
+    exact Hx0.
+    exact Hlt.
+Qed.
+Lemma hr_mult_ltcompat_l' :
+  ∀ x y z : hr_commrng, hr_le_rel 0%rng x -> hr_lt_rel (y * x)%rng (z * x)%rng -> hr_lt_rel y z.
+Proof.
+  intros X Y Z Hx0 Hlt.
+  apply hr_isnonnegative_carac in Hx0.
+  destruct Hx0 as (x,Hx).
+  destruct (hr_to_NR Y) as (y,(Hy,_)).
+  destruct (hr_to_NR Z) as (z,(Hz,_)).
+  refine (hr_lt_carac' _ _ y z Hy Hz _).
+  eapply hr_lt_carac in Hlt.
+  Focus 2.
+  eapply hr_mult_carac'.
+  exact Hy.
+  exact Hx.
+  instantiate (1 := (pr1 y * x ,, pr2 y * x)).
+  simpl ; rewrite !israbsorb_zero_multNonnegativeReals, isrunit_zero_plusNonnegativeReals.
+  reflexivity.
+  Focus 2.
+  eapply hr_mult_carac'.
+  exact Hz.
+  exact Hx.
+  instantiate (1 := (pr1 z * x ,, pr2 z * x)).
+  simpl ; rewrite !israbsorb_zero_multNonnegativeReals, isrunit_zero_plusNonnegativeReals.
+  reflexivity.
+
+  simpl pr1 in Hlt ; simpl pr2 in Hlt.
+  rewrite <- !isrdistr_plus_multNonnegativeReals in Hlt.
+  apply multNonnegativeReals_ltcompat_l' with x.
+  exact Hlt.
+Qed.
+Lemma hr_mult_ltcompat_r' :
+  ∀ x y z : hr_commrng, hr_le_rel 0%rng x -> hr_lt_rel (x * y)%rng (x * z)%rng -> hr_lt_rel y z.
+Proof.
+  intros x y z.
+  rewrite !(rngcomm2 _ x).
+  apply hr_mult_ltcompat_l'.
+Qed.
+
+Lemma hr_mult_lecompat_l :
+  ∀ x y z : hr_commrng, hr_le_rel 0%rng x -> hr_le_rel y z -> hr_le_rel (y * x)%rng (z * x)%rng.
+Proof.
+  intros x y z Hx0 Hle.
+  apply hr_notlt_le.
+  apply_pr2_in hr_notlt_le Hle.
+  intro Hlt ; apply Hle.
+  apply (hr_mult_ltcompat_l' x).
+  exact Hx0.
+  exact Hlt.
+Qed.
+Lemma hr_mult_lecompat_l' :
+  ∀ x y z : hr_commrng, hr_lt_rel 0%rng x -> hr_le_rel (y * x)%rng (z * x)%rng -> hr_le_rel y z.
+Proof.
+  intros x y z Hx0 Hle.
+  apply hr_notlt_le.
+  apply_pr2_in hr_notlt_le Hle.
+  intro Hlt ; apply Hle.
+  apply (hr_mult_ltcompat_l x).
+  exact Hx0.
+  exact Hlt.
+Qed.
+Lemma hr_mult_lecompat_r :
+  ∀ x y z : hr_commrng, hr_le_rel 0%rng x -> hr_le_rel y z -> hr_le_rel (x * y)%rng (x * z)%rng.
+Proof.
+  intros x y z.
+  rewrite !(rngcomm2 _ x).
+  apply hr_mult_lecompat_l.
+Qed.
+Lemma hr_mult_lecompat_r' :
+  ∀ x y z : hr_commrng, hr_lt_rel 0%rng x -> hr_le_rel (x * y)%rng (x * z)%rng -> hr_le_rel y z.
+Proof.
+  intros x y z.
+  rewrite !(rngcomm2 _ x).
+  apply hr_mult_lecompat_l'.
 Qed.
 
 (** *** Appartness *)
@@ -749,36 +1067,18 @@ Qed.
 
 Lemma islapbinop_plus : islapbinop (X := _,,_,,istightap_hr_ap) BinaryOperations.op1.
 Proof.
-  intros X Y Z Hap.
-  generalize (hr_to_NR X) (hr_to_NR Y) (hr_to_NR Z) ; intros (x,(Hx,_)) (y,(Hy,_)) (z,(Hz,_)).
-  rewrite <- (NR_to_hr_unique _ _ Hx) in Hap.
-  rewrite <- (NR_to_hr_unique _ _ Hy), <- (NR_to_hr_unique _ _ Hz) in Hap |- *.
-  unfold BinaryOperations.op1 in Hap ; simpl in Hap.
-  revert Hap ;
-  apply hinhfun ; simpl.
-  intros (c,Hap).
-  exists c.
-  change (pr1 y + pr2 z + c ≠ pr1 z + pr2 y + c).
-  apply_pr2 (plusNonnegativeReals_apcompat_l (pr1 x + pr2 x)).
-  cut (pr1 y + pr2 z + c + (pr1 x + pr2 x) = pr1 y + pr1 x + (pr2 z + pr2 x) + c).
-  intros ->.
-  cut (pr1 z + pr2 y + c + (pr1 x + pr2 x) = pr1 z + pr1 x + (pr2 y + pr2 x) + c).
-  intros ->.
-  exact Hap.
-  - rewrite !isassoc_plusNonnegativeReals.
-    apply_pr2 plusNonnegativeReals_eqcompat_r.
-    do 2 rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
-    apply_pr2 plusNonnegativeReals_eqcompat_r.
-    rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
-    apply_pr2 plusNonnegativeReals_eqcompat_r.
-    apply iscomm_plusNonnegativeReals.
-  - rewrite !isassoc_plusNonnegativeReals.
-    apply_pr2 plusNonnegativeReals_eqcompat_r.
-    do 2 rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
-    apply_pr2 plusNonnegativeReals_eqcompat_r.
-    rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
-    apply_pr2 plusNonnegativeReals_eqcompat_r.
-    apply iscomm_plusNonnegativeReals.
+  intros X Y Z.
+  unfold tightapSet_rel ; simpl pr1.
+  intro Hap.
+  apply_pr2 hr_ap_lt.
+  apply hr_ap_lt in Hap.
+  revert Hap ; apply hinhfun ; intros [Hlt | Hlt].
+  - left.
+    apply_pr2 (hr_plus_ltcompat_l X).
+    exact Hlt.
+  - right.
+    apply_pr2 (hr_plus_ltcompat_l X).
+    exact Hlt.
 Qed.
 Lemma israpbinop_plus : israpbinop (X := _,,_,,istightap_hr_ap) BinaryOperations.op1.
 Proof.
@@ -787,32 +1087,38 @@ Proof.
   rewrite !(rngcomm1 _ _ X).
   exact Hap.
 Qed.
+
 Lemma islapbinop_mult : islapbinop (X := _,,_,,istightap_hr_ap) BinaryOperations.op2.
 Proof.
-  intros X Y Z Hap.
+  intros X Y Z.
+  unfold tightapSet_rel ; simpl pr1.
+  intro Hap.
   generalize (hr_to_NR X) (hr_to_NR Y) (hr_to_NR Z) ; intros (x,(Hx,_)) (y,(Hy,_)) (z,(Hz,_)).
-  rewrite <- (NR_to_hr_unique _ _ Hx) in Hap.
-  rewrite <- (NR_to_hr_unique _ _ Hy), <- (NR_to_hr_unique _ _ Hz) in Hap |- *.
-  unfold BinaryOperations.op2 in Hap ; simpl in Hap.
-  revert Hap ;
-  apply hinhfun ; simpl.
-  intros (c,Hap).
-  apply_pr2_in plusNonnegativeReals_apcompat_l Hap.
-  exists 0.
-  change (pr1 y + pr2 z + 0 ≠ pr1 z + pr2 y + 0).
-  rewrite !isrunit_zero_plusNonnegativeReals.
-  change (pr1 y * pr1 x + pr2 y * pr2 x + (pr1 z * pr2 x + pr2 z * pr1 x))%rng
-  with (pr1 y * pr1 x + pr2 y * pr2 x + (pr1 z * pr2 x + pr2 z * pr1 x))
-    in Hap.
+  eapply hr_ap_carac in Hap.
+  Focus 2.
+  eapply hr_mult_carac'.
+  exact Hy.
+  exact Hx.
+  instantiate (1 := (pr1 y * pr1 x + pr2 y * pr2 x ,, pr1 y * pr2 x + pr2 y * pr1 x)).
+  simpl pr1 ; simpl pr2 ; rewrite !isassoc_plusNonnegativeReals.
+  reflexivity.
+  Focus 2.
+  eapply hr_mult_carac'.
+  exact Hz.
+  exact Hx.
+  instantiate (1 := (pr1 z * pr1 x + pr2 z * pr2 x ,, pr1 z * pr2 x + pr2 z * pr1 x)).
+  simpl pr1 ; simpl pr2 ; rewrite !isassoc_plusNonnegativeReals.
+  reflexivity.
+  simpl pr1 in Hap ; simpl pr2 in Hap.
+  eapply hr_ap_carac'.
+  exact Hy.
+  exact Hz.
   cut ((pr1 y * pr1 x + pr2 y * pr2 x + (pr1 z * pr2 x + pr2 z * pr1 x))
        = (pr1 y + pr2 z) * pr1 x + (pr2 y + pr1 z) * pr2 x).
-  intro H ; rewrite H in Hap ; clear H.
-  change (pr1 z * pr1 x + pr2 z * pr2 x + (pr1 y * pr2 x + pr2 y * pr1 x))%rng
-  with (pr1 z * pr1 x + pr2 z * pr2 x + (pr1 y * pr2 x + pr2 y * pr1 x))
-    in Hap.
+  intro H ; simpl in Hap,H ; rewrite H in Hap ; clear H.
   cut ((pr1 z * pr1 x + pr2 z * pr2 x + (pr1 y * pr2 x + pr2 y * pr1 x))
        = (pr1 z + pr2 y) * pr1 x + (pr2 z + pr1 y) * pr2 x).
-  intro H ; rewrite H in Hap ; clear H.
+  intro H ; simpl in H,Hap ; rewrite H in Hap ; clear H.
   apply ap_plusNonnegativeReals in Hap.
   revert Hap ; apply hinhuniv ; intros [Hap | Hap].
   - apply ap_multNonnegativeReals in Hap.
@@ -853,18 +1159,25 @@ Proof.
   apply isnonzeroNonnegativeReals.
 Qed.
 
+Lemma NR_to_hr_inside :
+  ∀ x : NonnegativeReals × NonnegativeReals, pr1 (NR_to_hr x) x.
+Admitted.
+
 Lemma hr_islinv_neg :
   ∀ (x : NonnegativeReals) (Hap : x ≠ 0),
    (NR_to_hr (0%NR,, invNonnegativeReals x Hap) * NR_to_hr (0%NR,, x))%rng = 1%rng.
 Proof.
   intros x Hap.
-  apply hr_eq_carac' with ((1,,0) : NonnegativeReals × NonnegativeReals) ((1,,0) : NonnegativeReals × NonnegativeReals).
-  - simpl ; apply hinhpr.
-    exists 0.
+  eapply hr_eq_carac'.
+  - eapply hr_mult_carac'.
+    now apply NR_to_hr_inside.
+    now apply NR_to_hr_inside.
+    simpl pr1 ; simpl pr2.
     rewrite  !islabsorb_zero_multNonnegativeReals, israbsorb_zero_multNonnegativeReals, !isrunit_zero_plusNonnegativeReals, !islunit_zero_plusNonnegativeReals.
-    now rewrite islinv_invNonnegativeReals.
-  - apply hinhpr ; exists 0 ; simpl.
-    reflexivity.
+    rewrite islinv_invNonnegativeReals.
+    apply hr_one_carac.
+    now apply NR_to_hr_inside.
+  - now apply NR_to_hr_inside.
   - reflexivity.
 Qed.
 Lemma hr_isrinv_neg :
@@ -881,13 +1194,16 @@ Lemma hr_islinv_pos :
    (NR_to_hr (invNonnegativeReals x Hap,,0%NR) * NR_to_hr (x,,0%NR))%rng = 1%rng.
 Proof.
   intros x Hap.
-  apply hr_eq_carac' with ((1,,0) : NonnegativeReals × NonnegativeReals) ((1,,0) : NonnegativeReals × NonnegativeReals).
-  - simpl ; apply hinhpr.
-    exists 0.
+  eapply hr_eq_carac'.
+  - eapply hr_mult_carac'.
+    now apply NR_to_hr_inside.
+    now apply NR_to_hr_inside.
+    simpl pr1 ; simpl pr2.
     rewrite  !islabsorb_zero_multNonnegativeReals, israbsorb_zero_multNonnegativeReals, !isrunit_zero_plusNonnegativeReals.
-    now rewrite islinv_invNonnegativeReals.
-  - apply hinhpr ; exists 0 ; simpl.
-    reflexivity.
+    rewrite islinv_invNonnegativeReals.
+    apply hr_one_carac.
+    now apply NR_to_hr_inside.
+  - now apply NR_to_hr_inside.
   - reflexivity.
 Qed.
 Lemma hr_isrinv_pos :
@@ -904,28 +1220,23 @@ Lemma hr_ex_inv :
     hr_ap_rel x 0%rng -> multinvpair hr_commrng x.
 Proof.
   intros X Hap.
-  set (x := hr_to_NR X) ; clearbody x.
-  apply (hr_NR_ap_0 _ _ (pr1 (pr2 x))) in Hap.
+  apply hr_ap_lt in Hap.
   revert Hap ;
-    apply (hinhuniv (P := hProppair _ (isapropinvpair _ _))) ; intros [Hap|Hap] ; simpl.
-  - set (Hx := pr2 (hr_repres X (pr1 x)) (pr1 (pr2 x))) ; clearbody Hx.
-    rewrite (minusNonnegativeReals_eq_zero (pr1 (pr1 x)) (pr2 (pr1 x))) in Hx.
+    apply (hinhuniv (P := hProppair _ (isapropinvpair _ _))) ; intros [Hlt|Hlt] ; simpl.
+  - apply hr_isnegative_carac in Hlt.
+    destruct Hlt as (x,(Hx,Hap)).
+    apply_pr2_in ispositive_apNonnegativeReals Hap.
     rewrite <- (NR_to_hr_unique _ _ Hx).
     eexists ; split.
     + now apply hr_islinv_neg.
     + exact (hr_isrinv_neg _ Hap).
-    + apply Dcuts_lt_le_rel.
-      apply_pr2 ispositive_minusNonnegativeReals.
-      now apply ispositive_apNonnegativeReals.
-  - set (Hx := pr2 (hr_repres X (pr1 x)) (pr1 (pr2 x))) ; clearbody Hx.
-    rewrite (minusNonnegativeReals_eq_zero (pr2 (pr1 x)) (pr1 (pr1 x))) in Hx.
+  - apply hr_ispositive_carac in Hlt.
+    destruct Hlt as (x,(Hx,Hap)).
+    apply_pr2_in ispositive_apNonnegativeReals Hap.
     rewrite <- (NR_to_hr_unique _ _ Hx).
     eexists ; split.
     + now apply hr_islinv_pos.
     + exact (hr_isrinv_pos _ Hap).
-    + apply Dcuts_lt_le_rel.
-      apply_pr2 ispositive_minusNonnegativeReals.
-      now apply ispositive_apNonnegativeReals.
 Qed.
 
 Definition hr_ConstructiveField : ConstructiveField.
@@ -967,45 +1278,39 @@ Lemma hr_abs_opp :
   ∀ x : hr_ConstructiveField, hr_abs (- x)%rng = hr_abs x.
 Proof.
   intros X.
-  apply isantisym_leNonnegativeReals ; split.
+  apply isantisymm_leNonnegativeReals ; split.
   - apply Dcuts_max_le.
     + eapply istrans_leNonnegativeReals, Dcuts_max_le_r.
       apply (pr2 (pr2 (hr_to_NR (- X)%rng)) (pr2 (pr1 (hr_to_NR X)),,pr1 (pr1 (hr_to_NR X)))).
       destruct (hr_to_NR X) as (x,(Hx,Hx')) ; simpl pr1.
-      rewrite <- (NR_to_hr_unique _ _ Hx).
-      simpl ; apply hinhpr ; exists 0 ; reflexivity.
+      eapply hr_opp_carac'.
+      exact Hx.
+      reflexivity.
     + eapply istrans_leNonnegativeReals, Dcuts_max_le_l.
       apply (fun H => pr2 ((pr2 (pr2 (hr_to_NR (- X)%rng)) (pr2 (pr1 (hr_to_NR X)),,pr1 (pr1 (hr_to_NR X)))) H)).
       destruct (hr_to_NR X) as (x,(Hx,Hx')) ; simpl pr1.
-      rewrite <- (NR_to_hr_unique _ _ Hx).
-      simpl ; apply hinhpr ; exists 0 ; reflexivity.
+      eapply hr_opp_carac'.
+      exact Hx.
+      reflexivity.
   - apply Dcuts_max_le.
     + eapply istrans_leNonnegativeReals, Dcuts_max_le_r.
       apply (pr2 (pr2 (hr_to_NR (X))) (pr2 (pr1 (hr_to_NR (- X)%rng)),,pr1 (pr1 (hr_to_NR (-X)%rng)))).
       destruct (hr_to_NR (- X)%rng) as (x,(Hx,Hx')) ; simpl pr1.
-      destruct (hr_to_NR X) as (y,(Hy,Hy')).
-      revert Hx.
-      rewrite <- (NR_to_hr_unique _ _ Hy).
-      simpl ; apply hinhfun.
-      intros (c, Hc).
-      exists c.
-      rewrite (iscomm_plusNonnegativeReals (pr2 x)).
-      change ((pr2 y + pr2 x)%NR + c)%rng with (pr2 y + pr2 x + c)%rng.
-      simpl in Hc |- *.
-      now rewrite Hc, (iscomm_plusNonnegativeReals (pr1 y)).
+      assert (X = (- - X)%rng).
+      { apply pathsinv0, rngminusminus. }
+      rewrite X0.
+      eapply hr_opp_carac'.
+      exact Hx.
+      reflexivity.
     + eapply istrans_leNonnegativeReals, Dcuts_max_le_l.
       apply (fun H => pr2 ((pr2 (pr2 (hr_to_NR (X))) (pr2 (pr1 (hr_to_NR (- X)%rng)),,pr1 (pr1 (hr_to_NR (-X)%rng)))) H) ).
       destruct (hr_to_NR (- X)%rng) as (x,(Hx,Hx')) ; simpl pr1.
-      destruct (hr_to_NR X) as (y,(Hy,Hy')).
-      revert Hx.
-      rewrite <- (NR_to_hr_unique _ _ Hy).
-      simpl ; apply hinhfun.
-      intros (c, Hc).
-      exists c.
-      rewrite (iscomm_plusNonnegativeReals (pr2 x)).
-      change ((pr2 y + pr2 x)%NR + c)%rng with (pr2 y + pr2 x + c)%rng.
-      simpl in Hc |- *.
-      now rewrite Hc, (iscomm_plusNonnegativeReals (pr1 y)).
+      assert (X = (- - X)%rng).
+      { apply pathsinv0, rngminusminus. }
+      rewrite X0.
+      eapply hr_opp_carac'.
+      exact Hx.
+      reflexivity.
 Qed.
 
 (** ** Completeness *)
@@ -1043,20 +1348,17 @@ Proof.
     2: apply plusNonnegativeReals_lecompat_r.
     2: apply Dcuts_max_le_r.
     destruct (hr_to_NR (u m - u n)%rng) as (z,(Hz,Hz')) ; simpl pr1.
-    revert Hz.
-    rewrite <- ! Hxy ; apply hinhuniv ; intros (d,Hd) ;
-    simpl in Hd.
+    eapply (hr_minus_carac (u m) (u n)) in Hz.
+    2: rewrite <- Hxy ; apply NR_to_hr_inside.
+    2: rewrite <- Hxy ; apply NR_to_hr_inside.
+    simpl in Hz.
     apply ((pr2 (pr2 (hr_to_NR (u n)))) (x m + pr2 z ,, y m + pr1 z)).
-    rewrite <- Hxy ; apply hinhpr ; simpl.
-    exists d.
-    rewrite <- isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (x n)), (iscomm_plusNonnegativeReals (y m + x n)).
-    change ((pr1 z + (y m + x n))%NR + d)%rng
-    with (pr1 z + (y m + x n) + d)%rng.
-    simpl in Hd |- * ; rewrite <- Hd.
+    generalize (pr1 (pr2 (hr_to_NR (u n)))).
+    apply hr_inside_carac' ; simpl pr1 ; simpl pr2.
+    rewrite <- isassoc_plusNonnegativeReals, (iscomm_plusNonnegativeReals (x n)), (iscomm_plusNonnegativeReals (y m + x n)), <-isassoc_plusNonnegativeReals.
+    rewrite <- Hz.
     rewrite !isassoc_plusNonnegativeReals.
     apply_pr2 plusNonnegativeReals_eqcompat_r.
-    rewrite <- !isassoc_plusNonnegativeReals.
-    apply_pr2 plusNonnegativeReals_eqcompat_l.
     apply iscomm_plusNonnegativeReals.
   - apply (plusNonnegativeReals_ltcompat_r (x n)) in Hu.
     apply istrans_le_lt_ltNonnegativeReals with (x n + hr_abs (u m - u n)%rng).
@@ -1065,19 +1367,19 @@ Proof.
     2: apply plusNonnegativeReals_lecompat_r.
     2: apply Dcuts_max_le_l.
     destruct (hr_to_NR (u m - u n)%rng) as (z,(Hz,Hz')) ; simpl pr1.
-    revert Hz.
-    rewrite <- ! Hxy ; apply hinhuniv ; intros (d,Hd) ;
-    simpl in Hd.
+    eapply (hr_minus_carac (u m) (u n)) in Hz.
+    2: rewrite <- Hxy ; apply NR_to_hr_inside.
+    2: rewrite <- Hxy ; apply NR_to_hr_inside.
+    simpl in Hz.
     apply ((pr2 (pr2 (hr_to_NR (u m)))) (x n + pr1 z ,, y n + pr2 z)).
-    rewrite <- Hxy ; apply hinhpr ; simpl.
-    exists d.
+    generalize (pr1 (pr2 (hr_to_NR (u m)))).
+    apply hr_inside_carac'.
+    simpl pr1 ; simpl pr2.
     rewrite <- !isassoc_plusNonnegativeReals.
-    change ((x m + y n + pr2 z)%NR + d)%rng
-    with (x m + y n + pr2 z + d)%rng.
-    simpl in Hd |- * ; rewrite Hd.
-    rewrite <- !isassoc_plusNonnegativeReals.
-    apply_pr2 plusNonnegativeReals_eqcompat_l.
-    now rewrite iscomm_plusNonnegativeReals, !isassoc_plusNonnegativeReals.
+    change (pr1 (pr1 (hr_to_NR (u m)))) with (x m).
+    rewrite Hz.
+    rewrite iscomm_plusNonnegativeReals, <- !isassoc_plusNonnegativeReals.
+    reflexivity.
 Qed.
 Lemma Cauchy_seq_pr2 (u : nat -> hr_ConstructiveField) :
   let y := λ n : nat, pr2 (pr1 (hr_to_NR (u n))) in

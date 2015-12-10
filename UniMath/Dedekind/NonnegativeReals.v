@@ -3839,7 +3839,7 @@ Definition istrans_leNonnegativeReals :
 Definition isrefl_leNonnegativeReals :
   ∀ x : NonnegativeReals, x <= x
   := isrefl_EOle (X := EffectivelyOrdered_NonnegativeReals).
-Lemma isantisym_leNonnegativeReals :
+Lemma isantisymm_leNonnegativeReals :
   ∀ x y : NonnegativeReals, x <= y × y <= x <-> x = y.
 Proof.
   intros x y ; split.
@@ -3972,7 +3972,7 @@ Lemma plusNonnegativeReals_eqcompat_l :
 Proof.
   intros x y z ; split.
   - intro H ;
-    apply isantisym_leNonnegativeReals ; split.
+    apply isantisymm_leNonnegativeReals ; split.
     + apply_pr2 (plusNonnegativeReals_lecompat_l x).
       rewrite H ; refine (isrefl_leNonnegativeReals _).
     + apply_pr2 (plusNonnegativeReals_lecompat_l x).
