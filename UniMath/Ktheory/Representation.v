@@ -771,16 +771,16 @@ Proof.
                       apply (maponpaths (λ k, X ▭ f ⟳ k));
                       apply pathsinv0;
                       exact (universalMapProperty (r b) (pr1 x' b)) ]) using R. } }
-      {
-
-
-
-
-      set (PATHS := @paths).
-
-Abort.
-
-
+      { abstract (refine (total2_paths _ _);
+        [ simpl; apply funextsec; intro b; refine (universalMapProperty _ _)
+        | apply funextsec; intro b;
+          apply funextsec; intro b';
+          apply funextsec; intro f; simpl; apply setproperty ] ) using L. } }
+    { abstract (intros p q e; apply nat_trans_eq;
+                [ apply homset_property
+                | intros b; apply (mapUniqueness _ (r b) _ (p ◽ b) (q ◽ b));
+                  exact (maponpaths (λ k, pr1 k b) e)]) using M. } }
+Defined.
 
 Theorem functorPrecategoryLimits (B C:Precategory) : hasLimits C -> hasLimits [B,C].
 Proof.

@@ -47,10 +47,10 @@ Definition termfun {X : UU} (x : X) : unit -> X := fun (t : unit) => x.
 
 (** *** Identity functions and function composition *)
 
-Definition idfun (T : UU) := fun (t : T) => t.
+(* idfun is the same as id, which is already defined in Coq, so we might use it instead: *)
+Definition idfun (T : UU) := λ t:T, t.
 
-Definition funcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :=
-  fun (x : X) => g (f x).
+Definition funcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z) := λ x, g (f x).
 
 Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
 
@@ -1304,7 +1304,7 @@ Proof.
   assert (h : f ~ g).
   { intros t. apply isconnectedunit. }
   exact (isweqhomot f g h i).
-Defined.  
+Defined.
 
 Theorem gradth {X Y : UU} (f : X -> Y) (g : Y -> X)
   (egf: ∀ x : X, g (f x) = x)

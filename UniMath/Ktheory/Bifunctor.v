@@ -115,68 +115,44 @@ Proof.
                 | intro b; simpl; now rewrite id_right, id_left]]) using N. }
 Defined.
 
-Lemma A {X:UU} {Y:X->UU} {Z : ∀ x, Y x -> UU}
-      {f g : ∀ x, Y x} (e : f = g) {x : X} (z : Z x (f x)) :
-  transportf (λ f, Z x (f x)) e z =
-  transportf (λ y, Z x y) (toforallpaths _ _ _ e x) z.
-Proof. induction e. reflexivity. Defined.
-
-Lemma A' {X:UU} {Y:X->UU}
-      {f g : ∀ x, Y x} (e : f = g) {x : X} (z : Y x) :
-  transportf (λ f, Y x) e z =
-  transportf (λ y, Y x) (toforallpaths _ _ _ e x) z.
-Proof. induction e. reflexivity. Defined.
-
 Lemma transport_along_funextsec {X:UU} {Y:X->UU} {f g:∀ x, Y x}
       (e:f~g) (x:X) : transportf _ (funextsec _ _ _ e) (f x) = g x.
 Proof.
   unfold funextsec.
-  set (w := weqtoforallpaths _ f g).
-  rewrite A'.
-  induction (!(apevalat x (homotweqinvweq w e)
-               : toforallpaths Y f g (invmap w e) x = e x)).
-  now induction (e x).
+  induction (invmap (weqtoforallpaths _ f g) e).
+  reflexivity.
 Defined.
 
-Lemma C (A B : UU) (Q : B -> UU) (F G : A -> B) (a : A)
-      (q : ∀ a : A, Q (F a))
-      (r : ∀ a : A, F a = G a) :
-  transportf (λ f : A -> B, ∀ a, Q (f a)) (funextfun _ _ r) q a =
-  transportf Q (r a) (q a).
-Proof.
-  unfold funextfun, funextsec.
-  set (w := weqtoforallpaths _ F G).
-
-
-
-Admitted.
-
-Definition ca := Σ ob:UU, ob -> UU.
-Definition fu (A B : ca) := Σ F : pr1 A -> pr1 B, ∀ a, pr2 B (F a).
-
-Lemma D' {A B:UU} {Q:B->UU} (F G : Σ F : A -> B, ∀ a, Q (F a)) :
+Definition Functor_eq_map {A B: Precategory} (F G:[A,B]) :
   F = G ->
-  (Σ (eq : ∀ a, pr1 F a = pr1 G a), (∀ a, transportf Q (eq a) (pr2 F a) = pr2 G a)).
+  Σ (ob : ∀ a, F ◾ a = G ◾ a),
+  ∀ a a' f, transportf (λ k, k → G ◾ a')
+                       (ob a)
+                       (transportf (λ k, F ◾ a → k)
+                                   (ob a')
+                                   (F ▭ f)) = G ▭ f.
 Proof.
-  intro e. induction e.
-  exists (λ a, idpath (pr1 F a)).
-  exact (λ a, idpath (pr2 F a)).
+  intros e.
+  refine (_,,_).
+  - intros a. induction e. reflexivity.
+  - intros a a' f; simpl. induction e; simpl. reflexivity.
 Defined.
 
-Lemma Dweq {A B:UU} {Q:B->UU} (F G : Σ F : A -> B, ∀ a, Q (F a)) :
-  isweq (D' F G).
+Lemma Functor_eq_map_isweq {A B: Precategory} {F G:[A,B]} : isweq (Functor_eq_map F G).
 Proof.
   (* should be provable using the ideas in isweqtoforallpaths *)
-Abort.
+Admitted.
 
-
-Lemma D (A B : ca) (F G : fu A B) :
-  (Σ (r : ∀ a, pr1 F a = pr1 G a), (∀ a, transportf (λ k, pr2 B k) (r a) (pr2 F a) = pr2 G a))
-  -> F = G.
+Lemma Functor_eq_weq {A B: Precategory} (F G:[A,B]) :
+  F = G ≃
+  Σ (ob : ∀ a, F ◾ a = G ◾ a),
+  ∀ a a' f, transportf (λ k, k → G ◾ a')
+                       (ob a)
+                       (transportf (λ k, F ◾ a → k)
+                                   (ob a')
+                                   (F ▭ f)) = G ▭ f.
 Proof.
-  intros v. refine (total2_paths _ _).
-  { apply funextfun. exact (pr1 v). }
-  { apply funextsec; intro a'. refine (_ @ pr2 v a'). apply C. }
+  exact (weqpair _ Functor_eq_map_isweq).
 Defined.
 
 Lemma Functor_eq {A B: Precategory} {F G:[A,B]}
@@ -188,46 +164,22 @@ Lemma Functor_eq {A B: Precategory} {F G:[A,B]}
                                               (F ▭ f)) = G ▭ f) :
   F = G.
 Proof.
-  apply functor_eq.
-  { apply homset_property. }
-  refine (total2_paths _ _).
-  { apply funextsec. exact ob. }
-  { apply funextsec; intro a.
-    apply funextsec; intro a'.
-    apply funextsec; intro f.
-    refine (_ @ mor a a' f).
-
-
-Admitted.
+  apply (invmap (Functor_eq_weq F G)).
+  exists ob.
+  exact mor.
+Defined.
 
 Lemma comm_comm_eq_id (A B C:Precategory) :
   bifunctor_comm B A C □ bifunctor_comm A B C = functor_identity _.
 Proof.
-  intros.
-  refine (Functor_eq _ _).
+  intros. refine (Functor_eq _ _).
   { intro F.
     change (functor_identity [A, [B, C]] ◾ F) with F.
     refine (Functor_eq _ _).
     { intro a. refine (Functor_eq _ _); reflexivity. }
     { intros a a' f; simpl.
-      apply nat_trans_eq.
-      { apply homset_property. }
-      intro b.
-
-
-
-
-      set (TR := @transportf).
-
-
-            set (P:=@paths).
-            set (MOR:=@precategory_morphisms).
-
-
-            (* how does one deal with such transports in Coq? *)
-
+      (* how does one deal with such transports in Coq? *)
 Abort.
-
 
 (** bifunctors related to representable functors  *)
 
