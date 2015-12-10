@@ -70,9 +70,11 @@ Module Test_int.
 
   Open Scope hz.
 
+  Goal nattohz 4 = nattohz 2 + nattohz 2.
+    exact ( confirm_eq ( isdeceqhz , nattohz 4 , nattohz 2 + nattohz 2 ) ).
+  Defined.
   Goal nattohz 3 != 0. exact (confirm_neg ( isdeceqhz , nattohz 3 , 0 ) ). Defined.
   Goal nattohz 3 ≠ 0. exact (confirm_negProp ( isdeceqhz , nattohz 3 , 0 ) ). Defined.
-  Goal nattohz 4 = nattohz 2 + nattohz 2. exact (confirm_eq). Defined.
 
   Goal true = hzbooleq (natnattohz 3 4) (natnattohz 17 18) . reflexivity. Qed.
   Goal false = (hzbooleq (natnattohz 3 4) (natnattohz 17 19)) . reflexivity. Qed.
@@ -114,10 +116,20 @@ Module Test_rat.
     reflexivity.
   Qed.
 
-  Unset Kernel Term Sharing.    (* needed for the following test: *)
+  Goal ( nattohq 1%nat + nattohq 1%nat = nattohq 2 ).
+    Time exact (confirm_eq ( isdeceqhq, nattohq (S O) + nattohq (S O), nattohq 2)).
+  Time Defined.
 
-  Goal hztohq(nattohz (S O)) + hztohq(nattohz (S O)) = hztohq(nattohz (S (S O))).
+  Unset Kernel Term Sharing.    (* needed for the following tests: *)
+
+  Goal ( 1 = nattohq 1%nat ). reflexivity. Defined.
+
+  Goal ( 1 = hztohq 1%hz ). reflexivity. Defined.
+
+  Goal nattohq 1%nat + nattohq 1%nat = nattohq 2.
     reflexivity.                  (* fixed, 11 seconds *)
   Defined.                        (* fixed, 11 seconds *)
+
+  Set Kernel Term Sharing.    (* needed for the following tests: *)
 
 End Test_rat.

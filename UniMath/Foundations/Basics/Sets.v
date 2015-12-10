@@ -677,6 +677,21 @@ Proof.
   intros ? i x y. exact (decprop_to_negProp (P := eqset x y) (i x y)).
 Defined.
 
+Definition deceq_to_pos_decrel {X:hSet} : isdeceq X -> decrel X.
+Proof.
+  (* the point of this is that the relation takes values in htrue or hfalse, so when it's true,
+     [tt] will always serve as a proof *)
+  intros ? i. refine (_,,_).
+  { intros x y.
+    induction (i x y) as [eq|neq].
+    { exact htrue. }
+    { exact hfalse. } }
+  { intros x y; simpl.
+    induction (i x y) as [eq|neq].
+    { simpl. apply ii1. exact tt. }
+    { simpl. apply ii2. exact (idfun _). } }
+Defined.
+
 Definition deceq_to_neg_decrel {X:hSet} : isdeceq X -> decrel X.
 Proof.
   (* the point of this is that the relation takes values in htrue or hfalse, so when it's true,
@@ -690,6 +705,21 @@ Proof.
     induction (i x y) as [eq|neq].
     { simpl. apply ii2. exact (idfun _). }
     { simpl. apply ii1. exact tt. } }
+Defined.
+
+Lemma deceq_to_pos_decrel_iff {X:hSet} (i:isdeceq X) (x y:X) :
+  x = y <-> deceq_to_pos_decrel i x y.
+Proof.
+  intros. split.
+  { intros e.
+    unfold deceq_to_pos_decrel; simpl.
+    induction (i x y) as [eq|neq].
+    - simpl. exact tt.
+    - simpl. exact (neq e). }
+  { unfold deceq_to_pos_decrel; simpl.
+    induction (i x y) as [eq|neq].
+    - simpl. intros _. exact eq.
+    - simpl. exact fromempty. }
 Defined.
 
 Lemma deceq_to_neg_decrel_iff {X:hSet} (i:isdeceq X) (x y:X) :
@@ -723,9 +753,9 @@ Proof.
     - simpl. intros _. apply pair_falsehood. exact n. }
 Defined.
 
-Notation confirm_eq := (idpath _).
-Notation "'confirm_neg' ( i , x , y ) " := (pr2 (deceq_to_neg_decrel_iff i x y) tt) (at level 50).
-Notation "'confirm_negProp' ( i , x , y ) " := (pr2 (deceq_to_negProp_decrel_iff i x y) tt) (at level 50).
+Notation "'confirm_eq' ( i , x , y ) " := (pr2 (deceq_to_pos_decrel_iff i x y) tt) (at level 200).
+Notation "'confirm_neg' ( i , x , y ) " := (pr2 (deceq_to_neg_decrel_iff i x y) tt) (at level 200).
+Notation "'confirm_negProp' ( i , x , y ) " := (pr2 (deceq_to_negProp_decrel_iff i x y) tt) (at level 200).
 (* compare the notations above with "ct" and "ctlong" *)
 
 Definition decrel_to_DecidableRelation {X} : decrel X -> DecidableRelation X.

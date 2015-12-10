@@ -669,6 +669,8 @@ Proof . split with ( fun x => hqgth x 0 ) . split .  intros x1 x2 . apply ( isrn
 
 Definition hztohq : hz -> hq := tofldfrac hzintdom isdeceqhz.
 
+Definition nattohq : nat -> hq := hztohq ∘ nattohz.
+
 Definition isinclhztohq : isincl hztohq := isincltofldfrac hzintdom isdeceqhz .
 
 Definition hztohqandneq ( n m : hz ) ( is : hzneq n m ) : hqneq ( hztohq n ) ( hztohq m ) := negf ( invmaponpathsincl _ isinclhztohq n m ) is .

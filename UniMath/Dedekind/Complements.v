@@ -37,17 +37,12 @@ Notation "2" := (hztohq (nattohz 2)) : hq_scope.
 
 Lemma hzone_neg_hzzero : (1 ≠ 0)%hz.
 Proof.
-  apply neg_to_negProp.
-  apply (hzgthtoneq 1%hz 0%hz).
-  rewrite <- nattohzand1.
-  apply nattohzandgth.
-  apply paths_refl.
+  exact (confirm_negProp (isdeceqhz, 1%hz, 0%hz)).
 Qed.
 
 Definition one_intdomnonzerosubmonoid : intdomnonzerosubmonoid hzintdom hzneq'.
 Proof.
-  exists 1%hz ; simpl.
-  exact hzone_neg_hzzero.
+  exact (unel (intdomnonzerosubmonoid hzintdom hzneq')).
 Defined.
 
 Opaque hz.
@@ -55,8 +50,7 @@ Opaque hz.
 Lemma hq2eq1plus1 :
   2 = 1 + 1.
 Proof.
-  rewrite <- hztohqand1, <- nattohzand1.
-  now rewrite <- hztohqandplus, <- nattohzandplus.
+  exact (confirm_eq (isdeceqhq, 2, 1+1)).
 Qed.
 
 Lemma hq2_gt0 : 2 > 0.
