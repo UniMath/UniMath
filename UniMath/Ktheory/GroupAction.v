@@ -3,8 +3,8 @@
 (** * Group actions *)
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.FunctionalExtensionality
-               UniMath.Foundations.OrderedSets
+               UniMath.Foundations.Basics.UnivalenceAxiom
+               UniMath.Foundations.Combinatorics.OrderedSets
                UniMath.Ktheory.Utilities.
 
 (** ** Move upstream *)

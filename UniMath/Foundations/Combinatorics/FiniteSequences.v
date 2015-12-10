@@ -1,4 +1,4 @@
-Require Export UniMath.Foundations.StandardFiniteSets.
+Require Export UniMath.Foundations.Combinatorics.StandardFiniteSets.
 Unset Automatic Introduction.
 
 (* move upstream *)
