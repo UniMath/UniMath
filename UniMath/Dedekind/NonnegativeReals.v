@@ -3868,6 +3868,24 @@ Definition istrans_le_lt_ltNonnegativeReals :
   ∀ x y z : NonnegativeReals, x <= y -> y < z -> x < z
   := istrans_EOle_lt (X := EffectivelyOrdered_NonnegativeReals).
 
+Lemma isnonnegative_NonnegativeReals :
+  ∀ x : NonnegativeReals, 0 <= x.
+Proof.
+  intros x r Hr.
+  now apply Dcuts_zero_empty in Hr.
+Qed.
+Lemma le0_NonnegativeReals :
+  ∀ x : NonnegativeReals, (x <= 0) <-> (x = 0).
+Proof.
+  intros x ; split ; intros Hx.
+  apply isantisymm_leNonnegativeReals.
+  - split.
+    exact Hx.
+    apply isnonnegative_NonnegativeReals.
+  - rewrite Hx.
+    apply isrefl_leNonnegativeReals.
+Qed.
+
 Lemma ap_ltNonnegativeReals :
   ∀ x y : NonnegativeReals, x ≠ y <-> x < y ∨ y < x.
 Proof.
@@ -3966,6 +3984,15 @@ Definition plusNonnegativeReals_lecompat_l :
 Definition plusNonnegativeReals_lecompat_r :
   ∀ x y z: NonnegativeReals, (y <= z) <-> (x + y <= x + z)
   := Dcuts_plus_lecompat_r.
+
+Lemma plusNonnegativeReals_le_ltcompat :
+  ∀ x y z t : NonnegativeReals,
+    x <= y -> z < t -> x + z < y + t.
+Proof.
+  intros x y z t Hxy Hzt.
+  eapply istrans_le_lt_ltNonnegativeReals, plusNonnegativeReals_ltcompat_r, Hzt.
+  now apply plusNonnegativeReals_lecompat_l.
+Qed.
 
 Lemma plusNonnegativeReals_eqcompat_l :
   ∀ x y z: NonnegativeReals, (y + x = z + x) <-> (y = z).

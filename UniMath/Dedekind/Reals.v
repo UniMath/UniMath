@@ -180,6 +180,14 @@ Proof.
     + refine (hr_repres_pr2 X _ _ (pr2 x) Hy).
 Qed.
 
+Lemma NR_to_hr_inside :
+  ∀ x : NonnegativeReals × NonnegativeReals, pr1 (NR_to_hr x) x.
+Proof.
+  intros x.
+  apply hinhpr ; simpl.
+  exists 0 ; reflexivity.
+Qed.
+
 (** *** Constants and Operations *)
 
 (** 0 *)
@@ -552,13 +560,6 @@ Proof.
     exact Hlt.
 Qed.
 
-Lemma isnonnegative_NonnegativeReals :
-  ∀ x : NonnegativeReals, 0 <= x.
-Admitted.
-Lemma le0_NonnegativeReals :
-  ∀ x : NonnegativeReals, (x <= 0) <-> (x = 0).
-Admitted.
-
 Lemma hr_ispositive_carac :
   ∀ X : hr_commrng,
     hr_lt_rel 0%rng X ->
@@ -795,12 +796,6 @@ Proof.
   rewrite !(rngcomm1 _ x).
   apply hr_plus_lecompat_l.
 Qed.
-
-Lemma plusNonnegativeReals_le_ltcompat :
-  ∀ x y z t : NonnegativeReals,
-    x <= y -> z < t -> x + z < y + t.
-Admitted.
-
 
 Lemma hr_mult_ltcompat_l :
   ∀ x y z : hr_commrng, hr_lt_rel 0%rng x -> hr_lt_rel y z -> hr_lt_rel (y * x)%rng (z * x)%rng.
@@ -1158,10 +1153,6 @@ Proof.
   rewrite !isrunit_zero_plusNonnegativeReals.
   apply isnonzeroNonnegativeReals.
 Qed.
-
-Lemma NR_to_hr_inside :
-  ∀ x : NonnegativeReals × NonnegativeReals, pr1 (NR_to_hr x) x.
-Admitted.
 
 Lemma hr_islinv_neg :
   ∀ (x : NonnegativeReals) (Hap : x ≠ 0),
