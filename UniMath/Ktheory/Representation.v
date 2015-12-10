@@ -785,20 +785,11 @@ Defined.
 Theorem functorPrecategoryLimits (B C:Precategory) : hasLimits C -> hasLimits [B,C].
 Proof.
   intros lim I D.
-  unfold hasLimits in lim.
+  unfold hasLimits, Limit in lim.
   set (D' := bifunctor_comm _ _ _ D).
-  set (Q := lim_functor C lim I □ D').
-  exists Q.
-  refine (_,,_).
-  { refine (_,,_).
-    { intro i. refine (makeNattrans _ _).
-      { intro b. exact (proj_ _ _). }
-      { intros b b' f; simpl.
-
-
-
-
-
+  assert (M := bifunctor_assoc_repn (cone_functor □ D') (λ b, lim I (D' ◾ b))); clear lim.
+  exists (universalObject M).
+  unfold Representation in M.
 
 
 Abort.
