@@ -33,11 +33,12 @@ Definition opp_precat_data (C : precategory_data) : precategory_data :=
 
 Lemma is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C).
 Proof.
-repeat split; intros; unfold compose; simpl.
-- apply id_right.
-- apply id_left.
-- rewrite assoc; apply idpath.
-Qed.
+  split.
+  { split.
+    { intros. apply id_right. }
+    { intros. apply id_left. } }
+  { abstract (intros; apply pathsinv0, assoc). }
+Defined.
 
 Definition opp_precat (C : precategory) : precategory :=
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
@@ -53,7 +54,7 @@ split; [ apply (pr2 (pr2 T)) | apply (pr1 (pr2 T)) ].
 Defined.
 
 Lemma has_homsets_opp {C : precategory} (hsC : has_homsets C) : has_homsets C^op.
-Proof. intros a b; apply hsC. Qed.
+Proof. intros a b; apply hsC. Defined.
 
 
 (** * The opposite functor *)
