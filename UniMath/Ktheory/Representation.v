@@ -808,16 +808,87 @@ Goal ∀ B C t b,
   reflexivity.
 Defined.
 
+(* move upstream *)
+Lemma functor_on_id {B C:Precategory} (F:[B,C]) (b:B) : F ▭ identity b = identity (F ◾ b).
+Proof. exact (functor_id F b). Defined.
+
+Lemma functor_on_comp {B C:Precategory} (F:[B,C]) {b b' b'':B} (g:b'→b'') (f:b→b') :
+  F ▭ (g ∘ f) = F ▭ g ∘ F ▭ f.
+Proof. exact (functor_comp F _ _ _ f g). Defined.
+
+Definition binaryProductFunctor {B C:Precategory} (F G:[B,C]) : [B,[C^op,SET]].
+Proof.
+  refine (makeFunctor _ _ _ _).
+  - intro b. exact (HomPair (F ◾ b) (G ◾ b)).
+  - intros b b' f.
+    refine (makeNattrans_op _ _).
+    + intros c w. exact (F ▭ f ∘ pr1 w ,, G ▭ f ∘ pr2 w).
+    + abstract (intros c c' g; simpl; apply funextsec; intro v;
+                apply dirprod_eq; ( simpl; apply pathsinv0, assoc )) using L.
+  - abstract (intro b; apply nat_trans_eq;
+              [ apply homset_property
+              | intro c; simpl;
+                apply funextsec; intro v;
+                apply dirprod_eq;
+                ( simpl; rewrite functor_on_id; rewrite id_right; reflexivity )]) using L.
+  - abstract (intros b b' b'' f g; apply nat_trans_eq;
+    [ apply homset_property
+    | intro c; apply funextsec; intro w; apply dirprod_eq ;
+      ( simpl; rewrite functor_on_comp; rewrite assoc; reflexivity) ]) using L.
+Defined.
+
 Theorem functorPrecategoryBinaryProduct (B C:Precategory) :
   hasBinaryProducts C -> hasBinaryProducts [B,C].
 Proof.
-  unfold hasBinaryProducts.
   intros prod F G.
-  unfold BinaryProduct.
-  set (h := HomPair F G).
+  refine (iso_Representation_weq
+            (bifunctor_assoc (binaryProductFunctor F G)) _ _
+            (bifunctor_assoc_repn _ _)).
+  { refine (makeNatiso _ _).
+    { intro H.
+      (* this could be isolated as a lemma: *)
+      apply hset_equiv_iso.
+      refine (weqgradth _ _ _ _).
+      { intros w.
+        refine (_,,_).
+        { refine (makeNattrans _ _).
+          { intro b. exact (pr1 (pr1 w b)). }
+          { abstract (intros b b' f; exact (maponpaths dirprod_pr1 (pr2 w b b' f))) using L. } }
+        { refine (makeNattrans _ _).
+          { intro b. exact (pr2 (pr1 w b)). }
+          { abstract (intros b b' f; exact (maponpaths dirprod_pr2 (pr2 w b b' f))) using L. } } }
+      { simpl. intros pq.
+        refine (_,,_).
+        { intros b. exact (pr1 pq b ,, pr2 pq b). }
+        { abstract (intros b b' f; simpl;
+                    apply dirprod_eq; ( simpl; apply nattrans_naturality )) using L. } }
+      { abstract (intros w;
+                  refine (total2_paths _ _);
+                  [ eqn_logic
+                  | (apply funextsec; intro b;
+                     apply funextsec; intro b';
+                     apply funextsec; intro f;
+                     apply isaset_dirprod; apply homset_property) ]) using M. }
+      { abstract (intros pq; apply dirprod_eq;
+        ( apply nat_trans_eq;
+          [ apply homset_property | intro b; reflexivity ] )) using L. } }
+    { abstract (intros H H' p;
+                apply funextsec; intros v;
+                apply dirprod_eq;
+                ( simpl; apply nat_trans_eq;
+                  [ apply homset_property
+                  | intros b; unfold makeNattrans; simpl; reflexivity ] )) using L. } }
+  { exact (λ b, prod (F ◾ b) (G ◾ b)). }
+Defined.
 
-
-Abort.
+Lemma functorPrecategoryBinaryProduct_eqn {B C:Precategory} (prod : hasBinaryProducts C)
+      (F G : [B,C]) (b:B) :
+  universalObject (functorPrecategoryBinaryProduct _ _ prod F G) ◾ b
+  =
+  universalObject (prod (F ◾ b) (G ◾ b)).
+Proof.
+  reflexivity.
+Defined.
 
 Theorem functorPrecategoryLimits (B C:Precategory) : hasLimits C -> hasLimits [B,C].
 Proof.
