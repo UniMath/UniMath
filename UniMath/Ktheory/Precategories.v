@@ -116,14 +116,12 @@ Notation "a ==> b" := (functor a b) (at level 50) : cat.
 Notation "F ⟶ G" := (nat_trans F G) (at level 39) : cat.
 (* agda-input \--> or \r-- or \r menu *)
 
-(* Notation "f ;; g" := (precategories.compose f g) (at level 50, only parsing) : cat. *)
-
 Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativity) : cat.
 (* agda input \circ *)
 
 Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
 
-Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35) : cat.
+Notation "G □ F" := (functor_composite _ _ _ (F:[_,_]) (G:[_,_]) : [_,_]) (at level 35) : cat.
 (* agda input \square *)
 
 Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
@@ -368,6 +366,13 @@ Definition nattrans_nattrans_object_assoc {A B C:Precategory}
            (F:[A,B]) (G:[B, C]) {a a' : A} (f : a → a') :
   G □ F ▭ f = G ▭ (F ▭ f)
   := idpath _.
+
+Lemma functor_on_id {B C:Precategory} (F:[B,C]) (b:B) : F ▭ identity b = identity (F ◾ b).
+Proof. exact (functor_id F b). Defined.
+
+Lemma functor_on_comp {B C:Precategory} (F:[B,C]) {b b' b'':B} (g:b'→b'') (f:b→b') :
+  F ▭ (g ∘ f) = F ▭ g ∘ F ▭ f.
+Proof. exact (functor_comp F _ _ _ f g). Defined.
 
 (*  *)
 

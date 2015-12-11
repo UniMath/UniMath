@@ -10,8 +10,11 @@ Require Import
 Set Automatic Introduction.
 Local Open Scope cat.
 
+Definition isUniversal {C:Precategory} {X:[C^op,SET]} {c:C} (x:c ⇒ X)
+  := ∀ (c':C), isweq (λ f : c' → c, x ⟲ f).
+
 Definition Universal {C:Precategory} (X:[C^op,SET]) (c:C)
-  := Σ (x:c ⇒ X), ∀ (c':C), isweq (λ f : c' → c, x ⟲ f).
+  := Σ (x:c ⇒ X), isUniversal x.
 
 Lemma iso_Universal_weq {C:Precategory} {X Y:[C^op,SET]} (c:C) :
   iso X Y -> Universal X c ≃ Universal Y c.
@@ -188,12 +191,16 @@ Proof.
 Defined.
 
 Definition embeddingRepresentability {C D:Precategory}
-           {i:C==>D} (emb:fully_faithful i) {Y:D^op==>SET} (s:Representation Y) :
-           (Σ c, universalObject s = i c) -> Representation (Y □ functor_opp i).
+           (X:[C^op,SET])
+           {i:[C,D]} (emb:fully_faithful i) {Y:D^op==>SET} (s:Representation Y)
+           (j:iso (Y □ functor_op i) X) :
+           (Σ c, universalObject s = i ◾ c) -> Representation X.
 Proof.
-  intros ce. exists (pr1 ce).
+  intros ce.
+  refine (iso_Representation_weq _ _ j _).
+  exists (pr1 ce).
   exists (transportf (λ d, Y d : hSet) (pr2 ce) s).
-  intro c'. apply (twooutof3c (# i) (λ g, _ ⟲ g)).
+  intro c'. apply (twooutof3c (λ k, i▭k) (λ g, _ ⟲ g)).
   - apply emb.
   - induction (pr2 ce). exact (weqproperty (universalProperty _ _)).
 Defined.
@@ -352,6 +359,8 @@ Defined.
 
 Definition BinarySum {C:Precategory} (a b:C) :=
   BinaryProduct (opp_ob a) (opp_ob b).
+
+Definition hasBinarySums (C:Precategory) := ∀ (a b:C), BinarySum a b.
 
 Definition in_1 {C:Precategory} {a b:C} (sum : BinarySum a b) :
   Hom C a (universalObject sum)
@@ -808,14 +817,6 @@ Goal ∀ B C t b,
   reflexivity.
 Defined.
 
-(* move upstream *)
-Lemma functor_on_id {B C:Precategory} (F:[B,C]) (b:B) : F ▭ identity b = identity (F ◾ b).
-Proof. exact (functor_id F b). Defined.
-
-Lemma functor_on_comp {B C:Precategory} (F:[B,C]) {b b' b'':B} (g:b'→b'') (f:b→b') :
-  F ▭ (g ∘ f) = F ▭ g ∘ F ▭ f.
-Proof. exact (functor_comp F _ _ _ f g). Defined.
-
 Definition binaryProductFunctor {B C:Precategory} (F G:[B,C]) : [B,[C^op,SET]].
 Proof.
   refine (makeFunctor _ _ _ _).
@@ -889,6 +890,29 @@ Lemma functorPrecategoryBinaryProduct_eqn {B C:Precategory} (prod : hasBinaryPro
 Proof.
   reflexivity.
 Defined.
+
+Theorem functorPrecategoryBinarySum (B C:Precategory) :
+  hasBinarySums C -> hasBinarySums [B,C].
+Proof.
+  intros sum F G.
+  assert (L := functorPrecategoryBinaryProduct B^op C^op sum (functor_op F) (functor_op G)).
+  set (obL := universalObject L).
+  unfold hasBinarySums, BinarySum, BinaryProduct in L.
+  unfold hasBinarySums, BinarySum, BinaryProduct.
+  refine (embeddingRepresentability _ _ L _ _).
+  { refine (makeFunctor _ _ _ _).
+    { intros H.
+      refine (makeFunctor _ _ _ _).
+      { intros b. exact (H ◾ b). }
+      { intros b b' f. simpl. exact (H ▭ f). }
+      { intros b. simpl. apply functor_on_id. }
+      { intros b b' b'' f g. simpl. apply functor_on_comp. } }
+    { intros H I p; simpl.
+
+
+
+
+Abort.
 
 Theorem functorPrecategoryLimits (B C:Precategory) : hasLimits C -> hasLimits [B,C].
 Proof.
