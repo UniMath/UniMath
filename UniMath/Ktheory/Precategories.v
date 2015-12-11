@@ -41,21 +41,31 @@ Definition Hom (C:Precategory) : ob C -> ob C -> hSet :=
   λ c c', hSetpair (c → c') (homset_property C _ _ ).
 
 Ltac eqn_logic :=
-  repeat (
-      try intro; try split; try apply id_right; try apply id_left; try apply assoc;
-      try apply funextsec; try apply homset_property;
-      try refine (total2_paths2 _ _);
-      try refine (total2_paths _ _);
-      try refine (nat_trans_ax _ _ _ _); try refine (! nat_trans_ax _ _ _ _);
-      try apply functor_id;
-      try apply functor_comp;
-      try apply isaprop_is_nat_trans
-    ).
+  abstract (
+      repeat (
+          try intro; try split; try apply id_right;
+          try apply id_left; try apply assoc;
+          try apply funextsec;
+          try apply homset_property;
+          try apply isasetunit;
+          try apply isapropunit;
+          try refine (total2_paths2 _ _);
+          try refine (total2_paths _ _);
+          try refine (nat_trans_ax _ _ _ _);
+          try refine (! nat_trans_ax _ _ _ _);
+          try apply functor_id;
+          try apply functor_comp;
+          try apply isaprop_is_nat_trans
+        )) using L.
 
 Ltac set_logic :=
-  repeat (
-      try intro; try apply isaset_total2; try apply isasetdirprod; try apply homset_property;
-      try apply impred_isaset; try apply isasetaprop).
+  abstract (repeat (
+                try intro;
+                try apply isaset_total2;
+                try apply isasetdirprod;
+                try apply homset_property;
+                try apply impred_isaset;
+                try apply isasetaprop)) using M.
 
 Definition functorPrecategory (C D:Precategory) : Precategory.
 Proof.
@@ -381,6 +391,15 @@ Proof.
     now apply (nat_trans_eq (homset_property D^op)).
   - intros F F' F'' p q; simpl.
     now apply (nat_trans_eq (homset_property D^op)).
+Defined.
+
+Definition constantFunctor (C:Precategory) {D:Precategory} (d:D) : [C,D].
+Proof.
+  refine (makeFunctor _ _ _ _).
+  - exact (λ _, d).
+  - intros c c' f; simpl. exact (identity d).
+  - intros c; simpl. reflexivity.
+  - abstract (simpl; intros a b c f g; apply pathsinv0, id_left) using L.
 Defined.
 
 (** natural transformations and isomorphisms *)

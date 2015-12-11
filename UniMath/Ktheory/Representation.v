@@ -43,7 +43,7 @@ Proof.
 Abort.
 
 Definition iso_Representation_weq {C:Precategory} (X Y:[C^op,SET]) :
-  nat_iso X Y -> Representation X ≃ Representation Y.
+  iso X Y -> Representation X ≃ Representation Y.
 Proof.
   intros i. apply weqfibtototal; intro c. apply iso_Universal_weq; assumption.
 Defined.
@@ -244,7 +244,7 @@ Defined.
 
 (** initial and final objects and zero maps  *)
 
-Definition UnitFunctor (C:Precategory) : C ==> SET.
+Definition UnitFunctor (C:Precategory) : [C,SET].
   refine (_,,_).
   { exists (λ c, unitset). exact (λ a b f t, t). }
   { split.
@@ -327,6 +327,8 @@ Defined.
 
 Definition BinaryProduct {C:Precategory} (a b:C) :=
   Representation (HomPair a b).
+
+Definition hasBinaryProducts (C:Precategory) := ∀ (a b:C), BinaryProduct a b.
 
 Definition pr_1 {C:Precategory} {a b:C} (prod : BinaryProduct a b) :
   universalObject prod → a
@@ -781,6 +783,41 @@ Proof.
                 | intros b; apply (mapUniqueness _ (r b) _ (p ◽ b) (q ◽ b));
                   exact (maponpaths (λ k, pr1 k b) e)]) using M. } }
 Defined.
+
+Theorem functorPrecategoryTerminalObject (B C:Precategory) :
+  TerminalObject C -> TerminalObject [B,C].
+Proof.
+  intro t.
+  apply (iso_Representation_weq (bifunctor_assoc (constantFunctor B (UnitFunctor C^op)))).
+  { refine (makeNatiso _ _).
+    { intros F. apply hset_equiv_iso.
+      unfold bifunctor_assoc; simpl.
+      refine (weqgradth _ _ _ _).
+      - intros _. exact tt.
+      - intros x. refine (_,,_).
+        + unfold θ_1; simpl. intro b. exact tt.
+        + eqn_logic.
+      - eqn_logic.
+      - eqn_logic. }
+    { eqn_logic. } }
+  { apply bifunctor_assoc_repn; intro b. exact t. }
+Defined.
+
+Goal ∀ B C t b,
+       universalObject(functorPrecategoryTerminalObject B C t) ◾ b = universalObject t.
+  reflexivity.
+Defined.
+
+Theorem functorPrecategoryBinaryProduct (B C:Precategory) :
+  hasBinaryProducts C -> hasBinaryProducts [B,C].
+Proof.
+  unfold hasBinaryProducts.
+  intros prod F G.
+  unfold BinaryProduct.
+  set (h := HomPair F G).
+
+
+Abort.
 
 Theorem functorPrecategoryLimits (B C:Precategory) : hasLimits C -> hasLimits [B,C].
 Proof.
