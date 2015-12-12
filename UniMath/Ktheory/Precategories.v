@@ -402,11 +402,16 @@ Qed.
 Definition functorOp {B C : Precategory} : [B, C] ^op ==> [B ^op, C ^op].
 Proof.
   refine (makeFunctor _ _ _ _).
-  { apply functor_opp. }
+  { exact functor_opp. }
   { intros H I p. exists (λ b, pr1 p b).
     abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using L. }
-  { abstract (intros H; now apply (nat_trans_eq (homset_property C^op))). }
-  { abstract (intros H J K p q; now apply (nat_trans_eq (homset_property C^op))). }
+  { abstract (intros H; now apply (nat_trans_eq (homset_property _))). }
+  { abstract (intros H J K p q; now apply (nat_trans_eq (homset_property _))). }
+Defined.
+
+Definition functorOp' {B C:Precategory} : [B,C] ==> [B^op,C^op]^op.
+Proof.
+  exact (functorOp functorOp).
 Defined.
 
 Definition functorRmOp {B C : Precategory} : [B ^op, C ^op] ==> [B, C] ^op.
@@ -415,8 +420,18 @@ Proof.
   { exact functor_opp. }
   { intros H I p. exists (λ b, pr1 p b).
     abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using L. }
-  { abstract (intros H; now apply (nat_trans_eq (homset_property C))) using L. }
-  { abstract (intros H J K p q; now apply (nat_trans_eq (homset_property C))). }
+  { abstract (intros H; now apply (nat_trans_eq (homset_property _))) using L. }
+  { abstract (intros H J K p q; now apply (nat_trans_eq (homset_property _))). }
+Defined.
+
+Definition functorMvOp {B C:Precategory} : [B,C^op] ==> [B^op,C]^op.
+Proof.
+  refine (makeFunctor _ _ _ _).
+  { exact functor_opp. }
+  { intros H I p. exists (λ b, pr1 p b).
+    abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using L. }
+  { abstract (intros H; now apply (nat_trans_eq (homset_property _))). }
+  { abstract (intros H J K p q; now apply (nat_trans_eq (homset_property _))). }
 Defined.
 
 Lemma functorOpIso {B C:Precategory} : PrecategoryIsomorphism [B, C]^op [B^op, C^op].
@@ -437,6 +452,12 @@ Proof.
     { abstract (intros H; simpl; apply functor_eq;
                 [ exact (homset_property C^op)
                 | refine (total2_paths _ _); reflexivity]). } }
+Defined.
+
+Corollary functorOpOnMor {B C:Precategory} (F G:[B,C]) :
+   F → G  ≃  functorOp G → functorOp F.
+Proof.
+  exact (weqpair _ (pr2 (pr1 (@functorOpIso B C)) G F)).
 Defined.
 
 Definition functorOpEmb {B C:Precategory} : PrecategoryEmbedding [B, C]^op [B^op, C^op]
@@ -465,9 +486,6 @@ Proof.
   { apply homset_property. }
   refine (total2_paths _ _); reflexivity.
 Qed.
-
-Definition op_functor {C D:Precategory} : [C,D] ==> [C^op,D^op]^op.
-Proof. exact (functorOp functorOp). Defined.
 
 (*  *)
 
@@ -560,21 +578,6 @@ Proof.
         intros G; now apply (nat_trans_eq (homset_property C))) using M.
   - abstract (
         intros G G' G'' p q; now apply (nat_trans_eq (homset_property C))) using N.
-Defined.
-
-Definition op_move {B C:Precategory} : [B,C^op] ==> [B^op,C]^op.
-Proof.
-  set (R := λ F:[B,C^op], @makeFunctor B^op C
-                                  (λ b, F ◾ b)
-                                  (λ b b' f, F ▭ f)
-                                  (λ b, functor_id F b)
-                                  (λ a b c f g, functor_comp F _ _ _ g f)).
-  refine (@makeFunctor [B,C^op] [B^op,C]^op R _ _ _).
-  - intros F G p. refine (makeNattrans _ _).
-    + exact (λ b, p ◽ (b:B)).
-    + abstract (exact (λ b b' f, ! nattrans_naturality p f)) using L.
-  - abstract (intros F; now apply (nat_trans_eq (homset_property C))) using L.
-  - abstract (intros F F' F'' p q; now apply (nat_trans_eq (homset_property C))) using L.
 Defined.
 
 (* zero maps, definition: *)

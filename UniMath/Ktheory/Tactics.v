@@ -40,3 +40,5 @@ Proof. intros. exact (f ig). Defined.
 Ltac isaset_goal x :=
   let G := match goal with |- ?G => constr:(G) end in
   assert (x : isaset(G)).
+
+Ltac show_id_type := match goal with |- @paths ?ID _ _ => set (TYPE := ID); simpl in TYPE end.

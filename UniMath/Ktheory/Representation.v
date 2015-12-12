@@ -1,4 +1,5 @@
 Require Import
+        UniMath.Ktheory.Tactics
         UniMath.Ktheory.Precategories
         UniMath.Ktheory.Bifunctor.
 Require Import
@@ -321,7 +322,7 @@ Abort.
 
 (** binary products and coproducts *)
 
-Definition HomPair {C:Precategory} (a b:C) : C^op ==> SET.
+Definition HomPair {C:Precategory} (a b:C) : [C^op,SET].
 Proof.
   refine (makeFunctor_op _ _ _ _).
   - intro c. exact (Hom C c a × Hom C c b) % set.
@@ -703,8 +704,8 @@ Proof.
       | intro c; apply funextsec; intro K; apply cone_eq; intros i; apply assoc ]]). }
 Defined.
 
-Definition cocone_functor {I C:Precategory} : [I,C]^op ==> [C^op^op,SET]
-  := cone_functor □ op_move op_functor.
+Definition cocone_functor {I C:Precategory} : [I,C]^op ==> [C^op^op,SET] :=
+  cone_functor □ functorOp.
 
 Definition Limit {C I:Precategory} (D: I==>C) := Representation (cone_functor D).
 
@@ -878,15 +879,20 @@ Lemma functorPrecategoryBinaryProduct_eqn {B C:Precategory} (prod : hasBinaryPro
   universalObject (functorPrecategoryBinaryProduct _ _ prod F G) ◾ b
   =
   universalObject (prod (F ◾ b) (G ◾ b)).
-Proof.
-  reflexivity.
-Defined.
+Proof. reflexivity. Defined.
 
 Lemma A (B C : Precategory) (F G : [B, C]) :
-  iso (HomPair (functorOp F) (functorOp G) □ functorOp functorOp)
+  iso (HomPair (functorOp F) (functorOp G) □ functorOp')
       (HomPair (opp_ob F) (opp_ob G)).
 Proof.
-Admitted.
+  refine (makeNatiso _ _).
+  { intros H. apply hset_equiv_iso. apply weqdirprodf.
+    { exact (invweq (functorOpOnMor F H)). }
+    { exact (invweq (functorOpOnMor G H)). } }
+  { abstract (intros H J p; apply funextsec; intro w;
+              apply dirprod_eq;
+              ( apply nat_trans_eq; [ apply homset_property | reflexivity ] )). }
+Defined.
 
 Theorem functorPrecategoryBinarySum (B C:Precategory) :
   hasBinarySums C -> hasBinarySums [B,C].
