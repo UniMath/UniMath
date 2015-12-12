@@ -45,6 +45,10 @@ Hint Resolve paths_refl : core .
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation idpath := paths_refl .
 
+(* When the goal is displayed as x=y and the types of x and y are hard to discern,
+   use this tactic -- it will add the type to the context in simplified form. *)
+Ltac show_id_type := match goal with |- @paths ?ID _ _ => set (TYPE := ID); simpl in TYPE end.
+
 (* Remark: all of the uu0.v now uses only paths_rect and not the direct "match" construction
 on paths. By adding a constantin paths for the computation rule for paths_rect and then making
 both this constant and paths_rect itself opaque it is possible to check which of the
