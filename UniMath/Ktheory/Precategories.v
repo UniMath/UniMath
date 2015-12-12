@@ -43,6 +43,7 @@ Definition Hom (C:Precategory) : ob C -> ob C -> hSet :=
 Ltac eqn_logic :=
   abstract (
       repeat (
+          try reflexivity;
           try intro; try split; try apply id_right;
           try apply id_left; try apply assoc;
           try apply funextsec;
@@ -81,22 +82,6 @@ Proof.
 Defined.
 
 Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat.
-
-Definition opp_ob {C:Precategory} : ob C -> ob C^op
-  := λ c, c.
-
-Definition rm_opp_ob {C:Precategory} : ob C^op -> ob C
-  := λ c, c.
-
-Definition opp_mor {C:Precategory} {b c:C} : Hom C b c -> Hom C^op c b
-  := λ f, f.
-
-Definition rm_opp_mor {C:Precategory} {b c:C} : Hom C^op b c -> Hom C c b
-  := λ f, f.
-
-Definition opp_mor_eq {C:Precategory} {a b:C} (f g:a → b) :
-  opp_mor f = opp_mor g -> f = g
-  := idfun _.
 
 Definition category_to_Precategory (C:category) : Precategory.
 Proof.
@@ -151,6 +136,35 @@ Proof.
   apply impred; intros. apply impred; intros. apply impred; intros.
   apply impred; intros. apply isaprop_is_isomorphism. Qed.
 
+Lemma Precategory_eq (C D:Precategory) :
+  (C:precategory_data) = (D:precategory_data) -> C=D.
+Proof.
+  intro e. apply subtypeEquality. intro. apply isaprop_has_homsets.
+  apply subtypeEquality'.
+  { assumption. }
+  apply isaprop_is_precategory.
+  apply homset_property.
+Defined.
+
+(** embeddings and isomorphism of categories  *)
+
+Definition PrecategoryEmbedding (B C:Precategory) := Σ F:[B,C], fully_faithful F.
+
+Definition pr1_PrecategoryEmbedding (B C:Precategory) :
+  PrecategoryEmbedding B C -> B ==> C
+  := pr1.
+
+Coercion pr1_PrecategoryEmbedding : PrecategoryEmbedding >-> functor.
+
+Definition PrecategoryIsomorphism (B C:Precategory) :=
+  Σ F:PrecategoryEmbedding B C, isweq ((pr1 F : B ==> C) : ob B -> ob C).
+
+Definition pr1_PrecategoryIsomorphism (B C:Precategory) :
+  PrecategoryIsomorphism B C -> PrecategoryEmbedding B C
+  := pr1.
+
+Coercion pr1_PrecategoryIsomorphism : PrecategoryIsomorphism >-> PrecategoryEmbedding.
+
 (** *** make a precategory *)
 
 Definition makePrecategory_ob_mor
@@ -193,105 +207,6 @@ Definition makeFunctor {C D:Precategory}
                        mor a c (g ∘ f) = mor b c g ∘ mor a b f) :
   C ==> D
   := (obj,, mor),, identity,, compax.
-
-Definition makeFunctor_op {C D:Precategory}
-           (obj : ob C -> ob D)
-           (mor : ∀ a b : C, b → a -> obj a → obj b)
-           (identity : ∀ c, mor c c (identity c) = identity (obj c))
-           (compax : ∀ (a b c : C) (f : b → a) (g : c → b),
-                       mor a c (f ∘ g) = mor b c g ∘ mor a b f) :
-  C^op ==> D
-  := (obj,, mor),, identity,, compax.
-
-(*  *)
-
-Definition functor_to_opp_opp {C:Precategory} : C ==> C^op^op
-  := makeFunctor (λ c,c) (λ a b f,f) (λ c, idpath _) (λ a b c f g, idpath _).
-
-(** *** opposite category of opposite category *)
-
-Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
-Proof. induction C as [ob mor]. reflexivity. Defined.
-
-Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
-  idpath _ = maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
-Proof. induction C as [ob mor]. reflexivity. Defined.
-
-Lemma opp_opp_precat_data (C : precategory_data)
-   : C = opp_precat_data (opp_precat_data C).
-Proof. induction C as [[ob mor] [id co]]. reflexivity. Defined.
-
-Lemma Precategory_eq (C D:Precategory) :
-  (C:precategory_data) = (D:precategory_data) -> C=D.
-Proof.
-  intro e. apply subtypeEquality. intro. apply isaprop_has_homsets.
-  apply subtypeEquality'.
-  { assumption. }
-  apply isaprop_is_precategory.
-  apply homset_property.
-Defined.
-
-Lemma total2_paths1 {A : UU} {B : A -> UU} (a:A) {b b':B a} :
-  b=b' -> tpair B a b = tpair B a b'.
-Proof. intro e. induction e. reflexivity. Defined.
-
-Goal ∀ A : UU, ∀ B : A -> UU, ∀ p : (Σ a, B a), p = tpair B (pr1 p) (pr2 p).
-  induction p as [a b]. reflexivity. Defined.
-
-Goal ∀ X Y (f:X->Y), f = λ x, f x.
-  reflexivity. Defined.
-
-Lemma opp_opp_precat (C:Precategory) : C = C^op^op.
-Proof.
-  apply Precategory_eq. induction C as [[[[obj mor] [id comp]] p] h].
-  reflexivity.
-Qed.
-
-(* new categories from old *)
-
-Definition categoryWithStructure (C:Precategory) (P:ob C -> UU) : Precategory.
-Proof.
-  refine (makePrecategory _ _ _ _ _ _ _ _).
-  (* add a new component to each object: *)
-  - exact (Σ c:C, P c).
-  (* the homsets ignore the extra structure: *)
-  - intros x y. exact (pr1 x → pr1 y).
-  (* the rest is the same: *)
-  - intros. apply homset_property.
-  - intros x. apply identity.
-  - intros x y z f g. exact (g ∘ f).
-  - intros. apply id_left.
-  - intros. apply id_right.
-  - intros. apply assoc.
-Defined.
-
-Definition functorWithStructures {C:Precategory} {P Q:ob C -> UU}
-           (F : ∀ c, P c -> Q c) : categoryWithStructure C P ==> categoryWithStructure C Q.
-Proof.
-  refine (makeFunctor _ _ _ _).
-  (* transport the structure: *)
-  - exact (λ c, (pr1 c,, F (pr1 c) (pr2 c))).
-  (* the rest is the same: *)
-  - intros c c' f. exact f.
-  - reflexivity.
-  - reflexivity.
-Defined.
-
-Definition addStructure {B C:Precategory} {P:ob C -> UU}
-           (F:B==>C) (h : ∀ b, P(F b)) : B ==> categoryWithStructure C P.
-Proof.
-  refine (makeFunctor _ _ _ _).
-  - intros b. exact (F b,,h b).
-  - intros b b' f. exact (# F f).
-  - abstract (intros b; simpl; apply functor_id) using L.
-  - abstract (intros b b' b'' f g; simpl; apply functor_comp) using L.
-Defined.
-
-Lemma identityFunction : ∀ (T:SET) (f:T→T) (t:T:hSet), f = identity T -> f t = t.
-Proof. intros ? ? ?. exact (apevalat t). Defined.
-
-Lemma identityFunction' : ∀ (T:SET) (t:T:hSet), identity T t = t.
-Proof. reflexivity. Defined.
 
 (** notation for dealing with functors, natural transformations, etc.  *)
 
@@ -376,37 +291,6 @@ Proof. exact (functor_comp F _ _ _ f g). Defined.
 
 (*  *)
 
-Lemma functor_identity_object {C:Precategory} (c:C) : functor_identity C ◾ c = c.
-Proof. reflexivity. Defined.
-
-Lemma functor_identity_arrow {C:Precategory} {c c':C} (f:c→c') : functor_identity C ▭ f = f.
-Proof. reflexivity. Defined.
-
-Definition functor_op {C D:Precategory} : C==>D -> C^op==>D^op := functor_opp.
-
-Definition functor_rm_op {C D:Precategory} : C^op==>D^op -> C==>D := functor_opp.
-
-Definition op_functor {C D:Precategory} : [C,D] ==> [C^op,D^op]^op.
-Proof.
-  refine (makeFunctor _ _ _ _).
-  - exact (λ F, functor_op F).
-  - intros F F' p; simpl. exists (λ c, p ◽ c).
-    exact (λ c c' f, ! nat_trans_ax p _ _ f).
-  - intros F; simpl.
-    now apply (nat_trans_eq (homset_property D^op)).
-  - intros F F' F'' p q; simpl.
-    now apply (nat_trans_eq (homset_property D^op)).
-Defined.
-
-Definition constantFunctor (C:Precategory) {D:Precategory} (d:D) : [C,D].
-Proof.
-  refine (makeFunctor _ _ _ _).
-  - exact (λ _, d).
-  - intros c c' f; simpl. exact (identity d).
-  - intros c; simpl. reflexivity.
-  - abstract (simpl; intros a b c f g; apply pathsinv0, id_left) using L.
-Defined.
-
 (** natural transformations and isomorphisms *)
 
 Definition nat_iso {B C:Precategory} (F G:[B,C]) := iso F G.
@@ -468,6 +352,198 @@ Proof.
   - apply isapropisweq.
 Defined.
 
+(* opposite categories *)
+
+Definition functor_to_opp_opp {C:Precategory} : C ==> C^op^op
+  := makeFunctor (λ c,c) (λ a b f,f) (λ c, idpath _) (λ a b c f g, idpath _).
+
+Definition makeFunctor_op {C D:Precategory}
+           (obj : ob C -> ob D)
+           (mor : ∀ a b : C, b → a -> obj a → obj b)
+           (identity : ∀ c, mor c c (identity c) = identity (obj c))
+           (compax : ∀ (a b c : C) (f : b → a) (g : c → b),
+                       mor a c (f ∘ g) = mor b c g ∘ mor a b f) :
+  C^op ==> D
+  := (obj,, mor),, identity,, compax.
+
+Definition opp_ob {C:Precategory} : ob C -> ob C^op
+  := λ c, c.
+
+Definition rm_opp_ob {C:Precategory} : ob C^op -> ob C
+  := λ c, c.
+
+Definition opp_mor {C:Precategory} {b c:C} : Hom C b c -> Hom C^op c b
+  := λ f, f.
+
+Definition rm_opp_mor {C:Precategory} {b c:C} : Hom C^op b c -> Hom C c b
+  := λ f, f.
+
+Definition opp_mor_eq {C:Precategory} {a b:C} (f g:a → b) :
+  opp_mor f = opp_mor g -> f = g
+  := idfun _.
+
+Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
+Proof. induction C as [ob mor]. reflexivity. Defined.
+
+Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
+  idpath _ = maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
+Proof. induction C as [ob mor]. reflexivity. Defined.
+
+Lemma opp_opp_precat_data (C : precategory_data)
+   : C = opp_precat_data (opp_precat_data C).
+Proof. induction C as [[ob mor] [id co]]. reflexivity. Defined.
+
+Lemma opp_opp_precat (C:Precategory) : C = C^op^op.
+Proof.
+  apply Precategory_eq. induction C as [[[[obj mor] [id comp]] p] h].
+  reflexivity.
+Qed.
+
+Definition functorOp {B C : Precategory} : [B, C] ^op ==> [B ^op, C ^op].
+Proof.
+  refine (makeFunctor _ _ _ _).
+  { apply functor_opp. }
+  { intros H I p. exists (λ b, pr1 p b).
+    abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using L. }
+  { abstract (intros H; now apply (nat_trans_eq (homset_property C^op))). }
+  { abstract (intros H J K p q; now apply (nat_trans_eq (homset_property C^op))). }
+Defined.
+
+Definition functorRmOp {B C : Precategory} : [B ^op, C ^op] ==> [B, C] ^op.
+Proof.
+  refine (makeFunctor _ _ _ _).
+  { exact functor_opp. }
+  { intros H I p. exists (λ b, pr1 p b).
+    abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using L. }
+  { abstract (intros H; now apply (nat_trans_eq (homset_property C))) using L. }
+  { abstract (intros H J K p q; now apply (nat_trans_eq (homset_property C))). }
+Defined.
+
+Lemma functorOpIso {B C:Precategory} : PrecategoryIsomorphism [B, C]^op [B^op, C^op].
+Proof.
+  refine (_,,_).
+  { refine (_,,_).
+    { exact functorOp. }
+    { intros H H'. refine (gradth _ _ _ _).
+      { simpl. intros p. refine (makeNattrans _ _).
+        { intros b. exact (pr1 p b). }
+        { abstract (intros b b' f; simpl; exact (!nat_trans_ax p _ _ f)) using L. } }
+      { eqn_logic. }
+      { eqn_logic. } } }
+  { simpl. refine (gradth _ _ _ _).
+    { exact (functor_opp : B^op ==> C^op -> B ==> C). }
+    { abstract (intros H; simpl; apply (functor_eq _ _ (homset_property C));
+                refine (total2_paths _ _); reflexivity) using L. }
+    { abstract (intros H; simpl; apply functor_eq;
+                [ exact (homset_property C^op)
+                | refine (total2_paths _ _); reflexivity]). } }
+Defined.
+
+Definition functorOpEmb {B C:Precategory} : PrecategoryEmbedding [B, C]^op [B^op, C^op]
+  := pr1 functorOpIso.
+
+Lemma functor_op_rm_op_eq (C D:Precategory) (F : C^op ==> D^op) :
+  functorOp (functorRmOp F) = F.
+Proof.
+  apply functor_eq.
+  { apply homset_property. }
+  refine (total2_paths _ _); reflexivity.
+Qed.
+
+Lemma functor_rm_op_op_eq (C D:Precategory) (F : C ==> D) :
+  functorRmOp (functorOp F) = F.
+Proof.
+  apply functor_eq.
+  { apply homset_property. }
+  refine (total2_paths _ _); reflexivity.
+Qed.
+
+Lemma functor_op_op_eq (C D:Precategory) (F : C ==> D) :
+  functorOp (functorOp F) = F.
+Proof.
+  apply functor_eq.
+  { apply homset_property. }
+  refine (total2_paths _ _); reflexivity.
+Qed.
+
+Definition op_functor {C D:Precategory} : [C,D] ==> [C^op,D^op]^op.
+Proof. exact (functorOp functorOp). Defined.
+
+(*  *)
+
+Lemma total2_paths1 {A : UU} {B : A -> UU} (a:A) {b b':B a} :
+  b=b' -> tpair B a b = tpair B a b'.
+Proof. intro e. induction e. reflexivity. Defined.
+
+Goal ∀ A : UU, ∀ B : A -> UU, ∀ p : (Σ a, B a), p = tpair B (pr1 p) (pr2 p).
+  induction p as [a b]. reflexivity. Defined.
+
+Goal ∀ X Y (f:X->Y), f = λ x, f x.
+  reflexivity. Defined.
+
+(* new categories from old *)
+
+Definition categoryWithStructure (C:Precategory) (P:ob C -> UU) : Precategory.
+Proof.
+  refine (makePrecategory _ _ _ _ _ _ _ _).
+  (* add a new component to each object: *)
+  - exact (Σ c:C, P c).
+  (* the homsets ignore the extra structure: *)
+  - intros x y. exact (pr1 x → pr1 y).
+  (* the rest is the same: *)
+  - intros. apply homset_property.
+  - intros x. apply identity.
+  - intros x y z f g. exact (g ∘ f).
+  - intros. apply id_left.
+  - intros. apply id_right.
+  - intros. apply assoc.
+Defined.
+
+Definition functorWithStructures {C:Precategory} {P Q:ob C -> UU}
+           (F : ∀ c, P c -> Q c) : categoryWithStructure C P ==> categoryWithStructure C Q.
+Proof.
+  refine (makeFunctor _ _ _ _).
+  (* transport the structure: *)
+  - exact (λ c, (pr1 c,, F (pr1 c) (pr2 c))).
+  (* the rest is the same: *)
+  - intros c c' f. exact f.
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+Definition addStructure {B C:Precategory} {P:ob C -> UU}
+           (F:B==>C) (h : ∀ b, P(F b)) : B ==> categoryWithStructure C P.
+Proof.
+  refine (makeFunctor _ _ _ _).
+  - intros b. exact (F b,,h b).
+  - intros b b' f. exact (# F f).
+  - abstract (intros b; simpl; apply functor_id) using L.
+  - abstract (intros b b' b'' f g; simpl; apply functor_comp) using L.
+Defined.
+
+Lemma identityFunction : ∀ (T:SET) (f:T→T) (t:T:hSet), f = identity T -> f t = t.
+Proof. intros ? ? ?. exact (apevalat t). Defined.
+
+Lemma identityFunction' : ∀ (T:SET) (t:T:hSet), identity T t = t.
+Proof. reflexivity. Defined.
+
+(*  *)
+
+Lemma functor_identity_object {C:Precategory} (c:C) : functor_identity C ◾ c = c.
+Proof. reflexivity. Defined.
+
+Lemma functor_identity_arrow {C:Precategory} {c c':C} (f:c→c') : functor_identity C ▭ f = f.
+Proof. reflexivity. Defined.
+
+Definition constantFunctor (C:Precategory) {D:Precategory} (d:D) : [C,D].
+Proof.
+  refine (makeFunctor _ _ _ _).
+  - exact (λ _, d).
+  - intros c c' f; simpl. exact (identity d).
+  - intros c; simpl. reflexivity.
+  - abstract (simpl; intros a b c f g; apply pathsinv0, id_left) using L.
+Defined.
+
 (*  *)
 
 Definition functor_composite_functor {A B C:Precategory} (F:A==>B) :
@@ -522,6 +598,5 @@ Proof.
   - reflexivity.
   - refine (total2_paths _ _); reflexivity.
 Defined.
-
 
       (*  *)

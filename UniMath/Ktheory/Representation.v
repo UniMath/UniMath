@@ -191,17 +191,18 @@ Proof.
 Defined.
 
 Definition embeddingRepresentability {C D:Precategory}
-           (X:[C^op,SET])
-           {i:[C,D]} (emb:fully_faithful i) {Y:D^op==>SET} (s:Representation Y)
-           (j:iso (Y □ functor_op i) X) :
-           (Σ c, universalObject s = i ◾ c) -> Representation X.
+           (X:[C^op,SET]) (Y:[D^op,SET])
+           (i:PrecategoryEmbedding C D)
+           (s:Representation Y) :
+  iso (Y □ functorOp (opp_ob (pr1 i))) X ->
+  (Σ c, universalObject s = i c) -> Representation X.
 Proof.
-  intros ce.
+  intros j ce.
   refine (iso_Representation_weq _ _ j _).
   exists (pr1 ce).
-  exists (transportf (λ d, Y d : hSet) (pr2 ce) s).
-  intro c'. apply (twooutof3c (λ k, i▭k) (λ g, _ ⟲ g)).
-  - apply emb.
+  exists (transportf (λ d, Y ◾ d : hSet) (pr2 ce) s).
+  intro c'. apply (twooutof3c (λ k, # i k) (λ g, _ ⟲ g)).
+  - apply (pr2 i).
   - induction (pr2 ce). exact (weqproperty (universalProperty _ _)).
 Defined.
 
@@ -691,29 +692,15 @@ Proof.
       - abstract (intros a b g; simpl;
                   apply funextsec; intro p; apply cone_eq; intro i; simpl;
                   apply pathsinv0, assoc) using Q. } }
-  { abstract ( unfold cone; split;
+  { abstract (split;
     [ intros D; simpl;
-      refine (total2_paths2 _ _);
-      [ apply funextsec; intro c;
-        apply funextsec; intro φ; simpl;
-        refine (total2_paths _ _);
-        [ simpl; apply funextsec; intro i; apply id_right
-        | apply funextsec; intro i;
-          apply funextsec; intro j;
-          apply funextsec; intro e;
-          apply homset_property ]
-      | apply isaprop_is_nat_trans; exact (homset_property SET)]
-    | intros D D' D'' p q;
-      simpl;
-      refine (total2_paths2 _ _);
-      [ apply funextsec; intro c; simpl; apply funextsec; intro φ;
-        refine (total2_paths2 _ _);
-        [ simpl; apply funextsec; intro i; apply assoc
-        | apply funextsec; intro i;
-          apply funextsec; intro j;
-          apply funextsec; intro e;
-          apply homset_property ]
-      | apply isaprop_is_nat_trans; exact (homset_property SET)] ]) using R. }
+      apply nat_trans_eq;
+      [ exact (homset_property SET)
+      | intros c; apply funextsec; intro φ; simpl;
+      apply cone_eq; intro i; apply id_right]
+    | intros D D' D'' p q; apply nat_trans_eq;
+      [ apply homset_property
+      | intro c; apply funextsec; intro K; apply cone_eq; intros i; apply assoc ]]). }
 Defined.
 
 Definition cocone_functor {I C:Precategory} : [I,C]^op ==> [C^op^op,SET]
@@ -747,7 +734,7 @@ Definition lim_functor (C:Precategory) (lim:hasLimits C) (I:Precategory) :
 
 Definition colim_functor (C:Precategory) (colim:hasColimits C) (I:Precategory) :
   [I,C] ==> C
-  := functor_rm_op (
+  := functorRmOp (
          universalObjectFunctor C^op □ addStructure cocone_functor (colim I)).
 
 Lemma bifunctor_assoc_repn {B C:Precategory} (X : [B, [C^op,SET]]) :
@@ -838,48 +825,52 @@ Proof.
       ( simpl; rewrite functor_on_comp; rewrite assoc; reflexivity) ]) using L.
 Defined.
 
+Lemma BinaryProductFunctorAssoc {B C : Precategory}
+      (prod : hasBinaryProducts C)
+      (F G : [B, C]) :
+  iso (bifunctor_assoc (binaryProductFunctor F G)) (HomPair F G).
+Proof.
+  refine (makeNatiso _ _).
+  { intro H. apply hset_equiv_iso.
+    refine (weqgradth _ _ _ _).
+    { intros w.
+      refine (_,,_).
+      { refine (makeNattrans _ _).
+        { intro b. exact (pr1 (pr1 w b)). }
+        { abstract (intros b b' f; exact (maponpaths dirprod_pr1 (pr2 w b b' f))) using L. } }
+      { refine (makeNattrans _ _).
+        { intro b. exact (pr2 (pr1 w b)). }
+        { abstract (intros b b' f; exact (maponpaths dirprod_pr2 (pr2 w b b' f))) using L. } } }
+    { simpl. intros pq.
+      refine (_,,_).
+      { intros b. exact (pr1 pq b ,, pr2 pq b). }
+      { abstract (intros b b' f; simpl;
+                  apply dirprod_eq; ( simpl; apply nattrans_naturality )) using L. } }
+    { abstract (intros w;
+                refine (total2_paths _ _);
+                [ eqn_logic
+                | (apply funextsec; intro b;
+                   apply funextsec; intro b';
+                   apply funextsec; intro f;
+                   apply isaset_dirprod; apply homset_property) ]) using M. }
+    { abstract (intros pq; apply dirprod_eq;
+                ( apply nat_trans_eq;
+                  [ apply homset_property | intro b; reflexivity ] )) using L. } }
+  { abstract (intros H H' p;
+              apply funextsec; intros v;
+              apply dirprod_eq;
+              ( simpl; apply nat_trans_eq;
+                [ apply homset_property
+                | intros b; unfold makeNattrans; simpl; reflexivity ] )) using L. }
+Defined.
+
 Theorem functorPrecategoryBinaryProduct (B C:Precategory) :
   hasBinaryProducts C -> hasBinaryProducts [B,C].
 Proof.
-  intros prod F G.
-  refine (iso_Representation_weq
-            (bifunctor_assoc (binaryProductFunctor F G)) _ _
-            (bifunctor_assoc_repn _ _)).
-  { refine (makeNatiso _ _).
-    { intro H.
-      (* this could be isolated as a lemma: *)
-      apply hset_equiv_iso.
-      refine (weqgradth _ _ _ _).
-      { intros w.
-        refine (_,,_).
-        { refine (makeNattrans _ _).
-          { intro b. exact (pr1 (pr1 w b)). }
-          { abstract (intros b b' f; exact (maponpaths dirprod_pr1 (pr2 w b b' f))) using L. } }
-        { refine (makeNattrans _ _).
-          { intro b. exact (pr2 (pr1 w b)). }
-          { abstract (intros b b' f; exact (maponpaths dirprod_pr2 (pr2 w b b' f))) using L. } } }
-      { simpl. intros pq.
-        refine (_,,_).
-        { intros b. exact (pr1 pq b ,, pr2 pq b). }
-        { abstract (intros b b' f; simpl;
-                    apply dirprod_eq; ( simpl; apply nattrans_naturality )) using L. } }
-      { abstract (intros w;
-                  refine (total2_paths _ _);
-                  [ eqn_logic
-                  | (apply funextsec; intro b;
-                     apply funextsec; intro b';
-                     apply funextsec; intro f;
-                     apply isaset_dirprod; apply homset_property) ]) using M. }
-      { abstract (intros pq; apply dirprod_eq;
-        ( apply nat_trans_eq;
-          [ apply homset_property | intro b; reflexivity ] )) using L. } }
-    { abstract (intros H H' p;
-                apply funextsec; intros v;
-                apply dirprod_eq;
-                ( simpl; apply nat_trans_eq;
-                  [ apply homset_property
-                  | intros b; unfold makeNattrans; simpl; reflexivity ] )) using L. } }
-  { exact (λ b, prod (F ◾ b) (G ◾ b)). }
+  intros prod F G. refine (iso_Representation_weq _ _ _ _ ).
+  { exact (bifunctor_assoc (binaryProductFunctor F G)). }
+  { now apply BinaryProductFunctorAssoc. }
+  { apply bifunctor_assoc_repn. intro b. apply prod. }
 Defined.
 
 Lemma functorPrecategoryBinaryProduct_eqn {B C:Precategory} (prod : hasBinaryProducts C)
@@ -891,28 +882,26 @@ Proof.
   reflexivity.
 Defined.
 
+Lemma A (B C : Precategory) (F G : [B, C]) :
+  iso (HomPair (functorOp F) (functorOp G) □ functorOp functorOp)
+      (HomPair (opp_ob F) (opp_ob G)).
+Proof.
+Admitted.
+
 Theorem functorPrecategoryBinarySum (B C:Precategory) :
   hasBinarySums C -> hasBinarySums [B,C].
 Proof.
   intros sum F G.
-  assert (L := functorPrecategoryBinaryProduct B^op C^op sum (functor_op F) (functor_op G)).
-  set (obL := universalObject L).
-  unfold hasBinarySums, BinarySum, BinaryProduct in L.
-  unfold hasBinarySums, BinarySum, BinaryProduct.
-  refine (embeddingRepresentability _ _ L _ _).
-  { refine (makeFunctor _ _ _ _).
-    { intros H.
-      refine (makeFunctor _ _ _ _).
-      { intros b. exact (H ◾ b). }
-      { intros b b' f. simpl. exact (H ▭ f). }
-      { intros b. simpl. apply functor_on_id. }
-      { intros b b' b'' f g. simpl. apply functor_on_comp. } }
-    { intros H I p; simpl.
-
-
-
-
-Abort.
+  refine (embeddingRepresentability
+            (HomPair (opp_ob F) (opp_ob G))
+            (HomPair (functorOp F) (functorOp G))
+            _ _ _ _).
+  { apply functorOpEmb. }
+  { now apply functorPrecategoryBinaryProduct. }
+  { simpl. apply A. }
+  { match goal with |- context [ universalObject ?L ] => set (c' := universalObject L) end.
+    exists (functorRmOp c'). apply pathsinv0, functor_op_rm_op_eq. }
+Defined.
 
 Theorem functorPrecategoryLimits (B C:Precategory) : hasLimits C -> hasLimits [B,C].
 Proof.
