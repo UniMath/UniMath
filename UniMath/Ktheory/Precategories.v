@@ -150,20 +150,20 @@ Defined.
 
 Definition PrecategoryEmbedding (B C:Precategory) := Σ F:[B,C], fully_faithful F.
 
-Definition pr1_PrecategoryEmbedding (B C:Precategory) :
+Definition embeddingToFunctor (B C:Precategory) :
   PrecategoryEmbedding B C -> B ==> C
   := pr1.
 
-Coercion pr1_PrecategoryEmbedding : PrecategoryEmbedding >-> functor.
+Coercion embeddingToFunctor : PrecategoryEmbedding >-> functor.
 
 Definition PrecategoryIsomorphism (B C:Precategory) :=
   Σ F:PrecategoryEmbedding B C, isweq ((pr1 F : B ==> C) : ob B -> ob C).
 
-Definition pr1_PrecategoryIsomorphism (B C:Precategory) :
+Definition isomorphismToEmbedding (B C:Precategory) :
   PrecategoryIsomorphism B C -> PrecategoryEmbedding B C
   := pr1.
 
-Coercion pr1_PrecategoryIsomorphism : PrecategoryIsomorphism >-> PrecategoryEmbedding.
+Coercion isomorphismToEmbedding : PrecategoryIsomorphism >-> PrecategoryEmbedding.
 
 (** *** make a precategory *)
 
@@ -463,7 +463,7 @@ Defined.
 Definition functorOpEmb {B C:Precategory} : PrecategoryEmbedding [B, C]^op [B^op, C^op]
   := pr1 functorOpIso.
 
-Lemma functor_op_rm_op_eq (C D:Precategory) (F : C^op ==> D^op) :
+Lemma functor_op_rm_op_eq {C D:Precategory} (F : C^op ==> D^op) :
   functorOp (functorRmOp F) = F.
 Proof.
   apply functor_eq.
@@ -471,7 +471,7 @@ Proof.
   refine (total2_paths _ _); reflexivity.
 Qed.
 
-Lemma functor_rm_op_op_eq (C D:Precategory) (F : C ==> D) :
+Lemma functor_rm_op_op_eq {C D:Precategory} (F : C ==> D) :
   functorRmOp (functorOp F) = F.
 Proof.
   apply functor_eq.
@@ -479,7 +479,7 @@ Proof.
   refine (total2_paths _ _); reflexivity.
 Qed.
 
-Lemma functor_op_op_eq (C D:Precategory) (F : C ==> D) :
+Lemma functor_op_op_eq {C D:Precategory} (F : C ==> D) :
   functorOp (functorOp F) = F.
 Proof.
   apply functor_eq.

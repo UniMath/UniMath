@@ -46,7 +46,7 @@ Proof.
 
 Abort.
 
-Definition iso_Representation_weq {C:Precategory} (X Y:[C^op,SET]) :
+Definition iso_Representation_weq {C:Precategory} {X Y:[C^op,SET]} :
   iso X Y -> Representation X ≃ Representation Y.
 Proof.
   intros i. apply weqfibtototal; intro c. apply iso_Universal_weq; assumption.
@@ -192,20 +192,31 @@ Proof.
 Defined.
 
 Definition embeddingRepresentability {C D:Precategory}
-           (X:[C^op,SET]) (Y:[D^op,SET])
-           (i:PrecategoryEmbedding C D)
-           (s:Representation Y) :
+           {X:[C^op,SET]} {Y:[D^op,SET]}
+           (s:Representation Y)
+           (i:PrecategoryEmbedding C D) :
   iso (Y □ functorOp (opp_ob (pr1 i))) X ->
-  (Σ c, universalObject s = i c) -> Representation X.
+  (Σ c, i c = universalObject s) -> Representation X.
 Proof.
   intros j ce.
-  refine (iso_Representation_weq _ _ j _).
+  apply (iso_Representation_weq j).
   exists (pr1 ce).
-  exists (transportf (λ d, Y ◾ d : hSet) (pr2 ce) s).
+  exists (transportf (λ d, Y ◾ d : hSet) (!pr2 ce) s).
   intro c'. apply (twooutof3c (λ k, # i k) (λ g, _ ⟲ g)).
   - apply (pr2 i).
-  - induction (pr2 ce). exact (weqproperty (universalProperty _ _)).
+  - induction (!pr2 ce). exact (weqproperty (universalProperty _ _)).
 Defined.
+
+(* move upstream *)
+Definition isweq_to_invmap {X Y:UU} {f:X->Y} : isweq f -> Y -> X
+  := λ i y, pr1 (pr1 (i y)).
+
+Definition isomorphismRepresentability {C D:Precategory}
+           {X:[C^op,SET]} {Y:[D^op,SET]}
+           (s:Representation Y)
+           (i:PrecategoryIsomorphism C D) :
+  iso (Y □ functorOp (opp_ob (pr1 (pr1 i)))) X -> Representation X
+  := λ j, embeddingRepresentability s i j (iscontrpr1 (pr2 i (universalObject s))).
 
 (*** Some standard functors to consider representing *)
 
@@ -363,6 +374,14 @@ Definition BinarySum {C:Precategory} (a b:C) :=
   BinaryProduct (opp_ob a) (opp_ob b).
 
 Definition hasBinarySums (C:Precategory) := ∀ (a b:C), BinarySum a b.
+
+Lemma binarySumsToProducts {C:Precategory} :
+  hasBinarySums C -> hasBinaryProducts C^op.
+Proof. intros sum. exact sum. Defined.
+
+Lemma binaryProductToSums {C:Precategory} :
+  hasBinaryProducts C -> hasBinarySums C^op.
+Proof. intro prod. exact prod. Defined.
 
 Definition in_1 {C:Precategory} {a b:C} (sum : BinarySum a b) :
   Hom C a (universalObject sum)
@@ -785,7 +804,7 @@ Theorem functorPrecategoryTerminalObject (B C:Precategory) :
   TerminalObject C -> TerminalObject [B,C].
 Proof.
   intro t.
-  apply (iso_Representation_weq (bifunctor_assoc (constantFunctor B (UnitFunctor C^op)))).
+  apply (@iso_Representation_weq _ (bifunctor_assoc (constantFunctor B (UnitFunctor C^op)))).
   { refine (makeNatiso _ _).
     { intros F. apply hset_equiv_iso.
       unfold bifunctor_assoc; simpl.
@@ -865,23 +884,23 @@ Proof.
                 | intros b; unfold makeNattrans; simpl; reflexivity ] )) using L. }
 Defined.
 
-Theorem functorPrecategoryBinaryProduct (B C:Precategory) :
+Theorem functorBinaryProduct {B C:Precategory} :
   hasBinaryProducts C -> hasBinaryProducts [B,C].
 Proof.
-  intros prod F G. refine (iso_Representation_weq _ _ _ _ ).
+  intros prod F G. refine (iso_Representation_weq _ _).
   { exact (bifunctor_assoc (binaryProductFunctor F G)). }
   { now apply BinaryProductFunctorAssoc. }
   { apply bifunctor_assoc_repn. intro b. apply prod. }
 Defined.
 
-Lemma functorPrecategoryBinaryProduct_eqn {B C:Precategory} (prod : hasBinaryProducts C)
+Lemma functorBinaryProduct_eqn {B C:Precategory} (prod : hasBinaryProducts C)
       (F G : [B,C]) (b:B) :
-  universalObject (functorPrecategoryBinaryProduct _ _ prod F G) ◾ b
+  universalObject (functorBinaryProduct prod F G) ◾ b
   =
   universalObject (prod (F ◾ b) (G ◾ b)).
 Proof. reflexivity. Defined.
 
-Lemma A (B C : Precategory) (F G : [B, C]) :
+Lemma HomPairOp {B C : Precategory} (F G : [B, C]) :
   iso (HomPair (functorOp F) (functorOp G) □ functorOp')
       (HomPair (opp_ob F) (opp_ob G)).
 Proof.
@@ -894,22 +913,27 @@ Proof.
               ( apply nat_trans_eq; [ apply homset_property | reflexivity ] )). }
 Defined.
 
-Theorem functorPrecategoryBinarySum (B C:Precategory) :
+Theorem functorBinarySum {B C:Precategory} :
   hasBinarySums C -> hasBinarySums [B,C].
 Proof.
   intros sum F G.
-  refine (embeddingRepresentability
-            (HomPair (opp_ob F) (opp_ob G))
-            (HomPair (functorOp F) (functorOp G))
-            _ _ _ _).
-  { apply functorOpEmb. }
-  { now apply functorPrecategoryBinaryProduct. }
-  { simpl. apply A. }
-  { match goal with |- context [ universalObject ?L ] => set (c' := universalObject L) end.
-    exists (functorRmOp c'). apply pathsinv0, functor_op_rm_op_eq. }
+  refine (isomorphismRepresentability
+            (functorBinaryProduct
+               (binarySumsToProducts sum)
+               (functorOp F)
+               (functorOp G)) _ _).
+  { apply functorOpIso. }
+  { simpl. refine (HomPairOp _ _). }
 Defined.
 
-Theorem functorPrecategoryLimits (B C:Precategory) : hasLimits C -> hasLimits [B,C].
+Lemma functorBinarySum_eqn {B C:Precategory} (sum : hasBinarySums C)
+      (F G : [B,C]) (b:B) :
+  universalObject (functorBinarySum sum F G) ◾ b
+  =
+  universalObject (sum (F ◾ b) (G ◾ b)).
+Proof. reflexivity. Defined.
+
+Theorem functorLimits (B C:Precategory) : hasLimits C -> hasLimits [B,C].
 Proof.
   intros lim I D.
   unfold hasLimits, Limit in lim.
@@ -921,7 +945,7 @@ Proof.
 
 Abort.
 
-Theorem functorPrecategoryColimits (B C:Precategory) : hasColimits C -> hasColimits [B,C].
+Theorem functorColimits (B C:Precategory) : hasColimits C -> hasColimits [B,C].
 Proof.
 Abort.
 
