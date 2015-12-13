@@ -165,6 +165,10 @@ Definition isomorphismToEmbedding (B C:Precategory) :
 
 Coercion isomorphismToEmbedding : PrecategoryIsomorphism >-> PrecategoryEmbedding.
 
+Definition isomorphismOnMor {B C:Precategory} (F:PrecategoryIsomorphism B C)
+           (b b':B) : Hom B b b'  ≃  Hom C (F b) (F b')
+  := weqpair _ (pr2 (pr1 F) b b').
+
 (** *** make a precategory *)
 
 Definition makePrecategory_ob_mor
@@ -452,12 +456,6 @@ Proof.
     { abstract (intros H; simpl; apply functor_eq;
                 [ exact (homset_property C^op)
                 | refine (total2_paths _ _); reflexivity]). } }
-Defined.
-
-Corollary functorOpOnMor {B C:Precategory} (F G:[B,C]) :
-   F → G  ≃  functorOp G → functorOp F.
-Proof.
-  exact (weqpair _ (pr2 (pr1 (@functorOpIso B C)) G F)).
 Defined.
 
 Definition functorOpEmb {B C:Precategory} : PrecategoryEmbedding [B, C]^op [B^op, C^op]

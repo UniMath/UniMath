@@ -899,10 +899,14 @@ Proof. reflexivity. Defined.
 Lemma HomPairOp {B C : Precategory} (F G : [B, C]) :
   iso (HomPair (functorOp F) (functorOp G) □ functorOp')
       (HomPair (opp_ob F) (opp_ob G)).
+(* This should be replaced by a general statement where [B,C]^op and
+   [B^op,C^op] are replaced by arbitrary isomorphic categories.  And there
+   should be lemmas saying that having binary sums or products is preserved by
+   isomorphisms of categories. *)
 Proof.
   refine (makeNatiso _ _).
   { intros H. apply hset_equiv_iso.
-    apply weqdirprodf; exact (invweq (functorOpOnMor _ H)). }
+    apply weqdirprodf; exact (invweq (isomorphismOnMor functorOpIso H _)). }
   { abstract (intros H J p; apply funextsec; intro w;
               apply dirprod_eq;
               ( apply nat_trans_eq; [ apply homset_property | reflexivity ] )). }
