@@ -160,8 +160,8 @@ Proof.
     apply isantisymm_leNonnegativeReals ; split.
     now apply (pr2 (Hx' _ Hy)).
     now apply (pr2 (Hy' _ Hx)). }
-  apply (iscontrweqf (X := (pr1 x = pr1 x'))).
-  apply invweq, (total2_paths_hProp_equiv (λ x, hProppair _ (Hp x))).
+  apply (iscontrweqb (X := (pr1 x = pr1 x'))).
+  apply (total2_paths_hProp_equiv (λ x, hProppair _ (Hp x))).
   rewrite Heq.
   apply iscontrloopsifisaset.
   apply (isofhleveldirprod 2) ; apply pr2.
