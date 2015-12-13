@@ -8,6 +8,8 @@ Nat.v
 MoreEquivalences.v
 ##
 
+Test.v
+
 GroupAction.v
 AbelianGroup.v
 Group.v

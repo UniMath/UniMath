@@ -341,6 +341,14 @@ Proof.
               apply dirprod_eq; apply pathsinv0, assoc) using C.
 Defined.
 
+Definition HomPair_1 {C:Precategory} (a b c:C) :
+  (((HomPair a b : C^op ==> SET) c : hSet) -> Hom C c a)
+  := pr1.
+
+Definition HomPair_2 {C:Precategory} (a b c:C) :
+  (((HomPair a b : C^op ==> SET) c : hSet) -> Hom C c b)
+  := pr2.
+
 Definition BinaryProduct {C:Precategory} (a b:C) :=
   Representation (HomPair a b).
 
@@ -357,6 +365,16 @@ Definition pr_2 {C:Precategory} {a b:C} (prod : BinaryProduct a b) :
 Definition binaryProductMap {C:Precategory} {a b:C} (prod : BinaryProduct a b)
            {c:C} : c → a -> c → b -> c → universalObject prod
   := λ f g, prod \\ (f,,g).
+
+Definition binaryProduct_pr_1_eqn {C:Precategory} {a b:C} (prod : BinaryProduct a b)
+      {c:C} (f : c → a) (g : c → b) :
+  pr_1 prod ∘ binaryProductMap prod f g = f
+  := maponpaths (HomPair_1 a b (opp_ob c)) (pr2 (pr1 (pr2 (pr2 prod) c (f,,g)))).
+
+Definition binaryProduct_pr_2_eqn {C:Precategory} {a b:C} (prod : BinaryProduct a b)
+      {c:C} (f : c → a) (g : c → b) :
+  pr_2 prod ∘ binaryProductMap prod f g = g
+  := maponpaths (HomPair_2 a b (opp_ob c)) (pr2 (pr1 (pr2 (pr2 prod) c (f,,g)))).
 
 Lemma binaryProductMapUniqueness {C:Precategory} {a b:C} (prod : BinaryProduct a b)
       {c:C} (f g : Hom C c (universalObject prod)) :
@@ -387,9 +405,22 @@ Definition in_2 {C:Precategory} {a b:C} (sum : BinarySum a b) :
   Hom C b (universalObject sum)
   := pr_2 sum.
 
+Definition binarySumProperty {C:Precategory} {a b c:C} (f:a→c) (g:b→c) :=
+  isUniversal ((f ,, g) : HomPair (opp_ob a) (opp_ob b) ◾ c : hSet).
+
 Definition binarySumMap {C:Precategory} {a b:C} (sum : BinarySum a b)
            {c:C} : a → c -> b → c -> rm_opp_ob (universalObject sum) → c
   := λ f g, rm_opp_mor (sum \\ (opp_mor f,,opp_mor g)).
+
+Definition binarySum_in_1_eqn {C:Precategory} {a b:C} (sum : BinarySum a b)
+      {c:C} (f : a → c) (g : b → c) :
+  binarySumMap sum f g ∘ in_1 sum = f
+  := maponpaths (HomPair_1 (opp_ob a) (opp_ob b) c) ((pr2 (pr1 (pr2 (pr2 sum) c (f,,g))))).
+
+Definition binarySum_in_2_eqn {C:Precategory} {a b:C} (sum : BinarySum a b)
+      {c:C} (f : a → c) (g : b → c) :
+  binarySumMap sum f g ∘ in_2 sum = g
+  := maponpaths (HomPair_2 (opp_ob a) (opp_ob b) c) ((pr2 (pr1 (pr2 (pr2 sum) c (f,,g))))).
 
 Lemma binarySumMapUniqueness {C:Precategory} {a b:C} (sum : BinarySum a b)
       {c:C} (f g : Hom C (rm_opp_ob (universalObject sum)) c) :
