@@ -202,14 +202,10 @@ Proof.
   apply (iso_Representation_weq j).
   exists (pr1 ce).
   exists (transportf (λ d, Y ◾ d : hSet) (!pr2 ce) s).
-  intro c'. apply (twooutof3c (λ k, # i k) (λ g, _ ⟲ g)).
+  intro c'. apply (twooutof3c (# i) (λ g, _ ⟲ g)).
   - apply (pr2 i).
-  - induction (!pr2 ce). exact (weqproperty (universalProperty _ _)).
+  - induction (! pr2 ce). exact (weqproperty (universalProperty _ _)).
 Defined.
-
-(* move upstream *)
-Definition isweq_to_invmap {X Y:UU} {f:X->Y} : isweq f -> Y -> X
-  := λ i y, pr1 (pr1 (i y)).
 
 Definition isomorphismRepresentability {C D:Precategory}
            {X:[C^op,SET]} {Y:[D^op,SET]}
@@ -905,9 +901,8 @@ Lemma HomPairOp {B C : Precategory} (F G : [B, C]) :
       (HomPair (opp_ob F) (opp_ob G)).
 Proof.
   refine (makeNatiso _ _).
-  { intros H. apply hset_equiv_iso. apply weqdirprodf.
-    { exact (invweq (functorOpOnMor F H)). }
-    { exact (invweq (functorOpOnMor G H)). } }
+  { intros H. apply hset_equiv_iso.
+    apply weqdirprodf; exact (invweq (functorOpOnMor _ H)). }
   { abstract (intros H J p; apply funextsec; intro w;
               apply dirprod_eq;
               ( apply nat_trans_eq; [ apply homset_property | reflexivity ] )). }
@@ -917,13 +912,11 @@ Theorem functorBinarySum {B C:Precategory} :
   hasBinarySums C -> hasBinarySums [B,C].
 Proof.
   intros sum F G.
-  refine (isomorphismRepresentability
-            (functorBinaryProduct
-               (binarySumsToProducts sum)
-               (functorOp F)
-               (functorOp G)) _ _).
-  { apply functorOpIso. }
-  { simpl. refine (HomPairOp _ _). }
+  exact (isomorphismRepresentability
+           (functorBinaryProduct (binarySumsToProducts sum)
+                                 (functorOp F) (functorOp G))
+           functorOpIso
+           (HomPairOp F G)).
 Defined.
 
 Lemma functorBinarySum_eqn {B C:Precategory} (sum : hasBinarySums C)
