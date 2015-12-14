@@ -36,7 +36,6 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.equivalences. (* for adjunctions *)
 Require Import UniMath.SubstitutionSystems.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
-Require Import UniMath.SubstitutionSystems.Auxiliary.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
