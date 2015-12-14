@@ -3140,6 +3140,35 @@ Proof.
       now apply lt_leNonnegativeRationals.
 Qed.
 
+(** ** Locatedness *)
+
+Lemma Dcuts_locatedness :
+  ∀ X : Dcuts, ∀ p q : NonnegativeRationals, (p < q)%NRat -> p ∈ X ∨ ¬ (q ∈ X).
+Proof.
+  intros X p q Hlt.
+  apply ispositive_minusNonnegativeRationals in Hlt.
+  generalize (is_Dcuts_error X _ Hlt).
+  apply_pr2_in ispositive_minusNonnegativeRationals Hlt.
+  apply hinhuniv ; intros [Xr | ].
+  - apply hinhpr ; right.
+    intro H ; apply Xr.
+    apply is_Dcuts_bot with (1 := H).
+    now apply minusNonnegativeRationals_le.
+  - apply hinhfun ; intros (r,(Xr,nXr)).
+    destruct (isdecrel_leNonnegativeRationals p r) as [Hle | Hnle].
+    + left.
+      now apply is_Dcuts_bot with (1 := Xr).
+    + apply notge_ltNonnegativeRationals in Hnle.
+      right.
+      intro H ; apply nXr.
+      apply is_Dcuts_bot with (1 := H).
+      apply_pr2 (plusNonnegativeRationals_lecompat_r p).
+      rewrite isassoc_plusNonnegativeRationals, minusNonnegativeRationals_plus_r, iscomm_plusNonnegativeRationals.
+      apply plusNonnegativeRationals_lecompat_l.
+      now apply lt_leNonnegativeRationals.
+      now apply lt_leNonnegativeRationals.
+Qed.
+
 (** ** Limits of Cauchy sequences *)
 
 Section Dcuts_lim.
