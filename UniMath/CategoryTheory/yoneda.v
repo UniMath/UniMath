@@ -341,13 +341,12 @@ Proof.
   refine (tpair _ _ _ ).
   - intro c; simpl.
     apply yoneda_functor_precomp.
-  - intros c c' f.
-    simpl. apply nat_trans_eq. apply (pr2 is_category_HSET).
-    intro d. simpl.
-    apply funextsec; intro t.
-    cbn.
-    unfold yoneda_morphisms_data.
-    apply functor_comp.
+  - abstract (
+        intros c c' f;
+        apply nat_trans_eq; try apply (pr2 is_category_HSET);
+        intro d; apply funextsec; intro t;
+        cbn;
+        apply functor_comp).
 Defined.
 
 End yoneda_functor_precomp.
