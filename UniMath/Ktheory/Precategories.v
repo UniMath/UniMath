@@ -267,6 +267,10 @@ Definition nattrans_naturality {B C:Precategory} {F F':[B, C]} {b b':B}
   p ◽ b'  ∘  F ▭ f  =  F' ▭ f  ∘  p ◽ b
   := nat_trans_ax p _ _ f.
 
+Definition comp_func_on_mor {A B C:Precategory} (F:[A,B]) (G:[B,C]) {a a':A} (f:a→a') :
+  G □ F ▭ f = G ▭ (F ▭ f).
+Proof. reflexivity. Defined.
+
 Definition nattrans_arrow_mor_assoc {C:Precategory} {c' c:C} {X X':[C^op,SET]}
            (g:c'→c) (x:c⇒X) (p:X→X') :
   p ⟳ (x ⟲ g) = (p ⟳ x) ⟲ g

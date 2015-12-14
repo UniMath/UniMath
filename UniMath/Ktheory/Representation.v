@@ -175,11 +175,6 @@ Proof.
   - intros X Y Z p q; simpl. apply uOF_comp.
 Defined.
 
-(* move upstream *)
-Definition comp_func_on_mor {A B C:Precategory} (F:[A,B]) (G:[B,C]) {a a':A} (f:a→a') :
-  G □ F ▭ f = G ▭ (F ▭ f).
-Proof. reflexivity. Defined.
-
 Definition universalObjectFunctor_on_map (C:Precategory) {X Y:RepresentedFunctor C} (p:X→Y) :
   universalObjectFunctor C ▭ p = pr2 Y \\ (p ⟳ pr2 X).
 Proof. reflexivity. Defined.
@@ -190,6 +185,18 @@ Proof.
   change (universalObjectFunctor C ▭ p) with (pr2 Y \\ (p ⟳ pr2 X)).
   apply pathsinv0, universalMapProperty.
 Defined.
+
+(** transferring universal properties between isomorphic objects *)
+
+Definition isUniversal_isom {C:Precategory} {X:[C^op,SET]} {c c':C}
+           (x:c ⇒ X) (f : iso c' c) :
+  isUniversal x <-> isUniversal (x ⟲ f).
+Proof.
+
+
+Abort.
+
+(** transferring representability via embeddings and isomorphisms of categories  *)
 
 Definition embeddingRepresentability {C D:Precategory}
            {X:[C^op,SET]} {Y:[D^op,SET]}

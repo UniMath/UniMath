@@ -10,18 +10,28 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Ktheory.Representation
                UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.Group.
+
 Local Open Scope cat.
-Local Notation Hom_abgr := monoidfun.
-Local Notation "0" := (unel _).
-Local Notation "x + y" := ( op x y ).
-Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, left associativity, only parsing).
-Definition commax (G:abgr) := pr2 (pr2 G).
-Definition zero : abgr.
+
+Delimit Scope abgr with abgr.
+Local Open Scope abgr.
+
+Notation Hom_abgr := monoidfun.
+Notation "0" := (unel _) : abgr.
+Notation "x + y" := ( op x y ) : abgr.
+Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, left associativity, only parsing) : abgr.
+
+Definition zeroAbgr : abgr.
   exists Group.zero. split. exact (pr2 Group.zero). intros x y. reflexivity.
 Defined.
+
 Definition Z : abgr := hzaddabgr.
+
+Definition commax (G:abgr) := pr2 (pr2 G).
+
 Definition unitproperty {G H:abgr} (p:Hom_abgr G H) : p (unel G) = unel H
   := pr2 (pr2 p).
+
 Definition addproperty {G H:abgr} (p:Hom_abgr G H) (g g':G) : p(g + g') = p g + p g'
   := pr1 (pr2 p) g g'.
 
