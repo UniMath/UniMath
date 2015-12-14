@@ -280,6 +280,17 @@ Proof.
   intros. destruct ex. destruct ey. apply idpath.
 Defined.
 
+Lemma dirprodeq (A B : UU) (ab ab' : A × B) :
+  pr1 ab = pr1 ab' -> pr2 ab = pr2 ab' -> ab = ab'.
+Proof.
+  intros A B ab ab' H H'.
+  destruct ab as [a b].
+  destruct ab' as [a' b']; simpl in *.
+  induction H.
+  induction H'.
+  apply idpath.
+Defined.
+
 
 (** *** The function [ maponpaths ] between paths types defined by a
     function between ambient types and its behavior relative to [ @ ]
@@ -690,6 +701,15 @@ Proof.
   induction is as [y fe].
   apply (fe x @ !(fe x')).
 Defined.
+
+Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : ∃! a, B a)
+           (a : A) (p : B a) : a = pr1 (pr1 isc).
+Proof.
+  intros A B isc a p.
+  set (Hi := tpair _ a p).
+  apply (maponpaths pr1 (pr2 isc Hi)).
+Defined.
+
 
 (** Coconuses: spaces of paths which begin (coconusfromt) or end (coconustot)
     at a given point. *)
