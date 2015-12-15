@@ -34,7 +34,6 @@ Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
 Require Import UniMath.SubstitutionSystems.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.ProductPrecategory.
 Require Import UniMath.SubstitutionSystems.Signatures.

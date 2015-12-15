@@ -27,7 +27,6 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
 Require Import UniMath.SubstitutionSystems.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.ProductPrecategory.
 Require Import UniMath.SubstitutionSystems.HorizontalComposition.

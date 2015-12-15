@@ -165,6 +165,18 @@ Definition functor_comp {C C' : precategory_data}
                  forall g : b --> c,
                 #F (f ;; g) = #F f ;; #F g := pr2 (pr2 F).
 
+
+Lemma functor_id_id (A B : precategory) (G : functor A B) (a : A) (f : a --> a)
+  : f = identity _ -> #G f = identity _ .
+Proof.
+  intro e.
+  pathvia (#G (identity a )).
+  - apply maponpaths. apply e.
+  - apply functor_id.
+Defined.
+
+
+
 (** ** Functors preserve isomorphisms *)
 
 
@@ -484,6 +496,28 @@ Defined.
 Definition functor_identity (C : precategory_data) : functor C C :=
   tpair _ _ ( is_functor_identity C ) .
 
+(** *** Constant functor *)
+
+Section Constant_Functor.
+Variables C D : precategory.
+Variable d : D.
+
+Definition constant_functor_data: functor_data C D :=
+   functor_data_constr C D (fun _ => d) (fun _ _ _  => identity _) .
+
+Lemma is_functor_constant: is_functor constant_functor_data.
+Proof.
+  split; simpl.
+  red; intros; apply idpath.
+  red; intros; simpl.
+  apply pathsinv0.
+  apply id_left.
+Qed.
+
+Definition constant_functor: functor C D := tpair _ _ is_functor_constant.
+
+End Constant_Functor.
+
 
 
 (** * Natural transformations *)
@@ -661,6 +695,22 @@ Proof.
   destruct H'.
   apply idpath.
 Defined.
+
+Section nat_trans_eq.
+
+Context {C D : precategory}.
+Variable hsD : has_homsets D.
+Context {F G : functor C D}.
+Variables alpha beta : nat_trans F G.
+
+Definition nat_trans_eq_weq : weq (alpha = beta) (forall c, alpha c = beta c).
+Proof.
+  eapply weqcomp.
+  - apply subtypeInjectivity.
+    intro x. apply isaprop_is_nat_trans. apply hsD.
+  - apply weqtoforallpaths.
+Defined.
+End nat_trans_eq.
 
 
 (** Characterizing isomorphisms in the functor category *)
