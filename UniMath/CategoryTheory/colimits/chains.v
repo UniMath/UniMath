@@ -387,7 +387,6 @@ Check unshift_cocone.
 Section lists.
 
 (* TODO: Move *)
-Require Import UniMath.SubstitutionSystems.Auxiliary.
 Require Import UniMath.SubstitutionSystems.FunctorsPointwiseProduct.
 Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
 Require Import UniMath.CategoryTheory.limits.products.

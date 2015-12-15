@@ -155,6 +155,68 @@ Qed.
 End product_def.
 
 
+Section Products.
+
+Variable C : precategory.
+Variable CC : Products C.
+Variables a b c d x y : C.
+
+Definition ProductOfArrows_comp (f : a ⇒ c) (f' : b ⇒ d) (g : c ⇒ x) (g' : d ⇒ y)
+  : ProductOfArrows _ (CC c d) (CC a b) f f' ;;
+    ProductOfArrows _ (CC _ _) (CC _ _) g g'
+    =
+    ProductOfArrows _ (CC _ _) (CC _ _)(f ;; g) (f' ;; g').
+Proof.
+  apply ProductArrowUnique.
+  - rewrite <- assoc.
+    rewrite ProductOfArrowsPr1.
+    rewrite assoc.
+    rewrite ProductOfArrowsPr1.
+    apply pathsinv0.
+    apply assoc.
+  - rewrite <- assoc.
+    rewrite ProductOfArrowsPr2.
+    rewrite assoc.
+    rewrite ProductOfArrowsPr2.
+    apply pathsinv0.
+    apply assoc.
+Qed.
+
+Definition ProductOfArrows_eq (f f' : a ⇒ c) (g g' : b ⇒ d)
+  : f = f' → g = g' →
+      ProductOfArrows _ _ _ f g = ProductOfArrows _ (CC _ _) (CC _ _) f' g'.
+Proof.
+  induction 1.
+  induction 1.
+  apply idpath.
+Qed.
+
+End Products.
+
+Section Product_unique.
+
+Variable C : precategory.
+Variable CC : Products C.
+Variables a b : C.
+
+Lemma Product_endo_is_identity (P : ProductCone _ a b)
+  (k : ProductObject _ P ⇒ ProductObject _ P)
+  (H1 : k ;; ProductPr1 _ P = ProductPr1 _ P)
+  (H2 : k ;; ProductPr2 _ P = ProductPr2 _ P)
+  : identity _ = k.
+Proof.
+  apply pathsinv0.
+  eapply pathscomp0.
+  apply ProductArrowEta.
+  apply pathsinv0.
+  apply ProductArrowUnique; apply pathsinv0.
+  + rewrite id_left. exact H1.
+  + rewrite id_left. exact H2.
+Qed.
+
+End Product_unique.
+
+
 
 Section test.
 
