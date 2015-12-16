@@ -21,8 +21,8 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.colimits.colimits.
 
-Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Section lim_def.
 

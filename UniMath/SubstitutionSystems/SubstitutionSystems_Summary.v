@@ -167,7 +167,7 @@ Definition bracket_for_initial_algebra
            (Z : precategory_Ptd C hs),
            precategory_Ptd C hs ⟦ Z, ptd_from_alg (InitAlg C hs CP H IA) ⟧
            →
-           [C, C] hs ⟦ ℓ (U Z) ` (InitialObject IA), ` (InitAlg C hs CP H IA) ⟧.
+           [C, C, hs] ⟦ ℓ (U Z) ` (InitialObject IA), ` (InitAlg C hs CP H IA) ⟧.
 Proof.
   apply bracket_Thm15.
 Defined.
@@ -269,7 +269,7 @@ Definition Lam_Flatten
         GlobalRightKanExtensionExists C C (U Z) C hs hs)
     → ∀ Lam_Initial : Initial (FunctorAlg (Id_H C hs CC (Lam_Sig C hs terminal CC CP))
                                           (functor_category_has_homsets C C hs)),
-  [C, C] hs ⟦ (Flat_H C hs) ` (InitialObject Lam_Initial), ` (InitialObject Lam_Initial) ⟧.
+  [C, C, hs] ⟦ (Flat_H C hs) ` (InitialObject Lam_Initial), ` (InitialObject Lam_Initial) ⟧.
 Proof.
   apply Lam_Flatten.
 Defined.
@@ -286,7 +286,7 @@ Definition fbracket_for_LamE_algebra_on_Lam
     precategory_Ptd C hs ⟦ Z ,
                            (ptd_from_alg_functor CC (LamE_Sig C hs terminal CC CP))
                              (LamE_algebra_on_Lam C hs terminal CC CP KanExt Lam_Initial) ⟧
-    → [C, C] hs
+    → [C, C, hs]
              ⟦ functor_composite (U Z)
                                  ` (LamE_algebra_on_Lam C hs terminal CC CP KanExt Lam_Initial),
                ` (LamE_algebra_on_Lam C hs terminal CC CP KanExt Lam_Initial) ⟧.

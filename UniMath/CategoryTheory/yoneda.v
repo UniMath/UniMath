@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 (*Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).*)
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).
 (* Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").*)
-Local Notation "[ C , D ]" := (functor_precategory C D).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
@@ -259,7 +259,7 @@ Defined.
 
 Definition yoneda_weq (C : precategory) (hs: has_homsets C) (c : C)
    (F : functor C^op HSET)
-  :  hom ([C^op, HSET] (pr2 is_category_HSET)) ((yoneda C hs) c) F ≃ pr1hSet (F c)
+  :  hom [C^op, HSET, pr2 is_category_HSET] ((yoneda C hs) c) F ≃ pr1hSet (F c)
   := weqpair _ (isweq_yoneda_map_1 C hs c F).
 
 

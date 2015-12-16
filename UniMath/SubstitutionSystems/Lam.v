@@ -92,7 +92,7 @@ Let LamE_S : Signature _ _ := LamE_Sig C hs terminal CC CP.
 (* assume initial algebra for signature Lam *)
 
 Variable Lam_Initial : Initial
-     (@precategory_FunctorAlg ([C, C] hs)
+     (@precategory_FunctorAlg [C, C, hs]
                              (Id_H C hs CC Lam_S) hsEndC).
 
 Let Lam := InitialObject Lam_Initial.
@@ -120,18 +120,18 @@ Defined.
 
 (* we later prefer leaving App and Abs bundled in the definition of LamE_algebra_on_Lam *)
 
-Definition Lam_App : [C, C] hs ⟦ (App_H C hs CP) `Lam , `Lam ⟧.
+Definition Lam_App : [C, C, hs] ⟦ (App_H C hs CP) `Lam , `Lam ⟧.
 Proof.
   exact (CoproductIn1 _ _ ;; (CoproductIn2 _ _ ;; alg_map _ Lam)).
 Defined.
 
-Definition Lam_Abs : [C, C] hs ⟦ (Abs_H C hs terminal CC) `Lam, `Lam ⟧.
+Definition Lam_Abs : [C, C, hs] ⟦ (Abs_H C hs terminal CC) `Lam, `Lam ⟧.
 Proof.
   exact (CoproductIn2 _ _ ;; (CoproductIn2 _ _ ;; alg_map _ Lam)).
 Defined.
 
 
-Definition Lam_App_Abs :  [C, C] hs
+Definition Lam_App_Abs :  [C, C, hs]
    ⟦ (H C hs CC (App_H C hs CP) (Abs_H C hs terminal CC)) `Lam , `Lam ⟧.
 Proof.
   exact (CoproductIn2 _ _ ;; alg_map _ Lam).
@@ -142,7 +142,7 @@ Defined.
 (** we need a flattening in order to get a model for LamE *)
 
 Definition Lam_Flatten :
-  [C, C] hs ⟦ (Flat_H C hs) `Lam , `Lam ⟧.
+  [C, C, hs] ⟦ (Flat_H C hs) `Lam , `Lam ⟧.
 Proof.
   exact (fbracket LamHSS (identity _ )).
 Defined.
@@ -217,7 +217,7 @@ Defined.
 
 Definition fbracket_for_LamE_algebra_on_Lam (Z : Ptd)
    (f : Ptd ⟦ Z, ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam ⟧ ) :
-   [C, C] hs
+   [C, C, hs]
    ⟦ functor_composite (U Z) `LamE_algebra_on_Lam, `LamE_algebra_on_Lam ⟧ .
 Proof.
   exact (fbracket LamHSS (f ;; bla)).
@@ -421,14 +421,14 @@ Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
  :
    ∀
    t : Σ
-       h : [C, C] hs
+       h : [C, C, hs]
            ⟦ functor_composite (U Z)
                (` LamE_algebra_on_Lam),
            `LamE_algebra_on_Lam ⟧,
        bracket_property f h,
    t =
    tpair
-     (λ h : [C, C] hs
+     (λ h : [C, C, hs]
             ⟦ functor_composite (U Z)
                 (` LamE_algebra_on_Lam),
             `LamE_algebra_on_Lam ⟧,
@@ -515,7 +515,7 @@ Defined.
 (* assume initial algebra for signature LamE *)
 
 Variable  LamE_Initial : Initial
-     (@precategory_FunctorAlg ([C, C] hs)
+     (@precategory_FunctorAlg [C, C, hs]
         (Id_H C hs CC LamE_S) hsEndC).
 
 
