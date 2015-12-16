@@ -391,6 +391,18 @@ Proof. intros r s. apply mapUniqueness. apply dirprod_eq.
        exact r. exact s.
 Defined.
 
+Definition binaryProductMap_2 {C:Precategory} {a b a' b':C}
+           (prod : BinaryProduct a b)
+           (prod' : BinaryProduct a' b')
+           (f : a → a')
+           (g : b → b')
+           : rm_opp_ob (universalObject prod) → rm_opp_ob (universalObject prod').
+Proof.
+  refine (binaryProductMap _ _ _).
+  { exact (f ∘ pr_1 prod). }
+  { exact (g ∘ pr_2 prod). }
+Defined.
+
 Definition BinarySum {C:Precategory} (a b:C) :=
   BinaryProduct (opp_ob a) (opp_ob b).
 
@@ -434,6 +446,18 @@ Lemma binarySumMapUniqueness {C:Precategory} {a b:C} (sum : BinarySum a b)
   f ∘ in_1 sum = g ∘ in_1 sum ->
   f ∘ in_2 sum = g ∘ in_2 sum -> f = g.
 Proof. intros r s. apply opp_mor_eq, mapUniqueness, dirprod_eq; assumption. Defined.
+
+Definition binarySumMap_2 {C:Precategory} {a b a' b':C}
+           (sum : BinarySum a b)
+           (sum' : BinarySum a' b')
+           (f : a → a')
+           (g : b → b')
+           : rm_opp_ob (universalObject sum) → rm_opp_ob (universalObject sum').
+Proof.
+  refine (binarySumMap _ _ _).
+  { exact (in_1 sum' ∘ f). }
+  { exact (in_2 sum' ∘ g). }
+Defined.
 
 (** products and coproducts *)
 
@@ -934,6 +958,13 @@ Lemma functorBinaryProduct_eqn {B C:Precategory} (prod : hasBinaryProducts C)
   universalObject (prod (F ◾ b) (G ◾ b)).
 Proof. reflexivity. Defined.
 
+Lemma functorBinaryProduct_map_eqn {B C:Precategory} (prod : hasBinaryProducts C)
+      (F G F' G' : [B,C]) (p:F→F') (q:G→G') (b:B) :
+  binaryProductMap_2 (functorBinaryProduct prod F G) (functorBinaryProduct prod F' G') p q ◽ b
+  =
+  binaryProductMap_2 (prod (F ◾ b) (G ◾ b)) (prod (F' ◾ b) (G' ◾ b)) (p ◽ b) (q ◽ b).
+Proof. reflexivity. Defined.
+
 Lemma HomPairOp {B C : Precategory} (F G : [B, C]) :
   iso (HomPair (functorOp F) (functorOp G) □ functorOp')
       (HomPair (opp_ob F) (opp_ob G)).
@@ -967,6 +998,22 @@ Lemma functorBinarySum_eqn {B C:Precategory} (sum : hasBinarySums C)
   =
   universalObject (sum (F ◾ b) (G ◾ b)).
 Proof. reflexivity. Defined.
+
+Lemma functorBinarySum_map_eqn {B C:Precategory} (sum : hasBinarySums C)
+      (F G F' G' : [B,C]) (p:F→F') (q:G→G') (b:B) :
+  binarySumMap_2 (functorBinarySum sum F G) (functorBinarySum sum F' G') p q ◽ b
+  =
+  binarySumMap_2 (sum (F ◾ b) (G ◾ b)) (sum (F' ◾ b) (G' ◾ b)) (p ◽ b) (q ◽ b).
+Proof.
+  try reflexivity.
+  (* This failure might be what prevents using this framework with
+     SubstitutionSystems on the branch "colimits". Since
+     [functorBinaryProduct_map_eqn] admits a trivial proof, that's an argument
+     for replacing the proof of functorBinarySum by one that's parallel to the
+     proof of functorBinaryProduct, rather than deducing it as a corollary.
+     Maybe then we could also write [universalObject sum] instead of [rm_opp_ob
+     (universalObject sum)] *)
+Abort.
 
 Theorem functorLimits (B C:Precategory) : hasLimits C -> hasLimits [B,C].
 Proof.
