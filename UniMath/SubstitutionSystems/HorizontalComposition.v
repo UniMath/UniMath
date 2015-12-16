@@ -22,17 +22,12 @@ Contents :
 
 
 
-Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.Basics.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-(*Require Import CategoryTheory.whiskering.*)
-(*Require Import CategoryTheory.FunctorAlgebras.*)
-Require Import UniMath.SubstitutionSystems.Auxiliary.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -86,7 +81,7 @@ Qed.
 Lemma horcomp_id_postwhisker (A B C : precategory)
    (hsB : has_homsets B) (hsC : has_homsets C) (X X' : [A, B, hsB]) (α : X ⇒ X')
    (Z : [B ,C, hsC])
-  : hor_comp α (nat_trans_id _ ) = post_whisker hsB hsC _ _ α Z.
+  : hor_comp α (nat_trans_id _ ) = post_whisker α Z.
 Proof.
   apply nat_trans_eq.
   - apply hsC.

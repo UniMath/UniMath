@@ -5,13 +5,13 @@
 Unset Kernel Term Sharing.
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.NaturalNumbers
-               UniMath.Foundations.Integers
-               UniMath.Foundations.FunctionalExtensionality
+               UniMath.Foundations.NumberSystems.NaturalNumbers
+               UniMath.Foundations.NumberSystems.Integers
+               UniMath.Foundations.Basics.UnivalenceAxiom
                UniMath.Ktheory.Utilities
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.GroupAction
-               UniMath.Foundations.Integers
+               UniMath.Foundations.NumberSystems.Integers
                UniMath.Ktheory.Nat.
 
 Definition ℤ := hzaddabgr.
@@ -25,7 +25,7 @@ Open Scope hz_scope.
 Definition hzabsvalnat n : hzabsval (natnattohz n 0) = n. (* move to hz.v *)
 Proof. intros. unfold hzabsval. unfold setquotuniv. simpl.
        unfold hzabsvalint. simpl. destruct (natgthorleh n 0).
-       { apply natminuseqn. } { exact (! (natleh0tois0 _ h)). } Defined.
+       { apply natminuseqn. } { exact (! (natleh0tois0 h)). } Defined.
 
 Lemma hzsign_natnattohz m n : - natnattohz m n = natnattohz n m. (* move to hz.v *)
 Proof. reflexivity.             (* don't change the proof *)

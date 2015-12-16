@@ -1,8 +1,29 @@
 (** * Additionals theorems and definitions *)
 
+(** ** About nat *)
+
+Require Export UniMath.Foundations.NumberSystems.NaturalNumbers.
+
+Lemma max_le_l : ∀ n m : nat, (n <= max n m)%nat.
+Proof.
+  induction n ; simpl max.
+  - intros ; reflexivity.
+  - destruct m.
+    + now apply isreflnatleh.
+    + now apply IHn.
+Qed.
+Lemma max_le_r : ∀ n m : nat, (m <= max n m)%nat.
+Proof.
+  induction n ; simpl max.
+  - intros ; now apply isreflnatleh.
+  - destruct m.
+    + reflexivity.
+    + now apply IHn.
+Qed.
+
 (** ** for RationalNumbers.v *)
 
-Require Export UniMath.Foundations.RationalNumbers.
+Require Export UniMath.Foundations.NumberSystems.RationalNumbers.
 
 Open Scope hq_scope.
 
@@ -27,6 +48,8 @@ Proof.
   exact hzone_neg_hzzero.
 Defined.
 
+Opaque hz.
+
 Lemma hq2eq1plus1 :
   2 = 1 + 1.
 Proof.
@@ -45,6 +68,11 @@ Proof.
   rewrite <- nattohzand1, <- nattohzand0.
   now apply hztohqandgth, nattohzandgth.
 Qed.
+Lemma hq1ge0 : (0 <= 1)%hq.
+Proof.
+  now apply hqlthtoleh, hq1_gt0.
+Qed.
+
 Lemma hqgth_hqneq :
   forall x y : hq, x > y -> hqneq x y.
 Proof.
@@ -115,4 +143,51 @@ Proof.
   now rewrite hqplusr0.
 Qed.
 
+Lemma hq0lehandmult:
+  ∀ n m : hq, 0 <= n -> 0 <= m -> 0 <= n * m.
+Proof.
+  intros n m.
+  exact hqmultgeh0geh0.
+Qed.
+
+Lemma hq0leminus :
+  forall r q : hq, r <= q -> 0 <= q - r.
+Proof.
+  intros r q Hr.
+  apply hqlehandplusrinv with r.
+  unfold hqminus.
+  rewrite hqplusassoc, hqlminus.
+  now rewrite hqplusl0, hqplusr0.
+Qed.
+
+Lemma hqinv_gt0 (x : hq) : 0 < x -> 0 < / x.
+Proof.
+  intros Hx.
+  apply hqlthandmultlinv with x.
+  - exact Hx.
+  - rewrite hqmultx0.
+    rewrite hqisrinvmultinv.
+    + exact hq1_gt0.
+    + apply hqgth_hqneq.
+      exact Hx.
+Qed.
+
 Close Scope hq_scope.
+
+(** ** A new tactic *)
+
+Ltac apply_pr2 T :=
+  first [ refine (pr2 (T) _)
+        | refine (pr2 (T _) _)
+        | refine (pr2 (T _ _) _)
+        | refine (pr2 (T _ _ _) _)
+        | refine (pr2 (T _ _ _ _) _)
+        | refine (pr2 (T _ _ _ _ _) _) ].
+
+Ltac apply_pr2_in T H :=
+  first [ apply (pr2 (T)) in H
+        | apply (fun H0 => pr2 (T H0)) in H
+        | apply (fun H0 H1 => pr2 (T H0 H1)) in H
+        | apply (fun H0 H1 H2 => pr2 (T H0 H1 H2)) in H
+        | apply (fun H0 H1 H2 H3 => pr2 (T H0 H1 H2 H3)) in H
+        | apply (fun H0 H1 H2 H3 H4 => pr2 (T H0 H1 H2 H3 H4)) in H ].

@@ -19,9 +19,9 @@ Contents :
 
 ******************************************************************)
 
-Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.Propositions.
+Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -282,6 +282,15 @@ Proof.
   - apply (pr2 _ ).
 Defined.
 
+Lemma is_category_FunctorAlg : is_category (FunctorAlg (pr2 H)).
+Proof.
+  split.
+  - apply isweq_idtoiso_FunctorAlg.
+  - intros a b.
+    apply isaset_algebra_mor.
+    apply (pr2 H).
+Defined.
+
 End FunctorAlg_saturated.
 
 End Algebra_Definition.
@@ -314,7 +323,7 @@ assert (Ha'a : a' ;; a = identity A).
     eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
     now apply assoc.
   apply pathsinv0; set (X := tpair _ _ algMor_a'a).
-  now apply (maponpaths pr1 (InitialEndo_is_identity AaInitial X)).
+  now apply (maponpaths pr1 (InitialEndo_is_identity _ AaInitial X)).
 split; simpl; trivial.
 eapply pathscomp0; [apply Ha'|]; simpl.
 rewrite <- functor_comp.

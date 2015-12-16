@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.FiniteSets
+               UniMath.Foundations.Combinatorics.FiniteSets
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Close Scope multmonoid_scope.
@@ -22,29 +22,41 @@ Proof. intros. apply weqtoeqstn. exact (weqcomp f (invweq g)). Qed.
 Lemma fun_assoc {W X Y Z} (f:W->X) (g:X->Y) (h:Y->Z) :
   funcomp (funcomp f g) h = funcomp f (funcomp g h).
 Proof. reflexivity. Defined.
-Lemma nelstructoncomplmap  {I:UU} {n}
-      (x:I) (sx:nelstruct (S n) I) :
-    pr1 (nelstructoncompl x sx) ;; pr1compl I x
+Lemma nelstructoncomplmap  {X:UU} {n}
+      (x:X) (sx:nelstruct (S n) X) :
+    pr1 (nelstructoncompl x sx) ;; pr1compl X x
   = dni n (invmap sx x) ;; pr1weq sx.
-Proof. reflexivity. Defined.
+Proof. intros.
+       try reflexivity.
+       try reflexivity.
+Abort.
 Lemma nelstructoncomplmap'  {I:UU} {n}
       (i:stn(S n)) (sx:nelstruct (S n) I) :
     pr1 (nelstructoncompl (pr1weq sx i) sx) ;; pr1compl I (pr1weq sx i)
   = dni n (invmap sx (pr1weq sx i)) ;; pr1weq sx.
-Proof. reflexivity. Defined.
+Proof.
+  try reflexivity.
+  try reflexivity.
+Abort.
 Lemma nelstructoncomplmap''  {I:UU} {n}
       (i:stn(S n)) (sx:nelstruct (S n) I) :
     pr1 (nelstructoncompl (pr1weq sx i) sx) ;; pr1compl I (pr1weq sx i)
   = dni n i ;; pr1weq sx.
 Proof. intros.
        intermediate_path (dni n (invmap sx (pr1weq sx i));; pr1weq sx).
-       { reflexivity. }
-       { rewrite <- (homotinvweqweq0 sx i). reflexivity. }
-Defined.
+       { try reflexivity.
+         try reflexivity.
+(*        } *)
+(*        { rewrite <- (homotinvweqweq0 sx i). reflexivity. } *)
+(* Defined. *)
+Abort.
 Lemma nelstructoncomplmap'''  {I:UU} {n} (sx:nelstruct (S n) I) :
     pr1 (nelstructoncompl (pr1weq sx (lastelement n)) sx) ;; pr1compl I (pr1weq sx (lastelement n))
   = dni_last n ;; pr1weq sx.
-Proof. intros. apply nelstructoncomplmap''. Defined.
+Proof. intros.
+(*        apply nelstructoncomplmap''. *)
+(* Defined. *)
+Abort.
 
 Lemma isdeceq_refl {X} (dec:isdeceq X) (x:X) : dec x x = ii1 (idpath x).
 Proof. intros.
@@ -158,6 +170,8 @@ Proof.
   apply isdeceqstn.
 Defined.
 
+Local Open Scope nat.
+
 Definition rotate_left_stn_0 n (i:nat) : stn n -> stn n.
 Proof.
   (* 0 1 2 ... n-1 becomes i i+1 i+2 ...  *)
@@ -166,24 +180,14 @@ Proof.
   { exact j. }
   { exists (natrem (i + j) (S n)).
     apply lthnatrem.
-    apply negpathssx0. }
+    apply natneqsx0. }
 Defined.
 
-Open Scope nat_scope.
-
-Notation " x % y " := (natrem x y) (at level 40, left associativity) : nat_scope .
-Notation " x / y " := (natdiv x y) (at level 40, left associativity) : nat_scope .
-
-Lemma natnzero m n : m<n -> neg (0=n).
+Lemma natnzero m n : m<n -> n ≠ 0.
 Proof.
   intros ? ? l.
+  apply issymm_natneq.
   exact (natlthtoneq 0 n (natlehlthtrans 0 m n (natleh0n m) l)).
-Defined.
-
-Lemma natnzero' m n : m<n -> neg (n=0).
-Proof.
-  intros ? ? l f.
-  exact (natlthtoneq 0 n (natlehlthtrans 0 m n (natleh0n m) l) (pathsinv0 f)).
 Defined.
 
 Theorem natdivremunique' (n m i j:nat) : j+i*m=n -> j<m ->
@@ -191,18 +195,18 @@ Theorem natdivremunique' (n m i j:nat) : j+i*m=n -> j<m ->
 Proof.
   intros ? ? ? ? e l.
   apply (natdivremunique m (natdiv n m) (natrem n m) i j).
-  { apply lthnatrem. apply (natnzero' j m l). }
+  { apply lthnatrem. apply (natnzero j m l). }
   { assumption. }
-  { rewrite e. apply pathsinv0. apply natdivremrule; simpl. exact (natnzero' j m l). }
+  { rewrite e. apply pathsinv0. apply natdivremrule; simpl. exact (natnzero j m l). }
 Defined.
 
-Theorem natdivunique (n m i j:nat) : j+i*m=n -> j<m -> natdiv n m = i.
+Theorem natdivunique (n m i j:nat) : j+i*m=n -> j<m -> n / m = i.
 Proof.
   intros ? ? ? ? e l.
   exact (pr1 (natdivremunique' n m i j e l)).
 Defined.
 
-Theorem natremunique (n m i j:nat) : j+i*m=n -> j<m -> natrem n m = j.
+Theorem natremunique (n m i j:nat) : j+i*m=n -> j<m -> n /+ m = j.
 Proof.
   intros ? ? ? ? e l.
   exact (pr2 (natdivremunique' n m i j e l)).
@@ -215,11 +219,11 @@ Proof.
   apply natplusr0.
 Defined.
 
-Lemma natremplusden n m : natrem (m+n) m = natrem n m.
+Lemma natremplusden n m : (m+n) /+ m = n /+ m.
 Proof.
   intros.
-  induction (isdeceqnat m 0).
-  { rewrite a. reflexivity. }
+  induction (nat_eq_or_neq m 0) as [b|b].
+  { induction (!b). reflexivity. }
   { set (j := natrem n m).
     set (i := natdiv n m).
     apply (natremunique (m+n) m (S i) j).
@@ -233,10 +237,10 @@ Proof.
       rewrite (natpluscomm (i*m) (m+j)).
       rewrite <- natplusassoc.
       reflexivity. }
-    { apply lthnatrem. assumption. } }
+    { apply lthnatrem. assumption. }}
 Defined.
 
-Lemma natremplus i j m : m!=0 -> natrem (i + natrem j m) m = natrem (i+j) m.
+Lemma natremplus i j m : m ≠ 0 -> (i + j /+ m) /+ m = (i+j) /+ m.
 Proof.
   intros ? ? ? ne.
   apply pathsinv0.
@@ -293,16 +297,16 @@ Proof.
       { rewrite <- 2 ! fun_assoc.
         set (f' := nelstructoncompl (pr1 f (lastelement n)) f).
         set (g' := nelstructoncompl (pr1 g (lastelement n)) g).
-        set (p' := nelstructoncomplmap''' f).
-        set (q' := nelstructoncomplmap''' g).
-        unfold pr1weq in p', q'.
-        induction p', q', e.
-        apply (IH (compl I (pr1 f (lastelement n)))
-                  f' g' (pr1compl I (pr1 f (lastelement n)) ;; x)). }
-      { exact (ap x e). } }
-    {
+    (*     set (p' := nelstructoncomplmap''' f). *)
+    (*     set (q' := nelstructoncomplmap''' g). *)
+    (*     unfold pr1weq in p', q'. *)
+    (*     induction p', q', e. *)
+    (*     apply (IH (compl I (pr1 f (lastelement n))) *)
+    (*               f' g' (pr1compl I (pr1 f (lastelement n)) ;; x)). } *)
+    (*   { exact (ap x e). } } *)
+    (* { *)
 
-      admit. } }
+    (*   admit. } } *)
 Abort.
 
 Definition finiteOperation1 (X:abmonoid) I : finstruct I -> (I->X) -> X.
@@ -689,3 +693,9 @@ Module NN_agreement.
       }
   Abort.
 End NN_agreement.
+
+(*
+Local Variables:
+compile-command: "make -C ../.. TAGS UniMath/Ktheory/AbelianMonoid.vo"
+End:
+*)

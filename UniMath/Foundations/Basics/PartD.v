@@ -581,10 +581,6 @@ Proof. intros . apply isofhlevelsn .  intro is . apply impred . intro x' .  appl
 Theorem isapropisdeceq (X:UU): isaprop (isdeceq X).
 Proof. intro. apply ( isofhlevelsn 0 ) .  intro is . unfold isdeceq. apply impred . intro x .  apply ( isapropisisolated X x ) .   Defined .
 
-Definition isapropisdecprop ( X : UU ) : isaprop ( isdecprop X ) := isapropiscontr ( coprod X ( neg X ) ) .
-
-
-
 Theorem isapropisofhlevel (n:nat)(X:UU): isaprop (isofhlevel n X).
 Proof. intro.  unfold isofhlevel.    induction n as [ | n IHn ] . apply isapropiscontr.  intro X .
 assert (X0: forall (x x':X), isaprop  ((fix isofhlevel (n0 : nat) (X0 : UU) {struct n0} : UU :=
@@ -602,6 +598,16 @@ assert (is1:
 
 Corollary isapropisaprop (X:UU) : isaprop (isaprop X).
 Proof. intro. apply (isapropisofhlevel (S O)). Defined.
+
+Definition isapropisdecprop ( X : UU ) : isaprop ( isdecprop X ).
+Proof.
+  intros.
+  unfold isdecprop.
+  apply (isofhlevelweqf 1 (weqdirprodcomm _ _)).
+  apply isofhleveltotal2.
+  - apply isapropisaprop.
+  - intro i. now apply isapropdec.
+Defined.
 
 Corollary isapropisaset (X:UU): isaprop (isaset X).
 Proof. intro. apply (isapropisofhlevel (S (S O))). Defined.
@@ -665,7 +671,12 @@ assert ( egf : forall a : _ , paths ( g ( f a ) ) a ) . intro a .  apply ( invma
 assert ( efg : forall b : _ , paths ( f ( g b ) ) b ) . intro b .  apply ( invmaponpathsincl _ ( isinclpr1weq _ _ ) ) . apply funextfun . intro x . apply ( maponpaths b ( homotinvweqweq w x ) ) .
 apply ( gradth _ _ egf efg ) . Defined .
 
-
+Theorem weqweq {X Y:UU} (w:X≃Y) : (X≃X) ≃ (Y≃Y).
+Proof.
+  intros. intermediate_weq (X≃Y).
+  - now apply weqfweq.
+  - apply invweq. now apply weqbweq.
+Defined.
 
 (** *** Invertion on weak equivalences as a weak equivalence *)
 
@@ -740,8 +751,6 @@ Proof . intro . apply ( isofhlevelsnweqfromhlevelsn 0 X _ ( isapropempty ) ) . D
 Theorem isapropweqfromempty2 ( X : UU ) { Y : UU } ( is : neg Y ) : isaprop ( weq Y X ) .
 Proof. intros .  apply ( isofhlevelsnweqfromhlevelsn 0 X _ ( isapropifnegtrue is ) ) .  Defined .
 
-
-
 (** *** Weak equivalences to and from [ unit ] *)
 
 Theorem isapropweqtounit ( X : UU ) : isaprop ( weq X unit ) .
@@ -750,53 +759,98 @@ Proof . intro .  apply ( isofhlevelsnweqtohlevelsn 0 _ _ ( isapropunit ) ) . Def
 Theorem isapropweqfromunit ( X : UU ) : isaprop ( weq unit X ) .
 Proof. intros . apply ( isofhlevelsnweqfromhlevelsn 0 X _ ( isapropunit ) ) .  Defined .
 
-
-
-
-
-
-
-
 (** ** Weak auto-equivalences of a type with an isolated point *)
 
+Definition cutonweq {T:UU} t (is:isisolated T t) (w : T ≃ T ) :
+  isolated T × (compl T t ≃ compl T t).
+Proof.
+  intros. split.
+  - exists (w t). now apply isisolatedweqf.
+  - intermediate_weq (compl T (w t)).
+    + apply weqoncompl.
+    + apply weqtranspos0.
+      * now apply isisolatedweqf.
+      * assumption.
+Defined.
 
+Definition invcutonweq  { T : UU } ( t : T )
+           ( is : isisolated T t )
+           ( t'w : isolated T × ( compl T t ≃ compl T t ) ) : T ≃ T
+  := weqcomp ( weqrecomplf t t is is ( pr2 t'w ) )
+             ( weqtranspos t ( pr1 ( pr1 t'w ) ) is ( pr2 ( pr1 t'w ) ) ) .
 
-Definition cutonweq { T : UU } ( t : T ) ( is : isisolated T t ) ( w : weq T T ) : dirprod ( isolated T ) ( weq ( compl T t ) ( compl T t ) ) := dirprodpair  ( isolatedpair T ( w t ) ( isisolatedweqf w t is ) ) ( weqcomp ( weqoncompl w t ) ( weqtranspos0 ( w t ) t ( isisolatedweqf w t is ) is ) ) .
+Lemma pathsinvcuntonweqoft  { T : UU } ( t : T )
+      ( is : isisolated T t )
+      ( t'w : isolated T × ( compl T t ≃ compl T t ) ) :
+  invcutonweq t is t'w t = pr1 ( pr1 t'w ) .
+Proof. intros . unfold invcutonweq . simpl . unfold recompl . unfold coprodf .
+       unfold invmap .    simpl .  unfold invrecompl .
+       induction ( is t ) as [ ett | nett ] .
+       - apply pathsfuntransposoft1 .
+       - induction ( nett ( idpath _ ) ) .
+Defined .
 
-Definition invcutonweq  { T : UU } ( t : T ) ( is : isisolated T t ) ( t'w : dirprod ( isolated T ) ( weq ( compl T t ) ( compl T t ) ) ) : weq T T := weqcomp ( weqrecomplf t t is is ( pr2 t'w ) ) ( weqtranspos t ( pr1 ( pr1 t'w ) ) is ( pr2 ( pr1 t'w ) ) ) .
-
-Lemma pathsinvcuntonweqoft  { T : UU } ( t : T ) ( is : isisolated T t ) ( t'w : dirprod ( isolated T ) ( weq ( compl T t ) ( compl T t ) ) ) : paths ( invcutonweq t is t'w t ) ( pr1 ( pr1 t'w ) ) .
-Proof. intros .  unfold invcutonweq . simpl . unfold recompl . unfold coprodf . unfold invmap .    simpl .  unfold invrecompl . induction ( is t ) as [ ett | nett ] .  apply pathsfuntransposoft1 . induction ( nett ( idpath _ ) ) .  Defined .
-
-Definition weqcutonweq ( T : UU ) ( t : T ) ( is : isisolated T t ) : weq ( weq T T ) ( dirprod ( isolated T ) ( weq ( compl T t ) ( compl T t ) ) ) .
-Proof . intros . set ( f := cutonweq t is  ) . set ( g := invcutonweq t is ) . split with f .
-
-assert ( egf : forall w : _ , paths ( g ( f w ) ) w ) . intro w . apply ( invmaponpathsincl _ ( isinclpr1weq _ _ ) _ _ ) . apply funextfun .  intro t' .  simpl .  unfold invmap .  simpl . unfold coprodf . unfold invrecompl . induction ( is t' ) as [ ett' | nett' ] .   simpl . rewrite ( pathsinv0 ett' ) .  apply pathsfuntransposoft1 .   simpl . unfold funtranspos0 .  simpl .  induction ( is ( w t ) ) as [ etwt | netwt ] .  induction ( is ( w t' ) ) as [ etwt' | netwt' ] . induction (negf (invmaponpathsincl w (isofhlevelfweq 1 w) t t') nett' (pathscomp0 (pathsinv0 etwt) etwt')) .  simpl . assert ( newtt'' := netwt' ) .  rewrite etwt in netwt' .  apply ( pathsfuntransposofnet1t2 t ( w t ) is _ ( w t' ) newtt'' netwt' ) .  simpl .   induction ( is ( w t' ) ) as [ etwt' | netwt' ] . simpl . rewrite ( pathsinv0 etwt' ).  apply ( pathsfuntransposoft2 t ( w t ) is _ ) .  simpl . assert ( ne : neg ( paths ( w t ) ( w t' ) ) ) . apply ( negf ( invmaponpathsweq w _ _  ) nett' ) .  apply ( pathsfuntransposofnet1t2 t ( w t ) is _  ( w t' ) netwt' ne ) .
-
-assert ( efg : forall xw : _ , paths ( f ( g xw ) ) xw ) . intro . induction xw as [ x w ] .  induction x as [ t' is' ] .  simpl in w .  apply pathsdirprod .
-
-apply ( invmaponpathsincl _ ( isinclpr1isolated _ ) ) .  simpl .   unfold recompl . unfold coprodf . unfold invmap .    simpl .  unfold invrecompl . induction ( is t ) as [ ett | nett ] .  apply pathsfuntransposoft1 . induction ( nett ( idpath _ ) ) .
-
-simpl .  apply ( invmaponpathsincl _ ( isinclpr1weq _ _ ) _ _ ) . apply funextfun . intro x .  induction x as [ x netx ] .  unfold g . unfold invcutonweq .  simpl .
-
-set ( int := funtranspos ( tpair _ t is ) ( tpair _ t' is' ) (recompl T t (coprodf w (fun x0 : unit => x0) (invmap (weqrecompl T t is) t))) ) .
-assert ( eee : paths int t' ) . unfold int .  unfold recompl . unfold coprodf . unfold invmap .    simpl .  unfold invrecompl . induction ( is t ) as [ ett | nett ] .  apply ( pathsfuntransposoft1 ) . induction ( nett ( idpath _ ) ) .
-
-assert ( isint : isisolated _ int ) . rewrite eee . apply is' .
-
-apply ( ishomotinclrecomplf _ _ isint ( funtranspos0 _ _ _ ) _ _ ) .  simpl .  change ( recomplf int t isint (funtranspos0 int t is) ) with ( funtranspos ( tpair _ int isint ) ( tpair _ t is ) ) .
-
-assert ( ee : paths ( tpair _ int isint) ( tpair _ t' is' ) ) . apply ( invmaponpathsincl _ ( isinclpr1isolated _ ) _ _ ) .  simpl . apply eee .
-
-rewrite ee . set ( e := homottranspost2t1t1t2 t t' is is' (recompl T t (coprodf w (fun x0 : unit => x0) (invmap (weqrecompl T t is) x))) ) .  unfold funcomp in e . unfold idfun in e .   rewrite e . unfold recompl . unfold coprodf . unfold invmap .    simpl .  unfold invrecompl . induction ( is x ) as [ etx | netx' ] . induction  ( netx etx ) .  apply ( maponpaths ( @pr1 _ _ ) ) . apply ( maponpaths w ) .  apply ( invmaponpathsincl _ ( isinclpr1compl _ _ ) _ _  ) .   simpl . apply idpath .
-
-apply ( gradth _ _ egf efg ) . Defined .
-
-
-
-
-
-
+Definition weqcutonweq (T:UU) (t:T) (is:isisolated T t) : (T ≃ T) ≃ isolated T × (compl T t ≃ compl T t) .
+Proof.
+  intros. set (f := cutonweq t is). set (g := invcutonweq t is). apply (weqgradth f g).
+  {
+    intro w. Set Printing Coercions. idtac.
+    apply (invmaponpathsincl _ (isinclpr1weq _ _)).
+    apply funextfun; intro t'. simpl.
+    unfold invmap; simpl. unfold coprodf, invrecompl.
+    induction (is t') as [ ett' | nett' ].
+    { simpl. rewrite (pathsinv0 ett'). apply pathsfuntransposoft1. }
+    unfold funtranspos0; simpl.
+    induction (is (w t)) as [ etwt | netwt ].
+    { induction (is (w t')) as [ etwt' | netwt' ].
+      { induction (negf (invmaponpathsincl w (isofhlevelfweq 1 w) t t') nett' (pathscomp0 (pathsinv0 etwt) etwt')). }
+      simpl. assert (newtt'' := netwt'). rewrite etwt in netwt'.
+      apply (pathsfuntransposofnet1t2 t (w t) is _ (w t') newtt'' netwt').
+    }
+    simpl. induction (is (w t')) as [ etwt' | netwt' ].
+    { simpl. rewrite (pathsinv0 etwt'). apply (pathsfuntransposoft2 t (w t) is _). }
+    simpl. assert (ne:neg (paths (w t) (w t'))).
+    { apply (negf (invmaponpathsweq w _ _) nett'). }
+    apply (pathsfuntransposofnet1t2 t (w t) is _  (w t') netwt' ne). }
+  { intro xw. induction xw as [ x w ]. induction x as [ t' is' ].
+    simpl in w. apply pathsdirprod.
+    { apply (invmaponpathsincl _ (isinclpr1isolated _)).
+      simpl. unfold recompl, coprodf, invmap; simpl. unfold invrecompl.
+      induction (is t) as [ ett | nett ].
+      { apply pathsfuntransposoft1. }
+      induction (nett (idpath _)).
+    }
+    simpl.
+    apply (invmaponpathsincl _ (isinclpr1weq _ _) _ _). apply funextfun.
+    intro x. induction x as [ x netx ].
+    unfold g, invcutonweq; simpl.
+    set (int := funtranspos (tpair _ t is) (tpair _ t' is') (recompl T t (coprodf w (fun x0:unit => x0) (invmap (weqrecompl T t is) t)))).
+    assert (eee:paths int t').
+    { unfold int. unfold recompl, coprodf, invmap; simpl. unfold invrecompl.
+      induction (is t) as [ ett | nett ].
+      { apply (pathsfuntransposoft1). }
+      induction (nett (idpath _)).
+    }
+    assert (isint:isisolated _ int).
+    { rewrite eee. apply is'. }
+    apply (ishomotinclrecomplf _ _ isint (funtranspos0 _ _ _) _ _).
+    simpl.
+    change (recomplf int t isint (funtranspos0 int t is)) with (funtranspos (tpair _ int isint) (tpair _ t is)).
+    assert (ee:paths (tpair _ int isint) (tpair _ t' is')).
+    { apply (invmaponpathsincl _ (isinclpr1isolated _) _ _).
+      simpl.
+      apply eee. }
+    rewrite ee.
+    set (e := homottranspost2t1t1t2 t t' is is' (recompl T t (coprodf w (fun x0:unit => x0) (invmap (weqrecompl T t is) x)))).
+    unfold funcomp,idfun in e.
+    rewrite e. unfold recompl, coprodf, invmap; simpl. unfold invrecompl.
+    induction (is x) as [ etx | netx' ].
+    { induction (netx etx). }
+    apply (maponpaths (@pr1 _ _)). apply (maponpaths w).
+    apply (invmaponpathsincl _ (isinclpr1compl _ _) _ _).
+    simpl. apply idpath. }
+  Unset Printing Coercions.
+Defined.
 
 (* Coprojections i.e. functions which are weakly equivalent to functions of the form ii1: X -> coprod X Y
 

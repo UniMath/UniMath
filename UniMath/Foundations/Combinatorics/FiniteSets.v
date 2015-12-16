@@ -18,7 +18,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** Imports. *)
 
-Require Export UniMath.Foundations.StandardFiniteSets .
+Require Export UniMath.Foundations.Combinatorics.StandardFiniteSets .
 
 
 
@@ -47,7 +47,12 @@ Definition nelstructonbool : nelstruct 2 bool := weqstn2tobool .
 
 Definition nelstructoncoprodwithunit { X : UU } { n : nat } ( sx : nelstruct n X ) : nelstruct ( S n ) ( coprod X unit ) :=  weqcomp ( invweq ( weqdnicoprod n ( lastelement n ) ) ) ( weqcoprodf sx ( idweq unit ) ) .
 
-Definition nelstructoncompl { X : UU } { n : nat } ( x : X ) ( sx : nelstruct ( S n ) X ) : nelstruct n ( compl X x ) :=  weqcomp ( weqdnicompl n ( invweq sx x ) ) ( invweq ( weqoncompl ( invweq sx ) x ) ) . 
+Definition nelstructoncompl {X} {n} (x:X) : nelstruct (S n) X -> nelstruct n (compl X x).
+Proof.
+  intros ? ? ? sx.
+  refine (invweq ( weqoncompl ( invweq sx ) x) ∘ _ ∘ weqdnicompl n (invweq sx x))%weq.
+  apply compl_weq_compl_ne.
+Defined.
 
 Definition nelstructoncoprod { X  Y : UU } { n m : nat } ( sx : nelstruct n X ) ( sy : nelstruct m Y ) : nelstruct ( n + m ) ( coprod X Y ) := weqcomp ( invweq ( weqfromcoprodofstn n m ) ) ( weqcoprodf sx sy ) .
 
@@ -264,35 +269,6 @@ Theorem carddnegweqf (X Y:UU)(f: X -> Y)(isw:isweq f)(isx: isfinite X): paths  (
 Proof. intros. *) 
 
 (* The cardinality of finite sets defined using the "impredicative" ishinh *)
-
-(** ** Test computations. *)
-Goal fincard (isfiniteempty) = 0. reflexivity. Qed.
-Goal fincard (isfiniteunit) = 1. reflexivity. Qed.
-Goal fincard (isfinitebool) = 2. reflexivity. Qed.
-Goal fincard (isfinitecompl true isfinitebool) = 1. reflexivity. Qed.
-Goal fincard (isfinitedirprod  isfinitebool isfinitebool) = 4. reflexivity. Qed.
-Goal fincard (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool)) = 8. reflexivity. Qed.
-Goal cardinalityFiniteSet (isfinite_to_FiniteSet (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool))) = 8. reflexivity. Qed.
-Goal fincard (isfinitecompl (ii1 tt) (isfinitecoprod  (isfiniteunit) (isfinitebool))) = 2. reflexivity. Qed.
-Goal fincard (isfinitecompl (ii1 tt) (isfinitecoprod (isfiniteunit) (isfinitebool))) = 2. reflexivity. Qed.
-Goal fincard (isfinitecompl (dirprodpair tt tt) (isfinitedirprod  isfiniteunit isfiniteunit)) = 0. reflexivity. Qed.
-Goal fincard (isfinitecompl (dirprodpair  true (dirprodpair  true false)) (isfinitedirprod  (isfinitebool) (isfinitedirprod  (isfinitebool) (isfinitebool)))) = 7. reflexivity. Qed.
-
-Goal fincard (
-       isfiniteweq (isfinitedirprod isfinitebool isfinitebool)
-     ) = 24. reflexivity. Qed.
-
-(*
-
-stack overflow:
-
-Goal fincard (isfiniteweq ( isfinitedirprod ( isfinitedirprod isfinitebool isfinitebool ) isfinitebool )) = 40320. reflexivity. Qed.
-
-*)
-
-(* Eval compute in (carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))). *)
-(* Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)
-
  
 (** finite sums of natural numbers *)
 
@@ -320,25 +296,11 @@ Proof.
   assumption.
 Defined.
 
-Goal ∀ X (fin : finstruct X) (f : X -> nat),
-  finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
-Proof. reflexivity. Qed.
-
-Goal 15 = finsum (isfinitestn _) (λ i:stn 6, i). reflexivity. Qed.
-Goal 20 = finsum isfinitebool (λ i:bool, 10). reflexivity. Qed.
-Goal 21 = finsum (isfinitecoprod isfinitebool isfinitebool)
-           (sum_rect (λ _, nat) (bool_rect _ 10 4) (bool_rect _  6 1)).
-  reflexivity. Qed.
-
-(* A simpler definition isn't as computable (why?) : *)
-
+(* A simpler definition: *)
 Definition finsum' {X} (fin : isfinite X) (f : X -> nat) : nat.
 Proof.
-  intros.
-  exact (fincard (isfinitetotal2 (stn∘f) fin (λ i, isfinitestn (f i)))).
+  intros. exact (fincard (isfinitetotal2 (stn∘f) fin (λ i, isfinitestn (f i)))).
 Defined.
-
-Goal 15 = finsum' (isfinitestn _) (λ i:stn 6, i). try reflexivity. Abort.
 
 Definition isfinite_to_DecidableEquality {X} : isfinite X -> DecidableRelation X.
   intros ? fin x y.
@@ -348,64 +310,3 @@ Definition isfinite_to_DecidableEquality {X} : isfinite X -> DecidableRelation X
                                (isfinite_isaset X fin x y)
                                (isfinite_isdeceq X fin x y))).
 Defined.
-
-Module Test_isfinite_isdeceq.
-
-  (* This module exports nothing. *)
-
-  (* The proofs of isfinite_isdeceq and isfinite_isaset depend on funextfunax
-     and funextempty, so here we do an experiment to see if that impedes
-     computability of equality using it. *)
-
-  Notation "● x" := (x,,idpath _) (at level 35).
-  Let X := stnset 5.
-  Let finX : isfinite X := isfinitestn _.
-  Let eqX := isfinite_to_DecidableEquality finX.
-  Let x := ●3 : X.
-  Let x' := ●4 : X.
-  Let decide P := choice P true false.
-  Goal decide (eqX x x') = false. reflexivity. Defined.
-  Goal decide (eqX x x) = true. reflexivity. Defined.
-
-  (* test isfinitebool *)
-
-  Let eqbool := isfinite_to_DecidableEquality isfinitebool : DecidableRelation bool.
-  Goal decide (eqbool true true) = true. reflexivity. Defined.
-  Goal decide (eqbool false true) = false. reflexivity. Defined.
-
-  (* test isfinitecoprod *)
-
-  Let C := X ⨿ X.
-  Let eqQ : DecidableRelation C :=
-    isfinite_to_DecidableEquality (isfinitecoprod finX finX).
-  Let c := ii1 x : C.
-  Let c' := ii1 x' : C.
-  Let c'' := ii2 x : C.
-  Goal decide (eqQ c c') = false. reflexivity. Defined.
-  Goal decide (eqQ c c) = true. reflexivity. Defined.
-  Goal decide (eqQ c c'') = false. reflexivity. Defined.
-
-  (* test isfinitedirprod *)
-  Let Y := stnset 4.
-  Let y := ●1 : Y.
-  Let y' := ●2 : Y.
-  Let finY : isfinite Y := isfinitestn _.
-  Let V := X × Y.
-  Let eqV := isfinite_to_DecidableEquality (isfinitedirprod finX finY).
-  Goal decide (eqV (x,,y) (x',,y')) = false. reflexivity. Defined.
-
-  (* test isfinitetotal2 *)
-
-  Let Y' (x:X) : hSet := Y.
-  Let W := Σ x, Y' x.
-  Let eqW : DecidableRelation W :=
-    isfinite_to_DecidableEquality (isfinitetotal2 Y' finX (λ _, finY)).
-  Goal decide (eqW (x,,y) (x',,y')) = false. try reflexivity. Abort. (* fix *)
-
-  (* test isfiniteforall *)
-  Let T := ∀ x, Y' x.
-  Let eqT : DecidableRelation T :=
-    isfinite_to_DecidableEquality (isfiniteforall Y' finX (λ _, finY)).
-  Goal decide (eqT (λ _, y) (λ _, y)) = true. try reflexivity. Abort. (* fix *)
-
-End Test_isfinite_isdeceq.

@@ -3,10 +3,12 @@
 (** * Natural numbers *)
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.NaturalNumbers
-               UniMath.Foundations.FunctionalExtensionality
+               UniMath.Foundations.NumberSystems.NaturalNumbers
+               UniMath.Foundations.Basics.UnivalenceAxiom
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
+
+Local Open Scope nat.
 
 Definition ℕ := nat.
 
@@ -167,11 +169,10 @@ Proof. intros ? ?. destruct m as [|m'].
          { simpl. apply nat_dist_symm. } } Defined.
 
 Fixpoint nat_dist_ge m n : m ≥ n -> nat_dist m n = m-n.
-Proof. intros ? ?. destruct m as [|m'].
-       { destruct n as [|n']. { reflexivity. }
-         { simpl. intro f. apply fromempty. apply f. reflexivity. } }
-       { destruct n as [|n']. { simpl. intros _. reflexivity. }
-         { simpl. apply nat_dist_ge. } } Defined.
+Proof. intros ? ?. induction m as [|m'].
+       { induction n as [|n']. { reflexivity. } { intro f. now induction (!natleh0tois0 f). } }
+       { induction n as [|n']. { reflexivity. } { exact (nat_dist_ge m' n'). } }
+Defined.
 
 Definition nat_dist_0m m : nat_dist 0 m = m.
 Proof. reflexivity. Defined.
@@ -188,8 +189,9 @@ Fixpoint nat_dist_le m n : m ≤ n -> nat_dist m n = n-m.
 Proof. intros ? ?. destruct m as [|m'].
        { destruct n as [|n']. { reflexivity. } { simpl. intros _. reflexivity. } }
        { destruct n as [|n'].
-         { simpl. intro f. apply fromempty. apply f. reflexivity. }
-         { simpl. apply nat_dist_le. } } Defined.
+         { intro f. now induction (!natleh0tois0 f). }
+         { exact (nat_dist_le m' n'). } }
+Defined.
 
 Definition nat_dist_minus m n : m ≤ n -> nat_dist (n - m) n = m.
 Proof. intros ? ? e. set (k := n-m). assert(b := ! minusplusnmm n m e).
@@ -255,7 +257,7 @@ Proof. intros. induction (natleorle x y) as [r|s].
            rewrite (minusplusnmm _ _ u). rewrite (natpluscomm _ x).
            rewrite <- natplusassoc. rewrite (natpluscomm x).
            rewrite (minusplusnmm _ _ r). rewrite (natpluscomm y).
-           rewrite (minusplusnmm _ _ t). apply isirreflnatgth. }
+           rewrite (minusplusnmm _ _ t). apply isreflnatleh. }
          { rewrite (nat_dist_ge _ _ u).
            induction (natleorle x z) as [p|q].
            { rewrite (nat_dist_le _ _ p). apply (natlehandplusrinv _ _ x).
@@ -263,23 +265,23 @@ Proof. intros. induction (natleorle x y) as [r|s].
              rewrite <- natplusassoc. rewrite (natpluscomm x).
              rewrite (minusplusnmm _ _ r). apply (natlehandplusrinv _ _ z).
              rewrite natplusassoc. rewrite (minusplusnmm _ _ u).
-             apply (istransnatleh _ (y+z)).
+             apply (istransnatleh (m := y+z)).
              { apply natlehandplusr. exact u. }
              { apply natlehandplusl. exact u. } }
            { rewrite (nat_dist_ge _ _ q). apply (natlehandplusrinv _ _ z).
              rewrite (minusplusnmm _ _ q). rewrite natplusassoc.
              rewrite (minusplusnmm _ _ u). rewrite natpluscomm.
              apply (natlehandplusrinv _ _ x). rewrite natplusassoc.
-             rewrite (minusplusnmm _ _ r). apply (istransnatleh _ (x+y)).
+             rewrite (minusplusnmm _ _ r). apply (istransnatleh (m := x+y)).
              { apply natlehandplusl. assumption. }
              { apply natlehandplusr. assumption. } } } }
        { rewrite (nat_dist_ge _ _ s).
          induction (natleorle z y) as [u|t].
-         { assert (w := istransnatleh _ _ _ u s). rewrite (nat_dist_ge _ _ w).
+         { assert (w := istransnatleh u s). rewrite (nat_dist_ge _ _ w).
            rewrite (nat_dist_ge _ _ u). apply (natlehandplusrinv _ _ z).
            rewrite (minusplusnmm _ _ w). rewrite natplusassoc.
            rewrite (minusplusnmm _ _ u). rewrite (minusplusnmm _ _ s).
-           apply isirreflnatgth. }
+           apply isreflnatleh. }
          { rewrite (nat_dist_le _ _ t).
            induction (natleorle x z) as [p|q].
            { rewrite (nat_dist_le _ _ p). apply (natlehandplusrinv _ _ x).
@@ -292,7 +294,7 @@ Proof. intros. induction (natleorle x y) as [r|s].
              rewrite (natpluscomm z x). rewrite <- (natplusassoc x).
              rewrite (natplusassoc y). rewrite (natpluscomm z y).
              rewrite <- (natplusassoc y). apply (natlehandplusr _ _ z).
-             apply (istransnatleh _ (x+y)).
+             apply (istransnatleh (m := x+y)).
              { apply natlehandplusr. assumption. }
              { apply natlehandplusl. assumption. } }
            { rewrite (nat_dist_ge _ _ q). apply (natlehandplusrinv _ _ z).
@@ -303,7 +305,7 @@ Proof. intros. induction (natleorle x y) as [r|s].
              rewrite (natplusassoc _ z y). rewrite (natpluscomm z y).
              rewrite <- (natplusassoc _ y z). rewrite (minusplusnmm _ _ t).
              rewrite (natpluscomm y x). rewrite (natplusassoc x).
-             apply natlehandplusl. apply (istransnatleh _ (z+y)).
+             apply natlehandplusl. apply (istransnatleh (m := z+y)).
              { apply natlehandplusr. assumption. }
              { apply natlehandplusl. assumption. } } } } Defined.
 
@@ -316,8 +318,10 @@ Proof. intros ? ? i. assert (a := natlehnplusnm m n). rewrite i in a.
        apply natleh0tois0. assumption. Defined.
 
 Lemma natminus0le {m n} : m-n = 0 -> n ≥ m.
-Proof. intros ? ? i j. assert (a := minusgth0 m n j); clear j.
-       rewrite i in a; clear i. exact (negnatgth0n 0 a). Defined.
+Proof. intros ? ? i. apply negnatgthtoleh. intro k.
+       assert (r := minusgth0 _ _ k); clear k.
+       induction (!i); clear i. exact (negnatgth0n 0 r).
+Defined.
 
 Lemma minusxx m : m - m = 0.
 Proof. intro. induction m. reflexivity. simpl. assumption. Defined.
@@ -339,8 +343,9 @@ Proof. intros ? ? ? i.
        rewrite minusplusnmm.
        { exact i. }
        { change (m ≤ n).
-         refine (istransnatleh m (k+m) n _ i); clear i.
-         apply natlehmplusnm. } Defined.
+         refine (istransnatleh _ i); clear i.
+         apply natlehmplusnm. }
+Defined.
 
 Lemma natltminus1 m n : m < n -> m ≤ n - 1.
 Proof. intros ? ? i. assert (a := natlthp1toleh m (n - 1)).

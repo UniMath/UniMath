@@ -2,7 +2,7 @@
 
 Require Export UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.functor_categories
-               UniMath.Foundations.Sets
+               UniMath.Foundations.Basics.Sets
                UniMath.Ktheory.Utilities.
 Require Export UniMath.Ktheory.Precategories.
 

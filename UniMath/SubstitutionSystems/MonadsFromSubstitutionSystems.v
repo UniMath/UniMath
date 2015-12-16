@@ -25,9 +25,7 @@ Contents :
 
 Unset Kernel Term Sharing.
 
-Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.Basics.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -36,7 +34,6 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
 Require Import UniMath.SubstitutionSystems.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.ProductPrecategory.
 Require Import UniMath.SubstitutionSystems.HorizontalComposition.
@@ -201,7 +198,8 @@ Proof.
   - unfold μ_1.
     assert (H':= @fbracket_unique_target_pointwise _ _  _ _ T).
     assert (H1:= H'  _ μ_0_ptd).
-    set (x:= post_whisker hs hs  _ _ μ_0 (`T)).
+    set (x:= post_whisker μ_0 (`T)
+             : EndC ⟦ `T • functor_identity _  , `T • `T ⟧).
     set (x':= x ;; μ_2).
     assert (H2 := H1 x').
     apply H2; clear H2.
@@ -225,12 +223,7 @@ Proof.
     apply pathsinv0. apply id_right. (* done *)
   + rewrite functor_comp.
     apply nat_trans_eq; try assumption.
-    intro c; simpl.
-    assert (H':=θ_nat_2 _ _ H θ).
-    assert (H2 := H' (`T) _ _ μ_0_ptd); clear H'.
-    assert (H3:= nat_trans_eq_weq hs _ _ H2 c); clear H2.
-    simpl in H3.
-    rewrite id_left in H3.
+    intro c.
     rewrite <- horcomp_id_postwhisker.
     repeat rewrite assoc.
     simpl in *.
@@ -241,9 +234,13 @@ Proof.
       apply cancel_postcomposition.
       apply cancel_postcomposition.
       apply cancel_postcomposition.
+      assert (H':=θ_nat_2 _ _ H θ).
+      assert (H2 := H' (`T) _ _ μ_0_ptd); clear H'.
+      assert (H3:= nat_trans_eq_weq hs _ _ H2 c); clear H2.
+      simpl in H3.
+      rewrite id_left in H3.
       apply (!H3). (* done *)
-    * clear H3 .
-      assert (H':= fbracket_τ T (identity _ )).
+    * assert (H':= fbracket_τ T (identity _ )).
       unfold μ_2.
       simpl.
       assert (H2:= nat_trans_eq_weq hs _ _ H' c); clear H'.
@@ -258,7 +255,11 @@ Proof.
         - clear H2 .
           repeat rewrite assoc.
           apply cancel_postcomposition.
+          eapply pathscomp0.
           apply (nat_trans_ax (τ T) ).
+          apply cancel_postcomposition.
+          apply pathsinv0.
+          apply id_right.
       }
   - apply μ_1_identity'.
 Qed.
@@ -312,7 +313,8 @@ Check (μ_3' = μ_3).
 (** *** Proof of the third monad law via transitivity *)
 (** We show that both sides are equal to [μ_3 = fbracket μ_2] *)
 
-Lemma μ_3_T_μ_2_μ_2 : μ_3 = (`T) ∘ μ_2 ;; μ_2.
+Lemma μ_3_T_μ_2_μ_2 : μ_3 =
+                      (`T ∘ μ_2 : EndC ⟦ `T • _  , `T • `T ⟧ ) ;; μ_2.
 Proof.
   apply pathsinv0.
   apply (fbracket_unique T  μ_2_ptd).
@@ -499,8 +501,10 @@ Check  μ_3_μ_2_T_μ_2.
 
 Section third_monad_law_with_assoc.
 
-Lemma third_monad_law_from_hss : (`T) ∘ μ_2 ;; μ_2 =
-     (α_functor _ _ _ _ : functor_compose hs hs _ _  ⇒ _) ;; (μ_2 •• `T) ;; μ_2.
+Lemma third_monad_law_from_hss :
+  (`T ∘ μ_2 : EndC ⟦ functor_composite (functor_composite `T `T) `T , `T • `T ⟧) ;; μ_2
+  =
+  (α_functor _ _ _ _ : functor_compose hs hs _ _  ⇒ _) ;; (μ_2 •• `T) ;; μ_2.
 Proof.
   pathvia μ_3; [apply pathsinv0, μ_3_T_μ_2_μ_2 | ].
   apply pathsinv0.

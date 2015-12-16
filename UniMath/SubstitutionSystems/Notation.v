@@ -25,25 +25,17 @@ Contents :
 ************************************************************)
 
 
-Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.Basics.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
 Require Import UniMath.SubstitutionSystems.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.ProductPrecategory.
 Require Import UniMath.SubstitutionSystems.HorizontalComposition.
 Require Import UniMath.SubstitutionSystems.PointedFunctorsComposition.
-Require Import UniMath.SubstitutionSystems.EndofunctorsMonoidal.
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
-
 
 Notation "# F" := (functor_on_morphisms F)(at level 3).
 Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -54,7 +46,7 @@ Notation "α ∙∙ β" := (hor_comp β α) (at level 20).
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
-Notation "Z ∘ α" := (post_whisker _ _ _ _ α Z) (at level 50, left associativity).
+Notation "Z ∘ α" := (post_whisker α Z) (at level 50, left associativity).
 
 Notation "` T" := (alg_carrier _ T) (at level 3, format "` T").
 Notation "α •• Z" :=  (# (pre_composition_functor_data _ _ _ _ _ Z) α) (at level 25).

@@ -2,9 +2,9 @@
 
 Unset Automatic Introduction.
 
-Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.FunctionalExtensionality.
-Require Import UniMath.Foundations.Tactics.
+Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.Ktheory.Tactics.
 
 Definition Equivalence X Y :=
   Σ (f:X->Y) (g:Y->X) (p:∀ y, f(g y) = y) (q:∀ x, g(f x) = x),
@@ -46,8 +46,7 @@ Proof. intros ? ? w.
        exists (g y,,p y).
        intros xe.
        refine (hfibertriangle2 _ _ _ _ _).
-       - simpl.
-         exact (! (q (pr1 xe)) @ maponpaths g (pr2 xe)).
+       - exact (! (q (pr1 xe)) @ maponpaths g (pr2 xe)).
        - induction xe as [x e]; simpl. induction e; simpl.
          rewrite pathscomp0rid.
          rewrite maponpathsinv0.
