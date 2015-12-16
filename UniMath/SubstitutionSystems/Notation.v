@@ -36,7 +36,6 @@ Require Import UniMath.SubstitutionSystems.PointedFunctors.
 Require Import UniMath.SubstitutionSystems.ProductPrecategory.
 Require Import UniMath.SubstitutionSystems.HorizontalComposition.
 Require Import UniMath.SubstitutionSystems.PointedFunctorsComposition.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
 
 Notation "# F" := (functor_on_morphisms F)(at level 3).
 Notation "F ⟶ G" := (nat_trans F G) (at level 39).
