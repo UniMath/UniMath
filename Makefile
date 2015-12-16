@@ -135,12 +135,10 @@ doc: $(GLOBFILES) $(VFILES)
 	sed -i'.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
 
 # Jason Gross' coq-tools bug isolator:
-# Override this on the command line; this is just an example:
-BUGGY_FILE := Foundations/Basics/PartA.v
 # The isolated bug will appear in this file, in the UniMath directory:
 ISOLATED_BUG_FILE := isolated-bug.v
-# To use it, run this command:
-#     make isolate-bug
+# To use it, run something like this command:
+#     make isolate-bug BUGGY_FILE=Foundations/Basics/PartB.v
 sub/coq-tools/find-bug.py:
 	git submodule update --init sub/coq-tools
 help-find-bug:

@@ -32,7 +32,7 @@ Proof. intros. apply (invmaponpathsincl _ (isinclpr1weq _ _)).
 
 Definition weqcompweql {X Y Z} (f:X ≃ Y) :
   isweq (fun g:Y ≃ Z => weqcomp f g).
-Proof. intros. refine (gradth _ _ _ _).
+Proof. intros. unshelve refine (gradth _ _ _ _).
        { intro h. exact (weqcomp (invweq f) h). }
        { intro g. simpl. rewrite <- weqcompassoc. rewrite weqcompinvl.
          apply weqcompidl. }
@@ -41,7 +41,7 @@ Proof. intros. refine (gradth _ _ _ _).
 
 Definition weqcompweqr {X Y Z} (g:Y ≃ Z) :
   isweq (fun f:X ≃ Y => weqcomp f g).
-Proof. intros. refine (gradth _ _ _ _).
+Proof. intros. unshelve refine (gradth _ _ _ _).
        { intro h. exact (weqcomp h (invweq g)). }
        { intro f. simpl. rewrite weqcompassoc. rewrite weqcompinvr.
          apply weqcompidr. }
@@ -150,10 +150,10 @@ Definition is_equivariant_identity {G:gr} {X Y:Action G}
 Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
        (* should just apply uahp at this point, as in Poset_univalence_prelim! *)
        simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
-       refine (weqpair _ _).
+       unshelve refine (weqpair _ _).
        { intros p g x. simpl in x. simpl.
          exact (apevalat x (apevalat g (ap act_mult p))). }
-       refine (gradth _ _ _ _).
+       unshelve refine (gradth _ _ _ _).
        { unfold cast; simpl.
          intro i.
          assert (p:Xm=Ym).
@@ -225,10 +225,10 @@ Proof. intros ? ? ? ? x. exact (path_to_ActionIso e x). Defined.
 Definition Action_univalence_prelim {G:gr} {X Y:Action G} :
   weq (X = Y) (ActionIso X Y).
 Proof. intros.
-       refine (weqcomp (total2_paths_equiv (ActionStructure G) X Y) _).
-       refine (weqbandf _ _ _ _).
+       unshelve refine (weqcomp (total2_paths_equiv (ActionStructure G) X Y) _).
+       unshelve refine (weqbandf _ _ _ _).
        { apply hSet_univalence. }
-       simpl. intro p. refine (weqcomp (is_equivariant_identity p) _).
+       simpl. intro p. unshelve refine (weqcomp (is_equivariant_identity p) _).
        exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap set_to_type p)))).
 Defined.
 
@@ -389,7 +389,7 @@ Lemma pr1weq_injectivity {X Y} (f g:X ≃ Y) : weq (f = g) (pr1weq f = pr1weq g)
 Proof. intros. apply weqonpathsincl. apply isinclpr1weq.  Defined.
 
 Definition autos (G:gr) : G ≃ (ActionIso (trivialTorsor G) (trivialTorsor G)).
-Proof. intros. exists (trivialTorsorAuto G). refine (gradth _ _ _ _).
+Proof. intros. exists (trivialTorsorAuto G). unshelve refine (gradth _ _ _ _).
        { intro f. exact (f (unel G)). } { intro g; simpl. exact (lunax _ g). }
        { intro f; simpl. apply (invweq (underlyingIso_injectivity _ _)); simpl.
          apply (invweq (pr1weq_injectivity _ _)). apply funextsec; intro g.
@@ -408,9 +408,9 @@ Defined.
 
 Lemma trivialTorsorAuto_unit (G:gr) :
   trivialTorsorAuto G (unel _) = idActionIso _.
-Proof. intros. refine (subtypeEquality _ _).
+Proof. intros. unshelve refine (subtypeEquality _ _).
        { intro k. apply is_equivariant_isaprop. }
-       { refine (subtypeEquality _ _).
+       { unshelve refine (subtypeEquality _ _).
          { intro; apply isapropisweq. }
          { apply funextsec; intro x; simpl. exact (runax G x). } }
 Defined.
@@ -418,9 +418,9 @@ Defined.
 Lemma trivialTorsorAuto_mult (G:gr) (g h:G) :
   composeActionIso (trivialTorsorAuto G g) (trivialTorsorAuto G h)
   = (trivialTorsorAuto G (op g h)).
-Proof. intros. refine (subtypeEquality _ _).
+Proof. intros. unshelve refine (subtypeEquality _ _).
        { intro; apply is_equivariant_isaprop. }
-       { refine (subtypeEquality _ _).
+       { unshelve refine (subtypeEquality _ _).
          { intro; apply isapropisweq. }
          { apply funextsec; intro x; simpl. exact (assocax _ x g h). } }
 Defined.
@@ -428,7 +428,7 @@ Defined.
 (** ** Applications of univalence *)
 
 Definition Torsor_univalence {G:gr} {X Y:Torsor G} : weq (X = Y) (ActionIso X Y).
-Proof. intros. refine (weqcomp underlyingAction_injectivity _).
+Proof. intros. unshelve refine (weqcomp underlyingAction_injectivity _).
        apply Action_univalence. Defined.
 
 Definition Torsor_univalence_comp {G:gr} {X Y:Torsor G} (p:X = Y) :
@@ -457,8 +457,8 @@ Proof. intros ? [X x]. exists (triviality_isomorphism X x).
 Definition PointedTorsor_univalence {G:gr} {X Y:PointedTorsor G} :
   weq (X = Y) (PointedActionIso X Y).
 Proof. intros.
-       refine (weqcomp (total2_paths_equiv _ X Y) _).
-       refine (weqbandf _ _ _ _).
+       unshelve refine (weqcomp (total2_paths_equiv _ X Y) _).
+       unshelve refine (weqbandf _ _ _ _).
        { intros.
          exact (weqcomp (weqonpathsincl underlyingAction underlyingAction_incl X Y)
                         Action_univalence). }
@@ -483,7 +483,7 @@ Proof. intros. exists (pointedTrivialTorsor G). intros [X x].
 
 Theorem loopsBG (G:gr) : weq (Ω (B G)) G.
 Proof. intros. apply invweq.
-       refine (weqcomp _ (invweq Torsor_univalence)).
+       unshelve refine (weqcomp _ (invweq Torsor_univalence)).
        apply autos. Defined.
 
 Definition loopsBG_comp (G:gr) (g h:G)

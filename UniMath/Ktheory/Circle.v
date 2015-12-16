@@ -32,7 +32,7 @@ Proof. intros. unfold circle_loop. rewrite pathsinv0inv0.
 
 (** ** The total space of guided homotopies over BZ *)
 
-Definition ZGuidedHomotopy {Y} {y:Y} (l:y = y) (T:Torsor ℤ) := 
+Definition ZGuidedHomotopy {Y} {y:Y} (l:y = y) (T:Torsor ℤ) :=
   GuidedHomotopy (confun T y) (confun T l).
 
 Definition GH {Y} {y:Y} (l:y = y) := Σ T:Torsor ℤ, ZGuidedHomotopy l T.
@@ -42,7 +42,7 @@ Definition GHpair {Y} {y:Y} (l:y = y) (T:Torsor ℤ) (g:ZGuidedHomotopy l T) :=
 
 Definition pr1_GH {Y} {y:Y} {l:y = y} := pr1 : GH l -> Torsor ℤ.
 
-Definition pr2_GH {Y} {y:Y} (l:y = y) (u:GH l) 
+Definition pr2_GH {Y} {y:Y} (l:y = y) (u:GH l)
   := pr2 u : ZGuidedHomotopy l (pr1_GH u).
 
 Definition GH_path3 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} {y':Y}
@@ -53,7 +53,7 @@ Proof. intros. destruct u. reflexivity. Defined.
 Definition pr12_GH {Y} {y:Y} {l:y = y} (u:GH l) := pr1 (pr2_GH l u) : Y.
 
 Definition pr22_GH {Y} {y:Y} {l:y = y} (u:GH l)
-     := pr2 (pr2_GH l u) 
+     := pr2 (pr2_GH l u)
      : GHomotopy (confun (pr1_GH u) y) (confun (pr1_GH u) l) (pr12_GH u).
 
 Definition GH_path3_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} {y':Y}
@@ -73,12 +73,12 @@ Local Definition sec {Y} {y:Y} (l:y = y) (T:Torsor ℤ) := makeGuidedHomotopy2 T
 Definition pr1_GH_weq {Y} {y:Y} {l:y = y} : weq (GH l) (Torsor ℤ) := weqpr1_irr_sec (irr l) (sec l).
 
 Definition homotinvweqweq_GH_comp {Y} {y:Y} {l:y = y}
-           (T:Torsor ℤ) (gh:ZGuidedHomotopy l T) : 
+           (T:Torsor ℤ) (gh:ZGuidedHomotopy l T) :
   @paths (@paths (GH l)
              (invweq (@pr1_GH_weq _ _ l) T) (T,,gh))
             (homotinvweqweq' (irr l) (sec l) (T,,gh))
-            (@pair_path_in2 _ (ZGuidedHomotopy l) 
-                            _ (sec l T) gh 
+            (@pair_path_in2 _ (ZGuidedHomotopy l)
+                            _ (sec l T) gh
                             (irr l T (sec l T) gh)).
 Proof. reflexivity.             (* don't change the proof *)
 Defined.
@@ -95,21 +95,21 @@ Definition pr12_pair_path_in2 {Y} {y:Y} (l:y = y) (T:Torsor ℤ)
 Proof. intros. destruct w. reflexivity. Defined.
 
 Definition pr1_GH_weq_compute {Y} {y:Y} (l:y = y) :
-  let T0 := trivialTorsor ℤ in 
-  let t0 := 0 : T0 in 
+  let T0 := trivialTorsor ℤ in
+  let t0 := 0 : T0 in
     @paths (y = y)
               (ap pr12_GH (homotinvweqweq' (irr l) (sec l) (makeGH1 l T0 t0)))
               (idpath y).
 Proof. intros.
        unfold makeGH1,makeGH,GHpair.
        refine (ap (ap pr12_GH)
-                  (homotinvweqweq_GH_comp 
+                  (homotinvweqweq_GH_comp
                      T0
                      (makeGuidedHomotopy (fun _ : T0 => y)
                                          (confun T0 l) t0 (idpath y)))
                   @ _).
-       refine (pr12_pair_path_in2 
-                 l T0 
+       refine (pr12_pair_path_in2
+                 l T0
                  (irr l T0 (sec l T0)
                       (makeGuidedHomotopy (fun _ : T0 => y) (confun T0 l) t0 (idpath y)))
                  @ _).
@@ -124,19 +124,19 @@ Proof. intros.
 (** ** Various paths in GH *)
 
 Definition makeGH_localPath {Y} {y:Y} (l:y=y) (T:Torsor ℤ) {t t':T} (r:t = t')
-           {y'} {h h':y' = y} (q:h = h') 
+           {y'} {h h':y' = y} (q:h = h')
   : makeGH l T t h = makeGH l T t' h'.
-Proof. intros. destruct q, r. reflexivity. 
+Proof. intros. destruct q, r. reflexivity.
 (* compare with [makeGuidedHomotopy_localPath] *)
 Defined.
 
 Definition makeGH_localPath_comp1 {Y} {y:Y} (l:y = y) (T:Torsor ℤ) {t t':T} (r:t = t')
-           {y'} {h h':y' = y} (q:h = h') : 
+           {y'} {h h':y' = y} (q:h = h') :
   ap pr1_GH (makeGH_localPath l T r q) = idpath T.
 Proof. intros. destruct q,r. reflexivity. Defined.
 
 Definition makeGH_localPath_comp2 {Y} {y:Y} (l:y = y) (T:Torsor ℤ) {t t':T} (r:t = t')
-           {y'} {h h':y' = y} (q:h = h') : 
+           {y'} {h h':y' = y} (q:h = h') :
   ap pr12_GH (makeGH_localPath l T r q) = idpath y'.
 Proof. intros. destruct q,r. reflexivity. Defined.
 
@@ -159,7 +159,7 @@ Proof. intros. destruct p. reflexivity. Defined.
 Definition makeGH_horizontalPath {Y} {y:Y} (l:y = y) {T T':Torsor ℤ} (q:T = T')
            (t:T) {y'} (h:y' = y)
   : makeGH l T t h = makeGH l T' (castTorsor q t) h.
-Proof. intros. destruct q. reflexivity. 
+Proof. intros. destruct q. reflexivity.
 (* compare with [makeGuidedHomotopy_horizontalPath] *)
 Defined.
 
@@ -177,7 +177,7 @@ Definition makeGH_transPath {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T) {y'} (h:y' 
   : makeGH l T t h = makeGH l T (one+t) (h@l).
 Proof. intros. apply GH_path3.
        (* copied from the proof of [makeGuidedHomotopy_transPath] *)
-       exact (ℤTorsorRecursion_transition_inv 
+       exact (ℤTorsorRecursion_transition_inv
                 _ (fun t => weq_pathscomp0r y' l) _ _). Defined.
 
 Definition makeGH_transPath_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T) {y'} (h:y' = y)
@@ -188,8 +188,8 @@ Definition makeGH_transPath_comp2 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T) {y'} 
   : ap pr12_GH (makeGH_transPath l t h) = idpath y'.
 Proof. intros. exact (GH_path3_comp2 l _). Defined.
 
-Definition makeGH_diagonalLoop {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T) 
-           (q:T = T) (r:castTorsor q t = one + t) : 
+Definition makeGH_diagonalLoop {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T)
+           (q:T = T) (r:castTorsor q t = one + t) :
   makeGH1 l T t = makeGH1 l T t.
 Proof. intros.
        assert (p2 := makeGH_transPath l t (idpath y)).
@@ -200,8 +200,8 @@ Proof. intros.
        assert (p := p2 @ p0 @ !ph @ p1 @ pv); clear p2 p0 ph p1 pv.
        exact p. Defined.
 
-Definition makeGH_diagonalLoop_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T) 
-           (q:T = T) (r:castTorsor q t = one + t) : 
+Definition makeGH_diagonalLoop_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T)
+           (q:T = T) (r:castTorsor q t = one + t) :
   ap pr1_GH (makeGH_diagonalLoop l t q r) = !q.
 Proof. intros. unfold makeGH_diagonalLoop.
        refine (maponpaths_naturality (makeGH_transPath_comp1 _ _ _) _).
@@ -213,8 +213,8 @@ Proof. intros. unfold makeGH_diagonalLoop.
        exact (makeGH_verticalPath_comp1 _ _ _ _).
 Defined.
 
-Definition makeGH_diagonalLoop_comp2 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T) 
-           (q:T = T) (r:castTorsor q t = one + t) : 
+Definition makeGH_diagonalLoop_comp2 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T)
+           (q:T = T) (r:castTorsor q t = one + t) :
   ap pr12_GH (makeGH_diagonalLoop l t q r) = l.
 Proof. intros. unfold makeGH_diagonalLoop.
        refine (maponpaths_naturality (makeGH_transPath_comp2 _ _ _) _).
@@ -231,29 +231,29 @@ Defined.
 Definition circle_map {Y} {y:Y} (l:y = y) : circle -> Y.
 Proof. intros ? ? ?. exact (funcomp (invmap (@pr1_GH_weq _ _ l)) pr12_GH). Defined.
 
-Definition circle_map_check_values {Y} {y:Y} (l:y = y) : 
+Definition circle_map_check_values {Y} {y:Y} (l:y = y) :
   circle_map l (basepoint circle) = y.
 Proof. reflexivity.              (* don't change the proof *)
 (** This proof works because the trivial torsor has an
     actual point that provides the accompanying proof of nonemptiness. *)
 Defined.
 
-Definition circle_map_check_paths {Y} {y:Y} (l:y = y) : 
+Definition circle_map_check_paths {Y} {y:Y} (l:y = y) :
   ap (circle_map l) circle_loop = l.
 Proof. intros. assert (p := pr1_GH_weq_compute l).
-       refine (_ @ loop_correspondence' (irr l) (sec l) pr12_GH 
+       refine (_ @ loop_correspondence' (irr l) (sec l) pr12_GH
                       (makeGH_diagonalLoop_comp1 l _ _ (loop_compute 0))
                       (makeGH_diagonalLoop_comp2 l _ _ (loop_compute 0)) @ _).
        { intermediate_path (ap (circle_map l) circle_loop @ idpath y).
          { apply pathsinv0. apply pathscomp0rid. }
          { apply pathsinv0. rewrite pathsinv0inv0.
            exact (ap (fun r => ap (circle_map l) circle_loop @ r) p). } }
-       { exact (ap (fun r => r @ l) p). } Defined. 
+       { exact (ap (fun r => r @ l) p). } Defined.
 
 (** *** The induction principle (dependent functions) *)
 
 
-Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)} 
+Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)}
            (l:circle_loop#y = y) : ∀ c:circle, Y c.
 Proof. (** (not proved yet) *)
 Abort.
@@ -268,17 +268,16 @@ Lemma circle_map_check_paths'
       {Y} (f:circle->Y) :
   circle_map (ap f circle_loop) = f .
 Proof. intros. apply funextsec; intro T. generalize T; clear T.
-       refine (circle_map' _ _ _).
+       unshelve refine (circle_map' _ _ _).
        { reflexivity. }
        { set (y := f (basepoint circle)). set (l := ap f circle_loop).
          set (P := fun T : underlyingType circle => circle_map _ T = f T).
          apply transport_fun_path. rewrite pathscomp0rid.
          change (idpath y @ ap f circle_loop) with (ap f circle_loop).
-         exact (! circle_map_check_paths l). } Defined.         
+         exact (! circle_map_check_paths l). } Defined.
 
 (*
 Local Variables:
 compile-command: "make -C ../.. UniMath/Ktheory/Circle.vo"
 End:
 *)
-

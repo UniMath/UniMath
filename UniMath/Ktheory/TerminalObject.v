@@ -10,7 +10,7 @@ Require UniMath.Ktheory.Sets UniMath.Ktheory.Representation.
 
 Definition unitFunctor_data (C:precategory)
      : functor_data (Precategories.Precategory_obmor C) (Precategories.Precategory_obmor SET).
-  intros. refine (tpair _ _ _).
+  intros. unshelve refine (tpair _ _ _).
   intros. exact Sets.unit. intros. exact (idfun _). Defined.
 Definition unitFunctor (C:precategory) : C ==> SET.
   intros. exists (unitFunctor_data C).
