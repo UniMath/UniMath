@@ -1547,7 +1547,7 @@ Defined.
 Theorem weqdicompl i : nat ≃ nat_compl i.
 Proof.
   intros i.
-  refine (weqgradth _ _ _ _).
+  unshelve refine (weqgradth _ _ _ _).
   - intro j. exists (di i j). apply di_neq_i.
   - intro j. exact (si i (pr1 j)).
   - simpl. intro j. unfold di. induction (natlthorgeh j i) as [lt|ge].
