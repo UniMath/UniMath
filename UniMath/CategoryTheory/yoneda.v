@@ -251,7 +251,7 @@ Lemma isweq_yoneda_map_1 (C : precategory) (hs: has_homsets C) (c : C)
      (yoneda_map_1 C hs c F).
 Proof.
   set (T:=yoneda_map_2 C hs c F). simpl in T.
-  refine (gradth _ _ _ _ ).
+  unshelve refine (gradth _ _ _ _ ).
   - apply T.
   - apply yoneda_map_1_2.
   - apply yoneda_map_2_1.
@@ -300,7 +300,7 @@ Variable c : C.
 Definition yoneda_functor_precomp' : nat_trans (yoneda_objects C hsC c)
       (functor_composite _ _ _ (functor_opp F) (yoneda_objects D hsD (F c))).
 Proof.
-  refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
   - intros d f ; simpl.
     apply (#F f).
   - abstract (intros d d' f ;
@@ -338,7 +338,7 @@ Definition yoneda_functor_precomp_nat_trans :
       (yoneda C hsC)
       (functor_composite _ _ _ A B).
 Proof.
-  refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
   - intro c; simpl.
     apply yoneda_functor_precomp.
   - abstract (

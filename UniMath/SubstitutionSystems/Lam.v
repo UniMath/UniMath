@@ -172,7 +172,7 @@ Defined.
 (** preparations for typedness *)
 Local Definition bla': (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) ⇒ (ptd_from_alg_functor CC _ Lam).
 Proof.
-  refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ).
     + abstract
         (intro c; rewrite id_right
@@ -182,7 +182,7 @@ Defined.
 
 Local Definition bla'_inv: (ptd_from_alg_functor CC _ Lam) ⇒ (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
 Proof.
-  refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ).
     + abstract
         (intro c; rewrite id_right ;
@@ -493,7 +493,7 @@ Definition bracket_for_LamE_algebra_on_Lam_at (Z : Ptd)
   :
     bracket_at C hs CC LamE_S LamE_algebra_on_Lam f.
 Proof.
-  refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
   - exists (fbracket_for_LamE_algebra_on_Lam Z f).
     apply (bracket_property_for_LamE_algebra_on_Lam Z f).
   - apply bracket_for_LamE_algebra_on_Lam_unique.
