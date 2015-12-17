@@ -29,7 +29,7 @@ Defined.
 
 Definition CopCocone {C : precategory} {a b : C} {c : C} (ac : a ⇒ c) (bc : b ⇒ c) :
    cocone (coproduct_diagram a b) c.
-refine (tpair _ _ _ ).
+unshelve refine (tpair _ _ _ ).
 + intro v.
   induction v; simpl.
   - exact ac.
@@ -54,7 +54,7 @@ Definition mk_isCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a ⇒ co
 Proof.
   intros H c cc.
   set (H':= H c (coconeIn cc true) (coconeIn cc false)).
-  refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
   - exists (pr1 (pr1 H')).
     set (T := pr2 (pr1 H')). simpl in T.
     abstract (intro u; induction u;
@@ -73,7 +73,7 @@ Definition mk_CoproductCocone (a b : C) :
    isCoproductCocone _ _ _ f g →  CoproductCocone a b.
 Proof.
   intros.
-  refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
   - exists c.
     apply (CopCocone f g).
   - apply X.
@@ -93,7 +93,7 @@ Definition CoproductArrow {a b : C} (CC : CoproductCocone a b) {c : C} (f : a �
       CoproductObject CC ⇒ c.
 Proof.
   apply (colimArrow CC).
-  refine (mk_cocone _ _ ).
+  unshelve refine (mk_cocone _ _ ).
   + intro v. induction v.
     - apply f.
     - apply g.

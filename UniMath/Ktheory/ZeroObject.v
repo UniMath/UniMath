@@ -41,9 +41,9 @@ Proof. intros. set (i := thePoint (map_to x a)).
   { apply path_left_composition. apply uniqueness. } Qed.
 Lemma zeroMap {C:precategory} (hsC: has_homsets C) (a b:ob C): hasZeroObject C  ->  a → b.
 Proof. intros ? ? ? ?.
-       refine (squash_to_set _ _ _).
-       { apply hsC. }
+       unshelve refine (squash_to_set _ _ _).
        { apply zeroMap'. }
+       { apply hsC. }
        { intros. apply zeroMapUniqueness. } Defined.
 Lemma zeroMap'_left_composition {C:precategory}
       (z:ZeroObject C) (a b c:ob C) (f:b→c) :

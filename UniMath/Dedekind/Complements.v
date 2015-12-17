@@ -182,7 +182,13 @@ Ltac apply_pr2 T :=
         | refine (pr2 (T _ _) _)
         | refine (pr2 (T _ _ _) _)
         | refine (pr2 (T _ _ _ _) _)
-        | refine (pr2 (T _ _ _ _ _) _) ].
+        | refine (pr2 (T _ _ _ _ _) _)
+        | refine (pr2 (T))
+        | refine (pr2 (T _))
+        | refine (pr2 (T _ _))
+        | refine (pr2 (T _ _ _))
+        | refine (pr2 (T _ _ _ _))
+        | refine (pr2 (T _ _ _ _ _)) ].
 
 Ltac apply_pr2_in T H :=
   first [ apply (pr2 (T)) in H
