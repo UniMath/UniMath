@@ -42,13 +42,13 @@ Defined.
 
 Definition comm_functor_data_2 (I A B:Precategory) : functor_data [I,[A,B]] [A,[I,B]].
 Proof.
-  refine (_,,_).
+  unshelve refine (_,,_).
   { intros D.
-    refine (_,,_).
-    { refine (_,,_).
+    unshelve refine (_,,_).
+    { unshelve refine (_,,_).
       { intros a. exact (comm_functor D a). }
       intros a a' f; simpl.
-      refine (_,,_).
+      unshelve refine (_,,_).
       { simpl; intro i. exact (D ◾ i ▭ f). }
       { intros i j r; simpl; eqn_logic. } }
     { split;
@@ -59,9 +59,9 @@ Proof.
                    [ apply homset_property
                    | simpl; intros i; apply functor_comp ] ]. } }
   { intros D D' p. simpl.
-    refine (_,,_).
+    unshelve refine (_,,_).
     { intros a. simpl.
-      refine (_,,_).
+      unshelve refine (_,,_).
       { exact (λ i, p ◽ i ◽ a). }
       { exact (λ i j e, maponpaths (λ v, v ◽ a) (nat_trans_ax p _ _ e)). } }
     { intros a b f; apply nat_trans_eq;
@@ -99,10 +99,10 @@ Defined.
 Lemma comm_comm_iso_id (A B C:Precategory) :
   nat_iso (bifunctor_comm B A C □ bifunctor_comm A B C) (functor_identity _).
 Proof.
-  intros. refine (makeNatiso _ _).
+  intros. unshelve refine (makeNatiso _ _).
   { intro F.
-    { refine (makeNatiso _ _).
-      { intro a. refine (makeNatiso _ _).
+    { unshelve refine (makeNatiso _ _).
+      { intro a. unshelve refine (makeNatiso _ _).
         { intro b. exact (identity_iso _). }
         { abstract (intros b b' f; simpl; rewrite id_right, id_left; reflexivity) using L. } }
       abstract (intros a a' f; apply nat_trans_eq;
@@ -133,7 +133,7 @@ Definition Functor_eq_map {A B: Precategory} (F G:[A,B]) :
                                    (F ▭ f)) = G ▭ f.
 Proof.
   intros e.
-  refine (_,,_).
+  unshelve refine (_,,_).
   - intros a. induction e. reflexivity.
   - intros a a' f; simpl. induction e; simpl. reflexivity.
 Defined.
@@ -172,11 +172,11 @@ Defined.
 Lemma comm_comm_eq_id (A B C:Precategory) :
   bifunctor_comm B A C □ bifunctor_comm A B C = functor_identity _.
 Proof.
-  intros. refine (Functor_eq _ _).
+  intros. unshelve refine (Functor_eq _ _).
   { intro F.
     change (functor_identity [A, [B, C]] ◾ F) with F.
-    refine (Functor_eq _ _).
-    { intro a. refine (Functor_eq _ _); reflexivity. }
+    unshelve refine (Functor_eq _ _).
+    { intro a. unshelve refine (Functor_eq _ _); reflexivity. }
     { intros a a' f; simpl.
       (* how does one deal with such transports in Coq? *)
 Abort.
@@ -248,9 +248,9 @@ Definition φ_map {B C:Precategory} {F:[B, C]} {X' X: [B, [C^op, SET]]} :
 
 Definition bifunctor_assoc {B C:Precategory} : [B, [C^op,SET]] ==> [[B,C]^op,SET].
 Proof.
-  refine (makeFunctor _ _ _ _).
+  unshelve refine (makeFunctor _ _ _ _).
   { intros X.
-    refine (makeFunctor_op _ _ _ _).
+    unshelve refine (makeFunctor_op _ _ _ _).
     { intro F. exact (F ⟹ X). }
     { intros F' F p xe. exact (xe ⟲⟲ p). }
     { abstract (
@@ -261,12 +261,12 @@ Proof.
           simpl; apply funextsec; intro b;
           unfold θ_map_1; exact (arrow_mor_mor_assoc _ _ _)) using L. } }
   { intros X Y p. simpl.
-    refine (_,,_).
+    unshelve refine (_,,_).
     { intros F. simpl. intro x. exact (φ_map x p). }
     { abstract (
           intros F G q; simpl in F, G; simpl;
           apply funextsec; intro w;
-          refine (total2_paths2 _ _);
+          unshelve refine (total2_paths2 _ _);
           [ apply funextsec; intro b;
             unfold φ_map, φ_map_1, θ_map_1; simpl;
             unfold θ_map_1; simpl;
@@ -284,7 +284,7 @@ Proof.
       unfold φ_map; simpl; unfold φ_map_1; simpl;
       apply funextsec; intro w;
       simpl;
-      refine (total2_paths _ _);
+      unshelve refine (total2_paths _ _);
       [ simpl; apply funextsec; intro b; reflexivity
       | apply funextsec; intro b;
         apply funextsec; intro b';
@@ -298,7 +298,7 @@ Proof.
               | intro G;
                 simpl;
                 apply funextsec; intro w;
-                refine (total2_paths2 _ _);
+                unshelve refine (total2_paths2 _ _);
                 [ unfold φ_map, φ_map_1; simpl;
                   apply funextsec; intro b;
                   apply pathsinv0, nattrans_nattrans_arrow_assoc

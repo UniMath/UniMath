@@ -567,10 +567,10 @@ Corollary set_bijection_to_weq {X Y:UU} (f:X->Y) : bijective f -> isaset Y -> is
 Proof.
   (* compare with bijection_to_weq: this one doesn't use gradth *)
   intros ? ? ? bij i y. set (sur := pr1 bij); set (inj := pr2 bij).
-  refine (_,,_).
+  unshelve refine (_,,_).
   - exists (pr1 (sur y)). exact (pr2 (sur y)).
   - intro w.
-    refine (total2_paths _ _).
+    unshelve refine (total2_paths _ _).
     + simpl. apply inj. intermediate_path y.
       * exact (pr2 w).
       * exact (! pr2 (sur y)).

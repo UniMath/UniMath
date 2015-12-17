@@ -492,7 +492,7 @@ Module Category.
     intros. apply Monoid.funEquality. assumption. Qed.
 
   Definition Precat : Precategory.
-    refine (_,,_).
+    unshelve refine (_,,_).
     { exists Data. split.
       { simpl. split.
         { simpl. intros. apply MorEquality. reflexivity. }
@@ -505,7 +505,7 @@ Module Category.
 
   Module Product.
     Definition make {I} (X:I->ob Precat) : Product X.
-      intros. refine (makeRepresentation _ _).
+      intros. unshelve refine (makeRepresentation _ _).
       - exact (Product.make X).
       - exact (Product.Proj X).
       - intros T. split.
@@ -520,7 +520,7 @@ Module Category.
 
   Module Sum.
     Definition make {I} (X:I->ob Precat) : Sum X.
-      intros. refine (makeRepresentation _ _).
+      intros. unshelve refine (makeRepresentation _ _).
       - exact (Sum.make X).
       - exact (Sum.Incl X).
       - intros T. split.

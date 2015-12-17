@@ -23,10 +23,10 @@ Proof.
   intro i.
   set (I := (functor_iso_pointwise_if_iso
              C^op SET (homset_property SET) X Y (pr1 i) (pr2 i))).
-  refine (weqbandf _ _ _ _).
+  unshelve refine (weqbandf _ _ _ _).
   - apply hset_iso_equiv_weq. unfold arrow, functor_object_application. exact (I c).
   - simpl; intros x. apply weqonsecfibers; intro b. apply weqiff.
-    + refine (twooutof3c_iff_1_homot _ _ _ _ _).
+    + unshelve refine (twooutof3c_iff_1_homot _ _ _ _ _).
       * exact (pr1 i ◽ opp_ob b).
       * intro f; unfold funcomp; simpl.
         exact (apevalat x (nat_trans_ax (pr1 i) _ _ f)).
@@ -135,7 +135,7 @@ Lemma univ_arrow_mor_assoc {C:Precategory} {a b:C} {Z:[C^op,SET]}
   (t \\ z) ∘ f = t \\ (z ⟲ f).
 Proof.
   apply universalMapUniqueness.
-  refine (arrow_mor_mor_assoc _ _ _ @ _).
+  unshelve refine (arrow_mor_mor_assoc _ _ _ @ _).
   apply maponpaths.
   apply universalMapProperty.
 Qed.
@@ -146,7 +146,7 @@ Lemma uOF_identity {C:Precategory} {X:[C^op,SET]} (r:Representation X) :
   r \\ (identity X ⟳ r) = identity _.
 Proof.
   unfold nat_trans_id; simpl.
-  refine (transportb (λ k, _ \\ k = _) (identityFunction' _ _) _).
+  unshelve refine (transportb (λ k, _ \\ k = _) (identityFunction' _ _) _).
   apply universalMapIdentity.
 Qed.
 
@@ -157,10 +157,10 @@ Lemma uOF_comp {C:Precategory} {X Y Z:[C^op,SET]}
       (p:X→Y) (q:Y→Z) :
     t \\ ((q ∘ p) ⟳ r) = (t \\ (q ⟳ s)) ∘ (s \\ (p ⟳ r)).
 Proof.
-  refine (transportf (λ k, _ \\ k = _) (nattrans_nattrans_arrow_assoc _ _ _) _).
-  refine (_ @ !univ_arrow_mor_assoc _ _ _).
+  unshelve refine (transportf (λ k, _ \\ k = _) (nattrans_nattrans_arrow_assoc _ _ _) _).
+  unshelve refine (_ @ !univ_arrow_mor_assoc _ _ _).
   apply maponpaths.
-  refine (_ @ nattrans_arrow_mor_assoc _ _ _).
+  unshelve refine (_ @ nattrans_arrow_mor_assoc _ _ _).
   apply (maponpaths (λ k, q ⟳ k)).
   apply pathsinv0.
   apply universalMapProperty.
@@ -168,7 +168,7 @@ Qed.
 
 Definition universalObjectFunctor (C:Precategory) : RepresentedFunctor C ==> C.
 Proof.
-  refine (makeFunctor _ _ _ _).
+  unshelve refine (makeFunctor _ _ _ _).
   - intro X. exact (universalObject (pr2 X)).
   - intros X Y p; simpl. exact (pr2 Y \\ (p ⟳ pr2 X)).
   - intros X; simpl. apply uOF_identity.
@@ -227,7 +227,7 @@ Definition isomorphismRepresentability {C D:Precategory}
 
 Definition Hom1 {C:Precategory} (c:C) : [C^op,SET].
 Proof.
-  refine (makeFunctor_op _ _ _ _).
+  unshelve refine (makeFunctor_op _ _ _ _).
   - intro b. exact (Hom C b c).
   - intros b a f g; simpl. exact (g ∘ f).
   - abstract (intros b; simpl; apply funextsec; intro g; apply id_left) using L.
@@ -251,7 +251,7 @@ Proof. reflexivity. Defined.
 Definition element_to_nattrans {C:Precategory} (X:[C^op,SET]) (c:C) :
   c ⇒ X -> Hom1 c → X.
 Proof.
-  intros x. refine (makeNattrans_op _ _).
+  intros x. unshelve refine (makeNattrans_op _ _).
   - unfold Hom1; simpl; intros b f. exact (x ⟲ f).
   - abstract (intros a b f; apply funextsec; intro g; apply arrow_mor_mor_assoc) using L.
 Defined.
@@ -268,7 +268,7 @@ Defined.
 (** initial and final objects and zero maps  *)
 
 Definition UnitFunctor (C:Precategory) : [C,SET].
-  refine (_,,_).
+  unshelve refine (_,,_).
   { exists (λ c, unitset). exact (λ a b f t, t). }
   { split.
     { intros a. reflexivity. }
@@ -338,7 +338,7 @@ Abort.
 
 Definition HomPair {C:Precategory} (a b:C) : [C^op,SET].
 Proof.
-  refine (makeFunctor_op _ _ _ _).
+  unshelve refine (makeFunctor_op _ _ _ _).
   - intro c. exact (Hom C c a × Hom C c b) % set.
   - simpl. intros c d f x. exact (pr1 x ∘ f ,, pr2 x ∘ f).
   - abstract (simpl; intro c; apply funextsec; intro x;
@@ -398,7 +398,7 @@ Definition binaryProductMap_2 {C:Precategory} {a b a' b':C}
            (g : b → b')
            : rm_opp_ob (universalObject prod) → rm_opp_ob (universalObject prod').
 Proof.
-  refine (binaryProductMap _ _ _).
+  unshelve refine (binaryProductMap _ _ _).
   { exact (f ∘ pr_1 prod). }
   { exact (g ∘ pr_2 prod). }
 Defined.
@@ -454,7 +454,7 @@ Definition binarySumMap_2 {C:Precategory} {a b a' b':C}
            (g : b → b')
            : rm_opp_ob (universalObject sum) → rm_opp_ob (universalObject sum').
 Proof.
-  refine (binarySumMap _ _ _).
+  unshelve refine (binarySumMap _ _ _).
   { exact (in_1 sum' ∘ f). }
   { exact (in_2 sum' ∘ g). }
 Defined.
@@ -463,8 +463,8 @@ Defined.
 
 Definition HomFamily (C:Precategory) {I} (c:I -> ob C) : C^op ==> SET.
 Proof.
-  refine (_,,_).
-  - refine (_,,_).
+  unshelve refine (_,,_).
+  - unshelve refine (_,,_).
     + intros x. exact (∀ i, Hom C x (c i)) % set.
     + intros x y f p i; simpl; simpl in p.
       exact (compose (C:=C) f (p i)).
@@ -521,8 +521,8 @@ Local Open Scope cat'.
 Definition Equalization {C:Precategory} {c d:C} (f g:c→d) :
   C^op ==> SET.
 Proof.
-  refine (makeFunctor_op _ _ _ _).
-  - intro b. refine (_,,_).
+  unshelve refine (makeFunctor_op _ _ _ _).
+  - intro b. unshelve refine (_,,_).
     + exact (Σ p:b → c, f∘p = g∘p).
     + abstract (apply isaset_total2;
       [ apply homset_property
@@ -568,8 +568,8 @@ Definition PullbackCone {C:Precategory} {a b c:C} (f:a→c) (g:b→c) :
   C^op ==> SET.
 Proof.
   intros.
-  refine (makeFunctor_op _ _ _ _).
-  - intros t. refine (_,,_).
+  unshelve refine (makeFunctor_op _ _ _ _).
+  - intros t. unshelve refine (_,,_).
     + exact (Σ (p: t → a × t → b), f ∘ pr1 p = g ∘ pr2 p).
     + abstract (apply isaset_total2;
       [ apply isasetdirprod; apply homset_property
@@ -580,12 +580,12 @@ Proof.
         simpl; rewrite <- 2? assoc; apply maponpaths; exact (pr2 w)) using M.
   - abstract (intros t; simpl; apply funextsec; intro w;
               induction w as [w eq]; induction w as [p q];
-              simpl in *; refine (total2_paths2 _ _);
+              simpl in *; unshelve refine (total2_paths2 _ _);
               [ rewrite 2? id_left; reflexivity
               | apply proofirrelevance; apply homset_property]) using N.
   - abstract (
         intros r s t p q; simpl in *; apply funextsec; intro w;
-        refine (total2_paths2 _ _);
+        unshelve refine (total2_paths2 _ _);
         [ simpl; rewrite 2? assoc; reflexivity
         | apply proofirrelevance; apply homset_property]) using P.
 Defined.
@@ -627,15 +627,15 @@ Local Open Scope cat'.
 Definition Annihilator (C:Precategory) (zero:hasZeroMaps C) {c d:C} (f:c → d) :
   C^op ==> SET.
 Proof.
-  refine (_,,_).
-  { refine (_,,_).
+  unshelve refine (_,,_).
+  { unshelve refine (_,,_).
     { intro b. exists (Σ g:Hom C b c, f ∘ g = pr1 zero b d).
       abstract (apply isaset_total2; [ apply setproperty |
       intro g; apply isasetaprop; apply homset_property ]) using L. }
     { intros a b p ge; simpl.
       exists (pr1 ge ∘ opp_mor p).
       { abstract (
-            refine (! assoc _ _ _ @ _); rewrite (pr2 ge);
+            unshelve refine (! assoc _ _ _ @ _); rewrite (pr2 ge);
             apply (pr2 (pr2 zero) _ _ _ _)) using M. } } }
   { abstract (split;
     [ intros x; apply funextsec; intros [r rf0];
@@ -677,7 +677,7 @@ Definition cokernelEquation {C:Precategory} {zero:hasZeroMaps C} {c d:ob C} {f:c
 Definition fiber {C:Precategory} {X Y:[C^op,SET]} (p : X → Y) {c:C} (y : c ⇒ Y) :
   C^op ==> SET.
 Proof.
-  refine (makeFunctor_op _ _ _ _).
+  unshelve refine (makeFunctor_op _ _ _ _).
   - intro b.
     exists (Σ fx : (b → c) × (b ⇒ X), p ⟳ pr2 fx = y ⟲ pr1 fx).
     abstract (apply isaset_total2;
@@ -689,12 +689,12 @@ Proof.
               apply maponpaths; exact (pr2 fxe)) using M.
   - abstract (intro b; apply funextsec; intro w;
               induction w as [w e]; induction w as [f x]; simpl;
-              refine (total2_paths2 _ _);
+              unshelve refine (total2_paths2 _ _);
               [ apply dirprod_eq; [ apply id_left | apply arrow_mor_id ]
               | apply setproperty]) using R.
   - abstract (intros b b' b'' g g''; apply funextsec; intro w;
               induction w as [w e]; induction w as [f x]; simpl;
-              refine (total2_paths2 _ _);
+              unshelve refine (total2_paths2 _ _);
               [ apply dirprod_eq;
                 [ apply pathsinv0, assoc | apply arrow_mor_mor_assoc ]
               | apply setproperty ]) using T.
@@ -730,10 +730,10 @@ Qed.
 Definition cone_functor {I C:Precategory} : [I,C] ==> [C^op,SET].
 Proof.
   intros.
-  refine (_,,_).
-  { refine (_,,_).
-    { intros D. refine (_,,_).
-      { refine (_,,_).
+  unshelve refine (_,,_).
+  { unshelve refine (_,,_).
+    { intros D. unshelve refine (_,,_).
+      { unshelve refine (_,,_).
         - intro c. exists (cone (C:=C) c D).
           abstract (
               apply isaset_total2;
@@ -759,9 +759,9 @@ Proof.
         | intros a b c f g; simpl; apply funextsec; intro p;
           apply cone_eq; simpl; intro i; apply pathsinv0, assoc ]) using N. } }
     { intros D D' f; simpl.
-      refine (_,,_).
+      unshelve refine (_,,_).
       - simpl. unfold cone. intros c φ.
-        refine (_,,_).
+        unshelve refine (_,,_).
         + intros i. exact (pr1 f i ∘ pr1 φ i).
         + abstract (
               simpl; intros i j e; assert (L := pr2 φ i j e); simpl in L;
@@ -821,18 +821,18 @@ Proof.
   intro r. set (X' := addStructure X r).
   change (categoryWithStructure [C ^op, SET] Representation) with (RepresentedFunctor C) in X'.
   set (F := universalObjectFunctor C □ X').
-  exists F. refine (_,,_).
-  { refine (_,,_).
+  exists F. unshelve refine (_,,_).
+  { unshelve refine (_,,_).
     { intro b. exact (universalElement (r b)). }
     { abstract (intros b b' f; exact (!universalObjectFunctor_comm C (X' ▭ f))) using K. } }
   { intro F'. apply bijection_to_weq.
     split.
     { intro x'. unfold arrow in x'.
-      refine (_,,_).
-      { refine (makeNattrans _ _).
+      unshelve refine (_,,_).
+      { unshelve refine (makeNattrans _ _).
         { intro b. exact (r b \\ pr1 x' b). }
         { abstract (intros b b' f; simpl;
-                    refine (univ_arrow_mor_assoc (F' ▭ f) (pr1 x' b') (r b') @ _);
+                    unshelve refine (univ_arrow_mor_assoc (F' ▭ f) (pr1 x' b') (r b') @ _);
                     intermediate_path (r b' \\ (X ▭ f ⟳ pr1 x' b));
                     [ apply maponpaths, (pr2 x' b b' f)
                     | unfold F;
@@ -841,14 +841,14 @@ Proof.
                       change (pr2 (X' ◾ b')) with (r b');
                       change (pr2 (X' ◾ b)) with (r b);
                       change (X' ▭ f) with (X ▭ f);
-                      refine (_ @ !univ_arrow_mor_assoc _ _ _);
+                      unshelve refine (_ @ !univ_arrow_mor_assoc _ _ _);
                       apply maponpaths;
                       rewrite <- nattrans_arrow_mor_assoc;
                       apply (maponpaths (λ k, X ▭ f ⟳ k));
                       apply pathsinv0;
                       exact (universalMapProperty (r b) (pr1 x' b)) ]) using R. } }
-      { abstract (refine (total2_paths _ _);
-        [ simpl; apply funextsec; intro b; refine (universalMapProperty _ _)
+      { abstract (unshelve refine (total2_paths _ _);
+        [ simpl; apply funextsec; intro b; unshelve refine (universalMapProperty _ _)
         | apply funextsec; intro b;
           apply funextsec; intro b';
           apply funextsec; intro f; simpl; apply setproperty ] ) using L. } }
@@ -863,15 +863,17 @@ Theorem functorPrecategoryTerminalObject (B C:Precategory) :
 Proof.
   intro t.
   apply (@iso_Representation_weq _ (bifunctor_assoc (constantFunctor B (UnitFunctor C^op)))).
-  { refine (makeNatiso _ _).
+  { unshelve refine (makeNatiso _ _).
     { intros F. apply hset_equiv_iso.
       unfold bifunctor_assoc; simpl.
-      refine (weqgradth _ _ _ _).
+      unshelve refine (weqgradth _ _ _ _).
       - intros _. exact tt.
-      - intros x. refine (_,,_).
+      - intros x. unshelve refine (_,,_).
         + unfold θ_1; simpl. intro b. exact tt.
         + eqn_logic.
-      - eqn_logic.
+      - simpl. intros w. apply subtypeEquality.
+        { intros f. apply impred; intro b; apply impred; intro b'; apply impred; intro g. apply isasetunit. }
+        apply funextfun; intro b. apply isapropunit.
       - eqn_logic. }
     { eqn_logic. } }
   { apply bifunctor_assoc_repn; intro b. exact t. }
@@ -884,10 +886,10 @@ Defined.
 
 Definition binaryProductFunctor {B C:Precategory} (F G:[B,C]) : [B,[C^op,SET]].
 Proof.
-  refine (makeFunctor _ _ _ _).
+  unshelve refine (makeFunctor _ _ _ _).
   - intro b. exact (HomPair (F ◾ b) (G ◾ b)).
   - intros b b' f.
-    refine (makeNattrans_op _ _).
+    unshelve refine (makeNattrans_op _ _).
     + intros c w. exact (F ▭ f ∘ pr1 w ,, G ▭ f ∘ pr2 w).
     + abstract (intros c c' g; simpl; apply funextsec; intro v;
                 apply dirprod_eq; ( simpl; apply pathsinv0, assoc )) using L.
@@ -908,25 +910,25 @@ Lemma BinaryProductFunctorAssoc {B C : Precategory}
       (F G : [B, C]) :
   iso (bifunctor_assoc (binaryProductFunctor F G)) (HomPair F G).
 Proof.
-  refine (makeNatiso _ _).
+  unshelve refine (makeNatiso _ _).
   { intro H. apply hset_equiv_iso.
-    refine (weqgradth _ _ _ _).
+    unshelve refine (weqgradth _ _ _ _).
     { intros w.
-      refine (_,,_).
-      { refine (makeNattrans _ _).
+      unshelve refine (_,,_).
+      { unshelve refine (makeNattrans _ _).
         { intro b. exact (pr1 (pr1 w b)). }
         { abstract (intros b b' f; exact (maponpaths dirprod_pr1 (pr2 w b b' f))) using L. } }
-      { refine (makeNattrans _ _).
+      { unshelve refine (makeNattrans _ _).
         { intro b. exact (pr2 (pr1 w b)). }
         { abstract (intros b b' f; exact (maponpaths dirprod_pr2 (pr2 w b b' f))) using L. } } }
     { simpl. intros pq.
-      refine (_,,_).
+      unshelve refine (_,,_).
       { intros b. exact (pr1 pq b ,, pr2 pq b). }
       { abstract (intros b b' f; simpl;
                   apply dirprod_eq; ( simpl; apply nattrans_naturality )) using L. } }
     { abstract (intros w;
-                refine (total2_paths _ _);
-                [ eqn_logic
+                unshelve refine (total2_paths _ _);
+                [ apply funextsec; intro b; apply pathsinv0, tppr
                 | (apply funextsec; intro b;
                    apply funextsec; intro b';
                    apply funextsec; intro f;
@@ -945,7 +947,7 @@ Defined.
 Theorem functorBinaryProduct {B C:Precategory} :
   hasBinaryProducts C -> hasBinaryProducts [B,C].
 Proof.
-  intros prod F G. refine (iso_Representation_weq _ _).
+  intros prod F G. unshelve refine (iso_Representation_weq _ _).
   { exact (bifunctor_assoc (binaryProductFunctor F G)). }
   { now apply BinaryProductFunctorAssoc. }
   { apply bifunctor_assoc_repn. intro b. apply prod. }
@@ -973,7 +975,7 @@ Lemma HomPairOp {B C : Precategory} (F G : [B, C]) :
    should be lemmas saying that having binary sums or products is preserved by
    isomorphisms of categories. *)
 Proof.
-  refine (makeNatiso _ _).
+  unshelve refine (makeNatiso _ _).
   { intros H. apply hset_equiv_iso.
     apply weqdirprodf; exact (invweq (isomorphismOnMor functorOpIso H _)). }
   { abstract (intros H J p; apply funextsec; intro w;

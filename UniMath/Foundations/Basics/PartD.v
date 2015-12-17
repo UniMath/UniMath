@@ -54,8 +54,8 @@ of functional extensionality for sections of general families. The proof uses on
 
 Lemma funextweql1 { T : UU } (P:T -> UU) (g: ∀ t, P t) : ∃! (f:∀ t, P t), ∀ t:T, f t = g t.
 Proof.
-  intros. refine (iscontrretract (X := ∀ t, Σ p, p = g t) _ _ _ _).
-  - intros x. refine (_,,_).
+  intros. unshelve refine (iscontrretract (X := ∀ t, Σ p, p = g t) _ _ _ _).
+  - intros x. unshelve refine (_,,_).
     + intro t. exact (pr1 (x t)).
     + intro t; simpl. exact (pr2 (x t)).
   - intros y t. exists (pr1 y t). exact (pr2 y t).

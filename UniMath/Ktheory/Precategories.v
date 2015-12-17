@@ -85,7 +85,7 @@ Notation "C '^op'" := (oppositePrecategory C) (at level 3) : cat.
 
 Definition category_to_Precategory (C:category) : Precategory.
 Proof.
-  refine (_,,_).
+  unshelve refine (_,,_).
   - exact C.
   - exact (pr2 (pr2 C)).
 Defined.
@@ -409,7 +409,7 @@ Qed.
 
 Definition functorOp {B C : Precategory} : [B, C] ^op ==> [B ^op, C ^op].
 Proof.
-  refine (makeFunctor _ _ _ _).
+  unshelve refine (makeFunctor _ _ _ _).
   { exact functor_opp. }
   { intros H I p. exists (λ b, pr1 p b).
     abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using L. }
@@ -424,7 +424,7 @@ Defined.
 
 Definition functorRmOp {B C : Precategory} : [B ^op, C ^op] ==> [B, C] ^op.
 Proof.
-  refine (makeFunctor _ _ _ _).
+  unshelve refine (makeFunctor _ _ _ _).
   { exact functor_opp. }
   { intros H I p. exists (λ b, pr1 p b).
     abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using L. }
@@ -434,7 +434,7 @@ Defined.
 
 Definition functorMvOp {B C:Precategory} : [B,C^op] ==> [B^op,C]^op.
 Proof.
-  refine (makeFunctor _ _ _ _).
+  unshelve refine (makeFunctor _ _ _ _).
   { exact functor_opp. }
   { intros H I p. exists (λ b, pr1 p b).
     abstract (intros b b' f; simpl; exact (! nat_trans_ax p _ _ f)) using L. }
@@ -444,22 +444,26 @@ Defined.
 
 Lemma functorOpIso {B C:Precategory} : PrecategoryIsomorphism [B, C]^op [B^op, C^op].
 Proof.
-  refine (_,,_).
-  { refine (_,,_).
+  unshelve refine (_,,_).
+  { unshelve refine (_,,_).
     { exact functorOp. }
-    { intros H H'. refine (gradth _ _ _ _).
-      { simpl. intros p. refine (makeNattrans _ _).
+    { intros H H'. unshelve refine (gradth _ _ _ _).
+      { simpl. intros p. unshelve refine (makeNattrans _ _).
         { intros b. exact (pr1 p b). }
         { abstract (intros b b' f; simpl; exact (!nat_trans_ax p _ _ f)) using L. } }
-      { eqn_logic. }
-      { eqn_logic. } } }
-  { simpl. refine (gradth _ _ _ _).
+      { abstract (intro p; apply nat_trans_eq;
+                  [ apply homset_property
+                  | intro b; reflexivity ]) using L. }
+      { abstract (intro p; apply nat_trans_eq;
+                  [ apply homset_property
+                  | intro b; reflexivity ]) using L. }}}
+  { simpl. unshelve refine (gradth _ _ _ _).
     { exact (functor_opp : B^op ==> C^op -> B ==> C). }
     { abstract (intros H; simpl; apply (functor_eq _ _ (homset_property C));
-                refine (total2_paths _ _); reflexivity) using L. }
+                unshelve refine (total2_paths _ _); reflexivity) using L. }
     { abstract (intros H; simpl; apply functor_eq;
                 [ exact (homset_property C^op)
-                | refine (total2_paths _ _); reflexivity]). } }
+                | unshelve refine (total2_paths _ _); reflexivity]). } }
 Defined.
 
 Definition functorOpEmb {B C:Precategory} : PrecategoryEmbedding [B, C]^op [B^op, C^op]
@@ -470,7 +474,7 @@ Lemma functor_op_rm_op_eq {C D:Precategory} (F : C^op ==> D^op) :
 Proof.
   apply functor_eq.
   { apply homset_property. }
-  refine (total2_paths _ _); reflexivity.
+  unshelve refine (total2_paths _ _); reflexivity.
 Qed.
 
 Lemma functor_rm_op_op_eq {C D:Precategory} (F : C ==> D) :
@@ -478,7 +482,7 @@ Lemma functor_rm_op_op_eq {C D:Precategory} (F : C ==> D) :
 Proof.
   apply functor_eq.
   { apply homset_property. }
-  refine (total2_paths _ _); reflexivity.
+  unshelve refine (total2_paths _ _); reflexivity.
 Qed.
 
 Lemma functor_op_op_eq {C D:Precategory} (F : C ==> D) :
@@ -486,7 +490,7 @@ Lemma functor_op_op_eq {C D:Precategory} (F : C ==> D) :
 Proof.
   apply functor_eq.
   { apply homset_property. }
-  refine (total2_paths _ _); reflexivity.
+  unshelve refine (total2_paths _ _); reflexivity.
 Qed.
 
 (*  *)
@@ -505,15 +509,15 @@ Goal ∀ X Y (f:X->Y), f = λ x, f x.
 
 Definition categoryWithStructure (C:Precategory) (P:ob C -> UU) : Precategory.
 Proof.
-  refine (makePrecategory _ _ _ _ _ _ _ _).
+  unshelve refine (makePrecategory _ _ _ _ _ _ _ _).
   (* add a new component to each object: *)
   - exact (Σ c:C, P c).
   (* the homsets ignore the extra structure: *)
   - intros x y. exact (pr1 x → pr1 y).
   (* the rest is the same: *)
-  - intros. apply homset_property.
   - intros x. apply identity.
   - intros x y z f g. exact (g ∘ f).
+  - intros. simpl. refine (homset_property C _ _).
   - intros. apply id_left.
   - intros. apply id_right.
   - intros. apply assoc.
@@ -522,7 +526,7 @@ Defined.
 Definition functorWithStructures {C:Precategory} {P Q:ob C -> UU}
            (F : ∀ c, P c -> Q c) : categoryWithStructure C P ==> categoryWithStructure C Q.
 Proof.
-  refine (makeFunctor _ _ _ _).
+  unshelve refine (makeFunctor _ _ _ _).
   (* transport the structure: *)
   - exact (λ c, (pr1 c,, F (pr1 c) (pr2 c))).
   (* the rest is the same: *)
@@ -534,7 +538,7 @@ Defined.
 Definition addStructure {B C:Precategory} {P:ob C -> UU}
            (F:B==>C) (h : ∀ b, P(F b)) : B ==> categoryWithStructure C P.
 Proof.
-  refine (makeFunctor _ _ _ _).
+  unshelve refine (makeFunctor _ _ _ _).
   - intros b. exact (F b,,h b).
   - intros b b' f. exact (# F f).
   - abstract (intros b; simpl; apply functor_id) using L.
@@ -557,7 +561,7 @@ Proof. reflexivity. Defined.
 
 Definition constantFunctor (C:Precategory) {D:Precategory} (d:D) : [C,D].
 Proof.
-  refine (makeFunctor _ _ _ _).
+  unshelve refine (makeFunctor _ _ _ _).
   - exact (λ _, d).
   - intros c c' f; simpl. exact (identity d).
   - intros c; simpl. reflexivity.
@@ -569,10 +573,10 @@ Defined.
 Definition functor_composite_functor {A B C:Precategory} (F:A==>B) :
   [B,C] ==> [A,C].
 Proof.
-  refine (makeFunctor _ _ _ _).
+  unshelve refine (makeFunctor _ _ _ _).
   - exact (λ G, G □ F).
   - intros G G' p; simpl.
-    refine (@makeNattrans A C (G □ F) (G' □ F) (λ a, p ◽ (F ◾ a)) _).
+    unshelve refine (@makeNattrans A C (G □ F) (G' □ F) (λ a, p ◽ (F ◾ a)) _).
     abstract (
         intros a a' f; rewrite 2? nattrans_nattrans_object_assoc;
         exact (nattrans_naturality p (F ▭ f))) using L.
@@ -599,9 +603,9 @@ Definition hasZeroMaps_opp (C:Precategory) : hasZeroMaps C -> hasZeroMaps C^op
 Definition hasZeroMaps_opp_opp (C:Precategory) (zero:hasZeroMaps C) :
   hasZeroMaps_opp C^op (hasZeroMaps_opp C zero) = zero.
 Proof.
-  refine (total2_paths _ _).
+  unshelve refine (total2_paths _ _).
   - reflexivity.
-  - refine (total2_paths _ _); reflexivity.
+  - unshelve refine (total2_paths _ _); reflexivity.
 Defined.
 
       (*  *)

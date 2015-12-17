@@ -1354,7 +1354,7 @@ Definition bijective {X Y:UU} (f:X->Y) :=
 Corollary bijection_to_weq {X Y:UU} (f:X->Y) : bijective f -> isweq f.
 Proof.
   intros ? ? ? bij. assert (sur := pr1 bij). assert (inj := pr2 bij).
-  refine (gradth f _ _ _).
+  unshelve refine (gradth f _ _ _).
   - intros y. exact (pr1 (sur y)).
   - intros. simpl. apply inj. exact (pr2 (sur (f x))).
   - intros. simpl. exact (pr2 (sur y)).

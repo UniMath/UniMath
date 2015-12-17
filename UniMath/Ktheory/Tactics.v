@@ -20,9 +20,9 @@ Ltac maponpaths_pre_post_cat :=
   try reflexivity.
 
 Ltac prop_logic :=
-  intros; simpl;
-  repeat (try (apply isapropdirprod);try (apply isapropishinh);apply impred ;intro);
-  try (apply isapropiscontr); try assumption.
+  abstract (intros; simpl;
+            repeat (try (apply isapropdirprod);try (apply isapropishinh);apply impred ;intro);
+            try (apply isapropiscontr); try assumption) using L.
 
 Lemma iscontrweqb' {X Y} (is:iscontr Y) (w:X ≃ Y) : iscontr X.
 Proof. intros. apply (iscontrweqb (Y:=Y)). assumption. assumption. Defined.
@@ -40,4 +40,3 @@ Proof. intros. exact (f ig). Defined.
 Ltac isaset_goal x :=
   let G := match goal with |- ?G => constr:(G) end in
   assert (x : isaset(G)).
-

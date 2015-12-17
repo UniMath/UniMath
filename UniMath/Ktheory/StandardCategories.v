@@ -41,10 +41,10 @@ Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> Precategory.
      be useful, because in it, each arrow is a path, rather than an
      equivalence class of paths. *)
   intros obj iobj.
-  refine (Precategories.makePrecategory obj (fun x y => x = y) _  _ _ _ _ _).
-  { intros. unshelve refine (iobj _ _). }
+  unshelve refine (Precategories.makePrecategory obj (fun x y => x = y) _  _ _ _ _ _).
   { reflexivity. }
   { intros. exact (f @ g). }
+  { intros. exact (iobj _ _). }
   { reflexivity. }
   { intros. apply pathscomp0rid. }
   { intros. apply path_assoc. }
