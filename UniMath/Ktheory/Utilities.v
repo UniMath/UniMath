@@ -505,8 +505,8 @@ Definition weq_over_sections {S T} (w:S ≃ T)
            (g:∀ f:Section P, weq (H f) (J (maponsec1 P w f))) :
   weq (hfiber (fun fh:total2 H => pr1 fh t0) p0 )
       (hfiber (fun fh:total2 J => pr1 fh s0) pw0).
-Proof. intros. refine (weqbandf _ _ _ _).
-       { refine (weqbandf _ _ _ _).
+Proof. intros. unshelve refine (weqbandf _ _ _ _).
+       { unshelve refine (weqbandf _ _ _ _).
          { exact (weqonsecbase P w). }
          { unfold weqonsecbase; simpl. exact g. } }
        { intros [f h]. simpl. unfold maponsec1; simpl.
@@ -515,7 +515,7 @@ Proof. intros. refine (weqbandf _ _ _ _).
 
 Definition weq_total2_prod {X Y} (Z:Y->Type) : (Σ y, X × Z y) ≃ (X × Σ y, Z y).
 Proof.                          (* move upstream *)
-       intros. refine (weqpair _ (gradth _ _ _ _)).
+       intros. unshelve refine (weqpair _ (gradth _ _ _ _)).
        { intros [y [x z]]. exact (x,,y,,z). }
        { intros [x [y z]]. exact (y,,x,,z). }
        { intros [y [x z]]. reflexivity. }
@@ -524,7 +524,7 @@ Proof.                          (* move upstream *)
 (* associativity of Σ *)
 Definition totalAssociativity {X:UU} {Y: ∀ (x:X), UU} (Z: ∀ (x:X) (y:Y x), UU) : (Σ (x:X) (y:Y x), Z x y) ≃ (Σ (p:Σ (x:X), Y x), Z (pr1 p) (pr2 p)).
 Proof.                          (* move upstream *)
-  intros. refine (_,,gradth _ _ _ _).
+  intros. unshelve refine (_,,gradth _ _ _ _).
   { intros [x [y z]]. exact ((x,,y),,z). }
   { intros [[x y] z]. exact (x,,(y,,z)). }
   { intros [x [y z]]. reflexivity. }

@@ -269,13 +269,13 @@ Module Presentation.
   Definition universalMarkedGroup0 {X I} (R:I->reln X) : gr.
     intros.
     { exists (univ_setwithbinop R).
-      { refine (_,,_).
+      { unshelve refine (_,,_).
         { split.
           { exact (isassoc_univ_binop R). }
           { exists (setquotpr _ word_unit). split.
             { exact (is_left_unit_univ_binop R). }
             { exact (is_right_unit_univ_binop R). } } }
-        { refine (_,,_).
+        { unshelve refine (_,,_).
           { exact (univ_inverse R). }
           { split.
             { exact (is_left_inverse_univ_binop R). }
@@ -312,10 +312,10 @@ Module Presentation.
          { intermediate_path (unel M). exact (Monoid.unitproperty f). exact (!Monoid.unitproperty g). }
          { apply p. }
          (* compare duplication with the proof of MarkedGroupMap_compat *)
-         { refine (monoidfuninvtoinv f (setquotpr (smallestAdequateRelation R) w)
+         { unshelve refine (monoidfuninvtoinv f (setquotpr (smallestAdequateRelation R) w)
              @ _ @ ! monoidfuninvtoinv g (setquotpr (smallestAdequateRelation R) w)).
            apply (ap (grinv M)). apply agreement_on_gens0. assumption. }
-         { refine (
+         { unshelve refine (
                Monoid.multproperty f (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)
              @ _ @ !

@@ -288,6 +288,13 @@ Lemma isldistr_CCDRplus_CCDRmult :
 Proof.
   now apply rigdistraxs.
 Qed.
+Lemma isrdistr_CCDRplus_CCDRmult :
+  ∀ x y z : X, (x + y) * z = x * z + y * z.
+Proof.
+  intros x y z.
+  rewrite !(iscomm_CCDRmult _ z).
+  now apply rigdistraxs.
+Qed.
 
 Close Scope CCDR_scope.
 

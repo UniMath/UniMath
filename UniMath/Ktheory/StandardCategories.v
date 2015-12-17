@@ -42,7 +42,7 @@ Definition path_pregroupoid (X:UU) : isofhlevel 3 X -> Precategory.
      equivalence class of paths. *)
   intros obj iobj.
   refine (Precategories.makePrecategory obj (fun x y => x = y) _  _ _ _ _ _).
-  { intros. refine (iobj _ _). }
+  { intros. unshelve refine (iobj _ _). }
   { reflexivity. }
   { intros. exact (f @ g). }
   { reflexivity. }

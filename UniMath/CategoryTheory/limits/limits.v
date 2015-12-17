@@ -21,8 +21,8 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.colimits.colimits.
 
-Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Section lim_def.
 
@@ -79,7 +79,7 @@ Definition LimCone {g : graph} (d : diagram g C^op) : UU :=
 Definition mk_LimCone {g : graph} (d : diagram g C^op)
   (c : C) (cc : cone d c) (isCC : isLimCone d c cc) : LimCone d.
 Proof.
-refine (mk_ColimCocone _ _ _ _  ).
+unshelve refine (mk_ColimCocone _ _ _ _  ).
 - apply c.
 - apply cc.
 - apply isCC.
@@ -162,7 +162,7 @@ Definition limOfArrows {g : graph} {d1 d2 : diagram g C^op}
                                 (dmor d1 e : C⟦dob d1 v, dob d1 u⟧);; f u) :
   C⟦lim CC1 , lim CC2⟧.
 Proof.
-  refine (colimOfArrows CC2 CC1 _ _ ).
+  unshelve refine (colimOfArrows CC2 CC1 _ _ ).
   - apply f.
   - apply fNat.
 Defined.
@@ -220,7 +220,7 @@ Lemma lim_endo_is_identity {g : graph} (D : diagram g C^op)
   (H : ∀ u, k ;; limOut CC u = limOut CC u) :
   identity _ = k.
 Proof.
-refine (uniqueExists _ _ (limUnivProp CC _ _) _ _ _ _).
+unshelve refine (uniqueExists _ _ (limUnivProp CC _ _) _ _ _ _).
 - now apply (limCone CC).
 - intros v; simpl.
   unfold compose. simpl.
@@ -296,7 +296,7 @@ Definition get_diagram (A C : precategory) (hsC : has_homsets C)
 Proof.
 apply (tpair _ (fun u => from_opp_to_opp_opp _ _ _ (pr1 D u))).
 intros u v e; simpl.
-refine (tpair _ _ _); simpl.
+unshelve refine (tpair _ _ _); simpl.
   + apply (pr2 D _ _ e).
   + abstract (intros a b f; apply pathsinv0, (pr2 (pr2 D u v e) b a f)).
 Defined.
@@ -307,7 +307,7 @@ Definition get_cocone  (A C : precategory) (hsC : has_homsets C)
 Proof.
 destruct ccF. (* If I remove this destruct the Qed for LimsFunctorCategory
                  takes twice as long *)
-refine (mk_cocone _ _).
+unshelve refine (mk_cocone _ _).
 - intro u; apply (tpair _ (pr1 (t u))).
   abstract (intros a b f; apply pathsinv0, (pr2 (t u) b a f)).
 - abstract (intros u v e; apply (nat_trans_eq (has_homsets_opp hsC));
@@ -329,10 +329,10 @@ destruct HColim as [pr1x pr2x].
 destruct pr1x as [pr1pr1x pr2pr1x].
 destruct pr2pr1x as [pr1pr2pr1x pr2pr2pr1x].
 simpl in *.
-refine (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x) _ _).
-- refine (mk_cocone _ _).
+unshelve refine (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x) _ _).
+- unshelve refine (mk_cocone _ _).
   + simpl; intros.
-    refine (tpair _ _ _).
+    unshelve refine (tpair _ _ _).
     * intro a; apply (pr1pr2pr1x v a).
     * abstract (intros a b f; apply pathsinv0, (nat_trans_ax (pr1pr2pr1x v) (*b a f*))).
   + abstract (intros u v e; apply (nat_trans_eq hsC); simpl; intro a;
@@ -342,8 +342,8 @@ refine (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x) _ _).
   destruct H as [H1 H2].
   destruct H1 as [α Hα].
   simpl in *.
-  refine (tpair _ _ _).
-  + refine (tpair _ _ _).
+  unshelve refine (tpair _ _ _).
+  + unshelve refine (tpair _ _ _).
     * exists α.
       abstract (intros a b f; simpl; now apply pathsinv0, (nat_trans_ax α b a f)).
     * abstract (intro u; apply (nat_trans_eq hsC); intro a;
@@ -352,7 +352,7 @@ refine (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x) _ _).
     * abstract (intro β; repeat (apply impred; intro);
         now apply (has_homsets_opp (functor_category_has_homsets A C hsC))).
     * match goal with |[ H2 : ∀ _ : ?TT ,  _ = _ ,,_   |- _ ] =>
-                       refine (let T : TT := _ in _ ) end.
+                       unshelve refine (let T : TT := _ in _ ) end.
       (*
       refine (let T : Σ x : nat_trans pr1pr1x (functor_opp F),
                          ∀ v, nat_trans_comp (functor_opp (pr1 D v)) _ _
@@ -360,7 +360,7 @@ refine (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x) _ _).
                                coconeIn (get_cocone A C hsC g D F ccF) v :=
                   _ in _).
       *)
-      { refine (tpair _ (tpair _ (pr1 f) _) _); simpl.
+      { unshelve refine (tpair _ (tpair _ (pr1 f) _) _); simpl.
         - abstract (intros x y fxy; apply pathsinv0, (pr2 f y x fxy)).
         - abstract (intro u; apply (nat_trans_eq (has_homsets_opp hsC)); intro x;
             destruct ccF; apply (toforallpaths _ _ _ (maponpaths pr1 (Hf u)) x)).

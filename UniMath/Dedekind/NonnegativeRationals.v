@@ -838,7 +838,7 @@ Qed.
 
 (** Order *)
 
-Lemma minusNonnegativeRationals_gt0 :
+Lemma ispositive_minusNonnegativeRationals :
   ∀ x y : NonnegativeRationals, (x < y) <-> (0 < y - x).
 Proof.
   intros x y.
@@ -938,7 +938,7 @@ Proof.
   intros x y z Hxy Hyz.
   case (isdecrel_leNonnegativeRationals x z) ; intros Hxz.
   - rewrite minusNonnegativeRationals_eq_zero.
-    apply minusNonnegativeRationals_gt0.
+    apply ispositive_minusNonnegativeRationals.
     exact Hyz.
     exact Hxz.
   - apply (notge_ltNonnegativeRationals z x) in Hxz.
@@ -952,7 +952,7 @@ Lemma minusNonnegativeRationals_ltcompat_l' :
 Proof.
   intros x y z Hlt.
   assert (Hyz : (z < y)%NRat).
-  { apply_pr2 minusNonnegativeRationals_gt0.
+  { apply_pr2 ispositive_minusNonnegativeRationals.
     apply istrans_le_lt_ltNonnegativeRationals with (x - z).
     now apply isnonnegative_NonnegativeRationals.
     exact Hlt. }
@@ -975,12 +975,12 @@ Proof.
     rewrite minusNonnegativeRationals_plus_r, minusNonnegativeRationals_plus_exchange, iscomm_plusNonnegativeRationals, <- minusNonnegativeRationals_plus_exchange.
     pattern z at 1 ; rewrite <- (islunit_zeroNonnegativeRationals z).
     apply plusNonnegativeRationals_ltcompat_r.
-    now apply (pr1 (minusNonnegativeRationals_gt0 _ _)), Hxy.
+    now apply (pr1 (ispositive_minusNonnegativeRationals _ _)), Hxy.
     now apply lt_leNonnegativeRationals, Hxy.
     now apply lt_leNonnegativeRationals, Hxz.
     exact Hky.
   - rewrite minusNonnegativeRationals_eq_zero.
-    now apply (pr1 (minusNonnegativeRationals_gt0 _ _)), Hxz.
+    now apply (pr1 (ispositive_minusNonnegativeRationals _ _)), Hxz.
     now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals, Hky.
 Qed.
 Lemma minusNonnegativeRationals_ltcompat_r':

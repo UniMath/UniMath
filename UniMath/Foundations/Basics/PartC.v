@@ -278,7 +278,7 @@ Definition isisolated_ne_to_isisolated {X x neq_x} :
 Proof.
   intros ? ? ? i y. induction (i y) as [eq|ne].
   - exact (ii1 eq).
-  - apply ii2. now refine (negProp_to_neg _).
+  - apply ii2. now unshelve refine (negProp_to_neg _).
 Defined.
 
 Definition isolated ( T : UU ) := Σ t:T, isisolated _ t.
@@ -389,14 +389,14 @@ Proof.
   { induction eq. refine (iscontrweqf (weqii2withneg _ _) _).
     { intros z; induction z as [z e]; induction z as [z neq]; simpl in *.
       contradicts (!e) (negProp_to_neg neq). }
-    { change x with (f (ii2 tt)). refine ((_,,_),,_).
+    { change x with (f (ii2 tt)). unshelve refine ((_,,_),,_).
       { exact tt. }
       { reflexivity. }
       { intro w. induction w as [t e]. unfold f in *; simpl in *. induction t.
         apply maponpaths. apply isaproppathsfromisolated. exact is. }}}
   { refine (iscontrweqf (weqii1withneg _ _) _).
     { intros z; induction z as [z e]; simpl in *. contradicts ne e. }
-    { refine ((_,,_),,_).
+    { unshelve refine ((_,,_),,_).
       { exists y. now apply neg_to_negProp. }
       { simpl. reflexivity. }
       intros z; induction z as [z e]; induction z as [z neq]; induction e; simpl in *.
@@ -507,7 +507,7 @@ Definition weqtranspos0 { T : UU } ( t1 t2 : T ) :
   isisolated T t1 -> isisolated T t2 -> compl T t1 ≃ compl T t2.
 Proof.
   intros ? ? ? is1 is2.
-  refine (weqgradth (funtranspos0 t1 t2 is2) (funtranspos0 t2 t1 is1) _ _).
+  unshelve refine (weqgradth (funtranspos0 t1 t2 is2) (funtranspos0 t2 t1 is1) _ _).
   - intro x. apply ( homottranspos0t2t1t1t2 t1 t2 is1 is2 ) .
   - intro x. apply ( homottranspos0t2t1t1t2 t2 t1 is2 is1 ) .
 Defined .
