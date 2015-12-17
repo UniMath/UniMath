@@ -342,10 +342,10 @@ Proof.
   - intro c. exact (Hom C c a × Hom C c b) % set.
   - simpl. intros c d f x. exact (pr1 x ∘ f ,, pr2 x ∘ f).
   - abstract (simpl; intro c; apply funextsec; intro x;
-              apply dirprod_eq; apply id_left) using B.
+              apply dirprodeq; apply id_left) using B.
   - abstract (simpl; intros c d e f g;
               apply funextsec; intro x;
-              apply dirprod_eq; apply pathsinv0, assoc) using C.
+              apply dirprodeq; apply pathsinv0, assoc) using C.
 Defined.
 
 Definition HomPair_1 {C:Precategory} (a b c:C) :
@@ -387,7 +387,7 @@ Lemma binaryProductMapUniqueness {C:Precategory} {a b:C} (prod : BinaryProduct a
       {c:C} (f g : Hom C c (universalObject prod)) :
   pr_1 prod ∘ f = pr_1 prod ∘ g ->
   pr_2 prod ∘ f = pr_2 prod ∘ g -> f = g.
-Proof. intros r s. apply mapUniqueness. apply dirprod_eq.
+Proof. intros r s. apply mapUniqueness. apply dirprodeq.
        exact r. exact s.
 Defined.
 
@@ -445,7 +445,7 @@ Lemma binarySumMapUniqueness {C:Precategory} {a b:C} (sum : BinarySum a b)
       {c:C} (f g : Hom C (rm_opp_ob (universalObject sum)) c) :
   f ∘ in_1 sum = g ∘ in_1 sum ->
   f ∘ in_2 sum = g ∘ in_2 sum -> f = g.
-Proof. intros r s. apply opp_mor_eq, mapUniqueness, dirprod_eq; assumption. Defined.
+Proof. intros r s. apply opp_mor_eq, mapUniqueness, dirprodeq; assumption. Defined.
 
 Definition binarySumMap_2 {C:Precategory} {a b a' b':C}
            (sum : BinarySum a b)
@@ -690,12 +690,12 @@ Proof.
   - abstract (intro b; apply funextsec; intro w;
               induction w as [w e]; induction w as [f x]; simpl;
               unshelve refine (total2_paths2 _ _);
-              [ apply dirprod_eq; [ apply id_left | apply arrow_mor_id ]
+              [ apply dirprodeq; [ apply id_left | apply arrow_mor_id ]
               | apply setproperty]) using R.
   - abstract (intros b b' b'' g g''; apply funextsec; intro w;
               induction w as [w e]; induction w as [f x]; simpl;
               unshelve refine (total2_paths2 _ _);
-              [ apply dirprod_eq;
+              [ apply dirprodeq;
                 [ apply pathsinv0, assoc | apply arrow_mor_mor_assoc ]
               | apply setproperty ]) using T.
 Defined.
@@ -892,16 +892,16 @@ Proof.
     unshelve refine (makeNattrans_op _ _).
     + intros c w. exact (F ▭ f ∘ pr1 w ,, G ▭ f ∘ pr2 w).
     + abstract (intros c c' g; simpl; apply funextsec; intro v;
-                apply dirprod_eq; ( simpl; apply pathsinv0, assoc )) using L.
+                apply dirprodeq; ( simpl; apply pathsinv0, assoc )) using L.
   - abstract (intro b; apply nat_trans_eq;
               [ apply homset_property
               | intro c; simpl;
                 apply funextsec; intro v;
-                apply dirprod_eq;
+                apply dirprodeq;
                 ( simpl; rewrite functor_on_id; rewrite id_right; reflexivity )]) using L.
   - abstract (intros b b' b'' f g; apply nat_trans_eq;
     [ apply homset_property
-    | intro c; apply funextsec; intro w; apply dirprod_eq ;
+    | intro c; apply funextsec; intro w; apply dirprodeq ;
       ( simpl; rewrite functor_on_comp; rewrite assoc; reflexivity) ]) using L.
 Defined.
 
@@ -925,7 +925,7 @@ Proof.
       unshelve refine (_,,_).
       { intros b. exact (pr1 pq b ,, pr2 pq b). }
       { abstract (intros b b' f; simpl;
-                  apply dirprod_eq; ( simpl; apply nattrans_naturality )) using L. } }
+                  apply dirprodeq; ( simpl; apply nattrans_naturality )) using L. } }
     { abstract (intros w;
                 unshelve refine (total2_paths _ _);
                 [ apply funextsec; intro b; apply pathsinv0, tppr
@@ -933,12 +933,12 @@ Proof.
                    apply funextsec; intro b';
                    apply funextsec; intro f;
                    apply isaset_dirprod; apply homset_property) ]) using M. }
-    { abstract (intros pq; apply dirprod_eq;
+    { abstract (intros pq; apply dirprodeq;
                 ( apply nat_trans_eq;
                   [ apply homset_property | intro b; reflexivity ] )) using L. } }
   { abstract (intros H H' p;
               apply funextsec; intros v;
-              apply dirprod_eq;
+              apply dirprodeq;
               ( simpl; apply nat_trans_eq;
                 [ apply homset_property
                 | intros b; unfold makeNattrans; simpl; reflexivity ] )) using L. }
@@ -979,7 +979,7 @@ Proof.
   { intros H. apply hset_equiv_iso.
     apply weqdirprodf; exact (invweq (isomorphismOnMor functorOpIso H _)). }
   { abstract (intros H J p; apply funextsec; intro w;
-              apply dirprod_eq;
+              apply dirprodeq;
               ( apply nat_trans_eq; [ apply homset_property | reflexivity ] )). }
 Defined.
 

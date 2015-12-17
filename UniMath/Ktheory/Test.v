@@ -37,7 +37,7 @@ Proof.
   intros u c fg. refine (iscontrweqf _ (u c (pr1 fg) (pr2 fg))).
   apply weqfibtototal. intro d. apply weqiff.
   { split.
-    { intros ee. apply dirprod_eq.
+    { intros ee. apply dirprodeq.
       { simpl. exact (pr1 ee). }
       { simpl. exact (pr2 ee). } }
     { intros ee. split.

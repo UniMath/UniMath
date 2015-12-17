@@ -284,8 +284,8 @@ Lemma dirprodeq (A B : UU) (ab ab' : A × B) :
   pr1 ab = pr1 ab' -> pr2 ab = pr2 ab' -> ab = ab'.
 Proof.
   intros A B ab ab' H H'.
-  destruct ab as [a b].
-  destruct ab' as [a' b']; simpl in *.
+  induction ab as [a b].
+  induction ab' as [a' b']; simpl in *.
   induction H.
   induction H'.
   apply idpath.
@@ -546,12 +546,6 @@ Proof.
   intros.
   apply (@total2_paths _ _
     (tpair (fun x => B x) a1 b1) (tpair (fun x => B x) a2 b2) p q).
-Defined.
-
-Lemma dirprod_eq {X Y:UU} {p q:X×Y} : pr1 p = pr1 q -> pr2 p = pr2 q -> p = q.
-Proof.
-  intros ? ? ? ?. induction p as [x y]; induction q as [x' y']; simpl.
-  intros r s. induction r. induction s. reflexivity.
 Defined.
 
 Definition pair_path_in2 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) : x,,p = x,,q.
