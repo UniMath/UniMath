@@ -136,7 +136,7 @@ doc: $(GLOBFILES) $(VFILES)
 
 # Jason Gross' coq-tools bug isolator:
 # The isolated bug will appear in this file, in the UniMath directory:
-ISOLATED_BUG_FILE := isolated-bug.v
+ISOLATED_BUG_FILE := isolated_bug.v
 # To use it, run something like this command:
 #     make isolate-bug BUGGY_FILE=Foundations/Basics/PartB.v
 sub/coq-tools/find-bug.py:
