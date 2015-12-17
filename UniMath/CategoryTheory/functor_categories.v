@@ -682,7 +682,7 @@ Definition functor_precategory (C : precategory_data) (C' : precategory)
         (functor_precategory_data C C')
         (is_precategory_functor_precategory_data C C' hs).
 
-Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Lemma nat_trans_comp_pointwise (C : precategory_data)(C' : precategory) (hs: has_homsets C')
   (F G H : ob [C, C', hs]) (A : F --> G) (A' : G --> H)

@@ -22,6 +22,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (** * The opposite precategory of a precategory *)
 

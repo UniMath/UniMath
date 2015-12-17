@@ -396,8 +396,8 @@ Qed.
 *)
 
 (** a little preparation for much later *)
-Lemma τ_part_of_alg_mor  (T T' : @algebra_ob ([C, C] hs) Id_H)
-  (β : @algebra_mor ([C, C] hs) Id_H T T'): #H β ;; τ T' = compose (C:=EndC) (τ T) β.
+Lemma τ_part_of_alg_mor  (T T' : @algebra_ob [C, C, hs] Id_H)
+  (β : @algebra_mor [C, C, hs] Id_H T T'): #H β ;; τ T' = compose (C:=EndC) (τ T) β.
 Proof.
   assert (β_is_alg_mor := pr2 β).
   simpl in β_is_alg_mor.
@@ -422,8 +422,8 @@ Qed.
 
 (** A morphism [β] of pointed functors is a bracket morphism when... *)
 
-Lemma is_ptd_mor_alg_mor (T T' : @algebra_ob ([C, C] hs) Id_H)
-  (β : @algebra_mor ([C, C] hs) Id_H T T') :
+Lemma is_ptd_mor_alg_mor (T T' : @algebra_ob [C, C, hs] Id_H)
+  (β : @algebra_mor [C, C, hs] Id_H T T') :
   @is_ptd_mor C (ptd_from_alg T) (ptd_from_alg T') (pr1 β).
 Proof.
   simpl.

@@ -36,6 +36,7 @@ Require Import UniMath.CategoryTheory.precomp_fully_faithful.
 Require Import UniMath.CategoryTheory.precomp_ess_surj.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (** * Construction of the Rezk completion via Yoneda *)
 
@@ -131,7 +132,7 @@ Proof.
   apply T.
 Defined.
 
-Definition Rezk_weq : [Rezk_completion A hsA, C] (pr2 Ccat) ≃ [A, C] (pr2 Ccat)
+Definition Rezk_weq : [Rezk_completion A hsA, C, pr2 Ccat] ≃ [A, C, pr2 Ccat ]
   := weqpair _ Rezk_eta_Universal_Property.
 
 End fix_a_category.
@@ -232,7 +233,7 @@ Proof.
   apply T.
 Defined.
 
-Definition Rezk_opp_weq : [(Rezk_completion A hsA)^op, C, (pr2 Ccat)] ≃ [A^op, C, (pr2 Ccat)]
+Definition Rezk_opp_weq : [(Rezk_completion A hsA)^op, C, pr2 Ccat] ≃ [A^op, C, pr2 Ccat]
   := weqpair _ Rezk_eta_opp_Universal_Property.
 
 End fix_a_category.
