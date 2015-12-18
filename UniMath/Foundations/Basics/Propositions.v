@@ -188,7 +188,7 @@ Proof. intros. refine (isofhlevelfpr1 _ _ _). intro. apply ( pr2 ( ishinh ( hfib
 Lemma issurjprtoimage { X Y : UU } ( f : X -> Y) : issurjective (prtoimage f ).
 Proof. intros. intro z.  set (f' := prtoimage f ). set (g:= pr1image f ). set (gf':= fun x:_ => g ( f' x )).
 assert (e: paths f gf'). apply etacorrection .
-assert (ff: hfiber gf' (pr1 z) -> hfiber f' z).   apply ( invweq ( samehfibers _ _ ( isinclpr1image f ) z ) ) .
+assert (ff: hfiber gf' (pr1 z) -> hfiber f' z).  refine ( invweq ( samehfibers _ _ ( isinclpr1image f ) z ) ) .
 assert (is2: ishinh (hfiber gf' (pr1 z))). destruct e.  apply (pr2 z).
 apply (hinhfun ff is2). Defined.
 

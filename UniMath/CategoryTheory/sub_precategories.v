@@ -585,8 +585,7 @@ Lemma isweq_sub_precat_paths_to_iso
  isweq (@idtoiso _ a b).
 Proof.
   rewrite precat_paths_in_sub_as_3_maps.
-  match goal with | [ _ : _ |- isweq (funcomp ?f ?g)]
-      => apply (twooutof3c f g) end.
+  match goal with |- isweq (funcomp ?f ?g) => apply (twooutof3c f g) end.
   apply isweq_Id_in_sub_to_iso.
   apply isweq_iso_in_sub_from_iso.
 Defined.
@@ -610,7 +609,7 @@ Lemma functor_full_img_essentially_surjective (A B : precategory)
   essentially_surjective (functor_full_img F).
 Proof.
   intro b.
-  refine (pr2 b _).
+  refine (pr2 b _ _).
   intros [c h] q Hq.
   apply Hq.
   exists c.

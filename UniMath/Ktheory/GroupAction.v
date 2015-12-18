@@ -293,7 +293,7 @@ Proof. intros ? ? ? ?. exact (castAction (ap underlyingAction q)). Defined.
 
 Lemma underlyingAction_incl {G:gr} :
   isincl (underlyingAction : Torsor G -> Action G).
-Proof. intros. apply isinclpr1; intro X. apply is_torsor_isaprop. Defined.
+Proof. intros. refine (isinclpr1 _ _); intro X. apply is_torsor_isaprop. Defined.
 
 Lemma underlyingAction_injectivity {G:gr} {X Y:Torsor G} :
       weq (X = Y) (underlyingAction X = underlyingAction Y).

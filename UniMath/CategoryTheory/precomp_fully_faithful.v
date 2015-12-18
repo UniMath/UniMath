@@ -298,8 +298,9 @@ Proof.
   rewrite (assoc _ _ _ _ _ (gamma a)).
   simpl in *.
   rewrite <- P; clear P.
-  set (H4 := functor_on_iso_inv _ _  F _ _ h).
-  set (H5 := base_paths _ _ H4). simpl in H5.
+  assert (H4 := functor_on_iso_inv _ _  F _ _ h).
+  assert (H5 := base_paths _ _ H4).
+  simpl in H5.
   rewrite <- H5.
   repeat rewrite assoc.
   rewrite <- functor_comp.

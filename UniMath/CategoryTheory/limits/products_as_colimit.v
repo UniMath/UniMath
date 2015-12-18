@@ -116,7 +116,7 @@ Lemma ProductArrowUnique (a b : C) (P : ProductCone a b) (c : C)
       k = ProductArrow P f g.
 Proof.
 intros H1 H2.
-apply limArrowUnique; simpl.
+refine (limArrowUnique _ _ _ _ _); simpl.
 now intro u; induction u; simpl; [ apply H1 | apply H2 ].
 Qed.
 

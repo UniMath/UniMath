@@ -117,7 +117,7 @@ Proof. intros. exact (invmap (weqsecovercontr P i) p0 x). Defined.
 
 Definition iscontr_rect_compute'' X (i : iscontr X) (P : X ->UU) (p : P(pr1 i)) :
   iscontr_rect'' X i P p (pr1 i) = p.
-Proof. try reflexivity. intros. exact (homotweqinvweq (weqsecovercontr _ i) _).
+Proof. try reflexivity. intros. exact (homotweqinvweq (weqsecovercontr P i) p).
 Defined.
 
 (* .... or use transport explicitly: *)
@@ -225,13 +225,15 @@ Proof.
     { apply nil_unique. }
     apply drop_and_append'. }
   intros co. induction co as [t|p].
-  { simpl. apply maponpaths. apply proofirrelevancecontr. apply iscontrunit. }
+  { unfold disassembleSequence; simpl. apply maponpaths.
+    apply proofirrelevancecontr. apply iscontrunit. }
   induction p as [x y]. induction y as [n y].
   apply (maponpaths (@inr unit (X × Sequence X))).
   unfold append_fun, lastelement, funcomp; simpl.
+  unfold append_fun. simpl.
   induction (natlehchoice4 n n (natgthsnn n)) as [e|e].
   { contradicts e (isirreflnatlth n). }
-  simpl. apply maponpaths. apply maponpaths.
+  simpl. apply maponpaths, maponpaths.
   apply funextfun; intro i. clear e. induction i as [i b].
   unfold funcomp, dni_lastelement; simpl.
   induction (natlehchoice4 i n (natlthtolths i n b)) as [d|d].

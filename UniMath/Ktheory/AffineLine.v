@@ -360,7 +360,7 @@ Proof. intros.
                                                               (fun t : T => weq_pathscomp0r y (s t)) t0))
                       (iscontrcoconustot Y (f t0)))
                 : @paths (GHomotopy f s (f t0)) _ _).
-       unshelve refine (apevalat t0 (ap pr1 ((idpath _ :
+       refine (apevalat t0 (ap pr1 ((idpath _ :
                          (pr2
                             (thePoint
                                (iscontrweqb
@@ -371,7 +371,7 @@ Proof. intros.
                                   (iscontrcoconustot Y (f t0)))))
                            =
                          (path_start a2)) @ a2)) @ _).
-       unshelve refine (apevalat t0
+       refine (apevalat t0
                  (ap pr1
                      (compute_pr2_invmap_weqfibtototal
                         (fun y : Y =>
