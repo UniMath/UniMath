@@ -119,7 +119,7 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 *)
 
-Set Primitive Projections.
+(* Set Primitive Projections. *)
 
 (* two alternatives: *)
 (* total2 as a record with primitive projections: *)
@@ -143,8 +143,7 @@ Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser
 
 (* demonstrate eta expansion for pairs, if primitive projections are on *)
 Goal ∀ X (Y:X->UU) (w:Σ x, Y x), w = (pr1 w,, pr2 w).
-(* Proof. try reflexivity. Abort. *)
-Proof. reflexivity. Defined.
+Proof. try reflexivity. Abort.
 
 Arguments pr1 {_ _} _.
 Arguments pr2 {_ _} _.
