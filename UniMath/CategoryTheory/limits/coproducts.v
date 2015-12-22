@@ -109,7 +109,7 @@ Definition mk_CoproductCocone (a b : C) :
    isCoproductCocone _ _ _ f g →  CoproductCocone a b.
 Proof.
   intros.
-  unshelve refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
   - exists c.
     exists f.
     exact g.

@@ -268,7 +268,7 @@ Lemma circle_map_check_paths'
       {Y} (f:circle->Y) :
   circle_map (ap f circle_loop) = f .
 Proof. intros. apply funextsec.
-       unshelve refine (circle_map' _ _ _).
+       simple refine (circle_map' _ _ _).
        { reflexivity. }
        { set (y := f (basepoint circle)). set (l := ap f circle_loop).
          set (P := fun T : underlyingType circle => circle_map _ T = f T).

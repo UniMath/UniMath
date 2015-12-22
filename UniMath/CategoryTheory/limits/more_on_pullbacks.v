@@ -43,7 +43,7 @@ Proof.
   set (FxFy := pr1 (pr1 TH)).
   assert (HFxFy := pr2 (pr1 TH)). simpl in HFxFy.
   set (xy := fully_faithful_inv_hom Fff _ _ FxFy).
-  unshelve refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
   - exists xy.
     destruct HFxFy; split.
     + refine ( invmaponpathsweq (weqpair _ (Fff _ _ )) _ _ _ ).

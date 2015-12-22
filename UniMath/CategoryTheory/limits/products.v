@@ -75,7 +75,7 @@ Definition mk_ProductCone (a b : C) :
    isProductCone _ _ _ f g -> ProductCone a b.
 Proof.
   intros.
-  unshelve refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
   - exists c.
     exists f.
     exact g.

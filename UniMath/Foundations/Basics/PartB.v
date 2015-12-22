@@ -294,10 +294,10 @@ Proof. intros n X is .  apply ( isofhlevelweqf n ( weqhfibertounit X ) ( is tt )
 
 Definition weqhfiberunit {X Z} (i:X->Z) (z:Z) : (Σ x, hfiber (λ _:unit, z) (i x)) ≃ hfiber i z.
 Proof.
-  intros. unshelve refine (weqgradth _ _ _ _).
+  intros. simple refine (weqgradth _ _ _ _).
   + intros [x [t e]]. exact (x,,!e).
   + intros [x e]. exact (x,,tt,,!e).
-  + intros [x [t e]]. apply maponpaths. unshelve refine (total2_paths2 _ _).
+  + intros [x [t e]]. apply maponpaths. simple refine (total2_paths2 _ _).
     * apply isapropunit.
     * simpl. induction e. rewrite pathsinv0inv0. induction t. reflexivity.
   + intros [x e]. apply maponpaths. apply pathsinv0inv0.

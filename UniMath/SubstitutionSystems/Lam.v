@@ -172,7 +172,7 @@ Defined.
 (** preparations for typedness *)
 Local Definition bla': (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) ⇒ (ptd_from_alg_functor CC _ Lam).
 Proof.
-  unshelve refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ).
     + abstract
         (intro c; rewrite id_right
@@ -182,7 +182,7 @@ Defined.
 
 Local Definition bla'_inv: (ptd_from_alg_functor CC _ Lam) ⇒ (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
 Proof.
-  unshelve refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ).
     + abstract
         (intro c; rewrite id_right ;

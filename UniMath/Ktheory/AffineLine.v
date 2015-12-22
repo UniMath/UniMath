@@ -56,11 +56,11 @@ Proof. intros.
               (f (ii1 O) = IH' O (f (ii2 O))) ×
               (∀ n : nat, f (ii1 (S n)) = IH' (S n) (f (ii1 n))))).
        { apply (weqbandf (weqonsecbase _ negpos)). intro f.
-         unshelve refine (weqpair _ (gradth _ _ _ _)).
-         { intros [h0 [hp hn]]. unshelve refine (_,,_,,_,,_).
+         simple refine (weqpair _ (gradth _ _ _ _)).
+         { intros [h0 [hp hn]]. simple refine (_,,_,,_,,_).
            { exact h0. } { exact hp. }
            { exact (hn O). } { intro n. exact (hn (S n)). } }
-         { intros [h0 [hp [h1' hn]]]. unshelve refine (_,,_,,_).
+         { intros [h0 [hp [h1' hn]]]. simple refine (_,,_,,_).
            { exact h0. } { exact hp. }
            { intros [|n']. { exact h1'. } { exact (hn n'). } } }
          { intros [h0 [hp hn]]. simpl. apply paths3.
@@ -132,7 +132,7 @@ Lemma A (P:ℤ->Type) (p0:P zero)
          (fun fh => pr1 fh zero)
          p0).
 Proof. intros.
-       unshelve refine (weqpair _ (gradth _ _ _ _)).
+       simple refine (weqpair _ (gradth _ _ _ _)).
        { intros [f [h0 h]]. exact ((f,,h),,h0). }
        { intros [[f h] h0]. exact (f,,(h0,,h)). }
        { intros [f [h0 h]]. reflexivity. }
@@ -172,18 +172,18 @@ Proof. intros.
        set (l' := fun n => weq_transportf P (k' n)).
        set (ih := fun n => weqcomp (IH (toℤ n)) (l n)).
        set (ih':= fun n => (weqcomp (l' n) (invweq (IH (- toℤ (S n)))))).
-       set (G := ℤRecursion_weq P ih ih'). unshelve refine (weqcomp _ G).
+       set (G := ℤRecursion_weq P ih ih'). simple refine (weqcomp _ G).
        apply weqfibtototal. intro f. unfold ℤRecursionData, ℤBiRecursionData.
-       unshelve refine (weqcomp (weqonsecbase _ negpos) _).
-       unshelve refine (weqcomp (weqsecovercoprodtoprod _) _).
-       unshelve refine (weqcomp (weqdirprodcomm _ _) _). apply weqdirprodf.
-       { apply weqonsecfibers; intro n. unshelve refine (weqonpaths2 _ _ _).
+       simple refine (weqcomp (weqonsecbase _ negpos) _).
+       simple refine (weqcomp (weqsecovercoprodtoprod _) _).
+       simple refine (weqcomp (weqdirprodcomm _ _) _). apply weqdirprodf.
+       { apply weqonsecfibers; intro n. simple refine (weqonpaths2 _ _ _).
          { change (negpos (ii2 n)) with (toℤ n). exact (l n). }
          { unfold l. apply weq_transportf_comp. }
          { reflexivity. } }
        { apply weqonsecfibers; intro n. simpl.
-         unshelve refine (weqcomp (weqpair _ (isweqpathsinv0 _ _)) _).
-         unshelve refine (weqonpaths2 _ _ _).
+         simple refine (weqcomp (weqpair _ (isweqpathsinv0 _ _)) _).
+         simple refine (weqonpaths2 _ _ _).
          { apply invweq. apply IH. }
          { simpl. rewrite homotinvweqweq. reflexivity. }
          { simpl. change (natnattohz 0 (S n)) with (- toℤ (S n)).
@@ -223,10 +223,10 @@ Proof. intros. exists (fun fh => pr1 fh t0). intro q.
        set ( IH' := (fun i => weqcomp (IH (w i)) (l0 i))
                     : ∀ i:ℤ, weq (P (w i)) (P (w(1+i)%hz))).
        set (J := fun f => ∀ i : ℤ, f (1 + i)%hz = (IH' i) (f i)).
-       unshelve refine (iscontrweqb (@weq_over_sections ℤ T w 0 t0 e P q (e#'q) _ H J _) _).
+       simple refine (iscontrweqb (@weq_over_sections ℤ T w 0 t0 e P q (e#'q) _ H J _) _).
        { apply transportfbinv. }
-       { intro. apply invweq. unfold H,J,maponsec1. unshelve refine (weqonsec _ _ w _).
-         intro i. unshelve refine (weqonpaths2 _ _ _).
+       { intro. apply invweq. unfold H,J,maponsec1. simple refine (weqonsec _ _ w _).
+         intro i. simple refine (weqonpaths2 _ _ _).
          { exact (invweq (l0 i)). }
          { unfold l0. rewrite (k0 i). reflexivity. }
          { unfold IH'. unfold weqcomp; simpl.
@@ -360,7 +360,7 @@ Proof. intros.
                                                               (fun t : T => weq_pathscomp0r y (s t)) t0))
                       (iscontrcoconustot Y (f t0)))
                 : @paths (GHomotopy f s (f t0)) _ _).
-       unshelve refine (apevalat t0 (ap pr1 ((idpath _ :
+       simple refine (apevalat t0 (ap pr1 ((idpath _ :
                          (pr2
                             (thePoint
                                (iscontrweqb
@@ -371,7 +371,7 @@ Proof. intros.
                                   (iscontrcoconustot Y (f t0)))))
                            =
                          (path_start a2)) @ a2)) @ _).
-       unshelve refine (apevalat t0
+       simple refine (apevalat t0
                  (ap pr1
                      (compute_pr2_invmap_weqfibtototal
                         (fun y : Y =>
@@ -461,8 +461,8 @@ Definition makeGuidedHomotopy_diagonalPath_comp {T:Torsor ℤ} {Y} (f:T->Y)
   ap pr1 (makeGuidedHomotopy_diagonalPath f s t0) = s t0.
 Proof. intros.
        unfold makeGuidedHomotopy_diagonalPath.
-       unshelve refine (maponpaths_naturality (makeGuidedHomotopy_transPath_comp _ _ _ _) _).
-       unshelve refine (maponpaths_naturality (makeGuidedHomotopy_localPath_comp _ _ _ _ _ _) _).
+       simple refine (maponpaths_naturality (makeGuidedHomotopy_transPath_comp _ _ _ _) _).
+       simple refine (maponpaths_naturality (makeGuidedHomotopy_localPath_comp _ _ _ _ _ _) _).
        exact (makeGuidedHomotopy_verticalPath_comp _ _ _ _ _).
 Defined.
 
