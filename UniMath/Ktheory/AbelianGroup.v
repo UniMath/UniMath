@@ -293,13 +293,13 @@ Module Presentation.
   Definition universalMarkedAbelianGroup0 {X I} (R:I->reln X) : abgr.
     intros.
     { exists (univ_setwithbinop R). split.
-      { unshelve refine (_,,_).
+      { simple refine (_,,_).
         { split.
           { exact (isassoc_univ_binop R). }
           { exists (setquotpr _ word_unit). split.
             { exact (is_left_unit_univ_binop R). }
             { exact (is_right_unit_univ_binop R). } } }
-        { unshelve refine (_,,_).
+        { simple refine (_,,_).
           { exact (univ_inverse R). }
           { split.
             { exact (is_left_inverse_univ_binop R). }
@@ -337,10 +337,10 @@ Module Presentation.
          { intermediate_path (unel M). exact (unitproperty f). exact (!unitproperty g). }
          { apply p. }
          (* compare duplication with the proof of MarkedAbelianGroupMap_compat *)
-         { unshelve refine (monoidfuninvtoinv f (setquotpr (smallestAdequateRelation R) w)
+         { simple refine (monoidfuninvtoinv f (setquotpr (smallestAdequateRelation R) w)
              @ _ @ ! monoidfuninvtoinv g (setquotpr (smallestAdequateRelation R) w)).
            apply (ap (grinv M)). apply agreement_on_gens0. assumption. }
-         { unshelve refine (
+         { simple refine (
                Monoid.multproperty f (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)
              @ _ @ !
@@ -431,13 +431,13 @@ Module Sum.                   (* coproducts *)
   Definition make {I} (G:I->abgr) : abgr.
     intros. exact (Presentation.universalMarkedAbelianGroup (R G)). Defined.
   Definition Incl {I} (G:I->abgr) (i:I) : Hom (G i) (make G).
-    intros. unshelve refine (_,,_).
+    intros. simple refine (_,,_).
     { intro g. apply setquotpr. apply word_gen. exact (i,,g). } { split.
       { intros g h. apply iscompsetquotpr. exact (base (adequacy _) (J_sum _ (i,,(g,,h)))). }
       { apply iscompsetquotpr. exact (base (adequacy _) (J_zero _ i)). } } Defined.
   Definition Map0 {I} {G:I->abgr} {T:abgr} (f: ∀ i, Hom (G i) T) :
       MarkedAbelianGroup (R G).
-    intros. unshelve refine (make_MarkedAbelianGroup (R G) T _ _).
+    intros. simple refine (make_MarkedAbelianGroup (R G) T _ _).
     { intros [i g]. exact (f i g). }
     { intros [i|[i [g h]]].
       { simpl. apply unitproperty. }

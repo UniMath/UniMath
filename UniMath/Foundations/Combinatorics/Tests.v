@@ -66,7 +66,7 @@ Module Test_stn.
 
     (* here's an example that shows complications need not impede that sort of computability: *)
     Local Definition w : unit ≃ stn 1.
-      unshelve refine (weqgradth _ _ _ _).
+      simple refine (weqgradth _ _ _ _).
       { intro. exact (firstelement _). }
       { intro. exact tt. }
       { intro u. simpl. induction u. reflexivity. }
