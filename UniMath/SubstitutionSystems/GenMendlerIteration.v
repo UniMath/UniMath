@@ -200,14 +200,14 @@ Focus 2.
       apply maponpaths.
       exact h_rec_eq.
     + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial ⇒ ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
-       unshelve refine (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
+       simple refine (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
        * apply (tpair _ (φ h)); assumption.
        * apply (maponpaths pr1 (InitialArrowUnique _ _ X0)).
 Qed.
 
 Theorem GenMendlerIteration : iscontr (Σ h : L μF ⇒ X, #L inF ;; h = ψ μF h).
 Proof.
-  unshelve refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
   - exists preIt.
     exact preIt_ok.
   - exact preIt_uniq.
@@ -250,7 +250,7 @@ Section special_case.
 
   Definition ψ_from_comps : ψ_source ⟶ ψ_target.
   Proof.
-    unshelve refine (tpair _ _ _ ).
+    simple refine (tpair _ _ _ ).
     - intro A. simpl. intro f.
       unfold yoneda_objects_ob in *.
       exact (θ A ;; #G f ;; ρ).

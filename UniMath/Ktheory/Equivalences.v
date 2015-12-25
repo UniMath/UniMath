@@ -45,7 +45,7 @@ Proof. intros ? ? w.
        exists f. intro y.
        exists (g y,,p y).
        intros xe.
-       unshelve refine (hfibertriangle2 _ _ _ _ _).
+       simple refine (hfibertriangle2 _ _ _ _ _).
        - exact (! (q (pr1 xe)) @ maponpaths g (pr2 xe)).
        - induction xe as [x e]; simpl. induction e; simpl.
          rewrite pathscomp0rid.
@@ -341,5 +341,5 @@ Proof. intros. apply pathsinv0.
        rewrite pathsinv0l. simpl. rewrite pathsinv0l. reflexivity. Qed.
 
 Definition inverseEquivalence {X Y} : Equivalence X Y -> Equivalence Y X.
-Proof. intros ? ? [f [g [p [q h]]]]. unshelve refine (makeEquivalence Y X g f q p _).
+Proof. intros ? ? [f [g [p [q h]]]]. simple refine (makeEquivalence Y X g f q p _).
        intro y. apply other_adjoint. assumption. Defined.

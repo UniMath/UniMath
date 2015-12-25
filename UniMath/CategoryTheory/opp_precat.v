@@ -123,7 +123,7 @@ Definition from_opp_to_opp_opp (A C : precategory) (hsC : has_homsets C) :
 Proof.
 apply (tpair _ functor_opp).
 simpl; intros F G α.
-unshelve refine (tpair _ _ _).
+simple refine (tpair _ _ _).
 + simpl; intro a; apply α.
 + abstract (intros a b f; simpl in *;
             apply pathsinv0, (nat_trans_ax α)).
@@ -144,9 +144,9 @@ Definition functor_from_opp_to_opp_opp (A C : precategory) (hsC : has_homsets C)
 Definition from_opp_opp_to_opp (A C : precategory) (hsC : has_homsets C) :
   functor_data [A^op, C^op, has_homsets_opp hsC] [A, C, hsC]^op.
 Proof.
-unshelve refine (tpair _ _ _); simpl.
+simple refine (tpair _ _ _); simpl.
 - intro F.
-  unshelve refine (tpair _ _ _).
+  simple refine (tpair _ _ _).
   + exists F.
     apply (fun a b f => # F f).
   + abstract (split; [ intro a; apply (functor_id F)

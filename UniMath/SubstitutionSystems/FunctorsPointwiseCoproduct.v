@@ -254,11 +254,11 @@ Qed.
 Definition functor_precat_coproduct_cocone
   : CoproductCocone [C, D, hsD] F G.
 Proof.
-  unshelve refine (mk_CoproductCocone _ _ _ _ _ _ _ ).
+  simple refine (mk_CoproductCocone _ _ _ _ _ _ _ ).
   - apply coproduct_functor.
   - apply coproduct_nat_trans_in1.
   - apply coproduct_nat_trans_in2.
-  - unshelve refine (mk_isCoproductCocone _ _ _ _ _ _ _ _ ).
+  - simple refine (mk_isCoproductCocone _ _ _ _ _ _ _ _ ).
     + apply functor_category_has_homsets.
     + intros A f g.
      exists (tpair _ (coproduct_nat_trans A f g)

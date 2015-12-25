@@ -122,7 +122,7 @@ Defined.
 Local Lemma posetTransport_weq (X Y:Poset) : X≡Y ≃ X≅Y.
 Proof.
   intros.
-  unshelve refine (weqbandf _ _ _ _).
+  simple refine (weqbandf _ _ _ _).
   { apply hSet_univalence. }
   intros e. apply invweq. apply poTransport_weq.
 Defined.
@@ -267,7 +267,7 @@ Definition underlyingPoset_weq (X Y:OrderedSet) :
   X=Y ≃ (underlyingPoset X)=(underlyingPoset Y).
 Proof.
   Set Printing Coercions.
-  intros. unshelve refine (weqpair _ _).
+  intros. simple refine (weqpair _ _).
   { apply maponpaths. }
   apply isweqonpathsincl. apply isincl_underlyingPoset.
   Unset Printing Coercions.
@@ -324,7 +324,7 @@ Definition FiniteOrderedSetDecidableInequality (X:FiniteOrderedSet) : DecidableR
 Defined.
 
 Definition FiniteOrderedSetDecidableLessThan (X:FiniteOrderedSet) : DecidableRelation X.
-  intros ? x y. unshelve refine (decidable_to_DecidableProposition _).
+  intros ? x y. simple refine (decidable_to_DecidableProposition _).
   - exact (x < y).
   - apply isfinite_isdec_lessthan. apply finitenessProperty.
 Defined.
@@ -352,7 +352,7 @@ Defined.
 
 Definition standardFiniteOrderedSet (n:nat) : FiniteOrderedSet.
 Proof.
-  intros. unshelve refine (_,,_).
+  intros. simple refine (_,,_).
   - exists (stnposet n). intros x y; apply istotalnatleh.
   - apply isfinitestn.
 Defined.
@@ -380,11 +380,11 @@ Definition transportFiniteOrdering {n} {X:UU} : X ≃ ⟦ n ⟧ -> FiniteOrdered
 (* The new finite ordered set has X as its underlying set. *)
 Proof.
   intros ? ? w.
-  unshelve refine (_,,_).
-  - unshelve refine (_,,_).
-    * unshelve refine (_,,_).
+  simple refine (_,,_).
+  - simple refine (_,,_).
+    * simple refine (_,,_).
     + exists X. apply (isofhlevelweqb 2 w). apply setproperty.
-      + unfold PartialOrder; simpl. unshelve refine (_,,_).
+      + unfold PartialOrder; simpl. simple refine (_,,_).
         { intros x y. exact (w x ≤ w y). }
         apply inducedPartialOrder_weq.
         exact (pr2 (pr2 (pr1 (pr1 ⟦ n ⟧)))).
@@ -485,12 +485,12 @@ Definition concatenateFiniteOrderedSets
 Proof.
   (* we use lexicographic order *)
   intros.
-  unshelve refine (_,,_).
+  simple refine (_,,_).
   {
-    unshelve refine (_,,_).
-    { unshelve refine (_,,_).
+    simple refine (_,,_).
+    { simple refine (_,,_).
       { exact (Σ x, Y x)%set. }
-      unshelve refine (_,,_).
+      simple refine (_,,_).
       { apply lexicographicOrder. apply posetRelation. intro. apply posetRelation. }
       split.
       { split.
@@ -555,7 +555,7 @@ Abort.
 Theorem enumeration_FiniteOrderedSet (X:FiniteOrderedSet) : iscontr (FiniteStructure X).
 Proof.
   intros.
-  unshelve refine (_,,_).
+  simple refine (_,,_).
   { exists (fincard (finitenessProperty X)).
 
   (* proof in progress... *)
