@@ -447,13 +447,21 @@ Qed.
 
 (** ** Apartness on [Dcuts] *)
 
+Lemma isaprop_Dcuts_ap_rel (X Y : Dcuts_set) :
+  isaprop ((X < Y) ⨿ (Y < X)).
+Proof.
+  intros X Y.
+  apply (isapropcoprod (X < Y) (Y < X)
+                       (propproperty (X < Y))
+                       (propproperty (Y < X))
+                       (λ Hlt : X < Y, pr2 (Dcuts_le_ngt_rel Y X) (Dcuts_lt_le_rel X Y Hlt))).
+Qed.
 Definition Dcuts_ap_rel (X Y : Dcuts_set) : hProp :=
-  (X < Y) ∨ (Y < X).
+  hProppair ((X < Y) ⨿ (Y < X)) (isaprop_Dcuts_ap_rel X Y).
 
 Lemma isirrefl_Dcuts_ap_rel : isirrefl Dcuts_ap_rel.
 Proof.
   intros x.
-  unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
   intros [Hap|Hap].
   now apply isirrefl_Dcuts_lt_rel with (1 := Hap).
   now apply isirrefl_Dcuts_lt_rel with (1 := Hap).
@@ -461,20 +469,20 @@ Qed.
 Lemma issymm_Dcuts_ap_rel : issymm Dcuts_ap_rel.
 Proof.
   intros x y.
-  apply islogeqcommhdisj.
+  apply coprodcomm.
 Qed.
 Lemma iscotrans_Dcuts_ap_rel : iscotrans Dcuts_ap_rel.
 Proof.
   intros x y z.
-  apply hinhuniv ; intros [Hap|Hap].
+  intros [Hap|Hap].
   - generalize (iscotrans_Dcuts_lt_rel _ y _ Hap) ; apply hinhfun.
     intros [Hy | Hy].
-    + now left ; apply hinhpr ; left.
-    + now right ; apply hinhpr ; left.
+    + now left ; left.
+    + now right ; left.
   - generalize (iscotrans_Dcuts_lt_rel _ y _ Hap) ; apply hinhfun.
     intros [Hy | Hy].
-    + now right ; apply hinhpr ; right.
-    + now left ; apply hinhpr ; right.
+    + now right ; right.
+    + now left ; right.
 Qed.
 
 Lemma istight_Dcuts_ap_rel : istight Dcuts_ap_rel.
@@ -485,11 +493,11 @@ Proof.
   - change (X <= Y).
     apply Dcuts_le_ngt_rel.
     intro Hlt ; apply Hap.
-    now apply hinhpr ; right.
+    now right.
   - change (Y <= X).
     apply Dcuts_le_ngt_rel.
     intro Hlt ; apply Hap.
-    now apply hinhpr ; left.
+    now left.
 Qed.
 
 Definition Dcuts : tightapSet :=
@@ -647,7 +655,6 @@ Lemma isapfun_NonnegativeRationals_to_Dcuts :
     -> q != q'.
 Proof.
   intros q q'.
-  apply (hinhuniv (P := hProppair _ (isapropneg _))).
   intros [Hap | Hap].
   now apply ltNonnegativeRationals_noteq, isapfun_NonnegativeRationals_to_Dcuts_aux.
   now apply gtNonnegativeRationals_noteq, isapfun_NonnegativeRationals_to_Dcuts_aux.
@@ -658,7 +665,6 @@ Lemma isapfun_NonnegativeRationals_to_Dcuts' :
     -> NonnegativeRationals_to_Dcuts q ≠ NonnegativeRationals_to_Dcuts q'.
 Proof.
   intros q q' H.
-  apply hinhpr.
   apply noteq_ltorgtNonnegativeRationals in H.
   destruct H.
   now left ; apply (pr2 (isapfun_NonnegativeRationals_to_Dcuts_aux _ _)).
@@ -695,11 +701,11 @@ Lemma Dcuts_apzero_notempty :
 Proof.
   intros x ; split.
   - intro Hx.
-    apply hinhpr ; right.
+    right.
     apply hinhpr ; exists 0%NRat ; split.
     now apply Dcuts_zero_empty.
     exact Hx.
-  - apply hinhuniv ; intros [ | ].
+  - intros [ | ].
     + apply hinhuniv ; intros (r,(_,Or)).
       now apply Dcuts_zero_empty in Or.
     + apply hinhuniv ; intros (r,(_,Xr)).
@@ -1634,7 +1640,7 @@ Qed.
 Lemma islapbinop_Dcuts_plus : islapbinop Dcuts_plus.
 Proof.
   intros y x x'.
-  apply hinhfun ; intros [Hlt | Hlt].
+  intros [Hlt | Hlt].
   - left.
     now apply Dcuts_plus_lt_l with y.
   - right.
@@ -1678,7 +1684,7 @@ Qed.
 Lemma islapbinop_Dcuts_mult : islapbinop Dcuts_mult.
 Proof.
   intros y x x'.
-  apply hinhfun ; intros [Hlt | Hlt].
+  intros [Hlt | Hlt].
   - left.
     now apply Dcuts_mult_lt_l with y.
   - right.
@@ -3818,6 +3824,9 @@ Definition twoNonnegativeReals : NonnegativeReals := Dcuts_two.
 Definition plusNonnegativeReals : binop NonnegativeReals := CCDRplus.
 Definition multNonnegativeReals : binop NonnegativeReals := CCDRmult.
 
+Definition NonnegativeRationals_to_NonnegativeReals (r : NonnegativeRationals) : NonnegativeReals :=
+  NonnegativeRationals_to_Dcuts r.
+
 Notation "0" := zeroNonnegativeReals : NR_scope.
 Notation "1" := oneNonnegativeReals : NR_scope.
 Notation "2" := twoNonnegativeReals : NR_scope.
@@ -3916,7 +3925,7 @@ Proof.
 Qed.
 
 Lemma ap_ltNonnegativeReals :
-  ∀ x y : NonnegativeReals, x ≠ y <-> x < y ∨ y < x.
+  ∀ x y : NonnegativeReals, x ≠ y <-> (x < y) ⨿  (y < x).
 Proof.
   now intros x y ; split.
 Qed.
@@ -3943,12 +3952,11 @@ Lemma ispositive_apNonnegativeReals :
   ∀ x : NonnegativeReals, x ≠ 0 <-> 0 < x.
 Proof.
   intros X ; split.
-  - apply hinhuniv ; intros [ | Hlt ].
+  - intros [ | Hlt ].
     apply hinhuniv ; intros (x,(_,Hx)).
     now apply Dcuts_zero_empty in Hx.
     exact Hlt.
   - intros Hx.
-    apply hinhpr.
     now right.
 Qed.
 
@@ -4051,8 +4059,7 @@ Proof.
   - intro H.
     apply ap_ltNonnegativeReals.
     apply_pr2_in ap_ltNonnegativeReals H.
-    revert H.
-    apply hinhfun ; intros [H | H].
+    destruct H as [H | H].
     + left ;
       now apply plusNonnegativeReals_ltcompat_l.
     + right ;
@@ -4156,6 +4163,23 @@ Definition isrdistr_plus_multNonnegativeReals:
   ∀ x y z : NonnegativeReals, (x + y) * z = x * z + y * z
   := isrdistr_CCDRplus_CCDRmult (X := NonnegativeReals).
 
+(** ** NonnegativeRationals is dense in NonnegativeReals *)
+
+Lemma NonnegativeReals_dense :
+  ∀ x y : NonnegativeReals, x < y -> ∃ r : NonnegativeRationals, x < NonnegativeRationals_to_NonnegativeReals r × NonnegativeRationals_to_NonnegativeReals r < y.
+Proof.
+  intros x y.
+  apply hinhuniv ; intros q.
+  generalize (is_Dcuts_open y (pr1 q) (pr2 (pr2 q))).
+  apply hinhfun ; intros r.
+  exists (pr1 r) ; split ; apply hinhpr.
+  - exists (pr1 q) ; split.
+    + exact (pr1 (pr2 q)).
+    + exact (pr2 (pr2 r)).
+  - exists (pr1 r) ; split.
+    + exact (isirrefl_ltNonnegativeRationals _).
+    + exact (pr1 (pr2 r)).
+Qed.
 
 (** ** Completeness *)
 
@@ -4213,7 +4237,7 @@ Lemma is_lim_seq_unique (u : nat -> NonnegativeReals) (l l' : NonnegativeReals) 
 Proof.
   intros u l l' Hl Hl'.
   apply istight_apNonnegativeReals.
-  unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; intros [ | ].
+  intros [ | ].
   - now apply (is_lim_seq_unique_aux u).
   - now apply (is_lim_seq_unique_aux u).
 Qed.
