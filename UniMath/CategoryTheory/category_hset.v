@@ -35,11 +35,9 @@ Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.limits.limits.
-(*
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-*)
 
 (*
 Local Notation "a --> b" :=
@@ -498,12 +496,38 @@ Proof.
 now intros g d; apply LimConeHSET.
 Qed.
 
-(*
 Lemma ProductsHSET : Products HSET.
 Proof.
-now apply Products_from_Lims, LimsHSET.
+intros A B.
+simple refine (mk_ProductCone _ _ _ _ _ _ _).
+- simpl in *.
+  simple refine (tpair _ (dirprod A B) _).
+  simpl; apply isasetdirprod; apply setproperty.
+- simpl in *; apply pr1.
+- simpl in *. intros x. apply (pr2 x).
+- simpl in *.
+  simple refine (mk_isProductCone _ _ _ _ _ _ _ _).
+  + apply has_homsets_HSET.
+  + intros C f g.
+    simpl in *.
+    simple refine (tpair _ _ _).
+    * simple refine (tpair _ (prodtofuntoprod (f ,, g)) _).
+      { simpl; split; apply idpath. }
+    * simpl; intros h.
+      apply subtypeEquality.
+      { intros x; apply isapropdirprod; apply has_homsets_HSET. }
+      {
+destruct h; simpl.
+apply funextfun; intro x.
+destruct p.
+rewrite <- t0.
+rewrite <- p.
+unfold compose.
+simpl.
+destruct (t x).
+apply idpath. }
+(* now apply Products_from_Lims, LimsHSET. *)
 Qed.
-*)
 
 (*
 Lemma TerminalHSET : Terminal HSET.
