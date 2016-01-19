@@ -538,8 +538,7 @@ simple refine (tpair _ _ _).
   * apply (InitialArrow InitC).
   * simpl; intro n.
 { induction n.
-  + simpl.
-    admit. (* TODO: Add lemma about equality of morphisms out of initial object *)
+  + apply InitialArrowEq.
   + simpl in *.
 rewrite IHn.
 apply temp. }
@@ -551,13 +550,18 @@ apply impred; intro n.
 apply hsC.
 simpl.
 apply InitialArrowUnique.
+Defined.
+
+Lemma goodIdentity : good (functor_identity _).
+Proof.
+simple refine (tpair _ _ _).
+- apply Colimcocone_functor_identity.
+- simpl.
+unfold chain_cocontinuous.
+admit.
 Admitted.
 
 End good_functors.
-
-(* Lemma goodIdentity : good (functor_identity _). *)
-(* Proof. *)
-(* simple refine (tpair _ _ _). *)
 
 
 

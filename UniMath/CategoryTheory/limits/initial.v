@@ -35,6 +35,12 @@ Proof.
   apply (pr2 (pr2 I _ ) _ ).
 Defined.
 
+Lemma InitialArrowEq (O : Initial) (a : C) (f g : O --> a) : f = g.
+Proof.
+rewrite (InitialArrowUnique _ _ f), (InitialArrowUnique _ _ g).
+apply idpath.
+Qed.
+
 Definition mk_Initial (a : C) (H : isInitial a) : Initial.
 Proof.
   exists a.
