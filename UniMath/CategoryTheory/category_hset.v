@@ -373,7 +373,7 @@ End from_colim.
 
 Definition colimCoconeHSET : cocone D colimHSET.
 Proof.
-unshelve refine (mk_cocone _ _).
+simple refine (mk_cocone _ _).
 - now apply injections.
 - abstract (intros u v e;
             apply funextfun; intros Fi; simpl;
@@ -445,9 +445,9 @@ Defined.
 
 Lemma LimConeHSET : LimCone D.
 Proof.
-  unshelve refine (mk_LimCone _ _ _ _ ).
+  simple refine (mk_LimCone _ _ _ _ ).
   - apply limset.
-  - unshelve refine (mk_cone _ _ ).
+  - simple refine (mk_cone _ _ ).
     + intro u. simpl.
       intro f.
       exact (pr1 f u).
@@ -456,12 +456,12 @@ Proof.
       intro f; simpl.
       apply (pr2 f).
   - intros X CC.
-    unshelve refine (tpair _ _ _ ).
-    + unshelve refine (tpair _ _ _ ).
+    simple refine (tpair _ _ _ ).
+    + simple refine (tpair _ _ _ ).
       * simpl.
         intro x.
         {
-          unshelve refine (tpair _ _ _ ).
+          simple refine (tpair _ _ _ ).
           - intro u.
             apply (coconeIn CC u x). (* TODO : hide implementation of limits *)
           - intros u v e. simpl.

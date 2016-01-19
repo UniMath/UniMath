@@ -78,6 +78,17 @@ Proof.
   - intro x. apply propproperty.
 Defined.
 
+Lemma isaprop_forall_hProp (X:UU) (Y:X->hProp) : isaprop (∀ x, Y x).
+Proof. intros. apply impred_isaprop. intro x. apply propproperty. Defined.
+
+Definition forall_hProp {X:UU} (Y:X->hProp) : hProp := hProppair (∀ x, Y x) (isaprop_forall_hProp X Y).
+
+Notation "∀  x .. y , P" := (forall_hProp (fun x => .. (forall_hProp (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : prop.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Delimit Scope prop with prop.
+
 (** The following re-definitions should make proofs easier in the future when the unification algorithms in Coq are improved . At the moment they create more complications than they eliminate ( e.g. try to prove [ isapropishinh ] with [ isaprop ] in [ hProp ] ) so for the time being they are commented out .
 
 

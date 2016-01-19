@@ -222,11 +222,11 @@ Qed.
 Definition functor_precat_product_cone
   : ProductCone [C, D, hsD] F G.
 Proof.
-unshelve refine (mk_ProductCone _ _ _ _ _ _ _).
+simple refine (mk_ProductCone _ _ _ _ _ _ _).
 - apply product_functor.
 - apply product_nat_trans_pr1.
 - apply product_nat_trans_pr2.
-- unshelve refine (mk_isProductCone _ _ _ _ _ _ _ _).
+- simple refine (mk_isProductCone _ _ _ _ _ _ _ _).
   + apply functor_category_has_homsets.
   + intros A f g.
     exists (tpair _ (product_nat_trans A f g)

@@ -299,7 +299,7 @@ Definition concatenate_0 {X} (s:Sequence X) (t:stn 0 -> X) : concatenate s (0,,t
 Proof.
   intros.
   induction s as [n s].
-  unshelve refine (total2_paths2 _ _).
+  simple refine (total2_paths2 _ _).
   { simpl. apply natplusr0. }
   { simpl. generalize (natplusr0 n). intro e. apply funextsec; intro i.
 
@@ -359,13 +359,13 @@ Proof.
   unfold total2_step_b, total2_step_f.
   induction (natlehchoice4 j n J) as [J'|K].
   + simpl.
-    unshelve refine (total2_paths _ _).
+    simple refine (total2_paths _ _).
     * simpl. rewrite replace_dni_last. apply isinjstntonat. reflexivity.
     * rewrite replace_dni_last. unfold dni_lastelement.  simpl.
       change (λ x0 : stn (S n), X x0) with X.
       rewrite transport_f_b. apply (isaset_transportf X).
   + induction (!K). simpl.
-    unshelve refine (total2_paths _ _).
+    simple refine (total2_paths _ _).
     * simpl. now apply isinjstntonat.
     * simpl. assert (d : idpath n = K).
       { apply isasetnat. }
@@ -502,7 +502,7 @@ Definition isassoc_concatenate {X} (x y z:Sequence X) :
   concatenate (concatenate x y) z = concatenate x (concatenate y z).
 Proof.
   intros.
-  unshelve refine (total2_paths _ _).
+  simple refine (total2_paths _ _).
   - simpl. apply natplusassoc.
   - apply sequenceEquality; intros i.
 

@@ -6,6 +6,11 @@ Require Export UniMath.Foundations.Basics.Sets.
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Export UniMath.Ktheory.Tactics.
 
+(* axiom for postponing a proof until later *)
+
+Axiom PostponedProof : empty.
+
+Ltac postponeProof := apply fromempty, PostponedProof.
 
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
 
@@ -137,7 +142,6 @@ Proof.
   intro x. destruct e. apply idpath.
 Qed.
 
-Notation set_to_type := pr1hSet.
 Notation ap := maponpaths.
 (* see table 3.1 in the coq manual for parsing levels *)
 Notation "f ;; g" := (funcomp f g) (at level 50).
@@ -275,8 +279,10 @@ Definition Section {T} (P:T->UU) := ∀ t:T, P t.
 
 Definition homotsec {T} {P:T->UU} (f g:Section P) := ∀ t, f t = g t.
 
+(* compare with [adjev] *)
 Definition evalat {T} {P:T->UU} (t:T) (f:Section P) := f t.
 
+(* compare this with [toforallpaths]: *)
 Definition apevalat {T} {P:T->UU} (t:T) {f g:Section P}
   : f = g -> f t = g t
   := ap (evalat t).
@@ -499,8 +505,8 @@ Definition weq_over_sections {S T} (w:S ≃ T)
            (g:∀ f:Section P, weq (H f) (J (maponsec1 P w f))) :
   weq (hfiber (fun fh:total2 H => pr1 fh t0) p0 )
       (hfiber (fun fh:total2 J => pr1 fh s0) pw0).
-Proof. intros. unshelve refine (weqbandf _ _ _ _).
-       { unshelve refine (weqbandf _ _ _ _).
+Proof. intros. simple refine (weqbandf _ _ _ _).
+       { simple refine (weqbandf _ _ _ _).
          { exact (weqonsecbase P w). }
          { unfold weqonsecbase; simpl. exact g. } }
        { intros [f h]. simpl. unfold maponsec1; simpl.
@@ -509,7 +515,7 @@ Proof. intros. unshelve refine (weqbandf _ _ _ _).
 
 Definition weq_total2_prod {X Y} (Z:Y->Type) : (Σ y, X × Z y) ≃ (X × Σ y, Z y).
 Proof.                          (* move upstream *)
-       intros. unshelve refine (weqpair _ (gradth _ _ _ _)).
+       intros. simple refine (weqpair _ (gradth _ _ _ _)).
        { intros [y [x z]]. exact (x,,y,,z). }
        { intros [x [y z]]. exact (y,,x,,z). }
        { intros [y [x z]]. reflexivity. }
@@ -518,7 +524,7 @@ Proof.                          (* move upstream *)
 (* associativity of Σ *)
 Definition totalAssociativity {X:UU} {Y: ∀ (x:X), UU} (Z: ∀ (x:X) (y:Y x), UU) : (Σ (x:X) (y:Y x), Z x y) ≃ (Σ (p:Σ (x:X), Y x), Z (pr1 p) (pr2 p)).
 Proof.                          (* move upstream *)
-  intros. unshelve refine (_,,gradth _ _ _ _).
+  intros. simple refine (_,,gradth _ _ _ _).
   { intros [x [y z]]. exact ((x,,y),,z). }
   { intros [[x y] z]. exact (x,,(y,,z)). }
   { intros [x [y z]]. reflexivity. }

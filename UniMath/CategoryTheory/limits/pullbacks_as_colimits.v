@@ -46,7 +46,7 @@ Definition PullbCone {a b c : C} (f : C ⟦b,a⟧) (g : C⟦c,a⟧)
            (H : f' ;; f = g';; g)
   : cone (pullback_diagram f g) d.
 Proof.
-  unshelve refine (mk_cone _ _  ).
+  simple refine (mk_cone _ _  ).
   - intro v; induction v; simpl; try assumption.
     apply (f' ;; f).
   - intros u v e;
@@ -72,14 +72,14 @@ Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
 Proof.
   intros H' x cx; simpl in *.
   set (H1 := H' x (coneOut cx One) (coneOut cx Three) ).
-  unshelve refine (let p : coneOut cx One ;; f = coneOut cx Three ;; g := _ in _ ).
+  simple refine (let p : coneOut cx One ;; f = coneOut cx Three ;; g := _ in _ ).
   - set (H2 := coneOutCommutes cx Two One tt).
     eapply pathscomp0. apply H2.
     clear H2.
     apply pathsinv0.
     apply (coneOutCommutes cx Two Three tt).
   - set (H2 := H1 p).
-    unshelve refine (tpair _ _ _ ).
+    simple refine (tpair _ _ _ ).
     + exists (pr1 (pr1 H2)).
       intro v; induction v; simpl.
       * apply (pr1 (pr2 (pr1 H2))).
@@ -123,10 +123,10 @@ Definition mk_Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧)
     (ispb : isPullback f g p1 p2 H)
   : Pullback f g.
 Proof.
-  unshelve refine (tpair _ _ _ ).
-  - unshelve refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
+  - simple refine (tpair _ _ _ ).
     + apply d.
-    + unshelve refine (PullbCone _ _ _ _ _ _ ); assumption.
+    + simple refine (PullbCone _ _ _ _ _ _ ); assumption.
   - apply ispb.
 Defined.
 
@@ -169,8 +169,8 @@ Definition PullbackArrow {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
            (Pb : Pullback f g) e (h : C⟦e, b⟧) (k : C⟦e, c⟧)(H : h ;; f = k ;; g)
   : C⟦e, lim Pb⟧.
 Proof.
-  unshelve refine (limArrow _ _ _ ).
-  unshelve refine (mk_cone _ _ ).
+  simple refine (limArrow _ _ _ ).
+  simple refine (mk_cone _ _ ).
   - intro v; induction v; simpl; try assumption.
     apply (h ;; f).
   - intros u v edg; induction u; induction v; try induction edg; simpl.
@@ -219,8 +219,8 @@ Definition isPullback_Pullback {a b c : C} {f : C⟦b, a⟧}{g : C⟦c, a⟧}
 Proof.
   apply mk_isPullback.
   intros e h k HK.
-  unshelve refine (tpair _ _ _ ).
-  - unshelve refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
+  - simple refine (tpair _ _ _ ).
     + apply (PullbackArrow P _ h k HK).
     + split.
       * apply PullbackArrow_PullbackPr1.
