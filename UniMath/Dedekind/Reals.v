@@ -19,6 +19,9 @@ Definition hr_commrng : commrng := commrigtocommrng NonnegativeReals.
 Definition NR_to_hr : NonnegativeReals × NonnegativeReals -> hr_commrng
   := setquotpr (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals)).
 
+Definition nat_to_hr (n : nat) : hr_commrng :=
+  NR_to_hr (nat_to_NonnegativeReals n,,0).
+
 (** Caracterisation of equality *)
 
 Lemma hr_inside_carac :
@@ -1301,6 +1304,28 @@ Proof.
       eapply hr_opp_carac'.
       exact Hx.
       reflexivity.
+Qed.
+
+(** ** Archimedean *)
+
+Lemma hr_archimedean :
+  ∀ x : hr_ConstructiveField, ∃ n : nat, hr_lt_rel x (nat_to_hr n).
+Proof.
+  intros X.
+  set (x := hr_to_NR X).
+  generalize (NonnegativeReals_Archimedean (pr1 (pr1 x))).
+  apply hinhfun.
+  intros n.
+  exists (pr1 n).
+  apply (hr_lt_carac' X (nat_to_hr (pr1 n)) (pr1 x) (nat_to_NonnegativeReals (pr1 n) ,, 0)).
+  - exact (pr1 (pr2 x)).
+  - apply hinhpr.
+    exists 0.
+    reflexivity.
+  - simpl pr1 ; simpl pr2.
+    eapply istrans_lt_le_ltNonnegativeReals, Dcuts_plus_le_l.
+    rewrite isrunit_zero_plusNonnegativeReals.
+    exact (pr2 n).
 Qed.
 
 (** ** Completeness *)
