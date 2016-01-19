@@ -104,18 +104,21 @@ exists fromempty.
 intros u; induction u.
 Defined.
 
+Definition initCocone (b : C) : cocone initDiagram b.
+Proof.
+simple refine (mk_cocone _ _); intros u; induction u.
+Defined.
+
 Lemma Initial_from_Colims : Colims C -> Initial C.
 Proof.
 intros H.
 case (H _ initDiagram); intros cc iscc; destruct cc as [c cc].
 apply (mk_Initial c); apply mk_isInitial; intros b.
-simple refine (let ccb : cocone initDiagram b := _ in _).
-  { simple refine (mk_cocone _ _); intros v; destruct v. }
-case (iscc _ ccb); intros f Hf; destruct f as [f fcomm].
+case (iscc _ (initCocone b)); intros f Hf; destruct f as [f fcomm].
 apply (tpair _ f); intro g.
-simple refine (let X : Σ x : c --> b, ∀ v : ∅, coconeIn cc v ;; x =
-                       match v as e return (fromempty e --> b) with end := _ in _).
-  { apply (tpair _ g); intro v; destruct v. }
+simple refine (let X : Σ x : c --> b, ∀ v,
+                       coconeIn cc v ;; x = coconeIn (initCocone b) v := _ in _).
+  { apply (tpair _ g); intro u; induction u. }
 apply (maponpaths pr1 (Hf X)).
 Defined.
 

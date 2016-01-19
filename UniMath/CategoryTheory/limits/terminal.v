@@ -1,4 +1,3 @@
-
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -19,6 +18,17 @@ Definition Terminal := total2 (fun a => isTerminal a).
 
 Definition TerminalObject (T : Terminal) : C := pr1 T.
 Coercion TerminalObject : Terminal >-> ob.
+
+Definition mk_Terminal (b : C) (H : isTerminal b) : Terminal.
+Proof.
+  exists b; exact H.
+Defined.
+
+Definition mk_isTerminal (b : C) (H : ∀ (a : C), iscontr (a --> b)) :
+  isTerminal b.
+Proof.
+  exact H.
+Defined.
 
 Definition TerminalArrow (T : Terminal) (b : C) : b --> T :=  pr1 (pr2 T b).
 
@@ -63,11 +73,9 @@ Proof.
   intro t ; apply isapropiscontr.
 Qed.
 
-
 End Terminal_Unique.
 
 End def_terminal.
-
 
 (*
 Section test.
@@ -82,3 +90,47 @@ End test.
 
 Arguments TerminalObject [C] _.
 Arguments TerminalArrow [C]{T} b.
+Arguments mk_isTerminal {_} _ _ _ .
+Arguments mk_Terminal {_} _ _.
+
+Section Terminal_from_Lims.
+
+Context {C : precategory}.
+
+Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.limits.limits.
+Require Import UniMath.CategoryTheory.opp_precat.
+
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+
+Definition empty_graph : graph.
+Proof.
+  exists empty.
+  exact (fun _ _ => empty).
+Defined.
+
+Definition termDiagram : diagram empty_graph C^op.
+Proof.
+exists fromempty.
+intros u; induction u.
+Defined.
+
+Definition termCone (c : C) : cone termDiagram c.
+Proof.
+simple refine (mk_cone _ _); intro u; induction u.
+Defined.
+
+Lemma Terminal_from_Lims : Lims C -> Terminal C.
+Proof.
+intros H.
+case (H _ termDiagram); intros cc iscc; destruct cc as [c cc]; simpl in *.
+apply (mk_Terminal c); apply mk_isTerminal; intros b.
+case (iscc _ (termCone b)); intros f Hf; destruct f as [f fcomm].
+apply (tpair _ f); intro g.
+simple refine (let X : Σ x : b --> c,
+                       ∀ v, coconeIn cc v ;; x = coconeIn (termCone b) v := _ in _).
+  { apply (tpair _ g); intro u; induction u. }
+apply (maponpaths pr1 (Hf X)).
+Defined.
+
+End Terminal_from_Lims.

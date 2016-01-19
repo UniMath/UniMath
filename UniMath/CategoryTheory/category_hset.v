@@ -415,8 +415,7 @@ now apply Coproducts_from_Colims, ColimsHSET.
 Qed.
  *)
 
-
-Lemma InitialHSET' : Initial HSET.
+Lemma InitialHSET_from_Colims : Initial HSET.
 Proof.
 now apply Initial_from_Colims, ColimsHSET.
 Qed.
@@ -527,17 +526,15 @@ destruct (t x).
 apply idpath. }
 Qed.
 
-Lemma ProductsHSET' : Products HSET.
+Lemma ProductsHSET_from_Lims : Products HSET.
 Proof.
 exact (Products_from_Lims _ has_homsets_HSET LimsHSET).
 Qed.
 
-(*
-Lemma TerminalHSET : Terminal HSET.
+Lemma TerminalHSET_from_Lims : Terminal HSET.
 Proof.
 now apply Terminal_from_Lims, LimsHSET.
 Qed.
-*)
 
 (*
 Lemma PullbacksHSET : Pullbacks HSET.
