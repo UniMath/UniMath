@@ -639,7 +639,7 @@ Defined.
 
 
 Theorem isinclpr1weq ( X Y : UU ) : isincl ( pr1weq : X≃Y -> X->Y ) .
-Proof. intros . apply isinclpr1 . intro f.   apply isapropisweq .  Defined .
+Proof. intros . refine (isinclpr1 _ _) . intro f.   apply isapropisweq .  Defined .
 
 Corollary isinjpr1weq ( X Y : UU ) : isInjective ( pr1weq : X≃Y -> X->Y ) .
 Proof. intros. apply isweqonpathsincl. apply isinclpr1weq. Defined.

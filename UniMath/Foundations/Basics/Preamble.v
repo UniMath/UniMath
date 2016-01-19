@@ -123,8 +123,30 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 *)
 
+(* two alternatives: *)
+(* total2 as a record with primitive projections: *)
 
-Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P .
+    (* Set Primitive Projections. *)
+
+    (* Set Nonrecursive Elimination Schemes. *)
+
+    (* Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }. *)
+
+(* or total2 as an inductive type:  *)
+
+    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P .
+
+    Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T .
+    Proof . intros .  induction t as [ t p ] . exact t . Defined.
+
+    Definition pr2 { T : Type } { P : T -> Type } ( t : total2 P ) : P ( pr1 t ) .
+    Proof . intros .  induction t as [ t p ] . exact p . Defined.
+
+(* end of two alternatives *)
+
+Arguments tpair {T} _ _ _.
+Arguments pr1 {_ _} _.
+Arguments pr2 {_ _} _.
 
 Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
@@ -132,15 +154,17 @@ Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
 
 Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
 
-Definition pr1 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : T .
-Proof . intros .  induction t as [ t p ] . exact t . Defined.
+(* print out this theorem to see whether "induction" compiles to "match" *)
+Goal ∀ X (Y:X->UU) (w:Σ x, Y x), X.
+  intros.
+  induction w as [x y].
+  exact x.
+Defined.
 
-Arguments pr1 {_ _} _.
-
-Definition pr2 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : P ( pr1 t ) .
-Proof . intros .  induction t as [ t p ] . exact p . Defined.
-
-Arguments pr2 {_ _} _.
+(* Step through this proof to demonstrate eta expansion for pairs, if primitive
+   projections are on: *)
+Goal ∀ X (Y:X->UU) (w:Σ x, Y x), w = (pr1 w,, pr2 w).
+Proof. try reflexivity. Abort.
 
 Definition rewrite_pr1_tpair {X} {P:X->UU} x p : pr1 (tpair P x p) = x.
 reflexivity. Defined.

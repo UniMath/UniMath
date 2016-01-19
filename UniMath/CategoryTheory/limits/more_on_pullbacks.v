@@ -45,7 +45,7 @@ Proof.
   set (xy := fully_faithful_inv_hom Fff _ _ FxFy).
   simple refine (tpair _ _ _ ).
   - exists xy.
-    destruct HFxFy; split.
+    destruct HFxFy as [t p]; split.
     + refine ( invmaponpathsweq (weqpair _ (Fff _ _ )) _ _ _ ).
       simpl.
       rewrite functor_comp.
@@ -55,7 +55,7 @@ Proof.
       eapply pathscomp0.
       eapply cancel_postcomposition.
       assert (XXX := XX FxFy).
-      apply XX. apply t.
+      apply XX. exact t.
     + refine ( invmaponpathsweq (weqpair _ (Fff _ _ )) _ _ _ ).
       simpl.
       rewrite functor_comp.
@@ -65,7 +65,7 @@ Proof.
       eapply pathscomp0.
       eapply cancel_postcomposition.
       assert (XXX := XX FxFy).
-      apply XX. apply p.
+      apply XX. exact p.
   - simpl.
     intro t.
     apply subtypeEquality.

@@ -305,7 +305,7 @@ Definition get_cocone  (A C : precategory) (hsC : has_homsets C)
   (g : graph) (D : diagram g [A, C, hsC]^op) (F : functor A C) (ccF : cocone D F) :
   cocone (get_diagram A C hsC g D) (functor_opp F).
 Proof.
-destruct ccF. (* If I remove this destruct the Qed for LimsFunctorCategory
+destruct ccF as [t p]. (* If I remove this destruct the Qed for LimsFunctorCategory
                  takes twice as long *)
 simple refine (mk_cocone _ _).
 - intro u; apply (tpair _ (pr1 (t u))).
@@ -347,7 +347,7 @@ simple refine (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x) _ _).
     * exists α.
       abstract (intros a b f; simpl; now apply pathsinv0, (nat_trans_ax α b a f)).
     * abstract (intro u; apply (nat_trans_eq hsC); intro a;
-        destruct ccF; apply (toforallpaths _ _ _ (maponpaths pr1 (Hα u)) a)).
+        destruct ccF as [t p]; apply (toforallpaths _ _ _ (maponpaths pr1 (Hα u)) a)).
   + intro H; destruct H as [f Hf]; apply subtypeEquality.
     * abstract (intro β; repeat (apply impred; intro);
         now apply (has_homsets_opp (functor_category_has_homsets A C hsC))).
@@ -363,7 +363,7 @@ simple refine (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x) _ _).
       { simple refine (tpair _ (tpair _ (pr1 f) _) _); simpl.
         - abstract (intros x y fxy; apply pathsinv0, (pr2 f y x fxy)).
         - abstract (intro u; apply (nat_trans_eq (has_homsets_opp hsC)); intro x;
-            destruct ccF; apply (toforallpaths _ _ _ (maponpaths pr1 (Hf u)) x)).
+            destruct ccF as [t p]; apply (toforallpaths _ _ _ (maponpaths pr1 (Hf u)) x)).
       }
       set (T' := maponpaths pr1 (H2 T)); simpl in T'.
       apply (nat_trans_eq hsC); intro a; simpl.

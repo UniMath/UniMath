@@ -69,10 +69,10 @@ Lemma iseqrel_eqrel_from_hrel : iseqrel eqrel_from_hrel.
 Proof.
 repeat split.
 - intros x y z H1 H2 R HR.
-  apply (eqreltrans R _ y); [ now apply H1 | now apply H2].
+  refine (eqreltrans R _ y _ _ _); [ now refine (H1 _ _) | now refine (H2 _ _) ].
 - now intros x R _; apply (eqrelrefl R).
 - intros x y H R H'.
-  now apply (eqrelsymm R), H.
+  apply (eqrelsymm R); now refine (H _ _).
 Qed.
 
 Lemma eqrel_impl a b : R0 a b -> eqrel_from_hrel a b.
@@ -84,7 +84,7 @@ Qed.
 Lemma minimal_eqrel_from_hrel (R : eqrel A) (H : ∀ a b, R0 a b -> R a b) :
   ∀ a b, eqrel_from_hrel a b -> R a b.
 Proof.
-now intros a b H'; apply H'.
+now intros a b H'; refine (H' _ _).
 Qed.
 
 End extras.
@@ -347,7 +347,7 @@ Defined.
 
 Lemma rel0_impl a b (Hab : rel0 a b) : from_cobase_eqrel a b.
 Proof.
-apply Hab; clear Hab; intro H; simpl.
+refine (Hab _ _); clear Hab; intro H; simpl.
 destruct H as [f Hf].
 generalize (toforallpaths _ _ _ (coconeInCommutes cc (pr1 a) (pr1 b) f) (pr2 a)).
 unfold compose, from_cobase; simpl; intro H.

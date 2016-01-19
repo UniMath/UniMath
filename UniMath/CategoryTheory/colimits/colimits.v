@@ -398,7 +398,7 @@ simple refine (tpair _ _ _).
                   | apply colimArrowUnique; intro u;
                     eapply pathscomp0;
                       [ now apply colimArrowCommutes
-                      | now apply pathsinv0, nat_trans_ax ]]]).
+                      | apply pathsinv0; now refine (nat_trans_ax _ _ _ _) ]]]).
   + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
               now apply (colimArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
