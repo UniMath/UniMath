@@ -552,7 +552,7 @@ simpl.
 apply InitialArrowUnique.
 Admitted.
 
-
+End good_functors.
 
 (* Lemma goodIdentity : good (functor_identity _). *)
 (* Proof. *)
@@ -758,3 +758,4 @@ Defined.
 (* Get induction as well? *)
 
 End lists.
+*)
