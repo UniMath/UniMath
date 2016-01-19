@@ -22,6 +22,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.colimits.colimits.
 Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 
@@ -630,15 +631,6 @@ Definition streamFunctor : functor HSET HSET :=
   product_functor HSET HSET ProductsHSET
                   (constant_functor HSET HSET A)
                   (functor_identity HSET).
-
-
-(* Definition unitHSET : HSET. *)
-(* Proof. *)
-(* exists unit. *)
-(* apply isasetaprop. *)
-(* apply isapropifcontr. *)
-(* apply iscontrunit. *)
-(* Defined. *)
 
 (* F(X) = 1 + (A * X) *)
 

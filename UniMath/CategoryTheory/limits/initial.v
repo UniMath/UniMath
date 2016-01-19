@@ -5,6 +5,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.colimits.colimits.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
@@ -87,8 +88,6 @@ Arguments mk_isInitial {_} _ _ _ .
 Arguments mk_Initial {_} _ _.
 
 Section Initial_from_Colims.
-
-Require Import UniMath.CategoryTheory.colimits.colimits.
 
 Variable C : precategory.
 

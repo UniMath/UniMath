@@ -10,6 +10,7 @@ sub_precategories.v
 whiskering.v
 yoneda.v
 category_hset.v
+category_hset_structures.v
 HLevel_n_is_of_hlevel_Sn.v
 limits/coproducts_as_colimits.v
 limits/coproducts.v

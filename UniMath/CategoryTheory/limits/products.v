@@ -5,8 +5,11 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.limits.limits.
+Require Import UniMath.CategoryTheory.opp_precat.
 
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
 Section product_def.
@@ -217,12 +220,6 @@ Qed.
 End Product_unique.
 
 Section Products_from_Lims.
-
-Require Import UniMath.CategoryTheory.colimits.colimits.
-Require Import UniMath.CategoryTheory.limits.limits.
-Require Import UniMath.CategoryTheory.opp_precat.
-
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Variable C : precategory.
 Variable hsC : has_homsets C.

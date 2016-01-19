@@ -4,7 +4,11 @@ Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.limits.limits.
+Require Import UniMath.CategoryTheory.opp_precat.
 
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 Local Notation "f ;; g" := (compose f g)(at level 50).
 
@@ -96,12 +100,6 @@ Arguments mk_Terminal {_} _ _.
 Section Terminal_from_Lims.
 
 Context {C : precategory}.
-
-Require Import UniMath.CategoryTheory.colimits.colimits.
-Require Import UniMath.CategoryTheory.limits.limits.
-Require Import UniMath.CategoryTheory.opp_precat.
-
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Definition empty_graph : graph.
 Proof.

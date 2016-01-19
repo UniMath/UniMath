@@ -9,9 +9,9 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.colimits.colimits.
 
 (** * Definition of binary coproduct of objects in a precategory *)
-
 Section coproduct_def.
 
 Variable C : precategory.
@@ -524,8 +524,6 @@ Qed.
 End Coproducts.
 
 Section Coproducts_from_Colims.
-
-Require Import UniMath.CategoryTheory.colimits.colimits.
 
 Variable C : precategory.
 Variable hsC : has_homsets C.
