@@ -415,12 +415,11 @@ now apply Coproducts_from_Colims, ColimsHSET.
 Qed.
  *)
 
-(*
-Lemma InitialHSET : Initial HSET.
+
+Lemma InitialHSET' : Initial HSET.
 Proof.
 now apply Initial_from_Colims, ColimsHSET.
 Qed.
-*)
 
 Section limits.
 

@@ -1,4 +1,3 @@
-
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -34,7 +33,6 @@ Lemma InitialArrowUnique (I : Initial) (a : C)
 Proof.
   apply (pr2 (pr2 I _ ) _ ).
 Defined.
-
 
 Definition mk_Initial (a : C) (H : isInitial a) : Initial.
 Proof.
@@ -78,7 +76,6 @@ Qed.
 
 End Initial_Unique.
 
-
 End def_initial.
 
 Arguments Initial : clear implicits.
@@ -88,3 +85,38 @@ Arguments InitialArrow {_} _ _ .
 Arguments InitialArrowUnique {_} _ _ _ .
 Arguments mk_isInitial {_} _ _ _ .
 Arguments mk_Initial {_} _ _.
+
+Section Initial_from_Colims.
+
+Require Import UniMath.CategoryTheory.colimits.colimits.
+
+Variable C : precategory.
+
+Definition empty_graph : graph.
+Proof.
+  exists empty.
+  exact (fun _ _ => empty).
+Defined.
+
+Definition initDiagram : diagram empty_graph C.
+Proof.
+exists fromempty.
+intros u; induction u.
+Defined.
+
+Lemma Initial_from_Colims : Colims C -> Initial C.
+Proof.
+intros H.
+case (H _ initDiagram); intros cc iscc; destruct cc as [c cc].
+apply (mk_Initial c); apply mk_isInitial; intros b.
+simple refine (let ccb : cocone initDiagram b := _ in _).
+  { simple refine (mk_cocone _ _); intros v; destruct v. }
+case (iscc _ ccb); intros f Hf; destruct f as [f fcomm].
+apply (tpair _ f); intro g.
+simple refine (let X : Σ x : c --> b, ∀ v : ∅, coconeIn cc v ;; x =
+                       match v as e return (fromempty e --> b) with end := _ in _).
+  { apply (tpair _ g); intro v; destruct v. }
+apply (maponpaths pr1 (Hf X)).
+Defined.
+
+End Initial_from_Colims.
