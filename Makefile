@@ -54,7 +54,7 @@ ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
 LATEXTARGET = latex
 COQDOCLATEXOPTIONS := -utf8 -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}\DeclareUnicodeCharacter{10815}{{\(\amalg\)}}\DeclareUnicodeCharacter{9679}{{\(\bullet\)}}"
-COQDEFS := --language=none -r '/^[[:space:]]*\(Local[[:space:]]+\)?\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\3/'
+COQDEFS := --language=none -r '/^[[:space:]]*\(Local[[:space:]]+\)?\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Identity Coercion\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\3/'
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
 TAGS : $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
@@ -136,7 +136,7 @@ doc: $(GLOBFILES) $(VFILES)
 
 # Jason Gross' coq-tools bug isolator:
 # The isolated bug will appear in this file, in the UniMath directory:
-ISOLATED_BUG_FILE := isolated-bug.v
+ISOLATED_BUG_FILE := isolated_bug.v
 # To use it, run something like this command:
 #     make isolate-bug BUGGY_FILE=Foundations/Basics/PartB.v
 sub/coq-tools/find-bug.py:

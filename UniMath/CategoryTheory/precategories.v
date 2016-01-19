@@ -1146,7 +1146,7 @@ Proof.
   - exact (pr1 (pr2 C)).
   - exact (pr1 (pr2 C)).
   - intro ab.
-    induction ab.
+    induction ab as [c c'].
     apply (pr2 (pr2 C)).
 Qed.
 

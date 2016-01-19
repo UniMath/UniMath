@@ -97,7 +97,7 @@ Proof.
        apply subtypeEquality.
        * simpl.
          intro; apply impred; intro. apply hs.
-       * destruct t; simpl.
+       * destruct t as [t p0]; simpl.
          apply path_to_ctr.
          { split.
            - apply (p0 One).

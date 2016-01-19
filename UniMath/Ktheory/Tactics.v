@@ -1,5 +1,4 @@
 (** * Tactics *)
-
 Require Import UniMath.Foundations.Basics.Sets UniMath.Foundations.Basics.UnivalenceAxiom.
 
 Notation ap := maponpaths (only parsing).
@@ -20,10 +19,10 @@ Ltac maponpaths_pre_post_cat :=
   repeat apply (ap pre_cat); repeat rewrite path_assoc; repeat rewrite maponpathsinv0;
   try reflexivity.
 
-Ltac prop_logic := 
-  intros; simpl;
-  repeat (try (apply isapropdirprod);try (apply isapropishinh);apply impred ;intro); 
-  try (apply isapropiscontr); try assumption.
+Ltac prop_logic :=
+  abstract (intros; simpl;
+            repeat (try (apply isapropdirprod);try (apply isapropishinh);apply impred ;intro);
+            try (apply isapropiscontr); try assumption) using L.
 
 Lemma iscontrweqb' {X Y} (is:iscontr Y) (w:X ≃ Y) : iscontr X.
 Proof. intros. apply (iscontrweqb (Y:=Y)). assumption. assumption. Defined.

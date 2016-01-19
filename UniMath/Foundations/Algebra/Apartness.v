@@ -165,7 +165,7 @@ Proof.
       apply fromempty, Hneq.
       now apply istighttightapSet.
     + intros Hneq.
-      now apply fromempty, Heq.
+      exact (fromempty (Heq Hneq)).
 Qed.
 
 (** ** Operations and apartness *)

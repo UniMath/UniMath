@@ -511,6 +511,12 @@ Proof . intros . apply ( isofhlevelcontr 2 is ) . Defined .
 Lemma isasetaprop { X : UU } ( is : isaprop X ) : isaset X .
 Proof . intros . apply ( isofhlevelsnprop 1 is ) . Defined .
 
+Corollary isaset_total2 {X:UU} (P:X->UU) : isaset X -> (∀ x, isaset (P x)) -> isaset (Σ x, P x).
+Proof. intros. apply (isofhleveltotal2 2); assumption. Defined.
+
+Corollary isaset_dirprod {X Y:UU} : isaset X -> isaset Y -> isaset (X × Y).
+Proof. intros. apply isaset_total2. assumption. intro. assumption. Defined.
+
 (** The following lemma assert "uniqueness of identity proofs" (uip) for sets. *)
 
 Lemma uip { X : UU } ( is : isaset X ) { x x' : X } ( e e' : x = x' ) : e = e' .
@@ -540,7 +546,7 @@ Proof. intros. apply  (isofhlevelsninclb (S O)  f is2). apply is1. Defined.
 (** The morphism from hfiber of a map to a set is an inclusion. *)
 
 Theorem isinclfromhfiber { X Y : UU } (f: X -> Y) (is : isaset Y) ( y: Y ) : @isincl (hfiber  f y) X ( @pr1 _ _  ).
-Proof. intros. apply isofhlevelfhfiberpr1. assumption. Defined.
+Proof. intros. refine (isofhlevelfhfiberpr1 _ _ _ _). assumption. Defined.
 
 
 (** Criterion for a function between sets being an inclusion.  *)
@@ -557,11 +563,20 @@ Proof. intros . apply ( isinclbetweensets f ( isofhlevelcontr 2 ( iscontrunit ) 
 
 
 
-
-
-
-
-
+Corollary set_bijection_to_weq {X Y:UU} (f:X->Y) : bijective f -> isaset Y -> isweq f.
+Proof.
+  (* compare with bijection_to_weq: this one doesn't use gradth *)
+  intros ? ? ? bij i y. set (sur := pr1 bij); set (inj := pr2 bij).
+  unshelve refine (_,,_).
+  - exists (pr1 (sur y)). exact (pr2 (sur y)).
+  - intro w.
+    unshelve refine (total2_paths _ _).
+    + simpl. apply inj. intermediate_path y.
+      * exact (pr2 w).
+      * exact (! pr2 (sur y)).
+    + induction w as [x e]; simpl. induction e.
+      apply i.
+Defined.
 
 
 (* End of the file uu0b.v *)

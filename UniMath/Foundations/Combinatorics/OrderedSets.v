@@ -234,7 +234,7 @@ Definition OrderedSet_istotal {X:OrderedSet} (x y:X): x ≤ y ∨ y ≤ x :=
 Lemma isdeceq_isdec_ordering (X:OrderedSet) : isdeceq X -> isdec_ordering X.
 Proof.
   intros ? deceq ? ?.
-  apply (OrderedSet_istotal x y); intro s. induction s as [s|s].
+  refine (OrderedSet_istotal x y _ _); intro s. induction s as [s|s].
   { now apply ii1. }
   induction (deceq x y) as [j|j].
   { apply ii1. rewrite <- j. apply OrderedSet_isrefl. }
@@ -397,12 +397,6 @@ Close Scope foset.
 
 (** concatenating finite ordered families of finite ordered sets *)
 
-Definition total2_hSet {X:hSet} (Y:X->hSet) : hSet := hSetpair (Σ x, Y x) (isaset_total2 X Y).
-
-Notation "'Σ'  x .. y , P" := (total2_hSet (fun x => .. (total2_hSet (fun y => P)) ..))
-  (at level 200, x binder, y binder, right associativity) : set.
-  (* type this in emacs in agda-input method with \Sigma *)
-
 Definition lexicographicOrder
            (X:hSet) (Y:X->hSet)
            (R:hrel X) (S : ∀ x, hrel (Y x)) : hrel (Σ x, Y x)%set.
@@ -423,10 +417,10 @@ Lemma lex_istrans (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
 Proof.
   intros ? ? ? ? Ranti Rtrans Strans u u' u'' p q.
   induction u as [x y]. induction u' as [x' y']. induction u'' as [x'' y''].
-  apply p; clear p; intro p; simpl in p.
+  refine (p _ _); clear p; intro p; simpl in p.
   induction p as [p|p].
   - induction p as [pn pl].
-    apply q; clear q; intro q; simpl in q.
+    refine (q _ _); clear q; intro q; simpl in q.
     induction q as [q|q].
     + apply hinhpr; simpl.
       induction q as [qn ql].
@@ -441,7 +435,7 @@ Proof.
       exact (pn,,pl).
   - apply p; clear p; intro p. induction p as [e s].
     induction e; unfold transportf in s; simpl in s; unfold idfun in s.
-    apply q; clear q; intro q; simpl in q.
+    refine (q _ _); clear q; intro q; simpl in q.
     induction q as [q|q].
     + induction q as [n r].
       apply hdisj_in1; simpl.
@@ -453,7 +447,8 @@ Proof.
       exact (Strans x y y' y'' s s').
 Defined.
 
-Local Ltac unwrap a := apply (squash_to_prop a); [ apply isaset_total2 | simpl; clear a; intro a; simpl in a ].
+Local Ltac unwrap a := apply (squash_to_prop a);
+    [ apply isaset_total2_hSet | simpl; clear a; intro a; simpl in a ].
 
 Lemma lex_isantisymm (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
   isantisymm R -> (∀ x, isantisymm(S x)) -> isantisymm (lexicographicOrder X Y R S).
@@ -477,11 +472,11 @@ Lemma lex_istotal (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
 Proof.
   intros ? ? ? ? Xdec Rtot Stot u u'. induction u as [x y]. induction u' as [x' y'].
   induction (Xdec x x') as [eq|ne].
-  { apply (Stot x' (transportf Y eq y) y'); intro P. induction P as [P|P].
+  { refine (Stot x' (transportf Y eq y) y' _ _); intro P. induction P as [P|P].
     { apply hdisj_in1. unfold lexicographicOrder; simpl. apply hdisj_in2. apply hinhpr. exact (eq,,P). }
     { apply hdisj_in2. unfold lexicographicOrder; simpl. apply hdisj_in2. apply hinhpr.
       induction eq. exact (idpath _,,P). }}
-  { apply (Rtot x x'); intro P. induction P as [P|P].
+  { refine (Rtot x x' _ _); intro P. induction P as [P|P].
     { apply hdisj_in1. apply hdisj_in1. simpl. exact (ne,,P). }
     { apply hdisj_in2. apply hdisj_in1. simpl. exact (ne ∘ pathsinv0,,P). }} Defined.
 
@@ -652,7 +647,7 @@ Section OtherProperties.
   Local Lemma ne_implies_dnegapart x y : ne x y -> ¬¬ apart x y.
   Proof.
     intros ? ? n m.
-    apply n; clear n.
+    refine (n _); clear n.
     now apply tightness.
   Defined.
 
@@ -674,7 +669,7 @@ Section OtherProperties.
       - apply hdisj_in2; apply hdisj_in1; exact a.
       - assert (l := ne_implies_apart _ _ b); clear b.
         unfold apart in l.
-        apply l; intro m; clear l.
+        refine (l _ _); intro m; clear l.
         induction m as [n|o].
         * apply hdisj_in2; apply hdisj_in2; exact n.
         * apply hdisj_in1; exact o.
@@ -684,9 +679,9 @@ Section OtherProperties.
     Proof.
       intros x y.
       assert (m := trichotomy x y).
-      apply m; clear m; intro m; induction m as [m|m].
+      refine (m _ _); clear m; intro m; induction m as [m|m].
       - apply hdisj_in1. apply lt_implies_le. exact m.
-      - apply m; clear m; intro m; induction m as [m|m].
+      - refine (m _ _); clear m; intro m; induction m as [m|m].
         * apply hdisj_in1. induction m. unfold le. expand ic. apply irrefl.
         * apply hdisj_in2. apply lt_implies_le. exact m.
     Defined.

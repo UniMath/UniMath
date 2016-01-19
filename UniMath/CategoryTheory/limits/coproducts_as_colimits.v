@@ -124,7 +124,7 @@ Lemma CoproductArrowUnique (a b : C) (CC : CoproductCocone a b) (x : C)
       k = CoproductArrow CC f g.
 Proof.
   intros H1 H2.
-  apply colimArrowUnique.
+  refine (colimArrowUnique _ _ _ _ _ ).
   simpl. intro u; induction u; simpl.
   - apply H1.
   - apply H2.
@@ -212,7 +212,7 @@ Lemma Coproduct_endo_is_identity (CC : CoproductCocone a b)
   : identity _ = k.
 Proof.
 (*  apply pathsinv0. *)
-  apply colim_endo_is_identity.
+  refine (colim_endo_is_identity _ _ _ _).
   intro u; induction u; simpl; assumption.
 Defined.
 

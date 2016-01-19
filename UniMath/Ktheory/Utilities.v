@@ -6,6 +6,11 @@ Require Export UniMath.Foundations.Basics.Sets.
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Export UniMath.Ktheory.Tactics.
 
+(* axiom for postponing a proof until later *)
+
+Axiom PostponedProof : empty.
+
+Ltac postponeProof := apply fromempty, PostponedProof.
 
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
 
@@ -110,7 +115,7 @@ Proof.
 Defined.
 
 Lemma factor_through_squash_hProp {X} : ∀ hQ:hProp, (X -> hQ) -> ∥ X ∥ -> hQ.
-Proof. intros ? [Q i] f h. apply h. assumption. Defined.
+Proof. intros ? [Q i] f h. refine (h _ _). assumption. Defined.
 
 Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
 Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.
@@ -137,7 +142,6 @@ Proof.
   intro x. destruct e. apply idpath.
 Qed.
 
-Notation set_to_type := pr1hSet.
 Notation ap := maponpaths.
 (* see table 3.1 in the coq manual for parsing levels *)
 Notation "f ;; g" := (funcomp f g) (at level 50).
@@ -275,8 +279,10 @@ Definition Section {T} (P:T->UU) := ∀ t:T, P t.
 
 Definition homotsec {T} {P:T->UU} (f g:Section P) := ∀ t, f t = g t.
 
+(* compare with [adjev] *)
 Definition evalat {T} {P:T->UU} (t:T) (f:Section P) := f t.
 
+(* compare this with [toforallpaths]: *)
 Definition apevalat {T} {P:T->UU} (t:T) {f g:Section P}
   : f = g -> f t = g t
   := ap (evalat t).

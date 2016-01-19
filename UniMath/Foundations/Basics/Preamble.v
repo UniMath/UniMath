@@ -45,6 +45,10 @@ Hint Resolve paths_refl : core .
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 Notation idpath := paths_refl .
 
+(* When the goal is displayed as x=y and the types of x and y are hard to discern,
+   use this tactic -- it will add the type to the context in simplified form. *)
+Ltac show_id_type := match goal with |- @paths ?ID _ _ => set (TYPE := ID); simpl in TYPE end.
+
 (* Remark: all of the uu0.v now uses only paths_rect and not the direct "match" construction
 on paths. By adding a constantin paths for the computation rule for paths_rect and then making
 both this constant and paths_rect itself opaque it is possible to check which of the
@@ -119,8 +123,30 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 *)
 
+(* two alternatives: *)
+(* total2 as a record with primitive projections: *)
 
-Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P .
+    (* Set Primitive Projections. *)
+
+    (* Set Nonrecursive Elimination Schemes. *)
+
+    (* Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }. *)
+
+(* or total2 as an inductive type:  *)
+
+    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P .
+
+    Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T .
+    Proof . intros .  induction t as [ t p ] . exact t . Defined.
+
+    Definition pr2 { T : Type } { P : T -> Type } ( t : total2 P ) : P ( pr1 t ) .
+    Proof . intros .  induction t as [ t p ] . exact p . Defined.
+
+(* end of two alternatives *)
+
+Arguments tpair {T} _ _ _.
+Arguments pr1 {_ _} _.
+Arguments pr2 {_ _} _.
 
 Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.
@@ -128,15 +154,17 @@ Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
 
 Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
 
-Definition pr1 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : T .
-Proof . intros .  induction t as [ t p ] . exact t . Defined.
+(* print out this theorem to see whether "induction" compiles to "match" *)
+Goal ∀ X (Y:X->UU) (w:Σ x, Y x), X.
+  intros.
+  induction w as [x y].
+  exact x.
+Defined.
 
-Arguments pr1 {_ _} _.
-
-Definition pr2 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : P ( pr1 t ) .
-Proof . intros .  induction t as [ t p ] . exact p . Defined.
-
-Arguments pr2 {_ _} _.
+(* Step through this proof to demonstrate eta expansion for pairs, if primitive
+   projections are on: *)
+Goal ∀ X (Y:X->UU) (w:Σ x, Y x), w = (pr1 w,, pr2 w).
+Proof. try reflexivity. Abort.
 
 Definition rewrite_pr1_tpair {X} {P:X->UU} x p : pr1 (tpair P x p) = x.
 reflexivity. Defined.

@@ -78,6 +78,17 @@ Proof.
   - intro x. apply propproperty.
 Defined.
 
+Lemma isaprop_forall_hProp (X:UU) (Y:X->hProp) : isaprop (∀ x, Y x).
+Proof. intros. apply impred_isaprop. intro x. apply propproperty. Defined.
+
+Definition forall_hProp {X:UU} (Y:X->hProp) : hProp := hProppair (∀ x, Y x) (isaprop_forall_hProp X Y).
+
+Notation "∀  x .. y , P" := (forall_hProp (fun x => .. (forall_hProp (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : prop.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Delimit Scope prop with prop.
+
 (** The following re-definitions should make proofs easier in the future when the unification algorithms in Coq are improved . At the moment they create more complications than they eliminate ( e.g. try to prove [ isapropishinh ] with [ isaprop ] in [ hProp ] ) so for the time being they are commented out .
 
 
@@ -183,12 +194,12 @@ Lemma isapropissurjective { X Y : UU } ( f : X -> Y) : isaprop (issurjective f).
 Proof. intros.  apply impred. intro t. apply  (pr2 (ishinh (hfiber f t))). Defined.
 
 Lemma isinclpr1image { X Y : UU } (f:X -> Y): isincl (pr1image f).
-Proof. intros. apply isofhlevelfpr1. intro. apply ( pr2 ( ishinh ( hfiber f x ) ) ) . Defined.
+Proof. intros. refine (isofhlevelfpr1 _ _ _). intro. apply ( pr2 ( ishinh ( hfiber f x ) ) ) . Defined.
 
 Lemma issurjprtoimage { X Y : UU } ( f : X -> Y) : issurjective (prtoimage f ).
 Proof. intros. intro z.  set (f' := prtoimage f ). set (g:= pr1image f ). set (gf':= fun x:_ => g ( f' x )).
 assert (e: paths f gf'). apply etacorrection .
-assert (ff: hfiber gf' (pr1 z) -> hfiber f' z).   apply ( invweq ( samehfibers _ _ ( isinclpr1image f ) z ) ) .
+assert (ff: hfiber gf' (pr1 z) -> hfiber f' z).  refine ( invweq ( samehfibers _ _ ( isinclpr1image f ) z ) ) .
 assert (is2: ishinh (hfiber gf' (pr1 z))). destruct e.  apply (pr2 z).
 apply (hinhfun ff is2). Defined.
 
@@ -344,7 +355,7 @@ Proof.
   { intro n. apply k. now apply hdisj_in1. }
   clear k.
   apply d; clear d. intro p. apply e; clear e. intro q.
-  apply npq. exact (p,,q).
+  refine (npq _). exact (p,,q).
 Defined.
 
 Lemma tonegcoprod { X Y : UU } : ¬ X × ¬ Y -> ¬ ( X ⨿ Y ) .
@@ -530,8 +541,8 @@ Proof.
   induction b as [b|b].
   - induction c as [c|c].
     + now apply ii1.
-    + apply ii2. intro k. apply c. exact (pr2 k).
-  - apply ii2. intro k. apply b. exact (pr1 k).
+    + apply ii2. intro k. refine (c _). exact (pr2 k).
+  - apply ii2. intro k. refine (b _). exact (pr1 k).
 Defined.
 
 (* Law of Excluded Middle

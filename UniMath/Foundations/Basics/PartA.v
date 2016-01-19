@@ -47,10 +47,10 @@ Definition termfun {X : UU} (x : X) : unit -> X := fun (t : unit) => x.
 
 (** *** Identity functions and function composition *)
 
-Definition idfun (T : UU) := fun (t : T) => t.
+(* idfun is the same as id, which is already defined in Coq, so we might use it instead: *)
+Definition idfun (T : UU) := λ t:T, t.
 
-Definition funcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :=
-  fun (x : X) => g (f x).
+Definition funcomp {X Y Z : UU} (f : X -> Y) (g : Y -> Z) := λ x, g (f x).
 
 Notation "g ∘ f" := (funcomp f g) (at level 50, left associativity).
 
@@ -284,8 +284,8 @@ Lemma dirprodeq (A B : UU) (ab ab' : A × B) :
   pr1 ab = pr1 ab' -> pr2 ab = pr2 ab' -> ab = ab'.
 Proof.
   intros A B ab ab' H H'.
-  destruct ab as [a b].
-  destruct ab' as [a' b']; simpl in *.
+  induction ab as [a b].
+  induction ab' as [a' b']; simpl in *.
   induction H.
   induction H'.
   apply idpath.
@@ -1047,12 +1047,12 @@ Definition invmaponpathsweqid {X Y : UU} (w : X ≃ Y) (x : X) :
     pathssec2id w (invmap w) (homotinvweqweq w) x.
 
 Definition pathsweq1 {X Y : UU} (w : X ≃ Y) (x : X) (y : Y) :
-  w x = y -> x = invmap w y :=
-    pathssec1 w (invmap w) (homotinvweqweq w) _ _.
+  w x = y -> x = invmap w y
+  := λ e, maponpaths pr1 (pr2 (weqproperty w y) (x,,e)).
 
-Definition pathsweq1' {X Y : UU} (w : weq X Y) (x : X) (y : Y)
-  (e : x = invmap w y) : w x = y :=
-    maponpaths w e @ homotweqinvweq w y.
+Definition pathsweq1' {X Y : UU} (w : weq X Y) (x : X) (y : Y) :
+  x = invmap w y -> w x = y
+  := λ e, maponpaths w e @ homotweqinvweq w y.
 
 Definition pathsweq3 {X Y : UU} (w : weq X Y) {x x' : X}
   (e : x = x') : invmaponpathsweq w x x' (maponpaths w e) = e :=
@@ -1304,6 +1304,22 @@ Proof.
   apply x0.
 Defined.
 
+Corollary isweqhomot_iff {X Y : UU} (f1 f2 : X -> Y)
+  (h : f1 ~ f2) : isweq f1 <-> isweq f2.
+Proof.
+  intros. split.
+  - apply isweqhomot; assumption.
+  - apply isweqhomot, invhomot; assumption.
+Defined.
+
+Lemma isweq_to_isweq_unit {X:UU} (f g:X->unit) : isweq f -> isweq g.
+Proof.
+  intros ? ? ? i.
+  assert (h : f ~ g).
+  { intros t. apply isconnectedunit. }
+  exact (isweqhomot f g h i).
+Defined.
+
 Theorem gradth {X Y : UU} (f : X -> Y) (g : Y -> X)
   (egf: ∀ x : X, g (f x) = x)
   (efg: ∀ y : Y, f (g y) = y) : isweq f.
@@ -1325,6 +1341,18 @@ Definition weqgradth {X Y : UU} (f : X -> Y) (g : Y -> X)
   (egf: ∀ x : X, g (f x) = x)
   (efg: ∀ y : Y, f (g y) = y) : X ≃ Y :=
     weqpair _ (gradth _ _ egf efg).
+
+Definition bijective {X Y:UU} (f:X->Y) :=
+  (∀ y, Σ x, f x = y) × (∀ x x', f x = f x' -> x = x').
+
+Corollary bijection_to_weq {X Y:UU} (f:X->Y) : bijective f -> isweq f.
+Proof.
+  intros ? ? ? bij. assert (sur := pr1 bij). assert (inj := pr2 bij).
+  unshelve refine (gradth f _ _ _).
+  - intros y. exact (pr1 (sur y)).
+  - intros. simpl. apply inj. exact (pr2 (sur (f x))).
+  - intros. simpl. exact (pr2 (sur y)).
+Defined.
 
 (** *** Some basic weak equivalences *)
 
@@ -1685,6 +1713,42 @@ Proof.
   }
 
   apply (gradth gf invgf egfinvgf einvgfgf).
+Defined.
+
+Corollary twooutof3c_iff_2 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :
+  isweq f -> (isweq g <-> isweq (g ∘ f)).
+Proof.
+  intros ? ? ? ? ? i. split.
+  - intro j. exact (twooutof3c f g i j).
+  - intro j. exact (twooutof3b f g i j).
+Defined.
+
+Corollary twooutof3c_iff_1 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :
+  isweq g -> (isweq f <-> isweq (g ∘ f)).
+Proof.
+  intros ? ? ? ? ? i. split.
+  - intro j. exact (twooutof3c f g j i).
+  - intro j. exact (twooutof3a f g j i).
+Defined.
+
+Corollary twooutof3c_iff_1_homot {X Y Z : UU}
+          (f : X -> Y) (g : Y -> Z) (h : X -> Z) :
+  g ∘ f ~ h  -> isweq g -> (isweq f <-> isweq h).
+Proof.
+  intros ? ? ? ? ? ? r i.
+  apply (logeq_trans (Y := isweq (g ∘ f))).
+  - apply twooutof3c_iff_1; assumption.
+  - apply isweqhomot_iff; assumption.
+Defined.
+
+Corollary twooutof3c_iff_2_homot {X Y Z : UU}
+          (f : X -> Y) (g : Y -> Z) (h : X -> Z) :
+  g ∘ f ~ h  -> isweq f -> (isweq g <-> isweq h).
+Proof.
+  intros ? ? ? ? ? ? r i.
+  apply (logeq_trans (Y := isweq (g ∘ f))).
+  - apply twooutof3c_iff_2; assumption.
+  - apply isweqhomot_iff; assumption.
 Defined.
 
 Definition weqcomp {X Y Z : UU} (w1 : weq X Y) (w2 : weq Y Z) : (weq X Z) :=
@@ -2778,7 +2842,7 @@ Definition weqZtohfp  { X X' Y Z : UU } ( f : X -> Y ) ( f' : X' -> Y ) ( g : Z 
 Lemma isweqhfibersgtof' { X X' Y Z : UU } ( f : X -> Y ) ( f' : X' -> Y ) ( g : Z -> X ) ( g' : Z -> X' ) ( hf : hfsqstr f f' g g' ) ( x : X ) : isweq ( hfibersgtof' f f' g g' hf x ) .
 Proof. intros . set ( is := pr2 hf ) . set ( h := pr1 hf ) .
 set ( a := weqtococonusf g ) . set ( c := weqpair _ is ) .  set ( d := weqhfptohfpoverX f f' ) .  set ( b0 := totalfun _ _ ( hfibersgtof' f f' g g' h ) ) .
-assert ( h1 : ∀ z : Z , ( d ( c z ) ) = ( b0 ( a z ) ) ) . intro . simpl .  unfold b0 . unfold a .   unfold weqtococonusf . unfold tococonusf .   simpl .  unfold totalfun . simpl . assert ( e : ( h  z ) = ( pathscomp0 (h z) (idpath (f (g z))) ) ) . apply ( pathsinv0 ( pathscomp0rid _ ) ) .  induction e .  apply idpath .
+assert ( h1 : ∀ z : Z , ( d ( c z ) ) = ( b0 ( a z ) ) ) . intro . simpl .  unfold b0 . unfold a .   unfold weqtococonusf . unfold tococonusf .   simpl .  unfold totalfun, total2asstor, hfibersgtof'; simpl. assert ( e : ( h  z ) = ( pathscomp0 (h z) (idpath (f (g z))) ) ) . apply ( pathsinv0 ( pathscomp0rid _ ) ) . induction e .  apply idpath .
 assert ( is1 : isweq ( fun z : _ => b0 ( a z ) ) ) . apply ( isweqhomot _ _ h1 ) .   apply ( twooutof3c _ _ ( pr2 c ) ( pr2 d ) ) .
 assert ( is2 : isweq b0 ) . apply ( twooutof3b _ _ ( pr2 a ) is1 ) .  apply ( isweqtotaltofib _ _ _ is2 x ) .   Defined .
 
@@ -2787,7 +2851,7 @@ Definition weqhfibersgtof' { X X' Y Z : UU } ( f : X -> Y ) ( f' : X' -> Y ) ( g
 Lemma ishfsqweqhfibersgtof' { X X' Y Z : UU } ( f : X -> Y ) ( f' : X' -> Y ) ( g : Z -> X ) ( g' : Z -> X' ) ( h : commsqstr g' f' g f  ) ( is : ∀ x : X , isweq ( hfibersgtof' f f' g g' h x ) ) :  hfsqstr f f' g g' .
 Proof .  intros . split with h .
 set ( a := weqtococonusf g ) . set ( c0 := commsqZtohfp f f' g g' h ) .  set ( d := weqhfptohfpoverX f f' ) .  set ( b := weqfibtototal _ _ ( fun x : X => weqpair _ ( is x ) ) ) .
-assert ( h1 : ∀ z : Z , ( d ( c0 z ) ) = ( b ( a z ) ) ) . intro . simpl .  unfold b . unfold a .   unfold weqtococonusf . unfold tococonusf .   simpl .  unfold totalfun . simpl . assert ( e : ( h z ) = ( pathscomp0 (h z) (idpath (f (g z))) ) ) . apply ( pathsinv0 ( pathscomp0rid _ ) ) .  induction e .  apply idpath .
+assert ( h1 : ∀ z : Z , ( d ( c0 z ) ) = ( b ( a z ) ) ) . intro . simpl .  unfold b . unfold a .   unfold weqtococonusf . unfold tococonusf .   simpl .  unfold totalfun, total2asstor, hfibersgtof'; simpl . assert ( e : ( h z ) = ( pathscomp0 (h z) (idpath (f (g z))) ) ) . apply ( pathsinv0 ( pathscomp0rid _ ) ) .  induction e .  apply idpath .
 assert ( is1 : isweq ( fun z : _ => d ( c0 z ) ) ) . apply ( isweqhomot _ _ ( fun z : Z => ( pathsinv0 ( h1 z ) ) ) ) .   apply ( twooutof3c _ _ ( pr2 a ) ( pr2 b ) ) .
  apply ( twooutof3a _ _ is1 ( pr2 d ) ) .    Defined .
 
@@ -2795,7 +2859,7 @@ assert ( is1 : isweq ( fun z : _ => d ( c0 z ) ) ) . apply ( isweqhomot _ _ ( fu
 Lemma isweqhfibersg'tof { X X' Y Z : UU } ( f : X -> Y ) ( f' : X' -> Y ) ( g : Z -> X ) ( g' : Z -> X' ) ( hf : hfsqstr f f' g g' ) ( x' : X' ) : isweq (  hfibersg'tof f f' g g' hf x' ) .
 Proof. intros . set ( is := pr2 hf ) . set ( h := pr1 hf ) .
 set ( a' := weqtococonusf g' ) . set ( c' := weqpair _ is ) .  set ( d' := weqhfptohfpoverX' f f' ) .  set ( b0' := totalfun _ _ ( hfibersg'tof f f' g g' h ) ) .
-assert ( h1 : ∀ z : Z , ( d' ( c' z ) ) = ( b0' ( a' z ) ) ) . intro .  unfold b0' . unfold a' .   unfold weqtococonusf . unfold tococonusf .   unfold totalfun . simpl .  assert ( e : ( pathsinv0 ( h  z ) ) = ( pathscomp0 ( pathsinv0 (h z) ) (idpath (f' (g' z))) ) ) . apply (  pathsinv0 ( pathscomp0rid _ ) ) .  induction e .  apply idpath .
+assert ( h1 : ∀ z : Z , ( d' ( c' z ) ) = ( b0' ( a' z ) ) ) . intro .  unfold b0' . unfold a' .   unfold weqtococonusf . unfold tococonusf .   unfold totalfun, hfibersg'tof; simpl .  assert ( e : ( pathsinv0 ( h  z ) ) = ( pathscomp0 ( pathsinv0 (h z) ) (idpath (f' (g' z))) ) ) . apply (  pathsinv0 ( pathscomp0rid _ ) ) .  induction e .  apply idpath .
 assert ( is1 : isweq ( fun z : _ => b0' ( a' z ) ) ) . apply ( isweqhomot _ _ h1 ) .   apply ( twooutof3c _ _ ( pr2 c' ) ( pr2 d' ) ) .
 assert ( is2 : isweq b0' ) . apply ( twooutof3b _ _ ( pr2 a' ) is1 ) .  apply ( isweqtotaltofib _ _ _ is2 x' ) .   Defined .
 
@@ -2804,7 +2868,7 @@ Definition weqhfibersg'tof { X X' Y Z : UU } ( f : X -> Y ) ( f' : X' -> Y ) ( g
 Lemma ishfsqweqhfibersg'tof { X X' Y Z : UU } ( f : X -> Y ) ( f' : X' -> Y ) ( g : Z -> X ) ( g' : Z -> X' ) ( h : commsqstr g' f' g f ) ( is : ∀ x' : X' , isweq ( hfibersg'tof f f' g g' h x' ) ) :  hfsqstr f f' g g' .
 Proof .  intros . split with h .
 set ( a' := weqtococonusf g' ) . set ( c0' := commsqZtohfp f f' g g' h ) .  set ( d' := weqhfptohfpoverX' f f' ) .  set ( b' := weqfibtototal _ _ ( fun x' : X' => weqpair _ ( is x' ) ) ) .
-assert ( h1 : ∀ z : Z , ( d' ( c0' z ) ) = ( b' ( a' z ) ) ) . intro . simpl .  unfold b' . unfold a' .   unfold weqtococonusf . unfold tococonusf .   unfold totalfun . simpl . assert ( e : ( pathsinv0 ( h z ) ) = ( pathscomp0 ( pathsinv0 (h z) ) (idpath (f' (g' z))) ) ) . apply ( pathsinv0 ( pathscomp0rid _ ) ) .  induction e .  apply idpath .
+assert ( h1 : ∀ z : Z , ( d' ( c0' z ) ) = ( b' ( a' z ) ) ) . intro . simpl .  unfold b' . unfold a' .   unfold weqtococonusf . unfold tococonusf .   unfold totalfun, total2asstor, hfibersg'tof; simpl . assert ( e : ( pathsinv0 ( h z ) ) = ( pathscomp0 ( pathsinv0 (h z) ) (idpath (f' (g' z))) ) ) . apply ( pathsinv0 ( pathscomp0rid _ ) ) .  induction e .  apply idpath .
 assert ( is1 : isweq ( fun z : _ => d' ( c0' z ) ) ) . apply ( isweqhomot _ _ ( fun z : Z => ( pathsinv0 ( h1 z ) ) ) ) .   apply ( twooutof3c _ _ ( pr2 a' ) ( pr2 b' ) ) .
  apply ( twooutof3a _ _ is1 ( pr2 d' ) ) .    Defined .
 

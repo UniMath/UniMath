@@ -229,7 +229,7 @@ Proof. intros.
        simple refine (weqbandf _ _ _ _).
        { apply hSet_univalence. }
        simpl. intro p. simple refine (weqcomp (is_equivariant_identity p) _).
-       exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap set_to_type p)))).
+       exact (eqweqmap (ap is_equivariant (pr1_eqweqmap (ap pr1hSet p)))).
 Defined.
 
 Definition Action_univalence_prelim_comp {G:gr} {X Y:Action G} (p:X = Y) :
@@ -293,7 +293,7 @@ Proof. intros ? ? ? ?. exact (castAction (ap underlyingAction q)). Defined.
 
 Lemma underlyingAction_incl {G:gr} :
   isincl (underlyingAction : Torsor G -> Action G).
-Proof. intros. apply isinclpr1; intro X. apply is_torsor_isaprop. Defined.
+Proof. intros. refine (isinclpr1 _ _); intro X. apply is_torsor_isaprop. Defined.
 
 Lemma underlyingAction_injectivity {G:gr} {X Y:Torsor G} :
       weq (X = Y) (underlyingAction X = underlyingAction Y).

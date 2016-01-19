@@ -71,7 +71,7 @@ Coercion monoidfuntobinopfun : monoidfun >-> binopfun .
 
 
 Lemma isasetmonoidfun  ( X Y : monoid ) : isaset ( monoidfun X Y ) .
-Proof . intros . apply ( isasetsubset ( pr1monoidfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . apply isinclpr1 .  intro .  apply isapropismonoidfun . Defined .  
+Proof . intros . apply ( isasetsubset ( pr1monoidfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . refine (isinclpr1 _ _) .  intro .  apply isapropismonoidfun . Defined .  
 
 
 Lemma ismonoidfuncomp { X Y Z : monoid } ( f : monoidfun X Y ) ( g : monoidfun Y Z ) : ismonoidfun ( funcomp ( pr1 f ) ( pr1 g ) ) .
