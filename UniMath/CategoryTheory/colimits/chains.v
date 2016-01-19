@@ -558,6 +558,15 @@ simple refine (tpair _ _ _).
 - apply Colimcocone_functor_identity.
 - simpl.
 unfold chain_cocontinuous.
+apply isColim_is_iso.
+simpl.
+intros c cc.
+simple refine (tpair _ _ _); simpl.
+unfold colim.
+unfold Colimcocone_functor_identity.
+simpl.
+simple refine (tpair _ _ _).
+apply (InitialArrow InitC).
 admit.
 Admitted.
 

@@ -315,6 +315,26 @@ simple refine (tpair _ _ _).
     apply colimArrowCommutes.
 Defined.
 
+Lemma is_iso_isColim {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C) (cd : cocone D d) :
+  is_iso (colimArrow CC d cd) -> isColimCocone D d cd.
+Proof.
+intro H.
+set (iinv := z_iso_inv_from_is_z_iso _ (is_z_iso_from_is_iso _ H)).
+intros x cx.
+simple refine (tpair _ _ _).
+- simple refine (tpair _ _ _).
+  + exact (iinv ;; colimArrow CC x cx).
+  + simpl; intro u.
+    rewrite <- (colimArrowCommutes CC x cx u), assoc.
+    apply cancel_postcomposition, pathsinv0, z_iso_inv_on_left, pathsinv0, colimArrowCommutes.
+- intros p; destruct p as [f Hf].
+  apply subtypeEquality.
+  + intro a; apply impred; intro u; apply hsC.
+  + simpl; apply pathsinv0, z_iso_inv_on_right; simpl.
+    apply pathsinv0, colimArrowUnique; intro u.
+    now rewrite <- (Hf u), assoc, colimArrowCommutes.
+Defined.
+
 End colim_def.
 
 Arguments Colims : clear implicits.
