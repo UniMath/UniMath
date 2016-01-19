@@ -174,10 +174,23 @@ Qed.
 
 Lemma hztohqandleh':
   ∀ n m : hz, (hztohq n <= hztohq m)%hq -> hzleh n m.
-Admitted.
+Proof.
+  intros n m Hle Hlt.
+  apply Hle.
+  apply hztohqandgth.
+  exact Hlt.
+Qed.
 Lemma hztohqandlth':
   ∀ n m : hz, (hztohq n < hztohq m)%hq -> hzlth n m.
-Admitted.
+Proof.
+  intros n m Hlt.
+  apply neghzgehtolth.
+  intro Hle.
+  apply hztohqandgeh in Hle.
+  apply hqgehtoneghqlth in Hle.
+  apply Hle.
+  exact Hlt.
+Qed.
 
 Lemma Snattohz_neq0 :
   ∀ n, nattohz (S n) != 0%hz.
@@ -338,7 +351,16 @@ Qed.*)
 Lemma hztohq_opp :
   ∀ n : hz, hztohq (- n)%hz = - hztohq n.
 Proof.
-Admitted.
+  intros n.
+  unfold hztohq.
+  apply iscompsetquotpr.
+  apply hinhpr.
+  exists one_intdomnonzerosubmonoid ; simpl.
+  apply (maponpaths (λ x, (x * _)%rng)).
+  apply (maponpaths (λ x, (x * _)%rng)).
+  apply pathsinv0.
+  apply rngmultwithminus1.
+Qed.
 
 Lemma intpart0_carac :
   ∀ x : hq, hztohq (nattohz (intpart0 x)) <= x ∧ x < hztohq (nattohz (intpart0 x)) + 1.
