@@ -305,6 +305,9 @@ Definition divNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRat
 Definition twoNonnegativeRationals : NonnegativeRationals :=
   Rationals_to_NonnegativeRationals 2 (hqlthtoleh _ _ hq2_gt0).
 
+Definition nat_to_NonnegativeRationals (n : nat) : NonnegativeRationals :=
+  Rationals_to_NonnegativeRationals (hztohq (nattohz n)) (hztohqandleh 0%hz _ (nattohzandleh O n (natleh0n n))).
+
 Notation "0" := zeroNonnegativeRationals : NRat_scope.
 Notation "1" := oneNonnegativeRationals : NRat_scope.
 Notation "2" := twoNonnegativeRationals : NRat_scope.
@@ -1525,6 +1528,95 @@ Proof.
   intros x y.
   rewrite iscomm_NQmax.
   now apply NQmax_le_l.
+Qed.
+
+(** ** intpart *)
+
+Definition hztonat (x : hz) (Hx : hzleh 0%hz x) :
+  Σ n : nat, nattohz n = x.
+Proof.
+  intros x Hx.
+  exists (hzabsval x).
+  apply hzabsvalgeh0.
+  exact Hx.
+Qed.
+
+Lemma intpart_id :
+  ∀ n : hz, intpart (hztohq n) = n.
+Proof.
+  intros n.
+  apply isantisymmhzleh.
+  - apply hztohqandleh'.
+    apply intpart_carac.
+  - apply hzlthsntoleh.
+    apply hztohqandlth'.
+    rewrite hztohqandplus, hztohqand1.
+    apply (pr2 (intpart_carac _)).
+Qed.
+Lemma intpart_le :
+  ∀ n m : hq, (n <= m)%hq -> (hzleh (intpart n) (intpart m)).
+Proof.
+  intros n m Hle.
+  apply hzlthsntoleh.
+  apply hztohqandlth'.
+  rewrite hztohqandplus, hztohqand1.
+  eapply hqlehlthtrans, (pr2 (intpart_carac _)).
+  eapply istranshqleh, Hle.
+  now apply intpart_carac.
+Qed.
+Lemma nat_to_NonnegativeRationals_O :
+  nat_to_NonnegativeRationals O = 0.
+Proof.
+  apply subtypeEquality_prop.
+  reflexivity.
+Qed.
+Lemma nat_to_NonnegativeRationals_Sn :
+  ∀ n : nat, nat_to_NonnegativeRationals (S n) = nat_to_NonnegativeRationals n + 1.
+Proof.
+  intro n.
+  apply subtypeEquality_prop.
+  simpl.
+  rewrite nattohzandS, hztohqandplus.
+  apply hqpluscomm.
+Qed.
+
+Definition NQintpart (x : NonnegativeRationals) : Σ n : nat, nat_to_NonnegativeRationals n <= x × x < nat_to_NonnegativeRationals n + 1.
+Proof.
+  intros x.
+  set (nx := intpart (pr1 x)).
+  assert (Hnx : hzleh 0%hz nx).
+  { rewrite <- (intpart_id 0%hz).
+    apply intpart_le.
+    apply (pr2 x). }
+  exists (pr1 (hztonat nx Hnx)).
+  specialize (intpart_carac (pr1 x)).
+  change (intpart (pr1 x)) with nx ; intro H.
+  destruct hztonat as [n Hn] ; simpl pr1.
+  rewrite <- Hn in H.
+  exact H.
+Qed.
+Definition NQintpart' (x : NonnegativeRationals) (Hx : 0 < x) : Σ n : nat, nat_to_NonnegativeRationals n - 1 < x × x <= nat_to_NonnegativeRationals n.
+Proof.
+  intros x Hx.
+  destruct (NQintpart x) as [n [Hle Hlt]].
+  apply le_eqorltNonnegativeRationals in Hle.
+  destruct Hle as [Heq | Hgt].
+  - exists n.
+    rewrite Heq.
+    split.
+    + pattern x at 2 ;
+      rewrite <- (minusNonnegativeRationals_zero_r x).
+      apply minusNonnegativeRationals_ltcompat_r.
+      exact ispositive_oneNonnegativeRationals.
+      exact Hx.
+    + apply isrefl_leNonnegativeRationals.
+  - exists (S n).
+    rewrite nat_to_NonnegativeRationals_Sn.
+    split.
+    + rewrite plusNonnegativeRationals_minus_r.
+      exact Hgt.
+    + apply lt_leNonnegativeRationals.
+      exact Hlt.
 Qed.
 
 Close Scope NRat_scope.
