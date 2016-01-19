@@ -408,12 +408,10 @@ Proof.
 now intros g d; apply ColimCoconeHSET.
 Qed.
 
-(*
-Lemma CoproductsHSET : Coproducts HSET.
+Lemma CoproductsHSET_from_Colims : Coproducts HSET.
 Proof.
-now apply Coproducts_from_Colims, ColimsHSET.
+exact (Coproducts_from_Colims _ has_homsets_HSET ColimsHSET).
 Qed.
- *)
 
 Lemma InitialHSET_from_Colims : Initial HSET.
 Proof.

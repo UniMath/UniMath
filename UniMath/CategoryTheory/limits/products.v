@@ -216,7 +216,7 @@ Qed.
 
 End Product_unique.
 
-Section Products_Lims.
+Section Products_from_Lims.
 
 Require Import UniMath.CategoryTheory.colimits.colimits.
 Require Import UniMath.CategoryTheory.limits.limits.
@@ -240,19 +240,21 @@ Proof.
   induction F.
 Defined.
 
+Definition ProdCone {a b c : C} (f : c --> a) (g : c --> b) : cone (product_diagram a b) c.
+Proof.
+simple refine (mk_cone _ _); simpl.
+  + intros x; case x; [apply f | apply g].
+  + abstract (intros x y e; destruct e).
+Defined.
+
 Lemma Products_from_Lims : Lims C -> Products C.
 Proof.
 intros H a b.
 case (H _ (product_diagram a b)); simpl.
 intros t; destruct t as [ab cc]; simpl; intros iscc.
 apply (mk_ProductCone _ _ _ ab (coconeIn cc true) (coconeIn cc false)).
-apply (mk_isProductCone _ hsC).
-simpl; intros c f g.
-simple refine (let ccc : cocone (product_diagram a b) c := _ in _).
-{ simple refine (mk_cocone _ _); simpl.
-  + intros x; case x; [apply f | apply g].
-  + abstract (intros x y e; destruct e). }
-case (iscc c ccc); simpl; intros t Ht.
+apply (mk_isProductCone _ hsC); simpl; intros c f g.
+case (iscc c (ProdCone f g)); simpl; intros t Ht.
 simple refine (tpair _ _ _).
 + apply (tpair _ (pr1 t)); split; [ apply (pr2 t true) | apply (pr2 t false) ].
 + intros t0.
@@ -264,7 +266,7 @@ simple refine (tpair _ _ _).
 apply (maponpaths pr1 (Ht X)).
 Defined.
 
-End Products_Lims.
+End Products_from_Lims.
 
 Section test.
 

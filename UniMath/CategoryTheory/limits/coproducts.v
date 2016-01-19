@@ -1,4 +1,3 @@
-
 (** ******************************************
 Benedikt Ahrens, March 2015
 *********************************************)
@@ -523,3 +522,52 @@ Proof.
 Qed.
 
 End Coproducts.
+
+Section Coproducts_from_Colims.
+
+Require Import UniMath.CategoryTheory.colimits.colimits.
+
+Variable C : precategory.
+Variable hsC : has_homsets C.
+
+Definition two_graph : graph.
+Proof.
+  exists bool.
+  exact (fun _ _ => empty).
+Defined.
+
+Definition coproduct_diagram (a b : C) : diagram two_graph C.
+Proof.
+  exists (fun x : bool => if x then a else b).
+  intros u v F.
+  induction F.
+Defined.
+
+Definition CoprodCocone {a b c : C} (ac : a ⇒ c) (bc : b ⇒ c) :
+   cocone (coproduct_diagram a b) c.
+Proof.
+simple refine (tpair _ _ _ ).
++ intro v; induction v; [ exact ac | exact bc ].
++ abstract (intros u v e; induction e).
+Defined.
+
+Lemma Coproducts_from_Colims : Colims C -> Coproducts C.
+Proof.
+intros H a b.
+case (H _ (coproduct_diagram a b)); simpl.
+intros t; destruct t as [ab cc]; simpl; intros iscc.
+apply (mk_CoproductCocone _ _ _ ab (coconeIn cc true) (coconeIn cc false)).
+apply (mk_isCoproductCocone _ hsC); simpl; intros c f g.
+case (iscc c (CoprodCocone f g)); simpl; intros t Ht.
+simple refine (tpair _ _ _).
++ apply (tpair _ (pr1 t)); split; [ apply (pr2 t true) | apply (pr2 t false) ].
++ intros t0.
+  apply subtypeEquality; [intros aa; apply isapropdirprod; apply hsC|]; simpl.
+  simple refine (let X : Σ x : C ⟦ ab, c ⟧, ∀ v, coconeIn cc v ;; x =
+            bool_rect (λ v0, C ⟦ if v0 then a else b, c ⟧) f g v := _ in _).
+  { apply (tpair _ (pr1 t0)); intro x; case x;
+    [ apply (pr1 (pr2 t0)) | apply (pr2 (pr2 t0)) ]. }
+apply (maponpaths pr1 (Ht X)).
+Defined.
+
+End Coproducts_from_Colims.
