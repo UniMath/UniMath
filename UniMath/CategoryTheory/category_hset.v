@@ -526,7 +526,11 @@ unfold compose.
 simpl.
 destruct (t x).
 apply idpath. }
-(* now apply Products_from_Lims, LimsHSET. *)
+Qed.
+
+Lemma ProductsHSET' : Products HSET.
+Proof.
+exact (Products_from_Lims _ has_homsets_HSET LimsHSET).
 Qed.
 
 (*
