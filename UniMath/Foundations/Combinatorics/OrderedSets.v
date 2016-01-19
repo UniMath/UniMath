@@ -397,12 +397,6 @@ Close Scope foset.
 
 (** concatenating finite ordered families of finite ordered sets *)
 
-Definition total2_hSet {X:hSet} (Y:X->hSet) : hSet := hSetpair (Σ x, Y x) (isaset_total2 X Y).
-
-Notation "'Σ'  x .. y , P" := (total2_hSet (fun x => .. (total2_hSet (fun y => P)) ..))
-  (at level 200, x binder, y binder, right associativity) : set.
-  (* type this in emacs in agda-input method with \Sigma *)
-
 Definition lexicographicOrder
            (X:hSet) (Y:X->hSet)
            (R:hrel X) (S : ∀ x, hrel (Y x)) : hrel (Σ x, Y x)%set.
@@ -453,7 +447,8 @@ Proof.
       exact (Strans x y y' y'' s s').
 Defined.
 
-Local Ltac unwrap a := apply (squash_to_prop a); [ apply isaset_total2 | simpl; clear a; intro a; simpl in a ].
+Local Ltac unwrap a := apply (squash_to_prop a);
+    [ apply isaset_total2_hSet | simpl; clear a; intro a; simpl in a ].
 
 Lemma lex_isantisymm (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∀ x, hrel (Y x)) :
   isantisymm R -> (∀ x, isantisymm(S x)) -> isantisymm (lexicographicOrder X Y R S).

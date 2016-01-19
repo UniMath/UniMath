@@ -44,19 +44,65 @@ Proof. intros. exists(X×Y) . apply (isofhleveldirprod 2); apply setproperty. De
 Definition setcoprod (X Y:hSet) : hSet.
 Proof. intros. exists(X⨿Y). apply isasetcoprod; apply setproperty. Defined.
 
-Lemma isaset_total2 (X:hSet) (Y:X->hSet) : isaset (Σ x, Y x).
+Lemma isaset_total2_hSet (X:hSet) (Y:X->hSet) : isaset (Σ x, Y x).
 Proof.
-  intros.
-  apply (isofhleveltotal2 2).
+  intros. apply isaset_total2.
   - apply setproperty.
   - intro x. apply setproperty.
 Defined.
+
+Definition total2_hSet {X:hSet} (Y:X->hSet) : hSet
+  := hSetpair (Σ x, Y x) (isaset_total2_hSet X Y).
+
+Delimit Scope set with set.
+
+Notation "'Σ'  x .. y , P" := (total2_hSet (fun x => .. (total2_hSet (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : set.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Lemma isaset_forall_hSet (X:UU) (Y:X->hSet) : isaset (∀ x, Y x).
+Proof. intros. apply impred_isaset. intro x. apply setproperty. Defined.
+
+Definition forall_hSet {X:UU} (Y:X->hSet) : hSet := hSetpair (∀ x, Y x) (isaset_forall_hSet X Y).
+
+Notation "∀  x .. y , P" := (forall_hSet (fun x => .. (forall_hSet (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : set.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Lemma isaset_total2_subset (X:hSet) (Y:X->hProp) : isaset (Σ x, Y x).
+Proof.
+  intros. apply isaset_total2.
+  - apply setproperty.
+  - intro x. apply isasetaprop, propproperty.
+Defined.
+
+Definition total2_subset {X:hSet} (Y:X->hProp) : hSet
+  := hSetpair (Σ x, Y x) (isaset_total2_subset X Y).
+
+Notation "'Σ'  x .. y , P" := (total2_subset (fun x => .. (total2_subset (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : subset.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Delimit Scope subset with subset.
+
+Definition unitset : hSet := hSetpair unit isasetunit.
+
+Definition dirprod_hSet (X Y:hSet) : hSet.
+Proof.
+  intros X Y. exists (X × Y).
+  abstract (exact (isasetdirprod _ _ (setproperty X) (setproperty Y))).
+Defined.
+
+Notation "A × B" := (dirprod_hSet A B) (at level 75, right associativity) : set.
 
 (** [ hProp ] as a set *)
 
 Definition hPropset : hSet := tpair _ hProp isasethProp .
 (* Canonical Structure hPropset. *)
 
+Definition hProp_to_hSet (P:hProp) : hSet := hSetpair P (isasetaprop (propproperty P)).
+
+Coercion hProp_to_hSet : hProp >-> hSet.
 
 (** Booleans as a set *)
 

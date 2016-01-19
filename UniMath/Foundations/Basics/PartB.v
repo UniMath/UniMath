@@ -511,6 +511,12 @@ Proof . intros . apply ( isofhlevelcontr 2 is ) . Defined .
 Lemma isasetaprop { X : UU } ( is : isaprop X ) : isaset X .
 Proof . intros . apply ( isofhlevelsnprop 1 is ) . Defined .
 
+Corollary isaset_total2 {X:UU} (P:X->UU) : isaset X -> (∀ x, isaset (P x)) -> isaset (Σ x, P x).
+Proof. intros. apply (isofhleveltotal2 2); assumption. Defined.
+
+Corollary isaset_dirprod {X Y:UU} : isaset X -> isaset Y -> isaset (X × Y).
+Proof. intros. apply isaset_total2. assumption. intro. assumption. Defined.
+
 (** The following lemma assert "uniqueness of identity proofs" (uip) for sets. *)
 
 Lemma uip { X : UU } ( is : isaset X ) { x x' : X } ( e e' : x = x' ) : e = e' .
@@ -557,11 +563,20 @@ Proof. intros . apply ( isinclbetweensets f ( isofhlevelcontr 2 ( iscontrunit ) 
 
 
 
-
-
-
-
-
+Corollary set_bijection_to_weq {X Y:UU} (f:X->Y) : bijective f -> isaset Y -> isweq f.
+Proof.
+  (* compare with bijection_to_weq: this one doesn't use gradth *)
+  intros ? ? ? bij i y. set (sur := pr1 bij); set (inj := pr2 bij).
+  unshelve refine (_,,_).
+  - exists (pr1 (sur y)). exact (pr2 (sur y)).
+  - intro w.
+    unshelve refine (total2_paths _ _).
+    + simpl. apply inj. intermediate_path y.
+      * exact (pr2 w).
+      * exact (! pr2 (sur y)).
+    + induction w as [x e]; simpl. induction e.
+      apply i.
+Defined.
 
 
 (* End of the file uu0b.v *)
