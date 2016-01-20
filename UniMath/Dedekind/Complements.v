@@ -689,7 +689,22 @@ Definition intpart' (x : hq) : hz :=
   (- intpart (- x)%hq)%hz.
 Lemma intpart'_carac :
   ∀ x : hq, hztohq (intpart' x) - 1 < x × x <= hztohq (intpart' x).
-Admitted.
+Proof.
+  intros x.
+  unfold intpart'.
+  generalize (intpart_carac (- x)) ; intros (H,H0).
+  split.
+  - apply (pr2 (hqopp_lth _ _)).
+    unfold hqminus.
+    rewrite hztohq_opp.
+    rewrite <- hqopp_distr.
+    rewrite hqopp_opp.
+    exact H0.
+  - apply (pr2 (hqopp_leh _ _)).
+    rewrite hztohq_opp.
+    rewrite hqopp_opp.
+    exact H.
+Qed.
 
 Close Scope hq_scope.
 
