@@ -36,6 +36,819 @@ Fixpoint iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C 
   | O => functor_identity C
   | S n' => functor_composite _ _ _ (iter_functor F n') F
   end.
+
+(* TODO : state this for any object and morphism, that is,
++   - Id^n a = a
++   - #(Id^n) f = f
++   thus avoiding use of funext
++
++  TODO: similar for
++   - (G o F)^n (a) = G^n(a) o F^n(a)
++   - #(G o F)^n (f) = #G^n(f) o #F^n(f)
++
+*)
+
+End move_upstream.
+
+(* Local Notation "F ^ n" := (iter_functor _ F n) (at level 10, format "F ^ n"). *)
+
+Section chains.
+
+Context {C D : precategory}. (* (hsC : has_homsets C). *)
+
+(* Define the chain:
+
+     0 --> 1 --> 2 --> 3 --> ...
+
+   with exactly one arrow from n to S n.
+*)
+Definition nat_graph : graph :=
+  tpair (λ D : UU, D → D → UU) nat (λ m n, S m = n).
+
+Local Notation "'chain'" := (diagram nat_graph).
+
+Definition mapchain (F : functor C D) (c : chain C) : chain D.
+Proof.
+simple refine (tpair _ _ _).
+- intros n.
+  apply (F (dob c n)).
+- simpl; intros m n e.
+  apply (# F (dmor c e)).
+Defined.
+
+Definition mapcocone (F : functor C D) {c : chain C} {x : C} (cx : cocone c x) :
+  cocone (mapchain F c) (F x).
+Proof.
+simple refine (mk_cocone _ _).
+- simpl; intro n.
+  exact (#F (coconeIn cx n)).
+- abstract (intros u v e; destruct e ; simpl;
+            rewrite <- functor_comp;
+            apply maponpaths, (coconeInCommutes cx _ _ (idpath _ ))).
+Defined.
+
+
+Lemma mapcocone_chain_coconeIn (F : functor C D) {c : chain C} {x : C} (cx : cocone c x) (n : nat) :
+  coconeIn (mapcocone F cx) n = #F (coconeIn cx n).
+Proof.
+  apply idpath.
+Qed.
+
+
+End chains.
+
+Notation "'chain'" := (diagram nat_graph).
+
+Section omega_cocont.
+
+Variables (C D : precategory).
+Variable (HC : forall (cc : chain C), ColimCocone cc).
+Variable (HD : forall (cd : chain D), ColimCocone cd).
+Variable (F : functor C D).
+
+Definition colimcomm (cc : chain C) : D⟦colim (HD (mapchain F cc)),F (colim (HC cc))⟧.
+Proof.
+apply colimArrow, mapcocone, colimCocone.
+Defined.
+
+Definition omega_cocont : UU := forall (cc : chain C), is_iso (colimcomm cc).
+
+End omega_cocont.
+
+Section functor_chain.
+
+Context {C : precategory} (Init : Initial C) (F : functor C C).
+
+(* Construct the chain:
+
+         !          F!            F^2 !
+     0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
+
+*)
+Definition Fchain : chain C.
+Proof.
+exists (λ n, iter_functor F n Init); simpl; intros m n Hmn.
+destruct Hmn; simpl.
+induction m; simpl.
+- exact (InitialArrow Init _).
+- exact (# F IHm).
+Defined.
+
+Let A := Fchain.
+Variable (CC : ColimCocone A).
+Let L := colim CC.
+
+Lemma cocone_mapchain : cocone (mapchain F A) L.
+Proof.
+simple refine (mk_cocone _ _).
+- simpl; intro n.
+  apply (coconeIn (colimCocone CC) (S n)).
+-
+simpl; intros m n e; destruct e; simpl.
+apply (coconeInCommutes (colimCocone CC) (S m) _ (idpath _)).
+Defined.
+
+Lemma colim_mapchain : Σ (cc : cocone (mapchain F A) L), isColimCocone _ _ cc.
+Proof.
+simple refine (tpair _ _ _).
+- apply cocone_mapchain.
+- simpl; intros a cc.
+  simple refine (tpair _ _ _).
+  + simple refine (tpair _ _ _).
+apply colimArrow.
+
+
+
+
+End functor_chain.
+
+Section colim_initial_algebra.
+
+Variables (C : precategory) (HC : forall (cc : chain C), ColimCocone cc).
+Variables (F : functor C C) (HF : omega_cocont C C HC HC F).
+Variables (InitC : Initial C).
+
+Let A : chain C := Fchain InitC F.
+Let L : C := colim (HC A).
+Let a : cocone A L := colimCocone (HC A).
+
+Let FA : chain C := mapchain F A.
+Let LF : C := colim (HC FA).
+Let Fa : cocone FA LF := colimCocone (HC FA).
+
+(* Not well typed *)
+(* Lemma coconeInFa (n : nat) : coconeIn Fa n = #F (coconeIn a n). *)
+
+Definition shift : cocone FA L.
+Proof.
+simple refine (mk_cocone _ _).
+- simpl; intros n; apply (coconeIn a (S n)).
+- simpl; intros m n e; destruct e; simpl.
+  apply (coconeInCommutes a (S m) _ (idpath _)).
+Defined.
+
+Definition unshift (x : C) : cocone FA x -> cocone A x.
+Proof.
+intros cc.
+simple refine (mk_cocone _ _).
+- simpl.
+  intro n.
+(*   set (coconeIn cc n). *)
+(* simpl in p. *)
+(* Check (dmor). *)
+(*   now apply (@dmor _ _ _ n _ (idpath _) ;; coconeIn cc n). *)
+(* - abstract (now intros m n Hmn; destruct Hmn; simpl; *)
+(*             apply maponpaths, (coconeInCommutes cx _ _ (idpath _))). *)
+
+
+
+(* ; intros n; apply (coconeIn a (S n)). *)
+(* - simpl; intros m n e; destruct e; simpl. *)
+(*   apply (coconeInCommutes a (S m) _ (idpath _)). *)
+(* Defined. *)
+Admitted.
+
+Definition foo : C⟦LF,L⟧.
+Proof.
+apply colimArrow, shift.
+Defined.
+
+Lemma is_iso_foo : is_iso foo.
+Proof.
+apply isColim_is_iso.
+intros b cc.
+simpl.
+simple refine (tpair _ _ _).
+- simple refine (tpair _ _ _).
+  + apply colimArrow.
+
+  +
+
+
+
+Definition α : C⟦L,F L⟧.
+Proof.
+apply colimArrow.
+simple refine (mk_cocone _ _).
+- simpl.
+intro n.
+induction n; simpl.
+apply InitialArrow.
+
+
+
+End colim_initial_algebra.
+
+
+
+Variables (CC : ColimCocone Fchain).
+
+(* Local Notation L := (colim CC). *)
+(* Local Notation LF := (colim (shift_colim C hsC Fchain CC)). *)
+
+(* Definition Fcocone : cocone Fchain (F L). *)
+(* Proof. *)
+(* simple refine (mk_cocone _ _). *)
+(* - intro n. *)
+(*   destruct n; simpl. *)
+(*   + exact (InitialArrow Init _ ;; # F (colimIn CC 0)). *)
+(*   + exact (# F (colimIn CC n)). *)
+(* - abstract (simpl; intros m n Hmn; destruct Hmn; simpl; destruct m; simpl; *)
+(*             [apply idpath|]; simpl; rewrite <- functor_comp; apply maponpaths; *)
+(*             apply (colimInCommutes CC _ _ (idpath _))). *)
+(* Defined. *)
+
+(* Definition functormap_colimCocone : cocone (shift C Fchain) (F L) := *)
+(*   functormap_Fchain L (colimCocone CC). *)
+
+(* this is m^-1 : L -> FL in TACL slides page 9 *)
+(* Definition from_colim_shift : C⟦LF,F L⟧ := colimArrow _ _ functormap_colimCocone. (* (Fcocone (colimCocone CC)). *) *)
+
+(* This uses that LF and L are convertible *)
+(* Definition from_colim : C⟦L,F L⟧ := from_colim_shift. *)
+
+(* Definition omega_cocontinuous : UU := is_iso from_colim_shift. *)
+
+(* This could also be defined as: *)
+(* Definition omega_cocontinuous : UU := is_iso from_colim. *)
+
+Variable Hcc : omega_cocont C C.
+Let minv : iso L (F L) := isopair _ Hcc.
+Let m : C⟦F L,L⟧ := inv_from_iso minv.
+
+Lemma mCommutes (n : nat) : coconeIn (colimCocone CC) n = coconeIn (Fcocone (colimCocone CC)) n ;; m.
+Proof.
+now apply iso_inv_on_left, pathsinv0, (colimArrowCommutes _ _ (Fcocone _)).
+Qed.
+
+Lemma minvCommutes (n : nat) : coconeIn (colimCocone CC) n ;; minv = coconeIn (Fcocone (colimCocone CC)) n.
+Proof.
+now apply (colimArrowCommutes _ _ (Fcocone _)).
+Qed.
+
+End functor_chain.
+
+(* Proves that (L,m : F L -> L) is the initial algebra where L is the
+   colimit of the inital chain:
+
+         !          F !           F^2 !
+     0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
+
+*)
+Section colim_initial_algebra.
+
+Variables (C : precategory) (F : functor C C).
+Variables (hsC : has_homsets C) (Init : Initial C).
+
+Definition initDiag : chain C := Fchain Init F.
+
+Variable (CC : ColimCocone initDiag).
+Variable (Fcont : omega_cocontinuous hsC Init F CC).
+
+Local Notation L := (colim CC).
+Local Notation minv := (isopair _ Fcont).
+
+Local Definition m : C⟦F L,L⟧ := inv_from_iso minv.
+Local Definition colimAlg : algebra_ob F := tpair (λ X : C, C ⟦ F X, X ⟧) L m.
+
+Section algebra.
+
+Variable (Aa : algebra_ob F).
+
+Local Notation A := (alg_carrier _ Aa).
+Local Notation a := (alg_map _ Aa).
+
+Definition cocone_over_alg (n : nat) : C ⟦ dob initDiag n, A ⟧.
+Proof.
+induction n as [|n Fn]; simpl.
+- now apply InitialArrow.
+- now apply (# F Fn ;; a).
+Defined.
+
+(* a_n : F^n 0 -> A *)
+Local Notation an := cocone_over_alg.
+
+(* This makes Coq not unfold dmor during simpl *)
+Arguments dmor : simpl never.
+
+Lemma isCoconeOverAlg n Sn (e : edge n Sn) : dmor initDiag e ;; an Sn = an n.
+Proof.
+destruct e.
+induction n as [|n IHn].
+- now apply InitialArrowUnique.
+- simpl; rewrite assoc.
+  apply cancel_postcomposition, pathsinv0.
+  eapply pathscomp0; [|simpl; apply functor_comp].
+  now apply maponpaths, pathsinv0, IHn.
+Qed.
+
+(* ad = a† = a dagger *)
+Local Definition ad : C⟦L,A⟧.
+Proof.
+apply colimArrow.
+simple refine (mk_cocone _ _).
+- apply cocone_over_alg.
+- apply isCoconeOverAlg.
+Defined.
+
+Lemma adaggerCommutes (n : nat) : colimIn CC n ;; ad = an n.
+Proof.
+now apply colimArrowCommutes.
+Qed.
+
+Lemma adaggerCommutes2 (n : nat) : colimIn CC n ;; minv ;; # F ad ;; a = an n.
+Proof.
+induction n as [|n IHn].
+- now apply InitialArrowUnique.
+- rewrite <- assoc.
+  eapply pathscomp0;
+    [ eapply cancel_postcomposition; apply (minvCommutes hsC Init F CC Fcont (S n))|].
+  rewrite assoc, Fcocone_coconeIn_S; simpl; rewrite <- (functor_comp F).
+  now apply cancel_postcomposition, maponpaths, adaggerCommutes.
+Qed.
+
+Lemma adaggerDef : ad = minv ;; #F ad ;; a.
+Proof.
+apply pathsinv0, colimArrowUnique; simpl; intro n.
+rewrite !assoc.
+now apply adaggerCommutes2.
+Qed.
+
+Lemma ad_is_algebra_mor : is_algebra_mor _ colimAlg Aa ad.
+Proof.
+unfold is_algebra_mor; simpl; unfold colimAlg.
+apply iso_inv_on_right.
+rewrite assoc.
+now apply adaggerDef.
+Qed.
+
+Definition adaggerMor : algebra_mor F colimAlg Aa := tpair _ _ ad_is_algebra_mor.
+
+End algebra.
+
+Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) colimAlg.
+Proof.
+simple refine (mk_isInitial _ _ ).
+intros Aa.
+exists (adaggerMor Aa); simpl; intro Fa.
+apply (algebra_mor_eq _ hsC); simpl.
+unfold ad.
+apply colimArrowUnique; simpl; intro n.
+destruct Fa as [f hf]; simpl.
+unfold is_algebra_mor in hf.
+simpl in hf.
+induction n as [|n IHn]; simpl.
+- now apply InitialArrowUnique.
+- rewrite <- IHn, functor_comp, <- assoc.
+  eapply pathscomp0; [| eapply maponpaths; apply hf].
+  rewrite assoc.
+  apply cancel_postcomposition.
+  assert (T:= mCommutes hsC Init _ CC Fcont (S n)).
+  unfold colimIn.
+  eapply pathscomp0. apply T.
+  apply cancel_postcomposition.
+  apply Fcocone_coconeIn_S.
+Qed.
+
+Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
+  mk_Initial _ colimAlgIsInitial.
+
+End colim_initial_algebra.
+
+
+Section polynomial_functors.
+
+Require Import UniMath.SubstitutionSystems.FunctorsPointwiseProduct.
+Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.terminal.
+
+Variables (C : precategory) (hsC : has_homsets C) (InitC : Initial C).
+(* Variables (F : functor C C) (CC : ColimCocone (Fchain F InitC)). *)
+
+(* "good" functors *)
+Let good F := Σ (CC : ColimCocone (Fchain InitC F)), omega_cocontinuous hsC InitC F CC.
+
+(* TODO: Prove that polynomial functors are good *)
+(* good(F), good(G) |- good(F * G) *)
+(* good(F), good(G) |- good(F + G) *)
+(*                  |- good(constant_functor A) *)
+(*                  |- good(identity_functor) *)
+
+(* constant_functor *)
+Section constant_functor.
+
+Variable (x : C).
+
+Let Fx : functor C C := constant_functor C C x.
+
+(* Lemma cocone_constant_functor : cocone (Fchain InitC Fx) x. *)
+(* Proof. *)
+(* simple refine (mk_cocone _ _). *)
+(* + simpl; intro n. *)
+(*   induction n; [ apply (InitialArrow InitC) | apply (identity x) ]. *)
+(* + intros m n e; destruct e; apply id_right. *)
+(* Defined. *)
+
+Lemma Colimcocone_constant_functor : ColimCocone (Fchain InitC Fx).
+Proof.
+apply (unshift_colim _ hsC).
+simple refine (mk_ColimCocone _ x _ _).
++ simple refine (mk_cocone _ _).
+  - simpl; intro n; apply (identity x).
+  - simpl; intros m n e; induction e; apply id_right.
++ intros a cc; simpl.
+  simple refine (tpair _ _ _).
+  - apply (tpair _ (coconeIn cc 0)); intro n.
+    rewrite id_left.
+    destruct cc as [f Hf]; simpl.
+    induction n; [apply idpath|].
+    now rewrite IHn, <- (Hf n (S n) (idpath _)), id_left.
+  - simpl; intro p.
+    apply subtypeEquality.
+    * intros f; apply impred; intro; apply hsC.
+    * simpl; destruct p as [p H]; generalize (H 0); simpl.
+      now rewrite id_left.
+Defined.
+
+Lemma goodConstantFunctor : good Fx.
+Proof.
+apply (tpair _ Colimcocone_constant_functor), isColim_is_iso.
+intros a cc; simpl.
+(* from here on the proof is identitical to the one above. refactor? *)
+simple refine (tpair _ _ _).
+- apply (tpair _ (coconeIn cc 0)); intro n.
+  rewrite id_left.
+  destruct cc as [f Hf]; simpl.
+  induction n; [apply idpath|].
+  now rewrite IHn, <- (Hf n (S n) (idpath _)), id_left.
+- simpl; intro p.
+  apply subtypeEquality.
+  + intros f; apply impred; intro; apply hsC.
+  + simpl; destruct p as [p H]; generalize (H 0); simpl.
+    now rewrite id_left.
+Defined.
+
+End constant_functor.
+
+Section identity_functor.
+
+Let Fid : functor C C := functor_identity C.
+
+(* Lemma cocone_functor_identity : cocone (Fchain InitC Fid) InitC. *)
+(* Proof. *)
+(* simple refine (mk_cocone _ _). *)
+(* + simpl; intro n. *)
+(*   induction n; [ apply (InitialArrow InitC)| apply IHn]. *)
+(* + intros m n e; destruct e; induction m as [|m IH]; *)
+(*     [apply InitialArrowUnique | apply IH]. *)
+(* Defined. *)
+
+Lemma iter_functor_id (x : C) ( n : nat) : iter_functor Fid n x = x.
+Proof.
+induction n as [|n IH]; [apply idpath|apply IH].
+Defined.
+
+Lemma Colimcocone_functor_identity : ColimCocone (Fchain InitC Fid).
+Proof.
+simple refine (mk_ColimCocone _ InitC _ _).
++ simple refine (mk_cocone _ _).
+  - simpl; intro n.
+    rewrite iter_functor_id.
+    apply (identity InitC).
+  - simpl; intros m n e; induction e; simpl.
+    induction m.
+    simpl.
+    rewrite id_right; apply pathsinv0, InitialArrowUnique.
+    simpl.
+    apply IHm.
++ intros a cc; simpl.
+  simple refine (tpair _ _ _).
+  - simple refine (tpair _ _ _); [ apply (InitialArrow InitC) |].
+intro n.
+induction n.
+* destruct cc.
+rewrite id_left.
+apply pathsinv0, InitialArrowUnique.
+* simpl; rewrite IHn.
+destruct cc.
+simpl.
+generalize (p n _ (idpath _)).
+intros H.
+rewrite <- H.
+clear H.
+apply remove_id_left; [|apply idpath].
+simpl.
+clear IHn.
+induction n.
+apply pathsinv0, InitialArrowUnique.
+simpl.
+rewrite IHn.
+apply idpath.
+- intros x.
+    apply subtypeEquality.
+    * intros f; apply impred; intro; apply hsC.
+* apply InitialArrowUnique.
+Defined.
+
+Lemma goodIdentityFunctor : good Fid.
+Proof.
+apply (tpair _ Colimcocone_functor_identity), isColim_is_iso.
+intros a cc; simpl.
+simple refine (tpair _ _ _).
+- apply (tpair _ (coconeIn cc 0)); intro n.
+induction n.
+* destruct cc.
+rewrite id_left.
+apply idpath.
+* simpl; rewrite IHn.
+destruct cc.
+simpl.
+generalize (p n _ (idpath _)).
+intros H.
+rewrite <- H.
+clear H.
+apply remove_id_left; [|apply idpath].
+simpl.
+clear IHn.
+induction n.
+apply pathsinv0, InitialArrowUnique.
+simpl.
+rewrite IHn.
+apply idpath.
+-
+intros x.
+    apply subtypeEquality.
+    * intros f; apply impred; intro; apply hsC.
+* apply InitialArrowEq.
+Defined.
+
+End identity_functor.
+
+Section product_functor.
+
+Variable (HP : Products C).
+Variables (F G : functor C C).
+
+Lemma iter_functor_product (x : C) (n : nat) :
+  iter_functor (product_functor C C HP F G) (S n) x =
+  ProductObject _ (HP (iter_functor F (S n) x) (iter_functor G (S n) x)).
+Proof.
+simpl.
+induction n.
+- simpl.
+apply idpath.
+- simpl.
+(* rewrite IHn. *)
+
+unfold product_functor_ob in *.
+
+rewrite IHn.
+set (W := (ProductObject C
+              (HP (F ((iter_functor F n) x)) (G ((iter_functor G n) x))))).
+set (W1 := (F ((iter_functor F n) x))).
+set (W2 :=  (G ((iter_functor G n) x))).
+rewrite IHn.
+Search ProductObject.
+admit.
+Admitted.
+
+Lemma colimCocone_product (ccF : ColimCocone (Fchain InitC F))
+                          (ccG : ColimCocone (Fchain InitC G)) :
+        ColimCocone (Fchain InitC (product_functor _ _ HP F G)).
+Proof.
+simple refine (mk_ColimCocone _ _ _ _).
+- apply (ProductObject _ (HP (colim ccF) (colim ccG))).
+-
+simple refine (mk_cocone _ _).
+simpl; intro n.
+destruct n.
+simpl.
+apply InitialArrow.
+rewrite iter_functor_product.
+(* set (Fn := pr1 (Fchain InitC F) n). _ (idpath _)). *)
+(* set (Gn := pr2 (Fchain InitC G) n _ (idpath _)). *)
+apply ProductOfArrows.
+apply (colimIn ccF (S n)).
+apply (colimIn ccG (S n)).
+Admitted.
+
+
+End product_functor.
+
+End polynomial_functors.
+
+
+
+
+(* unfold good, omega_cocontinuous. *)
+(*   unfold from_colim_shift. *)
+(*   set (X1 := ColimCoconeHSET _ _). *)
+(*   set (X3 := Fcocone _ _ _ _). *)
+(*   apply (isColim_is_iso _ X1). *)
+(*   intros a ca. *)
+(*   refine (tpair _ _ _). *)
+(*   - refine (tpair _ _ _). *)
+(*     + apply colimArrow. *)
+(*       apply ca. *)
+(*     + intro n; induction n. *)
+(*       * unfold X3. *)
+(*         unfold Fcocone. *)
+(*         rewrite unshift_cocone_coconeIn_O. *)
+(*         simpl. *)
+(*         assert (T:= ArrowsFromInitial InitialHSET). *)
+(*         match goal with [T : _ |- ?e = ?f ] => *)
+(*                         assert (T':= T _ e f) end. *)
+(*         apply T'. *)
+(*       * unfold X3. *)
+(*         rewrite Fcocone_coconeIn_S. *)
+(*         simpl. *)
+(*         assert (H:=colimArrowCommutes X1 a ca ). *)
+(*         eapply pathscomp0. *)
+(*         apply H. *)
+(*         assert (T:= coconeInCommutes ca n (S n) (idpath _ )). *)
+(*         simpl in T. *)
+(*         (* NOW USE HYPOTHESIS T, EXCEPT THAT THERE IS AN IDENTITY *)
+(*            MORPHISM *) *)
+(*         match goal with [|- ?e = ?f ] => *)
+(*                         set (E:=e); set (F:=f) end. *)
+(*         simpl in E,F. *)
+(*         (* now use lemma that says that *)
+(*              iter_functor (Id) (a) = a *)
+(*              here a is initial object *)
+(*            then use lemma ArrowsFromInitial, that is, *)
+(*            both E and F start in initial object, hence E = F *)
+(*         *) *)
+
+
+(*
+Lemma goodConstant (B : HSET) : good (constant_functor _ _ B).
+Admitted.
+ *)
+(*
+Lemma goodProduct (F G : functor HSET HSET) :
+  good F -> good G -> good (product_functor _ _ ProductsHSET F G).
+Admitted.
+*)
+(*
+Lemma goodCoproduct (F G : functor HSET HSET) :
+  good F -> good G -> good (coproduct_functor _ _ CoproductsHSET F G).
+Admitted.
+
+
+End good_functors.
+
+(* WIP below of here *)
+Section lists.
+
+(* TODO: Move *)
+
+Variable A : HSET.
+
+(* F(X) = A * X *)
+Definition streamFunctor : functor HSET HSET :=
+  product_functor HSET HSET ProductsHSET
+                  (constant_functor HSET HSET A)
+                  (functor_identity HSET).
+
+(* F(X) = 1 + (A * X) *)
+
+(*
+Definition listFunctor : functor HSET HSET :=
+  coproduct_functor HSET HSET CoproductsHSET
+                    (constant_functor HSET HSET (TerminalObject TerminalHSET))
+                    streamFunctor.
+*)
+
+(* Let ColimCoconeF F := ColimCocone *)
+(*          (Fchain F (InitialObject InitialHSET) *)
+(*             (InitialArrow InitialHSET (F (InitialObject InitialHSET)))). *)
+
+(* Definition temp : ColimCoconeF listFunctor := ColimCoconeHSET _ _. *)
+
+(*
+Let good F := omega_cocontinuous has_homsets_HSET F
+    (InitialObject InitialHSET) (InitialArrow InitialHSET _) (ColimCoconeHSET _ _).
+*)
+(* TODO: *)
+(* good(F), good(G) |- good(F * G) *)
+(* good(F), good(G) |- good(F + G) *)
+(*                  |- good(constant_functor A) *)
+(*                  |- good(identity_functor) *)
+(*
+Lemma goodIdentity : good (functor_identity _).
+Proof.
+(* unfold good, omega_cocontinuous. *)
+(* unfold from_colim_shift. *)
+(* set (X1 := ColimCoconeHSET _ _). *)
+(* set (X3 := Fcocone _ _ _ _). *)
+(* apply (isColim_is_iso _ X1). *)
+(* intros a ca. *)
+(* simple refine (tpair _ _ _). *)
+(* simple refine (tpair _ _ _). *)
+(* apply colimArrow. *)
+(* apply ca. *)
+(* intros v. *)
+(* set (H:=colimArrowCommutes X1 a ca v). *)
+(* unfold colimIn in H. *)
+(* unfold X3. *)
+(* rewrite <- H. *)
+(* apply cancel_postcomposition. *)
+(* assert (test : Fcocone (functor_identity HSET) (InitialObject InitialHSET) *)
+(*         (InitialArrow InitialHSET *)
+(*            ((functor_identity HSET) (InitialObject InitialHSET))) X1 = colimCocone X1). *)
+(* simpl. *)
+(* apply subtypeEquality. *)
+(* intro x. *)
+(* repeat (apply impred; intro). *)
+(* apply has_homsets_HSET. *)
+(* simpl. *)
+(* apply funextsec; intro n. *)
+(* induction n; simpl. *)
+(* apply (ArrowsFromInitial InitialHSET). *)
+(* simpl. *)
+(* admit. *)
+(* rewrite test. *)
+(* apply idpath. *)
+
+(* apply InitialArrowUnique. *)
+
+(* intro a; simpl. *)
+(* unfold Fcocone. *)
+(* unfold colimCocone. *)
+
+
+(* induction v. *)
+(* simpl. *)
+(* apply idpath. *)
+(* f_equal. *)
+(* apply H. *)
+(* simpl. *)
+(* simpl. *)
+(* simpl in *. *)
+Admitted.
+ *)
+(*
+Lemma goodConstant (B : HSET) : good (constant_functor _ _ B).
+Admitted.
+ *)
+(*
+Lemma goodProduct (F G : functor HSET HSET) :
+  good F -> good G -> good (product_functor _ _ ProductsHSET F G).
+Admitted.
+*)
+(*
+Lemma goodCoproduct (F G : functor HSET HSET) :
+  good F -> good G -> good (coproduct_functor _ _ CoproductsHSET F G).
+Admitted.
+
+
+Lemma listFunctor_omega_cocontinuous : good listFunctor.
+Proof.
+unfold listFunctor, streamFunctor.
+apply goodCoproduct; [ apply goodConstant |].
+apply goodProduct; [ apply goodConstant | apply goodIdentity].
+Defined.
+
+Lemma listFunctor_Initial :
+  Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
+Proof.
+simple refine (colimAlgInitial _ _ _ _ _ _).
+- apply InitialHSET.
+- apply ColimCoconeHSET.
+- apply listFunctor_omega_cocontinuous.
+Defined.
+ *)
+
+(* Get recursion/iteration scheme: *)
+
+(*    x : X           f : A × X -> X *)
+(* ------------------------------------ *)
+(*       iter x f : List A -> X *)
+
+(* Get induction as well? *)
+
+End lists.
+*)
+
+
+
+
+(************************** OLD VERSION BELOW  *))
+
+(*
+
+
+Section move_upstream.
+
+(* Move to limits.initial *)
+
+Fixpoint iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C := match n with
+  | O => functor_identity C
+  | S n' => functor_composite _ _ _ (iter_functor F n') F
+  end.
+
 (* Proof. *)
 (* induction n as [|n Fn]. *)
 (*   now apply functor_identity. *)
@@ -228,6 +1041,7 @@ induction m; simpl.
 - exact (# F IHm).
 Defined.
 
+(* More general version: *)
 (* Context (c : C) (s : C⟦c,F c⟧). *)
 
 (* Construct the chain:
@@ -328,12 +1142,12 @@ Definition from_colim_shift : C⟦LF,F L⟧ := colimArrow _ _ functormap_colimCo
 (* This uses that LF and L are convertible *)
 Definition from_colim : C⟦L,F L⟧ := from_colim_shift.
 
-Definition chain_cocontinuous : UU := is_iso from_colim_shift.
+Definition omega_cocontinuous : UU := is_iso from_colim_shift.
 
 (* This could also be defined as: *)
-(* Definition chain_cocontinuous : UU := is_iso from_colim. *)
+(* Definition omega_cocontinuous : UU := is_iso from_colim. *)
 
-Variable Hcc : chain_cocontinuous.
+Variable Hcc : omega_cocontinuous.
 Let minv : iso L (F L) := isopair _ Hcc.
 Let m : C⟦F L,L⟧ := inv_from_iso minv.
 
@@ -364,7 +1178,7 @@ Variables (hsC : has_homsets C) (Init : Initial C).
 Definition initDiag : chain C := Fchain Init F.
 
 Variable (CC : ColimCocone initDiag).
-Variable (Fcont : chain_cocontinuous hsC Init F CC).
+Variable (Fcont : omega_cocontinuous hsC Init F CC).
 
 Local Notation L := (colim CC).
 Local Notation minv := (isopair _ Fcont).
@@ -475,13 +1289,8 @@ Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
   mk_Initial _ colimAlgIsInitial.
 
 End colim_initial_algebra.
-(*
-About Fcocone.
-Check unshift_cocone.
-*)
-
-
-Section good_functors.
+Check colimAlgInitial.
+Section polynomial_functors.
 
 Require Import UniMath.SubstitutionSystems.FunctorsPointwiseProduct.
 Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
@@ -489,93 +1298,225 @@ Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 
+Variables (C : precategory) (hsC : has_homsets C) (InitC : Initial C).
+(* Variables (F : functor C C) (CC : ColimCocone (Fchain F InitC)). *)
 
-Variables (C : precategory) (hsC : has_homsets C). (* (F : functor C C). *)
-Variables (InitC : Initial C).  (* (CC : ColimCocone (Fchain F InitC)). *)
+(* "good" functors *)
+Let good F := Σ (CC : ColimCocone (Fchain InitC F)), omega_cocontinuous hsC InitC F CC.
 
-Let good F := Σ (CC : ColimCocone (Fchain InitC F)), chain_cocontinuous hsC InitC F CC.
-
-(* TODO: *)
+(* TODO: Prove that polynomial functors are good *)
 (* good(F), good(G) |- good(F * G) *)
 (* good(F), good(G) |- good(F + G) *)
 (*                  |- good(constant_functor A) *)
 (*                  |- good(identity_functor) *)
 
-Lemma temp (x : C) (CC : cocone (Fchain InitC (functor_identity C)) x) (n : nat) :
-  coconeIn CC n = coconeIn CC (S n).
-Proof.
-induction n.
-- set (X := coconeInCommutes CC 0 1 (idpath _)).
-simpl in X.
-rewrite <- X.
-rewrite <- (InitialEndo_is_identity _ InitC (InitialArrow InitC InitC)).
-apply id_left.
-- simpl.
-set (X := coconeInCommutes CC (S n) _ (idpath _)).
-simpl in X.
-rewrite <- X.
-admit.
-Admitted.
+(* constant_functor *)
+Section constant_functor.
 
-Lemma Colimcocone_functor_identity : ColimCocone (Fchain InitC (functor_identity C)).
+Variable (x : C).
+
+Let Fx : functor C C := constant_functor C C x.
+
+(* Lemma cocone_constant_functor : cocone (Fchain InitC Fx) x. *)
+(* Proof. *)
+(* simple refine (mk_cocone _ _). *)
+(* + simpl; intro n. *)
+(*   induction n; [ apply (InitialArrow InitC) | apply (identity x) ]. *)
+(* + intros m n e; destruct e; apply id_right. *)
+(* Defined. *)
+
+Lemma Colimcocone_constant_functor : ColimCocone (Fchain InitC Fx).
 Proof.
-simple refine (mk_ColimCocone _ _ _ _).
-- exact (InitialObject InitC).
-- simple refine (mk_cocone _ _).
-  + simpl; intro n.
-    induction n.
-    * apply (InitialArrow InitC).
-    * simpl; apply IHn.
-  + simpl; intros m n e.
-    destruct e; simpl.
-    induction m; simpl.
-    * apply InitialArrowUnique.
-    * apply IHm.
-- simpl.
-intros x cc.
-simple refine (tpair _ _ _).
-+ simple refine (tpair _ _ _).
-  * apply (InitialArrow InitC).
-  * simpl; intro n.
-{ induction n.
-  + apply InitialArrowEq.
-  + simpl in *.
-rewrite IHn.
-apply temp. }
-+ simpl.
-  intros.
-apply subtypeEquality.
-intros a.
-apply impred; intro n.
-apply hsC.
-simpl.
-apply InitialArrowUnique.
+apply (unshift_colim _ hsC).
+simple refine (mk_ColimCocone _ x _ _).
++ simple refine (mk_cocone _ _).
+  - simpl; intro n; apply (identity x).
+  - simpl; intros m n e; induction e; apply id_right.
++ intros a cc; simpl.
+  simple refine (tpair _ _ _).
+  - apply (tpair _ (coconeIn cc 0)); intro n.
+    rewrite id_left.
+    destruct cc as [f Hf]; simpl.
+    induction n; [apply idpath|].
+    now rewrite IHn, <- (Hf n (S n) (idpath _)), id_left.
+  - simpl; intro p.
+    apply subtypeEquality.
+    * intros f; apply impred; intro; apply hsC.
+    * simpl; destruct p as [p H]; generalize (H 0); simpl.
+      now rewrite id_left.
 Defined.
 
-Lemma goodIdentity : good (functor_identity _).
+Lemma goodConstantFunctor : good Fx.
 Proof.
+apply (tpair _ Colimcocone_constant_functor), isColim_is_iso.
+intros a cc; simpl.
+(* from here on the proof is identitical to the one above. refactor? *)
 simple refine (tpair _ _ _).
-- apply Colimcocone_functor_identity.
+- apply (tpair _ (coconeIn cc 0)); intro n.
+  rewrite id_left.
+  destruct cc as [f Hf]; simpl.
+  induction n; [apply idpath|].
+  now rewrite IHn, <- (Hf n (S n) (idpath _)), id_left.
+- simpl; intro p.
+  apply subtypeEquality.
+  + intros f; apply impred; intro; apply hsC.
+  + simpl; destruct p as [p H]; generalize (H 0); simpl.
+    now rewrite id_left.
+Defined.
+
+End constant_functor.
+
+Section identity_functor.
+
+Let Fid : functor C C := functor_identity C.
+
+(* Lemma cocone_functor_identity : cocone (Fchain InitC Fid) InitC. *)
+(* Proof. *)
+(* simple refine (mk_cocone _ _). *)
+(* + simpl; intro n. *)
+(*   induction n; [ apply (InitialArrow InitC)| apply IHn]. *)
+(* + intros m n e; destruct e; induction m as [|m IH]; *)
+(*     [apply InitialArrowUnique | apply IH]. *)
+(* Defined. *)
+
+Lemma iter_functor_id (x : C) ( n : nat) : iter_functor Fid n x = x.
+Proof.
+induction n as [|n IH]; [apply idpath|apply IH].
+Defined.
+
+Lemma Colimcocone_functor_identity : ColimCocone (Fchain InitC Fid).
+Proof.
+simple refine (mk_ColimCocone _ InitC _ _).
++ simple refine (mk_cocone _ _).
+  - simpl; intro n.
+    rewrite iter_functor_id.
+    apply (identity InitC).
+  - simpl; intros m n e; induction e; simpl.
+    induction m.
+    simpl.
+    rewrite id_right; apply pathsinv0, InitialArrowUnique.
+    simpl.
+    apply IHm.
++ intros a cc; simpl.
+  simple refine (tpair _ _ _).
+  - simple refine (tpair _ _ _); [ apply (InitialArrow InitC) |].
+intro n.
+induction n.
+* destruct cc.
+rewrite id_left.
+apply pathsinv0, InitialArrowUnique.
+* simpl; rewrite IHn.
+destruct cc.
+simpl.
+generalize (p n _ (idpath _)).
+intros H.
+rewrite <- H.
+clear H.
+apply remove_id_left; [|apply idpath].
+simpl.
+clear IHn.
+induction n.
+apply pathsinv0, InitialArrowUnique.
+simpl.
+rewrite IHn.
+apply idpath.
+- intros x.
+    apply subtypeEquality.
+    * intros f; apply impred; intro; apply hsC.
+* apply InitialArrowUnique.
+Defined.
+
+Lemma goodIdentityFunctor : good Fid.
+Proof.
+apply (tpair _ Colimcocone_functor_identity), isColim_is_iso.
+intros a cc; simpl.
+simple refine (tpair _ _ _).
+- apply (tpair _ (coconeIn cc 0)); intro n.
+induction n.
+* destruct cc.
+rewrite id_left.
+apply idpath.
+* simpl; rewrite IHn.
+destruct cc.
+simpl.
+generalize (p n _ (idpath _)).
+intros H.
+rewrite <- H.
+clear H.
+apply remove_id_left; [|apply idpath].
+simpl.
+clear IHn.
+induction n.
+apply pathsinv0, InitialArrowUnique.
+simpl.
+rewrite IHn.
+apply idpath.
+-
+intros x.
+    apply subtypeEquality.
+    * intros f; apply impred; intro; apply hsC.
+* apply InitialArrowEq.
+Defined.
+
+End identity_functor.
+
+Section product_functor.
+
+Variable (HP : Products C).
+Variables (F G : functor C C).
+
+Lemma iter_functor_product (x : C) (n : nat) :
+  iter_functor (product_functor C C HP F G) (S n) x =
+  ProductObject _ (HP (iter_functor F (S n) x) (iter_functor G (S n) x)).
+Proof.
+simpl.
+induction n.
 - simpl.
-unfold chain_cocontinuous.
-apply isColim_is_iso.
-simpl.
-intros c cc.
-simple refine (tpair _ _ _); simpl.
-unfold colim.
-unfold Colimcocone_functor_identity.
-simpl.
-simple refine (tpair _ _ _).
-apply (InitialArrow InitC).
+apply idpath.
+- simpl.
+(* rewrite IHn. *)
+
+unfold product_functor_ob in *.
+
+rewrite IHn.
+set (W := (ProductObject C
+              (HP (F ((iter_functor F n) x)) (G ((iter_functor G n) x))))).
+set (W1 := (F ((iter_functor F n) x))).
+set (W2 :=  (G ((iter_functor G n) x))).
+rewrite IHn.
+Search ProductObject.
 admit.
 Admitted.
 
-End good_functors.
+Lemma colimCocone_product (ccF : ColimCocone (Fchain InitC F))
+                          (ccG : ColimCocone (Fchain InitC G)) :
+        ColimCocone (Fchain InitC (product_functor _ _ HP F G)).
+Proof.
+simple refine (mk_ColimCocone _ _ _ _).
+- apply (ProductObject _ (HP (colim ccF) (colim ccG))).
+-
+simple refine (mk_cocone _ _).
+simpl; intro n.
+destruct n.
+simpl.
+apply InitialArrow.
+rewrite iter_functor_product.
+(* set (Fn := pr1 (Fchain InitC F) n). _ (idpath _)). *)
+(* set (Gn := pr2 (Fchain InitC G) n _ (idpath _)). *)
+apply ProductOfArrows.
+apply (colimIn ccF (S n)).
+apply (colimIn ccG (S n)).
+Admitted.
+
+
+End product_functor.
+
+End polynomial_functors.
 
 
 
 
-(* unfold good, chain_cocontinuous. *)
+(* unfold good, omega_cocontinuous. *)
 (*   unfold from_colim_shift. *)
 (*   set (X1 := ColimCoconeHSET _ _). *)
 (*   set (X3 := Fcocone _ _ _ _). *)
@@ -661,7 +1602,7 @@ Definition listFunctor : functor HSET HSET :=
 (* Definition temp : ColimCoconeF listFunctor := ColimCoconeHSET _ _. *)
 
 (*
-Let good F := chain_cocontinuous has_homsets_HSET F
+Let good F := omega_cocontinuous has_homsets_HSET F
     (InitialObject InitialHSET) (InitialArrow InitialHSET _) (ColimCoconeHSET _ _).
 *)
 (* TODO: *)
@@ -672,7 +1613,7 @@ Let good F := chain_cocontinuous has_homsets_HSET F
 (*
 Lemma goodIdentity : good (functor_identity _).
 Proof.
-(* unfold good, chain_cocontinuous. *)
+(* unfold good, omega_cocontinuous. *)
 (* unfold from_colim_shift. *)
 (* set (X1 := ColimCoconeHSET _ _). *)
 (* set (X3 := Fcocone _ _ _ _). *)
@@ -737,7 +1678,7 @@ Lemma goodCoproduct (F G : functor HSET HSET) :
 Admitted.
 
 
-Lemma listFunctor_chain_cocontinuous : good listFunctor.
+Lemma listFunctor_omega_cocontinuous : good listFunctor.
 Proof.
 unfold listFunctor, streamFunctor.
 apply goodCoproduct; [ apply goodConstant |].
@@ -750,7 +1691,7 @@ Proof.
 simple refine (colimAlgInitial _ _ _ _ _ _).
 - apply InitialHSET.
 - apply ColimCoconeHSET.
-- apply listFunctor_chain_cocontinuous.
+- apply listFunctor_omega_cocontinuous.
 Defined.
  *)
 
@@ -763,4 +1704,6 @@ Defined.
 (* Get induction as well? *)
 
 End lists.
+*)
+
 *)
