@@ -142,32 +142,23 @@ Lemma isaprop_hr_to_NR (X : hr_commrng) :
   isaprop (Σ x : NonnegativeReals × NonnegativeReals,
                  pr1 X x × ∀ y : NonnegativeReals × NonnegativeReals, pr1 X y -> pr1 x <= pr1 y × pr2 x <= pr2 y).
 Proof.
-  intros X x x'.
-  assert (Hp : ∀ x, isaprop (pr1 X x
-       × (∀ y : NonnegativeReals × NonnegativeReals,
-            pr1 X y -> pr1 x <= pr1 y × pr2 x <= pr2 y))).
-  { clear ; intros x.
+  intros X.
+  apply isaproptotal2'.
+  - apply isasetdirprod ; apply pr2.
+  - intros x.
     apply isapropdirprod.
     apply pr2.
     apply impred_isaprop ; intro.
     apply isapropimpl.
-    apply isapropdirprod ; apply pr2. }
-  assert (Heq : pr1 x = pr1 x').
-  { clear.
-    destruct x as ((x,y),(Hx,Hx')) ; simpl.
-    destruct x' as ((x',y'),(Hy,Hy')) ; simpl.
-    apply Utilities.simple_pair_path.
-    apply isantisymm_leNonnegativeReals ; split.
-    now apply (Hx' _ Hy).
-    now apply (Hy' _ Hx).
-    apply isantisymm_leNonnegativeReals ; split.
-    now apply (pr2 (Hx' _ Hy)).
-    now apply (pr2 (Hy' _ Hx)). }
-  apply (iscontrweqb (X := (pr1 x = pr1 x'))).
-  apply (total2_paths_hProp_equiv (λ x, hProppair _ (Hp x))).
-  rewrite Heq.
-  apply iscontrloopsifisaset.
-  apply (isofhleveldirprod 2) ; apply pr2.
+    apply isapropdirprod ; apply pr2.
+  - intros x y Hx Hy.
+    apply dirprodeq.
+    + apply Dcuts_le_ge_eq.
+      apply (pr1 (pr2 Hx _ (pr1 Hy))).
+      apply (pr1 (pr2 Hy _ (pr1 Hx))).
+    + apply Dcuts_le_ge_eq.
+      apply (pr2 (pr2 Hx _ (pr1 Hy))).
+      apply (pr2 (pr2 Hy _ (pr1 Hx))).
 Qed.
 Lemma hr_to_NR (X : hr_commrng) :
   Σ x : NonnegativeReals × NonnegativeReals,
