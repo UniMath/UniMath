@@ -10,16 +10,16 @@ january 2013
 (** **********************************************************
 
 Contents :  Definition of adjunction
-	
+
 	    Definition of equivalence of precategories
-	
+
 	    Equivalence of categories yields weak equivalence
             of object types
-            
+
             A fully faithful and ess. surjective functor induces
-            equivalence of precategories, if the source 
-            is a category. 
-           
+            equivalence of precategories, if the source
+            is a category.
+
 ************************************************************)
 
 
@@ -38,7 +38,7 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 (*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
 Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
-Notation "[ C , D ]" := (functor_precategory C D).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 
@@ -52,10 +52,10 @@ Local Definition G : functor B A := right_adjoint (pr1 H).
 Local Definition eta := eta_pointwise_iso_from_equivalence H.
 Local Definition eps := eps_pointwise_iso_from_equivalence H.
 
-Definition inverse {a b} (g : F a --> F b) : a --> b := 
+Definition inverse {a b} (g : F a --> F b) : a --> b :=
    eta a ;;  #G g ;; inv_from_iso (eta b).
 
-Lemma inverse_is_inverse_1 a b (f : a --> b) : 
+Lemma inverse_is_inverse_1 a b (f : a --> b) :
     inverse (#F f) = f.
 Proof.
   unfold inverse.
@@ -70,7 +70,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma triangle_id_inverse (a : A): 
+Lemma triangle_id_inverse (a : A):
    iso_inv_from_iso (functor_on_iso _ _ F _ _ (eta a)) = eps (F a).
 Proof.
   apply eq_iso. simpl.
@@ -82,14 +82,14 @@ Proof.
   apply H'.
 Qed.
 
-Lemma triangle_id_inverse' (a : A): 
+Lemma triangle_id_inverse' (a : A):
    inv_from_iso (functor_on_iso _ _ F _ _ (eta a)) = eps (F a).
 Proof.
   apply (base_paths _ _ (triangle_id_inverse a)).
 Qed.
 
 
-Lemma inverse_is_inverse_2 a b (g : F a --> F b) : 
+Lemma inverse_is_inverse_2 a b (g : F a --> F b) :
     #F (inverse g) = g.
 Proof.
   unfold inverse.
@@ -100,17 +100,17 @@ Proof.
   rewrite <- assoc.
   set (H':=nat_trans_ax  (eps_from_left_adjoint (pr1 H))).
   simpl in H'; rewrite H'; clear H'.
-  rewrite assoc.  
+  rewrite assoc.
   set (H' := pathsinv0 (triangle_id_left_ad _ _ _ (pr1 H) a)).
-  match goal with | [ |- ?f ;; ?g = ?h ] => 
+  match goal with | [ |- ?f ;; ?g = ?h ] =>
         assert (H'' : identity _ = f) end.
   - simpl in *; apply H'.
   - rewrite <- H''. rewrite id_left. apply idpath.
-Qed. 
+Qed.
 
 
 Lemma fully_faithful_from_equivalence : fully_faithful F.
-Proof. 
+Proof.
   unfold fully_faithful.
   intros a b.
   apply (gradth _ (@inverse a b)).
@@ -119,24 +119,3 @@ Proof.
 Qed.
 
 End from_equiv_to_fully_faithful.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

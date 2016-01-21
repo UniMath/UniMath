@@ -44,19 +44,65 @@ Proof. intros. exists(X×Y) . apply (isofhleveldirprod 2); apply setproperty. De
 Definition setcoprod (X Y:hSet) : hSet.
 Proof. intros. exists(X⨿Y). apply isasetcoprod; apply setproperty. Defined.
 
-Lemma isaset_total2 (X:hSet) (Y:X->hSet) : isaset (Σ x, Y x).
+Lemma isaset_total2_hSet (X:hSet) (Y:X->hSet) : isaset (Σ x, Y x).
 Proof.
-  intros.
-  apply (isofhleveltotal2 2).
+  intros. apply isaset_total2.
   - apply setproperty.
   - intro x. apply setproperty.
 Defined.
+
+Definition total2_hSet {X:hSet} (Y:X->hSet) : hSet
+  := hSetpair (Σ x, Y x) (isaset_total2_hSet X Y).
+
+Delimit Scope set with set.
+
+Notation "'Σ'  x .. y , P" := (total2_hSet (fun x => .. (total2_hSet (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : set.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Lemma isaset_forall_hSet (X:UU) (Y:X->hSet) : isaset (∀ x, Y x).
+Proof. intros. apply impred_isaset. intro x. apply setproperty. Defined.
+
+Definition forall_hSet {X:UU} (Y:X->hSet) : hSet := hSetpair (∀ x, Y x) (isaset_forall_hSet X Y).
+
+Notation "∀  x .. y , P" := (forall_hSet (fun x => .. (forall_hSet (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : set.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Lemma isaset_total2_subset (X:hSet) (Y:X->hProp) : isaset (Σ x, Y x).
+Proof.
+  intros. apply isaset_total2.
+  - apply setproperty.
+  - intro x. apply isasetaprop, propproperty.
+Defined.
+
+Definition total2_subset {X:hSet} (Y:X->hProp) : hSet
+  := hSetpair (Σ x, Y x) (isaset_total2_subset X Y).
+
+Notation "'Σ'  x .. y , P" := (total2_subset (fun x => .. (total2_subset (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : subset.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Delimit Scope subset with subset.
+
+Definition unitset : hSet := hSetpair unit isasetunit.
+
+Definition dirprod_hSet (X Y:hSet) : hSet.
+Proof.
+  intros X Y. exists (X × Y).
+  abstract (exact (isasetdirprod _ _ (setproperty X) (setproperty Y))).
+Defined.
+
+Notation "A × B" := (dirprod_hSet A B) (at level 75, right associativity) : set.
 
 (** [ hProp ] as a set *)
 
 Definition hPropset : hSet := tpair _ hProp isasethProp .
 (* Canonical Structure hPropset. *)
 
+Definition hProp_to_hSet (P:hProp) : hSet := hSetpair P (isasetaprop (propproperty P)).
+
+Coercion hProp_to_hSet : hProp >-> hSet.
 
 (** Booleans as a set *)
 
@@ -1149,10 +1195,10 @@ Definition fromsubquot { X : UU } ( R : eqrel X ) ( P : hsubtypes ( setquot R ) 
 Proof . intros . split with ( fun rp : carrier (funcomp (setquotpr R) P) => ( pr1 p ) ( pr1 rp ) ) .  apply ( iseqclassresrel R ( funcomp ( setquotpr R ) P ) _ ( pr2 ( pr1 p ) ) ) . intros x px .  set ( e := setquotl0 R _ ( carrierpair _ x px ) ) .  (* *) simpl in e . unfold funcomp . rewrite e . apply ( pr2 p ) . Defined .
 
 Definition tosubquot { X : UU } ( R : eqrel X ) ( P : hsubtypes ( setquot R ) ) : setquot ( resrel R ( funcomp ( setquotpr R ) P ) ) -> P .
-Proof . intros X R P . assert ( int : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . apply isinclpr1carrier . apply ( setquotuniv _ ( hSetpair _ int ) ( fun xp => carrierpair P ( setquotpr R ( pr1 xp ) ) ( pr2 xp ) ) ) .  intros xp1 xp2 rp12 . apply ( invmaponpathsincl _ ( isinclpr1carrier P ) _ _ ) . simpl .  apply ( iscompsetquotpr ) . apply rp12 . Defined .
+Proof . intros X R P . assert ( int : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . refine (isinclpr1carrier _) . apply ( setquotuniv _ ( hSetpair _ int ) ( fun xp => carrierpair P ( setquotpr R ( pr1 xp ) ) ( pr2 xp ) ) ) .  intros xp1 xp2 rp12 . apply ( invmaponpathsincl _ ( isinclpr1carrier P ) _ _ ) . simpl .  apply ( iscompsetquotpr ) . apply rp12 . Defined .
 
 Definition weqsubquot { X : UU } ( R : eqrel X ) ( P : hsubtypes ( setquot R ) ) : weq P ( setquot ( resrel R ( funcomp ( setquotpr R ) P ) ) ) .
-Proof . intros . set ( f := fromsubquot R P ) . set ( g := tosubquot R P ) .  split with f .  assert ( int0 : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . apply isinclpr1carrier .
+Proof . intros . set ( f := fromsubquot R P ) . set ( g := tosubquot R P ) .  split with f .  assert ( int0 : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . refine (isinclpr1carrier _) .
 
 assert ( egf : ∀ a , paths ( g ( f a ) ) a ) .  intros a .  destruct a as [ p isp ] . generalize isp . generalize p . clear isp . clear p .  assert ( int : ∀ p , isaprop ( ∀ isp : P p , paths (g (f ( tpair _ p isp ))) ( tpair _ p isp )  ) ) .  intro p . apply impred . intro . apply ( int0 _ _ ) . apply ( setquotunivprop _ ( fun a =>  hProppair _ ( int a ) ) ) .  simpl . intros x isp .  apply ( invmaponpathsincl _ ( isinclpr1carrier P ) _ _ ) .  apply idpath .
 

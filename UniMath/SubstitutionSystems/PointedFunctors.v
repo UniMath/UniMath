@@ -28,9 +28,9 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -122,7 +122,7 @@ Defined.
 Lemma eq_ptd_mor_precat {F G : precategory_Ptd} (a b : F ⇒ G)
   : a = b ≃ (a : ptd_mor F G) = b.
 Proof.
-  refine (tpair _ _ _).
+  simple refine (tpair _ _ _).
   intro H.
   exact H.
   apply idisweq.

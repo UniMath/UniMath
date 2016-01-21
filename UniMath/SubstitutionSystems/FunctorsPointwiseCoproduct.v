@@ -32,6 +32,7 @@ Require Import UniMath.CategoryTheory.limits.coproducts.
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -253,11 +254,11 @@ Qed.
 Definition functor_precat_coproduct_cocone
   : CoproductCocone [C, D, hsD] F G.
 Proof.
-  refine (mk_CoproductCocone _ _ _ _ _ _ _ ).
+  simple refine (mk_CoproductCocone _ _ _ _ _ _ _ ).
   - apply coproduct_functor.
   - apply coproduct_nat_trans_in1.
   - apply coproduct_nat_trans_in2.
-  - refine (mk_isCoproductCocone _ _ _ _ _ _ _ _ ).
+  - simple refine (mk_isCoproductCocone _ _ _ _ _ _ _ _ ).
     + apply functor_category_has_homsets.
     + intros A f g.
      exists (tpair _ (coproduct_nat_trans A f g)

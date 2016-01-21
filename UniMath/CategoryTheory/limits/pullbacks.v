@@ -103,8 +103,8 @@ Definition mk_Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧)
     (ispb : isPullback f g p1 p2 H)
   : Pullback f g.
 Proof.
-  refine (tpair _ _ _ ).
-  - refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
+  - simple refine (tpair _ _ _ ).
     + apply d.
     + exists p1.
       exact p2.

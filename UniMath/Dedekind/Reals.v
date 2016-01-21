@@ -19,6 +19,9 @@ Definition hr_commrng : commrng := commrigtocommrng NonnegativeReals.
 Definition NR_to_hr : NonnegativeReals × NonnegativeReals -> hr_commrng
   := setquotpr (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals)).
 
+Definition nat_to_hr (n : nat) : hr_commrng :=
+  NR_to_hr (nat_to_NonnegativeReals n,,0).
+
 (** Caracterisation of equality *)
 
 Lemma hr_inside_carac :
@@ -947,7 +950,7 @@ Qed.
 (** Theorems about apartness *)
 
 Lemma hr_ap_lt :
-  ∀ X Y : hr_commrng, hr_ap_rel X Y <-> hr_lt_rel X Y ∨ hr_lt_rel Y X.
+  ∀ X Y : hr_commrng, hr_ap_rel X Y <-> (hr_lt_rel X Y) ⨿ (hr_lt_rel Y X).
 Proof.
   intros X Y.
   split ; intro H.
@@ -955,7 +958,7 @@ Proof.
       intros (x,(Hx,_)) (y,(Hy,_)).
     generalize (hr_ap_carac _ _ H _ _ Hx Hy) ; clear H ; intro Hap.
     apply_pr2_in ap_ltNonnegativeReals Hap.
-    revert Hap ; apply hinhfun ; intros [Hlt | Hlt].
+    destruct Hap as [Hlt | Hlt].
     + now left ; apply hr_lt_carac' with x y.
     + now right ; apply hr_lt_carac' with y x.
   - generalize (hr_to_NR X) (hr_to_NR Y) ;
@@ -964,7 +967,7 @@ Proof.
     exact Hx.
     exact Hy.
     apply ap_ltNonnegativeReals.
-    revert H ; apply hinhfun ; intros [Hlt | Hlt].
+    destruct H as [Hlt | Hlt].
     + now left ; apply hr_lt_carac with X Y.
     + now right ; apply hr_lt_carac with Y X.
 Qed.
@@ -986,29 +989,29 @@ Proof.
     now apply hr_ap_carac with X Y.
   - intros X Y Z Hap.
     apply hr_ap_lt in Hap.
-    revert Hap ; apply hinhuniv ; intros [Hlt|Hlt].
+    destruct Hap as [Hlt|Hlt].
     + apply (iscotrans_hr_lt X Y Z) in Hlt.
       revert Hlt ; apply hinhfun ; intros [Hlt|Hlt].
       * left ; apply_pr2 hr_ap_lt.
-        now apply hinhpr ; left.
+        now left.
       * right ; apply_pr2 hr_ap_lt.
-        now apply hinhpr ; left.
+        now left.
     + apply (iscotrans_hr_lt _ Y _) in Hlt.
       revert Hlt ; apply hinhfun ; intros [Hlt|Hlt].
       * right ; apply_pr2 hr_ap_lt.
-        now apply hinhpr ; right.
+        now right.
       * left ; apply_pr2 hr_ap_lt.
-        now apply hinhpr ; right.
+        now right.
   - intros X Y Hap.
     apply isantisymm_hr_le.
     + apply hr_notlt_le.
       intro Hlt ; apply Hap.
       apply_pr2 hr_ap_lt.
-      now apply hinhpr ; right.
+      now right.
     + apply hr_notlt_le.
       intro Hlt ; apply Hap.
       apply_pr2 hr_ap_lt.
-      now apply hinhpr ; left.
+      now left.
 Qed.
 
 (** Structures *)
@@ -1016,24 +1019,24 @@ Qed.
 Lemma hr_NR_ap_0 :
   ∀ (X : hr_commrng) (x : NonnegativeReals × NonnegativeReals),
     pr1 X x ->
-    (hr_ap_rel X 0%rng <-> (pr2 x - pr1 x ≠ 0 ∨ pr1 x - pr2 x ≠ 0)).
+    (hr_ap_rel X 0%rng <-> ((pr2 x - pr1 x ≠ 0) ⨿ (pr1 x - pr2 x ≠ 0))).
 Proof.
   intros X x Hx.
   split.
   - intros Hap.
     apply hr_ap_lt in Hap.
-    revert Hap ; apply hinhfun ; intros [Hlt | Hlt].
+    destruct Hap as [Hlt | Hlt].
     + left.
       apply (fun Hlt H0 => hr_lt_carac _ _ Hlt _ (0,,0) Hx H0) in Hlt ; simpl pr1 in Hlt ; simpl pr2 in Hlt.
       rewrite islunit_zero_plusNonnegativeReals, isrunit_zero_plusNonnegativeReals in Hlt.
-      apply ap_ltNonnegativeReals, hinhpr.
+      apply ap_ltNonnegativeReals.
       right.
       now apply ispositive_minusNonnegativeReals.
       now apply hinhpr ; exists 0 ; simpl.
     + right.
       apply (fun Hlt H0 => hr_lt_carac _ _ Hlt (0,,0) _ H0 Hx) in Hlt ; simpl pr1 in Hlt ; simpl pr2 in Hlt.
       rewrite islunit_zero_plusNonnegativeReals, isrunit_zero_plusNonnegativeReals in Hlt.
-      apply ap_ltNonnegativeReals, hinhpr.
+      apply ap_ltNonnegativeReals.
       right.
       now apply ispositive_minusNonnegativeReals.
       now apply hinhpr ; exists 0 ; simpl.
@@ -1043,18 +1046,18 @@ Proof.
     simpl pr1 ; simpl pr2.
     rewrite islunit_zero_plusNonnegativeReals, isrunit_zero_plusNonnegativeReals.
     apply ap_ltNonnegativeReals.
-    revert Hlt ; apply hinhfun ; intros [Hap | Hap].
+    destruct Hlt as [Hap | Hap].
     + left.
       apply_pr2 ispositive_minusNonnegativeReals.
       apply_pr2_in ap_ltNonnegativeReals Hap.
-      revert Hap ; apply hinhuniv ; intros [Hlt | Hlt].
+      destruct Hap as [Hlt | Hlt].
       revert Hlt ; apply hinhuniv ; intros (c,(_,Hc)).
       now apply Dcuts_zero_empty in Hc.
       exact Hlt.
     + right.
       apply_pr2 ispositive_minusNonnegativeReals.
       apply_pr2_in ap_ltNonnegativeReals Hap.
-      revert Hap ; apply hinhuniv ; intros [Hlt | Hlt].
+      destruct Hap as [Hlt | Hlt].
       revert Hlt ; apply hinhuniv ; intros (c,(_,Hc)).
       now apply Dcuts_zero_empty in Hc.
       exact Hlt.
@@ -1067,7 +1070,7 @@ Proof.
   intro Hap.
   apply_pr2 hr_ap_lt.
   apply hr_ap_lt in Hap.
-  revert Hap ; apply hinhfun ; intros [Hlt | Hlt].
+  destruct Hap as [Hlt | Hlt].
   - left.
     apply_pr2 (hr_plus_ltcompat_l X).
     exact Hlt.
@@ -1212,8 +1215,7 @@ Lemma hr_ex_inv :
 Proof.
   intros X Hap.
   apply hr_ap_lt in Hap.
-  revert Hap ;
-    apply (hinhuniv (P := hProppair _ (isapropinvpair _ _))) ; intros [Hlt|Hlt] ; simpl.
+  destruct Hap as [Hlt|Hlt] ; simpl.
   - apply hr_isnegative_carac in Hlt.
     destruct Hlt as (x,(Hx,Hap)).
     apply_pr2_in ispositive_apNonnegativeReals Hap.
@@ -1302,6 +1304,28 @@ Proof.
       eapply hr_opp_carac'.
       exact Hx.
       reflexivity.
+Qed.
+
+(** ** Archimedean *)
+
+Lemma hr_archimedean :
+  ∀ x : hr_ConstructiveField, ∃ n : nat, hr_lt_rel x (nat_to_hr n).
+Proof.
+  intros X.
+  set (x := hr_to_NR X).
+  generalize (NonnegativeReals_Archimedean (pr1 (pr1 x))).
+  apply hinhfun.
+  intros n.
+  exists (pr1 n).
+  apply (hr_lt_carac' X (nat_to_hr (pr1 n)) (pr1 x) (nat_to_NonnegativeReals (pr1 n) ,, 0)).
+  - exact (pr1 (pr2 x)).
+  - apply hinhpr.
+    exists 0.
+    reflexivity.
+  - simpl pr1 ; simpl pr2.
+    eapply istrans_lt_le_ltNonnegativeReals, Dcuts_plus_le_l.
+    rewrite isrunit_zero_plusNonnegativeReals.
+    exact (pr2 n).
 Qed.
 
 (** ** Completeness *)

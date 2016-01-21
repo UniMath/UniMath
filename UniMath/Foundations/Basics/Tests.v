@@ -21,7 +21,7 @@ Module Test_gradth.
   Goal homotweqinvweqweq w 3 = idpath _. reflexivity. Defined.
 
   Definition v : bool ≃ bool.
-    refine (weqgradth negb negb _ _); intro x; induction x; reflexivity. Defined.
+    simple refine (weqgradth negb negb _ _); intro x; induction x; reflexivity. Defined.
   Goal homotinvweqweq v true = idpath _. reflexivity. Defined.
   Goal homotweqinvweq v true = idpath _. reflexivity. Defined.
   Goal homotweqinvweqweq v true = idpath _. reflexivity. Defined.

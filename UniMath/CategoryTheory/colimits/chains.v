@@ -85,7 +85,7 @@ Defined.
 Definition shift_cocone {D : diagram nat_graph C}
   {x : C} (cx : cocone D x) : cocone (shift D) x.
 Proof.
-refine (tpair _ _ _).
+simple refine (tpair _ _ _).
 - now intro n; apply (coconeIn cx).
 - abstract (now intros m n Hmn; destruct Hmn; apply (coconeInCommutes cx)).
 Defined.
@@ -94,7 +94,7 @@ Defined.
 Definition unshift_cocone {D : diagram nat_graph C}
   {x : C} (cx : cocone (shift D) x) : cocone D x.
 Proof.
-refine (mk_cocone _ _).
+simple refine (mk_cocone _ _).
 - intro n.
   now apply (@dmor _ _ _ n _ (idpath _) ;; coconeIn cx n).
 - abstract (now intros m n Hmn; destruct Hmn; simpl;
@@ -123,7 +123,7 @@ Definition shift_colim (D : diagram nat_graph C) (CC : ColimCocone D) :
 Proof.
 apply (mk_ColimCocone _ (colim CC) (shift_cocone (colimCocone CC))).
 intros x fx.
-refine (tpair _ _ _).
+simple refine (tpair _ _ _).
 + exists (colimArrow CC x (unshift_cocone fx)).
   abstract (intro n; simpl;
             eapply pathscomp0;
@@ -144,7 +144,7 @@ Definition unshift_colim (D : diagram nat_graph C) (CC : ColimCocone (shift D)) 
 Proof.
 apply (mk_ColimCocone _ (colim CC) (unshift_cocone (colimCocone CC))).
 intros x fx.
-refine (tpair _ _ _).
+simple refine (tpair _ _ _).
 + exists (colimArrow CC x (shift_cocone fx)).
   abstract (simpl; intro n;
             rewrite <- assoc;
@@ -194,7 +194,7 @@ Defined.
 (* Definition shift_Fdiagram (x : C) : cocone Fdiagram x -> cocone (shift C Fdiagram) (F x). *)
 (* Proof. *)
 (* intro H. *)
-(* refine (mk_cocone _ _). *)
+(* simple refine (mk_cocone _ _). *)
 (* - simpl. *)
 (*   intro n. *)
 (*   destruct n. *)
@@ -220,7 +220,7 @@ Local Notation LF := (colim (shift_colim C hsC Fdiagram CC)).
 
 Definition Fcocone : cocone Fdiagram (F L).
 Proof.
-refine (mk_cocone _ _).
+simple refine (mk_cocone _ _).
 - intro n.
   destruct n; simpl.
   + exact (s ;; # F (colimIn CC 0)).
@@ -316,7 +316,7 @@ Qed.
 Local Definition ad : C⟦L,A⟧.
 Proof.
 apply colimArrow.
-refine (mk_cocone _ _).
+simple refine (mk_cocone _ _).
 - apply cocone_over_alg.
 - apply isCoconeOverAlg.
 Defined.
@@ -358,7 +358,7 @@ End algebra.
 
 Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) colimAlg.
 Proof.
-refine (mk_isInitial _ _ ).
+simple refine (mk_isInitial _ _ ).
 intros Aa.
 exists (adaggerMor Aa); simpl; intro Fa.
 apply (algebra_mor_eq _ hsC); simpl.
@@ -446,8 +446,8 @@ Proof.
 (* set (X3 := Fcocone _ _ _ _). *)
 (* apply (isColim_is_iso _ X1). *)
 (* intros a ca. *)
-(* refine (tpair _ _ _). *)
-(* refine (tpair _ _ _). *)
+(* simple refine (tpair _ _ _). *)
+(* simple refine (tpair _ _ _). *)
 (* apply colimArrow. *)
 (* apply ca. *)
 (* intros v. *)
@@ -515,7 +515,7 @@ Defined.
 Lemma listFunctor_Initial :
   Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
 Proof.
-refine (colimAlgInitial _ _ _ _ _ _).
+simple refine (colimAlgInitial _ _ _ _ _ _).
 - apply InitialHSET.
 - apply ColimCoconeHSET.
 - apply listFunctor_chain_cocontinuous.

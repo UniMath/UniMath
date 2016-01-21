@@ -75,11 +75,11 @@ Definition mk_ProductCone (a b : C) :
    isProductCone _ _ _ f g -> ProductCone a b.
 Proof.
   intros.
-  refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
   - exists c.
     exists f.
     exact g.
-  - apply X.
+  - exact X.
 Defined.
 
 Definition mk_isProductCone (hsC : has_homsets C) (a b p : C)

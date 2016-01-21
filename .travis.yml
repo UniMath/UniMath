@@ -11,4 +11,3 @@ env:
 script:
   - time make BUILD_COQIDE=yes build-coq
   - time make TIMECMD=time $PACKAGE
-

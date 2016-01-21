@@ -31,7 +31,7 @@ Defined.
 Definition ProdCone {a b c : C} (ca : C⟦c,a⟧) (cb : C⟦c,b⟧) :
   cone (product_diagram a b) c.
 Proof.
-refine (tpair _ _ _); simpl.
+simple refine (tpair _ _ _); simpl.
 - intro v; induction v.
   + exact ca.
   + exact cb.
@@ -50,7 +50,7 @@ Proof.
 intros H c cc.
 simpl in *.
 set (H' := H c (coneOut cc true) (coneOut cc false)).
-refine (tpair _ _ _).
+unshelve refine (tpair _ _ _).
 - exists (pr1 (pr1 H')).
   set (T := pr2 (pr1 H')); simpl in T.
   abstract (intro u; induction u; simpl; [exact (pr1 T)|exact (pr2 T)]).
@@ -66,7 +66,7 @@ Definition mk_ProductCone (a b : C) :
    isProductCone _ _ _ f g -> ProductCone a b.
 Proof.
   intros.
-  refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
   - exists c.
     apply (ProdCone f g).
   - apply X.
@@ -91,7 +91,7 @@ Definition ProductArrow {a b : C} (P : ProductCone a b) {c : C}
   (f : C⟦c,a⟧) (g : C⟦c,b⟧) : C⟦c,ProductObject P⟧.
 Proof.
 apply (limArrow P).
-refine (mk_cone _ _).
+simple refine (mk_cone _ _).
 - intro v; induction v; [ apply f | apply g ].
 - intros ? ? e; induction e. (* <- should not be opaque! otherwise ProductPr1Commutes doesn't work *)
 Defined.
@@ -116,7 +116,7 @@ Lemma ProductArrowUnique (a b : C) (P : ProductCone a b) (c : C)
       k = ProductArrow P f g.
 Proof.
 intros H1 H2.
-apply limArrowUnique; simpl.
+refine (limArrowUnique _ _ _ _ _); simpl.
 now intro u; induction u; simpl; [ apply H1 | apply H2 ].
 Qed.
 

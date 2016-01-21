@@ -78,7 +78,7 @@ Proof.
   intros. apply (@iscontrweqb _ (empty -> X)).
   - apply invweq. apply weqbfun. apply weqstn0toempty.
   - apply iscontrfunfromempty.
-Defined.  
+Defined.
 
 Definition nil_unique {X} (x : stn 0 -> X) : nil = (0,,x).
 Proof.
@@ -114,10 +114,10 @@ Defined.
 
 Definition iscontr_rect'' X (i : iscontr X) (P : X ->UU) (p0 : P (pr1 i)) : ∀ x:X, P x.
 Proof. intros. exact (invmap (weqsecovercontr P i) p0 x). Defined.
-       
+
 Definition iscontr_rect_compute'' X (i : iscontr X) (P : X ->UU) (p : P(pr1 i)) :
   iscontr_rect'' X i P p (pr1 i) = p.
-Proof. try reflexivity. intros. exact (homotweqinvweq (weqsecovercontr _ i) _).
+Proof. try reflexivity. intros. exact (homotweqinvweq (weqsecovercontr P i) p).
 Defined.
 
 (* .... or use transport explicitly: *)
@@ -185,7 +185,7 @@ Proof.
     induction (natlehchoice4 i n b) as [q|q].
     + simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
     + induction q. contradicts p (isirreflnatlth i).
-  - induction p. 
+  - induction p.
     unfold append_fun; simpl.
     induction (natlehchoice4 i i b) as [r|r].
     * simpl. unfold funcomp; simpl. apply maponpaths.
@@ -225,13 +225,15 @@ Proof.
     { apply nil_unique. }
     apply drop_and_append'. }
   intros co. induction co as [t|p].
-  { simpl. apply maponpaths. apply proofirrelevancecontr. apply iscontrunit. }
+  { unfold disassembleSequence; simpl. apply maponpaths.
+    apply proofirrelevancecontr. apply iscontrunit. }
   induction p as [x y]. induction y as [n y].
   apply (maponpaths (@inr unit (X × Sequence X))).
   unfold append_fun, lastelement, funcomp; simpl.
+  unfold append_fun. simpl.
   induction (natlehchoice4 n n (natgthsnn n)) as [e|e].
   { contradicts e (isirreflnatlth n). }
-  simpl. apply maponpaths. apply maponpaths.
+  simpl. apply maponpaths, maponpaths.
   apply funextfun; intro i. clear e. induction i as [i b].
   unfold funcomp, dni_lastelement; simpl.
   induction (natlehchoice4 i n (natlthtolths i n b)) as [d|d].
@@ -267,7 +269,7 @@ Lemma Sequence_rect_compute_cons
       {X} {P : Sequence X ->UU} (p0 : P nil)
       (ind : ∀ (s : Sequence X) (x : X), P s -> P (append s x))
       (x:X) (l:Sequence X) :
-  Sequence_rect p0 ind (append l x) = ind l x (Sequence_rect p0 ind l). 
+  Sequence_rect p0 ind (append l x) = ind l x (Sequence_rect p0 ind l).
 Proof.
   intros.
 
@@ -297,7 +299,7 @@ Definition concatenate_0 {X} (s:Sequence X) (t:stn 0 -> X) : concatenate s (0,,t
 Proof.
   intros.
   induction s as [n s].
-  refine (total2_paths2 _ _).
+  simple refine (total2_paths2 _ _).
   { simpl. apply natplusr0. }
   { simpl. generalize (natplusr0 n). intro e. apply funextsec; intro i.
 
@@ -357,13 +359,13 @@ Proof.
   unfold total2_step_b, total2_step_f.
   induction (natlehchoice4 j n J) as [J'|K].
   + simpl.
-    refine (total2_paths _ _).
+    simple refine (total2_paths _ _).
     * simpl. rewrite replace_dni_last. apply isinjstntonat. reflexivity.
     * rewrite replace_dni_last. unfold dni_lastelement.  simpl.
       change (λ x0 : stn (S n), X x0) with X.
       rewrite transport_f_b. apply (isaset_transportf X).
   + induction (!K). simpl.
-    refine (total2_paths _ _).
+    simple refine (total2_paths _ _).
     * simpl. now apply isinjstntonat.
     * simpl. assert (d : idpath n = K).
       { apply isasetnat. }
@@ -435,7 +437,7 @@ Proof. intros.
   intermediate_weq (stn (stnsum (f ∘ dni n (lastelement n))) ⨿ stn (f (lastelement n))).
   { apply weqcoprodf. { apply weqstnsum1. } apply idweq. }
   apply weqfromcoprodofstn.
-Defined.  
+Defined.
 
 Definition invmap_over_weqcomp {X Y Z} (g:Y≃Z) (f:X≃Y) :
   invmap (g∘f)%weq = invmap f ∘ invmap g.
@@ -459,7 +461,7 @@ Proof.
   apply isinjpr1weq.
   apply funextfun; intros [k p].
   unfold weqstnsum1'.
-  unfold total2_step', total2_step. 
+  unfold total2_step', total2_step.
   rewrite 4? weqcomp_to_funcomp.
   unfold funcomp.
   change (((invweq
@@ -500,7 +502,7 @@ Definition isassoc_concatenate {X} (x y z:Sequence X) :
   concatenate (concatenate x y) z = concatenate x (concatenate y z).
 Proof.
   intros.
-  refine (total2_paths _ _).
+  simple refine (total2_paths _ _).
   - simpl. apply natplusassoc.
   - apply sequenceEquality; intros i.
 
@@ -512,5 +514,3 @@ Local Variables:
 compile-command: "make -C ../.. UniMath/Foundations/Sequences.vo"
 End:
 *)
-
-

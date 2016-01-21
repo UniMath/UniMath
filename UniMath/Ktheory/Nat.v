@@ -18,14 +18,14 @@ Module Uniqueness.
         (f:∀ n, P n) :
     weq (∀ n, f n = nat_rect P p0 IH n)
         (f 0=p0 × ∀ n, f(S n)=IH n (f n)).
-  Proof. intros. refine (_,,gradth _ _ _ _).
+  Proof. intros. simple refine (_,,gradth _ _ _ _).
          { intros h. split.
            { exact (h 0). } { intros. exact (h (S n) @ ap (IH n) (! h n)). } }
          { intros [h0 h'] ?. induction n as [|n'].
            { exact h0. } { exact (h' n' @ ap (IH n') IHn'). } }
          { simpl. intros h. apply funextsec; intros n; simpl. induction n.
            { simpl. reflexivity. }
-           { simpl. rewrite <- path_assoc. refine (_ @ pathscomp0rid _).
+           { simpl. rewrite <- path_assoc. simple refine (_ @ pathscomp0rid _).
              rewrite <- maponpathscomp0. rewrite IHn. rewrite pathsinv0l.
              simpl. reflexivity. } }
          { intros [h0 h']. apply pair_path_in2. apply funextsec; intro n; simpl.
@@ -58,7 +58,7 @@ Module Uniqueness.
            (P 0)
            (fun fh => pr1 fh 0)
            p0).
-  Proof. intros. refine (weqpair _ (gradth _ _ _ _)).
+  Proof. intros. simple refine (weqpair _ (gradth _ _ _ _)).
          { intros [f [h0 h']]. exact ((f,,h'),,h0). }
          { intros [[f h'] h0]. exact (f,,(h0,,h')). }
          { intros [f [h0 h']]. reflexivity. }
@@ -145,7 +145,7 @@ Module Discern.
   Proof. intros. apply proofirrelevance. apply nat_discern_isaprop. Defined.
 
   Definition helper_D m n : isweq (helper_B m n).
-  Proof. intros. refine (gradth _ (helper_C _ _) _ _).
+  Proof. intros. simple refine (gradth _ (helper_C _ _) _ _).
          { intro e. assert(p := ! helper_B _ _ e). destruct p.
            apply proofirrelevancecontr. apply nat_discern_iscontr. }
          { intro e. destruct e. induction m.
@@ -343,7 +343,7 @@ Proof. intros ? ? ? i.
        rewrite minusplusnmm.
        { exact i. }
        { change (m ≤ n).
-         refine (istransnatleh _ i); clear i.
+         simple refine (istransnatleh _ i); clear i.
          apply natlehmplusnm. }
 Defined.
 

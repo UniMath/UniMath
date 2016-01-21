@@ -30,7 +30,7 @@ Defined.
 
 Definition termCone (c : C) : cone termDiagram c.
 Proof.
-refine (mk_cocone _ _); intro v; induction v.
+simple refine (mk_cocone _ _); intro v; induction v.
 Defined.
 
 Definition isTerminal (a : C) :=
@@ -40,7 +40,7 @@ Definition mk_isTerminal (b : C) (H : ∀ (a : C), iscontr (a ⇒ b)) :
   isTerminal b.
 Proof.
 intros a ca.
-refine (tpair _ _ _).
+simple refine (tpair _ _ _).
 - exists (pr1 (H a)); intro v; induction v.
 - intro t.
   apply subtypeEquality; simpl;
@@ -57,7 +57,7 @@ refine (mk_LimCone _ b (termCone b) _).
 apply mk_isTerminal.
 intro a.
 set (x := H a (termCone a)).
-refine (tpair _ _ _).
+simple refine (tpair _ _ _).
 - apply (pr1 x).
 - simpl; intro f; apply path_to_ctr; intro v; induction v.
 Defined.
