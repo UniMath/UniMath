@@ -443,6 +443,13 @@ Lemma isldistr_CFplus_CFmult :
 Proof.
   now apply rngdistraxs.
 Qed.
+Lemma isrdistr_CFplus_CFmult :
+  ∀ x y z : X, (x + y) * z = x * z + y * z.
+Proof.
+  intros.
+  rewrite !(iscomm_CFmult _ z).
+  now apply isldistr_CFplus_CFmult.
+Qed.
 
 End CF_pty.
 
