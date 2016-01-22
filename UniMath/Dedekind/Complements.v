@@ -224,7 +224,7 @@ Proof.
   exact Hlt.
 Qed.
 
-Lemma Snattohz_neq0 :
+(* Lemma Snattohz_neq0 :
   ∀ n, nattohz (S n) != 0%hz.
 Proof.
   intro n.
@@ -297,28 +297,81 @@ Proof.
     apply fromempty.
     now apply h.
     reflexivity.
+Qed.*)
+
+Lemma weqfldfracgt_f_b :
+  ∀ (X : intdom) (is : isdeceq X) (R : hrel X)
+    is0 is1 is2 is3 (Rdec : neqchoice R),
+  ∀ (x : commrngfrac X (rngpossubmonoid X is1 is2)),
+   weqfldfracgt_f X is is0 is1 is2 Rdec (weqfldfracgt_b X is is1 is2 is3 x) = x.
+Proof.
+  intros.
+  generalize (pr1 (pr2 x)).
+  apply hinhuniv'.
+  apply isasetsetquot.
+  intros x'.
+  rewrite <- (setquotl0 _ x x').
+  unfold weqfldfracgt_b ; rewrite setquotfuncomm.
+  unfold weqfldfracgt_f ; rewrite setquotfuncomm.
+  apply iscompsetquotpr.
+  apply hinhpr.
+  exists (1%rng ,, is2).
+  unfold weqfldfracgtint_f ; simpl.
+  destruct Rdec ; simpl.
+  - reflexivity.
+  - change ((- pr1 (pr1 x') * pr1 (pr2 (pr1 x')) * 1)%rng = (pr1 (pr1 x') * - pr1 (pr2 (pr1 x')) * 1)%rng).
+    rewrite rngrmultminus, !rnglmultminus.
+    reflexivity.
+Qed.
+Lemma weqfldfracgt_b_f :
+  ∀ (X : intdom) (is : isdeceq X) (R : hrel X)
+    is0 is1 is2 is3 (Rdec : neqchoice R),
+  ∀ (x : fldfrac X is),
+   weqfldfracgt_b X is is1 is2 is3 (weqfldfracgt_f X is is0 is1 is2 Rdec x) = x.
+Proof.
+  intros.
+  generalize (pr1 (pr2 x)).
+  apply hinhuniv'.
+  apply isasetsetquot.
+  intros x'.
+  rewrite <- (setquotl0 _ x x').
+  unfold weqfldfracgt_f ; rewrite setquotfuncomm.
+  unfold weqfldfracgt_b ; rewrite setquotfuncomm.
+  apply iscompsetquotpr.
+  apply hinhpr.
+  assert (is4 : (1%rng : X) != 0%rng).
+  { intros H.
+    rewrite H in is2.
+    exact (is3 _ is2). }
+  exists (1%rng ,, is4).
+  unfold weqfldfracgtint_f ; simpl.
+  destruct Rdec ; simpl.
+  - reflexivity.
+  - change ((- pr1 (pr1 x') * pr1 (pr2 (pr1 x')) * 1)%rng = (pr1 (pr1 x') * - pr1 (pr2 (pr1 x')) * 1)%rng).
+    rewrite rngrmultminus, !rnglmultminus.
+    reflexivity.
 Qed.
 
-Lemma intpartint0_hznat :
-  ∀ (n : hz) (d : nat), intpartint0 (n ,, Snattohz d) = (hzabsval n / (S d))%nat.
-Proof.
-  intros n d.
-  unfold intpartint0.
-  apply maponpaths.
-  unfold hzabsval, nattohz.
-  apply (setquotunivcomm (eqrelabgrfrac nataddabmonoid) natset hzabsvalint
-    hzabsvalintcomp).
-Qed.
 Lemma intpart0_hznat :
-  ∀ (n : hz) (d : nat), intpart0 (hznattohq n d) = (hzabsval n / (S d))%nat.
+  ∀ x : hq,
+    let x' := weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice x in
+    ∀ n, pr1 x' n ->
+      intpart0 x = (hzabsval (pr1 n) / (hzabsval (pr1 (pr2 n))))%nat.
 Proof.
-  intros n d.
+  intros x x' n Hn.
+  rewrite <- (weqfldfracgt_b_f hzintdom isdeceqhz _ isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) isirreflhzgth hzneqchoice x).
+  change (weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth
+           (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice x) with x'.
+  clearbody x' ; clear -Hn.
+  unfold weqfldfracgt_b.
+  rewrite <- (setquotl0 _ x' (n,,Hn)).
+  rewrite setquotfuncomm.
   unfold intpart0.
-  unfold hznattohq, hzhztohq.
   rewrite (setquotunivcomm (eqrelabmonoidfrac hzmultabmonoid (intdomnonzerosubmonoid hzintdom))
      natset intpartint0 iscompintpartint0).
-  apply intpartint0_hznat.
+  reflexivity.
 Qed.
+
 Definition one_rngpossubmonoid : rngpossubmonoid hzintdom isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)).
 Proof.
   apply intdomnonzerotopos.
@@ -354,96 +407,104 @@ Proof.
 Qed.
 
 Lemma hznattohq_gth :
-  ∀ n d n' d',
-    hzgth (n * (nattohz (S d')))%hz (n' * (nattohz (S d)))%hz
-    <-> hznattohq n d > hznattohq n' d'.
+  ∀ x y : hq,
+    let x' := weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice x in
+    let y' := weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice y in
+    ∀ n m,
+      pr1 x' n -> pr1 y' m ->
+      ((hzgth (pr1 n * (pr1 (pr2 m)))%hz (pr1 m * (pr1 (pr2 n)))%hz
+    <-> x > y)).
 Proof.
-  assert (Hd : forall d, hzgth (nattohz (S d)) 0%hz).
-  { intro.
-    apply nattohzandgth.
-    now apply (natgthsn0 _). }
-  Opaque hzgth.
-  intros.
+  intros x y x' y' n m Hn Hm.
+  unfold hqgth.
+  unfold fldfracgt.
+  change (weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice x) with x'.
+  change (weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice y) with y'.
+  rewrite <- (setquotl0 _ x' (n,,Hn)), <- (setquotl0 _ y' (m,,Hm)).
+  simpl pr1 ; clear.
+  unfold commrngfracgt, abmonoidfracrel, quotrel.
+  rewrite setquotuniv2comm.
   split.
-  - intro Hgt.
+  - intros Hgt.
     apply hinhpr.
     exists one_rngpossubmonoid.
     apply hzgthandmultr.
     + destruct one_rngpossubmonoid as [one Hone].
       simpl in Hone.
       exact Hone.
-    + simpl pr1 ; simpl pr2.
-      unfold weqfldfracgtint_f.
-      simpl pr1 ; simpl pr2.
-      pattern (hzneqchoice (nattohz (S d)) 0%rng (Snattohz_neq0 d)).
-      rewrite (hzneqchoice_l (nattohz (S d)) 0%hz (Snattohz_neq0 d) (Hd d)).
-      pattern (hzneqchoice (nattohz (S d')) 0%rng (Snattohz_neq0 d')).
-      rewrite (hzneqchoice_l (nattohz (S d')) 0%hz (Snattohz_neq0 d') (Hd d')).
-      simpl pr2 ; simpl pr1.
-      exact Hgt.
+    + exact Hgt.
   - apply hinhuniv.
     intros (c,Hc).
-    apply hzgthandmultrinv in Hc.
-    2: apply (pr2 c).
-    revert Hc.
-    simpl pr1 ; simpl pr2.
-    unfold weqfldfracgtint_f.
-    simpl pr1 ; simpl pr2.
-    pattern (hzneqchoice (nattohz (S d)) 0%rng (Snattohz_neq0 d)).
-    rewrite (hzneqchoice_l (nattohz (S d)) 0%hz (Snattohz_neq0 d) (Hd d)).
-    pattern (hzneqchoice (nattohz (S d')) 0%rng (Snattohz_neq0 d')).
-    rewrite (hzneqchoice_l (nattohz (S d')) 0%hz (Snattohz_neq0 d') (Hd d')).
-    simpl pr2 ; simpl pr1.
-    intro Hc ; exact Hc.
+    apply hzgthandmultrinv with (pr1 c).
+    + generalize (pr2 c).
+      now simpl.
+    + exact Hc.
 Qed.
 
 Lemma hznattohq_lth :
-  ∀ n d n' d',
-    hzlth (n * nattohz (S d'))%hz (n' * nattohz (S d))%hz
-    <-> hznattohq n d < hznattohq n' d'.
+  ∀ x y : hq,
+    let x' := weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice x in
+    let y' := weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice y in
+    ∀ n m,
+      pr1 x' n -> pr1 y' m ->
+      ((hzlth (pr1 n * (pr1 (pr2 m)))%hz (pr1 m * (pr1 (pr2 n)))%hz
+    <-> x < y)).
 Proof.
   intros.
   now apply hznattohq_gth.
 Qed.
 Lemma hznattohq_geh :
-  ∀ n d n' d',
-    hzgeh (n * nattohz (S d'))%hz (n' * nattohz (S d))%hz
-    <-> hznattohq n d >= hznattohq n' d'.
+  ∀ x y : hq,
+    let x' := weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice x in
+    let y' := weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice y in
+    ∀ n m,
+      pr1 x' n -> pr1 y' m ->
+      ((hzgeh (pr1 n * (pr1 (pr2 m)))%hz (pr1 m * (pr1 (pr2 n)))%hz
+    <-> x >= y)).
 Proof.
   intros.
   split.
   - intros Hge Hgt.
     apply Hge.
-    apply (pr2 (hznattohq_gth _ _ _ _)).
+    eapply (pr2 (hznattohq_gth _ _ _ _ X0 X)).
     exact Hgt.
   - intros Hge Hgt.
     apply Hge.
-    apply (pr1 (hznattohq_gth _ _ _ _)).
+    eapply (pr1 (hznattohq_gth _ _ _ _ X0 X)).
     exact Hgt.
 Qed.
 Lemma hznattohq_leh :
-  ∀ n d n' d',
-    hzleh (n * nattohz (S d'))%hz (n' * nattohz (S d))%hz
-    <-> hznattohq n d <= hznattohq n' d'.
+  ∀ x y : hq,
+    let x' := weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice x in
+    let y' := weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice y in
+    ∀ n m,
+      pr1 x' n -> pr1 y' m ->
+      ((hzleh (pr1 n * (pr1 (pr2 m)))%hz (pr1 m * (pr1 (pr2 n)))%hz
+    <-> x <= y)).
 Proof.
   intros.
   now apply hznattohq_geh.
 Qed.
 
 Lemma hztohq_hznattohq :
-  ∀ n, hztohq n = hznattohq n O.
+  ∀ n H1,
+    pr1 (weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice (hztohq n)) (n ,, (1%rng,, H1)).
 Proof.
-  intros n.
-  unfold hznattohq, hztohq.
-  unfold tofldfrac, hzhztohq.
-  apply iscompsetquotpr.
+  intros n H1.
+  unfold weqfldfracgt_f, hztohq.
+  unfold tofldfrac.
+  rewrite setquotfuncomm.
+  unfold weqfldfracgtint_f.
+  simpl hzneqchoice.
+  pattern (hzneqchoice 1%rng 0%rng (nonzeroax hzintdom)).
+  rewrite (hzneqchoice_l _ _ (nonzeroax hzintdom) (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz))).
+  simpl pr1 ; simpl pr2.
   apply hinhpr.
-  exists one_intdomnonzerosubmonoid.
-  simpl.
+  exists one_rngpossubmonoid.
   reflexivity.
 Qed.
 
-Lemma hznattohq_eq :
+(* Lemma hznattohq_eq :
   ∀ n d c,
     hznattohq (n * nattohz (S c))%hz (S d * c + d)
     = hznattohq n d.
@@ -521,7 +582,7 @@ Proof.
   apply map_on_two_paths.
   2: reflexivity.
   apply (rngmultwithminus1 _ n).
-Qed.
+Qed.*)
 
 Lemma hztohq_opp :
   ∀ n : hz, hztohq (- n)%hz = - hztohq n.
@@ -538,43 +599,72 @@ Proof.
 Qed.
 
 Lemma intpart0_carac :
-  ∀ x : hq, 0 <= x -> hztohq (nattohz (intpart0 x)) <= x ∧ x < hztohq (nattohz (intpart0 x)) + 1.
+  ∀ x : hq, 0 <= x -> hztohq (nattohz (intpart0 x)) <= x ∧ x < hztohq (nattohz (S (intpart0 x))).
 Proof.
   intros x Hx.
-  generalize (hqtohznat x).
-  apply hinhuniv.
-  intros (n,(d)) ->.
-  rewrite <- hztohqand0, hztohq_hznattohq in Hx.
-  apply (pr2 (hznattohq_leh _ _ _ _)) in Hx.
-  rewrite hzmult0x, nattohzand1, hzmultr1 in Hx.
-  rewrite intpart0_hznat.
-  pattern n at 2 3 ;
-    rewrite <- (hzabsvalgeh0 Hx).
-  rewrite <- hztohqand1, !hztohq_hznattohq.
-  rewrite hznattohq_plus'.
+  set (x' := weqfldfracgt_f hzintdom isdeceqhz isplushrelhzgth isrngmulthzgth (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz)) hzneqchoice x).
+  generalize (pr1 (pr2 x')).
+  apply hinhuniv ; intros n.
+  rewrite (intpart0_hznat x (pr1 n) (pr2 n)).
+  generalize ((pr2 (hznattohq_leh 0 x _ _ (hztohq_hznattohq 0%hz (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz))) (pr2 n))) Hx).
+  clear Hx ; intro Hx.
+  simpl in Hx.
+  rewrite hzmult0x, hzmultr1 in Hx.
   split.
-  - apply hznattohq_leh.
-    rewrite nattohzand1.
-    rewrite hzmultr1.
-    rewrite <- nattohzandmult.
-    apply nattohzandleh.
-    apply natlehmultnatdiv.
-    easy.
-  - apply hznattohq_lth.
-    rewrite nattohzand1.
-    rewrite hzmultr1.
-    rewrite (hzpluscomm _ 1%hz).
-    rewrite <- nattohzandS.
-    rewrite <- nattohzandmult.
-    apply nattohzandlth.
-    simpl mul.
-    pattern (hzabsval n) at 1.
-    rewrite (natdivremrule (hzabsval n) (S d)).
-    rewrite natpluscomm.
-    apply natlthandplusl.
-    apply lthnatrem.
-    easy.
-    easy.
+  - eapply hznattohq_leh.
+    + apply (hztohq_hznattohq _ (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz))).
+    + exact (pr2 n).
+    + simpl pr1 ; simpl pr2.
+      change (hzleh
+     (nattohz (hzabsval (pr1 (pr1 n)) / hzabsval (pr1 (pr2 (pr1 n)))) *
+      pr1 (pr2 (pr1 n)))%hz (pr1 (pr1 n) * 1)%hz).
+      rewrite hzmultr1.
+      revert Hx.
+      set (pr1 n).
+      change (pr1 n) with y.
+      clearbody y ; clear ; intros Hy.
+      destruct y as (n,(m,Hm)).
+      simpl pr1 in Hy |- *.
+      simpl in Hm.
+      pattern n at 2 ;
+        rewrite <- (hzabsvalgeh0 Hy).
+      pattern m at 2 ;
+        rewrite <- (hzabsvalgeh0 (hzlthtoleh _ _ Hm)).
+      rewrite <- nattohzandmult.
+      apply nattohzandleh.
+      apply natlehmultnatdiv.
+      apply hzabsvalneq0.
+      apply hzgthtoneq.
+      exact Hm.
+  - eapply hznattohq_lth.
+    + exact (pr2 n).
+    + apply (hztohq_hznattohq _ (ct (hzgth, isdecrelhzgth, 1%hz, 0%hz))).
+    + simpl pr1 ; simpl pr2.
+      change (hzlth (pr1 (pr1 n) * 1)%hz
+     (nattohz (S (hzabsval (pr1 (pr1 n)) / hzabsval (pr1 (pr2 (pr1 n))))) *
+      pr1 (pr2 (pr1 n)))%hz).
+      rewrite hzmultr1.
+      revert Hx.
+      set (pr1 n).
+      change (pr1 n) with y.
+      clearbody y ; clear ; intros Hy.
+      destruct y as (n,(m,Hm)).
+      simpl pr1 in Hy |- *.
+      simpl in Hm.
+      pattern n at 1 ;
+        rewrite <- (hzabsvalgeh0 Hy).
+      pattern m at 2 ;
+        rewrite <- (hzabsvalgeh0 (hzlthtoleh _ _ Hm)).
+      rewrite <- nattohzandmult.
+      apply nattohzandlth.
+      simpl mul.
+      pattern (hzabsval n) at 1.
+      rewrite (natdivremrule (hzabsval n) (hzabsval m)).
+      rewrite natpluscomm.
+      apply natlthandplusl.
+      apply lthnatrem.
+      apply hzabsvalneq0, hzgthtoneq, Hm.
+      apply hzabsvalneq0, hzgthtoneq, Hm.
 Qed.
 
 Lemma hqopp_opp :
@@ -638,23 +728,15 @@ Proof.
   intros.
   apply hqopp_geh.
 Qed.
-Lemma intpart0_opp :
-  ∀ x : hq, intpart0 (- x) = intpart0 x.
+Lemma hzabsval_opp :
+  ∀ x : hz, hzabsval (- x)%hz = hzabsval x.
 Proof.
-  intros x.
-  generalize (hqtohznat x).
-  apply (hinhuniv (P := hProppair _ (isasetnat _ _))).
-  intros (n,(d,->)).
-  simpl.
-  rewrite hznattohq_opp.
-  rewrite !intpart0_hznat.
-  apply (maponpaths (λ x, (x / _)%nat)).
-  unfold hzabsval.
-  generalize (pr1 (pr2 n)).
-  apply (hinhuniv (P := hProppair _ (isasetnat _ _))).
-  simpl.
-  intro n'.
-  rewrite <- (setquotl0 (eqrelabgrfrac nataddabmonoid) n n').
+  intros X.
+  generalize (pr1 (pr2 X)).
+  apply hinhuniv'.
+  now apply isasetnat.
+  intro x.
+  rewrite <- (setquotl0 _ X x).
   eapply pathscomp0.
   apply (setquotunivcomm (eqrelabgrfrac nataddabmonoid) natset).
   eapply pathscomp0, pathsinv0.
@@ -672,6 +754,27 @@ Proof.
   - reflexivity.
   - rewrite (isantisymmnatgeh _ _ Hle Hge).
     reflexivity.
+Qed.
+Lemma intpart0_opp :
+  ∀ x : hq, intpart0 (- x) = intpart0 x.
+Proof.
+  intros X.
+  unfold intpart0.
+  generalize (pr1 (pr2 X)).
+  apply hinhuniv'.
+  now apply isasetnat.
+  intros x.
+  rewrite <- (setquotl0 _ X x).
+  unfold hqsign, grinv ; simpl pr1.
+  unfold commrngfracinv1.
+  rewrite setquotfuncomm.
+  rewrite !setquotunivcomm.
+  unfold intpartint0.
+  apply (maponpaths (λ x, (x / _)%nat)).
+  simpl.
+  change (hzabsval (-1 * pr1 (pr1 x))%rng = hzabsval (pr1 (pr1 x))).
+  rewrite rngmultwithminus1.
+  apply hzabsval_opp.
 Qed.
 
 Lemma intpart_carac :
@@ -702,6 +805,9 @@ Proof.
         rewrite hqopp_opp.
         rewrite hqpluscomm.
         apply hqlthtoleh.
+        rewrite hqpluscomm.
+        rewrite <-hztohqand1, <- hztohqandplus.
+        rewrite <- nattohzandS.
         exact (pr2 H).
       * pattern 1 at 2 ; rewrite <- (hqopp_opp 1).
         rewrite <- hqopp_distr.
@@ -716,7 +822,10 @@ Proof.
         apply fromempty, Hxn.
         rewrite <- intpart0_opp, H0.
         apply hqrminus.
-  - apply intpart0_carac.
+  - rewrite hqpluscomm.
+    rewrite <-hztohqand1, <- hztohqandplus.
+    rewrite <- nattohzandS.
+    apply intpart0_carac.
     exact Hx0.
 Qed.
 Definition intpart' (x : hq) : hz :=
