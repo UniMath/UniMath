@@ -359,7 +359,36 @@ Proof.
   apply (homotweqinvweq (weq_from_fully_faithful HF a b)).
 Qed.
 
+Lemma ff_reflects_is_iso (C D : precategory) (F : functor C D)
+  (HF : fully_faithful F) (a b : C) (f : a --> b)
+  : is_iso (# F f) -> is_iso f.
+Proof.
+  intro H.
+  set (X:= fully_faithful_reflects_iso_proof _ _ F HF _ _ (isopair _ H)).
+  simpl in X.
+  set (T:= homotinvweqweq (weq_from_fully_faithful HF a b ) ).
+  simpl in T.
+  unfold fully_faithful_inv_hom in X.
+  simpl in X.
+  rewrite T in X.
+  apply X.
+Qed.
 
+
+Definition weq_ff_functor_on_iso {C D : precategory} (F : functor C D)
+           (HF : fully_faithful F) {a b : C}
+  : iso a b ≃ iso (F a) (F b).
+Proof.
+  simple refine (weqbandf _ _ _ _ ).
+  - apply (weqpair _ (HF a b)).
+  - simpl; intro f.
+    apply weqimplimpl.
+    + intro H.
+      apply (functor_on_iso_is_iso _ _ _ _ _ (isopair f H)).
+    + apply ff_reflects_is_iso. apply HF.
+    + apply isaprop_is_iso.
+    + apply isaprop_is_iso.
+Defined.
 
 (** ** Essentially surjective functors *)
 
