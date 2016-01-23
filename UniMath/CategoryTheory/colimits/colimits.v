@@ -105,6 +105,9 @@ Definition isColimCocone {g : graph} (d : diagram g C) (c0 : C)
   (cc0 : cocone d c0) : UU := ∀ (c : C) (cc : cocone d c),
     iscontr (Σ x : C⟦c0,c⟧, ∀ v, coconeIn cc0 v ;; x = coconeIn cc v).
 
+(* Definition isColim {g : graph} (d : diagram g C) (L : C) := *)
+(*   Σ c : cocone d L, isColimCocone d L c. *)
+
 Definition ColimCocone {g : graph} (d : diagram g C) : UU :=
   Σ (A : (Σ c0 : C, cocone d c0)), isColimCocone d (pr1 A) (pr2 A).
 
@@ -123,6 +126,9 @@ Definition colim {g : graph} {d : diagram g C} (CC : ColimCocone d) : C :=
 Definition colimCocone {g : graph} {d : diagram g C} (CC : ColimCocone d) :
   cocone d (colim CC) := pr2 (pr1 CC).
 
+Definition isColimCocone_from_ColimCocone {g : graph} {d : diagram g C} (CC : ColimCocone d) :
+  isColimCocone d (colim CC) _ := pr2 CC.
+
 Definition colimIn {g : graph} {d : diagram g C} (CC : ColimCocone d) :
   ∀ (v : vertex g), C⟦dob d v,colim CC⟧ := coconeIn (colimCocone CC).
 
@@ -138,6 +144,13 @@ Lemma colimUnivProp {g : graph} {d : diagram g C}
   iscontr (Σ x : C⟦colim CC,c⟧, ∀ (v : vertex g), colimIn CC v ;; x = coconeIn cc v).
 Proof.
 exact (pr2 CC).
+Qed.
+
+Lemma isaprop_isColimCocone {g : graph} (d : diagram g C) (c0 : C)
+  (cc0 : cocone d c0) : isaprop (isColimCocone d c0 cc0).
+Proof.
+repeat (apply impred; intro).
+apply isapropiscontr.
 Qed.
 
 Definition isColimCocone_ColimCocone {g : graph} {d : diagram g C}
@@ -176,6 +189,7 @@ Lemma colimArrowEta {g : graph} {d : diagram g C} (CC : ColimCocone d)
 Proof.
 now apply colimArrowUnique.
 Qed.
+
 
 Definition colimOfArrows {g : graph} {d1 d2 : diagram g C}
   (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
@@ -244,6 +258,87 @@ unshelve refine (uniqueExists _ _ (colimUnivProp CC _ _) _ _ _ _).
 - now apply H.
 Qed.
 
+(* Lemma isaprop_isColim {g : graph} (d : diagram g C) (L : C) : *)
+(*   isaprop (isColim d L). *)
+(* Proof. *)
+(* apply invproofirrelevance. *)
+(* intros c0 c1. *)
+(* apply subtypeEquality. *)
+(* - intro cc; apply isaprop_isColimCocone. *)
+(* - *)
+(* destruct c0 as [c0 Hc0]. *)
+(* destruct c1 as [c1 Hc1]. *)
+(* simpl. *)
+(* apply subtypeEquality. *)
+(* + intro. *)
+(* repeat (apply impred; intro). *)
+(* apply hsC. *)
+(* + apply funextsec; intro v. *)
+(* set (CC0 := mk_ColimCocone d L c0 Hc0). *)
+(* set (CC1 := mk_ColimCocone d L c1 Hc1). *)
+(* set (p0 := colimArrowCommutes CC0 L). *)
+(* set (f0 := colimArrow CC0 L c1). *)
+(* set (p1 := colimArrowCommutes CC1 L). *)
+(* set (f1 := colimArrow CC1 L c0). *)
+(* set (p0 c0 v). *)
+(* unfold coconeIn in p. *)
+(* rewrite <- p. *)
+(* set (p1 c1 v). *)
+(* unfold coconeIn in p2. *)
+(* rewrite <- p2. *)
+(* assert (H : f0 = f1). *)
+(* apply (colimArrowUnique (mk_ColimCocone d L c1 Hc1)). *)
+(* intro u. *)
+(* unfold colimIn. *)
+(* simpl. *)
+(* simpl in p. *)
+(* unfold coconeIn in p. *)
+(* unfold colimIn in p. *)
+(* unfold coconeIn in p. *)
+(* unfold colimCocone in p. *)
+(* simpl in p. *)
+(* rewrite <- p. *)
+(* apply pathsinv0. *)
+(* apply remove_id_right; [|apply idpath]. *)
+(* apply pathsinv0. *)
+(* apply (colimArrowUnique  (mk_ColimCocone d L c0 Hc0)). *)
+(* intros u. *)
+(* rewrite id_right. *)
+(* apply (colim_endo_is_identity d (mk_ColimCocone d L c0 Hc0) (colimArrow (mk_ColimCocone d L c0 Hc0) L c1)). *)
+
+(* Search (identity _). *)
+
+(* v). *)
+(* unfold colimIn. *)
+(* unfold coconeIn. *)
+(* pathvia (pr1 c0 v ;; identity _). *)
+(* apply pathsinv0, id_right. *)
+(* apply maponpaths. *)
+(* assert (H : L = colim (mk_ColimCocone d L c0 Hc0)). *)
+(*   apply idpath. *)
+(* intro u. *)
+(* eapply pathscomp0. *)
+(* apply (p u). *)
+(* unfold colimIn. *)
+(* simpl. *)
+
+(* set (p u). *)
+(* simpl. *)
+(* apply *)
+(* unfold colimIn. *)
+
+
+(* apply p0. *)
+(* simpl. *)
+(* simpl. *)
+
+
+
+(* apply isofhleveltotal2. *)
+(* - unfold cocone. *)
+(* apply subtypeEquality. *)
+
+
 Definition Cocone_by_postcompose {g : graph} (D : diagram g C)
  (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) : cocone D d.
 Proof.
@@ -302,18 +397,27 @@ Proof.
 intro H.
 apply is_iso_from_is_z_iso.
 set (CD := mk_ColimCocone D d cd H).
-simple refine (tpair _ _ _).
-- apply (colimArrow CD _ (colimCocone CC)).
-- split.
-  + apply pathsinv0, colim_endo_is_identity; simpl; intro u.
-    rewrite assoc.
-    eapply pathscomp0; [eapply cancel_postcomposition; apply colimArrowCommutes|].
-    apply (colimArrowCommutes CD).
-  + apply pathsinv0, (colim_endo_is_identity _ CD); simpl; intro u.
-    rewrite assoc.
-    eapply pathscomp0; [eapply cancel_postcomposition; apply (colimArrowCommutes CD)|].
-    apply colimArrowCommutes.
+apply (tpair _ (colimArrow (mk_ColimCocone D d cd H) (colim CC) (colimCocone CC))).
+abstract (split;
+    [ apply pathsinv0, colim_endo_is_identity; simpl; intro u;
+      rewrite assoc;
+      eapply pathscomp0; [eapply cancel_postcomposition; apply colimArrowCommutes|];
+      apply (colimArrowCommutes CD) |
+      apply pathsinv0, (colim_endo_is_identity _ CD); simpl; intro u;
+      rewrite assoc;
+      eapply pathscomp0; [eapply cancel_postcomposition; apply (colimArrowCommutes CD)|];
+      apply colimArrowCommutes ]).
 Defined.
+
+Lemma inv_isColim_is_iso {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C)
+  (cd : cocone D d) (H : isColimCocone D d cd) :
+  inv_from_iso (isopair _ (isColim_is_iso D CC d cd H)) =
+  colimArrow (mk_ColimCocone D d cd H) _ (colimCocone CC).
+Proof.
+cbn. (* why??? *)
+unfold precomp_with.
+apply id_right.
+Qed.
 
 Lemma is_iso_isColim {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C) (cd : cocone D d) :
   is_iso (colimArrow CC d cd) -> isColimCocone D d cd.
