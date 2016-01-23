@@ -129,17 +129,17 @@ Proof.
     intro anoth.
     destruct anoth as [anot h].
     set (qanoth := q anot h).
-    assert (H1 : g = iso_inv_from_iso (functor_on_iso _ _ F _ _ h) ;;
-                      gamma anot ;; functor_on_iso _ _ G _ _ h).
-      apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso _ _ F _ _ h)
-                                          (pr2 (functor_on_iso _ _ F _ _ h))).
+    assert (H1 : g = iso_inv_from_iso (functor_on_iso F h) ;;
+                      gamma anot ;; functor_on_iso G h).
+      apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso F h)
+                                          (pr2 (functor_on_iso F h))).
      repeat rewrite assoc.
-     set (TH:=iso_inv_after_iso (functor_on_iso B C F (H anot) b h)).
+     set (TH:=iso_inv_after_iso (functor_on_iso F h)).
      simpl in TH. simpl. rewrite TH.
      rewrite id_left.
       apply (post_comp_with_iso_is_inj _ _ _
-          (iso_inv_from_iso (functor_on_iso _ _ G _ _ h))
-                     (pr2 (iso_inv_from_iso (functor_on_iso _ _ G _ _ h)))).
+          (iso_inv_from_iso (functor_on_iso G h))
+                     (pr2 (iso_inv_from_iso (functor_on_iso G h)))).
       simpl.
       simp_rerew (base_paths _ _ (functor_on_iso_inv _ _  G _ _ h)).
       repeat rewrite <- assoc.
@@ -149,17 +149,17 @@ Proof.
       rewrite assoc.
       apply qanoth.
     set (q'anoth := q' anot h).
-    assert (H2 : g' = iso_inv_from_iso (functor_on_iso _ _ F _ _ h) ;;
-                      pr1 gamma anot ;; functor_on_iso _ _ G _ _ h).
-      apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso _ _ F _ _ h)
-                                          (pr2 (functor_on_iso _ _ F _ _ h))).
+    assert (H2 : g' = iso_inv_from_iso (functor_on_iso F h) ;;
+                      pr1 gamma anot ;; functor_on_iso G h).
+      apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso F h)
+                                          (pr2 (functor_on_iso F h))).
       repeat rewrite assoc.
-     set (TH:=iso_inv_after_iso (functor_on_iso B C F (H anot) b h)).
+     set (TH:=iso_inv_after_iso (functor_on_iso F h)).
      simpl in TH. simpl. rewrite TH.
       rewrite id_left.
       apply ( post_comp_with_iso_is_inj _ _ _
-            (iso_inv_from_iso (functor_on_iso _ _ G _ _ h))
-                     (pr2 (iso_inv_from_iso (functor_on_iso _ _ G _ _ h)))).
+            (iso_inv_from_iso (functor_on_iso G h))
+                     (pr2 (iso_inv_from_iso (functor_on_iso G h)))).
       simpl.
       simp_rerew(base_paths _ _ (functor_on_iso_inv _ _  G _ _ h)).
       repeat rewrite <- assoc.
@@ -192,10 +192,10 @@ Proof.
                  gamma a = #F f ;; g ;; #G (inv_from_iso f)).
     clear X.
     intros a f.
-    set (k := iso_from_fully_faithful_reflection Hff _ _
+    set (k := iso_from_fully_faithful_reflection Hff
              (iso_comp f (iso_inv_from_iso h))).
-    set (GHk := functor_on_iso _ _ G _ _
-                (functor_on_iso _ _ H _ _ k)).
+    set (GHk := functor_on_iso G
+                (functor_on_iso H k)).
     pathvia (#F (#H k) ;; gamma anot ;; iso_inv_from_iso GHk).
       apply (post_comp_with_iso_is_inj _ _ _ GHk (pr2 GHk)).
       rewrite <- assoc.
@@ -241,15 +241,15 @@ Proof.
                        (T ))).
   simpl in *.
   intro t; destruct t as [a' h'].
-  assert (Hb : pdelta b = inv_from_iso (functor_on_iso _ _ F _ _ h) ;;
+  assert (Hb : pdelta b = inv_from_iso (functor_on_iso F h) ;;
                                 gamma a ;; #G h).
-    apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso _ _ F _ _ h)
-                                          (pr2 (functor_on_iso _ _ F _ _ h))).
+    apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso F h)
+                                          (pr2 (functor_on_iso F h))).
     repeat rewrite assoc.
     rewrite iso_inv_after_iso, id_left.
     apply ( post_comp_with_iso_is_inj _ _ _
-          (iso_inv_from_iso (functor_on_iso _ _ G _ _ h))
-                     (pr2 (iso_inv_from_iso (functor_on_iso _ _ G _ _ h)))).
+          (iso_inv_from_iso (functor_on_iso G h))
+                     (pr2 (iso_inv_from_iso (functor_on_iso G h)))).
     simpl.
     simp_rerew (base_paths _ _ (functor_on_iso_inv _ _  G _ _ h)).
     repeat rewrite <- assoc.
@@ -258,15 +258,15 @@ Proof.
     apply pathsinv0.
     rewrite assoc.
     apply (pr2 ((pr1 (iscontr_aux_space b))) a h).
-  assert (Hb' : pdelta b' = inv_from_iso (functor_on_iso _ _ F _ _ h') ;;
+  assert (Hb' : pdelta b' = inv_from_iso (functor_on_iso F h') ;;
                                 gamma a' ;; #G h').
-    apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso _ _ F _ _ h')
-                                          (pr2 (functor_on_iso _ _ F _ _ h'))).
+    apply (pre_comp_with_iso_is_inj _ _ _ _ (functor_on_iso F h')
+                                          (pr2 (functor_on_iso F h'))).
     repeat rewrite assoc.
     rewrite iso_inv_after_iso, id_left.
     apply ( post_comp_with_iso_is_inj _ _ _
-          (iso_inv_from_iso (functor_on_iso _ _ G _ _ h'))
-                     (pr2 (iso_inv_from_iso (functor_on_iso _ _ G _ _ h')))).
+          (iso_inv_from_iso (functor_on_iso G h'))
+                     (pr2 (iso_inv_from_iso (functor_on_iso G h')))).
     simpl.
     simp_rerew (base_paths _ _ (functor_on_iso_inv _ _  G _ _ h')).
     repeat rewrite <- assoc.
@@ -279,7 +279,7 @@ Proof.
   repeat rewrite <- assoc.
   simpl in *.
   rewrite <- functor_comp.
-  pathvia (inv_from_iso (functor_on_iso B C F (H a) b h);;
+  pathvia (inv_from_iso (functor_on_iso F h);;
        (gamma a;; #G (h;; f ;; iso_inv_from_iso h' ;; h')) ).
     repeat rewrite <- assoc.
     simpl. rewrite iso_after_iso_inv, id_right.

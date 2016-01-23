@@ -203,8 +203,8 @@ Proof.
 Defined.
 
 
-Definition functor_on_iso (C C' : precategory) (F : functor C C')
-    (a b : ob C)(f : iso a b) : iso (F a) (F b).
+Definition functor_on_iso {C C' : precategory} (F : functor C C')
+    {a b : ob C}(f : iso a b) : iso (F a) (F b).
 Proof.
   exists (#F f).
   apply functor_on_iso_is_iso.
@@ -212,8 +212,8 @@ Defined.
 
 Lemma functor_on_iso_inv (C C' : precategory) (F : functor C C')
     (a b : ob C) (f : iso a b) :
-   functor_on_iso _ _ F _ _ (iso_inv_from_iso f) =
-       iso_inv_from_iso (functor_on_iso _ _ F _ _ f).
+   functor_on_iso F (iso_inv_from_iso f) =
+       iso_inv_from_iso (functor_on_iso F f).
 Proof.
   apply eq_iso; simpl.
   apply inv_iso_unique'; simpl.
@@ -226,7 +226,7 @@ Defined.
 
 Lemma functor_on_inv_from_iso (C C' : precategory) (F : functor C C')
     (a b : ob C)(f : iso a b) :
-      #F (inv_from_iso f) = inv_from_iso (functor_on_iso _ _ F _ _ f) .
+      #F (inv_from_iso f) = inv_from_iso (functor_on_iso F f) .
 Proof.
   apply inv_iso_unique'; simpl.
   unfold precomp_with. rewrite <- functor_comp.
@@ -341,7 +341,7 @@ Defined.
 
 Definition  iso_from_fully_faithful_reflection {C D : precategory}{F : functor C D}
         (HF : fully_faithful F)
-    (a b : ob C) (f : iso (F a) (F b)) :
+    {a b : ob C} (f : iso (F a) (F b)) :
       iso a b.
 Proof.
   exists (fully_faithful_inv_hom HF a b f).
@@ -351,8 +351,8 @@ Defined.
 Lemma functor_on_iso_iso_from_fully_faithful_reflection (C D : precategory)
       (F : functor C D) (HF : fully_faithful F) (a b : ob C)
    (f : iso (F a) (F b)) :
-      functor_on_iso _ _  F a b
-        (iso_from_fully_faithful_reflection HF a b f) = f.
+      functor_on_iso F
+        (iso_from_fully_faithful_reflection HF f) = f.
 Proof.
   apply eq_iso.
   simpl;
@@ -517,6 +517,41 @@ Qed.
 Definition constant_functor: functor C D := tpair _ _ is_functor_constant.
 
 End Constant_Functor.
+
+(** ** Functors and [idtoiso] *)
+
+Section functors_and_idtoiso.
+
+Variables C D : precategory.
+Variable F : functor C D.
+
+Lemma maponpaths_idtoiso (a b : C) (e : a = b)
+: idtoiso (maponpaths (functor_on_objects F) e)
+  =
+  functor_on_iso F (idtoiso e).
+Proof.
+  induction e.
+  apply eq_iso.
+  apply (! functor_id _ _ ).
+Qed.
+
+Hypothesis HC : is_category C.
+Hypothesis HD : is_category D.
+
+Lemma maponpaths_isotoid (a b : C) (i : iso a b)
+: maponpaths (functor_on_objects F) (isotoid _ HC i)
+  =
+  isotoid _ HD (functor_on_iso F i).
+Proof.
+  apply (invmaponpathsweq (weqpair (idtoiso) (pr1 HD _ _ ))).
+  simpl.
+  rewrite maponpaths_idtoiso.
+  repeat rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
+
+End functors_and_idtoiso.
+
 
 
 
