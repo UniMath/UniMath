@@ -177,6 +177,7 @@ Defined.
 
 
 
+
 (** ** Functors preserve isomorphisms *)
 
 
@@ -221,6 +222,41 @@ Proof.
   rewrite iso_inv_after_iso.
   apply functor_id.
 Defined.
+
+(** ** Functors and [idtoiso] *)
+
+Section functors_and_idtoiso.
+
+Variables C D : precategory.
+Variable F : functor C D.
+
+Lemma maponpaths_idtoiso (a b : C) (e : a = b)
+: idtoiso (maponpaths (functor_on_objects F) e)
+  =
+  functor_on_iso F (idtoiso e).
+Proof.
+  induction e.
+  apply eq_iso.
+  apply (! functor_id _ _ ).
+Qed.
+
+Hypothesis HC : is_category C.
+Hypothesis HD : is_category D.
+
+Lemma maponpaths_isotoid (a b : C) (i : iso a b)
+: maponpaths (functor_on_objects F) (isotoid _ HC i)
+  =
+  isotoid _ HD (functor_on_iso F i).
+Proof.
+  apply (invmaponpathsweq (weqpair (idtoiso) (pr1 HD _ _ ))).
+  simpl.
+  rewrite maponpaths_idtoiso.
+  repeat rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
+
+End functors_and_idtoiso.
+
 
 (** ** Functors preserve inverses *)
 
@@ -390,6 +426,47 @@ Proof.
     + apply isaprop_is_iso.
 Defined.
 
+Lemma functor_on_iso_iso_from_ff_reflection (C D : precategory)
+      (F : functor C D) (HF : fully_faithful F) (a b : C)
+      (f : iso (F a) (F b)):
+  functor_on_iso F
+                 (iso_from_fully_faithful_reflection HF f) = f.
+Proof.
+  apply eq_iso.
+  simpl.
+  apply (homotweqinvweq (weq_from_fully_faithful HF a b ) ).
+Qed.
+
+Lemma ff_is_inclusion_on_objects {C D : precategory}
+      (HC : is_category C) (HD : is_category D)
+      (F : functor C D) (HF : fully_faithful F)
+      : isofhlevelf 1 (functor_on_objects F).
+Proof.
+  intro d.
+  apply invproofirrelevance.
+  intros [c e] [c' e'].
+  simple refine (total2_paths _ _ ).
+  - simpl.
+    set (X := idtoiso (e @ ! e')).
+    set (X' := invmap (@weq_ff_functor_on_iso _ _ _ HF _ _ ) X).
+    set (X2 := iso_from_fully_faithful_reflection HF X).
+    apply (isotoid _ HC X2).
+  - simpl.
+    set (T:=@functtransportf _ _ (functor_on_objects F)).
+    set (T' := T (fun c => c = d)). simpl in T'.
+    rewrite T'.
+    rewrite (maponpaths_isotoid _ _ _ HC HD).
+    rewrite functor_on_iso_iso_from_ff_reflection.
+    rewrite isotoid_idtoiso.
+    rewrite transportf_id2.
+    rewrite pathscomp_inv.
+    rewrite pathsinv0inv0.
+    rewrite <- path_assoc.
+    rewrite pathsinv0l.
+    apply pathscomp0rid.
+Qed.
+
+
 (** ** Essentially surjective functors *)
 
 Definition essentially_surjective {C D : precategory_data} (F : functor C D) :=
@@ -547,39 +624,6 @@ Definition constant_functor: functor C D := tpair _ _ is_functor_constant.
 
 End Constant_Functor.
 
-(** ** Functors and [idtoiso] *)
-
-Section functors_and_idtoiso.
-
-Variables C D : precategory.
-Variable F : functor C D.
-
-Lemma maponpaths_idtoiso (a b : C) (e : a = b)
-: idtoiso (maponpaths (functor_on_objects F) e)
-  =
-  functor_on_iso F (idtoiso e).
-Proof.
-  induction e.
-  apply eq_iso.
-  apply (! functor_id _ _ ).
-Qed.
-
-Hypothesis HC : is_category C.
-Hypothesis HD : is_category D.
-
-Lemma maponpaths_isotoid (a b : C) (i : iso a b)
-: maponpaths (functor_on_objects F) (isotoid _ HC i)
-  =
-  isotoid _ HD (functor_on_iso F i).
-Proof.
-  apply (invmaponpathsweq (weqpair (idtoiso) (pr1 HD _ _ ))).
-  simpl.
-  rewrite maponpaths_idtoiso.
-  repeat rewrite idtoiso_isotoid.
-  apply idpath.
-Qed.
-
-End functors_and_idtoiso.
 
 
 

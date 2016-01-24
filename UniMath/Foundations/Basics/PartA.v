@@ -271,6 +271,13 @@ Proof. intros ? ? ? ? ? ? ? e. induction s. refine (_@e@_).
        - apply pathscomp0rid.
 Defined.
 
+Lemma pathscomp_inv {X : UU} {x y z : X} (p : x = y) (q : y = z)
+  : !(p @ q) = !q @ !p.
+Proof.
+  intros ? ? ? ? p q. induction p. induction q.
+  apply idpath.
+Defined.
+
 (** *** Direct product of paths  *)
 
 
