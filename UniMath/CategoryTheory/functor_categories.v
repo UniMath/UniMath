@@ -437,6 +437,19 @@ Proof.
   apply (homotweqinvweq (weq_from_fully_faithful HF a b ) ).
 Qed.
 
+(* This lemma is either false or takes ages to check *)
+(*
+Lemma functor_on_iso_iso_from_ff_reflection2 (C D : precategory)
+      (F : functor C D) (HF : fully_faithful F) (a b : C)
+      (f : iso (F a) (F b)):
+functor_on_iso F
+               (invmap (weq_ff_functor_on_iso F HF) f) = f.
+Proof.
+  apply eq_iso.
+  apply (homotweqinvweq (weq_from_fully_faithful HF a b ) ).
+Qed.
+*)
+
 Lemma ff_is_inclusion_on_objects {C D : precategory}
       (HC : is_category C) (HD : is_category D)
       (F : functor C D) (HF : fully_faithful F)
@@ -448,7 +461,9 @@ Proof.
   simple refine (total2_paths _ _ ).
   - simpl.
     set (X := idtoiso (e @ ! e')).
-    set (X' := invmap (@weq_ff_functor_on_iso _ _ _ HF _ _ ) X).
+    (* set (X' := invmap (@weq_ff_functor_on_iso _ _ _ HF _ _ ) X). *)
+        (* we cannot use X' because we lack the preceding, commented-out,
+           lemma *)
     set (X2 := iso_from_fully_faithful_reflection HF X).
     apply (isotoid _ HC X2).
   - simpl.
