@@ -54,7 +54,7 @@ End move_upstream.
 
 Section chains.
 
-Context {C D : precategory}. (* (hsC : has_homsets C). *)
+Context {C D : precategory}.
 
 (* Define the chain:
 
@@ -76,8 +76,8 @@ simple refine (tpair _ _ _).
   apply (# F (dmor c e)).
 Defined.
 
-Definition mapcocone (F : functor C D) {c : chain C} {x : C} (cx : cocone c x) :
-  cocone (mapchain F c) (F x).
+Definition mapcocone (F : functor C D) {c : chain C} {x : C}
+  (cx : cocone c x) : cocone (mapchain F c) (F x).
 Proof.
 simple refine (mk_cocone _ _).
 - simpl; intro n.
@@ -87,11 +87,27 @@ simple refine (mk_cocone _ _).
             apply maponpaths, (coconeInCommutes cx _ _ (idpath _ ))).
 Defined.
 
-Lemma mapcocone_chain_coconeIn (F : functor C D) {c : chain C} {x : C} (cx : cocone c x) (n : nat) :
+Lemma mapcocone_chain_coconeIn (F : functor C D) {c : chain C} {x : C}
+  (cx : cocone c x) (n : nat) :
   coconeIn (mapcocone F cx) n = #F (coconeIn cx n).
 Proof.
-  apply idpath.
+apply idpath.
 Qed.
+
+(* Construct the chain:
+
+         !          F!            F^2 !
+     0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
+
+*)
+Definition initChain (InitC : Initial C) (F : functor C C) : chain C.
+Proof.
+exists (λ n, iter_functor F n InitC).
+intros m n Hmn; destruct Hmn; simpl.
+induction m; simpl.
+- exact (InitialArrow InitC _).
+- exact (# F IHm).
+Defined.
 
 End chains.
 
@@ -101,23 +117,9 @@ Definition omega_cocont {C D : precategory} (F : functor C D) : UU :=
   forall (c : chain C) (L : C) (cc : cocone c L),
   isColimCocone c L cc -> isColimCocone (mapchain F c) (F L) (mapcocone F cc).
 
-(* Construct the chain:
 
-         !          F!            F^2 !
-     0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
-
-*)
-Definition initChain {C : precategory} (Init : Initial C) (F : functor C C) : chain C.
-Proof.
-exists (λ n, iter_functor F n Init); simpl; intros m n Hmn.
-destruct Hmn; simpl.
-induction m; simpl.
-- exact (InitialArrow Init _).
-- exact (# F IHm).
-Defined.
-
-(* Proves that (L,m : F L -> L) is the initial algebra where L is the
-   colimit of the inital chain:
+(* This section proves that (L,α : F L -> L) is the initial algebra
+   where L is the colimit of the inital chain:
 
          !          F !           F^2 !
      0 -----> F 0 ------> F^2 0 --------> F^3 0 ---> ...
@@ -134,8 +136,6 @@ Let Fchain : chain C := initChain InitC F.
 Variable (CC : ColimCocone Fchain).
 
 Let L : C := colim CC.
-(* Let a : cocone Fchain L := colimCocone CC. *)
-
 Let FFchain : chain C := mapchain F Fchain.
 
 Let Fa : cocone FFchain (F L) := mapcocone F (colimCocone CC).
@@ -146,9 +146,8 @@ Let FHC : ColimCocone FFchain := mk_ColimCocone _ _ _ FHC'.
 Definition shiftCocone : cocone FFchain L.
 Proof.
 simple refine (mk_cocone _ _).
-- simpl; intro n.
-  apply (coconeIn (colimCocone CC) (S n)).
-- simpl; intros m n e; destruct e.
+- intro n; apply (coconeIn (colimCocone CC) (S n)).
+- intros m n e; destruct e.
   apply (coconeInCommutes (colimCocone CC) (S m) _ (idpath _)).
 Defined.
 
@@ -169,40 +168,56 @@ Defined.
 Definition shiftIsColimCocone : isColimCocone FFchain L shiftCocone.
 Proof.
 intros x cc; simpl.
-  simple refine (tpair _ _ _).
-  + simple refine (tpair _ _ _).
-    * apply colimArrow.
-      apply (unshiftCocone _ cc).
-    * simpl; intro n.
-      apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n)).
-  + simpl. intros p.
-    apply subtypeEquality.
-    * intro f; apply impred; intro; apply hsC.
-    * apply colimArrowUnique; simpl; intro n.
-      destruct n as [|n]; [ apply InitialArrowUnique | apply (pr2 p) ].
+simple refine (tpair _ _ _).
++ simple refine (tpair _ _ _).
+  * apply colimArrow, (unshiftCocone _ cc).
+  * simpl; intro n.
+    apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n)).
++ simpl; intros p.
+  apply subtypeEquality.
+  * intro f; apply impred; intro; apply hsC.
+  * apply colimArrowUnique; simpl; intro n.
+    destruct n as [|n]; [ apply InitialArrowUnique | apply (pr2 p) ].
 Defined.
 
-Definition shiftColimCocone : ColimCocone FFchain.
-Proof.
-simple refine (mk_ColimCocone _ _ _ _).
-- apply L.
-- apply shiftCocone.
-- apply shiftIsColimCocone.
-Defined.
+Definition shiftColimCocone : ColimCocone FFchain :=
+  mk_ColimCocone FFchain L shiftCocone shiftIsColimCocone.
 
 Definition α_mor : C⟦F L,L⟧ := colimArrow FHC L shiftCocone.
 
-Lemma is_iso_α_mor : is_iso α_mor.
-Proof.
-apply (isColim_is_iso _ FHC).
-apply shiftIsColimCocone.
-Defined.
+Definition is_iso_α_mor : is_iso α_mor :=
+  isColim_is_iso _ FHC _ _ shiftIsColimCocone.
 
 Let α : iso (F L) L := isopair _ is_iso_α_mor.
 Let α_inv : iso L (F L) := iso_inv_from_iso α.
 Let α_alg : algebra_ob F := tpair (λ X : C, C ⟦ F X, X ⟧) L α.
 
-Section algebra.
+(* Why does this not compute? *)
+Lemma unfold_inv_from_iso_α :
+  inv_from_iso α = colimArrow shiftColimCocone _ (colimCocone FHC).
+Proof.
+cbn.
+apply id_right.
+Qed.
+
+(* Given an algebra:
+
+          a
+   F A ------> A
+
+ we now define an algebra morphism ad:
+
+          α
+   F L ------> L
+    |          |
+    |          | ad
+    |          |
+    V     a    V
+   F A ------> A
+
+
+*)
+Section algebra_mor.
 
 Variable (Aa : algebra_ob F).
 
@@ -242,80 +257,38 @@ simple refine (mk_cocone _ _).
 - apply isCoconeOverAlg.
 Defined.
 
-Lemma adaggerCommutes (n : nat) : colimIn CC n ;; ad = an n.
-Proof.
-now apply colimArrowCommutes.
-Qed.
-
 Lemma ad_is_algebra_mor : is_algebra_mor _ α_alg Aa ad.
 Proof.
-unfold is_algebra_mor.
-apply pathsinv0.
-apply iso_inv_to_left.
-apply colimArrowUnique; simpl; intro n.
-induction n as [|n IHn].
+apply pathsinv0, iso_inv_to_left, colimArrowUnique; simpl; intro n.
+destruct n as [|n].
 - now apply InitialArrowUnique.
--
-rewrite assoc.
- eapply pathscomp0.
-  eapply cancel_postcomposition.
-assert (H : inv_from_iso α = colimArrow
-                                  (mk_ColimCocone FFchain L shiftCocone
-                                     shiftIsColimCocone)
-                                  (colim FHC) (colimCocone FHC)).
-cbn.
-unfold precomp_with.
-apply id_right.
-rewrite H.
-apply (colimArrowCommutes  (mk_ColimCocone FFchain L shiftCocone
-                            shiftIsColimCocone)).
-
-  rewrite assoc.
-unfold FHC.
-simpl.
-rewrite <- functor_comp.
-
-apply cancel_postcomposition, maponpaths.
-apply adaggerCommutes.
+- rewrite assoc, unfold_inv_from_iso_α.
+  eapply pathscomp0;
+    [apply cancel_postcomposition, (colimArrowCommutes shiftColimCocone)|].
+  simpl; rewrite assoc, <- functor_comp.
+  apply cancel_postcomposition, maponpaths, (colimArrowCommutes CC).
 Qed.
 
-Definition adaggerMor : algebra_mor F α_alg Aa := tpair _ _ ad_is_algebra_mor.
+Definition ad_mor : algebra_mor F α_alg Aa := tpair _ _ ad_is_algebra_mor.
 
-End algebra.
+End algebra_mor.
 
 Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) α_alg.
 Proof.
-simple refine (mk_isInitial _ _ ).
-intros Aa.
-exists (adaggerMor Aa); simpl; intro Fa'.
+apply mk_isInitial; intros Aa.
+exists (ad_mor Aa); simpl; intro Fa'.
 apply (algebra_mor_eq _ hsC); simpl.
-unfold ad.
 apply colimArrowUnique; simpl; intro n.
 destruct Fa' as [f hf]; simpl.
-unfold is_algebra_mor in hf.
-simpl in hf.
+unfold is_algebra_mor in hf; simpl in hf.
 induction n as [|n IHn]; simpl.
 - now apply InitialArrowUnique.
 - rewrite <- IHn, functor_comp, <- assoc.
   eapply pathscomp0; [| eapply maponpaths; apply hf].
   rewrite assoc.
-  apply cancel_postcomposition.
-apply pathsinv0.
-apply (iso_inv_to_right _ _ _ _ _ α).
-assert (H : inv_from_iso α = colimArrow
-                                  (mk_ColimCocone FFchain L shiftCocone
-                                     shiftIsColimCocone)
-                                  (colim FHC) (colimCocone FHC)).
-cbn.
-unfold precomp_with.
-apply id_right.
-rewrite H.
-apply pathsinv0.
-eapply pathscomp0.
-apply (colimArrowCommutes (mk_ColimCocone FFchain L shiftCocone
-                            shiftIsColimCocone)).
-simpl.
-apply idpath.
+  apply cancel_postcomposition, pathsinv0, (iso_inv_to_right _ _ _ _ _ α).
+  rewrite unfold_inv_from_iso_α; apply pathsinv0.
+  now eapply pathscomp0; [apply (colimArrowCommutes shiftColimCocone)|].
 Qed.
 
 Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
@@ -545,9 +518,6 @@ End colim_initial_algebra.
 (* End product_functor. *)
 
 (* End polynomial_functors. *)
-
-
-
 
 (* unfold good, omega_cocontinuous. *)
 (*   unfold from_colim_shift. *)
