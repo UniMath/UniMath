@@ -314,7 +314,6 @@ Let good F := @omega_cocont C C F.
 (*                  |- good(constant_functor A) *)
 (*                  |- good(identity_functor) *)
 
-(* constant_functor *)
 Section constant_functor.
 
 Variable (x : C).
@@ -342,76 +341,18 @@ Section identity_functor.
 
 Let Fid : functor C C := functor_identity C.
 
-(* Lemma cocone_functor_identity : cocone (Fchain InitC Fid) InitC. *)
-(* Proof. *)
-(* simple refine (mk_cocone _ _). *)
-(* + simpl; intro n. *)
-(*   induction n; [ apply (InitialArrow InitC)| apply IHn]. *)
-(* + intros m n e; destruct e; induction m as [|m IH]; *)
-(*     [apply InitialArrowUnique | apply IH]. *)
-(* Defined. *)
-
-Lemma iter_functor_id (x : C) ( n : nat) : iter_functor Fid n x = x.
-Proof.
-induction n as [|n IH]; [apply idpath|apply IH].
-Defined.
-
-Lemma mapchain_functor_identity (c : chain C) :
-  mapchain (functor_identity C) c = c.
-Admitted.
-
-(* Lemma Colimcocone_functor_identity : ColimCocone (Fchain InitC Fid). *)
-(* Proof. *)
-(* simple refine (mk_ColimCocone _ InitC _ _). *)
-(* + simple refine (mk_cocone _ _). *)
-(*   - simpl; intro n. *)
-(*     rewrite iter_functor_id. *)
-(*     apply (identity InitC). *)
-(*   - simpl; intros m n e; induction e; simpl. *)
-(*     induction m. *)
-(*     simpl. *)
-(*     rewrite id_right; apply pathsinv0, InitialArrowUnique. *)
-(*     simpl. *)
-(*     apply IHm. *)
-(* + intros a cc; simpl. *)
-(*   simple refine (tpair _ _ _). *)
-(*   - simple refine (tpair _ _ _); [ apply (InitialArrow InitC) |]. *)
-(* intro n. *)
-(* induction n. *)
-(* * destruct cc. *)
-(* rewrite id_left. *)
-(* apply pathsinv0, InitialArrowUnique. *)
-(* * simpl; rewrite IHn. *)
-(* destruct cc. *)
-(* simpl. *)
-(* generalize (p n _ (idpath _)). *)
-(* intros H. *)
-(* rewrite <- H. *)
-(* clear H. *)
-(* apply remove_id_left; [|apply idpath]. *)
-(* simpl. *)
-(* clear IHn. *)
-(* induction n. *)
-(* apply pathsinv0, InitialArrowUnique. *)
-(* simpl. *)
-(* rewrite IHn. *)
-(* apply idpath. *)
-(* - intros x. *)
-(*     apply subtypeEquality. *)
-(*     * intros f; apply impred; intro; apply hsC. *)
-(* * apply InitialArrowUnique. *)
-(* Defined. *)
-
 Lemma goodIdentityFunctor : good Fid.
 Proof.
 intros c L ccL HcL y ccy; simpl.
+set (CC := mk_ColimCocone _ _ _ HcL).
 simple refine (tpair _ _ _).
 - simple refine (tpair _ _ _).
-  + apply (colimArrow (mk_ColimCocone _ _ _ HcL)) .
-rewrite <- (mapchain_functor_identity c).
-apply ccy.
-+ admit.
-Admitted.
+  + apply (colimArrow CC), ccy.
+  + simpl; intro n; apply (colimArrowCommutes CC).
+- simpl; intro t; apply subtypeEquality.
+  + simpl; intro v; apply impred; intro; apply hsC.
+  + apply (colimArrowUnique CC); intro n; apply (pr2 t).
+Defined.
 
 End identity_functor.
 
