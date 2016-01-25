@@ -395,6 +395,49 @@ Proof.
   apply (homotweqinvweq (weq_from_fully_faithful HF a b)).
 Qed.
 
+Lemma iso_from_fully_faithful_reflection_functor_on_iso (C D : precategory)
+      (F : functor C D) (HF : fully_faithful F) (a b : ob C)
+   (f : iso a b) :
+      iso_from_fully_faithful_reflection HF (functor_on_iso F f) = f.
+Proof.
+  apply eq_iso.
+  simpl;
+  apply (homotinvweqweq (weq_from_fully_faithful HF a b)).
+Qed.
+
+Definition weq_ff_functor_on_iso {C D : precategory}{F : functor C D}
+           (HF : fully_faithful F) (a b : ob C)
+  : iso a b ≃ iso (F a) (F b).
+Proof.
+  exists (functor_on_iso F).
+  apply (gradth _ (iso_from_fully_faithful_reflection HF (a:=a)(b:=b))).
+  - apply iso_from_fully_faithful_reflection_functor_on_iso.
+  - apply functor_on_iso_iso_from_fully_faithful_reflection.
+Defined.
+
+(** Computation check *)
+
+Lemma weq_ff_functor_on_iso_compute {C D : precategory} (F : functor C D)
+      (HF : fully_faithful F) {a b : C} (f : iso a b)
+: #F f = weq_ff_functor_on_iso HF _ _ f.
+Proof.
+apply idpath.
+Qed.
+
+Lemma functor_on_iso_iso_from_ff_reflection (C D : precategory)
+      (F : functor C D) (HF : fully_faithful F) (a b : C)
+      (f : iso (F a) (F b)):
+  functor_on_iso F
+                 (iso_from_fully_faithful_reflection HF f) = f.
+Proof.
+  apply eq_iso.
+  simpl.
+  apply (homotweqinvweq (weq_from_fully_faithful HF a b ) ).
+Qed.
+
+
+(** Alternative implementation of [weq_ff_functor_on_iso] *)
+
 Lemma ff_reflects_is_iso (C D : precategory) (F : functor C D)
   (HF : fully_faithful F) (a b : C) (f : a --> b)
   : is_iso (# F f) -> is_iso f.
@@ -408,11 +451,12 @@ Proof.
   simpl in X.
   rewrite T in X.
   apply X.
-Qed.
+Defined.
 
 
-Definition weq_ff_functor_on_iso {C D : precategory} (F : functor C D)
-           (HF : fully_faithful F) {a b : C}
+Definition weq_ff_functor_on_iso_weqbandf {C D : precategory}
+  {F : functor C D}
+  (HF : fully_faithful F) (a b : C)
   : iso a b ≃ iso (F a) (F b).
 Proof.
   simple refine (weqbandf _ _ _ _ ).
@@ -426,29 +470,15 @@ Proof.
     + apply isaprop_is_iso.
 Defined.
 
-Lemma functor_on_iso_iso_from_ff_reflection (C D : precategory)
-      (F : functor C D) (HF : fully_faithful F) (a b : C)
-      (f : iso (F a) (F b)):
-  functor_on_iso F
-                 (iso_from_fully_faithful_reflection HF f) = f.
-Proof.
-  apply eq_iso.
-  simpl.
-  apply (homotweqinvweq (weq_from_fully_faithful HF a b ) ).
-Qed.
+(** Computation check *)
 
-(* This lemma is either false or takes ages to check *)
-(*
-Lemma functor_on_iso_iso_from_ff_reflection2 (C D : precategory)
-      (F : functor C D) (HF : fully_faithful F) (a b : C)
-      (f : iso (F a) (F b)):
-functor_on_iso F
-               (invmap (weq_ff_functor_on_iso F HF) f) = f.
+Lemma weq_ff_functor_on_iso_weqbandf_compute {C D : precategory} (F : functor C D)
+      (HF : fully_faithful F) {a b : C} (f : iso a b)
+: #F f = weq_ff_functor_on_iso_weqbandf HF _ _ f.
 Proof.
-  apply eq_iso.
-  apply (homotweqinvweq (weq_from_fully_faithful HF a b ) ).
-Qed.
-*)
+  try apply idpath.
+Abort.
+
 
 Lemma ff_is_inclusion_on_objects {C D : precategory}
       (HC : is_category C) (HD : is_category D)
