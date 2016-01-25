@@ -65,32 +65,8 @@ Definition nat_graph : graph :=
 
 Local Notation "'chain'" := (diagram nat_graph).
 
-Definition mapchain {C D : precategory} (F : functor C D) (c : chain C) : chain D.
-Proof.
-simple refine (tpair _ _ _).
-- intros n.
-  apply (F (dob c n)).
-- simpl; intros m n e.
-  apply (# F (dmor c e)).
-Defined.
-
-Definition mapcocone {C D : precategory} (F : functor C D) {c : chain C} {x : C}
-  (cx : cocone c x) : cocone (mapchain F c) (F x).
-Proof.
-simple refine (mk_cocone _ _).
-- simpl; intro n.
-  exact (#F (coconeIn cx n)).
-- abstract (intros u v e; destruct e ; simpl;
-            rewrite <- functor_comp;
-            apply maponpaths, (coconeInCommutes cx _ _ (idpath _ ))).
-Defined.
-
-Lemma mapcocone_chain_coconeIn {C D : precategory} (F : functor C D) {c : chain C} {x : C}
-  (cx : cocone c x) (n : nat) :
-  coconeIn (mapcocone F cx) n = #F (coconeIn cx n).
-Proof.
-apply idpath.
-Qed.
+Definition mapchain {C D : precategory} (F : functor C D)
+  (c : chain C) : chain D := mapdiagram F c.
 
 (* Construct the chain:
 
@@ -113,8 +89,7 @@ Notation "'chain'" := (diagram nat_graph).
 
 Definition omega_cocont {C D : precategory} (F : functor C D) : UU :=
   forall (c : chain C) (L : C) (cc : cocone c L),
-  isColimCocone c L cc -> isColimCocone (mapchain F c) (F L) (mapcocone F cc).
-
+  preserves_colimit F c L cc.
 
 (* This section proves that (L,α : F L -> L) is the initial algebra
    where L is the colimit of the inital chain:
@@ -136,7 +111,7 @@ Variable (CC : ColimCocone Fchain).
 Let L : C := colim CC.
 Let FFchain : chain C := mapchain F Fchain.
 
-Let Fa : cocone FFchain (F L) := mapcocone F (colimCocone CC).
+Let Fa : cocone FFchain (F L) := mapcocone F _ (colimCocone CC).
 Let FHC' : isColimCocone FFchain (F L) Fa :=
   HF Fchain L (colimCocone CC) (isColimCocone_from_ColimCocone CC).
 Let FHC : ColimCocone FFchain := mk_ColimCocone _ _ _ FHC'.
@@ -343,15 +318,8 @@ Let Fid : functor C C := functor_identity C.
 
 Lemma goodIdentityFunctor : good Fid.
 Proof.
-intros c L ccL HcL y ccy; simpl.
-set (CC := mk_ColimCocone _ _ _ HcL).
-simple refine (tpair _ _ _).
-- simple refine (tpair _ _ _).
-  + apply (colimArrow CC), ccy.
-  + simpl; intro n; apply (colimArrowCommutes CC).
-- simpl; intro t; apply subtypeEquality.
-  + simpl; intro v; apply impred; intro; apply hsC.
-  + apply (colimArrowUnique CC); intro n; apply (pr2 t).
+intros c L ccL HcL.
+apply (preserves_colimit_identity hsC _ _ _ HcL).
 Defined.
 
 End identity_functor.

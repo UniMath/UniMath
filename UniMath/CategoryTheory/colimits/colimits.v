@@ -551,3 +551,83 @@ Lemma ColimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
 Proof.
 now intros g d; apply ColimFunctorCocone.
 Defined.
+
+Section preserves_colimit.
+
+Context {C D : precategory} (F : functor C D).
+
+Definition mapdiagram {g : graph} (d : diagram g C) : diagram g D.
+Proof.
+simple refine (tpair _ _ _).
+- intros n.
+  apply (F (dob d n)).
+- simpl; intros m n e.
+  apply (# F (dmor d e)).
+Defined.
+
+Definition mapcocone {g : graph} (d : diagram g C) {x : C}
+  (dx : cocone d x) : cocone (mapdiagram d) (F x).
+Proof.
+simple refine (mk_cocone _ _).
+- simpl; intro n.
+  exact (#F (coconeIn dx n)).
+- abstract (intros u v e; simpl; rewrite <- functor_comp;
+            apply maponpaths, (coconeInCommutes dx _ _ e)).
+Defined.
+
+Lemma mapcocone_chain_coconeIn {g : graph} {c : diagram g C} {x : C}
+  (cx : cocone c x) (n : vertex g) :
+  coconeIn (mapcocone c cx) n = #F (coconeIn cx n).
+Proof.
+apply idpath.
+Qed.
+
+Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
+  (cc : cocone d L) : UU :=
+  isColimCocone d L cc -> isColimCocone (mapdiagram d) (F L) (mapcocone d cc).
+
+End preserves_colimit.
+
+Section preserves_colimit_examples.
+
+Context {C D : precategory} (hsC : has_homsets C) (hsD : has_homsets D).
+
+Let Fid : functor C C := functor_identity C.
+
+Lemma preserves_colimit_identity {g : graph} (d : diagram g C) (L : C)
+  (cc : cocone d L) : preserves_colimit Fid d L cc.
+Proof.
+intros HcL y ccy; simpl.
+set (CC := mk_ColimCocone _ _ _ HcL).
+simple refine (tpair _ _ _).
+- simple refine (tpair _ _ _).
+  + apply (colimArrow CC), ccy.
+  + simpl; intro n; apply (colimArrowCommutes CC).
+- simpl; intro t; apply subtypeEquality.
+  + simpl; intro v; apply impred; intro; apply hsC.
+  + apply (colimArrowUnique CC); intro n; apply (pr2 t).
+Defined.
+
+Variable (x : D).
+
+Let Fx : functor C D := constant_functor C D x.
+
+(* This is is too weak as diagrams are not necessarily categories *)
+Lemma preserves_colimit_constant {g : graph} (v : vertex g)
+  (conn : forall (u : vertex g), edge v u)
+  (d : diagram g C) (L : C) (cc : cocone d L) :
+  preserves_colimit Fx d L cc.
+Proof.
+intros HcL y ccy; simpl.
+simple refine (tpair _ _ _).
+-simple refine (tpair _ _ _).
+  + apply (coconeIn ccy v).
+  + simpl; intro u.
+    generalize (coconeInCommutes ccy _ _ (conn u)); simpl.
+    do 2 rewrite id_left; intro H; rewrite H; apply idpath.
+- simpl; intro p; apply subtypeEquality.
+  + intros f; apply impred; intro; apply hsD.
+  + now simpl; destruct p as [p H]; rewrite <- (H v), id_left.
+Defined.
+
+End preserves_colimit_examples.
