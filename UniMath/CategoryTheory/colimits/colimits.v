@@ -509,7 +509,8 @@ End preserves_colimit.
 
 Section preserves_colimit_examples.
 
-Context {C D : precategory} (hsC : has_homsets C) (hsD : has_homsets D).
+Context {C D E : precategory} (hsC : has_homsets C) (hsD : has_homsets D)
+        (hsE : has_homsets E).
 
 Let Fid : functor C C := functor_identity C.
 
@@ -539,7 +540,7 @@ Lemma preserves_colimit_constant {g : graph} (v : vertex g)
 Proof.
 intros HcL y ccy; simpl.
 simple refine (tpair _ _ _).
--simple refine (tpair _ _ _).
+- simple refine (tpair _ _ _).
   + apply (coconeIn ccy v).
   + simpl; intro u.
     generalize (coconeInCommutes ccy _ _ (conn u)); simpl.
@@ -547,6 +548,23 @@ simple refine (tpair _ _ _).
 - simpl; intro p; apply subtypeEquality.
   + intros f; apply impred; intro; apply hsD.
   + now simpl; destruct p as [p H]; rewrite <- (H v), id_left.
+Defined.
+
+Lemma preserves_colimit_comp (F : functor C D) (G : functor D E)
+  {g : graph} (d : diagram g C) (L : C) (cc : cocone d L)
+  (H1 : preserves_colimit F d L cc)
+  (H2 : preserves_colimit G (mapdiagram F d) (F L) (mapcocone F _ cc)) :
+  preserves_colimit (functor_composite _ _ _ F G) d L cc.
+Proof.
+intros HcL y ccy; simpl.
+set (CC := mk_ColimCocone _ _ _ (H2 (H1 HcL))).
+simple refine (tpair _ _ _).
+- simple refine (tpair _ _ _).
+  + apply (colimArrow CC), ccy.
+  + simpl; intro v; apply (colimArrowCommutes CC).
+- simpl; intro t; apply subtypeEquality.
+  + intros f; apply impred; intro; apply hsE.
+  + simpl; apply (colimArrowUnique CC), (pr2 t).
 Defined.
 
 End preserves_colimit_examples.
