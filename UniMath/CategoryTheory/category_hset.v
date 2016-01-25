@@ -199,7 +199,6 @@ Proof.
     apply idpath.
 Defined.
 
-
 Lemma is_weq_precat_paths_to_iso_hset (A B : ob HSET):
    isweq (@idtoiso _ A B).
 Proof.
@@ -221,13 +220,14 @@ Section HSETs.
 
 Definition emptyHSET : HSET.
 Proof.
-exists empty; apply isasetempty.
+exists empty.
+abstract (apply isasetempty).
 Defined.
 
 Definition unitHSET : HSET.
 Proof.
 exists unit.
-abstract (apply isasetaprop, isapropifcontr, iscontrunit).
+abstract (apply isasetunit).
 Defined.
 
 End HSETs.
