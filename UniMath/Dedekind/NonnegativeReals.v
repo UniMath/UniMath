@@ -4555,15 +4555,14 @@ Proof.
     apply ispositive_apNonnegativeReals.
     exact isnonzeroNonnegativeReals. }
   generalize (NonnegativeReals_dense _ _ Hx).
-  apply hinhfun.
+  apply hinhuniv.
   intros q.
-  generalize (NQintpart (pr1 q)) ; intros n.
-  exists (S (pr1 n)).
-  eapply istrans_ltNonnegativeReals.
+  generalize (isarchNonnegativeRationals (pr1 q)) ; apply hinhfun ; intros n.
+  exists (pr1 n).
+  refine (istrans_ltNonnegativeReals _ _ _ _ _).
   exact (pr1 (pr2 q)).
   apply (pr1 (NonnegativeRationals_to_NonnegativeReals_lt _ _)).
-  rewrite nat_to_NonnegativeRationals_Sn.
-  exact (pr2 (pr2 n)).
+  exact (pr2 n).
 Qed.
 
 (** ** Completeness *)

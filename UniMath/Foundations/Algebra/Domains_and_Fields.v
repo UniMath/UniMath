@@ -513,9 +513,66 @@ assert  ( int' := int x1 x2 ) .   rewrite ( ee x1 ) in int' .   rewrite ( ee x2 
 
 Opaque iscomptofldfrac .
 
+(** **** For every element there exists an integral element that is greater than the element *)
 
+Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R ) ( is2 : R 1 0 ) ( nc : neqchoice R ) ( newcond : forall x : rngpossubmonoid X is1 is2 , coprod ( R ( pr1 x )  1 ) ( ( pr1 x ) = 1 ) ) ( asy : isasymm R ) ( z : fldfrac X is ) : ishinh ( total2 ( fun x : X => fldfracgt _  is is0 is1 is2 nc ( tofldfrac X is x ) z ) ) .
+Proof.
+  intros.
+  set ( P := fun z => ishinh ( total2 ( fun x : X => fldfracgt _  is is0 is1 is2 nc ( tofldfrac X is x ) z ) ) ) .
+  set ( P' := fun z' => ishinh ( total2 ( fun x : X => commrngfracgt X ( rngpossubmonoid X is1 is2 ) is0 is1 ( fun c r => r )  ( weqfldfracgt_f X is is0 is1 is2 nc ( tofldfrac X is x ) ) z' ) ) ) .
+  assert ( e : forall z : fldfrac X is , P z = P' ( weqfldfracgt_f X is is0 is1 is2 nc z ) ) .
+  intro zz. apply idpath .
+  assert ( int: forall z', P' z' ) .
+  apply setquotunivprop.
+  intros x0x1 . destruct x0x1 as [ x0 x1 ] .
+  unfold P' .  simpl . unfold weqfldfracgtint_f . simpl. apply hinhpr .
+  destruct ( nc 1 0 (nonzeroax X) ) as [ gt0 | lt0 ] . simpl.
 
+  destruct ( is x0 0 ) as [ x0eq0 | x0neq0 ] .
+  split with ( 1 : X ) . apply hinhpr .
+  simple refine ( tpair _ _ _ ) .
+  simple refine ( tpair _ _ _ ) .  exact ( 1 : ( pr1 X ) ) . exact is2 .  simpl .
+  repeat (rewrite ( rngrunax2 X _ )) .
+  rewrite ( rnglunax2 X _ ) .  rewrite x0eq0 . apply ( pr2 x1 ) .
 
+  destruct ( nc x0 0 x0neq0 ) as [ x0gt0 | x0lt0 ] .
 
+  destruct ( newcond x1 ) as [ gt1 | eq1 ] .
+  split with x0 .
+  apply hinhpr .
+  simple refine ( tpair _ _ _ ) .
+  simple refine ( tpair _ _ _ ) .
+  exact ( 1 : ( pr1 X ) ) . exact is2 .  simpl .
+  repeat (rewrite ( rngrunax2 X _ )) .
+  assert ( int := isrngmultgttoislrngmultgt _ is0 is1 _ _ _ x0gt0 gt1 ) .
+  rewrite ( rngrunax2 X _ ) in int .
+  apply int .
+
+  split with ( x0 + 1 ) .
+  apply hinhpr .
+  simple refine ( tpair _ _ _ ) .
+  simple refine ( tpair _ _ _ ) .
+  exact ( 1 : ( pr1 X ) ) . exact is2 .  simpl .
+  simpl in eq1 . rewrite eq1 .
+  repeat (rewrite ( rngrunax2 X _ )) .
+  assert ( int := ( pr1 is0 ) 1 0 x0 is2  ) . simpl in int .
+  rewrite ( rngrunax1 X _ ) in int .
+  apply int .
+
+  split with ( 0 : X ) .
+  apply hinhpr .
+  simple refine ( tpair _ _ _ ) .
+  simple refine ( tpair _ _ _ ) .
+  exact ( 1 : ( pr1 X ) ) . exact is2 .  simpl .
+  repeat (rewrite ( rngrunax2 X _ )) .
+  change ( R ( 0%rig * ( ( pr1 x1 ) : ( rngtorig X ) ) ) x0 ) . rewrite ( rigmult0x X ( ( pr1 x1 ) : X ) ) . apply x0lt0 .
+
+  destruct ( asy _ _ is2 lt0 ) .
+
+  change ( P z ) .
+  rewrite ( e z ) .
+  apply int .
+
+Defined.
 
 (* End of the file algebra1d.v *)
