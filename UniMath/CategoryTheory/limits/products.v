@@ -5,8 +5,11 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.limits.limits.
+Require Import UniMath.CategoryTheory.opp_precat.
 
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
 Section product_def.
@@ -216,7 +219,51 @@ Qed.
 
 End Product_unique.
 
+Section Products_from_Lims.
 
+Variable C : precategory.
+Variable hsC : has_homsets C.
+
+Definition two_graph : graph.
+Proof.
+  exists bool.
+  exact (fun _ _ => empty).
+Defined.
+
+Definition product_diagram (a b : C) : diagram two_graph C^op.
+Proof.
+  exists (fun x : bool => if x then a else b).
+  intros u v F.
+  induction F.
+Defined.
+
+Definition ProdCone {a b c : C} (f : c --> a) (g : c --> b) : cone (product_diagram a b) c.
+Proof.
+simple refine (mk_cone _ _); simpl.
+  + intros x; case x; [apply f | apply g].
+  + abstract (intros x y e; destruct e).
+Defined.
+
+Lemma Products_from_Lims : Lims C -> Products C.
+Proof.
+intros H a b.
+case (H _ (product_diagram a b)); simpl.
+intros t; destruct t as [ab cc]; simpl; intros iscc.
+apply (mk_ProductCone _ _ _ ab (coconeIn cc true) (coconeIn cc false)).
+apply (mk_isProductCone _ hsC); simpl; intros c f g.
+case (iscc c (ProdCone f g)); simpl; intros t Ht.
+simple refine (tpair _ _ _).
++ apply (tpair _ (pr1 t)); split; [ apply (pr2 t true) | apply (pr2 t false) ].
++ intros t0.
+  apply subtypeEquality; [intros aa; apply isapropdirprod; apply hsC|]; simpl.
+  simple refine (let X : Σ x : c --> ab, ∀ v, coconeIn cc v ;; x =
+            (if v as b0 return (c --> (if b0 then a else b)) then f else g) := _ in _).
+  { apply (tpair _ (pr1 t0)); intro x; case x;
+    [ apply (pr1 (pr2 t0)) | apply (pr2 (pr2 t0)) ]. }
+apply (maponpaths pr1 (Ht X)).
+Defined.
+
+End Products_from_Lims.
 
 Section test.
 

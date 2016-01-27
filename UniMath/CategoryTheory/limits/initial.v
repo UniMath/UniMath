@@ -1,4 +1,3 @@
-
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -6,6 +5,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.colimits.colimits.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
@@ -35,6 +35,11 @@ Proof.
   apply (pr2 (pr2 I _ ) _ ).
 Defined.
 
+Lemma InitialArrowEq (O : Initial) (a : C) (f g : O --> a) : f = g.
+Proof.
+rewrite (InitialArrowUnique _ _ f), (InitialArrowUnique _ _ g).
+apply idpath.
+Qed.
 
 Definition mk_Initial (a : C) (H : isInitial a) : Initial.
 Proof.
@@ -78,7 +83,6 @@ Qed.
 
 End Initial_Unique.
 
-
 End def_initial.
 
 Arguments Initial : clear implicits.
@@ -88,3 +92,39 @@ Arguments InitialArrow {_} _ _ .
 Arguments InitialArrowUnique {_} _ _ _ .
 Arguments mk_isInitial {_} _ _ _ .
 Arguments mk_Initial {_} _ _.
+
+Section Initial_from_Colims.
+
+Variable C : precategory.
+
+Definition empty_graph : graph.
+Proof.
+  exists empty.
+  exact (fun _ _ => empty).
+Defined.
+
+Definition initDiagram : diagram empty_graph C.
+Proof.
+exists fromempty.
+intros u; induction u.
+Defined.
+
+Definition initCocone (b : C) : cocone initDiagram b.
+Proof.
+simple refine (mk_cocone _ _); intros u; induction u.
+Defined.
+
+Lemma Initial_from_Colims : Colims C -> Initial C.
+Proof.
+intros H.
+case (H _ initDiagram); intros cc iscc; destruct cc as [c cc].
+apply (mk_Initial c); apply mk_isInitial; intros b.
+case (iscc _ (initCocone b)); intros f Hf; destruct f as [f fcomm].
+apply (tpair _ f); intro g.
+simple refine (let X : Σ x : c --> b, ∀ v,
+                       coconeIn cc v ;; x = coconeIn (initCocone b) v := _ in _).
+  { apply (tpair _ g); intro u; induction u. }
+apply (maponpaths pr1 (Hf X)).
+Defined.
+
+End Initial_from_Colims.
