@@ -476,9 +476,8 @@ Lemma weq_ff_functor_on_iso_weqbandf_compute {C D : precategory} (F : functor C 
       (HF : fully_faithful F) {a b : C} (f : iso a b)
 : #F f = weq_ff_functor_on_iso_weqbandf HF _ _ f.
 Proof.
-  try apply idpath.
-Abort.
-
+  apply idpath.
+Defined.
 
 Lemma ff_is_inclusion_on_objects {C D : precategory}
       (HC : is_category C) (HD : is_category D)
