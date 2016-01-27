@@ -2693,10 +2693,10 @@ apply ( gradth _ _ egf efg ) . Defined .
 (** ** The maps between total spaces of families given by a map between the bases of the families and maps between the corresponding members of the families *)
 
 
-Definition bandfmap { X Y : UU }(f: X -> Y) ( P : X -> UU)(Q: Y -> UU)(fm: ∀ x:X, P x -> (Q (f x))): total2 P -> total2 Q:= fun xp:_ =>
-match xp with
-tpair _ x p => tpair Q (f x) (fm x p)
-end.
+Definition bandfmap { X Y : UU } (f: X -> Y) ( P : X -> UU) (Q: Y -> UU)
+           (fm: ∀ x:X, P x -> (Q (f x))) :
+  (Σ x, P x) -> (Σ x, Q x)
+  := λ xp, f (pr1 xp) ,, fm (pr1 xp) (pr2 xp).
 
 Theorem isweqbandfmap { X Y : UU } (w : X ≃ Y ) (P:X -> UU)(Q: Y -> UU)( fw : ∀ x:X, weq ( P x) (Q (w x))) : isweq (bandfmap  _ P Q fw).
 Proof. intros. set (f1:= totalfun P _ fw). set (is1:= isweqfibtototal P (fun x:X => Q (w x)) fw ).  set (f2:= fpmap w Q).  set (is2:= isweqfpmap w Q ).
