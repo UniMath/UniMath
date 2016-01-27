@@ -271,8 +271,8 @@ End colim_initial_algebra.
 
 Section polynomial_functors.
 
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseProduct.
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
