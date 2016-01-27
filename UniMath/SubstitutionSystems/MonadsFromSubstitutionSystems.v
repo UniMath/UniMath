@@ -40,7 +40,7 @@ Require Import UniMath.SubstitutionSystems.HorizontalComposition.
 Require Import UniMath.SubstitutionSystems.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 

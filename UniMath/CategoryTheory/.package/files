@@ -12,6 +12,8 @@ yoneda.v
 category_hset.v
 category_hset_structures.v
 HLevel_n_is_of_hlevel_Sn.v
+limits/FunctorsPointwiseProduct.v
+limits/FunctorsPointwiseCoproduct.v
 limits/coproducts_as_colimits.v
 limits/coproducts.v
 limits/initial_as_colimit.v

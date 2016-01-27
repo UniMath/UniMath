@@ -34,7 +34,7 @@ Require Import UniMath.SubstitutionSystems.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
 Require Import UniMath.SubstitutionSystems.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.

@@ -2,8 +2,6 @@ SubstitutionSystems_Summary.v
 AdjunctionHomTypesWeq.v
 Notation.v
 EndofunctorsMonoidal.v
-FunctorsPointwiseCoproduct.v
-FunctorsPointwiseProduct.v
 GenMendlerIteration.v
 HorizontalComposition.v
 LamSignature.v
