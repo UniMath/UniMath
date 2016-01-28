@@ -521,49 +521,81 @@ Fixpoint natmult {X : monoid} (n : nat) (x : X) : X :=
     | S O => x
     | S m => (x + natmult m x)%addmonoid
   end.
+Definition nattorig {X : rig} (n : nat) : X :=
+  natmult (X := rigaddabmonoid X) n 1%rig.
 Lemma natmultS :
-  ∀ (X : monoid) (n : nat) (x : X),
+  ∀ {X : monoid} (n : nat) (x : X),
     natmult (S n) x = (x + natmult n x)%addmonoid.
 Proof.
   intros X [ | n] x.
   - now rewrite runax.
   - reflexivity.
 Qed.
+Lemma nattorigS {X : rig} :
+  ∀ (n : nat), nattorig (X := X) (S n) = (1 + nattorig n)%rig.
+Proof.
+  intros.
+  now apply (natmultS (X := rigaddabmonoid X)).
+Qed.
+Lemma nattorig_natmult :
+  ∀ {X : rig} (n : nat) (x : X),
+    (nattorig n * x)%rig = natmult (X := rigaddabmonoid X) n x.
+Proof.
+  intros.
+  induction n.
+  - now apply rigmult0x.
+  - rewrite nattorigS, natmultS.
+    now rewrite rigrdistr, IHn, riglunax2.
+Qed.
 
 Definition isarchmonoid (X : monoid) (R : hrel X) :=
   ∀ x y : X, R y 0%addmonoid -> ∃ n : nat, R (natmult n y) x.
 Definition isarchrig (X : rig) (R : hrel X) :=
   isarchmonoid (rigaddabmonoid X) R.
-
-Fixpoint nattorig {X : rig} (n : nat) : X :=
-  match n with
-    | O => 0%rig
-    | S O => 1%rig
-    | S m => (1 + nattorig m)%rig
-  end.
-Lemma nattorigS {X : rig} :
-  ∀ (n : nat), nattorig (X := X) (S n) = (1 + nattorig n)%rig.
-Proof.
-  intros.
-  destruct n.
-  - now rewrite rigrunax1.
-  - reflexivity.
-Qed.
-Lemma nattorig_natmult :
-  ∀ (X : rig) (n : nat) (x : X),
-    (nattorig n * x)%rig = natmult (X := rigaddabmonoid X) n x.
-Proof.
-  intros.
-  destruct n.
-  - now apply rigmult0x.
-  - induction n.
-    + now apply riglunax2.
-    + change (nattorig (S (S n))) with (1 + nattorig (S n) : X)%rig.
-      now rewrite rigrdistr, IHn, riglunax2.
-Qed.
-
 Definition isarchfld (X : fld) (R : hrel X) :=
   ∀ x : X, ∃ n : nat, R (nattorig (X := pr1fld X) n) x.
+
+(* Theorem isarchrigtorng (X : rig) (R : hrel X) (is : isbinophrel (X := rigaddabmonoid X) R) (is0 : ∀ x : X, R x 0%rig) ( asy : isasymm R ) :
+  isarchrig X R -> isarchrig (rigtorng X) (rigtorngrel X is).
+Proof.
+  intros.
+  intros x y Hy0.
+  set (P := λ x y : rigtorng X, ∃ n : nat, rigtorngrel X is (natmult (X := rigaddabmonoid (rigtorng X)) n y) x).
+  set (P' := λ x y : abmonoiddirprod (rigaddabmonoid X) (rigaddabmonoid X), ∃ n : nat, rigtorngrel X is (setquotpr (eqrelabgrfrac (rigaddabmonoid X)) (natmult n y)) (setquotpr (eqrelabgrfrac (rigaddabmonoid X)) x)).
+  assert ( e : forall x y , P (setquotpr (eqrelabgrfrac (rigaddabmonoid X)) x) (setquotpr (eqrelabgrfrac (rigaddabmonoid X)) y) = P' x y ) .
+  { intros xx yy.
+    unfold P, P'.
+    apply maponpaths.
+    apply maponpaths.
+    apply funextfun ; intro n.
+    apply maponpaths.
+    apply map_on_two_paths.
+    - induction n.
+      + reflexivity.
+      + rewrite !natmultS, IHn.
+        refine (pathscomp0 _ _).
+        2: apply setquotfun2comm.
+        reflexivity.
+    - reflexivity. }
+  change (P x y).
+  generalize (pr1 (pr2 x)) (pr1 (pr2 y)).
+  apply hinhuniv2.
+  intros x' y'.
+  rewrite <- (setquotl0 _ x x'), <- (setquotl0 _ y y').
+  rewrite e ; clear e P.
+  generalize (X0 (pr1 (pr1 x')) (pr1 (pr1 y')) (is0 _)) (X0 (pr2 (pr1 y')) (pr2 (pr1 x')) (is0 _)).
+  apply hinhuniv2.
+  intros n m.
+  unfold P'.
+  apply hinhpr.
+  exists (pr1 n + pr1 m)%nat.
+  unfold rigtorngrel, abgrfracrel, quotrel.
+  rewrite setquotuniv2comm.
+  apply hinhpr.
+  exists 0%rig.
+  simpl.
+
+Defined.*)
 
 Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R ) ( is2 : R 1 0 ) ( nc : neqchoice R ) ( asy : isasymm R ) : isarchrig X R -> isarchfld (fldfrac X is ) (fldfracgt _  is is0 is1 is2 nc).
 Proof.

@@ -1557,25 +1557,21 @@ Proof.
   apply hqpluscomm.
 Qed.
 
-Definition isarchNonnegativeRationals (x : NonnegativeRationals) : ∃ n : nat, x < nat_to_NonnegativeRationals n.
+Definition isarchNonnegativeRationals :
+  ∀ x : NonnegativeRationals, ∃ n, x < nattorig n.
 Proof.
   intros x.
   generalize (isarchhq (pr1 x)).
   apply hinhfun.
   intros n.
-  exists (hzabsval (pr1 n)).
-  unfold nat_to_NonnegativeRationals.
-  generalize (hztohqandleh 0%hz (nattohz (hzabsval (pr1 n))) (nattohzandleh 0 (hzabsval (pr1 n)) (natleh0n (hzabsval (pr1 n))))).
-  rewrite hzabsvalgeh0.
-  intros Hn.
-  apply (pr2 n).
-  intro Hn.
-  apply hztohqandgth in Hn.
-  revert Hn.
-  change (0 <= hztohq (pr1 n))%hq.
-  refine (istranshqleh _ _ _ _ _).
-  apply (pr2 x).
-  apply hqlthtoleh.
+  exists (pr1 n).
+  rewrite ltNonnegativeRationals_correct.
+  assert (pr1 (nattorig (X := pr1 (CommDivRig_DivRig NonnegativeRationals)) (pr1 n)) = nattorig (X := pr1fld hq) (pr1 n)).
+  { induction (pr1 n).
+    - reflexivity.
+    - rewrite !nattorigS, <- IHn0.
+      reflexivity. }
+  rewrite X ; clear X.
   exact (pr2 n).
 Qed.
 

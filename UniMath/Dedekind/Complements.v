@@ -227,22 +227,46 @@ Qed.
 
 (** ** hq is archimedean *)
 
-Lemma isarchhq :
-  ∀ x : hq, ∃ n : hz, x < hztohq n.
+Lemma nattorig_nattohz :
+  ∀ n : nat, nattorig (X := hz) n = nattohz n.
 Proof.
-  intros x.
-  unfold hztohq, hqlth, hqgth.
-  simple refine (isarchfldfrac hzintdom _ _ _ _ _ _ _ _).
-  - intros n.
-    apply hzgehchoice.
-    change (hzgeh (pr1 n) 1%hz).
-    pattern (1%hz) at 2.
-    rewrite <- (hzplusl0 1%hz).
-    apply hzgthtogehsn.
-    simpl in n.
-    apply (pr2 n).
+  induction n.
+  - simpl.
+    reflexivity.
+  - rewrite nattorigS, IHn.
+    apply pathsinv0, nattohzandS.
+Qed.
+
+Lemma isarchhq :
+  isarchfld hq hqgth.
+Proof.
+  simple refine (isarchfldfrac hzintdom _ _ _ _ _ _ _).
   - intros n m.
     apply hzgthtogeh.
+  - intros n m Hm.
+    apply hinhpr.
+    exists (S (hzabsval n / hzabsval m)).
+    rewrite <- nattorig_natmult, nattorig_nattohz.
+    change (hzgth (nattohz (S (hzabsval n / hzabsval m)) * m)%hz n).
+    pattern m at 2 ;
+    rewrite <- (hzabsvalgth0 Hm).
+    apply hzgthgehtrans with (nattohz (hzabsval n)).
+    rewrite <- nattohzandmult.
+    apply nattohzandgth.
+    rewrite multsnm.
+    apply natgthandplusrinv with (hzabsval n /+ hzabsval m)%nat.
+    rewrite natplusassoc, (natpluscomm _ (_ /+ _)).
+    rewrite <- natdivremrule, natpluscomm.
+    apply natlthandplusl.
+    apply lthnatrem.
+    apply hzabsvalneq0, hzgthtoneq, Hm.
+    apply hzabsvalneq0, hzgthtoneq, Hm.
+    destruct (hzgthorleh n 0%hz).
+    rewrite hzabsvalgth0.
+    now apply isreflhzgeh.
+    exact h.
+    eapply istranshzgeh, h.
+    now apply nattohzandgeh.
 Qed.
 
 (*

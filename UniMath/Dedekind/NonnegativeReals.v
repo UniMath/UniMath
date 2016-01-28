@@ -4562,6 +4562,13 @@ Proof.
   refine (istrans_ltNonnegativeReals _ _ _ _ _).
   exact (pr1 (pr2 q)).
   apply (pr1 (NonnegativeRationals_to_NonnegativeReals_lt _ _)).
+  assert (nat_to_NonnegativeRationals = nattorig).
+  { apply funextfun.
+    induction x0.
+    apply nat_to_NonnegativeRationals_O.
+    rewrite nat_to_NonnegativeRationals_Sn, nattorigS, IHx0.
+    apply iscomm_plusNonnegativeRationals. }
+  rewrite X ; clear X.
   exact (pr2 n).
 Qed.
 
