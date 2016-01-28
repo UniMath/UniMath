@@ -515,62 +515,104 @@ Opaque iscomptofldfrac .
 
 (** **** For every element there exists an integral element that is greater than the element *)
 
-Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R ) ( is2 : R 1 0 ) ( nc : neqchoice R ) ( newcond : forall x : rngpossubmonoid X is1 is2 , coprod ( R ( pr1 x )  1 ) ( ( pr1 x ) = 1 ) ) ( asy : isasymm R ) ( z : fldfrac X is ) : ishinh ( total2 ( fun x : X => fldfracgt _  is is0 is1 is2 nc ( tofldfrac X is x ) z ) ) .
+Fixpoint natmult {X : monoid} (n : nat) (x : X) : X :=
+  match n with
+    | O => 0%addmonoid
+    | S O => x
+    | S m => (x + natmult m x)%addmonoid
+  end.
+Lemma natmultS :
+  ∀ (X : monoid) (n : nat) (x : X),
+    natmult (S n) x = (x + natmult n x)%addmonoid.
+Proof.
+  intros X [ | n] x.
+  - now rewrite runax.
+  - reflexivity.
+Qed.
+
+Definition isarchmonoid (X : monoid) (R : hrel X) :=
+  ∀ x y : X, R y 0%addmonoid -> ∃ n : nat, R (natmult n y) x.
+Definition isarchrig (X : rig) (R : hrel X) :=
+  isarchmonoid (rigaddabmonoid X) R.
+
+Fixpoint nattorig {X : rig} (n : nat) : X :=
+  match n with
+    | O => 0%rig
+    | S O => 1%rig
+    | S m => (1 + nattorig m)%rig
+  end.
+Lemma nattorigS {X : rig} :
+  ∀ (n : nat), nattorig (X := X) (S n) = (1 + nattorig n)%rig.
 Proof.
   intros.
-  set ( P := fun z => ishinh ( total2 ( fun x : X => fldfracgt _  is is0 is1 is2 nc ( tofldfrac X is x ) z ) ) ) .
-  set ( P' := fun z' => ishinh ( total2 ( fun x : X => commrngfracgt X ( rngpossubmonoid X is1 is2 ) is0 is1 ( fun c r => r )  ( weqfldfracgt_f X is is0 is1 is2 nc ( tofldfrac X is x ) ) z' ) ) ) .
+  destruct n.
+  - now rewrite rigrunax1.
+  - reflexivity.
+Qed.
+Lemma nattorig_natmult :
+  ∀ (X : rig) (n : nat) (x : X),
+    (nattorig n * x)%rig = natmult (X := rigaddabmonoid X) n x.
+Proof.
+  intros.
+  destruct n.
+  - now apply rigmult0x.
+  - induction n.
+    + now apply riglunax2.
+    + change (nattorig (S (S n))) with (1 + nattorig (S n) : X)%rig.
+      now rewrite rigrdistr, IHn, riglunax2.
+Qed.
+
+Definition isarchfld (X : fld) (R : hrel X) :=
+  ∀ x : X, ∃ n : nat, R (nattorig (X := pr1fld X) n) x.
+
+Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R ) ( is2 : R 1 0 ) ( nc : neqchoice R ) ( asy : isasymm R ) : isarchrig X R -> isarchfld (fldfrac X is ) (fldfracgt _  is is0 is1 is2 nc).
+Proof.
+  intros.
+  intros x.
+  set ( P := fun z => ∃ n : nat, fldfracgt X is is0 is1 is2 nc (nattorig (X := pr1fld (fldfrac X is)) n) z ) .
+  set ( P' := fun z' => ∃ n : nat, commrngfracgt X ( rngpossubmonoid X is1 is2 ) is0 is1 ( fun c r => r )  ( weqfldfracgt_f X is is0 is1 is2 nc ( tofldfrac X is (nattorig (X := pr1intdom X) n) ) ) z' )  .
   assert ( e : forall z : fldfrac X is , P z = P' ( weqfldfracgt_f X is is0 is1 is2 nc z ) ) .
-  intro zz. apply idpath .
+  { intro zz.
+    unfold P, P'.
+    apply maponpaths.
+    apply maponpaths.
+    apply funextfun ; intro z.
+    unfold fldfracgt.
+    simpl.
+    assert ((weqfldfracgt_f X is is0 is1 is2 nc (nattorig (X := pr1fld (fldfrac X is)) z)) = (weqfldfracgt_f X is is0 is1 is2 nc (tofldfrac X is (nattorig (X := pr1intdom X) z)))).
+    { apply maponpaths.
+      clear.
+      induction z.
+      reflexivity.
+      rewrite !nattorigS, IHz.
+      apply pathsinv0.
+      refine (pathscomp0 _ _).
+      apply isbinop1funtofldfrac.
+      rewrite isunital2funtofldfrac.
+      reflexivity. }
+    rewrite <- X1.
+    reflexivity. }
+
   assert ( int: forall z', P' z' ) .
   apply setquotunivprop.
   intros x0x1 . destruct x0x1 as [ x0 x1 ] .
-  unfold P' .  simpl . unfold weqfldfracgtint_f . simpl. apply hinhpr .
+  unfold P' .  simpl . unfold weqfldfracgtint_f . simpl.
   destruct ( nc 1 0 (nonzeroax X) ) as [ gt0 | lt0 ] . simpl.
-
-  destruct ( is x0 0 ) as [ x0eq0 | x0neq0 ] .
-  split with ( 1 : X ) . apply hinhpr .
+  generalize (X0 x0 (pr1 x1) (pr2 x1)).
+  apply hinhfun.
+  intros (n,Hn).
+  exists n.
+  apply hinhpr.
   simple refine ( tpair _ _ _ ) .
   simple refine ( tpair _ _ _ ) .  exact ( 1 : ( pr1 X ) ) . exact is2 .  simpl .
   repeat (rewrite ( rngrunax2 X _ )) .
-  rewrite ( rnglunax2 X _ ) .  rewrite x0eq0 . apply ( pr2 x1 ) .
-
-  destruct ( nc x0 0 x0neq0 ) as [ x0gt0 | x0lt0 ] .
-
-  destruct ( newcond x1 ) as [ gt1 | eq1 ] .
-  split with x0 .
-  apply hinhpr .
-  simple refine ( tpair _ _ _ ) .
-  simple refine ( tpair _ _ _ ) .
-  exact ( 1 : ( pr1 X ) ) . exact is2 .  simpl .
-  repeat (rewrite ( rngrunax2 X _ )) .
-  assert ( int := isrngmultgttoislrngmultgt _ is0 is1 _ _ _ x0gt0 gt1 ) .
-  rewrite ( rngrunax2 X _ ) in int .
-  apply int .
-
-  split with ( x0 + 1 ) .
-  apply hinhpr .
-  simple refine ( tpair _ _ _ ) .
-  simple refine ( tpair _ _ _ ) .
-  exact ( 1 : ( pr1 X ) ) . exact is2 .  simpl .
-  simpl in eq1 . rewrite eq1 .
-  repeat (rewrite ( rngrunax2 X _ )) .
-  assert ( int := ( pr1 is0 ) 1 0 x0 is2  ) . simpl in int .
-  rewrite ( rngrunax1 X _ ) in int .
-  apply int .
-
-  split with ( 0 : X ) .
-  apply hinhpr .
-  simple refine ( tpair _ _ _ ) .
-  simple refine ( tpair _ _ _ ) .
-  exact ( 1 : ( pr1 X ) ) . exact is2 .  simpl .
-  repeat (rewrite ( rngrunax2 X _ )) .
-  change ( R ( 0%rig * ( ( pr1 x1 ) : ( rngtorig X ) ) ) x0 ) . rewrite ( rigmult0x X ( ( pr1 x1 ) : X ) ) . apply x0lt0 .
+  rewrite <- nattorig_natmult in Hn.
+  exact Hn.
 
   destruct ( asy _ _ is2 lt0 ) .
 
-  change ( P z ) .
-  rewrite ( e z ) .
+  change ( P x ) .
+  rewrite ( e x ) .
   apply int .
 
 Defined.
