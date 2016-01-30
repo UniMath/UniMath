@@ -219,11 +219,11 @@ Citing UniMath
 
 To cite UniMath in your article, you can use the following bibtex item:
 ```bibtex
-  @Misc{UniMath,
+@Misc{UniMath,
    author = {Voevodsky, Vladimir and Ahrens, Benedikt and Grayson, Daniel and others},
    title = {{\em UniMath}: {Univalent} {Mathematics}},
    howpublished = {Available at \url{https://github.com/UniMath}}
-  }
+}
 ```
 Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.
 
