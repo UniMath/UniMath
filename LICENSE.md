@@ -16,13 +16,3 @@ do so, subject to the following conditions:
 * This copyright and license shall be included in all copies or substantial
   portions of the Software.
 
-* If UniMath is used in a paper, please cite it.  If you use latex with
-  ```\usepackage{hyperref}``` in the preamble of your paper, you may use the
-  following bibtex item.
-  ```bibtex
-  @Misc{UniMath,
-   author = {Voevodsky, Vladimir and Ahrens, Benedikt and Grayson, Daniel and others},
-   title = {{\em UniMath}: {Univalent} {Mathematics}},
-   howpublished = {Available at \url{https://github.com/UniMath}}
-  }
-  ```

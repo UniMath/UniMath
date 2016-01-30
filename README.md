@@ -213,6 +213,21 @@ Contributing to UniMath
 To contribute to UniMath, submit a pull request or contact us.  Your code will
 be subject to the copyright and license agreement in the file ```LICENSE.md```.
 
+
+Citing UniMath
+==============
+
+To cite UniMath in your article, you can use the following bibtex item:
+```bibtex
+  @Misc{UniMath,
+   author = {Voevodsky, Vladimir and Ahrens, Benedikt and Grayson, Daniel and others},
+   title = {{\em UniMath}: {Univalent} {Mathematics}},
+   howpublished = {Available at \url{https://github.com/UniMath}}
+  }
+```
+Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.
+
+
 The UniMath Development Team
 ============================
 
