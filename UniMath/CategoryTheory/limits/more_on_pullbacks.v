@@ -9,6 +9,78 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 
+Section lemmas_on_pullbacks.
+
+Context {C : precategory} (hsC : has_homsets C).
+Context {a b c d : C}.
+Context {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}.
+Variable H : h ;; f = k ;; g.
+
+Lemma is_symmetric_isPullback
+  : isPullback _ _ _ _ _ H -> isPullback _ _ _ _ _ (!H).
+Proof.
+  intro isPb.
+  simple refine (mk_isPullback _ _ _ _ _ _ _ ).
+  intros e x y Hxy.
+  set (Pb := mk_Pullback  _ _ _ _ _ _ _ isPb).
+  simple refine (tpair _ _ _ ).
+  - simple refine (tpair _ _ _ ).
+    + simple refine (PullbackArrow _ Pb _ _ _ _ ).
+      * assumption.
+      * assumption.
+      * apply (!Hxy).
+    + cbn.
+      split.
+      * apply (PullbackArrow_PullbackPr2 _ Pb).
+      * apply (PullbackArrow_PullbackPr1 _ Pb).
+  - cbn.
+    intro t. apply subtypeEquality.
+    intros ? . apply isapropdirprod; apply hsC.
+    destruct t as [t Ht].
+    cbn; apply PullbackArrowUnique.
+    + apply (pr2 Ht).
+    + apply (pr1 Ht).
+Defined.
+
+(*
+              i'           k
+         d' -------> d --------> c
+         |           |           |
+       h'|           |h          | g
+         v           v           v
+         b'--------> b --------> a
+              i            f
+*)
+
+Lemma isPullback_iso_of_morphisms (b' d' : C) (h' : C⟦d', b'⟧)
+     (i : C⟦b', b⟧) (i' : C⟦d', d⟧)
+     (xi : is_iso i) (xi' : is_iso i')
+     (H' : h' ;; (i ;; f) = (i' ;; k) ;; g)
+   : isPullback _ _ _ _ _ H ->
+     isPullback _ _ _ _ _ H'.
+Proof.
+  intro isPb.
+  simple refine (mk_isPullback _ _ _ _ _ _ _ ).
+  intros e x y Hxy.
+  set (Pb:= mk_Pullback _ _ _ _ _ _ _ isPb).
+  simple refine (tpair _ _ _ ).
+  - simple refine (tpair _ _ _ ).
+    + simple refine ( PullbackArrow _ Pb _ _  _ _ ;; _ ).
+      * apply (x ;; i).
+      * apply y.
+      * abstract (rewrite <- assoc; apply Hxy).
+      * cbn. apply (inv_from_iso (isopair i' xi')).
+    + cbn. split.
+      * assert (X:= PullbackArrow_PullbackPr1 _ Pb e (x ;; i) y ).
+        cbn in X.
+        rewrite X.
+
+        PullbackArrowPr1.
+
+End lemmas_on_pullbacks.
+
+
+
 Section functor_on_square.
 
 Variables C D : precategory.
