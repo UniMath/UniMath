@@ -14,20 +14,24 @@ Section functor_on_square.
 Variables C D : precategory.
 Variable hsC : has_homsets C.
 Variable F : functor C D.
+
+
+Section isPullback_if_functor_on_square_is.
+
 Variable Fff : fully_faithful F.
 
-Variables a b c d : C.
-Variables (f : C ⟦b, a⟧) (g : C ⟦c, a⟧) (h : C⟦d, b⟧) (k : C⟦d,c⟧).
+Context {a b c d : C}.
+Context {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}.
 Variable H : h ;; f = k ;; g.
 
-Definition FH : #F h ;; #F f = #F k ;; #F g.
+Definition functor_on_square : #F h ;; #F f = #F k ;; #F g.
 Proof.
   eapply pathscomp0; [ | apply functor_comp].
   eapply pathscomp0; [ | apply maponpaths ; apply H].
   apply (! functor_comp _ _ _ _ _ _ ).
 Defined.
 
-Variable X : isPullback _ _ _ _ _ FH.
+Variable X : isPullback _ _ _ _ _ functor_on_square.
 
 Lemma isPullback_preimage_square : isPullback _ _ _ _ _ H.
 Proof.
@@ -89,5 +93,20 @@ Proof.
         eapply pathscomp0. apply (!functor_comp _ _ _ _ _ _ ).
         apply X2.
 Defined.
+
+End isPullback_if_functor_on_square_is.
+
+Definition maps_pb_square_to_pb_square
+  {a b c d : C}
+  {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
+  (H : h ;; f = k ;; g)
+  : UU :=
+  isPullback _ _ _ _ _ H -> isPullback _ _ _ _ _ (functor_on_square H).
+
+Definition maps_pb_squares_to_pb_squares :=
+   ∀ {a b c d : C}
+     {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
+     (H : h ;; f = k ;; g),
+     maps_pb_square_to_pb_square H.
 
 End functor_on_square.
