@@ -5,7 +5,7 @@
 Require Export UniMath.Foundations.NumberSystems.NaturalNumbers.
 Require Import UniMath.Ktheory.Utilities.
 
-Lemma max_le_l : ∀ n m : nat, (n <= max n m)%nat.
+Lemma max_le_l : ∀ n m : nat, (n ≤ max n m)%nat.
 Proof.
   induction n ; simpl max.
   - intros ; reflexivity.
@@ -13,7 +13,7 @@ Proof.
     + now apply isreflnatleh.
     + now apply IHn.
 Qed.
-Lemma max_le_r : ∀ n m : nat, (m <= max n m)%nat.
+Lemma max_le_r : ∀ n m : nat, (m ≤ max n m)%nat.
 Proof.
   induction n ; simpl max.
   - intros ; now apply isreflnatleh.
@@ -25,6 +25,7 @@ Qed.
 (** ** for RationalNumbers.v *)
 
 Require Export UniMath.Foundations.NumberSystems.RationalNumbers.
+Require Export UniMath.Foundations.Algebra.Archimedean.
 
 Open Scope hq_scope.
 
@@ -243,30 +244,69 @@ Proof.
   simple refine (isarchfldfrac hzintdom _ _ _ _ _ _ _).
   - intros n m.
     apply hzgthtogeh.
-  - intros n m Hm.
-    apply hinhpr.
-    exists (S (hzabsval n / hzabsval m)).
-    rewrite <- nattorig_natmult, nattorig_nattohz.
-    change (hzgth (nattohz (S (hzabsval n / hzabsval m)) * m)%hz n).
-    pattern m at 2 ;
-    rewrite <- (hzabsvalgth0 Hm).
-    apply hzgthgehtrans with (nattohz (hzabsval n)).
-    rewrite <- nattohzandmult.
-    apply nattohzandgth.
-    rewrite multsnm.
-    apply natgthandplusrinv with (hzabsval n /+ hzabsval m)%nat.
-    rewrite natplusassoc, (natpluscomm _ (_ /+ _)).
-    rewrite <- natdivremrule, natpluscomm.
-    apply natlthandplusl.
-    apply lthnatrem.
-    apply hzabsvalneq0, hzgthtoneq, Hm.
-    apply hzabsvalneq0, hzgthtoneq, Hm.
-    destruct (hzgthorleh n 0%hz).
-    rewrite hzabsvalgth0.
-    now apply isreflhzgeh.
-    exact h.
-    eapply istranshzgeh, h.
-    now apply nattohzandgeh.
+  - simple refine (isarchrigtorng_gt _ _ _ _ _ _ _).
+    + split.
+      exact natgthandpluslinv.
+      exact natgthandplusrinv.
+    + intros x.
+      generalize (pr1 (pr2 x)).
+      apply hinhfun ; intros y.
+      simple refine (tpair _ _ _).
+      apply (max (pr1 (pr1 y) - pr2 (pr1 y))%nat (pr2 (pr1 y) - pr1 (pr1 y))%nat).
+      simpl ; split.
+      easy.
+      destruct (natlthorgeh (pr1 (pr1 y)) (pr2 (pr1 y))) as [Hx | Hx].
+      * right.
+        apply natlthtoleh in Hx.
+        simple refine (pathscomp0 _ _).
+        2: eapply pathsinv0, (setquotl0 (X := (nat × nat)) (eqrelabgrfrac (rigaddabmonoid natcommrig)) x y).
+
+        apply (iscompsetquotpr (X := (nat × nat)) (eqrelabgrfrac (rigaddabmonoid natcommrig))).
+        apply hinhpr ; simpl.
+        exists O.
+        change ((pr1 (pr1 y) +
+    Nat.max (pr1 (pr1 y) - pr2 (pr1 y)) (pr2 (pr1 y) - pr1 (pr1 y)) + 0)%nat =
+   (0 + pr2 (pr1 y) + 0)%nat).
+        rewrite (minuseq0 _ _ Hx), max_r, !natplusr0, !natplusl0,natpluscomm, minusplusnmm.
+        reflexivity.
+        exact Hx.
+        apply le_0_n.
+      * left.
+        simple refine (pathscomp0 _ _).
+        2: eapply pathsinv0, (setquotl0 (X := (nat × nat)) (eqrelabgrfrac (rigaddabmonoid natcommrig)) x y).
+
+        apply (iscompsetquotpr (X := (nat × nat)) (eqrelabgrfrac (rigaddabmonoid natcommrig))).
+        apply hinhpr ; simpl.
+        exists O.
+        change ((pr1 (pr1 y) + 0 + 0)%nat =
+   (Nat.max (pr1 (pr1 y) - pr2 (pr1 y)) (pr2 (pr1 y) - pr1 (pr1 y)) +
+    pr2 (pr1 y) + 0)%nat).
+        rewrite (minuseq0 _ _ Hx), max_l, !natplusr0, minusplusnmm.
+        reflexivity.
+        exact Hx.
+        apply le_0_n.
+    + intros x y z Hlt Hle.
+      refine (natgthgehtrans _ _ _ _ _).
+      apply Hlt.
+      apply negnatgthtoleh.
+      exact Hle.
+    + intros x y Hy0.
+      apply hinhpr.
+      exists (S (x / y)).
+      rewrite <- nattorig_natmult.
+      assert (∀ n, nattorig (X := natcommrig) n = n).
+      { induction n.
+        reflexivity.
+        rewrite nattorigS, IHn.
+        reflexivity. }
+      rewrite X.
+      change (((S (x / y)) * y) > x)%nat.
+      simpl mul.
+      pattern x at 2.
+      rewrite (natdivremrule x y), natpluscomm.
+      apply natgthandplusr, lthnatrem.
+      apply natgthtoneq, Hy0.
+      apply natgthtoneq, Hy0.
 Qed.
 
 (*

@@ -1532,15 +1532,6 @@ Qed.
 
 (** ** intpart *)
 
-Definition hztonat (x : hz) (Hx : hzleh 0%hz x) :
-  Σ n : nat, nattohz n = x.
-Proof.
-  intros x Hx.
-  exists (hzabsval x).
-  apply hzabsvalgeh0.
-  exact Hx.
-Qed.
-
 Lemma nat_to_NonnegativeRationals_O :
   nat_to_NonnegativeRationals O = 0.
 Proof.

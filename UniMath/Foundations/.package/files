@@ -12,6 +12,7 @@ Combinatorics/StandardFiniteSets.v
 NumberSystems/NaturalNumbers.v
 Algebra/ConstructiveStructures.v
 Algebra/Apartness.v
+Algebra/Archimedean.v
 Algebra/DivisionRig.v
 Algebra/Domains_and_Fields.v
 Algebra/Rigs_and_Rings.v
