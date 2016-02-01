@@ -55,7 +55,8 @@ Defined.
 Lemma isPullback_iso_of_morphisms (b' d' : C) (h' : C⟦d', b'⟧)
      (i : C⟦b', b⟧) (i' : C⟦d', d⟧)
      (xi : is_iso i) (xi' : is_iso i')
-     (H' : h' ;; (i ;; f) = (i' ;; k) ;; g)
+     (Hi : h' ;; i = i' ;; h)
+     (H' : h' ;; (i ;; f) = (i' ;; k) ;; g) (* this one is redundant *)
    : isPullback _ _ _ _ _ H ->
      isPullback _ _ _ _ _ H'.
 Proof.
@@ -73,9 +74,42 @@ Proof.
     + cbn. split.
       * assert (X:= PullbackArrow_PullbackPr1 _ Pb e (x ;; i) y ).
         cbn in X.
-        rewrite X.
-
-        PullbackArrowPr1.
+        {
+        match goal with
+          |[ |- ?AA ;; _ ;; _ = _ ] =>
+           pathvia (AA ;; h ;; inv_from_iso (isopair i xi)) end.
+        - repeat rewrite <- assoc. apply maponpaths.
+          apply iso_inv_on_right.
+          rewrite assoc.
+          apply iso_inv_on_left.
+          apply pathsinv0, Hi.
+        - rewrite X.
+          apply pathsinv0.
+          apply iso_inv_on_left. apply idpath.
+        }
+      * assert (X:= PullbackArrow_PullbackPr2 _ Pb e (x ;; i) y ).
+        cbn in X.
+        repeat rewrite assoc.
+        {
+        match goal with |[|- ?AA ;; _ ;; _ ;; ?K = _ ]
+                         => pathvia (AA ;;  K) end.
+        - apply cancel_postcomposition.
+          repeat rewrite <- assoc.
+          rewrite iso_after_iso_inv.
+          apply id_right.
+        - apply X.
+        }
+  - cbn. intro t.
+    apply subtypeEquality.
+    + intros ? . apply isapropdirprod; apply hsC.
+    + cbn.
+      destruct t as [t Ht]; cbn in *.
+      apply iso_inv_on_left.
+      apply pathsinv0 , PullbackArrowUnique; cbn in *.
+      * rewrite <- assoc. rewrite <- Hi.
+        rewrite assoc. rewrite (pr1 Ht). apply idpath.
+      * rewrite <- assoc. apply (pr2 Ht).
+Qed.
 
 End lemmas_on_pullbacks.
 
