@@ -243,6 +243,49 @@ Proof.
 Defined.
 
 
+
+Definition yoneda_iso_target (C : precategory) (hs : has_homsets C)
+           (F : [C^op, HSET, pr2 is_category_HSET])
+  : functor C^op HSET.
+Proof.
+  simple refine (functor_composite _ [C^op, HSET, pr2 is_category_HSET]^op _ _ _  ).
+  - apply functor_opp.
+    apply yoneda. apply hs.
+  - apply (yoneda _ (functor_category_has_homsets _ _ _ ) F).
+Defined.
+
+Lemma is_natural_yoneda_iso (C : precategory) (hs : has_homsets C) (F : functor C^op HSET):
+  is_nat_trans (yoneda_iso_target C hs F) F
+  (fun c => yoneda_map_1 C hs c F).
+Proof.
+  unfold is_nat_trans.
+  intros c c' f. cbn in *.
+  apply funextsec.
+  unfold yoneda_ob_functor_data. cbn.
+  unfold yoneda_morphisms_data.
+  unfold yoneda_map_1.
+  intro X.
+  assert (XH := nat_trans_ax X).
+  cbn in XH. unfold yoneda_objects_ob in XH.
+  assert (XH' := XH c' c' (identity _ )).
+  assert (XH2 := toforallpaths _ _ _ XH').
+  rewrite XH2.
+  rewrite (functor_id F).
+  cbn.
+  clear XH2 XH'.
+  assert (XH' := XH _ _ f).
+  assert (XH2 := toforallpaths _ _ _ XH').
+  eapply pathscomp0. Focus 2. apply XH2.
+  rewrite id_right.
+  apply idpath.
+Qed.
+
+Definition natural_trans_yoneda_iso (C : precategory) (hs : has_homsets C)
+  (F : functor C^op HSET)
+  : nat_trans (yoneda_iso_target C hs F) F
+  := tpair _ _ (is_natural_yoneda_iso C hs F).
+
+
 Lemma isweq_yoneda_map_1 (C : precategory) (hs: has_homsets C) (c : C)
    (F : functor C^op HSET) :
   isweq
