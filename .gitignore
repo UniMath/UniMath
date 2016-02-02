@@ -7,3 +7,5 @@
 /.coq_makefile_output
 /build/CoqMakefile.make
 /latex
+/UniMath/*/Make
+/UniMath/*/Makefile
