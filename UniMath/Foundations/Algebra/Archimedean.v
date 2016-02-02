@@ -75,93 +75,142 @@ Definition isarchmonoid (X : monoid) (R : hrel X) :=
   ∀ x y : X, R y 0%addmonoid -> ∃ n : nat, R (natmult n y) x.
 Definition isarchrig (X : rig) (R : hrel X) :=
   isarchmonoid (rigaddabmonoid X) R.
-Definition isarchDivisionRig (X : DivRig) (R : hrel X) :=
-  ∀ x : X, ∃ n : nat, R (nattorig (X := pr1 X) n) x.
+Definition isarchrng (X : rng) (R : hrel X) :=
+  isarchrig X R.
 Definition isarchfld (X : fld) (R : hrel X) :=
+  isarchrng X R.
+
+Definition isarchfld' (X : fld) (R : hrel X) :=
   ∀ x : X, ∃ n : nat, R (nattorig (X := pr1fld X) n) x.
 
-Theorem isarchrigtorng_gt (X : rig) (R : hrel X) (is : isbinophrel (X := rigaddabmonoid X) R) (is' : isinvbinophrel (X := rigaddabmonoid X) R) (is1 : ∀ x : rigtorng X, ∃ y : X, (¬ R 0%rig y) × coprod (x = setquotpr (eqrelabgrfrac (rigaddabmonoid X)) (y,,0%rig)) (x = setquotpr (eqrelabgrfrac (rigaddabmonoid X)) (0%rig,,y))) ( tra_gt_le : ∀ x y z : X, R x y -> ¬ R z y -> R x z) :
-  isarchrig X R -> isarchrig (rigtorng X) (rigtorngrel X is).
+Lemma isarchfld_isarchfld' :
+  ∀ (X : fld) (R : hrel X) (Hr10 : R 1%rng 0%rng)
+    (is : isarchfld X R), isarchfld' X R.
 Proof.
   intros.
-  set (P := λ x y : rigtorng X, ∃ n : nat, rigtorngrel X is (natmult (X := rigaddabmonoid (rigtorng X)) n y) x).
-  set (P' := λ x y : abmonoiddirprod (rigaddabmonoid X) (rigaddabmonoid X), ∃ n : nat, rigtorngrel X is (setquotpr (eqrelabgrfrac (rigaddabmonoid X)) (natmult n y)) (setquotpr (eqrelabgrfrac (rigaddabmonoid X)) x)).
-  assert ( e : forall x y , P (setquotpr (eqrelabgrfrac (rigaddabmonoid X)) x) (setquotpr (eqrelabgrfrac (rigaddabmonoid X)) y) = P' x y ) .
-  { intros xx yy.
-    unfold P, P'.
-    apply maponpaths.
-    apply maponpaths.
-    apply funextfun ; intro n.
-    apply maponpaths.
-    apply map_on_two_paths.
-    - induction n.
-      + reflexivity.
-      + rewrite !natmultS, IHn.
-        simple refine (setquotfun2comm _ _ _ _ _ _).
-    - reflexivity. }
+  intros x.
+  apply (is x (1%rng : X)).
+  exact Hr10.
+Qed.
+Lemma isarchfld'_isarchfld :
+  ∀ (X : fld) (R : hrel X) (Hirr : isirrefl R)
+    (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isrngmultgt X R )
+    (is : isarchfld' X R), isarchfld X R.
+Proof.
+  intros.
+  intros x y Hy.
+  assert (Hy0 : y != (0%rng : X)).
+  { simple refine (rtoneq _ _).
+    exact R.
+    exact Hirr.
+    exact Hy. }
+  generalize (is (x * (fldmultinv y Hy0))%rng).
+  apply hinhfun.
+  intros n.
+  exists (pr1 n).
+  pattern x at 2 ;
+    rewrite <- (rngrunax2 _ x), <- (rngrunax2 _ (natmult (pr1 n) y)).
+  generalize (pr1 (pr2 (fldmultinvpair X y Hy0))).
+  change (((fldmultinv y Hy0) * y)%rng = (1%rng : X) ->
+          R (natmult (pr1 n) y * (1 : X))%rng (x * (1 : X))%rng).
+  intros <-.
+  change (R (natmult (pr1 n) y * (fldmultinv y Hy0 * y))%rng
+            (x * (fldmultinv y Hy0 * y))%rng).
+  rewrite <- !(rngassoc2 (pr1fld X)).
+  apply isrngmultgttoisrrngmultgt.
+  exact Hadd.
+  exact Hmult.
+  exact Hy.
+  rewrite <- nattorig_natmult, (rngassoc2 (pr1fld X)).
+  generalize (pr2 (pr2 (fldmultinvpair X y Hy0))).
+  change ((y * (fldmultinv y Hy0))%rng = (1%rng : X) ->
+   R (nattorig (pr1 n) * (y * fldmultinv y Hy0))%rng
+     (x * fldmultinv y Hy0)%rng).
+  intros ->.
+  rewrite (rngrunax2 (pr1fld X)).
+  exact (pr2 n).
+Qed.
 
-  intros x y Hy0.
-  change (P x y).
-  generalize (is1 x) (is1 y).
-  apply hinhuniv2.
-  intros (x',(Hx,Hx')) (y',(Hy,Hy')).
-  destruct Hy' as [Hy' | Hy'].
-  assert (Hy'0 : R y' 0%rig).
-  { revert Hy0.
-    rewrite Hy'.
+Theorem isarchrigtorng_gt :
+  ∀ (X : rig) (R : hrel X)
+    (Hpos : ∀ x : X, ∃ c : X, R (x + c)%rig 0%rig)
+    (Hadd : isbinophrel (X := rigaddabmonoid X) R)
+    (R10 : R 1%rig 0%rig)
+    (Htra : istrans R)
+    (Harch : isarchrig X R), isarchrng (rigtorng X) (rigtorngrel X Hadd).
+Proof.
+  intros.
+  intros x y Hy.
+
+  assert (H : ∀ n : nat, nattorig (X := rigtorng X) n = setquotpr (binopeqrelabgrfrac (rigaddabmonoid X)) (natmult (X := rigaddabmonoid X) n 1%rig ,, 0%rig)).
+  { clear.
+    induction n.
+    reflexivity.
+    rewrite <- (rigrunax1 _ 0%rig).
+    rewrite nattorigS, natmultS, IHn.
+    unfold op1 ; simpl.
+    unfold rigtorngop1 ; simpl.
+    apply (setquotfun2comm (eqrelabgrfrac (rigaddabmonoid X)) (eqrelabgrfrac (rigaddabmonoid X))). }
+
+  assert (H0 : ∃ n : nat, rigtorngrel X Hadd (nattorig (X := rigtorng X) n) (x - y)%rng).
+  { generalize (pr1 (pr2 x)) (pr1 (pr2 y)).
+    apply hinhuniv2.
+    intros x' y'.
+    revert Hy.
+    rewrite <- (setquotl0 _ x x'), <- (setquotl0 _ y y').
+    destruct x' as [(x1,x2) Hx'].
+    destruct y' as [(y1,y2) Hy'].
+    simpl pr1 ; simpl pr2.
+    clear x y Hx' Hy'.
+    intros Hy.
+    generalize (Hpos (x2 + y1)%rig).
     apply hinhuniv.
-    simpl.
     intros (c,Hc).
-    repeat apply (pr2 is') in Hc.
-    exact Hc. }
-  destruct Hx' as [Hx' | Hx'].
-  - rewrite Hx', Hy'.
-    rewrite e ; clear e P.
-    generalize (X0 x' y' Hy'0).
-    apply hinhfun.
-    intros n.
-    exists (pr1 n).
-    unfold rigtorngrel, abgrfracrel, quotrel.
-    rewrite setquotuniv2comm.
-    apply hinhpr.
-    exists 0%rig.
-    simpl.
-    apply (pr2 is).
-    assert (∀ n, natmult (X := abmonoiddirprod (rigaddabmonoid X) (rigaddabmonoid X)) n (y',, 0%rig) = (natmult (X := rigaddabmonoid X) n y' ,, 0%rig)).
-    { clear.
-      induction n.
-      - reflexivity.
-      - rewrite !natmultS, IHn.
-        simpl.
-        rewrite riglunax1.
-        reflexivity. }
-    rewrite X1 ; simpl.
-    apply (pr2 is), (pr2 n).
-  - rewrite Hx', Hy'.
-    rewrite e ; clear e P.
-    apply hinhpr.
-    exists 1.
-    unfold rigtorngrel, abgrfracrel, quotrel.
-    rewrite setquotuniv2comm.
-    apply hinhpr.
-    exists 0%rig.
-    simpl.
-    apply (pr2 is).
-    refine (tra_gt_le _ _ _ _ _).
-    apply (pr2 is).
-    apply Hy'0.
-    simpl.
-    intro.
-    now apply (pr1 is') in X1.
-  - apply fromempty, Hy.
-    revert Hy0.
-    rewrite Hy'.
+    generalize (Harch (x1 + y2 + c)%rig _ R10).
+    apply hinhfun ; intros (n,Hn).
+    exists n.
+    rewrite H ; simpl.
+    apply hinhpr ; simpl.
+    exists c.
+    rewrite rigassoc1, rigrunax1, <- (rigrunax1 _ (x1 + y2 + c)%rng).
+    refine (Htra _ _ _ _ _).
+    apply (pr1 Hadd), Hc.
+    apply (pr2 Hadd), Hn. }
+
+  assert (H1 : ∀ n : nat, ∃ m : nat, rigtorngrel X Hadd (natmult (X := rigaddabmonoid (rigtorng X)) m y) (nattorig (X := rigtorng X) n + y)%rng).
+  { intros n.
+    generalize (pr1 (pr2 y)).
     apply hinhuniv.
-    simpl.
+    intros y' ; revert Hy.
+    rewrite <- (setquotl0 _ y y').
+    destruct y' as [(y1,y2) Hy'].
+    simpl pr1 ; simpl pr2.
+    apply hinhuniv ; simpl pr1 ; simpl pr2.
     intros (c,Hc).
-    apply (pr2 is'), (pr1 is') in Hc.
-    exact Hc.
-Defined.
+    generalize (Hpos (y2 + c)%rig).
+    apply hinhuniv.
+    intros (d,Hd).
+    admit.
+  }
+
+  revert H0.
+  apply hinhuniv.
+  intros n.
+  specialize (H1 (pr1 n)).
+  revert H1.
+  apply hinhfun.
+  intros m.
+  exists (pr1 m).
+  simple refine (istransabgrfracrel _ _ _ _ _ _ _ _).
+  apply Htra.
+  apply (nattorig (pr1 n) + y)%rng.
+  apply (pr2 m).
+  simple refine (pr2 (isinvbinophrelgr (rngaddabgr (rigtorng X)) _) _ _ (- y)%rng _).
+  apply (isbinopabgrfracrel (rigaddabmonoid X) Hadd).
+  change (rigtorngrel X Hadd (nattorig (X := rigtorng X) (pr1 n) + y + - y)%rng (x - y)%rng).
+  rewrite (rngassoc1 (rigtorng X)), rngrinvax1, rngrunax1.
+  apply (pr2 n).
+Admitted.
 
 Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R ) ( is2 : R 1%rng 0%rng ) ( nc : neqchoice R ) ( asy : isasymm R ) : isarchrig X R -> isarchfld (fldfrac X is ) (fldfracgt _  is is0 is1 is2 nc).
 Proof.
