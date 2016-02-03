@@ -93,8 +93,9 @@ Proof.
   exact Hr10.
 Qed.
 Lemma isarchfld'_isarchfld :
-  ∀ (X : fld) (R : hrel X) (Hirr : isirrefl R)
+  ∀ (X : fld) (R : hrel X)
     (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isrngmultgt X R )
+    (Hirr : isirrefl R)
     (is : isarchfld' X R), isarchfld X R.
 Proof.
   intros.
@@ -134,6 +135,7 @@ Qed.
 Theorem isarchrigtorng_gt :
   ∀ (X : rig) (R : hrel X)
     (Hpos : ∀ x : X, ∃ c : X, R (x + c)%rig 0%rig)
+    (HR : ∀ x y : X, R x y -> ∃ z : X, R z 0%rig × x = (y + z)%rig)
     (Hadd : isbinophrel (X := rigaddabmonoid X) R)
     (R10 : R 1%rig 0%rig)
     (Htra : istrans R)
@@ -142,12 +144,12 @@ Proof.
   intros.
   intros x y Hy.
 
-  assert (H : ∀ n : nat, nattorig (X := rigtorng X) n = setquotpr (binopeqrelabgrfrac (rigaddabmonoid X)) (natmult (X := rigaddabmonoid X) n 1%rig ,, 0%rig)).
+  assert (H : ∀ n : nat, nattorig (X := rigtorng X) n = setquotpr (binopeqrelabgrfrac (rigaddabmonoid X)) (nattorig n ,, 0%rig)).
   { clear.
     induction n.
     reflexivity.
     rewrite <- (rigrunax1 _ 0%rig).
-    rewrite nattorigS, natmultS, IHn.
+    rewrite !nattorigS, IHn.
     unfold op1 ; simpl.
     unfold rigtorngop1 ; simpl.
     apply (setquotfun2comm (eqrelabgrfrac (rigaddabmonoid X)) (eqrelabgrfrac (rigaddabmonoid X))). }
@@ -177,7 +179,38 @@ Proof.
     apply (pr1 Hadd), Hc.
     apply (pr2 Hadd), Hn. }
 
-  assert (H1 : ∀ n : nat, ∃ m : nat, rigtorngrel X Hadd (natmult (X := rigaddabmonoid (rigtorng X)) m y) (nattorig (X := rigtorng X) n + y)%rng).
+  assert (Htemp : ∀ (n : nat) (x y : X), (∃ c, R (x + c)%rig (y + c)%rig) -> ∃ m c, R (nattorig m * x + c)%rig (nattorig n + nattorig m * y + c)%rig).
+  { clear x y Hy H0 H.
+    intros n x y Hc.
+    revert Hc.
+    apply hinhuniv.
+    intros (c,Hc).
+    destruct n.
+    - apply hinhpr.
+      exists 1, c.
+      now rewrite !nattorig_natmult, riglunax1.
+    - assert (R (nattorig (S n)) 0%rig).
+      { induction n.
+        exact R10.
+        rewrite nattorigS.
+        refine (Htra _ _ _ _ _).
+        apply (pr1 Hadd).
+        exact IHn.
+        simpl op.
+        now rewrite rigrunax1. }
+    generalize (HR _ _ Hc).
+    apply hinhuniv.
+    intros (z,(Hz0,Hz)).
+    generalize (Harch (nattorig (S n)) _ Hz0).
+    apply hinhfun.
+    intros (m,Hm).
+    exists m.
+    exists (nattorig m * c)%rig.
+    rewrite <- rigldistr, Hz, !rigldistr, rigcomm1, rigassoc1.
+    apply (pr2 Hadd).
+    now rewrite nattorig_natmult. }
+
+  assert (H1 : ∀ n : nat, ∃ m : nat, rigtorngrel X Hadd (natmult (X := rigaddabmonoid (rigtorng X)) m y) (nattorig (X := rigtorng X) n)%rng).
   { intros n.
     generalize (pr1 (pr2 y)).
     apply hinhuniv.
@@ -185,13 +218,21 @@ Proof.
     rewrite <- (setquotl0 _ y y').
     destruct y' as [(y1,y2) Hy'].
     simpl pr1 ; simpl pr2.
-    apply hinhuniv ; simpl pr1 ; simpl pr2.
+    apply hinhuniv ; simpl op.
     intros (c,Hc).
-    generalize (Hpos (y2 + c)%rig).
-    apply hinhuniv.
-    intros (d,Hd).
-    admit.
-  }
+    rewrite rigrunax1, riglunax1 in Hc.
+    refine (hinhfun _ _).
+    2: apply (Htemp n y1 y2).
+    intros (m,(d,Hd)).
+    exists m.
+    rewrite <- nattorig_natmult, !H.
+    apply hinhpr.
+    simpl op.
+    exists d.
+    rewrite !rigmult0x, !rigrunax1.
+    apply Hd.
+    apply hinhpr.
+    now exists c. }
 
   revert H0.
   apply hinhuniv.
@@ -200,19 +241,24 @@ Proof.
   revert H1.
   apply hinhfun.
   intros m.
-  exists (pr1 m).
+  exists (S (pr1 m)).
   simple refine (istransabgrfracrel _ _ _ _ _ _ _ _).
   apply Htra.
   apply (nattorig (pr1 n) + y)%rng.
-  apply (pr2 m).
+  rewrite natmultS, <- nattorig_natmult.
+  simpl op.
+  rewrite (rigcomm1 (rigtorng X)).
+  apply (pr2 (isbinopabgrfracrel (rigaddabmonoid X) Hadd)).
+  generalize (pr2 m).
+  now rewrite <- nattorig_natmult.
   simple refine (pr2 (isinvbinophrelgr (rngaddabgr (rigtorng X)) _) _ _ (- y)%rng _).
   apply (isbinopabgrfracrel (rigaddabmonoid X) Hadd).
   change (rigtorngrel X Hadd (nattorig (X := rigtorng X) (pr1 n) + y + - y)%rng (x - y)%rng).
   rewrite (rngassoc1 (rigtorng X)), rngrinvax1, rngrunax1.
   apply (pr2 n).
-Admitted.
+Qed.
 
-Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R ) ( is2 : R 1%rng 0%rng ) ( nc : neqchoice R ) ( asy : isasymm R ) : isarchrig X R -> isarchfld (fldfrac X is ) (fldfracgt _  is is0 is1 is2 nc).
+Theorem isarchfldfrac' ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R ) ( is2 : R 1%rng 0%rng ) ( nc : neqchoice R ) ( asy : isasymm R ) : isarchrig X R -> isarchfld' (fldfrac X is ) (fldfracgt _  is is0 is1 is2 nc).
 Proof.
   intros.
   intros x.

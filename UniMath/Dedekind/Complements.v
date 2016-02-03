@@ -238,75 +238,56 @@ Proof.
     apply pathsinv0, nattohzandS.
 Qed.
 
-Lemma isarchhq :
-  isarchfld hq hqgth.
+Lemma isarchnat :
+  isarchrig natcommrig natgth.
 Proof.
-  simple refine (isarchfldfrac hzintdom _ _ _ _ _ _ _).
+  intros x y Hy0.
+  apply hinhpr.
+  exists (S (x / y)).
+  rewrite <- nattorig_natmult.
+  assert (∀ n, nattorig (X := natcommrig) n = n).
+  { induction n.
+    reflexivity.
+    rewrite nattorigS, IHn.
+    reflexivity. }
+  rewrite X.
+  change (((S (x / y)) * y) > x)%nat.
+  simpl mul.
+  pattern x at 2.
+  rewrite (natdivremrule x y), natpluscomm.
+  apply natgthandplusr, lthnatrem.
+  apply natgthtoneq, Hy0.
+  apply natgthtoneq, Hy0.
+Defined.
+
+Definition isarchhz : isarchrng hz hzgth.
+Proof.
+  simple refine (isarchrigtorng_gt _ _ _ _ _ _ _ _).
+  - intros n.
+    apply hinhpr.
+    exists 1%nat.
+    now rewrite natpluscomm.
+  - intros x y H.
+    apply hinhpr.
+    exists (x - y)%nat.
+    split.
+    + now apply minusgth0.
+    + rewrite natpluscomm, minusplusnmm.
+      reflexivity.
+      now apply natgthtogeh.
+  - now apply paths_refl.
+  - intros n m k.
+    apply istransnatgth.
+  - apply isarchnat.
+Defined.
+
+Lemma isarchhq :
+  isarchfld' hq hqgth.
+Proof.
+  simple refine (isarchfldfrac' hzintdom _ _ _ _ _ _ _).
   - intros n m.
     apply hzgthtogeh.
-  - simple refine (isarchrigtorng_gt _ _ _ _ _ _ _).
-    + split.
-      exact natgthandpluslinv.
-      exact natgthandplusrinv.
-    + intros x.
-      generalize (pr1 (pr2 x)).
-      apply hinhfun ; intros y.
-      simple refine (tpair _ _ _).
-      apply (max (pr1 (pr1 y) - pr2 (pr1 y))%nat (pr2 (pr1 y) - pr1 (pr1 y))%nat).
-      simpl ; split.
-      easy.
-      destruct (natlthorgeh (pr1 (pr1 y)) (pr2 (pr1 y))) as [Hx | Hx].
-      * right.
-        apply natlthtoleh in Hx.
-        simple refine (pathscomp0 _ _).
-        2: eapply pathsinv0, (setquotl0 (X := (nat × nat)) (eqrelabgrfrac (rigaddabmonoid natcommrig)) x y).
-
-        apply (iscompsetquotpr (X := (nat × nat)) (eqrelabgrfrac (rigaddabmonoid natcommrig))).
-        apply hinhpr ; simpl.
-        exists O.
-        change ((pr1 (pr1 y) +
-    Nat.max (pr1 (pr1 y) - pr2 (pr1 y)) (pr2 (pr1 y) - pr1 (pr1 y)) + 0)%nat =
-   (0 + pr2 (pr1 y) + 0)%nat).
-        rewrite (minuseq0 _ _ Hx), max_r, !natplusr0, !natplusl0,natpluscomm, minusplusnmm.
-        reflexivity.
-        exact Hx.
-        apply le_0_n.
-      * left.
-        simple refine (pathscomp0 _ _).
-        2: eapply pathsinv0, (setquotl0 (X := (nat × nat)) (eqrelabgrfrac (rigaddabmonoid natcommrig)) x y).
-
-        apply (iscompsetquotpr (X := (nat × nat)) (eqrelabgrfrac (rigaddabmonoid natcommrig))).
-        apply hinhpr ; simpl.
-        exists O.
-        change ((pr1 (pr1 y) + 0 + 0)%nat =
-   (Nat.max (pr1 (pr1 y) - pr2 (pr1 y)) (pr2 (pr1 y) - pr1 (pr1 y)) +
-    pr2 (pr1 y) + 0)%nat).
-        rewrite (minuseq0 _ _ Hx), max_l, !natplusr0, minusplusnmm.
-        reflexivity.
-        exact Hx.
-        apply le_0_n.
-    + intros x y z Hlt Hle.
-      refine (natgthgehtrans _ _ _ _ _).
-      apply Hlt.
-      apply negnatgthtoleh.
-      exact Hle.
-    + intros x y Hy0.
-      apply hinhpr.
-      exists (S (x / y)).
-      rewrite <- nattorig_natmult.
-      assert (∀ n, nattorig (X := natcommrig) n = n).
-      { induction n.
-        reflexivity.
-        rewrite nattorigS, IHn.
-        reflexivity. }
-      rewrite X.
-      change (((S (x / y)) * y) > x)%nat.
-      simpl mul.
-      pattern x at 2.
-      rewrite (natdivremrule x y), natpluscomm.
-      apply natgthandplusr, lthnatrem.
-      apply natgthtoneq, Hy0.
-      apply natgthtoneq, Hy0.
+  - apply isarchhz.
 Qed.
 
 (*
