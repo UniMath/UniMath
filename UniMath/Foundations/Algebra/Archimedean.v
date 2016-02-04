@@ -132,10 +132,55 @@ Proof.
   exact (pr2 n).
 Qed.
 
+Definition ex_patial_minus (X : rig) (R : hrel X) :=
+   ∀ x y : X, R x y -> ∃ z : X, R z 0%rig × x = (y + z)%rig.
+
+Definition ex_partial_minus_week (X : rig) (R : hrel X) :=
+  ∀ (n : nat) (x y : X),
+    (∃ c, R (x + c)%rig (y + c)%rig)
+    -> ∃ m c, R (nattorig m * x + c)%rig (nattorig n + nattorig m * y + c)%rig.
+
+Lemma ex_partal_minus_imply_week {X : rig} (R : hrel X)
+      (R10 : R 1%rig 0%rig) (Htra : istrans R)
+      (Hadd : isbinophrel (X := rigaddabmonoid X) R)
+      (Harch : isarchrig X R)
+      (Hminus : ex_patial_minus X R) :
+  ex_partial_minus_week X R.
+Proof.
+  intros.
+  intros n x y.
+  apply hinhuniv.
+  intros (c,Hc).
+  destruct n.
+  - apply hinhpr.
+    exists 1, c.
+    now rewrite !nattorig_natmult, riglunax1.
+  - assert (R (nattorig (S n)) 0%rig).
+    { induction n.
+      exact R10.
+      rewrite nattorigS.
+      refine (Htra _ _ _ _ _).
+      apply (pr1 Hadd).
+      exact IHn.
+      simpl op.
+      now rewrite rigrunax1. }
+    generalize (Hminus _ _ Hc).
+    apply hinhuniv.
+    intros (z,(Hz0,Hz)).
+    generalize (Harch (nattorig (S n)) _ Hz0).
+    apply hinhfun.
+    intros (m,Hm).
+    exists m.
+    exists (nattorig m * c)%rig.
+    rewrite <- rigldistr, Hz, !rigldistr, rigcomm1, rigassoc1.
+    apply (pr2 Hadd).
+    now rewrite nattorig_natmult.
+Qed.
+
 Theorem isarchrigtorng_gt :
   ∀ (X : rig) (R : hrel X)
     (Hpos : ∀ x : X, ∃ c : X, R (x + c)%rig 0%rig)
-    (HR : ∀ x y : X, R x y -> ∃ z : X, R z 0%rig × x = (y + z)%rig)
+    (Hminus : ex_partial_minus_week X R)
     (Hadd : isbinophrel (X := rigaddabmonoid X) R)
     (R10 : R 1%rig 0%rig)
     (Htra : istrans R)
@@ -179,37 +224,6 @@ Proof.
     apply (pr1 Hadd), Hc.
     apply (pr2 Hadd), Hn. }
 
-  assert (Htemp : ∀ (n : nat) (x y : X), (∃ c, R (x + c)%rig (y + c)%rig) -> ∃ m c, R (nattorig m * x + c)%rig (nattorig n + nattorig m * y + c)%rig).
-  { clear x y Hy H0 H.
-    intros n x y Hc.
-    revert Hc.
-    apply hinhuniv.
-    intros (c,Hc).
-    destruct n.
-    - apply hinhpr.
-      exists 1, c.
-      now rewrite !nattorig_natmult, riglunax1.
-    - assert (R (nattorig (S n)) 0%rig).
-      { induction n.
-        exact R10.
-        rewrite nattorigS.
-        refine (Htra _ _ _ _ _).
-        apply (pr1 Hadd).
-        exact IHn.
-        simpl op.
-        now rewrite rigrunax1. }
-    generalize (HR _ _ Hc).
-    apply hinhuniv.
-    intros (z,(Hz0,Hz)).
-    generalize (Harch (nattorig (S n)) _ Hz0).
-    apply hinhfun.
-    intros (m,Hm).
-    exists m.
-    exists (nattorig m * c)%rig.
-    rewrite <- rigldistr, Hz, !rigldistr, rigcomm1, rigassoc1.
-    apply (pr2 Hadd).
-    now rewrite nattorig_natmult. }
-
   assert (H1 : ∀ n : nat, ∃ m : nat, rigtorngrel X Hadd (natmult (X := rigaddabmonoid (rigtorng X)) m y) (nattorig (X := rigtorng X) n)%rng).
   { intros n.
     generalize (pr1 (pr2 y)).
@@ -222,7 +236,7 @@ Proof.
     intros (c,Hc).
     rewrite rigrunax1, riglunax1 in Hc.
     refine (hinhfun _ _).
-    2: apply (Htemp n y1 y2).
+    2: apply (Hminus n y1 y2).
     intros (m,(d,Hd)).
     exists m.
     rewrite <- nattorig_natmult, !H.

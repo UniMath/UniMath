@@ -267,12 +267,20 @@ Proof.
     apply hinhpr.
     exists 1%nat.
     now rewrite natpluscomm.
-  - intros x y H.
-    apply hinhpr.
-    exists (x - y)%nat.
-    split.
-    + now apply minusgth0.
-    + rewrite natpluscomm, minusplusnmm.
+  - apply ex_partal_minus_imply_week.
+    + reflexivity.
+    + intros n m k.
+      apply istransnatgth.
+    + split ; intros x y z.
+      apply natgthandplusl.
+      apply natgthandplusr.
+    + apply isarchnat.
+    + intros x y H.
+      apply hinhpr.
+      exists (x - y)%nat.
+      split.
+      now apply minusgth0.
+      rewrite natpluscomm, minusplusnmm.
       reflexivity.
       now apply natgthtogeh.
   - now apply paths_refl.
