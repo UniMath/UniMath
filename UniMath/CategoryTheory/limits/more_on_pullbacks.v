@@ -117,6 +117,8 @@ End lemmas_on_pullbacks.
 
 Section functor_on_square.
 
+(** * A fully faithful functor reflects limits *)
+
 Variables C D : precategory.
 Variable hsC : has_homsets C.
 Variable F : functor C D.
@@ -201,6 +203,94 @@ Proof.
 Defined.
 
 End isPullback_if_functor_on_square_is.
+
+(** A ff and es functor preserves pullbacks *)
+
+Section functor_preserves_pb.
+
+Variable hsD : has_homsets D.
+Variable Fff : fully_faithful F.
+Variable Fes : essentially_surjective F.
+
+Let FF a b := (weq_from_fully_faithful Fff a b).
+
+Context {a b c d : C}.
+Context {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}.
+Variable H : h ;; f = k ;; g.
+
+Variable X : isPullback _ _ _ _ _ H.
+
+Lemma isPullback_image_square
+  : isPullback _ _ _ _ _ (functor_on_square H).
+Proof.
+  intros e x y Hxy.
+  apply (squash_to_prop (Fes e)).
+  apply isapropiscontr.
+  intros [e' i].
+  set (e'c := invmap (FF _ _ ) (i ;;y)).
+  set (e'b := invmap (FF _ _ ) (i ;;x)).
+  set (Pb := mk_Pullback _ _ _ _ _ _ _ X).
+  assert (XX : e'b ;; f = e'c ;; g).
+  { apply (invmaponpathsweq (FF _ _ )).
+    cbn. unfold e'b. unfold e'c.
+    repeat rewrite functor_comp.
+    set (T:=homotweqinvweq (FF e' b)). cbn in T.
+    rewrite T; clear T.
+    set (T:=homotweqinvweq (FF e' c)). cbn in T.
+    rewrite T; clear T.
+    repeat rewrite <- assoc. rewrite Hxy. apply idpath.
+  }
+
+  set (umor := PullbackArrow _ Pb _ e'b e'c XX).
+  set (umorPr1 := PullbackArrow_PullbackPr1 _ Pb _ _ _ XX).
+  set (umorPr2 := PullbackArrow_PullbackPr2 _ Pb _ _ _ XX).
+  cbn in *.
+  simple refine (tpair _ _ _ ).
+  - exists (inv_from_iso i ;; #F umor ).
+    split.
+    + rewrite <- assoc. apply iso_inv_on_right.
+      rewrite <- functor_comp.
+      apply (invmaponpathsweq (invweq (FF _ _ ))).
+      cbn.
+      set (TX:= homotinvweqweq (FF e' b)). cbn in TX.
+      rewrite TX; clear TX.
+      unfold umor; rewrite umorPr1. apply idpath.
+    + rewrite <- assoc. apply iso_inv_on_right.
+      rewrite <- functor_comp.
+      apply (invmaponpathsweq (invweq (FF _ _ ))).
+      cbn.
+      set (TX:= homotinvweqweq (FF e' c)). cbn in TX.
+      rewrite TX; clear TX.
+      unfold umor; rewrite umorPr2. apply idpath.
+  - cbn. intro t. apply subtypeEquality ; [
+        intros ?; apply isapropdirprod; apply hsD | cbn ].
+    destruct t as [t [Htx Hty]]; cbn.
+    apply (pre_comp_with_iso_is_inj _ _ _ _ i (pr2 i)).
+    rewrite assoc. rewrite iso_inv_after_iso.
+    rewrite id_left.
+    apply (invmaponpathsweq (invweq (FF _ _ ))).
+    cbn.
+    set (TX:= homotinvweqweq (FF e' d)). cbn in TX.
+    rewrite TX; clear TX.
+    apply PullbackArrowUnique.
+    + apply (invmaponpathsweq (FF _ _ )).
+      set (TX:= homotweqinvweq (FF e' d)). cbn in *.
+      rewrite functor_comp, TX; clear TX.
+      rewrite <- assoc. rewrite Htx.
+      unfold e'b.
+      set (TX:= homotweqinvweq (FF e' b)). cbn in *.
+      rewrite TX. apply idpath.
+    + apply (invmaponpathsweq (FF _ _ )).
+      set (TX:= homotweqinvweq (FF e' d)). cbn in *.
+      rewrite functor_comp, TX; clear TX.
+      rewrite <- assoc. rewrite Hty.
+      unfold e'c.
+      set (TX:= homotweqinvweq (FF e' c)). cbn in *.
+      rewrite TX. apply idpath.
+Qed.
+
+End functor_preserves_pb.
+
 
 Definition maps_pb_square_to_pb_square
   {a b c d : C}
