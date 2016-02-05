@@ -162,7 +162,7 @@ Definition limOfArrows {g : graph} {d1 d2 : diagram g C^op}
                                 (dmor d1 e : C⟦dob d1 v, dob d1 u⟧);; f u) :
   C⟦lim CC1 , lim CC2⟧.
 Proof.
-  simple refine (colimOfArrows CC2 CC1 _ _ ).
+  use (colimOfArrows CC2 CC1).
   - apply f.
   - apply fNat.
 Defined.
@@ -329,7 +329,7 @@ destruct HColim as [pr1x pr2x].
 destruct pr1x as [pr1pr1x pr2pr1x].
 destruct pr2pr1x as [pr1pr2pr1x pr2pr2pr1x].
 simpl in *.
-simple refine (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x) _ _).
+use (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x)).
 - simple refine (mk_cocone _ _).
   + simpl; intros.
     simple refine (tpair _ _ _).

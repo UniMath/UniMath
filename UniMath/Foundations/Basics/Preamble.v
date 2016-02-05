@@ -154,6 +154,15 @@ Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
 
 Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
 
+Ltac mkpair := (simple refine (tpair _ _ _ ) ; [| cbn]).
+
+Goal ∀ X (Y : X -> UU) (x : X) (y : Y x), Σ x, Y x.
+  intros X Y x y.
+  mkpair.
+  - apply x.
+  - apply y.
+Defined.
+
 (* print out this theorem to see whether "induction" compiles to "match" *)
 Goal ∀ X (Y:X->UU) (w:Σ x, Y x), X.
   intros.
@@ -202,3 +211,27 @@ Proof.
 Defined.
 Notation mult := mul.           (* this overrides the notation "mult" defined in Coq's Peano.v *)
 Notation "n * m" := (mul n m) : nat_scope.
+
+
+
+(** A few tactics, thanks go to Jason Gross *)
+
+Ltac simple_rapply p :=
+  simple refine p ||
+  simple refine (p _) ||
+  simple refine (p _ _) ||
+  simple refine (p _ _ _) ||
+  simple refine (p _ _ _ _) ||
+  simple refine (p _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _) ||
+  simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+
+Tactic Notation "use" uconstr(p) := simple_rapply p.
