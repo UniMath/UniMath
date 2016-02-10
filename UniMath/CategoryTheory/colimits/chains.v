@@ -269,6 +269,10 @@ Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
 
 End colim_initial_algebra.
 
+(* "good" functors *)
+(* TODO: remove *)
+Let good {C} F := @omega_cocont C C F.
+
 Section polynomial_functors.
 
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
@@ -277,11 +281,7 @@ Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 
-Variables (C : precategory) (hsC : has_homsets C) (InitC : Initial C).
-Variables (F : functor C C).
-
-(* "good" functors *)
-Let good F := @omega_cocont C C F.
+Variables (C : precategory) (hsC : has_homsets C).
 
 (* TODO: Prove that polynomial functors are good *)
 (* good(F), good(G) |- good(F * G) *)
@@ -316,7 +316,7 @@ Section identity_functor.
 
 Let Fid : functor C C := functor_identity C.
 
-Lemma goodIdentityFunctor : good Fid.
+Lemma goodFunctorIdentity : good Fid.
 Proof.
 intros c L ccL HcL.
 apply (preserves_colimit_identity hsC _ _ _ HcL).
@@ -324,51 +324,118 @@ Defined.
 
 End identity_functor.
 
+Section functor_comp.
+
+(* preserves_colimit_comp  *)
+
+Lemma goodFunctorComposite (F G : functor C C) :
+  good F -> good G -> good (functor_composite _ _ _ F G).
+Proof.
+intros hF hG c L cc.
+apply (preserves_colimit_comp hsC); [apply hF|apply hG].
+Defined.
+
+End functor_comp.
+
+(* The functor "x * F" is good *)
+Section constprod_functor.
+
+(* TODO: This needs that C is cartesian closed *)
+Variables (x : C) (* (F : functor C C)  *)(PC : Products C).
+
+(* Definition constprod_functor : functor C C := *)
+(*   product_functor C C PC (constant_functor C C x) F. *)
+
+Definition constprod_functor : functor C C :=
+  product_functor C C PC (constant_functor C C x) (functor_identity C).
+
+Lemma goodConstProdFunctor : good constprod_functor.
+Proof.
+intros hF c L ccL HcL.
+admit.
+Admitted.
+
+End constprod_functor.
+
+(* The functor "x + F" is good *)
+Section constcoprod_functor.
+
+Variables (x : C) (PC : Coproducts C).
+
+Definition constcoprod_functor : functor C C :=
+  coproduct_functor C C PC (constant_functor C C x) (functor_identity C).
+
+Lemma goodConstCoprodFunctor : good constcoprod_functor.
+Proof.
+intros hF c L ccL HcL cc.
+destruct cc as [f hf]; simpl in *; unfold coproduct_functor_ob in *; simpl in *.
+simple refine (tpair _ _ _).
+- simple refine (tpair _ _ _).
+  + eapply CoproductArrow.
+    * exact (CoproductIn1 _ (PC x (dob hF 0)) ;; f 0).
+    * simple refine (let ccHcL : cocone hF HcL := _ in _).
+      { simple refine (mk_cocone _ _).
+        - intros n; exact (CoproductIn2 _ (PC x (dob hF n)) ;; f n).
+        - abstract (
+            intros m n e; destruct e; simpl;
+            rewrite <- (hf m _ (idpath _)), !assoc; apply cancel_postcomposition;
+            now unfold coproduct_functor_mor; simpl; rewrite CoproductOfArrowsIn2). }
+      apply (pr1 (pr1 (ccL HcL ccHcL))).
+  + simpl; intro n; unfold coproduct_functor_mor in *.
+    rewrite precompWithCoproductArrow.
+    apply pathsinv0, CoproductArrowUnique.
+    * rewrite id_left; induction n; [apply idpath|].
+      now rewrite <- IHn, <- (hf n _ (idpath _)), assoc, CoproductOfArrowsIn1, id_left.
+    * rewrite <- (hf n _ (idpath _)).
+      destruct ccL; destruct t; simpl in *.
+      rewrite p0; apply maponpaths, hf.
+- intro t; apply subtypeEquality; simpl.
+  + intro g; apply impred; intro; apply hsC.
+  + destruct t; destruct ccL; unfold coproduct_functor_mor in *.
+    destruct t0; simpl.
+    apply CoproductArrowUnique.
+    * now rewrite <- (p 0), assoc, CoproductOfArrowsIn1, id_left.
+    * simple refine (let temp : Σ x0 : C ⟦ c, HcL ⟧, ∀ v : nat,
+         coconeIn L v ;; x0 = CoproductIn2 C (PC x (dob hF v)) ;; f v := _ in _).
+        { apply (tpair _ (CoproductIn2 C (PC x c) ;; t)).
+          now intro n; rewrite <- (p n), !assoc, CoproductOfArrowsIn2. }
+      apply (maponpaths pr1 (p0 temp)).
+Defined.
+
+End constcoprod_functor.
+
+
 End polynomial_functors.
 
-(*
-(* WIP below of here *)
 Section lists.
-
-(* TODO: Move *)
 
 Variable A : HSET.
 
 (* F(X) = A * X *)
 Definition streamFunctor : functor HSET HSET :=
-  product_functor HSET HSET ProductsHSET
-                  (constant_functor HSET HSET A)
-                  (functor_identity HSET).
+  constprod_functor HSET A ProductsHSET.
+
+  (* product_functor HSET HSET ProductsHSET *)
+  (*                 (constant_functor HSET HSET A) *)
+  (*                 (functor_identity HSET). *)
 
 (* F(X) = 1 + (A * X) *)
-
-(*
 Definition listFunctor : functor HSET HSET :=
-  coproduct_functor HSET HSET CoproductsHSET
-                    (constant_functor HSET HSET (TerminalObject TerminalHSET))
-                    streamFunctor.
-*)
+  functor_composite _ _ _ streamFunctor (constcoprod_functor _ unitHSET CoproductsHSET).
+  (* constcoprod_functor _ unitHSET streamFunctor CoproductsHSET. *)
 
-(* Let ColimCoconeF F := ColimCocone *)
-(*          (Fchain F (InitialObject InitialHSET) *)
-(*             (InitialArrow InitialHSET (F (InitialObject InitialHSET)))). *)
-
-Lemma listFunctor_omega_cocontinuous : good listFunctor.
+Lemma goodListFunctor : good listFunctor.
 Proof.
-unfold listFunctor, streamFunctor.
-apply goodCoproduct; [ apply goodConstant |].
-apply goodProduct; [ apply goodConstant | apply goodIdentity].
+apply (goodFunctorComposite _ has_homsets_HSET).
+  apply (goodConstProdFunctor _ has_homsets_HSET).
+apply (goodConstCoprodFunctor _ has_homsets_HSET).
 Defined.
 
 Lemma listFunctor_Initial :
   Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
 Proof.
-simple refine (colimAlgInitial _ _ _ _ _ _).
-- apply InitialHSET.
-- apply ColimCoconeHSET.
-- apply listFunctor_omega_cocontinuous.
+apply (colimAlgInitial _ _ _ goodListFunctor InitialHSET (ColimCoconeHSET _ _)).
 Defined.
-
 
 (* Get recursion/iteration scheme: *)
 
@@ -379,4 +446,3 @@ Defined.
 (* Get induction as well? *)
 
 End lists.
-*)
