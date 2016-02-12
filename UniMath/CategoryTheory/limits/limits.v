@@ -352,7 +352,7 @@ use (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x)).
     * abstract (intro β; repeat (apply impred; intro);
         now apply (has_homsets_opp (functor_category_has_homsets A C hsC))).
     * match goal with |[ H2 : ∀ _ : ?TT ,  _ = _ ,,_   |- _ ] =>
-                       simple refine (let T : TT := _ in _ ) end.
+                       transparent assert (T : TT) end.
       (*
       refine (let T : Σ x : nat_trans pr1pr1x (functor_opp F),
                          ∀ v, nat_trans_comp (functor_opp (pr1 D v)) _ _
