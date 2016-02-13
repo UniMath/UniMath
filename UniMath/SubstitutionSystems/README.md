@@ -4,6 +4,11 @@ Formalization of heterogeneous substitution systems as defined in
 
 Matthes & Uustalu, [Substitution in Non-wellfounded Syntax with Variable Binding](http://www.irit.fr/~Ralph.Matthes/papers/MatthesUustalu-final.pdf)
 
+
+Report on the formalization and some additional results are given in
+
+Ahrens & Matthes, [Heterogeneous substitution systems revisited](http://arxiv.org/abs/1601.04299)
+
 # Contents
 
 * *AdjunctionHomTypesWeq.v*
