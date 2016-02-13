@@ -132,7 +132,7 @@ Proof.
   exact (pr2 n).
 Qed.
 
-Definition ex_patial_minus (X : rig) (R : hrel X) :=
+Definition ex_partial_minus (X : rig) (R : hrel X) :=
    ∀ x y : X, R x y -> ∃ z : X, R z 0%rig × x = (y + z)%rig.
 
 Definition ex_partial_minus_week (X : rig) (R : hrel X) :=
@@ -144,7 +144,7 @@ Lemma ex_partal_minus_imply_week {X : rig} (R : hrel X)
       (R10 : R 1%rig 0%rig) (Htra : istrans R)
       (Hadd : isbinophrel (X := rigaddabmonoid X) R)
       (Harch : isarchrig X R)
-      (Hminus : ex_patial_minus X R) :
+      (Hminus : ex_partial_minus X R) :
   ex_partial_minus_week X R.
 Proof.
   intros.
