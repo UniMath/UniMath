@@ -337,23 +337,124 @@ Defined.
 
 End functor_comp.
 
-(* The functor "x * F" is good *)
-Section constprod_functor.
+(* (* The functor "x * F" is good *) *)
+(* Section constprod_functor. *)
 
-(* TODO: This needs that C is cartesian closed *)
-Variables (x : C) (* (F : functor C C)  *)(PC : Products C).
+(* (* TODO: This needs that C is cartesian closed *) *)
+(* Variables (x : C) (* (F : functor C C)  *)(PC : Products C). *)
+
+(* (* Definition constprod_functor : functor C C := *) *)
+(* (*   product_functor C C PC (constant_functor C C x) F. *) *)
 
 (* Definition constprod_functor : functor C C := *)
-(*   product_functor C C PC (constant_functor C C x) F. *)
+(*   product_functor C C PC (constant_functor C C x) (functor_identity C). *)
 
-Definition constprod_functor : functor C C :=
-  product_functor C C PC (constant_functor C C x) (functor_identity C).
+(* Lemma goodConstProdFunctor : good constprod_functor. *)
+(* Proof. *)
+(* Admitted. *)
+
+(* End constprod_functor. *)
+
+
+(* The functor "x * F" is good. This is only proved for set at the
+   moment as it needs that the category is cartesian closed *)
+Section constprod_functor.
+
+Variables (x : HSET).
+
+Definition constprod_functor : functor HSET HSET :=
+  product_functor HSET HSET ProductsHSET (constant_functor HSET HSET x) (functor_identity HSET).
+
+Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
+
+Lemma lol {A B D : UU} (f g : A -> B -> D) : f = g -> forall a b, f a b = g a b.
+Proof.
+now intro H; rewrite H.
+Defined.
 
 Lemma goodConstProdFunctor : good constprod_functor.
 Proof.
-intros hF c L ccL HcL.
-admit.
-Admitted.
+intros hF c L ccL HcL cc.
+destruct cc as [f hf]; simpl in *; unfold product_functor_ob in *; simpl in *.
+simple refine (tpair _ _ _).
+- simple refine (tpair _ _ _).
+apply uncurry, flip.
+apply (@colimArrow _ _ _ (mk_ColimCocone _ _ _ ccL) (hset_fun_space x HcL)).
+simple refine (mk_cocone _ _).
++ simpl; intro n.
+  apply flip, curry, f.
++ abstract (simpl; intros m n e; rewrite <- (hf m n e); destruct e; simpl;
+            repeat (apply funextfun; intro); apply idpath).
++
+intro n.
+unfold uncurry, flip.
+generalize (colimArrowCommutes (mk_ColimCocone hF c L ccL)
+                            (hset_fun_space x HcL)
+                            (mk_cocone _ (goodConstProdFunctor_subproof x hF c L ccL
+                                  HcL f hf)) n).
+simpl.
+unfold flip, curry.
+simpl.
+unfold colimIn.
+simpl.
+intro H.
+
+apply funextfun; intro p.
+generalize (lol _ _ H (pr2 p) (pr1 p)).
+unfold compose.
+simpl.
+unfold ProductPr1, ProductPr2.
+simpl.
+intro HH.
+assert (peta : p = (pr1 p,, pr2 p)).
+  destruct p.
+  apply idpath.
+rewrite peta.
+rewrite <- HH.
+apply idpath.
+-
+simpl.
+intro p.
+unfold uncurry, flip; simpl.
+apply subtypeEquality; simpl.
++ intro g; apply impred; intro.
+simple refine (let ff : HSET ⟦_,HcL⟧ := _ in _).
+simple refine (hSetpair _ _).
+apply (x × pr1 (dob hF t)).
+apply isasetdirprod.
+apply setproperty.
+apply setproperty.
+simpl.
+apply f.
+apply (@has_homsets_HSET _ HcL _ ff).
++ simpl.
+destruct p; simpl.
+apply funextfun; intro xx.
+destruct xx.
+simpl.
+generalize (colimArrowUnique(mk_ColimCocone hF c L ccL) (hset_fun_space x HcL)
+     (mk_cocone _
+        (goodConstProdFunctor_subproof x hF c L ccL HcL f hf))).
+intro HH.
+simple refine (let g : HSET⟦colim (mk_ColimCocone hF c L ccL), hset_fun_space x HcL⟧ := _ in _).
+unfold colim; simpl.
+apply flip, curry, t.
+assert (lol2 : ∀ u : vertex nat_graph,
+     colimIn (mk_ColimCocone hF c L ccL) u ;; g =
+     coconeIn
+       (mk_cocone _
+          (goodConstProdFunctor_subproof x hF c L ccL HcL f hf)) u).
+simpl.
+intro n.
+rewrite <- (p n).
+apply idpath.
+generalize (HH g lol2).
+intro GG.
+unfold flip in GG.
+simpl in GG.
+rewrite <- GG.
+apply idpath.
+Defined.
 
 End constprod_functor.
 
@@ -404,7 +505,6 @@ Defined.
 
 End constcoprod_functor.
 
-
 End polynomial_functors.
 
 Section lists.
@@ -412,29 +512,23 @@ Section lists.
 Variable A : HSET.
 
 (* F(X) = A * X *)
-Definition streamFunctor : functor HSET HSET :=
-  constprod_functor HSET A ProductsHSET.
-
-  (* product_functor HSET HSET ProductsHSET *)
-  (*                 (constant_functor HSET HSET A) *)
-  (*                 (functor_identity HSET). *)
+Definition stream : functor HSET HSET := constprod_functor A.
 
 (* F(X) = 1 + (A * X) *)
-Definition listFunctor : functor HSET HSET :=
-  functor_composite _ _ _ streamFunctor (constcoprod_functor _ unitHSET CoproductsHSET).
-  (* constcoprod_functor _ unitHSET streamFunctor CoproductsHSET. *)
+Definition list : functor HSET HSET :=
+  functor_composite _ _ _ stream (constcoprod_functor _ unitHSET CoproductsHSET).
 
-Lemma goodListFunctor : good listFunctor.
+Lemma goodList : good list.
 Proof.
 apply (goodFunctorComposite _ has_homsets_HSET).
-  apply (goodConstProdFunctor _ has_homsets_HSET).
+  apply goodConstProdFunctor.
 apply (goodConstCoprodFunctor _ has_homsets_HSET).
 Defined.
 
-Lemma listFunctor_Initial :
-  Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
+Lemma list_Initial :
+  Initial (precategory_FunctorAlg list has_homsets_HSET).
 Proof.
-apply (colimAlgInitial _ _ _ goodListFunctor InitialHSET (ColimCoconeHSET _ _)).
+apply (colimAlgInitial _ _ _ goodList InitialHSET (ColimCoconeHSET _ _)).
 Defined.
 
 (* Get recursion/iteration scheme: *)
@@ -442,6 +536,19 @@ Defined.
 (*    x : X           f : A × X -> X *)
 (* ------------------------------------ *)
 (*       iter x f : List A -> X *)
+
+Definition rec (X : UU) (x : X) (f : pr1 A × X -> X) : pr1 (list A) -> X.
+Proof.
+  generalize list_Initial.
+simpl.
+unfold Initial.
+unfold FunctorAlg.
+simpl.
+unfold algebra_ob.
+simpl.
+
+
+
 
 (* Get induction as well? *)
 
