@@ -235,3 +235,6 @@ Ltac simple_rapply p :=
   simple refine (p _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
 
 Tactic Notation "use" uconstr(p) := simple_rapply p.
+
+Tactic Notation "transparent" "assert" "(" ident(name) ":" constr(type) ")" :=
+  simple refine (let name := (_ : type) in _).

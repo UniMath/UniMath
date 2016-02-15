@@ -121,8 +121,8 @@ case (H _ initDiagram); intros cc iscc; destruct cc as [c cc].
 apply (mk_Initial c); apply mk_isInitial; intros b.
 case (iscc _ (initCocone b)); intros f Hf; destruct f as [f fcomm].
 apply (tpair _ f); intro g.
-simple refine (let X : Σ x : c --> b, ∀ v,
-                       coconeIn cc v ;; x = coconeIn (initCocone b) v := _ in _).
+transparent assert (X : (Σ x : c --> b, ∀ v,
+                       coconeIn cc v ;; x = coconeIn (initCocone b) v)).
   { apply (tpair _ g); intro u; induction u. }
 apply (maponpaths pr1 (Hf X)).
 Defined.
