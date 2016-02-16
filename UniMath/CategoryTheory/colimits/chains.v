@@ -628,7 +628,7 @@ Defined.
 
 Definition auxInd : pr1 List -> pr1 P'HSET.
 Proof.
-apply iter_bd.
+apply iter.
 apply P0'.
 apply Pc'.
 Defined.
@@ -645,55 +645,45 @@ unfold is_algebra_mor.
 apply CoproductArrow_eq_cor.
 -
 apply funextfun; intro x.
-unfold compose.
-simpl.
+(* unfold compose. *)
+(* simpl. *)
 destruct x.
-simpl.
-cbn.
-unfold pr1iter.
-simpl.
 apply idpath.
 -
 apply funextfun; intro x.
 simpl in x.
-destruct x.
+destruct x as [a l].
 unfold compose.
-simpl.
 unfold pr1iter.
 simpl.
 unfold auxInd.
+assert (H :=  (iter_cons P'HSET P0' Pc' a l)).
+apply (maponpaths pr1 H).
+Qed.
 
-cbn.
+Definition pr1iter_algmor : algebra_mor _ List_alg List_alg := tpair _ _ isalghom_pr1iter.
+
+Lemma pr1iter_algmor_identity : identity _ = pr1iter_algmor.
+Proof.
+(* apply pathsinv0. *)
+rewrite <- (InitialEndo_is_identity _ list_sig_Initial pr1iter_algmor).
 apply idpath.
-cbn.
-simpl in x.
-simpl.
-Search (CoproductIn1 _ ;; _ = CoproductIn1 _ ;; _).
-cbn.
-unfold compose.
-simpl.
+Qed.
 
 Lemma rec : forall (l : pr1 List), P l.
 Proof.
 intro l.
-set (pr2 (auxInd l)).
-simpl in y.
-unfold auxInd in y.
-assert (test : (pr1 (iter P'HSET P0' Pc' l) = l)).
-Check ((iter P'HSET P0' Pc' l)).
-unfold iter, iter_map, bd, ad.
-simpl.
-simpl.
-simpl.
-simpl.
-
-simpl in y.
-intros l.
-assert (
+assert (H := pr2 (auxInd l)).
+simpl in H.
+unfold auxInd in H.
+assert (test : pr1 (iter P'HSET P0' Pc' l) = l).
+assert (foo := toforallpaths _ _ _ (!pr1iter_algmor_identity)).
+apply foo.
+rewrite <- test.
+apply H.
+Defined.
 
 End ind.
-
-
 
 Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
 
@@ -703,9 +693,9 @@ exists nat.
 abstract (apply isasetnat).
 Defined.
 
-Definition length : HSET⟦List,natHSET⟧.
+Definition length : pr1 List -> nat.
 Proof.
-apply iter_map.
+apply (iter natHSET). (* TODO: separate X from isaset X *)
 simpl.
 apply 0.
 simpl.
@@ -735,18 +725,3 @@ Defined.
 
 Eval compute in length _ nilnat.
 Eval compute in length _ testlist.
-
-Definition test : UU.
-apply (list natHSET).
-set (f := nil natHSET).
-simpl in f.
-generalize (f tt).
-intro A.
-simple refine (tpair _ _ _).
-apply A.
-unfold category_hset_structures.cobase.
-simpl.
-admit.
-simpl.
-admit.
-Admitted.
