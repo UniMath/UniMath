@@ -222,7 +222,7 @@ induction n as [|n IHn].
 Qed.
 
 (* ad = a† = a dagger *)
-Local Definition ad : C⟦L,A⟧.
+Definition ad : C⟦L,A⟧.
 Proof.
 apply colimArrow.
 simple refine (mk_cocone _ _).
@@ -246,10 +246,8 @@ Definition ad_mor : algebra_mor F α_alg Aa := tpair _ _ ad_is_algebra_mor.
 
 End algebra_mor.
 
-Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) α_alg.
+Lemma temp (Aa : FunctorAlg F hsC) (Fa' : algebra_mor F α_alg Aa) : Fa' = ad_mor Aa.
 Proof.
-apply mk_isInitial; intros Aa.
-exists (ad_mor Aa); simpl; intro Fa'.
 apply (algebra_mor_eq _ hsC); simpl.
 apply colimArrowUnique; simpl; intro n.
 destruct Fa' as [f hf]; simpl.
@@ -263,6 +261,14 @@ induction n as [|n IHn]; simpl.
   rewrite unfold_inv_from_iso_α; apply pathsinv0.
   now eapply pathscomp0; [apply (colimArrowCommutes shiftColimCocone)|].
 Qed.
+
+Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) α_alg.
+Proof.
+apply mk_isInitial.
+intros Aa.
+exists (ad_mor Aa).
+apply temp.
+Defined.
 
 Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
   mk_Initial _ colimAlgIsInitial.
@@ -355,7 +361,6 @@ End functor_comp.
 
 (* End constprod_functor. *)
 
-
 (* The functor "x * F" is good. This is only proved for set at the
    moment as it needs that the category is cartesian closed *)
 Section constprod_functor.
@@ -367,7 +372,9 @@ Definition constprod_functor : functor HSET HSET :=
 
 Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
 
-Lemma lol {A B D : UU} (f g : A -> B -> D) : f = g -> forall a b, f a b = g a b.
+(* Is this in the library? *)
+(* This is toforallpaths *)
+Lemma congr2 {A B D : UU} (f g : A -> B -> D) : f = g -> forall a b, f a b = g a b.
 Proof.
 now intro H; rewrite H.
 Defined.
@@ -378,82 +385,35 @@ intros hF c L ccL HcL cc.
 destruct cc as [f hf]; simpl in *; unfold product_functor_ob in *; simpl in *.
 simple refine (tpair _ _ _).
 - simple refine (tpair _ _ _).
-apply uncurry, flip.
-apply (@colimArrow _ _ _ (mk_ColimCocone _ _ _ ccL) (hset_fun_space x HcL)).
-simple refine (mk_cocone _ _).
-+ simpl; intro n.
-  apply flip, curry, f.
-+ abstract (simpl; intros m n e; rewrite <- (hf m n e); destruct e; simpl;
-            repeat (apply funextfun; intro); apply idpath).
-+
-intro n.
-unfold uncurry, flip.
-generalize (colimArrowCommutes (mk_ColimCocone hF c L ccL)
-                            (hset_fun_space x HcL)
-                            (mk_cocone _ (goodConstProdFunctor_subproof x hF c L ccL
-                                  HcL f hf)) n).
-simpl.
-unfold flip, curry.
-simpl.
-unfold colimIn.
-simpl.
-intro H.
-
-apply funextfun; intro p.
-generalize (lol _ _ H (pr2 p) (pr1 p)).
-unfold compose.
-simpl.
-unfold ProductPr1, ProductPr2.
-simpl.
-intro HH.
-assert (peta : p = (pr1 p,, pr2 p)).
-  destruct p.
-  apply idpath.
-rewrite peta.
-rewrite <- HH.
-apply idpath.
--
-simpl.
-intro p.
-unfold uncurry, flip; simpl.
-apply subtypeEquality; simpl.
-+ intro g; apply impred; intro.
-simple refine (let ff : HSET ⟦_,HcL⟧ := _ in _).
-simple refine (hSetpair _ _).
-apply (x × pr1 (dob hF t)).
-apply isasetdirprod.
-apply setproperty.
-apply setproperty.
-simpl.
-apply f.
-apply (@has_homsets_HSET _ HcL _ ff).
-+ simpl.
-destruct p; simpl.
-apply funextfun; intro xx.
-destruct xx.
-simpl.
-generalize (colimArrowUnique(mk_ColimCocone hF c L ccL) (hset_fun_space x HcL)
-     (mk_cocone _
-        (goodConstProdFunctor_subproof x hF c L ccL HcL f hf))).
-intro HH.
-simple refine (let g : HSET⟦colim (mk_ColimCocone hF c L ccL), hset_fun_space x HcL⟧ := _ in _).
-unfold colim; simpl.
-apply flip, curry, t.
-assert (lol2 : ∀ u : vertex nat_graph,
-     colimIn (mk_ColimCocone hF c L ccL) u ;; g =
-     coconeIn
-       (mk_cocone _
-          (goodConstProdFunctor_subproof x hF c L ccL HcL f hf)) u).
-simpl.
-intro n.
-rewrite <- (p n).
-apply idpath.
-generalize (HH g lol2).
-intro GG.
-unfold flip in GG.
-simpl in GG.
-rewrite <- GG.
-apply idpath.
+  + apply uncurry, flip.
+    apply (@colimArrow _ _ _ (mk_ColimCocone _ _ _ ccL) (hset_fun_space x HcL)).
+    simple refine (mk_cocone _ _).
+    * simpl; intro n; apply flip, curry, f.
+    * abstract (simpl; intros m n e; rewrite <- (hf m n e); destruct e; simpl;
+                repeat (apply funextfun; intro); apply idpath).
+  + intro n.
+    apply funextfun; intro p.
+    assert (peta : p = (pr1 p,, pr2 p)).
+      destruct p; apply idpath.
+    rewrite peta.
+    generalize (colimArrowCommutes (mk_ColimCocone hF c L ccL) _
+                 (mk_cocone _ (goodConstProdFunctor_subproof x hF c L ccL HcL f hf)) n).
+    unfold flip, curry, colimIn; simpl.
+    intro H; rewrite <- (congr2 _ _ H (pr2 p) (pr1 p)); apply idpath.
+- intro p.
+  unfold uncurry; simpl.
+  apply subtypeEquality; simpl.
+  + intro g; apply impred; intro t.
+    simple refine (let ff : HSET ⟦(x × dob hF t)%set,HcL⟧ := _ in _).
+    * simpl; apply f.
+    * apply (@has_homsets_HSET _ HcL _ ff).
+  + destruct p as [t p]; simpl.
+    apply funextfun; intro xc; destruct xc as [x' c']; simpl.
+    simple refine (let g : HSET⟦colim (mk_ColimCocone hF c L ccL),
+                                hset_fun_space x HcL⟧ := _ in _).
+    * simpl; apply flip, curry, t.
+    * rewrite <- (colimArrowUnique _ _ _ g); [apply idpath | ].
+      now intro n; simpl; rewrite <- (p n).
 Defined.
 
 End constprod_functor.
@@ -515,20 +475,63 @@ Variable A : HSET.
 Definition stream : functor HSET HSET := constprod_functor A.
 
 (* F(X) = 1 + (A * X) *)
-Definition list : functor HSET HSET :=
+Definition list_sig : functor HSET HSET :=
   functor_composite _ _ _ stream (constcoprod_functor _ unitHSET CoproductsHSET).
 
-Lemma goodList : good list.
+(* Arguments list : simpl never. *)
+
+Lemma goodListSig : good list_sig.
 Proof.
 apply (goodFunctorComposite _ has_homsets_HSET).
   apply goodConstProdFunctor.
 apply (goodConstCoprodFunctor _ has_homsets_HSET).
 Defined.
 
-Lemma list_Initial :
-  Initial (precategory_FunctorAlg list has_homsets_HSET).
+Lemma list_sig_Initial :
+  Initial (precategory_FunctorAlg list_sig has_homsets_HSET).
 Proof.
-apply (colimAlgInitial _ _ _ goodList InitialHSET (ColimCoconeHSET _ _)).
+apply (colimAlgInitial _ _ _ goodListSig InitialHSET (ColimCoconeHSET _ _)).
+Defined.
+
+(* Definition α_mor : C⟦F L,L⟧ := colimArrow FHC L shiftCocone. *)
+
+(* Definition is_iso_α_mor : is_iso α_mor := *)
+(*   isColim_is_iso _ FHC _ _ shiftIsColimCocone. *)
+
+(* Let α : iso (F L) L := isopair _ is_iso_α_mor. *)
+(* Let α_inv : iso L (F L) := iso_inv_from_iso α. *)
+(* Let α_alg : algebra_ob F := tpair (λ X : C, C ⟦ F X, X ⟧) L α. *)
+
+Definition List : HSET := colim (ColimCoconeHSET nat_graph (initChain InitialHSET list_sig)).
+Let β_mor : HSET⟦list_sig List,List⟧ := α_mor _ _ goodListSig InitialHSET (ColimCoconeHSET _ _).
+(* Let β : iso (list L) L := isopair _ (is_iso_α_mor _ has_homsets_HSET _ goodList InitialHSET (ColimCoconeHSET _ _)). *)
+(* Let β_inv : iso L (list L) := iso_inv_from_iso β. *)
+(* Let β_alg : algebra_ob list := tpair (λ X : HSET, HSET ⟦ list X, X ⟧) L β. *)
+Let List_alg : algebra_ob list_sig := InitialObject list_sig_Initial.
+
+
+Let bd := (ad _ list_sig InitialHSET (ColimCoconeHSET _ _)).
+
+Definition nil_map : HSET⟦unitHSET,List⟧.
+Proof.
+simpl; intro x.
+apply β_mor, inl, x.
+Defined.
+
+Definition nil : pr1 List.
+Proof.
+exact (nil_map tt).
+Defined.
+
+Definition cons_map : HSET⟦(A × List)%set,List⟧.
+Proof.
+intros xs.
+apply β_mor, (inr xs).
+Defined.
+
+Definition cons : pr1 A × pr1 List -> pr1 List.
+Proof.
+exact cons_map.
 Defined.
 
 (* Get recursion/iteration scheme: *)
@@ -537,19 +540,213 @@ Defined.
 (* ------------------------------------ *)
 (*       iter x f : List A -> X *)
 
-Definition rec (X : UU) (x : X) (f : pr1 A × X -> X) : pr1 (list A) -> X.
+Definition mk_listAlgebra (X : HSET) (x : pr1 X) (f : HSET⟦(A × X)%set,X⟧) : algebra_ob list_sig.
 Proof.
-  generalize list_Initial.
+set (x' := λ (_ : unit), x).
+apply (tpair (fun X1 : hSet => unit ⨿ (pr1 A × X1) → X1) X (sumofmaps x' f) : algebra_ob list_sig).
+Defined.
+
+Definition iter_map (X : HSET) (x : pr1 X) (f : HSET⟦(A × X)%set,X⟧) : algebra_mor _ List_alg (mk_listAlgebra X x f).
+Proof.
+apply (InitialArrow list_sig_Initial (mk_listAlgebra X x f)).
+Defined.
+
+Definition iter (X : HSET) (x : pr1 X) (f : pr1 A × pr1 X -> pr1 X) : pr1 List -> pr1 X.
+Proof.
+apply (iter_map _ x f).
+Defined.
+
+Definition iter_map_bd (X : HSET) (x : pr1 X) (f : HSET⟦(A × X)%set,X⟧) : algebra_mor _ List_alg (mk_listAlgebra X x f).
+(* HSET⟦List,X⟧. *)
+Proof.
+mkpair.
+- apply (bd (mk_listAlgebra X x f)).
+- admit.
+Admitted.
+
+Definition iter_bd (X : HSET) (x : pr1 X) (f : pr1 A × pr1 X -> pr1 X) : pr1 List -> pr1 X.
+Proof.
+apply (iter_map_bd _ x f).
+Defined.
+
+(* Maybe quantify over "λ _ : unit, x" instead of nil? *)
+Lemma iter_nil (X : hSet) (x : X) (f : pr1 A × X -> X) : iter X x f nil = x.
+Proof.
+assert (bla := maponpaths (fun x => CoproductIn1 _ _ ;; x) (algebra_mor_commutes _ _ _ (iter_map X x f))).
+apply (toforallpaths _ _ _ bla tt).
+Qed.
+
+Lemma iter_cons (X : hSet) (x : X) (f : pr1 A × X -> X) (a : pr1 A) (l : pr1 List) :
+  iter X x f (cons (a,,l)) = f (a,,iter X x f l).
+Proof.
+assert (bla := maponpaths (fun x => CoproductIn2 _ _ ;; x) (algebra_mor_commutes _ _ _ (iter_map X x f))).
+assert (foo := toforallpaths _ _ _ bla (a,,l)).
+clear bla.
+(* apply foo. *) (* This doesn't work here. why? *)
+unfold compose in foo.
+simpl in foo.
+apply foo.
+Qed.
+
+(* Maybe quantify over "λ _ : unit, x" instead of nil? *)
+Lemma iter_nil_bd (X : hSet) (x : X) (f : pr1 A × X -> X) : iter_bd X x f nil = x.
+Proof.
+assert (bla := maponpaths (fun x => CoproductIn1 _ _ ;; x) (algebra_mor_commutes _ _ _ (iter_map_bd X x f))).
+apply (toforallpaths _ _ _ bla).
+Qed.
+
+Lemma iter_cons_bd (X : hSet) (x : X) (f : pr1 A × X -> X) (a : pr1 A) (l : pr1 List) :
+  iter_bd X x f (cons (a,,l)) = f (a,,iter_bd X x f l).
+Proof.
+assert (bla := maponpaths (fun x => CoproductIn2 _ _ ;; x) (algebra_mor_commutes _ _ _ (iter_map_bd X x f))).
+apply (toforallpaths _ _ _ bla (a,,l)).
+Qed.
+
+Section ind.
+
+Variable (P : pr1 List -> hSet).
+Variables (P0 : P nil) (Pc : forall (a : pr1 A) (l : pr1 List), P l -> P (cons (a,,l))).
+
+Let P' : UU := Σ l, P l.
+Let P0' : P' := (nil,, P0).
+Let Pc' : pr1 A × P' -> P'.
+intros ap.
+mkpair.
+- apply (cons (pr1 ap,,pr1 (pr2 ap))).
+- exact (Pc (pr1 ap) (pr1 (pr2 ap)) (pr2 (pr2 ap))).
+Defined.
+
+Definition P'HSET : HSET.
+Proof.
+apply (tpair _ P').
+unfold P'.
+apply (isofhleveltotal2 2).
+apply setproperty.
+intros x.
+apply setproperty.
+Defined.
+
+Definition auxInd : pr1 List -> pr1 P'HSET.
+Proof.
+apply iter_bd.
+apply P0'.
+apply Pc'.
+Defined.
+
+Definition pr1iter : HSET⟦List,List⟧.
+Proof.
+intros x.
+exact (pr1 (auxInd x)).
+Defined.
+
+Lemma isalghom_pr1iter : is_algebra_mor _ List_alg List_alg pr1iter.
+Proof.
+unfold is_algebra_mor.
+apply CoproductArrow_eq_cor.
+-
+apply funextfun; intro x.
+unfold compose.
 simpl.
-unfold Initial.
-unfold FunctorAlg.
+destruct x.
 simpl.
-unfold algebra_ob.
+cbn.
+unfold pr1iter.
 simpl.
+apply idpath.
+-
+apply funextfun; intro x.
+simpl in x.
+destruct x.
+unfold compose.
+simpl.
+unfold pr1iter.
+simpl.
+unfold auxInd.
+
+cbn.
+apply idpath.
+cbn.
+simpl in x.
+simpl.
+Search (CoproductIn1 _ ;; _ = CoproductIn1 _ ;; _).
+cbn.
+unfold compose.
+simpl.
+
+Lemma rec : forall (l : pr1 List), P l.
+Proof.
+intro l.
+set (pr2 (auxInd l)).
+simpl in y.
+unfold auxInd in y.
+assert (test : (pr1 (iter P'HSET P0' Pc' l) = l)).
+Check ((iter P'HSET P0' Pc' l)).
+unfold iter, iter_map, bd, ad.
+simpl.
+simpl.
+simpl.
+simpl.
+
+simpl in y.
+intros l.
+assert (
+
+End ind.
 
 
 
+Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+
+Definition natHSET : HSET.
+Proof.
+exists nat.
+abstract (apply isasetnat).
+Defined.
+
+Definition length : HSET⟦List,natHSET⟧.
+Proof.
+apply iter_map.
+simpl.
+apply 0.
+simpl.
+intros x.
+apply (S (pr2 x)).
+Defined.
 
 (* Get induction as well? *)
 
 End lists.
+
+Definition nilnat : pr1 (List natHSET).
+Proof.
+apply nil.
+Defined.
+
+Definition testlist : pr1 (List natHSET).
+Proof.
+apply cons.
+split.
+apply 5.
+apply cons.
+split.
+apply 2.
+apply nil.
+Defined.
+
+Eval compute in length _ nilnat.
+Eval compute in length _ testlist.
+
+Definition test : UU.
+apply (list natHSET).
+set (f := nil natHSET).
+simpl in f.
+generalize (f tt).
+intro A.
+simple refine (tpair _ _ _).
+apply A.
+unfold category_hset_structures.cobase.
+simpl.
+admit.
+simpl.
+admit.
+Admitted.
