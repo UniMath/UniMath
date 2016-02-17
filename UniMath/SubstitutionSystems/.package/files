@@ -1,17 +1,10 @@
 SumOfSignatures.v
 SubstitutionSystems.v
 Signatures.v
-RightKanExtension.v
-ProductPrecategory.v
-PointedFunctors.v
-PointedFunctorsComposition.v
 MonadsFromSubstitutionSystems.v
 LiftingInitial.v
 Lam.v
 LamSignature.v
-HorizontalComposition.v
 GenMendlerIteration.v
-EndofunctorsMonoidal.v
 Notation.v
-AdjunctionHomTypesWeq.v
 SubstitutionSystems_Summary.v

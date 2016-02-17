@@ -35,7 +35,7 @@ Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.equivalences. (* for adjunctions *)
-Require Import UniMath.SubstitutionSystems.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
+Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).

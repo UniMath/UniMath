@@ -1,7 +1,7 @@
-opp_precat.v
 UnicodeNotations.v
 total2_paths.v
 precategories.v
+opp_precat.v
 limits/terminal.v
 limits/terminal_as_colimit.v
 limits/products.v
@@ -33,3 +33,10 @@ slicecat.v
 colimits/chains.v
 colimits/colimits.v
 limits/limits.v
+AdjunctionHomTypesWeq.v
+EndofunctorsMonoidal.v
+RightKanExtension.v
+ProductPrecategory.v
+PointedFunctors.v
+PointedFunctorsComposition.v
+HorizontalComposition.v
