@@ -266,6 +266,7 @@ Qed. (* This Qed is slow! *)
 (* This defines the induction principle for lists using foldr *)
 Section list_induction.
 
+(* TODO: P should not return an hSet but be split into two things *)
 Variable (P : pr1 List -> hSet).
 Variables (P0 : P nil) (Pc : forall (a : pr1 A) (l : pr1 List), P l -> P (cons (a,,l))).
 
@@ -352,6 +353,7 @@ Eval vm_compute in length _ testlist.
 Eval vm_compute in length _ testlistS.
 Eval vm_compute in sum testlist.
 Eval vm_compute in sum testlistS.
+
 Goal (forall l, length _ (cons natHSET (2,, l)) = S (length _ l)).
 simpl.
 intro l.
