@@ -32,6 +32,7 @@ rezk_completion.v
 slicecat.v
 colimits/chains.v
 colimits/colimits.v
+colimits/polynomialfunctors.v
 limits/limits.v
 AdjunctionHomTypesWeq.v
 EndofunctorsMonoidal.v
