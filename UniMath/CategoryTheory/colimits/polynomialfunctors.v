@@ -24,25 +24,27 @@ Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Section polynomial_functors.
 
 Variables (C : precategory) (hsC : has_homsets C).
+Variables (D : precategory) (hsD : has_homsets D).
+Variables (E : precategory) (hsE : has_homsets E).
 
 (* The constant functor is omega cocontinuous *)
 Section constant_functor.
 
-Variable (x : C).
+Variable (x : D).
 
-Lemma omega_cocontConstantFunctor : omega_cocont (constant_functor C C x).
+Lemma omega_cocontConstantFunctor : omega_cocont (constant_functor C D x).
 Proof.
 intros c L ccL HcL y ccy; simpl.
 simple refine (tpair _ _ _).
 - simple refine (tpair _ _ _).
   + apply (coconeIn ccy 0).
-  + simpl; intro n; rewrite id_left.
-    destruct ccy as [f Hf]; simpl in *.
-    induction n; [apply idpath|].
-    now rewrite IHn, <- (Hf n (S n) (idpath _)), id_left.
-- simpl; intro p; apply subtypeEquality.
-  + intros f; apply impred; intro; apply hsC.
-  + now simpl; destruct p as [p H]; rewrite <- (H 0), id_left.
+  + abstract (simpl; intro n; rewrite id_left;
+              destruct ccy as [f Hf]; simpl in *;
+              induction n; [apply idpath|];
+              now rewrite IHn, <- (Hf n (S n) (idpath _)), id_left).
+- abstract (simpl; intro p; apply subtypeEquality;
+              [ intros f; apply impred; intro; apply hsD
+              | now simpl; destruct p as [p H]; rewrite <- (H 0), id_left]).
 Defined.
 
 End constant_functor.
@@ -61,11 +63,11 @@ End identity_functor.
 (* Functor composition preserves omega cocontinuity *)
 Section functor_comp.
 
-Lemma omega_cocontFunctorComposite (F G : functor C C) :
+Lemma omega_cocontFunctorComposite (F : functor C D) (G : functor D E) :
   omega_cocont F -> omega_cocont G -> omega_cocont (functor_composite _ _ _ F G).
 Proof.
 intros hF hG c L cc.
-apply (preserves_colimit_comp hsC); [apply hF|apply hG].
+apply (preserves_colimit_comp hsE); [apply hF|apply hG].
 Defined.
 
 End functor_comp.
@@ -82,42 +84,47 @@ Definition constprod_functor : functor HSET HSET :=
 
 Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
 
+Lemma paireta {A B : UU} (p : A × B) : p = (pr1 p,, pr2 p).
+Proof.
+destruct p; apply idpath.
+Defined.
+
+(* TODO: Opacification *)
 Lemma omega_cocontConstProdFunctor : omega_cocont constprod_functor.
 Proof.
 intros hF c L ccL HcL cc.
-destruct cc as [f hf]; simpl in *; unfold product_functor_ob in *; simpl in *.
 simple refine (tpair _ _ _).
 - simple refine (tpair _ _ _).
-  + apply uncurry, flip.
+  + simpl; apply uncurry, flip.
     apply (colimArrow (mk_ColimCocone _ _ _ ccL) (hset_fun_space x HcL)).
     simple refine (mk_cocone _ _).
-    * simpl; intro n; apply flip, curry, f.
-    * abstract (simpl; intros m n e; rewrite <- (hf m n e); destruct e; simpl;
+    * simpl; intro n; apply flip, curry, (pr1 cc).
+    * abstract (destruct cc as [f hf]; simpl; intros m n e;
+                rewrite <- (hf m n e); destruct e; simpl;
                 repeat (apply funextfun; intro); apply idpath).
-  + intro n.
-    apply funextfun; intro p.
-    assert (peta : p = (pr1 p,, pr2 p)).
-      destruct p; apply idpath.
-    rewrite peta.
+  + abstract (
+    destruct cc as [f hf]; simpl; intro n;
+    apply funextfun; intro p; rewrite (paireta p);
     generalize (colimArrowCommutes (mk_ColimCocone hF c L ccL) _
-                 (mk_cocone _ (omega_cocontConstProdFunctor_subproof x hF c L ccL HcL f hf)) n).
-    unfold flip, curry, colimIn; simpl.
-    intro H.
-    now rewrite <- (toforallpaths _ _ _ (toforallpaths _ _ _ H (pr2 p)) (pr1 p)).
-- intro p.
-  unfold uncurry; simpl.
-  apply subtypeEquality; simpl.
-  + intro g; apply impred; intro t.
-    simple refine (let ff : HSET ⟦(x × dob hF t)%set,HcL⟧ := _ in _).
-    * simpl; apply f.
-    * apply (@has_homsets_HSET _ HcL _ ff).
-  + destruct p as [t p]; simpl.
-    apply funextfun; intro xc; destruct xc as [x' c']; simpl.
+                 (mk_cocone _ (omega_cocontConstProdFunctor_subproof
+                               hF c L ccL HcL (f,,hf))) n);
+    unfold flip, curry, colimIn; simpl; intro H;
+    now rewrite <- (toforallpaths _ _ _ (toforallpaths _ _ _ H (pr2 p)) (pr1 p))).
+- abstract (
+  intro p; unfold uncurry; simpl; apply subtypeEquality; simpl;
+  [ intro g; apply impred; intro t;
+    simple refine (let ff : HSET ⟦(x × dob hF t)%set,HcL⟧ := _ in _);
+    [ simpl; apply (pr1 cc)
+    | apply (@has_homsets_HSET _ HcL _ ff) ]
+  | destruct p as [t p]; simpl;
+    apply funextfun; intro xc; destruct xc as [x' c']; simpl;
     simple refine (let g : HSET⟦colim (mk_ColimCocone hF c L ccL),
-                                hset_fun_space x HcL⟧ := _ in _).
-    * simpl; apply flip, curry, t.
-    * rewrite <- (colimArrowUnique _ _ _ g); [apply idpath | ].
-      now intro n; simpl; rewrite <- (p n).
+                                hset_fun_space x HcL⟧ := _ in _);
+    [ simpl; apply flip, curry, t
+    | rewrite <- (colimArrowUnique _ _ _ g); [apply idpath | ];
+      destruct cc as [f hf]; simpl in *;
+      now intro n; simpl; rewrite <- (p n) ]
+  ]).
 Defined.
 
 End constprod_functor.
@@ -134,39 +141,40 @@ Definition constcoprod_functor : functor C C :=
 Lemma omega_cocontConstCoprodFunctor : omega_cocont constcoprod_functor.
 Proof.
 intros hF c L ccL HcL cc.
-destruct cc as [f hf]; simpl in *; unfold coproduct_functor_ob in *; simpl in *.
 simple refine (tpair _ _ _).
 - simple refine (tpair _ _ _).
   + eapply CoproductArrow.
-    * exact (CoproductIn1 _ (PC x (dob hF 0)) ;; f 0).
+    * exact (CoproductIn1 _ (PC x (dob hF 0)) ;; pr1 cc 0).
     * simple refine (let ccHcL : cocone hF HcL := _ in _).
       { simple refine (mk_cocone _ _).
-        - intros n; exact (CoproductIn2 _ (PC x (dob hF n)) ;; f n).
+        - intros n; exact (CoproductIn2 _ (PC x (dob hF n)) ;; pr1 cc n).
         - abstract (
             intros m n e; destruct e; simpl;
+            destruct cc as [f hf]; simpl in *; unfold coproduct_functor_ob in *;
             rewrite <- (hf m _ (idpath _)), !assoc; apply cancel_postcomposition;
             now unfold coproduct_functor_mor; rewrite CoproductOfArrowsIn2). }
       apply (pr1 (pr1 (ccL HcL ccHcL))).
-  + simpl; intro n; unfold coproduct_functor_mor in *.
-    rewrite precompWithCoproductArrow.
-    apply pathsinv0, CoproductArrowUnique.
-    * rewrite id_left; induction n; [apply idpath|].
+  + abstract (
+    destruct cc as [f hf]; simpl in *; unfold coproduct_functor_ob in *;
+    simpl; intro n; unfold coproduct_functor_mor in *;
+    rewrite precompWithCoproductArrow; apply pathsinv0, CoproductArrowUnique;
+    [ rewrite id_left; induction n; [apply idpath|];
       now rewrite <- IHn, <- (hf n _ (idpath _)), assoc,
-                  CoproductOfArrowsIn1, id_left.
-    * rewrite <- (hf n _ (idpath _)).
-      destruct ccL; destruct t; simpl in *.
-      rewrite p0; apply maponpaths, hf.
-- intro t; apply subtypeEquality; simpl.
-  + intro g; apply impred; intro; apply hsC.
-  + destruct t; destruct ccL; unfold coproduct_functor_mor in *.
-    destruct t0; simpl.
-    apply CoproductArrowUnique.
-    * now rewrite <- (p 0), assoc, CoproductOfArrowsIn1, id_left.
-    * simple refine (let temp : Σ x0 : C ⟦ c, HcL ⟧, ∀ v : nat,
-         coconeIn L v ;; x0 = CoproductIn2 C (PC x (dob hF v)) ;; f v := _ in _).
-        { apply (tpair _ (CoproductIn2 C (PC x c) ;; t)).
-          now intro n; rewrite <- (p n), !assoc, CoproductOfArrowsIn2. }
-      apply (maponpaths pr1 (p0 temp)).
+                  CoproductOfArrowsIn1, id_left
+    | rewrite <- (hf n _ (idpath _)); destruct ccL; destruct t; simpl in *;
+      rewrite p0; apply maponpaths, hf]).
+- abstract (
+  destruct cc as [f hf]; simpl in *; unfold coproduct_functor_ob in *;
+  intro t; apply subtypeEquality; simpl;
+  [ intro g; apply impred; intro; apply hsC
+  | destruct t; destruct ccL; unfold coproduct_functor_mor in *; destruct t0; simpl;
+    apply CoproductArrowUnique;
+    [ now rewrite <- (p 0), assoc, CoproductOfArrowsIn1, id_left
+    | simple refine (let temp : Σ x0 : C ⟦ c, HcL ⟧, ∀ v : nat,
+         coconeIn L v ;; x0 = CoproductIn2 C (PC x (dob hF v)) ;; f v := _ in _);
+         [ apply (tpair _ (CoproductIn2 C (PC x c) ;; t));
+          now intro n; rewrite <- (p n), !assoc, CoproductOfArrowsIn2|];
+      apply (maponpaths pr1 (p0 temp))]]).
 Defined.
 
 End constcoprod_functor.
@@ -187,7 +195,7 @@ Definition listFunctor : functor HSET HSET :=
 
 Lemma omega_cocont_listFunctor : omega_cocont listFunctor.
 Proof.
-apply (omega_cocontFunctorComposite _ has_homsets_HSET).
+apply (omega_cocontFunctorComposite _ _ _ has_homsets_HSET).
 - apply omega_cocontConstProdFunctor.
 - apply (omega_cocontConstCoprodFunctor _ has_homsets_HSET).
 Defined.
@@ -369,14 +377,42 @@ Eval vm_compute in length _ testlistS.
 Eval vm_compute in sum testlist.
 Eval vm_compute in sum testlistS.
 
-Goal (forall l, length _ (cons natHSET (2,, l)) = S (length _ l)).
+Goal length _ testlist = 2.
+vm_compute.
+Restart.
+cbn.
+Restart.
+compute.
+Restart.
+cbv.
+Restart.
+native_compute.
+Abort.
+
+Goal (forall l, length _ (2 :: l) = S (length _ l)).
 simpl.
 intro l.
-simpl.
-cbn.
 try apply idpath. (* this doesn't work *)
+unfold length, cons_nat.
+rewrite foldr_cons.
+apply idpath.
 Abort.
 
 (* Time Eval vm_compute in nil natHSET. *) (* This crashes my computer by using up all memory *)
 
 End nat_examples.
+
+
+(* Inductive list A : UU := *)
+(*   | nilA : list A *)
+(*   | consA : A -> list A -> list A. *)
+
+(* Fixpoint lengthA (A : UU) (xs : list A) : nat := match xs with *)
+(*   | nilA _ => 0 *)
+(*   | consA _ _ xs' => S (lengthA _ xs') *)
+(*   end. *)
+
+(* Goal (forall l, lengthA nat (consA _ 2 l) = S (lengthA nat l)). *)
+(* intro l. *)
+(* apply idpath. *)
+(* Abort. *)
