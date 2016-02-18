@@ -77,7 +77,8 @@ Section constprod_functor.
 Variables (x : HSET).
 
 Definition constprod_functor : functor HSET HSET :=
-  product_functor HSET HSET ProductsHSET (constant_functor HSET HSET x) (functor_identity HSET).
+  product_functor HSET HSET ProductsHSET (constant_functor HSET HSET x)
+                                         (functor_identity HSET).
 
 Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
 
@@ -88,7 +89,7 @@ destruct cc as [f hf]; simpl in *; unfold product_functor_ob in *; simpl in *.
 simple refine (tpair _ _ _).
 - simple refine (tpair _ _ _).
   + apply uncurry, flip.
-    apply (@colimArrow _ _ _ (mk_ColimCocone _ _ _ ccL) (hset_fun_space x HcL)).
+    apply (colimArrow (mk_ColimCocone _ _ _ ccL) (hset_fun_space x HcL)).
     simple refine (mk_cocone _ _).
     * simpl; intro n; apply flip, curry, f.
     * abstract (simpl; intros m n e; rewrite <- (hf m n e); destruct e; simpl;
@@ -121,7 +122,8 @@ Defined.
 
 End constprod_functor.
 
-(* The functor "x + F" is omega_cocont. Assumes that the category has coproducts *)
+(* The functor "x + F" is omega_cocont.
+   Assumes that the category has coproducts *)
 Section constcoprod_functor.
 
 Variables (x : C) (PC : Coproducts C).
@@ -143,13 +145,14 @@ simple refine (tpair _ _ _).
         - abstract (
             intros m n e; destruct e; simpl;
             rewrite <- (hf m _ (idpath _)), !assoc; apply cancel_postcomposition;
-            now unfold coproduct_functor_mor; simpl; rewrite CoproductOfArrowsIn2). }
+            now unfold coproduct_functor_mor; rewrite CoproductOfArrowsIn2). }
       apply (pr1 (pr1 (ccL HcL ccHcL))).
   + simpl; intro n; unfold coproduct_functor_mor in *.
     rewrite precompWithCoproductArrow.
     apply pathsinv0, CoproductArrowUnique.
     * rewrite id_left; induction n; [apply idpath|].
-      now rewrite <- IHn, <- (hf n _ (idpath _)), assoc, CoproductOfArrowsIn1, id_left.
+      now rewrite <- IHn, <- (hf n _ (idpath _)), assoc,
+                  CoproductOfArrowsIn1, id_left.
     * rewrite <- (hf n _ (idpath _)).
       destruct ccL; destruct t; simpl in *.
       rewrite p0; apply maponpaths, hf.
@@ -192,7 +195,8 @@ Defined.
 Lemma listFunctor_Initial :
   Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
 Proof.
-apply (colimAlgInitial _ _ _ omega_cocont_listFunctor InitialHSET (ColimCoconeHSET _ _)).
+apply (colimAlgInitial _ _ _ omega_cocont_listFunctor
+                       InitialHSET (ColimCoconeHSET _ _)).
 Defined.
 
 Definition List : HSET :=
@@ -224,10 +228,11 @@ Definition cons : pr1 A × pr1 List -> pr1 List := cons_map.
 (* ------------------------------------ *)
 (*       foldr x f : List A -> X *)
 
-Definition mk_listAlgebra (X : HSET) (x : pr1 X) (f : HSET⟦(A × X)%set,X⟧) : algebra_ob listFunctor.
+Definition mk_listAlgebra (X : HSET) (x : pr1 X)
+  (f : HSET⟦(A × X)%set,X⟧) : algebra_ob listFunctor.
 Proof.
 set (x' := λ (_ : unit), x).
-apply (tpair (fun X1 : hSet => unit ⨿ (pr1 A × X1) → X1) X (sumofmaps x' f) : algebra_ob listFunctor).
+apply (tpair _ X (sumofmaps x' f) : algebra_ob listFunctor).
 Defined.
 
 Definition foldr_map (X : HSET) (x : pr1 X) (f : HSET⟦(A × X)%set,X⟧) :
@@ -250,14 +255,15 @@ assert (F := maponpaths (fun x => CoproductIn1 _ _ ;; x)
 apply (toforallpaths _ _ _ F tt).
 Qed.
 
-Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X) (a : pr1 A) (l : pr1 List) :
+Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
+                 (a : pr1 A) (l : pr1 List) :
   foldr X x f (cons (a,,l)) = f (a,,foldr X x f l).
 Proof.
 assert (F := maponpaths (fun x => CoproductIn2 _ _ ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l)).
 clear F.
-(* apply foo. *) (* This doesn't work here. why? *)
+(* apply Fal. *) (* This doesn't work here. why? *)
 unfold compose in Fal.
 simpl in Fal.
 apply Fal.
@@ -266,9 +272,9 @@ Qed. (* This Qed is slow! *)
 (* This defines the induction principle for lists using foldr *)
 Section list_induction.
 
-(* TODO: P should not return an hSet but be split into two things *)
-Variable (P : pr1 List -> hSet).
-Variables (P0 : P nil) (Pc : forall (a : pr1 A) (l : pr1 List), P l -> P (cons (a,,l))).
+Variables (P : pr1 List -> UU) (PhSet : forall l, isaset (P l)).
+Variables (P0 : P nil)
+          (Pc : forall (a : pr1 A) (l : pr1 List), P l -> P (cons (a,,l))).
 
 Let P' : UU := Σ l, P l.
 Let P0' : P' := (nil,, P0).
@@ -278,7 +284,7 @@ Let Pc' : pr1 A × P' -> P' :=
 Definition P'HSET : HSET.
 Proof.
 apply (tpair _ P').
-abstract (apply (isofhleveltotal2 2); [apply setproperty | intros x; apply setproperty ]).
+abstract (apply (isofhleveltotal2 2); [ apply setproperty | intro x; apply PhSet ]).
 Defined.
 
 Lemma isalghom_pr1foldr :
@@ -290,7 +296,8 @@ apply CoproductArrow_eq_cor.
   apply (maponpaths pr1 (foldr_cons P'HSET P0' Pc' a l)).
 Qed.
 
-Definition pr1foldr_algmor : algebra_mor _ List_alg List_alg := tpair _ _ isalghom_pr1foldr.
+Definition pr1foldr_algmor : algebra_mor _ List_alg List_alg :=
+  tpair _ _ isalghom_pr1foldr.
 
 Lemma pr1foldr_algmor_identity : identity _ = pr1foldr_algmor.
 Proof.
@@ -307,6 +314,14 @@ Defined.
 
 End list_induction.
 
+Lemma listIndProp (P : pr1 List -> UU) (HP : forall l, isaprop (P l)) :
+  P nil -> (forall a l, P l → P (cons (a,, l))) -> forall l, P l.
+Proof.
+intros Pnil Pcons.
+apply listInd; try assumption.
+intro l; apply isasetaprop, HP.
+Defined.
+
 Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
 
 Definition natHSET : HSET.
@@ -315,20 +330,16 @@ exists nat.
 abstract (apply isasetnat).
 Defined.
 
-(* TODO: separate X from isaset X *)
 Definition length : pr1 List -> nat :=
   foldr natHSET 0 (fun x => S (pr2 x)).
 
 Definition map (f : pr1 A -> pr1 A) : pr1 List -> pr1 List :=
   foldr _ nil (λ xxs : pr1 A × pr1 List, cons (f (pr1 xxs),, pr2 xxs)).
 
-Lemma length_map (f : pr1 A -> pr1 A) (xs : pr1 List) : length (map f xs) = length xs.
+Lemma length_map (f : pr1 A -> pr1 A) : forall xs, length (map f xs) = length xs.
 Proof.
-simple refine (let P : pr1 List -> hSet := _ in _).
-  { intros l; mkpair.
-    - apply (length (map f l) = length l).
-    - apply isasetaprop, isasetnat. }
-apply (listInd P).
+apply listIndProp.
+- intros l; apply isasetnat.
 - apply idpath.
 - simpl; unfold map, length; simpl; intros a l Hl.
   now rewrite !foldr_cons, <- Hl.
@@ -339,11 +350,15 @@ End lists.
 (* Some examples of computations with lists over nat *)
 Section nat_examples.
 
-Definition testlist : pr1 (List natHSET) :=
-  cons natHSET (5,, cons natHSET (2,, nil natHSET)).
+Definition cons_nat a l : pr1 (List natHSET) := cons natHSET (a,,l).
+
+Infix "::" := cons_nat.
+Notation "[]" := (nil natHSET) (at level 0, format "[]").
+
+Definition testlist : pr1 (List natHSET) := 5 :: 2 :: [].
 
 Definition testlistS : pr1 (List natHSET) :=
-  map natHSET (fun x => S x) testlist.
+  map natHSET S testlist.
 
 Definition sum : pr1 (List natHSET) -> nat :=
   foldr natHSET natHSET 0 (fun xy => pr1 xy + pr2 xy).
@@ -359,7 +374,7 @@ simpl.
 intro l.
 simpl.
 cbn.
-try apply idpath.
+try apply idpath. (* this doesn't work *)
 Abort.
 
 (* Time Eval vm_compute in nil natHSET. *) (* This crashes my computer by using up all memory *)
