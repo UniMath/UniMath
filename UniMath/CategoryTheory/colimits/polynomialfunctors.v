@@ -409,7 +409,7 @@ rewrite foldr_cons. cbn.
 apply idpath.
 Abort.
 
-(* Time Eval vm_compute in nil natHSET.  (* This crashes my computer by using up all memory *)
+(* Time Eval vm_compute in nil natHSET.  (* This crashes my computer by using up all memory *) *)
 
 End nat_examples.
 
