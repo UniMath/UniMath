@@ -364,7 +364,7 @@ Qed.
 End lists.
 
 Opaque List.
-Opaque foldr.
+(* Opaque foldr. *) (* makes "cbn" and "compute" in the computation below fail *)
 
 (* Some examples of computations with lists over nat *)
 Section nat_examples.
@@ -393,9 +393,9 @@ vm_compute.
 Restart.
 cbn.
 Restart.
-(* compute. *) (* does not work when foldr is opaque with "Opaque foldr." *)
+compute.  (* does not work when foldr is opaque with "Opaque foldr." *)
 Restart.
-(* cbv. *)  (* does not work when foldr is opaque with "Opaque foldr." *)
+cbv.   (* does not work when foldr is opaque with "Opaque foldr." *)
 Restart.
 native_compute.
 Abort.
@@ -409,7 +409,7 @@ rewrite foldr_cons. cbn.
 apply idpath.
 Abort.
 
-(* Time Eval vm_compute in nil natHSET. *) (* This crashes my computer by using up all memory *)
+(* Time Eval vm_compute in nil natHSET.  (* This crashes my computer by using up all memory *)
 
 End nat_examples.
 
