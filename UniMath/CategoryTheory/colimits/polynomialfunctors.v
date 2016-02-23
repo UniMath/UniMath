@@ -102,7 +102,8 @@ simple refine (tpair _ _ _).
     * abstract (destruct cc as [f hf]; simpl; intros m n e;
                 rewrite <- (hf m n e); destruct e; simpl;
                 repeat (apply funextfun; intro); apply idpath).
-  + abstract (
+  + cbn.
+    abstract (
     destruct cc as [f hf]; simpl; intro n;
     apply funextfun; intro p; rewrite (paireta p);
     generalize (colimArrowCommutes (mk_ColimCocone hF c L ccL) _
@@ -208,11 +209,15 @@ apply (colimAlgInitial _ _ _ omega_cocont_listFunctor
 Defined.
 
 Definition List : HSET :=
-  colim (ColimCoconeHSET nat_graph (initChain InitialHSET listFunctor)).
+  (* colim (ColimCoconeHSET nat_graph (initChain InitialHSET listFunctor)). *)
+  alg_carrier _ (InitialObject listFunctor_Initial).
+Opaque List.
 Let List_mor : HSET⟦listFunctor List,List⟧ :=
   alg_map _ (InitialObject listFunctor_Initial).
+Opaque List_mor.
 Let List_alg : algebra_ob listFunctor :=
   InitialObject listFunctor_Initial.
+Opaque List_alg.
 
 Definition nil_map : HSET⟦unitHSET,List⟧.
 Proof.
@@ -248,12 +253,14 @@ Definition foldr_map (X : HSET) (x : pr1 X) (f : HSET⟦(A × X)%set,X⟧) :
 Proof.
 apply (InitialArrow listFunctor_Initial (mk_listAlgebra X x f)).
 Defined.
+Opaque foldr_map.
 
 Definition foldr (X : HSET) (x : pr1 X)
   (f : pr1 A × pr1 X -> pr1 X) : pr1 List -> pr1 X.
 Proof.
 apply (foldr_map _ x f).
 Defined.
+Opaque foldr.
 
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A × X -> X) : foldr X x f nil = x.
@@ -350,10 +357,14 @@ apply listIndProp.
 - intros l; apply isasetnat.
 - apply idpath.
 - simpl; unfold map, length; simpl; intros a l Hl.
+  simpl.
   now rewrite !foldr_cons, <- Hl.
 Qed.
 
 End lists.
+
+Opaque List.
+(* Opaque foldr. *) (* makes "cbn" and "compute" in the computation below fail *)
 
 (* Some examples of computations with lists over nat *)
 Section nat_examples.
@@ -382,9 +393,9 @@ vm_compute.
 Restart.
 cbn.
 Restart.
-compute.
+compute.  (* does not work when foldr is opaque with "Opaque foldr." *)
 Restart.
-cbv.
+cbv.   (* does not work when foldr is opaque with "Opaque foldr." *)
 Restart.
 native_compute.
 Abort.
@@ -394,11 +405,11 @@ simpl.
 intro l.
 try apply idpath. (* this doesn't work *)
 unfold length, cons_nat.
-rewrite foldr_cons.
+rewrite foldr_cons. cbn.
 apply idpath.
 Abort.
 
-(* Time Eval vm_compute in nil natHSET. *) (* This crashes my computer by using up all memory *)
+(* Time Eval vm_compute in nil natHSET.  (* This crashes my computer by using up all memory *) *)
 
 End nat_examples.
 
