@@ -113,8 +113,64 @@ Proof.
                 apply idpath] ).
 Defined.
 
+(**  Diagram for next lemma
 
+              i'           k
+         d' -------> d --------> c
+         |           |           |
+       h'|           |h          | g
+         v           v           v
+         b'--------> b --------> a
+              i            f
+*)
 
+Lemma isPullback_two_pullback
+     (b' d' : C) (h' : C⟦d', b'⟧)
+     (i : C⟦b', b⟧) (i' : C⟦d', d⟧)
+     (Hinner : h ;; f = k ;; g)
+     (Hinnerpb : isPullback _ _ _ _ Hinner)
+     (Hleft : h' ;; i = i' ;; h)
+     (Houterpb : isPullback _ _ _ _ (glueSquares Hinner Hleft ))
+     :isPullback _ _ _ _ Hleft.
+Proof.
+  apply (mk_isPullback).
+  intros e x y Hxy.
+  mkpair.
+  - mkpair.
+    use (PullbackArrow (mk_Pullback _ _ _ _ _ _ Houterpb)).
+    + apply x.
+    + apply (y ;; k).
+    + abstract (rewrite assoc; rewrite Hxy;
+                repeat rewrite <- assoc; rewrite Hinner; apply idpath).
+    + abstract (
+      split ;
+      [
+      apply (PullbackArrow_PullbackPr1 (mk_Pullback (i ;; f) g d' h' (i' ;; k) _ Houterpb))
+      |
+      idtac
+      ];
+      apply (MorphismsIntoPullbackEqual Hinnerpb);
+      [rewrite <- assoc;
+        match goal with |[ |- ?KK ;; ( _ ;; _ ) = _ ] => pathvia (KK ;; (h' ;; i)) end;
+        [ apply maponpaths; apply (!Hleft) |
+          rewrite assoc;
+          assert (T:= PullbackArrow_PullbackPr1 (mk_Pullback (i ;; f) g d' h' (i' ;; k) _ Houterpb));
+          cbn in T; rewrite T;
+          apply Hxy ]
+        | idtac ] ;
+      assert (T:= PullbackArrow_PullbackPr2 (mk_Pullback (i ;; f) g d' h' (i' ;; k) _ Houterpb));
+      cbn in T; rewrite <- assoc, T; apply idpath
+      ).
+  - abstract (
+    intro t; apply subtypeEquality;
+              [ intro; apply isapropdirprod; apply hsC
+              |
+              simpl; apply PullbackArrowUnique; [
+                apply (pr1 (pr2 t))
+              |
+                cbn; rewrite assoc; rewrite (pr2 (pr2 t)); apply idpath ]]
+    ).
+Defined.
 
 (**  Diagram for next lemma
 
