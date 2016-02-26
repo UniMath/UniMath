@@ -127,11 +127,10 @@ Defined.
 Lemma isPullback_two_pullback
      (b' d' : C) (h' : C⟦d', b'⟧)
      (i : C⟦b', b⟧) (i' : C⟦d', d⟧)
-     (Houter : h' ;; (i ;; f) = (i' ;; k) ;; g)
-     (Houterpb : isPullback _ _ _ _ Houter)
      (Hinner : h ;; f = k ;; g)
      (Hinnerpb : isPullback _ _ _ _ Hinner)
      (Hleft : h' ;; i = i' ;; h)
+     (Houterpb : isPullback _ _ _ _ (glueSquares Hinner Hleft ))
      :isPullback _ _ _ _ Hleft.
 Proof.
   apply (mk_isPullback).
@@ -146,7 +145,7 @@ Proof.
     + abstract (
       split ;
       [
-      apply (PullbackArrow_PullbackPr1 (mk_Pullback (i ;; f) g d' h' (i' ;; k) Houter Houterpb))
+      apply (PullbackArrow_PullbackPr1 (mk_Pullback (i ;; f) g d' h' (i' ;; k) _ Houterpb))
       |
       idtac
       ];
@@ -155,11 +154,11 @@ Proof.
         match goal with |[ |- ?KK ;; ( _ ;; _ ) = _ ] => pathvia (KK ;; (h' ;; i)) end;
         [ apply maponpaths; apply (!Hleft) |
           rewrite assoc;
-          assert (T:= PullbackArrow_PullbackPr1 (mk_Pullback (i ;; f) g d' h' (i' ;; k) Houter Houterpb));
+          assert (T:= PullbackArrow_PullbackPr1 (mk_Pullback (i ;; f) g d' h' (i' ;; k) _ Houterpb));
           cbn in T; rewrite T;
           apply Hxy ]
         | idtac ] ;
-      assert (T:= PullbackArrow_PullbackPr2 (mk_Pullback (i ;; f) g d' h' (i' ;; k) Houter Houterpb));
+      assert (T:= PullbackArrow_PullbackPr2 (mk_Pullback (i ;; f) g d' h' (i' ;; k) _ Houterpb));
       cbn in T; rewrite <- assoc, T; apply idpath
       ).
   - abstract (

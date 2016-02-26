@@ -314,3 +314,5 @@ Qed.
 End Universal_Unique.
 
 End def_pb.
+
+Arguments glueSquares {_ _ _ _ _ _ _ _ _ _ _ _ _ _ } _ _ .
