@@ -91,8 +91,6 @@ Proof.
   split ; [ split | repeat split ].
   - exact ispreorder_hnnq_le.
   - exact isStrongOrder_hnnq_lt.
-  - intros x y.
-    now apply hqlthtoleh.
   - easy.
   - easy.
   - intros x y z.
