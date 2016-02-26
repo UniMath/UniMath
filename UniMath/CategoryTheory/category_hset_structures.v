@@ -141,11 +141,14 @@ Defined.
 Local Definition from_cobase_eqrel : eqrel cobase.
 Proof.
 exists from_cobase_rel.
-repeat split.
-- intros x y z H1 H2.
-  exact (pathscomp0 H1 H2).
-- intros x y H.
-  exact (pathsinv0 H).
+abstract (
+repeat split;
+[ intros x y z H1 H2 ;
+  exact (pathscomp0 H1 H2)
+|
+  intros x y H;
+  exact (pathsinv0 H)
+]).
 Defined.
 
 Lemma rel0_impl a b (Hab : rel0 a b) : from_cobase_eqrel a b.
@@ -208,6 +211,8 @@ Defined.
 
 End colimits.
 
+Opaque from_colimHSET.
+
 Lemma ColimsHSET : Colims HSET.
 Proof.
 now intros g d; apply ColimCoconeHSET.
@@ -245,7 +250,7 @@ apply (mk_Initial emptyHSET).
 apply mk_isInitial; intro a.
 simple refine (tpair _ _ _).
 - simpl; intro e; induction e.
-- intro f; apply funextfun; intro e; induction e.
+- abstract (intro f; apply funextfun; intro e; induction e).
 Defined.
 
 Lemma InitialHSET_from_Colims : Initial HSET.

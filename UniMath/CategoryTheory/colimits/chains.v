@@ -77,7 +77,7 @@ Definition mapchain {C D : precategory} (F : functor C D)
 Definition initChain {C : precategory} (InitC : Initial C) (F : functor C C) : chain C.
 Proof.
 exists (λ n, iter_functor F n InitC).
-intros m n Hmn; destruct Hmn; simpl.
+intros m n Hmn. destruct Hmn. simpl.
 induction m; simpl.
 - exact (InitialArrow InitC _).
 - exact (# F IHm).
@@ -120,8 +120,9 @@ Definition shiftCocone : cocone FFchain L.
 Proof.
 simple refine (mk_cocone _ _).
 - intro n; apply (coconeIn (colimCocone CC) (S n)).
-- intros m n e; destruct e.
-  apply (coconeInCommutes (colimCocone CC) (S m) _ (idpath _)).
+- abstract (
+  intros m n e; destruct e ;
+  apply (coconeInCommutes (colimCocone CC) (S m) _ (idpath _))).
 Defined.
 
 Definition unshiftCocone (x : C) : cocone FFchain x -> cocone Fchain x.
@@ -132,10 +133,11 @@ simple refine (mk_cocone _ _).
   destruct n as [|n]; simpl.
   + apply InitialArrow.
   + apply (coconeIn cc _).
-- simpl; intros m n e; destruct e; simpl.
-  destruct m as [|m].
-  + apply InitialArrowUnique.
-  + apply (coconeInCommutes cc m _ (idpath _)).
+- abstract (
+  simpl; intros m n e; destruct e; simpl;
+  destruct m as [|m] ;
+  try apply InitialArrowUnique ;
+  try apply (coconeInCommutes cc m _ (idpath _))).
 Defined.
 
 Definition shiftIsColimCocone : isColimCocone FFchain L shiftCocone.
@@ -146,11 +148,14 @@ simple refine (tpair _ _ _).
   * apply colimArrow, (unshiftCocone _ cc).
   * simpl; intro n.
     apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n)).
-+ simpl; intros p.
-  apply subtypeEquality.
-  * intro f; apply impred; intro; apply hsC.
-  * apply colimArrowUnique; simpl; intro n.
-    destruct n as [|n]; [ apply InitialArrowUnique | apply (pr2 p) ].
++ abstract (
+  simpl; intros p ;
+  apply subtypeEquality ;
+  [
+   intro f; apply impred; intro; apply hsC
+  |
+   apply colimArrowUnique; simpl; intro n ;
+    destruct n as [|n]; [ apply InitialArrowUnique | apply (pr2 p) ]]).
 Defined.
 
 Definition shiftColimCocone : ColimCocone FFchain :=
