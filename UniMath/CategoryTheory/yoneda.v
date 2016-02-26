@@ -286,6 +286,31 @@ Definition natural_trans_yoneda_iso (C : precategory) (hs : has_homsets C)
   := tpair _ _ (is_natural_yoneda_iso C hs F).
 
 
+
+Lemma is_natural_yoneda_iso_inv (C : precategory) (hs : has_homsets C) (F : functor C^op HSET):
+  is_nat_trans F (yoneda_iso_target C hs F)
+  (fun c => yoneda_map_2 C hs c F).
+Proof.
+  unfold is_nat_trans.
+  intros c c' f. cbn in *.
+  apply funextsec.
+  unfold yoneda_ob_functor_data. cbn.
+  unfold yoneda_map_2.
+  intro A.
+  apply nat_trans_eq. { apply (pr2 is_category_HSET). }
+  cbn. intro d.
+  apply funextfun.
+  unfold yoneda_objects_ob. intro g.
+  unfold yoneda_morphisms_data.
+  apply (! toforallpaths _ _ _ (functor_comp F _ _ _ _ _ ) A).
+Qed.
+
+Definition natural_trans_yoneda_iso_inv (C : precategory) (hs : has_homsets C)
+  (F : functor C^op HSET)
+  : nat_trans (yoneda_iso_target C hs F) F
+  := tpair _ _ (is_natural_yoneda_iso C hs F).
+
+
 Lemma isweq_yoneda_map_1 (C : precategory) (hs: has_homsets C) (c : C)
    (F : functor C^op HSET) :
   isweq
