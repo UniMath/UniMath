@@ -505,6 +505,15 @@ Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : UU :=
   isColimCocone d L cc -> isColimCocone (mapdiagram d) (F L) (mapcocone d cc).
 
+Definition is_cocont := forall {g : graph} (d : diagram g C) (L : C)
+  (cc : cocone d L), preserves_colimit d L cc.
+
+Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
+
+Lemma left_adjoint_cocont (H : is_left_adjoint F) : is_cocont.
+Admitted.
+
 End preserves_colimit.
 
 Section preserves_colimit_examples.
@@ -526,6 +535,11 @@ simple refine (tpair _ _ _).
 - simpl; intro t; apply subtypeEquality.
   + simpl; intro v; apply impred; intro; apply hsC.
   + apply (colimArrowUnique CC); intro n; apply (pr2 t).
+Defined.
+
+Lemma is_cocont_identity : is_cocont Fid.
+Proof.
+intros g d L cc; apply preserves_colimit_identity.
 Defined.
 
 Variable (x : D).
@@ -554,7 +568,7 @@ Lemma preserves_colimit_comp (F : functor C D) (G : functor D E)
   {g : graph} (d : diagram g C) (L : C) (cc : cocone d L)
   (H1 : preserves_colimit F d L cc)
   (H2 : preserves_colimit G (mapdiagram F d) (F L) (mapcocone F _ cc)) :
-  preserves_colimit (functor_composite _ _ _ F G) d L cc.
+  preserves_colimit (functor_composite F G) d L cc.
 Proof.
 intros HcL y ccy; simpl.
 set (CC := mk_ColimCocone _ _ _ (H2 (H1 HcL))).
@@ -565,6 +579,13 @@ simple refine (tpair _ _ _).
 - simpl; intro t; apply subtypeEquality.
   + intros f; apply impred; intro; apply hsE.
   + simpl; apply (colimArrowUnique CC), (pr2 t).
+Defined.
+
+Lemma is_cocont_comp (F : functor C D) (G : functor D E)
+  (HF : is_cocont F) (HG : is_cocont G) : is_cocont (functor_composite F G).
+Proof.
+intros g d L cc.
+apply preserves_colimit_comp; [ apply HF | apply HG ].
 Defined.
 
 End preserves_colimit_examples.

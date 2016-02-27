@@ -19,6 +19,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.colimits.chains.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (* Proofs that various polynomial functors are omega cocontinuous *)
 Section polynomial_functors.
@@ -64,7 +65,7 @@ End identity_functor.
 Section functor_comp.
 
 Lemma omega_cocontFunctorComposite (F : functor C D) (G : functor D E) :
-  omega_cocont F -> omega_cocont G -> omega_cocont (functor_composite _ _ _ F G).
+  omega_cocont F -> omega_cocont G -> omega_cocont (functor_composite F G).
 Proof.
 intros hF hG c L cc.
 apply (preserves_colimit_comp hsE); [apply hF|apply hG].
@@ -182,6 +183,116 @@ End constcoprod_functor.
 
 End polynomial_functors.
 
+(* The delta functor C -> C^2 mapping x to (x,x) is omega_cocont *)
+Section delta_functor.
+
+Require Import UniMath.CategoryTheory.ProductPrecategory.
+
+Variable C : precategory.
+
+Definition delta_functor_data : functor_data C (product_precategory C C).
+Proof.
+mkpair.
+- intro x; apply (prodcatpair x x).
+- intros x y f; simpl; apply (prodcatmor f f).
+Defined.
+
+Definition delta_functor : functor C (product_precategory C C).
+Proof.
+mkpair.
+- exact delta_functor_data.
+- split.
+  + intro x; apply idpath.
+  + intros x y z f g; apply idpath.
+Defined.
+
+(* Todo: show that delta_functor is left adjoint to product and the use general fact *)
+Lemma cocont_delta_functor : is_cocont delta_functor.
+Admitted.
+
+End delta_functor.
+
+(* A pair of functors (F,G) : C^2 -> D^2 is omega_cocont if F and G are *)
+Section pair_functor.
+
+Variables C D : precategory.
+Variables F G : functor C D.
+
+Definition pair_functor_data : functor_data (product_precategory C C) (product_precategory D D).
+Proof.
+mkpair.
+- intro x; apply (prodcatpair (F (pr1 x)) (G (pr2 x))).
+- intros x y f; simpl; apply (prodcatmor (# F (pr1 f)) (# G (pr2 f))).
+Defined.
+
+Definition pair_functor : functor (product_precategory C C) (product_precategory D D).
+Proof.
+mkpair.
+- exact pair_functor_data.
+- split.
+  + intro x; simpl; rewrite !functor_id; apply idpath.
+  + intros x y z f g; simpl; rewrite !functor_comp; apply idpath.
+Defined.
+
+Lemma cocont_pair_functor (HF : is_cocont F) (HG : is_cocont G) :
+  is_cocont pair_functor.
+Admitted.
+
+End pair_functor.
+
+(* The functor "+ : C^2 -> C" is cocont *)
+Section bincoprod_functor.
+
+Variable C : precategory.
+Variables (PC : Coproducts C).
+
+Definition bincoproduct_functor : functor (product_precategory C C) C.
+Admitted.
+
+End bincoprod_functor.
+
+(* The functor "* : C^2 -> C" is cocont *)
+Section binprod_functor.
+
+Variable C : precategory.
+Variables (PC : Products C).
+
+Definition binproduct_functor : functor (product_precategory C C) C.
+Admitted.
+
+End binprod_functor.
+
+(* Should go to ProductPrecategory.v *)
+(* The functor "F * G : A * B -> C * D" is cocont *)
+Section product_of_functors.
+
+Variable A B C D : precategory.
+Variables (F : functor A C) (G : functor B D).
+
+Definition product_of_functors : functor (product_precategory A B) (product_precategory C D).
+Admitted.
+
+End product_of_functors.
+
+Section rightkanextension.
+
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.RightKanExtension.
+
+Variables C D E : precategory.
+Variables (K : functor C D).
+
+(* Lemma foo : has_limits D -> GlobalRightKanExtensionExists K. *)
+
+(* has_limits D *)
+Lemma bar (hsD : has_homsets D) (hsE : has_homsets E) : is_cocont (pre_composition_functor _ _ E hsD hsE K).
+Admitted. (* will be a simple consequence of foo *)
+
+End rightkanextension.
+
+(* whiskering.v, pre_composition_functor *)
+
+
 (* Lists as the colimit of a chain given by the list functor: F(X) = 1 + A * X *)
 Section lists.
 
@@ -192,7 +303,7 @@ Definition stream : functor HSET HSET := constprod_functor A.
 
 (* F(X) = 1 + (A * X) *)
 Definition listFunctor : functor HSET HSET :=
-  functor_composite _ _ _ stream (constcoprod_functor _ unitHSET CoproductsHSET).
+  functor_composite stream (constcoprod_functor _ unitHSET CoproductsHSET).
 
 Lemma omega_cocont_listFunctor : omega_cocont listFunctor.
 Proof.
@@ -427,3 +538,51 @@ End nat_examples.
 (* intro l. *)
 (* apply idpath. *)
 (* Abort. *)
+
+Section lambdacalculus.
+
+Section temp.
+Variables (C D : precategory) (HD : Coproducts D).
+
+Definition sum_of_functors (F G : functor C D) : functor C D.
+eapply functor_composite.
+  eapply delta_functor.
+eapply functor_composite.
+  eapply product_of_functors.
+    apply F.
+    apply G.
+apply bincoproduct_functor.
+apply HD.
+Defined.
+End temp.
+
+(* TODO: Define the parts individually and then take the sum_of_functors *)
+Definition Lambda : functor [HSET,HSET,has_homsets_HSET] [HSET,HSET,has_homsets_HSET].
+Proof.
+eapply sum_of_functors.
+  admit.
+  apply (constant_functor [HSET, HSET, has_homsets_HSET] [HSET, HSET, has_homsets_HSET] (functor_identity HSET)).
+eapply sum_of_functors.
+  admit.
+  (* app *)
+  admit.
+(* lam *)
+admit.
+Admitted.
+
+(* Bad approach *)
+(* Definition Lambda : functor [HSET,HSET,has_homsets_HSET] [HSET,HSET,has_homsets_HSET]. *)
+(* Proof. *)
+(* eapply functor_composite. *)
+(*   apply delta_functor. *)
+(* eapply functor_composite. *)
+(*   eapply product_of_functors. *)
+(*     apply functor_identity. *)
+(*     apply delta_functor. *)
+(* eapply functor_composite. *)
+(*   eapply product_of_functors. *)
+(*     apply (constant_functor [HSET, HSET, has_homsets_HSET] [HSET, HSET, has_homsets_HSET] (functor_identity HSET)). *)
+(*     eapply product_of_functors. *)
+(*       apply delta_functor. *)
+
+End lambdacalculus.
