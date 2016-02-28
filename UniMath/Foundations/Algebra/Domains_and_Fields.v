@@ -55,7 +55,7 @@ Definition rcanfromrinv ( X : monoid ) ( a b c : X ) ( c' : rinvpair X c ) ( e :
 Proof . intros . assert ( e' := maponpaths ( fun x : X => x * ( pr1 c' ) ) e ) .  simpl in e' . rewrite ( assocax X _ _ _ )  in e' .  rewrite ( assocax X _ _ _ ) in e' . rewrite ( pr2 c' ) in e' .  rewrite ( runax X a ) in e' .  rewrite ( runax X b ) in e'. apply e' . Defined.
 
 Lemma pathslinvtorinv ( X : monoid ) ( x : X ) ( x' : linvpair X x ) ( x'' : rinvpair X x ) : paths ( pr1 x' ) ( pr1 x'' ) .
-Proof . intros .   destruct ( runax X ( pr1 x' ) ) . (*unfold p .*) destruct ( pr2 x'' ) . set ( int := x * pr1 x'' ) . change ( paths ( pr1 x' * int ) ( pr1 x'' ) ) .   destruct ( lunax X ( pr1 x'' ) ) . destruct ( pr2 x' ) .  (*unfold p1 .*) unfold int . apply ( pathsinv0 ( assocax X _ _ _ ) ) .  Defined .
+Proof . intros .   destruct ( runax X ( pr1 x' ) ) . (*unfold p .*) destruct ( pr2 x'' ) . set ( int := x * pr1 x'' ) . rewrite <- ( lunax X ( pr1 x'' ) ) . destruct ( pr2 x' ) .  (*unfold p1 .*) unfold int . apply ( pathsinv0 ( assocax X _ _ _ ) ) .  Defined .
 
 Definition invpair ( X : monoid ) ( x : X ) := total2 ( fun x' : X => dirprod ( paths ( x' * x ) 1 ) ( paths ( x * x' ) 1 ) ) .
 Definition pr1invpair ( X : monoid ) ( x : X ) : invpair X x -> X := @pr1 _ _ .

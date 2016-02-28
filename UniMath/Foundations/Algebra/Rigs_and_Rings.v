@@ -432,7 +432,8 @@ set ( int := is _ _ intab intcd ) .  rewrite ( rngrdistr X _ _ _ ) in int .  rew
 Opaque isrngmultgttoisrigmultgt .
 
 Lemma isrigmultgttoisrngmultgt ( X : rng ) { R : hrel X } ( is : isrigmultgt X R ) : isrngmultgt X R .
-Proof . intros .  intros a b ra0 rb0 . set ( is' := is _ _ _ _ ra0 rb0 ) .  simpl in is' . fold ( pr1rng ) in is' . rewrite ( rngmult0x X b ) in is' .   rewrite ( rngmultx0 X a ) in is' .  rewrite ( rngmult0x X 0 ) in is' .   rewrite ( rngrunax1 X _ ) in is' .  rewrite ( rngrunax1 X _ ) in is' .  apply is' .  Defined .
+
+Proof . intros .  intros a b ra0 rb0 . set ( is' := is _ _ _ _ ra0 rb0 ) .  simpl in is' . fold ( pr1rng ) in is' . rewrite 2? ( rngmult0x X _ ) in is' .   rewrite ( rngmultx0 X _ ) in is' .  rewrite 2? ( rngrunax1 X _ ) in is' .  exact is' .  Defined .
 
 Opaque isrigmultgttoisrngmultgt .
 

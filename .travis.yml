@@ -1,4 +1,7 @@
 language:       ocaml
+sudo: 		required
+dist: 		precise
+group: 		legacy
 before_install: sudo apt-get update -qq
 install:        sudo apt-get install -y ocaml ocaml-nox ocaml-native-compilers camlp4-extra time libgtk2.0 libgtksourceview2.0
 env:
@@ -11,4 +14,3 @@ env:
 script:
   - time make BUILD_COQIDE=yes build-coq
   - time make TIMECMD=time $PACKAGE
-

@@ -2,8 +2,7 @@
 
 (** Previous theorems about hSet and order *)
 
-Require Export UniMath.Foundations.Sets
-               UniMath.Ktheory.Sets
+Require Export UniMath.Foundations.Basics.Sets
                UniMath.Ktheory.QuotientSet.
 Require Import UniMath.Foundations.Algebra.BinaryOperations.
 
@@ -330,6 +329,29 @@ Definition pairLeastUpperBound (E : hsubtypes X) (lub : X)
 Definition pr1LeastUpperBound {E : hsubtypes X} :
   LeastUpperBound E -> X := pr1.
 
+Lemma isapropLeastUpperBound (E : hsubtypes X) (H : isantisymm (λ x y : X, x <= y)) :
+  isaprop (LeastUpperBound E).
+Proof.
+  intros E H (x,Hx) (y,Hy).
+  apply (iscontrweqf (X := x = y)).
+  - apply invweq, subtypeInjectivity.
+    intro t.
+    apply isapropdirprod.
+    apply impred_isaprop ; intro.
+    apply isapropimpl.
+    now apply pr2.
+    apply impred_isaprop ; intro.
+    apply isapropimpl.
+    now apply pr2.
+  - assert (Heq : x = y).
+    { apply H.
+      now apply (pr2 Hx), (pr1 Hy).
+      now apply (pr2 Hy), (pr1 Hx). }
+    rewrite <- Heq.
+    apply iscontrloopsifisaset.
+    apply pr2.
+Qed.
+
 End LeastUpperBound.
 
 Section GreatestLowerBound.
@@ -351,6 +373,29 @@ Definition pairGreatestLowerBound (E : hsubtypes X) (lub : X)
   tpair (isGreatestLowerBound E) lub is.
 Definition pr1GreatestLowerBound {E : hsubtypes X} :
   GreatestLowerBound E -> X := pr1.
+
+Lemma isapropGreatestLowerBound (E : hsubtypes X) (H : isantisymm (λ x y : X, x >= y)) :
+  isaprop (GreatestLowerBound E).
+Proof.
+  intros E H (x,Hx) (y,Hy).
+  apply (iscontrweqf (X := x = y)).
+  - apply invweq, subtypeInjectivity.
+    intro t.
+    apply isapropdirprod.
+    apply impred_isaprop ; intro.
+    apply isapropimpl.
+    now apply pr2.
+    apply impred_isaprop ; intro.
+    apply isapropimpl.
+    now apply pr2.
+  - assert (Heq : x = y).
+    { apply H.
+      now apply (pr2 Hx), (pr1 Hy).
+      now apply (pr2 Hy), (pr1 Hx). }
+    rewrite <- Heq.
+    apply iscontrloopsifisaset.
+    apply pr2.
+Qed.
 
 End GreatestLowerBound.
 

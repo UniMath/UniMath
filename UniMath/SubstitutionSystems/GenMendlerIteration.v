@@ -14,17 +14,17 @@ SubstitutionSystems
 
 Contents :
 
-- Derivation of Generalized Mendler Iteration
+- Derivation of Generalized Iteration in Mendler-style
 - Instantiation to a special case, Specialized Mendler Iteration
 - Proof of a fusion law à la Bird-Paterson (Generalised folds
-  for nested datatypes) for Generalized Mendler Iteration
+  for nested datatypes) for Generalized Iteration in Mendler-style
 
 
 
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.All.
+Require Import UniMath.Foundations.Basics.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -35,22 +35,21 @@ Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.equivalences. (* for adjunctions *)
-Require Import UniMath.SubstitutionSystems.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
-Require Import UniMath.SubstitutionSystems.Auxiliary.
+Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
 Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
+Local Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
 (* in Agda mode \downarrow *)
 
-(** Goal: derive Generalized Mendler Iteration and a fusion law *)
+(** Goal: derive Generalized Iteration in Mendler-style and a fusion law *)
 
-(** * Generalized Mendler Iteration *)
+(** * Generalized Iteration in Mendler-style *)
 
 Section GenMenIt.
 
@@ -95,8 +94,8 @@ Variable is_left_adj_L : is_left_adjoint L.
 Let φ := @φ_adj _ _ _ is_left_adj_L.
 Let φ_inv := @φ_adj_inv _ _ _ is_left_adj_L.
 Let R : functor _ _ := right_adjoint is_left_adj_L.
-Let η : nat_trans _ _ := eta_from_left_adjoint is_left_adj_L.
-Let ε : nat_trans _ _ := eps_from_left_adjoint is_left_adj_L.
+Let η : nat_trans _ _ := unit_from_left_adjoint is_left_adj_L.
+Let ε : nat_trans _ _ := counit_from_left_adjoint is_left_adj_L.
 (* Let φ_natural_precomp := @φ_adj_natural_precomp _ _ _ is_left_adj_L.
 Let φ_inv_natural_precomp := @φ_adj_inv_natural_precomp _ _ _ is_left_adj_L.
 Let φ_after_φ_inv := @φ_adj_after_φ_adj_inv _ _ _ is_left_adj_L.
@@ -201,14 +200,14 @@ Focus 2.
       apply maponpaths.
       exact h_rec_eq.
     + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial ⇒ ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
-       refine (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
+       simple refine (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
        * apply (tpair _ (φ h)); assumption.
        * apply (maponpaths pr1 (InitialArrowUnique _ _ X0)).
 Qed.
 
 Theorem GenMendlerIteration : iscontr (Σ h : L μF ⇒ X, #L inF ;; h = ψ μF h).
 Proof.
-  refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
   - exists preIt.
     exact preIt_ok.
   - exact preIt_uniq.
@@ -251,7 +250,7 @@ Section special_case.
 
   Definition ψ_from_comps : ψ_source ⟶ ψ_target.
   Proof.
-    refine (tpair _ _ _ ).
+    simple refine (tpair _ _ _ ).
     - intro A. simpl. intro f.
       unfold yoneda_objects_ob in *.
       exact (θ A ;; #G f ;; ρ).
@@ -268,7 +267,7 @@ End special_case.
 
 End the_iteration_principle.
 
-(** * Fusion law for Generalized Mendler Iteration *)
+(** * Fusion law for Generalized Iteration in Mendler-style *)
 
 Variable X X': C'.
 Let Yon : functor C'^op HSET := yoneda_objects C' hsC' X.

@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import
-        UniMath.Foundations.Sets
+        UniMath.Foundations.Basics.Sets
         UniMath.Ktheory.Utilities.
 Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
            (f:X->Y->Z) : Type
@@ -25,7 +25,7 @@ Definition setquotuniv2 {X Y} (RX:hrel X) (RY:hrel Y)
            {Z:hSet} (f:X->Y->Z) (is:iscomprelfun2 RX RY f) :
   setquot RX -> setquot RY -> Z.
 Proof. intros ? ? ? ? ? ? ? x''.
-       refine (setquotuniv RX (funset (setquot RY) Z) _ _ _).
+       simple refine (setquotuniv RX (funset (setquot RY) Z) _ _ _).
        { simpl. intro x. apply (setquotuniv RY Z (f x)).
          intros y y' e. unfold iscomprelfun2 in is.
          apply (pr2 is). assumption. }

@@ -1,8 +1,29 @@
 (** * Additionals theorems and definitions *)
 
+(** ** About nat *)
+
+Require Export UniMath.Foundations.NumberSystems.NaturalNumbers.
+
+Lemma max_le_l : ∀ n m : nat, (n <= max n m)%nat.
+Proof.
+  induction n ; simpl max.
+  - intros ; reflexivity.
+  - destruct m.
+    + now apply isreflnatleh.
+    + now apply IHn.
+Qed.
+Lemma max_le_r : ∀ n m : nat, (m <= max n m)%nat.
+Proof.
+  induction n ; simpl max.
+  - intros ; now apply isreflnatleh.
+  - destruct m.
+    + reflexivity.
+    + now apply IHn.
+Qed.
+
 (** ** for RationalNumbers.v *)
 
-Require Export UniMath.Foundations.RationalNumbers.
+Require Export UniMath.Foundations.NumberSystems.RationalNumbers.
 
 Open Scope hq_scope.
 
@@ -161,7 +182,13 @@ Ltac apply_pr2 T :=
         | refine (pr2 (T _ _) _)
         | refine (pr2 (T _ _ _) _)
         | refine (pr2 (T _ _ _ _) _)
-        | refine (pr2 (T _ _ _ _ _) _) ].
+        | refine (pr2 (T _ _ _ _ _) _)
+        | refine (pr2 (T))
+        | refine (pr2 (T _))
+        | refine (pr2 (T _ _))
+        | refine (pr2 (T _ _ _))
+        | refine (pr2 (T _ _ _ _))
+        | refine (pr2 (T _ _ _ _ _)) ].
 
 Ltac apply_pr2_in T H :=
   first [ apply (pr2 (T)) in H

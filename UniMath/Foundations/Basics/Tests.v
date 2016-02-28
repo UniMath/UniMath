@@ -1,5 +1,5 @@
 Unset Automatic Introduction.
-Require Export UniMath.Foundations.Basics.All.
+Require Export UniMath.Foundations.Basics.PartD.
 
 Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
 Goal ∀ i j k, i+j+k = (i+j)+k. reflexivity. Defined.
@@ -21,7 +21,7 @@ Module Test_gradth.
   Goal homotweqinvweqweq w 3 = idpath _. reflexivity. Defined.
 
   Definition v : bool ≃ bool.
-    refine (weqgradth negb negb _ _); intro x; induction x; reflexivity. Defined.
+    simple refine (weqgradth negb negb _ _); intro x; induction x; reflexivity. Defined.
   Goal homotinvweqweq v true = idpath _. reflexivity. Defined.
   Goal homotweqinvweq v true = idpath _. reflexivity. Defined.
   Goal homotweqinvweqweq v true = idpath _. reflexivity. Defined.
@@ -64,3 +64,17 @@ Goal invmap (weqtotal2overunit (λ _,nat)) 3 = (tt,,3). reflexivity. Defined.
 
 Goal iscontr = isofhlevel 0. reflexivity. Defined.
 Goal isaset = isofhlevel 2.  reflexivity. Defined.
+
+Module Test_sets.
+
+  Require Import UniMath.Foundations.Basics.Sets.
+
+  Goal ∀ Y (is:isaset Y) (F:Y->UU) (e :∀ y y', F y -> F y' -> y=y')
+         y (f:F y), squash_pairs_to_set F is e (hinhpr (y,,f)) = y.
+  Proof. reflexivity. Qed.
+
+  Goal ∀ X Y (is:isaset Y) (f:X->Y) (e:∀ x x', f x = f x'),
+         f = funcomp hinhpr (squash_to_set is f e).
+  Proof. reflexivity. Qed.
+
+End Test_sets.

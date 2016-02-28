@@ -3,25 +3,36 @@
 (** * abelian groups *)
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.Integers
-               UniMath.Foundations.Tactics
+               UniMath.Foundations.NumberSystems.Integers
+               UniMath.Ktheory.Tactics
                UniMath.Ktheory.Utilities
-               UniMath.Ktheory.Precategories
-               UniMath.Ktheory.InitialAndFinalObject.
-Require UniMath.Ktheory.Group UniMath.Ktheory.Product
-        UniMath.Ktheory.Sum.
-Local Notation Hom := monoidfun.
-Local Notation "0" := (unel _).
-Local Notation "x + y" := ( op x y ).
-Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, left associativity, only parsing).
-Definition commax (G:abgr) := pr2 (pr2 G).
-Definition zero : abgr.
+               UniMath.CategoryTheory.functor_categories
+               UniMath.Ktheory.Representation
+               UniMath.Ktheory.Precategories.
+Require UniMath.Ktheory.Group.
+
+Local Open Scope cat.
+
+Delimit Scope abgr with abgr.
+Local Open Scope abgr.
+
+Notation Hom_abgr := monoidfun.
+Notation "0" := (unel _) : abgr.
+Notation "x + y" := ( op x y ) : abgr.
+Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, left associativity, only parsing) : abgr.
+
+Definition zeroAbgr : abgr.
   exists Group.zero. split. exact (pr2 Group.zero). intros x y. reflexivity.
 Defined.
+
 Definition Z : abgr := hzaddabgr.
-Definition unitproperty {G H:abgr} (p:Hom G H) : p (unel G) = unel H
+
+Definition commax (G:abgr) := pr2 (pr2 G).
+
+Definition unitproperty {G H:abgr} (p:Hom_abgr G H) : p (unel G) = unel H
   := pr2 (pr2 p).
-Definition addproperty {G H:abgr} (p:Hom G H) (g g':G) : p(g + g') = p g + p g'
+
+Definition addproperty {G H:abgr} (p:Hom_abgr G H) (g g':G) : p(g + g') = p g + p g'
   := pr1 (pr2 p) g g'.
 
 (** * abelian groups by generators and relations
@@ -260,7 +271,7 @@ Module Presentation.
   Qed.
   Record MarkedAbelianGroupMap {X I} {R:I->reln X} (M N:MarkedAbelianGroup R) :=
     make_MarkedAbelianGroupMap {
-        map_base :> Hom M N;
+        map_base :> Hom_abgr M N;
         map_mark : ∀ x, map_base (m_mark M x) = m_mark N x }.
   Arguments map_base {X I R M N} m.
   Arguments map_mark {X I R M N} m x.
@@ -293,13 +304,13 @@ Module Presentation.
   Definition universalMarkedAbelianGroup0 {X I} (R:I->reln X) : abgr.
     intros.
     { exists (univ_setwithbinop R). split.
-      { refine (_,,_).
+      { simple refine (_,,_).
         { split.
           { exact (isassoc_univ_binop R). }
           { exists (setquotpr _ word_unit). split.
             { exact (is_left_unit_univ_binop R). }
             { exact (is_right_unit_univ_binop R). } } }
-        { refine (_,,_).
+        { simple refine (_,,_).
           { exact (univ_inverse R). }
           { split.
             { exact (is_left_inverse_univ_binop R). }
@@ -327,7 +338,7 @@ Module Presentation.
                 (fun x => setquotpr (smallestAdequateRelation R) (word_gen x))
                 (universalMarkedAbelianGroup3 R).
   Fixpoint agreement_on_gens0 {X I} {R:I->reln X} {M:abgr}
-        (f g:Hom (universalMarkedAbelianGroup R) M)
+        (f g:Hom_abgr (universalMarkedAbelianGroup R) M)
         (p:∀ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i)))
         (w:word X) :
@@ -337,10 +348,10 @@ Module Presentation.
          { intermediate_path (unel M). exact (unitproperty f). exact (!unitproperty g). }
          { apply p. }
          (* compare duplication with the proof of MarkedAbelianGroupMap_compat *)
-         { refine (monoidfuninvtoinv f (setquotpr (smallestAdequateRelation R) w)
+         { simple refine (monoidfuninvtoinv f (setquotpr (smallestAdequateRelation R) w)
              @ _ @ ! monoidfuninvtoinv g (setquotpr (smallestAdequateRelation R) w)).
            apply (ap (grinv M)). apply agreement_on_gens0. assumption. }
-         { refine (
+         { simple refine (
                Monoid.multproperty f (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)
              @ _ @ !
@@ -350,7 +361,7 @@ Module Presentation.
            { apply agreement_on_gens0. assumption. }
            { apply agreement_on_gens0. assumption. } } Qed.
   Lemma agreement_on_gens {X I} {R:I->reln X} {M:abgr}
-        (f g:Hom (universalMarkedAbelianGroup R) M) :
+        (f g:Hom_abgr (universalMarkedAbelianGroup R) M) :
         (∀ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i)))
           -> f = g.
@@ -403,15 +414,15 @@ Module Product.
     intros. exists (pr1 (Group.Product.make G)).
     split. exact (pr2 (Group.Product.make G)).
     intros a b. apply funextsec; intro i. apply commax. Defined.
-  Definition Proj {I} (G:I->abgr) (i:I) : Hom (make G) (G i).
+  Definition Proj {I} (G:I->abgr) (i:I) : Hom_abgr (make G) (G i).
     exact @Group.Product.Proj. Defined.
-  Definition Map {I} (G:I->abgr) (T:abgr) (g: ∀ i, Hom T (G i)) :
-      Hom T (make G).
+  Definition Map {I} (G:I->abgr) (T:abgr) (g: ∀ i, Hom_abgr T (G i)) :
+    Hom_abgr T (make G).
     exact @Group.Product.Fun. Defined.
-  Lemma Eqn {I} (G:I->abgr) (T:abgr) (g: ∀ i, Hom T (G i))
+  Lemma Eqn {I} (G:I->abgr) (T:abgr) (g: ∀ i, Hom_abgr T (G i))
            : ∀ i, Proj G i ∘ Map G T g = g i.
     exact @Group.Product.Eqn. Qed.
-  Definition UniqueMap {I} (G:I->abgr) (T:abgr) (h h' : Hom T (make G)) :
+  Definition UniqueMap {I} (G:I->abgr) (T:abgr) (h h' : Hom_abgr T (make G)) :
        (∀ i, Proj G i ∘ h = Proj G i ∘ h') -> h = h'.
     intros ? ? ? ? ? e. apply Monoid.funEquality.
     apply funextsec; intro t. apply funextsec; intro i.
@@ -430,25 +441,25 @@ Module Sum.                   (* coproducts *)
                        (word_op (word_gen (i,,g)) (word_gen (i,,h)))). } Defined.
   Definition make {I} (G:I->abgr) : abgr.
     intros. exact (Presentation.universalMarkedAbelianGroup (R G)). Defined.
-  Definition Incl {I} (G:I->abgr) (i:I) : Hom (G i) (make G).
-    intros. refine (_,,_).
+  Definition Incl {I} (G:I->abgr) (i:I) : Hom_abgr (G i) (make G).
+    intros. simple refine (_,,_).
     { intro g. apply setquotpr. apply word_gen. exact (i,,g). } { split.
       { intros g h. apply iscompsetquotpr. exact (base (adequacy _) (J_sum _ (i,,(g,,h)))). }
       { apply iscompsetquotpr. exact (base (adequacy _) (J_zero _ i)). } } Defined.
-  Definition Map0 {I} {G:I->abgr} {T:abgr} (f: ∀ i, Hom (G i) T) :
+  Definition Map0 {I} {G:I->abgr} {T:abgr} (f: ∀ i, Hom_abgr (G i) T) :
       MarkedAbelianGroup (R G).
-    intros. refine (make_MarkedAbelianGroup (R G) T _ _).
+    intros. simple refine (make_MarkedAbelianGroup (R G) T _ _).
     { intros [i g]. exact (f i g). }
     { intros [i|[i [g h]]].
       { simpl. apply unitproperty. }
       { simpl. apply addproperty. } } Defined.
-  Definition Map {I} (G:I->abgr) (T:abgr) (f: ∀ i, Hom (G i) T) :
-      Hom (make G) T.
+  Definition Map {I} (G:I->abgr) (T:abgr) (f: ∀ i, Hom_abgr (G i) T) :
+      Hom_abgr (make G) T.
     intros. exact (thePoint (iscontrMarkedAbelianGroupMap (Map0 f))). Defined.
-  Lemma Eqn {I} (G:I->abgr) (T:abgr) (f: ∀ i, Hom (G i) T)
+  Lemma Eqn {I} (G:I->abgr) (T:abgr) (f: ∀ i, Hom_abgr (G i) T)
            : ∀ i, Map G T f ∘ Incl G i = f i.
     intros. apply Monoid.funEquality. reflexivity. Qed.
-  Definition UniqueMap {I} (G:I->abgr) (T:abgr) (h h' : Hom (make G) T) :
+  Definition UniqueMap {I} (G:I->abgr) (T:abgr) (h h' : Hom_abgr (make G) T) :
        (∀ i, h ∘ Incl G i = h' ∘ Incl G i) -> h = h'.
     intros ? ? ? ? ? e. apply (agreement_on_gens h h').
     { intros [i g]. exact (ap (evalat g) (ap pr1 (e i))). }
@@ -462,65 +473,62 @@ Definition power (I:Type) (X:abgr) : abgr.
 Module Category.
   Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                  UniMath.CategoryTheory.precategories.
+
   Definition Ob := abgr.
+
   Identity Coercion Ob_to_abgr : Ob >-> abgr.
+
   Definition Mor : Ob -> Ob -> hSet.
     intros G H. exists (monoidfun G H). exact (isasetmonoidfun G H). Defined.
+
   Definition ObMor : precategory_ob_mor.
-  Proof.
-    exists Ob.
-    intros F G. apply (monoidfun F G).
-  Defined.
+  Proof. exists Ob. exact monoidfun. Defined.
+
   Definition Data : precategory_data.
     exists ObMor. split. intro G. exists (idfun (G : abgr)). split.
     split. reflexivity. intros a b c.  exact monoidfuncomp. Defined.
+
   Definition MorEquality G H (p q : Mor G H) : pr1 p = pr1 q -> p = q.
     intros. apply Monoid.funEquality. assumption. Qed.
-  Definition Precat : precategory.
-    exists Data. split; simpl. split; simpl.
-    - intros. apply MorEquality. reflexivity.
-    - intros. apply MorEquality. reflexivity.
-    - intros. apply MorEquality. reflexivity. Defined.
 
-  Lemma has_homsets_Precat: has_homsets Precat.
-  Proof.
-    intros F G. apply isasetmonoidfun.
-  Qed.
+  Definition Precat : Precategory.
+    unshelve refine (_,,_).
+    { exists Data. split.
+      { simpl. split.
+        { simpl. intros. apply MorEquality. reflexivity. }
+        { intros. apply MorEquality. reflexivity. } }
+      { intros. apply MorEquality. reflexivity. } }
+    { simpl. intros F G. exact (setproperty (Mor F G)). }
+  Defined.
 
   (** *** products in the category of abelian groups *)
 
   Module Product.
-    Definition Object {I} (X:I->ob Precat) : ob Precat
-      := Product.make X.
-    Definition make {I} (X:I->ob Precat) : Product.type Precat has_homsets_Precat X.
-      intros.
-      set (Q := Elements.make_ob (HomFamily.precat Precat^op  (has_homsets_opp_precat _ has_homsets_Precat) X) (Object X)
-                                 (Product.Proj X)).
-      exists Q. intros T. assert ( k' : Precategory_mor Q T ).
-      { destruct T as [T_ob T_el].
-        exists (Product.Map X T_ob T_el). simpl.
-        apply funextsec. exact_op (Product.Eqn X T_ob T_el). }
-      exists k'. intros k. apply Elements.mor_equality.
-      exact (Product.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
-               (fun i => (apevalat i (pr2 k)) @ ! (apevalat i (pr2 k')))). Defined.
+    Definition make {I} (X:I->ob Precat) : Product X.
+      intros. unshelve refine (makeRepresentation _ _).
+      - exact (Product.make X).
+      - exact (Product.Proj X).
+      - intros T. split.
+        + intros p. exists (Product.Map X T p).
+          apply funextsec; intro i; apply Product.Eqn.
+        + intros f f' e. apply Product.UniqueMap.
+          intros i. exact (apevalat i e).
+    Defined.
   End Product.
 
   (** *** sums (coproducts) in the category of abelian groups *)
 
   Module Sum.
-    Definition Object {I} (X:I->ob Precat) : ob Precat
-      := Sum.make X.
-    Definition make {I} (X:I->ob Precat) : Sum.type Precat has_homsets_Precat X.
-      intros.
-      set (Q := Elements.make_ob (HomFamily.precat Precat  has_homsets_Precat X) (Object X)
-                                 (Sum.Incl X)).
-      exists Q. intros T. assert ( k' : Precategory_mor Q T ).
-      { destruct T as [T_ob T_el].
-        exists (Sum.Map X T_ob T_el). simpl.
-        apply funextsec. exact_op (Sum.Eqn X T_ob T_el). }
-      exists k'. intros k. apply Elements.mor_equality.
-      exact (Sum.UniqueMap X (pr1 T) (pr1 k) (pr1 k')
-               (fun i => (apevalat i (pr2 k)) @ ! (apevalat i (pr2 k')))). Defined.
+    Definition make {I} (X:I->ob Precat) : Sum X.
+      intros. unshelve refine (makeRepresentation _ _).
+      - exact (Sum.make X).
+      - exact (Sum.Incl X).
+      - intros T. split.
+        + intros p. exists (Sum.Map X T p).
+          apply funextsec; intro i; apply Sum.Eqn.
+        + intros f f' e. apply Sum.UniqueMap.
+          intros i. exact (apevalat i e).
+    Defined.
   End Sum.
 
   (** *** finite direct sums in the category of abelian groups *)

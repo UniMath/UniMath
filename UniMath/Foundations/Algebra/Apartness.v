@@ -6,7 +6,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 Unset Kernel Term Sharing.
 
 Require Export UniMath.Foundations.Algebra.BinaryOperations.
-Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.Foundations.Basics.Propositions.
 
 (** ** Additionals theorems about relations *)
 
@@ -165,7 +165,7 @@ Proof.
       apply fromempty, Hneq.
       now apply istighttightapSet.
     + intros Hneq.
-      now apply fromempty, Heq.
+      exact (fromempty (Heq Hneq)).
 Qed.
 
 (** ** Operations and apartness *)

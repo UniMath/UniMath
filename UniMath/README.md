@@ -8,7 +8,7 @@ various authors, as recorded in the README (or README.md) file in it.
 
 Each package contains a subdirectory called ".package".  The file
 ".packages/files" consists of a list of the paths to the *.v files of the
-package, in reverse order, i.e., a file is listed before files it depends on.
+package, in order, i.e., a file is listed after files it depends on.
 (That's just so the TAGS file will be correctly sequenced.)  To add a file to a
 package, add its path to that file.
 

@@ -5,13 +5,13 @@
 Unset Kernel Term Sharing.
 
 Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
-               UniMath.Foundations.NaturalNumbers
-               UniMath.Foundations.Integers
-               UniMath.Foundations.FunctionalExtensionality
+               UniMath.Foundations.NumberSystems.NaturalNumbers
+               UniMath.Foundations.NumberSystems.Integers
+               UniMath.Foundations.Basics.UnivalenceAxiom
                UniMath.Ktheory.Utilities
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.GroupAction
-               UniMath.Foundations.Integers
+               UniMath.Foundations.NumberSystems.Integers
                UniMath.Ktheory.Nat.
 
 Definition ℤ := hzaddabgr.
@@ -97,7 +97,7 @@ Defined.
 Definition negpos_weq := weqpair _ negpos' : weq (total2 hz_normal_form) ℤ.
 
 Definition negpos : weq (coprod nat nat) ℤ. (* ℤ = (-inf,-1) + (0,inf) *)
-Proof. refine (weqpair _ (gradth _ _ _ _)).
+Proof. simple refine (weqpair _ (gradth _ _ _ _)).
        { intros [n'|n].
          { exact (natnattohz 0 (S n')). } { exact (natnattohz n 0). } }
        { intro i. destruct (hz_to_normal_form i) as [[n p]|[m q]].

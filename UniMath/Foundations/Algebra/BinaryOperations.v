@@ -13,7 +13,7 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 (** Imports *)
 
-Require Export UniMath.Foundations.Sets .
+Require Export UniMath.Foundations.Basics.Sets .
 
 
 (** To upstream files *)
@@ -433,7 +433,8 @@ Definition pr1binopfun ( X Y : setwithbinop ) : binopfun X Y -> ( X -> Y ) := @p
 Coercion pr1binopfun : binopfun >-> Funclass .
 
 Lemma isasetbinopfun  ( X Y : setwithbinop ) : isaset ( binopfun X Y ) .
-Proof . intros . apply ( isasetsubset ( pr1binopfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . apply isinclpr1 .  intro .  apply isapropisbinopfun . Defined .
+
+Proof . intros . apply ( isasetsubset ( pr1binopfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . refine (isinclpr1 _ _) .  intro .  apply isapropisbinopfun . Defined .
 
 Lemma isbinopfuncomp { X Y Z : setwithbinop } ( f : binopfun X Y ) ( g : binopfun Y Z ) : isbinopfun ( funcomp ( pr1 f ) ( pr1 g ) ) .
 Proof . intros . set ( axf := pr2 f ) . set ( axg := pr2 g ) .  intros a b . unfold funcomp .  rewrite ( axf a b ) . rewrite ( axg ( pr1 f a ) ( pr1 f b ) ) .  apply idpath . Defined .
@@ -474,8 +475,6 @@ Definition invbinopiso { X Y : setwithbinop } ( f : binopiso X Y ) : binopiso Y 
 
 
 (** **** Transport of properties of a binary operation  *)
-
-
 
 
 Lemma islcancelablemonob { X Y : setwithbinop } ( f : binopmono X Y ) ( x : X ) ( is : islcancelable ( @op Y ) ( f x ) ) : islcancelable ( @op X ) x .
@@ -820,7 +819,8 @@ Definition binop1fun { X Y : setwith2binop } ( f : twobinopfun X Y ) : binopfun 
 
 Definition binop2fun { X Y : setwith2binop } ( f : twobinopfun X Y ) : binopfun ( setwithbinop2 X ) ( setwithbinop2 Y ) := @binopfunpair ( setwithbinop2 X ) ( setwithbinop2 Y ) ( pr1 f ) ( pr2 ( pr2 f ) ) .
 Lemma isasettwobinopfun  ( X Y : setwith2binop ) : isaset ( twobinopfun X Y ) .
-Proof . intros . apply ( isasetsubset ( pr1twobinopfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . apply isinclpr1 .  intro .  apply isapropistwobinopfun . Defined .
+
+Proof . intros . apply ( isasetsubset ( pr1twobinopfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . refine (isinclpr1 _ _) .  intro .  apply isapropistwobinopfun . Defined .
 
 
 Lemma istwobinopfuncomp { X Y Z : setwith2binop } ( f : twobinopfun X Y ) ( g : twobinopfun Y Z ) : istwobinopfun ( funcomp ( pr1 f ) ( pr1 g ) ) .

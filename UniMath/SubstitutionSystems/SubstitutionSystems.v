@@ -24,7 +24,7 @@ Contents :
 ************************************************************)
 
 
-Require Import UniMath.Foundations.Basics.All.
+Require Import UniMath.Foundations.Basics.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -32,13 +32,12 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
-Require Import UniMath.SubstitutionSystems.PointedFunctors.
-Require Import UniMath.SubstitutionSystems.ProductPrecategory.
-Require Import UniMath.SubstitutionSystems.HorizontalComposition.
-Require Import UniMath.SubstitutionSystems.PointedFunctorsComposition.
+Require Import UniMath.CategoryTheory.PointedFunctors.
+Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.SubstitutionSystems.Notation.
 
 
@@ -310,7 +309,7 @@ Qed.
 (** [fbracket] is also natural *)
 
 Lemma fbracket_natural (T : hss) {Z Z' : Ptd} (f : Z ⇒ Z') (g : Z' ⇒ ptd_from_alg T)
-  :  ` T ∘ # U f ;; ⦃ g ⦄ = ⦃ f ;; g ⦄.
+:  (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U Z' ⟧) ;; ⦃ g ⦄ = ⦃ f ;; g ⦄.
 Proof.
   apply fbracket_unique_pointwise.
   - simpl. intro c.
@@ -368,7 +367,7 @@ Qed.
 (** As a consequence of naturality, we can compute [fbracket f] from [fbracket identity] *)
 
 Lemma compute_fbracket (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ ptd_from_alg T),
-      ⦃ f ⦄ = ` T ∘ # U f ;; ⦃ identity p T ⦄.
+    ⦃ f ⦄ = (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U (p T) ⟧) ;; ⦃ identity p T ⦄.
 Proof.
   intros Z f.
   assert (A : f = f ;; identity _ ).
@@ -397,8 +396,8 @@ Qed.
 *)
 
 (** a little preparation for much later *)
-Lemma τ_part_of_alg_mor  (T T' : @algebra_ob ([C, C] hs) Id_H)
-  (β : @algebra_mor ([C, C] hs) Id_H T T'): #H β ;; τ T' = compose (C:=EndC) (τ T) β.
+Lemma τ_part_of_alg_mor  (T T' : @algebra_ob [C, C, hs] Id_H)
+  (β : @algebra_mor [C, C, hs] Id_H T T'): #H β ;; τ T' = compose (C:=EndC) (τ T) β.
 Proof.
   assert (β_is_alg_mor := pr2 β).
   simpl in β_is_alg_mor.
@@ -423,8 +422,8 @@ Qed.
 
 (** A morphism [β] of pointed functors is a bracket morphism when... *)
 
-Lemma is_ptd_mor_alg_mor (T T' : @algebra_ob ([C, C] hs) Id_H)
-  (β : @algebra_mor ([C, C] hs) Id_H T T') :
+Lemma is_ptd_mor_alg_mor (T T' : @algebra_ob [C, C, hs] Id_H)
+  (β : @algebra_mor [C, C, hs] Id_H T T') :
   @is_ptd_mor C (ptd_from_alg T) (ptd_from_alg T') (pr1 β).
 Proof.
   simpl.

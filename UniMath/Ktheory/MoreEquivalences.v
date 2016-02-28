@@ -1,8 +1,8 @@
 (** * Equivalences *)
 
-Require Import UniMath.Foundations.Basics.All.
+Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Ktheory.Utilities.
-Require Import UniMath.Foundations.FunctionalExtensionality.
+Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Import UniMath.Ktheory.Equivalences.
 
 Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
@@ -91,7 +91,7 @@ Definition weqpr1_irr_sec {X} {P:X->Type}
 Proof. intros.
        set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
        apply Equivalence_to_weq.
-       refine (makeEquivalence _ _ _ _ _ _ _).
+       simple refine (makeEquivalence _ _ _ _ _ _ _).
        { exact pr1. } { intro x. exact (x,,sec x). } { intro x. reflexivity. }
        { intros [x p]. simpl. apply pair_path_in2. apply irr. }
        { intros [x p]. simpl. apply pair_path_in2_comp1. } Defined.
@@ -102,7 +102,7 @@ Definition invweqpr1_irr_sec {X} {P:X->Type}
 Proof. intros.
        set (isc := fun x => iscontraprop1 (invproofirrelevance _ (irr x)) (sec x)).
        apply Equivalence_to_weq.
-       refine (makeEquivalence _ _ _ _ _ _ _).
+       simple refine (makeEquivalence _ _ _ _ _ _ _).
        { intro x. exact (x,,sec x). } { exact pr1. }
        { intros [x p]. simpl. apply pair_path_in2. apply irr. }
        { intro x. reflexivity. }

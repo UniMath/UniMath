@@ -1,6 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.StandardFiniteSets
+Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets
                UniMath.Foundations.Algebra.Monoids_and_Groups
 	       UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
@@ -34,7 +34,7 @@ Proof. intros. exists (zero_map A zero).
 
 Module Presentation'.
 
-  Require Import UniMath.Foundations.Sequences.
+  Require Import UniMath.Foundations.Combinatorics.FiniteSequences.
 
   Definition word X := Sequence X.
   Definition word_length {X} : word X -> nat := length.
@@ -76,22 +76,22 @@ Module Presentation'.
   Definition smallestAdequateRelation {X I} (R:I->reln X) : AdequateRelation R.
   Proof.
     intros.
-    refine (_,,_).
-    { refine (_,,_).
+    simple refine (_,,_).
+    { simple refine (_,,_).
       { intros v w.
         exists (∀ r, isAdequateRelation R r -> r v w).
         apply impred; intros r; apply impred_prop. }
-      { refine (_,,_).
-        { refine (_,,_).
+      { simple refine (_,,_).
+        { simple refine (_,,_).
           { intros u v w uv vw r ad; simpl in uv, vw.
             apply (eqreltrans r u v w).
             { apply uv. exact ad. }
             { apply vw. exact ad. }}
           { intros w r ad. apply eqrelrefl. } }
         { intros v w vw r ad. apply eqrelsymm. apply vw. exact ad. }}}
-    { refine (_,,_); simpl.
+    { simple refine (_,,_); simpl.
       { intros i r ad. apply (base ad i). }
-      { refine (_,,_).
+      { simple refine (_,,_).
         { intros u v w min r ad. apply (left_compat  ad). apply min. exact ad. }
         { intros u v w min r ad. apply (right_compat ad). apply min. exact ad. }}}
   Defined.
@@ -103,7 +103,7 @@ Module Presentation'.
   Definition univ_unit {X I} (R:I->reln X) := setquotpr _ word_unit : univ_set R.
 
   Definition univ_binop {X I} (R:I->reln X) : binop (univ_set R).
-    intros. refine (setquotfun2 _ _ word_op _).
+    intros. simple refine (setquotfun2 _ _ word_op _).
     induction (smallestAdequateRelation R) as [r ad]; simpl.
     intros v v' w w' vv' ww'.
     apply (eqreltrans _ _ (word_op v w') _ (left_compat ad _ _ _ ww') (right_compat ad _ _ _ vv')).
@@ -259,7 +259,7 @@ Module Presentation.
   Defined.
   Lemma adequacy {X I} (R:I->reln X) :
     AdequateRelation R (smallestAdequateRelation0 R).
-  Proof. intros. refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _).
+  Proof. intros. simple refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _).
          { intros ? r ra. apply base. exact ra. }
          { intros ? r ra. apply (reflex R). exact ra. }
          { intros ? ? p r ra. apply (symm R). exact ra. exact (p r ra). }
@@ -288,14 +288,14 @@ Module Presentation.
   (** *** the multiplication on on it *)
 
   Definition univ_binop {X I} (R:I->reln X) : binop (universalMarkedPreMonoid0 R).
-    intros. refine (QuotientSet.setquotfun2 word_op _). apply op2_compatibility. Defined.
+    intros. simple refine (QuotientSet.setquotfun2 word_op _). apply op2_compatibility. Defined.
   Definition univ_setwithbinop {X I} (R:I->reln X) : setwithbinop
              := setwithbinoppair (universalMarkedPreMonoid0 R) (univ_binop R).
 
   (** *** the universal pre-monoid *)
 
   Definition universalMarkedPreMonoid {X I} (R:I->reln X) : MarkedPreMonoid X.
-    intros. refine (make_preMonoid X (universalMarkedPreMonoid0 R) _ _ _).
+    intros. simple refine (make_preMonoid X (universalMarkedPreMonoid0 R) _ _ _).
     { exact (setquotpr _ word_unit). }
     { exact (fun x => setquotpr _ (word_gen x)). }
     { exact (univ_binop _). } Defined.
@@ -359,7 +359,7 @@ Module Presentation.
     fun v w  => eqset (evalwordMM M v) (evalwordMM M w).
   Lemma abelian_group_adequacy {X I} (R:I->reln X) (M:MarkedMonoid R) :
     AdequateRelation R (MarkedMonoid_to_hrel M).
-  Proof. intros. refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _).
+  Proof. intros. simple refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _).
          { exact (fun i => m_reln R M i). } { reflexivity. }
          { intros ? ?. exact pathsinv0. } { intros ? ? ?. exact pathscomp0. }
          { intros ? ? ? p. simpl in p; simpl.
@@ -438,7 +438,7 @@ Defined.
          { intermediate_path (unel M). exact (unitproperty f). exact (!unitproperty g). }
          { apply p. }
          (* compare duplication with the proof of MarkedMonoidMap_compat *)
-         { refine (
+         { simple refine (
                multproperty f (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)
              @ _ @ !
@@ -522,7 +522,7 @@ Module Product.
       [isdeceq I]. *)
 
   Proof. intros ? ? ? decide_equality xi. apply hinhpr.
-    refine (_,,_).
+    simple refine (_,,_).
     { intro j. destruct (decide_equality i j) as [p|_].
       { exact (transportf X p xi). }
       { exact (unel (X j)). } }

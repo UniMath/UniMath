@@ -23,19 +23,18 @@ Contents :
 ************************************************************)
 
 
-Require Import UniMath.Foundations.Basics.All.
+Require Import UniMath.Foundations.Basics.PartD.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
-Require Import UniMath.SubstitutionSystems.ProductPrecategory.
-Require Import UniMath.SubstitutionSystems.PointedFunctors.
-Require Import UniMath.SubstitutionSystems.PointedFunctorsComposition.
+Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.PointedFunctors.
+Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.SubstitutionSystems.Notation.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -76,7 +75,7 @@ Variable S22 : θ_Strength2 θ2.
 Definition H : functor [C, C, hs] [C, C, hs] := coproduct_functor _ _ CCC H1 H2.
 
 
-Local Definition bla1 (X : [C, C] hs) (Z : precategory_Ptd C hs) :
+Local Definition bla1 (X : [C, C, hs]) (Z : precategory_Ptd C hs) :
    ∀ c : C,
     (functor_composite_data (pr1 Z)
      (coproduct_functor_data C C CC (H1 X) (H2 X))) c
@@ -89,7 +88,7 @@ Proof.
   - exact (pr1 (θ2 (X ⊗ Z)) c).
 Defined.
 
-Local Lemma bar (X : [C, C] hs) (Z : precategory_Ptd C hs):
+Local Lemma bar (X : [C, C, hs]) (Z : precategory_Ptd C hs):
    is_nat_trans
      (functor_composite_data (pr1 Z)
         (coproduct_functor_data C C CC (H1 X) (H2 X)))
@@ -106,7 +105,7 @@ Proof.
   * apply (nat_trans_ax (θ2 (X ⊗ Z))).
 Qed.
 
-Local Definition bla (X : [C, C] hs) (Z : precategory_Ptd C hs) :
+Local Definition bla (X : [C, C, hs]) (Z : precategory_Ptd C hs) :
    functor_composite_data (pr1 Z)
      (coproduct_functor_data C C CC (H1 X) (H2 X))
    ⟶ coproduct_functor_data C C CC (H1 (functor_composite (pr1 Z) X))
