@@ -193,9 +193,28 @@ Section binprod_functor.
 Variable C : precategory.
 Variables (PC : Products C).
 
-Definition binproduct_functor : functor (product_precategory C C) C.
-Admitted.
+Definition binproduct_functor_data : functor_data (product_precategory C C) C.
+Proof.
+mkpair.
+- intros p.
+  apply (ProductObject _ (PC (pr1 p) (pr2 p))).
+- simpl; intros p q f.
+  apply (ProductOfArrows _ (PC (pr1 q) (pr2 q)) (PC (pr1 p) (pr2 p)) (pr1 f) (pr2 f)).
+Defined.
 
+Definition binproduct_functor : functor (product_precategory C C) C.
+Proof.
+mkpair.
+- apply binproduct_functor_data.
+- split.
+  + intro x; simpl.
+    apply pathsinv0, Product_endo_is_identity.
+    * now rewrite ProductOfArrowsPr1, id_right.
+    * now rewrite ProductOfArrowsPr2, id_right.
+  + now intros x y z f g; simpl; rewrite ProductOfArrows_comp.
+Defined.
+
+(* This is difficult to prove *)
 Lemma omega_cocont_binproduct_functor : omega_cocont binproduct_functor.
 Admitted.
 
@@ -225,11 +244,24 @@ Defined.
 (* Todo: show that delta_functor is left adjoint to product and the use general fact *)
 Lemma cocont_delta_functor (PC : Products C) : is_cocont delta_functor.
 Proof.
-apply left_adjoint_cocont.
+apply left_adjoint_cocont, (tpair _ (binproduct_functor _ PC)).
 mkpair.
-- apply (binproduct_functor _ PC).
-- admit.
-Admitted.
+- split.
+  + mkpair.
+    * simpl; intro x.
+      apply (ProductArrow _ _ (identity x) (identity x)).
+    * abstract (intros p q f; simpl;
+                now rewrite precompWithProductArrow, id_right, postcompWithProductArrow, id_left).
+  + mkpair.
+    * simpl; intro x; split; [ apply ProductPr1 | apply ProductPr2 ].
+    * abstract (intros p q f; unfold prodcatmor, compose; simpl;
+                now rewrite ProductOfArrowsPr1, ProductOfArrowsPr2).
+- split; simpl; intro x.
+  + unfold prodcatmor, compose; simpl.
+    now rewrite ProductPr1Commutes, ProductPr2Commutes.
+  + rewrite postcompWithProductArrow, !id_left.
+    apply pathsinv0, Product_endo_is_identity; [ apply ProductPr1Commutes | apply ProductPr2Commutes ].
+Defined.
 
 Lemma omega_cocont_delta_functor (PC : Products C) : omega_cocont delta_functor.
 Proof.
@@ -245,16 +277,50 @@ Section bincoprod_functor.
 Variable C : precategory.
 Variables (PC : Coproducts C).
 
-Definition bincoproduct_functor : functor (product_precategory C C) C.
-Admitted.
-
-Lemma cocont_bincoproducts_functor: is_cocont bincoproduct_functor.
+Definition bincoproduct_functor_data : functor_data (product_precategory C C) C.
 Proof.
-apply left_adjoint_cocont.
 mkpair.
-- apply delta_functor.
-- admit.
-Admitted.
+- intros p.
+  apply (CoproductObject _ (PC (pr1 p) (pr2 p))).
+- simpl; intros p q f.
+  apply (CoproductOfArrows _ (PC (pr1 p) (pr2 p)) (PC (pr1 q) (pr2 q)) (pr1 f) (pr2 f)).
+Defined.
+
+Definition bincoproduct_functor : functor (product_precategory C C) C.
+Proof.
+mkpair.
+- apply bincoproduct_functor_data.
+- split.
+  + intro x; simpl.
+    apply pathsinv0, Coproduct_endo_is_identity.
+    * now rewrite CoproductOfArrowsIn1, id_left.
+    * now rewrite CoproductOfArrowsIn2, id_left.
+  + now intros x y z f g; simpl; rewrite CoproductOfArrows_comp.
+Defined.
+
+(* TODO: opacify *)
+Lemma cocont_bincoproducts_functor : is_cocont bincoproduct_functor.
+Proof.
+apply left_adjoint_cocont, (tpair _ (delta_functor _)).
+mkpair.
+- split.
+  + mkpair.
+    * simpl; intro p; set (x := pr1 p); set (y := pr2 p).
+      split; [ apply (CoproductIn1 _ (PC x y)) | apply (CoproductIn2 _ (PC x y)) ].
+    * abstract (intros p q f; unfold prodcatmor, compose; simpl;
+                now rewrite CoproductOfArrowsIn1, CoproductOfArrowsIn2).
+  + mkpair.
+    * intro x; apply (CoproductArrow _ _ (identity x) (identity x)).
+    * abstract (intros p q f; simpl;
+                now rewrite precompWithCoproductArrow, postcompWithCoproductArrow,
+                            id_right, id_left).
+- split; simpl; intro x.
+  + rewrite precompWithCoproductArrow, !id_right.
+    apply pathsinv0, Coproduct_endo_is_identity;
+      [ apply CoproductIn1Commutes | apply CoproductIn2Commutes ].
+  + unfold prodcatmor, compose; simpl.
+    now rewrite CoproductIn1Commutes, CoproductIn2Commutes.
+Defined.
 
 Lemma omega_cocont_bincoproduct_functor: omega_cocont bincoproduct_functor.
 Proof.
