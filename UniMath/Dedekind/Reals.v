@@ -2090,6 +2090,90 @@ Qed.
 
 (** ** Algrebra *)
 
+Lemma islunit_Rzero_Rplus :
+  forall x : Reals, 0 + x = x.
+Proof.
+  exact islunit_CFzero_CFplus.
+Qed.
+Lemma isrunit_Rzero_Rplus :
+  ∀ x : Reals, x + 0 = x.
+Proof.
+  exact isrunit_CFzero_CFplus.
+Qed.
+Lemma isassoc_Rplus :
+  ∀ x y z : Reals, x + y + z = x + (y + z).
+Proof.
+  exact isassoc_CFplus.
+Qed.
+Lemma islinv_Ropp :
+  ∀ x : Reals, - x + x = 0.
+Proof.
+  exact islinv_CFopp.
+Qed.
+Lemma isrinv_Ropp :
+  ∀ x : Reals, x + - x = 0.
+Proof.
+  exact isrinv_CFopp.
+Qed.
+
+Lemma iscomm_Rplus :
+  ∀ x y : Reals, x + y = y + x.
+Proof.
+  exact iscomm_CFplus.
+Qed.
+Lemma islunit_Rone_Rmult :
+  ∀ x : Reals, 1 * x = x.
+Proof.
+  exact islunit_CFone_CFmult.
+Qed.
+Lemma isrunit_Rone_Rmult :
+  ∀ x : Reals, x * 1 = x.
+Proof.
+  exact isrunit_CFone_CFmult.
+Qed.
+Lemma isassoc_Rmult :
+  ∀ x y z : Reals, x * y * z = x * (y * z).
+Proof.
+  exact isassoc_CFmult.
+Qed.
+Lemma iscomm_Rmult :
+  ∀ x y : Reals, x * y = y * x.
+Proof.
+  exact iscomm_CFmult.
+Qed.
+Lemma islinv_Rinv :
+  ∀ (x : Reals) (Hx0 : x ≠ 0),
+    (Rinv x Hx0) * x = 1.
+Proof.
+  exact islinv_CFinv.
+Qed.
+Lemma isrinv_Rinv :
+  ∀ (x : Reals) (Hx0 : x ≠ 0),
+    x * (Rinv x Hx0) = 1.
+Proof.
+  exact isrinv_CFinv.
+Qed.
+Lemma islabsorb_Rzero_Rmult :
+  ∀ x : Reals, 0 * x = 0.
+Proof.
+  exact islabsorb_CFzero_CFmult.
+Qed.
+Lemma israbsorb_Rzero_Rmult :
+  ∀ x : Reals, x * 0 = 0.
+Proof.
+  exact israbsorb_CFzero_CFmult.
+Qed.
+Lemma isldistr_Rplus_Rmult :
+  ∀ x y z : Reals, z * (x + y) = z * x + z * y.
+Proof.
+  exact isldistr_CFplus_CFmult.
+Qed.
+Lemma isrdistr_Rplus_Rmult :
+  ∀ x y z : Reals, (x + y) * z = x * z + y * z.
+Proof.
+  exact isrdistr_CFplus_CFmult.
+Qed.
+
 (** ** Rabs *)
 
 Lemma istriangle_Rabs :
@@ -2257,4 +2341,3 @@ Proof.
     rewrite H0.
     now apply islabsorb_zero_multNonnegativeReals.
 Qed.
-
