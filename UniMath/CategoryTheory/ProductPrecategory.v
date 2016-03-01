@@ -35,19 +35,15 @@ Local Notation "G ∙ F" := (functor_composite _ _ _ F G) (at level 35).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
-Section one_product_precategory.
-
-Variables C D : precategory.
-
-Definition product_precategory_ob_mor : precategory_ob_mor.
+Definition product_precategory_ob_mor (C D : precategory_ob_mor) : precategory_ob_mor.
 Proof.
   exists (C × D).
   exact (λ cd cd', pr1 cd ⇒ pr1 cd' × pr2 cd ⇒ pr2 cd').
 Defined.
 
-Definition product_precategory_data : precategory_data.
+Definition product_precategory_data (C D : precategory_data) : precategory_data.
 Proof.
-  exists product_precategory_ob_mor.
+  exists (product_precategory_ob_mor C D).
   split.
   - intro cd.
     exact (dirprodpair (identity (pr1 cd)) (identity (pr2 cd))).
@@ -55,7 +51,11 @@ Proof.
     exact (dirprodpair (pr1 fg ;; pr1 fg') (pr2 fg ;; pr2 fg')).
 Defined.
 
-Lemma is_precategory_product_precategory_data : is_precategory product_precategory_data.
+Section one_product_precategory.
+
+Variables C D : precategory.
+
+Lemma is_precategory_product_precategory_data : is_precategory (product_precategory_data C D).
 Proof.
   repeat split; simpl; intros.
   - apply dirprodeq; apply id_left.
