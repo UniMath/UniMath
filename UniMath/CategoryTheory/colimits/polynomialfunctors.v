@@ -351,12 +351,112 @@ mkpair.
   + intros x y z f g; simpl; rewrite !functor_comp; apply idpath.
 Defined.
 
+Definition pr1_functor_data : functor_data (product_precategory A B) A.
+Proof.
+mkpair.
+- intro x; apply (pr1 x).
+- intros x y f; simpl; apply (pr1 f).
+Defined.
+
+Definition pr1_functor : functor (product_precategory A B) A.
+Proof.
+mkpair.
+- exact pr1_functor_data.
+- split.
+  + intro x; apply idpath.
+  + intros x y z f g; apply idpath.
+Defined.
+
+Definition pr2_functor_data : functor_data (product_precategory A B) B.
+Proof.
+mkpair.
+- intro x; apply (pr2 x).
+- intros x y f; simpl; apply (pr2 f).
+Defined.
+
+Definition pr2_functor : functor (product_precategory A B) B.
+Proof.
+mkpair.
+- exact pr2_functor_data.
+- split.
+  + intro x; apply idpath.
+  + intros x y z f g; apply idpath.
+Defined.
+
 (* Lemma cocont_pair_functor (HF : is_cocont F) (HG : is_cocont G) : *)
 (*   is_cocont pair_functor. *)
 (* Admitted. *)
 
 Lemma omega_cocont_pair_functor (HF : omega_cocont F) (HG : omega_cocont G) :
   omega_cocont pair_functor.
+Proof.
+intros cAB ml ccml Hccml xy ccxy.
+(* destruct ml as [m l]. *)
+(* simpl in *. *)
+(* destruct xy as [x y]. *)
+simpl in *.
+simple refine (let X : ColimCocone cAB := _ in _).
+mkpair.
+apply (tpair _ _ ccml).
+simpl.
+apply Hccml.
+Check (colimArrow X ).
+
+simple refine (let ccA : cocone (mapchain pr1_functor cAB) (pr1 ml) := _ in _).
+  {
+  simple refine (mk_cocone _ _).
+  - simpl; intro n.
+    apply (pr1 (coconeIn ccml n)).
+  - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccml m n e)). }
+assert (H1 : isColimCocone _ _ ccA).
+  {
+intros a cca.
+unfold isColimCocone in Hccml.
+simpl in *.
+simple refine (let HHH : cocone cAB (a,, pr2 ml) := _ in _).
+destruct cca as [f g].
+simpl in *.
+simple refine (mk_cocone _ _).
+simpl; intro n.
+split.
+apply (f n).
+apply (# pr2_functor (pr1 ccml n)).
+simpl.
+intros m n e.
+rewrite (paireta (dmor cAB e)).
+unfold compose.
+simpl.
+apply pathsdirprod.
+apply (g m n e).
+apply (maponpaths dirprod_pr2 ((pr2 ccml) m n e)).
+destruct (Hccml _ HHH) as [[[x1 x2] p1] p2].
+simpl in *.
+mkpair.
+mkpair.
+apply x1.
+simpl; intro n.
+generalize (maponpaths pr1 (p1 n)).
+intros HH.
+unfold compose in HH; simpl in *.
+rewrite HH.
+destruct cca.
+simpl.
+apply idpath.
+simpl.
+admit.
+}
+simple refine (let YY : cocone (mapdiagram F (mapchain pr1_functor cAB)) (pr1 xy) := _ in _).
+simple refine (mk_cocone _ _); simpl.
+intro n.
+apply (pr1 (pr1 ccxy n)).
+intros m n e.
+apply (maponpaths pr1 ((pr2 ccxy) m n e)).
+destruct (HF _ _ ccA H1 (pr1 xy) YY).
+mkpair.
+mkpair.
+admit.
+admit.
+admit.
 Admitted.
 
 End pair_functor.
