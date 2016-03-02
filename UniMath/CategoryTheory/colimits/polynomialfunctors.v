@@ -389,6 +389,7 @@ Defined.
 (*   is_cocont pair_functor. *)
 (* Admitted. *)
 
+(* Maybe generalize these to arbitrary diagrams *)
 Lemma cocone_pr1_functor (cAB : chain (product_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) :
   cocone (mapchain pr1_functor cAB) (pr1 ab).
@@ -418,7 +419,6 @@ mkpair.
 - apply (tpair _ x1).
   abstract (intro n; apply (maponpaths pr1 (p1 n))).
 - intro t.
-
   simple refine (let X : Σ x0,
            ∀ v : nat, coconeIn ccab v ;; x0 =
                       prodcatmor (pr1 ccx v) (pr2 (pr1 ccab v)) := _ in _).
@@ -481,12 +481,12 @@ intros cAB ml ccml Hccml xy ccxy; simpl in *.
 simple refine (let cFAX : cocone (mapdiagram F (mapchain pr1_functor cAB)) (pr1 xy) := _ in _).
 { simple refine (mk_cocone _ _).
   - intro n; apply (pr1 (pr1 ccxy n)).
-  - abstract (intros m n e; apply (maponpaths pr1 ((pr2 ccxy) m n e))).
+  - abstract (intros m n e; apply (maponpaths pr1 (pr2 ccxy m n e))).
 }
 simple refine (let cGBY : cocone (mapdiagram G (mapchain pr2_functor cAB)) (pr2 xy) := _ in _).
 { simple refine (mk_cocone _ _).
   - intro n; apply (pr2 (pr1 ccxy n)).
-  - abstract (intros m n e; apply (maponpaths dirprod_pr2 ((pr2 ccxy) m n e))).
+  - abstract (intros m n e; apply (maponpaths dirprod_pr2 (pr2 ccxy m n e))).
 }
 destruct (HF _ _ _ (isColimCocone_pr1_functor cAB ml ccml Hccml) _ cFAX) as [[f hf1] hf2].
 destruct (HG _ _ _ (isColimCocone_pr2_functor cAB ml ccml Hccml) _ cGBY) as [[g hg1] hg2].
