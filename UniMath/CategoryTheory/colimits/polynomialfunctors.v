@@ -334,6 +334,7 @@ Section pair_functor.
 
 Variables A B C D : precategory.
 Variables (F : functor A C) (G : functor B D).
+Variables (hsA : has_homsets A).
 
 Definition pair_functor_data : functor_data (product_precategory A B) (product_precategory C D).
 Proof.
@@ -387,6 +388,99 @@ Defined.
 (*   is_cocont pair_functor. *)
 (* Admitted. *)
 
+Lemma cocone_pr1_functor (cAB : chain (product_precategory A B))
+  (ab : A × B) (ccab : cocone cAB ab) :
+  cocone (mapchain pr1_functor cAB) (pr1 ab).
+Proof.
+simple refine (mk_cocone _ _).
+- simpl; intro n; apply (pr1 (coconeIn ccab n)).
+- abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
+Defined.
+
+Lemma isColimCocone_pr1_functor (cAB : chain (product_precategory A B))
+  (ab : A × B) (ccab : cocone cAB ab) (Hccab : isColimCocone cAB ab ccab) :
+   isColimCocone (mapchain pr1_functor cAB) (pr1 ab)
+     (cocone_pr1_functor cAB ab ccab).
+Proof.
+intros x ccx.
+simple refine (let HHH : cocone cAB (x,, pr2 ab) := _ in _).
+{ simple refine (mk_cocone _ _).
+  - simpl; intro n; split;
+      [ apply (pr1 ccx n) | apply (# pr2_functor (pr1 ccab n)) ].
+  - abstract(
+    simpl; intros m n e; rewrite (paireta (dmor cAB e));
+    apply pathsdirprod; [ apply (pr2 ccx m n e)
+                        | apply (maponpaths dirprod_pr2 ((pr2 ccab) m n e)) ]).
+}
+destruct (Hccab _ HHH) as [[[x1 x2] p1] p2]; simpl in *.
+mkpair.
+- apply (tpair _ x1).
+  abstract (intro n; apply (maponpaths pr1 (p1 n))).
+- intro t.
+  simple refine (let X : Σ x0,
+           ∀ v : nat, coconeIn ccab v ;; x0 =
+                      prodcatmor (pr1 ccx v) (pr2 (pr1 ccab v)) := _ in _).
+  { mkpair.
+    - split; [ apply (pr1 t) | apply (identity _) ].
+    - abstract (intro n; rewrite id_right; apply pathsdirprod;
+                 [ apply (pr2 t) | apply idpath ]).
+  }
+  abstract (apply subtypeEquality; simpl;
+            [ intro f; apply impred; intro; apply hsA
+            | apply (maponpaths (fun x => pr1 (pr1 x)) (p2 X))]).
+Defined.
+
+
+Lemma cocone_pr2_functor (cAB : chain (product_precategory A B))
+  (ab : A × B) (ccab : cocone cAB ab) :
+  cocone (mapchain pr2_functor cAB) (pr2 ab).
+Proof.
+simple refine (mk_cocone _ _).
+- simpl; intro n; apply (pr2 (coconeIn ccab n)).
+- abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
+Defined.
+
+Lemma isColimCocone_pr2_functor (cAB : chain (product_precategory A B))
+  (ab : A × B) (ccab : cocone cAB ab) (Hccab : isColimCocone cAB ab ccab) :
+   isColimCocone (mapchain pr2_functor cAB) (pr2 ab)
+     (cocone_pr2_functor cAB ab ccab).
+Proof.
+intros x ccx.
+simple refine (let HHH : cocone cAB (pr1 ab,, x) := _ in _).
+{ simple refine (mk_cocone _ _).
+  - simpl; intro n; split.
+apply (# pr1_functor (pr1 ccab n)).
+
+apply (pr1 ccx n).
+  -
+    simpl; intros m n e; rewrite (paireta (dmor cAB e));
+    apply pathsdirprod.
+simpl.
+admit.
+(* apply (maponpaths dirprod_pr2 ((pr2 ccab) m n e)). *)
+apply (pr2 ccx m n e).
+ }
+destruct (Hccab _ HHH) as [[[x1 x2] p1] p2]; simpl in *.
+mkpair.
+- apply (tpair _ x2).
+  intro n; apply (maponpaths dirprod_pr2 (p1 n)).
+- intro t.
+admit.
+(*   simple refine (let X : Σ x0, *)
+(*            ∀ v : nat, coconeIn ccab v ;; x0 = *)
+(*                       prodcatmor (pr1 ccx v) (pr2 (pr1 ccab v)) := _ in _). *)
+(*   { mkpair. *)
+(*     - split; [ apply (pr1 t) | apply (identity _) ]. *)
+(*     - abstract (intro n; rewrite id_right; apply pathsdirprod; *)
+(*                  [ apply (pr2 t) | apply idpath ]). *)
+(*   } *)
+(*   abstract (apply subtypeEquality; simpl; *)
+(*             [ intro f; apply impred; intro; apply hsA *)
+(*             | apply (maponpaths (fun x => pr1 (pr1 x)) (p2 X))]). *)
+(* Defined. *)
+Admitted.
+
+
 Lemma omega_cocont_pair_functor (HF : omega_cocont F) (HG : omega_cocont G) :
   omega_cocont pair_functor.
 Proof.
@@ -395,63 +489,20 @@ intros cAB ml ccml Hccml xy ccxy.
 (* simpl in *. *)
 (* destruct xy as [x y]. *)
 simpl in *.
+
 simple refine (let X : ColimCocone cAB := _ in _).
 mkpair.
 apply (tpair _ _ ccml).
 simpl.
 apply Hccml.
-Check (colimArrow X ).
 
-simple refine (let ccA : cocone (mapchain pr1_functor cAB) (pr1 ml) := _ in _).
-  {
-  simple refine (mk_cocone _ _).
-  - simpl; intro n.
-    apply (pr1 (coconeIn ccml n)).
-  - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccml m n e)). }
-assert (H1 : isColimCocone _ _ ccA).
-  {
-intros a cca.
-unfold isColimCocone in Hccml.
-simpl in *.
-simple refine (let HHH : cocone cAB (a,, pr2 ml) := _ in _).
-destruct cca as [f g].
-simpl in *.
-simple refine (mk_cocone _ _).
-simpl; intro n.
-split.
-apply (f n).
-apply (# pr2_functor (pr1 ccml n)).
-simpl.
-intros m n e.
-rewrite (paireta (dmor cAB e)).
-unfold compose.
-simpl.
-apply pathsdirprod.
-apply (g m n e).
-apply (maponpaths dirprod_pr2 ((pr2 ccml) m n e)).
-destruct (Hccml _ HHH) as [[[x1 x2] p1] p2].
-simpl in *.
-mkpair.
-mkpair.
-apply x1.
-simpl; intro n.
-generalize (maponpaths pr1 (p1 n)).
-intros HH.
-unfold compose in HH; simpl in *.
-rewrite HH.
-destruct cca.
-simpl.
-apply idpath.
-simpl.
-admit.
-}
 simple refine (let YY : cocone (mapdiagram F (mapchain pr1_functor cAB)) (pr1 xy) := _ in _).
 simple refine (mk_cocone _ _); simpl.
 intro n.
 apply (pr1 (pr1 ccxy n)).
 intros m n e.
 apply (maponpaths pr1 ((pr2 ccxy) m n e)).
-destruct (HF _ _ ccA H1 (pr1 xy) YY).
+destruct (HF _ _ _ (isColimCocone_pr1_functor cAB ml ccml Hccml) (pr1 xy) YY).
 mkpair.
 mkpair.
 admit.
@@ -746,6 +797,7 @@ Section lambdacalculus.
 
 Section temp.
 Variables (C D : precategory) (PC : Products C) (HD : Coproducts D).
+Variables (hsC : has_homsets C).
 
 Definition sum_of_functors (F G : functor C D) : functor C D.
 eapply functor_composite.
@@ -765,7 +817,7 @@ Proof.
 apply (omega_cocont_functor_composite _ _ _ hsD).
   apply (omega_cocont_delta_functor _ PC).
 apply (omega_cocont_functor_composite _ _ _ hsD).
-  apply (omega_cocont_pair_functor _ _ _ _ _ _ HF HG).
+  apply (omega_cocont_pair_functor _ _ _ _ _ _ hsC HF HG).
 apply omega_cocont_bincoproduct_functor.
 Defined.
 
@@ -816,10 +868,12 @@ Proof.
 apply omega_cocont_sum_of_functors.
   apply (Products_functor_precat _ _ ProductsHSET).
   apply functor_category_has_homsets.
+  apply functor_category_has_homsets.
   apply omega_cocont_constant_functor.
   apply functor_category_has_homsets.
 apply omega_cocont_sum_of_functors.
   apply (Products_functor_precat _ _ ProductsHSET).
+  apply functor_category_has_homsets.
   apply functor_category_has_homsets.
   apply omega_cocont_functor_composite.
   apply functor_category_has_homsets.
