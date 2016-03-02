@@ -223,7 +223,7 @@ End binprod_functor.
 (* The delta functor C -> C^2 mapping x to (x,x) is omega_cocont *)
 Section delta_functor.
 
-Variable C : precategory.
+Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
 
 Definition delta_functor_data : functor_data C (product_precategory C C).
 Proof.
@@ -241,10 +241,9 @@ mkpair.
   + intros x y z f g; apply idpath.
 Defined.
 
-(* Todo: show that delta_functor is left adjoint to product and the use general fact *)
-Lemma cocont_delta_functor (PC : Products C) : is_cocont delta_functor.
+Lemma is_left_adjoint_delta_functor : is_left_adjoint delta_functor.
 Proof.
-apply left_adjoint_cocont, (tpair _ (binproduct_functor _ PC)).
+apply (tpair _ (binproduct_functor _ PC)).
 mkpair.
 - split.
   + mkpair.
@@ -263,10 +262,16 @@ mkpair.
     apply pathsinv0, Product_endo_is_identity; [ apply ProductPr1Commutes | apply ProductPr2Commutes ].
 Defined.
 
-Lemma omega_cocont_delta_functor (PC : Products C) : omega_cocont delta_functor.
+Lemma cocont_delta_functor : is_cocont delta_functor.
+Proof.
+apply (left_adjoint_cocont _ is_left_adjoint_delta_functor hsC).
+apply (has_homsets_product_precategory _ _ hsC hsC).
+Defined.
+
+Lemma omega_cocont_delta_functor : omega_cocont delta_functor.
 Proof.
 intros c L ccL.
-apply (cocont_delta_functor PC).
+apply cocont_delta_functor.
 Defined.
 
 End delta_functor.
@@ -274,8 +279,7 @@ End delta_functor.
 (* The functor "+ : C^2 -> C" is cocont *)
 Section bincoprod_functor.
 
-Variable C : precategory.
-Variables (PC : Coproducts C).
+Variables (C : precategory) (PC : Coproducts C) (hsC : has_homsets C).
 
 Definition bincoproduct_functor_data : functor_data (product_precategory C C) C.
 Proof.
@@ -298,10 +302,9 @@ mkpair.
   + now intros x y z f g; simpl; rewrite CoproductOfArrows_comp.
 Defined.
 
-(* TODO: opacify *)
-Lemma cocont_bincoproducts_functor : is_cocont bincoproduct_functor.
+Lemma is_left_adjoint_bincoproduct_functor : is_left_adjoint bincoproduct_functor.
 Proof.
-apply left_adjoint_cocont, (tpair _ (delta_functor _)).
+apply (tpair _ (delta_functor _)).
 mkpair.
 - split.
   + mkpair.
@@ -320,6 +323,13 @@ mkpair.
       [ apply CoproductIn1Commutes | apply CoproductIn2Commutes ].
   + unfold prodcatmor, compose; simpl.
     now rewrite CoproductIn1Commutes, CoproductIn2Commutes.
+Defined.
+
+Lemma cocont_bincoproducts_functor : is_cocont bincoproduct_functor.
+Proof.
+apply (left_adjoint_cocont _ is_left_adjoint_bincoproduct_functor).
+- apply has_homsets_product_precategory; apply hsC.
+- apply hsC.
 Defined.
 
 Lemma omega_cocont_bincoproduct_functor: omega_cocont bincoproduct_functor.
@@ -811,9 +821,11 @@ Lemma omega_cocont_sum_of_functors (F G : functor C D)
 Proof.
 apply (omega_cocont_functor_composite _ _ _ hsD).
   apply (omega_cocont_delta_functor _ PC).
+  apply hsC.
 apply (omega_cocont_functor_composite _ _ _ hsD).
   apply (omega_cocont_pair_functor _ _ _ _ _ _ hsC hsC hsD hsD HF HG).
 apply omega_cocont_bincoproduct_functor.
+apply hsD.
 Defined.
 
 End temp.
@@ -874,6 +886,7 @@ apply omega_cocont_sum_of_functors.
   apply functor_category_has_homsets.
   apply omega_cocont_delta_functor.
   apply (Products_functor_precat _ _ ProductsHSET).
+  apply functor_category_has_homsets.
   apply omega_cocont_binproduct_functor.
 apply omega_cocont_pre_composition_functor.
 Defined.
