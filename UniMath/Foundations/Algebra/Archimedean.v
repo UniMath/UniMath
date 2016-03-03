@@ -18,7 +18,7 @@ Require Export UniMath.Foundations.Algebra.Rigs_and_Rings .
 Require Export UniMath.Foundations.Algebra.DivisionRig .
 Require Export UniMath.Foundations.Algebra.Domains_and_Fields .
 
-(** ** Injection of natural numbers *)
+(** ** The standard function from the natural numbers to a monoid *)
 
 Fixpoint natmult {X : monoid} (n : nat) (x : X) : X :=
   match n with
@@ -69,7 +69,7 @@ Proof.
     now rewrite rigrdistr, IHn, riglunax2.
 Qed.
 
-(** ** Definition of archimedean property *)
+(** ** Definitions of archimedean property *)
 
 Definition isarchmonoid (X : monoid) (R : hrel X) :=
   ∀ x y : X, R y 0%addmonoid -> ∃ n : nat, R (natmult n y) x.
@@ -135,17 +135,17 @@ Qed.
 Definition ex_partial_minus (X : rig) (R : hrel X) :=
    ∀ x y : X, R x y -> ∃ z : X, R z 0%rig × x = (y + z)%rig.
 
-Definition ex_partial_minus_week (X : rig) (R : hrel X) :=
+Definition ex_partial_minus_weak (X : rig) (R : hrel X) :=
   ∀ (n : nat) (x y : X),
     (∃ c, R (x + c)%rig (y + c)%rig)
     -> ∃ m c, R (nattorig m * x + c)%rig (nattorig n + nattorig m * y + c)%rig.
 
-Lemma ex_partal_minus_imply_week {X : rig} (R : hrel X)
+Lemma ex_partal_minus_imply_weak {X : rig} (R : hrel X)
       (R10 : R 1%rig 0%rig) (Htra : istrans R)
       (Hadd : isbinophrel (X := rigaddabmonoid X) R)
       (Harch : isarchrig X R)
       (Hminus : ex_partial_minus X R) :
-  ex_partial_minus_week X R.
+  ex_partial_minus_weak X R.
 Proof.
   intros.
   intros n x y.
@@ -180,7 +180,7 @@ Qed.
 Theorem isarchrigtorng_gt :
   ∀ (X : rig) (R : hrel X)
     (Hpos : ∀ x : X, ∃ c : X, R (x + c)%rig 0%rig)
-    (Hminus : ex_partial_minus_week X R)
+    (Hminus : ex_partial_minus_weak X R)
     (Hadd : isbinophrel (X := rigaddabmonoid X) R)
     (R10 : R 1%rig 0%rig)
     (Htra : istrans R)

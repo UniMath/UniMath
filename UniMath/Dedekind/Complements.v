@@ -267,7 +267,7 @@ Proof.
     apply hinhpr.
     exists 1%nat.
     now rewrite natpluscomm.
-  - apply ex_partal_minus_imply_week.
+  - apply ex_partal_minus_imply_weak.
     + reflexivity.
     + intros n m k.
       apply istransnatgth.
