@@ -798,6 +798,104 @@ End nat_examples.
 (* apply idpath. *)
 (* Abort. *)
 
+(* Alternative and more general definition of lists (inspired by a remark of VV) *)
+Section list'.
+
+(* I think if you really need lists you should prove a theorem that
+establishes a weq between the lists that you have defined and lists
+defined as total2 ( fun n : nat => iterprod n A ) where iterprod n A
+is defined by induction such that iterprod 0 A = unit, iterprod 1 A =
+A and iterprod ( S n ) A = dirprod (iterprod n A) A for n=S n’. *)
+
+Fixpoint iterprod (n : nat) (A : UU) : UU := match n with
+  | O => unit
+  | S n' => dirprod A (iterprod n' A)
+  end.
+
+Definition list' (A : UU) := total2 (fun n => iterprod n A).
+
+Definition nil_list' (A : UU) : list' A := (0,,tt).
+Definition cons_list' (A : UU) (x : A) (xs : list' A) : list' A :=
+  (S (pr1 xs),, (x,, pr2 xs)).
+
+Lemma list'_ind : ∀ (A : Type) (P : list' A -> UU),
+    P (nil_list' A)
+  -> (∀ (x : A) (xs : list' A), P xs -> P (cons_list' A x xs))
+  -> ∀ xs, P xs.
+Proof.
+intros A P Hnil Hcons xs.
+destruct xs as [n xs].
+induction n.
+- destruct xs.
+  apply Hnil.
+- destruct xs as [x xs].
+  apply (Hcons x (n,,xs) (IHn xs)).
+Qed.
+
+Lemma isaset_list' (A : HSET) : isaset (list' (pr1 A)).
+Proof.
+apply isaset_total2; [apply isasetnat|].
+intro n; induction n; simpl; [apply isasetunit|].
+apply isaset_dirprod; [ apply setproperty | apply IHn ].
+Qed.
+
+Definition to_List (A : HSET) : list' (pr1 A) -> pr1 (List A).
+Proof.
+intros l.
+destruct l as [n l].
+induction n.
++ exact (nil A).
++ apply (cons _ (pr1 l,,IHn (pr2 l))).
+Defined.
+
+Definition to_list' (A : HSET) : pr1 (List A) -> list' (pr1 A).
+Proof.
+apply (foldr A (list' (pr1 A),,isaset_list' A)).
+* apply (0,,tt).
+* intros L.
+  apply (tpair _ (S (pr1 (pr2 L))) (pr1 L,,pr2 (pr2 L))).
+Defined.
+
+Lemma to_list'K (A : HSET) : ∀ x : list' (pr1 A), to_list' A (to_List A x) = x.
+Proof.
+intro l; destruct l as [n l]; unfold to_list', to_List.
+induction n; simpl.
+- rewrite foldr_nil.
+  destruct l.
+  apply idpath.
+- rewrite foldr_cons; simpl.
+  rewrite IHn; simpl; rewrite <- (paireta l).
+  apply idpath.
+Qed.
+
+Lemma to_ListK (A : HSET) : ∀ y : pr1 (List A), to_List A (to_list' A y) = y.
+Proof.
+apply listIndProp.
+* intro l; apply setproperty.
+* unfold to_list'; rewrite foldr_nil.
+  apply idpath.
+* unfold to_list', to_List; intros a l IH.
+  rewrite foldr_cons; simpl.
+  apply maponpaths, maponpaths, pathsinv0.
+  eapply pathscomp0; [eapply pathsinv0, IH|]; simpl.
+  now destruct foldr.
+Qed.
+
+Lemma weq_list' (A : HSET) : list' (pr1 A) ≃ pr1 (List A).
+Proof.
+mkpair.
+- apply to_List.
+- simple refine (gradth _ _ _ _).
+  + apply to_list'.
+  + apply to_list'K.
+  + apply to_ListK.
+Defined.
+
+(* This works: *)
+Eval compute in (to_list' _ testlist).
+
+End list'.
+
 Section lambdacalculus.
 
 Section temp.
