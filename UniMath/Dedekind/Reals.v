@@ -145,7 +145,31 @@ Proof.
   exact Hx.
 Qed.
 
-  (** Caracterisation of equality *)
+Lemma hr_to_NRpos_NR_to_hr_std :
+  ∀ (x : NonnegativeReals × NonnegativeReals),
+    (0 < pr1 x -> pr2 x = 0) ->
+    hr_to_NRpos (NR_to_hr x) = pr1 x.
+Proof.
+  intros x Hx.
+  rewrite hr_to_NRpos_NR_to_hr.
+  apply (plusNonnegativeReals_eqcompat_l (pr2 x)).
+  rewrite <- maxNonnegativeReals_minus_plus.
+  now apply max_plusNonnegativeReals.
+Qed.
+Lemma hr_to_NRneg_NR_to_hr_std :
+  ∀ (x : NonnegativeReals × NonnegativeReals),
+    (0 < pr1 x -> pr2 x = 0) ->
+    hr_to_NRneg (NR_to_hr x) = pr2 x.
+Proof.
+  intros x Hx.
+  rewrite hr_to_NRneg_NR_to_hr.
+  apply (plusNonnegativeReals_eqcompat_l (pr1 x)).
+  rewrite <- maxNonnegativeReals_minus_plus.
+  rewrite iscomm_plusNonnegativeReals, iscomm_maxNonnegativeReals.
+  now apply max_plusNonnegativeReals.
+Qed.
+
+(** Caracterisation of equality *)
 
 Lemma NR_to_hr_eq :
   ∀ x y : NonnegativeReals × NonnegativeReals,
@@ -953,31 +977,127 @@ Proof.
   apply maxNonnegativeReals_le_r.
 Qed.
 
-Lemma hr_abs_minus :
+Lemma istriangle_hr_abs' :
   ∀ x y : hr_ConstructiveField,
-    hr_abs x - hr_abs y <= hr_abs (x - y)%rng.
+    hr_abs x - hr_abs y <= hr_abs (x + y)%rng.
 Proof.
   intros x y.
   apply_pr2 (plusNonnegativeReals_lecompat_l (hr_abs y)).
   rewrite <- maxNonnegativeReals_minus_plus.
   apply maxNonnegativeReals_le.
-  - assert (Hx : x = ((x - y) + y)%rng).
-    { now rewrite rngassoc1, rnglinvax1, rngrunax1. }
+  - assert (Hx : x = ((x + y) + (- y))%rng).
+    { now rewrite rngassoc1, rngrinvax1, rngrunax1. }
     pattern x at 1 ; rewrite Hx.
+    rewrite <- (hr_abs_opp y).
     apply istriangle_hr_abs.
   - apply plusNonnegativeReals_le_r.
 Qed.
-Lemma hr_abs_plus :
+
+Lemma hr_abs_minus :
   ∀ x y : hr_ConstructiveField,
-    hr_abs x - hr_abs y <= hr_abs (x + y)%rng.
+    hr_abs x - hr_abs y <= hr_abs (x - y)%rng.
 Proof.
   intros x y.
-  pattern y at 2 ;
-  rewrite <- (grinvinv (rngaddabgr hr_commrng) y).
-  eapply istrans_leNonnegativeReals, hr_abs_minus.
-  change (hr_abs x - hr_abs y <= hr_abs x - hr_abs (- y)%rng).
-  rewrite (hr_abs_opp y).
-  now apply isrefl_leNonnegativeReals.
+  rewrite <- (hr_abs_opp y).
+  apply istriangle_hr_abs'.
+Qed.
+
+Lemma multNonnegativeReals_lecompat :
+  ∀ x y z t : NonnegativeReals, x <= y -> z <= t -> x * z <= y * t.
+Proof.
+  intros x y z t H H0.
+  eapply istrans_leNonnegativeReals, multNonnegativeReals_lecompat_l', H.
+  apply multNonnegativeReals_lecompat_r', H0.
+Qed.
+Lemma ispositive_multNonnegativeReals :
+  ∀ x y : NonnegativeReals, 0 < x ∧ 0 < y <-> 0 < x * y.
+Proof.
+  intros x y.
+  split.
+  - intros (Hx,Hy).
+    rewrite <- (islabsorb_zero_multNonnegativeReals y).
+    now apply multNonnegativeReals_ltcompat_l.
+  - intros H ; split.
+    eapply multNonnegativeReals_ltcompat_l'.
+    rewrite islabsorb_zero_multNonnegativeReals.
+    exact H.
+    eapply multNonnegativeReals_ltcompat_r'.
+    rewrite israbsorb_zero_multNonnegativeReals.
+    exact H.
+Qed.
+Lemma maxNonnegativeReals_lt' :
+  ∀ x y z : NonnegativeReals,
+    z < maxNonnegativeReals x y -> z < x ∨ z < y.
+Proof.
+  intros x y z.
+  intros H.
+  generalize (iscotrans_ltNonnegativeReals _ x _ H).
+  apply hinhfun.
+  intros [Hx|Hx].
+  - now left.
+  - right.
+    rewrite <- (maxNonnegativeReals_carac_r x y).
+    apply H.
+    apply notlt_leNonnegativeReals ; intros Hy.
+    apply (isirrefl_ltNonnegativeReals (maxNonnegativeReals x y)).
+    apply maxNonnegativeReals_lt.
+    exact Hx.
+    now apply istrans_ltNonnegativeReals with x.
+Qed.
+
+Lemma hr_abs_mult :
+  ∀ x y : hr_ConstructiveField, hr_abs (x * y)%rng = hr_abs x * hr_abs y.
+Proof.
+  intros x y.
+  pattern x at 1 ; rewrite <- (hr_to_NR_bij x) ;
+  pattern y at 1 ; rewrite <- (hr_to_NR_bij y).
+  rewrite NR_to_hr_mult.
+  change (pr1 (hr_to_NR x)) with (hr_to_NRpos x) ;
+    change (pr1 (hr_to_NR y)) with (hr_to_NRpos y) ;
+    change (pr2 (hr_to_NR x)) with (hr_to_NRneg x) ;
+    change (pr2 (hr_to_NR y)) with (hr_to_NRneg y).
+  rewrite <- !max_plusNonnegativeReals.
+  unfold hr_abs.
+  rewrite hr_to_NRpos_NR_to_hr_std, hr_to_NRneg_NR_to_hr_std ; simpl.
+  - rewrite isldistr_max_multNonnegativeReals, !isrdistr_max_multNonnegativeReals.
+    rewrite !isassoc_maxNonnegativeReals.
+    apply maponpaths.
+    rewrite iscomm_maxNonnegativeReals, !isassoc_maxNonnegativeReals.
+    rewrite iscomm_maxNonnegativeReals, !isassoc_maxNonnegativeReals.
+    apply maponpaths.
+    apply iscomm_maxNonnegativeReals.
+  - intros H.
+    apply maxNonnegativeReals_lt' in H.
+    apply le0_NonnegativeReals.
+    revert H ; apply hinhuniv ; intros [H | H] ;
+    apply_pr2_in ispositive_multNonnegativeReals H ;
+    apply maxNonnegativeReals_le ;
+    apply_pr2 le0_NonnegativeReals.
+    now rewrite (hr_to_NRposneg_zero _ (pr2 H)), israbsorb_zero_multNonnegativeReals.
+    now rewrite (hr_to_NRposneg_zero _ (pr1 H)), islabsorb_zero_multNonnegativeReals.
+    now rewrite (hr_to_NRnegpos_zero _ (pr1 H)), islabsorb_zero_multNonnegativeReals.
+    now rewrite (hr_to_NRnegpos_zero _ (pr2 H)), israbsorb_zero_multNonnegativeReals.
+  - intros H.
+    apply maxNonnegativeReals_lt' in H.
+    apply le0_NonnegativeReals.
+    revert H ; apply hinhuniv ; intros [H | H] ;
+    apply_pr2_in ispositive_multNonnegativeReals H ;
+    apply maxNonnegativeReals_le ;
+    apply_pr2 le0_NonnegativeReals.
+    now rewrite (hr_to_NRposneg_zero _ (pr2 H)), israbsorb_zero_multNonnegativeReals.
+    now rewrite (hr_to_NRposneg_zero _ (pr1 H)), islabsorb_zero_multNonnegativeReals.
+    now rewrite (hr_to_NRnegpos_zero _ (pr1 H)), islabsorb_zero_multNonnegativeReals.
+    now rewrite (hr_to_NRnegpos_zero _ (pr2 H)), israbsorb_zero_multNonnegativeReals.
+  - intros H.
+    apply_pr2_in ispositive_multNonnegativeReals H.
+    rewrite hr_to_NRposneg_zero.
+    apply islabsorb_zero_multNonnegativeReals.
+    exact (pr1 H).
+  - intros H.
+    apply_pr2_in ispositive_multNonnegativeReals H.
+    rewrite hr_to_NRposneg_zero.
+    apply islabsorb_zero_multNonnegativeReals.
+    exact (pr1 H).
 Qed.
 
 (** ** Archimedean *)
@@ -1700,72 +1820,16 @@ Qed.
 Lemma istriangle_Rabs :
   ∀ x y : Reals, (Rabs (x + y)%R <= Rabs x + Rabs y)%NR.
 Proof.
-  intros x y.
-  apply istriangle_hr_abs.
+  exact istriangle_hr_abs.
+Qed.
+Lemma istriangle_Rabs' :
+  ∀ x y : Reals, (Rabs x - Rabs y <= Rabs (x + y)%R)%NR.
+Proof.
+  exact istriangle_hr_abs'.
 Qed.
 
-Transparent Dcuts_le_rel.
-(* todo :
-- more theorems in NonnegativeReals.v *)
-
-Lemma Rabs_submult :
-  ∀ x y : Reals, (Rabs (x * y)%R <= Rabs x * Rabs y)%NR.
+Lemma Rabs_Rmult :
+  ∀ x y : Reals, (Rabs (x * y)%R = Rabs x * Rabs y)%NR.
 Proof.
-  intros x y.
-  pattern x at 1 ;
-    rewrite <- (NRNRtoR_RtoNRNR x) ;
-    pattern y at 1 ;
-    rewrite <- (NRNRtoR_RtoNRNR y).
-  rewrite <- NRNRtoR_mult.
-  apply maxNonnegativeReals_le.
-  - unfold NRNRtoR.
-    rewrite hr_to_NRpos_NR_to_hr ; simpl pr1 ; simpl pr2.
-    unfold Rabs, hr_abs.
-    rewrite isldistr_max_multNonnegativeReals, !isrdistr_max_multNonnegativeReals.
-    refine (istrans_leNonnegativeReals _ _ _ _ _).
-    2: apply maxNonnegativeReals_le.
-    2: eapply istrans_leNonnegativeReals, maxNonnegativeReals_le_l.
-    2: apply maxNonnegativeReals_le_l.
-    2: eapply istrans_leNonnegativeReals, maxNonnegativeReals_le_r.
-    2: apply maxNonnegativeReals_le_r.
-    rewrite Dcuts_max_plus.
-    apply minusNonnegativeReals_le.
-    intros H.
-    rewrite hr_to_NRposneg_zero.
-    now apply islabsorb_zero_multNonnegativeReals.
-    revert H.
-    apply hinhuniv.
-    intros (r,(_)).
-    apply hinhuniv.
-    intros ((r1,r2)) ; simpl fst ; simpl snd ; intros (->,(Xr1,Yr1)) ; clear Yr1 r2.
-    apply hinhpr.
-    exists r1.
-    split.
-    apply Dcuts_zero_empty.
-    exact Xr1.
-  - unfold NRNRtoR.
-    rewrite hr_to_NRneg_NR_to_hr ; simpl pr1 ; simpl pr2.
-    unfold Rabs, hr_abs.
-    rewrite isldistr_max_multNonnegativeReals, !isrdistr_max_multNonnegativeReals.
-    refine (istrans_leNonnegativeReals _ _ _ _ _).
-    2: apply maxNonnegativeReals_le.
-    2: eapply istrans_leNonnegativeReals, maxNonnegativeReals_le_r.
-    2: apply maxNonnegativeReals_le_l.
-    2: eapply istrans_leNonnegativeReals, maxNonnegativeReals_le_l.
-    2: apply maxNonnegativeReals_le_r.
-    rewrite Dcuts_max_plus.
-    apply minusNonnegativeReals_le.
-    intros H.
-    rewrite hr_to_NRposneg_zero.
-    now apply islabsorb_zero_multNonnegativeReals.
-    revert H.
-    apply hinhuniv.
-    intros (r,(_)).
-    apply hinhuniv.
-    intros ((r1,r2)) ; simpl fst ; simpl snd ; intros (->,(Xr1,Yr1)) ; clear Yr1 r2.
-    apply hinhpr.
-    exists r1.
-    split.
-    apply Dcuts_zero_empty.
-    exact Xr1.
+  exact hr_abs_mult.
 Qed.
