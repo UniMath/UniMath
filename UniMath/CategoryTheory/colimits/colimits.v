@@ -22,6 +22,8 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
@@ -510,74 +512,36 @@ Definition is_cocont := forall {g : graph} (d : diagram g C) (L : C)
 
 End preserves_colimit.
 
-Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
-
 Lemma left_adjoint_cocont {C D : precategory} (F : functor C D)
   (H : is_left_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D) : is_cocont F.
 Proof.
 intros g d L ccL HccL M ccM.
-set (phi := @φ_adj _ _ _ H).
-set (phi_inv := @φ_adj_inv _ _ _ H).
 set (G := pr1 H).
 apply (@iscontrweqb _ (Σ y : C ⟦ L, G M ⟧,
-    ∀ i, coconeIn ccL i ;; y = phi _ _ (coconeIn ccM i))).
+    ∀ i, coconeIn ccL i ;; y = φ_adj _ _ _ H (coconeIn ccM i))).
 - eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
-    ∀ i, # F (coconeIn ccL i) ;; phi_inv _ _ y = coconeIn ccM i)).
-+
-apply (weqbandf (adjunction_hom_weq _ _ _ H L M)).
-simpl.
-unfold phi_inv.
-intros x.
-apply weqiff; try (apply impred; intro; apply hsD).
-now rewrite φ_adj_inv_after_φ_adj.
-+
-eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
-    ∀ i, φ_adj_inv _ _ _ _ (coconeIn ccL i ;; y) = coconeIn ccM i)).
-*
-apply (weqbandf (idweq _)); simpl; intro f.
-apply weqimplimpl; try (apply impred; intro; apply hsD).
-{
-intros h i.
-eapply pathscomp0.
-apply (φ_adj_inv_natural_precomp _ _ _ H L M f _ (coconeIn ccL i)).
-apply (h i).
-}
-{
-intros h i.
-eapply pathscomp0.
-eapply pathsinv0.
-apply (φ_adj_inv_natural_precomp _ _ _ H L M f _ (coconeIn ccL i)).
-apply (h i).
-}
-*
-apply (weqbandf (idweq _)); simpl; intro f.
-apply weqimplimpl.
-{
-intros h i.
-rewrite <- (h i).
-now rewrite (φ_adj_after_φ_adj_inv _ _ _ H).
-}
-{
-intros h i.
-rewrite (h i).
-now rewrite (φ_adj_inv_after_φ_adj _ _ _ H).
-}
-{apply impred; intro; apply hsD. }
-{apply impred; intro; apply hsC. }
-
--
-unfold phi; simpl.
-unfold isColimCocone in HccL.
-simple refine (let X : cocone d (G M) := _ in _).
-{ simple refine (mk_cocone _ _).
-+ intro v.
-apply (φ_adj C D F H (coconeIn ccM v)).
-+ intros m n e; simpl.
-rewrite <- (coconeInCommutes ccM m n e); simpl.
-now rewrite φ_adj_natural_precomp.
-}
-apply (HccL (G M) X).
+    ∀ i, # F (coconeIn ccL i) ;; φ_adj_inv _ _ _ H y = coconeIn ccM i)).
+  + apply (weqbandf (adjunction_hom_weq _ _ _ H L M)); simpl; intro f.
+    apply weqiff; try (apply impred; intro; apply hsD).
+    now rewrite φ_adj_inv_after_φ_adj.
+  + eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
+      ∀ i, φ_adj_inv _ _ _ _ (coconeIn ccL i ;; y) = coconeIn ccM i)).
+    * apply weqfibtototal; simpl; intro f.
+      apply weqonsecfibers; intro i.
+      rewrite φ_adj_inv_natural_precomp; apply idweq.
+    * apply weqfibtototal; simpl; intro f.
+      apply weqonsecfibers; intro i.
+      apply weqimplimpl; [ | | apply hsD | apply hsC]; intro h.
+        now rewrite <- h, (φ_adj_after_φ_adj_inv _ _ _ H).
+      now rewrite h, (φ_adj_inv_after_φ_adj _ _ _ H).
+- simple refine (let X : cocone d (G M) := _ in _).
+  { simple refine (mk_cocone _ _).
+    + intro v; apply (φ_adj C D F H (coconeIn ccM v)).
+    + abstract (intros m n e; simpl;
+                rewrite <- (coconeInCommutes ccM m n e); simpl;
+                now rewrite φ_adj_natural_precomp).
+  }
+  apply (HccL (G M) X).
 Defined.
 
 Section preserves_colimit_examples.
