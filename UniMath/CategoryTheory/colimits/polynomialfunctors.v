@@ -780,6 +780,17 @@ rewrite foldr_cons. cbn.
 apply idpath.
 Abort.
 
+(* some experiments: *)
+
+(* Definition const {A B : UU} : A -> B -> A := fun x _ => x. *)
+
+(* Eval compute in const 0 (nil natHSET). *)
+
+(* Axiom const' : forall {A B : UU}, A -> B -> A. *)
+
+(* Eval compute in const' 0 1. *)
+(* Eval compute in const' 0 (nil natHSET). *)
+
 (* Time Eval vm_compute in nil natHSET.  (* This crashes my computer by using up all memory *) *)
 
 End nat_examples.
