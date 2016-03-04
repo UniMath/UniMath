@@ -1,6 +1,6 @@
 
-Require Export Foundations.Generalities.uu0.
-Require Export Foundations.hlevel1.hProp.
+Require Export UniMath.Foundations.Basics.PartD.
+Require Export UniMath.Foundations.Basics.Propositions.
 
 Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
   (at level 200, x binder, y binder, right associativity) : type_scope.
