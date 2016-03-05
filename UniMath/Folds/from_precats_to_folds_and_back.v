@@ -6,7 +6,7 @@
 
 Contents of this file:
 
-  - Map [folds_precat_from_precat] 
+  - Map [folds_precat_from_precat]
   - Map [precat_from_folds_precat]
   - Identity [folds_precat_from_precat_precat_from_folds_precat]
   - Identity [precat_from_folds_precat_folds_precat_from_precat]
@@ -15,7 +15,7 @@ Contents of this file:
 
 *)
 
-Require Import UnicodeNotations.
+Require Import UniMath.Folds.UnicodeNotations.
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -23,8 +23,8 @@ Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 
-Require Import aux_lemmas.
-Require Import folds_precat.
+Require Import UniMath.Folds.aux_lemmas.
+Require Import UniMath.Folds.folds_precat.
 
 Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
 Local Notation "f □ g" := (compose f g)(at level 50).
@@ -54,12 +54,12 @@ Definition comp_pred {a b c : C} : a ⇒ b → b ⇒ c → a ⇒ c → hProp :=
 
 Lemma comp_pred_comp (a b c : C) (f : a ⇒ b) (g : b ⇒ c) : comp_pred f g (compose f g).
 Proof.
-  apply idpath.  
+  apply idpath.
 Defined.
 
 Definition folds_id_comp_from_precat_data : folds_id_T :=
-  tpair (λ C : folds_ob_mor, (∀ a : C, a ⇒ a → hProp) 
-                           × (∀ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))  
+  tpair (λ C : folds_ob_mor, (∀ a : C, a ⇒ a → hProp)
+                           × (∀ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))
         (pr1 C) (dirprodpair (@id_pred) (@comp_pred)).
 
 End data.
@@ -89,13 +89,13 @@ Proof.
    apply hinhpr.
    exists (compose f g).
    apply idpath.
- - simpl. 
+ - simpl.
    intros a b c f g h k H1 H2.
    pathvia (compose f g).
    + apply pathsinv0. apply H1.
    + apply H2.
  - simpl. intros a b c d f g h fg gh fg_h f_gh H1 H2 H3 H4.
-   rewrite <- H4, <- H3, <- H2, <- H1. 
+   rewrite <- H4, <- H3, <- H2, <- H1.
    apply assoc.
 Defined.
 
@@ -113,48 +113,48 @@ Definition precat_from_folds_data : precategory_data :=
   tpair (λ C : precategory_ob_mor, precategory_id_comp C)
     (pr1 (pr1 C)) (dirprodpair (I_func C)(@T_func C)).
 
-Lemma is_precategory_precat_from_folds_data : 
+Lemma is_precategory_precat_from_folds_data :
    is_precategory precat_from_folds_data.
 Proof.
   repeat split.
-  - apply T_I_r.  
-  - apply T_I_l. 
-  - apply T_assoc. 
+  - apply T_I_r.
+  - apply T_I_l.
+  - apply T_assoc.
 Qed.
 
-Definition precat_from_folds_precat : precategory := 
+Definition precat_from_folds_precat : precategory :=
   tpair _ _ is_precategory_precat_from_folds_data.
 
 End from_folds_to_precats.
 
 (** * From FOLDS precats to precats to FOLDS precats *)
 
-Lemma folds_precat_from_precat_precat_from_folds_precat 
-  (C : folds_precat)(hs:has_folds_homsets C): 
+Lemma folds_precat_from_precat_precat_from_folds_precat
+  (C : folds_precat)(hs:has_folds_homsets C):
     folds_precat_from_precat (precat_from_folds_precat C) hs = C.
 Proof.
   apply subtypeEquality'.
   Focus 2.
   - intro a; apply isapropdirprod.
     + apply isaprop_folds_ax_id.
-    Focus 2. apply isaprop_folds_ax_T. apply hs. 
+    Focus 2. apply isaprop_folds_ax_T. apply hs.
   - set (Hid := I_contr C).
     set (Hcomp := T_contr C).
     destruct C as [Cd CC]; simpl in *.
-    destruct Cd as [Ca Cb]; simpl in *. 
+    destruct Cd as [Ca Cb]; simpl in *.
     unfold folds_id_comp_from_precat_data.
     apply maponpaths.
-    destruct CC as [C1 C2]. simpl in *. 
-    destruct Cb as [Cid Ccomp]. simpl in *. 
+    destruct CC as [C1 C2]. simpl in *.
+    destruct Cb as [Cid Ccomp]. simpl in *.
     apply pathsdirprod.
     +  apply funextsec.  intro a.
-       apply funextsec. intro f. unfold id_pred.  simpl. 
+       apply funextsec. intro f. unfold id_pred.  simpl.
        apply subtypeEquality.
-       { intro. apply isapropisaprop. } 
+       { intro. apply isapropisaprop. }
        simpl.
-       apply weqtopaths. 
+       apply weqtopaths.
        apply weqimplimpl.
-       * intro H. rewrite H. 
+       * intro H. rewrite H.
          set (Hid' := pr1 (Hid a)).
          apply (pr2 (Hid')).
        * intro H. unfold precategory_morphisms in f.
@@ -170,7 +170,7 @@ Proof.
      apply funextsec; intro fg.
      clear Hid.
      apply subtypeEquality.
-     { intro; apply isapropisaprop. } 
+     { intro; apply isapropisaprop. }
      apply weqtopaths. apply weqimplimpl.
        * intro H. simpl in *. rewrite <- H.
          apply (pr2 (pr1 (Hcomp a b c f g))).
@@ -182,7 +182,7 @@ Qed.
 
 (** * From precats to FOLDS precats to precats *)
 
-Lemma precat_from_folds_precat_folds_precat_from_precat (C : precategory)(hs: has_homsets C) : 
+Lemma precat_from_folds_precat_folds_precat_from_precat (C : precategory)(hs: has_homsets C) :
      precat_from_folds_precat (folds_precat_from_precat C hs) = C.
 Proof.
   apply subtypeEquality'.
@@ -223,18 +223,18 @@ Proof.
    apply (λ x, x).
 Qed.
 
-Lemma comp_compose2 {C : folds_precat} {a b c : C} 
+Lemma comp_compose2 {C : folds_precat} {a b c : C}
   {f : folds_morphisms a b} {g : folds_morphisms b c} {h : folds_morphisms a c} :
    compose (C:= C^^) f g = h -> T f g h.
 Proof.
-  intro H; rewrite <- H. apply T_func_T. 
+  intro H; rewrite <- H. apply T_func_T.
 Qed.
 
-Lemma comp_compose2' {C : folds_precat} {a b c : C} 
+Lemma comp_compose2' {C : folds_precat} {a b c : C}
   {f : folds_morphisms a b} {g : folds_morphisms b c} {h : folds_morphisms a c} :
   T f g h -> compose (C:=C^^) f g = h.
 Proof.
-  intro H. apply pathsinv0. apply path_to_ctr. assumption. 
+  intro H. apply pathsinv0. apply path_to_ctr. assumption.
 Qed.
 
 
@@ -260,5 +260,3 @@ Lemma id_identity2' {C : folds_precat} {a : C} {f : a ⇒ a} : I f -> f = identi
 Proof.
   intro H. apply path_to_ctr; assumption.
 Qed.
-
-

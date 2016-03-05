@@ -22,8 +22,8 @@ Contents of this file:
   - Lemma: [folds_iso_from_iso] and [iso_from_folds_iso] are inverse to each other
 
 *)
- 
-Require Import UnicodeNotations.
+
+Require Import UniMath.Folds.UnicodeNotations.
 
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
@@ -32,9 +32,9 @@ Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 
-Require Import aux_lemmas.
-Require Import folds_precat.
-Require Import from_precats_to_folds_and_back.
+Require Import UniMath.Folds.aux_lemmas.
+Require Import UniMath.Folds.folds_precat.
+Require Import UniMath.Folds.from_precats_to_folds_and_back.
 
 Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
 
@@ -51,8 +51,8 @@ Local Notation "'id' a" := (identity (C:=C') a) (at level 30).
 
 
 Definition folds_iso_data (a b : C) : UU :=
-  ((∀ {x : C}, (x ⇒ a) ≃ (x ⇒ b)) 
- × (∀ {z : C}, (a ⇒ z) ≃ (b ⇒ z))) 
+  ((∀ {x : C}, (x ⇒ a) ≃ (x ⇒ b))
+ × (∀ {z : C}, (a ⇒ z) ≃ (b ⇒ z)))
 ×             ((a ⇒ a) ≃ (b ⇒ b)).
 
 Definition ϕ₁ {a b : C} (f : folds_iso_data a b) {x : C} : (x ⇒ a) ≃ (x ⇒ b) :=
@@ -64,7 +64,7 @@ Definition ϕo {a b : C} (f : folds_iso_data a b) : (a ⇒ a) ≃ (b ⇒ b) :=
 Notation "ϕ∙" := ϕo. (* works as a notation, but not as an identifier *)
 
 
-Definition folds_iso_prop {a b : C} (i : folds_iso_data a b) : UU := 
+Definition folds_iso_prop {a b : C} (i : folds_iso_data a b) : UU :=
   ((((∀ (x y : C) (f : x ⇒ y) (g : y ⇒ a) (h : x ⇒ a), T f g h ≃ T f ((ϕ₁ i) g) ((ϕ₁ i) h))
    × (∀ (x z : C) (f : x ⇒ a) (g : a ⇒ z) (h : x ⇒ z), T f g h ≃ T ((ϕ₁ i) f) ((ϕ₂ i) g) h))
    × (∀ (z w : C) (f : a ⇒ z) (g : z ⇒ w) (h : a ⇒ w), T f g h ≃ T ((ϕ₂ i) f) g ((ϕ₂ i) h)))
@@ -73,7 +73,7 @@ Definition folds_iso_prop {a b : C} (i : folds_iso_data a b) : UU :=
   × ((∀ (x : C) (f : a ⇒ a) (g h : a ⇒ x),             T f g h ≃ T ((ϕ∙ i) f) ((ϕ₂ i) g) ((ϕ₂ i) h))
    × (∀ f g h : a ⇒ a,                                 T f g h ≃ T ((ϕ∙ i) f) ((ϕ∙ i) g) ((ϕ∙ i) h)))))
    × (∀ f : a ⇒ a,                                     I f ≃ I ((ϕ∙ i) f)).
- 
+
 Definition isaprop_folds_iso_prop (a b : C) (i : folds_iso_data a b) : isaprop (folds_iso_prop i).
 Proof.
   repeat (apply isapropdirprod);
@@ -82,11 +82,11 @@ Qed.
 
 Definition folds_iso (a b : C) := Σ i : folds_iso_data a b, folds_iso_prop i.
 
-Definition folds_iso_data_from_folds_iso {a b : C} : folds_iso a b → folds_iso_data a b 
+Definition folds_iso_data_from_folds_iso {a b : C} : folds_iso a b → folds_iso_data a b
   := λ i, pr1 i.
 Coercion folds_iso_data_from_folds_iso : folds_iso >-> folds_iso_data.
 
-Lemma folds_iso_eq {a b : C} (i i' : folds_iso a b) : 
+Lemma folds_iso_eq {a b : C} (i i' : folds_iso a b) :
   folds_iso_data_from_folds_iso i = folds_iso_data_from_folds_iso i' → i = i'.
 Proof.
   intro H.
@@ -95,8 +95,8 @@ Proof.
   - assumption.
 Qed.
 
-(** * Lemmas about FOLDS isomorphisms *)  
-(** the families of equivalences constituting a FOLDS isomorphism 
+(** * Lemmas about FOLDS isomorphisms *)
+(** the families of equivalences constituting a FOLDS isomorphism
 are given by composition **)
 
 Section about_folds_isos.
@@ -109,15 +109,15 @@ Variable (i : folds_iso a b).
 
 Lemma ϕ₁_is_comp (x : C) (f : x ⇒ a) : ϕ₁ i f = f □ (ϕ₁ i (id _ )).
 Proof.
-  set (q:=pr1 (pr1 (pr1 (pr1 (pr2 i))))). 
+  set (q:=pr1 (pr1 (pr1 (pr1 (pr2 i))))).
   specialize (q _ _ f (id _ ) f).
   set (q':=pr1 q ); clearbody q'.
   assert (H: T f (id a) f).
-  { set (H:= pr1 (pr2 (pr1 (pr2 C)))). 
-    apply H. apply I_func_I. } 
+  { set (H:= pr1 (pr2 (pr1 (pr2 C)))).
+    apply H. apply I_func_I. }
   set (q'H:= q' H). clearbody q'H; clear H q' q.
   apply path_to_ctr. assumption.
-Qed.  
+Qed.
 
 Lemma ϕ₂_is_comp (z : C) (g : a ⇒ z) : ϕ₂ i g = ϕ₂ i (id _ ) □ g.
 Proof.
@@ -125,14 +125,14 @@ Proof.
   specialize (q _ _ (id _ ) g g).
   set (q':=pr1 q ); clearbody q'.
   assert (H: T (id a) g g).
-  { set (H:= pr2 (pr2 (pr1 (pr2 C)))). 
-    apply H. apply I_func_I. } 
+  { set (H:= pr2 (pr2 (pr1 (pr2 C)))).
+    apply H. apply I_func_I. }
   set (q'H:= q' H). clearbody q'H; clear H q' q.
   apply path_to_ctr. assumption.
-Qed. 
+Qed.
 
 Lemma ϕ₁_ϕ₂_id : ϕ₁ i (id _ ) □ (ϕ₂ i (id _ )) = id _.
-Proof.               
+Proof.
   set (q:=pr2 (pr1 (pr1 (pr1 (pr2 i))))). simpl in q.
   specialize (q _ _ (id _ ) (id _ ) (id _ )).
   set (q':=pr1 q ); clearbody q'.
@@ -141,10 +141,10 @@ Proof.
   apply comp_compose2.
   apply T_I_l.
 Qed.
-  
+
 Lemma ϕo_id : ϕ∙ i (id _ ) = id _ .
 Proof.
-  apply id_identity2'.  
+  apply id_identity2'.
   apply (pr2 (pr2 i)).
   apply I_func_I.
 Qed.
@@ -155,7 +155,7 @@ Proof.
   simpl in H'.
   specialize (H' _ (id _ ) (id _ ) (id _ )).
   simpl in H'.
-  rewrite <- ϕo_id. 
+  rewrite <- ϕo_id.
   apply comp_compose2'.
   apply H'.
   apply comp_compose2.
@@ -179,14 +179,14 @@ Proof.
   specialize (q' X). clear X.
   set (q:= comp_compose2' q'). clearbody q; clear q'.
   simpl in *.
-  change (ϕ∙ i f) with (ϕ∙ (pr1 i) f). 
+  change (ϕ∙ i f) with (ϕ∙ (pr1 i) f).
   rewrite <- q. clear q.
   rewrite ϕ₂_is_comp. apply idpath.
 Qed.
 
 End fix_a_folds_iso.
 
-(** * A FOLDS isomorphism is determined by the first family of isos **) 
+(** * A FOLDS isomorphism is determined by the first family of isos **)
 
 Variables i i' : folds_iso a b.
 
@@ -200,11 +200,11 @@ Proof.
   assert (H': is_inverse_in_precat (C:=C') (ϕ₁ i (id _ )) (ϕ₂ i' (id _ ))).
   { split.
     - rewrite H. apply ϕ₁_ϕ₂_id.
-    - rewrite H. apply ϕ₂_ϕ₁_id. } 
+    - rewrite H. apply ϕ₂_ϕ₁_id. }
   assert (X : ϕ₂ i (id _ ) = ϕ₂ i' (id _ )).
   { set (H1:= inverse_unique_precat C' _ _  _ _  _ (ϕ₁_ϕ₂_are_inverse i) H').
     assumption.
-  } 
+  }
   rewrite X.
   apply idpath.
 Qed.
@@ -232,7 +232,7 @@ Proof.
         { apply ϕ₁_is_comp. }
         symmetry.
         eapply pathscomp0.
-        { apply ϕ₁_is_comp. } 
+        { apply ϕ₁_is_comp. }
         rewrite H. apply idpath.
     + apply funextsec; intro.
       apply subtypeEquality.
@@ -240,15 +240,15 @@ Proof.
       * apply funextfunax. apply ϕ₂_determined.
   - apply subtypeEquality.
     intro. apply isapropisweq.
-    apply funextfunax. intros. 
+    apply funextfunax. intros.
     apply ϕo_determined.
-Qed.  
+Qed.
 
-  
+
 End about_folds_isos.
 
 
-(** * Identity FOLDS isomorphism **) 
+(** * Identity FOLDS isomorphism **)
 
 
 Definition id_folds_iso_data (a : C) : folds_iso_data a a.
@@ -263,7 +263,7 @@ Lemma id_folds_iso_prop (a : C) : folds_iso_prop (id_folds_iso_data a).
 Proof.
   repeat split; intros; apply idweq.
 Qed.
-  
+
 Definition id_folds_iso (a : C) : folds_iso a a := tpair _ (id_folds_iso_data a) (id_folds_iso_prop a).
 
 (** * Inverse of a FOLDS isomorphism **)
@@ -349,29 +349,29 @@ Lemma folds_iso_comp_prop : folds_iso_prop folds_iso_comp_data.
 Proof.
   repeat split.
   - intros. simpl. eapply weqcomp.
-    + apply (pr1 (pr1 (pr1 (pr1 (pr2 i))))). 
+    + apply (pr1 (pr1 (pr1 (pr1 (pr2 i))))).
     + apply (pr1 (pr1 (pr1 (pr1 (pr2 i'))))).
   - intros; simpl; eapply weqcomp.
-    + apply (pr2 (pr1 (pr1 (pr1 (pr2 i))))). 
-    + apply (pr2 (pr1 (pr1 (pr1 (pr2 i'))))). 
+    + apply (pr2 (pr1 (pr1 (pr1 (pr2 i))))).
+    + apply (pr2 (pr1 (pr1 (pr1 (pr2 i'))))).
   - intros; simpl; eapply weqcomp.
-    + apply (pr2 (pr1 (pr1 (pr2 i)))). 
-    + apply (pr2 (pr1 (pr1 (pr2 i')))). 
+    + apply (pr2 (pr1 (pr1 (pr2 i)))).
+    + apply (pr2 (pr1 (pr1 (pr2 i')))).
   - intros; simpl; eapply weqcomp.
-    + apply (pr1 (pr1 (pr2 (pr1 (pr2 i))))). 
+    + apply (pr1 (pr1 (pr2 (pr1 (pr2 i))))).
     + apply (pr1 (pr1 (pr2 (pr1 (pr2 i'))))).
   - intros; simpl; eapply weqcomp.
     + apply (pr2 (pr1 (pr2 (pr1 (pr2 i))))).
     + apply (pr2 (pr1 (pr2 (pr1 (pr2 i'))))).
   - intros; simpl; eapply weqcomp.
-    + apply (pr1 (pr2 (pr2 (pr1 (pr2 i))))). 
-    + apply (pr1 (pr2 (pr2 (pr1 (pr2 i'))))). 
+    + apply (pr1 (pr2 (pr2 (pr1 (pr2 i))))).
+    + apply (pr1 (pr2 (pr2 (pr1 (pr2 i'))))).
   - intros; simpl; eapply weqcomp.
-    + apply (pr2 (pr2 (pr2 (pr1 (pr2 i))))). 
-    + apply (pr2 (pr2 (pr2 (pr1 (pr2 i'))))). 
+    + apply (pr2 (pr2 (pr2 (pr1 (pr2 i))))).
+    + apply (pr2 (pr2 (pr2 (pr1 (pr2 i'))))).
   - intros; simpl; eapply weqcomp.
-    + apply (pr2 (pr2 i)). 
-    + apply (pr2 (pr2 i')). 
+    + apply (pr2 (pr2 i)).
+    + apply (pr2 (pr2 i')).
 Qed.
 
 
@@ -386,57 +386,57 @@ Variables a b : C.
 Variable f : z_iso (C:=C') a b.
 
 Definition folds_iso_data_from_z_iso : folds_iso_data a b :=
-  dirprodpair (dirprodpair (z_iso_comp_left_weq f) 
-                           (z_iso_comp_right_weq (z_iso_inv_from_z_iso f))) 
+  dirprodpair (dirprodpair (z_iso_comp_left_weq f)
+                           (z_iso_comp_right_weq (z_iso_inv_from_z_iso f)))
               (z_iso_conjug_weq f).
 
 Lemma folds_iso_data_prop : folds_iso_prop folds_iso_data_from_z_iso.
 Proof.
   repeat split; intros.
-  - simpl. apply logeqweq. 
-    + intro H. apply comp_compose2. 
+  - simpl. apply logeqweq.
+    + intro H. apply comp_compose2.
       rewrite assoc. set (H2 := comp_compose2' H). rewrite H2.
       apply idpath.
     + intro H. apply comp_compose2.
       set (H2 := comp_compose2' H).
       rewrite assoc in H2.
-      eapply post_comp_with_z_iso_is_inj. 
+      eapply post_comp_with_z_iso_is_inj.
       apply (pr2 f). apply H2.
   - simpl. apply logeqweq.
     + intro H. apply comp_compose2.
-      apply pathsinv0. eapply pathscomp0. 
+      apply pathsinv0. eapply pathscomp0.
       * apply (pathsinv0 (comp_compose2' H)).
-      * transitivity ((f0 □ (f □ (inv_from_z_iso f))) □ g).   
+      * transitivity ((f0 □ (f □ (inv_from_z_iso f))) □ g).
         rewrite z_iso_inv_after_z_iso. rewrite id_right. apply idpath.
         repeat rewrite assoc; apply idpath.
     + intro H. apply comp_compose2.
       set (H2 := comp_compose2' H). apply pathsinv0.
-      eapply pathscomp0.  
+      eapply pathscomp0.
       * apply (pathsinv0 H2).
-      * transitivity ((f0 □ (f □ (inv_from_z_iso f))) □ g).   
+      * transitivity ((f0 □ (f □ (inv_from_z_iso f))) □ g).
         repeat rewrite assoc; apply idpath.
         rewrite z_iso_inv_after_z_iso. rewrite id_right. apply idpath.
-  - simpl. apply logeqweq. 
-    + intro H. apply comp_compose2. 
+  - simpl. apply logeqweq.
+    + intro H. apply comp_compose2.
       rewrite <- assoc. rewrite (comp_compose2' H). apply idpath.
     + intro H. apply comp_compose2.
       set (H2:= comp_compose2' H).
       rewrite <- assoc in H2.
-      set (H3:= pre_comp_with_z_iso_is_inj _  _ _ _ _ (is_z_iso_inv_from_z_iso _ _ f) _ _ H2). 
+      set (H3:= pre_comp_with_z_iso_is_inj _  _ _ _ _ (is_z_iso_inv_from_z_iso _ _ f) _ _ H2).
       assumption.
-  - simpl; apply logeqweq. 
+  - simpl; apply logeqweq.
     + intro H; apply comp_compose2.
       rewrite <- (comp_compose2' H).
-      transitivity 
+      transitivity
           ((f0 □ (f □ (inv_from_z_iso f))) □ (g □ f)).
       * repeat rewrite assoc; apply idpath.
       * rewrite z_iso_inv_after_z_iso. rewrite id_right; apply assoc.
     + intro H; apply comp_compose2.
       set (H2 := comp_compose2' H).
       repeat rewrite assoc in H2.
-      set (H3:= post_comp_with_z_iso_is_inj _  _ _ _ (pr2 f) _  _ _ H2). 
+      set (H3:= post_comp_with_z_iso_is_inj _  _ _ _ (pr2 f) _  _ _ H2).
       rewrite <- H3; clear H3 H2 H.
-      transitivity 
+      transitivity
           ((f0 □ (f □ (inv_from_z_iso f))) □ g).
       * rewrite z_iso_inv_after_z_iso, id_right; apply idpath.
       * repeat rewrite assoc; apply idpath.
@@ -455,13 +455,13 @@ Proof.
   - simpl. apply logeqweq.
     + intro H; apply comp_compose2.
       rewrite <- (comp_compose2' H); clear H.
-      repeat rewrite <- assoc. apply maponpaths. repeat rewrite assoc.      
+      repeat rewrite <- assoc. apply maponpaths. repeat rewrite assoc.
       rewrite assoc4, z_iso_inv_after_z_iso, id_right.
       apply idpath.
     + intro H; apply comp_compose2.
       set (H':= comp_compose2' H); generalize H'; clear H' H; intro H.
       repeat rewrite <- assoc in H.
-      set (H2:=pre_comp_with_z_iso_is_inj _ _ _  _ _ ((is_z_iso_inv_from_z_iso  _ _ f)) _ _ H); 
+      set (H2:=pre_comp_with_z_iso_is_inj _ _ _  _ _ ((is_z_iso_inv_from_z_iso  _ _ f)) _ _ H);
         clearbody H2; clear H.
       repeat rewrite  assoc in H2; rewrite assoc4 in H2.
       rewrite z_iso_inv_after_z_iso, id_right in H2.
@@ -473,29 +473,29 @@ Proof.
       repeat rewrite <- assoc; apply maponpaths; simpl.
       set (H':=assoc C' _ _ _ _ f0 g f); clearbody H';
       simpl in *. rewrite <- H'; clear H'.
-      apply maponpaths. simpl in *. 
+      apply maponpaths. simpl in *.
       repeat rewrite  (assoc C').
-      rewrite z_iso_inv_after_z_iso, id_left; 
+      rewrite z_iso_inv_after_z_iso, id_left;
       apply idpath.
     + intro H; set (H':=comp_compose2' H); clearbody H'; clear H;
       rename H' into H.
       apply comp_compose2.
       repeat rewrite <- assoc in H.
-      set (H':=pre_comp_with_z_iso_is_inj _ _ _  _ _ ((is_z_iso_inv_from_z_iso  _ _ f)) _ _ H); 
+      set (H':=pre_comp_with_z_iso_is_inj _ _ _  _ _ ((is_z_iso_inv_from_z_iso  _ _ f)) _ _ H);
         clearbody H'; clear H.
       repeat rewrite assoc in H'.
       set (H'':=post_comp_with_z_iso_is_inj _ _ _ _ (pr2 f) _ _ _ H');
       clearbody H''; clear H'.
       rewrite assoc4, z_iso_inv_after_z_iso, id_right in H'';
       assumption.
-  - simpl. apply logeqweq.  
-    + intro H. apply id_identity2. 
+  - simpl. apply logeqweq.
+    + intro H. apply id_identity2.
       rewrite (id_identity2' H). rewrite (id_left C').
       apply (z_iso_after_z_iso_inv _ _ _ f).
     + intro H. apply id_identity2.
       set (H':=id_identity2' H); clearbody H'; clear H.
       set (H2:=z_iso_inv_to_left _ _ _ _ f _ _ H'); clearbody H2.
-      rewrite id_right in H2.      
+      rewrite id_right in H2.
       transitivity (f □ (inv_from_z_iso f)).
       * apply (z_iso_inv_on_left C'), pathsinv0, H2.
       * apply (z_iso_inv_after_z_iso C').
@@ -545,10 +545,8 @@ Proof.
   apply folds_iso_equal.
   apply (id_left C').
 Qed.
- 
+
 
 End iso_from_folds_from_iso.
 
 End folds_iso_def.
-
-

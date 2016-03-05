@@ -12,7 +12,7 @@ Contents of this file:
 *)
 
 
-Require Import UnicodeNotations.
+Require Import UniMath.Folds.UnicodeNotations.
 
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
@@ -38,29 +38,29 @@ Definition has_folds_homsets (C : folds_ob_mor) : UU := ∀ a b: C, isaset (a �
 (** ** Identity and composition, given through predicates *)
 
 Definition folds_id_T := Σ C : folds_ob_mor,
-    (∀ a : C, a ⇒ a → hProp) 
+    (∀ a : C, a ⇒ a → hProp)
  ×  (∀ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp).
 
 Definition folds_ob_mor_from_folds_id_comp (C : folds_id_T) : folds_ob_mor := pr1 C.
 Coercion folds_ob_mor_from_folds_id_comp : folds_id_T >-> folds_ob_mor.
 
-Definition I {C : folds_id_T} : ∀ {a : C}, a ⇒ a → hProp 
+Definition I {C : folds_id_T} : ∀ {a : C}, a ⇒ a → hProp
   := pr1 (pr2 C).
-Definition T {C : folds_id_T} : ∀ {a b c : C}, (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp 
+Definition T {C : folds_id_T} : ∀ {a b c : C}, (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp
   := pr2 (pr2 C).
 
 (** **  The axioms for identity *)
 
-Definition folds_ax_I (C : folds_id_T) := 
+Definition folds_ax_I (C : folds_id_T) :=
      (∀ a : C, ∥ Σ f : a ⇒ a, I f ∥ )  (* there is an id *)
-  × ((∀ (a b : C) (f : a ⇒ b)(i : b ⇒ b), I i → T f i f) (* id is post neutral *)      
+  × ((∀ (a b : C) (f : a ⇒ b)(i : b ⇒ b), I i → T f i f) (* id is post neutral *)
    × (∀ (a b : C) (f : a ⇒ b)(i : a ⇒ a), I i → T i f f)). (* id is pre neutral *)
 
 Lemma isaprop_folds_ax_id C : isaprop (folds_ax_I C).
 Proof.
  repeat (apply isapropdirprod).
  - apply impred; intro; apply isapropishinh.
- - repeat (apply impred; intro). apply pr2.  
+ - repeat (apply impred; intro). apply pr2.
  - repeat (apply impred; intro). apply pr2.
 Qed.
 
@@ -69,15 +69,15 @@ Definition folds_ax_T (C : folds_id_T) :=
  ×  ((∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
                   T f g h → T f g k → h = k )       (* composite is unique *)
   ×  (∀ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
-                  (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d), 
-               T f g fg → T g h gh → 
+                  (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d),
+               T f g fg → T g h gh →
                   T fg h fg_h → T f gh f_gh → f_gh = fg_h)). (* composition is assoc *)
 
 Lemma isaprop_folds_ax_T (C:folds_id_T) (hs: has_folds_homsets C): isaprop (folds_ax_T C).
 Proof.
  repeat (apply isapropdirprod).
  - do 5 (apply impred; intro). apply isapropishinh.
- - repeat (apply impred; intro). apply hs.  
+ - repeat (apply impred; intro). apply hs.
  - repeat (apply impred; intro). apply hs.
 Qed.
 
@@ -109,7 +109,7 @@ Proof.
   apply (pr1 (pr2 Ccomp) _ _ _ _ _ _ _ H1 H2).
 Qed.
 
-Lemma I_contr : ∀ a : C, iscontr (Σ f : a ⇒ a, I f).  
+Lemma I_contr : ∀ a : C, iscontr (Σ f : a ⇒ a, I f).
 Proof.
   intro a.
   set (H := pr1 (pr1 (pr2 C)) a).
@@ -128,7 +128,7 @@ Definition I_func (a : C) : a ⇒ a := pr1 (pr1 (I_contr a)).
 
 Lemma I_func_I (a : C) : I (I_func a).
 Proof.
-  apply (pr2 (pr1 (I_contr a))).  
+  apply (pr2 (pr1 (I_contr a))).
 Defined.
 
 Lemma T_contr : ∀ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), iscontr (Σ h, T f g h).
@@ -157,9 +157,9 @@ Defined.
 
 Lemma T_I_l (a b : C) (f : a ⇒ b) : f ∘ (I_func b) = f.
 Proof.
-  assert (H : T f (I_func b) f).  
+  assert (H : T f (I_func b) f).
   { apply (pr1 (pr2 (pr1 (pr2 C)))). apply I_func_I. }
-  assert (H' : T f (I_func b) (T_func f (I_func b))).  
+  assert (H' : T f (I_func b) (T_func f (I_func b))).
   { apply T_func_T. }
   set (H2 := pr1 (pr2 (pr2 (pr2 C)))).
   apply (H2 _ _ _ _ _ _ _ H' H).
@@ -167,9 +167,9 @@ Defined.
 
 Lemma T_I_r (a b : C) (f : a ⇒ b) : (I_func a) ∘ f = f.
 Proof.
-  assert (H : T (I_func a) f f).  
+  assert (H : T (I_func a) f f).
   { apply (pr2 (pr2 (pr1 (pr2 C)))). apply I_func_I. }
-  assert (H' : T (I_func a) f (T_func (I_func a) f)).  
+  assert (H' : T (I_func a) f (T_func (I_func a) f)).
   { apply T_func_T. }
   set (H2 := pr1 (pr2 (pr2 (pr2 C)))).
   apply (H2 _ _ _ _ _ _ _ H' H).
@@ -184,7 +184,6 @@ Proof.
   - apply T_func_T.
   - apply T_func_T.
 Defined.
- 
+
 
 End some_lemmas_about_folds_precats.
-

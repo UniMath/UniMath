@@ -14,6 +14,7 @@ PACKAGES += Ktheory
 PACKAGES += Dedekind
 PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
+PACKAGES += Folds
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes
