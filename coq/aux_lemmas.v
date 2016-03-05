@@ -1,7 +1,7 @@
 
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.Propositions.
+Require Import UniMath.Foundations.Basics.Sets.
 
 
 Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (fun a => B a))) 

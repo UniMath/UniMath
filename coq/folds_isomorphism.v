@@ -25,12 +25,12 @@ Contents of this file:
  
 Require Import UnicodeNotations.
 
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
-Require Import Foundations.Proof_of_Extensionality.funextfun.
-Require Import RezkCompletion.total2_paths.
-Require Import RezkCompletion.precategories.
+Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.Propositions.
+Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.precategories.
 
 Require Import aux_lemmas.
 Require Import folds_precat.
@@ -90,8 +90,8 @@ Lemma folds_iso_eq {a b : C} (i i' : folds_iso a b) :
   folds_iso_data_from_folds_iso i = folds_iso_data_from_folds_iso i' → i = i'.
 Proof.
   intro H.
-  apply total2_paths_isaprop.
-  - apply isaprop_folds_iso_prop.
+  apply subtypeEquality.
+  - intro; apply isaprop_folds_iso_prop.
   - assumption.
 Qed.
 
@@ -225,21 +225,21 @@ Proof.
   apply dirprodpath.
   - apply dirprodpath.
     + apply funextsec; intro.
-      apply total2_paths_isaprop.
-      * intros; apply isapropisweq.
+      apply subtypeEquality.
+      * intro. apply isapropisweq.
       * apply funextfunax; intro f.
-        etransitivity.
+        eapply pathscomp0.
         { apply ϕ₁_is_comp. }
         symmetry.
-        etransitivity.
+        eapply pathscomp0.
         { apply ϕ₁_is_comp. } 
         rewrite H. apply idpath.
     + apply funextsec; intro.
-      apply total2_paths_isaprop.
-      * intros; apply isapropisweq.
+      apply subtypeEquality.
+      * intro; apply isapropisweq.
       * apply funextfunax. apply ϕ₂_determined.
-  - apply total2_paths_isaprop.
-    intros. apply isapropisweq.
+  - apply subtypeEquality.
+    intro. apply isapropisweq.
     apply funextfunax. intros. 
     apply ϕo_determined.
 Qed.  
@@ -404,14 +404,14 @@ Proof.
       apply (pr2 f). apply H2.
   - simpl. apply logeqweq.
     + intro H. apply comp_compose2.
-      apply pathsinv0. etransitivity.
+      apply pathsinv0. eapply pathscomp0. 
       * apply (pathsinv0 (comp_compose2' H)).
       * transitivity ((f0 □ (f □ (inv_from_z_iso f))) □ g).   
         rewrite z_iso_inv_after_z_iso. rewrite id_right. apply idpath.
         repeat rewrite assoc; apply idpath.
     + intro H. apply comp_compose2.
       set (H2 := comp_compose2' H). apply pathsinv0.
-      etransitivity. 
+      eapply pathscomp0.  
       * apply (pathsinv0 H2).
       * transitivity ((f0 □ (f □ (inv_from_z_iso f))) □ g).   
         repeat rewrite assoc; apply idpath.
@@ -497,7 +497,7 @@ Proof.
       set (H2:=z_iso_inv_to_left _ _ _ _ f _ _ H'); clearbody H2.
       rewrite id_right in H2.      
       transitivity (f □ (inv_from_z_iso f)).
-      * apply (z_iso_inv_on_left C'); auto.
+      * apply (z_iso_inv_on_left C'), pathsinv0, H2.
       * apply (z_iso_inv_after_z_iso C').
 Qed.
 

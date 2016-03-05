@@ -1,3 +1,4 @@
+-arg -type-in-type 
 -R . FOLDS
 
 UnicodeNotations.v

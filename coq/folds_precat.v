@@ -14,10 +14,10 @@ Contents of this file:
 
 Require Import UnicodeNotations.
 
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
-Require Import RezkCompletion.total2_paths.
+Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.Propositions.
+Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.CategoryTheory.total2_paths.
 
 (** * The definition of a FOLDS precategory *)
 
@@ -118,7 +118,7 @@ Proof.
   apply (H H'); simpl.
   intro t; exists t.
   intro t'.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   - intro b; apply pr2.
   - destruct t; destruct t';
     apply I_unique; assumption.
@@ -139,7 +139,7 @@ Proof.
   apply (pr1 (pr2 (pr2 C)) a b c f g H').
   simpl; intro t; exists t.
   intro t'.
-  apply total2_paths_isaprop.
+  apply subtypeEquality.
   - intro; apply pr2.
   - destruct t as [t tp]; destruct t' as [t' tp']; simpl in *.
     apply (pr1 (pr2 (pr2 (pr2 C))) _ _ _ f g ); assumption.
@@ -148,7 +148,7 @@ Defined.
 Definition T_func {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : a ⇒ c :=
      pr1 (pr1 (T_contr a b c f g)).
 
-Local Notation "f ∘ g" := (T_func f g) (at level 30).
+Local Notation "f ∘ g" := (T_func f g).  (*at level 30*)
 
 Lemma T_func_T {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : T f g (f ∘ g).
 Proof.

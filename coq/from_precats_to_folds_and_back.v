@@ -16,12 +16,12 @@ Contents of this file:
 *)
 
 Require Import UnicodeNotations.
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
-Require Import Foundations.Proof_of_Extensionality.funextfun.
-Require Import RezkCompletion.total2_paths.
-Require Import RezkCompletion.precategories.
+Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.Propositions.
+Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
+Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.precategories.
 
 Require Import aux_lemmas.
 Require Import folds_precat.
@@ -78,11 +78,11 @@ Proof.
     exists (identity a).
     apply idpath.
   - intros; unfold id, T; simpl.
-    transitivity (compose f (identity _ )).
+    pathvia (compose f (identity _ )).
     + apply maponpaths; assumption.
     + apply id_right.
  - intros; unfold id, T; simpl.
-   transitivity (compose (identity _ ) f).
+   pathvia (compose (identity _ ) f).
    +  rewrite X. apply idpath.
    +  apply id_left.
  - intros a b c f g.
@@ -91,7 +91,9 @@ Proof.
    apply idpath.
  - simpl. 
    intros a b c f g h k H1 H2.
-   transitivity (compose f g); auto.
+   pathvia (compose f g).
+   + apply pathsinv0. apply H1.
+   + apply H2.
  - simpl. intros a b c d f g h fg gh fg_h f_gh H1 H2 H3 H4.
    rewrite <- H4, <- H3, <- H2, <- H1. 
    apply assoc.
@@ -131,10 +133,11 @@ Lemma folds_precat_from_precat_precat_from_folds_precat
   (C : folds_precat)(hs:has_folds_homsets C): 
     folds_precat_from_precat (precat_from_folds_precat C) hs = C.
 Proof.
-  apply total2_paths_second_isaprop.
+  apply subtypeEquality'.
+  Focus 2.
   - intro a; apply isapropdirprod.
     + apply isaprop_folds_ax_id.
-    + apply isaprop_folds_ax_T. assumption.
+    Focus 2. apply isaprop_folds_ax_T. apply hs. 
   - set (Hid := I_contr C).
     set (Hcomp := T_contr C).
     destruct C as [Cd CC]; simpl in *.
@@ -146,7 +149,7 @@ Proof.
     apply pathsdirprod.
     +  apply funextsec.  intro a.
        apply funextsec. intro f. unfold id_pred.  simpl. 
-       apply total2_paths_isaprop.
+       apply subtypeEquality.
        { intro. apply isapropisaprop. } 
        simpl.
        apply weqtopaths. 
@@ -166,7 +169,7 @@ Proof.
      apply funextsec; intro g.
      apply funextsec; intro fg.
      clear Hid.
-     apply total2_paths_isaprop.
+     apply subtypeEquality.
      { intro; apply isapropisaprop. } 
      apply weqtopaths. apply weqimplimpl.
        * intro H. simpl in *. rewrite <- H.
@@ -182,8 +185,9 @@ Qed.
 Lemma precat_from_folds_precat_folds_precat_from_precat (C : precategory)(hs: has_homsets C) : 
      precat_from_folds_precat (folds_precat_from_precat C hs) = C.
 Proof.
-  apply total2_paths_second_isaprop.
-  { intro; apply isaprop_is_precategory. assumption. }
+  apply subtypeEquality'.
+  Focus 2. intro; apply isaprop_is_precategory. assumption.
+
   destruct C as [Cdata Cax]; simpl in *.
   destruct Cdata as [Cobmor Cidcomp]; simpl in *.
   unfold precat_from_folds_data; apply maponpaths.

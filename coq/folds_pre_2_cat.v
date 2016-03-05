@@ -29,7 +29,7 @@ Contents of this file:
   - Definition: FOLDS precategory as special FOLDS pre-2-category
     - predicate [is_folds_precategory] defined as
       - hom-types are sets
-      - axioms of category modulo [=] rather than [E]
+      - axioms of category modul [=] rather than [E]
 
   - Lemma: Logical equivalence between being a FOLDS precategory and being univalent
     - since both are hProps, this entails equivalence between the types of
@@ -43,15 +43,17 @@ Contents of this file:
 
 Require Import UnicodeNotations.
 
-Require Import Foundations.Generalities.uu0.
-Require Import Foundations.hlevel1.hProp.
-Require Import Foundations.hlevel2.hSet.
+Require Import UniMath.Foundations.Basics.PartD. 
+Require Import UniMath.Foundations.Basics.Propositions.
+Require Import UniMath.Foundations.Basics.Sets.
 
-Require Import RezkCompletion.total2_paths.
+Require Import UniMath.CategoryTheory.total2_paths.
 
 (* Require Import FOLDS.aux_lemmas. *)
 
-Local Notation "p # a" := (transportf _ p a) (at level 3, only parsing).
+
+Local Notation "p ## a" := (transportf _ p a) (at level 3, only parsing).
+
 
 (** * The definition of a FOLDS pre-3-category *)
 
@@ -159,14 +161,14 @@ Definition folds_iso {C: folds_pre_3_cat} {a b : C} (f g : a ⇒ b) : UU :=
 (((∀ (x : C) (u : x ⇒ a) (v : x ⇒ b), T u f v ≃ T u g v)
   × (∀ (x : C) (u : a ⇒ x) (v : x ⇒ b), T u v f ≃ T u v g))
  × (∀ (x : C) (u : b ⇒ x) (v : a ⇒ x), T f u v ≃ T g u v))
-× ((((∀ (u : a ⇒ b) (p : b = a), T p # f f u ≃ T p # g g u)
+× ((((∀ (u : a ⇒ b) (p : b = a), T p ## f f u ≃ T p ## g g u)
      × (∀ (u : b ⇒ b) (p : a = a), T (transportf (λ a, a ⇒ b) p f) u f ≃ 
                                    T (transportf (λ a, a ⇒ b) p g) u g))
-    × ((∀ (u : a ⇒ a) (p : b = b), T u p # f f ≃ T u p # g g)
+    × ((∀ (u : a ⇒ a) (p : b = b), T u p ## f f ≃ T u p ## g g)
        × (∀ (p : a = a) (q : b = a) (r : b = b),
-          T (double_transport p q f) r # f f
-          ≃ T (double_transport p q g) r # g g)))
-   × (((∀ p : b = a, I p # f ≃ I p # g) × (∀ u : a ⇒ b, E f u ≃ E g u))
+          T (double_transport p q f) r ## f f
+          ≃ T (double_transport p q g) r ## g g)))
+   × (((∀ p : b = a, I p ## f ≃ I p ## g) × (∀ u : a ⇒ b, E f u ≃ E g u))
       × ((∀ u : a ⇒ b, E u f ≃ E u g)
          × (∀ (p : a = a) (q : b = b),
             E (double_transport p q f) f ≃ E (double_transport p q g) g)))).
@@ -220,19 +222,19 @@ Proof.
     apply (ET _ _ _ f g f g u u); auto. 
   - destruct p;
     apply (ET _ _ _ g f g f u u); auto.
-  - apply (ET _ _ _ (transportf (λ c, c ⇒ b) p f) (p # g) u u f g); 
+  - apply (ET _ _ _ (transportf (λ c, c ⇒ b) p f) (p ## g) u u f g); 
     try apply E_transport_source; auto.
-  - apply (ET _ _ _ (transportf (λ c, c ⇒ b) p g) (p # f) u u g f); 
+  - apply (ET _ _ _ (transportf (λ c, c ⇒ b) p g) (p ## f) u u g f); 
     try apply E_transport_source; auto.
-  - apply (ET _ _ _ u u (transportf (λ c, a ⇒ c) p f) (p # g) f g); 
+  - apply (ET _ _ _ u u (transportf (λ c, a ⇒ c) p f) (p ## g) f g); 
     try apply E_transport_target; auto.
-  - apply (ET _ _ _ u u (transportf (λ c, a ⇒ c) p g) (p # f) g f); 
+  - apply (ET _ _ _ u u (transportf (λ c, a ⇒ c) p g) (p ## f) g f); 
     try apply E_transport_target; auto.
   - apply (ET _ _ _ (double_transport p q f) (double_transport p q g) 
-                          (transportf (λ c, a ⇒ c) r f) (r # g) f g); 
+                          (transportf (λ c, a ⇒ c) r f) (r ## g) f g); 
     try apply E_transport_target; try apply E_transport_source; auto.
   - apply (ET _ _ _ (double_transport p q g) (double_transport p q f) 
-                          (transportf (λ c, a ⇒ c) r g) (r # f) g f); 
+                          (transportf (λ c, a ⇒ c) r g) (r ## f) g f); 
     try apply E_transport_target; try apply E_transport_source; auto.
   - destruct p. apply (EI _ f); auto.
   - destruct p; apply (EI _ g); auto.
