@@ -11,6 +11,7 @@ env:
   - PACKAGE=Dedekind
   - PACKAGE=SubstitutionSystems
   - PACKAGE=Tactics
+  - PACKAGE=Folds
 script:
   - time make BUILD_COQIDE=yes build-coq
   - time make TIMECMD=time $PACKAGE
