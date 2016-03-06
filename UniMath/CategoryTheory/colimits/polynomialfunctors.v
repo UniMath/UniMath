@@ -388,11 +388,11 @@ Definition constprod_functor1 (x : C) : functor C C :=
 Definition constprod_functor2 (x : C) : functor C C :=
   product_functor C C PC (functor_identity C) (constant_functor C C x).
 
-Lemma omega_cocont_constprod_functor1 (x : C) : omega_cocont (constprod_functor1 x).
-Admitted.
+(* Lemma omega_cocont_constprod_functor1 (x : C) : omega_cocont (constprod_functor1 x). *)
+(* Admitted. *)
 
-Lemma omega_cocont_constprod_functor2 (x : C) : omega_cocont (constprod_functor2 x).
-Admitted.
+(* Lemma omega_cocont_constprod_functor2 (x : C) : omega_cocont (constprod_functor2 x). *)
+(* Admitted. *)
 
 Definition binproduct_functor_data : functor_data (product_precategory C C) C.
 Proof.
@@ -416,44 +416,44 @@ mkpair.
 Defined.
 
 Lemma omega_cocont_binproduct_functor : omega_cocont binproduct_functor.
-Proof.
-intros c LM ccLM HccLM K ccK; simpl in *.
-generalize (isColimCocone_pr2_functor _ _ hsC _ _ _ HccLM).
-generalize (isColimCocone_pr1_functor _ _ hsC _ _ _ HccLM).
-set (L := pr1 LM); set (M := pr2 LM).
-intros HA HB.
-(* Form the colimiting cocones of "A_i * B_0 -> A_i * B_1 -> ..." *)
-assert (HAiB : forall i, isColimCocone
-     (mapdiagram (constprod_functor1 (pr1 (pr1 c i)))
-        (mapchain (pr2_functor C C) c))
-     ((constprod_functor1 (pr1 (pr1 c i))) M)
-     (mapcocone (constprod_functor1 (pr1 (pr1 c i)))
-        (mapchain (pr2_functor C C) c) (cocone_pr2_functor C C c LM ccLM))).
-  intro i.
-  apply (omega_cocont_constprod_functor1 (pr1 (pr1 c i)) _ _ _ HB).
-generalize (omega_cocont_constprod_functor2 M _ _ _ HA); intro HAiM.
-simple refine (let X : ColimCocone
-       (mapdiagram (constprod_functor2 M) (mapchain (pr1_functor C C) c)) := _ in _).
-mkpair.
-mkpair.
-apply (ProductObject _ (PC L M)).
-apply (mapcocone (constprod_functor2 M) (mapchain (pr1_functor C C) c)
-              (cocone_pr1_functor C C c LM ccLM)).
-apply HAiM.
-simple refine (let Y : cocone (mapdiagram (constprod_functor2 M) (mapchain (pr1_functor C C) c)) K := _ in _).
-  admit.
-mkpair.
-mkpair.
-apply (colimArrow X K Y).
-intro n.
-generalize (colimArrowCommutes X K Y n).
-simpl.
-unfold colimIn.
-simpl.
-unfold product_functor_mor.
-unfold ProductOfArrows.
-admit.
-admit.
+(* Proof. *)
+(* intros c LM ccLM HccLM K ccK; simpl in *. *)
+(* generalize (isColimCocone_pr2_functor _ _ hsC _ _ _ HccLM). *)
+(* generalize (isColimCocone_pr1_functor _ _ hsC _ _ _ HccLM). *)
+(* set (L := pr1 LM); set (M := pr2 LM). *)
+(* intros HA HB. *)
+(* (* Form the colimiting cocones of "A_i * B_0 -> A_i * B_1 -> ..." *) *)
+(* assert (HAiB : forall i, isColimCocone *)
+(*      (mapdiagram (constprod_functor1 (pr1 (pr1 c i))) *)
+(*         (mapchain (pr2_functor C C) c)) *)
+(*      ((constprod_functor1 (pr1 (pr1 c i))) M) *)
+(*      (mapcocone (constprod_functor1 (pr1 (pr1 c i))) *)
+(*         (mapchain (pr2_functor C C) c) (cocone_pr2_functor C C c LM ccLM))). *)
+(*   intro i. *)
+(*   apply (omega_cocont_constprod_functor1 (pr1 (pr1 c i)) _ _ _ HB). *)
+(* generalize (omega_cocont_constprod_functor2 M _ _ _ HA); intro HAiM. *)
+(* simple refine (let X : ColimCocone *)
+(*        (mapdiagram (constprod_functor2 M) (mapchain (pr1_functor C C) c)) := _ in _). *)
+(* mkpair. *)
+(* mkpair. *)
+(* apply (ProductObject _ (PC L M)). *)
+(* apply (mapcocone (constprod_functor2 M) (mapchain (pr1_functor C C) c) *)
+(*               (cocone_pr1_functor C C c LM ccLM)). *)
+(* apply HAiM. *)
+(* simple refine (let Y : cocone (mapdiagram (constprod_functor2 M) (mapchain (pr1_functor C C) c)) K := _ in _). *)
+(*   admit. *)
+(* mkpair. *)
+(* mkpair. *)
+(* apply (colimArrow X K Y). *)
+(* intro n. *)
+(* generalize (colimArrowCommutes X K Y n). *)
+(* simpl. *)
+(* unfold colimIn. *)
+(* simpl. *)
+(* unfold product_functor_mor. *)
+(* unfold ProductOfArrows. *)
+(* admit. *)
+(* admit. *)
 Admitted.
 
 End binprod_functor.
@@ -1007,7 +1007,7 @@ apply (constant_functor _ _ unitHSET).
 apply functor_identity.
 Defined.
 
-(* TODO: define sum of omega cocont functors *)
+(* TODO: package omega cocont functors *)
 Definition LambdaFunctor : functor [HSET,HSET,has_homsets_HSET] [HSET,HSET,has_homsets_HSET].
 Proof.
 eapply sum_of_functors.
