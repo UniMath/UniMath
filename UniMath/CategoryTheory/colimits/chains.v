@@ -34,7 +34,7 @@ Section move_upstream.
 
 Fixpoint iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C := match n with
   | O => functor_identity C
-  | S n' => functor_composite _ _ _ (iter_functor F n') F
+  | S n' => functor_composite (iter_functor F n') F
   end.
 
 (* TODO : state this for any object and morphism, that is,
