@@ -337,8 +337,7 @@ Lemma θ_nat_1' (X X' : EndC) (α : X ⇒ X') (Z : Ptd)
   : compose(C:=EndC) (# H α øø (U Z)) (θ (X' ⊗ Z)) =
         θ (X ⊗ Z);; # H (α øø (U Z)).
 Proof.
-  admit.
-Qed.
+Abort.
 *)
 
 Lemma θ_nat_1_pointwise (X X' : EndC) (α : X ⇒ X') (Z : Ptd) (c : C)
