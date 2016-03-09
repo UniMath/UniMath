@@ -32,6 +32,7 @@ rezk_completion.v
 slicecat.v
 colimits/chains.v
 colimits/colimits.v
+EquivalencesExamples.v
 colimits/polynomialfunctors.v
 limits/limits.v
 AdjunctionHomTypesWeq.v
@@ -42,4 +43,4 @@ PointedFunctors.v
 PointedFunctorsComposition.v
 HorizontalComposition.v
 CommaCategories.v
-
+lists.v

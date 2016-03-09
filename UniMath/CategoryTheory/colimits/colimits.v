@@ -22,6 +22,8 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
@@ -505,7 +507,42 @@ Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : UU :=
   isColimCocone d L cc -> isColimCocone (mapdiagram d) (F L) (mapcocone d cc).
 
+Definition is_cocont := forall {g : graph} (d : diagram g C) (L : C)
+  (cc : cocone d L), preserves_colimit d L cc.
+
 End preserves_colimit.
+
+Lemma left_adjoint_cocont {C D : precategory} (F : functor C D)
+  (H : is_left_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D) : is_cocont F.
+Proof.
+intros g d L ccL HccL M ccM.
+set (G := pr1 H).
+apply (@iscontrweqb _ (Σ y : C ⟦ L, G M ⟧,
+    ∀ i, coconeIn ccL i ;; y = φ_adj _ _ _ H (coconeIn ccM i))).
+- eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
+    ∀ i, # F (coconeIn ccL i) ;; φ_adj_inv _ _ _ H y = coconeIn ccM i)).
+  + apply (weqbandf (adjunction_hom_weq _ _ _ H L M)); simpl; intro f.
+    apply weqiff; try (apply impred; intro; apply hsD).
+    now rewrite φ_adj_inv_after_φ_adj.
+  + eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
+      ∀ i, φ_adj_inv _ _ _ _ (coconeIn ccL i ;; y) = coconeIn ccM i)).
+    * apply weqfibtototal; simpl; intro f.
+      apply weqonsecfibers; intro i.
+      rewrite φ_adj_inv_natural_precomp; apply idweq.
+    * apply weqfibtototal; simpl; intro f.
+      apply weqonsecfibers; intro i.
+      apply weqimplimpl; [ | | apply hsD | apply hsC]; intro h.
+        now rewrite <- h, (φ_adj_after_φ_adj_inv _ _ _ H).
+      now rewrite h, (φ_adj_inv_after_φ_adj _ _ _ H).
+- simple refine (let X : cocone d (G M) := _ in _).
+  { simple refine (mk_cocone _ _).
+    + intro v; apply (φ_adj C D F H (coconeIn ccM v)).
+    + abstract (intros m n e; simpl;
+                rewrite <- (coconeInCommutes ccM m n e); simpl;
+                now rewrite φ_adj_natural_precomp).
+  }
+  apply (HccL (G M) X).
+Defined.
 
 Section preserves_colimit_examples.
 
@@ -526,6 +563,11 @@ simple refine (tpair _ _ _).
 - simpl; intro t; apply subtypeEquality.
   + simpl; intro v; apply impred; intro; apply hsC.
   + apply (colimArrowUnique CC); intro n; apply (pr2 t).
+Defined.
+
+Lemma is_cocont_identity : is_cocont Fid.
+Proof.
+intros g d L cc; apply preserves_colimit_identity.
 Defined.
 
 Variable (x : D).
@@ -554,7 +596,7 @@ Lemma preserves_colimit_comp (F : functor C D) (G : functor D E)
   {g : graph} (d : diagram g C) (L : C) (cc : cocone d L)
   (H1 : preserves_colimit F d L cc)
   (H2 : preserves_colimit G (mapdiagram F d) (F L) (mapcocone F _ cc)) :
-  preserves_colimit (functor_composite _ _ _ F G) d L cc.
+  preserves_colimit (functor_composite F G) d L cc.
 Proof.
 intros HcL y ccy; simpl.
 set (CC := mk_ColimCocone _ _ _ (H2 (H1 HcL))).
@@ -565,6 +607,13 @@ simple refine (tpair _ _ _).
 - simpl; intro t; apply subtypeEquality.
   + intros f; apply impred; intro; apply hsE.
   + simpl; apply (colimArrowUnique CC), (pr2 t).
+Defined.
+
+Lemma is_cocont_comp (F : functor C D) (G : functor D E)
+  (HF : is_cocont F) (HG : is_cocont G) : is_cocont (functor_composite F G).
+Proof.
+intros g d L cc.
+apply preserves_colimit_comp; [ apply HF | apply HG ].
 Defined.
 
 End preserves_colimit_examples.
