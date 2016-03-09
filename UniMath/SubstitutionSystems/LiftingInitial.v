@@ -119,15 +119,6 @@ Definition θ_in_first_arg (Z: Ptd)
 Definition InitAlg : Alg := InitialObject IA.
 
 
-
-(* original try in bracket_for_InitAlg with
-  assert (iso_1 : functor_composite Id_H (pre_composition_functor C C C hs hs (U Z)) ⟶
-                 coproduct_functor_data ([C, C] hs) ([C, C] hs) CPEndC
-    (constant_functor ([C, C] hs) ([C, C] hs) (pr1 Z))
-    (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z) : EndEndC ⟦ _ , _ ⟧ ).
-  { admit. }
- *)
-
 Local Lemma aux_iso_1_is_nat_trans (Z : Ptd) :
    is_nat_trans
      (functor_composite Id_H (ℓ (U Z)))
