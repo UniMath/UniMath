@@ -7,6 +7,7 @@ Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 
 Section delta_functor_adjunction.
 
@@ -34,3 +35,32 @@ mkpair.
 Defined.
 
 End delta_functor_adjunction.
+
+Section bincoproduct_functor_adjunction.
+
+Context {C : precategory} (PC : Coproducts C).
+
+Lemma is_left_adjoint_bincoproduct_functor : is_left_adjoint (bincoproduct_functor PC).
+Proof.
+apply (tpair _ (delta_functor _)).
+mkpair.
+- split.
+  + mkpair.
+    * simpl; intro p; set (x := pr1 p); set (y := pr2 p).
+      split; [ apply (CoproductIn1 _ (PC x y)) | apply (CoproductIn2 _ (PC x y)) ].
+    * abstract (intros p q f; unfold prodcatmor, compose; simpl;
+                now rewrite CoproductOfArrowsIn1, CoproductOfArrowsIn2).
+  + mkpair.
+    * intro x; apply (CoproductArrow _ _ (identity x) (identity x)).
+    * abstract (intros p q f; simpl;
+                now rewrite precompWithCoproductArrow, postcompWithCoproductArrow,
+                            id_right, id_left).
+- split; simpl; intro x.
+  + rewrite precompWithCoproductArrow, !id_right.
+    apply pathsinv0, Coproduct_endo_is_identity;
+      [ apply CoproductIn1Commutes | apply CoproductIn2Commutes ].
+  + unfold prodcatmor, compose; simpl.
+    now rewrite CoproductIn1Commutes, CoproductIn2Commutes.
+Defined.
+
+End bincoproduct_functor_adjunction.

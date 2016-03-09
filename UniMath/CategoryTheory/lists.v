@@ -325,11 +325,11 @@ Definition testlistS : pr1 (List natHSET) :=
 Definition sum : pr1 (List natHSET) -> nat :=
   foldr natHSET natHSET 0 (fun xy => pr1 xy + pr2 xy).
 
-Eval vm_compute in length _ (nil natHSET).
-Eval vm_compute in length _ testlist.
-Eval vm_compute in length _ testlistS.
-Eval vm_compute in sum testlist.
-Eval vm_compute in sum testlistS.
+(* Eval vm_compute in length _ (nil natHSET). *)
+(* Eval vm_compute in length _ testlist. *)
+(* Eval vm_compute in length _ testlistS. *)
+(* Eval vm_compute in sum testlist. *)
+(* Eval vm_compute in sum testlistS. *)
 
 Goal length _ testlist = 2.
 vm_compute.
@@ -475,6 +475,6 @@ mkpair.
 Defined.
 
 (* This works: *)
-Eval compute in (to_list' _ testlist).
+(* Eval compute in (to_list' _ testlist). *)
 
 End list'.

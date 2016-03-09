@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.ProductPrecategory.
 
 (** * Definition of binary coproduct of objects in a precategory *)
 Section coproduct_def.
@@ -569,3 +570,38 @@ apply (maponpaths pr1 (Ht X)).
 Defined.
 
 End Coproducts_from_Colims.
+
+Section functors.
+
+Definition bincoproduct_functor_data {C : precategory} (PC : Coproducts C) :
+  functor_data (product_precategory C C) C.
+Proof.
+mkpair.
+- intros p.
+  apply (CoproductObject _ (PC (pr1 p) (pr2 p))).
+- simpl; intros p q f.
+  apply (CoproductOfArrows _ (PC (pr1 p) (pr2 p))
+                             (PC (pr1 q) (pr2 q)) (pr1 f) (pr2 f)).
+Defined.
+
+(* The binary coproduct functor: C * C -> C *)
+Definition bincoproduct_functor {C : precategory} (PC : Coproducts C) :
+  functor (product_precategory C C) C.
+Proof.
+apply (tpair _ (bincoproduct_functor_data PC)).
+abstract (split;
+  [ intro x; simpl; apply pathsinv0, Coproduct_endo_is_identity;
+    [ now rewrite CoproductOfArrowsIn1, id_left
+    | now rewrite CoproductOfArrowsIn2, id_left ]
+  | now intros x y z f g; simpl; rewrite CoproductOfArrows_comp ]).
+Defined.
+
+(* Defines the sum of two functors by:
+    x -> (x,x) -> (F x,G x) -> F x + G x
+*)
+Definition sum_of_functors {C D : precategory} (HD : Coproducts D)
+  (F G : functor C D) : functor C D :=
+  functor_composite (delta_functor C)
+     (functor_composite (pair_functor F G) (bincoproduct_functor HD)).
+
+End functors.
