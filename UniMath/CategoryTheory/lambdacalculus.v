@@ -22,6 +22,7 @@ Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.colimits.polynomialfunctors.
+Require Import UniMath.CategoryTheory.exponentials.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -30,59 +31,106 @@ Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Section binprod_functor.
 
 Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
+Variables (hE : has_exponentials PC).
 
-(* The functor "x * _" and "_ * x" *)
-(* Definition constprod_functor1 (x : C) : functor C C := *)
-(*   product_functor C C PC (constant_functor C C x) (functor_identity C). *)
+Lemma cocont_constprod_functor1 (x : C) : is_cocont (constprod_functor1 PC x).
+Proof.
+apply (left_adjoint_cocont _ (hE _) hsC hsC).
+Defined.
 
-(* Definition constprod_functor2 (x : C) : functor C C := *)
-(*   product_functor C C PC (functor_identity C) (constant_functor C C x). *)
+Lemma omega_cocont_constprod_functor1 (x : C) : omega_cocont (constprod_functor1 PC x).
+Proof.
+intros c L ccL.
+apply cocont_constprod_functor1.
+Defined.
 
-(* Lemma omega_cocont_constprod_functor1 (x : C) : omega_cocont (constprod_functor1 x). *)
-(* Admitted. *)
+Lemma cocont_constprod_functor2 (x : C) : is_cocont (constprod_functor2 PC x).
+Proof.
+apply left_adjoint_cocont; try apply hsC.
+apply is_left_adjoint_constprod_functor2, hE.
+Defined.
 
-(* Lemma omega_cocont_constprod_functor2 (x : C) : omega_cocont (constprod_functor2 x). *)
-(* Admitted. *)
+Lemma omega_cocont_constprod_functor2 (x : C) : omega_cocont (constprod_functor2 PC x).
+Proof.
+intros c L ccL.
+apply cocont_constprod_functor2.
+Defined.
 
 Lemma omega_cocont_binproduct_functor : omega_cocont (binproduct_functor PC).
-(* Proof. *)
-(* intros c LM ccLM HccLM K ccK; simpl in *. *)
-(* generalize (isColimCocone_pr2_functor _ _ hsC _ _ _ HccLM). *)
-(* generalize (isColimCocone_pr1_functor _ _ hsC _ _ _ HccLM). *)
-(* set (L := pr1 LM); set (M := pr2 LM). *)
-(* intros HA HB. *)
-(* (* Form the colimiting cocones of "A_i * B_0 -> A_i * B_1 -> ..." *) *)
-(* assert (HAiB : forall i, isColimCocone *)
-(*      (mapdiagram (constprod_functor1 (pr1 (pr1 c i))) *)
-(*         (mapchain (pr2_functor C C) c)) *)
-(*      ((constprod_functor1 (pr1 (pr1 c i))) M) *)
-(*      (mapcocone (constprod_functor1 (pr1 (pr1 c i))) *)
-(*         (mapchain (pr2_functor C C) c) (cocone_pr2_functor C C c LM ccLM))). *)
-(*   intro i. *)
-(*   apply (omega_cocont_constprod_functor1 (pr1 (pr1 c i)) _ _ _ HB). *)
-(* generalize (omega_cocont_constprod_functor2 M _ _ _ HA); intro HAiM. *)
-(* simple refine (let X : ColimCocone *)
-(*        (mapdiagram (constprod_functor2 M) (mapchain (pr1_functor C C) c)) := _ in _). *)
-(* mkpair. *)
-(* mkpair. *)
-(* apply (ProductObject _ (PC L M)). *)
-(* apply (mapcocone (constprod_functor2 M) (mapchain (pr1_functor C C) c) *)
-(*               (cocone_pr1_functor C C c LM ccLM)). *)
-(* apply HAiM. *)
-(* simple refine (let Y : cocone (mapdiagram (constprod_functor2 M) (mapchain (pr1_functor C C) c)) K := _ in _). *)
-(*   admit. *)
-(* mkpair. *)
-(* mkpair. *)
-(* apply (colimArrow X K Y). *)
-(* intro n. *)
-(* generalize (colimArrowCommutes X K Y n). *)
-(* simpl. *)
-(* unfold colimIn. *)
-(* simpl. *)
-(* unfold product_functor_mor. *)
-(* unfold ProductOfArrows. *)
-(* admit. *)
-(* admit. *)
+Proof.
+intros c LM ccLM HccLM K ccK; simpl in *.
+generalize (isColimCocone_pr2_functor _ _ hsC _ _ _ HccLM).
+generalize (isColimCocone_pr1_functor _ _ hsC _ _ _ HccLM).
+set (L := pr1 LM); set (M := pr2 LM).
+intros HA HB.
+
+(* Form the colimiting cocones of "A_i * B_0 -> A_i * B_1 -> ..." *)
+assert (HAiB : forall i, isColimCocone _ _ (mapcocone (constprod_functor1 (pr1 (pr1 c i)))
+                                                      _ (cocone_pr2_functor C C c LM ccLM))).
+{ intro i.
+  apply (omega_cocont_constprod_functor1 (pr1 (pr1 c i)) _ _ _ HB).
+}
+
+simple refine (let ccAiB : forall i, cocone (mapdiagram (constprod_functor1 (pr1 (pr1 c i)))
+        (mapchain (pr2_functor C C) c)) K := _ in _).
+{ intro i.
+  admit.
+}
+
+assert (CCAiB : forall i, ColimCocone (mapdiagram (constprod_functor1 (pr1 (pr1 c i)))
+        (mapchain (pr2_functor C C) c))).
+{ intro i.
+mkpair.
+mkpair.
+apply (((constprod_functor1 (pr1 (pr1 c i))) (pr2 LM))).
+Focus 2.
+apply (HAiB i).
+}
+
+generalize (omega_cocont_constprod_functor2 M _ _ _ HA); intro HAiM.
+
+simple refine (let X : ColimCocone
+       (mapdiagram (constprod_functor2 M) (mapchain (pr1_functor C C) c)) := _ in _).
+{
+  mkpair.
+  - mkpair.
+    + apply (ProductObject _ (PC L M)).
+    + apply (mapcocone (constprod_functor2 M) (mapchain (pr1_functor C C) c)
+              (cocone_pr1_functor C C c LM ccLM)).
+  - apply HAiM.
+}
+
+simple refine (let Y : cocone (mapdiagram (constprod_functor2 M) (mapchain (pr1_functor C C) c)) K := _ in _).
+{
+simple refine (mk_cocone _ _).
+- simpl; intro i.
+unfold product_functor_ob; simpl.
+generalize (colimArrow (CCAiB i) K (ccAiB i)).
+admit.
+- admit.
+}
+
+mkpair.
+- mkpair.
+  + apply (colimArrow X K Y).
+  + intro n.
+    generalize (colimArrowCommutes X K Y n).
+simpl.
+unfold colimIn.
+simpl.
+unfold product_functor_mor.
+unfold ProductOfArrows.
+unfold ProductArrow.
+simpl.
+admit.
+-
+intro t.
+apply subtypeEquality.
++ admit.
++
+simpl.
+apply (colimArrowUnique X K Y).
+admit.
 Admitted.
 
 End binprod_functor.
