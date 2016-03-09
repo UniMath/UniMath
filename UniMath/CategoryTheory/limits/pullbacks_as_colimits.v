@@ -5,7 +5,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 
-Require Import UniMath.CategoryTheory.limits.limits.
+Require Import UniMath.CategoryTheory.limits.limits_via_colimits.
 Require Import UniMath.CategoryTheory.colimits.colimits.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.opp_precat.
