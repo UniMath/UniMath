@@ -41,3 +41,5 @@ ProductPrecategory.v
 PointedFunctors.v
 PointedFunctorsComposition.v
 HorizontalComposition.v
+CommaCategories.v
+
