@@ -31,6 +31,9 @@ Require Import UniMath.CategoryTheory.limits.limits_via_colimits.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
@@ -378,3 +381,59 @@ Proof.
 now apply Pullbacks_from_Lims, LimsHSET.
 Qed.
 *)
+
+Section exponentials.
+
+(* Define the functor: A -> _^A *)
+Definition exponential_functor (A : HSET) : functor HSET HSET.
+Proof.
+mkpair.
++ apply (tpair _ (hset_fun_space A)); simpl.
+  intros b c f g; apply (fun x => f (g x)).
++ abstract (mkpair;
+  [ intro x; now (repeat apply funextfun; intro)
+  | intros x y z f g; now (repeat apply funextfun; intro)]).
+Defined.
+
+Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
+
+Lemma paireta {A B : UU} (p : A × B) : p = (pr1 p,, pr2 p).
+Proof.
+destruct p; apply idpath.
+Defined.
+
+(* This checks that if we use constprod_functor2 the flip is not necessary *)
+Lemma are_adjoints_constprod_functor2 A :
+  are_adjoints (constprod_functor2 ProductsHSET A) (exponential_functor A).
+Proof.
+mkpair.
+- mkpair.
+  + mkpair.
+    * intro x; simpl; apply dirprodpair.
+    * abstract (intros x y f; apply idpath).
+  + mkpair.
+    * intros X fx; apply (pr1 fx (pr2 fx)).
+    * abstract (intros x y f; apply idpath).
+- abstract (mkpair;
+  [ intro x; simpl; apply funextfun; intro ax; now rewrite (paireta ax)
+  | intro b; apply funextfun; intro f; apply idpath]).
+Defined.
+
+Lemma has_exponentials_HSET : has_exponentials ProductsHSET.
+Proof.
+intro a.
+apply (tpair _ (exponential_functor a)).
+mkpair.
+- mkpair.
+  + mkpair.
+    * intro x; simpl; apply flip, dirprodpair.
+    * abstract (intros x y f; apply idpath).
+  + mkpair.
+    * intros x xf; simpl in *; apply (pr2 xf (pr1 xf)).
+    * abstract (intros x y f; apply idpath).
+- abstract (mkpair;
+  [ now intro x; simpl; apply funextfun; intro ax; rewrite (paireta ax)
+  | now intro b; apply funextfun; intro f]).
+Defined.
+
+End exponentials.
