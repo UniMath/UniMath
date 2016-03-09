@@ -27,11 +27,12 @@ mkpair.
     * simpl; intro x; split; [ apply ProductPr1 | apply ProductPr2 ].
     * abstract (intros p q f; unfold prodcatmor, compose; simpl;
                 now rewrite ProductOfArrowsPr1, ProductOfArrowsPr2).
-- split; simpl; intro x.
-  + unfold prodcatmor, compose; simpl.
-    now rewrite ProductPr1Commutes, ProductPr2Commutes.
-  + rewrite postcompWithProductArrow, !id_left.
-    apply pathsinv0, Product_endo_is_identity; [ apply ProductPr1Commutes | apply ProductPr2Commutes ].
+- abstract (split; simpl; intro x;
+  [ unfold prodcatmor, compose; simpl;
+    now rewrite ProductPr1Commutes, ProductPr2Commutes
+  | rewrite postcompWithProductArrow, !id_left;
+    apply pathsinv0, Product_endo_is_identity;
+      [ apply ProductPr1Commutes | apply ProductPr2Commutes ]]).
 Defined.
 
 End delta_functor_adjunction.
@@ -55,12 +56,12 @@ mkpair.
     * abstract (intros p q f; simpl;
                 now rewrite precompWithCoproductArrow, postcompWithCoproductArrow,
                             id_right, id_left).
-- split; simpl; intro x.
-  + rewrite precompWithCoproductArrow, !id_right.
+- abstract (split; simpl; intro x;
+  [ rewrite precompWithCoproductArrow, !id_right;
     apply pathsinv0, Coproduct_endo_is_identity;
-      [ apply CoproductIn1Commutes | apply CoproductIn2Commutes ].
-  + unfold prodcatmor, compose; simpl.
-    now rewrite CoproductIn1Commutes, CoproductIn2Commutes.
+      [ apply CoproductIn1Commutes | apply CoproductIn2Commutes ]
+  | unfold prodcatmor, compose; simpl;
+    now rewrite CoproductIn1Commutes, CoproductIn2Commutes ]).
 Defined.
 
 End bincoproduct_functor_adjunction.

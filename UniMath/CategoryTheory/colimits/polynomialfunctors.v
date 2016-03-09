@@ -174,6 +174,7 @@ intros c L ccL M.
 now apply isColimCocone_pr2_functor.
 Defined.
 
+(* TODO: Opacify more *)
 Lemma omega_cocont_pair_functor (HF : omega_cocont F) (HG : omega_cocont G) :
   omega_cocont (pair_functor F G).
 Proof.
