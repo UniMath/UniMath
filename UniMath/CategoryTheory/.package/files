@@ -35,6 +35,7 @@ colimits/colimits.v
 EquivalencesExamples.v
 colimits/polynomialfunctors.v
 limits/limits.v
+limits/limits_via_colimits.v
 AdjunctionHomTypesWeq.v
 EndofunctorsMonoidal.v
 RightKanExtension.v

@@ -5,7 +5,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.colimits.colimits.
-Require Import UniMath.CategoryTheory.limits.limits.
+Require Import UniMath.CategoryTheory.limits.limits_via_colimits.
 Require Import UniMath.CategoryTheory.opp_precat.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
