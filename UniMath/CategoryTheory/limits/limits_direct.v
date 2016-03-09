@@ -1,5 +1,5 @@
 (****************************************************
-  Benedikt Ahrens and Anders Mörtberg, October 2015
+  Benedikt Ahrens and Anders Mörtberg, March 2016
 *****************************************************)
 
 (** *************************************************
@@ -42,24 +42,9 @@ End move_upstream.
 
 Section lim_def.
 
-(* A cone with tip c over a diagram d *)
-(*
-Definition cocone {g : graph} (d : diagram g C) (c : C) : UU :=
-  Σ (f : ∀ (v : vertex g), C⟦dob d v,c⟧),
-    ∀ (u v : vertex g) (e : edge u v), dmor d e ;; f v = f u.
-*)
-
-(* Definition opp_diagram g C := diagram g C^op. *)
-
 Definition cone {J C : precategory} (F : functor J C) (c : C) : UU :=
   Σ (f : ∀ (v : J), C⟦c,F v⟧),
     ∀ (u v : J) (e : J⟦u,v⟧), f u ;; # F e = f v.
-
-(*
-Definition mk_cocone {g : graph} {d : diagram g C} {c : C}
-  (f : ∀ v, C⟦dob d v,c⟧) (Hf : ∀ u v e, dmor d e ;; f v = f u) :
-  cocone d c := tpair _ f Hf.
-*)
 
 Definition mk_cone {J C : precategory} {F : functor J C} {c : C}
   (f : ∀ v, C⟦c, F v⟧) (Hf : ∀ u v (e : J⟦u,v⟧) , f u ;; # F e  = f v) :
@@ -85,7 +70,7 @@ Definition mk_LimCone {J C : precategory} (F : functor J C)
   (c : C) (cc : cone F c) (isCC : isLimCone F c cc) : LimCone F :=
   tpair _ (tpair _ c cc) isCC.
 
-Definition Lims : UU := ∀ {J C : precategory} (F : functor J C), LimCone F.
+Definition Lims (C : precategory) : UU := ∀ {J : precategory} (F : functor J C), LimCone F.
 Definition hasLims : UU  :=
   ∀ {J C : precategory} (F : functor J C), ishinh (LimCone F).
 
@@ -205,7 +190,7 @@ apply limArrowUnique; intro u.
 now rewrite <- assoc, limOfArrowsOut, assoc, limArrowCommutes.
 Qed.
 
-Lemma precompWithLimArrow {J C : precategory} {F : functor J C}
+Lemma postcompWithLimArrow {J C : precategory} {F : functor J C}
  (CC : LimCone F) (c : C) (cc : cone F c) (d : C) (k : C⟦d,c⟧) :
    k ;; limArrow CC c cc  =
    limArrow CC d (mk_cone (λ u, k ;; coneOut cc u)
@@ -279,6 +264,7 @@ split.
                       now apply isColim_weq_subproof2]]).
 Defined.
 *)
+
 End lim_def.
 
 Arguments Lims : clear implicits.
@@ -355,28 +341,24 @@ Lemma LimFunctor_unique (F : [A, C, hsC]) (cc : cone D F) :
   iscontr (Σ x : [A, C, hsC] ⟦ F, LimFunctor ⟧,
             ∀ v, x ;; lim_nat_trans_in_data v = coneOut cc v).
 Proof.
-admit.
-(* mkpair. *)
-(* - simple refine (tpair _ _ _). *)
-(*   + apply (tpair _ (fun a => colimArrow (HCg a) _ (cocone_pointwise F cc a))). *)
-(*     abstract (intros a a' f; simpl; *)
-(*               eapply pathscomp0; *)
-(*                 [ now apply precompWithColimOfArrows *)
-(*                 | apply pathsinv0; eapply pathscomp0; *)
-(*                   [ now apply postcompWithColimArrow *)
-(*                   | apply colimArrowUnique; intro u; *)
-(*                     eapply pathscomp0; *)
-(*                       [ now apply colimArrowCommutes *)
-(*                       | apply pathsinv0; now refine (nat_trans_ax _ _ _ _) ]]]). *)
-(*   + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a; *)
-(*               now apply (colimArrowCommutes (HCg a))). *)
-(* - abstract (intro t; destruct t as [t1 t2]; *)
-(*             apply subtypeEquality; simpl; *)
-(*               [ intro; apply impred; intro u; apply functor_category_has_homsets *)
-(*               | apply (nat_trans_eq hsC); simpl; intro a; *)
-(*                 apply colimArrowUnique; intro u; *)
-(*                 now apply (nat_trans_eq_pointwise (t2 u))]). *)
-Admitted.
+mkpair.
+- mkpair.
+  + apply (tpair _ (fun a => limArrow (HCg a) _ (cone_pointwise F cc a))).
+    abstract (intros a a' f; simpl; apply pathsinv0; eapply pathscomp0;
+    [ apply (postcompWithLimOfArrows (HCg a))
+    | apply pathsinv0; eapply pathscomp0;
+      [ apply postcompWithLimArrow
+      | apply limArrowUnique; intro u; eapply pathscomp0;
+      [ now apply limArrowCommutes | now refine (nat_trans_ax _ _ _ _)]]]).
+  + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
+              now apply (limArrowCommutes (HCg a))).
+- abstract (intro t; destruct t as [t1 t2];
+            apply subtypeEquality; simpl;
+              [ intro; apply impred; intro u; apply functor_category_has_homsets
+              | apply (nat_trans_eq hsC); simpl; intro a;
+                apply limArrowUnique; intro u;
+                now apply (nat_trans_eq_pointwise (t2 u))]).
+Defined.
 
 Lemma LimFunctorCone : LimCone D.
 Proof.
@@ -391,214 +373,8 @@ Defined.
 
 End LimFunctor.
 
-(* Lemma LimsFunctorCategory (A C : precategory) (hsC : has_homsets C) *)
-(*   (HC : Lims C) : Lims [A,C,hsC]. *)
-(* Proof. *)
-(* now intros g d; apply LimFunctorCone. *)
-(* Defined. *)
-
-
-(* (* TODO: move to opp_precat *) *)
-
-(* Definition get_diagram (A C : precategory) (hsC : has_homsets C) *)
-(*   (g : graph) (D : diagram g [A, C, hsC]^op) : *)
-(*     diagram g [A^op, C^op, has_homsets_opp hsC]. *)
-(* Proof. *)
-(* apply (tpair _ (fun u => from_opp_to_opp_opp _ _ _ (pr1 D u))). *)
-(* intros u v e; simpl. *)
-(* simple refine (tpair _ _ _); simpl. *)
-(*   + apply (pr2 D _ _ e). *)
-(*   + abstract (intros a b f; apply pathsinv0, (pr2 (pr2 D u v e) b a f)). *)
-(* Defined. *)
-
-(* Definition get_cocone  (A C : precategory) (hsC : has_homsets C) *)
-(*   (g : graph) (D : diagram g [A, C, hsC]^op) (F : functor A C) (ccF : cocone D F) : *)
-(*   cocone (get_diagram A C hsC g D) (functor_opp F). *)
-(* Proof. *)
-(* destruct ccF as [t p]. (* If I remove this destruct the Qed for LimsFunctorCategory *) *)
-(* (*                  takes twice as long *) *)
-(* simple refine (mk_cocone _ _). *)
-(* - intro u; apply (tpair _ (pr1 (t u))). *)
-(*   abstract (intros a b f; apply pathsinv0, (pr2 (t u) b a f)). *)
-(* - abstract (intros u v e; apply (nat_trans_eq (has_homsets_opp hsC)); *)
-(*             now intro a; simpl; rewrite <- (p u v e)). *)
-(* Defined. *)
-
-(* Lemma LimFunctorCone (A C : precategory) (hsC : has_homsets C) *)
-(*   (g : graph) *)
-(*   (D : diagram g [A, C, hsC]^op) *)
-(*   (HC : ∀ a : A^op, *)
-(*             LimCone *)
-(*               (diagram_pointwise A^op C^op (has_homsets_opp hsC) g *)
-(*                  (get_diagram A C hsC g D) a)) *)
-
-(*   : LimCone D. *)
-(* Proof. *)
-(* set (HColim := ColimFunctorCocone A^op C^op  (has_homsets_opp hsC) g (get_diagram _ _ _ _ D) HC). *)
-(* destruct HColim as [pr1x pr2x]. *)
-(* destruct pr1x as [pr1pr1x pr2pr1x]. *)
-(* destruct pr2pr1x as [pr1pr2pr1x pr2pr2pr1x]. *)
-(* simpl in *. *)
-(* use (mk_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x)). *)
-(* - simple refine (mk_cocone _ _). *)
-(*   + simpl; intros. *)
-(*     simple refine (tpair _ _ _). *)
-(*     * intro a; apply (pr1pr2pr1x v a). *)
-(*     * abstract (intros a b f; apply pathsinv0, (nat_trans_ax (pr1pr2pr1x v) (*b a f*))). *)
-(*   + abstract (intros u v e; apply (nat_trans_eq hsC); simpl; intro a; *)
-(*               now rewrite <- (pr2pr2pr1x u v e)). *)
-(* - intros F ccF. *)
-(*   set (H := pr2x (from_opp_to_opp_opp _ _ _ F) (get_cocone _ _ _ _ _ _ ccF)). *)
-(*   destruct H as [H1 H2]. *)
-(*   destruct H1 as [α Hα]. *)
-(*   simpl in *. *)
-(*   simple refine (tpair _ _ _). *)
-(*   + simple refine (tpair _ _ _). *)
-(*     * exists α. *)
-(*       abstract (intros a b f; simpl; now apply pathsinv0, (nat_trans_ax α b a f)). *)
-(*     * abstract (intro u; apply (nat_trans_eq hsC); intro a; *)
-(*         destruct ccF as [t p]; apply (toforallpaths _ _ _ (maponpaths pr1 (Hα u)) a)). *)
-(*   + intro H; destruct H as [f Hf]; apply subtypeEquality. *)
-(*     * abstract (intro β; repeat (apply impred; intro); *)
-(*         now apply (has_homsets_opp (functor_category_has_homsets A C hsC))). *)
-(*     * match goal with |[ H2 : ∀ _ : ?TT ,  _ = _ ,,_   |- _ ] => *)
-(*                        transparent assert (T : TT) end. *)
-(*       (* *) *)
-(* (*       refine (let T : Σ x : nat_trans pr1pr1x (functor_opp F), *) *)
-(* (*                          ∀ v, nat_trans_comp (functor_opp (pr1 D v)) _ _ *) *)
-(* (*                                 (pr1pr2pr1x v) x = *) *)
-(* (*                                coconeIn (get_cocone A C hsC g D F ccF) v := *) *)
-(* (*                   _ in _). *) *)
-(* (*       *) *)
-(*       { simple refine (tpair _ (tpair _ (pr1 f) _) _); simpl. *)
-(*         - abstract (intros x y fxy; apply pathsinv0, (pr2 f y x fxy)). *)
-(*         - abstract (intro u; apply (nat_trans_eq (has_homsets_opp hsC)); intro x; *)
-(*             destruct ccF as [t p]; apply (toforallpaths _ _ _ (maponpaths pr1 (Hf u)) x)). *)
-(*       } *)
-(*       set (T' := maponpaths pr1 (H2 T)); simpl in T'. *)
-(*       apply (nat_trans_eq hsC); intro a; simpl. *)
-(*       now rewrite <- T'. *)
-(* Defined. *)
-
-(* Lemma LimsFunctorCategory (A C : precategory) (hsC : has_homsets C) *)
-(*   (HC : Lims C) : Lims [A,C,hsC]. *)
-(* Proof. *)
-(* intros g D. *)
-(* apply LimFunctorCone. *)
-(* intros. *)
-(* apply HC. *)
-(* Defined. *)
-
-(* End LimFunctor. *)
-
-(*
-
-(* Defines colimits in functor categories when the target has colimits *)
-Section ColimFunctor.
-
-Variable A C : precategory.
-Variable HC : Colims C.
-Variable hsC : has_homsets C.
-Variable g : graph.
-Variable D : diagram g [A, C, hsC].
-
-Definition diagram_pointwise (a : A) : diagram g C.
+Lemma LimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
+  (HC : Lims C) : Lims [A,C,hsC].
 Proof.
-exists (fun v => pr1 (dob D v) a); intros u v e.
-now apply (pr1 (dmor D e) a).
+now intros g d; apply LimFunctorCone.
 Defined.
-
-Let HCg a := HC g (diagram_pointwise a).
-
-Definition ColimFunctor_ob (a : A) : C := colim (HCg a).
-
-Definition ColimFunctor_mor (a a' : A) (f : A⟦a, a'⟧) :
-  C⟦ColimFunctor_ob a,ColimFunctor_ob a'⟧.
-Proof.
-refine (colimOfArrows _ _ _ _).
-- now intro u; apply (# (pr1 (dob D u)) f).
-- abstract (now intros u v e; simpl; apply pathsinv0, (nat_trans_ax (dmor D e))).
-Defined.
-
-Definition ColimFunctor_data : functor_data A C := tpair _ _ ColimFunctor_mor.
-
-Lemma is_functor_ColimFunctor_data : is_functor ColimFunctor_data.
-Proof.
-split.
-- intro a; simpl.
-  apply pathsinv0, colim_endo_is_identity; intro u.
-  unfold ColimFunctor_mor.
-  now rewrite colimOfArrowsIn, (functor_id (dob D u)), id_left.
-- intros a b c fab fbc; simpl; unfold ColimFunctor_mor.
-  apply pathsinv0.
-  eapply pathscomp0; [now apply precompWithColimOfArrows|].
-  apply pathsinv0, colimArrowUnique; intro u.
-  rewrite colimOfArrowsIn.
-  rewrite (functor_comp (dob D u)).
-  now apply pathsinv0, assoc.
-Qed.
-
-Definition ColimFunctor : functor A C := tpair _ _ is_functor_ColimFunctor_data.
-
-Definition colim_nat_trans_in_data v : [A, C, hsC] ⟦ dob D v, ColimFunctor ⟧.
-Proof.
-refine (tpair _ _ _).
-- intro a; exact (colimIn (HCg a) v).
-- abstract (intros a a' f;
-            now apply pathsinv0, (colimOfArrowsIn _ _ (HCg a) (HCg a'))).
-Defined.
-
-Definition cocone_pointwise (F : [A,C,hsC]) (cc : cocone D F) a :
-  cocone (diagram_pointwise a) (pr1 F a).
-Proof.
-refine (mk_cocone _ _).
-- now intro v; apply (pr1 (coconeIn cc v) a).
-- abstract (intros u v e;
-    now apply (nat_trans_eq_pointwise  (coconeInCommutes cc u v e))).
-Defined.
-
-Lemma ColimFunctor_unique (F : [A, C, hsC]) (cc : cocone D F) :
-  iscontr (Σ x : [A, C, hsC] ⟦ ColimFunctor, F ⟧,
-            ∀ v : vertex g, colim_nat_trans_in_data v ;; x = coconeIn cc v).
-Proof.
-refine (tpair _ _ _).
-- refine (tpair _ _ _).
-  + apply (tpair _ (fun a => colimArrow (HCg a) _ (cocone_pointwise F cc a))).
-    abstract (intros a a' f; simpl;
-              eapply pathscomp0;
-                [ now apply precompWithColimOfArrows
-                | apply pathsinv0; eapply pathscomp0;
-                  [ now apply postcompWithColimArrow
-                  | apply colimArrowUnique; intro u;
-                    eapply pathscomp0;
-                      [ now apply colimArrowCommutes
-                      | now apply pathsinv0, nat_trans_ax ]]]).
-  + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
-              now apply (colimArrowCommutes (HCg a))).
-- abstract (intro t; destruct t as [t1 t2];
-            apply (total2_paths_second_isaprop); simpl;
-              [ apply impred; intro u; apply functor_category_has_homsets
-              | apply (nat_trans_eq hsC); simpl; intro a;
-                apply colimArrowUnique; intro u;
-                now apply (nat_trans_eq_pointwise (t2 u))]).
-Defined.
-
-Lemma ColimFunctorCocone : ColimCocone D.
-Proof.
-refine (mk_ColimCocone _ _ _ _).
-- exact ColimFunctor.
-- refine (mk_cocone _ _).
-  + now apply colim_nat_trans_in_data.
-  + abstract (now intros u v e; apply (nat_trans_eq hsC);
-                  intro a; apply (colimInCommutes (HCg a))).
-- now intros F cc; simpl; apply (ColimFunctor_unique _ cc).
-Defined.
-
-End ColimFunctor.
-
-Lemma ColimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
-  (HC : Colims C) : Colims [A,C,hsC].
-Proof.
-now intros g d; apply ColimFunctorCocone.
-Defined.
-*)
