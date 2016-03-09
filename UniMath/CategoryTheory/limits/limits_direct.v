@@ -191,7 +191,7 @@ Proof.
 now rewrite <- (coneOutCommutes cc u v e), <- assoc, fNat, assoc.
 Defined.
 
-Lemma postcompWithColimOfArrows
+Lemma postcompWithLimOfArrows
   {J C : precategory} {F1 F2 : functor J C}
   (CC1 : LimCone F1) (CC2 : LimCone F2)
   (f : ∀ u, C⟦F1 u,F2 u⟧)
@@ -283,12 +283,122 @@ End lim_def.
 
 Arguments Lims : clear implicits.
 
+Section LimFunctor.
 
-(* TODO: adapt *)
-(* Section LimFunctor. *)
+Variable A C : precategory.
+Variable hsC : has_homsets C.
+Variable (J : precategory).
+Variable (D : functor J [A, C, hsC]).
+
+Definition functor_pointwise (a : A) : functor J C.
+Proof.
+mkpair.
+- apply (tpair _ (fun v => pr1 (D v) a)).
+  intros u v e; simpl; apply (pr1 (# D e) a).
+- abstract (mkpair;
+    [ intro x; simpl;
+      apply (toforallpaths _ _ _ (maponpaths pr1 (functor_id D x)) a)
+    | intros x y z f g; simpl;
+      apply (toforallpaths _ _ _ (maponpaths pr1 (functor_comp D x y z f g)) a)]).
+Defined.
+
+Variable (HCg : forall (a : A), LimCone (functor_pointwise a)).
+
+Definition LimFunctor_ob (a : A) : C := lim (HCg a).
+
+Definition LimFunctor_mor (a a' : A) (f : A⟦a, a'⟧) :
+  C⟦LimFunctor_ob a,LimFunctor_ob a'⟧.
+Proof.
+simple refine (limOfArrows _ _ _ _).
+- now intro u; apply (# (pr1 (D u)) f).
+- abstract (now intros u v e; simpl; apply (nat_trans_ax (# D e))).
+Defined.
+
+Definition LimFunctor_data : functor_data A C := tpair _ _ LimFunctor_mor.
+
+Lemma is_functor_LimFunctor_data : is_functor LimFunctor_data.
+Proof.
+split.
+- intro a; simpl.
+  apply pathsinv0, lim_endo_is_identity; intro u.
+  unfold LimFunctor_mor; rewrite limOfArrowsOut.
+  assert (H : # (pr1 (D u)) (identity a) = identity (pr1 (D u) a)).
+    apply (functor_id (D u) a).
+  now rewrite H, id_right.
+- intros a b c fab fbc; simpl; unfold LimFunctor_mor.
+  apply pathsinv0.
+  eapply pathscomp0; [now apply postcompWithLimOfArrows|].
+  apply pathsinv0, limArrowUnique; intro u.
+  rewrite limOfArrowsOut, (functor_comp (D u)); simpl.
+  now rewrite <- assoc.
+Qed.
+
+Definition LimFunctor : functor A C := tpair _ _ is_functor_LimFunctor_data.
+
+Definition lim_nat_trans_in_data v : [A, C, hsC] ⟦ LimFunctor, D v ⟧.
+Proof.
+mkpair.
+- intro a; exact (limOut (HCg a) v).
+- abstract (intros a a' f; apply (limOfArrowsOut (HCg a) (HCg a'))).
+Defined.
+
+Definition cone_pointwise (F : [A,C,hsC]) (cc : cone D F) a :
+  cone (functor_pointwise a) (pr1 F a).
+Proof.
+simple refine (mk_cone _ _).
+- now intro v; apply (pr1 (coneOut cc v) a).
+- abstract (intros u v e;
+    now apply (nat_trans_eq_pointwise (coneOutCommutes cc u v e))).
+Defined.
+
+Lemma LimFunctor_unique (F : [A, C, hsC]) (cc : cone D F) :
+  iscontr (Σ x : [A, C, hsC] ⟦ F, LimFunctor ⟧,
+            ∀ v, x ;; lim_nat_trans_in_data v = coneOut cc v).
+Proof.
+admit.
+(* mkpair. *)
+(* - simple refine (tpair _ _ _). *)
+(*   + apply (tpair _ (fun a => colimArrow (HCg a) _ (cocone_pointwise F cc a))). *)
+(*     abstract (intros a a' f; simpl; *)
+(*               eapply pathscomp0; *)
+(*                 [ now apply precompWithColimOfArrows *)
+(*                 | apply pathsinv0; eapply pathscomp0; *)
+(*                   [ now apply postcompWithColimArrow *)
+(*                   | apply colimArrowUnique; intro u; *)
+(*                     eapply pathscomp0; *)
+(*                       [ now apply colimArrowCommutes *)
+(*                       | apply pathsinv0; now refine (nat_trans_ax _ _ _ _) ]]]). *)
+(*   + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a; *)
+(*               now apply (colimArrowCommutes (HCg a))). *)
+(* - abstract (intro t; destruct t as [t1 t2]; *)
+(*             apply subtypeEquality; simpl; *)
+(*               [ intro; apply impred; intro u; apply functor_category_has_homsets *)
+(*               | apply (nat_trans_eq hsC); simpl; intro a; *)
+(*                 apply colimArrowUnique; intro u; *)
+(*                 now apply (nat_trans_eq_pointwise (t2 u))]). *)
+Admitted.
+
+Lemma LimFunctorCone : LimCone D.
+Proof.
+simple refine (mk_LimCone _ _ _ _).
+- exact LimFunctor.
+- simple refine (mk_cone _ _).
+  + now apply lim_nat_trans_in_data.
+  + abstract (now intros u v e; apply (nat_trans_eq hsC);
+                  intro a; apply (limOutCommutes (HCg a))).
+- now intros F cc; simpl; apply (LimFunctor_unique _ cc).
+Defined.
+
+End LimFunctor.
+
+(* Lemma LimsFunctorCategory (A C : precategory) (hsC : has_homsets C) *)
+(*   (HC : Lims C) : Lims [A,C,hsC]. *)
+(* Proof. *)
+(* now intros g d; apply LimFunctorCone. *)
+(* Defined. *)
+
 
 (* (* TODO: move to opp_precat *) *)
-
 
 (* Definition get_diagram (A C : precategory) (hsC : has_homsets C) *)
 (*   (g : graph) (D : diagram g [A, C, hsC]^op) : *)
@@ -305,8 +415,8 @@ Arguments Lims : clear implicits.
 (*   (g : graph) (D : diagram g [A, C, hsC]^op) (F : functor A C) (ccF : cocone D F) : *)
 (*   cocone (get_diagram A C hsC g D) (functor_opp F). *)
 (* Proof. *)
-(* destruct ccF as [t p]. (* If I remove this destruct the Qed for LimsFunctorCategory *)
-(*                  takes twice as long *) *)
+(* destruct ccF as [t p]. (* If I remove this destruct the Qed for LimsFunctorCategory *) *)
+(* (*                  takes twice as long *) *)
 (* simple refine (mk_cocone _ _). *)
 (* - intro u; apply (tpair _ (pr1 (t u))). *)
 (*   abstract (intros a b f; apply pathsinv0, (pr2 (t u) b a f)). *)
@@ -353,13 +463,13 @@ Arguments Lims : clear implicits.
 (*         now apply (has_homsets_opp (functor_category_has_homsets A C hsC))). *)
 (*     * match goal with |[ H2 : ∀ _ : ?TT ,  _ = _ ,,_   |- _ ] => *)
 (*                        transparent assert (T : TT) end. *)
-(*       (* *)
-(*       refine (let T : Σ x : nat_trans pr1pr1x (functor_opp F), *)
-(*                          ∀ v, nat_trans_comp (functor_opp (pr1 D v)) _ _ *)
-(*                                 (pr1pr2pr1x v) x = *)
-(*                                coconeIn (get_cocone A C hsC g D F ccF) v := *)
-(*                   _ in _). *)
-(*       *) *)
+(*       (* *) *)
+(* (*       refine (let T : Σ x : nat_trans pr1pr1x (functor_opp F), *) *)
+(* (*                          ∀ v, nat_trans_comp (functor_opp (pr1 D v)) _ _ *) *)
+(* (*                                 (pr1pr2pr1x v) x = *) *)
+(* (*                                coconeIn (get_cocone A C hsC g D F ccF) v := *) *)
+(* (*                   _ in _). *) *)
+(* (*       *) *)
 (*       { simple refine (tpair _ (tpair _ (pr1 f) _) _); simpl. *)
 (*         - abstract (intros x y fxy; apply pathsinv0, (pr2 f y x fxy)). *)
 (*         - abstract (intro u; apply (nat_trans_eq (has_homsets_opp hsC)); intro x; *)
@@ -378,7 +488,6 @@ Arguments Lims : clear implicits.
 (* intros. *)
 (* apply HC. *)
 (* Defined. *)
-
 
 (* End LimFunctor. *)
 
