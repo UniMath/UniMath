@@ -249,6 +249,10 @@ Defined.
 
 End bincoprod_functor.
 
+
+(* Definition sum_of_functors {C D : precategory}  (HD : Coproducts D) (F G : functor C D) := coproduct_functor _ _ HD F G. *)
+
+
 Section sum_of_functors.
 
 Variables (C D : precategory) (PC : Products C) (HD : Coproducts D).

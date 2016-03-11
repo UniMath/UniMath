@@ -131,18 +131,24 @@ Section lists.
 Variable A : HSET.
 
 (* F(X) = A * X *)
-Definition stream : functor HSET HSET := constprod_functor A.
+Definition stream : functor HSET HSET := constprod_functor1 ProductsHSET A.
 
 (* F(X) = 1 + (A * X) *)
 Definition listFunctor : functor HSET HSET :=
+  (* sum_of_functors CoproductsHSET (constant_functor _ _ unitHSET) (constprod_functor1 ProductsHSET A). *)
   functor_composite stream (constcoprod_functor _ unitHSET CoproductsHSET).
 
 Lemma omega_cocont_listFunctor : omega_cocont listFunctor.
 Proof.
-apply (omega_cocont_functor_composite has_homsets_HSET).
-- apply omega_cocontConstProdFunctor.
-(* If I use this length doesn't compute with vm_compute... *)
+(* apply omega_cocont_sum_of_functors; try apply has_homsets_HSET. *)
+(* - apply ProductsHSET. *)
+(* - apply omega_cocont_constant_functor, has_homsets_HSET. *)
 (* - apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET has_exponentials_HSET). *)
+
+apply (omega_cocont_functor_composite has_homsets_HSET).
+(* - apply omega_cocontConstProdFunctor. *)
+(* If I use this length doesn't compute with vm_compute... *)
+- apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET has_exponentials_HSET).
 - apply (omega_cocontConstCoprodFunctor _ has_homsets_HSET).
 Defined.
 
@@ -227,7 +233,20 @@ clear F.
 unfold compose in Fal.
 simpl in Fal.
 apply Fal.
-Qed. (* This Qed is slow! *)
+Qed.
+
+(* unfold foldr. *)
+(* unfold foldr_map. *)
+(* simpl. *)
+(* unfold cons, cons_map, List_mor. *)
+(* simpl. *)
+(* unfold CoproductIn2, product_functor_mor,ProductOfArrows,ProductArrow,dirprodpair in Fal. *)
+(* simpl in Fal. *)
+(* unfold CoproductIn2, product_functor_mor,ProductOfArrows,ProductArrow,dirprodpair,ProductPr1,ProductPr2 in Fal. *)
+(* simpl in Fal. *)
+(* unfold compose,identity in Fal. *)
+(* simpl in Fal. *)
+(* Qed. (* This Qed is slow! *) *)
 
 (* This defines the induction principle for lists using foldr *)
 Section list_induction.
@@ -327,7 +346,7 @@ Definition testlistS : pr1 (List natHSET) :=
 Definition sum : pr1 (List natHSET) -> nat :=
   foldr natHSET natHSET 0 (fun xy => pr1 xy + pr2 xy).
 
-(* Eval vm_compute in length _ (nil natHSET). *)
+(* Eval cbn in length _ (nil natHSET). *)
 (* Eval vm_compute in length _ testlist. *)
 (* Eval vm_compute in length _ testlistS. *)
 (* Eval vm_compute in sum testlist. *)
