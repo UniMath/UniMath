@@ -233,13 +233,13 @@ simple refine (mk_CoproductCocone _ _ _ _ _ _ _).
 - apply (mk_isCoproductCocone _ has_homsets_HSET).
   intros C f g; simpl in *.
   simple refine (tpair _ _ _).
-  * apply (tpair _ (sumofmaps f g)); split; apply idpath.
-  * intros h; apply subtypeEquality.
-    { abstract(intros x; apply isapropdirprod; apply has_homsets_HSET). }
-    { abstract(destruct h as [t [ht1 ht2]]; simpl;
+  * apply (tpair _ (sumofmaps f g)); abstract (split; apply idpath).
+  * abstract (intros h; apply subtypeEquality;
+    [ intros x; apply isapropdirprod; apply has_homsets_HSET
+    | destruct h as [t [ht1 ht2]]; simpl;
                apply funextfun; intro x;
                rewrite <- ht2, <- ht1; unfold compose; simpl;
-               case x; intros; apply idpath). }
+               case x; intros; apply idpath]).
 Defined.
 
 Lemma CoproductsHSET_from_Colims : Coproducts HSET.
@@ -289,10 +289,7 @@ Proof.
     + intro u. simpl.
       intro f.
       exact (pr1 f u).
-    + intros u v e; simpl.
-      apply funextfun.
-      intro f; simpl.
-      apply (pr2 f).
+    + abstract (intros u v e; simpl; apply funextfun; intro f; simpl; apply (pr2 f)).
   - intros X CC.
     simple refine (tpair _ _ _ ).
     + simple refine (tpair _ _ _ ).
@@ -302,31 +299,17 @@ Proof.
           simple refine (tpair _ _ _ ).
           - intro u.
             apply (coconeIn CC u x). (* TODO : hide implementation of limits *)
-          - intros u v e. simpl.
-            set (T := coconeInCommutes CC _ _ e).
-            apply (toforallpaths _ _ _ T).
+          - abstract (intros u v e; simpl; set (T := coconeInCommutes CC _ _ e);
+                      apply (toforallpaths _ _ _ T)).
         }
-      * intro v. apply idpath.
-   + intro t.
-     apply subtypeEquality.
-     * intro; apply impred; intro.
-       apply isaset_set_fun_space.
-     * simpl.
-       destruct t as [t p]; simpl.
-       apply funextfun.
-       intro x; simpl.
-       unfold compose. simpl.
-       {
-         apply subtypeEquality.
-         - intro; repeat (apply impred; intro).
-           apply (setproperty (dob D t0)).
-         - simpl.
-           apply funextsec.
-           intro u.
-           simpl in p.
-           set (p' := toforallpaths _ _ _ (p u)).
-           apply p'.
-       }
+      * abstract (intro v; apply idpath).
+   + abstract (intro t; apply subtypeEquality;
+     [ intro; apply impred; intro; apply isaset_set_fun_space
+     | simpl; destruct t as [t p]; simpl; apply funextfun; intro x; simpl;
+       unfold compose; simpl; apply subtypeEquality];
+       [intro; repeat (apply impred; intro); apply (setproperty (dob D t0))
+       |simpl; apply funextsec; intro u; simpl in p;
+       set (p' := toforallpaths _ _ _ (p u)); apply p']).
 Defined.
 
 End limits.
@@ -348,13 +331,12 @@ simple refine (mk_ProductCone _ _ _ _ _ _ _).
 - apply (mk_isProductCone _ has_homsets_HSET).
   intros C f g; simpl in *.
   simple refine (tpair _ _ _).
-  * apply (tpair _ (prodtofuntoprod (f ,, g))); split; apply idpath.
-  * intros h; apply subtypeEquality.
-    { abstract(intros x; apply isapropdirprod; apply has_homsets_HSET). }
-    { abstract(destruct h as [t [ht1 ht2]]; simpl;
-               apply funextfun; intro x;
+  * apply (tpair _ (prodtofuntoprod (f ,, g))); abstract (split; apply idpath).
+  * abstract (intros h; apply subtypeEquality;
+    [ intros x; apply isapropdirprod; apply has_homsets_HSET
+    | destruct h as [t [ht1 ht2]]; simpl; apply funextfun; intro x;
                rewrite <- ht2, <- ht1; unfold compose; simpl;
-               case (t x); intros; apply idpath). }
+               case (t x); intros; apply idpath]).
 Defined.
 
 Lemma ProductsHSET_from_Lims : Products HSET.
@@ -366,8 +348,8 @@ Lemma TerminalHSET : Terminal HSET.
 Proof.
 apply (mk_Terminal unitHSET).
 apply mk_isTerminal; intro a.
-apply (tpair _ (fun _ => tt)); simpl; intro f.
-now apply funextfun; intro x; case (f x); apply idpath.
+apply (tpair _ (fun _ => tt)).
+abstract (simpl; intro f; apply funextfun; intro x; case (f x); apply idpath).
 Defined.
 
 Lemma TerminalHSET_from_Lims : Terminal HSET.
