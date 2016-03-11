@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.colimits.chains.
 Require Import UniMath.CategoryTheory.colimits.polynomialfunctors.
+Require Import UniMath.CategoryTheory.exponentials.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -124,7 +125,6 @@ Defined.
 
 End constcoprod_functor.
 
-
 (* Lists as the colimit of a chain given by the list functor: F(X) = 1 + A * X *)
 Section lists.
 
@@ -141,6 +141,8 @@ Lemma omega_cocont_listFunctor : omega_cocont listFunctor.
 Proof.
 apply (omega_cocont_functor_composite has_homsets_HSET).
 - apply omega_cocontConstProdFunctor.
+(* If I use this length doesn't compute with vm_compute... *)
+(* - apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET has_exponentials_HSET). *)
 - apply (omega_cocontConstCoprodFunctor _ has_homsets_HSET).
 Defined.
 
@@ -331,17 +333,17 @@ Definition sum : pr1 (List natHSET) -> nat :=
 (* Eval vm_compute in sum testlist. *)
 (* Eval vm_compute in sum testlistS. *)
 
-Goal length _ testlist = 2.
-vm_compute.
-Restart.
-cbn.
-Restart.
-compute.  (* does not work when foldr is opaque with "Opaque foldr." *)
-Restart.
-cbv.   (* does not work when foldr is opaque with "Opaque foldr." *)
-Restart.
-native_compute.
-Abort.
+(* Goal length _ testlist = 2. *)
+(* vm_compute. *)
+(* Restart. *)
+(* cbn. *)
+(* Restart. *)
+(* compute.  (* does not work when foldr is opaque with "Opaque foldr." *) *)
+(* Restart. *)
+(* cbv.   (* does not work when foldr is opaque with "Opaque foldr." *) *)
+(* Restart. *)
+(* native_compute. *)
+(* Abort. *)
 
 Goal (forall l, length _ (2 :: l) = S (length _ l)).
 simpl.

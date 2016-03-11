@@ -33,29 +33,6 @@ Section binprod_functor.
 Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
 Variables (hE : has_exponentials PC).
 
-Lemma cocont_constprod_functor1 (x : C) : is_cocont (constprod_functor1 PC x).
-Proof.
-apply (left_adjoint_cocont _ (hE _) hsC hsC).
-Defined.
-
-Lemma omega_cocont_constprod_functor1 (x : C) : omega_cocont (constprod_functor1 PC x).
-Proof.
-intros c L ccL.
-apply cocont_constprod_functor1.
-Defined.
-
-Lemma cocont_constprod_functor2 (x : C) : is_cocont (constprod_functor2 PC x).
-Proof.
-apply left_adjoint_cocont; try apply hsC.
-apply is_left_adjoint_constprod_functor2, hE.
-Defined.
-
-Lemma omega_cocont_constprod_functor2 (x : C) : omega_cocont (constprod_functor2 PC x).
-Proof.
-intros c L ccL.
-apply cocont_constprod_functor2.
-Defined.
-
 Lemma omega_cocont_binproduct_functor : omega_cocont (binproduct_functor PC).
 Proof.
 intros c LM ccLM HccLM K ccK; simpl in *.
