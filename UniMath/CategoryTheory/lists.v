@@ -233,20 +233,7 @@ clear F.
 unfold compose in Fal.
 simpl in Fal.
 apply Fal.
-Qed.
-
-(* unfold foldr. *)
-(* unfold foldr_map. *)
-(* simpl. *)
-(* unfold cons, cons_map, List_mor. *)
-(* simpl. *)
-(* unfold CoproductIn2, product_functor_mor,ProductOfArrows,ProductArrow,dirprodpair in Fal. *)
-(* simpl in Fal. *)
-(* unfold CoproductIn2, product_functor_mor,ProductOfArrows,ProductArrow,dirprodpair,ProductPr1,ProductPr2 in Fal. *)
-(* simpl in Fal. *)
-(* unfold compose,identity in Fal. *)
-(* simpl in Fal. *)
-(* Qed. (* This Qed is slow! *) *)
+Qed. (* This Qed is slow! *)
 
 (* This defines the induction principle for lists using foldr *)
 Section list_induction.
