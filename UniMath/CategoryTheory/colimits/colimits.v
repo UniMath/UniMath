@@ -522,18 +522,27 @@ apply (@iscontrweqb _ (Σ y : C ⟦ L, G M ⟧,
 - eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
     ∀ i, # F (coconeIn ccL i) ;; φ_adj_inv _ _ _ H y = coconeIn ccM i)).
   + apply (weqbandf (adjunction_hom_weq _ _ _ H L M)); simpl; intro f.
-    apply weqiff; try (apply impred; intro; apply hsD).
-    now rewrite φ_adj_inv_after_φ_adj.
+    abstract (apply weqiff; try (apply impred; intro; apply hsD);
+    now rewrite φ_adj_inv_after_φ_adj).
   + eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
       ∀ i, φ_adj_inv _ _ _ _ (coconeIn ccL i ;; y) = coconeIn ccM i)).
     * apply weqfibtototal; simpl; intro f.
-      apply weqonsecfibers; intro i.
-      rewrite φ_adj_inv_natural_precomp; apply idweq.
+    abstract (apply weqiff; try (apply impred; intro; apply hsD); split;
+      [ intros HH i; rewrite φ_adj_inv_natural_precomp; apply HH
+      | intros HH i; rewrite <- φ_adj_inv_natural_precomp; apply HH ]).
+      (* apply weqonsecfibers; intro i. *)
+      (* rewrite φ_adj_inv_natural_precomp; apply idweq. *)
     * apply weqfibtototal; simpl; intro f.
-      apply weqonsecfibers; intro i.
-      apply weqimplimpl; [ | | apply hsD | apply hsC]; intro h.
-        now rewrite <- h, (φ_adj_after_φ_adj_inv _ _ _ H).
-      now rewrite h, (φ_adj_inv_after_φ_adj _ _ _ H).
+    abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ];
+    split; intros HH i;
+    [ rewrite <- (HH i), φ_adj_after_φ_adj_inv; apply idpath
+    | rewrite (HH i),  φ_adj_inv_after_φ_adj; apply idpath ]).
+
+
+      (* apply weqonsecfibers; intro i. *)
+      (* apply weqimplimpl; [ | | apply hsD | apply hsC]; intro h. *)
+      (*   now rewrite <- h, (φ_adj_after_φ_adj_inv _ _ _ H). *)
+      (* now rewrite h, (φ_adj_inv_after_φ_adj _ _ _ H). *)
 - simple refine (let X : cocone d (G M) := _ in _).
   { simple refine (mk_cocone _ _).
     + intro v; apply (φ_adj C D F H (coconeIn ccM v)).
@@ -543,6 +552,24 @@ apply (@iscontrweqb _ (Σ y : C ⟦ L, G M ⟧,
   }
   apply (HccL (G M) X).
 Defined.
+
+(* Print Assumptions left_adjoint_cocont. *)
+
+(* Print Assumptions weqbandf. *)
+(* Print Assumptions weqiff. *)
+(* Print Assumptions weqcomp. *)
+(* Print Assumptions weqfibtototal. *)
+(* Print Assumptions weqimplimpl. *)
+(* Print Assumptions iscontrweqb. *)
+(* Print Assumptions adjunction_hom_weq. *)
+
+
+(* Print Assumptions weqonsecfibers. *)
+
+
+(* Print Assumptions φ_adj_inv_after_φ_adj. *)
+(* Print Assumptions impred. *)
+(* Print Assumptions  *)
 
 Section preserves_colimit_examples.
 
@@ -556,13 +583,13 @@ Lemma preserves_colimit_identity {g : graph} (d : diagram g C) (L : C)
 Proof.
 intros HcL y ccy; simpl.
 set (CC := mk_ColimCocone _ _ _ HcL).
-simple refine (tpair _ _ _).
-- simple refine (tpair _ _ _).
+mkpair.
+- mkpair.
   + apply (colimArrow CC), ccy.
-  + simpl; intro n; apply (colimArrowCommutes CC).
-- simpl; intro t; apply subtypeEquality.
-  + simpl; intro v; apply impred; intro; apply hsC.
-  + apply (colimArrowUnique CC); intro n; apply (pr2 t).
+  + abstract (simpl; intro n; apply (colimArrowCommutes CC)).
+- abstract (simpl; intro t; apply subtypeEquality;
+  [ simpl; intro v; apply impred; intro; apply hsC
+  | apply (colimArrowUnique CC); intro n; apply (pr2 t)]).
 Defined.
 
 Lemma is_cocont_identity : is_cocont Fid.
@@ -581,15 +608,14 @@ Lemma preserves_colimit_constant {g : graph} (v : vertex g)
   preserves_colimit Fx d L cc.
 Proof.
 intros HcL y ccy; simpl.
-simple refine (tpair _ _ _).
-- simple refine (tpair _ _ _).
+mkpair.
+- mkpair.
   + apply (coconeIn ccy v).
-  + simpl; intro u.
-    generalize (coconeInCommutes ccy _ _ (conn u)); simpl.
-    do 2 rewrite id_left; intro H; rewrite H; apply idpath.
-- simpl; intro p; apply subtypeEquality.
-  + intros f; apply impred; intro; apply hsD.
-  + now simpl; destruct p as [p H]; rewrite <- (H v), id_left.
+  + abstract (simpl; intro u; generalize (coconeInCommutes ccy _ _ (conn u)); simpl;
+    do 2 rewrite id_left; intro H; rewrite H; apply idpath).
+- abstract (simpl; intro p; apply subtypeEquality;
+  [ intros f; apply impred; intro; apply hsD
+  | now simpl; destruct p as [p H]; rewrite <- (H v), id_left ]).
 Defined.
 
 Lemma preserves_colimit_comp (F : functor C D) (G : functor D E)
@@ -600,13 +626,13 @@ Lemma preserves_colimit_comp (F : functor C D) (G : functor D E)
 Proof.
 intros HcL y ccy; simpl.
 set (CC := mk_ColimCocone _ _ _ (H2 (H1 HcL))).
-simple refine (tpair _ _ _).
-- simple refine (tpair _ _ _).
+mkpair.
+- mkpair.
   + apply (colimArrow CC), ccy.
-  + simpl; intro v; apply (colimArrowCommutes CC).
-- simpl; intro t; apply subtypeEquality.
-  + intros f; apply impred; intro; apply hsE.
-  + simpl; apply (colimArrowUnique CC), (pr2 t).
+  + abstract (simpl; intro v; apply (colimArrowCommutes CC)).
+- abstract (simpl; intro t; apply subtypeEquality;
+  [ intros f; apply impred; intro; apply hsE
+  | simpl; apply (colimArrowUnique CC), (pr2 t) ]).
 Defined.
 
 Lemma is_cocont_comp (F : functor C D) (G : functor D E)

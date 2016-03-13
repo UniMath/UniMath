@@ -143,11 +143,11 @@ Defined.
 Definition shiftIsColimCocone : isColimCocone FFchain L shiftCocone.
 Proof.
 intros x cc; simpl.
-simple refine (tpair _ _ _).
-+ simple refine (tpair _ _ _).
+mkpair.
++ mkpair.
   * apply colimArrow, (unshiftCocone _ cc).
-  * simpl; intro n.
-    apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n)).
+  * abstract (simpl; intro n;
+              apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n))).
 + abstract (
   simpl; intros p ;
   apply subtypeEquality ;

@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.colimits.chains.
 Require Import UniMath.CategoryTheory.colimits.polynomialfunctors.
+Require Import UniMath.CategoryTheory.exponentials.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -124,23 +125,30 @@ Defined.
 
 End constcoprod_functor.
 
-
 (* Lists as the colimit of a chain given by the list functor: F(X) = 1 + A * X *)
 Section lists.
 
 Variable A : HSET.
 
 (* F(X) = A * X *)
-Definition stream : functor HSET HSET := constprod_functor A.
+Definition stream : functor HSET HSET := constprod_functor1 ProductsHSET A.
 
 (* F(X) = 1 + (A * X) *)
 Definition listFunctor : functor HSET HSET :=
+  (* sum_of_functors CoproductsHSET (constant_functor _ _ unitHSET) (constprod_functor1 ProductsHSET A). *)
   functor_composite stream (constcoprod_functor _ unitHSET CoproductsHSET).
 
 Lemma omega_cocont_listFunctor : omega_cocont listFunctor.
 Proof.
+(* apply omega_cocont_sum_of_functors; try apply has_homsets_HSET. *)
+(* - apply ProductsHSET. *)
+(* - apply omega_cocont_constant_functor, has_homsets_HSET. *)
+(* - apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET has_exponentials_HSET). *)
+
 apply (omega_cocont_functor_composite has_homsets_HSET).
-- apply omega_cocontConstProdFunctor.
+(* - apply omega_cocontConstProdFunctor. *)
+(* If I use this length doesn't compute with vm_compute... *)
+- apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET has_exponentials_HSET).
 - apply (omega_cocontConstCoprodFunctor _ has_homsets_HSET).
 Defined.
 
@@ -325,23 +333,23 @@ Definition testlistS : pr1 (List natHSET) :=
 Definition sum : pr1 (List natHSET) -> nat :=
   foldr natHSET natHSET 0 (fun xy => pr1 xy + pr2 xy).
 
-(* Eval vm_compute in length _ (nil natHSET). *)
+(* Eval cbn in length _ (nil natHSET). *)
 (* Eval vm_compute in length _ testlist. *)
 (* Eval vm_compute in length _ testlistS. *)
 (* Eval vm_compute in sum testlist. *)
 (* Eval vm_compute in sum testlistS. *)
 
-Goal length _ testlist = 2.
-vm_compute.
-Restart.
-cbn.
-Restart.
-compute.  (* does not work when foldr is opaque with "Opaque foldr." *)
-Restart.
-cbv.   (* does not work when foldr is opaque with "Opaque foldr." *)
-Restart.
-native_compute.
-Abort.
+(* Goal length _ testlist = 2. *)
+(* vm_compute. *)
+(* Restart. *)
+(* cbn. *)
+(* Restart. *)
+(* compute.  (* does not work when foldr is opaque with "Opaque foldr." *) *)
+(* Restart. *)
+(* cbv.   (* does not work when foldr is opaque with "Opaque foldr." *) *)
+(* Restart. *)
+(* native_compute. *)
+(* Abort. *)
 
 Goal (forall l, length _ (2 :: l) = S (length _ l)).
 simpl.

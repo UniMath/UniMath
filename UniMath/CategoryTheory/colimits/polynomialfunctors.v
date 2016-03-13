@@ -21,6 +21,7 @@ Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
+Require Import UniMath.CategoryTheory.exponentials.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -248,6 +249,10 @@ Defined.
 
 End bincoprod_functor.
 
+
+(* Definition sum_of_functors {C D : precategory}  (HD : Coproducts D) (F G : functor C D) := coproduct_functor _ _ HD F G. *)
+
+
 Section sum_of_functors.
 
 Variables (C D : precategory) (PC : Products C) (HD : Coproducts D).
@@ -265,5 +270,35 @@ apply (omega_cocont_bincoproduct_functor _ _ hsD).
 Defined.
 
 End sum_of_functors.
+
+Section constprod_functors.
+
+Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
+Variables (hE : has_exponentials PC).
+
+Lemma cocont_constprod_functor1 (x : C) : is_cocont (constprod_functor1 PC x).
+Proof.
+apply (left_adjoint_cocont _ (hE _) hsC hsC).
+Defined.
+
+Lemma omega_cocont_constprod_functor1 (x : C) : omega_cocont (constprod_functor1 PC x).
+Proof.
+intros c L ccL.
+apply cocont_constprod_functor1.
+Defined.
+
+Lemma cocont_constprod_functor2 (x : C) : is_cocont (constprod_functor2 PC x).
+Proof.
+apply left_adjoint_cocont; try apply hsC.
+apply (is_left_adjoint_constprod_functor2 PC hsC), hE.
+Defined.
+
+Lemma omega_cocont_constprod_functor2 (x : C) : omega_cocont (constprod_functor2 PC x).
+Proof.
+intros c L ccL.
+apply cocont_constprod_functor2.
+Defined.
+
+End constprod_functors.
 
 End polynomial_functors.
