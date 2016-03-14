@@ -18,49 +18,35 @@ Require Export UniMath.Foundations.Algebra.Rigs_and_Rings .
 Require Export UniMath.Foundations.Algebra.DivisionRig .
 Require Export UniMath.Foundations.Algebra.Domains_and_Fields .
 
-(** ** The standard function from the natural numbers to a monoid *)
+(** ** The standard function from the natural numbers to a rig *)
 
-Fixpoint natmult {X : monoid} (n : nat) (x : X) : X :=
+Fixpoint natmult {X : rig} (n : nat) (x : X) : X :=
   match n with
-    | O => 0%addmonoid
+    | O => 0%rig
     | S O => x
-    | S m => (x + natmult m x)%addmonoid
+    | S m => (x + natmult m x)%rig
   end.
 Definition nattorig {X : rig} (n : nat) : X :=
-  natmult (X := rigaddabmonoid X) n 1%rig.
+  natmult n 1%rig.
 
 Lemma natmultS :
-  ∀ {X : monoid} (n : nat) (x : X),
-    natmult (S n) x = (x + natmult n x)%addmonoid.
+  ∀ {X : rig} (n : nat) (x : X),
+    natmult (S n) x = (x + natmult n x)%rig.
 Proof.
   intros X [ | n] x.
-  - now rewrite runax.
+  - now rewrite rigrunax1.
   - reflexivity.
 Qed.
 Lemma nattorigS {X : rig} :
   ∀ (n : nat), nattorig (X := X) (S n) = (1 + nattorig n)%rig.
 Proof.
   intros.
-  now apply (natmultS (X := rigaddabmonoid X)).
-Qed.
-
-Lemma natmult_ext :
-  ∀ (X : hSet) (op op' : binop X) (is : ismonoidop op) (is' : ismonoidop op'),
-  ∀ (x : (((X,,op),,is) : monoid)) (x' : (((X,,op'),,is') : monoid)) (n : nat),
-    x = x' -> (unel_is is = unel_is is') -> (∀ y y', op y y' = op' y y')
-    -> natmult n x = natmult n x'.
-Proof.
-  intros.
-  induction n.
-  - apply X1.
-  - rewrite !natmultS.
-    rewrite IHn, X0.
-    apply X2.
+  now apply natmultS.
 Qed.
 
 Lemma nattorig_natmult :
   ∀ {X : rig} (n : nat) (x : X),
-    (nattorig n * x)%rig = natmult (X := rigaddabmonoid X) n x.
+    (nattorig n * x)%rig = natmult n x.
 Proof.
   intros.
   induction n.
@@ -71,10 +57,8 @@ Qed.
 
 (** ** Definitions of archimedean property *)
 
-Definition isarchmonoid (X : monoid) (R : hrel X) :=
-  ∀ x y : X, R y 0%addmonoid -> ∃ n : nat, R (natmult n y) x.
 Definition isarchrig (X : rig) (R : hrel X) :=
-  isarchmonoid (rigaddabmonoid X) R.
+  ∀ x y : X, R y 0%rig -> ∃ n : nat, R (natmult n y) x.
 Definition isarchrng (X : rng) (R : hrel X) :=
   isarchrig X R.
 Definition isarchfld (X : fld) (R : hrel X) :=
@@ -224,7 +208,7 @@ Proof.
     apply (pr1 Hadd), Hc.
     apply (pr2 Hadd), Hn. }
 
-  assert (H1 : ∀ n : nat, ∃ m : nat, rigtorngrel X Hadd (natmult (X := rigaddabmonoid (rigtorng X)) m y) (nattorig (X := rigtorng X) n)%rng).
+  assert (H1 : ∀ n : nat, ∃ m : nat, rigtorngrel X Hadd (natmult (X := (rigtorng X)) m y) (nattorig (X := rigtorng X) n)%rng).
   { intros n.
     generalize (pr1 (pr2 y)).
     apply hinhuniv.
