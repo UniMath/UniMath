@@ -34,7 +34,7 @@ Section move_upstream.
 
 Fixpoint iter_functor {C : precategory} (F : functor C C) (n : nat) : functor C C := match n with
   | O => functor_identity C
-  | S n' => functor_composite _ _ _ (iter_functor F n') F
+  | S n' => functor_composite (iter_functor F n') F
   end.
 
 (* TODO : state this for any object and morphism, that is,
@@ -143,11 +143,11 @@ Defined.
 Definition shiftIsColimCocone : isColimCocone FFchain L shiftCocone.
 Proof.
 intros x cc; simpl.
-simple refine (tpair _ _ _).
-+ simple refine (tpair _ _ _).
+mkpair.
++ mkpair.
   * apply colimArrow, (unshiftCocone _ cc).
-  * simpl; intro n.
-    apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n)).
+  * abstract (simpl; intro n;
+              apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n))).
 + abstract (
   simpl; intros p ;
   apply subtypeEquality ;

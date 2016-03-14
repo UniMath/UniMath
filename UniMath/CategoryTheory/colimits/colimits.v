@@ -22,6 +22,8 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
@@ -505,7 +507,69 @@ Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : UU :=
   isColimCocone d L cc -> isColimCocone (mapdiagram d) (F L) (mapcocone d cc).
 
+Definition is_cocont := forall {g : graph} (d : diagram g C) (L : C)
+  (cc : cocone d L), preserves_colimit d L cc.
+
 End preserves_colimit.
+
+Lemma left_adjoint_cocont {C D : precategory} (F : functor C D)
+  (H : is_left_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D) : is_cocont F.
+Proof.
+intros g d L ccL HccL M ccM.
+set (G := pr1 H).
+apply (@iscontrweqb _ (Σ y : C ⟦ L, G M ⟧,
+    ∀ i, coconeIn ccL i ;; y = φ_adj _ _ _ H (coconeIn ccM i))).
+- eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
+    ∀ i, # F (coconeIn ccL i) ;; φ_adj_inv _ _ _ H y = coconeIn ccM i)).
+  + apply (weqbandf (adjunction_hom_weq _ _ _ H L M)); simpl; intro f.
+    abstract (apply weqiff; try (apply impred; intro; apply hsD);
+    now rewrite φ_adj_inv_after_φ_adj).
+  + eapply (weqcomp (Y := Σ y : C ⟦ L, G M ⟧,
+      ∀ i, φ_adj_inv _ _ _ _ (coconeIn ccL i ;; y) = coconeIn ccM i)).
+    * apply weqfibtototal; simpl; intro f.
+    abstract (apply weqiff; try (apply impred; intro; apply hsD); split;
+      [ intros HH i; rewrite φ_adj_inv_natural_precomp; apply HH
+      | intros HH i; rewrite <- φ_adj_inv_natural_precomp; apply HH ]).
+      (* apply weqonsecfibers; intro i. *)
+      (* rewrite φ_adj_inv_natural_precomp; apply idweq. *)
+    * apply weqfibtototal; simpl; intro f.
+    abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ];
+    split; intros HH i;
+    [ rewrite <- (HH i), φ_adj_after_φ_adj_inv; apply idpath
+    | rewrite (HH i),  φ_adj_inv_after_φ_adj; apply idpath ]).
+
+
+      (* apply weqonsecfibers; intro i. *)
+      (* apply weqimplimpl; [ | | apply hsD | apply hsC]; intro h. *)
+      (*   now rewrite <- h, (φ_adj_after_φ_adj_inv _ _ _ H). *)
+      (* now rewrite h, (φ_adj_inv_after_φ_adj _ _ _ H). *)
+- simple refine (let X : cocone d (G M) := _ in _).
+  { simple refine (mk_cocone _ _).
+    + intro v; apply (φ_adj C D F H (coconeIn ccM v)).
+    + abstract (intros m n e; simpl;
+                rewrite <- (coconeInCommutes ccM m n e); simpl;
+                now rewrite φ_adj_natural_precomp).
+  }
+  apply (HccL (G M) X).
+Defined.
+
+(* Print Assumptions left_adjoint_cocont. *)
+
+(* Print Assumptions weqbandf. *)
+(* Print Assumptions weqiff. *)
+(* Print Assumptions weqcomp. *)
+(* Print Assumptions weqfibtototal. *)
+(* Print Assumptions weqimplimpl. *)
+(* Print Assumptions iscontrweqb. *)
+(* Print Assumptions adjunction_hom_weq. *)
+
+
+(* Print Assumptions weqonsecfibers. *)
+
+
+(* Print Assumptions φ_adj_inv_after_φ_adj. *)
+(* Print Assumptions impred. *)
+(* Print Assumptions  *)
 
 Section preserves_colimit_examples.
 
@@ -519,13 +583,18 @@ Lemma preserves_colimit_identity {g : graph} (d : diagram g C) (L : C)
 Proof.
 intros HcL y ccy; simpl.
 set (CC := mk_ColimCocone _ _ _ HcL).
-simple refine (tpair _ _ _).
-- simple refine (tpair _ _ _).
+mkpair.
+- mkpair.
   + apply (colimArrow CC), ccy.
-  + simpl; intro n; apply (colimArrowCommutes CC).
-- simpl; intro t; apply subtypeEquality.
-  + simpl; intro v; apply impred; intro; apply hsC.
-  + apply (colimArrowUnique CC); intro n; apply (pr2 t).
+  + abstract (simpl; intro n; apply (colimArrowCommutes CC)).
+- abstract (simpl; intro t; apply subtypeEquality;
+  [ simpl; intro v; apply impred; intro; apply hsC
+  | apply (colimArrowUnique CC); intro n; apply (pr2 t)]).
+Defined.
+
+Lemma is_cocont_identity : is_cocont Fid.
+Proof.
+intros g d L cc; apply preserves_colimit_identity.
 Defined.
 
 Variable (x : D).
@@ -539,32 +608,38 @@ Lemma preserves_colimit_constant {g : graph} (v : vertex g)
   preserves_colimit Fx d L cc.
 Proof.
 intros HcL y ccy; simpl.
-simple refine (tpair _ _ _).
-- simple refine (tpair _ _ _).
+mkpair.
+- mkpair.
   + apply (coconeIn ccy v).
-  + simpl; intro u.
-    generalize (coconeInCommutes ccy _ _ (conn u)); simpl.
-    do 2 rewrite id_left; intro H; rewrite H; apply idpath.
-- simpl; intro p; apply subtypeEquality.
-  + intros f; apply impred; intro; apply hsD.
-  + now simpl; destruct p as [p H]; rewrite <- (H v), id_left.
+  + abstract (simpl; intro u; generalize (coconeInCommutes ccy _ _ (conn u)); simpl;
+    do 2 rewrite id_left; intro H; rewrite H; apply idpath).
+- abstract (simpl; intro p; apply subtypeEquality;
+  [ intros f; apply impred; intro; apply hsD
+  | now simpl; destruct p as [p H]; rewrite <- (H v), id_left ]).
 Defined.
 
 Lemma preserves_colimit_comp (F : functor C D) (G : functor D E)
   {g : graph} (d : diagram g C) (L : C) (cc : cocone d L)
   (H1 : preserves_colimit F d L cc)
   (H2 : preserves_colimit G (mapdiagram F d) (F L) (mapcocone F _ cc)) :
-  preserves_colimit (functor_composite _ _ _ F G) d L cc.
+  preserves_colimit (functor_composite F G) d L cc.
 Proof.
 intros HcL y ccy; simpl.
 set (CC := mk_ColimCocone _ _ _ (H2 (H1 HcL))).
-simple refine (tpair _ _ _).
-- simple refine (tpair _ _ _).
+mkpair.
+- mkpair.
   + apply (colimArrow CC), ccy.
-  + simpl; intro v; apply (colimArrowCommutes CC).
-- simpl; intro t; apply subtypeEquality.
-  + intros f; apply impred; intro; apply hsE.
-  + simpl; apply (colimArrowUnique CC), (pr2 t).
+  + abstract (simpl; intro v; apply (colimArrowCommutes CC)).
+- abstract (simpl; intro t; apply subtypeEquality;
+  [ intros f; apply impred; intro; apply hsE
+  | simpl; apply (colimArrowUnique CC), (pr2 t) ]).
+Defined.
+
+Lemma is_cocont_comp (F : functor C D) (G : functor D E)
+  (HF : is_cocont F) (HG : is_cocont G) : is_cocont (functor_composite F G).
+Proof.
+intros g d L cc.
+apply preserves_colimit_comp; [ apply HF | apply HG ].
 Defined.
 
 End preserves_colimit_examples.

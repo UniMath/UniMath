@@ -155,7 +155,6 @@ Defined.
 
 End nat_trans_fix_snd_arg.
 
-
 End one_product_precategory.
 
 (** Objects and morphisms in the product precategory of two precategories *)
@@ -164,10 +163,81 @@ Proof.
   exists X.
   exact Y.
 Defined.
+
 Local Notation "A ⊗ B" := (prodcatpair A B) (at level 10).
+
 Definition prodcatmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X ⇒ X') (β : Z ⇒ Z')
   : X ⊗ Z ⇒ X' ⊗ Z'.
 Proof.
   exists α.
   exact β.
 Defined.
+
+(* Define pairs of functors and functors from pr1 and pr2 *)
+Section functors.
+
+Definition pair_functor_data {A B C D : precategory}
+  (F : functor A C) (G : functor B D) :
+  functor_data (product_precategory A B) (product_precategory C D).
+Proof.
+mkpair.
+- intro x; apply (prodcatpair (F (pr1 x)) (G (pr2 x))).
+- intros x y f; simpl; apply (prodcatmor (# F (pr1 f)) (# G (pr2 f))).
+Defined.
+
+Definition pair_functor {A B C D : precategory}
+  (F : functor A C) (G : functor B D) :
+  functor (product_precategory A B) (product_precategory C D).
+Proof.
+apply (tpair _ (pair_functor_data F G)).
+abstract (split;
+  [ intro x; simpl; rewrite !functor_id; apply idpath
+  | intros x y z f g; simpl; rewrite !functor_comp; apply idpath]).
+Defined.
+
+Definition pr1_functor_data (A B : precategory) :
+  functor_data (product_precategory A B) A.
+Proof.
+mkpair.
+- intro x; apply (pr1 x).
+- intros x y f; simpl; apply (pr1 f).
+Defined.
+
+Definition pr1_functor (A B : precategory) :
+  functor (product_precategory A B) A.
+Proof.
+apply (tpair _ (pr1_functor_data A B)).
+abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
+Defined.
+
+Definition pr2_functor_data (A B : precategory) :
+  functor_data (product_precategory A B) B.
+Proof.
+mkpair.
+- intro x; apply (pr2 x).
+- intros x y f; simpl; apply (pr2 f).
+Defined.
+
+Definition pr2_functor (A B : precategory) :
+  functor (product_precategory A B) B.
+Proof.
+apply (tpair _ (pr2_functor_data A B)).
+abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
+Defined.
+
+Definition delta_functor_data (C : precategory) :
+  functor_data C (product_precategory C C).
+Proof.
+mkpair.
+- intro x; apply (prodcatpair x x).
+- intros x y f; simpl; apply (prodcatmor f f).
+Defined.
+
+Definition delta_functor (C : precategory) :
+  functor C (product_precategory C C).
+Proof.
+apply (tpair _ (delta_functor_data C)).
+abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
+Defined.
+
+End functors.

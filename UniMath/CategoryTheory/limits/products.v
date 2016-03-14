@@ -6,8 +6,9 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.colimits.colimits.
-Require Import UniMath.CategoryTheory.limits.limits.
+Require Import UniMath.CategoryTheory.limits.limits_via_colimits.
 Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.ProductPrecategory.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
@@ -275,3 +276,31 @@ Local Notation "c 'x' d" := (ProductObject  c d )(at level 5).
 Check (fun c d : C => c x d).
 *)
 End test.
+
+(* The binary product functor: C * C -> C *)
+Section binproduct_functor.
+
+Context {C : precategory} (PC : Products C).
+
+Definition binproduct_functor_data :
+  functor_data (product_precategory C C) C.
+Proof.
+mkpair.
+- intros p.
+  apply (ProductObject _ (PC (pr1 p) (pr2 p))).
+- simpl; intros p q f.
+  apply (ProductOfArrows _ (PC (pr1 q) (pr2 q))
+                           (PC (pr1 p) (pr2 p)) (pr1 f) (pr2 f)).
+Defined.
+
+Definition binproduct_functor : functor (product_precategory C C) C.
+Proof.
+apply (tpair _ binproduct_functor_data).
+abstract (split;
+  [ intro x; simpl; apply pathsinv0, Product_endo_is_identity;
+    [ now rewrite ProductOfArrowsPr1, id_right
+    | now rewrite ProductOfArrowsPr2, id_right ]
+  | now intros x y z f g; simpl; rewrite ProductOfArrows_comp]).
+Defined.
+
+End binproduct_functor.
