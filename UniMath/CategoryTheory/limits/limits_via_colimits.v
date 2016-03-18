@@ -216,7 +216,7 @@ Proof.
 Qed.
 
 Lemma lim_endo_is_identity {g : graph} (D : diagram g C^op)
-  (CC : LimCone D) (k : lim CC ⇒ lim CC)
+  (CC : LimCone D) (k : lim CC --> lim CC)
   (H : ∀ u, k ;; limOut CC u = limOut CC u) :
   identity _ = k.
 Proof.

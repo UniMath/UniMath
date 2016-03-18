@@ -53,8 +53,8 @@ Local Notation "c ⊗ d" := (ProductObject _ (HD c d))(at level 45).
 
 Definition product_functor_ob (c : C) : D := F c ⊗ G c.
 
-Definition product_functor_mor (c c' : C) (f : c ⇒ c')
-  : product_functor_ob c ⇒ product_functor_ob c'
+Definition product_functor_mor (c c' : C) (f : c --> c')
+  : product_functor_ob c --> product_functor_ob c'
   := ProductOfArrows _ _ _ (#F f) (#G f).
 
 Definition product_functor_data : functor_data C D.
@@ -86,7 +86,7 @@ Qed.
 
 Definition product_functor : functor C D := tpair _ _ is_functor_product_functor_data.
 
-Definition product_nat_trans_pr1_data : ∀ c, product_functor c ⇒ F c
+Definition product_nat_trans_pr1_data : ∀ c, product_functor c --> F c
   := λ c : C, ProductPr1 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_product_nat_trans_pr1_data
@@ -104,7 +104,7 @@ Definition product_nat_trans_pr1 : nat_trans _ _
   := tpair _ _ is_nat_trans_product_nat_trans_pr1_data.
 
 
-Definition product_nat_trans_pr2_data : ∀ c, product_functor c ⇒ G c
+Definition product_nat_trans_pr2_data : ∀ c, product_functor c --> G c
   := λ c : C, ProductPr2 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_product_nat_trans_pr2_data
@@ -130,7 +130,7 @@ Variable A : functor C D.
 Variable f : A ⟶ F.
 Variable g : A ⟶ G.
 
-Definition product_nat_trans_data : ∀ c,  A c ⇒ product_functor c.
+Definition product_nat_trans_data : ∀ c,  A c --> product_functor c.
 Proof.
   intro c.
   apply ProductArrow.
@@ -181,18 +181,18 @@ Qed.
 End vertex.
 
 Lemma product_nat_trans_univ_prop (A : [C, D, hsD])
-  (f : (A ⇒ (F:[C,D,hsD]))) (g : A ⇒ (G:[C,D,hsD])) :
+  (f : (A --> (F:[C,D,hsD]))) (g : A --> (G:[C,D,hsD])) :
    ∀
-   t : Σ fg : A ⇒ (product_functor:[C,D,hsD]),
-       fg ;; (product_nat_trans_pr1 : (product_functor:[C,D,hsD]) ⇒ F) = f
+   t : Σ fg : A --> (product_functor:[C,D,hsD]),
+       fg ;; (product_nat_trans_pr1 : (product_functor:[C,D,hsD]) --> F) = f
       ×
-       fg ;; (product_nat_trans_pr2 : (product_functor:[C,D,hsD]) ⇒ G) = g,
+       fg ;; (product_nat_trans_pr2 : (product_functor:[C,D,hsD]) --> G) = g,
    t =
    tpair
-     (λ fg : A ⇒ (product_functor:[C,D,hsD]),
-      fg ;; (product_nat_trans_pr1 : (product_functor:[C,D,hsD]) ⇒ F) = f
+     (λ fg : A --> (product_functor:[C,D,hsD]),
+      fg ;; (product_nat_trans_pr1 : (product_functor:[C,D,hsD]) --> F) = f
    ×
-      fg ;; (product_nat_trans_pr2 : (product_functor:[C,D,hsD]) ⇒ G) = g)
+      fg ;; (product_nat_trans_pr2 : (product_functor:[C,D,hsD]) --> G) = g)
      (product_nat_trans A f g)
      (dirprodpair (product_nat_trans_Pr1Commutes A f g)
         (product_nat_trans_Pr2Commutes A f g)).

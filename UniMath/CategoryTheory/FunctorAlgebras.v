@@ -37,7 +37,7 @@ Section Algebra_Definition.
 
 Context {C : precategory} (F : functor C C).
 
-Definition algebra_ob : UU := Σ X : C, F X ⇒ X.
+Definition algebra_ob : UU := Σ X : C, F X --> X.
 
 (* this coercion causes confusion, and it is not inserted when parsing most of the time
    thus removing coercion globally
@@ -45,15 +45,15 @@ Definition algebra_ob : UU := Σ X : C, F X ⇒ X.
 Definition alg_carrier (X : algebra_ob) : C := pr1 X.
 Local Coercion alg_carrier : algebra_ob >-> ob.
 
-Definition alg_map (X : algebra_ob) : F X ⇒ X := pr2 X.
+Definition alg_map (X : algebra_ob) : F X --> X := pr2 X.
 
-Definition is_algebra_mor (X Y : algebra_ob) (f : alg_carrier X ⇒ alg_carrier Y) : UU
+Definition is_algebra_mor (X Y : algebra_ob) (f : alg_carrier X --> alg_carrier Y) : UU
   := alg_map X ;; f = #F f ;; alg_map Y.
 
 Definition algebra_mor (X Y : algebra_ob) : UU :=
-  Σ f : X ⇒ Y, is_algebra_mor X Y f.
+  Σ f : X --> Y, is_algebra_mor X Y f.
 
-Coercion mor_from_algebra_mor (X Y : algebra_ob) (f : algebra_mor X Y) : X ⇒ Y := pr1 f.
+Coercion mor_from_algebra_mor (X Y : algebra_ob) (f : algebra_mor X Y) : X --> Y := pr1 f.
 
 Definition isaset_algebra_mor (hs : has_homsets C) (X Y : algebra_ob) : isaset (algebra_mor X Y).
 Proof.
@@ -65,7 +65,7 @@ Proof.
 Qed.
 
 Definition algebra_mor_eq (hs : has_homsets C) {X Y : algebra_ob} {f g : algebra_mor X Y}
-  : (f : X ⇒ Y) = g ≃ f = g.
+  : (f : X --> Y) = g ≃ f = g.
 Proof.
   apply invweq.
   apply subtypeInjectivity.
@@ -172,7 +172,7 @@ Proof.
     + apply (pr2 H).
 Defined.
 
-Definition is_iso_from_is_algebra_iso (X Y : FunctorAlg (pr2 H)) (f : X ⇒ Y)
+Definition is_iso_from_is_algebra_iso (X Y : FunctorAlg (pr2 H)) (f : X --> Y)
   : is_iso f → is_iso (pr1 f).
 Proof.
   intro p.
@@ -185,8 +185,8 @@ Proof.
   - apply (maponpaths pr1 H'').
 Defined.
 
-Definition inv_algebra_mor_from_is_iso {X Y : FunctorAlg (pr2 H)} (f : X ⇒ Y)
-  : is_iso (pr1 f) → (Y ⇒ X).
+Definition inv_algebra_mor_from_is_iso {X Y : FunctorAlg (pr2 H)} (f : X --> Y)
+  : is_iso (pr1 f) → (Y --> X).
 Proof.
   intro T.
   set (fiso:=isopair (pr1 f) T).
@@ -204,7 +204,7 @@ Proof.
   apply (pr2 f).
 Defined.
 
-Definition is_algebra_iso_from_is_iso {X Y : FunctorAlg (pr2 H)} (f : X ⇒ Y)
+Definition is_algebra_iso_from_is_iso {X Y : FunctorAlg (pr2 H)} (f : X --> Y)
   : is_iso (pr1 f) → is_iso f.
 Proof.
   intro T.
@@ -221,7 +221,7 @@ Proof.
 Defined.
 
 Definition algebra_iso_first_iso {X Y : FunctorAlg (pr2 H)}
-  : iso X Y ≃ Σ f : X ⇒ Y, is_iso (pr1 f).
+  : iso X Y ≃ Σ f : X --> Y, is_iso (pr1 f).
 Proof.
   apply (weqbandf (idweq _ )).
   intro f.
@@ -248,7 +248,7 @@ Proof.
 Defined.
 
 Definition algebra_iso_rearrange {X Y : FunctorAlg (pr2 H)}
-  : (Σ f : X ⇒ Y, is_iso (pr1 f)) ≃ algebra_eq_type X Y.
+  : (Σ f : X --> Y, is_iso (pr1 f)) ≃ algebra_eq_type X Y.
 Proof.
   eapply weqcomp.
   - apply weqtotal2asstor.

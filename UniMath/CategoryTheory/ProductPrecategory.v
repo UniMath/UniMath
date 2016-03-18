@@ -42,7 +42,7 @@ Variables C D : precategory.
 Definition product_precategory_ob_mor : precategory_ob_mor.
 Proof.
   exists (C × D).
-  exact (λ cd cd', pr1 cd ⇒ pr1 cd' × pr2 cd ⇒ pr2 cd').
+  exact (λ cd cd', pr1 cd --> pr1 cd' × pr2 cd --> pr2 cd').
 Defined.
 
 Definition product_precategory_data : precategory_data.
@@ -82,7 +82,7 @@ Variable F: functor product_precategory E.
 Variable d: D.
 
 Definition functor_fix_snd_arg_ob (c:C): E := F(tpair _ c d).
-Definition functor_fix_snd_arg_mor (c c':C)(f: c ⇒ c'): functor_fix_snd_arg_ob c ⇒ functor_fix_snd_arg_ob c'.
+Definition functor_fix_snd_arg_mor (c c':C)(f: c --> c'): functor_fix_snd_arg_ob c --> functor_fix_snd_arg_ob c'.
 Proof.
   apply (#F).
   split; simpl.
@@ -135,7 +135,7 @@ Variable F F': functor product_precategory E.
 Variable α: F ⟶ F'.
 Variable d: D.
 
-Definition nat_trans_fix_snd_arg_data (c:C): functor_fix_snd_arg E F d c ⇒ functor_fix_snd_arg E F' d c := α (tpair _ c d).
+Definition nat_trans_fix_snd_arg_data (c:C): functor_fix_snd_arg E F d c --> functor_fix_snd_arg E F' d c := α (tpair _ c d).
 
 Lemma nat_trans_fix_snd_arg_ax: is_nat_trans _ _ nat_trans_fix_snd_arg_data.
 Proof.
@@ -166,8 +166,8 @@ Defined.
 
 Local Notation "A ⊗ B" := (prodcatpair A B) (at level 10).
 
-Definition prodcatmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X ⇒ X') (β : Z ⇒ Z')
-  : X ⊗ Z ⇒ X' ⊗ Z'.
+Definition prodcatmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X --> X') (β : Z --> Z')
+  : X ⊗ Z --> X' ⊗ Z'.
 Proof.
   exists α.
   exact β.

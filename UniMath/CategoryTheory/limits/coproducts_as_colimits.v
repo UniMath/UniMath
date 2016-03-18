@@ -27,7 +27,7 @@ Proof.
   induction F.
 Defined.
 
-Definition CopCocone {C : precategory} {a b : C} {c : C} (ac : a ⇒ c) (bc : b ⇒ c) :
+Definition CopCocone {C : precategory} {a b : C} {c : C} (ac : a --> c) (bc : b --> c) :
    cocone (coproduct_diagram a b) c.
 simple refine (tpair _ _ _ ).
 + intro v.
@@ -41,11 +41,11 @@ Section coproduct_def.
 
 Variable C : precategory.
 
-Definition isCoproductCocone (a b co : C) (ia : a ⇒ co) (ib : b ⇒ co) :=
+Definition isCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
   isColimCocone (coproduct_diagram a b) co (CopCocone ia ib).
 
-Definition mk_isCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a ⇒ co) (ib : b ⇒ co) :
-   (∀ (c : C) (f : a ⇒ c) (g : b ⇒ c),
+Definition mk_isCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a --> co) (ib : b --> co) :
+   (∀ (c : C) (f : a --> c) (g : b --> c),
     ∃! k : C ⟦co, c⟧,
       ia ;; k = f ×
       ib ;; k = g)
@@ -69,7 +69,7 @@ Definition CoproductCocone (a b : C) :=
   ColimCocone (coproduct_diagram a b).
 
 Definition mk_CoproductCocone (a b : C) :
-  ∀ (c : C) (f : a ⇒ c) (g : b ⇒ c),
+  ∀ (c : C) (f : a --> c) (g : b --> c),
    isCoproductCocone _ _ _ f g →  CoproductCocone a b.
 Proof.
   intros.
@@ -83,14 +83,14 @@ Definition Coproducts := ∀ (a b : C), CoproductCocone a b.
 Definition hasCoproducts := ishinh Coproducts.
 
 Definition CoproductObject {a b : C} (CC : CoproductCocone a b) : C := colim CC.
-Definition CoproductIn1 {a b : C} (CC : CoproductCocone a b): a ⇒ CoproductObject CC
+Definition CoproductIn1 {a b : C} (CC : CoproductCocone a b): a --> CoproductObject CC
   := colimIn CC true.
 
-Definition CoproductIn2 {a b : C} (CC : CoproductCocone a b) : b ⇒ CoproductObject CC
+Definition CoproductIn2 {a b : C} (CC : CoproductCocone a b) : b --> CoproductObject CC
   := colimIn CC false.
 
-Definition CoproductArrow {a b : C} (CC : CoproductCocone a b) {c : C} (f : a ⇒ c) (g : b ⇒ c) :
-      CoproductObject CC ⇒ c.
+Definition CoproductArrow {a b : C} (CC : CoproductCocone a b) {c : C} (f : a --> c) (g : b --> c) :
+      CoproductObject CC --> c.
 Proof.
   apply (colimArrow CC).
   simple refine (mk_cocone _ _ ).
@@ -101,7 +101,7 @@ Proof.
 Defined.
 
 Lemma CoproductIn1Commutes (a b : C) (CC : CoproductCocone a b):
-     ∀ (c : C) (f : a ⇒ c) g, CoproductIn1 CC ;; CoproductArrow CC f g  = f.
+     ∀ (c : C) (f : a --> c) g, CoproductIn1 CC ;; CoproductArrow CC f g  = f.
 Proof.
   intros c f g.
   unfold CoproductIn1.
@@ -110,7 +110,7 @@ Proof.
 Qed.
 
 Lemma CoproductIn2Commutes (a b : C) (CC : CoproductCocone a b):
-     ∀ (c : C) (f : a ⇒ c) g, CoproductIn2 CC ;; CoproductArrow CC f g = g.
+     ∀ (c : C) (f : a --> c) g, CoproductIn2 CC ;; CoproductArrow CC f g = g.
 Proof.
   intros c f g.
   unfold CoproductIn1.
@@ -119,7 +119,7 @@ Proof.
 Qed.
 
 Lemma CoproductArrowUnique (a b : C) (CC : CoproductCocone a b) (x : C)
-    (f : a ⇒ x) (g : b ⇒ x) (k : CoproductObject CC ⇒ x) :
+    (f : a --> x) (g : b --> x) (k : CoproductObject CC --> x) :
     CoproductIn1 CC ;; k = f → CoproductIn2 CC ;; k = g →
       k = CoproductArrow CC f g.
 Proof.
@@ -132,7 +132,7 @@ Qed.
 
 
 Lemma CoproductArrowEta (a b : C) (CC : CoproductCocone a b) (x : C)
-    (f : CoproductObject CC ⇒ x) :
+    (f : CoproductObject CC --> x) :
     f = CoproductArrow CC (CoproductIn1 CC ;; f) (CoproductIn2 CC ;; f).
 Proof.
   apply CoproductArrowUnique;
@@ -141,12 +141,12 @@ Qed.
 
 
 Definition CoproductOfArrows {a b : C} (CCab : CoproductCocone a b) {c d : C}
-    (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d) :
-          CoproductObject CCab ⇒ CoproductObject CCcd :=
+    (CCcd : CoproductCocone c d) (f : a --> c) (g : b --> d) :
+          CoproductObject CCab --> CoproductObject CCcd :=
     CoproductArrow CCab (f ;; CoproductIn1 CCcd) (g ;; CoproductIn2 CCcd).
 
 Lemma CoproductOfArrowsIn1 {a b : C} (CCab : CoproductCocone a b) {c d : C}
-    (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d) :
+    (CCcd : CoproductCocone c d) (f : a --> c) (g : b --> d) :
     CoproductIn1 CCab ;; CoproductOfArrows CCab CCcd f g = f ;; CoproductIn1 CCcd.
 Proof.
   unfold CoproductOfArrows.
@@ -154,7 +154,7 @@ Proof.
 Qed.
 
 Lemma CoproductOfArrowsIn2 {a b : C} (CCab : CoproductCocone a b) {c d : C}
-    (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d) :
+    (CCcd : CoproductCocone c d) (f : a --> c) (g : b --> d) :
     CoproductIn2 CCab ;; CoproductOfArrows CCab CCcd f g = g ;; CoproductIn2 CCcd.
 Proof.
   unfold CoproductOfArrows.
@@ -163,8 +163,8 @@ Qed.
 
 
 Lemma precompWithCoproductArrow {a b : C} (CCab : CoproductCocone a b) {c d : C}
-    (CCcd : CoproductCocone c d) (f : a ⇒ c) (g : b ⇒ d)
-    {x : C} (k : c ⇒ x) (h : d ⇒ x) :
+    (CCcd : CoproductCocone c d) (f : a --> c) (g : b --> d)
+    {x : C} (k : c --> x) (h : d --> x) :
         CoproductOfArrows CCab CCcd f g ;; CoproductArrow CCcd k h =
          CoproductArrow CCab (f ;; k) (g ;; h).
 Proof.
@@ -179,7 +179,7 @@ Qed.
 
 
 Lemma postcompWithCoproductArrow {a b : C} (CCab : CoproductCocone a b) {c : C}
-    (f : a ⇒ c) (g : b ⇒ c) {x : C} (k : c ⇒ x)  :
+    (f : a --> c) (g : b --> c) {x : C} (k : c --> x)  :
        CoproductArrow CCab f g ;; k = CoproductArrow CCab (f ;; k) (g ;; k).
 Proof.
   apply CoproductArrowUnique.
@@ -199,14 +199,14 @@ Hypothesis H : is_category C.
 Variables a b : C.
 
 Definition from_Coproduct_to_Coproduct (CC CC' : CoproductCocone a b)
-  : CoproductObject CC ⇒ CoproductObject CC'.
+  : CoproductObject CC --> CoproductObject CC'.
 Proof.
   apply (CoproductArrow CC  (CoproductIn1 _ ) (CoproductIn2 _ )).
 Defined.
 
 
 Lemma Coproduct_endo_is_identity (CC : CoproductCocone a b)
-  (k : CoproductObject CC ⇒ CoproductObject CC)
+  (k : CoproductObject CC --> CoproductObject CC)
   (H1 : CoproductIn1 CC ;; k = CoproductIn1 CC)
   (H2 : CoproductIn2 CC ;; k = CoproductIn2 CC)
   : identity _ = k.
@@ -245,8 +245,8 @@ Definition iso_from_Coproduct_to_Coproduct (CC CC' : CoproductCocone a b)
   : iso (CoproductObject CC) (CoproductObject CC')
   := isopair _ (is_iso_from_Coproduct_to_Coproduct CC CC').
 
-Lemma transportf_isotoid' (c d d': C) (p : iso d d') (f : c ⇒ d) :
-  transportf (λ a0 : C, c ⇒ a0) (isotoid C H p) f = f ;; p .
+Lemma transportf_isotoid' (c d d': C) (p : iso d d') (f : c --> d) :
+  transportf (λ a0 : C, c --> a0) (isotoid C H p) f = f ;; p .
 Proof.
   rewrite <- idtoiso_postcompose.
   rewrite idtoiso_isotoid.

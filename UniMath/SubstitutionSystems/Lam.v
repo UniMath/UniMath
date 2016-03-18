@@ -170,7 +170,7 @@ Defined.
 (** now define bracket operation for a given [Z] and [f] *)
 
 (** preparations for typedness *)
-Local Definition bla': (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) ⇒ (ptd_from_alg_functor CC _ Lam).
+Local Definition bla': (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) --> (ptd_from_alg_functor CC _ Lam).
 Proof.
   simple refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ).
@@ -180,7 +180,7 @@ Proof.
          apply idpath).
 Defined.
 
-Local Definition bla'_inv: (ptd_from_alg_functor CC _ Lam) ⇒ (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
+Local Definition bla'_inv: (ptd_from_alg_functor CC _ Lam) --> (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
 Proof.
   simple refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ).
