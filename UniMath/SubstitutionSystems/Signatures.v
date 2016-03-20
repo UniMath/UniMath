@@ -65,8 +65,8 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 (** Source is given by [(X,Z) => H(X)∙U(Z)] *)
 Definition θ_source_ob (FX : EndC XX Ptd) : [C, C, hs] := H (pr1 FX) • U (pr2 FX).
 
-Definition θ_source_mor {FX FX' : EndC XX Ptd} (αβ : FX ⇒ FX')
-  : θ_source_ob FX ⇒ θ_source_ob FX' := hor_comp (#U (pr2 αβ)) (#H (pr1 αβ)).
+Definition θ_source_mor {FX FX' : EndC XX Ptd} (αβ : FX --> FX')
+  : θ_source_ob FX --> θ_source_ob FX' := hor_comp (#U (pr2 αβ)) (#H (pr1 αβ)).
 
 
 Definition θ_source_functor_data : functor_data (EndC XX Ptd) EndC.
@@ -121,8 +121,8 @@ Definition θ_source : functor _ _ := tpair _ _ is_functor_θ_source.
 
 Definition θ_target_ob (FX : EndC XX Ptd) : EndC := H (pr1 FX • U (pr2 FX)).
 
-Definition θ_target_mor (FX FX' : EndC XX Ptd) (αβ : FX ⇒ FX')
-  : θ_target_ob FX ⇒ θ_target_ob FX'
+Definition θ_target_mor (FX FX' : EndC XX Ptd) (αβ : FX --> FX')
+  : θ_target_ob FX --> θ_target_ob FX'
   := #H (pr1 αβ ∙∙ #U(pr2 αβ)).
 
 Definition θ_target_functor_data : functor_data (EndC XX Ptd) EndC.
@@ -235,17 +235,17 @@ Hypothesis θ_strength1 : θ_Strength1.
 *)
 
 Definition θ_Strength2 : UU := ∀ (X : EndC) (Z Z' : Ptd) (Y : EndC)
-           (α : functor_compose hs hs (functor_composite (U Z) (U Z')) X ⇒ Y),
+           (α : functor_compose hs hs (functor_composite (U Z) (U Z')) X --> Y),
     θ (X ⊗ (Z p• Z' : Ptd)) ;; # H α =
     θ (X ⊗ Z') •• (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) ;;
-       # H (α : functor_compose hs hs (U Z) (X • (U Z')) ⇒ Y).
+       # H (α : functor_compose hs hs (U Z) (X • (U Z')) --> Y).
 
 Section Strength_law_2_intensional.
 
 Definition θ_Strength2_int : UU
   := ∀ (X : EndC) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  ;; #H (α_functor _ (U Z) (U Z') X )  =
-      (α_functor _ (U Z) (U Z') (H X) : functor_compose hs hs _ _  ⇒ _ ) ;;
+      (α_functor _ (U Z) (U Z') (H X) : functor_compose hs hs _ _  --> _ ) ;;
       θ (X ⊗ Z') •• (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) .
 
 Lemma θ_Strength2_int_implies_θ_Strength2 : θ_Strength2_int → θ_Strength2.
@@ -265,7 +265,7 @@ Proof.
   apply maponpaths.
   clear TXZZ'c.
   assert (functor_comp_H := functor_comp H _ _ _ (α_functor C (pr1 Z) (pr1 Z') X)
-           (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) ⇒ Y)).
+           (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) --> Y)).
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   simpl in functor_comp_H_c.
   eapply pathscomp0.
@@ -321,7 +321,7 @@ Hypothesis θ_strength2 : θ_Strength2.
 (** Not having a general theory of binatural transformations, we isolate
     naturality in each component here *)
 
-Lemma θ_nat_1 (X X' : EndC) (α : X ⇒ X') (Z : Ptd)
+Lemma θ_nat_1 (X X' : EndC) (α : X --> X') (Z : Ptd)
   : compose(C:=EndC) (# H α ∙∙ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
         θ (X ⊗ Z);; # H (α ∙∙ nat_trans_id (pr1 (U Z))).
 Proof.
@@ -333,14 +333,14 @@ Proof.
 Qed.
 
 (* the following makes sense but is wrong
-Lemma θ_nat_1' (X X' : EndC) (α : X ⇒ X') (Z : Ptd)
+Lemma θ_nat_1' (X X' : EndC) (α : X --> X') (Z : Ptd)
   : compose(C:=EndC) (# H α øø (U Z)) (θ (X' ⊗ Z)) =
         θ (X ⊗ Z);; # H (α øø (U Z)).
 Proof.
 Abort.
 *)
 
-Lemma θ_nat_1_pointwise (X X' : EndC) (α : X ⇒ X') (Z : Ptd) (c : C)
+Lemma θ_nat_1_pointwise (X X' : EndC) (α : X --> X') (Z : Ptd) (c : C)
   :  pr1 (# H α) ((pr1 Z) c);; pr1 (θ (X' ⊗ Z)) c =
        pr1 (θ (X ⊗ Z)) c;; pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
 Proof.
@@ -358,7 +358,7 @@ Proof.
   - apply t'.
 Qed.
 
-Lemma θ_nat_2 (X : EndC) (Z Z' : Ptd) (f : Z ⇒ Z')
+Lemma θ_nat_2 (X : EndC) (Z Z' : Ptd) (f : Z --> Z')
   : compose (C:=EndC) (identity (H X) ∙∙ pr1 f) (θ (X ⊗ Z')) =
        θ (X ⊗ Z);; # H (identity X ∙∙ pr1 f).
 Proof.
@@ -374,7 +374,7 @@ Proof.
   exact t'.
 Qed.
 
-Lemma θ_nat_2_pointwise (X : EndC) (Z Z' : Ptd) (f : Z ⇒ Z') (c : C)
+Lemma θ_nat_2_pointwise (X : EndC) (Z Z' : Ptd) (f : Z --> Z') (c : C)
   :  # (pr1 (H X)) ((pr1 f) c);; pr1 (θ (X ⊗ Z')) c =
        pr1 (θ (X ⊗ Z)) c;; pr1 (# H (identity X ∙∙ pr1 f)) c .
 Proof.

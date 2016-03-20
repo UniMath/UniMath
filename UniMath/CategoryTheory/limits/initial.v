@@ -47,7 +47,7 @@ Proof.
   exact H.
 Defined.
 
-Definition mk_isInitial (a : C) (H : ∀ (b : C), iscontr (a ⇒ b)) :
+Definition mk_isInitial (a : C) (H : ∀ (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
   exact H.

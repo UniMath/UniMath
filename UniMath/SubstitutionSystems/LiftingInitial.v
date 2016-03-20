@@ -531,7 +531,7 @@ Local Definition Ghat : EndEndC := Const_plus_H (pr1 InitAlg).
 Definition constant_nat_trans (C' D : precategory)
    (hsD : has_homsets D)
    (d d' : D)
-   (m : d ⇒ d')
+   (m : d --> d')
     : [C', D, hsD] ⟦constant_functor C' D d, constant_functor C' D d'⟧.
 Proof.
   exists (fun _ => m).
@@ -544,7 +544,7 @@ Proof.
   apply id_right] ).
 Defined.
 
-Definition thetahat_0 (Z : Ptd) (f : Z ⇒ ptd_from_alg  InitAlg):
+Definition thetahat_0 (Z : Ptd) (f : Z --> ptd_from_alg  InitAlg):
 EndEndC
 ⟦ CoproductObject EndEndC
     (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
@@ -618,7 +618,7 @@ Proof.
   - exact (is_nat_trans_iso2' Z).
 Defined.
 
-Definition thetahat (Z : Ptd)  (f : Z ⇒ ptd_from_alg  InitAlg)
+Definition thetahat (Z : Ptd)  (f : Z --> ptd_from_alg  InitAlg)
            : EndEndC ⟦ functor_composite Id_H
                                         (ℓ (U Z)),
                      functor_composite (ℓ (U Z)) (Ghat) ⟧.
@@ -632,7 +632,7 @@ Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Let Yon (X : EndC) : functor EndC^op HSET := yoneda_objects EndC hsEndC X.
 
-Definition Phi_fusion (Z : Ptd) (X : EndC) (b : pr1 InitAlg ⇒ X) :
+Definition Phi_fusion (Z : Ptd) (X : EndC) (b : pr1 InitAlg --> X) :
   functor_composite (functor_opp (ℓ (U Z))) (Yon (pr1 InitAlg))
    ⟶
   functor_composite (functor_opp (ℓ (U Z))) (Yon X) .
@@ -667,7 +667,7 @@ Proof.
   set (β0 := InitialArrow IA (pr1 T')).
   match goal with | [|- _ ;; ?b = _ ] => set (β := b) end.
   set ( rhohat := CoproductArrow EndC  (CPEndC _ _ )  β (tau_from_alg T')
-                  :  pr1 Ghat T' ⇒ T').
+                  :  pr1 Ghat T' --> T').
   set (X:= SpecializedGMIt Z _ Ghat rhohat (thetahat Z f)).
   pathvia (pr1 (pr1 X)).
   - set (TT:= fusion_law _ _ _ IA _ hsEndC (pr1 InitAlg) T' _ (KanExt Z)).
