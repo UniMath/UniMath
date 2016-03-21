@@ -60,7 +60,7 @@ Variable F : functor C C.
 
 Let AF := FunctorAlg F hsC.
 
-Definition AlgConstr (A : C) (α : F A ⇒ A) : AF.
+Definition AlgConstr (A : C) (α : F A --> A) : AF.
 Proof.
   exists A.
   exact α.
@@ -72,9 +72,9 @@ Notation "⟨ A , α ⟩" := (AlgConstr A α).
 Variable μF_Initial : Initial AF.
 
 Let μF : C := alg_carrier _ (InitialObject μF_Initial).
-Let inF : F μF ⇒ μF := alg_map _ (InitialObject μF_Initial).
+Let inF : F μF --> μF := alg_map _ (InitialObject μF_Initial).
 
-Let iter {A : C} (α : F A ⇒ A) : μF ⇒ A :=
+Let iter {A : C} (α : F A --> A) : μF --> A :=
   ↓(InitialArrow μF_Initial ⟨A,α⟩).
 
 Variable C' : precategory.
@@ -112,10 +112,10 @@ Section general_case.
 
 Variable ψ : ψ_source ⟶ ψ_target.
 
-Definition preIt : L μF ⇒ X := φ_inv (iter (φ (ψ (R X) (ε X)))).
+Definition preIt : L μF --> X := φ_inv (iter (φ (ψ (R X) (ε X)))).
 
 
-Lemma ψ_naturality (A B: C)(h: B ⇒ A)(f: L A ⇒ X): ψ B (#L h;; f) = #L (#F h);; ψ A f.
+Lemma ψ_naturality (A B: C)(h: B --> A)(f: L A --> X): ψ B (#L h;; f) = #L (#F h);; ψ A f.
 Proof.
   assert (ψ_is_nat := nat_trans_ax ψ);
   assert (ψ_is_nat_inst1 := ψ_is_nat _ _ h).
@@ -132,7 +132,7 @@ Proof.
   apply id_left.
 Qed.
 
-Lemma φ_ψ_μF_eq (h: L μF ⇒ X): φ (ψ μF h) = #F (φ h) ;; φ(ψ (R X) (ε X)).
+Lemma φ_ψ_μF_eq (h: L μF --> X): φ (ψ μF h) = #F (φ h) ;; φ(ψ (R X) (ε X)).
 Proof.
   rewrite <- φ_adj_natural_precomp.
   apply maponpaths.
@@ -148,7 +148,7 @@ Focus 2.
   apply φ_adj_inv_after_φ_adj.
 Qed.
 
-Lemma cancel_φ {A: C}{B: C'} (f g : L A ⇒ B): φ f = φ g -> f = g.
+Lemma cancel_φ {A: C}{B: C'} (f g : L A --> B): φ f = φ g -> f = g.
 Proof.
   intro Hyp.
 (* pedestrian way:
@@ -173,8 +173,8 @@ Proof.
     exact iter_eq.
 Qed.
 
-Lemma preIt_uniq (t : Σ h : L μF ⇒ X, # L inF;; h = ψ μF h):
-    t = tpair (λ h : L μF ⇒ X, # L inF;; h = ψ μF h) preIt preIt_ok.
+Lemma preIt_uniq (t : Σ h : L μF --> X, # L inF;; h = ψ μF h):
+    t = tpair (λ h : L μF --> X, # L inF;; h = ψ μF h) preIt preIt_ok.
 Proof.
     destruct t as [h h_rec_eq]; simpl.
     assert (same: h = preIt).
@@ -199,13 +199,13 @@ Focus 2.
       rewrite <- φ_adj_natural_precomp.
       apply maponpaths.
       exact h_rec_eq.
-    + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial ⇒ ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
+    + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial --> ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
        simple refine (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
        * apply (tpair _ (φ h)); assumption.
        * apply (maponpaths pr1 (InitialArrowUnique _ _ X0)).
 Qed.
 
-Theorem GenMendlerIteration : iscontr (Σ h : L μF ⇒ X, #L inF ;; h = ψ μF h).
+Theorem GenMendlerIteration : iscontr (Σ h : L μF --> X, #L inF ;; h = ψ μF h).
 Proof.
   simple refine (tpair _ _ _ ).
   - exists preIt.
@@ -213,7 +213,7 @@ Proof.
   - exact preIt_uniq.
 Defined.
 
-Definition It : L μF ⇒ X := pr1 (pr1 GenMendlerIteration).
+Definition It : L μF --> X := pr1 (pr1 GenMendlerIteration).
 Lemma It_is_preIt : It = preIt.
 Proof.
   apply idpath.
@@ -226,7 +226,7 @@ End general_case.
 Section special_case.
 
   Variable G : functor C' C'.
-  Variable ρ : G X ⇒ X.
+  Variable ρ : G X --> X.
   Variable θ : functor_composite F L ⟶ functor_composite L G.
 
 
@@ -260,7 +260,7 @@ Section special_case.
 
   Definition SpecialGenMendlerIteration :
     iscontr
-      (Σ h : L μF ⇒ X, # L inF ;; h = θ μF ;; #G h ;; ρ)
+      (Σ h : L μF --> X, # L inF ;; h = θ μF ;; #G h ;; ρ)
     := GenMendlerIteration ψ_from_comps.
 
 End special_case.

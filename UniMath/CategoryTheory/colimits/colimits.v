@@ -249,7 +249,7 @@ now intro u; rewrite assoc, colimArrowCommutes.
 Qed.
 
 Lemma colim_endo_is_identity {g : graph} (D : diagram g C)
-  (CC : ColimCocone D) (k : colim CC ⇒ colim CC)
+  (CC : ColimCocone D) (k : colim CC --> colim CC)
   (H : ∀ u, colimIn CC u ;; k = colimIn CC u) :
   identity _ = k.
 Proof.

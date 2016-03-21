@@ -79,7 +79,7 @@ Local Definition bla1 (X : [C, C, hs]) (Z : precategory_Ptd C hs) :
    ∀ c : C,
     (functor_composite_data (pr1 Z)
      (coproduct_functor_data C C CC (H1 X) (H2 X))) c
-   ⇒ (coproduct_functor_data C C CC (H1 (functor_composite (pr1 Z) X))
+   --> (coproduct_functor_data C C CC (H1 (functor_composite (pr1 Z) X))
        (H2 (functor_composite (pr1 Z) X))) c.
 Proof.
   intro c.
@@ -116,7 +116,7 @@ Proof.
 Defined.
 
 
-Definition θ_ob : ∀ XF, θ_source H XF ⇒ θ_target H XF.
+Definition θ_ob : ∀ XF, θ_source H XF --> θ_target H XF.
 Proof.
   intro XZ.
   destruct XZ as [X Z].

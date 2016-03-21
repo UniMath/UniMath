@@ -201,7 +201,7 @@ now intro u; rewrite <- assoc, limArrowCommutes.
 Qed.
 
 Lemma lim_endo_is_identity {J C : precategory} {F : functor J C}
-  (CC : LimCone F) (k : lim CC ⇒ lim CC)
+  (CC : LimCone F) (k : lim CC --> lim CC)
   (H : ∀ u, k ;; limOut CC u = limOut CC u) :
   identity _ = k.
 Proof.
