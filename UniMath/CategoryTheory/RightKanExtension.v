@@ -28,9 +28,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
-Require Import UniMath.SubstitutionSystems.AdjunctionHomTypesWeq.
-Require Import UniMath.SubstitutionSystems.Notation.
+Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 
 
 Section RightKanExtension.

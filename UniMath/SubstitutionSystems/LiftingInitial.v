@@ -38,18 +38,17 @@ Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
-Require Import UniMath.SubstitutionSystems.PointedFunctors.
-Require Import UniMath.SubstitutionSystems.ProductPrecategory.
-Require Import UniMath.SubstitutionSystems.HorizontalComposition.
-Require Import UniMath.SubstitutionSystems.PointedFunctorsComposition.
+Require Import UniMath.CategoryTheory.PointedFunctors.
+Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
-Require Import UniMath.SubstitutionSystems.RightKanExtension.
+Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
-Require Import UniMath.SubstitutionSystems.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Notation.
 
 
@@ -91,7 +90,7 @@ Definition Const_plus_H (X : EndC) : functor EndC EndC
                        H.
 
 
-Definition Id_H :  functor ([C, C] hs) ([C, C] hs)
+Definition Id_H :  functor [C, C, hs] [C, C, hs]
  := Const_plus_H (functor_identity _ : EndC).
 
 
@@ -100,10 +99,10 @@ Let Alg : precategory := FunctorAlg Id_H hsEndC.
 
 Variable IA : Initial Alg.
 Definition SpecializedGMIt (Z : Ptd) (X : EndC)
-  :  ∀ (G : functor ([C, C] hs) ([C, C] hs))
-       (ρ : [C, C] hs ⟦ G X, X ⟧)
+  :  ∀ (G : functor [C, C, hs] [C, C, hs])
+       (ρ : [C, C, hs] ⟦ G X, X ⟧)
        (θ : functor_composite Id_H (ℓ (U Z)) ⟶ functor_composite (ℓ (U Z)) G),
-     ∃! h : [C, C] hs ⟦ ℓ (U Z) (` (InitialObject IA)), X ⟧,
+     ∃! h : [C, C, hs] ⟦ ℓ (U Z) (` (InitialObject IA)), X ⟧,
             # (ℓ (U Z)) (alg_map Id_H (InitialObject IA)) ;; h
             =
             θ (` (InitialObject IA)) ;; # G h ;; ρ
@@ -112,31 +111,22 @@ Definition SpecializedGMIt (Z : Ptd) (X : EndC)
 
 
 Definition θ_in_first_arg (Z: Ptd)
-  : functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z
+  : functor_fix_snd_arg [C, C,hs] Ptd [C, C, hs] (θ_source H) Z
     ⟶
-    functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z
+    functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_target H) Z
   := nat_trans_fix_snd_arg _ _ _ _ _ θ Z.
 
 Definition InitAlg : Alg := InitialObject IA.
 
 
-
-(* original try in bracket_for_InitAlg with
-  assert (iso_1 : functor_composite Id_H (pre_composition_functor C C C hs hs (U Z)) ⟶
-                 coproduct_functor_data ([C, C] hs) ([C, C] hs) CPEndC
-    (constant_functor ([C, C] hs) ([C, C] hs) (pr1 Z))
-    (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z) : EndEndC ⟦ _ , _ ⟧ ).
-  { admit. }
- *)
-
 Local Lemma aux_iso_1_is_nat_trans (Z : Ptd) :
    is_nat_trans
      (functor_composite Id_H (ℓ (U Z)))
      (pr1 (CoproductObject EndEndC
-        (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
-           (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z))))
-     (λ X : [C, C] hs,
-      CoproductOfArrows ([C, C] hs)
+        (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
+           (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_source H) Z))))
+     (λ X : [C, C, hs],
+      CoproductOfArrows [C, C, hs]
         (CPEndC (functor_composite (U Z) (functor_identity C))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
         (ρ_functor C (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
@@ -163,10 +153,10 @@ Definition aux_iso_1 (Z : Ptd)
   : EndEndC
     ⟦ functor_composite Id_H (ℓ (U Z)),
       CoproductObject EndEndC
-           (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
-              (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z))⟧.
+           (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
+              (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_source H) Z))⟧.
 Proof.
-  refine (tpair _ _ _).
+  simple refine (tpair _ _ _).
   - intro X.
     exact (CoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functor _ (U Z))
             (nat_trans_id (θ_source H (X⊗Z):functor C C))).
@@ -176,11 +166,11 @@ Defined.
 Local Lemma aux_iso_1_inv_is_nat_trans (Z : Ptd) :
    is_nat_trans
      (pr1 (CoproductObject EndEndC
-        (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
-           (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z))) )
+        (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
+           (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_source H) Z))) )
      (functor_composite Id_H (ℓ (U Z)))
-     (λ X : [C, C] hs,
-      CoproductOfArrows ([C, C] hs)
+     (λ X : [C, C, hs],
+      CoproductOfArrows [C, C, hs]
         (CPEndC (functor_composite (functor_identity C) (U Z))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
         (λ_functor C (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
@@ -206,11 +196,11 @@ Qed.
 Local Definition aux_iso_1_inv (Z: Ptd)
   : EndEndC
     ⟦ CoproductObject EndEndC
-           (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
-              (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z)),
+           (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
+              (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_source H) Z)),
       functor_composite Id_H (ℓ (U Z)) ⟧.
 Proof.
-  refine (tpair _ _ _).
+  simple refine (tpair _ _ _).
   - intro X.
     exact (CoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functor _ (U Z))
            (nat_trans_id (θ_source H (X⊗Z):functor C C))).
@@ -226,13 +216,13 @@ Definition G_Thm15 (X : EndC) := coproduct_functor _ _ CPEndC
 Local Lemma aux_iso_2_inv_is_nat_trans (Z : Ptd) :
    is_nat_trans
      (pr1 (CoproductObject EndEndC
-        (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
-           (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z))) )
+        (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
+           (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs](θ_target H) Z))) )
      (functor_composite (ℓ (U Z))
         (Const_plus_H (U Z)))
-     (λ X : [C, C] hs,
+     (λ X : [C, C, hs],
       nat_trans_id
-        (CoproductObject ([C, C] hs) (CPEndC (U Z) ((θ_target H) (X ⊗ Z)))
+        (CoproductObject [C, C, hs] (CPEndC (U Z) ((θ_target H) (X ⊗ Z)))
          :functor C C)).
 Proof.
   unfold is_nat_trans; simpl.
@@ -261,11 +251,11 @@ Qed.
 Local Definition aux_iso_2_inv (Z : Ptd)
   : EndEndC
     ⟦ CoproductObject EndEndC
-         (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
-                    (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z)),
+         (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
+                    (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_target H) Z)),
       functor_composite (ℓ (U Z) )   (Const_plus_H (U Z)) ⟧.
 Proof.
-  refine (tpair _ _ _).
+  simple refine (tpair _ _ _).
   - intro X.
     exact (nat_trans_id ((@CoproductObject EndC (U Z) (θ_target H (X⊗Z)) (CPEndC _ _) )
              : functor C C)).
@@ -275,25 +265,25 @@ Defined.
 Definition θ'_Thm15 (Z: Ptd)
   : EndEndC
     ⟦ CoproductObject EndEndC
-        (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
-           (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z)),
+        (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
+           (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_source H) Z)),
       CoproductObject EndEndC
-        (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
-            (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z)) ⟧
+        (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
+            (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_target H) Z)) ⟧
   := CoproductOfArrows
    EndEndC (CPEndEndC _ _) (CPEndEndC _ _)
    (identity (constant_functor EndC _ (U Z): functor_precategory EndC EndC hsEndC))
    (θ_in_first_arg Z).
 
 Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
-  : [C, C] hs ⟦ CoproductObject ([C, C] hs) (CPEndC (U Z) (H `InitAlg)), `InitAlg ⟧
+  : [C, C, hs] ⟦ CoproductObject [C, C, hs] (CPEndC (U Z) (H `InitAlg)), `InitAlg ⟧
   := @CoproductArrow
    EndC _ _  (CPEndC (U Z)
    (H (alg_carrier _ InitAlg))) (alg_carrier _ InitAlg) (#U f)
    (CoproductIn2 _ _ ;; (alg_map _ InitAlg)).
 
 Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
-  : ∃! h : [C, C] hs ⟦ ℓ (U Z) (` (InitialObject IA)), pr1 InitAlg ⟧,
+  : ∃! h : [C, C, hs] ⟦ ℓ (U Z) (` (InitialObject IA)), pr1 InitAlg ⟧,
            # (ℓ (U Z)) (alg_map Id_H (InitialObject IA)) ;; h
            =
            pr1 ((aux_iso_1 Z ;; θ'_Thm15 Z ;; aux_iso_2_inv Z)) (` (InitialObject IA)) ;;
@@ -302,7 +292,7 @@ Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg �
      (ρ_Thm15 Z f) (aux_iso_1 Z ;; θ'_Thm15 Z ;; aux_iso_2_inv Z).
 
 Definition bracket_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
-  : [C, C] hs ⟦ ℓ (U Z) (` (InitialObject IA)), `InitAlg ⟧
+  : [C, C, hs] ⟦ ℓ (U Z) (` (InitialObject IA)), `InitAlg ⟧
   := pr1 (pr1 (SpecializedGMIt_Thm15 Z f)).
 
 Notation "⦃ f ⦄" := (bracket_Thm15 _ f) (at level 0).
@@ -443,13 +433,13 @@ Qed.
 
 
 Local Lemma foo' (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
- ∀ t : Σ h : [C, C] hs ⟦ functor_composite (U Z) (pr1  InitAlg),
+ ∀ t : Σ h : [C, C, hs] ⟦ functor_composite (U Z) (pr1  InitAlg),
                          pr1 InitAlg ⟧,
        bracket_property f h,
    t
    =
    tpair
-     (λ h : [C, C] hs
+     (λ h : [C, C, hs]
             ⟦ functor_composite (U Z) (pr1 InitAlg),
               pr1 InitAlg ⟧,
        bracket_property f h)
@@ -511,8 +501,8 @@ Qed.
 Definition bracket_for_InitAlg : bracket InitAlg.
 Proof.
   intros Z f.
-  refine (tpair _ _ _ ).
-  - refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
+  - unshelve refine (tpair _ _ _ ).
     + exact (bracket_Thm15 Z f).
     + exact (bracket_Thm15_ok_cor Z f).
        (* B: better to prove the whole outside, and apply it here *)
@@ -541,7 +531,7 @@ Local Definition Ghat : EndEndC := Const_plus_H (pr1 InitAlg).
 Definition constant_nat_trans (C' D : precategory)
    (hsD : has_homsets D)
    (d d' : D)
-   (m : d ⇒ d')
+   (m : d --> d')
     : [C', D, hsD] ⟦constant_functor C' D d, constant_functor C' D d'⟧.
 Proof.
   exists (fun _ => m).
@@ -554,14 +544,14 @@ Proof.
   apply id_right] ).
 Defined.
 
-Definition thetahat_0 (Z : Ptd) (f : Z ⇒ ptd_from_alg  InitAlg):
+Definition thetahat_0 (Z : Ptd) (f : Z --> ptd_from_alg  InitAlg):
 EndEndC
 ⟦ CoproductObject EndEndC
-    (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
-       (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z)),
+    (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
+       (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_source H) Z)),
 CoproductObject EndEndC
-  (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (pr1 InitAlg))
-             (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z)) ⟧ .
+  (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (pr1 InitAlg))
+             (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_target H) Z)) ⟧ .
 Proof.
   exact (CoproductOfArrows EndEndC (CPEndEndC _ _) (CPEndEndC _ _)
                            (constant_nat_trans _ _ hsEndC _ _ (#U f))
@@ -571,8 +561,8 @@ Defined.
 Local Definition iso1' (Z : Ptd) :  EndEndC ⟦ functor_composite Id_H
                                         (ℓ (U Z)),
  CoproductObject EndEndC
-    (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (U Z))
-               (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_source H) Z)) ⟧.
+    (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
+               (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_source H) Z)) ⟧.
 Proof.
   exact (aux_iso_1 Z).
 Defined.
@@ -581,14 +571,14 @@ Defined.
 Local Lemma is_nat_trans_iso2' (Z : Ptd) :
    is_nat_trans
      (pr1 (CoproductObject EndEndC
-        (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (pr1 InitAlg))
-           (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z))))
+        (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (pr1 InitAlg))
+           (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_target H) Z))))
      (functor_composite (ℓ (U Z)) Ghat)
-     (λ X : [C, C] hs,
+     (λ X : [C, C, hs],
       nat_trans_id
-        (CoproductObject ([C, C] hs)
+        (CoproductObject [C, C, hs]
            (CPEndC
-              ((constant_functor ([C, C] hs) ([C, C] hs) (pr1 InitAlg)) X)
+              ((constant_functor [C, C, hs] [C, C, hs] (pr1 InitAlg)) X)
               ((θ_target H) (X ⊗ Z)))
          :functor C C)).
 Proof.
@@ -617,18 +607,18 @@ Qed.
 
 Local Definition iso2' (Z : Ptd) : EndEndC ⟦
   CoproductObject EndEndC
-  (CPEndEndC (constant_functor ([C, C] hs) ([C, C] hs) (pr1 InitAlg))
-             (functor_fix_snd_arg ([C, C] hs) Ptd ([C, C] hs) (θ_target H) Z)),
+  (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (pr1 InitAlg))
+             (functor_fix_snd_arg [C, C, hs] Ptd [C, C, hs] (θ_target H) Z)),
   functor_composite (ℓ (U Z)) Ghat ⟧.
 Proof.
-    refine (tpair _ _ _).
+    simple refine (tpair _ _ _).
   - intro X.
     exact (nat_trans_id ((@CoproductObject EndC _ (θ_target H (X⊗Z)) (CPEndC _ _) )
             : functor C C)).
   - exact (is_nat_trans_iso2' Z).
 Defined.
 
-Definition thetahat (Z : Ptd)  (f : Z ⇒ ptd_from_alg  InitAlg)
+Definition thetahat (Z : Ptd)  (f : Z --> ptd_from_alg  InitAlg)
            : EndEndC ⟦ functor_composite Id_H
                                         (ℓ (U Z)),
                      functor_composite (ℓ (U Z)) (Ghat) ⟧.
@@ -642,12 +632,12 @@ Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Let Yon (X : EndC) : functor EndC^op HSET := yoneda_objects EndC hsEndC X.
 
-Definition Phi_fusion (Z : Ptd) (X : EndC) (b : pr1 InitAlg ⇒ X) :
+Definition Phi_fusion (Z : Ptd) (X : EndC) (b : pr1 InitAlg --> X) :
   functor_composite (functor_opp (ℓ (U Z))) (Yon (pr1 InitAlg))
    ⟶
   functor_composite (functor_opp (ℓ (U Z))) (Yon X) .
 Proof.
-  refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
   - intro Y.
     intro a.
     exact (a ;; b).
@@ -677,7 +667,7 @@ Proof.
   set (β0 := InitialArrow IA (pr1 T')).
   match goal with | [|- _ ;; ?b = _ ] => set (β := b) end.
   set ( rhohat := CoproductArrow EndC  (CPEndC _ _ )  β (tau_from_alg T')
-                  :  pr1 Ghat T' ⇒ T').
+                  :  pr1 Ghat T' --> T').
   set (X:= SpecializedGMIt Z _ Ghat rhohat (thetahat Z f)).
   pathvia (pr1 (pr1 X)).
   - set (TT:= fusion_law _ _ _ IA _ hsEndC (pr1 InitAlg) T' _ (KanExt Z)).
@@ -891,7 +881,7 @@ Qed.
 
 Lemma isInitial_InitHSS : isInitial (hss_precategory CP H) InitHSS.
 Proof.
-  refine (mk_isInitial _ _).
+  simple refine (mk_isInitial _ _).
   intro T.
   exists (hss_InitMor T).
   apply hss_InitMor_unique.
@@ -900,7 +890,7 @@ Defined.
 
 Lemma InitialHSS : Initial (hss_precategory CP H).
 Proof.
-  refine (mk_Initial InitHSS _).
+  simple refine (mk_Initial InitHSS _).
   apply isInitial_InitHSS.
 Defined.
 

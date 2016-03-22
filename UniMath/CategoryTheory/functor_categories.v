@@ -165,6 +165,19 @@ Definition functor_comp {C C' : precategory_data}
                  forall g : b --> c,
                 #F (f ;; g) = #F f ;; #F g := pr2 (pr2 F).
 
+
+Lemma functor_id_id (A B : precategory) (G : functor A B) (a : A) (f : a --> a)
+  : f = identity _ -> #G f = identity _ .
+Proof.
+  intro e.
+  pathvia (#G (identity a )).
+  - apply maponpaths. apply e.
+  - apply functor_id.
+Defined.
+
+
+
+
 (** ** Functors preserve isomorphisms *)
 
 
@@ -191,8 +204,8 @@ Proof.
 Defined.
 
 
-Definition functor_on_iso (C C' : precategory) (F : functor C C')
-    (a b : ob C)(f : iso a b) : iso (F a) (F b).
+Definition functor_on_iso {C C' : precategory} (F : functor C C')
+    {a b : ob C}(f : iso a b) : iso (F a) (F b).
 Proof.
   exists (#F f).
   apply functor_on_iso_is_iso.
@@ -200,8 +213,8 @@ Defined.
 
 Lemma functor_on_iso_inv (C C' : precategory) (F : functor C C')
     (a b : ob C) (f : iso a b) :
-   functor_on_iso _ _ F _ _ (iso_inv_from_iso f) =
-       iso_inv_from_iso (functor_on_iso _ _ F _ _ f).
+   functor_on_iso F (iso_inv_from_iso f) =
+       iso_inv_from_iso (functor_on_iso F f).
 Proof.
   apply eq_iso; simpl.
   apply inv_iso_unique'; simpl.
@@ -210,11 +223,46 @@ Proof.
   apply functor_id.
 Defined.
 
+(** ** Functors and [idtoiso] *)
+
+Section functors_and_idtoiso.
+
+Variables C D : precategory.
+Variable F : functor C D.
+
+Lemma maponpaths_idtoiso (a b : C) (e : a = b)
+: idtoiso (maponpaths (functor_on_objects F) e)
+  =
+  functor_on_iso F (idtoiso e).
+Proof.
+  induction e.
+  apply eq_iso.
+  apply (! functor_id _ _ ).
+Qed.
+
+Hypothesis HC : is_category C.
+Hypothesis HD : is_category D.
+
+Lemma maponpaths_isotoid (a b : C) (i : iso a b)
+: maponpaths (functor_on_objects F) (isotoid _ HC i)
+  =
+  isotoid _ HD (functor_on_iso F i).
+Proof.
+  apply (invmaponpathsweq (weqpair (idtoiso) (pr1 HD _ _ ))).
+  simpl.
+  rewrite maponpaths_idtoiso.
+  repeat rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
+
+End functors_and_idtoiso.
+
+
 (** ** Functors preserve inverses *)
 
 Lemma functor_on_inv_from_iso (C C' : precategory) (F : functor C C')
     (a b : ob C)(f : iso a b) :
-      #F (inv_from_iso f) = inv_from_iso (functor_on_iso _ _ F _ _ f) .
+      #F (inv_from_iso f) = inv_from_iso (functor_on_iso F f) .
 Proof.
   apply inv_iso_unique'; simpl.
   unfold precomp_with. rewrite <- functor_comp.
@@ -329,7 +377,7 @@ Defined.
 
 Definition  iso_from_fully_faithful_reflection {C D : precategory}{F : functor C D}
         (HF : fully_faithful F)
-    (a b : ob C) (f : iso (F a) (F b)) :
+    {a b : ob C} (f : iso (F a) (F b)) :
       iso a b.
 Proof.
   exists (fully_faithful_inv_hom HF a b f).
@@ -339,14 +387,128 @@ Defined.
 Lemma functor_on_iso_iso_from_fully_faithful_reflection (C D : precategory)
       (F : functor C D) (HF : fully_faithful F) (a b : ob C)
    (f : iso (F a) (F b)) :
-      functor_on_iso _ _  F a b
-        (iso_from_fully_faithful_reflection HF a b f) = f.
+      functor_on_iso F
+        (iso_from_fully_faithful_reflection HF f) = f.
 Proof.
   apply eq_iso.
   simpl;
   apply (homotweqinvweq (weq_from_fully_faithful HF a b)).
 Qed.
 
+Lemma iso_from_fully_faithful_reflection_functor_on_iso (C D : precategory)
+      (F : functor C D) (HF : fully_faithful F) (a b : ob C)
+   (f : iso a b) :
+      iso_from_fully_faithful_reflection HF (functor_on_iso F f) = f.
+Proof.
+  apply eq_iso.
+  simpl;
+  apply (homotinvweqweq (weq_from_fully_faithful HF a b)).
+Qed.
+
+Definition weq_ff_functor_on_iso {C D : precategory}{F : functor C D}
+           (HF : fully_faithful F) (a b : ob C)
+  : iso a b ≃ iso (F a) (F b).
+Proof.
+  exists (functor_on_iso F).
+  apply (gradth _ (iso_from_fully_faithful_reflection HF (a:=a)(b:=b))).
+  - apply iso_from_fully_faithful_reflection_functor_on_iso.
+  - apply functor_on_iso_iso_from_fully_faithful_reflection.
+Defined.
+
+(** Computation check *)
+
+Lemma weq_ff_functor_on_iso_compute {C D : precategory} (F : functor C D)
+      (HF : fully_faithful F) {a b : C} (f : iso a b)
+: #F f = weq_ff_functor_on_iso HF _ _ f.
+Proof.
+apply idpath.
+Qed.
+
+Lemma functor_on_iso_iso_from_ff_reflection (C D : precategory)
+      (F : functor C D) (HF : fully_faithful F) (a b : C)
+      (f : iso (F a) (F b)):
+  functor_on_iso F
+                 (iso_from_fully_faithful_reflection HF f) = f.
+Proof.
+  apply eq_iso.
+  simpl.
+  apply (homotweqinvweq (weq_from_fully_faithful HF a b ) ).
+Qed.
+
+
+(** Alternative implementation of [weq_ff_functor_on_iso] *)
+
+Lemma ff_reflects_is_iso (C D : precategory) (F : functor C D)
+  (HF : fully_faithful F) (a b : C) (f : a --> b)
+  : is_iso (# F f) -> is_iso f.
+Proof.
+  intro H.
+  set (X:= fully_faithful_reflects_iso_proof _ _ F HF _ _ (isopair _ H)).
+  simpl in X.
+  set (T:= homotinvweqweq (weq_from_fully_faithful HF a b ) ).
+  simpl in T.
+  unfold fully_faithful_inv_hom in X.
+  simpl in X.
+  rewrite T in X.
+  apply X.
+Defined.
+
+
+Definition weq_ff_functor_on_iso_weqbandf {C D : precategory}
+  {F : functor C D}
+  (HF : fully_faithful F) (a b : C)
+  : iso a b ≃ iso (F a) (F b).
+Proof.
+  simple refine (weqbandf _ _ _ _ ).
+  - apply (weqpair _ (HF a b)).
+  - simpl; intro f.
+    apply weqimplimpl.
+    + intro H.
+      apply (functor_on_iso_is_iso _ _ _ _ _ (isopair f H)).
+    + apply ff_reflects_is_iso. apply HF.
+    + apply isaprop_is_iso.
+    + apply isaprop_is_iso.
+Defined.
+
+(** Computation check *)
+
+Lemma weq_ff_functor_on_iso_weqbandf_compute {C D : precategory} (F : functor C D)
+      (HF : fully_faithful F) {a b : C} (f : iso a b)
+: #F f = weq_ff_functor_on_iso_weqbandf HF _ _ f.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma ff_is_inclusion_on_objects {C D : precategory}
+      (HC : is_category C) (HD : is_category D)
+      (F : functor C D) (HF : fully_faithful F)
+      : isofhlevelf 1 (functor_on_objects F).
+Proof.
+  intro d.
+  apply invproofirrelevance.
+  intros [c e] [c' e'].
+  simple refine (total2_paths _ _ ).
+  - simpl.
+    set (X := idtoiso (e @ ! e')).
+    (* set (X' := invmap (@weq_ff_functor_on_iso _ _ _ HF _ _ ) X). *)
+        (* we cannot use X' because we lack the preceding, commented-out,
+           lemma *)
+    set (X2 := iso_from_fully_faithful_reflection HF X).
+    apply (isotoid _ HC X2).
+  - simpl.
+    set (T:=@functtransportf _ _ (functor_on_objects F)).
+    set (T' := T (fun c => c = d)). simpl in T'.
+    rewrite T'.
+    rewrite (maponpaths_isotoid _ _ _ HC HD).
+    rewrite functor_on_iso_iso_from_ff_reflection.
+    rewrite isotoid_idtoiso.
+    rewrite transportf_id2.
+    rewrite pathscomp_inv.
+    rewrite pathsinv0inv0.
+    rewrite <- path_assoc.
+    rewrite pathsinv0l.
+    apply pathscomp0rid.
+Qed.
 
 
 (** ** Essentially surjective functors *)
@@ -483,6 +645,30 @@ Defined.
 
 Definition functor_identity (C : precategory_data) : functor C C :=
   tpair _ _ ( is_functor_identity C ) .
+
+(** *** Constant functor *)
+
+Section Constant_Functor.
+Variables C D : precategory.
+Variable d : D.
+
+Definition constant_functor_data: functor_data C D :=
+   functor_data_constr C D (fun _ => d) (fun _ _ _  => identity _) .
+
+Lemma is_functor_constant: is_functor constant_functor_data.
+Proof.
+  split; simpl.
+  red; intros; apply idpath.
+  red; intros; simpl.
+  apply pathsinv0.
+  apply id_left.
+Qed.
+
+Definition constant_functor: functor C D := tpair _ _ is_functor_constant.
+
+End Constant_Functor.
+
+
 
 
 
@@ -648,7 +834,7 @@ Definition functor_precategory (C : precategory_data) (C' : precategory)
         (functor_precategory_data C C')
         (is_precategory_functor_precategory_data C C' hs).
 
-Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Lemma nat_trans_comp_pointwise (C : precategory_data)(C' : precategory) (hs: has_homsets C')
   (F G H : ob [C, C', hs]) (A : F --> G) (A' : G --> H)
@@ -661,6 +847,22 @@ Proof.
   destruct H'.
   apply idpath.
 Defined.
+
+Section nat_trans_eq.
+
+Context {C D : precategory}.
+Variable hsD : has_homsets D.
+Context {F G : functor C D}.
+Variables alpha beta : nat_trans F G.
+
+Definition nat_trans_eq_weq : weq (alpha = beta) (forall c, alpha c = beta c).
+Proof.
+  eapply weqcomp.
+  - apply subtypeInjectivity.
+    intro x. apply isaprop_is_nat_trans. apply hsD.
+  - apply weqtoforallpaths.
+Defined.
+End nat_trans_eq.
 
 
 (** Characterizing isomorphisms in the functor category *)

@@ -28,11 +28,10 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -80,7 +79,7 @@ Proof.
 Qed.
 
 Lemma horcomp_id_postwhisker (A B C : precategory)
-   (hsB : has_homsets B) (hsC : has_homsets C) (X X' : [A, B, hsB]) (α : X ⇒ X')
+   (hsB : has_homsets B) (hsC : has_homsets C) (X X' : [A, B, hsB]) (α : X --> X')
    (Z : [B ,C, hsC])
   : hor_comp α (nat_trans_id _ ) = post_whisker α Z.
 Proof.

@@ -316,9 +316,9 @@ Definition finiteOperation1 (X:abmonoid) I : finstruct I -> (I->X) -> X.
 Defined.
 Definition finiteOperation {I} (is:isfinite I) (X:abmonoid) (x:I->X) : X.
   intros. generalize is; clear is.
-  refine (squash_to_set _ _ _).
-  { apply setproperty. }
+  unshelve refine (squash_to_set _ _ _).
   { intros fs. apply (finiteOperation1 X I fs x). }
+  { apply setproperty. }
   { intros [m f] [n g]. assert (e := same_n f g). induction e.
     try apply uniqueness0.      (* not proved yet *)
     admit.
@@ -398,7 +398,7 @@ Module Presentation.
   Defined.
   Lemma adequacy {X I} (R:I->reln X) :
     AdequateRelation R (smallestAdequateRelation0 R).
-  Proof. intros. refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _ _).
+  Proof. intros. simple refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _ _).
          { intros ? r ra. apply base. exact ra. }
          { intros ? r ra. apply (reflex R). exact ra. }
          { intros ? ? p r ra. apply (symm R). exact ra. exact (p r ra). }
@@ -428,14 +428,14 @@ Module Presentation.
   (** *** the multiplication on on it *)
 
   Definition univ_binop {X I} (R:I->reln X) : binop (universalMarkedPreAbelianMonoid0 R).
-    intros. refine (QuotientSet.setquotfun2 word_op _). apply op2_compatibility. Defined.
+    intros. simple refine (QuotientSet.setquotfun2 word_op _). apply op2_compatibility. Defined.
   Definition univ_setwithbinop {X I} (R:I->reln X) : setwithbinop
              := setwithbinoppair (universalMarkedPreAbelianMonoid0 R) (univ_binop R).
 
   (** *** the universal pre-Abelian group *)
 
   Definition universalMarkedPreAbelianMonoid {X I} (R:I->reln X) : MarkedPreAbelianMonoid X.
-    intros. refine (make_preAbelianMonoid X (universalMarkedPreAbelianMonoid0 R) _ _ _).
+    intros. simple refine (make_preAbelianMonoid X (universalMarkedPreAbelianMonoid0 R) _ _ _).
     { exact (setquotpr _ word_unit). }
     { exact (fun x => setquotpr _ (word_gen x)). }
     { exact (univ_binop _). } Defined.
@@ -507,7 +507,7 @@ Module Presentation.
     fun v w  => eqset (evalwordMM M v) (evalwordMM M w).
   Lemma abelian_group_adequacy {X I} (R:I->reln X) (M:MarkedAbelianMonoid R) :
     AdequateRelation R (MarkedAbelianMonoid_to_hrel M).
-  Proof. intros. refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _ _).
+  Proof. intros. simple refine (make_AdequateRelation R _ _ _ _ _ _ _ _ _ _ _).
          { exact (fun i => m_reln M i). } { reflexivity. }
          { intros ? ?. exact pathsinv0. } { intros ? ? ?. exact pathscomp0. }
          { intros ? ? ? p. simpl in p; simpl.
@@ -587,7 +587,7 @@ Module Presentation.
          { intermediate_path (unel M). exact (Monoid.unitproperty f). exact (!Monoid.unitproperty g). }
          { apply p. }
          (* compare duplication with the proof of MarkedAbelianMonoidMap_compat *)
-         { refine (
+         { simple refine (
                Monoid.multproperty f (setquotpr (smallestAdequateRelation R) v)
                    (setquotpr (smallestAdequateRelation R) w)
              @ _ @ !
@@ -655,7 +655,7 @@ Module NN_agreement.
   Proof. intro. induction n. { reflexivity. } { exact (ap S IHn). } Qed.
   Lemma mult_fun {X Y:abmonoid} (f:Hom X Y) (n:nat) (x:X) : f(n*x) = n*f x.
   Proof. intros. induction n. { exact (Monoid.unitproperty f). }
-         { refine (Monoid.multproperty f x (n*x) @ _).
+         { simple refine (Monoid.multproperty f x (n*x) @ _).
            { simpl. simpl in IHn. induction IHn. reflexivity. } } Qed.
   Lemma uniq_fun {X:abmonoid} (f g:Hom nataddabmonoid X) :
     f 1 = g 1 -> homot f g.
@@ -672,7 +672,7 @@ Module NN_agreement.
     set (markednat :=
            make_MarkedAbelianMonoid R nataddabmonoid (fun _ => 1) fromemptysec).
     exists (map_base (thePoint (iscontrMarkedAbelianMonoidMap markednat))).
-    refine (gradth _ _ _ _).
+    simple refine (gradth _ _ _ _).
     { intros m. { exact (m * one). } }
     { intros w.
       apply (squash_to_prop (lift R w)).

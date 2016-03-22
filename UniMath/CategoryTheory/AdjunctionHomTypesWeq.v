@@ -45,15 +45,15 @@ Let ε := counit_from_left_adjoint H.
 
 (** * Definition of the maps on hom-types *)
 
-Definition φ_adj {A : C} {B : D} : F A ⇒ B → A ⇒ G B
-  := λ f : F A ⇒ B, η _ ;; #G f.
+Definition φ_adj {A : C} {B : D} : F A --> B → A --> G B
+  := λ f : F A --> B, η _ ;; #G f.
 
-Definition φ_adj_inv {A : C} {B : D} : A ⇒ G B → F A ⇒ B
-  := λ g : A ⇒ G B, #F g ;; ε _ .
+Definition φ_adj_inv {A : C} {B : D} : A --> G B → F A --> B
+  := λ g : A --> G B, #F g ;; ε _ .
 
 (** * Proof that those maps are inverse to each other *)
 
-Lemma φ_adj_after_φ_adj_inv {A : C} {B : D} (g : A ⇒ G B)
+Lemma φ_adj_after_φ_adj_inv {A : C} {B : D} (g : A --> G B)
   : φ_adj (φ_adj_inv g) = g.
 Proof.
   unfold φ_adj.
@@ -70,7 +70,7 @@ Proof.
   - apply id_right.
 Qed.
 
-Lemma φ_adj_inv_after_φ_adj {A : C} {B : D} (f : F A ⇒ B)
+Lemma φ_adj_inv_after_φ_adj {A : C} {B : D} (f : F A --> B)
   : φ_adj_inv (φ_adj f) = f.
 Proof.
   unfold φ_adj, φ_adj_inv.
@@ -85,7 +85,7 @@ Proof.
   - apply id_left.
 Qed.
 
-Definition adjunction_hom_weq (A : C) (B : D) : F A ⇒ B ≃ A ⇒ G B.
+Definition adjunction_hom_weq (A : C) (B : D) : F A --> B ≃ A --> G B.
 Proof.
   exists φ_adj.
   apply (gradth _ φ_adj_inv).
@@ -95,7 +95,7 @@ Defined.
 
 (** * Proof of the equations (naturality squares) of the adjunction *)
 
-Lemma φ_adj_natural_precomp (A : C) (B : D) (f : F A ⇒ B) (X : C) (h : X ⇒ A)
+Lemma φ_adj_natural_precomp (A : C) (B : D) (f : F A --> B) (X : C) (h : X --> A)
   : φ_adj (#F h ;; f) = h ;; φ_adj f.
 Proof.
   unfold φ_adj.
@@ -106,7 +106,7 @@ Proof.
   apply pathsinv0, assoc.
 Qed.
 
-Lemma φ_adj_natural_postcomp (A : C) (B : D) (f : F A ⇒ B) (Y : D) (k : B ⇒ Y)
+Lemma φ_adj_natural_postcomp (A : C) (B : D) (f : F A --> B) (Y : D) (k : B --> Y)
   : φ_adj (f ;; k) = φ_adj f ;; #G k.
 Proof.
   unfold φ_adj.
@@ -115,7 +115,7 @@ Proof.
   apply (functor_comp G).
 Qed.
 
-Lemma φ_adj_inv_natural_precomp (A : C) (B : D) (g : A ⇒ G B) (X : C) (h : X ⇒ A)
+Lemma φ_adj_inv_natural_precomp (A : C) (B : D) (g : A --> G B) (X : C) (h : X --> A)
   : φ_adj_inv (h ;; g) = #F h ;; φ_adj_inv g.
 Proof.
   unfold φ_adj_inv.
@@ -123,7 +123,7 @@ Proof.
   apply pathsinv0, assoc.
 Qed.
 
-Lemma φ_adj_inv_natural_postcomp (A : C) (B : D) (g : A ⇒ G B) (Y : D) (k : B ⇒ Y)
+Lemma φ_adj_inv_natural_postcomp (A : C) (B : D) (g : A --> G B) (Y : D) (k : B --> Y)
   : φ_adj_inv (g ;; #G k) = φ_adj_inv g ;; k.
 Proof.
   unfold φ_adj_inv.

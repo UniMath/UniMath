@@ -75,8 +75,10 @@ $ make doc
 In this version of the documentation, any proof enclosed within ```Proof.``` and ```Qed.```/```Defined.``` is replaced by a button ```Show proof.```.
 Clicking on this button unveils (unfolds) the corresponding proof. A ```Hide proof``` button can be used to fold the proof again.
 The documentation is created in the subdirectory ```enhanced-html```.
-(This feature requires the use of the otherwise optional ```Proof.``` vernacular to indicate the beginning of the . 
-Toggling of proofs requires an internet connection for downloading the jquery library.)
+(This feature requires the use of the otherwise optional ```Proof``` command of
+the Coq vernacular language to indicate the beginning of the proof.  Toggling
+of proofs requires an internet connection for downloading the ```jquery```
+library.)
 
 To make a TAGS file for use with emacs ```etags``` commands:
 ```bash
@@ -212,6 +214,21 @@ Contributing to UniMath
 
 To contribute to UniMath, submit a pull request or contact us.  Your code will
 be subject to the copyright and license agreement in the file ```LICENSE.md```.
+
+
+Citing UniMath
+==============
+
+To cite UniMath in your article, you can use the following bibtex item:
+```bibtex
+@Misc{UniMath,
+   author = {Voevodsky, Vladimir and Ahrens, Benedikt and Grayson, Daniel and others},
+   title = {{\em UniMath}: {Univalent} {Mathematics}},
+   howpublished = {Available at \url{https://github.com/UniMath}}
+}
+```
+Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.
+
 
 The UniMath Development Team
 ============================

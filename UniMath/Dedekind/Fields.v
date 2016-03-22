@@ -2,6 +2,13 @@
 
 Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
 
+Lemma isapropmultinvpair :
+  ∀ (X : rig) (x : X), isaprop (multinvpair X x).
+Proof.
+  intros X x.
+  apply isapropinvpair.
+Qed.
+
 (** ** Projections for [fld] *)
 
 Section fld_proj.

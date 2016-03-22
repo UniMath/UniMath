@@ -12,7 +12,7 @@ Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
 Section def_pb.
 
-Variable C : precategory.
+Context {C : precategory}.
 Variable hs: has_homsets C.
 
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
@@ -41,7 +41,6 @@ Proof.
   set (T' := pr2 (P e h k Hcomm) T).
   exact (base_paths _ _ T').
 Qed.
-
 
 Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
      total2 (fun pfg : total2 (fun p : C => dirprod (p --> b) (p --> c)) =>
@@ -103,8 +102,8 @@ Definition mk_Pullback {a b c : C} (f : C⟦b, a⟧)(g : C⟦c, a⟧)
     (ispb : isPullback f g p1 p2 H)
   : Pullback f g.
 Proof.
-  refine (tpair _ _ _ ).
-  - refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
+  - simple refine (tpair _ _ _ ).
     + apply d.
     + exists p1.
       exact p2.
@@ -122,6 +121,25 @@ Proof.
   intros H' x cx k sqr.
   apply H'. assumption.
 Defined.
+
+Lemma MorphismsIntoPullbackEqual {a b c d : C} {f : b --> a} {g : c --> a}
+        {p1 : d --> b} {p2 : d --> c} {H : p1 ;; f = p2;; g}
+        (P : isPullback f g p1 p2 H) {e}
+        (w w': e --> d)
+        (H1 : w ;; p1 = w' ;; p1) (H2 : w ;; p2 = w' ;; p2)
+     : w = w'.
+Proof.
+  assert (Hw : w ;; p1 ;; f = w ;; p2 ;; g).
+  { rewrite <- assoc , H, assoc; apply idpath. }
+  assert (Hw' : w' ;; p1 ;; f = w' ;; p2 ;; g).
+  { rewrite <- assoc , H, assoc; apply idpath. }
+  set (Pb := mk_Pullback _ _ _ _ _ _ P).
+  set (Xw := PullbackArrow Pb e (w;;p1) (w;;p2) Hw).
+  pathvia Xw; [ apply PullbackArrowUnique; apply idpath |].
+  apply pathsinv0.
+  apply PullbackArrowUnique. apply pathsinv0. apply H1.
+  apply pathsinv0. apply H2.
+Qed.
 
 
 Definition identity_is_Pullback_input {a b c : C}{f : b --> a} {g : c --> a} (Pb : Pullback f g) :
@@ -296,3 +314,5 @@ Qed.
 End Universal_Unique.
 
 End def_pb.
+
+Arguments glueSquares {_ _ _ _ _ _ _ _ _ _ _ _ _ _ } _ _ .

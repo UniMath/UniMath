@@ -31,13 +31,12 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
-Require Import UniMath.SubstitutionSystems.PointedFunctors.
-Require Import UniMath.SubstitutionSystems.ProductPrecategory.
+Require Import UniMath.CategoryTheory.PointedFunctors.
+Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseProduct.
-Require Import UniMath.SubstitutionSystems.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 
@@ -95,7 +94,7 @@ Defined.
 Definition Abs_H_ob (X: EndC): functor C C := functor_composite (option_functor _ CC terminal) X.
 
 (* works only with -type-in-type:
-Definition Abs_H_mor_nat_trans_data (X X': EndC)(α: X ⇒ X'): ∀ c, Abs_H_ob X c ⇒ Abs_H_ob X' c.
+Definition Abs_H_mor_nat_trans_data (X X': EndC)(α: X --> X'): ∀ c, Abs_H_ob X c --> Abs_H_ob X' c.
 Proof.
   intro.
   unfold Abs_H_ob.
@@ -103,13 +102,13 @@ Proof.
 Defined.
 *)
 
-Definition Abs_H_mor_nat_trans_data (X X': functor C C)(α: nat_trans X X'): ∀ c, Abs_H_ob X c ⇒ Abs_H_ob X' c.
+Definition Abs_H_mor_nat_trans_data (X X': functor C C)(α: nat_trans X X'): ∀ c, Abs_H_ob X c --> Abs_H_ob X' c.
 Proof.
   intro.
   apply α.
 Defined.
 
-Lemma is_nat_trans_Abs_H_mor_nat_trans_data  (X X': EndC)(α: X ⇒ X'): is_nat_trans _ _ (Abs_H_mor_nat_trans_data X X' α).
+Lemma is_nat_trans_Abs_H_mor_nat_trans_data  (X X': EndC)(α: X --> X'): is_nat_trans _ _ (Abs_H_mor_nat_trans_data X X' α).
 Proof.
   red.
   intros c c' f.
@@ -119,7 +118,7 @@ Proof.
   apply α_nat_trans.
  Qed.
 
-Definition Abs_H_mor (X X': EndC)(α: X ⇒ X'): (Abs_H_ob X: ob EndC) ⇒ Abs_H_ob X'.
+Definition Abs_H_mor (X X': EndC)(α: X --> X'): (Abs_H_ob X: ob EndC) --> Abs_H_ob X'.
 Proof.
   exists (Abs_H_mor_nat_trans_data X X' α).
   exact (is_nat_trans_Abs_H_mor_nat_trans_data X X' α).
@@ -167,7 +166,7 @@ Definition Abs_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Abs_H_d
 
 *)
 Definition Flat_H_ob (X: EndC): functor C C := functor_composite X X.
-Definition Flat_H_mor (X X': EndC)(α: X ⇒ X'): (Flat_H_ob X: EndC) ⇒ Flat_H_ob X' := α ∙∙ α.
+Definition Flat_H_mor (X X': EndC)(α: X --> X'): (Flat_H_ob X: EndC) --> Flat_H_ob X' := α ∙∙ α.
 Definition Flat_H_functor_data: functor_data EndC EndC.
 Proof.
   exists Flat_H_ob.
@@ -209,7 +208,7 @@ Definition Flat_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Flat_H
 (** here definition of suitable θ's together with their strength laws  *)
 
 
-Definition App_θ_data: ∀ XZ, (θ_source App_H)XZ ⇒ (θ_target App_H)XZ.
+Definition App_θ_data: ∀ XZ, (θ_source App_H)XZ --> (θ_target App_H)XZ.
 Proof.
   intro XZ.
   apply nat_trans_id.
@@ -307,7 +306,7 @@ Proof.
 Qed.
 
 
-Definition Abs_θ_data_data: ∀ XZ A, ((θ_source Abs_H)XZ: functor C C) A ⇒ ((θ_target Abs_H)XZ: functor C C) A.
+Definition Abs_θ_data_data: ∀ XZ A, ((θ_source Abs_H)XZ: functor C C) A --> ((θ_target Abs_H)XZ: functor C C) A.
 Proof.
   intro XZ.
 (*
@@ -415,7 +414,7 @@ Focus 2.
 Qed.
 
 
-Definition Abs_θ_data: ∀ XZ, (θ_source Abs_H)XZ ⇒ (θ_target Abs_H)XZ.
+Definition Abs_θ_data: ∀ XZ, (θ_source Abs_H)XZ --> (θ_target Abs_H)XZ.
 Proof.
   intro XZ.
   exact (tpair _ _ (is_nat_trans_Abs_θ_data_data XZ)).
@@ -540,7 +539,7 @@ Focus 2.
 Qed.
 
 
-Definition Flat_θ_data: ∀ XZ, (θ_source Flat_H)XZ ⇒ (θ_target Flat_H)XZ.
+Definition Flat_θ_data: ∀ XZ, (θ_source Flat_H)XZ --> (θ_target Flat_H)XZ.
 Proof.
   intro XZ.
 (*  destruct XZ as [X [Z e]].

@@ -34,13 +34,12 @@ Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
-Require Import UniMath.SubstitutionSystems.PointedFunctors.
-Require Import UniMath.SubstitutionSystems.ProductPrecategory.
+Require Import UniMath.CategoryTheory.PointedFunctors.
+Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseProduct.
-Require Import UniMath.SubstitutionSystems.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
@@ -93,7 +92,7 @@ Let LamE_S : Signature _ _ := LamE_Sig C hs terminal CC CP.
 (* assume initial algebra for signature Lam *)
 
 Variable Lam_Initial : Initial
-     (@precategory_FunctorAlg ([C, C] hs)
+     (@precategory_FunctorAlg [C, C, hs]
                              (Id_H C hs CC Lam_S) hsEndC).
 
 Let Lam := InitialObject Lam_Initial.
@@ -121,18 +120,18 @@ Defined.
 
 (* we later prefer leaving App and Abs bundled in the definition of LamE_algebra_on_Lam *)
 
-Definition Lam_App : [C, C] hs ⟦ (App_H C hs CP) `Lam , `Lam ⟧.
+Definition Lam_App : [C, C, hs] ⟦ (App_H C hs CP) `Lam , `Lam ⟧.
 Proof.
   exact (CoproductIn1 _ _ ;; (CoproductIn2 _ _ ;; alg_map _ Lam)).
 Defined.
 
-Definition Lam_Abs : [C, C] hs ⟦ (Abs_H C hs terminal CC) `Lam, `Lam ⟧.
+Definition Lam_Abs : [C, C, hs] ⟦ (Abs_H C hs terminal CC) `Lam, `Lam ⟧.
 Proof.
   exact (CoproductIn2 _ _ ;; (CoproductIn2 _ _ ;; alg_map _ Lam)).
 Defined.
 
 
-Definition Lam_App_Abs :  [C, C] hs
+Definition Lam_App_Abs :  [C, C, hs]
    ⟦ (H C hs CC (App_H C hs CP) (Abs_H C hs terminal CC)) `Lam , `Lam ⟧.
 Proof.
   exact (CoproductIn2 _ _ ;; alg_map _ Lam).
@@ -143,7 +142,7 @@ Defined.
 (** we need a flattening in order to get a model for LamE *)
 
 Definition Lam_Flatten :
-  [C, C] hs ⟦ (Flat_H C hs) `Lam , `Lam ⟧.
+  [C, C, hs] ⟦ (Flat_H C hs) `Lam , `Lam ⟧.
 Proof.
   exact (fbracket LamHSS (identity _ )).
 Defined.
@@ -171,9 +170,9 @@ Defined.
 (** now define bracket operation for a given [Z] and [f] *)
 
 (** preparations for typedness *)
-Local Definition bla': (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) ⇒ (ptd_from_alg_functor CC _ Lam).
+Local Definition bla': (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam) --> (ptd_from_alg_functor CC _ Lam).
 Proof.
-  refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ).
     + abstract
         (intro c; rewrite id_right
@@ -181,9 +180,9 @@ Proof.
          apply idpath).
 Defined.
 
-Local Definition bla'_inv: (ptd_from_alg_functor CC _ Lam) ⇒ (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
+Local Definition bla'_inv: (ptd_from_alg_functor CC _ Lam) --> (ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam).
 Proof.
-  refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
     + apply (nat_trans_id _ ).
     + abstract
         (intro c; rewrite id_right ;
@@ -218,7 +217,7 @@ Defined.
 
 Definition fbracket_for_LamE_algebra_on_Lam (Z : Ptd)
    (f : Ptd ⟦ Z, ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam ⟧ ) :
-   [C, C] hs
+   [C, C, hs]
    ⟦ functor_composite (U Z) `LamE_algebra_on_Lam, `LamE_algebra_on_Lam ⟧ .
 Proof.
   exact (fbracket LamHSS (f ;; bla)).
@@ -422,14 +421,14 @@ Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
  :
    ∀
    t : Σ
-       h : [C, C] hs
+       h : [C, C, hs]
            ⟦ functor_composite (U Z)
                (` LamE_algebra_on_Lam),
            `LamE_algebra_on_Lam ⟧,
        bracket_property f h,
    t =
    tpair
-     (λ h : [C, C] hs
+     (λ h : [C, C, hs]
             ⟦ functor_composite (U Z)
                 (` LamE_algebra_on_Lam),
             `LamE_algebra_on_Lam ⟧,
@@ -494,7 +493,7 @@ Definition bracket_for_LamE_algebra_on_Lam_at (Z : Ptd)
   :
     bracket_at C hs CC LamE_S LamE_algebra_on_Lam f.
 Proof.
-  refine (tpair _ _ _ ).
+  unshelve refine (tpair _ _ _ ).
   - exists (fbracket_for_LamE_algebra_on_Lam Z f).
     apply (bracket_property_for_LamE_algebra_on_Lam Z f).
   - apply bracket_for_LamE_algebra_on_Lam_unique.
@@ -516,7 +515,7 @@ Defined.
 (* assume initial algebra for signature LamE *)
 
 Variable  LamE_Initial : Initial
-     (@precategory_FunctorAlg ([C, C] hs)
+     (@precategory_FunctorAlg [C, C, hs]
         (Id_H C hs CC LamE_S) hsEndC).
 
 

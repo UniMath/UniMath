@@ -34,14 +34,13 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
-Require Import UniMath.SubstitutionSystems.PointedFunctors.
-Require Import UniMath.SubstitutionSystems.ProductPrecategory.
-Require Import UniMath.SubstitutionSystems.HorizontalComposition.
-Require Import UniMath.SubstitutionSystems.PointedFunctorsComposition.
-Require Import UniMath.SubstitutionSystems.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.PointedFunctors.
+Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
+Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 
@@ -99,7 +98,7 @@ Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g
 
 Definition μ_0 : functor_identity C ⟶ functor_data_from_functor _ _ `T := η T. (*ptd_pt _ (pr1 (pr1 T)).*)
 
-Definition μ_0_ptd : id_Ptd C hs ⇒ p T.
+Definition μ_0_ptd : id_Ptd C hs --> p T.
 Proof.
   exists μ_0.
   intro c. simpl. apply id_left.
@@ -140,7 +139,7 @@ Proof.
 Qed.
 
 (* The whole secret is that this typechecks
-  Check (μ_1:U T⇒U T).
+  Check (μ_1:U T-->U T).
 *)
 
 (* therefore, it is not just the type itself that makes it necessary to introduce μ_1_alt,
@@ -292,7 +291,7 @@ Proof.
   - apply id_right.
 Qed.
 
-Definition μ_2_ptd : T_squared ⇒ p T.
+Definition μ_2_ptd : T_squared --> p T.
 Proof.
   exists μ_2.
   unfold is_ptd_mor.
@@ -394,12 +393,12 @@ Lemma μ_3_μ_2_T_μ_2 :  (
                  (* (@functor_composite C C C ((functor_ptd_forget C hs) T)
                     ((functor_ptd_forget C hs) T))
                  ((functor_ptd_forget C hs) T) *)
-          ((μ_2 •• `T) (* :  TtimesTthenT' ⇒ _ *)
+          ((μ_2 •• `T) (* :  TtimesTthenT' --> _ *)
                   (*:@functor_compose C C C hs hs
                     (@functor_composite C C C ((functor_ptd_forget C hs) T)
                                               ((functor_ptd_forget C hs) T))
-                    ((functor_ptd_forget C hs) T) ⇒ _*) ) μ_2 :
-            (*TtimesTthenT'*) T•T² ⇒ `T) = μ_3.
+                    ((functor_ptd_forget C hs) T) --> _*) ) μ_2 :
+            (*TtimesTthenT'*) T•T² --> `T) = μ_3.
   unfold μ_3.
   apply (fbracket_unique (*_pointwise*) T μ_2_ptd).
   split.
@@ -412,7 +411,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
       assert (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
       apply (!H1).
   - set (B:= τ T).
-    match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => set (F:=f : (*TtimesTthenT'*) T•T² ⇒ _ ) end.
+    match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => set (F:=f : (*TtimesTthenT'*) T•T² --> _ ) end.
     assert (H3:= functor_comp H _ _ _ F μ_2).
     unfold functor_compose in H3.
     eapply pathscomp0. apply cancel_postcomposition. apply maponpaths. apply H3.
@@ -443,12 +442,12 @@ Lemma μ_3_μ_2_T_μ_2 :  (
       eapply pathscomp0. Focus 2. apply assoc.
       eapply pathscomp0. Focus 2. apply maponpaths. apply (!HXX).
       clear HXX.
-      assert (Strength_2 : ∀ α : functor_compose hs hs (functor_composite (`T) (`T))(`T) ⇒ functor_composite (` T) (`T),
+      assert (Strength_2 : ∀ α : functor_compose hs hs (functor_composite (`T) (`T))(`T) --> functor_composite (` T) (`T),
 
                     pr1 (θ (`T ⊗ T_squared)) c ;; pr1 (# H α) c =
                      pr1 (θ ((`T) ⊗ (ptd_from_alg T))) ((pr1 (pr1 (pr1 T))) c);;
                      pr1 (θ (( (`T) • (`T)) ⊗ (ptd_from_alg T))) c;;
-                     pr1 (# H (α : functor_compose hs hs (`T) (functor_composite (`T) (` T))⇒ _)) c       ).
+                     pr1 (# H (α : functor_compose hs hs (`T) (functor_composite (`T) (` T))--> _)) c       ).
       { (intro α;
           assert (HA := θ_Strength2_int_implies_θ_Strength2 _ _ _ _ θ_strength2_int);
           assert (HA':= HA (`T) (ptd_from_alg T) (ptd_from_alg T) _ α); clear HA;
@@ -505,7 +504,7 @@ Section third_monad_law_with_assoc.
 Lemma third_monad_law_from_hss :
   (`T ∘ μ_2 : EndC ⟦ functor_composite (functor_composite `T `T) `T , `T • `T ⟧) ;; μ_2
   =
-  (α_functor _ _ _ _ : functor_compose hs hs _ _  ⇒ _) ;; (μ_2 •• `T) ;; μ_2.
+  (α_functor _ _ _ _ : functor_compose hs hs _ _  --> _) ;; (μ_2 •• `T) ;; μ_2.
 Proof.
   pathvia μ_3; [apply pathsinv0, μ_3_T_μ_2_μ_2 | ].
   apply pathsinv0.

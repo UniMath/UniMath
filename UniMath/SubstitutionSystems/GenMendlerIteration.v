@@ -35,17 +35,16 @@ Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.equivalences. (* for adjunctions *)
-Require Import UniMath.SubstitutionSystems.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
-Require Import UniMath.SubstitutionSystems.Auxiliary.
+Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq. (* for alternative reading of adj *)
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
 Local Notation "G ∙ F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
+Local Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
 (* in Agda mode \downarrow *)
 
 (** Goal: derive Generalized Iteration in Mendler-style and a fusion law *)
@@ -61,7 +60,7 @@ Variable F : functor C C.
 
 Let AF := FunctorAlg F hsC.
 
-Definition AlgConstr (A : C) (α : F A ⇒ A) : AF.
+Definition AlgConstr (A : C) (α : F A --> A) : AF.
 Proof.
   exists A.
   exact α.
@@ -73,9 +72,9 @@ Notation "⟨ A , α ⟩" := (AlgConstr A α).
 Variable μF_Initial : Initial AF.
 
 Let μF : C := alg_carrier _ (InitialObject μF_Initial).
-Let inF : F μF ⇒ μF := alg_map _ (InitialObject μF_Initial).
+Let inF : F μF --> μF := alg_map _ (InitialObject μF_Initial).
 
-Let iter {A : C} (α : F A ⇒ A) : μF ⇒ A :=
+Let iter {A : C} (α : F A --> A) : μF --> A :=
   ↓(InitialArrow μF_Initial ⟨A,α⟩).
 
 Variable C' : precategory.
@@ -113,10 +112,10 @@ Section general_case.
 
 Variable ψ : ψ_source ⟶ ψ_target.
 
-Definition preIt : L μF ⇒ X := φ_inv (iter (φ (ψ (R X) (ε X)))).
+Definition preIt : L μF --> X := φ_inv (iter (φ (ψ (R X) (ε X)))).
 
 
-Lemma ψ_naturality (A B: C)(h: B ⇒ A)(f: L A ⇒ X): ψ B (#L h;; f) = #L (#F h);; ψ A f.
+Lemma ψ_naturality (A B: C)(h: B --> A)(f: L A --> X): ψ B (#L h;; f) = #L (#F h);; ψ A f.
 Proof.
   assert (ψ_is_nat := nat_trans_ax ψ);
   assert (ψ_is_nat_inst1 := ψ_is_nat _ _ h).
@@ -133,7 +132,7 @@ Proof.
   apply id_left.
 Qed.
 
-Lemma φ_ψ_μF_eq (h: L μF ⇒ X): φ (ψ μF h) = #F (φ h) ;; φ(ψ (R X) (ε X)).
+Lemma φ_ψ_μF_eq (h: L μF --> X): φ (ψ μF h) = #F (φ h) ;; φ(ψ (R X) (ε X)).
 Proof.
   rewrite <- φ_adj_natural_precomp.
   apply maponpaths.
@@ -149,7 +148,7 @@ Focus 2.
   apply φ_adj_inv_after_φ_adj.
 Qed.
 
-Lemma cancel_φ {A: C}{B: C'} (f g : L A ⇒ B): φ f = φ g -> f = g.
+Lemma cancel_φ {A: C}{B: C'} (f g : L A --> B): φ f = φ g -> f = g.
 Proof.
   intro Hyp.
 (* pedestrian way:
@@ -174,8 +173,8 @@ Proof.
     exact iter_eq.
 Qed.
 
-Lemma preIt_uniq (t : Σ h : L μF ⇒ X, # L inF;; h = ψ μF h):
-    t = tpair (λ h : L μF ⇒ X, # L inF;; h = ψ μF h) preIt preIt_ok.
+Lemma preIt_uniq (t : Σ h : L μF --> X, # L inF;; h = ψ μF h):
+    t = tpair (λ h : L μF --> X, # L inF;; h = ψ μF h) preIt preIt_ok.
 Proof.
     destruct t as [h h_rec_eq]; simpl.
     assert (same: h = preIt).
@@ -200,21 +199,21 @@ Focus 2.
       rewrite <- φ_adj_natural_precomp.
       apply maponpaths.
       exact h_rec_eq.
-    + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial ⇒ ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
-       refine (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
+    + (* set(φh_alg_mor := tpair _ _ φh_is_alg_mor : pr1 μF_Initial --> ⟨ R X, φ (ψ (R X) (ε X)) ⟩). *)
+       simple refine (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _).
        * apply (tpair _ (φ h)); assumption.
        * apply (maponpaths pr1 (InitialArrowUnique _ _ X0)).
 Qed.
 
-Theorem GenMendlerIteration : iscontr (Σ h : L μF ⇒ X, #L inF ;; h = ψ μF h).
+Theorem GenMendlerIteration : iscontr (Σ h : L μF --> X, #L inF ;; h = ψ μF h).
 Proof.
-  refine (tpair _ _ _ ).
+  simple refine (tpair _ _ _ ).
   - exists preIt.
     exact preIt_ok.
   - exact preIt_uniq.
 Defined.
 
-Definition It : L μF ⇒ X := pr1 (pr1 GenMendlerIteration).
+Definition It : L μF --> X := pr1 (pr1 GenMendlerIteration).
 Lemma It_is_preIt : It = preIt.
 Proof.
   apply idpath.
@@ -227,7 +226,7 @@ End general_case.
 Section special_case.
 
   Variable G : functor C' C'.
-  Variable ρ : G X ⇒ X.
+  Variable ρ : G X --> X.
   Variable θ : functor_composite F L ⟶ functor_composite L G.
 
 
@@ -251,7 +250,7 @@ Section special_case.
 
   Definition ψ_from_comps : ψ_source ⟶ ψ_target.
   Proof.
-    refine (tpair _ _ _ ).
+    simple refine (tpair _ _ _ ).
     - intro A. simpl. intro f.
       unfold yoneda_objects_ob in *.
       exact (θ A ;; #G f ;; ρ).
@@ -261,7 +260,7 @@ Section special_case.
 
   Definition SpecialGenMendlerIteration :
     iscontr
-      (Σ h : L μF ⇒ X, # L inF ;; h = θ μF ;; #G h ;; ρ)
+      (Σ h : L μF --> X, # L inF ;; h = θ μF ;; #G h ;; ρ)
     := GenMendlerIteration ψ_from_comps.
 
 End special_case.

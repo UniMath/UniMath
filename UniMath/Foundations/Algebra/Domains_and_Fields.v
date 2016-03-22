@@ -55,7 +55,7 @@ Definition rcanfromrinv ( X : monoid ) ( a b c : X ) ( c' : rinvpair X c ) ( e :
 Proof . intros . assert ( e' := maponpaths ( fun x : X => x * ( pr1 c' ) ) e ) .  simpl in e' . rewrite ( assocax X _ _ _ )  in e' .  rewrite ( assocax X _ _ _ ) in e' . rewrite ( pr2 c' ) in e' .  rewrite ( runax X a ) in e' .  rewrite ( runax X b ) in e'. apply e' . Defined.
 
 Lemma pathslinvtorinv ( X : monoid ) ( x : X ) ( x' : linvpair X x ) ( x'' : rinvpair X x ) : paths ( pr1 x' ) ( pr1 x'' ) .
-Proof . intros .   destruct ( runax X ( pr1 x' ) ) . (*unfold p .*) destruct ( pr2 x'' ) . set ( int := x * pr1 x'' ) . change ( paths ( pr1 x' * int ) ( pr1 x'' ) ) .   destruct ( lunax X ( pr1 x'' ) ) . destruct ( pr2 x' ) .  (*unfold p1 .*) unfold int . apply ( pathsinv0 ( assocax X _ _ _ ) ) .  Defined .
+Proof . intros .   destruct ( runax X ( pr1 x' ) ) . (*unfold p .*) destruct ( pr2 x'' ) . set ( int := x * pr1 x'' ) . rewrite <- ( lunax X ( pr1 x'' ) ) . destruct ( pr2 x' ) .  (*unfold p1 .*) unfold int . apply ( pathsinv0 ( assocax X _ _ _ ) ) .  Defined .
 
 Definition invpair (X:monoid) (x:X) := Σ x':X, ( x' * x = 1 ) × ( x * x' = 1 ).
 Definition pr1invpair ( X : monoid ) ( x : X ) : invpair X x -> X := @pr1 _ _ .
@@ -524,7 +524,7 @@ Lemma weqfldfracgtintcomp_b ( X : intdom ) { R : hrel X }
                   ( weqfldfracgtint_b X is1 is2 ir neq) .
 Proof.
   intros. intros xa1 xa2. simpl. apply hinhfun. intro t2.
-  refine (_,,_).
+  simple refine (_,,_).
   { exists ( pr1 ( pr1 t2 ) ).
     apply neg_to_negProp.
     exact ( rtoneq ir ( pr2 ( pr1 t2 ) ) ). }
@@ -630,7 +630,7 @@ Proof .
         { intro. apply propproperty. }
         { simpl. reflexivity. } } } }
   split .
-  { 
+  {
     unfold isbinopfun . change ( forall x x' : commrngfrac X ( rngpossubmonoid X is1 is2 )  , paths ( g ( x * x' ) ) ( ( g x ) * ( g x' ) ) ) .  apply ( setquotuniv2prop _ ( fun x x' : commrngfrac X ( rngpossubmonoid X is1 is2 ) => hProppair _ ( setproperty (fldfrac X is) ( g ( x * x' ) ) ( ( g x ) * ( g x' ) ) ) ) ) . intros xa1 xa2 .  change ( paths ( setquotpr SX ( g0 ( commrngfracop2int X (rngpossubmonoid X is1 is2) xa1 xa2 ) ) ) ( setquotpr SX ( commrngfracop2int  X S ( g0 xa1 ) ( g0 xa2 ) ) ) )  . apply ( maponpaths ( setquotpr _ ) ) .  unfold g0 .  unfold weqfldfracgtint_b . unfold commrngfracop2int . unfold abmonoidfracopint .  simpl . apply ( pathsdirprod ) .  apply idpath . destruct xa1 as [ x1 aa1 ] .   destruct xa2 as [ x2 aa2 ] .  simpl . destruct aa1 as [ a1 ia1 ] . destruct aa2 as [ a2 ia2 ] . simpl .
     refine ( invmaponpathsincl _ ( isinclpr1 _ _ ) _ _ _ ) .
     { intro. apply propproperty. }

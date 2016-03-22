@@ -433,7 +433,7 @@ Definition pr1binopfun ( X Y : setwithbinop ) : binopfun X Y -> ( X -> Y ) := @p
 Coercion pr1binopfun : binopfun >-> Funclass .
 
 Lemma isasetbinopfun  ( X Y : setwithbinop ) : isaset ( binopfun X Y ) .
-Proof . intros . apply ( isasetsubset ( pr1binopfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . apply isinclpr1 .  intro .  apply isapropisbinopfun . Defined .
+Proof . intros . apply ( isasetsubset ( pr1binopfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . refine (isinclpr1 _ _) .  intro .  apply isapropisbinopfun . Defined .
 
 Lemma isbinopfuncomp { X Y Z : setwithbinop } ( f : binopfun X Y ) ( g : binopfun Y Z ) : isbinopfun ( funcomp ( pr1 f ) ( pr1 g ) ) .
 Proof . intros . set ( axf := pr2 f ) . set ( axg := pr2 g ) .  intros a b . unfold funcomp .  rewrite ( axf a b ) . rewrite ( axg ( pr1 f a ) ( pr1 f b ) ) .  apply idpath . Defined .
@@ -474,8 +474,6 @@ Definition invbinopiso { X Y : setwithbinop } ( f : binopiso X Y ) : binopiso Y 
 
 
 (** **** Transport of properties of a binary operation  *)
-
-
 
 
 Lemma islcancelablemonob { X Y : setwithbinop } ( f : binopmono X Y ) ( x : X ) ( is : islcancelable ( @op Y ) ( f x ) ) : islcancelable ( @op X ) x .
@@ -642,10 +640,6 @@ set ( subopp := ( fun a a' : A => carrierpair A ( op ( pr1carrier _ a ) ( pr1car
 Coercion carrierofasubsetwithbinop : subsetwithbinop >-> setwithbinop .
 
 
-
-
-
-
 (** **** Relations compatible with a binary operation and quotient objects *)
 
 Definition isbinophrel { X : setwithbinop } ( R : hrel X ) := dirprod ( forall a b c : X , R a b -> R ( op c a ) ( op c b ) ) ( forall a b c : X , R a b -> R ( op a c ) ( op b c ) ) .
@@ -686,7 +680,6 @@ Proof . intros . split with ( setquotinset R )  .  set ( qt  := setquot R ) . se
 assert ( iscomp : iscomprelrelfun2 R R op ) . apply ( iscompbinoptransrel R ( eqreltrans R ) ( pr2 R ) ) .
 set ( qtmlt := setquotfun2 R R op iscomp ) .   simpl . unfold binop . apply qtmlt . Defined .
 
-
 Definition ispartbinophrel { X : setwithbinop } ( S : subtype X ) ( R : hrel X ) := dirprod ( forall a b c : X , S c -> R a b -> R ( op c a ) ( op c b ) ) ( forall a b c : X , S c -> R a b -> R ( op a c ) ( op b c ) ) .
 
 Definition isbinoptoispartbinop { X : setwithbinop } ( S : subtype X ) ( L : hrel X ) ( is : isbinophrel L ) : ispartbinophrel S L .
@@ -698,8 +691,6 @@ Proof . intros . split . intros a b c is rab .  apply ( ( pr1 ( lg _ _ ) ( ( pr1
 Lemma ispartbinophrelif { X : setwithbinop } ( S : subtype X ) ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : forall a b c : X , S c -> R a b -> R ( op c a ) ( op c b ) ) : ispartbinophrel S R .
 Proof . intros .  split with isl .  intros a b c s rab .  destruct ( is c a ) . destruct ( is c b ) . apply ( isl _ _ _ s rab ) . Defined .
 
-
-
 (** **** Relations inversely compatible with a binary operation *)
 
 Definition isinvbinophrel { X : setwithbinop } ( R : hrel X ) := dirprod ( forall a b c : X , R ( op c a ) ( op c b ) ->  R a b ) ( forall a b c : X , R ( op a c ) ( op b c ) -> R a b ) .
@@ -707,15 +698,11 @@ Definition isinvbinophrel { X : setwithbinop } ( R : hrel X ) := dirprod ( foral
 Definition isinvbinophrellogeqf { X : setwithbinop } { L R : hrel X } ( lg : hrellogeq L R ) ( isl : isinvbinophrel L ) : isinvbinophrel R .
 Proof . intros . split . intros a b c rab . apply ( ( pr1 ( lg _ _ ) ( ( pr1 isl ) _ _ _ ( pr2 ( lg  _ _ ) rab ) ) ) ) . intros a b c rab .  apply ( ( pr1 ( lg _ _ ) ( ( pr2 isl ) _ _ _ ( pr2 ( lg  _ _ ) rab ) ) ) ) . Defined .
 
-Lemma isapropisinvbinophrel { X : setwithbinop } ( R : hrel X ) : isaprop ( isinvbinophrel R ) .
-Proof . intros . apply isapropdirprod . apply impred . intro a . apply impred . intro b . apply impred . intro c . apply impred . intro r . apply ( pr2 ( R _ _ ) ) .  apply impred . intro a . apply impred . intro b . apply impred . intro c . apply impred . intro r . apply ( pr2 ( R _ _ ) ) .  Defined .
-
 Lemma isinvbinophrelif { X : setwithbinop } ( R : hrel X ) ( is : iscomm ( @op X ) ) ( isl : forall a b c : X ,  R ( op c a ) ( op c b ) -> R a b ) : isinvbinophrel R .
 Proof . intros . split with isl .  intros a b c rab .  destruct ( is c a ) . destruct ( is c b ) . apply ( isl _ _ _ rab ) . Defined .
 
-
-
-
+Lemma isapropisinvbinophrel { X : setwithbinop } ( R : hrel X ) : isaprop ( isinvbinophrel R ) .
+Proof . intros . apply isapropdirprod . apply impred . intro a . apply impred . intro b . apply impred . intro c . apply impred . intro r . apply ( pr2 ( R _ _ ) ) .  apply impred . intro a . apply impred . intro b . apply impred . intro c . apply impred . intro r . apply ( pr2 ( R _ _ ) ) .  Defined .
 
 Definition ispartinvbinophrel { X : setwithbinop } ( S : subtype X ) ( R : hrel X ) := dirprod ( forall a b c : X , S c -> R ( op c a ) ( op c b ) -> R a b ) ( forall  a b c : X  , S c -> R ( op a c ) ( op b c ) -> R a b ) .
 
@@ -820,8 +807,7 @@ Definition binop1fun { X Y : setwith2binop } ( f : twobinopfun X Y ) : binopfun 
 
 Definition binop2fun { X Y : setwith2binop } ( f : twobinopfun X Y ) : binopfun ( setwithbinop2 X ) ( setwithbinop2 Y ) := @binopfunpair ( setwithbinop2 X ) ( setwithbinop2 Y ) ( pr1 f ) ( pr2 ( pr2 f ) ) .
 Lemma isasettwobinopfun  ( X Y : setwith2binop ) : isaset ( twobinopfun X Y ) .
-Proof . intros . apply ( isasetsubset ( pr1twobinopfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . apply isinclpr1 .  intro .  apply isapropistwobinopfun . Defined .
-
+Proof . intros . apply ( isasetsubset ( pr1twobinopfun X Y  ) ) . change ( isofhlevel 2 ( X -> Y ) ) . apply impred .  intro . apply ( setproperty Y ) . refine (isinclpr1 _ _) .  intro .  apply isapropistwobinopfun . Defined .
 
 Lemma istwobinopfuncomp { X Y Z : setwith2binop } ( f : twobinopfun X Y ) ( g : twobinopfun Y Z ) : istwobinopfun ( funcomp ( pr1 f ) ( pr1 g ) ) .
 Proof . intros . set ( ax1f := pr1 ( pr2 f ) ) . set ( ax2f := pr2 ( pr2 f ) ) . set ( ax1g := pr1 ( pr2 g ) ) . set ( ax2g := pr2 ( pr2 g ) ) .  split.

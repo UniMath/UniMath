@@ -28,11 +28,11 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -52,8 +52,8 @@ Local Notation "c ⊗ d" := (CoproductObject _ (HD c d))(at level 45).
 
 Definition coproduct_functor_ob (c : C) : D := F c ⊗ G c.
 
-Definition coproduct_functor_mor (c c' : C) (f : c ⇒ c')
-  : coproduct_functor_ob c ⇒ coproduct_functor_ob c'
+Definition coproduct_functor_mor (c c' : C) (f : c --> c')
+  : coproduct_functor_ob c --> coproduct_functor_ob c'
   := CoproductOfArrows _ _ _ (#F f) (#G f).
 
 Definition coproduct_functor_data : functor_data C D.
@@ -108,7 +108,7 @@ Qed.
 
 Definition coproduct_functor : functor C D := tpair _ _ is_functor_coproduct_functor_data.
 
-Definition coproduct_nat_trans_in1_data : ∀ c, F c ⇒ coproduct_functor c
+Definition coproduct_nat_trans_in1_data : ∀ c, F c --> coproduct_functor c
   := λ c : C, CoproductIn1 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_coproduct_nat_trans_in1_data
@@ -129,7 +129,7 @@ Qed.
 Definition coproduct_nat_trans_in1 : nat_trans _ _
   := tpair _ _ is_nat_trans_coproduct_nat_trans_in1_data.
 
-Definition coproduct_nat_trans_in2_data : ∀ c, G c ⇒ coproduct_functor c
+Definition coproduct_nat_trans_in2_data : ∀ c, G c --> coproduct_functor c
   := λ c : C, CoproductIn2 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_coproduct_nat_trans_in2_data
@@ -159,7 +159,7 @@ Variable A : functor C D.
 Variable f : F ⟶ A.
 Variable g : G ⟶ A.
 
-Definition coproduct_nat_trans_data : ∀ c, coproduct_functor c ⇒ A c.
+Definition coproduct_nat_trans_data : ∀ c, coproduct_functor c --> A c.
 Proof.
   intro c.
   apply CoproductArrow.
@@ -212,18 +212,18 @@ End vertex.
 
 
 Lemma coproduct_nat_trans_univ_prop (A : [C, D, hsD])
-  (f : (F : [C,D,hsD]) ⇒ A) (g : (G : [C,D,hsD]) ⇒ A) :
+  (f : (F : [C,D,hsD]) --> A) (g : (G : [C,D,hsD]) --> A) :
    ∀
-   t : Σ fg : (coproduct_functor:[C,D,hsD]) ⇒ A,
-       (coproduct_nat_trans_in1 : (F:[C,D,hsD]) ⇒ coproduct_functor);; fg = f
+   t : Σ fg : (coproduct_functor:[C,D,hsD]) --> A,
+       (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> coproduct_functor);; fg = f
       ×
-       (coproduct_nat_trans_in2: (G : [C,D,hsD]) ⇒ coproduct_functor);; fg = g,
+       (coproduct_nat_trans_in2: (G : [C,D,hsD]) --> coproduct_functor);; fg = g,
    t =
    tpair
-     (λ fg : (coproduct_functor:[C,D,hsD]) ⇒ A,
-      (coproduct_nat_trans_in1 : (F:[C,D,hsD]) ⇒ coproduct_functor);; fg = f
+     (λ fg : (coproduct_functor:[C,D,hsD]) --> A,
+      (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> coproduct_functor);; fg = f
    ×
-      (coproduct_nat_trans_in2 : (G:[C,D,hsD]) ⇒ coproduct_functor) ;; fg = g)
+      (coproduct_nat_trans_in2 : (G:[C,D,hsD]) --> coproduct_functor) ;; fg = g)
      (coproduct_nat_trans A f g)
      (dirprodpair (coproduct_nat_trans_In1Commutes A f g)
         (coproduct_nat_trans_In2Commutes A f g)).
@@ -254,11 +254,11 @@ Qed.
 Definition functor_precat_coproduct_cocone
   : CoproductCocone [C, D, hsD] F G.
 Proof.
-  refine (mk_CoproductCocone _ _ _ _ _ _ _ ).
+  simple refine (mk_CoproductCocone _ _ _ _ _ _ _ ).
   - apply coproduct_functor.
   - apply coproduct_nat_trans_in1.
   - apply coproduct_nat_trans_in2.
-  - refine (mk_isCoproductCocone _ _ _ _ _ _ _ _ ).
+  - simple refine (mk_isCoproductCocone _ _ _ _ _ _ _ _ ).
     + apply functor_category_has_homsets.
     + intros A f g.
      exists (tpair _ (coproduct_nat_trans A f g)

@@ -32,16 +32,16 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.SubstitutionSystems.PointedFunctors.
-Require Import UniMath.SubstitutionSystems.ProductPrecategory.
-Require Import UniMath.SubstitutionSystems.HorizontalComposition.
-Require Import UniMath.SubstitutionSystems.PointedFunctorsComposition.
-Require Import UniMath.SubstitutionSystems.Auxiliary.
+Require Import UniMath.CategoryTheory.PointedFunctors.
+Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 
 Notation "# F" := (functor_on_morphisms F)(at level 3).
 Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
+Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Notation "G • F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
 Notation "α ∙∙ β" := (hor_comp β α) (at level 20).
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
