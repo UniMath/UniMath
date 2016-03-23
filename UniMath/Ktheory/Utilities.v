@@ -144,7 +144,6 @@ Qed.
 
 Notation ap := maponpaths.
 (* see table 3.1 in the coq manual for parsing levels *)
-Notation "f ;; g" := (funcomp f g) (at level 50).
 (* funcomp' is like funcomp, but with the arguments in the other order *)
 Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := fun x : X => g ( f x ) .
 Open Scope transport.
