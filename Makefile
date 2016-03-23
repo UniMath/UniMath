@@ -163,7 +163,8 @@ $(LATEXDIR)/doc.pdf : $(LATEXDIR)/doc.tex
 	cd $(LATEXDIR) && latexmk -pdf doc
 
 $(LATEXDIR)/coqdoc.sty $(LATEXDIR)/doc.tex : $(VFILES:.v=.glob) $(VFILES)
-	$(COQDOC) -Q UniMath UniMath $(COQDOCLATEXOPTIONS) -latex $(VFILES) -o $@
+	$(COQDOC) -Q UniMath UniMath $(COQDOCLATEXOPTIONS) -latex --body-only $(VFILES) -o $(LATEXDIR)/helper.tex
+	cd $(LATEXDIR) && cat latex-preamble.txt helper.tex latex-epilogue.txt > doc.tex
 
 #################################
 # targets best used with INCLUDE=no
