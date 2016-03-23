@@ -54,7 +54,7 @@ endif
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
 LATEXDIR = latex
-COQDOCLATEXOPTIONS := -utf8 -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}\DeclareUnicodeCharacter{10815}{{\(\amalg\)}}\DeclareUnicodeCharacter{9679}{{\(\bullet\)}}\DeclareUnicodeCharacter{9726}{{\(\blacksquare\)}}\DeclareUnicodeCharacter{9725}{{\(\square\)}}\DeclareUnicodeCharacter{10226}{{\(\circlearrowleft\)}}\DeclareUnicodeCharacter{10227}{{\(\circlearrowright\)}}\DeclareUnicodeCharacter{9645}{{\(\boxdot\)}}\DeclareUnicodeCharacter{981}{{\(\phi\)}}"
+COQDOCLATEXOPTIONS := -utf8 -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}\DeclareUnicodeCharacter{10815}{{\(\amalg\)}}\DeclareUnicodeCharacter{9679}{{\(\bullet\)}}\DeclareUnicodeCharacter{9726}{{\(\blacksquare\)}}\DeclareUnicodeCharacter{9725}{{\(\square\)}}\DeclareUnicodeCharacter{10226}{{\(\circlearrowleft\)}}\DeclareUnicodeCharacter{10227}{{\(\circlearrowright\)}}\DeclareUnicodeCharacter{9645}{{\(\boxdot\)}}\DeclareUnicodeCharacter{981}{{\(\phi\)}}\hypersetup{linkcolor=blue}"
 COQDEFS := --language=none -r '/^[[:space:]]*\(Local[[:space:]]+\)?\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Identity Coercion\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\3/'
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
@@ -163,7 +163,7 @@ $(LATEXDIR)/doc.pdf : $(LATEXDIR)/doc.tex
 	cd $(LATEXDIR) && latexmk -pdf doc
 
 $(LATEXDIR)/coqdoc.sty $(LATEXDIR)/doc.tex : $(VFILES:.v=.glob) $(VFILES)
-	$(COQDOC) $(COQDOCLATEXOPTIONS) -latex $(VFILES) -o $@
+	$(COQDOC) -Q UniMath UniMath $(COQDOCLATEXOPTIONS) -latex $(VFILES) -o $@
 
 #################################
 # targets best used with INCLUDE=no
