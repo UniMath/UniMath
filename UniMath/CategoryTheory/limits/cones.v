@@ -17,7 +17,7 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Section Cone.
 
 Variables J C : precategory.
-Variable hs: has_homsets C. 
+Variable hs: has_homsets C.
 Variable F : functor J C.
 
 Definition ConeData := total2 (
@@ -51,7 +51,7 @@ Definition Cone := total2 (fun a : ConeData => ConeProp a).
 Definition ConeData_from_Cone : Cone -> ConeData := fun a => pr1 a.
 
 Lemma eq_Cone_eq (a b : Cone) (p q : a = b) :
-   base_paths _ _ (base_paths _ _ p) = 
+   base_paths _ _ (base_paths _ _ p) =
    base_paths _ _ (base_paths _ _ q) -> p = q.
 Proof.
   intro H.
@@ -71,7 +71,7 @@ Definition ConeProp_from_Cone (a : Cone) : ConeProp a := pr2 a.
 Coercion ConeProp_from_Cone : Cone >-> ConeProp.
 
 
-Lemma cone_prop (a : Cone) : 
+Lemma cone_prop (a : Cone) :
   forall j j' (f : j --> j'), ConeMor a j ;; #F f = ConeMor a j'.
 Proof.
   exact (pr2 a).
@@ -85,7 +85,7 @@ Proof.
   apply isaprop_ConeProp.
 Defined.
 
-Definition Cone_Mor (M N : Cone) := 
+Definition Cone_Mor (M N : Cone) :=
   total2 (fun f : ConeTop M --> ConeTop N =>
         forall j : J, f ;; ConeMor N j = ConeMor M j).
 
@@ -101,10 +101,10 @@ Proof.
   apply hs.
 Qed.
 
-Definition ConeConnect {M N : Cone} (f : Cone_Mor M N) : 
+Definition ConeConnect {M N : Cone} (f : Cone_Mor M N) :
     ConeTop M --> ConeTop N := pr1 f.
 
-Lemma Cone_Mor_eq (M N : Cone) (f g : Cone_Mor M N) : 
+Lemma Cone_Mor_eq (M N : Cone) (f g : Cone_Mor M N) :
    ConeConnect f = ConeConnect g -> f = g.
 Proof.
   intro H.
@@ -113,7 +113,7 @@ Proof.
   apply impred; intro; apply hs.
 Qed.
 
-Lemma cone_mor_prop M N (f : Cone_Mor M N) : 
+Lemma cone_mor_prop M N (f : Cone_Mor M N) :
     forall j : J, ConeConnect f ;; ConeMor N j = ConeMor M j.
 Proof.
   exact (pr2 f).
@@ -139,8 +139,8 @@ Proof.
 Defined.
 
 
-Definition Cone_precategory_ob_mor : precategory_ob_mor := 
-   precategory_ob_mor_pair Cone 
+Definition Cone_precategory_ob_mor : precategory_ob_mor :=
+   precategory_ob_mor_pair Cone
    (fun a b => Cone_Mor a b).
 
 Definition Cone_precategory_data : precategory_data.
@@ -153,20 +153,20 @@ Defined.
 Lemma is_precategory_Cone : is_precategory Cone_precategory_data.
 Proof.
   repeat split; simpl.
-  
+
   intros;
   apply Cone_Mor_eq;
   simpl; apply id_left.
-  
+
   intros;
   apply Cone_Mor_eq;
   simpl; apply id_right.
-  
-  intros; 
+
+  intros;
   apply Cone_Mor_eq;
   simpl; apply assoc.
 Qed.
-  
+
 Definition CONE : precategory := tpair _ _ is_precategory_Cone.
 
 
@@ -185,7 +185,7 @@ Proof.
 Defined.
 
 Definition ConeConnectIso {a b : CONE} (f : iso a b) :
-   iso (ConeTop (pr1 a)) (ConeTop (pr1 b)) := 
+   iso (ConeTop (pr1 a)) (ConeTop (pr1 b)) :=
  tpair _ _ (iso_projects_from_CONE a b f).
 
 Lemma ConeConnectIso_identity_iso (a : CONE) :
@@ -207,7 +207,7 @@ Lemma inv_from_iso_ConeConnectIso (a b : CONE) (f : iso a b):
   pr1 (inv_from_iso f) = inv_from_iso (ConeConnectIso f).
 Proof.
   apply inv_iso_unique'.
-  unfold precomp_with. 
+  unfold precomp_with.
   set (T:=iso_inv_after_iso f).
   set (T':=iso_after_iso_inv f).
   apply (base_paths _ _ T).
@@ -240,7 +240,7 @@ Proof.
   simpl.
   set (T':= inv_from_iso f).
   set (T:=pr2 (inv_from_iso f) t).
-  simpl in *. 
+  simpl in *.
   rewrite <- inv_from_iso_ConeConnectIso.
   apply T.
 Defined.
@@ -262,8 +262,8 @@ Proof.
   apply isapropifcontr.
   apply isaprop_ConeProp.
 Defined.
-  
- 
+
+
 Lemma base_paths_isotoid_CONE (M : CONE):
 base_paths (pr1 M) (pr1 M)
       (base_paths M M (isotoid_CONE (identity_iso M))) =
@@ -271,7 +271,7 @@ base_paths (pr1 M) (pr1 M)
 Proof.
   pathvia (base_paths (pr1 M) (pr1 M) (isotoid_CONE_pr1 M M (identity_iso M))).
   unfold Cone_eq.
-  apply maponpaths. 
+  apply maponpaths.
   apply base_total2_paths.
   pathvia (isotoid C is_cat_C (ConeConnectIso (identity_iso M))).
   unfold isotoid_CONE_pr1.

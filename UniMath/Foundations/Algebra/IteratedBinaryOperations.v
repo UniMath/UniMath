@@ -54,6 +54,7 @@ Proof. intros. reflexivity. Defined.
 Theorem associativityOfProducts {M:monoid} (x:Sequence (Sequence M)) :
   sequenceProduct (flatten x) = doubleProduct x.
 Proof.
+  (** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)
   (* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)
   intros ? [n x].
   induction n as [|n IHn].
@@ -82,6 +83,7 @@ Local Notation "s □ x" := (append s x) (at level 64, left associativity).
 Theorem commutativityOfProducts {M:abmonoid} {n} (x:stn n->M) (f:stn n ≃ stn n) :
   sequenceProduct (n,,x) = sequenceProduct (n,,x∘f).
 Proof.
+  (** This proof comes from % \cite[section 1.5, Theorem 2, page 9]{BourbakiAlgebraI}. \par % *)
   (* this proof comes from Bourbaki, Algebra, § 1.5, Theorem 2, page 9 *)
   intros.
   induction n as [|n IH].

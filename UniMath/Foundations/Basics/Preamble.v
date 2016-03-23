@@ -238,3 +238,8 @@ Tactic Notation "use" uconstr(p) := simple_rapply p.
 
 Tactic Notation "transparent" "assert" "(" ident(name) ":" constr(type) ")" :=
   simple refine (let name := (_ : type) in _).
+
+(** %
+   \bibliographystyle{hamsplain}
+   \bibliography{references}
+ *)
