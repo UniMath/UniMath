@@ -1266,30 +1266,8 @@ Proof . intros . split with ( fun rp : carrier (funcomp (setquotpr R) P) => ( pr
 Definition tosubquot { X : UU } ( R : eqrel X ) ( P : subtype ( setquot R ) ) : setquot ( resrel R ( funcomp ( setquotpr R ) P ) ) -> P .
 Proof . intros X R P . assert ( int : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . refine (isinclpr1carrier _) . apply ( setquotuniv _ ( hSetpair _ int ) ( fun xp => carrierpair P ( setquotpr R ( pr1 xp ) ) ( pr2 xp ) ) ) .  intros xp1 xp2 rp12 . apply ( invmaponpathsincl _ ( isinclpr1carrier P ) _ _ ) . simpl .  apply ( iscompsetquotpr ) . apply rp12 . Defined .
 
-(* <<<<<<< HEAD *)
-(* Definition tosubquot { X : UU } ( R : eqrel X ) ( P : subtype ( setquot R ) ) : setquot ( resrel R ( funcomp ( setquotpr R ) P ) ) -> P . *)
-(* Proof . intros X R P . assert ( int : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . apply isinclpr1carrier . apply ( setquotuniv _ ( hSetpair _ int ) ( fun xp => carrierpair P ( setquotpr R ( pr1 xp ) ) ( pr2 xp ) ) ) .  intros xp1 xp2 rp12 . apply ( invmaponpathsincl _ ( isinclpr1carrier P ) _ _ ) . simpl .  apply ( iscompsetquotpr ) . apply rp12 . Defined . *)
-(* ||||||| merged common ancestors *)
-(* Definition tosubquot { X : UU } ( R : eqrel X ) ( P : hsubtypes ( setquot R ) ) : setquot ( resrel R ( funcomp ( setquotpr R ) P ) ) -> P . *)
-(* Proof . intros X R P . assert ( int : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . apply isinclpr1carrier . apply ( setquotuniv _ ( hSetpair _ int ) ( fun xp => carrierpair P ( setquotpr R ( pr1 xp ) ) ( pr2 xp ) ) ) .  intros xp1 xp2 rp12 . apply ( invmaponpathsincl _ ( isinclpr1carrier P ) _ _ ) . simpl .  apply ( iscompsetquotpr ) . apply rp12 . Defined . *)
-(* ======= *)
-(* Definition tosubquot { X : UU } ( R : eqrel X ) ( P : hsubtypes ( setquot R ) ) : setquot ( resrel R ( funcomp ( setquotpr R ) P ) ) -> P . *)
-(* Proof . intros X R P . assert ( int : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . refine (isinclpr1carrier _) . apply ( setquotuniv _ ( hSetpair _ int ) ( fun xp => carrierpair P ( setquotpr R ( pr1 xp ) ) ( pr2 xp ) ) ) .  intros xp1 xp2 rp12 . apply ( invmaponpathsincl _ ( isinclpr1carrier P ) _ _ ) . simpl .  apply ( iscompsetquotpr ) . apply rp12 . Defined . *)
-(* >>>>>>> 471df4832d60283aa57b89f7d0b6dec2b0a9cb7b *)
-
 Definition weqsubquot { X : UU } ( R : eqrel X ) ( P : subtype ( setquot R ) ) : weq P ( setquot ( resrel R ( funcomp ( setquotpr R ) P ) ) ) .
 Proof . intros . set ( f := fromsubquot R P ) . set ( g := tosubquot R P ) .  split with f .  assert ( int0 : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . refine (isinclpr1carrier _) .
-
-(* <<<<<<< HEAD *)
-(* Definition weqsubquot { X : UU } ( R : eqrel X ) ( P : subtype ( setquot R ) ) : weq P ( setquot ( resrel R ( funcomp ( setquotpr R ) P ) ) ) . *)
-(* Proof . intros . set ( f := fromsubquot R P ) . set ( g := tosubquot R P ) .  split with f .  assert ( int0 : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . apply isinclpr1carrier . *)
-(* ||||||| merged common ancestors *)
-(* Definition weqsubquot { X : UU } ( R : eqrel X ) ( P : hsubtypes ( setquot R ) ) : weq P ( setquot ( resrel R ( funcomp ( setquotpr R ) P ) ) ) . *)
-(* Proof . intros . set ( f := fromsubquot R P ) . set ( g := tosubquot R P ) .  split with f .  assert ( int0 : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . apply isinclpr1carrier . *)
-(* ======= *)
-(* Definition weqsubquot { X : UU } ( R : eqrel X ) ( P : hsubtypes ( setquot R ) ) : weq P ( setquot ( resrel R ( funcomp ( setquotpr R ) P ) ) ) . *)
-(* Proof . intros . set ( f := fromsubquot R P ) . set ( g := tosubquot R P ) .  split with f .  assert ( int0 : isaset P ) . apply ( isasetsubset ( @pr1 _ P ) ) . apply ( setproperty ( setquotinset R ) ) . refine (isinclpr1carrier _) . *)
-(* >>>>>>> 471df4832d60283aa57b89f7d0b6dec2b0a9cb7b *)
 
 assert ( egf : ∀ a , paths ( g ( f a ) ) a ) .  intros a .  destruct a as [ p isp ] . generalize isp . generalize p . clear isp . clear p .  assert ( int : ∀ p , isaprop ( ∀ isp : P p , paths (g (f ( tpair _ p isp ))) ( tpair _ p isp )  ) ) .  intro p . apply impred . intro . apply ( int0 _ _ ) . apply ( setquotunivprop _ ( fun a =>  hProppair _ ( int a ) ) ) .  simpl . intros x isp .  apply ( invmaponpathsincl _ ( isinclpr1carrier P ) _ _ ) .  apply idpath .
 
