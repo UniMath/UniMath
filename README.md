@@ -80,6 +80,25 @@ the Coq vernacular language to indicate the beginning of the proof.  Toggling
 of proofs requires an internet connection for downloading the ```jquery```
 library.)
 
+To install UniMath in the ```user-contrib``` directory of Coq, for use by other developments:
+```bash
+$ make install
+```
+The path to that directory from here, by default, is ./sub/coq/user-contrib/.
+
+### TAGS files
+
+Emacs (which every UniMath user should become expert with) includes a facility
+called "tags" which enables easy navigation between Coq proof files.  For
+example, you may be examining a proof containing a reference to a symbol such
+as "has_homsets", and you may wonder where the source code of its definition
+is.  To do that, one positions the cursor on the symbol, presses ```M-.```,
+accepts (or modifies) the proffered string, and presses return.  Emacs then
+takes you to the source code of the definition.  One may repeat that as often
+as desired, and return one level upward in the chain of locations visited with
+```M-*```.
+
+In order to enable this facility, make a "TAGS" file as follows.
 To make a TAGS file for use with emacs ```etags``` commands:
 ```bash
 $ make TAGS
@@ -89,11 +108,9 @@ To make a TAGS file dealing with a single package, for example, ```Foundations``
 $ make TAGS-Foundations
 ```
 
-To install UniMath in the ```user-contrib``` directory of Coq, for use by other developments:
-```bash
-$ make install
-```
-The path to that directory from here, by default, is ./sub/coq/user-contrib/.
+The first time the tags facility is used, the user will be prompted for the
+location of a TAGS file to use -- it will be in the top-level directory of
+UniMath.
 
 ### Measuring compilation time
 
