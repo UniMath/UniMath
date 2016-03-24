@@ -12,7 +12,7 @@
 
 \usepackage[T1]{fontenc}
 \usepackage{fullpage}
-\usepackage{coqdoc}
+\usepackage[color]{coqdoc}
 \usepackage{amsmath,amssymb}
 \usepackage{url}
 \usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}\DeclareUnicodeCharacter{10815}{{\(\amalg\)}}\DeclareUnicodeCharacter{9679}{{\(\bullet\)}}\DeclareUnicodeCharacter{9726}{{\(\blacksquare\)}}\DeclareUnicodeCharacter{9725}{{\(\square\)}}\DeclareUnicodeCharacter{10226}{{\(\circlearrowleft\)}}\DeclareUnicodeCharacter{10227}{{\(\circlearrowright\)}}\DeclareUnicodeCharacter{9645}{{\(\boxdot\)}}\DeclareUnicodeCharacter{981}{{\(\phi\)}}\hypersetup{linkcolor=blue}

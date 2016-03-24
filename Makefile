@@ -159,12 +159,13 @@ world: all html doc
 
 latex-doc: $(LATEXDIR)/doc.pdf
 
-$(LATEXDIR)/doc.pdf : $(LATEXDIR)/doc.tex
+$(LATEXDIR)/doc.pdf : $(LATEXDIR)/helper.tex
+	cd $(LATEXDIR) && cat latex-preamble.txt helper.tex latex-epilogue.txt > doc.tex
 	cd $(LATEXDIR) && latexmk -pdf doc
 
-$(LATEXDIR)/coqdoc.sty $(LATEXDIR)/doc.tex : $(VFILES:.v=.glob) $(VFILES)
-	$(COQDOC) -Q UniMath UniMath $(COQDOCLATEXOPTIONS) -latex --body-only $(VFILES) -o $(LATEXDIR)/helper.tex
-	cd $(LATEXDIR) && cat latex-preamble.txt helper.tex latex-epilogue.txt > doc.tex
+$(LATEXDIR)/coqdoc.sty $(LATEXDIR)/helper.tex : $(VFILES:.v=.glob) $(VFILES)
+	$(COQDOC) -Q UniMath UniMath $(COQDOCLATEXOPTIONS) -latex --body-only $(VFILES) -o $@
+
 
 #################################
 # targets best used with INCLUDE=no
