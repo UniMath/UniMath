@@ -232,6 +232,15 @@ Contributing to UniMath
 To contribute to UniMath, submit a pull request or contact us.  Your code will
 be subject to the copyright and license agreement in the file ```LICENSE.md```.
 
+Discussing UniMath & Getting Help
+=================================
+
+For questions about the UniMath library, compilation and installation of UniMath etc
+you can send an email to the [UniMath mailing list](mailto:univalent-mathematics@googlegroups.com).
+Emails to the mailing list are archived in the corresponding
+[Google Group](https://groups.google.com/forum/#!forum/univalent-mathematics).
+Bugs should be reported in our [UniMath bug tracker on Github](./issues).
+
 
 Citing UniMath
 ==============
