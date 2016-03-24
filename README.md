@@ -239,7 +239,7 @@ For questions about the UniMath library, compilation and installation of UniMath
 you can send an email to the [UniMath mailing list](mailto:univalent-mathematics@googlegroups.com).
 Emails to the mailing list are archived in the corresponding
 [Google Group](https://groups.google.com/forum/#!forum/univalent-mathematics).
-Bugs should be reported in our [UniMath bug tracker on Github](./issues).
+Bugs should be reported in our [UniMath bug tracker on Github](https://github.com/UniMath/UniMath/issues).
 
 
 Citing UniMath
