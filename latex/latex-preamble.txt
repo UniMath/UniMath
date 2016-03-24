@@ -8,6 +8,7 @@
 %Utf8 codes missing a LaTeX interpretation can be defined by using
 %\DeclareUnicodeCharacter{code}{interpretation}.
 %Use coqdoc's option -p to add new packages or declarations.
+
 \usepackage{tipa}
 
 \usepackage[T1]{fontenc}
@@ -15,5 +16,19 @@
 \usepackage[color]{coqdoc}
 \usepackage{amsmath,amssymb}
 \usepackage{url}
-\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}\DeclareUnicodeCharacter{10815}{{\(\amalg\)}}\DeclareUnicodeCharacter{9679}{{\(\bullet\)}}\DeclareUnicodeCharacter{9726}{{\(\blacksquare\)}}\DeclareUnicodeCharacter{9725}{{\(\square\)}}\DeclareUnicodeCharacter{10226}{{\(\circlearrowleft\)}}\DeclareUnicodeCharacter{10227}{{\(\circlearrowright\)}}\DeclareUnicodeCharacter{9645}{{\(\boxdot\)}}\DeclareUnicodeCharacter{981}{{\(\phi\)}}\hypersetup{linkcolor=blue}
+\usepackage{textgreek}
+\usepackage{stmaryrd}
+\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}
+\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}
+\DeclareUnicodeCharacter{10815}{{\(\amalg\)}}
+\DeclareUnicodeCharacter{9679}{{\(\bullet\)}}
+\DeclareUnicodeCharacter{9726}{{\(\blacksquare\)}}
+\DeclareUnicodeCharacter{9725}{{\(\square\)}}
+\DeclareUnicodeCharacter{10226}{{\(\circlearrowleft\)}}
+\DeclareUnicodeCharacter{10227}{{\(\circlearrowright\)}}
+\DeclareUnicodeCharacter{9645}{{\(\boxdot\)}}
+\DeclareUnicodeCharacter{981}{{\(\phi\)}}
+
+\hypersetup{linkcolor=blue}
+
 \begin{document}
