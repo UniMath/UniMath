@@ -91,7 +91,7 @@ build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
 
 # "clean::" occurs also in build/CoqMakefile.make, hence both colons
 clean::
-	rm -f .coq_makefile_output build/CoqMakefile.make
+	rm -f .coq_makefile_input .coq_makefile_output build/CoqMakefile.make
 	find UniMath \( -name .\*.aux -o -name \*.glob -o -name \*.v.d -o -name \*.vo \) -delete
 	find UniMath -type d -empty -delete
 clean::; rm -rf $(ENHANCEDDOCTARGET)
