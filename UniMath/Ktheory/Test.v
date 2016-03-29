@@ -31,7 +31,7 @@ Definition mk_isCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :
     ∃! k : C ⟦co, c⟧,
       ia ;; k = f ×
       ib ;; k = g)
-   →
+   ->
    isCoproductCocone a b co ia ib.
 Proof.
   intros u c fg. refine (iscontrweqf _ (u c (pr1 fg) (pr2 fg))).
@@ -51,7 +51,7 @@ Definition CoproductCocone (a b : C) := BinarySum a b.
 
 Definition mk_CoproductCocone (a b : C) :
   ∀ (c : C) (f : a --> c) (g : b --> c),
-    isCoproductCocone _ _ _ f g →  CoproductCocone a b
+    isCoproductCocone _ _ _ f g -> CoproductCocone a b
   := λ c f g i, c,,(f,,g),,i.
 
 Definition Coproducts := hasBinarySums C.
@@ -86,7 +86,7 @@ Qed.
 
 Lemma CoproductArrowUnique (a b : C) (CC : CoproductCocone a b) (x : C)
     (f : a --> x) (g : b --> x) (k : CoproductObject CC --> x) :
-    CoproductIn1 CC ;; k = f → CoproductIn2 CC ;; k = g →
+    CoproductIn1 CC ;; k = f -> CoproductIn2 CC ;; k = g ->
       k = CoproductArrow CC f g.
 Proof.
   intros u v.

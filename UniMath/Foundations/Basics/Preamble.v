@@ -200,6 +200,10 @@ Check (O = O) .
 
 Notation "X <- Y" := (Y -> X) (at level 90, only parsing, left associativity) : type_scope.
 
+Notation "x → y" := (x -> y)
+  (at level 99, y at level 200, right associativity): type_scope.
+(* written \to or \r- in Agda input method *)
+(* the level comes from sub/coq/theories/Unicode/Utf8_core.v *)
 
 (* so we do it the other way around: *)
 Definition mul : nat -> nat -> nat.
@@ -238,8 +242,3 @@ Tactic Notation "use" uconstr(p) := simple_rapply p.
 
 Tactic Notation "transparent" "assert" "(" ident(name) ":" constr(type) ")" :=
   simple refine (let name := (_ : type) in _).
-
-(** %
-   \bibliographystyle{hamsplain}
-   \bibliography{references}
- *)

@@ -10,8 +10,6 @@ Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
 Notation "A × B" := (dirprod A B) (at level 80, no associativity) : type_scope.
 Notation "X ≃ Y" := (weq X Y) (at level 80, no associativity) : type_scope.
 *)
-Notation "x → y" := (x -> y)
-  (at level 90, y at level 200, right associativity): type_scope.
 
 (*
 Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)

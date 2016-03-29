@@ -3,10 +3,6 @@ Require Export UniMath.Foundations.Basics.PartD
                UniMath.CategoryTheory.precategories
                UniMath.CategoryTheory.functor_categories.
 
-Notation "x → y" := (x -> y)
-  (at level 90, y at level 200, right associativity): type_scope.
-(* written \to in Agda input method *)
-
 Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
 Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g", left associativity).

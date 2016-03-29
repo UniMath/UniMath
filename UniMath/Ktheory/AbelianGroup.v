@@ -538,3 +538,9 @@ Module Category.
   End DirectSum.
 
 End Category.
+
+(*
+Local Variables:
+compile-command: "make -C ../.. TAGS UniMath/Ktheory/AbelianGroup.vo"
+End:
+*)

@@ -11,7 +11,7 @@ Local Open Scope cat.
 Definition cat_ob_mor {C} (X:C==>SET) : precategory_ob_mor.
   intros. exists (Σ c:ob C, X c : hSet).
   intros a b.
-  exact (Σ f : pr1 a → pr1 b, #X f (pr2 a) = (pr2 b)).
+  exact (Σ f : pr1 a --> pr1 b, #X f (pr2 a) = (pr2 b)).
 Defined.
 
 
@@ -32,9 +32,9 @@ Proof.
   - intro f. apply isasetaprop, setproperty.
 Qed.
 
-Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr1 f.
+Definition get_mor {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x --> y) := pr1 f.
 
-Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x → y) :
+Lemma mor_equality {C} (X:C==>SET) (x y:ob (cat_data X)) (f g:x --> y) :
       get_mor f = get_mor g -> f = g.
 Proof. intros ? ? ? ? ? ? p. apply subtypeEquality.
        - intro r. apply setproperty.
@@ -55,7 +55,7 @@ Definition get_ob {C:Precategory} {X:C==>SET} (x:ob (cat X)) := pr1 x.
 
 Definition get_el {C:Precategory} {X:C==>SET} (x:ob (cat X)) := pr2 x.
 
-Definition get_eqn {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x → y) := pr2 f.
+Definition get_eqn {C} {X:C==>SET} {x y:ob (cat_data X)} (f:x --> y) := pr2 f.
 
 Definition make_ob {C:Precategory} (X:C==>SET) (c:ob C) (x:X c:hSet) : ob (cat X)
   := (c,,x).
