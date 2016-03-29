@@ -112,6 +112,20 @@ Proof.
   apply Rezk_eta_fully_faithful.
 Defined.
 
+Definition Rezk_adj_equiv : adj_equivalence_of_precats
+  (pre_composition_functor A (Rezk_completion A hsA) C
+       (pr2 (pr2 (Rezk_completion A hsA))) (pr2 Ccat)
+       (Rezk_eta A hsA)).
+Proof.
+  apply (@rad_equivalence_of_precats
+           [Rezk_completion A hsA, C, pr2 Ccat]
+           [A, C, pr2 Ccat]
+           (is_category_functor_category _ _ _ )
+           _
+           (pre_comp_rezk_eta_is_fully_faithful)
+           (pre_comp_rezk_eta_is_ess_surj)).
+Defined.
+
 Theorem Rezk_eta_Universal_Property :
   isweq (pre_composition_functor A (Rezk_completion A hsA) C
    (pr2 (pr2 (Rezk_completion A hsA))) (pr2 Ccat) (Rezk_eta A hsA)).
@@ -122,14 +136,7 @@ Proof.
     assumption.
   - apply is_category_functor_category;
     assumption.
-  - pose (T:=@rad_equivalence_of_precats
-           [Rezk_completion A hsA, C, pr2 Ccat]
-           [A, C, pr2 Ccat]
-           (is_category_functor_category _ _ _ )
-           _
-           (pre_comp_rezk_eta_is_fully_faithful)
-           (pre_comp_rezk_eta_is_ess_surj)).
-  apply T.
+  - apply Rezk_adj_equiv.
 Defined.
 
 Definition Rezk_weq : [Rezk_completion A hsA, C, pr2 Ccat] ≃ [A, C, pr2 Ccat ]
@@ -213,6 +220,20 @@ Proof.
     apply Rezk_eta_fully_faithful.
 Defined.
 
+Definition Rezk_op_adj_equiv :
+ adj_equivalence_of_precats
+     (pre_composition_functor A^op (Rezk_completion A hsA)^op C hsRAop
+        (pr2 Ccat) (functor_opp (Rezk_eta A hsA))).
+Proof.
+  apply (@rad_equivalence_of_precats
+           [(Rezk_completion A hsA)^op, C, pr2 Ccat]
+           [A^op, C, pr2 Ccat]
+           (is_category_functor_category _ _ _ )
+           _
+           (pre_comp_rezk_eta_opp_is_fully_faithful)
+           (pre_comp_rezk_eta_opp_is_ess_surj)).
+Defined.
+
 Theorem Rezk_eta_opp_Universal_Property :
   isweq (pre_composition_functor A^op (Rezk_completion A hsA)^op C
           hsRAop (pr2 Ccat) (functor_opp (Rezk_eta A hsA))).
@@ -223,14 +244,7 @@ Proof.
     assumption.
   - apply is_category_functor_category;
     assumption.
-  - pose (T:=@rad_equivalence_of_precats
-           [(Rezk_completion A hsA)^op, C, pr2 Ccat]
-           [A^op, C, pr2 Ccat]
-           (is_category_functor_category _ _ _ )
-           _
-           (pre_comp_rezk_eta_opp_is_fully_faithful)
-           (pre_comp_rezk_eta_opp_is_ess_surj)).
-  apply T.
+  - apply Rezk_op_adj_equiv.
 Defined.
 
 Definition Rezk_opp_weq : [(Rezk_completion A hsA)^op, C, pr2 Ccat] ≃ [A^op, C, pr2 Ccat]
