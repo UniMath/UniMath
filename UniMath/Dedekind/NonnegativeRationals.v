@@ -1547,21 +1547,42 @@ Proof.
 Qed.
 
 Definition isarchNonnegativeRationals :
-  ∀ x : NonnegativeRationals, ∃ n, x < nattorig n.
+  isarchrig gtNonnegativeRationals.
 Proof.
-  intros x.
-  generalize (isarchhq (pr1 x)).
-  apply hinhfun.
-  intros n.
-  exists (pr1 n).
-  rewrite ltNonnegativeRationals_correct.
-  assert (pr1 (nattorig (X := pr1 (CommDivRig_DivRig NonnegativeRationals)) (pr1 n)) = nattorig (X := pr1fld hq) (pr1 n)).
-  { induction (pr1 n).
+  set (H := isarchhq).
+  apply isarchfld_isarchrng in H.
+  apply isarchrng_isarchrig in H.
+  assert (∀ n, pr1 (nattorig (X := pr1 (CommDivRig_DivRig NonnegativeRationals)) n) = nattorig (X := pr1fld hq) n).
+  { induction n.
     - reflexivity.
-    - rewrite !nattorigS, <- IHn0.
+    - rewrite !nattorigS, <- IHn.
       reflexivity. }
-  rewrite X ; clear X.
-  exact (pr2 n).
+  repeat split.
+  - intros y1 y2 Hy.
+    generalize (isarchrig_1 _ H (pr1 y1) (pr1 y2) Hy).
+    apply hinhfun.
+    intros (n,Hn).
+    exists n.
+    rewrite <- !X in Hn.
+    exact Hn.
+  - intros x.
+    generalize (isarchrig_2 _ H (pr1 x)).
+    apply hinhfun.
+    intros (n,Hn).
+    exists n.
+    rewrite <- X in Hn.
+    exact Hn.
+  - intros x.
+    generalize (isarchrig_3 _ H (pr1 x)).
+    apply hinhfun.
+    intros (n,Hn).
+    exists n.
+    rewrite <- X in Hn.
+    exact Hn.
+  - exact isrngaddhzgth.
+  - exact isrngaddhzgth.
+  - exact isrngmulthqgth.
+  - exact isirreflhqgth.
 Qed.
 
 Close Scope NRat_scope.

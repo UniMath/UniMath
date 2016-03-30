@@ -1122,19 +1122,59 @@ Proof.
 Qed.
 
 Lemma hr_archimedean :
-  ∀ x : hr_ConstructiveField, ∃ n : nat, hr_lt_rel x (nat_to_hr n).
+  isarchCF (λ x y : hr_ConstructiveField, hr_lt_rel y x).
 Proof.
+  assert (Hadd : @isbinophrel (rigaddabmonoid NonnegativeReals) gtNonnegativeReals).
+  { split ; intros a b c.
+    apply plusNonnegativeReals_ltcompat_r.
+    apply plusNonnegativeReals_ltcompat_l. }
+  assert (Htra : istrans gtNonnegativeReals).
+  { intros a b c Hab Hbc.
+    now apply istrans_ltNonnegativeReals with b. }
+  assert (Harch : isarchrig (@setquot_aux (rigaddabmonoid NonnegativeReals) gtNonnegativeReals)).
+  { set (H := NonnegativeReals_Archimedean).
+    repeat split.
+    - intros y1 y2.
+      apply hinhuniv.
+      intros (c,Hc).
+      apply_pr2_in plusNonnegativeReals_ltcompat_l Hc.
+      generalize (isarchrig_1 _ H _ _ Hc).
+      apply hinhfun.
+      intros (n,Hn).
+      exists n.
+      apply hinhpr.
+      exists 0%NR.
+      apply plusNonnegativeReals_ltcompat_l.
+      exact Hn.
+    - intros x.
+      generalize (isarchrig_2 _ H x).
+      apply hinhfun.
+      intros (n,Hn).
+      exists n.
+      apply hinhpr.
+      exists 0%NR.
+      apply plusNonnegativeReals_ltcompat_l.
+      exact Hn.
+    - intros x.
+      generalize (isarchrig_3 _ H x).
+      apply hinhfun.
+      intros (n,Hn).
+      exists n.
+      apply hinhpr.
+      exists 0%NR.
+      apply plusNonnegativeReals_ltcompat_l.
+      exact Hn. }
   intros x.
-  generalize (NonnegativeReals_Archimedean (hr_to_NRpos x)).
+  generalize (isarchrng_isarchCF (X := hr_ConstructiveField) _ (isarchrigtorng NonnegativeReals gtNonnegativeReals ispositive_oneNonnegativeReals Hadd Htra Harch) x).
   apply hinhfun.
-  intros n.
-  exists (pr1 n).
-  pattern x at 1.
-  rewrite <- (hr_to_NR_bij x).
-  apply NR_to_hr_lt.
-  eapply istrans_lt_le_ltNonnegativeReals, plusNonnegativeReals_le_l.
-  rewrite isrunit_zero_plusNonnegativeReals.
-  exact (pr2 n).
+  intros (n,Hn).
+  exists n.
+  rewrite <- (hr_to_NR_bij x), <- (hr_to_NR_bij (@nattorng hr_ConstructiveField n)) in Hn |- *.
+  revert Hn.
+  apply hinhfun ; simpl.
+  intros (c,Hc).
+  exists c.
+  exact Hc.
 Qed.
 
 (** ** Completeness *)
@@ -1541,7 +1581,7 @@ Proof.
 Qed.
 
 Lemma Rarchimedean:
-  ∀ x : Reals, ∃ n : nat, x < NRNRtoR (nat_to_NonnegativeReals n) 0%NR.
+  ∀ x : Reals, ∃ n : nat, x < nattorng n.
 Proof.
   exact hr_archimedean.
 Qed.
