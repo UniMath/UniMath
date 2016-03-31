@@ -1819,10 +1819,26 @@ Defined.
 (** *** Associativity of [ total2 ]  *)
 
 Lemma total2asstor { X : UU } ( P : X -> UU ) ( Q : total2 P -> UU ) : total2 Q ->  Σ x:X, Σ p : P x, Q ( tpair P x p )  .
-Proof. intros X P Q xpq .  induction xpq as [ xp q ] . induction xp as [ x p ] . split with x . split with p . assumption . Defined .
+Proof.
+  intros X P Q xpq .
+  exists (pr1 (pr1 xpq)).
+  exists (pr2 (pr1 xpq)).
+  induction xpq as [ xp q ] .
+  induction xp as [ x p ] .
+  assumption .
+Defined .
 
 Lemma total2asstol { X : UU } ( P : X -> UU ) ( Q : total2 P -> UU ) : (Σ x : X, Σ p : P x, Q ( tpair P x p )) -> total2 Q .
-Proof. intros X P Q xpq .  induction xpq as [ x pq ] . induction pq as [ p q ] . split with ( tpair P x p ) . assumption . Defined .
+Proof.
+  intros X P Q xpq .
+  mkpair.
+  - mkpair.
+    + apply (pr1 xpq).
+    + apply (pr1 (pr2 xpq)).
+  - induction xpq as [ x pq ] .
+    induction pq as [ p q ] .
+    assumption .
+Defined .
 
 
 Theorem weqtotal2asstor { X : UU } ( P : X -> UU ) ( Q : total2 P -> UU ) : weq ( total2 Q ) ( Σ x : X, Σ p : P x, Q ( tpair P x p ) ).
