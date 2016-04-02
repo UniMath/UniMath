@@ -244,11 +244,11 @@ Defined.
 
 Section CoproductsHSET_from_Colims.
 
-Require Import UniMath.CategoryTheory.limits.graphs.coproducts.
+Require UniMath.CategoryTheory.limits.graphs.coproducts.
 
-Lemma CoproductsHSET_from_Colims : Coproducts HSET.
+Lemma CoproductsHSET_from_Colims : graphs.coproducts.Coproducts HSET.
 Proof.
-exact (Coproducts_from_Colims _ ColimsHSET).
+exact (coproducts.Coproducts_from_Colims _ ColimsHSET).
 Defined.
 
 End CoproductsHSET_from_Colims.
@@ -264,11 +264,11 @@ Defined.
 
 Section InitialHSET_from_Colims.
 
-Require Import UniMath.CategoryTheory.limits.graphs.initial.
+Require UniMath.CategoryTheory.limits.graphs.initial.
 
-Lemma InitialHSET_from_Colims : Initial HSET.
+Lemma InitialHSET_from_Colims : graphs.initial.Initial HSET.
 Proof.
-now apply Initial_from_Colims, ColimsHSET.
+now apply initial.Initial_from_Colims, ColimsHSET.
 Defined.
 
 End InitialHSET_from_Colims.
@@ -353,11 +353,11 @@ Defined.
 
 Section ProductsHSET_from_Lims.
 
-Require Import UniMath.CategoryTheory.limits.graphs.products.
+Require UniMath.CategoryTheory.limits.graphs.products.
 
-Lemma ProductsHSET_from_Lims : Products HSET.
+Lemma ProductsHSET_from_Lims : graphs.products.Products HSET.
 Proof.
-exact (Products_from_Lims _ LimsHSET).
+exact (products.Products_from_Lims _ LimsHSET).
 Defined.
 
 End ProductsHSET_from_Lims.
@@ -372,11 +372,11 @@ Defined.
 
 Section TerminalHSET_from_Lims.
 
-Require Import UniMath.CategoryTheory.limits.graphs.terminal.
+Require UniMath.CategoryTheory.limits.graphs.terminal.
 
-Lemma TerminalHSET_from_Lims : Terminal HSET.
+Lemma TerminalHSET_from_Lims : graphs.terminal.Terminal HSET.
 Proof.
-now apply Terminal_from_Lims, LimsHSET.
+now apply terminal.Terminal_from_Lims, LimsHSET.
 Defined.
 
 End TerminalHSET_from_Lims.
