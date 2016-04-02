@@ -16,7 +16,7 @@ Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.colimits.chains.
+Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.

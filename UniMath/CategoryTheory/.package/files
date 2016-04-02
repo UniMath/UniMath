@@ -31,9 +31,9 @@ precomp_fully_faithful.v
 precomp_ess_surj.v
 rezk_completion.v
 slicecat.v
-colimits/chains.v
+chains.v
 EquivalencesExamples.v
-colimits/polynomialfunctors.v
+polynomialfunctors.v
 limits/cats/limits.v
 limits/graphs/limits.v
 AdjunctionHomTypesWeq.v
