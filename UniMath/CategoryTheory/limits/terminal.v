@@ -1,14 +1,11 @@
+(* Direct definition of terminal object *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.opp_precat.
 
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 Local Notation "f ;; g" := (compose f g)(at level 50).
 
@@ -97,38 +94,44 @@ Arguments TerminalArrow [C]{T} b.
 Arguments mk_isTerminal {_} _ _ _ .
 Arguments mk_Terminal {_} _ _.
 
-Section Terminal_from_Lims.
+(* Section Terminal_from_Lims. *)
 
-Context {C : precategory}.
+(* Require Import UniMath.CategoryTheory.limits.graphs.colimits. *)
+(* Require Import UniMath.CategoryTheory.limits.graphs.limits. *)
+(* Require Import UniMath.CategoryTheory.opp_precat. *)
 
-Definition empty_graph : graph.
-Proof.
-  exists empty.
-  exact (fun _ _ => empty).
-Defined.
+(* Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op"). *)
 
-Definition termDiagram : diagram empty_graph C^op.
-Proof.
-exists fromempty.
-intros u; induction u.
-Defined.
+(* Context {C : precategory}. *)
 
-Definition termCone (c : C) : cone termDiagram c.
-Proof.
-simple refine (mk_cone _ _); intro u; induction u.
-Defined.
+(* Definition empty_graph : graph. *)
+(* Proof. *)
+(*   exists empty. *)
+(*   exact (fun _ _ => empty). *)
+(* Defined. *)
 
-Lemma Terminal_from_Lims : Lims C -> Terminal C.
-Proof.
-intros H.
-case (H _ termDiagram); intros cc iscc; destruct cc as [c cc]; simpl in *.
-apply (mk_Terminal c); apply mk_isTerminal; intros b.
-case (iscc _ (termCone b)); intros f Hf; destruct f as [f fcomm].
-apply (tpair _ f); intro g.
-simple refine (let X : Σ x : b --> c,
-                       ∀ v, coconeIn cc v ;; x = coconeIn (termCone b) v := _ in _).
-  { apply (tpair _ g); intro u; induction u. }
-apply (maponpaths pr1 (Hf X)).
-Defined.
+(* Definition termDiagram : diagram empty_graph C^op. *)
+(* Proof. *)
+(* exists fromempty. *)
+(* intros u; induction u. *)
+(* Defined. *)
 
-End Terminal_from_Lims.
+(* Definition termCone (c : C) : cone termDiagram c. *)
+(* Proof. *)
+(* simple refine (mk_cone _ _); intro u; induction u. *)
+(* Defined. *)
+
+(* Lemma Terminal_from_Lims : Lims C -> Terminal C. *)
+(* Proof. *)
+(* intros H. *)
+(* case (H _ termDiagram); intros cc iscc; destruct cc as [c cc]; simpl in *. *)
+(* apply (mk_Terminal c); apply mk_isTerminal; intros b. *)
+(* case (iscc _ (termCone b)); intros f Hf; destruct f as [f fcomm]. *)
+(* apply (tpair _ f); intro g. *)
+(* simple refine (let X : Σ x : b --> c, *)
+(*                        ∀ v, coconeIn cc v ;; x = coconeIn (termCone b) v := _ in _). *)
+(*   { apply (tpair _ g); intro u; induction u. } *)
+(* apply (maponpaths pr1 (Hf X)). *)
+(* Defined. *)
+
+(* End Terminal_from_Lims. *)

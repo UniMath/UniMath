@@ -1,3 +1,4 @@
+(* Direct definition of initial object *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -5,7 +6,6 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
@@ -93,38 +93,40 @@ Arguments InitialArrowUnique {_} _ _ _ .
 Arguments mk_isInitial {_} _ _ _ .
 Arguments mk_Initial {_} _ _.
 
-Section Initial_from_Colims.
+(* Section Initial_from_Colims. *)
 
-Variable C : precategory.
+(* Require Import UniMath.CategoryTheory.limits.graphs.colimits. *)
 
-Definition empty_graph : graph.
-Proof.
-  exists empty.
-  exact (fun _ _ => empty).
-Defined.
+(* Variable C : precategory. *)
 
-Definition initDiagram : diagram empty_graph C.
-Proof.
-exists fromempty.
-intros u; induction u.
-Defined.
+(* Definition empty_graph : graph. *)
+(* Proof. *)
+(*   exists empty. *)
+(*   exact (fun _ _ => empty). *)
+(* Defined. *)
 
-Definition initCocone (b : C) : cocone initDiagram b.
-Proof.
-simple refine (mk_cocone _ _); intros u; induction u.
-Defined.
+(* Definition initDiagram : diagram empty_graph C. *)
+(* Proof. *)
+(* exists fromempty. *)
+(* intros u; induction u. *)
+(* Defined. *)
 
-Lemma Initial_from_Colims : Colims C -> Initial C.
-Proof.
-intros H.
-case (H _ initDiagram); intros cc iscc; destruct cc as [c cc].
-apply (mk_Initial c); apply mk_isInitial; intros b.
-case (iscc _ (initCocone b)); intros f Hf; destruct f as [f fcomm].
-apply (tpair _ f); intro g.
-transparent assert (X : (Σ x : c --> b, ∀ v,
-                       coconeIn cc v ;; x = coconeIn (initCocone b) v)).
-  { apply (tpair _ g); intro u; induction u. }
-apply (maponpaths pr1 (Hf X)).
-Defined.
+(* Definition initCocone (b : C) : cocone initDiagram b. *)
+(* Proof. *)
+(* simple refine (mk_cocone _ _); intros u; induction u. *)
+(* Defined. *)
 
-End Initial_from_Colims.
+(* Lemma Initial_from_Colims : Colims C -> Initial C. *)
+(* Proof. *)
+(* intros H. *)
+(* case (H _ initDiagram); intros cc iscc; destruct cc as [c cc]. *)
+(* apply (mk_Initial c); apply mk_isInitial; intros b. *)
+(* case (iscc _ (initCocone b)); intros f Hf; destruct f as [f fcomm]. *)
+(* apply (tpair _ f); intro g. *)
+(* transparent assert (X : (Σ x : c --> b, ∀ v, *)
+(*                        coconeIn cc v ;; x = coconeIn (initCocone b) v)). *)
+(*   { apply (tpair _ g); intro u; induction u. } *)
+(* apply (maponpaths pr1 (Hf X)). *)
+(* Defined. *)
+
+(* End Initial_from_Colims. *)

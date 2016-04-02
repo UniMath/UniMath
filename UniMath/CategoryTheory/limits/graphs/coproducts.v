@@ -1,6 +1,8 @@
-
 (** ******************************************
 Benedikt Ahrens, March 2015
+
+Coproducts defined as a colimit
+
 *********************************************)
 
 Require Import UniMath.Foundations.Basics.PartD.
