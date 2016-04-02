@@ -19,6 +19,7 @@ limits/coproducts.v
 limits/coproducts_as_colimits.v
 limits/FunctorsPointwiseCoproduct.v
 limits/FunctorsPointwiseProduct.v
+limits/graphs/colimits.v
 HLevel_n_is_of_hlevel_Sn.v
 category_hset_structures.v
 category_hset.v
@@ -31,11 +32,10 @@ precomp_ess_surj.v
 rezk_completion.v
 slicecat.v
 colimits/chains.v
-colimits/colimits.v
 EquivalencesExamples.v
 colimits/polynomialfunctors.v
-limits/limits.v
-limits/limits_via_colimits.v
+limits/cats/limits.v
+limits/graphs/limits.v
 AdjunctionHomTypesWeq.v
 EndofunctorsMonoidal.v
 RightKanExtension.v
