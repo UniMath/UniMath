@@ -114,8 +114,8 @@ Lemma functor_opp_identity {C : precategory} (hsC : has_homsets C) :
 Proof. apply (functor_eq _ _ (has_homsets_opp hsC)); trivial. Qed.
 
 Lemma functor_opp_composite {C D E : precategory} (F : functor C D) (G : functor D E)
-  (hsE : has_homsets E) : functor_opp (functor_composite _ _ _ F G) =
-                          functor_composite _ _ _ (functor_opp F) (functor_opp G).
+  (hsE : has_homsets E) : functor_opp (functor_composite F G) =
+                          functor_composite (functor_opp F) (functor_opp G).
 Proof. apply (functor_eq _ _ (has_homsets_opp hsE)); trivial. Qed.
 
 Definition from_opp_to_opp_opp (A C : precategory) (hsC : has_homsets C) :

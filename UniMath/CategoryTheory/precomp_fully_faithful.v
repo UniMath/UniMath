@@ -108,8 +108,8 @@ Section preimage.
 (** Fixing a [gamma], we produce its preimage. *)
 
 Variable gamma : nat_trans
-     (functor_composite _ _ _ H F)
-     (functor_composite _ _ _ H G).
+     (functor_composite H F)
+     (functor_composite H G).
 
 Lemma isaprop_aux_space (b : B) :
     isaprop (total2 (fun g : F b --> G b =>

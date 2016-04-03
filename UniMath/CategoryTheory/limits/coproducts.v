@@ -605,7 +605,7 @@ Defined.
 *)
 Definition sum_of_functors {C D : precategory} (HD : Coproducts D)
   (F G : functor C D) : functor C D :=
-  functor_composite _ _ _ (delta_functor C)
-     (functor_composite _ _ _ (pair_functor F G) (bincoproduct_functor HD)).
+  functor_composite (delta_functor C)
+     (functor_composite (pair_functor F G) (bincoproduct_functor HD)).
 
 End functors.
