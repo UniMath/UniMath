@@ -9,6 +9,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.opp_precat.
+Require        UniMath.CategoryTheory.limits.pullbacks.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
@@ -130,6 +131,7 @@ Proof.
   - apply ispb.
 Defined.
 
+
 (*
 Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
      total2 (fun pfg : total2 (fun p : C => dirprod (p --> b) (p --> c)) =>
@@ -234,6 +236,70 @@ Proof.
       * apply (pr1 p).
       * apply (pr2 p).
 Qed.
+
+
+(** ** Maps between pullbacks as special limits and
+       direct formulation of pullbacks
+*)
+
+Lemma equiv_isPullback_1 {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
+           (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
+limits.pullbacks.isPullback f g p1 p2 H -> isPullback f g p1 p2 H.
+Proof.
+  intro X.
+  intros R cc.
+  set (XR := limits.pullbacks.mk_Pullback _ _ _ _ _ _ X).
+  mkpair.
+  - mkpair.
+    + use (pullbacks.PullbackArrow XR).
+      * apply (coconeIn cc One).
+      * apply (coconeIn cc Three).
+      * abstract (
+        assert (XRT := coconeInCommutes cc Two Three tt); simpl in XRT;
+        eapply pathscomp0; [| apply (!XRT)]; clear XRT;
+        assert (XRT := coconeInCommutes cc Two One tt); simpl in XRT;
+        eapply pathscomp0; [| apply (XRT)]; apply idpath
+         ).
+    + simpl. intro v; induction v; simpl.
+      * apply (pullbacks.PullbackArrow_PullbackPr1 XR).
+      * rewrite assoc.
+        rewrite  (limits.pullbacks.PullbackArrow_PullbackPr1 XR).
+        assert (XRT := coconeInCommutes cc Two One tt); simpl in XRT;
+        eapply pathscomp0; [| apply (XRT)]; apply idpath.
+      * apply (limits.pullbacks.PullbackArrow_PullbackPr2 XR).
+  - intro t.
+    apply subtypeEquality.
+    { intro. apply impred; intro. apply hs. }
+    simpl. destruct t as [t HH].  simpl in *.
+    apply limits.pullbacks.PullbackArrowUnique.
+    + apply (HH One).
+    + apply (HH Three).
+Defined.
+
+Lemma equiv_isPullback_2 {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
+           (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
+limits.pullbacks.isPullback f g p1 p2 H <- isPullback f g p1 p2 H.
+Proof.
+  intro X.
+  set (XR := mk_Pullback _ _ _ _ _  _ X).
+  intros R k h HH.
+  mkpair.
+  - mkpair.
+    use (PullbackArrow XR); try assumption.
+    split.
+    + apply (PullbackArrow_PullbackPr1 XR).
+    + apply (PullbackArrow_PullbackPr2 XR).
+  - intro t; apply subtypeEquality.
+    { intro. apply isapropdirprod; apply hs. }
+    induction t as [x Hx]; simpl in *.
+    use (PullbackArrowUnique _ _ XR).
+    apply R.
+    apply (pr1 Hx).
+    apply (pr2 Hx).
+Defined.
+
+
+
 
 
 Definition identity_is_Pullback_input {a b c : C}{f : C⟦b , a⟧} {g : C⟦c , a⟧} (Pb : Pullback f g) :
