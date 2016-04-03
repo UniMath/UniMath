@@ -252,19 +252,19 @@ Proof.
   mkpair.
   - mkpair.
     + use (pullbacks.PullbackArrow XR).
-      * apply (coconeIn cc One).
-      * apply (coconeIn cc Three).
+      * apply (coneOut cc One).
+      * apply (coneOut cc Three).
       * abstract (
-        assert (XRT := coconeInCommutes cc Two Three tt); simpl in XRT;
+        assert (XRT := coneOutCommutes cc Two Three tt); simpl in XRT;
         eapply pathscomp0; [| apply (!XRT)]; clear XRT;
-        assert (XRT := coconeInCommutes cc Two One tt); simpl in XRT;
+        assert (XRT := coneOutCommutes cc Two One tt); simpl in XRT;
         eapply pathscomp0; [| apply (XRT)]; apply idpath
          ).
     + simpl. intro v; induction v; simpl.
       * apply (pullbacks.PullbackArrow_PullbackPr1 XR).
       * rewrite assoc.
         rewrite  (limits.pullbacks.PullbackArrow_PullbackPr1 XR).
-        assert (XRT := coconeInCommutes cc Two One tt); simpl in XRT;
+        assert (XRT := coneOutCommutes cc Two One tt); simpl in XRT;
         eapply pathscomp0; [| apply (XRT)]; apply idpath.
       * apply (limits.pullbacks.PullbackArrow_PullbackPr2 XR).
   - intro t.
