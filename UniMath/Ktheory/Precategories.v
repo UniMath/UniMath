@@ -106,7 +106,7 @@ Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativi
 
 Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
 
-Notation "G □ F" := (functor_composite _ _ _ (F:[_,_]) (G:[_,_]) : [_,_]) (at level 35) : cat.
+Notation "G □ F" := (functor_composite (F:[_,_]) (G:[_,_]) : [_,_]) (at level 35) : cat.
 (* agda input \square *)
 
 Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).

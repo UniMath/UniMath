@@ -42,7 +42,7 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Definition functor_compose {A B C : precategory} (hsB: has_homsets B)
                            (hsC: has_homsets C) (F : ob [A, B, hsB])
       (G : ob [B , C, hsC]) : ob [A , C, hsC] :=
-   functor_composite _ _ _ F G.
+   functor_composite F G.
 
 (*
 Local Notation "G 'O' F '{' hsB  hsC '}'" :=

@@ -248,7 +248,7 @@ Definition yoneda_iso_target (C : precategory) (hs : has_homsets C)
            (F : [C^op, HSET, has_homsets_HSET])
   : functor C^op HSET.
 Proof.
-  simple refine (functor_composite _ [C^op, HSET, has_homsets_HSET]^op _ _ _  ).
+  simple refine (@functor_composite _ [C^op, HSET, has_homsets_HSET]^op _ _ _  ).
   - apply functor_opp.
     apply yoneda. apply hs.
   - apply (yoneda _ (functor_category_has_homsets _ _ _ ) F).
@@ -366,7 +366,7 @@ Section fix_object.
 Variable c : C.
 
 Definition yoneda_functor_precomp' : nat_trans (yoneda_objects C hsC c)
-      (functor_composite _ _ _ (functor_opp F) (yoneda_objects D hsD (F c))).
+      (functor_composite (functor_opp F) (yoneda_objects D hsD (F c))).
 Proof.
   simple refine (tpair _ _ _ ).
   - intros d f ; simpl.
@@ -376,7 +376,7 @@ Proof.
               apply functor_comp).
 Defined.
 
-Definition yoneda_functor_precomp :  _ ⟦ yoneda C hsC c, functor_composite _ _ _ (functor_opp F) (yoneda_objects D hsD (F c))⟧.
+Definition yoneda_functor_precomp :  _ ⟦ yoneda C hsC c, functor_composite (functor_opp F) (yoneda_objects D hsD (F c))⟧.
 Proof.
   exact yoneda_functor_precomp'.
 Defined.
@@ -396,7 +396,7 @@ Defined.
 End fix_object.
 
 
-Let A := functor_composite _ _ _ F (yoneda D hsD).
+Let A := functor_composite F (yoneda D hsD).
 Let B := pre_composition_functor _ _ HSET (has_homsets_opp hsD) (has_homsets_HSET)  (functor_opp F).
 
 Definition yoneda_functor_precomp_nat_trans :
@@ -404,7 +404,7 @@ Definition yoneda_functor_precomp_nat_trans :
       C
       [C^op, HSET, (has_homsets_HSET)]
       (yoneda C hsC)
-      (functor_composite _ _ _ A B).
+      (functor_composite A B).
 Proof.
   simple refine (tpair _ _ _ ).
   - intro c; simpl.

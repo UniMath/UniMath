@@ -298,7 +298,7 @@ Defined.
 (* This proof is not so nice... *)
 Lemma slicecat_functor_comp (x y z : C) (f : x --> y) (g : y --> z) :
   slicecat_functor _ hsC _ _ (f ;; g) =
-  functor_composite _ _ _ (slicecat_functor _ _ _ _ f) (slicecat_functor _ _ _ _ g).
+  functor_composite (slicecat_functor _ _ _ _ f) (slicecat_functor _ _ _ _ g).
 Proof.
 apply (functor_eq _ _ (has_homsets_slice_precat _ _ _)); simpl.
 unfold slicecat_functor_data; simpl.

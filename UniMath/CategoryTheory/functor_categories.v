@@ -628,7 +628,7 @@ Proof.
 Defined.
 
 
-Definition functor_composite (C C' C'' : precategory_data) (F : functor C C') (F' : functor C' C'') :
+Definition functor_composite {C C' C'' : precategory_data} (F : functor C C') (F' : functor C' C'') :
   functor C C'' := tpair _ _ (is_functor_composite F F').
 
 (** *** Identity functor *)
@@ -1194,7 +1194,7 @@ Proof.
 Qed.
 
 Lemma functor_identity_left (C D : precategory) (F : functor C D) :
-  functor_composite C C D (functor_identity C) F = F.
+  functor_composite (functor_identity C) F = F.
 Proof.
   destruct F as [ [ Fob Fmor ] is ] . destruct is as [ idax compax ] . apply idpath .
 
@@ -1203,7 +1203,7 @@ Defined.
 
 
 Lemma functor_identity_right (C D : precategory) (F : functor C D) :
-  functor_composite C D D F (functor_identity D) = F.
+  functor_composite F (functor_identity D) = F.
 Proof.
   destruct F as [ [ Fob Fmor ] is ] .
   apply ( maponpaths ( fun p => tpair is_functor (tpair _ Fob Fmor) p ) ) .
@@ -1234,8 +1234,8 @@ Defined.
 
 Lemma functor_assoc (C0 C1 C2 C3 : precategory)
   (F0 : functor C0 C1) (F1 : functor C1 C2) (F2 : functor C2 C3) :
-    functor_composite _ _ _ (functor_composite _ _ _ F0 F1) F2 =
-    functor_composite _ _ _ F0 (functor_composite _ _ _ F1 F2).
+    functor_composite (functor_composite F0 F1) F2 =
+    functor_composite F0 (functor_composite F1 F2).
 Proof.
   destruct F0 as [ [ F0ob F0mor ] is0 ] .
   destruct F1 as [ [ F1ob F1mor ] is1 ] .
