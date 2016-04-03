@@ -261,19 +261,21 @@ Proof.
         eapply pathscomp0; [| apply (XRT)]; apply idpath
          ).
     + simpl. intro v; induction v; simpl.
-      * apply (pullbacks.PullbackArrow_PullbackPr1 XR).
-      * rewrite assoc.
-        rewrite  (limits.pullbacks.PullbackArrow_PullbackPr1 XR).
+      * abstract (apply (pullbacks.PullbackArrow_PullbackPr1 XR)).
+      * abstract (
+        rewrite assoc;
+        rewrite  (limits.pullbacks.PullbackArrow_PullbackPr1 XR);
         assert (XRT := coneOutCommutes cc Two One tt); simpl in XRT;
-        eapply pathscomp0; [| apply (XRT)]; apply idpath.
-      * apply (limits.pullbacks.PullbackArrow_PullbackPr2 XR).
-  - intro t.
-    apply subtypeEquality.
-    { intro. apply impred; intro. apply hs. }
-    simpl. destruct t as [t HH].  simpl in *.
-    apply limits.pullbacks.PullbackArrowUnique.
-    + apply (HH One).
-    + apply (HH Three).
+        eapply pathscomp0; [| apply (XRT)]; apply idpath
+        ).
+      * abstract (apply (limits.pullbacks.PullbackArrow_PullbackPr2 XR)).
+  - abstract (
+    intro t;
+    apply subtypeEquality;
+    [intro; apply impred; intro; apply hs |];
+    simpl; destruct t as [t HH];  simpl in *;
+    apply limits.pullbacks.PullbackArrowUnique;
+    [ apply (HH One) | apply (HH Three)] ).
 Defined.
 
 Lemma equiv_isPullback_2 {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
@@ -289,13 +291,13 @@ Proof.
     split.
     + apply (PullbackArrow_PullbackPr1 XR).
     + apply (PullbackArrow_PullbackPr2 XR).
-  - intro t; apply subtypeEquality.
-    { intro. apply isapropdirprod; apply hs. }
-    induction t as [x Hx]; simpl in *.
-    use (PullbackArrowUnique _ _ XR).
-    apply R.
-    apply (pr1 Hx).
-    apply (pr2 Hx).
+  - abstract (
+    intro t; apply subtypeEquality;
+    [ intro; apply isapropdirprod; apply hs |] ;
+    induction t as [x Hx]; simpl in * ;
+    use (PullbackArrowUnique _ _ XR);
+    [apply R | apply (pr1 Hx) | apply (pr2 Hx) ]
+    ).
 Defined.
 
 
