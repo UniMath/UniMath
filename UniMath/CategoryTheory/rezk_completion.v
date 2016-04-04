@@ -49,7 +49,7 @@ Definition Rezk_completion : category.
 Proof.
   exists (full_img_sub_precategory (yoneda A hsA)).
   apply is_category_full_subcat.
-  apply is_category_functor_category.
+  apply (is_category_functor_category _ _ is_category_HSET).
 Defined.
 
 Definition Rezk_eta : functor A Rezk_completion.

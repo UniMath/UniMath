@@ -30,7 +30,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
+Local Notation "G □ F" := (functor_composite F G) (at level 35).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).

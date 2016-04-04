@@ -18,11 +18,353 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+
+Section lim_def.
+
+Context {C : precategory} (hsC : has_homsets C).
+
+Definition cone {g : graph} (d : diagram g C) (c : C) : UU :=
+  Σ (f : ∀ (v : vertex g), C⟦c,dob d v⟧),
+    ∀ (u v : vertex g) (e : edge u v), f u ;; dmor d e = f v.
+
+Definition mk_cone {g : graph} {d : diagram g C} {c : C}
+  (f : ∀ v, C⟦c, dob d v⟧) (Hf : ∀ u v (e : edge u v), f u ;; dmor d e = f v) :
+  cone d c
+  := tpair _ f Hf.
+
+(* The injections to c in the cocone *)
+Definition coneOut {g : graph} {d : diagram g C} {c : C} (cc : cone d c) :
+  ∀ v, C⟦c, dob d v⟧ := pr1 cc.
+
+Lemma coneOutCommutes {g : graph} {d : diagram g C} {c : C} (cc : cone d c) :
+  ∀ u v (e : edge u v), coneOut cc u ;; dmor d e = coneOut cc v.
+Proof.
+apply (pr2 cc).
+Qed.
+
+Definition isLimCone {g : graph} (d : diagram g C) (c0 : C)
+  (cc0 : cone d c0) : UU := ∀ (c : C) (cc : cone d c),
+    iscontr (Σ x : C⟦c,c0⟧, ∀ v, x ;; coneOut cc0 v = coneOut cc v).
+
+Definition LimCone {g : graph} (d : diagram g C) : UU :=
+   Σ (A : (Σ l, cone d l)), isLimCone d (pr1 A) (pr2 A).
+
+Definition mk_LimCone {g : graph} (d : diagram g C)
+  (c : C) (cc : cone d c) (isCC : isLimCone d c cc) : LimCone d
+  := tpair _ (tpair _ c cc) isCC.
+
+Definition Lims : UU := ∀ {g : graph} (d : diagram g C), LimCone d.
+Definition hasLims : UU  :=
+  ∀ {g : graph} (d : diagram g C), ishinh (LimCone d).
+
+(* lim is the tip of the lim cone *)
+Definition lim {g : graph} {d : diagram g C} (CC : LimCone d) : C
+  := pr1 (pr1 CC).
+
+Definition limCone {g : graph} {d : diagram g C} (CC : LimCone d) :
+  cone d (lim CC) := pr2 (pr1 CC).
+
+Definition limOut {g : graph} {d : diagram g C} (CC : LimCone d) :
+  ∀ (v : vertex g), C⟦lim CC, dob d v⟧ := coneOut (limCone CC).
+
+Lemma limOutCommutes {g : graph} {d : diagram g C}
+  (CC : LimCone d) : ∀ (u v : vertex g) (e : edge u v),
+   limOut CC u ;; dmor d e = limOut CC v.
+Proof.
+exact (coneOutCommutes (limCone CC)).
+Qed.
+
+Lemma limUnivProp {g : graph} {d : diagram g C}
+  (CC : LimCone d) : ∀ (c : C) (cc : cone d c),
+  iscontr (Σ x : C⟦c, lim CC⟧, ∀ (v : vertex g), x ;; limOut CC v = coneOut cc v).
+Proof.
+apply (pr2 CC).
+Qed.
+
+Lemma isaprop_isLimCone {g : graph} {d : diagram g C} (c0 : C)
+  (cc0 : cone d c0) : isaprop (isLimCone d c0 cc0).
+Proof.
+repeat (apply impred; intro).
+apply isapropiscontr.
+Qed.
+
+Definition isLimCone_LimCone {g : graph} {d : diagram g C}
+    (CC : LimCone d)
+  : isLimCone d (lim CC) (tpair _ (limOut CC) (limOutCommutes CC))
+  := pr2 CC.
+
+Definition limArrow {g : graph} {d : diagram g C} (CC : LimCone d)
+  (c : C) (cc : cone d c) : C⟦c, lim CC⟧ :=
+  pr1 (pr1 (isLimCone_LimCone CC c cc)).
+
+Lemma limArrowCommutes {g : graph} {d : diagram g C} (CC : LimCone d)
+  (c : C) (cc : cone d c) (u : vertex g) :
+   limArrow CC c cc ;; limOut CC u = coneOut cc u.
+Proof.
+exact ((pr2 (pr1 (isLimCone_LimCone CC _ cc))) u).
+Qed.
+
+Lemma limArrowUnique {g : graph} {d : diagram g C} (CC : LimCone d)
+  (c : C) (cc : cone d c) (k : C⟦c, lim CC⟧)
+  (Hk : ∀ (u : vertex g), k ;; limOut CC u = coneOut cc u) :
+  k = limArrow CC c cc.
+Proof.
+now apply path_to_ctr, Hk.
+Qed.
+
+Lemma Cone_precompose {g : graph} {d : diagram g C}
+  {c : C} (cc : cone d c) (x : C) (f : C⟦x,c⟧) :
+    ∀ u v (e : edge u v), (f ;; coneOut cc u) ;; dmor d e = f ;; coneOut cc v.
+Proof.
+now intros u v e; rewrite <- assoc, coneOutCommutes.
+Qed.
+
+Lemma limArrowEta {g : graph} {d : diagram g C} (CC : LimCone d)
+  (c : C) (f : C⟦c, lim CC⟧) :
+  f = limArrow CC c (tpair _ (λ u, f ;; limOut CC u)
+                 (Cone_precompose (limCone CC) c f)).
+Proof.
+now apply limArrowUnique.
+Qed.
+
+Definition limOfArrows {g : graph} {d1 d2 : diagram g C}
+  (CC1 : LimCone d1) (CC2 : LimCone d2)
+  (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (fNat : ∀ u v (e : edge u v), f u ;; dmor d2 e = dmor d1 e ;; f v) :
+  C⟦lim CC1 , lim CC2⟧.
+Proof.
+apply limArrow; simple refine (mk_cone _ _).
+- now intro u; apply (limOut CC1 u ;; f u).
+- abstract (intros u v e; simpl;
+            now rewrite <- assoc, fNat, assoc, limOutCommutes).
+Defined.
+
+Lemma limOfArrowsOut {g : graph} (d1 d2 : diagram g C)
+  (CC1 : LimCone d1) (CC2 : LimCone d2)
+  (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (fNat : ∀ u v (e : edge u v), f u ;; dmor d2 e = dmor d1 e ;; f v) :
+    ∀ u, limOfArrows CC1 CC2 f fNat ;; limOut CC2 u =
+          limOut CC1 u ;; f u.
+Proof.
+now unfold limOfArrows; intro u; rewrite limArrowCommutes.
+Qed.
+
+Lemma postCompWithLimOfArrows_subproof {g : graph} {d1 d2 : diagram g C}
+  (CC1 : LimCone d1) (CC2 : LimCone d2)
+  (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (fNat : ∀ u v (e : edge u v), f u ;; dmor d2 e = dmor d1 e ;; f v)
+  (x : C) (cc : cone d1 x) u v (e : edge u v) :
+    (coneOut cc u ;; f u) ;; dmor d2 e = coneOut cc v ;; f v.
+Proof.
+now rewrite <- (coneOutCommutes cc u v e), <- assoc, fNat, assoc.
+Defined.
+
+Lemma postCompWithLimOfArrows {g : graph} (d1 d2 : diagram g C)
+  (CC1 : LimCone d1) (CC2 : LimCone d2)
+  (f : ∀ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (fNat : ∀ u v (e : edge u v), f u ;; dmor d2 e = dmor d1 e ;; f v)
+  (x : C) (cc : cone d1 x) :
+     limArrow CC1 x cc ;; limOfArrows CC1 CC2 f fNat =
+       limArrow CC2 x (mk_cone (λ u, coneOut cc u ;; f u)
+         (postCompWithLimOfArrows_subproof CC1 CC2 f fNat x cc)).
+Proof.
+apply limArrowUnique; intro u.
+now rewrite <- assoc, limOfArrowsOut, assoc, limArrowCommutes.
+Qed.
+
+Lemma postCompWithLimArrow {g : graph} (D : diagram g C)
+ (CC : LimCone D) (c : C) (cc : cone D c) (d : C) (k : C⟦d,c⟧) :
+   k ;; limArrow CC c cc  =
+   limArrow CC d (mk_cone (λ u, k ;; coneOut cc u)
+              (Cone_precompose cc d k)).
+Proof.
+  apply limArrowUnique.
+  now intro u; rewrite <- assoc, limArrowCommutes.
+Qed.
+
+Lemma lim_endo_is_identity {g : graph} (D : diagram g C)
+  (CC : LimCone D) (k : lim CC --> lim CC)
+  (H : ∀ u, k ;; limOut CC u = limOut CC u) :
+  identity _ = k.
+Proof.
+unshelve refine (uniqueExists _ _ (limUnivProp CC _ _) _ _ _ _).
+- now apply (limCone CC).
+- intros v; simpl.
+  unfold compose. simpl.
+  now apply id_left.
+- now apply H.
+Qed.
+
+(*
+Definition Cocone_by_postcompose {g : graph} (D : diagram g C)
+ (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) : cocone D d.
+Proof.
+now exists (λ u, coconeIn cc u ;; k); apply Cocone_postcompose.
+Defined.
+
+Lemma isColim_weq_subproof1 {g : graph} (D : diagram g C)
+  (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) :
+  ∀ u, coconeIn cc u ;; k = pr1 (Cocone_by_postcompose D c cc d k) u.
+Proof.
+now intro u.
+Qed.
+
+Lemma isColim_weq_subproof2 (g : graph) (D : diagram g C)
+  (c : C) (cc : cocone D c) (H : ∀ d, isweq (Cocone_by_postcompose D c cc d))
+  (d : C) (cd : cocone D d) (u : vertex g) :
+    coconeIn cc u ;; invmap (weqpair _ (H d)) cd = coconeIn cd u.
+Proof.
+rewrite (isColim_weq_subproof1 D c cc d (invmap (weqpair _ (H d)) _) u).
+set (p := homotweqinvweq (weqpair _ (H d)) cd); simpl in p.
+now rewrite p.
+Qed.
+
+Lemma isColim_weq {g : graph} (D : diagram g C) (c : C) (cc : cocone D c) :
+  isColimCocone D c cc <-> ∀ d, isweq (Cocone_by_postcompose D c cc d).
+Proof.
+split.
+- intros H d.
+  refine (gradth _ _ _ _).
+  + intros k.
+    exact (colimArrow (mk_ColimCocone D c cc H) _ k).
+  + abstract (intro k; simpl;
+              now apply pathsinv0, (colimArrowEta (mk_ColimCocone D c cc H))).
+  + abstract (simpl; intro k;
+              apply total2_paths_second_isaprop;
+                [ now repeat (apply impred; intro); apply hsC
+                | destruct k as [k Hk]; simpl; apply funextsec; intro u;
+                  now apply (colimArrowCommutes (mk_ColimCocone D c cc H))]).
+- intros H d cd.
+  refine (tpair _ _ _).
+  + exists (invmap (weqpair _ (H d)) cd).
+    abstract (intro u; now apply isColim_weq_subproof2).
+  + abstract (intro t; apply total2_paths_second_isaprop;
+                [ now apply impred; intro; apply hsC
+                | destruct t as [t Ht]; simpl;
+                  apply (invmaponpathsweq (weqpair _ (H d))); simpl;
+                  apply total2_paths_second_isaprop;
+                    [ now repeat (apply impred; intro); apply hsC
+                    | simpl; apply pathsinv0, funextsec; intro u; rewrite Ht;
+                      now apply isColim_weq_subproof2]]).
+Defined.
+*)
+End lim_def.
+
+Arguments Lims : clear implicits.
+
+Section LimFunctor.
+
+Variable A C : precategory.
+Variable hsC : has_homsets C.
+Variable g : graph.
+Variable D : diagram g [A, C, hsC].
+
+(* Definition diagram_pointwise (a : A) : diagram g C. *)
+(* Proof. *)
+(* exists (fun v => pr1 (dob D v) a); intros u v e. *)
+(* now apply (pr1 (dmor D e) a). *)
+(* Defined. *)
+
+Variable (HCg : forall (a : A), LimCone (diagram_pointwise A C hsC g D a)).
+
+Definition LimFunctor_ob (a : A) : C := lim (HCg a).
+
+Definition LimFunctor_mor (a a' : A) (f : A⟦a, a'⟧) :
+  C⟦LimFunctor_ob a,LimFunctor_ob a'⟧.
+Proof.
+simple refine (limOfArrows _ _ _ _).
+- now intro u; apply (# (pr1 (dob D u)) f).
+- abstract (now intros u v e; simpl; apply (nat_trans_ax (# D e))).
+Defined.
+
+Definition LimFunctor_data : functor_data A C := tpair _ _ LimFunctor_mor.
+
+Lemma is_functor_LimFunctor_data : is_functor LimFunctor_data.
+Proof.
+split.
+- intro a; simpl.
+  apply pathsinv0, lim_endo_is_identity; intro u.
+  unfold LimFunctor_mor; rewrite limOfArrowsOut.
+  assert (H : # (pr1 (dob D u)) (identity a) = identity (pr1 (dob D u) a)).
+    apply (functor_id (dob D u) a).
+  now rewrite H, id_right.
+- intros a b c fab fbc; simpl; unfold LimFunctor_mor.
+  apply pathsinv0.
+  eapply pathscomp0; [now apply postCompWithLimOfArrows|].
+  apply pathsinv0, limArrowUnique; intro u.
+  rewrite limOfArrowsOut, (functor_comp (dob D u)); simpl.
+  now rewrite <- assoc.
+Qed.
+
+Definition LimFunctor : functor A C := tpair _ _ is_functor_LimFunctor_data.
+
+Definition lim_nat_trans_in_data v : [A, C, hsC] ⟦ LimFunctor, dob D v ⟧.
+Proof.
+mkpair.
+- intro a; exact (limOut (HCg a) v).
+- abstract (intros a a' f; apply (limOfArrowsOut _ _ (HCg a) (HCg a'))).
+Defined.
+
+Definition cone_pointwise (F : [A,C,hsC]) (cc : cone D F) a :
+  cone (diagram_pointwise _ _ _ _ D a) (pr1 F a).
+Proof.
+simple refine (mk_cone _ _).
+- now intro v; apply (pr1 (coneOut cc v) a).
+- abstract (intros u v e;
+    now apply (nat_trans_eq_pointwise (coneOutCommutes cc u v e))).
+Defined.
+
+Lemma LimFunctor_unique (F : [A, C, hsC]) (cc : cone D F) :
+  iscontr (Σ x : [A, C, hsC] ⟦ F, LimFunctor ⟧,
+            ∀ v, x ;; lim_nat_trans_in_data v = coneOut cc v).
+Proof.
+mkpair.
+- mkpair.
+  + apply (tpair _ (fun a => limArrow (HCg a) _ (cone_pointwise F cc a))).
+    abstract (intros a a' f; simpl; apply pathsinv0; eapply pathscomp0;
+    [ apply (postCompWithLimOfArrows _ _ (HCg a))
+    | apply pathsinv0; eapply pathscomp0;
+      [ apply postCompWithLimArrow
+      | apply limArrowUnique; intro u; eapply pathscomp0;
+      [ now apply limArrowCommutes | now refine (nat_trans_ax _ _ _ _)]]]).
+  + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
+              now apply (limArrowCommutes (HCg a))).
+- abstract (intro t; destruct t as [t1 t2];
+            apply subtypeEquality; simpl;
+              [ intro; apply impred; intro u; apply functor_category_has_homsets
+              | apply (nat_trans_eq hsC); simpl; intro a;
+                apply limArrowUnique; intro u;
+                now apply (nat_trans_eq_pointwise (t2 u))]).
+Defined.
+
+Lemma LimFunctorCone : LimCone D.
+Proof.
+simple refine (mk_LimCone _ _ _ _).
+- exact LimFunctor.
+- simple refine (mk_cone _ _).
+  + now apply lim_nat_trans_in_data.
+  + abstract (now intros u v e; apply (nat_trans_eq hsC);
+                  intro a; apply (limOutCommutes (HCg a))).
+- now intros F cc; simpl; apply (LimFunctor_unique _ cc).
+Defined.
+
+End LimFunctor.
+
+Lemma LimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
+  (HC : Lims C) : Lims [A,C,hsC].
+Proof.
+now intros g d; apply LimFunctorCone.
+Defined.
+
+(* Definition of limits via colimits. Put in a module for namespace reasons *)
+Module co.
+
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.colimits.colimits.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
-Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Section lim_def.
 
@@ -281,6 +623,66 @@ split.
                       now apply isColim_weq_subproof2]]).
 Defined.
 *)
+
+Lemma isLim_is_iso {g : graph} (D : diagram g C^op) (CC : LimCone D) (d : C) (cd : cone D d) :
+  isLimCone D d cd -> is_iso (limArrow CC d cd).
+Proof.
+intro H.
+apply is_iso_from_is_z_iso.
+set (CD := mk_LimCone D d cd H).
+apply (tpair _ (limArrow (mk_LimCone D d cd H) (lim CC) (limCone CC))).
+split.
+    apply pathsinv0.
+    change d with (lim CD).
+    apply lim_endo_is_identity. simpl; intro u;
+      rewrite <- assoc.
+      eapply pathscomp0; [eapply maponpaths; apply limArrowCommutes|].
+      apply (limArrowCommutes CC).
+      apply pathsinv0, (lim_endo_is_identity _ CC); simpl; intro u;
+      rewrite <- assoc.
+      eapply pathscomp0; [eapply maponpaths; apply (limArrowCommutes CC)|].
+      apply (limArrowCommutes CD).
+Defined.
+
+
+Lemma inv_isLim_is_iso {g : graph} (D : diagram g C^op) (CC : LimCone D) (d : C)
+  (cd : cone D d) (H : isLimCone D d cd) :
+  inv_from_iso (isopair _ (isLim_is_iso D CC d cd H)) =
+  limArrow (mk_LimCone D d cd H) _ (limCone CC).
+Proof.
+cbn. unfold precomp_with.
+apply id_right.
+Qed.
+
+Lemma is_iso_isLim {g : graph} (D : diagram g C^op) (CC : LimCone D) (d : C) (cd : cone D d) :
+  is_iso (limArrow CC d cd) -> isLimCone D d cd.
+Proof.
+intro H.
+set (iinv := z_iso_inv_from_is_z_iso _ (is_z_iso_from_is_iso _ H)).
+intros x cx.
+simple refine (tpair _ _ _).
+- simple refine (tpair _ _ _).
+  + exact (limArrow CC x cx;;iinv).
+  + simpl; intro u.
+    assert (XR:=limArrowCommutes CC x cx u).
+    eapply pathscomp0; [| apply XR].
+    eapply pathscomp0; [ apply (!assoc _ _ _ _ _ _ _ _ ) |].
+    apply maponpaths.
+    apply z_iso_inv_on_right.
+    apply pathsinv0, limArrowCommutes.
+- intros p; destruct p as [f Hf].
+  apply subtypeEquality.
+  + intro a; apply impred; intro u; apply hsC.
+  + simpl; apply  z_iso_inv_on_left; simpl.
+    apply pathsinv0, limArrowUnique; intro u.
+    cbn in *.
+    eapply pathscomp0; [| apply Hf].
+    eapply pathscomp0. apply (!assoc _ _ _ _ _ _ _ _ ).
+    apply maponpaths.
+    apply limArrowCommutes.
+Defined.
+
+
 End lim_def.
 
 Arguments Lims : clear implicits.
@@ -493,3 +895,5 @@ Proof.
 now intros g d; apply ColimFunctorCocone.
 Defined.
 *)
+
+End co.

@@ -1,6 +1,8 @@
-
 (** ******************************************
 Benedikt Ahrens, March 2015
+
+Coproducts defined as a colimit
+
 *********************************************)
 
 Require Import UniMath.Foundations.Basics.PartD.
@@ -10,7 +12,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
 (** * Definition of binary coproduct of objects in a precategory *)
 

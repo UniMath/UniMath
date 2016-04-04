@@ -23,11 +23,11 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.category_hset.
-Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.limits.limits_via_colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
@@ -242,10 +242,16 @@ simple refine (mk_CoproductCocone _ _ _ _ _ _ _).
                case x; intros; apply idpath]).
 Defined.
 
-Lemma CoproductsHSET_from_Colims : Coproducts HSET.
+Section CoproductsHSET_from_Colims.
+
+Require UniMath.CategoryTheory.limits.graphs.coproducts.
+
+Lemma CoproductsHSET_from_Colims : graphs.coproducts.Coproducts HSET.
 Proof.
-exact (Coproducts_from_Colims _ has_homsets_HSET ColimsHSET).
+exact (coproducts.Coproducts_from_Colims _ ColimsHSET).
 Defined.
+
+End CoproductsHSET_from_Colims.
 
 Lemma InitialHSET : Initial HSET.
 Proof.
@@ -256,28 +262,33 @@ simple refine (tpair _ _ _).
 - abstract (intro f; apply funextfun; intro e; induction e).
 Defined.
 
-Lemma InitialHSET_from_Colims : Initial HSET.
+Section InitialHSET_from_Colims.
+
+Require UniMath.CategoryTheory.limits.graphs.initial.
+
+Lemma InitialHSET_from_Colims : graphs.initial.Initial HSET.
 Proof.
-now apply Initial_from_Colims, ColimsHSET.
+now apply initial.Initial_from_Colims, ColimsHSET.
 Defined.
+
+End InitialHSET_from_Colims.
 
 Section limits.
 
 Variable g : graph.
-Variable D : diagram g HSET^op.
+Variable D : diagram g HSET.
 
 Definition limset_UU : UU :=
   Σ (f : ∀ u : vertex g, pr1hSet (dob D u)),
-    ∀ u v (e : edge u v), dmor D e (f v) = f u.
+    ∀ u v (e : edge u v), dmor D e (f u) = f v.
 
 Definition limset : HSET.
 Proof.
   exists limset_UU.
-  abstract (apply (isofhleveltotal2 2);
-            [ apply impred; intro; apply pr2 |
-              intro f; repeat (apply impred; intro);
-              apply isasetaprop;
-              apply (pr2 (dob D t))]).
+  apply (isofhleveltotal2 2);
+            [ apply impred; intro; apply pr2
+            | intro f; repeat (apply impred; intro);
+              apply isasetaprop, setproperty ].
 Defined.
 
 (* TODO: clean *)
@@ -298,8 +309,8 @@ Proof.
         {
           simple refine (tpair _ _ _ ).
           - intro u.
-            apply (coconeIn CC u x). (* TODO : hide implementation of limits *)
-          - abstract (intros u v e; simpl; set (T := coconeInCommutes CC _ _ e);
+            apply (coneOut CC u x).
+          - abstract (intros u v e; simpl; set (T := coneOutCommutes CC _ _ e);
                       apply (toforallpaths _ _ _ T)).
         }
       * abstract (intro v; apply idpath).
@@ -307,7 +318,7 @@ Proof.
      [ intro; apply impred; intro; apply isaset_set_fun_space
      | simpl; destruct t as [t p]; simpl; apply funextfun; intro x; simpl;
        unfold compose; simpl; apply subtypeEquality];
-       [intro; repeat (apply impred; intro); apply (setproperty (dob D t0))
+       [intro; repeat (apply impred; intro); apply setproperty
        |simpl; apply funextsec; intro u; simpl in p;
        set (p' := toforallpaths _ _ _ (p u)); apply p']).
 Defined.
@@ -339,10 +350,16 @@ simple refine (mk_ProductCone _ _ _ _ _ _ _).
                case (t x); intros; apply idpath]).
 Defined.
 
-Lemma ProductsHSET_from_Lims : Products HSET.
+Section ProductsHSET_from_Lims.
+
+Require UniMath.CategoryTheory.limits.graphs.products.
+
+Lemma ProductsHSET_from_Lims : graphs.products.Products HSET.
 Proof.
-exact (Products_from_Lims _ has_homsets_HSET LimsHSET).
+exact (products.Products_from_Lims _ LimsHSET).
 Defined.
+
+End ProductsHSET_from_Lims.
 
 Lemma TerminalHSET : Terminal HSET.
 Proof.
@@ -352,10 +369,16 @@ apply (tpair _ (fun _ => tt)).
 abstract (simpl; intro f; apply funextfun; intro x; case (f x); apply idpath).
 Defined.
 
-Lemma TerminalHSET_from_Lims : Terminal HSET.
+Section TerminalHSET_from_Lims.
+
+Require UniMath.CategoryTheory.limits.graphs.terminal.
+
+Lemma TerminalHSET_from_Lims : graphs.terminal.Terminal HSET.
 Proof.
-now apply Terminal_from_Lims, LimsHSET.
+now apply terminal.Terminal_from_Lims, LimsHSET.
 Defined.
+
+End TerminalHSET_from_Lims.
 
 (*
 Lemma PullbacksHSET : Pullbacks HSET.
