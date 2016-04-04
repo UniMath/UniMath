@@ -281,6 +281,66 @@ split.
                       now apply isColim_weq_subproof2]]).
 Defined.
 *)
+
+Lemma isLim_is_iso {g : graph} (D : diagram g C^op) (CC : LimCone D) (d : C) (cd : cone D d) :
+  isLimCone D d cd -> is_iso (limArrow CC d cd).
+Proof.
+intro H.
+apply is_iso_from_is_z_iso.
+set (CD := mk_LimCone D d cd H).
+apply (tpair _ (limArrow (mk_LimCone D d cd H) (lim CC) (limCone CC))).
+split.
+    apply pathsinv0.
+    change d with (lim CD).
+    apply lim_endo_is_identity. simpl; intro u;
+      rewrite <- assoc.
+      eapply pathscomp0; [eapply maponpaths; apply limArrowCommutes|].
+      apply (limArrowCommutes CC).
+      apply pathsinv0, (lim_endo_is_identity _ CC); simpl; intro u;
+      rewrite <- assoc.
+      eapply pathscomp0; [eapply maponpaths; apply (limArrowCommutes CC)|].
+      apply (limArrowCommutes CD).
+Defined.
+
+
+Lemma inv_isLim_is_iso {g : graph} (D : diagram g C^op) (CC : LimCone D) (d : C)
+  (cd : cone D d) (H : isLimCone D d cd) :
+  inv_from_iso (isopair _ (isLim_is_iso D CC d cd H)) =
+  limArrow (mk_LimCone D d cd H) _ (limCone CC).
+Proof.
+cbn. unfold precomp_with.
+apply id_right.
+Qed.
+
+Lemma is_iso_isLim {g : graph} (D : diagram g C^op) (CC : LimCone D) (d : C) (cd : cone D d) :
+  is_iso (limArrow CC d cd) -> isLimCone D d cd.
+Proof.
+intro H.
+set (iinv := z_iso_inv_from_is_z_iso _ (is_z_iso_from_is_iso _ H)).
+intros x cx.
+simple refine (tpair _ _ _).
+- simple refine (tpair _ _ _).
+  + exact (limArrow CC x cx;;iinv).
+  + simpl; intro u.
+    assert (XR:=limArrowCommutes CC x cx u).
+    eapply pathscomp0; [| apply XR].
+    eapply pathscomp0; [ apply (!assoc _ _ _ _ _ _ _ _ ) |].
+    apply maponpaths.
+    apply z_iso_inv_on_right.
+    apply pathsinv0, limArrowCommutes.
+- intros p; destruct p as [f Hf].
+  apply subtypeEquality.
+  + intro a; apply impred; intro u; apply hsC.
+  + simpl; apply  z_iso_inv_on_left; simpl.
+    apply pathsinv0, limArrowUnique; intro u.
+    cbn in *.
+    eapply pathscomp0; [| apply Hf].
+    eapply pathscomp0. apply (!assoc _ _ _ _ _ _ _ _ ).
+    apply maponpaths.
+    apply limArrowCommutes.
+Defined.
+
+
 End lim_def.
 
 Arguments Lims : clear implicits.
