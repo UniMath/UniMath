@@ -5,12 +5,9 @@ Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Section def_terminal.
 
@@ -22,7 +19,7 @@ Proof.
   exact (fun _ _ => empty).
 Defined.
 
-Definition termDiagram : diagram empty_graph C^op.
+Definition termDiagram : diagram empty_graph C.
 Proof.
 exists fromempty.
 intros u; induction u.
@@ -31,7 +28,7 @@ Defined.
 
 Definition termCone (c : C) : cone termDiagram c.
 Proof.
-simple refine (mk_cocone _ _); intro v; induction v.
+simple refine (mk_cone _ _); intro v; induction v.
 Defined.
 
 Definition isTerminal (a : C) :=

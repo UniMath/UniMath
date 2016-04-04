@@ -276,20 +276,19 @@ End InitialHSET_from_Colims.
 Section limits.
 
 Variable g : graph.
-Variable D : diagram g HSET^op.
+Variable D : diagram g HSET.
 
 Definition limset_UU : UU :=
   Σ (f : ∀ u : vertex g, pr1hSet (dob D u)),
-    ∀ u v (e : edge u v), dmor D e (f v) = f u.
+    ∀ u v (e : edge u v), dmor D e (f u) = f v.
 
 Definition limset : HSET.
 Proof.
   exists limset_UU.
-  abstract (apply (isofhleveltotal2 2);
-            [ apply impred; intro; apply pr2 |
-              intro f; repeat (apply impred; intro);
-              apply isasetaprop;
-              apply (pr2 (dob D t))]).
+  apply (isofhleveltotal2 2);
+            [ apply impred; intro; apply pr2
+            | intro f; repeat (apply impred; intro);
+              apply isasetaprop, setproperty ].
 Defined.
 
 (* TODO: clean *)
@@ -310,8 +309,8 @@ Proof.
         {
           simple refine (tpair _ _ _ ).
           - intro u.
-            apply (coconeIn CC u x). (* TODO : hide implementation of limits *)
-          - abstract (intros u v e; simpl; set (T := coconeInCommutes CC _ _ e);
+            apply (coneOut CC u x).
+          - abstract (intros u v e; simpl; set (T := coneOutCommutes CC _ _ e);
                       apply (toforallpaths _ _ _ T)).
         }
       * abstract (intro v; apply idpath).
@@ -319,7 +318,7 @@ Proof.
      [ intro; apply impred; intro; apply isaset_set_fun_space
      | simpl; destruct t as [t p]; simpl; apply funextfun; intro x; simpl;
        unfold compose; simpl; apply subtypeEquality];
-       [intro; repeat (apply impred; intro); apply (setproperty (dob D t0))
+       [intro; repeat (apply impred; intro); apply setproperty
        |simpl; apply funextsec; intro u; simpl in p;
        set (p' := toforallpaths _ _ _ (p u)); apply p']).
 Defined.

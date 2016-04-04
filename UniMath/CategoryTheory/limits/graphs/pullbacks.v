@@ -8,10 +8,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.opp_precat.
 Require        UniMath.CategoryTheory.limits.pullbacks.
-
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 Section def_pb.
 
@@ -25,14 +22,14 @@ Proof.
   exists three.
   exact (fun a b =>
            match (a,b) with
-             | (Two, One) => unit
-             | (Two, Three) => unit
+             | (One, Two) => unit
+             | (Three, Two) => unit
              | _ => empty
             end).
 Defined.
 
 Definition pullback_diagram {a b c : C} (f : C ⟦b,a⟧) (g : C⟦c,a⟧) :
-  diagram pushout_graph C^op.
+  diagram pushout_graph C.
 Proof.
   exists (fun x => match x with
                      | One => b
@@ -74,11 +71,11 @@ Proof.
   intros H' x cx; simpl in *.
   set (H1 := H' x (coneOut cx One) (coneOut cx Three) ).
   simple refine (let p : coneOut cx One ;; f = coneOut cx Three ;; g := _ in _ ).
-  - set (H2 := coneOutCommutes cx Two One tt).
+  - set (H2 := coneOutCommutes cx One Two tt).
     eapply pathscomp0. apply H2.
     clear H2.
     apply pathsinv0.
-    apply (coneOutCommutes cx Two Three tt).
+    apply (coneOutCommutes cx Three Two tt).
   - set (H2 := H1 p).
     simple refine (tpair _ _ _ ).
     + exists (pr1 (pr1 H2)).
@@ -91,7 +88,7 @@ Proof.
         eapply pathscomp0.
         eapply cancel_postcomposition.
         apply (pr2 (pr1 H2)).
-        apply (coneOutCommutes cx Two One tt ).
+        apply (coneOutCommutes cx One Two tt ).
       * unfold compose. simpl.
         set (X := pr2 (pr2 (pr1 H2))). simpl in *. apply X.
     +  intro t.
@@ -160,8 +157,8 @@ Definition PullbackSqrCommutes {a b c : C} {f : C⟦b, a⟧} {g : C⟦c, a⟧}
            (Pb : Pullback f g) :
   PullbackPr1 Pb ;; f = PullbackPr2 Pb ;; g .
 Proof.
-  eapply pathscomp0; [apply (limOutCommutes Pb Two One tt) |].
-  apply (!limOutCommutes Pb Two Three tt) .
+  eapply pathscomp0; [apply (limOutCommutes Pb One Two tt) |].
+  apply (!limOutCommutes Pb Three Two tt) .
 Qed.
 
 
@@ -204,8 +201,7 @@ Lemma PullbackArrowUnique {a b c d : C} (f : C⟦b , a⟧) (g : C⟦c , a⟧)
 Proof.
   apply path_to_ctr.
   intro v; induction v; simpl; try assumption.
-  set (X:= limOutCommutes Pb Two Three tt).
-  unfold compose. simpl.
+  set (X:= limOutCommutes Pb Three Two tt).
   eapply pathscomp0. apply maponpaths.
    eapply pathsinv0.
    apply X.
@@ -255,9 +251,9 @@ Proof.
       * apply (coneOut cc One).
       * apply (coneOut cc Three).
       * abstract (
-        assert (XRT := coneOutCommutes cc Two Three tt); simpl in XRT;
+        assert (XRT := coneOutCommutes cc Three Two tt); simpl in XRT;
         eapply pathscomp0; [| apply (!XRT)]; clear XRT;
-        assert (XRT := coneOutCommutes cc Two One tt); simpl in XRT;
+        assert (XRT := coneOutCommutes cc One Two tt); simpl in XRT;
         eapply pathscomp0; [| apply (XRT)]; apply idpath
          ).
     + simpl. intro v; induction v; simpl.
@@ -265,7 +261,7 @@ Proof.
       * abstract (
         rewrite assoc;
         rewrite  (limits.pullbacks.PullbackArrow_PullbackPr1 XR);
-        assert (XRT := coneOutCommutes cc Two One tt); simpl in XRT;
+        assert (XRT := coneOutCommutes cc One Two tt); simpl in XRT;
         eapply pathscomp0; [| apply (XRT)]; apply idpath
         ).
       * abstract (apply (limits.pullbacks.PullbackArrow_PullbackPr2 XR)).
@@ -344,7 +340,7 @@ Proof.
   intro u; induction u; simpl.
   - apply kH1.
   - unfold limOut. simpl.
-    assert (T:= coneOutCommutes (limCone Pb) Two Three tt).
+    assert (T:= coneOutCommutes (limCone Pb) Three Two tt).
     rewrite <- T.
     simpl.
     rewrite assoc.
