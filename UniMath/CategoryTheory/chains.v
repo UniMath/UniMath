@@ -15,6 +15,7 @@ Contents :
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
@@ -81,6 +82,20 @@ intros m n Hmn. destruct Hmn. simpl.
 induction m; simpl.
 - exact (InitialArrow InitC _).
 - exact (# F IHm).
+Defined.
+
+Definition chain_mor {C : precategory} (c : chain C) i :
+  forall j, i < j -> C⟦dob c i, dob c j⟧.
+Proof.
+induction j.
+- intros Hi0.
+  destruct (negnatlthn0 0 Hi0).
+- intros Hij.
+  destruct (natlehchoice4 _ _ Hij) as [|H].
+  + apply (IHj h ;; dmor c (idpath (S j))).
+  + apply dmor.
+    rewrite H.
+    apply idpath.
 Defined.
 
 End chains.
