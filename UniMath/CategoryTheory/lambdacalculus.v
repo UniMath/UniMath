@@ -209,10 +209,27 @@ simple refine (mk_cocone _ _).
 - simpl; intro i.
 apply (colimArrow (CCAiB i) K (ccAiB_K i)).
 - simpl.
-intros m n e.
-apply (colimArrowUnique (CCAiB m)).
+intros i j e.
+destruct e.
+
+
+apply (colimArrowUnique (CCAiB i)).
+simpl; intros j.
 simpl.
-intros x.
+destruct (natlthorgeh i j).
+generalize (colimArrowCommutes (CCAiB (S i)) K (ccAiB_K (S i)) j).
+intros HHH.
+unfold fun_lt.
+unfold colimIn.
+simpl.
+unfold product_functor_mor.
+simpl.
+rewrite assoc.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+apply ProductOfArrows_comp.
+rewrite id_left, id_right.
+unfold colimArrow.
 admit.
 }
 
@@ -229,9 +246,9 @@ generalize (colimArrowCommutes (CCAiB i) K (ccAiB_K i) i).
 rewrite <- HH.
 simpl.
 destruct (natlthorgeh i i).
-admit.
+destruct (isirreflnatlth _ h).
 destruct (natgehchoice i i h).
-admit.
+destruct (isirreflnatgth _ h0).
 simpl.
 destruct p.
 simpl.
@@ -253,7 +270,10 @@ apply idpath.
 -
 intro t.
 apply subtypeEquality.
-+ admit.
++
+intros A.
+apply impred; intros.
+apply hsC.
 +
 simpl.
 apply (colimArrowUnique X K ccAiM_K).
