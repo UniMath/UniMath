@@ -98,6 +98,28 @@ induction j.
     apply idpath.
 Defined.
 
+Lemma chain_mor_commutes {C : precategory} (c : chain C) (x : C)
+  (cc : cocone c x) i j (Hij : i < j) :
+  chain_mor c i j Hij ;; coconeIn cc j = coconeIn cc i.
+Proof.
+generalize j Hij; clear j Hij.
+induction j.
+- intros Hi0.
+  destruct (negnatlthn0 0 Hi0).
+-
+intros Hij.
+simpl.
+destruct (natlehchoice4 i j Hij).
+
+rewrite <- (IHj h).
+rewrite <- assoc.
+apply maponpaths.
+apply coconeInCommutes.
+destruct p.
+simpl.
+apply coconeInCommutes.
+Qed.
+
 End chains.
 
 Notation "'chain'" := (diagram nat_graph).
