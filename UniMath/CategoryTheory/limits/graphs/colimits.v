@@ -465,6 +465,18 @@ simple refine (mk_ColimCocone _ _ _ _).
 - now intros F cc; simpl; apply (ColimFunctor_unique _ cc).
 Defined.
 
+
+Definition isColimFunctor_is_pointwise_Colim
+  (X : [A,C,hsC]) (R : cocone D X) (H : isColimCocone D X R)
+  : ∀ a, isColimCocone (diagram_pointwise a) _ (cocone_pointwise X R a).
+Proof.
+  intro a.
+  apply (is_iso_isColim hsC _ (HCg a)).
+  set (XR := isColim_is_iso D ColimFunctorCocone X R H).
+  apply  (is_functor_iso_pointwise_if_iso _ _ _ _ _ _ XR).
+Defined.
+
+
 End ColimFunctor.
 
 Lemma ColimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
