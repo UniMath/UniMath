@@ -211,25 +211,34 @@ apply (colimArrow (CCAiB i) K (ccAiB_K i)).
 - simpl.
 intros i j e.
 destruct e.
+simple refine (let f : ∀ u : nat,
+         C ⟦ ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB u))),
+         ProductObject C (PC (pr1 (pr1 cAB (S i))) (pr2 (dob cAB u))) ⟧ := _ in _).
+  intros j.
+eapply (ProductOfArrows).
+apply (dmor cAB (idpath _)).
+apply identity.
+assert (fNat : ∀ (u v : nat) (e : S u = v),
+            ProductOfArrows C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB v)))
+              (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB u)))
+              (identity (pr1 (pr1 cAB i))) (pr2 (dmor cAB e)) ;;
+            f v =
+            f u ;; ProductOfArrows C
+                     (PC (pr1 (pr1 cAB (S i))) (pr2 (dob cAB v)))
+                     (PC (pr1 (pr1 cAB (S i))) (pr2 (dob cAB u)))
+                     (identity (pr1 (pr1 cAB (S i))))
+                     (pr2 (dmor cAB e))).
+intros j k e; destruct e.
+unfold f.
+rewrite !ProductOfArrows_comp.
+rewrite !id_left, !id_right.
+apply idpath.
+generalize (@precompWithColimOfArrows _ _ _ _ (CCAiB i) (CCAiB (S i)) f fNat K (ccAiB_K (S i))).
+unfold colimOfArrows.
 
-
+intros HH.
 apply (colimArrowUnique (CCAiB i)).
-simpl; intros j.
-simpl.
-destruct (natlthorgeh i j).
-generalize (colimArrowCommutes (CCAiB (S i)) K (ccAiB_K (S i)) j).
-intros HHH.
-unfold fun_lt.
-unfold colimIn.
-simpl.
-unfold product_functor_mor.
-simpl.
-rewrite assoc.
-eapply pathscomp0.
-eapply cancel_postcomposition.
-apply ProductOfArrows_comp.
-rewrite id_left, id_right.
-unfold colimArrow.
+intros j.
 admit.
 }
 
