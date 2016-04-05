@@ -22,6 +22,8 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
+(** ** Definition of limits *)
+
 Section lim_def.
 
 Context {C : precategory} (hsC : has_homsets C).
@@ -35,7 +37,7 @@ Definition mk_cone {g : graph} {d : diagram g C} {c : C}
   cone d c
   := tpair _ f Hf.
 
-(* The injections to c in the cocone *)
+(** The injections to c in the cocone *)
 Definition coneOut {g : graph} {d : diagram g C} {c : C} (cc : cone d c) :
   ∀ v, C⟦c, dob d v⟧ := pr1 cc.
 
@@ -60,7 +62,7 @@ Definition Lims : UU := ∀ {g : graph} (d : diagram g C), LimCone d.
 Definition hasLims : UU  :=
   ∀ {g : graph} (d : diagram g C), ishinh (LimCone d).
 
-(* lim is the tip of the lim cone *)
+(** [lim] is the tip of the [LimCone] *)
 Definition lim {g : graph} {d : diagram g C} (CC : LimCone d) : C
   := pr1 (pr1 CC).
 
@@ -198,6 +200,66 @@ unshelve refine (uniqueExists _ _ (limUnivProp CC _ _) _ _ _ _).
 - now apply H.
 Qed.
 
+
+Lemma isLim_is_iso {g : graph} (D : diagram g C) (CC : LimCone D) (d : C) (cd : cone D d) :
+  isLimCone D d cd -> is_iso (limArrow CC d cd).
+Proof.
+intro H.
+apply is_iso_from_is_z_iso.
+set (CD := mk_LimCone D d cd H).
+apply (tpair _ (limArrow (mk_LimCone D d cd H) (lim CC) (limCone CC))).
+split.
+    apply pathsinv0.
+    change d with (lim CD).
+    apply lim_endo_is_identity. simpl; intro u;
+      rewrite <- assoc.
+      eapply pathscomp0; [eapply maponpaths; apply limArrowCommutes|].
+      apply (limArrowCommutes CC).
+      apply pathsinv0, (lim_endo_is_identity _ CC); simpl; intro u;
+      rewrite <- assoc.
+      eapply pathscomp0; [eapply maponpaths; apply (limArrowCommutes CC)|].
+      apply (limArrowCommutes CD).
+Defined.
+
+
+Lemma inv_isLim_is_iso {g : graph} (D : diagram g C) (CC : LimCone D) (d : C)
+  (cd : cone D d) (H : isLimCone D d cd) :
+  inv_from_iso (isopair _ (isLim_is_iso D CC d cd H)) =
+  limArrow (mk_LimCone D d cd H) _ (limCone CC).
+Proof.
+cbn. unfold precomp_with.
+apply id_right.
+Qed.
+
+Lemma is_iso_isLim {g : graph} (D : diagram g C) (CC : LimCone D) (d : C) (cd : cone D d) :
+  is_iso (limArrow CC d cd) -> isLimCone D d cd.
+Proof.
+intro H.
+set (iinv := z_iso_inv_from_is_z_iso _ (is_z_iso_from_is_iso _ H)).
+intros x cx.
+simple refine (tpair _ _ _).
+- simple refine (tpair _ _ _).
+  + exact (limArrow CC x cx;;iinv).
+  + simpl; intro u.
+    assert (XR:=limArrowCommutes CC x cx u).
+    eapply pathscomp0; [| apply XR].
+    eapply pathscomp0; [ apply (!assoc _ _ _ _ _ _ _ _ ) |].
+    apply maponpaths.
+    apply z_iso_inv_on_right.
+    apply pathsinv0, limArrowCommutes.
+- intros p; destruct p as [f Hf].
+  apply subtypeEquality.
+  + intro a; apply impred; intro u; apply hsC.
+  + simpl; apply  z_iso_inv_on_left; simpl.
+    apply pathsinv0, limArrowUnique; intro u.
+    cbn in *.
+    eapply pathscomp0; [| apply Hf].
+    eapply pathscomp0. apply (!assoc _ _ _ _ _ _ _ _ ).
+    apply maponpaths.
+    apply limArrowCommutes.
+Defined.
+
+
 (*
 Definition Cocone_by_postcompose {g : graph} (D : diagram g C)
  (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) : cocone D d.
@@ -251,9 +313,13 @@ split.
                       now apply isColim_weq_subproof2]]).
 Defined.
 *)
+
 End lim_def.
 
 Arguments Lims : clear implicits.
+
+
+(** ** Limits in functor categories *)
 
 Section LimFunctor.
 
@@ -351,6 +417,20 @@ simple refine (mk_LimCone _ _ _ _).
 - now intros F cc; simpl; apply (LimFunctor_unique _ cc).
 Defined.
 
+
+Definition isLimFunctor_is_pointwise_Lim
+  (X : [A,C,hsC]) (R : cone D X) (H : isLimCone D X R)
+  : ∀ a, isLimCone (diagram_pointwise _ _ hsC _ D a)
+                   _
+                   (cone_pointwise X R a).
+Proof.
+  intro a.
+  apply (is_iso_isLim hsC _ (HCg a)).
+  set (XR := isLim_is_iso D LimFunctorCone X R H).
+  apply  (is_functor_iso_pointwise_if_iso _ _ _ _ _ _ XR).
+Defined.
+
+
 End LimFunctor.
 
 Lemma LimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
@@ -359,7 +439,14 @@ Proof.
 now intros g d; apply LimFunctorCone.
 Defined.
 
-(* Definition of limits via colimits. Put in a module for namespace reasons *)
+
+
+
+(** ** Definition of limits via colimits *)
+
+(** Put in a module for namespace reasons *)
+
+
 Module co.
 
 Require Import UniMath.CategoryTheory.opp_precat.
