@@ -94,8 +94,7 @@ induction j.
   destruct (natlehchoice4 _ _ Hij) as [|H].
   + apply (IHj h ;; dmor c (idpath (S j))).
   + apply dmor.
-    rewrite H.
-    apply idpath.
+    apply (maponpaths S H).
 Defined.
 
 Lemma chain_mor_commutes {C : precategory} (c : chain C) (x : C)
@@ -118,6 +117,30 @@ apply coconeInCommutes.
 destruct p.
 simpl.
 apply coconeInCommutes.
+Qed.
+
+Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+
+Lemma chain_mor_commutes2 {C : precategory} (c : chain C) i j (Hij : i < j) (HSij : S i < j) :
+  dmor c (idpath (S i)) ;; chain_mor c _ _ HSij = chain_mor c _ _ Hij.
+Proof.
+induction j.
+destruct (negnatlthn0 _ Hij).
+simpl.
+destruct (natlehchoice4 i j Hij).
+destruct (natlehchoice4 (S i) j HSij).
+rewrite <- (IHj h h0).
+rewrite assoc.
+apply idpath.
+destruct p.
+simpl.
+destruct (natlehchoice4 i i h).
+destruct (isirreflnatlth _ h0).
+apply cancel_postcomposition.
+apply maponpaths.
+apply isasetnat.
+destruct p.
+destruct (isirreflnatlth _ HSij).
 Qed.
 
 End chains.
