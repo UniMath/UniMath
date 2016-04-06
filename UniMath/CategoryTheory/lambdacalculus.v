@@ -278,7 +278,6 @@ apply (HAiB i).
 simple refine (let ccAiB_K : forall i, cocone (mapchain (constprod_functor1 PC (pr1 (pr1 cAB i))) cB) K := _ in _).
 { simpl; intro i.
 
-
 (* INLINED temp *)
 simple refine (mk_cocone _ _).
 + simpl; intro j.
@@ -287,14 +286,16 @@ destruct (natlthorgeh i j).
 apply (fun_lt cAB _ _ h ;; coconeIn ccK j).
 destruct (natgehchoice _ _ h) as [H|H].
 apply (fun_gt cAB _ _ H ;; coconeIn ccK i).
-rewrite H.
-apply (coconeIn ccK j).
+destruct H.
+apply (coconeIn ccK i).
 + simpl; intros j k e.
 destruct e; simpl.
 unfold product_functor_mor.
 simpl.
 destruct (natlthorgeh i j).
+-
 destruct (natlthorgeh i (S j)).
+*
 rewrite assoc.
 rewrite <- (coconeInCommutes ccK j (S j) (idpath _)).
 simpl.
@@ -310,12 +311,89 @@ apply ProductOfArrows_eq; trivial.
 rewrite id_left.
 simpl.
 destruct (natlehchoice4 i j h0).
+{
 simpl.
 apply cancel_postcomposition.
-admit.
-admit.
-admit.
-admit.
+apply maponpaths.
+apply maponpaths.
+apply isasetbool.
+}
+{
+destruct p.
+destruct (isirreflnatlth _ h).
+}
+*
+destruct (isirreflnatlth _ (natlthlehtrans _ _ _ (natlthtolths _ _ h) h0)).
+- destruct (natlthorgeh i (S j)).
+* destruct (natgehchoice i j h).
+{
+destruct (natlthchoice2 _ _ h1).
++
+destruct (isirreflnatlth _ (istransnatlth _ _ _ h0 h2)).
++
+destruct p.
+destruct (isirreflnatlth _ h0).
+}
+{
+destruct p.
+simpl.
+rewrite <- (coconeInCommutes ccK i (S i) (idpath _)).
+unfold fun_lt.
+rewrite assoc.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+apply ProductOfArrows_comp.
+rewrite id_left, id_right.
+eapply cancel_postcomposition.
+simpl.
+apply ProductOfArrows_eq; trivial.
+destruct (natlehchoice4 i i h0).
++
+destruct (isirreflnatlth _ h1).
++
+apply maponpaths.
+apply maponpaths.
+apply isasetnat.
+}
+*
+{
+destruct (natgehchoice i j h).
+-
+destruct (natgehchoice i (S j) h0).
++
+unfold fun_gt.
+rewrite assoc.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+apply ProductOfArrows_comp.
+rewrite id_right.
+apply cancel_postcomposition.
+apply ProductOfArrows_eq; trivial.
+
+rewrite <- (chain_mor_commutes2 cAB _ _ h1 h2).
+apply idpath.
++
+destruct h.
+destruct h0.
+unfold fun_gt.
+simpl.
+generalize h1.
+clear h1.
+rewrite p.
+destruct p.
+intros.
+apply cancel_postcomposition.
+apply ProductOfArrows_eq.
+apply idpath.
+simpl.
+destruct (natlehchoice4 j j h1).
+destruct (isirreflnatlth _ h).
+apply maponpaths.
+apply maponpaths.
+apply isasetnat.
+- destruct p.
+destruct (negnatgehnsn _ h0).
+}
 
 (* apply temp. *)
 (* apply ccK. *)
@@ -381,16 +459,17 @@ simple refine (let X : ColimCocone AiM_chain := _ in _).
   - mkpair.
     + apply (ProductObject _ (PC L M)).
     +
-Search cocone.
+simple refine (mk_cocone _ _).
+simpl.
+intros i.
+apply colimArrow.
+simple refine (mk_cocone _ _).
+simpl; intro j.
+unfold product_functor_ob.
+simpl.
 admit.
-(* simple refine (mk_cocone _ _). *)
-(* simpl. *)
-(* intros i. *)
-(* apply colimArrow. *)
-(* simpl. *)
-(* Search ColimCocone. *)
-
-(* admit. *)
+admit.
+admit.
   - admit.
 }
 
@@ -430,17 +509,18 @@ destruct (isirreflnatlth _ h).
 destruct (natgehchoice i i h).
 destruct (isirreflnatgth _ h0).
 simpl.
-destruct p.
-simpl.
-intros HHH.
-rewrite <- HHH.
-rewrite assoc.
-apply cancel_postcomposition.
-unfold colimIn.
-simpl.
-unfold product_functor_mor.
-simpl.
 admit.
+(* destruct p. *)
+(* simpl. *)
+(* intros HHH. *)
+(* rewrite <- HHH. *)
+(* rewrite assoc. *)
+(* apply cancel_postcomposition. *)
+(* unfold colimIn. *)
+(* simpl. *)
+(* unfold product_functor_mor. *)
+(* simpl. *)
+(* admit. *)
 (* eapply pathsinv0. *)
 (* eapply pathscomp0. *)
 (* apply ProductOfArrows_comp. *)
