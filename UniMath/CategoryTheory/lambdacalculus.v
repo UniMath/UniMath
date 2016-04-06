@@ -172,7 +172,25 @@ apply ProductOfArrows_eq; trivial.
 
 rewrite <- (chain_mor_commutes2 cAB _ _ h1 h2).
 apply idpath.
-+ admit.
++
+destruct h.
+destruct h0.
+unfold fun_gt.
+simpl.
+generalize h1.
+clear h1.
+rewrite p.
+destruct p.
+intros.
+apply cancel_postcomposition.
+apply ProductOfArrows_eq.
+apply idpath.
+simpl.
+destruct (natlehchoice4 j j h1).
+destruct (isirreflnatlth _ h).
+apply maponpaths.
+apply maponpaths.
+apply isasetnat.
 - destruct p.
 destruct (negnatgehnsn _ h0).
 }
