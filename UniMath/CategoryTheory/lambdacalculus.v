@@ -33,25 +33,25 @@ Section binprod_functor.
 Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
 Variables (hE : has_exponentials PC).
 
-Definition inc1 (cAB : chain (product_precategory C C)) (K : C)
-  (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) :
-  forall i j,
-              C ⟦ ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB j))),
-                  ProductObject C (PC (pr1 (pr1 cAB (S i))) (pr2 (dob cAB j))) ⟧.
-Proof.
-intros i j.
-apply (ProductOfArrows _ (PC _ _) (PC _ _) (pr1 (dmor cAB (idpath _))) (identity (pr2 (dob cAB j)))).
-Defined.
+(* Definition inc1 (cAB : chain (product_precategory C C)) (K : C) *)
+(*   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) : *)
+(*   forall i j, *)
+(*               C ⟦ ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB j))), *)
+(*                   ProductObject C (PC (pr1 (pr1 cAB (S i))) (pr2 (dob cAB j))) ⟧. *)
+(* Proof. *)
+(* intros i j. *)
+(* apply (ProductOfArrows _ (PC _ _) (PC _ _) (pr1 (dmor cAB (idpath _))) (identity (pr2 (dob cAB j)))). *)
+(* Defined. *)
 
-Definition inc2 (cAB : chain (product_precategory C C)) (K : C)
-  (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) :
-  forall i j,
-              C ⟦ ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB j))),
-                  ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB (S j)))) ⟧.
-Proof.
-intros i j.
-apply (ProductOfArrows _ (PC _ _) (PC _ _) (identity (pr1 (dob cAB _))) (pr2 (dmor cAB (idpath _)))).
-Defined.
+(* Definition inc2 (cAB : chain (product_precategory C C)) (K : C) *)
+(*   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) : *)
+(*   forall i j, *)
+(*               C ⟦ ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB j))), *)
+(*                   ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB (S j)))) ⟧. *)
+(* Proof. *)
+(* intros i j. *)
+(* apply (ProductOfArrows _ (PC _ _) (PC _ _) (identity (pr1 (dob cAB _))) (pr2 (dmor cAB (idpath _)))). *)
+(* Defined. *)
 
 Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
 
@@ -73,128 +73,87 @@ intros i j hij.
 apply (ProductOfArrows _ _ _ (identity _) (pr2 (chain_mor cAB _ _ hij))).
 Defined.
 
-(* Lemma to construct ccAiB_K *)
-Lemma temp (cAB : chain (product_precategory C C)) (K : C)
-  (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K)
-  : ∀ i : nat, cocone (mapchain (constprod_functor1 PC (pr1 (pr1 cAB i))) (mapchain (pr2_functor C C) cAB)) K.
+Definition map_to_K (cAB : chain (product_precategory C C)) (K : C)
+  (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) i j :
+  C⟦ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB j))), K⟧.
 Proof.
-intro i.
-simple refine (mk_cocone _ _).
-+ simpl; intro j.
-unfold product_functor_ob; simpl.
 destruct (natlthorgeh i j).
-apply (fun_lt cAB _ _ h ;; coconeIn ccK j).
-destruct (natgehchoice _ _ h) as [H|H].
-apply (fun_gt cAB _ _ H ;; coconeIn ccK i).
-destruct H.
-apply (coconeIn ccK i).
-+ simpl; intros j k e.
-destruct e; simpl.
-unfold product_functor_mor.
-simpl.
-destruct (natlthorgeh i j).
--
-destruct (natlthorgeh i (S j)).
-*
-rewrite assoc.
-rewrite <- (coconeInCommutes ccK j (S j) (idpath _)).
-simpl.
-rewrite assoc.
-apply cancel_postcomposition.
-unfold fun_lt.
-rewrite ProductOfArrows_comp.
-rewrite id_left.
-eapply pathscomp0.
-apply ProductOfArrows_comp.
-rewrite id_right.
-apply ProductOfArrows_eq; trivial.
-rewrite id_left.
-simpl.
-destruct (natlehchoice4 i j h0).
-{
-simpl.
-apply cancel_postcomposition.
-apply maponpaths.
-apply maponpaths.
-apply isasetbool.
-}
-{
-destruct p.
-destruct (isirreflnatlth _ h).
-}
-*
-destruct (isirreflnatlth _ (natlthlehtrans _ _ _ (natlthtolths _ _ h) h0)).
-- destruct (natlthorgeh i (S j)).
-* destruct (natgehchoice i j h).
-{
-destruct (natlthchoice2 _ _ h1).
-+
-destruct (isirreflnatlth _ (istransnatlth _ _ _ h0 h2)).
-+
-destruct p.
-destruct (isirreflnatlth _ h0).
-}
-{
-destruct p.
-simpl.
-rewrite <- (coconeInCommutes ccK i (S i) (idpath _)).
-unfold fun_lt.
-rewrite assoc.
-eapply pathscomp0.
-eapply cancel_postcomposition.
-apply ProductOfArrows_comp.
-rewrite id_left, id_right.
-eapply cancel_postcomposition.
-simpl.
-apply ProductOfArrows_eq; trivial.
-destruct (natlehchoice4 i i h0).
-+
-destruct (isirreflnatlth _ h1).
-+
-apply maponpaths.
-apply maponpaths.
-apply isasetnat.
-}
-*
-{
-destruct (natgehchoice i j h).
--
-destruct (natgehchoice i (S j) h0).
-+
-unfold fun_gt.
-rewrite assoc.
-eapply pathscomp0.
-eapply cancel_postcomposition.
-apply ProductOfArrows_comp.
-rewrite id_right.
-apply cancel_postcomposition.
-apply ProductOfArrows_eq; trivial.
+- apply (fun_lt cAB _ _ h ;; coconeIn ccK j).
+- destruct (natgehchoice _ _ h) as [H|H].
+  * apply (fun_gt cAB _ _ H ;; coconeIn ccK i).
+  * destruct H; apply (coconeIn ccK i).
+Defined.
 
-rewrite <- (chain_mor_commutes2 cAB _ _ h1 h2).
-apply idpath.
-+
-destruct h.
-destruct h0.
-unfold fun_gt.
-simpl.
-generalize h1.
-clear h1.
-rewrite p.
-destruct p.
-intros.
-apply cancel_postcomposition.
-apply ProductOfArrows_eq.
-apply idpath.
-simpl.
-destruct (natlehchoice4 j j h1).
-destruct (isirreflnatlth _ h).
-apply maponpaths.
-apply maponpaths.
-apply isasetnat.
-- destruct p.
-destruct (negnatgehnsn _ h0).
-}
-Admitted.
+Lemma map_to_K_commutes (cAB : chain (product_precategory C C)) (K : C)
+  (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K)
+  i j k (e : edge j k) :
+   product_functor_mor C C PC (constant_functor C C (pr1 (pr1 cAB i)))
+     (functor_identity C) (pr2 (dob cAB j)) (pr2 (dob cAB k))
+     (pr2 (dmor cAB e)) ;; map_to_K cAB K ccK i k =
+   map_to_K cAB K ccK i j.
+Proof.
+destruct e; simpl.
+unfold product_functor_mor, map_to_K.
+destruct (natlthorgeh i j) as [h|h].
+- destruct (natlthorgeh i (S j)) as [h0|h0].
+  * rewrite assoc, <- (coconeInCommutes ccK j (S j) (idpath _)), assoc; simpl.
+    apply cancel_postcomposition; unfold fun_lt.
+    rewrite ProductOfArrows_comp, id_left.
+    eapply pathscomp0; [apply ProductOfArrows_comp|].
+    rewrite id_right.
+    apply ProductOfArrows_eq; trivial.
+    rewrite id_left; simpl.
+    destruct (natlehchoice4 i j h0) as [h1|h1].
+    + apply cancel_postcomposition, maponpaths, maponpaths, isasetbool.
+    + destruct h1; destruct (isirreflnatlth _ h).
+  * destruct (isirreflnatlth _ (natlthlehtrans _ _ _ (natlthtolths _ _ h) h0)).
+- destruct (natlthorgeh i (S j)) as [h0|h0].
+  * destruct (natgehchoice i j h) as [h1|h1].
+    + destruct (natlthchoice2 _ _ h1) as [h2|h2].
+      { destruct (isirreflnatlth _ (istransnatlth _ _ _ h0 h2)). }
+      { destruct h2; destruct (isirreflnatlth _ h0). }
+    + destruct h1; simpl.
+      rewrite <- (coconeInCommutes ccK i (S i) (idpath _)), assoc.
+      unfold fun_lt.
+      eapply pathscomp0.
+      eapply cancel_postcomposition.
+      apply ProductOfArrows_comp.
+      rewrite id_left, id_right.
+      apply cancel_postcomposition, ProductOfArrows_eq; trivial.
+      simpl; destruct (natlehchoice4 i i h0) as [h1|h1]; [destruct (isirreflnatlth _ h1)|].
+      apply maponpaths, maponpaths, isasetnat.
+  * destruct (natgehchoice i j h) as [h1|h1].
+    + destruct (natgehchoice i (S j) h0) as [h2|h2].
+      { unfold fun_gt; rewrite assoc.
+        eapply pathscomp0.
+        eapply cancel_postcomposition.
+        apply ProductOfArrows_comp.
+        rewrite id_right.
+        apply cancel_postcomposition.
+        apply ProductOfArrows_eq; trivial.
+        rewrite <- (chain_mor_commutes2 cAB _ _ h1 h2).
+        apply idpath. }
+      { destruct h.
+        unfold fun_gt; simpl.
+        generalize h1; clear h1.
+        rewrite h2; intro h1.
+        apply cancel_postcomposition.
+        apply ProductOfArrows_eq; trivial; simpl.
+        destruct (natlehchoice4 j j h1); [destruct (isirreflnatlth _ h)|].
+        apply maponpaths, maponpaths, isasetnat. }
+    + destruct h1; destruct (negnatgehnsn _ h0).
+Qed.
+
+(* Lemma to construct ccAiB_K *)
+Lemma ccAiB_K (cAB : chain (product_precategory C C)) (K : C)
+  (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) i :
+  cocone (mapchain (constprod_functor1 PC (pr1 (pr1 cAB i)))
+         (mapchain (pr2_functor C C) cAB)) K.
+Proof.
+simple refine (mk_cocone _ _).
++ intro j; apply (map_to_K cAB K ccK i j).
++ simpl; intros j k e; apply map_to_K_commutes.
+Defined.
 
 Lemma omega_cocont_binproduct_functor : omega_cocont (binproduct_functor PC).
 Proof.
@@ -277,128 +236,9 @@ apply (HAiB i).
 
 simple refine (let ccAiB_K : forall i, cocone (mapchain (constprod_functor1 PC (pr1 (pr1 cAB i))) cB) K := _ in _).
 { simpl; intro i.
-
-(* INLINED temp *)
-simple refine (mk_cocone _ _).
-+ simpl; intro j.
-unfold product_functor_ob; simpl.
-destruct (natlthorgeh i j).
-apply (fun_lt cAB _ _ h ;; coconeIn ccK j).
-destruct (natgehchoice _ _ h) as [H|H].
-apply (fun_gt cAB _ _ H ;; coconeIn ccK i).
-destruct H.
-apply (coconeIn ccK i).
-+ simpl; intros j k e.
-destruct e; simpl.
-unfold product_functor_mor.
-simpl.
-destruct (natlthorgeh i j).
--
-destruct (natlthorgeh i (S j)).
-*
-rewrite assoc.
-rewrite <- (coconeInCommutes ccK j (S j) (idpath _)).
-simpl.
-rewrite assoc.
-apply cancel_postcomposition.
-unfold fun_lt.
-rewrite ProductOfArrows_comp.
-rewrite id_left.
-eapply pathscomp0.
-apply ProductOfArrows_comp.
-rewrite id_right.
-apply ProductOfArrows_eq; trivial.
-rewrite id_left.
-simpl.
-destruct (natlehchoice4 i j h0).
-{
-simpl.
-apply cancel_postcomposition.
-apply maponpaths.
-apply maponpaths.
-apply isasetbool.
+apply ccAiB_K.
+assumption.
 }
-{
-destruct p.
-destruct (isirreflnatlth _ h).
-}
-*
-destruct (isirreflnatlth _ (natlthlehtrans _ _ _ (natlthtolths _ _ h) h0)).
-- destruct (natlthorgeh i (S j)).
-* destruct (natgehchoice i j h).
-{
-destruct (natlthchoice2 _ _ h1).
-+
-destruct (isirreflnatlth _ (istransnatlth _ _ _ h0 h2)).
-+
-destruct p.
-destruct (isirreflnatlth _ h0).
-}
-{
-destruct p.
-simpl.
-rewrite <- (coconeInCommutes ccK i (S i) (idpath _)).
-unfold fun_lt.
-rewrite assoc.
-eapply pathscomp0.
-eapply cancel_postcomposition.
-apply ProductOfArrows_comp.
-rewrite id_left, id_right.
-eapply cancel_postcomposition.
-simpl.
-apply ProductOfArrows_eq; trivial.
-destruct (natlehchoice4 i i h0).
-+
-destruct (isirreflnatlth _ h1).
-+
-apply maponpaths.
-apply maponpaths.
-apply isasetnat.
-}
-*
-{
-destruct (natgehchoice i j h).
--
-destruct (natgehchoice i (S j) h0).
-+
-unfold fun_gt.
-rewrite assoc.
-eapply pathscomp0.
-eapply cancel_postcomposition.
-apply ProductOfArrows_comp.
-rewrite id_right.
-apply cancel_postcomposition.
-apply ProductOfArrows_eq; trivial.
-
-rewrite <- (chain_mor_commutes2 cAB _ _ h1 h2).
-apply idpath.
-+
-destruct h.
-destruct h0.
-unfold fun_gt.
-simpl.
-generalize h1.
-clear h1.
-rewrite p.
-destruct p.
-intros.
-apply cancel_postcomposition.
-apply ProductOfArrows_eq.
-apply idpath.
-simpl.
-destruct (natlehchoice4 j j h1).
-destruct (isirreflnatlth _ h).
-apply maponpaths.
-apply maponpaths.
-apply isasetnat.
-- destruct p.
-destruct (negnatgehnsn _ h0).
-}
-
-(* apply temp. *)
-(* apply ccK. *)
-}
-
 simple refine (let f i j : C
    ⟦ product_functor_ob C C PC (constant_functor C C (pr1 (pr1 cAB i)))
        (functor_identity C) (pr2 (dob cAB j)),
@@ -544,6 +384,7 @@ intro i.
 apply (colimArrowUnique (CCAiB i) K (ccAiB_K i)).
 intros j.
 simpl.
+unfold map_to_K.
 destruct (natlthorgeh i j).
 simpl.
 rewrite <- (p j).
