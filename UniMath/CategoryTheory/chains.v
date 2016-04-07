@@ -121,6 +121,7 @@ Qed.
 
 Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
 
+(* TODO: clean the following proofs *)
 Lemma chain_mor_commutes2 {C : precategory} (c : chain C) i j (Hij : i < j) (HSij : S i < j) :
   dmor c (idpath (S i)) ;; chain_mor c _ _ HSij = chain_mor c _ _ Hij.
 Proof.
@@ -141,6 +142,35 @@ apply maponpaths.
 apply isasetnat.
 destruct p.
 destruct (isirreflnatlth _ HSij).
+Qed.
+
+(* TODO: HSij is redundant? *)
+Lemma chain_mor_commutes3 {C : precategory} (c : chain C) i j (HSij : i < S j) (Hij : i < j) :
+  chain_mor c i (S j) HSij = chain_mor c i j Hij ;; dmor c (idpath (S j)).
+Proof.
+destruct j.
+destruct (negnatlthn0 _ Hij).
+simpl.
+destruct (natlehchoice4 i (S j) HSij).
+destruct (natlehchoice4 i j h).
+destruct (natlehchoice4 i j Hij).
+apply cancel_postcomposition.
+apply cancel_postcomposition.
+apply maponpaths.
+apply isasetbool.
+destruct p.
+destruct (isirreflnatlth _ h0).
+destruct p.
+simpl.
+destruct (natlehchoice4 i i Hij).
+destruct (isirreflnatlth _ h0).
+apply cancel_postcomposition.
+apply maponpaths.
+apply isasetnat.
+generalize Hij.
+rewrite p.
+intros H.
+destruct (isirreflnatlth _ H).
 Qed.
 
 End chains.
