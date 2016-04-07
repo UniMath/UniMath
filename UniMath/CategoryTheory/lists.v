@@ -232,7 +232,7 @@ clear F.
 (* apply Fal. *) (* This doesn't work here. why? *)
 unfold compose in Fal.
 simpl in Fal.
-apply Fal.
+exact Fal.
 Qed. (* This Qed is slow! *)
 
 (* This defines the induction principle for lists using foldr *)

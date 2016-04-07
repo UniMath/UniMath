@@ -111,10 +111,10 @@ Mac OS X, you can install GNU time as ```gtime``` by running ```brew install
 gnu-time```.
 
 Since ```make``` variables can be included in the time command, the following
-example (using GNU time) shows how to display the user time and the name of the
+example (using GNU time ```gtime```) shows how to display the user time and the name of the
 file on the same line.
 ```
-$ time make TIMECMD='\time -f "user time %U: $*"'
+$ time make TIMECMD='gtime -f "user time %U: $*"'
 ```
 The first ```time``` command provides overall time for the whole build.
 
@@ -122,9 +122,15 @@ Timing of execution of individual tactics and vernacular commands can be obtaine
 ```bash
 $ make MOREFLAGS=-time
 ```
-For postprocessing of the (huge) output, direct the output into a file as in
+For postprocessing of the (huge) output, use our utility ```slowest```, like this:
 ```bash
-$ make MOREFLAGS=-time > timing.txt
+$ make MOREFLAGS=-time TIMECMD='util/slowest 10'
+```
+For each Coq file compiled, the timing of the 10 slowest steps will be displayed.
+
+You may time both steps and files like this:
+```bash
+$ make MOREFLAGS=-time TIMECMD='gtime -f "user time %U: $(basename $*)" util/slowest 10'
 ```
 
 To speed up execution on a machine with multiple cores or pseudo-cores, specify
