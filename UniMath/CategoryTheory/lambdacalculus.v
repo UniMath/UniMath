@@ -183,17 +183,17 @@ Focus 2.
 apply (HAiB i).
 }
 
-(* generalize (omega_cocont_constprod_functor2 _ PC hsC hE M _ _ _ HA); intro HAiM. *)
+generalize (omega_cocont_constprod_functor2 _ PC hsC hE M _ _ _ HA); intro HAiM.
 
-(* (* Turn HAiM into a ColimCocone: *) *)
-(* simple refine (let X : ColimCocone (mapdiagram (constprod_functor2 PC M) cA) := _ in _). *)
-(* { *)
-(*   mkpair. *)
-(*   - mkpair. *)
-(*     + apply (ProductObject _ (PC L M)). *)
-(*     + apply (mapcocone (constprod_functor2 PC M) cA (cocone_pr1_functor C C cAB LM ccLM)). *)
-(*   - apply HAiM. *)
-(* } *)
+(* Turn HAiM into a ColimCocone: *)
+simple refine (let X1 : ColimCocone (mapdiagram (constprod_functor2 PC M) cA) := _ in _).
+{
+  mkpair.
+  - mkpair.
+    + apply (ProductObject _ (PC L M)).
+    + apply (mapcocone (constprod_functor2 PC M) cA (cocone_pr1_functor C C cAB LM ccLM)).
+  - apply HAiM.
+}
 
 (* simple refine (let ccAiM_K : cocone (mapdiagram (constprod_functor2 PC M) cA) K := _ in _). *)
 (* { *)
@@ -285,12 +285,42 @@ apply f.
 apply fNat.
 }
 
+Check (dmor (mapdiagram (constprod_functor2 PC M) cA) (idpath 1)).
+
+assert (apa : forall i, @dmor _ _ AiM_chain i _ (idpath _) = @dmor _ _ (mapdiagram (constprod_functor2 PC M) cA) i _ (idpath _)).
+simpl.
+intro i.
+unfold colimOfArrows.
+simpl.
+unfold product_functor_mor.
+simpl.
+apply pathsinv0.
+apply colimArrowUnique.
+simpl.
+intro j.
+unfold colimIn.
+simpl.
+unfold product_functor_mor.
+simpl.
+unfold f.
+simpl.
+eapply pathscomp0.
+apply ProductOfArrows_comp.
+eapply pathsinv0.
+eapply pathscomp0.
+apply ProductOfArrows_comp.
+rewrite !id_left, !id_right.
+apply ProductOfArrows_eq.
+apply idpath.
+apply idpath.
+
+
 (* Sanity check *)
 assert (test : forall i, colim (CCAiB i) = ProductObject _ (PC (dob cA i) M)).
   intro i; simpl.
   apply idpath.
 
-generalize (omega_cocont_constprod_functor2 _ PC hsC hE M _ _ _ HA); intro HAiM.
+(* generalize (omega_cocont_constprod_functor2 _ PC hsC hE M _ _ _ HA); intro HAiM. *)
 Search isColimCocone.
 
 simple refine (let X : ColimCocone AiM_chain := _ in _).
@@ -299,18 +329,69 @@ simple refine (let X : ColimCocone AiM_chain := _ in _).
   - mkpair.
     + apply (ProductObject _ (PC L M)).
     +
+simple refine (let cc1 i : cocone (mapdiagram (constprod_functor1 PC (pr1 (pr1 cAB i))) cB)
+     (ProductObject C (PC L M)) := _ in _).
+{
 simple refine (mk_cocone _ _).
-simpl.
-intros i.
+- simpl; intro j.
+apply (ProductOfArrows _ _ _ (coconeIn (cocone_pr1_functor C C cAB LM ccLM) i)
+                             (coconeIn (cocone_pr2_functor C C cAB LM ccLM) j)).
+- abstract (intros j k e; destruct e;
+  eapply pathscomp0; [apply ProductOfArrows_comp|];
+  rewrite id_left; apply ProductOfArrows_eq; trivial; simpl;
+  rewrite <- (coconeInCommutes ccLM j _ (idpath _)); apply idpath).
+}
+simple refine (mk_cocone _ _).
+
+*      simpl; intros i.
 apply colimArrow.
-simple refine (mk_cocone _ _).
-simpl; intro j.
-unfold product_functor_ob.
+
+
+apply cc1.
+*
+(* simple refine (let X j : cocone (mapdiagram (constprod_functor1 PC (pr1 (pr1 cAB j))) cB) *)
+(*          (ProductObject C (PC L M)) := _ in _). *)
+(* { *)
+(* simple refine (mk_cocone _ _). *)
+(* - simpl; intro k. *)
+(* apply (ProductOfArrows _ _ _ (coconeIn (cocone_pr1_functor C C cAB LM ccLM) j) *)
+(*                              (coconeIn (cocone_pr2_functor C C cAB LM ccLM) k)). *)
+(* - abstract (intros k l e; destruct e; *)
+(*   eapply pathscomp0; [apply ProductOfArrows_comp|]; *)
+(*   rewrite id_left; apply ProductOfArrows_eq; trivial; simpl; *)
+(*   rewrite <- (coconeInCommutes ccLM k _ (idpath _)); apply idpath). *)
+(* } *)
+
+intros j k e; destruct e.
+generalize (precompWithColimOfArrows _ _ (CCAiB j) (CCAiB (S j)) (λ j0 : nat, f j j0) (fNat j) (ProductObject C (PC L M)) (cc1 (S j))).
 simpl.
+intros Y.
+rewrite Y.
+apply maponpaths.
+unfold cc1; simpl.
+apply subtypeEquality.
+intro x.
+apply impred; intro.
+apply impred; intro.
+apply impred; intro.
+apply hsC.
+simpl.
+apply funextsec; intro x.
+unfold f.
+simpl.
+eapply pathscomp0.
+apply ProductOfArrows_comp.
+rewrite id_left.
+apply ProductOfArrows_eq; trivial.
+
+rewrite <- (coconeInCommutes ccLM j _ (idpath _)).
+simpl.
+destruct (dmor cAB (idpath (S j))).
+apply idpath.
+  -
+
+intros x1 c2.
 admit.
-admit.
-admit.
-  - admit.
 }
 
 simple refine (let ccAiM_K : cocone AiM_chain K := _ in _).
@@ -322,27 +403,61 @@ apply (colimArrow (CCAiB i) K (ccAiB_K i)).
 intros i j e.
 destruct e.
 eapply pathscomp0.
-apply  (precompWithColimOfArrows _ _ (CCAiB i) (CCAiB (S i)) (f i) (fNat i) K (ccAiB_K (S i))).
+apply (precompWithColimOfArrows _ _ (CCAiB i) (CCAiB (S i)) (f i) (fNat i) K (ccAiB_K (S i))).
 apply maponpaths.
 apply subtypeEquality.
 admit.
 simpl.
 apply funextsec; intro j.
+unfold f.
+simpl.
+admit.
+}
 
+simple refine (let ccAiM_K1 : cocone (mapdiagram (constprod_functor2 PC M) cA) K := _ in _).
+{
+simple refine (mk_cocone _ _).
+- simpl; intro i.
+apply (colimArrow (CCAiB i) K (ccAiB_K i)).
+- simpl.
+
+intros i j e.
+destruct e.
+generalize (apa i).
+simpl.
+intros H.
+rewrite <- H.
+
+simpl.
+eapply pathscomp0.
+apply (precompWithColimOfArrows _ _ (CCAiB i) (CCAiB (S i)) (f i) (fNat i) K (ccAiB_K (S i))).
+
+eapply (colimArrowUnique (CCAiB i) K (ccAiB_K i)).
+simpl.
+intros j.
+eapply pathscomp0.
+apply (colimArrowCommutes (CCAiB i) K).
+simpl.
+rewrite <- (map_to_K_commutes cAB K ccK i _ _ (idpath _)).
+unfold f.
+simpl.
+unfold map_to_K.
+simpl.
+Search map_to_K.
 admit.
 }
 
 mkpair.
 - mkpair.
-  + apply (colimArrow X K ccAiM_K).
+  + apply (colimArrow X1 K ccAiM_K1).
   + intro i.
-    generalize (colimArrowCommutes X K ccAiM_K i).
-assert (H : coconeIn ccAiM_K i = colimArrow (CCAiB i) K (ccAiB_K i)).
-apply idpath.
-rewrite H.
+    generalize (colimArrowCommutes X1 K ccAiM_K1 i).
+(* assert (H : coconeIn ccAiM_K i = colimArrow (CCAiB i) K (ccAiB_K i)). *)
+(* apply idpath. *)
+(* rewrite H. *)
 intros HH.
-generalize (colimArrowCommutes (CCAiB i) K (ccAiB_K i) i).
-rewrite <- HH.
+(* generalize (colimArrowCommutes (CCAiB i) K (ccAiB_K i) i). *)
+(* rewrite <- HH. *)
 simpl.
 destruct (natlthorgeh i i).
 destruct (isirreflnatlth _ h).
