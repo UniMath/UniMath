@@ -119,7 +119,7 @@ Proof.
   split.
   - unfold ispreorder.
     split.
-    * intros i j k. apply istransnatleh.
+    * intros i j k. refine istransnatleh.
     * intros i. apply isreflnatleh.
   - intros i j r s. apply (invmaponpathsincl _ ( isinclstntonat _ )).
     now apply isantisymmnatleh.

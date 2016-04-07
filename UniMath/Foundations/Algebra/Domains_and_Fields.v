@@ -453,12 +453,12 @@ Opaque isrngfunweqfldfracgt_f .
 Definition fldfracgt ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R ) ( is2 : R 1 0 ) ( nc : neqchoice R ) : hrel ( fldfrac X is ) := fun a b => commrngfracgt X ( rngpossubmonoid X is1 is2 ) is0 is1 ( fun c r => r )  ( weqfldfracgt_f X is is0 is1 is2 nc a ) ( weqfldfracgt_f X is is0 is1 is2 nc b ) .
 
 Lemma isrngmultfldfracgt ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R ) ( is2 : R 1 0 ) ( nc : neqchoice R ) ( ir : isirrefl R ) : isrngmultgt ( fldfrac X is ) ( fldfracgt X is is0 is1 is2 nc ) .
-Proof . intros . apply ( rngmultgtandfun ( rngfunconstr  ( isrngfunweqfldfracgt_f X is is0 is1 is2 nc ir ) ) ) .  apply isrngmultcommrngfracgt . Defined .
+Proof . intros . refine ( rngmultgtandfun ( rngfunconstr  ( isrngfunweqfldfracgt_f X is is0 is1 is2 nc ir ) ) _ _ ) .  apply isrngmultcommrngfracgt . Defined .
 
 Opaque isrngmultfldfracgt .
 
 Lemma isrngaddfldfracgt ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R ) ( is2 : R 1 0 ) ( nc : neqchoice R ) ( ir : isirrefl R ) : @isbinophrel ( rngaddabgr ( fldfrac X is ) ) ( fldfracgt X is is0 is1 is2 nc ) .
-Proof . intros . apply ( rngaddhrelandfun ( rngfunconstr  ( isrngfunweqfldfracgt_f X is is0 is1 is2 nc ir ) ) ) .  apply isrngaddcommrngfracgt . Defined .
+Proof . intros . refine ( rngaddhrelandfun ( rngfunconstr  ( isrngfunweqfldfracgt_f X is is0 is1 is2 nc ir ) ) _ _ ) .  apply isrngaddcommrngfracgt . Defined .
 
 Opaque isrngaddfldfracgt .
 
