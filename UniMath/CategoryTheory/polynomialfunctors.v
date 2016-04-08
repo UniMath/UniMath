@@ -203,7 +203,7 @@ mkpair.
   apply subtypeEquality; simpl.
   + intro x; apply impred; intro.
     apply isaset_dirprod; [ apply hsC | apply hsD ].
-  + destruct t as [[f1 f2] ?]; simpl in *.
+  + destruct t as [[f1 f2] p]; simpl in *.
     apply pathsdirprod.
     * apply (maponpaths pr1 (hf2 (f1,, (λ n, maponpaths pr1 (p n))))).
     * apply (maponpaths pr1 (hg2 (f2,, (λ n, maponpaths dirprod_pr2 (p n))))).

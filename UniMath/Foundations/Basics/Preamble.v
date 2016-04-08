@@ -126,25 +126,27 @@ if we used "Record", has a known interpretation in the framework of the univalen
 (* two alternatives: *)
 (* total2 as a record with primitive projections: *)
 
-    Set Primitive Projections.
+    (* Set Primitive Projections. *)
 
-    Set Nonrecursive Elimination Schemes.
+    (* Set Nonrecursive Elimination Schemes. *)
 
-    Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }.
+    (* Record total2 { T: Type } ( P: T -> Type ) := tpair { pr1 : T; pr2 : P pr1 }. *)
 
 (* or total2 as an inductive type:  *)
 
-    (* Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . *)
+    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P .
 
-    (* Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T . *)
-    (* Proof . intros .  induction t as [ t p ] . exact t . Defined. *)
+    Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T .
+    Proof . intros .  induction t as [ t p ] . exact t . Defined.
 
-    (* Definition pr2 { T : Type } { P : T -> Type } ( t : total2 P ) : P ( pr1 t ) . *)
-    (* Proof . intros .  induction t as [ t p ] . exact p . Defined. *)
+    Definition pr2 { T : Type } { P : T -> Type } ( t : total2 P ) : P ( pr1 t ) .
+    Proof . intros .  induction t as [ t p ] . exact p . Defined.
 
 (* end of two alternatives *)
 
-Arguments tpair {T} _ _ _.
+    Print total2.               (* log which definition of total2 is currently in use *)
+
+Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.
 Arguments pr2 {_ _} _.
 

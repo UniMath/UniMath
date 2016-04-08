@@ -107,13 +107,14 @@ simple refine (tpair _ _ _).
     [ rewrite id_left; induction n; [apply idpath|];
       now rewrite <- IHn, <- (hf n _ (idpath _)), assoc,
                   CoproductOfArrowsIn1, id_left
-    | rewrite <- (hf n _ (idpath _)); destruct ccL; destruct t; simpl in *;
+    | rewrite <- (hf n _ (idpath _)); destruct ccL as [t p]; destruct t as [t p0]; simpl in *;
       rewrite p0; apply maponpaths, hf]).
 - abstract (
   destruct cc as [f hf]; simpl in *; unfold coproduct_functor_ob in *;
   intro t; apply subtypeEquality; simpl;
   [ intro g; apply impred; intro; apply hsC
-  | destruct t; destruct ccL; unfold coproduct_functor_mor in *; destruct t0; simpl;
+  | destruct t as [t p]; destruct ccL as [t0 p0]; destruct t0 as [t0 p1];
+    unfold coproduct_functor_mor in *;
     apply CoproductArrowUnique;
     [ now rewrite <- (p 0), assoc, CoproductOfArrowsIn1, id_left
     | simple refine (let temp : Σ x0 : C ⟦ c, HcL ⟧, ∀ v : nat,
@@ -173,7 +174,9 @@ Opaque List_alg.
 Definition nil_map : HSET⟦unitHSET,List⟧.
 Proof.
 simpl; intro x.
-apply List_mor, inl, x.
+refine (List_mor _).
+apply inl.
+exact x.
 Defined.
 
 Definition nil : pr1 List := nil_map tt.
@@ -181,7 +184,8 @@ Definition nil : pr1 List := nil_map tt.
 Definition cons_map : HSET⟦(A × List)%set,List⟧.
 Proof.
 intros xs.
-apply List_mor, (inr xs).
+refine (List_mor _).
+exact (inr xs).
 Defined.
 
 Definition cons : pr1 A × pr1 List -> pr1 List := cons_map.
@@ -220,6 +224,9 @@ assert (F := maponpaths (fun x => CoproductIn1 _ _ ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
+
+Set Printing All.
+Print foldr_nil.
 
 Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
                  (a : pr1 A) (l : pr1 List) :
