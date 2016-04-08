@@ -91,20 +91,20 @@ Variables (hsC : has_homsets C) (hsD : has_homsets D).
 (* Maybe generalize these to arbitrary diagrams? *)
 Lemma cocone_pr1_functor (cAB : chain (product_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) :
-  cocone (mapchain (pr1_functor A B)cAB) (pr1 ab).
+  cocone (mapchain (pr1_functor A B)cAB) (ob1 ab).
 Proof.
 simple refine (mk_cocone _ _).
-- simpl; intro n; apply (pr1 (coconeIn ccab n)).
+- simpl; intro n; apply (mor1 (coconeIn ccab n)).
 - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
 Defined.
 
 Lemma isColimCocone_pr1_functor (cAB : chain (product_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) (Hccab : isColimCocone cAB ab ccab) :
-   isColimCocone (mapchain (pr1_functor A B) cAB) (pr1 ab)
+   isColimCocone (mapchain (pr1_functor A B) cAB) (ob1 ab)
      (cocone_pr1_functor cAB ab ccab).
 Proof.
 intros x ccx.
-simple refine (let HHH : cocone cAB (x,, pr2 ab) := _ in _).
+simple refine (let HHH : cocone cAB (x,, ob2 ab) := _ in _).
 { simple refine (mk_cocone _ _).
   - simpl; intro n; split;
       [ apply (pr1 ccx n) | apply (# (pr2_functor A B) (pr1 ccab n)) ].
@@ -315,26 +315,26 @@ Variables (hE : has_exponentials PC).
 
 Definition fun_lt (cAB : chain (product_precategory C C)) :
   forall i j, i < j ->
-              C ⟦ ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB j))),
-                  ProductObject C (PC (pr1 (pr1 cAB j)) (pr2 (dob cAB j))) ⟧.
+              C ⟦ ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
+                  ProductObject C (PC (ob1 (dob cAB j)) (ob2 (dob cAB j))) ⟧.
 Proof.
 intros i j hij.
-apply (ProductOfArrows _ _ _ (pr1 (chain_mor cAB _ _ hij)) (identity _)).
+apply (ProductOfArrows _ _ _ (mor1 (chain_mor cAB _ _ hij)) (identity _)).
 Defined.
 
 Definition fun_gt (cAB : chain (product_precategory C C)) :
   forall i j, i > j ->
-              C ⟦ ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB j))),
-                  ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB i))) ⟧.
+              C ⟦ ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
+                  ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB i))) ⟧.
 Proof.
 intros i j hij.
-apply (ProductOfArrows _ _ _ (identity _) (pr2 (chain_mor cAB _ _ hij))).
+apply (ProductOfArrows _ _ _ (identity _) (mor2 (chain_mor cAB _ _ hij))).
 Defined.
 
 (* The map to K from the "grid" *)
 Definition map_to_K (cAB : chain (product_precategory C C)) (K : C)
   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) i j :
-  C⟦ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB j))), K⟧.
+  C⟦ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))), K⟧.
 Proof.
 destruct (natlthorgeh i j).
 - apply (fun_lt cAB _ _ h ;; coconeIn ccK j).
@@ -348,7 +348,7 @@ Lemma map_to_K_commutes (cAB : chain (product_precategory C C)) (K : C)
   i j k (e : edge j k) :
    product_functor_mor C C PC (constant_functor C C (pr1 (pr1 cAB i)))
      (functor_identity C) (pr2 (dob cAB j)) (pr2 (dob cAB k))
-     (pr2 (dmor cAB e)) ;; map_to_K cAB K ccK i k =
+     (mor2 (dmor cAB e)) ;; map_to_K cAB K ccK i k =
    map_to_K cAB K ccK i j.
 Proof.
 destruct e; simpl.
@@ -414,7 +414,9 @@ simple refine (mk_cocone _ _).
 + simpl; intros j k e; apply map_to_K_commutes.
 Defined.
 
+
 Section omega_cocont_binproduct.
+
 Variable cAB : chain (product_precategory C C).
 Variable LM : C × C.
 Variable ccLM : cocone cAB LM.
@@ -445,9 +447,9 @@ Let ccAiB_K := fun i => ccAiB_K _ _ ccK i.
 
 (* The f which is using in colimOfArrows *)
 Local Definition f i j : C
-   ⟦ product_functor_ob C C PC (constant_functor C C (pr1 (pr1 cAB i)))
+   ⟦ product_functor_ob C C PC (constant_functor C C (pr1 (dob cAB i)))
        (functor_identity C) (pr2 (dob cAB j)),
-   product_functor_ob C C PC (constant_functor C C (pr1 (pr1 cAB (S i))))
+   product_functor_ob C C PC (constant_functor C C (pr1 (dob cAB (S i))))
      (functor_identity C) (pr2 (dob cAB j)) ⟧.
 Proof.
   apply ProductOfArrows; [apply (dmor cAB (idpath _)) | apply identity ].
