@@ -98,50 +98,33 @@ induction j.
 Defined.
 
 Lemma chain_mor_commutes {C : precategory} (c : chain C) (x : C)
-  (cc : cocone c x) i j (Hij : i < j) :
+  (cc : cocone c x) i : forall j (Hij : i < j),
   chain_mor c i j Hij ;; coconeIn cc j = coconeIn cc i.
 Proof.
-generalize j Hij; clear j Hij.
 induction j.
 - intros Hi0.
   destruct (negnatlthn0 0 Hi0).
--
-intros Hij.
-simpl.
-destruct (natlehchoice4 i j Hij).
-
-rewrite <- (IHj h).
-rewrite <- assoc.
-apply maponpaths.
-apply coconeInCommutes.
-destruct p.
-simpl.
-apply coconeInCommutes.
+- intros Hij; simpl.
+  destruct (natlehchoice4 i j Hij).
+  + rewrite <- (IHj h), <- assoc.
+    apply maponpaths, coconeInCommutes.
+  + destruct p.
+    apply coconeInCommutes.
 Qed.
 
-Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
-
-(* TODO: clean the following proofs *)
 Lemma chain_mor_commutes2 {C : precategory} (c : chain C) i j (Hij : i < j) (HSij : S i < j) :
   dmor c (idpath (S i)) ;; chain_mor c _ _ HSij = chain_mor c _ _ Hij.
 Proof.
 induction j.
-destruct (negnatlthn0 _ Hij).
-simpl.
-destruct (natlehchoice4 i j Hij).
-destruct (natlehchoice4 (S i) j HSij).
-rewrite <- (IHj h h0).
-rewrite assoc.
-apply idpath.
-destruct p.
-simpl.
-destruct (natlehchoice4 i i h).
-destruct (isirreflnatlth _ h0).
-apply cancel_postcomposition.
-apply maponpaths.
-apply isasetnat.
-destruct p.
-destruct (isirreflnatlth _ HSij).
+- destruct (negnatlthn0 _ Hij).
+- simpl.
+  destruct (natlehchoice4 i j Hij).
+  + destruct (natlehchoice4 (S i) j HSij).
+    * now rewrite <- (IHj h h0), assoc.
+    * destruct p; simpl.
+      destruct (natlehchoice4 i i h); [destruct (isirreflnatlth _ h0)|].
+      apply cancel_postcomposition, maponpaths, isasetnat.
+  + destruct p, (isirreflnatlth _ HSij).
 Qed.
 
 (* TODO: HSij is redundant? *)
@@ -149,28 +132,16 @@ Lemma chain_mor_commutes3 {C : precategory} (c : chain C) i j (HSij : i < S j) (
   chain_mor c i (S j) HSij = chain_mor c i j Hij ;; dmor c (idpath (S j)).
 Proof.
 destruct j.
-destruct (negnatlthn0 _ Hij).
-simpl.
-destruct (natlehchoice4 i (S j) HSij).
-destruct (natlehchoice4 i j h).
-destruct (natlehchoice4 i j Hij).
-apply cancel_postcomposition.
-apply cancel_postcomposition.
-apply maponpaths.
-apply isasetbool.
-destruct p.
-destruct (isirreflnatlth _ h0).
-destruct p.
-simpl.
-destruct (natlehchoice4 i i Hij).
-destruct (isirreflnatlth _ h0).
-apply cancel_postcomposition.
-apply maponpaths.
-apply isasetnat.
-generalize Hij.
-rewrite p.
-intros H.
-destruct (isirreflnatlth _ H).
+- destruct (negnatlthn0 _ Hij).
+- simpl; destruct (natlehchoice4 i (S j) HSij).
+  + destruct (natlehchoice4 i j h).
+    * destruct (natlehchoice4 i j Hij); [|destruct p, (isirreflnatlth _ h0)].
+      apply cancel_postcomposition, cancel_postcomposition, maponpaths, isasetbool.
+    * destruct p; simpl.
+      destruct (natlehchoice4 i i Hij); [destruct (isirreflnatlth _ h0)|].
+      apply cancel_postcomposition, maponpaths, isasetnat.
+  + generalize Hij; rewrite p; intros H.
+    destruct (isirreflnatlth _ H).
 Qed.
 
 End chains.
