@@ -52,6 +52,7 @@ intros i j hij.
 apply (ProductOfArrows _ _ _ (identity _) (pr2 (chain_mor cAB _ _ hij))).
 Defined.
 
+(* The map to K from the "grid" *)
 Definition map_to_K (cAB : chain (product_precategory C C)) (K : C)
   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) i j :
   C⟦ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB j))), K⟧.
@@ -123,7 +124,7 @@ destruct (natlthorgeh i j) as [h|h].
     + destruct h1; destruct (negnatgehnsn _ h0).
 Qed.
 
-(* Lemma to construct ccAiB_K *)
+(* The cocone over K from the A_i * B chain *)
 Lemma ccAiB_K (cAB : chain (product_precategory C C)) (K : C)
   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) i :
   cocone (mapchain (constprod_functor1 PC (pr1 (pr1 cAB i)))
@@ -157,6 +158,7 @@ set (HAiM :=
 
 set (ccAiB_K := fun i => ccAiB_K _ _ ccK i).
 
+(* The f which is using in colimOfArrows *)
 simple refine (let f i j : C
    ⟦ product_functor_ob C C PC (constant_functor C C (pr1 (pr1 cAB i)))
        (functor_identity C) (pr2 (dob cAB j)),
@@ -173,6 +175,7 @@ assert (fNat : ∀ i u v (e : edge u v),
   now rewrite !id_left, !id_right.
 }
 
+(* Define the chain A_i * M *)
 simple refine (let AiM_chain : chain C := _ in _).
 { mkpair.
   - intro i; apply (colim (CCAiB i)).
@@ -192,6 +195,7 @@ assert (AiM_chain_eq : forall i, dmor AiM_chain (idpath (S i)) =
   now rewrite !id_left, !id_right.
 }
 
+(* Define a cocone over K from the A_i * M chain *)
 assert (ccAiM_K_subproof : ∀ u v (e : edge u v),
    dmor (mapdiagram (constprod_functor2 PC M) cA) e ;;
    colimArrow (CCAiB v) K (ccAiB_K v) = colimArrow (CCAiB u) K (ccAiB_K u)).
@@ -387,7 +391,8 @@ apply omega_cocont_sum_of_functors.
   apply functor_category_has_homsets.
   apply omega_cocont_binproduct_functor.
   apply functor_category_has_homsets.
+  admit.
 apply omega_cocont_pre_composition_functor.
-Defined.
+Admitted.
 
 End lambdacalculus.
