@@ -166,227 +166,111 @@ set (cB := mapchain (pr2_functor C C) cAB).
 intros HA HB.
 
 (* Form the colimiting cocones of "A_i * B_0 -> A_i * B_1 -> ..." *)
-simple refine (let HAiB : forall i, isColimCocone _ _ (mapcocone (constprod_functor1 PC (pr1 (pr1 cAB i)))
-                                                      _ (cocone_pr2_functor C C _ LM ccLM)) := _ in _).
-{ intro i.
-  apply (omega_cocont_constprod_functor1 _ PC hsC hE (pr1 (pr1 cAB i)) _ _ _ HB).
-}
-fold cB in HAiB; fold M in HAiB; simpl in HAiB.
+set (HAiB :=
+  fun i => omega_cocont_constprod_functor1 _ PC hsC hE (pr1 (pr1 cAB i)) _ _ _ HB).
 
 (* Turn HAiB into a ColimCocone: *)
-simple refine (let CCAiB : forall i, ColimCocone (mapdiagram (constprod_functor1 PC (pr1 (pr1 cAB i))) cB) := _ in _).
-{ intro i.
-mkpair.
-mkpair.
-apply (((constprod_functor1 PC (pr1 (pr1 cAB i))) M)).
-Focus 2.
-apply (HAiB i).
-}
+set (CCAiB := fun i => mk_ColimCocone _ _ _ (HAiB i)).
 
-generalize (omega_cocont_constprod_functor2 _ PC hsC hE M _ _ _ HA); intro HAiM.
+(* Define the HAiM ColimCocone: *)
+set (HAiM :=
+  mk_ColimCocone _ _ _ (omega_cocont_constprod_functor2 _ PC hsC hE M _ _ _ HA)).
 
-(* Turn HAiM into a ColimCocone: *)
-simple refine (let X : ColimCocone (mapdiagram (constprod_functor2 PC M) cA) := _ in _).
-{
-  mkpair.
-  - mkpair.
-    + apply (ProductObject _ (PC L M)).
-    + apply (mapcocone (constprod_functor2 PC M) cA (cocone_pr1_functor C C cAB LM ccLM)).
-  - apply HAiM.
-}
+set (ccAiB_K := fun i => ccAiB_K _ _ ccK i).
 
-simple refine (let ccAiB_K : forall i, cocone (mapchain (constprod_functor1 PC (pr1 (pr1 cAB i))) cB) K := _ in _).
-{ simpl; intro i.
-apply ccAiB_K.
-assumption.
-}
 simple refine (let f i j : C
    ⟦ product_functor_ob C C PC (constant_functor C C (pr1 (pr1 cAB i)))
        (functor_identity C) (pr2 (dob cAB j)),
    product_functor_ob C C PC (constant_functor C C (pr1 (pr1 cAB (S i))))
      (functor_identity C) (pr2 (dob cAB j)) ⟧ := _ in _).
-{
-eapply (ProductOfArrows).
-apply (dmor cAB (idpath _)).
-apply identity.
-}
+{ apply ProductOfArrows; [apply (dmor cAB (idpath _)) | apply identity ]. }
 
-assert (fNat : ∀ i (u v : vertex nat_graph) (e : edge u v),
-   dmor (mapdiagram (constprod_functor1 PC (pr1 (pr1 cAB i))) cB) e ;;
-   (λ j : vertex nat_graph, f i j) v =
-   (λ j : vertex nat_graph, f i j) u ;; dmor
-                                          (mapdiagram
-                                             (constprod_functor1 PC
-                                                (pr1 (pr1 cAB (S i)))) cB)
-                                          e).
-{
-intros i j k e; destruct e; simpl.
-unfold product_functor_mor.
-simpl.
-eapply pathscomp0.
-apply ProductOfArrows_comp.
-eapply pathscomp0.
-Focus 2.
-eapply pathsinv0.
-apply ProductOfArrows_comp.
-rewrite !id_left, !id_right.
-apply idpath.
+assert (fNat : ∀ i u v (e : edge u v),
+   dmor (mapdiagram (constprod_functor1 PC _) cB) e ;; f i v =
+   f i u ;; dmor (mapdiagram (constprod_functor1 PC _) cB) e).
+{ intros i j k e; destruct e; simpl.
+  eapply pathscomp0; [apply ProductOfArrows_comp|].
+  eapply pathscomp0; [|eapply pathsinv0; apply ProductOfArrows_comp].
+  now rewrite !id_left, !id_right.
 }
 
 simple refine (let AiM_chain : chain C := _ in _).
-{
-mkpair.
-- simpl; intro i.
-  apply (colim (CCAiB i)).
-  (* apply (ProductObject _ (PC (dob cA i) M)). *)
-- intros i j e; destruct e.
-simple refine (colimOfArrows _ _ _ _).
-intros j.
-apply f.
-apply fNat.
+{ mkpair.
+  - intro i; apply (colim (CCAiB i)).
+  - intros i j e; destruct e.
+    apply (colimOfArrows (CCAiB i) (CCAiB (S i)) (f i) (fNat i)).
 }
 
-Check (dmor (mapdiagram (constprod_functor2 PC M) cA) (idpath 1)).
-
-assert (apa : forall i, @dmor _ _ AiM_chain i _ (idpath _) = @dmor _ _ (mapdiagram (constprod_functor2 PC M) cA) i _ (idpath _)).
-simpl.
-intro i.
-unfold colimOfArrows.
-simpl.
-unfold product_functor_mor.
-simpl.
-apply pathsinv0.
-apply colimArrowUnique.
-simpl.
-intro j.
-unfold colimIn.
-simpl.
-unfold product_functor_mor.
-simpl.
-unfold f.
-simpl.
-eapply pathscomp0.
-apply ProductOfArrows_comp.
-eapply pathsinv0.
-eapply pathscomp0.
-apply ProductOfArrows_comp.
-rewrite !id_left, !id_right.
-apply ProductOfArrows_eq.
-apply idpath.
-apply idpath.
-
-simple refine (let ccAiM_K : cocone (mapdiagram (constprod_functor2 PC M) cA) K := _ in _).
-{
-simple refine (mk_cocone _ _).
-- simpl; intro i.
-apply (colimArrow (CCAiB i) K (ccAiB_K i)).
-- simpl.
-
-intros i j e.
-destruct e.
-generalize (apa i).
-simpl.
-intros H.
-rewrite <- H.
-
-simpl.
-eapply pathscomp0.
-apply (precompWithColimOfArrows _ _ (CCAiB i) (CCAiB (S i)) (f i) (fNat i) K (ccAiB_K (S i))).
-
-eapply (colimArrowUnique (CCAiB i) K (ccAiB_K i)).
-simpl.
-intros j.
-eapply pathscomp0.
-apply (colimArrowCommutes (CCAiB i) K).
-simpl.
-unfold map_to_K.
-destruct (natlthorgeh (S i) j).
-destruct (natlthorgeh i j).
-rewrite assoc.
-apply cancel_postcomposition.
-unfold f, fun_lt.
-simpl.
-eapply pathscomp0.
-apply ProductOfArrows_comp.
-rewrite id_right.
-apply ProductOfArrows_eq; trivial.
-rewrite <- (chain_mor_commutes2 _ i j h0 h).
-apply idpath.
-destruct (isasymmnatgth _ _ h h0).
-destruct ( natgehchoice (S i) j h).
-destruct h.
-destruct (natlthorgeh i j).
-
-
-    destruct (natlthchoice2 _ _ h) as [h2|h2].
-      { destruct (isirreflnatlth _ (istransnatlth _ _ _ h0 h2)). }
-      { destruct h2; destruct (isirreflnatlth _ h0). }
-
-
-
-destruct (natgehchoice i j h).
-destruct h.
-rewrite <- (coconeInCommutes ccK i _ (idpath _)).
-simpl.
-rewrite !assoc.
-apply cancel_postcomposition.
-unfold f, fun_gt.
-rewrite ProductOfArrows_comp.
-eapply pathscomp0.
-apply ProductOfArrows_comp.
-rewrite !id_left, !id_right.
-apply ProductOfArrows_eq; trivial.
-Search (_ < _).
-
-
-rewrite (@chain_mor_commutes3 _ cAB _ _ h0 h1).
-apply idpath.
-
-
-destruct p.
-simpl.
-
-rewrite <- (coconeInCommutes ccK i _ (idpath _)), assoc.
-simpl.
-apply cancel_postcomposition.
-unfold f, fun_gt.
-simpl.
-eapply pathscomp0.
-apply ProductOfArrows_comp.
-rewrite id_left, id_right.
-apply ProductOfArrows_eq; trivial.
-
-destruct (natlehchoice4 i i h0).
-destruct (isirreflnatlth _ h1).
-apply maponpaths, maponpaths.
-apply isasetnat.
-
-(* ok below *)
-
-destruct p.
-destruct h.
-destruct (natlthorgeh i (S i)).
-apply cancel_postcomposition.
-unfold f, fun_lt.
-apply ProductOfArrows_eq; trivial.
-simpl.
-destruct (natlehchoice4 i i h).
-destruct (isirreflnatlth _ h0).
-assert (HHH : idpath (S i) = maponpaths S p).
-  apply isasetnat.
-rewrite HHH.
-apply idpath.
-destruct (negnatgehnsn _ h).
+assert (AiM_chain_eq : forall i, dmor AiM_chain (idpath (S i)) =
+                       dmor (mapdiagram (constprod_functor2 PC M) cA) (idpath _)).
+{ intro i; simpl; unfold colimOfArrows, product_functor_mor; simpl.
+  apply pathsinv0, colimArrowUnique.
+  simpl; intro j.
+  unfold colimIn; simpl; unfold product_functor_mor, f; simpl.
+  eapply pathscomp0; [apply ProductOfArrows_comp|].
+  apply pathsinv0.
+  eapply pathscomp0; [apply ProductOfArrows_comp|].
+  now rewrite !id_left, !id_right.
 }
 
+assert (ccAiM_K_subproof : ∀ u v (e : edge u v),
+   dmor (mapdiagram (constprod_functor2 PC M) cA) e ;;
+   colimArrow (CCAiB v) K (ccAiB_K v) = colimArrow (CCAiB u) K (ccAiB_K u)).
+{ intros i j e; destruct e; simpl.
+  generalize (AiM_chain_eq i); simpl; intro H; rewrite <- H; clear H; simpl.
+  eapply pathscomp0.
+  apply (precompWithColimOfArrows _ _ (CCAiB i) (CCAiB (S i)) _ _ K (ccAiB_K (S i))).
+  apply (colimArrowUnique (CCAiB i) K (ccAiB_K i)).
+  simpl; intros j.
+  eapply pathscomp0; [apply (colimArrowCommutes (CCAiB i) K)|]; simpl.
+  unfold map_to_K.
+  destruct (natlthorgeh (S i) j).
+  + destruct (natlthorgeh i j).
+    * rewrite assoc; apply cancel_postcomposition.
+      unfold f, fun_lt; simpl.
+      eapply pathscomp0; [apply ProductOfArrows_comp|].
+      now rewrite id_right, <- (chain_mor_commutes2 _ i j h0 h).
+    * destruct (isasymmnatgth _ _ h h0).
+  + destruct (natgehchoice (S i) j h).
+    * destruct h.
+      { destruct (natlthorgeh i j).
+        - destruct (natlthchoice2 _ _ h) as [h2|h2].
+          + destruct (isirreflnatlth _ (istransnatlth _ _ _ h0 h2)).
+          + destruct h2; destruct (isirreflnatlth _ h0).
+        - destruct (natgehchoice i j h).
+          + destruct h.
+            rewrite <- (coconeInCommutes ccK i _ (idpath _)); simpl.
+            rewrite !assoc; apply cancel_postcomposition.
+            unfold f, fun_gt.
+            rewrite ProductOfArrows_comp.
+            eapply pathscomp0; [apply ProductOfArrows_comp|].
+            now rewrite !id_left, !id_right, (chain_mor_commutes3 cAB _ _ h0 h1).
+          + destruct p.
+            rewrite <- (coconeInCommutes ccK i _ (idpath _)), assoc.
+            apply cancel_postcomposition.
+            unfold f, fun_gt.
+            eapply pathscomp0; [apply ProductOfArrows_comp|].
+            rewrite id_left, id_right.
+            apply ProductOfArrows_eq; trivial; simpl.
+            destruct (natlehchoice4 i i h0); [destruct (isirreflnatlth _ h1)|].
+            apply maponpaths, maponpaths, isasetnat.
+       }
+    * destruct p, h.
+      destruct (natlthorgeh i (S i)); [|destruct (negnatgehnsn _ h)].
+      apply cancel_postcomposition; unfold f, fun_lt.
+      apply ProductOfArrows_eq; trivial; simpl.
+      destruct (natlehchoice4 i i h); [destruct (isirreflnatlth _ h0)|].
+      assert (H : idpath (S i) = maponpaths S p). apply isasetnat.
+      now rewrite H.
+}
 
-
+set (ccAiM_K := mk_cocone _ ccAiM_K_subproof).
 
 mkpair.
 - mkpair.
-  + apply (colimArrow X K ccAiM_K).
+  + apply (colimArrow HAiM K ccAiM_K).
   + intro i.
-    generalize (colimArrowCommutes X K ccAiM_K i).
+    generalize (colimArrowCommutes HAiM K ccAiM_K i).
 assert (H : coconeIn ccAiM_K i = colimArrow (CCAiB i) K (ccAiB_K i)).
 apply idpath.
 rewrite H.
@@ -426,7 +310,7 @@ apply impred; intros.
 apply hsC.
 +
 simpl.
-apply (colimArrowUnique X K ccAiM_K).
+apply (colimArrowUnique HAiM K ccAiM_K).
 destruct t.
 simpl.
 intro i.
