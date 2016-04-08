@@ -1,3 +1,11 @@
+(**
+
+     Anders Mörtberg, 2015-2016
+
+*)
+
+
+
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -83,20 +91,20 @@ Variables (hsC : has_homsets C) (hsD : has_homsets D).
 (* Maybe generalize these to arbitrary diagrams? *)
 Lemma cocone_pr1_functor (cAB : chain (product_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) :
-  cocone (mapchain (pr1_functor A B)cAB) (pr1 ab).
+  cocone (mapchain (pr1_functor A B)cAB) (ob1 ab).
 Proof.
 simple refine (mk_cocone _ _).
-- simpl; intro n; apply (pr1 (coconeIn ccab n)).
+- simpl; intro n; apply (mor1 (coconeIn ccab n)).
 - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
 Defined.
 
 Lemma isColimCocone_pr1_functor (cAB : chain (product_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) (Hccab : isColimCocone cAB ab ccab) :
-   isColimCocone (mapchain (pr1_functor A B) cAB) (pr1 ab)
+   isColimCocone (mapchain (pr1_functor A B) cAB) (ob1 ab)
      (cocone_pr1_functor cAB ab ccab).
 Proof.
 intros x ccx.
-simple refine (let HHH : cocone cAB (x,, pr2 ab) := _ in _).
+simple refine (let HHH : cocone cAB (x,, ob2 ab) := _ in _).
 { simple refine (mk_cocone _ _).
   - simpl; intro n; split;
       [ apply (pr1 ccx n) | apply (# (pr2_functor A B) (pr1 ccab n)) ].
@@ -307,26 +315,26 @@ Variables (hE : has_exponentials PC).
 
 Definition fun_lt (cAB : chain (product_precategory C C)) :
   forall i j, i < j ->
-              C ⟦ ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB j))),
-                  ProductObject C (PC (pr1 (pr1 cAB j)) (pr2 (dob cAB j))) ⟧.
+              C ⟦ ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
+                  ProductObject C (PC (ob1 (dob cAB j)) (ob2 (dob cAB j))) ⟧.
 Proof.
 intros i j hij.
-apply (ProductOfArrows _ _ _ (pr1 (chain_mor cAB _ _ hij)) (identity _)).
+apply (ProductOfArrows _ _ _ (mor1 (chain_mor cAB _ _ hij)) (identity _)).
 Defined.
 
 Definition fun_gt (cAB : chain (product_precategory C C)) :
   forall i j, i > j ->
-              C ⟦ ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB j))),
-                  ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB i))) ⟧.
+              C ⟦ ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
+                  ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB i))) ⟧.
 Proof.
 intros i j hij.
-apply (ProductOfArrows _ _ _ (identity _) (pr2 (chain_mor cAB _ _ hij))).
+apply (ProductOfArrows _ _ _ (identity _) (mor2 (chain_mor cAB _ _ hij))).
 Defined.
 
 (* The map to K from the "grid" *)
 Definition map_to_K (cAB : chain (product_precategory C C)) (K : C)
   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) i j :
-  C⟦ProductObject C (PC (pr1 (pr1 cAB i)) (pr2 (dob cAB j))), K⟧.
+  C⟦ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))), K⟧.
 Proof.
 destruct (natlthorgeh i j).
 - apply (fun_lt cAB _ _ h ;; coconeIn ccK j).
@@ -340,7 +348,7 @@ Lemma map_to_K_commutes (cAB : chain (product_precategory C C)) (K : C)
   i j k (e : edge j k) :
    product_functor_mor C C PC (constant_functor C C (pr1 (pr1 cAB i)))
      (functor_identity C) (pr2 (dob cAB j)) (pr2 (dob cAB k))
-     (pr2 (dmor cAB e)) ;; map_to_K cAB K ccK i k =
+     (mor2 (dmor cAB e)) ;; map_to_K cAB K ccK i k =
    map_to_K cAB K ccK i j.
 Proof.
 destruct e; simpl.
@@ -406,57 +414,70 @@ simple refine (mk_cocone _ _).
 + simpl; intros j k e; apply map_to_K_commutes.
 Defined.
 
-Lemma omega_cocont_binproduct_functor : omega_cocont (binproduct_functor PC).
-Proof.
-intros cAB LM ccLM HccLM K ccK; simpl in *.
-generalize (isColimCocone_pr2_functor _ _ hsC _ _ _ HccLM).
-generalize (isColimCocone_pr1_functor _ _ hsC _ _ _ HccLM).
-set (L := pr1 LM); set (M := pr2 LM).
-set (cA := mapchain (pr1_functor C C) cAB).
-set (cB := mapchain (pr2_functor C C) cAB).
-intros HA HB.
+
+Section omega_cocont_binproduct.
+
+Variable cAB : chain (product_precategory C C).
+Variable LM : C × C.
+Variable ccLM : cocone cAB LM.
+Variable HccLM : isColimCocone cAB LM ccLM.
+Variable K : C.
+Variable ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K.
+Let L := pr1 LM : C.
+Let M := pr2 LM : (λ _ : C, C) (pr1 LM).
+Let cA := mapchain (pr1_functor C C) cAB : chain C.
+Let cB := mapchain (pr2_functor C C) cAB : chain C.
+Let HA := isColimCocone_pr1_functor _ _ hsC _ _ _ HccLM
+  : isColimCocone cA L (cocone_pr1_functor C C cAB LM ccLM).
+Let HB := isColimCocone_pr2_functor _ _ hsC _ _ _ HccLM
+  : isColimCocone cB M (cocone_pr2_functor C C cAB LM ccLM).
 
 (* Form the colimiting cocones of "A_i * B_0 -> A_i * B_1 -> ..." *)
-set (HAiB :=
-  fun i => omega_cocont_constprod_functor1 _ PC hsC hE (pr1 (pr1 cAB i)) _ _ _ HB).
+Let HAiB :=
+  fun i => omega_cocont_constprod_functor1 _ PC hsC hE (pr1 (pr1 cAB i)) _ _ _ HB.
 
 (* Turn HAiB into a ColimCocone: *)
-set (CCAiB := fun i => mk_ColimCocone _ _ _ (HAiB i)).
+Let CCAiB := fun i => mk_ColimCocone _ _ _ (HAiB i).
 
 (* Define the HAiM ColimCocone: *)
-set (HAiM :=
-  mk_ColimCocone _ _ _ (omega_cocont_constprod_functor2 _ PC hsC hE M _ _ _ HA)).
+Let HAiM :=
+  mk_ColimCocone _ _ _ (omega_cocont_constprod_functor2 _ PC hsC hE M _ _ _ HA).
 
-set (ccAiB_K := fun i => ccAiB_K _ _ ccK i).
+Let ccAiB_K := fun i => ccAiB_K _ _ ccK i.
 
 (* The f which is using in colimOfArrows *)
-simple refine (let f i j : C
-   ⟦ product_functor_ob C C PC (constant_functor C C (pr1 (pr1 cAB i)))
+Local Definition f i j : C
+   ⟦ product_functor_ob C C PC (constant_functor C C (pr1 (dob cAB i)))
        (functor_identity C) (pr2 (dob cAB j)),
-   product_functor_ob C C PC (constant_functor C C (pr1 (pr1 cAB (S i))))
-     (functor_identity C) (pr2 (dob cAB j)) ⟧ := _ in _).
-{ apply ProductOfArrows; [apply (dmor cAB (idpath _)) | apply identity ]. }
+   product_functor_ob C C PC (constant_functor C C (pr1 (dob cAB (S i))))
+     (functor_identity C) (pr2 (dob cAB j)) ⟧.
+Proof.
+  apply ProductOfArrows; [apply (dmor cAB (idpath _)) | apply identity ].
+Defined.
 
-assert (fNat : ∀ i u v (e : edge u v),
+Local Lemma fNat : ∀ i u v (e : edge u v),
    dmor (mapdiagram (constprod_functor1 PC _) cB) e ;; f i v =
-   f i u ;; dmor (mapdiagram (constprod_functor1 PC _) cB) e).
-{ intros i j k e; destruct e; simpl.
+   f i u ;; dmor (mapdiagram (constprod_functor1 PC _) cB) e.
+Proof.
+  intros i j k e; destruct e; simpl.
   eapply pathscomp0; [apply ProductOfArrows_comp|].
   eapply pathscomp0; [|eapply pathsinv0; apply ProductOfArrows_comp].
   now rewrite !id_left, !id_right.
-}
+Qed.
 
 (* Define the chain A_i * M *)
-simple refine (let AiM_chain : chain C := _ in _).
-{ mkpair.
+Local Definition AiM_chain : chain C.
+Proof.
+  mkpair.
   - intro i; apply (colim (CCAiB i)).
   - intros i j e; destruct e.
     apply (colimOfArrows (CCAiB i) (CCAiB (S i)) (f i) (fNat i)).
-}
+Defined.
 
-assert (AiM_chain_eq : forall i, dmor AiM_chain (idpath (S i)) =
-                       dmor (mapdiagram (constprod_functor2 PC M) cA) (idpath _)).
-{ intro i; simpl; unfold colimOfArrows, product_functor_mor; simpl.
+Local Lemma AiM_chain_eq : forall i, dmor AiM_chain (idpath (S i)) =
+                       dmor (mapdiagram (constprod_functor2 PC M) cA) (idpath _).
+Proof.
+  intro i; simpl; unfold colimOfArrows, product_functor_mor; simpl.
   apply pathsinv0, colimArrowUnique.
   simpl; intro j.
   unfold colimIn; simpl; unfold product_functor_mor, f; simpl.
@@ -464,13 +485,14 @@ assert (AiM_chain_eq : forall i, dmor AiM_chain (idpath (S i)) =
   apply pathsinv0.
   eapply pathscomp0; [apply ProductOfArrows_comp|].
   now rewrite !id_left, !id_right.
-}
+Qed.
 
 (* Define a cocone over K from the A_i * M chain *)
-assert (ccAiM_K_subproof : ∀ u v (e : edge u v),
+Local Lemma ccAiM_K_subproof : ∀ u v (e : edge u v),
    dmor (mapdiagram (constprod_functor2 PC M) cA) e ;;
-   colimArrow (CCAiB v) K (ccAiB_K v) = colimArrow (CCAiB u) K (ccAiB_K u)).
-{ intros i j e; destruct e; simpl.
+   colimArrow (CCAiB v) K (ccAiB_K v) = colimArrow (CCAiB u) K (ccAiB_K u).
+Proof.
+  intros i j e; destruct e; simpl.
   generalize (AiM_chain_eq i); simpl; intro H; rewrite <- H; clear H; simpl.
   eapply pathscomp0.
   apply (precompWithColimOfArrows _ _ (CCAiB i) (CCAiB (S i)) _ _ K (ccAiB_K (S i))).
@@ -516,31 +538,43 @@ assert (ccAiM_K_subproof : ∀ u v (e : edge u v),
       destruct (natlehchoice4 i i h); [destruct (isirreflnatlth _ h0)|].
       assert (H : idpath (S i) = maponpaths S p). apply isasetnat.
       now rewrite H.
-}
+Qed.
 
-set (ccAiM_K := mk_cocone _ ccAiM_K_subproof).
+Local Definition ccAiM_K := mk_cocone _ ccAiM_K_subproof.
 
-mkpair.
-- mkpair.
-  + apply (colimArrow HAiM K ccAiM_K).
-  + intro i.
-    generalize (colimArrowCommutes HAiM K ccAiM_K i).
-    assert (H : coconeIn ccAiM_K i = colimArrow (CCAiB i) K (ccAiB_K i)).
-      apply idpath.
-    rewrite H; intros HH.
-    generalize (colimArrowCommutes (CCAiB i) K (ccAiB_K i) i).
-    rewrite <- HH; simpl; unfold map_to_K.
-    destruct (natlthorgeh i i); [destruct (isirreflnatlth _ h)|].
-    destruct (natgehchoice i i h); [destruct (isirreflnatgth _ h0)|].
-    simpl; destruct h, p.
-    intros HHH.
-    rewrite <- HHH, assoc.
-    apply cancel_postcomposition.
-    unfold colimIn; simpl; unfold product_functor_mor; simpl.
-    apply pathsinv0.
-    eapply pathscomp0; [apply ProductOfArrows_comp|].
-    now rewrite id_left, id_right.
-- intro t.
+Local Lemma is_cocone_morphism :
+ ∀ v : nat,
+   ProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
+     (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ;;
+   colimArrow HAiM K ccAiM_K = coconeIn ccK v.
+Proof.
+  intro i.
+  generalize (colimArrowCommutes HAiM K ccAiM_K i).
+  assert (H : coconeIn ccAiM_K i = colimArrow (CCAiB i) K (ccAiB_K i)).
+  { apply idpath. }
+  rewrite H; intros HH.
+  generalize (colimArrowCommutes (CCAiB i) K (ccAiB_K i) i).
+  rewrite <- HH; simpl; unfold map_to_K.
+  destruct (natlthorgeh i i); [destruct (isirreflnatlth _ h)|].
+  destruct (natgehchoice i i h); [destruct (isirreflnatgth _ h0)|].
+  simpl; destruct h, p.
+  intros HHH.
+  rewrite <- HHH, assoc.
+  apply cancel_postcomposition.
+  unfold colimIn; simpl; unfold product_functor_mor; simpl.
+  apply pathsinv0.
+  eapply pathscomp0; [apply ProductOfArrows_comp|].
+  now rewrite id_left, id_right.
+Qed.
+
+Lemma is_unique_cocone_morphism : ∀
+   t : Σ x : C ⟦ ProductObject C (PC L M), K ⟧,
+       ∀ v : nat,
+       ProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
+         (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ;; x =
+       coconeIn ccK v, t = colimArrow HAiM K ccAiM_K,, is_cocone_morphism.
+Proof.
+  intro t.
   apply subtypeEquality; simpl.
   + intro; apply impred; intros; apply hsC.
   + apply (colimArrowUnique HAiM K ccAiM_K).
@@ -573,6 +607,29 @@ mkpair.
         eapply pathscomp0; [apply ProductOfArrows_comp|].
         now rewrite id_left, id_right. }
 Qed.
+
+Definition isColimProductOfColims :  ∃! x : C ⟦ ProductObject C (PC L M), K ⟧,
+   ∀ v : nat,
+   ProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
+     (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ;; x =
+   coconeIn ccK v.
+Proof.
+mkpair.
+- mkpair.
+  + apply (colimArrow HAiM K ccAiM_K).
+  + apply is_cocone_morphism.
+- apply is_unique_cocone_morphism.
+Defined.
+
+End omega_cocont_binproduct.
+
+
+Lemma omega_cocont_binproduct_functor : omega_cocont (binproduct_functor PC).
+Proof.
+intros cAB LM ccLM HccLM K ccK; simpl in *.
+apply isColimProductOfColims.
+apply HccLM.
+Defined.
 
 End binprod_functor.
 
