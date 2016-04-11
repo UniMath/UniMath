@@ -75,6 +75,11 @@ Proof.
   - apply hsD.
 Qed.
 
+Definition ob1 (x : product_precategory) : C := pr1 x.
+Definition ob2 (x : product_precategory) : D := pr2 x.
+Definition mor1 (x x' : product_precategory) (f : _ ⟦x, x'⟧) : _ ⟦ob1 x, ob1 x'⟧ := pr1 f.
+Definition mor2 (x x' : product_precategory) (f : _ ⟦x, x'⟧) : _ ⟦ob2 x, ob2 x'⟧ := pr2 f.
+
 Section functor_fix_snd_arg.
 
 Variable E : precategory.
@@ -156,6 +161,12 @@ Defined.
 End nat_trans_fix_snd_arg.
 
 End one_product_precategory.
+
+Arguments ob1 { _ _ } _ .
+Arguments ob2 { _ _ } _ .
+Arguments mor1 { _ _ _ _ } _ .
+Arguments mor2 { _ _ _ _ } _ .
+
 
 (** Objects and morphisms in the product precategory of two precategories *)
 Definition prodcatpair {C D : precategory} (X : C) (Y : D) : product_precategory C D.
