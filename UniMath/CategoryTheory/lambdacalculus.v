@@ -108,7 +108,8 @@ rewrite <- assoc.
 apply idpath.
 Defined.
 
-Local Definition eps : forall (n : M), A⟦R_functor (K n),T n⟧.
+Local Definition eps (n : M) : A⟦R_functor (K n),T n⟧ :=
+  coneOut (lambda (K n)) (n,,identity (K n)).
 
 End fix_T.
 
