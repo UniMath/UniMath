@@ -11,6 +11,7 @@ endif
 PACKAGES += Foundations
 PACKAGES += CategoryTheory
 PACKAGES += Ktheory
+PACKAGES += Bourbaki
 PACKAGES += Dedekind
 PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
