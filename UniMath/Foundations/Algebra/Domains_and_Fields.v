@@ -514,8 +514,4 @@ assert  ( int' := int x1 x2 ) .   rewrite ( ee x1 ) in int' .   rewrite ( ee x2 
 Opaque iscomptofldfrac .
 
 
-
-
-
-
 (* End of the file algebra1d.v *)

@@ -3,8 +3,9 @@
 (** ** About nat *)
 
 Require Export UniMath.Foundations.NumberSystems.NaturalNumbers.
+Require Import UniMath.Ktheory.Utilities.
 
-Lemma max_le_l : ∀ n m : nat, (n <= max n m)%nat.
+Lemma max_le_l : ∀ n m : nat, (n ≤ max n m)%nat.
 Proof.
   induction n ; simpl max.
   - intros ; reflexivity.
@@ -12,7 +13,7 @@ Proof.
     + now apply isreflnatleh.
     + now apply IHn.
 Qed.
-Lemma max_le_r : ∀ n m : nat, (m <= max n m)%nat.
+Lemma max_le_r : ∀ n m : nat, (m ≤ max n m)%nat.
 Proof.
   induction n ; simpl max.
   - intros ; now apply isreflnatleh.
@@ -24,6 +25,7 @@ Qed.
 (** ** for RationalNumbers.v *)
 
 Require Export UniMath.Foundations.NumberSystems.RationalNumbers.
+Require Export UniMath.Foundations.Algebra.Archimedean.
 
 Open Scope hq_scope.
 
@@ -162,14 +164,130 @@ Qed.
 
 Lemma hqinv_gt0 (x : hq) : 0 < x -> 0 < / x.
 Proof.
-  intros Hx.
-  apply hqlthandmultlinv with x.
+  unfold hqlth.
+  intros x Hx.
+  apply hqgthandmultlinv with x.
   - exact Hx.
   - rewrite hqmultx0.
     rewrite hqisrinvmultinv.
     + exact hq1_gt0.
     + apply hqgth_hqneq.
       exact Hx.
+Qed.
+
+Lemma isaproptotal2' {X : UU} (P : X -> UU) :
+  isaset X ->
+  isPredicate P ->
+  (∀ x y : X, P x -> P y -> x = y) ->
+  isaprop (Σ x : X, P x).
+Proof.
+  intros X P HX HP Heq x y ; simpl.
+  eapply iscontrweqb.
+  apply subtypeInjectivity.
+  exact HP.
+  rewrite (Heq (pr1 y) (pr1 x)).
+  apply iscontrloopsifisaset.
+  exact HX.
+  exact (pr2 y).
+  exact (pr2 x).
+Qed.
+Lemma hinhuniv' {P X : UU} :
+  isaprop P -> (X -> P) -> (∥ X ∥ -> P).
+Proof.
+  intros P X HP Hx.
+  apply (hinhuniv (P := hProppair _ HP)).
+  exact Hx.
+Qed.
+Lemma hinhuniv2' {P X Y : UU} :
+  isaprop P -> (X -> Y -> P) -> (∥ X ∥ -> ∥ Y ∥ -> P).
+Proof.
+  intros P X Y HP Hxy.
+  apply (hinhuniv2 (P := hProppair _ HP)).
+  exact Hxy.
+Qed.
+
+Lemma hztohqandleh':
+  ∀ n m : hz, (hztohq n <= hztohq m)%hq -> hzleh n m.
+Proof.
+  intros n m Hle Hlt.
+  apply Hle.
+  apply hztohqandgth.
+  exact Hlt.
+Qed.
+Lemma hztohqandlth':
+  ∀ n m : hz, (hztohq n < hztohq m)%hq -> hzlth n m.
+Proof.
+  intros n m Hlt.
+  apply neghzgehtolth.
+  intro Hle.
+  apply hztohqandgeh in Hle.
+  apply hqgehtoneghqlth in Hle.
+  apply Hle.
+  exact Hlt.
+Qed.
+
+(** ** hq is archimedean *)
+
+Lemma nattorig_nattohz :
+  ∀ n : nat, nattorig (X := hz) n = nattohz n.
+Proof.
+  induction n.
+  - simpl.
+    reflexivity.
+  - rewrite nattorigS, IHn.
+    apply pathsinv0, nattohzandS.
+Qed.
+
+Lemma nattorig_nat :
+  ∀ n : nat, nattorig (X := natcommrig) n = n.
+Proof.
+  induction n.
+  reflexivity.
+  rewrite nattorigS, IHn.
+  reflexivity.
+Qed.
+
+Lemma isarchnat :
+  isarchrig (X := natcommrig) natgth.
+Proof.
+  repeat split.
+  - intros y1 y2 Hy.
+    apply natlthchoice2 in Hy.
+    destruct Hy as [Hy | <-].
+    + apply hinhpr.
+      exists 1%nat.
+      exact Hy.
+    + apply hinhpr.
+      exists 2%nat.
+      rewrite nattorig_nat, !multsnm ; simpl.
+      rewrite natplusr0.
+      apply natgthandplusl, natgthsnn.
+  - intros n.
+    apply hinhpr.
+    exists (S n).
+    rewrite nattorig_nat.
+    now apply natgthsnn.
+  - intros n.
+    apply hinhpr.
+    now exists 1%nat.
+Defined.
+
+Definition isarchhz : isarchrng (X := hz) hzgth.
+Proof.
+  simple refine (isarchrigtorng _ _ _ _ _ _).
+  - reflexivity.
+  - intros n m k.
+    apply istransnatgth.
+  - admit. (*apply isarchnat.*)
+Admitted.
+
+Lemma isarchhq :
+  isarchfld (X := hq) hqgth.
+Proof.
+  simple refine (isarchfldfrac hzintdom _ _ _ _ _ _ _ _).
+  - exact isirreflhzgth.
+  - exact istranshzgth.
+  - apply isarchhz.
 Qed.
 
 Close Scope hq_scope.
