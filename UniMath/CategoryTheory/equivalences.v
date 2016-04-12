@@ -29,12 +29,13 @@ Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 (*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
-Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
+(* Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g"). *)
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
@@ -466,3 +467,20 @@ Proof.
 Defined.
 
 End from_fully_faithful_and_ess_surj_to_equivalence.
+
+Section adjunction_from_partial.
+
+Definition is_universal_arrow_from {D C : precategory}
+  (S : functor D C) (c : C) (r : D) (v : C⟦S r, c⟧) : UU :=
+  forall (d : D) (f : C⟦S d,c⟧), ∃! (f' : D⟦d,r⟧), f = # S f' ;; v.
+
+(* Theorem 2 (iv) of Chapter IV.1 of MacLane *)
+
+Variables (X A : precategory) (F : functor X A).
+Variables (G0 : ob A -> ob X) (eps : forall a, A⟦F (G0 a),a⟧).
+Hypothesis (Huniv : forall a, is_universal_arrow_from F a (G0 a) (eps a)).
+
+Definition adjunction_from_partial : is_left_adjoint F.
+Abort.
+
+End adjunction_from_partial.
