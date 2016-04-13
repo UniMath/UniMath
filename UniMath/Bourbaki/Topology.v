@@ -633,10 +633,10 @@ Definition continuous_at {U V : TopologicalSet} (f : U -> V) (x : U) :=
 
 Definition continuous_on {U V : TopologicalSet} (dom : U -> hProp) (f : U -> V) :=
   ∀ (x : U) (Hx : dom x) H,
-    is_lim f (filter_dom (locally x) dom H) (f x).
+    is_lim f (FilterDom (locally x) dom H) (f x).
 Definition continuous_subtypes {U V : TopologicalSet} (dom : U -> hProp) (f : (Σ x : U, dom x) -> V) :=
   ∀ (x : Σ x : U, dom x) H,
-    is_lim f (filter_subtypes (locally (pr1 x)) dom H) (f x).
+    is_lim f (FilterSubtype (locally (pr1 x)) dom H) (f x).
 Definition continuous {U V : TopologicalSet} (f : U -> V) :=
   ∀ x : U, continuous_at f x.
 
@@ -646,12 +646,12 @@ Definition continuous_base_at {U V : TopologicalSet} (f : U -> V) (x : U) base_x
 (** *** Continuity for 2 variable functions *)
 
 Definition continuous2d_at {U V W : TopologicalSet} (f : U -> V -> W) (x : U) (y : V) :=
-  is_lim (λ z : U × V, f (pr1 z) (pr2 z)) (filter_prod (locally x) (locally y)) (f x y).
+  is_lim (λ z : U × V, f (pr1 z) (pr2 z)) (FilterDirprod (locally x) (locally y)) (f x y).
 Definition continuous2d {U V W : TopologicalSet} (f : U -> V -> W) :=
   ∀ (x : U) (y : V), continuous2d_at f x y.
 
 Definition continuous2d_base_at {U V W : TopologicalSet} (f : U -> V -> W) (x : U) (y : V) base_x base_y base_fxy :=
-  is_lim_base (λ z : U × V, f (pr1 z) (pr2 z)) (filter_prod (locally_base x base_x) (locally_base y base_y)) (f x y) base_fxy.
+  is_lim_base (λ z : U × V, f (pr1 z) (pr2 z)) (FilterDirprod (locally_base x base_x) (locally_base y base_y)) (f x y) base_fxy.
 
 (** ** Topology in algebraic structures *)
 

@@ -1,26 +1,8 @@
 (** * Additionals theorems and definitions *)
 
-(** ** About nat *)
+Require Export UniMath.Bourbaki.Complements.
 
-Require Export UniMath.Foundations.NumberSystems.NaturalNumbers.
-Require Import UniMath.Ktheory.Utilities.
-
-Lemma max_le_l : ∀ n m : nat, (n ≤ max n m)%nat.
-Proof.
-  induction n ; simpl max.
-  - intros ; reflexivity.
-  - destruct m.
-    + now apply isreflnatleh.
-    + now apply IHn.
-Qed.
-Lemma max_le_r : ∀ n m : nat, (m ≤ max n m)%nat.
-Proof.
-  induction n ; simpl max.
-  - intros ; now apply isreflnatleh.
-  - destruct m.
-    + reflexivity.
-    + now apply IHn.
-Qed.
+Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
 
 (** ** for RationalNumbers.v *)
 
@@ -173,37 +155,6 @@ Proof.
     + exact hq1_gt0.
     + apply hqgth_hqneq.
       exact Hx.
-Qed.
-
-Lemma isaproptotal2' {X : UU} (P : X -> UU) :
-  isaset X ->
-  isPredicate P ->
-  (∀ x y : X, P x -> P y -> x = y) ->
-  isaprop (Σ x : X, P x).
-Proof.
-  intros X P HX HP Heq x y ; simpl.
-  eapply iscontrweqb.
-  apply subtypeInjectivity.
-  exact HP.
-  rewrite (Heq (pr1 y) (pr1 x)).
-  apply iscontrloopsifisaset.
-  exact HX.
-  exact (pr2 y).
-  exact (pr2 x).
-Qed.
-Lemma hinhuniv' {P X : UU} :
-  isaprop P -> (X -> P) -> (∥ X ∥ -> P).
-Proof.
-  intros P X HP Hx.
-  apply (hinhuniv (P := hProppair _ HP)).
-  exact Hx.
-Qed.
-Lemma hinhuniv2' {P X Y : UU} :
-  isaprop P -> (X -> Y -> P) -> (∥ X ∥ -> ∥ Y ∥ -> P).
-Proof.
-  intros P X Y HP Hxy.
-  apply (hinhuniv2 (P := hProppair _ HP)).
-  exact Hxy.
 Qed.
 
 Lemma hztohqandleh':

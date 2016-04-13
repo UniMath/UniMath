@@ -3,7 +3,8 @@
 (** Based on Bourbaky *)
 
 Require Export UniMath.Bourbaki.Complements.
-Require Import UniMath.Dedekind.Complements.
+
+Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
 
 (** ** Definition of a Filter *)
 
@@ -12,40 +13,54 @@ Section Filter_def.
 Context {X : UU}.
 Context (F : (X -> hProp) -> hProp).
 
-Definition isfilter_imply : hProp.
+Definition isfilter_imply :=
+  ∀ A B : X -> hProp, (∀ x : X, A x -> B x) -> F A -> F B.
+Lemma isaprop_isfilter_imply : isaprop isfilter_imply.
 Proof.
-  simple refine (hProppair _ _).
-  apply (∀ A B : X -> hProp, (∀ x : X, A x -> B x) -> F A -> F B).
   apply impred_isaprop ; intro A.
   apply impred_isaprop ; intro B.
   apply isapropimpl.
   apply isapropimpl.
   apply propproperty.
-Defined.
+Qed.
 
-Definition isfilter_finite_intersection : hProp.
+Definition isfilter_finite_intersection :=
+  ∀ (L : Sequence (X -> hProp)), (∀ n, F (L n)) -> F (finite_intersection L).
+Lemma isaprop_isfilter_finite_intersection :
+  isaprop isfilter_finite_intersection.
 Proof.
-  simple refine (hProppair _ _).
-  apply (∀ (L : Sequence (X -> hProp)), (∀ n, F (L n)) -> F (finite_intersection L)).
   apply impred_isaprop ; intros L.
   apply isapropimpl.
   apply propproperty.
-Defined.
+Qed.
 
-Definition isfilter_notempty : hProp.
+Definition isfilter_htrue : hProp :=
+  F (λ _ : X, htrue).
+
+Definition isfilter_and :=
+  ∀ A B : X -> hProp, F A -> F B -> F (λ x : X, A x ∧ B x).
+Lemma isaprop_isfilter_and : isaprop isfilter_and.
 Proof.
-  simple refine (hProppair _ _).
-  apply (¬ F (λ _ : X, hfalse)).
-  apply isapropneg.
-Defined.
+  apply impred_isaprop ; intro A.
+  apply impred_isaprop ; intro B.
+  apply isapropimpl.
+  apply isapropimpl.
+  apply propproperty.
+Qed.
 
-Definition isfilter : hProp :=
-  isfilter_imply ∧ isfilter_finite_intersection ∧ isfilter_notempty.
+Definition isfilter_notempty :=
+  ¬ F (λ _ : X, hfalse).
+Lemma isaprop_isfilter_notempty :
+  isaprop isfilter_notempty.
+Proof.
+  apply isapropneg.
+Qed.
 
 Lemma isfilter_finite_intersection_htrue :
-  isfilter_finite_intersection -> F (λ _ : X, htrue).
+  isfilter_finite_intersection -> isfilter_htrue.
 Proof.
   intros Hand.
+  unfold isfilter_htrue.
   rewrite <- finite_intersection_htrue.
   apply Hand.
   intros (m,Hm).
@@ -55,7 +70,7 @@ Proof.
 Qed.
 
 Lemma isfilter_finite_intersection_and :
-  isfilter_finite_intersection -> ∀ A B : X -> hProp, F A -> F B -> F (λ x : X, A x ∧ B x).
+  isfilter_finite_intersection -> isfilter_and.
 Proof.
   intros Hand A B Fa Fb.
   rewrite <- finite_intersection_and.
@@ -67,7 +82,7 @@ Proof.
 Qed.
 
 Lemma isfilter_finite_intersection_carac :
-  F (λ _, htrue) -> (∀ A B : X -> hProp, F A -> F B -> F (λ x : X, A x ∧ B x))
+  isfilter_htrue -> isfilter_and
   -> isfilter_finite_intersection.
 Proof.
   intros Htrue Hand L.
@@ -79,11 +94,33 @@ Qed.
 
 End Filter_def.
 
+Definition isPreFilter {X : UU} (F : (X -> hProp) -> hProp) :=
+  isfilter_imply F × isfilter_finite_intersection F.
+Definition PreFilter (X : UU) :=
+  Σ (F : (X -> hProp) -> hProp), isPreFilter F.
+Definition mkPreFilter {X : UU} (F : (X -> hProp) -> hProp)
+           (Himpl : isfilter_imply F)
+           (Htrue : isfilter_htrue F)
+           (Hand : isfilter_and F) : PreFilter X :=
+  F,, Himpl,, isfilter_finite_intersection_carac F Htrue Hand.
+
+Definition pr1PreFilter (X : UU) (F : PreFilter X) : (X -> hProp) -> hProp := pr1 F.
+Coercion pr1PreFilter : PreFilter >-> Funclass.
+
+Definition isFilter {X : UU} (F : (X -> hProp) -> hProp) :=
+  isPreFilter F × isfilter_notempty F.
+Definition Filter (X : UU) := Σ F : (X -> hProp) -> hProp, isFilter F.
+Definition pr1Filter (X : UU) (F : Filter X) : PreFilter X :=
+  pr1 F,, pr1 (pr2 F).
+Coercion pr1Filter : Filter >-> PreFilter.
+Definition mkFilter {X : UU} (F : (X -> hProp) -> hProp) (Himp : isfilter_imply F) (Htrue : isfilter_htrue F) (Hand : isfilter_and F) (Hempty : isfilter_notempty F) : Filter X :=
+  F ,, (Himp ,, (isfilter_finite_intersection_carac F Htrue Hand)) ,, Hempty.
+
 Lemma emptynofilter :
   ∀ F : (empty -> hProp) -> hProp,
-    ¬ isfilter F.
+    ¬ isFilter F.
 Proof.
-  intros F (Himp,(Hand,Hempty)).
+  intros F ((Himp,Hand),Hempty).
   apply Hempty.
   apply isfilter_finite_intersection_htrue in Hand.
   assert ((λ _ : ∅, hfalse) = (λ _ : ∅, htrue)).
@@ -92,17 +129,10 @@ Proof.
   exact Hand.
 Qed.
 
-Definition Filter (X : UU) := Σ F : (X -> hProp) -> hProp, isfilter F.
-Definition pr1Filter (X : UU) (F : Filter X) : (X -> hProp) -> hProp := pr1 F.
-Coercion pr1Filter : Filter >-> Funclass.
-
-Definition mkFilter {X : UU} (F : (X -> hProp) -> hProp) (Himp : isfilter_imply F) (Htrue : F (λ _ : X, htrue)) (Hand : ∀ A B : X -> hProp, F A -> F B -> F (λ x : X, A x ∧ B x)) (Hempty : isfilter_notempty F) : Filter X :=
-  F ,, Himp ,, (isfilter_finite_intersection_carac F Htrue Hand) ,, Hempty.
-
-Section Filter_pty.
+Section PreFilter_pty.
 
 Context {X : UU}.
-Context (F : Filter X).
+Context (F : PreFilter X).
 
 Lemma filter_imply :
   isfilter_imply F.
@@ -112,25 +142,21 @@ Qed.
 Lemma filter_finite_intersection :
   isfilter_finite_intersection F.
 Proof.
-  exact (pr1 (pr2 (pr2 F))).
+  exact (pr2 (pr2 F)).
 Qed.
 Lemma filter_htrue :
-  F (λ _ : X, htrue).
+  isfilter_htrue F.
 Proof.
   apply isfilter_finite_intersection_htrue.
   exact filter_finite_intersection.
 Qed.
 Lemma filter_and :
-  ∀ A B : X -> hProp, F A -> F B -> F (λ x : X, A x ∧ B x).
+  isfilter_and F.
 Proof.
   apply isfilter_finite_intersection_and.
   exact filter_finite_intersection.
 Qed.
-Lemma filter_notempty :
-  isfilter_notempty F.
-Proof.
-  exact (pr2 (pr2 (pr2 F))).
-Qed.
+
 Lemma filter_forall :
   ∀ A : X -> hProp, (∀ x : X, A x) -> F A.
 Proof.
@@ -140,6 +166,20 @@ Proof.
   intros x _.
   now apply Ha.
 Qed.
+
+End PreFilter_pty.
+
+Section Filter_pty.
+
+Context {X : UU}.
+Context (F : Filter X).
+
+Lemma filter_notempty :
+  isfilter_notempty F.
+Proof.
+  exact (pr2 (pr2 F)).
+Qed.
+
 Lemma filter_const :
   ∀ A : hProp, F (λ _ : X, A) -> ¬ (¬ A).
 Proof.
@@ -153,21 +193,37 @@ Qed.
 
 End Filter_pty.
 
+Lemma isasetPreFilter (X : UU) : isaset (PreFilter X).
+Proof.
+  intros X.
+  simple refine (isaset_total2_subset (hSetpair _ _) (λ _, hProppair _ _)).
+  apply impred_isaset ; intros _.
+  apply isasethProp.
+  apply isapropdirprod.
+  apply isaprop_isfilter_imply.
+  apply isaprop_isfilter_finite_intersection.
+Qed.
+
 Lemma isasetFilter (X : UU) : isaset (Filter X).
 Proof.
   intros X.
-  simple refine (isaset_total2_subset (hSetpair _ _) _).
+  simple refine (isaset_total2_subset (hSetpair _ _) (λ _, hProppair _ _)).
   apply impred_isaset ; intros _.
   apply isasethProp.
+  apply isapropdirprod.
+  apply isapropdirprod.
+  apply isaprop_isfilter_imply.
+  apply isaprop_isfilter_finite_intersection.
+  apply isaprop_isfilter_notempty.
 Qed.
 
 (** *** Order on filters *)
 
-Definition filter_le {X : UU} (F G : Filter X) :=
+Definition filter_le {X : UU} (F G : PreFilter X) :=
   ∀ A : X -> hProp, G A -> F A.
 
 Lemma istrans_filter_le {X : UU} :
-  ∀ F G H : Filter X,
+  ∀ F G H : PreFilter X,
     filter_le F G -> filter_le G H -> filter_le F H.
 Proof.
   intros X.
@@ -175,23 +231,26 @@ Proof.
   apply Hfg, Hgh, Fa.
 Qed.
 Lemma isrefl_filter_le {X : UU} :
-  ∀ F : Filter X, filter_le F F.
+  ∀ F : PreFilter X, filter_le F F.
 Proof.
   intros X F A Fa.
   exact Fa.
 Qed.
 Lemma isantisymm_filter_le {X : UU} :
-  ∀ F G : Filter X, filter_le F G -> filter_le G F -> F = G.
+  ∀ F G : PreFilter X, filter_le F G -> filter_le G F -> F = G.
 Proof.
   intros X F G Hle Hge.
-  apply subtypeEquality_prop.
+  simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
+  apply isapropdirprod.
+  apply isaprop_isfilter_imply.
+  apply isaprop_isfilter_finite_intersection.
   apply funextfun ; intros A.
   apply uahp.
   now apply Hge.
   now apply Hle.
 Qed.
 
-Definition PartialOrder_filter_le (X : UU) : PartialOrder (hSetpair (Filter _) (isasetFilter X)).
+Definition PartialOrder_filter_le (X : UU) : PartialOrder (hSetpair (PreFilter _) (isasetPreFilter X)).
 Proof.
   intros X.
   simple refine (PartialOrderpair _ _).
@@ -212,24 +271,75 @@ Defined.
 
 (** *** Image of a filter *)
 
-Definition filtermap {X Y : UU} (f : X -> Y) (F : Filter X) : Filter Y.
+Section filtermap.
+
+Context {X Y : UU}.
+Context (f : X -> Y) (F : (X -> hProp) -> hProp).
+Context (Himp : isfilter_imply F)
+        (Htrue : isfilter_htrue F)
+        (Hand : isfilter_and F)
+        (Hempty : isfilter_notempty F).
+
+Definition filtermap :=
+  λ A : (Y -> hProp), F (λ x : X, A (f x)).
+
+Lemma filtermap_imply :
+  isfilter_imply filtermap.
 Proof.
-  intros X Y f F.
-  simple refine (mkFilter _ _ _ _ _).
-  - apply (λ A : (Y -> hProp), F (λ x : X, A (f x))).
-  - intros A B Himp.
-    apply filter_imply.
-    intros x.
-    apply Himp.
-  - apply filter_htrue.
-  - intros A B.
-    apply filter_and.
-  - apply filter_notempty.
+  intros A B H.
+  apply Himp.
+  intros x.
+  apply H.
+Qed.
+Lemma filtermap_htrue :
+  isfilter_htrue filtermap.
+Proof.
+  apply Htrue.
+Qed.
+Lemma filtermap_and :
+  isfilter_and filtermap.
+Proof.
+  intros A B.
+  apply Hand.
+Qed.
+Lemma filtermap_notempty :
+  isfilter_notempty filtermap.
+Proof.
+  apply Hempty.
+Qed.
+
+End filtermap.
+
+Definition PreFilterMap {X Y : UU} (f : X -> Y) (F : PreFilter X) : PreFilter Y.
+Proof.
+  intros.
+  simple refine (mkPreFilter _ _ _ _).
+  exact (filtermap f F).
+  apply filtermap_imply, filter_imply.
+  apply filtermap_htrue, filter_htrue.
+  apply filtermap_and, filter_and.
 Defined.
 
-Lemma filtermap_incr {X Y : UU} :
+Definition FilterMap {X Y : UU} (f : X -> Y) (F : Filter X) : Filter Y.
+Proof.
+  intros X Y f F.
+  refine (tpair _ _ _).
+  split.
+  apply (pr2 (PreFilterMap f F)).
+  apply filtermap_notempty, filter_notempty.
+Defined.
+
+Lemma PreFilterMap_incr {X Y : UU} :
+  ∀ (f : X -> Y) (F G : PreFilter X),
+    filter_le F G -> filter_le (PreFilterMap f F) (PreFilterMap f G).
+Proof.
+  intros X Y.
+  intros f F G Hle A ; simpl.
+  apply Hle.
+Qed.
+Lemma FilterMap_incr {X Y : UU} :
   ∀ (f : X -> Y) (F G : Filter X),
-    filter_le F G -> filter_le (filtermap f F) (filtermap f G).
+    filter_le F G -> filter_le (FilterMap f F) (FilterMap f G).
 Proof.
   intros X Y.
   intros f F G Hle A ; simpl.
@@ -238,12 +348,12 @@ Qed.
 
 (** *** Limit: filter version *)
 
-Definition filterlim {X Y : UU} (f : X -> Y) (F : Filter X) (G : Filter Y) :=
-  filter_le (filtermap f F) G.
+Definition filterlim {X Y : UU} (f : X -> Y) (F : PreFilter X) (G : PreFilter Y) :=
+  filter_le (PreFilterMap f F) G.
 
 Lemma filterlim_comp {X Y Z : UU} :
   ∀ (f : X -> Y) (g : Y -> Z)
-    (F : Filter X) (G : Filter Y) (H : Filter Z),
+    (F : PreFilter X) (G : PreFilter Y) (H : PreFilter Z),
     filterlim f F G -> filterlim g G H -> filterlim (λ x : X, g (f x)) F H.
 Proof.
   intros X Y Z.
@@ -254,7 +364,7 @@ Proof.
 Qed.
 
 Lemma filterlim_decr_1 {X Y : UU} :
-  ∀ (f : X -> Y) (F F' : Filter X) (G : Filter Y),
+  ∀ (f : X -> Y) (F F' : PreFilter X) (G : PreFilter Y),
     filter_le F' F -> filterlim f F G -> filterlim f F' G.
 Proof.
   intros X Y.
@@ -265,7 +375,7 @@ Proof.
 Qed.
 
 Lemma filterlim_incr_2 {X Y : UU} :
-  ∀ (f : X -> Y) (F : Filter X) (G G' : Filter Y),
+  ∀ (f : X -> Y) (F : PreFilter X) (G G' : PreFilter Y),
     filter_le G G' -> filterlim f F G -> filterlim f F G'.
 Proof.
   intros X Y.
@@ -279,159 +389,385 @@ Qed.
 
 (** *** Filter on a domain *)
 
-Definition filter_dom {X : UU} (F : Filter X) (dom : X -> hProp) (Hdom : ∀ P, F P -> ¬ ¬ ∃ x, dom x ∧ P x) :
-  Filter X.
+Section filterdom.
+
+Context {X : UU}.
+Context (F : (X -> hProp) -> hProp)
+        (Himp : isfilter_imply F)
+        (Htrue : isfilter_htrue F)
+        (Hand : isfilter_and F)
+        (Hempty : isfilter_notempty F).
+Context (dom : X -> hProp)
+        (Hdom : ∀ P, F P -> ¬ ¬ ∃ x, dom x ∧ P x).
+
+Definition filterdom : (X -> hProp) -> hProp
+  := λ A : X → hProp, F (λ x : X, hProppair (dom x → A x) (isapropimpl _ _ (propproperty _))).
+
+Lemma filterdom_imply :
+  isfilter_imply filterdom.
 Proof.
-  intros X F dom Hdom.
-  simple refine (mkFilter _ _ _ _ _).
-  - intros A.
-    apply (pr1 F).
-    intros x.
-    simple refine (hProppair _ _).
-    apply (dom x -> A x).
-    apply isapropimpl.
-    now apply propproperty.
-  - simpl ; intros A B Himpl.
+  intros A B Himpl.
+  apply Himp.
+  intros x Ax Hx.
+  apply Himpl, Ax, Hx.
+Qed.
+Lemma filterdom_htrue :
+  isfilter_htrue filterdom.
+Proof.
+  apply Himp with (2 := Htrue).
+  intros x H _.
+  exact H.
+Qed.
+Lemma filterdom_and :
+  isfilter_and filterdom.
+Proof.
+  intros A B Ha Hb.
+  generalize (Hand _ _ Ha Hb).
+  apply Himp.
+  intros x (Ax,Bx) Hx.
+  split.
+  - apply Ax, Hx.
+  - apply Bx, Hx.
+Qed.
+Lemma filterdom_notempty :
+  isfilter_notempty filterdom.
+Proof.
+  intro Hf.
+  apply Hdom in Hf.
+  apply Hf.
+  unfold neg.
+  apply hinhuniv'.
+  exact isapropempty.
+  intros (x,(Hx,Hx')).
+  now apply Hx'.
+Qed.
+
+End filterdom.
+
+Definition PreFilterDom {X : UU} (F : PreFilter X) (dom : X -> hProp) : PreFilter X.
+Proof.
+  intros X F dom.
+  simple refine (mkPreFilter _ _ _ _).
+  - exact (filterdom F dom).
+  - apply filterdom_imply, filter_imply.
+  - apply filterdom_htrue.
     apply filter_imply.
-    intros x Ax Hx.
-    apply Himpl, Ax, Hx.
-  - apply filter_forall.
-    intros x Hx.
-    exact tt.
-  - simpl ; intros A B Ha Hb.
-    generalize (filter_and _ _ _ Ha Hb).
+    apply filter_htrue.
+  - apply filterdom_and.
     apply filter_imply.
-    intros x (Ax,Bx) Hx.
-    split.
-    + apply Ax, Hx.
-    + apply Bx, Hx.
-  - simpl.
-    intro Hf.
-    apply Hdom in Hf.
-    apply Hf.
-    unfold neg.
-    apply (hinhuniv (P := hProppair _ isapropempty)).
-    intros (x,(Hx,Hx')).
-    now apply Hx'.
+    apply filter_and.
 Defined.
 
-Definition filter_subtypes {X : UU} (F : Filter X) (dom : X -> hProp) (Hdom : ¬ F (λ x : X, hneg (dom x))) :
-  Filter (Σ x : X, dom x).
+Definition FilterDom {X : UU} (F : Filter X) (dom : X -> hProp) (Hdom : ∀ P, F P -> ¬ ¬ ∃ x, dom x ∧ P x) : Filter X.
 Proof.
   intros X F dom Hdom.
-  simple refine (mkFilter _ _ _ _ _).
-  - intros A.
-    apply (pr1 F).
-    intros x.
-    simple refine (hProppair _ _).
-    + apply (∀ (Hx : dom x), A (x,,Hx)).
-    + apply impred_isaprop ; intros Hx.
-      now apply propproperty.
-  - simpl ; intros A B Himpl.
-    apply filter_imply.
-    intros x Ax Hx.
-    apply Himpl, Ax.
-  - apply filter_forall.
-    intros x Hx.
-    exact tt.
-  - simpl ; intros A B Ha Hb.
-    generalize (filter_and _ _ _ Ha Hb).
-    apply filter_imply.
-    intros x (Ax,Bx) Hx.
-    split.
-    + apply Ax.
-    + apply Bx.
-  - simpl.
-    intro Hf.
-    apply Hdom.
-    revert Hf.
-    apply filter_imply.
-    intros x Hx H.
-    now apply Hx.
+  refine (tpair _ _ _).
+  split.
+  apply (pr2 (PreFilterDom F dom)).
+  apply filterdom_notempty.
+  exact Hdom.
 Defined.
 
-(** *** Product of filters *)
+(** *** Filter on a subtype *)
 
-Definition filter_prod {X Y : UU} (Fx : Filter X) (Fy : Filter Y) : Filter (X × Y).
+Section filtersubtype.
+
+Context {X : UU}.
+Context (F : (X -> hProp) -> hProp)
+        (Himp : isfilter_imply F)
+        (Htrue : isfilter_htrue F)
+        (Hand : isfilter_and F)
+        (Hempty : isfilter_notempty F).
+Context (dom : X -> hProp)
+        (Hdom : ∀ P, F P -> ¬ ¬ ∃ x, dom x ∧ P x).
+
+Definition filtersubtype : ((Σ x : X, dom x) -> hProp) -> hProp :=
+  λ A : (Σ x : X, dom x) → hProp,
+        F (λ x : X, hProppair (∀ Hx : dom x, A (x,, Hx)) (impred_isaprop _ (λ _, propproperty _))).
+
+Lemma filtersubtype_imply :
+  isfilter_imply filtersubtype.
+Proof.
+  intros A B Himpl.
+  apply Himp.
+  intros x Ax Hx.
+  apply Himpl, Ax.
+Qed.
+Lemma filtersubtype_htrue :
+  isfilter_htrue filtersubtype.
+Proof.
+  apply Himp with (2 := Htrue).
+  intros x H _.
+  exact H.
+Qed.
+Lemma filtersubtype_and :
+  isfilter_and filtersubtype.
+Proof.
+  intros A B Ha Hb.
+  generalize (Hand _ _ Ha Hb).
+  apply Himp.
+  intros x (Ax,Bx) Hx.
+  split.
+  - apply Ax.
+  - apply Bx.
+Qed.
+Lemma filtersubtype_notempty :
+  isfilter_notempty filtersubtype.
+Proof.
+  intro Hf.
+  apply Hdom in Hf.
+  apply Hf.
+  unfold neg.
+  apply hinhuniv'.
+  exact isapropempty.
+  intros (x,(Hx,Hx')).
+  now apply Hx'.
+Qed.
+
+End filtersubtype.
+
+Definition PreFilterSubtype {X : UU} (F : PreFilter X) (dom : X -> hProp) : PreFilter (Σ x : X, dom x).
+Proof.
+  intros X F dom.
+  simple refine (mkPreFilter _ _ _ _).
+  - exact (filtersubtype F dom).
+  - apply filtersubtype_imply, filter_imply.
+  - apply filtersubtype_htrue.
+    apply filter_imply.
+    apply filter_htrue.
+  - apply filtersubtype_and.
+    apply filter_imply.
+    apply filter_and.
+Defined.
+
+Definition FilterSubtype {X : UU} (F : Filter X) (dom : X -> hProp) (Hdom : ∀ P, F P -> ¬ ¬ ∃ x, dom x ∧ P x) : Filter (Σ x : X, dom x).
+Proof.
+  intros X F dom Hdom.
+  refine (tpair _ _ _).
+  split.
+  apply (pr2 (PreFilterSubtype F dom)).
+  apply filtersubtype_notempty.
+  exact Hdom.
+Defined.
+
+(** *** Direct Product of filters *)
+
+Section filterdirprod.
+
+Context {X Y : UU}.
+Context (Fx : (X -> hProp) -> hProp)
+        (Himp_x : isfilter_imply Fx)
+        (Htrue_x : isfilter_htrue Fx)
+        (Hand_x : isfilter_and Fx)
+        (Hempty_x : isfilter_notempty Fx).
+Context (Fy : (Y -> hProp) -> hProp)
+        (Himp_y : isfilter_imply Fy)
+        (Htrue_y : isfilter_htrue Fy)
+        (Hand_y : isfilter_and Fy)
+        (Hempty_y : isfilter_notempty Fy).
+
+Definition filterdirprod : (X × Y -> hProp) -> hProp :=
+  λ A : (X × Y) -> hProp,
+        ∃ (Ax : X -> hProp) (Ay : Y -> hProp), Fx Ax × Fy Ay × (∀ (x : X) (y : Y), Ax x -> Ay y -> A (x,,y)).
+
+Lemma filterdirprod_imply :
+  isfilter_imply filterdirprod.
+Proof.
+  intros A B Himpl.
+  apply hinhfun.
+  intros (Ax,(Ay,(Fax,(Fay,Ha)))).
+  exists Ax, Ay.
+  repeat split.
+  + exact Fax.
+  + exact Fay.
+  + intros x y Hx Hy.
+    now apply Himpl, Ha.
+Qed.
+Lemma filterdirprod_htrue :
+  isfilter_htrue filterdirprod.
+Proof.
+  apply hinhpr.
+  exists (λ _:X, htrue), (λ _:Y, htrue).
+  repeat split.
+  + apply Htrue_x.
+  + apply Htrue_y.
+Qed.
+Lemma filterdirprod_and :
+  isfilter_and filterdirprod.
+Proof.
+  intros A B.
+  apply hinhfun2.
+  intros (Ax,(Ay,(Fax,(Fay,Ha)))) (Bx,(By,(Fbx,(Fby,Hb)))).
+  exists (λ x : X, Ax x ∧ Bx x), (λ y : Y, Ay y ∧ By y).
+  repeat split.
+  + now apply Hand_x.
+  + now apply Hand_y.
+  + apply Ha.
+    apply (pr1 X0).
+    apply (pr1 X1).
+  + apply Hb.
+    apply (pr2 X0).
+    apply (pr2 X1).
+Qed.
+Lemma filterdirprod_notempty :
+  isfilter_notempty filterdirprod.
+Proof.
+  unfold isfilter_notempty, neg ; apply hinhuniv'.
+  exact isapropempty.
+  intros (Ax,(Ay,(Fax,(Fay,Ha)))).
+  apply Hempty_x.
+  revert Fax.
+  apply Himp_x ; intros x Hx.
+  apply Hempty_y.
+  revert Fay.
+  apply Himp_y ; intros y Hy.
+  now apply (Ha x y).
+Qed.
+
+End filterdirprod.
+
+Definition PreFilterDirprod {X Y : UU} (Fx : PreFilter X) (Fy : PreFilter Y) : PreFilter (X × Y).
 Proof.
   intros X Y Fx Fy.
-  simple refine (mkFilter _ _ _ _ _).
-  - intros A.
-    apply (∃ (Ax : X -> hProp) (Ay : Y -> hProp), Fx Ax × Fy Ay × (∀ (x : X) (y : Y), Ax x -> Ay y -> A (x,,y))).
-  - intros A B Himpl.
-    apply hinhfun.
-    intros (Ax,(Ay,(Fax,(Fay,Ha)))).
-    exists Ax, Ay.
-    repeat split.
-    + exact Fax.
-    + exact Fay.
-    + intros x y Hx Hy.
-      now apply Himpl, Ha.
-  - apply hinhpr.
-    exists (λ _:X, htrue), (λ _:Y, htrue).
-    repeat split.
-    + apply filter_htrue.
-    + apply filter_htrue.
-  - intros A B.
-    apply hinhfun2.
-    intros (Ax,(Ay,(Fax,(Fay,Ha)))) (Bx,(By,(Fbx,(Fby,Hb)))).
-    exists (λ x : X, Ax x ∧ Bx x), (λ y : Y, Ay y ∧ By y).
-    repeat split.
-    + now apply filter_and.
-    + now apply filter_and.
-    + apply Ha.
-      apply (pr1 X0).
-      apply (pr1 X1).
-    + apply Hb.
-      apply (pr2 X0).
-      apply (pr2 X1).
-  - simpl ; unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)).
-    intros (Ax,(Ay,(Fax,(Fay,Ha)))).
-    apply (filter_notempty Fx).
-    revert Fax.
-    apply filter_imply ; intros x Hx.
-    apply (filter_notempty Fy).
-    revert Fay.
-    apply filter_imply ; intros y Hy.
-    now apply (Ha x y).
+  simple refine (mkPreFilter _ _ _ _).
+  - exact (filterdirprod Fx Fy).
+  - apply filterdirprod_imply.
+  - apply filterdirprod_htrue.
+    apply filter_htrue.
+    apply filter_htrue.
+  - apply filterdirprod_and.
+    apply filter_and.
+    apply filter_and.
+Defined.
+Definition FilterDirprod {X Y : UU} (Fx : Filter X) (Fy : Filter Y) : Filter (X × Y).
+Proof.
+  intros X Y Fx Fy.
+  refine (tpair _ _ _).
+  split.
+  apply (pr2 (PreFilterDirprod Fx Fy)).
+  apply filterdirprod_notempty.
+  apply filter_imply.
+  apply filter_notempty.
+  apply filter_imply.
+  apply filter_notempty.
 Defined.
 
-Definition filter_pr1 {X Y : UU} (F : Filter (X × Y)) : Filter X.
+Section filterpr1.
+
+Context {X Y : UU}.
+Context (F : (X × Y -> hProp) -> hProp)
+        (Himp : isfilter_imply F)
+        (Htrue : isfilter_htrue F)
+        (Hand : isfilter_and F)
+        (Hempty : isfilter_notempty F).
+
+Definition filterpr1 : (X -> hProp) -> hProp :=
+  λ A, F (λ x : X × Y, A (pr1 x)).
+
+Lemma filterpr1_imply :
+  isfilter_imply filterpr1.
+Proof.
+  intros A B H.
+  apply Himp.
+  intros x.
+  now apply H.
+Qed.
+Lemma filterpr1_htrue :
+  isfilter_htrue filterpr1.
+Proof.
+  now apply Htrue.
+Qed.
+Lemma filterpr1_and :
+  isfilter_and filterpr1.
+Proof.
+  intros A B.
+  apply Hand.
+Qed.
+Lemma filterpr1_notempty :
+  isfilter_notempty filterpr1.
+Proof.
+  apply Hempty.
+Qed.
+
+End filterpr1.
+
+Definition PreFilterPr1 {X Y : UU} (F : PreFilter (X × Y)) : PreFilter X.
 Proof.
   intros X Y F.
-  simple refine (mkFilter _ _ _ _ _).
-  - intros A.
-    apply (F (λ x : X × Y, A (pr1 x))).
-  - intros A B H.
-    apply filter_imply.
-    intros x.
-    now apply H.
-  - simpl.
-    now apply filter_htrue.
-  - intros A B.
-    apply filter_and.
-  - apply filter_notempty.
+  simple refine (mkPreFilter _ _ _ _).
+  - exact (filterpr1 F).
+  - apply filterpr1_imply, filter_imply.
+  - apply filterpr1_htrue, filter_htrue.
+  - apply filterpr1_and, filter_and.
 Defined.
-
-Definition filter_pr2 {X Y : UU} (F : Filter (X × Y)) : Filter Y.
+Definition FilterPr1 {X Y : UU} (F : Filter (X × Y)) : Filter X.
 Proof.
   intros X Y F.
-  simple refine (mkFilter _ _ _ _ _).
-  - intros A.
-    apply (F (λ x : X × Y, A (pr2 x))).
-  - intros A B H.
-    apply filter_imply.
-    intros x.
-    now apply H.
-  - simpl.
-    now apply filter_htrue.
-  - intros A B.
-    apply filter_and.
-  - apply filter_notempty.
+  refine (tpair _ _ _).
+  split.
+  apply (pr2 (PreFilterPr1 F)).
+  apply filterpr1_notempty, filter_notempty.
 Defined.
 
-Goal ∀ {X Y : UU} (F : Filter (X × Y)),
-    filter_le F (filter_prod (filter_pr1 F) (filter_pr2 F)).
+Section filterpr2.
+
+Context {X Y : UU}.
+Context (F : (X × Y -> hProp) -> hProp)
+        (Himp : isfilter_imply F)
+        (Htrue : isfilter_htrue F)
+        (Hand : isfilter_and F)
+        (Hempty : isfilter_notempty F).
+
+Definition filterpr2 : (Y -> hProp) -> hProp :=
+  λ A, F (λ x : X × Y, A (pr2 x)).
+
+Lemma filterpr2_imply :
+  isfilter_imply filterpr2.
+Proof.
+  intros A B H.
+  apply Himp.
+  intros x.
+  now apply H.
+Qed.
+Lemma filterpr2_htrue :
+  isfilter_htrue filterpr2.
+Proof.
+  now apply Htrue.
+Qed.
+Lemma filterpr2_and :
+  isfilter_and filterpr2.
+Proof.
+  intros A B.
+  apply Hand.
+Qed.
+Lemma filterpr2_notempty :
+  isfilter_notempty filterpr2.
+Proof.
+  apply Hempty.
+Qed.
+
+End filterpr2.
+
+Definition PreFilterPr2 {X Y : UU} (F : PreFilter (X × Y)) : PreFilter Y.
+Proof.
+  intros X Y F.
+  simple refine (mkPreFilter _ _ _ _).
+  - exact (filterpr2 F).
+  - apply filterpr2_imply, filter_imply.
+  - apply filterpr2_htrue, filter_htrue.
+  - apply filterpr2_and, filter_and.
+Defined.
+Definition FilterPr2 {X Y : UU} (F : Filter (X × Y)) : Filter Y.
+Proof.
+  intros X Y F.
+  refine (tpair _ _ _).
+  split.
+  apply (pr2 (PreFilterPr2 F)).
+  apply filterpr2_notempty, filter_notempty.
+Defined.
+
+Goal ∀ {X Y : UU} (F : PreFilter (X × Y)),
+    filter_le F (PreFilterDirprod (PreFilterPr1 F) (PreFilterPr2 F)).
 Proof.
   intros X Y F.
   intros A.
@@ -444,8 +780,8 @@ Proof.
   now apply Ha.
 Qed.
 
-Goal ∀ {X Y : UU} (F : Filter X) (G : Filter Y),
-    filter_le (filter_pr1 (filter_prod F G)) F.
+Goal ∀ {X Y : UU} (F : PreFilter X) (G : PreFilter Y),
+    filter_le (PreFilterPr1 (PreFilterDirprod F G)) F.
 Proof.
   intros X Y F G.
   intros A Fa.
@@ -456,8 +792,8 @@ Proof.
   - now apply filter_htrue.
   - easy.
 Qed.
-Goal ∀ {X Y : UU} (F : Filter X) (G : Filter Y),
-    filter_le (filter_pr2 (filter_prod F G)) G.
+Goal ∀ {X Y : UU} (F : PreFilter X) (G : PreFilter Y),
+    filter_le (PreFilterPr2 (PreFilterDirprod F G)) G.
 Proof.
   intros X Y F G.
   intros A Fa.
@@ -473,70 +809,137 @@ Qed.
 
 (** *** Filter on nat *)
 
-Definition filter_nat : Filter nat.
+Section filternat.
+
+Definition filternat : (nat -> hProp) -> hProp :=
+  λ P : nat -> hProp, ∃ N : nat, ∀ n : nat, N ≤ n -> P n.
+
+Lemma filternat_imply :
+  isfilter_imply filternat.
+Proof.
+  intros P Q H.
+  apply hinhfun.
+  intros (N,Hp).
+  exists N.
+  intros n Hn.
+  now apply H, Hp.
+Qed.
+Lemma filternat_htrue :
+  isfilter_htrue filternat.
+Proof.
+  apply hinhpr.
+  now exists O.
+Qed.
+Lemma filternat_and :
+  isfilter_and filternat.
+Proof.
+  intros A B.
+  apply hinhfun2.
+  intros (Na,Ha) (Nb,Hb).
+  exists (max Na Nb).
+  intros n Hn.
+  split.
+  + apply Ha.
+    eapply istransnatleh, Hn.
+    now apply max_le_l.
+  + apply Hb.
+    eapply istransnatleh, Hn.
+    now apply max_le_r.
+Qed.
+Lemma filternat_notempty :
+  isfilter_notempty filternat.
+Proof.
+  intros H ; revert H.
+  apply hinhuniv'.
+  exact isapropempty.
+  intros (N,Hn).
+  apply (Hn N).
+  now apply isreflnatleh.
+Qed.
+
+End filternat.
+
+Definition FilterNat : Filter nat.
 Proof.
   simple refine (mkFilter _ _ _ _ _).
-  - intros P.
-    apply (∃ N : nat, ∀ n : nat, N ≤ n -> P n).
-  - intros P Q H.
-    apply hinhfun.
-    intros (N,Hp).
-    exists N.
-    intros n Hn.
-    now apply H, Hp.
-  - apply hinhpr.
-    now exists O.
-  - intros A B.
-    apply hinhfun2.
-    intros (Na,Ha) (Nb,Hb).
-    exists (max Na Nb).
-    intros n Hn.
-    split.
-    + apply Ha.
-      eapply istransnatleh, Hn.
-      now apply max_le_l.
-    + apply Hb.
-      eapply istransnatleh, Hn.
-      now apply max_le_r.
-  - intros H ; revert H.
-    apply hinhuniv'.
-    exact isapropempty.
-    intros (N,Hn).
-    apply (Hn (S N)).
-    now apply natlehnsn.
+  - apply filternat.
+  - apply filternat_imply.
+  - apply filternat_htrue.
+  - apply filternat_and.
+  - apply filternat_notempty.
 Defined.
 
-(** *** The smallest filter *)
+(** *** The upper filter *)
 
-Definition filter_top {X : UU} (x0 : ∥ X ∥) : Filter X.
+Section filtertop.
+
+Context  {X : UU} (x0 : ∥ X ∥).
+
+Definition filtertop : (X -> hProp) -> hProp :=
+  λ A : X → hProp, hProppair (∀ x : X, A x) (impred_isaprop _ (λ _, propproperty _)).
+
+Lemma filtertop_imply :
+  isfilter_imply filtertop.
+Proof.
+  intros A B H Ha x.
+  apply H, Ha.
+Qed.
+Lemma filtertop_htrue :
+  isfilter_htrue filtertop.
+Proof.
+  intros x.
+  apply tt.
+Qed.
+Lemma filtertop_and :
+  isfilter_and filtertop.
+Proof.
+  intros A B Ha Hb x.
+  split.
+  apply Ha.
+  apply Hb.
+Qed.
+Lemma filtertop_notempty :
+  isfilter_notempty filtertop.
+Proof.
+  intro H.
+  revert x0.
+  apply hinhuniv'.
+  exact isapropempty.
+  apply H.
+Qed.
+
+End filtertop.
+
+Definition PreFilterTop {X : UU} : PreFilter X.
+Proof.
+  intros X.
+  simple refine (mkPreFilter _ _ _ _).
+  - exact filtertop.
+  - exact filtertop_imply.
+  - exact filtertop_htrue.
+  - exact filtertop_and.
+Defined.
+
+Definition FilterTop {X : UU} (x0 : ∥ X ∥) : Filter X.
 Proof.
   intros X x0.
-  simple refine (mkFilter _ _ _ _ _).
-  - intros A.
-    simple refine (hProppair _ _).
-    apply (∀ x, A x).
-    apply impred_isaprop ; intros x.
-    apply propproperty.
-  - simpl ; intros A B H Ha x.
-    apply H, Ha.
-  - simpl ; intros x.
-    apply tt.
-  - simpl ; intros A B Ha Hb x.
-    split.
-    apply Ha.
-    apply Hb.
-  - simpl ; intro H.
-    revert x0.
-    apply hinhuniv'.
-    exact isapropempty.
-    apply H.
+  refine (tpair _ _ _).
+  split.
+  apply (pr2 PreFilterTop).
+  apply filtertop_notempty, x0.
 Defined.
 
-Lemma filter_top_correct {X : UU} :
-  ∀ (x0 : ∥ X ∥) (F : Filter X), filter_le F (filter_top x0).
+Lemma PreFilterTop_correct {X : UU} :
+  ∀ (F : PreFilter X), filter_le F PreFilterTop.
+Proof.
+  intros X F A Ha.
+  apply filter_forall, Ha.
+Qed.
+Lemma FilterTop_correct {X : UU} :
+  ∀ (x0 : ∥ X ∥) (F : Filter X), filter_le F (FilterTop x0).
 Proof.
   intros X x0 F A Ha.
-  apply filter_forall, Ha.
+  apply PreFilterTop_correct, Ha.
 Qed.
 
 (** *** Intersection of filters *)
@@ -552,13 +955,13 @@ Proof.
     apply isapropimpl.
     apply propproperty.
   - simpl ; intros A B H Ha F Hf.
-    refine (filter_imply _ _ _ _ _).
+    apply Ha in Hf.
+    apply (filter_imply F) with (2 := Hf).
     apply H.
-    apply Ha, Hf.
   - simpl ; intros F Hf.
-    now apply filter_htrue.
+    now apply (filter_htrue F).
   - simpl ; intros A B Ha Hb F Hf.
-    apply filter_and.
+    apply (filter_and F).
     apply Ha, Hf.
     apply Hb, Hf.
   - simpl ; intro Hf.
@@ -745,7 +1148,7 @@ Proof.
           intros [Fl | ->].
           + refine (tpair _ _ _).
             split.
-            * apply filter_and.
+            * apply (filter_and F).
               apply Fc.
               apply Fl.
             * intros x (H0,(H1,H2)) ; repeat split.
