@@ -944,46 +944,145 @@ Qed.
 
 (** *** Intersection of filters *)
 
-Definition filter_intersection {X : UU} (FF : Filter X -> hProp) (Hff : ¬ (∀ F : Filter X, ¬ FF F)) : Filter X.
+Section filterintersection.
+
+Context {X : UU}.
+Context (FF : ((X -> hProp) -> hProp) -> hProp)
+        (Himp : ∀ F, FF F -> isfilter_imply F)
+        (Htrue : ∀ F, FF F -> isfilter_htrue F)
+        (Hand : ∀ F, FF F -> isfilter_and F)
+        (Hempty : ∀ F, FF F -> isfilter_notempty F).
+Context (Hff : ¬ (∀ F, ¬ FF F)).
+
+Definition filterintersection : (X -> hProp) -> hProp :=
+  λ A : X → hProp, hProppair (∀ F : (X -> hProp) -> hProp, FF F → F A)
+                             (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
+
+Lemma filterintersection_imply :
+  isfilter_imply filterintersection.
+Proof.
+  intros A B H Ha F Hf.
+  apply (Himp F Hf A).
+  apply H.
+  apply Ha, Hf.
+Qed.
+Lemma filterintersection_htrue :
+  isfilter_htrue filterintersection.
+Proof.
+  intros F Hf.
+  now apply (Htrue F).
+Qed.
+Lemma filterintersection_and :
+  isfilter_and filterintersection.
+Proof.
+  intros A B Ha Hb F Hf.
+  apply (Hand F Hf).
+  apply Ha, Hf.
+  apply Hb, Hf.
+Qed.
+Lemma filterintersection_notempty :
+  isfilter_notempty filterintersection.
+Proof.
+  intro Hf.
+  apply Hff.
+  intros F Hf'.
+  apply (Hempty F Hf').
+  apply Hf, Hf'.
+Qed.
+
+End filterintersection.
+
+Definition PreFilterIntersection {X : UU} (FF : PreFilter X -> hProp) : PreFilter X.
+Proof.
+  intros.
+  simple refine (mkPreFilter _ _ _ _).
+  - apply filterintersection.
+    intros F.
+    apply (∃ Hf : isPreFilter F, FF (F,,Hf)).
+  - apply filterintersection_imply.
+    abstract (intros F ;
+               apply hinhuniv' ;
+               [ apply isaprop_isfilter_imply |
+                 intros Hf ] ;
+               apply (pr1 (pr1 Hf))).
+  - apply filterintersection_htrue.
+    abstract (intros F ;
+               apply hinhuniv ;
+               intros Hf ;
+               apply isfilter_finite_intersection_htrue, (pr2 (pr1 Hf))).
+  - apply filterintersection_and.
+    abstract (intros F ;
+               apply hinhuniv' ;
+               [ apply isaprop_isfilter_and | ] ;
+               intros Hf ;
+               apply isfilter_finite_intersection_and, (pr2 (pr1 Hf))).
+Defined.
+
+Definition FilterIntersection {X : UU} (FF : Filter X -> hProp) (Hff : ¬ (∀ F : Filter X, ¬ FF F)) : Filter X.
 Proof.
   intros X FF Hff.
   simple refine (mkFilter _ _ _ _ _).
-  - intros A.
-    simple refine (hProppair _ _).
-    apply (∀ F : Filter _, FF F -> F A).
-    apply impred_isaprop ; intros F.
-    apply isapropimpl.
-    apply propproperty.
-  - simpl ; intros A B H Ha F Hf.
-    apply Ha in Hf.
-    apply (filter_imply F) with (2 := Hf).
-    apply H.
-  - simpl ; intros F Hf.
-    now apply (filter_htrue F).
-  - simpl ; intros A B Ha Hb F Hf.
-    apply (filter_and F).
-    apply Ha, Hf.
-    apply Hb, Hf.
-  - simpl ; intro Hf.
-    apply Hff.
-    intros F Hf'.
-    apply (filter_notempty F).
-    apply Hf, Hf'.
+  - apply filterintersection.
+    intros F.
+    apply (∃ Hf : isFilter F, FF (F,,Hf)).
+  - apply filterintersection_imply.
+    abstract (intros F ;
+               apply hinhuniv' ;
+               [ apply isaprop_isfilter_imply |
+                 intros Hf ] ;
+               apply (pr1 (pr1 Hf))).
+  - apply filterintersection_htrue.
+    abstract (intros F ;
+               apply hinhuniv ;
+               intros Hf ;
+               apply isfilter_finite_intersection_htrue, (pr2 (pr1 (pr1 Hf)))).
+  - apply filterintersection_and.
+    abstract (intros F ;
+               apply hinhuniv' ;
+               [ apply isaprop_isfilter_and | ] ;
+               intros Hf ;
+               apply isfilter_finite_intersection_and, (pr2 (pr1 (pr1 Hf)))).
+  - apply filterintersection_notempty.
+    abstract ( intros F ;
+               apply hinhuniv' ;
+               [ apply isaprop_isfilter_notempty | ] ;
+               intros Hf ; apply (pr2 (pr1 Hf))).
+    abstract ( intros H ; apply Hff ;
+               intros F Hf ; apply (H (pr1 F)) ;
+               apply hinhpr ; exists (pr2 F) ; now rewrite <- tppr).
 Defined.
 
-Lemma filter_intersection_glb {X : UU} (FF : Filter X -> hProp) (Hff : ¬ (∀ F : Filter X, ¬ FF F)) :
-  (∀ F : Filter X, FF F -> filter_le F (filter_intersection FF Hff))
-× (∀ F : Filter X, (∀ G : Filter X, FF G -> filter_le G F) -> filter_le (filter_intersection FF Hff) F).
+Lemma PreFilterIntersection_glb {X : UU} (FF : PreFilter X -> hProp) :
+  (∀ F : PreFilter X, FF F -> filter_le F (PreFilterIntersection FF))
+× (∀ F : PreFilter X, (∀ G : PreFilter X, FF G -> filter_le G F) -> filter_le (PreFilterIntersection FF) F).
 Proof.
   split.
   - intros F Hf A Ha.
     apply Ha.
-    exact Hf.
-  - intros F H A Fa G Hg.
-    apply H.
-    apply Hg.
+    apply hinhpr.
+    exists (pr2 F).
+    now destruct F.
+  - intros F H A Fa G.
+    apply hinhuniv ; intros Hg.
+    apply (H (G,,(pr1 Hg)) (pr2 Hg)).
     apply Fa.
 Qed.
+Lemma FilterIntersection_glb {X : UU} (FF : Filter X -> hProp) Hff :
+  (∀ F : Filter X, FF F -> filter_le F (FilterIntersection FF Hff))
+× (∀ F : Filter X, (∀ G : Filter X, FF G -> filter_le G F) -> filter_le (FilterIntersection FF Hff) F).
+Proof.
+  split.
+  - intros F Hf A Ha.
+    apply Ha.
+    apply hinhpr.
+    exists (pr2 F).
+    now destruct F.
+  - intros F H A Fa G.
+    apply hinhuniv ; intros Hg.
+    apply (H (G,,(pr1 Hg)) (pr2 Hg)).
+    apply Fa.
+Qed.
+
 
 (** *** Filter generated by a set of subsets *)
 
