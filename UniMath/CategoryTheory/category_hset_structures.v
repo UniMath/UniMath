@@ -34,8 +34,10 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.covyoneda.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (* This should be moved upstream. Constructs the smallest eqrel
    containing a given relation *)
@@ -442,3 +444,81 @@ mkpair.
 Defined.
 
 End exponentials.
+
+(* This section defines exponential in [C,HSET] *)
+Section exponentials_functor_cat.
+
+Variable (C : precategory) (hsC : has_homsets C) (P : functor C HSET).
+
+Let CP := Products_functor_precat C _ ProductsHSET has_homsets_HSET.
+Let cy := covyoneda _ hsC.
+
+(* Defined Q^P *)
+Definition exponential_functor_cat (Q : functor C HSET) : functor C HSET.
+Proof.
+mkpair.
+- mkpair.
+  + intro c.
+    use hSetpair.
+    * apply (nat_trans (product_functor C _ ProductsHSET (cy c) P) Q).
+    * apply (isaset_nat_trans has_homsets_HSET).
+  + simpl; intros a b f.
+    intros alpha.
+    set (F := # cy f).
+    set (G := ProductOfArrows _ (CP (cy a) P) (CP (cy b) P) F (identity _)).
+    apply (G ;; alpha).
+-
+split.
++
+intros c.
+simpl.
+apply funextsec; intro a.
+apply (nat_trans_eq has_homsets_HSET); cbn; intro x.
+unfold covyoneda_objects_ob.
+apply funextsec; intro f.
+destruct f.
+simpl.
+unfold covyoneda_morphisms_data.
+rewrite id_left.
+apply idpath.
++
+intros a b c f g.
+simpl.
+apply funextsec; intro alpha.
+apply (nat_trans_eq has_homsets_HSET); cbn; intro x.
+unfold covyoneda_objects_ob.
+apply funextsec; intro h.
+destruct h.
+simpl.
+unfold covyoneda_morphisms_data.
+now rewrite assoc.
+Defined. (* TODO: opacify *)
+
+Definition eval (Q : functor C HSET) : nat_trans (ProductObject _ (CP P (exponential_functor_cat Q)) : functor _ _) Q.
+Proof.
+mkpair.
+- intros c.
+simpl.
+intros ytheta.
+set (y := pr1 ytheta); set (theta := pr2 ytheta).
+simpl in *.
+apply (theta c).
+simpl; unfold covyoneda_objects_ob.
+apply (identity c,,y).
+- simpl.
+intros c c' f.
+simpl.
+apply funextfun; intros ytheta.
+destruct ytheta as [y theta]; cbn.
+unfold covyoneda_morphisms_data.
+assert (X := nat_trans_ax theta).
+simpl in *.
+assert (Y := toforallpaths _ _ _ (X c c' f) (identity c,, y)).
+eapply pathscomp0; [|apply Y].
+cbn.
+now rewrite id_right, id_left.
+Defined.
+
+(* TODO: apply the lemma adjunction_from_partial in equivalences *)
+
+End exponential_functor_cat.
