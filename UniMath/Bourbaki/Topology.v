@@ -6,24 +6,36 @@ Require Export UniMath.Bourbaki.Filters.
 Require Import UniMath.Foundations.Algebra.DivisionRig.
 Require Import UniMath.Foundations.Algebra.ConstructiveStructures.
 
-Section OpenSet.
+Section Open.
 
 Context {X : UU}.
-Context (isOpen : (X -> hProp) -> hProp).
+Context (O : (X -> hProp) -> hProp).
 
-Definition isOpenSet_infinite_union : hProp :=
-  hProppair
-    (∀ P : (X -> hProp) -> hProp,
-       (∀ A : X -> hProp, P A -> isOpen A) -> isOpen (infinite_union P))
-    (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
-Definition isOpenSet_finite_intersection : hProp :=
-  hProppair
-    (∀ (P : Sequence (X -> hProp)), (∀ m, isOpen (P m)) -> isOpen (finite_intersection P))
-    (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
+Definition isSetOfOpen_infinite_union :=
+  ∀ P : (X -> hProp) -> hProp,
+    (∀ A : X -> hProp, P A -> O A) -> O (infinite_union P).
+Lemma isaprop_isSetOfOpen_infinite_union :
+  isaprop isSetOfOpen_infinite_union.
+Proof.
+  apply (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
+Qed.
+Definition isSetOfOpen_finite_intersection :=
+  ∀ (P : Sequence (X -> hProp)), (∀ m, O (P m)) -> O (finite_intersection P).
+Lemma isaprop_isSetOfOpen_finite_intersection :
+  isaprop isSetOfOpen_finite_intersection.
+Proof.
+  apply (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
+Qed.
 
-Lemma isOpenSet_hfalse :
-  isOpenSet_infinite_union
-  -> isOpen (λ _ : X, hfalse).
+Definition isSetOfOpen_htrue :=
+  O (λ _, htrue).
+
+Definition isSetOfOpen_and :=
+  ∀ A B, O A -> O B -> O (λ x, A x ∧ B x).
+
+Lemma isSetOfOpen_hfalse :
+  isSetOfOpen_infinite_union
+  -> O (λ _ : X, hfalse).
 Proof.
   intros H0.
   rewrite <- infinite_union_hfalse.
@@ -32,19 +44,20 @@ Proof.
   apply fromempty.
 Qed.
 
-Lemma isOpenSet_finite_intersection_htrue :
-  isOpenSet_finite_intersection
-  -> isOpen (λ _, htrue).
+Lemma isSetOfOpen_finite_intersection_htrue :
+  isSetOfOpen_finite_intersection
+  -> isSetOfOpen_htrue.
 Proof.
   intro H0.
+  unfold isSetOfOpen_htrue.
   rewrite <- finite_intersection_htrue.
   apply H0.
   intros (m,Hm).
   now apply fromempty.
 Qed.
-Lemma isOpenSet_finite_intersection_and :
-  isOpenSet_finite_intersection
-  -> ∀ A B, isOpen A -> isOpen B -> isOpen (λ x, A x ∧ B x).
+Lemma isSetOfOpen_finite_intersection_and :
+  isSetOfOpen_finite_intersection
+  -> isSetOfOpen_and.
 Proof.
   intros H0 A B Ha Hb.
   rewrite <- finite_intersection_and.
@@ -54,31 +67,31 @@ Proof.
   apply Ha.
   apply Hb.
 Qed.
-Lemma isOpenSet_finite_intersection_carac :
-  isOpen (λ _, htrue)
-  -> (∀ A B, isOpen A -> isOpen B -> isOpen (λ x, A x ∧ B x))
-  -> isOpenSet_finite_intersection.
+Lemma isSetOfOpen_finite_intersection_carac :
+  isSetOfOpen_htrue
+  -> isSetOfOpen_and
+  -> isSetOfOpen_finite_intersection.
 Proof.
   intros Htrue Hpair L.
-  apply (pr2 (finite_intersection_hProp isOpen)).
+  apply (pr2 (finite_intersection_hProp O)).
   split.
   - exact Htrue.
   - exact Hpair.
 Qed.
 
-Definition isOpenSet :=
-  isOpenSet_infinite_union ∧ isOpenSet_finite_intersection.
+Definition isSetOfOpen :=
+  isSetOfOpen_infinite_union × isSetOfOpen_finite_intersection.
 
-End OpenSet.
+End Open.
 
 Definition isTopologicalSet :=
-  λ X : hSet, Σ isOpen : (X -> hProp) -> hProp, isOpenSet isOpen.
-Definition TopologicalSet := Σ X : hSet, isTopologicalSet X.
+  λ X : UU, Σ O : (X -> hProp) -> hProp, isSetOfOpen O.
+Definition TopologicalSet := Σ X : UU, isTopologicalSet X.
 
-Definition mkTopologicalSet (X : hSet) (isOpen : (X -> hProp) -> hProp) (is : isOpenSet_infinite_union isOpen) (is0 : isOpen (λ _, htrue)) (is1 : ∀ A B, isOpen A -> isOpen B -> isOpen (λ x, A x ∧ B x)) : TopologicalSet := (X,,isOpen,,is,,(isOpenSet_finite_intersection_carac _ is0 is1)).
+Definition mkTopologicalSet (X : UU) (O : (X -> hProp) -> hProp) (is : isSetOfOpen_infinite_union O) (is0 : isSetOfOpen_htrue O) (is1 : isSetOfOpen_and O) : TopologicalSet := (X,,O,,is,,(isSetOfOpen_finite_intersection_carac _ is0 is1)).
 
-Definition pr1TopologicatSet : TopologicalSet -> hSet := pr1.
-Coercion pr1TopologicatSet : TopologicalSet >-> hSet.
+Definition pr1TopologicatSet : TopologicalSet -> UU := pr1.
+Coercion pr1TopologicatSet : TopologicalSet >-> UU.
 
 Definition isOpen {T : TopologicalSet} : (T -> hProp) -> hProp := pr1 (pr2 T).
 Definition Open {T : TopologicalSet} :=
@@ -125,7 +138,7 @@ Lemma isOpen_and :
   ∀ A B : T -> hProp,
     isOpen A -> isOpen B -> isOpen (λ x : T, A x ∧ B x).
 Proof.
-  apply isOpenSet_finite_intersection_and.
+  apply isSetOfOpen_finite_intersection_and.
   intros P Hp.
   apply isOpen_finite_intersection.
   apply Hp.
@@ -197,7 +210,7 @@ Proof.
     exact Py.
 Qed.
 
-Lemma neighborhood_impl :
+Lemma neighborhood_imply :
   ∀ (x : T) (P Q : T -> hProp),
     (∀ y : T, P y -> Q y) -> neighborhood x P -> neighborhood x Q.
 Proof.
@@ -291,24 +304,44 @@ Definition pr1base_of_neighborhood {T : TopologicalSet} (x : T) :
   base_of_neighborhood x -> ((T -> hProp) -> hProp) := pr1.
 Coercion pr1base_of_neighborhood : base_of_neighborhood >-> Funclass.
 
+Section base_default.
+
+Context {T : TopologicalSet} (x : T).
+
+Definition base_default : (T -> hProp) -> hProp :=
+  λ P : T -> hProp, isOpen P ∧ P x.
+
+Lemma base_default_1 :
+  ∀ P : T -> hProp, base_default P -> neighborhood x P.
+Proof.
+  intros P Hp.
+  apply hinhpr.
+  exists (P,,(pr1 Hp)) ; split.
+  exact (pr2 Hp).
+  easy.
+Qed.
+Lemma base_default_2 :
+  ∀ P : T -> hProp, neighborhood x P -> ∃ Q : T -> hProp, base_default Q × (∀ t : T, Q t -> P t).
+Proof.
+  intros P.
+  apply hinhfun.
+  intros Q.
+  exists (pr1 Q).
+  repeat split.
+  exact (pr2 (pr1 Q)).
+  exact (pr1 (pr2 Q)).
+  exact (pr2 (pr2 Q)).
+Qed.
+
+End base_default.
+
 Definition base_of_neighborhood_default {T : TopologicalSet} (x : T) : base_of_neighborhood x.
 Proof.
   intros T x.
-  simple refine (tpair _ _ _).
-  intros P.
-  apply (P x ∧ isOpen P).
+  exists (base_default x).
   split.
-  - intros P (Px,Hp).
-    apply hinhpr.
-    now exists (P,,Hp).
-  - intros P.
-    apply hinhfun.
-    intros ((Q,Hq),(Qx,H)).
-    exists Q.
-    repeat split.
-    exact Qx.
-    exact Hq.
-    exact H.
+  - now apply base_default_1.
+  - now apply base_default_2.
 Defined.
 
 Definition neighborhood' {T : TopologicalSet} (x : T) (B : base_of_neighborhood x) : (T -> hProp) -> hProp :=
@@ -322,7 +355,7 @@ Proof.
   - apply hinhuniv.
     intros O.
     generalize ((pr1 (pr2 B)) (pr1 O) (pr1 (pr2 O))).
-    apply neighborhood_impl.
+    apply neighborhood_imply.
     exact (pr2 (pr2 O)).
   - intros Hp.
     generalize (pr2 (pr2 B) P Hp).
@@ -336,66 +369,105 @@ Qed.
 
 (** *** Generated Topology *)
 
-Definition generated_topology {X : hSet} (O : (X -> hProp) -> hProp) : TopologicalSet.
+Section topologygenerated.
+
+Context {X : UU} (O : (X -> hProp) -> hProp).
+
+Definition topologygenerated :=
+  λ P : X -> hProp,
+        ∀ x, P x ->
+             ∃ L : Sequence (X -> hProp),
+               (forall n, O (L n) × L n x)
+                 × (∀ y : X, (finite_intersection L) y -> P y).
+Lemma isaprop_topologygenerated :
+  ∀ P, isaprop (topologygenerated P).
+Proof.
+  intros P.
+  apply impred_isaprop ; intro x.
+  apply isapropimpl.
+  apply propproperty.
+Qed.
+
+Lemma topologygenerated_infinite_union :
+  isSetOfOpen_infinite_union (λ P, topologygenerated P ,, isaprop_topologygenerated P).
+Proof.
+  intros P Hp x.
+  apply hinhuniv.
+  intros (A,(Pa,Ax)).
+  specialize (Hp A Pa x Ax) ; revert Hp.
+  apply hinhfun.
+  intros (L,(Ol,Hl)).
+  exists L.
+  split.
+  exact Ol.
+  intros y Hy.
+  apply hinhpr.
+  exists A.
+  split.
+  exact Pa.
+  now apply Hl.
+Qed.
+Lemma topologygenerated_htrue :
+  isSetOfOpen_htrue
+    (λ P : X → hProp,
+           topologygenerated P,, isaprop_topologygenerated P).
+Proof.
+  intros x _.
+  apply hinhpr.
+  exists nil.
+  split.
+  now intros (n,Hn).
+  intros _ _.
+  exact tt.
+Qed.
+Lemma topologygenerated_and :
+  isSetOfOpen_and
+    (λ P : X → hProp,
+           topologygenerated P,, isaprop_topologygenerated P).
+Proof.
+  intros A B Ha Hb x (Ax,Bx).
+  specialize (Ha _ Ax).
+  specialize (Hb _ Bx).
+  revert Ha Hb.
+  apply hinhfun2.
+  intros (La,(Ola,Hla)) (Lb,(Olb,Hlb)).
+  exists (concatenate La Lb).
+  split.
+  + intros n ; simpl.
+    destruct (invmap (weqfromcoprodofstn (length La) (length Lb)) n) ; simpl.
+    now apply Ola.
+    now apply Olb.
+  + intros y Hy.
+    split.
+    apply Hla.
+    intros n.
+    simpl in Hy.
+    specialize (Hy ((weqfromcoprodofstn (length La) (length Lb)) (ii1 n))).
+    now rewrite homotinvweqweq, coprod_rect_compute_1 in Hy.
+    apply Hlb.
+    intros n.
+    simpl in Hy.
+    specialize (Hy ((weqfromcoprodofstn (length La) (length Lb)) (ii2 n))).
+    now rewrite homotinvweqweq, coprod_rect_compute_2 in Hy.
+Qed.
+
+End topologygenerated.
+
+Definition generated_topology {X : UU} (O : (X -> hProp) -> hProp) : TopologicalSet.
 Proof.
   intros X O.
   simple refine (mkTopologicalSet _ _ _ _ _).
   - apply X.
   - intros P.
     simple refine (tpair _ _ _).
-    apply (∀ x, P x -> ∃ L : Sequence (X -> hProp), (forall n, O (L n) × L n x) × (∀ y : X, (finite_intersection L) y -> P y)).
-    apply impred_isaprop ; intro x.
-    apply isapropimpl.
-    apply propproperty.
-  - intros P Hp x.
-    apply hinhuniv.
-    intros (A,(Pa,Ax)).
-    specialize (Hp A Pa x Ax) ; revert Hp.
-    apply hinhfun.
-    intros (L,(Ol,Hl)).
-    exists L.
-    split.
-    exact Ol.
-    intros y Hy.
-    apply hinhpr.
-    exists A.
-    split.
-    exact Pa.
-    now apply Hl.
-  - intros x _.
-    apply hinhpr.
-    exists nil.
-    split.
-    now intros (n,Hn).
-    intros _ _.
-    exact tt.
-  - intros A B Ha Hb x (Ax,Bx).
-    specialize (Ha _ Ax).
-    specialize (Hb _ Bx).
-    revert Ha Hb.
-    apply hinhfun2.
-    intros (La,(Ola,Hla)) (Lb,(Olb,Hlb)).
-    exists (concatenate La Lb).
-    split.
-    + intros n ; simpl.
-      destruct (invmap (weqfromcoprodofstn (length La) (length Lb)) n) ; simpl.
-      now apply Ola.
-      now apply Olb.
-    + intros y Hy.
-      split.
-      apply Hla.
-      intros n.
-      simpl in Hy.
-      specialize (Hy ((weqfromcoprodofstn (length La) (length Lb)) (ii1 n))).
-      now rewrite homotinvweqweq, coprod_rect_compute_1 in Hy.
-      apply Hlb.
-      intros n.
-      simpl in Hy.
-      specialize (Hy ((weqfromcoprodofstn (length La) (length Lb)) (ii2 n))).
-      now rewrite homotinvweqweq, coprod_rect_compute_2 in Hy.
+    apply (topologygenerated O P).
+    apply isaprop_topologygenerated.
+  - apply topologygenerated_infinite_union.
+  - apply topologygenerated_htrue.
+  - apply topologygenerated_and.
 Defined.
 
-Lemma generated_topology_included {X : hSet} :
+Lemma generated_topology_included {X : UU} :
   ∀ (O : (X -> hProp) -> hProp) (P : X -> hProp),
     O P -> isOpen (T := generated_topology O) P.
 Proof.
@@ -408,7 +480,7 @@ Proof.
   - intros y Hy.
     apply (Hy (0%nat,,paths_refl _)).
 Qed.
-Lemma generated_topology_smallest {X : hSet} :
+Lemma generated_topology_smallest {X : UU} :
   ∀ (O : (X -> hProp) -> hProp) (T : isTopologicalSet X),
     (∀ P : X -> hProp, O P -> pr1 T P)
     -> ∀ P : X -> hProp, isOpen (T := generated_topology O) P -> pr1 T P.
@@ -434,15 +506,15 @@ Qed.
 
 (** *** Product of topologies *)
 
-Definition topology_prod (U V : TopologicalSet) : TopologicalSet.
+Definition TopologyDirprod (U V : TopologicalSet) : TopologicalSet.
 Proof.
   intros U V.
   simple refine (generated_topology _).
-  - exists (U × V).
-    apply isaset_dirprod ; apply pr2.
+  - apply (U × V).
   - simpl ; intros A.
-    exists ((∀ y : V, isOpen (λ x : U, A (x,,y))) × (∀ x : U, isOpen (λ y : V, A (x,,y)))).
-    apply isapropdirprod ; apply impred_isaprop ; intro ; apply pr2.
+    apply (∃ (B : U -> hProp) (C : V -> hProp),
+              isOpen B × isOpen C
+                     × (∀ (x : U) (y : V), A (x,,y) <-> B x × C y)).
 Defined.
 
 (** *** Topology on a subtype *)
@@ -451,12 +523,7 @@ Definition topology_subtypes (T : TopologicalSet) (dom : T -> hProp) : Topologic
 Proof.
   intros T dom.
   simple refine (mkTopologicalSet _ _ _ _ _).
-  - exists (Σ x : T, dom x).
-    apply isaset_total2.
-    apply pr2.
-    intros x.
-    apply isasetaprop.
-    apply pr2.
+  - apply (Σ x : T, dom x).
   - simpl ; intros A.
     apply (∃ A' : Open (T := T), A = (λ (y : Σ x0 : T, dom x0), A' (pr1 y))).
   - intros P Hp.
@@ -509,7 +576,7 @@ Proof.
   simple refine (mkFilter _ _ _ _ _).
   - apply (neighborhood x).
   - intros A B.
-    apply neighborhood_impl.
+    apply neighborhood_imply.
   - apply (pr2 (neighborhood_isOpen _)).
     apply isOpen_htrue.
     apply tt.
@@ -527,7 +594,7 @@ Proof.
   - apply (neighborhood' x base).
   - intros A B H Ha.
     apply (pr2 (neighborhood_equiv _ _ _)).
-    eapply neighborhood_impl.
+    eapply neighborhood_imply.
     exact H.
     eapply neighborhood_equiv.
     exact Ha.
@@ -656,13 +723,13 @@ Definition continuous2d_base_at {U V W : TopologicalSet} (f : U -> V -> W) (x : 
 (** ** Topology in algebraic structures *)
 
 Definition isTopological_monoid (X : monoid) (is : isTopologicalSet X) :=
-  continuous2d (U := ((pr1 (pr1 X)) ,, is)) (V := ((pr1 (pr1 X)) ,, is)) (W := ((pr1 (pr1 X)) ,, is)) BinaryOperations.op.
+  continuous2d (U := ((pr1 (pr1 (pr1 X))) ,, is)) (V := ((pr1 (pr1 (pr1 X))) ,, is)) (W := ((pr1 (pr1 (pr1 X))) ,, is)) BinaryOperations.op.
 Definition Topological_monoid :=
   Σ (X : monoid) (is : isTopologicalSet X), isTopological_monoid X is.
 
 Definition isTopological_gr (X : gr) (is : isTopologicalSet X) :=
   isTopological_monoid X is
-  × continuous (U := ((pr1 (pr1 X)) ,, is)) (V := ((pr1 (pr1 X)) ,, is)) (grinv X).
+  × continuous (U := ((pr1 (pr1 (pr1 X))) ,, is)) (V := ((pr1 (pr1 (pr1 X))) ,, is)) (grinv X).
 Definition Topological_gr :=
   Σ (X : gr) is, isTopological_gr X is.
 
@@ -680,24 +747,24 @@ Definition Topological_rng :=
 
 Definition isTopological_DivRig (X : DivRig) (is : isTopologicalSet X) :=
   isTopological_rig (pr1 X) is
-  × continuous_subtypes (U := ((pr1 (pr1 (pr1 X))) ,, is)) (V := ((pr1 (pr1 (pr1 X))) ,, is)) (λ x : X, hProppair (x != 0%dr) (isapropneg _)) invDivRig.
+  × continuous_subtypes (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (λ x : X, hProppair (x != 0%dr) (isapropneg _)) invDivRig.
 Definition Topological_DivRig :=
   Σ (X : DivRig) is, isTopological_DivRig X is.
 
 Definition isTopological_fld (X : fld) (is : isTopologicalSet X) :=
   isTopological_rng (pr1 X) is
-  × continuous_subtypes (U := ((pr1 (pr1 (pr1 X))) ,, is)) (V := ((pr1 (pr1 (pr1 X))) ,, is)) (λ x : X, hProppair (x != 0%rng) (isapropneg _)) (λ x, fldmultinv (pr1 x) (pr2 x)).
+  × continuous_subtypes (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (λ x : X, hProppair (x != 0%rng) (isapropneg _)) (λ x, fldmultinv (pr1 x) (pr2 x)).
 Definition Topological_fld :=
   Σ (X : fld) is, isTopological_fld X is.
 
 Definition isTopological_ConstructiveDivisionRig (X : ConstructiveDivisionRig) (is : isTopologicalSet X) :=
   isTopological_rig (pr1 X) is
-  × continuous_subtypes (U := ((pr1 (pr1 (pr1 X))) ,, is)) (V := ((pr1 (pr1 (pr1 X))) ,, is)) (λ x : X, (x ≠ 0)%CDR) (λ x, CDRinv (pr1 x) (pr2 x)).
+  × continuous_subtypes (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (λ x : X, (x ≠ 0)%CDR) (λ x, CDRinv (pr1 x) (pr2 x)).
 Definition Topological_ConstructiveDivisionRig :=
   Σ (X : ConstructiveDivisionRig) is, isTopological_ConstructiveDivisionRig X is.
 
 Definition isTopological_ConstructiveField (X : ConstructiveField) (is : isTopologicalSet X) :=
   isTopological_rng (pr1 X) is
-  × continuous_subtypes (U := ((pr1 (pr1 (pr1 X))) ,, is)) (V := ((pr1 (pr1 (pr1 X))) ,, is)) (λ x : X, (x ≠ 0)%CF) (λ x, CFinv (pr1 x) (pr2 x)).
+  × continuous_subtypes (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (λ x : X, (x ≠ 0)%CF) (λ x, CFinv (pr1 x) (pr2 x)).
 Definition Topological_ConstructiveField :=
   Σ (X : ConstructiveField) is, isTopological_ConstructiveField X is.
