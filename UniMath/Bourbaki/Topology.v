@@ -32,6 +32,14 @@ Definition isSetOfOpen_htrue :=
 
 Definition isSetOfOpen_and :=
   ∀ A B, O A -> O B -> O (λ x, A x ∧ B x).
+Lemma isaprop_isSetOfOpen_and :
+  isaprop isSetOfOpen_and.
+Proof.
+  apply impred_isaprop ; intros A.
+  apply impred_isaprop ; intros B.
+  apply isapropimpl, isapropimpl.
+  now apply propproperty.
+Qed.
 
 Lemma isSetOfOpen_hfalse :
   isSetOfOpen_infinite_union
@@ -84,8 +92,8 @@ Definition isSetOfOpen :=
 
 End Open.
 
-Definition isTopologicalSet :=
-  λ X : UU, Σ O : (X -> hProp) -> hProp, isSetOfOpen O.
+Definition isTopologicalSet (X : UU) :=
+  Σ O : (X -> hProp) -> hProp, isSetOfOpen O.
 Definition TopologicalSet := Σ X : UU, isTopologicalSet X.
 
 Definition mkTopologicalSet (X : UU) (O : (X -> hProp) -> hProp) (is : isSetOfOpen_infinite_union O) (is0 : isSetOfOpen_htrue O) (is1 : isSetOfOpen_and O) : TopologicalSet := (X,,O,,is,,(isSetOfOpen_finite_intersection_carac _ is0 is1)).
@@ -121,10 +129,9 @@ Qed.
 Lemma isOpen_hfalse :
   isOpen (λ _ : T, hfalse).
 Proof.
-  rewrite <- infinite_union_hfalse.
-  apply isOpen_infinite_union.
-  intro.
-  apply fromempty.
+  apply isSetOfOpen_hfalse.
+  intros P H.
+  now apply isOpen_infinite_union.
 Qed.
 Lemma isOpen_htrue :
   isOpen (λ _ : T, htrue).
@@ -453,7 +460,7 @@ Qed.
 
 End topologygenerated.
 
-Definition generated_topology {X : UU} (O : (X -> hProp) -> hProp) : TopologicalSet.
+Definition TopologyGenerated {X : UU} (O : (X -> hProp) -> hProp) : TopologicalSet.
 Proof.
   intros X O.
   simple refine (mkTopologicalSet _ _ _ _ _).
@@ -467,9 +474,9 @@ Proof.
   - apply topologygenerated_and.
 Defined.
 
-Lemma generated_topology_included {X : UU} :
+Lemma TopologyGenerated_included {X : UU} :
   ∀ (O : (X -> hProp) -> hProp) (P : X -> hProp),
-    O P -> isOpen (T := generated_topology O) P.
+    O P -> isOpen (T := TopologyGenerated O) P.
 Proof.
   intros X O P Op.
   intros x Hx.
@@ -480,10 +487,10 @@ Proof.
   - intros y Hy.
     apply (Hy (0%nat,,paths_refl _)).
 Qed.
-Lemma generated_topology_smallest {X : UU} :
+Lemma TopologyGenerated_smallest {X : UU} :
   ∀ (O : (X -> hProp) -> hProp) (T : isTopologicalSet X),
     (∀ P : X -> hProp, O P -> pr1 T P)
-    -> ∀ P : X -> hProp, isOpen (T := generated_topology O) P -> pr1 T P.
+    -> ∀ P : X -> hProp, isOpen (T := TopologyGenerated O) P -> pr1 T P.
 Proof.
   intros X O T Ht P Hp.
   apply (neighborhood_isOpen (T := (X,,T))).
@@ -509,7 +516,7 @@ Qed.
 Definition TopologyDirprod (U V : TopologicalSet) : TopologicalSet.
 Proof.
   intros U V.
-  simple refine (generated_topology _).
+  simple refine (TopologyGenerated _).
   - apply (U × V).
   - simpl ; intros A.
     apply (∃ (B : U -> hProp) (C : V -> hProp),
@@ -519,53 +526,85 @@ Defined.
 
 (** *** Topology on a subtype *)
 
-Definition topology_subtypes (T : TopologicalSet) (dom : T -> hProp) : TopologicalSet.
+Section topologysubtype.
+
+Context {T : TopologicalSet} (dom : T -> hProp).
+
+Definition topologysubtype : ((Σ x : T, dom x) -> hProp) -> hProp :=
+  λ A : (Σ x : T, dom x) -> hProp,
+        ∃ A' : Open (T := T), ∀ x, A x <-> (A' (pr1 x)).
+
+Lemma topologysubtype_infinite_union :
+  isSetOfOpen_infinite_union topologysubtype.
+Proof.
+  intros P Hp.
+  set (P' := λ A : T -> hProp, isOpen A ∧ P (λ y : (Σ x : T, dom x), A (pr1 y))).
+  apply hinhpr.
+  simple refine (tpair _ _ _).
+  exists (infinite_union P').
+  apply isOpen_infinite_union.
+  intros A Ha.
+  apply (pr1 Ha).
+  intros (x,Hx).
+  split.
+  + apply hinhuniv.
+    intros (A,(Ha,Ax)).
+    generalize (Hp _ Ha).
+    apply hinhfun.
+    intros (A',Ha').
+    exists A' ; split.
+    split.
+    * apply (pr2 A').
+    * assert ((λ y : Σ x0 : T, dom x0, A' (pr1 y)) = A).
+      { apply funextfun ; intro y.
+        apply uahp.
+        apply (pr2 (Ha' _)).
+        apply (pr1 (Ha' _)). }
+      now rewrite X ; clear X.
+    * now apply (pr1 (Ha' _)).
+  + apply hinhfun.
+    intros (A,(P'a,Ax)).
+    exists (λ x, A (pr1 x)).
+    split.
+    apply (pr2 P'a).
+    exact Ax.
+Qed.
+Lemma topologysubtype_htrue :
+  isSetOfOpen_htrue topologysubtype.
+Proof.
+  apply hinhpr ;
+  now exists ((λ _, htrue),,isOpen_htrue).
+Qed.
+Lemma topologysubtype_and :
+  isSetOfOpen_and topologysubtype.
+Proof.
+  intros A B.
+  apply hinhfun2.
+  intros (A',Ha) (B',Hb).
+  simple refine (tpair _ _ _).
+  simple refine (tpair _ _ _).
+  intros x ; apply (A' x ∧ B' x).
+  apply isOpen_and.
+  apply (pr2 A').
+  apply (pr2 B').
+  split ; intros (Ax,Bx) ; split.
+  now apply (pr1 (Ha _)).
+  now apply (pr1 (Hb _)).
+  now apply (pr2 (Ha _)).
+  now apply (pr2 (Hb _)).
+Qed.
+
+End topologysubtype.
+
+Definition topology_subtypes {T : TopologicalSet} (dom : T -> hProp) : TopologicalSet.
 Proof.
   intros T dom.
   simple refine (mkTopologicalSet _ _ _ _ _).
-  - apply (Σ x : T, dom x).
-  - simpl ; intros A.
-    apply (∃ A' : Open (T := T), A = (λ (y : Σ x0 : T, dom x0), A' (pr1 y))).
-  - intros P Hp.
-    simpl in P.
-    set (P' := λ A : T -> hProp, isOpen A ∧ P (λ y : (Σ x : T, dom x), A (pr1 y))).
-    apply hinhpr.
-    simple refine (tpair _ _ _).
-    exists (infinite_union P').
-    apply isOpen_infinite_union.
-    intros A Ha.
-    apply (pr1 Ha).
-    apply funextfun ; intros (x,Hx).
-    apply uahp.
-    + apply hinhuniv.
-      intros (A,(Ha,Ax)).
-      generalize (Hp _ Ha).
-      apply hinhfun.
-      intros (A',Ha').
-      exists A' ; split.
-      split.
-      apply (pr2 A').
-      now rewrite <- Ha'.
-      now rewrite Ha' in Ax.
-    + apply hinhfun.
-      intros (A,(P'a,Ax)).
-      exists (λ x, A (pr1 x)).
-      split.
-      apply (pr2 P'a).
-      exact Ax.
-  - simpl.
-    apply hinhpr.
-    now exists ((λ _, htrue),,isOpen_htrue).
-  - intros A B.
-    apply hinhfun2.
-    intros (A',->) (B',->).
-    simple refine (tpair _ _ _).
-    simple refine (tpair _ _ _).
-    intros x ; apply (A' x ∧ B' x).
-    apply isOpen_and.
-    apply (pr2 A').
-    apply (pr2 B').
-    reflexivity.
+  - exact (Σ x : T, dom x).
+  - apply topologysubtype.
+  - now apply topologysubtype_infinite_union.
+  - now apply topologysubtype_htrue.
+  - now apply topologysubtype_and.
 Defined.
 
 (** ** Limits in a Topological Set *)
@@ -575,38 +614,60 @@ Proof.
   intros T x.
   simple refine (mkFilter _ _ _ _ _).
   - apply (neighborhood x).
-  - intros A B.
-    apply neighborhood_imply.
-  - apply (pr2 (neighborhood_isOpen _)).
-    apply isOpen_htrue.
-    apply tt.
-  - intros A B.
-    apply neighborhood_and.
-  - intros Hx.
-    apply neighborhood_point in Hx.
-    exact Hx.
+  - abstract (intros A B ;
+              apply neighborhood_imply).
+  - abstract (apply (pr2 (neighborhood_isOpen _)) ;
+              [ apply isOpen_htrue |
+                apply tt]).
+  - abstract (intros A B ;
+              apply neighborhood_and).
+  - abstract (intros Hx ;
+              apply neighborhood_point in Hx ;
+              exact Hx).
 Defined.
+
+Section locally_base.
+
+Context {T : TopologicalSet} (x : T) (base : base_of_neighborhood x).
+
+Lemma locally_base_imply :
+  isfilter_imply (neighborhood' x base).
+Proof.
+  intros A B H Ha.
+  apply (pr2 (neighborhood_equiv _ _ _)).
+  eapply neighborhood_imply.
+  exact H.
+  eapply neighborhood_equiv.
+  exact Ha.
+Qed.
+Lemma locally_base_htrue :
+  isfilter_htrue (neighborhood' x base).
+Proof.
+  apply (pr2 (neighborhood_equiv _ _ _)).
+  apply (pr2 (neighborhood_isOpen _)).
+  apply isOpen_htrue.
+  apply tt.
+Qed.
+Lemma locally_base_and :
+  isfilter_and (neighborhood' x base).
+Proof.
+  intros A B Ha Hb.
+  apply (pr2 (neighborhood_equiv _ _ _)).
+  eapply neighborhood_and.
+  eapply neighborhood_equiv, Ha.
+  eapply neighborhood_equiv, Hb.
+Qed.
+
+End locally_base.
 
 Definition locally_base {T : TopologicalSet} (x : T) (base : base_of_neighborhood x) : Filter T.
 Proof.
   intros T x base.
   simple refine (mkFilter _ _ _ _ _).
   - apply (neighborhood' x base).
-  - intros A B H Ha.
-    apply (pr2 (neighborhood_equiv _ _ _)).
-    eapply neighborhood_imply.
-    exact H.
-    eapply neighborhood_equiv.
-    exact Ha.
-  - apply (pr2 (neighborhood_equiv _ _ _)).
-    apply (pr2 (neighborhood_isOpen _)).
-    apply isOpen_htrue.
-    apply tt.
-  - intros A B Ha Hb.
-    apply (pr2 (neighborhood_equiv _ _ _)).
-    eapply neighborhood_and.
-    eapply neighborhood_equiv, Ha.
-    eapply neighborhood_equiv, Hb.
+  - apply locally_base_imply.
+  - apply locally_base_htrue.
+  - apply locally_base_and.
   - intros Hx.
     apply neighborhood_equiv in Hx.
     apply neighborhood_point in Hx.
