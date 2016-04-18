@@ -448,10 +448,14 @@ End exponentials.
 (* This section defines exponential in [C,HSET] *)
 Section exponentials_functor_cat.
 
-Variable (C : precategory) (hsC : has_homsets C) (P : functor C HSET).
+Variable (C : precategory) (hsC : has_homsets C).
 
 Let CP := Products_functor_precat C _ ProductsHSET has_homsets_HSET.
 Let cy := covyoneda _ hsC.
+
+Section temp.
+
+Variable (P : functor C HSET).
 
 (* Defined Q^P *)
 Definition exponential_functor_cat (Q : functor C HSET) : functor C HSET.
@@ -519,6 +523,17 @@ cbn.
 now rewrite id_right, id_left.
 Defined.
 
-(* TODO: apply the lemma adjunction_from_partial in equivalences *)
+End temp.
+
+Lemma has_exponentials_functor_HSET : has_exponentials CP.
+Proof.
+intro F.
+use adjunction_from_partial.
+- apply (exponential_functor_cat F).
+- intro Q; simpl; apply eval.
+- intro Q; simpl.
+  intros P α; simpl in *.
+  admit.
+Admitted.
 
 End exponentials_functor_cat.
