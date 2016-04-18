@@ -521,4 +521,4 @@ Defined.
 
 (* TODO: apply the lemma adjunction_from_partial in equivalences *)
 
-End exponential_functor_cat.
+End exponentials_functor_cat.
