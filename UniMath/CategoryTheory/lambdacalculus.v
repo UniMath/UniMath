@@ -341,7 +341,7 @@ apply omega_cocont_sum_of_functors.
   apply has_exponentials_functor_HSET.
   apply has_homsets_HSET.
 apply omega_cocont_pre_composition_functor.
-admit.
-Admitted.
+apply cats_LimsHSET.
+Defined.
 
 End lambdacalculus.
