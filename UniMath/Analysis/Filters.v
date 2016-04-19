@@ -113,7 +113,11 @@ Definition Filter (X : UU) := Σ F : (X -> hProp) -> hProp, isFilter F.
 Definition pr1Filter (X : UU) (F : Filter X) : PreFilter X :=
   pr1 F,, pr1 (pr2 F).
 Coercion pr1Filter : Filter >-> PreFilter.
-Definition mkFilter {X : UU} (F : (X -> hProp) -> hProp) (Himp : isfilter_imply F) (Htrue : isfilter_htrue F) (Hand : isfilter_and F) (Hempty : isfilter_notempty F) : Filter X :=
+Definition mkFilter {X : UU} (F : (X -> hProp) -> hProp)
+           (Himp : isfilter_imply F)
+           (Htrue : isfilter_htrue F)
+           (Hand : isfilter_and F)
+           (Hempty : isfilter_notempty F) : Filter X :=
   F ,, (Himp ,, (isfilter_finite_intersection_carac F Htrue Hand)) ,, Hempty.
 
 Lemma emptynofilter :
@@ -458,7 +462,8 @@ Proof.
     apply filter_and.
 Defined.
 
-Definition FilterDom {X : UU} (F : Filter X) (dom : X -> hProp) (Hdom : ∀ P, F P -> ¬ ¬ ∃ x, dom x ∧ P x) : Filter X.
+Definition FilterDom {X : UU} (F : Filter X) (dom : X -> hProp)
+           (Hdom : ∀ P, F P -> ¬ ¬ ∃ x, dom x ∧ P x) : Filter X.
 Proof.
   intros X F dom Hdom.
   refine (tpair _ _ _).
@@ -540,7 +545,8 @@ Proof.
     apply filter_and.
 Defined.
 
-Definition FilterSubtype {X : UU} (F : Filter X) (dom : X -> hProp) (Hdom : ∀ P, F P -> ¬ ¬ ∃ x, dom x ∧ P x) : Filter (Σ x : X, dom x).
+Definition FilterSubtype {X : UU} (F : Filter X) (dom : X -> hProp)
+           (Hdom : ∀ P, F P -> ¬ ¬ ∃ x, dom x ∧ P x) : Filter (Σ x : X, dom x).
 Proof.
   intros X F dom Hdom.
   refine (tpair _ _ _).
@@ -568,7 +574,8 @@ Context (Fy : (Y -> hProp) -> hProp)
 
 Definition filterdirprod : (X × Y -> hProp) -> hProp :=
   λ A : (X × Y) -> hProp,
-        ∃ (Ax : X -> hProp) (Ay : Y -> hProp), Fx Ax × Fy Ay × (∀ (x : X) (y : Y), Ax x -> Ay y -> A (x,,y)).
+        ∃ (Ax : X -> hProp) (Ay : Y -> hProp),
+          Fx Ax × Fy Ay × (∀ (x : X) (y : Y), Ax x -> Ay y -> A (x,,y)).
 
 Lemma filterdirprod_imply :
   isfilter_imply filterdirprod.
@@ -1009,7 +1016,8 @@ Proof.
     apply filter_and.
 Defined.
 
-Definition FilterIntersection {X : UU} (FF : Filter X -> hProp) (Hff : ¬ (∀ F : Filter X, ¬ FF F)) : Filter X.
+Definition FilterIntersection {X : UU} (FF : Filter X -> hProp)
+           (Hff : ¬ (∀ F : Filter X, ¬ FF F)) : Filter X.
 Proof.
   intros X FF Hff.
   simple refine (mkFilter _ _ _ _ _).
@@ -1031,7 +1039,8 @@ Defined.
 
 Lemma PreFilterIntersection_glb {X : UU} (FF : PreFilter X -> hProp) :
   (∀ F : PreFilter X, FF F -> filter_le F (PreFilterIntersection FF))
-× (∀ F : PreFilter X, (∀ G : PreFilter X, FF G -> filter_le G F) -> filter_le (PreFilterIntersection FF) F).
+    × (∀ F : PreFilter X, (∀ G : PreFilter X, FF G -> filter_le G F)
+                          -> filter_le (PreFilterIntersection FF) F).
 Proof.
   split.
   - intros F Hf A Ha.
@@ -1042,7 +1051,8 @@ Proof.
 Qed.
 Lemma FilterIntersection_glb {X : UU} (FF : Filter X -> hProp) Hff :
   (∀ F : Filter X, FF F -> filter_le F (FilterIntersection FF Hff))
-× (∀ F : Filter X, (∀ G : Filter X, FF G -> filter_le G F) -> filter_le (FilterIntersection FF Hff) F).
+    × (∀ F : Filter X, (∀ G : Filter X, FF G -> filter_le G F)
+                       -> filter_le (FilterIntersection FF Hff) F).
 Proof.
   split.
   - intros F Hf A Ha.
@@ -1140,7 +1150,9 @@ Proof.
   - apply filtergenerated_and.
 Defined.
 
-Definition FilterGenerated {X : UU} (L : (X -> hProp) -> hProp) (Hl : ∀ (L' : Sequence (X -> hProp)), (∀ m, L (L' m)) -> ¬ ∀ x : X, ¬ finite_intersection L' x) : Filter X.
+Definition FilterGenerated {X : UU} (L : (X -> hProp) -> hProp)
+           (Hl : ∀ (L' : Sequence (X -> hProp)), (∀ m, L (L' m))
+                       -> ¬ ∀ x : X, ¬ finite_intersection L' x) : Filter X.
 Proof.
   intros X L Hl.
   exists (PreFilterGenerated L).
@@ -1410,7 +1422,9 @@ Qed.
 
 End filterbase.
 
-Definition PreFilterBase {X : UU} (base : (X -> hProp) -> hProp) (Hand : ∀ A B : X -> hProp, base A -> base B -> ∃ C : X -> hProp, base C × (∀ x, C x -> A x ∧ B x)) (Hempty : ∃ A : X -> hProp, base A) : PreFilter X.
+Definition PreFilterBase {X : UU} (base : (X -> hProp) -> hProp)
+           (Hand : ∀ A B : X -> hProp, base A -> base B -> ∃ C : X -> hProp, base C × (∀ x, C x -> A x ∧ B x))
+           (Hempty : ∃ A : X -> hProp, base A) : PreFilter X.
 Proof.
   intros.
   simple refine (mkPreFilter _ _ _ _).
@@ -1419,7 +1433,10 @@ Proof.
   - apply filterbase_htrue, Hempty.
   - apply filterbase_and, Hand.
 Defined.
-Definition FilterBase {X : UU} (base : (X -> hProp) -> hProp) (Hand : ∀ A B : X -> hProp, base A -> base B -> ∃ C : X -> hProp, base C × (∀ x, C x -> A x ∧ B x)) (Hempty : ∃ A : X -> hProp, base A) (Hfalse : ¬ (base (λ _, hfalse))) : Filter X.
+Definition FilterBase {X : UU} (base : (X -> hProp) -> hProp)
+           (Hand : ∀ A B : X -> hProp, base A -> base B -> ∃ C : X -> hProp, base C × (∀ x, C x -> A x ∧ B x))
+           (Hempty : ∃ A : X -> hProp, base A)
+           (Hfalse : ¬ (base (λ _, hfalse))) : Filter X.
 Proof.
   intros.
   exists (filterbase base).

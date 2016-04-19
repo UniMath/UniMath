@@ -96,7 +96,11 @@ Definition isTopologicalSet (X : UU) :=
   Σ O : (X -> hProp) -> hProp, isSetOfOpen O.
 Definition TopologicalSet := Σ X : UU, isTopologicalSet X.
 
-Definition mkTopologicalSet (X : UU) (O : (X -> hProp) -> hProp) (is : isSetOfOpen_infinite_union O) (is0 : isSetOfOpen_htrue O) (is1 : isSetOfOpen_and O) : TopologicalSet := (X,,O,,is,,(isSetOfOpen_finite_intersection_carac _ is0 is1)).
+Definition mkTopologicalSet (X : UU) (O : (X -> hProp) -> hProp)
+           (is : isSetOfOpen_infinite_union O)
+           (is0 : isSetOfOpen_htrue O)
+           (is1 : isSetOfOpen_and O) : TopologicalSet :=
+  (X,,O,,is,,(isSetOfOpen_finite_intersection_carac _ is0 is1)).
 
 Definition pr1TopologicatSet : TopologicalSet -> UU := pr1.
 Coercion pr1TopologicatSet : TopologicalSet >-> UU.
@@ -778,13 +782,18 @@ Definition continuous2d_at {U V W : TopologicalSet} (f : U -> V -> W) (x : U) (y
 Definition continuous2d {U V W : TopologicalSet} (f : U -> V -> W) :=
   ∀ (x : U) (y : V), continuous2d_at f x y.
 
-Definition continuous2d_base_at {U V W : TopologicalSet} (f : U -> V -> W) (x : U) (y : V) base_x base_y base_fxy :=
-  is_lim_base (λ z : U × V, f (pr1 z) (pr2 z)) (FilterDirprod (locally_base x base_x) (locally_base y base_y)) (f x y) base_fxy.
+Definition continuous2d_base_at {U V W : TopologicalSet} (f : U -> V -> W)
+           (x : U) (y : V) base_x base_y base_fxy :=
+  is_lim_base (λ z : U × V, f (pr1 z) (pr2 z))
+              (FilterDirprod (locally_base x base_x) (locally_base y base_y))
+              (f x y) base_fxy.
 
 (** ** Topology in algebraic structures *)
 
 Definition isTopological_monoid (X : monoid) (is : isTopologicalSet X) :=
-  continuous2d (U := ((pr1 (pr1 (pr1 X))) ,, is)) (V := ((pr1 (pr1 (pr1 X))) ,, is)) (W := ((pr1 (pr1 (pr1 X))) ,, is)) BinaryOperations.op.
+  continuous2d (U := ((pr1 (pr1 (pr1 X))) ,, is))
+               (V := ((pr1 (pr1 (pr1 X))) ,, is))
+               (W := ((pr1 (pr1 (pr1 X))) ,, is)) BinaryOperations.op.
 Definition Topological_monoid :=
   Σ (X : monoid) (is : isTopologicalSet X), isTopological_monoid X is.
 
@@ -808,24 +817,33 @@ Definition Topological_rng :=
 
 Definition isTopological_DivRig (X : DivRig) (is : isTopologicalSet X) :=
   isTopological_rig (pr1 X) is
-  × continuous_subtypes (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (λ x : X, hProppair (x != 0%dr) (isapropneg _)) invDivRig.
+  × continuous_subtypes (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
+                        (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
+                        (λ x : X, hProppair (x != 0%dr) (isapropneg _)) invDivRig.
 Definition Topological_DivRig :=
   Σ (X : DivRig) is, isTopological_DivRig X is.
 
 Definition isTopological_fld (X : fld) (is : isTopologicalSet X) :=
   isTopological_rng (pr1 X) is
-  × continuous_subtypes (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (λ x : X, hProppair (x != 0%rng) (isapropneg _)) (λ x, fldmultinv (pr1 x) (pr2 x)).
+  × continuous_subtypes (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
+                        (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
+                        (λ x : X, hProppair (x != 0%rng) (isapropneg _))
+                        (λ x, fldmultinv (pr1 x) (pr2 x)).
 Definition Topological_fld :=
   Σ (X : fld) is, isTopological_fld X is.
 
 Definition isTopological_ConstructiveDivisionRig (X : ConstructiveDivisionRig) (is : isTopologicalSet X) :=
   isTopological_rig (pr1 X) is
-  × continuous_subtypes (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (λ x : X, (x ≠ 0)%CDR) (λ x, CDRinv (pr1 x) (pr2 x)).
+  × continuous_subtypes (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
+                        (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
+                        (λ x : X, (x ≠ 0)%CDR) (λ x, CDRinv (pr1 x) (pr2 x)).
 Definition Topological_ConstructiveDivisionRig :=
   Σ (X : ConstructiveDivisionRig) is, isTopological_ConstructiveDivisionRig X is.
 
 Definition isTopological_ConstructiveField (X : ConstructiveField) (is : isTopologicalSet X) :=
   isTopological_rng (pr1 X) is
-  × continuous_subtypes (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is)) (λ x : X, (x ≠ 0)%CF) (λ x, CFinv (pr1 x) (pr2 x)).
+  × continuous_subtypes (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
+                        (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
+                        (λ x : X, (x ≠ 0)%CF) (λ x, CFinv (pr1 x) (pr2 x)).
 Definition Topological_ConstructiveField :=
   Σ (X : ConstructiveField) is, isTopological_ConstructiveField X is.
