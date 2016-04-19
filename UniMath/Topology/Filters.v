@@ -659,119 +659,15 @@ Proof.
   apply filter_notempty.
 Defined.
 
-Section filterpr1.
+Definition PreFilterPr1 {X Y : UU} (F : PreFilter (X × Y)) : PreFilter X :=
+  (PreFilterMap pr1 F).
+Definition FilterPr1 {X Y : UU} (F : Filter (X × Y)) : Filter X :=
+  (FilterMap pr1 F).
 
-Context {X Y : UU}.
-Context (F : (X × Y -> hProp) -> hProp)
-        (Himp : isfilter_imply F)
-        (Htrue : isfilter_htrue F)
-        (Hand : isfilter_and F)
-        (Hempty : isfilter_notempty F).
-
-Definition filterpr1 : (X -> hProp) -> hProp :=
-  λ A, F (λ x : X × Y, A (pr1 x)).
-
-Lemma filterpr1_imply :
-  isfilter_imply filterpr1.
-Proof.
-  intros A B H.
-  apply Himp.
-  intros x.
-  now apply H.
-Qed.
-Lemma filterpr1_htrue :
-  isfilter_htrue filterpr1.
-Proof.
-  now apply Htrue.
-Qed.
-Lemma filterpr1_and :
-  isfilter_and filterpr1.
-Proof.
-  intros A B.
-  apply Hand.
-Qed.
-Lemma filterpr1_notempty :
-  isfilter_notempty filterpr1.
-Proof.
-  apply Hempty.
-Qed.
-
-End filterpr1.
-
-Definition PreFilterPr1 {X Y : UU} (F : PreFilter (X × Y)) : PreFilter X.
-Proof.
-  intros X Y F.
-  simple refine (mkPreFilter _ _ _ _).
-  - exact (filterpr1 F).
-  - apply filterpr1_imply, filter_imply.
-  - apply filterpr1_htrue, filter_htrue.
-  - apply filterpr1_and, filter_and.
-Defined.
-Definition FilterPr1 {X Y : UU} (F : Filter (X × Y)) : Filter X.
-Proof.
-  intros X Y F.
-  refine (tpair _ _ _).
-  split.
-  apply (pr2 (PreFilterPr1 F)).
-  apply filterpr1_notempty, filter_notempty.
-Defined.
-
-Section filterpr2.
-
-Context {X Y : UU}.
-Context (F : (X × Y -> hProp) -> hProp)
-        (Himp : isfilter_imply F)
-        (Htrue : isfilter_htrue F)
-        (Hand : isfilter_and F)
-        (Hempty : isfilter_notempty F).
-
-Definition filterpr2 : (Y -> hProp) -> hProp :=
-  λ A, F (λ x : X × Y, A (pr2 x)).
-
-Lemma filterpr2_imply :
-  isfilter_imply filterpr2.
-Proof.
-  intros A B H.
-  apply Himp.
-  intros x.
-  now apply H.
-Qed.
-Lemma filterpr2_htrue :
-  isfilter_htrue filterpr2.
-Proof.
-  now apply Htrue.
-Qed.
-Lemma filterpr2_and :
-  isfilter_and filterpr2.
-Proof.
-  intros A B.
-  apply Hand.
-Qed.
-Lemma filterpr2_notempty :
-  isfilter_notempty filterpr2.
-Proof.
-  apply Hempty.
-Qed.
-
-End filterpr2.
-
-Definition PreFilterPr2 {X Y : UU} (F : PreFilter (X × Y)) : PreFilter Y.
-Proof.
-  intros X Y F.
-  simple refine (mkPreFilter _ _ _ _).
-  - exact (filterpr2 F).
-  - apply filterpr2_imply, filter_imply.
-  - apply filterpr2_htrue, filter_htrue.
-  - apply filterpr2_and, filter_and.
-Defined.
-Definition FilterPr2 {X Y : UU} (F : Filter (X × Y)) : Filter Y.
-Proof.
-  intros X Y F.
-  refine (tpair _ _ _).
-  split.
-  apply (pr2 (PreFilterPr2 F)).
-  apply filterpr2_notempty, filter_notempty.
-Defined.
+Definition PreFilterPr2 {X Y : UU} (F : PreFilter (X × Y)) : PreFilter Y :=
+  (PreFilterMap (@pr2 X (λ _ : X, Y)) F).
+Definition FilterPr2 {X Y : UU} (F : Filter (X × Y)) : Filter Y :=
+  (FilterMap (@pr2 X (λ _ : X, Y)) F).
 
 Goal ∀ {X Y : UU} (F : PreFilter (X × Y)),
     filter_le F (PreFilterDirprod (PreFilterPr1 F) (PreFilterPr2 F)).
@@ -1348,13 +1244,81 @@ Qed.
 
 (** *** Filter defined by a base *)
 
+Section base.
+
+Context {X : UU}.
+Context (base : (X -> hProp) -> hProp).
+
+Definition isbase_and :=
+  ∀ A B : X -> hProp, base A -> base B -> ∃ C : X -> hProp, base C × (∀ x, C x -> A x ∧ B x).
+Definition isbase_notempty :=
+  ∃ A : X -> hProp, base A.
+Definition isbase_notfalse :=
+  ¬ (base (λ _, hfalse)).
+
+Definition isBaseOfPreFilter :=
+  isbase_and × isbase_notempty.
+Definition isBaseOfFilter :=
+  isbase_and × isbase_notempty × isbase_notfalse.
+
+End base.
+
+Definition BaseOfPreFilter (X : UU) :=
+  Σ (base : (X -> hProp) -> hProp), isBaseOfPreFilter base.
+Definition pr1BaseOfPreFilter {X : UU} : BaseOfPreFilter X -> ((X -> hProp) -> hProp) := pr1.
+Coercion pr1BaseOfPreFilter : BaseOfPreFilter >-> Funclass.
+
+Definition BaseOfFilter (X : UU) :=
+  Σ (base : (X -> hProp) -> hProp), isBaseOfFilter base.
+Definition pr1BaseOfFilter {X : UU} : BaseOfFilter X -> BaseOfPreFilter X.
+Proof.
+  intros X base.
+  exists (pr1 base).
+  split.
+  - apply (pr1 (pr2 base)).
+  - apply (pr1 (pr2 (pr2 base))).
+Defined.
+Coercion pr1BaseOfFilter : BaseOfFilter >-> BaseOfPreFilter.
+
+  Lemma BaseOfPreFilter_and {X : UU} (base : BaseOfPreFilter X) :
+  ∀ A B : X -> hProp, base A -> base B -> ∃ C : X -> hProp, base C × (∀ x, C x -> A x ∧ B x).
+Proof.
+  intros X base.
+  apply (pr1 (pr2 base)).
+Qed.
+Lemma BaseOfPreFilter_notempty {X : UU} (base : BaseOfPreFilter X) :
+  ∃ A : X -> hProp, base A.
+Proof.
+  intros X base.
+  apply (pr2 (pr2 base)).
+Qed.
+
+Lemma BaseOfFilter_and {X : UU} (base : BaseOfFilter X) :
+  ∀ A B : X -> hProp, base A -> base B -> ∃ C : X -> hProp, base C × (∀ x, C x -> A x ∧ B x).
+Proof.
+  intros X base.
+  apply (pr1 (pr2 base)).
+Qed.
+Lemma BaseOfFilter_notempty {X : UU} (base : BaseOfFilter X) :
+  ∃ A : X -> hProp, base A.
+Proof.
+  intros X base.
+  apply (pr1 (pr2 (pr2 base))).
+Qed.
+Lemma BaseOfFilter_notfalse {X : UU} (base : BaseOfFilter X) :
+  ¬ (base (λ _, hfalse)).
+Proof.
+  intros X base.
+  apply (pr2 (pr2 (pr2 base))).
+Qed.
+
 Section filterbase.
 
 Context {X : UU}.
 Context (base : (X -> hProp) -> hProp)
-        (Hand : ∀ A B : X -> hProp, base A -> base B -> ∃ C : X -> hProp, base C × (∀ x, C x -> A x ∧ B x))
-        (Hempty : ∃ A : X -> hProp, base A)
-        (Hfalse : ¬ (base (λ _, hfalse))).
+        (Hand : isbase_and base)
+        (Hempty : isbase_notempty base)
+        (Hfalse : isbase_notfalse base).
 
 Definition filterbase : (X -> hProp) -> hProp :=
   λ A : X -> hProp, (∃ B : X -> hProp, base B × ∀ x, B x -> A x).
@@ -1420,30 +1384,192 @@ Proof.
   apply (pr1 (pr2 A)).
 Qed.
 
+Lemma base_finite_intersection :
+  ∀ L : Sequence (X -> hProp),
+    (∀ n, base (L n)) -> ∃ A, base A × (∀ x, A x -> finite_intersection L x).
+Proof.
+  intros L Hbase.
+  apply (pr2 (finite_intersection_hProp (λ B, ∃ A : X → hProp, base A × (∀ x : X, A x → B x)))).
+  split.
+  - revert Hempty.
+    apply hinhfun.
+    intros (A,Ha).
+    now exists A.
+  - intros A B.
+    apply hinhuniv2.
+    intros (A',(Ha,Ha')) (B',(Hb,Hb')).
+    generalize (Hand _ _ Ha Hb).
+    apply hinhfun.
+    intros (C,(Hc,Hc')).
+    exists C.
+    split.
+    exact Hc.
+    intros x Cx.
+    split.
+    apply Ha', (pr1 (Hc' _ Cx)).
+    apply Hb', (pr2 (Hc' _ Cx)).
+  - intros n.
+    apply hinhpr.
+    exists (L n).
+    split.
+    now apply Hbase.
+    easy.
+Qed.
+
+Lemma filterbase_genetated :
+  filterbase = filtergenerated base.
+Proof.
+  apply funextfun ; intros P.
+  apply uahp.
+  - apply hinhfun.
+    intros (A,(Ha,Ha')).
+    exists (singletonSequence A).
+    split.
+    + intros m ; simpl.
+      exact Ha.
+    + intros x Ax.
+      apply Ha', Ax.
+      now exists 0%nat.
+  - apply hinhuniv.
+    intros (L,(Hbase,Hinter)).
+    generalize (base_finite_intersection L Hbase).
+    apply hinhfun.
+    intros (A,(Ha,Ha')).
+    exists A ; split.
+    exact Ha.
+    intros x Ax.
+    now apply Hinter, Ha'.
+Qed.
+
+Lemma filterbase_generated_hypothesis :
+  ∀ L' : Sequence (X → hProp),
+    (∀ m : stn (length L'), base (L' m))
+    → ¬ (∀ x : X, ¬ finite_intersection L' x).
+Proof.
+  intros L Hbase Hinter.
+  apply Hfalse.
+  generalize (base_finite_intersection L Hbase).
+  apply hinhuniv.
+  intros (A,(Ha,Ha')).
+  assert ((λ _ : X, hfalse) = A).
+  { apply funextfun ; intros x.
+    apply uahp.
+    easy.
+    intros Ax.
+    apply (Hinter x).
+    now apply Ha'. }
+  now rewrite X0.
+Qed.
+
 End filterbase.
 
-Definition PreFilterBase {X : UU} (base : (X -> hProp) -> hProp)
-           (Hand : ∀ A B : X -> hProp, base A -> base B -> ∃ C : X -> hProp, base C × (∀ x, C x -> A x ∧ B x))
-           (Hempty : ∃ A : X -> hProp, base A) : PreFilter X.
+Definition PreFilterBase {X : UU} (base : BaseOfPreFilter X) : PreFilter X.
 Proof.
   intros.
   simple refine (mkPreFilter _ _ _ _).
   - apply (filterbase base).
   - apply filterbase_imply.
-  - apply filterbase_htrue, Hempty.
-  - apply filterbase_and, Hand.
+  - apply filterbase_htrue, BaseOfPreFilter_notempty.
+  - apply filterbase_and.
+    intros A B.
+    now apply BaseOfPreFilter_and.
 Defined.
-Definition FilterBase {X : UU} (base : (X -> hProp) -> hProp)
-           (Hand : ∀ A B : X -> hProp, base A -> base B -> ∃ C : X -> hProp, base C × (∀ x, C x -> A x ∧ B x))
-           (Hempty : ∃ A : X -> hProp, base A)
-           (Hfalse : ¬ (base (λ _, hfalse))) : Filter X.
+Definition FilterBase {X : UU} (base : BaseOfFilter X) : Filter X.
 Proof.
   intros.
-  exists (filterbase base).
+  exists (pr1 (PreFilterBase base)).
   split.
-  simple refine (pr2 (PreFilterBase _ _ _)).
-  exact Hand.
-  exact Hempty.
+  simple refine (pr2 (PreFilterBase base)).
   apply filterbase_notempty.
-  exact Hfalse.
+  apply BaseOfFilter_notfalse.
 Defined.
+
+Lemma PreFilterBase_Generated {X : UU} (base : BaseOfPreFilter X) :
+  PreFilterBase base = PreFilterGenerated base.
+Proof.
+  intros X base.
+  simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
+  apply isapropdirprod.
+  apply isaprop_isfilter_imply.
+  apply isaprop_isfilter_finite_intersection.
+  simpl.
+  apply filterbase_genetated.
+  intros A B.
+  apply (BaseOfPreFilter_and base).
+  apply (BaseOfPreFilter_notempty base).
+Qed.
+
+Lemma FilterBase_Generated {X : UU} (base : BaseOfFilter X) Hbase :
+  FilterBase base = FilterGenerated base Hbase.
+Proof.
+
+  intros X base Hbase.
+  simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
+  apply isapropdirprod.
+  apply isapropdirprod.
+  apply isaprop_isfilter_imply.
+  apply isaprop_isfilter_finite_intersection.
+  apply isaprop_isfilter_notempty.
+  simpl.
+  apply filterbase_genetated.
+  intros A B.
+  apply (BaseOfFilter_and base).
+  apply (BaseOfFilter_notempty base).
+Qed.
+
+Lemma FilterBase_Generated_hypothesis {X : UU} (base : BaseOfFilter X) :
+  ∀ L' : Sequence (X → hProp),
+    (∀ m : stn (length L'), base (L' m))
+    → ¬ (∀ x : X, ¬ finite_intersection L' x).
+Proof.
+  intros X base.
+  apply filterbase_generated_hypothesis.
+  intros A B.
+  apply (BaseOfFilter_and base).
+  apply (BaseOfFilter_notempty base).
+  apply (BaseOfFilter_notfalse base).
+Qed.
+
+Lemma filterbase_le {X : UU} (base base' : (X -> hProp) -> hProp) :
+  (∀ P : X -> hProp, base P -> ∃ Q : X -> hProp, base' Q × (∀ x, Q x -> P x))
+  <-> (∀ P : X -> hProp, filterbase base P -> filterbase base' P).
+Proof.
+  intros X base base'.
+  split.
+  - intros Hbase P.
+    apply hinhuniv.
+    intros (A,(Ha,Ha')).
+    generalize (Hbase _ Ha).
+    apply hinhfun.
+    intros (B,(Hb,Hb')).
+    exists B.
+    split.
+    apply Hb.
+    intros x Bx.
+    apply Ha', Hb', Bx.
+  - intros Hbase P Hp.
+    apply Hbase.
+    apply hinhpr.
+    now exists P.
+Qed.
+
+Lemma PreFilterBase_le {X : UU} (base base' : BaseOfPreFilter X) :
+  (∀ P : X -> hProp, base P -> ∃ Q : X -> hProp, base' Q × (∀ x, Q x -> P x))
+  <-> filter_le (PreFilterBase base') (PreFilterBase base).
+Proof.
+  intros X base base'.
+  split.
+  - intros Hbase P.
+    apply (pr1 (filterbase_le base base')), Hbase.
+  - apply (pr2 (filterbase_le base base')).
+Qed.
+Lemma FilterBase_le {X : UU} (base base' : BaseOfFilter X) :
+  (∀ P : X -> hProp, base P -> ∃ Q : X -> hProp, base' Q × (∀ x, Q x -> P x))
+  <-> filter_le (FilterBase base') (FilterBase base).
+Proof.
+  intros X base base'.
+  split.
+  - intros Hbase P.
+    apply (pr1 (filterbase_le base base')), Hbase.
+  - apply (pr2 (filterbase_le base base')).
+Qed.
