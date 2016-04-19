@@ -108,16 +108,126 @@ rewrite <- assoc.
 apply idpath.
 Defined.
 
-Local Definition eps (n : M) : A⟦R_functor (K n),T n⟧ :=
+Local Definition eps_n (n : M) : A⟦R_functor (K n),T n⟧ :=
   coneOut (lambda (K n)) (n,,identity (K n)).
+
+Definition eps : [M,A,hsA]⟦functor_composite K R_functor,T⟧.
+Proof.
+mkpair.
+- apply eps_n.
+-
+intros n n' h; simpl.
+set (X := # R_functor (# K h)).
+simpl in X.
+unfold Rmor in *.
+simple refine (let temp : K n' ↓ K := _ in _).
+  mkpair.
+  apply n'.
+  apply identity.
+eapply pathscomp0.
+apply (limArrowCommutes (LA (K n' ↓ K) (QT (K n'))) (R (K n))
+       (Rmor_cone (K n) (K n') (# K h)) temp).
+simpl.
+unfold eps_n.
+simpl.
+transparent assert (u : (K n ↓ K)).
+  apply (n,, identity (K n)).
+transparent assert (v : (K n ↓ K)).
+  apply (n',, # K h ;; identity (K n')).
+transparent assert (e : (K n ↓ K ⟦ u, v ⟧)).
+  mkpair.
+  apply h.
+  now rewrite id_left, id_right.
+apply pathsinv0; eapply pathscomp0.
+ apply (coneOutCommutes (lambda (K n)) u v e).
+apply idpath.
+Defined.
 
 End fix_T.
 
-Lemma foo : GlobalRightKanExtensionExists _ _ K _ hsD hsE.
+
+(* Definition Cone_by_precompose {C1 D1 : precategory} (F : functor C1 D1) *)
+(*  (c : D1) (cc : cone F c) (d : D1) (k : D1⟦d,c⟧) : cone F d. *)
+(* Proof. *)
+(* mkpair. *)
+(* intros x. *)
+(* apply coneOut. *)
+(* now exists (λ u, coconeIn cc u ;; k); apply Cocone_postcompose. *)
+(* Defined. *)
+
+Lemma foo : GlobalRightKanExtensionExists _ _ K _ hsC hsA.
+Proof.
+unfold GlobalRightKanExtensionExists.
+use adjunction_from_partial.
+- apply R_functor.
+- apply eps.
+- intros T S α.
+mkpair.
++ mkpair.
+* simpl in *.
+
+transparent assert (cc : (forall c, cone (QT T c) (S c))).
+{
+intro c.
+use mk_cone.
++ intro mf.
+apply (# S (pr2 mf) ;; α (pr1 mf)).
++ abstract (intros fm fm' h;
+simpl;
+rewrite <- assoc;
+eapply pathscomp0;
+[apply maponpaths, (pathsinv0 (nat_trans_ax α _ _ (pr1 h)))|];
+simpl;
+rewrite assoc, <- functor_comp;
+apply cancel_postcomposition, maponpaths, (pr2 h)).
+}
+transparent assert (σ : (forall c, A ⟦ S c, R T c ⟧)).
+{ intro c; apply (limArrow _ _ (cc c)). }
+{
+mkpair.
+- apply σ.
+- intros c c' g; simpl.
+set (H1 := limArrowCommutes (LA (c' ↓ K) (QT T c')) (S c') (cc c')).
+(* set (H2 := limArrowCommutes (LA (c ↓ K) (QT T c)) (S c) (cc c)). *)
+set (H3 := limArrowCommutes (LA (c' ↓ K) (QT T c')) (R T c) (Rmor_cone T c c' g)).
+simpl in *.
+set (lambda' := fun mf' => limOut (LA (c' ↓ K) (QT T c')) mf').
+assert (H : forall mf' : c' ↓ K,
+  (# S g ;; σ c' ;; lambda' mf' = σ c ;; Rmor T c c' g ;; lambda' mf')).
+{ intros mf'.
+eapply pathscomp0.
+Focus 2.
+eapply pathsinv0.
+rewrite <- assoc.
+eapply maponpaths.
+apply (H3 mf').
+clear H3.
+rewrite <- assoc.
+eapply pathscomp0.
+eapply maponpaths.
+apply (H1 mf').
+rewrite assoc.
+rewrite <- functor_comp.
+unfold σ.
+set (H2 := limArrowCommutes (LA (c ↓ K) (QT T c)) (S c) (cc c)).
+transparent assert (mf : (c ↓ K)).
+  mkpair.
+  apply (pr1 mf').
+  apply (g ;; pr2 mf').
+apply pathsinv0.
+eapply pathscomp0.
+apply (H2 mf).
+apply idpath.
+}
+(* need lemma *)
+admit.
+}
+* admit.
++ admit.
 Admitted.
 
 Lemma cocont_pre_composition_functor:
-  is_cocont (pre_composition_functor _ _ E hsD hsE K).
+  is_cocont (pre_composition_functor _ _ _ hsC hsA K).
 Proof.
 apply left_adjoint_cocont.
 - apply foo.
@@ -125,8 +235,8 @@ apply left_adjoint_cocont.
 - apply functor_category_has_homsets.
 Qed.
 
-Lemma omega_cocont_pre_composition_functor (hsD : has_homsets D) (hsE : has_homsets E) :
-  omega_cocont (pre_composition_functor _ _ E hsD hsE K).
+Lemma omega_cocont_pre_composition_functor :
+  omega_cocont (pre_composition_functor _ _ _ hsC hsA K).
 Proof.
 intros c L ccL.
 apply cocont_pre_composition_functor.
@@ -196,8 +306,10 @@ apply omega_cocont_sum_of_functors.
   apply functor_category_has_homsets.
   apply omega_cocont_binproduct_functor.
   apply functor_category_has_homsets.
-  admit.
+  apply has_exponentials_functor_HSET.
+  apply has_homsets_HSET.
 apply omega_cocont_pre_composition_functor.
+admit.
 Admitted.
 
 End lambdacalculus.
