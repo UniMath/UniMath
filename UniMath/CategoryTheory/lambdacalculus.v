@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.polynomialfunctors.
 Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.whiskering.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
