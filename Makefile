@@ -11,8 +11,8 @@ endif
 PACKAGES += Foundations
 PACKAGES += CategoryTheory
 PACKAGES += Ktheory
-PACKAGES += Bourbaki
-PACKAGES += Dedekind
+PACKAGES += Analysis
+PACKAGES += RealNumbers
 PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
 PACKAGES += Folds

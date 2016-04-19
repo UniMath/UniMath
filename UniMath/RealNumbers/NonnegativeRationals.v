@@ -4,10 +4,10 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 Unset Kernel Term Sharing.
 
-Require Import UniMath.Dedekind.Sets.
-Require Import UniMath.Dedekind.Fields.
+Require Import UniMath.RealNumbers.Sets.
+Require Import UniMath.RealNumbers.Fields.
 Require Export UniMath.Foundations.Algebra.DivisionRig.
-Require Import UniMath.Dedekind.Complements.
+Require Import UniMath.RealNumbers.Complements.
 
 Opaque hq.
 

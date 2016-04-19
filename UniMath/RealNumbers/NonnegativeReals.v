@@ -1,10 +1,10 @@
 (** * Definition of Dedekind cuts for non-negative real numbers *)
 (** Catherine Lelay. Sep. 2015 *)
 
-Require Import UniMath.Dedekind.Sets.
+Require Import UniMath.RealNumbers.Sets.
 Require Export UniMath.Foundations.Algebra.ConstructiveStructures.
-Require Import UniMath.Dedekind.Complements.
-Require Import UniMath.Dedekind.NonnegativeRationals.
+Require Import UniMath.RealNumbers.Complements.
+Require Import UniMath.RealNumbers.NonnegativeRationals.
 
 Delimit Scope Dcuts_scope with Dcuts.
 Local Open Scope NRat_scope.

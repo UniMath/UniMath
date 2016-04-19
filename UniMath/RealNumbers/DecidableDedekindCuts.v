@@ -3,10 +3,10 @@
 (** Additional results about Dedekind cuts which cannot be proved *)
 (** without decidability *)
 
-Require Import UniMath.Dedekind.Complements.
-Require Import UniMath.Dedekind.Sets.
-Require Import UniMath.Dedekind.NonnegativeRationals.
-Require Export UniMath.Dedekind.NonnegativeReals.
+Require Import UniMath.RealNumbers.Complements.
+Require Import UniMath.RealNumbers.Sets.
+Require Import UniMath.RealNumbers.NonnegativeRationals.
+Require Export UniMath.RealNumbers.NonnegativeReals.
 
 Open Scope Dcuts_scope.
 

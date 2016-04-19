@@ -2,7 +2,7 @@
 (** Author: Catherine LELAY. Jan 2016 - *)
 (** Based on Bourbaky *)
 
-Require Export UniMath.Bourbaki.Filters.
+Require Export UniMath.Analysis.Filters.
 Require Import UniMath.Foundations.Algebra.DivisionRig.
 Require Import UniMath.Foundations.Algebra.ConstructiveStructures.
 
