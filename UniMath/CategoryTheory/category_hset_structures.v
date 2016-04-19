@@ -332,6 +332,69 @@ Proof.
 now intros g d; apply LimConeHSET.
 Defined.
 
+
+(** Alternative definition of limits using cats/limits *)
+Section cats_limits.
+
+Require UniMath.CategoryTheory.limits.cats.limits.
+
+Variable J : precategory.
+Variable D : functor J HSET.
+
+Definition cats_limset_UU : UU :=
+  Σ (f : ∀ u, pr1hSet (D u)),
+    ∀ u v (e : J⟦u,v⟧), # D e (f u) = f v.
+
+Definition cats_limset : HSET.
+Proof.
+  exists cats_limset_UU.
+  apply (isofhleveltotal2 2);
+            [ apply impred; intro; apply pr2
+            | intro f; repeat (apply impred; intro);
+              apply isasetaprop, setproperty ].
+Defined.
+
+(* TODO: clean *)
+Lemma cats_LimConeHSET : cats.limits.LimCone D.
+Proof.
+  simple refine (mk_LimCone _ _ _ _ ).
+  - apply cats_limset.
+  - simple refine (mk_cone _ _ ).
+    + intro u. simpl.
+      intro f.
+      exact (pr1 f u).
+    + abstract (intros u v e; simpl; apply funextfun; intro f; simpl; apply (pr2 f)).
+  - intros X CC.
+    simple refine (tpair _ _ _ ).
+    + simple refine (tpair _ _ _ ).
+      * simpl.
+        intro x.
+        {
+          simple refine (tpair _ _ _ ).
+          - intro u.
+            apply (coneOut CC u x).
+          - abstract (intros u v e; simpl; set (T := coneOutCommutes CC _ _ e);
+                      apply (toforallpaths _ _ _ T)).
+        }
+      * abstract (intro v; apply idpath).
+   + abstract (intro t; apply subtypeEquality;
+     [ intro; apply impred; intro; apply isaset_set_fun_space
+     | simpl; destruct t as [t p]; simpl; apply funextfun; intro x; simpl;
+       unfold compose; simpl; apply subtypeEquality];
+       [intro; repeat (apply impred; intro); apply setproperty
+       |simpl; apply funextsec; intro u; simpl in p;
+       set (p' := toforallpaths _ _ _ (p u)); apply p']).
+Defined.
+
+End cats_limits.
+
+Lemma cats_LimsHSET : cats.limits.Lims HSET.
+Proof.
+now intros g d; apply cats_LimConeHSET.
+Defined.
+
+(** end of alternative def *)
+
 (* Direct construction of Products in HSET *)
 Lemma ProductsHSET : Products HSET.
 Proof.
