@@ -11,7 +11,7 @@ endif
 PACKAGES += Foundations
 PACKAGES += CategoryTheory
 PACKAGES += Ktheory
-PACKAGES += Analysis
+PACKAGES += Topology
 PACKAGES += RealNumbers
 PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
