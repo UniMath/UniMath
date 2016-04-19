@@ -73,128 +73,86 @@ use mk_cone.
   exact (coneOutCommutes (lambda c) _ _ e).
 Defined.
 
-Local Definition Rmor (c c' : C) (g : C⟦c,c'⟧) : A⟦R c,R c'⟧.
-Proof.
-use limArrow.
-apply (Rmor_cone _ _ g).
-Defined.
+Local Definition Rmor (c c' : C) (g : C⟦c,c'⟧) : A⟦R c,R c'⟧ :=
+  limArrow (LA (c' ↓ K) (QT c')) (R c) (Rmor_cone c c' g).
 
 Local Definition R_data : functor_data C A := R,,Rmor.
-
-Local Definition R_functor : functor C A.
+Local Lemma R_is_functor : is_functor R_data.
 Proof.
-apply (tpair _ R_data).
-mkpair.
+split.
 - intros c; simpl.
   apply pathsinv0, limArrowUnique.
-  intro c'; simpl.
-  rewrite !id_left.
+  intro c'; simpl; rewrite !id_left.
   now destruct c'.
 - intros c c' c'' f f'; simpl.
-  apply pathsinv0, limArrowUnique.
-intros x.
-simpl.
-unfold lambda.
-rewrite <- assoc.
-unfold Rmor.
-simpl.
-etrans.
-apply maponpaths.
-apply (limArrowCommutes (LA _ (QT c'')) (R c') (Rmor_cone c' c'' f')).
-etrans.
-apply (@limArrowCommutes _ _ _ (LA _ (QT c')) (R c) (Rmor_cone c c' f) (pr1 x,,f' ;; pr2 x)).
-destruct x.
-rewrite <- assoc.
-apply idpath.
-Defined.
+  apply pathsinv0, limArrowUnique; intros x; simpl.
+  rewrite <- assoc; etrans.
+  apply maponpaths, (limArrowCommutes _ _ (Rmor_cone c' c'' f')).
+  etrans.
+  apply (limArrowCommutes _ _ (Rmor_cone c c' f) (pr1 x,,f' ;; pr2 x)).
+  destruct x.
+  now rewrite <- assoc.
+Qed.
+
+Local Definition R_functor : functor C A := tpair _ R_data R_is_functor.
 
 Local Definition eps_n (n : M) : A⟦R_functor (K n),T n⟧ :=
   coneOut (lambda (K n)) (n,,identity (K n)).
 
-Definition eps : [M,A,hsA]⟦functor_composite K R_functor,T⟧.
+(* TODO: Move to comma category file? *)
+Local Definition Kid n : K n ↓ K := (n,, identity (K n)).
+
+Local Lemma eps_is_nat_trans : is_nat_trans (functor_composite_data K R_data) T eps_n.
 Proof.
-mkpair.
-- apply eps_n.
--
 intros n n' h; simpl.
-set (X := # R_functor (# K h)).
-simpl in X.
-unfold Rmor in *.
-simple refine (let temp : K n' ↓ K := _ in _).
-  mkpair.
-  apply n'.
-  apply identity.
 eapply pathscomp0.
 apply (limArrowCommutes (LA (K n' ↓ K) (QT (K n'))) (R (K n))
-       (Rmor_cone (K n) (K n') (# K h)) temp).
-simpl.
-unfold eps_n.
-simpl.
-transparent assert (u : (K n ↓ K)).
-  apply (n,, identity (K n)).
+       (Rmor_cone (K n) (K n') (# K h)) (Kid n')).
+unfold eps_n; simpl.
 transparent assert (v : (K n ↓ K)).
-  apply (n',, # K h ;; identity (K n')).
-transparent assert (e : (K n ↓ K ⟦ u, v ⟧)).
-  mkpair.
-  apply h.
-  now rewrite id_left, id_right.
-apply pathsinv0; eapply pathscomp0.
- apply (coneOutCommutes (lambda (K n)) u v e).
-apply idpath.
-Defined.
+{ apply (n',, # K h ;; identity (K n')). }
+transparent assert (e : (K n ↓ K ⟦ Kid n, v ⟧)).
+{ mkpair.
+  + apply h.
+  + abstract (now rewrite id_left, id_right).
+}
+now apply pathsinv0; eapply pathscomp0; [apply (coneOutCommutes (lambda (K n)) _ _ e)|].
+Qed.
+
+Local Definition eps : [M,A,hsA]⟦functor_composite K R_functor,T⟧ :=
+  tpair _ eps_n eps_is_nat_trans.
 
 End fix_T.
 
-
-(* Definition Cone_by_precompose {C1 D1 : precategory} (F : functor C1 D1) *)
-(*  (c : D1) (cc : cone F c) (d : D1) (k : D1⟦d,c⟧) : cone F d. *)
-(* Proof. *)
-(* mkpair. *)
-(* intros x. *)
-(* apply coneOut. *)
-(* now exists (λ u, coconeIn cc u ;; k); apply Cocone_postcompose. *)
-(* Defined. *)
-
-Lemma foo : GlobalRightKanExtensionExists _ _ K _ hsC hsA.
+Lemma RightKanExtension_from_limits : GlobalRightKanExtensionExists _ _ K _ hsC hsA.
 Proof.
 unfold GlobalRightKanExtensionExists.
 use adjunction_from_partial.
 - apply R_functor.
 - apply eps.
-- intros T S α.
-mkpair.
-+ mkpair.
-* simpl in *.
+- intros T S α; simpl in *.
 
 transparent assert (cc : (forall c, cone (QT T c) (S c))).
-{
-intro c.
-use mk_cone.
-+ intro mf.
-apply (# S (pr2 mf) ;; α (pr1 mf)).
-+ abstract (intros fm fm' h;
-simpl;
-rewrite <- assoc;
-eapply pathscomp0;
-[apply maponpaths, (pathsinv0 (nat_trans_ax α _ _ (pr1 h)))|];
-simpl;
-rewrite assoc, <- functor_comp;
-apply cancel_postcomposition, maponpaths, (pr2 h)).
+{ intro c.
+  use mk_cone.
+  + intro mf; apply (# S (pr2 mf) ;; α (pr1 mf)).
+  + abstract (intros fm fm' h; simpl; rewrite <- assoc;
+              eapply pathscomp0; [apply maponpaths, (pathsinv0 (nat_trans_ax α _ _ (pr1 h)))|];
+              simpl; rewrite assoc, <- functor_comp; apply cancel_postcomposition, maponpaths, (pr2 h)).
 }
 transparent assert (σ : (forall c, A ⟦ S c, R T c ⟧)).
 { intro c; apply (limArrow _ _ (cc c)). }
+
+
+set (lambda' := fun c' mf' => limOut (LA (c' ↓ K) (QT T c')) mf').
+assert (H : forall c c' (g : C ⟦ c, c' ⟧) (mf' : c' ↓ K),
+  (# S g ;; σ c' ;; lambda' _ mf' = σ c ;; Rmor T c c' g ;; lambda' _ mf')).
 {
-mkpair.
-- apply σ.
-- intros c c' g; simpl.
+intros c c' g; simpl.
 set (H1 := limArrowCommutes (LA (c' ↓ K) (QT T c')) (S c') (cc c')).
-(* set (H2 := limArrowCommutes (LA (c ↓ K) (QT T c)) (S c) (cc c)). *)
 set (H3 := limArrowCommutes (LA (c' ↓ K) (QT T c')) (R T c) (Rmor_cone T c c' g)).
 simpl in *.
-set (lambda' := fun mf' => limOut (LA (c' ↓ K) (QT T c')) mf').
-assert (H : forall mf' : c' ↓ K,
-  (# S g ;; σ c' ;; lambda' mf' = σ c ;; Rmor T c c' g ;; lambda' mf')).
-{ intros mf'.
+intros mf'.
 eapply pathscomp0.
 Focus 2.
 eapply pathsinv0.
@@ -210,27 +168,101 @@ rewrite assoc.
 rewrite <- functor_comp.
 unfold σ.
 set (H2 := limArrowCommutes (LA (c ↓ K) (QT T c)) (S c) (cc c)).
-transparent assert (mf : (c ↓ K)).
-  mkpair.
-  apply (pr1 mf').
-  apply (g ;; pr2 mf').
+set (mf := tpair _ (pr1 mf') (g ;; pr2 mf') : c ↓ K).
 apply pathsinv0.
 eapply pathscomp0.
 apply (H2 mf).
 apply idpath.
 }
-(* need lemma *)
-admit.
+
+assert (HHH : is_nat_trans S (R_data T) σ).
+{
+intros c c' g; simpl.
+
+unfold lambda' in H.
+transparent assert (ccc : (cone (QT T c') (S c))).
+  use mk_cone.
+    intro mf'.
+    apply (σ c ;; Rmor T c c' g ;; limOut (LA (c' ↓ K) (QT T c')) mf').
+  abstract (intros u v e; simpl; rewrite <- !assoc;
+  apply maponpaths, maponpaths, (limOutCommutes (LA (c' ↓ K) (QT T c')) u v e)).
+rewrite (limArrowUnique (LA (c' ↓ K) (QT T c')) _ ccc (# S g ;; σ c') (H _ _ _)).
+apply pathsinv0, limArrowUnique.
+intro mf'.
+apply idpath.
 }
-* admit.
-+ admit.
-Admitted.
+
+mkpair.
++ mkpair.
+* apply (tpair _ σ HHH).
+*
+apply (nat_trans_eq hsA); intro n; cbn.
+unfold σ.
+unfold eps_n.
+simpl.
+transparent assert (temp : (pr1 (pr1 K) n ↓ K)).
+mkpair.
+apply n.
+apply identity.
+apply pathsinv0.
+generalize (limArrowCommutes  (LA (pr1 (pr1 K) n ↓ K) (QT T (pr1 (pr1 K) n))) (S (pr1 (pr1 K) n)) (cc (pr1 (pr1 K) n)) temp).
+simpl.
+now rewrite functor_id, id_left.
++ intro x.
+apply subtypeEquality.
+intros xx.
+apply isaset_nat_trans.
+apply hsA.
+apply subtypeEquality.
+intros xx.
+apply isaprop_is_nat_trans.
+apply hsA.
+simpl.
+apply funextsec.
+intro c.
+unfold is_nat_trans in HHH.
+simpl in HHH.
+unfold Rmor in HHH.
+simpl in HHH.
+simpl.
+apply limArrowUnique.
+intros u.
+cbn.
+destruct x.
+simpl.
+assert (lol : α (pr1 u) =
+      nat_trans_comp (functor_composite_data K S)
+        (functor_composite_data K (R_data T)) T (pre_whisker (pr1 K) t)
+        (eps T) (pr1 u)).
+  now rewrite p.
+rewrite lol.
+simpl.
+unfold eps_n.
+destruct u.
+simpl in *.
+generalize (nat_trans_ax t _ _ p0).
+simpl.
+intro HHHHH.
+apply pathsinv0.
+eapply pathscomp0.
+rewrite assoc.
+eapply cancel_postcomposition.
+apply HHHHH.
+rewrite <- !assoc.
+apply maponpaths.
+unfold Rmor.
+transparent assert (apa : (K t0 ↓ K)).
+  mkpair. apply t0. apply identity.
+set (AA := limArrowCommutes (LA (K t0 ↓ K) (QT T (K t0))) (R T c) (Rmor_cone T c (K t0) p0) apa).
+simpl in AA; rewrite id_right in AA.
+apply AA.
+Defined.
 
 Lemma cocont_pre_composition_functor:
   is_cocont (pre_composition_functor _ _ _ hsC hsA K).
 Proof.
 apply left_adjoint_cocont.
-- apply foo.
+- apply RightKanExtension_from_limits.
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
 Qed.
