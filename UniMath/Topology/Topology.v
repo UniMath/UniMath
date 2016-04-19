@@ -11,11 +11,11 @@ Section Open.
 Context {X : UU}.
 Context (O : (X -> hProp) -> hProp).
 
-Definition isSetOfOpen_infinite_union :=
+Definition isSetOfOpen_union :=
   ∀ P : (X -> hProp) -> hProp,
-    (∀ A : X -> hProp, P A -> O A) -> O (infinite_union P).
-Lemma isaprop_isSetOfOpen_infinite_union :
-  isaprop isSetOfOpen_infinite_union.
+    (∀ A : X -> hProp, P A -> O A) -> O (union P).
+Lemma isaprop_isSetOfOpen_union :
+  isaprop isSetOfOpen_union.
 Proof.
   apply (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
 Qed.
@@ -42,11 +42,11 @@ Proof.
 Qed.
 
 Lemma isSetOfOpen_hfalse :
-  isSetOfOpen_infinite_union
+  isSetOfOpen_union
   -> O (λ _ : X, hfalse).
 Proof.
   intros H0.
-  rewrite <- infinite_union_hfalse.
+  rewrite <- union_hfalse.
   apply H0.
   intro.
   apply fromempty.
@@ -88,7 +88,7 @@ Proof.
 Qed.
 
 Definition isSetOfOpen :=
-  isSetOfOpen_infinite_union × isSetOfOpen_finite_intersection.
+  isSetOfOpen_union × isSetOfOpen_finite_intersection.
 
 End Open.
 
@@ -97,7 +97,7 @@ Definition isTopologicalSet (X : UU) :=
 Definition TopologicalSet := Σ X : UU, isTopologicalSet X.
 
 Definition mkTopologicalSet (X : UU) (O : (X -> hProp) -> hProp)
-           (is : isSetOfOpen_infinite_union O)
+           (is : isSetOfOpen_union O)
            (is0 : isSetOfOpen_htrue O)
            (is1 : isSetOfOpen_and O) : TopologicalSet :=
   (X,,O,,is,,(isSetOfOpen_finite_intersection_carac _ is0 is1)).
@@ -115,10 +115,10 @@ Section Topology_pty.
 
 Context {T : TopologicalSet}.
 
-Lemma isOpen_infinite_union :
+Lemma isOpen_union :
   ∀ P : (T -> hProp) -> hProp,
     (∀ A : T -> hProp, P A -> isOpen A)
-    -> isOpen (infinite_union P).
+    -> isOpen (union P).
 Proof.
   apply (pr1 (pr2 (pr2 T))).
 Qed.
@@ -135,7 +135,7 @@ Lemma isOpen_hfalse :
 Proof.
   apply isSetOfOpen_hfalse.
   intros P H.
-  now apply isOpen_infinite_union.
+  now apply isOpen_union.
 Qed.
 Lemma isOpen_htrue :
   isOpen (λ _ : T, htrue).
@@ -159,8 +159,8 @@ Lemma isOpen_or :
     isOpen A -> isOpen B -> isOpen (λ x : T, A x ∨ B x).
 Proof.
   intros A B Ha Hb.
-  rewrite <- infinite_union_or.
-  apply isOpen_infinite_union.
+  rewrite <- union_or.
+  apply isOpen_union.
   intros C.
   apply hinhuniv.
   intros [-> | ->].
@@ -191,7 +191,7 @@ Proof.
       apply isapropimpl.
       apply propproperty. }
     set (Q := λ A : T -> hProp, isOpen A ∧ (hProppair (∀ y : T, A y -> P y) (H A))).
-    assert (P = (infinite_union Q)).
+    assert (P = (union Q)).
     { apply funextfun.
       intros x.
       apply uahp.
@@ -209,7 +209,7 @@ Proof.
         apply Hx.
         exact Ax. }
     rewrite X.
-    apply isOpen_infinite_union.
+    apply isOpen_union.
     intros A Ha.
     apply (pr1 Ha).
   - intros Hp x Px.
@@ -399,8 +399,8 @@ Proof.
   apply propproperty.
 Qed.
 
-Lemma topologygenerated_infinite_union :
-  isSetOfOpen_infinite_union (λ P, topologygenerated P ,, isaprop_topologygenerated P).
+Lemma topologygenerated_union :
+  isSetOfOpen_union (λ P, topologygenerated P ,, isaprop_topologygenerated P).
 Proof.
   intros P Hp x.
   apply hinhuniv.
@@ -473,7 +473,7 @@ Proof.
     simple refine (tpair _ _ _).
     apply (topologygenerated O P).
     apply isaprop_topologygenerated.
-  - apply topologygenerated_infinite_union.
+  - apply topologygenerated_union.
   - apply topologygenerated_htrue.
   - apply topologygenerated_and.
 Defined.
@@ -538,15 +538,15 @@ Definition topologysubtype : ((Σ x : T, dom x) -> hProp) -> hProp :=
   λ A : (Σ x : T, dom x) -> hProp,
         ∃ A' : Open (T := T), ∀ x, A x <-> (A' (pr1 x)).
 
-Lemma topologysubtype_infinite_union :
-  isSetOfOpen_infinite_union topologysubtype.
+Lemma topologysubtype_union :
+  isSetOfOpen_union topologysubtype.
 Proof.
   intros P Hp.
   set (P' := λ A : T -> hProp, isOpen A ∧ P (λ y : (Σ x : T, dom x), A (pr1 y))).
   apply hinhpr.
   simple refine (tpair _ _ _).
-  exists (infinite_union P').
-  apply isOpen_infinite_union.
+  exists (union P').
+  apply isOpen_union.
   intros A Ha.
   apply (pr1 Ha).
   intros (x,Hx).
@@ -606,7 +606,7 @@ Proof.
   simple refine (mkTopologicalSet _ _ _ _ _).
   - exact (Σ x : T, dom x).
   - apply topologysubtype.
-  - now apply topologysubtype_infinite_union.
+  - now apply topologysubtype_union.
   - now apply topologysubtype_htrue.
   - now apply topologysubtype_and.
 Defined.

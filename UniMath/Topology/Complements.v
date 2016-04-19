@@ -68,11 +68,11 @@ Definition pairSequence {X} (A B : X) : Sequence X := (2 ,, λ m, match (pr1 m) 
 (** ** More about sets *)
 (** union *)
 
-Definition infinite_union {X : UU} (P : (X -> hProp) -> hProp) : X -> hProp :=
+Definition union {X : UU} (P : (X -> hProp) -> hProp) : X -> hProp :=
   λ x : X, ∃ A : X -> hProp, P A × A x.
 
-Lemma infinite_union_hfalse {X : UU} :
-  infinite_union (λ _ : X -> hProp, hfalse) = (λ _ : X, hfalse).
+Lemma union_hfalse {X : UU} :
+  union (λ _ : X -> hProp, hfalse) = (λ _ : X, hfalse).
 Proof.
   intros X.
   apply funextfun ; intros x.
@@ -83,9 +83,9 @@ Proof.
   - apply fromempty.
 Qed.
 
-Lemma infinite_union_or {X : UU} :
+Lemma union_or {X : UU} :
   ∀ A B : X -> hProp,
-    infinite_union (λ C : X -> hProp, C = A ∨ C = B)
+    union (λ C : X -> hProp, C = A ∨ C = B)
     = (λ x : X, A x ∨ B x).
 Proof.
   intros X A B.
@@ -113,14 +113,14 @@ Proof.
       exact Bx.
 Qed.
 
-Lemma infinite_union_hProp {X : UU} :
+Lemma union_hProp {X : UU} :
   ∀ (P : (X -> hProp) -> hProp),
-    (∀ (L : (X -> hProp) -> hProp), (∀ A, L A -> P A) -> P (infinite_union L))
+    (∀ (L : (X -> hProp) -> hProp), (∀ A, L A -> P A) -> P (union L))
     -> (∀ A B, P A -> P B -> P (λ x : X, A x ∨ B x)).
 Proof.
   intros X.
   intros P Hp A B Pa Pb.
-  rewrite <- infinite_union_or.
+  rewrite <- union_or.
   apply Hp.
   intros C.
   apply hinhuniv.
