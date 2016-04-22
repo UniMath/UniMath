@@ -34,8 +34,10 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.covyoneda.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 (* This should be moved upstream. Constructs the smallest eqrel
    containing a given relation *)
@@ -330,6 +332,69 @@ Proof.
 now intros g d; apply LimConeHSET.
 Defined.
 
+
+(** Alternative definition of limits using cats/limits *)
+Section cats_limits.
+
+Require UniMath.CategoryTheory.limits.cats.limits.
+
+Variable J : precategory.
+Variable D : functor J HSET.
+
+Definition cats_limset_UU : UU :=
+  Σ (f : ∀ u, pr1hSet (D u)),
+    ∀ u v (e : J⟦u,v⟧), # D e (f u) = f v.
+
+Definition cats_limset : HSET.
+Proof.
+  exists cats_limset_UU.
+  apply (isofhleveltotal2 2);
+            [ apply impred; intro; apply pr2
+            | intro f; repeat (apply impred; intro);
+              apply isasetaprop, setproperty ].
+Defined.
+
+(* TODO: clean *)
+Lemma cats_LimConeHSET : cats.limits.LimCone D.
+Proof.
+  simple refine (mk_LimCone _ _ _ _ ).
+  - apply cats_limset.
+  - simple refine (mk_cone _ _ ).
+    + intro u. simpl.
+      intro f.
+      exact (pr1 f u).
+    + abstract (intros u v e; simpl; apply funextfun; intro f; simpl; apply (pr2 f)).
+  - intros X CC.
+    simple refine (tpair _ _ _ ).
+    + simple refine (tpair _ _ _ ).
+      * simpl.
+        intro x.
+        {
+          simple refine (tpair _ _ _ ).
+          - intro u.
+            apply (coneOut CC u x).
+          - abstract (intros u v e; simpl; set (T := coneOutCommutes CC _ _ e);
+                      apply (toforallpaths _ _ _ T)).
+        }
+      * abstract (intro v; apply idpath).
+   + abstract (intro t; apply subtypeEquality;
+     [ intro; apply impred; intro; apply isaset_set_fun_space
+     | simpl; destruct t as [t p]; simpl; apply funextfun; intro x; simpl;
+       unfold compose; simpl; apply subtypeEquality];
+       [intro; repeat (apply impred; intro); apply setproperty
+       |simpl; apply funextsec; intro u; simpl in p;
+       set (p' := toforallpaths _ _ _ (p u)); apply p']).
+Defined.
+
+End cats_limits.
+
+Lemma cats_LimsHSET : cats.limits.Lims HSET.
+Proof.
+now intros g d; apply cats_LimConeHSET.
+Defined.
+
+(** end of alternative def *)
+
 (* Direct construction of Products in HSET *)
 Lemma ProductsHSET : Products HSET.
 Proof.
@@ -442,3 +507,124 @@ mkpair.
 Defined.
 
 End exponentials.
+
+(* This section defines exponential in [C,HSET] following a slight
+variation of Moerdijk-MacLane (p. 46, Prop. 1).
+
+The formula for [C,Set] is G^F(f)=Hom(Hom(f,−)×id(F),G) taken from:
+
+http://mathoverflow.net/questions/104152/exponentials-in-functor-categories
+*)
+Section exponentials_functor_cat.
+
+Variable (C : precategory) (hsC : has_homsets C).
+
+Let CP := Products_functor_precat C _ ProductsHSET has_homsets_HSET.
+Let cy := covyoneda _ hsC.
+
+(* Defined Q^P *)
+Local Definition exponential_functor_cat (P Q : functor C HSET) : functor C HSET.
+Proof.
+mkpair.
+- mkpair.
+  + intro c.
+    use hSetpair.
+    * apply (nat_trans (product_functor C _ ProductsHSET (cy c) P) Q).
+    * abstract (apply (isaset_nat_trans has_homsets_HSET)).
+  + simpl; intros a b f alpha.
+    apply (ProductOfArrows _ (CP (cy a) P) (CP (cy b) P)
+                           (# cy f) (identity _) ;; alpha).
+- abstract (
+    split;
+      [ intros c; simpl; apply funextsec; intro a;
+        apply (nat_trans_eq has_homsets_HSET); cbn; intro x;
+        apply funextsec; intro f;
+        destruct f as [cx Px]; simpl; unfold covyoneda_morphisms_data;
+        now rewrite id_left
+      | intros a b c f g; simpl; apply funextsec; intro alpha;
+        apply (nat_trans_eq has_homsets_HSET); cbn; intro x;
+        apply funextsec; intro h;
+        destruct h as [cx pcx]; simpl; unfold covyoneda_morphisms_data;
+        now rewrite assoc ]).
+Defined.
+
+Local Definition eval (P Q : functor C HSET) :
+ nat_trans (ProductObject _ (CP P (exponential_functor_cat P Q)) : functor _ _) Q.
+Proof.
+mkpair.
+- intros c ytheta; set (y := pr1 ytheta); set (theta := pr2 ytheta);
+  simpl in *.
+  apply (theta c).
+  apply (identity c,,y).
+- abstract (
+    intros c c' f; simpl;
+    apply funextfun; intros ytheta; destruct ytheta as [y theta]; cbn;
+    unfold covyoneda_morphisms_data;
+    assert (X := nat_trans_ax theta);
+    assert (Y := toforallpaths _ _ _ (X c c' f) (identity c,, y));
+    eapply pathscomp0; [|apply Y]; cbn;
+    now rewrite id_right, id_left).
+Defined.
+
+(* This could be made nicer without the big abstract blocks... *)
+Lemma has_exponentials_functor_HSET : has_exponentials CP.
+Proof.
+intro P.
+use adjunction_from_partial.
+- apply (exponential_functor_cat P).
+- intro Q; simpl; apply eval.
+- intros Q R φ; simpl in *.
+  mkpair.
+  + mkpair.
+    * { mkpair.
+        - intros c u; simpl.
+          mkpair.
+          + simpl; intros d fx.
+            apply (φ d (dirprodpair (pr2 fx) (# R (pr1 fx) u))).
+          + abstract (
+              intros a b f; simpl; cbn;
+              apply funextsec; intro x;
+              eapply pathscomp0;
+              [|apply (toforallpaths _ _ _ (nat_trans_ax φ _ _ f)
+                                     (dirprodpair (pr2 x) (# R (pr1 x) u)))]; cbn;
+              apply maponpaths, maponpaths;
+              assert (H : # R (pr1 x ;; f) = # R (pr1 x) ;; #R f);
+              [apply functor_comp|];
+              apply (toforallpaths _ _ _ H u)).
+        - abstract (
+            intros a b f; cbn;
+            apply funextsec; intros x; cbn; simpl;
+            apply subtypeEquality;
+            [intros xx; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|];
+            simpl; apply funextsec; intro y; cbn;
+            apply funextsec; intro z;
+            apply maponpaths, maponpaths;
+            unfold covyoneda_morphisms_data;
+            assert (H : # R (f ;; pr1 z) = # R f ;; # R (pr1 z));
+              [apply functor_comp|];
+            apply pathsinv0;
+            now eapply pathscomp0; [apply (toforallpaths _ _ _ H x)|]).
+      }
+    * abstract (
+        apply (nat_trans_eq has_homsets_HSET); cbn; intro x;
+        apply funextsec; intro p;
+        apply maponpaths;
+        assert (H : # R (identity x) = identity (R x));
+          [apply functor_id|];
+        destruct p; apply maponpaths; simpl;
+        now apply pathsinv0; eapply pathscomp0; [apply (toforallpaths _ _ _ H p)|]).
+  + abstract (
+    intros [t p]; apply subtypeEquality; simpl;
+    [intros x; apply (isaset_nat_trans has_homsets_HSET)|];
+    apply (nat_trans_eq has_homsets_HSET); intros c;
+    apply funextsec; intro rc;
+    apply subtypeEquality;
+    [intro x; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|]; simpl;
+    rewrite p; cbn; clear p; apply funextsec; intro d; cbn;
+    apply funextsec; intros [t0 pd]; simpl;
+    assert (HH := toforallpaths _ _ _ (nat_trans_ax t c d t0) rc);
+    cbn in HH; rewrite HH; cbn; unfold covyoneda_morphisms_data;
+    now rewrite id_right).
+Qed.
+
+End exponentials_functor_cat.

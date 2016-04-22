@@ -29,12 +29,13 @@ Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 (*Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).*)
-Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
+(* Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g"). *)
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
@@ -466,3 +467,95 @@ Proof.
 Defined.
 
 End from_fully_faithful_and_ess_surj_to_equivalence.
+
+
+(* Theorem 2 (iv) of Chapter IV.1 of MacLane *)
+Section adjunction_from_partial.
+
+Definition is_universal_arrow_from {D C : precategory}
+  (S : functor D C) (c : C) (r : D) (v : C⟦S r, c⟧) : UU :=
+  forall (d : D) (f : C⟦S d,c⟧), ∃! (f' : D⟦d,r⟧), f = # S f' ;; v.
+
+Variables (X A : precategory) (F : functor X A).
+Variables (G0 : ob A -> ob X) (eps : forall a, A⟦F (G0 a),a⟧).
+Hypothesis (Huniv : forall a, is_universal_arrow_from F a (G0 a) (eps a)).
+
+Local Definition G_data : functor_data A X.
+Proof.
+mkpair.
++ apply G0.
++ intros a b f.
+  apply (pr1 (pr1 (Huniv b (G0 a) (eps a ;; f)))).
+Defined.
+
+Local Definition G_is_functor : is_functor G_data.
+Proof.
+split.
++ intro a; simpl.
+  assert (H : eps a ;; identity a = # F (identity (G0 a)) ;; eps a).
+  { now rewrite functor_id, id_left, id_right. }
+  set (H2 := Huniv a (G0 a) (eps a ;; identity a)).
+  apply (pathsinv0 (maponpaths pr1 (pr2 H2 (_,,H)))).
++ intros a b c f g; simpl.
+  set (H2 := Huniv c (G0 a) (eps a ;; (f ;; g))).
+  destruct H2 as [[fac Hfac] p]; simpl.
+  set (H1 := Huniv b (G0 a) (eps a ;; f)).
+  destruct H1 as [[fab Hfab] p1]; simpl.
+  set (H0 := Huniv c (G0 b) (eps b ;; g)).
+  destruct H0 as [[fbc Hfbc] p2]; simpl.
+  assert (H : eps a ;; (f ;; g) = # F (fab ;; fbc) ;; eps c).
+  { now rewrite assoc, Hfab, <- assoc, Hfbc, assoc, <- functor_comp. }
+  apply (pathsinv0 (maponpaths pr1 (p (_,,H)))).
+Qed.
+
+Local Definition G : functor A X := tpair _ G_data G_is_functor.
+
+Local Definition unit : nat_trans (functor_identity X) (functor_composite F G).
+Proof.
+ mkpair.
+* intro x.
+  apply (pr1 (pr1 (Huniv (F x) x (identity _)))).
+* abstract (intros x y f; simpl;
+            destruct (Huniv (F y) y (identity (F y))), t; simpl;
+            destruct (Huniv (F x) x (identity (F x))), t0; simpl;
+            destruct (Huniv (F y) (G0 (F x)) (eps (F x) ;; # F f)), t1; simpl;
+            assert (H1 : # F f = # F (t0 ;; t1) ;; eps (F y));
+            [now rewrite functor_comp, <- assoc, <- p4, assoc, <- p2, id_left|];
+            destruct (Huniv (F y) x (# F f));
+            set (HH := (maponpaths pr1 (p5 (_,,H1))));
+            simpl in HH; rewrite HH;
+            assert (H2 : # F f = # F (f ;; t) ;; eps (F y));
+            [now rewrite functor_comp, <- assoc, <- p0, id_right|];
+            set (HHH := (maponpaths pr1 (p5 (_,,H2)))); simpl in HHH;
+            now rewrite HHH).
+Defined.
+
+Local Definition counit :  nat_trans (functor_composite G F) (functor_identity A).
+Proof.
+mkpair.
+* apply eps.
+* abstract (intros a b f; simpl; apply (pathsinv0 (pr2 (pr1 (Huniv b (G0 a) (eps a ;; f)))))).
+Defined.
+
+Local Lemma form_adjunctionFG : form_adjunction F G unit counit.
+Proof.
+mkpair; simpl.
++ intros x.
+  destruct (Huniv (F x) x (identity (F x))) as [[f hf] H]; simpl.
+  now rewrite hf.
++ intros a; simpl.
+  destruct (Huniv (F (G0 a)) (G0 a) (identity (F (G0 a)))) as [[f hf] H]; simpl.
+  destruct ((Huniv a (G0 (F (G0 a))) (eps (F (G0 a)) ;; eps a))) as [[g hg] Hg]; simpl.
+  destruct (Huniv _ _ (eps a)).
+  assert (H1 : eps a = # F (identity _) ;; eps a).
+    now rewrite functor_id, id_left.
+  assert (H2 : eps a = # F (f ;; g) ;; eps a).
+    now rewrite functor_comp, <- assoc, <- hg, assoc, <- hf, id_left.
+  set (HH := maponpaths pr1 (p (_,,H1))); simpl in HH.
+  set (HHH := maponpaths pr1 (p (_,,H2))); simpl in HHH.
+  now rewrite HHH, <- HH.
+Qed.
+
+Definition adjunction_from_partial : is_left_adjoint F := (G,, (unit,, counit),, form_adjunctionFG).
+
+End adjunction_from_partial.
