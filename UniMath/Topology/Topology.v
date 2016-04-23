@@ -681,12 +681,12 @@ Defined.
 (** *** Limit of a filter *)
 
 Definition is_filter_lim {T : TopologicalSet} (F : Filter T) (x : T) :=
-  filter_le (locally x) F.
+  filter_le F (locally x).
 Definition ex_filter_lim  {T : TopologicalSet} (F : Filter T) :=
   ∃ (x : T), is_filter_lim F x.
 
 Definition is_filter_lim_base {T : TopologicalSet} (F : Filter T) (x : T) base :=
-  filter_le (locally_base x base) F.
+  filter_le F (locally_base x base).
 Definition ex_filter_lim_base  {T : TopologicalSet} (F : Filter T) :=
   ∃ (x : T) base, is_filter_lim_base F x base.
 
@@ -696,10 +696,12 @@ Proof.
   intros.
   split.
   - intros Hx P HP.
-    eapply neighborhood_equiv, Hx.
+    apply (pr2 (neighborhood_equiv _ base _)) in HP.
+    apply Hx.
     exact HP.
   - intros Hx P HP.
-    apply (pr2 (neighborhood_equiv _ _ _)), Hx.
+    apply neighborhood_equiv in HP.
+    apply Hx.
     exact HP.
 Qed.
 Lemma ex_filter_lim_base_correct {T : TopologicalSet} (F : Filter T) :
