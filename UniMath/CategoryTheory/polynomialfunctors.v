@@ -44,8 +44,11 @@ End move_upstream.
 
 Section polynomial_functors.
 
+Definition omega_cocont_functor {C D : precategory}  : UU :=
+  total2 (fun F : functor C D => omega_cocont F).
+
 (* The constant functor is omega cocontinuous *)
-Lemma omega_cocont_constant_functor (C D : precategory) (hsD : has_homsets D)
+Lemma is_omega_cocont_constant_functor (C D : precategory) (hsD : has_homsets D)
   (x : D) : omega_cocont (constant_functor C D x).
 Proof.
 intros c L ccL HcL y ccy; simpl.
@@ -61,22 +64,32 @@ simple refine (tpair _ _ _).
               | now simpl; destruct p as [p H]; rewrite <- (H 0), id_left]).
 Defined.
 
+Definition omega_cocont_constant_functor (C D : precategory) (hsD : has_homsets D)
+  (x : D) : omega_cocont_functor := tpair _ _ (is_omega_cocont_constant_functor C D hsD x).
+
 (* The identity functor is omega cocontinuous *)
-Lemma omega_cocont_functor_identity (C : precategory) (hsC : has_homsets C) :
+Lemma is_omega_cocont_functor_identity (C : precategory) (hsC : has_homsets C) :
   omega_cocont (functor_identity C).
 Proof.
 intros c L ccL HcL.
 apply (preserves_colimit_identity hsC _ _ _ HcL).
 Defined.
 
+Definition omega_cocont_functor_identity (C : precategory) (hsC : has_homsets C) :
+  omega_cocont_functor := tpair _ _ (is_omega_cocont_functor_identity C hsC).
+
 (* Functor composition preserves omega cocontinuity *)
-Lemma omega_cocont_functor_composite {C D E : precategory}
+Lemma is_omega_cocont_functor_composite {C D E : precategory}
   (hsE : has_homsets E) (F : functor C D) (G : functor D E) :
   omega_cocont F -> omega_cocont G -> omega_cocont (functor_composite F G).
 Proof.
 intros hF hG c L cc.
 apply (preserves_colimit_comp hsE); [ apply hF | apply hG ].
 Defined.
+
+Definition omega_cocont_functor_composite {C D E : precategory}
+  (hsE : has_homsets E) (F : @omega_cocont_functor C D) (G : omega_cocont_functor) :
+  omega_cocont_functor := tpair _ _ (is_omega_cocont_functor_composite hsE _ _ (pr2 F) (pr2 G)).
 
 (* A pair of functors (F,G) : A * B -> C * D is omega_cocont if F and G are *)
 Section pair_functor.
