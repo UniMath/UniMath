@@ -239,7 +239,7 @@ Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
 Lemma cocont_delta_functor : is_cocont (delta_functor C).
 Proof.
 apply (left_adjoint_cocont _ (is_left_adjoint_delta_functor PC) hsC).
-apply (has_homsets_product_precategory _ _ hsC hsC).
+abstract (apply (has_homsets_product_precategory _ _ hsC hsC)).
 Defined.
 
 Lemma omega_cocont_delta_functor : omega_cocont (delta_functor C).
@@ -258,8 +258,8 @@ Variables (C : precategory) (PC : Coproducts C) (hsC : has_homsets C).
 Lemma cocont_bincoproducts_functor : is_cocont (bincoproduct_functor PC).
 Proof.
 apply (left_adjoint_cocont _ (is_left_adjoint_bincoproduct_functor PC)).
-- apply has_homsets_product_precategory; apply hsC.
-- apply hsC.
+- abstract (apply has_homsets_product_precategory; apply hsC).
+- abstract (apply hsC).
 Defined.
 
 Lemma omega_cocont_bincoproduct_functor: omega_cocont (bincoproduct_functor PC).
@@ -279,9 +279,9 @@ Lemma omega_cocont_sum_of_functors (F G : functor C D)
   (HF : omega_cocont F) (HG : omega_cocont G) :
   omega_cocont (sum_of_functors HD F G).
 Proof.
-apply (omega_cocont_functor_composite hsD).
+apply (is_omega_cocont_functor_composite hsD).
   apply (omega_cocont_delta_functor _ PC hsC).
-apply (omega_cocont_functor_composite hsD).
+apply (is_omega_cocont_functor_composite hsD).
   apply (omega_cocont_pair_functor _ _ _ _ _ _ hsC hsC hsD hsD HF HG).
 apply (omega_cocont_bincoproduct_functor _ _ hsD).
 Defined.
