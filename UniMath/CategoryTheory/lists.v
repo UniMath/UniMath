@@ -135,21 +135,21 @@ Definition stream : functor HSET HSET := constprod_functor1 ProductsHSET A.
 
 (* F(X) = 1 + (A * X) *)
 Definition listFunctor : functor HSET HSET :=
-  (* sum_of_functors CoproductsHSET (constant_functor _ _ unitHSET) (constprod_functor1 ProductsHSET A). *)
-  functor_composite stream (constcoprod_functor _ unitHSET CoproductsHSET).
+  sum_of_functors CoproductsHSET (constant_functor _ _ unitHSET) (constprod_functor1 ProductsHSET A).
+  (* functor_composite stream (constcoprod_functor _ unitHSET CoproductsHSET). *)
 
 Lemma omega_cocont_listFunctor : omega_cocont listFunctor.
 Proof.
-(* apply omega_cocont_sum_of_functors; try apply has_homsets_HSET. *)
-(* - apply ProductsHSET. *)
-(* - apply omega_cocont_constant_functor, has_homsets_HSET. *)
-(* - apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET has_exponentials_HSET). *)
-
-apply (omega_cocont_functor_composite has_homsets_HSET).
-(* - apply omega_cocontConstProdFunctor. *)
-(* If I use this length doesn't compute with vm_compute... *)
+apply omega_cocont_sum_of_functors; try apply has_homsets_HSET.
+- apply ProductsHSET.
+- apply is_omega_cocont_constant_functor, has_homsets_HSET.
 - apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET has_exponentials_HSET).
-- apply (omega_cocontConstCoprodFunctor _ has_homsets_HSET).
+
+(* apply (omega_cocont_functor_composite has_homsets_HSET). *)
+(* (* - apply omega_cocontConstProdFunctor. *) *)
+(* (* If I use this length doesn't compute with vm_compute... *) *)
+(* - apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET has_exponentials_HSET). *)
+(* - apply (omega_cocontConstCoprodFunctor _ has_homsets_HSET). *)
 Defined.
 
 Lemma listFunctor_Initial :
@@ -162,13 +162,13 @@ Defined.
 Definition List : HSET :=
   (* colim (ColimCoconeHSET nat_graph (initChain InitialHSET listFunctor)). *)
   alg_carrier _ (InitialObject listFunctor_Initial).
-Opaque List.
+(* Opaque List. *)
 Let List_mor : HSET⟦listFunctor List,List⟧ :=
   alg_map _ (InitialObject listFunctor_Initial).
-Opaque List_mor.
+(* Opaque List_mor. *)
 Let List_alg : algebra_ob listFunctor :=
   InitialObject listFunctor_Initial.
-Opaque List_alg.
+(* Opaque List_alg. *)
 
 Definition nil_map : HSET⟦unitHSET,List⟧.
 Proof.
@@ -204,14 +204,17 @@ Definition foldr_map (X : HSET) (x : pr1 X) (f : HSET⟦(A × X)%set,X⟧) :
 Proof.
 apply (InitialArrow listFunctor_Initial (mk_listAlgebra X x f)).
 Defined.
-Opaque foldr_map.
+(* Opaque foldr_map. *)
 
 Definition foldr (X : HSET) (x : pr1 X)
   (f : pr1 A × pr1 X -> pr1 X) : pr1 List -> pr1 X.
 Proof.
 apply (foldr_map _ x f).
 Defined.
-Opaque foldr.
+(* Opaque foldr. *)
+
+
+Opaque foldr_map.
 
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A × X -> X) : foldr X x f nil = x.
@@ -220,6 +223,8 @@ assert (F := maponpaths (fun x => CoproductIn1 _ _ ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
+
+(* Opaque cons_map. *)
 
 Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
                  (a : pr1 A) (l : pr1 List) :
@@ -253,14 +258,20 @@ apply (tpair _ P').
 abstract (apply (isofhleveltotal2 2); [ apply setproperty | intro x; apply PhSet ]).
 Defined.
 
+Transparent foldr_map.
+Opaque omega_cocont_listFunctor.
+
 Lemma isalghom_pr1foldr :
   is_algebra_mor _ List_alg List_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
 apply CoproductArrow_eq_cor.
-- apply funextfun; intro x; destruct x; apply idpath.
+- apply funextfun; intro x; destruct x.
+apply idpath.
 - apply funextfun; intro x; destruct x as [a l].
   apply (maponpaths pr1 (foldr_cons P'HSET P0' Pc' a l)).
 Qed.
+
+Transparent omega_cocont_listFunctor.
 
 Definition pr1foldr_algmor : algebra_mor _ List_alg List_alg :=
   tpair _ _ isalghom_pr1foldr.
@@ -314,7 +325,7 @@ Qed.
 
 End lists.
 
-Opaque List.
+(* Opaque List. *)
 (* Opaque foldr. *) (* makes "cbn" and "compute" in the computation below fail *)
 
 (* Some examples of computations with lists over nat *)
