@@ -10,7 +10,6 @@ env:
   - PACKAGE=Ktheory
   - PACKAGE=Topology
   - PACKAGE=RealNumbers
-  - PACKAGE=Dedekind
   - PACKAGE=SubstitutionSystems
   - PACKAGE=Tactics
   - PACKAGE=Folds
