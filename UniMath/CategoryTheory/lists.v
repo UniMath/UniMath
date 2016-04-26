@@ -45,7 +45,7 @@ Defined.
 Definition List : HSET :=
   alg_carrier _ (InitialObject listFunctor_Initial).
 
-Let List_mor : HSET⟦pr1 listFunctor List,List⟧ :=
+Let List_mor : HSET⟦listFunctor List,List⟧ :=
   alg_map _ (InitialObject listFunctor_Initial).
 
 Let List_alg : algebra_ob listFunctor :=
