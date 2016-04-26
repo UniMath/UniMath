@@ -148,9 +148,13 @@ End chains.
 
 Notation "'chain'" := (diagram nat_graph).
 
-Definition omega_cocont {C D : precategory} (F : functor C D) : UU :=
+Definition is_omega_cocont {C D : precategory} (F : functor C D) : UU :=
   forall (c : chain C) (L : C) (cc : cocone c L),
   preserves_colimit F c L cc.
+
+Definition omega_cocont_functor (C D : precategory)  : UU :=
+  total2 (fun F : functor C D => is_omega_cocont F).
+
 
 (* This section proves that (L,α : F L -> L) is the initial algebra
    where L is the colimit of the inital chain:
@@ -162,9 +166,10 @@ Definition omega_cocont {C D : precategory} (F : functor C D) : UU :=
 Section colim_initial_algebra.
 
 Variables (C : precategory) (hsC : has_homsets C).
-Variables (F : functor C C) (HF : omega_cocont F).
-Variables (InitC : Initial C).
+Variables (FHF : omega_cocont_functor C C) (InitC : Initial C).
 
+Let F := pr1 FHF.
+Let HF : is_omega_cocont F := pr2 FHF.
 Let Fchain : chain C := initChain InitC F.
 
 Variable (CC : ColimCocone Fchain).
