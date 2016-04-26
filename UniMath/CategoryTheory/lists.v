@@ -28,30 +28,24 @@ Section lists.
 
 Variable A : HSET.
 
-(* F(X) = 1 + (A * X) *)
-Definition listFunctor : functor HSET HSET :=
-  sum_of_functors CoproductsHSET (constant_functor _ _ unitHSET)
-                  (constprod_functor1 ProductsHSET A).
+Local Open Scope polynomial_functor_hset_scope.
 
-Lemma omega_cocont_listFunctor : omega_cocont listFunctor.
-Proof.
-apply omega_cocont_sum_of_functors; try apply has_homsets_HSET.
-- apply ProductsHSET.
-- apply is_omega_cocont_constant_functor, has_homsets_HSET.
-- apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET has_exponentials_HSET).
-Defined.
+(* F(X) = 1 + (A * X) *)
+Definition listOmegaFunctor : omega_cocont_functor HSET HSET := '1 + 'A * Id.
+
+Let listFunctor : functor HSET HSET := pr1 listOmegaFunctor.
+Let is_omega_cocont_listFunctor : is_omega_cocont listFunctor := pr2 listOmegaFunctor.
 
 Lemma listFunctor_Initial :
   Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
 Proof.
-apply (colimAlgInitial _ _ _ omega_cocont_listFunctor
-                       InitialHSET (ColimCoconeHSET _ _)).
+apply (colimAlgInitial _ _ _ is_omega_cocont_listFunctor InitialHSET (ColimCoconeHSET _ _)).
 Defined.
 
 Definition List : HSET :=
   alg_carrier _ (InitialObject listFunctor_Initial).
 
-Let List_mor : HSET⟦listFunctor List,List⟧ :=
+Let List_mor : HSET⟦pr1 listFunctor List,List⟧ :=
   alg_map _ (InitialObject listFunctor_Initial).
 
 Let List_alg : algebra_ob listFunctor :=
@@ -141,7 +135,7 @@ abstract (apply (isofhleveltotal2 2); [ apply setproperty | intro x; apply PhSet
 Defined.
 
 (* This line is crucial for isalghom_pr1foldr to typecheck *)
-Opaque omega_cocont_listFunctor.
+Opaque is_omega_cocont_listFunctor.
 
 Lemma isalghom_pr1foldr :
   is_algebra_mor _ List_alg List_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
@@ -152,7 +146,7 @@ apply CoproductArrow_eq_cor.
   apply (maponpaths pr1 (foldr_cons P'HSET P0' Pc' a l)).
 Qed.
 
-Transparent omega_cocont_listFunctor.
+Transparent is_omega_cocont_listFunctor.
 
 Definition pr1foldr_algmor : algebra_mor _ List_alg List_alg :=
   tpair _ _ isalghom_pr1foldr.
@@ -181,6 +175,8 @@ intro l; apply isasetaprop, HP.
 Defined.
 
 Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+
+Local Open Scope nat_scope.
 
 Definition natHSET : HSET.
 Proof.
@@ -348,7 +344,8 @@ mkpair.
 Defined.
 
 (* This doesn't compute: *)
-(* Eval compute in (to_list' _ testlist). *)
+(* Eval compute in (to_list' _ testlist).b
+ *)
 
 End list'.
 
@@ -370,7 +367,7 @@ Definition constprod_functor : functor HSET HSET :=
 
 Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
 
-Lemma omega_cocontConstProdFunctor : omega_cocont constprod_functor.
+Lemma omega_cocontConstProdFunctor : is_omega_cocont constprod_functor.
 Proof.
 intros hF c L ccL HcL cc.
 simple refine (tpair _ _ _).
@@ -419,7 +416,7 @@ Variables (C : precategory) (hsC : has_homsets C) (x : C) (PC : Coproducts C).
 Definition constcoprod_functor : functor C C :=
   coproduct_functor C C PC (constant_functor C C x) (functor_identity C).
 
-Lemma omega_cocontConstCoprodFunctor : omega_cocont constcoprod_functor.
+Lemma omega_cocontConstCoprodFunctor : is_omega_cocont constcoprod_functor.
 Proof.
 intros hF c L ccL HcL cc.
 simple refine (tpair _ _ _).
@@ -472,7 +469,7 @@ Definition stream : functor HSET HSET := constprod_functor1 ProductsHSET A.
 Definition listFunctor : functor HSET HSET :=
   functor_composite stream (constcoprod_functor _ unitHSET CoproductsHSET).
 
-Lemma omega_cocont_listFunctor : omega_cocont listFunctor.
+Lemma omega_cocont_listFunctor : is_omega_cocont listFunctor.
 Proof.
 apply (is_omega_cocont_functor_composite has_homsets_HSET).
 - apply omega_cocontConstProdFunctor.

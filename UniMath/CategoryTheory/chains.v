@@ -166,10 +166,14 @@ Definition omega_cocont_functor (C D : precategory)  : UU :=
 Section colim_initial_algebra.
 
 Variables (C : precategory) (hsC : has_homsets C).
-Variables (FHF : omega_cocont_functor C C) (InitC : Initial C).
 
-Let F := pr1 FHF.
-Let HF : is_omega_cocont F := pr2 FHF.
+(* It is important that these are not packaged together as it is
+   sometimes necessary to control how opaque HF is. See
+   isalghom_pr1foldr in lists.v *)
+Variables (F : functor C C) (HF : is_omega_cocont F).
+
+Variables (InitC : Initial C).
+
 Let Fchain : chain C := initChain InitC F.
 
 Variable (CC : ColimCocone Fchain).

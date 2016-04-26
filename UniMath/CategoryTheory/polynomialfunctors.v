@@ -3,13 +3,13 @@
 This file contains proofs that the following functors are
 (omega-)cocontinuous:
 
-- Constant functor: F : C -> D, _ |-> x
+- Constant functor: F_x : C -> D, c |-> x
 - Identity functor
 - Composition of omega-cocontinuous functors
-- The pair of functors (F,G) : A * B -> C * D if F and G are
+- The pair of functors (F,G) : A * B -> C * D if F and G are. (x,y) |-> (F x,G y)
+...
 
-
-     Anders Mörtberg, 2015-2016
+Written by: Anders Mörtberg, 2015-2016
 
 *)
 
@@ -870,10 +870,24 @@ End pre_composition_functor.
 
 End polynomial_functors.
 
+(* Specialized notations for HSET *)
+Delimit Scope polynomial_functor_hset_scope with PS.
 
-(* Specialized notation for HSET *)
-Section notations_hset.
+Notation "' x" := (omega_cocont_constant_functor _ _ has_homsets_HSET x)
+                    (at level 10) : polynomial_functor_hset_scope.
 
-(* TODO: add notations for constant, identity, +, *, *: *)
+Notation "'Id'" := (omega_cocont_functor_identity _ has_homsets_HSET) :
+                     polynomial_functor_hset_scope.
 
-End notations_hset.
+Notation "F * G" :=
+  (omega_cocont_product_of_functors _ _ ProductsHSET _
+     has_exponentials_HSET has_homsets_HSET has_homsets_HSET _ _ (pr2 F) (pr2 G)) :
+    polynomial_functor_hset_scope.
+
+Notation "F + G" :=
+  (omega_cocont_sum_of_functors _ _ ProductsHSET CoproductsHSET
+     has_homsets_HSET has_homsets_HSET _ _ (pr2 F) (pr2 G)) :
+    polynomial_functor_hset_scope.
+
+Notation "1" := (unitHSET) : polynomial_functor_hset_scope.
+Notation "0" := (emptyHSET) : polynomial_functor_hset_scope.
