@@ -8,6 +8,8 @@ env:
   - PACKAGE=Foundations
   - PACKAGE=CategoryTheory
   - PACKAGE=Ktheory
+  - PACKAGE=Topology
+  - PACKAGE=RealNumbers
   - PACKAGE=Dedekind
   - PACKAGE=SubstitutionSystems
   - PACKAGE=Tactics
