@@ -183,3 +183,45 @@ intros Pnil Pcons.
 apply treeInd; try assumption.
 intro l; apply isasetaprop, HP.
 Defined.
+
+End bintrees.
+
+Section nat_examples.
+
+Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
+
+Local Open Scope nat_scope.
+
+Definition natHSET : HSET.
+Proof.
+exists nat.
+abstract (apply isasetnat).
+Defined.
+
+Definition size : pr1 (Tree natHSET) -> nat :=
+  foldr natHSET natHSET 0 (fun x => S (pr1 (pr2 x) + pr2 (pr2 x))).
+
+Lemma size_node a l1 l2 : size (node natHSET (a,,l1,,l2)) = 1 + size l1 + size l2.
+Proof.
+unfold size.
+now rewrite foldr_node.
+Qed.
+
+Definition map (f : nat -> nat) (l : pr1 (Tree natHSET)) : pr1 (Tree natHSET) :=
+  foldr natHSET (Tree natHSET) (leaf natHSET)
+      (λ a, node natHSET (f (pr1 a),, pr1 (pr2 a),, pr2 (pr2 a))) l.
+
+Lemma size_map (f : nat -> nat) : forall l, size (map f l) = size l.
+Proof.
+apply treeIndProp.
+- intros l. apply isasetnat.
+- apply idpath.
+- intros a l1 l2 ih1 ih2.
+  unfold map.
+  now rewrite foldr_node, !size_node, <- ih1, <- ih2.
+Qed.
+
+Definition sum : pr1 (Tree natHSET) -> nat :=
+  foldr natHSET natHSET 0 (fun x => pr1 x + pr1 (pr2 x) + pr2 (pr2 x)).
+
+End nat_examples.
