@@ -1,5 +1,14 @@
 (**
 
+This file contains proofs that the following functors are
+(omega-)cocontinuous:
+
+- Constant functor: F : C -> D, _ |-> x
+- Identity functor
+- Composition of omega-cocontinuous functors
+- The pair of functors (F,G) : A * B -> C * D if F and G are
+
+
      Anders Mörtberg, 2015-2016
 
 *)
@@ -44,12 +53,9 @@ End move_upstream.
 
 Section polynomial_functors.
 
-Definition omega_cocont_functor {C D : precategory}  : UU :=
-  total2 (fun F : functor C D => omega_cocont F).
-
 (* The constant functor is omega cocontinuous *)
 Lemma is_omega_cocont_constant_functor (C D : precategory) (hsD : has_homsets D)
-  (x : D) : omega_cocont (constant_functor C D x).
+  (x : D) : is_omega_cocont (constant_functor C D x).
 Proof.
 intros c L ccL HcL y ccy; simpl.
 simple refine (tpair _ _ _).
@@ -65,31 +71,31 @@ simple refine (tpair _ _ _).
 Defined.
 
 Definition omega_cocont_constant_functor (C D : precategory) (hsD : has_homsets D)
-  (x : D) : omega_cocont_functor := tpair _ _ (is_omega_cocont_constant_functor C D hsD x).
+  (x : D) : omega_cocont_functor C D := tpair _ _ (is_omega_cocont_constant_functor C D hsD x).
 
 (* The identity functor is omega cocontinuous *)
 Lemma is_omega_cocont_functor_identity (C : precategory) (hsC : has_homsets C) :
-  omega_cocont (functor_identity C).
+  is_omega_cocont (functor_identity C).
 Proof.
 intros c L ccL HcL.
 apply (preserves_colimit_identity hsC _ _ _ HcL).
 Defined.
 
 Definition omega_cocont_functor_identity (C : precategory) (hsC : has_homsets C) :
-  omega_cocont_functor := tpair _ _ (is_omega_cocont_functor_identity C hsC).
+  omega_cocont_functor C C := tpair _ _ (is_omega_cocont_functor_identity C hsC).
 
 (* Functor composition preserves omega cocontinuity *)
 Lemma is_omega_cocont_functor_composite {C D E : precategory}
   (hsE : has_homsets E) (F : functor C D) (G : functor D E) :
-  omega_cocont F -> omega_cocont G -> omega_cocont (functor_composite F G).
+  is_omega_cocont F -> is_omega_cocont G -> is_omega_cocont (functor_composite F G).
 Proof.
 intros hF hG c L cc.
 apply (preserves_colimit_comp hsE); [ apply hF | apply hG ].
 Defined.
 
 Definition omega_cocont_functor_composite {C D E : precategory}
-  (hsE : has_homsets E) (F : @omega_cocont_functor C D) (G : omega_cocont_functor) :
-  omega_cocont_functor := tpair _ _ (is_omega_cocont_functor_composite hsE _ _ (pr2 F) (pr2 G)).
+  (hsE : has_homsets E) (F : omega_cocont_functor C D) (G : omega_cocont_functor D E) :
+  omega_cocont_functor C E := tpair _ _ (is_omega_cocont_functor_composite hsE _ _ (pr2 F) (pr2 G)).
 
 (* A pair of functors (F,G) : A * B -> C * D is omega_cocont if F and G are *)
 Section pair_functor.
@@ -142,7 +148,7 @@ mkpair.
             | apply (maponpaths (fun x => pr1 (pr1 x)) (p2 X))]).
 Defined.
 
-Lemma omega_cocont_pr1_functor : omega_cocont (pr1_functor A B).
+Lemma is_omega_cocont_pr1_functor : is_omega_cocont (pr1_functor A B).
 Proof.
 intros c L ccL M.
 now apply isColimCocone_pr1_functor.
@@ -189,15 +195,14 @@ mkpair.
               | apply (maponpaths (fun x => dirprod_pr2 (pr1 x)) (p2 X)) ]).
 Defined.
 
-Lemma omega_cocont_pr2_functor : omega_cocont (pr2_functor A B).
+Lemma is_omega_cocont_pr2_functor : is_omega_cocont (pr2_functor A B).
 Proof.
 intros c L ccL M.
 now apply isColimCocone_pr2_functor.
 Defined.
 
-(* TODO: Opacify more *)
-Lemma omega_cocont_pair_functor (HF : omega_cocont F) (HG : omega_cocont G) :
-  omega_cocont (pair_functor F G).
+Lemma is_omega_cocont_pair_functor (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  is_omega_cocont (pair_functor F G).
 Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
 simple refine (let cFAX : cocone (mapdiagram F (mapchain (pr1_functor A B) cAB))
@@ -242,7 +247,7 @@ apply (left_adjoint_cocont _ (is_left_adjoint_delta_functor PC) hsC).
 abstract (apply (has_homsets_product_precategory _ _ hsC hsC)).
 Defined.
 
-Lemma omega_cocont_delta_functor : omega_cocont (delta_functor C).
+Lemma is_omega_cocont_delta_functor : is_omega_cocont (delta_functor C).
 Proof.
 intros c L ccL.
 apply cocont_delta_functor.
@@ -262,7 +267,7 @@ apply (left_adjoint_cocont _ (is_left_adjoint_bincoproduct_functor PC)).
 - abstract (apply hsC).
 Defined.
 
-Lemma omega_cocont_bincoproduct_functor: omega_cocont (bincoproduct_functor PC).
+Lemma is_omega_cocont_bincoproduct_functor: is_omega_cocont (bincoproduct_functor PC).
 Proof.
 intros c L ccL; apply cocont_bincoproducts_functor.
 Defined.
@@ -275,16 +280,20 @@ Section sum_of_functors.
 Variables (C D : precategory) (PC : Products C) (HD : Coproducts D).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 
-Lemma omega_cocont_sum_of_functors (F G : functor C D)
-  (HF : omega_cocont F) (HG : omega_cocont G) :
-  omega_cocont (sum_of_functors HD F G).
+Lemma is_omega_cocont_sum_of_functors (F G : functor C D)
+  (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  is_omega_cocont (sum_of_functors HD F G).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
-  apply (omega_cocont_delta_functor _ PC hsC).
+  apply (is_omega_cocont_delta_functor _ PC hsC).
 apply (is_omega_cocont_functor_composite hsD).
-  apply (omega_cocont_pair_functor _ _ _ _ _ _ hsC hsC hsD hsD HF HG).
-apply (omega_cocont_bincoproduct_functor _ _ hsD).
+  apply (is_omega_cocont_pair_functor _ _ _ _ _ _ hsC hsC hsD hsD HF HG).
+apply (is_omega_cocont_bincoproduct_functor _ _ hsD).
 Defined.
+
+Definition omega_cocont_sum_of_functors (F G : functor C D)
+  (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_sum_of_functors F G HF HG).
 
 End sum_of_functors.
 
@@ -298,11 +307,14 @@ Proof.
 apply (left_adjoint_cocont _ (hE _) hsC hsC).
 Defined.
 
-Lemma omega_cocont_constprod_functor1 (x : C) : omega_cocont (constprod_functor1 PC x).
+Lemma is_omega_cocont_constprod_functor1 (x : C) : is_omega_cocont (constprod_functor1 PC x).
 Proof.
 intros c L ccL.
 apply cocont_constprod_functor1.
 Defined.
+
+Definition omega_cocont_constprod_functor1 (x : C) :
+  omega_cocont_functor C C := tpair _ _ (is_omega_cocont_constprod_functor1 x).
 
 Lemma cocont_constprod_functor2 (x : C) : is_cocont (constprod_functor2 PC x).
 Proof.
@@ -310,11 +322,14 @@ apply left_adjoint_cocont; try apply hsC.
 apply (is_left_adjoint_constprod_functor2 PC hsC), hE.
 Defined.
 
-Lemma omega_cocont_constprod_functor2 (x : C) : omega_cocont (constprod_functor2 PC x).
+Lemma is_omega_cocont_constprod_functor2 (x : C) : is_omega_cocont (constprod_functor2 PC x).
 Proof.
 intros c L ccL.
 apply cocont_constprod_functor2.
 Defined.
+
+Definition omega_cocont_constprod_functor2 (x : C) :
+  omega_cocont_functor C C := tpair _ _ (is_omega_cocont_constprod_functor2 x).
 
 End constprod_functors.
 
@@ -425,7 +440,6 @@ simple refine (mk_cocone _ _).
 + simpl; intros j k e; apply map_to_K_commutes.
 Defined.
 
-
 Section omega_cocont_binproduct.
 
 Variable cAB : chain (product_precategory C C).
@@ -445,14 +459,14 @@ Let HB := isColimCocone_pr2_functor _ _ hsC _ _ _ HccLM
 
 (* Form the colimiting cocones of "A_i * B_0 -> A_i * B_1 -> ..." *)
 Let HAiB :=
-  fun i => omega_cocont_constprod_functor1 _ PC hsC hE (pr1 (pr1 cAB i)) _ _ _ HB.
+  fun i => is_omega_cocont_constprod_functor1 _ PC hsC hE (pr1 (pr1 cAB i)) _ _ _ HB.
 
 (* Turn HAiB into a ColimCocone: *)
 Let CCAiB := fun i => mk_ColimCocone _ _ _ (HAiB i).
 
 (* Define the HAiM ColimCocone: *)
 Let HAiM :=
-  mk_ColimCocone _ _ _ (omega_cocont_constprod_functor2 _ PC hsC hE M _ _ _ HA).
+  mk_ColimCocone _ _ _ (is_omega_cocont_constprod_functor2 _ PC hsC hE M _ _ _ HA).
 
 Let ccAiB_K := fun i => ccAiB_K _ _ ccK i.
 
@@ -634,7 +648,7 @@ Defined.
 
 End omega_cocont_binproduct.
 
-Lemma omega_cocont_binproduct_functor : omega_cocont (binproduct_functor PC).
+Lemma is_omega_cocont_binproduct_functor : is_omega_cocont (binproduct_functor PC).
 Proof.
 intros cAB LM ccLM HccLM K ccK; simpl in *.
 apply isColimProductOfColims.
@@ -642,6 +656,28 @@ apply HccLM.
 Defined.
 
 End binprod_functor.
+
+Section product_of_functors.
+
+Variables (C D : precategory) (PC : Products C) (PD : Products D) (hED : has_exponentials PD).
+Variables (hsC : has_homsets C) (hsD : has_homsets D).
+
+Lemma is_omega_cocont_product_of_functors (F G : functor C D)
+  (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  is_omega_cocont (product_of_functors PD F G).
+Proof.
+apply (is_omega_cocont_functor_composite hsD).
+  apply (is_omega_cocont_delta_functor _ PC hsC).
+apply (is_omega_cocont_functor_composite hsD).
+  apply (is_omega_cocont_pair_functor _ _ _ _ _ _ hsC hsC hsD hsD HF HG).
+apply (is_omega_cocont_binproduct_functor _ _ hsD hED).
+Defined.
+
+Definition omega_cocont_product_of_functors (F G : functor C D)
+  (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_product_of_functors F G HF HG).
+
+End product_of_functors.
 
 (* Precomposition functor is cocontinuous *)
 Section pre_composition_functor.
@@ -819,13 +855,25 @@ apply left_adjoint_cocont.
 - apply functor_category_has_homsets.
 Qed.
 
-Lemma omega_cocont_pre_composition_functor :
-  omega_cocont (pre_composition_functor _ _ _ hsC hsA K).
+Lemma is_omega_cocont_pre_composition_functor :
+  is_omega_cocont (pre_composition_functor _ _ _ hsC hsA K).
 Proof.
 intros c L ccL.
 apply cocont_pre_composition_functor.
 Defined.
 
+Definition omega_cocont_pre_composition_functor :
+  omega_cocont_functor [C, A, hsA] [M, A, hsA] :=
+  tpair _ _ is_omega_cocont_pre_composition_functor.
+
 End pre_composition_functor.
 
 End polynomial_functors.
+
+
+(* Specialized notation for HSET *)
+Section notations_hset.
+
+(* TODO: add notations for constant, identity, +, *, *: *)
+
+End notations_hset.
