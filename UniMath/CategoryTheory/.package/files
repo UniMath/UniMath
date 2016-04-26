@@ -45,6 +45,7 @@ PointedFunctorsComposition.v
 HorizontalComposition.v
 CommaCategories.v
 lists.v
+trees.v
 exponentials.v
 covyoneda.v
 lambdacalculus.v
