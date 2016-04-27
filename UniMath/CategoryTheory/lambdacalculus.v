@@ -72,28 +72,28 @@ Defined.
 (*     eapply product_of_functors. *)
 (*       apply delta_functor. *)
 
-Lemma omega_cocont_LambdaFunctor : omega_cocont LambdaFunctor.
+Lemma omega_cocont_LambdaFunctor : is_omega_cocont LambdaFunctor.
 Proof.
-apply omega_cocont_sum_of_functors.
+apply is_omega_cocont_sum_of_functors.
   apply (Products_functor_precat _ _ ProductsHSET).
   apply functor_category_has_homsets.
   apply functor_category_has_homsets.
-  apply omega_cocont_constant_functor.
+  apply is_omega_cocont_constant_functor.
   apply functor_category_has_homsets.
-apply omega_cocont_sum_of_functors.
+apply is_omega_cocont_sum_of_functors.
   apply (Products_functor_precat _ _ ProductsHSET).
   apply functor_category_has_homsets.
   apply functor_category_has_homsets.
-  apply omega_cocont_functor_composite.
+  apply is_omega_cocont_functor_composite.
   apply functor_category_has_homsets.
-  apply omega_cocont_delta_functor.
+  apply is_omega_cocont_delta_functor.
   apply (Products_functor_precat _ _ ProductsHSET).
   apply functor_category_has_homsets.
-  apply omega_cocont_binproduct_functor.
+  apply is_omega_cocont_binproduct_functor.
   apply functor_category_has_homsets.
   apply has_exponentials_functor_HSET.
   apply has_homsets_HSET.
-apply omega_cocont_pre_composition_functor.
+apply is_omega_cocont_pre_composition_functor.
 apply cats_LimsHSET.
 Defined.
 
