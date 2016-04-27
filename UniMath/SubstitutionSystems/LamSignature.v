@@ -55,7 +55,8 @@ Variable CC : Coproducts C.
 Variable terminal : Terminal C.
 Let one : C :=  @TerminalObject C terminal.
 
-Definition square_functor := product_functor C C CP (functor_identity C) (functor_identity C).
+(* Definition square_functor := product_functor C C CP (functor_identity C) (functor_identity C). *)
+Definition square_functor := product_of_functors CP (functor_identity C) (functor_identity C).
 
 Definition option_functor: functor C C := coproduct_functor _ _ CC (constant_functor _ _  one) (functor_identity C).
 
@@ -87,72 +88,100 @@ Proof.
   exact CP.
 Defined.
 
+Require Import UniMath.CategoryTheory.chains.
+Require Import UniMath.CategoryTheory.polynomialfunctors.
+Require Import UniMath.CategoryTheory.exponentials.
+
+Lemma is_omega_cocont_App_H (hE : has_exponentials (Products_functor_precat C C CP hs)) :
+  is_omega_cocont App_H.
+Proof.
+unfold App_H, square_functor.
+apply is_omega_cocont_product_of_functors.
+- apply (Products_functor_precat _ _ CP).
+- apply hE.
+- apply functor_category_has_homsets.
+- apply functor_category_has_homsets.
+- apply (is_omega_cocont_functor_identity _ (functor_category_has_homsets _ _ hs)).
+- apply (is_omega_cocont_functor_identity _ (functor_category_has_homsets _ _ hs)).
+Defined.
+
 (**
    [Abs_H (X) := X o option]
 *)
 
-Definition Abs_H_ob (X: EndC): functor C C := functor_composite (option_functor _ CC terminal) X.
+(* Definition Abs_H_ob (X: EndC): functor C C := functor_composite (option_functor _ CC terminal) X. *)
 
-(* works only with -type-in-type:
-Definition Abs_H_mor_nat_trans_data (X X': EndC)(α: X --> X'): ∀ c, Abs_H_ob X c --> Abs_H_ob X' c.
+(* (* works only with -type-in-type: *)
+(* Definition Abs_H_mor_nat_trans_data (X X': EndC)(α: X --> X'): ∀ c, Abs_H_ob X c --> Abs_H_ob X' c. *)
+(* Proof. *)
+(*   intro. *)
+(*   unfold Abs_H_ob. *)
+(*   red. simpl. apply α. *)
+(* Defined. *)
+(* *) *)
+
+(* Definition Abs_H_mor_nat_trans_data (X X': functor C C)(α: nat_trans X X'): ∀ c, Abs_H_ob X c --> Abs_H_ob X' c. *)
+(* Proof. *)
+(*   intro. *)
+(*   apply α. *)
+(* Defined. *)
+
+(* Lemma is_nat_trans_Abs_H_mor_nat_trans_data  (X X': EndC)(α: X --> X'): is_nat_trans _ _ (Abs_H_mor_nat_trans_data X X' α). *)
+(* Proof. *)
+(*   red. *)
+(*   intros c c' f. *)
+(*   destruct α as [α α_nat_trans]. *)
+(*   unfold Abs_H_mor_nat_trans_data, Abs_H_ob. *)
+(*   simpl. *)
+(*   apply α_nat_trans. *)
+(*  Qed. *)
+
+(* Definition Abs_H_mor (X X': EndC)(α: X --> X'): (Abs_H_ob X: ob EndC) --> Abs_H_ob X'. *)
+(* Proof. *)
+(*   exists (Abs_H_mor_nat_trans_data X X' α). *)
+(*   exact (is_nat_trans_Abs_H_mor_nat_trans_data X X' α). *)
+(* Defined. *)
+
+(* Definition Abs_H_functor_data: functor_data EndC EndC. *)
+(* Proof. *)
+(*   exists Abs_H_ob. *)
+(*   exact Abs_H_mor. *)
+(* Defined. *)
+
+(* Lemma is_functor_Abs_H_data: is_functor Abs_H_functor_data. *)
+(* Proof. *)
+(*   red. *)
+(*   split; red. *)
+(*   + intros X. *)
+(*     unfold Abs_H_functor_data. *)
+(*     simpl. *)
+(*     apply nat_trans_eq; try assumption. *)
+(*     intro c. *)
+(*     unfold Abs_H_mor. *)
+(*     simpl. *)
+(*     apply idpath. *)
+(*   + intros X X' X'' α β. *)
+(*     unfold Abs_H_functor_data. *)
+(*     simpl. *)
+(*     apply nat_trans_eq; try assumption. *)
+(*     intro c. *)
+(*     unfold Abs_H_mor. *)
+(*     simpl. *)
+(*     apply idpath. *)
+(* Qed. *)
+
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.limits.cats.limits.
+
+Definition Abs_H : functor [C, C, hs] [C, C, hs] :=
+ (* tpair _ _ is_functor_Abs_H_data. *)
+  pre_composition_functor _ _ _ hs _ (option_functor C CC terminal).
+
+Lemma is_omega_cocont_Abs_H (LC : Lims C) : is_omega_cocont Abs_H.
 Proof.
-  intro.
-  unfold Abs_H_ob.
-  red. simpl. apply α.
+unfold Abs_H.
+apply (is_omega_cocont_pre_composition_functor _ _ _ _ _ _ LC).
 Defined.
-*)
-
-Definition Abs_H_mor_nat_trans_data (X X': functor C C)(α: nat_trans X X'): ∀ c, Abs_H_ob X c --> Abs_H_ob X' c.
-Proof.
-  intro.
-  apply α.
-Defined.
-
-Lemma is_nat_trans_Abs_H_mor_nat_trans_data  (X X': EndC)(α: X --> X'): is_nat_trans _ _ (Abs_H_mor_nat_trans_data X X' α).
-Proof.
-  red.
-  intros c c' f.
-  destruct α as [α α_nat_trans].
-  unfold Abs_H_mor_nat_trans_data, Abs_H_ob.
-  simpl.
-  apply α_nat_trans.
- Qed.
-
-Definition Abs_H_mor (X X': EndC)(α: X --> X'): (Abs_H_ob X: ob EndC) --> Abs_H_ob X'.
-Proof.
-  exists (Abs_H_mor_nat_trans_data X X' α).
-  exact (is_nat_trans_Abs_H_mor_nat_trans_data X X' α).
-Defined.
-
-Definition Abs_H_functor_data: functor_data EndC EndC.
-Proof.
-  exists Abs_H_ob.
-  exact Abs_H_mor.
-Defined.
-
-Lemma is_functor_Abs_H_data: is_functor Abs_H_functor_data.
-Proof.
-  red.
-  split; red.
-  + intros X.
-    unfold Abs_H_functor_data.
-    simpl.
-    apply nat_trans_eq; try assumption.
-    intro c.
-    unfold Abs_H_mor.
-    simpl.
-    apply idpath.
-  + intros X X' X'' α β.
-    unfold Abs_H_functor_data.
-    simpl.
-    apply nat_trans_eq; try assumption.
-    intro c.
-    unfold Abs_H_mor.
-    simpl.
-    apply idpath.
-Qed.
-
-Definition Abs_H : functor [C, C, hs] [C, C, hs] := tpair _ _ is_functor_Abs_H_data.
 
 
 (**
@@ -647,12 +676,21 @@ Proof.
   + exact Flat_θ_strength2_int.
 Defined.
 
-
 Definition Lam_Sig: Signature C hs :=
   Sum_of_Signatures C hs CC App_Sig Abs_Sig.
 
+Lemma is_omega_cocont_Lam (hE : has_exponentials (Products_functor_precat C C CP hs)) (LC : Lims C) :
+  is_omega_cocont (Signature_Functor _ _ Lam_Sig).
+Proof.
+apply is_omega_cocont_sum_of_functors.
+- apply (Products_functor_precat _ _ CP).
+- apply functor_category_has_homsets.
+- apply functor_category_has_homsets.
+- apply (is_omega_cocont_App_H hE).
+- apply (is_omega_cocont_Abs_H LC).
+Defined.
+
 Definition LamE_Sig: Signature C hs :=
   Sum_of_Signatures C hs CC Lam_Sig Flat_Sig.
-
 
 End Lambda.
