@@ -80,9 +80,9 @@ use colimAlgInitial.
   + apply is_omega_cocont_Lam.
     * apply (has_exponentials_functor_HSET _ has_homsets_HSET).
     * apply cats_LimsHSET.
-- admit.
+- apply (Initial_functor_precat _ _ InitialHSET).
 - apply ColimsFunctorCategory; apply ColimsHSET.
-Admitted.
+Defined.
 
 Lemma KanExt_HSET : ∀ Z : precategory_Ptd HSET has_homsets_HSET,
    RightKanExtension.GlobalRightKanExtensionExists HSET HSET
