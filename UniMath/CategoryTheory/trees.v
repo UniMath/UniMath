@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.chains.
-Require Import UniMath.CategoryTheory.polynomialfunctors.
+Require Import UniMath.CategoryTheory.cocontfunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 
@@ -33,7 +33,7 @@ Section bintrees.
 
 Variable A : HSET.
 
-Local Open Scope polynomial_functor_hset_scope.
+Local Open Scope cocont_functor_hset_scope.
 
 (* F(X) = 1 + A * X * X *)
 Definition treeOmegaFunctor : omega_cocont_functor HSET HSET := '1 + 'A * (Id * Id).

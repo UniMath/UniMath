@@ -33,7 +33,7 @@ rezk_completion.v
 slicecat.v
 chains.v
 EquivalencesExamples.v
-polynomialfunctors.v
+cocontfunctors.v
 limits/cats/limits.v
 limits/graphs/limits.v
 AdjunctionHomTypesWeq.v

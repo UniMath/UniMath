@@ -51,7 +51,7 @@ Defined.
 
 End move_upstream.
 
-Section polynomial_functors.
+Section cocont_functors.
 
 (* The constant functor is omega cocontinuous *)
 Lemma is_omega_cocont_constant_functor (C D : precategory) (hsD : has_homsets D)
@@ -868,26 +868,26 @@ Definition omega_cocont_pre_composition_functor :
 
 End pre_composition_functor.
 
-End polynomial_functors.
+End cocont_functors.
 
 (* Specialized notations for HSET *)
-Delimit Scope polynomial_functor_hset_scope with PS.
+Delimit Scope cocont_functor_hset_scope with CS.
 
 Notation "' x" := (omega_cocont_constant_functor _ _ has_homsets_HSET x)
-                    (at level 10) : polynomial_functor_hset_scope.
+                    (at level 10) : cocont_functor_hset_scope.
 
 Notation "'Id'" := (omega_cocont_functor_identity _ has_homsets_HSET) :
-                     polynomial_functor_hset_scope.
+                     cocont_functor_hset_scope.
 
 Notation "F * G" :=
   (omega_cocont_product_of_functors _ _ ProductsHSET _
      has_exponentials_HSET has_homsets_HSET has_homsets_HSET _ _ (pr2 F) (pr2 G)) :
-    polynomial_functor_hset_scope.
+    cocont_functor_hset_scope.
 
 Notation "F + G" :=
   (omega_cocont_sum_of_functors _ _ ProductsHSET CoproductsHSET
      has_homsets_HSET has_homsets_HSET _ _ (pr2 F) (pr2 G)) :
-    polynomial_functor_hset_scope.
+    cocont_functor_hset_scope.
 
-Notation "1" := (unitHSET) : polynomial_functor_hset_scope.
-Notation "0" := (emptyHSET) : polynomial_functor_hset_scope.
+Notation "1" := (unitHSET) : cocont_functor_hset_scope.
+Notation "0" := (emptyHSET) : cocont_functor_hset_scope.
