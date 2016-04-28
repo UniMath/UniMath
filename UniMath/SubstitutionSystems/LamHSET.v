@@ -23,6 +23,7 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
@@ -38,7 +39,7 @@ Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.cocontfunctors.
 
-Section set_instances.
+Section LamHSET.
 
 Let Lam_S : Signature _ _ := Lam_Sig HSET has_homsets_HSET TerminalHSET CoproductsHSET ProductsHSET.
 
@@ -78,4 +79,13 @@ apply InitialHSS.
 - apply Lam_Initial_HSET.
 Defined.
 
-End set_instances.
+Definition LamMonad : Monad HSET.
+Proof.
+use Monad_from_hss.
+- apply has_homsets_HSET.
+- apply CoproductsHSET.
+- apply Lam_S.
+- apply LamHSS_Initial_HSET.
+Defined.
+
+End LamHSET.
