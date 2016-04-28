@@ -85,8 +85,8 @@ Variable H : Signature C hs.
 Let θ := theta H.
 
 Definition Const_plus_H (X : EndC) : functor EndC EndC
-  (* := coproduct_functor _ _ CPEndC (constant_functor _ _ X) H. *)
-  := sum_of_functors CPEndC (constant_functor _ _ X) H.
+  := coproduct_functor _ _ CPEndC (constant_functor _ _ X) H.
+  (* := sum_of_functors CPEndC (constant_functor _ _ X) H. *)
 
 Definition Id_H :  functor [C, C, hs] [C, C, hs]
  := Const_plus_H (functor_identity _ : EndC).
