@@ -244,7 +244,7 @@ Defined.
 
 Definition Lam_Sig
   : ∀ (C : precategory) (hs : has_homsets C),
-    terminal.Terminal C → Coproducts C → Products C → Signature C hs.
+    Terminal C → Coproducts C → Products C → Signature C hs.
 Proof.
   apply Lam_Sig.
 Defined.

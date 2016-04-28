@@ -40,7 +40,6 @@ Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 
-
 Arguments θ_source {_ _} _ .
 Arguments θ_target {_ _} _ .
 Arguments θ_Strength1 {_ _ _} _ .
@@ -56,8 +55,6 @@ Variable terminal : Terminal C.
 Let one : C :=  @TerminalObject C terminal.
 
 Definition square_functor := product_functor C C CP (functor_identity C) (functor_identity C).
-(* Definition square_functor := product_of_functors CP (functor_identity C) (functor_identity C). *)
-
 Definition option_functor: functor C C := coproduct_functor _ _ CC (constant_functor _ _  one) (functor_identity C).
 
 End Preparations.
@@ -88,22 +85,22 @@ Proof.
   exact CP.
 Defined.
 
-(* Require Import UniMath.CategoryTheory.chains. *)
-(* Require Import UniMath.CategoryTheory.polynomialfunctors. *)
-(* Require Import UniMath.CategoryTheory.exponentials. *)
+Require Import UniMath.CategoryTheory.chains.
+Require Import UniMath.CategoryTheory.cocontfunctors.
+Require Import UniMath.CategoryTheory.exponentials.
 
-(* Lemma is_omega_cocont_App_H (hE : has_exponentials (Products_functor_precat C C CP hs)) : *)
-(*   is_omega_cocont App_H. *)
-(* Proof. *)
-(* unfold App_H, square_functor. *)
-(* apply is_omega_cocont_product_of_functors. *)
-(* - apply (Products_functor_precat _ _ CP). *)
-(* - apply hE. *)
-(* - apply functor_category_has_homsets. *)
-(* - apply functor_category_has_homsets. *)
-(* - apply (is_omega_cocont_functor_identity _ (functor_category_has_homsets _ _ hs)). *)
-(* - apply (is_omega_cocont_functor_identity _ (functor_category_has_homsets _ _ hs)). *)
-(* Defined. *)
+Lemma is_omega_cocont_App_H (hE : has_exponentials (Products_functor_precat C C CP hs)) :
+  is_omega_cocont App_H.
+Proof.
+unfold App_H, square_functor.
+apply is_omega_cocont_product_functor.
+- apply (Products_functor_precat _ _ CP).
+- apply hE.
+- apply functor_category_has_homsets.
+- apply functor_category_has_homsets.
+- apply (is_omega_cocont_functor_identity _ (functor_category_has_homsets _ _ hs)).
+- apply (is_omega_cocont_functor_identity _ (functor_category_has_homsets _ _ hs)).
+Defined.
 
 (**
    [Abs_H (X) := X o option]
@@ -177,11 +174,11 @@ Definition Abs_H : functor [C, C, hs] [C, C, hs] :=
  (* tpair _ _ is_functor_Abs_H_data. *)
   pre_composition_functor _ _ _ hs _ (option_functor C CC terminal).
 
-(* Lemma is_omega_cocont_Abs_H (LC : Lims C) : is_omega_cocont Abs_H. *)
-(* Proof. *)
-(* unfold Abs_H. *)
-(* apply (is_omega_cocont_pre_composition_functor _ _ _ _ _ _ LC). *)
-(* Defined. *)
+Lemma is_omega_cocont_Abs_H (LC : Lims C) : is_omega_cocont Abs_H.
+Proof.
+unfold Abs_H.
+apply (is_omega_cocont_pre_composition_functor _ _ _ _ _ _ LC).
+Defined.
 
 
 (**
@@ -679,16 +676,16 @@ Defined.
 Definition Lam_Sig: Signature C hs :=
   Sum_of_Signatures C hs CC App_Sig Abs_Sig.
 
-(* Lemma is_omega_cocont_Lam (hE : has_exponentials (Products_functor_precat C C CP hs)) (LC : Lims C) : *)
-(*   is_omega_cocont (Signature_Functor _ _ Lam_Sig). *)
-(* Proof. *)
-(* apply is_omega_cocont_sum_of_functors. *)
-(* - apply (Products_functor_precat _ _ CP). *)
-(* - apply functor_category_has_homsets. *)
-(* - apply functor_category_has_homsets. *)
-(* - apply (is_omega_cocont_App_H hE). *)
-(* - apply (is_omega_cocont_Abs_H LC). *)
-(* Defined. *)
+Lemma is_omega_cocont_Lam (hE : has_exponentials (Products_functor_precat C C CP hs)) (LC : Lims C) :
+  is_omega_cocont (Signature_Functor _ _ Lam_Sig).
+Proof.
+apply is_omega_cocont_coproduct_functor.
+- apply (Products_functor_precat _ _ CP).
+- apply functor_category_has_homsets.
+- apply functor_category_has_homsets.
+- apply (is_omega_cocont_App_H hE).
+- apply (is_omega_cocont_Abs_H LC).
+Defined.
 
 Definition LamE_Sig: Signature C hs :=
   Sum_of_Signatures C hs CC Lam_Sig Flat_Sig.
