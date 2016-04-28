@@ -246,10 +246,10 @@ Proof.
   unfold App_θ_data.
   intros XZ XZ' αβ.
 (* the following only for better readability: *)
-  destruct XZ as [X Z];
-  destruct XZ' as [X' Z'];
-  destruct αβ as [α β];
-  simpl in *.
+  (* destruct XZ as [X Z]; *)
+  (* destruct XZ' as [X' Z']; *)
+  (* destruct αβ as [α β]; *)
+  (* simpl in *. *)
   apply nat_trans_eq; try assumption.
   intro c.
   simpl.

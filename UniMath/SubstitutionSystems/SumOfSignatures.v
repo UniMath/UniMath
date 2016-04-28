@@ -194,20 +194,12 @@ Qed.
 
 Lemma SumStrength2 : θ_Strength2 θ.
 Proof.
-  unfold θ_Strength2.
   intros X Z Z' Y α.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hs).
     intro x.
-    simpl.
-    unfold bla1.
-    simpl.
-    unfold coproduct_nat_trans_data.
-    simpl.
     eapply pathscomp0. apply CoproductOfArrows_comp.
     apply pathsinv0.
-    eapply pathscomp0. apply cancel_postcomposition. apply CoproductOfArrows_comp.
-    unfold coproduct_nat_trans_in2_data.
-    unfold coproduct_nat_trans_in1_data.
+    eapply pathscomp0. apply cancel_postcomposition. simpl. apply CoproductOfArrows_comp.
     eapply pathscomp0. apply CoproductOfArrows_comp.
     apply pathsinv0.
     apply CoproductOfArrows_eq.
@@ -267,10 +259,6 @@ Proof.
     intro x.
     simpl.
     rewrite id_left.
-    unfold bla1.
-    simpl.
-    unfold coproduct_nat_trans_data.
-    simpl.
     eapply pathscomp0. apply CoproductOfArrows_comp.
     apply pathsinv0.
     eapply pathscomp0. apply CoproductOfArrows_comp.
