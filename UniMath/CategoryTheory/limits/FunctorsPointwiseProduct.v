@@ -84,7 +84,14 @@ Proof.
     apply ProductOfArrows_comp.
 Qed.
 
-Definition product_functor : functor C D := tpair _ _ is_functor_product_functor_data.
+Definition product_functor : functor C D :=
+  tpair _ _ is_functor_product_functor_data.
+
+Lemma product_of_functors_eq_product_functor :
+  product_of_functors HD F G = product_functor.
+Proof.
+now apply (functor_eq _ _ hsD).
+Defined.
 
 Definition product_nat_trans_pr1_data : ∀ c, product_functor c --> F c
   := λ c : C, ProductPr1 _ (HD (F c) (G c)).

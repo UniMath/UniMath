@@ -105,9 +105,11 @@ Proof.
 *)
 Qed.
 
-Definition coproduct_functor : functor C D := tpair _ _ is_functor_coproduct_functor_data.
+Definition coproduct_functor : functor C D :=
+  tpair _ _ is_functor_coproduct_functor_data.
 
-Lemma coproduct_of_functors_eq_coproduct_functor : coproduct_of_functors HD F G = coproduct_functor.
+Lemma coproduct_of_functors_eq_coproduct_functor :
+  coproduct_of_functors HD F G = coproduct_functor.
 Proof.
 now apply (functor_eq _ _ hsD).
 Defined.

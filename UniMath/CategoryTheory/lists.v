@@ -108,7 +108,6 @@ assert (F := maponpaths (fun x => CoproductIn2 _ _ ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l)).
 clear F.
-(* apply Fal. *) (* This doesn't work here. why? *)
 unfold compose in Fal.
 simpl in Fal.
 apply Fal.

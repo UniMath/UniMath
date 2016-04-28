@@ -14,6 +14,7 @@ This file contains proofs that the following functors are
 - Constant product functors: C -> C, x |-> a * x  and  x |-> x * a
 - Binary product functor: C^2 -> C, (x,y) |-> x * y
 - Product of functors: F * G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x * G x
+- Product functor: F * G : C -> D, x |-> F x * G x
 - Precomposition functor: _ o K : [C,A] -> [M,A] for K : M -> C
 
 
@@ -695,6 +696,18 @@ Defined.
 Definition omega_cocont_product_of_functors (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
   omega_cocont_functor C D := tpair _ _ (is_omega_cocont_product_of_functors F G HF HG).
+
+Lemma is_omega_cocont_product_functor (F G : functor C D)
+  (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  is_omega_cocont (product_functor _ _ PD F G).
+Proof.
+exact (transportf _ (product_of_functors_eq_product_functor C D PD hsD F G)
+                  (is_omega_cocont_product_of_functors _ _ HF HG)).
+Defined.
+
+Definition omega_cocont_product_functor (F G : functor C D)
+  (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_product_functor F G HF HG).
 
 End product_of_functors.
 
