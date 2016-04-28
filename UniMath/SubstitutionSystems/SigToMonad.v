@@ -138,6 +138,24 @@ Definition LamSig : Sig := cons_list (list nat) (0 :: 0 :: []) (cons_list (list 
 
 Eval cbn in SigToFunctor LamSig.
 
+Require Import UniMath.SubstitutionSystems.LamHSET.
+
+Let Lam_S : Signature HSET has_homsets_HSET :=
+  Lam_Sig HSET has_homsets_HSET TerminalHSET CoproductsHSET ProductsHSET.
+
+Check (pr1 Lam_S).
+Goal (pr1 Lam_S = pr1 (SigToFunctor LamSig)).
+simpl.
+apply subtypeEquality.
+intros x.
+apply isaprop_is_functor.
+apply (functor_category_has_homsets HSET HSET has_homsets_HSET).
+simpl.
+unfold App_H, square_functor.
+unfold Abs_H.
+admit.
+Abort. (* Hmm... *)
+
 End test_lam.
 
 Variable (sig : Sig).
