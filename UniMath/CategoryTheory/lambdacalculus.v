@@ -43,10 +43,10 @@ Defined.
 (* TODO: package omega cocont functors *)
 Definition LambdaFunctor : functor [HSET,HSET,has_homsets_HSET] [HSET,HSET,has_homsets_HSET].
 Proof.
-eapply sum_of_functors.
+eapply coproduct_of_functors.
   apply (Coproducts_functor_precat _ _ CoproductsHSET).
   apply (constant_functor [HSET, HSET, has_homsets_HSET] [HSET, HSET, has_homsets_HSET] (functor_identity HSET)).
-eapply sum_of_functors.
+eapply coproduct_of_functors.
   apply (Coproducts_functor_precat _ _ CoproductsHSET).
   (* app *)
   eapply functor_composite.
@@ -74,13 +74,13 @@ Defined.
 
 Lemma omega_cocont_LambdaFunctor : is_omega_cocont LambdaFunctor.
 Proof.
-apply is_omega_cocont_sum_of_functors.
+apply is_omega_cocont_coproduct_of_functors.
   apply (Products_functor_precat _ _ ProductsHSET).
   apply functor_category_has_homsets.
   apply functor_category_has_homsets.
   apply is_omega_cocont_constant_functor.
   apply functor_category_has_homsets.
-apply is_omega_cocont_sum_of_functors.
+apply is_omega_cocont_coproduct_of_functors.
   apply (Products_functor_precat _ _ ProductsHSET).
   apply functor_category_has_homsets.
   apply functor_category_has_homsets.

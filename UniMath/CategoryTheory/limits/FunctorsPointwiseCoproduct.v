@@ -62,7 +62,6 @@ Proof.
   exact coproduct_functor_mor.
 Defined.
 
-
 Lemma is_functor_coproduct_functor_data : is_functor coproduct_functor_data.
 Proof.
   split; simpl; intros.
@@ -107,6 +106,11 @@ Proof.
 Qed.
 
 Definition coproduct_functor : functor C D := tpair _ _ is_functor_coproduct_functor_data.
+
+Lemma coproduct_of_functors_eq_coproduct_functor : coproduct_of_functors HD F G = coproduct_functor.
+Proof.
+now apply (functor_eq _ _ hsD).
+Defined.
 
 Definition coproduct_nat_trans_in1_data : ∀ c, F c --> coproduct_functor c
   := λ c : C, CoproductIn1 _ (HD (F c) (G c)).
