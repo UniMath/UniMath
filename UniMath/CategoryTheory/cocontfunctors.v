@@ -6,8 +6,15 @@ This file contains proofs that the following functors are
 - Constant functor: F_x : C -> D, c |-> x
 - Identity functor
 - Composition of omega-cocontinuous functors
-- The pair of functors (F,G) : A * B -> C * D if F and G are. (x,y) |-> (F x,G y)
-...
+- Pairing of omega-cocont functors (F,G) : A * B -> C * D, (x,y) |-> (F x,G y)
+- Delta functor: C -> C^2, x |-> (x,x)
+- Binary coproduct functor: C^2 -> C, (x,y) |-> x + y
+- Sum of functors: F + G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x + G x
+- Constant product functors: C -> C, x |-> a * x  and  x |-> x * a
+- Binary product functor: C^2 -> C, (x,y) |-> x * y
+- Product of functors: F * G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x * G x
+- Precomposition functor: _ o K : [C,A] -> [M,A] for K : M -> C
+
 
 Written by: Anders Mörtberg, 2015-2016
 
