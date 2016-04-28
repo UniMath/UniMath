@@ -1,12 +1,44 @@
+(**
 
-Section set_instances.
+Instantiate the hypotheses of InitialHSS with Lam for HSET.
+
+Written by: Anders Mörtberg, 2016
+
+*)
+
+Require Import UniMath.Foundations.Basics.PartD.
+
+Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.FunctorAlgebras.
+Require Import UniMath.CategoryTheory.PointedFunctors.
+Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.SubstitutionSystems.Signatures.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
+Require Import UniMath.SubstitutionSystems.SumOfSignatures.
+Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.LamSignature.
+Require Import UniMath.SubstitutionSystems.Lam.
+Require Import UniMath.SubstitutionSystems.LiftingInitial.
+Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
+Require Import UniMath.SubstitutionSystems.Notation.
 
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.chains.
-Require Import UniMath.CategoryTheory.polynomialfunctors.
+Require Import UniMath.CategoryTheory.cocontfunctors.
+
+Section set_instances.
 
 Let Lam_S : Signature _ _ := Lam_Sig HSET has_homsets_HSET TerminalHSET CoproductsHSET ProductsHSET.
 
@@ -18,7 +50,7 @@ Lemma Lam_Initial_HSET : Initial (precategory_FunctorAlg (Id_H _ _ CoproductsHSE
 Proof.
 use colimAlgInitial.
 - unfold Id_H, Const_plus_H.
-  apply is_omega_cocont_sum_of_functors.
+  apply is_omega_cocont_coproduct_functor.
   + apply (Products_functor_precat _ _ ProductsHSET).
   + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
@@ -41,9 +73,9 @@ Defined.
 
 Definition LamHSS_Initial_HSET : Initial (hss_precategory CoproductsHSET Lam_S).
 Proof.
-  apply InitialHSS.
-  - apply KanExt_HSET.
-  - apply Lam_Initial_HSET.
+apply InitialHSS.
+- apply KanExt_HSET.
+- apply Lam_Initial_HSET.
 Defined.
 
 End set_instances.
