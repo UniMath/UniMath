@@ -91,8 +91,16 @@ Local Notation "F + G" :=
 
 Definition Sig : UU := list (list nat).
 
+Let precomp_option := omega_cocont_pre_composition_functor _ _ _
+                        (option_functor HSET CoproductsHSET TerminalHSET) has_homsets_HSET has_homsets_HSET cats_LimsHSET.
+
+(* This would have been nice, but it adds an extra Id in the end *)
+(* Local Definition SigToFunctor_helper2 (n : nat) : omega_cocont_functor HSET2 HSET2 := *)
+(*   omega_cocont_iter_functor has_homsets_HSET2 (precomp_option) n. *)
+
 Local Fixpoint SigToFunctor_helper2 (n : nat) : omega_cocont_functor HSET2 HSET2 := match n with
   | O => Id
+  | S O => precomp_option
   | S n' => let G := omega_cocont_pre_composition_functor _ _ _
                        (option_functor HSET CoproductsHSET TerminalHSET) has_homsets_HSET has_homsets_HSET cats_LimsHSET
                (* is this order correct???? *)
@@ -153,17 +161,51 @@ apply (functor_category_has_homsets HSET HSET has_homsets_HSET).
 simpl.
 unfold App_H, square_functor.
 unfold Abs_H.
+apply maponpaths.
 admit.
-Abort. (* Hmm... *)
+Abort. (* equal if we add Id *)
 
 End test_lam.
 
 Variable (sig : Sig).
 
-Definition SigToSignature : Sig -> Signature HSET has_homsets_HSET.
+Definition SigToSignature : Signature HSET has_homsets_HSET.
+Proof.
+mkpair.
+- apply (SigToFunctor sig).
+- mkpair.
++ destruct sig as [n xs].
+  induction n.
+  { - destruct xs; simpl.
+      mkpair.
+      + simpl; intro x; destruct x as [F x]; simpl.
+        mkpair.
+      * simpl.
+        intro y.
+        apply idfun.
+      *
+        intros y y' f.
+        simpl.
+        apply idpath.
+      + intros y y' f.
+        apply (nat_trans_eq has_homsets_HSET).
+        intro x; simpl.
+        destruct y.
+        destruct y'.
+        simpl.
+        apply idpath.
+  }
+  { mkpair.
+    - simpl; intro y.
+      mkpair.
+      + admit.
+      + admit.
+    - admit.
+  }
++ admit.
 Admitted.
 
-Definition SigInitial : Initial (FunctorAlg (Id_H HSET has_homsets_HSET CoproductsHSET (SigToSignature sig))
+Definition SigInitial : Initial (FunctorAlg (Id_H HSET has_homsets_HSET CoproductsHSET SigToSignature)
                                 (functor_category_has_homsets HSET HSET has_homsets_HSET)).
 Proof.
 use colimAlgInitial.
@@ -178,7 +220,7 @@ use colimAlgInitial.
 - apply ColimsFunctorCategory; apply ColimsHSET.
 Admitted.
 
-Definition SigInitialHSS : Initial (hss_precategory CoproductsHSET (SigToSignature sig)).
+Definition SigInitialHSS : Initial (hss_precategory CoproductsHSET SigToSignature).
 Proof.
 apply InitialHSS.
 - intro Z; apply RightKanExtension_from_limits, cats_LimsHSET.
@@ -190,7 +232,7 @@ Proof.
 use Monad_from_hss.
 - apply has_homsets_HSET.
 - apply CoproductsHSET.
-- apply (SigToSignature sig).
+- apply SigToSignature.
 - apply SigInitialHSS.
 Defined.
 
