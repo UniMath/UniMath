@@ -6,6 +6,7 @@ This file contains proofs that the following functors are
 - Constant functor: F_x : C -> D, c |-> x
 - Identity functor
 - Composition of omega-cocontinuous functors
+- Iteration of omega-cocontinuous functors: F^n : C -> C
 - Pairing of omega-cocont functors (F,G) : A * B -> C * D, (x,y) |-> (F x,G y)
 - Delta functor: C -> C^2, x |-> (x,x)
 - Binary coproduct functor: C^2 -> C, (x,y) |-> x + y
@@ -105,6 +106,19 @@ Defined.
 Definition omega_cocont_functor_composite {C D E : precategory}
   (hsE : has_homsets E) (F : omega_cocont_functor C D) (G : omega_cocont_functor D E) :
   omega_cocont_functor C E := tpair _ _ (is_omega_cocont_functor_composite hsE _ _ (pr2 F) (pr2 G)).
+
+(* Functor iteration preserves omega cocontinuity *)
+Lemma is_omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
+  (F : functor C C) (hF : is_omega_cocont F) n : is_omega_cocont (iter_functor F n).
+Proof.
+induction n as [|n IH]; simpl.
+- apply (is_omega_cocont_functor_identity _ hsC).
+- apply (is_omega_cocont_functor_composite hsC _ _ IH hF).
+Defined.
+
+Definition omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
+  (F : omega_cocont_functor C C) n : omega_cocont_functor C C :=
+  tpair _ _ (is_omega_cocont_iter_functor hsC _ (pr2 F) n).
 
 (* A pair of functors (F,G) : A * B -> C * D is omega_cocont if F and G are *)
 Section pair_functor.
