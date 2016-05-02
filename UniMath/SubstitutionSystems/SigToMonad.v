@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
+Require Import UniMath.SubstitutionSystems.ProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
 Require Import UniMath.SubstitutionSystems.Lam.
@@ -197,23 +198,13 @@ Qed.
 
 (* Arguments arity_to_functor : simpl never. *)
 
-Definition bepa  (S1 S2 : Signature HSET has_homsets_HSET) : Σ
-   θ : θ_source_functor_data _ _ (product_functor _ _ ProductsHSET2 S1 S2)
-    ⟶ θ_target_functor_data _ _ (product_functor _ _ ProductsHSET2 S1 S2),
-       θ_Strength1_int θ × θ_Strength2_int θ.
-Admitted.
-
-Definition Product_of_Signatures (S1 S2 : Signature HSET has_homsets_HSET) : Signature HSET has_homsets_HSET.
-Proof.
-mkpair.
-- apply (product_functor _ _ ProductsHSET2 S1 S2).
-- apply bepa.
-Defined.
-
 Lemma is_omega_cocont_Product_of_Signatures (S1 S2 : Signature HSET has_homsets_HSET)
   (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) :
-  is_omega_cocont (Product_of_Signatures S1 S2).
+  is_omega_cocont (Product_of_Signatures _ _ ProductsHSET S1 S2).
 Proof.
+destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
+destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
+unfold H.
 apply is_omega_cocont_product_functor; try assumption.
 - apply ProductsHSET2.
 - apply has_exponentials_HSET2.
@@ -244,7 +235,7 @@ Proof.
 intros xs.
 generalize (map_list precomp_option_iter_Signature xs).
 apply foldr1_list.
-- apply Product_of_Signatures.
+- apply (Product_of_Signatures _ _ ProductsHSET).
 - apply IdSignature.
 Defined.
 
