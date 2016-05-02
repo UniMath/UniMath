@@ -130,3 +130,34 @@ Arguments mk_Initial {_} _ _.
 (* Defined. *)
 
 (* End Initial_from_Colims. *)
+
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+
+Section InitialFunctorCat.
+
+Variable C D : precategory.
+Variable ID : Initial D.
+Variable hsD : has_homsets D.
+
+Definition Initial_functor_precat : Initial [C, D, hsD].
+Proof.
+use mk_Initial.
+- mkpair.
+  + mkpair.
+    * intros c; apply (InitialObject ID).
+    * simpl; intros a b f; apply (InitialArrow ID).
+  + abstract (split;
+               [ intro a; apply pathsinv0, InitialEndo_is_identity
+               | intros a b c f g; apply pathsinv0, InitialArrowUnique]).
+- intros F.
+  mkpair.
+  + simpl.
+    mkpair.
+    * intro a; apply InitialArrow.
+    * abstract (intros a b f; simpl;
+                rewrite <- (InitialEndo_is_identity _ ID (InitialArrow ID ID)), id_left;
+                apply pathsinv0, InitialArrowUnique).
+  + abstract (intros α; apply (nat_trans_eq hsD); intro a; apply InitialArrowUnique).
+Defined.
+
+End InitialFunctorCat.

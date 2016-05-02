@@ -306,3 +306,11 @@ abstract (split;
 Defined.
 
 End binproduct_functor.
+
+(* Defines the product of two functors by:
+    x -> (x,x) -> (F x,G x) -> F x * G x
+*)
+Definition product_of_functors {C D : precategory} (HD : Products D)
+  (F G : functor C D) : functor C D :=
+  functor_composite (delta_functor C)
+     (functor_composite (pair_functor F G) (binproduct_functor HD)).
