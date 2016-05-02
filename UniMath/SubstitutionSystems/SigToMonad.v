@@ -152,7 +152,6 @@ Fixpoint iter_functor1 {C : precategory} (F : functor C C) (n : nat) : functor C
 
 
 (* New version *)
-Eval cbn in (pr1 Id).
 
 Definition precomp_option_iter (n : nat) : functor HSET2 HSET2 := match n with
   | O => functor_identity HSET2
