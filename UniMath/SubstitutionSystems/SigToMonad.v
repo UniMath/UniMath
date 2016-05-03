@@ -284,6 +284,147 @@ Qed.
 
 End δ_mul.
 
+Section option_sig.
+
+Variables (C : precategory) (hsC : has_homsets C) (TC : Terminal C) (CC : Coproducts C).
+
+Local Notation "'Ptd'" := (precategory_Ptd C hsC).
+
+Let opt := option_functor C CC TC.
+
+Definition δ_option_mor (Ze : Ptd) (c : C) :  C ⟦ CoproductObject C (CC TC (pr1 Ze c)),
+                                                  pr1 Ze (CoproductObject C (CC TC c)) ⟧.
+Proof.
+apply (@CoproductArrow _ _ _ (CC TC (pr1 Ze c)) (pr1 Ze (CoproductObject C (CC TC c)))).
+- apply (CoproductIn1 _ (CC TC c) ;; pr2 Ze (CoproductObject _ (CC TC c))).
+- apply (# (pr1 Ze) (CoproductIn2 _ (CC TC c))).
+Defined.
+
+Lemma is_nat_trans_δ_option_mor (Ze : Ptd) :
+  is_nat_trans (δ_source C hsC opt Ze : functor C C) (δ_target C hsC opt Ze : functor C C)
+     (δ_option_mor Ze).
+Proof.
+intros a b f; simpl.
+destruct Ze as [Z e].
+unfold coproduct_functor_mor; simpl.
+eapply pathscomp0.
+apply precompWithCoproductArrow.
+rewrite id_left.
+apply pathsinv0.
+apply CoproductArrowUnique.
+- eapply pathscomp0.
+  rewrite assoc.
+  eapply cancel_postcomposition.
+  apply CoproductIn1Commutes.
+  rewrite <- assoc.
+  eapply pathscomp0.
+  eapply maponpaths, pathsinv0.
+  apply (nat_trans_ax e _ _ (CoproductOfArrows C (CC TC a) (CC TC b) (identity TC) f)).
+  simpl.
+  rewrite assoc.
+  apply cancel_postcomposition.
+  eapply pathscomp0.
+  apply CoproductOfArrowsIn1.
+  now rewrite id_left.
+- rewrite assoc.
+  eapply pathscomp0.
+  eapply cancel_postcomposition.
+  apply CoproductIn2Commutes.
+  rewrite <- !functor_comp.
+  apply maponpaths.
+  now apply CoproductOfArrowsIn2.
+Qed.
+
+Lemma is_nat_trans_δ_option_mor_nat_trans : is_nat_trans (δ_source_functor_data C hsC opt)
+     (δ_target_functor_data C hsC opt)
+     (λ Ze : Ptd, δ_option_mor Ze,, is_nat_trans_δ_option_mor Ze).
+Proof.
+intros [Z e] [Z' e'] [α X]; simpl in *.
+apply (nat_trans_eq hsC); intro c; simpl.
+rewrite id_left, functor_id, id_right.
+unfold coproduct_functor_mor, coproduct_functor_ob; simpl.
+unfold δ_option_mor.
+simpl.
+rewrite precompWithCoproductArrow.
+apply pathsinv0.
+apply CoproductArrowUnique.
+-
+rewrite id_left, assoc.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+apply CoproductIn1Commutes.
+rewrite <- assoc.
+apply maponpaths.
+apply X.
+-
+rewrite assoc.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+apply CoproductIn2Commutes.
+apply nat_trans_ax.
+Qed.
+
+Definition δ_option : δ_source C hsC opt ⟶ δ_target C hsC opt.
+Proof.
+mkpair.
+- intro Ze.
+  apply (tpair _ (δ_option_mor Ze) (is_nat_trans_δ_option_mor Ze)).
+- apply is_nat_trans_δ_option_mor_nat_trans.
+Defined.
+
+Lemma δ_law1_option : δ_law1 C hsC opt δ_option.
+Proof.
+apply (nat_trans_eq hsC); intro c; simpl.
+unfold δ_option_mor, coproduct_functor_ob; simpl.
+rewrite id_right.
+apply pathsinv0, Coproduct_endo_is_identity.
+- apply CoproductIn1Commutes.
+- apply CoproductIn2Commutes.
+Qed.
+
+Lemma δ_law2_option : δ_law2 C hsC opt δ_option.
+Proof.
+intros [Z e] [Z' e'].
+apply (nat_trans_eq hsC); intro c; simpl.
+unfold δ_option_mor, coproduct_functor_ob; simpl.
+rewrite !id_left, id_right.
+apply pathsinv0.
+apply CoproductArrowUnique.
+-
+rewrite assoc.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+apply CoproductIn1Commutes.
+rewrite <- assoc.
+eapply pathscomp0.
+eapply maponpaths.
+eapply pathsinv0.
+apply (nat_trans_ax e').
+simpl.
+rewrite assoc.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+apply CoproductIn1Commutes.
+rewrite <- !assoc.
+apply maponpaths.
+apply (nat_trans_ax e').
+-
+rewrite assoc.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+apply CoproductIn2Commutes.
+eapply pathscomp0.
+eapply pathsinv0.
+apply functor_comp.
+apply maponpaths.
+apply CoproductIn2Commutes.
+Qed.
+
+Definition precomp_option_Signature : Signature C hsC :=
+  θ_from_δ_Signature _ hsC opt δ_option δ_law1_option δ_law2_option.
+
+End option_sig.
+
 (* S : SIG *)
 (* |->  # some hacking needed *)
 (* functor(S) : functor [Set,Set] [Set,Set] *)
@@ -422,7 +563,7 @@ Definition precomp_option_iter_Signature (n : nat) : Signature HSET has_homsets_
 Proof.
 mkpair.
 - apply (precomp_option_iter n).
-- apply apa.
+- destruct n.
 Defined.
 
 Definition precomp_option_Signature : Signature HSET has_homsets_HSET.
@@ -492,18 +633,6 @@ apply foldr1_list.
 - apply (Product_of_Signatures _ _ ProductsHSET).
 - apply IdSignature.
 Defined.
-
-
-(* Definition foldr1_list {A : UU} (f : A -> A -> A) (a : A) (l : list A) : A. *)
-(* Proof. *)
-(* destruct l as [n xs]. *)
-(* destruct n. *)
-(* - apply a. *)
-(* - induction n as [|n F]. *)
-(*   + apply (pr1 xs). *)
-(*   + apply (f (pr1 xs) (F (pr2 xs))). *)
-(* Defined. *)
-
 
 Lemma is_omega_cocont_Arity_to_Signature (xs : list nat) : is_omega_cocont (Arity_to_Signature xs).
 Proof.
