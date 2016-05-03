@@ -40,6 +40,182 @@ Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.cocontfunctors.
 Require Import UniMath.CategoryTheory.lists.
+Require Import UniMath.CategoryTheory.HorizontalComposition.
+
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
+
+
+Section prelims.
+
+Variable C : precategory.
+Variable hsC : has_homsets C.
+
+(** [H] is a rank-2 endofunctor on endofunctors *)
+(* Variable H : functor [C, C, hsC] [C, C, hsC]. *)
+
+Variable G : functor C C. (* [C,C,hsC]. *)
+
+(** The forgetful functor from pointed endofunctors to endofunctors *)
+Local Notation "'U'" := (functor_ptd_forget C hsC).
+(** The precategory of pointed endofunctors on [C] *)
+Local Notation "'Ptd'" := (precategory_Ptd C hsC).
+(** The category of endofunctors on [C] *)
+Local Notation "'EndC'":= ([C, C, hsC]) .
+
+Definition δ_source_ob (Ze : Ptd) : EndC := G • pr1 Ze.
+Definition δ_source_mor {Ze Ze' : Ptd} (α : Ze --> Ze') :
+  δ_source_ob Ze --> δ_source_ob Ze' := hor_comp (pr1 α) (nat_trans_id G).
+
+Definition δ_source_functor_data : functor_data Ptd EndC.
+Proof.
+exists δ_source_ob.
+exact (@δ_source_mor).
+Defined.
+
+Lemma is_functor_δ_source : is_functor δ_source_functor_data.
+Proof.
+split; simpl.
+- intro Ze.
+  apply (nat_trans_eq hsC).
+  now intro c; simpl; rewrite functor_id, id_right.
+- intros [Z e] [Z' e'] [Z'' e''] [α a] [β b].
+  apply (nat_trans_eq hsC); intro c; simpl in *.
+  now rewrite !id_left, functor_comp.
+Qed.
+
+Definition δ_source : functor Ptd EndC := tpair _ _ is_functor_δ_source.
+
+Definition δ_target_ob (Ze : Ptd) : EndC := pr1 Ze • G.
+Definition δ_target_mor {Ze Ze' : Ptd} (α : Ze --> Ze') :
+  δ_target_ob Ze --> δ_target_ob Ze' := hor_comp (nat_trans_id G) (pr1 α).
+
+Definition δ_target_functor_data : functor_data Ptd EndC.
+Proof.
+exists δ_target_ob.
+exact (@δ_target_mor).
+Defined.
+
+Lemma is_functor_δ_target : is_functor δ_target_functor_data.
+Proof.
+split; simpl.
+- intro Ze.
+  apply (nat_trans_eq hsC).
+  now intro c; simpl; rewrite functor_id, id_right.
+- intros [Z e] [Z' e'] [Z'' e''] [α a] [β b].
+  apply (nat_trans_eq hsC); intro c; simpl in *.
+  now rewrite !functor_id, !id_right.
+Qed.
+
+Definition δ_target : functor Ptd EndC := tpair _ _ is_functor_δ_target.
+
+Hypothesis δ : δ_source ⟶ δ_target.
+
+Let precompG := (pre_composition_functor _ _ _ hsC hsC G).
+
+Definition θ_from_δ : θ_source precompG ⟶ θ_target precompG.
+Proof.
+mkpair.
+- intros XZe.
+set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
+set (F1 := α_functor _ G Z X).
+set (F2 := post_whisker (δ (pr2 XZe)) X).
+set (F3 := α_functor_inv _ Z G X).
+simpl in *.
+apply (nat_trans_comp F3 (nat_trans_comp F2 F1)).
+-
+intros x x' f.
+destruct x as [F1 X1].
+destruct x' as [F2 X2];
+destruct f as [α X]; simpl in *.
+apply (nat_trans_eq hsC); intro c.
+simpl.
+rewrite !id_right, !id_left.
+set (H := nat_trans_ax δ X1 X2 X).
+simpl in *.
+generalize (nat_trans_eq_pointwise H c).
+simpl.
+rewrite id_left, functor_id, id_right.
+intros APA.
+rewrite <- assoc.
+eapply pathscomp0.
+eapply maponpaths.
+eapply pathsinv0.
+apply functor_comp.
+eapply pathscomp0.
+eapply maponpaths.
+eapply maponpaths.
+apply APA.
+apply pathsinv0.
+eapply pathscomp0.
+rewrite assoc.
+eapply cancel_postcomposition.
+apply nat_trans_ax.
+rewrite <- assoc.
+apply maponpaths.
+rewrite <- functor_comp.
+apply idpath.
+Defined.
+
+(* Should be ρ_G^-1 ∘ λ_G ? *)
+Hypothesis law1 : δ (id_Ptd C hsC) = nat_trans_id G.
+
+Lemma test1 : θ_Strength1_int θ_from_δ.
+Proof.
+intro F.
+simpl.
+apply (nat_trans_eq hsC); intro c; simpl.
+rewrite id_left, !id_right.
+eapply pathscomp0.
+eapply maponpaths.
+apply (nat_trans_eq_pointwise law1 c).
+simpl.
+apply functor_id.
+Qed.
+
+Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
+
+(* set (F1 := α_functor _ G Z Z'). *)
+(* set (F2 := post_whisker (δ Ze) Z'). *)
+(* set (F3 := α_functor_inv _ Z G Z'). *)
+(* set (F4 := pre_whisker Z (δ Ze')). *)
+(* set (F5 := α_functor _ Z Z' G). *)
+(* set (D' := nat_trans_comp F5 (nat_trans_comp F4 (nat_trans_comp F3 (nat_trans_comp F2 F1)))). *)
+
+
+Let D' Ze Ze' := nat_trans_comp (α_functor _ (pr1 Ze) (pr1 Ze') G)
+          (nat_trans_comp (pre_whisker (pr1 Ze) (δ Ze'))
+          (nat_trans_comp (α_functor_inv _ (pr1 Ze) G (pr1 Ze'))
+          (nat_trans_comp (post_whisker (δ Ze) (pr1 Ze'))
+                          (α_functor _ G (pr1 Ze) (pr1 Ze'))))).
+
+Hypothesis (law2 : forall Ze Ze', δ (Ze p• Ze') = D' Ze Ze').
+
+Lemma test2 : θ_Strength2_int θ_from_δ.
+Proof.
+intros F Ze Ze'; simpl.
+set (Z := pr1 Ze); set (Z' := pr1 Ze').
+apply (nat_trans_eq hsC); intro c; simpl.
+generalize (nat_trans_eq_pointwise (law2 Ze Ze') c).
+simpl.
+rewrite !id_left, !id_right.
+intro H.
+eapply pathscomp0.
+eapply maponpaths.
+apply H.
+apply functor_comp.
+Qed.
+
+Definition θ_from_δ_Signature : Signature C hsC.
+Proof.
+mkpair.
+- apply precompG.
+- mkpair.
+apply θ_from_δ.
+apply (test1,,test2).
+Defined.
+
+End prelims.
 
 (* S : SIG *)
 (* |->  # some hacking needed *)
@@ -51,8 +227,6 @@ Require Import UniMath.CategoryTheory.lists.
 (* |->  # see MonadsFromSubstitutionSystems.v *)
 (* M := Monad_from_HSS(I)    # *)
 Section SigToMonad.
-
-Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
 
 Local Definition has_homsets_HSET2 : has_homsets HSET2.
 Proof.
@@ -167,6 +341,10 @@ destruct n; simpl.
 - apply (is_omega_cocont_pre_composition_functor _ _ _ (iter_functor1 optionHSET n) _ _ cats_LimsHSET).
 Qed.
 
+(* Unset Printing Notations. *)
+(* About θ_source. *)
+(* About θ_target. *)
+
 Definition apa (n : nat) : Σ
    θ : θ_source_functor_data _ _ (precomp_option_iter n)
        ⟶ θ_target_functor_data _ _ (precomp_option_iter n),
@@ -179,6 +357,16 @@ mkpair.
 - apply (precomp_option_iter n).
 - apply apa.
 Defined.
+
+Definition precomp_option_Signature : Signature HSET has_homsets_HSET.
+Proof.
+use (θ_from_δ_Signature _ _ optionHSET).
+- mkpair.
+  + intros [Z e]; simpl in *.
+admit.
++ admit.
+- admit.
+Admitted.
 
 Lemma is_omega_cocont_precomp_iter_Signature (n : nat) : is_omega_cocont (precomp_option_iter_Signature n).
 Proof.
