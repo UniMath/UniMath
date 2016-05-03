@@ -6,8 +6,7 @@ Contents :
      strength laws for the product
 
 
-Written by Anders Mörtberg, 2016 (adapted from SumOfSignatures
-
+Written by Anders Mörtberg, 2016 (adapted from SumOfSignatures.v)
 
 
 ************************************************************)
@@ -25,6 +24,9 @@ Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
 Require Import UniMath.SubstitutionSystems.Notation.
+Require Import UniMath.CategoryTheory.chains.
+Require Import UniMath.CategoryTheory.cocontfunctors.
+Require Import UniMath.CategoryTheory.exponentials.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -272,5 +274,18 @@ Proof.
   + apply ProductStrength2'; assumption.
 Defined.
 
+Lemma is_omega_cocont_Product_of_Signatures (S1 S2 : Signature C hsC)
+  (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2)
+  (hE : has_exponentials (Products_functor_precat C C PC hsC)) :
+  is_omega_cocont (Product_of_Signatures S1 S2).
+Proof.
+destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
+destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
+unfold H.
+apply is_omega_cocont_product_functor; try assumption.
+- apply (Products_functor_precat _ _ PC).
+- apply functor_category_has_homsets.
+- apply functor_category_has_homsets.
+Defined.
 
 End product_of_signatures.
