@@ -200,7 +200,7 @@ Variable δ2 : δ_source C hsC G2 ⟶ δ_target C hsC G2.
 Hypothesis (δ1_law1 : δ_law1 C hsC G1 δ1) (δ1_law2 : δ_law2 C hsC G1 δ1).
 Hypothesis (δ2_law1 : δ_law1 C hsC G2 δ2) (δ2_law2 : δ_law2 C hsC G2 δ2).
 
-Definition δ_comp : δ_source C hsC (G2• G1 : [C,C,hsC]) ⟶ δ_target C hsC (G2 • G1 : [C,C,hsC]).
+Definition δ_comp : δ_source C hsC (G2 • G1 : [C,C,hsC]) ⟶ δ_target C hsC (G2 • G1 : [C,C,hsC]).
 Proof.
 mkpair.
 - intros Ze.
@@ -219,17 +219,68 @@ rewrite assoc.
 eapply cancel_postcomposition.
 eapply pathsinv0.
 apply functor_comp.
-unfold is_ptd_mor in X.
 simpl in *.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+eapply maponpaths.
+generalize (nat_trans_eq_pointwise (nat_trans_ax δ1 (Z,,e) (Z',, e') (α,,X)) c).
+simpl; rewrite id_left, functor_id, id_right; intro H1.
+apply H1.
+rewrite functor_comp, <- assoc.
+eapply pathscomp0.
+eapply maponpaths.
+generalize (nat_trans_eq_pointwise (nat_trans_ax δ2 (Z,,e) (Z',, e') (α,,X)) (G1 c)).
+simpl; rewrite id_left, functor_id, id_right; intro H2.
+apply H2.
+now rewrite assoc.
+Defined.
 
-assert (lol : # G1 (α c) ;; pr1 (δ1 (Z',, e')) c = pr1 (δ1 (Z,, e)) c ;; α (G1 c)).
-generalize (nat_trans_ax (δ1 (Z',, e'))).
+Lemma δ_comp_law1 : δ_law1 C hsC (G2 • G1 : [C,C,hsC]) δ_comp.
+Proof.
+apply (nat_trans_eq hsC); intro c; simpl.
+rewrite !id_left, id_right.
+unfold δ_law1 in *.
+eapply pathscomp0.
+eapply maponpaths.
+apply (nat_trans_eq_pointwise δ2_law1 (G1 c)).
+eapply pathscomp0.
+eapply cancel_postcomposition.
+eapply maponpaths.
+apply (nat_trans_eq_pointwise δ1_law1 c).
+now rewrite id_right; apply functor_id.
+Qed.
+
+Lemma δ_comp_law2 : δ_law2 C hsC (G2 • G1 : [C,C,hsC]) δ_comp.
+Proof.
+intros Ze Ze'.
+apply (nat_trans_eq hsC); intro c; simpl.
+rewrite !id_left, !id_right.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+eapply maponpaths.
+apply (nat_trans_eq_pointwise (δ1_law2 Ze Ze') c).
+eapply pathscomp0.
+eapply maponpaths.
+apply (nat_trans_eq_pointwise (δ2_law2 Ze Ze') (G1 c)).
 simpl.
-generalize (nat_trans_ax α).
+rewrite !id_left, !id_right.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+apply functor_comp.
+rewrite <- !assoc.
+apply maponpaths.
+destruct Ze as [Z e]; simpl in *.
+destruct Ze' as [Z' e']; simpl in *.
+rewrite assoc.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+apply (nat_trans_ax (δ2 (Z',,e')) _ _ (pr1 (δ1 (Z,, e)) c)).
 simpl.
-admit.
-admit.
-Admitted.
+rewrite <- !assoc.
+apply maponpaths.
+apply pathsinv0.
+now apply functor_comp.
+Qed.
 
 End δ_mul.
 
