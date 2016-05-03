@@ -46,18 +46,12 @@ Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
 
 
-Section prelims.
+Section θ_from_δ.
 
 Variable C : precategory.
 Variable hsC : has_homsets C.
+Variable G : functor C C.
 
-(** [H] is a rank-2 endofunctor on endofunctors *)
-(* Variable H : functor [C, C, hsC] [C, C, hsC]. *)
-
-Variable G : functor C C. (* [C,C,hsC]. *)
-
-(** The forgetful functor from pointed endofunctors to endofunctors *)
-Local Notation "'U'" := (functor_ptd_forget C hsC).
 (** The precategory of pointed endofunctors on [C] *)
 Local Notation "'Ptd'" := (precategory_Ptd C hsC).
 (** The category of endofunctors on [C] *)
@@ -117,59 +111,39 @@ Definition θ_from_δ : θ_source precompG ⟶ θ_target precompG.
 Proof.
 mkpair.
 - intros XZe.
-set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
-set (F1 := α_functor _ G Z X).
-set (F2 := post_whisker (δ (pr2 XZe)) X).
-set (F3 := α_functor_inv _ Z G X).
-simpl in *.
-apply (nat_trans_comp F3 (nat_trans_comp F2 F1)).
--
-intros x x' f.
-destruct x as [F1 X1].
-destruct x' as [F2 X2];
-destruct f as [α X]; simpl in *.
-apply (nat_trans_eq hsC); intro c.
-simpl.
-rewrite !id_right, !id_left.
-set (H := nat_trans_ax δ X1 X2 X).
-simpl in *.
-generalize (nat_trans_eq_pointwise H c).
-simpl.
-rewrite id_left, functor_id, id_right.
-intros APA.
-rewrite <- assoc.
-eapply pathscomp0.
-eapply maponpaths.
-eapply pathsinv0.
-apply functor_comp.
-eapply pathscomp0.
-eapply maponpaths.
-eapply maponpaths.
-apply APA.
-apply pathsinv0.
-eapply pathscomp0.
-rewrite assoc.
-eapply cancel_postcomposition.
-apply nat_trans_ax.
-rewrite <- assoc.
-apply maponpaths.
-rewrite <- functor_comp.
-apply idpath.
+  set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
+  set (F1 := α_functor _ G Z X).
+  set (F2 := post_whisker (δ (pr2 XZe)) X).
+  set (F3 := α_functor_inv _ Z G X).
+  simpl in *.
+  apply (nat_trans_comp F3 (nat_trans_comp F2 F1)).
+- intros [F1 X1] [F2 X2] [α X]; simpl in *.
+  apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_right, !id_left.
+  generalize (nat_trans_eq_pointwise (nat_trans_ax δ X1 X2 X) c); simpl.
+  rewrite id_left, functor_id, id_right.
+  intros H.
+  rewrite <- assoc.
+  eapply pathscomp0.
+    eapply maponpaths, pathsinv0, functor_comp.
+  eapply pathscomp0.
+    eapply maponpaths, maponpaths, H.
+  rewrite assoc; apply pathsinv0.
+  eapply pathscomp0.
+    eapply cancel_postcomposition, nat_trans_ax.
+  now rewrite <- assoc, <- functor_comp.
 Defined.
 
 (* Should be ρ_G^-1 ∘ λ_G ? *)
-Hypothesis law1 : δ (id_Ptd C hsC) = nat_trans_id G.
+Definition δ_law1 : UU := δ (id_Ptd C hsC) = nat_trans_id G.
+Hypothesis (H1 : δ_law1).
 
-Lemma test1 : θ_Strength1_int θ_from_δ.
+Lemma θ_Strength1_int_from_δ : θ_Strength1_int θ_from_δ.
 Proof.
 intro F.
-simpl.
 apply (nat_trans_eq hsC); intro c; simpl.
 rewrite id_left, !id_right.
-eapply pathscomp0.
-eapply maponpaths.
-apply (nat_trans_eq_pointwise law1 c).
-simpl.
+eapply pathscomp0;
+  [eapply maponpaths, (nat_trans_eq_pointwise H1 c)|].
 apply functor_id.
 Qed.
 
@@ -182,27 +156,25 @@ Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 (* set (F5 := α_functor _ Z Z' G). *)
 (* set (D' := nat_trans_comp F5 (nat_trans_comp F4 (nat_trans_comp F3 (nat_trans_comp F2 F1)))). *)
 
+Let D' Ze Ze' :=
+  nat_trans_comp (α_functor _ (pr1 Ze) (pr1 Ze') G)
+ (nat_trans_comp (pre_whisker (pr1 Ze) (δ Ze'))
+ (nat_trans_comp (α_functor_inv _ (pr1 Ze) G (pr1 Ze'))
+ (nat_trans_comp (post_whisker (δ Ze) (pr1 Ze'))
+                 (α_functor _ G (pr1 Ze) (pr1 Ze'))))).
 
-Let D' Ze Ze' := nat_trans_comp (α_functor _ (pr1 Ze) (pr1 Ze') G)
-          (nat_trans_comp (pre_whisker (pr1 Ze) (δ Ze'))
-          (nat_trans_comp (α_functor_inv _ (pr1 Ze) G (pr1 Ze'))
-          (nat_trans_comp (post_whisker (δ Ze) (pr1 Ze'))
-                          (α_functor _ G (pr1 Ze) (pr1 Ze'))))).
+Definition δ_law2 : UU := forall Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
+Hypothesis H2 : δ_law2.
 
-Hypothesis (law2 : forall Ze Ze', δ (Ze p• Ze') = D' Ze Ze').
-
-Lemma test2 : θ_Strength2_int θ_from_δ.
+Lemma θ_Strength2_int_from_δ : θ_Strength2_int θ_from_δ.
 Proof.
 intros F Ze Ze'; simpl.
 set (Z := pr1 Ze); set (Z' := pr1 Ze').
 apply (nat_trans_eq hsC); intro c; simpl.
-generalize (nat_trans_eq_pointwise (law2 Ze Ze') c).
-simpl.
-rewrite !id_left, !id_right.
-intro H.
-eapply pathscomp0.
-eapply maponpaths.
-apply H.
+generalize (nat_trans_eq_pointwise (H2 Ze Ze') c); simpl.
+rewrite !id_left, !id_right; intro H.
+eapply pathscomp0;
+  [eapply maponpaths, H|].
 apply functor_comp.
 Qed.
 
@@ -211,11 +183,55 @@ Proof.
 mkpair.
 - apply precompG.
 - mkpair.
-apply θ_from_δ.
-apply (test1,,test2).
+  + apply θ_from_δ.
+  + apply (θ_Strength1_int_from_δ,,θ_Strength2_int_from_δ).
 Defined.
 
-End prelims.
+End θ_from_δ.
+
+Section δ_mul.
+
+Variable C : precategory.
+Variable hsC : has_homsets C.
+Variable G1 G2 : functor C C.
+
+Variable δ1 : δ_source C hsC G1 ⟶ δ_target C hsC G1.
+Variable δ2 : δ_source C hsC G2 ⟶ δ_target C hsC G2.
+Hypothesis (δ1_law1 : δ_law1 C hsC G1 δ1) (δ1_law2 : δ_law2 C hsC G1 δ1).
+Hypothesis (δ2_law1 : δ_law1 C hsC G2 δ2) (δ2_law2 : δ_law2 C hsC G2 δ2).
+
+Definition δ_comp : δ_source C hsC (G2• G1 : [C,C,hsC]) ⟶ δ_target C hsC (G2 • G1 : [C,C,hsC]).
+Proof.
+mkpair.
+- intros Ze.
+  set (Z := pr1 Ze).
+  set (F1 := α_functor_inv _ Z G1 G2).
+  set (F2 := post_whisker (δ1 Ze) G2).
+  set (F3 := α_functor _ G1 Z G2).
+  set (F4 := pre_whisker G1 (δ2 Ze)).
+  set (F5 := α_functor_inv _ G1 G2 Z).
+  simpl in *.
+  exact (nat_trans_comp F1 (nat_trans_comp F2 (nat_trans_comp F3 (nat_trans_comp F4 F5)))).
+- intros [Z e] [Z' e'] [α X]; simpl in *.
+  apply (nat_trans_eq hsC); intro c; simpl; rewrite functor_id, !id_right, !id_left.
+eapply pathscomp0.
+rewrite assoc.
+eapply cancel_postcomposition.
+eapply pathsinv0.
+apply functor_comp.
+unfold is_ptd_mor in X.
+simpl in *.
+
+assert (lol : # G1 (α c) ;; pr1 (δ1 (Z',, e')) c = pr1 (δ1 (Z,, e)) c ;; α (G1 c)).
+generalize (nat_trans_ax (δ1 (Z',, e'))).
+simpl.
+generalize (nat_trans_ax α).
+simpl.
+admit.
+admit.
+Admitted.
+
+End δ_mul.
 
 (* S : SIG *)
 (* |->  # some hacking needed *)
