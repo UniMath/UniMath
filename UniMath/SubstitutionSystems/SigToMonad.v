@@ -178,14 +178,16 @@ eapply pathscomp0;
 apply functor_comp.
 Qed.
 
-Definition θ_from_δ_Signature : Signature C hsC.
+Definition θ_precompG : Σ θ : θ_source precompG ⟶ θ_target precompG,
+                              θ_Strength1_int θ × θ_Strength2_int θ.
 Proof.
-mkpair.
-- apply precompG.
 - mkpair.
   + apply θ_from_δ.
   + apply (θ_Strength1_int_from_δ,,θ_Strength2_int_from_δ).
 Defined.
+
+Definition θ_from_δ_Signature : Signature C hsC :=
+  tpair _ precompG θ_precompG.
 
 End θ_from_δ.
 
@@ -425,6 +427,52 @@ Definition precomp_option_Signature : Signature C hsC :=
 
 End option_sig.
 
+Section iter1_sig.
+
+Variable C : precategory.
+Variable hsC : has_homsets C.
+Variable G : functor C C.
+
+Variable δ : δ_source C hsC G ⟶ δ_target C hsC G.
+Hypothesis (H1 : δ_law1 C hsC G δ) (H2 : δ_law2 C hsC G δ).
+
+Local Notation "'Ptd'" := (precategory_Ptd C hsC).
+
+(* G^n+1 *)
+Fixpoint iter_functor1 (n : nat) : functor C C := match n with
+  | O => G
+  | S n' => functor_composite (iter_functor1 n') G
+  end.
+
+(* Definition δ_iter_functor1_mor n (Ze : Ptd) (c : C) : *)
+(*    C ⟦ iter_functor1 n (pr1 Ze c), pr1 Ze (iter_functor1 n c) ⟧. *)
+(* Proof. *)
+(* induction n; simpl. *)
+(* - apply δ. *)
+(* - apply δ_comp. *)
+
+
+Definition δ_iter_functor1 n : δ_source C hsC (iter_functor1 n) ⟶ δ_target C hsC (iter_functor1 n).
+Proof.
+induction n.
+- apply δ.
+- apply δ_comp.
+  + apply IHn.
+  + apply δ.
+Defined.
+
+Lemma δ_law1_iter_functor1 n : δ_law1 C hsC (iter_functor1 n) (δ_iter_functor1 n).
+Proof.
+induction n; [|apply δ_comp_law1]; assumption.
+Qed.
+
+Lemma δ_law2_iter_functor1 n : δ_law2 C hsC (iter_functor1 n) (δ_iter_functor1 n).
+Proof.
+induction n; [|apply δ_comp_law2]; assumption.
+Qed.
+
+End iter1_sig.
+
 (* S : SIG *)
 (* |->  # some hacking needed *)
 (* functor(S) : functor [Set,Set] [Set,Set] *)
@@ -483,10 +531,6 @@ Let optionHSET := (option_functor HSET CoproductsHSET TerminalHSET).
 (* Local Definition SigToFunctor_helper2 (n : nat) : omega_cocont_functor HSET2 HSET2 := *)
 (*   omega_cocont_iter_functor has_homsets_HSET2 (precomp_option) n. *)
 
-Fixpoint iter_functor1 {C : precategory} (F : functor C C) (n : nat) : functor C C := match n with
-  | O => F
-  | S n' => functor_composite (iter_functor F n') F
-  end.
 
 (* This constructs: _ o option^n *)
 (* Local Definition precomp_option_iter (n : nat) : omega_cocont_functor HSET2 HSET2 := match n with *)
@@ -537,49 +581,66 @@ Fixpoint iter_functor1 {C : precategory} (F : functor C C) (n : nat) : functor C
 
 Definition precomp_option_iter (n : nat) : functor HSET2 HSET2 := match n with
   | O => functor_identity HSET2
-  | S n => pre_composition_functor _ _ _ has_homsets_HSET _ (iter_functor1 optionHSET n)
+  | S n => pre_composition_functor _ _ _ has_homsets_HSET _ (iter_functor1 _ optionHSET n)
   end.
-
-Arguments iter_functor1 : simpl never.
 
 Lemma is_omega_cocont_precomp_option_iter (n : nat) : is_omega_cocont (precomp_option_iter n).
 Proof.
 destruct n; simpl.
 - apply (is_omega_cocont_functor_identity _ has_homsets_HSET2).
-- apply (is_omega_cocont_pre_composition_functor _ _ _ (iter_functor1 optionHSET n) _ _ cats_LimsHSET).
-Qed.
+- apply (is_omega_cocont_pre_composition_functor _ _ _ (iter_functor1 _ optionHSET n) _ _ cats_LimsHSET).
+Defined.
 
-(* Unset Printing Notations. *)
-(* About θ_source. *)
-(* About θ_target. *)
+Definition θ_functor_identity : Σ
+ θ : θ_source (functor_identity HSET2) ⟶ θ_target (functor_identity HSET2),
+ θ_Strength1_int θ × θ_Strength2_int θ.
+Proof.
+mkpair; simpl.
++ mkpair; simpl.
+  * intro x.
+    { mkpair.
+      - intro y; simpl; apply idfun.
+      - abstract (intros y y' f; apply idpath).
+    }
+  * abstract (intros y y' f; apply (nat_trans_eq has_homsets_HSET); intro z; apply idpath).
+(* If this part is abstract the eval cbn for the LC doesn't reduce properly *)
++ now split; intros x; intros; apply (nat_trans_eq has_homsets_HSET).
+Defined.
 
-Definition apa (n : nat) : Σ
-   θ : θ_source_functor_data _ _ (precomp_option_iter n)
-       ⟶ θ_target_functor_data _ _ (precomp_option_iter n),
-       θ_Strength1_int θ × θ_Strength2_int θ.
-Admitted.
+(* Signature for the Id functor *)
+Definition IdSignature : Signature HSET has_homsets_HSET :=
+  tpair _ (functor_identity HSET2) θ_functor_identity.
 
 Definition precomp_option_iter_Signature (n : nat) : Signature HSET has_homsets_HSET.
 Proof.
 mkpair.
 - apply (precomp_option_iter n).
-- destruct n.
+-
+destruct n; simpl.
++ apply θ_functor_identity.
++
+set (F := δ_iter_functor1 _ _ _ (δ_option _ has_homsets_HSET TerminalHSET CoproductsHSET)).
+apply (θ_precompG _ has_homsets_HSET (iter_functor1 HSET optionHSET n) (F n)).
+apply δ_law1_iter_functor1.
+apply δ_law1_option.
+apply δ_law2_iter_functor1.
+apply δ_law2_option.
 Defined.
 
-Definition precomp_option_Signature : Signature HSET has_homsets_HSET.
-Proof.
-use (θ_from_δ_Signature _ _ optionHSET).
-- mkpair.
-  + intros [Z e]; simpl in *.
-admit.
-+ admit.
-- admit.
-Admitted.
+(* Definition precomp_option_Signature : Signature HSET has_homsets_HSET. *)
+(* Proof. *)
+(* use (θ_from_δ_Signature _ _ optionHSET). *)
+(* - mkpair. *)
+(*   + intros [Z e]; simpl in *. *)
+(* admit. *)
+(* + admit. *)
+(* - admit. *)
+(* Admitted. *)
 
 Lemma is_omega_cocont_precomp_iter_Signature (n : nat) : is_omega_cocont (precomp_option_iter_Signature n).
 Proof.
 apply is_omega_cocont_precomp_option_iter.
-Qed.
+Defined.
 
 (* Local Definition arity_to_functor : list nat -> omega_cocont_functor HSET2 HSET2. *)
 (* Proof. *)
@@ -605,24 +666,6 @@ apply is_omega_cocont_product_functor; try assumption.
 - apply has_exponentials_HSET2.
 - apply has_homsets_HSET2.
 - apply has_homsets_HSET2.
-Qed.
-
-(* Signature for the Id functor *)
-Definition IdSignature : Signature HSET has_homsets_HSET.
-Proof.
-mkpair.
-- apply Id.
-- mkpair; simpl.
-  + mkpair; simpl.
-    * intro x.
-      { mkpair.
-        - intro y; simpl; apply idfun.
-        - abstract (intros y y' f; apply idpath).
-      }
-    * abstract (intros y y' f; apply (nat_trans_eq has_homsets_HSET); intro z; apply idpath).
-  + abstract (split;
-               [ intros x; apply (nat_trans_eq has_homsets_HSET); intro z; apply idpath
-               | intros x y z; apply (nat_trans_eq has_homsets_HSET); intro w; apply idpath]).
 Defined.
 
 Definition Arity_to_Signature : list nat -> Signature HSET has_homsets_HSET.
@@ -673,7 +716,7 @@ apply is_omega_cocont_coproduct_functor; try assumption.
 - apply ProductsHSET2.
 - apply has_homsets_HSET2.
 - apply has_homsets_HSET2.
-Qed.
+Defined.
 
 Lemma is_omega_cocont_SigToSignature (s : Sig) : is_omega_cocont (SigToSignature s).
 Proof.
@@ -687,7 +730,7 @@ destruct xs.
 apply is_omega_cocont_Sum_of_Signatures.
 apply is_omega_cocont_Arity_to_Signature.
 apply IHn.
-Qed.
+Defined.
 
 Definition SigInitial (sig : Sig) :
   Initial (FunctorAlg (Id_H HSET has_homsets_HSET CoproductsHSET (SigToSignature sig))
@@ -724,34 +767,26 @@ Defined.
 End SigToMonad.
 
 
-(* (* Test lambda calculus *) *)
-(* Section test_lam. *)
+(* Test lambda calculus *)
+Section test_lam.
 
-(* Infix "::" := (cons_list nat). *)
-(* Notation "[]" := (nil_list nat) (at level 0, format "[]"). *)
+Infix "::" := (cons_list nat).
+Notation "[]" := (nil_list nat) (at level 0, format "[]").
 
-(* (* The signature of the lambda calculus: [[0,0],[1]] *) *)
-(* Definition LamSig : Sig := cons_list (list nat) (0 :: 0 :: []) (cons_list (list nat) (1 :: []) (nil_list (list nat))). *)
+(* The signature of the lambda calculus: [[0,0],[1]] *)
+Definition LamSig : Sig := cons_list (list nat) (0 :: 0 :: []) (cons_list (list nat) (1 :: []) (nil_list (list nat))).
 
-(* Eval cbn in pr1 (SigToSignature LamSig). *)
+Local Notation "'Id'" := (functor_identity _).
 
-(* Require Import UniMath.SubstitutionSystems.LamHSET. *)
+Local Notation "F * G" := (H HSET has_homsets_HSET ProductsHSET F G).
 
-(* Let Lam_S : Signature HSET has_homsets_HSET := *)
-(*   Lam_Sig HSET has_homsets_HSET TerminalHSET CoproductsHSET ProductsHSET. *)
+Local Notation "F + G" := (SumOfSignatures.H _ _ CoproductsHSET F G).
+Local Notation "'_' 'o' 'option'" :=
+  (ℓ (option_functor HSET CoproductsHSET TerminalHSET)) (at level 0).
 
-(* Check (pr1 Lam_S). *)
-(* Goal (pr1 Lam_S = pr1 (SigToFunctor LamSig)). *)
-(* simpl. *)
-(* apply subtypeEquality. *)
-(* intros x. *)
-(* apply isaprop_is_functor. *)
-(* apply (functor_category_has_homsets HSET HSET has_homsets_HSET). *)
-(* simpl. *)
-(* unfold App_H, square_functor. *)
-(* unfold Abs_H. *)
-(* apply maponpaths. *)
-(* admit. *)
-(* Abort. (* equal if we add Id *) *)
+Eval cbn in pr1 (SigToSignature LamSig).
+(* = Id * Id + (_ o option + Id) *)
+(*      : functor [HSET, HSET, has_homsets_HSET] *)
+(*          [HSET, HSET, has_homsets_HSET] *)
 
-(* End test_lam. *)
+End test_lam.
