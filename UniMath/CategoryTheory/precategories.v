@@ -128,6 +128,8 @@ Definition precategory := total2 is_precategory.
 Definition hs_precategory := total2 (fun C : precategory_data => 
   dirprod (is_precategory C) (forall a b : C, isaset (a --> b))).
 
+Definition hs_precategory_has_homsets (C : hs_precategory) := pr2 (pr2 C).
+
 Definition precategory_data_from_precategory (C : precategory) : 
        precategory_data := pr1 C.
 Coercion precategory_data_from_precategory : precategory >-> precategory_data.
@@ -217,6 +219,13 @@ Proof.
   exact (identity a).
 Defined.
 
+Lemma cancel_precomposition (C : precategory_data) (a b c: C)
+   (g : a --> b) (f f' : b --> c)  : f = f' -> g ;; f = g ;; f'.
+Proof.
+  intro H.
+  destruct H.
+  apply idpath.
+Defined.
 
 Lemma cancel_postcomposition (C : precategory_data) (a b c: C)
    (f f' : a --> b) (g : b --> c) : f = f' -> f ;; g = f' ;; g.
