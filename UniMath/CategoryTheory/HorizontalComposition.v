@@ -133,4 +133,4 @@ Proof.
     apply cancel_postcomposition.
     rewrite (nat_trans_ax).
     reflexivity.
-Qed.
+Defined.
