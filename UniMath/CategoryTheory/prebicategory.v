@@ -62,28 +62,43 @@ Qed.
 Local Notation "alpha ;h; beta" := (compose_2mor_horizontal alpha beta) (at level 50, format "alpha ;h; beta").
 (* TODO: come up with a reasonable precedence for ;v; ;h; *)
 
+Definition associator_trans { C : prebicategory_id_comp } (a b c d : C) :=
+  nat_trans
+    (functor_composite _ _ _
+      (product_functor (functor_identity _) (compose_functor b c d))
+      (compose_functor a b d))
+    (functor_composite _ _ _
+      (product_precategory_assoc _ _ _)
+      (functor_composite _ _ _
+        (product_functor (compose_functor a b c) (functor_identity _))
+        (compose_functor a c d))).
+
+Definition left_unitor_trans { C : prebicategory_id_comp } (a b : C) :=
+  nat_trans
+    (functor_composite _ _ _
+      (pair_functor
+        (functor_composite _ _ _ (unit_functor _) (ob_as_functor (identity_1mor a)))
+        (functor_identity _))
+      (compose_functor a a b))
+    (functor_identity _).
+
+Definition right_unitor_trans { C : prebicategory_id_comp } (a b : C) :=
+  nat_trans
+    (functor_composite _ _ _
+      (pair_functor
+        (functor_identity _)
+        (functor_composite _ _ _(unit_functor _) (ob_as_functor (identity_1mor b))))
+      (compose_functor a b b))
+    (functor_identity _).
+
 Definition prebicategory_data :=
   total2 (fun C : prebicategory_id_comp =>
     dirprod
-      (* Associator *)
-      ( forall a b c d : C,
-        forall f : a -1-> b,
-        forall g : b -1-> c,
-        forall h : c -1-> d,
-          ((f ;1; (g ;1; h)) -2-> ((f ;1; g) ;1; h))
-      )
-      (* Unitors *)
+      (forall a b c d : C, associator_trans a b c d)
       ( dirprod
-          (* Left *)
-          ( forall a b : C,
-            forall f : a -1-> b,
-              (identity_1mor a) ;1; f -2-> f
-          )
-          (* Right *)
-          ( forall a b : C,
-            forall f : a -1-> b,
-              f ;1; (identity_1mor b) -2-> f
-          )
+        (forall a b : C, left_unitor_trans a b)
+        (* Right *)
+        (forall a b : C, right_unitor_trans a b)
       )).
 
 Definition prebicategory_id_comp_from_prebicategory_data (C : prebicategory_data) :
@@ -96,20 +111,35 @@ Definition has_2mor_sets (C : prebicategory_data) :=
   forall f g : a -1-> b,
     isaset (f -2-> g).
 
+(* Is this even what I want? *)
 Definition associator {C : prebicategory_data} { a b c d : C }
            (f : a -1-> b)
            (g : b -1-> c)
            (h : c -1-> d)
-  : (f ;1; (g ;1; h)) -2-> ((f ;1; g) ;1; h)
-  := pr1 (pr2 C) a b c d f g h.
+  : (f ;1; (g ;1; h)) -2-> ((f ;1; g) ;1; h).
+Proof.
+  set (A := pr1 (pr2 C) a b c d).
+  unfold associator_trans in A.
+  exact (A (prodcatpair f (prodcatpair g h))).
+Defined.
 
 Definition left_unitor {C : prebicategory_data} { a b : C }
            (f : a -1-> b)
-  := pr1 (pr2 (pr2 C)) a b f.
+  : (identity_1mor a) ;1; f -2-> f.
+Proof.
+  set (A := pr1 (pr2 (pr2 C)) a b).
+  unfold left_unitor_trans in A.
+  exact (A f).
+Defined.
 
 Definition right_unitor {C : prebicategory_data} { a b : C }
            (f : a -1-> b)
-  := pr2 (pr2 (pr2 C)) a b f.
+  : f ;1; (identity_1mor b) -2-> f.
+Proof.
+  set (A := pr2 (pr2 (pr2 C)) a b).
+  unfold right_unitor_trans in A.
+  exact (A f).
+Defined.
 
 Definition associator_and_unitors_are_iso (C : prebicategory_data)
   :=   (forall a b c d : C,
@@ -120,62 +150,6 @@ Definition associator_and_unitors_are_iso (C : prebicategory_data)
         forall f : a -1-> b, is_iso (left_unitor f))
      × (forall a b : C,
         forall g : a -1-> b, is_iso (right_unitor g)).
-
-Definition associator_domain {C : prebicategory_data} ( a b c d : C )
-  := (functor_composite _ _ _
-       (product_functor (functor_identity _) (compose_functor b c d))
-       (compose_functor a b d)).
-
-Definition associator_codomain {C : prebicategory_data} ( a b c d : C )
-  := (functor_composite _ _ _
-        (product_precategory_assoc _ _ _)
-        (functor_composite _ _ _
-           (product_functor (compose_functor a b c) (functor_identity _))
-           (compose_functor a c d))).
-
-Definition associator_as_trans {C : prebicategory_data} ( a b c d : C ) :
-  forall x : product_precategory_data (a -1-> b)
-       (product_precategory_data (b -1-> c) (c -1-> d)),
-  associator_domain a b c d x -2-> associator_codomain a b c d x.
-Proof.
-  intros.
-  induction x as [f x].
-  induction x as [g h].
-  exact (associator f g h).
-Qed.
-
-Definition left_unitor_as_trans {C : prebicategory_data} ( a b : C ) :
-  forall x : _,
-    (functor_composite _ _ _
-       (pair_functor
-          (functor_composite _ _ _ (unit_functor _) (ob_as_functor (identity_1mor a)))
-          (functor_identity _))
-       (compose_functor a a b))
-       x
-   -2-> functor_identity (a -1-> b) x.
-Proof.
-  intros x.
-  exact (left_unitor x).
-Qed.
-
-Definition right_unitor_as_trans {C : prebicategory_data} ( a b : C ) :
-  forall x : _,
-    (functor_composite _ _ _
-       (pair_functor
-          (functor_identity _)
-          (functor_composite _ _ _(unit_functor _) (ob_as_functor (identity_1mor b))))
-       (compose_functor a b b))
-       x
-   -2-> functor_identity (a -1-> b) x.
-Proof.
-  intros x.
-  exact (right_unitor x).
-Qed.
-
-Definition associator_and_unitors_are_natural (C : prebicategory_data)
-  := (forall a b c d : C, is_nat_trans _ _ (associator_as_trans a b c d))
-   × (forall a b     : C, is_nat_trans _ _ (left_unitor_as_trans a b))
-   × (forall a b     : C, is_nat_trans _ _ (right_unitor_as_trans a b)).
 
 Definition pentagon_axiom { C : prebicategory_data } { a b c d e : C }
   (k : a -1-> b)
