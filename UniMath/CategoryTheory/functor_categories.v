@@ -770,16 +770,6 @@ Definition nat_trans_id {C:precategory_data}{C' : precategory}
   (F : functor_data C C') : nat_trans F F :=
     tpair _ _ (is_nat_trans_id F).
 
-Definition nat_trans_from_id {C : precategory_data} {C' : precategory}
-  {F F' : functor_data C C'} :
-  (F = F') -> nat_trans F F'.
-Proof.
-  intros p.
-  induction p.
-  exact (nat_trans_id F).
-Defined.
-
-
 (** *** Composition of natural transformations *)
 
 Lemma is_nat_trans_comp {C : precategory_data}{C' : precategory}
