@@ -6,25 +6,27 @@ Require Import UniMath.CategoryTheory.ProductPrecategory.
 (******************************************************************************)
 (* Definition of a prebicategory *)
 
+Local Notation "C c× D" := (product_precategory C D) (at level 75, right associativity).
+
 Local Notation "a -2-> b" := (precategory_morphisms a b)(at level 50).
 (* To keep it straight in my head *)
 Local Notation "alpha ;v; beta" := (compose alpha beta) (at level 50, format "alpha ;v; beta").
 
 Definition prebicategory_ob_1mor_2mor :=
-  total2 (fun C : UU => forall a b : C, precategory_data).
+  total2 (fun C : UU => forall a b : C, precategory).
 
 Definition bicat_ob (C : prebicategory_ob_1mor_2mor) : UU := @pr1 _ _ C.
 Coercion bicat_ob : prebicategory_ob_1mor_2mor >-> UU.
 
-Definition homprecat_data {C : prebicategory_ob_1mor_2mor} (a b : C) : precategory_data :=
+Definition homprecat {C : prebicategory_ob_1mor_2mor} (a b : C) : precategory :=
   (pr2 C) a b.
 
-Local Notation "a -1-> b" := (homprecat_data a b)(at level 50).
+Local Notation "a -1-> b" := (homprecat a b)(at level 50).
 
 Definition prebicategory_id_comp :=
   total2 ( fun C : prebicategory_ob_1mor_2mor =>
     dirprod (forall a : C, a -1-> a)
-            (forall a b c : C, functor_data (product_precategory_data (a -1-> b) (b -1-> c)) (a -1-> c))).
+            (forall a b c : C, functor ((a -1-> b) c× (b -1-> c)) (a -1-> c))).
 
 Definition prebicategory_ob_1mor_2mor_from_prebicategory_id_comp (C : prebicategory_id_comp) :
   prebicategory_ob_1mor_2mor := pr1 C.
@@ -37,12 +39,12 @@ Definition identity_1mor {C : prebicategory_id_comp} (a : C) : a -1-> a
 Definition identity_2mor {C : prebicategory_id_comp} {a b : C} (f : a -1-> b)
   := identity f.
 
-Definition compose_functor_data {C : prebicategory_id_comp} (a b c : C) :
-  functor_data (product_precategory_data (a -1-> b) (b -1-> c)) (a -1-> c)
+Definition compose_functor {C : prebicategory_id_comp} (a b c : C) :
+  functor ((a -1-> b) c× (b -1-> c)) (a -1-> c)
   := pr2 (pr2 C) a b c.
 
 Definition compose_1mor {C : prebicategory_id_comp} {a b c : C} (f : a -1-> b) (g : b -1-> c)
-  := functor_on_objects (compose_functor_data a b c) (dirprodpair f g).
+  := functor_on_objects (compose_functor a b c) (dirprodpair f g).
 
 Local Notation "f ;1; g" := (compose_1mor f g) (at level 50, format "f ;1; g").
 
@@ -89,16 +91,10 @@ Definition prebicategory_id_comp_from_prebicategory_data (C : prebicategory_data
 Coercion prebicategory_id_comp_from_prebicategory_data :
   prebicategory_data >-> prebicategory_id_comp.
 
-Definition has_homprecats (C : prebicategory_data) :=
-  forall a b : C, is_precategory (a -1-> b).
-
 Definition has_2mor_sets (C : prebicategory_data) :=
   forall a b : C,
   forall f g : a -1-> b,
     isaset (f -2-> g).
-
-Definition has_compose_functors (C : prebicategory_data) :=
-  forall a b c : C, is_functor (compose_functor_data a b c).
 
 Definition associator {C : prebicategory_data} { a b c d : C }
            (f : a -1-> b)
@@ -126,16 +122,16 @@ Definition associator_and_unitors_are_iso (C : prebicategory_data)
         forall g : a -1-> b, is_iso (right_unitor g)).
 
 Definition associator_domain {C : prebicategory_data} ( a b c d : C )
-  := (functor_composite_data
-       (product_functor_data (functor_identity_data _) (compose_functor_data b c d))
-       (compose_functor_data a b d)).
+  := (functor_composite _ _ _
+       (product_functor (functor_identity _) (compose_functor b c d))
+       (compose_functor a b d)).
 
 Definition associator_codomain {C : prebicategory_data} ( a b c d : C )
-  := (functor_composite_data
-        (product_precategory_assoc_data _ _ _)
-        (functor_composite_data
-           (product_functor_data (compose_functor_data a b c) (functor_identity_data _))
-           (compose_functor_data a c d))).
+  := (functor_composite _ _ _
+        (product_precategory_assoc _ _ _)
+        (functor_composite _ _ _
+           (product_functor (compose_functor a b c) (functor_identity _))
+           (compose_functor a c d))).
 
 Definition associator_as_trans {C : prebicategory_data} ( a b c d : C ) :
   forall x : product_precategory_data (a -1-> b)
@@ -150,11 +146,11 @@ Qed.
 
 Definition left_unitor_as_trans {C : prebicategory_data} ( a b : C ) :
   forall x : _,
-    (functor_composite_data
-       (pair_functor_data
-          (functor_composite_data (unit_functor _) (ob_as_functor_data (identity_1mor a)))
+    (functor_composite _ _ _
+       (pair_functor
+          (functor_composite _ _ _ (unit_functor _) (ob_as_functor (identity_1mor a)))
           (functor_identity _))
-       (compose_functor_data a a b))
+       (compose_functor a a b))
        x
    -2-> functor_identity (a -1-> b) x.
 Proof.
@@ -164,11 +160,11 @@ Qed.
 
 Definition right_unitor_as_trans {C : prebicategory_data} ( a b : C ) :
   forall x : _,
-    (functor_composite_data
-       (pair_functor_data
+    (functor_composite _ _ _
+       (pair_functor
           (functor_identity _)
-          (functor_composite_data (unit_functor _) (ob_as_functor_data (identity_1mor b))))
-       (compose_functor_data a b b))
+          (functor_composite _ _ _(unit_functor _) (ob_as_functor (identity_1mor b))))
+       (compose_functor a b b))
        x
    -2-> functor_identity (a -1-> b) x.
 Proof.
