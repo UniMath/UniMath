@@ -10,7 +10,7 @@ Local Notation "C c× D" := (product_precategory C D) (at level 75, right associ
 
 Local Notation "a -2-> b" := (precategory_morphisms a b)(at level 50).
 (* To keep it straight in my head *)
-Local Notation "alpha ;v; beta" := (compose alpha beta) (at level 50, format "alpha ;v; beta").
+Local Notation "alpha ;v; beta" := (compose alpha beta) (at level 50, format "alpha ;v; beta", no associativity).
 
 Definition prebicategory_ob_1mor_2mor :=
   total2 (fun C : UU => forall a b : C, precategory).
@@ -46,7 +46,7 @@ Definition compose_functor {C : prebicategory_id_comp} (a b c : C) :
 Definition compose_1mor {C : prebicategory_id_comp} {a b c : C} (f : a -1-> b) (g : b -1-> c)
   := functor_on_objects (compose_functor a b c) (dirprodpair f g).
 
-Local Notation "f ;1; g" := (compose_1mor f g) (at level 50, format "f ;1; g").
+Local Notation "f ;1; g" := (compose_1mor f g) (at level 50, format "f ;1; g", no associativity).
 
 Definition compose_2mor_horizontal {C : prebicategory_id_comp} {a b c : C}
            { f f' : a -1-> b } { g g' : b -1-> c }
