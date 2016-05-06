@@ -2,6 +2,7 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.HorizontalComposition.
 
 (******************************************************************************)
 (* Definition of a prebicategory *)
@@ -57,7 +58,7 @@ Proof.
   unfold precategory_morphisms.
   simpl.
   exact (dirprodpair alpha beta).
-Qed.
+Defined.
 
 Local Notation "alpha ;h; beta" := (compose_2mor_horizontal alpha beta) (at level 50, format "alpha ;h; beta").
 (* TODO: come up with a reasonable precedence for ;v; ;h; *)
@@ -188,12 +189,188 @@ Definition prebicategory_coherence (C : prebicategory_data)
         triangle_axiom f g).
 
 Definition is_prebicategory (C : prebicategory_data) :=
-                (has_homprecats C)
-              × (has_2mor_sets C)
-              × (has_compose_functors C)
-              × (associator_and_unitors_are_natural C)
+                (has_2mor_sets C)
               × (associator_and_unitors_are_iso C)
               × (prebicategory_coherence C).
 
+Definition prebicategory := total2 is_prebicategory.
+
 (******************************************************************************)
 (* The prebicategory of precategories *)
+
+Definition PreCat_1mor_2mor : prebicategory_ob_1mor_2mor.
+Proof.
+  exists hs_precategory.
+  intros a b.
+  exact (functor_precategory a b (hs_precategory_has_homsets b)).
+Defined.
+
+Definition PreCat_id_comp : prebicategory_id_comp.
+Proof.
+  exists PreCat_1mor_2mor.
+  split.
+  - simpl.
+    exact functor_identity.
+  - simpl.
+    intros a b c.
+    exact (functorial_composition a b c (hs_precategory_has_homsets b) (hs_precategory_has_homsets c)).
+Defined.
+
+Definition PreCat_associator (a b c d : PreCat_id_comp) : associator_trans a b c d.
+Proof.
+  unfold associator_trans.
+  unfold nat_trans.
+  use tpair.
+  - intros x. (* Step 1: Give the components of the natural transformation *)
+    simpl.
+    exists (fun x => identity _).
+    induction x as [x1 [x2 x3]].
+    unfold is_nat_trans.
+    intros oba oba' f.
+    simpl.
+    simpl in d, x1, x2, x3.
+    refine (id_right d _ _ _ @ !(id_left d _ _ _)).
+  - intros [x1 [x2 x3]].
+    simpl in x1, x2, x3.
+    intros [y1 [y2 y3]].
+    intros [f1 [f2 f3]].
+    apply nat_trans_eq. exact (hs_precategory_has_homsets d).
+    intros oba.
+    simpl.
+    simpl in d.
+    rewrite (id_right d _ _ _).
+    rewrite (id_left d  _ _ _).
+    rewrite functor_comp.
+    rewrite (assoc d).
+    reflexivity.
+Defined.
+
+Definition PreCat_left_unitor (a b : PreCat_id_comp) : left_unitor_trans a b.
+Proof.
+  unfold associator_trans.
+  unfold nat_trans.
+  use tpair.
+  - intros x.
+    exists (fun x => identity _).
+    intros oba oba' f.
+    simpl.
+    simpl in b.
+    exact (id_right b _ _ _ @ !(id_left b _ _ _)).
+  - intros x x' f.
+    apply nat_trans_eq. exact (hs_precategory_has_homsets b).
+    intros oba.
+    simpl.
+    simpl in x, x'.
+    simpl in a, b.
+    rewrite (id_right b _ _ _).
+    rewrite (id_left b _ _ _).
+    rewrite functor_id.
+    rewrite (id_right b _ _ _).
+    reflexivity.
+Defined.
+
+Definition PreCat_right_unitor (a b : PreCat_id_comp) : right_unitor_trans a b.
+Proof.
+  unfold associator_trans.
+  unfold nat_trans.
+  use tpair.
+  - intros x.
+    exists (fun x => identity _).
+    intros oba oba' f.
+    simpl.
+    simpl in b.
+    exact (id_right b _ _ _ @ !(id_left b _ _ _)).
+  - intros x x' f.
+    apply nat_trans_eq. exact (hs_precategory_has_homsets b).
+    intros oba.
+    simpl.
+    simpl in x, x'.
+    simpl in a, b.
+    rewrite (id_right b _ _ _).
+    rewrite (id_left b _ _ _).
+    reflexivity.
+Defined.
+
+Definition PreCat_data : prebicategory_data.
+Proof.
+  unfold prebicategory_data.
+  exists PreCat_id_comp.
+  repeat split.
+  - exact PreCat_associator.
+  - exact PreCat_left_unitor.
+  - exact PreCat_right_unitor.
+Defined.
+
+Definition PreCat_has_2mor_set : has_2mor_sets PreCat_data.
+Proof.
+  unfold has_2mor_sets.
+  intros a b f g.
+  apply isaset_nat_trans.
+  exact (hs_precategory_has_homsets b).
+Defined.
+
+Definition PreCat_associator_and_unitors_are_iso : associator_and_unitors_are_iso PreCat_data.
+Proof.
+  unfold associator_and_unitors_are_iso.
+  repeat split.
+  - intros a b c d f g h.
+    unfold associator.
+    apply functor_iso_if_pointwise_iso.
+    intros oba.
+    simpl.
+    unfold is_isomorphism. (* What is even the point of this *)
+    simpl in d.
+    apply (identity_is_iso d).
+  - intros a b f.
+    unfold left_unitor.
+    apply functor_iso_if_pointwise_iso.
+    intros oba.
+    simpl.
+    unfold is_isomorphism.
+    simpl in b.
+    apply (identity_is_iso b).
+  - intros a b f.
+    unfold right_unitor.
+    apply functor_iso_if_pointwise_iso.
+    intros oba.
+    simpl.
+    unfold is_isomorphism.
+    simpl in b.
+    apply (identity_is_iso b).
+Defined.
+
+Definition PreCat_coherence : prebicategory_coherence PreCat_data.
+Proof.
+  unfold prebicategory_coherence.
+  split.
+  - intros a b c d e k h g f.
+    unfold pentagon_axiom.
+    apply nat_trans_eq. exact (hs_precategory_has_homsets e).
+    intros x.
+    simpl.
+    simpl in e.
+    repeat rewrite functor_id.
+    repeat rewrite (id_left e _ _ _).
+    reflexivity.
+  - intros a b c f g.
+    unfold triangle_axiom.
+    apply nat_trans_eq. exact (hs_precategory_has_homsets c).
+    intros x.
+    simpl.
+    simpl in c.
+    repeat rewrite functor_id.
+    repeat rewrite (id_left c _ _ _).
+    reflexivity.
+Defined.
+
+Definition PreCat : prebicategory.
+Proof.
+  use tpair.
+  exact PreCat_data.
+  unfold is_prebicategory.
+  split.
+  exact PreCat_has_2mor_set.
+  split.
+  exact PreCat_associator_and_unitors_are_iso.
+  exact PreCat_coherence.
+Defined.
