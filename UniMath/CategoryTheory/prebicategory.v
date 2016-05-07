@@ -200,6 +200,19 @@ Definition prebicategory_data_from_prebicategory (C : prebicategory) :
 Coercion prebicategory_data_from_prebicategory : prebicategory >-> prebicategory_data.
 
 (******************************************************************************)
+(* Whiskering *)
+
+Definition whisker_left {C : prebicategory} {a b c : C}
+           (f : a -1-> b) {g h : b -1-> c} (alpha : g -2-> h)
+  : (f ;1; g) -2-> (f ;1; h)
+  := (identity_2mor f) ;h; alpha.
+
+Definition whisker_right {C : prebicategory} {a b c : C}
+           {f g : a -1-> b} (alpha : f -2-> g) (h : b -1-> c)
+  : (f ;1; h) -2-> (g ;1; h)
+  := alpha ;h; (identity_2mor h).
+
+(******************************************************************************)
 (* The prebicategory of precategories *)
 
 Definition PreCat_1mor_2mor : prebicategory_ob_1mor_2mor.
