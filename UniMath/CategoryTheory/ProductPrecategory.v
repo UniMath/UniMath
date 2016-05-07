@@ -120,6 +120,86 @@ Proof.
   - apply hsD.
 Qed.
 
+Section functor_fix_fst_arg.
+
+Variable E : precategory.
+Variable F: functor product_precategory E.
+Variable c : C.
+
+Definition functor_fix_fst_arg_ob (d:D): E := F(tpair _ c d).
+Definition functor_fix_fst_arg_mor (d d':D)(f: d ⇒ d'): functor_fix_fst_arg_ob d ⇒ functor_fix_fst_arg_ob d'.
+Proof.
+  apply (#F).
+  split; simpl.
+  exact (identity c).
+  exact f.
+Defined.
+Definition functor_fix_fst_arg_data : functor_data D E.
+Proof.
+  red.
+  exists functor_fix_fst_arg_ob.
+  exact functor_fix_fst_arg_mor.
+Defined.
+
+Lemma is_functor_functor_fix_fst_arg_data: is_functor functor_fix_fst_arg_data.
+Proof.
+  red.
+  split; red.
+  + intros d.
+    unfold functor_fix_fst_arg_data; simpl.
+    unfold functor_fix_fst_arg_mor; simpl.
+    unfold functor_fix_fst_arg_ob; simpl.
+    assert (functor_id_inst := functor_id F).
+    rewrite <- functor_id_inst.
+    apply maponpaths.
+    apply idpath.
+  + intros d d' d'' f g.
+    unfold functor_fix_fst_arg_data; simpl.
+    unfold functor_fix_fst_arg_mor; simpl.
+    assert (functor_comp_inst := functor_comp F (dirprodpair c d) (dirprodpair c d') (dirprodpair c d'')).
+    rewrite <- functor_comp_inst.
+    apply maponpaths.
+    unfold compose at 2.
+    unfold product_precategory; simpl.
+    rewrite id_left.
+    apply idpath.
+Qed.
+
+Definition functor_fix_fst_arg: functor D E.
+Proof.
+  exists functor_fix_fst_arg_data.
+  exact is_functor_functor_fix_fst_arg_data.
+Defined.
+
+End functor_fix_fst_arg.
+
+Section nat_trans_fix_fst_arg.
+
+Variable E : precategory.
+Variable F F': functor product_precategory E.
+Variable α: F ⟶ F'.
+Variable c: C.
+
+Definition nat_trans_fix_fst_arg_data (d:D): functor_fix_fst_arg E F c d ⇒ functor_fix_fst_arg E F' c d := α (tpair _ c d).
+
+Lemma nat_trans_fix_fst_arg_ax: is_nat_trans _ _ nat_trans_fix_fst_arg_data.
+Proof.
+  red.
+  intros d d' f.
+  unfold nat_trans_fix_fst_arg_data, functor_fix_fst_arg; simpl.
+  unfold functor_fix_fst_arg_mor; simpl.
+  assert (nat_trans_ax_inst := nat_trans_ax α).
+  apply nat_trans_ax_inst.
+Qed.
+
+Definition nat_trans_fix_fst_arg: functor_fix_fst_arg E F c ⟶ functor_fix_fst_arg E F' c.
+Proof.
+  exists nat_trans_fix_fst_arg_data.
+  exact nat_trans_fix_fst_arg_ax.
+Defined.
+
+End nat_trans_fix_fst_arg.
+
 Section functor_fix_snd_arg.
 
 Variable E : precategory.
