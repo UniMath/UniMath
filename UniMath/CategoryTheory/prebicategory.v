@@ -195,6 +195,10 @@ Definition is_prebicategory (C : prebicategory_data) :=
 
 Definition prebicategory := total2 is_prebicategory.
 
+Definition prebicategory_data_from_prebicategory (C : prebicategory) :
+       prebicategory_data := pr1 C.
+Coercion prebicategory_data_from_prebicategory : prebicategory >-> prebicategory_data.
+
 (******************************************************************************)
 (* The prebicategory of precategories *)
 
