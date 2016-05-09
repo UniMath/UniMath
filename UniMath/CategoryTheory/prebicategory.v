@@ -4,6 +4,8 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
+Arguments functor_composite {_ _ _} _ _ .
+
 (******************************************************************************)
 (* Definition of a prebicategory *)
 
@@ -65,30 +67,30 @@ Local Notation "alpha ;h; beta" := (compose_2mor_horizontal alpha beta) (at leve
 
 Definition associator_trans { C : prebicategory_id_comp } (a b c d : C) :=
   nat_trans
-    (functor_composite _ _ _
+    (functor_composite
       (product_functor (functor_identity _) (compose_functor b c d))
       (compose_functor a b d))
-    (functor_composite _ _ _
+    (functor_composite
       (product_precategory_assoc _ _ _)
-      (functor_composite _ _ _
+      (functor_composite
         (product_functor (compose_functor a b c) (functor_identity _))
         (compose_functor a c d))).
 
 Definition left_unitor_trans { C : prebicategory_id_comp } (a b : C) :=
   nat_trans
-    (functor_composite _ _ _
+    (functor_composite
       (pair_functor
-        (functor_composite _ _ _ (unit_functor _) (ob_as_functor (identity_1mor a)))
+        (functor_composite (unit_functor _) (ob_as_functor (identity_1mor a)))
         (functor_identity _))
       (compose_functor a a b))
     (functor_identity _).
 
 Definition right_unitor_trans { C : prebicategory_id_comp } (a b : C) :=
   nat_trans
-    (functor_composite _ _ _
+    (functor_composite
       (pair_functor
         (functor_identity _)
-        (functor_composite _ _ _(unit_functor _) (ob_as_functor (identity_1mor b))))
+        (functor_composite (unit_functor _) (ob_as_functor (identity_1mor b))))
       (compose_functor a b b))
     (functor_identity _).
 
