@@ -104,7 +104,7 @@ Definition triangle_id_right_ad (A B : precategory)
 
 Definition adj_equivalence_of_precats {A B : precategory}
   (F : functor A B) : UU :=
-   total2 (fun H : is_left_adjoint  F =>
+   total2 (fun H : is_left_adjoint F =>
      dirprod (forall a, is_isomorphism
                     (unit_from_left_adjoint H a))
              (forall b, is_isomorphism
@@ -156,6 +156,22 @@ Proof.
   apply (pr2 (pr2 HF)).
 Defined.
 
+(** * Identity functor is an equivalence *)
+
+Lemma identity_functor_is_adj_equivalence {A : precategory} :
+  adj_equivalence_of_precats (functor_identity A).
+Proof.
+  use tpair.
+  - use tpair.
+    + exact (functor_identity A).
+    + unfold are_adjoints.
+      use tpair.
+        exact (dirprodpair (nat_trans_id _) (nat_trans_id _)).
+        split. intros a. rewrite id_left. reflexivity.
+               intros a. rewrite id_left. reflexivity.
+  - split. intros a. unfold is_isomorphism. apply identity_is_iso.
+           intros a. unfold is_isomorphism. apply identity_is_iso.
+Defined.
 
 (** * Equivalence of categories yields equivalence of object types *)
 (**  Fundamentally needed that both source and target are categories *)
