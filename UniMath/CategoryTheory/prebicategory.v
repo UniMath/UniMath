@@ -3,6 +3,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.equivalences.
 
 Arguments functor_composite {_ _ _} _ _ .
 
@@ -201,6 +202,10 @@ Definition prebicategory_data_from_prebicategory (C : prebicategory) :
        prebicategory_data := pr1 C.
 Coercion prebicategory_data_from_prebicategory : prebicategory >-> prebicategory_data.
 
+Definition prebicategory_has_2mor_sets {C : prebicategory} (a b : C)
+  : has_homsets (a -1-> b)
+  := (pr1 (pr2 C)) a b.
+
 (******************************************************************************)
 (* Whiskering *)
 
@@ -213,6 +218,65 @@ Definition whisker_right {C : prebicategory} {a b c : C}
            {f g : a -1-> b} (alpha : f -2-> g) (h : b -1-> c)
   : (f ;1; h) -2-> (g ;1; h)
   := alpha ;h; (identity_2mor h).
+
+(******************************************************************************)
+(* Equivalence in a prebicategory *)
+
+Definition has_homcats (C : prebicategory)
+  := forall a b : C, is_category (a -1-> b).
+
+Definition precomp_with_1mor {C : prebicategory_data} {a b : C} (f : a -1-> b) {c : C}
+  : functor (b -1-> c) (a -1-> c)
+  := functor_fix_fst_arg _ _ _ (compose_functor a b c) f.
+
+Definition precomp_with_identity_is_identity_trans {C : prebicategory} (a : C)
+  : forall b : C, nat_trans (precomp_with_1mor (identity_1mor a)) (functor_identity (a -1-> b)).
+Proof.
+  intros b.
+  use tpair.
+  - exact left_unitor.
+  - exact (pr2 (pr1 (pr2 (pr2 (pr1 C))) a b)).
+Defined.
+
+Lemma precomp_with_identity_is_identity {C : prebicategory} (hc : has_homcats C) (a : C)
+  : forall b : C, precomp_with_1mor (identity_1mor a) = functor_identity (a -1-> b).
+Proof.
+  intros b.
+  set (abhs := pr2 (hc a b)).
+  simpl in abhs.
+  apply (functor_eq_from_functor_iso abhs (hc a b)).
+  apply (functor_iso_from_pointwise_iso _ _ _ _ _ (precomp_with_identity_is_identity_trans a b)).
+  exact (pr1 (pr2 (pr1 (pr2 (pr2 C)))) a b).
+Defined.
+
+Definition is_1equiv {C : prebicategory_data} {a b : C} (f : a -1-> b) :=
+  forall (c : C), adj_equivalence_of_precats (precomp_with_1mor f (c:=c)).
+
+Definition oneequiv {C: prebicategory_data}(a b : C) := total2 (fun f : a -1-> b => is_1equiv f).
+
+Definition identity_1equiv {C : prebicategory} (hc : has_homcats C) (a : C) :
+  oneequiv a a.
+Proof.
+  unfold oneequiv.
+  use tpair.
+  - exact (identity_1mor a).
+  - simpl.
+    unfold is_1equiv.
+    intros b.
+    rewrite (precomp_with_identity_is_identity hc a b).
+    apply identity_functor_is_adj_equivalence.
+Defined.
+
+Definition idto1equiv {C : prebicategory} {a b : C}:
+      a = b -> oneequiv a b.
+Proof.
+  intro H.
+  destruct H.
+  exact (identity_1equiv a).
+Defined.
+
+Definition is_bicategory (C : prebicategory)
+  := (has_homcats C) × (forall (a b : C), isweq (fun p : a = b => idto1equiv p)).
 
 (******************************************************************************)
 (* The prebicategory of precategories *)
