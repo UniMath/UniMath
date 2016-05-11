@@ -220,7 +220,7 @@ Definition whisker_right {C : prebicategory} {a b c : C}
   := alpha ;h; (identity_2mor h).
 
 (******************************************************************************)
-(* Equivalence in a prebicategory *)
+(* Equivalence in a prebicategory via precomposition *)
 
 Definition has_homcats (C : prebicategory)
   := forall a b : C, is_category (a -1-> b).
@@ -249,34 +249,32 @@ Proof.
   exact (pr1 (pr2 (pr1 (pr2 (pr2 C)))) a b).
 Defined.
 
-Definition is_1equiv {C : prebicategory_data} {a b : C} (f : a -1-> b) :=
+Definition is_precomp_equiv {C : prebicategory_data} {a b : C} (f : a -1-> b) :=
   forall (c : C), adj_equivalence_of_precats (precomp_with_1mor f (c:=c)).
 
-Definition oneequiv {C: prebicategory_data}(a b : C) := total2 (fun f : a -1-> b => is_1equiv f).
+Definition precomp_equiv {C: prebicategory_data}(a b : C) := total2 (fun f : a -1-> b => is_precomp_equiv f).
 
-Definition identity_1equiv {C : prebicategory} (hc : has_homcats C) (a : C) :
-  oneequiv a a.
+(* TODO: make this work without needing homcategories *)
+Definition identity_precomp_equiv {C : prebicategory} (hc : has_homcats C) (a : C) :
+  precomp_equiv a a.
 Proof.
-  unfold oneequiv.
+  unfold precomp_equiv.
   use tpair.
   - exact (identity_1mor a).
   - simpl.
-    unfold is_1equiv.
+    unfold is_precomp_equiv.
     intros b.
     rewrite (precomp_with_identity_is_identity hc a b).
     apply identity_functor_is_adj_equivalence.
 Defined.
 
-Definition idto1equiv {C : prebicategory} {a b : C}:
-      a = b -> oneequiv a b.
+Definition idto_precomp_equiv {C : prebicategory} {a b : C} (hc : has_homcats C):
+      a = b -> precomp_equiv a b.
 Proof.
   intro H.
   destruct H.
-  exact (identity_1equiv a).
+  exact (identity_precomp_equiv hc a).
 Defined.
-
-Definition is_bicategory (C : prebicategory)
-  := (has_homcats C) × (forall (a b : C), isweq (fun p : a = b => idto1equiv p)).
 
 (******************************************************************************)
 (* The prebicategory of precategories *)
