@@ -115,8 +115,7 @@ Definition has_2mor_sets (C : prebicategory_data) :=
   forall f g : a -1-> b,
     isaset (f -2-> g).
 
-(* Is this even what I want? *)
-Definition associator {C : prebicategory_data} { a b c d : C }
+Definition associator_2mor {C : prebicategory_data} { a b c d : C }
            (f : a -1-> b)
            (g : b -1-> c)
            (h : c -1-> d)
@@ -127,7 +126,7 @@ Proof.
   exact (A (prodcatpair f (prodcatpair g h))).
 Defined.
 
-Definition left_unitor {C : prebicategory_data} { a b : C }
+Definition left_unitor_2mor {C : prebicategory_data} { a b : C }
            (f : a -1-> b)
   : (identity_1mor a) ;1; f -2-> f.
 Proof.
@@ -136,7 +135,7 @@ Proof.
   exact (A f).
 Defined.
 
-Definition right_unitor {C : prebicategory_data} { a b : C }
+Definition right_unitor_2mor {C : prebicategory_data} { a b : C }
            (f : a -1-> b)
   : f ;1; (identity_1mor b) -2-> f.
 Proof.
@@ -149,11 +148,11 @@ Definition associator_and_unitors_are_iso (C : prebicategory_data)
   :=   (forall a b c d : C,
         forall (f : a -1-> b)
           (g : b -1-> c)
-          (h : c -1-> d), is_iso (associator f g h))
+          (h : c -1-> d), is_iso (associator_2mor f g h))
      × (forall a b : C,
-        forall f : a -1-> b, is_iso (left_unitor f))
+        forall f : a -1-> b, is_iso (left_unitor_2mor f))
      × (forall a b : C,
-        forall g : a -1-> b, is_iso (right_unitor g)).
+        forall g : a -1-> b, is_iso (right_unitor_2mor g)).
 
 Definition pentagon_axiom { C : prebicategory_data } { a b c d e : C }
   (k : a -1-> b)
@@ -162,21 +161,21 @@ Definition pentagon_axiom { C : prebicategory_data } { a b c d e : C }
   (f : d -1-> e)
   :=
     (* Anticlockwise *)
-        (associator k h (g ;1; f))
-    ;v; (associator (k ;1; h) g f)
+        (associator_2mor k h (g ;1; f))
+    ;v; (associator_2mor (k ;1; h) g f)
    =
     (* Clockwise *)
-        ((identity k) ;h; (associator h g f))
-    ;v; (associator k (h ;1; g) f)
-    ;v; ((associator k h g) ;h; (identity f))
+        ((identity k) ;h; (associator_2mor h g f))
+    ;v; (associator_2mor k (h ;1; g) f)
+    ;v; ((associator_2mor k h g) ;h; (identity f))
   .
 
 Definition triangle_axiom {C : prebicategory_data} { a b c : C }
            (f : a -1-> b)
            (g : b -1-> c)
-  :=       ((identity_2mor f) ;h; (left_unitor g))
-     =     (associator f (identity_1mor b) g)
-       ;v; ((right_unitor f) ;h; (identity_2mor g)).
+  :=       ((identity_2mor f) ;h; (left_unitor_2mor g))
+     =     (associator_2mor f (identity_1mor b) g)
+       ;v; ((right_unitor_2mor f) ;h; (identity_2mor g)).
 
 Definition prebicategory_coherence (C : prebicategory_data)
   := (forall a b c d e : C,
@@ -205,6 +204,35 @@ Coercion prebicategory_data_from_prebicategory : prebicategory >-> prebicategory
 Definition prebicategory_has_2mor_sets {C : prebicategory} (a b : C)
   : has_homsets (a -1-> b)
   := (pr1 (pr2 C)) a b.
+
+Definition associator {C : prebicategory} { a b c d : C }
+           (f : a -1-> b)
+           (g : b -1-> c)
+           (h : c -1-> d)
+  : iso (f ;1; (g ;1; h)) ((f ;1; g) ;1; h).
+Proof.
+  use tpair.
+  - exact (associator_2mor _ _ _).
+  - exact ((pr1 (pr1 (pr2 (pr2 C)))) a b c d f g h).
+Defined.
+
+Definition left_unitor {C : prebicategory} { a b : C }
+           (f : a -1-> b)
+  : iso ((identity_1mor a) ;1; f) f.
+Proof.
+  use tpair.
+  - exact (left_unitor_2mor _).
+  - exact ((pr1 (pr2 (pr1 (pr2 (pr2 C))))) a b f).
+Defined.
+
+Definition right_unitor {C : prebicategory} { a b : C }
+           (f : a -1-> b)
+  : iso (f ;1; (identity_1mor b)) f.
+Proof.
+  use tpair.
+  - exact (right_unitor_2mor _).
+  - exact ((pr2 (pr2 (pr1 (pr2 (pr2 C))))) a b f).
+Defined.
 
 (******************************************************************************)
 (* Whiskering *)
