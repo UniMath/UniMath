@@ -248,10 +248,70 @@ Definition whisker_right {C : prebicategory} {a b c : C}
   := alpha ;h; (identity_2mor h).
 
 (******************************************************************************)
-(* Equivalence in a prebicategory via precomposition *)
+(* Equivalence in a prebicategory *)
+
+Definition is_internal_equivalence {C : prebicategory} {a b : C}
+  (f : a -1-> b)
+  := total2 (fun g : b -1-> a => (iso (f ;1; g) (identity_1mor a)) × (iso (g ;1; f) (identity_1mor b))).
+
+Definition internal_equivalence {C : prebicategory}
+  (a b : C)
+  := total2 (fun f : a -1-> b => is_internal_equivalence f).
+
+Definition identity_equivalence {C : prebicategory}
+  (a : C) : internal_equivalence a a.
+Proof.
+  exists (identity_1mor a).
+  exists (identity_1mor a).
+  split.
+  - exact (left_unitor (identity_1mor a)).
+  - exact (left_unitor (identity_1mor a)).
+Defined.
+
+Definition id_to_internal_equivalence {C : prebicategory} {a b : C}
+  : (a = b) -> internal_equivalence a b.
+Proof.
+  intros p.
+  induction p.
+  exact (identity_equivalence a).
+Defined.
 
 Definition has_homcats (C : prebicategory)
   := forall a b : C, is_category (a -1-> b).
+
+Definition is_bicategory (C : prebicategory)
+  := (has_homcats C) × (forall (a b : C), isweq (fun p : a = b => id_to_internal_equivalence p)).
+
+Definition bicategory := total2 (fun C : prebicategory => is_bicategory C).
+
+(***)
+(* Being a bicategory is a prop *)
+
+Definition isaprop_has_homcats { C : prebicategory }
+  : isaprop (has_homcats C).
+Proof.
+  apply impred.
+  intro a.
+  apply impred.
+  intro b.
+  apply (isaprop_is_category (a -1-> b)).
+Qed.
+
+Definition isaprop_is_bicategory { C : prebicategory }
+  : isaprop (is_bicategory C).
+Proof.
+  apply isapropdirprod.
+  - exact isaprop_has_homcats.
+  - apply impred.
+    intros a.
+    apply impred.
+    intros b.
+    apply isapropisweq.
+Qed.
+
+
+(******************************************************************************)
+(* Equivalence in a prebicategory via precomposition *)
 
 Definition precomp_with_1mor {C : prebicategory_data} {a b : C} (f : a -1-> b) {c : C}
   : functor (b -1-> c) (a -1-> c)
