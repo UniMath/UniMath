@@ -3,6 +3,7 @@
 From signatures to monads
 
 Written by: Anders Mörtberg, 2016
+Based on a note by Ralph Matthes
 
 *)
 
@@ -43,8 +44,6 @@ Require Import UniMath.CategoryTheory.lists.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
-Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
-
 
 (* Construct θ in a Signature in the case when the functor is
    precomposition with a functor G by constructing a family of simpler
@@ -465,6 +464,8 @@ End id_signature.
 (* M := Monad_from_HSS(I)    # *)
 Section SigToMonad.
 
+Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
+
 Local Definition has_homsets_HSET2 : has_homsets HSET2.
 Proof.
 apply functor_category_has_homsets.
@@ -480,7 +481,7 @@ Proof.
 apply (Coproducts_functor_precat _ _ CoproductsHSET).
 Defined.
 
-Local Lemma has_exponentials_HSET2 : has_exponentials  ProductsHSET2.
+Local Lemma has_exponentials_HSET2 : has_exponentials ProductsHSET2.
 Proof.
 apply has_exponentials_functor_HSET, has_homsets_HSET.
 Defined.

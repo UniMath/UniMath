@@ -930,8 +930,9 @@ Notation "F + G" :=
   (omega_cocont_coproduct_of_functors _ _ ProductsHSET CoproductsHSET
      has_homsets_HSET has_homsets_HSET F G) : cocont_functor_hset_scope.
 
-(* omega_cocont_coproduct_functor has worse computational behavior and
-   breaks isalghom_pr1foldr in lists *)
+(* omega_cocont_coproduct_functor has worse computational behavior
+   than omega_cocont_coproduct_of_functors and breaks
+   isalghom_pr1foldr in lists *)
 (* Notation "F + G" := *)
 (*   (omega_cocont_coproduct_functor _ _ ProductsHSET CoproductsHSET *)
 (*      has_homsets_HSET has_homsets_HSET _ _ (pr2 F) (pr2 G)) : *)
