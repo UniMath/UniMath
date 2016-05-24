@@ -235,6 +235,24 @@ Proof.
 Defined.
 
 (******************************************************************************)
+(* Interchange Law *)
+
+Definition interchange {C : prebicategory} {a b c : C}
+  {f1 f2 f3 : a -1-> b} {g1 g2 g3 : b -1-> c}
+  (a1 : f1 -2-> f2) (a2 : f2 -2-> f3)
+  (b1 : g1 -2-> g2) (b2 : g2 -2-> g3)
+  : (a1 ;v; a2) ;h; (b1 ;v; b2) = (a1 ;h; b1) ;v; (a2 ;h; b2).
+Proof.
+  unfold compose_2mor_horizontal.
+  unfold dirprodpair.
+  assert (X : (prodcatmor a1 b1) ;v; (prodcatmor a2 b2) = (prodcatmor (a1;v;a2) (b1;v;b2))). reflexivity.
+  unfold prodcatmor in X.
+  simpl in X. (* This has no visible effect on X, but rewrite doesn't work without it  *)
+  rewrite <- X.
+  apply functor_comp.
+Qed.
+
+(******************************************************************************)
 (* Whiskering *)
 
 Definition whisker_left {C : prebicategory} {a b c : C}
