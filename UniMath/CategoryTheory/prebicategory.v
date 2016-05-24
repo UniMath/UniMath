@@ -360,7 +360,9 @@ Definition is_precomp_equiv {C : prebicategory_data} {a b : C} (f : a -1-> b) :=
 
 Definition precomp_equiv {C: prebicategory_data}(a b : C) := total2 (fun f : a -1-> b => is_precomp_equiv f).
 
-(* TODO: make this work without needing homcategories *)
+(* TODO: This does not need homcategories  *)
+(* Pending a proof that a functor naturally isomorphic to a lift
+   adjoint is a left adjoint *)
 Definition identity_precomp_equiv {C : prebicategory} (hc : has_homcats C) (a : C) :
   precomp_equiv a a.
 Proof.
