@@ -78,7 +78,7 @@ Local Notation "'_' 'o' 'option'" :=
       has_homsets_HSET has_homsets_HSET cats_LimsHSET) (at level 0).
 
 Definition lambdaOmegaFunctor : omega_cocont_functor HSET2 HSET2 :=
-  Id + (Id * Id + _ o option).
+  ' (functor_identity HSET) + (Id * Id + _ o option).
 
 Let lambdaFunctor : functor HSET2 HSET2 := pr1 lambdaOmegaFunctor.
 Let is_omega_cocont_lambdaFunctor : is_omega_cocont lambdaFunctor :=
@@ -150,30 +150,31 @@ apply (colimAlgInitial _ _ _ is_omega_cocont_lambdaFunctor InitialHSET2).
 apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.
 
-Definition LambdaCalculus : HSET2 :=
+Definition LC : HSET2 :=
   alg_carrier _ (InitialObject lambdaFunctor_Initial).
 
-Let LambdaCalculus_mor : HSET2⟦lambdaFunctor LambdaCalculus,LambdaCalculus⟧ :=
+Let LC_mor : HSET2⟦lambdaFunctor LC,LC⟧ :=
   alg_map _ (InitialObject lambdaFunctor_Initial).
 
-Let LambdaCalculus_alg : algebra_ob lambdaFunctor :=
+Let LC_alg : algebra_ob lambdaFunctor :=
   InitialObject lambdaFunctor_Initial.
 
 (* This is needed to not make things too slow below *)
-Opaque LambdaCalculus_mor.
+(* Opaque LC_mor. *)
 
-Definition var_map : HSET2⟦LambdaCalculus,LambdaCalculus⟧.
+Definition var_map : HSET2⟦functor_identity HSET,LC⟧.
 Proof.
-simple refine (tpair _ _ _).
-- intro x.
-  simple refine (_ ;; pr1 LambdaCalculus_mor x).
-  intro z; apply (inl z).
-- intros x y f; rewrite <- assoc.
-  apply pathsinv0.
-  eapply pathscomp0.
-  eapply maponpaths, pathsinv0.
-  apply (nat_trans_ax LambdaCalculus_mor x y f).
-  now apply funextsec; intro z; unfold compose; simpl.
+apply (CoproductIn1 HSET2 _ ;; LC_mor).
+(* simple refine (tpair _ _ _). *)
+(* - intro x. *)
+(*   simple refine (_ ;; pr1 LC_mor x). *)
+(*   intro z; apply (inl z). *)
+(* - intros x y f; rewrite <- assoc. *)
+(*   apply pathsinv0. *)
+(*   eapply pathscomp0. *)
+(*   eapply maponpaths, pathsinv0. *)
+(*   apply (nat_trans_ax LC_mor x y f). *)
+(*   now apply funextsec; intro z; unfold compose; simpl. *)
 Defined.
 
 (* How to do this nicer? *)
@@ -182,28 +183,38 @@ Proof.
 apply ProductsHSET2; [apply x | apply y].
 Defined.
 
-Definition app_map : HSET2⟦prod2 LambdaCalculus LambdaCalculus,LambdaCalculus⟧.
+Definition app_map : HSET2⟦prod2 LC LC,LC⟧.
 Proof.
-simple refine (tpair _ _ _).
-- intros x.
-  simple refine (_ ;; pr1 LambdaCalculus_mor x).
-  intro z.
-  apply inr.
-  apply (inl z).
-- intros x y f; rewrite <- assoc.
-  apply pathsinv0.
-  eapply pathscomp0.
-  eapply maponpaths, pathsinv0.
-  apply (nat_trans_ax LambdaCalculus_mor x y f).
-  now apply funextsec; intro z; unfold compose; simpl.
-Defined.
-
-(* What is the target type? *)
-(* Definition lam_map : HSET2⟦LambdaCalculus,???⟧. *)
-(* Proof. *)
+apply (CoproductIn1 HSET2 _ ;; CoproductIn2 HSET2 _ ;; LC_mor).
 (* simple refine (tpair _ _ _). *)
 (* - intros x. *)
-(*   simple refine (_ ;; pr1 LambdaCalculus_mor x). *)
+(*   simple refine (_ ;; pr1 LC_mor x). *)
+(*   intro z. *)
+(*   apply inr. *)
+(*   apply (inl z). *)
+(* - intros x y f; rewrite <- assoc. *)
+(*   apply pathsinv0. *)
+(*   eapply pathscomp0. *)
+(*   eapply maponpaths, pathsinv0. *)
+(*   apply (nat_trans_ax LC_mor x y f). *)
+(*   now apply funextsec; intro z; unfold compose; simpl. *)
+Defined.
+
+Definition app_map' (x : HSET) :
+  HSET⟦(pr1 LC x × pr1 LC x)%set,pr1 LC x⟧.
+Proof.
+apply app_map.
+Defined.
+
+Let optionLC := (pre_composition_functor _ _ _ has_homsets_HSET _
+                  (option_functor HSET CoproductsHSET TerminalHSET) LC).
+
+Definition lam_map : HSET2⟦optionLC,LC⟧.
+Proof.
+apply (CoproductIn2 HSET2 _ ;; CoproductIn2 HSET2 _ ;; LC_mor).
+(* simple refine (tpair _ _ _). *)
+(* - intros x. *)
+(*   simple refine (_ ;; pr1 LC_mor x). *)
 (*   intro z. *)
 (*   apply inr. *)
 (*   apply (inr z). *)
@@ -211,8 +222,8 @@ Defined.
 (*   apply pathsinv0. *)
 (*   eapply pathscomp0. *)
 (*   eapply maponpaths, pathsinv0. *)
-(*   apply (nat_trans_ax LambdaCalculus_mor x y f). *)
+(*   apply (nat_trans_ax LC_mor x y f). *)
 (*   now apply funextsec; intro z; unfold compose; simpl. *)
-(* Defined. *)
+Defined.
 
 End lambdacalculus.
