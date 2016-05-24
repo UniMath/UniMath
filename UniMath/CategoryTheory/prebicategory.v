@@ -286,7 +286,7 @@ Proof.
   - exact (left_unitor (identity_1mor a)).
 Defined.
 
-Definition id_to_internal_equivalence {C : prebicategory} {a b : C}
+Definition id_to_internal_equivalence {C : prebicategory} (a b : C)
   : (a = b) -> internal_equivalence a b.
 Proof.
   intros p.
@@ -298,7 +298,7 @@ Definition has_homcats (C : prebicategory)
   := forall a b : C, is_category (a -1-> b).
 
 Definition is_bicategory (C : prebicategory)
-  := (has_homcats C) × (forall (a b : C), isweq (fun p : a = b => id_to_internal_equivalence p)).
+  := (has_homcats C) × (forall (a b : C), isweq (id_to_internal_equivalence a b)).
 
 Definition bicategory := total2 (fun C : prebicategory => is_bicategory C).
 
