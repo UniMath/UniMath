@@ -605,37 +605,3 @@ use Monad_from_hss.
 Defined.
 
 End SigToMonad.
-
-
-(* Test lambda calculus *)
-Section test_lam.
-
-Infix "::" := (cons_list nat).
-Notation "[]" := (nil_list nat) (at level 0, format "[]").
-
-(* The signature of the lambda calculus: [[0,0],[1]] *)
-Definition LamSig : Sig := cons_list (list nat) (0 :: 0 :: []) (cons_list (list nat) (1 :: []) (nil_list (list nat))).
-
-Local Notation "'Id'" := (functor_identity _).
-
-Local Notation "F * G" := (H HSET has_homsets_HSET ProductsHSET F G).
-
-Local Notation "F + G" := (SumOfSignatures.H _ _ CoproductsHSET F G).
-Local Notation "'_' 'o' 'option'" :=
-  (ℓ (option_functor HSET CoproductsHSET TerminalHSET)) (at level 0).
-
-Eval cbn in pr1 (SigToSignature LamSig).
-(* = Id * Id + _ o option *)
-(*      : functor [HSET, HSET, has_homsets_HSET] *)
-(*          [HSET, HSET, has_homsets_HSET] *)
-
-Require Import UniMath.SubstitutionSystems.LamHSET.
-
-Let Lam_S : Signature HSET has_homsets_HSET :=
-  Lam_Sig HSET has_homsets_HSET TerminalHSET CoproductsHSET ProductsHSET.
-
-Goal (pr1 Lam_S = pr1 (SigToSignature LamSig)).
-now apply idpath.
-Abort.
-
-End test_lam.
