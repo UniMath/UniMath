@@ -385,6 +385,109 @@ Proof.
 Defined.
 
 (******************************************************************************)
+(* Lemmas for use in PreCat and Cat *)
+
+Definition Catlike_associator ( a b c d : precategory ) (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d) :
+   nat_trans
+     (functor_composite
+        (product_functor
+           (functor_identity (functor_precategory a b hsB))
+           (functorial_composition b c d hsC hsD))
+        (functorial_composition a b d hsB hsD))
+     (functor_composite
+        (product_precategory_assoc (functor_precategory a b hsB)
+           (functor_precategory b c hsC)
+           (functor_precategory c d hsD))
+        (functor_composite
+           (product_functor
+              (functorial_composition a b c hsB hsC)
+              (functor_identity (functor_precategory c d hsD)))
+           (functorial_composition a c d hsC hsD))).
+Proof.
+  use tpair.
+  - intros x. (* Step 1: Give the components of the natural transformation *)
+    simpl.
+    exists (fun x => identity _).
+    induction x as [x1 [x2 x3]].
+    unfold is_nat_trans.
+    intros oba oba' f.
+    simpl.
+    simpl in d, x1, x2, x3.
+    refine (id_right d _ _ _ @ !(id_left d _ _ _)).
+  - intros [x1 [x2 x3]].
+    simpl in x1, x2, x3.
+    intros [y1 [y2 y3]].
+    intros [f1 [f2 f3]].
+    apply nat_trans_eq. exact hsD.
+    intros oba.
+    simpl.
+    simpl in d.
+    rewrite (id_right d _ _ _).
+    rewrite (id_left d  _ _ _).
+    rewrite functor_comp.
+    rewrite (assoc d).
+    reflexivity.
+Defined.
+
+Definition Catlike_left_unitor (a b : precategory) (hsA : has_homsets a) (hsB : has_homsets b) :
+  nat_trans
+     (functor_composite
+        (pair_functor
+           (functor_composite (unit_functor (functor_precategory a b hsB))
+              (ob_as_functor (C:= (functor_precategory a a hsA)) (functor_identity a)))
+           (functor_identity (functor_precategory a b hsB)))
+        (functorial_composition a a b hsA hsB))
+     (functor_identity (functor_precategory a b hsB)).
+Proof.
+  unfold nat_trans.
+  use tpair.
+  - intros x.
+    exists (fun x => identity _).
+    intros oba oba' f.
+    simpl.
+    simpl in b.
+    exact (id_right b _ _ _ @ !(id_left b _ _ _)).
+  - intros x x' f.
+    apply nat_trans_eq. exact hsB.
+    intros oba.
+    simpl.
+    simpl in x, x'.
+    simpl in a, b.
+    rewrite (id_right b _ _ _).
+    rewrite (id_left b _ _ _).
+    rewrite functor_id.
+    rewrite (id_right b _ _ _).
+    reflexivity.
+Defined.
+
+Definition Catlike_right_unitor (a b : precategory) (hsB : has_homsets b) :
+  nat_trans
+     (functor_composite
+        (pair_functor (functor_identity (functor_precategory a b hsB))
+           (functor_composite (unit_functor (functor_precategory a b hsB))
+              (ob_as_functor (C:= (functor_precategory b b hsB)) (functor_identity b))))
+        (functorial_composition a b b hsB hsB)) (functor_identity (functor_precategory a b hsB)).
+Proof.
+  unfold nat_trans.
+  use tpair.
+  - intros x.
+    exists (fun x => identity _).
+    intros oba oba' f.
+    simpl.
+    simpl in b.
+    exact (id_right b _ _ _ @ !(id_left b _ _ _)).
+  - intros x x' f.
+    apply nat_trans_eq. exact hsB.
+    intros oba.
+    simpl.
+    simpl in x, x'.
+    simpl in a, b.
+    rewrite (id_right b _ _ _).
+    rewrite (id_left b _ _ _).
+    reflexivity.
+Defined.
+
+(******************************************************************************)
 (* The prebicategory of precategories *)
 
 Definition PreCat_1mor_2mor : prebicategory_ob_1mor_2mor.
@@ -405,89 +508,23 @@ Proof.
     exact (functorial_composition a b c (hs_precategory_has_homsets b) (hs_precategory_has_homsets c)).
 Defined.
 
-Definition PreCat_associator (a b c d : PreCat_id_comp) : associator_trans a b c d.
-Proof.
-  unfold associator_trans.
-  unfold nat_trans.
-  use tpair.
-  - intros x. (* Step 1: Give the components of the natural transformation *)
-    simpl.
-    exists (fun x => identity _).
-    induction x as [x1 [x2 x3]].
-    unfold is_nat_trans.
-    intros oba oba' f.
-    simpl.
-    simpl in d, x1, x2, x3.
-    refine (id_right d _ _ _ @ !(id_left d _ _ _)).
-  - intros [x1 [x2 x3]].
-    simpl in x1, x2, x3.
-    intros [y1 [y2 y3]].
-    intros [f1 [f2 f3]].
-    apply nat_trans_eq. exact (hs_precategory_has_homsets d).
-    intros oba.
-    simpl.
-    simpl in d.
-    rewrite (id_right d _ _ _).
-    rewrite (id_left d  _ _ _).
-    rewrite functor_comp.
-    rewrite (assoc d).
-    reflexivity.
-Defined.
-
-Definition PreCat_left_unitor (a b : PreCat_id_comp) : left_unitor_trans a b.
-Proof.
-  unfold associator_trans.
-  unfold nat_trans.
-  use tpair.
-  - intros x.
-    exists (fun x => identity _).
-    intros oba oba' f.
-    simpl.
-    simpl in b.
-    exact (id_right b _ _ _ @ !(id_left b _ _ _)).
-  - intros x x' f.
-    apply nat_trans_eq. exact (hs_precategory_has_homsets b).
-    intros oba.
-    simpl.
-    simpl in x, x'.
-    simpl in a, b.
-    rewrite (id_right b _ _ _).
-    rewrite (id_left b _ _ _).
-    rewrite functor_id.
-    rewrite (id_right b _ _ _).
-    reflexivity.
-Defined.
-
-Definition PreCat_right_unitor (a b : PreCat_id_comp) : right_unitor_trans a b.
-Proof.
-  unfold associator_trans.
-  unfold nat_trans.
-  use tpair.
-  - intros x.
-    exists (fun x => identity _).
-    intros oba oba' f.
-    simpl.
-    simpl in b.
-    exact (id_right b _ _ _ @ !(id_left b _ _ _)).
-  - intros x x' f.
-    apply nat_trans_eq. exact (hs_precategory_has_homsets b).
-    intros oba.
-    simpl.
-    simpl in x, x'.
-    simpl in a, b.
-    rewrite (id_right b _ _ _).
-    rewrite (id_left b _ _ _).
-    reflexivity.
-Defined.
-
 Definition PreCat_data : prebicategory_data.
 Proof.
   unfold prebicategory_data.
   exists PreCat_id_comp.
   repeat split.
-  - exact PreCat_associator.
-  - exact PreCat_left_unitor.
-  - exact PreCat_right_unitor.
+  - intros.
+    simpl in a,b,c,d.
+    exact (Catlike_associator a b c d (hs_precategory_has_homsets b)
+                                      (hs_precategory_has_homsets c)
+                                      (hs_precategory_has_homsets d)).
+  - intros.
+    simpl in a, b.
+    exact (Catlike_left_unitor a b (hs_precategory_has_homsets a)
+                               (hs_precategory_has_homsets b)).
+  - intros.
+    simpl in a, b.
+    exact (Catlike_right_unitor a b (hs_precategory_has_homsets b)).
 Defined.
 
 Definition PreCat_has_2mor_set : has_2mor_sets PreCat_data.
