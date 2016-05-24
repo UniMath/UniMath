@@ -51,14 +51,10 @@ Variable C : precategory.
 Variable hs : has_homsets C.
 Variable CP : Products C.
 Variable CC : Coproducts C.
-Variable terminal : Terminal C.
-Let one : C :=  @TerminalObject C terminal.
 
 Definition square_functor := product_functor C C CP (functor_identity C) (functor_identity C).
-Definition option_functor: functor C C := coproduct_functor _ _ CC (constant_functor _ _  one) (functor_identity C).
 
 End Preparations.
-
 
 Section Lambda.
 

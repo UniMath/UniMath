@@ -276,7 +276,6 @@ Defined.
 
 End coproduct_functor.
 
-
 Definition Coproducts_functor_precat : Coproducts [C, D, hsD].
 Proof.
   intros F G.
@@ -284,3 +283,17 @@ Proof.
 Defined.
 
 End def_functor_pointwise_coprod.
+
+Section option_functor.
+
+Require Import UniMath.CategoryTheory.limits.terminal.
+
+Variables (C : precategory) (hsC : has_homsets C) (CC : Coproducts C).
+
+Variable terminal : Terminal C.
+Let one : C :=  @TerminalObject C terminal.
+
+Definition option_functor : functor C C :=
+  coproduct_functor C C CC (constant_functor _ _ one) (functor_identity C).
+
+End option_functor.

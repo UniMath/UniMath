@@ -32,14 +32,6 @@ Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Section lambdacalculus.
 
-Definition option_functor : [HSET,HSET,has_homsets_HSET].
-Proof.
-apply coproduct_functor.
-apply CoproductsHSET.
-apply (constant_functor _ _ unitHSET).
-apply functor_identity.
-Defined.
-
 (* TODO: package omega cocont functors *)
 Definition LambdaFunctor : functor [HSET,HSET,has_homsets_HSET] [HSET,HSET,has_homsets_HSET].
 Proof.
@@ -54,7 +46,8 @@ eapply coproduct_of_functors.
     apply binproduct_functor.
     apply (Products_functor_precat _ _ ProductsHSET).
 (* lam *)
-apply (pre_composition_functor _ _ _ _ _ option_functor).
+apply (pre_composition_functor _ _ _ has_homsets_HSET _
+         (option_functor _ CoproductsHSET TerminalHSET)).
 Defined.
 
 (* Bad approach *)
