@@ -33,7 +33,9 @@ Infix "::" := (cons_list nat).
 Notation "[]" := (nil_list nat) (at level 0, format "[]").
 
 (* The signature of the lambda calculus: [[0,0],[1]] *)
-Definition LamSig : Sig := cons_list (list nat) (0 :: 0 :: []) (cons_list (list nat) (1 :: []) (nil_list (list nat))).
+Definition LamSig : Sig :=
+  cons_list (list nat) (0 :: 0 :: [])
+   (cons_list (list nat) (1 :: []) (nil_list (list nat))).
 
 Local Notation "'Id'" := (functor_identity _).
 
