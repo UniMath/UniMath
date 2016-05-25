@@ -78,11 +78,68 @@ Local Notation "'_' 'o' 'option'" :=
       has_homsets_HSET has_homsets_HSET cats_LimsHSET) (at level 0).
 
 Definition lambdaOmegaFunctor : omega_cocont_functor HSET2 HSET2 :=
-  ' (functor_identity HSET) + (Id * Id + _ o option).
+  '(functor_identity HSET) + (Id * Id + _ o option).
 
 Let lambdaFunctor : functor HSET2 HSET2 := pr1 lambdaOmegaFunctor.
 Let is_omega_cocont_lambdaFunctor : is_omega_cocont lambdaFunctor :=
   pr2 lambdaOmegaFunctor.
+
+Lemma lambdaFunctor_Initial :
+  Initial (precategory_FunctorAlg lambdaFunctor has_homsets_HSET2).
+Proof.
+apply (colimAlgInitial _ _ _ is_omega_cocont_lambdaFunctor InitialHSET2).
+apply ColimsFunctorCategory; apply ColimsHSET.
+Defined.
+
+Definition LC : HSET2 :=
+  alg_carrier _ (InitialObject lambdaFunctor_Initial).
+
+Let LC_mor : HSET2⟦lambdaFunctor LC,LC⟧ :=
+  alg_map _ (InitialObject lambdaFunctor_Initial).
+
+Let LC_alg : algebra_ob lambdaFunctor :=
+  InitialObject lambdaFunctor_Initial.
+
+Definition var_map : HSET2⟦functor_identity HSET,LC⟧ :=
+  CoproductIn1 HSET2 _ ;; LC_mor.
+
+(* How to do this nicer? *)
+Definition prod2 (x y : HSET2) : HSET2.
+Proof.
+apply ProductsHSET2; [apply x | apply y].
+Defined.
+
+Definition app_map : HSET2⟦prod2 LC LC,LC⟧ :=
+  CoproductIn1 HSET2 _ ;; CoproductIn2 HSET2 _ ;; LC_mor.
+
+Definition app_map' (x : HSET) : HSET⟦(pr1 LC x × pr1 LC x)%set,pr1 LC x⟧.
+Proof.
+apply app_map.
+Defined.
+
+Let precomp_option X := (pre_composition_functor _ _ HSET has_homsets_HSET has_homsets_HSET
+                  (option_functor HSET CoproductsHSET TerminalHSET) X).
+
+Definition lam_map : HSET2⟦precomp_option LC,LC⟧ :=
+  CoproductIn2 HSET2 _ ;; CoproductIn2 HSET2 _ ;; LC_mor.
+
+Definition mk_lambdaAlgebra (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
+  (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) : algebra_ob lambdaFunctor.
+Proof.
+apply (tpair _ X).
+simple refine (CoproductArrow _ _ fvar (CoproductArrow _ _ fapp flam)).
+Defined.
+
+Definition foldr_map (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
+  (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
+  algebra_mor _ LC_alg (mk_lambdaAlgebra X fvar fapp flam).
+Proof.
+apply (InitialArrow lambdaFunctor_Initial (mk_lambdaAlgebra X fvar fapp flam)).
+Defined.
+
+End lambdacalculus.
+
+
 
 (* Old version *)
 (* Definition Lambda : functor HSET2 HSET2. *)
@@ -101,21 +158,6 @@ Let is_omega_cocont_lambdaFunctor : is_omega_cocont lambdaFunctor :=
 (* apply (pre_composition_functor _ _ _ has_homsets_HSET _ *)
 (*          (option_functor _ CoproductsHSET TerminalHSET)). *)
 (* Defined. *)
-
-(* Bad approach *)
-(* Definition Lambda : functor [HSET,HSET,has_homsets_HSET] [HSET,HSET,has_homsets_HSET]. *)
-(* Proof. *)
-(* eapply functor_composite. *)
-(*   apply delta_functor. *)
-(* eapply functor_composite. *)
-(*   eapply product_of_functors. *)
-(*     apply functor_identity. *)
-(*     apply delta_functor. *)
-(* eapply functor_composite. *)
-(*   eapply product_of_functors. *)
-(*     apply (constant_functor [HSET, HSET, has_homsets_HSET] [HSET, HSET, has_homsets_HSET] (functor_identity HSET)). *)
-(*     eapply product_of_functors. *)
-(*       apply delta_functor. *)
 
 (* Lemma omega_cocont_LambdaFunctor : is_omega_cocont LambdaFunctor. *)
 (* Proof. *)
@@ -142,88 +184,3 @@ Let is_omega_cocont_lambdaFunctor : is_omega_cocont lambdaFunctor :=
 (* apply is_omega_cocont_pre_composition_functor. *)
 (* apply cats_LimsHSET. *)
 (* Defined. *)
-
-Lemma lambdaFunctor_Initial :
-  Initial (precategory_FunctorAlg lambdaFunctor has_homsets_HSET2).
-Proof.
-apply (colimAlgInitial _ _ _ is_omega_cocont_lambdaFunctor InitialHSET2).
-apply ColimsFunctorCategory; apply ColimsHSET.
-Defined.
-
-Definition LC : HSET2 :=
-  alg_carrier _ (InitialObject lambdaFunctor_Initial).
-
-Let LC_mor : HSET2⟦lambdaFunctor LC,LC⟧ :=
-  alg_map _ (InitialObject lambdaFunctor_Initial).
-
-Let LC_alg : algebra_ob lambdaFunctor :=
-  InitialObject lambdaFunctor_Initial.
-
-(* This is needed to not make things too slow below *)
-(* Opaque LC_mor. *)
-
-Definition var_map : HSET2⟦functor_identity HSET,LC⟧.
-Proof.
-apply (CoproductIn1 HSET2 _ ;; LC_mor).
-(* simple refine (tpair _ _ _). *)
-(* - intro x. *)
-(*   simple refine (_ ;; pr1 LC_mor x). *)
-(*   intro z; apply (inl z). *)
-(* - intros x y f; rewrite <- assoc. *)
-(*   apply pathsinv0. *)
-(*   eapply pathscomp0. *)
-(*   eapply maponpaths, pathsinv0. *)
-(*   apply (nat_trans_ax LC_mor x y f). *)
-(*   now apply funextsec; intro z; unfold compose; simpl. *)
-Defined.
-
-(* How to do this nicer? *)
-Definition prod2 (x y : HSET2) : HSET2.
-Proof.
-apply ProductsHSET2; [apply x | apply y].
-Defined.
-
-Definition app_map : HSET2⟦prod2 LC LC,LC⟧.
-Proof.
-apply (CoproductIn1 HSET2 _ ;; CoproductIn2 HSET2 _ ;; LC_mor).
-(* simple refine (tpair _ _ _). *)
-(* - intros x. *)
-(*   simple refine (_ ;; pr1 LC_mor x). *)
-(*   intro z. *)
-(*   apply inr. *)
-(*   apply (inl z). *)
-(* - intros x y f; rewrite <- assoc. *)
-(*   apply pathsinv0. *)
-(*   eapply pathscomp0. *)
-(*   eapply maponpaths, pathsinv0. *)
-(*   apply (nat_trans_ax LC_mor x y f). *)
-(*   now apply funextsec; intro z; unfold compose; simpl. *)
-Defined.
-
-Definition app_map' (x : HSET) :
-  HSET⟦(pr1 LC x × pr1 LC x)%set,pr1 LC x⟧.
-Proof.
-apply app_map.
-Defined.
-
-Let optionLC := (pre_composition_functor _ _ _ has_homsets_HSET _
-                  (option_functor HSET CoproductsHSET TerminalHSET) LC).
-
-Definition lam_map : HSET2⟦optionLC,LC⟧.
-Proof.
-apply (CoproductIn2 HSET2 _ ;; CoproductIn2 HSET2 _ ;; LC_mor).
-(* simple refine (tpair _ _ _). *)
-(* - intros x. *)
-(*   simple refine (_ ;; pr1 LC_mor x). *)
-(*   intro z. *)
-(*   apply inr. *)
-(*   apply (inr z). *)
-(* - intros x y f; rewrite <- assoc. *)
-(*   apply pathsinv0. *)
-(*   eapply pathscomp0. *)
-(*   eapply maponpaths, pathsinv0. *)
-(*   apply (nat_trans_ax LC_mor x y f). *)
-(*   now apply funextsec; intro z; unfold compose; simpl. *)
-Defined.
-
-End lambdacalculus.

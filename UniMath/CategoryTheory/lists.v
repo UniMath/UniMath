@@ -51,19 +51,13 @@ Let List_mor : HSET⟦listFunctor List,List⟧ :=
 Let List_alg : algebra_ob listFunctor :=
   InitialObject listFunctor_Initial.
 
-Definition nil_map : HSET⟦unitHSET,List⟧.
-Proof.
-simpl; intro x.
-apply List_mor, inl, x.
-Defined.
+Definition nil_map : HSET⟦unitHSET,List⟧ :=
+  CoproductIn1 HSET _ ;; List_mor.
 
 Definition nil : pr1 List := nil_map tt.
 
-Definition cons_map : HSET⟦(A × List)%set,List⟧.
-Proof.
-intros xs.
-apply List_mor, (inr xs).
-Defined.
+Definition cons_map : HSET⟦(A × List)%set,List⟧ :=
+  CoproductIn2 HSET _ ;; List_mor.
 
 Definition cons : pr1 A × pr1 List -> pr1 List := cons_map.
 
