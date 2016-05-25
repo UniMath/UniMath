@@ -195,11 +195,11 @@ eapply pathscomp0.
 rewrite <- assoc.
 eapply maponpaths.
 apply CoproductIn1Commutes.
+Check (ProductOfArrows _ _ _ (foldr_map X fvar fapp flam) (foldr_map X fvar fapp flam) ).
 apply idpath.
 Defined.
 
 End lambdacalculus.
-
 
 
 (* Old version *)
