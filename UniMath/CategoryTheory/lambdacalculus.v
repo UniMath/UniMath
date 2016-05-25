@@ -132,10 +132,37 @@ Defined.
 
 Definition foldr_map (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
-  algebra_mor _ LC_alg (mk_lambdaAlgebra X fvar fapp flam).
+  algebra_mor lambdaFunctor LC_alg (mk_lambdaAlgebra X fvar fapp flam).
 Proof.
 apply (InitialArrow lambdaFunctor_Initial (mk_lambdaAlgebra X fvar fapp flam)).
 Defined.
+
+Definition foldr_map' (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
+  (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
+   HSET2 ⟦ pr1 LC_alg, pr1 (mk_lambdaAlgebra X fvar fapp flam) ⟧.
+Proof.
+apply (foldr_map X fvar fapp flam).
+Defined.
+
+Lemma foldr_var (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
+  (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
+  CoproductIn1 _ _ ;; alg_map lambdaFunctor LC_alg ;; foldr_map X fvar fapp flam =
+  fvar.
+Proof.
+assert (F := maponpaths (fun x => CoproductIn1 _ _ ;; x)
+                        (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
+rewrite assoc in F.
+eapply pathscomp0.
+apply F.
+rewrite assoc.
+eapply pathscomp0.
+eapply cancel_postcomposition.
+apply CoproductOfArrowsIn1.
+(* Opaque foldr_map. *)
+(* simpl. *)
+admit.
+(* rewrite id_left *)
+Admitted.
 
 End lambdacalculus.
 
