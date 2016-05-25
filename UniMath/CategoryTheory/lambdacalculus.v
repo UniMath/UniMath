@@ -158,11 +158,12 @@ rewrite assoc.
 eapply pathscomp0.
 eapply cancel_postcomposition.
 apply CoproductOfArrowsIn1.
-(* Opaque foldr_map. *)
-(* simpl. *)
-admit.
-(* rewrite id_left *)
-Admitted.
+rewrite <- assoc.
+eapply pathscomp0.
+eapply maponpaths.
+apply CoproductIn1Commutes.
+apply id_left.
+Defined.
 
 End lambdacalculus.
 
