@@ -37,6 +37,7 @@ Require Import UniMath.SubstitutionSystems.Lam.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.SubstitutionSystems.SigToMonad.
 Require Import UniMath.SubstitutionSystems.LiftingInitial.
+Require Import UniMath.SubstitutionSystems.LamHSET.
 
 Section Lam.
 
@@ -81,14 +82,12 @@ Local Notation "F * G" := (H HSET has_homsets_HSET ProductsHSET F G).
 
 Local Notation "F + G" := (SumOfSignatures.H _ _ CoproductsHSET F G).
 Local Notation "'_' 'o' 'option'" :=
-  (ℓ (option_functor HSET CoproductsHSET TerminalHSET)) (at level 0).
+  (ℓ (option_functor HSET CoproductsHSET TerminalHSET)) (at level 10).
 
 Eval cbn in pr1 (SigToSignature LamSig).
 (* = Id * Id + _ o option *)
 (*      : functor [HSET, HSET, has_homsets_HSET] *)
 (*          [HSET, HSET, has_homsets_HSET] *)
-
-Require Import UniMath.SubstitutionSystems.LamHSET.
 
 Let Lam_S : Signature HSET has_homsets_HSET :=
   Lam_Sig HSET has_homsets_HSET TerminalHSET CoproductsHSET ProductsHSET.
@@ -102,13 +101,7 @@ Definition LamFunctor : functor HSET2 HSET2 := Id_H _ _ CoproductsHSET LamSignat
 
 Definition LamMonad : Monad HSET := SigToMonad LamSig.
 
-(* Definition lambdaOmegaFunctor : omega_cocont_functor HSET2 HSET2 := *)
-(*   '(functor_identity HSET) + (Id * Id + _ o option). *)
-
-(* Let lambdaFunctor : functor HSET2 HSET2 := pr1 LamSignature. *)
-(* Let is_omega_cocont_lambdaFunctor : is_omega_cocont lambdaFunctor := *)
-(*   pr2 lambdaOmegaFunctor. *)
-
+(* From here on it is exactly the same as in CT/lambdacalculus.v *)
 Lemma lambdaFunctor_Initial :
    Initial (FunctorAlg LamFunctor has_homsets_HSET2).
 Proof.
@@ -156,9 +149,78 @@ Defined.
 
 Definition foldr_map (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
-  algebra_mor _ LC_alg (mk_lambdaAlgebra X fvar fapp flam).
+  algebra_mor LamFunctor LC_alg (mk_lambdaAlgebra X fvar fapp flam).
 Proof.
 apply (InitialArrow lambdaFunctor_Initial (mk_lambdaAlgebra X fvar fapp flam)).
+Defined.
+
+Definition foldr_map' (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
+  (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
+   HSET2 ⟦ pr1 LC_alg, pr1 (mk_lambdaAlgebra X fvar fapp flam) ⟧.
+Proof.
+apply (foldr_map X fvar fapp flam).
+Defined.
+
+Lemma foldr_var (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
+  (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
+  var_map ;; foldr_map X fvar fapp flam = fvar.
+Proof.
+assert (F := maponpaths (fun x => CoproductIn1 _ _ ;; x)
+                        (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
+rewrite assoc in F.
+eapply pathscomp0; [apply F|].
+rewrite assoc.
+eapply pathscomp0; [eapply cancel_postcomposition, CoproductOfArrowsIn1|].
+rewrite <- assoc.
+eapply pathscomp0; [eapply maponpaths, CoproductIn1Commutes|].
+apply id_left.
+Defined.
+
+Lemma foldr_app (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
+  (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
+  app_map ;; foldr_map X fvar fapp flam =
+  # (pr1 (Id * Id)) (foldr_map X fvar fapp flam) ;; fapp.
+Proof.
+assert (F := maponpaths (fun x => CoproductIn1 _ _ ;; CoproductIn2 _ _ ;; x)
+                        (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
+rewrite assoc in F.
+eapply pathscomp0; [apply F|].
+rewrite assoc.
+eapply pathscomp0.
+  eapply cancel_postcomposition.
+  rewrite <- assoc.
+  eapply maponpaths, CoproductOfArrowsIn2.
+rewrite assoc.
+eapply pathscomp0.
+  eapply cancel_postcomposition, cancel_postcomposition, CoproductOfArrowsIn1.
+rewrite <- assoc.
+eapply pathscomp0; [eapply maponpaths, CoproductIn2Commutes|].
+rewrite <- assoc.
+now eapply pathscomp0; [eapply maponpaths, CoproductIn1Commutes|].
+Defined.
+
+Lemma foldr_lam (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
+  (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
+  lam_map ;; foldr_map X fvar fapp flam =
+  # (pr1 (_ o option)) (foldr_map X fvar fapp flam) ;; flam.
+Proof.
+assert (F := maponpaths (fun x => CoproductIn2 _ _ ;; CoproductIn2 _ _ ;; x)
+                        (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
+rewrite assoc in F.
+eapply pathscomp0; [apply F|].
+rewrite assoc.
+eapply pathscomp0.
+  eapply cancel_postcomposition.
+  rewrite <- assoc.
+  eapply maponpaths, CoproductOfArrowsIn2.
+rewrite assoc.
+eapply pathscomp0.
+  eapply cancel_postcomposition, cancel_postcomposition, CoproductOfArrowsIn2.
+rewrite <- assoc.
+eapply pathscomp0.
+  eapply maponpaths, CoproductIn2Commutes.
+rewrite <- assoc.
+now eapply pathscomp0; [eapply maponpaths, CoproductIn2Commutes|].
 Defined.
 
 End Lam.
