@@ -6,13 +6,16 @@ This file contains proofs that the following functors are
 - Constant functor: F_x : C -> D, c |-> x
 - Identity functor
 - Composition of omega-cocontinuous functors
+- Iteration of omega-cocontinuous functors: F^n : C -> C
 - Pairing of omega-cocont functors (F,G) : A * B -> C * D, (x,y) |-> (F x,G y)
 - Delta functor: C -> C^2, x |-> (x,x)
 - Binary coproduct functor: C^2 -> C, (x,y) |-> x + y
-- Sum of functors: F + G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x + G x
+- Coproduct of functors: F + G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x + G x
+- Coproduct functor: F + G : C -> D, x |-> F x + G x
 - Constant product functors: C -> C, x |-> a * x  and  x |-> x * a
 - Binary product functor: C^2 -> C, (x,y) |-> x * y
 - Product of functors: F * G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x * G x
+- Product functor: F * G : C -> D, x |-> F x * G x
 - Precomposition functor: _ o K : [C,A] -> [M,A] for K : M -> C
 
 
@@ -103,6 +106,19 @@ Defined.
 Definition omega_cocont_functor_composite {C D E : precategory}
   (hsE : has_homsets E) (F : omega_cocont_functor C D) (G : omega_cocont_functor D E) :
   omega_cocont_functor C E := tpair _ _ (is_omega_cocont_functor_composite hsE _ _ (pr2 F) (pr2 G)).
+
+(* Functor iteration preserves omega cocontinuity *)
+Lemma is_omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
+  (F : functor C C) (hF : is_omega_cocont F) n : is_omega_cocont (iter_functor F n).
+Proof.
+induction n as [|n IH]; simpl.
+- apply (is_omega_cocont_functor_identity _ hsC).
+- apply (is_omega_cocont_functor_composite hsC _ _ IH hF).
+Defined.
+
+Definition omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
+  (F : omega_cocont_functor C C) n : omega_cocont_functor C C :=
+  tpair _ _ (is_omega_cocont_iter_functor hsC _ (pr2 F) n).
 
 (* A pair of functors (F,G) : A * B -> C * D is omega_cocont if F and G are *)
 Section pair_functor.
@@ -281,15 +297,14 @@ Defined.
 
 End bincoprod_functor.
 
-(* Definition sum_of_functors {C D : precategory}  (HD : Coproducts D) (F G : functor C D) := coproduct_functor _ _ HD F G. *)
-Section sum_of_functors.
+Section coproduct_of_functors.
 
 Variables (C D : precategory) (PC : Products C) (HD : Coproducts D).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 
-Lemma is_omega_cocont_sum_of_functors (F G : functor C D)
+Lemma is_omega_cocont_coproduct_of_functors (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (sum_of_functors HD F G).
+  is_omega_cocont (coproduct_of_functors HD F G).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
   apply (is_omega_cocont_delta_functor _ PC hsC).
@@ -298,11 +313,21 @@ apply (is_omega_cocont_functor_composite hsD).
 apply (is_omega_cocont_bincoproduct_functor _ _ hsD).
 Defined.
 
-Definition omega_cocont_sum_of_functors (F G : functor C D)
-  (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_sum_of_functors F G HF HG).
+Definition omega_cocont_coproduct_of_functors (F G : omega_cocont_functor C D) :
+  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_coproduct_of_functors _ _ (pr2 F) (pr2 G)).
 
-End sum_of_functors.
+Lemma is_omega_cocont_coproduct_functor (F G : functor C D)
+  (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  is_omega_cocont (coproduct_functor _ _ HD F G).
+Proof.
+exact (transportf _ (coproduct_of_functors_eq_coproduct_functor C D HD hsD F G)
+                  (is_omega_cocont_coproduct_of_functors _ _ HF HG)).
+Defined.
+
+Definition omega_cocont_coproduct_functor (F G : omega_cocont_functor C D) :
+  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_coproduct_functor _ _ (pr2 F) (pr2 G)).
+
+End coproduct_of_functors.
 
 Section constprod_functors.
 
@@ -680,9 +705,19 @@ apply (is_omega_cocont_functor_composite hsD).
 apply (is_omega_cocont_binproduct_functor _ _ hsD hED).
 Defined.
 
-Definition omega_cocont_product_of_functors (F G : functor C D)
+Definition omega_cocont_product_of_functors (F G : omega_cocont_functor C D) :
+  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_product_of_functors _ _ (pr2 F) (pr2 G)).
+
+Lemma is_omega_cocont_product_functor (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_product_of_functors F G HF HG).
+  is_omega_cocont (product_functor _ _ PD F G).
+Proof.
+exact (transportf _ (product_of_functors_eq_product_functor C D PD hsD F G)
+                  (is_omega_cocont_product_of_functors _ _ HF HG)).
+Defined.
+
+Definition omega_cocont_product_functor (F G : omega_cocont_functor C D) :
+  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_product_functor _ _ (pr2 F) (pr2 G)).
 
 End product_of_functors.
 
@@ -888,13 +923,20 @@ Notation "'Id'" := (omega_cocont_functor_identity _ has_homsets_HSET) :
 
 Notation "F * G" :=
   (omega_cocont_product_of_functors _ _ ProductsHSET _
-     has_exponentials_HSET has_homsets_HSET has_homsets_HSET _ _ (pr2 F) (pr2 G)) :
+     has_exponentials_HSET has_homsets_HSET has_homsets_HSET F G) :
     cocont_functor_hset_scope.
 
 Notation "F + G" :=
-  (omega_cocont_sum_of_functors _ _ ProductsHSET CoproductsHSET
-     has_homsets_HSET has_homsets_HSET _ _ (pr2 F) (pr2 G)) :
-    cocont_functor_hset_scope.
+  (omega_cocont_coproduct_of_functors _ _ ProductsHSET CoproductsHSET
+     has_homsets_HSET has_homsets_HSET F G) : cocont_functor_hset_scope.
+
+(* omega_cocont_coproduct_functor has worse computational behavior
+   than omega_cocont_coproduct_of_functors and breaks
+   isalghom_pr1foldr in lists *)
+(* Notation "F + G" := *)
+(*   (omega_cocont_coproduct_functor _ _ ProductsHSET CoproductsHSET *)
+(*      has_homsets_HSET has_homsets_HSET _ _ (pr2 F) (pr2 G)) : *)
+(*     cocont_functor_hset_scope. *)
 
 Notation "1" := (unitHSET) : cocont_functor_hset_scope.
 Notation "0" := (emptyHSET) : cocont_functor_hset_scope.

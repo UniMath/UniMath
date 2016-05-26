@@ -600,10 +600,13 @@ abstract (split;
   | now intros x y z f g; simpl; rewrite CoproductOfArrows_comp ]).
 Defined.
 
-(* Defines the sum of two functors by:
+(* Defines the copropuct of two functors by:
     x -> (x,x) -> (F x,G x) -> F x + G x
+
+  For a direct and equal definition see FunctorsPointwiseCoproduct.v
+
 *)
-Definition sum_of_functors {C D : precategory} (HD : Coproducts D)
+Definition coproduct_of_functors {C D : precategory} (HD : Coproducts D)
   (F G : functor C D) : functor C D :=
   functor_composite (delta_functor C)
      (functor_composite (pair_functor F G) (bincoproduct_functor HD)).

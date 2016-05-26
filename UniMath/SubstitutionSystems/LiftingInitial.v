@@ -85,14 +85,11 @@ Variable H : Signature C hs.
 Let θ := theta H.
 
 Definition Const_plus_H (X : EndC) : functor EndC EndC
-  := coproduct_functor _ _ CPEndC
-                       (constant_functor _ _ X)
-                       H.
-
+  := coproduct_functor _ _ CPEndC (constant_functor _ _ X) H.
+  (* := sum_of_functors CPEndC (constant_functor _ _ X) H. *)
 
 Definition Id_H :  functor [C, C, hs] [C, C, hs]
  := Const_plus_H (functor_identity _ : EndC).
-
 
 Let Alg : precategory := FunctorAlg Id_H hsEndC.
 
@@ -390,21 +387,21 @@ Proof.
     apply pathsinv0.
     apply CoproductIn2Commutes.
 
-(* alternative with slightly less precise control:
-           do 4 rewrite <- assoc.
-           apply CoproductIn2Commutes_right_in_ctx_dir.
-           rewrite id_left.
-           apply CoproductIn2Commutes_right_in_ctx_dir.
-           apply CoproductIn2Commutes_right_in_ctx_dir.
-           unfold nat_trans_fix_snd_arg_data.
-           rewrite id_left.
-           apply CoproductIn2Commutes_right_in_double_ctx_dir.
-           do 2 rewrite <- assoc.
-           apply maponpaths.
-           apply maponpaths.
-           apply pathsinv0.
-           apply CoproductIn2Commutes.
-*)
+(* alternative with slightly less precise control: *)
+(*            do 4 rewrite <- assoc. *)
+(*            apply CoproductIn2Commutes_right_in_ctx_dir. *)
+(*            rewrite id_left. *)
+(*            apply CoproductIn2Commutes_right_in_ctx_dir. *)
+(*            apply CoproductIn2Commutes_right_in_ctx_dir. *)
+(*            unfold nat_trans_fix_snd_arg_data. *)
+(*            rewrite id_left. *)
+(*            apply CoproductIn2Commutes_right_in_double_ctx_dir. *)
+(*            do 2 rewrite <- assoc. *)
+(*            apply maponpaths. *)
+(*            apply maponpaths. *)
+(*            apply pathsinv0. *)
+(*            apply CoproductIn2Commutes. *)
+(* *)
 
   - rewrite <- h_eq2'_inst. clear h_eq2'_inst.
     apply CoproductIn2Commutes_left_in_ctx_dir.
@@ -430,7 +427,6 @@ Proof.
   apply whole_from_parts.
   apply bracket_Thm15_ok.
 Qed.
-
 
 Local Lemma foo' (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
  ∀ t : Σ h : [C, C, hs] ⟦ functor_composite (U Z) (pr1  InitAlg),
@@ -764,8 +760,8 @@ Proof.
     intro c.
     simpl.
     rewrite id_right.
-    (* look at type:
-       match goal with | [ |- ?l = _ ] => let ty:= (type of l) in idtac ty end. *)
+    (* look at type: *)
+(*        match goal with | [ |- ?l = _ ] => let ty:= (type of l) in idtac ty end. *)
     apply CoproductArrow_eq_cor.
     + repeat rewrite <- assoc.
       apply CoproductIn1Commutes_right_in_ctx_dir.
