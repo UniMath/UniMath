@@ -13,6 +13,7 @@ Section delta_functor_adjunction.
 
 Context {C : precategory} (PC : Products C).
 
+(* The delta_functor is left adjoint to binproduct_functor *)
 Lemma is_left_adjoint_delta_functor : is_left_adjoint (delta_functor C).
 Proof.
 apply (tpair _ (binproduct_functor PC)).
@@ -41,6 +42,7 @@ Section bincoproduct_functor_adjunction.
 
 Context {C : precategory} (PC : Coproducts C).
 
+(* The bincoproduct_functor left adjoint to delta_functor *)
 Lemma is_left_adjoint_bincoproduct_functor : is_left_adjoint (bincoproduct_functor PC).
 Proof.
 apply (tpair _ (delta_functor _)).
