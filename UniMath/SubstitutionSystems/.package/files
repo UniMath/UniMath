@@ -1,4 +1,5 @@
 SumOfSignatures.v
+ProductOfSignatures.v
 SubstitutionSystems.v
 Signatures.v
 MonadsFromSubstitutionSystems.v
@@ -8,3 +9,6 @@ LamSignature.v
 GenMendlerIteration.v
 Notation.v
 SubstitutionSystems_Summary.v
+LamHSET.v
+SigToMonad.v
+LamFromSig.v

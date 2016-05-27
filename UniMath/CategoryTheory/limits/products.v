@@ -309,6 +309,9 @@ End binproduct_functor.
 
 (* Defines the product of two functors by:
     x -> (x,x) -> (F x,G x) -> F x * G x
+
+  For a direct definition see FunctorsPointwiseProduct.v
+
 *)
 Definition product_of_functors {C D : precategory} (HD : Products D)
   (F G : functor C D) : functor C D :=

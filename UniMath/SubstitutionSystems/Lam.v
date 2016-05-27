@@ -53,8 +53,6 @@ Arguments θ_target {_ _} _ .
 Arguments θ_Strength1 {_ _ _} _ .
 Arguments θ_Strength2 {_ _ _} _ .
 
-
-
 Section Lambda.
 
 Variable C : precategory.
