@@ -40,6 +40,7 @@ AdjunctionHomTypesWeq.v
 EndofunctorsMonoidal.v
 RightKanExtension.v
 ProductPrecategory.v
+ArbitraryProductPrecategory.v
 PointedFunctors.v
 PointedFunctorsComposition.v
 HorizontalComposition.v
