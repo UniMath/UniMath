@@ -7,7 +7,6 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.ArbitraryProductPrecategory.
-(* Require Import UniMath.CategoryTheory.ProductPrecategory. *)
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
@@ -30,8 +29,6 @@ Definition hasArbitraryProducts := ishinh ArbitraryProducts.
 Definition ArbitraryProductObject {c : forall i, C} (P : ArbitraryProductCone c) : C := pr1 (pr1 P).
 Definition ArbitraryProductPr {c : forall i, C} (P : ArbitraryProductCone c) : forall i, ArbitraryProductObject P --> c i :=
   pr2 (pr1 P).
-(* Definition ProductPr2 {c d : C} (P : ProductCone c d) : ProductObject P --> d := *)
-(*    pr2 (pr2 (pr1 P)). *)
 
 Definition isArbitraryProductCone_ArbitraryProductCone {c : forall i, C} (P : ArbitraryProductCone c) :
    isArbitraryProductCone c (ArbitraryProductObject P) (ArbitraryProductPr P).
@@ -51,13 +48,6 @@ Proof.
   intros a f i.
   apply (pr2 (pr1 (isArbitraryProductCone_ArbitraryProductCone P _ f)) i).
 Qed.
-
-(* Lemma ProductPr2Commutes (c d : C) (P : ProductCone c d): *)
-(*      forall (a : C) (f : a --> c) g, ProductArrow P f g ;; ProductPr2 P = g. *)
-(* Proof. *)
-(*   intros a f g. *)
-(*   exact (pr2 (pr2 (pr1 (isProductCone_ProductCone P _ f g)))). *)
-(* Qed. *)
 
 Lemma ArbitraryProductArrowUnique (c : forall i, C) (P : ArbitraryProductCone c) (x : C)
     (f : forall i, x --> c i) (k : x --> ArbitraryProductObject P)
@@ -91,44 +81,36 @@ Proof.
   now apply ArbitraryProductArrowUnique; intro i.
 Qed.
 
-Definition ArbitraryProductOfArrows {c : forall i, C} (Pcd : ArbitraryProductCone c) {a : forall i, C}
-    (Pab : ArbitraryProductCone a) (f : forall i, a i --> c i) :
-      ArbitraryProductObject Pab --> ArbitraryProductObject Pcd :=
-    ArbitraryProductArrow Pcd (fun i => ArbitraryProductPr Pab i ;; f i).
+Definition ArbitraryProductOfArrows {c : forall i, C} (Pc : ArbitraryProductCone c) {a : forall i, C}
+    (Pa : ArbitraryProductCone a) (f : forall i, a i --> c i) :
+      ArbitraryProductObject Pa --> ArbitraryProductObject Pc :=
+    ArbitraryProductArrow Pc (fun i => ArbitraryProductPr Pa i ;; f i).
 
-Lemma ArbitraryProductOfArrowsPr {c : forall i, C} (Pcd : ArbitraryProductCone c) {a : forall i, C}
-    (Pab : ArbitraryProductCone a) (f : forall i, a i --> c i) :
-    forall i, ArbitraryProductOfArrows Pcd Pab f ;; ArbitraryProductPr Pcd i = ArbitraryProductPr Pab i ;; f i.
+Lemma ArbitraryProductOfArrowsPr {c : forall i, C} (Pc : ArbitraryProductCone c) {a : forall i, C}
+    (Pa : ArbitraryProductCone a) (f : forall i, a i --> c i) :
+    forall i, ArbitraryProductOfArrows Pc Pa f ;; ArbitraryProductPr Pc i = ArbitraryProductPr Pa i ;; f i.
 Proof.
   unfold ArbitraryProductOfArrows; intro i.
   now rewrite (ArbitraryProductPrCommutes _ _ _ _ i).
 Qed.
 
-(* Lemma postcompWithProductArrow {c d : C} (Pcd : ProductCone c d) {a b : C} *)
-(*     (Pab : ProductCone a b) (f : a --> c) (g : b --> d) *)
-(*     {x : C} (k : x --> a) (h : x --> b) : *)
-(*         ProductArrow Pab k h ;; ProductOfArrows Pcd Pab f g = *)
-(*          ProductArrow Pcd (k ;; f) (h ;; g). *)
-(* Proof. *)
-(*   apply ProductArrowUnique. *)
-(*   - rewrite <- assoc, ProductOfArrowsPr1. *)
-(*     rewrite assoc, ProductPr1Commutes. *)
-(*     apply idpath. *)
-(*   - rewrite <- assoc, ProductOfArrowsPr2. *)
-(*     rewrite assoc, ProductPr2Commutes. *)
-(*     apply idpath. *)
-(* Qed. *)
+Lemma postcompWithArbitraryProductArrow {c : forall i, C} (Pc : ArbitraryProductCone c) {a : forall i, C}
+    (Pa : ArbitraryProductCone a) (f : forall i, a i --> c i)
+    {x : C} (k : forall i, x --> a i) :
+        ArbitraryProductArrow Pa k ;; ArbitraryProductOfArrows Pc Pa f =
+        ArbitraryProductArrow Pc (fun i => k i ;; f i).
+Proof.
+apply ArbitraryProductArrowUnique; intro i.
+now rewrite <- assoc, ArbitraryProductOfArrowsPr, assoc, ArbitraryProductPrCommutes.
+Qed.
 
-(* Lemma precompWithProductArrow {c d : C} (Pcd : ProductCone c d) {a : C} *)
-(*     (f : a --> c) (g : a --> d) {x : C} (k : x --> a)  : *)
-(*        k ;; ProductArrow Pcd f g  = ProductArrow Pcd (k ;; f) (k ;; g). *)
-(* Proof. *)
-(*   apply ProductArrowUnique. *)
-(*   -  rewrite <- assoc, ProductPr1Commutes; *)
-(*      apply idpath. *)
-(*   -  rewrite <- assoc, ProductPr2Commutes; *)
-(*      apply idpath. *)
-(* Qed. *)
+Lemma precompWithArbitraryProductArrow {c : forall i, C} (Pc : ArbitraryProductCone c)
+  {a : C} (f : forall i, a --> c i) {x : C} (k : x --> a)  :
+       k ;; ArbitraryProductArrow Pc f = ArbitraryProductArrow Pc (fun i => k ;; f i).
+Proof.
+apply ArbitraryProductArrowUnique; intro i.
+now rewrite <- assoc, ArbitraryProductPrCommutes.
+Qed.
 
 End product_def.
 
@@ -136,7 +118,7 @@ Section Products.
 
 Variables (I : UU) (C : precategory) (CC : ArbitraryProducts I C).
 
-Definition ProductOfArrows_comp (a b c : forall (i : I), C)
+Definition ArbitraryProductOfArrows_comp (a b c : forall (i : I), C)
   (f : forall i, a i --> b i) (g : forall i, b i --> c i)
   : ArbitraryProductOfArrows _ _ _ _ f ;; ArbitraryProductOfArrows _ _ _ (CC _) g
     = ArbitraryProductOfArrows _ _ (CC _) (CC _) (fun i => f i ;; g i).
@@ -199,7 +181,7 @@ apply (tpair _ arbitrary_product_functor_data).
 abstract (split;
   [ now intro x; simpl; apply pathsinv0, ArbitraryProduct_endo_is_identity;
         intro i; rewrite ArbitraryProductOfArrowsPr, id_right
-  | now intros x y z f g; simpl; rewrite ProductOfArrows_comp]).
+  | now intros x y z f g; simpl; rewrite ArbitraryProductOfArrows_comp]).
 Defined.
 
 End arbitrary_product_functor.
