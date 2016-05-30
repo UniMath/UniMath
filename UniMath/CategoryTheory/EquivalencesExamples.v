@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.ArbitraryProductPrecategory.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.arbitrary_products.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 
 Section delta_functor_adjunction.
@@ -51,12 +52,31 @@ End delta_functor_adjunction.
 
 Section arbitrary_delta_functor_adjunction.
 
-Context (I : UU) {C : precategory} (PC : Products C).
+Context (I : UU) {C : precategory} (PC : ArbitraryProducts I C).
 
-(* Need arbitray products *)
 Lemma is_left_adjoint_arbitrary_delta_functor :
   is_left_adjoint (arbitrary_delta_functor I C).
-Admitted.
+Proof.
+apply (tpair _ (arbitrary_product_functor _ PC)).
+mkpair.
+- split.
+  + mkpair.
+    * simpl; intro x.
+      apply (ArbitraryProductArrow _ _ _ (fun _ => identity x)).
+    * abstract (intros p q f; simpl;
+                now rewrite precompWithArbitraryProductArrow, id_right,
+                            postcompWithArbitraryProductArrow, id_left).
+  + mkpair.
+    * intros x i; apply ArbitraryProductPr.
+    * abstract (intros p q f; apply funextsec; intro i; unfold compose; simpl;
+                now rewrite ArbitraryProductOfArrowsPr).
+- abstract (split; simpl; intro x;
+    [ apply funextsec; intro i; apply (ArbitraryProductPrCommutes _ _ (fun _ => x))
+    | rewrite postcompWithArbitraryProductArrow;
+      apply pathsinv0, ArbitraryProduct_endo_is_identity; intro i;
+      eapply pathscomp0; [|apply (ArbitraryProductPrCommutes I C _ (PC x))];
+      apply cancel_postcomposition, maponpaths, funextsec; intro j; apply id_left]).
+Defined.
 
 End arbitrary_delta_functor_adjunction.
 

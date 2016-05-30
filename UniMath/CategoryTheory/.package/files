@@ -5,6 +5,7 @@ opp_precat.v
 limits/terminal.v
 limits/graphs/terminal.v
 limits/products.v
+limits/arbitrary_products.v
 limits/graphs/products.v
 functor_categories.v
 FunctorAlgebras.v
