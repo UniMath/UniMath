@@ -79,24 +79,26 @@ End arbitrary_product_precategory.
 (* Define pairs of functors and functors from pr1 and pr2 *)
 Section functors.
 
-(* Definition pair_functor_data {A B C D : precategory} *)
-(*   (F : functor A C) (G : functor B D) : *)
-(*   functor_data (product_precategory A B) (product_precategory C D). *)
-(* Proof. *)
-(* mkpair. *)
-(* - intro x; apply (prodcatpair (F (pr1 x)) (G (pr2 x))). *)
-(* - intros x y f; simpl; apply (prodcatmor (# F (pr1 f)) (# G (pr2 f))). *)
-(* Defined. *)
+Definition arbitrary_pair_functor_data (I : UU) {A B : precategory}
+  (F : forall (i : I), functor A B) :
+  functor_data (arbitrary_product_precategory I A)
+               (arbitrary_product_precategory I B).
+Proof.
+mkpair.
+- intros a i; apply (F i (a i)).
+- intros a b f i; apply (# (F i) (f i)).
+Defined.
 
-(* Definition pair_functor {A B C D : precategory} *)
-(*   (F : functor A C) (G : functor B D) : *)
-(*   functor (product_precategory A B) (product_precategory C D). *)
-(* Proof. *)
-(* apply (tpair _ (pair_functor_data F G)). *)
-(* abstract (split; *)
-(*   [ intro x; simpl; rewrite !functor_id; apply idpath *)
-(*   | intros x y z f g; simpl; rewrite !functor_comp; apply idpath]). *)
-(* Defined. *)
+Definition arbitrary_pair_functor (I : UU) {A B : precategory}
+  (F : forall (i : I), functor A B) :
+  functor (arbitrary_product_precategory I A)
+          (arbitrary_product_precategory I B).
+Proof.
+apply (tpair _ (arbitrary_pair_functor_data I F)).
+abstract
+  (split; [ intro x; apply funextsec; intro i; simpl; apply functor_id
+          | intros x y z f g; apply funextsec; intro i; apply functor_comp]).
+Defined.
 
 Definition pr_functor_data (I : UU) (C : precategory) (i : I) :
   functor_data (arbitrary_product_precategory I C) C.
@@ -110,7 +112,7 @@ Definition pr_functor (I : UU) (C : precategory) (i : I) :
   functor (arbitrary_product_precategory I C) C.
 Proof.
 apply (tpair _ (pr_functor_data I C i)).
-abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
+abstract (split; intros x *; apply idpath).
 Defined.
 
 Definition arbitrary_delta_functor_data (I : UU) (C : precategory) :
@@ -125,7 +127,7 @@ Definition arbitrary_delta_functor (I : UU) (C : precategory) :
   functor C (arbitrary_product_precategory I C).
 Proof.
 apply (tpair _ (arbitrary_delta_functor_data I C)).
-abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
+abstract (split; intros x *; apply idpath).
 Defined.
 
 End functors.

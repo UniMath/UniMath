@@ -44,6 +44,7 @@ Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.ArbitraryProductPrecategory.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
@@ -259,6 +260,154 @@ Defined.
 
 End pair_functor.
 
+(* A family of functor F^I : A^I -> B^I is omega_cocont if each F_i is *)
+Section arbitrary_pair_functor.
+
+Variables (I : UU) (A B : precategory).
+Variables (F : forall (i : I), functor A B).
+Variables (hsA : has_homsets A) (hsB : has_homsets B).
+
+(* Lemma cocone_pr_functor (cAi : chain (arbitrary_product_precategory I A)) *)
+(*   (ai : forall (i : I), A) (ccab : cocone cAi ai) : *)
+(*   cocone (mapchain (pr_functor I A B) cAi) (ai). *)
+(* Proof. *)
+(* simple refine (mk_cocone _ _). *)
+(* - simpl; intro n; apply (mor1 (coconeIn ccab n)). *)
+(* - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)). *)
+(* Defined. *)
+
+(* Lemma isColimCocone_pr1_functor (cAB : chain (product_precategory A B)) *)
+(*   (ab : A × B) (ccab : cocone cAB ab) (Hccab : isColimCocone cAB ab ccab) : *)
+(*    isColimCocone (mapchain (pr1_functor A B) cAB) (ob1 ab) *)
+(*      (cocone_pr1_functor cAB ab ccab). *)
+(* Proof. *)
+(* intros x ccx. *)
+(* simple refine (let HHH : cocone cAB (x,, ob2 ab) := _ in _). *)
+(* { simple refine (mk_cocone _ _). *)
+(*   - simpl; intro n; split; *)
+(*       [ apply (pr1 ccx n) | apply (# (pr2_functor A B) (pr1 ccab n)) ]. *)
+(*   - abstract( *)
+(*     simpl; intros m n e; rewrite (paireta (dmor cAB e)); *)
+(*     apply pathsdirprod; [ apply (pr2 ccx m n e) *)
+(*                         | apply (maponpaths dirprod_pr2 ((pr2 ccab) m n e)) ]). *)
+(* } *)
+(* destruct (Hccab _ HHH) as [[[x1 x2] p1] p2]; simpl in *. *)
+(* mkpair. *)
+(* - apply (tpair _ x1). *)
+(*   abstract (intro n; apply (maponpaths pr1 (p1 n))). *)
+(* - intro t. *)
+(*   simple refine (let X : Σ x0, *)
+(*            ∀ v : nat, coconeIn ccab v ;; x0 = *)
+(*                       prodcatmor (pr1 ccx v) (pr2 (pr1 ccab v)) := _ in _). *)
+(*   { mkpair. *)
+(*     - split; [ apply (pr1 t) | apply (identity _) ]. *)
+(*     - abstract (intro n; rewrite id_right; apply pathsdirprod; *)
+(*                  [ apply (pr2 t) | apply idpath ]). *)
+(*   } *)
+(*   abstract (apply subtypeEquality; simpl; *)
+(*             [ intro f; apply impred; intro; apply hsA *)
+(*             | apply (maponpaths (fun x => pr1 (pr1 x)) (p2 X))]). *)
+(* Defined. *)
+
+Lemma isColimCocone_pr_functor
+  (c : chain (arbitrary_product_precategory I A))
+  (L : arbitrary_product_precategory I A) (ccL : cocone c L)
+  (M : isColimCocone c L ccL) : forall i,
+  isColimCocone _ _ (mapcocone (pr_functor I A i) c ccL).
+Proof.
+intros i x ccx; simpl in *.
+simple refine (let HHH : cocone c (fun _ => x) := _ in _).
+{ simple refine (mk_cocone _ _).
+  - simpl; intros n j.
+    set (X := pr1 ccx n).
+simpl in *.
+Check (pr1 ccL n).
+Check (dob c n i).
+Check dmor.
+set (Y:= (# (pr_functor I A j) (pr1 ccL n))).
+simpl in *.
+
+  (*     [ apply (pr1 ccx n) | apply (# (pr2_functor A B) (pr1 ccab n)) ]. *)
+  (* - abstract( *)
+  (*   simpl; intros m n e; rewrite (paireta (dmor cAB e)); *)
+  (*   apply pathsdirprod; [ apply (pr2 ccx m n e) *)
+  (*                       | apply (maponpaths dirprod_pr2 ((pr2 ccab) m n e)) ]). *)
+admit.
+-
+admit.
+}
+unfold isColimCocone in *.
+simpl in *.
+
+destruct (M _ HHH) as [[x1 p1] p2]; simpl in *.
+mkpair.
+- apply (tpair _ (x1 i)).
+  intro n. admit. (* ; apply (maponpaths pr1 (p1 n)). *)
+- intro t.
+  (* simple refine (let X : Σ x0, *)
+  (*          ∀ v : nat, coconeIn ccab v ;; x0 = *)
+  (*                     prodcatmor (pr1 ccx v) (pr2 (pr1 ccab v)) := _ in _). *)
+  (* { mkpair. *)
+  (*   - split; [ apply (pr1 t) | apply (identity _) ]. *)
+  (*   - abstract (intro n; rewrite id_right; apply pathsdirprod; *)
+  (*                [ apply (pr2 t) | apply idpath ]). *)
+  (* } *)
+  (* abstract (apply subtypeEquality; simpl; *)
+  (*           [ intro f; apply impred; intro; apply hsA *)
+  (*           | apply (maponpaths (fun x => pr1 (pr1 x)) (p2 X))]). *)
+Admitted.
+
+Lemma is_omega_cocont_pr_functor (i : I) : is_omega_cocont (pr_functor I A i).
+Proof.
+intros c L ccL M.
+now apply isColimCocone_pr_functor.
+Defined.
+
+Lemma is_omega_cocont_arbitrary_pair_functor
+  (HF : forall (i : I), is_omega_cocont (F i)) :
+  is_omega_cocont (arbitrary_pair_functor I F).
+Proof.
+intros cAB ml ccml Hccml xy ccxy; simpl in *.
+simple refine (let cc i : cocone (mapdiagram (F i) (mapdiagram (pr_functor I A i) cAB)) (xy i) := _ in _).
+{ simple refine (mk_cocone _ _).
+  - intro n; apply (pr1 ccxy n).
+  - abstract (intros m n e;
+              apply (toforallpaths _ _ _ (pr2 ccxy m n e) i)).
+}
+set (X i := HF i _ _ _ (isColimCocone_pr_functor i cAB ml ccml Hccml)
+             (xy i) (cc i)).
+mkpair.
+- mkpair.
++
+intro i.
+apply (pr1 (pr1 (X i))).
++
+intro n.
+apply funextsec; intro j.
+simpl.
+apply (pr2 (pr1 (X j)) n).
+- intro t.
+  apply subtypeEquality; simpl.
+  + intro x; apply impred; intro.
+apply impred_isaset; intro i; apply hsB.
+  + destruct t as [f1 f2]; simpl in *.
+apply funextsec; intro i.
+
+
+simple refine (let XX : Σ x : B ⟦ (F i) (ml i), xy i ⟧,
+  ∀ x0 : nat, # (F i) (coconeIn ccml x0 i) ;; x = coconeIn ccxy x0 i := _ in _).
+mkpair.
+  apply (f1 i).
+  intro n.
+  apply ( toforallpaths _ _ _ (f2 n) i).
+simpl in *.
+set (XXX := (pr2 (X i)) XX).
+simpl in *.
+apply (maponpaths pr1 XXX).
+Defined.
+
+End arbitrary_pair_functor.
+
 (* The delta functor C -> C^2 mapping x to (x,x) is omega_cocont *)
 Section delta_functor.
 
@@ -277,6 +426,26 @@ apply cocont_delta_functor.
 Defined.
 
 End delta_functor.
+
+(* The generalized delta functor C -> C^I is omega_cocont *)
+Section arbitrary_delta_functor.
+
+Variables (I : UU) (C : precategory) (PC : Products C) (hsC : has_homsets C).
+
+Lemma cocont_arbitrary_delta_functor : is_cocont (arbitrary_delta_functor I C).
+Proof.
+apply (left_adjoint_cocont _ (is_left_adjoint_arbitrary_delta_functor PC) hsC).
+abstract (apply (has_homsets_arbitrary_product_precategory _ _ hsC)).
+Defined.
+
+Lemma is_omega_cocont_arbitrary_delta_functor :
+  is_omega_cocont (arbitrary_delta_functor I C).
+Proof.
+intros c L ccL.
+apply cocont_arbitrary_delta_functor.
+Defined.
+
+End arbitrary_delta_functor.
 
 (* The functor "+ : C^2 -> C" is cocont *)
 Section bincoprod_functor.

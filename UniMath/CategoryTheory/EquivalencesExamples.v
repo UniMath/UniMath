@@ -1,9 +1,20 @@
+(**
+
+This file contains some adjunctions:
+
+- The delta_functor is left adjoint to binproduct_functor
+- The bincoproduct_functor left adjoint to delta_functor
+
+Written by: Anders Mörtberg, 2016
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.ArbitraryProductPrecategory.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.limits.products.
@@ -38,6 +49,17 @@ Defined.
 
 End delta_functor_adjunction.
 
+Section arbitrary_delta_functor_adjunction.
+
+Context (I : UU) {C : precategory} (PC : Products C).
+
+(* Need arbitray products *)
+Lemma is_left_adjoint_arbitrary_delta_functor :
+  is_left_adjoint (arbitrary_delta_functor I C).
+Admitted.
+
+End arbitrary_delta_functor_adjunction.
+
 Section bincoproduct_functor_adjunction.
 
 Context {C : precategory} (PC : Coproducts C).
@@ -67,3 +89,12 @@ mkpair.
 Defined.
 
 End bincoproduct_functor_adjunction.
+
+Section arbitrary_coproduct_functor_adjunction.
+
+Context {C : precategory} (PC : Coproducts C).
+
+(* Lemma is_left_adjoint_arbitrary_coproduct_functor : *)
+(*   is_left_adjoint (arbitrary_coproduct_functor PC). *)
+
+End arbitrary_coproduct_functor_adjunction.
