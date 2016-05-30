@@ -84,13 +84,12 @@ Defined.
 (*   apply H. *)
 (* Defined. *)
 
-(* Lemma ProductArrowEta (c d : C) (P : ProductCone c d) (x : C) *)
-(*     (f : x --> ProductObject P) : *)
-(*     f = ProductArrow P (f ;; ProductPr1 P) (f ;; ProductPr2 P). *)
-(* Proof. *)
-(*   apply ProductArrowUnique; *)
-(*   apply idpath. *)
-(* Qed. *)
+Lemma ArbitraryProductArrowEta (c : forall i, C) (P : ArbitraryProductCone c) (x : forall i, C)
+    (f : forall i, x i --> ArbitraryProductObject P) :
+    f = ArbitraryProductArrow P (fun i => f i ;; ArbitraryProductPr P i).
+Proof.
+  now apply ArbitraryProductArrowUnique; intro i.
+Qed.
 
 
 Definition ArbitraryProductOfArrows {c : forall i, C} (Pcd : ArbitraryProductCone c) {a : forall i, C}
@@ -174,19 +173,18 @@ End product_def.
 
 (* Section Product_unique. *)
 
-(* Variable C : precategory. *)
-(* Variable CC : Products C. *)
-(* Variables a b : C. *)
+(* Variables (I : UU) (C : precategory). *)
+(* Variable CC : ArbitraryProducts I C. *)
+(* Variables a : forall (i : I), C. *)
 
-(* Lemma Product_endo_is_identity (P : ProductCone _ a b) *)
-(*   (k : ProductObject _ P --> ProductObject _ P) *)
-(*   (H1 : k ;; ProductPr1 _ P = ProductPr1 _ P) *)
-(*   (H2 : k ;; ProductPr2 _ P = ProductPr2 _ P) *)
+(* Lemma ArbitraryProduct_endo_is_identity (P : ArbitraryProductCone _ _ a) *)
+(*   (k : ArbitraryProductObject _ _ P --> ArbitraryProductObject _ _ P) *)
+(*   (H1 : forall i, k ;; ArbitraryProductPr _ _ P i = ArbitraryProductPr _ _ P i) *)
 (*   : identity _ = k. *)
 (* Proof. *)
 (*   apply pathsinv0. *)
 (*   eapply pathscomp0. *)
-(*   apply ProductArrowEta. *)
+(*   apply ArbitraryProductArrowEta. *)
 (*   apply pathsinv0. *)
 (*   apply ProductArrowUnique; apply pathsinv0. *)
 (*   + rewrite id_left. exact H1. *)
