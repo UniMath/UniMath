@@ -283,6 +283,15 @@ Definition ifI (i j : I) (a b : A) : A := match HI i j with
 (* apply b. *)
 (* Defined. *)
 
+Lemma test i x y : ifI i i x y = x.
+Proof.
+unfold ifI.
+destruct (HI i i) as [p|p].
+Search coprod_rect.
+apply idpath.
+destruct (p (idpath _)).
+Defined.
+
 
 Lemma isColimCocone_pr_functor
   (c : chain (arbitrary_product_precategory I A))
@@ -291,34 +300,78 @@ Lemma isColimCocone_pr_functor
   isColimCocone _ _ (mapcocone (pr_functor I A i) c ccL).
 Proof.
 intros i x ccx; simpl in *.
+
 simple refine (let HHH : cocone c (fun j => ifI i j x (L j)) := _ in _).
 { unfold ifI.
   simple refine (mk_cocone _ _).
   - simpl; intros n j.
-    induction (HI i j) as [p|p].
-    + induction p; apply (pr1 ccx n).
-    + apply (# (pr_functor I A j) (pr1 ccL n)).
+    destruct (HI i j) as [p|p].
+    + apply (transportf (fun i => A ⟦ dob c n i, x ⟧) p (coconeIn ccx n)).
+    + apply (# (pr_functor I A j) (coconeIn ccL n)).
   - abstract (simpl; intros m n e;
       apply funextsec; intro j; unfold compose; simpl;
       destruct (HI i j);
         [ destruct p; apply (pr2 ccx m n e)
         | apply (toforallpaths _ _ _ (pr2 ccL m n e) j)]).
 }
+
 (* simple refine (let lol : x = ifI i i x (L i) := _ in _). *)
 (*   unfold ifI; destruct (HI i i) as [p|p]; [apply idpath|destruct (p (idpath _))]. *)
 destruct (M _ HHH) as [[x1 p1] p2].
+(* destruct (HI i i). *)
+
 simple refine (let X : A⟦L i,x⟧ := _ in _).
-{ unfold ifI in x1.
-  simpl in *.
-  generalize (x1 i).
-  induction (HI i i) as [p|p]; [intro xx; apply xx|induction (p (idpath i))].
+{
+  apply (transportf _ (test _ _ _) (x1 i)).
+
+  (* destruct (HI i i) as [p'|p']; [intro xx; apply xx|induction (p' (idpath i))]. *)
 }
 mkpair.
-- apply (tpair _ X).
+-
+apply (tpair _ X).
   intro n.
-  generalize (toforallpaths _ _ _ (p1 n) i).
-  (* unfold X, HHH; clear X p2 p1 HHH. *)
-  (* destruct (HI i i). *)
+unfold X; clear X.
+rewrite <- idtoiso_postcompose, assoc.
+
+assert (apa : coconeIn ccL n i ;; x1 i = coconeIn HHH n i).
+  apply (toforallpaths _ _ _ (p1 n) i).
+rewrite apa.
+rewrite idtoiso_postcompose.
+simpl.
+unfold test.
+simpl.
+unfold transportf.
+unfold coconeIn.
+clear apa p1 p2 HHH.
+simpl.
+destruct (HI i i).
+apply idpath.
+rewrite <- (idtoiso_precompose _ _ _ _ (test i x (L i)) (coconeIn HHH n i)).
+unfold test.
+destruct (HI i i).
+
+assert (transportf _ (!(test _ _ _)) (coconeIn ccL n i ;; X) = transportf _ (!(test i _ (L i))) (coconeIn ccx n)).
+unfold X; clear X.
+(* generalize ((test i x (L i))). *)
+(* intro p. *)
+
+rewrite <- idtoiso_postcompose.
+rewrite <- idtoiso_postcompose.
+rewrite assoc.
+assert (apa : coconeIn ccL n i ;; x1 i = coconeIn HHH n i).
+  apply (toforallpaths _ _ _ (p1 n) i).
+rewrite apa.
+Check (coconeIn HHH n i).
+Check (coconeIn ccx n).
+assert (asdf :  coconeIn HHH n i = transportf _ (! (test _ _ _)) (coconeIn ccx n)).
+simpl.
+clear apa p2 p1 HHH x1.
+generalize (test i x (L i)).
+intro p.
+
+
+  destruct (HI i i).
+
   admit.
 - intro t.
   (* simple refine (let X : Σ x0, *)
