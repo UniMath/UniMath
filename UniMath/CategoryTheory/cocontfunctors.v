@@ -42,6 +42,7 @@ Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.arbitrary_products.
 Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
@@ -454,19 +455,41 @@ Section bincoprod_functor.
 
 Variables (C : precategory) (PC : Coproducts C) (hsC : has_homsets C).
 
-Lemma cocont_bincoproducts_functor : is_cocont (bincoproduct_functor PC).
+Lemma cocont_bincoproduct_functor : is_cocont (bincoproduct_functor PC).
 Proof.
 apply (left_adjoint_cocont _ (is_left_adjoint_bincoproduct_functor PC)).
 - abstract (apply has_homsets_product_precategory; apply hsC).
 - abstract (apply hsC).
 Defined.
 
-Lemma is_omega_cocont_bincoproduct_functor: is_omega_cocont (bincoproduct_functor PC).
+Lemma is_omega_cocont_bincoproduct_functor :
+  is_omega_cocont (bincoproduct_functor PC).
 Proof.
-intros c L ccL; apply cocont_bincoproducts_functor.
+intros c L ccL; apply cocont_bincoproduct_functor.
 Defined.
 
 End bincoprod_functor.
+
+(* The functor "+ : C^I -> C" is cocont *)
+Section arbitrary_coprod_functor.
+
+Variables (I : UU) (C : precategory) (PC : ArbitraryCoproducts I C).
+Variable (hsC : has_homsets C).
+
+Lemma cocont_arbitrary_coproduct_functor : is_cocont (arbitrary_coproduct_functor _ PC).
+Proof.
+apply (left_adjoint_cocont _ (is_left_adjoint_arbitrary_coproduct_functor _ PC)).
+- abstract (apply has_homsets_arbitrary_product_precategory; apply hsC).
+- abstract (apply hsC).
+Defined.
+
+Lemma is_omega_cocont_arbitrary_coproduct_functor :
+  is_omega_cocont (arbitrary_coproduct_functor _ PC).
+Proof.
+intros c L ccL; apply cocont_arbitrary_coproduct_functor.
+Defined.
+
+End arbitrary_coprod_functor.
 
 Section coproduct_of_functors.
 
@@ -499,6 +522,41 @@ Definition omega_cocont_coproduct_functor (F G : omega_cocont_functor C D) :
   omega_cocont_functor C D := tpair _ _ (is_omega_cocont_coproduct_functor _ _ (pr2 F) (pr2 G)).
 
 End coproduct_of_functors.
+
+Section arbitrary_coproduct_of_functors.
+
+Variables (I : UU) (C D : precategory) (PC : ArbitraryProducts I C).
+Variables (HD : ArbitraryCoproducts I D).
+Variables (hsC : has_homsets C) (hsD : has_homsets D).
+
+Lemma is_omega_cocont_arbitrary_coproduct_of_functors (F : forall i, functor C D)
+  (HF : forall i, is_omega_cocont (F i)) :
+  is_omega_cocont (arbitrary_coproduct_of_functors _ HD F).
+Proof.
+apply (is_omega_cocont_functor_composite hsD).
+  apply (is_omega_cocont_arbitrary_delta_functor _ _ PC hsC).
+apply (is_omega_cocont_functor_composite hsD).
+  apply (is_omega_cocont_arbitrary_pair_functor _ _ _ _ hsC hsD HF).
+apply (is_omega_cocont_arbitrary_coproduct_functor _ _ _ hsD).
+Defined.
+
+Definition omega_cocont_arbitrary_coproduct_of_functors
+  (F : forall i, omega_cocont_functor C D) :
+  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_arbitrary_coproduct_of_functors _ (fun i => pr2 (F i))).
+
+(* TODO: port *)
+(* Lemma is_omega_cocont_arbitrary_coproduct_functor (F : forall (i : I), functor C D) *)
+(*   (HF : forall i, is_omega_cocont (F i)) : *)
+(*   is_omega_cocont (arbitrary_coproduct_functor I HD). *)
+(* Proof. *)
+(* exact (transportf _ (coproduct_of_functors_eq_coproduct_functor C D HD hsD F G) *)
+(*                   (is_omega_cocont_coproduct_of_functors _ _ HF HG)). *)
+(* Defined. *)
+
+(* Definition omega_cocont_coproduct_functor (F G : omega_cocont_functor C D) : *)
+(*   omega_cocont_functor C D := tpair _ _ (is_omega_cocont_coproduct_functor _ _ (pr2 F) (pr2 G)). *)
+
+End arbitrary_coproduct_of_functors.
 
 Section constprod_functors.
 

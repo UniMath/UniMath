@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.arbitrary_products.
 Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
 
 Section delta_functor_adjunction.
 
@@ -112,9 +113,30 @@ End bincoproduct_functor_adjunction.
 
 Section arbitrary_coproduct_functor_adjunction.
 
-Context {C : precategory} (PC : Coproducts C).
+Context (I : UU) {C : precategory} (PC : ArbitraryCoproducts I C).
 
-(* Lemma is_left_adjoint_arbitrary_coproduct_functor : *)
-(*   is_left_adjoint (arbitrary_coproduct_functor PC). *)
+Lemma is_left_adjoint_arbitrary_coproduct_functor :
+  is_left_adjoint (arbitrary_coproduct_functor I PC).
+Proof.
+apply (tpair _ (arbitrary_delta_functor _ _)).
+mkpair.
+- split.
+  + mkpair.
+    * intros p i; apply ArbitraryCoproductIn.
+    * abstract (intros p q f; apply funextsec; intro i; unfold compose; simpl;
+                now rewrite ArbitraryCoproductOfArrowsIn).
+  + mkpair.
+    * intro x; apply (ArbitraryCoproductArrow _ _ _ (fun _ => identity x)).
+    * abstract (intros p q f; simpl;
+                now rewrite precompWithArbitraryCoproductArrow,
+                            postcompWithArbitraryCoproductArrow,
+                            id_right, id_left).
+- abstract (split; simpl; intro x;
+    [ rewrite precompWithArbitraryCoproductArrow;
+      apply pathsinv0, ArbitraryCoproduct_endo_is_identity; intro i;
+      eapply pathscomp0; [|apply ArbitraryCoproductInCommutes];
+      apply maponpaths, maponpaths, funextsec; intro j; apply id_right
+    | apply funextsec; intro i; apply (ArbitraryCoproductInCommutes _ _ (fun _ => x))]).
+Defined.
 
 End arbitrary_coproduct_functor_adjunction.

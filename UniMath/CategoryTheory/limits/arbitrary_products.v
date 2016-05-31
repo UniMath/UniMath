@@ -1,4 +1,10 @@
-(* Direct implementation of products *)
+(*
+
+Direct implementation of arbitrary products.
+
+Written by: Anders Mörtberg 2016
+
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -17,7 +23,7 @@ Variable (I : UU) (C : precategory).
 Definition isArbitraryProductCone (c : forall (i : I), C) (p : C)
   (pi : forall i, p --> c i) :=
   forall (a : C) (f : forall i, a --> c i),
-    iscontr (total2 (fun (faip : a --> p) => forall i, faip ;; pi i = f i)).
+    iscontr (total2 (fun (fap : a --> p) => forall i, fap ;; pi i = f i)).
 
 Definition ArbitraryProductCone (ci : forall i, C) :=
    total2 (fun pp1p2 : total2 (fun p : C => forall i, p --> ci i) =>
@@ -43,7 +49,7 @@ Proof.
 Defined.
 
 Lemma ArbitraryProductPrCommutes (c : forall i, C) (P : ArbitraryProductCone c) :
-     forall (a : C) (f : forall i, a --> c i), forall i, ArbitraryProductArrow P f ;; ArbitraryProductPr P i = f i.
+     forall (a : C) (f : forall i, a --> c i) i, ArbitraryProductArrow P f ;; ArbitraryProductPr P i = f i.
 Proof.
   intros a f i.
   apply (pr2 (pr1 (isArbitraryProductCone_ArbitraryProductCone P _ f)) i).
@@ -78,7 +84,7 @@ Lemma ArbitraryProductArrowEta (c : forall i, C) (P : ArbitraryProductCone c) (x
     (f : x --> ArbitraryProductObject P) :
     f = ArbitraryProductArrow P (fun i => f ;; ArbitraryProductPr P i).
 Proof.
-  now apply ArbitraryProductArrowUnique; intro i.
+  now apply ArbitraryProductArrowUnique.
 Qed.
 
 Definition ArbitraryProductOfArrows {c : forall i, C} (Pc : ArbitraryProductCone c) {a : forall i, C}
