@@ -115,8 +115,8 @@ Section arbitrary_coproduct_functor_adjunction.
 
 Context (I : UU) {C : precategory} (PC : ArbitraryCoproducts I C).
 
-Lemma is_left_adjoint_arbitrary_coproduct_functor :
-  is_left_adjoint (arbitrary_coproduct_functor I PC).
+Lemma is_left_adjoint_arbitrary_indexed_coproduct_functor :
+  is_left_adjoint (arbitrary_indexed_coproduct_functor I PC).
 Proof.
 apply (tpair _ (arbitrary_delta_functor _ _)).
 mkpair.

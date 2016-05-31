@@ -20,6 +20,7 @@ limits/coproducts.v
 limits/arbitrary_coproducts.v
 limits/graphs/coproducts.v
 limits/FunctorsPointwiseCoproduct.v
+limits/FunctorsPointwiseArbitraryCoproduct.v
 limits/FunctorsPointwiseProduct.v
 limits/graphs/colimits.v
 HLevel_n_is_of_hlevel_Sn.v

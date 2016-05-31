@@ -175,7 +175,7 @@ End Coproducts.
 
 Section functors.
 
-Definition arbitrary_coproduct_functor_data (I : UU) {C : precategory}
+Definition arbitrary_indexed_coproduct_functor_data (I : UU) {C : precategory}
   (PC : ArbitraryCoproducts I C) : functor_data (arbitrary_product_precategory I C) C.
 Proof.
 mkpair.
@@ -186,10 +186,10 @@ mkpair.
 Defined.
 
 (* The arbitrary coproduct functor: C^I -> C *)
-Definition arbitrary_coproduct_functor (I : UU) {C : precategory}
+Definition arbitrary_indexed_coproduct_functor (I : UU) {C : precategory}
   (PC : ArbitraryCoproducts I C) : functor (arbitrary_product_precategory I C) C.
 Proof.
-apply (tpair _ (arbitrary_coproduct_functor_data _ PC)).
+apply (tpair _ (arbitrary_indexed_coproduct_functor_data _ PC)).
 split.
   - intro x; simpl; apply pathsinv0, ArbitraryCoproduct_endo_is_identity.
     now intro i; rewrite ArbitraryCoproductOfArrowsIn, id_left.
@@ -202,4 +202,5 @@ End functors.
 Definition arbitrary_coproduct_of_functors (I : UU) {C D : precategory}
   (HD : ArbitraryCoproducts I D) (F : forall i, functor C D) : functor C D :=
   functor_composite (arbitrary_delta_functor I C)
-     (functor_composite (arbitrary_pair_functor _ F) (arbitrary_coproduct_functor _ HD)).
+     (functor_composite (arbitrary_pair_functor _ F)
+                        (arbitrary_indexed_coproduct_functor _ HD)).
