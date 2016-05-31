@@ -370,45 +370,44 @@ Lemma is_omega_cocont_arbitrary_pair_functor
   (HF : forall (i : I), is_omega_cocont (F i)) :
   is_omega_cocont (arbitrary_pair_functor I F).
 Proof.
-admit.
-(* intros cAB ml ccml Hccml xy ccxy; simpl in *. *)
-(* simple refine (let cc i : cocone (mapdiagram (F i) (mapdiagram (pr_functor I A i) cAB)) (xy i) := _ in _). *)
-(* { simple refine (mk_cocone _ _). *)
-(*   - intro n; apply (pr1 ccxy n). *)
-(*   - abstract (intros m n e; *)
-(*               apply (toforallpaths _ _ _ (pr2 ccxy m n e) i)). *)
-(* } *)
-(* set (X i := HF i _ _ _ (isColimCocone_pr_functor i cAB ml ccml Hccml) *)
-(*              (xy i) (cc i)). *)
-(* mkpair. *)
-(* - mkpair. *)
-(* + *)
-(* intro i. *)
-(* apply (pr1 (pr1 (X i))). *)
-(* + *)
-(* intro n. *)
-(* apply funextsec; intro j. *)
-(* simpl. *)
-(* apply (pr2 (pr1 (X j)) n). *)
-(* - intro t. *)
-(*   apply subtypeEquality; simpl. *)
-(*   + intro x; apply impred; intro. *)
-(* apply impred_isaset; intro i; apply hsB. *)
-(*   + destruct t as [f1 f2]; simpl in *. *)
-(* apply funextsec; intro i. *)
+intros cAB ml ccml Hccml xy ccxy; simpl in *.
+simple refine (let cc i : cocone (mapdiagram (F i) (mapdiagram (pr_functor I A i) cAB)) (xy i) := _ in _).
+{ simple refine (mk_cocone _ _).
+  - intro n; apply (pr1 ccxy n).
+  - abstract (intros m n e;
+              apply (toforallpaths _ _ _ (pr2 ccxy m n e) i)).
+}
+set (X i := HF i _ _ _ (isColimCocone_pr_functor cAB ml ccml Hccml i)
+             (xy i) (cc i)).
+mkpair.
+- mkpair.
++
+intro i.
+apply (pr1 (pr1 (X i))).
++
+intro n.
+apply funextsec; intro j.
+simpl.
+apply (pr2 (pr1 (X j)) n).
+- intro t.
+  apply subtypeEquality; simpl.
+  + intro x; apply impred; intro.
+apply impred_isaset; intro i; apply hsB.
+  + destruct t as [f1 f2]; simpl in *.
+apply funextsec; intro i.
 
 
-(* simple refine (let XX : Σ x : B ⟦ (F i) (ml i), xy i ⟧, *)
-(*   ∀ x0 : nat, # (F i) (coconeIn ccml x0 i) ;; x = coconeIn ccxy x0 i := _ in _). *)
-(* mkpair. *)
-(*   apply (f1 i). *)
-(*   intro n. *)
-(*   apply ( toforallpaths _ _ _ (f2 n) i). *)
-(* simpl in *. *)
-(* set (XXX := (pr2 (X i)) XX). *)
-(* simpl in *. *)
-(* apply (maponpaths pr1 XXX). *)
-Admitted.
+simple refine (let XX : Σ x : B ⟦ (F i) (ml i), xy i ⟧,
+  ∀ x0 : nat, # (F i) (coconeIn ccml x0 i) ;; x = coconeIn ccxy x0 i := _ in _).
+mkpair.
+  apply (f1 i).
+  intro n.
+  apply ( toforallpaths _ _ _ (f2 n) i).
+simpl in *.
+set (XXX := (pr2 (X i)) XX).
+simpl in *.
+apply (maponpaths pr1 XXX).
+Defined.
 
 End arbitrary_pair_functor.
 
