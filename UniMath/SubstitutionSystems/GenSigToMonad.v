@@ -63,18 +63,12 @@ Variables (I : UU) (HI : isdeceq I).
 
 Definition GenSig : UU := forall (i : I), list nat.
 
-Local Lemma ArbitraryCoproducts_HSET : ArbitraryCoproducts I HSET.
-Admitted.
-
-Local Lemma ArbitraryProducts_HSET : ArbitraryProducts I HSET.
-Admitted.
-
 (* [[nat]] to Signature *)
 Definition GenSigToSignature : GenSig -> Signature HSET has_homsets_HSET.
 Proof.
 intro sig.
 eapply (ArbitrarySum_of_Signatures I).
-- apply ArbitraryCoproducts_HSET.
+- apply ArbitraryCoproducts_HSET, (isasetifdeceq _ HI).
 - intro i; apply (Arity_to_Signature (sig i)).
 Defined.
 

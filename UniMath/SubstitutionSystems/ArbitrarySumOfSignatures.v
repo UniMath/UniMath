@@ -50,8 +50,6 @@ Variables (CC : ArbitraryCoproducts I C).
 
 Section construction.
 
-Check (ArbitraryCoproducts_functor_precat I C C CC hsC).
-
 Local Notation "'CCC'" := (ArbitraryCoproducts_functor_precat I C C CC hsC : ArbitraryCoproducts I [C, C, hsC]).
 
 Variables H1 : I -> functor [C, C, hsC] [C, C, hsC].
