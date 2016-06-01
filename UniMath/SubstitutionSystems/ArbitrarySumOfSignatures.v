@@ -20,17 +20,17 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
+Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseArbitraryCoproduct.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.cocontfunctors.
 Require Import UniMath.CategoryTheory.limits.arbitrary_products.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseArbitraryProduct.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
@@ -162,9 +162,9 @@ Lemma is_omega_cocont_ArbitrarySum_of_Signatures (S : I -> Signature C hsC)
   is_omega_cocont (ArbitrarySum_of_Signatures S).
 Proof.
 apply is_omega_cocont_arbitrary_coproduct_functor; try assumption.
-- admit.
+- apply (ArbitraryProducts_functor_precat _ _ _ PC).
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
-Admitted.
+Defined.
 
 End arbitrary_sum_of_signatures.

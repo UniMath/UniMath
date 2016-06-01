@@ -4,6 +4,17 @@ Anders Mörtberg, 2016
 
 ************************************************************)
 
+(** **********************************************************
+
+Contents :
+
+- Definition of a coproduct structure on a functor category
+  by taking pointwise coproducts in the target category
+
+Adapted from the binary version
+
+************************************************************)
+
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -20,7 +31,7 @@ Variable hsD : has_homsets D.
 
 Section arbitrary_coproduct_functor.
 
-Variables (F : forall (i : I), functor C D).
+Variables (F : I -> functor C D).
 
 Definition arbitrary_coproduct_functor_ob (c : C) : D
   := ArbitraryCoproductObject _ _ (HD (fun i => F i c)).

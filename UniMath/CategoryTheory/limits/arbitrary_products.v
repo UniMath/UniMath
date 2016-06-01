@@ -70,15 +70,13 @@ Proof.
   simple refine (tpair _ (c,,f) X).
 Defined.
 
-(* Definition mk_isProductCone (hsC : has_homsets C) (a b p : C) *)
-(*   (pa : C⟦p,a⟧) (pb : C⟦p,b⟧) : *)
-(*   (∀ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧), *)
-(*     ∃! k : C⟦c,p⟧, k ;; pa = f × k ;; pb = g) -> *)
-(*   isProductCone a b p pa pb. *)
-(* Proof. *)
-(*   intros H c cc g. *)
-(*   apply H. *)
-(* Defined. *)
+Definition mk_isArbitraryProductCone (hsC : has_homsets C) (a : I -> C) (p : C)
+  (pa : forall i, C⟦p,a i⟧) : (∀ (c : C) (f : forall i, C⟦c,a i⟧),
+                                  ∃! k : C⟦c,p⟧, forall i, k ;; pa i = f i) ->
+                              isArbitraryProductCone a p pa.
+Proof.
+intros H c cc; apply H.
+Defined.
 
 Lemma ArbitraryProductArrowEta (c : forall i, C) (P : ArbitraryProductCone c) (x : C)
     (f : x --> ArbitraryProductObject P) :
