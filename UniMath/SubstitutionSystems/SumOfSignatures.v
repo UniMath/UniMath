@@ -38,11 +38,10 @@ Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.cocontfunctors.
-Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
 
-Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
 
@@ -57,13 +56,11 @@ Section sum_of_signatures.
 
 Variable C : precategory.
 Variable hs : has_homsets C.
-(* Variable PP : Products C. *)
 Variable CC : Coproducts C.
 
 Section construction.
 
 Local Notation "'CCC'" := (Coproducts_functor_precat C C CC hs : Coproducts [C, C, hs]).
-
 
 Variables H1 H2 : functor [C, C, hs] [C, C, hs].
 
@@ -286,7 +283,7 @@ Qed.
 End construction.
 
 
-Definition Sum_of_Signatures (S1 S2: Signature C hs): Signature C hs.
+Definition Sum_of_Signatures (S1 S2: Signature C hs) : Signature C hs.
 Proof.
   destruct S1 as [H1 [θ1 [S11' S12']]].
   destruct S2 as [H2 [θ2 [S21' S22']]].

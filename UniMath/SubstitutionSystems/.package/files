@@ -2,6 +2,7 @@ SumOfSignatures.v
 ProductOfSignatures.v
 SubstitutionSystems.v
 Signatures.v
+SignatureExamples.v
 MonadsFromSubstitutionSystems.v
 LiftingInitial.v
 Lam.v
