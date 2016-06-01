@@ -867,9 +867,9 @@ End nat_trans_eq.
 
 (** Characterizing isomorphisms in the functor category *)
 
-Lemma is_nat_trans_inv_from_pointwise_inv (C : precategory_data)(D : precategory)
+Lemma is_nat_trans_inv_from_pointwise_inv_ext {C : precategory_data} {D : precategory}
   (hs: has_homsets D)
-  (F G : ob [C,D,hs]) (A : F --> G)
+  {F G : functor_data C D} {A : nat_trans F G}
   (H : forall a : ob C, is_isomorphism (pr1 A a)) :
   is_nat_trans _ _
      (fun a : ob C => inv_from_iso (tpair _ _ (H a))).
@@ -887,12 +887,38 @@ Proof.
   apply idpath.
 Qed.
 
+Lemma is_nat_trans_inv_from_pointwise_inv (C : precategory_data)(D : precategory)
+  (hs: has_homsets D)
+  (F G : ob [C,D,hs]) (A : F --> G)
+  (H : forall a : ob C, is_isomorphism (pr1 A a)) :
+  is_nat_trans _ _
+     (fun a : ob C => inv_from_iso (tpair _ _ (H a))).
+Proof.
+  apply is_nat_trans_inv_from_pointwise_inv_ext.
+  exact hs.
+Qed.
+
 Definition nat_trans_inv_from_pointwise_inv (C : precategory_data)(D : precategory)
   (hs: has_homsets D)
   (F G : ob [C,D,hs]) (A : F --> G)
   (H : forall a : ob C, is_isomorphism (pr1 A a)) :
     G --> F := tpair _ _ (is_nat_trans_inv_from_pointwise_inv _ _ _ _ _ _ H).
 
+Definition nat_trans_inv_from_pointwise_inv_ext {C : precategory_data}{D : precategory}
+  (hs: has_homsets D)
+  {F G : functor_data C D} (A : nat_trans F G)
+  (H : forall a : ob C, is_isomorphism (pr1 A a)) :
+    nat_trans G F := tpair _ _ (is_nat_trans_inv_from_pointwise_inv_ext hs H).
+
+Lemma nat_trans_inv_is_iso {C : precategory_data}{D : precategory}
+  (hs: has_homsets D)
+  {F G : functor_data C D} (A : nat_trans F G)
+  (H : forall a : ob C, is_isomorphism (pr1 A a)) :
+  forall a : ob C, is_isomorphism ((nat_trans_inv_from_pointwise_inv_ext hs A H) a).
+Proof.
+  intros a.
+  apply is_iso_inv_from_iso.
+Defined.
 
 Lemma is_inverse_nat_trans_inv_from_pointwise_inv (C : precategory_data)(C' : precategory) (hs: has_homsets C')
     (F G : [C, C', hs]) (A : F --> G)
@@ -1137,6 +1163,7 @@ Lemma idtoiso_functor_eq_from_functor_iso (C : precategory_data) (D : precategor
     (F G : ob [C, D, hs]) (gamma : iso F G) :
         idtoiso (functor_eq_from_functor_iso _ H F G gamma) = gamma.
 Proof.
+
   apply eq_iso.
   simpl; apply nat_trans_eq; intro a. apply hs.
   assert (H':= idtoiso_compute_pointwise C D _ F G (functor_eq_from_functor_iso _ H F G gamma) a).
