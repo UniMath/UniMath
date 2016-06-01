@@ -156,14 +156,11 @@ rewrite assoc, ArbitraryCoproductOfArrowsIn.
 now rewrite <- assoc, ArbitraryCoproductOfArrowsIn, assoc.
 Qed.
 
-(* Definition ArbitraryCoproductOfArrows_eq (f f' : a --> c) (g g' : b --> d) *)
-(*   : f = f' → g = g' → *)
-(*       ArbitraryCoproductOfArrows _ _ _ f g = ArbitraryCoproductOfArrows _ (CC _ _) (CC _ _) f' g'. *)
-(* Proof. *)
-(*   induction 1. *)
-(*   induction 1. *)
-(*   apply idpath. *)
-(* Qed. *)
+Definition ArbitraryCoproductOfArrows_eq (a c : I -> C) (f f' : forall i, a i --> c i) : f = f' ->
+  ArbitraryCoproductOfArrows _ _ _ _ f = ArbitraryCoproductOfArrows _ _ (CC _) (CC _) f'.
+Proof.
+now induction 1.
+Qed.
 
 End Coproducts.
 

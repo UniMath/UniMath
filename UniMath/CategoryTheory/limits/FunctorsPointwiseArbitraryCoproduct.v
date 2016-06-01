@@ -126,7 +126,7 @@ Defined.
 
 End arbitrary_coproduct_functor.
 
-Definition Coproducts_functor_precat : ArbitraryCoproducts I [C, D, hsD].
+Definition ArbitraryCoproducts_functor_precat : ArbitraryCoproducts I [C, D, hsD].
 Proof.
   intros F.
   apply functor_precat_arbitrary_coproduct_cocone.

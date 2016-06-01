@@ -1,4 +1,5 @@
 SumOfSignatures.v
+ArbitrarySumOfSignatures.v
 ProductOfSignatures.v
 SubstitutionSystems.v
 Signatures.v
@@ -12,4 +13,5 @@ Notation.v
 SubstitutionSystems_Summary.v
 LamHSET.v
 SigToMonad.v
+GenSigToMonad.v
 LamFromSig.v
