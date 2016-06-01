@@ -8,10 +8,15 @@ This file contains proofs that the following functors are
 - Composition of omega-cocontinuous functors
 - Iteration of omega-cocontinuous functors: F^n : C -> C
 - Pairing of omega-cocont functors (F,G) : A * B -> C * D, (x,y) |-> (F x,G y)
-- Delta functor: C -> C^2, x |-> (x,x)
+- Indexed families of omega-cocont functors F^I : A^I -> B^I
+- Binary delta functor: C -> C^2, x |-> (x,x)
+- General delta functor: C -> C^I
 - Binary coproduct functor: C^2 -> C, (x,y) |-> x + y
-- Coproduct of functors: F + G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x + G x
-- Coproduct functor: F + G : C -> D, x |-> F x + G x
+- General coproduct functor: C^I -> C
+- Binary coproduct of functors: F + G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x + G x
+- Coproduct of families of functors: + F_i : C -> D  (generalization of coproduct of functors)
+- Binary coproduct functor: F + G : C -> D, x |-> F x + G x
+- General coproduct functor: + F_i : C -> D
 - Constant product functors: C -> C, x |-> a * x  and  x |-> x * a
 - Binary product functor: C^2 -> C, (x,y) |-> x * y
 - Product of functors: F * G : C -> D, x |-> (x,x) |-> (F x,G x) |-> F x * G x
@@ -346,7 +351,8 @@ Lemma is_omega_cocont_arbitrary_pair_functor
   is_omega_cocont (arbitrary_pair_functor I F).
 Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
-simple refine (let cc i : cocone (mapdiagram (F i) (mapdiagram (pr_functor I A i) cAB)) (xy i) := _ in _).
+simple refine (let cc i : cocone (mapdiagram (F i)
+                            (mapdiagram (pr_functor I A i) cAB)) (xy i) := _ in _).
 { simple refine (mk_cocone _ _).
   - intro n; apply (pr1 ccxy n).
   - abstract (intros m n e;
@@ -356,9 +362,7 @@ set (X i := HF i _ _ _ (isColimCocone_pr_functor _ _ _ Hccml i) (xy i) (cc i)).
 mkpair.
 - mkpair.
   + intro i; apply (pr1 (pr1 (X i))).
-  + intro n.
-    apply funextsec; intro j.
-    apply (pr2 (pr1 (X j)) n).
+  + abstract (intro n; apply funextsec; intro j; apply (pr2 (pr1 (X j)) n)).
 - intro t.
   apply subtypeEquality; simpl.
   + intro x; apply impred; intro; apply impred_isaset; intro i; apply hsB.
@@ -367,8 +371,7 @@ mkpair.
     simple refine (let H : Σ x : B ⟦ (F i) (ml i), xy i ⟧,
                           ∀ n, # (F i) (coconeIn ccml n i) ;; x =
                                coconeIn ccxy n i := _ in _).
-    apply (tpair _ (f1 i)); intro n.
-    apply (toforallpaths _ _ _ (f2 n) i).
+    { apply (tpair _ (f1 i)); intro n; apply (toforallpaths _ _ _ (f2 n) i). }
     apply (maponpaths pr1 (pr2 (X i) H)).
 Defined.
 
@@ -472,7 +475,8 @@ apply (is_omega_cocont_bincoproduct_functor _ _ hsD).
 Defined.
 
 Definition omega_cocont_coproduct_of_functors (F G : omega_cocont_functor C D) :
-  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_coproduct_of_functors _ _ (pr2 F) (pr2 G)).
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_coproduct_of_functors _ _ (pr2 F) (pr2 G)).
 
 Lemma is_omega_cocont_coproduct_functor (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
@@ -483,7 +487,8 @@ exact (transportf _ (coproduct_of_functors_eq_coproduct_functor C D HD hsD F G)
 Defined.
 
 Definition omega_cocont_coproduct_functor (F G : omega_cocont_functor C D) :
-  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_coproduct_functor _ _ (pr2 F) (pr2 G)).
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_coproduct_functor _ _ (pr2 F) (pr2 G)).
 
 End coproduct_of_functors.
 
@@ -507,7 +512,8 @@ Defined.
 
 Definition omega_cocont_arbitrary_coproduct_of_functors
   (F : forall i, omega_cocont_functor C D) :
-  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_arbitrary_coproduct_of_functors _ (fun i => pr2 (F i))).
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_arbitrary_coproduct_of_functors _ (fun i => pr2 (F i))).
 
 Lemma is_omega_cocont_arbitrary_coproduct_functor (F : forall (i : I), functor C D)
   (HF : forall i, is_omega_cocont (F i)) :
@@ -519,7 +525,8 @@ Defined.
 
 Definition omega_cocont_arbitrary_coproduct_functor
   (F : forall i, omega_cocont_functor C D) :
-  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_arbitrary_coproduct_functor _ (fun i => pr2 (F i))).
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_arbitrary_coproduct_functor _ (fun i => pr2 (F i))).
 
 End arbitrary_coproduct_of_functors.
 
