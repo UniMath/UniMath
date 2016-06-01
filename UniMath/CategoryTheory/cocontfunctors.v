@@ -278,20 +278,10 @@ Definition ifI (i j : I) (a b : A) : A := match HI i j with
   | ii2 _ => b
   end.
 
-(* induction (HI i j). *)
-(* apply a. *)
-(* apply b. *)
-(* Defined. *)
-
-Lemma test i x y : ifI i i x y = x.
+Lemma ifI_eq i x y : ifI i i x y = x.
 Proof.
-unfold ifI.
-destruct (HI i i) as [p|p].
-Search coprod_rect.
-apply idpath.
-destruct (p (idpath _)).
+now unfold ifI; destruct (HI i i) as [p|p]; [|destruct (p (idpath _))].
 Defined.
-
 
 Lemma isColimCocone_pr_functor
   (c : chain (arbitrary_product_precategory I A))
@@ -300,7 +290,6 @@ Lemma isColimCocone_pr_functor
   isColimCocone _ _ (mapcocone (pr_functor I A i) c ccL).
 Proof.
 intros i x ccx; simpl in *.
-
 simple refine (let HHH : cocone c (fun j => ifI i j x (L j)) := _ in _).
 { unfold ifI.
   simple refine (mk_cocone _ _).
@@ -314,78 +303,37 @@ simple refine (let HHH : cocone c (fun j => ifI i j x (L j)) := _ in _).
         [ destruct p; apply (pr2 ccx m n e)
         | apply (toforallpaths _ _ _ (pr2 ccL m n e) j)]).
 }
-
-(* simple refine (let lol : x = ifI i i x (L i) := _ in _). *)
-(*   unfold ifI; destruct (HI i i) as [p|p]; [apply idpath|destruct (p (idpath _))]. *)
 destruct (M _ HHH) as [[x1 p1] p2].
-(* destruct (HI i i). *)
-
-simple refine (let X : A⟦L i,x⟧ := _ in _).
-{
-  apply (transportf _ (test _ _ _) (x1 i)).
-
-  (* destruct (HI i i) as [p'|p']; [intro xx; apply xx|induction (p' (idpath i))]. *)
-}
 mkpair.
--
-apply (tpair _ X).
-  intro n.
-unfold X; clear X.
-rewrite <- idtoiso_postcompose, assoc.
-
-assert (apa : coconeIn ccL n i ;; x1 i = coconeIn HHH n i).
-  apply (toforallpaths _ _ _ (p1 n) i).
-rewrite apa.
-rewrite idtoiso_postcompose.
-simpl.
-unfold test.
-simpl.
-unfold transportf.
-unfold coconeIn.
-clear apa p1 p2 HHH.
-simpl.
-destruct (HI i i).
-apply idpath.
-rewrite <- (idtoiso_precompose _ _ _ _ (test i x (L i)) (coconeIn HHH n i)).
-unfold test.
-destruct (HI i i).
-
-assert (transportf _ (!(test _ _ _)) (coconeIn ccL n i ;; X) = transportf _ (!(test i _ (L i))) (coconeIn ccx n)).
-unfold X; clear X.
-(* generalize ((test i x (L i))). *)
-(* intro p. *)
-
-rewrite <- idtoiso_postcompose.
-rewrite <- idtoiso_postcompose.
-rewrite assoc.
-assert (apa : coconeIn ccL n i ;; x1 i = coconeIn HHH n i).
-  apply (toforallpaths _ _ _ (p1 n) i).
-rewrite apa.
-Check (coconeIn HHH n i).
-Check (coconeIn ccx n).
-assert (asdf :  coconeIn HHH n i = transportf _ (! (test _ _ _)) (coconeIn ccx n)).
-simpl.
-clear apa p2 p1 HHH x1.
-generalize (test i x (L i)).
-intro p.
-
-
-  destruct (HI i i).
-
-  admit.
+- apply (tpair _ (transportf _ (ifI_eq _ _ _) (x1 i))).
+  abstract (intro n;
+    rewrite <- idtoiso_postcompose, assoc;
+    eapply pathscomp0;
+      [eapply cancel_postcomposition, (toforallpaths _ _ _ (p1 n) i)|];
+    unfold ifI, ifI_eq; simpl;
+    destruct (HI i i); [|destruct (n0 (idpath _))];
+    rewrite idtoiso_postcompose, idpath_transportf;
+    assert (hp : p = idpath i); [apply (isasetifdeceq _ HI)|];
+    now rewrite hp, idpath_transportf).
 - intro t.
-  (* simple refine (let X : Σ x0, *)
-  (*          ∀ v : nat, coconeIn ccL v ;; x0 = *)
-  (*                     prodcatmor (pr1 ccx v) (pr2 (pr1 ccx v i)) := _ in _). *)
-  (* { mkpair. *)
-  (*   - split; [ apply (pr1 t) | apply (identity _) ]. *)
-  (*   - abstract (intro n; rewrite id_right; apply pathsdirprod; *)
-  (*                [ apply (pr2 t) | apply idpath ]). *)
-  (* } *)
-  apply subtypeEquality; simpl.
-    intro f; apply impred; intro; apply hsA.
- admit.            (* | apply (maponpaths (fun x => pr1 (pr1 x)) (p2 X))]). *)
-Admitted.
+  simple refine (let X : Σ x0,
+           ∀ n, coconeIn ccL n ;; x0 = coconeIn HHH n := _ in _).
+  { mkpair.
+    - simpl; intro j; unfold ifI.
+      destruct (HI i j).
+      + apply (transportf (fun i => A ⟦ L i, x ⟧) p (pr1 t)).
+      + apply identity.
+    - abstract (intro n; apply funextsec; intro j; unfold ifI; destruct (HI i j);
+          [ now destruct p; rewrite <- (pr2 t), !idpath_transportf
+          | apply id_right ]).
+  }
+  apply subtypeEquality; simpl; [intro f; apply impred; intro; apply hsA|].
+  set (H := toforallpaths _ _ _ (maponpaths pr1 (p2 X)) i); simpl in H.
+  rewrite <- H; clear H; unfold ifI_eq, ifI.
+  destruct (HI i i) as [p|p]; [|destruct (p (idpath _))].
+  assert (hp : p = idpath i); [apply (isasetifdeceq _ HI)|].
+  now rewrite hp, idpath_transportf.
+Defined.
 
 Lemma is_omega_cocont_pr_functor (i : I) : is_omega_cocont (pr_functor I A i).
 Proof.
@@ -404,36 +352,24 @@ simple refine (let cc i : cocone (mapdiagram (F i) (mapdiagram (pr_functor I A i
   - abstract (intros m n e;
               apply (toforallpaths _ _ _ (pr2 ccxy m n e) i)).
 }
-set (X i := HF i _ _ _ (isColimCocone_pr_functor cAB ml ccml Hccml i)
-             (xy i) (cc i)).
+set (X i := HF i _ _ _ (isColimCocone_pr_functor _ _ _ Hccml i) (xy i) (cc i)).
 mkpair.
 - mkpair.
-+
-intro i.
-apply (pr1 (pr1 (X i))).
-+
-intro n.
-apply funextsec; intro j.
-simpl.
-apply (pr2 (pr1 (X j)) n).
+  + intro i; apply (pr1 (pr1 (X i))).
+  + intro n.
+    apply funextsec; intro j.
+    apply (pr2 (pr1 (X j)) n).
 - intro t.
   apply subtypeEquality; simpl.
-  + intro x; apply impred; intro.
-apply impred_isaset; intro i; apply hsB.
+  + intro x; apply impred; intro; apply impred_isaset; intro i; apply hsB.
   + destruct t as [f1 f2]; simpl in *.
-apply funextsec; intro i.
-
-
-simple refine (let XX : Σ x : B ⟦ (F i) (ml i), xy i ⟧,
-  ∀ x0 : nat, # (F i) (coconeIn ccml x0 i) ;; x = coconeIn ccxy x0 i := _ in _).
-mkpair.
-  apply (f1 i).
-  intro n.
-  apply ( toforallpaths _ _ _ (f2 n) i).
-simpl in *.
-set (XXX := (pr2 (X i)) XX).
-simpl in *.
-apply (maponpaths pr1 XXX).
+    apply funextsec; intro i.
+    simple refine (let H : Σ x : B ⟦ (F i) (ml i), xy i ⟧,
+                          ∀ n, # (F i) (coconeIn ccml n i) ;; x =
+                               coconeIn ccxy n i := _ in _).
+    apply (tpair _ (f1 i)); intro n.
+    apply (toforallpaths _ _ _ (f2 n) i).
+    apply (maponpaths pr1 (pr2 (X i) H)).
 Defined.
 
 End arbitrary_pair_functor.
