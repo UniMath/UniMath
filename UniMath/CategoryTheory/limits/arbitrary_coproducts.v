@@ -19,42 +19,42 @@ Section coproduct_def.
 
 Variables (I : UU) (C : precategory).
 
-Definition isArbitraryCoproductCocone (a : forall (i : I), C) (co : C)
+Definition isArbitraryCoproductCocone (a : I -> C) (co : C)
   (ia : forall i, a i --> co) :=
   forall (c : C) (f : forall i, a i --> c),
     iscontr (total2 (fun (g : co --> c) => forall i, ia i ;; g = f i)).
 
-Definition ArbitraryCoproductCocone (a : forall i, C) :=
+Definition ArbitraryCoproductCocone (a : I -> C) :=
    Σ coia : (Σ co : C, forall i, a i --> co),
           isArbitraryCoproductCocone a (pr1 coia) (pr2 coia).
 
-Definition ArbitraryCoproducts := ∀ (a : forall i, C), ArbitraryCoproductCocone a.
+Definition ArbitraryCoproducts := ∀ (a : I -> C), ArbitraryCoproductCocone a.
 Definition hasArbitraryCoproducts := ishinh ArbitraryCoproducts.
 
-Definition ArbitraryCoproductObject {a : forall i, C} (CC : ArbitraryCoproductCocone a) : C := pr1 (pr1 CC).
-Definition ArbitraryCoproductIn {a : forall i, C} (CC : ArbitraryCoproductCocone a): forall i, a i--> ArbitraryCoproductObject CC :=
+Definition ArbitraryCoproductObject {a : I -> C} (CC : ArbitraryCoproductCocone a) : C := pr1 (pr1 CC).
+Definition ArbitraryCoproductIn {a : I -> C} (CC : ArbitraryCoproductCocone a): forall i, a i --> ArbitraryCoproductObject CC :=
   pr2 (pr1 CC).
 
-Definition isArbitraryCoproductCocone_ArbitraryCoproductCocone {a : forall i, C} (CC : ArbitraryCoproductCocone a) :
+Definition isArbitraryCoproductCocone_ArbitraryCoproductCocone {a : I -> C} (CC : ArbitraryCoproductCocone a) :
    isArbitraryCoproductCocone a (ArbitraryCoproductObject CC) (ArbitraryCoproductIn CC).
 Proof.
   exact (pr2 CC).
 Defined.
 
-Definition ArbitraryCoproductArrow {a : forall i, C} (CC : ArbitraryCoproductCocone a) {c : C} (f : forall i, a i --> c) :
+Definition ArbitraryCoproductArrow {a : I -> C} (CC : ArbitraryCoproductCocone a) {c : C} (f : forall i, a i --> c) :
       ArbitraryCoproductObject CC --> c.
 Proof.
   exact (pr1 (pr1 (isArbitraryCoproductCocone_ArbitraryCoproductCocone CC _ f))).
 Defined.
 
-Lemma ArbitraryCoproductInCommutes (a : forall i, C) (CC : ArbitraryCoproductCocone a) :
+Lemma ArbitraryCoproductInCommutes (a : I -> C) (CC : ArbitraryCoproductCocone a) :
      ∀ (c : C) (f : forall i, a i --> c) i, ArbitraryCoproductIn CC i ;; ArbitraryCoproductArrow CC f = f i.
 Proof.
   intros c f i.
   exact (pr2 (pr1 (isArbitraryCoproductCocone_ArbitraryCoproductCocone CC _ f)) i).
 Qed.
 
-Lemma ArbitraryCoproductArrowUnique (a : forall i, C) (CC : ArbitraryCoproductCocone a) (x : C)
+Lemma ArbitraryCoproductArrowUnique (a : I -> C) (CC : ArbitraryCoproductCocone a) (x : C)
     (f : forall i, a i --> x) (k : ArbitraryCoproductObject CC --> x)
     (Hk : forall i, ArbitraryCoproductIn CC i ;; k = f i) :
   k = ArbitraryCoproductArrow CC f.
@@ -63,7 +63,7 @@ Proof.
   apply (base_paths _ _ H').
 Qed.
 
-Lemma ArbitraryCoproductArrowEta (a : forall i, C) (CC : ArbitraryCoproductCocone a) (x : C)
+Lemma ArbitraryCoproductArrowEta (a : I -> C) (CC : ArbitraryCoproductCocone a) (x : C)
     (f : ArbitraryCoproductObject CC --> x) :
     f = ArbitraryCoproductArrow CC (fun i => ArbitraryCoproductIn CC i ;; f).
 Proof.
@@ -71,12 +71,12 @@ Proof.
 Qed.
 
 
-Definition ArbitraryCoproductOfArrows {a : forall i, C} (CCab : ArbitraryCoproductCocone a) {c : forall i, C}
+Definition ArbitraryCoproductOfArrows {a : I -> C} (CCab : ArbitraryCoproductCocone a) {c : I -> C}
     (CCcd : ArbitraryCoproductCocone c) (f : forall i, a i --> c i) :
           ArbitraryCoproductObject CCab --> ArbitraryCoproductObject CCcd :=
     ArbitraryCoproductArrow CCab (fun i => f i ;; ArbitraryCoproductIn CCcd i).
 
-Lemma ArbitraryCoproductOfArrowsIn {a : forall i, C} (CCab : ArbitraryCoproductCocone a) {c : forall i, C}
+Lemma ArbitraryCoproductOfArrowsIn {a : I -> C} (CCab : ArbitraryCoproductCocone a) {c : I -> C}
     (CCcd : ArbitraryCoproductCocone c) (f : forall i, a i --> c i) :
     forall i, ArbitraryCoproductIn CCab i ;; ArbitraryCoproductOfArrows CCab CCcd f = f i ;; ArbitraryCoproductIn CCcd i.
 Proof.
@@ -84,33 +84,27 @@ Proof.
   apply ArbitraryCoproductInCommutes.
 Qed.
 
-(* Definition mk_ArbitraryCoproductCocone (a b : C) : *)
-(*   ∀ (c : C) (f : a --> c) (g : b --> c), *)
-(*    isArbitraryCoproductCocone _ _ _ f g →  ArbitraryCoproductCocone a b. *)
-(* Proof. *)
-(*   intros. *)
-(*   simple refine (tpair _ _ _ ). *)
-(*   - exists c. *)
-(*     exists f. *)
-(*     exact g. *)
-(*   - apply X. *)
-(* Defined. *)
+Definition mk_ArbitraryCoproductCocone (a : I -> C) (c : C) (f : forall i, a i --> c) :
+   isArbitraryCoproductCocone _ _ f →  ArbitraryCoproductCocone a.
+Proof.
+intro H.
+mkpair.
+- apply (tpair _ c f).
+- apply H.
+Defined.
 
-(* Definition mk_isArbitraryCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a --> co) (ib : b --> co) : *)
-(*    (∀ (c : C) (f : a --> c) (g : b --> c), *)
-(*     ∃! k : C ⟦co, c⟧, *)
-(*       ia ;; k = f × *)
-(*       ib ;; k = g) *)
-(*    → *)
-(*    isArbitraryCoproductCocone a b co ia ib. *)
-(* Proof. *)
-(*   intros H c cc. *)
-(*   apply H. *)
-(* Defined. *)
+Definition mk_isArbitraryCoproductCocone (hsC : has_homsets C) (a : I -> C) (co : C)
+  (f : forall i, a i --> co) : (∀ (c : C) (g : forall i, a i --> c),
+                                  ∃! k : C ⟦co, c⟧, forall i, f i ;; k = g i)
+   →    isArbitraryCoproductCocone a co f.
+Proof.
+  intros H c cc.
+  apply H.
+Defined.
 
-Lemma precompWithArbitraryCoproductArrow {a : forall i, C} (CCab : ArbitraryCoproductCocone a) {c : forall i, C}
+Lemma precompWithArbitraryCoproductArrow {a : I -> C} (CCab : ArbitraryCoproductCocone a) {c : I -> C}
     (CCcd : ArbitraryCoproductCocone c) (f : forall i, a i --> c i)
-    {x : C} (k : forall i, c i--> x) :
+    {x : C} (k : forall i, c i --> x) :
         ArbitraryCoproductOfArrows CCab CCcd f ;; ArbitraryCoproductArrow CCcd k =
          ArbitraryCoproductArrow CCab (fun i => f i ;; k i).
 Proof.
@@ -118,7 +112,7 @@ apply ArbitraryCoproductArrowUnique; intro i.
 now rewrite assoc, ArbitraryCoproductOfArrowsIn, <- assoc, ArbitraryCoproductInCommutes.
 Qed.
 
-Lemma postcompWithArbitraryCoproductArrow {a : forall i, C} (CCab : ArbitraryCoproductCocone a) {c : C}
+Lemma postcompWithArbitraryCoproductArrow {a : I -> C} (CCab : ArbitraryCoproductCocone a) {c : C}
     (f : forall i, a i --> c) {x : C} (k : c --> x)  :
        ArbitraryCoproductArrow CCab f ;; k = ArbitraryCoproductArrow CCab (fun i => f i ;; k).
 Proof.
@@ -126,7 +120,7 @@ apply ArbitraryCoproductArrowUnique; intro i.
 now rewrite assoc, ArbitraryCoproductInCommutes.
 Qed.
 
-Lemma ArbitraryCoproduct_endo_is_identity (a : forall i, C) (CC : ArbitraryCoproductCocone a)
+Lemma ArbitraryCoproduct_endo_is_identity (a : I -> C) (CC : ArbitraryCoproductCocone a)
   (k : ArbitraryCoproductObject CC --> ArbitraryCoproductObject CC)
   (H1 : forall i, ArbitraryCoproductIn CC i ;; k = ArbitraryCoproductIn CC i)
   : identity _ = k.
@@ -152,7 +146,7 @@ Variables (I : UU) (C : precategory) (CC : ArbitraryCoproducts I C).
 (*   apply idpath. *)
 (* Qed. *)
 
-Definition ArbitraryCoproductOfArrows_comp (a b c : forall i, C)
+Definition ArbitraryCoproductOfArrows_comp (a b c : I -> C)
   (f : forall i, a i --> b i) (g : forall i, b i --> c i) :
    ArbitraryCoproductOfArrows _ _ _ _ f ;; ArbitraryCoproductOfArrows _ _ (CC _) (CC _) g
    = ArbitraryCoproductOfArrows _ _ (CC _) (CC _)(fun i => f i ;; g i).
@@ -200,7 +194,7 @@ End functors.
 
 (* Defines the arbitrary copropuct of a family of functors *)
 Definition arbitrary_coproduct_of_functors (I : UU) {C D : precategory}
-  (HD : ArbitraryCoproducts I D) (F : forall i, functor C D) : functor C D :=
+  (HD : ArbitraryCoproducts I D) (F : I -> functor C D) : functor C D :=
   functor_composite (arbitrary_delta_functor I C)
      (functor_composite (arbitrary_pair_functor _ F)
                         (arbitrary_indexed_coproduct_functor _ HD)).
