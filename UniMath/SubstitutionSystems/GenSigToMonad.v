@@ -1,6 +1,11 @@
 (**
 
-From general signatures to monads
+From general signatures to monads. A general signature is a collection
+of lists of natural numbers indexed by a type I with decidable
+equality:
+
+Definition GenSig : UU := I -> list nat.
+
 
 Written by: Anders Mörtberg, 2016
 
@@ -61,7 +66,7 @@ Section GenSigToMonad.
 
 Variables (I : UU) (HI : isdeceq I).
 
-Definition GenSig : UU := forall (i : I), list nat.
+Definition GenSig : UU := I -> list nat.
 
 (* [[nat]] to Signature *)
 Definition GenSigToSignature : GenSig -> Signature HSET has_homsets_HSET.

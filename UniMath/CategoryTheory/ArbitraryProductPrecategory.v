@@ -5,6 +5,7 @@ Anders Mörtberg
 
 2016
 
+Definition of the general product category
 
 ************************************************************)
 
@@ -60,23 +61,6 @@ Qed.
 
 End arbitrary_product_precategory.
 
-(** Objects and morphisms in the product precategory of two precategories *)
-(* Definition prodcatpair {C D : precategory} (X : C) (Y : D) : product_precategory C D. *)
-(* Proof. *)
-(*   exists X. *)
-(*   exact Y. *)
-(* Defined. *)
-
-(* Local Notation "A ⊗ B" := (prodcatpair A B) (at level 10). *)
-
-(* Definition prodcatmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X --> X') (β : Z --> Z') *)
-(*   : X ⊗ Z --> X' ⊗ Z'. *)
-(* Proof. *)
-(*   exists α. *)
-(*   exact β. *)
-(* Defined. *)
-
-(* Define pairs of functors and functors from pr1 and pr2 *)
 Section functors.
 
 Definition arbitrary_pair_functor_data (I : UU) {A B : precategory}

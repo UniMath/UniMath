@@ -50,6 +50,7 @@ Require Import UniMath.CategoryTheory.limits.arbitrary_products.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.limits.cats.limits.
 Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.ArbitraryProductPrecategory.
@@ -57,6 +58,9 @@ Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
 Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.RightKanExtension.
+Require Import UniMath.CategoryTheory.CommaCategories.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -72,7 +76,7 @@ End move_upstream.
 
 Section cocont_functors.
 
-(* The constant functor is omega cocontinuous *)
+(** The constant functor is omega cocontinuous *)
 Lemma is_omega_cocont_constant_functor (C D : precategory) (hsD : has_homsets D)
   (x : D) : is_omega_cocont (constant_functor C D x).
 Proof.
@@ -92,7 +96,7 @@ Defined.
 Definition omega_cocont_constant_functor (C D : precategory) (hsD : has_homsets D)
   (x : D) : omega_cocont_functor C D := tpair _ _ (is_omega_cocont_constant_functor C D hsD x).
 
-(* The identity functor is omega cocontinuous *)
+(** The identity functor is omega cocontinuous *)
 Lemma is_omega_cocont_functor_identity (C : precategory) (hsC : has_homsets C) :
   is_omega_cocont (functor_identity C).
 Proof.
@@ -103,7 +107,7 @@ Defined.
 Definition omega_cocont_functor_identity (C : precategory) (hsC : has_homsets C) :
   omega_cocont_functor C C := tpair _ _ (is_omega_cocont_functor_identity C hsC).
 
-(* Functor composition preserves omega cocontinuity *)
+(** Functor composition preserves omega cocontinuity *)
 Lemma is_omega_cocont_functor_composite {C D E : precategory}
   (hsE : has_homsets E) (F : functor C D) (G : functor D E) :
   is_omega_cocont F -> is_omega_cocont G -> is_omega_cocont (functor_composite F G).
@@ -116,7 +120,7 @@ Definition omega_cocont_functor_composite {C D E : precategory}
   (hsE : has_homsets E) (F : omega_cocont_functor C D) (G : omega_cocont_functor D E) :
   omega_cocont_functor C E := tpair _ _ (is_omega_cocont_functor_composite hsE _ _ (pr2 F) (pr2 G)).
 
-(* Functor iteration preserves omega cocontinuity *)
+(** Functor iteration preserves omega cocontinuity *)
 Lemma is_omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
   (F : functor C C) (hF : is_omega_cocont F) n : is_omega_cocont (iter_functor F n).
 Proof.
@@ -129,7 +133,7 @@ Definition omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
   (F : omega_cocont_functor C C) n : omega_cocont_functor C C :=
   tpair _ _ (is_omega_cocont_iter_functor hsC _ (pr2 F) n).
 
-(* A pair of functors (F,G) : A * B -> C * D is omega_cocont if F and G are *)
+(** A pair of functors (F,G) : A * B -> C * D is omega_cocont if F and G are *)
 Section pair_functor.
 
 Variables A B C D : precategory.
@@ -268,7 +272,7 @@ Defined.
 
 End pair_functor.
 
-(* A family of functor F^I : A^I -> B^I is omega_cocont if each F_i is *)
+(** A family of functor F^I : A^I -> B^I is omega_cocont if each F_i is *)
 Section arbitrary_pair_functor.
 
 Variables (I : UU) (A B : precategory).
@@ -377,7 +381,7 @@ Defined.
 
 End arbitrary_pair_functor.
 
-(* The delta functor C -> C^2 mapping x to (x,x) is omega_cocont *)
+(** The delta functor C -> C^2 mapping x to (x,x) is omega_cocont *)
 Section delta_functor.
 
 Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
@@ -396,7 +400,7 @@ Defined.
 
 End delta_functor.
 
-(* The generalized delta functor C -> C^I is omega_cocont *)
+(** The generalized delta functor C -> C^I is omega_cocont *)
 Section arbitrary_delta_functor.
 
 Variables (I : UU) (C : precategory) (PC : ArbitraryProducts I C) (hsC : has_homsets C).
@@ -416,7 +420,7 @@ Defined.
 
 End arbitrary_delta_functor.
 
-(* The functor "+ : C^2 -> C" is cocont *)
+(** The functor "+ : C^2 -> C" is cocont *)
 Section bincoprod_functor.
 
 Variables (C : precategory) (PC : Coproducts C) (hsC : has_homsets C).
@@ -436,7 +440,7 @@ Defined.
 
 End bincoprod_functor.
 
-(* The functor "+ : C^I -> C" is cocont *)
+(** The functor "+ : C^I -> C" is cocont *)
 Section arbitrary_coprod_functor.
 
 Variables (I : UU) (C : precategory) (PC : ArbitraryCoproducts I C).
@@ -566,7 +570,7 @@ Definition omega_cocont_constprod_functor2 (x : C) :
 
 End constprod_functors.
 
-(* The functor "* : C^2 -> C" is omega cocont *)
+(** The functor "* : C^2 -> C" is omega cocont *)
 Section binprod_functor.
 
 Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
@@ -922,13 +926,8 @@ Definition omega_cocont_product_functor (F G : omega_cocont_functor C D) :
 
 End product_of_functors.
 
-(* Precomposition functor is cocontinuous *)
+(** Precomposition functor is cocontinuous *)
 Section pre_composition_functor.
-
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.RightKanExtension.
-Require Import UniMath.CategoryTheory.CommaCategories.
-Require Import UniMath.CategoryTheory.limits.cats.limits.
 
 Variables M C A : precategory.
 Variables (K : functor M C).
@@ -992,7 +991,6 @@ Local Definition R_functor : functor C A := tpair _ R_data R_is_functor.
 Local Definition eps_n (n : M) : A⟦R_functor (K n),T n⟧ :=
   coneOut (lambda (K n)) (n,,identity (K n)).
 
-(* TODO: Move to comma category file? *)
 Local Definition Kid n : K n ↓ K := (n,, identity (K n)).
 
 Local Lemma eps_is_nat_trans : is_nat_trans (functor_composite_data K R_data) T eps_n.
@@ -1017,7 +1015,7 @@ Local Definition eps : [M,A,hsA]⟦functor_composite K R_functor,T⟧ :=
 
 End fix_T.
 
-(* Construction of right Kan extensions based on MacLane, CWM, X.3 (p. 233) *)
+(** Construction of right Kan extensions based on MacLane, CWM, X.3 (p. 233) *)
 Lemma RightKanExtension_from_limits : GlobalRightKanExtensionExists _ _ K _ hsC hsA.
 Proof.
 unfold GlobalRightKanExtensionExists.
@@ -1113,7 +1111,7 @@ End pre_composition_functor.
 
 End cocont_functors.
 
-(* Specialized notations for HSET *)
+(** Specialized notations for HSET *)
 Delimit Scope cocont_functor_hset_scope with CS.
 
 Notation "' x" := (omega_cocont_constant_functor _ _ has_homsets_HSET x)

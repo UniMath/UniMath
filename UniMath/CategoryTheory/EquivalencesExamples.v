@@ -2,8 +2,15 @@
 
 This file contains some adjunctions:
 
-- The delta_functor is left adjoint to binproduct_functor
-- The bincoproduct_functor left adjoint to delta_functor
+- The binary delta_functor is left adjoint to binproduct_functor
+
+- The general delta functor is left adjoint to the general product
+  functor
+
+- The bincoproduct_functor is left adjoint to the binary delta functor
+
+- The general coproduct functor is left adjoint to the general delta
+  functor
 
 Written by: Anders Mörtberg, 2016
 
@@ -26,7 +33,7 @@ Section delta_functor_adjunction.
 
 Context {C : precategory} (PC : Products C).
 
-(* The delta_functor is left adjoint to binproduct_functor *)
+(** The binary delta_functor is left adjoint to binproduct_functor *)
 Lemma is_left_adjoint_delta_functor : is_left_adjoint (delta_functor C).
 Proof.
 apply (tpair _ (binproduct_functor PC)).
@@ -55,6 +62,7 @@ Section arbitrary_delta_functor_adjunction.
 
 Context (I : UU) {C : precategory} (PC : ArbitraryProducts I C).
 
+(** The general delta functor is left adjoint to the general product functor *)
 Lemma is_left_adjoint_arbitrary_delta_functor :
   is_left_adjoint (arbitrary_delta_functor I C).
 Proof.
@@ -85,7 +93,7 @@ Section bincoproduct_functor_adjunction.
 
 Context {C : precategory} (PC : Coproducts C).
 
-(* The bincoproduct_functor left adjoint to delta_functor *)
+(** The bincoproduct_functor left adjoint to delta_functor *)
 Lemma is_left_adjoint_bincoproduct_functor : is_left_adjoint (bincoproduct_functor PC).
 Proof.
 apply (tpair _ (delta_functor _)).
@@ -115,6 +123,7 @@ Section arbitrary_coproduct_functor_adjunction.
 
 Context (I : UU) {C : precategory} (PC : ArbitraryCoproducts I C).
 
+(** The general coproduct functor left adjoint to the general delta functor *)
 Lemma is_left_adjoint_arbitrary_indexed_coproduct_functor :
   is_left_adjoint (arbitrary_indexed_coproduct_functor I PC).
 Proof.
