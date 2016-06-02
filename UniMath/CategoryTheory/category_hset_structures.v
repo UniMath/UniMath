@@ -25,10 +25,12 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.arbitrary_products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.equivalences.
@@ -244,6 +246,24 @@ simple refine (mk_CoproductCocone _ _ _ _ _ _ _).
                case x; intros; apply idpath]).
 Defined.
 
+Lemma ArbitraryCoproducts_HSET (I : UU) (HI : isaset I) : ArbitraryCoproducts I HSET.
+Proof.
+intros A.
+simple refine (mk_ArbitraryCoproductCocone _ _ _ _ _ _).
+- mkpair.
+  + apply (Σ i, pr1 (A i)).
+  + eapply (isaset_total2 _ HI); intro i; apply setproperty.
+- simpl; apply tpair.
+- apply (mk_isArbitraryCoproductCocone _ _ has_homsets_HSET).
+  intros C f; simpl in *.
+  mkpair.
+  * apply (tpair _ (fun X => f (pr1 X) (pr2 X))); abstract (intro i; apply idpath).
+  * abstract (intros h; apply subtypeEquality; simpl;
+      [ intro; apply impred; intro; apply has_homsets_HSET
+      | destruct h as [t ht]; simpl; apply funextfun;
+        intro x; rewrite <- ht; destruct x; apply idpath]).
+Defined.
+
 Section CoproductsHSET_from_Colims.
 
 Require UniMath.CategoryTheory.limits.graphs.coproducts.
@@ -293,36 +313,23 @@ Proof.
               apply isasetaprop, setproperty ].
 Defined.
 
-(* TODO: clean *)
 Lemma LimConeHSET : LimCone D.
 Proof.
-  simple refine (mk_LimCone _ _ _ _ ).
-  - apply limset.
-  - simple refine (mk_cone _ _ ).
-    + intro u. simpl.
-      intro f.
-      exact (pr1 f u).
-    + abstract (intros u v e; simpl; apply funextfun; intro f; simpl; apply (pr2 f)).
-  - intros X CC.
-    simple refine (tpair _ _ _ ).
-    + simple refine (tpair _ _ _ ).
-      * simpl.
-        intro x.
-        {
-          simple refine (tpair _ _ _ ).
-          - intro u.
-            apply (coneOut CC u x).
-          - abstract (intros u v e; simpl; set (T := coneOutCommutes CC _ _ e);
-                      apply (toforallpaths _ _ _ T)).
-        }
-      * abstract (intro v; apply idpath).
-   + abstract (intro t; apply subtypeEquality;
-     [ intro; apply impred; intro; apply isaset_set_fun_space
-     | simpl; destruct t as [t p]; simpl; apply funextfun; intro x; simpl;
-       unfold compose; simpl; apply subtypeEquality];
-       [intro; repeat (apply impred; intro); apply setproperty
-       |simpl; apply funextsec; intro u; simpl in p;
-       set (p' := toforallpaths _ _ _ (p u)); apply p']).
+simple refine (mk_LimCone _ _ _ _ ).
+- apply limset.
+- apply (tpair _ (fun u f => pr1 f u)).
+  abstract (intros u v e; simpl; apply funextfun; intro f; simpl; apply (pr2 f)).
+- intros X CC.
+  mkpair.
+  + mkpair.
+    * intro x; apply (tpair _ (fun u => coneOut CC u x)).
+      abstract (intros u v e; apply (toforallpaths _ _ _ (coneOutCommutes CC _ _ e))).
+    * abstract (intro v; apply idpath).
+  + abstract (intros [t p]; apply subtypeEquality;
+              [ intro; apply impred; intro; apply isaset_set_fun_space
+              | apply funextfun; intro; apply subtypeEquality];
+                [ intro; repeat (apply impred; intro); apply setproperty
+                | apply funextsec; intro u; apply (toforallpaths _ _ _ (p u))]).
 Defined.
 
 End limits.
@@ -331,7 +338,6 @@ Lemma LimsHSET : Lims HSET.
 Proof.
 now intros g d; apply LimConeHSET.
 Defined.
-
 
 (** Alternative definition of limits using cats/limits *)
 Section cats_limits.
@@ -354,36 +360,23 @@ Proof.
               apply isasetaprop, setproperty ].
 Defined.
 
-(* TODO: clean *)
 Lemma cats_LimConeHSET : cats.limits.LimCone D.
 Proof.
-  simple refine (mk_LimCone _ _ _ _ ).
-  - apply cats_limset.
-  - simple refine (mk_cone _ _ ).
-    + intro u. simpl.
-      intro f.
-      exact (pr1 f u).
-    + abstract (intros u v e; simpl; apply funextfun; intro f; simpl; apply (pr2 f)).
-  - intros X CC.
-    simple refine (tpair _ _ _ ).
-    + simple refine (tpair _ _ _ ).
-      * simpl.
-        intro x.
-        {
-          simple refine (tpair _ _ _ ).
-          - intro u.
-            apply (coneOut CC u x).
-          - abstract (intros u v e; simpl; set (T := coneOutCommutes CC _ _ e);
-                      apply (toforallpaths _ _ _ T)).
-        }
-      * abstract (intro v; apply idpath).
-   + abstract (intro t; apply subtypeEquality;
+simple refine (mk_LimCone _ _ _ _ ).
+- apply cats_limset.
+- apply (tpair _ (fun u f => pr1 f u)).
+  abstract (intros u v e; apply funextfun; intro f; apply (pr2 f)).
+- intros X CC.
+  mkpair.
+  + mkpair.
+    * intro x; apply (tpair _ (fun u => coneOut CC u x)).
+      abstract (intros u v e; apply (toforallpaths _ _ _ (coneOutCommutes CC _ _ e))).
+    * abstract (intro v; apply idpath).
+  + abstract (intros [t p]; apply subtypeEquality;
      [ intro; apply impred; intro; apply isaset_set_fun_space
-     | simpl; destruct t as [t p]; simpl; apply funextfun; intro x; simpl;
-       unfold compose; simpl; apply subtypeEquality];
-       [intro; repeat (apply impred; intro); apply setproperty
-       |simpl; apply funextsec; intro u; simpl in p;
-       set (p' := toforallpaths _ _ _ (p u)); apply p']).
+     | apply funextfun; intro x; apply subtypeEquality];
+       [ intro; repeat (apply impred; intro); apply setproperty
+       | simpl; apply funextsec; intro u; apply (toforallpaths _ _ _ (p u))]).
 Defined.
 
 End cats_limits.
@@ -413,6 +406,22 @@ simple refine (mk_ProductCone _ _ _ _ _ _ _).
     | destruct h as [t [ht1 ht2]]; simpl; apply funextfun; intro x;
                rewrite <- ht2, <- ht1; unfold compose; simpl;
                case (t x); intros; apply idpath]).
+Defined.
+
+Lemma ArbitraryProducts_HSET (I : UU) : ArbitraryProducts I HSET.
+Proof.
+intros A.
+simple refine (mk_ArbitraryProductCone _ _ _ _ _ _).
+- apply (tpair _ (forall i, pr1 (A i))); apply isaset_forall_hSet.
+- simpl; intros i f; apply (f i).
+- apply (mk_isArbitraryProductCone _ _ has_homsets_HSET).
+  intros C f; simpl in *.
+  mkpair.
+  * apply (tpair _ (fun c i => f i c)); intro i; apply idpath.
+   * abstract (intros h; apply subtypeEquality; simpl;
+       [ intro; apply impred; intro; apply has_homsets_HSET
+       | destruct h as [t ht]; simpl; apply funextfun; intro x;
+         apply funextsec; intro i; rewrite <- ht; apply idpath ]).
 Defined.
 
 Section ProductsHSET_from_Lims.
@@ -508,7 +517,7 @@ Defined.
 
 End exponentials.
 
-(* This section defines exponential in [C,HSET] following a slight
+(** This section defines exponential in [C,HSET] following a slight
 variation of Moerdijk-MacLane (p. 46, Prop. 1).
 
 The formula for [C,Set] is G^F(f)=Hom(Hom(f,−)×id(F),G) taken from:
