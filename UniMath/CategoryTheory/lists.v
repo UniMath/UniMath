@@ -280,6 +280,12 @@ Defined.
 Definition foldr_list {A B : UU} (f : A -> B -> B) (b : B) : list A -> B :=
   list_ind A (fun _ => B) b (fun a _ b' => f a b').
 
+Definition length_list {A : UU} : list A -> nat :=
+  foldr_list (fun _ x => S x) 0.
+
+(* Eval compute in length_list (cons_list unit tt *)
+(*                               (cons_list unit tt (nil_list unit))). *)
+
 (* Variation of foldr that returns a for the empty list and folds the
    rest with the first element as new default value *)
 Definition foldr1_list {A : UU} (f : A -> A -> A) (a : A) (l : list A) : A.
