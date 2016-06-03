@@ -45,8 +45,8 @@ Require Import UniMath.SubstitutionSystems.SigToMonad.
 Require Import UniMath.SubstitutionSystems.GenSigToMonad.
 Require Import UniMath.SubstitutionSystems.LiftingInitial.
 
-Infix "::" := (cons_list nat).
-Notation "[]" := (nil_list nat) (at level 0, format "[]").
+Local Infix "::" := (cons_list nat).
+Local Notation "[]" := (nil_list nat) (at level 0, format "[]").
 Local Notation "'HSET2'":= [HSET, HSET, has_homsets_HSET].
 
 Section preamble.
@@ -54,21 +54,6 @@ Section preamble.
 Lemma isdecequnit : isdeceq unit.
 Proof.
 apply (isdeceqifisaprop _ isapropunit).
-Defined.
-
-Lemma isdeceqcoprod {A B : UU} (h1 : isdeceq A) (h2 : isdeceq B) :
-  isdeceq (A ⨿ B).
-Proof.
-intros ab ab'.
-induction ab as [a|b]; induction ab' as [a'|b'].
-- induction (h1 a a') as [p|p].
-+ apply inl, (maponpaths (@ii1 A B) p).
-+ apply inr; intro H; apply (p (ii1_injectivity _ _ H)).
-- apply inr, negpathsii1ii2.
-- apply inr, negpathsii2ii1.
-- induction (h2 b b') as [p|p].
-+ apply inl, (maponpaths (@ii2 A B) p).
-+ apply inr; intro H; apply (p (ii2_injectivity _ _ H)).
 Defined.
 
 Definition three_rec {A : UU} (a b c : A) : stn 3 -> A.
@@ -93,16 +78,6 @@ Defined.
 Definition has_homsets_HSET2 : has_homsets HSET2.
 Proof.
 apply functor_category_has_homsets.
-Defined.
-
-(* Convenient function for combining decidability proofs and
-   signatures *)
-Definition SumGenSig {A B : UU} (p1 : isdeceq A × GenSig A)
-  (p2 : isdeceq B × GenSig B) : isdeceq (A ⨿ B) × GenSig (A ⨿ B).
-Proof.
-split.
-+ apply (isdeceqcoprod (pr1 p1) (pr1 p2)).
-+ induction 1; [ apply (pr2 p1 a) | apply (pr2 p2 b) ].
 Defined.
 
 End preamble.
@@ -158,13 +133,17 @@ Local Notation "[0,0,0]" := (0 :: 0 :: 0 :: []).
 Local Notation "[0,0,2]" := (0 :: 0 :: 2 :: []).
 Local Notation "[0,1,1]" := (0 :: 1 :: 1 :: []).
 
-Definition PiSig : GenSig (stn 3) := three_rec [0,1] [1] [0,0].
+Definition PiSig : GenSig :=
+  mkGenSig (isdeceqstn 3) (three_rec [0,1] [1] [0,0]).
 
-Definition SigmaSig : GenSig (stn 3) := three_rec [0,1] [0,0] [0,2].
+Definition SigmaSig : GenSig :=
+  mkGenSig (isdeceqstn 3) (three_rec [0,1] [0,0] [0,2]).
 
-Definition SumSig : GenSig (stn 4) := four_rec [0,0] [0] [0] [0,1,1].
+Definition SumSig : GenSig :=
+  mkGenSig (isdeceqstn 4) (four_rec [0,0] [0] [0] [0,1,1]).
 
-Definition IdSig : GenSig (stn 3) := three_rec [0,0,0] [] [0,0].
+Definition IdSig : GenSig :=
+  mkGenSig (isdeceqstn 3) (three_rec [0,0,0] [] [0,0]).
 
 (* Define the arity of the eliminators for Fin by recursion *)
 Definition FinSigElim (n : nat) : list nat.
@@ -175,7 +154,7 @@ induction n as [|n ih].
 Defined.
 
 (* Define the signature of the constructors for Fin by recursion *)
-Definition FinSigConstructors (n : nat) : GenSig (stn n).
+Definition FinSigConstructors (n : nat) : stn n -> list nat.
 Proof.
 intros [m p].
 destruct (natlthorgeh m n) as [|h].
@@ -195,7 +174,7 @@ Defined.
 (* Defined. *)
 
 (* Uncurried version of the FinSig family *)
-Definition FinSig : GenSig (Σ n, unit ⨿ (stn n ⨿ unit)).
+Definition FinSigFun : (Σ n : nat, unit ⨿ (stn n ⨿ unit)) → list nat.
 Proof.
 induction 1 as [n p].
 induction p as [_|p].
@@ -222,35 +201,34 @@ induction (isdeceqnat n m) as [h|h].
 - apply inr; intro H; apply (h (maponpaths pr1 H)).
 Defined.
 
-Definition NatSig : GenSig (stn 4) := four_rec [] [] [0] [0,0,2].
+Definition FinSig : GenSig := mkGenSig isdeceqFinSig FinSigFun.
 
-Definition WSig : GenSig (stn 3) := three_rec [0,1] [0,0] [0,3].
+Definition NatSig : GenSig :=
+  mkGenSig (isdeceqstn 4) (four_rec [] [] [0] [0,0,2]).
 
-Definition USig : GenSig nat := fun _ => [].
+Definition WSig : GenSig :=
+  mkGenSig (isdeceqstn 3) (three_rec [0,1] [0,0] [0,3]).
+
+Definition USig : GenSig := mkGenSig isdeceqnat (fun _ => []).
 
 Let SigHSET := Signature HSET has_homsets_HSET.
 
-Definition MLTT79Sig :=
-  (isdeceqstn 3,,PiSig) ++ (isdeceqstn 3,,SigmaSig) ++
-  (isdeceqstn 4,,SumSig) ++ (isdeceqstn 3,,IdSig) ++
-  (isdeceqFinSig,,FinSig) ++ (isdeceqstn 4,,NatSig) ++
-  (isdeceqstn 3,,WSig) ++ (isdeceqnat,,USig).
+Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++
+                        FinSig ++ NatSig ++ WSig ++ USig.
 
 (* Check MLTT79Sig. *)
 
-Definition MLTT79Signature : SigHSET :=
-  GenSigToSignature _ (pr1 MLTT79Sig) (pr2 MLTT79Sig).
+Definition MLTT79Signature : SigHSET := GenSigToSignature MLTT79Sig.
 
 Definition MLTT79Functor : functor HSET2 HSET2 :=
   Id_H _ _ CoproductsHSET MLTT79Signature.
 
-Definition MLTT79Monad : Monad HSET :=
-  GenSigToMonad _ (pr1 MLTT79Sig) (pr2 MLTT79Sig).
+Definition MLTT79Monad : Monad HSET := GenSigToMonad MLTT79Sig.
 
 Lemma MLTT79Functor_Initial :
    Initial (FunctorAlg MLTT79Functor has_homsets_HSET2).
 Proof.
-apply (GenSigInitial _ (pr1 MLTT79Sig) (pr2 MLTT79Sig)).
+apply (GenSigInitial MLTT79Sig).
 Defined.
 
 Definition MLTT79 : HSET2 :=

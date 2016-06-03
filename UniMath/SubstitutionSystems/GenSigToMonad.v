@@ -52,6 +52,25 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
 
+Section move_upstream.
+
+Lemma isdeceqcoprod {A B : UU} (h1 : isdeceq A) (h2 : isdeceq B) :
+  isdeceq (A ⨿ B).
+Proof.
+intros ab ab'.
+induction ab as [a|b]; induction ab' as [a'|b'].
+- induction (h1 a a') as [p|p].
+  + apply inl, (maponpaths (@ii1 A B) p).
+  + apply inr; intro H; apply (p (ii1_injectivity _ _ H)).
+- apply inr, negpathsii1ii2.
+- apply inr, negpathsii2ii1.
+- induction (h2 b b') as [p|p].
+  + apply inl, (maponpaths (@ii2 A B) p).
+  + apply inr; intro H; apply (p (ii2_injectivity _ _ H)).
+Defined.
+
+End move_upstream.
+
 (* Translation from a Sig to a monad by: *)
 (* S : SIG *)
 (* |-> *)
@@ -64,28 +83,49 @@ Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
 (* M := Monad_from_HSS(I)    # *)
 Section GenSigToMonad.
 
-Variables (I : UU) (HI : isdeceq I).
+Definition GenSig : UU := Σ (I : UU), Σ (h : isdeceq I), I -> list nat.
 
-Definition GenSig : UU := I -> list nat.
+Definition GenSigIndex : GenSig -> UU := pr1.
+Definition GenSigIsdeceq (s : GenSig) : isdeceq (GenSigIndex s) :=
+  pr1 (pr2 s).
+Definition GenSigMap (s : GenSig) : GenSigIndex s -> list nat :=
+  pr2 (pr2 s).
 
-(* [[nat]] to Signature *)
-Definition GenSigToSignature : GenSig -> Signature HSET has_homsets_HSET.
+Definition mkGenSig {I : UU} (h : isdeceq I) (f : I -> list nat) : GenSig :=
+  tpair _ I (tpair _ h f).
+
+Definition SumGenSig : GenSig -> GenSig -> GenSig.
+  (* (p2 : isdeceq B × GenSig B) : isdeceq (A ⨿ B) × GenSig (A ⨿ B). *)
 Proof.
-intro sig.
-eapply (ArbitrarySum_of_Signatures I).
-- apply ArbitraryCoproducts_HSET, (isasetifdeceq _ HI).
-- intro i; apply (Arity_to_Signature (sig i)).
+intros s1 s2.
+mkpair.
+- apply (GenSigIndex s1 ⨿ GenSigIndex s2).
+- mkpair.
+  + apply (isdeceqcoprod (GenSigIsdeceq s1) (GenSigIsdeceq s2)).
+  + induction 1 as [i|i]; [ apply (GenSigMap s1 i) | apply (GenSigMap s2 i) ].
 Defined.
 
-Lemma is_omega_cocont_GenSigToSignature (s : GenSig) : is_omega_cocont (GenSigToSignature s).
+Variable (sig : GenSig).
+Let I := GenSigIndex sig.
+Let HI := GenSigIsdeceq sig.
+
+Definition GenSigToSignature : Signature HSET has_homsets_HSET.
+Proof.
+eapply (ArbitrarySum_of_Signatures I).
+- apply ArbitraryCoproducts_HSET, (isasetifdeceq _ HI).
+- intro i; apply (Arity_to_Signature (GenSigMap sig i)).
+Defined.
+
+Lemma is_omega_cocont_GenSigToSignature : is_omega_cocont GenSigToSignature.
 Proof.
 apply (is_omega_cocont_ArbitrarySum_of_Signatures _ HI).
 - intro i; apply is_omega_cocont_Arity_to_Signature.
 - apply ArbitraryProducts_HSET.
 Defined.
 
-Definition GenSigInitial (sig : GenSig) :
-  Initial (FunctorAlg (Id_H HSET has_homsets_HSET CoproductsHSET (GenSigToSignature sig)) has_homsets_HSET2).
+Definition GenSigInitial :
+  Initial (FunctorAlg (Id_H HSET has_homsets_HSET CoproductsHSET
+                        GenSigToSignature) has_homsets_HSET2).
 Proof.
 use colimAlgInitial.
 - unfold Id_H, Const_plus_H.
@@ -99,20 +139,19 @@ use colimAlgInitial.
 - apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.
 
-Definition GenSigInitialHSS (sig : GenSig) :
-  Initial (hss_precategory CoproductsHSET (GenSigToSignature sig)).
+Definition GenSigInitialHSS : Initial (hss_precategory CoproductsHSET GenSigToSignature).
 Proof.
 apply InitialHSS.
 - intro Z; apply RightKanExtension_from_limits, cats_LimsHSET.
 - apply GenSigInitial.
 Defined.
 
-Definition GenSigToMonad (sig : GenSig) : Monad HSET.
+Definition GenSigToMonad : Monad HSET.
 Proof.
 use Monad_from_hss.
 - apply has_homsets_HSET.
 - apply CoproductsHSET.
-- apply (GenSigToSignature sig).
+- apply GenSigToSignature.
 - apply GenSigInitialHSS.
 Defined.
 
