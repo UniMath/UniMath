@@ -83,6 +83,14 @@ Defined.
 Definition GenLamSig : GenSig bool := fun b =>
   if b then 0 :: 0 :: [] else 1 :: [].
 
+Local Notation "'Id'" := (functor_identity _).
+
+Local Notation "F * G" := (H HSET has_homsets_HSET ProductsHSET F G).
+
+Local Notation "F + G" := (SumOfSignatures.H _ _ CoproductsHSET F G).
+Local Notation "'_' 'o' 'option'" :=
+  (ℓ (option_functor HSET CoproductsHSET TerminalHSET)) (at level 10).
+
 Definition GenLamSignature : Signature HSET has_homsets_HSET := GenSigToSignature _ isdeceqbool GenLamSig.
 Definition GenLamFunctor : functor HSET2 HSET2 := Id_H _ _ CoproductsHSET GenLamSignature.
 
