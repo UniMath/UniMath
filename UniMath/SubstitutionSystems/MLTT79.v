@@ -95,31 +95,6 @@ Proof.
 apply functor_category_has_homsets.
 Defined.
 
-Definition ProductsHSET2 : Products HSET2.
-Proof.
-apply (Products_functor_precat _ _ ProductsHSET).
-Defined.
-
-Definition ArbitraryProductsHSET2 : ArbitraryProducts bool HSET2.
-Proof.
-apply (ArbitraryProducts_functor_precat _ _ _ (ArbitraryProducts_HSET bool)).
-Defined.
-
-Definition CoproductsHSET2 : Coproducts HSET2.
-Proof.
-apply (Coproducts_functor_precat _ _ CoproductsHSET).
-Defined.
-
-Lemma has_exponentials_HSET2 : has_exponentials ProductsHSET2.
-Proof.
-apply has_exponentials_functor_HSET, has_homsets_HSET.
-Defined.
-
-Lemma InitialHSET2 : Initial HSET2.
-Proof.
-apply (Initial_functor_precat _ _ InitialHSET).
-Defined.
-
 (* Convenient function for combining decidability proofs and
    signatures *)
 Definition SumGenSig {A B : UU} (p1 : isdeceq A × GenSig A)
@@ -172,6 +147,7 @@ Universes          U_0,U_1,...                 [],[],...
 
 *)
 
+(* Some convenient notations *)
 Local Notation "[0]" := (0 :: []).
 Local Notation "[1]" := (1 :: []).
 Local Notation "[0,0]" := (0 :: 0 :: []).
@@ -190,7 +166,7 @@ Definition SumSig : GenSig (stn 4) := four_rec [0,0] [0] [0] [0,1,1].
 
 Definition IdSig : GenSig (stn 3) := three_rec [0,0,0] [] [0,0].
 
-(* Define the signature of the eliminators for Fin by recursion *)
+(* Define the arity of the eliminators for Fin by recursion *)
 Definition FinSigElim (n : nat) : list nat.
 Proof.
 induction n as [|n ih].
@@ -260,7 +236,7 @@ Definition MLTT79Sig :=
   (isdeceqFinSig,,FinSig) ++ (isdeceqstn 4,,NatSig) ++
   (isdeceqstn 3,,WSig) ++ (isdeceqnat,,USig).
 
-Check MLTT79Sig.
+(* Check MLTT79Sig. *)
 
 Definition MLTT79Signature : SigHSET :=
   GenSigToSignature _ (pr1 MLTT79Sig) (pr2 MLTT79Sig).
