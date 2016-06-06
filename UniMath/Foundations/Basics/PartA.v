@@ -2141,15 +2141,12 @@ Proof. intros.
 set (f:= fun p: P x => tpair _ x p).
 
 set (cx := c x).
-set (cnew:=  fun x':X  =>
-match cx with
-ii1 x0 =>
-match c x' with
-ii1 ee => ii1  (pathscomp0   (pathsinv0  x0) ee)|
-ii2 phi => ii2  phi
-end |
-ii2 phi => c x'
-end).
+transparent assert (cnew : (∀ x' : X, (x = x') ⨿ ¬ P x')).
+  { intro x'. refine (coprod_rect (fun _ => _) _ _ (cx)).
+  - intro x0. refine (coprod_rect (fun _ => _) _ _ (c x')).
+    + intro ee. apply ii1; exact (pathscomp0 (pathsinv0 x0) ee).
+    + intro phi. apply ii2, phi.
+  - intro phi. exact (c x'). }
 
 set (g:= fun pp: total2 P =>
 match (cnew (pr1  pp)) with
