@@ -156,7 +156,7 @@ isolate-bug: sub/coq-tools/find-bug.py
 	@ echo "=== the isolated bug has been deposited in the file UniMath/$(ISOLATED_BUG_FILE)"
 	@ echo "==="
 
-world: all html doc 
+world: all html doc latex-doc
 
 latex-doc: $(LATEXDIR)/doc.pdf
 
