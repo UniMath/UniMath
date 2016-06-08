@@ -2141,15 +2141,12 @@ Proof. intros.
 set (f:= fun p: P x => tpair _ x p).
 
 set (cx := c x).
-set (cnew:=  fun x':X  =>
-match cx with
-ii1 x0 =>
-match c x' with
-ii1 ee => ii1  (pathscomp0   (pathsinv0  x0) ee)|
-ii2 phi => ii2  phi
-end |
-ii2 phi => c x'
-end).
+transparent assert (cnew : (∀ x' : X, (x = x') ⨿ ¬ P x')).
+  { intro x'. refine (coprod_rect (fun _ => _) _ _ (cx)).
+  - intro x0. refine (coprod_rect (fun _ => _) _ _ (c x')).
+    + intro ee. apply ii1; exact (pathscomp0 (pathsinv0 x0) ee).
+    + intro phi. apply ii2, phi.
+  - intro phi. exact (c x'). }
 
 set (g:= fun pp: total2 P =>
 match (cnew (pr1  pp)) with
@@ -2180,77 +2177,6 @@ apply (pathscomp0   (pathscomp0   e2 ee) eee).
 apply (gradth  f g egf efg).
 
 unfold isweq.  intro y0. induction (e0 (g y0)). Defined.
-
-
-(* Below is another proof of onefiber that does not use iterated match. *)
-
-
-Theorem onefiber' { X : UU } ( P : X -> UU ) ( x : X )
-      ( c : ∀ x' : X , coprod ( x = x' ) ( P x' -> empty ) ) :
-  isweq ( fun p : P x => tpair P x p ) .
-Proof.
-  intros .
-
-  set ( f := fun p => tpair _ x p ) .
-
-  set ( Q1 := hfiber ( @pr1 _ P ) x ) .
-  set ( Q2 := Σ xp : total2 P, ( P ( pr1 xp ) -> empty ) ) .
-  set ( toQ1Q2 := fun xp : total2 P => fun eorem : coprod ( x = ( pr1 xp ) )
-                                                          ( P ( pr1 xp ) -> empty ) =>
-                                         @sumofmaps _ _ ( coprod Q1 Q2 )
-                                                    ( fun e => ii1 ( tpair _ xp ( ! e ) ) )
-                                                    ( fun em => ii2 ( tpair _ xp em ) ) eorem ) .
-  set ( ctot := fun xp : total2 P => toQ1Q2 xp ( c ( pr1 xp ) ) ) .
-
-  set ( int1 := fun q1 : Q1 => transportf P  ( pr2 q1 ) ( pr2  ( pr1 q1 ) ) ) .
-  set ( int2 := fun q2 : Q2 => @fromempty ( P x ) ( ( pr2 q2 ) ( pr2 ( pr1 q2 ) ) ) ) .
-  set ( cint := fun xp : total2 P => ( sumofmaps int1  int2 ) ( ctot xp ) ) .
-
-  apply ( @twooutofsixu _ _ _ _ f cint f ) .
-
-
-  unfold funcomp . unfold cint . unfold f . unfold ctot . unfold toQ1Q2 . simpl .
-  induction ( c x ) as [ e | em ] .
-
-  unfold int1 . simpl . apply isweqtransportf .
-
-  simpl . unfold isweq .  intro p . induction ( em p ) .
-
-
-  assert ( efg : ∀ xp : total2 P , f ( cint xp ) = xp ) .
-
-  set ( dpr := @sumofmaps Q1 Q2 _ pr1 pr1 ) .
-
-  assert ( hint : ∀ xp : total2 P , dpr ( ctot xp ) = xp ) .  intro xp .
-  unfold ctot . unfold toQ1Q2. unfold dpr .  simpl .
-  induction ( c ( pr1 xp ) ) . apply idpath . apply idpath .
-
-   intro xp .
-
-  set ( ctotxp := ctot xp ) . assert ( e : ctotxp = ctot xp ) . apply idpath .
-
-  unfold cint . change ( ctot xp ) with ctotxp .
-
-  induction ctotxp as [ q1 | q2 ] . unfold sumofmaps .  simpl .
-
-  assert ( e1 : pr1 q1 = xp ) . set  ( eint := maponpaths ( sumofmaps pr1 pr1 ) e ) .
-  simpl in eint. exact ( eint @ ( hint xp ) ) .
-
-  assert ( e2 : tpair P x ( int1 q1 ) = pr1 q1 ) .  unfold int1 . induction ( pr2 q1 ) .
-  unfold transportf .  simpl . unfold idfun . apply pathsinv0 . apply tppr .
-
-  exact ( e2 @ e1 ) .
-
-  assert ( e1 : pr1 q2 = xp ) .  set  ( eint := maponpaths ( sumofmaps pr1 pr1 ) e ) .
-  simpl in eint. exact ( eint @ ( hint xp ) ) .
-
-  induction ( ( pr2 q2 ) ( transportb P ( maponpaths pr1 e1 ) ( pr2 xp ) ) ) .
-
-  apply ( isweqhomot _ _ ( invhomot efg ) ) . exact ( idisweq _ ) .
-
-Defined.
-
-
 
 
 
