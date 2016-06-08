@@ -2,7 +2,7 @@
 (** Author: Catherine LELAY. Jan 2016 - *)
 (** Based on Bourbaky *)
 
-Require Export UniMath.Topology.Complements.
+Require Export UniMath.Topology.Miscellaneous.
 
 Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
 
@@ -275,7 +275,7 @@ Defined.
 
 (** *** Image of a filter *)
 
-Section filtermap.
+Section filterim.
 
 Context {X Y : UU}.
 Context (f : X -> Y) (F : (X -> hProp) -> hProp).
@@ -284,66 +284,66 @@ Context (Himp : isfilter_imply F)
         (Hand : isfilter_and F)
         (Hempty : isfilter_notempty F).
 
-Definition filtermap :=
+Definition filterim :=
   λ A : (Y -> hProp), F (λ x : X, A (f x)).
 
-Lemma filtermap_imply :
-  isfilter_imply filtermap.
+Lemma filterim_imply :
+  isfilter_imply filterim.
 Proof.
   intros A B H.
   apply Himp.
   intros x.
   apply H.
 Qed.
-Lemma filtermap_htrue :
-  isfilter_htrue filtermap.
+Lemma filterim_htrue :
+  isfilter_htrue filterim.
 Proof.
   apply Htrue.
 Qed.
-Lemma filtermap_and :
-  isfilter_and filtermap.
+Lemma filterim_and :
+  isfilter_and filterim.
 Proof.
   intros A B.
   apply Hand.
 Qed.
-Lemma filtermap_notempty :
-  isfilter_notempty filtermap.
+Lemma filterim_notempty :
+  isfilter_notempty filterim.
 Proof.
   apply Hempty.
 Qed.
 
-End filtermap.
+End filterim.
 
-Definition PreFilterMap {X Y : UU} (f : X -> Y) (F : PreFilter X) : PreFilter Y.
+Definition PreFilterIm {X Y : UU} (f : X -> Y) (F : PreFilter X) : PreFilter Y.
 Proof.
   intros.
   simple refine (mkPreFilter _ _ _ _).
-  exact (filtermap f F).
-  apply filtermap_imply, filter_imply.
-  apply filtermap_htrue, filter_htrue.
-  apply filtermap_and, filter_and.
+  exact (filterim f F).
+  apply filterim_imply, filter_imply.
+  apply filterim_htrue, filter_htrue.
+  apply filterim_and, filter_and.
 Defined.
 
-Definition FilterMap {X Y : UU} (f : X -> Y) (F : Filter X) : Filter Y.
+Definition FilterIm {X Y : UU} (f : X -> Y) (F : Filter X) : Filter Y.
 Proof.
   intros X Y f F.
   refine (tpair _ _ _).
   split.
-  apply (pr2 (PreFilterMap f F)).
-  apply filtermap_notempty, filter_notempty.
+  apply (pr2 (PreFilterIm f F)).
+  apply filterim_notempty, filter_notempty.
 Defined.
 
-Lemma PreFilterMap_incr {X Y : UU} :
+Lemma PreFilterIm_incr {X Y : UU} :
   ∀ (f : X -> Y) (F G : PreFilter X),
-    filter_le F G -> filter_le (PreFilterMap f F) (PreFilterMap f G).
+    filter_le F G -> filter_le (PreFilterIm f F) (PreFilterIm f G).
 Proof.
   intros X Y.
   intros f F G Hle A ; simpl.
   apply Hle.
 Qed.
-Lemma FilterMap_incr {X Y : UU} :
+Lemma FilterIm_incr {X Y : UU} :
   ∀ (f : X -> Y) (F G : Filter X),
-    filter_le F G -> filter_le (FilterMap f F) (FilterMap f G).
+    filter_le F G -> filter_le (FilterIm f F) (FilterIm f G).
 Proof.
   intros X Y.
   intros f F G Hle A ; simpl.
@@ -353,7 +353,7 @@ Qed.
 (** *** Limit: filter version *)
 
 Definition filterlim {X Y : UU} (f : X -> Y) (F : PreFilter X) (G : PreFilter Y) :=
-  filter_le (PreFilterMap f F) G.
+  filter_le (PreFilterIm f F) G.
 
 Lemma filterlim_comp {X Y Z : UU} :
   ∀ (f : X -> Y) (g : Y -> Z)
@@ -660,14 +660,14 @@ Proof.
 Defined.
 
 Definition PreFilterPr1 {X Y : UU} (F : PreFilter (X × Y)) : PreFilter X :=
-  (PreFilterMap pr1 F).
+  (PreFilterIm pr1 F).
 Definition FilterPr1 {X Y : UU} (F : Filter (X × Y)) : Filter X :=
-  (FilterMap pr1 F).
+  (FilterIm pr1 F).
 
 Definition PreFilterPr2 {X Y : UU} (F : PreFilter (X × Y)) : PreFilter Y :=
-  (PreFilterMap (@pr2 X (λ _ : X, Y)) F).
+  (PreFilterIm (@pr2 X (λ _ : X, Y)) F).
 Definition FilterPr2 {X Y : UU} (F : Filter (X × Y)) : Filter Y :=
-  (FilterMap (@pr2 X (λ _ : X, Y)) F).
+  (FilterIm (@pr2 X (λ _ : X, Y)) F).
 
 Goal ∀ {X Y : UU} (F : PreFilter (X × Y)),
     filter_le F (PreFilterDirprod (PreFilterPr1 F) (PreFilterPr2 F)).
