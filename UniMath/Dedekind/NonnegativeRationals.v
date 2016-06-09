@@ -755,7 +755,8 @@ Proof.
   intros (x,Hx) (y,Hy) Hle.
   unfold minusNonnegativeRationals, hnnq_minus ; simpl pr1.
   destruct hqgthorleh as [H | H].
-  - now apply fromempty, Hle, H.
+  - apply fromempty.
+    exact (Hle H).
   - reflexivity.
 Qed.
 Lemma minusNonnegativeRationals_plus_r :

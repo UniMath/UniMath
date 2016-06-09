@@ -220,19 +220,16 @@ Opaque foldr.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A × X -> X) : foldr X x f nil = x.
 Proof.
-assert (F := maponpaths (fun x => CoproductIn1 _ _ ;; x)
+assert (F := maponpaths (λ x, CoproductIn1 _ (CoproductsHSET _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
-
-Set Printing All.
-Print foldr_nil.
 
 Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
                  (a : pr1 A) (l : pr1 List) :
   foldr X x f (cons (a,,l)) = f (a,,foldr X x f l).
 Proof.
-assert (F := maponpaths (fun x => CoproductIn2 _ _ ;; x)
+assert (F := maponpaths (fun x => CoproductIn2 _ (CoproductsHSET _ _) ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l)).
 clear F.

@@ -124,13 +124,14 @@ $ make MOREFLAGS=-time
 ```
 For postprocessing of the (huge) output, use our utility ```slowest```, like this:
 ```bash
-$ make MOREFLAGS=-time TIMECMD='util/slowest 10'
+$ make MOREFLAGS=-time TIMECMD='util/slowest 10 0.5'
 ```
-For each Coq file compiled, the timing of the 10 slowest steps will be displayed.
+For each Coq file compiled, the timing of the 10 slowest steps taking at least
+0.5 seconds will be displayed.
 
 You may time both steps and files like this:
 ```bash
-$ make MOREFLAGS=-time TIMECMD='gtime -f "user time %U: $(basename $*)" util/slowest 10'
+$ make MOREFLAGS=-time TIMECMD='gtime -f "user time %U: $(basename $*)" util/slowest 10 0.5'
 ```
 
 To speed up execution on a machine with multiple cores or pseudo-cores, specify
