@@ -195,7 +195,7 @@ Definition Dcuts_le_rel : hrel Dcuts_set :=
 Lemma istrans_Dcuts_le_rel : istrans Dcuts_le_rel.
 Proof.
   intros x y z Hxy Hyz r Xr.
-  now apply Hyz, Hxy.
+  refine (Hyz _ _). now refine (Hxy _ _).
 Qed.
 Lemma isrefl_Dcuts_le_rel : isrefl Dcuts_le_rel.
 Proof.
@@ -326,7 +326,8 @@ Proof.
   - intros Hxy ; unfold neg.
     apply (hinhuniv (P := hProppair _ isapropempty)) ;
     intros (r,(Yr,Xr)).
-    now apply Yr, Hxy.
+    refine (Yr _).
+    now refine (Hxy _ _).
 Qed.
 
 Lemma istrans_Dcuts_lt_le_rel :
@@ -336,7 +337,7 @@ Proof.
   revert Hlt ; apply hinhfun ; intros (r,(nXr,Yr)).
   exists r ; split.
   - exact nXr.
-  - now apply Hle.
+  - now refine (Hle _ _).
 Qed.
 Lemma istrans_Dcuts_le_lt_rel :
   ∀ x y z : Dcuts_set, Dcuts_le_rel x y -> Dcuts_lt_rel y z -> Dcuts_lt_rel x z.
@@ -345,7 +346,7 @@ Proof.
   apply hinhfun ; intros (r,(nYr,Zr)).
   exists r ; split.
   - intros Xr ; apply nYr.
-    now apply Hle.
+    now refine (Hle _ _).
   - exact Zr.
 Qed.
 
@@ -536,8 +537,8 @@ Proof.
   intros x y le_xy ge_xy.
   apply Dcuts_eq_is_eq.
   split.
-  now apply le_xy.
-  now apply ge_xy.
+  now refine (le_xy _).
+  now refine (ge_xy _).
 Qed.
 
 Lemma Dcuts_gt_lt :
@@ -610,7 +611,7 @@ Proof.
       exact Hr0.
       now apply lt_leNonnegativeRationals, Hqr.
     + rewrite minusNonnegativeRationals_plus_r.
-      now apply isirrefl_StrongOrder.
+      now refine (isirrefl_StrongOrder _ _).
       now apply lt_leNonnegativeRationals, Hqr.
   - now left.
 Qed.
@@ -1401,7 +1402,7 @@ Proof.
     { apply istrans_lt_le_ltNonnegativeRationals with (2 := NQmax_le_l _ _).
       exact one_lt_twoNonnegativeRationals. }
     assert (Hr0 : (0 < r)%NRat).
-    { apply istrans_le_lt_ltNonnegativeRationals with (2 := Hr1).
+    { simple refine (istrans_le_lt_ltNonnegativeRationals _ _ _ _ Hr1).
       now apply isnonnegative_NonnegativeRationals. }
     exists (/ (r * r))%NRat ; split.
     + apply hinhpr.
@@ -2606,7 +2607,7 @@ Proof.
   - apply hinhuniv ; intros (x,(Xx,Hx)).
     simpl ; rewrite <- (minusNonnegativeRationals_eq_zero x _ (isrefl_leNonnegativeRationals _)).
     apply Hx.
-    now left ; apply Hxy.
+    left; now refine (Hxy _ _).
   - intro H.
     now apply fromempty ; apply (Dcuts_zero_empty r).
 Qed.
@@ -2683,7 +2684,7 @@ Proof.
       apply lt_leNonnegativeRationals ; rewrite <- (minusNonnegativeRationals_zero_r y).
       apply Hy.
       now right.
-    + now apply Hyz.
+    + now refine (Hyz _ _).
     + simpl in Zr |- *.
       revert YZr ; apply hinhuniv ; simpl ; intros (y,(Yy,Hy)).
       apply (is_Dcuts_bot _ _ Yy).
@@ -2856,7 +2857,7 @@ Proof.
   apply Dcuts_eq_is_eq ; intros r ; split.
   apply hinhuniv ; intros [Xr|Yr].
   - exact Xr.
-  - now apply Hxy.
+  - now refine (Hxy _ _).
   - intros Xr.
     now apply hinhpr ; left.
 Qed.
@@ -2875,7 +2876,7 @@ Proof.
   apply Dcuts_eq_is_eq ; intros r ; split.
   - apply hinhuniv ; intros [ | ] ; apply hinhuniv ; [intros [XYr | Yr] | intros ((rxy,ry),(->,(XYr,Yr)))].
     + apply hinhpr ; left.
-      revert XYr ; now apply Dcuts_minus_le.
+      revert XYr ; now refine (Dcuts_minus_le _ _ _).
     + now apply hinhpr ; right.
     + revert XYr ; apply hinhfun ; intros (x,(Xx,Hx)) ; simpl in * |- *.
       left ; apply is_Dcuts_bot with (1 := Xx).
@@ -2925,8 +2926,8 @@ Lemma Dcuts_max_le :
 Proof.
   intros x y z Hx Hy r.
   apply hinhuniv ; intros [Xr|Yr].
-  now apply Hx.
-  now apply Hy.
+  now refine (Hx _ _).
+  now refine (Hy _ _).
 Qed.
 Lemma Dcuts_max_lt :
   ∀ x y z : Dcuts, x < z -> y < z -> Dcuts_max x y < z.
