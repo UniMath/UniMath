@@ -237,7 +237,7 @@ Defined.
 (******************************************************************************)
 (* Interchange Law *)
 
-Definition interchange {C : prebicategory} {a b c : C}
+Lemma interchange {C : prebicategory} {a b c : C}
   {f1 f2 f3 : a -1-> b} {g1 g2 g3 : b -1-> c}
   (a1 : f1 -2-> f2) (a2 : f2 -2-> f3)
   (b1 : g1 -2-> g2) (b2 : g2 -2-> g3)
@@ -245,7 +245,7 @@ Definition interchange {C : prebicategory} {a b c : C}
 Proof.
   unfold compose_2mor_horizontal.
   unfold dirprodpair.
-  assert (X : (prodcatmor a1 b1) ;v; (prodcatmor a2 b2) = (prodcatmor (a1;v;a2) (b1;v;b2))). reflexivity.
+  assert (X : (prodcatmor a1 b1) ;v; (prodcatmor a2 b2) = (prodcatmor (a1;v;a2) (b1;v;b2))) by reflexivity.
   unfold prodcatmor in X.
   simpl in X. (* This has no visible effect on X, but rewrite doesn't work without it  *)
   rewrite <- X.
@@ -599,4 +599,139 @@ Proof.
   split.
   exact PreCat_associator_and_unitors_are_iso.
   exact PreCat_coherence.
+Defined.
+
+(******************************************************************************)
+(* The bicategory of categories *)
+
+Definition Cat_1mor_2mor : prebicategory_ob_1mor_2mor.
+Proof.
+  exists category.
+  intros a b.
+  exact (functor_precategory a b (category_has_homsets b)).
+Defined.
+
+Definition Cat_id_comp : prebicategory_id_comp.
+Proof.
+  exists Cat_1mor_2mor.
+  split.
+  - simpl.
+    exact functor_identity.
+  - simpl.
+    intros a b c.
+    exact (functorial_composition a b c (category_has_homsets b) (category_has_homsets c)).
+Defined.
+
+Definition Cat_data : prebicategory_data.
+Proof.
+  unfold prebicategory_data.
+  exists Cat_id_comp.
+  repeat split.
+  - intros.
+    simpl in a,b,c,d.
+    exact (Catlike_associator a b c d (category_has_homsets b)
+                                      (category_has_homsets c)
+                                      (category_has_homsets d)).
+  - intros.
+    simpl in a, b.
+    exact (Catlike_left_unitor a b (category_has_homsets a)
+                                   (category_has_homsets b)).
+  - intros.
+    simpl in a, b.
+    exact (Catlike_right_unitor a b (category_has_homsets b)).
+Defined.
+
+Definition Cat_has_2mor_set : has_2mor_sets Cat_data.
+Proof.
+  unfold has_2mor_sets.
+  intros a b f g.
+  apply isaset_nat_trans.
+  exact (category_has_homsets b).
+Defined.
+
+Definition Cat_associator_and_unitors_are_iso : associator_and_unitors_are_iso Cat_data.
+Proof.
+  unfold associator_and_unitors_are_iso.
+  repeat split.
+  - intros a b c d f g h.
+    unfold associator.
+    apply functor_iso_if_pointwise_iso.
+    intros oba.
+    simpl.
+    unfold is_isomorphism. (* What is even the point of this *)
+    simpl in d.
+    apply (identity_is_iso d).
+  - intros a b f.
+    unfold left_unitor.
+    apply functor_iso_if_pointwise_iso.
+    intros oba.
+    simpl.
+    unfold is_isomorphism.
+    simpl in b.
+    apply (identity_is_iso b).
+  - intros a b f.
+    unfold right_unitor.
+    apply functor_iso_if_pointwise_iso.
+    intros oba.
+    simpl.
+    unfold is_isomorphism.
+    simpl in b.
+    apply (identity_is_iso b).
+Defined.
+
+Definition Cat_coherence : prebicategory_coherence Cat_data.
+Proof.
+  unfold prebicategory_coherence.
+  split.
+  - intros a b c d e k h g f.
+    unfold pentagon_axiom.
+    apply nat_trans_eq. exact (category_has_homsets e).
+    intros x.
+    simpl.
+    simpl in e.
+    repeat rewrite functor_id.
+    repeat rewrite (id_left e _ _ _).
+    reflexivity.
+  - intros a b c f g.
+    unfold triangle_axiom.
+    apply nat_trans_eq. exact (category_has_homsets c).
+    intros x.
+    simpl.
+    simpl in c.
+    repeat rewrite functor_id.
+    repeat rewrite (id_left c _ _ _).
+    reflexivity.
+Defined.
+
+Definition Cat_prebicategory : prebicategory.
+Proof.
+  use tpair.
+  exact Cat_data.
+  unfold is_prebicategory.
+  split.
+  exact Cat_has_2mor_set.
+  split.
+  exact Cat_associator_and_unitors_are_iso.
+  exact Cat_coherence.
+Defined.
+
+Definition Cat_has_homcats : has_homcats Cat_prebicategory.
+Proof.
+  unfold has_homcats.
+  intros a b.
+  apply is_category_functor_category.
+Defined.
+
+Definition Cat_is_lt2saturated (a b : Cat_prebicategory)
+  : isweq (id_to_internal_equivalence a b).
+Proof.
+
+Admitted.
+
+Definition Cat : bicategory.
+Proof.
+  exists Cat_prebicategory.
+  split.
+  - exact Cat_has_homcats.
+  - exact Cat_is_lt2saturated.
 Defined.
