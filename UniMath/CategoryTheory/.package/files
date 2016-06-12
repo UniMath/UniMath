@@ -16,6 +16,8 @@ limits/graphs/pullbacks.v
 limits/more_on_pullbacks.v
 limits/initial.v
 limits/graphs/initial.v
+limits/zero.v
+limits/graphs/zero.v
 limits/coproducts.v
 limits/arbitrary_coproducts.v
 limits/graphs/coproducts.v
