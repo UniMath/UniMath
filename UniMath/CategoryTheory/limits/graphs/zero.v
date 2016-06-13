@@ -51,14 +51,12 @@ Section def_zero.
   (** Construction of Initial and Terminal from Zero. *)
   Definition Zero_to_Initial (Z : Zero) : Initial C.
   Proof.
-    induction Z.
-    exact (mk_Initial t (dirprod_pr1 p)).
+    exact (mk_Initial (pr1 Z) (dirprod_pr1 (pr2 Z))).
   Defined.
 
   Definition Zero_to_Terminal (Z : Zero) : Terminal C.
   Proof.
-    induction Z.
-    exact (mk_Terminal t (dirprod_pr2 p)).
+    exact (mk_Terminal (pr1 Z) (dirprod_pr2 (pr2 Z))).
   Defined.
 
   (** The following lemmas show that the underlying objects of Initial
@@ -66,14 +64,12 @@ Section def_zero.
   Lemma ZeroObject_equals_InitialObject (Z : Zero) :
     ZeroObject Z = InitialObject (Zero_to_Initial Z).
   Proof.
-    induction Z; unfold Zero_to_Initial; simpl.
     apply idpath.
   Defined.
 
   Lemma ZeroObject_equals_TerminalObject (Z : Zero) :
     ZeroObject Z = TerminalObject (Zero_to_Terminal Z).
   Proof.
-    induction Z; unfold Zero_to_Terminal; simpl.
     apply idpath.
   Defined.
 
@@ -111,8 +107,10 @@ Section def_zero.
         (induction e; apply identity_is_iso).
     apply (pre_comp_with_iso_is_inj _ _ _ _ (idtomor_inv _ _ e) H).
     rewrite -> assoc. rewrite idtomor_identity_right.
+    apply pathsinv0.
     rewrite remove_id_left with (g := InitialArrow (Zero_to_Initial Z) c);
       try apply idpath.
+    apply pathsinv0.
     apply colimArrowUnique; intros u; induction u.
   Defined.
 
@@ -125,8 +123,10 @@ Section def_zero.
         (induction e; apply identity_is_iso).
     apply (post_comp_with_iso_is_inj _ _ _ (idtomor _ _ e) H).
     rewrite <- assoc. rewrite idtomor_identity_right.
+    apply pathsinv0.
     rewrite remove_id_right with (g := TerminalArrow (Zero_to_Terminal Z) c);
       try apply idpath.
+    apply pathsinv0.
     apply limArrowUnique; intros u; induction u.
   Defined.
 
@@ -201,14 +201,19 @@ Section def_zero.
     are equal. *)
   Definition Initial_and_Terminal_to_Zero
              (I : Initial C) (T : Terminal C)
-             (e: InitialObject I = TerminalObject T) : Zero.
+             (e: iso (InitialObject I) (TerminalObject T)) : Zero.
   Proof.
     refine (mk_Zero (InitialObject I) _).
     unfold isZero. split.
     - refine (mk_isInitial (InitialObject I) _); intro b.
       + apply iscontrpair with (x := (InitialArrow I b)), InitialArrowUnique.
-    - rewrite e. refine (mk_isTerminal (TerminalObject T) _ ); intro a.
-      + apply iscontrpair with (x := (TerminalArrow T a)), TerminalArrowUnique.
+    - refine (mk_isTerminal (InitialObject I) _ ); intro a.
+      refine (tpair _ ((TerminalArrow T a) ;; (inv_from_iso e)) _); intros t.
+      apply (post_comp_with_iso_is_inj _ _ _ (morphism_from_iso _ _ _ e)
+                                       (pr2 e) _ _ _).
+      rewrite <- assoc. rewrite (iso_after_iso_inv e).
+      eapply pathsinv0, pathscomp0. apply remove_id_right; apply idpath.
+      apply pathsinv0, TerminalArrowUnique.
   Defined.
 
   (** The following lemma verifies that the ZeroObject of the Zero,
@@ -216,16 +221,13 @@ Section def_zero.
     equals the InitialObject of the Initial and the TerminalObject of the
     Terminal. *)
   Lemma Initial_and_Terminal_ob_equals_Zero_ob (I : Initial C)
-        (T :Terminal C) (e : InitialObject I = TerminalObject T) :
-    (InitialObject I = ZeroObject (Initial_and_Terminal_to_Zero I T e))
-      × (TerminalObject T = ZeroObject (Initial_and_Terminal_to_Zero I T e)).
+        (T :Terminal C) (e : iso (InitialObject I) (TerminalObject T)) :
+    (iso (InitialObject I) (ZeroObject (Initial_and_Terminal_to_Zero I T e)))
+      × (iso (TerminalObject T)
+             (ZeroObject (Initial_and_Terminal_to_Zero I T e))).
   Proof.
-    split.
-    - apply idpath.
-    - apply pathsinv0.
-      + assert (ZeroObject (Initial_and_Terminal_to_Zero I T e) =
-                InitialObject I) by apply idpath.
-        rewrite X. apply e.
+    unfold Initial_and_Terminal_to_Zero; simpl.
+    exact(identity_iso (InitialObject I),,iso_inv_from_iso e).
   Defined.
 End def_zero.
 
