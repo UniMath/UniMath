@@ -18,21 +18,6 @@ Section def_zero.
 
   Context {C : precategory}.
 
-  (** Equalities to identity morphisms. *)
-  Lemma idtomor_identity_left (c d : C) (e : c = d) :
-    (idtomor _ _ e) ;; (idtomor_inv _ _ e) = identity _.
-  Proof.
-    induction e; simpl.
-    apply remove_id_right; apply idpath.
-  Defined.
-
-  Lemma idtomor_identity_right (c d : C) (e : c = d) :
-    (idtomor_inv _ _  e) ;; (idtomor _ _ e) = identity _.
-  Proof.
-    induction e; simpl.
-    apply remove_id_left; apply idpath.
-  Defined.
-
   (** An object c is zero if it initial and terminal. *)
   Definition isZero (c : C) := (isInitial C c) × (isTerminal C c).
 
@@ -49,15 +34,10 @@ Section def_zero.
   Definition ZeroObject (Z : Zero) : C := pr1 Z.
 
   (** Construction of Initial and Terminal from Zero. *)
-  Definition Zero_to_Initial (Z : Zero) : Initial C.
-  Proof.
-    exact (mk_Initial (pr1 Z) (dirprod_pr1 (pr2 Z))).
-  Defined.
-
-  Definition Zero_to_Terminal (Z : Zero) : Terminal C.
-  Proof.
-    exact (mk_Terminal (pr1 Z) (dirprod_pr2 (pr2 Z))).
-  Defined.
+  Definition Zero_to_Initial (Z : Zero) : Initial C :=
+    mk_Initial (pr1 Z) (dirprod_pr1 (pr2 Z)).
+  Definition Zero_to_Terminal (Z : Zero) : Terminal C :=
+    mk_Terminal (pr1 Z) (dirprod_pr2 (pr2 Z)).
 
   (** The following lemmas show that the underlying objects of Initial
     and Terminal, constructed above, are equal to ZeroObject. *)
@@ -75,59 +55,28 @@ Section def_zero.
 
   (** We construct morphisms from ZeroObject to any other object c and from any
     other object c to the ZeroObject. *)
-  Definition ZeroArrowFrom (Z : Zero) (c : C) : C⟦ZeroObject Z, c⟧.
-  Proof.
-    set (f := InitialArrow (Zero_to_Initial Z) c).
-    set (g := idtomor _ _ (ZeroObject_equals_InitialObject Z)).
-    exact (g ;; f).
-  Defined.
-
-  Definition ZeroArrowTo (Z : Zero) (c : C) : C⟦c, ZeroObject Z⟧.
-  Proof.
-    set (f := TerminalArrow (Zero_to_Terminal Z) c).
-    set (g := idtomor_inv _ _ (ZeroObject_equals_TerminalObject Z)).
-    exact (f ;; g).
-  Defined.
+  Definition ZeroArrowFrom (Z : Zero) (c : C) : C⟦ZeroObject Z, c⟧ :=
+    InitialArrow (Zero_to_Initial Z) c.
+  Definition ZeroArrowTo (Z : Zero) (c : C) : C⟦c, ZeroObject Z⟧ :=
+    TerminalArrow (Zero_to_Terminal Z) c.
 
   (** In particular, we get a zero morphism between any objects. *)
-  Definition ZeroArrow (Z : Zero) (c d : C) : C⟦c, d⟧.
-  Proof.
-    exact (@compose C _ (ZeroObject Z) _ (ZeroArrowTo Z c) (ZeroArrowFrom Z d)).
-  Defined.
+  Definition ZeroArrow (Z : Zero) (c d : C) : C⟦c, d⟧ :=
+    @compose C _ (ZeroObject Z) _ (ZeroArrowTo Z c) (ZeroArrowFrom Z d).
 
   (** We show that the above morphisms from ZeroObject and to ZeroObject are
-    unique by using uniqueness of morphisms from colimits and uniqueness of
-    morphisms to limits. *)
+    unique by using uniqueness of the morphism from InitialObject and uniqueness
+    of the morphism to TerminalObject. *)
   Lemma ZeroArrowFromUnique (Z : Zero) (c : C) (f : C⟦ZeroObject Z, c⟧) :
     f = (ZeroArrowFrom Z c).
   Proof.
-    unfold ZeroArrowFrom.
-    set (e := ZeroObject_equals_InitialObject Z).
-    assert (H : is_iso (idtomor_inv _ _ e)) by
-        (induction e; apply identity_is_iso).
-    apply (pre_comp_with_iso_is_inj _ _ _ _ (idtomor_inv _ _ e) H).
-    rewrite -> assoc. rewrite idtomor_identity_right.
-    apply pathsinv0.
-    rewrite remove_id_left with (g := InitialArrow (Zero_to_Initial Z) c);
-      try apply idpath.
-    apply pathsinv0.
-    apply colimArrowUnique; intros u; induction u.
+    apply (InitialArrowUnique (Zero_to_Initial Z) c f).
   Defined.
 
   Lemma ZeroArrowToUnique (Z : Zero) (c : C) (f : C⟦c, ZeroObject Z⟧) :
     f = (ZeroArrowTo Z c).
   Proof.
-    unfold ZeroArrowTo.
-    set (e := ZeroObject_equals_TerminalObject Z).
-    assert (H : is_iso (idtomor _ _ e)) by
-        (induction e; apply identity_is_iso).
-    apply (post_comp_with_iso_is_inj _ _ _ (idtomor _ _ e) H).
-    rewrite <- assoc. rewrite idtomor_identity_right.
-    apply pathsinv0.
-    rewrite remove_id_right with (g := TerminalArrow (Zero_to_Terminal Z) c);
-      try apply idpath.
-    apply pathsinv0.
-    apply limArrowUnique; intros u; induction u.
+    apply (TerminalArrowUnique (Zero_to_Terminal Z) c f).
   Defined.
 
   (** Therefore, any two morphisms from the ZeroObject to an object c are
@@ -160,14 +109,14 @@ Section def_zero.
   Defined.
 
   (** Compose any morphism with the ZeroArrow and you get the ZeroArrow. *)
-  Lemma ZeroArrowLeft (Z : Zero) (a b c : C) (f : C⟦a, b⟧) :
+  Lemma precomp_with_ZeroArrow (Z : Zero) (a b c : C) (f : C⟦a, b⟧) :
     f ;; ZeroArrow Z b c = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite assoc.
     apply ZeroArrowUnique.
   Defined.
 
-  Lemma ZeroArrowRight (Z : Zero) (a b c : C) (f : C⟦b, c⟧) :
+  Lemma postcomp_with_ZeroArrow (Z : Zero) (a b c : C) (f : C⟦b, c⟧) :
     ZeroArrow Z a b ;; f = ZeroArrow Z a c.
   Proof.
     unfold ZeroArrow at 1. rewrite <- assoc.
@@ -198,35 +147,34 @@ Section def_zero.
   Definition hasZero := ishinh Zero.
 
   (** Construct Zero from Initial and Terminal for which the underlying objects
-    are equal. *)
+    are isomorphic. *)
   Definition Initial_and_Terminal_to_Zero
              (I : Initial C) (T : Terminal C)
              (e: iso (InitialObject I) (TerminalObject T)) : Zero.
   Proof.
     refine (mk_Zero (InitialObject I) _).
-    unfold isZero. split.
+    split.
     - refine (mk_isInitial (InitialObject I) _); intro b.
-      + apply iscontrpair with (x := (InitialArrow I b)), InitialArrowUnique.
+      apply iscontrpair with (x := (InitialArrow I b)), InitialArrowUnique.
     - refine (mk_isTerminal (InitialObject I) _ ); intro a.
-      refine (tpair _ ((TerminalArrow T a) ;; (inv_from_iso e)) _); intros t.
-      apply (post_comp_with_iso_is_inj _ _ _ (morphism_from_iso _ _ _ e)
-                                       (pr2 e) _ _ _).
-      rewrite <- assoc. rewrite (iso_after_iso_inv e).
-      eapply pathsinv0, pathscomp0. apply remove_id_right; apply idpath.
-      apply pathsinv0, TerminalArrowUnique.
+      apply (iscontrretract (postcomp_with (inv_from_iso e))
+                            (postcomp_with (morphism_from_iso _ _ _  e))).
+      intros y. unfold postcomp_with.
+      rewrite <- assoc. rewrite (iso_inv_after_iso e).
+      apply (remove_id_right _ _ _ y y _ (idpath _) (idpath _)).
+      apply (iscontrpair (TerminalArrow T a)), TerminalArrowUnique.
   Defined.
 
   (** The following lemma verifies that the ZeroObject of the Zero,
-    constructed from Initial and Terminal with InitialObject = TerminalObject,
-    equals the InitialObject of the Initial and the TerminalObject of the
-    Terminal. *)
+    constructed from Initial and Terminal with InitialObject isomorphic to
+    TerminalObject, is isomorphic to the InitialObject and isomorphic to the
+    TerminalObject. *)
   Lemma Initial_and_Terminal_ob_equals_Zero_ob (I : Initial C)
         (T :Terminal C) (e : iso (InitialObject I) (TerminalObject T)) :
     (iso (InitialObject I) (ZeroObject (Initial_and_Terminal_to_Zero I T e)))
       × (iso (TerminalObject T)
              (ZeroObject (Initial_and_Terminal_to_Zero I T e))).
   Proof.
-    unfold Initial_and_Terminal_to_Zero; simpl.
     exact(identity_iso (InitialObject I),,iso_inv_from_iso e).
   Defined.
 End def_zero.
