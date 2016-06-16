@@ -93,6 +93,45 @@ Arguments InitialArrowUnique {_} _ _ _ .
 Arguments mk_isInitial {_} _ _ _ .
 Arguments mk_Initial {_} _ _.
 
+Section Initial_and_EmptyCoprod.
+  Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
+
+  (** Construct Initial from empty arbitrary coproduct. *)
+  Definition initial_from_empty_coproduct (C : precategory):
+    ArbitraryCoproductCocone empty C fromempty -> Initial C.
+  Proof.
+    intros X.
+    refine (mk_Initial (ArbitraryCoproductObject _ _ X) _).
+    refine (mk_isInitial _ _).
+    intros b.
+    assert (H : forall i : empty, C⟦fromempty i, b⟧) by
+        (intros i; apply (fromempty i)).
+    apply (iscontrpair (ArbitraryCoproductArrow _ _ X H)); intros t.
+    apply ArbitraryCoproductArrowUnique; intros i; apply (fromempty i).
+  Defined.
+
+  (** Construct empty arbitrary coproduct from initial *)
+  Definition empty_coproduct_from_initial (C : category) :
+    Initial C -> ArbitraryCoproductCocone empty C fromempty.
+  Proof.
+    intros I.
+    assert (H : forall i : empty, C⟦fromempty i, I⟧) by
+        (intros i; apply (fromempty i)).
+    refine (mk_ArbitraryCoproductCocone _ _ _ (InitialObject I) H _).
+    refine (mk_isArbitraryCoproductCocone _ _ (pr2 (pr2 C)) _ _ _ _).
+    intros c g.
+    set (k := @InitialArrow _ I c).
+    assert (H0 : forall i : empty, H i ;; (InitialArrow I c) = g i) by
+        (intros i; apply (fromempty i)).
+    refine (iscontrpair (tpair _ k H0) _). intros t.
+    eapply (total2_paths (InitialArrowEq C I c _ _)).
+    apply proofirrelevance.
+    apply impred_isaprop.
+    intros t0.
+    apply (pr2 (pr2 C) _ _).
+  Defined.
+End Initial_and_EmptyCoprod.
+
 (* Section Initial_from_Colims. *)
 
 (* Require Import UniMath.CategoryTheory.limits.graphs.colimits. *)

@@ -5,9 +5,9 @@ Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f ;; g" := (compose f g)(at level 50).
 
 Section def_terminal.
 
@@ -93,6 +93,47 @@ Arguments TerminalObject [C] _.
 Arguments TerminalArrow [C]{T} b.
 Arguments mk_isTerminal {_} _ _ _ .
 Arguments mk_Terminal {_} _ _.
+
+
+Section Terminal_and_EmptyProd.
+  Require Import UniMath.CategoryTheory.limits.arbitrary_products.
+
+  (** Construct Terminal from empty arbitrary product. *)
+  Definition terminal_from_empty_product (C : precategory) :
+    ArbitraryProductCone empty C fromempty -> Terminal C.
+  Proof.
+    intros X.
+    refine (mk_Terminal (ArbitraryProductObject _ C X) _).
+    refine (mk_isTerminal _ _).
+    intros a.
+    assert (H : forall i : empty, C⟦a, fromempty i⟧) by
+        (intros i; apply (fromempty i)).
+    apply (iscontrpair (ArbitraryProductArrow _ _ X H)); intros t.
+    apply ArbitraryProductArrowUnique; intros i; apply (fromempty i).
+  Defined.
+
+  (** Construct empty arbitrary product from Terminal *)
+  Definition empty_product_from_terminal (C : category) :
+    Terminal C ->  ArbitraryProductCone empty C fromempty.
+  Proof.
+    intros T.
+    assert (H : forall i : empty, C⟦T, fromempty i⟧) by
+        (intros i; apply (fromempty i)).
+    refine (mk_ArbitraryProductCone _ _ _ T H _).
+    refine (mk_isArbitraryProductCone _ _ (pr2 (pr2 C)) _ _ _ _).
+    intros c f.
+    set (k := @TerminalArrow _ T c).
+    assert (H0 : forall i : empty, (TerminalArrow c) ;; H i = f i) by
+        (intros i; apply (fromempty i)).
+
+    refine (iscontrpair (tpair _ k H0) _). intros t.
+    eapply (total2_paths (ArrowsToTerminal C T c _ _)).
+    apply proofirrelevance.
+    apply impred_isaprop.
+    intros t0.
+    apply (pr2 (pr2 C) _ _).
+  Defined.
+End Terminal_and_EmptyProd.
 
 (* Section Terminal_from_Lims. *)
 
