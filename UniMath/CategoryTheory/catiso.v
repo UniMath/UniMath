@@ -120,6 +120,18 @@ Proof.
   apply (catiso_fully_faithful_weq F).
 Defined.
 
+Lemma catiso_essentially_surjective {A B : precategory}
+  (F : catiso A B)
+  : essentially_surjective F.
+Proof.
+  intros b.
+  apply hinhpr.
+  use tpair.
+  - exact (invweq (catiso_ob_weq F) b).
+  - apply idtoiso.
+    apply (homotweqinvweq (catiso_ob_weq F) b).
+Defined.
+
 (******************************************************************************)
 (** * Construction of a map (catiso A B) -> (A = B) *)
 
