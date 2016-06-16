@@ -81,7 +81,7 @@ Infix "++" := SumGenSig.
 
 Section MLTT79.
 
-(** MLTT79:
+(** This is the syntax as presented on page 158:
 
 Pi types           (Πx:A)B                     [0,1]
 lambda             (λx)b                       [1]
@@ -149,13 +149,7 @@ induction n as [|n ih].
 Defined.
 
 (* Define the signature of the constructors for Fin by recursion *)
-Definition FinSigConstructors (n : nat) : stn n -> list nat.
-Proof.
-intros [m p].
-destruct (natlthorgeh m n) as [|h].
-- apply [].
-- induction (natgehtonegnatlth _ _ h p).
-Defined.
+Definition FinSigConstructors (n : nat) : stn n -> list nat := fun _ => [].
 
 (* The FinSig family is defined by recursion and decomposed into the
    type, the constructors and the eliminator *)
