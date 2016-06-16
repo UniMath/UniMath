@@ -52,25 +52,6 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "'HSET2'":= ([HSET, HSET, has_homsets_HSET]) .
 
-Section move_upstream.
-
-Lemma isdeceqcoprod {A B : UU} (h1 : isdeceq A) (h2 : isdeceq B) :
-  isdeceq (A ⨿ B).
-Proof.
-intros ab ab'.
-induction ab as [a|b]; induction ab' as [a'|b'].
-- induction (h1 a a') as [p|p].
-  + apply inl, (maponpaths (@ii1 A B) p).
-  + apply inr; intro H; apply (p (ii1_injectivity _ _ H)).
-- apply inr, negpathsii1ii2.
-- apply inr, negpathsii2ii1.
-- induction (h2 b b') as [p|p].
-  + apply inl, (maponpaths (@ii2 A B) p).
-  + apply inr; intro H; apply (p (ii2_injectivity _ _ H)).
-Defined.
-
-End move_upstream.
-
 (* Translation from a Sig to a monad by: *)
 (* S : SIG *)
 (* |-> *)
@@ -95,7 +76,6 @@ Definition mkGenSig {I : UU} (h : isdeceq I) (f : I -> list nat) : GenSig :=
   tpair _ I (tpair _ h f).
 
 Definition SumGenSig : GenSig -> GenSig -> GenSig.
-  (* (p2 : isdeceq B × GenSig B) : isdeceq (A ⨿ B) × GenSig (A ⨿ B). *)
 Proof.
 intros s1 s2.
 mkpair.

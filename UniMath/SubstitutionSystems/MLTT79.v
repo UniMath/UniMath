@@ -51,11 +51,6 @@ Local Notation "'HSET2'":= [HSET, HSET, has_homsets_HSET].
 
 Section preamble.
 
-Lemma isdecequnit : isdeceq unit.
-Proof.
-apply (isdeceqifisaprop _ isapropunit).
-Defined.
-
 Definition three_rec {A : UU} (a b c : A) : stn 3 -> A.
 Proof.
 induction 1 as [n p].
