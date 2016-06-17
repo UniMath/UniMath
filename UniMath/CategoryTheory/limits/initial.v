@@ -111,24 +111,25 @@ Section Initial_and_EmptyCoprod.
   Defined.
 
   (** Construct empty arbitrary coproduct from initial *)
-  Definition empty_coproduct_from_initial (C : category) :
+  Definition empty_coproduct_from_initial (C : precategory)
+             (hs : has_homsets C) :
     Initial C -> ArbitraryCoproductCocone empty C fromempty.
   Proof.
     intros I.
     assert (H : forall i : empty, C⟦fromempty i, I⟧) by
         (intros i; apply (fromempty i)).
     refine (mk_ArbitraryCoproductCocone _ _ _ (InitialObject I) H _).
-    refine (mk_isArbitraryCoproductCocone _ _ (pr2 (pr2 C)) _ _ _ _).
+    refine (mk_isArbitraryCoproductCocone _ _ hs _ _ _ _).
     intros c g.
     set (k := @InitialArrow _ I c).
     assert (H0 : forall i : empty, H i ;; (InitialArrow I c) = g i) by
         (intros i; apply (fromempty i)).
     refine (iscontrpair (tpair _ k H0) _). intros t.
-    eapply (total2_paths (InitialArrowEq C I c _ _)).
+    apply (total2_paths (InitialArrowEq C I c _ _)).
     apply proofirrelevance.
     apply impred_isaprop.
     intros t0.
-    apply (pr2 (pr2 C) _ _).
+    apply hs.
   Defined.
 End Initial_and_EmptyCoprod.
 

@@ -113,25 +113,26 @@ Section Terminal_and_EmptyProd.
   Defined.
 
   (** Construct empty arbitrary product from Terminal *)
-  Definition empty_product_from_terminal (C : category) :
+  Definition empty_product_from_terminal (C : precategory)
+    (hs : has_homsets C) :
     Terminal C ->  ArbitraryProductCone empty C fromempty.
   Proof.
     intros T.
     assert (H : forall i : empty, C⟦T, fromempty i⟧) by
         (intros i; apply (fromempty i)).
     refine (mk_ArbitraryProductCone _ _ _ T H _).
-    refine (mk_isArbitraryProductCone _ _ (pr2 (pr2 C)) _ _ _ _).
+    refine (mk_isArbitraryProductCone _ _ hs _ _ _ _).
     intros c f.
     set (k := @TerminalArrow _ T c).
     assert (H0 : forall i : empty, (TerminalArrow c) ;; H i = f i) by
         (intros i; apply (fromempty i)).
 
     refine (iscontrpair (tpair _ k H0) _). intros t.
-    eapply (total2_paths (ArrowsToTerminal C T c _ _)).
+    apply (total2_paths (ArrowsToTerminal C T c _ _)).
     apply proofirrelevance.
     apply impred_isaprop.
     intros t0.
-    apply (pr2 (pr2 C) _ _).
+    apply hs.
   Defined.
 End Terminal_and_EmptyProd.
 
