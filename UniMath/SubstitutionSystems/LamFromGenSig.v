@@ -80,8 +80,8 @@ apply (Initial_functor_precat _ _ InitialHSET).
 Defined.
 
 (* The signature of the lambda calculus: { [0,0], [1] } *)
-Definition GenLamSig : GenSig bool := fun b =>
-  if b then 0 :: 0 :: [] else 1 :: [].
+Definition GenLamSig : GenSig :=
+  mkGenSig isdeceqbool (fun b => if b then 0 :: 0 :: [] else 1 :: []).
 
 Local Notation "'Id'" := (functor_identity _).
 
@@ -91,16 +91,16 @@ Local Notation "F + G" := (SumOfSignatures.H _ _ CoproductsHSET F G).
 Local Notation "'_' 'o' 'option'" :=
   (ℓ (option_functor HSET CoproductsHSET TerminalHSET)) (at level 10).
 
-Definition GenLamSignature : Signature HSET has_homsets_HSET := GenSigToSignature _ isdeceqbool GenLamSig.
+Definition GenLamSignature : Signature HSET has_homsets_HSET := GenSigToSignature GenLamSig.
 Definition GenLamFunctor : functor HSET2 HSET2 := Id_H _ _ CoproductsHSET GenLamSignature.
 
-Definition GenLamMonad : Monad HSET := GenSigToMonad _ isdeceqbool GenLamSig.
+Definition GenLamMonad : Monad HSET := GenSigToMonad GenLamSig.
 
 (* From here on it is exactly the same as in CT/lambdacalculus.v *)
 Lemma lambdaFunctor_Initial :
    Initial (FunctorAlg GenLamFunctor has_homsets_HSET2).
 Proof.
-apply (GenSigInitial _ isdeceqbool GenLamSig).
+apply (GenSigInitial GenLamSig).
 Defined.
 
 Definition LC : HSET2 :=
@@ -194,7 +194,7 @@ eapply pathscomp0.
   eapply cancel_postcomposition, cancel_postcomposition.
   apply (ArbitraryCoproductOfArrowsIn _ _ (ArbitraryCoproducts_functor_precat _ _ _
           (ArbitraryCoproducts_HSET _ (isasetifdeceq _ isdeceqbool))
-          _ (λ i, pr1 (Arity_to_Signature (GenLamSig i)) `LC_alg))).
+          _ (λ i, pr1 (Arity_to_Signature (GenSigMap GenLamSig i)) `LC_alg))).
 rewrite <- assoc.
 eapply pathscomp0; [eapply maponpaths, CoproductIn2Commutes|].
 rewrite <- assoc.
@@ -222,7 +222,7 @@ eapply pathscomp0.
   eapply cancel_postcomposition, cancel_postcomposition.
   apply (ArbitraryCoproductOfArrowsIn _ _ (ArbitraryCoproducts_functor_precat _ _ _
           (ArbitraryCoproducts_HSET _ (isasetifdeceq _ isdeceqbool))
-          _ (λ i, pr1 (Arity_to_Signature (GenLamSig i)) `LC_alg))).
+          _ (λ i, pr1 (Arity_to_Signature (GenSigMap GenLamSig i)) `LC_alg))).
 rewrite <- assoc.
 eapply pathscomp0.
   eapply maponpaths, CoproductIn2Commutes.

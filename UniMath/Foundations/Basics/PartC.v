@@ -577,6 +577,12 @@ Lemma eqfromdnegeq (X:UU)(is: isdeceq X)(x x':X): dneg ( paths x x' ) -> paths x
 Proof. intros X is x x' X0. induction ( is x x' ) as [ y | n ] . assumption .   induction ( X0 n ) . Defined .
 
 
+(** *** [ unit ] is a [ deceq ] type *)
+
+Lemma isdecequnit : isdeceq unit.
+Proof.
+apply (isdeceqifisaprop _ isapropunit).
+Defined.
 
 
 (** *** [ bool ] is a [ deceq ] type and a set *)
@@ -589,6 +595,22 @@ Theorem isasetbool: isaset bool.
 Proof. apply (isasetifdeceq _ isdeceqbool). Defined.
 
 
+(** *** [ coprod ] of [ deceq ] types *)
+
+Lemma isdeceqcoprod {A B : UU} (h1 : isdeceq A) (h2 : isdeceq B) :
+  isdeceq (A ⨿ B).
+Proof.
+intros A B h1 h2 ab ab'.
+induction ab as [a|b]; induction ab' as [a'|b'].
+- induction (h1 a a') as [p|p].
+  + apply inl, (maponpaths (@ii1 A B) p).
+  + apply inr; intro H; apply (p (ii1_injectivity _ _ H)).
+- apply inr, negpathsii1ii2.
+- apply inr, negpathsii2ii1.
+- induction (h2 b b') as [p|p].
+  + apply inl, (maponpaths (@ii2 A B) p).
+  + apply inr; intro H; apply (p (ii2_injectivity _ _ H)).
+Defined.
 
 
 (** *** Splitting of [ X ] into a coproduct defined by a function [ X -> bool ] *)
