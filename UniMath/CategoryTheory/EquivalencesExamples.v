@@ -26,7 +26,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.arbitrary_products.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
 
 Section delta_functor_adjunction.

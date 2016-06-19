@@ -18,18 +18,18 @@ Require Import UniMath.CategoryTheory.cocontfunctors.
 Require Import UniMath.CategoryTheory.lists.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.cats.limits.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.SumOfSignatures.
+Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
@@ -80,7 +80,7 @@ Local Notation "'Id'" := (functor_identity _).
 
 Local Notation "F * G" := (H HSET has_homsets_HSET BinProductsHSET F G).
 
-Local Notation "F + G" := (SumOfSignatures.H _ _ CoproductsHSET F G).
+Local Notation "F + G" := (BinSumOfSignatures.H _ _ CoproductsHSET F G).
 Local Notation "'_' 'o' 'option'" :=
   (ℓ (option_functor HSET CoproductsHSET TerminalHSET)) (at level 10).
 

@@ -26,7 +26,7 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monads.

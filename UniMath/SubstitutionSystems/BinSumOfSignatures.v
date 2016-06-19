@@ -29,12 +29,12 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.cocontfunctors.
@@ -52,7 +52,7 @@ Arguments θ_Strength2 {_ _ _} _ .
 Arguments θ_Strength1_int {_ _ _} _ .
 Arguments θ_Strength2_int {_ _ _} _ .
 
-Section sum_of_signatures.
+Section binsum_of_signatures.
 
 Variable C : precategory.
 Variable hs : has_homsets C.
@@ -282,7 +282,7 @@ Qed.
 
 End construction.
 
-Definition Sum_of_Signatures (S1 S2: Signature C hs) : Signature C hs.
+Definition BinSum_of_Signatures (S1 S2: Signature C hs) : Signature C hs.
 Proof.
   destruct S1 as [H1 [θ1 [S11' S12']]].
   destruct S2 as [H2 [θ2 [S21' S22']]].
@@ -293,9 +293,9 @@ Proof.
   + apply SumStrength2'; assumption.
 Defined.
 
-Lemma is_omega_cocont_Sum_of_Signatures (S1 S2 : Signature C hs)
+Lemma is_omega_cocont_BinSum_of_Signatures (S1 S2 : Signature C hs)
   (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) (PC : BinProducts C) :
-  is_omega_cocont (Sum_of_Signatures S1 S2).
+  is_omega_cocont (BinSum_of_Signatures S1 S2).
 Proof.
 destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
 destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
@@ -306,4 +306,4 @@ apply is_omega_cocont_coproduct_functor; try assumption.
 - apply functor_category_has_homsets.
 Defined.
 
-End sum_of_signatures.
+End binsum_of_signatures.

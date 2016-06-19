@@ -18,10 +18,10 @@ limits/initial.v
 limits/graphs/initial.v
 limits/zero.v
 limits/graphs/zero.v
-limits/coproducts.v
+limits/bincoproducts.v
 limits/arbitrary_coproducts.v
-limits/graphs/coproducts.v
-limits/FunctorsPointwiseCoproduct.v
+limits/graphs/bincoproducts.v
+limits/FunctorsPointwiseBinCoproduct.v
 limits/FunctorsPointwiseArbitraryCoproduct.v
 limits/FunctorsPointwiseBinProduct.v
 limits/FunctorsPointwiseArbitraryProduct.v

@@ -1,4 +1,4 @@
-SumOfSignatures.v
+BinSumOfSignatures.v
 ArbitrarySumOfSignatures.v
 BinProductOfSignatures.v
 SubstitutionSystems.v

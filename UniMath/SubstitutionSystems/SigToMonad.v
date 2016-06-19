@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
@@ -21,11 +21,11 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monads.
-Require Import UniMath.SubstitutionSystems.SumOfSignatures.
+Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
@@ -141,7 +141,7 @@ Proof.
 intro xs.
 generalize (map_list Arity_to_Signature xs).
 apply foldr1_list.
-- apply (Sum_of_Signatures _ _ CoproductsHSET).
+- apply (BinSum_of_Signatures _ _ CoproductsHSET).
 - apply IdSignature.
 Defined.
 
@@ -158,7 +158,7 @@ destruct n.
     generalize (IHn xs).
     destruct xs.
     intro IH.
-    apply is_omega_cocont_Sum_of_Signatures.
+    apply is_omega_cocont_BinSum_of_Signatures.
     apply is_omega_cocont_Arity_to_Signature.
     apply IH.
     apply BinProductsHSET.

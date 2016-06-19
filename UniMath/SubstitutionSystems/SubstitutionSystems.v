@@ -31,13 +31,13 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.SubstitutionSystems.Notation.
 
 

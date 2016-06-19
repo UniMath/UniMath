@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
@@ -32,9 +32,9 @@ Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.SumOfSignatures.
+Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
 Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
@@ -226,7 +226,7 @@ Definition Sum_of_Signatures
   : ∀ (C : precategory) (hs : has_homsets C),
        Coproducts C → Signature C hs → Signature C hs → Signature C hs.
 Proof.
-  apply Sum_of_Signatures.
+  apply BinSum_of_Signatures.
 Defined.
 
 

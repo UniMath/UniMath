@@ -29,15 +29,15 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
-Require Import UniMath.SubstitutionSystems.SumOfSignatures.
+Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 
 Arguments θ_source {_ _} _ .
@@ -670,7 +670,7 @@ Proof.
 Defined.
 
 Definition Lam_Sig: Signature C hs :=
-  Sum_of_Signatures C hs CC App_Sig Abs_Sig.
+  BinSum_of_Signatures C hs CC App_Sig Abs_Sig.
 
 Lemma is_omega_cocont_Lam (hE : has_exponentials (BinProducts_functor_precat C C CP hs)) (LC : Lims C) :
   is_omega_cocont (Signature_Functor _ _ Lam_Sig).
@@ -684,6 +684,6 @@ apply is_omega_cocont_coproduct_functor.
 Defined.
 
 Definition LamE_Sig: Signature C hs :=
-  Sum_of_Signatures C hs CC Lam_Sig Flat_Sig.
+  BinSum_of_Signatures C hs CC Lam_Sig Flat_Sig.
 
 End Lambda.

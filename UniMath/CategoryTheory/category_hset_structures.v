@@ -24,7 +24,7 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.opp_precat.
@@ -266,11 +266,11 @@ Defined.
 
 Section CoproductsHSET_from_Colims.
 
-Require UniMath.CategoryTheory.limits.graphs.coproducts.
+Require UniMath.CategoryTheory.limits.graphs.bincoproducts.
 
-Lemma CoproductsHSET_from_Colims : graphs.coproducts.Coproducts HSET.
+Lemma CoproductsHSET_from_Colims : graphs.bincoproducts.Coproducts HSET.
 Proof.
-exact (coproducts.Coproducts_from_Colims _ ColimsHSET).
+exact (bincoproducts.Coproducts_from_Colims _ ColimsHSET).
 Defined.
 
 End CoproductsHSET_from_Colims.
