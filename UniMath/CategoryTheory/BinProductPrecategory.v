@@ -189,7 +189,7 @@ Defined.
 (* Define pairs of functors and functors from pr1 and pr2 *)
 Section functors.
 
-Definition pair_functor_data {A B C D : precategory}
+Definition binproduct_pair_functor_data {A B C D : precategory}
   (F : functor A C) (G : functor B D) :
   functor_data (binproduct_precategory A B) (binproduct_precategory C D).
 Proof.
@@ -198,11 +198,11 @@ mkpair.
 - intros x y f; simpl; apply (binprodcatmor (# F (pr1 f)) (# G (pr2 f))).
 Defined.
 
-Definition pair_functor {A B C D : precategory}
+Definition binproduct_pair_functor {A B C D : precategory}
   (F : functor A C) (G : functor B D) :
   functor (binproduct_precategory A B) (binproduct_precategory C D).
 Proof.
-apply (tpair _ (pair_functor_data F G)).
+apply (tpair _ (binproduct_pair_functor_data F G)).
 abstract (split;
   [ intro x; simpl; rewrite !functor_id; apply idpath
   | intros x y z f g; simpl; rewrite !functor_comp; apply idpath]).
@@ -238,7 +238,7 @@ apply (tpair _ (pr2_functor_data A B)).
 abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
 Defined.
 
-Definition delta_functor_data (C : precategory) :
+Definition bindelta_functor_data (C : precategory) :
   functor_data C (binproduct_precategory C C).
 Proof.
 mkpair.
@@ -246,10 +246,10 @@ mkpair.
 - intros x y f; simpl; apply (binprodcatmor f f).
 Defined.
 
-Definition delta_functor (C : precategory) :
+Definition bindelta_functor (C : precategory) :
   functor C (binproduct_precategory C C).
 Proof.
-apply (tpair _ (delta_functor_data C)).
+apply (tpair _ (bindelta_functor_data C)).
 abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
 Defined.
 

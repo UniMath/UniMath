@@ -18,22 +18,22 @@ Require Import UniMath.CategoryTheory.cocontfunctors.
 Require Import UniMath.CategoryTheory.lists.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.arbitrary_products.
+Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.cats.limits.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseArbitraryProduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseArbitraryCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.ArbitrarySumOfSignatures.
+Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
@@ -59,9 +59,9 @@ Proof.
 apply (BinProducts_functor_precat _ _ BinProductsHSET).
 Defined.
 
-Local Definition ArbitraryProductsHSET2 : ArbitraryProducts bool HSET2.
+Local Definition ProductsHSET2 : Products bool HSET2.
 Proof.
-apply (ArbitraryProducts_functor_precat _ _ _ (ArbitraryProducts_HSET bool)).
+apply (Products_functor_precat _ _ _ (Products_HSET bool)).
 Defined.
 
 Local Definition BinCoproductsHSET2 : BinCoproducts HSET2.
@@ -122,7 +122,7 @@ apply BinProductsHSET2; [apply x | apply y].
 Defined.
 
 Definition app_map : HSET2⟦prod2 LC LC,LC⟧ :=
-  ArbitraryCoproductIn bool HSET2 _ true ;; BinCoproductIn2 HSET2 _ ;; LC_mor.
+  CoproductIn bool HSET2 _ true ;; BinCoproductIn2 HSET2 _ ;; LC_mor.
 
 Definition app_map' (x : HSET) : HSET⟦(pr1 LC x × pr1 LC x)%set,pr1 LC x⟧.
 Proof.
@@ -133,14 +133,14 @@ Let precomp_option X := (pre_composition_functor _ _ HSET has_homsets_HSET has_h
                   (option_functor HSET BinCoproductsHSET TerminalHSET) X).
 
 Definition lam_map : HSET2⟦precomp_option LC,LC⟧ :=
-  ArbitraryCoproductIn bool HSET2 _ false ;; BinCoproductIn2 HSET2 _ ;; LC_mor.
+  CoproductIn bool HSET2 _ false ;; BinCoproductIn2 HSET2 _ ;; LC_mor.
 
 Definition mk_lambdaAlgebra (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) : algebra_ob GenLamFunctor.
 Proof.
 apply (tpair _ X).
 simple refine (BinCoproductArrow _ _ fvar _).
-simple refine (ArbitraryCoproductArrow _ _ _ _).
+simple refine (CoproductArrow _ _ _ _).
 intro b; destruct b.
 - apply fapp.
 - apply flam.
@@ -180,7 +180,7 @@ Lemma foldr_app (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   app_map ;; foldr_map X fvar fapp flam =
   # (pr1 (Id * Id)) (foldr_map X fvar fapp flam) ;; fapp.
 Proof.
-assert (F := maponpaths (fun x => ArbitraryCoproductIn _ _ _ true ;; BinCoproductIn2 _ _ ;; x)
+assert (F := maponpaths (fun x => CoproductIn _ _ _ true ;; BinCoproductIn2 _ _ ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].
@@ -192,14 +192,14 @@ eapply pathscomp0.
 rewrite assoc.
 eapply pathscomp0.
   eapply cancel_postcomposition, cancel_postcomposition.
-  apply (ArbitraryCoproductOfArrowsIn _ _ (ArbitraryCoproducts_functor_precat _ _ _
-          (ArbitraryCoproducts_HSET _ (isasetifdeceq _ isdeceqbool))
+  apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
+          (Coproducts_HSET _ (isasetifdeceq _ isdeceqbool))
           _ (λ i, pr1 (Arity_to_Signature (GenSigMap GenLamSig i)) `LC_alg))).
 rewrite <- assoc.
 eapply pathscomp0; [eapply maponpaths, BinCoproductIn2Commutes|].
 rewrite <- assoc.
 eapply pathscomp0; eapply maponpaths.
-  refine (ArbitraryCoproductInCommutes _ _ _ _ _ _ true).
+  refine (CoproductInCommutes _ _ _ _ _ _ true).
 apply idpath.
 Defined.
 
@@ -208,7 +208,7 @@ Lemma foldr_lam (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   lam_map ;; foldr_map X fvar fapp flam =
   # (pr1 (_ o option)) (foldr_map X fvar fapp flam) ;; flam.
 Proof.
-assert (F := maponpaths (fun x => ArbitraryCoproductIn _ _ _ false ;; BinCoproductIn2 _ _ ;; x)
+assert (F := maponpaths (fun x => CoproductIn _ _ _ false ;; BinCoproductIn2 _ _ ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
 rewrite assoc in F.
 eapply pathscomp0; [apply F|].
@@ -220,15 +220,15 @@ eapply pathscomp0.
 rewrite assoc.
 eapply pathscomp0.
   eapply cancel_postcomposition, cancel_postcomposition.
-  apply (ArbitraryCoproductOfArrowsIn _ _ (ArbitraryCoproducts_functor_precat _ _ _
-          (ArbitraryCoproducts_HSET _ (isasetifdeceq _ isdeceqbool))
+  apply (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _
+          (Coproducts_HSET _ (isasetifdeceq _ isdeceqbool))
           _ (λ i, pr1 (Arity_to_Signature (GenSigMap GenLamSig i)) `LC_alg))).
 rewrite <- assoc.
 eapply pathscomp0.
   eapply maponpaths, BinCoproductIn2Commutes.
 rewrite <- assoc.
 eapply pathscomp0; eapply maponpaths.
-  refine (ArbitraryCoproductInCommutes _ _ _ _ _ _ false).
+  refine (CoproductInCommutes _ _ _ _ _ _ false).
 apply idpath.
 Defined.
 

@@ -608,7 +608,7 @@ Defined.
 *)
 Definition bincoproduct_of_functors_alt {C D : precategory}
   (HD : BinCoproducts D) (F G : functor C D) : functor C D :=
-  functor_composite (delta_functor C)
-     (functor_composite (pair_functor F G) (bincoproduct_functor HD)).
+  functor_composite (bindelta_functor C)
+     (functor_composite (binproduct_pair_functor F G) (bincoproduct_functor HD)).
 
 End functors.

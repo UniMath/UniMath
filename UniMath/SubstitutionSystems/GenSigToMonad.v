@@ -17,8 +17,8 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.arbitrary_products.
-Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
@@ -30,7 +30,7 @@ Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monads.
-Require Import UniMath.SubstitutionSystems.ArbitrarySumOfSignatures.
+Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
@@ -91,16 +91,16 @@ Let HI := GenSigIsdeceq sig.
 
 Definition GenSigToSignature : Signature HSET has_homsets_HSET.
 Proof.
-eapply (ArbitrarySum_of_Signatures I).
-- apply ArbitraryCoproducts_HSET, (isasetifdeceq _ HI).
+eapply (Sum_of_Signatures I).
+- apply Coproducts_HSET, (isasetifdeceq _ HI).
 - intro i; apply (Arity_to_Signature (GenSigMap sig i)).
 Defined.
 
 Lemma is_omega_cocont_GenSigToSignature : is_omega_cocont GenSigToSignature.
 Proof.
-apply (is_omega_cocont_ArbitrarySum_of_Signatures _ HI).
+apply (is_omega_cocont_Sum_of_Signatures _ HI).
 - intro i; apply is_omega_cocont_Arity_to_Signature.
-- apply ArbitraryProducts_HSET.
+- apply Products_HSET.
 Defined.
 
 Definition GenSigInitial :

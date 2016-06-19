@@ -5,7 +5,7 @@ opp_precat.v
 limits/terminal.v
 limits/graphs/terminal.v
 limits/binproducts.v
-limits/arbitrary_products.v
+limits/products.v
 limits/graphs/binproducts.v
 functor_categories.v
 FunctorAlgebras.v
@@ -19,12 +19,12 @@ limits/graphs/initial.v
 limits/zero.v
 limits/graphs/zero.v
 limits/bincoproducts.v
-limits/arbitrary_coproducts.v
+limits/coproducts.v
 limits/graphs/bincoproducts.v
 limits/FunctorsPointwiseBinCoproduct.v
-limits/FunctorsPointwiseArbitraryCoproduct.v
+limits/FunctorsPointwiseCoproduct.v
 limits/FunctorsPointwiseBinProduct.v
-limits/FunctorsPointwiseArbitraryProduct.v
+limits/FunctorsPointwiseProduct.v
 limits/graphs/colimits.v
 HLevel_n_is_of_hlevel_Sn.v
 category_hset_structures.v
@@ -46,7 +46,7 @@ AdjunctionHomTypesWeq.v
 EndofunctorsMonoidal.v
 RightKanExtension.v
 BinProductPrecategory.v
-ArbitraryProductPrecategory.v
+ProductPrecategory.v
 PointedFunctors.v
 PointedFunctorsComposition.v
 HorizontalComposition.v

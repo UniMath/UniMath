@@ -25,12 +25,12 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
+Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.arbitrary_products.
+Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.equivalences.
@@ -246,15 +246,15 @@ simple refine (mk_BinCoproductCocone _ _ _ _ _ _ _).
                case x; intros; apply idpath]).
 Defined.
 
-Lemma ArbitraryCoproducts_HSET (I : UU) (HI : isaset I) : ArbitraryCoproducts I HSET.
+Lemma Coproducts_HSET (I : UU) (HI : isaset I) : Coproducts I HSET.
 Proof.
 intros A.
-simple refine (mk_ArbitraryCoproductCocone _ _ _ _ _ _).
+simple refine (mk_CoproductCocone _ _ _ _ _ _).
 - mkpair.
   + apply (Σ i, pr1 (A i)).
   + eapply (isaset_total2 _ HI); intro i; apply setproperty.
 - simpl; apply tpair.
-- apply (mk_isArbitraryCoproductCocone _ _ has_homsets_HSET).
+- apply (mk_isCoproductCocone _ _ has_homsets_HSET).
   intros C f; simpl in *.
   mkpair.
   * apply (tpair _ (fun X => f (pr1 X) (pr2 X))); abstract (intro i; apply idpath).
@@ -408,13 +408,13 @@ simple refine (mk_BinProductCone _ _ _ _ _ _ _).
                case (t x); intros; apply idpath]).
 Defined.
 
-Lemma ArbitraryProducts_HSET (I : UU) : ArbitraryProducts I HSET.
+Lemma Products_HSET (I : UU) : Products I HSET.
 Proof.
 intros A.
-simple refine (mk_ArbitraryProductCone _ _ _ _ _ _).
+simple refine (mk_ProductCone _ _ _ _ _ _).
 - apply (tpair _ (forall i, pr1 (A i))); apply isaset_forall_hSet.
 - simpl; intros i f; apply (f i).
-- apply (mk_isArbitraryProductCone _ _ has_homsets_HSET).
+- apply (mk_isProductCone _ _ has_homsets_HSET).
   intros C f; simpl in *.
   mkpair.
   * apply (tpair _ (fun c i => f i c)); intro i; apply idpath.

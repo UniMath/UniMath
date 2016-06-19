@@ -1,5 +1,5 @@
 BinSumOfSignatures.v
-ArbitrarySumOfSignatures.v
+SumOfSignatures.v
 BinProductOfSignatures.v
 SubstitutionSystems.v
 Signatures.v

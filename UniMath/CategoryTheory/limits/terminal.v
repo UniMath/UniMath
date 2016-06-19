@@ -96,32 +96,32 @@ Arguments mk_Terminal {_} _ _.
 
 
 Section Terminal_and_EmptyProd.
-  Require Import UniMath.CategoryTheory.limits.arbitrary_products.
+  Require Import UniMath.CategoryTheory.limits.products.
 
   (** Construct Terminal from empty arbitrary product. *)
   Definition terminal_from_empty_product (C : precategory) :
-    ArbitraryProductCone empty C fromempty -> Terminal C.
+    ProductCone empty C fromempty -> Terminal C.
   Proof.
     intros X.
-    refine (mk_Terminal (ArbitraryProductObject _ C X) _).
+    refine (mk_Terminal (ProductObject _ C X) _).
     refine (mk_isTerminal _ _).
     intros a.
     assert (H : forall i : empty, C⟦a, fromempty i⟧) by
         (intros i; apply (fromempty i)).
-    apply (iscontrpair (ArbitraryProductArrow _ _ X H)); intros t.
-    apply ArbitraryProductArrowUnique; intros i; apply (fromempty i).
+    apply (iscontrpair (ProductArrow _ _ X H)); intros t.
+    apply ProductArrowUnique; intros i; apply (fromempty i).
   Defined.
 
   (** Construct empty arbitrary product from Terminal *)
   Definition empty_product_from_terminal (C : precategory)
     (hs : has_homsets C) :
-    Terminal C ->  ArbitraryProductCone empty C fromempty.
+    Terminal C ->  ProductCone empty C fromempty.
   Proof.
     intros T.
     assert (H : forall i : empty, C⟦T, fromempty i⟧) by
         (intros i; apply (fromempty i)).
-    refine (mk_ArbitraryProductCone _ _ _ T H _).
-    refine (mk_isArbitraryProductCone _ _ hs _ _ _ _).
+    refine (mk_ProductCone _ _ _ T H _).
+    refine (mk_isProductCone _ _ hs _ _ _ _).
     intros c f.
     set (k := @TerminalArrow _ T c).
     assert (H0 : forall i : empty, (TerminalArrow c) ;; H i = f i) by
