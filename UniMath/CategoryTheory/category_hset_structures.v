@@ -388,16 +388,16 @@ Defined.
 
 (** end of alternative def *)
 
-(* Direct construction of Products in HSET *)
-Lemma ProductsHSET : Products HSET.
+(* Direct construction of binary products in HSET *)
+Lemma BinProductsHSET : BinProducts HSET.
 Proof.
 intros A B.
-simple refine (mk_ProductCone _ _ _ _ _ _ _).
+simple refine (mk_BinProductCone _ _ _ _ _ _ _).
 - simpl in *; apply (tpair _ (dirprod A B)).
   abstract (apply isasetdirprod; apply setproperty).
 - simpl in *; apply pr1.
 - simpl in *; intros x; apply (pr2 x).
-- apply (mk_isProductCone _ has_homsets_HSET).
+- apply (mk_isBinProductCone _ has_homsets_HSET).
   intros C f g; simpl in *.
   simple refine (tpair _ _ _).
   * apply (tpair _ (prodtofuntoprod (f ,, g))); abstract (split; apply idpath).
@@ -424,16 +424,16 @@ simple refine (mk_ArbitraryProductCone _ _ _ _ _ _).
          apply funextsec; intro i; rewrite <- ht; apply idpath ]).
 Defined.
 
-Section ProductsHSET_from_Lims.
+Section BinProductsHSET_from_Lims.
 
 Require UniMath.CategoryTheory.limits.graphs.binproducts.
 
-Lemma ProductsHSET_from_Lims : graphs.binproducts.Products HSET.
+Lemma BinProductsHSET_from_Lims : graphs.binproducts.BinProducts HSET.
 Proof.
-exact (binproducts.Products_from_Lims _ LimsHSET).
+exact (binproducts.BinProducts_from_Lims _ LimsHSET).
 Defined.
 
-End ProductsHSET_from_Lims.
+End BinProductsHSET_from_Lims.
 
 Lemma TerminalHSET : Terminal HSET.
 Proof.
@@ -483,7 +483,7 @@ Defined.
 
 (* This checks that if we use constprod_functor2 the flip is not necessary *)
 Lemma are_adjoints_constprod_functor2 A :
-  are_adjoints (constprod_functor2 ProductsHSET A) (exponential_functor A).
+  are_adjoints (constprod_functor2 BinProductsHSET A) (exponential_functor A).
 Proof.
 mkpair.
 - mkpair.
@@ -498,7 +498,7 @@ mkpair.
   | intro b; apply funextfun; intro f; apply idpath]).
 Defined.
 
-Lemma has_exponentials_HSET : has_exponentials ProductsHSET.
+Lemma has_exponentials_HSET : has_exponentials BinProductsHSET.
 Proof.
 intro a.
 apply (tpair _ (exponential_functor a)).
@@ -528,7 +528,7 @@ Section exponentials_functor_cat.
 
 Variable (C : precategory) (hsC : has_homsets C).
 
-Let CP := Products_functor_precat C _ ProductsHSET has_homsets_HSET.
+Let CP := BinProducts_functor_precat C _ BinProductsHSET has_homsets_HSET.
 Let cy := covyoneda _ hsC.
 
 (* Defined Q^P *)
@@ -538,10 +538,10 @@ mkpair.
 - mkpair.
   + intro c.
     use hSetpair.
-    * apply (nat_trans (product_functor C _ ProductsHSET (cy c) P) Q).
+    * apply (nat_trans (binproduct_of_functors C _ BinProductsHSET (cy c) P) Q).
     * abstract (apply (isaset_nat_trans has_homsets_HSET)).
   + simpl; intros a b f alpha.
-    apply (ProductOfArrows _ (CP (cy a) P) (CP (cy b) P)
+    apply (BinProductOfArrows _ (CP (cy a) P) (CP (cy b) P)
                            (# cy f) (identity _) ;; alpha).
 - abstract (
     split;
@@ -558,7 +558,7 @@ mkpair.
 Defined.
 
 Local Definition eval (P Q : functor C HSET) :
- nat_trans (ProductObject _ (CP P (exponential_functor_cat P Q)) : functor _ _) Q.
+ nat_trans (BinProductObject _ (CP P (exponential_functor_cat P Q)) : functor _ _) Q.
 Proof.
 mkpair.
 - intros c ytheta; set (y := pr1 ytheta); set (theta := pr2 ytheta);

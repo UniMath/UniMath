@@ -31,7 +31,7 @@ Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
 
 Section delta_functor_adjunction.
 
-Context {C : precategory} (PC : Products C).
+Context {C : precategory} (PC : BinProducts C).
 
 (** The binary delta_functor is left adjoint to binproduct_functor *)
 Lemma is_left_adjoint_delta_functor : is_left_adjoint (delta_functor C).
@@ -41,19 +41,19 @@ mkpair.
 - split.
   + mkpair.
     * simpl; intro x.
-      apply (ProductArrow _ _ (identity x) (identity x)).
+      apply (BinProductArrow _ _ (identity x) (identity x)).
     * abstract (intros p q f; simpl;
-                now rewrite precompWithProductArrow, id_right, postcompWithProductArrow, id_left).
+                now rewrite precompWithBinProductArrow, id_right, postcompWithBinProductArrow, id_left).
   + mkpair.
-    * simpl; intro x; split; [ apply ProductPr1 | apply ProductPr2 ].
+    * simpl; intro x; split; [ apply BinProductPr1 | apply BinProductPr2 ].
     * abstract (intros p q f; unfold binprodcatmor, compose; simpl;
-                now rewrite ProductOfArrowsPr1, ProductOfArrowsPr2).
+                now rewrite BinProductOfArrowsPr1, BinProductOfArrowsPr2).
 - abstract (split; simpl; intro x;
   [ unfold binprodcatmor, compose; simpl;
-    now rewrite ProductPr1Commutes, ProductPr2Commutes
-  | rewrite postcompWithProductArrow, !id_left;
-    apply pathsinv0, Product_endo_is_identity;
-      [ apply ProductPr1Commutes | apply ProductPr2Commutes ]]).
+    now rewrite BinProductPr1Commutes, BinProductPr2Commutes
+  | rewrite postcompWithBinProductArrow, !id_left;
+    apply pathsinv0, BinProduct_endo_is_identity;
+      [ apply BinProductPr1Commutes | apply BinProductPr2Commutes ]]).
 Defined.
 
 End delta_functor_adjunction.

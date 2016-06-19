@@ -386,7 +386,7 @@ Section constprod_functor.
 Variables (x : HSET).
 
 Definition constprod_functor : functor HSET HSET :=
-  product_functor HSET HSET ProductsHSET (constant_functor HSET HSET x)
+  binproduct_of_functors HSET HSET BinProductsHSET (constant_functor HSET HSET x)
                                          (functor_identity HSET).
 
 Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
@@ -487,7 +487,7 @@ Section lists.
 Variable A : HSET.
 
 (* F(X) = A * X *)
-Definition stream : functor HSET HSET := constprod_functor1 ProductsHSET A.
+Definition stream : functor HSET HSET := constprod_functor1 BinProductsHSET A.
 
 (* F(X) = 1 + (A * X) *)
 Definition listFunctor : functor HSET HSET :=

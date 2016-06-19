@@ -39,9 +39,9 @@ Proof.
 apply functor_category_has_homsets.
 Defined.
 
-Local Definition ProductsHSET2 : Products HSET2.
+Local Definition BinProductsHSET2 : BinProducts HSET2.
 Proof.
-apply (Products_functor_precat _ _ ProductsHSET).
+apply (BinProducts_functor_precat _ _ BinProductsHSET).
 Defined.
 
 Local Definition CoproductsHSET2 : Coproducts HSET2.
@@ -49,7 +49,7 @@ Proof.
 apply (Coproducts_functor_precat _ _ CoproductsHSET).
 Defined.
 
-Local Lemma has_exponentials_HSET2 : has_exponentials ProductsHSET2.
+Local Lemma has_exponentials_HSET2 : has_exponentials BinProductsHSET2.
 Proof.
 apply has_exponentials_functor_HSET, has_homsets_HSET.
 Defined.
@@ -65,11 +65,11 @@ Local Notation "' x" := (omega_cocont_constant_functor _ _ has_homsets_HSET2 x)
 Local Notation "'Id'" := (omega_cocont_functor_identity _ has_homsets_HSET2).
 
 Local Notation "F * G" :=
-  (omega_cocont_product_of_functors _ _ ProductsHSET2 _
+  (omega_cocont_binproduct_of_functors_alt _ _ BinProductsHSET2 _
      has_exponentials_HSET2 has_homsets_HSET2 has_homsets_HSET2 F G).
 
 Local Notation "F + G" :=
-  (omega_cocont_coproduct_of_functors _ _ ProductsHSET2 CoproductsHSET2
+  (omega_cocont_coproduct_of_functors _ _ BinProductsHSET2 CoproductsHSET2
      has_homsets_HSET2 has_homsets_HSET2 F G).
 
 Local Notation "'_' 'o' 'option'" :=
@@ -106,7 +106,7 @@ Definition var_map : HSET2⟦functor_identity HSET,LC⟧ :=
 (* How to do this nicer? *)
 Definition prod2 (x y : HSET2) : HSET2.
 Proof.
-apply ProductsHSET2; [apply x | apply y].
+apply BinProductsHSET2; [apply x | apply y].
 Defined.
 
 Definition app_map : HSET2⟦prod2 LC LC,LC⟧ :=
