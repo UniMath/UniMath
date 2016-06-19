@@ -25,6 +25,8 @@ limits/FunctorsPointwiseCoproduct.v
 limits/FunctorsPointwiseArbitraryCoproduct.v
 limits/FunctorsPointwiseProduct.v
 limits/FunctorsPointwiseArbitraryProduct.v
+limits/finite_products.v
+limits/finite_coproducts.v
 limits/graphs/colimits.v
 HLevel_n_is_of_hlevel_Sn.v
 category_hset_structures.v

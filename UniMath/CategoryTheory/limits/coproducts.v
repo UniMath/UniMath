@@ -563,12 +563,6 @@ Section Coproducts_ArbitraryCoproducts.
     exact c2.
   Defined.
 
-  (** The following lemmas check that the above definition is correct.*)
-  Lemma pair_to_stn2_1 (c1 c2 : C) : pair_to_stn2 c1 c2 stn0 = c1.
-  Proof. apply idpath. Defined.
-  Lemma pair_to_stn2_2 (c1 c2 : C) : pair_to_stn2 c1 c2 stn1 = c2.
-  Proof. apply idpath. Defined.
-
   (** Construct a family of 2 morphisms with the same target from 2 morphisms
     with the same target. *)
   Definition pair_to_stn2_mors (c : C) (a : stn 2 -> C) (f : C⟦a stn0, c⟧)
@@ -579,16 +573,6 @@ Section Coproducts_ArbitraryCoproducts.
     rewrite <- b in g. apply g.
   Defined.
 
-  (** The following lemmas check that the above definition is correct. *)
-  Lemma pair_to_stn2_mors_1 (c : C) (a : stn 2 -> C) (f : C⟦a stn0, c⟧)
-        (g : C⟦a stn1, c⟧) :
-    pair_to_stn2_mors c a f g stn0 = f.
-  Proof. apply idpath. Defined.
-  Lemma pair_to_stn2_mors_2 (c : C) (a : stn 2 -> C) (f : C⟦a stn0, c⟧)
-        (g : C⟦a stn1, c⟧) :
-    pair_to_stn2_mors c a f g stn1 = g.
-  Proof. apply idpath. Defined.
-
   (** Construction of a coproduct from an arbitrary coproduct of 2 objects. *)
   Definition coproduct_from_arbitrary_coproduct
              (a : stn 2 -> C) (Cone : ArbitraryCoproductCocone (stn 2) C a) :
@@ -597,30 +581,31 @@ Section Coproducts_ArbitraryCoproducts.
     set (in1 := ArbitraryCoproductIn _ _ Cone stn0).
     set (in2 := ArbitraryCoproductIn _ _ Cone stn1).
     set (Coneob := (ArbitraryCoproductObject _ _ Cone)).
+
     refine (mk_CoproductCocone _ (a stn0) (a stn1) Coneob in1 in2 _).
     refine (mk_isCoproductCocone _ hs _ _ _ _ _ _).
     intros c f g.
+
     set (mors := pair_to_stn2_mors c a f g).
     set (com1 := ArbitraryCoproductInCommutes _ _ a Cone c mors stn0).
     set (com2 := ArbitraryCoproductInCommutes _ _ a Cone c mors stn1).
     set (ar := (ArbitraryCoproductArrow _ _ Cone mors)).
-    refine (tpair _ (tpair _ ar _)  _).
-    intros t; eapply total2_paths.
-    apply proofirrelevance, isapropdirprod; apply hs.
 
-    Unshelve.
+    use (subtypeEquality'' ar); simpl.
 
     (* Commutativity *)
     split.
-    rewrite <- (pair_to_stn2_mors_1 c a f g). apply com1.
-    rewrite <- (pair_to_stn2_mors_2 c a f g). apply com2.
+    apply com1.
+    apply com2.
+
+    (* Equality on equalities of morphisms *)
+    intros y. apply isapropdirprod; apply hs.
 
     (* Uniqueness *)
-    eapply ArbitraryCoproductArrowUnique. intros i. induction (stn2ind i).
-    rewrite a0. fold in1. rewrite <- (pair_to_stn2_mors_1 c a f g).
-    apply (dirprod_pr1 (pr2 t)).
-    rewrite b. fold in2. rewrite <- (pair_to_stn2_mors_2 c a f g).
-    apply (dirprod_pr2 (pr2 t)).
+    intros y X. apply ArbitraryCoproductArrowUnique.
+    intros i. induction (stn2ind i).
+    rewrite a0. apply (dirprod_pr1 X).
+    rewrite b. apply (dirprod_pr2 X).
   Defined.
 
   (** Construction of an arbitrary coproduct from a coproduct. *)
@@ -633,32 +618,30 @@ Section Coproducts_ArbitraryCoproducts.
     set (in2 := CoproductIn2 _ Cone).
     set (ConeOb := CoproductObject _ Cone).
     set (f := pair_to_stn2_mors ConeOb a in1 in2).
+
     refine (mk_ArbitraryCoproductCocone _ _ a ConeOb f _ ).
     refine (mk_isArbitraryCoproductCocone _ _ hs _ _ _ _).
     intros c g.
+
     set (f1 := g stn0).
     set (f2 := g stn1).
     set (ar := CoproductArrow _ Cone f1 f2).
     set (com1 := CoproductIn1Commutes _ _ _ Cone _ f1 f2).
     set (com2 := CoproductIn2Commutes _ _ _ Cone _ f1 f2).
-    refine (tpair _ (tpair _ ar _ ) _).
-    intros t. eapply total2_paths. apply proofirrelevance.
-    apply impred_isaprop. intros t0. apply hs.
 
-    Unshelve.
+    use (subtypeEquality'' ar); simpl.
+
     (* Commutativity *)
     intros i. induction (stn2ind i).
-    rewrite a0. unfold f. rewrite (pair_to_stn2_mors_1 ConeOb a in1 in2).
-    apply com1.
-    rewrite b. unfold f. rewrite (pair_to_stn2_mors_2 ConeOb a in1 in2).
-    apply com2.
+    rewrite a0. apply com1.
+    rewrite b. apply com2.
+
+    (* Equality on equalities of morphisms *)
+    intros y. apply impred_isaprop. intros t. apply hs.
 
     (* Uniqueness *)
-    apply CoproductArrowUnique.
-    fold in1. rewrite <- (pair_to_stn2_mors_1 ConeOb a in1 in2). fold f.
-    apply (pr2 t stn0).
-    fold in2. rewrite <- (pair_to_stn2_mors_2 ConeOb a in1 in2). fold f.
-    apply (pr2 t stn1).
+    intros y X. apply CoproductArrowUnique.
+    apply (X stn0). apply (X stn1).
   Defined.
 End Coproducts_ArbitraryCoproducts.
 
@@ -669,23 +652,17 @@ Section coproduct_from_coproducts.
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
 
-  (** Disjoint union of the objects a1 and a2. *)
-  Definition coprod_families {I1 I2 : UU} (a1 : I1 -> C) (a2 : I2 -> C):
-    I1 ⨿ I2 -> C.
+  (** Sum of two families of morphisms a1 and a2 with a common target. *)
+  Definition sumofmorsfrom :
+    forall (c : C) (I1 I2 : UU) (a1 : I1 -> C) (a2 : I2 -> C)
+      (m1 : forall i1 : I1, C⟦a1 i1, c⟧) (m2 : forall i2 : I2, C⟦a2 i2, c⟧),
+    forall i : I1 ⨿ I2, C⟦(sumofmaps a1 a2) i, c⟧.
   Proof.
-    intros X.
-    induction X.
-    apply (a1 a).
-    apply (a2 b).
+    intros c I1 I2 a1 a2 m1 m2 i. unfold sumofmaps.
+    induction i.
+    exact (m1 a).
+    exact (m2 b).
   Defined.
-
-  (** Verify that we have the same objects. *)
-  Lemma coprod_families_1 {I1 I2 : UU} (a1 : I1 -> C) (a2 : I2 -> C) (i : I1):
-    coprod_families a1 a2 (ii1 i) = a1 i.
-  Proof. apply idpath. Defined.
-  Lemma coprod_families_2 {I1 I2 : UU} (a1 : I1 -> C) (a2 : I2 -> C) (i : I2):
-    coprod_families a1 a2 (ii2 i) = a2 i.
-  Proof. apply idpath. Defined.
 
   (** Construction of an arbitrary coproduct from two arbitrary coproducts and a
     coproduct of the two arbitrary coproducts. *)
@@ -695,7 +672,7 @@ Section coproduct_from_coproducts.
       (A2 : ArbitraryCoproductCocone _ C a2)
       (Cone : CoproductCocone C (ArbitraryCoproductObject _ _ A1)
                               (ArbitraryCoproductObject _ _ A2)),
-      ArbitraryCoproductCocone _ C (coprod_families a1 a2).
+      ArbitraryCoproductCocone _ C (sumofmaps a1 a2).
   Proof.
     intros I1 I2 a1 a2 A1 A2 Cone.
 
@@ -704,10 +681,13 @@ Section coproduct_from_coproducts.
     set (A2in := ArbitraryCoproductIn _ _ A2).
     set (in1 := CoproductIn1 _ Cone).
     set (in2 := CoproductIn2 _ Cone).
+    set (m1 := fun i1 : I1 => (A1in i1) ;; in1).
+    set (m2 := fun i2 : I2 => (A2in i2) ;; in2).
+    set (ConeOb := CoproductObject _ Cone).
 
-    eapply (mk_ArbitraryCoproductCocone _ _ _ (CoproductObject _ Cone)).
-    eapply mk_isArbitraryCoproductCocone.
-    apply hs.
+    refine (mk_ArbitraryCoproductCocone
+              _ _ _ ConeOb (sumofmorsfrom ConeOb _ _ _ _ m1 m2) _).
+    refine (mk_isArbitraryCoproductCocone _ _ hs _ _ _ _).
     intros c g.
 
     (* Set names for useful terms *)
@@ -719,42 +699,32 @@ Section coproduct_from_coproducts.
     set (com1 := CoproductIn1Commutes _ _ _ Cone c ar1 ar2).
     set (com2 := CoproductIn2Commutes _ _ _ Cone c ar1 ar2).
 
-    refine (tpair _ _ _).
-    intros t.
-    eapply total2_paths. apply proofirrelevance.
-    apply impred_isaprop. intros t0. apply hs.
+    use (subtypeEquality'' ar); simpl.
 
-    Unshelve.
-
-    (* Morphisms from objects to the cone *)
-    intros i. unfold coprod_families, coprod_rect. induction i.
-    apply (A1in a ;; in1).
-    apply (A2in b ;; in2).
-
-    (* The unique arrow from the cone to c *)
-    refine (tpair _ ar _ ).
-
-    (* Commutativity of morphisms *)
-    intros i. unfold coprod_rect. induction i.
+    (* Commutativity *)
+    intros i. unfold sumofmorsfrom, coprod_rect. induction i.
 
     set (com'1 := ArbitraryCoproductInCommutes _ _ _ A1 c g1 a).
-    unfold A1in. unfold in1. unfold ar. rewrite <- assoc. rewrite com1.
-    unfold ar1. rewrite -> com'1. apply idpath.
-
+    unfold m1, ar, A1in, in1. rewrite <- assoc. rewrite com1.
+    unfold ar1. rewrite com'1. apply idpath.
 
     set (com'2 := ArbitraryCoproductInCommutes _ _ _ A2 c g2 b).
-    unfold A2in, in2, ar. rewrite <- assoc. rewrite com2.
+    unfold m2, ar, A2in, in2. rewrite <- assoc. rewrite com2.
     unfold ar2. rewrite com'2. apply idpath.
 
-    simpl.
+    (* Equality on equalities of morphisms. *)
+    intros y. apply impred_isaprop. intros t0. apply hs.
+
     (* Uniqueness of the morphism from the cone *)
-    eapply CoproductArrowUnique.
-    eapply ArbitraryCoproductArrowUnique.
-    intros i. simpl in t. set (t2 := pr2 t (ii1 i)). simpl in t2.
+    intros y X. apply CoproductArrowUnique.
+    apply ArbitraryCoproductArrowUnique.
+    intros i. unfold sumofmorsfrom, coprod_rect in X.
+    set (t2 := X (ii1 i)). simpl in t2.
     fold A1in. rewrite assoc. apply t2.
 
-    eapply ArbitraryCoproductArrowUnique.
-    intros i. simpl in t. set (t2 := pr2 t (ii2 i)). simpl in t2.
+    apply ArbitraryCoproductArrowUnique.
+    intros i. unfold sumofmorsfrom, coprod_rect in X.
+    set (t2 := X (ii2 i)). simpl in t2.
     fold A2in. rewrite assoc. apply t2.
   Defined.
 End coproduct_from_coproducts.
