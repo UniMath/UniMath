@@ -29,13 +29,13 @@ Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.arbitrary_products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.covyoneda.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
@@ -426,11 +426,11 @@ Defined.
 
 Section ProductsHSET_from_Lims.
 
-Require UniMath.CategoryTheory.limits.graphs.products.
+Require UniMath.CategoryTheory.limits.graphs.binproducts.
 
-Lemma ProductsHSET_from_Lims : graphs.products.Products HSET.
+Lemma ProductsHSET_from_Lims : graphs.binproducts.Products HSET.
 Proof.
-exact (products.Products_from_Lims _ LimsHSET).
+exact (binproducts.Products_from_Lims _ LimsHSET).
 Defined.
 
 End ProductsHSET_from_Lims.

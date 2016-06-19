@@ -14,8 +14,8 @@ SubstitutionSystems
 
 Contents :
 
-- Definition of a product structure on a functor category
-  by taking pointwise products in the target category
+- Definition of a binary product structure on a functor category by
+  taking pointwise binary products in the target category
 
 
 
@@ -27,7 +27,7 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
