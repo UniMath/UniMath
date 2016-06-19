@@ -142,7 +142,7 @@ Variables (hsA : has_homsets A) (hsB : has_homsets B).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 
 (* Maybe generalize these to arbitrary diagrams? *)
-Lemma cocone_pr1_functor (cAB : chain (product_precategory A B))
+Lemma cocone_pr1_functor (cAB : chain (binproduct_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) :
   cocone (mapchain (pr1_functor A B)cAB) (ob1 ab).
 Proof.
@@ -151,7 +151,7 @@ simple refine (mk_cocone _ _).
 - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
 Defined.
 
-Lemma isColimCocone_pr1_functor (cAB : chain (product_precategory A B))
+Lemma isColimCocone_pr1_functor (cAB : chain (binproduct_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) (Hccab : isColimCocone cAB ab ccab) :
    isColimCocone (mapchain (pr1_functor A B) cAB) (ob1 ab)
      (mapcocone (pr1_functor A B) cAB ccab).
@@ -173,7 +173,7 @@ mkpair.
 - intro t.
   simple refine (let X : Σ x0,
            ∀ v : nat, coconeIn ccab v ;; x0 =
-                      prodcatmor (pr1 ccx v) (pr2 (pr1 ccab v)) := _ in _).
+                      binprodcatmor (pr1 ccx v) (pr2 (pr1 ccab v)) := _ in _).
   { mkpair.
     - split; [ apply (pr1 t) | apply (identity _) ].
     - abstract (intro n; rewrite id_right; apply pathsdirprod;
@@ -190,7 +190,7 @@ intros c L ccL M.
 now apply isColimCocone_pr1_functor.
 Defined.
 
-Lemma cocone_pr2_functor (cAB : chain (product_precategory A B))
+Lemma cocone_pr2_functor (cAB : chain (binproduct_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) :
   cocone (mapchain (pr2_functor A B) cAB) (pr2 ab).
 Proof.
@@ -199,7 +199,7 @@ simple refine (mk_cocone _ _).
 - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
 Defined.
 
-Lemma isColimCocone_pr2_functor (cAB : chain (product_precategory A B))
+Lemma isColimCocone_pr2_functor (cAB : chain (binproduct_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) (Hccab : isColimCocone cAB ab ccab) :
    isColimCocone (mapchain (pr2_functor A B) cAB) (pr2 ab)
      (mapcocone (pr2_functor A B) cAB ccab).
@@ -220,7 +220,7 @@ mkpair.
 - intro t.
   simple refine (let X : Σ x0,
            ∀ v : nat, coconeIn ccab v ;; x0 =
-                      prodcatmor (pr1 (pr1 ccab v)) (pr1 ccx v) := _ in _).
+                      binprodcatmor (pr1 (pr1 ccab v)) (pr1 ccx v) := _ in _).
   { mkpair.
     - split; [ apply (identity _) | apply (pr1 t) ].
     - abstract (intro n; rewrite id_right; apply pathsdirprod;
@@ -258,7 +258,7 @@ destruct (HG _ _ _ (isColimCocone_pr2_functor cAB ml ccml Hccml) _ cGBY) as [[g 
 simpl in *.
 mkpair.
 - apply (tpair _ (f,,g)).
-  abstract (intro n; unfold prodcatmor, compose; simpl;
+  abstract (intro n; unfold binprodcatmor, compose; simpl;
             now rewrite hf1, hg1, (paireta (coconeIn ccxy n))).
 - intro t.
   apply subtypeEquality; simpl.
@@ -389,7 +389,7 @@ Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
 Lemma cocont_delta_functor : is_cocont (delta_functor C).
 Proof.
 apply (left_adjoint_cocont _ (is_left_adjoint_delta_functor PC) hsC).
-abstract (apply (has_homsets_product_precategory _ _ hsC hsC)).
+abstract (apply (has_homsets_binproduct_precategory _ _ hsC hsC)).
 Defined.
 
 Lemma is_omega_cocont_delta_functor : is_omega_cocont (delta_functor C).
@@ -428,7 +428,7 @@ Variables (C : precategory) (PC : Coproducts C) (hsC : has_homsets C).
 Lemma cocont_bincoproduct_functor : is_cocont (bincoproduct_functor PC).
 Proof.
 apply (left_adjoint_cocont _ (is_left_adjoint_bincoproduct_functor PC)).
-- abstract (apply has_homsets_product_precategory; apply hsC).
+- abstract (apply has_homsets_binproduct_precategory; apply hsC).
 - abstract (apply hsC).
 Defined.
 
@@ -576,7 +576,7 @@ Section binprod_functor.
 Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
 Variables (hE : has_exponentials PC).
 
-Definition fun_lt (cAB : chain (product_precategory C C)) :
+Definition fun_lt (cAB : chain (binproduct_precategory C C)) :
   forall i j, i < j ->
               C ⟦ ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
                   ProductObject C (PC (ob1 (dob cAB j)) (ob2 (dob cAB j))) ⟧.
@@ -585,7 +585,7 @@ intros i j hij.
 apply (ProductOfArrows _ _ _ (mor1 (chain_mor cAB _ _ hij)) (identity _)).
 Defined.
 
-Definition fun_gt (cAB : chain (product_precategory C C)) :
+Definition fun_gt (cAB : chain (binproduct_precategory C C)) :
   forall i j, i > j ->
               C ⟦ ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
                   ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB i))) ⟧.
@@ -595,7 +595,7 @@ apply (ProductOfArrows _ _ _ (identity _) (mor2 (chain_mor cAB _ _ hij))).
 Defined.
 
 (* The map to K from the "grid" *)
-Definition map_to_K (cAB : chain (product_precategory C C)) (K : C)
+Definition map_to_K (cAB : chain (binproduct_precategory C C)) (K : C)
   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) i j :
   C⟦ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))), K⟧.
 Proof.
@@ -606,7 +606,7 @@ destruct (natlthorgeh i j).
   * destruct H; apply (coconeIn ccK i).
 Defined.
 
-Lemma map_to_K_commutes (cAB : chain (product_precategory C C)) (K : C)
+Lemma map_to_K_commutes (cAB : chain (binproduct_precategory C C)) (K : C)
   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K)
   i j k (e : edge j k) :
    product_functor_mor C C PC (constant_functor C C (pr1 (pr1 cAB i)))
@@ -667,7 +667,7 @@ destruct (natlthorgeh i j) as [h|h].
 Qed.
 
 (* The cocone over K from the A_i * B chain *)
-Lemma ccAiB_K (cAB : chain (product_precategory C C)) (K : C)
+Lemma ccAiB_K (cAB : chain (binproduct_precategory C C)) (K : C)
   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) i :
   cocone (mapchain (constprod_functor1 PC (pr1 (pr1 cAB i)))
          (mapchain (pr2_functor C C) cAB)) K.
@@ -679,7 +679,7 @@ Defined.
 
 Section omega_cocont_binproduct.
 
-Variable cAB : chain (product_precategory C C).
+Variable cAB : chain (binproduct_precategory C C).
 Variable LM : C × C.
 Variable ccLM : cocone cAB LM.
 Variable HccLM : isColimCocone cAB LM ccLM.

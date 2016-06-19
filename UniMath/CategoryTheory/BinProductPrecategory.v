@@ -15,8 +15,10 @@ SubstitutionSystems
 
 Contents :
 
--    Definition of the cartesian product of two precategories
--    From a functor on a product of precategories to a functor on one of the categories by fixing the argument in the other component
+- Definition of the cartesian product of two precategories
+
+- From a functor on a product of precategories to a functor on one of
+  the categories by fixing the argument in the other component
 
 
 
@@ -35,19 +37,19 @@ Local Notation "G ∙ F" := (functor_composite _ _ _ F G) (at level 35).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
-Section one_product_precategory.
+Section one_binproduct_precategory.
 
 Variables C D : precategory.
 
-Definition product_precategory_ob_mor : precategory_ob_mor.
+Definition binproduct_precategory_ob_mor : precategory_ob_mor.
 Proof.
   exists (C × D).
   exact (λ cd cd', pr1 cd --> pr1 cd' × pr2 cd --> pr2 cd').
 Defined.
 
-Definition product_precategory_data : precategory_data.
+Definition binproduct_precategory_data : precategory_data.
 Proof.
-  exists product_precategory_ob_mor.
+  exists binproduct_precategory_ob_mor.
   split.
   - intro cd.
     exact (dirprodpair (identity (pr1 cd)) (identity (pr2 cd))).
@@ -55,7 +57,7 @@ Proof.
     exact (dirprodpair (pr1 fg ;; pr1 fg') (pr2 fg ;; pr2 fg')).
 Defined.
 
-Lemma is_precategory_product_precategory_data : is_precategory product_precategory_data.
+Lemma is_precategory_binproduct_precategory_data : is_precategory binproduct_precategory_data.
 Proof.
   repeat split; simpl; intros.
   - apply dirprodeq; apply id_left.
@@ -63,11 +65,11 @@ Proof.
   - apply dirprodeq; apply assoc.
 Qed.
 
-Definition product_precategory : precategory
-  := tpair _ _ is_precategory_product_precategory_data.
+Definition binproduct_precategory : precategory
+  := tpair _ _ is_precategory_binproduct_precategory_data.
 
-Definition has_homsets_product_precategory (hsC : has_homsets C) (hsD : has_homsets D) :
-  has_homsets product_precategory.
+Definition has_homsets_binproduct_precategory (hsC : has_homsets C) (hsD : has_homsets D) :
+  has_homsets binproduct_precategory.
 Proof.
   intros a b.
   apply isasetdirprod.
@@ -75,15 +77,15 @@ Proof.
   - apply hsD.
 Qed.
 
-Definition ob1 (x : product_precategory) : C := pr1 x.
-Definition ob2 (x : product_precategory) : D := pr2 x.
-Definition mor1 (x x' : product_precategory) (f : _ ⟦x, x'⟧) : _ ⟦ob1 x, ob1 x'⟧ := pr1 f.
-Definition mor2 (x x' : product_precategory) (f : _ ⟦x, x'⟧) : _ ⟦ob2 x, ob2 x'⟧ := pr2 f.
+Definition ob1 (x : binproduct_precategory) : C := pr1 x.
+Definition ob2 (x : binproduct_precategory) : D := pr2 x.
+Definition mor1 (x x' : binproduct_precategory) (f : _ ⟦x, x'⟧) : _ ⟦ob1 x, ob1 x'⟧ := pr1 f.
+Definition mor2 (x x' : binproduct_precategory) (f : _ ⟦x, x'⟧) : _ ⟦ob2 x, ob2 x'⟧ := pr2 f.
 
 Section functor_fix_snd_arg.
 
 Variable E : precategory.
-Variable F: functor product_precategory E.
+Variable F: functor binproduct_precategory E.
 Variable d: D.
 
 Definition functor_fix_snd_arg_ob (c:C): E := F(tpair _ c d).
@@ -120,7 +122,7 @@ Proof.
     rewrite <- functor_comp_inst.
     apply maponpaths.
     unfold compose at 2.
-    unfold product_precategory; simpl.
+    unfold binproduct_precategory; simpl.
     rewrite id_left.
     apply idpath.
 Qed.
@@ -136,7 +138,7 @@ End functor_fix_snd_arg.
 Section nat_trans_fix_snd_arg.
 
 Variable E : precategory.
-Variable F F': functor product_precategory E.
+Variable F F': functor binproduct_precategory E.
 Variable α: F ⟶ F'.
 Variable d: D.
 
@@ -160,7 +162,7 @@ Defined.
 
 End nat_trans_fix_snd_arg.
 
-End one_product_precategory.
+End one_binproduct_precategory.
 
 Arguments ob1 { _ _ } _ .
 Arguments ob2 { _ _ } _ .
@@ -169,15 +171,15 @@ Arguments mor2 { _ _ _ _ } _ .
 
 
 (** Objects and morphisms in the product precategory of two precategories *)
-Definition prodcatpair {C D : precategory} (X : C) (Y : D) : product_precategory C D.
+Definition binprodcatpair {C D : precategory} (X : C) (Y : D) : binproduct_precategory C D.
 Proof.
   exists X.
   exact Y.
 Defined.
 
-Local Notation "A ⊗ B" := (prodcatpair A B) (at level 10).
+Local Notation "A ⊗ B" := (binprodcatpair A B) (at level 10).
 
-Definition prodcatmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X --> X') (β : Z --> Z')
+Definition binprodcatmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X --> X') (β : Z --> Z')
   : X ⊗ Z --> X' ⊗ Z'.
 Proof.
   exists α.
@@ -189,16 +191,16 @@ Section functors.
 
 Definition pair_functor_data {A B C D : precategory}
   (F : functor A C) (G : functor B D) :
-  functor_data (product_precategory A B) (product_precategory C D).
+  functor_data (binproduct_precategory A B) (binproduct_precategory C D).
 Proof.
 mkpair.
-- intro x; apply (prodcatpair (F (pr1 x)) (G (pr2 x))).
-- intros x y f; simpl; apply (prodcatmor (# F (pr1 f)) (# G (pr2 f))).
+- intro x; apply (binprodcatpair (F (pr1 x)) (G (pr2 x))).
+- intros x y f; simpl; apply (binprodcatmor (# F (pr1 f)) (# G (pr2 f))).
 Defined.
 
 Definition pair_functor {A B C D : precategory}
   (F : functor A C) (G : functor B D) :
-  functor (product_precategory A B) (product_precategory C D).
+  functor (binproduct_precategory A B) (binproduct_precategory C D).
 Proof.
 apply (tpair _ (pair_functor_data F G)).
 abstract (split;
@@ -207,7 +209,7 @@ abstract (split;
 Defined.
 
 Definition pr1_functor_data (A B : precategory) :
-  functor_data (product_precategory A B) A.
+  functor_data (binproduct_precategory A B) A.
 Proof.
 mkpair.
 - intro x; apply (pr1 x).
@@ -215,14 +217,14 @@ mkpair.
 Defined.
 
 Definition pr1_functor (A B : precategory) :
-  functor (product_precategory A B) A.
+  functor (binproduct_precategory A B) A.
 Proof.
 apply (tpair _ (pr1_functor_data A B)).
 abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
 Defined.
 
 Definition pr2_functor_data (A B : precategory) :
-  functor_data (product_precategory A B) B.
+  functor_data (binproduct_precategory A B) B.
 Proof.
 mkpair.
 - intro x; apply (pr2 x).
@@ -230,22 +232,22 @@ mkpair.
 Defined.
 
 Definition pr2_functor (A B : precategory) :
-  functor (product_precategory A B) B.
+  functor (binproduct_precategory A B) B.
 Proof.
 apply (tpair _ (pr2_functor_data A B)).
 abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
 Defined.
 
 Definition delta_functor_data (C : precategory) :
-  functor_data C (product_precategory C C).
+  functor_data C (binproduct_precategory C C).
 Proof.
 mkpair.
-- intro x; apply (prodcatpair x x).
-- intros x y f; simpl; apply (prodcatmor f f).
+- intro x; apply (binprodcatpair x x).
+- intros x y f; simpl; apply (binprodcatmor f f).
 Defined.
 
 Definition delta_functor (C : precategory) :
-  functor C (product_precategory C C).
+  functor C (binproduct_precategory C C).
 Proof.
 apply (tpair _ (delta_functor_data C)).
 abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).

@@ -578,7 +578,7 @@ End Coproducts.
 Section functors.
 
 Definition bincoproduct_functor_data {C : precategory} (PC : Coproducts C) :
-  functor_data (product_precategory C C) C.
+  functor_data (binproduct_precategory C C) C.
 Proof.
 mkpair.
 - intros p.
@@ -590,7 +590,7 @@ Defined.
 
 (* The binary coproduct functor: C * C -> C *)
 Definition bincoproduct_functor {C : precategory} (PC : Coproducts C) :
-  functor (product_precategory C C) C.
+  functor (binproduct_precategory C C) C.
 Proof.
 apply (tpair _ (bincoproduct_functor_data PC)).
 abstract (split;

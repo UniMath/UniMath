@@ -46,10 +46,10 @@ mkpair.
                 now rewrite precompWithProductArrow, id_right, postcompWithProductArrow, id_left).
   + mkpair.
     * simpl; intro x; split; [ apply ProductPr1 | apply ProductPr2 ].
-    * abstract (intros p q f; unfold prodcatmor, compose; simpl;
+    * abstract (intros p q f; unfold binprodcatmor, compose; simpl;
                 now rewrite ProductOfArrowsPr1, ProductOfArrowsPr2).
 - abstract (split; simpl; intro x;
-  [ unfold prodcatmor, compose; simpl;
+  [ unfold binprodcatmor, compose; simpl;
     now rewrite ProductPr1Commutes, ProductPr2Commutes
   | rewrite postcompWithProductArrow, !id_left;
     apply pathsinv0, Product_endo_is_identity;
@@ -102,7 +102,7 @@ mkpair.
   + mkpair.
     * simpl; intro p; set (x := pr1 p); set (y := pr2 p).
       split; [ apply (CoproductIn1 _ (PC x y)) | apply (CoproductIn2 _ (PC x y)) ].
-    * abstract (intros p q f; unfold prodcatmor, compose; simpl;
+    * abstract (intros p q f; unfold binprodcatmor, compose; simpl;
                 now rewrite CoproductOfArrowsIn1, CoproductOfArrowsIn2).
   + mkpair.
     * intro x; apply (CoproductArrow _ _ (identity x) (identity x)).
@@ -113,7 +113,7 @@ mkpair.
   [ rewrite precompWithCoproductArrow, !id_right;
     apply pathsinv0, Coproduct_endo_is_identity;
       [ apply CoproductIn1Commutes | apply CoproductIn2Commutes ]
-  | unfold prodcatmor, compose; simpl;
+  | unfold binprodcatmor, compose; simpl;
     now rewrite CoproductIn1Commutes, CoproductIn2Commutes ]).
 Defined.
 

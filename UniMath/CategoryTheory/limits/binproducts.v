@@ -285,7 +285,7 @@ Section binproduct_functor.
 Context {C : precategory} (PC : Products C).
 
 Definition binproduct_functor_data :
-  functor_data (product_precategory C C) C.
+  functor_data (binproduct_precategory C C) C.
 Proof.
 mkpair.
 - intros p.
@@ -295,7 +295,7 @@ mkpair.
                            (PC (pr1 p) (pr2 p)) (pr1 f) (pr2 f)).
 Defined.
 
-Definition binproduct_functor : functor (product_precategory C C) C.
+Definition binproduct_functor : functor (binproduct_precategory C C) C.
 Proof.
 apply (tpair _ binproduct_functor_data).
 abstract (split;
