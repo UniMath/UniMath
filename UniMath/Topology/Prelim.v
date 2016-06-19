@@ -9,10 +9,10 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 
 (** ** hProp *)
 
-Lemma isaproptotal2' {X : UU} (P : X -> UU) :
-  isaset X ->
-  isPredicate P ->
-  (∀ x y : X, P x -> P y -> x = y) ->
+Lemma isaproptotal2' {X : UU} (P : X → UU) :
+  isaset X →
+  isPredicate P →
+  (∀ x y : X, P x → P y → x = y) →
   isaprop (Σ x : X, P x).
 Proof.
   intros X P HX HP Heq x y ; simpl.
@@ -27,14 +27,14 @@ Proof.
 Qed.
 
 Lemma hinhuniv' {P X : UU} :
-  isaprop P -> (X -> P) -> (∥ X ∥ -> P).
+  isaprop P → (X → P) → (∥ X ∥ → P).
 Proof.
   intros P X HP Hx.
   apply (hinhuniv (P := hProppair _ HP)).
   exact Hx.
 Qed.
 Lemma hinhuniv2' {P X Y : UU} :
-  isaprop P -> (X -> Y -> P) -> (∥ X ∥ -> ∥ Y ∥ -> P).
+  isaprop P → (X → Y → P) → (∥ X ∥ → ∥ Y ∥ → P).
 Proof.
   intros P X Y HP Hxy.
   apply (hinhuniv2 (P := hProppair _ HP)).
@@ -68,11 +68,11 @@ Definition pairSequence {X} (A B : X) : Sequence X := (2 ,, λ m, match (pr1 m) 
 (** ** More about sets *)
 (** union *)
 
-Definition union {X : UU} (P : (X -> hProp) -> hProp) : X -> hProp :=
-  λ x : X, ∃ A : X -> hProp, P A × A x.
+Definition union {X : UU} (P : (X → hProp) → hProp) : X → hProp :=
+  λ x : X, ∃ A : X → hProp, P A × A x.
 
 Lemma union_hfalse {X : UU} :
-  union (λ _ : X -> hProp, hfalse) = (λ _ : X, hfalse).
+  union (λ _ : X → hProp, hfalse) = (λ _ : X, hfalse).
 Proof.
   intros X.
   apply funextfun ; intros x.
@@ -84,8 +84,8 @@ Proof.
 Qed.
 
 Lemma union_or {X : UU} :
-  ∀ A B : X -> hProp,
-    union (λ C : X -> hProp, C = A ∨ C = B)
+  ∀ A B : X → hProp,
+    union (λ C : X → hProp, C = A ∨ C = B)
     = (λ x : X, A x ∨ B x).
 Proof.
   intros X A B.
@@ -114,9 +114,9 @@ Proof.
 Qed.
 
 Lemma union_hProp {X : UU} :
-  ∀ (P : (X -> hProp) -> hProp),
-    (∀ (L : (X -> hProp) -> hProp), (∀ A, L A -> P A) -> P (union L))
-    -> (∀ A B, P A -> P B -> P (λ x : X, A x ∨ B x)).
+  ∀ (P : (X → hProp) → hProp),
+    (∀ (L : (X → hProp) → hProp), (∀ A, L A → P A) → P (union L))
+    → (∀ A B, P A → P B → P (λ x : X, A x ∨ B x)).
 Proof.
   intros X.
   intros P Hp A B Pa Pb.
@@ -129,7 +129,7 @@ Qed.
 
 (** finite intersection *)
 
-Definition finite_intersection {X : UU} (P : Sequence (X -> hProp)) : X -> hProp.
+Definition finite_intersection {X : UU} (P : Sequence (X → hProp)) : X → hProp.
 Proof.
   intros X P.
   intros x.
@@ -153,7 +153,7 @@ Proof.
 Qed.
 
 Lemma finite_intersection_1 {X : UU} :
-  ∀ (A : X -> hProp),
+  ∀ (A : X → hProp),
     finite_intersection (singletonSequence A) = A.
 Proof.
   intros X.
@@ -171,7 +171,7 @@ Proof.
 Qed.
 
 Lemma finite_intersection_and {X : UU} :
-  ∀ A B : X -> hProp,
+  ∀ A B : X → hProp,
     finite_intersection (pairSequence A B)
     = (λ x : X, A x ∧ B x).
 Proof.
@@ -194,7 +194,7 @@ Proof.
 Qed.
 
 Lemma finite_intersection_case {X : UU} :
-  ∀ (L : Sequence (X -> hProp)),
+  ∀ (L : Sequence (X → hProp)),
     finite_intersection L = match disassembleSequence L with
                             | ii1 _ => λ _, htrue
                             | ii2 (A,,B) => (λ x : X, A x ∧ finite_intersection B x)
@@ -229,7 +229,7 @@ Proof.
       exact (pr1 Hx).
 Qed.
 Lemma finite_intersection_append {X : UU} :
-  ∀ (A : X -> hProp) (L : Sequence (X -> hProp)),
+  ∀ (A : X → hProp) (L : Sequence (X → hProp)),
     finite_intersection (append L A) = (λ x : X, A x ∧ finite_intersection L x).
 Proof.
   intros.
@@ -247,9 +247,9 @@ Proof.
 Qed.
 
 Lemma finite_intersection_hProp {X : UU} :
-  ∀ (P : (X -> hProp) -> hProp),
-    (∀ (L : Sequence (X -> hProp)), (∀ n, P (L n)) -> P (finite_intersection L))
-    <-> (P (λ _, htrue) × (∀ A B, P A -> P B -> P (λ x : X, A x ∧ B x))).
+  ∀ (P : (X → hProp) → hProp),
+    (∀ (L : Sequence (X → hProp)), (∀ n, P (L n)) → P (finite_intersection L))
+    <-> (P (λ _, htrue) × (∀ A B, P A → P B → P (λ x : X, A x ∧ B x))).
 Proof.
   intros X P.
   split.
@@ -263,8 +263,8 @@ Proof.
       intros (n,Hn).
       now destruct n ; simpl.
   - intros (P0,P2).
-    apply (Sequence_rect (P := λ L : Sequence (X -> hProp),
-                                     (∀ n : stn (length L), P (L n)) -> P (finite_intersection L))).
+    apply (Sequence_rect (P := λ L : Sequence (X → hProp),
+                                     (∀ n : stn (length L), P (L n)) → P (finite_intersection L))).
     + intros _.
       now rewrite finite_intersection_htrue.
     + intros L A IHl Hl.

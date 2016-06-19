@@ -3,7 +3,7 @@
 (** Additional results about Dedekind cuts which cannot be proved *)
 (** without decidability *)
 
-Require Import UniMath.RealNumbers.Complements.
+Require Import UniMath.RealNumbers.Prelim.
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 Require Export UniMath.RealNumbers.NonnegativeReals.
@@ -13,7 +13,7 @@ Open Scope Dcuts_scope.
 (** ** Definition *)
 
 Lemma isboolDcuts_isaprop (x : Dcuts) :
-  isaprop (forall r, (r ∈ x) ∨ (neg (r ∈ x))).
+  isaprop (∀ r, (r ∈ x) ∨ (neg (r ∈ x))).
 Proof.
   intros x.
   apply impred_isaprop.
@@ -40,7 +40,7 @@ Definition mk_boolDcuts (x : Dcuts) (Hdec : ∀ r : NonnegativeRationals, (r ∈
   x,, (λ r : NonnegativeRationals, hinhpr (Hdec r)).
 
 Lemma is_zero_dec :
-  forall x : Dcuts, isboolDcuts x -> (x = 0) ∨ (¬ (x = 0)).
+  ∀ x : Dcuts, isboolDcuts x → (x = 0) ∨ (¬ (x = 0)).
 Proof.
   intros x Hx.
   generalize (Hx 0%NRat) ; apply hinhfun ; intros [Hx0 | Hx0].

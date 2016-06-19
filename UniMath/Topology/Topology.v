@@ -9,18 +9,18 @@ Require Import UniMath.Foundations.Algebra.ConstructiveStructures.
 Section Open.
 
 Context {X : UU}.
-Context (O : (X -> hProp) -> hProp).
+Context (O : (X → hProp) → hProp).
 
 Definition isSetOfOpen_union :=
-  ∀ P : (X -> hProp) -> hProp,
-    (∀ A : X -> hProp, P A -> O A) -> O (union P).
+  ∀ P : (X → hProp) → hProp,
+    (∀ A : X → hProp, P A → O A) → O (union P).
 Lemma isaprop_isSetOfOpen_union :
   isaprop isSetOfOpen_union.
 Proof.
   apply (impred_isaprop _ (λ _, isapropimpl _ _ (propproperty _))).
 Qed.
 Definition isSetOfOpen_finite_intersection :=
-  ∀ (P : Sequence (X -> hProp)), (∀ m, O (P m)) -> O (finite_intersection P).
+  ∀ (P : Sequence (X → hProp)), (∀ m, O (P m)) → O (finite_intersection P).
 Lemma isaprop_isSetOfOpen_finite_intersection :
   isaprop isSetOfOpen_finite_intersection.
 Proof.
@@ -31,7 +31,7 @@ Definition isSetOfOpen_htrue :=
   O (λ _, htrue).
 
 Definition isSetOfOpen_and :=
-  ∀ A B, O A -> O B -> O (λ x, A x ∧ B x).
+  ∀ A B, O A → O B → O (λ x, A x ∧ B x).
 Lemma isaprop_isSetOfOpen_and :
   isaprop isSetOfOpen_and.
 Proof.
@@ -43,7 +43,7 @@ Qed.
 
 Lemma isSetOfOpen_hfalse :
   isSetOfOpen_union
-  -> O (λ _ : X, hfalse).
+  → O (λ _ : X, hfalse).
 Proof.
   intros H0.
   rewrite <- union_hfalse.
@@ -54,7 +54,7 @@ Qed.
 
 Lemma isSetOfOpen_finite_intersection_htrue :
   isSetOfOpen_finite_intersection
-  -> isSetOfOpen_htrue.
+  → isSetOfOpen_htrue.
 Proof.
   intro H0.
   unfold isSetOfOpen_htrue.
@@ -65,7 +65,7 @@ Proof.
 Qed.
 Lemma isSetOfOpen_finite_intersection_and :
   isSetOfOpen_finite_intersection
-  -> isSetOfOpen_and.
+  → isSetOfOpen_and.
 Proof.
   intros H0 A B Ha Hb.
   rewrite <- finite_intersection_and.
@@ -77,8 +77,8 @@ Proof.
 Qed.
 Lemma isSetOfOpen_finite_intersection_carac :
   isSetOfOpen_htrue
-  -> isSetOfOpen_and
-  -> isSetOfOpen_finite_intersection.
+  → isSetOfOpen_and
+  → isSetOfOpen_finite_intersection.
 Proof.
   intros Htrue Hpair L.
   apply (pr2 (finite_intersection_hProp O)).
@@ -93,22 +93,22 @@ Definition isSetOfOpen :=
 End Open.
 
 Definition isTopologicalSet (X : UU) :=
-  Σ O : (X -> hProp) -> hProp, isSetOfOpen O.
+  Σ O : (X → hProp) → hProp, isSetOfOpen O.
 Definition TopologicalSet := Σ X : UU, isTopologicalSet X.
 
-Definition mkTopologicalSet (X : UU) (O : (X -> hProp) -> hProp)
+Definition mkTopologicalSet (X : UU) (O : (X → hProp) → hProp)
            (is : isSetOfOpen_union O)
            (is0 : isSetOfOpen_htrue O)
            (is1 : isSetOfOpen_and O) : TopologicalSet :=
   (X,,O,,is,,(isSetOfOpen_finite_intersection_carac _ is0 is1)).
 
-Definition pr1TopologicatSet : TopologicalSet -> UU := pr1.
+Definition pr1TopologicatSet : TopologicalSet → UU := pr1.
 Coercion pr1TopologicatSet : TopologicalSet >-> UU.
 
-Definition isOpen {T : TopologicalSet} : (T -> hProp) -> hProp := pr1 (pr2 T).
+Definition isOpen {T : TopologicalSet} : (T → hProp) → hProp := pr1 (pr2 T).
 Definition Open {T : TopologicalSet} :=
-  Σ O : T -> hProp, isOpen O.
-Definition pr1Open {T : TopologicalSet} : Open -> (T -> hProp) := pr1.
+  Σ O : T → hProp, isOpen O.
+Definition pr1Open {T : TopologicalSet} : Open → (T → hProp) := pr1.
 Coercion pr1Open : Open >-> Funclass.
 
 Section Topology_pty.
@@ -116,16 +116,16 @@ Section Topology_pty.
 Context {T : TopologicalSet}.
 
 Lemma isOpen_union :
-  ∀ P : (T -> hProp) -> hProp,
-    (∀ A : T -> hProp, P A -> isOpen A)
-    -> isOpen (union P).
+  ∀ P : (T → hProp) → hProp,
+    (∀ A : T → hProp, P A → isOpen A)
+    → isOpen (union P).
 Proof.
   apply (pr1 (pr2 (pr2 T))).
 Qed.
 Lemma isOpen_finite_intersection :
-  ∀ (P : Sequence (T -> hProp)),
+  ∀ (P : Sequence (T → hProp)),
     (∀ m , isOpen (P m))
-    -> isOpen (finite_intersection P).
+    → isOpen (finite_intersection P).
 Proof.
   apply (pr2 (pr2 (pr2 T))).
 Qed.
@@ -146,8 +146,8 @@ Proof.
   now apply fromempty.
 Qed.
 Lemma isOpen_and :
-  ∀ A B : T -> hProp,
-    isOpen A -> isOpen B -> isOpen (λ x : T, A x ∧ B x).
+  ∀ A B : T → hProp,
+    isOpen A → isOpen B → isOpen (λ x : T, A x ∧ B x).
 Proof.
   apply isSetOfOpen_finite_intersection_and.
   intros P Hp.
@@ -155,8 +155,8 @@ Proof.
   apply Hp.
 Qed.
 Lemma isOpen_or :
-  ∀ A B : T -> hProp,
-    isOpen A -> isOpen B -> isOpen (λ x : T, A x ∨ B x).
+  ∀ A B : T → hProp,
+    isOpen A → isOpen B → isOpen (λ x : T, A x ∨ B x).
 Proof.
   intros A B Ha Hb.
   rewrite <- union_or.
@@ -176,21 +176,21 @@ Section Neighborhood.
 
 Context {T : TopologicalSet}.
 
-Definition neighborhood (x : T) : (T -> hProp) -> hProp :=
-  λ P : T -> hProp, ∃ O : Open, O x × (∀ y : T, O y -> P y).
+Definition neighborhood (x : T) : (T → hProp) → hProp :=
+  λ P : T → hProp, ∃ O : Open, O x × (∀ y : T, O y → P y).
 
-Lemma neighborhood_isOpen (P : T -> hProp) :
-  (∀ x, P x -> neighborhood x P) <-> isOpen P.
+Lemma neighborhood_isOpen (P : T → hProp) :
+  (∀ x, P x → neighborhood x P) <-> isOpen P.
 Proof.
   split.
   - intros Hp.
-    assert (H : ∀ A : T -> hProp, isaprop (∀ y : T, A y -> P y)).
+    assert (H : ∀ A : T → hProp, isaprop (∀ y : T, A y → P y)).
     { intros A.
       apply impred_isaprop.
       intro y.
       apply isapropimpl.
       apply propproperty. }
-    set (Q := λ A : T -> hProp, isOpen A ∧ (hProppair (∀ y : T, A y -> P y) (H A))).
+    set (Q := λ A : T → hProp, isOpen A ∧ (hProppair (∀ y : T, A y → P y) (H A))).
     assert (P = (union Q)).
     { apply funextfun.
       intros x.
@@ -222,8 +222,8 @@ Proof.
 Qed.
 
 Lemma neighborhood_imply :
-  ∀ (x : T) (P Q : T -> hProp),
-    (∀ y : T, P y -> Q y) -> neighborhood x P -> neighborhood x Q.
+  ∀ (x : T) (P Q : T → hProp),
+    (∀ y : T, P y → Q y) → neighborhood x P → neighborhood x Q.
 Proof.
   intros x P Q H.
   apply hinhfun.
@@ -237,8 +237,8 @@ Proof.
     exact Hy.
 Qed.
 Lemma neighborhood_forall :
-  ∀ (x : T) (P : T -> hProp),
-    (∀ y, P y) -> neighborhood x P.
+  ∀ (x : T) (P : T → hProp),
+    (∀ y, P y) → neighborhood x P.
 Proof.
   intros x P H.
   apply hinhpr.
@@ -249,8 +249,8 @@ Proof.
   now apply H.
 Qed.
 Lemma neighborhood_and :
-  ∀ (x : T) (A B : T -> hProp),
-    neighborhood x A -> neighborhood x B -> neighborhood x (λ y, A y ∧ B y).
+  ∀ (x : T) (A B : T → hProp),
+    neighborhood x A → neighborhood x B → neighborhood x (λ y, A y ∧ B y).
 Proof.
   intros x A B.
   apply hinhfun2.
@@ -269,8 +269,8 @@ Proof.
       apply (pr2 Hy).
 Qed.
 Lemma neighborhood_point :
-  ∀ (x : T) (P : T -> hProp),
-    neighborhood x P -> P x.
+  ∀ (x : T) (P : T → hProp),
+    neighborhood x P → P x.
 Proof.
   intros x P.
   apply hinhuniv.
@@ -280,10 +280,10 @@ Proof.
 Qed.
 
 Lemma neighborhood_neighborhood :
-  ∀ (x : T) (P : T -> hProp),
+  ∀ (x : T) (P : T → hProp),
     neighborhood x P
-    -> ∃ Q : T -> hProp, neighborhood x Q
-                        × ∀ y : T, Q y -> neighborhood y P.
+    → ∃ Q : T → hProp, neighborhood x Q
+                        × ∀ y : T, Q y → neighborhood y P.
 Proof.
   intros x P.
   apply hinhfun.
@@ -322,25 +322,25 @@ Defined.
 
 (** ** Base of Neighborhood *)
 
-Definition is_base_of_neighborhood {T : TopologicalSet} (x : T) (B : (T -> hProp) -> hProp) :=
-  (∀ P : T -> hProp, B P -> neighborhood x P)
-    × (∀ P : T -> hProp, neighborhood x P -> ∃ Q : T -> hProp, B Q × (∀ t : T, Q t -> P t)).
+Definition is_base_of_neighborhood {T : TopologicalSet} (x : T) (B : (T → hProp) → hProp) :=
+  (∀ P : T → hProp, B P → neighborhood x P)
+    × (∀ P : T → hProp, neighborhood x P → ∃ Q : T → hProp, B Q × (∀ t : T, Q t → P t)).
 
 Definition base_of_neighborhood {T : TopologicalSet} (x : T) :=
-  Σ (B : (T -> hProp) -> hProp), is_base_of_neighborhood x B.
+  Σ (B : (T → hProp) → hProp), is_base_of_neighborhood x B.
 Definition pr1base_of_neighborhood {T : TopologicalSet} (x : T) :
-  base_of_neighborhood x -> ((T -> hProp) -> hProp) := pr1.
+  base_of_neighborhood x → ((T → hProp) → hProp) := pr1.
 Coercion pr1base_of_neighborhood : base_of_neighborhood >-> Funclass.
 
 Section base_default.
 
 Context {T : TopologicalSet} (x : T).
 
-Definition base_default : (T -> hProp) -> hProp :=
-  λ P : T -> hProp, isOpen P ∧ P x.
+Definition base_default : (T → hProp) → hProp :=
+  λ P : T → hProp, isOpen P ∧ P x.
 
 Lemma base_default_1 :
-  ∀ P : T -> hProp, base_default P -> neighborhood x P.
+  ∀ P : T → hProp, base_default P → neighborhood x P.
 Proof.
   intros P Hp.
   apply hinhpr.
@@ -349,7 +349,7 @@ Proof.
   easy.
 Qed.
 Lemma base_default_2 :
-  ∀ P : T -> hProp, neighborhood x P -> ∃ Q : T -> hProp, base_default Q × (∀ t : T, Q t -> P t).
+  ∀ P : T → hProp, neighborhood x P → ∃ Q : T → hProp, base_default Q × (∀ t : T, Q t → P t).
 Proof.
   intros P.
   apply hinhfun.
@@ -372,8 +372,8 @@ Proof.
   - now apply base_default_2.
 Defined.
 
-Definition neighborhood' {T : TopologicalSet} (x : T) (B : base_of_neighborhood x) : (T -> hProp) -> hProp :=
-  λ P : T -> hProp, ∃ O : T -> hProp, B O × (∀ t : T, O t -> P t).
+Definition neighborhood' {T : TopologicalSet} (x : T) (B : base_of_neighborhood x) : (T → hProp) → hProp :=
+  λ P : T → hProp, ∃ O : T → hProp, B O × (∀ t : T, O t → P t).
 
 Lemma neighborhood_equiv {T : TopologicalSet} (x : T) (B : base_of_neighborhood x) :
   ∀ P, neighborhood' x B P <-> neighborhood x P.
@@ -397,12 +397,12 @@ Qed.
 
 (** *** Topology from neighborhood *)
 
-Definition isNeighborhood {X : UU} (B : X -> (X -> hProp) -> hProp) :=
+Definition isNeighborhood {X : UU} (B : X → (X → hProp) → hProp) :=
   (∀ x, isfilter_imply (B x))
     × (∀ x, isfilter_htrue (B x))
     × (∀ x, isfilter_and (B x))
-    × (∀ x P, B x P -> P x)
-    × (∀ x P, B x P -> ∃ Q, B x Q × ∀ y, Q y -> B y P).
+    × (∀ x P, B x P → P x)
+    × (∀ x P, B x P → ∃ Q, B x Q × ∀ y, Q y → B y P).
 
 Lemma isNeighborhood_neighborhood {T : TopologicalSet} :
   isNeighborhood (neighborhood (T := T)).
@@ -426,14 +426,14 @@ Qed.
 Section TopologyFromNeighborhood.
 
 Context {X : UU}.
-Context (N : X -> (X -> hProp) -> hProp).
+Context (N : X → (X → hProp) → hProp).
 Context (Himpl : ∀ x, isfilter_imply (N x))
         (Htrue : ∀ x, isfilter_htrue (N x))
         (Hand : ∀ x, isfilter_and (N x))
-        (Hpt : ∀ x P, N x P -> P x)
-        (H : ∀ x P, N x P -> ∃ Q, N x Q × ∀ y, Q y -> N y P).
+        (Hpt : ∀ x P, N x P → P x)
+        (H : ∀ x P, N x P → ∃ Q, N x Q × ∀ y, Q y → N y P).
 
-Definition topologyfromneighborhood (A : X -> hProp) :=
+Definition topologyfromneighborhood (A : X → hProp) :=
   ∀ x : X, A x → N x A.
 Lemma isaprop_topologyfromneighborhood :
   ∀ A, isaprop (topologyfromneighborhood A).
@@ -461,7 +461,7 @@ Qed.
 
 End TopologyFromNeighborhood.
 
-Definition TopologyFromNeighborhood {X : UU} (N : X -> (X -> hProp) -> hProp) (H : isNeighborhood N) : TopologicalSet.
+Definition TopologyFromNeighborhood {X : UU} (N : X → (X → hProp) → hProp) (H : isNeighborhood N) : TopologicalSet.
 Proof.
   intros X N H.
   simple refine (mkTopologicalSet _ _ _ _ _).
@@ -480,8 +480,8 @@ Proof.
     now apply Hb, (pr2 Hx).
 Defined.
 
-Lemma TopologyFromNeighborhood_correct {X : UU} (N : X -> (X -> hProp) -> hProp) (H : isNeighborhood N) :
-  ∀ (x : X) (P : X -> hProp),
+Lemma TopologyFromNeighborhood_correct {X : UU} (N : X → (X → hProp) → hProp) (H : isNeighborhood N) :
+  ∀ (x : X) (P : X → hProp),
     N x P <-> neighborhood (T := TopologyFromNeighborhood N H) x P.
 Proof.
   intros X N (Himpl,(Htrue,(Hand,(Hpt,H)))).
@@ -513,11 +513,11 @@ Qed.
 
 Section topologygenerated.
 
-Context {X : UU} (O : (X -> hProp) -> hProp).
+Context {X : UU} (O : (X → hProp) → hProp).
 
 Definition topologygenerated :=
-  λ (x : X) (A : X -> hProp),
-  (∃ L : Sequence (X -> hProp), (∀ n, O (L n)) × (finite_intersection L x) × (∀ y, finite_intersection L y -> A y)).
+  λ (x : X) (A : X → hProp),
+  (∃ L : Sequence (X → hProp), (∀ n, O (L n)) × (finite_intersection L x) × (∀ y, finite_intersection L y → A y)).
 
 Lemma topologygenerated_imply :
   ∀ x : X, isfilter_imply (topologygenerated x).
@@ -608,7 +608,7 @@ Qed.
 
 End topologygenerated.
 
-Definition TopologyGenerated {X : UU} (O : (X -> hProp) -> hProp) : TopologicalSet.
+Definition TopologyGenerated {X : UU} (O : (X → hProp) → hProp) : TopologicalSet.
 Proof.
   intros X O.
   simple refine (TopologyFromNeighborhood _ _).
@@ -623,8 +623,8 @@ Proof.
 Defined.
 
 Lemma TopologyGenerated_included {X : UU} :
-  ∀ (O : (X -> hProp) -> hProp) (P : X -> hProp),
-    O P -> isOpen (T := TopologyGenerated O) P.
+  ∀ (O : (X → hProp) → hProp) (P : X → hProp),
+    O P → isOpen (T := TopologyGenerated O) P.
 Proof.
   intros X O P Op.
   apply neighborhood_isOpen.
@@ -643,9 +643,9 @@ Proof.
     now apply (Hy (0%nat,,paths_refl _)).
 Qed.
 Lemma TopologyGenerated_smallest {X : UU} :
-  ∀ (O : (X -> hProp) -> hProp) (T : isTopologicalSet X),
-    (∀ P : X -> hProp, O P -> pr1 T P)
-    -> ∀ P : X -> hProp, isOpen (T := TopologyGenerated O) P -> pr1 T P.
+  ∀ (O : (X → hProp) → hProp) (T : isTopologicalSet X),
+    (∀ P : X → hProp, O P → pr1 T P)
+    → ∀ P : X → hProp, isOpen (T := TopologyGenerated O) P → pr1 T P.
 Proof.
   intros X O T Ht P Hp.
   apply (neighborhood_isOpen (T := (X,,T))).
@@ -672,11 +672,11 @@ Section topologydirprod.
 Context (U V : TopologicalSet).
 
 Definition topologydirprod :=
-  λ (z : U × V) (A : U × V -> hProp),
-  (∃ (Ax : U -> hProp) (Ay : V -> hProp),
+  λ (z : U × V) (A : U × V → hProp),
+  (∃ (Ax : U → hProp) (Ay : V → hProp),
       (Ax (pr1 z) × isOpen Ax)
         × (Ay (pr2 z) × isOpen Ay)
-        × (∀ x y, Ax x -> Ay y -> A (x,,y))).
+        × (∀ x y, Ax x → Ay y → A (x,,y))).
 
 Lemma topologydirprod_imply :
   ∀ x : U × V, isfilter_imply (topologydirprod x).
@@ -790,7 +790,7 @@ Definition locally2d {T S : TopologicalSet} (x : T) (y : S) : Filter (T × S) :=
   FilterDirprod (locally x) (locally y).
 
 Lemma locally2d_correct {T S : TopologicalSet} (x : T) (y : S) :
-  ∀ P : T × S -> hProp, locally2d x y P <-> locally (T := TopologyDirprod T S) (x,,y) P.
+  ∀ P : T × S → hProp, locally2d x y P <-> locally (T := TopologyDirprod T S) (x,,y) P.
 Proof.
   intros T S x y P.
   split ; apply hinhuniv.
@@ -830,7 +830,7 @@ Qed.
 
 Section topologysubtype.
 
-Context {T : TopologicalSet} (dom : T -> hProp).
+Context {T : TopologicalSet} (dom : T → hProp).
 
 Definition topologysubtype :=
   λ (x : Σ x : T, dom x) (A : (Σ x0 : T, dom x0) → hProp),
@@ -912,7 +912,7 @@ Qed.
 
 End topologysubtype.
 
-Definition TopologySubtype {T : TopologicalSet} (dom : T -> hProp) : TopologicalSet.
+Definition TopologySubtype {T : TopologicalSet} (dom : T → hProp) : TopologicalSet.
 Proof.
   intros T dom.
   simple refine (TopologyFromNeighborhood _ _).
@@ -1020,17 +1020,17 @@ Qed.
 
 (** *** Limit of a function *)
 
-Definition is_lim {X : UU} {T : TopologicalSet} (f : X -> T) (F : Filter X) (x : T) :=
+Definition is_lim {X : UU} {T : TopologicalSet} (f : X → T) (F : Filter X) (x : T) :=
   filterlim f F (locally x).
-Definition ex_lim {X : UU} {T : TopologicalSet} (f : X -> T) (F : Filter X) :=
+Definition ex_lim {X : UU} {T : TopologicalSet} (f : X → T) (F : Filter X) :=
   ∃ (x : T), is_lim f F x.
 
-Definition is_lim_base {X : UU} {T : TopologicalSet} (f : X -> T) (F : Filter X) (x : T) base :=
+Definition is_lim_base {X : UU} {T : TopologicalSet} (f : X → T) (F : Filter X) (x : T) base :=
   filterlim f F (locally_base x base).
-Definition ex_lim_base {X : UU} {T : TopologicalSet} (f : X -> T) (F : Filter X) :=
+Definition ex_lim_base {X : UU} {T : TopologicalSet} (f : X → T) (F : Filter X) :=
   ∃ (x : T) base, is_lim_base f F x base.
 
-Lemma is_lim_base_correct {X : UU} {T : TopologicalSet} (f : X -> T) (F : Filter X) (x : T) base :
+Lemma is_lim_base_correct {X : UU} {T : TopologicalSet} (f : X → T) (F : Filter X) (x : T) base :
   is_lim_base f F x base <-> is_lim f F x.
 Proof.
   intros.
@@ -1042,7 +1042,7 @@ Proof.
     eapply Hx, neighborhood_equiv.
     exact HP.
 Qed.
-Lemma ex_lim_base_correct {X : UU} {T : TopologicalSet} (f : X -> T) (F : Filter X) :
+Lemma ex_lim_base_correct {X : UU} {T : TopologicalSet} (f : X → T) (F : Filter X) :
   ex_lim_base f F <-> ex_lim f F.
 Proof.
   intros.
@@ -1060,27 +1060,27 @@ Qed.
 
 (** *** Continuity *)
 
-Definition continuous_at {U V : TopologicalSet} (f : U -> V) (x : U) :=
+Definition continuous_at {U V : TopologicalSet} (f : U → V) (x : U) :=
   is_lim f (locally x) (f x).
 
-Definition continuous_on {U V : TopologicalSet} (dom : U -> hProp) (f : ∀ (x : U), dom x -> V) :=
+Definition continuous_on {U V : TopologicalSet} (dom : U → hProp) (f : ∀ (x : U), dom x → V) :=
   ∀ (x : U) (Hx : dom x),
     ∃ H,
       is_lim (λ y : (Σ x : U, dom x), f (pr1 y) (pr2 y)) (FilterSubtype (locally x) dom H) (f x Hx).
-Definition continuous {U V : TopologicalSet} (f : U -> V) :=
+Definition continuous {U V : TopologicalSet} (f : U → V) :=
   ∀ x : U, continuous_at f x.
 
-Definition continuous_base_at {U V : TopologicalSet} (f : U -> V) (x : U) base_x base_fx :=
+Definition continuous_base_at {U V : TopologicalSet} (f : U → V) (x : U) base_x base_fx :=
   is_lim_base f (locally_base x base_x) (f x) base_fx.
 
 (** *** Continuity for 2 variable functions *)
 
-Definition continuous2d_at {U V W : TopologicalSet} (f : U -> V -> W) (x : U) (y : V) :=
+Definition continuous2d_at {U V W : TopologicalSet} (f : U → V → W) (x : U) (y : V) :=
   is_lim (λ z : U × V, f (pr1 z) (pr2 z)) (FilterDirprod (locally x) (locally y)) (f x y).
-Definition continuous2d {U V W : TopologicalSet} (f : U -> V -> W) :=
+Definition continuous2d {U V W : TopologicalSet} (f : U → V → W) :=
   ∀ (x : U) (y : V), continuous2d_at f x y.
 
-Definition continuous2d_base_at {U V W : TopologicalSet} (f : U -> V -> W)
+Definition continuous2d_base_at {U V W : TopologicalSet} (f : U → V → W)
            (x : U) (y : V) base_x base_y base_fxy :=
   is_lim_base (λ z : U × V, f (pr1 z) (pr2 z))
               (FilterDirprod (locally_base x base_x) (locally_base y base_y))
