@@ -7,6 +7,8 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.limits.arbitrary_products.
+Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
@@ -193,6 +195,212 @@ Proof.
 Qed.
 
 End Products.
+
+(** In this section we construct a product from an arbitrary product and an
+  arbitrary product from a product. *)
+Section Products_ArbitraryProducts.
+
+  (** Variables and definitions we are going to use in the proofs *)
+  Variable C : precategory.
+  Hypothesis hs : has_homsets C.
+  Definition stn0 : stn 2 := stnpair 2 0 (natlthtolths _ _ (natlthnsn 0)).
+  Definition stn1 : stn 2 := stnpair 2 1 (natlthnsn 1).
+
+  (** We will use the following definitions to do induction.  *)
+  Definition tworec (n : nat) (H' : n < 2) : (n = 0) ⨿ (n = 1).
+  Proof.
+    destruct n.
+    exact (ii1 (idpath 0)).
+    destruct n.
+    exact (ii2 (idpath 1)).
+    exact (fromempty (nopathsfalsetotrue H')).
+  Defined.
+
+  Definition stn2ind (i : stn 2) : (i = stn0) ⨿ (i = stn1).
+  Proof.
+    induction (tworec (pr1 i)).
+    apply ii1. apply isinjstntonat, a.
+    apply ii2. apply isinjstntonat, b.
+    exact (pr2 i).
+  Defined.
+
+
+  (** Construct a family of 2 objects from a pair of objects. *)
+  Definition pair_to_stn2 (c1 c2 : C) : (stn 2) -> C.
+  Proof.
+    intros X.
+    induction (stn2ind X).
+    exact c1.
+    exact c2.
+  Defined.
+
+  (** Construct a family of two morphisms with the same domain from
+    two morphisms with the same domain. *)
+  Definition pair_to_stn2_mors (c : C) (a : stn 2 -> C) (f : C⟦c, a stn0⟧)
+             (g : C⟦c, a stn1⟧) : forall i : stn 2, C⟦c, a i⟧.
+  Proof.
+    intros i. induction (stn2ind i).
+    rewrite <- a0 in f. apply f.
+    rewrite <- b in g. apply g.
+  Defined.
+
+  (** Construction of a product from an arbitrary product. *)
+  Definition product_from_arbitrary_product (a : stn 2 -> C)
+             (Cone : ArbitraryProductCone (stn 2) C a) :
+    ProductCone C (a stn0) (a stn1).
+  Proof.
+    set (p1 := ArbitraryProductPr _ _ Cone stn0).
+    set (p2 := ArbitraryProductPr _ _ Cone stn1).
+    set (Coneob := (ArbitraryProductObject _ _ Cone)).
+
+    refine (mk_ProductCone _ (a stn0) (a stn1) Coneob p1 p2 _).
+    refine (mk_isProductCone _ hs _ _ _ _ _ _).
+
+    intros c f g.
+    set (mors := pair_to_stn2_mors c a f g).
+    set (com1 := ArbitraryProductPrCommutes _ _ a Cone c mors stn0).
+    set (com2 := ArbitraryProductPrCommutes _ _ a Cone c mors stn1).
+    set (ar := (ArbitraryProductArrow _ _ Cone mors)).
+
+    use (subtypeEquality'' ar); simpl.
+
+    (* Commutativity *)
+    split.
+    apply com1.
+    apply com2.
+
+    (* Equality on equality of morphisms *)
+    intros y. apply isapropdirprod; apply hs.
+
+    (* Uniqueness *)
+    intros y X. apply ArbitraryProductArrowUnique.
+    intros i. induction (stn2ind i).
+    rewrite a0. apply (dirprod_pr1 X).
+    rewrite b. apply (dirprod_pr2 X).
+  Defined.
+
+  (** Construction of an arbitrary product from a product. *)
+  Definition arbitrary_product_from_product (c1 c2 : C)
+             (Cone : ProductCone C c1 c2) :
+    ArbitraryProductCone (stn 2) C (pair_to_stn2 c1 c2).
+  Proof.
+    set (a := pair_to_stn2 c1 c2).
+    set (p1 := ProductPr1 _ Cone).
+    set (p2 := ProductPr2 _ Cone).
+    set (ConeOb := ProductObject _ Cone).
+    set (f := pair_to_stn2_mors ConeOb a p1 p2).
+
+    refine (mk_ArbitraryProductCone _ _ a ConeOb f _ ).
+    refine (mk_isArbitraryProductCone _ _ hs _ _ _ _).
+    intros c g.
+
+    set (f1 := g stn0).
+    set (f2 := g stn1).
+    set (ar := ProductArrow _ Cone f1 f2).
+    set (com1 := ProductPr1Commutes _ _ _ Cone _ f1 f2).
+    set (com2 := ProductPr2Commutes _ _ _ Cone _ f1 f2).
+
+    use (subtypeEquality'' ar); simpl.
+
+    (* Commutativity *)
+    intros i. induction (stn2ind i).
+    rewrite a0. apply com1.
+    rewrite b. apply com2.
+
+    (* Equality on morphism equalities *)
+    intros y. apply impred_isaprop. intros t0. apply hs.
+
+    (* Uniqueness *)
+    intros y X. apply ProductArrowUnique.
+    apply (X stn0).
+    apply (X stn1).
+  Defined.
+End Products_ArbitraryProducts.
+
+(** In this section we construct an arbitrary product from two arbitrary
+  products by taking the disjoint union of the objects. To do this, we need
+  to assume that the product of the arbitrary products exists. *)
+Section product_from_products.
+  Variable C : precategory.
+  Hypothesis hs : has_homsets C.
+
+  (** Sum of two families of morphisms a1 and a2 with a common domain. *)
+  Definition sumofmorsto :
+    forall (c : C) (I1 I2 : UU) (a1 : I1 -> C) (a2 : I2 -> C)
+      (m1 : forall i1 : I1, C⟦c, a1 i1⟧) (m2 : forall i2 : I2, C⟦c, a2 i2⟧),
+    forall i : I1 ⨿ I2, C⟦c, (sumofmaps a1 a2) i⟧.
+  Proof.
+    intros c I1 I2 a1 a2 m1 m2 i. unfold sumofmaps.
+    induction i.
+    exact (m1 a).
+    exact (m2 b).
+  Defined.
+
+
+  (** Construction of an arbitrary coproduct from two arbitrary coproducts and a
+    product of the arbitrary products. *)
+  Theorem arbitrary_product_from_arbitrary_products :
+    forall (I1 I2 : UU) (a1 : I1 -> C) (a2 : I2 -> C)
+      (A1 : ArbitraryProductCone _ C a1)
+      (A2 : ArbitraryProductCone _ C a2)
+      (Cone : ProductCone C (ArbitraryProductObject _ _ A1)
+                          (ArbitraryProductObject _ _ A2)),
+      ArbitraryProductCone _ C (sumofmaps a1 a2).
+  Proof.
+    intros I1 I2 a1 a2 A1 A2 Cone.
+
+    (* Set names from useful terms *)
+    set (A1pr := ArbitraryProductPr _ _ A1).
+    set (A2pr := ArbitraryProductPr _ _ A2).
+    set (p1 := ProductPr1 _ Cone).
+    set (p2 := ProductPr2 _ Cone).
+    set (m1 := fun i1 : I1 => p1 ;; (A1pr i1)).
+    set (m2 := fun i2 : I2 => p2 ;; (A2pr i2)).
+    set (ConeOb := ProductObject _ Cone).
+
+    refine (mk_ArbitraryProductCone
+              _ _ _ ConeOb (sumofmorsto ConeOb _ _ _ _ m1 m2) _).
+    refine (mk_isArbitraryProductCone _ _ hs _ _ _ _).
+    intros c g.
+
+    (* Set names for useful terms *)
+    set (g1 := fun i : I1 => g (ii1 i)).
+    set (g2 := fun i : I2 => g (ii2 i)).
+    set (ar1 := ArbitraryProductArrow _ _ A1 g1).
+    set (ar2 := ArbitraryProductArrow _ _ A2 g2).
+    set (ar := ProductArrow _ Cone ar1 ar2).
+    set (com1 := ProductPr1Commutes _ _ _ Cone c ar1 ar2).
+    set (com2 := ProductPr2Commutes _ _ _ Cone c ar1 ar2).
+
+    use (subtypeEquality'' ar); simpl.
+
+    (* Commutativity of morphisms *)
+    intros i. unfold sumofmorsto, coprod_rect. induction i.
+
+    set (com'1 := ArbitraryProductPrCommutes _ _ _ A1 c g1 a).
+    unfold ar, m1. rewrite assoc. unfold p1, A1pr. rewrite com1.
+    unfold ar1. rewrite -> com'1. apply idpath.
+
+    set (com'2 := ArbitraryProductPrCommutes _ _ _ A2 c g2 b).
+    unfold ar, m2. rewrite assoc. unfold p2, A2pr. rewrite com2.
+    unfold ar2. rewrite com'2. apply idpath.
+
+    (* Equality of equality of morphisms *)
+    intros y. apply impred_isaprop. intros t0. apply hs.
+
+    (* Uniqueness of the morphism to the cone *)
+    intros y X. apply ProductArrowUnique.
+    apply ArbitraryProductArrowUnique.
+    intros i. unfold sumofmorsto, coprod_rect in X.
+    set (t2 := X (ii1 i)). simpl in t2.
+    fold A1pr. rewrite <- assoc. apply t2.
+
+    apply ArbitraryProductArrowUnique.
+    intros i. unfold sumofmorsto, coprod_rect in X.
+    set (t2 := X (ii2 i)). simpl in t2.
+    fold A2pr. rewrite <- assoc. apply t2.
+  Defined.
+End product_from_products.
 
 Section Product_unique.
 
