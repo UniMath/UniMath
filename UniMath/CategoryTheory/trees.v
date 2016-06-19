@@ -100,7 +100,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_leaf (X : hSet) (x : X) (f : pr1 A × X × X -> X) : foldr X x f leaf = x.
 Proof.
-assert (F := maponpaths (fun x => CoproductIn1 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ _ ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -109,7 +109,7 @@ Lemma foldr_node (X : hSet) (x : X) (f : pr1 A × X × X -> X)
                  (a : pr1 A) (l1 l2 : pr1 Tree) :
   foldr X x f (node (a,,l1,,l2)) = f (a,,foldr X x f l1,,foldr X x f l2).
 Proof.
-assert (F := maponpaths (fun x => CoproductIn2 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn2 _ _ ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l1,,l2)).
 clear F.
@@ -150,7 +150,7 @@ Opaque is_omega_cocont_treeFunctor.
 Lemma isalghom_pr1foldr :
   is_algebra_mor _ Tree_alg Tree_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
-apply CoproductArrow_eq_cor.
+apply BinCoproductArrow_eq_cor.
 - apply funextfun; intro x; destruct x; apply idpath.
 - apply funextfun; intro x; destruct x as [a [l1 l2]].
   apply (maponpaths pr1 (foldr_node P'HSET P0' Pc' a l1 l2)).

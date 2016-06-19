@@ -225,16 +225,16 @@ Proof.
 now intros g d; apply ColimCoconeHSET.
 Defined.
 
-(* Direct construction of Coproducts in HSET *)
-Lemma CoproductsHSET : Coproducts HSET.
+(* Direct construction of binary coproducts in HSET *)
+Lemma BinCoproductsHSET : BinCoproducts HSET.
 Proof.
 intros A B.
-simple refine (mk_CoproductCocone _ _ _ _ _ _ _).
+simple refine (mk_BinCoproductCocone _ _ _ _ _ _ _).
 - simpl in *; apply (tpair _ (coprod A B)).
   abstract (apply isasetcoprod; apply setproperty).
 - simpl in *; apply ii1.
 - simpl in *; intros x; apply (ii2 x).
-- apply (mk_isCoproductCocone _ has_homsets_HSET).
+- apply (mk_isBinCoproductCocone _ has_homsets_HSET).
   intros C f g; simpl in *.
   simple refine (tpair _ _ _).
   * apply (tpair _ (sumofmaps f g)); abstract (split; apply idpath).
@@ -268,9 +268,9 @@ Section CoproductsHSET_from_Colims.
 
 Require UniMath.CategoryTheory.limits.graphs.bincoproducts.
 
-Lemma CoproductsHSET_from_Colims : graphs.bincoproducts.Coproducts HSET.
+Lemma BinCoproductsHSET_from_Colims : graphs.bincoproducts.BinCoproducts HSET.
 Proof.
-exact (bincoproducts.Coproducts_from_Colims _ ColimsHSET).
+exact (bincoproducts.BinCoproducts_from_Colims _ ColimsHSET).
 Defined.
 
 End CoproductsHSET_from_Colims.

@@ -42,17 +42,17 @@ Require Import UniMath.CategoryTheory.cocontfunctors.
 Section LamHSET.
 
 Let Lam_S : Signature HSET has_homsets_HSET :=
-  Lam_Sig HSET has_homsets_HSET TerminalHSET CoproductsHSET BinProductsHSET.
+  Lam_Sig HSET has_homsets_HSET TerminalHSET BinCoproductsHSET BinProductsHSET.
 
 Local Notation "'EndHSET'":= ([HSET, HSET, has_homsets_HSET]) .
 
 Let hsEndC : has_homsets EndHSET := functor_category_has_homsets _ _ has_homsets_HSET.
 
-Lemma Lam_Initial_HSET : Initial (precategory_FunctorAlg (Id_H _ _ CoproductsHSET Lam_S) hsEndC).
+Lemma Lam_Initial_HSET : Initial (precategory_FunctorAlg (Id_H _ _ BinCoproductsHSET Lam_S) hsEndC).
 Proof.
 use colimAlgInitial.
 - unfold Id_H, Const_plus_H.
-  apply is_omega_cocont_coproduct_functor.
+  apply is_omega_cocont_bincoproduct_of_functors.
   + apply (BinProducts_functor_precat _ _ BinProductsHSET).
   + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
@@ -73,7 +73,7 @@ apply RightKanExtension_from_limits.
 apply cats_LimsHSET.
 Defined.
 
-Definition LamHSS_Initial_HSET : Initial (hss_precategory CoproductsHSET Lam_S).
+Definition LamHSS_Initial_HSET : Initial (hss_precategory BinCoproductsHSET Lam_S).
 Proof.
 apply InitialHSS.
 - apply KanExt_HSET.
@@ -84,7 +84,7 @@ Definition LamMonad : Monad HSET.
 Proof.
 use Monad_from_hss.
 - apply has_homsets_HSET.
-- apply CoproductsHSET.
+- apply BinCoproductsHSET.
 - apply Lam_S.
 - apply LamHSS_Initial_HSET.
 Defined.

@@ -104,12 +104,12 @@ apply (is_omega_cocont_ArbitrarySum_of_Signatures _ HI).
 Defined.
 
 Definition GenSigInitial :
-  Initial (FunctorAlg (Id_H HSET has_homsets_HSET CoproductsHSET
+  Initial (FunctorAlg (Id_H HSET has_homsets_HSET BinCoproductsHSET
                         GenSigToSignature) has_homsets_HSET2).
 Proof.
 use colimAlgInitial.
 - unfold Id_H, Const_plus_H.
-  apply is_omega_cocont_coproduct_functor.
+  apply is_omega_cocont_bincoproduct_of_functors.
   + apply (BinProducts_functor_precat _ _ BinProductsHSET).
   + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
@@ -119,7 +119,7 @@ use colimAlgInitial.
 - apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.
 
-Definition GenSigInitialHSS : Initial (hss_precategory CoproductsHSET GenSigToSignature).
+Definition GenSigInitialHSS : Initial (hss_precategory BinCoproductsHSET GenSigToSignature).
 Proof.
 apply InitialHSS.
 - intro Z; apply RightKanExtension_from_limits, cats_LimsHSET.
@@ -130,7 +130,7 @@ Definition GenSigToMonad : Monad HSET.
 Proof.
 use Monad_from_hss.
 - apply has_homsets_HSET.
-- apply CoproductsHSET.
+- apply BinCoproductsHSET.
 - apply GenSigToSignature.
 - apply GenSigInitialHSS.
 Defined.

@@ -423,7 +423,7 @@ End arbitrary_delta_functor.
 (** The functor "+ : C^2 -> C" is cocont *)
 Section bincoprod_functor.
 
-Variables (C : precategory) (PC : Coproducts C) (hsC : has_homsets C).
+Variables (C : precategory) (PC : BinCoproducts C) (hsC : has_homsets C).
 
 Lemma cocont_bincoproduct_functor : is_cocont (bincoproduct_functor PC).
 Proof.
@@ -462,14 +462,14 @@ Defined.
 
 End arbitrary_coprod_functor.
 
-Section coproduct_of_functors.
+Section bincoproduct_of_functors.
 
-Variables (C D : precategory) (PC : BinProducts C) (HD : Coproducts D).
+Variables (C D : precategory) (PC : BinProducts C) (HD : BinCoproducts D).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 
-Lemma is_omega_cocont_coproduct_of_functors (F G : functor C D)
+Lemma is_omega_cocont_bincoproduct_of_functors_alt (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (coproduct_of_functors HD F G).
+  is_omega_cocont (bincoproduct_of_functors_alt HD F G).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
   apply (is_omega_cocont_delta_functor _ PC hsC).
@@ -478,23 +478,25 @@ apply (is_omega_cocont_functor_composite hsD).
 apply (is_omega_cocont_bincoproduct_functor _ _ hsD).
 Defined.
 
-Definition omega_cocont_coproduct_of_functors (F G : omega_cocont_functor C D) :
+Definition omega_cocont_bincoproduct_of_functors_alt (F G : omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_coproduct_of_functors _ _ (pr2 F) (pr2 G)).
+    tpair _ _ (is_omega_cocont_bincoproduct_of_functors_alt _ _ (pr2 F) (pr2 G)).
 
-Lemma is_omega_cocont_coproduct_functor (F G : functor C D)
+Lemma is_omega_cocont_bincoproduct_of_functors (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (coproduct_functor _ _ HD F G).
+  is_omega_cocont (bincoproduct_of_functors _ _ HD F G).
 Proof.
-exact (transportf _ (coproduct_of_functors_eq_coproduct_functor C D HD hsD F G)
-                  (is_omega_cocont_coproduct_of_functors _ _ HF HG)).
+exact (transportf _
+         (bincoproduct_of_functors_alt_eq_bincoproduct_of_functors C D HD hsD F G)
+         (is_omega_cocont_bincoproduct_of_functors_alt _ _ HF HG)).
 Defined.
 
-Definition omega_cocont_coproduct_functor (F G : omega_cocont_functor C D) :
+Definition omega_cocont_bincoproduct_of_functors
+ (F G : omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_coproduct_functor _ _ (pr2 F) (pr2 G)).
+    tpair _ _ (is_omega_cocont_bincoproduct_of_functors _ _ (pr2 F) (pr2 G)).
 
-End coproduct_of_functors.
+End bincoproduct_of_functors.
 
 Section arbitrary_coproduct_of_functors.
 
@@ -1129,7 +1131,7 @@ Notation "F * G" :=
     cocont_functor_hset_scope.
 
 Notation "F + G" :=
-  (omega_cocont_coproduct_of_functors _ _ BinProductsHSET CoproductsHSET
+  (omega_cocont_bincoproduct_of_functors_alt _ _ BinProductsHSET BinCoproductsHSET
      has_homsets_HSET has_homsets_HSET F G) : cocont_functor_hset_scope.
 
 (* omega_cocont_coproduct_functor has worse computational behavior

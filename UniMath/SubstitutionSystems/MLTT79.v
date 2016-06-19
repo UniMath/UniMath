@@ -210,7 +210,7 @@ Definition MLTT79Sig := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++
 Definition MLTT79Signature : SigHSET := GenSigToSignature MLTT79Sig.
 
 Definition MLTT79Functor : functor HSET2 HSET2 :=
-  Id_H _ _ CoproductsHSET MLTT79Signature.
+  Id_H _ _ BinCoproductsHSET MLTT79Signature.
 
 Definition MLTT79Monad : Monad HSET := GenSigToMonad MLTT79Sig.
 
@@ -230,7 +230,7 @@ Let MLTT79_alg : algebra_ob MLTT79Functor :=
   InitialObject MLTT79Functor_Initial.
 
 Definition var_map : HSET2⟦functor_identity HSET,MLTT79⟧ :=
-  CoproductIn1 HSET2 _ ;; MLTT79_mor.
+  BinCoproductIn1 HSET2 _ ;; MLTT79_mor.
 
 (* TODO: define the rest of the constructors and computation rules? *)
 

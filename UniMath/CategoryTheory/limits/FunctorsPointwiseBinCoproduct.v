@@ -41,81 +41,81 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 Section def_functor_pointwise_coprod.
 
 Variable C D : precategory.
-Variable HD : Coproducts D.
+Variable HD : BinCoproducts D.
 Variable hsD : has_homsets D.
 
-Section coproduct_functor.
+Section bincoproduct_of_functors.
 
 Variables F G : functor C D.
 
-Local Notation "c ⊗ d" := (CoproductObject _ (HD c d))(at level 45).
+Local Notation "c ⊗ d" := (BinCoproductObject _ (HD c d))(at level 45).
 
-Definition coproduct_functor_ob (c : C) : D := F c ⊗ G c.
+Definition bincoproduct_of_functors_ob (c : C) : D := F c ⊗ G c.
 
-Definition coproduct_functor_mor (c c' : C) (f : c --> c')
-  : coproduct_functor_ob c --> coproduct_functor_ob c'
-  := CoproductOfArrows _ _ _ (#F f) (#G f).
+Definition bincoproduct_of_functors_mor (c c' : C) (f : c --> c')
+  : bincoproduct_of_functors_ob c --> bincoproduct_of_functors_ob c'
+  := BinCoproductOfArrows _ _ _ (#F f) (#G f).
 
-Definition coproduct_functor_data : functor_data C D.
+Definition bincoproduct_of_functors_data : functor_data C D.
 Proof.
-  exists coproduct_functor_ob.
-  exact coproduct_functor_mor.
+  exists bincoproduct_of_functors_ob.
+  exact bincoproduct_of_functors_mor.
 Defined.
 
-Lemma is_functor_coproduct_functor_data : is_functor coproduct_functor_data.
+Lemma is_functor_bincoproduct_of_functors_data : is_functor bincoproduct_of_functors_data.
 Proof.
   split; simpl; intros.
   - unfold functor_idax; intros; simpl in *.
     apply pathsinv0.
-    apply Coproduct_endo_is_identity.
-    + unfold coproduct_functor_mor.
-      rewrite CoproductOfArrowsIn1.
+    apply BinCoproduct_endo_is_identity.
+    + unfold bincoproduct_of_functors_mor.
+      rewrite BinCoproductOfArrowsIn1.
       rewrite functor_id.
       apply id_left.
-    + unfold coproduct_functor_mor.
-      rewrite CoproductOfArrowsIn2.
+    + unfold bincoproduct_of_functors_mor.
+      rewrite BinCoproductOfArrowsIn2.
       rewrite functor_id.
       apply id_left.
-  - unfold functor_compax, coproduct_functor_mor;
+  - unfold functor_compax, bincoproduct_of_functors_mor;
     intros; simpl in *.
-    unfold coproduct_functor_mor.
+    unfold bincoproduct_of_functors_mor.
     do 2 rewrite functor_comp.
-    rewrite <- CoproductOfArrows_comp.
+    rewrite <- BinCoproductOfArrows_comp.
     apply idpath.
 (* former proof:
-    unfold CoproductOfArrows.
+    unfold BinCoproductOfArrows.
     apply pathsinv0.
-    apply CoproductArrowUnique.
+    apply BinCoproductArrowUnique.
     + rewrite assoc. simpl in *.
-      set (H:= CoproductIn1Commutes ).
+      set (H:= BinCoproductIn1Commutes ).
       set (H2 := H D _ _ (HD (F a) (G a))).
       rewrite H2.
       rewrite <- assoc.
       rewrite functor_comp.
       repeat rewrite <- assoc.
       apply maponpaths.
-      apply CoproductIn1Commutes.
+      apply BinCoproductIn1Commutes.
     + rewrite assoc.
-      set (H:= CoproductIn2Commutes D _ _ (HD (F a) (G a))).
+      set (H:= BinCoproductIn2Commutes D _ _ (HD (F a) (G a))).
       rewrite H.
       rewrite functor_comp.
       repeat rewrite <- assoc.
       apply maponpaths.
-      apply CoproductIn2Commutes.
+      apply BinCoproductIn2Commutes.
 *)
 Qed.
 
-Definition coproduct_functor : functor C D :=
-  tpair _ _ is_functor_coproduct_functor_data.
+Definition bincoproduct_of_functors : functor C D :=
+  tpair _ _ is_functor_bincoproduct_of_functors_data.
 
-Lemma coproduct_of_functors_eq_coproduct_functor :
-  coproduct_of_functors HD F G = coproduct_functor.
+Lemma bincoproduct_of_functors_alt_eq_bincoproduct_of_functors :
+  bincoproduct_of_functors_alt HD F G = bincoproduct_of_functors.
 Proof.
 now apply (functor_eq _ _ hsD).
 Defined.
 
-Definition coproduct_nat_trans_in1_data : ∀ c, F c --> coproduct_functor c
-  := λ c : C, CoproductIn1 _ (HD (F c) (G c)).
+Definition coproduct_nat_trans_in1_data : ∀ c, F c --> bincoproduct_of_functors c
+  := λ c : C, BinCoproductIn1 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_coproduct_nat_trans_in1_data
   : is_nat_trans _ _ coproduct_nat_trans_in1_data.
@@ -123,9 +123,9 @@ Proof.
   unfold is_nat_trans.
   intros c c' f.
   unfold coproduct_nat_trans_in1_data.
-  unfold coproduct_functor. simpl.
-  unfold coproduct_functor_mor.
-  assert (XX:= CoproductOfArrowsIn1).
+  unfold bincoproduct_of_functors. simpl.
+  unfold bincoproduct_of_functors_mor.
+  assert (XX:= BinCoproductOfArrowsIn1).
   assert (X1 := XX _ (F c) (G c) (HD (F c) (G c))).
   assert (X2 := X1 _ _ (HD (F c') (G c'))).
   rewrite X2.
@@ -135,8 +135,8 @@ Qed.
 Definition coproduct_nat_trans_in1 : nat_trans _ _
   := tpair _ _ is_nat_trans_coproduct_nat_trans_in1_data.
 
-Definition coproduct_nat_trans_in2_data : ∀ c, G c --> coproduct_functor c
-  := λ c : C, CoproductIn2 _ (HD (F c) (G c)).
+Definition coproduct_nat_trans_in2_data : ∀ c, G c --> bincoproduct_of_functors c
+  := λ c : C, BinCoproductIn2 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_coproduct_nat_trans_in2_data
   : is_nat_trans _ _ coproduct_nat_trans_in2_data.
@@ -144,9 +144,9 @@ Proof.
   unfold is_nat_trans.
   intros c c' f.
   unfold coproduct_nat_trans_in2_data.
-  unfold coproduct_functor. simpl.
-  unfold coproduct_functor_mor.
-  assert (XX:= CoproductOfArrowsIn2).
+  unfold bincoproduct_of_functors. simpl.
+  unfold bincoproduct_of_functors_mor.
+  assert (XX:= BinCoproductOfArrowsIn2).
   assert (X1 := XX _ (F c) (G c) (HD (F c) (G c))).
   assert (X2 := X1 _ _ (HD (F c') (G c'))).
   rewrite X2.
@@ -165,10 +165,10 @@ Variable A : functor C D.
 Variable f : F ⟶ A.
 Variable g : G ⟶ A.
 
-Definition coproduct_nat_trans_data : ∀ c, coproduct_functor c --> A c.
+Definition coproduct_nat_trans_data : ∀ c, bincoproduct_of_functors c --> A c.
 Proof.
   intro c.
-  apply CoproductArrow.
+  apply BinCoproductArrow.
   - exact (f c).
   - exact (g c).
 Defined.
@@ -177,15 +177,15 @@ Lemma is_nat_trans_coproduct_nat_trans_data : is_nat_trans _ _ coproduct_nat_tra
 Proof.
   intros a b k.
   simpl.
-  unfold coproduct_functor_mor.
+  unfold bincoproduct_of_functors_mor.
   unfold coproduct_nat_trans_data.
   simpl.
-  set (XX:=precompWithCoproductArrow).
+  set (XX:=precompWithBinCoproductArrow).
   set (X1 := XX D _ _ (HD (F a) (G a))).
   set (X2 := X1 _ _ (HD (F b) (G b))).
   rewrite X2.
   clear X2 X1 XX.
-  set (XX:=postcompWithCoproductArrow).
+  set (XX:=postcompWithBinCoproductArrow).
   set (X1 := XX D _ _ (HD (F a) (G a))).
   rewrite X1.
   rewrite (nat_trans_ax f).
@@ -202,7 +202,7 @@ Proof.
   apply nat_trans_eq.
   - apply hsD.
   - intro c; simpl.
-    apply CoproductIn1Commutes.
+    apply BinCoproductIn1Commutes.
 Qed.
 
 Lemma coproduct_nat_trans_In2Commutes :
@@ -211,7 +211,7 @@ Proof.
   apply nat_trans_eq.
   - apply hsD.
   - intro c; simpl.
-    apply CoproductIn2Commutes.
+    apply BinCoproductIn2Commutes.
 Qed.
 
 End vertex.
@@ -220,16 +220,16 @@ End vertex.
 Lemma coproduct_nat_trans_univ_prop (A : [C, D, hsD])
   (f : (F : [C,D,hsD]) --> A) (g : (G : [C,D,hsD]) --> A) :
    ∀
-   t : Σ fg : (coproduct_functor:[C,D,hsD]) --> A,
-       (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> coproduct_functor);; fg = f
+   t : Σ fg : (bincoproduct_of_functors:[C,D,hsD]) --> A,
+       (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> bincoproduct_of_functors);; fg = f
       ×
-       (coproduct_nat_trans_in2: (G : [C,D,hsD]) --> coproduct_functor);; fg = g,
+       (coproduct_nat_trans_in2: (G : [C,D,hsD]) --> bincoproduct_of_functors);; fg = g,
    t =
    tpair
-     (λ fg : (coproduct_functor:[C,D,hsD]) --> A,
-      (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> coproduct_functor);; fg = f
+     (λ fg : (bincoproduct_of_functors:[C,D,hsD]) --> A,
+      (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> bincoproduct_of_functors);; fg = f
    ×
-      (coproduct_nat_trans_in2 : (G:[C,D,hsD]) --> coproduct_functor) ;; fg = g)
+      (coproduct_nat_trans_in2 : (G:[C,D,hsD]) --> bincoproduct_of_functors) ;; fg = g)
      (coproduct_nat_trans A f g)
      (dirprodpair (coproduct_nat_trans_In1Commutes A f g)
         (coproduct_nat_trans_In2Commutes A f g)).
@@ -251,20 +251,20 @@ Proof.
       simpl.
       unfold coproduct_nat_trans_data.
       simpl.
-      apply CoproductArrowUnique.
+      apply BinCoproductArrowUnique.
       * apply (nat_trans_eq_pointwise ta).
       * apply (nat_trans_eq_pointwise tb).
 Qed.
 
 
 Definition functor_precat_coproduct_cocone
-  : CoproductCocone [C, D, hsD] F G.
+  : BinCoproductCocone [C, D, hsD] F G.
 Proof.
-  simple refine (mk_CoproductCocone _ _ _ _ _ _ _ ).
-  - apply coproduct_functor.
+  simple refine (mk_BinCoproductCocone _ _ _ _ _ _ _ ).
+  - apply bincoproduct_of_functors.
   - apply coproduct_nat_trans_in1.
   - apply coproduct_nat_trans_in2.
-  - simple refine (mk_isCoproductCocone _ _ _ _ _ _ _ _ ).
+  - simple refine (mk_isBinCoproductCocone _ _ _ _ _ _ _ _ ).
     + apply functor_category_has_homsets.
     + intros A f g.
      exists (tpair _ (coproduct_nat_trans A f g)
@@ -274,9 +274,9 @@ Proof.
      apply coproduct_nat_trans_univ_prop.
 Defined.
 
-End coproduct_functor.
+End bincoproduct_of_functors.
 
-Definition Coproducts_functor_precat : Coproducts [C, D, hsD].
+Definition BinCoproducts_functor_precat : BinCoproducts [C, D, hsD].
 Proof.
   intros F G.
   apply functor_precat_coproduct_cocone.
@@ -288,12 +288,12 @@ Section option_functor.
 
 Require Import UniMath.CategoryTheory.limits.terminal.
 
-Variables (C : precategory) (hsC : has_homsets C) (CC : Coproducts C).
+Variables (C : precategory) (hsC : has_homsets C) (CC : BinCoproducts C).
 
 Variable terminal : Terminal C.
 Let one : C :=  @TerminalObject C terminal.
 
 Definition option_functor : functor C C :=
-  coproduct_functor C C CC (constant_functor _ _ one) (functor_identity C).
+  bincoproduct_of_functors C C CC (constant_functor _ _ one) (functor_identity C).
 
 End option_functor.

@@ -49,11 +49,11 @@ Section def_hss.
 Variable C : precategory.
 Variable hs : has_homsets C.
 
-Variable CP : Coproducts C.
+Variable CP : BinCoproducts C.
 
 Local Notation "'EndC'":= ([C, C, hs]) .
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
-Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CP hs.
+Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP hs.
 
 Variable H : Signature C hs.
 
@@ -64,7 +64,7 @@ Let θ_strength2_int := Sig_strength_law2 _ _ H.
 
 Let Id_H
 : functor EndC EndC
-  := coproduct_functor _ _ CPEndC
+  := bincoproduct_of_functors _ _ CPEndC
                        (constant_functor _ _ (functor_identity _ : EndC))
                        H.
 
@@ -78,7 +78,7 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 
 Definition eta_from_alg (T : algebra_ob Id_H) : EndC ⟦ functor_identity _,  `T ⟧.
 Proof.
-  exact (CoproductIn1 _ _ ;; alg_map _ T).
+  exact (BinCoproductIn1 _ _ ;; alg_map _ T).
 Defined.
 
 Local Notation η := eta_from_alg.
@@ -91,7 +91,7 @@ Defined.
 
 Definition tau_from_alg (T : algebra_ob Id_H) : EndC ⟦H `T, `T⟧.
 Proof.
-  exact (CoproductIn2 _ _ ;; alg_map _ T).
+  exact (BinCoproductIn2 _ _ ;; alg_map _ T).
 Defined.
 Local Notation τ := tau_from_alg.
 
@@ -101,7 +101,7 @@ Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
 Coercion functor_from_algebra_ob (X : algebra_ob _ Id_H) : functor C C  := pr1 X.
 *)
 
-Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
+Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 
 
 Definition bracket_property (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)
@@ -110,7 +110,7 @@ Definition bracket_property (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_
     alg_map _ T •• (U Z) ;; h =
           identity (U Z) ⊕ θ (`T ⊗ Z) ;;
           identity (U Z) ⊕ #H h ;;
-          CoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T).
+          BinCoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T).
 
 Definition bracket_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T): UU :=
   ∃! h : `T • (U Z)  --> `T, bracket_property T f h.
@@ -144,17 +144,17 @@ Proof.
     simpl.
     unfold coproduct_nat_trans_in1_data.
     assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
-    apply (maponpaths (fun m =>  CoproductIn1 C (CP _ _);; m)) in Hyp_inst.
+    apply (maponpaths (fun m => BinCoproductIn1 C (CP _ _);; m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] =>
          pathvia (f) end.
 
     * clear Hyp_inst.
       rewrite <- assoc.
-      apply CoproductIn1Commutes_right_in_ctx_dir.
+      apply BinCoproductIn1Commutes_right_in_ctx_dir.
       rewrite id_left.
-      apply CoproductIn1Commutes_right_in_ctx_dir.
+      apply BinCoproductIn1Commutes_right_in_ctx_dir.
       rewrite id_left.
-      apply CoproductIn1Commutes_right_dir.
+      apply BinCoproductIn1Commutes_right_dir.
       apply idpath.
     * rewrite <- Hyp_inst; clear Hyp_inst.
       rewrite <- assoc.
@@ -165,22 +165,22 @@ Proof.
     simpl.
     unfold coproduct_nat_trans_in2_data.
     assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
-    apply (maponpaths (fun m =>  CoproductIn2 C (CP _ _);; m)) in Hyp_inst.
+    apply (maponpaths (fun m =>  BinCoproductIn2 C (CP _ _);; m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] =>
          pathvia (f) end.
 
     * clear Hyp_inst.
       do 2 rewrite <- assoc.
-      apply CoproductIn2Commutes_right_in_ctx_dir.
+      apply BinCoproductIn2Commutes_right_in_ctx_dir.
       simpl.
       rewrite <- assoc.
       apply maponpaths.
-      apply CoproductIn2Commutes_right_in_ctx_dir.
+      apply BinCoproductIn2Commutes_right_in_ctx_dir.
       simpl.
       rewrite <- assoc.
       apply maponpaths.
       unfold tau_from_alg.
-      apply CoproductIn2Commutes_right_dir.
+      apply BinCoproductIn2Commutes_right_dir.
       apply idpath.
     * rewrite <- Hyp_inst; clear Hyp_inst.
       rewrite <- assoc.
@@ -194,15 +194,15 @@ Proof.
   intros [Hyp1 Hyp2].
   apply nat_trans_eq; try (exact hs).
   intro c.
-  apply CoproductArrow_eq_cor.
+  apply BinCoproductArrow_eq_cor.
   + clear Hyp2.
     assert (Hyp1_inst := nat_trans_eq_pointwise Hyp1 c); clear Hyp1.
     rewrite <- assoc.
-    apply CoproductIn1Commutes_right_in_ctx_dir.
+    apply BinCoproductIn1Commutes_right_in_ctx_dir.
     rewrite id_left.
-    apply CoproductIn1Commutes_right_in_ctx_dir.
+    apply BinCoproductIn1Commutes_right_in_ctx_dir.
     rewrite id_left.
-    apply CoproductIn1Commutes_right_dir.
+    apply BinCoproductIn1Commutes_right_dir.
     simpl. simpl in Hyp1_inst.
     rewrite Hyp1_inst.
     simpl.
@@ -210,7 +210,7 @@ Proof.
   + clear Hyp1.
     assert (Hyp2_inst := nat_trans_eq_pointwise Hyp2 c); clear Hyp2.
     rewrite <- assoc.
-    apply CoproductIn2Commutes_right_in_ctx_dir.
+    apply BinCoproductIn2Commutes_right_in_ctx_dir.
     simpl.
     rewrite assoc.
     eapply pathscomp0.
@@ -220,11 +220,11 @@ Proof.
       simpl.
       do 2 rewrite <- assoc.
       apply maponpaths.
-      apply CoproductIn2Commutes_right_in_ctx_dir.
+      apply BinCoproductIn2Commutes_right_in_ctx_dir.
       simpl.
       rewrite <- assoc.
       apply maponpaths.
-      apply CoproductIn2Commutes_right_dir.
+      apply BinCoproductIn2Commutes_right_dir.
       apply idpath.
 Qed.
 
@@ -401,7 +401,7 @@ Lemma τ_part_of_alg_mor  (T T' : @algebra_ob [C, C, hs] Id_H)
 Proof.
   assert (β_is_alg_mor := pr2 β).
   simpl in β_is_alg_mor.
-  assert (β_is_alg_mor_inst := maponpaths (fun m:EndC⟦_,_⟧ => (CoproductIn2 EndC (CPEndC _ _));; m) β_is_alg_mor); clear β_is_alg_mor.
+  assert (β_is_alg_mor_inst := maponpaths (fun m:EndC⟦_,_⟧ => (BinCoproductIn2 EndC (CPEndC _ _));; m) β_is_alg_mor); clear β_is_alg_mor.
   simpl in β_is_alg_mor_inst.
   apply nat_trans_eq; try (exact hs).
   intro c.
@@ -413,7 +413,7 @@ Focus 2.
   eapply pathsinv0.
   exact β_is_alg_mor_inst'.
   clear β_is_alg_mor_inst'.
-  apply CoproductIn2Commutes_right_in_ctx_dir.
+  apply BinCoproductIn2Commutes_right_in_ctx_dir.
   simpl.
   rewrite <- assoc.
   apply idpath.
@@ -439,7 +439,7 @@ Proof.
   unfold coproduct_nat_trans_data.
   eapply pathscomp0.
   apply cancel_postcomposition.
-  apply CoproductIn1Commutes.
+  apply BinCoproductIn1Commutes.
   simpl.
   repeat rewrite <- assoc.
   apply id_left.

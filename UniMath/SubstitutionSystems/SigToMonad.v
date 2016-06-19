@@ -68,9 +68,9 @@ Proof.
 apply (BinProducts_functor_precat _ _ BinProductsHSET).
 Defined.
 
-Definition CoproductsHSET2 : Coproducts HSET2.
+Definition BinCoproductsHSET2 : BinCoproducts HSET2.
 Proof.
-apply (Coproducts_functor_precat _ _ CoproductsHSET).
+apply (BinCoproducts_functor_precat _ _ BinCoproductsHSET).
 Defined.
 
 Lemma has_exponentials_HSET2 : has_exponentials BinProductsHSET2.
@@ -80,7 +80,7 @@ Defined.
 
 Definition Sig : UU := list (list nat).
 
-Let optionHSET := (option_functor HSET CoproductsHSET TerminalHSET).
+Let optionHSET := (option_functor HSET BinCoproductsHSET TerminalHSET).
 
 (* Form "_ o option^n" and return Id if n = 0 *)
 Definition precomp_option_iter (n : nat) : functor HSET2 HSET2 := match n with
@@ -101,7 +101,7 @@ mkpair.
 - apply (precomp_option_iter n).
 - destruct n; simpl.
   + apply (θ_functor_identity HSET).
-  + set (F := δ_iter_functor1 _ _ _ (δ_option _ has_homsets_HSET TerminalHSET CoproductsHSET)).
+  + set (F := δ_iter_functor1 _ _ _ (δ_option _ has_homsets_HSET TerminalHSET BinCoproductsHSET)).
     apply (θ_precompG _ has_homsets_HSET (iter_functor1 HSET optionHSET n) (F n)).
     * apply δ_law1_iter_functor1, δ_law1_option.
     * apply δ_law2_iter_functor1, δ_law2_option.
@@ -141,7 +141,7 @@ Proof.
 intro xs.
 generalize (map_list Arity_to_Signature xs).
 apply foldr1_list.
-- apply (BinSum_of_Signatures _ _ CoproductsHSET).
+- apply (BinSum_of_Signatures _ _ BinCoproductsHSET).
 - apply IdSignature.
 Defined.
 
@@ -165,11 +165,11 @@ destruct n.
 Defined.
 
 Definition SigInitial (sig : Sig) :
-  Initial (FunctorAlg (Id_H HSET has_homsets_HSET CoproductsHSET (SigToSignature sig)) has_homsets_HSET2).
+  Initial (FunctorAlg (Id_H HSET has_homsets_HSET BinCoproductsHSET (SigToSignature sig)) has_homsets_HSET2).
 Proof.
 use colimAlgInitial.
 - unfold Id_H, Const_plus_H.
-  apply is_omega_cocont_coproduct_functor.
+  apply is_omega_cocont_bincoproduct_of_functors.
   + apply (BinProducts_functor_precat _ _ BinProductsHSET).
   + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
@@ -180,7 +180,7 @@ use colimAlgInitial.
 Defined.
 
 Definition SigInitialHSS (sig : Sig) :
-  Initial (hss_precategory CoproductsHSET (SigToSignature sig)).
+  Initial (hss_precategory BinCoproductsHSET (SigToSignature sig)).
 Proof.
 apply InitialHSS.
 - intro Z; apply RightKanExtension_from_limits, cats_LimsHSET.
@@ -191,7 +191,7 @@ Definition SigToMonad (sig : Sig) : Monad HSET.
 Proof.
 use Monad_from_hss.
 - apply has_homsets_HSET.
-- apply CoproductsHSET.
+- apply BinCoproductsHSET.
 - apply (SigToSignature sig).
 - apply SigInitialHSS.
 Defined.

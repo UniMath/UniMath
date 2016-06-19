@@ -91,7 +91,7 @@ End arbitrary_delta_functor_adjunction.
 
 Section bincoproduct_functor_adjunction.
 
-Context {C : precategory} (PC : Coproducts C).
+Context {C : precategory} (PC : BinCoproducts C).
 
 (** The bincoproduct_functor left adjoint to delta_functor *)
 Lemma is_left_adjoint_bincoproduct_functor : is_left_adjoint (bincoproduct_functor PC).
@@ -101,20 +101,20 @@ mkpair.
 - split.
   + mkpair.
     * simpl; intro p; set (x := pr1 p); set (y := pr2 p).
-      split; [ apply (CoproductIn1 _ (PC x y)) | apply (CoproductIn2 _ (PC x y)) ].
+      split; [ apply (BinCoproductIn1 _ (PC x y)) | apply (BinCoproductIn2 _ (PC x y)) ].
     * abstract (intros p q f; unfold binprodcatmor, compose; simpl;
-                now rewrite CoproductOfArrowsIn1, CoproductOfArrowsIn2).
+                now rewrite BinCoproductOfArrowsIn1, BinCoproductOfArrowsIn2).
   + mkpair.
-    * intro x; apply (CoproductArrow _ _ (identity x) (identity x)).
+    * intro x; apply (BinCoproductArrow _ _ (identity x) (identity x)).
     * abstract (intros p q f; simpl;
-                now rewrite precompWithCoproductArrow, postcompWithCoproductArrow,
+                now rewrite precompWithBinCoproductArrow, postcompWithBinCoproductArrow,
                             id_right, id_left).
 - abstract (split; simpl; intro x;
-  [ rewrite precompWithCoproductArrow, !id_right;
-    apply pathsinv0, Coproduct_endo_is_identity;
-      [ apply CoproductIn1Commutes | apply CoproductIn2Commutes ]
+  [ rewrite precompWithBinCoproductArrow, !id_right;
+    apply pathsinv0, BinCoproduct_endo_is_identity;
+      [ apply BinCoproductIn1Commutes | apply BinCoproductIn2Commutes ]
   | unfold binprodcatmor, compose; simpl;
-    now rewrite CoproductIn1Commutes, CoproductIn2Commutes ]).
+    now rewrite BinCoproductIn1Commutes, BinCoproductIn2Commutes ]).
 Defined.
 
 End bincoproduct_functor_adjunction.
