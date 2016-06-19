@@ -49,10 +49,10 @@ Section Preparations.
 
 Variable C : precategory.
 Variable hs : has_homsets C.
-Variable CP : Products C.
+Variable CP : BinProducts C.
 Variable CC : Coproducts C.
 
-Definition square_functor := product_functor C C CP (functor_identity C) (functor_identity C).
+Definition square_functor := binproduct_of_functors C C CP (functor_identity C) (functor_identity C).
 
 End Preparations.
 
@@ -67,7 +67,7 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Variable terminal : Terminal C.
 
 Variable CC : Coproducts C.
-Variable CP : Products C.
+Variable CP : BinProducts C.
 
 Let one : C :=  @TerminalObject C terminal.
 
@@ -77,7 +77,7 @@ Let one : C :=  @TerminalObject C terminal.
 Definition App_H : functor EndC EndC.
 Proof.
   apply square_functor.
-  apply Products_functor_precat.
+  apply BinProducts_functor_precat.
   exact CP.
 Defined.
 
@@ -85,12 +85,12 @@ Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.cocontfunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 
-Lemma is_omega_cocont_App_H (hE : has_exponentials (Products_functor_precat C C CP hs)) :
+Lemma is_omega_cocont_App_H (hE : has_exponentials (BinProducts_functor_precat C C CP hs)) :
   is_omega_cocont App_H.
 Proof.
 unfold App_H, square_functor.
-apply is_omega_cocont_product_functor.
-- apply (Products_functor_precat _ _ CP).
+apply is_omega_cocont_binproduct_of_functors.
+- apply (BinProducts_functor_precat _ _ CP).
 - apply hE.
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
@@ -251,21 +251,21 @@ Proof.
   simpl.
   rewrite id_left.
   rewrite id_right.
-  unfold product_nat_trans_data, product_functor_mor.
-  unfold ProductOfArrows.
+  unfold binproduct_nat_trans_data, binproduct_of_functors_mor.
+  unfold BinProductOfArrows.
   eapply pathscomp0.
-  apply precompWithProductArrow.
+  apply precompWithBinProductArrow.
   simpl.
-  unfold product_nat_trans_pr1_data. unfold product_nat_trans_pr2_data.
+  unfold binproduct_nat_trans_pr1_data. unfold binproduct_nat_trans_pr2_data.
   simpl.
-  apply ProductArrowUnique.
-  + rewrite ProductPr1Commutes.
+  apply BinProductArrowUnique.
+  + rewrite BinProductPr1Commutes.
     repeat rewrite assoc.
-    rewrite ProductPr1Commutes.
+    rewrite BinProductPr1Commutes.
     apply idpath.
-  + rewrite ProductPr2Commutes.
+  + rewrite BinProductPr2Commutes.
     repeat rewrite assoc.
-    rewrite ProductPr2Commutes.
+    rewrite BinProductPr2Commutes.
     apply idpath.
 Qed.
 
@@ -283,9 +283,9 @@ Proof.
   intro c.
   simpl.
   rewrite id_left.
-  unfold product_nat_trans_data.
+  unfold binproduct_nat_trans_data.
   apply pathsinv0.
-  apply ProductArrowUnique.
+  apply BinProductArrowUnique.
   + rewrite id_left.
     unfold EndofunctorsMonoidal.λ_functor.
     unfold EndofunctorsMonoidal.ρ_functor.
@@ -312,9 +312,9 @@ Proof.
   intro c.
   simpl.
   do 3 rewrite id_left.
-  unfold product_nat_trans_data.
+  unfold binproduct_nat_trans_data.
   apply pathsinv0.
-  apply ProductArrowUnique.
+  apply BinProductArrowUnique.
   + rewrite id_left.
     unfold EndofunctorsMonoidal.α_functor.
     simpl.
@@ -672,11 +672,11 @@ Defined.
 Definition Lam_Sig: Signature C hs :=
   Sum_of_Signatures C hs CC App_Sig Abs_Sig.
 
-Lemma is_omega_cocont_Lam (hE : has_exponentials (Products_functor_precat C C CP hs)) (LC : Lims C) :
+Lemma is_omega_cocont_Lam (hE : has_exponentials (BinProducts_functor_precat C C CP hs)) (LC : Lims C) :
   is_omega_cocont (Signature_Functor _ _ Lam_Sig).
 Proof.
 apply is_omega_cocont_coproduct_functor.
-- apply (Products_functor_precat _ _ CP).
+- apply (BinProducts_functor_precat _ _ CP).
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
 - apply (is_omega_cocont_App_H hE).

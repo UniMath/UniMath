@@ -64,7 +64,7 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Variable terminal : Terminal C.
 
 Variable CC : Coproducts C.
-Variable CP : Products C.
+Variable CP : BinProducts C.
 
 Local Notation "'EndC'":= ([C, C, hs]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hs).

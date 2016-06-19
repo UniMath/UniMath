@@ -235,7 +235,7 @@ Defined.
 (** Definition 31 *)
 
 Definition App_Sig
-  : ∀ (C : precategory) (hs : has_homsets C), Products C → Signature C hs.
+  : ∀ (C : precategory) (hs : has_homsets C), BinProducts C → Signature C hs.
 Proof.
   apply App_Sig.
 Defined.
@@ -244,7 +244,7 @@ Defined.
 
 Definition Lam_Sig
   : ∀ (C : precategory) (hs : has_homsets C),
-    Terminal C → Coproducts C → Products C → Signature C hs.
+    Terminal C → Coproducts C → BinProducts C → Signature C hs.
 Proof.
   apply Lam_Sig.
 Defined.
@@ -264,7 +264,7 @@ Defined.
 Definition Lam_Flatten
   :  ∀ (C : precategory) (hs : has_homsets C)
        (terminal : Terminal C)
-       (CC : Coproducts C) (CP : Products C),
+       (CC : Coproducts C) (CP : BinProducts C),
     (∀ Z : precategory_Ptd C hs,
         GlobalRightKanExtensionExists C C (U Z) C hs hs)
     → ∀ Lam_Initial : Initial (FunctorAlg (Id_H C hs CC (Lam_Sig C hs terminal CC CP))
@@ -278,7 +278,7 @@ Defined.
 
 Definition fbracket_for_LamE_algebra_on_Lam
   : ∀ (C : precategory) (hs : has_homsets C) (terminal : Terminal C)
-      (CC : Coproducts C) (CP : Products C)
+      (CC : Coproducts C) (CP : BinProducts C)
       (KanExt : ∀ Z : precategory_Ptd C hs, GlobalRightKanExtensionExists C C (U Z) C hs hs)
       (Lam_Initial : Initial (FunctorAlg (Id_H C hs CC (Lam_Sig C hs terminal CC CP))
                                          (functor_category_has_homsets C C hs)))
@@ -298,7 +298,7 @@ Defined.
 
 Definition EVAL
   : ∀ (C : precategory) (hs : has_homsets C) (terminal : Terminal C)
-      (CC : Coproducts C) (CP : Products C)
+      (CC : Coproducts C) (CP : BinProducts C)
       (KanExt : ∀ Z : precategory_Ptd C hs, GlobalRightKanExtensionExists C C (U Z) C hs hs)
        (Lam_Initial : Initial
                         (FunctorAlg

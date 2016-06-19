@@ -42,7 +42,7 @@ Require Import UniMath.CategoryTheory.cocontfunctors.
 Section LamHSET.
 
 Let Lam_S : Signature HSET has_homsets_HSET :=
-  Lam_Sig HSET has_homsets_HSET TerminalHSET CoproductsHSET ProductsHSET.
+  Lam_Sig HSET has_homsets_HSET TerminalHSET CoproductsHSET BinProductsHSET.
 
 Local Notation "'EndHSET'":= ([HSET, HSET, has_homsets_HSET]) .
 
@@ -53,7 +53,7 @@ Proof.
 use colimAlgInitial.
 - unfold Id_H, Const_plus_H.
   apply is_omega_cocont_coproduct_functor.
-  + apply (Products_functor_precat _ _ ProductsHSET).
+  + apply (BinProducts_functor_precat _ _ BinProductsHSET).
   + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor; apply functor_category_has_homsets.

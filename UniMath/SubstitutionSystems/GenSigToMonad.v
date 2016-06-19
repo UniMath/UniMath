@@ -110,7 +110,7 @@ Proof.
 use colimAlgInitial.
 - unfold Id_H, Const_plus_H.
   apply is_omega_cocont_coproduct_functor.
-  + apply (Products_functor_precat _ _ ProductsHSET).
+  + apply (BinProducts_functor_precat _ _ BinProductsHSET).
   + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor, functor_category_has_homsets.

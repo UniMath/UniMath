@@ -54,9 +54,9 @@ Proof.
 apply functor_category_has_homsets.
 Defined.
 
-Local Definition ProductsHSET2 : Products HSET2.
+Local Definition BinProductsHSET2 : BinProducts HSET2.
 Proof.
-apply (Products_functor_precat _ _ ProductsHSET).
+apply (BinProducts_functor_precat _ _ BinProductsHSET).
 Defined.
 
 Local Definition ArbitraryProductsHSET2 : ArbitraryProducts bool HSET2.
@@ -69,7 +69,7 @@ Proof.
 apply (Coproducts_functor_precat _ _ CoproductsHSET).
 Defined.
 
-Local Lemma has_exponentials_HSET2 : has_exponentials ProductsHSET2.
+Local Lemma has_exponentials_HSET2 : has_exponentials BinProductsHSET2.
 Proof.
 apply has_exponentials_functor_HSET, has_homsets_HSET.
 Defined.
@@ -85,7 +85,7 @@ Definition GenLamSig : GenSig :=
 
 Local Notation "'Id'" := (functor_identity _).
 
-Local Notation "F * G" := (H HSET has_homsets_HSET ProductsHSET F G).
+Local Notation "F * G" := (H HSET has_homsets_HSET BinProductsHSET F G).
 
 Local Notation "F + G" := (SumOfSignatures.H _ _ CoproductsHSET F G).
 Local Notation "'_' 'o' 'option'" :=
@@ -118,7 +118,7 @@ Definition var_map : HSET2⟦functor_identity HSET,LC⟧ :=
 (* How to do this nicer? *)
 Definition prod2 (x y : HSET2) : HSET2.
 Proof.
-apply ProductsHSET2; [apply x | apply y].
+apply BinProductsHSET2; [apply x | apply y].
 Defined.
 
 Definition app_map : HSET2⟦prod2 LC LC,LC⟧ :=

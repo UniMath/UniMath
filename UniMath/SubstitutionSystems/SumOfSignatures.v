@@ -294,14 +294,14 @@ Proof.
 Defined.
 
 Lemma is_omega_cocont_Sum_of_Signatures (S1 S2 : Signature C hs)
-  (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) (PC : Products C) :
+  (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) (PC : BinProducts C) :
   is_omega_cocont (Sum_of_Signatures S1 S2).
 Proof.
 destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
 destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
 unfold H.
 apply is_omega_cocont_coproduct_functor; try assumption.
-- apply (Products_functor_precat _ _ PC).
+- apply (BinProducts_functor_precat _ _ PC).
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
 Defined.

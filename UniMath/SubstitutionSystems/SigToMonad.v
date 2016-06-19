@@ -63,9 +63,9 @@ Proof.
 apply functor_category_has_homsets.
 Defined.
 
-Definition ProductsHSET2 : Products HSET2.
+Definition BinProductsHSET2 : BinProducts HSET2.
 Proof.
-apply (Products_functor_precat _ _ ProductsHSET).
+apply (BinProducts_functor_precat _ _ BinProductsHSET).
 Defined.
 
 Definition CoproductsHSET2 : Coproducts HSET2.
@@ -73,7 +73,7 @@ Proof.
 apply (Coproducts_functor_precat _ _ CoproductsHSET).
 Defined.
 
-Lemma has_exponentials_HSET2 : has_exponentials ProductsHSET2.
+Lemma has_exponentials_HSET2 : has_exponentials BinProductsHSET2.
 Proof.
 apply has_exponentials_functor_HSET, has_homsets_HSET.
 Defined.
@@ -113,7 +113,7 @@ Proof.
 intros xs.
 generalize (map_list precomp_option_iter_Signature xs).
 apply foldr1_list.
-- apply (Product_of_Signatures _ _ ProductsHSET).
+- apply (Product_of_Signatures _ _ BinProductsHSET).
 - apply IdSignature.
 Defined.
 
@@ -161,7 +161,7 @@ destruct n.
     apply is_omega_cocont_Sum_of_Signatures.
     apply is_omega_cocont_Arity_to_Signature.
     apply IH.
-    apply ProductsHSET.
+    apply BinProductsHSET.
 Defined.
 
 Definition SigInitial (sig : Sig) :
@@ -170,7 +170,7 @@ Proof.
 use colimAlgInitial.
 - unfold Id_H, Const_plus_H.
   apply is_omega_cocont_coproduct_functor.
-  + apply (Products_functor_precat _ _ ProductsHSET).
+  + apply (BinProducts_functor_precat _ _ BinProductsHSET).
   + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor, functor_category_has_homsets.
