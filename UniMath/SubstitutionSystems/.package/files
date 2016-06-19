@@ -1,6 +1,6 @@
 SumOfSignatures.v
 ArbitrarySumOfSignatures.v
-ProductOfSignatures.v
+BinProductOfSignatures.v
 SubstitutionSystems.v
 Signatures.v
 SignatureExamples.v

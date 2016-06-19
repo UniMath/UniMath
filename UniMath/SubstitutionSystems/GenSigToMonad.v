@@ -31,7 +31,7 @@ Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.SubstitutionSystems.ArbitrarySumOfSignatures.
-Require Import UniMath.SubstitutionSystems.ProductOfSignatures.
+Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
 Require Import UniMath.SubstitutionSystems.Lam.

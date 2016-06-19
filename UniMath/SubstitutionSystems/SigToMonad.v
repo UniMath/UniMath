@@ -26,7 +26,7 @@ Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
-Require Import UniMath.SubstitutionSystems.ProductOfSignatures.
+Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
 Require Import UniMath.SubstitutionSystems.Lam.
@@ -113,7 +113,7 @@ Proof.
 intros xs.
 generalize (map_list precomp_option_iter_Signature xs).
 apply foldr1_list.
-- apply (Product_of_Signatures _ _ BinProductsHSET).
+- apply (BinProduct_of_Signatures _ _ BinProductsHSET).
 - apply IdSignature.
 Defined.
 
@@ -129,7 +129,7 @@ destruct n.
     generalize (IHn xs).
     destruct xs.
     intro IH.
-    apply is_omega_cocont_Product_of_Signatures.
+    apply is_omega_cocont_BinProduct_of_Signatures.
     apply is_omega_cocont_precomp_option_iter.
     apply IH.
     apply has_exponentials_HSET2.

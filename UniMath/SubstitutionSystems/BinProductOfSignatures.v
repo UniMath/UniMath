@@ -2,8 +2,8 @@
 
 Contents :
 
-- Definition of the product of two signatures, in particular proof of
-     strength laws for the product
+- Definition of the binary product of two signatures, in particular
+     proof of strength laws for the product
 
 
 Written by Anders Mörtberg, 2016 (adapted from SumOfSignatures.v)
@@ -39,7 +39,7 @@ Arguments θ_Strength2 {_ _ _} _ .
 Arguments θ_Strength1_int {_ _ _} _ .
 Arguments θ_Strength2_int {_ _ _} _ .
 
-Section product_of_signatures.
+Section binproduct_of_signatures.
 
 Variable C : precategory.
 Variable hsC : has_homsets C.
@@ -264,7 +264,7 @@ Qed.
 End construction.
 
 
-Definition Product_of_Signatures (S1 S2: Signature C hsC): Signature C hsC.
+Definition BinProduct_of_Signatures (S1 S2: Signature C hsC): Signature C hsC.
 Proof.
   destruct S1 as [H1 [θ1 [S11' S12']]].
   destruct S2 as [H2 [θ2 [S21' S22']]].
@@ -275,10 +275,10 @@ Proof.
   + apply ProductStrength2'; assumption.
 Defined.
 
-Lemma is_omega_cocont_Product_of_Signatures (S1 S2 : Signature C hsC)
+Lemma is_omega_cocont_BinProduct_of_Signatures (S1 S2 : Signature C hsC)
   (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2)
   (hE : has_exponentials (BinProducts_functor_precat C C PC hsC)) :
-  is_omega_cocont (Product_of_Signatures S1 S2).
+  is_omega_cocont (BinProduct_of_Signatures S1 S2).
 Proof.
 destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
 destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
@@ -289,4 +289,4 @@ apply is_omega_cocont_binproduct_of_functors; try assumption.
 - apply functor_category_has_homsets.
 Defined.
 
-End product_of_signatures.
+End binproduct_of_signatures.
