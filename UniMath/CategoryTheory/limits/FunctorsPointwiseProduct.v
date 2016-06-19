@@ -31,35 +31,35 @@ Variables (I : UU) (C D : precategory).
 Variable HD : Products I D.
 Variable hsD : has_homsets D.
 
-Section product_functor.
+Section product_of_functors.
 
 Variables F : I -> functor C D.
 
 (* Local Notation "c ⊗ d" := (ProductObject _ (HD c d))(at level 45). *)
 
-Definition product_functor_ob (c : C) : D :=
+Definition product_of_functors_ob (c : C) : D :=
   ProductObject _ _ (HD (fun i => F i c)).
 
-Definition product_functor_mor (c c' : C) (f : c --> c') :
-  product_functor_ob c --> product_functor_ob c' :=
+Definition product_of_functors_mor (c c' : C) (f : c --> c') :
+  product_of_functors_ob c --> product_of_functors_ob c' :=
     ProductOfArrows _ _ _ _ (fun i => # (F i) f).
 
-Definition product_functor_data : functor_data C D.
+Definition product_of_functors_data : functor_data C D.
 Proof.
-  exists product_functor_ob.
-  exact product_functor_mor.
+  exists product_of_functors_ob.
+  exact product_of_functors_mor.
 Defined.
 
-Lemma is_functor_product_functor_data : is_functor product_functor_data.
+Lemma is_functor_product_of_functors_data : is_functor product_of_functors_data.
 Proof.
 split; simpl; intros.
 - unfold functor_idax; intros; simpl in *.
     apply pathsinv0.
     apply Product_endo_is_identity; intro i.
-    unfold product_functor_mor.
+    unfold product_of_functors_mor.
     eapply pathscomp0; [apply (ProductOfArrowsPr _ _ (HD (λ i, (F i) a)))|].
     now simpl; rewrite functor_id, id_right.
-- unfold functor_compax; simpl; unfold product_functor_mor.
+- unfold functor_compax; simpl; unfold product_of_functors_mor.
   intros; simpl in *.
   apply pathsinv0.
   eapply pathscomp0.
@@ -68,17 +68,17 @@ split; simpl; intros.
   now rewrite functor_comp.
 Qed.
 
-Definition product_functor : functor C D :=
-  tpair _ _ is_functor_product_functor_data.
+Definition product_of_functors : functor C D :=
+  tpair _ _ is_functor_product_of_functors_data.
 
-Lemma product_of_functors_eq_product_functor :
-  product_of_functors _ HD F = product_functor.
+Lemma product_of_functors_alt_eq_product_of_functors :
+  product_of_functors_alt _ HD F = product_of_functors.
 Proof.
 now apply (functor_eq _ _ hsD).
 Defined.
 
 Definition product_nat_trans_pr_data i (c : C) :
-  D ⟦ product_functor c, (F i) c ⟧ :=
+  D ⟦ product_of_functors c, (F i) c ⟧ :=
   ProductPr _ _ (HD (fun j => (F j) c)) i.
 
 Lemma is_nat_trans_product_nat_trans_pr_data i :
@@ -88,7 +88,7 @@ intros c c' f.
 apply (ProductOfArrowsPr I _ (HD (λ i, F i c')) (HD (λ i, F i c))).
 Qed.
 
-Definition product_nat_trans_pr i : nat_trans product_functor (F i) :=
+Definition product_nat_trans_pr i : nat_trans product_of_functors (F i) :=
   tpair _ _ (is_nat_trans_product_nat_trans_pr_data i).
 
 Section vertex.
@@ -99,7 +99,7 @@ Variable A : functor C D.
 Variable f : forall i, nat_trans A (F i).
 
 Definition product_nat_trans_data c :
-  A c --> product_functor c:=
+  A c --> product_of_functors c:=
     ProductArrow _ _ _ (fun i => f i c).
 
 Lemma is_nat_trans_product_nat_trans_data :
@@ -113,7 +113,7 @@ apply maponpaths, funextsec; intro i.
 now rewrite (nat_trans_ax (f i)).
 Qed.
 
-Definition product_nat_trans : nat_trans A product_functor
+Definition product_nat_trans : nat_trans A product_of_functors
   := tpair _ _ is_nat_trans_product_nat_trans_data.
 
 End vertex.
@@ -122,7 +122,7 @@ Definition functor_precat_product_cone
   : ProductCone I [C, D, hsD] F.
 Proof.
 simple refine (mk_ProductCone _ _ _ _ _ _).
-- apply product_functor.
+- apply product_of_functors.
 - apply product_nat_trans_pr.
 - simple refine (mk_isProductCone _ _ _ _ _ _ _).
   + apply functor_category_has_homsets.
@@ -139,7 +139,7 @@ simple refine (mk_ProductCone _ _ _ _ _ _).
         apply (nat_trans_eq_pointwise (pr2 t i))).
 Defined.
 
-End product_functor.
+End product_of_functors.
 
 Definition Products_functor_precat : Products I [C, D, hsD].
 Proof.

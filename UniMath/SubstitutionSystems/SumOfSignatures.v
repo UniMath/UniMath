@@ -61,11 +61,11 @@ Variable θ1 : forall i, θ_source (H1 i) ⟶ θ_target (H1 i).
 
 (** * Definition of the data of the sum of two signatures *)
 
-Definition H : functor [C, C, hsC] [C, C, hsC] := coproduct_functor _ _ _ CCC H1.
+Definition H : functor [C, C, hsC] [C, C, hsC] := coproduct_of_functors _ _ _ CCC H1.
 
 Local Definition bla1 (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) (x : C) :
-   C ⟦ coproduct_functor_ob _ _ _ CC (λ i, H1 i X) (pr1 Z x),
-       coproduct_functor_ob _ _ _ CC (λ i, H1 i (functor_composite (pr1 Z) X)) x ⟧.
+   C ⟦ coproduct_of_functors_ob _ _ _ CC (λ i, H1 i X) (pr1 Z x),
+       coproduct_of_functors_ob _ _ _ CC (λ i, H1 i (functor_composite (pr1 Z) X)) x ⟧.
 Proof.
 apply CoproductOfArrows; intro i.
 exact (pr1 (θ1 i (X ⊗ Z)) x).
@@ -73,13 +73,13 @@ Defined.
 
 Local Lemma bar (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
   is_nat_trans (functor_composite_data (pr1 Z)
-                 (coproduct_functor_data _ _ _  CC (λ i, H1 i X)))
-                 (coproduct_functor_data _ _ _ CC (λ i, H1 i (functor_composite (pr1 Z) X)))
+                 (coproduct_of_functors_data _ _ _  CC (λ i, H1 i X)))
+                 (coproduct_of_functors_data _ _ _ CC (λ i, H1 i (functor_composite (pr1 Z) X)))
                (bla1 X Z).
 Proof.
 intros x x' f; simpl.
 unfold bla1; simpl.
-unfold coproduct_functor_mor.
+unfold coproduct_of_functors_mor.
 eapply pathscomp0; [ apply CoproductOfArrows_comp | ].
 eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp].
 apply CoproductOfArrows_eq.
@@ -159,7 +159,7 @@ Lemma is_omega_cocont_Sum_of_Signatures (S : I -> Signature C hsC)
   (h : forall i, is_omega_cocont (S i)) (PC : Products I C) :
   is_omega_cocont (Sum_of_Signatures S).
 Proof.
-apply is_omega_cocont_coproduct_functor; try assumption.
+apply is_omega_cocont_coproduct_of_functors; try assumption.
 - apply (Products_functor_precat _ _ _ PC).
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.

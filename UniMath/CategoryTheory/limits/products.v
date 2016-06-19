@@ -191,7 +191,8 @@ Defined.
 End product_functor.
 
 (* The product of a family of functors *)
-Definition product_of_functors (I : UU) {C D : precategory} (HD : Products I D)
+Definition product_of_functors_alt
+  (I : UU) {C D : precategory} (HD : Products I D)
   (F : forall (i : I), functor C D) : functor C D :=
    functor_composite (delta_functor I C)
      (functor_composite (pair_functor _ F) (product_functor _ HD)).

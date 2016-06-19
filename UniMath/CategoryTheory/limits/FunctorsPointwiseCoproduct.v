@@ -29,34 +29,34 @@ Variables (I : UU) (C D : precategory).
 Variable HD : Coproducts I D.
 Variable hsD : has_homsets D.
 
-Section coproduct_functor.
+Section coproduct_of_functors.
 
 Variables (F : I -> functor C D).
 
-Definition coproduct_functor_ob (c : C) : D
+Definition coproduct_of_functors_ob (c : C) : D
   := CoproductObject _ _ (HD (fun i => F i c)).
 
-Definition coproduct_functor_mor (c c' : C) (f : c --> c')
-  : coproduct_functor_ob c --> coproduct_functor_ob c' :=
+Definition coproduct_of_functors_mor (c c' : C) (f : c --> c')
+  : coproduct_of_functors_ob c --> coproduct_of_functors_ob c' :=
   CoproductOfArrows _ _ _ _ (fun i => # (F i) f).
 
-Definition coproduct_functor_data : functor_data C D.
+Definition coproduct_of_functors_data : functor_data C D.
 Proof.
-  exists coproduct_functor_ob.
-  exact coproduct_functor_mor.
+  exists coproduct_of_functors_ob.
+  exact coproduct_of_functors_mor.
 Defined.
 
-Lemma is_functor_coproduct_functor_data :
-  is_functor coproduct_functor_data.
+Lemma is_functor_coproduct_of_functors_data :
+  is_functor coproduct_of_functors_data.
 Proof.
 split; simpl; intros.
 - unfold functor_idax; intros; simpl in *.
     apply pathsinv0.
     apply Coproduct_endo_is_identity; intro i.
-    unfold coproduct_functor_mor.
+    unfold coproduct_of_functors_mor.
     eapply pathscomp0; [apply (CoproductOfArrowsIn _ _ (HD (λ i, (F i) a)))|].
     now simpl; rewrite functor_id, id_left.
-- unfold functor_compax; simpl; unfold coproduct_functor_mor.
+- unfold functor_compax; simpl; unfold coproduct_of_functors_mor.
   intros; simpl in *.
   apply pathsinv0.
   eapply pathscomp0.
@@ -65,17 +65,17 @@ split; simpl; intros.
   now rewrite functor_comp.
 Qed.
 
-Definition coproduct_functor : functor C D :=
-  tpair _ _ is_functor_coproduct_functor_data.
+Definition coproduct_of_functors : functor C D :=
+  tpair _ _ is_functor_coproduct_of_functors_data.
 
-Lemma coproduct_of_functors_eq_coproduct_functor :
-  coproduct_of_functors _ HD F = coproduct_functor.
+Lemma coproduct_of_functors_alt_eq_coproduct_of_functors :
+  coproduct_of_functors_alt _ HD F = coproduct_of_functors.
 Proof.
 now apply (functor_eq _ _ hsD).
 Defined.
 
 Definition coproduct_nat_trans_in_data i (c : C) :
-  D ⟦ (F i) c, coproduct_functor c ⟧ :=
+  D ⟦ (F i) c, coproduct_of_functors c ⟧ :=
   CoproductIn _ _ (HD (fun j => (F j) c)) i.
 
 Lemma is_nat_trans_coproduct_nat_trans_in_data i :
@@ -85,7 +85,7 @@ intros c c' f; apply pathsinv0.
 now eapply pathscomp0;[apply (CoproductOfArrowsIn I _ (HD (λ i, (F i) c)))|].
 Qed.
 
-Definition coproduct_nat_trans_in i : nat_trans (F i) coproduct_functor :=
+Definition coproduct_nat_trans_in i : nat_trans (F i) coproduct_of_functors :=
   tpair _ _ (is_nat_trans_coproduct_nat_trans_in_data i).
 
 Section vertex.
@@ -94,7 +94,7 @@ Variable A : functor C D.
 Variable f : forall i, nat_trans (F i) A.
 
 Definition coproduct_nat_trans_data c :
-  coproduct_functor c --> A c :=
+  coproduct_of_functors c --> A c :=
     CoproductArrow _ _ _ (fun i => f i c).
 
 Lemma is_nat_trans_coproduct_nat_trans_data :
@@ -109,7 +109,7 @@ apply maponpaths, funextsec; intro i.
 now rewrite (nat_trans_ax (f i)).
 Qed.
 
-Definition coproduct_nat_trans : nat_trans coproduct_functor A
+Definition coproduct_nat_trans : nat_trans coproduct_of_functors A
   := tpair _ _ is_nat_trans_coproduct_nat_trans_data.
 
 End vertex.
@@ -118,7 +118,7 @@ Definition functor_precat_coproduct_cocone
   : CoproductCocone I [C, D, hsD] F.
 Proof.
 simple refine (mk_CoproductCocone _ _ _ _ _ _).
-- apply coproduct_functor.
+- apply coproduct_of_functors.
 - apply coproduct_nat_trans_in.
 - simple refine (mk_isCoproductCocone _ _ _ _ _ _ _).
   + apply functor_category_has_homsets.
@@ -135,7 +135,7 @@ simple refine (mk_CoproductCocone _ _ _ _ _ _).
         apply (nat_trans_eq_pointwise (pr2 t i))).
 Defined.
 
-End coproduct_functor.
+End coproduct_of_functors.
 
 Definition Coproducts_functor_precat : Coproducts I [C, D, hsD].
 Proof.

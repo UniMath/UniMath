@@ -505,9 +505,9 @@ Variables (HD : Coproducts I D).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 Variable (HI : isdeceq I).
 
-Lemma is_omega_cocont_coproduct_of_functors (F : forall i, functor C D)
+Lemma is_omega_cocont_coproduct_of_functors_alt (F : forall i, functor C D)
   (HF : forall i, is_omega_cocont (F i)) :
-  is_omega_cocont (coproduct_of_functors _ HD F).
+  is_omega_cocont (coproduct_of_functors_alt _ HD F).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
   apply (is_omega_cocont_delta_functor _ _ PC hsC).
@@ -516,23 +516,24 @@ apply (is_omega_cocont_functor_composite hsD).
 apply (is_omega_cocont_indexed_coproduct_functor _ _ _ hsD).
 Defined.
 
+Definition omega_cocont_coproduct_of_functors_alt
+  (F : forall i, omega_cocont_functor C D) :
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_coproduct_of_functors_alt _ (fun i => pr2 (F i))).
+
+Lemma is_omega_cocont_coproduct_of_functors (F : forall (i : I), functor C D)
+  (HF : forall i, is_omega_cocont (F i)) :
+  is_omega_cocont (coproduct_of_functors I _ _ HD F).
+Proof.
+exact (transportf _
+        (coproduct_of_functors_alt_eq_coproduct_of_functors I C D HD hsD F)
+        (is_omega_cocont_coproduct_of_functors_alt _ HF)).
+Defined.
+
 Definition omega_cocont_coproduct_of_functors
   (F : forall i, omega_cocont_functor C D) :
   omega_cocont_functor C D :=
     tpair _ _ (is_omega_cocont_coproduct_of_functors _ (fun i => pr2 (F i))).
-
-Lemma is_omega_cocont_coproduct_functor (F : forall (i : I), functor C D)
-  (HF : forall i, is_omega_cocont (F i)) :
-  is_omega_cocont (coproduct_functor I _ _ HD F).
-Proof.
-exact (transportf _ (coproduct_of_functors_eq_coproduct_functor I C D HD hsD F)
-                  (is_omega_cocont_coproduct_of_functors _ HF)).
-Defined.
-
-Definition omega_cocont_coproduct_functor
-  (F : forall i, omega_cocont_functor C D) :
-  omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_coproduct_functor _ (fun i => pr2 (F i))).
 
 End coproduct_of_functors.
 

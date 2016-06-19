@@ -190,7 +190,7 @@ Defined.
 End functors.
 
 (* Defines the arbitrary copropuct of a family of functors *)
-Definition coproduct_of_functors (I : UU) {C D : precategory}
+Definition coproduct_of_functors_alt (I : UU) {C D : precategory}
   (HD : Coproducts I D) (F : I -> functor C D) : functor C D :=
   functor_composite (delta_functor I C)
      (functor_composite (pair_functor _ F)
