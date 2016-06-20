@@ -21,13 +21,13 @@ Section def_kernels.
         (H : f ;; g = ZeroArrow _ Z x z) :
     f ;; g = f ;; ZeroArrow _ Z y z.
   Proof.
-    rewrite <- (ZeroArrow_comp_right _ Z x y z f) in H.
-    exact H.
+    pathvia (ZeroArrow _ Z x z).
+    apply H. apply pathsinv0. apply ZeroArrow_comp_right.
   Defined.
 
   (** Definition and construction of Kernels *)
-  Definition Kernel {y z : C} (g : y --> z) :=
-    Equalizer g (ZeroArrow _ Z y z).
+  Definition Kernel {y z : C} (g : y --> z) :
+    UU := Equalizer g (ZeroArrow _ Z y z).
   Definition mk_Kernel {x y z : C} (f : x --> y) (g : y --> z)
              (H : f ;; g = (ZeroArrow _ Z x z))
              (isE : isEqualizer g (ZeroArrow _ Z y z) f (KernelEqRw H))
@@ -38,25 +38,23 @@ Section def_kernels.
   Defined.
   Definition Kernels := forall (y z : C) (g : y --> z), Kernel g.
   Definition hasKernels := forall (y z : C) (g : y --> z), ishinh (Kernel g).
-  Definition KernelOb {y z : C} {g : y --> z} (K : Kernel g)
-    := EqualizerObject K.
+  Definition KernelOb {y z : C} {g : y --> z} (K : Kernel g) :
+    C := EqualizerObject K.
   Coercion KernelOb : Kernel >-> ob.
-  Definition KernelArrow {y z : C} {g : y --> z} (K : Kernel g) :=
-    EqualizerArrow K.
+  Definition KernelArrow {y z : C} {g : y --> z} (K : Kernel g) :
+    C⟦K, y⟧:= EqualizerArrow K.
   Definition KernelEqAr {y z : C} {g : y --> z} (K : Kernel g) :=
     EqualizerEqAr K.
   Definition KernelIn {y z : C} {g : y --> z} (K : Kernel g)
-             (w : C) (h : w --> y) (H : h ;; g = ZeroArrow _ Z w z) : C⟦w, K⟧.
-  Proof.
-    exact (pr1 (pr1 (isEqualizer_Equalizer K w h (KernelEqRw H)))).
-  Defined.
+             (w : C) (h : w --> y) (H : h ;; g = ZeroArrow _ Z w z) :
+    C⟦w, K⟧ := EqualizerIn K _ h (KernelEqRw H).
 
   (** Commutativity of Kernels. *)
   Lemma KernelCommutes {y z : C} {g : y --> z} (K : Kernel g)
         (w : C) (h : w --> y) (H : h ;; g = ZeroArrow _ Z w z) :
     (KernelIn K w h H) ;; (KernelArrow K) = h.
   Proof.
-    exact (pr2 (pr1 ((isEqualizer_Equalizer K) w h (KernelEqRw H)))).
+    apply (EqualizerCommutes K).
   Defined.
 
   (** Two arrows to Kernel, such that the compositions with KernelArrow
@@ -94,8 +92,9 @@ Section def_kernels.
              (K K': Kernel g) : C⟦K, K'⟧.
   Proof.
     apply (KernelIn K' K (KernelArrow K)).
-    rewrite <- (ZeroArrow_comp_right _ Z K y z (KernelArrow K)).
+    pathvia (KernelArrow K ;; ZeroArrow _ Z y z).
     apply KernelEqAr.
+    apply ZeroArrow_comp_right.
   Defined.
 
   Lemma are_inverses_from_Kernel_to_Kernel {y z : C} {g : y --> z}

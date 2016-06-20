@@ -47,7 +47,7 @@ Section def_equalizers.
   Defined.
 
   (** Definition and construction of equalizers. *)
-  Definition Equalizer {y z : C} (f g : y --> z) :=
+  Definition Equalizer {y z : C} (f g : y --> z) : UU :=
     Σ e : (Σ w : C, w --> y),
           (Σ H : (pr2 e) ;; f = (pr2 e) ;; g, isEqualizer f g (pr2 e) H).
 
@@ -63,15 +63,14 @@ Section def_equalizers.
   Defined.
 
   (** Equalizers in precategories. *)
-  Definition Equalizers := forall (y z : C) (f g : y --> z),
-      Equalizer f g.
+  Definition Equalizers := forall (y z : C) (f g : y --> z), Equalizer f g.
 
   Definition hasEqualizers := forall (y z : C) (f g : y --> z),
       ishinh (Equalizer f g).
 
   (** Returns the equalizer object. *)
-  Definition EqualizerObject {y z : C} {f g : y --> z} (E : Equalizer f g) : C
-    := pr1 (pr1 E).
+  Definition EqualizerObject {y z : C} {f g : y --> z} (E : Equalizer f g) :
+    C := pr1 (pr1 E).
   Coercion EqualizerObject : Equalizer >-> ob.
 
   (** Returns the equalizer arrow. *)

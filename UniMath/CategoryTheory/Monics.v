@@ -18,24 +18,13 @@ Section def_monic.
   Proof. intros X. unfold isMonic. apply X.  Defined.
 
   (** Definition and construction of Monic. *)
-  Definition Monic (y z : C) := Σ f : y --> z, isMonic f.
-  Definition mk_Monic {y z : C} (f : y --> z) (H : isMonic f) : Monic y z.
-  Proof. apply (tpair _ f H). Defined.
+  Definition Monic (y z : C) : UU := Σ f : y --> z, isMonic f.
+  Definition mk_Monic {y z : C} (f : y --> z) (H : isMonic f) :
+    Monic y z := tpair _ f H.
 
   (** Gets the arrow out of Monic. *)
-  Definition MonicArrow {y z : C} (M : Monic y z) := pr1 M.
-
-  (** Identity to isMonic and Monic. *)
-  Lemma identity_isMonic {x : C} : isMonic (identity x).
-  Proof.
-    apply mk_isMonic.
-    intros z g h H.
-    rewrite <- id_right; apply pathsinv0; rewrite <- id_right; apply pathsinv0.
-    exact H.
-  Defined.
-
-  Lemma identity_Monic {x : C} : Monic x x.
-  Proof. exact (tpair _ (identity x) (identity_isMonic)). Defined.
+  Definition MonicArrow {y z : C} (M : Monic y z) : C⟦y, z⟧ := pr1 M.
+  Coercion MonicArrow : Monic >-> precategory_morphisms.
 
   (** Isomorphism to isMonic and Monic. *)
   Lemma iso_isMonic {y x : C} (f : y --> x) (H : is_iso f) : isMonic f.
@@ -49,6 +38,13 @@ Section def_monic.
   Lemma iso_Monic {y x : C} (f : y --> x) (H : is_iso f) : Monic y x.
   Proof. apply (mk_Monic f (iso_isMonic f H)). Defined.
 
+  (** Identity to isMonic and Monic. *)
+  Lemma identity_isMonic {x : C} : isMonic (identity x).
+  Proof. apply (iso_isMonic (identity x) (identity_is_iso _ x)). Defined.
+
+  Lemma identity_Monic {x : C} : Monic x x.
+  Proof. exact (tpair _ (identity x) (identity_isMonic)). Defined.
+
   (** Composition of isMonics and Monics. *)
   Definition isMonic_comp {x y z : C} (f : x --> y) (g : y --> z) :
     isMonic f -> isMonic g -> isMonic (f ;; g).
@@ -58,25 +54,14 @@ Section def_monic.
   Defined.
 
   Definition Monic_comp {x y z : C} (M1 : Monic x y) (M2 : Monic y z) :
-    Monic x z := tpair _ (MonicArrow M1 ;; MonicArrow M2)
-                       (isMonic_comp (MonicArrow M1) (MonicArrow M2)
-                                     (pr2 M1) (pr2 M2)).
-
-  (* This general result should be moved somewhere? *)
-  Lemma postcomp_with_eq {x y z : C} {f g : x --> y} (h : y --> z) :
-    f = g -> f ;; h = g ;; h.
-  Proof.
-    intros X.
-    rewrite X.
-    apply idpath.
-  Defined.
+    Monic x z := tpair _ (M1 ;; M2) (isMonic_comp M1 M2 (pr2 M1) (pr2 M2)).
 
   (** If precomposition of g with f is a monic, then f is a monic. *)
   Definition isMonic_postcomp {x y z : C} (f : x --> y) (g : y --> z) :
     isMonic (f ;; g) -> isMonic f.
   Proof.
     intros X. intros w φ ψ H.
-    apply (postcomp_with_eq g) in H.
+    apply (maponpaths (fun f' => f' ;; g)) in H.
     repeat rewrite <- assoc in H.
     apply (X w _ _ H).
   Defined.

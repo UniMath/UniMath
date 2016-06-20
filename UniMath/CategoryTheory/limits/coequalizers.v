@@ -47,7 +47,7 @@ Section def_coequalizers.
   Defined.
 
   (** Definition and construction of coequalizers. *)
-  Definition Coequalizer {y z : C} (f g : y --> z) :=
+  Definition Coequalizer {y z : C} (f g : y --> z) : UU :=
     Σ e : (Σ w : C, z --> w),
           (Σ H : f ;; (pr2 e) = g ;; (pr2 e), isCoequalizer f g (pr2 e) H).
 
@@ -70,8 +70,8 @@ Section def_coequalizers.
       ishinh (Coequalizer f g).
 
   (** Returns the coequalizer object. *)
-  Definition CoequalizerObject {y z : C} {f g : y --> z} (E : Coequalizer f g) : C
-    := pr1 (pr1 E).
+  Definition CoequalizerObject {y z : C} {f g : y --> z} (E : Coequalizer f g) :
+    C := pr1 (pr1 E).
   Coercion CoequalizerObject : Coequalizer >-> ob.
 
   (** Returns the coequalizer arrow. *)

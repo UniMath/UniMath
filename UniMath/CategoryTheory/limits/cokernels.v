@@ -23,13 +23,13 @@ Section def_cokernels.
         (H : g ;; f = ZeroArrow _ Z x z) :
     g ;; f = ZeroArrow _ Z x y ;; f.
   Proof.
-    rewrite <- (ZeroArrow_comp_left _ Z x y z f) in H.
-    exact H.
+    pathvia (ZeroArrow _ Z x z).
+    apply H. apply pathsinv0. apply ZeroArrow_comp_left.
   Defined.
 
   (** Definition and construction of Cokernels *)
-  Definition Cokernel {y z : C} (g : y --> z) :=
-    Coequalizer g (ZeroArrow _ Z y z).
+  Definition Cokernel {y z : C} (g : y --> z) :
+    UU := Coequalizer g (ZeroArrow _ Z y z).
   Definition mk_Cokernel {x y z : C} (f : y --> z) (g : x --> y)
              (H : g ;; f = (ZeroArrow _ Z x z))
              (isE : isCoequalizer g (ZeroArrow _ Z x y) f (CokernelEqRw H))
@@ -40,25 +40,23 @@ Section def_cokernels.
   Defined.
   Definition Cokernels := forall (y z : C) (g : y --> z), Cokernel g.
   Definition hasCokernels := forall (y z : C) (g : y --> z), ishinh (Cokernel g).
-  Definition CokernelOb {y z : C} {g : y --> z} (CK : Cokernel g)
-    := CoequalizerObject CK.
+  Definition CokernelOb {y z : C} {g : y --> z} (CK : Cokernel g) :
+    C := CoequalizerObject CK.
   Coercion CokernelOb : Cokernel >-> ob.
-  Definition CokernelArrow {y z : C} {g : y --> z} (CK : Cokernel g) :=
-    CoequalizerArrow CK.
+  Definition CokernelArrow {y z : C} {g : y --> z} (CK : Cokernel g) :
+    C⟦z, CK⟧ := CoequalizerArrow CK.
   Definition CokernelEqAr {y z : C} {g : y --> z} (CK : Cokernel g) :=
     CoequalizerEqAr CK.
   Definition CokernelOut {y z : C} {g : y --> z} (CK : Cokernel g)
-             (w : C) (h : z --> w) (H : g ;; h = ZeroArrow _ Z y w) : C⟦CK, w⟧.
-  Proof.
-    exact (pr1 (pr1 (isCoequalizer_Coequalizer CK w h (CokernelEqRw H)))).
-  Defined.
+             (w : C) (h : z --> w) (H : g ;; h = ZeroArrow _ Z y w) :
+    C⟦CK, w⟧ := CoequalizerOut CK _ h (CokernelEqRw H).
 
   (** Commutativity of Cokernels. *)
   Lemma CokernelCommutes {y z : C} {g : y --> z} (CK : Cokernel g)
         (w : C) (h : z --> w) (H : g ;; h = ZeroArrow _ Z y w) :
     (CokernelArrow CK) ;; (CokernelOut CK w h H) = h.
   Proof.
-    exact (pr2 (pr1 ((isCoequalizer_Coequalizer CK) w h (CokernelEqRw H)))).
+    apply (CoequalizerCommutes CK).
   Defined.
 
   (** Two arrows from Cokernel, such that the compositions with CokernelArrow
@@ -96,8 +94,9 @@ Section def_cokernels.
              (CK CK': Cokernel g) : C⟦CK, CK'⟧.
   Proof.
     apply (CokernelOut CK CK' (CokernelArrow CK')).
-    rewrite <- (ZeroArrow_comp_left _ Z y z CK' (CokernelArrow CK')).
+    pathvia (ZeroArrow _ Z y z ;; CokernelArrow CK').
     apply CokernelEqAr.
+    apply ZeroArrow_comp_left.
   Defined.
 
   Lemma are_inverses_from_Cokernel_to_Cokernel {y z : C} {g : y --> z}
