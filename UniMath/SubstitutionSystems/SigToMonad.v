@@ -12,21 +12,21 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monads.
-Require Import UniMath.SubstitutionSystems.SumOfSignatures.
-Require Import UniMath.SubstitutionSystems.ProductOfSignatures.
+Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
+Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
 Require Import UniMath.SubstitutionSystems.Lam.
@@ -63,24 +63,24 @@ Proof.
 apply functor_category_has_homsets.
 Defined.
 
-Definition ProductsHSET2 : Products HSET2.
+Definition BinProductsHSET2 : BinProducts HSET2.
 Proof.
-apply (Products_functor_precat _ _ ProductsHSET).
+apply (BinProducts_functor_precat _ _ BinProductsHSET).
 Defined.
 
-Definition CoproductsHSET2 : Coproducts HSET2.
+Definition BinCoproductsHSET2 : BinCoproducts HSET2.
 Proof.
-apply (Coproducts_functor_precat _ _ CoproductsHSET).
+apply (BinCoproducts_functor_precat _ _ BinCoproductsHSET).
 Defined.
 
-Lemma has_exponentials_HSET2 : has_exponentials ProductsHSET2.
+Lemma has_exponentials_HSET2 : has_exponentials BinProductsHSET2.
 Proof.
 apply has_exponentials_functor_HSET, has_homsets_HSET.
 Defined.
 
 Definition Sig : UU := list (list nat).
 
-Let optionHSET := (option_functor HSET CoproductsHSET TerminalHSET).
+Let optionHSET := (option_functor HSET BinCoproductsHSET TerminalHSET).
 
 (* Form "_ o option^n" and return Id if n = 0 *)
 Definition precomp_option_iter (n : nat) : functor HSET2 HSET2 := match n with
@@ -101,7 +101,7 @@ mkpair.
 - apply (precomp_option_iter n).
 - destruct n; simpl.
   + apply (θ_functor_identity HSET).
-  + set (F := δ_iter_functor1 _ _ _ (δ_option _ has_homsets_HSET TerminalHSET CoproductsHSET)).
+  + set (F := δ_iter_functor1 _ _ _ (δ_option _ has_homsets_HSET TerminalHSET BinCoproductsHSET)).
     apply (θ_precompG _ has_homsets_HSET (iter_functor1 HSET optionHSET n) (F n)).
     * apply δ_law1_iter_functor1, δ_law1_option.
     * apply δ_law2_iter_functor1, δ_law2_option.
@@ -113,7 +113,7 @@ Proof.
 intros xs.
 generalize (map_list precomp_option_iter_Signature xs).
 apply foldr1_list.
-- apply (Product_of_Signatures _ _ ProductsHSET).
+- apply (BinProduct_of_Signatures _ _ BinProductsHSET).
 - apply IdSignature.
 Defined.
 
@@ -129,7 +129,7 @@ destruct n.
     generalize (IHn xs).
     destruct xs.
     intro IH.
-    apply is_omega_cocont_Product_of_Signatures.
+    apply is_omega_cocont_BinProduct_of_Signatures.
     apply is_omega_cocont_precomp_option_iter.
     apply IH.
     apply has_exponentials_HSET2.
@@ -141,7 +141,7 @@ Proof.
 intro xs.
 generalize (map_list Arity_to_Signature xs).
 apply foldr1_list.
-- apply (Sum_of_Signatures _ _ CoproductsHSET).
+- apply (BinSum_of_Signatures _ _ BinCoproductsHSET).
 - apply IdSignature.
 Defined.
 
@@ -158,19 +158,19 @@ destruct n.
     generalize (IHn xs).
     destruct xs.
     intro IH.
-    apply is_omega_cocont_Sum_of_Signatures.
+    apply is_omega_cocont_BinSum_of_Signatures.
     apply is_omega_cocont_Arity_to_Signature.
     apply IH.
-    apply ProductsHSET.
+    apply BinProductsHSET.
 Defined.
 
 Definition SigInitial (sig : Sig) :
-  Initial (FunctorAlg (Id_H HSET has_homsets_HSET CoproductsHSET (SigToSignature sig)) has_homsets_HSET2).
+  Initial (FunctorAlg (Id_H HSET has_homsets_HSET BinCoproductsHSET (SigToSignature sig)) has_homsets_HSET2).
 Proof.
 use colimAlgInitial.
 - unfold Id_H, Const_plus_H.
-  apply is_omega_cocont_coproduct_functor.
-  + apply (Products_functor_precat _ _ ProductsHSET).
+  apply is_omega_cocont_BinCoproduct_of_functors.
+  + apply (BinProducts_functor_precat _ _ BinProductsHSET).
   + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
   + apply is_omega_cocont_constant_functor, functor_category_has_homsets.
@@ -180,7 +180,7 @@ use colimAlgInitial.
 Defined.
 
 Definition SigInitialHSS (sig : Sig) :
-  Initial (hss_precategory CoproductsHSET (SigToSignature sig)).
+  Initial (hss_precategory BinCoproductsHSET (SigToSignature sig)).
 Proof.
 apply InitialHSS.
 - intro Z; apply RightKanExtension_from_limits, cats_LimsHSET.
@@ -191,7 +191,7 @@ Definition SigToMonad (sig : Sig) : Monad HSET.
 Proof.
 use Monad_from_hss.
 - apply has_homsets_HSET.
-- apply CoproductsHSET.
+- apply BinCoproductsHSET.
 - apply (SigToSignature sig).
 - apply SigInitialHSS.
 Defined.

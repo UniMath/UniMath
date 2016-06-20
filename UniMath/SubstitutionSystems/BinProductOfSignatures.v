@@ -2,8 +2,8 @@
 
 Contents :
 
-- Definition of the product of two signatures, in particular proof of
-     strength laws for the product
+- Definition of the binary product of two signatures, in particular
+     proof of strength laws for the product
 
 
 Written by Anders Mörtberg, 2016 (adapted from SumOfSignatures.v)
@@ -17,12 +17,12 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.cocontfunctors.
@@ -39,15 +39,15 @@ Arguments θ_Strength2 {_ _ _} _ .
 Arguments θ_Strength1_int {_ _ _} _ .
 Arguments θ_Strength2_int {_ _ _} _ .
 
-Section product_of_signatures.
+Section binproduct_of_signatures.
 
 Variable C : precategory.
 Variable hsC : has_homsets C.
-Variable PC : Products C.
+Variable PC : BinProducts C.
 
 Section construction.
 
-Local Notation "'CCC'" := (Products_functor_precat C C PC hsC : Products [C, C, hsC]).
+Local Notation "'CCC'" := (BinProducts_functor_precat C C PC hsC : BinProducts [C, C, hsC]).
 
 Variables H1 H2 : functor [C, C, hsC] [C, C, hsC].
 
@@ -61,17 +61,18 @@ Variable S22 : θ_Strength2 θ2.
 
 (** * Definition of the data of the product of two signatures *)
 
-Definition H : functor [C, C, hsC] [C, C, hsC] := product_functor _ _ CCC H1 H2.
+Definition H : functor [C, C, hsC] [C, C, hsC] :=
+  BinProduct_of_functors _ _ CCC H1 H2.
 
 Local Definition bla1 (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
    ∀ c : C,
     (functor_composite_data (pr1 Z)
-     (product_functor_data C C PC (H1 X) (H2 X))) c
-   --> (product_functor_data C C PC (H1 (functor_composite (pr1 Z) X))
+     (BinProduct_of_functors_data C C PC (H1 X) (H2 X))) c
+   --> (BinProduct_of_functors_data C C PC (H1 (functor_composite (pr1 Z) X))
        (H2 (functor_composite (pr1 Z) X))) c.
 Proof.
   intro c.
-  apply ProductOfArrows.
+  apply BinProductOfArrows.
   - exact (pr1 (θ1 (X ⊗ Z)) c).
   - exact (pr1 (θ2 (X ⊗ Z)) c).
 Defined.
@@ -79,24 +80,24 @@ Defined.
 Local Lemma bar (X : [C, C, hsC]) (Z : precategory_Ptd C hsC):
    is_nat_trans
      (functor_composite_data (pr1 Z)
-        (product_functor_data C C PC (H1 X) (H2 X)))
-     (product_functor_data C C PC (H1 (functor_composite (pr1 Z) X))
+        (BinProduct_of_functors_data C C PC (H1 X) (H2 X)))
+     (BinProduct_of_functors_data C C PC (H1 (functor_composite (pr1 Z) X))
         (H2 (functor_composite (pr1 Z) X))) (bla1 X Z).
 Proof.
   intros x x' f; simpl.
   unfold bla1; simpl.
-  unfold product_functor_mor.
-  eapply pathscomp0; [ apply ProductOfArrows_comp | ].
-  eapply pathscomp0; [ | eapply pathsinv0; apply ProductOfArrows_comp].
-  apply ProductOfArrows_eq.
+  unfold BinProduct_of_functors_mor.
+  eapply pathscomp0; [ apply BinProductOfArrows_comp | ].
+  eapply pathscomp0; [ | eapply pathsinv0; apply BinProductOfArrows_comp].
+  apply BinProductOfArrows_eq.
   * apply (nat_trans_ax (θ1 (X ⊗ Z))).
   * apply (nat_trans_ax (θ2 (X ⊗ Z))).
 Qed.
 
 Local Definition bla (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
    functor_composite_data (pr1 Z)
-     (product_functor_data C C PC (H1 X) (H2 X))
-   ⟶ product_functor_data C C PC (H1 (functor_composite (pr1 Z) X))
+     (BinProduct_of_functors_data C C PC (H1 X) (H2 X))
+   ⟶ BinProduct_of_functors_data C C PC (H1 (functor_composite (pr1 Z) X))
        (H2 (functor_composite (pr1 Z) X)).
 Proof.
   exists (bla1 X Z).
@@ -125,15 +126,15 @@ Proof.
     destruct XZ as [X Z].
     destruct X'Z' as [X' Z'].
     destruct αβ as [α β]. simpl in *.
-    unfold product_nat_trans_data;
+    unfold binproduct_nat_trans_data;
     unfold bla1; simpl.
-    unfold product_functor_mor.
-    unfold product_nat_trans_pr2_data.
-    unfold product_nat_trans_pr1_data.
-    eapply pathscomp0; [ | eapply pathsinv0; apply ProductOfArrows_comp].
-    eapply pathscomp0. apply cancel_postcomposition. apply ProductOfArrows_comp.
-    eapply pathscomp0. apply ProductOfArrows_comp.
-    apply ProductOfArrows_eq.
+    unfold BinProduct_of_functors_mor.
+    unfold binproduct_nat_trans_pr2_data.
+    unfold binproduct_nat_trans_pr1_data.
+    eapply pathscomp0; [ | eapply pathsinv0; apply BinProductOfArrows_comp].
+    eapply pathscomp0. apply cancel_postcomposition. apply BinProductOfArrows_comp.
+    eapply pathscomp0. apply BinProductOfArrows_comp.
+    apply BinProductOfArrows_eq.
     + apply (nat_trans_eq_pointwise Hyp1 c).
     + apply (nat_trans_eq_pointwise Hyp2 c).
 Qed.
@@ -155,18 +156,18 @@ Proof.
   - intro x.
     simpl.
     unfold bla1.
-    unfold product_nat_trans_data.
+    unfold binproduct_nat_trans_data.
 
-    eapply pathscomp0. apply ProductOfArrows_comp.
+    eapply pathscomp0. apply BinProductOfArrows_comp.
      apply pathsinv0.
-     apply Product_endo_is_identity.
-     + rewrite ProductOfArrowsPr1.
+     apply BinProduct_endo_is_identity.
+     + rewrite BinProductOfArrowsPr1.
        unfold θ_Strength1 in S11.
        assert (Ha := nat_trans_eq_pointwise (S11 X) x).
        eapply pathscomp0; [ | apply id_right].
        apply maponpaths.
        apply Ha.
-     + rewrite ProductOfArrowsPr2.
+     + rewrite BinProductOfArrowsPr2.
        unfold θ_Strength1 in S21.
        assert (Ha := nat_trans_eq_pointwise (S21 X) x).
        eapply pathscomp0; [ | apply id_right].
@@ -179,12 +180,12 @@ Proof.
   intros X Z Z' Y α.
   apply (nat_trans_eq hsC).
     intro x.
-    eapply pathscomp0. apply ProductOfArrows_comp.
+    eapply pathscomp0. apply BinProductOfArrows_comp.
     apply pathsinv0.
-    eapply pathscomp0. apply cancel_postcomposition. simpl. apply ProductOfArrows_comp.
-    eapply pathscomp0. apply ProductOfArrows_comp.
+    eapply pathscomp0. apply cancel_postcomposition. simpl. apply BinProductOfArrows_comp.
+    eapply pathscomp0. apply BinProductOfArrows_comp.
     apply pathsinv0.
-    apply ProductOfArrows_eq.
+    apply BinProductOfArrows_eq.
        - assert (Ha:=S12 X Z Z' Y α).
          simpl in Ha.
          assert (Ha_x := nat_trans_eq_pointwise Ha x).
@@ -210,19 +211,19 @@ Proof.
   - intro x.
     simpl.
     unfold bla1.
-    unfold product_nat_trans_data.
+    unfold binproduct_nat_trans_data.
 
-    eapply pathscomp0. apply ProductOfArrows_comp.
+    eapply pathscomp0. apply BinProductOfArrows_comp.
      apply pathsinv0.
-     apply Product_endo_is_identity.
-     + rewrite ProductOfArrowsPr1.
+     apply BinProduct_endo_is_identity.
+     + rewrite BinProductOfArrowsPr1.
        red in S11'.
        assert (Ha := nat_trans_eq_pointwise (S11' X) x).
        simpl in Ha.
        eapply pathscomp0; [ | apply id_right].
        apply maponpaths.
        apply Ha.
-     + rewrite ProductOfArrowsPr2.
+     + rewrite BinProductOfArrowsPr2.
        red in S21'.
        assert (Ha := nat_trans_eq_pointwise (S21' X) x).
        simpl in Ha.
@@ -241,11 +242,11 @@ Proof.
     intro x.
     simpl.
     rewrite id_left.
-    eapply pathscomp0. apply ProductOfArrows_comp.
+    eapply pathscomp0. apply BinProductOfArrows_comp.
     apply pathsinv0.
-    eapply pathscomp0. apply ProductOfArrows_comp.
+    eapply pathscomp0. apply BinProductOfArrows_comp.
     apply pathsinv0.
-    apply ProductOfArrows_eq.
+    apply BinProductOfArrows_eq.
        - assert (Ha:=S12' X Z Z').
          simpl in Ha.
          assert (Ha_x := nat_trans_eq_pointwise Ha x).
@@ -263,7 +264,7 @@ Qed.
 End construction.
 
 
-Definition Product_of_Signatures (S1 S2: Signature C hsC): Signature C hsC.
+Definition BinProduct_of_Signatures (S1 S2: Signature C hsC): Signature C hsC.
 Proof.
   destruct S1 as [H1 [θ1 [S11' S12']]].
   destruct S2 as [H2 [θ2 [S21' S22']]].
@@ -274,18 +275,18 @@ Proof.
   + apply ProductStrength2'; assumption.
 Defined.
 
-Lemma is_omega_cocont_Product_of_Signatures (S1 S2 : Signature C hsC)
+Lemma is_omega_cocont_BinProduct_of_Signatures (S1 S2 : Signature C hsC)
   (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2)
-  (hE : has_exponentials (Products_functor_precat C C PC hsC)) :
-  is_omega_cocont (Product_of_Signatures S1 S2).
+  (hE : has_exponentials (BinProducts_functor_precat C C PC hsC)) :
+  is_omega_cocont (BinProduct_of_Signatures S1 S2).
 Proof.
 destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
 destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
 unfold H.
-apply is_omega_cocont_product_functor; try assumption.
-- apply (Products_functor_precat _ _ PC).
+apply is_omega_cocont_BinProduct_of_functors; try assumption.
+- apply (BinProducts_functor_precat _ _ PC).
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
 Defined.
 
-End product_of_signatures.
+End binproduct_of_signatures.
