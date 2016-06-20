@@ -28,16 +28,16 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.PointedFunctors.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
-Require Import UniMath.SubstitutionSystems.SumOfSignatures.
+Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 
 Arguments θ_source {_ _} _ .
@@ -49,10 +49,10 @@ Section Preparations.
 
 Variable C : precategory.
 Variable hs : has_homsets C.
-Variable CP : Products C.
-Variable CC : Coproducts C.
+Variable CP : BinProducts C.
+Variable CC : BinCoproducts C.
 
-Definition square_functor := product_functor C C CP (functor_identity C) (functor_identity C).
+Definition square_functor := BinProduct_of_functors C C CP (functor_identity C) (functor_identity C).
 
 End Preparations.
 
@@ -66,8 +66,8 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 
 Variable terminal : Terminal C.
 
-Variable CC : Coproducts C.
-Variable CP : Products C.
+Variable CC : BinCoproducts C.
+Variable CP : BinProducts C.
 
 Let one : C :=  @TerminalObject C terminal.
 
@@ -77,7 +77,7 @@ Let one : C :=  @TerminalObject C terminal.
 Definition App_H : functor EndC EndC.
 Proof.
   apply square_functor.
-  apply Products_functor_precat.
+  apply BinProducts_functor_precat.
   exact CP.
 Defined.
 
@@ -85,12 +85,12 @@ Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.cocontfunctors.
 Require Import UniMath.CategoryTheory.exponentials.
 
-Lemma is_omega_cocont_App_H (hE : has_exponentials (Products_functor_precat C C CP hs)) :
+Lemma is_omega_cocont_App_H (hE : has_exponentials (BinProducts_functor_precat C C CP hs)) :
   is_omega_cocont App_H.
 Proof.
 unfold App_H, square_functor.
-apply is_omega_cocont_product_functor.
-- apply (Products_functor_precat _ _ CP).
+apply is_omega_cocont_BinProduct_of_functors.
+- apply (BinProducts_functor_precat _ _ CP).
 - apply hE.
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
@@ -251,21 +251,21 @@ Proof.
   simpl.
   rewrite id_left.
   rewrite id_right.
-  unfold product_nat_trans_data, product_functor_mor.
-  unfold ProductOfArrows.
+  unfold binproduct_nat_trans_data, BinProduct_of_functors_mor.
+  unfold BinProductOfArrows.
   eapply pathscomp0.
-  apply precompWithProductArrow.
+  apply precompWithBinProductArrow.
   simpl.
-  unfold product_nat_trans_pr1_data. unfold product_nat_trans_pr2_data.
+  unfold binproduct_nat_trans_pr1_data. unfold binproduct_nat_trans_pr2_data.
   simpl.
-  apply ProductArrowUnique.
-  + rewrite ProductPr1Commutes.
+  apply BinProductArrowUnique.
+  + rewrite BinProductPr1Commutes.
     repeat rewrite assoc.
-    rewrite ProductPr1Commutes.
+    rewrite BinProductPr1Commutes.
     apply idpath.
-  + rewrite ProductPr2Commutes.
+  + rewrite BinProductPr2Commutes.
     repeat rewrite assoc.
-    rewrite ProductPr2Commutes.
+    rewrite BinProductPr2Commutes.
     apply idpath.
 Qed.
 
@@ -283,9 +283,9 @@ Proof.
   intro c.
   simpl.
   rewrite id_left.
-  unfold product_nat_trans_data.
+  unfold binproduct_nat_trans_data.
   apply pathsinv0.
-  apply ProductArrowUnique.
+  apply BinProductArrowUnique.
   + rewrite id_left.
     unfold EndofunctorsMonoidal.λ_functor.
     unfold EndofunctorsMonoidal.ρ_functor.
@@ -312,9 +312,9 @@ Proof.
   intro c.
   simpl.
   do 3 rewrite id_left.
-  unfold product_nat_trans_data.
+  unfold binproduct_nat_trans_data.
   apply pathsinv0.
-  apply ProductArrowUnique.
+  apply BinProductArrowUnique.
   + rewrite id_left.
     unfold EndofunctorsMonoidal.α_functor.
     simpl.
@@ -337,17 +337,17 @@ Proof.
   simpl.
   intro A.
   apply (functor_on_morphisms (functor_data_from_functor _ _ (pr1 XZ))).
-  unfold coproduct_functor_ob.
+  unfold BinCoproduct_of_functors_ob.
   unfold constant_functor.
   simpl.
 (*
   destruct Z as [Z e].
 *)
   simpl.
-  apply CoproductArrow.
-  + exact (CoproductIn1 _ _ ;;
-           nat_trans_data (pr2 (pr2 XZ)) (CoproductObject C (CC (TerminalObject terminal) A))).
-  + exact (# (pr1 (pr2 XZ)) (CoproductIn2 _ (CC (TerminalObject terminal) A))).
+  apply BinCoproductArrow.
+  + exact (BinCoproductIn1 _ _ ;;
+           nat_trans_data (pr2 (pr2 XZ)) (BinCoproductObject C (CC (TerminalObject terminal) A))).
+  + exact (# (pr1 (pr2 XZ)) (BinCoproductIn2 _ (CC (TerminalObject terminal) A))).
 Defined.
 
 Lemma is_nat_trans_Abs_θ_data_data: ∀ XZ, is_nat_trans _ _ (Abs_θ_data_data XZ).
@@ -360,20 +360,20 @@ Proof.
   rewrite <- functor_comp.
   rewrite <- functor_comp.
   apply maponpaths.
-  unfold coproduct_functor_mor.
+  unfold BinCoproduct_of_functors_mor.
   eapply pathscomp0.
-  apply precompWithCoproductArrow.
+  apply precompWithBinCoproductArrow.
   eapply pathscomp0.
 Focus 2.
-  apply (!(postcompWithCoproductArrow _ _ _ _ _)).
+  apply (!(postcompWithBinCoproductArrow _ _ _ _ _)).
   simpl.
   rewrite id_left.
   rewrite <- assoc.
   rewrite <- functor_comp.
   rewrite <- functor_comp.
   simpl.
-  apply CoproductArrow_eq.
-  + assert (NN :=  nat_trans_ax (pr2 (pr2 XZ)) _ _ (CoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
+  apply BinCoproductArrow_eq.
+  + assert (NN :=  nat_trans_ax (pr2 (pr2 XZ)) _ _ (BinCoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
          (identity (TerminalObject terminal)) f)).
     match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _ ] =>
          pathvia (h;;(f;;g)) end.
@@ -382,14 +382,14 @@ Focus 2.
       unfold functor_identity.
       simpl.
       rewrite assoc.
-      rewrite CoproductOfArrowsIn1.
+      rewrite BinCoproductOfArrowsIn1.
       rewrite id_left.
       apply idpath.
     * apply idpath.
   + apply maponpaths.
     eapply pathscomp0.
 Focus 2.
-    apply (!(CoproductOfArrowsIn2 _ _ _ _ _ )).
+    apply (!(BinCoproductOfArrowsIn2 _ _ _ _ _ )).
     apply idpath.
 
 
@@ -403,18 +403,18 @@ Focus 2.
   apply maponpaths.
   unfold coproduct_functor_mor.
   eapply pathscomp0.
-  apply precompWithCoproductArrow.
+  apply precompWithBinCoproductArrow.
   eapply pathscomp0.
 Focus 2.
-  apply (!(postcompWithCoproductArrow _ _ _ _ _)).
+  apply (!(postcompWithBinCoproductArrow _ _ _ _ _)).
   simpl.
   rewrite id_left.
   rewrite <- assoc.
   rewrite <- functor_comp.
   rewrite <- functor_comp.
   simpl.
-  apply CoproductArrow_eq.
-  + assert (NN :=  nat_trans_ax e _ _ (CoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
+  apply BinCoproductArrow_eq.
+  + assert (NN :=  nat_trans_ax e _ _ (BinCoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
          (identity (TerminalObject terminal)) f)).
     match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _ ] =>
          pathvia (h;;(f;;g)) end.
@@ -423,14 +423,14 @@ Focus 2.
       unfold functor_identity.
       simpl.
       rewrite assoc.
-      rewrite CoproductOfArrowsIn1.
+      rewrite BinCoproductOfArrowsIn1.
       rewrite id_left.
       apply idpath.
     * apply idpath.
   + apply maponpaths.
     eapply pathscomp0.
 Focus 2.
-    apply (!(CoproductOfArrowsIn2 _ _ _ _ _ )).
+    apply (!(BinCoproductOfArrowsIn2 _ _ _ _ _ )).
     apply idpath.
 *)
 Qed.
@@ -455,7 +455,7 @@ Proof.
   simpl.
   simpl in *.
   unfold constant_functor.
-  unfold coproduct_functor_ob.
+  unfold BinCoproduct_of_functors_ob.
   simpl.
   rewrite assoc.
   unfold Abs_θ_data_data. simpl.
@@ -464,17 +464,17 @@ Proof.
   apply maponpaths.
   do 2 rewrite <- functor_comp.
   apply maponpaths.
-  unfold coproduct_functor_mor, constant_functor_data.
+  unfold BinCoproduct_of_functors_mor, constant_functor_data.
   simpl.
-  eapply pathscomp0. apply precompWithCoproductArrow.
-(*  rewrite precompWithCoproductArrow. *)
+  eapply pathscomp0. apply precompWithBinCoproductArrow.
+(*  rewrite precompWithBinCoproductArrow. *)
   eapply pathscomp0. Focus 2. eapply pathsinv0.
-  apply postcompWithCoproductArrow.
+  apply postcompWithBinCoproductArrow.
 (*
-  eapply cancel_postcomposition. apply postcompWithCoproductArrow.
+  eapply cancel_postcomposition. apply postcompWithBinCoproductArrow.
 *)
-(*  rewrite postcompWithCoproductArrow. *)
-  apply CoproductArrow_eq.
+(*  rewrite postcompWithBinCoproductArrow. *)
+  apply BinCoproductArrow_eq.
   + rewrite id_left.
     rewrite <- assoc.
     rewrite <- (ptd_mor_commutes _ β).
@@ -500,7 +500,7 @@ Proof.
   rewrite id_right.
   apply functor_id_id.
   apply pathsinv0.
-  apply CoproductArrowUnique.
+  apply BinCoproductArrowUnique.
   + apply idpath.
   + apply id_right.
 Qed.
@@ -527,28 +527,28 @@ Proof.
   eapply pathscomp0.
 Focus 2.
   eapply pathsinv0.
-  apply postcompWithCoproductArrow.
+  apply postcompWithBinCoproductArrow.
   simpl in *.
-  apply CoproductArrow_eq.
+  apply BinCoproductArrow_eq.
   + rewrite <- assoc.
-    assert (NN := nat_trans_ax e' _ _ (e (CoproductObject C (CC (TerminalObject terminal) c)))).
+    assert (NN := nat_trans_ax e' _ _ (e (BinCoproductObject C (CC (TerminalObject terminal) c)))).
     simpl in NN. (* is important for success of the trick *)
     match goal with |[ H1: _ = ?f;;?g |- ?h ;; _ = _ ] =>
          pathvia (h;;(f;;g)) end.
     * apply idpath.
     * simpl. rewrite <- NN.
       clear NN.
-      assert (NNN := nat_trans_ax e' _ _ (CoproductArrow C (CC (TerminalObject terminal) (Z c))
-         (CoproductIn1 C (CC (TerminalObject terminal) c);;
-          e (CoproductObject C (CC (TerminalObject terminal) c)))
-         (# Z (CoproductIn2 C (CC (TerminalObject terminal) c))))).
+      assert (NNN := nat_trans_ax e' _ _ (BinCoproductArrow C (CC (TerminalObject terminal) (Z c))
+         (BinCoproductIn1 C (CC (TerminalObject terminal) c);;
+          e (BinCoproductObject C (CC (TerminalObject terminal) c)))
+         (# Z (BinCoproductIn2 C (CC (TerminalObject terminal) c))))).
       simpl in NNN.
       match goal with |[ H1: _ = ?f;;?g |- _ = ?h ;; _] =>
          pathvia (h;;(f;;g)) end.
       - simpl. rewrite <- NNN.
         clear NNN.
         do 2 rewrite assoc.
-        rewrite CoproductIn1Commutes.
+        rewrite BinCoproductIn1Commutes.
         apply idpath.
       - apply idpath.
   + rewrite <- functor_comp.
@@ -556,7 +556,7 @@ Focus 2.
     eapply pathscomp0.
 Focus 2.
     eapply pathsinv0.
-    apply CoproductIn2Commutes.
+    apply BinCoproductIn2Commutes.
     apply idpath.
 Qed.
 
@@ -670,13 +670,13 @@ Proof.
 Defined.
 
 Definition Lam_Sig: Signature C hs :=
-  Sum_of_Signatures C hs CC App_Sig Abs_Sig.
+  BinSum_of_Signatures C hs CC App_Sig Abs_Sig.
 
-Lemma is_omega_cocont_Lam (hE : has_exponentials (Products_functor_precat C C CP hs)) (LC : Lims C) :
+Lemma is_omega_cocont_Lam (hE : has_exponentials (BinProducts_functor_precat C C CP hs)) (LC : Lims C) :
   is_omega_cocont (Signature_Functor _ _ Lam_Sig).
 Proof.
-apply is_omega_cocont_coproduct_functor.
-- apply (Products_functor_precat _ _ CP).
+apply is_omega_cocont_BinCoproduct_of_functors.
+- apply (BinProducts_functor_precat _ _ CP).
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.
 - apply (is_omega_cocont_App_H hE).
@@ -684,6 +684,6 @@ apply is_omega_cocont_coproduct_functor.
 Defined.
 
 Definition LamE_Sig: Signature C hs :=
-  Sum_of_Signatures C hs CC Lam_Sig Flat_Sig.
+  BinSum_of_Signatures C hs CC Lam_Sig Flat_Sig.
 
 End Lambda.

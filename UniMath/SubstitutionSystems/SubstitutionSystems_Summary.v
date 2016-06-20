@@ -20,21 +20,21 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.PointedFunctors.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.SumOfSignatures.
+Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
 Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
@@ -101,7 +101,7 @@ Qed.
 (** Lemma 15 *)
 
 Lemma fbracket_natural
-     : ∀ (C : precategory) (hs : has_homsets C) (CP : Coproducts C)
+     : ∀ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
        (H : Signature C hs) (T : hss CP H) (Z Z' : precategory_Ptd C hs)
        (f : precategory_Ptd C hs ⟦ Z, Z' ⟧)
        (g : precategory_Ptd C hs ⟦ Z', ptd_from_alg T ⟧),
@@ -111,7 +111,7 @@ Proof.
 Qed.
 
 Lemma compute_fbracket
-     : ∀ (C : precategory) (hs : has_homsets C) (CP : Coproducts C)
+     : ∀ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
        (H : Signature C hs) (T : hss CP H) (Z : precategory_Ptd C hs)
        (f : precategory_Ptd C hs ⟦ Z, ptd_from_alg T ⟧),
        ⦃ f ⦄ = (`T ∘ # U f : [C,C,hs] ⟦ `T • U Z , `T • U _ ⟧) ;; ⦃ identity (ptd_from_alg T) ⦄.
@@ -125,7 +125,7 @@ Qed.
 (** Theorem 24 *)
 
 Definition Monad_from_hss
-     : ∀ (C : precategory) (hs : has_homsets C) (CP : Coproducts C)
+     : ∀ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
        (H : Signature C hs), hss CP H → Monad C.
 Proof.
   apply Monad_from_hss.
@@ -134,7 +134,7 @@ Defined.
 (** Theorem 25 *)
 
 Definition hss_to_monad_functor
-     : ∀ (C : precategory) (hs : has_homsets C) (CP : Coproducts C)
+     : ∀ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
        (H : Signature C hs),
        functor (hss_precategory CP H) (precategory_Monad C hs).
 Proof.
@@ -144,7 +144,7 @@ Defined.
 (** Lemma 26 *)
 
 Lemma faithful_hss_to_monad
-     : ∀ (C : precategory) (hs : has_homsets C) (CP : Coproducts C)
+     : ∀ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
        (H : Signature C hs), faithful (hss_to_monad_functor C hs CP H).
 Proof.
   apply faithful_hss_to_monad.
@@ -160,7 +160,7 @@ Defined.
 *)
 
 Definition bracket_for_initial_algebra
- : ∀ (C : precategory) (hs : has_homsets C) (CP : Coproducts C),
+ : ∀ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C),
      (∀ Z : precategory_Ptd C hs, GlobalRightKanExtensionExists C C (U Z) C hs hs)
        → ∀ (H : Signature C hs)
            (IA : Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs)))
@@ -173,7 +173,7 @@ Proof.
 Defined.
 
 Lemma bracket_Thm15_ok_η
-     : ∀ (C : precategory) (hs : has_homsets C) (CP : Coproducts C)
+     : ∀ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
        (KanExt : ∀ Z : precategory_Ptd C hs,
                  GlobalRightKanExtensionExists C C (U Z) C hs hs)
        (H : Signature C hs)
@@ -188,7 +188,7 @@ Proof.
 Qed.
 
 Lemma bracket_Thm15_ok_τ
-  : ∀ (C : precategory) (hs : has_homsets C) (CP : Coproducts C)
+  : ∀ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
       (KanExt : ∀ Z : precategory_Ptd C hs, GlobalRightKanExtensionExists C C (U Z) C hs hs)
       (H : Signature C hs)
       (IA : Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs)))
@@ -207,7 +207,7 @@ Qed.
 (** Theorem 29 *)
 
 Definition Initial_HSS :
-   ∀ (C : precategory) (hs : has_homsets C) (CP : Coproducts C),
+   ∀ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C),
      (∀ Z : precategory_Ptd C hs,
          GlobalRightKanExtensionExists C C (U Z) C hs hs)
      → ∀ H : Signature C hs,
@@ -224,9 +224,9 @@ Defined.
 
 Definition Sum_of_Signatures
   : ∀ (C : precategory) (hs : has_homsets C),
-       Coproducts C → Signature C hs → Signature C hs → Signature C hs.
+       BinCoproducts C → Signature C hs → Signature C hs → Signature C hs.
 Proof.
-  apply Sum_of_Signatures.
+  apply BinSum_of_Signatures.
 Defined.
 
 
@@ -235,7 +235,7 @@ Defined.
 (** Definition 31 *)
 
 Definition App_Sig
-  : ∀ (C : precategory) (hs : has_homsets C), Products C → Signature C hs.
+  : ∀ (C : precategory) (hs : has_homsets C), BinProducts C → Signature C hs.
 Proof.
   apply App_Sig.
 Defined.
@@ -244,7 +244,7 @@ Defined.
 
 Definition Lam_Sig
   : ∀ (C : precategory) (hs : has_homsets C),
-    Terminal C → Coproducts C → Products C → Signature C hs.
+    Terminal C → BinCoproducts C → BinProducts C → Signature C hs.
 Proof.
   apply Lam_Sig.
 Defined.
@@ -264,7 +264,7 @@ Defined.
 Definition Lam_Flatten
   :  ∀ (C : precategory) (hs : has_homsets C)
        (terminal : Terminal C)
-       (CC : Coproducts C) (CP : Products C),
+       (CC : BinCoproducts C) (CP : BinProducts C),
     (∀ Z : precategory_Ptd C hs,
         GlobalRightKanExtensionExists C C (U Z) C hs hs)
     → ∀ Lam_Initial : Initial (FunctorAlg (Id_H C hs CC (Lam_Sig C hs terminal CC CP))
@@ -278,7 +278,7 @@ Defined.
 
 Definition fbracket_for_LamE_algebra_on_Lam
   : ∀ (C : precategory) (hs : has_homsets C) (terminal : Terminal C)
-      (CC : Coproducts C) (CP : Products C)
+      (CC : BinCoproducts C) (CP : BinProducts C)
       (KanExt : ∀ Z : precategory_Ptd C hs, GlobalRightKanExtensionExists C C (U Z) C hs hs)
       (Lam_Initial : Initial (FunctorAlg (Id_H C hs CC (Lam_Sig C hs terminal CC CP))
                                          (functor_category_has_homsets C C hs)))
@@ -298,7 +298,7 @@ Defined.
 
 Definition EVAL
   : ∀ (C : precategory) (hs : has_homsets C) (terminal : Terminal C)
-      (CC : Coproducts C) (CP : Products C)
+      (CC : BinCoproducts C) (CP : BinProducts C)
       (KanExt : ∀ Z : precategory_Ptd C hs, GlobalRightKanExtensionExists C C (U Z) C hs hs)
        (Lam_Initial : Initial
                         (FunctorAlg

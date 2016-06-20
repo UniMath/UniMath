@@ -42,18 +42,18 @@ Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseArbitraryCoproduct.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.arbitrary_products.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.cats.limits.
 Require Import UniMath.CategoryTheory.chains.
+Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
-Require Import UniMath.CategoryTheory.ArbitraryProductPrecategory.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.EquivalencesExamples.
 Require Import UniMath.CategoryTheory.AdjunctionHomTypesWeq.
@@ -134,7 +134,7 @@ Definition omega_cocont_iter_functor {C : precategory} (hsC : has_homsets C)
   tpair _ _ (is_omega_cocont_iter_functor hsC _ (pr2 F) n).
 
 (** A pair of functors (F,G) : A * B -> C * D is omega_cocont if F and G are *)
-Section pair_functor.
+Section binproduct_pair_functor.
 
 Variables A B C D : precategory.
 Variables (F : functor A C) (G : functor B D).
@@ -142,7 +142,7 @@ Variables (hsA : has_homsets A) (hsB : has_homsets B).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 
 (* Maybe generalize these to arbitrary diagrams? *)
-Lemma cocone_pr1_functor (cAB : chain (product_precategory A B))
+Lemma cocone_pr1_functor (cAB : chain (binproduct_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) :
   cocone (mapchain (pr1_functor A B)cAB) (ob1 ab).
 Proof.
@@ -151,7 +151,7 @@ simple refine (mk_cocone _ _).
 - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
 Defined.
 
-Lemma isColimCocone_pr1_functor (cAB : chain (product_precategory A B))
+Lemma isColimCocone_pr1_functor (cAB : chain (binproduct_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) (Hccab : isColimCocone cAB ab ccab) :
    isColimCocone (mapchain (pr1_functor A B) cAB) (ob1 ab)
      (mapcocone (pr1_functor A B) cAB ccab).
@@ -173,7 +173,7 @@ mkpair.
 - intro t.
   simple refine (let X : Σ x0,
            ∀ v : nat, coconeIn ccab v ;; x0 =
-                      prodcatmor (pr1 ccx v) (pr2 (pr1 ccab v)) := _ in _).
+                      binprodcatmor (pr1 ccx v) (pr2 (pr1 ccab v)) := _ in _).
   { mkpair.
     - split; [ apply (pr1 t) | apply (identity _) ].
     - abstract (intro n; rewrite id_right; apply pathsdirprod;
@@ -190,7 +190,7 @@ intros c L ccL M.
 now apply isColimCocone_pr1_functor.
 Defined.
 
-Lemma cocone_pr2_functor (cAB : chain (product_precategory A B))
+Lemma cocone_pr2_functor (cAB : chain (binproduct_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) :
   cocone (mapchain (pr2_functor A B) cAB) (pr2 ab).
 Proof.
@@ -199,7 +199,7 @@ simple refine (mk_cocone _ _).
 - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
 Defined.
 
-Lemma isColimCocone_pr2_functor (cAB : chain (product_precategory A B))
+Lemma isColimCocone_pr2_functor (cAB : chain (binproduct_precategory A B))
   (ab : A × B) (ccab : cocone cAB ab) (Hccab : isColimCocone cAB ab ccab) :
    isColimCocone (mapchain (pr2_functor A B) cAB) (pr2 ab)
      (mapcocone (pr2_functor A B) cAB ccab).
@@ -220,7 +220,7 @@ mkpair.
 - intro t.
   simple refine (let X : Σ x0,
            ∀ v : nat, coconeIn ccab v ;; x0 =
-                      prodcatmor (pr1 (pr1 ccab v)) (pr1 ccx v) := _ in _).
+                      binprodcatmor (pr1 (pr1 ccab v)) (pr1 ccx v) := _ in _).
   { mkpair.
     - split; [ apply (identity _) | apply (pr1 t) ].
     - abstract (intro n; rewrite id_right; apply pathsdirprod;
@@ -237,8 +237,8 @@ intros c L ccL M.
 now apply isColimCocone_pr2_functor.
 Defined.
 
-Lemma is_omega_cocont_pair_functor (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (pair_functor F G).
+Lemma is_omega_cocont_binproduct_pair_functor (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
+  is_omega_cocont (binproduct_pair_functor F G).
 Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
 simple refine (let cFAX : cocone (mapdiagram F (mapchain (pr1_functor A B) cAB))
@@ -258,7 +258,7 @@ destruct (HG _ _ _ (isColimCocone_pr2_functor cAB ml ccml Hccml) _ cGBY) as [[g 
 simpl in *.
 mkpair.
 - apply (tpair _ (f,,g)).
-  abstract (intro n; unfold prodcatmor, compose; simpl;
+  abstract (intro n; unfold binprodcatmor, compose; simpl;
             now rewrite hf1, hg1, (paireta (coconeIn ccxy n))).
 - intro t.
   apply subtypeEquality; simpl.
@@ -270,10 +270,10 @@ mkpair.
     * apply (maponpaths pr1 (hg2 (f2,, (λ n, maponpaths dirprod_pr2 (p n))))).
 Defined.
 
-End pair_functor.
+End binproduct_pair_functor.
 
 (** A family of functor F^I : A^I -> B^I is omega_cocont if each F_i is *)
-Section arbitrary_pair_functor.
+Section pair_functor.
 
 Variables (I : UU) (A B : precategory).
 Variables (F : forall (i : I), functor A B).
@@ -293,8 +293,8 @@ now unfold ifI; destruct (HI i i) as [p|p]; [|destruct (p (idpath _))].
 Defined.
 
 Lemma isColimCocone_pr_functor
-  (c : chain (arbitrary_product_precategory I A))
-  (L : arbitrary_product_precategory I A) (ccL : cocone c L)
+  (c : chain (product_precategory I A))
+  (L : product_precategory I A) (ccL : cocone c L)
   (M : isColimCocone c L ccL) : forall i,
   isColimCocone _ _ (mapcocone (pr_functor I A i) c ccL).
 Proof.
@@ -350,9 +350,9 @@ intros c L ccL M.
 now apply isColimCocone_pr_functor.
 Defined.
 
-Lemma is_omega_cocont_arbitrary_pair_functor
+Lemma is_omega_cocont_pair_functor
   (HF : forall (i : I), is_omega_cocont (F i)) :
-  is_omega_cocont (arbitrary_pair_functor I F).
+  is_omega_cocont (pair_functor I F).
 Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
 simple refine (let cc i : cocone (mapdiagram (F i)
@@ -379,20 +379,40 @@ mkpair.
     apply (maponpaths pr1 (pr2 (X i) H)).
 Defined.
 
-End arbitrary_pair_functor.
+End pair_functor.
 
-(** The delta functor C -> C^2 mapping x to (x,x) is omega_cocont *)
-Section delta_functor.
+(** The bindelta functor C -> C^2 mapping x to (x,x) is omega_cocont *)
+Section bindelta_functor.
 
-Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
+Variables (C : precategory) (PC : BinProducts C) (hsC : has_homsets C).
 
-Lemma cocont_delta_functor : is_cocont (delta_functor C).
+Lemma cocont_bindelta_functor : is_cocont (bindelta_functor C).
 Proof.
-apply (left_adjoint_cocont _ (is_left_adjoint_delta_functor PC) hsC).
-abstract (apply (has_homsets_product_precategory _ _ hsC hsC)).
+apply (left_adjoint_cocont _ (is_left_adjoint_bindelta_functor PC) hsC).
+abstract (apply (has_homsets_binproduct_precategory _ _ hsC hsC)).
 Defined.
 
-Lemma is_omega_cocont_delta_functor : is_omega_cocont (delta_functor C).
+Lemma is_omega_cocont_bindelta_functor : is_omega_cocont (bindelta_functor C).
+Proof.
+intros c L ccL.
+apply cocont_bindelta_functor.
+Defined.
+
+End bindelta_functor.
+
+(** The generalized delta functor C -> C^I is omega_cocont *)
+Section delta_functor.
+
+Variables (I : UU) (C : precategory) (PC : Products I C) (hsC : has_homsets C).
+
+Lemma cocont_delta_functor : is_cocont (delta_functor I C).
+Proof.
+apply (left_adjoint_cocont _ (is_left_adjoint_delta_functor _ PC) hsC).
+abstract (apply (has_homsets_product_precategory _ _ hsC)).
+Defined.
+
+Lemma is_omega_cocont_delta_functor :
+  is_omega_cocont (delta_functor I C).
 Proof.
 intros c L ccL.
 apply cocont_delta_functor.
@@ -400,35 +420,15 @@ Defined.
 
 End delta_functor.
 
-(** The generalized delta functor C -> C^I is omega_cocont *)
-Section arbitrary_delta_functor.
-
-Variables (I : UU) (C : precategory) (PC : ArbitraryProducts I C) (hsC : has_homsets C).
-
-Lemma cocont_arbitrary_delta_functor : is_cocont (arbitrary_delta_functor I C).
-Proof.
-apply (left_adjoint_cocont _ (is_left_adjoint_arbitrary_delta_functor _ PC) hsC).
-abstract (apply (has_homsets_arbitrary_product_precategory _ _ hsC)).
-Defined.
-
-Lemma is_omega_cocont_arbitrary_delta_functor :
-  is_omega_cocont (arbitrary_delta_functor I C).
-Proof.
-intros c L ccL.
-apply cocont_arbitrary_delta_functor.
-Defined.
-
-End arbitrary_delta_functor.
-
 (** The functor "+ : C^2 -> C" is cocont *)
 Section bincoprod_functor.
 
-Variables (C : precategory) (PC : Coproducts C) (hsC : has_homsets C).
+Variables (C : precategory) (PC : BinCoproducts C) (hsC : has_homsets C).
 
 Lemma cocont_bincoproduct_functor : is_cocont (bincoproduct_functor PC).
 Proof.
 apply (left_adjoint_cocont _ (is_left_adjoint_bincoproduct_functor PC)).
-- abstract (apply has_homsets_product_precategory; apply hsC).
+- abstract (apply has_homsets_binproduct_precategory; apply hsC).
 - abstract (apply hsC).
 Defined.
 
@@ -441,102 +441,105 @@ Defined.
 End bincoprod_functor.
 
 (** The functor "+ : C^I -> C" is cocont *)
-Section arbitrary_coprod_functor.
+Section coprod_functor.
 
-Variables (I : UU) (C : precategory) (PC : ArbitraryCoproducts I C).
+Variables (I : UU) (C : precategory) (PC : Coproducts I C).
 Variable (hsC : has_homsets C).
 
-Lemma cocont_arbitrary_indexed_coproduct_functor :
-  is_cocont (arbitrary_indexed_coproduct_functor _ PC).
+Lemma cocont_indexed_coproduct_functor :
+  is_cocont (indexed_coproduct_functor _ PC).
 Proof.
-apply (left_adjoint_cocont _ (is_left_adjoint_arbitrary_indexed_coproduct_functor _ PC)).
-- abstract (apply has_homsets_arbitrary_product_precategory; apply hsC).
+apply (left_adjoint_cocont _ (is_left_adjoint_indexed_coproduct_functor _ PC)).
+- abstract (apply has_homsets_product_precategory; apply hsC).
 - abstract (apply hsC).
 Defined.
 
-Lemma is_omega_cocont_arbitrary_indexed_coproduct_functor :
-  is_omega_cocont (arbitrary_indexed_coproduct_functor _ PC).
+Lemma is_omega_cocont_indexed_coproduct_functor :
+  is_omega_cocont (indexed_coproduct_functor _ PC).
 Proof.
-intros c L ccL; apply cocont_arbitrary_indexed_coproduct_functor.
+intros c L ccL; apply cocont_indexed_coproduct_functor.
 Defined.
 
-End arbitrary_coprod_functor.
+End coprod_functor.
 
-Section coproduct_of_functors.
+Section BinCoproduct_of_functors.
 
-Variables (C D : precategory) (PC : Products C) (HD : Coproducts D).
+Variables (C D : precategory) (PC : BinProducts C) (HD : BinCoproducts D).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 
-Lemma is_omega_cocont_coproduct_of_functors (F G : functor C D)
+Lemma is_omega_cocont_BinCoproduct_of_functors_alt (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (coproduct_of_functors HD F G).
+  is_omega_cocont (BinCoproduct_of_functors_alt HD F G).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_delta_functor _ PC hsC).
+  apply (is_omega_cocont_bindelta_functor _ PC hsC).
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_pair_functor _ _ _ _ _ _ hsC hsC hsD hsD HF HG).
+  apply (is_omega_cocont_binproduct_pair_functor _ _ _ _ _ _ hsC hsC hsD hsD HF HG).
 apply (is_omega_cocont_bincoproduct_functor _ _ hsD).
 Defined.
 
-Definition omega_cocont_coproduct_of_functors (F G : omega_cocont_functor C D) :
+Definition omega_cocont_BinCoproduct_of_functors_alt (F G : omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_coproduct_of_functors _ _ (pr2 F) (pr2 G)).
+    tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt _ _ (pr2 F) (pr2 G)).
 
-Lemma is_omega_cocont_coproduct_functor (F G : functor C D)
+Lemma is_omega_cocont_BinCoproduct_of_functors (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (coproduct_functor _ _ HD F G).
+  is_omega_cocont (BinCoproduct_of_functors _ _ HD F G).
 Proof.
-exact (transportf _ (coproduct_of_functors_eq_coproduct_functor C D HD hsD F G)
-                  (is_omega_cocont_coproduct_of_functors _ _ HF HG)).
+exact (transportf _
+         (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors C D HD hsD F G)
+         (is_omega_cocont_BinCoproduct_of_functors_alt _ _ HF HG)).
 Defined.
 
-Definition omega_cocont_coproduct_functor (F G : omega_cocont_functor C D) :
+Definition omega_cocont_BinCoproduct_of_functors
+ (F G : omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_coproduct_functor _ _ (pr2 F) (pr2 G)).
+    tpair _ _ (is_omega_cocont_BinCoproduct_of_functors _ _ (pr2 F) (pr2 G)).
 
-End coproduct_of_functors.
+End BinCoproduct_of_functors.
 
-Section arbitrary_coproduct_of_functors.
+Section coproduct_of_functors.
 
-Variables (I : UU) (C D : precategory) (PC : ArbitraryProducts I C).
-Variables (HD : ArbitraryCoproducts I D).
+Variables (I : UU) (C D : precategory) (PC : Products I C).
+Variables (HD : Coproducts I D).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 Variable (HI : isdeceq I).
 
-Lemma is_omega_cocont_arbitrary_coproduct_of_functors (F : forall i, functor C D)
+Lemma is_omega_cocont_coproduct_of_functors_alt (F : forall i, functor C D)
   (HF : forall i, is_omega_cocont (F i)) :
-  is_omega_cocont (arbitrary_coproduct_of_functors _ HD F).
+  is_omega_cocont (coproduct_of_functors_alt _ HD F).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_arbitrary_delta_functor _ _ PC hsC).
+  apply (is_omega_cocont_delta_functor _ _ PC hsC).
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_arbitrary_pair_functor _ _ _ _ hsC hsD HI HF).
-apply (is_omega_cocont_arbitrary_indexed_coproduct_functor _ _ _ hsD).
+  apply (is_omega_cocont_pair_functor _ _ _ _ hsC hsD HI HF).
+apply (is_omega_cocont_indexed_coproduct_functor _ _ _ hsD).
 Defined.
 
-Definition omega_cocont_arbitrary_coproduct_of_functors
+Definition omega_cocont_coproduct_of_functors_alt
   (F : forall i, omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_arbitrary_coproduct_of_functors _ (fun i => pr2 (F i))).
+    tpair _ _ (is_omega_cocont_coproduct_of_functors_alt _ (fun i => pr2 (F i))).
 
-Lemma is_omega_cocont_arbitrary_coproduct_functor (F : forall (i : I), functor C D)
+Lemma is_omega_cocont_coproduct_of_functors (F : forall (i : I), functor C D)
   (HF : forall i, is_omega_cocont (F i)) :
-  is_omega_cocont (arbitrary_coproduct_functor I _ _ HD F).
+  is_omega_cocont (coproduct_of_functors I _ _ HD F).
 Proof.
-exact (transportf _ (arbitrary_coproduct_of_functors_eq_arbitrary_coproduct_functor I C D HD hsD F)
-                  (is_omega_cocont_arbitrary_coproduct_of_functors _ HF)).
+exact (transportf _
+        (coproduct_of_functors_alt_eq_coproduct_of_functors I C D HD hsD F)
+        (is_omega_cocont_coproduct_of_functors_alt _ HF)).
 Defined.
 
-Definition omega_cocont_arbitrary_coproduct_functor
+Definition omega_cocont_coproduct_of_functors
   (F : forall i, omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_arbitrary_coproduct_functor _ (fun i => pr2 (F i))).
+    tpair _ _ (is_omega_cocont_coproduct_of_functors _ (fun i => pr2 (F i))).
 
-End arbitrary_coproduct_of_functors.
+End coproduct_of_functors.
 
 Section constprod_functors.
 
-Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
+Variables (C : precategory) (PC : BinProducts C) (hsC : has_homsets C).
 Variables (hE : has_exponentials PC).
 
 Lemma cocont_constprod_functor1 (x : C) : is_cocont (constprod_functor1 PC x).
@@ -573,31 +576,31 @@ End constprod_functors.
 (** The functor "* : C^2 -> C" is omega cocont *)
 Section binprod_functor.
 
-Variables (C : precategory) (PC : Products C) (hsC : has_homsets C).
+Variables (C : precategory) (PC : BinProducts C) (hsC : has_homsets C).
 Variables (hE : has_exponentials PC).
 
-Definition fun_lt (cAB : chain (product_precategory C C)) :
+Definition fun_lt (cAB : chain (binproduct_precategory C C)) :
   forall i j, i < j ->
-              C ⟦ ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
-                  ProductObject C (PC (ob1 (dob cAB j)) (ob2 (dob cAB j))) ⟧.
+              C ⟦ BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
+                  BinProductObject C (PC (ob1 (dob cAB j)) (ob2 (dob cAB j))) ⟧.
 Proof.
 intros i j hij.
-apply (ProductOfArrows _ _ _ (mor1 (chain_mor cAB _ _ hij)) (identity _)).
+apply (BinProductOfArrows _ _ _ (mor1 (chain_mor cAB _ _ hij)) (identity _)).
 Defined.
 
-Definition fun_gt (cAB : chain (product_precategory C C)) :
+Definition fun_gt (cAB : chain (binproduct_precategory C C)) :
   forall i j, i > j ->
-              C ⟦ ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
-                  ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB i))) ⟧.
+              C ⟦ BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
+                  BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB i))) ⟧.
 Proof.
 intros i j hij.
-apply (ProductOfArrows _ _ _ (identity _) (mor2 (chain_mor cAB _ _ hij))).
+apply (BinProductOfArrows _ _ _ (identity _) (mor2 (chain_mor cAB _ _ hij))).
 Defined.
 
 (* The map to K from the "grid" *)
-Definition map_to_K (cAB : chain (product_precategory C C)) (K : C)
+Definition map_to_K (cAB : chain (binproduct_precategory C C)) (K : C)
   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) i j :
-  C⟦ProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))), K⟧.
+  C⟦BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))), K⟧.
 Proof.
 destruct (natlthorgeh i j).
 - apply (fun_lt cAB _ _ h ;; coconeIn ccK j).
@@ -606,24 +609,24 @@ destruct (natlthorgeh i j).
   * destruct H; apply (coconeIn ccK i).
 Defined.
 
-Lemma map_to_K_commutes (cAB : chain (product_precategory C C)) (K : C)
+Lemma map_to_K_commutes (cAB : chain (binproduct_precategory C C)) (K : C)
   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K)
   i j k (e : edge j k) :
-   product_functor_mor C C PC (constant_functor C C (pr1 (pr1 cAB i)))
+   BinProduct_of_functors_mor C C PC (constant_functor C C (pr1 (pr1 cAB i)))
      (functor_identity C) (pr2 (dob cAB j)) (pr2 (dob cAB k))
      (mor2 (dmor cAB e)) ;; map_to_K cAB K ccK i k =
    map_to_K cAB K ccK i j.
 Proof.
 destruct e; simpl.
-unfold product_functor_mor, map_to_K.
+unfold BinProduct_of_functors_mor, map_to_K.
 destruct (natlthorgeh i j) as [h|h].
 - destruct (natlthorgeh i (S j)) as [h0|h0].
   * rewrite assoc, <- (coconeInCommutes ccK j (S j) (idpath _)), assoc; simpl.
     apply cancel_postcomposition; unfold fun_lt.
-    rewrite ProductOfArrows_comp, id_left.
-    eapply pathscomp0; [apply ProductOfArrows_comp|].
+    rewrite BinProductOfArrows_comp, id_left.
+    eapply pathscomp0; [apply BinProductOfArrows_comp|].
     rewrite id_right.
-    apply ProductOfArrows_eq; trivial.
+    apply BinProductOfArrows_eq; trivial.
     rewrite id_left; simpl.
     destruct (natlehchoice4 i j h0) as [h1|h1].
     + apply cancel_postcomposition, maponpaths, maponpaths, isasetbool.
@@ -639,9 +642,9 @@ destruct (natlthorgeh i j) as [h|h].
       unfold fun_lt.
       eapply pathscomp0.
       eapply cancel_postcomposition.
-      apply ProductOfArrows_comp.
+      apply BinProductOfArrows_comp.
       rewrite id_left, id_right.
-      apply cancel_postcomposition, ProductOfArrows_eq; trivial.
+      apply cancel_postcomposition, BinProductOfArrows_eq; trivial.
       simpl; destruct (natlehchoice4 i i h0) as [h1|h1]; [destruct (isirreflnatlth _ h1)|].
       apply maponpaths, maponpaths, isasetnat.
   * destruct (natgehchoice i j h) as [h1|h1].
@@ -649,10 +652,10 @@ destruct (natlthorgeh i j) as [h|h].
       { unfold fun_gt; rewrite assoc.
         eapply pathscomp0.
         eapply cancel_postcomposition.
-        apply ProductOfArrows_comp.
+        apply BinProductOfArrows_comp.
         rewrite id_right.
         apply cancel_postcomposition.
-        apply ProductOfArrows_eq; trivial.
+        apply BinProductOfArrows_eq; trivial.
         rewrite <- (chain_mor_commutes2 cAB _ _ h1 h2).
         apply idpath. }
       { destruct h.
@@ -660,14 +663,14 @@ destruct (natlthorgeh i j) as [h|h].
         generalize h1; clear h1.
         rewrite h2; intro h1.
         apply cancel_postcomposition.
-        apply ProductOfArrows_eq; trivial; simpl.
+        apply BinProductOfArrows_eq; trivial; simpl.
         destruct (natlehchoice4 j j h1); [destruct (isirreflnatlth _ h)|].
         apply maponpaths, maponpaths, isasetnat. }
     + destruct h1; destruct (negnatgehnsn _ h0).
 Qed.
 
 (* The cocone over K from the A_i * B chain *)
-Lemma ccAiB_K (cAB : chain (product_precategory C C)) (K : C)
+Lemma ccAiB_K (cAB : chain (binproduct_precategory C C)) (K : C)
   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K) i :
   cocone (mapchain (constprod_functor1 PC (pr1 (pr1 cAB i)))
          (mapchain (pr2_functor C C) cAB)) K.
@@ -679,7 +682,7 @@ Defined.
 
 Section omega_cocont_binproduct.
 
-Variable cAB : chain (product_precategory C C).
+Variable cAB : chain (binproduct_precategory C C).
 Variable LM : C × C.
 Variable ccLM : cocone cAB LM.
 Variable HccLM : isColimCocone cAB LM ccLM.
@@ -709,12 +712,12 @@ Let ccAiB_K := fun i => ccAiB_K _ _ ccK i.
 
 (* The f which is using in colimOfArrows *)
 Local Definition f i j : C
-   ⟦ product_functor_ob C C PC (constant_functor C C (pr1 (dob cAB i)))
+   ⟦ BinProduct_of_functors_ob C C PC (constant_functor C C (pr1 (dob cAB i)))
        (functor_identity C) (pr2 (dob cAB j)),
-   product_functor_ob C C PC (constant_functor C C (pr1 (dob cAB (S i))))
+   BinProduct_of_functors_ob C C PC (constant_functor C C (pr1 (dob cAB (S i))))
      (functor_identity C) (pr2 (dob cAB j)) ⟧.
 Proof.
-  apply ProductOfArrows; [apply (dmor cAB (idpath _)) | apply identity ].
+  apply BinProductOfArrows; [apply (dmor cAB (idpath _)) | apply identity ].
 Defined.
 
 Local Lemma fNat : ∀ i u v (e : edge u v),
@@ -722,8 +725,8 @@ Local Lemma fNat : ∀ i u v (e : edge u v),
    f i u ;; dmor (mapdiagram (constprod_functor1 PC _) cB) e.
 Proof.
   intros i j k e; destruct e; simpl.
-  eapply pathscomp0; [apply ProductOfArrows_comp|].
-  eapply pathscomp0; [|eapply pathsinv0; apply ProductOfArrows_comp].
+  eapply pathscomp0; [apply BinProductOfArrows_comp|].
+  eapply pathscomp0; [|eapply pathsinv0; apply BinProductOfArrows_comp].
   now rewrite !id_left, !id_right.
 Qed.
 
@@ -739,13 +742,13 @@ Defined.
 Local Lemma AiM_chain_eq : forall i, dmor AiM_chain (idpath (S i)) =
                        dmor (mapdiagram (constprod_functor2 PC M) cA) (idpath _).
 Proof.
-  intro i; simpl; unfold colimOfArrows, product_functor_mor; simpl.
+  intro i; simpl; unfold colimOfArrows, BinProduct_of_functors_mor; simpl.
   apply pathsinv0, colimArrowUnique.
   simpl; intro j.
-  unfold colimIn; simpl; unfold product_functor_mor, f; simpl.
-  eapply pathscomp0; [apply ProductOfArrows_comp|].
+  unfold colimIn; simpl; unfold BinProduct_of_functors_mor, f; simpl.
+  eapply pathscomp0; [apply BinProductOfArrows_comp|].
   apply pathsinv0.
-  eapply pathscomp0; [apply ProductOfArrows_comp|].
+  eapply pathscomp0; [apply BinProductOfArrows_comp|].
   now rewrite !id_left, !id_right.
 Qed.
 
@@ -766,7 +769,7 @@ Proof.
   + destruct (natlthorgeh i j).
     * rewrite assoc; apply cancel_postcomposition.
       unfold f, fun_lt; simpl.
-      eapply pathscomp0; [apply ProductOfArrows_comp|].
+      eapply pathscomp0; [apply BinProductOfArrows_comp|].
       now rewrite id_right, <- (chain_mor_commutes2 _ i j h0 h).
     * destruct (isasymmnatgth _ _ h h0).
   + destruct (natgehchoice (S i) j h).
@@ -780,23 +783,23 @@ Proof.
             rewrite <- (coconeInCommutes ccK i _ (idpath _)); simpl.
             rewrite !assoc; apply cancel_postcomposition.
             unfold f, fun_gt.
-            rewrite ProductOfArrows_comp.
-            eapply pathscomp0; [apply ProductOfArrows_comp|].
+            rewrite BinProductOfArrows_comp.
+            eapply pathscomp0; [apply BinProductOfArrows_comp|].
             now rewrite !id_left, !id_right, (chain_mor_commutes3 cAB _ _ h0 h1).
           + destruct p.
             rewrite <- (coconeInCommutes ccK i _ (idpath _)), assoc.
             apply cancel_postcomposition.
             unfold f, fun_gt.
-            eapply pathscomp0; [apply ProductOfArrows_comp|].
+            eapply pathscomp0; [apply BinProductOfArrows_comp|].
             rewrite id_left, id_right.
-            apply ProductOfArrows_eq; trivial; simpl.
+            apply BinProductOfArrows_eq; trivial; simpl.
             destruct (natlehchoice4 i i h0); [destruct (isirreflnatlth _ h1)|].
             apply maponpaths, maponpaths, isasetnat.
        }
     * destruct p, h.
       destruct (natlthorgeh i (S i)); [|destruct (negnatgehnsn _ h)].
       apply cancel_postcomposition; unfold f, fun_lt.
-      apply ProductOfArrows_eq; trivial; simpl.
+      apply BinProductOfArrows_eq; trivial; simpl.
       destruct (natlehchoice4 i i h); [destruct (isirreflnatlth _ h0)|].
       assert (H : idpath (S i) = maponpaths S p). apply isasetnat.
       now rewrite H.
@@ -806,7 +809,7 @@ Local Definition ccAiM_K := mk_cocone _ ccAiM_K_subproof.
 
 Local Lemma is_cocone_morphism :
  ∀ v : nat,
-   ProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
+   BinProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
      (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ;;
    colimArrow HAiM K ccAiM_K = coconeIn ccK v.
 Proof.
@@ -823,16 +826,16 @@ Proof.
   intros HHH.
   rewrite <- HHH, assoc.
   apply cancel_postcomposition.
-  unfold colimIn; simpl; unfold product_functor_mor; simpl.
+  unfold colimIn; simpl; unfold BinProduct_of_functors_mor; simpl.
   apply pathsinv0.
-  eapply pathscomp0; [apply ProductOfArrows_comp|].
+  eapply pathscomp0; [apply BinProductOfArrows_comp|].
   now rewrite id_left, id_right.
 Qed.
 
 Lemma is_unique_cocone_morphism : ∀
-   t : Σ x : C ⟦ ProductObject C (PC L M), K ⟧,
+   t : Σ x : C ⟦ BinProductObject C (PC L M), K ⟧,
        ∀ v : nat,
-       ProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
+       BinProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
          (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ;; x =
        coconeIn ccK v, t = colimArrow HAiM K ccAiM_K,, is_cocone_morphism.
 Proof.
@@ -847,32 +850,32 @@ Proof.
     * rewrite <- (p j); unfold fun_lt.
       rewrite !assoc.
       apply cancel_postcomposition.
-      unfold colimIn; simpl; unfold product_functor_mor; simpl.
-      eapply pathscomp0; [apply ProductOfArrows_comp|].
+      unfold colimIn; simpl; unfold BinProduct_of_functors_mor; simpl.
+      eapply pathscomp0; [apply BinProductOfArrows_comp|].
       apply pathsinv0.
-      eapply pathscomp0; [apply ProductOfArrows_comp|].
+      eapply pathscomp0; [apply BinProductOfArrows_comp|].
       rewrite !id_left, id_right.
-      apply ProductOfArrows_eq; trivial.
+      apply BinProductOfArrows_eq; trivial.
       apply (maponpaths pr1 (chain_mor_commutes cAB LM ccLM i j h)).
     * destruct (natgehchoice i j h).
       { unfold fun_gt; rewrite <- (p i), !assoc.
         apply cancel_postcomposition.
-        unfold colimIn; simpl; unfold product_functor_mor; simpl.
-        eapply pathscomp0; [apply ProductOfArrows_comp|].
+        unfold colimIn; simpl; unfold BinProduct_of_functors_mor; simpl.
+        eapply pathscomp0; [apply BinProductOfArrows_comp|].
         apply pathsinv0.
-        eapply pathscomp0; [apply ProductOfArrows_comp|].
+        eapply pathscomp0; [apply BinProductOfArrows_comp|].
         now rewrite !id_left, id_right, <- (chain_mor_commutes cAB LM ccLM _ _ h0). }
       { destruct p0.
         rewrite <- (p i), assoc.
         apply cancel_postcomposition.
-        unfold colimIn; simpl; unfold product_functor_mor; simpl.
-        eapply pathscomp0; [apply ProductOfArrows_comp|].
+        unfold colimIn; simpl; unfold BinProduct_of_functors_mor; simpl.
+        eapply pathscomp0; [apply BinProductOfArrows_comp|].
         now rewrite id_left, id_right. }
 Qed.
 
-Definition isColimProductOfColims :  ∃! x : C ⟦ ProductObject C (PC L M), K ⟧,
+Definition isColimProductOfColims :  ∃! x : C ⟦ BinProductObject C (PC L M), K ⟧,
    ∀ v : nat,
-   ProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
+   BinProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
      (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ;; x =
    coconeIn ccK v.
 Proof.
@@ -894,37 +897,40 @@ Defined.
 
 End binprod_functor.
 
-Section product_of_functors.
+Section BinProduct_of_functors.
 
-Variables (C D : precategory) (PC : Products C) (PD : Products D) (hED : has_exponentials PD).
+Variables (C D : precategory) (PC : BinProducts C) (PD : BinProducts D) (hED : has_exponentials PD).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 
-Lemma is_omega_cocont_product_of_functors (F G : functor C D)
+Lemma is_omega_cocont_BinProduct_of_functors_alt (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (product_of_functors PD F G).
+  is_omega_cocont (BinProduct_of_functors_alt PD F G).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_delta_functor _ PC hsC).
+  apply (is_omega_cocont_bindelta_functor _ PC hsC).
 apply (is_omega_cocont_functor_composite hsD).
-  apply (is_omega_cocont_pair_functor _ _ _ _ _ _ hsC hsC hsD hsD HF HG).
+  apply (is_omega_cocont_binproduct_pair_functor _ _ _ _ _ _ hsC hsC hsD hsD HF HG).
 apply (is_omega_cocont_binproduct_functor _ _ hsD hED).
 Defined.
 
-Definition omega_cocont_product_of_functors (F G : omega_cocont_functor C D) :
-  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_product_of_functors _ _ (pr2 F) (pr2 G)).
+Definition omega_cocont_BinProduct_of_functors_alt (F G : omega_cocont_functor C D) :
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_BinProduct_of_functors_alt _ _ (pr2 F) (pr2 G)).
 
-Lemma is_omega_cocont_product_functor (F G : functor C D)
+Lemma is_omega_cocont_BinProduct_of_functors (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (product_functor _ _ PD F G).
+  is_omega_cocont (BinProduct_of_functors _ _ PD F G).
 Proof.
-exact (transportf _ (product_of_functors_eq_product_functor C D PD hsD F G)
-                  (is_omega_cocont_product_of_functors _ _ HF HG)).
+exact (transportf _
+        (BinProduct_of_functors_alt_eq_BinProduct_of_functors C D PD hsD F G)
+        (is_omega_cocont_BinProduct_of_functors_alt _ _ HF HG)).
 Defined.
 
-Definition omega_cocont_product_functor (F G : omega_cocont_functor C D) :
-  omega_cocont_functor C D := tpair _ _ (is_omega_cocont_product_functor _ _ (pr2 F) (pr2 G)).
+Definition omega_cocont_BinProduct_of_functors (F G : omega_cocont_functor C D) :
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_BinProduct_of_functors _ _ (pr2 F) (pr2 G)).
 
-End product_of_functors.
+End BinProduct_of_functors.
 
 (** Precomposition functor is cocontinuous *)
 Section pre_composition_functor.
@@ -1121,12 +1127,12 @@ Notation "'Id'" := (omega_cocont_functor_identity _ has_homsets_HSET) :
                      cocont_functor_hset_scope.
 
 Notation "F * G" :=
-  (omega_cocont_product_of_functors _ _ ProductsHSET _
+  (omega_cocont_BinProduct_of_functors_alt _ _ BinProductsHSET _
      has_exponentials_HSET has_homsets_HSET has_homsets_HSET F G) :
     cocont_functor_hset_scope.
 
 Notation "F + G" :=
-  (omega_cocont_coproduct_of_functors _ _ ProductsHSET CoproductsHSET
+  (omega_cocont_BinCoproduct_of_functors_alt _ _ BinProductsHSET BinCoproductsHSET
      has_homsets_HSET has_homsets_HSET F G) : cocont_functor_hset_scope.
 
 (* omega_cocont_coproduct_functor has worse computational behavior

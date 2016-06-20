@@ -24,18 +24,18 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.arbitrary_coproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.arbitrary_products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.covyoneda.
 
 Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
@@ -225,16 +225,16 @@ Proof.
 now intros g d; apply ColimCoconeHSET.
 Defined.
 
-(* Direct construction of Coproducts in HSET *)
-Lemma CoproductsHSET : Coproducts HSET.
+(* Direct construction of binary coproducts in HSET *)
+Lemma BinCoproductsHSET : BinCoproducts HSET.
 Proof.
 intros A B.
-simple refine (mk_CoproductCocone _ _ _ _ _ _ _).
+simple refine (mk_BinCoproductCocone _ _ _ _ _ _ _).
 - simpl in *; apply (tpair _ (coprod A B)).
   abstract (apply isasetcoprod; apply setproperty).
 - simpl in *; apply ii1.
 - simpl in *; intros x; apply (ii2 x).
-- apply (mk_isCoproductCocone _ has_homsets_HSET).
+- apply (mk_isBinCoproductCocone _ has_homsets_HSET).
   intros C f g; simpl in *.
   simple refine (tpair _ _ _).
   * apply (tpair _ (sumofmaps f g)); abstract (split; apply idpath).
@@ -246,15 +246,15 @@ simple refine (mk_CoproductCocone _ _ _ _ _ _ _).
                case x; intros; apply idpath]).
 Defined.
 
-Lemma ArbitraryCoproducts_HSET (I : UU) (HI : isaset I) : ArbitraryCoproducts I HSET.
+Lemma Coproducts_HSET (I : UU) (HI : isaset I) : Coproducts I HSET.
 Proof.
 intros A.
-simple refine (mk_ArbitraryCoproductCocone _ _ _ _ _ _).
+simple refine (mk_CoproductCocone _ _ _ _ _ _).
 - mkpair.
   + apply (Σ i, pr1 (A i)).
   + eapply (isaset_total2 _ HI); intro i; apply setproperty.
 - simpl; apply tpair.
-- apply (mk_isArbitraryCoproductCocone _ _ has_homsets_HSET).
+- apply (mk_isCoproductCocone _ _ has_homsets_HSET).
   intros C f; simpl in *.
   mkpair.
   * apply (tpair _ (fun X => f (pr1 X) (pr2 X))); abstract (intro i; apply idpath).
@@ -266,11 +266,11 @@ Defined.
 
 Section CoproductsHSET_from_Colims.
 
-Require UniMath.CategoryTheory.limits.graphs.coproducts.
+Require UniMath.CategoryTheory.limits.graphs.bincoproducts.
 
-Lemma CoproductsHSET_from_Colims : graphs.coproducts.Coproducts HSET.
+Lemma BinCoproductsHSET_from_Colims : graphs.bincoproducts.BinCoproducts HSET.
 Proof.
-exact (coproducts.Coproducts_from_Colims _ ColimsHSET).
+exact (bincoproducts.BinCoproducts_from_Colims _ ColimsHSET).
 Defined.
 
 End CoproductsHSET_from_Colims.
@@ -388,16 +388,16 @@ Defined.
 
 (** end of alternative def *)
 
-(* Direct construction of Products in HSET *)
-Lemma ProductsHSET : Products HSET.
+(* Direct construction of binary products in HSET *)
+Lemma BinProductsHSET : BinProducts HSET.
 Proof.
 intros A B.
-simple refine (mk_ProductCone _ _ _ _ _ _ _).
+simple refine (mk_BinProductCone _ _ _ _ _ _ _).
 - simpl in *; apply (tpair _ (dirprod A B)).
   abstract (apply isasetdirprod; apply setproperty).
 - simpl in *; apply pr1.
 - simpl in *; intros x; apply (pr2 x).
-- apply (mk_isProductCone _ has_homsets_HSET).
+- apply (mk_isBinProductCone _ has_homsets_HSET).
   intros C f g; simpl in *.
   simple refine (tpair _ _ _).
   * apply (tpair _ (prodtofuntoprod (f ,, g))); abstract (split; apply idpath).
@@ -408,13 +408,13 @@ simple refine (mk_ProductCone _ _ _ _ _ _ _).
                case (t x); intros; apply idpath]).
 Defined.
 
-Lemma ArbitraryProducts_HSET (I : UU) : ArbitraryProducts I HSET.
+Lemma Products_HSET (I : UU) : Products I HSET.
 Proof.
 intros A.
-simple refine (mk_ArbitraryProductCone _ _ _ _ _ _).
+simple refine (mk_ProductCone _ _ _ _ _ _).
 - apply (tpair _ (forall i, pr1 (A i))); apply isaset_forall_hSet.
 - simpl; intros i f; apply (f i).
-- apply (mk_isArbitraryProductCone _ _ has_homsets_HSET).
+- apply (mk_isProductCone _ _ has_homsets_HSET).
   intros C f; simpl in *.
   mkpair.
   * apply (tpair _ (fun c i => f i c)); intro i; apply idpath.
@@ -424,16 +424,16 @@ simple refine (mk_ArbitraryProductCone _ _ _ _ _ _).
          apply funextsec; intro i; rewrite <- ht; apply idpath ]).
 Defined.
 
-Section ProductsHSET_from_Lims.
+Section BinProductsHSET_from_Lims.
 
-Require UniMath.CategoryTheory.limits.graphs.products.
+Require UniMath.CategoryTheory.limits.graphs.binproducts.
 
-Lemma ProductsHSET_from_Lims : graphs.products.Products HSET.
+Lemma BinProductsHSET_from_Lims : graphs.binproducts.BinProducts HSET.
 Proof.
-exact (products.Products_from_Lims _ LimsHSET).
+exact (binproducts.BinProducts_from_Lims _ LimsHSET).
 Defined.
 
-End ProductsHSET_from_Lims.
+End BinProductsHSET_from_Lims.
 
 Lemma TerminalHSET : Terminal HSET.
 Proof.
@@ -483,7 +483,7 @@ Defined.
 
 (* This checks that if we use constprod_functor2 the flip is not necessary *)
 Lemma are_adjoints_constprod_functor2 A :
-  are_adjoints (constprod_functor2 ProductsHSET A) (exponential_functor A).
+  are_adjoints (constprod_functor2 BinProductsHSET A) (exponential_functor A).
 Proof.
 mkpair.
 - mkpair.
@@ -498,7 +498,7 @@ mkpair.
   | intro b; apply funextfun; intro f; apply idpath]).
 Defined.
 
-Lemma has_exponentials_HSET : has_exponentials ProductsHSET.
+Lemma has_exponentials_HSET : has_exponentials BinProductsHSET.
 Proof.
 intro a.
 apply (tpair _ (exponential_functor a)).
@@ -528,7 +528,7 @@ Section exponentials_functor_cat.
 
 Variable (C : precategory) (hsC : has_homsets C).
 
-Let CP := Products_functor_precat C _ ProductsHSET has_homsets_HSET.
+Let CP := BinProducts_functor_precat C _ BinProductsHSET has_homsets_HSET.
 Let cy := covyoneda _ hsC.
 
 (* Defined Q^P *)
@@ -538,10 +538,10 @@ mkpair.
 - mkpair.
   + intro c.
     use hSetpair.
-    * apply (nat_trans (product_functor C _ ProductsHSET (cy c) P) Q).
+    * apply (nat_trans (BinProduct_of_functors C _ BinProductsHSET (cy c) P) Q).
     * abstract (apply (isaset_nat_trans has_homsets_HSET)).
   + simpl; intros a b f alpha.
-    apply (ProductOfArrows _ (CP (cy a) P) (CP (cy b) P)
+    apply (BinProductOfArrows _ (CP (cy a) P) (CP (cy b) P)
                            (# cy f) (identity _) ;; alpha).
 - abstract (
     split;
@@ -558,7 +558,7 @@ mkpair.
 Defined.
 
 Local Definition eval (P Q : functor C HSET) :
- nat_trans (ProductObject _ (CP P (exponential_functor_cat P Q)) : functor _ _) Q.
+ nat_trans (BinProductObject _ (CP P (exponential_functor_cat P Q)) : functor _ _) Q.
 Proof.
 mkpair.
 - intros c ytheta; set (y := pr1 ytheta); set (theta := pr2 ytheta);

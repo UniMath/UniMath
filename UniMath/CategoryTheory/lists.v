@@ -11,14 +11,14 @@ Require Import UniMath.CategoryTheory.category_hset.
 Require Import UniMath.CategoryTheory.category_hset_structures.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
-Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.chains.
 Require Import UniMath.CategoryTheory.cocontfunctors.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -52,12 +52,12 @@ Let List_alg : algebra_ob listFunctor :=
   InitialObject listFunctor_Initial.
 
 Definition nil_map : HSET⟦unitHSET,List⟧ :=
-  CoproductIn1 HSET _ ;; List_mor.
+  BinCoproductIn1 HSET _ ;; List_mor.
 
 Definition nil : pr1 List := nil_map tt.
 
 Definition cons_map : HSET⟦(A × List)%set,List⟧ :=
-  CoproductIn2 HSET _ ;; List_mor.
+  BinCoproductIn2 HSET _ ;; List_mor.
 
 Definition cons : pr1 A × pr1 List -> pr1 List := cons_map.
 
@@ -89,7 +89,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A × X -> X) : foldr X x f nil = x.
 Proof.
-assert (F := maponpaths (fun x => CoproductIn1 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ _ ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -98,7 +98,7 @@ Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
                  (a : pr1 A) (l : pr1 List) :
   foldr X x f (cons (a,,l)) = f (a,,foldr X x f l).
 Proof.
-assert (F := maponpaths (fun x => CoproductIn2 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn2 _ _ ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l)).
 clear F.
@@ -133,7 +133,7 @@ Opaque is_omega_cocont_listFunctor.
 Lemma isalghom_pr1foldr :
   is_algebra_mor _ List_alg List_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
-apply CoproductArrow_eq_cor.
+apply BinCoproductArrow_eq_cor.
 - apply funextfun; intro x; destruct x; apply idpath.
 - apply funextfun; intro x; destruct x as [a l].
   apply (maponpaths pr1 (foldr_cons P'HSET P0' Pc' a l)).
@@ -386,7 +386,7 @@ Section constprod_functor.
 Variables (x : HSET).
 
 Definition constprod_functor : functor HSET HSET :=
-  product_functor HSET HSET ProductsHSET (constant_functor HSET HSET x)
+  BinProduct_of_functors HSET HSET BinProductsHSET (constant_functor HSET HSET x)
                                          (functor_identity HSET).
 
 Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
@@ -435,47 +435,47 @@ End constprod_functor.
    Assumes that the category has coproducts *)
 Section constcoprod_functor.
 
-Variables (C : precategory) (hsC : has_homsets C) (x : C) (PC : Coproducts C).
+Variables (C : precategory) (hsC : has_homsets C) (x : C) (PC : BinCoproducts C).
 
 Definition constcoprod_functor : functor C C :=
-  coproduct_functor C C PC (constant_functor C C x) (functor_identity C).
+  BinCoproduct_of_functors C C PC (constant_functor C C x) (functor_identity C).
 
 Lemma omega_cocontConstCoprodFunctor : is_omega_cocont constcoprod_functor.
 Proof.
 intros hF c L ccL HcL cc.
 simple refine (tpair _ _ _).
 - simple refine (tpair _ _ _).
-  + eapply CoproductArrow.
-    * exact (CoproductIn1 _ (PC x (dob hF 0)) ;; pr1 cc 0).
+  + eapply BinCoproductArrow.
+    * exact (BinCoproductIn1 _ (PC x (dob hF 0)) ;; pr1 cc 0).
     * simple refine (let ccHcL : cocone hF HcL := _ in _).
       { simple refine (mk_cocone _ _).
-        - intros n; exact (CoproductIn2 _ (PC x (dob hF n)) ;; pr1 cc n).
+        - intros n; exact (BinCoproductIn2 _ (PC x (dob hF n)) ;; pr1 cc n).
         - abstract (
             intros m n e; destruct e; simpl;
-            destruct cc as [f hf]; simpl in *; unfold coproduct_functor_ob in *;
+            destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
             rewrite <- (hf m _ (idpath _)), !assoc; apply cancel_postcomposition;
-            now unfold coproduct_functor_mor; rewrite CoproductOfArrowsIn2). }
+            now unfold BinCoproduct_of_functors_mor; rewrite BinCoproductOfArrowsIn2). }
       apply (pr1 (pr1 (ccL HcL ccHcL))).
   + abstract (
-    destruct cc as [f hf]; simpl in *; unfold coproduct_functor_ob in *;
-    simpl; intro n; unfold coproduct_functor_mor in *;
-    rewrite precompWithCoproductArrow; apply pathsinv0, CoproductArrowUnique;
+    destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
+    simpl; intro n; unfold BinCoproduct_of_functors_mor in *;
+    rewrite precompWithBinCoproductArrow; apply pathsinv0, BinCoproductArrowUnique;
     [ rewrite id_left; induction n; [apply idpath|];
       now rewrite <- IHn, <- (hf n _ (idpath _)), assoc,
-                  CoproductOfArrowsIn1, id_left
+                  BinCoproductOfArrowsIn1, id_left
     | rewrite <- (hf n _ (idpath _)); destruct ccL; destruct t; simpl in *;
       rewrite p0; apply maponpaths, hf]).
 - abstract (
-  destruct cc as [f hf]; simpl in *; unfold coproduct_functor_ob in *;
+  destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
   intro t; apply subtypeEquality; simpl;
   [ intro g; apply impred; intro; apply hsC
-  | destruct t; destruct ccL; unfold coproduct_functor_mor in *; destruct t0; simpl;
-    apply CoproductArrowUnique;
-    [ now rewrite <- (p 0), assoc, CoproductOfArrowsIn1, id_left
+  | destruct t; destruct ccL; unfold BinCoproduct_of_functors_mor in *; destruct t0; simpl;
+    apply BinCoproductArrowUnique;
+    [ now rewrite <- (p 0), assoc, BinCoproductOfArrowsIn1, id_left
     | simple refine (let temp : Σ x0 : C ⟦ c, HcL ⟧, ∀ v : nat,
-         coconeIn L v ;; x0 = CoproductIn2 C (PC x (dob hF v)) ;; f v := _ in _);
-         [ apply (tpair _ (CoproductIn2 C (PC x c) ;; t));
-          now intro n; rewrite <- (p n), !assoc, CoproductOfArrowsIn2|];
+         coconeIn L v ;; x0 = BinCoproductIn2 C (PC x (dob hF v)) ;; f v := _ in _);
+         [ apply (tpair _ (BinCoproductIn2 C (PC x c) ;; t));
+          now intro n; rewrite <- (p n), !assoc, BinCoproductOfArrowsIn2|];
       apply (maponpaths pr1 (p0 temp))]]).
 Defined.
 
@@ -487,11 +487,11 @@ Section lists.
 Variable A : HSET.
 
 (* F(X) = A * X *)
-Definition stream : functor HSET HSET := constprod_functor1 ProductsHSET A.
+Definition stream : functor HSET HSET := constprod_functor1 BinProductsHSET A.
 
 (* F(X) = 1 + (A * X) *)
 Definition listFunctor : functor HSET HSET :=
-  functor_composite stream (constcoprod_functor _ unitHSET CoproductsHSET).
+  functor_composite stream (constcoprod_functor _ unitHSET BinCoproductsHSET).
 
 Lemma omega_cocont_listFunctor : is_omega_cocont listFunctor.
 Proof.
@@ -562,7 +562,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A × X -> X) : foldr X x f nil = x.
 Proof.
-assert (F := maponpaths (fun x => CoproductIn1 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn1 _ _ ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -571,7 +571,7 @@ Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
                  (a : pr1 A) (l : pr1 List) :
   foldr X x f (cons (a,,l)) = f (a,,foldr X x f l).
 Proof.
-assert (F := maponpaths (fun x => CoproductIn2 _ _ ;; x)
+assert (F := maponpaths (fun x => BinCoproductIn2 _ _ ;; x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 assert (Fal := toforallpaths _ _ _ F (a,,l)).
 clear F.
@@ -604,7 +604,7 @@ Defined.
 Lemma isalghom_pr1foldr :
   is_algebra_mor _ List_alg List_alg (fun l => pr1 (foldr P'HSET P0' Pc' l)).
 Proof.
-apply CoproductArrow_eq_cor.
+apply BinCoproductArrow_eq_cor.
 - apply funextfun; intro x; destruct x; apply idpath.
 - apply funextfun; intro x; destruct x as [a l].
   apply (maponpaths pr1 (foldr_cons P'HSET P0' Pc' a l)).

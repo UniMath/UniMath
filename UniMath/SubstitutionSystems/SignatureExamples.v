@@ -13,8 +13,8 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
@@ -252,18 +252,18 @@ End δ_mul.
 (* Construct the δ when G = option *)
 Section option_sig.
 
-Variables (C : precategory) (hsC : has_homsets C) (TC : Terminal C) (CC : Coproducts C).
+Variables (C : precategory) (hsC : has_homsets C) (TC : Terminal C) (CC : BinCoproducts C).
 
 Local Notation "'Ptd'" := (precategory_Ptd C hsC).
 
 Let opt := option_functor C CC TC.
 
-Definition δ_option_mor (Ze : Ptd) (c : C) :  C ⟦ CoproductObject C (CC TC (pr1 Ze c)),
-                                                  pr1 Ze (CoproductObject C (CC TC c)) ⟧.
+Definition δ_option_mor (Ze : Ptd) (c : C) :  C ⟦ BinCoproductObject C (CC TC (pr1 Ze c)),
+                                                  pr1 Ze (BinCoproductObject C (CC TC c)) ⟧.
 Proof.
-apply (@CoproductArrow _ _ _ (CC TC (pr1 Ze c)) (pr1 Ze (CoproductObject C (CC TC c)))).
-- apply (CoproductIn1 _ (CC TC c) ;; pr2 Ze (CoproductObject _ (CC TC c))).
-- apply (# (pr1 Ze) (CoproductIn2 _ (CC TC c))).
+apply (@BinCoproductArrow _ _ _ (CC TC (pr1 Ze c)) (pr1 Ze (BinCoproductObject C (CC TC c)))).
+- apply (BinCoproductIn1 _ (CC TC c) ;; pr2 Ze (BinCoproductObject _ (CC TC c))).
+- apply (# (pr1 Ze) (BinCoproductIn2 _ (CC TC c))).
 Defined.
 
 Lemma is_nat_trans_δ_option_mor (Ze : Ptd) :
@@ -272,27 +272,27 @@ Lemma is_nat_trans_δ_option_mor (Ze : Ptd) :
 Proof.
 intros a b f; simpl.
 destruct Ze as [Z e].
-unfold coproduct_functor_mor; simpl.
+unfold BinCoproduct_of_functors_mor; simpl.
 eapply pathscomp0.
-  apply precompWithCoproductArrow.
+  apply precompWithBinCoproductArrow.
 rewrite id_left.
-apply pathsinv0, CoproductArrowUnique.
+apply pathsinv0, BinCoproductArrowUnique.
 - eapply pathscomp0.
     rewrite assoc.
-    eapply cancel_postcomposition, CoproductIn1Commutes.
+    eapply cancel_postcomposition, BinCoproductIn1Commutes.
   rewrite <- assoc.
   eapply pathscomp0.
     eapply maponpaths, pathsinv0, (nat_trans_ax e).
   simpl; rewrite assoc.
   apply cancel_postcomposition.
   eapply pathscomp0.
-    apply CoproductOfArrowsIn1.
+    apply BinCoproductOfArrowsIn1.
   now rewrite id_left.
 - rewrite assoc.
   eapply pathscomp0.
-    eapply cancel_postcomposition, CoproductIn2Commutes.
+    eapply cancel_postcomposition, BinCoproductIn2Commutes.
   rewrite <- !functor_comp.
-  now apply maponpaths, CoproductOfArrowsIn2.
+  now apply maponpaths, BinCoproductOfArrowsIn2.
 Qed.
 
 Lemma is_nat_trans_δ_option_mor_nat_trans : is_nat_trans (δ_source_functor_data C hsC opt)
@@ -302,17 +302,17 @@ Proof.
 intros [Z e] [Z' e'] [α X]; simpl in *.
 apply (nat_trans_eq hsC); intro c; simpl.
 rewrite id_left, functor_id, id_right.
-unfold coproduct_functor_mor, coproduct_functor_ob, δ_option_mor; simpl.
-rewrite precompWithCoproductArrow.
-apply pathsinv0, CoproductArrowUnique.
+unfold BinCoproduct_of_functors_mor, BinCoproduct_of_functors_ob, δ_option_mor; simpl.
+rewrite precompWithBinCoproductArrow.
+apply pathsinv0, BinCoproductArrowUnique.
 - rewrite id_left, assoc.
   eapply pathscomp0.
-    eapply cancel_postcomposition, CoproductIn1Commutes.
+    eapply cancel_postcomposition, BinCoproductIn1Commutes.
   rewrite <- assoc.
   now apply maponpaths, X.
 - rewrite assoc.
   eapply pathscomp0.
-    eapply cancel_postcomposition, CoproductIn2Commutes.
+    eapply cancel_postcomposition, BinCoproductIn2Commutes.
   now apply nat_trans_ax.
 Qed.
 
@@ -327,37 +327,37 @@ Defined.
 Lemma δ_law1_option : δ_law1 C hsC opt δ_option.
 Proof.
 apply (nat_trans_eq hsC); intro c; simpl.
-unfold δ_option_mor, coproduct_functor_ob; simpl.
+unfold δ_option_mor, BinCoproduct_of_functors_ob; simpl.
 rewrite id_right.
-apply pathsinv0, Coproduct_endo_is_identity.
-- apply CoproductIn1Commutes.
-- apply CoproductIn2Commutes.
+apply pathsinv0, BinCoproduct_endo_is_identity.
+- apply BinCoproductIn1Commutes.
+- apply BinCoproductIn2Commutes.
 Qed.
 
 Lemma δ_law2_option : δ_law2 C hsC opt δ_option.
 Proof.
 intros [Z e] [Z' e'].
 apply (nat_trans_eq hsC); intro c; simpl.
-unfold δ_option_mor, coproduct_functor_ob; simpl.
+unfold δ_option_mor, BinCoproduct_of_functors_ob; simpl.
 rewrite !id_left, id_right.
-apply pathsinv0, CoproductArrowUnique.
+apply pathsinv0, BinCoproductArrowUnique.
 - rewrite assoc.
   eapply pathscomp0.
-    eapply cancel_postcomposition, CoproductIn1Commutes.
+    eapply cancel_postcomposition, BinCoproductIn1Commutes.
   rewrite <- assoc.
   eapply pathscomp0.
     eapply maponpaths, pathsinv0, (nat_trans_ax e').
   simpl; rewrite assoc.
   eapply pathscomp0.
-    eapply cancel_postcomposition, CoproductIn1Commutes.
+    eapply cancel_postcomposition, BinCoproductIn1Commutes.
   rewrite <- !assoc.
   now apply maponpaths, (nat_trans_ax e').
 - rewrite assoc.
   eapply pathscomp0.
-    eapply cancel_postcomposition, CoproductIn2Commutes.
+    eapply cancel_postcomposition, BinCoproductIn2Commutes.
   eapply pathscomp0.
     eapply pathsinv0, functor_comp.
-  now apply maponpaths, CoproductIn2Commutes.
+  now apply maponpaths, BinCoproductIn2Commutes.
 Qed.
 
 Definition precomp_option_Signature : Signature C hsC :=
