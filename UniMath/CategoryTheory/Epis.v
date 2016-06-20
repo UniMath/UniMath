@@ -43,7 +43,7 @@ Section def_epi.
   Proof. apply (iso_isEpi (identity x) (identity_is_iso _ x)). Defined.
 
   Lemma identity_Epi {x : C} : Epi x x.
-  Proof. exact (tpair _ (identity x) (id_isEpi)). Defined.
+  Proof. exact (tpair _ (identity x) (identity_isEpi)). Defined.
 
   (** Composition of isEpis and Epis. *)
   Definition isEpi_comp {x y z : C} (f : x --> y) (g : y --> z) :
