@@ -45,32 +45,32 @@ Variable C D : precategory.
 Variable HD : BinProducts D.
 Variable hsD : has_homsets D.
 
-Section binproduct_of_functors.
+Section BinProduct_of_functors.
 
 Variables F G : functor C D.
 
 
 Local Notation "c ⊗ d" := (BinProductObject _ (HD c d))(at level 45).
 
-Definition binproduct_of_functors_ob (c : C) : D := F c ⊗ G c.
+Definition BinProduct_of_functors_ob (c : C) : D := F c ⊗ G c.
 
-Definition binproduct_of_functors_mor (c c' : C) (f : c --> c')
-  : binproduct_of_functors_ob c --> binproduct_of_functors_ob c'
+Definition BinProduct_of_functors_mor (c c' : C) (f : c --> c')
+  : BinProduct_of_functors_ob c --> BinProduct_of_functors_ob c'
   := BinProductOfArrows _ _ _ (#F f) (#G f).
 
-Definition binproduct_of_functors_data : functor_data C D.
+Definition BinProduct_of_functors_data : functor_data C D.
 Proof.
-  exists binproduct_of_functors_ob.
-  exact binproduct_of_functors_mor.
+  exists BinProduct_of_functors_ob.
+  exact BinProduct_of_functors_mor.
 Defined.
 
 
-Lemma is_functor_binproduct_of_functors_data : is_functor binproduct_of_functors_data.
+Lemma is_functor_BinProduct_of_functors_data : is_functor BinProduct_of_functors_data.
 Proof.
   split; simpl; intros.
   - red; intros; simpl in *.
     apply pathsinv0.
-    unfold binproduct_of_functors_mor.
+    unfold BinProduct_of_functors_mor.
     apply BinProduct_endo_is_identity.
     + rewrite BinProductOfArrowsPr1.
       rewrite functor_id.
@@ -79,22 +79,22 @@ Proof.
       rewrite functor_id.
       apply id_right.
   - red; intros; simpl in *.
-    unfold binproduct_of_functors_mor.
+    unfold BinProduct_of_functors_mor.
     do 2 rewrite functor_comp.
     apply pathsinv0.
     apply BinProductOfArrows_comp.
 Qed.
 
-Definition binproduct_of_functors : functor C D :=
-  tpair _ _ is_functor_binproduct_of_functors_data.
+Definition BinProduct_of_functors : functor C D :=
+  tpair _ _ is_functor_BinProduct_of_functors_data.
 
-Lemma binproduct_of_functors_alt_eq_binproduct_of_functors :
-  binproduct_of_functors_alt HD F G = binproduct_of_functors.
+Lemma BinProduct_of_functors_alt_eq_BinProduct_of_functors :
+  BinProduct_of_functors_alt HD F G = BinProduct_of_functors.
 Proof.
 now apply (functor_eq _ _ hsD).
 Defined.
 
-Definition binproduct_nat_trans_pr1_data : ∀ c, binproduct_of_functors c --> F c
+Definition binproduct_nat_trans_pr1_data : ∀ c, BinProduct_of_functors c --> F c
   := λ c : C, BinProductPr1 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_binproduct_nat_trans_pr1_data
@@ -103,8 +103,8 @@ Proof.
   red.
   intros c c' f.
   unfold binproduct_nat_trans_pr1_data.
-  unfold binproduct_of_functors. simpl.
-  unfold binproduct_of_functors_mor.
+  unfold BinProduct_of_functors. simpl.
+  unfold BinProduct_of_functors_mor.
   apply BinProductOfArrowsPr1.
 Qed.
 
@@ -112,7 +112,7 @@ Definition binproduct_nat_trans_pr1 : nat_trans _ _
   := tpair _ _ is_nat_trans_binproduct_nat_trans_pr1_data.
 
 
-Definition binproduct_nat_trans_pr2_data : ∀ c, binproduct_of_functors c --> G c
+Definition binproduct_nat_trans_pr2_data : ∀ c, BinProduct_of_functors c --> G c
   := λ c : C, BinProductPr2 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_binproduct_nat_trans_pr2_data
@@ -121,8 +121,8 @@ Proof.
   red.
   intros c c' f.
   unfold binproduct_nat_trans_pr2_data.
-  unfold binproduct_of_functors. simpl.
-  unfold binproduct_of_functors_mor.
+  unfold BinProduct_of_functors. simpl.
+  unfold BinProduct_of_functors_mor.
   apply BinProductOfArrowsPr2.
 Qed.
 
@@ -138,7 +138,7 @@ Variable A : functor C D.
 Variable f : A ⟶ F.
 Variable g : A ⟶ G.
 
-Definition binproduct_nat_trans_data : ∀ c,  A c --> binproduct_of_functors c.
+Definition binproduct_nat_trans_data : ∀ c,  A c --> BinProduct_of_functors c.
 Proof.
   intro c.
   apply BinProductArrow.
@@ -150,7 +150,7 @@ Lemma is_nat_trans_binproduct_nat_trans_data : is_nat_trans _ _ binproduct_nat_t
 Proof.
   intros a b k.
   simpl.
-  unfold binproduct_of_functors_mor.
+  unfold BinProduct_of_functors_mor.
   unfold binproduct_nat_trans_data.
   set (XX:=postcompWithBinProductArrow).
   set (X1 := XX D _ _ (HD (F b) (G b))).
@@ -191,16 +191,16 @@ End vertex.
 Lemma binproduct_nat_trans_univ_prop (A : [C, D, hsD])
   (f : (A --> (F:[C,D,hsD]))) (g : A --> (G:[C,D,hsD])) :
    ∀
-   t : Σ fg : A --> (binproduct_of_functors:[C,D,hsD]),
-       fg ;; (binproduct_nat_trans_pr1 : (binproduct_of_functors:[C,D,hsD]) --> F) = f
+   t : Σ fg : A --> (BinProduct_of_functors:[C,D,hsD]),
+       fg ;; (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D,hsD]) --> F) = f
       ×
-       fg ;; (binproduct_nat_trans_pr2 : (binproduct_of_functors:[C,D,hsD]) --> G) = g,
+       fg ;; (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D,hsD]) --> G) = g,
    t =
    tpair
-     (λ fg : A --> (binproduct_of_functors:[C,D,hsD]),
-      fg ;; (binproduct_nat_trans_pr1 : (binproduct_of_functors:[C,D,hsD]) --> F) = f
+     (λ fg : A --> (BinProduct_of_functors:[C,D,hsD]),
+      fg ;; (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D,hsD]) --> F) = f
    ×
-      fg ;; (binproduct_nat_trans_pr2 : (binproduct_of_functors:[C,D,hsD]) --> G) = g)
+      fg ;; (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D,hsD]) --> G) = g)
      (binproduct_nat_trans A f g)
      (dirprodpair (binproduct_nat_trans_Pr1Commutes A f g)
         (binproduct_nat_trans_Pr2Commutes A f g)).
@@ -231,7 +231,7 @@ Definition functor_precat_binproduct_cone
   : BinProductCone [C, D, hsD] F G.
 Proof.
 simple refine (mk_BinProductCone _ _ _ _ _ _ _).
-- apply binproduct_of_functors.
+- apply BinProduct_of_functors.
 - apply binproduct_nat_trans_pr1.
 - apply binproduct_nat_trans_pr2.
 - simple refine (mk_isBinProductCone _ _ _ _ _ _ _ _).
@@ -244,7 +244,7 @@ simple refine (mk_BinProductCone _ _ _ _ _ _ _).
     apply binproduct_nat_trans_univ_prop.
 Defined.
 
-End binproduct_of_functors.
+End BinProduct_of_functors.
 
 Definition BinProducts_functor_precat : BinProducts [C, D, hsD].
 Proof.

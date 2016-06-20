@@ -68,7 +68,7 @@ Let θ_strength2_int := Sig_strength_law2 _ _ H.
 
 Let Id_H
 : functor EndC EndC
-  := bincoproduct_of_functors _ _ CPEndC
+  := BinCoproduct_of_functors _ _ CPEndC
                        (constant_functor _ _ (functor_identity _ : EndC))
                        H.
 

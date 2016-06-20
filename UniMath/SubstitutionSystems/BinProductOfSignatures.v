@@ -62,13 +62,13 @@ Variable S22 : θ_Strength2 θ2.
 (** * Definition of the data of the product of two signatures *)
 
 Definition H : functor [C, C, hsC] [C, C, hsC] :=
-  binproduct_of_functors _ _ CCC H1 H2.
+  BinProduct_of_functors _ _ CCC H1 H2.
 
 Local Definition bla1 (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
    ∀ c : C,
     (functor_composite_data (pr1 Z)
-     (binproduct_of_functors_data C C PC (H1 X) (H2 X))) c
-   --> (binproduct_of_functors_data C C PC (H1 (functor_composite (pr1 Z) X))
+     (BinProduct_of_functors_data C C PC (H1 X) (H2 X))) c
+   --> (BinProduct_of_functors_data C C PC (H1 (functor_composite (pr1 Z) X))
        (H2 (functor_composite (pr1 Z) X))) c.
 Proof.
   intro c.
@@ -80,13 +80,13 @@ Defined.
 Local Lemma bar (X : [C, C, hsC]) (Z : precategory_Ptd C hsC):
    is_nat_trans
      (functor_composite_data (pr1 Z)
-        (binproduct_of_functors_data C C PC (H1 X) (H2 X)))
-     (binproduct_of_functors_data C C PC (H1 (functor_composite (pr1 Z) X))
+        (BinProduct_of_functors_data C C PC (H1 X) (H2 X)))
+     (BinProduct_of_functors_data C C PC (H1 (functor_composite (pr1 Z) X))
         (H2 (functor_composite (pr1 Z) X))) (bla1 X Z).
 Proof.
   intros x x' f; simpl.
   unfold bla1; simpl.
-  unfold binproduct_of_functors_mor.
+  unfold BinProduct_of_functors_mor.
   eapply pathscomp0; [ apply BinProductOfArrows_comp | ].
   eapply pathscomp0; [ | eapply pathsinv0; apply BinProductOfArrows_comp].
   apply BinProductOfArrows_eq.
@@ -96,8 +96,8 @@ Qed.
 
 Local Definition bla (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
    functor_composite_data (pr1 Z)
-     (binproduct_of_functors_data C C PC (H1 X) (H2 X))
-   ⟶ binproduct_of_functors_data C C PC (H1 (functor_composite (pr1 Z) X))
+     (BinProduct_of_functors_data C C PC (H1 X) (H2 X))
+   ⟶ BinProduct_of_functors_data C C PC (H1 (functor_composite (pr1 Z) X))
        (H2 (functor_composite (pr1 Z) X)).
 Proof.
   exists (bla1 X Z).
@@ -128,7 +128,7 @@ Proof.
     destruct αβ as [α β]. simpl in *.
     unfold binproduct_nat_trans_data;
     unfold bla1; simpl.
-    unfold binproduct_of_functors_mor.
+    unfold BinProduct_of_functors_mor.
     unfold binproduct_nat_trans_pr2_data.
     unfold binproduct_nat_trans_pr1_data.
     eapply pathscomp0; [ | eapply pathsinv0; apply BinProductOfArrows_comp].
@@ -283,7 +283,7 @@ Proof.
 destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
 destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
 unfold H.
-apply is_omega_cocont_binproduct_of_functors; try assumption.
+apply is_omega_cocont_BinProduct_of_functors; try assumption.
 - apply (BinProducts_functor_precat _ _ PC).
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.

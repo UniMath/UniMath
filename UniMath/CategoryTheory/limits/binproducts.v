@@ -313,7 +313,7 @@ End binproduct_functor.
   For a direct definition see FunctorsPointwiseBinProduct.v
 
 *)
-Definition binproduct_of_functors_alt {C D : precategory} (HD : BinProducts D)
+Definition BinProduct_of_functors_alt {C D : precategory} (HD : BinProducts D)
   (F G : functor C D) : functor C D :=
   functor_composite (bindelta_functor C)
      (functor_composite (binproduct_pair_functor F G) (binproduct_functor HD)).

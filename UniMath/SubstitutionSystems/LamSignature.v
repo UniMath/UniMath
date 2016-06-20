@@ -52,7 +52,7 @@ Variable hs : has_homsets C.
 Variable CP : BinProducts C.
 Variable CC : BinCoproducts C.
 
-Definition square_functor := binproduct_of_functors C C CP (functor_identity C) (functor_identity C).
+Definition square_functor := BinProduct_of_functors C C CP (functor_identity C) (functor_identity C).
 
 End Preparations.
 
@@ -89,7 +89,7 @@ Lemma is_omega_cocont_App_H (hE : has_exponentials (BinProducts_functor_precat C
   is_omega_cocont App_H.
 Proof.
 unfold App_H, square_functor.
-apply is_omega_cocont_binproduct_of_functors.
+apply is_omega_cocont_BinProduct_of_functors.
 - apply (BinProducts_functor_precat _ _ CP).
 - apply hE.
 - apply functor_category_has_homsets.
@@ -251,7 +251,7 @@ Proof.
   simpl.
   rewrite id_left.
   rewrite id_right.
-  unfold binproduct_nat_trans_data, binproduct_of_functors_mor.
+  unfold binproduct_nat_trans_data, BinProduct_of_functors_mor.
   unfold BinProductOfArrows.
   eapply pathscomp0.
   apply precompWithBinProductArrow.
@@ -337,7 +337,7 @@ Proof.
   simpl.
   intro A.
   apply (functor_on_morphisms (functor_data_from_functor _ _ (pr1 XZ))).
-  unfold bincoproduct_of_functors_ob.
+  unfold BinCoproduct_of_functors_ob.
   unfold constant_functor.
   simpl.
 (*
@@ -360,7 +360,7 @@ Proof.
   rewrite <- functor_comp.
   rewrite <- functor_comp.
   apply maponpaths.
-  unfold bincoproduct_of_functors_mor.
+  unfold BinCoproduct_of_functors_mor.
   eapply pathscomp0.
   apply precompWithBinCoproductArrow.
   eapply pathscomp0.
@@ -455,7 +455,7 @@ Proof.
   simpl.
   simpl in *.
   unfold constant_functor.
-  unfold bincoproduct_of_functors_ob.
+  unfold BinCoproduct_of_functors_ob.
   simpl.
   rewrite assoc.
   unfold Abs_θ_data_data. simpl.
@@ -464,7 +464,7 @@ Proof.
   apply maponpaths.
   do 2 rewrite <- functor_comp.
   apply maponpaths.
-  unfold bincoproduct_of_functors_mor, constant_functor_data.
+  unfold BinCoproduct_of_functors_mor, constant_functor_data.
   simpl.
   eapply pathscomp0. apply precompWithBinCoproductArrow.
 (*  rewrite precompWithBinCoproductArrow. *)
@@ -675,7 +675,7 @@ Definition Lam_Sig: Signature C hs :=
 Lemma is_omega_cocont_Lam (hE : has_exponentials (BinProducts_functor_precat C C CP hs)) (LC : Lims C) :
   is_omega_cocont (Signature_Functor _ _ Lam_Sig).
 Proof.
-apply is_omega_cocont_bincoproduct_of_functors.
+apply is_omega_cocont_BinCoproduct_of_functors.
 - apply (BinProducts_functor_precat _ _ CP).
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.

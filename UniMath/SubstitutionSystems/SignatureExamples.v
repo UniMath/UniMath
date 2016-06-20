@@ -272,7 +272,7 @@ Lemma is_nat_trans_δ_option_mor (Ze : Ptd) :
 Proof.
 intros a b f; simpl.
 destruct Ze as [Z e].
-unfold bincoproduct_of_functors_mor; simpl.
+unfold BinCoproduct_of_functors_mor; simpl.
 eapply pathscomp0.
   apply precompWithBinCoproductArrow.
 rewrite id_left.
@@ -302,7 +302,7 @@ Proof.
 intros [Z e] [Z' e'] [α X]; simpl in *.
 apply (nat_trans_eq hsC); intro c; simpl.
 rewrite id_left, functor_id, id_right.
-unfold bincoproduct_of_functors_mor, bincoproduct_of_functors_ob, δ_option_mor; simpl.
+unfold BinCoproduct_of_functors_mor, BinCoproduct_of_functors_ob, δ_option_mor; simpl.
 rewrite precompWithBinCoproductArrow.
 apply pathsinv0, BinCoproductArrowUnique.
 - rewrite id_left, assoc.
@@ -327,7 +327,7 @@ Defined.
 Lemma δ_law1_option : δ_law1 C hsC opt δ_option.
 Proof.
 apply (nat_trans_eq hsC); intro c; simpl.
-unfold δ_option_mor, bincoproduct_of_functors_ob; simpl.
+unfold δ_option_mor, BinCoproduct_of_functors_ob; simpl.
 rewrite id_right.
 apply pathsinv0, BinCoproduct_endo_is_identity.
 - apply BinCoproductIn1Commutes.
@@ -338,7 +338,7 @@ Lemma δ_law2_option : δ_law2 C hsC opt δ_option.
 Proof.
 intros [Z e] [Z' e'].
 apply (nat_trans_eq hsC); intro c; simpl.
-unfold δ_option_mor, bincoproduct_of_functors_ob; simpl.
+unfold δ_option_mor, BinCoproduct_of_functors_ob; simpl.
 rewrite !id_left, id_right.
 apply pathsinv0, BinCoproductArrowUnique.
 - rewrite assoc.

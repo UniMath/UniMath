@@ -44,41 +44,41 @@ Variable C D : precategory.
 Variable HD : BinCoproducts D.
 Variable hsD : has_homsets D.
 
-Section bincoproduct_of_functors.
+Section BinCoproduct_of_functors.
 
 Variables F G : functor C D.
 
 Local Notation "c ⊗ d" := (BinCoproductObject _ (HD c d))(at level 45).
 
-Definition bincoproduct_of_functors_ob (c : C) : D := F c ⊗ G c.
+Definition BinCoproduct_of_functors_ob (c : C) : D := F c ⊗ G c.
 
-Definition bincoproduct_of_functors_mor (c c' : C) (f : c --> c')
-  : bincoproduct_of_functors_ob c --> bincoproduct_of_functors_ob c'
+Definition BinCoproduct_of_functors_mor (c c' : C) (f : c --> c')
+  : BinCoproduct_of_functors_ob c --> BinCoproduct_of_functors_ob c'
   := BinCoproductOfArrows _ _ _ (#F f) (#G f).
 
-Definition bincoproduct_of_functors_data : functor_data C D.
+Definition BinCoproduct_of_functors_data : functor_data C D.
 Proof.
-  exists bincoproduct_of_functors_ob.
-  exact bincoproduct_of_functors_mor.
+  exists BinCoproduct_of_functors_ob.
+  exact BinCoproduct_of_functors_mor.
 Defined.
 
-Lemma is_functor_bincoproduct_of_functors_data : is_functor bincoproduct_of_functors_data.
+Lemma is_functor_BinCoproduct_of_functors_data : is_functor BinCoproduct_of_functors_data.
 Proof.
   split; simpl; intros.
   - unfold functor_idax; intros; simpl in *.
     apply pathsinv0.
     apply BinCoproduct_endo_is_identity.
-    + unfold bincoproduct_of_functors_mor.
+    + unfold BinCoproduct_of_functors_mor.
       rewrite BinCoproductOfArrowsIn1.
       rewrite functor_id.
       apply id_left.
-    + unfold bincoproduct_of_functors_mor.
+    + unfold BinCoproduct_of_functors_mor.
       rewrite BinCoproductOfArrowsIn2.
       rewrite functor_id.
       apply id_left.
-  - unfold functor_compax, bincoproduct_of_functors_mor;
+  - unfold functor_compax, BinCoproduct_of_functors_mor;
     intros; simpl in *.
-    unfold bincoproduct_of_functors_mor.
+    unfold BinCoproduct_of_functors_mor.
     do 2 rewrite functor_comp.
     rewrite <- BinCoproductOfArrows_comp.
     apply idpath.
@@ -105,16 +105,16 @@ Proof.
 *)
 Qed.
 
-Definition bincoproduct_of_functors : functor C D :=
-  tpair _ _ is_functor_bincoproduct_of_functors_data.
+Definition BinCoproduct_of_functors : functor C D :=
+  tpair _ _ is_functor_BinCoproduct_of_functors_data.
 
-Lemma bincoproduct_of_functors_alt_eq_bincoproduct_of_functors :
-  bincoproduct_of_functors_alt HD F G = bincoproduct_of_functors.
+Lemma BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors :
+  BinCoproduct_of_functors_alt HD F G = BinCoproduct_of_functors.
 Proof.
 now apply (functor_eq _ _ hsD).
 Defined.
 
-Definition coproduct_nat_trans_in1_data : ∀ c, F c --> bincoproduct_of_functors c
+Definition coproduct_nat_trans_in1_data : ∀ c, F c --> BinCoproduct_of_functors c
   := λ c : C, BinCoproductIn1 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_coproduct_nat_trans_in1_data
@@ -123,8 +123,8 @@ Proof.
   unfold is_nat_trans.
   intros c c' f.
   unfold coproduct_nat_trans_in1_data.
-  unfold bincoproduct_of_functors. simpl.
-  unfold bincoproduct_of_functors_mor.
+  unfold BinCoproduct_of_functors. simpl.
+  unfold BinCoproduct_of_functors_mor.
   assert (XX:= BinCoproductOfArrowsIn1).
   assert (X1 := XX _ (F c) (G c) (HD (F c) (G c))).
   assert (X2 := X1 _ _ (HD (F c') (G c'))).
@@ -135,7 +135,7 @@ Qed.
 Definition coproduct_nat_trans_in1 : nat_trans _ _
   := tpair _ _ is_nat_trans_coproduct_nat_trans_in1_data.
 
-Definition coproduct_nat_trans_in2_data : ∀ c, G c --> bincoproduct_of_functors c
+Definition coproduct_nat_trans_in2_data : ∀ c, G c --> BinCoproduct_of_functors c
   := λ c : C, BinCoproductIn2 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_coproduct_nat_trans_in2_data
@@ -144,8 +144,8 @@ Proof.
   unfold is_nat_trans.
   intros c c' f.
   unfold coproduct_nat_trans_in2_data.
-  unfold bincoproduct_of_functors. simpl.
-  unfold bincoproduct_of_functors_mor.
+  unfold BinCoproduct_of_functors. simpl.
+  unfold BinCoproduct_of_functors_mor.
   assert (XX:= BinCoproductOfArrowsIn2).
   assert (X1 := XX _ (F c) (G c) (HD (F c) (G c))).
   assert (X2 := X1 _ _ (HD (F c') (G c'))).
@@ -165,7 +165,7 @@ Variable A : functor C D.
 Variable f : F ⟶ A.
 Variable g : G ⟶ A.
 
-Definition coproduct_nat_trans_data : ∀ c, bincoproduct_of_functors c --> A c.
+Definition coproduct_nat_trans_data : ∀ c, BinCoproduct_of_functors c --> A c.
 Proof.
   intro c.
   apply BinCoproductArrow.
@@ -177,7 +177,7 @@ Lemma is_nat_trans_coproduct_nat_trans_data : is_nat_trans _ _ coproduct_nat_tra
 Proof.
   intros a b k.
   simpl.
-  unfold bincoproduct_of_functors_mor.
+  unfold BinCoproduct_of_functors_mor.
   unfold coproduct_nat_trans_data.
   simpl.
   set (XX:=precompWithBinCoproductArrow).
@@ -220,16 +220,16 @@ End vertex.
 Lemma coproduct_nat_trans_univ_prop (A : [C, D, hsD])
   (f : (F : [C,D,hsD]) --> A) (g : (G : [C,D,hsD]) --> A) :
    ∀
-   t : Σ fg : (bincoproduct_of_functors:[C,D,hsD]) --> A,
-       (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> bincoproduct_of_functors);; fg = f
+   t : Σ fg : (BinCoproduct_of_functors:[C,D,hsD]) --> A,
+       (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> BinCoproduct_of_functors);; fg = f
       ×
-       (coproduct_nat_trans_in2: (G : [C,D,hsD]) --> bincoproduct_of_functors);; fg = g,
+       (coproduct_nat_trans_in2: (G : [C,D,hsD]) --> BinCoproduct_of_functors);; fg = g,
    t =
    tpair
-     (λ fg : (bincoproduct_of_functors:[C,D,hsD]) --> A,
-      (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> bincoproduct_of_functors);; fg = f
+     (λ fg : (BinCoproduct_of_functors:[C,D,hsD]) --> A,
+      (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> BinCoproduct_of_functors);; fg = f
    ×
-      (coproduct_nat_trans_in2 : (G:[C,D,hsD]) --> bincoproduct_of_functors) ;; fg = g)
+      (coproduct_nat_trans_in2 : (G:[C,D,hsD]) --> BinCoproduct_of_functors) ;; fg = g)
      (coproduct_nat_trans A f g)
      (dirprodpair (coproduct_nat_trans_In1Commutes A f g)
         (coproduct_nat_trans_In2Commutes A f g)).
@@ -261,7 +261,7 @@ Definition functor_precat_coproduct_cocone
   : BinCoproductCocone [C, D, hsD] F G.
 Proof.
   simple refine (mk_BinCoproductCocone _ _ _ _ _ _ _ ).
-  - apply bincoproduct_of_functors.
+  - apply BinCoproduct_of_functors.
   - apply coproduct_nat_trans_in1.
   - apply coproduct_nat_trans_in2.
   - simple refine (mk_isBinCoproductCocone _ _ _ _ _ _ _ _ ).
@@ -274,7 +274,7 @@ Proof.
      apply coproduct_nat_trans_univ_prop.
 Defined.
 
-End bincoproduct_of_functors.
+End BinCoproduct_of_functors.
 
 Definition BinCoproducts_functor_precat : BinCoproducts [C, D, hsD].
 Proof.
@@ -294,6 +294,6 @@ Variable terminal : Terminal C.
 Let one : C :=  @TerminalObject C terminal.
 
 Definition option_functor : functor C C :=
-  bincoproduct_of_functors C C CC (constant_functor _ _ one) (functor_identity C).
+  BinCoproduct_of_functors C C CC (constant_functor _ _ one) (functor_identity C).
 
 End option_functor.

@@ -538,7 +538,7 @@ mkpair.
 - mkpair.
   + intro c.
     use hSetpair.
-    * apply (nat_trans (binproduct_of_functors C _ BinProductsHSET (cy c) P) Q).
+    * apply (nat_trans (BinProduct_of_functors C _ BinProductsHSET (cy c) P) Q).
     * abstract (apply (isaset_nat_trans has_homsets_HSET)).
   + simpl; intros a b f alpha.
     apply (BinProductOfArrows _ (CP (cy a) P) (CP (cy b) P)

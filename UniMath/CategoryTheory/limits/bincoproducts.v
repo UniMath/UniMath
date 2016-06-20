@@ -606,7 +606,7 @@ Defined.
   For a direct and equal definition see FunctorsPointwiseBinCoproduct.v
 
 *)
-Definition bincoproduct_of_functors_alt {C D : precategory}
+Definition BinCoproduct_of_functors_alt {C D : precategory}
   (HD : BinCoproducts D) (F G : functor C D) : functor C D :=
   functor_composite (bindelta_functor C)
      (functor_composite (binproduct_pair_functor F G) (bincoproduct_functor HD)).

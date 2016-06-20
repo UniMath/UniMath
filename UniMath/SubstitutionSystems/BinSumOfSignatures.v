@@ -74,16 +74,16 @@ Variable S22 : θ_Strength2 θ2.
 
 (** * Definition of the data of the sum of two signatures *)
 
-Definition H : functor [C, C, hs] [C, C, hs] := bincoproduct_of_functors _ _ CCC H1 H2.
+Definition H : functor [C, C, hs] [C, C, hs] := BinCoproduct_of_functors _ _ CCC H1 H2.
 
 (* This becomes too slow: *)
-(* Definition H : functor [C, C, hs] [C, C, hs] := bincoproduct_of_functors_alt CCC H1 H2. *)
+(* Definition H : functor [C, C, hs] [C, C, hs] := BinCoproduct_of_functors_alt CCC H1 H2. *)
 
 Local Definition bla1 (X : [C, C, hs]) (Z : precategory_Ptd C hs) :
    ∀ c : C,
     (functor_composite_data (pr1 Z)
-     (bincoproduct_of_functors_data C C CC (H1 X) (H2 X))) c
-   --> (bincoproduct_of_functors_data C C CC (H1 (functor_composite (pr1 Z) X))
+     (BinCoproduct_of_functors_data C C CC (H1 X) (H2 X))) c
+   --> (BinCoproduct_of_functors_data C C CC (H1 (functor_composite (pr1 Z) X))
        (H2 (functor_composite (pr1 Z) X))) c.
 Proof.
   intro c.
@@ -95,13 +95,13 @@ Defined.
 Local Lemma bar (X : [C, C, hs]) (Z : precategory_Ptd C hs):
    is_nat_trans
      (functor_composite_data (pr1 Z)
-        (bincoproduct_of_functors_data C C CC (H1 X) (H2 X)))
-     (bincoproduct_of_functors_data C C CC (H1 (functor_composite (pr1 Z) X))
+        (BinCoproduct_of_functors_data C C CC (H1 X) (H2 X)))
+     (BinCoproduct_of_functors_data C C CC (H1 (functor_composite (pr1 Z) X))
         (H2 (functor_composite (pr1 Z) X))) (bla1 X Z).
 Proof.
   intros x x' f; simpl.
   unfold bla1; simpl.
-  unfold bincoproduct_of_functors_mor.
+  unfold BinCoproduct_of_functors_mor.
   eapply pathscomp0; [ apply BinCoproductOfArrows_comp | ].
   eapply pathscomp0; [ | eapply pathsinv0; apply BinCoproductOfArrows_comp].
   apply BinCoproductOfArrows_eq.
@@ -111,8 +111,8 @@ Qed.
 
 Local Definition bla (X : [C, C, hs]) (Z : precategory_Ptd C hs) :
    functor_composite_data (pr1 Z)
-     (bincoproduct_of_functors_data C C CC (H1 X) (H2 X))
-   ⟶ bincoproduct_of_functors_data C C CC (H1 (functor_composite (pr1 Z) X))
+     (BinCoproduct_of_functors_data C C CC (H1 X) (H2 X))
+   ⟶ BinCoproduct_of_functors_data C C CC (H1 (functor_composite (pr1 Z) X))
        (H2 (functor_composite (pr1 Z) X)).
 Proof.
   exists (bla1 X Z).
@@ -143,7 +143,7 @@ Proof.
     destruct αβ as [α β]. simpl in *.
     unfold coproduct_nat_trans_data;
     unfold bla1; simpl.
-    unfold bincoproduct_of_functors_mor.
+    unfold BinCoproduct_of_functors_mor.
     unfold coproduct_nat_trans_in2_data.
     unfold coproduct_nat_trans_in1_data.
     (* on the right-hand side, there is a second but unfolded BinCoproductOfArrows in the row - likewise a first such on the left-hand side, to be treater further below *)
@@ -300,7 +300,7 @@ Proof.
 destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
 destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
 unfold H.
-apply is_omega_cocont_bincoproduct_of_functors; try assumption.
+apply is_omega_cocont_BinCoproduct_of_functors; try assumption.
 - apply (BinProducts_functor_precat _ _ PC).
 - apply functor_category_has_homsets.
 - apply functor_category_has_homsets.

@@ -386,7 +386,7 @@ Section constprod_functor.
 Variables (x : HSET).
 
 Definition constprod_functor : functor HSET HSET :=
-  binproduct_of_functors HSET HSET BinProductsHSET (constant_functor HSET HSET x)
+  BinProduct_of_functors HSET HSET BinProductsHSET (constant_functor HSET HSET x)
                                          (functor_identity HSET).
 
 Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := fun x y => f y x.
@@ -438,7 +438,7 @@ Section constcoprod_functor.
 Variables (C : precategory) (hsC : has_homsets C) (x : C) (PC : BinCoproducts C).
 
 Definition constcoprod_functor : functor C C :=
-  bincoproduct_of_functors C C PC (constant_functor C C x) (functor_identity C).
+  BinCoproduct_of_functors C C PC (constant_functor C C x) (functor_identity C).
 
 Lemma omega_cocontConstCoprodFunctor : is_omega_cocont constcoprod_functor.
 Proof.
@@ -452,13 +452,13 @@ simple refine (tpair _ _ _).
         - intros n; exact (BinCoproductIn2 _ (PC x (dob hF n)) ;; pr1 cc n).
         - abstract (
             intros m n e; destruct e; simpl;
-            destruct cc as [f hf]; simpl in *; unfold bincoproduct_of_functors_ob in *;
+            destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
             rewrite <- (hf m _ (idpath _)), !assoc; apply cancel_postcomposition;
-            now unfold bincoproduct_of_functors_mor; rewrite BinCoproductOfArrowsIn2). }
+            now unfold BinCoproduct_of_functors_mor; rewrite BinCoproductOfArrowsIn2). }
       apply (pr1 (pr1 (ccL HcL ccHcL))).
   + abstract (
-    destruct cc as [f hf]; simpl in *; unfold bincoproduct_of_functors_ob in *;
-    simpl; intro n; unfold bincoproduct_of_functors_mor in *;
+    destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
+    simpl; intro n; unfold BinCoproduct_of_functors_mor in *;
     rewrite precompWithBinCoproductArrow; apply pathsinv0, BinCoproductArrowUnique;
     [ rewrite id_left; induction n; [apply idpath|];
       now rewrite <- IHn, <- (hf n _ (idpath _)), assoc,
@@ -466,10 +466,10 @@ simple refine (tpair _ _ _).
     | rewrite <- (hf n _ (idpath _)); destruct ccL; destruct t; simpl in *;
       rewrite p0; apply maponpaths, hf]).
 - abstract (
-  destruct cc as [f hf]; simpl in *; unfold bincoproduct_of_functors_ob in *;
+  destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
   intro t; apply subtypeEquality; simpl;
   [ intro g; apply impred; intro; apply hsC
-  | destruct t; destruct ccL; unfold bincoproduct_of_functors_mor in *; destruct t0; simpl;
+  | destruct t; destruct ccL; unfold BinCoproduct_of_functors_mor in *; destruct t0; simpl;
     apply BinCoproductArrowUnique;
     [ now rewrite <- (p 0), assoc, BinCoproductOfArrowsIn1, id_left
     | simple refine (let temp : Σ x0 : C ⟦ c, HcL ⟧, ∀ v : nat,

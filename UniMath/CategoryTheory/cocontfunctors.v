@@ -462,14 +462,14 @@ Defined.
 
 End coprod_functor.
 
-Section bincoproduct_of_functors.
+Section BinCoproduct_of_functors.
 
 Variables (C D : precategory) (PC : BinProducts C) (HD : BinCoproducts D).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 
-Lemma is_omega_cocont_bincoproduct_of_functors_alt (F G : functor C D)
+Lemma is_omega_cocont_BinCoproduct_of_functors_alt (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (bincoproduct_of_functors_alt HD F G).
+  is_omega_cocont (BinCoproduct_of_functors_alt HD F G).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
   apply (is_omega_cocont_bindelta_functor _ PC hsC).
@@ -478,25 +478,25 @@ apply (is_omega_cocont_functor_composite hsD).
 apply (is_omega_cocont_bincoproduct_functor _ _ hsD).
 Defined.
 
-Definition omega_cocont_bincoproduct_of_functors_alt (F G : omega_cocont_functor C D) :
+Definition omega_cocont_BinCoproduct_of_functors_alt (F G : omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_bincoproduct_of_functors_alt _ _ (pr2 F) (pr2 G)).
+    tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt _ _ (pr2 F) (pr2 G)).
 
-Lemma is_omega_cocont_bincoproduct_of_functors (F G : functor C D)
+Lemma is_omega_cocont_BinCoproduct_of_functors (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (bincoproduct_of_functors _ _ HD F G).
+  is_omega_cocont (BinCoproduct_of_functors _ _ HD F G).
 Proof.
 exact (transportf _
-         (bincoproduct_of_functors_alt_eq_bincoproduct_of_functors C D HD hsD F G)
-         (is_omega_cocont_bincoproduct_of_functors_alt _ _ HF HG)).
+         (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors C D HD hsD F G)
+         (is_omega_cocont_BinCoproduct_of_functors_alt _ _ HF HG)).
 Defined.
 
-Definition omega_cocont_bincoproduct_of_functors
+Definition omega_cocont_BinCoproduct_of_functors
  (F G : omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_bincoproduct_of_functors _ _ (pr2 F) (pr2 G)).
+    tpair _ _ (is_omega_cocont_BinCoproduct_of_functors _ _ (pr2 F) (pr2 G)).
 
-End bincoproduct_of_functors.
+End BinCoproduct_of_functors.
 
 Section coproduct_of_functors.
 
@@ -612,13 +612,13 @@ Defined.
 Lemma map_to_K_commutes (cAB : chain (binproduct_precategory C C)) (K : C)
   (ccK : cocone (mapdiagram (binproduct_functor PC) cAB) K)
   i j k (e : edge j k) :
-   binproduct_of_functors_mor C C PC (constant_functor C C (pr1 (pr1 cAB i)))
+   BinProduct_of_functors_mor C C PC (constant_functor C C (pr1 (pr1 cAB i)))
      (functor_identity C) (pr2 (dob cAB j)) (pr2 (dob cAB k))
      (mor2 (dmor cAB e)) ;; map_to_K cAB K ccK i k =
    map_to_K cAB K ccK i j.
 Proof.
 destruct e; simpl.
-unfold binproduct_of_functors_mor, map_to_K.
+unfold BinProduct_of_functors_mor, map_to_K.
 destruct (natlthorgeh i j) as [h|h].
 - destruct (natlthorgeh i (S j)) as [h0|h0].
   * rewrite assoc, <- (coconeInCommutes ccK j (S j) (idpath _)), assoc; simpl.
@@ -712,9 +712,9 @@ Let ccAiB_K := fun i => ccAiB_K _ _ ccK i.
 
 (* The f which is using in colimOfArrows *)
 Local Definition f i j : C
-   ⟦ binproduct_of_functors_ob C C PC (constant_functor C C (pr1 (dob cAB i)))
+   ⟦ BinProduct_of_functors_ob C C PC (constant_functor C C (pr1 (dob cAB i)))
        (functor_identity C) (pr2 (dob cAB j)),
-   binproduct_of_functors_ob C C PC (constant_functor C C (pr1 (dob cAB (S i))))
+   BinProduct_of_functors_ob C C PC (constant_functor C C (pr1 (dob cAB (S i))))
      (functor_identity C) (pr2 (dob cAB j)) ⟧.
 Proof.
   apply BinProductOfArrows; [apply (dmor cAB (idpath _)) | apply identity ].
@@ -742,10 +742,10 @@ Defined.
 Local Lemma AiM_chain_eq : forall i, dmor AiM_chain (idpath (S i)) =
                        dmor (mapdiagram (constprod_functor2 PC M) cA) (idpath _).
 Proof.
-  intro i; simpl; unfold colimOfArrows, binproduct_of_functors_mor; simpl.
+  intro i; simpl; unfold colimOfArrows, BinProduct_of_functors_mor; simpl.
   apply pathsinv0, colimArrowUnique.
   simpl; intro j.
-  unfold colimIn; simpl; unfold binproduct_of_functors_mor, f; simpl.
+  unfold colimIn; simpl; unfold BinProduct_of_functors_mor, f; simpl.
   eapply pathscomp0; [apply BinProductOfArrows_comp|].
   apply pathsinv0.
   eapply pathscomp0; [apply BinProductOfArrows_comp|].
@@ -826,7 +826,7 @@ Proof.
   intros HHH.
   rewrite <- HHH, assoc.
   apply cancel_postcomposition.
-  unfold colimIn; simpl; unfold binproduct_of_functors_mor; simpl.
+  unfold colimIn; simpl; unfold BinProduct_of_functors_mor; simpl.
   apply pathsinv0.
   eapply pathscomp0; [apply BinProductOfArrows_comp|].
   now rewrite id_left, id_right.
@@ -850,7 +850,7 @@ Proof.
     * rewrite <- (p j); unfold fun_lt.
       rewrite !assoc.
       apply cancel_postcomposition.
-      unfold colimIn; simpl; unfold binproduct_of_functors_mor; simpl.
+      unfold colimIn; simpl; unfold BinProduct_of_functors_mor; simpl.
       eapply pathscomp0; [apply BinProductOfArrows_comp|].
       apply pathsinv0.
       eapply pathscomp0; [apply BinProductOfArrows_comp|].
@@ -860,7 +860,7 @@ Proof.
     * destruct (natgehchoice i j h).
       { unfold fun_gt; rewrite <- (p i), !assoc.
         apply cancel_postcomposition.
-        unfold colimIn; simpl; unfold binproduct_of_functors_mor; simpl.
+        unfold colimIn; simpl; unfold BinProduct_of_functors_mor; simpl.
         eapply pathscomp0; [apply BinProductOfArrows_comp|].
         apply pathsinv0.
         eapply pathscomp0; [apply BinProductOfArrows_comp|].
@@ -868,7 +868,7 @@ Proof.
       { destruct p0.
         rewrite <- (p i), assoc.
         apply cancel_postcomposition.
-        unfold colimIn; simpl; unfold binproduct_of_functors_mor; simpl.
+        unfold colimIn; simpl; unfold BinProduct_of_functors_mor; simpl.
         eapply pathscomp0; [apply BinProductOfArrows_comp|].
         now rewrite id_left, id_right. }
 Qed.
@@ -897,14 +897,14 @@ Defined.
 
 End binprod_functor.
 
-Section binproduct_of_functors.
+Section BinProduct_of_functors.
 
 Variables (C D : precategory) (PC : BinProducts C) (PD : BinProducts D) (hED : has_exponentials PD).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 
-Lemma is_omega_cocont_binproduct_of_functors_alt (F G : functor C D)
+Lemma is_omega_cocont_BinProduct_of_functors_alt (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (binproduct_of_functors_alt PD F G).
+  is_omega_cocont (BinProduct_of_functors_alt PD F G).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
   apply (is_omega_cocont_bindelta_functor _ PC hsC).
@@ -913,24 +913,24 @@ apply (is_omega_cocont_functor_composite hsD).
 apply (is_omega_cocont_binproduct_functor _ _ hsD hED).
 Defined.
 
-Definition omega_cocont_binproduct_of_functors_alt (F G : omega_cocont_functor C D) :
+Definition omega_cocont_BinProduct_of_functors_alt (F G : omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_binproduct_of_functors_alt _ _ (pr2 F) (pr2 G)).
+    tpair _ _ (is_omega_cocont_BinProduct_of_functors_alt _ _ (pr2 F) (pr2 G)).
 
-Lemma is_omega_cocont_binproduct_of_functors (F G : functor C D)
+Lemma is_omega_cocont_BinProduct_of_functors (F G : functor C D)
   (HF : is_omega_cocont F) (HG : is_omega_cocont G) :
-  is_omega_cocont (binproduct_of_functors _ _ PD F G).
+  is_omega_cocont (BinProduct_of_functors _ _ PD F G).
 Proof.
 exact (transportf _
-        (binproduct_of_functors_alt_eq_binproduct_of_functors C D PD hsD F G)
-        (is_omega_cocont_binproduct_of_functors_alt _ _ HF HG)).
+        (BinProduct_of_functors_alt_eq_BinProduct_of_functors C D PD hsD F G)
+        (is_omega_cocont_BinProduct_of_functors_alt _ _ HF HG)).
 Defined.
 
-Definition omega_cocont_binproduct_of_functors (F G : omega_cocont_functor C D) :
+Definition omega_cocont_BinProduct_of_functors (F G : omega_cocont_functor C D) :
   omega_cocont_functor C D :=
-    tpair _ _ (is_omega_cocont_binproduct_of_functors _ _ (pr2 F) (pr2 G)).
+    tpair _ _ (is_omega_cocont_BinProduct_of_functors _ _ (pr2 F) (pr2 G)).
 
-End binproduct_of_functors.
+End BinProduct_of_functors.
 
 (** Precomposition functor is cocontinuous *)
 Section pre_composition_functor.
@@ -1127,12 +1127,12 @@ Notation "'Id'" := (omega_cocont_functor_identity _ has_homsets_HSET) :
                      cocont_functor_hset_scope.
 
 Notation "F * G" :=
-  (omega_cocont_binproduct_of_functors_alt _ _ BinProductsHSET _
+  (omega_cocont_BinProduct_of_functors_alt _ _ BinProductsHSET _
      has_exponentials_HSET has_homsets_HSET has_homsets_HSET F G) :
     cocont_functor_hset_scope.
 
 Notation "F + G" :=
-  (omega_cocont_bincoproduct_of_functors_alt _ _ BinProductsHSET BinCoproductsHSET
+  (omega_cocont_BinCoproduct_of_functors_alt _ _ BinProductsHSET BinCoproductsHSET
      has_homsets_HSET has_homsets_HSET F G) : cocont_functor_hset_scope.
 
 (* omega_cocont_coproduct_functor has worse computational behavior

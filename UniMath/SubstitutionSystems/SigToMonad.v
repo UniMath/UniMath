@@ -169,7 +169,7 @@ Definition SigInitial (sig : Sig) :
 Proof.
 use colimAlgInitial.
 - unfold Id_H, Const_plus_H.
-  apply is_omega_cocont_bincoproduct_of_functors.
+  apply is_omega_cocont_BinCoproduct_of_functors.
   + apply (BinProducts_functor_precat _ _ BinProductsHSET).
   + apply functor_category_has_homsets.
   + apply functor_category_has_homsets.
