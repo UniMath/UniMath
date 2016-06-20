@@ -56,3 +56,9 @@ trees.v
 exponentials.v
 covyoneda.v
 lambdacalculus.v
+Monics.v
+Epis.v
+limits/equalizers.v
+limits/coequalizers.v
+limits/kernels.v
+limits/cokernels.v
