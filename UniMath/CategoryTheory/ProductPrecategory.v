@@ -297,6 +297,24 @@ Proof.
   exact β.
 Defined.
 
+(** Isos in product precategories *)
+Definition prodcatiso {C D : precategory} {X X' : C} {Z Z' : D} (α : iso X X') (β : iso Z Z')
+  : iso (X ⊗ Z) (X' ⊗ Z').
+Proof.
+  set (f := prodcatmor α β).
+  set (g := prodcatmor (iso_inv_from_iso α) (iso_inv_from_iso β)).
+  exists f.
+  apply (is_iso_qinv f g).
+  use tpair.
+  - apply pathsdirprod.
+    apply iso_inv_after_iso.
+    apply iso_inv_after_iso.
+  - apply pathsdirprod.
+    apply iso_after_iso_inv.
+    apply iso_after_iso_inv.
+Defined.
+
+
 (* Imported from Peter Lumsdaine's old bicategory code: *)
 
 Local Notation "C × D" := (product_precategory C D) (at level 75, right associativity) : precategory_scope.
