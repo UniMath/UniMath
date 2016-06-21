@@ -264,3 +264,27 @@ Definition whisker_right {C : prebicategory} {a b c : C}
            {f g : a -1-> b} (alpha : f -2-> g) (h : b -1-> c)
   : (f ;1; h) -2-> (g ;1; h)
   := alpha ;h; (identity_2mor h).
+
+Definition whisker_left_iso {C : prebicategory} {a b c : C}
+           (f : a -1-> b) {g h : b -1-> c} (alpha : iso g h)
+  : iso (f ;1; g) (f ;1; h).
+Proof.
+  exists (whisker_left f alpha).
+  fold (is_isomorphism (whisker_left f alpha)).
+  unfold whisker_left.
+  unfold compose_2mor_horizontal.
+  set (i := prodcatiso (identity_iso f) alpha).
+  apply (functor_on_iso_is_iso _ _ _ _ _ i).
+Defined.
+
+Definition whisker_right_iso {C : prebicategory} {a b c : C}
+           {f g : a -1-> b} (alpha : iso f g) (h : b -1-> c)
+  : iso (f ;1; h) (g ;1; h).
+Proof.
+  exists (whisker_right alpha h).
+  fold (is_isomorphism (whisker_right alpha h)).
+  unfold whisker_right.
+  unfold compose_2mor_horizontal.
+  set (i := prodcatiso alpha (identity_iso h)).
+  apply (functor_on_iso_is_iso _ _ _ _ _ i).
+Defined.
