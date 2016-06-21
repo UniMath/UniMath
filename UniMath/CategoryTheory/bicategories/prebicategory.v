@@ -40,6 +40,14 @@ Coercion prebicategory_ob_1mor_2mor_from_prebicategory_id_comp :
 Definition identity_1mor {C : prebicategory_id_comp} (a : C) : a -1-> a
   := pr1 (pr2 C) a.
 
+Definition idto1mor {C : prebicategory_id_comp} { a b : C }
+  (p : a = b)
+  : a -1-> b.
+Proof.
+  induction p.
+  apply identity_1mor.
+Defined.
+
 Definition identity_2mor {C : prebicategory_id_comp} {a b : C} (f : a -1-> b)
   := identity f.
 
@@ -260,11 +268,6 @@ Definition whisker_left {C : prebicategory} {a b c : C}
   : (f ;1; g) -2-> (f ;1; h)
   := (identity_2mor f) ;h; alpha.
 
-Definition whisker_right {C : prebicategory} {a b c : C}
-           {f g : a -1-> b} (alpha : f -2-> g) (h : b -1-> c)
-  : (f ;1; h) -2-> (g ;1; h)
-  := alpha ;h; (identity_2mor h).
-
 Definition whisker_left_iso {C : prebicategory} {a b c : C}
            (f : a -1-> b) {g h : b -1-> c} (alpha : iso g h)
   : iso (f ;1; g) (f ;1; h).
@@ -277,6 +280,24 @@ Proof.
   apply (functor_on_iso_is_iso _ _ _ _ _ i).
 Defined.
 
+Definition whisker_left_on_comp {C : prebicategory} {a b c : C}
+  (f : a -1-> b) {g h i : b -1-> c}
+  (alpha : g -2-> h) (alpha' : h -2-> i)
+  : whisker_left f (alpha ;v; alpha')
+  = whisker_left f alpha ;v; whisker_left f alpha'.
+Proof.
+  unfold whisker_left.
+  pathvia ((identity_2mor f;v; identity_2mor f);h;(alpha;v;alpha')).
+  - rewrite id_left.
+    reflexivity.
+  - apply interchange.
+Defined.
+
+Definition whisker_right {C : prebicategory} {a b c : C}
+  {f g : a -1-> b} (alpha : f -2-> g) (h : b -1-> c)
+  : (f ;1; h) -2-> (g ;1; h)
+  := alpha ;h; (identity_2mor h).
+
 Definition whisker_right_iso {C : prebicategory} {a b c : C}
            {f g : a -1-> b} (alpha : iso f g) (h : b -1-> c)
   : iso (f ;1; h) (g ;1; h).
@@ -287,4 +308,16 @@ Proof.
   unfold compose_2mor_horizontal.
   set (i := prodcatiso alpha (identity_iso h)).
   apply (functor_on_iso_is_iso _ _ _ _ _ i).
+Defined.
+
+Definition whisker_right_on_comp {C : prebicategory} {a b c : C}
+  {f g h : a -1-> b} (alpha : f -2-> g) (alpha' : g -2-> h) (i : b -1-> c)
+  : whisker_right (alpha ;v; alpha') i
+  = whisker_right alpha i ;v; whisker_right alpha' i.
+Proof.
+  unfold whisker_right.
+  pathvia ((alpha;v;alpha');h;(identity_2mor i;v; identity_2mor i)).
+  - rewrite id_left.
+    reflexivity.
+  - apply interchange.
 Defined.
