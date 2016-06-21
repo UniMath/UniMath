@@ -17,15 +17,15 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
-Section product_precategory.
+Section dep_product_precategory.
 
 Variable I : UU.
-Variables C : precategory.
+Variables C : I -> precategory.
 
 Definition product_precategory_ob_mor : precategory_ob_mor.
 Proof.
 mkpair.
-- apply (forall (i : I), ob C).
+- apply (forall (i : I), ob (C i)).
 - intros f g.
   apply (forall i, f i --> g i).
 Defined.
@@ -52,19 +52,39 @@ Qed.
 Definition product_precategory : precategory
   := tpair _ _ is_precategory_product_precategory_data.
 
-Definition has_homsets_product_precategory (hsC : has_homsets C) :
+Definition has_homsets_product_precategory (hsC : forall (i:I), has_homsets (C i)) :
   has_homsets product_precategory.
 Proof.
 intros a b; simpl.
 apply impred_isaset; intro i; apply hsC.
 Qed.
 
-End product_precategory.
+End dep_product_precategory.
+
+
+Section power_precategory.
+
+Variable I : UU.
+Variables C : precategory.
+
+
+Definition power_precategory : precategory
+  := product_precategory I (fun _ => C).
+
+Definition has_homsets_power_precategory (hsC : has_homsets C) :
+  has_homsets power_precategory.
+Proof.
+apply has_homsets_product_precategory.
+intro i; assumption.
+Qed.
+
+End power_precategory.
+
 
 Section functors.
 
-Definition pair_functor_data (I : UU) {A B : precategory}
-  (F : forall (i : I), functor A B) :
+Definition pair_functor_data (I : UU) {A B : I -> precategory}
+  (F : forall (i : I), functor (A i) (B i)) :
   functor_data (product_precategory I A)
                (product_precategory I B).
 Proof.
@@ -73,8 +93,8 @@ mkpair.
 - intros a b f i; apply (# (F i) (f i)).
 Defined.
 
-Definition pair_functor (I : UU) {A B : precategory}
-  (F : forall (i : I), functor A B) :
+Definition pair_functor (I : UU) {A B : I -> precategory}
+  (F : forall (i : I), functor (A i) (B i)) :
   functor (product_precategory I A)
           (product_precategory I B).
 Proof.
@@ -84,23 +104,23 @@ abstract
           | intros x y z f g; apply funextsec; intro i; apply functor_comp]).
 Defined.
 
-Definition pr_functor_data (I : UU) (C : precategory) (i : I) :
-  functor_data (product_precategory I C) C.
+Definition pr_functor_data (I : UU) (C : I -> precategory) (i : I) :
+  functor_data (product_precategory I C) (C i).
 Proof.
 mkpair.
 - intro a; apply (a i).
 - intros x y f; simpl; apply (f i).
 Defined.
 
-Definition pr_functor (I : UU) (C : precategory) (i : I) :
-  functor (product_precategory I C) C.
+Definition pr_functor (I : UU) (C : I -> precategory) (i : I) :
+  functor (product_precategory I C) (C i).
 Proof.
 apply (tpair _ (pr_functor_data I C i)).
 abstract (split; intros x *; apply idpath).
 Defined.
 
 Definition delta_functor_data (I : UU) (C : precategory) :
-  functor_data C (product_precategory I C).
+  functor_data C (power_precategory I C).
 Proof.
 mkpair.
 - intros x i; apply x.
@@ -108,7 +128,7 @@ mkpair.
 Defined.
 
 Definition delta_functor (I : UU) (C : precategory) :
-  functor C (product_precategory I C).
+  functor C (power_precategory I C).
 Proof.
 apply (tpair _ (delta_functor_data I C)).
 abstract (split; intros x *; apply idpath).

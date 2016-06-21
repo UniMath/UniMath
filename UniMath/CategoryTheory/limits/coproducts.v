@@ -167,7 +167,7 @@ End Coproducts.
 Section functors.
 
 Definition indexed_coproduct_functor_data (I : UU) {C : precategory}
-  (PC : Coproducts I C) : functor_data (product_precategory I C) C.
+  (PC : Coproducts I C) : functor_data (power_precategory I C) C.
 Proof.
 mkpair.
 - intros p.
@@ -178,7 +178,7 @@ Defined.
 
 (* The arbitrary coproduct functor: C^I -> C *)
 Definition indexed_coproduct_functor (I : UU) {C : precategory}
-  (PC : Coproducts I C) : functor (product_precategory I C) C.
+  (PC : Coproducts I C) : functor (power_precategory I C) C.
 Proof.
 apply (tpair _ (indexed_coproduct_functor_data _ PC)).
 split.
