@@ -43,6 +43,7 @@ according to the following principles.
 * Start all proofs with ```Proof.``` on a separate line and end it with
   ```Defined.``` on a separate line, as this makes it possible for us to generate
   HTML with expansible/collapsible proofs.
+* Do not use ```Admitted``` or introduce new axioms.
 
 * Use Unicode notation freely, but make the parsing conventions uniform across files, and consider
   putting them into a scope.
