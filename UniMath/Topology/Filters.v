@@ -49,11 +49,13 @@ Proof.
 Qed.
 
 Definition isfilter_notempty :=
-  ¬ F (λ _ : X, hfalse).
+  ∀ A : X → hProp, F A → ∃ x : X, A x.
 Lemma isaprop_isfilter_notempty :
   isaprop isfilter_notempty.
 Proof.
-  apply isapropneg.
+  apply impred_isaprop ; intro A.
+  apply isapropimpl.
+  apply propproperty.
 Qed.
 
 Lemma isfilter_finite_intersection_htrue :
@@ -125,12 +127,12 @@ Lemma emptynofilter :
     ¬ isFilter F.
 Proof.
   intros F ((Himp,Hand),Hempty).
-  apply Hempty.
   apply isfilter_finite_intersection_htrue in Hand.
-  assert ((λ _ : ∅, hfalse) = (λ _ : ∅, htrue)).
-  apply funextfun, fromempty.
-  rewrite X.
-  exact Hand.
+  generalize (Hempty _ Hand).
+  apply hinhuniv'.
+  apply isapropempty.
+  intros (x,_).
+  apply x.
 Qed.
 
 Section PreFilter_pty.
@@ -188,10 +190,10 @@ Lemma filter_const :
   ∀ A : hProp, F (λ _ : X, A) → ¬ (¬ A).
 Proof.
   intros A Fa Ha.
-  apply filter_notempty.
-  revert Fa.
-  apply filter_imply.
-  intros _.
+  generalize (filter_notempty _ Fa).
+  apply hinhuniv'.
+  apply isapropempty.
+  intros (_).
   exact Ha.
 Qed.
 
@@ -309,7 +311,12 @@ Qed.
 Lemma filterim_notempty :
   isfilter_notempty filterim.
 Proof.
-  apply Hempty.
+  intros A Fa.
+  generalize (Hempty _ Fa).
+  apply hinhfun.
+  intros (x,Ax).
+  exists (f x).
+  exact Ax.
 Qed.
 
 End filterim.
@@ -402,7 +409,7 @@ Context (F : (X → hProp) → hProp)
         (Hand : isfilter_and F)
         (Hempty : isfilter_notempty F).
 Context (dom : X → hProp)
-        (Hdom : ∀ P, F P → ¬ ¬ ∃ x, dom x ∧ P x).
+        (Hdom : ∀ P, F P → ∃ x, dom x ∧ P x).
 
 Definition filterdom : (X → hProp) → hProp
   := λ A : X → hProp, F (λ x : X, hProppair (dom x → A x) (isapropimpl _ _ (propproperty _))).
@@ -436,14 +443,13 @@ Qed.
 Lemma filterdom_notempty :
   isfilter_notempty filterdom.
 Proof.
-  intro Hf.
-  apply Hdom in Hf.
-  apply Hf.
-  unfold neg.
-  apply hinhuniv'.
-  exact isapropempty.
-  intros (x,(Hx,Hx')).
-  now apply Hx'.
+  intros.
+  intros A Fa.
+  generalize (Hdom _ Fa).
+  apply hinhfun.
+  intros (x,(Hx,Ax)).
+  exists x.
+  now apply Ax.
 Qed.
 
 End filterdom.
@@ -463,7 +469,7 @@ Proof.
 Defined.
 
 Definition FilterDom {X : UU} (F : Filter X) (dom : X → hProp)
-           (Hdom : ∀ P, F P → ¬ ¬ ∃ x, dom x ∧ P x) : Filter X.
+           (Hdom : ∀ P, F P → ∃ x, dom x ∧ P x) : Filter X.
 Proof.
   intros X F dom Hdom.
   refine (tpair _ _ _).
@@ -484,7 +490,7 @@ Context (F : (X → hProp) → hProp)
         (Hand : isfilter_and F)
         (Hempty : isfilter_notempty F).
 Context (dom : X → hProp)
-        (Hdom : ∀ P, F P → ¬ ¬ ∃ x, dom x ∧ P x).
+        (Hdom : ∀ P, F P → ∃ x, dom x ∧ P x).
 
 Definition filtersubtype : ((Σ x : X, dom x) → hProp) → hProp :=
   λ A : (Σ x : X, dom x) → hProp,
@@ -519,14 +525,12 @@ Qed.
 Lemma filtersubtype_notempty :
   isfilter_notempty filtersubtype.
 Proof.
-  intro Hf.
-  apply Hdom in Hf.
-  apply Hf.
-  unfold neg.
-  apply hinhuniv'.
-  exact isapropempty.
-  intros (x,(Hx,Hx')).
-  now apply Hx'.
+  intros A Fa.
+  generalize (Hdom _ Fa).
+  apply hinhfun.
+  intros (x,(Hx,Ax)).
+  exists (x,,Hx).
+  exact (Ax Hx).
 Qed.
 
 End filtersubtype.
@@ -546,7 +550,7 @@ Proof.
 Defined.
 
 Definition FilterSubtype {X : UU} (F : Filter X) (dom : X → hProp)
-           (Hdom : ∀ P, F P → ¬ ¬ ∃ x, dom x ∧ P x) : Filter (Σ x : X, dom x).
+           (Hdom : ∀ P, F P → ∃ x, dom x ∧ P x) : Filter (Σ x : X, dom x).
 Proof.
   intros X F dom Hdom.
   refine (tpair _ _ _).
@@ -619,16 +623,14 @@ Qed.
 Lemma filterdirprod_notempty :
   isfilter_notempty filterdirprod.
 Proof.
-  unfold isfilter_notempty, neg ; apply hinhuniv'.
-  exact isapropempty.
+  intros A.
+  apply hinhuniv.
   intros (Ax,(Ay,(Fax,(Fay,Ha)))).
-  apply Hempty_x.
-  revert Fax.
-  apply Himp_x ; intros x Hx.
-  apply Hempty_y.
-  revert Fay.
-  apply Himp_y ; intros y Hy.
-  now apply (Ha x y).
+  generalize (Hempty_x _ Fax) (Hempty_y _ Fay).
+  apply hinhfun2.
+  intros (x,Axx) (y,Ayy).
+  exists (x,,y).
+  now apply Ha.
 Qed.
 
 End filterdirprod.
@@ -653,9 +655,7 @@ Proof.
   split.
   apply (pr2 (PreFilterDirprod Fx Fy)).
   apply filterdirprod_notempty.
-  apply filter_imply.
   apply filter_notempty.
-  apply filter_imply.
   apply filter_notempty.
 Defined.
 
@@ -752,10 +752,10 @@ Qed.
 Lemma filternat_notempty :
   isfilter_notempty filternat.
 Proof.
-  intros H ; revert H.
-  apply hinhuniv'.
-  exact isapropempty.
+  intros A.
+  apply hinhfun.
   intros (N,Hn).
+  exists N.
   apply (Hn N).
   now apply isreflnatleh.
 Qed.
@@ -804,11 +804,12 @@ Qed.
 Lemma filtertop_notempty :
   isfilter_notempty filtertop.
 Proof.
-  intro H.
+  intros A Fa.
   revert x0.
-  apply hinhuniv'.
-  exact isapropempty.
-  apply H.
+  apply hinhfun.
+  intros x0.
+  exists x0.
+  apply Fa.
 Qed.
 
 End filtertop.
@@ -856,7 +857,7 @@ Context (FF : (Σ F : ((X → hProp) → hProp), is F) → hProp)
         (Htrue : ∀ F, FF F → isfilter_htrue (pr1 F))
         (Hand : ∀ F, FF F → isfilter_and (pr1 F))
         (Hempty : ∀ F, FF F → isfilter_notempty (pr1 F)).
-Context (Hff : ¬ (∀ F, ¬ FF F)).
+Context (His : ∃ F, FF F).
 
 Definition filterintersection : (X → hProp) → hProp :=
   λ A : X → hProp, hProppair (∀ F, FF F → (pr1 F) A)
@@ -887,11 +888,11 @@ Qed.
 Lemma filterintersection_notempty :
   isfilter_notempty filterintersection.
 Proof.
-  intro Hf.
-  apply Hff.
-  intros F Hf'.
-  apply (Hempty F Hf').
-  apply Hf, Hf'.
+  intros A Fa.
+  revert His.
+  apply hinhuniv.
+  intros (F,Hf).
+  apply (Hempty F Hf _ (Fa _ Hf)).
 Qed.
 
 End filterintersection.
@@ -913,7 +914,7 @@ Proof.
 Defined.
 
 Definition FilterIntersection {X : UU} (FF : Filter X → hProp)
-           (Hff : ¬ (∀ F : Filter X, ¬ FF F)) : Filter X.
+           (Hff : ∃ F : Filter X, FF F) : Filter X.
 Proof.
   intros X FF Hff.
   simple refine (mkFilter _ _ _ _ _).
@@ -964,7 +965,7 @@ Section filtergenerated.
 
 Context {X : UU}.
 Context (L : (X → hProp) → hProp).
-Context (Hl : ∀ (L' : Sequence (X → hProp)), (∀ m, L (L' m)) → ¬ ∀ x : X, ¬ finite_intersection L' x).
+Context (Hl : ∀ (L' : Sequence (X → hProp)), (∀ m, L (L' m)) → ∃ x : X, ∀ m, L' m x).
 
 Definition filtergenerated : (X → hProp) → hProp :=
   λ A : X → hProp,
@@ -1022,16 +1023,14 @@ Qed.
 Lemma filtergenerated_notempty :
   isfilter_notempty filtergenerated.
 Proof.
-  intro H ; revert H.
-  apply hinhuniv'.
-  exact isapropempty.
-  intros L'.
-  simple refine (Hl _ _ _).
-  apply (pr1 L').
-  apply (pr1 (pr2 L')).
-  intros x Hx.
-  refine ((pr2 (pr2 L')) _ _).
-  exact Hx.
+  intros A.
+  apply hinhuniv.
+  intros (L',(Hl',Ha)).
+  generalize (Hl _ Hl').
+  apply hinhfun.
+  intros (x,Lx).
+  exists x.
+  now apply Ha.
 Qed.
 
 End filtergenerated.
@@ -1047,8 +1046,8 @@ Proof.
 Defined.
 
 Definition FilterGenerated {X : UU} (L : (X → hProp) → hProp)
-           (Hl : ∀ (L' : Sequence (X → hProp)), (∀ m, L (L' m))
-                       → ¬ ∀ x : X, ¬ finite_intersection L' x) : Filter X.
+           (Hl : ∀ L' : Sequence (X → hProp),
+  (∀ m : stn (length L'), L (L' m)) → ∃ x : X, finite_intersection L' x) : Filter X.
 Proof.
   intros X L Hl.
   exists (PreFilterGenerated L).
@@ -1087,7 +1086,7 @@ Lemma FilterGenerated_correct {X : UU} :
    ∀ (L : (X → hProp) → hProp)
    (Hl : ∀ L' : Sequence (X → hProp),
          (∀ m, L (L' m)) →
-         ¬ (∀ x : X, ¬ finite_intersection L' x)),
+         (∃ x : X, finite_intersection L' x)),
    (∀ A : X → hProp, L A → (FilterGenerated L Hl) A)
    × (∀ F : Filter X,
       (∀ A : X → hProp, L A → F A) → filter_le F (FilterGenerated L Hl)).
@@ -1117,13 +1116,11 @@ Lemma FilterGenerated_inv {X : UU} :
    (∀ A : X → hProp, L A → F A) →
    ∀ (L' : Sequence (X → hProp)),
    (∀ m, L (L' m)) →
-   ¬ (∀ x : X, ¬ finite_intersection L' x).
+   (∃ x : X, finite_intersection L' x).
 Proof.
   intros X.
-  intros L F Hf L' Hl' H.
+  intros L F Hf L' Hl'.
   apply (filter_notempty F).
-  refine (filter_imply _ _ _ _ _).
-  apply H.
   apply filter_finite_intersection.
   intros m.
   apply Hf, Hl'.
@@ -1132,42 +1129,24 @@ Qed.
 Lemma ex_filter_le {X : UU} :
   ∀ (F : Filter X) (A : X → hProp),
     (Σ G : Filter X, filter_le G F × G A)
-    <-> (∀ B : X → hProp, F B → ¬ (∀ x : X, A x → B x → ∅)).
+    <-> (∀ B : X → hProp, F B → (∃ x : X, A x ∧ B x)).
 Proof.
   intros X.
   intros F A.
   split.
-  - intros G B Fb H.
-    simple refine (FilterGenerated_inv _ _ _ _ _ _).
-    + exact X.
-    + intros C.
-      apply (F C ∨ C = A).
-    + apply (pr1 G).
-    + intros C.
-      apply hinhuniv.
-      intros [Fc | ->].
-      apply (pr1 (pr2 G)), Fc.
-      apply (pr2 (pr2 G)).
-    + apply (pairSequence A B).
-    + intros (m,Hm).
-      apply hinhpr.
-      destruct m ; simpl.
-      now right.
-      now left.
-    + intros x.
-      rewrite finite_intersection_and.
-      intros H0.
-      apply (H x).
-      apply (pr1 H0).
-      apply (pr2 H0).
+  - intros G B Fb.
+    apply (filter_notempty (pr1 G)).
+    apply filter_and.
+    apply (pr2 (pr2 G)).
+    now apply (pr1 (pr2 G)).
   - intros H.
     simple refine (tpair _ _ _).
     simple refine (FilterGenerated _ _).
     + intros B.
       apply (F B ∨ B = A).
-    + intros L Hl Hl'.
+    + intros L Hl.
       assert (B : ∃ B : X → hProp, F B × (∀ x, (A x ∧ B x → A x ∧ finite_intersection L x))).
-      { clear Hl' ; revert L Hl.
+      { revert L Hl.
         apply (Sequence_rect (P := λ L : Sequence (X → hProp),
                                     (∀ m : stn (length L), (λ B : X → hProp, F B ∨ B = A) (L m)) →
                                     ∃ B : X → hProp,
@@ -1213,11 +1192,12 @@ Proof.
             generalize (Hl (dni_lastelement m)) ; simpl.
             now rewrite append_fun_compute_1. }
       revert B.
-      apply (hinhuniv (P := hProppair _ isapropempty)).
+      apply hinhuniv.
       intros (B,(Fb,Hb)).
-      apply (H B Fb).
-      intros x Ax Bx.
-      apply (Hl' x).
+      generalize (H B Fb).
+      apply hinhfun.
+      intros (x,(Ax,Bx)).
+      exists x.
       simple refine (pr2 (Hb x _)).
       split.
       apply Ax.
@@ -1254,7 +1234,7 @@ Definition isbase_and :=
 Definition isbase_notempty :=
   ∃ A : X → hProp, base A.
 Definition isbase_notfalse :=
-  ¬ (base (λ _, hfalse)).
+  ∀ A, base A → ∃ x, A x.
 
 Definition isBaseOfPreFilter :=
   isbase_and × isbase_notempty.
@@ -1306,7 +1286,7 @@ Proof.
   apply (pr1 (pr2 (pr2 base))).
 Qed.
 Lemma BaseOfFilter_notfalse {X : UU} (base : BaseOfFilter X) :
-  ¬ (base (λ _, hfalse)).
+  ∀ A, base A → ∃ x, A x.
 Proof.
   intros X base.
   apply (pr2 (pr2 (pr2 base))).
@@ -1370,18 +1350,14 @@ Qed.
 Lemma filterbase_notempty :
   isfilter_notempty filterbase.
 Proof.
-  intros H ; revert H.
-  apply hinhuniv'.
-  exact isapropempty.
   intros A.
-  apply Hfalse.
-  assert ((λ _ : X, hfalse) = (pr1 A)).
-  { apply funextfun ; intro x.
-    apply uahp.
-    apply fromempty.
-    apply (pr2 (pr2 A)). }
-  rewrite X0 ; clear X0.
-  apply (pr1 (pr2 A)).
+  apply hinhuniv.
+  intros (B,(Hb,Ha)).
+  generalize (Hfalse _ Hb).
+  apply hinhfun.
+  intros (x,Bx).
+  exists x.
+  now apply Ha.
 Qed.
 
 Lemma base_finite_intersection :
@@ -1444,21 +1420,17 @@ Qed.
 Lemma filterbase_generated_hypothesis :
   ∀ L' : Sequence (X → hProp),
     (∀ m : stn (length L'), base (L' m))
-    → ¬ (∀ x : X, ¬ finite_intersection L' x).
+    → ∃ x : X, finite_intersection L' x.
 Proof.
-  intros L Hbase Hinter.
-  apply Hfalse.
+  intros L Hbase.
   generalize (base_finite_intersection L Hbase).
   apply hinhuniv.
   intros (A,(Ha,Ha')).
-  assert ((λ _ : X, hfalse) = A).
-  { apply funextfun ; intros x.
-    apply uahp.
-    easy.
-    intros Ax.
-    apply (Hinter x).
-    now apply Ha'. }
-  now rewrite X0.
+  generalize (Hfalse _ Ha).
+  apply hinhfun.
+  intros (x,Ax).
+  exists x.
+  now apply Ha'.
 Qed.
 
 End filterbase.
@@ -1481,7 +1453,10 @@ Proof.
   split.
   simple refine (pr2 (PreFilterBase base)).
   apply filterbase_notempty.
-  apply BaseOfFilter_notfalse.
+  intros A Ha.
+  simple refine (BaseOfFilter_notfalse _ _ _).
+  apply base.
+  apply Ha.
 Defined.
 
 Lemma PreFilterBase_Generated {X : UU} (base : BaseOfPreFilter X) :
@@ -1520,14 +1495,15 @@ Qed.
 Lemma FilterBase_Generated_hypothesis {X : UU} (base : BaseOfFilter X) :
   ∀ L' : Sequence (X → hProp),
     (∀ m : stn (length L'), base (L' m))
-    → ¬ (∀ x : X, ¬ finite_intersection L' x).
+    → ∃ x : X, finite_intersection L' x.
 Proof.
   intros X base.
   apply filterbase_generated_hypothesis.
   intros A B.
   apply (BaseOfFilter_and base).
   apply (BaseOfFilter_notempty base).
-  apply (BaseOfFilter_notfalse base).
+  intros A Ha.
+  now apply (BaseOfFilter_notfalse base).
 Qed.
 
 Lemma filterbase_le {X : UU} (base base' : (X → hProp) → hProp) :

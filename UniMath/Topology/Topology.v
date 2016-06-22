@@ -315,9 +315,10 @@ Proof.
                 apply tt]).
   - abstract (intros A B ;
               apply neighborhood_and).
-  - abstract (intros Hx ;
-              apply neighborhood_point in Hx ;
-              exact Hx).
+  - abstract (intros A Ha ;
+              apply hinhpr ;
+              exists x ;
+              now apply neighborhood_point in Ha).
 Defined.
 
 (** ** Base of Neighborhood *)
@@ -970,10 +971,11 @@ Proof.
   - apply locally_base_imply.
   - apply locally_base_htrue.
   - apply locally_base_and.
-  - intros Hx.
-    apply neighborhood_equiv in Hx.
-    apply neighborhood_point in Hx.
-    exact Hx.
+  - intros A Ha.
+    apply neighborhood_equiv in Ha.
+    apply neighborhood_point in Ha.
+    apply hinhpr.
+    now exists x.
 Defined.
 
 (** *** Limit of a filter *)
