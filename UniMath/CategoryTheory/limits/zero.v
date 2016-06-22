@@ -5,11 +5,11 @@ Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f ;; g" := (compose f g)(at level 50).
 
 Section def_zero.
 
@@ -44,11 +44,38 @@ Section def_zero.
     apply (pr2 (pr2 Z) _).
   Defined.
 
-  Lemma ArrowFromZero (Z : Zero) (b : C) (f g : Z --> b) : f = g.
+  Lemma ArrowsFromZero (Z : Zero) (b : C) (f g : Z --> b) : f = g.
   Proof.
     apply proofirrelevance.
     apply isapropifcontr.
     apply (pr1 (pr2 Z) _).
+  Defined.
+
+  (** For any pair of objects, there exists a unique arrow which factors
+    through the zero object *)
+  Definition ZeroArrow (Z : Zero) (a b : C) : C⟦a, b⟧
+    := (ZeroArrowTo Z a) ;; (ZeroArrowFrom Z b).
+
+  Lemma ZeroArrowEq (Z : Zero) (a b : C) (f1 : C⟦a, Z⟧) (g1 : C⟦Z, b⟧) :
+    f1 ;; g1 = ZeroArrow Z a b.
+  Proof.
+    rewrite (ArrowsToZero Z a f1 (ZeroArrowTo Z a)).
+    rewrite (ArrowsFromZero Z b g1 (ZeroArrowFrom Z b)).
+    apply idpath.
+  Defined.
+
+  Lemma ZeroArrow_comp_left (Z : Zero) (a b c : C) (f : C⟦b, c⟧) :
+    ZeroArrow Z a b ;; f = ZeroArrow Z a c.
+  Proof.
+    unfold ZeroArrow at 1. rewrite <- assoc.
+    apply ZeroArrowEq.
+  Defined.
+
+  Lemma ZeroArrow_comp_right (Z : Zero) (a b c : C) (f : C⟦a, b⟧) :
+    f ;; ZeroArrow Z b c = ZeroArrow Z a c.
+  Proof.
+    unfold ZeroArrow at 1. rewrite assoc.
+    apply ZeroArrowEq.
   Defined.
 
   Lemma ZeroEndo_is_identity (Z : Zero) (f : Z --> Z) : identity Z = f.

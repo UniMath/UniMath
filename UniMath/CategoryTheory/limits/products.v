@@ -170,7 +170,7 @@ Section product_functor.
 Context (I : UU) {C : precategory} (PC : Products I C).
 
 Definition product_functor_data :
-  functor_data (product_precategory I C) C.
+  functor_data (power_precategory I C) C.
 Proof.
 mkpair.
 - intros p.
@@ -179,7 +179,7 @@ mkpair.
   exact (ProductOfArrows _ _ _ _ f).
 Defined.
 
-Definition product_functor : functor (product_precategory I C) C.
+Definition product_functor : functor (power_precategory I C) C.
 Proof.
 apply (tpair _ product_functor_data).
 abstract (split;

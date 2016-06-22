@@ -293,10 +293,10 @@ now unfold ifI; destruct (HI i i) as [p|p]; [|destruct (p (idpath _))].
 Defined.
 
 Lemma isColimCocone_pr_functor
-  (c : chain (product_precategory I A))
-  (L : product_precategory I A) (ccL : cocone c L)
+  (c : chain (power_precategory I A))
+  (L : power_precategory I A) (ccL : cocone c L)
   (M : isColimCocone c L ccL) : forall i,
-  isColimCocone _ _ (mapcocone (pr_functor I A i) c ccL).
+  isColimCocone _ _ (mapcocone (pr_functor I (fun _ => A) i) c ccL).
 Proof.
 intros i x ccx; simpl in *.
 simple refine (let HHH : cocone c (fun j => ifI i j x (L j)) := _ in _).
@@ -305,7 +305,7 @@ simple refine (let HHH : cocone c (fun j => ifI i j x (L j)) := _ in _).
   - simpl; intros n j.
     destruct (HI i j) as [p|p].
     + apply (transportf (fun i => A ⟦ dob c n i, x ⟧) p (coconeIn ccx n)).
-    + apply (# (pr_functor I A j) (coconeIn ccL n)).
+    + apply (# (pr_functor I (fun _ => A) j) (coconeIn ccL n)).
   - abstract (simpl; intros m n e;
       apply funextsec; intro j; unfold compose; simpl;
       destruct (HI i j);
@@ -344,7 +344,7 @@ mkpair.
   now rewrite hp, idpath_transportf.
 Defined.
 
-Lemma is_omega_cocont_pr_functor (i : I) : is_omega_cocont (pr_functor I A i).
+Lemma is_omega_cocont_pr_functor (i : I) : is_omega_cocont (pr_functor I (fun _ => A) i).
 Proof.
 intros c L ccL M.
 now apply isColimCocone_pr_functor.
@@ -356,7 +356,7 @@ Lemma is_omega_cocont_pair_functor
 Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
 simple refine (let cc i : cocone (mapdiagram (F i)
-                            (mapdiagram (pr_functor I A i) cAB)) (xy i) := _ in _).
+                            (mapdiagram (pr_functor I (fun _ => A) i) cAB)) (xy i) := _ in _).
 { simple refine (mk_cocone _ _).
   - intro n; apply (pr1 ccxy n).
   - abstract (intros m n e;
@@ -408,7 +408,7 @@ Variables (I : UU) (C : precategory) (PC : Products I C) (hsC : has_homsets C).
 Lemma cocont_delta_functor : is_cocont (delta_functor I C).
 Proof.
 apply (left_adjoint_cocont _ (is_left_adjoint_delta_functor _ PC) hsC).
-abstract (apply (has_homsets_product_precategory _ _ hsC)).
+abstract (apply (has_homsets_power_precategory _ _ hsC)).
 Defined.
 
 Lemma is_omega_cocont_delta_functor :
@@ -450,7 +450,7 @@ Lemma cocont_indexed_coproduct_functor :
   is_cocont (indexed_coproduct_functor _ PC).
 Proof.
 apply (left_adjoint_cocont _ (is_left_adjoint_indexed_coproduct_functor _ PC)).
-- abstract (apply has_homsets_product_precategory; apply hsC).
+- abstract (apply has_homsets_power_precategory; apply hsC).
 - abstract (apply hsC).
 Defined.
 
