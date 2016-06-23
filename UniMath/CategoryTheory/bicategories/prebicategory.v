@@ -74,7 +74,7 @@ Defined.
 Local Notation "alpha ;h; beta" := (compose_2mor_horizontal alpha beta) (at level 50, format "alpha ;h; beta").
 (* TODO: come up with a reasonable precedence for ;v; ;h; *)
 
-Definition associator_trans { C : prebicategory_id_comp } (a b c d : C) :=
+Definition associator_trans_type { C : prebicategory_id_comp } (a b c d : C) :=
   nat_trans
     (functor_composite
       (product_functor (functor_identity _) (compose_functor b c d))
@@ -85,7 +85,7 @@ Definition associator_trans { C : prebicategory_id_comp } (a b c d : C) :=
         (product_functor (compose_functor a b c) (functor_identity _))
         (compose_functor a c d))).
 
-Definition left_unitor_trans { C : prebicategory_id_comp } (a b : C) :=
+Definition left_unitor_trans_type { C : prebicategory_id_comp } (a b : C) :=
   nat_trans
     (functor_composite
       (pair_functor
@@ -94,7 +94,7 @@ Definition left_unitor_trans { C : prebicategory_id_comp } (a b : C) :=
       (compose_functor a a b))
     (functor_identity _).
 
-Definition right_unitor_trans { C : prebicategory_id_comp } (a b : C) :=
+Definition right_unitor_trans_type { C : prebicategory_id_comp } (a b : C) :=
   nat_trans
     (functor_composite
       (pair_functor
@@ -106,11 +106,11 @@ Definition right_unitor_trans { C : prebicategory_id_comp } (a b : C) :=
 Definition prebicategory_data :=
   total2 (fun C : prebicategory_id_comp =>
     dirprod
-      (forall a b c d : C, associator_trans a b c d)
+      (forall a b c d : C, associator_trans_type a b c d)
       ( dirprod
-        (forall a b : C, left_unitor_trans a b)
+        (forall a b : C, left_unitor_trans_type a b)
         (* Right *)
-        (forall a b : C, right_unitor_trans a b)
+        (forall a b : C, right_unitor_trans_type a b)
       )).
 
 Definition prebicategory_id_comp_from_prebicategory_data (C : prebicategory_data) :
@@ -130,25 +130,31 @@ Definition associator_2mor {C : prebicategory_data} { a b c d : C }
   : (f ;1; (g ;1; h)) -2-> ((f ;1; g) ;1; h).
 Proof.
   set (A := pr1 (pr2 C) a b c d).
-  unfold associator_trans in A.
+  unfold associator_trans_type in A.
   exact (A (prodcatpair f (prodcatpair g h))).
 Defined.
+
+Definition left_unitor_trans {C : prebicategory_data} ( a b : C )
+  := pr1 (pr2 (pr2 C)) a b.
 
 Definition left_unitor_2mor {C : prebicategory_data} { a b : C }
            (f : a -1-> b)
   : (identity_1mor a) ;1; f -2-> f.
 Proof.
-  set (A := pr1 (pr2 (pr2 C)) a b).
-  unfold left_unitor_trans in A.
+  set (A := left_unitor_trans a b).
+  unfold left_unitor_trans_type in A.
   exact (A f).
 Defined.
+
+Definition right_unitor_trans {C : prebicategory_data} ( a b : C )
+  := pr2 (pr2 (pr2 C)) a b.
 
 Definition right_unitor_2mor {C : prebicategory_data} { a b : C }
            (f : a -1-> b)
   : f ;1; (identity_1mor b) -2-> f.
 Proof.
-  set (A := pr2 (pr2 (pr2 C)) a b).
-  unfold right_unitor_trans in A.
+  set (A := right_unitor_trans a b).
+  unfold right_unitor_trans_type in A.
   exact (A f).
 Defined.
 
@@ -242,6 +248,28 @@ Proof.
   - exact ((pr2 (pr2 (pr1 (pr2 (pr2 C))))) a b f).
 Defined.
 
+Definition id_2mor_left {C : prebicategory} {b c : C}
+  { g g' : b -1-> c }
+  ( beta : g -2-> g' )
+  : identity_2mor (identity_1mor _) ;h; beta
+  = left_unitor _ ;v; beta ;v; iso_inv_from_iso (left_unitor _).
+Proof.
+  apply iso_inv_on_left.
+  apply pathsinv0.
+  apply (nat_trans_ax (left_unitor_trans b c)).
+Defined.
+
+Definition id_2mor_right {C : prebicategory} {a b : C}
+  { f f' : a -1-> b }
+  ( alpha : f -2-> f' )
+  : alpha ;h; identity_2mor (identity_1mor _)
+  = right_unitor _ ;v; alpha ;v; iso_inv_from_iso (right_unitor _).
+Proof.
+  apply iso_inv_on_left.
+  apply pathsinv0.
+  apply (nat_trans_ax (right_unitor_trans a b)).
+Defined.
+
 (******************************************************************************)
 (* Interchange Law *)
 
@@ -267,6 +295,25 @@ Definition whisker_left {C : prebicategory} {a b c : C}
            (f : a -1-> b) {g h : b -1-> c} (alpha : g -2-> h)
   : (f ;1; g) -2-> (f ;1; h)
   := (identity_2mor f) ;h; alpha.
+
+Definition whisker_left_id_1mor {C : prebicategory} {b c : C}
+           {g h : b -1-> c} (alpha : g -2-> h)
+  : whisker_left (identity_1mor _) alpha =
+    left_unitor _ ;v; alpha ;v; iso_inv_from_iso (left_unitor _).
+Proof.
+  unfold whisker_left.
+  apply id_2mor_left.
+Defined.
+
+Definition whisker_left_id_2mor {C : prebicategory} {a b c : C}
+           (f : a -1-> b) (g : b -1-> c)
+  : whisker_left f (identity_2mor g) = identity_2mor (f ;1; g).
+Proof.
+  pathvia (functor_on_morphisms (compose_functor a b c)
+                                (identity (prodcatpair f g))).
+  reflexivity.
+  apply functor_id.
+Defined.
 
 Definition whisker_left_iso {C : prebicategory} {a b c : C}
            (f : a -1-> b) {g h : b -1-> c} (alpha : iso g h)
@@ -297,6 +344,25 @@ Definition whisker_right {C : prebicategory} {a b c : C}
   {f g : a -1-> b} (alpha : f -2-> g) (h : b -1-> c)
   : (f ;1; h) -2-> (g ;1; h)
   := alpha ;h; (identity_2mor h).
+
+Definition whisker_right_id_1mor {C : prebicategory} {a b : C}
+           {f g : a -1-> b} (alpha : f -2-> g)
+  : whisker_right alpha (identity_1mor _) =
+    right_unitor _ ;v; alpha ;v; iso_inv_from_iso (right_unitor _).
+Proof.
+  unfold whisker_right.
+  apply id_2mor_right.
+Defined.
+
+Definition whisker_right_id_2mor {C : prebicategory} {a b c : C}
+  (f : a -1-> b) (g : b -1-> c)
+  : whisker_right (identity_2mor f) g = identity_2mor (f ;1; g).
+Proof.
+  pathvia (functor_on_morphisms (compose_functor a b c)
+                                (identity (prodcatpair f g))).
+  reflexivity.
+  apply functor_id.
+Defined.
 
 Definition whisker_right_iso {C : prebicategory} {a b c : C}
            {f g : a -1-> b} (alpha : iso f g) (h : b -1-> c)
