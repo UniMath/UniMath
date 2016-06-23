@@ -387,3 +387,22 @@ Proof.
     reflexivity.
   - apply interchange.
 Defined.
+
+Definition twomor_naturality {C : prebicategory} {a : C}
+  {f g h i : a -1-> a}
+  (alpha : f -2-> g) (beta  : h -2-> i)
+  : (whisker_right beta f) ;v; (whisker_left i alpha)
+  = (whisker_left h alpha) ;v; (whisker_right beta g).
+Proof.
+  unfold whisker_left, whisker_right.
+
+  pathvia ((beta ;v; identity_2mor i);h;(identity_2mor f ;v; alpha)).
+    apply pathsinv0.
+    apply interchange.
+
+  pathvia ((identity_2mor h ;v; beta);h;(alpha ;v; identity_2mor g)).
+    rewrite !id_left, !id_right.
+    reflexivity.
+
+  apply interchange.
+Defined.
