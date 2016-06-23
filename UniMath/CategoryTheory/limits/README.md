@@ -17,7 +17,7 @@ This directory contains the definition of some limits for the notion of precateg
   * proof that terminal object is a property in a category
   * link with empty product
 * *pullbacks.v* --- direct formalization of pullbacks; proof that pullbacks form a property in a category
-* *products_from_pullbacks.v* ---
+* *products_from_pullbacks.v* --- an obsolete file that does not enter the compilation procedure triggered by the makefile
 * *more_on_pullbacks.v* --- symmetry; on sections; pb chasing; reflection and preservation; pointwise constructions in functor precategory 
 * *binproducts.v*
   * direct formalization of binary product
