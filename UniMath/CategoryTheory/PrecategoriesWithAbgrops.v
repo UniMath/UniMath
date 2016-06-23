@@ -1,4 +1,4 @@
-(** precategories enriched in abelian groups (abgrops). *)
+(** precategories such that homsets are abelian groups (abgrops). *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.

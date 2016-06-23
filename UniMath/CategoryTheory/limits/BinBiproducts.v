@@ -81,7 +81,7 @@ Section def_binbiproducts.
     : isBinBiproductCone a b co i1 i2 p1 p2
     := isBC,,(isBP,,(H1,,(H2,,(H3,,(H4,,H5))))).
 
-  (** Definition of Biproducts. *)
+  (** Definition of BinBiproducts. *)
   Definition BinBiproductCone (a b : A) : UU :=
     Σ coab : (Σ co : A, a --> co × b --> co × co --> a × co --> b),
              isBinBiproductCone
@@ -90,7 +90,7 @@ Section def_binbiproducts.
                (pr1 (pr2 (pr2 (pr2 coab))))
                (pr2 (pr2 (pr2 (pr2 coab)))).
 
-  (** Construction of BiProductCone *)
+  (** Construction of BinBiProductCone. *)
   Definition mk_BinBiproductCone (a b co : A)
              (i1 : a --> co) (i2 : b --> co) (p1 : co --> a) (p2 : co --> b)
              (H :  isBinBiproductCone a b co i1 i2 p1 p2) :
@@ -145,7 +145,7 @@ Section def_binbiproducts.
   Definition BinBiproductId {a b : A} (B : BinBiproductCone a b)
     := isBinBiproductCone_id (BinBiproduct_isBinBiproduct B).
 
-  (** Construction of BinCoproduct and BinProduct from BinBiProduct. *)
+  (** Construction of BinCoproduct and BinProduct from BinBiproduct. *)
   Definition BinBiproduct_isBinCoproduct {a b : A} (B : BinBiproductCone a b) :
     isBinCoproductCocone A a b B (BinBiproductIn1 B) (BinBiproductIn2 B)
     := pr1 (BinBiproduct_isBinBiproduct B).
@@ -209,7 +209,7 @@ Section def_binbiproducts.
   Defined.
 
   (** Uniqueness of arrow to and from BinBiproduct using the BinProduct
-    and BinCoproduct structures.  *)
+    and BinCoproduct structures. *)
   Definition ToBinBiproductUnique {a b : A} (B : BinBiproductCone a b) {c : A}
     (f : c --> a) (g : c --> b) (k : c --> B) :
     k ;; BinBiproductPr1 B = f -> k ;; BinBiproductPr2 B = g ->
@@ -306,7 +306,7 @@ Section def_binbiproducts.
     rewrite XX.
     apply (PrecategoryWithAbgrops_runax A a c).
 
-    (* Second commutativity*)
+    (* Second commutativity *)
     set (X := (PreAdditive_premor_linear
                  A b B c (BinBiproductIn2 B) (BinBiproductPr1 B ;; f)
                  (BinBiproductPr2 B ;; g))).
@@ -325,7 +325,7 @@ Section def_binbiproducts.
 
   (** The following definitions give 2 ways to construct a morphisms
     a ⊕ c --> b ⊕ d from two morphisms f : a --> b and g : c --> d , by using
-    the binary biproducts as a product and as a coproduct.  *)
+    the binary biproducts as a product and as a coproduct. *)
   Definition BinBiproductIndAr {a b c d : A} (f : a --> b) (g : c --> d)
              (B1 : BinBiproductCone a c) (B2 : BinBiproductCone b d) :
     A⟦B1, B2⟧ := ToBinBiproduct B2 ((BinBiproductPr1 B1) ;; f)
@@ -351,7 +351,7 @@ Section def_binbiproducts.
     apply (maponpaths (fun f => f ;; (BinBiproductPr1 B2))) in X.
     apply pathsinv0 in X. apply X.
 
-    (** Now we have the formula. *)
+    (* Now we have the formula. *)
     unfold FromBinBiproductFormula.
     rewrite assoc. rewrite assoc.
     set (X := (PreAdditive_postmor_linear

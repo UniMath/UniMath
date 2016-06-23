@@ -68,7 +68,7 @@ Section def_preadditive.
     := dirprod_pr1 (PreAdditive_postmor x y z f).
 
   (** The following says that composing with zero object yields a zero
-    object.  *)
+    object. *)
   Definition PreAdditive_premor_0 (x y z : A) (f : x --> y) :
     PrecategoryWithAbgrops_premor A x y z f 1%multmonoid = 1%multmonoid
     := dirprod_pr2 (PreAdditive_premor x y z f).
