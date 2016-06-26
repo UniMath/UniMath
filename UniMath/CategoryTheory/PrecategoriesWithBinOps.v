@@ -15,18 +15,11 @@ Section def_precategory_with_binops.
 
 
   (** Definition of precategories such that homs are binops. *)
-  Definition is_PrecategoryWithBinOps (C : precategory) :=
+  Definition PrecategoryWithBinOpsData (C : precategory) :=
     forall (x y : C), binop (C⟦x, y⟧).
-  Definition mk_isPrecategoryWithBinOps (C : precategory)
-             (H : forall (x y : C), binop(C⟦x, y⟧)) :
-    is_PrecategoryWithBinOps C.
-  Proof.
-    intros x y.
-    exact (H x y).
-  Defined.
 
   Definition PrecategoryWithBinOps :
-    UU := Σ C : precategory, is_PrecategoryWithBinOps C.
+    UU := Σ C : precategory, PrecategoryWithBinOpsData C.
   Definition PrecategoryWithBinOps_precategory (P : PrecategoryWithBinOps) :
     precategory := pr1 P.
   Coercion PrecategoryWithBinOps_precategory :
@@ -35,7 +28,7 @@ Section def_precategory_with_binops.
   Variable BC : PrecategoryWithBinOps.
 
   Definition mk_PrecategoryWithBinOps (C : precategory)
-             (H : is_PrecategoryWithBinOps C) : PrecategoryWithBinOps.
+             (H : PrecategoryWithBinOpsData C) : PrecategoryWithBinOps.
   Proof.
     exact (tpair _ C H).
   Defined.

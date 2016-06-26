@@ -9,9 +9,10 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
-
 Require Import UniMath.CategoryTheory.PrecategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+
+Require Import UniMath.CategoryTheory.limits.zero.
 
 Section def_preadditive.
 
@@ -77,3 +78,34 @@ Section def_preadditive.
     := dirprod_pr2 (PreAdditive_postmor x y z f).
 
 End def_preadditive.
+
+
+(** In the following section we prove that if a preadditive category has a zero
+  object, then in a homset the unit element is given by the zero arrow *)
+Section preadditive_with_zero.
+
+  Variable A : PreAdditive.
+
+  (** Proof that the zero arrow and the unit element coincide *)
+  Lemma PreAdditive_unel_zero (Z : Zero A) (x y : A):
+    PrecategoryWithAbgrops_unel A x y = ZeroArrow A Z x y.
+  Proof.
+    unfold ZeroArrow.
+    rewrite <- (id_left A _ _ (ZeroArrowFrom y)).
+    assert (identity Z = PrecategoryWithAbgrops_unel A Z Z) by
+        apply ZeroEndo_is_identity.
+    rewrite -> X.
+
+    set (Y := PreAdditive_postmor_0 A Z _ _ (@ZeroArrowFrom A Z y)).
+    unfold PrecategoryWithAbgrops_postmor in Y.
+    unfold PrecategoryWithAbgrops_unel.
+    rewrite Y.
+
+    set (Y' := PreAdditive_premor_0 A  _ _ y (@ZeroArrowTo A Z x)).
+    unfold PrecategoryWithAbgrops_premor in Y'.
+    rewrite Y'.
+
+    apply idpath.
+  Qed.
+
+End preadditive_with_zero.

@@ -239,7 +239,7 @@ Section def_binbiproducts.
 
   (** Let us prove that these formulas indeed are the unique morphisms we
     claimed them to be. *)
-  Lemma ToBinproductFormulaUnique {a b : A} (B : BinBiproductCone a b) {c : A}
+  Lemma ToBinBiproductFormulaUnique {a b : A} (B : BinBiproductCone a b) {c : A}
         (f : c --> a) (g : c --> b) :
     ToBinBiproductFormula B f g = ToBinBiproduct B f g.
   Proof.
@@ -336,76 +336,44 @@ Section def_binbiproducts.
     A⟦B1, B2⟧ := FromBinBiproduct B1 (f ;; (BinBiproductIn1 B2))
                                   (g ;; (BinBiproductIn2 B2)).
 
-  (** The main idea of biproducts in preadditive categories is that in these
-     categories the above 2 morphisms are equal. *)
+  (** Both of the above morphisms are given by the following formula. *)
+  Definition BinBiproductIndArFormula {a b c d: A}  (f : a --> b) (g : c --> d)
+             (B1 : BinBiproductCone a c) (B2 : BinBiproductCone b d) : A⟦B1, B2⟧
+    := (PrecategoryWithAbgrops_op A B1 B2)
+         (BinBiproductPr1 B1 ;; f ;; BinBiproductIn1 B2)
+         (BinBiproductPr2 B1 ;; g ;; BinBiproductIn2 B2).
+
+  Lemma BinBiproductIndArEq1 {a b c d : A} (f : a --> b) (g : c --> d)
+             (B1 : BinBiproductCone a c) (B2 : BinBiproductCone b d) :
+    BinBiproductIndAr f g B1 B2 = BinBiproductIndArFormula f g B1 B2.
+  Proof.
+    unfold BinBiproductIndAr.
+    rewrite <- ToBinBiproductFormulaUnique.
+    unfold ToBinBiproductFormula.
+    unfold BinBiproductIndArFormula.
+    apply idpath.
+  Defined.
+
+  Lemma BinBiproductIndArEq2 {a b c d : A} (f : a --> b) (g : c --> d)
+             (B1 : BinBiproductCone a c) (B2 : BinBiproductCone b d) :
+    BinBiproductIndAr' f g B1 B2 = BinBiproductIndArFormula f g B1 B2.
+  Proof.
+    unfold BinBiproductIndAr'.
+    rewrite <- FromBinBiproductFormulaUnique.
+    unfold FromBinBiproductFormula.
+    unfold BinBiproductIndArFormula.
+    rewrite assoc. rewrite assoc.
+    apply idpath.
+  Defined.
+
+  (** Thus we have equality. *)
   Definition BinBiproductIndArEq {a b c d : A} (f : a --> b) (g : c --> d)
              (B1 : BinBiproductCone a c) (B2 : BinBiproductCone b d) :
     BinBiproductIndAr f g B1 B2 = BinBiproductIndAr' f g B1 B2.
   Proof.
-    apply pathsinv0.
-    unfold BinBiproductIndAr, BinBiproductIndAr'.
-    apply ToBinBiproductUnique.
-    eapply pathscomp0.
-    set (X := FromBinBiproductFormulaUnique B1 (f ;; BinBiproductIn1 B2)
-                                            (g ;; BinBiproductIn2 B2)).
-    apply (maponpaths (fun f => f ;; (BinBiproductPr1 B2))) in X.
-    apply pathsinv0 in X. apply X.
-
-    (* Now we have the formula. *)
-    unfold FromBinBiproductFormula.
-    rewrite assoc. rewrite assoc.
-    set (X := (PreAdditive_postmor_linear
-                 A B1 B2 b (BinBiproductPr1 B2)
-                 (BinBiproductPr1 B1 ;; f ;; BinBiproductIn1 B2)
-                 (BinBiproductPr2 B1 ;; g ;; BinBiproductIn2 B2))).
-    unfold PrecategoryWithAbgrops_postmor in X.
-    eapply pathscomp0. apply X.
-    rewrite <- assoc.
-    rewrite (BinBiproductIdIn1 B2).
-    rewrite <- assoc. rewrite id_right.
-    rewrite <- assoc.
-    rewrite (BinBiproductUnit2 B2).
-    rewrite <- assoc.
-    set (XX := PreAdditive_premor_0 A c d b g).
-    unfold PrecategoryWithAbgrops_premor in XX.
-    unfold PrecategoryWithAbgrops_unel.
-    rewrite XX.
-    set (XXX := PreAdditive_premor_0 A B1 c b (BinBiproductPr2 B1)).
-    unfold PrecategoryWithAbgrops_premor in XXX.
-    unfold PrecategoryWithAbgrops_unel.
-    rewrite XXX.
-    apply (PrecategoryWithAbgrops_runax A _ _).
-
-    (* Second commutativity for uniqueness. *)
-    eapply pathscomp0.
-    set (X := FromBinBiproductFormulaUnique B1 (f ;; BinBiproductIn1 B2)
-                                            (g ;; BinBiproductIn2 B2)).
-    apply (maponpaths (fun f => f ;; (BinBiproductPr2 B2))) in X.
-    apply pathsinv0 in X. apply X.
-
-    (* Now we hav the formula *)
-    unfold FromBinBiproductFormula.
-    rewrite assoc. rewrite assoc.
-    set (X := (PreAdditive_postmor_linear
-                 A B1 B2 d (BinBiproductPr2 B2)
-                 (BinBiproductPr1 B1 ;; f ;; BinBiproductIn1 B2)
-                 (BinBiproductPr2 B1 ;; g ;; BinBiproductIn2 B2))).
-    unfold PrecategoryWithAbgrops_postmor in X.
-    eapply pathscomp0. apply X.
-    rewrite <- assoc.
-    rewrite (BinBiproductUnit1 B2).
-    rewrite <- assoc. rewrite <- assoc.
-    rewrite (BinBiproductIdIn2 B2).
-    rewrite <- assoc.
-    rewrite id_right.
-    set (XX := PreAdditive_premor_0 A a b d f).
-    unfold PrecategoryWithAbgrops_premor in XX.
-    unfold PrecategoryWithAbgrops_unel.
-    rewrite XX.
-    set (XXX := PreAdditive_premor_0 A B1 a d (BinBiproductPr1 B1)).
-    unfold PrecategoryWithAbgrops_premor in XXX.
-    unfold PrecategoryWithAbgrops_unel.
-    rewrite XXX.
-    apply (PrecategoryWithAbgrops_lunax A _ _).
+    rewrite -> BinBiproductIndArEq1.
+    rewrite -> BinBiproductIndArEq2.
+    apply idpath.
   Defined.
+
 End def_binbiproducts.
