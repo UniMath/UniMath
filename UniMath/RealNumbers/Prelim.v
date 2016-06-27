@@ -229,8 +229,37 @@ Proof.
   - reflexivity.
   - intros n m k.
     apply istransnatgth.
-  - admit. (*apply isarchnat.*)
-Admitted.
+  - generalize isarchnat ; intros (H,(H0,H1)).
+    repeat split.
+    + intros y1 y2 Hy.
+      refine (hinhfun _ _).
+      2: apply (H y1 y2).
+      intros (n,Hn).
+      exists n.
+      apply hinhpr.
+      exists O.
+      now rewrite !natplusr0.
+      revert Hy.
+      apply hinhuniv.
+      intros (c).
+      apply natgthandplusrinv.
+    + intros x.
+      generalize (H0 x).
+      apply hinhfun.
+      intros (n,Hn).
+      exists n.
+      apply hinhpr.
+      exists O.
+      now rewrite !natplusr0.
+    + intros x.
+      generalize (H1 x).
+      apply hinhfun.
+      intros (n,Hn).
+      exists n.
+      apply hinhpr.
+      exists O.
+      now rewrite !natplusr0.
+Qed.
 
 Lemma isarchhq :
   isarchfld (X := hq) hqgth.
