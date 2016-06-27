@@ -42,8 +42,8 @@ Definition tallyStandardSubsetSegment {n} (P: DecidableSubtype (stn n))
   (* count how many elements less than i satisfy P *)
   intros.
   assert (k := tallyStandardSubset
-                 (λ j:stn i, P (stnincl i n (natlthtoleh i n (pr2 i)) j))).
-  apply (stnincl (S i) n).
+                 (λ j:stn i, P (stnmtostnn i n (natlthtoleh i n (pr2 i)) j))).
+  apply (stnmtostnn (S i) n).
   { apply natlthtolehsn. exact (pr2 i). }
   exact k.
 Defined.
