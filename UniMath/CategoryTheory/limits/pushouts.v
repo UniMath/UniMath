@@ -126,7 +126,7 @@ Section def_po.
     apply H'. assumption.
   Defined.
 
-  Lemma MorphismsIntoPushoutEqual {a b c d : C} {p1 : a --> b} {p2 : a --> c}
+  Lemma MorphismsOutofPushoutEqual {a b c d : C} {p1 : a --> b} {p2 : a --> c}
         {f : b --> d} {g : c --> d} {H : p1 ;; f = p2 ;; g}
         (P : isPushout p1 p2 f g H) {e}
         (w w': d --> e)
@@ -304,7 +304,7 @@ Section epi_po.
         (PB : Pushout E g) : isEpi _ (PushoutPr2 PB).
   Proof.
     apply mk_isEpi. intros z g0 h X.
-    use (MorphismsIntoPushoutEqual (isPushout_Pushout PB) _ _ _ X).
+    use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ _ X).
 
     set (X0 := maponpaths (fun f => g ;; f) X); simpl in X0.
     rewrite assoc in X0. rewrite assoc in X0.
@@ -318,7 +318,7 @@ Section epi_po.
         (PB : Pushout f E) : isEpi _ (PushoutPr1 PB).
   Proof.
     apply mk_isEpi. intros z g0 h X.
-    use (MorphismsIntoPushoutEqual (isPushout_Pushout PB) _ _ X).
+    use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ X).
 
     set (X0 := maponpaths (fun f' => f ;; f') X); simpl in X0.
     rewrite assoc in X0. rewrite assoc in X0.
