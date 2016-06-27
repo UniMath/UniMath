@@ -74,6 +74,17 @@ Defined.
 Local Notation "alpha ;h; beta" := (compose_2mor_horizontal alpha beta) (at level 50, format "alpha ;h; beta").
 (* TODO: come up with a reasonable precedence for ;v; ;h; *)
 
+Definition compose_2mor_iso_horizontal {C : prebicategory_id_comp} {a b c : C}
+           { f f' : a -1-> b } { g g' : b -1-> c }
+           ( alpha : iso f f' ) ( beta : iso g g' )
+  : iso ( f ;1; g ) ( f' ;1; g' ).
+Proof.
+  apply functor_on_iso.
+  exact (prodcatiso alpha beta).
+Defined.
+
+Local Notation "alpha ;hi; beta" := (compose_2mor_iso_horizontal alpha beta) (at level 50, format "alpha ;hi; beta").
+
 Definition associator_trans_type { C : prebicategory_id_comp } (a b c d : C) :=
   nat_trans
     (functor_composite
@@ -168,7 +179,7 @@ Definition associator_and_unitors_are_iso (C : prebicategory_data)
      × (forall a b : C,
         forall g : a -1-> b, is_iso (right_unitor_2mor g)).
 
-Definition pentagon_axiom { C : prebicategory_data } { a b c d e : C }
+Definition pentagon_axiom_type { C : prebicategory_data } { a b c d e : C }
   (k : a -1-> b)
   (h : b -1-> c)
   (g : c -1-> d)
@@ -184,7 +195,7 @@ Definition pentagon_axiom { C : prebicategory_data } { a b c d e : C }
     ;v; ((associator_2mor k h g) ;h; (identity f))
   .
 
-Definition triangle_axiom {C : prebicategory_data} { a b c : C }
+Definition triangle_axiom_type {C : prebicategory_data} { a b c : C }
            (f : a -1-> b)
            (g : b -1-> c)
   :=       ((identity_2mor f) ;h; (left_unitor_2mor g))
@@ -197,12 +208,12 @@ Definition prebicategory_coherence (C : prebicategory_data)
       forall h : b -1-> c,
       forall g : c -1-> d,
       forall f : d -1-> e,
-        pentagon_axiom k h g f)
+        pentagon_axiom_type k h g f)
      ×
      (forall a b c : C,
       forall f : a -1-> b,
       forall g : b -1-> c,
-        triangle_axiom f g).
+        triangle_axiom_type f g).
 
 Definition is_prebicategory (C : prebicategory_data) :=
                 (has_2mor_sets C)
@@ -248,7 +259,23 @@ Proof.
   - exact ((pr2 (pr2 (pr1 (pr2 (pr2 C))))) a b f).
 Defined.
 
-Definition id_2mor_left {C : prebicategory} {b c : C}
+Definition pentagon_axiom {C : prebicategory} { a b c d e: C }
+  (k : a -1-> b)
+  (h : b -1-> c)
+  (g : c -1-> d)
+  (f : d -1-> e)
+  : pentagon_axiom_type k h g f
+  := pr1 (pr2 (pr2 (pr2 C))) a b c d e k h g f.
+
+Definition triangle_axiom {C : prebicategory} { a b c : C }
+  (f : a -1-> b) (g : b -1-> c)
+  : triangle_axiom_type f g
+  := pr2 (pr2 (pr2 (pr2 C))) a b c f g.
+
+(******************************************************************************)
+(* Basics on identities and inverses *)
+
+Lemma id_2mor_left {C : prebicategory} {b c : C}
   { g g' : b -1-> c }
   ( beta : g -2-> g' )
   : identity_2mor (identity_1mor _) ;h; beta
@@ -259,7 +286,7 @@ Proof.
   apply (nat_trans_ax (left_unitor_trans b c)).
 Defined.
 
-Definition id_2mor_right {C : prebicategory} {a b : C}
+Lemma id_2mor_right {C : prebicategory} {a b : C}
   { f f' : a -1-> b }
   ( alpha : f -2-> f' )
   : alpha ;h; identity_2mor (identity_1mor _)
@@ -268,6 +295,17 @@ Proof.
   apply iso_inv_on_left.
   apply pathsinv0.
   apply (nat_trans_ax (right_unitor_trans a b)).
+Defined.
+
+Lemma inv_horizontal_comp {C : prebicategory_id_comp} {a b c : C}
+      { f f' : a -1-> b } { g g' : b -1-> c }
+      ( alpha : iso f f' ) ( beta : iso g g' )
+  : (iso_inv_from_iso alpha) ;hi; (iso_inv_from_iso beta)
+  = iso_inv_from_iso (alpha ;hi; beta).
+Proof.
+  unfold compose_2mor_iso_horizontal.
+  rewrite prodcatiso_inv.
+  apply functor_on_iso_inv.
 Defined.
 
 (******************************************************************************)
@@ -296,7 +334,7 @@ Definition whisker_left {C : prebicategory} {a b c : C}
   : (f ;1; g) -2-> (f ;1; h)
   := (identity_2mor f) ;h; alpha.
 
-Definition whisker_left_id_1mor {C : prebicategory} {b c : C}
+Lemma whisker_left_id_1mor {C : prebicategory} {b c : C}
            {g h : b -1-> c} (alpha : g -2-> h)
   : whisker_left (identity_1mor _) alpha =
     left_unitor _ ;v; alpha ;v; iso_inv_from_iso (left_unitor _).
@@ -305,7 +343,7 @@ Proof.
   apply id_2mor_left.
 Defined.
 
-Definition whisker_left_id_2mor {C : prebicategory} {a b c : C}
+Lemma whisker_left_id_2mor {C : prebicategory} {a b c : C}
            (f : a -1-> b) (g : b -1-> c)
   : whisker_left f (identity_2mor g) = identity_2mor (f ;1; g).
 Proof.
@@ -317,17 +355,20 @@ Defined.
 
 Definition whisker_left_iso {C : prebicategory} {a b c : C}
            (f : a -1-> b) {g h : b -1-> c} (alpha : iso g h)
-  : iso (f ;1; g) (f ;1; h).
+  : iso (f ;1; g) (f ;1; h)
+  := (identity_iso f) ;hi; alpha.
+
+Definition whisker_left_inv {C : prebicategory} {a b c : C}
+           (f : a -1-> b) {g h : b -1-> c} (alpha : iso g h)
+  : whisker_left_iso f (iso_inv_from_iso alpha)
+  = iso_inv_from_iso (whisker_left_iso f alpha).
 Proof.
-  exists (whisker_left f alpha).
-  fold (is_isomorphism (whisker_left f alpha)).
-  unfold whisker_left.
-  unfold compose_2mor_horizontal.
-  set (i := prodcatiso (identity_iso f) alpha).
-  apply (functor_on_iso_is_iso _ _ _ _ _ i).
+  unfold whisker_left_iso at 1.
+  rewrite <- iso_inv_of_iso_id.
+  apply inv_horizontal_comp.
 Defined.
 
-Definition whisker_left_on_comp {C : prebicategory} {a b c : C}
+Lemma whisker_left_on_comp {C : prebicategory} {a b c : C}
   (f : a -1-> b) {g h i : b -1-> c}
   (alpha : g -2-> h) (alpha' : h -2-> i)
   : whisker_left f (alpha ;v; alpha')
@@ -345,7 +386,7 @@ Definition whisker_right {C : prebicategory} {a b c : C}
   : (f ;1; h) -2-> (g ;1; h)
   := alpha ;h; (identity_2mor h).
 
-Definition whisker_right_id_1mor {C : prebicategory} {a b : C}
+Lemma whisker_right_id_1mor {C : prebicategory} {a b : C}
            {f g : a -1-> b} (alpha : f -2-> g)
   : whisker_right alpha (identity_1mor _) =
     right_unitor _ ;v; alpha ;v; iso_inv_from_iso (right_unitor _).
@@ -354,7 +395,7 @@ Proof.
   apply id_2mor_right.
 Defined.
 
-Definition whisker_right_id_2mor {C : prebicategory} {a b c : C}
+Lemma whisker_right_id_2mor {C : prebicategory} {a b c : C}
   (f : a -1-> b) (g : b -1-> c)
   : whisker_right (identity_2mor f) g = identity_2mor (f ;1; g).
 Proof.
@@ -366,17 +407,20 @@ Defined.
 
 Definition whisker_right_iso {C : prebicategory} {a b c : C}
            {f g : a -1-> b} (alpha : iso f g) (h : b -1-> c)
-  : iso (f ;1; h) (g ;1; h).
+  : iso (f ;1; h) (g ;1; h)
+  := alpha ;hi; (identity_iso h).
+
+Definition whisker_right_inv {C : prebicategory} {a b c : C}
+           {f g : a -1-> b} (alpha : iso f g) (h : b -1-> c)
+  : whisker_right_iso (iso_inv_from_iso alpha) h
+  = iso_inv_from_iso (whisker_right_iso alpha h).
 Proof.
-  exists (whisker_right alpha h).
-  fold (is_isomorphism (whisker_right alpha h)).
-  unfold whisker_right.
-  unfold compose_2mor_horizontal.
-  set (i := prodcatiso alpha (identity_iso h)).
-  apply (functor_on_iso_is_iso _ _ _ _ _ i).
+  unfold whisker_right_iso at 1.
+  rewrite <- iso_inv_of_iso_id.
+  apply inv_horizontal_comp.
 Defined.
 
-Definition whisker_right_on_comp {C : prebicategory} {a b c : C}
+Lemma whisker_right_on_comp {C : prebicategory} {a b c : C}
   {f g h : a -1-> b} (alpha : f -2-> g) (alpha' : g -2-> h) (i : b -1-> c)
   : whisker_right (alpha ;v; alpha') i
   = whisker_right alpha i ;v; whisker_right alpha' i.
@@ -388,7 +432,7 @@ Proof.
   - apply interchange.
 Defined.
 
-Definition twomor_naturality {C : prebicategory} {a : C}
+Lemma twomor_naturality {C : prebicategory} {a : C}
   {f g h i : a -1-> a}
   (alpha : f -2-> g) (beta  : h -2-> i)
   : (whisker_right beta f) ;v; (whisker_left i alpha)

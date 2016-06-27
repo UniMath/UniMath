@@ -314,6 +314,16 @@ Proof.
     apply iso_after_iso_inv.
 Defined.
 
+Definition prodcatiso_inv {C D : precategory} {X X' : C} {Z Z' : D}
+  (α : iso X X') (β : iso Z Z')
+  : prodcatiso (iso_inv_from_iso α) (iso_inv_from_iso β)
+  = iso_inv_from_iso (prodcatiso α β).
+Proof.
+  apply inv_iso_unique.
+  apply pathsdirprod.
+  - apply iso_inv_after_iso.
+  - apply iso_inv_after_iso.
+Defined.
 
 (* Imported from Peter Lumsdaine's old bicategory code: *)
 
