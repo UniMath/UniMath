@@ -66,4 +66,4 @@ limits/pushouts.v
 PrecategoriesWithBinOps.v
 PrecategoriesWithAbgrops.v
 PreAdditive.v
-limits/BinBiproducts.v
+limits/BinDirectSums.v
