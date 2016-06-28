@@ -14,6 +14,13 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 (* General lemmas that should probably go somewhere else *)
 
+(* Theorem weqtoforallpaths_of_inverse { T : UU } (P:T -> UU)(f g : forall t:T, P t) (p : f = g): *)
+(*   weqtoforallpaths _ _ _ (!p) = fun t => !(weqtoforallpaths _ _ _ p t). *)
+(* Proof. *)
+(*   induction p. *)
+(*   reflexivity. *)
+(* Defined. *)
+
 Lemma eqweq_twice_is_eqweq_of_comp {A B C : UU}
       (p : A = B) (q : B = C)
   : weqcomp (eqweqmap p) (eqweqmap q)
@@ -69,7 +76,6 @@ Proof.
   apply transportf_dirprod.
 Defined.
 
-(******************************************************************************)
 (** * Isomorphism of (pre)categories *)
 (* (as defined in the paper) *)
 
@@ -120,20 +126,20 @@ Proof.
   apply (catiso_fully_faithful_weq F).
 Defined.
 
-Lemma catiso_essentially_surjective {A B : precategory}
-  (F : catiso A B)
-  : essentially_surjective F.
-Proof.
-  intros b.
-  apply hinhpr.
-  use tpair.
-  - exact (invweq (catiso_ob_weq F) b).
-  - apply idtoiso.
-    apply (homotweqinvweq (catiso_ob_weq F) b).
-Defined.
-
 (******************************************************************************)
 (** * Construction of a map (catiso A B) -> (A = B) *)
+
+Lemma correct_hom {A B : precategory_data}
+  (F : catiso A B)
+  : forall a a' : A,
+      F a --> F a'
+      = (eqweqmap (catiso_to_precategory_ob_path F) a) -->
+        (eqweqmap (catiso_to_precategory_ob_path F) a').
+Proof.
+  intros a a'.
+  set (W := (!(homotweqinvweq (univalence _ _)) (catiso_ob_weq F))).
+  exact (maponpaths (fun T => (pr1weq T) a --> (pr1weq T) a') W ).
+Defined.
 
 Lemma eqweq_ob_path_is_functor_app {A B : precategory_data}
   (F : catiso A B)
@@ -149,23 +155,61 @@ Proof.
   reflexivity.
 Defined.
 
-Lemma correct_hom_weq {A B : precategory}
+Lemma eqweq_maponpaths_mor {A B : precategory}
+  (F G : weq A B) (p : F = G) (a a' : A) (f : F a --> F a')
+  : eqweqmap (maponpaths (fun T : weq A B => (pr1 T) a --> (pr1 T) a') p) f
+    =    (idtomor _ _ (!toforallpaths _ _ _ (maponpaths pr1 p) a))
+      ;; f
+      ;; (idtomor _ _ (toforallpaths _ _ _ (maponpaths pr1 p) a')).
+Proof.
+  induction p.
+  rewrite id_left.
+  rewrite id_right.
+  reflexivity.
+Defined.
+
+Lemma eqweq_correct_hom_is_comp {A B : precategory}
+  (F : catiso A B)
+  : forall a a' : A, forall f : F a --> F a',
+      eqweqmap (correct_hom F _ _) f
+    =    (idtomor _ _ (eqweq_ob_path_is_functor_app F a))
+      ;; f
+      ;; (idtomor _ _ (!eqweq_ob_path_is_functor_app F a')).
+Proof.
+  intros a a' f.
+  unfold correct_hom.
+
+  rewrite (eqweq_maponpaths_mor
+             _
+             _
+             (! homotweqinvweq (univalence A B) (catiso_ob_weq F))
+             a a').
+
+  unfold catiso_to_precategory_ob_path.
+  unfold eqweq_ob_path_is_functor_app.
+  simpl.
+
+  set (W := (@homotweqinvweq _ _  (univalence (ob A) (ob B)))(catiso_ob_weq F)).
+  simpl in W.
+  rewrite W.
+
+  reflexivity.
+Defined.
+
+Lemma eqweq_fully_faithful_is_functor_app {A B : precategory_data}
   (F : catiso A B)
   : forall a a' : A,
-      weq (F a --> F a')
-          ((eqweqmap (catiso_to_precategory_ob_path F) a) -->
-           (eqweqmap (catiso_to_precategory_ob_path F) a')).
+    eqweqmap (catiso_fully_faithful_path F a a')
+    = catiso_fully_faithful_weq F _ _.
 Proof.
   intros a a'.
+  unfold catiso_fully_faithful_path.
 
-  apply (weqcomp (Y := F a --> (eqweqmap (catiso_to_precategory_ob_path F)) a')).
-  apply iso_comp_left_weq.
-  apply idtoiso.
-  apply pathsinv0.
-  apply eqweq_ob_path_is_functor_app.
-  apply iso_comp_right_weq.
-  apply idtoiso.
-  apply eqweq_ob_path_is_functor_app.
+  set (W := (@homotweqinvweq _ _  (univalence (a --> a') (F a --> F a')))).
+  simpl in W.
+  rewrite W.
+
+  reflexivity.
 Defined.
 
 Lemma transport_mor {A B : UU} (B1 : B -> B -> UU) (p : A = B) :
@@ -175,7 +219,7 @@ Proof.
   reflexivity.
 Defined.
 
-Lemma catiso_to_precategory_mor_path {A B : precategory}
+Lemma catiso_to_precategory_mor_path {A B : precategory_data}
   (F : catiso A B)
   : forall a a',  (precategory_morphisms (C:=A)) a a'
   = transportb (fun T => T -> T -> UU) (catiso_to_precategory_ob_path F)
@@ -184,18 +228,14 @@ Proof.
   intros a.
   intros a'.
 
-  eapply pathscomp0.
-    apply (invmap (univalence _ ((eqweqmap (catiso_to_precategory_ob_path F) a) -->
-           (eqweqmap (catiso_to_precategory_ob_path F) a')))).
-    apply (weqcomp (Y:= (F a --> F a'))).
-    apply (catiso_fully_faithful_weq F).
-    apply correct_hom_weq.
+  eapply pathscomp0. apply (catiso_fully_faithful_path F).
+  eapply pathscomp0. apply correct_hom.
   eapply pathscomp0. apply transport_mor.
 
   reflexivity.
 Defined.
 
-Lemma catiso_to_precategory_mor_path_funext {A B : precategory}
+Lemma catiso_to_precategory_mor_path_funext {A B : precategory_data}
   (F : catiso A B)
   : (precategory_morphisms (C:=A))
   = transportb (fun T => T -> T -> UU) (catiso_to_precategory_ob_path F)
@@ -208,7 +248,7 @@ Proof.
   apply (catiso_to_precategory_mor_path F).
 Defined.
 
-Definition catiso_to_precategory_ob_mor_path {A B : precategory}
+Definition catiso_to_precategory_ob_mor_path {A B : precategory_data}
   (F : catiso A B)
   : precategory_ob_mor_from_precategory_data A = precategory_ob_mor_from_precategory_data B
   := total2_paths_b (catiso_to_precategory_ob_path F) (catiso_to_precategory_mor_path_funext F).
@@ -221,6 +261,23 @@ Lemma transport_id {A0 B0 : UU} (p0 : A0 = B0)
 Proof.
   induction p0.
   rewrite p1.
+  reflexivity.
+Defined.
+
+Lemma correct_hom_on_id {A B : precategory}
+  (F : catiso A B)
+  : forall a,
+    identity ((eqweqmap (catiso_to_precategory_ob_path F)) a) =
+    (eqweqmap (correct_hom F a a)) (identity (F a)).
+Proof.
+  intros a.
+
+  apply pathsinv0.
+  eapply pathscomp0. apply eqweq_correct_hom_is_comp.
+
+  rewrite (eqweq_ob_path_is_functor_app F).
+  rewrite !id_left.
+
   reflexivity.
 Defined.
 
@@ -244,32 +301,22 @@ Proof.
   rewrite pathscomp_inv.
   rewrite path_assoc.
   rewrite path_assoc.
-  simpl.
   rewrite pathscomp0rid.
   rewrite pathsinv0r.
   simpl.
 
   apply pathsweq1'.
+  rewrite <- pathscomp_inv.
   rewrite eqweq_of_inverse.
   rewrite invinv.
 
-  set (W := (@homotweqinvweq _ _  (univalence (a --> a)
-            ((eqweqmap (catiso_to_precategory_ob_path F)) a -->
-             (eqweqmap (catiso_to_precategory_ob_path F)) a)))).
-  simpl in W.
-  rewrite W.
-  clear W.
+  rewrite <- eqweqfun_twice_is_eqweqfun_of_comp.
 
-  unfold weqcomp.
+  rewrite (eqweq_fully_faithful_is_functor_app F a a).
   simpl.
 
   rewrite functor_id.
-
-  rewrite !id_left.
-  rewrite idtoiso_inv.
-  simpl.
-  rewrite iso_inv_after_iso.
-  reflexivity.
+  apply correct_hom_on_id.
 Defined.
 
 Lemma transport_comp_thing {A0 B0 : UU} (p0 : A0 = B0)
@@ -306,6 +353,23 @@ Proof.
   reflexivity.
 Defined.
 
+Lemma correct_hom_on_comp {A B : precategory}
+  (F : catiso A B)
+  : forall a a' a'', forall f : F a --> F a', forall g : F a' --> F a'',
+       (eqweqmap (correct_hom F _ _)) f
+    ;; (eqweqmap (correct_hom F _ _)) g
+    =  (eqweqmap (correct_hom F _ _)) (f ;; g).
+Proof.
+  intros a a' a'' f g.
+
+  rewrite !eqweq_correct_hom_is_comp.
+  rewrite !(eqweq_ob_path_is_functor_app F).
+  rewrite !id_left.
+  rewrite !id_right.
+
+  reflexivity.
+Defined.
+
 Lemma catiso_to_precategory_comp_path {A B : precategory}
   (F : catiso A B)
   : forall a a' a'' : A,
@@ -332,48 +396,29 @@ Proof.
   rewrite !pathscomp_inv.
   rewrite !pathsinv0inv0.
   rewrite path_assoc.
+  rewrite path_assoc.
   rewrite pathsinv0r.
   simpl.
   rewrite <- path_assoc.
-  rewrite pathsinv0r.
-  rewrite pathscomp0rid.
-
   rewrite <- path_assoc.
-
   rewrite pathsinv0r.
   rewrite pathscomp0rid.
+  rewrite <- path_assoc.
+  rewrite <- path_assoc.
+  rewrite pathsinv0r.
+  rewrite pathscomp0rid.
+  rewrite <- pathscomp_inv.
 
   apply pathsweq1'.
   rewrite eqweq_of_inverse.
   rewrite invinv.
 
-  set (W := fun a a' => (@homotweqinvweq _ _  (univalence (a --> a')
-            ((eqweqmap (catiso_to_precategory_ob_path F)) a -->
-             (eqweqmap (catiso_to_precategory_ob_path F)) a')))).
-  simpl in W.
-  rewrite (W a a').
-  rewrite (W a' a'').
-  rewrite (W a a'').
-  clear W.
-
+  rewrite <- !eqweq_twice_is_eqweq_of_comp.
+  rewrite !eqweq_fully_faithful_is_functor_app.
   simpl.
-
   rewrite functor_comp.
 
-  rewrite idtoiso_inv.
-  simpl.
-
-  rewrite assoc.
-  rewrite assoc4.
-  rewrite assoc.
-  rewrite assoc4.
-  rewrite assoc4.
-
-  rewrite iso_after_iso_inv.
-  rewrite id_right.
-
-  rewrite !assoc.
-  reflexivity.
+  apply (correct_hom_on_comp F).
 Defined.
 
 Lemma catiso_to_precategory_data_path {A B : precategory}
