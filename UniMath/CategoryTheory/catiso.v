@@ -102,6 +102,16 @@ Definition functor_from_catiso (A B : precategory_data)
 Coercion functor_from_catiso :
   catiso >-> functor.
 
+Definition identity_catiso (A : precategory_data)
+  : catiso A A.
+Proof.
+  use tpair.
+  - exact (functor_identity A).
+  - use tpair.
+    + apply identity_functor_is_fully_faithful.
+    + apply idisweq.
+Defined.
+
 Definition catiso_ob_weq {A B : precategory_data}
   (F : catiso A B)
   : weq (ob A) (ob B)
