@@ -1104,6 +1104,16 @@ Proof.
   apply idpath.
 Qed.
 
+Lemma transportf_isotoid' (C : precategory) (H : is_category C)
+   (a b b' : ob C) (p : iso b b') (f : a --> b) :
+ transportf (fun a0 : C => a --> a0) (isotoid C H p) f = f ;; p.
+Proof.
+  rewrite <- idtoiso_postcompose.
+  apply maponpaths.
+  rewrite idtoiso_isotoid.
+  apply idpath.
+Qed.
+
 Lemma transportf_isotoid_dep (C : precategory)
    (a a' : C) (p : a = a') (f : forall c, a --> c) :
  transportf (fun x : C => forall c, x --> c) p f = fun c => idtoiso (!p) ;; f c.
