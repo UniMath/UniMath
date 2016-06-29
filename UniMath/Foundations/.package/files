@@ -1,10 +1,10 @@
 Basics/Preamble.v
 Basics/PartA.v
 Basics/PartB.v
+Basics/UnivalenceAxiom.v
 Basics/PartC.v
 Basics/PartD.v
 Basics/Tests.v
-Basics/UnivalenceAxiom.v
 Basics/Propositions.v
 Basics/Sets.v
 Algebra/BinaryOperations.v

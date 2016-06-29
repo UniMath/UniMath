@@ -2,7 +2,7 @@
  March 2014. The third part of the original uu0 file, created on Dec. 3, 2014.
 
 One one usniverse is used and never as a type.
-The only axiom we use is [ funextempty ] which is the functional extensionality
+The only axiom we use is [ funextemptyAxiom ] which is the functional extensionality
  axiom for functions with values in the empty type. *)
 
 
@@ -16,24 +16,13 @@ Coq8.2 *)
 (** Imports *)
 
 Require Export UniMath.Foundations.Basics.PartB.
-
-
-
-
-
-
-
-(** *** Functional extensionality for functions to the empty type *)
-
-Axiom funextempty : ∀ (X:UU) (f g : X->empty), f = g.
-
-
+Require Export UniMath.Foundations.Basics.UnivalenceAxiom.
 
 (** *** More results on propositions *)
 
 
 Theorem isapropneg (X:UU): isaprop (neg X).
-Proof. intro.  apply invproofirrelevance . intros x x' .   apply ( funextempty X x x' ) . Defined .
+Proof. intro.  apply invproofirrelevance . intros x x' .   apply ( funextemptyAxiom X x x' ) . Defined .
 
 (** See also [ isapropneg2 ] *)
 
@@ -58,7 +47,7 @@ set (f:= todneg (neg X)). set (g:= negf  (todneg X)). set (is1:= isapropneg X). 
 
 
 Theorem isapropdec (X:UU): isaprop X -> isaprop (X ⨿ ¬X).
-(* uses [funextempty] *)
+(* uses [funextemptyAxiom] *)
 Proof.
   intros ? i. apply isapropcoprod.
   - exact i.
@@ -120,7 +109,7 @@ Definition pr1compl_ne ( X : UU ) ( x : X ) (neq_x : neqPred x) (c:compl_ne X x 
 
 Definition make_negProp {P:UU} : negProp P.
 Proof. intros. exists (¬ P). split.
-  - apply isapropneg.  (* uses [funextempty] *)
+  - apply isapropneg.  (* uses [funextemptyAxiom] *)
   - apply isrefl_logeq.
 Defined.
 
@@ -132,7 +121,7 @@ Proof. intros. apply isinclpr1. intro y. apply negProp_to_isaprop. Defined.
 
 Lemma compl_ne_weq_compl ( X : UU ) ( x : X ) (neq_x : neqPred x) : compl X x ≃ compl_ne X x neq_x.
 Proof.
-  (* uses [funextempty] *)
+  (* uses [funextemptyAxiom] *)
   intros. apply weqfibtototal; intro y. apply weqiff.
   - apply negProp_to_iff.
   - apply isapropneg.
@@ -141,7 +130,7 @@ Defined.
 
 Lemma compl_weq_compl_ne ( X : UU ) ( x : X ) (neq_x : neqPred x) : compl_ne X x neq_x ≃ compl X x.
 Proof.
-  (* uses [funextempty] *)
+  (* uses [funextemptyAxiom] *)
   intros. apply weqfibtototal; intro y. apply weqiff.
   - apply issymm_logeq. apply negProp_to_iff.
   - apply negProp_to_isaprop.
@@ -181,7 +170,7 @@ Defined.
 
 Definition weqoncompl { X Y : UU } (w: X ≃ Y) x : compl X x ≃ compl Y (w x).
 Proof.
-  (* uses [funextempty] *)
+  (* uses [funextemptyAxiom] *)
   intros. intermediate_weq (Σ x', w x != w x').
   - apply weqfibtototal; intro x'. apply weqiff.
     { apply logeqnegs. apply weq_to_iff. apply weqonpaths. }
@@ -352,7 +341,7 @@ Defined.
 
 Theorem isweqrecompl_ne (X:UU) (x:X) (is:isisolated X x) (neq_x:neqPred x): isweq (recompl_ne _ x neq_x).
 Proof.
-  (* does not use [funextempty] *)
+  (* does not use [funextemptyAxiom] *)
   intros. set (f:= recompl_ne X x neq_x). set (g:= invrecompl_ne X x neq_x is).
   refine (gradth f g _ _).
   { intro u. induction (is (f u)) as [ eq | ne ] .
@@ -1134,65 +1123,5 @@ Proof. intros . set ( p := sumofmaps f ( @pr1 _ ( fun y : Y => neg ( hfiber f y 
 
 Theorem isdecinclfromiscoproj { X Y : UU } ( f : X -> Y ) ( is : iscoproj f ) : isdecincl f .
 Proof . intros . set ( g := ( sumofmaps f ( @pr1 _ ( fun y : Y => neg ( hfiber f y ) ) ) ) ) . set ( f' :=  fun x : X => g ( ii1 x ) ) . assert ( is' : isdecincl f' ) . apply ( isdecinclcomp _ _ ( isdecinclii1 _ _ ) ( isdecinclfromisweq _ is ) ) .    assumption .  Defined .
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(** ** Results using full form of the functional extentionality axioms.
-
-Summary: We consider two axioms which address functional extensionality. The first one is etacorrection  which compensates for the absense of eta-reduction in Coq8.3 Eta-reduction is expected to be included as a  basic property of the language in Coq8.4 which will make this axiom and related lemmas unnecessary. The second axiom [ funcontr ] is the functional extensionality for dependent functions formulated as the condition that the space of section of a family with contractible fibers is contractible.
-
-Note : some of the results above this point in code use a very limitted form of functional extensionality . See [ funextempty ] .
-
-*)
-
-
-(** *** Axioms and their basic corollaries *)
-
-(** etacorrection *)
-
-Definition etacorrection: forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t), paths f (fun t:T => f t).
-Proof. reflexivity. Defined.
-
-Lemma isweqetacorrection { T : UU } (P:T -> UU): isweq (fun f: forall t:T, P t => (fun t:T => f t)).
-Proof. intros. apply idisweq. Defined.
-
-Definition weqeta { T : UU } (P:T -> UU) := weqpair _ ( isweqetacorrection P ) .
-
-Lemma etacorrectiononpaths { T : UU } (P:T->UU)(s1 s2 :forall t:T, P t) : paths (fun t:T => s1 t) (fun t:T => s2 t)-> paths s1 s2.
-Proof. intros T P s1 s2 X. set (ew := weqeta P). apply (invmaponpathsweq ew s1 s2 X). Defined.
-
-Definition etacor { X Y : UU } (f:X -> Y) : paths f (fun x:X => f x) := etacorrection _ (fun T:X => Y) f.
-
-Lemma etacoronpaths { X Y : UU } (f1 f2 : X->Y) : paths (fun x:X => f1 x) (fun x:X => f2 x) -> paths f1 f2.
-Proof. intros X Y f1 f2 X0. set (ec:= weqeta (fun x:X => Y) ). apply (invmaponpathsweq  ec f1 f2 X0). Defined.
-
-
-(** Dependent functions and sections up to homotopy I *)
-
-
-Definition toforallpaths { T : UU }  (P:T -> UU) (f g :forall t:T, P t) : (paths f g) -> (forall t:T, paths (f t) (g t)).
-Proof. intros T P f g X t. induction X. apply (idpath (f t)). Defined.
-
-
-Definition sectohfiber { X : UU } (P:X -> UU): (forall x:X, P x) -> (hfiber (fun f:_ => fun x:_ => pr1  (f x)) (fun x:X => x)) := (fun a : forall x:X, P x => tpair _ (fun x:_ => tpair _ x (a x)) (idpath (fun x:X => x))).
-
-Definition hfibertosec  { X : UU } (P:X -> UU):  (hfiber (fun f:_ => fun x:_ => pr1  (f x)) (fun x:X => x)) -> (forall x:X, P x):= fun se:_  => fun x:X => match se as se' return P x with tpair _ s e => (transportf P (toforallpaths (fun x:X => X)  (fun x:X => pr1 (s x)) (fun x:X => x) e x) (pr2  (s x))) end.
-
-Definition sectohfibertosec { X : UU } (P:X -> UU): forall a: forall x:X, P x, paths (hfibertosec _  (sectohfiber _ a)) a := fun a:_ => (pathsinv0 (etacorrection _ _ a)).
-
 
 (* End of the file uu0c.v *)

@@ -477,7 +477,7 @@ Definition to_ComplementaryPair {P} (c:P ⨿ neg P) : ComplementaryPair
   (* By using [isTrue _] instead, we're effectively replacing P by a propositional subtype of it: *)
   (* the part connected to the element of [P ⨿ ¬P]. *)
   (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P] by a propositional subtype of it.  *)
-  (* Both are proved to be propositions without [funextempty] *)
+  (* Both are proved to be propositions without [funextemptyAxiom] *)
   := (P,,neg P,,(λ p n, n p),,c).
 
 (* Relate isolated points to complementary pairs *)
@@ -532,7 +532,7 @@ Proof.
 Defined.
 
 Definition decidable (X:hProp) : hProp :=
-  (* uses [funextempty] *)
+  (* uses [funextemptyAxiom] *)
   hProppair (X ⨿ ¬X) (isapropdec X (propproperty X)).
 
 Definition decidable_dirprod (X Y:hProp) : decidable X -> decidable Y -> decidable (X ∧ Y).

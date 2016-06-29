@@ -632,10 +632,10 @@ Definition eqreldirprod { X Y : UU } ( RX : eqrel X ) ( RY : eqrel Y ) : eqrel (
 (** *** Negation of a relation and its properties *)
 
 Definition negrel { X : UU } ( R : hrel X ) : hrel X
-  := λ x x', hProppair (¬ R x x') (isapropneg _) . (* uses [funextempty] *)
+  := λ x x', hProppair (¬ R x x') (isapropneg _) . (* uses [funextemptyAxiom] *)
 
 Lemma istransnegrel { X : UU } ( R : hrel X  ) ( isr : iscotrans R ) : istrans ( negrel R ) .
-(* uses [funextfun] and [funextempty] *)
+(* uses [funextfun] and [funextemptyAxiom] *)
 Proof . intros . intros x1 x2 x3 r12 r23 .  apply ( negf ( isr x1 x2 x3 ) ) .  apply ( toneghdisj ( dirprodpair r12 r23 ) ) . Defined .
 
 Lemma iscotrans_to_istrans_negReln {X} {R:hrel X} (NR : negReln R) :
@@ -655,7 +655,7 @@ Lemma iscoasymmgenrel { X : UU } ( R : hrel X  ) ( isr : isasymm R ) : iscoasymm
 Proof . intros . intros x1 x2 nr12 . apply ( negf ( isr _ _ ) nr12 ) .  Defined .
 
 Lemma isdecnegrel { X : UU } ( R : hrel X  ) ( isr : isdecrel R ) : isdecrel ( negrel R ) .
-(* uses [funextempty] *)
+(* uses [funextemptyAxiom] *)
 Proof . intros . intros x1 x2 . destruct ( isr x1 x2 ) as [ r | nr ] . apply ii2 .   apply ( todneg _ r ) .  apply ( ii1 nr ) . Defined .
 
 Lemma isnegnegrel { X : UU } ( R : hrel X ) : isnegrel ( negrel R ) .
@@ -1467,7 +1467,7 @@ Proof.
   { apply funextfun; intro e. induction e. reflexivity. }
   induction (!comp). apply twooutof3c.
   { apply isweqonpathsincl. apply isinclpr1. exact isapropisaset. }
-  { apply univalenceaxiom. }
+  { apply univalenceAxiom. }
   Unset Printing Coercions.
 Defined.
 
