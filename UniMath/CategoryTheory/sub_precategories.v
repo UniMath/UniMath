@@ -409,15 +409,14 @@ Qed.
 
 (** *** Image factorization C -> Img(F) -> D *)
 
-Lemma functor_full_img_factorization_ob (C D: precategory)
+Local Lemma functor_full_img_factorization_ob (C D: precategory)
    (F : functor C D):
   functor_on_objects F =
   functor_on_objects (functor_composite
        (functor_full_img F)
             (sub_precategory_inclusion D _)).
 Proof.
-  simpl.
-  apply etacorrection.
+  reflexivity.
 Defined.
 
 

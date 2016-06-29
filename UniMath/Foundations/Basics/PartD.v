@@ -39,20 +39,16 @@ Proof.
 Defined.
 
 Lemma lemmaeta1 { X : UU } (P:X->UU) (Q:(forall x:X, P x) -> UU)(s0: forall x:X, P x)(q: Q (fun x:X => (s0 x))): paths (tpair (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) s0 q) (tpair (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) (fun x:X => (s0 x)) q).
-Proof. intros. set (ff:= fun tp:total2 (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) => tpair _ (fun x:X => pr1  tp x) (pr2  tp)). assert (X0 : isweq ff).  apply (isweqfpmap  ( weqeta P ) Q ).
-assert (ee: paths (ff (tpair (fun s : forall x : X, P x => Q (fun x : X => s x)) s0 q)) (ff (tpair (fun s : forall x : X, P x => Q (fun x : X => s x)) (fun x : X => s0 x) q))). apply idpath.
-
-apply (invmaponpathsweq ( weqpair ff X0 ) _ _ ee). Defined.
-
-
+Proof. reflexivity. Defined.
 
 Definition totaltoforalltototal { X : UU } ( P : X -> UU ) ( PP : forall x:X, P x -> UU )( ss : total2 (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)) ): paths (foralltototal _ _ (totaltoforall  _ _ ss)) ss.
 Proof. intros.  induction ss as [ t x ]. unfold foralltototal. unfold totaltoforall.  simpl.  set (et:= fun x:X => t x).
 
-assert (paths (tpair (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) t x) (tpair (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et x)). apply (lemmaeta1 P (fun s: forall x:X, P x =>  forall x:X, PP x (s x)) t x).
+       assert (paths (tpair (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) t x) (tpair (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et x)).
+       reflexivity.
 
 assert (ee: paths (tpair (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et x) (tpair (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et (fun x0 : X => x x0))).
-assert (eee: paths x (fun x0:X => x x0)). apply etacorrection. induction eee. apply idpath. induction ee. apply pathsinv0. assumption. Defined.
+apply idpath. induction ee. apply pathsinv0. assumption. Defined.
 
 
 
@@ -86,16 +82,12 @@ Definition funtoprodtoprod { X Y Z : UU } ( f : X -> dirprod Y Z ) : dirprod ( X
 Definition prodtofuntoprod { X Y Z : UU } ( fg : dirprod ( X -> Y ) ( X -> Z ) ) : X -> dirprod Y Z := match fg with tpair _ f g => fun x : X => dirprodpair ( f x ) ( g x ) end .
 
 Theorem weqfuntoprodtoprod ( X Y Z : UU ) : weq ( X -> dirprod Y Z ) ( dirprod ( X -> Y ) ( X -> Z ) ) .
-Proof. intros. set ( f := @funtoprodtoprod X Y Z ) . set ( g := @prodtofuntoprod X Y Z ) . split with f .
-assert ( egf : forall a : _ , paths ( g ( f a ) ) a ) . intro a . apply funextfun .  intro x .  simpl . apply pathsinv0 . apply tppr .
-assert ( efg : forall a : _ , paths ( f ( g a ) ) a ) . intro a . induction a as [ fy fz ] . apply pathsdirprod .  simpl . apply pathsinv0 . apply etacorrection . simpl . apply pathsinv0 . apply etacorrection .
-apply ( gradth _ _ egf efg ) . Defined .
-
-
-
-
-
-
+Proof.
+  intros.
+  simple refine (weqpair _ (gradth (@funtoprodtoprod X Y Z) (@prodtofuntoprod X Y Z ) _ _ )).
+  - intro a . apply funextfun .  intro x .  simpl . apply pathsinv0, tppr .
+  - intro a . now induction a as [ fy fz ] .
+Defined.
 
 (** ** Homotopy fibers of the map [forall x:X, P x -> forall x:X, Q x] *)
 
@@ -327,25 +319,14 @@ Definition funfromcoprodtoprod { X Y Z : UU } ( f : coprod X Y -> Z ) : dirprod 
 Definition prodtofunfromcoprod { X Y Z : UU } ( fg : dirprod ( X -> Z ) ( Y -> Z ) ) : coprod X Y -> Z := match fg with tpair _ f g => sumofmaps f g end .
 
 Theorem weqfunfromcoprodtoprod ( X Y Z : UU ) : weq ( coprod X Y -> Z ) ( dirprod ( X -> Z ) ( Y -> Z ) ) .
-Proof. intros . set ( f := @funfromcoprodtoprod X Y Z ) . set ( g := @prodtofunfromcoprod X Y Z ) . split with f .
-assert ( egf : forall a : _ , paths ( g ( f a ) ) a ) .  intro a . apply funextfun .   intro xy .  induction xy as [ x | y ] .  apply idpath . apply idpath .
-assert ( efg : forall a : _ , paths ( f ( g a ) ) a ) . intro a . induction a as [ fx fy ] . simpl . apply pathsdirprod .  simpl . apply pathsinv0 . apply etacorrection . simpl . apply pathsinv0 . apply etacorrection .
-apply ( gradth _ _ egf efg ) . Defined .
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Proof.
+  intros .
+  simple refine (
+           weqpair _ (gradth (@funfromcoprodtoprod X Y Z )
+                             (@prodtofunfromcoprod X Y Z) _ _)).
+  - intro a. apply funextfun; intro xy. induction xy as [ x | y ]; reflexivity.
+  - intro a. induction a as [fx fy]. reflexivity.
+Defined.
 
 (** ** Sections of families over contractible types and over [ total2 ] (over dependent sums) *)
 

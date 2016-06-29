@@ -29,22 +29,6 @@ Require Export UniMath.Foundations.Basics.PartB.
 
 (* everything related to eta correction is obsolete *)
 
-Definition etacorrection: forall T:UU, forall P:T -> UU, forall f: (forall t:T, P t), paths f (fun t:T => f t).
-Proof. reflexivity. Defined.
-
-Lemma isweqetacorrection { T : UU } (P:T -> UU): isweq (fun f: forall t:T, P t => (fun t:T => f t)).
-Proof. intros. apply idisweq. Defined.
-
-Definition weqeta { T : UU } (P:T -> UU) := weqpair _ ( isweqetacorrection P ) .
-
-Lemma etacorrectiononpaths { T : UU } (P:T->UU)(s1 s2 :forall t:T, P t) : paths (fun t:T => s1 t) (fun t:T => s2 t)-> paths s1 s2.
-Proof. intros X. set (ew := weqeta P). apply (invmaponpathsweq ew s1 s2 X). Defined.
-
-Definition etacor { X Y : UU } (f:X -> Y) : paths f (fun x:X => f x) := etacorrection _ (fun T:X => Y) f.
-
-Lemma etacoronpaths { X Y : UU } (f1 f2 : X->Y) : paths (fun x:X => f1 x) (fun x:X => f2 x) -> paths f1 f2.
-Proof. intros X0. set (ec:= weqeta (fun x:X => Y) ). apply (invmaponpathsweq  ec f1 f2 X0). Defined.
-
 Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
 Proof. intro e. induction e. apply idweq. Defined.
 
@@ -57,7 +41,11 @@ Definition hfibertosec { X : UU } (P:X -> UU):
   (hfiber (fun f x => pr1 (f x)) (fun x:X => x)) -> (forall x:X, P x)
   := fun se:_  => fun x:X => match se as se' return P x with tpair _ s e => (transportf P (toforallpaths _ (fun x:X => pr1 (s x)) (fun x:X => x) e x) (pr2  (s x))) end.
 
-Definition sectohfibertosec { X : UU } (P:X -> UU): forall a: forall x:X, P x, paths (hfibertosec _  (sectohfiber _ a)) a := fun a:_ => (pathsinv0 (etacorrection _ _ a)).
+Definition sectohfibertosec { X : UU } (P:X -> UU):
+  forall a : (forall x:X, P x), hfibertosec _ (sectohfiber _ a) = a.
+Proof.
+  reflexivity.
+Defined.
 
 Lemma isweqtransportf10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  paths x x' ) : isweq ( transportf P e ).
 Proof. intros. destruct e.  apply idisweq. Defined.
@@ -300,7 +288,7 @@ Section UnivalenceImplications.
     - set (w1:= weqpair  (@pr1 X P) is1).
       assert (X1:iscontr T2).
       + apply (isweqrcompwithweqUAH w1 X (fun x:X => x)).
-      + apply ( iscontrretract  _ _  (sectohfibertosec P ) X1).
+      + apply (iscontrretract _ _ (sectohfibertosec P) X1).
   Defined.
 
   (** Proof of the fact that the [ toforallpaths ] from [paths s1 s2] to
