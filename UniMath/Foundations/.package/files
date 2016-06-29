@@ -26,4 +26,4 @@ Algebra/Tests.v
 NumberSystems/Integers.v
 NumberSystems/RationalNumbers.v
 NumberSystems/Tests.v
-# Combinatorics/SimplicialSets.v
+Combinatorics/SimplicialSets.v

@@ -10,7 +10,7 @@ Unset Automatic Introduction.
 
 (* Preamble *)
 
-Require Export UniMath.Foundations.FiniteSets.
+Require Export UniMath.Foundations.Combinatorics.FiniteSets.
 Require Export UniMath.CategoryTheory.precategories.
 Require Export UniMath.CategoryTheory.category_hset.
 Require Export UniMath.CategoryTheory.functor_categories.
@@ -79,9 +79,9 @@ Defined.
 
 Definition precatDelta : precategory .
 Proof.
-  refine ( tpair _ _ _ ) .
-  refine ( tpair _ _ _ ) .
-  refine ( tpair _ _ _ ) .
+  simple refine ( tpair _ _ _ ) .
+  simple refine ( tpair _ _ _ ) .
+  simple refine ( tpair _ _ _ ) .
   exact nat .
   intros n m . (* split with ( monfunstn n m ) . apply isasetmonfunstn .
   refine ( tpair _ _ _ ) .
@@ -94,14 +94,18 @@ Proof.
   intros . simpl in * .  apply monfunstncompidr .
   intros . simpl in * .  apply monfunstncompassoc .
 Defined. *)
-Admitted.
+Abort.
 
 
 
 
 (* Definition of a simplicial hset *)
 
+(* awaiting the proof above:
+
 Definition sSet := [ precatDelta , HSET, pr2 is_category_HSET ] .
+
+*)
 
 (* V.V. with Sasha Vishik, Nov. 23, 2014 *)
 
