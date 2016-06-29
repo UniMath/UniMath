@@ -13,7 +13,7 @@ Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
 
 Definition isnonzeroCR (X : rig) (R : tightap X) := R 1%rig 0%rig.
 Definition isConstrDivRig (X : rig) (R : tightap X) :=
-  isnonzeroCR X R × (∀ x : X, R x 0%rig -> multinvpair X x).
+  isnonzeroCR X R × (Π x : X, R x 0%rig -> multinvpair X x).
 
 (** ** Constructive rig with division *)
 
@@ -61,22 +61,22 @@ Section CDR_pty.
 Context {X : ConstructiveDivisionRig}.
 
 Lemma isirrefl_CDRap :
-  ∀ x : X, ¬ (x ≠ x).
+  Π x : X, ¬ (x ≠ x).
 Proof.
   exact (pr1 (pr1 (pr2 (pr1 (pr2 X))))).
 Qed.
 Lemma issymm_CDRap :
-  ∀ x y : X, x ≠ y -> y ≠ x.
+  Π x y : X, x ≠ y -> y ≠ x.
 Proof.
   exact (pr1 (pr2 (pr1 (pr2 (pr1 (pr2 X)))))).
 Qed.
 Lemma iscotrans_CDRap :
-  ∀ x y z : X, x ≠ z -> x ≠ y ∨ y ≠ z.
+  Π x y z : X, x ≠ z -> x ≠ y ∨ y ≠ z.
 Proof.
   exact (pr2 (pr2 (pr1 (pr2 (pr1 (pr2 X)))))).
 Qed.
 Lemma istight_CDRap :
-  ∀ x y : X, ¬ (x ≠ y) -> x = y.
+  Π x y : X, ¬ (x ≠ y) -> x = y.
 Proof.
   exact (pr2 (pr2 (pr1 (pr2 X)))).
 Qed.
@@ -87,102 +87,102 @@ Proof.
 Qed.
 
 Lemma islunit_CDRzero_CDRplus :
-  forall x : X, 0 + x = x.
+  Π x : X, 0 + x = x.
 Proof.
   now apply riglunax1.
 Qed.
 Lemma isrunit_CDRzero_CDRplus :
-  forall x : X, x + 0 = x.
+  Π x : X, x + 0 = x.
 Proof.
   now apply rigrunax1.
 Qed.
 Lemma isassoc_CDRplus :
-  forall x y z : X, x + y + z = x + (y + z).
+  Π x y z : X, x + y + z = x + (y + z).
 Proof.
   now apply rigassoc1.
 Qed.
 Lemma iscomm_CDRplus :
-  forall x y : X, x + y = y + x.
+  Π x y : X, x + y = y + x.
 Proof.
   now apply rigcomm1.
 Qed.
 Lemma islunit_CDRone_CDRmult :
-  forall x : X, 1 * x = x.
+  Π x : X, 1 * x = x.
 Proof.
   now apply riglunax2.
 Qed.
 Lemma isrunit_CDRone_CDRmult :
-  forall x : X, x * 1 = x.
+  Π x : X, x * 1 = x.
 Proof.
   now apply rigrunax2.
 Qed.
 Lemma isassoc_CDRmult :
-  forall x y z : X, x * y * z = x * (y * z).
+  Π x y z : X, x * y * z = x * (y * z).
 Proof.
   now apply rigassoc2.
 Qed.
 Lemma islinv_CDRinv :
-  ∀ (x : X) (Hx0 : x ≠ (0 : X)),
+  Π (x : X) (Hx0 : x ≠ (0 : X)),
     (CDRinv x Hx0) * x = 1.
 Proof.
   intros x Hx0.
   apply (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 X)))) x Hx0))).
 Qed.
 Lemma isrinv_CDRinv :
-  ∀ (x : X) (Hx0 : x ≠ (0 : X)),
+  Π (x : X) (Hx0 : x ≠ (0 : X)),
     x * (CDRinv x Hx0) = 1.
 Proof.
   intros x Hx0.
   apply (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 X)))) x Hx0))).
 Qed.
 Lemma islabsorb_CDRzero_CDRmult :
-  ∀ x : X, 0 * x = 0.
+  Π x : X, 0 * x = 0.
 Proof.
   now apply rigmult0x.
 Qed.
 Lemma israbsorb_CDRzero_CDRmult :
-  ∀ x : X, x * 0 = 0.
+  Π x : X, x * 0 = 0.
 Proof.
   now apply rigmultx0.
 Qed.
 Lemma isldistr_CDRplus_CDRmult :
-  ∀ x y z : X, z * (x + y) = z * x + z * y.
+  Π x y z : X, z * (x + y) = z * x + z * y.
 Proof.
   now apply rigdistraxs.
 Qed.
 
 Lemma apCDRplus :
-  ∀ x x' y y' : X,
+  Π x x' y y' : X,
     x + y ≠ x' + y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (isapbinop_op1 (X := ConstructiveDivisionRig_apsetwith2binop X)).
 Qed.
 Lemma CDRplus_apcompat_l :
-  ∀ x y z : X, y + x ≠ z + x -> y ≠ z.
+  Π x y z : X, y + x ≠ z + x -> y ≠ z.
 Proof.
   intros x y z.
   exact (islapbinop_op1 (X := ConstructiveDivisionRig_apsetwith2binop X) _ _ _).
 Qed.
 Lemma CDRplus_apcompat_r :
-  ∀ x y z : X, x + y ≠ x + z -> y ≠ z.
+  Π x y z : X, x + y ≠ x + z -> y ≠ z.
 Proof.
   exact (israpbinop_op1 (X := ConstructiveDivisionRig_apsetwith2binop X)).
 Qed.
 
 Lemma apCDRmult :
-  forall x x' y y' : X,
+  Π x x' y y' : X,
     x * y ≠ x' * y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (isapbinop_op2 (X := ConstructiveDivisionRig_apsetwith2binop X)).
 Qed.
 Lemma CDRmult_apcompat_l :
-  ∀ x y z : X, y * x ≠ z * x -> y ≠ z.
+  Π x y z : X, y * x ≠ z * x -> y ≠ z.
 Proof.
   intros x y z.
   exact (islapbinop_op2 (X := ConstructiveDivisionRig_apsetwith2binop X) _ _ _).
 Qed.
 Lemma CDRmult_apcompat_l' :
-  ∀ x y z : X, x ≠ 0 -> y ≠ z -> y * x ≠ z * x.
+  Π x y z : X, x ≠ 0 -> y ≠ z -> y * x ≠ z * x.
 Proof.
   intros x y z Hx Hap.
   refine (CDRmult_apcompat_l (CDRinv x Hx) _ _ _).
@@ -190,12 +190,12 @@ Proof.
   exact Hap.
 Qed.
 Lemma CDRmult_apcompat_r :
-  ∀ x y z : X, x * y ≠ x * z -> y ≠ z.
+  Π x y z : X, x * y ≠ x * z -> y ≠ z.
 Proof.
   exact (israpbinop_op2 (X := ConstructiveDivisionRig_apsetwith2binop X)).
 Qed.
 Lemma CDRmult_apcompat_r' :
-  ∀ x y z : X, x ≠ 0 -> y ≠ z -> x * y ≠ x * z.
+  Π x y z : X, x ≠ 0 -> y ≠ z -> x * y ≠ x * z.
 Proof.
   intros x y z Hx Hap.
   refine (CDRmult_apcompat_r (CDRinv x Hx) _ _ _).
@@ -204,7 +204,7 @@ Proof.
 Qed.
 
 Lemma CDRmultapCDRzero :
-  forall x y : X, x * y ≠ 0 -> x ≠ 0 ∧ y ≠ 0.
+  Π x y : X, x * y ≠ 0 -> x ≠ 0 ∧ y ≠ 0.
 Proof.
   intros x y Hmult.
   split.
@@ -266,22 +266,22 @@ Section CCDR_pty.
 Context {X : ConstructiveCommutativeDivisionRig}.
 
 Lemma isirrefl_CCDRap :
-  ∀ x : X, ¬ (x ≠ x).
+  Π x : X, ¬ (x ≠ x).
 Proof.
   exact (isirrefl_CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma issymm_CCDRap :
-  ∀ x y : X, x ≠ y -> y ≠ x.
+  Π x y : X, x ≠ y -> y ≠ x.
 Proof.
   exact (issymm_CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma iscotrans_CCDRap :
-  ∀ x y z : X, x ≠ z -> x ≠ y ∨ y ≠ z.
+  Π x y z : X, x ≠ z -> x ≠ y ∨ y ≠ z.
 Proof.
   exact (iscotrans_CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma istight_CCDRap :
-  ∀ x y : X, ¬ (x ≠ y) -> x = y.
+  Π x y : X, ¬ (x ≠ y) -> x = y.
 Proof.
   exact (istight_CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
@@ -292,74 +292,74 @@ Proof.
 Qed.
 
 Lemma islunit_CCDRzero_CCDRplus :
-  forall x : X, 0 + x = x.
+  Π x : X, 0 + x = x.
 Proof.
   now apply riglunax1.
 Qed.
 Lemma isrunit_CCDRzero_CCDRplus :
-  forall x : X, x + 0 = x.
+  Π x : X, x + 0 = x.
 Proof.
   now apply rigrunax1.
 Qed.
 Lemma isassoc_CCDRplus :
-  forall x y z : X, x + y + z = x + (y + z).
+  Π x y z : X, x + y + z = x + (y + z).
 Proof.
   now apply rigassoc1.
 Qed.
 Lemma iscomm_CCDRplus :
-  forall x y : X, x + y = y + x.
+  Π x y : X, x + y = y + x.
 Proof.
   now apply rigcomm1.
 Qed.
 Lemma islunit_CCDRone_CCDRmult :
-  forall x : X, 1 * x = x.
+  Π x : X, 1 * x = x.
 Proof.
   now apply riglunax2.
 Qed.
 Lemma isrunit_CCDRone_CCDRmult :
-  forall x : X, x * 1 = x.
+  Π x : X, x * 1 = x.
 Proof.
   now apply rigrunax2.
 Qed.
 Lemma isassoc_CCDRmult :
-  forall x y z : X, x * y * z = x * (y * z).
+  Π x y z : X, x * y * z = x * (y * z).
 Proof.
   now apply rigassoc2.
 Qed.
 Lemma iscomm_CCDRmult :
-  forall x y : X, x * y = y * x.
+  Π x y : X, x * y = y * x.
 Proof.
   now apply rigcomm2.
 Qed.
 Lemma islinv_CCDRinv :
-  ∀ (x : X) (Hx0 : x ≠ (0 : X)),
+  Π (x : X) (Hx0 : x ≠ (0 : X)),
     (CDRinv (X := X) x Hx0) * x = 1.
 Proof.
   exact (islinv_CDRinv (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma isrinv_CCDRinv :
-  ∀ (x : X) (Hx0 : x ≠ (0 : X)),
+  Π (x : X) (Hx0 : x ≠ (0 : X)),
     x * (CDRinv (X := X) x Hx0) = 1.
 Proof.
   exact (isrinv_CDRinv (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma islabsorb_CCDRzero_CCDRmult :
-  ∀ x : X, 0 * x = 0.
+  Π x : X, 0 * x = 0.
 Proof.
   now apply rigmult0x.
 Qed.
 Lemma israbsorb_CCDRzero_CCDRmult :
-  ∀ x : X, x * 0 = 0.
+  Π x : X, x * 0 = 0.
 Proof.
   now apply rigmultx0.
 Qed.
 Lemma isldistr_CCDRplus_CCDRmult :
-  ∀ x y z : X, z * (x + y) = z * x + z * y.
+  Π x y z : X, z * (x + y) = z * x + z * y.
 Proof.
   now apply rigdistraxs.
 Qed.
 Lemma isrdistr_CCDRplus_CCDRmult :
-  ∀ x y z : X, (x + y) * z = x * z + y * z.
+  Π x y z : X, (x + y) * z = x * z + y * z.
 Proof.
   intros x y z.
   rewrite !(iscomm_CCDRmult _ z).
@@ -367,51 +367,51 @@ Proof.
 Qed.
 
 Lemma apCCDRplus :
-  ∀ x x' y y' : X,
+  Π x x' y y' : X,
     x + y ≠ x' + y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (apCDRplus (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma CCDRplus_apcompat_l :
-  ∀ x y z : X, y + x ≠ z + x -> y ≠ z.
+  Π x y z : X, y + x ≠ z + x -> y ≠ z.
 Proof.
   exact (CDRplus_apcompat_l (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma CCDRplus_apcompat_r :
-  ∀ x y z : X, x + y ≠ x + z -> y ≠ z.
+  Π x y z : X, x + y ≠ x + z -> y ≠ z.
 Proof.
   exact (CDRplus_apcompat_r (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 
 Lemma apCCDRmult :
-  forall x x' y y' : X,
+  Π x x' y y' : X,
     x * y ≠ x' * y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (apCDRmult (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma CCDRmult_apcompat_l :
-  ∀ x y z : X, y * x ≠ z * x -> y ≠ z.
+  Π x y z : X, y * x ≠ z * x -> y ≠ z.
 Proof.
   exact (CDRmult_apcompat_l (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma CCDRmult_apcompat_l' :
-  ∀ x y z : X, x ≠ 0 -> y ≠ z -> y * x ≠ z * x.
+  Π x y z : X, x ≠ 0 -> y ≠ z -> y * x ≠ z * x.
 Proof.
   exact (CDRmult_apcompat_l' (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma CCDRmult_apcompat_r :
-  ∀ x y z : X, x * y ≠ x * z -> y ≠ z.
+  Π x y z : X, x * y ≠ x * z -> y ≠ z.
 Proof.
   exact (CDRmult_apcompat_r (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 Lemma CCDRmult_apcompat_r' :
-  ∀ x y z : X, x ≠ 0 -> y ≠ z -> x * y ≠ x * z.
+  Π x y z : X, x ≠ 0 -> y ≠ z -> x * y ≠ x * z.
 Proof.
   exact (CDRmult_apcompat_r' (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
 
 Lemma CCDRmultapCCDRzero :
-  forall x y : X, x * y ≠ 0 -> x ≠ 0 ∧ y ≠ 0.
+  Π x y : X, x * y ≠ 0 -> x ≠ 0 ∧ y ≠ 0.
 Proof.
   exact (CDRmultapCDRzero (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
 Qed.
@@ -469,22 +469,22 @@ Section CF_pty.
 Context {X : ConstructiveField}.
 
 Lemma isirrefl_CFap :
-  ∀ x : X, ¬ (x ≠ x).
+  Π x : X, ¬ (x ≠ x).
 Proof.
   exact (isirrefl_CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma issymm_CFap :
-  ∀ x y : X, x ≠ y -> y ≠ x.
+  Π x y : X, x ≠ y -> y ≠ x.
 Proof.
   exact (issymm_CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma iscotrans_CFap :
-  ∀ x y z : X, x ≠ z -> x ≠ y ∨ y ≠ z.
+  Π x y z : X, x ≠ z -> x ≠ y ∨ y ≠ z.
 Proof.
   exact (iscotrans_CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma istight_CFap :
-  ∀ x y : X, ¬ (x ≠ y) -> x = y.
+  Π x y : X, ¬ (x ≠ y) -> x = y.
 Proof.
   exact (istight_CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
@@ -495,85 +495,85 @@ Proof.
 Qed.
 
 Lemma islunit_CFzero_CFplus :
-  forall x : X, 0 + x = x.
+  Π x : X, 0 + x = x.
 Proof.
   now apply rnglunax1.
 Qed.
 Lemma isrunit_CFzero_CFplus :
-  forall x : X, x + 0 = x.
+  Π x : X, x + 0 = x.
 Proof.
   now apply rngrunax1.
 Qed.
 Lemma isassoc_CFplus :
-  forall x y z : X, x + y + z = x + (y + z).
+  Π x y z : X, x + y + z = x + (y + z).
 Proof.
   now apply rngassoc1.
 Qed.
 Lemma islinv_CFopp :
-  ∀ x : X, - x + x = 0.
+  Π x : X, - x + x = 0.
 Proof.
   now apply rnglinvax1.
 Qed.
 Lemma isrinv_CFopp :
-  ∀ x : X, x + - x = 0.
+  Π x : X, x + - x = 0.
 Proof.
   now apply rngrinvax1.
 Qed.
 
 Lemma iscomm_CFplus :
-  forall x y : X, x + y = y + x.
+  Π x y : X, x + y = y + x.
 Proof.
   now apply rngcomm1.
 Qed.
 Lemma islunit_CFone_CFmult :
-  forall x : X, 1 * x = x.
+  Π x : X, 1 * x = x.
 Proof.
   now apply rnglunax2.
 Qed.
 Lemma isrunit_CFone_CFmult :
-  forall x : X, x * 1 = x.
+  Π x : X, x * 1 = x.
 Proof.
   now apply rngrunax2.
 Qed.
 Lemma isassoc_CFmult :
-  forall x y z : X, x * y * z = x * (y * z).
+  Π x y z : X, x * y * z = x * (y * z).
 Proof.
   now apply rngassoc2.
 Qed.
 Lemma iscomm_CFmult :
-  forall x y : X, x * y = y * x.
+  Π x y : X, x * y = y * x.
 Proof.
   now apply rngcomm2.
 Qed.
 Lemma islinv_CFinv :
-  ∀ (x : X) (Hx0 : x ≠ 0),
+  Π (x : X) (Hx0 : x ≠ 0),
     (CFinv x Hx0) * x = 1.
 Proof.
   exact (islinv_CCDRinv (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma isrinv_CFinv :
-  ∀ (x : X) (Hx0 : x ≠ 0),
+  Π (x : X) (Hx0 : x ≠ 0),
     x * (CFinv x Hx0) = 1.
 Proof.
   exact (isrinv_CCDRinv (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma islabsorb_CFzero_CFmult :
-  ∀ x : X, 0 * x = 0.
+  Π x : X, 0 * x = 0.
 Proof.
   now apply rngmult0x.
 Qed.
 Lemma israbsorb_CFzero_CFmult :
-  ∀ x : X, x * 0 = 0.
+  Π x : X, x * 0 = 0.
 Proof.
   now apply rngmultx0.
 Qed.
 Lemma isldistr_CFplus_CFmult :
-  ∀ x y z : X, z * (x + y) = z * x + z * y.
+  Π x y z : X, z * (x + y) = z * x + z * y.
 Proof.
   now apply rngdistraxs.
 Qed.
 Lemma isrdistr_CFplus_CFmult :
-  ∀ x y z : X, (x + y) * z = x * z + y * z.
+  Π x y z : X, (x + y) * z = x * z + y * z.
 Proof.
   intros.
   rewrite !(iscomm_CFmult _ z).
@@ -581,13 +581,13 @@ Proof.
 Qed.
 
 Lemma apCFplus :
-  ∀ x x' y y' : X,
+  Π x x' y y' : X,
     x + y ≠ x' + y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (apCCDRplus (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma CFplus_apcompat_l :
-  ∀ x y z : X, y + x ≠ z + x <-> y ≠ z.
+  Π x y z : X, y + x ≠ z + x <-> y ≠ z.
 Proof.
   intros x y z.
   split.
@@ -599,7 +599,7 @@ Proof.
     exact Hap.
 Qed.
 Lemma CFplus_apcompat_r :
-  ∀ x y z : X, x + y ≠ x + z <-> y ≠ z.
+  Π x y z : X, x + y ≠ x + z <-> y ≠ z.
 Proof.
   intros x y z.
   rewrite !(iscomm_CFplus x).
@@ -607,34 +607,34 @@ Proof.
 Qed.
 
 Lemma apCFmult :
-  forall x x' y y' : X,
+  Π x x' y y' : X,
     x * y ≠ x' * y' -> x ≠ x' ∨ y ≠ y'.
 Proof.
   exact (apCCDRmult (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma CFmult_apcompat_l :
-  ∀ x y z : X, y * x ≠ z * x -> y ≠ z.
+  Π x y z : X, y * x ≠ z * x -> y ≠ z.
 Proof.
   exact (CCDRmult_apcompat_l (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma CFmult_apcompat_l' :
-  ∀ x y z : X, x ≠ 0 -> y ≠ z -> y * x ≠ z * x.
+  Π x y z : X, x ≠ 0 -> y ≠ z -> y * x ≠ z * x.
 Proof.
   exact (CCDRmult_apcompat_l' (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma CFmult_apcompat_r :
-  ∀ x y z : X, x * y ≠ x * z -> y ≠ z.
+  Π x y z : X, x * y ≠ x * z -> y ≠ z.
 Proof.
   exact (CCDRmult_apcompat_r (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 Lemma CFmult_apcompat_r' :
-  ∀ x y z : X, x ≠ 0 -> y ≠ z -> x * y ≠ x * z.
+  Π x y z : X, x ≠ 0 -> y ≠ z -> x * y ≠ x * z.
 Proof.
   exact (CCDRmult_apcompat_r' (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.
 
 Lemma CFmultapCFzero :
-  forall x y : X, x * y ≠ 0 -> x ≠ 0 ∧ y ≠ 0.
+  Π x y : X, x * y ≠ 0 -> x ≠ 0 ∧ y ≠ 0.
 Proof.
   exact (CCDRmultapCCDRzero (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
 Qed.

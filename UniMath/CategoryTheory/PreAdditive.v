@@ -20,15 +20,15 @@ Section def_preadditive.
     morphism yields a morphism of abelian groups. Classically one says that
     composition is bilinear with respect to the abelian groups? *)
   Definition isPreAdditive (PA : PrecategoryWithAbgrops) :=
-    (forall (x y z : PA) (f : x --> y),
+    (Π (x y z : PA) (f : x --> y),
         ismonoidfun (PrecategoryWithAbgrops_premor PA x y z f))
-      × (forall (x y z : PA) (f : y --> z),
+      × (Π (x y z : PA) (f : y --> z),
             ismonoidfun (PrecategoryWithAbgrops_postmor PA x y z f)).
 
   Definition mk_isPreAdditive (PA : PrecategoryWithAbgrops)
-             (H1 : forall (x y z : PA) (f : x --> y),
+             (H1 : Π (x y z : PA) (f : x --> y),
                  ismonoidfun (PrecategoryWithAbgrops_premor PA x y z f))
-             (H2 : forall (x y z : PA) (f : y --> z),
+             (H2 : Π (x y z : PA) (f : y --> z),
                    ismonoidfun (PrecategoryWithAbgrops_postmor PA x y z f)) :
     isPreAdditive PA.
   Proof.

@@ -16,7 +16,7 @@ Section def_precategory_with_binops.
 
   (** Definition of precategories such that homs are binops. *)
   Definition PrecategoryWithBinOpsData (C : precategory) :=
-    forall (x y : C), binop (C⟦x, y⟧).
+    Π (x y : C), binop (C⟦x, y⟧).
 
   Definition PrecategoryWithBinOps :
     UU := Σ C : precategory, PrecategoryWithBinOpsData C.

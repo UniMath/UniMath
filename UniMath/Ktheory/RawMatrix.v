@@ -16,31 +16,31 @@ Local Open Scope cat.
 
 Definition to_row {C:Precategory} {I} {b:I -> ob C}
            (B:Sum b) {d:ob C} :
-  weq (Hom C (universalObject B) d) (∀ j, Hom C (b j) d).
+  weq (Hom C (universalObject B) d) (Π j, Hom C (b j) d).
 Proof. intros. exact (universalProperty B d). Defined.
 
 Definition from_row {C:Precategory}  {I} {b:I -> ob C}
            (B:Sum b) {d:ob C} :
-  weq (∀ j, Hom C (b j) d) (Hom C (universalObject B) d).
+  weq (Π j, Hom C (b j) d) (Hom C (universalObject B) d).
 Proof. intros. apply invweq. apply to_row. Defined.
 
 Lemma from_row_entry {C:Precategory} {I} {b:I -> ob C}
-           (B:Sum b) {d:ob C} (f : ∀ j, Hom C (b j) d) :
-  ∀ j, from_row B f ∘ opp_mor (universalElement B j) = f j.
+           (B:Sum b) {d:ob C} (f : Π j, Hom C (b j) d) :
+  Π j, from_row B f ∘ opp_mor (universalElement B j) = f j.
 Proof. intros. exact (apevalat j (homotweqinvweq (to_row B) f)). Qed.
 
 Definition to_col {C:Precategory} {I} {d:I -> ob C} (D:Product d) {b:ob C} :
-  (Hom C b (universalObject D)) ≃ (∀ i, Hom C b (d i)).
+  (Hom C b (universalObject D)) ≃ (Π i, Hom C b (d i)).
 Proof. intros. exact (universalProperty D b). Defined.
 
 Definition from_col {C:Precategory} {I} {d:I -> ob C}
            (D:Product d) {b:ob C} :
- (∀ i, Hom C b (d i)) ≃ (Hom C b (universalObject D)).
+ (Π i, Hom C b (d i)) ≃ (Hom C b (universalObject D)).
 Proof. intros. apply invweq. apply to_col. Defined.
 
 Lemma from_col_entry {C:Precategory} {I} {b:I -> ob C}
-           (D:Product b) {d:ob C} (f : ∀ i, Hom C d (b i)) :
-  ∀ i, universalElement D i ∘ from_col D f = f i.
+           (D:Product b) {d:ob C} (f : Π i, Hom C d (b i)) :
+  Π i, universalElement D i ∘ from_col D f = f i.
 Proof. intros.
   apply (apevalat i (homotweqinvweq (to_col D) f )). Qed.
 
@@ -49,9 +49,9 @@ Definition to_matrix {C:Precategory}
            {J} {b:J -> ob C} (B:Sum b) :
   (Hom C (universalObject B) (universalObject D))
     ≃
-    (∀ i j, Hom C (b j) (d i)).
+    (Π i j, Hom C (b j) (d i)).
 Proof.
-  intros. apply @weqcomp with (Y := ∀ i, Hom C (universalObject B) (d i)).
+  intros. apply @weqcomp with (Y := Π i, Hom C (universalObject B) (d i)).
   { apply to_col. }
   { apply weqonsecfibers; intro i. apply to_row. }
 Defined.
@@ -59,19 +59,19 @@ Defined.
 Definition from_matrix {C:Precategory}
            {I} {d:I -> ob C} (D:Product d)
            {J} {b:J -> ob C} (B:Sum b) :
-           weq (∀ i j, Hom C (b j) (d i)) (Hom C (universalObject B) (universalObject D)).
+           weq (Π i j, Hom C (b j) (d i)) (Hom C (universalObject B) (universalObject D)).
 Proof. intros. apply invweq. apply to_matrix. Defined.
 
 Lemma from_matrix_entry {C:Precategory}
            {I} {d:I -> ob C} (D:Product d)
            {J} {b:J -> ob C} (B:Sum b)
-           (f : ∀ i j, Hom C (b j) (d i)) :
-  ∀ i j, (universalElement D i ∘ from_matrix D B f) ∘ opp_mor (universalElement B j) = f i j.
+           (f : Π i j, Hom C (b j) (d i)) :
+  Π i j, (universalElement D i ∘ from_matrix D B f) ∘ opp_mor (universalElement B j) = f i j.
 Proof. intros. exact (apevalat j (apevalat i (homotweqinvweq (to_matrix D B) f))). Qed.
 
 Lemma from_matrix_entry_assoc {C:Precategory}
            {I} {d:I -> ob C} (D:Product d)
            {J} {b:J -> ob C} (B:Sum b)
-           (f : ∀ i j, Hom C (b j) (d i)) :
-  ∀ i j, universalElement D i ∘ (from_matrix D B f ∘ opp_mor(universalElement B j)) = f i j.
+           (f : Π i j, Hom C (b j) (d i)) :
+  Π i j, universalElement D i ∘ (from_matrix D B f ∘ opp_mor(universalElement B j)) = f i j.
 Proof. intros. rewrite <- assoc. exact (from_matrix_entry D B f i j). Qed.

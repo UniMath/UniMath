@@ -18,7 +18,7 @@ Variable hs: has_homsets C.
 
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g) : UU :=
-   forall e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
+   Π e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : e --> d => dirprod (hk ;; p1 = h)(hk ;; p2 = k))).
 
 Lemma isaprop_isPullback {a b c d : C} (f : b --> a) (g : c --> a)
@@ -48,10 +48,10 @@ Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
          total2 (fun H : pr1 (pr2 pfg) ;; f = pr2 (pr2 pfg) ;; g =>
         isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
 
-Definition Pullbacks := forall (a b c : C)(f : b --> a)(g : c --> a),
+Definition Pullbacks := Π (a b c : C)(f : b --> a)(g : c --> a),
        Pullback f g.
 
-Definition hasPullbacks := forall (a b c : C) (f : b --> a) (g : c --> a),
+Definition hasPullbacks := Π (a b c : C) (f : b --> a) (g : c --> a),
          ishinh (Pullback f g).
 
 
@@ -114,7 +114,7 @@ Defined.
 
 Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
            (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
-  (forall e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
+  (Π e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : C⟦e,d⟧ => dirprod (hk ;; p1 = h)(hk ;; p2 = k))))
   →
   isPullback f g p1 p2 H.

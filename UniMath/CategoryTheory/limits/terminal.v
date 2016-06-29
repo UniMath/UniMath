@@ -13,7 +13,7 @@ Section def_terminal.
 
 Variable C : precategory.
 
-Definition isTerminal (b : C) := forall a : C, iscontr (a --> b).
+Definition isTerminal (b : C) := Π a : C, iscontr (a --> b).
 
 Definition Terminal := total2 (fun a => isTerminal a).
 
@@ -25,7 +25,7 @@ Proof.
   exists b; exact H.
 Defined.
 
-Definition mk_isTerminal (b : C) (H : ∀ (a : C), iscontr (a --> b)) :
+Definition mk_isTerminal (b : C) (H : Π (a : C), iscontr (a --> b)) :
   isTerminal b.
 Proof.
   exact H.
@@ -106,7 +106,7 @@ Section Terminal_and_EmptyProd.
     refine (mk_Terminal (ProductObject _ C X) _).
     refine (mk_isTerminal _ _).
     intros a.
-    assert (H : forall i : empty, C⟦a, fromempty i⟧) by
+    assert (H : Π i : empty, C⟦a, fromempty i⟧) by
         (intros i; apply (fromempty i)).
     apply (iscontrpair (ProductArrow _ _ X H)); intros t.
     apply ProductArrowUnique; intros i; apply (fromempty i).
@@ -118,13 +118,13 @@ Section Terminal_and_EmptyProd.
     Terminal C ->  ProductCone empty C fromempty.
   Proof.
     intros T.
-    assert (H : forall i : empty, C⟦T, fromempty i⟧) by
+    assert (H : Π i : empty, C⟦T, fromempty i⟧) by
         (intros i; apply (fromempty i)).
     refine (mk_ProductCone _ _ _ T H _).
     refine (mk_isProductCone _ _ hs _ _ _ _).
     intros c f.
     set (k := @TerminalArrow _ T c).
-    assert (H0 : forall i : empty, (TerminalArrow c) ;; H i = f i) by
+    assert (H0 : Π i : empty, (TerminalArrow c) ;; H i = f i) by
         (intros i; apply (fromempty i)).
 
     refine (iscontrpair (tpair _ k H0) _). intros t.
@@ -171,7 +171,7 @@ End Terminal_and_EmptyProd.
 (* case (iscc _ (termCone b)); intros f Hf; destruct f as [f fcomm]. *)
 (* apply (tpair _ f); intro g. *)
 (* simple refine (let X : Σ x : b --> c, *)
-(*                        ∀ v, coconeIn cc v ;; x = coconeIn (termCone b) v := _ in _). *)
+(*                        Π v, coconeIn cc v ;; x = coconeIn (termCone b) v := _ in _). *)
 (*   { apply (tpair _ g); intro u; induction u. } *)
 (* apply (maponpaths pr1 (Hf X)). *)
 (* Defined. *)

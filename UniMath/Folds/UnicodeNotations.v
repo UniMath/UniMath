@@ -3,7 +3,7 @@ Require Export UniMath.Foundations.Basics.PartD.
 Require Export UniMath.Foundations.Basics.Propositions.
 
 (*
-Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
+Notation "'Π'  x .. y , P" := (Π x, .. (Π y, P) ..)
   (at level 200, x binder, y binder, right associativity) : type_scope.
 Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
   (at level 200, x binder, y binder, right associativity) : type_scope.

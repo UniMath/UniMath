@@ -233,7 +233,7 @@ Lemma slicecat_functor_subproof (af bg : C / x) (h : af --> bg) :
 Proof. rewrite assoc, (pr2 h); apply idpath. Qed.
 
 Definition slicecat_functor_data : functor_data (C / x) (C / y) :=
-  tpair (fun F => forall a b, a --> b -> F a --> F b)
+  tpair (fun F => Π a b, a --> b -> F a --> F b)
         slicecat_functor_ob
         (fun a b h => tpair _ (pr1 h) (slicecat_functor_subproof _ _ h)).
 
@@ -319,7 +319,7 @@ assert (H1 : transportf (fun x : C / z => pr1 x --> b)
                  (fun p => tpair _ a p = tpair _ a _) (idpath (tpair _ a _))
                  (assoc C a x y z fax f g)) h = h).
   case (assoc C a x y z fax f g); apply idpath.
-assert (H2 : forall h', h' = h ->
+assert (H2 : Π h', h' = h ->
              transportf (fun x : C / z => a --> pr1 x)
                         (Basics.PartA.internal_paths_rew_r _ _ _
                            (fun p => tpair _ b p = tpair _ b _) (idpath _)

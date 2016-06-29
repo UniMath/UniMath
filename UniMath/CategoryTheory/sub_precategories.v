@@ -58,14 +58,14 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 Definition is_sub_precategory {C : precategory}
     (C' : hsubtypes C)
-    (Cmor' : forall a b : C, hsubtypes (a --> b)) :=
- dirprod (forall a : C, C' a ->  Cmor' _ _ (identity a ))
-         (forall (a b c : C) (f: a --> b) (g : b --> c),
+    (Cmor' : Π a b : C, hsubtypes (a --> b)) :=
+ dirprod (Π a : C, C' a ->  Cmor' _ _ (identity a ))
+         (Π (a b c : C) (f: a --> b) (g : b --> c),
                    Cmor' _ _ f -> Cmor' _ _  g -> Cmor' _ _  (f ;; g)).
 
 Definition sub_precategories (C : precategory) := total2 (
    fun C' : dirprod (hsubtypes (ob C))
-                    (forall a b:ob C, hsubtypes (a --> b)) =>
+                    (Π a b:ob C, hsubtypes (a --> b)) =>
         is_sub_precategory (pr1 C') (pr2 C')).
 
 (** A full subcategory has the true predicate on morphisms *)
@@ -110,13 +110,13 @@ Definition sub_precategory_morphisms {C : precategory}(C':sub_precategories C)
 *)
 
 Definition sub_precategory_id (C : precategory)(C':sub_precategories C) :
-   forall a : ob C,
+   Π a : ob C,
        sub_precategory_predicate_objects C' a ->
        sub_precategory_predicate_morphisms  C' _ _ (identity a) :=
          pr1 (pr2 C').
 
 Definition sub_precategory_comp (C : precategory)(C':sub_precategories C) :
-   forall (a b c: ob C) (f: a --> b) (g : b --> c),
+   Π (a b c: ob C) (f: a --> b) (g : b --> c),
           sub_precategory_predicate_morphisms C' _ _ f ->
           sub_precategory_predicate_morphisms C' _ _ g ->
           sub_precategory_predicate_morphisms C' _ _  (f ;; g) :=

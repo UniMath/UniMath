@@ -70,15 +70,15 @@ Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 *)
 
 Definition precategory_id_comp (C : precategory_ob_mor) :=
-     dirprod (forall c : C, c --> c) (* identities *)
-             (forall a b c : C,
+     dirprod (Π c : C, c --> c) (* identities *)
+             (Π a b c : C,
                  a --> b -> b --> c -> a --> c).
 
 Definition precategory_data := total2 precategory_id_comp.
 
 Definition precategory_data_pair (C : precategory_ob_mor)
-    (id : forall c : C, c --> c)
-    (comp: forall a b c : C,
+    (id : Π c : C, c --> c)
+    (comp: Π a b c : C,
          a --> b -> b --> c -> a --> c) : precategory_data :=
    tpair _ C (dirprodpair id comp).
 
@@ -88,7 +88,7 @@ Coercion precategory_ob_mor_from_precategory_data :
   precategory_data >-> precategory_ob_mor.
 
 Definition identity { C : precategory_data } :
-    forall c : C, c --> c :=
+    Π c : C, c --> c :=
          pr1 (pr2 C).
 
 Definition compose { C : precategory_data }
@@ -105,15 +105,15 @@ Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 *)
 
 Definition is_precategory (C : precategory_data) :=
-   dirprod (dirprod (forall (a b : C) (f : a --> b),
+   dirprod (dirprod (Π (a b : C) (f : a --> b),
                          identity a ;; f = f)
-                     (forall (a b : C) (f : a --> b),
+                     (Π (a b : C) (f : a --> b),
                          f ;; identity b = f))
-            (forall (a b c d : C)
+            (Π (a b c d : C)
                     (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) = (f ;; g) ;; h).
 (*
-Definition is_hs_precategory_data (C : precategory_data) := forall (a b : C), isaset (a --> b).
+Definition is_hs_precategory_data (C : precategory_data) := Π (a b : C), isaset (a --> b).
 *)
 (*
 Definition hs_precategory_data := total2 is_hs_precategory_data.
@@ -126,7 +126,7 @@ Coercion precategory_data_from_hs_precategory_data : hs_precategory_data >-> pre
 Definition precategory := total2 is_precategory.
 
 Definition hs_precategory := total2 (fun C : precategory_data =>
-  dirprod (is_precategory C) (forall a b : C, isaset (a --> b))).
+  dirprod (is_precategory C) (Π a b : C, isaset (a --> b))).
 
 Definition precategory_data_from_precategory (C : precategory) :
        precategory_data := pr1 C.
@@ -140,7 +140,7 @@ Definition precategory_from_hs_precategory (C : hs_precategory) : precategory :=
   tpair _ (pr1 C) (pr1 (pr2 C)).
 Coercion precategory_from_hs_precategory : hs_precategory >-> precategory.
 
-Definition has_homsets (C : precategory_ob_mor) := forall a b : C, isaset (a --> b).
+Definition has_homsets (C : precategory_ob_mor) := Π a b : C, isaset (a --> b).
 
 Lemma isaprop_has_homsets (C : precategory_ob_mor) : isaprop (has_homsets C).
 Proof.
@@ -159,15 +159,15 @@ Qed.
 
 
 Definition id_left (C : precategory) :
-   forall (a b : C) (f : a --> b),
+   Π (a b : C) (f : a --> b),
            identity a ;; f = f := pr1 (pr1 (pr2 C)).
 
 Definition id_right (C : precategory) :
-   forall (a b : C) (f : a --> b),
+   Π (a b : C) (f : a --> b),
            f ;; identity b = f := pr2 (pr1 (pr2 C)).
 
 Definition assoc (C : precategory) :
-   forall (a b c d : C)
+   Π (a b c d : C)
           (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) = (f ;; g) ;; h := pr2 (pr2 C).
 
@@ -267,7 +267,7 @@ Definition precomp_with {C : precategory_data} {a b : C} (f : a --> b) {c} (g : 
    f ;; g.
 
 Definition is_iso {C : precategory_data} {a b : C} (f : a --> b) :=
-  forall c, isweq (precomp_with f (c:=c)).
+  Π c, isweq (precomp_with f (c:=c)).
 
 Definition is_isomorphism {C: precategory_data}{a b : C} (f : a --> b) := is_iso f.
 
@@ -417,7 +417,7 @@ Qed.
 (** Stability under composition, inverses etc *)
 
 Definition isweqhomot' {X Y} (f g : X -> Y) (H : isweq f)
-      (homot : forall x, f x = g x) : isweq g.
+      (homot : Π x, f x = g x) : isweq g.
 Proof.
   apply (isweqhomot f g homot H).
 Defined.
@@ -911,7 +911,7 @@ Defined.
 
 (* use eta expanded version to force printing of object arguments *)
 Definition is_category (C : precategory) :=
-  dirprod (forall (a b : ob C), isweq (fun p : a = b => idtoiso p))
+  dirprod (Π (a b : ob C), isweq (fun p : a = b => idtoiso p))
           (has_homsets C).
 
 Lemma eq_idtoiso_idtomor {C:precategory} (a b:ob C) (e:a = b) :
@@ -943,7 +943,7 @@ Coercion precat_from_cat : category >-> precategory.
 Lemma category_has_groupoid_ob (C : category): isofhlevel 3 (ob C).
 Proof.
   change (isofhlevel 3 C) with
-        (forall a b : C, isofhlevel 2 (a = b)).
+        (Π a b : C, isofhlevel 2 (a = b)).
   intros a b.
   apply (isofhlevelweqb _ (tpair _ _ (pr1 (pr2 C) a b))).
   apply isaset_iso.
@@ -1115,8 +1115,8 @@ Proof.
 Qed.
 
 Lemma transportf_isotoid_dep (C : precategory)
-   (a a' : C) (p : a = a') (f : forall c, a --> c) :
- transportf (fun x : C => forall c, x --> c) p f = fun c => idtoiso (!p) ;; f c.
+   (a a' : C) (p : a = a') (f : Π c, a --> c) :
+ transportf (fun x : C => Π c, x --> c) p f = fun c => idtoiso (!p) ;; f c.
 Proof.
   destruct p.
   simpl.
@@ -1128,8 +1128,8 @@ Qed.
 
 Lemma transportf_isotoid_dep' (J C : precategory)
   (F : J -> C)
-   (a a' : C) (p : a = a') (f : forall c, a --> F c) :
- transportf (fun x : C => forall c, x --> F c) p f = fun c => idtoiso (!p) ;; f c.
+   (a a' : C) (p : a = a') (f : Π c, a --> F c) :
+ transportf (fun x : C => Π c, x --> F c) p f = fun c => idtoiso (!p) ;; f c.
 Proof.
   destruct p.
   apply funextsec.
@@ -1176,7 +1176,7 @@ Definition precategory_total_id (C : precategory_data) :
       fun c => tpair _ (dirprodpair c c) (identity c).
 
 Definition precategory_total_comp'' (C : precategory_data) :
-      forall f g : total_morphisms C,
+      Π f g : total_morphisms C,
         precategory_target C f = precategory_source C g ->
          total_morphisms C.
 Proof.
@@ -1191,7 +1191,7 @@ Proof.
 Defined.
 
 Definition precategory_total_comp (C : precategory_data) :
-      forall f g : total_morphisms C,
+      Π f g : total_morphisms C,
         precategory_target C f = precategory_source C g ->
          total_morphisms C :=
   fun f g e =>

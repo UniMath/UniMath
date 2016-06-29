@@ -131,7 +131,7 @@ Proof.
 Qed.
 
 
-Lemma μ_1_identity' : ∀ c : C, μ_1 c = identity _.
+Lemma μ_1_identity' : Π c : C, μ_1 c = identity _.
 Proof.
   intros c.
   assert (HA:= nat_trans_eq_pointwise μ_1_identity).
@@ -176,7 +176,7 @@ Defined.
 (** *** Proof of the first monad law *)
 
 Lemma Monad_law_1_from_hss :
-  ∀ c : C, μ_0 (pr1 (`T) c);; μ_2 c = identity ((pr1 (`T)) c).
+  Π c : C, μ_0 (pr1 (`T) c);; μ_2 c = identity ((pr1 (`T)) c).
 Proof.
   intro c.
   unfold μ_2. simpl.
@@ -191,7 +191,7 @@ Qed.
 (** *** Proof of the second monad law *)
 
 Lemma Monad_law_2_from_hss:
-  ∀ c : C, # (pr1 (`T)) (μ_0 c);; μ_2 c = identity ((pr1 (`T)) c).
+  Π c : C, # (pr1 (`T)) (μ_0 c);; μ_2 c = identity ((pr1 (`T)) c).
 Proof.
   intro c.
   pathvia (μ_1 c).
@@ -275,7 +275,7 @@ Defined.
     the pointed structure given by [η] *)
 
 Lemma μ_2_is_ptd_mor :
-  ∀ c : C, (ptd_pt C T_squared) c;; μ_2 c = pr1 (η T) c.
+  Π c : C, (ptd_pt C T_squared) c;; μ_2 c = pr1 (η T) c.
 Proof.
   intro c.
   unfold μ_2.
@@ -442,7 +442,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
       eapply pathscomp0. Focus 2. apply assoc.
       eapply pathscomp0. Focus 2. apply maponpaths. apply (!HXX).
       clear HXX.
-      assert (Strength_2 : ∀ α : functor_compose hs hs (functor_composite (`T) (`T))(`T) --> functor_composite (` T) (`T),
+      assert (Strength_2 : Π α : functor_compose hs hs (functor_composite (`T) (`T))(`T) --> functor_composite (` T) (`T),
 
                     pr1 (θ (`T ⊗ T_squared)) c ;; pr1 (# H α) c =
                      pr1 (θ ((`T) ⊗ (ptd_from_alg T))) ((pr1 (pr1 (pr1 T))) c);;

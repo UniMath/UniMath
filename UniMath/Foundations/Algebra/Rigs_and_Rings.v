@@ -41,8 +41,8 @@ Definition rigassoc1 ( X : rig ) : isassoc ( @op1 X ) := assocax_is ( rigop1axs 
 Definition rigunel1 { X : rig } : X := unel_is ( rigop1axs X ) .
 Definition riglunax1 ( X : rig ) : islunit op1 ( @rigunel1 X ) := lunax_is ( rigop1axs X ) .
 Definition rigrunax1 ( X : rig ) : isrunit op1 ( @rigunel1 X ) := runax_is ( rigop1axs X ) .
-Definition rigmult0x ( X : rig ) : forall x : X , paths ( op2 ( @rigunel1 X ) x ) ( @rigunel1 X ) := rigmult0x_is ( pr2 X ) .
-Definition rigmultx0 ( X : rig ) : forall x : X , paths ( op2 x ( @rigunel1 X ) ) ( @rigunel1 X ) := rigmultx0_is ( pr2 X ) .
+Definition rigmult0x ( X : rig ) : Π x : X , paths ( op2 ( @rigunel1 X ) x ) ( @rigunel1 X ) := rigmult0x_is ( pr2 X ) .
+Definition rigmultx0 ( X : rig ) : Π x : X , paths ( op2 x ( @rigunel1 X ) ) ( @rigunel1 X ) := rigmultx0_is ( pr2 X ) .
 Definition rigcomm1 ( X : rig ) : iscomm ( @op1 X ) := commax_is ( rigop1axs X ) .
 
 
@@ -57,7 +57,7 @@ Definition rigdistraxs ( X : rig ) : isdistr ( @op1 X ) ( @op2 X ) := pr2 ( pr2 
 Definition rigldistr ( X : rig ) : isldistr ( @op1 X ) ( @op2 X ) := pr1 ( pr2 ( pr2 X ) ) .
 Definition rigrdistr ( X : rig ) : isrdistr ( @op1 X ) ( @op2 X ) := pr2 ( pr2 ( pr2 X ) ) .
 
-Definition rigconstr { X : hSet } ( opp1 opp2 : binop X ) ( ax11 : ismonoidop opp1 ) ( ax12 : iscomm opp1 ) ( ax2 : ismonoidop opp2 ) ( m0x : forall x : X , paths ( opp2 ( unel_is ax11 ) x ) ( unel_is ax11 ) ) ( mx0 : forall x : X , paths ( opp2 x ( unel_is ax11 ) ) ( unel_is ax11 ) ) ( dax : isdistr opp1 opp2 ) : rig .
+Definition rigconstr { X : hSet } ( opp1 opp2 : binop X ) ( ax11 : ismonoidop opp1 ) ( ax12 : iscomm opp1 ) ( ax2 : ismonoidop opp2 ) ( m0x : Π x : X , paths ( opp2 ( unel_is ax11 ) x ) ( unel_is ax11 ) ) ( mx0 : Π x : X , paths ( opp2 x ( unel_is ax11 ) ) ( unel_is ax11 ) ) ( dax : isdistr opp1 opp2 ) : rig .
 Proof. intros. split with  ( setwith2binoppair X ( dirprodpair opp1 opp2 ) ) . split . split with ( dirprodpair ( dirprodpair ax11 ax12 ) ax2 ) . apply ( dirprodpair m0x mx0 ) . apply dax . Defined .
 
 Definition rigaddabmonoid ( X : rig ) : abmonoid := abmonoidpair ( setwithbinoppair X op1 ) ( rigop1axs X ) .
@@ -102,9 +102,9 @@ Proof . intros . split . apply ( ismonoidfuninvmap ( rigaddiso f ) ) . apply  ( 
 
 (** **** Relations similar to "greater" or "greater or equal" on rigs *)
 
-Definition isrigmultgt ( X : rig ) ( R : hrel X ) :=  forall a b c d : X , R a b -> R c d -> R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) .
+Definition isrigmultgt ( X : rig ) ( R : hrel X ) :=  Π a b c d : X , R a b -> R c d -> R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) .
 
-Definition isinvrigmultgt ( X : rig ) ( R : hrel X ) := dirprod ( forall a b c d : X , R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) -> R a b -> R c d ) ( forall a b c d : X , R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) -> R c d -> R a b ) .
+Definition isinvrigmultgt ( X : rig ) ( R : hrel X ) := dirprod ( Π a b c d : X , R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) -> R a b -> R c d ) ( Π a b c d : X , R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) -> R c d -> R a b ) .
 
 
 (** **** Subobjects *)
@@ -192,7 +192,7 @@ Definition rigdirprod ( X Y : rig ) := @rigpair ( setwith2binopdirprod X Y ) ( i
 Definition commrig := total2 ( fun X : setwith2binop => iscommrigops ( @op1 X ) ( @op2 X ) ) .
 Definition commrigpair ( X : setwith2binop ) ( is : iscommrigops ( @op1 X ) ( @op2 X ) ) : commrig := tpair ( fun X : setwith2binop => iscommrigops ( @op1 X ) ( @op2 X ) ) X is .
 
-Definition commrigconstr { X : hSet } ( opp1 opp2 : binop X ) ( ax11 : ismonoidop opp1 ) ( ax12 : iscomm opp1 ) ( ax2 : ismonoidop opp2 ) ( ax22 : iscomm opp2 ) ( m0x : forall x : X , paths ( opp2 ( unel_is ax11 ) x ) ( unel_is ax11 ) ) ( mx0 : forall x : X , paths ( opp2 x ( unel_is ax11 ) ) ( unel_is ax11 ) ) ( dax : isdistr opp1 opp2 ) : commrig .
+Definition commrigconstr { X : hSet } ( opp1 opp2 : binop X ) ( ax11 : ismonoidop opp1 ) ( ax12 : iscomm opp1 ) ( ax2 : ismonoidop opp2 ) ( ax22 : iscomm opp2 ) ( m0x : Π x : X , paths ( opp2 ( unel_is ax11 ) x ) ( unel_is ax11 ) ) ( mx0 : Π x : X , paths ( opp2 x ( unel_is ax11 ) ) ( unel_is ax11 ) ) ( dax : isdistr opp1 opp2 ) : commrig .
 Proof. intros. split with  ( setwith2binoppair X ( dirprodpair opp1 opp2 ) ) . split . split . split with ( dirprodpair ( dirprodpair ax11 ax12 ) ax2 ) . apply ( dirprodpair m0x mx0 ) . apply dax . apply ax22 . Defined .
 
 Definition commrigtorig : commrig -> rig := fun X : _ => @rigpair ( pr1 X ) ( pr1 ( pr2 X ) ) .
@@ -209,7 +209,7 @@ Definition commrigmultabmonoid ( X : commrig ) : abmonoid := abmonoidpair ( setw
 (** **** Relations similar to "greater" on commutative rigs *)
 
 
-Lemma isinvrigmultgtif ( X : commrig ) ( R : hrel X ) ( is2 : forall a b c d ,  R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) -> R a b -> R c d ) : isinvrigmultgt X R .
+Lemma isinvrigmultgtif ( X : commrig ) ( R : hrel X ) ( is2 : Π a b c d ,  R ( op1 ( op2 a c ) ( op2 b d ) ) ( op1 ( op2 a d ) ( op2 b c ) ) -> R a b -> R c d ) : isinvrigmultgt X R .
 Proof . intros . split .  apply is2 .  intros a b c d r rcd . rewrite ( rigcomm1 X ( op2 a d ) _ ) in r . rewrite ( rigcomm2 X a c ) in r . rewrite ( rigcomm2 X b d ) in r .     rewrite ( rigcomm2 X b c ) in r .  rewrite ( rigcomm2 X a d ) in r .  apply ( is2 _ _ _ _ r rcd ) . Defined .
 
 
@@ -264,8 +264,8 @@ Definition rngunel1 { X : rng } : X := unel_is ( rngop1axs X ) .
 Definition rnglunax1 ( X : rng ) : islunit op1 ( @rngunel1 X ) := lunax_is ( rngop1axs X ) .
 Definition rngrunax1 ( X : rng ) : isrunit op1 ( @rngunel1 X ) := runax_is ( rngop1axs X ) .
 Definition rnginv1 { X : rng } : X -> X := grinv_is ( rngop1axs X ) .
-Definition rnglinvax1 ( X : rng ) : forall x : X , paths ( op1 ( rnginv1 x ) x ) rngunel1 := grlinvax_is ( rngop1axs X ) .
-Definition rngrinvax1 ( X : rng ) : forall x : X , paths ( op1 x ( rnginv1 x ) ) rngunel1 := grrinvax_is ( rngop1axs X ) .
+Definition rnglinvax1 ( X : rng ) : Π x : X , paths ( op1 ( rnginv1 x ) x ) rngunel1 := grlinvax_is ( rngop1axs X ) .
+Definition rngrinvax1 ( X : rng ) : Π x : X , paths ( op1 x ( rnginv1 x ) ) rngunel1 := grrinvax_is ( rngop1axs X ) .
 Definition rngcomm1 ( X : rng ) : iscomm ( @op1 X ) := commax_is ( rngop1axs X ) .
 
 
@@ -282,10 +282,10 @@ Definition rngrdistr ( X : rng ) : isrdistr ( @op1 X ) ( @op2 X ) := pr2 ( pr2 (
 
 Definition rngconstr { X : hSet } ( opp1 opp2 : binop X ) ( ax11 : isgrop opp1 ) ( ax12 : iscomm opp1 ) ( ax2 : ismonoidop opp2 ) ( dax : isdistr opp1 opp2 ) : rng := @rngpair ( setwith2binoppair X ( dirprodpair opp1 opp2 ) ) ( dirprodpair ( dirprodpair ( dirprodpair ax11 ax12 ) ax2 ) dax ) .
 
-Definition rngmultx0 ( X : rng ) : forall x : X , paths ( op2 x rngunel1 ) rngunel1 := rngmultx0_is ( rngaxs X ) .
-Definition rngmult0x ( X : rng ) : forall x : X , paths ( op2 rngunel1 x ) rngunel1 := rngmult0x_is ( rngaxs X ) .
+Definition rngmultx0 ( X : rng ) : Π x : X , paths ( op2 x rngunel1 ) rngunel1 := rngmultx0_is ( rngaxs X ) .
+Definition rngmult0x ( X : rng ) : Π x : X , paths ( op2 rngunel1 x ) rngunel1 := rngmult0x_is ( rngaxs X ) .
 Definition rngminus1 { X : rng } : X := rngminus1_is ( rngaxs X ) .
-Definition rngmultwithminus1 ( X : rng ) : forall x : X , paths ( op2 rngminus1 x ) ( rnginv1 x ) := rngmultwithminus1_is ( rngaxs X ) .
+Definition rngmultwithminus1 ( X : rng ) : Π x : X , paths ( op2 rngminus1 x ) ( rnginv1 x ) := rngmultwithminus1_is ( rngaxs X ) .
 
 
 Definition rngaddabgr ( X : rng ) : abgr := abgrpair ( setwithbinoppair X op1 ) ( rngop1axs X ) .
@@ -334,17 +334,17 @@ Open Scope rng_scope .
 
 Definition rnginvunel1 ( X : rng ) : paths ( - 0 ) 0 := grinvunel ( rngaddabgr X ) .
 
-Lemma rngismultlcancelableif ( X : rng ) ( x : X ) ( isl: forall y , paths ( x * y ) 0 -> paths y 0 ) : islcancelable op2 x .
+Lemma rngismultlcancelableif ( X : rng ) ( x : X ) ( isl: Π y , paths ( x * y ) 0 -> paths y 0 ) : islcancelable op2 x .
 Proof . intros . apply ( @isinclbetweensets X X ) . apply setproperty .  apply setproperty . intros x1 x2 e . assert ( e' := maponpaths ( fun a => a + ( x * ( -x2 ) ) ) e ) .  simpl in e' .  rewrite ( pathsinv0 ( rngldistr X _ _ x ) ) in e' .  rewrite ( pathsinv0 ( rngldistr X _ _ x ) ) in e' . rewrite ( rngrinvax1 X x2 ) in e' . rewrite ( rngmultx0 X _ ) in e' .  assert ( e'' := isl ( x1 - x2 ) e' ) . assert ( e''' := maponpaths ( fun a => a + x2 ) e'' ) .  simpl in e''' .  rewrite ( rngassoc1 X _ _ x2  ) in e''' .  rewrite ( rnglinvax1 X x2 ) in e''' . rewrite ( rnglunax1 X _ ) in e''' .   rewrite ( rngrunax1 X _ ) in e''' . apply e''' . Defined .
 
 Opaque  rngismultlcancelableif .
 
-Lemma rngismultrcancelableif ( X : rng ) ( x : X ) ( isr: forall y , paths ( y * x ) 0 -> paths y 0 ) : isrcancelable op2 x .
+Lemma rngismultrcancelableif ( X : rng ) ( x : X ) ( isr: Π y , paths ( y * x ) 0 -> paths y 0 ) : isrcancelable op2 x .
 Proof . intros . apply ( @isinclbetweensets X X ) . apply setproperty .  apply setproperty . intros x1 x2 e . assert ( e' := maponpaths ( fun a => a + ( ( -x2 ) * x ) ) e ) .  simpl in e' .  rewrite ( pathsinv0 ( rngrdistr X _ _ x ) ) in e' .  rewrite ( pathsinv0 ( rngrdistr X _ _ x ) ) in e' . rewrite ( rngrinvax1 X x2 ) in e' . rewrite ( rngmult0x X _ ) in e' .  assert ( e'' := isr ( x1 - x2 ) e' ) . assert ( e''' := maponpaths ( fun a => a + x2 ) e'' ) .  simpl in e''' .  rewrite ( rngassoc1 X _ _ x2  ) in e''' .  rewrite ( rnglinvax1 X x2 ) in e''' . rewrite ( rnglunax1 X _ ) in e''' .   rewrite ( rngrunax1 X _ ) in e''' . apply e''' . Defined .
 
 Opaque  rngismultrcancelableif .
 
-Lemma rngismultcancelableif ( X : rng ) ( x : X ) ( isl: forall y , paths ( x * y ) 0 -> paths y 0 )  ( isr: forall y , paths ( y * x ) 0 -> paths y 0 ) : iscancelable op2 x .
+Lemma rngismultcancelableif ( X : rng ) ( x : X ) ( isl: Π y , paths ( x * y ) 0 -> paths y 0 )  ( isr: Π y , paths ( y * x ) 0 -> paths y 0 ) : iscancelable op2 x .
 Proof . intros . apply ( dirprodpair ( rngismultlcancelableif X x isl ) ( rngismultrcancelableif X x isr ) ) . Defined .
 
 Lemma rnglmultminus ( X : rng ) ( a b : X ) : paths ( ( - a ) * b ) ( - ( a * b ) ) .
@@ -383,7 +383,7 @@ Definition rngtolt0 ( X : rng ) { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr
 (** **** Relations compatible with the multiplicative structure on rings *)
 
 
-Definition isrngmultgt ( X : rng ) ( R : hrel X ) := forall a b , R a 0 -> R b 0 -> R ( a * b ) 0 .
+Definition isrngmultgt ( X : rng ) ( R : hrel X ) := Π a b , R a 0 -> R b 0 -> R ( a * b ) 0 .
 
 Lemma rngmultgt0lt0 ( X : rng ) { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is : isrngmultgt X R ) { x y : X } ( isx : R x 0 ) ( isy : R 0 y ) : R 0 ( x * y ) .
 Proof . intros . assert ( isy' := grfromltunel ( rngaddabgr X ) is0 isy ) . assert ( r := is _ _ isx isy' ) .  change ( pr1 ( R ( x * ( - y ) ) 0 ) ) in r . rewrite ( rngrmultminus X _ _ ) in r . assert ( r' := grfromgtunel ( rngaddabgr X ) is0 r ) . change ( pr1 ( R 0 ( - - ( x * y ) ) ) ) in r' . rewrite ( rngminusminus X ( x * y ) ) in r' .   apply r' .  Defined .
@@ -400,22 +400,22 @@ Proof . intros . assert ( rx := rngfromlt0 _ is0 isx ) .   assert ( ry := rngfro
 
 Opaque rngmultlt0lt0 .
 
-Lemma isrngmultgttoislrngmultgt ( X : rng ) { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is : isrngmultgt X R ) : forall a b c : X , R c 0 -> R a b -> R ( c * a ) ( c * b ) .
+Lemma isrngmultgttoislrngmultgt ( X : rng ) { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is : isrngmultgt X R ) : Π a b c : X , R c 0 -> R a b -> R ( c * a ) ( c * b ) .
 Proof . intros X R is0 is a b c rc0 rab . set ( rab':= ( pr2 is0 ) _ _ ( - b ) rab ) .  clearbody rab' . change ( pr1 ( R ( a - b ) ( b - b ) ) ) in rab' .  rewrite ( rngrinvax1 X b ) in rab' . set ( r' := is _ _ rc0 rab' ) . clearbody r' . set ( r'' :=  ( pr2 is0 ) _ _ ( c * b ) r' ) .  clearbody r'' .  change ( pr1 ( R ( c * ( a - b ) + c * b ) ( 0 + c * b ) ) ) in r'' . rewrite ( rnglunax1 X _ ) in r'' .  rewrite ( pathsinv0 ( rngldistr X _ _ c ) ) in r'' .  rewrite ( rngassoc1 X a _ _ ) in r'' .  rewrite ( rnglinvax1 X b ) in r'' .   rewrite ( rngrunax1 X _ ) in r'' .  apply r'' .  Defined .
 
 Opaque isrngmultgttoislrngmultgt .
 
-Lemma islrngmultgttoisrngmultgt ( X : rng ) { R : hrel X } ( is : forall a b c : X , R c 0 -> R a b -> R ( c * a ) ( c * b ) ) : isrngmultgt X R .
+Lemma islrngmultgttoisrngmultgt ( X : rng ) { R : hrel X } ( is : Π a b c : X , R c 0 -> R a b -> R ( c * a ) ( c * b ) ) : isrngmultgt X R .
 Proof . intros . intros a b ra rb . set ( int := is b 0 a ra rb ) .  clearbody int .  rewrite ( rngmultx0 X _ ) in int .  apply int . Defined .
 
 Opaque islrngmultgttoisrngmultgt .
 
-Lemma isrngmultgttoisrrngmultgt ( X : rng ) { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is : isrngmultgt X R ) : forall a b c : X , R c 0 -> R a b -> R ( a * c ) ( b * c ) .
+Lemma isrngmultgttoisrrngmultgt ( X : rng ) { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is : isrngmultgt X R ) : Π a b c : X , R c 0 -> R a b -> R ( a * c ) ( b * c ) .
 Proof . intros X R is0 is a b c rc0 rab . set ( rab':= ( pr2 is0 ) _ _ ( - b ) rab ) .  clearbody rab' . change ( pr1 ( R ( a - b ) ( b - b ) ) ) in rab' .  rewrite ( rngrinvax1 X b ) in rab' . set ( r' := is _ _ rab' rc0 ) . clearbody r' . set ( r'' :=  ( pr2 is0 ) _ _ ( b * c ) r' ) .  clearbody r'' .  change ( pr1 ( R ( ( a - b ) * c + b * c ) ( 0 + b * c ) ) ) in r'' . rewrite ( rnglunax1 X _ ) in r'' .  rewrite ( pathsinv0 ( rngrdistr X _ _ c ) ) in r'' .  rewrite ( rngassoc1 X a _ _ ) in r'' .  rewrite ( rnglinvax1 X b ) in r'' .   rewrite ( rngrunax1 X _ ) in r'' .  apply r'' .  Defined .
 
 Opaque isrngmultgttoisrrngmultgt .
 
-Lemma isrrngmultgttoisrngmultgt ( X : rng ) { R : hrel X } ( is1 : forall a b c : X , R c 0 -> R a b -> R ( a * c ) ( b * c ) ) : isrngmultgt X R .
+Lemma isrrngmultgttoisrngmultgt ( X : rng ) { R : hrel X } ( is1 : Π a b c : X , R c 0 -> R a b -> R ( a * c ) ( b * c ) ) : isrngmultgt X R .
 Proof . intros . intros a b ra rb . set ( int := is1 _ _ _ rb ra ) .  clearbody int .  rewrite ( rngmult0x X _ ) in int .  apply int . Defined .
 
 Opaque isrrngmultgttoisrngmultgt .
@@ -441,21 +441,21 @@ Opaque isrigmultgttoisrngmultgt .
 
 
 
-Definition isinvrngmultgt  ( X : rng ) ( R : hrel X ) := dirprod ( forall a b , R ( a * b ) 0 -> R a 0 -> R b 0  ) ( forall a b , R ( a * b ) 0 -> R b 0 -> R a 0  ) .
+Definition isinvrngmultgt  ( X : rng ) ( R : hrel X ) := dirprod ( Π a b , R ( a * b ) 0 -> R a 0 -> R b 0  ) ( Π a b , R ( a * b ) 0 -> R b 0 -> R a 0  ) .
 
 
-Lemma isinvrngmultgttoislinvrngmultgt ( X : rng ) { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is : isinvrngmultgt X R ) : forall a b c : X , R c 0 -> R ( c * a ) ( c * b ) -> R a b .
+Lemma isinvrngmultgttoislinvrngmultgt ( X : rng ) { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is : isinvrngmultgt X R ) : Π a b c : X , R c 0 -> R ( c * a ) ( c * b ) -> R a b .
 Proof . intros X R is0 is a b c rc0 r . set ( rab':= ( pr2 is0 ) _ _ ( c * - b ) r ) .  clearbody rab' . change ( pr1 ( R ( c * a + c * - b ) ( c * b + c * - b ) ) ) in rab' .  rewrite ( pathsinv0 ( rngldistr X _ _ c ) ) in rab' .  rewrite ( pathsinv0 ( rngldistr X _ _ c ) ) in rab' .  rewrite ( rngrinvax1 X b ) in rab' .  rewrite ( rngmultx0 X _ ) in rab' .  set ( r' := ( pr1 is ) _ _ rab' rc0 ) . clearbody r' . set ( r'' :=  ( pr2 is0 ) _ _ b r' ) .  clearbody r'' .  change ( pr1 ( R ( a - b + b ) ( 0 + b ) ) ) in r'' . rewrite ( rnglunax1 X _ ) in r'' .  rewrite ( rngassoc1 X a _ _ ) in r'' .  rewrite ( rnglinvax1 X b ) in r'' .   rewrite ( rngrunax1 X _ ) in r'' .  apply r'' .  Defined .
 
 Opaque isinvrngmultgttoislinvrngmultgt .
 
-Lemma isinvrngmultgttoisrinvrngmultgt ( X : rng ) { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is : isinvrngmultgt X R ) : forall a b c : X , R c 0 -> R ( a * c ) ( b * c ) -> R a b .
+Lemma isinvrngmultgttoisrinvrngmultgt ( X : rng ) { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is : isinvrngmultgt X R ) : Π a b c : X , R c 0 -> R ( a * c ) ( b * c ) -> R a b .
 Proof . intros X R is0 is a b c rc0 r . set ( rab':= ( pr2 is0 ) _ _ ( - b * c ) r ) .  clearbody rab' . change ( pr1 ( R ( a * c + - b * c ) ( b * c + - b * c ) ) ) in rab' .  rewrite ( pathsinv0 ( rngrdistr X _ _ c ) ) in rab' .  rewrite ( pathsinv0 ( rngrdistr X _ _ c ) ) in rab' .  rewrite ( rngrinvax1 X b ) in rab' .  rewrite ( rngmult0x X _ ) in rab' .  set ( r' := ( pr2 is ) _ _ rab' rc0 ) . clearbody r' . set ( r'' :=  ( pr2 is0 ) _ _ b r' ) .  clearbody r'' .  change ( pr1 ( R ( a - b + b ) ( 0 + b ) ) ) in r'' . rewrite ( rnglunax1 X _ ) in r'' .  rewrite ( rngassoc1 X a _ _ ) in r'' .  rewrite ( rnglinvax1 X b ) in r'' .   rewrite ( rngrunax1 X _ ) in r'' .  apply r'' .  Defined .
 
 Opaque isinvrngmultgttoisrinvrngmultgt .
 
 
-Lemma islrinvrngmultgttoisinvrngmultgt ( X : rng ) { R : hrel X } ( isl : forall a b c : X , R c 0 -> R ( c * a ) ( c * b ) -> R a b ) ( isr : forall a b c : X , R c 0 -> R ( a * c ) ( b * c ) -> R a b ) : isinvrngmultgt X R .
+Lemma islrinvrngmultgttoisinvrngmultgt ( X : rng ) { R : hrel X } ( isl : Π a b c : X , R c 0 -> R ( c * a ) ( c * b ) -> R a b ) ( isr : Π a b c : X , R c 0 -> R ( a * c ) ( b * c ) -> R a b ) : isinvrngmultgt X R .
 Proof . intros . split .
 
 intros a b rab ra . rewrite ( pathsinv0 ( rngmultx0 X a ) ) in rab . apply ( isl _ _ _ ra rab ) .
@@ -490,10 +490,10 @@ Lemma rngaddhrelandfun { X Y : rng } ( f : rngfun X Y ) ( R : hrel Y ) ( isr :  
 Proof . intros . apply ( binophrelandfun ( rngaddfun f ) R isr ) .   Defined .
 
 Lemma rngmultgtandfun { X Y : rng } ( f : rngfun X Y ) ( R : hrel Y ) ( isr : isrngmultgt Y R ) : isrngmultgt X ( fun x x' => R ( f x ) ( f x' ) ) .
-Proof . intros . intros a b ra rb . assert ( ax0 := ( pr2 ( pr1 ( pr2 f ) ) ) : paths ( f 0 ) 0 ) .  assert ( ax1 := ( pr1 ( pr2 ( pr2 f ) ) ) : forall a b , paths ( f ( a * b ) ) ( ( f a ) * ( f b ) ) ) . rewrite ax0 in ra . rewrite ax0 in rb . rewrite ax0 . rewrite ( ax1 _ _  ) .  apply ( isr _ _ ra rb ) . Defined .
+Proof . intros . intros a b ra rb . assert ( ax0 := ( pr2 ( pr1 ( pr2 f ) ) ) : paths ( f 0 ) 0 ) .  assert ( ax1 := ( pr1 ( pr2 ( pr2 f ) ) ) : Π a b , paths ( f ( a * b ) ) ( ( f a ) * ( f b ) ) ) . rewrite ax0 in ra . rewrite ax0 in rb . rewrite ax0 . rewrite ( ax1 _ _  ) .  apply ( isr _ _ ra rb ) . Defined .
 
 Lemma rnginvmultgtandfun { X Y : rng } ( f : rngfun X Y ) ( R : hrel Y ) ( isr : isinvrngmultgt Y R ) : isinvrngmultgt X ( fun x x' => R ( f x ) ( f x' ) ) .
-Proof . intros . assert ( ax0 := ( pr2 ( pr1 ( pr2 f ) ) ) : paths ( f 0 ) 0 ) .  assert ( ax1 := ( pr1 ( pr2 ( pr2 f ) ) ) : forall a b , paths ( f ( a * b ) ) ( ( f a ) * ( f b ) ) ) . split .
+Proof . intros . assert ( ax0 := ( pr2 ( pr1 ( pr2 f ) ) ) : paths ( f 0 ) 0 ) .  assert ( ax1 := ( pr1 ( pr2 ( pr2 f ) ) ) : Π a b , paths ( f ( a * b ) ) ( ( f a ) * ( f b ) ) ) . split .
 intros a b rab ra . rewrite ax0 in ra . rewrite ax0 in rab . rewrite ax0 . rewrite ( ax1 _ _  ) in rab .  apply ( ( pr1 isr ) _ _ rab ra ) .
 
 intros a b rab rb . rewrite ax0 in rb . rewrite ax0 in rab . rewrite ax0 . rewrite ( ax1 _ _  ) in rab .  apply ( ( pr2 isr ) _ _ rab rb ) . Defined .
@@ -705,7 +705,7 @@ Definition ismultmonoidfuntorngdiff  ( X : rig ) : @ismonoidfun  ( rigmultmonoid
 
 Definition isrigfuntorngdiff ( X : rig ) : @isrigfun X ( rigtorng X ) ( torngdiff X ) := dirprodpair ( isaddmonoidfuntorngdiff X ) ( ismultmonoidfuntorngdiff X ) .
 
-Definition isincltorngdiff ( X : rig ) ( iscanc : forall x : X , @isrcancelable X ( @op1 X ) x ) : isincl ( torngdiff X ) := isincltoabgrfrac ( rigaddabmonoid X ) iscanc .
+Definition isincltorngdiff ( X : rig ) ( iscanc : Π x : X , @isrcancelable X ( @op1 X ) x ) : isincl ( torngdiff X ) := isincltoabgrfrac ( rigaddabmonoid X ) iscanc .
 
 
 (** **** Relations similar to "greater" or "greater or equal"  on the ring associated with a rig *)
@@ -713,9 +713,9 @@ Definition isincltorngdiff ( X : rig ) ( iscanc : forall x : X , @isrcancelable 
 Definition rigtorngrel ( X : rig ) { R : hrel X } ( is : @isbinophrel ( rigaddabmonoid X ) R ) : hrel ( rigtorng X ) := abgrfracrel ( rigaddabmonoid X ) is .
 
 Lemma isrngrigtorngmultgt  ( X : rig ) { R : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) R ) ( is : isrigmultgt X R ) : isrngmultgt ( rigtorng X ) ( rigtorngrel X is0 ) .
-Proof . intros . set ( assoc := rigassoc1 X ) .  set ( comm := rigcomm1 X ) .   set ( rer := ( abmonoidrer ( rigaddabmonoid X ) ) : forall a b c d : X , paths ( ( a + b ) + ( c + d ) ) ( ( a + c ) + ( b + d ) ) ) . set ( ld := rigldistr X ) . set ( rd := rigrdistr X ) .
+Proof . intros . set ( assoc := rigassoc1 X ) .  set ( comm := rigcomm1 X ) .   set ( rer := ( abmonoidrer ( rigaddabmonoid X ) ) : Π a b c d : X , paths ( ( a + b ) + ( c + d ) ) ( ( a + c ) + ( b + d ) ) ) . set ( ld := rigldistr X ) . set ( rd := rigrdistr X ) .
 
-assert ( int : forall a b , isaprop ( rigtorngrel X is0 a rngunel1 -> rigtorngrel X is0 b rngunel1 ->  rigtorngrel X is0 (a * b) rngunel1 ) ) . intros a b . apply impred . intro . apply impred .  intro . apply ( pr2 _ ) .   unfold isrngmultgt . apply ( setquotuniv2prop _ ( fun a b => hProppair _ ( int a b ) ) ) .
+assert ( int : Π a b , isaprop ( rigtorngrel X is0 a rngunel1 -> rigtorngrel X is0 b rngunel1 ->  rigtorngrel X is0 (a * b) rngunel1 ) ) . intros a b . apply impred . intro . apply impred .  intro . apply ( pr2 _ ) .   unfold isrngmultgt . apply ( setquotuniv2prop _ ( fun a b => hProppair _ ( int a b ) ) ) .
 
 
 intros xa1 xa2 . change ( ( abgrfracrelint ( rigaddabmonoid X ) R ) xa1 ( dirprodpair ( @rigunel1 X ) ( @rigunel1 X ) ) -> ( abgrfracrelint ( rigaddabmonoid X ) R ) xa2 ( dirprodpair ( @rigunel1 X ) ( @rigunel1 X ) ) -> ( abgrfracrelint ( rigaddabmonoid X ) R ( @rigtorngop2int X xa1 xa2 ) ( dirprodpair ( @rigunel1 X ) ( @rigunel1 X ) ) ) ) .  unfold abgrfracrelint . simpl . apply hinhfun2 . intros t22 t21 .   set ( c2 := pr1 t21 ) . set ( c1 := pr1 t22 ) . set ( r1 := pr2 t21 ) . set ( r2 := pr2 t22 ) . set ( x1 := pr1 xa1 ) . set ( a1 := pr2 xa1 ) .  set ( x2 := pr1 xa2 ) . set ( a2 := pr2 xa2 ) . split with ( ( x1 * c2 + a1 * c2 ) + ( ( c1 * x2 + c1 * c2 ) + ( c1 * a2 + c1 * c2 ) ) ) . change ( pr1 ( R ( x1 * x2 + a1 * a2 + 0 + ( ( x1 * c2 + a1 * c2 ) + ( ( c1 * x2 + c1 * c2 ) + ( c1 * a2 + c1 * c2 ) ) ) )  ( 0 + ( x1 * a2 + a1 * x2 ) + ( x1 * c2 + a1 * c2 +  ( ( c1 * x2 + c1 * c2 ) + ( c1 * a2 + c1 * c2 ) ) ) ) ) ) . rewrite ( riglunax1 X _ ) .  rewrite ( rigrunax1 X _ ) .   rewrite ( assoc ( x1 * c2 ) _ _ ) .  rewrite ( rer _ ( a1 * a2 ) _ _ ) .  rewrite ( rer _ ( a1 * x2 ) _ _ ) . rewrite ( pathsinv0 ( assoc ( a1 * a2 ) _ _  ) ) . rewrite ( pathsinv0 ( assoc ( a1 * x2 ) _ _  ) ) . rewrite ( pathsinv0 ( assoc ( x1 * x2 + _ ) _ _ ) ) . rewrite ( pathsinv0 ( assoc ( x1 * a2 + _ ) _ _ ) ) .  rewrite ( rer _ ( a1 * a2 + _ ) _ _ ) .  rewrite ( rer _ ( a1 * x2 + _ ) _ _ ) .  rewrite ( pathsinv0 ( ld _ _ x1 ) ) . rewrite ( pathsinv0 ( ld _ _ x1 ) ) . rewrite ( pathsinv0 ( ld _ _ c1 ) ) . rewrite ( pathsinv0 ( ld _ _ c1 ) ) . rewrite ( pathsinv0 ( ld _ _ a1 ) ) .  rewrite ( pathsinv0 ( ld _ _ a1 ) ) .  rewrite ( pathsinv0 ( rd _ _ ( x2 + c2 ) ) ) .  rewrite ( pathsinv0 ( rd _ _ ( a2 + c2 ) ) ) . rewrite ( comm ( a1 * _ ) _ ) .  rewrite ( rer _ ( c1 * _ ) _ _ ) . rewrite ( pathsinv0 ( rd _ _ ( x2 + c2 ) ) ) .  rewrite ( pathsinv0 ( rd _ _ ( a2 + c2 ) ) ) .  clearbody r1 . clearbody r2 . change ( pr1 ( R ( x2 + 0 + c2 ) ( 0 + a2 + c2 ) ) ) in r1 . change ( pr1 ( R ( x1 + 0 + c1 ) ( 0 + a1 + c1 ) ) ) in r2 .  rewrite ( rigrunax1 X _ ) in r1 .   rewrite ( riglunax1 X _ ) in r1 .   rewrite ( rigrunax1 X _ ) in r2 .   rewrite ( riglunax1 X _ ) in r2 . rewrite ( comm c1 a1 ) . apply ( is _ _ _ _ r2 r1 ) .   Defined .
@@ -729,11 +729,11 @@ Proof . intros . apply ( isdecabgrfracrel ( rigaddabmonoid X ) is is' isd ) . De
 Lemma isinvrngrigtorngmultgt ( X : rig ) { R : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) R ) ( is1 : @isinvbinophrel ( rigaddabmonoid X ) R ) ( is : isinvrigmultgt X R ) : isinvrngmultgt ( rigtorng X ) ( rigtorngrel X is0 ) .
 Proof . intros .  split .
 
-assert ( int : forall a b , isaprop ( rigtorngrel X is0 (a * b) rngunel1 -> rigtorngrel X is0 a rngunel1 -> rigtorngrel X is0 b rngunel1 ) ) . intros . apply impred . intro . apply impred . intro . apply ( pr2 _ ) .  apply (  setquotuniv2prop _ ( fun a b => hProppair _ ( int a b ) ) ) .
+assert ( int : Π a b , isaprop ( rigtorngrel X is0 (a * b) rngunel1 -> rigtorngrel X is0 a rngunel1 -> rigtorngrel X is0 b rngunel1 ) ) . intros . apply impred . intro . apply impred . intro . apply ( pr2 _ ) .  apply (  setquotuniv2prop _ ( fun a b => hProppair _ ( int a b ) ) ) .
 
 intros xa1 xa2 . change ( ( abgrfracrelint ( rigaddabmonoid X ) R ( @rigtorngop2int X xa1 xa2 ) ( dirprodpair ( @rigunel1 X ) ( @rigunel1 X ) ) ) -> ( abgrfracrelint ( rigaddabmonoid X ) R ) xa1 ( dirprodpair ( @rigunel1 X ) ( @rigunel1 X ) ) -> ( abgrfracrelint ( rigaddabmonoid X ) R ) xa2 ( dirprodpair ( @rigunel1 X ) ( @rigunel1 X ) ) ) .   unfold abgrfracrelint . simpl . apply hinhfun2 . intros t22 t21 .   set ( c2 := pr1 t22 ) . set ( c1 := pr1 t21 ) . set ( r1 := pr2 t21 ) . set ( r2 := pr2 t22 ) . set ( x1 := pr1 xa1 ) . set ( a1 := pr2 xa1 ) .  set ( x2 := pr1 xa2 ) . set ( a2 := pr2 xa2 ) . simpl in r2 . clearbody r2 .  change ( pr1 ( R ( x1 * x2 + a1 * a2 + 0 + c2 ) ( 0 + ( x1 * a2 + a1 * x2 ) + c2 ) ) ) in r2 . rewrite ( riglunax1 X _ ) in r2 .  rewrite ( rigrunax1 X _ ) in r2 . rewrite ( rigrunax1 X _ ) . rewrite ( riglunax1 X _ ) . set ( r2' := ( pr2 is1 ) _ _ c2 r2 ) .  clearbody r1 . change ( pr1 ( R ( x1 + 0 + c1 ) ( 0 + a1 + c1 ) ) ) in r1 . rewrite ( riglunax1 X _ ) in r1 .  rewrite ( rigrunax1 X _ ) in r1  .   set ( r1' := ( pr2 is1 ) _ _ c1 r1 ) . split with 0 .  rewrite ( rigrunax1 X _ ) .  rewrite ( rigrunax1 X _ ) .  apply ( ( pr1 is ) _ _ _ _ r2' r1' ) .
 
-assert ( int : forall a b , isaprop ( rigtorngrel X is0 (a * b) rngunel1 -> rigtorngrel X is0 b rngunel1  -> rigtorngrel X is0 a rngunel1 ) ) . intros . apply impred . intro . apply impred . intro . apply ( pr2 _ ) .  apply (  setquotuniv2prop _ ( fun a b => hProppair _ ( int a b ) ) ) .
+assert ( int : Π a b , isaprop ( rigtorngrel X is0 (a * b) rngunel1 -> rigtorngrel X is0 b rngunel1  -> rigtorngrel X is0 a rngunel1 ) ) . intros . apply impred . intro . apply impred . intro . apply ( pr2 _ ) .  apply (  setquotuniv2prop _ ( fun a b => hProppair _ ( int a b ) ) ) .
 
 intros xa1 xa2 . change ( ( abgrfracrelint ( rigaddabmonoid X ) R ( @rigtorngop2int X xa1 xa2 ) ( dirprodpair ( @rigunel1 X ) ( @rigunel1 X ) ) ) -> ( abgrfracrelint ( rigaddabmonoid X ) R ) xa2 ( dirprodpair ( @rigunel1 X ) ( @rigunel1 X ) ) -> ( abgrfracrelint ( rigaddabmonoid X ) R ) xa1 ( dirprodpair ( @rigunel1 X ) ( @rigunel1 X ) ) ) .   unfold abgrfracrelint . simpl . apply hinhfun2 . intros t22 t21 .   set ( c2 := pr1 t22 ) . set ( c1 := pr1 t21 ) . set ( r1 := pr2 t21 ) . set ( r2 := pr2 t22 ) . set ( x1 := pr1 xa1 ) . set ( a1 := pr2 xa1 ) .  set ( x2 := pr1 xa2 ) . set ( a2 := pr2 xa2 ) . simpl in r2 . clearbody r2 .  change ( pr1 ( R ( x1 * x2 + a1 * a2 + 0 + c2 ) ( 0 + ( x1 * a2 + a1 * x2 ) + c2 ) ) ) in r2 . rewrite ( riglunax1 X _ ) in r2 .  rewrite ( rigrunax1 X _ ) in r2 . rewrite ( rigrunax1 X _ ) . rewrite ( riglunax1 X _ ) . set ( r2' := ( pr2 is1 ) _ _ c2 r2 ) .  clearbody r1 . change ( pr1 ( R ( x2 + 0 + c1 ) ( 0 + a2 + c1 ) ) ) in r1 . rewrite ( riglunax1 X _ ) in r1 .  rewrite ( rigrunax1 X _ ) in r1  .   set ( r1' := ( pr2 is1 ) _ _ c1 r1 ) . split with 0 .  rewrite ( rigrunax1 X _ ) .  rewrite ( rigrunax1 X _ ) .  apply ( ( pr2 is ) _ _ _ _ r2' r1' ) . Defined .
 
@@ -779,8 +779,8 @@ Coercion commrngtocommrig : commrng >-> commrig .
 
 Open Scope rng_scope.
 
-Lemma commrngismultcancelableif ( X : commrng ) ( x : X ) ( isl : forall y , paths ( x * y ) 0 -> paths y 0 ) : iscancelable op2 x .
-Proof . intros . split . apply ( rngismultlcancelableif X x isl ) .  assert ( isr : forall y , paths ( y * x ) 0 -> paths y 0 ) . intros y e . rewrite ( rngcomm2 X _ _ ) in e . apply ( isl y e ) . apply ( rngismultrcancelableif X x isr ) . Defined .
+Lemma commrngismultcancelableif ( X : commrng ) ( x : X ) ( isl : Π y , paths ( x * y ) 0 -> paths y 0 ) : iscancelable op2 x .
+Proof . intros . split . apply ( rngismultlcancelableif X x isl ) .  assert ( isr : Π y , paths ( y * x ) 0 -> paths y 0 ) . intros y e . rewrite ( rngcomm2 X _ _ ) in e . apply ( isl y e ) . apply ( rngismultrcancelableif X x isr ) . Defined .
 
 Opaque commrngismultcancelableif .
 
@@ -880,7 +880,7 @@ Opaque commrngfracl2 .
 
 Lemma commrngfracassoc1 ( X : commrng ) ( S : @subabmonoids ( rngmultabmonoid X ) ) : isassoc ( commrngfracop1 X S ) .
 Proof . intros . set ( R := eqrelcommrngfrac X S ) . set ( add1int := commrngfracop1int X S ) . set ( add1 := commrngfracop1 X S ) .  unfold isassoc .
-assert ( int : forall xs xs' xs'' : dirprod X S , paths ( setquotpr R ( add1int ( add1int xs xs' ) xs'' ) ) ( setquotpr R ( add1int xs ( add1int xs' xs'' ) ) ) ) . unfold add1int . unfold commrngfracop1int . intros xs xs' xs'' .  apply ( @maponpaths _ _ ( setquotpr R ) ) .   simpl .  apply pathsdirprod . unfold pr1carrier . apply ( commrngfracl2 X  ( pr1 xs ) ( pr1 xs' ) ( pr1 xs'' ) ( pr1 ( pr2 xs ) )  ( pr1 ( pr2 xs' ) ) ( pr1 ( pr2 xs'' ) ) ) . apply ( invmaponpathsincl _ ( isinclpr1carrier ( pr1 S ) ) ) .  unfold pr1carrier . simpl .  set ( assoc2 := rngassoc2 X ) .  apply ( assoc2 (pr1 (pr2 xs)) (pr1 (pr2 xs')) (pr1 (pr2 xs'')) ) .
+assert ( int : Π xs xs' xs'' : dirprod X S , paths ( setquotpr R ( add1int ( add1int xs xs' ) xs'' ) ) ( setquotpr R ( add1int xs ( add1int xs' xs'' ) ) ) ) . unfold add1int . unfold commrngfracop1int . intros xs xs' xs'' .  apply ( @maponpaths _ _ ( setquotpr R ) ) .   simpl .  apply pathsdirprod . unfold pr1carrier . apply ( commrngfracl2 X  ( pr1 xs ) ( pr1 xs' ) ( pr1 xs'' ) ( pr1 ( pr2 xs ) )  ( pr1 ( pr2 xs' ) ) ( pr1 ( pr2 xs'' ) ) ) . apply ( invmaponpathsincl _ ( isinclpr1carrier ( pr1 S ) ) ) .  unfold pr1carrier . simpl .  set ( assoc2 := rngassoc2 X ) .  apply ( assoc2 (pr1 (pr2 xs)) (pr1 (pr2 xs')) (pr1 (pr2 xs'')) ) .
 
 apply ( setquotuniv3prop R ( fun x x' x'' : setquotinset R => @eqset ( setquotinset R ) ( add1 ( add1 x x' ) x'') ( add1 x ( add1 x' x'') ) ) int ) . Defined .
 
@@ -977,7 +977,7 @@ split with ( commrngfracunit1 X S ) .  split with ( commrngfracinv1 X S ) .  app
 
 Definition prcommrngfrac ( X : commrng ) ( S : @subabmonoids ( rngmultabmonoid X ) ) : X -> S -> commrngfrac X S := fun x s => setquotpr _ ( dirprodpair x s ) .
 
-Lemma invertibilityincommrngfrac  ( X : commrng ) ( S : @subabmonoids ( rngmultabmonoid X ) ) : forall a a' : S , isinvertible ( @op2 ( commrngfrac X S ) ) ( prcommrngfrac X S ( pr1 a ) a' ) .
+Lemma invertibilityincommrngfrac  ( X : commrng ) ( S : @subabmonoids ( rngmultabmonoid X ) ) : Π a a' : S , isinvertible ( @op2 ( commrngfrac X S ) ) ( prcommrngfrac X S ( pr1 a ) a' ) .
 Proof . intros . apply ( invertibilityinabmonoidfrac ( rngmultabmonoid X ) S ) . Defined .
 
 
@@ -1029,7 +1029,7 @@ Definition isrngfuntocommrngfrac ( X : commrng ) ( S : @subabmonoids ( rngmultab
 
 Definition  hrelcommrngfrac0 ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) : hrel ( dirprod X S ) :=  fun xa yb : setdirprod X S => eqset ( ( pr1 xa ) * ( pr1 ( pr2 yb ) ) )  ( ( pr1 yb ) * ( pr1 ( pr2 xa ) ) ) .
 
-Lemma weqhrelhrel0commrngfrac ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) ( iscanc : forall a : S , isrcancelable ( @op2 X ) ( pr1carrier _ a ) ) ( xa xa' : dirprod X S ) : weq ( eqrelcommrngfrac X S xa xa' ) ( hrelcommrngfrac0 X S xa xa' ) .
+Lemma weqhrelhrel0commrngfrac ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) ( iscanc : Π a : S , isrcancelable ( @op2 X ) ( pr1carrier _ a ) ) ( xa xa' : dirprod X S ) : weq ( eqrelcommrngfrac X S xa xa' ) ( hrelcommrngfrac0 X S xa xa' ) .
 Proof . intros .  unfold eqrelabmonoidfrac .  unfold hrelabmonoidfrac . simpl .  apply weqimplimpl .
 
 apply ( @hinhuniv _ ( eqset (pr1 xa * pr1 (pr2 xa')) (pr1 xa' * pr1 (pr2 xa)) ) ) .  intro ae .  destruct ae as [ a eq ] .  apply ( invmaponpathsincl _ ( iscanc a ) _ _ eq ) .
@@ -1038,12 +1038,12 @@ intro eq . apply hinhpr . split with ( unel S ) . rewrite ( rngrunax2 X )  .  re
 Opaque weqhrelhrel0abmonoidfrac .
 
 
-Lemma isinclprcommrngfrac ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) ( iscanc : forall a : S , isrcancelable ( @op2 X ) ( pr1carrier _ a ) ) : forall a' : S , isincl ( fun x => prcommrngfrac X S x a' ) .
+Lemma isinclprcommrngfrac ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) ( iscanc : Π a : S , isrcancelable ( @op2 X ) ( pr1carrier _ a ) ) : Π a' : S , isincl ( fun x => prcommrngfrac X S x a' ) .
 Proof . intros . apply isinclbetweensets . apply ( setproperty X ) .  apply ( setproperty ( commrngfrac X S ) ) .  intros x x' .   intro e .  set ( e' := invweq ( weqpathsinsetquot ( eqrelcommrngfrac X S ) ( dirprodpair x a' ) ( dirprodpair x' a' ) )  e ) . set ( e'' := weqhrelhrel0commrngfrac X S iscanc ( dirprodpair _ _ ) ( dirprodpair _ _ ) e' )  . simpl in e'' . apply ( invmaponpathsincl _ ( iscanc a' ) ) . apply e'' .  Defined .
 
-Definition isincltocommrngfrac ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) ( iscanc : forall a : S , isrcancelable ( @op2 X ) ( pr1carrier _ a ) ) : isincl ( tocommrngfrac X S ) := isinclprcommrngfrac X S iscanc ( unel S ) .
+Definition isincltocommrngfrac ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) ( iscanc : Π a : S , isrcancelable ( @op2 X ) ( pr1carrier _ a ) ) : isincl ( tocommrngfrac X S ) := isinclprcommrngfrac X S iscanc ( unel S ) .
 
-Lemma isdeceqcommrngfrac ( X : commrng ) ( S : @submonoids ( rngmultabmonoid  X ) ) ( iscanc : forall a : S , isrcancelable ( @op2 X ) ( pr1carrier _ a ) ) ( is : isdeceq X ) : isdeceq ( commrngfrac X S ) .
+Lemma isdeceqcommrngfrac ( X : commrng ) ( S : @submonoids ( rngmultabmonoid  X ) ) ( iscanc : Π a : S , isrcancelable ( @op2 X ) ( pr1carrier _ a ) ) ( is : isdeceq X ) : isdeceq ( commrngfrac X S ) .
 Proof . intros . apply ( isdeceqsetquot ( eqrelcommrngfrac X S ) ) .   intros xa xa' .   apply ( isdecpropweqb ( weqhrelhrel0commrngfrac X S iscanc xa xa' ) ) . apply isdecpropif  . unfold isaprop . simpl . set ( int := setproperty X (pr1 xa * pr1 (pr2 xa')) (pr1 xa' * pr1 (pr2 xa))) . simpl in int . apply int . unfold hrelcommrngfrac0 . unfold eqset .   simpl . apply ( is _ _ ) . Defined .
 
 
@@ -1052,32 +1052,32 @@ Proof . intros . apply ( isdeceqsetquot ( eqrelcommrngfrac X S ) ) .   intros xa
 
 
 
-Lemma ispartbinopcommrngfracgt ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) { R : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) R ) ( is1 : isrngmultgt X R ) ( is2 : forall c : X , S c -> R c 0 ) : @ispartbinophrel ( rngmultabmonoid X ) S R .
+Lemma ispartbinopcommrngfracgt ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) { R : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) R ) ( is1 : isrngmultgt X R ) ( is2 : Π c : X , S c -> R c 0 ) : @ispartbinophrel ( rngmultabmonoid X ) S R .
 Proof . intros . split .
 
 intros a b c s rab . apply ( isrngmultgttoislrngmultgt X is0 is1 _ _ _ ( is2 c s ) rab ) .
 intros a b c s rab . apply ( isrngmultgttoisrrngmultgt X is0 is1 _ _ _ ( is2 c s ) rab ) .  Defined .
 
-Definition commrngfracgt ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) { R : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) R ) ( is1 : isrngmultgt X R ) ( is2 : forall c : X , S c -> R c 0 )  : hrel ( commrngfrac X S ) := abmonoidfracrel ( rngmultabmonoid X ) S ( ispartbinopcommrngfracgt X S is0 is1 is2 ) .
+Definition commrngfracgt ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) { R : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) R ) ( is1 : isrngmultgt X R ) ( is2 : Π c : X , S c -> R c 0 )  : hrel ( commrngfrac X S ) := abmonoidfracrel ( rngmultabmonoid X ) S ( ispartbinopcommrngfracgt X S is0 is1 is2 ) .
 
-Lemma isrngmultcommrngfracgt ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) { R : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) R ) ( is1 : isrngmultgt X R ) ( is2 : forall c : X , S c -> R c 0 ) : isrngmultgt ( commrngfrac X S ) ( commrngfracgt X S is0 is1 is2 ) .
-Proof . intros . set ( rer2 := ( abmonoidrer ( rngmultabmonoid X )) : forall a b c d : X , paths ( ( a * b ) * ( c * d ) ) ( ( a * c ) * ( b * d ) ) ) . apply islrngmultgttoisrngmultgt .
+Lemma isrngmultcommrngfracgt ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) { R : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) R ) ( is1 : isrngmultgt X R ) ( is2 : Π c : X , S c -> R c 0 ) : isrngmultgt ( commrngfrac X S ) ( commrngfracgt X S is0 is1 is2 ) .
+Proof . intros . set ( rer2 := ( abmonoidrer ( rngmultabmonoid X )) : Π a b c d : X , paths ( ( a * b ) * ( c * d ) ) ( ( a * c ) * ( b * d ) ) ) . apply islrngmultgttoisrngmultgt .
 
-assert ( int : forall a b c :  (commrngfrac X S) , isaprop ( commrngfracgt X S is0 is1 is2 c 0 -> commrngfracgt X S is0 is1 is2 a b -> commrngfracgt X S is0 is1 is2 (c * a) (c * b) ) ) . intros a b c . apply impred . intro . apply impred . intro . apply ( pr2 _ ) . apply ( setquotuniv3prop _ ( fun a b c => hProppair _ ( int a b c ) ) ) . intros xa1 xa2 xa3 . change ( abmonoidfracrelint ( rngmultabmonoid X ) S R xa3 ( dirprodpair 0 ( unel S ) )  -> abmonoidfracrelint ( rngmultabmonoid X ) S R xa1 xa2 -> abmonoidfracrelint ( rngmultabmonoid X ) S R ( commrngfracop2int X S xa3 xa1 ) ( commrngfracop2int X S xa3 xa2 ) ) .  simpl . apply hinhfun2 . intros t21 t22 .  set ( c1s := pr1 t21 ) . set ( c1 := pr1 c1s ) . set ( r1 := pr2 t21 ) .   set ( c2s := pr1 t22 ) . set ( c2 := pr1 c2s ) . set ( r2 := pr2 t22 ) . set ( x1 := pr1 xa1 ) . set ( a1 := pr1 ( pr2 xa1 ) ) .  set ( x2 := pr1 xa2 ) . set ( a2 := pr1 ( pr2 xa2 ) ) .  set ( x3 := pr1 xa3 ) . set ( a3 := pr1 ( pr2 xa3 ) ) . split with ( @op S c1s c2s ) . change ( pr1 ( R ( x3 * x1 * ( a3 * a2 ) * ( c1 * c2 ) ) ( x3 * x2 * ( a3 * a1 ) * ( c1 * c2 ) ) ) ) . rewrite ( rngcomm2 X a3 a2 ) .  rewrite ( rngcomm2 X a3 a1 ) . rewrite ( rngassoc2 X _ _ ( c1 * c2 ) ) .  rewrite ( rngassoc2 X ( x3 * x2 ) _ ( c1 * c2 ) ) . rewrite ( rer2 _ a3 c1 _ ) . rewrite ( rer2 _ a3 c1 _ ) . rewrite ( rngcomm2 X a2 c1 ) . rewrite ( rngcomm2 X a1 c1 ) . rewrite ( pathsinv0 ( rngassoc2 X ( x3 * x1 ) _ _ ) ) . rewrite ( pathsinv0 ( rngassoc2 X ( x3 * x2 ) _ _ ) ) . rewrite ( rer2 _ x1 c1 _ ) .  rewrite ( rer2 _ x2 c1 _ ) . rewrite ( rngcomm2 X a3 c2 ) . rewrite ( pathsinv0 ( rngassoc2 X _ c2 a3 ) ) .  rewrite ( pathsinv0 ( rngassoc2 X _ c2 _ ) ) . apply ( ( isrngmultgttoisrrngmultgt X is0 is1 ) _ _ _ ( is2 _ ( pr2 ( pr2 xa3 ) ) ) ) .  rewrite ( rngassoc2 X _ _ c2 ) . rewrite ( rngassoc2 X _ ( x2 * a1 ) c2 ) .
+assert ( int : Π a b c :  (commrngfrac X S) , isaprop ( commrngfracgt X S is0 is1 is2 c 0 -> commrngfracgt X S is0 is1 is2 a b -> commrngfracgt X S is0 is1 is2 (c * a) (c * b) ) ) . intros a b c . apply impred . intro . apply impred . intro . apply ( pr2 _ ) . apply ( setquotuniv3prop _ ( fun a b c => hProppair _ ( int a b c ) ) ) . intros xa1 xa2 xa3 . change ( abmonoidfracrelint ( rngmultabmonoid X ) S R xa3 ( dirprodpair 0 ( unel S ) )  -> abmonoidfracrelint ( rngmultabmonoid X ) S R xa1 xa2 -> abmonoidfracrelint ( rngmultabmonoid X ) S R ( commrngfracop2int X S xa3 xa1 ) ( commrngfracop2int X S xa3 xa2 ) ) .  simpl . apply hinhfun2 . intros t21 t22 .  set ( c1s := pr1 t21 ) . set ( c1 := pr1 c1s ) . set ( r1 := pr2 t21 ) .   set ( c2s := pr1 t22 ) . set ( c2 := pr1 c2s ) . set ( r2 := pr2 t22 ) . set ( x1 := pr1 xa1 ) . set ( a1 := pr1 ( pr2 xa1 ) ) .  set ( x2 := pr1 xa2 ) . set ( a2 := pr1 ( pr2 xa2 ) ) .  set ( x3 := pr1 xa3 ) . set ( a3 := pr1 ( pr2 xa3 ) ) . split with ( @op S c1s c2s ) . change ( pr1 ( R ( x3 * x1 * ( a3 * a2 ) * ( c1 * c2 ) ) ( x3 * x2 * ( a3 * a1 ) * ( c1 * c2 ) ) ) ) . rewrite ( rngcomm2 X a3 a2 ) .  rewrite ( rngcomm2 X a3 a1 ) . rewrite ( rngassoc2 X _ _ ( c1 * c2 ) ) .  rewrite ( rngassoc2 X ( x3 * x2 ) _ ( c1 * c2 ) ) . rewrite ( rer2 _ a3 c1 _ ) . rewrite ( rer2 _ a3 c1 _ ) . rewrite ( rngcomm2 X a2 c1 ) . rewrite ( rngcomm2 X a1 c1 ) . rewrite ( pathsinv0 ( rngassoc2 X ( x3 * x1 ) _ _ ) ) . rewrite ( pathsinv0 ( rngassoc2 X ( x3 * x2 ) _ _ ) ) . rewrite ( rer2 _ x1 c1 _ ) .  rewrite ( rer2 _ x2 c1 _ ) . rewrite ( rngcomm2 X a3 c2 ) . rewrite ( pathsinv0 ( rngassoc2 X _ c2 a3 ) ) .  rewrite ( pathsinv0 ( rngassoc2 X _ c2 _ ) ) . apply ( ( isrngmultgttoisrrngmultgt X is0 is1 ) _ _ _ ( is2 _ ( pr2 ( pr2 xa3 ) ) ) ) .  rewrite ( rngassoc2 X _ _ c2 ) . rewrite ( rngassoc2 X _ ( x2 * a1 ) c2 ) .
 
 simpl in r1 . clearbody r1 . simpl in r2 . clearbody r2 . change ( pr1 ( R ( x3 * 1 * c1 ) ( 0 * a3 * c1 ) ) ) in r1 .  rewrite ( rngrunax2 _ _ ) in r1 . rewrite ( rngmult0x X _ ) in r1 . rewrite ( rngmult0x X _ ) in r1 . apply ( ( isrngmultgttoislrngmultgt X is0 is1 ) _ _ _ r1 r2 ) . Defined .
 
 Opaque isrngmultcommrngfracgt .
 
-Lemma isrngaddcommrngfracgt ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) { R : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) R ) ( is1 : isrngmultgt X R ) ( is2 : forall c : X , S c -> R c 0 ) : @isbinophrel ( rngaddabgr ( commrngfrac X S ) ) ( commrngfracgt X S is0 is1 is2 ) .
-Proof .  intros . set ( rer2 := ( abmonoidrer ( rngmultabmonoid X )) : forall a b c d : X , paths ( ( a * b ) * ( c * d ) ) ( ( a * c ) * ( b * d ) ) ) .  apply isbinophrelif . intros a b . apply ( rngcomm1 ( commrngfrac X S )  a b ) .
+Lemma isrngaddcommrngfracgt ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) { R : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) R ) ( is1 : isrngmultgt X R ) ( is2 : Π c : X , S c -> R c 0 ) : @isbinophrel ( rngaddabgr ( commrngfrac X S ) ) ( commrngfracgt X S is0 is1 is2 ) .
+Proof .  intros . set ( rer2 := ( abmonoidrer ( rngmultabmonoid X )) : Π a b c d : X , paths ( ( a * b ) * ( c * d ) ) ( ( a * c ) * ( b * d ) ) ) .  apply isbinophrelif . intros a b . apply ( rngcomm1 ( commrngfrac X S )  a b ) .
 
-assert ( int : forall a b c : rngaddabgr (commrngfrac X S) , isaprop ( commrngfracgt X S is0 is1 is2 a b -> commrngfracgt X S is0 is1 is2 (op c a) (op c b) ) ) . intros a b c . apply impred . intro . apply ( pr2 _ ) . apply ( setquotuniv3prop _ ( fun a b c => hProppair _ ( int a b c ) ) ) . intros xa1 xa2 xa3 . change ( abmonoidfracrelint ( rngmultabmonoid X ) S R xa1 xa2 -> abmonoidfracrelint ( rngmultabmonoid X ) S R ( commrngfracop1int X S xa3 xa1 ) ( commrngfracop1int X S xa3 xa2 ) ) . simpl . apply hinhfun .  intro t2 . set ( c0s := pr1 t2 ) . set ( c0 := pr1 c0s ) . set ( r := pr2 t2 ) . split with c0s .   set ( x1 := pr1 xa1 ) . set ( a1 := pr1 ( pr2 xa1 ) ) .  set ( x2 := pr1 xa2 ) . set ( a2 := pr1 ( pr2 xa2 ) ) .  set ( x3 := pr1 xa3 ) . set ( a3 := pr1 ( pr2 xa3 ) ) . change ( pr1 ( R ( ( a1 * x3 + a3 * x1 ) * ( a3 * a2 ) * c0 ) ( ( a2 * x3 + a3 * x2 ) * ( a3 * a1 ) * c0 ) ) ) . rewrite ( rngassoc2 X _ _ c0 ) .  rewrite ( rngassoc2 X _ ( a3 * _ ) c0 ) . rewrite ( rngrdistr X _ _ _ ) .   rewrite ( rngrdistr X _ _ _ ) . rewrite ( rer2 _ x3 _ _ ) .  rewrite ( rer2 _ x3 _ _ ) . rewrite ( rngcomm2 X a3 a2 ) . rewrite ( rngcomm2 X a3 a1 ) .  rewrite ( pathsinv0 ( rngassoc2 X a1 a2 a3 ) ) .   rewrite ( pathsinv0 ( rngassoc2 X a2 a1 a3 ) ) . rewrite ( rngcomm2 X a1 a2 ) .  apply ( ( pr1 is0 ) _ _ _ ) .  rewrite ( rngcomm2 X  a2 a3 ) .  rewrite ( rngcomm2 X  a1 a3 ) . rewrite ( rngassoc2 X a3 a2 c0 ) . rewrite ( rngassoc2 X a3 a1 c0 ) . rewrite ( rer2 _ x1 a3 _ ) . rewrite ( rer2 _ x2 a3 _ ) . rewrite ( pathsinv0 ( rngassoc2 X x1 _ _ ) ) . rewrite ( pathsinv0 ( rngassoc2 X x2 _ _ ) ) . apply ( ( isrngmultgttoislrngmultgt X is0 is1 ) _ _ _ ( is2 _ ( pr2 ( @op S ( pr2 xa3 ) ( pr2 xa3 ) ) ) ) r )  . Defined .
+assert ( int : Π a b c : rngaddabgr (commrngfrac X S) , isaprop ( commrngfracgt X S is0 is1 is2 a b -> commrngfracgt X S is0 is1 is2 (op c a) (op c b) ) ) . intros a b c . apply impred . intro . apply ( pr2 _ ) . apply ( setquotuniv3prop _ ( fun a b c => hProppair _ ( int a b c ) ) ) . intros xa1 xa2 xa3 . change ( abmonoidfracrelint ( rngmultabmonoid X ) S R xa1 xa2 -> abmonoidfracrelint ( rngmultabmonoid X ) S R ( commrngfracop1int X S xa3 xa1 ) ( commrngfracop1int X S xa3 xa2 ) ) . simpl . apply hinhfun .  intro t2 . set ( c0s := pr1 t2 ) . set ( c0 := pr1 c0s ) . set ( r := pr2 t2 ) . split with c0s .   set ( x1 := pr1 xa1 ) . set ( a1 := pr1 ( pr2 xa1 ) ) .  set ( x2 := pr1 xa2 ) . set ( a2 := pr1 ( pr2 xa2 ) ) .  set ( x3 := pr1 xa3 ) . set ( a3 := pr1 ( pr2 xa3 ) ) . change ( pr1 ( R ( ( a1 * x3 + a3 * x1 ) * ( a3 * a2 ) * c0 ) ( ( a2 * x3 + a3 * x2 ) * ( a3 * a1 ) * c0 ) ) ) . rewrite ( rngassoc2 X _ _ c0 ) .  rewrite ( rngassoc2 X _ ( a3 * _ ) c0 ) . rewrite ( rngrdistr X _ _ _ ) .   rewrite ( rngrdistr X _ _ _ ) . rewrite ( rer2 _ x3 _ _ ) .  rewrite ( rer2 _ x3 _ _ ) . rewrite ( rngcomm2 X a3 a2 ) . rewrite ( rngcomm2 X a3 a1 ) .  rewrite ( pathsinv0 ( rngassoc2 X a1 a2 a3 ) ) .   rewrite ( pathsinv0 ( rngassoc2 X a2 a1 a3 ) ) . rewrite ( rngcomm2 X a1 a2 ) .  apply ( ( pr1 is0 ) _ _ _ ) .  rewrite ( rngcomm2 X  a2 a3 ) .  rewrite ( rngcomm2 X  a1 a3 ) . rewrite ( rngassoc2 X a3 a2 c0 ) . rewrite ( rngassoc2 X a3 a1 c0 ) . rewrite ( rer2 _ x1 a3 _ ) . rewrite ( rer2 _ x2 a3 _ ) . rewrite ( pathsinv0 ( rngassoc2 X x1 _ _ ) ) . rewrite ( pathsinv0 ( rngassoc2 X x2 _ _ ) ) . apply ( ( isrngmultgttoislrngmultgt X is0 is1 ) _ _ _ ( is2 _ ( pr2 ( @op S ( pr2 xa3 ) ( pr2 xa3 ) ) ) ) r )  . Defined .
 
 Opaque isrngaddcommrngfracgt .
 
 
-Definition isdeccommrngfracgt ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) { R : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) R ) ( is1 : isrngmultgt  X R ) ( is2 : forall c : X , S c -> R c 0 ) ( is' : @ispartinvbinophrel ( rngmultabmonoid X ) S R )  ( isd : isdecrel R ) : isdecrel ( commrngfracgt X S is0 is1 is2 ) .
+Definition isdeccommrngfracgt ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) { R : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) R ) ( is1 : isrngmultgt  X R ) ( is2 : Π c : X , S c -> R c 0 ) ( is' : @ispartinvbinophrel ( rngmultabmonoid X ) S R )  ( isd : isdecrel R ) : isdecrel ( commrngfracgt X S is0 is1 is2 ) .
 Proof . intros . apply ( isdecabmonoidfracrel ( rngmultabmonoid X ) S ( ispartbinopcommrngfracgt X S is0 is1 is2 ) is' isd ) . Defined .
 
 
@@ -1085,7 +1085,7 @@ Proof . intros . apply ( isdecabmonoidfracrel ( rngmultabmonoid X ) S ( ispartbi
 (** **** Realations and the canonical homomorphism to the ring of fractions *)
 
 
-Definition iscomptocommrngfrac ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) { L : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) L ) ( is1 : isrngmultgt X L ) ( is2 : forall c : X , S c -> L c 0 ) : iscomprelrelfun L ( commrngfracgt X S is0 is1 is2 ) ( tocommrngfrac X S ) := iscomptoabmonoidfrac ( rngmultabmonoid X ) S ( ispartbinopcommrngfracgt X S is0 is1 is2 ) .
+Definition iscomptocommrngfrac ( X : commrng ) ( S : @submonoids ( rngmultabmonoid X ) ) { L : hrel X } ( is0 : @isbinophrel ( rigaddabmonoid X ) L ) ( is1 : isrngmultgt X L ) ( is2 : Π c : X , S c -> L c 0 ) : iscomprelrelfun L ( commrngfracgt X S is0 is1 is2 ) ( tocommrngfrac X S ) := iscomptoabmonoidfrac ( rngmultabmonoid X ) S ( ispartbinopcommrngfracgt X S is0 is1 is2 ) .
 
 Opaque iscomptocommrngfrac .
 

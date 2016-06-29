@@ -20,7 +20,7 @@ Section coproduct_def.
 Variable C : precategory.
 
 Definition isBinCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
-  ∀ (c : C) (f : a --> c) (g : b --> c),
+  Π (c : C) (f : a --> c) (g : b --> c),
     iscontr (Σ fg : co --> c, (ia ;; fg = f) × (ib ;; fg = g)).
 
 Definition BinCoproductCocone (a b : C) :=
@@ -28,7 +28,7 @@ Definition BinCoproductCocone (a b : C) :=
       isBinCoproductCocone a b (pr1 coiaib) (pr1 (pr2 coiaib)) (pr2 (pr2 coiaib)).
 
 
-Definition BinCoproducts := ∀ (a b : C), BinCoproductCocone a b.
+Definition BinCoproducts := Π (a b : C), BinCoproductCocone a b.
 Definition hasBinCoproducts := ishinh BinCoproducts.
 
 Definition BinCoproductObject {a b : C} (CC : BinCoproductCocone a b) : C := pr1 (pr1 CC).
@@ -50,14 +50,14 @@ Proof.
 Defined.
 
 Lemma BinCoproductIn1Commutes (a b : C) (CC : BinCoproductCocone a b):
-     ∀ (c : C) (f : a --> c) g, BinCoproductIn1 CC ;; BinCoproductArrow CC f g  = f.
+     Π (c : C) (f : a --> c) g, BinCoproductIn1 CC ;; BinCoproductArrow CC f g  = f.
 Proof.
   intros c f g.
   exact (pr1 (pr2 (pr1 (isBinCoproductCocone_BinCoproductCocone CC _ f g)))).
 Qed.
 
 Lemma BinCoproductIn2Commutes (a b : C) (CC : BinCoproductCocone a b):
-     ∀ (c : C) (f : a --> c) g, BinCoproductIn2 CC ;; BinCoproductArrow CC f g = g.
+     Π (c : C) (f : a --> c) g, BinCoproductIn2 CC ;; BinCoproductArrow CC f g = g.
 Proof.
   intros c f g.
   exact (pr2 (pr2 (pr1 (isBinCoproductCocone_BinCoproductCocone CC _ f g)))).
@@ -107,7 +107,7 @@ Qed.
 
 
 Definition mk_BinCoproductCocone (a b : C) :
-  ∀ (c : C) (f : a --> c) (g : b --> c),
+  Π (c : C) (f : a --> c) (g : b --> c),
    isBinCoproductCocone _ _ _ f g →  BinCoproductCocone a b.
 Proof.
   intros.
@@ -119,7 +119,7 @@ Proof.
 Defined.
 
 Definition mk_isBinCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a --> co) (ib : b --> co) :
-   (∀ (c : C) (f : a --> c) (g : b --> c),
+   (Π (c : C) (f : a --> c) (g : b --> c),
     ∃! k : C ⟦co, c⟧,
       ia ;; k = f ×
       ib ;; k = g)
@@ -566,7 +566,7 @@ End BinCoproducts.
 (* + apply (tpair _ (pr1 t)); split; [ apply (pr2 t true) | apply (pr2 t false) ]. *)
 (* + intros t0. *)
 (*   apply subtypeEquality; [intros aa; apply isapropdirprod; apply hsC|]; simpl. *)
-(*   simple refine (let X : Σ x : C ⟦ ab, c ⟧, ∀ v, coconeIn cc v ;; x = *)
+(*   simple refine (let X : Σ x : C ⟦ ab, c ⟧, Π v, coconeIn cc v ;; x = *)
 (*             bool_rect (λ v0, C ⟦ if v0 then a else b, c ⟧) f g v := _ in _). *)
 (*   { apply (tpair _ (pr1 t0)); intro x; case x; *)
 (*     [ apply (pr1 (pr2 t0)) | apply (pr2 (pr2 t0)) ]. } *)

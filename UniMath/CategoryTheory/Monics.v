@@ -12,9 +12,9 @@ Section def_monic.
 
   (** Definition and construction of isMonic. *)
   Definition isMonic {y z : C} (f : y --> z) :=
-    forall (x : C) (g h : x --> y), g ;; f = h ;; f -> g = h.
+    Π (x : C) (g h : x --> y), g ;; f = h ;; f -> g = h.
   Definition mk_isMonic {y z : C} (f : y --> z) :
-    (forall (x : C) (g h : x --> y), g ;; f = h ;; f -> g = h) -> isMonic f.
+    (Π (x : C) (g h : x --> y), g ;; f = h ;; f -> g = h) -> isMonic f.
   Proof. intros X. unfold isMonic. apply X.  Defined.
 
   (** Definition and construction of Monic. *)

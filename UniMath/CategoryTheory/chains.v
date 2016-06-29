@@ -85,7 +85,7 @@ induction m; simpl.
 Defined.
 
 Definition chain_mor {C : precategory} (c : chain C) i :
-  forall j, i < j -> C⟦dob c i, dob c j⟧.
+  Π j, i < j -> C⟦dob c i, dob c j⟧.
 Proof.
 induction j.
 - intros Hi0.
@@ -98,7 +98,7 @@ induction j.
 Defined.
 
 Lemma chain_mor_commutes {C : precategory} (c : chain C) (x : C)
-  (cc : cocone c x) i : forall j (Hij : i < j),
+  (cc : cocone c x) i : Π j (Hij : i < j),
   chain_mor c i j Hij ;; coconeIn cc j = coconeIn cc i.
 Proof.
 induction j.
@@ -149,7 +149,7 @@ End chains.
 Notation "'chain'" := (diagram nat_graph).
 
 Definition is_omega_cocont {C D : precategory} (F : functor C D) : UU :=
-  forall (c : chain C) (L : C) (cc : cocone c L),
+  Π (c : chain C) (L : C) (cc : cocone c L),
   preserves_colimit F c L cc.
 
 Definition omega_cocont_functor (C D : precategory)  : UU :=

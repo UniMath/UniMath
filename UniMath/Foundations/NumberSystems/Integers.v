@@ -684,7 +684,7 @@ Definition hzgehtogehs ( n m : hz ) : hzgeh n m -> hzgeh ( n + 1 ) m := hzlehtol
 (** *** Two comparisons and [ n -> n + 1 ] *)
 
 Lemma hzgthtogehsn ( n m : hz ) : hzgth n m -> hzgeh n ( m + 1 ) .
-Proof. assert ( int : forall n m , isaprop ( hzgth n m -> hzgeh n ( m + 1 )  ) ) .
+Proof. assert ( int : Π n m , isaprop ( hzgth n m -> hzgeh n ( m + 1 )  ) ) .
        { intros . apply impred . intro . apply ( pr2 _ ) . }
        unfold hzgth in * .  apply ( setquotuniv2prop _ ( fun n m => hProppair _ ( int n m ) ) ) . set ( R := abgrfracrelint nataddabmonoid natgth ) .
        intros x x' .  change ( R x x' -> ( neg ( R ( @op ( abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig) ) x' ( dirprodpair 1%nat 0%nat ) ) x ) ) ) .
@@ -818,7 +818,7 @@ Lemma hzabsval0 : paths ( hzabsval 0 ) 0%nat .
 Proof .  apply idpath .  Defined .
 
 Lemma hzabsvalgth0 { x : hz } ( is : hzgth x 0 ) : paths ( nattohz ( hzabsval x ) ) x .
-Proof . assert ( int : forall x : hz , isaprop ( hzgth x 0 ->  paths ( nattohz ( hzabsval x ) ) x ) ) . intro . apply impred . intro . apply ( setproperty hz ) .  apply ( setquotunivprop _ ( fun x => hProppair _ ( int x ) ) ) . intros xa g . simpl in xa . assert ( g' := natnattohzandgth _ _ g ) . simpl in g' .  simpl .  change ( paths ( setquotpr (eqrelabgrfrac (rigaddabmonoid natcommrig)) ( dirprodpair ( hzabsvalint xa ) 0%nat ) ) ( setquotpr (eqrelabgrfrac (rigaddabmonoid natcommrig)) xa ) ) . apply weqpathsinsetquot . simpl . apply hinhpr . split with 0%nat .  change ( pr1 ( natgth ( pr1 xa + 0%nat ) ( pr2 xa ) ) ) in g' . rewrite ( natplusr0 _ ) in g' .  change ( paths  (hzabsvalint xa + pr2 xa + 0)%nat (pr1 xa + 0 + 0)%nat ) . rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) . unfold hzabsvalint .   destruct ( natgthorleh (pr1 xa) (pr2 xa)  ) as [ g'' | l ] .
+Proof . assert ( int : Π x : hz , isaprop ( hzgth x 0 ->  paths ( nattohz ( hzabsval x ) ) x ) ) . intro . apply impred . intro . apply ( setproperty hz ) .  apply ( setquotunivprop _ ( fun x => hProppair _ ( int x ) ) ) . intros xa g . simpl in xa . assert ( g' := natnattohzandgth _ _ g ) . simpl in g' .  simpl .  change ( paths ( setquotpr (eqrelabgrfrac (rigaddabmonoid natcommrig)) ( dirprodpair ( hzabsvalint xa ) 0%nat ) ) ( setquotpr (eqrelabgrfrac (rigaddabmonoid natcommrig)) xa ) ) . apply weqpathsinsetquot . simpl . apply hinhpr . split with 0%nat .  change ( pr1 ( natgth ( pr1 xa + 0%nat ) ( pr2 xa ) ) ) in g' . rewrite ( natplusr0 _ ) in g' .  change ( paths  (hzabsvalint xa + pr2 xa + 0)%nat (pr1 xa + 0 + 0)%nat ) . rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) . unfold hzabsvalint .   destruct ( natgthorleh (pr1 xa) (pr2 xa)  ) as [ g'' | l ] .
 
 rewrite ( minusplusnmm _ _ ( natlthtoleh _ _ g'' ) ) . apply idpath .
 
@@ -831,7 +831,7 @@ Lemma hzabsvalgeh0 { x : hz } ( is : hzgeh x 0 ) : paths ( nattohz ( hzabsval x 
 Proof .  intros . destruct ( hzgehchoice _ _ is ) as [ g | e ] .  apply ( hzabsvalgth0 g ) . rewrite e .  apply idpath .  Defined .
 
 Lemma hzabsvallth0 { x : hz } ( is : hzlth x 0 ) : paths ( nattohz ( hzabsval x ) ) ( - x ) .
-Proof . assert ( int : forall x : hz , isaprop ( hzlth x 0 ->  paths ( nattohz ( hzabsval x ) ) ( - x ) ) ) . intro . apply impred . intro . apply ( setproperty hz ) .  apply ( setquotunivprop _ ( fun x => hProppair _ ( int x ) ) ) . intros xa l . simpl in xa . assert ( l' := natnattohzandlth _ _ l ) . simpl in l' .  simpl .  change ( paths ( setquotpr (eqrelabgrfrac (rigaddabmonoid natcommrig)) ( dirprodpair ( hzabsvalint xa ) 0%nat ) ) ( setquotpr (eqrelabgrfrac (rigaddabmonoid natcommrig)) ( dirprodpair ( pr2 xa ) ( pr1 xa ) ) ) ) . apply weqpathsinsetquot . simpl . apply hinhpr . split with 0%nat .  change ( pr1 ( natlth ( pr1 xa + 0%nat ) ( pr2 xa ) ) ) in l' . rewrite ( natplusr0 _ ) in l' .  change ( paths  (hzabsvalint xa + pr1 xa + 0)%nat (pr2 xa + 0 + 0)%nat ) . rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) . unfold hzabsvalint .   destruct ( natgthorleh (pr1 xa) (pr2 xa)  ) as [ g | l'' ] .
+Proof . assert ( int : Π x : hz , isaprop ( hzlth x 0 ->  paths ( nattohz ( hzabsval x ) ) ( - x ) ) ) . intro . apply impred . intro . apply ( setproperty hz ) .  apply ( setquotunivprop _ ( fun x => hProppair _ ( int x ) ) ) . intros xa l . simpl in xa . assert ( l' := natnattohzandlth _ _ l ) . simpl in l' .  simpl .  change ( paths ( setquotpr (eqrelabgrfrac (rigaddabmonoid natcommrig)) ( dirprodpair ( hzabsvalint xa ) 0%nat ) ) ( setquotpr (eqrelabgrfrac (rigaddabmonoid natcommrig)) ( dirprodpair ( pr2 xa ) ( pr1 xa ) ) ) ) . apply weqpathsinsetquot . simpl . apply hinhpr . split with 0%nat .  change ( pr1 ( natlth ( pr1 xa + 0%nat ) ( pr2 xa ) ) ) in l' . rewrite ( natplusr0 _ ) in l' .  change ( paths  (hzabsvalint xa + pr1 xa + 0)%nat (pr2 xa + 0 + 0)%nat ) . rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) . unfold hzabsvalint .   destruct ( natgthorleh (pr1 xa) (pr2 xa)  ) as [ g | l'' ] .
 
 destruct ( isasymmnatgth _ _ g l' ) .
 

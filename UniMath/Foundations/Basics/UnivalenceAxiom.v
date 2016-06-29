@@ -17,7 +17,7 @@ Require Export UniMath.Foundations.Basics.PartD.
 
 (** ** Univalence axiom. *)
 
-Axiom univalenceaxiom :  forall T1 T2 : UU ,  isweq ( @eqweqmap T1 T2 ).
+Axiom univalenceaxiom :  Π T1 T2 : UU ,  isweq ( @eqweqmap T1 T2 ).
 
 Corollary univalence X Y : (X=Y) ≃ (X≃Y).
 Proof. intros. exact (weqpair _ (univalenceaxiom X Y)). Defined.
@@ -30,9 +30,9 @@ Definition weqpathsweq { T1 T2 : UU } ( w : weq T1 T2 ) : paths ( eqweqmap ( weq
 (** We show that [ univalenceaxiom ] is equivalent to the axioms [ weqtopaths0 ] and [ weqpathsweq0 ] stated below . *)
 
 
-Axiom weqtopaths0 : forall ( T1 T2 : UU ) ( w : weq T1 T2 ) , paths T1 T2.
+Axiom weqtopaths0 : Π ( T1 T2 : UU ) ( w : weq T1 T2 ) , paths T1 T2.
 
-Axiom weqpathsweq0 : forall ( T1 T2 : UU ) ( w : weq T1 T2 ) ,  paths ( eqweqmap ( weqtopaths0 _ _ w ) ) w.
+Axiom weqpathsweq0 : Π ( T1 T2 : UU ) ( w : weq T1 T2 ) ,  paths ( eqweqmap ( weqtopaths0 _ _ w ) ) w.
 
 Theorem univfromtwoaxioms ( T1 T2 : UU ) : isweq ( @eqweqmap T1 T2 ).
 Proof. intros. set ( P1 := fun XY : dirprod UU UU => pr1 XY = pr2 XY ) .
@@ -52,10 +52,10 @@ apply ( maponpaths ( fun w : weq ( pr1 XY) (pr2 XY) =>  tpair P2 XY w )
 
 set ( h := fun a1 : Z1 =>  pr1 ( pr1 a1 ) ) .
 
-assert ( egf0 : forall a1 : Z1 ,  paths ( pr1 ( g ( f a1 ) ) ) (  pr1 a1 ) ). intro.
+assert ( egf0 : Π a1 : Z1 ,  paths ( pr1 ( g ( f a1 ) ) ) (  pr1 a1 ) ). intro.
 apply  idpath.
 
-assert ( egf1 : forall a1 a1' : Z1 ,  paths ( pr1 a1' ) (  pr1 a1 ) ->  paths a1' a1 ). intros.
+assert ( egf1 : Π a1 a1' : Z1 ,  paths ( pr1 a1' ) (  pr1 a1 ) ->  paths a1' a1 ). intros.
 set ( X' :=  maponpaths ( @pr1 _ _ ) X ).
 assert ( is : isweq h ). simpl in h .  apply isweqpr1pr1 .
 apply ( invmaponpathsweq ( weqpair h is ) _ _ X' ).
@@ -87,11 +87,11 @@ Lemma isweqtransportb10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  paths x x
 Proof. intros. apply ( isweqtransportf10 _ ( pathsinv0 e ) ). Defined.
 
 
-Lemma l1  { X0 X0' : UU } ( ee : paths X0 X0' ) ( P : UU -> UU ) ( pp' : P X0' ) ( R : forall X X' : UU , forall w : weq X X' , P X' -> P X ) ( r : forall X : UU , forall p : P X , paths ( R X X ( idweq X ) p ) p ) : paths ( R X0 X0' ( eqweqmap ee ) pp' ) (  transportb P ee pp' ).
+Lemma l1  { X0 X0' : UU } ( ee : paths X0 X0' ) ( P : UU -> UU ) ( pp' : P X0' ) ( R : Π X X' : UU , Π w : weq X X' , P X' -> P X ) ( r : Π X : UU , Π p : P X , paths ( R X X ( idweq X ) p ) p ) : paths ( R X0 X0' ( eqweqmap ee ) pp' ) (  transportb P ee pp' ).
 Proof. intro. intro. intro. intro. intro. destruct ee. simpl. intro. intro. apply r. Defined.
 
 
-Theorem weqtransportb ( P : UU -> UU ) ( R : forall ( X X' : UU ) ( w :  weq X X' ) , P X' -> P X ) ( r : forall X : UU , forall p : P X , paths ( R X X ( idweq X ) p ) p ) :  forall ( X X' : UU ) ( w :  weq X X' ) ( p' : P X' ) , paths ( R X X' w p' ) (  transportb P ( weqtopaths w ) p' ).
+Theorem weqtransportb ( P : UU -> UU ) ( R : Π ( X X' : UU ) ( w :  weq X X' ) , P X' -> P X ) ( r : Π X : UU , Π p : P X , paths ( R X X ( idweq X ) p ) p ) :  Π ( X X' : UU ) ( w :  weq X X' ) ( p' : P X' ) , paths ( R X X' w p' ) (  transportb P ( weqtopaths w ) p' ).
 Proof. intros. set ( uv := weqtopaths w ).   set ( v := eqweqmap uv ).
 
 assert ( e : paths v w ) . unfold weqtopaths in uv.  apply ( homotweqinvweq ( weqpair _ ( univalenceaxiom X X' ) ) w ).
@@ -102,8 +102,8 @@ destruct ee. apply l1. assumption. Defined.
 
 
 
-Corollary isweqweqtransportb ( P : UU -> UU ) ( R :  forall ( X X' : UU ) ( w :  weq X X' ) , P X' -> P X ) ( r :  forall X : UU , forall p : P X , paths ( R X X ( idweq X ) p ) p ) :  forall ( X X' : UU ) ( w :  weq X X' ) , isweq ( fun p' :  P X' => R X X' w p' ).
-Proof. intros. assert ( e : forall p' : P X' , paths ( R X X' w p' ) (  transportb P ( weqtopaths w ) p' ) ). apply weqtransportb. assumption. assert ( ee : forall p' : P X' , paths  ( transportb P ( weqtopaths w ) p' ) ( R X X' w p' ) ). intro.  apply ( pathsinv0 ( e p' ) ). clear e.
+Corollary isweqweqtransportb ( P : UU -> UU ) ( R :  Π ( X X' : UU ) ( w :  weq X X' ) , P X' -> P X ) ( r :  Π X : UU , Π p : P X , paths ( R X X ( idweq X ) p ) p ) :  Π ( X X' : UU ) ( w :  weq X X' ) , isweq ( fun p' :  P X' => R X X' w p' ).
+Proof. intros. assert ( e : Π p' : P X' , paths ( R X X' w p' ) (  transportb P ( weqtopaths w ) p' ) ). apply weqtransportb. assumption. assert ( ee : Π p' : P X' , paths  ( transportb P ( weqtopaths w ) p' ) ( R X X' w p' ) ). intro.  apply ( pathsinv0 ( e p' ) ). clear e.
 
 assert ( is1 : isweq ( transportb P ( weqtopaths w ) ) ). apply isweqtransportb10.
 apply ( isweqhomot ( transportb P ( weqtopaths w ) ) ( fun p'  :  P X' => R X X' w p' ) ee is1 ).  Defined.
@@ -138,7 +138,7 @@ Lemma apathpr1topr ( T : UU ) : paths ( fun z :  pathsspace T => pr1 z ) ( fun z
 Proof. intro. apply ( eqcor0  ( weqpair _ ( isweqdeltap T ) ) _ ( fun z :  pathsspace T => pr1 z ) ( fun z :  pathsspace T => pr1 ( pr2 z ) ) ( idpath ( idfun T ) ) ) . Defined.
 
 
-Theorem funextfun { X Y : UU } ( f1 f2 : X -> Y ) ( e :  forall x : X , paths ( f1 x ) ( f2 x ) ) : paths f1 f2.
+Theorem funextfun { X Y : UU } ( f1 f2 : X -> Y ) ( e :  Π x : X , paths ( f1 x ) ( f2 x ) ) : paths f1 f2.
 Proof. intros. set ( f := fun x : X => pathsspacetriple Y ( e x ) ) .  set ( g1 := fun z : pathsspace Y => pr1 z ) . set ( g2 := fun z :  pathsspace Y => pr1 ( pr2 z ) ). assert ( e' : paths g1 g2 ). apply ( apathpr1topr Y ). assert ( ee : paths  ( fun x : X => f1 x ) ( fun x : X => f2 x ) ). change ( paths (fun x : X => g1 ( f x ) ) (fun x : X => g2 ( f x ) ) ) . destruct e' .  apply idpath .   apply etacoronpaths. apply ee . Defined.
 
 (* End of the file funextfun.v *)
