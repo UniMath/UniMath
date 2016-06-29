@@ -1,6 +1,25 @@
-(** * Univalence axiom and functional extensionality.  Vladimir Voevodsky. Feb. 2010 - Sep. 2011
+(** The univalence axiom and its consequences *)
 
-This file contains the formulation of the univalence axiom and the proof that it implies functional extensionality for functions - Theorem funextfun.
+(**
+
+In this file, we formulate univalence and its consequences, including functional
+extensionality (the statement that functions with equal values are equal).
+
+One approach would be to take univalence as the only axiom and to formulate
+theorems proving the consequences, whose proofs would appeal to the
+univalence axiom.  We adopt a different approach here, preferring also to
+introduce axioms for various consequences of univalence.  This allows us to
+measure how subsequent theorems depend on the axioms using the "Print
+Assumptions" command of Coq.
+
+An important point is that we introduce as axioms only those whose statements
+are propositions, so that the axiom and any proofs derivable from other
+axioms will be equal.  Proofs that the statements are propositions will be
+provided separately.
+
+We postpone stating the axioms themselves until after all the implications
+are established; this helps us encourage the use of the axioms for the
+consequences of univalence, rather than the theorems giving the implications.
 
 *)
 
@@ -40,6 +59,15 @@ Definition hfibertosec { X : UU } (P:X -> UU):
 
 Definition sectohfibertosec { X : UU } (P:X -> UU): forall a: forall x:X, P x, paths (hfibertosec _  (sectohfiber _ a)) a := fun a:_ => (pathsinv0 (etacorrection _ _ a)).
 
+Lemma isweqtransportf10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  paths x x' ) : isweq ( transportf P e ).
+Proof. intros. destruct e.  apply idisweq. Defined.
+
+Lemma isweqtransportb10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  paths x x' ) : isweq ( transportb P e ).
+Proof. intros. apply ( isweqtransportf10 _ ( pathsinv0 e ) ). Defined.
+
+Lemma l1  { X0 X0' : UU } ( ee : paths X0 X0' ) ( P : UU -> UU ) ( pp' : P X0' ) ( R : forall X X' : UU , forall w : weq X X' , P X' -> P X ) ( r : forall X : UU , forall p : P X , paths ( R X X ( idweq X ) p ) p ) : paths ( R X0 X0' ( eqweqmap ee ) pp' ) (  transportb P ee pp' ).
+Proof. destruct ee. simpl. apply r. Defined.
+
 (** Axiom statements (propositions) *)
 
 Definition univalenceStatement := forall X Y:UU, isweq (@eqweqmap X Y).
@@ -51,6 +79,10 @@ Definition funextsecweqStatement :=
 
 Definition propositionalUnivalenceStatement :=
   forall P Q, isaprop P -> isaprop Q -> (P -> Q) -> (Q -> P) -> P=Q.
+
+Definition funcontrStatement :=
+  forall (X : UU) (P:X -> UU),
+  (forall x:X, iscontr (P x)) -> iscontr (forall x:X, P x).
 
 (** Axiom consequence statements (not propositions) *)
 
@@ -116,167 +148,264 @@ Defined.
 
 (** Conjecture :  the pair [weqtopaths] and [weqtopathsweq] in the proof above is well defined up to a canonical equality. **)
 
-(** ** Transport theorem.
+Section UnivalenceImplications.
 
-Theorem saying that any general scheme to "transport" a structure along a weak equivalence which does not change the structure in the case of the identity equivalence is equivalent to the transport along the path which corresponds to a weak equivalence by the univalenceAxiom. As a corollary we conclude that for any such transport scheme the corresponding maps on spaes of structures are weak equivalences. *)
+  (** In this section we take univalence as a hypothesis, not as an axiom, so
+     we can limit the number of theorems that take univalence an axiom.
 
-Lemma isweqtransportf10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  paths x x' ) : isweq ( transportf P e ).
-Proof. intros. destruct e.  apply idisweq. Defined.
+     The suffix UAH on the name of a theorem indicates a theorem that will be
+     stated later unconditionally, with a proof that appeals to the future
+     univalence axiom. *)
 
-Lemma isweqtransportb10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  paths x x' ) : isweq ( transportb P e ).
-Proof. intros. apply ( isweqtransportf10 _ ( pathsinv0 e ) ). Defined.
+  Hypothesis univalenceAxiom : univalenceStatement.
 
+  Theorem univalenceUAH (X Y:UU) : (X=Y) ≃ (X≃Y).
+  Proof. exact (weqpair _ (univalenceAxiom X Y)). Defined.
 
-Lemma l1  { X0 X0' : UU } ( ee : paths X0 X0' ) ( P : UU -> UU ) ( pp' : P X0' ) ( R : forall X X' : UU , forall w : weq X X' , P X' -> P X ) ( r : forall X : UU , forall p : P X , paths ( R X X ( idweq X ) p ) p ) : paths ( R X0 X0' ( eqweqmap ee ) pp' ) (  transportb P ee pp' ).
-Proof. destruct ee. simpl. apply r. Defined.
+  Definition weqtopathsUAH : weqtopathsStatement.
+  Proof.
+    intros ? ?. exact (invmap (univalenceUAH _ _)).
+  Defined.
+  Arguments weqtopathsUAH {_ _} _.
+
+  Definition weqpathsweqUAH : weqpathsweqStatement (@weqtopathsUAH).
+  Proof.
+    intros ? ? w. exact (homotweqinvweq (univalenceUAH T1 T2) w).
+  Defined.
+  Arguments weqpathsweqUAH {_ _} _.
+
+  (** ** Proof of the functional extensionality for functions from univalence *)
+
+  (** ** Transport theorem.
+
+    Theorem saying that any general scheme to "transport" a structure along a
+    weak equivalence which does not change the structure in the case of the
+    identity equivalence is equivalent to the transport along the path which
+    corresponds to a weak equivalence by the univalenceAxiom. As a corollary we
+    conclude that for any such transport scheme the corresponding maps on spaces
+    of structures are weak equivalences. *)
+
+  Theorem weqtransportbUAH ( P : UU -> UU )
+          ( R : forall ( X X' : UU ) ( w :  weq X X' ) , P X' -> P X )
+          ( r : forall X : UU , forall p : P X , R X X ( idweq X ) p = p ) :
+    forall ( X X' : UU ) ( w :  weq X X' ) ( p' : P X' ),
+      R X X' w p' = transportb P ( weqtopathsUAH w ) p'.
+  Proof.
+    intros.
+    set ( uv := weqtopathsUAH w ).
+    set ( v := eqweqmap uv ).
+    assert ( e : v = w ) .
+    - unfold weqtopathsUAH in uv.
+      apply ( homotweqinvweq ( univalenceUAH X X' ) w ).
+    - assert ( ee : R X X' v p' = R X X' w p' ).
+      + set ( R' := fun vis : X ≃ X' => R X X' vis p' ).
+        assert ( ee' : R' v = R' w ).
+        * apply (  maponpaths R' e ).
+        * assumption.
+      + destruct ee. now apply l1.
+  Defined.
+
+  Corollary isweqweqtransportbUAH
+            ( P : UU -> UU )
+            ( R :  forall ( X X' : UU ) ( w : X ≃ X' ) , P X' -> P X )
+            ( r :  forall X : UU , forall p : P X , R X X ( idweq X ) p  = p ) :
+    forall ( X X' : UU ) ( w : X ≃ X' ),
+      isweq ( fun p' :  P X' => R X X' w p' ).
+  Proof.
+    intros.
+    assert ( e : R X X' w ~ transportb P ( weqtopathsUAH w )).
+    - unfold homot. now apply weqtransportbUAH.
+    - assert ( ee : transportb P ( weqtopathsUAH w ) ~ R X X' w).
+      + intro p'. apply ( pathsinv0 ( e p' ) ).
+      + clear e.
+        assert ( is1 : isweq ( transportb P ( weqtopathsUAH w ) ) ).
+        apply isweqtransportb10.
+        apply ( isweqhomot ( transportb P ( weqtopathsUAH w ) ) (R X X' w) ee is1 ).
+  Defined.
+
+  (** Theorem saying that composition with a weak equivalence is a weak equivalence on function spaces. *)
+
+  Theorem isweqcompwithweqUAH { X X' : UU } ( w : weq X X' ) ( Y : UU ) :
+    isweq ( fun f : X' -> Y => ( fun x : X => f ( w x ) ) ).
+  Proof.
+    set ( P := fun X0 : UU => ( X0 -> Y ) ).
+    set ( R := fun X0 : UU => ( fun X0' : UU => ( fun w1 : X0 -> X0' =>  ( fun  f : P X0'  => ( fun x : X0 => f ( w1 x ) ) ) ) ) ).
+    apply ( isweqweqtransportbUAH P R (fun X0 f => idpath _) X X' w ).
+  Defined.
+
+  Lemma eqcor0UAH { X X' : UU } ( w :  weq X X' ) ( Y : UU ) ( f1 f2 : X' -> Y ) :
+    (fun x : X => f1 ( w x )) = (fun x : X => f2 ( w x ) ) -> f1 = f2.
+  Proof. apply ( invmaponpathsweq ( weqpair _ ( isweqcompwithweqUAH w Y ) ) f1 f2 ). Defined.
+
+  Lemma apathpr1toprUAH ( T : UU ) : paths ( fun z :  pathsspace T => pr1 z ) ( fun z : pathsspace T => pr1 ( pr2 z ) ).
+  Proof. apply ( eqcor0UAH ( weqpair _ ( isweqdeltap T ) ) _ ( fun z :  pathsspace T => pr1 z ) ( fun z :  pathsspace T => pr1 ( pr2 z ) ) ( idpath ( idfun T ) ) ) . Defined.
+
+  Theorem funextfunPreliminaryUAH : funextfunStatement.
+  Proof.
+    intros ? ? f1 f2 e.
+    set ( f := fun x : X => pathsspacetriple Y ( e x ) ).
+    set ( g1 := fun z : pathsspace Y => pr1 z ).
+    set ( g2 := fun z : pathsspace Y => pr1 ( pr2 z ) ).
+    change ( (funcomp f g1) = (funcomp f g2) ).
+    apply maponpaths.
+    apply apathpr1toprUAH.
+  Defined.
+  Arguments funextfunPreliminaryUAH {_ _} _ _ _.
+
+  (** *** Deduction of functional extensionality for dependent functions (sections) from functional extensionality of usual functions *)
+
+  Lemma isweqlcompwithweqUAH {X X' : UU} (w: weq X X') (Y:UU) : isweq (fun (a:X'->Y) x => a (w x)).
+  Proof.
+    simple refine (gradth _ _ _ _).
+    exact (fun b x' => b (invweq w x')).
+    exact (fun a => funextfunPreliminaryUAH _ a (fun x' => maponpaths a (homotweqinvweq w x'))).
+    exact (fun a => funextfunPreliminaryUAH _ a (fun x  => maponpaths a (homotinvweqweq w x ))).
+  Defined.
+
+  Lemma isweqrcompwithweqUAH { Y Y':UU } (w: weq Y Y')(X:UU) :
+    isweq (fun a:X->Y => (fun x => w (a x))).
+  Proof.
+    set (f := fun a:X->Y => (fun x:X => w (a x))).
+    set (g := fun a':X-> Y' => fun x:X => (invweq  w (a' x))).
+    set (egf:= fun a:X->Y => funextfunPreliminaryUAH (fun x:X => (g (f a)) x) a (fun x: X => (homotinvweqweq w (a x)))).
+    set (efg:= fun a':X->Y' => funextfunPreliminaryUAH (fun x:X => (f (g a')) x) a' (fun x: X =>  (homotweqinvweq w (a' x)))).
+    apply (gradth f g egf efg).
+  Defined.
+
+  Theorem funcontrUAH : funcontrStatement.
+  Proof.
+    unfold funcontrStatement.
+    intros ? ? X0.
+    set (T1 := forall x:X, P x).
+    set (T2 := (hfiber (fun f: (X -> total2 P)  => fun x: X => pr1  (f x)) (fun x:X => x))).
+    assert (is1:isweq (@pr1 X P)).
+    - apply isweqpr1. assumption.
+    - set (w1:= weqpair  (@pr1 X P) is1).
+      assert (X1:iscontr T2).
+      + apply (isweqrcompwithweqUAH w1 X (fun x:X => x)).
+      + apply ( iscontrretract  _ _  (sectohfibertosec P ) X1).
+  Defined.
+
+  (** Proof of the fact that the [ toforallpaths ] from [paths s1 s2] to
+  [forall t:T, paths (s1 t) (s2 t)] is a weak equivalence - a strong form of
+  functional extensionality for sections of general families. The proof uses
+  only [funcontrUAH] which is an element of a proposition.  *)
+
+  Lemma funextweql1UAH { T : UU } (P:T -> UU) (g: ∀ t, P t) : ∃! (f:∀ t, P t), ∀ t:T, f t = g t.
+  Proof.
+    unshelve refine (iscontrretract (X := ∀ t, Σ p, p = g t) _ _ _ _).
+    - intros x. unshelve refine (_,,_).
+      + intro t. exact (pr1 (x t)).
+      + intro t; simpl. exact (pr2 (x t)).
+    - intros y t. exists (pr1 y t). exact (pr2 y t).
+    - intros u. induction u as [t x]. reflexivity.
+    - apply funcontrUAH. intro t. apply iscontrcoconustot.
+  Defined.
+
+  Theorem isweqtoforallpathsUAH : funextsecweqStatement.
+  Proof.
+    unfold funextsecweqStatement.
+    intros.
+    refine (isweqtotaltofib _ _ (λ (h:∀ t, P t), toforallpaths _ h g) _ f).
+    refine (isweqcontrcontr (X := Σ (h: ∀ t, P t), h = g)
+              (λ ff, tpair _ (pr1 ff) (toforallpaths P (pr1 ff) g (pr2 ff))) _ _).
+    { exact (iscontrcoconustot _ g). }
+    { apply funextweql1UAH. }
+  Qed.
+  Arguments isweqtoforallpathsUAH {_} _ _ _ _.
+
+  Theorem weqtoforallpathsUAH { T : UU } (P:T -> UU)(f g : forall t:T, P t) :
+    (f = g) ≃ (∀ t:T, f t = g t).
+  Proof.
+    exists (toforallpaths P f g). apply isweqtoforallpathsUAH.
+  Defined.
+
+  Definition funextsecUAH : funextsecStatement.
+  Proof.
+    intros ? ? f g.
+    exact (invmap (weqtoforallpathsUAH _ f g)).
+  Defined.
+  Arguments funextsecUAH {_} _ _ _ _.
+
+  Theorem funextfunUAH : funextfunStatement.
+  Proof.
+    exact (funextfunImplication (@funextsecUAH)).
+  Defined.
+  Arguments funextfunUAH {_ _} _ _ _.
+
+  Theorem isweqfunextsecUAH { T : UU } (P:T -> UU) (f g : forall t:T, P t) :
+    isweq (funextsecUAH P f g).
+  Proof.
+    intros.
+    apply isweqinvmap.
+  Defined.
+
+  Definition weqfunextsecUAH { T : UU } (P:T -> UU)(f g : forall t:T, P t) :
+    weq  (forall t:T, paths (f t) (g t)) (paths f g)
+    := weqpair _ ( isweqfunextsecUAH P f g ) .
+
+End UnivalenceImplications.
+
+(** Univalence implies each of the axioms *)
+
+Lemma funcontrFromUnivalence: univalenceStatement -> funcontrStatement.
+Proof. exact funcontrUAH. Defined.
+
+Lemma funextsecweqFromUnivalence: univalenceStatement -> funextsecweqStatement.
+Proof. exact isweqtoforallpathsUAH. Defined.
+
+Lemma funextemptyFromUnivalence: univalenceStatement -> funextemptyStatement.
+  Abort.
+
+Lemma propositionalUnivalenceFromUnivalence: univalenceStatement -> propositionalUnivalenceStatement.
+  Abort.
 
 (** the axioms themselves *)
 
 Axiom univalenceAxiom : univalenceStatement.
 Axiom funextemptyAxiom : funextemptyStatement.
 Axiom funextAxiom : funextsecweqStatement.
+Axiom funcontrAxiom : funcontrStatement.
+Axiom propositionalUnivalence : propositionalUnivalenceStatement.
 
 (** provide some theorems based on the axioms  *)
 
-Theorem univalence (X Y:UU) : (X=Y) ≃ (X≃Y).
-Proof. exact (weqpair _ (univalenceAxiom X Y)). Defined.
+Definition univalence := univalenceUAH univalenceAxiom.
 
-Definition weqtopaths : weqtopathsStatement.
-Proof.
-  intros ? ?. exact (invmap (univalence _ _)).
-Defined.
+Definition weqtopaths := weqtopathsUAH univalenceAxiom.
 Arguments weqtopaths {_ _} _.
 
-Definition weqpathsweq : weqpathsweqStatement (@weqtopaths).
-Proof.
-  intros ? ? w. exact (homotweqinvweq (univalence T1 T2) w).
-Defined.
+Definition weqpathsweq := weqpathsweqUAH univalenceAxiom.
 Arguments weqpathsweq {_ _} _.
 
-(** ** Proof of the functional extensionality for functions from univalence *)
+Definition funcontr := funcontrAxiom.
+Arguments funcontr {_} _ _.
 
-Theorem weqtransportb ( P : UU -> UU ) ( R : forall ( X X' : UU ) ( w :  weq X X' ) , P X' -> P X ) ( r : forall X : UU , forall p : P X , paths ( R X X ( idweq X ) p ) p ) :  forall ( X X' : UU ) ( w :  weq X X' ) ( p' : P X' ) , paths ( R X X' w p' ) (  transportb P ( weqtopaths w ) p' ).
-Proof.
-  intros. set ( uv := weqtopaths w ).   set ( v := eqweqmap uv ).
-  assert ( e : paths v w ) . unfold weqtopaths in uv.
-  apply ( homotweqinvweq ( weqpair _ ( univalenceAxiom X X' ) ) w ).
-  assert ( ee : paths ( R X X' v p' ) ( R X X' w p' ) ) . set ( R' := fun vis : weq X X' => R X X' vis p' ). assert ( ee' : paths ( R' v ) ( R' w ) ). apply (  maponpaths R' e ). assumption.
-  destruct ee. apply l1. assumption. Defined.
+Definition funextweql1 := @funextweql1UAH univalenceAxiom.
+Arguments funextweql1 {_} _ _.
 
-Corollary isweqweqtransportb ( P : UU -> UU ) ( R :  forall ( X X' : UU ) ( w :  weq X X' ) , P X' -> P X ) ( r :  forall X : UU , forall p : P X , paths ( R X X ( idweq X ) p ) p ) :  forall ( X X' : UU ) ( w :  weq X X' ) , isweq ( fun p' :  P X' => R X X' w p' ).
-Proof.
-  intros.
-  assert ( e : forall p' : P X' , paths ( R X X' w p' ) (  transportb P ( weqtopaths w ) p' ) ).
-  - apply weqtransportb. assumption.
-  - assert ( ee : forall p' : P X' , paths  ( transportb P ( weqtopaths w ) p' ) ( R X X' w p' ) ).
-    + intro. apply ( pathsinv0 ( e p' ) ).
-    + clear e.
-      assert ( is1 : isweq ( transportb P ( weqtopaths w ) ) ).
-      apply isweqtransportb10.
-      apply ( isweqhomot ( transportb P ( weqtopaths w ) ) ( fun p'  :  P X' => R X X' w p' ) ee is1 ).
-Defined.
+Definition isweqtoforallpaths := isweqtoforallpathsUAH univalenceAxiom.
+Arguments isweqtoforallpaths {_} _ _ _ _.
 
-(** Theorem saying that composition with a weak equivalence is a weak equivalence on function spaces. *)
+Definition weqtoforallpaths := @weqtoforallpathsUAH univalenceAxiom.
+Arguments weqtoforallpaths {_} _ _ _.
 
-Theorem isweqcompwithweq { X X' : UU } ( w : weq X X' ) ( Y : UU ) :  isweq ( fun f : X' -> Y => ( fun x : X => f ( w x ) ) ).
-Proof.
-  set ( P := fun X0 : UU => ( X0 -> Y ) ).
-  set ( R := fun X0 : UU => ( fun X0' : UU => ( fun w1 : X0 -> X0' =>  ( fun  f : P X0'  => ( fun x : X0 => f ( w1 x ) ) ) ) ) ).
-  apply ( isweqweqtransportb P R (fun X0 f => idpath _) X X' w ).
-Defined.
-
-Lemma eqcor0 { X X' : UU } ( w :  weq X X' ) ( Y : UU ) ( f1 f2 : X' -> Y ) : paths ( fun x : X => f1 ( w x ) )  ( fun x : X => f2 ( w x ) ) -> paths f1 f2.
-Proof. apply ( invmaponpathsweq ( weqpair _ ( isweqcompwithweq w Y ) ) f1 f2 ). Defined.
-
-Lemma apathpr1topr ( T : UU ) : paths ( fun z :  pathsspace T => pr1 z ) ( fun z : pathsspace T => pr1 ( pr2 z ) ).
-Proof. apply ( eqcor0 ( weqpair _ ( isweqdeltap T ) ) _ ( fun z :  pathsspace T => pr1 z ) ( fun z :  pathsspace T => pr1 ( pr2 z ) ) ( idpath ( idfun T ) ) ) . Defined.
-
-Theorem funextfunPreliminary : funextfunStatement.
-Proof.
-  intros ? ? f1 f2 e.
-  set ( f := fun x : X => pathsspacetriple Y ( e x ) ).
-  set ( g1 := fun z : pathsspace Y => pr1 z ).
-  set ( g2 := fun z : pathsspace Y => pr1 ( pr2 z ) ).
-  change ( (funcomp f g1) = (funcomp f g2) ).
-  apply maponpaths.
-  apply apathpr1topr.
-Defined.
-
-Arguments funextfunPreliminary {_ _} _ _ _.
-
-(** *** Deduction of functional extensionality for dependent functions (sections) from functional extensionality of usual functions *)
-
-Lemma isweqlcompwithweq {X X' : UU} (w: weq X X') (Y:UU) : isweq (fun (a:X'->Y) x => a (w x)).
-Proof.
-  simple refine (gradth _ _ _ _).
-  exact (fun b x' => b (invweq w x')).
-  exact (fun a => funextfunPreliminary _ a (fun x' => maponpaths a (homotweqinvweq w x'))).
-  exact (fun a => funextfunPreliminary _ a (fun x  => maponpaths a (homotinvweqweq w x ))).
-Defined.
-
-Lemma isweqrcompwithweq { Y Y':UU } (w: weq Y Y')(X:UU): isweq (fun a:X->Y => (fun x:X => w (a x))).
-Proof. intros. set (f:= (fun a:X->Y => (fun x:X => w (a x)))). set (g := fun a':X-> Y' => fun x:X => (invweq  w (a' x))).
-set (egf:= (fun a:X->Y => funextfunPreliminary (fun x:X => (g (f a)) x) a (fun x: X => (homotinvweqweq w (a x))))).
-set (efg:= (fun a':X->Y' => funextfunPreliminary (fun x:X => (f (g a')) x) a' (fun x: X =>  (homotweqinvweq w (a' x))))).
-apply (gradth  f g egf efg). Defined.
-
-Theorem funcontr { X : UU } (P:X -> UU) : (forall x:X, iscontr (P x)) -> iscontr (forall x:X, P x).
-Proof. intros X0 . set (T1 := forall x:X, P x). set (T2 := (hfiber (fun f: (X -> total2 P)  => fun x: X => pr1  (f x)) (fun x:X => x))). assert (is1:isweq (@pr1 X P)). apply isweqpr1. assumption.  set (w1:= weqpair  (@pr1 X P) is1).
-assert (X1:iscontr T2).  apply (isweqrcompwithweq  w1 X (fun x:X => x)).
-apply ( iscontrretract  _ _  (sectohfibertosec P ) X1). Defined.
-
-Corollary funcontrtwice { X : UU } (P: X-> X -> UU)(is: forall (x x':X), iscontr (P x x')): iscontr (forall (x x':X), P x x').
-Proof. intros.
-assert (is1: forall x:X, iscontr (forall x':X, P x x')). intro. apply (funcontr _ (is x)). apply (funcontr _ is1). Defined.
-
-
-(** Proof of the fact that the [ toforallpaths ] from [paths s1 s2] to [forall t:T, paths (s1 t) (s2 t)] is a weak equivalence - a strong form
-of functional extensionality for sections of general families. The proof uses only [funcontr] which is an axiom i.e. its type satisfies [ isaprop ].  *)
-
-Lemma funextweql1 { T : UU } (P:T -> UU) (g: ∀ t, P t) : ∃! (f:∀ t, P t), ∀ t:T, f t = g t.
-Proof.
-  intros. unshelve refine (iscontrretract (X := ∀ t, Σ p, p = g t) _ _ _ _).
-  - intros x. unshelve refine (_,,_).
-    + intro t. exact (pr1 (x t)).
-    + intro t; simpl. exact (pr2 (x t)).
-  - intros y t. exists (pr1 y t). exact (pr2 y t).
-  - intros u. induction u as [t x]. reflexivity.
-  - apply funcontr. intro t. apply iscontrcoconustot.
-Defined.
-
-Theorem isweqtoforallpaths { T : UU } (P:T -> UU) (f g: ∀ t:T, P t) :
-  isweq (toforallpaths _ f g).
-Proof.
-  intros.
-  refine (isweqtotaltofib _ _ (λ (h:∀ t, P t), toforallpaths _ h g) _ f).
-  refine (isweqcontrcontr (X := Σ (h: ∀ t, P t), h = g)
-            (λ ff, tpair _ (pr1 ff) (toforallpaths P (pr1 ff) g (pr2 ff))) _ _).
-  { exact (iscontrcoconustot _ g). }
-  { apply funextweql1. }
-Qed.
-
-Theorem weqtoforallpaths { T : UU } (P:T -> UU)(f g : forall t:T, P t) :
-  (f = g) ≃ (∀ t:T, f t = g t).
-Proof. intros. exists (toforallpaths P f g). apply isweqtoforallpaths. Defined.
-
-Definition funextsec : funextsecStatement.
-Proof.
-  intros ? ? f g.
-  exact (invmap (weqtoforallpaths _ f g)).
-Defined.
+Definition funextsec := funextsecUAH univalenceAxiom.
 Arguments funextsec {_} _ _ _ _.
 
-Theorem funextfun : funextfunStatement.
-Proof.
-  exact (funextfunImplication (@funextsec)).
-Defined.
-
+Definition funextfun := funextfunUAH univalenceAxiom.
 Arguments funextfun {_ _} _ _ _.
 
-Theorem isweqfunextsec { T : UU } (P:T -> UU) (f g : forall t:T, P t) :
-  isweq (funextsec P f g).
-Proof. intros. apply (isweqinvmap (weqtoforallpaths _ f g)). Defined.
+Definition weqfunextsec := @weqfunextsecUAH univalenceAxiom.
+Arguments weqfunextsec {_} _ _ _.
 
-Definition weqfunextsec { T : UU } (P:T -> UU)(f g : forall t:T, P t) :
-  weq  (forall t:T, paths (f t) (g t)) (paths f g)
-  := weqpair _ ( isweqfunextsec P f g ) .
+(** Provide some corollaries of the theorems based on the axioms  *)
+
+Corollary funcontrtwice { X : UU } (P: X-> X -> UU) (is: forall (x x':X), iscontr (P x x')) :
+  iscontr (forall (x x':X), P x x').
+Proof.
+  intros.
+  assert (is1: forall x:X, iscontr (forall x':X, P x x')).
+  - intro. apply (funcontr _ (is x)).
+  - apply (funcontr _ is1).
+Defined.

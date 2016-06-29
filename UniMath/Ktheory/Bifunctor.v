@@ -118,7 +118,7 @@ Defined.
 Lemma transport_along_funextsec {X:UU} {Y:X->UU} {f g:∀ x, Y x}
       (e:f~g) (x:X) : transportf _ (funextsec _ _ _ e) (f x) = g x.
 Proof.
-  unfold funextsec.
+  unfold funextsec, funextsecUAH. fold @weqtoforallpaths.
   induction (invmap (weqtoforallpaths _ f g) e).
   reflexivity.
 Defined.
