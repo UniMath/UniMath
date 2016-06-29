@@ -62,3 +62,8 @@ limits/equalizers.v
 limits/coequalizers.v
 limits/kernels.v
 limits/cokernels.v
+limits/pushouts.v
+PrecategoriesWithBinOps.v
+PrecategoriesWithAbgrops.v
+PreAdditive.v
+limits/BinDirectSums.v
