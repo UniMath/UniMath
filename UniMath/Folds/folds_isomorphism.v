@@ -237,10 +237,10 @@ Proof.
     + apply funextsec; intro.
       apply subtypeEquality.
       * intro; apply isapropisweq.
-      * apply funextfun. apply ϕ₂_determined.
+      * apply funextfun. unfold homot. apply ϕ₂_determined.
   - apply subtypeEquality.
     intro. apply isapropisweq.
-    apply funextfun. intros.
+    apply funextfun. intro t.
     apply ϕo_determined.
 Qed.
 
