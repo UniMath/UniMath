@@ -15,7 +15,7 @@ Assumptions" command of Coq.
 An important point is that we introduce as axioms only those whose statements
 are propositions, so that the axiom and any proofs derivable from other
 axioms will be equal.  Proofs that the statements are propositions will be
-provided separately.
+provided in the file UnivalenceAxiom2.
 
 We postpone stating the axioms themselves until after all the implications
 are established; this helps us encourage the use of the axioms for the
@@ -78,7 +78,7 @@ Definition funextsecweqStatement :=
   forall (T:UU) (P:T -> UU) (f g :forall t:T, P t), isweq (toforallpaths _ f g).
 
 Definition propositionalUnivalenceStatement :=
-  forall P Q, isaprop P -> isaprop Q -> (P -> Q) -> (Q -> P) -> P=Q.
+  forall (P Q:UU), isaprop P -> isaprop Q -> (P -> Q) -> (Q -> P) -> P=Q.
 
 Definition funcontrStatement :=
   forall (X : UU) (P:X -> UU),
@@ -174,6 +174,15 @@ Section UnivalenceImplications.
   Defined.
   Arguments weqpathsweqUAH {_ _} _.
 
+  Lemma propositionalUnivalenceUAH: propositionalUnivalenceStatement.
+  Proof.
+    unfold propositionalUnivalenceStatement; intros ? ? i j f g.
+    apply weqtopathsUAH.
+    simple refine (weqpair f (gradth f g _ _)).
+    - intro p. apply proofirrelevance, i.
+    - intro q. apply proofirrelevance, j.
+  Defined.
+
   (** ** Proof of the functional extensionality for functions from univalence *)
 
   (** ** Transport theorem.
@@ -251,6 +260,14 @@ Section UnivalenceImplications.
     apply apathpr1toprUAH.
   Defined.
   Arguments funextfunPreliminaryUAH {_ _} _ _ _.
+
+  Lemma funextemptyUAH : funextemptyStatement.
+  Proof.
+    unfold funextemptyStatement; intros.
+    apply funextfunPreliminaryUAH.
+    intro x.
+    induction (f x).
+  Defined.
 
   (** *** Deduction of functional extensionality for dependent functions (sections) from functional extensionality of usual functions *)
 
@@ -355,10 +372,10 @@ Lemma funextsecweqFromUnivalence: univalenceStatement -> funextsecweqStatement.
 Proof. exact isweqtoforallpathsUAH. Defined.
 
 Lemma funextemptyFromUnivalence: univalenceStatement -> funextemptyStatement.
-  Abort.
+Proof. exact funextemptyUAH. Defined.
 
 Lemma propositionalUnivalenceFromUnivalence: univalenceStatement -> propositionalUnivalenceStatement.
-  Abort.
+Proof. exact propositionalUnivalenceUAH. Defined.
 
 (** the axioms themselves *)
 
@@ -366,7 +383,7 @@ Axiom univalenceAxiom : univalenceStatement.
 Axiom funextemptyAxiom : funextemptyStatement.
 Axiom funextAxiom : funextsecweqStatement.
 Axiom funcontrAxiom : funcontrStatement.
-Axiom propositionalUnivalence : propositionalUnivalenceStatement.
+Axiom propositionalUnivalenceAxiom : propositionalUnivalenceStatement.
 
 (** provide some theorems based on the axioms  *)
 
