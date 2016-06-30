@@ -40,8 +40,10 @@ according to the following principles.
 * Do not use ```Fixpoint```.
 * Do not use ```destruct```, ```match```, square brackets with ```intros```, or
   nested square brackets with ```induction```.
-* Always name new variables introduced by ```induction``` or ```destruct``` with ```as```,
-  different names might be used by Coq when distant bits of code are changed.
+* Use ```as``` to name all new variables introduced by ```induction``` or
+  ```destruct```, if the corresponding type is defined in a remote location,
+  because different names might be used by Coq when the definition of the type
+  is changed.
 * Do not end a proof with ```Qed.```, except with ```Goal```, for that may prevent later computations.
 * Start all proofs with ```Proof.``` on a separate line and end it with
   ```Defined.``` on a separate line, as this makes it possible for us to generate
