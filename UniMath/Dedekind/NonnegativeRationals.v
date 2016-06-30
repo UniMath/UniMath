@@ -91,8 +91,6 @@ Proof.
   split ; [ split | repeat split ].
   - exact ispreorder_hnnq_le.
   - exact isStrongOrder_hnnq_lt.
-  - intros x y.
-    now apply hqlthtoleh.
   - easy.
   - easy.
   - intros x y z.
@@ -304,6 +302,9 @@ Definition divNonnegativeRationals (x y : NonnegativeRationals) : NonnegativeRat
 
 Definition twoNonnegativeRationals : NonnegativeRationals :=
   Rationals_to_NonnegativeRationals 2 (hqlthtoleh _ _ hq2_gt0).
+
+Definition nat_to_NonnegativeRationals (n : nat) : NonnegativeRationals :=
+  Rationals_to_NonnegativeRationals (hztohq (nattohz n)) (hztohqandleh 0%hz _ (nattohzandleh O n (natleh0n n))).
 
 Notation "0" := zeroNonnegativeRationals : NRat_scope.
 Notation "1" := oneNonnegativeRationals : NRat_scope.
@@ -1526,6 +1527,63 @@ Proof.
   intros x y.
   rewrite iscomm_NQmax.
   now apply NQmax_le_l.
+Qed.
+
+(** ** intpart *)
+
+Lemma nat_to_NonnegativeRationals_O :
+  nat_to_NonnegativeRationals O = 0.
+Proof.
+  apply subtypeEquality_prop.
+  reflexivity.
+Qed.
+Lemma nat_to_NonnegativeRationals_Sn :
+  ∀ n : nat, nat_to_NonnegativeRationals (S n) = nat_to_NonnegativeRationals n + 1.
+Proof.
+  intro n.
+  apply subtypeEquality_prop.
+  simpl.
+  rewrite nattohzandS, hztohqandplus.
+  apply hqpluscomm.
+Qed.
+
+Definition isarchNonnegativeRationals :
+  isarchrig gtNonnegativeRationals.
+Proof.
+  set (H := isarchhq).
+  apply isarchfld_isarchrng in H.
+  apply isarchrng_isarchrig in H.
+  assert (∀ n, pr1 (nattorig (X := pr1 (CommDivRig_DivRig NonnegativeRationals)) n) = nattorig (X := pr1fld hq) n).
+  { induction n.
+    - reflexivity.
+    - rewrite !nattorigS, <- IHn.
+      reflexivity. }
+  repeat split.
+  - intros y1 y2 Hy.
+    generalize (isarchrig_1 _ H (pr1 y1) (pr1 y2) Hy).
+    apply hinhfun.
+    intros (n,Hn).
+    exists n.
+    rewrite <- !X in Hn.
+    exact Hn.
+  - intros x.
+    generalize (isarchrig_2 _ H (pr1 x)).
+    apply hinhfun.
+    intros (n,Hn).
+    exists n.
+    rewrite <- X in Hn.
+    exact Hn.
+  - intros x.
+    generalize (isarchrig_3 _ H (pr1 x)).
+    apply hinhfun.
+    intros (n,Hn).
+    exists n.
+    rewrite <- X in Hn.
+    exact Hn.
+  - exact isrngaddhzgth.
+  - exact isrngaddhzgth.
+  - exact isrngmulthqgth.
+  - exact isirreflhqgth.
 Qed.
 
 Close Scope NRat_scope.

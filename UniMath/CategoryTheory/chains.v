@@ -15,6 +15,7 @@ Contents :
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.NumberSystems.NaturalNumbers.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
@@ -83,13 +84,77 @@ induction m; simpl.
 - exact (# F IHm).
 Defined.
 
+Definition chain_mor {C : precategory} (c : chain C) i :
+  forall j, i < j -> C⟦dob c i, dob c j⟧.
+Proof.
+induction j.
+- intros Hi0.
+  destruct (negnatlthn0 0 Hi0).
+- intros Hij.
+  destruct (natlehchoice4 _ _ Hij) as [|H].
+  + apply (IHj h ;; dmor c (idpath (S j))).
+  + apply dmor.
+    apply (maponpaths S H).
+Defined.
+
+Lemma chain_mor_commutes {C : precategory} (c : chain C) (x : C)
+  (cc : cocone c x) i : forall j (Hij : i < j),
+  chain_mor c i j Hij ;; coconeIn cc j = coconeIn cc i.
+Proof.
+induction j.
+- intros Hi0.
+  destruct (negnatlthn0 0 Hi0).
+- intros Hij; simpl.
+  destruct (natlehchoice4 i j Hij).
+  + rewrite <- (IHj h), <- assoc.
+    apply maponpaths, coconeInCommutes.
+  + destruct p.
+    apply coconeInCommutes.
+Qed.
+
+Lemma chain_mor_commutes2 {C : precategory} (c : chain C) i j (Hij : i < j) (HSij : S i < j) :
+  dmor c (idpath (S i)) ;; chain_mor c _ _ HSij = chain_mor c _ _ Hij.
+Proof.
+induction j.
+- destruct (negnatlthn0 _ Hij).
+- simpl.
+  destruct (natlehchoice4 i j Hij).
+  + destruct (natlehchoice4 (S i) j HSij).
+    * now rewrite <- (IHj h h0), assoc.
+    * destruct p; simpl.
+      destruct (natlehchoice4 i i h); [destruct (isirreflnatlth _ h0)|].
+      apply cancel_postcomposition, maponpaths, isasetnat.
+  + destruct p, (isirreflnatlth _ HSij).
+Qed.
+
+(* TODO: HSij is redundant? *)
+Lemma chain_mor_commutes3 {C : precategory} (c : chain C) i j (HSij : i < S j) (Hij : i < j) :
+  chain_mor c i (S j) HSij = chain_mor c i j Hij ;; dmor c (idpath (S j)).
+Proof.
+destruct j.
+- destruct (negnatlthn0 _ Hij).
+- simpl; destruct (natlehchoice4 i (S j) HSij).
+  + destruct (natlehchoice4 i j h).
+    * destruct (natlehchoice4 i j Hij); [|destruct p, (isirreflnatlth _ h0)].
+      apply cancel_postcomposition, cancel_postcomposition, maponpaths, isasetbool.
+    * destruct p; simpl.
+      destruct (natlehchoice4 i i Hij); [destruct (isirreflnatlth _ h0)|].
+      apply cancel_postcomposition, maponpaths, isasetnat.
+  + generalize Hij; rewrite p; intros H.
+    destruct (isirreflnatlth _ H).
+Qed.
+
 End chains.
 
 Notation "'chain'" := (diagram nat_graph).
 
-Definition omega_cocont {C D : precategory} (F : functor C D) : UU :=
+Definition is_omega_cocont {C D : precategory} (F : functor C D) : UU :=
   forall (c : chain C) (L : C) (cc : cocone c L),
   preserves_colimit F c L cc.
+
+Definition omega_cocont_functor (C D : precategory)  : UU :=
+  total2 (fun F : functor C D => is_omega_cocont F).
+
 
 (* This section proves that (L,α : F L -> L) is the initial algebra
    where L is the colimit of the inital chain:
@@ -101,7 +166,12 @@ Definition omega_cocont {C D : precategory} (F : functor C D) : UU :=
 Section colim_initial_algebra.
 
 Variables (C : precategory) (hsC : has_homsets C).
-Variables (F : functor C C) (HF : omega_cocont F).
+
+(* It is important that these are not packaged together as it is
+   sometimes necessary to control how opaque HF is. See
+   isalghom_pr1foldr in lists.v *)
+Variables (F : functor C C) (HF : is_omega_cocont F).
+
 Variables (InitC : Initial C).
 
 Let Fchain : chain C := initChain InitC F.

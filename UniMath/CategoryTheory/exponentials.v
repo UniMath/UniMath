@@ -6,9 +6,9 @@ Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseProduct.
+Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinProduct.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
@@ -16,14 +16,14 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 Section exponentials.
 
-Context {C : precategory} (PC : Products C) (hsC : has_homsets C).
+Context {C : precategory} (PC : BinProducts C) (hsC : has_homsets C).
 
 (* The functor "a * _" and "_ * a" *)
 Definition constprod_functor1 (a : C) : functor C C :=
-  product_functor C C PC (constant_functor C C a) (functor_identity C).
+  BinProduct_of_functors C C PC (constant_functor C C a) (functor_identity C).
 
 Definition constprod_functor2 (a : C) : functor C C :=
-  product_functor C C PC (functor_identity C) (constant_functor C C a).
+  BinProduct_of_functors C C PC (functor_identity C) (constant_functor C C a).
 
 Definition is_exponentiable (a : C) : UU := is_left_adjoint (constprod_functor1 a).
 
@@ -33,24 +33,24 @@ Definition nat_trans_constprod_functor1 (a : C) :
   nat_trans (constprod_functor1 a) (constprod_functor2 a).
 Proof.
 mkpair.
-- intro x; simpl; unfold product_functor_ob; simpl.
-  apply ProductArrow; [ apply ProductPr2 | apply ProductPr1 ].
-- abstract (intros x y f; simpl; unfold product_functor_mor; simpl;
-  eapply pathscomp0; [apply precompWithProductArrow|];
-  apply pathsinv0; eapply pathscomp0; [apply postcompWithProductArrow|];
-  now rewrite (ProductOfArrowsPr2 C _ (PC a x)), (ProductOfArrowsPr1 C _ (PC a x))).
+- intro x; simpl; unfold BinProduct_of_functors_ob; simpl.
+  apply BinProductArrow; [ apply BinProductPr2 | apply BinProductPr1 ].
+- abstract (intros x y f; simpl; unfold BinProduct_of_functors_mor; simpl;
+  eapply pathscomp0; [apply precompWithBinProductArrow|];
+  apply pathsinv0; eapply pathscomp0; [apply postcompWithBinProductArrow|];
+  now rewrite (BinProductOfArrowsPr2 C _ (PC a x)), (BinProductOfArrowsPr1 C _ (PC a x))).
 Defined.
 
 Definition nat_trans_constprod_functor2 (a : C) :
   nat_trans (constprod_functor2 a) (constprod_functor1 a).
 Proof.
 mkpair.
-- intro x; simpl; unfold product_functor_ob; simpl.
-  apply ProductArrow; [ apply ProductPr2 | apply ProductPr1 ].
-- abstract (intros x y f; simpl; unfold product_functor_mor; simpl;
-  eapply pathscomp0; [apply precompWithProductArrow|];
-  apply pathsinv0; eapply pathscomp0; [apply postcompWithProductArrow|];
-  now rewrite (ProductOfArrowsPr2 C _ (PC x a)), (ProductOfArrowsPr1 C _ (PC x a))).
+- intro x; simpl; unfold BinProduct_of_functors_ob; simpl.
+  apply BinProductArrow; [ apply BinProductPr2 | apply BinProductPr1 ].
+- abstract (intros x y f; simpl; unfold BinProduct_of_functors_mor; simpl;
+  eapply pathscomp0; [apply precompWithBinProductArrow|];
+  apply pathsinv0; eapply pathscomp0; [apply postcompWithBinProductArrow|];
+  now rewrite (BinProductOfArrowsPr2 C _ (PC x a)), (BinProductOfArrowsPr1 C _ (PC x a))).
 Defined.
 
 Lemma is_iso_constprod_functor1 a :
@@ -59,13 +59,13 @@ Proof.
 apply (@is_iso_qinv [C,C,hsC] _ _ _ (nat_trans_constprod_functor2 a)).
   split.
   + abstract (
-    apply (nat_trans_eq hsC); intro x; simpl; unfold product_functor_ob; simpl;
-    eapply pathscomp0; [apply precompWithProductArrow|];
-    now rewrite ProductPr1Commutes, ProductPr2Commutes, ProductArrowEta, !id_left).
+    apply (nat_trans_eq hsC); intro x; simpl; unfold BinProduct_of_functors_ob; simpl;
+    eapply pathscomp0; [apply precompWithBinProductArrow|];
+    now rewrite BinProductPr1Commutes, BinProductPr2Commutes, BinProductArrowEta, !id_left).
   + abstract (
-    apply (nat_trans_eq hsC); intro x; simpl; unfold product_functor_ob; simpl;
-    eapply pathscomp0; [apply precompWithProductArrow|];
-    now rewrite ProductPr1Commutes, ProductPr2Commutes, ProductArrowEta, !id_left).
+    apply (nat_trans_eq hsC); intro x; simpl; unfold BinProduct_of_functors_ob; simpl;
+    eapply pathscomp0; [apply precompWithBinProductArrow|];
+    now rewrite BinProductPr1Commutes, BinProductPr2Commutes, BinProductArrowEta, !id_left).
 Defined.
 
 (* This is not used *)
@@ -75,13 +75,13 @@ Proof.
 apply (@is_iso_qinv [C,C,hsC] _ _ _ (nat_trans_constprod_functor1 a)).
 mkpair.
 + abstract (
-  apply (nat_trans_eq hsC); intro x; simpl; unfold product_functor_ob; simpl;
-  eapply pathscomp0; [apply precompWithProductArrow|];
-  now rewrite ProductPr1Commutes, ProductPr2Commutes, ProductArrowEta, !id_left).
+  apply (nat_trans_eq hsC); intro x; simpl; unfold BinProduct_of_functors_ob; simpl;
+  eapply pathscomp0; [apply precompWithBinProductArrow|];
+  now rewrite BinProductPr1Commutes, BinProductPr2Commutes, BinProductArrowEta, !id_left).
 + abstract (
-  apply (nat_trans_eq hsC); intro x; simpl; unfold product_functor_ob; simpl;
-  eapply pathscomp0; [apply precompWithProductArrow|];
-  now rewrite ProductPr1Commutes, ProductPr2Commutes, ProductArrowEta, !id_left).
+  apply (nat_trans_eq hsC); intro x; simpl; unfold BinProduct_of_functors_ob; simpl;
+  eapply pathscomp0; [apply precompWithBinProductArrow|];
+  now rewrite BinProductPr1Commutes, BinProductPr2Commutes, BinProductArrowEta, !id_left).
 Defined.
 
 Definition flip_iso a : @iso [C,C,hsC] (constprod_functor1 a) (constprod_functor2 a) :=

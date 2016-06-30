@@ -37,13 +37,6 @@ Delimit Scope stn with stn.
 
 Notation "● x" := (x ,, idpath _) (at level 35) : stn.
 
-Definition stnincl m n (l:m≤n) : stn m -> stn n.
-Proof.
-  intros ? ? ? i. exists i. eapply natlthlehtrans.
-  - exact (pr2 i).
-  - exact l.
-Defined.
-
 Lemma isinclstntonat ( n : nat ) : isincl ( stntonat n ) .
 Proof. intro .  refine (isinclpr1 _ _) .  intro x .  apply ( pr2 ( natlth x n ) ) .  Defined.
 

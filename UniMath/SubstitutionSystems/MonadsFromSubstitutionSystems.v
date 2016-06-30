@@ -33,14 +33,14 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.PointedFunctors.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 
@@ -53,11 +53,11 @@ Section monad_from_hss.
 Variable C : precategory.
 Variable hs : has_homsets C.
 
-Variable CP : Coproducts C.
+Variable CP : BinCoproducts C.
 
 Local Notation "'EndC'":= ([C, C, hs]) .
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
-Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CP hs.
+Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP hs.
 
 Variable H : Signature C hs.
 
@@ -68,7 +68,7 @@ Let θ_strength2_int := Sig_strength_law2 _ _ H.
 
 Let Id_H
 : functor EndC EndC
-  := coproduct_functor _ _ CPEndC
+  := BinCoproduct_of_functors _ _ CPEndC
                        (constant_functor _ _ (functor_identity _ : EndC))
                        H.
 
@@ -93,7 +93,7 @@ Section mu_from_fbracket.
 Variable T : hss CP H.
 
 Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
-Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
+Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 
 
 Definition μ_0 : functor_identity C ⟶ functor_data_from_functor _ _ `T := η T. (*ptd_pt _ (pr1 (pr1 T)).*)
