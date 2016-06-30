@@ -62,15 +62,18 @@ Definition univalenceStatement := forall X Y:UU, isweq (@eqweqmap X Y).
 
 Definition funextemptyStatement := forall (X:UU) (f g : X->empty), f = g.
 
-Definition funextsecweqStatement :=
-  forall (T:UU) (P:T -> UU) (f g :forall t:T, P t), isweq (toforallpaths _ f g).
-
 Definition propositionalUnivalenceStatement :=
   forall (P Q:UU), isaprop P -> isaprop Q -> (P -> Q) -> (Q -> P) -> P=Q.
 
 Definition funcontrStatement :=
   forall (X : UU) (P:X -> UU),
-  (forall x:X, iscontr (P x)) -> iscontr (forall x:X, P x).
+    (forall x:X, iscontr (P x)) -> iscontr (forall x:X, P x).
+
+Definition funextcontrStatement :=
+  forall (T:UU) (P:T -> UU) (g: ∀ t, P t), ∃! (f:∀ t, P t), ∀ t:T, f t = g t.
+
+Definition isweqtoforallpathsStatement :=
+  forall (T:UU) (P:T -> UU) (f g :forall t:T, P t), isweq (toforallpaths _ f g).
 
 (** Axiom consequence statements (not propositions) *)
 
@@ -85,9 +88,12 @@ Definition weqtopathsStatement := forall ( T1 T2 : UU ), T1 ≃ T2 -> T1 = T2.
 Definition weqpathsweqStatement (weqtopaths:weqtopathsStatement) :=
   forall ( T1 T2 : UU ) ( w : T1 ≃ T2 ), eqweqmap (weqtopaths _ _ w) = w.
 
+Definition weqtoforallpathsStatement :=
+  forall (T:UU) (P:T -> UU) (f g :forall t:T, P t), (f = g) ≃ (f ~ g).
+
 (** Implications between statements and consequences of them *)
 
-Theorem funextsecImplication : funextsecweqStatement -> funextsecStatement.
+Theorem funextsecImplication : isweqtoforallpathsStatement -> funextsecStatement.
 Proof.
   intros fe ? ? ? ?. exact (invmap (weqpair _ (fe _ _ f g))).
 Defined.
@@ -260,6 +266,7 @@ Section UnivalenceImplications.
   (** *** Deduction of functional extensionality for dependent functions (sections) from functional extensionality of usual functions *)
 
   Lemma isweqlcompwithweqUAH {X X' : UU} (w: weq X X') (Y:UU) : isweq (fun (a:X'->Y) x => a (w x)).
+  (* this lemma is currently unused *)
   Proof.
     simple refine (gradth _ _ _ _).
     exact (fun b x' => b (invweq w x')).
@@ -270,11 +277,10 @@ Section UnivalenceImplications.
   Lemma isweqrcompwithweqUAH { Y Y':UU } (w: weq Y Y')(X:UU) :
     isweq (fun a:X->Y => (fun x => w (a x))).
   Proof.
-    set (f := fun a:X->Y => (fun x:X => w (a x))).
-    set (g := fun a':X-> Y' => fun x:X => (invweq  w (a' x))).
-    set (egf:= fun a:X->Y => funextfunPreliminaryUAH (fun x:X => (g (f a)) x) a (fun x: X => (homotinvweqweq w (a x)))).
-    set (efg:= fun a':X->Y' => funextfunPreliminaryUAH (fun x:X => (f (g a')) x) a' (fun x: X =>  (homotweqinvweq w (a' x)))).
-    apply (gradth f g egf efg).
+    simple refine (gradth _ _ _ _).
+    exact (fun a':X->Y' => fun x => (invweq  w (a' x))).
+    exact (fun a :X->Y  => funextfunPreliminaryUAH _ a (fun x => homotinvweqweq w (a x))).
+    exact (fun a':X->Y' => funextfunPreliminaryUAH _ a' (fun x => homotweqinvweq w (a' x))).
   Defined.
 
   Theorem funcontrUAH : funcontrStatement.
@@ -296,8 +302,10 @@ Section UnivalenceImplications.
   functional extensionality for sections of general families. The proof uses
   only [funcontrUAH] which is an element of a proposition.  *)
 
-  Lemma funextweql1UAH { T : UU } (P:T -> UU) (g: ∀ t, P t) : ∃! (f:∀ t, P t), ∀ t:T, f t = g t.
+  Lemma funextcontrUAH : funextcontrStatement.
   Proof.
+    unfold funextcontrStatement.
+    intros.
     unshelve refine (iscontrretract (X := ∀ t, Σ p, p = g t) _ _ _ _).
     - intros x. unshelve refine (_,,_).
       + intro t. exact (pr1 (x t)).
@@ -306,105 +314,90 @@ Section UnivalenceImplications.
     - intros u. induction u as [t x]. reflexivity.
     - apply funcontrUAH. intro t. apply iscontrcoconustot.
   Defined.
+  Arguments funextcontrUAH {_} _ _.
 
-  Theorem isweqtoforallpathsUAH : funextsecweqStatement.
+  Theorem isweqtoforallpathsUAH : isweqtoforallpathsStatement.
   Proof.
-    unfold funextsecweqStatement.
+    unfold isweqtoforallpathsStatement.
     intros.
     refine (isweqtotaltofib _ _ (λ (h:∀ t, P t), toforallpaths _ h g) _ f).
     refine (isweqcontrcontr (X := Σ (h: ∀ t, P t), h = g)
               (λ ff, tpair _ (pr1 ff) (toforallpaths P (pr1 ff) g (pr2 ff))) _ _).
     { exact (iscontrcoconustot _ g). }
-    { apply funextweql1UAH. }
+    { apply funextcontrUAH. }
   Qed.
-  Arguments isweqtoforallpathsUAH {_} _ _ _ _.
-
-  Theorem weqtoforallpathsUAH { T : UU } (P:T -> UU)(f g : forall t:T, P t) :
-    (f = g) ≃ (∀ t:T, f t = g t).
-  Proof.
-    exists (toforallpaths P f g). apply isweqtoforallpathsUAH.
-  Defined.
-
-  Definition funextsecUAH : funextsecStatement.
-  Proof.
-    intros ? ? f g.
-    exact (invmap (weqtoforallpathsUAH _ f g)).
-  Defined.
-  Arguments funextsecUAH {_} _ _ _ _.
-
-  Theorem funextfunUAH : funextfunStatement.
-  Proof.
-    exact (funextfunImplication (@funextsecUAH)).
-  Defined.
-  Arguments funextfunUAH {_ _} _ _ _.
-
-  Theorem isweqfunextsecUAH { T : UU } (P:T -> UU) (f g : forall t:T, P t) :
-    isweq (funextsecUAH P f g).
-  Proof.
-    intros.
-    apply isweqinvmap.
-  Defined.
-
-  Definition weqfunextsecUAH { T : UU } (P:T -> UU)(f g : forall t:T, P t) :
-    weq  (forall t:T, paths (f t) (g t)) (paths f g)
-    := weqpair _ ( isweqfunextsecUAH P f g ) .
 
 End UnivalenceImplications.
 
-(** Univalence implies each of the axioms *)
+(** Univalence implies each of the other axioms *)
 
-Lemma funcontrFromUnivalence: univalenceStatement -> funcontrStatement.
-Proof. exact funcontrUAH. Defined.
+Definition funcontrFromUnivalence: univalenceStatement -> funcontrStatement
+  := funcontrUAH.
 
-Lemma funextsecweqFromUnivalence: univalenceStatement -> funextsecweqStatement.
-Proof. exact isweqtoforallpathsUAH. Defined.
+Definition funextsecweqFromUnivalence: univalenceStatement -> isweqtoforallpathsStatement
+  := isweqtoforallpathsUAH.
 
-Lemma funextemptyFromUnivalence: univalenceStatement -> funextemptyStatement.
-Proof. exact funextemptyUAH. Defined.
+Definition funextemptyFromUnivalence: univalenceStatement -> funextemptyStatement
+  := funextemptyUAH.
 
-Lemma propositionalUnivalenceFromUnivalence: univalenceStatement -> propositionalUnivalenceStatement.
-Proof. exact propositionalUnivalenceUAH. Defined.
+Definition propositionalUnivalenceFromUnivalence: univalenceStatement -> propositionalUnivalenceStatement
+  := propositionalUnivalenceUAH.
+
+Definition funextcontrStatementFromUnivalence: univalenceStatement ->  funextcontrStatement
+  := funextcontrUAH.
 
 (** the axioms themselves *)
 
 Axiom univalenceAxiom : univalenceStatement.
 Axiom funextemptyAxiom : funextemptyStatement.
-Axiom funextAxiom : funextsecweqStatement.
+Axiom isweqtoforallpathsAxiom : isweqtoforallpathsStatement.
 Axiom funcontrAxiom : funcontrStatement.
 Axiom propositionalUnivalenceAxiom : propositionalUnivalenceStatement.
+Axiom funextcontrAxiom : funextcontrStatement.
 
 (** provide some theorems based on the axioms  *)
 
+Definition funextempty := funextemptyAxiom.
+
 Definition univalence := univalenceUAH univalenceAxiom.
 
-Definition weqtopaths := weqtopathsUAH univalenceAxiom.
+Definition weqtopaths : weqtopathsStatement.
+Proof.
+  unfold weqtopathsStatement.
+  intros ? ?.
+  exact (invmap (univalence _ _)).
+Defined.
 Arguments weqtopaths {_ _} _.
 
 Definition weqpathsweq := weqpathsweqUAH univalenceAxiom.
 Arguments weqpathsweq {_ _} _.
 
-Definition funcontr := funcontrAxiom.
+Definition funcontr : funcontrStatement := funcontrAxiom.
 Arguments funcontr {_} _ _.
 
-Definition funextweql1 := @funextweql1UAH univalenceAxiom.
-Arguments funextweql1 {_} _ _.
+Definition funextcontr : funextcontrStatement := @funextcontrAxiom.
+Arguments funextcontr {_} _ _.
 
-Definition isweqtoforallpaths := isweqtoforallpathsUAH univalenceAxiom.
+Definition isweqtoforallpaths : isweqtoforallpathsStatement := isweqtoforallpathsAxiom.
 Arguments isweqtoforallpaths {_} _ _ _ _.
 
-Definition weqtoforallpaths := @weqtoforallpathsUAH univalenceAxiom.
+Definition weqtoforallpaths : weqtoforallpathsStatement
+  := λ X P f g, weqpair _ (@isweqtoforallpaths X P f g).
 Arguments weqtoforallpaths {_} _ _ _.
+(* Print Assumptions weqtoforallpaths. (* isweqtoforallpathsAxiom *) *)
 
-Definition funextsec := funextsecUAH univalenceAxiom.
+Definition funextsec : funextsecStatement := funextsecImplication isweqtoforallpathsAxiom.
 Arguments funextsec {_} _ _ _ _.
+(* Print Assumptions funextsec.    (* isweqtoforallpathsAxiom *) *)
 
-Definition funextfun := funextfunUAH univalenceAxiom.
+Definition funextfun := funextfunImplication (@funextsec).
 Arguments funextfun {_ _} _ _ _.
+(* Print Assumptions funextfun.    (* isweqtoforallpathsAxiom *) *)
 
-Definition weqfunextsec := @weqfunextsecUAH univalenceAxiom.
-Arguments weqfunextsec {_} _ _ _.
-
-(** Provide some corollaries of the theorems based on the axioms  *)
+Definition weqfunextsec { T : UU } (P:T -> UU) (f g : forall t:T, P t) :
+  (f ~ g) ≃ (f = g)
+  := invweq (weqtoforallpaths P f g).
+(* Print Assumptions weqfunextsec. (* isweqtoforallpathsAxiom *) *)
 
 Corollary funcontrtwice { X : UU } (P: X-> X -> UU) (is: forall (x x':X), iscontr (P x x')) :
   iscontr (forall (x x':X), P x x').
@@ -414,3 +407,5 @@ Proof.
   - intro. apply (funcontr _ (is x)).
   - apply (funcontr _ is1).
 Defined.
+
+(** Check assumptions *)

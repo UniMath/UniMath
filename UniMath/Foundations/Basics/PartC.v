@@ -22,7 +22,7 @@ Require Export UniMath.Foundations.Basics.UnivalenceAxiom.
 
 
 Theorem isapropneg (X:UU): isaprop (neg X).
-Proof. intro.  apply invproofirrelevance . intros x x' .   apply ( funextemptyAxiom X x x' ) . Defined .
+Proof. intro.  apply invproofirrelevance . intros x x' .   apply ( funextempty X x x' ) . Defined .
 
 (** See also [ isapropneg2 ] *)
 

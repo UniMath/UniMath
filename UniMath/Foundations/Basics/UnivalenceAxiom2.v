@@ -23,9 +23,9 @@ Proof.
   apply isasetempty.
 Defined.
 
-Lemma isaprop_funextsecweqStatement : isaprop funextsecweqStatement.
+Lemma isaprop_isweqtoforallpathsStatement : isaprop isweqtoforallpathsStatement.
 Proof.
-  unfold funextsecweqStatement.
+  unfold isweqtoforallpathsStatement.
   apply impred_isaprop; intro T;
   apply impred_isaprop; intro P;
   apply impred_isaprop; intro f;
@@ -54,6 +54,15 @@ Proof.
   apply impred_isaprop; intro X;
   apply impred_isaprop; intro P;
   apply impred_isaprop; intros _.
+  apply isapropiscontr.
+Defined.
+
+Lemma isaprop_funextcontrStatement : isaprop funextcontrStatement.
+Proof.
+  unfold funextcontrStatement.
+  apply impred_isaprop; intro T;
+  apply impred_isaprop; intro P;
+  apply impred_isaprop; intro g.
   apply isapropiscontr.
 Defined.
 
