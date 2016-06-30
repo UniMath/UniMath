@@ -55,6 +55,14 @@ Proof.
   apply (pr2 (pr1 (isProductCone_ProductCone P _ f)) i).
 Qed.
 
+Lemma ProductPr_idtoiso {i1 i2 : I} (a : I -> C) (P : ProductCone a)
+      (e : i1 = i2) :
+  ProductPr P i2 ;; idtoiso (! maponpaths a e) = ProductPr P i1.
+Proof.
+  induction e.
+  apply id_right.
+Qed.
+
 Lemma ProductArrowUnique (c : forall i, C) (P : ProductCone c) (x : C)
     (f : forall i, x --> c i) (k : x --> ProductObject P)
     (Hk : forall i, k ;; ProductPr P i = f i) : k = ProductArrow P f.
