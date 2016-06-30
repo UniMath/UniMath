@@ -19,14 +19,14 @@ Arguments id_left [C a b] f.
 Arguments id_right [C a b] f.
 Arguments assoc [C a b c d] f g h.
 
-Notation "a → b" := (@precategory_morphisms _ a b) (at level 50) : cat.
+Notation "a --> b" := (@precategory_morphisms _ a b) (at level 50) : cat.
 (* agda input \r- *)
 
-Notation "a ← b" := (@precategory_morphisms (opp_precat _) a b) (at level 50) : cat.
+Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) (at level 50) : cat.
 (* agda input \l- *)
 
-Definition src {C:precategory} {a b:C} (f:a→b) : C := a.
-Definition tar {C:precategory} {a b:C} (f:a→b) : C := b.
+Definition src {C:precategory} {a b:C} (f:a-->b) : C := a.
+Definition tar {C:precategory} {a b:C} (f:a-->b) : C := b.
 
 Definition Precategory := Σ C:precategory, has_homsets C.
 Definition Precategory_pair C h : Precategory := C,,h.
@@ -35,10 +35,10 @@ Coercion Precategory_to_precategory : Precategory >-> precategory.
 Definition homset_property (C:Precategory) : has_homsets C := pr2 C.
 
 Definition hom (C:precategory_data) : ob C -> ob C -> UU :=
-  λ c c', c → c'.
+  λ c c', c --> c'.
 
 Definition Hom (C:Precategory) : ob C -> ob C -> hSet :=
-  λ c c', hSetpair (c → c') (homset_property C _ _ ).
+  λ c c', hSetpair (c --> c') (homset_property C _ _ ).
 
 Ltac eqn_logic :=
   abstract (
@@ -106,7 +106,7 @@ Notation "g ∘ f" := (precategories.compose f g) (at level 50, left associativi
 
 Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
 
-Notation "G □ F" := (functor_composite _ _ _ (F:[_,_]) (G:[_,_]) : [_,_]) (at level 35) : cat.
+Notation "G □ F" := (functor_composite (F:[_,_]) (G:[_,_]) : [_,_]) (at level 35) : cat.
 (* agda input \square *)
 
 Definition SET : Precategory := (hset_precategory,, category_hset.has_homsets_HSET).
@@ -129,7 +129,7 @@ Definition category_pair (C:precategory) (i:is_category C) : category := C,,i.
 Definition theUnivalenceProperty (C:category) := pr2 _ : is_category C.
 
 Definition reflects_isos {C D} (X:C==>D) :=
-  ∀ c c' (f : c → c'), is_isomorphism (#X f) -> is_isomorphism f.
+  ∀ c c' (f : c --> c'), is_isomorphism (#X f) -> is_isomorphism f.
 
 Lemma isaprop_reflects_isos {C D} (X:C==>D) : isaprop (reflects_isos X).
 Proof.
@@ -205,9 +205,9 @@ Definition makePrecategory
 
 Definition makeFunctor {C D:Precategory}
            (obj : C -> D)
-           (mor : ∀ c c' : C, c → c' -> obj c → obj c')
+           (mor : ∀ c c' : C, c --> c' -> obj c --> obj c')
            (identity : ∀ c, mor c c (identity c) = identity (obj c))
-           (compax : ∀ (a b c : C) (f : a → b) (g : b → c),
+           (compax : ∀ (a b c : C) (f : a --> b) (g : b --> c),
                        mor a c (g ∘ f) = mor b c g ∘ mor a b f) :
   C ==> D
   := (obj,, mor),, identity,, compax.
@@ -220,7 +220,7 @@ Notation "F ◾ b" := (functor_object_application F b) (at level 40, left associ
 (* \sqb3 *)
 
 Definition functor_mor_application {B C:Precategory} {b b':B} (F:[B,C]) :
-  b → b'  ->  F ◾ b → F ◾ b'
+  b --> b'  ->  F ◾ b --> F ◾ b'
   := λ f, # (F:_==>_) f.
 Notation "F ▭ f" := (functor_mor_application F f) (at level 40, left associativity) : cat. (* \rew1 *)
 
@@ -231,7 +231,7 @@ Definition arrow' {C:Precategory} (c : C) (X : [C^op^op,SET]) : hSet := X ◾ c.
 Notation "X ⇐ c" := (arrow' c X)  (at level 50) : cat. (* \l= *)
 
 Definition arrow_morphism_composition {C:Precategory} {c' c:C} {X:[C^op,SET]} :
-  c'→c -> c⇒X -> c'⇒X
+  c'-->c -> c⇒X -> c'⇒X
   := λ f x, # (X:_==>_) f x.
 Notation "x ⟲ f" := (arrow_morphism_composition f x) (at level 50, left associativity) : cat.
 (* ⟲ agda-input \l C-N C-N C-N 2 the first time, \l the second time *)
@@ -239,7 +239,7 @@ Notation "x ⟲ f" := (arrow_morphism_composition f x) (at level 50, left associ
    the morphisms of C act on the right of the elements of X *)
 
 Definition nattrans_arrow_composition {C:Precategory} {X X':[C^op,SET]} {c:C} :
-  c⇒X -> X→X' -> c⇒X'
+  c⇒X -> X-->X' -> c⇒X'
   := λ x q, (q:_⟶_) c (x:(X:_==>_) c:hSet).
 Notation "q ⟳ x" := (nattrans_arrow_composition x q) (at level 50, left associativity) : cat.
 (* ⟳ agda-input \r C-N C-N C-N 3 the first time, \r the second time *)
@@ -248,7 +248,7 @@ Notation "q ⟳ x" := (nattrans_arrow_composition x q) (at level 50, left associ
    left of the elements of the functors *)
 
 Definition nattrans_object_application {B C:Precategory} {F F' : [B,C]} (b:B) :
-  F → F'  ->  F ◾ b → F' ◾ b
+  F --> F'  ->  F ◾ b --> F' ◾ b
   := λ p, (p:_⟶_) b.
 Notation "p ◽ b" := (nattrans_object_application b p) (at level 40) : cat.
 (* agda input : \sqw3 *)
@@ -258,21 +258,21 @@ Definition arrow_mor_id {C:Precategory} {c:C} {X:[C^op,SET]} (x:c⇒X) :
   := apevalat x (functor_id X c).
 
 Definition arrow_mor_mor_assoc {C:Precategory} {c c' c'':C} {X:[C^op,SET]}
-           (g:c''→c') (f:c'→c) (x:c⇒X) :
+           (g:c''-->c') (f:c'-->c) (x:c⇒X) :
   x ⟲ (f ∘ g) = (x ⟲ f) ⟲ g
   := apevalat x (functor_comp X c c' c'' f g).
 
 Definition nattrans_naturality {B C:Precategory} {F F':[B, C]} {b b':B}
-           (p : F → F') (f : b → b') :
+           (p : F --> F') (f : b --> b') :
   p ◽ b'  ∘  F ▭ f  =  F' ▭ f  ∘  p ◽ b
   := nat_trans_ax p _ _ f.
 
-Definition comp_func_on_mor {A B C:Precategory} (F:[A,B]) (G:[B,C]) {a a':A} (f:a→a') :
+Definition comp_func_on_mor {A B C:Precategory} (F:[A,B]) (G:[B,C]) {a a':A} (f:a-->a') :
   G □ F ▭ f = G ▭ (F ▭ f).
 Proof. reflexivity. Defined.
 
 Definition nattrans_arrow_mor_assoc {C:Precategory} {c' c:C} {X X':[C^op,SET]}
-           (g:c'→c) (x:c⇒X) (p:X→X') :
+           (g:c'-->c) (x:c⇒X) (p:X-->X') :
   p ⟳ (x ⟲ g) = (p ⟳ x) ⟲ g
   := apevalat x (nat_trans_ax p _ _ g).
 
@@ -281,19 +281,19 @@ Definition nattrans_arrow_id {C:Precategory} {c:C} {X:[C^op,SET]} (x:c⇒X) :
   := idpath _.
 
 Definition nattrans_nattrans_arrow_assoc {C:Precategory} {c:C} {X X' X'':[C^op,SET]}
-           (x:c⇒X) (p:X→X') (q:X'→X'') :
+           (x:c⇒X) (p:X-->X') (q:X'-->X'') :
   q ⟳ (p ⟳ x) = (q ∘ p) ⟳ x
   := idpath _.
 
 Definition nattrans_nattrans_object_assoc {A B C:Precategory}
-           (F:[A,B]) (G:[B, C]) {a a' : A} (f : a → a') :
+           (F:[A,B]) (G:[B, C]) {a a' : A} (f : a --> a') :
   G □ F ▭ f = G ▭ (F ▭ f)
   := idpath _.
 
 Lemma functor_on_id {B C:Precategory} (F:[B,C]) (b:B) : F ▭ identity b = identity (F ◾ b).
 Proof. exact (functor_id F b). Defined.
 
-Lemma functor_on_comp {B C:Precategory} (F:[B,C]) {b b' b'':B} (g:b'→b'') (f:b→b') :
+Lemma functor_on_comp {B C:Precategory} (F:[B,C]) {b b' b'':B} (g:b'-->b'') (f:b-->b') :
   F ▭ (g ∘ f) = F ▭ g ∘ F ▭ f.
 Proof. exact (functor_comp F _ _ _ f g). Defined.
 
@@ -304,15 +304,15 @@ Proof. exact (functor_comp F _ _ _ f g). Defined.
 Definition nat_iso {B C:Precategory} (F G:[B,C]) := iso F G.
 
 Definition makeNattrans {C D:Precategory} {F G:[C,D]}
-           (mor : ∀ x : C, F ◾ x → G ◾ x)
+           (mor : ∀ x : C, F ◾ x --> G ◾ x)
            (eqn : ∀ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
-  F → G
+  F --> G
   := (mor,,eqn).
 
 Definition makeNattrans_op {C D:Precategory} {F G:[C^op,D]}
-           (mor : ∀ x : C, F ◾ x → G ◾ x)
+           (mor : ∀ x : C, F ◾ x --> G ◾ x)
            (eqn : ∀ c c' f, mor c' ∘ F ▭ f = G ▭ f ∘ mor c) :
-  F → G
+  F --> G
   := (mor,,eqn).
 
 Definition makeNatiso {C D:Precategory} {F G:[C,D]}
@@ -331,8 +331,8 @@ Proof.
   refine (makeNattrans_op mor eqn,,_). apply functor_iso_if_pointwise_iso; intro c. apply pr2.
 Defined.
 
-Lemma move_inv {C:Precategory} {a a' b' b:C} {f : a → b} {f' : a' → b'}
-      {i : a → a'} {i' : a' → a} {j : b → b'} {j' : b' → b} :
+Lemma move_inv {C:Precategory} {a a' b' b:C} {f : a --> b} {f' : a' --> b'}
+      {i : a --> a'} {i' : a' --> a} {j : b --> b'} {j' : b' --> b} :
   is_inverse_in_precat i i' -> is_inverse_in_precat j j' ->
   j ∘ f = f' ∘ i -> j' ∘ f' = f ∘ i'.
 Proof.
@@ -341,7 +341,7 @@ Proof.
   rewrite assoc. rewrite (pr2 I). rewrite id_left. reflexivity.
 Defined.
 
-Lemma weq_iff_iso_SET {X Y:SET} (f:X→Y) : is_iso f <-> isweq f.
+Lemma weq_iff_iso_SET {X Y:SET} (f:X-->Y) : is_iso f <-> isweq f.
 Proof.
   split.
   - intro i. set (F := isopair f i).
@@ -367,9 +367,9 @@ Definition functor_to_opp_opp {C:Precategory} : C ==> C^op^op
 
 Definition makeFunctor_op {C D:Precategory}
            (obj : ob C -> ob D)
-           (mor : ∀ a b : C, b → a -> obj a → obj b)
+           (mor : ∀ a b : C, b --> a -> obj a --> obj b)
            (identity : ∀ c, mor c c (identity c) = identity (obj c))
-           (compax : ∀ (a b c : C) (f : b → a) (g : c → b),
+           (compax : ∀ (a b c : C) (f : b --> a) (g : c --> b),
                        mor a c (f ∘ g) = mor b c g ∘ mor a b f) :
   C^op ==> D
   := (obj,, mor),, identity,, compax.
@@ -386,7 +386,7 @@ Definition opp_mor {C:Precategory} {b c:C} : Hom C b c -> Hom C^op c b
 Definition rm_opp_mor {C:Precategory} {b c:C} : Hom C^op b c -> Hom C c b
   := λ f, f.
 
-Definition opp_mor_eq {C:Precategory} {a b:C} (f g:a → b) :
+Definition opp_mor_eq {C:Precategory} {a b:C} (f g:a --> b) :
   opp_mor f = opp_mor g -> f = g
   := idfun _.
 
@@ -513,7 +513,7 @@ Proof.
   (* add a new component to each object: *)
   - exact (Σ c:C, P c).
   (* the homsets ignore the extra structure: *)
-  - intros x y. exact (pr1 x → pr1 y).
+  - intros x y. exact (pr1 x --> pr1 y).
   (* the rest is the same: *)
   - intros x. apply identity.
   - intros x y z f g. exact (g ∘ f).
@@ -545,7 +545,7 @@ Proof.
   - abstract (intros b b' b'' f g; simpl; apply functor_comp) using L.
 Defined.
 
-Lemma identityFunction : ∀ (T:SET) (f:T→T) (t:T:hSet), f = identity T -> f t = t.
+Lemma identityFunction : ∀ (T:SET) (f:T-->T) (t:T:hSet), f = identity T -> f t = t.
 Proof. intros ? ? ?. exact (apevalat t). Defined.
 
 Lemma identityFunction' : ∀ (T:SET) (t:T:hSet), identity T t = t.
@@ -556,7 +556,7 @@ Proof. reflexivity. Defined.
 Lemma functor_identity_object {C:Precategory} (c:C) : functor_identity C ◾ c = c.
 Proof. reflexivity. Defined.
 
-Lemma functor_identity_arrow {C:Precategory} {c c':C} (f:c→c') : functor_identity C ▭ f = f.
+Lemma functor_identity_arrow {C:Precategory} {c c':C} (f:c-->c') : functor_identity C ▭ f = f.
 Proof. reflexivity. Defined.
 
 Definition constantFunctor (C:Precategory) {D:Precategory} (d:D) : [C,D].
@@ -589,12 +589,12 @@ Defined.
 (* zero maps, definition: *)
 
 Definition hasZeroMaps (C:Precategory) :=
-  Σ (zero : ∀ a b:C, a → b),
-  (∀ a b c, ∀ f:b → c, f ∘ zero a b = zero a c)
+  Σ (zero : ∀ a b:C, a --> b),
+  (∀ a b c, ∀ f:b --> c, f ∘ zero a b = zero a c)
     ×
-    (∀ a b c, ∀ f:c → b, zero b a ∘ f = zero c a).
+    (∀ a b c, ∀ f:c --> b, zero b a ∘ f = zero c a).
 
-Definition is {C:Precategory} (zero: hasZeroMaps C) {a b:C} (f:a→b)
+Definition is {C:Precategory} (zero: hasZeroMaps C) {a b:C} (f:a-->b)
   := f = pr1 zero _ _.
 
 Definition hasZeroMaps_opp (C:Precategory) : hasZeroMaps C -> hasZeroMaps C^op

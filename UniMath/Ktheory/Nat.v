@@ -367,6 +367,6 @@ Proof. intros ? ? ? i p.
 
 (*
 Local Variables:
-compile-command: "make -helper_C ../.. TAGS UniMath/Ktheory/Nat.vo"
+compile-command: "make -C ../.. TAGS UniMath/Ktheory/Nat.vo"
 End:
 *)

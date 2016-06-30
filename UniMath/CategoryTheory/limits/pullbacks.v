@@ -1,4 +1,4 @@
-
+(* Direct implementation of pullbacks *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -6,6 +6,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Monics.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
@@ -314,5 +315,42 @@ Qed.
 End Universal_Unique.
 
 End def_pb.
+
+
+(** In this section we prove that the pullback of a monomorphism is a
+  monomorphism. *)
+Section monic_pb.
+
+  Variable C : precategory.
+
+  (** The pullback of a Monic is isMonic. *)
+  Lemma MonicPullbackisMonic {a b c : C} (M : Monic _ b a) (g : c --> a)
+        (PB : Pullback M g) : isMonic _ (PullbackPr2 PB).
+  Proof.
+    apply mk_isMonic. intros x g0 h X.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback PB) _ _ _ X).
+
+    set (X0 := maponpaths (fun f => f ;; g) X); simpl in X0.
+    rewrite <- assoc in X0. rewrite <- assoc in X0.
+    rewrite <- (PullbackSqrCommutes PB) in X0.
+    rewrite assoc in X0. rewrite assoc in X0.
+    apply (pr2 M _ _ _) in X0. apply X0.
+  Defined.
+
+  (** Same result for the other morphism. *)
+  Lemma MonicPullbackisMonic' {a b c : C} (f : b --> a) (M : Monic _ c a)
+        (PB : Pullback f M) : isMonic _ (PullbackPr1 PB).
+  Proof.
+    apply mk_isMonic. intros x g h X.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback PB) _ _ X).
+
+    set (X0 := maponpaths (fun f' => f' ;; f) X); simpl in X0.
+    rewrite <- assoc in X0. rewrite <- assoc in X0.
+    rewrite (PullbackSqrCommutes PB) in X0.
+    rewrite assoc in X0. rewrite assoc in X0.
+    apply (pr2 M _ _ _) in X0. apply X0.
+  Defined.
+
+End monic_pb.
 
 Arguments glueSquares {_ _ _ _ _ _ _ _ _ _ _ _ _ _ } _ _ .

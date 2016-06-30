@@ -103,11 +103,19 @@ Definition weqfunextsec { T : UU } (P:T -> UU)(f g : forall t:T, P t) : weq  (fo
 (** *** General case *)
 
 Definition totaltoforall { X : UU } (P : X -> UU ) ( PP : forall x:X, P x -> UU ) : total2 (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)) -> forall x:X, total2 (PP x).
-Proof. intros X P PP X0 x. induction X0 as [ t x0 ]. split with (t x). apply (x0 x). Defined.
+Proof.
+  intros X P PP X0 x.
+  exists (pr1 X0 x).
+  apply (pr2 X0 x).
+Defined.
 
 
 Definition foralltototal  { X : UU } ( P : X -> UU ) ( PP : forall x:X, P x -> UU ):  (forall x:X, total2 (PP x)) -> total2 (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)).
-Proof. intros X P PP X0. split with (fun x:X => pr1  (X0 x)). apply (fun x:X => pr2  (X0 x)). Defined.
+Proof.
+  intros X P PP X0.
+  exists (fun x:X => pr1  (X0 x)).
+  apply (fun x:X => pr2  (X0 x)).
+Defined.
 
 Lemma lemmaeta1 { X : UU } (P:X->UU) (Q:(forall x:X, P x) -> UU)(s0: forall x:X, P x)(q: Q (fun x:X => (s0 x))): paths (tpair (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) s0 q) (tpair (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) (fun x:X => (s0 x)) q).
 Proof. intros. set (ff:= fun tp:total2 (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) => tpair _ (fun x:X => pr1  tp x) (pr2  tp)). assert (X0 : isweq ff).  apply (isweqfpmap  ( weqeta P ) Q ).

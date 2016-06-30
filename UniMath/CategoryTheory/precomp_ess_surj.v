@@ -785,12 +785,12 @@ Definition XtripleF (a0 : A) : X (H a0) :=
    tpair _ (tpair _ (F a0) (kFa a0)) (qF a0).
 
 
-Lemma phi (a0 : A) : pr1 (pr1 (functor_composite _ _ _ H GG)) a0 = pr1 (pr1 F) a0.
+Lemma phi (a0 : A) : pr1 (pr1 (functor_composite H GG)) a0 = pr1 (pr1 F) a0.
 Proof.
   exact (!Xphi _ (XtripleF a0)).
 Defined.
 
-Lemma extphi : pr1 (pr1 (functor_composite _ _ _ H GG)) = pr1 (pr1 F).
+Lemma extphi : pr1 (pr1 (functor_composite H GG)) = pr1 (pr1 F).
 Proof.
   apply funextsec.
   apply phi.
@@ -799,9 +799,9 @@ Defined.
 (** Now for the functor as a whole. It remains to prove
     equality on morphisms, modulo transport. *)
 
-Lemma is_preimage_for_pre_composition : functor_composite _ _ _ H GG = F.
+Lemma is_preimage_for_pre_composition : functor_composite H GG = F.
 Proof.
-  apply (functor_eq _ _  (pr2 Ccat) (functor_composite _ _ _ H GG) F).
+  apply (functor_eq _ _  (pr2 Ccat) (functor_composite H GG) F).
   apply (total2_paths extphi).
   apply funextsec; intro a0;
   apply funextsec; intro a0';

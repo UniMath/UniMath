@@ -14,6 +14,7 @@ PACKAGES += Ktheory
 PACKAGES += Dedekind
 PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
+PACKAGES += Folds
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes
@@ -52,8 +53,8 @@ OTHERFLAGS += -verbose
 endif
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
-LATEXTARGET = latex
-COQDOCLATEXOPTIONS := -utf8 -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}\DeclareUnicodeCharacter{10815}{{\(\amalg\)}}\DeclareUnicodeCharacter{9679}{{\(\bullet\)}}\DeclareUnicodeCharacter{9726}{{\(\blacksquare\)}}\DeclareUnicodeCharacter{9725}{{\(\square\)}}\DeclareUnicodeCharacter{10226}{{\(\circlearrowleft\)}}\DeclareUnicodeCharacter{10227}{{\(\circlearrowright\)}}\DeclareUnicodeCharacter{9645}{{\(\boxdot\)}}"
+LATEXDIR = latex
+COQDOCLATEXOPTIONS := -latex -utf8 --body-only
 COQDEFS := --language=none -r '/^[[:space:]]*\(Local[[:space:]]+\)?\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Identity Coercion\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\3/'
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
@@ -90,11 +91,11 @@ build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
 
 # "clean::" occurs also in build/CoqMakefile.make, hence both colons
 clean::
-	rm -f .coq_makefile_output build/CoqMakefile.make
+	rm -f .coq_makefile_input .coq_makefile_output build/CoqMakefile.make
 	find UniMath \( -name .\*.aux -o -name \*.glob -o -name \*.v.d -o -name \*.vo \) -delete
 	find UniMath -type d -empty -delete
-clean::          ; rm -rf $(ENHANCEDDOCTARGET)
-clean::          ; rm -rf $(LATEXTARGET)
+clean::; rm -rf $(ENHANCEDDOCTARGET)
+latex-clean clean::; cd $(LATEXDIR) ; rm -f *.pdf *.tex *.log *.aux *.out *.blg *.bbl
 
 distclean:: clean
 distclean::          ; - $(MAKE) -C sub/coq distclean
@@ -154,23 +155,17 @@ isolate-bug: sub/coq-tools/find-bug.py
 	@ echo "=== the isolated bug has been deposited in the file UniMath/$(ISOLATED_BUG_FILE)"
 	@ echo "==="
 
-world: all html doc pdffiles
+world: all html doc latex-doc
 
-texfiles : $(VFILES:%.v=$(LATEXTARGET)/%.tex)
+latex-doc: $(LATEXDIR)/doc.pdf
 
-$(foreach F, $(VFILES:.v=),								\
-        $(eval $(LATEXTARGET)/$F.tex : $F.glob $F.v ;					\
-		mkdir -p $(shell dirname $(LATEXTARGET)/$F) &&				\
-		$(COQDOC) $(COQDOCLATEXOPTIONS) -latex $F.v -o $$@	\
-                ))
+$(LATEXDIR)/doc.pdf : $(LATEXDIR)/helper.tex
+	cd $(LATEXDIR) && cat latex-preamble.txt helper.tex latex-epilogue.txt > doc.tex
+	cd $(LATEXDIR) && latexmk -pdf doc
 
-pdffiles : $(VFILES:%.v=$(LATEXTARGET)/%.pdf)
+$(LATEXDIR)/coqdoc.sty $(LATEXDIR)/helper.tex : $(VFILES:.v=.glob) $(VFILES)
+	$(COQDOC) -Q UniMath UniMath $(COQDOCLATEXOPTIONS) $(VFILES) -o $@
 
-$(foreach F, $(VFILES:.v=),								\
-	$(eval $(LATEXTARGET)/$F.pdf : $(LATEXTARGET)/$F.tex ;				\
-		cd $(shell dirname $(LATEXTARGET)/$F) &&				\
-		pdflatex $(shell basename $(LATEXTARGET)/$F.tex)			\
-		)) 
 
 #################################
 # targets best used with INCLUDE=no

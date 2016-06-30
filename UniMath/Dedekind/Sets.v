@@ -192,10 +192,9 @@ Qed.
 
 Definition isEffectiveOrder {X : UU} (le lt : hrel X) :=
   dirprod ((ispreorder le) × (isStrongOrder lt))
-          ((forall x y : X, lt x y -> le x y)
-             × (forall x y : X, (¬ lt x y) <-> (le y x))
-             × (forall x y z : X, lt x y -> le y z -> lt x z)
-             × (forall x y z : X, le x y -> lt y z -> lt x z)).
+          ((∀ x y : X, (¬ lt x y) <-> (le y x))
+          × (∀ x y z : X, lt x y -> le y z -> lt x z)
+          × (∀ x y z : X, le x y -> lt y z -> lt x z)).
 Definition EffectiveOrder (X : UU) :=
   Σ lelt : hrel X * hrel X, isEffectiveOrder (fst lelt) (snd lelt).
 Definition pairEffectiveOrder {X : UU} (le lt : hrel X) (is : isEffectiveOrder le lt) : EffectiveOrder X :=
@@ -249,9 +248,11 @@ Context {X : EffectivelyOrderedSet}.
 
 Open Scope eo_scope.
 
-Definition not_EOlt_le :
-  ∀ x y : X, (¬ (x < y)) <-> (y <= x)
-  := (pr1 (pr2 (pr2 (pr2 (pr2 X))))).
+Lemma not_EOlt_le :
+  ∀ x y : X, (¬ (x < y)) <-> (y <= x).
+Proof.
+  exact (pr1 (pr2 (pr2 (pr2 X)))).
+Qed.
 Lemma EOge_le:
   ∀ x y : X, (x >= y) <-> (y <= x).
 Proof.
@@ -262,10 +263,6 @@ Lemma EOgt_lt:
 Proof.
   now split.
 Qed.
-
-Definition EOlt_le :
-  forall x y : X, x < y -> x <= y
-  := (pr1 (pr2 (pr2 (pr2 X)))).
 
 Definition isrefl_EOle:
   forall x : X, x <= x
@@ -281,12 +278,28 @@ Definition istrans_EOlt:
   ∀ x y z : X, x < y -> y < z -> x < z
   := istrans_StrongOrder EOlt.
 
-Definition istrans_EOlt_le:
-  ∀ x y z : X, x < y -> y <= z -> x < z
-  := (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 X)))))).
-Definition istrans_EOle_lt:
-  ∀ x y z : X, x <= y -> y < z -> x < z
-  := (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 X)))))).
+Lemma EOlt_le :
+  ∀ x y : X, x < y -> x <= y.
+Proof.
+  intros x y Hxy.
+  apply not_EOlt_le.
+  intros H.
+  refine (isirrefl_EOlt _ _).
+  refine (istrans_EOlt _ _ _ _ _).
+  exact Hxy.
+  exact H.
+Qed.
+
+Lemma istrans_EOlt_le:
+  ∀ x y z : X, x < y -> y <= z -> x < z.
+Proof.
+  exact (pr1 (pr2 (pr2 (pr2 (pr2 X))))).
+Qed.
+Lemma istrans_EOle_lt:
+  ∀ x y z : X, x <= y -> y < z -> x < z.
+Proof.
+  exact (pr2 (pr2 (pr2 (pr2 (pr2 X))))).
+Qed.
 
 Lemma EOlt_noteq :
   ∀ x y : X, x < y -> x != y.

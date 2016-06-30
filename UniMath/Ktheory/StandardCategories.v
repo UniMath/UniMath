@@ -6,7 +6,7 @@ Require Import UniMath.Ktheory.Utilities UniMath.Ktheory.Precategories.
 Local Open Scope cat.
 
 Definition compose' { C:precategory_data } { a b c:ob C }
-  (g:b → c) (f:a → b) : a → c.
+  (g:b --> c) (f:a --> b) : a --> c.
 Proof. intros. exact (compose f g). Defined.
 
 (** *** the path groupoid *)

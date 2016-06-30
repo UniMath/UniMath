@@ -514,6 +514,7 @@ assert  ( int' := int x1 x2 ) .   rewrite ( ee x1 ) in int' .   rewrite ( ee x2 
 Opaque iscomptofldfrac .
 
 
+<<<<<<< HEAD
 (** **** For every element z of the field of fractions there exists an element x of the ring
 that is greater than the element z. *)
 
@@ -600,3 +601,6 @@ Defined.
 
 
 (* End of the file Domains_and_Fields.v *)
+=======
+(* End of the file algebra1d.v *)
+>>>>>>> c603f01bcf17e3fd3cad5150f1c0c55fb1e643f4

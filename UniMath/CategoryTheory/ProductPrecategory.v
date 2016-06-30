@@ -1,27 +1,13 @@
 
 (** **********************************************************
 
-Benedikt Ahrens, Ralph Matthes
+Anders Mörtberg
 
-SubstitutionSystems
+2016
 
-2015
-
-
-************************************************************)
-
-
-(** **********************************************************
-
-Contents :
-
--    Definition of the cartesian product of two precategories
--    From a functor on a product of precategories to a functor on one of the categories by fixing the argument in the other component
-
-
+Definition of the general product category
 
 ************************************************************)
-
 
 Require Import UniMath.Foundations.Basics.PartD.
 
@@ -30,144 +16,122 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
-Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G ∙ F" := (functor_composite _ _ _ F G) (at level 35).
 
-Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
+Section dep_product_precategory.
 
-Section one_product_precategory.
-
-Variables C D : precategory.
+Variable I : UU.
+Variables C : I -> precategory.
 
 Definition product_precategory_ob_mor : precategory_ob_mor.
 Proof.
-  exists (C × D).
-  exact (λ cd cd', pr1 cd ⇒ pr1 cd' × pr2 cd ⇒ pr2 cd').
+mkpair.
+- apply (forall (i : I), ob (C i)).
+- intros f g.
+  apply (forall i, f i --> g i).
 Defined.
 
 Definition product_precategory_data : precategory_data.
 Proof.
   exists product_precategory_ob_mor.
   split.
-  - intro cd.
-    exact (dirprodpair (identity (pr1 cd)) (identity (pr2 cd))).
-  - intros cd cd' cd'' fg fg'.
-    exact (dirprodpair (pr1 fg ;; pr1 fg') (pr2 fg ;; pr2 fg')).
+  - intros f i; simpl in *.
+    apply (identity (f i)).
+  - intros a b c f g i; simpl in *.
+    exact (f i ;; g i).
 Defined.
 
-Lemma is_precategory_product_precategory_data : is_precategory product_precategory_data.
+Lemma is_precategory_product_precategory_data :
+  is_precategory product_precategory_data.
 Proof.
-  repeat split; simpl; intros.
-  - apply dirprodeq; apply id_left.
-  - apply dirprodeq; apply id_right.
-  - apply dirprodeq; apply assoc.
+repeat split; intros; apply funextsec; intro i.
+- apply id_left.
+- apply id_right.
+- apply assoc.
 Qed.
 
 Definition product_precategory : precategory
   := tpair _ _ is_precategory_product_precategory_data.
 
-Definition has_homsets_product_precategory (hsC : has_homsets C) (hsD : has_homsets D) :
+Definition has_homsets_product_precategory (hsC : forall (i:I), has_homsets (C i)) :
   has_homsets product_precategory.
 Proof.
-  intros a b.
-  apply isasetdirprod.
-  - apply hsC.
-  - apply hsD.
+intros a b; simpl.
+apply impred_isaset; intro i; apply hsC.
 Qed.
 
-Section functor_fix_snd_arg.
+End dep_product_precategory.
 
-Variable E : precategory.
-Variable F: functor product_precategory E.
-Variable d: D.
 
-Definition functor_fix_snd_arg_ob (c:C): E := F(tpair _ c d).
-Definition functor_fix_snd_arg_mor (c c':C)(f: c ⇒ c'): functor_fix_snd_arg_ob c ⇒ functor_fix_snd_arg_ob c'.
-Proof.
-  apply (#F).
-  split; simpl.
-  exact f.
-  exact (identity d).
-Defined.
-Definition functor_fix_snd_arg_data : functor_data C E.
-Proof.
-  red.
-  exists functor_fix_snd_arg_ob.
-  exact functor_fix_snd_arg_mor.
-Defined.
+Section power_precategory.
 
-Lemma is_functor_functor_fix_snd_arg_data: is_functor functor_fix_snd_arg_data.
+Variable I : UU.
+Variables C : precategory.
+
+
+Definition power_precategory : precategory
+  := product_precategory I (fun _ => C).
+
+Definition has_homsets_power_precategory (hsC : has_homsets C) :
+  has_homsets power_precategory.
 Proof.
-  red.
-  split; red.
-  + intros c.
-    unfold functor_fix_snd_arg_data; simpl.
-    unfold functor_fix_snd_arg_mor; simpl.
-    unfold functor_fix_snd_arg_ob; simpl.
-    assert (functor_id_inst := functor_id F).
-    rewrite <- functor_id_inst.
-    apply maponpaths.
-    apply idpath.
-  + intros c c' c'' f g.
-    unfold functor_fix_snd_arg_data; simpl.
-    unfold functor_fix_snd_arg_mor; simpl.
-    assert (functor_comp_inst := functor_comp F (dirprodpair c d) (dirprodpair c' d) (dirprodpair c'' d)).
-    rewrite <- functor_comp_inst.
-    apply maponpaths.
-    unfold compose at 2.
-    unfold product_precategory; simpl.
-    rewrite id_left.
-    apply idpath.
+apply has_homsets_product_precategory.
+intro i; assumption.
 Qed.
 
-Definition functor_fix_snd_arg: functor C E.
+End power_precategory.
+
+
+Section functors.
+
+Definition pair_functor_data (I : UU) {A B : I -> precategory}
+  (F : forall (i : I), functor (A i) (B i)) :
+  functor_data (product_precategory I A)
+               (product_precategory I B).
 Proof.
-  exists functor_fix_snd_arg_data.
-  exact is_functor_functor_fix_snd_arg_data.
+mkpair.
+- intros a i; apply (F i (a i)).
+- intros a b f i; apply (# (F i) (f i)).
 Defined.
 
-End functor_fix_snd_arg.
-
-Section nat_trans_fix_snd_arg.
-
-Variable E : precategory.
-Variable F F': functor product_precategory E.
-Variable α: F ⟶ F'.
-Variable d: D.
-
-Definition nat_trans_fix_snd_arg_data (c:C): functor_fix_snd_arg E F d c ⇒ functor_fix_snd_arg E F' d c := α (tpair _ c d).
-
-Lemma nat_trans_fix_snd_arg_ax: is_nat_trans _ _ nat_trans_fix_snd_arg_data.
+Definition pair_functor (I : UU) {A B : I -> precategory}
+  (F : forall (i : I), functor (A i) (B i)) :
+  functor (product_precategory I A)
+          (product_precategory I B).
 Proof.
-  red.
-  intros c c' f.
-  unfold nat_trans_fix_snd_arg_data, functor_fix_snd_arg; simpl.
-  unfold functor_fix_snd_arg_mor; simpl.
-  assert (nat_trans_ax_inst := nat_trans_ax α).
-  apply nat_trans_ax_inst.
-Qed.
-
-Definition nat_trans_fix_snd_arg: functor_fix_snd_arg E F d ⟶ functor_fix_snd_arg E F' d.
-Proof.
-  exists nat_trans_fix_snd_arg_data.
-  exact nat_trans_fix_snd_arg_ax.
+apply (tpair _ (pair_functor_data I F)).
+abstract
+  (split; [ intro x; apply funextsec; intro i; simpl; apply functor_id
+          | intros x y z f g; apply funextsec; intro i; apply functor_comp]).
 Defined.
 
-End nat_trans_fix_snd_arg.
-
-
-End one_product_precategory.
-
-(** Objects and morphisms in the product precategory of two precategories *)
-Definition prodcatpair {C D : precategory} (X : C) (Y : D) : product_precategory C D.
+Definition pr_functor_data (I : UU) (C : I -> precategory) (i : I) :
+  functor_data (product_precategory I C) (C i).
 Proof.
-  exists X.
-  exact Y.
+mkpair.
+- intro a; apply (a i).
+- intros x y f; simpl; apply (f i).
 Defined.
-Local Notation "A ⊗ B" := (prodcatpair A B) (at level 10).
-Definition prodcatmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X ⇒ X') (β : Z ⇒ Z')
-  : X ⊗ Z ⇒ X' ⊗ Z'.
+
+Definition pr_functor (I : UU) (C : I -> precategory) (i : I) :
+  functor (product_precategory I C) (C i).
 Proof.
-  exists α.
-  exact β.
+apply (tpair _ (pr_functor_data I C i)).
+abstract (split; intros x *; apply idpath).
 Defined.
+
+Definition delta_functor_data (I : UU) (C : precategory) :
+  functor_data C (power_precategory I C).
+Proof.
+mkpair.
+- intros x i; apply x.
+- intros x y f i; simpl; apply f.
+Defined.
+
+Definition delta_functor (I : UU) (C : precategory) :
+  functor C (power_precategory I C).
+Proof.
+apply (tpair _ (delta_functor_data I C)).
+abstract (split; intros x *; apply idpath).
+Defined.
+
+End functors.

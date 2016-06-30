@@ -29,6 +29,7 @@ We purposely restrict our use of Coq to a subset whose semantics is more likely
 to be rigorously verifiable and portable to new proof checking systems,
 according to the following principles.
 
+* Do not use ```Admitted``` or introduce new axioms.
 * Do not use ```Prop``` or ```Set```, and ensure definitions don't produce
   elements of them.
 * Do not use ```Type```, except in ```Foundations/Basics/Preamble.v```.
@@ -43,7 +44,6 @@ according to the following principles.
 * Start all proofs with ```Proof.``` on a separate line and end it with
   ```Defined.``` on a separate line, as this makes it possible for us to generate
   HTML with expansible/collapsible proofs.
-
 * Use Unicode notation freely, but make the parsing conventions uniform across files, and consider
   putting them into a scope.
 

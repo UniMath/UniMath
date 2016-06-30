@@ -1,10 +1,11 @@
+(* Definition of initial object as a colimit *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Section def_initial.
@@ -32,7 +33,7 @@ Definition isInitial (a : C) :=
   isColimCocone initDiagram a (initCocone a).
  (* forall b : C, iscontr (a --> b). *)
 
-Definition mk_isInitial (a : C) (H : ∀ (b : C), iscontr (a ⇒ b)) :
+Definition mk_isInitial (a : C) (H : ∀ (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
 intros b cb.

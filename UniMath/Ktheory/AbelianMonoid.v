@@ -24,26 +24,26 @@ Lemma fun_assoc {W X Y Z} (f:W->X) (g:X->Y) (h:Y->Z) :
 Proof. reflexivity. Defined.
 Lemma nelstructoncomplmap  {X:UU} {n}
       (x:X) (sx:nelstruct (S n) X) :
-    pr1 (nelstructoncompl x sx) ;; pr1compl X x
-  = dni n (invmap sx x) ;; pr1weq sx.
+    pr1compl X x ∘ pr1 (nelstructoncompl x sx)
+  = pr1weq sx ∘ dni n (invmap sx x).
 Proof. intros.
        try reflexivity.
        try reflexivity.
 Abort.
 Lemma nelstructoncomplmap'  {I:UU} {n}
       (i:stn(S n)) (sx:nelstruct (S n) I) :
-    pr1 (nelstructoncompl (pr1weq sx i) sx) ;; pr1compl I (pr1weq sx i)
-  = dni n (invmap sx (pr1weq sx i)) ;; pr1weq sx.
+    pr1compl I (pr1weq sx i) ∘ pr1 (nelstructoncompl (pr1weq sx i) sx)
+  = pr1weq sx ∘ dni n (invmap sx (pr1weq sx i)).
 Proof.
   try reflexivity.
   try reflexivity.
 Abort.
 Lemma nelstructoncomplmap''  {I:UU} {n}
       (i:stn(S n)) (sx:nelstruct (S n) I) :
-    pr1 (nelstructoncompl (pr1weq sx i) sx) ;; pr1compl I (pr1weq sx i)
-  = dni n i ;; pr1weq sx.
+    pr1compl I (pr1weq sx i) ∘ pr1 (nelstructoncompl (pr1weq sx i) sx)
+  = pr1weq sx ∘ dni n i.
 Proof. intros.
-       intermediate_path (dni n (invmap sx (pr1weq sx i));; pr1weq sx).
+       intermediate_path (pr1weq sx ∘ dni n (invmap sx (pr1weq sx i))).
        { try reflexivity.
          try reflexivity.
 (*        } *)
@@ -51,8 +51,8 @@ Proof. intros.
 (* Defined. *)
 Abort.
 Lemma nelstructoncomplmap'''  {I:UU} {n} (sx:nelstruct (S n) I) :
-    pr1 (nelstructoncompl (pr1weq sx (lastelement n)) sx) ;; pr1compl I (pr1weq sx (lastelement n))
-  = dni_last n ;; pr1weq sx.
+    pr1compl I (pr1weq sx (lastelement n)) ∘ pr1 (nelstructoncompl (pr1weq sx (lastelement n)) sx)
+  = pr1weq sx ∘ dni_last n.
 Proof. intros.
 (*        apply nelstructoncomplmap''. *)
 (* Defined. *)
@@ -121,7 +121,7 @@ Proof.
     * reflexivity.
 Defined.
 
-Lemma transposition_squared {X} (dec: isdeceq X) (i j:X) : transposition0 dec i j ;; transposition0 dec i j ~ idfun X.
+Lemma transposition_squared {X} (dec: isdeceq X) (i j:X) : transposition0 dec i j ∘ transposition0 dec i j ~ idfun X.
 Proof.
   intros.
   unfold homot.
@@ -271,7 +271,7 @@ Proof.
 Defined.
 
 Lemma rotate_left_stn_2 n i j :
-  rotate_left_stn_0 n (i+j) ~ rotate_left_stn_0 n j ;; rotate_left_stn_0 n i.
+  rotate_left_stn_0 n (i+j) ~ rotate_left_stn_0 n i ∘ rotate_left_stn_0 n j.
 Proof.
   intros ? ? ? k.
   destruct n.
@@ -302,7 +302,7 @@ Proof.
     (*     unfold pr1weq in p', q'. *)
     (*     induction p', q', e. *)
     (*     apply (IH (compl I (pr1 f (lastelement n))) *)
-    (*               f' g' (pr1compl I (pr1 f (lastelement n)) ;; x)). } *)
+    (*               f' g' (x ∘ pr1compl I (pr1 f (lastelement n)))). } *)
     (*   { exact (ap x e). } } *)
     (* { *)
 

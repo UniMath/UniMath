@@ -126,9 +126,9 @@ Defined.
 Definition Functor_eq_map {A B: Precategory} (F G:[A,B]) :
   F = G ->
   Σ (ob : ∀ a, F ◾ a = G ◾ a),
-  ∀ a a' f, transportf (λ k, k → G ◾ a')
+  ∀ a a' f, transportf (λ k, k --> G ◾ a')
                        (ob a)
-                       (transportf (λ k, F ◾ a → k)
+                       (transportf (λ k, F ◾ a --> k)
                                    (ob a')
                                    (F ▭ f)) = G ▭ f.
 Proof.
@@ -138,17 +138,23 @@ Proof.
   - intros a a' f; simpl. induction e; simpl. reflexivity.
 Defined.
 
+Section Working.
+
 Lemma Functor_eq_map_isweq {A B: Precategory} {F G:[A,B]} : isweq (Functor_eq_map F G).
 Proof.
   (* should be provable using the ideas in isweqtoforallpaths *)
-Admitted.
+Abort.
+
+Hypothesis Functor_eq_map_isweq :
+  forall (A B: Precategory) (F G:[A,B]), isweq (Functor_eq_map F G).
+Arguments Functor_eq_map_isweq {_ _ _ _} _.
 
 Lemma Functor_eq_weq {A B: Precategory} (F G:[A,B]) :
   F = G ≃
   Σ (ob : ∀ a, F ◾ a = G ◾ a),
-  ∀ a a' f, transportf (λ k, k → G ◾ a')
+  ∀ a a' f, transportf (λ k, k --> G ◾ a')
                        (ob a)
-                       (transportf (λ k, F ◾ a → k)
+                       (transportf (λ k, F ◾ a --> k)
                                    (ob a')
                                    (F ▭ f)) = G ▭ f.
 Proof.
@@ -157,9 +163,9 @@ Defined.
 
 Lemma Functor_eq {A B: Precategory} {F G:[A,B]}
       (ob : ∀ a, F ◾ a = G ◾ a)
-      (mor : ∀ a a' f, transportf (λ k, k → G ◾ a')
+      (mor : ∀ a a' f, transportf (λ k, k --> G ◾ a')
                                   (ob a)
-                                  (transportf (λ k, F ◾ a → k)
+                                  (transportf (λ k, F ◾ a --> k)
                                               (ob a')
                                               (F ▭ f)) = G ▭ f) :
   F = G.
@@ -181,6 +187,8 @@ Proof.
       (* how does one deal with such transports in Coq? *)
 Abort.
 
+End Working.
+
 (** bifunctors related to representable functors  *)
 
 Definition θ_1 {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
@@ -188,7 +196,7 @@ Definition θ_1 {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
 
 Definition θ_2 {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]])
            (x : θ_1 F X) : hSet
-  := (∀ (b' b:B) (f:b'→b), x b ⟲ F ▭ f = X ▭ f ⟳ x b' ) % set.
+  := (∀ (b' b:B) (f:b'-->b), x b ⟲ F ▭ f = X ▭ f ⟳ x b' ) % set.
 
 Definition θ {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
   := ( Σ x : θ_1 F X, θ_2 F X x ) % set.
@@ -205,11 +213,11 @@ Proof.
 Defined.
 
 Definition θ_map_1 {B C:Precategory} {F' F:[B, C]} {X : [B, [C^op, SET]]} :
-  F' → F -> F ⟹ X -> θ_1 F' X
+  F' --> F -> F ⟹ X -> θ_1 F' X
   := λ p xe b, pr1 xe b ⟲ p ◽ b.
 
 Definition θ_map_2 {B C:Precategory} {F' F:[B, C]} {X : [B, [C^op, SET]]}
-  (p : F' → F) (xe : F ⟹ X) : θ_2 F' X (θ_map_1 p xe).
+  (p : F' --> F) (xe : F ⟹ X) : θ_2 F' X (θ_map_1 p xe).
 Proof.
   induction xe as [x e]. unfold θ_map_1; unfold θ_1 in x; unfold θ_2 in e.
   intros b' b f; simpl.
@@ -222,17 +230,17 @@ Proof.
 Qed.
 
 Definition θ_map {B C:Precategory} {F' F:[B, C]} {X : [B, [C^op, SET]]} :
-  F' → F -> F ⟹ X -> F' ⟹ X
+  F' --> F -> F ⟹ X -> F' ⟹ X
   := λ p xe, θ_map_1 p xe ,, θ_map_2 p xe.
 
 Notation "xe ⟲⟲ p" := (θ_map p xe) (at level 50) : cat.
 
 Definition φ_map_1 {B C:Precategory} {F:[B, C]} {X' X: [B, [C^op, SET]]} :
-  F ⟹ X -> X → X' -> θ_1 F X'
+  F ⟹ X -> X --> X' -> θ_1 F X'
   := λ x p b, p ◽ b ⟳ pr1 x b.
 
 Definition φ_map_2 {B C:Precategory} {F:[B, C]} {X' X: [B, [C^op, SET]]}
-  (x : F ⟹ X) (p : X → X') : θ_2 F X' (φ_map_1 x p).
+  (x : F ⟹ X) (p : X --> X') : θ_2 F X' (φ_map_1 x p).
 Proof.
   induction x as [x e]. unfold φ_map_1; unfold θ_1 in x; unfold θ_2 in e; unfold θ_2.
   intros b b' f; simpl.
@@ -243,7 +251,7 @@ Proof.
 Qed.
 
 Definition φ_map {B C:Precategory} {F:[B, C]} {X' X: [B, [C^op, SET]]} :
-  F ⟹ X -> X → X' -> F ⟹ X'
+  F ⟹ X -> X --> X' -> F ⟹ X'
   := λ x p, φ_map_1 x p,, φ_map_2 x p.
 
 Definition bifunctor_assoc {B C:Precategory} : [B, [C^op,SET]] ==> [[B,C]^op,SET].

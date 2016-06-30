@@ -106,7 +106,6 @@ Definition isrigmultgt ( X : rig ) ( R : hrel X ) :=  forall a b c d : X , R a b
 
 Definition isinvrigmultgt ( X : rig ) ( R : hrel X ) := dirprod ( forall a b c d : X , R ( a * c + b * d ) ( a * d + b * c ) -> R a b -> R c d ) ( forall a b c d : X , R ( a * c + b * d ) ( a * d + b * c ) -> R c d -> R a b ) .
 
-
 (** **** Subobjects *)
 
 Definition issubrig { X : rig } ( A : hsubtypes X ) := dirprod ( @issubmonoid ( rigaddabmonoid X ) A ) ( @issubmonoid ( rigmultmonoid X ) A ) .
