@@ -138,10 +138,16 @@ Proof.
   - intros a a' f; simpl. induction e; simpl. reflexivity.
 Defined.
 
+Section Working.
+
 Lemma Functor_eq_map_isweq {A B: Precategory} {F G:[A,B]} : isweq (Functor_eq_map F G).
 Proof.
   (* should be provable using the ideas in isweqtoforallpaths *)
-Admitted.
+Abort.
+
+Hypothesis Functor_eq_map_isweq :
+  forall (A B: Precategory) (F G:[A,B]), isweq (Functor_eq_map F G).
+Arguments Functor_eq_map_isweq {_ _ _ _} _.
 
 Lemma Functor_eq_weq {A B: Precategory} (F G:[A,B]) :
   F = G ≃
@@ -180,6 +186,8 @@ Proof.
     { intros a a' f; simpl.
       (* how does one deal with such transports in Coq? *)
 Abort.
+
+End Working.
 
 (** bifunctors related to representable functors  *)
 
