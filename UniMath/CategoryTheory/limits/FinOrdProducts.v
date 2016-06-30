@@ -169,7 +169,8 @@ Section FinOrdProduct_criteria.
     set (e := dni_lastelement_is_inj (dni_lastelement_eq n (dni_lastelement i)
                                                          a0)).
     use (pathscomp0 _ (ProductPr_idtoiso (stn n) C (a ∘ dni_lastelement) Cone1
-                                         e)).
+                                         (!e))).
+    rewrite maponpathsinv0.
     apply cancel_precomposition.
     apply maponpaths. apply maponpaths. (* Why we need maponpaths twice? *)
     apply maponpaths.
@@ -197,7 +198,8 @@ Section FinOrdProduct_criteria.
 
     set (e := isconnectedstn1 i (invweq(weqstn1tounit) tt)).
     use (pathscomp0 _ (ProductPr_idtoiso (stn 1) C (fun _ : _ => a(lastelement n))
-                                         Cone2 e)).
+                                         Cone2 (!e))).
+    rewrite maponpathsinv0.
     apply cancel_precomposition.
     apply maponpaths. apply maponpaths. (* Why we need maponpaths twice? *)
     apply maponpaths.

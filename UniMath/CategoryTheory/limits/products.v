@@ -57,7 +57,7 @@ Qed.
 
 Lemma ProductPr_idtoiso {i1 i2 : I} (a : I -> C) (P : ProductCone a)
       (e : i1 = i2) :
-  ProductPr P i2 ;; idtoiso (! maponpaths a e) = ProductPr P i1.
+  ProductPr P i1 ;; idtoiso (maponpaths a e) = ProductPr P i2.
 Proof.
   induction e.
   apply id_right.
