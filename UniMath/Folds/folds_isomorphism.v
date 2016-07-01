@@ -227,7 +227,7 @@ Proof.
     + apply funextsec; intro.
       apply subtypeEquality.
       * intro. apply isapropisweq.
-      * apply funextfunax; intro f.
+      * apply funextfun; intro f.
         eapply pathscomp0.
         { apply ϕ₁_is_comp. }
         symmetry.
@@ -237,10 +237,10 @@ Proof.
     + apply funextsec; intro.
       apply subtypeEquality.
       * intro; apply isapropisweq.
-      * apply funextfunax. apply ϕ₂_determined.
+      * apply funextfun. unfold homot. apply ϕ₂_determined.
   - apply subtypeEquality.
     intro. apply isapropisweq.
-    apply funextfunax. intros.
+    apply funextfun. intro t.
     apply ϕo_determined.
 Qed.
 

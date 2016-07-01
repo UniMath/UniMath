@@ -409,15 +409,14 @@ Qed.
 
 (** *** Image factorization C -> Img(F) -> D *)
 
-Lemma functor_full_img_factorization_ob (C D: precategory)
+Local Lemma functor_full_img_factorization_ob (C D: precategory)
    (F : functor C D):
   functor_on_objects F =
   functor_on_objects (functor_composite
        (functor_full_img F)
             (sub_precategory_inclusion D _)).
 Proof.
-  simpl.
-  apply etacorrection.
+  reflexivity.
 Defined.
 
 
@@ -438,11 +437,11 @@ Proof.
   apply (total2_paths2 (H)).
   unfold functor_full_img_factorization_ob in H.
   simpl in *.
-  apply dep_funextfunax.
+  apply dep_funextfun.
   intro a.
-  apply dep_funextfunax.
+  apply dep_funextfun.
   intro b.
-  apply funextfunax.
+  apply funextfun.
   intro f.
 
   generalize Fmor.
@@ -548,7 +547,7 @@ Lemma Id_in_sub_to_iso_equal_iso
     Id_in_sub_to_iso a b = funcomp (total2_paths_hProp_equiv C' a b)
                                     (@idtoiso _ (pr1 a) (pr1 b)).
 Proof.
-  apply funextfunax.
+  apply funextfun.
   intro p.
   destruct p.
   apply eq_iso.
@@ -571,7 +570,7 @@ Lemma precat_paths_in_sub_as_3_maps
      @idtoiso _ a b = funcomp (Id_in_sub_to_iso a b)
                                         (iso_in_sub_from_iso a b).
 Proof.
-  apply funextfunax.
+  apply funextfun.
   intro p; destruct p.
   apply eq_iso; simpl.
   unfold precategory_morphisms_in_subcat.
