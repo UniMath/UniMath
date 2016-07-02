@@ -194,7 +194,7 @@ Proof.
     assert (P = (union Q)).
     { apply funextfun.
       intros x.
-      apply uahp.
+      apply hPropUnivalence.
       - intros Px.
         generalize (Hp _ Px).
         apply hinhfun.

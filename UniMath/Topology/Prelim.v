@@ -76,7 +76,7 @@ Lemma union_hfalse {X : UU} :
 Proof.
   intros X.
   apply funextfun ; intros x.
-  apply uahp.
+  apply hPropUnivalence.
   - apply hinhuniv.
     intros A.
     apply (pr1 (pr2 A)).
@@ -90,7 +90,7 @@ Lemma union_or {X : UU} :
 Proof.
   intros X A B.
   apply funextfun ; intro x.
-  apply uahp.
+  apply hPropUnivalence.
   - apply hinhuniv.
     intros C.
     generalize (pr1 (pr2 C)).
@@ -143,7 +143,7 @@ Lemma finite_intersection_htrue {X : UU} :
 Proof.
   intros X.
   apply funextfun ; intros x.
-  apply uahp.
+  apply hPropUnivalence.
   - intros _.
     apply tt.
   - intros _ (m,Hm).
@@ -159,7 +159,7 @@ Proof.
   intros X.
   intros A.
   apply funextfun ; intros x.
-  apply uahp.
+  apply hPropUnivalence.
   - intros H.
     apply H.
     now exists 0.
@@ -178,7 +178,7 @@ Proof.
   intros X.
   intros A B.
   apply funextfun ; intro x.
-  apply uahp.
+  apply hPropUnivalence.
   - intros H.
     split.
     simple refine (H (0,,_)).
@@ -203,7 +203,7 @@ Proof.
   intros X.
   intros L.
   apply funextfun ; intros x.
-  apply uahp.
+  apply hPropUnivalence.
   - intros Hx.
     destruct L as [n L].
     destruct n ; simpl.

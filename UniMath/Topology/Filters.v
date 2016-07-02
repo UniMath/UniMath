@@ -251,7 +251,7 @@ Proof.
   apply isaprop_isfilter_imply.
   apply isaprop_isfilter_finite_intersection.
   apply funextfun ; intros A.
-  apply uahp.
+  apply hPropUnivalence.
   now apply Hge.
   now apply Hle.
 Qed.
@@ -1396,7 +1396,7 @@ Lemma filterbase_genetated :
   filterbase = filtergenerated base.
 Proof.
   apply funextfun ; intros P.
-  apply uahp.
+  apply hPropUnivalence.
   - apply hinhfun.
     intros (A,(Ha,Ha')).
     exists (singletonSequence A).
