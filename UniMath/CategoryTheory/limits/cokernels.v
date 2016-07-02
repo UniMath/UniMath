@@ -38,8 +38,8 @@ Section def_cokernels.
     use (mk_Coequalizer g (ZeroArrow _ Z x y) f (CokernelEqRw H)).
     apply isE.
   Defined.
-  Definition Cokernels := forall (y z : C) (g : y --> z), Cokernel g.
-  Definition hasCokernels := forall (y z : C) (g : y --> z), ishinh (Cokernel g).
+  Definition Cokernels : UU := forall (y z : C) (g : y --> z), Cokernel g.
+  Definition hasCokernels : UU := forall (y z : C) (g : y --> z), ishinh (Cokernel g).
   Definition CokernelOb {y z : C} {g : y --> z} (CK : Cokernel g) :
     C := CoequalizerObject CK.
   Coercion CokernelOb : Cokernel >-> ob.

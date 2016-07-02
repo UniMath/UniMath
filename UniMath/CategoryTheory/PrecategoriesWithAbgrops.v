@@ -18,7 +18,7 @@ Section def_precategory_with_abgrops.
 
   (** Definition of precategories such that homsets are abgrops. *)
   Definition isPrecategoryWithAbgrops (PB : PrecategoryWithBinOps)
-             (hs : has_homsets PB) :=
+             (hs : has_homsets PB) : UU :=
     forall (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y))
                             (PrecategoryWithBinOps_binop PB x y).
 

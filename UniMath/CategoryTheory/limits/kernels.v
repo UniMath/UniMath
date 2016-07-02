@@ -36,15 +36,16 @@ Section def_kernels.
     use (mk_Equalizer g (ZeroArrow _ Z y z) f (KernelEqRw H)).
     apply isE.
   Defined.
-  Definition Kernels := forall (y z : C) (g : y --> z), Kernel g.
-  Definition hasKernels := forall (y z : C) (g : y --> z), ishinh (Kernel g).
+  Definition Kernels : UU := forall (y z : C) (g : y --> z), Kernel g.
+  Definition hasKernels : UU := forall (y z : C) (g : y --> z), ishinh (Kernel g).
   Definition KernelOb {y z : C} {g : y --> z} (K : Kernel g) :
     C := EqualizerObject K.
   Coercion KernelOb : Kernel >-> ob.
   Definition KernelArrow {y z : C} {g : y --> z} (K : Kernel g) :
-    C⟦K, y⟧:= EqualizerArrow K.
-  Definition KernelEqAr {y z : C} {g : y --> z} (K : Kernel g) :=
-    EqualizerEqAr K.
+    C⟦K, y⟧ := EqualizerArrow K.
+  Definition KernelEqAr {y z : C} {g : y --> z} (K : Kernel g)
+    : EqualizerArrow K ;; g = EqualizerArrow K ;; (ZeroArrow _ Z y z)
+    := EqualizerEqAr K.
   Definition KernelIn {y z : C} {g : y --> z} (K : Kernel g)
              (w : C) (h : w --> y) (H : h ;; g = ZeroArrow _ Z w z) :
     C⟦w, K⟧ := EqualizerIn K _ h (KernelEqRw H).
