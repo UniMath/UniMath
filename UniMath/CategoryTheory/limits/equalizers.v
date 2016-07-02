@@ -63,9 +63,9 @@ Section def_equalizers.
   Defined.
 
   (** Equalizers in precategories. *)
-  Definition Equalizers := forall (y z : C) (f g : y --> z), Equalizer f g.
+  Definition Equalizers : UU := forall (y z : C) (f g : y --> z), Equalizer f g.
 
-  Definition hasEqualizers := forall (y z : C) (f g : y --> z),
+  Definition hasEqualizers : UU := forall (y z : C) (f g : y --> z),
       ishinh (Equalizer f g).
 
   (** Returns the equalizer object. *)
