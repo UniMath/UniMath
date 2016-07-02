@@ -793,6 +793,7 @@ Defined.
 Lemma extphi : pr1 (pr1 (functor_composite H GG)) = pr1 (pr1 F).
 Proof.
   apply funextsec.
+  unfold homot.
   apply phi.
 Defined.
 

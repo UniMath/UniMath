@@ -4,7 +4,7 @@ In this file we introduce the hProp - an analog of Prop defined based on the uni
 
 Resizing Rule RR1 ( U1 U2 : Univ ) ( X : U1 ) ( is : isaprop X ) |- X : U2 .
 
-Further in the file we introduce the univalence axiom for hProp and a proof of the fact that it is equivalent to a simplier and better known axiom [ uahp ]. We prove that this axiom implies that [ hProp ] satisfies [ isaset ] i.e. it is a type of h-level 2 . This requires another resizing rule :
+Further in the file we introduce the univalence axiom [ hPropUnivalence ] for hProp and a proof of the fact that it is equivalent to a simplier and better known axiom [ propositionalUnivalenceAxiom ]. We prove that this axiom implies that [ hProp ] satisfies [ isaset ] i.e. it is a type of h-level 2 . This requires another resizing rule :
 
 Resizing Rule RR2 ( U1 U2 : Univ ) |- @hProp U1 : U2 .
 
@@ -197,14 +197,14 @@ Lemma isinclpr1image { X Y : UU } (f:X -> Y): isincl (pr1image f).
 Proof. intros. refine (isofhlevelfpr1 _ _ _). intro. apply ( pr2 ( ishinh ( hfiber f x ) ) ) . Defined.
 
 Lemma issurjprtoimage { X Y : UU } ( f : X -> Y) : issurjective (prtoimage f ).
-Proof. intros. intro z.  set (f' := prtoimage f ). set (g:= pr1image f ). set (gf':= fun x:_ => g ( f' x )).
-assert (e: paths f gf'). apply etacorrection .
-assert (ff: hfiber gf' (pr1 z) -> hfiber f' z).  refine ( invweq ( samehfibers _ _ ( isinclpr1image f ) z ) ) .
-assert (is2: ishinh (hfiber gf' (pr1 z))). destruct e.  apply (pr2 z).
-apply (hinhfun ff is2). Defined.
-
-
-
+Proof.
+  intros. intro z.
+  set (f' := prtoimage f ).
+  assert (ff: hfiber (funcomp f' (pr1image f )) (pr1 z) -> hfiber f' z).
+  { refine ( invweq ( samehfibers _ _ ( isinclpr1image f ) z ) ) . }
+  apply (hinhfun ff).
+  exact (pr2 z).
+Defined.
 
 (** *** The two-out-of-three properties of surjections *)
 
@@ -477,7 +477,7 @@ Definition to_ComplementaryPair {P} (c:P ⨿ neg P) : ComplementaryPair
   (* By using [isTrue _] instead, we're effectively replacing P by a propositional subtype of it: *)
   (* the part connected to the element of [P ⨿ ¬P]. *)
   (* Similarly, by using [isFalse _] instead, we're effectively replacing [¬P] by a propositional subtype of it.  *)
-  (* Both are proved to be propositions without [funextempty] *)
+  (* Both are proved to be propositions without [funextemptyAxiom] *)
   := (P,,neg P,,(λ p n, n p),,c).
 
 (* Relate isolated points to complementary pairs *)
@@ -532,7 +532,7 @@ Proof.
 Defined.
 
 Definition decidable (X:hProp) : hProp :=
-  (* uses [funextempty] *)
+  (* uses [funextemptyAxiom] *)
   hProppair (X ⨿ ¬X) (isapropdec X (propproperty X)).
 
 Definition decidable_dirprod (X Y:hProp) : decidable X -> decidable Y -> decidable (X ∧ Y).
@@ -704,27 +704,25 @@ Proof.
     + apply (propproperty (DecidableProposition_to_hProp _)).
 Defined.
 
-(** ** Univalence axiom for hProp
+(** ** Univalence for hProp *)
 
-We introduce here the weakest form of the univalence axiom - the univalence axiom for hProp which is equivalent to the second part of the extensionality axiom in Church simple type theory.  This axiom is easily shown to be equivalent to its version with [P = P'] as a target and to [ weqtopathshProp ] (see below) as well as to the version of [ weqtopathshProp ] with [P = P'] as a target.
-
-The proof of theorem [ univfromtwoaxiomshProp ] is modeled on the proof of [ univfromtwoaxioms ] from univ01.v
-
-
-*)
-
-
-Axiom uahp : ∀ P P':hProp,  (P -> P') -> (P' -> P) -> @paths hProp P P'.
-
-Corollary uahp' : ∀ P Q, isaprop P -> isaprop Q -> (P -> Q) -> (Q -> P) -> P=Q.
-Proof.
-  intros ? ? i j f g. exact (maponpaths hProptoType (uahp (P,,i) (Q,,j) f g)).
-Defined.
+Theorem hPropUnivalence : forall (P Q:hProp), (P -> Q) -> (Q -> P) -> P = Q.
+  (* this theorem replaced a former axiom, with the same statement, called "uahp" *)
+  Proof.
+    intros ? ? f g.
+    apply subtypeEquality.
+    - intro X. apply isapropisaprop.
+    - apply propositionalUnivalenceAxiom.
+      + apply propproperty.
+      + apply propproperty.
+      + assumption.
+      + assumption.
+  Defined.
 
 Definition eqweqmaphProp { P P': hProp }  ( e: @paths hProp P P' ) : weq P P'.
 Proof. intros . destruct e . apply idweq.  Defined.
 
-Definition weqtopathshProp { P P' : hProp } (w: weq P P' ): @paths hProp P P' := uahp P P' w ( invweq w ) .
+Definition weqtopathshProp { P P' : hProp } (w: weq P P' ): P = P' := hPropUnivalence P P' w ( invweq w ) .
 
 Definition weqpathsweqhProp { P P' : hProp } (w : weq P P'): eqweqmaphProp (weqtopathshProp w) = w.
 Proof. intros. apply proofirrelevance . apply (isapropweqtoprop P P' (pr2 P')). Defined.
@@ -765,7 +763,7 @@ Proof. intros. apply isasethProp.
 Defined.
 
 Lemma iscontrtildehProp : iscontr tildehProp .
-Proof . split with ( tpair _ htrue tt )  .   intro tP .  destruct tP as [ P p ] . apply ( invmaponpathsincl _ ( isinclpr1 ( fun P : hProp => P ) ( fun P => pr2 P ) ) ) .   simpl . apply uahp . apply ( fun x => tt ) .  intro t.  apply p . Defined .
+Proof . split with ( tpair _ htrue tt )  .   intro tP .  destruct tP as [ P p ] . apply ( invmaponpathsincl _ ( isinclpr1 ( fun P : hProp => P ) ( fun P => pr2 P ) ) ) .   simpl . apply hPropUnivalence . apply ( fun x => tt ) .  intro t.  apply p . Defined .
 
 Lemma isaproptildehProp : isaprop tildehProp .
 Proof . apply ( isapropifcontr iscontrtildehProp ) .  Defined .

@@ -440,7 +440,7 @@ Proof.
   - now intro ; apply pr2.
   - apply funextsec.
     intro r.
-    apply uahp.
+    apply hPropUnivalence.
     exact (pr1 (Heq r)).
     exact (pr2 (Heq r)).
 Qed.
@@ -1292,7 +1292,7 @@ Proof.
       apply plusNonnegativeRationals_le_l. }
     assert (Heq : Dcuts_mult_val X Y = (Dcuts_NQmult_val (x + 1%NRat) (Dcuts_mult_val (Dcuts_NQmult_val (/ (x + 1))%NRat X) Y))).
     { apply funextfun ; intro r.
-      apply uahp.
+      apply hPropUnivalence.
       - apply hinhfun ; intros ((rx,ry)) ; simpl ; intros (Hr,(Xr,Yr)).
         exists (r / (x + 1))%NRat ; split.
         + now  rewrite multdivNonnegativeRationals.
@@ -1557,7 +1557,7 @@ Proof.
     exact Xx. }
   assert (Heq : Dcuts_inv_val X = Dcuts_NQmult_val (/x)%NRat (Dcuts_inv_val Y)).
   { apply funextfun ; intro r.
-    apply uahp.
+    apply hPropUnivalence.
     - apply hinhfun ; intros (l,(Hl,(Hl0,Hl1))).
       exists (x * r) ; split.
       now rewrite <- isassoc_multNonnegativeRationals, islinv_NonnegativeRationals, islunit_oneNonnegativeRationals.
@@ -4164,7 +4164,7 @@ Proof.
   intros.
   apply funextfun.
   intros x.
-  apply uahp.
+  apply hPropUnivalence.
   - apply hinhuniv.
     simpl pr1.
     intros (r,(Hr)).

@@ -73,7 +73,7 @@ Proof.
   induction (dec i j) as [ieqj | inej].
   { induction (ne ieqj). }
   { assert ( H : inej = ne ).
-    { apply funextfun. intros. induction (ne x). }
+    { apply funextfun. intro x. induction (ne x). }
     induction H.
     reflexivity. }
 Defined.
