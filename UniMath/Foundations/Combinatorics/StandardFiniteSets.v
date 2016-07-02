@@ -381,6 +381,13 @@ Proof. set ( f := fun x : stn 1 => tt ) . apply weqcontrcontr .  split with ( la
 Corollary iscontrstn1 : iscontr ( stn 1 ) .
 Proof. apply iscontrifweqtounit . apply weqstn1tounit . Defined .
 
+Corollary isconnectedstn1 : Π i1 i2 : stn 1, i1 = i2.
+Proof.
+  intros i1 i2.
+  apply (invmaponpathsweq weqstn1tounit).
+  apply isconnectedunit.
+Defined.
+
 Lemma isinclfromstn1 { X : UU } ( f : stn 1 -> X ) ( is : isaset X ) : isincl f .
 Proof. intros . apply ( isinclbetweensets f ( isasetstn 1 ) is ) . intros x x' e . apply ( invmaponpathsweq weqstn1tounit x x' ( idpath tt ) )  .  Defined .
 
@@ -912,6 +919,34 @@ apply ( X n ( hinhpr ( tpair _ n ( dirprodpair ( isreflnatleh n ) l ) ) ) ) .  D
 
 Lemma isinjstntonat n : isInjectiveFunction (pr1 : stnset n -> natset).
 Proof. intros ? i j. apply (invmaponpathsincl pr1). apply isinclstntonat. Defined.
+
+Corollary dni_lastelement_is_inj {n : nat} {i j : stn n}
+      (e : dni_lastelement i = dni_lastelement j) :
+  i = j.
+Proof.
+  intros n i j e.
+  apply isinjstntonat.
+  unfold dni_lastelement in e.
+  apply (maponpaths pr1) in e.
+  exact e.
+Defined.
+
+Corollary dni_lastelement_eq : Π (n : nat) (i : stn (S n)) (ie : pr1 i < n),
+    i = dni_lastelement (stnpair n (pr1 i) ie).
+Proof.
+  intros n i ie.
+  apply isinjstntonat.
+  apply idpath.
+Defined.
+
+Corollary lastelement_eq : Π (n : nat) (i : stn (S n)) (e : pr1 i = n),
+    i = lastelement n.
+Proof.
+  intros n i e.
+  unfold lastelement.
+  apply isinjstntonat.
+  apply e.
+Defined.
 
 (* a tactic for proving things by induction over a finite number of cases *)
 Ltac inductive_reflexivity i b :=

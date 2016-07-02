@@ -117,11 +117,7 @@ Defined.
 
 Lemma transport_along_funextsec {X:UU} {Y:X->UU} {f g:Π x, Y x}
       (e:f~g) (x:X) : transportf _ (funextsec _ _ _ e) (f x) = g x.
-Proof.
-  unfold funextsec.
-  induction (invmap (weqtoforallpaths _ f g) e).
-  reflexivity.
-Defined.
+Proof. now induction (funextsec _ _ _ e). Defined.
 
 Definition Functor_eq_map {A B: Precategory} (F G:[A,B]) :
   F = G ->
@@ -138,10 +134,16 @@ Proof.
   - intros a a' f; simpl. induction e; simpl. reflexivity.
 Defined.
 
+Section Working.
+
 Lemma Functor_eq_map_isweq {A B: Precategory} {F G:[A,B]} : isweq (Functor_eq_map F G).
 Proof.
   (* should be provable using the ideas in isweqtoforallpaths *)
-Admitted.
+Abort.
+
+Hypothesis Functor_eq_map_isweq :
+  Π (A B: Precategory) (F G:[A,B]), isweq (Functor_eq_map F G).
+Arguments Functor_eq_map_isweq {_ _ _ _} _.
 
 Lemma Functor_eq_weq {A B: Precategory} (F G:[A,B]) :
   F = G ≃
@@ -180,6 +182,8 @@ Proof.
     { intros a a' f; simpl.
       (* how does one deal with such transports in Coq? *)
 Abort.
+
+End Working.
 
 (** bifunctors related to representable functors  *)
 

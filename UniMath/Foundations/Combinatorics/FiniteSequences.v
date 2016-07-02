@@ -477,7 +477,7 @@ Proof.
   change (pr1 (tpair (λ i, stn(f i)) k p)) with k.
 
   (* perhaps also prove this is by equipping everything in sight with a well-ordering, preserved by all the equivalences involved *)
-Admitted.
+Abort.
 
 Definition flattenStep {X n} (x: stn (S n) -> Sequence X) :
   flatten (S n,,x) = concatenate (flatten (n,,x ∘ dni_lastelement)) (x (lastelement _)).
@@ -495,7 +495,7 @@ Proof.
 
 
 
-Admitted.
+Abort.
 
 
 Definition isassoc_concatenate {X} (x y z:Sequence X) :

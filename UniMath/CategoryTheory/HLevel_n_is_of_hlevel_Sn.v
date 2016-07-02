@@ -118,7 +118,7 @@ Lemma isofhlevel0pathspace (X Y : UU) :
     iscontr X -> iscontr Y -> iscontr (X = Y).
 Proof.
   intros pX pY.
-  set (H := isofhlevelweqb 0 (tpair _ _ (univalenceaxiom X Y))).
+  set (H := isofhlevelweqb 0 (tpair _ _ (univalenceAxiom X Y))).
   apply H.
   exists (isofhlevel0weq _ _ pX pY ).
   intro f.
@@ -139,7 +139,7 @@ Lemma isofhlevelSnpathspace : Π n : nat, Π X Y : UU,
       isofhlevel (S n) Y -> isofhlevel (S n) (X = Y).
 Proof.
   intros n X Y pY.
-  set (H:=isofhlevelweqb (S n) (tpair _ _ (univalenceaxiom X Y))).
+  set (H:=isofhlevelweqb (S n) (tpair _ _ (univalenceAxiom X Y))).
   apply H.
   assert (H' : isofhlevel (S n) (X -> Y)).
     apply impred.
@@ -206,7 +206,7 @@ Lemma UA_for_Predicates (P : UU -> hProp) (X X' : UU)
   weq ((tpair _ X pX) = (tpair (fun x => P x) X' pX')) (weq X X').
 Proof.
   set (f := Id_p_weq_Id P X X' pX pX').
-  set (g := tpair _ _ (univalenceaxiom X X')).
+  set (g := tpair _ _ (univalenceAxiom X X')).
   exact (weqcomp f g).
 Defined.
 

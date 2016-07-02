@@ -680,7 +680,7 @@ Proof.
     + apply idpath.
     + eapply pathscomp0. Focus 2. apply T5.
       (* hypothesis of fusion law *)
-      apply funextsec. intro.
+      apply funextsec. intro t.
       simpl.
       unfold compose. simpl.
       apply nat_trans_eq. assumption.

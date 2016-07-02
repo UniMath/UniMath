@@ -6,12 +6,6 @@ Require Export UniMath.Foundations.Basics.Sets.
 Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Export UniMath.Ktheory.Tactics.
 
-(* axiom for postponing a proof until later *)
-
-Axiom PostponedProof : empty.
-
-Ltac postponeProof := apply fromempty, PostponedProof.
-
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
 
 Open Scope transport.

@@ -632,10 +632,10 @@ Definition eqreldirprod { X Y : UU } ( RX : eqrel X ) ( RY : eqrel Y ) : eqrel (
 (** *** Negation of a relation and its properties *)
 
 Definition negrel { X : UU } ( R : hrel X ) : hrel X
-  := λ x x', hProppair (¬ R x x') (isapropneg _) . (* uses [funextempty] *)
+  := λ x x', hProppair (¬ R x x') (isapropneg _) . (* uses [funextemptyAxiom] *)
 
 Lemma istransnegrel { X : UU } ( R : hrel X  ) ( isr : iscotrans R ) : istrans ( negrel R ) .
-(* uses [funextfun] and [funextempty] *)
+(* uses [funextfun] and [funextemptyAxiom] *)
 Proof . intros . intros x1 x2 x3 r12 r23 .  apply ( negf ( isr x1 x2 x3 ) ) .  apply ( toneghdisj ( dirprodpair r12 r23 ) ) . Defined .
 
 Lemma iscotrans_to_istrans_negReln {X} {R:hrel X} (NR : negReln R) :
@@ -655,7 +655,7 @@ Lemma iscoasymmgenrel { X : UU } ( R : hrel X  ) ( isr : isasymm R ) : iscoasymm
 Proof . intros . intros x1 x2 nr12 . apply ( negf ( isr _ _ ) nr12 ) .  Defined .
 
 Lemma isdecnegrel { X : UU } ( R : hrel X  ) ( isr : isdecrel R ) : isdecrel ( negrel R ) .
-(* uses [funextempty] *)
+(* uses [funextemptyAxiom] *)
 Proof . intros . intros x1 x2 . destruct ( isr x1 x2 ) as [ r | nr ] . apply ii2 .   apply ( todneg _ r ) .  apply ( ii1 nr ) . Defined .
 
 Lemma isnegnegrel { X : UU } ( R : hrel X ) : isnegrel ( negrel R ) .
@@ -888,7 +888,7 @@ Proof.
 intros X R c x.
 apply (invmaponpathsincl _ (isinclpr1setquot R)).
 apply funextsec; intro x0.
-apply uahp; intro r.
+apply hPropUnivalence; intro r.
 + exact (eqax1 (pr2 c) (pr1 x) x0 r (pr2 x)).
 + exact (eqax2 (pr2 c) (pr1 x) x0 (pr2 x) r).
 Defined.
@@ -898,7 +898,7 @@ Proof. intros. unfold issurjective. intro c.   apply ( @hinhuniv ( carrier ( pr1
 Defined .
 
 Lemma iscompsetquotpr { X : UU } ( R : eqrel X ) ( x x' : X ) ( a : R x x' ) : setquotpr R x = setquotpr R x' .
-Proof. intros. apply ( invmaponpathsincl _ ( isinclpr1setquot R ) ) . simpl . apply funextsec . intro x0 . apply uahp .  intro r0 . apply ( eqreltrans R _ _ _ ( eqrelsymm R _ _ a ) r0 ) .  intro x0' . apply ( eqreltrans R _ _ _ a x0' ) . Defined .
+Proof. intros. apply ( invmaponpathsincl _ ( isinclpr1setquot R ) ) . simpl . apply funextsec . intro x0 . apply hPropUnivalence .  intro r0 . apply ( eqreltrans R _ _ _ ( eqrelsymm R _ _ a ) r0 ) .  intro x0' . apply ( eqreltrans R _ _ _ a x0' ) . Defined .
 
 
 
@@ -977,7 +977,7 @@ Proof . intros . assert ( int1 : Π c0 c0' c0'' : _ , P c c0 c0' c0'' ) .  apply
 
 
 
-(** Important note : theorems proved above can not be used ( al least at the moment ) to construct terms whose complete normalization ( evaluation ) is important . For example they should not be used * directly * to construct [ isdeceq ] property of [ setquot ] since [ isdeceq ] is in turn used to construct boolean equality [ booleq ] and evaluation of [ booleq x y ] is important for computational purposes . Terms produced using these universality theorems will not fully normalize even in simple cases due to the following steps in the proof of [ setquotunivprop ] . As a part of the proof term of this theorem there appears the composition of an application of [ uahp ] , transfer of the resulting term of the identity type by [ maponpaths ] along [ P ] followed by the reconstruction of a equivalence ( two directional implication ) between the corresponding propositions through [  eqweqmaphProp ] . The resulting implications are " opaque " and the proofs of disjunctions [ P \/ Q ]  produced with the use of such implications can not be evaluated to one of the summands of the disjunction . An example is given by the following theorem [ isdeceqsetquot_non_constr ] which , as simple experiments show, can not be used to compute the value of [ isdeceqsetquot ] . Below we give another proof of [ isdeceq ( setquot R ) ] using the same assumptions which is " constructive " i.e. usable for the evaluation purposes . *)
+(** Important note : theorems proved above can not be used ( al least at the moment ) to construct terms whose complete normalization ( evaluation ) is important . For example they should not be used * directly * to construct [ isdeceq ] property of [ setquot ] since [ isdeceq ] is in turn used to construct boolean equality [ booleq ] and evaluation of [ booleq x y ] is important for computational purposes . Terms produced using these universality theorems will not fully normalize even in simple cases due to the following steps in the proof of [ setquotunivprop ] . As a part of the proof term of this theorem there appears the composition of an application of [ hPropUnivalence ] , transfer of the resulting term of the identity type by [ maponpaths ] along [ P ] followed by the reconstruction of a equivalence ( two directional implication ) between the corresponding propositions through [  eqweqmaphProp ] . The resulting implications are " opaque " and the proofs of disjunctions [ P \/ Q ]  produced with the use of such implications can not be evaluated to one of the summands of the disjunction . An example is given by the following theorem [ isdeceqsetquot_non_constr ] which , as simple experiments show, can not be used to compute the value of [ isdeceqsetquot ] . Below we give another proof of [ isdeceq ( setquot R ) ] using the same assumptions which is " constructive " i.e. usable for the evaluation purposes . *)
 
 
 
@@ -1105,13 +1105,13 @@ Note that all the properties of the quotient relations which we consider other t
 Definition iscomprelrel { X : UU } ( R : hrel X ) ( L : hrel X ) := iscomprelfun2 R L .
 
 Lemma iscomprelrelif { X : UU } { R : hrel X } ( L : hrel X ) ( isr : issymm R ) ( i1 : Π x x' y , R x x' -> L x y -> L x' y ) ( i2 : Π x y y' , R y y' -> L x y -> L x y' ) : iscomprelrel R L .
-Proof . intros .  intros x x' y y' rx ry .  set ( rx' := isr _ _ rx ) . set ( ry' := isr _ _ ry ) . apply uahp .  intro lxy .  set ( int1 := i1 _ _ _ rx lxy ) . apply ( i2 _ _ _ ry int1 ) .  intro lxy' .  set ( int1 := i1 _ _ _ rx' lxy' ) .  apply ( i2 _ _ _ ry' int1 ) .  Defined .
+Proof . intros .  intros x x' y y' rx ry .  set ( rx' := isr _ _ rx ) . set ( ry' := isr _ _ ry ) . apply hPropUnivalence .  intro lxy .  set ( int1 := i1 _ _ _ rx lxy ) . apply ( i2 _ _ _ ry int1 ) .  intro lxy' .  set ( int1 := i1 _ _ _ rx' lxy' ) .  apply ( i2 _ _ _ ry' int1 ) .  Defined .
 
 Lemma iscomprelrellogeqf1 { X : UU } { R R' : hrel X } ( L : hrel X ) ( lg : hrellogeq R R' ) ( is : iscomprelrel R L ) : iscomprelrel R' L .
 Proof . intros . apply ( iscomprelfun2logeqf lg L is ) .  Defined .
 
 Lemma iscomprelrellogeqf2 { X : UU } ( R : hrel X ) { L L' : hrel X } ( lg : hrellogeq L L' ) ( is : iscomprelrel R L ) : iscomprelrel R L' .
-Proof . intros . intros x x' x0 x0' r r0 . assert ( e : paths ( L x x0 ) ( L' x x0 ) ) . apply uahp . apply ( pr1 ( lg _ _ ) ) .   apply ( pr2 ( lg _ _ ) ) .  assert ( e' : paths ( L x' x0' ) ( L' x' x0' ) ) . apply uahp . apply ( pr1 ( lg _ _ ) ) .   apply ( pr2 ( lg _ _ ) ) . destruct e .  destruct e' .  apply ( is _ _ _ _ r r0 ) . Defined .
+Proof . intros . intros x x' x0 x0' r r0 . assert ( e : paths ( L x x0 ) ( L' x x0 ) ) . apply hPropUnivalence . apply ( pr1 ( lg _ _ ) ) .   apply ( pr2 ( lg _ _ ) ) .  assert ( e' : paths ( L x' x0' ) ( L' x' x0' ) ) . apply hPropUnivalence . apply ( pr1 ( lg _ _ ) ) .   apply ( pr2 ( lg _ _ ) ) . destruct e .  destruct e' .  apply ( is _ _ _ _ r r0 ) . Defined .
 
 Definition quotrel  { X : UU } { R L : hrel X } ( is : iscomprelrel R L ) : hrel ( setquot R ) := setquotuniv2 R hPropset L is .
 
@@ -1428,7 +1428,7 @@ Proof. intros. apply idpath. Defined.
 (** *** Weak equivalence from [ R x x' ] to [ paths ( setquot2pr R x ) ( setquot2pr R x' ) ] *)
 
 Lemma weqpathssetquot2l1 { X : UU } ( R : eqrel X ) ( x : X ) : iscomprelfun R ( fun x' => R x x' ) .
-Proof . intros .  intros x' x'' .  intro r . apply uahp . intro r' .  apply ( eqreltrans R _ _ _ r' r ) . intro r'' .  apply ( eqreltrans R _ _ _ r'' ( eqrelsymm R _ _ r ) ) . Defined .
+Proof . intros .  intros x' x'' .  intro r . apply hPropUnivalence . intro r' .  apply ( eqreltrans R _ _ _ r' r ) . intro r'' .  apply ( eqreltrans R _ _ _ r'' ( eqrelsymm R _ _ r ) ) . Defined .
 
 Theorem weqpathsinsetquot2 { X : UU } ( R : eqrel X ) ( x x' : X ) : weq ( R x x' ) ( setquot2pr R x = setquot2pr R x' ) .
 Proof .  intros . apply weqimplimpl .  apply iscompsetquot2pr . set ( int := setquot2univ  R hPropset ( fun x'' => R x x'' ) ( weqpathssetquot2l1 R x ) ) .  intro e .  change ( pr1 ( int ( setquot2pr R x' ) ) ) . destruct e . change ( R x x ) . apply ( eqrelrefl R ) . apply ( pr2 ( R x x' ) ) . apply ( isasetsetquot2 ) .  Defined .
@@ -1467,7 +1467,7 @@ Proof.
   { apply funextfun; intro e. induction e. reflexivity. }
   induction (!comp). apply twooutof3c.
   { apply isweqonpathsincl. apply isinclpr1. exact isapropisaset. }
-  { apply univalenceaxiom. }
+  { apply univalenceAxiom. }
   Unset Printing Coercions.
 Defined.
 

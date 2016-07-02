@@ -94,7 +94,7 @@ Proof.
   unfold isaposetmorphism in e; simpl in e.
   induction e as [e e'].
   unfold posetRelation in *. unfold invmap in *; simpl in *.
-  apply uahp. { apply e. } { apply e'. }
+  apply hPropUnivalence. { apply e. } { apply e'. }
 Defined.
 
 Open Scope transport.

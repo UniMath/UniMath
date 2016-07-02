@@ -59,12 +59,12 @@ Proof.
   intros ? [n x].
   induction n as [|n IHn].
   { reflexivity. }
-  { rewrite flattenStep, doubleProductStep.
-    generalize (x (lastelement _)) as z.
-    generalize (x ∘ dni_lastelement) as y.
-    intros y [m z].
-    induction m as [|m IHm].
-    { change (sequenceProduct (0,, z)) with (unel M). rewrite runax.
+  (* { rewrite flattenStep, doubleProductStep. *)
+  (*   generalize (x (lastelement _)) as z. *)
+  (*   generalize (x ∘ dni_lastelement) as y. *)
+  (*   intros y [m z]. *)
+  (*   induction m as [|m IHm]. *)
+  (*   { change (sequenceProduct (0,, z)) with (unel M). rewrite runax. *)
 (*       change (concatenate (flatten (n,, y)) (0,, z)) with (flatten (n,, y)). *)
 (*       exact (IHn y). } *)
 (*     { rewrite sequenceProductStep, concatenateStep. *)
