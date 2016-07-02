@@ -182,7 +182,8 @@ Proof.
   intros X R H x y.
   split.
   apply hinhuniv.
-  intros (c).
+  intros (c,H').
+  generalize H'; clear H'.
   apply (pr2 H).
   intros H1.
   apply hinhpr.
