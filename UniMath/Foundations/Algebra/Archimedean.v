@@ -525,7 +525,7 @@ Proof.
   repeat split.
   - intros y1 y2 Hy.
     assert (R (y1 - y2)%rng 0%rng).
-    abstract (apply (pr2 (isinvbinophrelgr (rngaddabgr X) Hop1)) with y2 ;
+    abstract (apply (pr2 (isinvbinophrelgr X Hop1)) with y2 ;
                change BinaryOperations.op with (@BinaryOperations.op1 X) ;
                rewrite rngassoc1, rnglinvax1, rnglunax1, rngrunax1 ;
                exact Hy).
@@ -571,8 +571,8 @@ Defined.
 Lemma isarchrng_isarchgr {X : rng} (R : hrel X) :
   R 1%rng 0%rng ->
   istrans R ->
-  isbinophrel (X := rngaddabgr X) R ->
-  isarchrng R -> isarchgr (X := rngaddabgr X) R.
+  isbinophrel (X := X) R ->
+  isarchrng R -> isarchgr (X := X) R.
 Proof.
   intros X R Hr0 Hr Hop1 H.
   apply isarchmonoid_isarchgr.
@@ -586,15 +586,15 @@ Defined.
 Lemma isarchgr_isarchrng {X : rng} (R : hrel X) :
   R 1%rng 0%rng ->
   istrans R ->
-  isbinophrel (X := rngaddabgr X) R ->
-  isarchgr (X := rngaddabgr X) R -> isarchrng R.
+  isbinophrel (X := X) R ->
+  isarchgr (X := X) R -> isarchrng R.
 Proof.
   intros X R Hr0 Hr Hop1 H.
   apply isarchrig_isarchrng.
   exact Hop1.
   apply isarchmonoid_isarchrig.
   exact Hr0.
-  now apply (isarchgr_isarchmonoid (X := rngaddabgr X)).
+  now apply (isarchgr_isarchmonoid (X := X)).
 Defined.
 
 Theorem isarchrigtorng :
@@ -702,7 +702,7 @@ Proof.
 Defined.
 
 Lemma natmult_commrngfrac {X : commrng} {S : subabmonoids} :
-  Π n (x : X × S), natmult (X := rngaddabgr (commrngfrac X S)) n (setquotpr (eqrelcommrngfrac X S) x) = setquotpr (eqrelcommrngfrac X S) (natmult (X := rngaddabgr X) n (pr1 x) ,, (pr2 x)).
+  Π n (x : X × S), natmult (X := commrngfrac X S) n (setquotpr (eqrelcommrngfrac X S) x) = setquotpr (eqrelcommrngfrac X S) (natmult (X := X) n (pr1 x) ,, (pr2 x)).
 Proof.
   simpl ; intros X S n x.
   induction n.
@@ -759,11 +759,11 @@ Proof.
       apply hinhpr ; simpl.
       exists c.
       change (R
-                (natmult (Datatypes.S n) (natmult (X := rngaddabgr X) m (pr1 x)) * 1 * pr1 c)%rng
+                (natmult (Datatypes.S n) (natmult (X := X) m (pr1 x)) * 1 * pr1 c)%rng
                 (1 * pr1 (pr2 x) * pr1 c)%rng).
       rewrite <- (nattorig_natmult (X := X)), (rngrunax2 X), (rnglunax2 X), (rngassoc2 X), (nattorig_natmult (X := X)).
       eapply Htra.
-      apply (natmult_binophrel (X := rngaddabgr X) R).
+      apply (natmult_binophrel (X := X) R).
       exact Htra.
       exact Hop1.
       rewrite <- (nattorig_natmult (X := X)), (rngassoc2 X).
@@ -810,7 +810,7 @@ Proof.
       apply (pr2 (pr2 x)).
       rewrite (rngrunax2 X), (nattorig_natmult (X := X)), natmult_mult.
       eapply Htra.
-      apply (natmult_binophrel (X := rngaddabgr X) R).
+      apply (natmult_binophrel (X := X) R).
       exact Htra.
       exact Hop1.
       rewrite <- (nattorig_natmult (X := X)).
@@ -855,7 +855,7 @@ Proof.
   apply (isarchrng_2 R H x).
 Defined.
 
-Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel ( rngaddabgr X ) R ) ( is1 : isrngmultgt X R ) ( is2 : R 1%rng 0%rng ) ( nc : neqchoice R ) ( irr : isirrefl R ) ( tra : istrans R ) :
+Theorem isarchfldfrac ( X : intdom ) ( is : isdeceq X )  { R : hrel X } ( is0 : @isbinophrel X R ) ( is1 : isrngmultgt X R ) ( is2 : R 1%rng 0%rng ) ( nc : neqchoice R ) ( irr : isirrefl R ) ( tra : istrans R ) :
   isarchrng R -> isarchfld (X := fldfrac X is ) (fldfracgt _  is is0 is1 is2 nc).
 Proof.
   intros.
