@@ -13,9 +13,9 @@ Section def_terminal.
 
 Variable C : precategory.
 
-Definition isTerminal (b : C) := forall a : C, iscontr (a --> b).
+Definition isTerminal (b : C) : UU := forall a : C, iscontr (a --> b).
 
-Definition Terminal := total2 (fun a => isTerminal a).
+Definition Terminal : UU := total2 (fun a => isTerminal a).
 
 Definition TerminalObject (T : Terminal) : C := pr1 T.
 Coercion TerminalObject : Terminal >-> ob.
@@ -110,29 +110,6 @@ Section Terminal_and_EmptyProd.
         (intros i; apply (fromempty i)).
     apply (iscontrpair (ProductArrow _ _ X H)); intros t.
     apply ProductArrowUnique; intros i; apply (fromempty i).
-  Defined.
-
-  (** Construct empty arbitrary product from Terminal *)
-  Definition empty_product_from_terminal (C : precategory)
-    (hs : has_homsets C) :
-    Terminal C ->  ProductCone empty C fromempty.
-  Proof.
-    intros T.
-    assert (H : forall i : empty, C⟦T, fromempty i⟧) by
-        (intros i; apply (fromempty i)).
-    refine (mk_ProductCone _ _ _ T H _).
-    refine (mk_isProductCone _ _ hs _ _ _ _).
-    intros c f.
-    set (k := @TerminalArrow _ T c).
-    assert (H0 : forall i : empty, (TerminalArrow c) ;; H i = f i) by
-        (intros i; apply (fromempty i)).
-
-    refine (iscontrpair (tpair _ k H0) _). intros t.
-    apply (total2_paths (ArrowsToTerminal C T c _ _)).
-    apply proofirrelevance.
-    apply impred_isaprop.
-    intros t0.
-    apply hs.
   Defined.
 End Terminal_and_EmptyProd.
 
