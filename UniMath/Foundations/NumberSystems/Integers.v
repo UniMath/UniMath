@@ -32,7 +32,7 @@ Require Export UniMath.Foundations.NumberSystems.NaturalNumbers .
 
 
 Definition hz : commrng := commrigtocommrng natcommrig .
-Definition hzaddabgr : abgr := rngaddabgr hz .
+Definition hzaddabgr : abgr := hz .
 Definition hzmultabmonoid : abmonoid := rngmultabmonoid hz .
 
 Definition natnattohz : nat -> nat -> hz := fun n m => setquotpr _ ( dirprodpair n m ) .

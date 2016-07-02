@@ -329,9 +329,9 @@ Proof.
   intros x y.
   rewrite hr_opp_minus.
   pattern x at 1 ;
-    rewrite <- (grinvinv (rngaddabgr hr_commrng) x) ;
+    rewrite <- (grinvinv hr_commrng x) ;
     pattern y at 1 ;
-    rewrite <- (grinvinv (rngaddabgr hr_commrng) y).
+    rewrite <- (grinvinv hr_commrng y).
   change (hr_to_NRneg (- (- x))%rng - hr_to_NRneg (- (- y))%rng <=
    hr_to_NRneg (- (- x - - y))%rng).
   rewrite !hr_to_NRneg_opp.
@@ -1206,8 +1206,8 @@ Proof.
   - apply (plusNonnegativeReals_ltcompat_r (x m)) in Hu.
     eapply istrans_le_lt_ltNonnegativeReals, Hu.
     rewrite hr_opp_minus, hr_abs_opp, rngcomm1.
-    change (- - u n)%rng with (grinv (rngaddabgr hr_commrng) (grinv (rngaddabgr hr_commrng) (u n))).
-    rewrite (grinvinv (rngaddabgr hr_commrng) (u n)).
+    change (- - u n)%rng with (grinv hr_commrng (grinv hr_commrng (u n))).
+    rewrite (grinvinv hr_commrng (u n)).
     eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, maxNonnegativeReals_le_l.
     eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, hr_to_NRpos_minus.
     change (hr_to_NRpos (u n)) with (x n) ;
@@ -1243,8 +1243,8 @@ Proof.
   - apply (plusNonnegativeReals_ltcompat_r (y m)) in Hu.
     eapply istrans_le_lt_ltNonnegativeReals, Hu.
     rewrite hr_opp_minus, hr_abs_opp, rngcomm1.
-    change (- - u n)%rng with (grinv (rngaddabgr hr_commrng) (grinv (rngaddabgr hr_commrng) (u n))).
-    rewrite (grinvinv (rngaddabgr hr_commrng) (u n)).
+    change (- - u n)%rng with (grinv hr_commrng (grinv hr_commrng (u n))).
+    rewrite (grinvinv hr_commrng (u n)).
     eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, maxNonnegativeReals_le_r.
     eapply istrans_leNonnegativeReals, plusNonnegativeReals_lecompat_r, hr_to_NRneg_minus.
     change (hr_to_NRneg (u n)) with (y n) ;

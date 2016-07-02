@@ -226,6 +226,13 @@ Proof.
   apply idpath.
 Defined.
 
+Lemma cancel_precomposition (C : precategory_data) (a b c: C)
+   (f f' : b --> c) (g : a --> b) : f = f' -> g ;; f = g ;; f'.
+Proof.
+  intro H.
+  induction H.
+  apply idpath.
+Defined.
 
 (** * Setcategories: Precategories whose objects and morphisms are sets *)
 

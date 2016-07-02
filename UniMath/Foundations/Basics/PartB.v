@@ -469,6 +469,20 @@ Corollary subtypeEquality' {A : UU} {B : A -> UU}
 (* This variant of subtypeEquality is not often needed. *)
 Proof. intros ? ? ? ? e is. apply (total2_paths e). apply is. Defined.
 
+(* This corollary of subtypeEquality is used for categories. *)
+Corollary unique_exists {A : UU} {B : A -> UU} (x : A) (b : B x)
+          (h : forall y, isaprop (B y)) (H : forall y, B y -> y = x) :
+  iscontr (total2 (fun t : A => B t)).
+Proof.
+  intros A B x b h H.
+  use iscontrpair.
+  exact (x,,b).
+  intros t.
+  apply subtypeEquality'.
+  apply (H (pr1 t)). apply (pr2 t).
+  apply (h (pr1 (x,,b))).
+Defined.
+
 Definition subtypePairEquality {X} {P:X -> UU} (is: isPredicate P)
            {x y:X} {p:P x} {q:P y} :
   x = y -> (x,,p) = (y,,q).
