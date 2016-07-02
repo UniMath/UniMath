@@ -1,7 +1,7 @@
 (** * Univalent Basics. Vladimir Voevodsky. Feb. 2010 - Sep. 2011. Port to coq trunk (8.4-8.5) in
  March 2014. The third part of the original uu0 file, created on Dec. 3, 2014.
 
-Only one usniverse is used and never as a type. We use general functional extensionality [ funextfunax ] asserting that two homotopic functions are equal. Since [ funextfunax ] itself is  not an "axiom"  in our sense, i.e., its type is not of h-level 1, we show that it is logically equivalent to a real  axiom [ funcontr ] which asserts that the space of sections of a family with contractible  fibers is contractible.
+Only one universe is used and never as a type.
 
 *)
 
@@ -16,85 +16,6 @@ Coq8.2 *)
 (** Imports *)
 
 Require Export UniMath.Foundations.Basics.PartC.
-
-
-(** *** Deduction of functional extnsionality for dependent functions (sections) from functional extensionality of usual functions *)
-
-Axiom funextfunax : forall (X Y:UU)(f g:X->Y),  (forall x:X, paths (f x) (g x)) -> (paths f g).
-
-
-Lemma isweqlcompwithweq { X X' : UU} (w: weq X X') (Y:UU) : isweq (fun a:X'->Y => (fun x:X => a (w x))).
-Proof. intros. set (f:= (fun a:X'->Y => (fun x:X => a (w x)))). set (g := fun b:X-> Y => fun x':X' => b ( invweq  w x')).
-set (egf:= (fun a:X'->Y => funextfunax X' Y (fun x':X' => (g (f a)) x') a (fun x': X' =>  maponpaths a  (homotweqinvweq w x')))).
-set (efg:= (fun a:X->Y => funextfunax X Y (fun x:X => (f (g a)) x) a (fun x: X =>  maponpaths a  (homotinvweqweq w x)))).
-apply (gradth  f g egf efg). Defined.
-
-
-
-Lemma isweqrcompwithweq { Y Y':UU } (w: weq Y Y')(X:UU): isweq (fun a:X->Y => (fun x:X => w (a x))).
-Proof. intros. set (f:= (fun a:X->Y => (fun x:X => w (a x)))). set (g := fun a':X-> Y' => fun x:X => (invweq  w (a' x))).
-set (egf:= (fun a:X->Y => funextfunax X Y (fun x:X => (g (f a)) x) a (fun x: X => (homotinvweqweq w (a x))))).
-set (efg:= (fun a':X->Y' => funextfunax X Y' (fun x:X => (f (g a')) x) a' (fun x: X =>  (homotweqinvweq w (a' x))))).
-apply (gradth  f g egf efg). Defined.
-
-
-
-Theorem funcontr { X : UU } (P:X -> UU) : (forall x:X, iscontr (P x)) -> iscontr (forall x:X, P x).
-Proof. intros X P X0 . set (T1 := forall x:X, P x). set (T2 := (hfiber (fun f: (X -> total2 P)  => fun x: X => pr1  (f x)) (fun x:X => x))). assert (is1:isweq (@pr1 X P)). apply isweqpr1. assumption.  set (w1:= weqpair  (@pr1 X P) is1).
-assert (X1:iscontr T2).  apply (isweqrcompwithweq  w1 X (fun x:X => x)).
-apply ( iscontrretract  _ _  (sectohfibertosec P ) X1). Defined.
-
-Corollary funcontrtwice { X : UU } (P: X-> X -> UU)(is: forall (x x':X), iscontr (P x x')): iscontr (forall (x x':X), P x x').
-Proof. intros.
-assert (is1: forall x:X, iscontr (forall x':X, P x x')). intro. apply (funcontr _ (is x)). apply (funcontr _ is1). Defined.
-
-
-(** Proof of the fact that the [ toforallpaths ] from [paths s1 s2] to [forall t:T, paths (s1 t) (s2 t)] is a weak equivalence - a strong form
-of functional extensionality for sections of general families. The proof uses only [funcontr] which is an axiom i.e. its type satisfies [ isaprop ].  *)
-
-Lemma funextweql1 { T : UU } (P:T -> UU) (g: ∀ t, P t) : ∃! (f:∀ t, P t), ∀ t:T, f t = g t.
-Proof.
-  intros. unshelve refine (iscontrretract (X := ∀ t, Σ p, p = g t) _ _ _ _).
-  - intros x. unshelve refine (_,,_).
-    + intro t. exact (pr1 (x t)).
-    + intro t; simpl. exact (pr2 (x t)).
-  - intros y t. exists (pr1 y t). exact (pr2 y t).
-  - intros u. induction u as [t x]. reflexivity.
-  - apply funcontr. intro t. apply iscontrcoconustot.
-Defined.
-
-Theorem isweqtoforallpaths { T : UU } (P:T -> UU) (f g: ∀ t:T, P t) :
-  isweq (toforallpaths P f g).
-Proof.
-  intros.
-  refine (isweqtotaltofib _ _ (λ (h:∀ t, P t), toforallpaths P h g) _ f).
-  refine (isweqcontrcontr (X := Σ (h: ∀ t, P t), h = g)
-            (λ ff, tpair _ (pr1 ff) (toforallpaths P (pr1 ff) g (pr2 ff))) _ _).
-  { exact (iscontrcoconustot _ g). }
-  { apply funextweql1. }
-Qed.
-
-Theorem weqtoforallpaths { T : UU } (P:T -> UU)(f g : forall t:T, P t) :
-  (f = g) ≃ (∀ t:T, f t = g t).
-Proof. intros. exists (toforallpaths P f g). apply isweqtoforallpaths. Defined.
-
-Definition funextsec {T:UU} (P: T-> UU) (f g : ∀ t:T, P t) : (∀ t, f t = g t) -> f = g
-  := invmap (weqtoforallpaths _ f g) .
-
-Definition funextfun { X Y:UU } (f g:X->Y) : (∀ x:X, f x = g x) -> f = g
-  := funextsec _ _ _.
-
-(** I do not know at the moment whether [funextfun] is equal (homotopic) to [funextfunax]. It is advisable in all cases to use [funextfun] or, equivalently, [funextsec], since it can be produced from [funcontr] and therefore is well defined up to a canonical equivalence.  In addition it is a homotopy inverse of [toforallpaths] which may be true or not for [funextsecax]. *)
-
-Theorem isweqfunextsec { T : UU } (P:T -> UU)(f g : forall t:T, P t) : isweq (funextsec P f g).
-Proof. intros. apply (isweqinvmap ( weqtoforallpaths _  f g ) ). Defined.
-
-Definition weqfunextsec { T : UU } (P:T -> UU)(f g : forall t:T, P t) : weq  (forall t:T, paths (f t) (g t)) (paths f g) := weqpair _ ( isweqfunextsec P f g ) .
-
-
-
-
-
 
 (** ** Sections of "double fibration" [(P: T -> UU)(PP: forall t:T, P t -> UU)] and pairs of sections *)
 
@@ -118,20 +39,16 @@ Proof.
 Defined.
 
 Lemma lemmaeta1 { X : UU } (P:X->UU) (Q:(forall x:X, P x) -> UU)(s0: forall x:X, P x)(q: Q (fun x:X => (s0 x))): paths (tpair (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) s0 q) (tpair (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) (fun x:X => (s0 x)) q).
-Proof. intros. set (ff:= fun tp:total2 (fun s: (forall x:X, P x) => Q (fun x:X => (s x))) => tpair _ (fun x:X => pr1  tp x) (pr2  tp)). assert (X0 : isweq ff).  apply (isweqfpmap  ( weqeta P ) Q ).
-assert (ee: paths (ff (tpair (fun s : forall x : X, P x => Q (fun x : X => s x)) s0 q)) (ff (tpair (fun s : forall x : X, P x => Q (fun x : X => s x)) (fun x : X => s0 x) q))). apply idpath.
-
-apply (invmaponpathsweq ( weqpair ff X0 ) _ _ ee). Defined.
-
-
+Proof. reflexivity. Defined.
 
 Definition totaltoforalltototal { X : UU } ( P : X -> UU ) ( PP : forall x:X, P x -> UU )( ss : total2 (fun s0: forall x:X, P x => forall x:X, PP x (s0 x)) ): paths (foralltototal _ _ (totaltoforall  _ _ ss)) ss.
 Proof. intros.  induction ss as [ t x ]. unfold foralltototal. unfold totaltoforall.  simpl.  set (et:= fun x:X => t x).
 
-assert (paths (tpair (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) t x) (tpair (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et x)). apply (lemmaeta1 P (fun s: forall x:X, P x =>  forall x:X, PP x (s x)) t x).
+       assert (paths (tpair (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) t x) (tpair (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et x)).
+       reflexivity.
 
 assert (ee: paths (tpair (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et x) (tpair (fun s0 : forall x0 : X, P x0 => forall x0 : X, PP x0 (s0 x0)) et (fun x0 : X => x x0))).
-assert (eee: paths x (fun x0:X => x x0)). apply etacorrection. induction eee. apply idpath. induction ee. apply pathsinv0. assumption. Defined.
+apply idpath. induction ee. apply pathsinv0. assumption. Defined.
 
 
 
@@ -165,16 +82,12 @@ Definition funtoprodtoprod { X Y Z : UU } ( f : X -> dirprod Y Z ) : dirprod ( X
 Definition prodtofuntoprod { X Y Z : UU } ( fg : dirprod ( X -> Y ) ( X -> Z ) ) : X -> dirprod Y Z := match fg with tpair _ f g => fun x : X => dirprodpair ( f x ) ( g x ) end .
 
 Theorem weqfuntoprodtoprod ( X Y Z : UU ) : weq ( X -> dirprod Y Z ) ( dirprod ( X -> Y ) ( X -> Z ) ) .
-Proof. intros. set ( f := @funtoprodtoprod X Y Z ) . set ( g := @prodtofuntoprod X Y Z ) . split with f .
-assert ( egf : forall a : _ , paths ( g ( f a ) ) a ) . intro a . apply funextfun .  intro x .  simpl . apply pathsinv0 . apply tppr .
-assert ( efg : forall a : _ , paths ( f ( g a ) ) a ) . intro a . induction a as [ fy fz ] . apply pathsdirprod .  simpl . apply pathsinv0 . apply etacorrection . simpl . apply pathsinv0 . apply etacorrection .
-apply ( gradth _ _ egf efg ) . Defined .
-
-
-
-
-
-
+Proof.
+  intros.
+  simple refine (weqpair _ (gradth (@funtoprodtoprod X Y Z) (@prodtofuntoprod X Y Z ) _ _ )).
+  - intro a . apply funextfun .  intro x .  simpl . apply pathsinv0, tppr .
+  - intro a . now induction a as [ fy fz ] .
+Defined.
 
 (** ** Homotopy fibers of the map [forall x:X, P x -> forall x:X, Q x] *)
 
@@ -305,7 +218,7 @@ Lemma maponsec1l2 { X : UU } (P:X -> UU)(f:X-> X)(h: forall x:X, paths (f x) x)(
 Proof. intros.
 
 set (map:= fun ff: total2 (fun f0:X->X => forall x:X, paths (f0 x) x) => maponsec1l0 P (pr1  ff) (pr2  ff) s x).
-assert (is1: iscontr (total2 (fun f0:X->X => forall x:X, paths (f0 x) x))). apply funextweql1. assert (e: paths (tpair  (fun f0:X->X => forall x:X, paths (f0 x) x) f h) (tpair  (fun f0:X->X => forall x:X, paths (f0 x) x) (fun x0:X => x0) (fun x0:X => idpath x0))). apply proofirrelevancecontr.  assumption.  apply (maponpaths map  e). Defined.
+assert (is1: iscontr (total2 (fun f0:X->X => forall x:X, paths (f0 x) x))). apply funextcontr. assert (e: paths (tpair  (fun f0:X->X => forall x:X, paths (f0 x) x) f h) (tpair  (fun f0:X->X => forall x:X, paths (f0 x) x) (fun x0:X => x0) (fun x0:X => idpath x0))). apply proofirrelevancecontr.  assumption.  apply (maponpaths map  e). Defined.
 
 
 Theorem isweqmaponsec1 { X Y : UU } (P:Y -> UU)(f: weq X Y ) : isweq (maponsec1 P f).
@@ -406,25 +319,14 @@ Definition funfromcoprodtoprod { X Y Z : UU } ( f : coprod X Y -> Z ) : dirprod 
 Definition prodtofunfromcoprod { X Y Z : UU } ( fg : dirprod ( X -> Z ) ( Y -> Z ) ) : coprod X Y -> Z := match fg with tpair _ f g => sumofmaps f g end .
 
 Theorem weqfunfromcoprodtoprod ( X Y Z : UU ) : weq ( coprod X Y -> Z ) ( dirprod ( X -> Z ) ( Y -> Z ) ) .
-Proof. intros . set ( f := @funfromcoprodtoprod X Y Z ) . set ( g := @prodtofunfromcoprod X Y Z ) . split with f .
-assert ( egf : forall a : _ , paths ( g ( f a ) ) a ) .  intro a . apply funextfun .   intro xy .  induction xy as [ x | y ] .  apply idpath . apply idpath .
-assert ( efg : forall a : _ , paths ( f ( g a ) ) a ) . intro a . induction a as [ fx fy ] . simpl . apply pathsdirprod .  simpl . apply pathsinv0 . apply etacorrection . simpl . apply pathsinv0 . apply etacorrection .
-apply ( gradth _ _ egf efg ) . Defined .
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Proof.
+  intros .
+  simple refine (
+           weqpair _ (gradth (@funfromcoprodtoprod X Y Z )
+                             (@prodtofunfromcoprod X Y Z) _ _)).
+  - intro a. apply funextfun; intro xy. induction xy as [ x | y ]; reflexivity.
+  - intro a. induction a as [fx fy]. reflexivity.
+Defined.
 
 (** ** Sections of families over contractible types and over [ total2 ] (over dependent sums) *)
 

@@ -117,11 +117,7 @@ Defined.
 
 Lemma transport_along_funextsec {X:UU} {Y:X->UU} {f g:∀ x, Y x}
       (e:f~g) (x:X) : transportf _ (funextsec _ _ _ e) (f x) = g x.
-Proof.
-  unfold funextsec.
-  induction (invmap (weqtoforallpaths _ f g) e).
-  reflexivity.
-Defined.
+Proof. now induction (funextsec _ _ _ e). Defined.
 
 Definition Functor_eq_map {A B: Precategory} (F G:[A,B]) :
   F = G ->

@@ -113,7 +113,7 @@ Module Test_stn.
     Goal homotinvweqweq re (ii2 tt) = idpath _. reflexivity. Defined.
     Goal homotinvweqweq re (ii1 c) = idpath _.
       try reflexivity.
-      (* quickly returns due to the use of funextempty in the proof of isweqrecompl. *)
+      (* quickly returns due to the use of funextemptyAxiom in the proof of isweqrecompl. *)
     Abort.
 
     Goal re' (ii2 tt) = i. reflexivity. Defined.
@@ -281,8 +281,8 @@ Module Test_fin.
 
     (* This module exports nothing. *)
 
-    (* The proofs of isfinite_isdeceq and isfinite_isaset depend on funextfunax
-       and funextempty, so here we do an experiment to see if that impedes
+    (* The proofs of isfinite_isdeceq and isfinite_isaset depend on funextfun
+       and funextemptyAxiom, so here we do an experiment to see if that impedes
        computability of equality using it. *)
 
     Open Scope stn.
@@ -422,7 +422,7 @@ Module Test_ord.
       Unset Printing Notations.
       unfold decidabilityProperty.
       (* Print Assumptions FiniteOrderedSetDecidableEquality. *)
-      (* uses: funextfunax funextempty *)
+      (* uses: funextfun funextemptyAxiom *)
     Abort.
 
     Goal choice (x ≠ y)%foset true false = false.
