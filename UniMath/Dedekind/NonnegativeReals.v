@@ -302,7 +302,7 @@ Proof.
   - intros Hnlt y Yy.
     generalize (is_Dcuts_open _ _ Yy) ; apply hinhuniv ; intros (y',(Yy',Hy)).
     apply ispositive_minusNonnegativeRationals in Hy.
-    generalize (is_Dcuts_error X _ Hy) ; apply hinhuniv ; intros [nXc | ].
+    generalize (is_Dcuts_error X _ Hy). apply hinhuniv. intros [nXc | t].
     + apply fromempty, Hnlt.
       apply hinhpr.
       exists y' ; split.
@@ -310,7 +310,8 @@ Proof.
         apply is_Dcuts_bot with (1 := Xy').
         now apply minusNonnegativeRationals_le.
       * exact Yy'.
-    + intros (x,(Xx,Hx)).
+    + generalize t; clear t.
+      intros (x,(Xx,Hx)).
       apply is_Dcuts_bot with (1 := Xx).
       apply notlt_geNonnegativeRationals ; intro H ; apply Hnlt.
       apply hinhpr.
@@ -714,8 +715,8 @@ Proof.
   unfold neg.
   apply hinhuniv'.
   exact isapropempty.
-  intros (r,(_)).
-  now apply Dcuts_zero_empty.
+  intros (r,(_,t)).
+  exact (Dcuts_zero_empty r t).
 Qed.
 
 Lemma Dcuts_apzero_notempty :
@@ -723,10 +724,12 @@ Lemma Dcuts_apzero_notempty :
 Proof.
   intros x ; split.
   - now apply Dcuts_notempty_notzero.
-  - intros [ | ].
-    + apply hinhuniv ; intros (r,(_,Or)).
+  - intros [a|b].
+    + generalize a; clear a.
+      apply hinhuniv ; intros (r,(_,Or)).
       now apply Dcuts_zero_empty in Or.
-    + apply hinhuniv ; intros (r,(_,Xr)).
+    + generalize b; clear b.
+      apply hinhuniv ; intros (r,(_,Xr)).
       apply is_Dcuts_bot with (1 := Xr).
       now apply isnonnegative_NonnegativeRationals.
 Qed.
