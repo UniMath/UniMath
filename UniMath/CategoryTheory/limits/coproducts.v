@@ -54,6 +54,14 @@ Proof.
   exact (pr2 (pr1 (isCoproductCocone_CoproductCocone CC _ f)) i).
 Qed.
 
+Lemma CoproductIn_idtoiso {i1 i2 : I} (a : I -> C) (CC : CoproductCocone a)
+      (e : i1 = i2) :
+  idtoiso (maponpaths a e) ;; CoproductIn CC i2 = CoproductIn CC i1.
+Proof.
+  induction e.
+  apply id_left.
+Qed.
+
 Lemma CoproductArrowUnique (a : I -> C) (CC : CoproductCocone a) (x : C)
     (f : forall i, a i --> x) (k : CoproductObject CC --> x)
     (Hk : forall i, CoproductIn CC i ;; k = f i) :
