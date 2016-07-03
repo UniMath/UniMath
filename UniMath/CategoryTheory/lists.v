@@ -395,23 +395,23 @@ Lemma omega_cocontConstProdFunctor : is_omega_cocont constprod_functor.
 Proof.
 intros hF c L ccL HcL cc.
 simple refine (tpair _ _ _).
-- simple refine (tpair _ _ _).
-  + simpl; apply uncurry, flip.
-    apply (colimArrow (mk_ColimCocone _ _ _ ccL) (hset_fun_space x HcL)).
-    simple refine (mk_cocone _ _).
+- transparent assert (HX : (cocone hF (hset_fun_space x HcL))).
+  { simple refine (mk_cocone _ _).
     * simpl; intro n; apply flip, curry, (pr1 cc).
     * abstract (destruct cc as [f hf]; simpl; intros m n e;
                 rewrite <- (hf m n e); destruct e; simpl;
                 repeat (apply funextfun; intro); apply idpath).
+  }
+  simple refine (tpair _ _ _).
+  + simpl; apply uncurry, flip.
+    apply (colimArrow (mk_ColimCocone _ _ _ ccL) (hset_fun_space x HcL)).
+    apply HX.
   + cbn.
-    abstract (
-    destruct cc as [f hf]; simpl; intro n;
-    apply funextfun; intro p; rewrite (paireta p);
-    generalize (colimArrowCommutes (mk_ColimCocone hF c L ccL) _
-                 (mk_cocone _ (omega_cocontConstProdFunctor_subproof
-                               hF c L ccL HcL (f,,hf))) n);
-    unfold flip, curry, colimIn; simpl; intro H;
-    now rewrite <- (toforallpaths _ _ _ (toforallpaths _ _ _ H (pr2 p)) (pr1 p))).
+    destruct cc as [f hf]; simpl; intro n.
+    apply funextfun; intro p; rewrite (paireta p).
+    assert (XR := colimArrowCommutes (mk_ColimCocone hF c L ccL) _ HX n).
+    unfold flip, curry, colimIn in *; simpl in *.
+    now rewrite <- (toforallpaths _ _ _ (toforallpaths _ _ _ XR (pr2 p)) (pr1 p)).
 - abstract (
   intro p; unfold uncurry; simpl; apply subtypeEquality; simpl;
   [ intro g; apply impred; intro t;
