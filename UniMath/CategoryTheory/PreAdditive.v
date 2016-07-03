@@ -19,7 +19,7 @@ Section def_preadditive.
   (** In preadditive category precomposition and postcomposition for any
     morphism yields a morphism of abelian groups. Classically one says that
     composition is bilinear with respect to the abelian groups? *)
-  Definition isPreAdditive (PA : PrecategoryWithAbgrops) :=
+  Definition isPreAdditive (PA : PrecategoryWithAbgrops) : UU :=
     (Π (x y z : PA) (f : x --> y),
         ismonoidfun (PrecategoryWithAbgrops_premor PA x y z f))
       × (Π (x y z : PA) (f : y --> z),

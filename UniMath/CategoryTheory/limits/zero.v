@@ -15,10 +15,10 @@ Section def_zero.
 
   Variable C : precategory.
 
-  Definition isZero (b : C) :=
+  Definition isZero (b : C) : UU :=
     (Π a : C, iscontr (b --> a)) × (Π a : C, iscontr (a --> b)).
 
-  Definition Zero := total2 (fun a => isZero a).
+  Definition Zero : UU := total2 (fun a => isZero a).
 
   Definition ZeroObject (Z : Zero) : C := pr1 Z.
   Coercion ZeroObject : Zero >-> ob.

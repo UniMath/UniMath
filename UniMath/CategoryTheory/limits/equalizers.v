@@ -63,9 +63,9 @@ Section def_equalizers.
   Defined.
 
   (** Equalizers in precategories. *)
-  Definition Equalizers := Π (y z : C) (f g : y --> z), Equalizer f g.
+  Definition Equalizers : UU := Π (y z : C) (f g : y --> z), Equalizer f g.
 
-  Definition hasEqualizers := Π (y z : C) (f g : y --> z),
+  Definition hasEqualizers : UU := Π (y z : C) (f g : y --> z),
       ishinh (Equalizer f g).
 
   (** Returns the equalizer object. *)

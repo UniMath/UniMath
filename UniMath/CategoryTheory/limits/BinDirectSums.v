@@ -29,7 +29,7 @@ Section def_bindirectsums.
 
   (** Definition of isBinDirectSumCone *)
   Definition isBinDirectSumCone (a b co : A) (i1 : a --> co) (i2 : b --> co)
-             (p1 : co --> a) (p2 : co --> b) :=
+             (p1 : co --> a) (p2 : co --> b) : UU :=
     (isBinCoproductCocone A a b co i1 i2)
       × (isBinProductCone A a b co p1 p2)
       × (i1 ;; p1 = identity a) × (i2 ;; p2 = identity b)
@@ -97,8 +97,8 @@ Section def_bindirectsums.
     BinDirectSumCone a b := tpair _ (tpair _ co (i1,,(i2,,(p1,,p2)))) H.
 
   (** BinDirectSum in categories. *)
-  Definition BinDirectSums := Π (a b : A), BinDirectSumCone a b.
-  Definition has_BinDirectSums := ishinh BinDirectSums.
+  Definition BinDirectSums : UU := Π (a b : A), BinDirectSumCone a b.
+  Definition has_BinDirectSums : UU := ishinh BinDirectSums.
 
   (** The direct sum object. *)
   Definition BinDirectSumConeOb {a b : A} (B : BinDirectSumCone a b) :

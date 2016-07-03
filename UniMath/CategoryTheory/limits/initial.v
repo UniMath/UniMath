@@ -13,9 +13,9 @@ Section def_initial.
 
 Variable C : precategory.
 
-Definition isInitial (a : C) := Π b : C, iscontr (a --> b).
+Definition isInitial (a : C) : UU := Π b : C, iscontr (a --> b).
 
-Definition Initial := total2 (fun a => isInitial a).
+Definition Initial : UU := total2 (fun a => isInitial a).
 
 Definition InitialObject (O : Initial) : C := pr1 O.
 Coercion InitialObject : Initial >-> ob.
@@ -108,28 +108,6 @@ Section Initial_and_EmptyCoprod.
         (intros i; apply (fromempty i)).
     apply (iscontrpair (CoproductArrow _ _ X H)); intros t.
     apply CoproductArrowUnique; intros i; apply (fromempty i).
-  Defined.
-
-  (** Construct empty arbitrary coproduct from initial *)
-  Definition empty_coproduct_from_initial (C : precategory)
-             (hs : has_homsets C) :
-    Initial C -> CoproductCocone empty C fromempty.
-  Proof.
-    intros I.
-    assert (H : Π i : empty, C⟦fromempty i, I⟧) by
-        (intros i; apply (fromempty i)).
-    refine (mk_CoproductCocone _ _ _ (InitialObject I) H _).
-    refine (mk_isCoproductCocone _ _ hs _ _ _ _).
-    intros c g.
-    set (k := @InitialArrow _ I c).
-    assert (H0 : Π i : empty, H i ;; (InitialArrow I c) = g i) by
-        (intros i; apply (fromempty i)).
-    refine (iscontrpair (tpair _ k H0) _). intros t.
-    apply (total2_paths (InitialArrowEq C I c _ _)).
-    apply proofirrelevance.
-    apply impred_isaprop.
-    intros t0.
-    apply hs.
   Defined.
 End Initial_and_EmptyCoprod.
 

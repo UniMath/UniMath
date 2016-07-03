@@ -11,7 +11,7 @@ Section def_monic.
   Variable C : precategory.
 
   (** Definition and construction of isMonic. *)
-  Definition isMonic {y z : C} (f : y --> z) :=
+  Definition isMonic {y z : C} (f : y --> z) : UU :=
     Π (x : C) (g h : x --> y), g ;; f = h ;; f -> g = h.
   Definition mk_isMonic {y z : C} (f : y --> z) :
     (Π (x : C) (g h : x --> y), g ;; f = h ;; f -> g = h) -> isMonic f.

@@ -11,8 +11,16 @@ Section def_epi.
   Variable C : precategory.
 
   (** Definition and construction of isEpi. *)
+<<<<<<< HEAD
   Definition isEpi {x y : C} (f : x --> y) :=
     Π (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h.
+||||||| merged common ancestors
+  Definition isEpi {x y : C} (f : x --> y) :=
+    forall (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h.
+=======
+  Definition isEpi {x y : C} (f : x --> y) : UU :=
+    forall (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h.
+>>>>>>> 2c0c40deb560dc855144f924c8a63184d7e0462d
   Definition mk_isEpi {x y : C} (f : x --> y) :
     (Π (z : C) (g h : y --> z), f ;; g = f ;; h -> g = h) -> isEpi f.
   Proof. intros X. unfold isEpi. apply X.  Defined.
