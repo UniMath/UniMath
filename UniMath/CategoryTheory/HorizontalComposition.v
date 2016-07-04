@@ -116,21 +116,19 @@ Proof.
     exact (functor_id (pr2 FG) ((pr1 (pr1 FG)) x)).
   - unfold functor_compax.
     intros FG1 FG2 FG3 αβ1 αβ2.
-    induction FG1 as [F1 G1].
-    induction FG2 as [F2 G2].
-    induction FG3 as [F3 G3].
     induction αβ1 as [α1 β1].
     induction αβ2 as [α2 β2].
-    simpl in α1, β1, α2, β2.
+
     apply nat_trans_eq.
     apply hsC.
-    intros x.
+    intros a.
+
     simpl.
     rewrite <- ?assoc.
     apply cancel_precomposition.
-    rewrite (functor_comp G3).
+    rewrite (functor_comp _).
     rewrite -> ?assoc.
     apply cancel_postcomposition.
-    rewrite (nat_trans_ax).
-    reflexivity.
+    apply pathsinv0.
+    apply nat_trans_ax.
 Defined.
