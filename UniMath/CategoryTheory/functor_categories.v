@@ -646,6 +646,13 @@ Defined.
 Definition functor_identity (C : precategory_data) : functor C C :=
   tpair _ _ ( is_functor_identity C ) .
 
+Lemma identity_functor_is_fully_faithful { C : precategory_data }
+  : fully_faithful (functor_identity C).
+Proof.
+  intros a b.
+  apply idisweq.
+Defined.
+
 (** *** Constant functor *)
 
 Section Constant_Functor.
