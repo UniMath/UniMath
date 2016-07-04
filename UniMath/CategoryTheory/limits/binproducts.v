@@ -15,7 +15,7 @@ Section binproduct_def.
 Variable C : precategory.
 
 Definition isBinProductCone (c d p: C) (p1 : p --> c) (p2 : p --> d) :=
-  forall (a : C) (f : a --> c) (g : a --> d),
+  Π (a : C) (f : a --> c) (g : a --> d),
     iscontr (total2 (fun fg : a --> p => dirprod (fg ;; p1 = f)
                                                  (fg ;; p2 = g))).
 
@@ -24,7 +24,7 @@ Definition BinProductCone (c d : C) :=
              isBinProductCone c d (pr1 pp1p2) (pr1 (pr2 pp1p2)) (pr2 (pr2 pp1p2))).
 
 
-Definition BinProducts := forall (c d : C), BinProductCone c d.
+Definition BinProducts := Π (c d : C), BinProductCone c d.
 Definition hasBinProducts := ishinh BinProducts.
 
 Definition BinProductObject {c d : C} (P : BinProductCone c d) : C := pr1 (pr1 P).
@@ -46,14 +46,14 @@ Proof.
 Defined.
 
 Lemma BinProductPr1Commutes (c d : C) (P : BinProductCone c d):
-     forall (a : C) (f : a --> c) g, BinProductArrow P f g ;; BinProductPr1 P = f.
+     Π (a : C) (f : a --> c) g, BinProductArrow P f g ;; BinProductPr1 P = f.
 Proof.
   intros a f g.
   exact (pr1 (pr2 (pr1 (isBinProductCone_BinProductCone P _ f g)))).
 Qed.
 
 Lemma BinProductPr2Commutes (c d : C) (P : BinProductCone c d):
-     forall (a : C) (f : a --> c) g, BinProductArrow P f g ;; BinProductPr2 P = g.
+     Π (a : C) (f : a --> c) g, BinProductArrow P f g ;; BinProductPr2 P = g.
 Proof.
   intros a f g.
   exact (pr2 (pr2 (pr1 (isBinProductCone_BinProductCone P _ f g)))).
@@ -72,7 +72,7 @@ Qed.
 
 
 Definition mk_BinProductCone (a b : C) :
-  ∀ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
+  Π (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
    isBinProductCone _ _ _ f g -> BinProductCone a b.
 Proof.
   intros.
@@ -85,7 +85,7 @@ Defined.
 
 Definition mk_isBinProductCone (hsC : has_homsets C) (a b p : C)
   (pa : C⟦p,a⟧) (pb : C⟦p,b⟧) :
-  (∀ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
+  (Π (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
     ∃! k : C⟦c,p⟧, k ;; pa = f × k ;; pb = g) ->
   isBinProductCone a b p pa pb.
 Proof.
@@ -259,7 +259,7 @@ End BinProduct_unique.
 (* + apply (tpair _ (pr1 t)); split; [ apply (pr2 t true) | apply (pr2 t false) ]. *)
 (* + intros t0. *)
 (*   apply subtypeEquality; [intros aa; apply isapropdirprod; apply hsC|]; simpl. *)
-(*   simple refine (let X : Σ x : c --> ab, ∀ v, coconeIn cc v ;; x = *)
+(*   simple refine (let X : Σ x : c --> ab, Π v, coconeIn cc v ;; x = *)
 (*             (if v as b0 return (c --> (if b0 then a else b)) then f else g) := _ in _). *)
 (*   { apply (tpair _ (pr1 t0)); intro x; case x; *)
 (*     [ apply (pr1 (pr2 t0)) | apply (pr2 (pr2 t0)) ]. } *)

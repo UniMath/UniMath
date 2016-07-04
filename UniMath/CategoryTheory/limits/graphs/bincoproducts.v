@@ -47,7 +47,7 @@ Definition isBinCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
   isColimCocone (bincoproduct_diagram a b) co (CopCocone ia ib).
 
 Definition mk_isBinCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a --> co) (ib : b --> co) :
-   (∀ (c : C) (f : a --> c) (g : b --> c),
+   (Π (c : C) (f : a --> c) (g : b --> c),
     ∃! k : C ⟦co, c⟧,
       ia ;; k = f ×
       ib ;; k = g)
@@ -71,7 +71,7 @@ Definition BinCoproductCocone (a b : C) :=
   ColimCocone (bincoproduct_diagram a b).
 
 Definition mk_BinCoproductCocone (a b : C) :
-  ∀ (c : C) (f : a --> c) (g : b --> c),
+  Π (c : C) (f : a --> c) (g : b --> c),
    isBinCoproductCocone _ _ _ f g →  BinCoproductCocone a b.
 Proof.
   intros.
@@ -81,7 +81,7 @@ Proof.
   - apply X.
 Defined.
 
-Definition BinCoproducts := ∀ (a b : C), BinCoproductCocone a b.
+Definition BinCoproducts := Π (a b : C), BinCoproductCocone a b.
 Definition hasBinCoproducts := ishinh BinCoproducts.
 
 Definition BinCoproductObject {a b : C} (CC : BinCoproductCocone a b) : C := colim CC.
@@ -103,7 +103,7 @@ Proof.
 Defined.
 
 Lemma BinCoproductIn1Commutes (a b : C) (CC : BinCoproductCocone a b):
-     ∀ (c : C) (f : a --> c) g, BinCoproductIn1 CC ;; BinCoproductArrow CC f g  = f.
+     Π (c : C) (f : a --> c) g, BinCoproductIn1 CC ;; BinCoproductArrow CC f g  = f.
 Proof.
   intros c f g.
   unfold BinCoproductIn1.
@@ -112,7 +112,7 @@ Proof.
 Qed.
 
 Lemma BinCoproductIn2Commutes (a b : C) (CC : BinCoproductCocone a b):
-     ∀ (c : C) (f : a --> c) g, BinCoproductIn2 CC ;; BinCoproductArrow CC f g = g.
+     Π (c : C) (f : a --> c) g, BinCoproductIn2 CC ;; BinCoproductArrow CC f g = g.
 Proof.
   intros c f g.
   unfold BinCoproductIn1.

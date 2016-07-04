@@ -13,7 +13,7 @@ Section def_terminal.
 
 Variable C : precategory.
 
-Definition isTerminal (b : C) : UU := forall a : C, iscontr (a --> b).
+Definition isTerminal (b : C) : UU := Π a : C, iscontr (a --> b).
 
 Definition Terminal : UU := total2 (fun a => isTerminal a).
 
@@ -25,7 +25,7 @@ Proof.
   exists b; exact H.
 Defined.
 
-Definition mk_isTerminal (b : C) (H : ∀ (a : C), iscontr (a --> b)) :
+Definition mk_isTerminal (b : C) (H : Π (a : C), iscontr (a --> b)) :
   isTerminal b.
 Proof.
   exact H.
@@ -106,7 +106,7 @@ Section Terminal_and_EmptyProd.
     refine (mk_Terminal (ProductObject _ C X) _).
     refine (mk_isTerminal _ _).
     intros a.
-    assert (H : forall i : empty, C⟦a, fromempty i⟧) by
+    assert (H : Π i : empty, C⟦a, fromempty i⟧) by
         (intros i; apply (fromempty i)).
     apply (iscontrpair (ProductArrow _ _ X H)); intros t.
     apply ProductArrowUnique; intros i; apply (fromempty i).
@@ -148,7 +148,7 @@ End Terminal_and_EmptyProd.
 (* case (iscc _ (termCone b)); intros f Hf; destruct f as [f fcomm]. *)
 (* apply (tpair _ f); intro g. *)
 (* simple refine (let X : Σ x : b --> c, *)
-(*                        ∀ v, coconeIn cc v ;; x = coconeIn (termCone b) v := _ in _). *)
+(*                        Π v, coconeIn cc v ;; x = coconeIn (termCone b) v := _ in _). *)
 (*   { apply (tpair _ g); intro u; induction u. } *)
 (* apply (maponpaths pr1 (Hf X)). *)
 (* Defined. *)

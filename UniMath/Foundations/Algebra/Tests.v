@@ -11,11 +11,11 @@ Module Test_assoc.
 
   Open Scope multmonoid.
 
-  Goal ∀ (M:monoid) (f:stn 3 -> M),
+  Goal Π (M:monoid) (f:stn 3 -> M),
          sequenceProduct(3,,f) = 1 * f(●O) * f(●1%nat) * f(●2).
   Proof. reflexivity. Defined.
 
-  Goal ∀ (M:monoid) (f:stn 3 -> Sequence M),
+  Goal Π (M:monoid) (f:stn 3 -> Sequence M),
          doubleProduct(3,,f) =
             1 * sequenceProduct (f(●0))
               * sequenceProduct (f(●1%nat))

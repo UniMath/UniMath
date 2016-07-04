@@ -34,7 +34,7 @@ Defined.
 Definition isTerminal (a : C) :=
   isLimCone termDiagram a (termCone a).
 
-Definition mk_isTerminal (b : C) (H : ∀ (a : C), iscontr (a --> b)) :
+Definition mk_isTerminal (b : C) (H : Π (a : C), iscontr (a --> b)) :
   isTerminal b.
 Proof.
 intros a ca.

@@ -20,19 +20,19 @@ Section coproduct_def.
 Variables (I : UU) (C : precategory).
 
 Definition isCoproductCocone (a : I -> C) (co : C)
-  (ia : forall i, a i --> co) :=
-  forall (c : C) (f : forall i, a i --> c),
-    iscontr (total2 (fun (g : co --> c) => forall i, ia i ;; g = f i)).
+  (ia : Π i, a i --> co) :=
+  Π (c : C) (f : Π i, a i --> c),
+    iscontr (total2 (fun (g : co --> c) => Π i, ia i ;; g = f i)).
 
 Definition CoproductCocone (a : I -> C) :=
-   Σ coia : (Σ co : C, forall i, a i --> co),
+   Σ coia : (Σ co : C, Π i, a i --> co),
           isCoproductCocone a (pr1 coia) (pr2 coia).
 
-Definition Coproducts := ∀ (a : I -> C), CoproductCocone a.
+Definition Coproducts := Π (a : I -> C), CoproductCocone a.
 Definition hasCoproducts := ishinh Coproducts.
 
 Definition CoproductObject {a : I -> C} (CC : CoproductCocone a) : C := pr1 (pr1 CC).
-Definition CoproductIn {a : I -> C} (CC : CoproductCocone a): forall i, a i --> CoproductObject CC :=
+Definition CoproductIn {a : I -> C} (CC : CoproductCocone a): Π i, a i --> CoproductObject CC :=
   pr2 (pr1 CC).
 
 Definition isCoproductCocone_CoproductCocone {a : I -> C} (CC : CoproductCocone a) :
@@ -41,14 +41,14 @@ Proof.
   exact (pr2 CC).
 Defined.
 
-Definition CoproductArrow {a : I -> C} (CC : CoproductCocone a) {c : C} (f : forall i, a i --> c) :
+Definition CoproductArrow {a : I -> C} (CC : CoproductCocone a) {c : C} (f : Π i, a i --> c) :
       CoproductObject CC --> c.
 Proof.
   exact (pr1 (pr1 (isCoproductCocone_CoproductCocone CC _ f))).
 Defined.
 
 Lemma CoproductInCommutes (a : I -> C) (CC : CoproductCocone a) :
-     ∀ (c : C) (f : forall i, a i --> c) i, CoproductIn CC i ;; CoproductArrow CC f = f i.
+     Π (c : C) (f : Π i, a i --> c) i, CoproductIn CC i ;; CoproductArrow CC f = f i.
 Proof.
   intros c f i.
   exact (pr2 (pr1 (isCoproductCocone_CoproductCocone CC _ f)) i).
@@ -63,8 +63,8 @@ Proof.
 Qed.
 
 Lemma CoproductArrowUnique (a : I -> C) (CC : CoproductCocone a) (x : C)
-    (f : forall i, a i --> x) (k : CoproductObject CC --> x)
-    (Hk : forall i, CoproductIn CC i ;; k = f i) :
+    (f : Π i, a i --> x) (k : CoproductObject CC --> x)
+    (Hk : Π i, CoproductIn CC i ;; k = f i) :
   k = CoproductArrow CC f.
 Proof.
   set (H' := pr2 (isCoproductCocone_CoproductCocone CC _ f) (k,,Hk)).
@@ -80,19 +80,19 @@ Qed.
 
 
 Definition CoproductOfArrows {a : I -> C} (CCab : CoproductCocone a) {c : I -> C}
-    (CCcd : CoproductCocone c) (f : forall i, a i --> c i) :
+    (CCcd : CoproductCocone c) (f : Π i, a i --> c i) :
           CoproductObject CCab --> CoproductObject CCcd :=
     CoproductArrow CCab (fun i => f i ;; CoproductIn CCcd i).
 
 Lemma CoproductOfArrowsIn {a : I -> C} (CCab : CoproductCocone a) {c : I -> C}
-    (CCcd : CoproductCocone c) (f : forall i, a i --> c i) :
-    forall i, CoproductIn CCab i ;; CoproductOfArrows CCab CCcd f = f i ;; CoproductIn CCcd i.
+    (CCcd : CoproductCocone c) (f : Π i, a i --> c i) :
+    Π i, CoproductIn CCab i ;; CoproductOfArrows CCab CCcd f = f i ;; CoproductIn CCcd i.
 Proof.
   unfold CoproductOfArrows; intro i.
   apply CoproductInCommutes.
 Qed.
 
-Definition mk_CoproductCocone (a : I -> C) (c : C) (f : forall i, a i --> c) :
+Definition mk_CoproductCocone (a : I -> C) (c : C) (f : Π i, a i --> c) :
    isCoproductCocone _ _ f →  CoproductCocone a.
 Proof.
 intro H.
@@ -102,8 +102,8 @@ mkpair.
 Defined.
 
 Definition mk_isCoproductCocone (hsC : has_homsets C) (a : I -> C) (co : C)
-  (f : forall i, a i --> co) : (∀ (c : C) (g : forall i, a i --> c),
-                                  ∃! k : C ⟦co, c⟧, forall i, f i ;; k = g i)
+  (f : Π i, a i --> co) : (Π (c : C) (g : Π i, a i --> c),
+                                  ∃! k : C ⟦co, c⟧, Π i, f i ;; k = g i)
    →    isCoproductCocone a co f.
 Proof.
   intros H c cc.
@@ -111,8 +111,8 @@ Proof.
 Defined.
 
 Lemma precompWithCoproductArrow {a : I -> C} (CCab : CoproductCocone a) {c : I -> C}
-    (CCcd : CoproductCocone c) (f : forall i, a i --> c i)
-    {x : C} (k : forall i, c i --> x) :
+    (CCcd : CoproductCocone c) (f : Π i, a i --> c i)
+    {x : C} (k : Π i, c i --> x) :
         CoproductOfArrows CCab CCcd f ;; CoproductArrow CCcd k =
          CoproductArrow CCab (fun i => f i ;; k i).
 Proof.
@@ -121,7 +121,7 @@ now rewrite assoc, CoproductOfArrowsIn, <- assoc, CoproductInCommutes.
 Qed.
 
 Lemma postcompWithCoproductArrow {a : I -> C} (CCab : CoproductCocone a) {c : C}
-    (f : forall i, a i --> c) {x : C} (k : c --> x)  :
+    (f : Π i, a i --> c) {x : C} (k : c --> x)  :
        CoproductArrow CCab f ;; k = CoproductArrow CCab (fun i => f i ;; k).
 Proof.
 apply CoproductArrowUnique; intro i.
@@ -130,7 +130,7 @@ Qed.
 
 Lemma Coproduct_endo_is_identity (a : I -> C) (CC : CoproductCocone a)
   (k : CoproductObject CC --> CoproductObject CC)
-  (H1 : forall i, CoproductIn CC i ;; k = CoproductIn CC i)
+  (H1 : Π i, CoproductIn CC i ;; k = CoproductIn CC i)
   : identity _ = k.
 Proof.
 apply pathsinv0.
@@ -155,7 +155,7 @@ Variables (I : UU) (C : precategory) (CC : Coproducts I C).
 (* Qed. *)
 
 Definition CoproductOfArrows_comp (a b c : I -> C)
-  (f : forall i, a i --> b i) (g : forall i, b i --> c i) :
+  (f : Π i, a i --> b i) (g : Π i, b i --> c i) :
    CoproductOfArrows _ _ _ _ f ;; CoproductOfArrows _ _ (CC _) (CC _) g
    = CoproductOfArrows _ _ (CC _) (CC _)(fun i => f i ;; g i).
 Proof.
@@ -164,7 +164,7 @@ rewrite assoc, CoproductOfArrowsIn.
 now rewrite <- assoc, CoproductOfArrowsIn, assoc.
 Qed.
 
-Definition CoproductOfArrows_eq (a c : I -> C) (f f' : forall i, a i --> c i) : f = f' ->
+Definition CoproductOfArrows_eq (a c : I -> C) (f f' : Π i, a i --> c i) : f = f' ->
   CoproductOfArrows _ _ _ _ f = CoproductOfArrows _ _ (CC _) (CC _) f'.
 Proof.
 now induction 1.

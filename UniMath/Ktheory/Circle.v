@@ -254,7 +254,7 @@ Proof. intros. assert (p := pr1_GH_weq_compute l).
 
 
 Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)}
-           (l:circle_loop#y = y) : ∀ c:circle, Y c.
+           (l:circle_loop#y = y) : Π c:circle, Y c.
 Proof. (** (not proved yet) *)
 Abort.
 
@@ -263,7 +263,7 @@ Abort.
  http://arxiv.org/abs/1402.0761 *)
 
 Lemma circle_map_check_paths'
-      (circle_map': ∀ (Y:circle->UU) (y:Y(basepoint circle))
+      (circle_map': Π (Y:circle->UU) (y:Y(basepoint circle))
            (l:circle_loop#y = y) (c:circle), Y c)
       {Y} (f:circle->Y) :
   circle_map (ap f circle_loop) = f .

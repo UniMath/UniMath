@@ -16,7 +16,7 @@ Section def_zero.
   Variable C : precategory.
 
   Definition isZero (b : C) : UU :=
-    (∀ a : C, iscontr (b --> a)) × (∀ a : C, iscontr (a --> b)).
+    (Π a : C, iscontr (b --> a)) × (Π a : C, iscontr (a --> b)).
 
   Definition Zero : UU := total2 (fun a => isZero a).
 
@@ -28,8 +28,8 @@ Section def_zero.
     exists b; exact H.
   Defined.
 
-  Definition mk_isZero (b : C) (H : forall (a : C), iscontr (b --> a))
-             (H' : forall (a : C), iscontr (a --> b)) : isZero b.
+  Definition mk_isZero (b : C) (H : Π (a : C), iscontr (b --> a))
+             (H' : Π (a : C), iscontr (a --> b)) : isZero b.
   Proof.
     unfold isZero.  exact ((H,,H')).
   Defined.

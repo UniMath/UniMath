@@ -2,16 +2,16 @@ Unset Automatic Introduction.
 Require Export UniMath.Foundations.Basics.PartD.
 
 Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
-Goal ∀ i j k, i+j+k = (i+j)+k. reflexivity. Defined.
-Goal ∀ n, 1+n = S n. reflexivity. Defined.
-Goal ∀ i j k, i*j*k = (i*j)*k. reflexivity. Defined.
-Goal ∀ n, 0*n = 0. reflexivity. Defined.
-Goal ∀ n, 0+n = n. reflexivity. Defined.
-Goal ∀ n, 0*n = 0. reflexivity. Defined.
-Goal ∀ n m, S n * m = n*m + m. reflexivity. Defined.
-Goal ∀ n, 1*n = n. reflexivity. Defined.
-Goal ∀ n, 4*n = n+n+n+n. reflexivity. Defined.
-Goal ∀ X x, idweq X x = x. reflexivity. Defined.
+Goal Π i j k, i+j+k = (i+j)+k. reflexivity. Defined.
+Goal Π n, 1+n = S n. reflexivity. Defined.
+Goal Π i j k, i*j*k = (i*j)*k. reflexivity. Defined.
+Goal Π n, 0*n = 0. reflexivity. Defined.
+Goal Π n, 0+n = n. reflexivity. Defined.
+Goal Π n, 0*n = 0. reflexivity. Defined.
+Goal Π n m, S n * m = n*m + m. reflexivity. Defined.
+Goal Π n, 1*n = n. reflexivity. Defined.
+Goal Π n, 4*n = n+n+n+n. reflexivity. Defined.
+Goal Π X x, idweq X x = x. reflexivity. Defined.
 
 Module Test_gradth.
   Let f := idfun nat.
@@ -27,7 +27,7 @@ Module Test_gradth.
   Goal homotweqinvweqweq v true = idpath _. reflexivity. Defined.
 End Test_gradth.
 
-Goal ∀ X x, invweq (idweq X) x = x. reflexivity. Defined.
+Goal Π X x, invweq (idweq X) x = x. reflexivity. Defined.
 
 Module Test_weqtotal2overcoprod.
   Let P (t : bool ⨿ bool) := nat.
@@ -69,11 +69,11 @@ Module Test_sets.
 
   Require Import UniMath.Foundations.Basics.Sets.
 
-  Goal ∀ Y (is:isaset Y) (F:Y->UU) (e :∀ y y', F y -> F y' -> y=y')
+  Goal Π Y (is:isaset Y) (F:Y->UU) (e :Π y y', F y -> F y' -> y=y')
          y (f:F y), squash_pairs_to_set F is e (hinhpr (y,,f)) = y.
   Proof. reflexivity. Qed.
 
-  Goal ∀ X Y (is:isaset Y) (f:X->Y) (e:∀ x x', f x = f x'),
+  Goal Π X Y (is:isaset Y) (f:X->Y) (e:Π x x', f x = f x'),
          f = funcomp hinhpr (squash_to_set is f e).
   Proof. reflexivity. Qed.
 

@@ -172,7 +172,7 @@ mkpair.
   abstract (intro n; apply (maponpaths pr1 (p1 n))).
 - intro t.
   simple refine (let X : Σ x0,
-           ∀ v : nat, coconeIn ccab v ;; x0 =
+           Π v : nat, coconeIn ccab v ;; x0 =
                       binprodcatmor (pr1 ccx v) (pr2 (pr1 ccab v)) := _ in _).
   { mkpair.
     - split; [ apply (pr1 t) | apply (identity _) ].
@@ -219,7 +219,7 @@ mkpair.
   abstract (intro n; apply (maponpaths dirprod_pr2 (p1 n))).
 - intro t.
   simple refine (let X : Σ x0,
-           ∀ v : nat, coconeIn ccab v ;; x0 =
+           Π v : nat, coconeIn ccab v ;; x0 =
                       binprodcatmor (pr1 (pr1 ccab v)) (pr1 ccx v) := _ in _).
   { mkpair.
     - split; [ apply (identity _) | apply (pr1 t) ].
@@ -276,7 +276,7 @@ End binproduct_pair_functor.
 Section pair_functor.
 
 Variables (I : UU) (A B : precategory).
-Variables (F : forall (i : I), functor A B).
+Variables (F : Π (i : I), functor A B).
 Variables (hsA : has_homsets A) (hsB : has_homsets B).
 
 (* I needs to have decidable equality for pr_functor to be omega cocont *)
@@ -295,7 +295,7 @@ Defined.
 Lemma isColimCocone_pr_functor
   (c : chain (power_precategory I A))
   (L : power_precategory I A) (ccL : cocone c L)
-  (M : isColimCocone c L ccL) : forall i,
+  (M : isColimCocone c L ccL) : Π i,
   isColimCocone _ _ (mapcocone (pr_functor I (fun _ => A) i) c ccL).
 Proof.
 intros i x ccx; simpl in *.
@@ -326,7 +326,7 @@ mkpair.
     now rewrite hp, idpath_transportf).
 - intro t.
   simple refine (let X : Σ x0,
-           ∀ n, coconeIn ccL n ;; x0 = coconeIn HHH n := _ in _).
+           Π n, coconeIn ccL n ;; x0 = coconeIn HHH n := _ in _).
   { mkpair.
     - simpl; intro j; unfold ifI.
       destruct (HI i j).
@@ -351,7 +351,7 @@ now apply isColimCocone_pr_functor.
 Defined.
 
 Lemma is_omega_cocont_pair_functor
-  (HF : forall (i : I), is_omega_cocont (F i)) :
+  (HF : Π (i : I), is_omega_cocont (F i)) :
   is_omega_cocont (pair_functor I F).
 Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
@@ -373,7 +373,7 @@ mkpair.
   + destruct t as [f1 f2]; simpl in *.
     apply funextsec; intro i.
     simple refine (let H : Σ x : B ⟦ (F i) (ml i), xy i ⟧,
-                          ∀ n, # (F i) (coconeIn ccml n i) ;; x =
+                          Π n, # (F i) (coconeIn ccml n i) ;; x =
                                coconeIn ccxy n i := _ in _).
     { apply (tpair _ (f1 i)); intro n; apply (toforallpaths _ _ _ (f2 n) i). }
     apply (maponpaths pr1 (pr2 (X i) H)).
@@ -505,8 +505,8 @@ Variables (HD : Coproducts I D).
 Variables (hsC : has_homsets C) (hsD : has_homsets D).
 Variable (HI : isdeceq I).
 
-Lemma is_omega_cocont_coproduct_of_functors_alt (F : forall i, functor C D)
-  (HF : forall i, is_omega_cocont (F i)) :
+Lemma is_omega_cocont_coproduct_of_functors_alt (F : Π i, functor C D)
+  (HF : Π i, is_omega_cocont (F i)) :
   is_omega_cocont (coproduct_of_functors_alt _ HD F).
 Proof.
 apply (is_omega_cocont_functor_composite hsD).
@@ -517,12 +517,12 @@ apply (is_omega_cocont_indexed_coproduct_functor _ _ _ hsD).
 Defined.
 
 Definition omega_cocont_coproduct_of_functors_alt
-  (F : forall i, omega_cocont_functor C D) :
+  (F : Π i, omega_cocont_functor C D) :
   omega_cocont_functor C D :=
     tpair _ _ (is_omega_cocont_coproduct_of_functors_alt _ (fun i => pr2 (F i))).
 
-Lemma is_omega_cocont_coproduct_of_functors (F : forall (i : I), functor C D)
-  (HF : forall i, is_omega_cocont (F i)) :
+Lemma is_omega_cocont_coproduct_of_functors (F : Π (i : I), functor C D)
+  (HF : Π i, is_omega_cocont (F i)) :
   is_omega_cocont (coproduct_of_functors I _ _ HD F).
 Proof.
 exact (transportf _
@@ -531,7 +531,7 @@ exact (transportf _
 Defined.
 
 Definition omega_cocont_coproduct_of_functors
-  (F : forall i, omega_cocont_functor C D) :
+  (F : Π i, omega_cocont_functor C D) :
   omega_cocont_functor C D :=
     tpair _ _ (is_omega_cocont_coproduct_of_functors _ (fun i => pr2 (F i))).
 
@@ -580,7 +580,7 @@ Variables (C : precategory) (PC : BinProducts C) (hsC : has_homsets C).
 Variables (hE : has_exponentials PC).
 
 Definition fun_lt (cAB : chain (binproduct_precategory C C)) :
-  forall i j, i < j ->
+  Π i j, i < j ->
               C ⟦ BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
                   BinProductObject C (PC (ob1 (dob cAB j)) (ob2 (dob cAB j))) ⟧.
 Proof.
@@ -589,7 +589,7 @@ apply (BinProductOfArrows _ _ _ (mor1 (chain_mor cAB _ _ hij)) (identity _)).
 Defined.
 
 Definition fun_gt (cAB : chain (binproduct_precategory C C)) :
-  forall i j, i > j ->
+  Π i j, i > j ->
               C ⟦ BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
                   BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB i))) ⟧.
 Proof.
@@ -720,7 +720,7 @@ Proof.
   apply BinProductOfArrows; [apply (dmor cAB (idpath _)) | apply identity ].
 Defined.
 
-Local Lemma fNat : ∀ i u v (e : edge u v),
+Local Lemma fNat : Π i u v (e : edge u v),
    dmor (mapdiagram (constprod_functor1 PC _) cB) e ;; f i v =
    f i u ;; dmor (mapdiagram (constprod_functor1 PC _) cB) e.
 Proof.
@@ -739,7 +739,7 @@ Proof.
     apply (colimOfArrows (CCAiB i) (CCAiB (S i)) (f i) (fNat i)).
 Defined.
 
-Local Lemma AiM_chain_eq : forall i, dmor AiM_chain (idpath (S i)) =
+Local Lemma AiM_chain_eq : Π i, dmor AiM_chain (idpath (S i)) =
                        dmor (mapdiagram (constprod_functor2 PC M) cA) (idpath _).
 Proof.
   intro i; simpl; unfold colimOfArrows, BinProduct_of_functors_mor; simpl.
@@ -753,7 +753,7 @@ Proof.
 Qed.
 
 (* Define a cocone over K from the A_i * M chain *)
-Local Lemma ccAiM_K_subproof : ∀ u v (e : edge u v),
+Local Lemma ccAiM_K_subproof : Π u v (e : edge u v),
    dmor (mapdiagram (constprod_functor2 PC M) cA) e ;;
    colimArrow (CCAiB v) K (ccAiB_K v) = colimArrow (CCAiB u) K (ccAiB_K u).
 Proof.
@@ -808,7 +808,7 @@ Qed.
 Local Definition ccAiM_K := mk_cocone _ ccAiM_K_subproof.
 
 Local Lemma is_cocone_morphism :
- ∀ v : nat,
+ Π v : nat,
    BinProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
      (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ;;
    colimArrow HAiM K ccAiM_K = coconeIn ccK v.
@@ -832,9 +832,9 @@ Proof.
   now rewrite id_left, id_right.
 Qed.
 
-Lemma is_unique_cocone_morphism : ∀
+Lemma is_unique_cocone_morphism : Π
    t : Σ x : C ⟦ BinProductObject C (PC L M), K ⟧,
-       ∀ v : nat,
+       Π v : nat,
        BinProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
          (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ;; x =
        coconeIn ccK v, t = colimArrow HAiM K ccAiM_K,, is_cocone_morphism.
@@ -874,7 +874,7 @@ Proof.
 Qed.
 
 Definition isColimProductOfColims :  ∃! x : C ⟦ BinProductObject C (PC L M), K ⟧,
-   ∀ v : nat,
+   Π v : nat,
    BinProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
      (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ;; x =
    coconeIn ccK v.
@@ -1030,7 +1030,7 @@ use adjunction_from_partial.
 - apply eps.
 - intros T S α; simpl in *.
 
-  transparent assert (cc : (forall c, cone (QT T c) (S c))).
+  transparent assert (cc : (Π c, cone (QT T c) (S c))).
   { intro c.
     use mk_cone.
     + intro mf; apply (# S (pr2 mf) ;; α (pr1 mf)).
@@ -1039,13 +1039,13 @@ use adjunction_from_partial.
                 simpl; rewrite assoc, <- functor_comp; apply cancel_postcomposition, maponpaths, (pr2 h)).
   }
 
-  transparent assert (σ : (forall c, A ⟦ S c, R T c ⟧)).
+  transparent assert (σ : (Π c, A ⟦ S c, R T c ⟧)).
   { intro c; apply (limArrow _ _ (cc c)). }
 
   set (lambda' := fun c' mf' => limOut (LA (c' ↓ K) (QT T c')) mf').
 
   (* this is the conclusion from the big diagram (8) in MacLane's proof *)
-  assert (H : forall c c' (g : C ⟦ c, c' ⟧) (mf' : c' ↓ K),
+  assert (H : Π c c' (g : C ⟦ c, c' ⟧) (mf' : c' ↓ K),
                 # S g ;; σ c' ;; lambda' _ mf' = σ c ;; Rmor T c c' g ;; lambda' _ mf').
   { intros c c' g mf'.
     rewrite <- !assoc.

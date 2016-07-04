@@ -96,7 +96,7 @@ Section vertex.
 (** The product morphism of a diagram with vertex [A] *)
 
 Variable A : functor C D.
-Variable f : forall i, nat_trans A (F i).
+Variable f : Π i, nat_trans A (F i).
 
 Definition product_nat_trans_data c :
   A c --> product_of_functors c:=

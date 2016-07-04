@@ -116,7 +116,7 @@ Definition bracket_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)
   ∃! h : `T • (U Z)  --> `T, bracket_property T f h.
 
 Definition bracket (T : algebra_ob Id_H) : UU
-  := ∀ (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_at T f.
+  := Π (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_at T f.
 
 Definition bracket_property_parts (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)
            (h : `T • (U Z)  --> `T) : UU
@@ -128,7 +128,7 @@ Definition bracket_parts_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_
    ∃! h : `T • (U Z)  --> `T, bracket_property_parts T f h.
 
 Definition bracket_parts (T : algebra_ob Id_H) : UU
-  := ∀ (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_parts_at T f.
+  := Π (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_parts_at T f.
 
 (* show that for any h of suitable type, the following are equivalent *)
 
@@ -231,8 +231,8 @@ Qed.
 
 (* show bracket_parts_point is logically equivalent to bracket_point, then
    use it to show that bracket_parts is equivalent to bracket using [weqonsecfibers:
-  ∀ (X : UU) (P Q : X → UU),
-  (∀ x : X, P x ≃ Q x) → (∀ x : X, P x) ≃ (∀ x : X, Q x)] *)
+  Π (X : UU) (P Q : X → UU),
+  (Π x : X, P x ≃ Q x) → (Π x : X, P x) ≃ (Π x : X, Q x)] *)
 
 
 Definition hss : UU := Σ T, bracket T.
@@ -249,9 +249,9 @@ Notation "⦃ f ⦄" := (fbracket _ f)(at level 0).
 (** The bracket operation [fbracket] is unique *)
 
 Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
-  : ∀ (α : functor_composite (U Z) `T ⟶ pr1 `T),
-     (∀ c : C, pr1 (#U f) c = pr1 (η T) (pr1 (U Z) c) ;; α c) →
-     (∀ c : C, pr1 (θ (`T ⊗ Z))  c ;; pr1 (#H α) c ;; pr1 (τ T) c =
+  : Π (α : functor_composite (U Z) `T ⟶ pr1 `T),
+     (Π c : C, pr1 (#U f) c = pr1 (η T) (pr1 (U Z) c) ;; α c) →
+     (Π c : C, pr1 (θ (`T ⊗ Z))  c ;; pr1 (#H α) c ;; pr1 (τ T) c =
         pr1 (τ T) (pr1 (U Z) c) ;; α c)
      →
      α = ⦃f⦄.
@@ -265,7 +265,7 @@ Proof.
 Qed.
 
 Definition fbracket_unique (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
-: ∀ α : (*functor_composite (C:=C)*) `T • (U Z)  --> `T,
+: Π α : (*functor_composite (C:=C)*) `T • (U Z)  --> `T,
     bracket_property_parts T f α
    →
    α = ⦃f⦄.
@@ -277,10 +277,10 @@ Proof.
 Qed.
 
 Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
-  : ∀ α : `T • U Z --> `T,
+  : Π α : `T • U Z --> `T,
         bracket_property_parts T f α
    →
-   ∀ c, pr1 α c =  pr1 ⦃ f ⦄ c.
+   Π c, pr1 α c =  pr1 ⦃ f ⦄ c.
 Proof.
   intros α H12.
   set (t:= fbracket_unique _ _ α H12).
@@ -289,7 +289,7 @@ Qed.
 
 (** Properties of [fbracket] by definition: commutative diagrams *)
 
-Lemma fbracket_η (T : hss) : ∀ {Z : Ptd} (f : Z --> ptd_from_alg T),
+Lemma fbracket_η (T : hss) : Π {Z : Ptd} (f : Z --> ptd_from_alg T),
    #U f = η T •• U Z ;; ⦃f⦄.
 Proof.
   intros Z f.
@@ -297,7 +297,7 @@ Proof.
   exact (pr1 (parts_from_whole _ _ _ _  (pr2 (pr1 (pr2 T Z f))))).
 Qed.
 
-Lemma fbracket_τ (T : hss) : ∀ {Z : Ptd} (f : Z --> ptd_from_alg T),
+Lemma fbracket_τ (T : hss) : Π {Z : Ptd} (f : Z --> ptd_from_alg T),
     θ (`T ⊗ Z) ;; #H ⦃f⦄ ;; τ T
     =
     τ T •• U Z ;; ⦃f⦄.
@@ -366,7 +366,7 @@ Qed.
 
 (** As a consequence of naturality, we can compute [fbracket f] from [fbracket identity] *)
 
-Lemma compute_fbracket (T : hss) : ∀ {Z : Ptd} (f : Z --> ptd_from_alg T),
+Lemma compute_fbracket (T : hss) : Π {Z : Ptd} (f : Z --> ptd_from_alg T),
     ⦃ f ⦄ = (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U (p T) ⟧) ;; ⦃ identity p T ⦄.
 Proof.
   intros Z f.
@@ -484,7 +484,7 @@ Definition ptd_from_alg_functor: functor (precategory_FunctorAlg Id_H hsEndC) Pt
 
 
 Definition isbracketMor {T T' : hss} (β : algebra_mor _ T T') : UU :=
-    ∀ (Z : Ptd) (f : Z --> ptd_from_alg T),
+    Π (Z : Ptd) (f : Z --> ptd_from_alg T),
       ⦃ f ⦄ ;; β = β •• U Z ;; ⦃ f ;; # ptd_from_alg_functor β ⦄.
 
 

@@ -186,14 +186,14 @@ Hypothesis θ : θ_source ⟶ θ_target.
 
 (** [θ] is supposed to satisfy two strength laws *)
 
-Definition θ_Strength1 : UU := ∀ X : EndC,
+Definition θ_Strength1 : UU := Π X : EndC,
   (θ (X ⊗ (id_Ptd C hs))) ;; # H (identity X : functor_composite (functor_identity C) X ⟶ pr1 X)
           = nat_trans_id _ .
 
 Section Strength_law_1_intensional.
 
 Definition θ_Strength1_int : UU
-  := ∀ X : EndC,
+  := Π X : EndC,
      θ (X ⊗ (id_Ptd C hs)) ;; # H (λ_functor _ _ ) = λ_functor _ _ .
 
 Lemma θ_Strength1_int_implies_θ_Strength1 : θ_Strength1_int → θ_Strength1.
@@ -234,7 +234,7 @@ End Strength_law_1_intensional.
 Hypothesis θ_strength1 : θ_Strength1.
 *)
 
-Definition θ_Strength2 : UU := ∀ (X : EndC) (Z Z' : Ptd) (Y : EndC)
+Definition θ_Strength2 : UU := Π (X : EndC) (Z Z' : Ptd) (Y : EndC)
            (α : functor_compose hs hs (functor_composite (U Z) (U Z')) X --> Y),
     θ (X ⊗ (Z p• Z' : Ptd)) ;; # H α =
     θ (X ⊗ Z') •• (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) ;;
@@ -243,7 +243,7 @@ Definition θ_Strength2 : UU := ∀ (X : EndC) (Z Z' : Ptd) (Y : EndC)
 Section Strength_law_2_intensional.
 
 Definition θ_Strength2_int : UU
-  := ∀ (X : EndC) (Z Z' : Ptd),
+  := Π (X : EndC) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  ;; #H (α_functor _ (U Z) (U Z') X )  =
       (α_functor _ (U Z) (U Z') (H X) : functor_compose hs hs _ _  --> _ ) ;;
       θ (X ⊗ Z') •• (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) .

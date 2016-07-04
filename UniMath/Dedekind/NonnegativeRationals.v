@@ -339,7 +339,7 @@ Proof.
   reflexivity.
 Qed.
 Lemma plusNonnegativeRationals_correct :
-  ∀ (x y : NonnegativeRationals),
+  Π (x y : NonnegativeRationals),
     x + y = Rationals_to_NonnegativeRationals (pr1 x + pr1 y)%hq (hq0lehandplus _ _ (pr2 x) (pr2 y)).
 Proof.
   intros (x,Hx) (y,Hy).
@@ -347,7 +347,7 @@ Proof.
   reflexivity.
 Qed.
 Lemma minusNonnegativeRationals_correct :
-  ∀ (x y : NonnegativeRationals) (Hminus : y <= x),
+  Π (x y : NonnegativeRationals) (Hminus : y <= x),
     x - y = Rationals_to_NonnegativeRationals (pr1 x - pr1 y)%hq (hq0leminus _ _ Hminus).
 Proof.
   intros (x,Hx) (y,Hy) H.
@@ -360,7 +360,7 @@ Proof.
     reflexivity.
 Qed.
 Lemma multNonnegativeRationals_correct :
-  ∀ (x y : NonnegativeRationals),
+  Π (x y : NonnegativeRationals),
     x * y = Rationals_to_NonnegativeRationals (pr1 x * pr1 y)%hq ( hq0lehandmult _ _ (pr2 x) (pr2 y)).
 Proof.
   intros (x,Hx) (y,Hy).
@@ -368,7 +368,7 @@ Proof.
   reflexivity.
 Qed.
 Lemma invNonnegativeRationals_correct :
-  ∀ (x : NonnegativeRationals) (Hx : 0 < x),
+  Π (x : NonnegativeRationals) (Hx : 0 < x),
     / x = Rationals_to_NonnegativeRationals (/ pr1 x)%hq (hqlthtoleh _ _ (hqinv_gt0 _ Hx)).
 Proof.
   intros (x,Hx) Hx0.
@@ -383,25 +383,25 @@ Proof.
 Qed.
 
 Lemma leNonnegativeRationals_correct :
-  ∀ x y : NonnegativeRationals, (x <= y) = (pr1 x <= pr1 y)%hq.
+  Π x y : NonnegativeRationals, (x <= y) = (pr1 x <= pr1 y)%hq.
 Proof.
   intros x y.
   reflexivity.
 Qed.
 Lemma geNonnegativeRationals_correct :
-  ∀ x y : NonnegativeRationals, (x >= y) = (pr1 x >= pr1 y)%hq.
+  Π x y : NonnegativeRationals, (x >= y) = (pr1 x >= pr1 y)%hq.
 Proof.
   intros x y.
   reflexivity.
 Qed.
 Lemma ltNonnegativeRationals_correct :
-  ∀ x y : NonnegativeRationals, (x < y) = (pr1 x < pr1 y)%hq.
+  Π x y : NonnegativeRationals, (x < y) = (pr1 x < pr1 y)%hq.
 Proof.
   intros x y.
   reflexivity.
 Qed.
 Lemma gtNonnegativeRationals_correct :
-  ∀ x y : NonnegativeRationals, (x > y) = (pr1 x > pr1 y)%hq.
+  Π x y : NonnegativeRationals, (x > y) = (pr1 x > pr1 y)%hq.
 Proof.
   intros x y.
   reflexivity.
@@ -412,7 +412,7 @@ Qed.
 (** *** Decidability *)
 
 Lemma isdeceq_NonnegativeRationals :
-  ∀ x y : NonnegativeRationals, (x = y) ⨿ (x != y).
+  Π x y : NonnegativeRationals, (x = y) ⨿ (x != y).
 Proof.
   intros (x,Hx) (y,Hy).
   destruct (isdeceqhq x y) as [H|H].
@@ -426,20 +426,20 @@ Proof.
     apply base_paths.
 Qed.
 Lemma isdecrel_leNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, (x <= y) ⨿ ¬ (x <= y).
+  Π x y : NonnegativeRationals, (x <= y) ⨿ ¬ (x <= y).
 Proof.
   intros x y.
   apply isdecrelhqleh.
 Qed.
 Lemma isdecrel_ltNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, (x < y) ⨿ ¬ (x < y).
+  Π x y : NonnegativeRationals, (x < y) ⨿ ¬ (x < y).
 Proof.
   intros x y.
   apply isdecrelhqlth.
 Qed.
 
 Lemma le_eqorltNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, x <= y -> (x = y) ⨿ (x < y).
+  Π x y : NonnegativeRationals, x <= y -> (x = y) ⨿ (x < y).
 Proof.
   intros x y Hle.
   destruct (hqlehchoice (pr1 x) (pr1 y)) as [Hlt | Heq].
@@ -449,7 +449,7 @@ Proof.
     now apply subtypeEquality_prop, Heq.
 Qed.
 Lemma noteq_ltorgtNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, x != y -> (x < y) ⨿ (x > y).
+  Π x y : NonnegativeRationals, x != y -> (x < y) ⨿ (x > y).
 Proof.
   intros x y Hneq.
   destruct (isdecrel_leNonnegativeRationals x y) as [Hle|Hlt].
@@ -463,7 +463,7 @@ Proof.
     exact Hlt.
 Qed.
 Lemma eq0orgt0NonnegativeRationals :
-  ∀ x : NonnegativeRationals, (x = 0) ⨿ (0 < x).
+  Π x : NonnegativeRationals, (x = 0) ⨿ (0 < x).
 Proof.
   intros x.
   destruct (le_eqorltNonnegativeRationals 0 x) as [Hx | Hx].
@@ -475,30 +475,30 @@ Qed.
 (** *** Basic theorems about order *)
 
 Definition lt_leNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, x < y -> x <= y
+  Π x y : NonnegativeRationals, x < y -> x <= y
   := EOlt_le (X := NonnegativeRationals_EffectivelyOrderedSet).
 
 Definition isrefl_leNonnegativeRationals:
-  ∀ x : NonnegativeRationals, x <= x :=
+  Π x : NonnegativeRationals, x <= x :=
   isrefl_EOle (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition istrans_leNonnegativeRationals:
-  ∀ x y z : NonnegativeRationals, x <= y -> y <= z -> x <= z :=
+  Π x y z : NonnegativeRationals, x <= y -> y <= z -> x <= z :=
   istrans_EOle (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition isirrefl_ltNonnegativeRationals:
-  ∀ x : NonnegativeRationals, ¬ (x < x) :=
+  Π x : NonnegativeRationals, ¬ (x < x) :=
   isirrefl_EOlt (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition istrans_ltNonnegativeRationals :
-  ∀ x y z : NonnegativeRationals, x < y -> y < z -> x < z
+  Π x y z : NonnegativeRationals, x < y -> y < z -> x < z
   := istrans_EOlt (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition istrans_lt_le_ltNonnegativeRationals:
-  ∀ x y z : NonnegativeRationals, x < y -> y <= z -> x < z
+  Π x y z : NonnegativeRationals, x < y -> y <= z -> x < z
   := istrans_EOlt_le (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition istrans_le_lt_ltNonnegativeRationals :
-  ∀ x y z : NonnegativeRationals, x <= y -> y < z -> x < z
+  Π x y z : NonnegativeRationals, x <= y -> y < z -> x < z
   := istrans_EOle_lt (X := NonnegativeRationals_EffectivelyOrderedSet).
 
 Lemma isantisymm_leNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, x <= y -> y <= x -> x = y.
+  Π x y : NonnegativeRationals, x <= y -> y <= x -> x = y.
 Proof.
   intros x y Hle Hge.
   apply subtypeEquality_prop.
@@ -506,16 +506,16 @@ Proof.
 Qed.
 
 Definition ge_leNonnegativeRationals:
-  ∀ x y : NonnegativeRationals, (x >= y) <-> (y <= x)
+  Π x y : NonnegativeRationals, (x >= y) <-> (y <= x)
   := EOge_le (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition lt_gtNonnegativeRationals:
-  ∀ x y : NonnegativeRationals, (x > y) <-> (y < x)
+  Π x y : NonnegativeRationals, (x > y) <-> (y < x)
   := EOgt_lt (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition notlt_geNonnegativeRationals:
-  ∀ x y : NonnegativeRationals, (¬ (x < y)) <-> (y <= x)
+  Π x y : NonnegativeRationals, (¬ (x < y)) <-> (y <= x)
   := not_EOlt_le (X := NonnegativeRationals_EffectivelyOrderedSet).
 Lemma notge_ltNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, (¬ (y <= x)) <-> (x < y).
+  Π x y : NonnegativeRationals, (¬ (y <= x)) <-> (x < y).
 Proof.
   intros x y.
   split.
@@ -524,14 +524,14 @@ Proof.
 Qed.
 
 Definition ltNonnegativeRationals_noteq :
-  ∀ x y, x < y -> x != y
+  Π x y, x < y -> x != y
   := EOlt_noteq (X := NonnegativeRationals_EffectivelyOrderedSet).
 Definition gtNonnegativeRationals_noteq :
-  ∀ x y, x > y -> x != y
+  Π x y, x > y -> x != y
   := EOgt_noteq (X := NonnegativeRationals_EffectivelyOrderedSet).
 
 Lemma between_ltNonnegativeRationals :
-  ∀ x y : NonnegativeRationals,
+  Π x y : NonnegativeRationals,
     x < y -> Σ t : NonnegativeRationals, x < t × t < y.
 Proof.
   intros x y H.
@@ -549,20 +549,20 @@ Qed.
 (** *** Order and 0 *)
 
 Lemma isnonnegative_NonnegativeRationals :
-  ∀ x : NonnegativeRationals , 0 <= x.
+  Π x : NonnegativeRationals , 0 <= x.
 Proof.
   intros x.
   apply (pr2 x).
 Qed.
 Lemma isnonnegative_NonnegativeRationals' :
-  ∀ x : NonnegativeRationals , ¬ (x < 0).
+  Π x : NonnegativeRationals , ¬ (x < 0).
 Proof.
   intros x.
   apply (pr2 x).
 Qed.
 
 Lemma NonnegativeRationals_eq0_le0 :
-  ∀ r : NonnegativeRationals, (r <= 0) -> (r = 0).
+  Π r : NonnegativeRationals, (r <= 0) -> (r = 0).
 Proof.
   intros r Hr0.
   apply subtypeEquality_prop.
@@ -571,7 +571,7 @@ Proof.
   apply (pr2 r).
 Qed.
 Lemma NonnegativeRationals_neq0_gt0 :
-  ∀ r : NonnegativeRationals, (r != 0) -> (0 < r).
+  Π r : NonnegativeRationals, (r != 0) -> (0 < r).
 Proof.
   intros r Hr0.
   apply neghqlehtogth.
@@ -600,25 +600,25 @@ Qed.
 (** Rewritings *)
 
 Definition isassoc_plusNonnegativeRationals:
-  ∀ x y z : NonnegativeRationals, x + y + z = x + (y + z) :=
+  Π x y z : NonnegativeRationals, x + y + z = x + (y + z) :=
   CommDivRig_isassoc_plus.
 
 Definition islunit_zeroNonnegativeRationals:
-  ∀ r : NonnegativeRationals, 0 + r = r :=
+  Π r : NonnegativeRationals, 0 + r = r :=
   CommDivRig_islunit_zero.
 
 Definition isrunit_zeroNonnegativeRationals:
-  ∀ r : NonnegativeRationals, r + 0 = r :=
+  Π r : NonnegativeRationals, r + 0 = r :=
   CommDivRig_isrunit_zero.
 
 Definition iscomm_plusNonnegativeRationals:
-  ∀ x y : NonnegativeRationals, x + y = y + x :=
+  Π x y : NonnegativeRationals, x + y = y + x :=
   CommDivRig_iscomm_plus.
 
 (** Order *)
 
 Lemma plusNonnegativeRationals_ltcompat_r :
-  ∀ x y z : NonnegativeRationals, (y < z) <-> (y + x < z + x).
+  Π x y z : NonnegativeRationals, (y < z) <-> (y + x < z + x).
 Proof.
   intros x y z.
   split.
@@ -626,7 +626,7 @@ Proof.
   now apply hqlthandplusrinv.
 Qed.
 Lemma plusNonnegativeRationals_ltcompat_l :
-  ∀ x y z : NonnegativeRationals, (y < z) <-> (x + y < x + z).
+  Π x y z : NonnegativeRationals, (y < z) <-> (x + y < x + z).
 Proof.
   intros x y z.
   rewrite !(iscomm_plusNonnegativeRationals x).
@@ -634,7 +634,7 @@ Proof.
 Qed.
 
 Lemma plusNonnegativeRationals_lecompat_r :
-  ∀ r q n : NonnegativeRationals, (q <= n) <-> (q + r <= n + r).
+  Π r q n : NonnegativeRationals, (q <= n) <-> (q + r <= n + r).
 Proof.
   intros r q n.
   split.
@@ -642,7 +642,7 @@ Proof.
   - now apply hqlehandplusrinv.
 Qed.
 Lemma plusNonnegativeRationals_lecompat_l :
-  ∀ r q n : NonnegativeRationals, (q <= n) <-> (r + q <= r + n).
+  Π r q n : NonnegativeRationals, (q <= n) <-> (r + q <= r + n).
 Proof.
   intros r q n.
   rewrite ! (iscomm_plusNonnegativeRationals r).
@@ -650,7 +650,7 @@ Proof.
 Qed.
 
 Lemma plusNonnegativeRationals_eqcompat_l:
-  ∀ k x y : NonnegativeRationals,
+  Π k x y : NonnegativeRationals,
     (k + x = k + y) -> (x = y).
 Proof.
   intros k x y H.
@@ -660,7 +660,7 @@ Proof.
     apply isrefl_leNonnegativeRationals.
 Qed.
 Lemma plusNonnegativeRationals_eqcompat_r:
-  ∀ k x y : NonnegativeRationals,
+  Π k x y : NonnegativeRationals,
     (x + k = y + k) -> (x = y).
 Proof.
   intros k x y.
@@ -669,7 +669,7 @@ Proof.
 Qed.
 
 Lemma plusNonnegativeRationals_ltcompat :
-  ∀ x x' y y' : NonnegativeRationals,
+  Π x x' y y' : NonnegativeRationals,
     x < x' -> y < y' -> x + y < x' + y'.
 Proof.
   intros x x' y y' Hx Hy.
@@ -678,7 +678,7 @@ Proof.
   now apply hqlthandplusr, Hx.
 Qed.
 Lemma plusNonnegativeRationals_le_lt_ltcompat :
-  ∀ x x' y y' : NonnegativeRationals,
+  Π x x' y y' : NonnegativeRationals,
     x <= x' -> y < y' -> x + y < x' + y'.
 Proof.
   intros x x' y y' Hx Hy.
@@ -687,7 +687,7 @@ Proof.
   now apply hqlehandplusr, Hx.
 Qed.
 Lemma plusNonnegativeRationals_lt_le_ltcompat :
-  ∀ x x' y y' : NonnegativeRationals,
+  Π x x' y y' : NonnegativeRationals,
     x < x' -> y <= y' -> x + y < x' + y'.
 Proof.
   intros x x' y y' Hx Hy.
@@ -697,7 +697,7 @@ Proof.
 Qed.
 
 Lemma plusNonnegativeRationals_le_r :
-  ∀ r q : NonnegativeRationals, r <= r + q.
+  Π r q : NonnegativeRationals, r <= r + q.
 Proof.
   intros r q.
   pattern r at 1.
@@ -706,7 +706,7 @@ Proof.
   apply (pr2 q).
 Qed.
 Lemma plusNonnegativeRationals_le_l :
-  ∀ r q : NonnegativeRationals, r <= q + r.
+  Π r q : NonnegativeRationals, r <= q + r.
 Proof.
   intros r q.
   rewrite iscomm_plusNonnegativeRationals.
@@ -714,7 +714,7 @@ Proof.
 Qed.
 
 Lemma ispositive_plusNonnegativeRationals_l :
-  forall x y : NonnegativeRationals, 0 < x -> 0 < x + y.
+  Π x y : NonnegativeRationals, 0 < x -> 0 < x + y.
 Proof.
   intros x y Hx.
   apply istrans_lt_le_ltNonnegativeRationals with x.
@@ -722,7 +722,7 @@ Proof.
   now apply plusNonnegativeRationals_le_r.
 Qed.
 Lemma ispositive_plusNonnegativeRationals_r :
-  forall x y : NonnegativeRationals, 0 < y -> 0 < x + y.
+  Π x y : NonnegativeRationals, 0 < y -> 0 < x + y.
 Proof.
   intros x y Hy.
   apply istrans_lt_le_ltNonnegativeRationals with y.
@@ -731,7 +731,7 @@ Proof.
 Qed.
 
 Lemma plusNonnegativeRationals_lt_r :
-  ∀ r q : NonnegativeRationals, 0 < q -> r < r + q.
+  Π r q : NonnegativeRationals, 0 < q -> r < r + q.
 Proof.
   intros x y Hy0.
   pattern x at 1.
@@ -740,7 +740,7 @@ Proof.
   exact Hy0.
 Qed.
 Lemma plusNonnegativeRationals_lt_l :
-  ∀ r q : NonnegativeRationals, 0 < r -> q < r + q.
+  Π r q : NonnegativeRationals, 0 < r -> q < r + q.
 Proof.
   intros x y.
   rewrite iscomm_plusNonnegativeRationals.
@@ -751,7 +751,7 @@ Qed.
 (** Rewriting *)
 
 Lemma minusNonnegativeRationals_eq_zero:
-  ∀ x y : NonnegativeRationals, x <= y -> x - y = 0.
+  Π x y : NonnegativeRationals, x <= y -> x - y = 0.
 Proof.
   intros (x,Hx) (y,Hy) Hle.
   unfold minusNonnegativeRationals, hnnq_minus ; simpl pr1.
@@ -760,7 +760,7 @@ Proof.
   - reflexivity.
 Qed.
 Lemma minusNonnegativeRationals_plus_r :
-  ∀ r q : NonnegativeRationals,
+  Π r q : NonnegativeRationals,
     r <= q -> (q - r) + r = q.
 Proof.
   intros (r,Hr) (q,hq) H ; simpl in H.
@@ -775,7 +775,7 @@ Proof.
 Qed.
 
 Lemma plusNonnegativeRationals_minus_r :
-  ∀ q r : NonnegativeRationals, (r + q) - q = r.
+  Π q r : NonnegativeRationals, (r + q) - q = r.
 Proof.
   intros (q,Hq) (r,Hr).
   rewrite (minusNonnegativeRationals_correct _ _ (plusNonnegativeRationals_le_l _ _)).
@@ -785,7 +785,7 @@ Proof.
   now rewrite hqplusassoc, (hqpluscomm q), (hqlminus q), hqplusr0.
 Qed.
 Lemma plusNonnegativeRationals_minus_l :
-  ∀ q r : NonnegativeRationals, (q + r) - q = r.
+  Π q r : NonnegativeRationals, (q + r) - q = r.
 Proof.
   intros q r.
   rewrite iscomm_plusNonnegativeRationals.
@@ -793,27 +793,27 @@ Proof.
 Qed.
 
 Lemma minusNonnegativeRationals_correct_l :
-  forall x y z : NonnegativeRationals, x = y + z -> z = x - y.
+  Π x y z : NonnegativeRationals, x = y + z -> z = x - y.
 Proof.
   intros x y z ->.
   now rewrite plusNonnegativeRationals_minus_l.
 Qed.
 Lemma minusNonnegativeRationals_correct_r :
-  forall x y z : NonnegativeRationals, x = y + z -> y = x - z.
+  Π x y z : NonnegativeRationals, x = y + z -> y = x - z.
 Proof.
   intros x y z ->.
   now rewrite plusNonnegativeRationals_minus_r.
 Qed.
 
 Lemma minusNonnegativeRationals_zero_l :
-  forall x : NonnegativeRationals, 0 - x = 0.
+  Π x : NonnegativeRationals, 0 - x = 0.
 Proof.
   intros x.
   apply minusNonnegativeRationals_eq_zero.
   now apply isnonnegative_NonnegativeRationals.
 Qed.
 Lemma minusNonnegativeRationals_zero_r :
-  forall x : NonnegativeRationals, x - 0 = x.
+  Π x : NonnegativeRationals, x - 0 = x.
 Proof.
   intros x.
   rewrite <- (isrunit_zeroNonnegativeRationals (x - 0)).
@@ -822,7 +822,7 @@ Proof.
 Qed.
 
 Lemma minusNonnegativeRationals_plus_exchange :
-  forall x y z : NonnegativeRationals, y <= x -> x - y + z = (x + z) - y.
+  Π x y z : NonnegativeRationals, y <= x -> x - y + z = (x + z) - y.
 Proof.
   intros x y z Hxy.
   assert (Hxzy : y <= x + z).
@@ -840,7 +840,7 @@ Qed.
 (** Order *)
 
 Lemma ispositive_minusNonnegativeRationals :
-  ∀ x y : NonnegativeRationals, (x < y) <-> (0 < y - x).
+  Π x y : NonnegativeRationals, (x < y) <-> (0 < y - x).
 Proof.
   intros x y.
   split ; intro Hlt.
@@ -856,7 +856,7 @@ Proof.
 Qed.
 
 Lemma minusNonnegativeRationals_le :
-  ∀ x y : NonnegativeRationals, x - y <= x.
+  Π x y : NonnegativeRationals, x - y <= x.
 Proof.
   intros x y.
   apply_pr2 (plusNonnegativeRationals_lecompat_r y).
@@ -872,7 +872,7 @@ Proof.
 Qed.
 
 Lemma minusNonnegativeRationals_lecompat_l :
-  forall k x y : NonnegativeRationals, x <= y -> x - k <= y - k.
+  Π k x y : NonnegativeRationals, x <= y -> x - k <= y - k.
 Proof.
   intros k x y Hxy.
   case (isdecrel_leNonnegativeRationals k x) ; intros Hkx.
@@ -886,7 +886,7 @@ Proof.
     now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
 Qed.
 Lemma minusNonnegativeRationals_lecompat_l' :
-  forall k x y : NonnegativeRationals, k <= y -> x - k <= y - k -> x <= y.
+  Π k x y : NonnegativeRationals, k <= y -> x - k <= y - k -> x <= y.
 Proof.
   intros k x y Hky H.
   case (isdecrel_leNonnegativeRationals k x) ; intros Hkx.
@@ -900,7 +900,7 @@ Proof.
 Qed.
 
 Lemma minusNonnegativeRationals_lecompat_r :
-  forall k x y : NonnegativeRationals, x <= y -> k - y <= k - x.
+  Π k x y : NonnegativeRationals, x <= y -> k - y <= k - x.
 Proof.
   intros k x y Hxy.
   case (isdecrel_leNonnegativeRationals y k) ; intros Hky.
@@ -917,7 +917,7 @@ Proof.
     now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
 Qed.
 Lemma minusNonnegativeRationals_lecompat_r' :
-  forall k x y : NonnegativeRationals, x <= k -> k - y <= k - x -> x <= y.
+  Π k x y : NonnegativeRationals, x <= k -> k - y <= k - x -> x <= y.
 Proof.
   intros k x y Hkx H.
   case (isdecrel_leNonnegativeRationals y k) ; intros Hky.
@@ -934,7 +934,7 @@ Proof.
 Qed.
 
 Lemma minusNonnegativeRationals_ltcompat_l:
-  ∀ x y z : NonnegativeRationals, x < y -> z < y -> x - z < y - z.
+  Π x y z : NonnegativeRationals, x < y -> z < y -> x - z < y - z.
 Proof.
   intros x y z Hxy Hyz.
   case (isdecrel_leNonnegativeRationals x z) ; intros Hxz.
@@ -949,7 +949,7 @@ Proof.
     now apply lt_leNonnegativeRationals, Hxz.
 Qed.
 Lemma minusNonnegativeRationals_ltcompat_l' :
-  forall x y z : NonnegativeRationals, x - z < y - z -> x < y.
+  Π x y z : NonnegativeRationals, x - z < y - z -> x < y.
 Proof.
   intros x y z Hlt.
   assert (Hyz : (z < y)%NRat).
@@ -968,7 +968,7 @@ Proof.
     exact Hlt.
 Qed.
 Lemma minusNonnegativeRationals_ltcompat_r:
-  ∀ x y z : NonnegativeRationals, x < y -> x < z -> z - y < z - x.
+  Π x y z : NonnegativeRationals, x < y -> x < z -> z - y < z - x.
 Proof.
   intros x y z Hxy Hxz.
   case (isdecrel_leNonnegativeRationals y z) ; intros Hky.
@@ -985,7 +985,7 @@ Proof.
     now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals, Hky.
 Qed.
 Lemma minusNonnegativeRationals_ltcompat_r':
-  ∀ x y z : NonnegativeRationals, z - y < z - x -> x < y.
+  Π x y z : NonnegativeRationals, z - y < z - x -> x < y.
 Proof.
   intros x y z H.
   apply notge_ltNonnegativeRationals.
@@ -999,34 +999,34 @@ Qed.
 (** Rewritings *)
 
 Definition isassoc_multNonnegativeRationals:
-  ∀ x y z : NonnegativeRationals, x * y * z = x * (y * z) :=
+  Π x y z : NonnegativeRationals, x * y * z = x * (y * z) :=
   CommDivRig_isassoc_mult.
 Definition islunit_oneNonnegativeRationals:
-  ∀ x : NonnegativeRationals, 1 * x = x :=
+  Π x : NonnegativeRationals, 1 * x = x :=
   CommDivRig_islunit_one.
 Definition isrunit_oneNonnegativeRationals:
-  ∀ x : NonnegativeRationals, x * 1 = x :=
+  Π x : NonnegativeRationals, x * 1 = x :=
   CommDivRig_isrunit_one.
 Definition iscomm_multNonnegativeRationals:
-  ∀ x y : NonnegativeRationals, x * y = y * x :=
+  Π x y : NonnegativeRationals, x * y = y * x :=
   CommDivRig_iscomm_mult.
 Definition isldistr_mult_plusNonnegativeRationals:
-  ∀ x y z : NonnegativeRationals, z * (x + y) = z * x + z * y :=
+  Π x y z : NonnegativeRationals, z * (x + y) = z * x + z * y :=
   CommDivRig_isldistr.
 Definition isrdistr_mult_plusNonnegativeRationals:
-  ∀ x y z : NonnegativeRationals, (x + y) * z = x * z + y * z :=
+  Π x y z : NonnegativeRationals, (x + y) * z = x * z + y * z :=
   CommDivRig_isrdistr.
 Definition islabsorb_zero_multNonnegativeRationals:
-  ∀ x : NonnegativeRationals, 0 * x = 0 :=
+  Π x : NonnegativeRationals, 0 * x = 0 :=
   rigmult0x _.
 Definition israbsorb_zero_multNonnegativeRationals:
-  ∀ x : NonnegativeRationals, x * 0 = 0 :=
+  Π x : NonnegativeRationals, x * 0 = 0 :=
   rigmultx0 _.
 
 (** Order *)
 
 Lemma multNonnegativeRationals_ltcompat_l :
-  ∀ k x y : NonnegativeRationals, 0 < k -> (x < y) <->  (k * x < k * y).
+  Π k x y : NonnegativeRationals, 0 < k -> (x < y) <->  (k * x < k * y).
 Proof.
   intros k x y Hk.
   split ; intro H.
@@ -1038,7 +1038,7 @@ Proof.
     exact H.
 Qed.
 Lemma multNonnegativeRationals_ltcompat_r :
-  ∀ k x y : NonnegativeRationals, 0 < k -> (x < y) <-> (x * k < y * k).
+  Π k x y : NonnegativeRationals, 0 < k -> (x < y) <-> (x * k < y * k).
 Proof.
   intros k x y Hk.
   rewrite !(iscomm_multNonnegativeRationals _ k).
@@ -1046,7 +1046,7 @@ Proof.
 Qed.
 
 Lemma multNonnegativeRationals_lecompat_l :
-  ∀ k x y : NonnegativeRationals, x <= y -> k * x <= k * y.
+  Π k x y : NonnegativeRationals, x <= y -> k * x <= k * y.
 Proof.
   intros k x y Hle.
   destruct (eq0orgt0NonnegativeRationals k) as [Hk0 | Hk0].
@@ -1057,21 +1057,21 @@ Proof.
     exact Hk0.
 Qed.
 Lemma multNonnegativeRationals_lecompat_l' :
-  ∀ k x y : NonnegativeRationals, 0 < k -> k * x <= k * y -> x <= y.
+  Π k x y : NonnegativeRationals, 0 < k -> k * x <= k * y -> x <= y.
 Proof.
   intros k x y Hk0.
   apply (hqlehandmultlinv (pr1 x) (pr1 y) (pr1 k)).
   exact Hk0.
 Qed.
 Lemma multNonnegativeRationals_lecompat_r :
-  ∀ k x y : NonnegativeRationals, x <= y -> x * k <= y * k.
+  Π k x y : NonnegativeRationals, x <= y -> x * k <= y * k.
 Proof.
   intros k x y Hk.
   rewrite !(iscomm_multNonnegativeRationals _ k).
   now apply multNonnegativeRationals_lecompat_l.
 Qed.
 Lemma multNonnegativeRationals_lecompat_r' :
-  ∀ k x y : NonnegativeRationals, 0 < k -> x * k <= y * k -> x <= y.
+  Π k x y : NonnegativeRationals, 0 < k -> x * k <= y * k -> x <= y.
 Proof.
   intros k x y Hk.
   rewrite !(iscomm_multNonnegativeRationals _ k).
@@ -1079,7 +1079,7 @@ Proof.
 Qed.
 
 Lemma multNonnegativeRationals_eqcompat_l:
-  ∀ k x y : NonnegativeRationals,
+  Π k x y : NonnegativeRationals,
     0 < k -> k * x = k * y -> x = y.
 Proof.
   intros k x y Hk0 H.
@@ -1096,7 +1096,7 @@ Proof.
   now apply islunit_oneNonnegativeRationals.
 Qed.
 Lemma multNonnegativeRationals_eqcompat_r:
-  ∀ k x y : NonnegativeRationals,
+  Π k x y : NonnegativeRationals,
     0 < k -> x * k = y * k -> x = y.
 Proof.
   intros k x y.
@@ -1105,7 +1105,7 @@ Proof.
 Qed.
 
 Lemma ispositive_multNonnegativeRationals:
-  ∀ x y : NonnegativeRationals,
+  Π x y : NonnegativeRationals,
     0 < x -> 0 < y -> 0 < x * y.
 Proof.
   intros x y Hx Hy.
@@ -1115,7 +1115,7 @@ Proof.
   exact Hy.
 Qed.
 Lemma multNonnegativeRationals_ltcompat:
-  ∀ x x' y y' : NonnegativeRationals,
+  Π x x' y y' : NonnegativeRationals,
     x < x' -> y < y' -> x * y < x' * y'.
 Proof.
   intros x x' y y' Hx Hy.
@@ -1134,7 +1134,7 @@ Proof.
     now apply lt_leNonnegativeRationals.
 Qed.
 Lemma multNonnegativeRationals_le_lt:
-  ∀ x x' y y' : NonnegativeRationals,
+  Π x x' y y' : NonnegativeRationals,
     0 < x -> x <= x' -> y < y' -> x * y < x' * y'.
 Proof.
   intros x x' y y' Hx0 Hx Hy.
@@ -1145,7 +1145,7 @@ Proof.
   - now apply multNonnegativeRationals_lecompat_r, Hx.
 Qed.
 Lemma multNonnegativeRationals_lt_le:
-  ∀ x x' y y' : NonnegativeRationals,
+  Π x x' y y' : NonnegativeRationals,
     0 < y -> x < x' -> y <= y' -> x * y < x' * y'.
 Proof.
   intros x x' y y' Hy0 Hx Hy.
@@ -1157,14 +1157,14 @@ Proof.
 Qed.
 
 Lemma multNonnegativeRationals_le1_r :
-  ∀ q r : NonnegativeRationals, q <= 1 -> r * q <= r.
+  Π q r : NonnegativeRationals, q <= 1 -> r * q <= r.
 Proof.
   intros q r Hq.
   pattern r at 2 ; rewrite <- isrunit_oneNonnegativeRationals.
   now apply multNonnegativeRationals_lecompat_l.
 Qed.
 Lemma multNonnegativeRationals_le1_l :
-  ∀ q r : NonnegativeRationals, q <= 1 -> q * r <= r.
+  Π q r : NonnegativeRationals, q <= 1 -> q * r <= r.
 Proof.
   intros q r Hq.
   pattern r at 2 ; rewrite <- islunit_oneNonnegativeRationals.
@@ -1172,7 +1172,7 @@ Proof.
 Qed.
 
 Lemma isldistr_mult_minusNonnegativeRationals:
-  ∀ x y z : NonnegativeRationals, z * (x - y) = z * x - z * y.
+  Π x y z : NonnegativeRationals, z * (x - y) = z * x - z * y.
 Proof.
   intros x y z.
   destruct (isdecrel_leNonnegativeRationals x y) as [Hle | Hlt].
@@ -1190,7 +1190,7 @@ Proof.
     exact Hlt.
 Qed.
 Lemma isrdistr_mult_minusNonnegativeRationals:
-  ∀ x y z : NonnegativeRationals, (x - y) * z = x * z - y * z.
+  Π x y z : NonnegativeRationals, (x - y) * z = x * z - y * z.
 Proof.
   intros x y z.
   rewrite !(iscomm_multNonnegativeRationals _ z).
@@ -1201,7 +1201,7 @@ Qed.
 (** Rewritings *)
 
 Definition islinv_NonnegativeRationals:
-  ∀ x : NonnegativeRationals, 0 < x -> / x * x = 1.
+  Π x : NonnegativeRationals, 0 < x -> / x * x = 1.
 Proof.
   intros x Hx0.
   assert (Hx : x != 0).
@@ -1211,7 +1211,7 @@ Proof.
   apply @CommDivRig_islinv.
 Qed.
 Definition isrinv_NonnegativeRationals:
-  ∀ x : NonnegativeRationals, 0 < x -> x * / x = 1.
+  Π x : NonnegativeRationals, 0 < x -> x * / x = 1.
 Proof.
   intros x.
   rewrite iscomm_multNonnegativeRationals.
@@ -1228,7 +1228,7 @@ Proof.
 Qed.
 
 Lemma ispositive_invNonnegativeRationals :
-  ∀ x, (0 < x) <-> (0 < / x).
+  Π x, (0 < x) <-> (0 < / x).
 Proof.
   intros x.
   split ; intro Hx.
@@ -1255,7 +1255,7 @@ Proof.
 Qed.
 
 Lemma isinvolutive_invNonnegativeRationals :
-  forall x, / / x = x.
+  Π x, / / x = x.
 Proof.
   intros x.
   case (eq0orgt0NonnegativeRationals x) ; intro Hx0.
@@ -1271,7 +1271,7 @@ Qed.
 (** Order *)
 
 Lemma invNonnegativeRationals_lecompat :
-  forall x y : NonnegativeRationals, 0 < x -> x <= y -> / y <= / x.
+  Π x y : NonnegativeRationals, 0 < x -> x <= y -> / y <= / x.
 Proof.
   intros x y Hx0 Hxy.
   assert (Hy0 : 0 < y).
@@ -1289,7 +1289,7 @@ Proof.
   exact Hx0.
 Qed.
 Lemma invNonnegativeRationals_lecompat' :
-  forall x y : NonnegativeRationals, 0 < y -> / y <= / x -> x <= y.
+  Π x y : NonnegativeRationals, 0 < y -> / y <= / x -> x <= y.
 Proof.
   intros x y Hy0 Hxy.
   rewrite <- (isinvolutive_invNonnegativeRationals x), <- (isinvolutive_invNonnegativeRationals y).
@@ -1299,7 +1299,7 @@ Proof.
 Qed.
 
 Lemma invNonnegativeRationals_ltcompat :
-  forall x y : NonnegativeRationals, 0 < x -> x < y -> / y < / x.
+  Π x y : NonnegativeRationals, 0 < x -> x < y -> / y < / x.
 Proof.
   intros x y Hx0 Hxy.
   apply notge_ltNonnegativeRationals.
@@ -1311,7 +1311,7 @@ Proof.
   exact H.
 Qed.
 Lemma invNonnegativeRationals_ltcompat' :
-  forall x y : NonnegativeRationals, 0 < y -> / y < / x -> x < y.
+  Π x y : NonnegativeRationals, 0 < y -> / y < / x -> x < y.
 Proof.
   intros x y Hy0 Hxy.
   rewrite <- (isinvolutive_invNonnegativeRationals x), <- (isinvolutive_invNonnegativeRationals y).
@@ -1322,7 +1322,7 @@ Proof.
 Qed.
 
 Lemma issublinear_invNonnegativeRationals :
-  forall x y : NonnegativeRationals, / (x + y) <= / x + / y.
+  Π x y : NonnegativeRationals, / (x + y) <= / x + / y.
 Proof.
   intros x y.
   destruct (eq0orgt0NonnegativeRationals x) as [Hx0 | Hx0].
@@ -1342,7 +1342,7 @@ Proof.
   now apply ispositive_plusNonnegativeRationals_l, Hx0.
 Qed.
 Lemma issublinear_invNonnegativeRationals_lt :
-  forall x y : NonnegativeRationals, (0 < x)%NRat -> (0 < y)%NRat -> (/ (x + y) < / x + / y)%NRat.
+  Π x y : NonnegativeRationals, (0 < x)%NRat -> (0 < y)%NRat -> (/ (x + y) < / x + / y)%NRat.
 Proof.
   intros x y Hx0 Hy0.
   apply_pr2 (multNonnegativeRationals_ltcompat_l x).
@@ -1365,7 +1365,7 @@ Qed.
 (** Rewritings *)
 
 Lemma multdivNonnegativeRationals :
-  ∀ q r : NonnegativeRationals, 0 < r -> r * (q / r) = q.
+  Π q r : NonnegativeRationals, 0 < r -> r * (q / r) = q.
 Proof.
   intros q r Hr0.
   unfold divNonnegativeRationals.
@@ -1376,7 +1376,7 @@ Proof.
 Qed.
 
 Lemma minus_divNonnegativeRationals :
-  forall x y : NonnegativeRationals, 0 < y -> / x - / y = (y - x) / (x * y).
+  Π x y : NonnegativeRationals, 0 < y -> / x - / y = (y - x) / (x * y).
 Proof.
   intros x y Hy0.
   destruct (eq0orgt0NonnegativeRationals x) as [Hx0 | Hx0].
@@ -1400,7 +1400,7 @@ Qed.
 (** Order *)
 
 Lemma ispositive_divNonnegativeRationals :
-  ∀ x y, 0 < x -> 0 < y -> 0 < x / y.
+  Π x y, 0 < x -> 0 < y -> 0 < x / y.
 Proof.
   intros x y Hx Hy.
   apply ispositive_multNonnegativeRationals.
@@ -1410,7 +1410,7 @@ Proof.
 Qed.
 
 Lemma divNonnegativeRationals_le1 :
-  ∀ q r : NonnegativeRationals, q <= r -> q / r <= 1.
+  Π q r : NonnegativeRationals, q <= r -> q / r <= 1.
 Proof.
   intros q r Hrq.
   destruct (eq0orgt0NonnegativeRationals r) as [Hr0 | Hr0].
@@ -1429,7 +1429,7 @@ Qed.
 
 (** ** NQhalf *)
 
-Lemma NQhalf_double : ∀ x, x = x / 2 + x / 2.
+Lemma NQhalf_double : Π x, x = x / 2 + x / 2.
 Proof.
   intros (x,Hx).
   unfold divNonnegativeRationals, invNonnegativeRationals, hnnq_inv, twoNonnegativeRationals, Rationals_to_NonnegativeRationals ; simpl pr1.
@@ -1442,7 +1442,7 @@ Proof.
   now apply (isirreflhqlth 2%hq).
 Qed.
 
-Lemma ispositive_NQhalf : ∀ x, (0 < x) <-> (0 < x / 2).
+Lemma ispositive_NQhalf : Π x, (0 < x) <-> (0 < x / 2).
 Proof.
   intro x.
   split ; intro Hx.
@@ -1469,7 +1469,7 @@ Definition NQmax : binop NonnegativeRationals :=
   | ii2 _ => x
   end.
 Lemma NQmax_eq_zero :
-  ∀ x y : NonnegativeRationals, NQmax x y = 0 -> (x = 0) × (y = 0).
+  Π x y : NonnegativeRationals, NQmax x y = 0 -> (x = 0) × (y = 0).
 Proof.
   intros x y.
   unfold NQmax.
@@ -1483,16 +1483,16 @@ Proof.
     now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
 Qed.
 Lemma NQmax_case :
-  ∀ (P : NonnegativeRationals -> UU),
-  ∀ x y : NonnegativeRationals, P x -> P y -> P (NQmax x y).
+  Π (P : NonnegativeRationals -> UU),
+  Π x y : NonnegativeRationals, P x -> P y -> P (NQmax x y).
 Proof.
   intros P x y Hx Hy.
   unfold NQmax.
   now destruct isdecrel_leNonnegativeRationals.
 Qed.
 Lemma NQmax_case_strong :
-  ∀ (P : NonnegativeRationals -> UU),
-  ∀ x y : NonnegativeRationals, (y <= x -> P x) -> (x <= y -> P y) -> P (NQmax x y).
+  Π (P : NonnegativeRationals -> UU),
+  Π x y : NonnegativeRationals, (y <= x -> P x) -> (x <= y -> P y) -> P (NQmax x y).
 Proof.
   intros P x y Hx Hy.
   unfold NQmax.
@@ -1502,7 +1502,7 @@ Proof.
     now apply lt_leNonnegativeRationals, notge_ltNonnegativeRationals.
 Qed.
 Lemma iscomm_NQmax :
-  ∀ x y, NQmax x y = NQmax y x.
+  Π x y, NQmax x y = NQmax y x.
 Proof.
   intros x y.
   apply NQmax_case_strong ; intro Hle ;
@@ -1513,7 +1513,7 @@ Proof.
   - now apply isantisymm_leNonnegativeRationals.
 Qed.
 Lemma NQmax_le_l :
-  ∀ x y : NonnegativeRationals, x <= NQmax x y.
+  Π x y : NonnegativeRationals, x <= NQmax x y.
 Proof.
   intros x y.
   apply NQmax_case_strong ; intro Hle.
@@ -1521,7 +1521,7 @@ Proof.
   - exact Hle.
 Qed.
 Lemma NQmax_le_r :
-  ∀ x y : NonnegativeRationals, y <= NQmax x y.
+  Π x y : NonnegativeRationals, y <= NQmax x y.
 Proof.
   intros x y.
   rewrite iscomm_NQmax.
@@ -1537,7 +1537,7 @@ Proof.
   reflexivity.
 Qed.
 Lemma nat_to_NonnegativeRationals_Sn :
-  ∀ n : nat, nat_to_NonnegativeRationals (S n) = nat_to_NonnegativeRationals n + 1.
+  Π n : nat, nat_to_NonnegativeRationals (S n) = nat_to_NonnegativeRationals n + 1.
 Proof.
   intro n.
   apply subtypeEquality_prop.
@@ -1552,7 +1552,7 @@ Proof.
   set (H := isarchhq).
   apply isarchfld_isarchrng in H.
   apply isarchrng_isarchrig in H.
-  assert (∀ n, pr1 (nattorig (X := pr1 (CommDivRig_DivRig NonnegativeRationals)) n) = nattorig (X := pr1fld hq) n).
+  assert (Π n, pr1 (nattorig (X := pr1 (CommDivRig_DivRig NonnegativeRationals)) n) = nattorig (X := pr1fld hq) n).
   { induction n.
     - reflexivity.
     - rewrite !nattorigS, <- IHn.

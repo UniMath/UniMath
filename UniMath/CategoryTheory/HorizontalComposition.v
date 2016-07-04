@@ -69,7 +69,7 @@ Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)
 *)
 Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)(f : nat_trans Z Z')
   :
-  forall c : C, hor_comp (nat_trans_id X) f c = f (X c).
+  Π c : C, hor_comp (nat_trans_id X) f c = f (X c).
 Proof.
   simpl.
   intro c.

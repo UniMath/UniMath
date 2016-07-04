@@ -57,13 +57,13 @@ Definition isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
            (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) : UU :=
     isLimCone (pullback_diagram f g) d (PullbCone f g d p1 p2 H).
 (*
-   forall e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
+   Π e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : e --> d => dirprod (hk ;; p1 = h)(hk ;; p2 = k))).
  *)
 
 Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
            (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
-  (forall e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
+  (Π e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : C⟦e,d⟧ => dirprod (hk ;; p1 = h)(hk ;; p2 = k))))
   →
   isPullback f g p1 p2 H.
@@ -136,10 +136,10 @@ Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
         isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
  *)
 
-Definition Pullbacks := forall (a b c : C)(f : C⟦b, a⟧)(g : C⟦c, a⟧),
+Definition Pullbacks := Π (a b c : C)(f : C⟦b, a⟧)(g : C⟦c, a⟧),
        Pullback f g.
 
-Definition hasPullbacks := forall (a b c : C) (f : C⟦b, a⟧) (g : C⟦c, a⟧),
+Definition hasPullbacks := Π (a b c : C) (f : C⟦b, a⟧) (g : C⟦c, a⟧),
          ishinh (Pullback f g).
 
 
