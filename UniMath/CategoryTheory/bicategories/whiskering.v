@@ -114,19 +114,19 @@ Proof.
   now apply interchange.
 Defined.
 
-Lemma twomor_naturality {C : prebicategory} {a : C}
-  {f g h i : a -1-> a}
-  (alpha : f -2-> g) (beta  : h -2-> i)
-  : (whisker_right beta f) ;v; (whisker_left i alpha)
-  = (whisker_left h alpha) ;v; (whisker_right beta g).
+Lemma twomor_naturality {C : prebicategory} {a b c : C}
+  {f g : a -1-> b}  {h k : b -1-> c}
+  (gamma : f -2-> g) (delta  : h -2-> k)
+  : (whisker_right gamma h) ;v; (whisker_left g delta)
+  = (whisker_left f delta) ;v; (whisker_right gamma k).
 Proof.
   unfold whisker_left, whisker_right.
 
-  pathvia ((beta ;v; identity_2mor i);h;(identity_2mor f ;v; alpha)).
+  pathvia ((gamma ;v; identity_2mor g);h;(identity_2mor h ;v; delta)).
     apply pathsinv0.
     apply interchange.
 
-  pathvia ((identity_2mor h ;v; beta);h;(alpha ;v; identity_2mor g)).
+  pathvia ((identity_2mor f ;v; gamma);h;(delta ;v; identity_2mor k)).
     rewrite !id_left, !id_right.
     reflexivity.
 
