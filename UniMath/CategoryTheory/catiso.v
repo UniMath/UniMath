@@ -76,6 +76,7 @@ Proof.
   apply transportf_dirprod.
 Defined.
 
+(******************************************************************************)
 (** * Isomorphism of (pre)categories *)
 (* (as defined in the paper) *)
 
