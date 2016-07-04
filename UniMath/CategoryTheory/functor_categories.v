@@ -843,6 +843,15 @@ Definition functor_precategory (C : precategory_data) (C' : precategory)
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
+Definition functor_identity_as_ob (C : precategory) (hsC : has_homsets C)
+  : [C, C, hsC]
+  := (functor_identity C).
+
+Definition functor_composite_as_ob {C C' C'' : precategory}
+  {hsC' : has_homsets C'} {hsC'' : has_homsets C''}
+  (F : [C, C', hsC']) (F' : [C', C'', hsC'']) :
+  [C, C'', hsC''] := tpair _ _ (is_functor_composite F F').
+
 Lemma nat_trans_comp_pointwise (C : precategory_data)(C' : precategory) (hs: has_homsets C')
   (F G H : ob [C, C', hs]) (A : F --> G) (A' : G --> H)
    (B : F --> H) : A ;; A' = B ->
