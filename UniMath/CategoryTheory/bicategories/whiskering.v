@@ -37,17 +37,29 @@ Defined.
 
 Definition whisker_left_iso {C : prebicategory} {a b c : C}
            (f : a -1-> b) {g h : b -1-> c} (alpha : iso g h)
-  : iso (f ;1; g) (f ;1; h)
-  := (identity_iso f) ;hi; alpha.
+  : iso (f ;1; g) (f ;1; h).
+Proof.
+  exists (whisker_left f alpha).
+  apply (functor_on_iso_is_iso _ _ _ _ _ (prodcatiso (identity_iso f) alpha)).
+Defined.
 
 Definition whisker_left_inv {C : prebicategory} {a b c : C}
            (f : a -1-> b) {g h : b -1-> c} (alpha : iso g h)
   : whisker_left_iso f (iso_inv_from_iso alpha)
   = iso_inv_from_iso (whisker_left_iso f alpha).
 Proof.
-  unfold whisker_left_iso at 1.
-  rewrite <- iso_inv_of_iso_id.
-  apply inv_horizontal_comp.
+  apply eq_iso.
+  simpl.
+  unfold whisker_left.
+  unfold identity_2mor.
+
+  pathvia (inv_from_iso (identity_iso f);h;inv_from_iso alpha).
+    set (W := maponpaths pr1 (iso_inv_of_iso_id _ f)).
+    simpl in W.
+    rewrite <- W.
+    reflexivity.
+
+  apply (maponpaths pr1 (inv_horizontal_comp (identity_iso f) alpha)).
 Defined.
 
 Lemma whisker_left_on_comp {C : prebicategory} {a b c : C}
@@ -89,17 +101,29 @@ Defined.
 
 Definition whisker_right_iso {C : prebicategory} {a b c : C}
            {f g : a -1-> b} (alpha : iso f g) (h : b -1-> c)
-  : iso (f ;1; h) (g ;1; h)
-  := alpha ;hi; (identity_iso h).
+  : iso (f ;1; h) (g ;1; h).
+Proof.
+  exists (whisker_right alpha h).
+  apply (functor_on_iso_is_iso _ _ _ _ _ (prodcatiso alpha (identity_iso h))).
+Defined.
 
 Definition whisker_right_inv {C : prebicategory} {a b c : C}
            {f g : a -1-> b} (alpha : iso f g) (h : b -1-> c)
   : whisker_right_iso (iso_inv_from_iso alpha) h
   = iso_inv_from_iso (whisker_right_iso alpha h).
 Proof.
-  unfold whisker_right_iso at 1.
-  rewrite <- iso_inv_of_iso_id.
-  apply inv_horizontal_comp.
+  apply eq_iso.
+  simpl.
+  unfold whisker_right.
+  unfold identity_2mor.
+
+  pathvia (inv_from_iso alpha ;h; inv_from_iso (identity_iso h)).
+    set (W := maponpaths pr1 (iso_inv_of_iso_id _ h)).
+    simpl in W.
+    rewrite <- W.
+    reflexivity.
+
+  apply (maponpaths pr1 (inv_horizontal_comp alpha (identity_iso h))).
 Defined.
 
 Lemma whisker_right_on_comp {C : prebicategory} {a b c : C}
