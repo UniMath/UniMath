@@ -138,6 +138,50 @@ Proof.
   now apply interchange.
 Defined.
 
+Lemma left_unitor_naturality {C : prebicategory} {a b : C}
+  (f g : a -1-> b) (alpha : f -2-> g)
+  : whisker_left (identity_1mor _) alpha ;v; left_unitor g
+  = left_unitor f ;v; alpha.
+Proof.
+  pathvia ((functor_on_morphisms
+                 (functor_composite
+                     (pair_functor
+                        (functor_composite (unit_functor _) (ob_as_functor (identity_1mor a)))
+                        (functor_identity _))
+                     (compose_functor a a b))
+                 alpha)
+           ;v;(left_unitor g)).
+    apply (cancel_postcomposition _ _ _ _ _ _ (left_unitor g)).
+    reflexivity.
+
+  pathvia (left_unitor f ;v; functor_on_morphisms (functor_identity _) alpha).
+    apply (nat_trans_ax (left_unitor_trans a b)).
+
+  reflexivity.
+Defined.
+
+Lemma right_unitor_naturality {C : prebicategory} {a b : C}
+  (f g : a -1-> b) (alpha : f -2-> g)
+  : whisker_right alpha (identity_1mor _) ;v; right_unitor g
+  = right_unitor f ;v; alpha.
+Proof.
+  pathvia ((functor_on_morphisms
+                 (functor_composite
+                    (pair_functor
+                       (functor_identity _)
+                       (functor_composite (unit_functor _) (ob_as_functor (identity_1mor b))))
+                    (compose_functor a b b))
+                 alpha)
+           ;v;(right_unitor g)).
+    apply (cancel_postcomposition _ _ _ _ _ _ (right_unitor g)).
+    reflexivity.
+
+  pathvia (right_unitor f ;v; functor_on_morphisms (functor_identity _) alpha).
+    apply (nat_trans_ax (right_unitor_trans a b)).
+
+  reflexivity.
+Defined.
+
 Lemma twomor_naturality {C : prebicategory} {a b c : C}
   {f g : a -1-> b}  {h k : b -1-> c}
   (gamma : f -2-> g) (delta  : h -2-> k)
