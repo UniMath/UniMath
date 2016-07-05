@@ -4,10 +4,10 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 
 Unset Kernel Term Sharing.
 
-Require Import UniMath.Dedekind.Sets.
-Require Import UniMath.Dedekind.Fields.
+Require Import UniMath.RealNumbers.Sets.
+Require Import UniMath.RealNumbers.Fields.
 Require Export UniMath.Foundations.Algebra.DivisionRig.
-Require Import UniMath.Dedekind.Complements.
+Require Import UniMath.RealNumbers.Prelim.
 
 Opaque hq.
 
@@ -260,7 +260,7 @@ Defined.
 (** * Exportable definitions and theorems *)
 
 Definition NonnegativeRationals : CommDivRig := CommDivRig_hnnq.
-Definition NonnegativeRationals_to_Rationals : NonnegativeRationals -> hq :=
+Definition NonnegativeRationals_to_Rationals : NonnegativeRationals → hq :=
   pr1.
 Definition Rationals_to_NonnegativeRationals (r : hq) (Hr : hqleh 0%hq r) : NonnegativeRationals :=
   tpair _ r Hr.

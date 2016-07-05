@@ -1,26 +1,8 @@
 (** * Additionals theorems and definitions *)
 
-(** ** About nat *)
+Require Export UniMath.Topology.Prelim.
 
-Require Export UniMath.Foundations.NumberSystems.NaturalNumbers.
-Require Import UniMath.Ktheory.Utilities.
-
-Lemma max_le_l : Π n m : nat, (n ≤ max n m)%nat.
-Proof.
-  induction n ; simpl max.
-  - intros ; reflexivity.
-  - destruct m.
-    + now apply isreflnatleh.
-    + now apply IHn.
-Qed.
-Lemma max_le_r : Π n m : nat, (m ≤ max n m)%nat.
-Proof.
-  induction n ; simpl max.
-  - intros ; now apply isreflnatleh.
-  - destruct m.
-    + reflexivity.
-    + now apply IHn.
-Qed.
+Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
 
 (** ** for RationalNumbers.v *)
 
@@ -162,7 +144,7 @@ Proof.
   now rewrite hqplusl0, hqplusr0.
 Qed.
 
-Lemma hqinv_gt0 (x : hq) : 0 < x -> 0 < / x.
+Lemma hqinv_gt0 (x : hq) : 0 < x → 0 < / x.
 Proof.
   unfold hqlth.
   intros x Hx.
@@ -175,39 +157,8 @@ Proof.
       exact Hx.
 Qed.
 
-Lemma isaproptotal2' {X : UU} (P : X -> UU) :
-  isaset X ->
-  isPredicate P ->
-  (Π x y : X, P x -> P y -> x = y) ->
-  isaprop (Σ x : X, P x).
-Proof.
-  intros X P HX HP Heq x y ; simpl.
-  eapply iscontrweqb.
-  apply subtypeInjectivity.
-  exact HP.
-  rewrite (Heq (pr1 y) (pr1 x)).
-  apply iscontrloopsifisaset.
-  exact HX.
-  exact (pr2 y).
-  exact (pr2 x).
-Qed.
-Lemma hinhuniv' {P X : UU} :
-  isaprop P -> (X -> P) -> (∥ X ∥ -> P).
-Proof.
-  intros P X HP Hx.
-  apply (hinhuniv (P := hProppair _ HP)).
-  exact Hx.
-Qed.
-Lemma hinhuniv2' {P X Y : UU} :
-  isaprop P -> (X -> Y -> P) -> (∥ X ∥ -> ∥ Y ∥ -> P).
-Proof.
-  intros P X Y HP Hxy.
-  apply (hinhuniv2 (P := hProppair _ HP)).
-  exact Hxy.
-Qed.
-
 Lemma hztohqandleh':
-  Π n m : hz, (hztohq n <= hztohq m)%hq -> hzleh n m.
+  Π n m : hz, (hztohq n <= hztohq m)%hq → hzleh n m.
 Proof.
   intros n m Hle Hlt.
   apply Hle.
@@ -278,8 +229,37 @@ Proof.
   - reflexivity.
   - intros n m k.
     apply istransnatgth.
-  - admit. (*apply isarchnat.*)
-Admitted.
+  - generalize isarchnat ; intros (H,(H0,H1)).
+    repeat split.
+    + intros y1 y2 Hy.
+      refine (hinhfun _ _).
+      2: apply (H y1 y2).
+      intros (n,Hn).
+      exists n.
+      apply hinhpr.
+      exists O.
+      now rewrite !natplusr0.
+      revert Hy.
+      apply hinhuniv.
+      intros (c).
+      apply natgthandplusrinv.
+    + intros x.
+      generalize (H0 x).
+      apply hinhfun.
+      intros (n,Hn).
+      exists n.
+      apply hinhpr.
+      exists O.
+      now rewrite !natplusr0.
+    + intros x.
+      generalize (H1 x).
+      apply hinhfun.
+      intros (n,Hn).
+      exists n.
+      apply hinhpr.
+      exists O.
+      now rewrite !natplusr0.
+Qed.
 
 Lemma isarchhq :
   isarchfld (X := hq) hqgth.

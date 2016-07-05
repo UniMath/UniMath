@@ -1,12 +1,10 @@
-(** * A library about decidable Dedekind Cuts *)
+(** * A library about decidable Real Numbers *)
 (** Author: Catherine LELAY. Oct 2015 - *)
-(** Additional results about Dedekind cuts which cannot be proved *)
-(** without decidability *)
 
-Require Import UniMath.Dedekind.Complements.
-Require Import UniMath.Dedekind.Sets.
-Require Import UniMath.Dedekind.NonnegativeRationals.
-Require Export UniMath.Dedekind.NonnegativeReals.
+Require Import UniMath.RealNumbers.Prelim.
+Require Import UniMath.RealNumbers.Sets.
+Require Import UniMath.RealNumbers.NonnegativeRationals.
+Require Export UniMath.RealNumbers.NonnegativeReals.
 
 Open Scope NR_scope.
 
@@ -16,7 +14,7 @@ Open Scope NR_scope.
 
 Definition hr_commrng : commrng := commrigtocommrng NonnegativeReals.
 
-Definition NR_to_hr : NonnegativeReals × NonnegativeReals -> hr_commrng
+Definition NR_to_hr : NonnegativeReals × NonnegativeReals → hr_commrng
   := setquotpr (binopeqrelabgrfrac (rigaddabmonoid NonnegativeReals)).
 
 Definition nat_to_hr (n : nat) : hr_commrng :=
@@ -33,7 +31,7 @@ Qed.
 Local Lemma iscomprelfun_NRminus :
   Π x y : NonnegativeReals × NonnegativeReals,
     pr1 x + pr2 y = pr1 y + pr2 x
-    -> pr1 x - pr2 x = pr1 y - pr2 y.
+    → pr1 x - pr2 x = pr1 y - pr2 y.
 Proof.
   intros x y H.
   apply (plusNonnegativeReals_eqcompat_l (pr2 x)).
@@ -1179,7 +1177,7 @@ Qed.
 
 (** ** Completeness *)
 
-Definition Cauchy_seq (u : nat -> hr_ConstructiveField) : hProp.
+Definition Cauchy_seq (u : nat → hr_ConstructiveField) : hProp.
 Proof.
   intro u.
   apply (hProppair (Π c : NonnegativeReals, 0 < c -> ∃ N : nat, Π n m : nat, N ≤ n -> N ≤ m -> hr_abs (u m - u n)%rng < c)).
@@ -1188,9 +1186,9 @@ Proof.
   apply pr2.
 Defined.
 
-Lemma Cauchy_seq_pr1 (u : nat -> hr_ConstructiveField) :
+Lemma Cauchy_seq_pr1 (u : nat → hr_ConstructiveField) :
   let x := λ n : nat, hr_to_NRpos (u n) in
-  Cauchy_seq u -> NonnegativeReals.Cauchy_seq x.
+  Cauchy_seq u → NonnegativeReals.Cauchy_seq x.
 Proof.
   intros u x.
   set (y := λ n : nat, hr_to_NRneg (u n)).
@@ -1225,9 +1223,9 @@ Proof.
     rewrite iscomm_plusNonnegativeReals, <- maxNonnegativeReals_minus_plus.
     now apply maxNonnegativeReals_le_l.
 Qed.
-Lemma Cauchy_seq_pr2 (u : nat -> hr_ConstructiveField) :
+Lemma Cauchy_seq_pr2 (u : nat → hr_ConstructiveField) :
   let y := λ n : nat, hr_to_NRneg (u n) in
-  Cauchy_seq u -> NonnegativeReals.Cauchy_seq y.
+  Cauchy_seq u → NonnegativeReals.Cauchy_seq y.
 Proof.
   intros u y.
   set (x := λ n : nat, hr_to_NRpos (u n)).
@@ -1263,7 +1261,7 @@ Proof.
     now apply maxNonnegativeReals_le_l.
 Qed.
 
-Definition is_lim_seq (u : nat -> hr_ConstructiveField) (l : hr_ConstructiveField) : hProp.
+Definition is_lim_seq (u : nat → hr_ConstructiveField) (l : hr_ConstructiveField) : hProp.
 Proof.
   intros u l.
   apply (hProppair (Π c : NonnegativeReals, 0 < c -> ∃ N : nat, Π n : nat, N ≤ n -> hr_abs (u n - l)%rng < c)).
@@ -1271,10 +1269,10 @@ Proof.
   apply isapropimpl.
   apply pr2.
 Defined.
-Definition ex_lim_seq (u : nat -> hr_ConstructiveField) := Σ l, is_lim_seq u l.
+Definition ex_lim_seq (u : nat → hr_ConstructiveField) := Σ l, is_lim_seq u l.
 
-Lemma Cauchy_seq_impl_ex_lim_seq (u : nat -> hr_ConstructiveField) :
-  Cauchy_seq u -> ex_lim_seq u.
+Lemma Cauchy_seq_impl_ex_lim_seq (u : nat → hr_ConstructiveField) :
+  Cauchy_seq u → ex_lim_seq u.
 Proof.
   intros u Cu.
   set (x := λ n, hr_to_NRpos (u n)).
@@ -1351,10 +1349,10 @@ Definition Rinv : Π x : Reals, (Rap x Rzero) -> Reals := CFinv.
 Definition Rdiv : Reals -> Π y : Reals, (Rap y Rzero) -> Reals := CFdiv.
 
 Definition Rtwo : Reals := Rplus Rone Rone.
-Definition Rabs : Reals -> NonnegativeReals := hr_abs.
+Definition Rabs : Reals → NonnegativeReals := hr_abs.
 
-Definition NRNRtoR : NonnegativeReals -> NonnegativeReals -> Reals := λ (x y : NonnegativeReals), NR_to_hr (x,,y).
-Definition RtoNRNR : Reals -> NonnegativeReals × NonnegativeReals := λ x : Reals, (hr_to_NR x).
+Definition NRNRtoR : NonnegativeReals → NonnegativeReals → Reals := λ (x y : NonnegativeReals), NR_to_hr (x,,y).
+Definition RtoNRNR : Reals → NonnegativeReals × NonnegativeReals := λ x : Reals, (hr_to_NR x).
 
 Delimit Scope R_scope with R.
 Open Scope R_scope.
