@@ -79,7 +79,7 @@ Coercion target_category (C : precategory) (X : functor_from C) : category := pr
 Definition func_functor_from {C : precategory} (X : functor_from C) : functor C X := pr2 X.
 
 Definition is_initial_functor_from (C : precategory) (X : functor_from C) : UU
-  := ∀ X' : functor_from C,
+  := Π X' : functor_from C,
      ∃! H : functor X X',
        functor_composite (func_functor_from X) H = func_functor_from X'.
 
@@ -161,7 +161,7 @@ Defined.
 
 Definition Rezk_completion_endo_is_identity (D : functor_from A)
            (DH : is_initial_functor_from A D)
-  : ∀ X : functor D D, functor_composite (func_functor_from D) X = func_functor_from D
+  : Π X : functor D D, functor_composite (func_functor_from D) X = func_functor_from D
         ->
         X = functor_identity D.
 Proof.

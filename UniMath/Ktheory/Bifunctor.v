@@ -23,7 +23,7 @@ Definition comm_functor_data {I A B:Precategory} :
   := λ D a, functor_data_constr I B (λ i, D ◾ i ◾ a) (λ i j e, D ▭ e ◽ a).
 
 Lemma isfunctor_comm_functor_data {I A B:Precategory} :
-  ∀ (D:[I,[A,B]]) (a:A), is_functor (comm_functor_data D a).
+  Π (D:[I,[A,B]]) (a:A), is_functor (comm_functor_data D a).
 Proof.
   split.
   { unfold functor_idax. intro i; simpl. unfold functor_mor_application.
@@ -115,14 +115,14 @@ Proof.
                 | intro b; simpl; now rewrite id_right, id_left]]) using N. }
 Defined.
 
-Lemma transport_along_funextsec {X:UU} {Y:X->UU} {f g:∀ x, Y x}
+Lemma transport_along_funextsec {X:UU} {Y:X->UU} {f g:Π x, Y x}
       (e:f~g) (x:X) : transportf _ (funextsec _ _ _ e) (f x) = g x.
 Proof. now induction (funextsec _ _ _ e). Defined.
 
 Definition Functor_eq_map {A B: Precategory} (F G:[A,B]) :
   F = G ->
-  Σ (ob : ∀ a, F ◾ a = G ◾ a),
-  ∀ a a' f, transportf (λ k, k --> G ◾ a')
+  Σ (ob : Π a, F ◾ a = G ◾ a),
+  Π a a' f, transportf (λ k, k --> G ◾ a')
                        (ob a)
                        (transportf (λ k, F ◾ a --> k)
                                    (ob a')
@@ -142,13 +142,13 @@ Proof.
 Abort.
 
 Hypothesis Functor_eq_map_isweq :
-  forall (A B: Precategory) (F G:[A,B]), isweq (Functor_eq_map F G).
+  Π (A B: Precategory) (F G:[A,B]), isweq (Functor_eq_map F G).
 Arguments Functor_eq_map_isweq {_ _ _ _} _.
 
 Lemma Functor_eq_weq {A B: Precategory} (F G:[A,B]) :
   F = G ≃
-  Σ (ob : ∀ a, F ◾ a = G ◾ a),
-  ∀ a a' f, transportf (λ k, k --> G ◾ a')
+  Σ (ob : Π a, F ◾ a = G ◾ a),
+  Π a a' f, transportf (λ k, k --> G ◾ a')
                        (ob a)
                        (transportf (λ k, F ◾ a --> k)
                                    (ob a')
@@ -158,8 +158,8 @@ Proof.
 Defined.
 
 Lemma Functor_eq {A B: Precategory} {F G:[A,B]}
-      (ob : ∀ a, F ◾ a = G ◾ a)
-      (mor : ∀ a a' f, transportf (λ k, k --> G ◾ a')
+      (ob : Π a, F ◾ a = G ◾ a)
+      (mor : Π a a' f, transportf (λ k, k --> G ◾ a')
                                   (ob a)
                                   (transportf (λ k, F ◾ a --> k)
                                               (ob a')
@@ -188,11 +188,11 @@ End Working.
 (** bifunctors related to representable functors  *)
 
 Definition θ_1 {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
-  := (∀ b, F ◾ b ⇒ X ◾ b) % set.
+  := (Π b, F ◾ b ⇒ X ◾ b) % set.
 
 Definition θ_2 {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]])
            (x : θ_1 F X) : hSet
-  := (∀ (b' b:B) (f:b'-->b), x b ⟲ F ▭ f = X ▭ f ⟳ x b' ) % set.
+  := (Π (b' b:B) (f:b'-->b), x b ⟲ F ▭ f = X ▭ f ⟳ x b' ) % set.
 
 Definition θ {B C:Precategory} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
   := ( Σ x : θ_1 F X, θ_2 F X x ) % set.

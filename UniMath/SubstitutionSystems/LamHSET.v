@@ -64,7 +64,7 @@ use colimAlgInitial.
 - apply ColimsFunctorCategory; apply ColimsHSET.
 Defined.
 
-Lemma KanExt_HSET : ∀ Z : precategory_Ptd HSET has_homsets_HSET,
+Lemma KanExt_HSET : Π Z : precategory_Ptd HSET has_homsets_HSET,
    RightKanExtension.GlobalRightKanExtensionExists HSET HSET
      (U Z) HSET has_homsets_HSET has_homsets_HSET.
 Proof.

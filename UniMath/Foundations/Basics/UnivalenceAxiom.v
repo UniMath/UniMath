@@ -32,17 +32,17 @@ Require Export UniMath.Foundations.Basics.PartB.
 Definition eqweqmap { T1 T2 : UU } : T1 = T2 -> T1 ≃ T2.
 Proof. intro e. induction e. apply idweq. Defined.
 
-Definition toforallpaths { T : UU } (P:T -> UU) (f g :forall t:T, P t) : f = g -> f ~ g.
+Definition toforallpaths { T : UU } (P:T -> UU) (f g :Π t:T, P t) : f = g -> f ~ g.
 Proof. intros h t. induction h.  apply (idpath _). Defined.
 
-Definition sectohfiber { X : UU } (P:X -> UU): (forall x:X, P x) -> (hfiber (fun f:_ => fun x:_ => pr1  (f x)) (fun x:X => x)) := (fun a : forall x:X, P x => tpair _ (fun x:_ => tpair _ x (a x)) (idpath (fun x:X => x))).
+Definition sectohfiber { X : UU } (P:X -> UU): (Π x:X, P x) -> (hfiber (fun f:_ => fun x:_ => pr1  (f x)) (fun x:X => x)) := (fun a : Π x:X, P x => tpair _ (fun x:_ => tpair _ x (a x)) (idpath (fun x:X => x))).
 
 Definition hfibertosec { X : UU } (P:X -> UU):
-  (hfiber (fun f x => pr1 (f x)) (fun x:X => x)) -> (forall x:X, P x)
+  (hfiber (fun f x => pr1 (f x)) (fun x:X => x)) -> (Π x:X, P x)
   := fun se:_  => fun x:X => match se as se' return P x with tpair _ s e => (transportf P (toforallpaths _ (fun x:X => pr1 (s x)) (fun x:X => x) e x) (pr2  (s x))) end.
 
 Definition sectohfibertosec { X : UU } (P:X -> UU):
-  forall a : (forall x:X, P x), hfibertosec _ (sectohfiber _ a) = a.
+  Π a : (Π x:X, P x), hfibertosec _ (sectohfiber _ a) = a.
 Proof.
   reflexivity.
 Defined.
@@ -53,43 +53,43 @@ Proof. intros. destruct e.  apply idisweq. Defined.
 Lemma isweqtransportb10 { X : UU } ( P : X -> UU ) { x x' : X } ( e :  paths x x' ) : isweq ( transportb P e ).
 Proof. intros. apply ( isweqtransportf10 _ ( pathsinv0 e ) ). Defined.
 
-Lemma l1  { X0 X0' : UU } ( ee : paths X0 X0' ) ( P : UU -> UU ) ( pp' : P X0' ) ( R : forall X X' : UU , forall w : weq X X' , P X' -> P X ) ( r : forall X : UU , forall p : P X , paths ( R X X ( idweq X ) p ) p ) : paths ( R X0 X0' ( eqweqmap ee ) pp' ) (  transportb P ee pp' ).
+Lemma l1  { X0 X0' : UU } ( ee : paths X0 X0' ) ( P : UU -> UU ) ( pp' : P X0' ) ( R : Π X X' : UU , Π w : weq X X' , P X' -> P X ) ( r : Π X : UU , Π p : P X , paths ( R X X ( idweq X ) p ) p ) : paths ( R X0 X0' ( eqweqmap ee ) pp' ) (  transportb P ee pp' ).
 Proof. destruct ee. simpl. apply r. Defined.
 
 (** Axiom statements (propositions) *)
 
-Definition univalenceStatement := forall X Y:UU, isweq (@eqweqmap X Y).
+Definition univalenceStatement := Π X Y:UU, isweq (@eqweqmap X Y).
 
-Definition funextemptyStatement := forall (X:UU) (f g : X->empty), f = g.
+Definition funextemptyStatement := Π (X:UU) (f g : X->empty), f = g.
 
 Definition propositionalUnivalenceStatement :=
-  forall (P Q:UU), isaprop P -> isaprop Q -> (P -> Q) -> (Q -> P) -> P=Q.
+  Π (P Q:UU), isaprop P -> isaprop Q -> (P -> Q) -> (Q -> P) -> P=Q.
 
 Definition funcontrStatement :=
-  forall (X : UU) (P:X -> UU),
-    (forall x:X, iscontr (P x)) -> iscontr (forall x:X, P x).
+  Π (X : UU) (P:X -> UU),
+    (Π x:X, iscontr (P x)) -> iscontr (Π x:X, P x).
 
 Definition funextcontrStatement :=
-  forall (T:UU) (P:T -> UU) (g: ∀ t, P t), ∃! (f:∀ t, P t), ∀ t:T, f t = g t.
+  Π (T:UU) (P:T -> UU) (g: Π t, P t), ∃! (f:Π t, P t), Π t:T, f t = g t.
 
 Definition isweqtoforallpathsStatement :=
-  forall (T:UU) (P:T -> UU) (f g :forall t:T, P t), isweq (toforallpaths _ f g).
+  Π (T:UU) (P:T -> UU) (f g :Π t:T, P t), isweq (toforallpaths _ f g).
 
 (** Axiom consequence statements (not propositions) *)
 
 Definition funextsecStatement :=
-  forall (T:UU) (P:T -> UU) (f g :forall t:T, P t), f ~ g -> f = g.
+  Π (T:UU) (P:T -> UU) (f g :Π t:T, P t), f ~ g -> f = g.
 
 Definition funextfunStatement :=
-  forall (X Y:UU) (f g : X -> Y), f ~ g -> f = g.
+  Π (X Y:UU) (f g : X -> Y), f ~ g -> f = g.
 
-Definition weqtopathsStatement := forall ( T1 T2 : UU ), T1 ≃ T2 -> T1 = T2.
+Definition weqtopathsStatement := Π ( T1 T2 : UU ), T1 ≃ T2 -> T1 = T2.
 
 Definition weqpathsweqStatement (weqtopaths:weqtopathsStatement) :=
-  forall ( T1 T2 : UU ) ( w : T1 ≃ T2 ), eqweqmap (weqtopaths _ _ w) = w.
+  Π ( T1 T2 : UU ) ( w : T1 ≃ T2 ), eqweqmap (weqtopaths _ _ w) = w.
 
 Definition weqtoforallpathsStatement :=
-  forall (T:UU) (P:T -> UU) (f g :forall t:T, P t), (f = g) ≃ (f ~ g).
+  Π (T:UU) (P:T -> UU) (f g :Π t:T, P t), (f = g) ≃ (f ~ g).
 
 (** Implications between statements and consequences of them *)
 
@@ -122,9 +122,9 @@ Proof.
       apply ( maponpaths ( fun w : weq ( pr1 XY) (pr2 XY) =>  tpair P2 XY w )
                        ( weqpathsweq ( pr1 XY ) ( pr2 XY ) e )) .
     - set ( h := fun a1 : Z1 =>  pr1 ( pr1 a1 ) ) .
-      assert ( egf0 : forall a1 : Z1 ,  pr1 ( g ( f a1 ) ) = pr1 a1 ).
+      assert ( egf0 : Π a1 : Z1 ,  pr1 ( g ( f a1 ) ) = pr1 a1 ).
       + intro. apply idpath.
-      + assert ( egf1 : forall a1 a1' : Z1 ,  paths ( pr1 a1' ) (  pr1 a1 ) ->  paths a1' a1 ).
+      + assert ( egf1 : Π a1 a1' : Z1 ,  paths ( pr1 a1' ) (  pr1 a1 ) ->  paths a1' a1 ).
         * intros.
           set ( X' :=  maponpaths pr1 X ).
           assert ( is : isweq h ).
@@ -189,9 +189,9 @@ Section UnivalenceImplications.
     of structures are weak equivalences. *)
 
   Theorem weqtransportbUAH ( P : UU -> UU )
-          ( R : forall ( X X' : UU ) ( w :  weq X X' ) , P X' -> P X )
-          ( r : forall X : UU , forall p : P X , R X X ( idweq X ) p = p ) :
-    forall ( X X' : UU ) ( w :  weq X X' ) ( p' : P X' ),
+          ( R : Π ( X X' : UU ) ( w :  weq X X' ) , P X' -> P X )
+          ( r : Π X : UU , Π p : P X , R X X ( idweq X ) p = p ) :
+    Π ( X X' : UU ) ( w :  weq X X' ) ( p' : P X' ),
       R X X' w p' = transportb P ( weqtopathsUAH w ) p'.
   Proof.
     intros.
@@ -210,9 +210,9 @@ Section UnivalenceImplications.
 
   Corollary isweqweqtransportbUAH
             ( P : UU -> UU )
-            ( R :  forall ( X X' : UU ) ( w : X ≃ X' ) , P X' -> P X )
-            ( r :  forall X : UU , forall p : P X , R X X ( idweq X ) p  = p ) :
-    forall ( X X' : UU ) ( w : X ≃ X' ),
+            ( R :  Π ( X X' : UU ) ( w : X ≃ X' ) , P X' -> P X )
+            ( r :  Π X : UU , Π p : P X , R X X ( idweq X ) p  = p ) :
+    Π ( X X' : UU ) ( w : X ≃ X' ),
       isweq ( fun p' :  P X' => R X X' w p' ).
   Proof.
     intros.
@@ -287,7 +287,7 @@ Section UnivalenceImplications.
   Proof.
     unfold funcontrStatement.
     intros ? ? X0.
-    set (T1 := forall x:X, P x).
+    set (T1 := Π x:X, P x).
     set (T2 := (hfiber (fun f: (X -> total2 P)  => fun x: X => pr1  (f x)) (fun x:X => x))).
     assert (is1:isweq (@pr1 X P)).
     - apply isweqpr1. assumption.
@@ -298,7 +298,7 @@ Section UnivalenceImplications.
   Defined.
 
   (** Proof of the fact that the [ toforallpaths ] from [paths s1 s2] to
-  [forall t:T, paths (s1 t) (s2 t)] is a weak equivalence - a strong form of
+  [Π t:T, paths (s1 t) (s2 t)] is a weak equivalence - a strong form of
   functional extensionality for sections of general families. The proof uses
   only [funcontrUAH] which is an element of a proposition.  *)
 
@@ -306,7 +306,7 @@ Section UnivalenceImplications.
   Proof.
     unfold funextcontrStatement.
     intros.
-    unshelve refine (iscontrretract (X := ∀ t, Σ p, p = g t) _ _ _ _).
+    unshelve refine (iscontrretract (X := Π t, Σ p, p = g t) _ _ _ _).
     - intros x. unshelve refine (_,,_).
       + intro t. exact (pr1 (x t)).
       + intro t; simpl. exact (pr2 (x t)).
@@ -320,8 +320,8 @@ Section UnivalenceImplications.
   Proof.
     unfold isweqtoforallpathsStatement.
     intros.
-    refine (isweqtotaltofib _ _ (λ (h:∀ t, P t), toforallpaths _ h g) _ f).
-    refine (isweqcontrcontr (X := Σ (h: ∀ t, P t), h = g)
+    refine (isweqtotaltofib _ _ (λ (h:Π t, P t), toforallpaths _ h g) _ f).
+    refine (isweqcontrcontr (X := Σ (h: Π t, P t), h = g)
               (λ ff, tpair _ (pr1 ff) (toforallpaths P (pr1 ff) g (pr2 ff))) _ _).
     { exact (iscontrcoconustot _ g). }
     { apply funextcontrUAH. }
@@ -394,16 +394,16 @@ Definition funextfun := funextfunImplication (@funextsec).
 Arguments funextfun {_ _} _ _ _.
 (* Print Assumptions funextfun.    (* isweqtoforallpathsAxiom *) *)
 
-Definition weqfunextsec { T : UU } (P:T -> UU) (f g : forall t:T, P t) :
+Definition weqfunextsec { T : UU } (P:T -> UU) (f g : Π t:T, P t) :
   (f ~ g) ≃ (f = g)
   := invweq (weqtoforallpaths P f g).
 (* Print Assumptions weqfunextsec. (* isweqtoforallpathsAxiom *) *)
 
-Corollary funcontrtwice { X : UU } (P: X-> X -> UU) (is: forall (x x':X), iscontr (P x x')) :
-  iscontr (forall (x x':X), P x x').
+Corollary funcontrtwice { X : UU } (P: X-> X -> UU) (is: Π (x x':X), iscontr (P x x')) :
+  iscontr (Π (x x':X), P x x').
 Proof.
   intros.
-  assert (is1: forall x:X, iscontr (forall x':X, P x x')).
+  assert (is1: Π x:X, iscontr (Π x':X, P x x')).
   - intro. apply (funcontr _ (is x)).
   - apply (funcontr _ is1).
 Defined.

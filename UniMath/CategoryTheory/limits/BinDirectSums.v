@@ -97,7 +97,7 @@ Section def_bindirectsums.
     BinDirectSumCone a b := tpair _ (tpair _ co (i1,,(i2,,(p1,,p2)))) H.
 
   (** BinDirectSum in categories. *)
-  Definition BinDirectSums : UU := forall (a b : A), BinDirectSumCone a b.
+  Definition BinDirectSums : UU := Π (a b : A), BinDirectSumCone a b.
   Definition has_BinDirectSums : UU := ishinh BinDirectSums.
 
   (** The direct sum object. *)
@@ -177,7 +177,7 @@ Section def_bindirectsums.
 
   (** Commutativity of BinDirectSum. *)
   Definition BinDirectSumIn1Commutes {a b : A} (B : BinDirectSumCone a b) :
-    forall (c : A) (f : a --> c) (g : b --> c),
+    Π (c : A) (f : a --> c) (g : b --> c),
       (BinDirectSumIn1 B) ;; (FromBinDirectSum B f g) = f.
   Proof.
     intros c f g.
@@ -185,7 +185,7 @@ Section def_bindirectsums.
   Defined.
 
   Definition BinDirectSumIn2Commutes {a b : A} (B : BinDirectSumCone a b) :
-    forall (c : A) (f : a --> c) (g : b --> c),
+    Π (c : A) (f : a --> c) (g : b --> c),
       (BinDirectSumIn2 B) ;; (FromBinDirectSum B f g) = g.
   Proof.
     intros c f g.
@@ -193,7 +193,7 @@ Section def_bindirectsums.
   Defined.
 
   Definition BinDirectSumPr1Commutes {a b : A} (B : BinDirectSumCone a b) :
-    forall (c : A) (f : c --> a) (g : c --> b),
+    Π (c : A) (f : c --> a) (g : c --> b),
       (ToBinDirectSum B f g) ;; (BinDirectSumPr1 B) = f.
   Proof.
     intros c f g.
@@ -201,7 +201,7 @@ Section def_bindirectsums.
   Defined.
 
   Definition BinDirectSumPr2Commutes {a b : A} (B : BinDirectSumCone a b) :
-    forall (c : A) (f : c --> a) (g : c --> b),
+    Π (c : A) (f : c --> a) (g : c --> b),
       (ToBinDirectSum B f g) ;; (BinDirectSumPr2 B) = g.
   Proof.
     intros c f g.

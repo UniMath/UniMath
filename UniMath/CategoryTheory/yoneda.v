@@ -95,7 +95,7 @@ Definition yoneda_objects (C : precategory) (hs: has_homsets C) (c : C) :
 (** ** On morphisms *)
 
 Definition yoneda_morphisms_data (C : precategory)(hs: has_homsets C) (c c' : C)
-    (f : hom C c c') : forall a : ob C^op,
+    (f : hom C c c') : Π a : ob C^op,
          hom _ (yoneda_objects C hs c a) ( yoneda_objects C hs c' a) :=
             fun a g => g ;; f.
 
