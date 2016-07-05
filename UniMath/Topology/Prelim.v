@@ -12,7 +12,7 @@ Unset Automatic Introduction. (* This line has to be removed for the file to com
 Lemma isaproptotal2' {X : UU} (P : X → UU) :
   isaset X →
   isPredicate P →
-  (∀ x y : X, P x → P y → x = y) →
+  (Π x y : X, P x → P y → x = y) →
   isaprop (Σ x : X, P x).
 Proof.
   intros X P HX HP Heq x y ; simpl.
@@ -43,7 +43,7 @@ Qed.
 
 (** ** About nat *)
 
-Lemma max_le_l : ∀ n m : nat, (n ≤ max n m)%nat.
+Lemma max_le_l : Π n m : nat, (n ≤ max n m)%nat.
 Proof.
   induction n ; simpl max.
   - intros ; reflexivity.
@@ -51,7 +51,7 @@ Proof.
     + now apply isreflnatleh.
     + now apply IHn.
 Qed.
-Lemma max_le_r : ∀ n m : nat, (m ≤ max n m)%nat.
+Lemma max_le_r : Π n m : nat, (m ≤ max n m)%nat.
 Proof.
   induction n ; simpl max.
   - intros ; now apply isreflnatleh.
@@ -84,7 +84,7 @@ Proof.
 Qed.
 
 Lemma union_or {X : UU} :
-  ∀ A B : X → hProp,
+  Π A B : X → hProp,
     union (λ C : X → hProp, C = A ∨ C = B)
     = (λ x : X, A x ∨ B x).
 Proof.
@@ -114,9 +114,9 @@ Proof.
 Qed.
 
 Lemma union_hProp {X : UU} :
-  ∀ (P : (X → hProp) → hProp),
-    (∀ (L : (X → hProp) → hProp), (∀ A, L A → P A) → P (union L))
-    → (∀ A B, P A → P B → P (λ x : X, A x ∨ B x)).
+  Π (P : (X → hProp) → hProp),
+    (Π (L : (X → hProp) → hProp), (Π A, L A → P A) → P (union L))
+    → (Π A B, P A → P B → P (λ x : X, A x ∨ B x)).
 Proof.
   intros X.
   intros P Hp A B Pa Pb.
@@ -134,7 +134,7 @@ Proof.
   intros X P.
   intros x.
   simple refine (hProppair _ _).
-  apply (∀ n, P n x).
+  apply (Π n, P n x).
   apply (impred_isaprop _ (λ _, propproperty _)).
 Defined.
 
@@ -153,7 +153,7 @@ Proof.
 Qed.
 
 Lemma finite_intersection_1 {X : UU} :
-  ∀ (A : X → hProp),
+  Π (A : X → hProp),
     finite_intersection (singletonSequence A) = A.
 Proof.
   intros X.
@@ -171,7 +171,7 @@ Proof.
 Qed.
 
 Lemma finite_intersection_and {X : UU} :
-  ∀ A B : X → hProp,
+  Π A B : X → hProp,
     finite_intersection (pairSequence A B)
     = (λ x : X, A x ∧ B x).
 Proof.
@@ -194,7 +194,7 @@ Proof.
 Qed.
 
 Lemma finite_intersection_case {X : UU} :
-  ∀ (L : Sequence (X → hProp)),
+  Π (L : Sequence (X → hProp)),
     finite_intersection L = match disassembleSequence L with
                             | ii1 _ => λ _, htrue
                             | ii2 (A,,B) => (λ x : X, A x ∧ finite_intersection B x)
@@ -229,7 +229,7 @@ Proof.
       exact (pr1 Hx).
 Qed.
 Lemma finite_intersection_append {X : UU} :
-  ∀ (A : X → hProp) (L : Sequence (X → hProp)),
+  Π (A : X → hProp) (L : Sequence (X → hProp)),
     finite_intersection (append L A) = (λ x : X, A x ∧ finite_intersection L x).
 Proof.
   intros.
@@ -247,9 +247,9 @@ Proof.
 Qed.
 
 Lemma finite_intersection_hProp {X : UU} :
-  ∀ (P : (X → hProp) → hProp),
-    (∀ (L : Sequence (X → hProp)), (∀ n, P (L n)) → P (finite_intersection L))
-    <-> (P (λ _, htrue) × (∀ A B, P A → P B → P (λ x : X, A x ∧ B x))).
+  Π (P : (X → hProp) → hProp),
+    (Π (L : Sequence (X → hProp)), (Π n, P (L n)) → P (finite_intersection L))
+    <-> (P (λ _, htrue) × (Π A B, P A → P B → P (λ x : X, A x ∧ B x))).
 Proof.
   intros X P.
   split.
@@ -264,7 +264,7 @@ Proof.
       now destruct n ; simpl.
   - intros (P0,P2).
     apply (Sequence_rect (P := λ L : Sequence (X → hProp),
-                                     (∀ n : stn (length L), P (L n)) → P (finite_intersection L))).
+                                     (Π n : stn (length L), P (L n)) → P (finite_intersection L))).
     + intros _.
       now rewrite finite_intersection_htrue.
     + intros L A IHl Hl.
