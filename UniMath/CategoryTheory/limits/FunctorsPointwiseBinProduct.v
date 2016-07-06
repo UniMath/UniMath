@@ -94,7 +94,7 @@ Proof.
 now apply (functor_eq _ _ hsD).
 Defined.
 
-Definition binproduct_nat_trans_pr1_data : ∀ c, BinProduct_of_functors c --> F c
+Definition binproduct_nat_trans_pr1_data : Π c, BinProduct_of_functors c --> F c
   := λ c : C, BinProductPr1 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_binproduct_nat_trans_pr1_data
@@ -112,7 +112,7 @@ Definition binproduct_nat_trans_pr1 : nat_trans _ _
   := tpair _ _ is_nat_trans_binproduct_nat_trans_pr1_data.
 
 
-Definition binproduct_nat_trans_pr2_data : ∀ c, BinProduct_of_functors c --> G c
+Definition binproduct_nat_trans_pr2_data : Π c, BinProduct_of_functors c --> G c
   := λ c : C, BinProductPr2 _ (HD (F c) (G c)).
 
 Lemma is_nat_trans_binproduct_nat_trans_pr2_data
@@ -138,7 +138,7 @@ Variable A : functor C D.
 Variable f : A ⟶ F.
 Variable g : A ⟶ G.
 
-Definition binproduct_nat_trans_data : ∀ c,  A c --> BinProduct_of_functors c.
+Definition binproduct_nat_trans_data : Π c,  A c --> BinProduct_of_functors c.
 Proof.
   intro c.
   apply BinProductArrow.
@@ -190,7 +190,7 @@ End vertex.
 
 Lemma binproduct_nat_trans_univ_prop (A : [C, D, hsD])
   (f : (A --> (F:[C,D,hsD]))) (g : A --> (G:[C,D,hsD])) :
-   ∀
+   Π
    t : Σ fg : A --> (BinProduct_of_functors:[C,D,hsD]),
        fg ;; (binproduct_nat_trans_pr1 : (BinProduct_of_functors:[C,D,hsD]) --> F) = f
       ×

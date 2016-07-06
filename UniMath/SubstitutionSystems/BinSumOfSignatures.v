@@ -80,7 +80,7 @@ Definition H : functor [C, C, hs] [C, C, hs] := BinCoproduct_of_functors _ _ CCC
 (* Definition H : functor [C, C, hs] [C, C, hs] := BinCoproduct_of_functors_alt CCC H1 H2. *)
 
 Local Definition bla1 (X : [C, C, hs]) (Z : precategory_Ptd C hs) :
-   ∀ c : C,
+   Π c : C,
     (functor_composite_data (pr1 Z)
      (BinCoproduct_of_functors_data C C CC (H1 X) (H2 X))) c
    --> (BinCoproduct_of_functors_data C C CC (H1 (functor_composite (pr1 Z) X))
@@ -120,7 +120,7 @@ Proof.
 Defined.
 
 
-Definition θ_ob : ∀ XF, θ_source H XF --> θ_target H XF.
+Definition θ_ob : Π XF, θ_source H XF --> θ_target H XF.
 Proof.
   intro XZ.
   destruct XZ as [X Z].

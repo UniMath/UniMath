@@ -7,8 +7,8 @@ Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Import UniMath.Ktheory.Tactics.
 
 Definition Equivalence X Y :=
-  Σ (f:X->Y) (g:Y->X) (p:∀ y, f(g y) = y) (q:∀ x, g(f x) = x),
-      ∀ x, ap f (q x) = p(f x).
+  Σ (f:X->Y) (g:Y->X) (p:Π y, f(g y) = y) (q:Π x, g(f x) = x),
+      Π x, ap f (q x) = p(f x).
 
 Notation "X ≅ Y" := (Equivalence X Y) (at level 60, no associativity) : type_scope.
 
@@ -21,14 +21,14 @@ Coercion Equivalence_toFunction : Equivalence >-> Funclass.
 Definition Equivalence_toInverseFunction {X Y} : X≅Y -> Y->X.
 Proof. intros ? ? f. exact (pr1 (pr2 f)). Defined.
 
-Definition Equivalence_toTargetHomotopy {X Y} (f:Equivalence X Y) : ∀ y, f (Equivalence_toInverseFunction f y) = y
+Definition Equivalence_toTargetHomotopy {X Y} (f:Equivalence X Y) : Π y, f (Equivalence_toInverseFunction f y) = y
   := pr1 (pr2 (pr2 f)).
 
-Definition Equivalence_toSourceHomotopy {X Y} (f:Equivalence X Y) : ∀ x, Equivalence_toInverseFunction f (f x) = x
+Definition Equivalence_toSourceHomotopy {X Y} (f:Equivalence X Y) : Π x, Equivalence_toInverseFunction f (f x) = x
   := pr1 (pr2 (pr2 (pr2 f))).
 
 Definition Equivalence_toAdjointness {X Y} (f:Equivalence X Y)
-  : ∀ x, ap f (Equivalence_toSourceHomotopy f x) = Equivalence_toTargetHomotopy f (f x)
+  : Π x, ap f (Equivalence_toSourceHomotopy f x) = Equivalence_toTargetHomotopy f (f x)
   := pr2 (pr2 (pr2 (pr2 f))).
 
 Lemma transportf_fun_idpath {X Y} {f:X->Y} x x' (w:x = x') (t:f x = f x) :
@@ -145,10 +145,10 @@ Local Notation "p @' q" := (pathscomp0 p q) (only parsing, at level 61, left ass
 Local Arguments idpath {_ _}.
 
 Lemma other_adjoint {X Y} (f : X -> Y) (g : Y -> X)
-      (p : ∀ y : Y, f (g y) = y)
-      (q : ∀ x : X, g (f x) = x)
-      (h : ∀ x : X, ap f (q x) = p (f x)) :
- ∀ y : Y, ap g (p y) = q (g y).
+      (p : Π y : Y, f (g y) = y)
+      (q : Π x : X, g (f x) = x)
+      (h : Π x : X, ap f (q x) = p (f x)) :
+ Π y : Y, ap g (p y) = q (g y).
 Proof. intros. apply pathsinv0.
        intermediate_path (
             !(ap g (p (f (g y))))

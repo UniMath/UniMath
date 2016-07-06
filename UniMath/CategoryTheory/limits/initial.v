@@ -13,7 +13,7 @@ Section def_initial.
 
 Variable C : precategory.
 
-Definition isInitial (a : C) : UU := forall b : C, iscontr (a --> b).
+Definition isInitial (a : C) : UU := Π b : C, iscontr (a --> b).
 
 Definition Initial : UU := total2 (fun a => isInitial a).
 
@@ -47,7 +47,7 @@ Proof.
   exact H.
 Defined.
 
-Definition mk_isInitial (a : C) (H : ∀ (b : C), iscontr (a --> b)) :
+Definition mk_isInitial (a : C) (H : Π (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
   exact H.
@@ -104,7 +104,7 @@ Section Initial_and_EmptyCoprod.
     refine (mk_Initial (CoproductObject _ _ X) _).
     refine (mk_isInitial _ _).
     intros b.
-    assert (H : forall i : empty, C⟦fromempty i, b⟧) by
+    assert (H : Π i : empty, C⟦fromempty i, b⟧) by
         (intros i; apply (fromempty i)).
     apply (iscontrpair (CoproductArrow _ _ X H)); intros t.
     apply CoproductArrowUnique; intros i; apply (fromempty i).
@@ -141,7 +141,7 @@ End Initial_and_EmptyCoprod.
 (* apply (mk_Initial c); apply mk_isInitial; intros b. *)
 (* case (iscc _ (initCocone b)); intros f Hf; destruct f as [f fcomm]. *)
 (* apply (tpair _ f); intro g. *)
-(* transparent assert (X : (Σ x : c --> b, ∀ v, *)
+(* transparent assert (X : (Σ x : c --> b, Π v, *)
 (*                        coconeIn cc v ;; x = coconeIn (initCocone b) v)). *)
 (*   { apply (tpair _ g); intro u; induction u. } *)
 (* apply (maponpaths pr1 (Hf X)). *)

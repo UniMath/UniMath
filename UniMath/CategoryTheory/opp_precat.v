@@ -62,7 +62,7 @@ Proof. intros a b; apply hsC. Qed.
 
 Definition functor_opp_data {C D : precategory} (F : functor C D) :
   functor_data C^op D^op :=
-    tpair (fun F : C^op -> D^op => forall a b, C^op ⟦a, b⟧ -> D^op ⟦F a, F b⟧) F
+    tpair (fun F : C^op -> D^op => Π a b, C^op ⟦a, b⟧ -> D^op ⟦F a, F b⟧) F
           (fun (a b : C) (f : C⟦b, a⟧) => functor_on_morphisms F f).
 
 Lemma is_functor_functor_opp {C D : precategory} (F : functor C D) :

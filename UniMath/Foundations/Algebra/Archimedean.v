@@ -31,7 +31,7 @@ Definition nattorng {X : rng} (n : nat) : X :=
   nattorig (X := rngtorig X) n.
 
 Lemma natmultS :
-  ∀ {X : monoid} (n : nat) (x : X),
+  Π {X : monoid} (n : nat) (x : X),
     natmult (S n) x = (x + natmult n x)%addmonoid.
 Proof.
   intros X [ | n] x.
@@ -39,14 +39,14 @@ Proof.
   - reflexivity.
 Qed.
 Lemma nattorigS {X : rig} :
-  ∀ (n : nat), nattorig (X := X) (S n) = (1 + nattorig n)%rig.
+  Π (n : nat), nattorig (X := X) (S n) = (1 + nattorig n)%rig.
 Proof.
   intros.
   now apply (natmultS (X := rigaddabmonoid X)).
 Qed.
 
 Lemma nattorig_natmult :
-  ∀ {X : rig} (n : nat) (x : X),
+  Π {X : rig} (n : nat) (x : X),
     (nattorig n * x)%rig = natmult (X := rigaddabmonoid X) n x.
 Proof.
   intros.
@@ -56,7 +56,7 @@ Proof.
     now rewrite rigrdistr, IHn, riglunax2.
 Qed.
 Lemma natmult_plus :
-  ∀ {X : monoid} (n m : nat) (x : X),
+  Π {X : monoid} (n m : nat) (x : X),
     natmult (n + m) x = (natmult n x + natmult m x)%addmonoid.
 Proof.
   induction n ; intros m x.
@@ -66,7 +66,7 @@ Proof.
     reflexivity.
 Qed.
 Lemma nattorig_plus :
-  ∀ {X : rig} (n m : nat),
+  Π {X : rig} (n m : nat),
     (nattorig (n + m) : X) = (nattorig n + nattorig m)%rig.
 Proof.
   intros X n m.
@@ -74,7 +74,7 @@ Proof.
 Qed.
 
 Lemma natmult_mult :
-  ∀ {X : monoid} (n m : nat) (x : X),
+  Π {X : monoid} (n m : nat) (x : X),
     natmult (n * m) x = (natmult n (natmult m x))%addmonoid.
 Proof.
   induction n ; intros m x.
@@ -88,7 +88,7 @@ Proof.
     reflexivity.
 Qed.
 Lemma nattorig_mult :
-  ∀ {X : rig} (n m : nat),
+  Π {X : rig} (n m : nat),
     (nattorig (n * m) : X) = (nattorig n * nattorig m)%rig.
 Proof.
   intros X n m.
@@ -98,7 +98,7 @@ Proof.
 Qed.
 
 Lemma natmult_op {X : monoid} :
-  ∀ (n : nat) (x y : X),
+  Π (n : nat) (x y : X),
     (x + y = y + x)%addmonoid
     -> natmult n (x + y)%addmonoid = (natmult n x + natmult n y)%addmonoid.
 Proof.
@@ -120,7 +120,7 @@ Qed.
 
 Lemma natmult_binophrel {X : monoid} (R : hrel X) :
   istrans R -> isbinophrel R ->
-  ∀ (n : nat) (x y : X), R x y -> R (natmult (S n) x) (natmult (S n) y).
+  Π (n : nat) (x y : X), R x y -> R (natmult (S n) x) (natmult (S n) y).
 Proof.
   intros X R Hr Hop n x y H.
   induction n.
@@ -177,7 +177,7 @@ Qed.
 
 Lemma isequiv_setquot_aux {X : abmonoid} (R : hrel X) :
   isinvbinophrel R ->
-  ∀ x y : X, (setquot_aux R) x y <-> R x y.
+  Π x y : X, (setquot_aux R) x y <-> R x y.
 Proof.
   intros X R H x y.
   split.
@@ -195,20 +195,20 @@ Qed.
 (** ** Archimedean property in a monoid *)
 
 Definition isarchmonoid {X : abmonoid} (R : hrel X) :=
-  ∀ x y1 y2 : X,
+  Π x y1 y2 : X,
     R y1 y2 ->
     (∃ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2))
       × (∃ n : nat, R (natmult n y1) (natmult n y2 + x)%addmonoid).
 
 Definition isarchmonoid_1 {X : abmonoid} (R : hrel X) :
   isarchmonoid R ->
-  ∀ x y1 y2 : X,
+  Π x y1 y2 : X,
     R y1 y2 ->
     ∃ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2) :=
   λ H x y1 y2 Hy, (pr1 (H x y1 y2 Hy)).
 Definition isarchmonoid_2 {X : abmonoid} (R : hrel X) :
   isarchmonoid R ->
-  ∀ x y1 y2 : X,
+  Π x y1 y2 : X,
     R y1 y2 ->
     ∃ n : nat, R (natmult n y1) (natmult n y2 + x)%addmonoid :=
   λ H x y1 y2 Hy, (pr2 (H x y1 y2 Hy)).
@@ -216,13 +216,13 @@ Definition isarchmonoid_2 {X : abmonoid} (R : hrel X) :
 (** ** Archimedean property in a group *)
 
 Definition isarchgr {X : abgr} (R : hrel X) :=
-  ∀ x y1 y2 : X,
+  Π x y1 y2 : X,
     R y1 y2 ->
     ∃ n : nat, R (natmult n y1 + x)%addmonoid (natmult n y2).
 
 Local Lemma isarchgr_isarchmonoid_aux {X : abgr} (R : hrel X) :
   isbinophrel R ->
-  ∀ (n : nat) (x y1 y2 : X),
+  Π (n : nat) (x y1 y2 : X),
     R (natmult n y1 * grinv X x)%multmonoid (natmult n y2) -> R (natmult n y1) (natmult n y2 * x)%multmonoid.
 Proof.
   intros X R Hop.
@@ -273,7 +273,7 @@ Local Lemma isarchabgrfrac_aux {X : abmonoid} (R : hrel X)
               (natmult (X := abgrfrac X) (n1 + n2) (setquotpr (binopeqrelabgrfrac X) y2)).
 Proof.
   intros.
-  assert (H0 : ∀ n y, natmult (X := abgrfrac X) n (setquotpr (binopeqrelabgrfrac X) y) = setquotpr (binopeqrelabgrfrac X) (natmult n (pr1 y) ,, natmult n (pr2 y))).
+  assert (H0 : Π n y, natmult (X := abgrfrac X) n (setquotpr (binopeqrelabgrfrac X) y) = setquotpr (binopeqrelabgrfrac X) (natmult n (pr1 y) ,, natmult n (pr2 y))).
   { intros n y.
     induction n.
     reflexivity.
@@ -347,21 +347,21 @@ Defined.
 (** ** Archimedean property in a rig *)
 
 Definition isarchrig {X : rig} (R : hrel X) :=
-  (∀ y1 y2 : X, R y1 y2 -> ∃ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig)
-    × (∀ x : X, ∃ n : nat, R (nattorig n) x)
-    × (∀ x : X, ∃ n : nat, R (nattorig n + x)%rig 0%rig).
+  (Π y1 y2 : X, R y1 y2 -> ∃ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig)
+    × (Π x : X, ∃ n : nat, R (nattorig n) x)
+    × (Π x : X, ∃ n : nat, R (nattorig n + x)%rig 0%rig).
 
 Definition isarchrig_1 {X : rig} (R : hrel X) :
   isarchrig R ->
-  ∀ y1 y2 : X, R y1 y2 -> ∃ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig :=
+  Π y1 y2 : X, R y1 y2 -> ∃ n : nat, R (nattorig n * y1)%rig (1 + nattorig n * y2)%rig :=
   pr1.
 Definition isarchrig_2 {X : rig} (R : hrel X) :
   isarchrig R ->
-  ∀ x : X, ∃ n : nat, R (nattorig n) x :=
+  Π x : X, ∃ n : nat, R (nattorig n) x :=
   λ H, (pr1 (pr2 H)).
 Definition isarchrig_3 {X : rig} (R : hrel X) :
   isarchrig R ->
-  ∀ x : X, ∃ n : nat, R (nattorig n + x)%rig 0%rig :=
+  Π x : X, ∃ n : nat, R (nattorig n + x)%rig 0%rig :=
 
   λ H, (pr2 (pr2 H)).
 
@@ -508,15 +508,15 @@ Defined.
 (** ** Archimedean property in a ring *)
 
 Definition isarchrng {X : rng} (R : hrel X) :=
-  (∀ x : X, R x 0%rng -> ∃ n : nat, R (nattorng n * x)%rng 1%rng)
-    × (∀ x : X, ∃ n : nat, R (nattorng n) x).
+  (Π x : X, R x 0%rng -> ∃ n : nat, R (nattorng n * x)%rng 1%rng)
+    × (Π x : X, ∃ n : nat, R (nattorng n) x).
 
 Definition isarchrng_1 {X : rng} (R : hrel X) :
   isarchrng R ->
-  ∀ x : X, R x 0%rng -> ∃ n : nat, R (nattorng n * x)%rng 1%rng := pr1.
+  Π x : X, R x 0%rng -> ∃ n : nat, R (nattorng n * x)%rng 1%rng := pr1.
 Definition isarchrng_2 {X : rng} (R : hrel X) :
   isarchrng R ->
-  ∀ x : X, ∃ n : nat, R (nattorng n) x := pr2.
+  Π x : X, ∃ n : nat, R (nattorng n) x := pr2.
 
 Lemma isarchrng_isarchrig {X : rng} (R : hrel X) :
   isbinophrel (X := rigaddabmonoid X) R ->
@@ -599,7 +599,7 @@ Proof.
 Defined.
 
 Theorem isarchrigtorng :
-  ∀ (X : rig) (R : hrel X) (Hr : R 1%rig 0%rig)
+  Π (X : rig) (R : hrel X) (Hr : R 1%rig 0%rig)
     (Hadd : isbinophrel (X := rigaddabmonoid X) R)
     (Htra : istrans R)
     (Harch : isarchrig (setquot_aux (X := rigaddabmonoid X) R)), isarchrng (X := rigtorng X) (rigtorngrel X Hadd).
@@ -703,7 +703,7 @@ Proof.
 Defined.
 
 Lemma natmult_commrngfrac {X : commrng} {S : subabmonoids} :
-  ∀ n (x : X × S), natmult (X := commrngfrac X S) n (setquotpr (eqrelcommrngfrac X S) x) = setquotpr (eqrelcommrngfrac X S) (natmult (X := X) n (pr1 x) ,, (pr2 x)).
+  Π n (x : X × S), natmult (X := commrngfrac X S) n (setquotpr (eqrelcommrngfrac X S) x) = setquotpr (eqrelcommrngfrac X S) (natmult (X := X) n (pr1 x) ,, (pr2 x)).
 Proof.
   simpl ; intros X S n x.
   induction n.
@@ -822,10 +822,10 @@ Qed.
 (** ** Archimedean property in a field *)
 
 Definition isarchfld {X : fld} (R : hrel X) :=
-  ∀ x : X, ∃ n : nat, R (nattorng n) x.
+  Π x : X, ∃ n : nat, R (nattorng n) x.
 
 Lemma isarchfld_isarchrng {X : fld} (R : hrel X) :
-  ∀ (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isrngmultgt X R)
+  Π (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isrngmultgt X R)
     (Hirr : isirrefl R),
     isarchfld R -> isarchrng R.
 Proof.
@@ -864,7 +864,7 @@ Proof.
   unfold fldfracgt.
   generalize (isarchcommrngfrac (X := X) (S := rngpossubmonoid X is1 is2) R is0 is1 (λ (c : X) (r : (rngpossubmonoid X is1 is2) c), r) is2 tra X0).
   intros.
-  assert (H_f : ∀ n x, (weqfldfracgt_f X is is0 is1 is2 nc (nattorng n * x)%rng) = (nattorng n * weqfldfracgt_f X is is0 is1 is2 nc x)%rng).
+  assert (H_f : Π n x, (weqfldfracgt_f X is is0 is1 is2 nc (nattorng n * x)%rng) = (nattorng n * weqfldfracgt_f X is is0 is1 is2 nc x)%rng).
   { clear -irr.
     intros n x.
     unfold nattorng.
@@ -903,12 +903,12 @@ Defined.
 (** ** Archimedean property in a constructive field *)
 
 Definition isarchCF {X : ConstructiveField} (R : hrel X) :=
-  ∀ x : X, ∃ n : nat, R (nattorng n) x.
+  Π x : X, ∃ n : nat, R (nattorng n) x.
 
 Lemma isarchCF_isarchrng {X : ConstructiveField} (R : hrel X) :
-  ∀ (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isrngmultgt X R)
+  Π (Hadd : isbinophrel (X := rigaddabmonoid X) R) ( Hmult : isrngmultgt X R)
     (Hirr : isirrefl R),
-    (∀ x : X, R x 0%CF -> (x ≠ 0)%CF) ->
+    (Π x : X, R x 0%CF -> (x ≠ 0)%CF) ->
     isarchCF R -> isarchrng R.
 Proof.
   intros X R Hadd Hmult Hirr H0 H.

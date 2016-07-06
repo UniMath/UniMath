@@ -12,7 +12,7 @@ Proof. intros. exact (compose f g). Defined.
 (** *** the path groupoid *)
 
 Definition is_groupoid (C : Precategory) :=
-  ∀ a b : ob C, isweq (fun p : a = b => idtomor a b p).
+  Π a b : ob C, isweq (fun p : a = b => idtomor a b p).
 
 Lemma isaprop_is_groupoid (C : Precategory) : isaprop (is_groupoid C).
 Proof. intro. apply impred.

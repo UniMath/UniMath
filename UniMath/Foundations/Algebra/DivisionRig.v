@@ -20,7 +20,7 @@ Require Export UniMath.Foundations.Algebra.Domains_and_Fields.
 Definition isnonzerorig (X : rig) : UU := (1%rig : X) != 0%rig.
 
 Definition isDivRig (X : rig) : UU :=
-  isnonzerorig X × (∀ x : X, x != 0%rig -> multinvpair X x).
+  isnonzerorig X × (Π x : X, x != 0%rig -> multinvpair X x).
 
 Lemma isaprop_isDivRig (X : rig) : isaprop (isDivRig X).
 Proof.
@@ -56,10 +56,10 @@ Definition isDivRig_isrunit_x1 {X : rig} (is : isDivRig X) : isrunit (isDivRig_m
   := rigrunax2 X.
 
 Definition isDivRig_islinv {X : rig} (is : isDivRig X) :
-  ∀ (x : X) (Hx : x != isDivRig_zero is), isDivRig_mult is (isDivRig_inv is (x,, Hx)) x = isDivRig_one is
+  Π (x : X) (Hx : x != isDivRig_zero is), isDivRig_mult is (isDivRig_inv is (x,, Hx)) x = isDivRig_one is
   := λ (x : X) (Hx : x != isDivRig_zero is), pr1 (pr2 (pr2 is x Hx)).
 Definition isDivRig_isrinv {X : rig} (is : isDivRig X) :
-  ∀ (x : X) (Hx : x != isDivRig_zero is), isDivRig_mult is x (isDivRig_inv is (x,, Hx)) = isDivRig_one is
+  Π (x : X) (Hx : x != isDivRig_zero is), isDivRig_mult is x (isDivRig_inv is (x,, Hx)) = isDivRig_one is
   := λ (x : X) (Hx : x != isDivRig_zero is), pr2 (pr2 (pr2 is x Hx)).
 
 Definition isDivRig_isldistr {X : rig} (is : isDivRig X) : isldistr (isDivRig_plus is) (isDivRig_mult is) := rigldistr X.
@@ -100,40 +100,40 @@ Section DivRig_pty.
 Context {F : DivRig}.
 
 Definition DivRig_isassoc_plus:
-  ∀ x y z : F, x + y + z = x + (y + z) :=
+  Π x y z : F, x + y + z = x + (y + z) :=
   isDivRig_isassoc_plus (DivRig_isDivRig F).
 Definition DivRig_islunit_zero:
-  ∀ x : F, 0 + x = x :=
+  Π x : F, 0 + x = x :=
   isDivRig_islunit_x0 (DivRig_isDivRig F).
 Definition DivRig_isrunit_zero:
-  ∀ x : F, x + 0 = x :=
+  Π x : F, x + 0 = x :=
   isDivRig_isrunit_x0 (DivRig_isDivRig F).
 Definition DivRig_iscomm_plus:
-  ∀ x y : F, x + y = y + x :=
+  Π x y : F, x + y = y + x :=
   isDivRig_iscomm_plus (DivRig_isDivRig F).
 
 Definition DivRig_isassoc_mult:
-  ∀ x y z : F, x * y * z = x * (y * z) :=
+  Π x y z : F, x * y * z = x * (y * z) :=
   isDivRig_isassoc_mult (DivRig_isDivRig F).
 Definition DivRig_islunit_one:
-  ∀ x : F, 1 * x = x :=
+  Π x : F, 1 * x = x :=
   isDivRig_islunit_x1 (DivRig_isDivRig F).
 Definition DivRig_isrunit_one:
-  ∀ x : F, x * 1 = x :=
+  Π x : F, x * 1 = x :=
   isDivRig_isrunit_x1 (DivRig_isDivRig F).
 
 Definition DivRig_islinv:
-  ∀ (x : F) (Hx : x != 0), / (x,, Hx) * x = 1 :=
+  Π (x : F) (Hx : x != 0), / (x,, Hx) * x = 1 :=
   isDivRig_islinv (DivRig_isDivRig F).
 Definition DivRig_isrinv:
-  ∀ (x : F) (Hx : x != 0), x * / (x,, Hx) = 1 :=
+  Π (x : F) (Hx : x != 0), x * / (x,, Hx) = 1 :=
   isDivRig_isrinv (DivRig_isDivRig F).
 
 Definition DivRig_isldistr:
-  ∀ x y z : F, z * (x + y) = z * x + z * y :=
+  Π x y z : F, z * (x + y) = z * x + z * y :=
   isDivRig_isldistr (DivRig_isDivRig F).
 Definition DivRig_isrdistr:
-  ∀ x y z : F, (x + y) * z = x * z + y * z :=
+  Π x y z : F, (x + y) * z = x * z + y * z :=
   isDivRig_isrdistr (DivRig_isDivRig F).
 
 End DivRig_pty.
@@ -152,43 +152,43 @@ Open Scope dr_scope.
 Context {F : CommDivRig}.
 
 Definition CommDivRig_isassoc_plus:
-  ∀ x y z : F, x + y + z = x + (y + z) :=
+  Π x y z : F, x + y + z = x + (y + z) :=
   DivRig_isassoc_plus.
 Definition CommDivRig_islunit_zero:
-  ∀ x : F, 0 + x = x :=
+  Π x : F, 0 + x = x :=
   DivRig_islunit_zero.
 Definition CommDivRig_isrunit_zero:
-  ∀ x : F, x + 0 = x :=
+  Π x : F, x + 0 = x :=
   DivRig_isrunit_zero.
 Definition CommDivRig_iscomm_plus:
-  ∀ x y : F, x + y = y + x :=
+  Π x y : F, x + y = y + x :=
   DivRig_iscomm_plus.
 
 Definition CommDivRig_isassoc_mult:
-  ∀ x y z : F, x * y * z = x * (y * z) :=
+  Π x y z : F, x * y * z = x * (y * z) :=
   DivRig_isassoc_mult.
 Definition CommDivRig_islunit_one:
-  ∀ x : F, 1 * x = x :=
+  Π x : F, 1 * x = x :=
   DivRig_islunit_one.
 Definition CommDivRig_isrunit_one:
-  ∀ x : F, x * 1 = x :=
+  Π x : F, x * 1 = x :=
   DivRig_isrunit_one.
 Definition CommDivRig_iscomm_mult:
-  ∀ x y : F, x * y = y * x :=
+  Π x y : F, x * y = y * x :=
   rigcomm2 (pr1 F).
 
 Definition CommDivRig_islinv:
-  ∀ (x : F) (Hx : x != 0), / (x,, Hx) * x = 1 :=
+  Π (x : F) (Hx : x != 0), / (x,, Hx) * x = 1 :=
   DivRig_islinv.
 Definition CommDivRig_isrinv:
-  ∀ (x : F) (Hx : x != 0), x * / (x,, Hx) = 1 :=
+  Π (x : F) (Hx : x != 0), x * / (x,, Hx) = 1 :=
   DivRig_isrinv.
 
 Definition CommDivRig_isldistr:
-  ∀ x y z : F, z * (x + y) = z * x + z * y :=
+  Π x y z : F, z * (x + y) = z * x + z * y :=
   DivRig_isldistr.
 Definition CommDivRig_isrdistr:
-  ∀ x y z : F, (x + y) * z = x * z + y * z :=
+  Π x y z : F, (x + y) * z = x * z + y * z :=
   DivRig_isrdistr.
 
 Close Scope dr_scope.

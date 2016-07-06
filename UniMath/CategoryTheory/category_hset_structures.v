@@ -49,7 +49,7 @@ Variable A : UU.
 Variable R0 : hrel A.
 
 Lemma isaprop_eqrel_from_hrel a b :
-  isaprop (∀ R : eqrel A, (∀ x y, R0 x y -> R x y) -> R a b).
+  isaprop (Π R : eqrel A, (Π x y, R0 x y -> R x y) -> R a b).
 Proof.
   apply impred; intro R; apply impred_prop.
 Qed.
@@ -71,8 +71,8 @@ now intros H R HR; apply HR.
 Qed.
 
 (* eqrel_from_hrel is the *smallest* relation containing R0 *)
-Lemma minimal_eqrel_from_hrel (R : eqrel A) (H : ∀ a b, R0 a b -> R a b) :
-  ∀ a b, eqrel_from_hrel a b -> R a b.
+Lemma minimal_eqrel_from_hrel (R : eqrel A) (H : Π a b, R0 a b -> R a b) :
+  Π a b, eqrel_from_hrel a b -> R a b.
 Proof.
 now intros a b H'; apply (H' _ H).
 Qed.
@@ -195,7 +195,7 @@ simple refine (mk_cocone _ _).
 Defined.
 
 Definition ColimHSETArrow (c : HSET) (cc : cocone D c) :
-  Σ x : HSET ⟦ colimHSET, c ⟧, ∀ v : vertex g, injections v ;; x = coconeIn cc v.
+  Σ x : HSET ⟦ colimHSET, c ⟧, Π v : vertex g, injections v ;; x = coconeIn cc v.
 Proof.
 exists (from_colimHSET _ cc).
 abstract (intro i; simpl; unfold injections, compose, from_colimHSET; simpl;
@@ -300,8 +300,8 @@ Variable g : graph.
 Variable D : diagram g HSET.
 
 Definition limset_UU : UU :=
-  Σ (f : ∀ u : vertex g, pr1hSet (dob D u)),
-    ∀ u v (e : edge u v), dmor D e (f u) = f v.
+  Σ (f : Π u : vertex g, pr1hSet (dob D u)),
+    Π u v (e : edge u v), dmor D e (f u) = f v.
 
 Definition limset : HSET.
 Proof.
@@ -347,8 +347,8 @@ Variable J : precategory.
 Variable D : functor J HSET.
 
 Definition cats_limset_UU : UU :=
-  Σ (f : ∀ u, pr1hSet (D u)),
-    ∀ u v (e : J⟦u,v⟧), # D e (f u) = f v.
+  Σ (f : Π u, pr1hSet (D u)),
+    Π u v (e : J⟦u,v⟧), # D e (f u) = f v.
 
 Definition cats_limset : HSET.
 Proof.
@@ -412,7 +412,7 @@ Lemma Products_HSET (I : UU) : Products I HSET.
 Proof.
 intros A.
 simple refine (mk_ProductCone _ _ _ _ _ _).
-- apply (tpair _ (forall i, pr1 (A i))); apply isaset_forall_hSet.
+- apply (tpair _ (Π i, pr1 (A i))); apply isaset_forall_hSet.
 - simpl; intros i f; apply (f i).
 - apply (mk_isProductCone _ _ has_homsets_HSET).
   intros C f; simpl in *.

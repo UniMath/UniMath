@@ -66,10 +66,10 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 
 Definition functor_data (C C' : precategory_ob_mor) :=
-  total2 ( fun F : ob C -> ob C' =>  forall a b : ob C, a --> b -> F a --> F b).
+  total2 ( fun F : ob C -> ob C' =>  Π a b : ob C, a --> b -> F a --> F b).
 
 Definition functor_data_constr ( C C' : precategory_ob_mor )
-           ( F : ob C -> ob C' ) ( Fm : forall a b : ob C, a --> b -> F a --> F b ) :
+           ( F : ob C -> ob C' ) ( Fm : Π a b : ob C, a --> b -> F a --> F b ) :
   functor_data C C' := tpair _ F Fm .
 
 Definition functor_on_objects {C C' : precategory_ob_mor}
@@ -83,10 +83,10 @@ Definition functor_on_morphisms {C C' : precategory_ob_mor} (F : functor_data C 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 Definition functor_idax {C C' : precategory_data} (F : functor_data C C') :=
-  forall a : ob C, #F (identity a) = identity (F a).
+  Π a : ob C, #F (identity a) = identity (F a).
 
 Definition functor_compax {C C' : precategory_data} (F : functor_data C C') :=
-  forall a b c : ob C, forall f : a --> b, forall g : b --> c, #F (f ;; g) = #F f ;; #F g .
+  Π a b c : ob C, Π f : a --> b, Π g : b --> c, #F (f ;; g) = #F f ;; #F g .
 
 Definition is_functor {C C' : precategory_data} (F : functor_data C C') :=
      dirprod ( functor_idax F ) ( functor_compax F ) .
@@ -135,7 +135,7 @@ Proof.
           transportf
             (fun x : ob C -> ob C' =>
             (fun x0 : ob C -> ob C' =>
-            forall a b : ob C, a --> b -> x0 a --> x0 b) x)
+            Π a b : ob C, a --> b -> x0 a --> x0 b) x)
             p (pr2 (pr1 F)) = pr2 (pr1 G)) _
    (fiber_paths (base_paths F G p)) _ (fiber_paths (base_paths F G q))  H).
    apply uip.
@@ -157,12 +157,12 @@ Defined.
 
 
 Definition functor_id {C C' : precategory_data}(F : functor C C'):
-       forall a : ob C, #F (identity a) = identity (F a) := pr1 (pr2 F).
+       Π a : ob C, #F (identity a) = identity (F a) := pr1 (pr2 F).
 
 Definition functor_comp {C C' : precategory_data}
       (F : functor C C'):
-       forall a b c : ob C, forall f : a --> b,
-                 forall g : b --> c,
+       Π a b c : ob C, Π f : a --> b,
+                 Π g : b --> c,
                 #F (f ;; g) = #F f ;; #F g := pr2 (pr2 F).
 
 
@@ -274,7 +274,7 @@ Qed.
 (** ** Fully faithful functors *)
 
 Definition fully_faithful {C D : precategory_data} (F : functor C D) :=
-  forall a b : ob C,
+  Π a b : ob C,
     isweq (functor_on_morphisms F (a:=a) (b:=b)).
 
 Lemma isaprop_fully_faithful (C D : precategory_data) (F : functor C D) :
@@ -514,12 +514,12 @@ Qed.
 (** ** Essentially surjective functors *)
 
 Definition essentially_surjective {C D : precategory_data} (F : functor C D) :=
-  forall b, ishinh (total2 (fun a => iso (F a) b)).
+  Π b, ishinh (total2 (fun a => iso (F a) b)).
 
 (** ** Faithful functors *)
 
 Definition faithful {C D : precategory_data} (F : functor C D) :=
-  forall a b : ob C, isincl (fun f : a --> b => #F f).
+  Π a b : ob C, isincl (fun f : a --> b => #F f).
 
 Lemma isaprop_faithful (C D : precategory_data) (F : functor C D) :
    isaprop (faithful F).
@@ -532,7 +532,7 @@ Qed.
 
 
 Definition full {C D : precategory_data} (F : functor C D) :=
-   forall a b: C, issurjective (fun f : a --> b => #F f).
+   Π a b: C, issurjective (fun f : a --> b => #F f).
 
 
 
@@ -679,13 +679,13 @@ End Constant_Functor.
 
 Definition is_nat_trans {C C' : precategory_data}
   (F F' : functor_data C C')
-  (t : forall x : ob C, F x -->  F' x) :=
-  forall (x x' : ob C)(f : x --> x'),
+  (t : Π x : ob C, F x -->  F' x) :=
+  Π (x x' : ob C)(f : x --> x'),
     #F f ;; t x' = t x ;; #F' f.
 
 
 Lemma isaprop_is_nat_trans (C C' : precategory_data) (hs: has_homsets C')
-  (F F' : functor_data C C') (t : forall x : ob C, F x -->  F' x):
+  (F F' : functor_data C C') (t : Π x : ob C, F x -->  F' x):
   isaprop (is_nat_trans F F' t).
 Proof.
   repeat (apply impred; intro).
@@ -695,7 +695,7 @@ Qed.
 
 Definition nat_trans {C C' : precategory_data}
   (F F' : functor_data C C') := total2 (
-   fun t : forall x : ob C, F x -->  F' x => is_nat_trans F F' t).
+   fun t : Π x : ob C, F x -->  F' x => is_nat_trans F F' t).
 
 Lemma isaset_nat_trans {C C' : precategory_data} (hs: has_homsets C')
   (F F' : functor_data C C') : isaset (nat_trans F F').
@@ -712,19 +712,19 @@ Qed.
 
 Definition nat_trans_data {C C' : precategory_data}
  {F F' : functor_data C C'}(a : nat_trans F F') :
-   forall x : ob C, F x --> F' x := pr1 a.
+   Π x : ob C, F x --> F' x := pr1 a.
 Coercion nat_trans_data : nat_trans >-> Funclass.
 
 Definition nat_trans_ax {C C' : precategory_data}
   {F F' : functor_data C C'} (a : nat_trans F F') :
-  forall (x x' : ob C)(f : x --> x'),
+  Π (x x' : ob C)(f : x --> x'),
     #F f ;; a x' = a x ;; #F' f := pr2 a.
 
 (** Equality between two natural transformations *)
 
 Lemma nat_trans_eq {C C' : precategory_data} (hs: has_homsets C')
   (F F' : functor_data C C')(a a' : nat_trans F F'):
-  (forall x, a x = a' x) -> a = a'.
+  (Π x, a x = a' x) -> a = a'.
 Proof.
   intro H.
   assert (H' : pr1 a = pr1 a').
@@ -738,7 +738,7 @@ Qed.
 
 Definition nat_trans_eq_pointwise {C C' : precategory_data}
    {F F' : functor_data C C'} {a a' : nat_trans F F'}:
-      a = a' -> forall x, a x = a' x.
+      a = a' -> Π x, a x = a' x.
 Proof.
   intro h.
   apply toforallpaths.
@@ -839,7 +839,7 @@ Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Lemma nat_trans_comp_pointwise (C : precategory_data)(C' : precategory) (hs: has_homsets C')
   (F G H : ob [C, C', hs]) (A : F --> G) (A' : G --> H)
    (B : F --> H) : A ;; A' = B ->
-        forall a, pr1 A a ;; pr1 A' a = pr1 B a.
+        Π a, pr1 A a ;; pr1 A' a = pr1 B a.
 Proof.
   intros H' a.
   pathvia (pr1 (A ;; A') a).
@@ -855,7 +855,7 @@ Variable hsD : has_homsets D.
 Context {F G : functor C D}.
 Variables alpha beta : nat_trans F G.
 
-Definition nat_trans_eq_weq : weq (alpha = beta) (forall c, alpha c = beta c).
+Definition nat_trans_eq_weq : weq (alpha = beta) (Π c, alpha c = beta c).
 Proof.
   eapply weqcomp.
   - apply subtypeInjectivity.
@@ -870,7 +870,7 @@ End nat_trans_eq.
 Lemma is_nat_trans_inv_from_pointwise_inv (C : precategory_data)(D : precategory)
   (hs: has_homsets D)
   (F G : ob [C,D,hs]) (A : F --> G)
-  (H : forall a : ob C, is_isomorphism (pr1 A a)) :
+  (H : Π a : ob C, is_isomorphism (pr1 A a)) :
   is_nat_trans _ _
      (fun a : ob C => inv_from_iso (tpair _ _ (H a))).
 Proof.
@@ -890,13 +890,13 @@ Qed.
 Definition nat_trans_inv_from_pointwise_inv (C : precategory_data)(D : precategory)
   (hs: has_homsets D)
   (F G : ob [C,D,hs]) (A : F --> G)
-  (H : forall a : ob C, is_isomorphism (pr1 A a)) :
+  (H : Π a : ob C, is_isomorphism (pr1 A a)) :
     G --> F := tpair _ _ (is_nat_trans_inv_from_pointwise_inv _ _ _ _ _ _ H).
 
 
 Lemma is_inverse_nat_trans_inv_from_pointwise_inv (C : precategory_data)(C' : precategory) (hs: has_homsets C')
     (F G : [C, C', hs]) (A : F --> G)
-   (H : forall a : C, is_isomorphism (pr1 A a)) :
+   (H : Π a : C, is_isomorphism (pr1 A a)) :
   is_inverse_in_precat A (nat_trans_inv_from_pointwise_inv C C' _ F G A H).
 Proof.
   simpl; split; simpl.
@@ -914,7 +914,7 @@ Qed.
 Lemma functor_iso_if_pointwise_iso (C : precategory_data) (C' : precategory)
   (hs: has_homsets C')
  (F G : ob [C, C', hs]) (A : F --> G) :
-   (forall a : ob C, is_isomorphism (pr1 A a)) ->
+   (Π a : ob C, is_isomorphism (pr1 A a)) ->
            is_isomorphism A .
 Proof.
   intro H.
@@ -925,7 +925,7 @@ Defined.
 Definition functor_iso_from_pointwise_iso (C : precategory_data)(C' : precategory)
   (hs: has_homsets C')
  (F G : ob [C, C', hs]) (A : F --> G)
-   (H : forall a : ob C, is_isomorphism (pr1 A a)) :
+   (H : Π a : ob C, is_isomorphism (pr1 A a)) :
      iso F G :=
  tpair _ _ (functor_iso_if_pointwise_iso _ _ _ _ _ _ H).
 
@@ -934,7 +934,7 @@ Lemma is_functor_iso_pointwise_if_iso (C : precategory_data)(C' : precategory)
   (hs: has_homsets C')
  (F G : ob [C, C', hs]) (A : F --> G) :
   is_isomorphism A ->
-       forall a : ob C, is_isomorphism (pr1 A a).
+       Π a : ob C, is_isomorphism (pr1 A a).
 Proof.
   intros H a.
   set (T:= inv_from_iso (tpair _ A H)).
@@ -952,7 +952,7 @@ Defined.
 Lemma nat_trans_inv_pointwise_inv_before (C : precategory_data) (C' : precategory)
   (hs: has_homsets C')
  (F G : ob [C, C', hs]) (A : F --> G) (Aiso: is_isomorphism A) :
-       forall a : C, pr1 (inv_from_iso (isopair A Aiso)) a ;; pr1 A a = identity _ .
+       Π a : C, pr1 (inv_from_iso (isopair A Aiso)) a ;; pr1 A a = identity _ .
 Proof.
   intro a.
   set (T:= inv_from_iso (isopair A Aiso)).
@@ -964,7 +964,7 @@ Defined.
 Lemma nat_trans_inv_pointwise_inv_after (C : precategory_data) (C' : precategory)
   (hs: has_homsets C')
  (F G : ob [C, C', hs]) (A : F --> G) (Aiso: is_isomorphism A) :
-       forall a : C, pr1 A a ;; pr1 (inv_from_iso (isopair A Aiso)) a = identity _ .
+       Π a : C, pr1 A a ;; pr1 (inv_from_iso (isopair A Aiso)) a = identity _ .
 Proof.
   intro a.
   set (T:= inv_from_iso (isopair A Aiso)).
@@ -978,7 +978,7 @@ Definition functor_iso_pointwise_if_iso (C : precategory_data) (C' : precategory
   (hs: has_homsets C')
  (F G : ob [C, C',hs]) (A : F --> G)
   (H : is_isomorphism A) :
-     forall a : ob C,
+     Π a : ob C,
        iso (pr1 F a) (pr1 G a) :=
   fun a => tpair _ _ (is_functor_iso_pointwise_if_iso C C' _ F G A H a).
 
@@ -1015,11 +1015,11 @@ Defined.
 
 Lemma transport_of_functor_map_is_pointwise (C : precategory_data) (D : precategory)
       (F0 G0 : ob C -> ob D)
-    (F1 : forall a b : ob C, a --> b -> F0 a --> F0 b)
+    (F1 : Π a b : ob C, a --> b -> F0 a --> F0 b)
    (gamma : F0  = G0 )
     (a b : ob C) (f : a --> b) :
 transportf (fun x : ob C -> ob D =>
-            forall a0 b0 : ob  C, a0 --> b0 -> x a0 --> x b0)
+            Π a0 b0 : ob  C, a0 --> b0 -> x a0 --> x b0)
            gamma  F1 a b f =
 transportf (fun TT : ob D => G0 a --> TT)
   (toforallpaths (fun _ : ob C => D) F0 G0 gamma b)
@@ -1030,8 +1030,8 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma toforallpaths_funextsec : forall (T : UU) (P : T -> UU) (f g : forall t : T, P t)
-          (h : forall t : T, f t = g t),
+Lemma toforallpaths_funextsec : Π (T : UU) (P : T -> UU) (f g : Π t : T, P t)
+          (h : Π t : T, f t = g t),
             toforallpaths _  _ _ (funextsec _ _ _ h) = h.
 Proof.
   intros T P f g h.

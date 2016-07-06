@@ -18,7 +18,7 @@ Section def_po.
 
   Definition isPushout {a b c d : C} (f : a --> b) (g : a --> c)
              (in1 : b --> d) (in2 : c --> d) (H : f ;; in1 = g ;; in2) : UU :=
-    forall e (h : b --> e) (k : c --> e)(H : f ;; h = g ;; k),
+    Π e (h : b --> e) (k : c --> e)(H : f ;; h = g ;; k),
       iscontr (total2 (fun hk : d --> e => dirprod (in1 ;; hk = h) (in2 ;; hk = k))).
 
   Lemma isaprop_isPushout {a b c d : C} (f : a --> b) (g : a --> c)
@@ -48,10 +48,10 @@ Section def_po.
               total2 (fun H : f ;; pr1 (pr2 pfg) = g ;; pr2 (pr2 pfg) =>
                         isPushout f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
 
-  Definition Pushouts := forall (a b c : C) (f : a --> b) (g : a --> c),
+  Definition Pushouts := Π (a b c : C) (f : a --> b) (g : a --> c),
       Pushout f g.
 
-  Definition hasPushouts := forall (a b c : C) (f : a --> b) (g : a --> c),
+  Definition hasPushouts := Π (a b c : C) (f : a --> b) (g : a --> c),
       ishinh (Pushout f g).
 
 
@@ -117,7 +117,7 @@ Section def_po.
 
   Definition mk_isPushout {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
              (in1 : C⟦b,d⟧) (in2 : C⟦c,d⟧) (H : f ;; in1 = g ;; in2) :
-    (forall e (h : C ⟦b, e⟧) (k : C⟦c,e⟧)(Hk : f ;; h = g ;; k),
+    (Π e (h : C ⟦b, e⟧) (k : C⟦c,e⟧)(Hk : f ;; h = g ;; k),
         iscontr (total2 (fun hk : C⟦d,e⟧ =>
                            dirprod (in1 ;; hk = h)(in2 ;; hk = k))))
     →
