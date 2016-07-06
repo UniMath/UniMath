@@ -241,7 +241,7 @@ Proof.
       now rewrite !natplusr0.
       revert Hy.
       apply hinhuniv.
-      intros (c).
+      intros (c,x); generalize x; clear x.
       apply natgthandplusrinv.
     + intros x.
       generalize (H0 x).
