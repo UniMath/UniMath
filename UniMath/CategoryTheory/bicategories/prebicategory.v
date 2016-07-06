@@ -10,6 +10,24 @@ Arguments functor_composite {_ _ _} _ _ .
 (******************************************************************************)
 (* Definition of a prebicategory *)
 
+(* This is done in a few pieces. Instead of specifying all the data and
+   the conditions afterwards, we interleave them, i.e., we have a
+   precategory of morphisms immediately, instead of a type that is later
+   said to be a precategory. This makes the definition easier to work with. *)
+
+(* The pieces are:
+   precategory_ob_1mor_2mor: A type C, and for each a,b : C, a precategory (a -1-> b)
+   precategory_id_comp:      For each a : C, an object of (a -1-> a),
+                             For each a b c : C, a functor (a -1-> b) × (b -1-> c) to (a -1-> c)
+   precategory_data:         For each a b c d : C, an associator natural transformation
+                             For each a b : C, left and right unitor natural transformations
+   precategory:              Proofs that:
+                             Every precategory (a -1-> b)'s homs are sets
+                             The natural transformations above are isos
+                             The pentagon and triangle axioms hold
+ *)
+
+
 Local Notation "C c× D" := (product_precategory C D) (at level 75, right associativity).
 
 Local Notation "a -2-> b" := (precategory_morphisms a b)(at level 50).
@@ -176,6 +194,8 @@ Definition associator_and_unitors_are_iso (C : prebicategory_data)
         forall f : a -1-> b, is_iso (left_unitor_2mor f))
      × (forall a b : C,
         forall g : a -1-> b, is_iso (right_unitor_2mor g)).
+
+(* It suffices to check the pentagon/triangle axioms pointwise *)
 
 Definition pentagon_axiom_type { C : prebicategory_data } { a b c d e : C }
   (k : a -1-> b)
