@@ -4,53 +4,72 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.ProductPrecategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.bicategories.prebicategory.
 
-Local Notation "a -1-> b" := (homprecat a b)(at level 50).
-Local Notation "f ;1; g" := (compose_1mor f g) (at level 50, format "f ;1; g", no associativity).
-Local Notation "a -2-> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "alpha ;v; beta" := (compose alpha beta) (at level 50, format "alpha ;v; beta", no associativity).
-Local Notation "alpha ;h; beta" := (compose_2mor_horizontal alpha beta) (at level 50, format "alpha ;h; beta").
+Require Import UniMath.CategoryTheory.bicategories.prebicategory.
+Require Import UniMath.CategoryTheory.bicategories.whiskering.
+Require Import UniMath.CategoryTheory.bicategories.notations.
+
+Definition inv {C:precategory} {a b : C}
+ (f : iso a b)
+ := iso_inv_from_iso f.
 
 (******************************************************************************)
-(* Equivalence in a prebicategory *)
+(* Internal Equivalence *)
 
-Definition is_internal_equivalence {C : prebicategory} {a b : C}
+Definition is_int_equivalence {C : prebicategory} {a b : C}
   (f : a -1-> b)
-  := total2 (fun g : b -1-> a => (iso (f ;1; g) (identity_1mor a)) × (iso (g ;1; f) (identity_1mor b))).
+  := total2 (fun g : b -1-> a => (iso (identity_1mor a) (f ;1; g)) × (iso (g ;1; f) (identity_1mor b))).
 
-Definition internal_equivalence {C : prebicategory}
+Definition int_equivalence {C : prebicategory}
   (a b : C)
-  := total2 (fun f : a -1-> b => is_internal_equivalence f).
+  := total2 (fun f : a -1-> b => is_int_equivalence f).
 
-Definition identity_equivalence {C : prebicategory}
-  (a : C) : internal_equivalence a a.
+Definition identity_int_equivalence {C : prebicategory}
+  (a : C) : int_equivalence a a.
 Proof.
   exists (identity_1mor a).
   exists (identity_1mor a).
   split.
-  - exact (left_unitor (identity_1mor a)).
+  - exact (inv (left_unitor (identity_1mor a))).
   - exact (left_unitor (identity_1mor a)).
 Defined.
 
-Definition id_to_internal_equivalence {C : prebicategory} (a b : C)
-  : (a = b) -> internal_equivalence a b.
+Definition id_to_int_equivalence {C : prebicategory} (a b : C)
+  : (a = b) -> int_equivalence a b.
 Proof.
   intros p.
   induction p.
-  exact (identity_equivalence a).
+  exact (identity_int_equivalence a).
 Defined.
 
-Definition has_homcats (C : prebicategory)
-  := forall a b : C, is_category (a -1-> b).
+(******************************************************************************)
+(* Internal Adjoint Equivalence *)
 
-Definition is_bicategory (C : prebicategory)
-  := (has_homcats C) × (forall (a b : C), isweq (id_to_internal_equivalence a b)).
+Definition is_adj_int_equivalence {C : prebicategory} { a b : C }
+  (f : a -1-> b)
+  := total2 (fun g : b -1-> a =>
+     total2 (fun etaeps : (iso (identity_1mor a) (f ;1; g)) × (iso (g ;1; f) (identity_1mor b)) =>
+               let eta := pr1 etaeps in
+               let eps := pr2 etaeps in
+       (
+             (inv (left_unitor f))
+         ;v; (whisker_right eta f)
+         ;v; (inv (associator _ _ _))
+         ;v; (whisker_left f eps)
+         ;v; (right_unitor _)
+           = (identity f)
+       ) × (
+             (inv (right_unitor g))
+         ;v; (whisker_left g eta)
+         ;v; (associator _ _ _)
+         ;v; (whisker_right eps g)
+         ;v; (left_unitor _) = (identity g)
+       )
+     )).
 
-Definition bicategory := total2 (fun C : prebicategory => is_bicategory C).
-
-(***)
-(* Being a bicategory is a prop *)
+Definition adj_int_equivalence {C : prebicategory}
+  (a b : C)
+  := total2 (fun f : a -1-> b => is_adj_int_equivalence f).
 
 Definition isaprop_has_homcats { C : prebicategory }
   : isaprop (has_homcats C).
