@@ -721,7 +721,7 @@ Ltac nat_ineq_contr_isirrefl :=
       | _ : hProptoType (?x > ?x) |- _ => apply (isirreflnatgth x); assumption
       | N : nat |- _ =>
         let f := make_gth_check N N in
-        apply (isirreflnatgth N); nat_dfs_body ltac:f
+        apply (isirreflnatgth N); nat_dfs_body ltac:(f)
     end
   | contradiction].
 

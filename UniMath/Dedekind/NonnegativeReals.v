@@ -839,6 +839,7 @@ Proof.
   intros c Hc.
   apply ispositive_NQhalf in Hc.
   generalize (X_error _ Hc) (Y_error _ Hc).
+  Unset Bracketing Last Introduction Pattern. (* see https://github.com/UniMath/UniMath/issues/400#issuecomment-230702637 *)
   apply hinhfun2 ; intros [Hx [Hy | Hy ] | Hx [Hy | Hy] ].
   - left.
     unfold neg ; apply (hinhuniv (P := hProppair _ isapropempty)) ; intros [ | ].
@@ -1296,7 +1297,9 @@ Proof.
     assert (Heq : Dcuts_mult_val X Y = (Dcuts_NQmult_val (x + 1%NRat) (Dcuts_mult_val (Dcuts_NQmult_val (/ (x + 1))%NRat X) Y))).
     { apply funextfun ; intro r.
       apply hPropUnivalence.
-      - apply hinhfun ; intros ((rx,ry)) ; simpl ; intros (Hr,(Xr,Yr)).
+      - apply hinhfun.
+        intros ((rx,ry),(Hr,(Xr,Yr))).
+        simpl.
         exists (r / (x + 1))%NRat ; split.
         + now  rewrite multdivNonnegativeRationals.
         + apply hinhpr.
@@ -1309,8 +1312,10 @@ Proof.
             now apply iscomm_multNonnegativeRationals.
             exact Xr.
           * exact Yr.
-      - apply hinhuniv ; intros (rx,(Hr)).
-        apply hinhuniv ; intros ((rx',ry),(Hrx,(H,Yr))) ; simpl in Hrx, Yr.
+      - apply hinhuniv.
+        intros (rx,(Hr,Hd)). generalize Hd; clear Hd.
+        apply hinhuniv.
+        intros ((rx',ry),(Hrx,(H,Yr))) ; simpl in Hrx, Yr.
         revert H ; apply hinhfun ; intros (rx'',(Hrx',Xrx)) ; simpl in Hrx'.
         rewrite Hrx' in Hrx ; clear rx' Hrx'.
         rewrite Hrx in Hr ; clear rx Hrx.
@@ -1574,7 +1579,7 @@ Proof.
       exact Hx0.
       exact Hl0.
       exact Hl1.
-    - apply hinhuniv ; intros (q,(->)).
+    - apply hinhuniv. intros (q,(->,A)). generalize A; clear A.
       apply hinhfun ; intros (l,(Hl,(Hl0,Hl1))).
       exists l ; repeat split.
       intros s Xs.
@@ -1740,12 +1745,12 @@ Lemma iscomm_Dcuts_mult : iscomm Dcuts_mult.
 Proof.
   intros x y.
   apply Dcuts_eq_is_eq ; intro r ; split.
-  - apply hinhfun ; intros ((rx,ry)) ; simpl ; intros (Hr,(Xr,Yr)).
+  - apply hinhfun. intros ((rx,ry),A). generalize A; clear A. simpl ; intros (Hr,(Xr,Yr)).
     exists (ry,rx) ; repeat split.
     now rewrite iscomm_multNonnegativeRationals.
     exact Yr.
     exact Xr.
-  - apply hinhfun ; intros ((rx,ry)) ; simpl ; intros (Hr,(Xr,Yr)).
+  - apply hinhfun ; intros ((rx,ry),A) ; generalize A; clear A ; simpl ; intros (Hr,(Xr,Yr)).
     exists (ry,rx) ; repeat split.
     now rewrite iscomm_multNonnegativeRationals.
     exact Yr.
@@ -1756,7 +1761,7 @@ Lemma Dcuts_mult_lt_l :
   ∀ x x' y : Dcuts, Dcuts_mult x y < Dcuts_mult x' y -> x < x'.
 Proof.
   intros x x' y.
-  apply hinhuniv ; intros (r,(Nr)).
+  apply hinhuniv ; intros (r,(Nr,A)) ; generalize A ; clear A.
   apply hinhfun ; intros ((rx,ry),(Hr,(Xr,Yr))).
   simpl in Hr,Xr,Yr.
   exists rx ; split.
@@ -1915,15 +1920,16 @@ Lemma isassoc_Dcuts_mult : isassoc Dcuts_mult.
 Proof.
   intros x y z.
   apply Dcuts_eq_is_eq ; intro r ; split.
-  - apply hinhuniv ; intros ((rxy,rz)) ; simpl ; intros (Hr,(XYr,Zr)) ; revert XYr.
-    apply hinhfun ; intros ((rx,ry)) ; simpl ; intros (Hrxy,(Xr,Yr)).
+  - apply hinhuniv ; intros ((rxy,rz),A) ; generalize A; clear A; simpl.
+    intros (Hr,(XYr,Zr)) ; revert XYr.
+    apply hinhfun ; intros ((rx,ry),A) ; generalize A; clear A; simpl ; intros (Hrxy,(Xr,Yr)).
     rewrite Hrxy, isassoc_multNonnegativeRationals in Hr ; clear rxy Hrxy.
     exists (rx,(ry * rz)) ; simpl ; repeat split.
     + exact Hr.
     + exact Xr.
     + now  apply hinhpr ; exists (ry,rz).
-  - apply hinhuniv ; intros ((rx,ryz)) ; simpl ; intros (Hr,(Xr)).
-    apply hinhfun ; intros ((ry,rz)) ; simpl ; intros (Hryz,(Yr,Zr)).
+  - apply hinhuniv ; intros ((rx,ryz),A) ; generalize A ; clear A ; simpl ; intros (Hr,(Xr,B)) ; generalize B ; clear B.
+    apply hinhfun ; intros ((ry,rz),A) ; generalize A ; clear A ; simpl ; intros (Hryz,(Yr,Zr)).
     rewrite Hryz, <- isassoc_multNonnegativeRationals in Hr ; clear ryz Hryz.
     exists ((rx * ry) , rz) ; simpl ; repeat split.
     + exact Hr.
@@ -1984,7 +1990,7 @@ Lemma isldistr_Dcuts_plus_mult : isldistr Dcuts_plus Dcuts_mult.
 Proof.
   intros x y z.
   apply Dcuts_eq_is_eq ; intro r ; split.
-  - apply hinhuniv ; intros ((rz,rxy),(Hr,(Zr))) ; simpl in Hr, Zr.
+  - apply hinhuniv ; intros ((rz,rxy),(Hr,(Zr,A))) ; simpl in Hr, Zr ; generalize A ; clear A.
     apply hinhuniv ; intros [|] ; apply hinhfun ;
     [ intros [Xr|Yr] ; [simpl in Xr| simpl in Yr]
     | intros ((rx,ry),(Hrxy,(Xr,Yr))) ; simpl in Hrxy,Xr,Yr].

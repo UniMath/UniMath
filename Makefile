@@ -115,9 +115,11 @@ sub/coq/config/coq_config.ml: sub/coq/configure sub/coq/configure.ml
 	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" $(LABLGTK) -with-doc no -annotate -debug -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
-	$(MAKE) -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
+.PHONY: rebuild-coq
+rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
+	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
 sub/coq/bin/coqide: sub/lablgtk/README sub/coq/config/coq_config.ml
-	$(MAKE) -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
+	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
 configure-coq: sub/coq/config/coq_config.ml
 # we use sub/lablgtk/src/gSourceView2.cmi as a proxy for all of lablgtk
 # note: under Mac OS X, "homebrew" installs lablgtk without that file, but it's needed for building coqide.  That's why we build lablgtk ourselves.
