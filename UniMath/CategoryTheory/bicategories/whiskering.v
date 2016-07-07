@@ -43,7 +43,7 @@ Proof.
   apply (functor_on_iso_is_iso _ _ _ _ _ (prodcatiso (identity_iso f) alpha)).
 Defined.
 
-Definition whisker_left_inv {C : prebicategory} {a b c : C}
+Lemma whisker_left_inv {C : prebicategory} {a b c : C}
            (f : a -1-> b) {g h : b -1-> c} (alpha : iso g h)
   : whisker_left_iso f (iso_inv_from_iso alpha)
   = iso_inv_from_iso (whisker_left_iso f alpha).
@@ -62,7 +62,7 @@ Proof.
   apply (maponpaths pr1 (inv_horizontal_comp (identity_iso f) alpha)).
 Defined.
 
-Definition cancel_whisker_left {C : prebicategory} {b c : C}
+Lemma cancel_whisker_left {C : prebicategory} {b c : C}
   {g h : b -1-> c} (alpha alpha' : g -2-> h)
   : whisker_left (identity_1mor _) alpha = whisker_left (identity_1mor _) alpha'
     -> alpha = alpha'.
@@ -136,7 +136,7 @@ Proof.
   apply (functor_on_iso_is_iso _ _ _ _ _ (prodcatiso alpha (identity_iso h))).
 Defined.
 
-Definition whisker_right_inv {C : prebicategory} {a b c : C}
+Lemma whisker_right_inv {C : prebicategory} {a b c : C}
            {f g : a -1-> b} (alpha : iso f g) (h : b -1-> c)
   : whisker_right_iso (iso_inv_from_iso alpha) h
   = iso_inv_from_iso (whisker_right_iso alpha h).
@@ -155,7 +155,7 @@ Proof.
   apply (maponpaths pr1 (inv_horizontal_comp alpha (identity_iso h))).
 Defined.
 
-Definition cancel_whisker_right {C : prebicategory} {a b : C}
+Lemma cancel_whisker_right {C : prebicategory} {a b : C}
   {f g : a -1-> b} (alpha alpha' : f -2-> g)
   : whisker_right alpha (identity_1mor _) = whisker_right alpha' (identity_1mor _)
     -> alpha = alpha'.
