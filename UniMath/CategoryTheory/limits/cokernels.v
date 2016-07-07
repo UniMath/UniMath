@@ -127,6 +127,15 @@ Section def_cokernels.
              (CK CK' : Cokernel g) : iso CK CK' :=
     tpair _ _ (isiso_from_Cokernel_to_Cokernel CK CK').
 
+
+  (** Composing with the CokernelArrow gives the zero arrow. *)
+  Lemma CokernelCompZero {y z : C} {g : y --> z} (CK : Cokernel g ) :
+    g ;; CokernelArrow CK = ZeroArrow C Z y CK.
+  Proof.
+    unfold CokernelArrow. use (pathscomp0 (CoequalizerEqAr CK)).
+    apply ZeroArrow_comp_left.
+  Defined.
+
   (** It follows that CokernelArrow is an epi. *)
   Lemma CokernelArrowisEpi {y z : C} {g : y --> z} (CK : Cokernel g ) :
     isEpi _ (CokernelArrow CK).

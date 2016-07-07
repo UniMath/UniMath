@@ -120,6 +120,14 @@ Section def_kernels.
              (K K' : Kernel g) : iso K K' :=
     tpair _ _ (isiso_from_Kernel_to_Kernel K K').
 
+  (** Composing with the KernelArrow gives the zero arrow. *)
+  Lemma KernelCompZero {x y : C} {f : x --> y} (K : Kernel f ) :
+    KernelArrow K ;; f = ZeroArrow C Z K y.
+  Proof.
+    unfold KernelArrow. use (pathscomp0 (EqualizerEqAr K)).
+    apply ZeroArrow_comp_right.
+  Defined.
+
   (** It follows that KernelArrow is monic. *)
   Lemma KernelArrowisMonic {y z : C} {g : y --> z} (K : Kernel g ) :
     isMonic _ (KernelArrow K).

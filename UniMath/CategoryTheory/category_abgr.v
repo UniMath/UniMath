@@ -279,6 +279,15 @@ Section ABGR_zero.
     apply idpath.
   Defined.
 
+  Definition ABGR_zero_arrow (A B : abgr) : ABGR⟦A, B⟧.
+  Proof.
+    use monoidfunconstr.
+    exact (fun _ : A => unel B).
+    unfold ismonoidfun. unfold isbinopfun. cbn. split.
+    intros x x'. rewrite (runax B). apply idpath.
+    apply idpath.
+  Defined.
+
   (** The following lemma constructs a zero object in ABGR. *)
   Lemma ABGR_has_zero : Zero ABGR.
   Proof.
@@ -315,6 +324,13 @@ Section ABGR_zero.
     @ZeroArrowTo ABGR ABGR_has_zero A = ABGR_zero_from A.
   Proof.
     apply idpath.
+  Qed.
+
+  Lemma ABGR_has_zero_arrow_eq (A B : abgr) :
+    @ZeroArrow ABGR ABGR_has_zero A B = ABGR_zero_arrow A B.
+  Proof.
+    use total2_paths. cbn. unfold funcomp. apply idpath.
+    apply proofirrelevance. apply isapropismonoidfun.
   Qed.
 
 End ABGR_zero.
@@ -392,7 +408,7 @@ Section ABGR_preadditive.
 
   (** Commutativity of the binary operation. *)
   Definition ABGR_hombinop_comm (X Y : ABGR) :
-    ∀ (f g : ABGR⟦X, Y⟧),
+    Π (f g : ABGR⟦X, Y⟧),
       @ABGR_hombinop X Y f g = @ABGR_hombinop X Y g f.
   Proof.
     intros f g. use total2_paths. cbn. apply funextfun. intros x.
@@ -403,7 +419,7 @@ Section ABGR_preadditive.
 
   (** How operation behaves under the inverse function. *)
   Lemma grinvcomp (Y : gr) :
-    ∀ y1 y2 : Y, grinv Y (@op Y y1 y2) = @op Y (grinv Y y2) (grinv Y y1).
+    Π y1 y2 : Y, grinv Y (@op Y y1 y2) = @op Y (grinv Y y2) (grinv Y y1).
   Proof.
     intros y1 y2.
     apply (grrcan Y y1).
@@ -433,7 +449,7 @@ Section ABGR_preadditive.
 
   (** Verification that this gives left and right inverse. *)
   Definition ABGR_hombinop_linvax (X Y : ABGR) :
-    ∀ f : ABGR⟦X, Y⟧, ABGR_hombinop X Y (ABGR_hombinop_inv X Y f) f
+    Π f : ABGR⟦X, Y⟧, ABGR_hombinop X Y (ABGR_hombinop_inv X Y f) f
                       = ABGR_hombinop_unel X Y.
   Proof.
     intros f. use total2_paths. cbn. apply funextfun. intros x.
@@ -444,7 +460,7 @@ Section ABGR_preadditive.
 
 
   Definition ABGR_hombinop_rinvax (X Y : ABGR) :
-    ∀ f : ABGR⟦X, Y⟧, ABGR_hombinop X Y f (ABGR_hombinop_inv X Y f)
+    Π f : ABGR⟦X, Y⟧, ABGR_hombinop X Y f (ABGR_hombinop_inv X Y f)
                       = ABGR_hombinop_unel X Y.
   Proof.
     intros f. use total2_paths. cbn. apply funextfun. intros x.
@@ -783,16 +799,29 @@ Section ABGR_Additive.
   Defined.
 End ABGR_Additive.
 
+
+(** In the following section we construct Kernels and Cokernels in ABGR. *)
 Section ABGR_kernels.
 
-  (** hsubtypes for forming the subgroups kernel and image. This is needed to use
-      the relevant results in Algebra/Monoid_and_Groups.v . *)
+  (** hsubtypes for forming the subgroups kernel and image, and also the
+      quotient group for cokernel. These are needed to use the relevant results
+      in Algebra/Monoid_and_Groups.v . *)
   Definition ABGR_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtypes A
     := (fun x : A => ishinh ((f x) = unel B)).
 
   Definition ABGR_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtypes B
     := (fun y : B => ∃ x : A, (f x) = y).
 
+
+  (** An equality we are going to use. *)
+  Definition funeqpaths {X Y : UU} {f g: X -> Y} (e : f = g):
+    forall (x : X), f x = g x.
+  Proof.
+    induction e. intros x. apply idpath.
+  Qed.
+
+
+  (*** Kernels *)
 
   (** Construction of the kernel of f. *)
   Definition ABGR_kernel_subabgr {A B : abgr} (f : monoidfun A B) : @subabgrs A.
@@ -836,6 +865,90 @@ Section ABGR_kernels.
     cbn. apply idpath.
   Defined.
 
+  (** ABGR Equality for kernels. *)
+  Definition ABGR_kernel_eq {A B : abgr} (f : monoidfun A B) :
+    (ABGR_kernel_monoidfun f) ;; f =
+    (ABGR_kernel_monoidfun f) ;; (ZeroArrow ABGR ABGR_has_zero A B).
+  Proof.
+    use total2_paths. cbn. apply funextfun. unfold funcomp, pr1carrier.
+    intros x. induction x. cbn in *. unfold ishinh_UU in p.
+    use (squash_to_prop p). apply (pr2 (pr1 (pr1 B))).
+    intros i. apply i.
+
+    apply proofirrelevance. apply isapropismonoidfun.
+  Defined.
+
+  (** Construction of the unique arrow to the kernel object. *)
+  Definition ABGR_KernelArrowIn {A B C : ABGR} (h : C --> A) (f : A --> B)
+             (H : h ;; f = ABGR_zero_arrow C B):
+    ABGR⟦C, carrierofasubabgr (ABGR_kernel_subabgr f)⟧.
+  Proof.
+    use monoidfunconstr.
+
+    apply base_paths in H. cbn in H. unfold funcomp in H.
+    intros c.
+    cbn. unfold ABGR_kernel_hsubtype. cbn.
+    refine (tpair _ (pr1 h c) _). cbn.
+    unfold ishinh_UU. intros P X. apply X.
+    apply (funeqpaths H c).
+
+    (* ismonoidfun *)
+    split.
+
+    intros y y'. cbn. use total2_paths. cbn. rewrite (pr1 (pr2 h)).
+    apply idpath.
+    apply proofirrelevance. cbn. apply isapropishinh.
+
+    use total2_paths. cbn. apply (pr2 (pr2 h)).
+    apply proofirrelevance. cbn. apply isapropishinh.
+  Defined.
+
+  (** Construction of a kernel of a morphism of abelian groups f. *)
+  Definition ABGR_kernel {A B : abgr} (f : monoidfun A B) :
+    Kernel ABGR_has_zero f.
+  Proof.
+    induction A. induction B.
+    use mk_Kernel.
+    exact (carrierofasubabgr (ABGR_kernel_subabgr f)).
+    exact (ABGR_kernel_monoidfun f).
+    rewrite (ABGR_kernel_eq f).
+    apply (ZeroArrow_comp_right ABGR ABGR_has_zero).
+
+    use mk_isEqualizer.
+    intros w h H'. induction w. induction h.
+    use unique_exists.
+
+    (* Construction of the unique arrow into kernel *)
+    rewrite (ZeroArrow_comp_right ABGR ABGR_has_zero _ _) in H'.
+    rewrite (ABGR_has_zero_arrow_eq _ _) in H'.
+    apply (ABGR_KernelArrowIn _ f H').
+
+    (* Commutativity of the kernel arrow *)
+    use total2_paths. apply funextfun. intros x. cbn. apply idpath.
+    apply proofirrelevance. apply isapropismonoidfun.
+
+    (* Equality of equalities of morphisms *)
+    intros y. apply has_homsets_ABGR.
+
+    (* Uniqueness *)
+    intros y t3. induction y. apply base_paths in t3. cbn in *.
+    unfold pr1carrier, funcomp in t3. cbn in t3. use total2_paths.
+    cbn. apply funextfun. intros x.
+    use total2_paths. cbn. exact (funeqpaths t3 x).
+
+    apply proofirrelevance. apply isapropishinh.
+    apply proofirrelevance. apply isapropismonoidfun.
+  Defined.
+
+  (** As a corollary we get that ABGR has kernels. *)
+  Corollary ABGR_kernels : Kernels ABGR_has_zero.
+  Proof.
+    intros A B f. apply (ABGR_kernel f).
+  Defined.
+
+
+  (*** Cokernels *)
+
   (** Construction of the image of f. *)
   Definition ABGR_image {A B : abgr} (f : monoidfun A B) : @subabgrs B.
   Proof.
@@ -867,7 +980,7 @@ Section ABGR_kernels.
     rewrite XXt. rewrite p. apply idpath.
   Defined.
 
-  (** The eqrel on B used to form the quotient group of the cokernel of f *)
+  (** The eqrel on B used to form the quotient group of the cokernel of f. *)
   Definition ABGR_cokernel_eqrel {A B : abgr} (f : monoidfun A B) : eqrel B.
   Proof.
     use eqrelconstr.
@@ -920,36 +1033,143 @@ Section ABGR_kernels.
     rewrite (runax B). apply idpath.
   Defined.
 
-  (** Construction of the monoidfun from B to the cokernel of f *)
+  (** Construction of the monoidfun from B to the cokernel of f. *)
   Definition ABGR_cokernel_monoidfun {A B : abgr} (f : monoidfun A B) :
     ABGR⟦B, ABGR_cokernel_abgr f⟧.
   Proof.
     use monoidfunconstr.
     use (setquotpr (ABGR_cokernel_eqrel f)).
 
-    (* ismonoidfun*)
+    (* ismonoidfun *)
     split. split. apply idpath.
   Defined.
 
-
-
-
-  (** ** I'M STUCK HERE.
-         I cannot prove the following equality. The equality is needed in the
-         proof that ABGR_kernel_monoidfun is the kernel of f. *)
-
-
-  (** Proof that composing (ABGR_kernel_monoidfun f) with f yields a Zero
-    Arrow. *)
-  Definition ABGR_kernel_eq {A B : abgr} (f : monoidfun A B) :
-    (ABGR_kernel_monoidfun f) ;; f =
-    (ABGR_kernel_monoidfun f) ;; (ZeroArrow ABGR ABGR_has_zero A B).
+  (** ABGR Equality for cokernels. *)
+  Definition ABGR_cokernel_eq' {A B : abgr} (f : ABGR⟦A, B⟧) :
+    f ;; (ABGR_cokernel_monoidfun f) = ABGR_zero_arrow A (ABGR_cokernel_abgr f).
   Proof.
-    use total2_paths. cbn. apply funextfun. unfold funcomp, pr1carrier.
-    intros x. induction x. cbn in *. unfold ishinh_UU in p.
+    use total2_paths. apply funextfun. intros a.
+    apply (iscompsetquotpr (ABGR_cokernel_eqrel f)).
+    unfold ABGR_cokernel_eqrel.
+    intros P X. cbn in *. apply X. refine (tpair _ a _).
+    use (pathscomp0 (pathsinv0 (runax B (pr1 f a)))).
+    apply cancel_lop.
+    use (pathscomp0 (pathsinv0 (grinvunel B))).
+    apply maponpaths. apply idpath.
 
-    (* The goal should be an hProp so that we could apply p. *)
-    try apply (p (pr1 f t = 1%multmonoid)).
-  Abort.
+    apply proofirrelevance. apply isapropismonoidfun.
+  Defined.
 
+  (** ABGR Equality for cokernels. *)
+  Definition ABGR_cokernel_eq {A B : abgr} (f : ABGR⟦A, B⟧) :
+      f ;; (ABGR_cokernel_monoidfun f) =
+      (ZeroArrow ABGR ABGR_has_zero A B) ;; (ABGR_cokernel_monoidfun f).
+  Proof.
+    rewrite ZeroArrow_comp_left.
+    rewrite ABGR_has_zero_arrow_eq.
+    exact (ABGR_cokernel_eq' f).
+  Defined.
+
+  (** The following result is used to show that map from setquot is a
+    monoidfun. *)
+  Definition isbinopfun_2of3 {A B C : setwithbinop} (f : (pr1 A) -> (pr1 B))
+             (g : (pr1 B) -> (pr1 C)) (H : issurjective f):
+    isbinopfun (g ∘ f) -> isbinopfun f -> isbinopfun g.
+  Proof.
+    intros h f'.
+    intros b1 b2.
+    unfold issurjective in H. cbn in H.
+    set (H1 := H b1).
+    set (H2 := H b2).
+    use (squash_to_prop H1). apply (pr2 (pr1 C)).
+    intros HH1.
+    use (squash_to_prop H2). apply (pr2 (pr1 C)).
+    intros HH2.
+    unfold hfiber in *. induction HH1. induction HH2.
+    rewrite <- p. rewrite <- p0. rewrite <- f'. cbn.
+
+    assert (g (f (t * t0)%multmonoid) = (g ∘ f) (t * t0)%multmonoid).
+    unfold funcomp. apply idpath. cbn in X. rewrite X.
+
+    rewrite h. unfold funcomp. apply idpath.
+  Defined.
+
+  (** Construction of the unique arrow out of the cokernel. *)
+  Definition ABGR_CokernelArrowOutUniv {A B C : ABGR} (f : A --> B) (h : B --> C)
+             (H : (λ x : pr1 A, (pr1 h) (pr1 f x))
+                  = (λ _ : pr1 A, 1%multmonoid)):
+    (ABGR_cokernel_abgr f) -> (pr1 C).
+  Proof.
+    cbn. use setquotuniv. apply (pr1 h).
+    unfold iscomprelfun. intros x x' X.
+    use (squash_to_prop X). apply (pr2 (pr1 (pr1 C))).
+    intros X'. induction X'.
+    set (Y := funeqpaths H t). cbn in Y.
+    apply (maponpaths (pr1 h)) in p. cbn in *.
+    rewrite Y in p. rewrite (pr1 (pr2 h)) in p.
+    apply (grrcan (abgrtogr C) ((pr1 h) (grinv (abgrtogr B) x'))).
+    cbn in *.
+    rewrite <- p. rewrite <- (pr1 (pr2 h)). apply pathsinv0.
+    rewrite (grrinvax (abgrtogr B) x'). apply (pr2 (pr2 h)).
+  Defined.
+
+  (** Construction of a cokernel of a morphism of abelian groups f. *)
+  Definition ABGR_cokernel {A B : abgr} (f : monoidfun A B) :
+    Cokernel ABGR_has_zero f.
+  Proof.
+    use mk_Cokernel.
+    exact (ABGR_cokernel_abgr f).
+    exact (ABGR_cokernel_monoidfun f).
+    rewrite (ABGR_cokernel_eq f).
+    apply (ZeroArrow_comp_left ABGR ABGR_has_zero).
+
+    use mk_isCoequalizer.
+    intros w h H'.
+    use unique_exists.
+
+    (* Construction of the unique arrow out of cokernel *)
+    use monoidfunconstr.
+    rewrite (ZeroArrow_comp_left ABGR ABGR_has_zero _ _) in H'.
+    rewrite (ABGR_has_zero_arrow_eq _ _) in H'.
+    apply base_paths in H'. cbn in H'. unfold funcomp in H'.
+    apply (ABGR_CokernelArrowOutUniv f _ H').
+
+    (* ismonoidfun *)
+    split.
+
+    use isbinopfun_2of3. apply (pr1 B). apply (pr1 (ABGR_cokernel_monoidfun f)).
+    apply issurjsetquotpr. unfold funcomp.
+    apply (pr2 h). apply (pr2 (ABGR_cokernel_monoidfun f)).
+
+    cbn. set (XXh := pr2 (pr2 h)). cbn in XXh. rewrite <- XXh.
+    apply maponpaths. apply idpath.
+
+    (* Commutativity *)
+    induction h.
+    use total2_paths. cbn. apply funextfun. intros b. apply idpath.
+    apply proofirrelevance. apply isapropismonoidfun.
+
+    (* Equality on equality of morphisms *)
+    intros y. cbn. intros x x'. apply (has_homsets_ABGR).
+
+    (* Uniqueness *)
+    intros y. induction y. intros  t0. cbn in t0.
+    use total2_paths. cbn. apply funextfun.
+    intros z. cbn in *.
+    set (surj := issurjsetquotpr (ABGR_cokernel_eqrel f)).
+    unfold issurjective in surj. cbn in surj.
+    set (surjz := surj z).
+    use (squash_to_prop surjz). apply (pr2 (pr1 (pr1 w))).
+    intros surjz'. unfold hfiber in surjz'. induction surjz'.
+    rewrite <- p0. cbn. apply base_paths in t0. cbn in t0.
+    unfold funcomp in t0. apply (funeqpaths t0 t1).
+
+    apply proofirrelevance. apply isapropismonoidfun.
+  Defined.
+
+  (** As a corollary we get that ABGR has cokernels. *)
+  Corollary ABGR_cokernels : Cokernels ABGR_has_zero.
+  Proof.
+    intros A B f. apply (ABGR_cokernel f).
+  Defined.
 End ABGR_kernels.
