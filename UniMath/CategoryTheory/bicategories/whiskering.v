@@ -19,7 +19,7 @@ Definition whisker_left {C : prebicategory} {a b c : C}
 Lemma whisker_left_id_1mor {C : prebicategory} {b c : C}
            {g h : b -1-> c} (alpha : g -2-> h)
   : whisker_left (identity_1mor _) alpha =
-    left_unitor _ ;v; alpha ;v; iso_inv_from_iso (left_unitor _).
+    left_unitor _ ;v; alpha ;v; inv_from_iso (left_unitor _).
 Proof.
   unfold whisker_left.
   apply id_2mor_left.
@@ -62,6 +62,35 @@ Proof.
   apply (maponpaths pr1 (inv_horizontal_comp (identity_iso f) alpha)).
 Defined.
 
+Definition cancel_whisker_left {C : prebicategory} {b c : C}
+  {g h : b -1-> c} (alpha alpha' : g -2-> h)
+  : whisker_left (identity_1mor _) alpha = whisker_left (identity_1mor _) alpha'
+    -> alpha = alpha'.
+Proof.
+  intros w.
+
+  pathvia (iso_inv_from_iso (left_unitor _)
+           ;v; whisker_left (identity_1mor _) alpha
+           ;v; left_unitor _ ).
+    apply pathsinv0.
+    apply iso_inv_to_right.
+    apply iso_inv_on_right.
+    rewrite assoc.
+    apply whisker_left_id_1mor.
+
+  pathvia (iso_inv_from_iso (left_unitor _)
+           ;v; whisker_left (identity_1mor _) alpha'
+           ;v; left_unitor _ ).
+    apply cancel_postcomposition.
+    apply cancel_precomposition.
+    assumption.
+
+  apply iso_inv_to_right.
+  apply iso_inv_on_right.
+  rewrite assoc.
+  apply whisker_left_id_1mor.
+Defined.
+
 Lemma whisker_left_on_comp {C : prebicategory} {a b c : C}
   (f : a -1-> b) {g h i : b -1-> c}
   (alpha : g -2-> h) (alpha' : h -2-> i)
@@ -83,7 +112,7 @@ Definition whisker_right {C : prebicategory} {a b c : C}
 Lemma whisker_right_id_1mor {C : prebicategory} {a b : C}
            {f g : a -1-> b} (alpha : f -2-> g)
   : whisker_right alpha (identity_1mor _) =
-    right_unitor _ ;v; alpha ;v; iso_inv_from_iso (right_unitor _).
+    right_unitor _ ;v; alpha ;v; inv_from_iso (right_unitor _).
 Proof.
   unfold whisker_right.
   apply id_2mor_right.
@@ -124,6 +153,35 @@ Proof.
     reflexivity.
 
   apply (maponpaths pr1 (inv_horizontal_comp alpha (identity_iso h))).
+Defined.
+
+Definition cancel_whisker_right {C : prebicategory} {a b : C}
+  {f g : a -1-> b} (alpha alpha' : f -2-> g)
+  : whisker_right alpha (identity_1mor _) = whisker_right alpha' (identity_1mor _)
+    -> alpha = alpha'.
+Proof.
+  intros w.
+
+  pathvia (iso_inv_from_iso (right_unitor _)
+           ;v; whisker_right alpha (identity_1mor _)
+           ;v; right_unitor _ ).
+    apply pathsinv0.
+    apply iso_inv_to_right.
+    apply iso_inv_on_right.
+    rewrite assoc.
+    apply whisker_right_id_1mor.
+
+  pathvia (iso_inv_from_iso (right_unitor _)
+           ;v; whisker_right alpha' (identity_1mor _)
+           ;v; right_unitor _ ).
+    apply cancel_postcomposition.
+    apply cancel_precomposition.
+    assumption.
+
+  apply iso_inv_to_right.
+  apply iso_inv_on_right.
+  rewrite assoc.
+  apply whisker_right_id_1mor.
 Defined.
 
 Lemma whisker_right_on_comp {C : prebicategory} {a b c : C}
