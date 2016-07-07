@@ -165,7 +165,7 @@ $(LATEXDIR)/doc.pdf : $(LATEXDIR)/helper.tex
 	cd $(LATEXDIR) && latexmk -pdf doc
 
 $(LATEXDIR)/coqdoc.sty $(LATEXDIR)/helper.tex : $(VFILES:.v=.glob) $(VFILES)
-	$(COQDOC) -Q UniMath UniMath $(COQDOCLATEXOPTIONS) $(VFILES) -o $@
+	$(COQDOC) -Q UniMath UniMath $(COQDOC_OPTIONS) $(COQDOCLATEXOPTIONS) $(VFILES) -o $@
 
 
 #################################
