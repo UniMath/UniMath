@@ -209,7 +209,6 @@ Proof.
                      (compose_functor a a b))
                  alpha)
            ;v;(left_unitor g)).
-    apply (cancel_postcomposition _ _ _ _ _ _ (left_unitor g)).
     reflexivity.
 
   pathvia (left_unitor f ;v; functor_on_morphisms (functor_identity _) alpha).
@@ -231,11 +230,39 @@ Proof.
                     (compose_functor a b b))
                  alpha)
            ;v;(right_unitor g)).
-    apply (cancel_postcomposition _ _ _ _ _ _ (right_unitor g)).
     reflexivity.
 
   pathvia (right_unitor f ;v; functor_on_morphisms (functor_identity _) alpha).
     apply (nat_trans_ax (right_unitor_trans a b)).
+
+  reflexivity.
+Defined.
+
+Lemma associator_naturality {C : prebicategory} { a b c d : C }
+  {f f' : a -1-> b} (alpha : f -2-> f')
+  {g g' : b -1-> c} (beta  : g -2-> g')
+  {h h' : c -1-> d} (gamma : h -2-> h')
+  : (alpha ;h; (beta ;h; gamma)) ;v; associator f' g' h'
+  = associator f g h ;v; ((alpha ;h; beta) ;h; gamma).
+Proof.
+  pathvia ((functor_on_morphisms
+            (functor_composite
+              (product_functor (functor_identity _) (compose_functor b c d))
+              (compose_functor a b d))
+           (prodcatmor alpha (prodcatmor beta gamma)))
+           ;v; associator f' g' h'
+          ).
+    reflexivity.
+
+  pathvia (associator f g h ;v;
+          (functor_on_morphisms
+            (functor_composite
+              (product_precategory_assoc _ _ _)
+              (functor_composite
+                (product_functor (compose_functor a b c) (functor_identity _))
+                (compose_functor a c d)))
+            (prodcatmor alpha (prodcatmor beta gamma)))).
+    apply (nat_trans_ax (associator_trans a b c d) _ _ (prodcatmor alpha (prodcatmor beta gamma))).
 
   reflexivity.
 Defined.
