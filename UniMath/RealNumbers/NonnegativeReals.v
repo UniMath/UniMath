@@ -14,62 +14,15 @@ Local Open Scope tap_scope.
 (** ** Definition of Dedekind cuts *)
 
 Definition Dcuts_def_bot (X : hsubtypes NonnegativeRationals) : UU :=
-  Π x : NonnegativeRationals, X x ->
-    Π y : NonnegativeRationals, y <= x -> X y.
+  Π x : NonnegativeRationals,
+        X x -> Π y : NonnegativeRationals, y <= x -> X y.
 Definition Dcuts_def_open (X : hsubtypes NonnegativeRationals) : UU :=
-  Π x : NonnegativeRationals, X x ->
-    hexists (fun y : NonnegativeRationals => (X y) × (x < y)).
+  Π x : NonnegativeRationals,
+        X x -> ∃ y : NonnegativeRationals, (X y) × (x < y).
 Definition Dcuts_def_finite (X : hsubtypes NonnegativeRationals) : hProp :=
   ∃ ub : NonnegativeRationals, ¬ (X ub).
 Definition Dcuts_def_error (X : hsubtypes NonnegativeRationals) : UU :=
   Π r : NonnegativeRationals, 0 < r -> (¬ (X r)) ∨ Σ q : NonnegativeRationals, (X q) × (¬ (X (q + r))).
-Definition Dcuts_def_error' (X : hsubtypes NonnegativeRationals) (k : NonnegativeRationals) : UU :=
-  Π r, 0 < r -> r <= k -> (¬ (X r)) ∨ Σ q : NonnegativeRationals, (0 < q) × (X q) × (¬ (X (q + r))).
-
-Lemma Dcuts_def_error'_correct1 (X : hsubtypes NonnegativeRationals) (k : NonnegativeRationals) :
-  Dcuts_def_bot X → Dcuts_def_open X →
-  Dcuts_def_error X → Dcuts_def_error' X k.
-Proof.
-  intros X k Hbot Hopen H r Hr0 _.
-  generalize (H r Hr0) ; clear H.
-  apply hinhuniv ; intros [H | H].
-  - apply hinhpr ; now left.
-  - destruct H as (q,(Xq,nXq)).
-    generalize (Hopen q Xq) ; clear Hopen ; apply hinhfun ; intros (q0,(Xq0,Hq0)).
-    right.
-    exists q0 ; repeat split.
-    + apply istrans_le_lt_ltNonnegativeRationals with (2 := Hq0).
-      now apply isnonnegative_NonnegativeRationals.
-    + exact Xq0.
-    + intro H ; apply nXq.
-      apply Hbot with (1 := H).
-      now apply plusNonnegativeRationals_lecompat_r ; apply lt_leNonnegativeRationals.
-Qed.
-Lemma Dcuts_def_error'_correct2 (X : hsubtypes NonnegativeRationals) (k : NonnegativeRationals) :
-  Dcuts_def_bot X → (0 < k)%NRat →
-  Dcuts_def_error' X k → Dcuts_def_error X.
-Proof.
-  intros X k Hbot Hk0 H r Hr0.
-  destruct (isdecrel_leNonnegativeRationals r k) as [Hrk | Hrk].
-  - generalize (H r Hr0 Hrk) ; clear H ; apply hinhuniv ; intros [H | H].
-    + apply hinhpr ; now left.
-    + destruct H as (q,(_,Hq)).
-      apply hinhpr ; right.
-      exists q ; exact Hq.
-  - apply notge_ltNonnegativeRationals in Hrk.
-    generalize (H _ Hk0 (isrefl_leNonnegativeRationals k)) ; clear H ; apply hinhfun ; intros [H | H].
-    + left.
-      intros H0 ; apply H.
-      apply Hbot with (1 := H0).
-      now apply lt_leNonnegativeRationals.
-    + right.
-      destruct H as (q,(_,(Xq,nXq))).
-      exists q ; split.
-      * exact Xq.
-      * intro H ; apply nXq.
-        apply Hbot with (1 := H).
-        now apply plusNonnegativeRationals_lecompat_l ; apply lt_leNonnegativeRationals.
-Qed.
 
 Lemma Dcuts_def_error_finite (X : hsubtypes NonnegativeRationals) :
   Dcuts_def_error X → Dcuts_def_finite X.
