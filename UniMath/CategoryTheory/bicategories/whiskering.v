@@ -367,7 +367,7 @@ Proof.
 Defined.
 
 Local Lemma kelly_left_region_1 :
-      whisker_left f (left_unitor (g ;1; h))
+      whisker_left f (left_unitor_2mor (g ;1; h))
   =   whisker_left f (associator (identity_1mor b) g h)
   ;v; whisker_left f (whisker_right (left_unitor g) h).
 Proof.
@@ -380,14 +380,40 @@ End kelly_left_pieces.
 
 Lemma kelly_left {C : prebicategory} {b c d : C}
   {g : b -1-> c} {h : c -1-> d}
-  : left_unitor (g ;1; h)
-  = (associator (identity_1mor b) g h) ;i; whisker_right_iso (left_unitor g) h.
+  : left_unitor_2mor (g ;1; h)
+  = (associator (identity_1mor b) g h) ;v; whisker_right_iso (left_unitor g) h.
 Proof.
-  apply eq_iso.
   apply whisker_left_id_inj.
-  simpl.
   rewrite whisker_left_on_comp.
   apply kelly_left_region_1.
 Defined.
 
 (* TODO: same for right *)
+
+(******************************************************************************)
+(* Kelly's Condition 4 *)
+(* i.e., the two ways of going II -> I are equal *)
+
+Lemma left_unitor_on_id {C : prebicategory} {a : C}
+  : whisker_left (identity_1mor a) (left_unitor (identity_1mor a))
+  = left_unitor (identity_1mor a ;1; identity_1mor a).
+Proof.
+  apply (post_comp_with_iso_is_inj _ _ _ (left_unitor (identity_1mor a))).
+    apply (pr2 (left_unitor (identity_1mor a))).
+  apply left_unitor_naturality.
+Defined.
+
+Lemma left_unitor_id_is_right_unitor_id {C : prebicategory} {a : C}
+  : left_unitor_2mor (identity_1mor a)
+  = right_unitor_2mor (identity_1mor a).
+Proof.
+  apply whisker_right_id_inj.
+  apply (pre_comp_with_iso_is_inj _ _ _ _ (associator _ _ _) (pr2 (associator _ _ _))).
+  pathvia (left_unitor_2mor ((identity_1mor a) ;1; (identity_1mor a))).
+    apply pathsinv0.
+    apply kelly_left.
+  pathvia (whisker_left (identity_1mor a) (left_unitor (identity_1mor a))).
+    apply pathsinv0.
+    apply left_unitor_on_id.
+  apply (triangle_axiom (identity_1mor a) (identity_1mor a)).
+Defined.
