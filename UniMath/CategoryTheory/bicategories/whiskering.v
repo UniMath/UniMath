@@ -35,6 +35,15 @@ Proof.
   apply functor_id.
 Defined.
 
+Lemma cancel_whisker_left {C : prebicategory} {a b c : C}
+      (f : a -1-> b) {g h : b -1-> c}
+      {alpha alpha': g -2-> h} (p : alpha = alpha')
+  : whisker_left f alpha = whisker_left f alpha'.
+Proof.
+  induction p.
+  reflexivity.
+Defined.
+
 Definition whisker_left_iso {C : prebicategory} {a b c : C}
            (f : a -1-> b) {g h : b -1-> c} (alpha : iso g h)
   : iso (f ;1; g) (f ;1; h).
@@ -62,7 +71,7 @@ Proof.
   apply (maponpaths pr1 (inv_horizontal_comp (identity_iso f) alpha)).
 Defined.
 
-Lemma cancel_whisker_left {C : prebicategory} {b c : C}
+Lemma whisker_left_id_inj {C : prebicategory} {b c : C}
   {g h : b -1-> c} (alpha alpha' : g -2-> h)
   : whisker_left (identity_1mor _) alpha = whisker_left (identity_1mor _) alpha'
     -> alpha = alpha'.
@@ -128,6 +137,15 @@ Proof.
   apply functor_id.
 Defined.
 
+Definition cancel_whisker_right {C : prebicategory} {a b c : C}
+  {f g : a -1-> b} {alpha alpha' : f -2-> g} (p : alpha = alpha')
+  (h : b -1-> c)
+  : whisker_right alpha h = whisker_right alpha' h.
+Proof.
+  induction p.
+  reflexivity.
+Defined.
+
 Definition whisker_right_iso {C : prebicategory} {a b c : C}
            {f g : a -1-> b} (alpha : iso f g) (h : b -1-> c)
   : iso (f ;1; h) (g ;1; h).
@@ -155,7 +173,7 @@ Proof.
   apply (maponpaths pr1 (inv_horizontal_comp alpha (identity_iso h))).
 Defined.
 
-Lemma cancel_whisker_right {C : prebicategory} {a b : C}
+Lemma whisker_right_id_inj {C : prebicategory} {a b : C}
   {f g : a -1-> b} (alpha alpha' : f -2-> g)
   : whisker_right alpha (identity_1mor _) = whisker_right alpha' (identity_1mor _)
     -> alpha = alpha'.
