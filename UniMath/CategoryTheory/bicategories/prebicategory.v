@@ -150,13 +150,16 @@ Definition has_2mor_sets (C : prebicategory_data) :=
   forall f g : a -1-> b,
     isaset (f -2-> g).
 
+Definition associator_trans {C : prebicategory_data} ( a b c d : C )
+  := pr1 (pr2 C) a b c d.
+
 Definition associator_2mor {C : prebicategory_data} { a b c d : C }
            (f : a -1-> b)
            (g : b -1-> c)
            (h : c -1-> d)
   : (f ;1; (g ;1; h)) -2-> ((f ;1; g) ;1; h).
 Proof.
-  set (A := pr1 (pr2 C) a b c d).
+  set (A := associator_trans a b c d).
   unfold associator_trans_type in A.
   exact (A (prodcatpair f (prodcatpair g h))).
 Defined.
