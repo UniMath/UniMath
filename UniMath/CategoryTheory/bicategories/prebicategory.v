@@ -315,6 +315,18 @@ Proof.
   apply (nat_trans_ax (right_unitor_trans a b)).
 Defined.
 
+Lemma horizontal_comp_id {C : prebicategory_id_comp} {a b c : C}
+  {f : a -1-> b} {g : b -1-> c}
+  : identity_2mor f ;h; identity_2mor g
+  = identity_2mor (f ;1; g).
+Proof.
+  unfold compose_2mor_horizontal.
+  pathvia (functor_on_morphisms (compose_functor a b c)
+            (identity (prodcatpair f g))).
+    reflexivity.
+  apply functor_id.
+Defined.
+
 Lemma inv_horizontal_comp {C : prebicategory_id_comp} {a b c : C}
       { f f' : a -1-> b } { g g' : b -1-> c }
       ( alpha : iso f f' ) ( beta : iso g g' )
