@@ -303,3 +303,91 @@ Proof.
 
   apply interchange.
 Defined.
+
+(******************************************************************************)
+(* Kelly's Condition 5 *)
+(* i.e., the two ways of going I(bc) -> bc are equal *)
+
+Section kelly_left_pieces.
+Variable C : prebicategory.
+Variables a b c d : C.
+Variable f : a -1-> b.
+Variable g : b -1-> c.
+Variable h : c -1-> d.
+
+Local Lemma kelly_left_region_1235 :
+      associator f (identity_1mor _) (g ;1; h)
+  ;v; associator (f ;1; (identity_1mor _)) g h
+  ;v; whisker_right (whisker_right (right_unitor f) g) h
+  =   whisker_left f (associator (identity_1mor b) g h)
+  ;v; associator f (identity_1mor _ ;1; g) h
+  ;v; whisker_right (whisker_left f (left_unitor g)) h.
+Proof.
+  simpl.
+  unfold whisker_left at 2.
+  rewrite (cancel_whisker_right (triangle_axiom f g) h).
+  rewrite whisker_right_on_comp.
+  rewrite assoc.
+  apply cancel_postcomposition.
+
+  apply (pentagon_axiom f (identity_1mor b) g h).
+Defined.
+
+Local Lemma kelly_left_region_123 :
+      associator f (identity_1mor _) (g ;1; h)
+  ;v; associator (f ;1; (identity_1mor _)) g h
+  ;v; whisker_right (whisker_right (right_unitor f) g) h
+  =   whisker_left f (associator (identity_1mor b) g h)
+  ;v; whisker_left f (whisker_right (left_unitor g) h)
+  ;v; associator f g h.
+Proof.
+  rewrite <- (assoc _ _ _ _ _ _ _ (associator f g h)).
+  unfold whisker_left at 2.
+  unfold whisker_right at 3.
+  rewrite associator_naturality.
+  fold (whisker_left f (left_unitor g)).
+  fold (whisker_right (whisker_left f (left_unitor g)) h).
+  rewrite assoc.
+  apply kelly_left_region_1235.
+Defined.
+
+Local Lemma kelly_left_region_12 :
+      associator f (identity_1mor _) (g ;1; h)
+  ;v; whisker_right (right_unitor f) (g ;1; h)
+  =   whisker_left f (associator (identity_1mor b) g h)
+  ;v; whisker_left f (whisker_right (left_unitor g) h).
+Proof.
+  apply (post_comp_with_iso_is_inj _ _ _ (associator f g h) (pr2 (associator f g h))).
+  unfold whisker_right at 1.
+  rewrite <- horizontal_comp_id.
+  rewrite <- assoc.
+  rewrite associator_naturality.
+  rewrite assoc.
+  apply kelly_left_region_123.
+Defined.
+
+Local Lemma kelly_left_region_1 :
+      whisker_left f (left_unitor (g ;1; h))
+  =   whisker_left f (associator (identity_1mor b) g h)
+  ;v; whisker_left f (whisker_right (left_unitor g) h).
+Proof.
+  unfold whisker_left at 1.
+  rewrite triangle_axiom.
+  apply kelly_left_region_12.
+Defined.
+
+End kelly_left_pieces.
+
+Lemma kelly_left {C : prebicategory} {b c d : C}
+  {g : b -1-> c} {h : c -1-> d}
+  : left_unitor (g ;1; h)
+  = (associator (identity_1mor b) g h) ;i; whisker_right_iso (left_unitor g) h.
+Proof.
+  apply eq_iso.
+  apply whisker_left_id_inj.
+  simpl.
+  rewrite whisker_left_on_comp.
+  apply kelly_left_region_1.
+Defined.
+
+(* TODO: same for right *)
