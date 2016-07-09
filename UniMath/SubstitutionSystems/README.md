@@ -22,8 +22,7 @@ Ahrens & Matthes, [Heterogeneous substitution systems revisited](http://arxiv.or
   * defines the notion of "general signature" which captures a decidable set of constructors with finitely many binders in their finitely many arguments - this is a purely syntactic definition
   * signatures in the sense of this package are derived
   * a lot of material also from CategoryTheory is employed to get an initial algebra interpreting the general signature and getting the associated initial heterogeneous substitution system and monad
-* *LamFromGenSig.v*
-  * signature of lambda calculus obtained from general constructions starting from a "general signatures" (a variation on the development in LamFromSig.v)
+* *LamFromGenSig.v* --- signature of lambda calculus obtained from general constructions starting from a "general signatures" (a variation on the development in LamFromSig.v)
 * *LamFromSig.v*
   * signature of lambda calculus obtained from general constructions
   * equational laws for catamorphisms/folds on lamba calculus
