@@ -13,6 +13,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.limits.zero.
 
 (** * Definition of binary coproduct of objects in a precategory *)
 Section coproduct_def.
@@ -612,3 +613,24 @@ Definition BinCoproduct_of_functors_alt {C D : precategory}
      (functor_composite (binproduct_pair_functor F G) (bincoproduct_functor HD)).
 
 End functors.
+
+(** In the following section we show that if the morphism to components are
+    zero, then the unique morphism factoring through the bincoproduct is the
+    zero morphism. *)
+Section BinCoproduct_zeroarrow.
+
+  Variable C : precategory.
+  Variable Z : Zero C.
+
+  Lemma BinCoproductArrowZero {x y z: C} {BP : BinCoproductCocone C x y}
+        (f : x --> z) (g : y --> z) :
+    f = ZeroArrow C Z _ _ -> g = ZeroArrow C Z _ _ ->
+    BinCoproductArrow C BP f g = ZeroArrow C Z _ _ .
+  Proof.
+    intros X X0. apply pathsinv0.
+    use BinCoproductArrowUnique.
+    rewrite X. apply ZeroArrow_comp_right.
+    rewrite X0. apply ZeroArrow_comp_right.
+  Qed.
+
+End BinCoproduct_zeroarrow.

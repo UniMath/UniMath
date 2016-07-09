@@ -128,6 +128,23 @@ Section def_kernels.
     apply ZeroArrow_comp_right.
   Defined.
 
+  (** Kernel of the morphism to zero object is given by identity *)
+  Lemma KernelToZero {y : C} (hs : has_homsets C) (f : y --> Z) : Kernel f.
+  Proof.
+    use mk_Kernel.
+    apply y. apply (identity y).
+    apply ArrowsToZero.
+
+    use mk_isEqualizer.
+    intros w h H.
+
+    use unique_exists.
+    apply h. cbn. apply id_right.
+    intros y0. apply hs.
+    cbn. intros y0 t. rewrite <- t.
+    apply pathsinv0. apply id_right.
+  Defined.
+
   (** It follows that KernelArrow is monic. *)
   Lemma KernelArrowisMonic {y z : C} {g : y --> z} (K : Kernel g ) :
     isMonic _ (KernelArrow K).
@@ -135,3 +152,56 @@ Section def_kernels.
     exact (EqualizerArrowisMonic K).
   Defined.
 End def_kernels.
+
+(** In the following section we construct a new kernel from an arrow which is
+  equal to kernelarrow of some kernel, up to precomposing with an isomorphism *)
+Section kernels_iso.
+
+  Variable C : precategory.
+  Variable hs : has_homsets C.
+  Variable Z : Zero C.
+
+  Definition Kernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z)
+             (K : Kernel Z g) (h : iso x K)
+             (H : f = h ;; (KernelArrow _ K)) :
+    Kernel Z g.
+  Proof.
+    use mk_Kernel.
+    exact x.
+    exact f.
+    induction K. induction t. induction p.
+    unfold isEqualizer in p.
+    rewrite H.
+    rewrite <- (ZeroArrow_comp_right _ _ _ _ _ h).
+    rewrite <- assoc.
+    apply cancel_precomposition.
+    apply KernelCompZero.
+
+    (* isEqualizer *)
+    apply mk_isEqualizer.
+    induction K. induction t. induction p.
+    unfold isEqualizer in p.
+    intros w h0 HH.
+    set (tmp := p w h0 HH). cbn in tmp. cbn in h.
+    induction tmp.
+    induction t1.
+
+    use unique_exists.
+    exact (t1 ;; (inv_from_iso h)).
+    cbn. rewrite <- p2.
+    rewrite <- assoc. apply cancel_precomposition.
+    cbn in H. rewrite H. rewrite assoc.
+    rewrite <- id_left. apply cancel_postcomposition.
+    apply iso_after_iso_inv.
+
+    intros y0. apply hs.
+    intros y0 X. cbn in X. cbn in H.
+    rewrite H in X.
+    rewrite assoc in X.
+    set (tmp := p1 (tpair _ (y0 ;; h) X)).
+    apply base_paths in tmp. cbn in tmp.
+    rewrite <- tmp. rewrite <- assoc.
+    rewrite iso_inv_after_iso.
+    apply pathsinv0. apply id_right.
+  Defined.
+End kernels_iso.

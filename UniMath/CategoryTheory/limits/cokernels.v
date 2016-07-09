@@ -136,6 +136,23 @@ Section def_cokernels.
     apply ZeroArrow_comp_left.
   Defined.
 
+  (** Cokernel of the morphism from zero object is given by identity *)
+  Lemma CokernelToZero {y : C} (hs : has_homsets C) (f : Z --> y) : Cokernel f.
+  Proof.
+    use mk_Cokernel.
+    apply y. apply (identity y).
+    apply ArrowsFromZero.
+
+    use mk_isCoequalizer.
+    intros w h H.
+
+    use unique_exists.
+    apply h. cbn. apply id_left.
+    intros y0. apply hs.
+    cbn. intros y0 t. rewrite <- t.
+    apply pathsinv0. apply id_left.
+  Defined.
+
   (** It follows that CokernelArrow is an epi. *)
   Lemma CokernelArrowisEpi {y z : C} {g : y --> z} (CK : Cokernel g ) :
     isEpi _ (CokernelArrow CK).
@@ -143,3 +160,58 @@ Section def_cokernels.
     apply CoequalizerArrowisEpi.
   Defined.
 End def_cokernels.
+
+
+(** In the following section we construct a new cokernel from an arrow which is
+  equal to cokernelarrow of some cokernel, up to postcomposing with an
+  isomorphism *)
+Section cokernels_iso.
+
+  Variable C : precategory.
+  Variable hs : has_homsets C.
+  Variable Z : Zero C.
+
+  Definition Cokernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z)
+             (CK : Cokernel Z f) (h : iso CK z)
+             (H : g = (CokernelArrow _ CK) ;; h) :
+    Cokernel Z f.
+  Proof.
+    use mk_Cokernel.
+    exact z.
+    exact g.
+    induction CK. induction t. induction p.
+    unfold isCoequalizer in p.
+    rewrite H.
+    rewrite <- (ZeroArrow_comp_left _ _ _ _ _ h).
+    rewrite assoc.
+    apply cancel_postcomposition.
+    apply CokernelCompZero.
+
+    (* isCoequalizer *)
+    apply mk_isCoequalizer.
+    induction CK. induction t. induction p.
+    unfold isCoequalizer in p.
+    intros w h0 HH.
+    set (tmp := p w h0 HH). cbn in tmp. cbn in h.
+    induction tmp.
+    induction t1.
+
+    use unique_exists.
+    exact ((inv_from_iso h) ;; t1).
+    cbn. rewrite <- p2.
+    rewrite assoc. apply cancel_postcomposition.
+    cbn in H. rewrite H. rewrite <- assoc.
+    rewrite <- id_right. apply cancel_precomposition.
+    apply iso_inv_after_iso.
+
+    intros y0. apply hs.
+    intros y0 X. cbn in X. cbn in H.
+    rewrite H in X.
+    rewrite <- assoc in X.
+    set (tmp := p1 (tpair _ (h ;; y0) X)).
+    apply base_paths in tmp. cbn in tmp.
+    rewrite <- tmp. rewrite assoc.
+    rewrite iso_after_iso_inv.
+    apply pathsinv0. apply id_left.
+  Defined.
+End cokernels_iso.
