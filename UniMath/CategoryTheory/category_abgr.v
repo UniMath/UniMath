@@ -124,7 +124,7 @@ Section ABGR_category.
       apply isapropismonoidfun.
   Defined.
 
-  Lemma habgrp_iso_equiv (A B : ob ABGR) :
+  Lemma abgrp_iso_equiv (A B : ob ABGR) :
     iso A B -> monoidiso (abgrtoabmonoid A) (abgrtoabmonoid B).
   Proof.
     intro f.
@@ -159,11 +159,11 @@ Section ABGR_category.
     apply T'.
   Defined.
 
-  Lemma abgrp_iso_equiv_is_equiv (A B : ABGR) : isweq (habgrp_iso_equiv A B).
+  Lemma abgrp_iso_equiv_is_equiv (A B : ABGR) : isweq (abgrp_iso_equiv A B).
   Proof.
     apply (gradth _ (abgr_equiv_iso A B)).
     intro; apply eq_iso. apply maponpaths.
-    unfold abgr_equiv_iso, habgrp_iso_equiv. cbn.
+    unfold abgr_equiv_iso, abgrp_iso_equiv. cbn.
     use total2_paths. cbn. unfold monoidfunconstr.
     apply subtypeEquality. intros y. apply isapropismonoidfun.
     apply maponpaths. apply subtypeEquality.
@@ -175,7 +175,7 @@ Section ABGR_category.
     apply proofirrelevance.
     apply isaprop_is_iso.
 
-    intros y. unfold habgrp_iso_equiv, abgr_equiv_iso. cbn.
+    intros y. unfold abgrp_iso_equiv, abgr_equiv_iso. cbn.
     use total2_paths. cbn. unfold monoidfunconstr.
     apply subtypeEquality. intros x. apply isapropisweq.
     apply idpath.
@@ -184,24 +184,24 @@ Section ABGR_category.
     apply isapropismonoidfun.
   Defined.
 
-  Definition habgr_iso_equiv_weq (A B : ABGR) :
+  Definition abgr_iso_equiv_weq (A B : ABGR) :
     weq (iso A B) (monoidiso (abgrtoabmonoid A) (abgrtoabmonoid B)).
   Proof.
-    exists (habgrp_iso_equiv A B).
+    exists (abgrp_iso_equiv A B).
     apply abgrp_iso_equiv_is_equiv.
   Defined.
 
-  Lemma habgr_equiv_iso_is_equiv (A B : ABGR) : isweq (abgr_equiv_iso A B).
+  Lemma abgr_equiv_iso_is_equiv (A B : ABGR) : isweq (abgr_equiv_iso A B).
   Proof.
-    apply (gradth _ (habgrp_iso_equiv A B)).
+    apply (gradth _ (abgrp_iso_equiv A B)).
     intros x. apply subtypeEquality.
     intros y. apply isapropismonoidfun.
 
-    unfold abgr_equiv_iso, habgrp_iso_equiv. cbn.
+    unfold abgr_equiv_iso, abgrp_iso_equiv. cbn.
     use total2_paths. cbn. apply idpath.
     apply isapropisweq.
 
-    intros y. unfold abgr_equiv_iso, habgrp_iso_equiv. cbn.
+    intros y. unfold abgr_equiv_iso, abgrp_iso_equiv. cbn.
     use total2_paths. cbn. unfold monoidfunconstr. cbn.
     apply subtypeEquality. intros x. apply isapropismonoidfun.
     apply idpath. apply proofirrelevance.
@@ -212,7 +212,7 @@ Section ABGR_category.
     weq (monoidiso (abgrtoabmonoid A) (abgrtoabmonoid B)) (iso A B).
   Proof.
     exists (abgr_equiv_iso A B).
-    apply habgr_equiv_iso_is_equiv.
+    apply abgr_equiv_iso_is_equiv.
   Defined.
 
 

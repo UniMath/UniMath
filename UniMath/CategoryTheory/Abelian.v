@@ -186,7 +186,7 @@ Section abelian_monic_epi_iso.
   Variable A : Abelian.
   Hypothesis hs : has_homsets A.
 
-  (** If a morphism if a monic and an epi, then it is also an iso. *)
+  (** If a morphism is a monic and an epi, then it is also an iso. *)
   Lemma Abelian_monic_epi_is_iso {x y : A} {f : x --> y} :
     isMonic A f -> isEpi A f -> is_iso f.
   Proof.
