@@ -850,8 +850,7 @@ Proof.
   apply (maponpaths (fun e: f t = y => hfiberpair f t e) eee).
 Defined.
 
-(** Coconus of a function: the total space of the family of h-fibers.
-    The coconus behaves like the image of a function.  *)
+(** Coconus of a function: the total space of the family of h-fibers. *)
 
 Definition coconusf {X Y : UU} (f : X -> Y) := Σ y:Y, hfiber f y.
 
