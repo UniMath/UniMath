@@ -35,7 +35,7 @@ This directory contains the definition of some limits for the notion of precateg
 * *kernels.v* --- direct formalization of kernels
 * *cokernels.v* --- direct formalization of cokernels
 * *FunctorsPointwiseBinProduct.v*  --- definition of a binary product structure on a functor category by taking pointwise binary products in the target category
-* *FunctorsPointwiseBinCoproduct.v* --- definition of a coproduct structure on a functor category by taking pointwise coproducts in the target category; option functor as special case
+* *FunctorsPointwiseBinCoproduct.v* --- definition of a coproduct structure on a functor category by taking pointwise binary coproducts in the target category; option functor as special case
 * *FunctorsPointwiseProduct.v* --- same with arbitrary products
 * *FunctorsPointwiseCoproduct.v* --- same with arbitrary coproducts
 * *graphs* --- development of limits on the basis of descriptions of diagrams by graphs
