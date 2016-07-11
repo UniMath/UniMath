@@ -516,12 +516,12 @@ Proof.
 * intro x.
   apply (pr1 (pr1 (Huniv (F x) x (identity _)))).
 * abstract (intros x y f; simpl;
-            destruct (Huniv (F y) y (identity (F y))), t; simpl;
-            destruct (Huniv (F x) x (identity (F x))), t0; simpl;
-            destruct (Huniv (F y) (G0 (F x)) (eps (F x) ;; # F f)), t1; simpl;
+            destruct (Huniv (F y) y (identity (F y))) as [t p], t as [t p0]; simpl;
+            destruct (Huniv (F x) x (identity (F x))) as [t0 p1], t0 as [t0 p2]; simpl;
+            destruct (Huniv (F y) (G0 (F x)) (eps (F x) ;; # F f)) as [t1 p3], t1 as [t1 p4]; simpl;
             assert (H1 : # F f = # F (t0 ;; t1) ;; eps (F y));
             [now rewrite functor_comp, <- assoc, <- p4, assoc, <- p2, id_left|];
-            destruct (Huniv (F y) x (# F f));
+            destruct (Huniv (F y) x (# F f)) as [t2 p5];
             set (HH := (maponpaths pr1 (p5 (_,,H1))));
             simpl in HH; rewrite HH;
             assert (H2 : # F f = # F (f ;; t) ;; eps (F y));
@@ -546,7 +546,7 @@ mkpair; simpl.
 + intros a; simpl.
   destruct (Huniv (F (G0 a)) (G0 a) (identity (F (G0 a)))) as [[f hf] H]; simpl.
   destruct ((Huniv a (G0 (F (G0 a))) (eps (F (G0 a)) ;; eps a))) as [[g hg] Hg]; simpl.
-  destruct (Huniv _ _ (eps a)).
+  destruct (Huniv _ _ (eps a)) as [t p].
   assert (H1 : eps a = # F (identity _) ;; eps a).
     now rewrite functor_id, id_left.
   assert (H2 : eps a = # F (f ;; g) ;; eps a).

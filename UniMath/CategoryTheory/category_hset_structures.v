@@ -60,11 +60,9 @@ Definition eqrel_from_hrel : hrel A :=
 Lemma iseqrel_eqrel_from_hrel : iseqrel eqrel_from_hrel.
 Proof.
 repeat split.
-- intros x y z H1 H2 R HR.
-  apply (eqreltrans R _ y); [ now apply H1 | now apply H2].
+- intros x y z H1 H2 R HR. exact (eqreltrans _ _ _ _ (H1 _ HR) (H2 _ HR)).
 - now intros x R _; apply (eqrelrefl R).
-- intros x y H R H'.
-  now apply (eqrelsymm R), H.
+- intros x y H R H'. exact (eqrelsymm _ _ _ (H _ H')).
 Qed.
 
 Lemma eqrel_impl a b : R0 a b -> eqrel_from_hrel a b.
@@ -76,7 +74,7 @@ Qed.
 Lemma minimal_eqrel_from_hrel (R : eqrel A) (H : Π a b, R0 a b -> R a b) :
   Π a b, eqrel_from_hrel a b -> R a b.
 Proof.
-now intros a b H'; apply H'.
+now intros a b H'; apply (H' _ H).
 Qed.
 
 End extras.
@@ -160,7 +158,8 @@ Defined.
 
 Lemma rel0_impl a b (Hab : rel0 a b) : from_cobase_eqrel a b.
 Proof.
-apply Hab; clear Hab; intro H; simpl.
+refine (Hab _ _). clear Hab.
+intro H; simpl.
 destruct H as [f Hf].
 generalize (toforallpaths _ _ _ (coconeInCommutes cc (pr1 a) (pr1 b) f) (pr2 a)).
 unfold compose, from_cobase; simpl; intro H.
@@ -405,7 +404,8 @@ simple refine (mk_BinProductCone _ _ _ _ _ _ _).
     [ intros x; apply isapropdirprod; apply has_homsets_HSET
     | destruct h as [t [ht1 ht2]]; simpl; apply funextfun; intro x;
                rewrite <- ht2, <- ht1; unfold compose; simpl;
-               case (t x); intros; apply idpath]).
+               unfold prodtofuntoprod;
+               now case (t x)]).
 Defined.
 
 Lemma Products_HSET (I : UU) : Products I HSET.
