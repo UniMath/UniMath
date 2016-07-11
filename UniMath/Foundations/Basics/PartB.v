@@ -723,6 +723,99 @@ Proof. intros. apply isaset_total2. assumption. intro. assumption. Defined.
 Lemma uip { X : UU } ( is : isaset X ) { x x' : X } ( e e' : x = x' ) : e = e' .
 Proof. intros . apply ( proofirrelevance _ ( is x x' ) e e' ) . Defined .
 
+(** *** Basic results on types with an isolated point. *)
+
+Definition isisolated (X:UU) (x:X) := Π x':X, (x = x') ⨿ (x != x').
+Definition isisolated_ne (X:UU) (x:X) (neq_x:neqPred x) := Π y:X, (x=y) ⨿ neq_x y.
+
+Definition isisolated_to_isisolated_ne {X x neq_x} :
+  isisolated X x -> isisolated_ne X x neq_x.
+Proof.
+  intros ? ? ? i y. induction (i y) as [eq|ne].
+  - exact (ii1 eq).
+  - apply ii2. now apply neg_to_negProp.
+Defined.
+
+Definition isisolated_ne_to_isisolated {X x neq_x} :
+  isisolated_ne X x neq_x -> isisolated X x.
+Proof.
+  intros ? ? ? i y. induction (i y) as [eq|ne].
+  - exact (ii1 eq).
+  - apply ii2. now simple refine (negProp_to_neg _).
+Defined.
+
+Definition isolated ( T : UU ) := Σ t:T, isisolated _ t.
+Definition isolated_ne ( T : UU ) (neq:neqReln T) := Σ t:T, isisolated_ne _ t (neq t).
+
+Definition isolatedpair ( T : UU ) (t:T) (i:isisolated _ t) : isolated T
+  := (t,,i).
+Definition isolatedpair_ne ( T : UU ) (t:T) (neq:neqReln T) (i:isisolated_ne _ t (neq t)) : isolated_ne T neq
+  := (t,,i).
+
+Definition pr1isolated ( T : UU ) (x:isolated T) : T := pr1 x.
+Definition pr1isolated_ne ( T : UU ) (neq:neqReln T) (x:isolated_ne T neq) : T := pr1 x.
+
+Theorem isaproppathsfromisolated ( X : UU ) ( x : X ) ( is : isisolated X x ) : Π x', isaprop(x = x') .
+Proof. intros . apply iscontraprop1inv .  intro e .  induction e .
+set (f:= fun e: paths x x => coconusfromtpair _ e).
+assert (is' : isweq f). apply (onefiber (fun x':X => paths x x' ) x (fun x':X => is x' )).
+assert (is2: iscontr (coconusfromt _ x)). apply iscontrcoconusfromt.
+apply (iscontrweqb ( weqpair f is' ) ). assumption. Defined.
+
+Local Open Scope transport.
+
+Theorem isaproppathsfromisolated_ne (X:UU) (x:X) (neq_x:neqPred x) (is:isisolated_ne X x neq_x) (y:X)
+  : isaprop (x=y).
+Proof.
+  (* we could follow the proof of isaproppathsfromisolated here, but we try a different way *)
+  intros. unfold isisolated_ne in is. apply invproofirrelevance; intros m n.
+  set (Q y := (x = y) ⨿ (neq_x y)).
+  assert (a := (transport_section is m) @ !(transport_section is n)).
+  induction (is x) as [j|k].
+  - assert (b := transport_map (λ y p, ii1 p : Q y) m j); simpl in b;
+    assert (c := transport_map (λ y p, ii1 p : Q y) n j); simpl in c.
+    assert (d := equality_by_case (!b @ a @ c)); simpl in d.
+    rewrite 2? transportf_id1 in d. now apply (pathscomp_cancel_left j).
+  - contradicts (neq_x x k) (idpath x).
+Defined.
+
+Theorem isasetifdeceq (X:UU): isdeceq X -> isaset X.
+Proof. intro X . intro is. intros x x' . apply ( isaproppathsfromisolated X x ( is x ) ) .   Defined .
+
+Theorem isasetbool: isaset bool.
+Proof. apply (isasetifdeceq _ isdeceqbool). Defined.
+
+Theorem isaproppathstoisolated  ( X : UU ) ( x : X ) ( is : isisolated X x ) : Π x' : X, isaprop ( x' = x ) .
+Proof . intros . apply ( isofhlevelweqf 1 ( weqpathsinv0 x x' ) ( isaproppathsfromisolated X x is x' ) ) . Defined .
+
+Lemma isisolatedweqf { X Y : UU } (f : X ≃ Y) (x:X) : isisolated X x -> isisolated Y (f x).
+Proof.
+  intros ? ? ? ? is. unfold isisolated. intro y.
+  induction (is (invmap f y)) as [ eq | ne ].
+  { apply ii1. now apply pathsweq1'. }
+  { apply ii2. intro eq. apply ne; clear ne. now apply pathsweq1. }
+Defined.
+
+Theorem isisolatedinclb { X Y : UU } ( f : X -> Y ) ( is : isincl f ) ( x : X ) ( is0 : isisolated _ ( f x ) ) : isisolated _ x .
+Proof. intros .  unfold isisolated .  intro x' .  set ( a := is0 ( f x' ) ) .  induction a as [ a1 | a2 ] . apply ( ii1 ( invmaponpathsincl f is _ _ a1 ) ) . apply ( ii2 ( ( negf ( @maponpaths _ _ f _ _ ) ) a2 ) ) .  Defined.
+
+
+Lemma disjointl1 (X:UU): isisolated (coprod X unit) (ii2  tt).
+Proof. intros.  unfold isisolated. intros x' .  induction x' as [ x | u ] . apply (ii2  (negpathsii2ii1 x tt )).  induction u.  apply (ii1  (idpath _ )). Defined.
+
+(** *** Splitting of [ X ] into a coproduct defined by a function [ X -> bool ] *)
+
+Definition subsetsplit { X : UU } ( f : X -> bool ) ( x : X ) : coprod ( hfiber f true ) ( hfiber f false ) .
+Proof . intros . induction ( boolchoice ( f x ) ) as [ a | b ] .  apply ( ii1 ( hfiberpair f x a ) ) . apply ( ii2 ( hfiberpair f x b ) ) .  Defined .
+
+Definition subsetsplitinv { X : UU } ( f : X -> bool ) ( ab : coprod (hfiber f true) (hfiber f false) )  : X :=  match ab with ii1 xt => pr1  xt | ii2 xf => pr1  xf end.
+
+Theorem weqsubsetsplit { X : UU } ( f : X -> bool ) : weq X (coprod ( hfiber f true) ( hfiber f false) ) .
+Proof . intros . set ( ff := subsetsplit f ) . set ( gg := subsetsplitinv f ) . split with ff .
+assert ( egf : Π a : _ , paths ( gg ( ff a ) ) a ) . intros .   unfold ff .  unfold subsetsplit . induction ( boolchoice ( f a ) ) as [ et | ef ] . simpl .  apply idpath .  simpl .  apply idpath .
+assert ( efg : Π a : _ , paths ( ff ( gg a ) ) a ) . intros . induction a as [ et | ef ] .  induction et as [ x et' ] .  simpl . unfold ff . unfold subsetsplit . induction ( boolchoice ( f x ) ) as [ e1 | e2 ] .   apply ( maponpaths ( @ii1 _ _  ) ) .  apply ( maponpaths ( hfiberpair f x ) ) .  apply uip . apply isasetbool . induction ( nopathstruetofalse ( pathscomp0 ( pathsinv0 et' ) e2 ) ) .    induction ef as [ x et' ] .  simpl . unfold ff . unfold subsetsplit . induction ( boolchoice ( f x ) ) as [ e1 | e2 ] . induction ( nopathsfalsetotrue ( pathscomp0 ( pathsinv0 et' ) e1 ) ) .     apply ( maponpaths ( @ii2 _ _  ) ) .  apply ( maponpaths ( hfiberpair f x ) ) .  apply uip . apply isasetbool .
+apply ( gradth _ _ egf efg ) . Defined .
+
 (** For the theorem about the coproduct of two sets see [ isasetcoprod ] below. *)
 
 
