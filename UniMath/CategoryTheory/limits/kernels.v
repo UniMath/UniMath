@@ -124,6 +124,6 @@ Section def_kernels.
   Lemma KernelArrowisMonic {y z : C} {g : y --> z} (K : Kernel g ) :
     isMonic _ (KernelArrow K).
   Proof.
-    apply EqualizerArrowisMonic.
+    exact (EqualizerArrowisMonic K).
   Defined.
 End def_kernels.

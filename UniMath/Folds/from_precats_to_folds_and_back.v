@@ -190,7 +190,9 @@ Proof.
 
   destruct C as [Cdata Cax]; simpl in *.
   destruct Cdata as [Cobmor Cidcomp]; simpl in *.
-  unfold precat_from_folds_data; apply maponpaths.
+  unfold precat_from_folds_data.
+  simpl.
+  apply maponpaths.
   destruct Cidcomp as [Cid Ccomp]; simpl in *.
   apply pathsdirprod.
   - apply funextsec; intro a.

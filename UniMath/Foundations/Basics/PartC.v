@@ -512,8 +512,8 @@ Proof. intros. intro t . unfold funtranspos .  rewrite ( homotrecomplfcomp t1 t2
 
 Theorem weqtranspos { T : UU } ( t1 t2 : T ) ( is1 : isisolated T t1 ) ( is2 : isisolated T t2 ) : weq T T .
 Proof . intros . set ( f := funtranspos ( tpair _ t1 is1) ( tpair _ t2 is2 ) ) . set ( g := funtranspos ( tpair _ t2 is2 ) ( tpair _ t1 is1 ) ) . split with f .
-assert ( egf : Π t : T , paths ( g ( f t ) ) t ) . intro . apply homottranspost2t1t1t2 .
-assert ( efg : Π t : T , paths ( f ( g t ) ) t ) . intro .  apply homottranspost2t1t1t2 .
+assert ( egf : Π t : T , paths ( g ( f t ) ) t ) . intro .  refine (homottranspost2t1t1t2 _ _ _ _ _).
+assert ( efg : Π t : T , paths ( f ( g t ) ) t ) . intro .  refine (homottranspost2t1t1t2 _ _ _ _ _).
 apply ( gradth _ _ egf efg ) . Defined .
 
 

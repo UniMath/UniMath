@@ -141,7 +141,7 @@ Proof.
     { intro i. change (pr1 sw) with 3 in i.
       induction i as [i b]. inductive_reflexivity i b. }
     assert (isweqsw : isweq sw).
-    { apply (gradth sw sw); ( intros [i b]; inductive_reflexivity i b). }
+    { refine (gradth sw sw _ _); ( intros [i b]; inductive_reflexivity i b). }
     set (w := weqstnsum1 m). rewrite B in w. change (pr1 m) with 3 in w.
     set (w' := weqstnsum1 m'). rewrite B' in w'. change (pr1 m') with 3 in w'.
 

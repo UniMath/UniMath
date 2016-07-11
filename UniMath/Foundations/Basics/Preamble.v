@@ -144,7 +144,9 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 (* end of two alternatives *)
 
-Arguments tpair {T} _ _ _.
+    Print total2.               (* log which definition of total2 is currently in use *)
+
+Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.
 Arguments pr2 {_ _} _.
 

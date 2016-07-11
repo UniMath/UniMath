@@ -193,7 +193,7 @@ Proof.
   generalize (filter_notempty _ Fa).
   apply hinhuniv'.
   apply isapropempty.
-  intros (_).
+  intros (_,x); generalize x; clear x.
   exact Ha.
 Qed.
 

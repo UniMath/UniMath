@@ -183,7 +183,7 @@ Proof.
   - generalize (invmap (weqpathsinsetquot _ _ _) H) ; clear H.
     apply hinhuniv'.
     apply (pr2 (pr1 (pr1 (pr1 NonnegativeReals)))).
-    intros (c).
+    intros (c,p); generalize p; clear p.
     apply plusNonnegativeReals_eqcompat_l.
 Qed.
 
@@ -1613,11 +1613,13 @@ Proof.
   generalize (iscotrans_Rlt _ y _ H).
   apply hinhuniv'.
   exact isapropempty.
-  intros [ | ].
-  apply_pr2 notRlt_Rle.
-  exact Hyz.
-  apply_pr2 notRlt_Rle.
-  exact Hxy.
+  intros [h|h].
+  + generalize h.
+    apply_pr2 notRlt_Rle.
+    exact Hyz.
+  + generalize h.
+    apply_pr2 notRlt_Rle.
+    exact Hxy.
 Qed.
 Lemma istrans_Rle_lt :
   Π x y z : Reals, x <= y -> y < z -> x < z.

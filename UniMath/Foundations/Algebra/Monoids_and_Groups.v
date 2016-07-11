@@ -885,7 +885,7 @@ Proof . intros .  apply ( istranslogeqf ( logeqabgrfracrelints X L ) ) .  intros
 Opaque istransabgrfracrelint .
 
 Lemma istransabgrfracrel ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : istrans L ) : istrans ( abgrfracrel X is ) .
-Proof . intros . apply istransquotrel .  apply istransabgrfracrelint . apply is . apply isl . Defined .
+Proof . intros . refine (istransquotrel _ _) .  apply istransabgrfracrelint . apply is . apply isl . Defined .
 
 
 Lemma issymmabgrfracrelint ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : issymm L ) : issymm ( abgrfracrelint X L ) .
@@ -894,25 +894,25 @@ Proof . intros . apply ( issymmlogeqf ( logeqabgrfracrelints X L ) ) .  intros a
 Opaque issymmabgrfracrelint .
 
 Lemma issymmabgrfracrel ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : issymm L ) : issymm ( abgrfracrel X is ) .
-Proof . intros .  apply issymmquotrel . apply issymmabgrfracrelint .  apply is . apply isl . Defined .
+Proof . intros .  refine (issymmquotrel _ _) . apply issymmabgrfracrelint .  apply is . apply isl . Defined .
 
 Lemma isreflabgrfracrelint ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : isrefl L ) : isrefl ( abgrfracrelint X L ) .
 Proof . intros . intro xa . unfold abgrfracrelint .  simpl . apply hinhpr . split with ( unel X ) .  apply ( isl _ ) . Defined .
 
 Lemma isreflabgrfracrel ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : isrefl L ) : isrefl ( abgrfracrel X is ) .
-Proof . intros .  apply isreflquotrel . apply isreflabgrfracrelint .  apply is . apply isl . Defined .
+Proof . intros .  refine (isreflquotrel _ _) . apply isreflabgrfracrelint .  apply is . apply isl . Defined .
 
 Lemma ispoabgrfracrelint ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : ispreorder L ) : ispreorder ( abgrfracrelint X L ) .
 Proof . intros . split with ( istransabgrfracrelint X is ( pr1 isl ) ) .  apply ( isreflabgrfracrelint X is ( pr2 isl ) ) .  Defined .
 
 Lemma ispoabgrfracrel ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : ispreorder L ) : ispreorder ( abgrfracrel X is ) .
-Proof . intros .  apply ispoquotrel . apply ispoabgrfracrelint .  apply is . apply isl . Defined .
+Proof . intros .  refine (ispoquotrel _ _) . apply ispoabgrfracrelint .  apply is . apply isl . Defined .
 
 Lemma iseqrelabgrfracrelint ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : iseqrel L ) : iseqrel ( abgrfracrelint X L ) .
 Proof . intros . split with ( ispoabgrfracrelint X is ( pr1 isl ) ) .  apply ( issymmabgrfracrelint X is ( pr2 isl ) ) .  Defined .
 
 Lemma iseqrelabgrfracrel ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : iseqrel L ) : iseqrel ( abgrfracrel X is ) .
-Proof . intros .  apply iseqrelquotrel . apply iseqrelabgrfracrelint .  apply is . apply isl . Defined .
+Proof . intros .  refine (iseqrelquotrel _ _). apply iseqrelabgrfracrelint .  apply is . apply isl . Defined .
 
 
 Lemma isantisymmnegabgrfracrel ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isl : isantisymmneg L ) : isantisymmneg ( abgrfracrel X is ) .
@@ -954,14 +954,14 @@ Opaque iscotransabgrfracrel .
 
 
 Lemma abgrfracrelimpl ( X : abmonoid ) { L L' : hrel X } ( is : isbinophrel L ) ( is' : isbinophrel L' )  ( impl : Π x x' , L x x' -> L' x x' ) ( x x' : abgrfrac X ) ( ql : abgrfracrel X is x x' ) : abgrfracrel X is' x x'  .
-Proof . intros .   generalize ql .  apply quotrelimpl .  intros x0 x0' .  simpl .  apply hinhfun .  intro t2 . split with ( pr1 t2 ) .   apply ( impl _ _ ( pr2 t2 ) ) . Defined .
+Proof . intros .   generalize ql .  refine (quotrelimpl _ _ _ _ _) .  intros x0 x0' .  simpl .  apply hinhfun .  intro t2 . split with ( pr1 t2 ) .   apply ( impl _ _ ( pr2 t2 ) ) . Defined .
 
 
 Opaque abgrfracrelimpl .
 
 
 Lemma abgrfracrellogeq ( X : abmonoid ) { L L' : hrel X } ( is : isbinophrel L ) ( is' : isbinophrel L' )  ( lg : Π x x' , L x x' <-> L' x x' ) ( x x' : abgrfrac X ) :  ( abgrfracrel X is x x' ) <-> ( abgrfracrel X is' x x' ) .
-Proof . intros .   apply quotrellogeq .  intros x0 x0' .  split .
+Proof . intros .   refine (quotrellogeq _ _ _ _ _) .  intros x0 x0' .  split .
 
 simpl .  apply hinhfun .  intro t2 . split with ( pr1 t2 ) .   apply ( pr1 ( lg _ _ ) ( pr2 t2 ) ) .
 simpl .  apply hinhfun .  intro t2 . split with ( pr1 t2 ) .   apply ( pr2 ( lg _ _ ) ( pr2 t2 ) ) . Defined .
@@ -986,7 +986,7 @@ Definition isdecabgrfracrelint ( X : abmonoid ) { L : hrel X } ( is : isinvbinop
 Proof . intros . intros xa1 xa2 .  set ( x1 := pr1 xa1 ) . set ( a1 := pr2 xa1 ) .  set ( x2 := pr1 xa2 ) . set ( a2 := pr2 xa2 ) .  assert ( int : coprod ( L ( x1 + a2 ) ( x2 + a1 ) ) ( neg ( L ( x1 + a2 ) ( x2 + a1 ) ) ) )  . apply ( isl _ _ ) . destruct int as [ l | nl ] .  apply ii1 . unfold abgrfracrelint .  apply hinhpr .  split with ( unel X ) .  rewrite ( runax X _ ) .   rewrite ( runax X _ ) . apply l . apply ii2 . generalize nl . clear nl . apply negf . unfold abgrfracrelint .   simpl .  apply ( @hinhuniv _ ( hProppair _ ( pr2 ( L _ _ ) ) ) ) .   intro t2l . destruct t2l as [ c0a l ] . simpl . apply ( ( pr2 is ) _ _ c0a l ) .  Defined .
 
 Definition isdecabgrfracrel ( X : abmonoid ) { L : hrel X } ( is : isbinophrel L ) ( isi : isinvbinophrel L ) ( isl : isdecrel L ) : isdecrel ( abgrfracrel X is ) .
-Proof . intros . apply isdecquotrel . apply isdecabgrfracrelint .   apply isi . apply isl . Defined .
+Proof . intros . refine (isdecquotrel _ _). apply isdecabgrfracrelint .   apply isi . apply isl . Defined .
 
 
 (** **** Relations and the canonical homomorphism to [ abgrfrac ] *)

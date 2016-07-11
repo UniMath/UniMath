@@ -9,7 +9,7 @@ Require Import UniMath.Foundations.Basics.PartD
                UniMath.Foundations.Basics.Propositions
                UniMath.Foundations.Basics.Sets.
 
-Implicit Arguments tpair [ T P ].
+Arguments tpair {_ _} _ _.
 
 (** We introduce the notation ap for maponpaths as in KTheory. *)
 

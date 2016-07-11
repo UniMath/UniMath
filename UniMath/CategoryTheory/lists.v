@@ -463,13 +463,13 @@ simple refine (tpair _ _ _).
     [ rewrite id_left; induction n; [apply idpath|];
       now rewrite <- IHn, <- (hf n _ (idpath _)), assoc,
                   BinCoproductOfArrowsIn1, id_left
-    | rewrite <- (hf n _ (idpath _)); destruct ccL; destruct t; simpl in *;
+    | rewrite <- (hf n _ (idpath _)); destruct ccL as [t p]; destruct t as [t p0]; simpl in *;
       rewrite p0; apply maponpaths, hf]).
 - abstract (
   destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
   intro t; apply subtypeEquality; simpl;
   [ intro g; apply impred; intro; apply hsC
-  | destruct t; destruct ccL; unfold BinCoproduct_of_functors_mor in *; destruct t0; simpl;
+  | destruct t as [t p]; destruct ccL as [t0 p0]; unfold BinCoproduct_of_functors_mor in *; destruct t0 as [t0 p1]; simpl;
     apply BinCoproductArrowUnique;
     [ now rewrite <- (p 0), assoc, BinCoproductOfArrowsIn1, id_left
     | simple refine (let temp : Σ x0 : C ⟦ c, HcL ⟧, Π v : nat,
@@ -521,7 +521,9 @@ Let List_alg : algebra_ob listFunctor :=
 Definition nil_map : HSET⟦unitHSET,List⟧.
 Proof.
 simpl; intro x.
-apply List_mor, inl, x.
+refine (List_mor _).
+apply inl.
+exact x.
 Defined.
 
 Definition nil : pr1 List := nil_map tt.
@@ -529,7 +531,8 @@ Definition nil : pr1 List := nil_map tt.
 Definition cons_map : HSET⟦(A × List)%set,List⟧.
 Proof.
 intros xs.
-apply List_mor, (inr xs).
+refine (List_mor _).
+exact (inr xs).
 Defined.
 
 Definition cons : pr1 A × pr1 List -> pr1 List := cons_map.
@@ -578,7 +581,7 @@ clear F.
 (* apply Fal. *) (* This doesn't work here. why? *)
 unfold compose in Fal.
 simpl in Fal.
-apply Fal.
+exact Fal.
 Opaque foldr_map.
 Qed. (* This Qed is slow unless one has the Opaque command above *)
 Transparent foldr_map.
