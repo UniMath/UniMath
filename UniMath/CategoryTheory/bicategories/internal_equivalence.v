@@ -71,43 +71,110 @@ Definition adj_int_equivalence {C : prebicategory}
   (a b : C)
   := total2 (fun f : a -1-> b => is_adj_int_equivalence f).
 
-Definition isaprop_has_homcats { C : prebicategory }
-  : isaprop (has_homcats C).
+Local Definition identity_triangle1 {C : prebicategory}
+  (a : C) :
+      (inv (left_unitor (identity_1mor a)))
+  ;v; (whisker_right (inv (left_unitor (identity_1mor a))) (identity_1mor a))
+  ;v; (inv (associator _ _ _))
+  ;v; (whisker_left (identity_1mor a) (right_unitor (identity_1mor a)))
+  ;v; (right_unitor _)
+    = (identity (identity_1mor a)).
 Proof.
-  apply impred.
-  intro a.
-  apply impred.
-  intro b.
-  apply (isaprop_is_category (a -1-> b)).
-Qed.
+  rewrite whisker_right_inv.
+  rewrite <- (assoc _ _ _ _ _ _ (inv_from_iso _)).
+  simpl.
 
-Definition isaprop_is_bicategory { C : prebicategory }
-  : isaprop (is_bicategory C).
+  set (W := iso_inv_of_iso_comp _ _ _ _ (associator
+                                                 (identity_1mor a)
+                                                 (identity_1mor a)
+                                                 (identity_1mor a))
+                                        (whisker_right_iso
+                                                 (left_unitor
+                                                 (identity_1mor a))
+                                                 (identity_1mor a))).
+  set (W' := maponpaths pr1 W).
+  simpl in W'.
+  unfold inv.
+  rewrite <- W'.
+  clear W W'.
+
+  assert (W : (associator (identity_1mor a) (identity_1mor a) (identity_1mor a)
+           ;i; whisker_right_iso (left_unitor (identity_1mor a)) (identity_1mor a)
+             = whisker_left_iso (identity_1mor a) (left_unitor (identity_1mor a)))).
+    apply eq_iso.
+    simpl.
+    apply pathsinv0.
+    unfold whisker_left.
+    unfold whisker_right.
+    eapply pathscomp0.
+    apply (triangle_axiom (identity_1mor a) (identity_1mor a)).
+    rewrite left_unitor_id_is_right_unitor_id.
+    reflexivity.
+  rewrite W.
+  clear W.
+
+  rewrite <- left_unitor_id_is_right_unitor_id.
+  rewrite <- whisker_left_inv.
+  rewrite <- (assoc _ _ _ _ _ _ _ (whisker_left _ (left_unitor_2mor _))).
+  rewrite <- whisker_left_on_comp.
+
+  simpl.
+
+  set (W := iso_after_iso_inv (left_unitor (identity_1mor a))).
+  simpl in W.
+  rewrite W.
+  fold (identity_2mor (identity_1mor a)).
+  rewrite whisker_left_id_2mor.
+  rewrite id_right.
+  rewrite W.
+  reflexivity.
+Defined.
+
+Local Definition identity_triangle2 {C : prebicategory}
+  (a : C) :
+      (inv (right_unitor (identity_1mor a)))
+  ;v; (whisker_left (identity_1mor a) (inv (left_unitor (identity_1mor a))))
+  ;v; (associator _ _ _)
+  ;v; (whisker_right (right_unitor (identity_1mor a)) (identity_1mor a))
+  ;v; (left_unitor _)
+    = (identity (identity_1mor a)).
 Proof.
-  apply isapropdirprod.
-  - exact isaprop_has_homcats.
-  - apply impred.
-    intros a.
-    apply impred.
-    intros b.
-    apply isapropisweq.
-Qed.
+  rewrite <- (assoc _ _ _ _ _ _ (associator _ _ _)).
+  unfold whisker_right at 1.
+  simpl.
+  rewrite <- triangle_axiom.
+  fold (whisker_left (identity_1mor a) (left_unitor_2mor (identity_1mor a))).
+  rewrite <- (assoc _ _ _ _ _ _  (whisker_left (identity_1mor a) (inv_from_iso _))).
+  rewrite <- whisker_left_on_comp.
 
+  set (W := iso_after_iso_inv (left_unitor (identity_1mor a))).
+  simpl in W.
+  rewrite W.
+  clear W.
 
-(******************************************************************************)
-(* Equivalence in a prebicategory via precomposition *)
+  fold (identity_2mor (identity_1mor a)).
+  rewrite whisker_left_id_2mor.
+  rewrite id_right.
 
-Definition precomp_with_1mor {C : prebicategory_data} {a b : C} (f : a -1-> b) {c : C}
-  : functor (b -1-> c) (a -1-> c)
-  := functor_fix_fst_arg _ _ _ (compose_functor a b c) f.
+  rewrite left_unitor_id_is_right_unitor_id.
 
-Definition precomp_with_identity_is_identity_trans {C : prebicategory} (a : C)
-  : forall b : C, nat_trans (precomp_with_1mor (identity_1mor a)) (functor_identity (a -1-> b)).
+  set (W := iso_after_iso_inv (right_unitor (identity_1mor a))).
+  simpl in W.
+  rewrite W.
+  reflexivity.
+Defined.
+
+Definition identity_adj_int_equivalence {C : prebicategory}
+  (a : C) : adj_int_equivalence a a.
 Proof.
-  intros b.
+  exists (identity_1mor a).
+  exists (identity_1mor a).
   use tpair.
-  - exact left_unitor.
-  - exact (pr2 (pr1 (pr2 (pr2 (pr1 C))) a b)).
+  - exists (inv (left_unitor (identity_1mor a))).
+    exact (right_unitor (identity_1mor a)).
+  - split.
+    + apply identity_triangle1.
+    + apply identity_triangle2.
 Defined.
 
 Lemma precomp_with_identity_is_identity {C : prebicategory} (hc : has_homcats C) (a : C)
