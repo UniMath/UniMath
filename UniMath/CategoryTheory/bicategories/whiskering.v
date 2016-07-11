@@ -54,11 +54,9 @@ Defined.
 
 Lemma whisker_left_inv {C : prebicategory} {a b c : C}
            (f : a -1-> b) {g h : b -1-> c} (alpha : iso g h)
-  : whisker_left_iso f (iso_inv_from_iso alpha)
-  = iso_inv_from_iso (whisker_left_iso f alpha).
+  : whisker_left f (iso_inv_from_iso alpha)
+  = inv_from_iso (whisker_left_iso f alpha).
 Proof.
-  apply eq_iso.
-  simpl.
   unfold whisker_left.
   unfold identity_2mor.
 
@@ -156,11 +154,9 @@ Defined.
 
 Lemma whisker_right_inv {C : prebicategory} {a b c : C}
            {f g : a -1-> b} (alpha : iso f g) (h : b -1-> c)
-  : whisker_right_iso (iso_inv_from_iso alpha) h
-  = iso_inv_from_iso (whisker_right_iso alpha h).
+  : whisker_right (iso_inv_from_iso alpha) h
+  = inv_from_iso (whisker_right_iso alpha h).
 Proof.
-  apply eq_iso.
-  simpl.
   unfold whisker_right.
   unfold identity_2mor.
 
@@ -247,7 +243,7 @@ Proof.
                        (functor_composite (unit_functor _) (ob_as_functor (identity_1mor b))))
                     (compose_functor a b b))
                  alpha)
-           ;v;(right_unitor g)).
+           ;v;(right_unitor _)).
     reflexivity.
 
   pathvia (right_unitor f ;v; functor_on_morphisms (functor_identity _) alpha).
