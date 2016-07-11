@@ -177,42 +177,11 @@ Proof.
     + apply identity_triangle2.
 Defined.
 
-Lemma precomp_with_identity_is_identity {C : prebicategory} (hc : has_homcats C) (a : C)
-  : forall b : C, precomp_with_1mor (identity_1mor a) = functor_identity (a -1-> b).
+Definition path_to_adj_int_equivalence {C : prebicategory}
+  (a b : C) :
+  a = b -> adj_int_equivalence a b.
 Proof.
-  intros b.
-  set (abhs := pr2 (hc a b)).
-  simpl in abhs.
-  apply (functor_eq_from_functor_iso abhs (hc a b)).
-  apply (functor_iso_from_pointwise_iso _ _ _ _ _ (precomp_with_identity_is_identity_trans a b)).
-  exact (pr1 (pr2 (pr1 (pr2 (pr2 C)))) a b).
-Defined.
-
-Definition is_precomp_equiv {C : prebicategory_data} {a b : C} (f : a -1-> b) :=
-  forall (c : C), adj_equivalence_of_precats (precomp_with_1mor f (c:=c)).
-
-Definition precomp_equiv {C: prebicategory_data}(a b : C) := total2 (fun f : a -1-> b => is_precomp_equiv f).
-
-(* TODO: This does not need homcategories  *)
-(* Pending a proof that a functor naturally isomorphic to a lift
-   adjoint is a left adjoint *)
-Definition identity_precomp_equiv {C : prebicategory} (hc : has_homcats C) (a : C) :
-  precomp_equiv a a.
-Proof.
-  unfold precomp_equiv.
-  use tpair.
-  - exact (identity_1mor a).
-  - simpl.
-    unfold is_precomp_equiv.
-    intros b.
-    rewrite (precomp_with_identity_is_identity hc a b).
-    apply identity_functor_is_adj_equivalence.
-Defined.
-
-Definition idto_precomp_equiv {C : prebicategory} {a b : C} (hc : has_homcats C):
-      a = b -> precomp_equiv a b.
-Proof.
-  intro H.
-  destruct H.
-  exact (identity_precomp_equiv hc a).
+  intros p.
+  induction p.
+  exact (identity_adj_int_equivalence a).
 Defined.
