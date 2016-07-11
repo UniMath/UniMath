@@ -33,14 +33,14 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.PointedFunctors.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseCoproduct.
+Require Import UniMath.CategoryTheory.limits.FunctorsPointwiseBinCoproduct.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
 
@@ -53,11 +53,11 @@ Section monad_from_hss.
 Variable C : precategory.
 Variable hs : has_homsets C.
 
-Variable CP : Coproducts C.
+Variable CP : BinCoproducts C.
 
 Local Notation "'EndC'":= ([C, C, hs]) .
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
-Let CPEndC : Coproducts EndC := Coproducts_functor_precat _ _ CP hs.
+Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP hs.
 
 Variable H : Signature C hs.
 
@@ -68,7 +68,7 @@ Let θ_strength2_int := Sig_strength_law2 _ _ H.
 
 Let Id_H
 : functor EndC EndC
-  := coproduct_functor _ _ CPEndC
+  := BinCoproduct_of_functors _ _ CPEndC
                        (constant_functor _ _ (functor_identity _ : EndC))
                        H.
 
@@ -93,7 +93,7 @@ Section mu_from_fbracket.
 Variable T : hss CP H.
 
 Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
-Local Notation "f ⊕ g" := (CoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
+Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
 
 
 Definition μ_0 : functor_identity C ⟶ functor_data_from_functor _ _ `T := η T. (*ptd_pt _ (pr1 (pr1 T)).*)
@@ -131,7 +131,7 @@ Proof.
 Qed.
 
 
-Lemma μ_1_identity' : ∀ c : C, μ_1 c = identity _.
+Lemma μ_1_identity' : Π c : C, μ_1 c = identity _.
 Proof.
   intros c.
   assert (HA:= nat_trans_eq_pointwise μ_1_identity).
@@ -176,7 +176,7 @@ Defined.
 (** *** Proof of the first monad law *)
 
 Lemma Monad_law_1_from_hss :
-  ∀ c : C, μ_0 (pr1 (`T) c);; μ_2 c = identity ((pr1 (`T)) c).
+  Π c : C, μ_0 (pr1 (`T) c);; μ_2 c = identity ((pr1 (`T)) c).
 Proof.
   intro c.
   unfold μ_2. simpl.
@@ -191,7 +191,7 @@ Qed.
 (** *** Proof of the second monad law *)
 
 Lemma Monad_law_2_from_hss:
-  ∀ c : C, # (pr1 (`T)) (μ_0 c);; μ_2 c = identity ((pr1 (`T)) c).
+  Π c : C, # (pr1 (`T)) (μ_0 c);; μ_2 c = identity ((pr1 (`T)) c).
 Proof.
   intro c.
   pathvia (μ_1 c).
@@ -275,7 +275,7 @@ Defined.
     the pointed structure given by [η] *)
 
 Lemma μ_2_is_ptd_mor :
-  ∀ c : C, (ptd_pt C T_squared) c;; μ_2 c = pr1 (η T) c.
+  Π c : C, (ptd_pt C T_squared) c;; μ_2 c = pr1 (η T) c.
 Proof.
   intro c.
   unfold μ_2.
@@ -442,7 +442,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
       eapply pathscomp0. Focus 2. apply assoc.
       eapply pathscomp0. Focus 2. apply maponpaths. apply (!HXX).
       clear HXX.
-      assert (Strength_2 : ∀ α : functor_compose hs hs (functor_composite (`T) (`T))(`T) --> functor_composite (` T) (`T),
+      assert (Strength_2 : Π α : functor_compose hs hs (functor_composite (`T) (`T))(`T) --> functor_composite (` T) (`T),
 
                     pr1 (θ (`T ⊗ T_squared)) c ;; pr1 (# H α) c =
                      pr1 (θ ((`T) ⊗ (ptd_from_alg T))) ((pr1 (pr1 (pr1 T))) c);;

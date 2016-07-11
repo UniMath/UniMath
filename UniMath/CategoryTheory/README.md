@@ -49,6 +49,24 @@ The toplevel files contain the formalization of the Rezk Completion:
 * *rezk_completion.v*
   * put the previous files together and exhibit the Rezk completion
 
+### many more files that were not needed for the Rezk completion
+* *AdjunctionHomTypesWeq.v*
+  * Derivation of the data of an adjunction in terms of equivalence of hom-types from the definition of adjunction in terms of unit and counit
+* *EndofunctorsMonoidal.v*
+  * Definition of the (weak) monoidal structure on endofunctors
+* *HorizontalComposition.v*
+  * Definition of horizontal composition for natural transformations
+* *PointedFunctors.v*
+  * Definition of precategory of pointed endofunctors
+  * Forgetful functor to precategory of endofunctors
+* *PointedFunctorsComposition.v*
+  * Definition of composition of pointed functors
+* *ProductPrecategory.v*
+  * Definition of the cartesian product of two precategories
+  * From a functor on a product of precategories to a functor on one of the categories by fixing the argument in the other component
+* *RightKanExtension.v*
+  * Definition of global right Kan extension as right adjoint to precomposition
+  
 ### The subdirectories
 
 * *limits*

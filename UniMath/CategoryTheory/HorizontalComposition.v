@@ -30,7 +30,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
+Local Notation "G □ F" := (functor_composite F G) (at level 35).
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
@@ -69,7 +69,7 @@ Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)
 *)
 Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)(f : nat_trans Z Z')
   :
-  forall c : C, hor_comp (nat_trans_id X) f c = f (X c).
+  Π c : C, hor_comp (nat_trans_id X) f c = f (X c).
 Proof.
   simpl.
   intro c.

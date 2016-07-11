@@ -233,7 +233,7 @@ Lemma slicecat_functor_subproof (af bg : C / x) (h : af --> bg) :
 Proof. rewrite assoc, (pr2 h); apply idpath. Qed.
 
 Definition slicecat_functor_data : functor_data (C / x) (C / y) :=
-  tpair (fun F => forall a b, a --> b -> F a --> F b)
+  tpair (fun F => Π a b, a --> b -> F a --> F b)
         slicecat_functor_ob
         (fun a b h => tpair _ (pr1 h) (slicecat_functor_subproof _ _ h)).
 
@@ -298,7 +298,7 @@ Defined.
 (* This proof is not so nice... *)
 Lemma slicecat_functor_comp (x y z : C) (f : x --> y) (g : y --> z) :
   slicecat_functor _ hsC _ _ (f ;; g) =
-  functor_composite _ _ _ (slicecat_functor _ _ _ _ f) (slicecat_functor _ _ _ _ g).
+  functor_composite (slicecat_functor _ _ _ _ f) (slicecat_functor _ _ _ _ g).
 Proof.
 apply (functor_eq _ _ (has_homsets_slice_precat _ _ _)); simpl.
 unfold slicecat_functor_data; simpl.
@@ -319,7 +319,7 @@ assert (H1 : transportf (fun x : C / z => pr1 x --> b)
                  (fun p => tpair _ a p = tpair _ a _) (idpath (tpair _ a _))
                  (assoc C a x y z fax f g)) h = h).
   case (assoc C a x y z fax f g); apply idpath.
-assert (H2 : forall h', h' = h ->
+assert (H2 : Π h', h' = h ->
              transportf (fun x : C / z => a --> pr1 x)
                         (Basics.PartA.internal_paths_rew_r _ _ _
                            (fun p => tpair _ b p = tpair _ b _) (idpath _)

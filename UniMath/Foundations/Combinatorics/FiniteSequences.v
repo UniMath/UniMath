@@ -19,7 +19,7 @@ Definition transport_stn m n i (b:i<m) (p:m=n) :
 Proof. intros. induction p. reflexivity. Defined.
 
 Definition sequenceEquality {X m n} (f:stn m->X) (g:stn n->X) (p:m=n) :
-  (∀ i, f i = g (transportf stn p i))
+  (Π i, f i = g (transportf stn p i))
   -> transportf (λ m, stn m->X) p f = g.
 Proof. intros ? ? ? ? ? ? e. induction p. apply funextfun. exact e. Defined.
 
@@ -97,7 +97,7 @@ Defined.
 
 (* Three ways.  Use induction: *)
 
-Definition iscontr_rect' X (i : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : ∀ x:X, P x.
+Definition iscontr_rect' X (i : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : Π x:X, P x.
 Proof. intros. induction (pr1 (isapropifcontr i x0 x)). exact p0. Defined.
 
 Definition iscontr_rect_compute' X (i : iscontr X) (x : X) (P : X ->UU) (p : P x) :
@@ -112,7 +112,7 @@ Defined.
 
 (* ... or use weqsecovercontr, but specializing x to pr1 i: *)
 
-Definition iscontr_rect'' X (i : iscontr X) (P : X ->UU) (p0 : P (pr1 i)) : ∀ x:X, P x.
+Definition iscontr_rect'' X (i : iscontr X) (P : X ->UU) (p0 : P (pr1 i)) : Π x:X, P x.
 Proof. intros. exact (invmap (weqsecovercontr P i) p0 x). Defined.
 
 Definition iscontr_rect_compute'' X (i : iscontr X) (P : X ->UU) (p : P(pr1 i)) :
@@ -127,7 +127,7 @@ Definition iscontr_adjointness X (is:iscontr X) (x:X) : pr1 (isapropifcontr is x
    the weq [unit ≃ X] would give it to us, in the case where x is [pr1 is] *)
 Proof. intros. now apply isasetifcontr. Defined.
 
-Definition iscontr_rect X (is : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : ∀ x:X, P x.
+Definition iscontr_rect X (is : iscontr X) (x0 : X) (P : X ->UU) (p0 : P x0) : Π x:X, P x.
 Proof. intros. exact (transportf P (pr1 (isapropifcontr is x0 x)) p0). Defined.
 
 Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X ->UU) (p : P x) :
@@ -135,11 +135,11 @@ Definition iscontr_rect_compute X (is : iscontr X) (x : X) (P : X ->UU) (p : P x
 Proof. intros. unfold iscontr_rect. now rewrite iscontr_adjointness. Defined.
 
 Corollary weqsecovercontr':     (* reprove weqsecovercontr, move upstream *)
-  ∀ (X:UU) (P:X->UU) (is:iscontr X), (∀ x:X, P x) ≃ P (pr1 is).
+  Π (X:UU) (P:X->UU) (is:iscontr X), (Π x:X, P x) ≃ P (pr1 is).
 Proof.
   intros.
   set (x0 := pr1 is).
-  set (secs := ∀ x : X, P x).
+  set (secs := Π x : X, P x).
   set (fib  := P x0).
   set (destr := (λ f, f x0) : secs->fib).
   set (constr:= iscontr_rect X is x0 P : fib->secs).
@@ -243,7 +243,7 @@ Defined.
 
 Definition Sequence_rect {X} {P : Sequence X ->UU}
            (p0 : P nil)
-           (ind : ∀ (x : Sequence X) (y : X), P x -> P (append x y))
+           (ind : Π (x : Sequence X) (y : X), P x -> P (append x y))
            (x : Sequence X) : P x.
 Proof. intros. induction x as [n x]. induction n as [|n IH].
   - exact (transportf P (nil_unique x) p0).
@@ -254,7 +254,7 @@ Proof. intros. induction x as [n x]. induction n as [|n IH].
 Defined.
 
 Lemma Sequence_rect_compute_nil {X} {P : Sequence X ->UU} (p0 : P nil)
-      (ind : ∀ (s : Sequence X) (x : X), P s -> P (append s x)) :
+      (ind : Π (s : Sequence X) (x : X), P s -> P (append s x)) :
   Sequence_rect p0 ind nil = p0.
 Proof.
   intros.
@@ -267,7 +267,7 @@ Defined.
 
 Lemma Sequence_rect_compute_cons
       {X} {P : Sequence X ->UU} (p0 : P nil)
-      (ind : ∀ (s : Sequence X) (x : X), P s -> P (append s x))
+      (ind : Π (s : Sequence X) (x : X), P s -> P (append s x))
       (x:X) (l:Sequence X) :
   Sequence_rect p0 ind (append l x) = ind l x (Sequence_rect p0 ind l).
 Proof.
@@ -477,7 +477,7 @@ Proof.
   change (pr1 (tpair (λ i, stn(f i)) k p)) with k.
 
   (* perhaps also prove this is by equipping everything in sight with a well-ordering, preserved by all the equivalences involved *)
-Admitted.
+Abort.
 
 Definition flattenStep {X n} (x: stn (S n) -> Sequence X) :
   flatten (S n,,x) = concatenate (flatten (n,,x ∘ dni_lastelement)) (x (lastelement _)).
@@ -495,7 +495,7 @@ Proof.
 
 
 
-Admitted.
+Abort.
 
 
 Definition isassoc_concatenate {X} (x y z:Sequence X) :

@@ -62,7 +62,7 @@ Proof. intros a b; apply hsC. Qed.
 
 Definition functor_opp_data {C D : precategory} (F : functor C D) :
   functor_data C^op D^op :=
-    tpair (fun F : C^op -> D^op => forall a b, C^op ⟦a, b⟧ -> D^op ⟦F a, F b⟧) F
+    tpair (fun F : C^op -> D^op => Π a b, C^op ⟦a, b⟧ -> D^op ⟦F a, F b⟧) F
           (fun (a b : C) (f : C⟦b, a⟧) => functor_on_morphisms F f).
 
 Lemma is_functor_functor_opp {C D : precategory} (F : functor C D) :
@@ -114,8 +114,8 @@ Lemma functor_opp_identity {C : precategory} (hsC : has_homsets C) :
 Proof. apply (functor_eq _ _ (has_homsets_opp hsC)); trivial. Qed.
 
 Lemma functor_opp_composite {C D E : precategory} (F : functor C D) (G : functor D E)
-  (hsE : has_homsets E) : functor_opp (functor_composite _ _ _ F G) =
-                          functor_composite _ _ _ (functor_opp F) (functor_opp G).
+  (hsE : has_homsets E) : functor_opp (functor_composite F G) =
+                          functor_composite (functor_opp F) (functor_opp G).
 Proof. apply (functor_eq _ _ (has_homsets_opp hsE)); trivial. Qed.
 
 Definition from_opp_to_opp_opp (A C : precategory) (hsC : has_homsets C) :

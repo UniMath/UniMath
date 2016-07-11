@@ -1,3 +1,4 @@
+(* Direct definition of initial object *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -5,7 +6,6 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.colimits.colimits.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
@@ -13,9 +13,9 @@ Section def_initial.
 
 Variable C : precategory.
 
-Definition isInitial (a : C) := forall b : C, iscontr (a --> b).
+Definition isInitial (a : C) : UU := Π b : C, iscontr (a --> b).
 
-Definition Initial := total2 (fun a => isInitial a).
+Definition Initial : UU := total2 (fun a => isInitial a).
 
 Definition InitialObject (O : Initial) : C := pr1 O.
 Coercion InitialObject : Initial >-> ob.
@@ -47,7 +47,7 @@ Proof.
   exact H.
 Defined.
 
-Definition mk_isInitial (a : C) (H : ∀ (b : C), iscontr (a --> b)) :
+Definition mk_isInitial (a : C) (H : Π (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
   exact H.
@@ -93,38 +93,89 @@ Arguments InitialArrowUnique {_} _ _ _ .
 Arguments mk_isInitial {_} _ _ _ .
 Arguments mk_Initial {_} _ _.
 
-Section Initial_from_Colims.
+Section Initial_and_EmptyCoprod.
+  Require Import UniMath.CategoryTheory.limits.coproducts.
 
-Variable C : precategory.
+  (** Construct Initial from empty arbitrary coproduct. *)
+  Definition initial_from_empty_coproduct (C : precategory):
+    CoproductCocone empty C fromempty -> Initial C.
+  Proof.
+    intros X.
+    refine (mk_Initial (CoproductObject _ _ X) _).
+    refine (mk_isInitial _ _).
+    intros b.
+    assert (H : Π i : empty, C⟦fromempty i, b⟧) by
+        (intros i; apply (fromempty i)).
+    apply (iscontrpair (CoproductArrow _ _ X H)); intros t.
+    apply CoproductArrowUnique; intros i; apply (fromempty i).
+  Defined.
+End Initial_and_EmptyCoprod.
 
-Definition empty_graph : graph.
+(* Section Initial_from_Colims. *)
+
+(* Require Import UniMath.CategoryTheory.limits.graphs.colimits. *)
+
+(* Variable C : precategory. *)
+
+(* Definition empty_graph : graph. *)
+(* Proof. *)
+(*   exists empty. *)
+(*   exact (fun _ _ => empty). *)
+(* Defined. *)
+
+(* Definition initDiagram : diagram empty_graph C. *)
+(* Proof. *)
+(* exists fromempty. *)
+(* intros u; induction u. *)
+(* Defined. *)
+
+(* Definition initCocone (b : C) : cocone initDiagram b. *)
+(* Proof. *)
+(* simple refine (mk_cocone _ _); intros u; induction u. *)
+(* Defined. *)
+
+(* Lemma Initial_from_Colims : Colims C -> Initial C. *)
+(* Proof. *)
+(* intros H. *)
+(* case (H _ initDiagram); intros cc iscc; destruct cc as [c cc]. *)
+(* apply (mk_Initial c); apply mk_isInitial; intros b. *)
+(* case (iscc _ (initCocone b)); intros f Hf; destruct f as [f fcomm]. *)
+(* apply (tpair _ f); intro g. *)
+(* transparent assert (X : (Σ x : c --> b, Π v, *)
+(*                        coconeIn cc v ;; x = coconeIn (initCocone b) v)). *)
+(*   { apply (tpair _ g); intro u; induction u. } *)
+(* apply (maponpaths pr1 (Hf X)). *)
+(* Defined. *)
+
+(* End Initial_from_Colims. *)
+
+Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
+
+Section InitialFunctorCat.
+
+Variable C D : precategory.
+Variable ID : Initial D.
+Variable hsD : has_homsets D.
+
+Definition Initial_functor_precat : Initial [C, D, hsD].
 Proof.
-  exists empty.
-  exact (fun _ _ => empty).
+use mk_Initial.
+- mkpair.
+  + mkpair.
+    * intros c; apply (InitialObject ID).
+    * simpl; intros a b f; apply (InitialArrow ID).
+  + abstract (split;
+               [ intro a; apply pathsinv0, InitialEndo_is_identity
+               | intros a b c f g; apply pathsinv0, InitialArrowUnique]).
+- intros F.
+  mkpair.
+  + simpl.
+    mkpair.
+    * intro a; apply InitialArrow.
+    * abstract (intros a b f; simpl;
+                rewrite <- (InitialEndo_is_identity _ ID (InitialArrow ID ID)), id_left;
+                apply pathsinv0, InitialArrowUnique).
+  + abstract (intros α; apply (nat_trans_eq hsD); intro a; apply InitialArrowUnique).
 Defined.
 
-Definition initDiagram : diagram empty_graph C.
-Proof.
-exists fromempty.
-intros u; induction u.
-Defined.
-
-Definition initCocone (b : C) : cocone initDiagram b.
-Proof.
-simple refine (mk_cocone _ _); intros u; induction u.
-Defined.
-
-Lemma Initial_from_Colims : Colims C -> Initial C.
-Proof.
-intros H.
-case (H _ initDiagram); intros cc iscc; destruct cc as [c cc].
-apply (mk_Initial c); apply mk_isInitial; intros b.
-case (iscc _ (initCocone b)); intros f Hf; destruct f as [f fcomm].
-apply (tpair _ f); intro g.
-transparent assert (X : (Σ x : c --> b, ∀ v,
-                       coconeIn cc v ;; x = coconeIn (initCocone b) v)).
-  { apply (tpair _ g); intro u; induction u. }
-apply (maponpaths pr1 (Hf X)).
-Defined.
-
-End Initial_from_Colims.
+End InitialFunctorCat.

@@ -78,16 +78,16 @@ Definition action_op G X := G -> X -> X.
 Record ActionStructure (G:gr) (X:hSet) :=
   make {
       act_mult : action_op G X;
-      act_unit : ∀ x, act_mult (unel _) x = x;
-      act_assoc : ∀ g h x, act_mult (op g h) x = act_mult g (act_mult h x)
+      act_unit : Π x, act_mult (unel _) x = x;
+      act_assoc : Π g h x, act_mult (op g h) x = act_mult g (act_mult h x)
     }.
 Arguments act_mult {G _} _ g x.
 
 Module Pack.
   Definition ActionStructure' (G:gr) (X:hSet) :=
          Σ act_mult : action_op G X,
-         Σ act_unit : ∀ x, act_mult (unel _) x = x,
-      (* act_assoc : *) ∀ g h x, act_mult (op g h) x = act_mult g (act_mult h x).
+         Σ act_unit : Π x, act_mult (unel _) x = x,
+      (* act_assoc : *) Π g h x, act_mult (op g h) x = act_mult g (act_mult h x).
   Definition pack {G:gr} {X:hSet} : ActionStructure' G X -> ActionStructure G X
     := fun ac => make G X (pr1 ac) (pr1 (pr2 ac)) (pr2 (pr2 ac)).
   Definition unpack {G:gr} {X:hSet} : ActionStructure G X -> ActionStructure' G X
@@ -124,13 +124,13 @@ Definition ac_mult {G:gr} (X:Action G) := act_mult (pr2 X).
 Delimit Scope action_scope with action.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Open Scope action_scope.
-Definition ac_assoc {G:gr} (X:Action G) := act_assoc _ _ (pr2 X) : ∀ g h x, (op g h)*x = g*(h*x).
+Definition ac_assoc {G:gr} (X:Action G) := act_assoc _ _ (pr2 X) : Π g h x, (op g h)*x = g*(h*x).
 
 Definition right_mult {G:gr} {X:Action G} (x:X) := fun g => g*x.
 Definition left_mult {G:gr} {X:Action G} (g:G) := fun x:X => g*x.
 
 Definition is_equivariant {G:gr} {X Y:Action G} (f:X->Y) :=
-  ∀ g x, f (g*x) = g*(f x).
+  Π g x, f (g*x) = g*(f x).
 
 Definition is_equivariant_isaprop {G:gr} {X Y:Action G} (f:X->Y) :
   isaprop (is_equivariant f).
@@ -148,7 +148,7 @@ Definition is_equivariant_identity {G:gr} {X Y:Action G}
            (p:ac_set X = ac_set Y) :
   weq (p # ac_str X = ac_str Y) (is_equivariant (cast (ap pr1hSet p))).
 Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
-       (* should just apply uahp at this point, as in Poset_univalence_prelim! *)
+       (* should just apply hPropUnivalence at this point, as in Poset_univalence_prelim! *)
        simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
        simple refine (weqpair _ _).
        { intros p g x. simpl in x. simpl.
@@ -270,7 +270,7 @@ Proof. intros. exact (apevalat x (ap pr1weq
 (** ** Torsors *)
 
 Definition is_torsor {G:gr} (X:Action G) :=
-  nonempty X × ∀ x:X, isweq (right_mult x).
+  nonempty X × Π x:X, isweq (right_mult x).
 
 Lemma is_torsor_isaprop {G:gr} (X:Action G) : isaprop (is_torsor X).
 Proof. intros. apply isapropdirprod. { apply propproperty. }

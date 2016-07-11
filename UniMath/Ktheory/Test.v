@@ -11,7 +11,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
-Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
 Require Import UniMath.Ktheory.Representation.
 Require UniMath.Ktheory.Precategories.
@@ -27,11 +27,11 @@ Definition isCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
   binarySumProperty ia ib.
 
 Definition mk_isCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :
-   (∀ (c : C) (f : a --> c) (g : b --> c),
+   (Π (c : C) (f : a --> c) (g : b --> c),
     ∃! k : C ⟦co, c⟧,
       ia ;; k = f ×
       ib ;; k = g)
-   →
+   ->
    isCoproductCocone a b co ia ib.
 Proof.
   intros u c fg. refine (iscontrweqf _ (u c (pr1 fg) (pr2 fg))).
@@ -50,8 +50,8 @@ Defined.
 Definition CoproductCocone (a b : C) := BinarySum a b.
 
 Definition mk_CoproductCocone (a b : C) :
-  ∀ (c : C) (f : a --> c) (g : b --> c),
-    isCoproductCocone _ _ _ f g →  CoproductCocone a b
+  Π (c : C) (f : a --> c) (g : b --> c),
+    isCoproductCocone _ _ _ f g -> CoproductCocone a b
   := λ c f g i, c,,(f,,g),,i.
 
 Definition Coproducts := hasBinarySums C.
@@ -71,14 +71,14 @@ Definition CoproductArrow {a b : C} (CC : CoproductCocone a b) {c : C} (f : a --
   := binarySumMap CC f g.
 
 Lemma CoproductIn1Commutes (a b : C) (CC : CoproductCocone a b):
-     ∀ (c : C) (f : a --> c) g, CoproductIn1 CC ;; CoproductArrow CC f g  = f.
+     Π (c : C) (f : a --> c) g, CoproductIn1 CC ;; CoproductArrow CC f g  = f.
 Proof.
   intros c f g.
   exact (binarySum_in_1_eqn CC f g).
 Qed.
 
 Lemma CoproductIn2Commutes (a b : C) (CC : CoproductCocone a b):
-     ∀ (c : C) (f : a --> c) g, CoproductIn2 CC ;; CoproductArrow CC f g = g.
+     Π (c : C) (f : a --> c) g, CoproductIn2 CC ;; CoproductArrow CC f g = g.
 Proof.
   intros c f g.
   exact (binarySum_in_2_eqn CC f g).
@@ -86,7 +86,7 @@ Qed.
 
 Lemma CoproductArrowUnique (a b : C) (CC : CoproductCocone a b) (x : C)
     (f : a --> x) (g : b --> x) (k : CoproductObject CC --> x) :
-    CoproductIn1 CC ;; k = f → CoproductIn2 CC ;; k = g →
+    CoproductIn1 CC ;; k = f -> CoproductIn2 CC ;; k = g ->
       k = CoproductArrow CC f g.
 Proof.
   intros u v.

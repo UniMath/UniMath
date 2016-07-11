@@ -59,12 +59,12 @@ Proof.
   intros ? [n x].
   induction n as [|n IHn].
   { reflexivity. }
-  { rewrite flattenStep, doubleProductStep.
-    generalize (x (lastelement _)) as z.
-    generalize (x ∘ dni_lastelement) as y.
-    intros y [m z].
-    induction m as [|m IHm].
-    { change (sequenceProduct (0,, z)) with (unel M). rewrite runax.
+  (* { rewrite flattenStep, doubleProductStep. *)
+  (*   generalize (x (lastelement _)) as z. *)
+  (*   generalize (x ∘ dni_lastelement) as y. *)
+  (*   intros y [m z]. *)
+  (*   induction m as [|m IHm]. *)
+  (*   { change (sequenceProduct (0,, z)) with (unel M). rewrite runax. *)
 (*       change (concatenate (flatten (n,, y)) (0,, z)) with (flatten (n,, y)). *)
 (*       exact (IHn y). } *)
 (*     { rewrite sequenceProductStep, concatenateStep. *)
@@ -88,12 +88,12 @@ Proof.
   intros.
   induction n as [|n IH].
   - reflexivity.
-  - assert (specialcase : ∀ (y:stn _->M) (g : stn _ ≃ stn _), g (lastelement n) = lastelement n ->
+  - assert (specialcase : Π (y:stn _->M) (g : stn _ ≃ stn _), g (lastelement n) = lastelement n ->
         sequenceProduct (S n,, y) = sequenceProduct (S n,, y ∘ g)).
     { intros ? ? a. rewrite 2? sequenceProductStep. change ((_ ∘ _) _) with (y (g (lastelement n))).
       rewrite a. apply (maponpaths (λ m, m * _)). change (_ ∘ _ ∘ _) with (y ∘ (g ∘ dni_lastelement)).
       set (h := eqweqmap (maponpaths stn_compl a)).
-      assert (pr1_h : ∀ i, pr1 (pr1 (h i)) = pr1 (pr1 i)). { intros. induction a. reflexivity. }
+      assert (pr1_h : Π i, pr1 (pr1 (h i)) = pr1 (pr1 i)). { intros. induction a. reflexivity. }
       set (wc := weqdnicompl n (lastelement n)).
       set (g' := (invweq wc ∘ (h ∘ (weqoncompl_ne g (lastelement n) (stnneq _) (stnneq _) ∘ wc))) %weq).
       intermediate_path (sequenceProduct (n,, y ∘ dni_lastelement ∘ g')).
@@ -141,7 +141,7 @@ Proof.
     { intro i. change (pr1 sw) with 3 in i.
       induction i as [i b]. inductive_reflexivity i b. }
     assert (isweqsw : isweq sw).
-    { apply (gradth sw sw); ( intros [i b]; inductive_reflexivity i b). }
+    { refine (gradth sw sw _ _); ( intros [i b]; inductive_reflexivity i b). }
     set (w := weqstnsum1 m). rewrite B in w. change (pr1 m) with 3 in w.
     set (w' := weqstnsum1 m'). rewrite B' in w'. change (pr1 m') with 3 in w'.
 

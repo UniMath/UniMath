@@ -32,7 +32,7 @@ Opaque hz .
 
 
 Definition hq : fld := fldfrac hzintdom isdeceqhz .
-Definition hqaddabgr : abgr := rngaddabgr hq .
+Definition hqaddabgr : abgr := hq .
 Definition hqmultabmonoid : abmonoid := rngmultabmonoid hq .
 Definition hqtype : UU := hq .
 

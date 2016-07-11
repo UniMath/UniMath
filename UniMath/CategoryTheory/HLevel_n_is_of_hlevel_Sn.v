@@ -46,7 +46,7 @@ Defined.
     the hProposition [P] with this fibration.
 *)
 
-Lemma ident_is_prop : forall (P : UU -> hProp) (X X' : UU)
+Lemma ident_is_prop : Π (P : UU -> hProp) (X X' : UU)
       (pX : P X) (pX' : P X') (w : X = X'),
    isaprop (transportf (fun X => P X) w pX = pX').
 Proof.
@@ -118,7 +118,7 @@ Lemma isofhlevel0pathspace (X Y : UU) :
     iscontr X -> iscontr Y -> iscontr (X = Y).
 Proof.
   intros pX pY.
-  set (H := isofhlevelweqb 0 (tpair _ _ (univalenceaxiom X Y))).
+  set (H := isofhlevelweqb 0 (tpair _ _ (univalenceAxiom X Y))).
   apply H.
   exists (isofhlevel0weq _ _ pX pY ).
   intro f.
@@ -135,11 +135,11 @@ Defined.
 
 (** *** The case [n = S n'] *)
 
-Lemma isofhlevelSnpathspace : forall n : nat, forall X Y : UU,
+Lemma isofhlevelSnpathspace : Π n : nat, Π X Y : UU,
       isofhlevel (S n) Y -> isofhlevel (S n) (X = Y).
 Proof.
   intros n X Y pY.
-  set (H:=isofhlevelweqb (S n) (tpair _ _ (univalenceaxiom X Y))).
+  set (H:=isofhlevelweqb (S n) (tpair _ _ (univalenceAxiom X Y))).
   apply H.
   assert (H' : isofhlevel (S n) (X -> Y)).
     apply impred.
@@ -154,7 +154,7 @@ Defined.
 
 (** ** The lemma itself *)
 
-Lemma isofhlevelpathspace : forall n : nat, forall X Y : UU,
+Lemma isofhlevelpathspace : Π n : nat, Π X Y : UU,
       isofhlevel n X -> isofhlevel n Y -> isofhlevel n (X = Y).
 Proof.
   intros n.
@@ -178,7 +178,7 @@ Definition HLevel n := total2 (fun X : UU => isofhlevel n X).
 
 (** * Main theorem: [HLevel n] is of hlevel [S n] *)
 
-Lemma hlevel_of_hlevels : forall n,
+Lemma hlevel_of_hlevels : Π n,
       isofhlevel (S n) (HLevel n).
 Proof.
   intro n.
@@ -206,11 +206,11 @@ Lemma UA_for_Predicates (P : UU -> hProp) (X X' : UU)
   weq ((tpair _ X pX) = (tpair (fun x => P x) X' pX')) (weq X X').
 Proof.
   set (f := Id_p_weq_Id P X X' pX pX').
-  set (g := tpair _ _ (univalenceaxiom X X')).
+  set (g := tpair _ _ (univalenceAxiom X X')).
   exact (weqcomp f g).
 Defined.
 
-Corollary UA_for_HLevels : forall (n : nat)
+Corollary UA_for_HLevels : Π (n : nat)
       (X X' : HLevel n),
      weq (X = X') (weq (pr1 X) (pr1 X')).
 Proof.

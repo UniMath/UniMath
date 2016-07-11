@@ -79,12 +79,12 @@ Implicit Arguments ii2 [ A B ] .
 
 Notation coprod_rect := sum_rect.
 
-Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity) : type_scope.
+Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity).
   (* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)
 
-Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
+Notation "'Π'  x .. y , P" := (forall x, .. (forall y, P) ..)
   (at level 200, x binder, y binder, right associativity) : type_scope.
-  (* type this in emacs in agda-input method with \forall *)
+  (* type this in emacs in agda-input method with \Pi *)
 
 Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
   (at level 200, x binder, y binder, right associativity).
@@ -92,15 +92,15 @@ Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
 
 Definition coprod_rect_compute_1
            (A B : UU) (P : A ⨿ B -> UU)
-           (f : ∀ a : A, P (ii1 a))
-           (g : ∀ b : B, P (ii2 b)) (a:A) :
+           (f : Π (a : A), P (ii1 a))
+           (g : Π (b : B), P (ii2 b)) (a:A) :
   coprod_rect P f g (ii1 a) = f a.
 Proof. reflexivity. Defined.
 
 Definition coprod_rect_compute_2
            (A B : UU) (P : A ⨿ B -> UU)
-           (f : ∀ a : A, P (ii1 a))
-           (g : ∀ b : B, P (ii2 b)) (b:B) :
+           (f : Π a : A, P (ii1 a))
+           (g : Π b : B, P (ii2 b)) (b:B) :
   coprod_rect P f g (ii2 b) = g b.
 Proof. reflexivity. Defined.
 
@@ -134,7 +134,7 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 (* or total2 as an inductive type:  *)
 
-    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P .
+    Inductive total2 { T: Type } ( P: T -> Type ) := tpair : Π ( t : T ) ( p : P t ) , total2 P .
 
     Definition pr1 { T : Type } { P : T -> Type } ( t : total2 P ) : T .
     Proof . intros .  induction t as [ t p ] . exact t . Defined.
@@ -144,7 +144,9 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 (* end of two alternatives *)
 
-Arguments tpair {T} _ _ _.
+    Print total2.               (* log which definition of total2 is currently in use *)
+
+Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.
 Arguments pr2 {_ _} _.
 
@@ -156,7 +158,7 @@ Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser
 
 Ltac mkpair := (simple refine (tpair _ _ _ ) ; [| cbn]).
 
-Goal ∀ X (Y : X -> UU) (x : X) (y : Y x), Σ x, Y x.
+Goal Π X (Y : X -> UU) (x : X) (y : Y x), Σ x, Y x.
   intros X Y x y.
   mkpair.
   - apply x.
@@ -164,7 +166,7 @@ Goal ∀ X (Y : X -> UU) (x : X) (y : Y x), Σ x, Y x.
 Defined.
 
 (* print out this theorem to see whether "induction" compiles to "match" *)
-Goal ∀ X (Y:X->UU) (w:Σ x, Y x), X.
+Goal Π X (Y:X->UU) (w:Σ x, Y x), X.
   intros.
   induction w as [x y].
   exact x.
@@ -172,7 +174,7 @@ Defined.
 
 (* Step through this proof to demonstrate eta expansion for pairs, if primitive
    projections are on: *)
-Goal ∀ X (Y:X->UU) (w:Σ x, Y x), w = (pr1 w,, pr2 w).
+Goal Π X (Y:X->UU) (w:Σ x, Y x), w = (pr1 w,, pr2 w).
 Proof. try reflexivity. Abort.
 
 Definition rewrite_pr1_tpair {X} {P:X->UU} x p : pr1 (tpair P x p) = x.
@@ -200,6 +202,10 @@ Check (O = O) .
 
 Notation "X <- Y" := (Y -> X) (at level 90, only parsing, left associativity) : type_scope.
 
+Notation "x → y" := (x -> y)
+  (at level 99, y at level 200, right associativity): type_scope.
+(* written \to or \r- in Agda input method *)
+(* the level comes from sub/coq/theories/Unicode/Utf8_core.v *)
 
 (* so we do it the other way around: *)
 Definition mul : nat -> nat -> nat.
@@ -238,8 +244,3 @@ Tactic Notation "use" uconstr(p) := simple_rapply p.
 
 Tactic Notation "transparent" "assert" "(" ident(name) ":" constr(type) ")" :=
   simple refine (let name := (_ : type) in _).
-
-(** %
-   \bibliographystyle{hamsplain}
-   \bibliography{references}
- *)

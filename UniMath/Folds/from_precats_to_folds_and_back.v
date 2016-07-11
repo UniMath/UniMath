@@ -58,8 +58,8 @@ Proof.
 Defined.
 
 Definition folds_id_comp_from_precat_data : folds_id_T :=
-  tpair (λ C : folds_ob_mor, (∀ a : C, a ⇒ a → hProp)
-                           × (∀ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))
+  tpair (λ C : folds_ob_mor, (Π a : C, a ⇒ a → hProp)
+                           × (Π (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))
         (pr1 C) (dirprodpair (@id_pred) (@comp_pred)).
 
 End data.
@@ -190,7 +190,9 @@ Proof.
 
   destruct C as [Cdata Cax]; simpl in *.
   destruct Cdata as [Cobmor Cidcomp]; simpl in *.
-  unfold precat_from_folds_data; apply maponpaths.
+  unfold precat_from_folds_data.
+  simpl.
+  apply maponpaths.
   destruct Cidcomp as [Cid Ccomp]; simpl in *.
   apply pathsdirprod.
   - apply funextsec; intro a.
