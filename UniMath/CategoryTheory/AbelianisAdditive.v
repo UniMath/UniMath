@@ -35,7 +35,7 @@ Section abelian_is_additive.
   Variable A : Abelian_precategory.
   Hypothesis hs : has_homsets A.
 
-  (** Some maps we are going to use *)
+  (** Some maps we are going to use. *)
   Definition DiagonalMap {X : A} (BinProd : BinProductCone A X X) :
     A⟦X, (BinProductObject A BinProd)⟧
     := BinProductArrow A BinProd (identity X) (identity X).
@@ -49,7 +49,7 @@ Section abelian_is_additive.
     := BinProductArrow A BinProd (ZeroArrow A (Abelian_Zero A) X X)
                        (identity X).
 
-  (** Proofs that these maps are monics *)
+  (** Proofs that these maps are monics. *)
   Definition DiagonalMap_isMonic {X : A} (BinProd : BinProductCone A X X) :
     isMonic A (DiagonalMap BinProd).
   Proof.
@@ -86,7 +86,7 @@ Section abelian_is_additive.
     exact H.
   Qed.
 
-  (** We show that Pr1 and Pr2 are epimorphisms. *)
+  (** We show that Pr1 and Pr2 of BinProduct are epimorphisms. *)
   Definition BinProductPr1_isEpi {X : A} (BinProd : BinProductCone A X X) :
     isEpi A (BinProductPr1 A BinProd).
   Proof.
@@ -109,7 +109,7 @@ Section abelian_is_additive.
     apply identity_isEpi.
   Qed.
 
-  (** We construct kernels of Pr1 and Pr2. *)
+  (** We construct kernels of BinProduct Pr1 and Pr2. *)
   Definition KernelOfPr1_Eq {X : A} (BinProd : BinProductCone A X X) :
     ZeroIdMap BinProd ;; BinProductPr1 A BinProd
     = ZeroArrow A (Abelian_Zero A) X X.
@@ -194,16 +194,20 @@ Section abelian_is_additive.
   (** From properties of abelian categories, it follows that Pr1 and Pr2 are
     cokernels of the above kernels since they are epimorphisms. *)
   Definition CokernelOfKernelOfPr1 {X : A} (BinProd : BinProductCone A X X) :
-    Cokernel (Abelian_Zero A) (KernelArrow (Abelian_Zero A) (KernelOfPr1 BinProd)).
+    Cokernel (Abelian_Zero A) (KernelArrow (Abelian_Zero A)
+                                           (KernelOfPr1 BinProd)).
   Proof.
-    exact (Abelian_EpiToCokernel' A hs (mk_Epi A _ (BinProductPr1_isEpi BinProd))
+    exact (Abelian_EpiToCokernel' A hs
+                                  (mk_Epi A _ (BinProductPr1_isEpi BinProd))
                                   (KernelOfPr1 BinProd)).
   Defined.
 
   Definition CokernelOfKernelOfPr2 {X : A} (BinProd : BinProductCone A X X) :
-    Cokernel (Abelian_Zero A) (KernelArrow (Abelian_Zero A) (KernelOfPr2 BinProd)).
+    Cokernel (Abelian_Zero A) (KernelArrow (Abelian_Zero A)
+                                           (KernelOfPr2 BinProd)).
   Proof.
-    exact (Abelian_EpiToCokernel' A hs (mk_Epi A _ (BinProductPr2_isEpi BinProd))
+    exact (Abelian_EpiToCokernel' A hs
+                                  (mk_Epi A _ (BinProductPr2_isEpi BinProd))
                                   (KernelOfPr2 BinProd)).
   Defined.
 
@@ -241,7 +245,8 @@ Section abelian_is_additive.
     assert (H : y = ZeroArrow _ (Abelian_Zero A) w ker).
     {
       rewrite <- (id_right A _ _ y).
-      set (tmp := BinProductPr2Commutes A _ _ BinProd _ (identity X) (identity X)).
+      set (tmp := BinProductPr2Commutes A _ _ BinProd _ (identity X)
+                                        (identity X)).
       rewrite <- tmp. rewrite assoc. rewrite com1. rewrite <- assoc.
       rewrite (BinProductPr2Commutes A _ _ BinProd _ (identity X) _).
       apply ZeroArrow_comp_right.
@@ -281,7 +286,8 @@ Section abelian_is_additive.
     assert (H : y = ZeroArrow _ (Abelian_Zero A) X w).
     {
       rewrite <- (id_left A _ _ y).
-      set (tmp := BinProductPr2Commutes A _ _ BinProd _ (identity X) (identity X)).
+      set (tmp := BinProductPr2Commutes A _ _ BinProd _ (identity X)
+                                        (identity X)).
       rewrite <- tmp. rewrite <- assoc. rewrite com1. rewrite assoc.
       rewrite CokernelCompZero.
       apply ZeroArrow_comp_left.
@@ -301,7 +307,6 @@ Section abelian_is_additive.
     intros y H. apply ArrowsFromZero.
   Qed.
 
-  (** Construction of the cokernel of the DiagonalMap *)
   Definition CokernelOfDiagonal {X : A} (BinProd : BinProductCone A X X) :
     Cokernel (Abelian_Zero A) (DiagonalMap BinProd).
   Proof.
@@ -315,7 +320,7 @@ Section abelian_is_additive.
                               (iso_inv_from_iso (isopair _ X0)) (idpath _)).
   Defined.
 
-  (** Verification that the CokernelArrow of the above is what we wanted *)
+  (** Verification that the CokernelArrow of the above is what we wanted. *)
   Lemma CokernelOfDiagonal_CokernelArrowEq {X : A}
         (BinProd : BinProductCone A X X) :
     CokernelArrow _ (CokernelOfDiagonal BinProd)
@@ -411,14 +416,19 @@ Section abelian_is_additive.
     {
       set (r := (isopair
                    (BinProductArrow A (Abelian_BinProducts A X X) (identity X)
-                         (ZeroArrow A (Abelian_Zero A) X X) ;; CokernelArrow (Abelian_Zero A)
-                         (Abelian_Cokernel A (DiagonalMap (Abelian_BinProducts A X X))))
+                                    (ZeroArrow A (Abelian_Zero A) X X)
+                                    ;; CokernelArrow (Abelian_Zero A)
+                                    (Abelian_Cokernel A (DiagonalMap
+                                                           (Abelian_BinProducts
+                                                              A X X))))
                    (CokernelOfDiagonal_is_iso (Abelian_BinProducts A X X)))).
       cbn. fold r. rewrite assoc. unfold IdZeroMap.
       assert (e2 : BinProductArrow A (Abelian_BinProducts A X X) (identity X)
                                    (ZeroArrow A (Abelian_Zero A) X X) ;;
                                    CokernelArrow (Abelian_Zero A)
-                                   (Abelian_Cokernel A (DiagonalMap (Abelian_BinProducts A X X)))
+                                   (Abelian_Cokernel A (DiagonalMap
+                                                          (Abelian_BinProducts
+                                                             A X X)))
                    = r).
       {
         apply idpath.
@@ -433,14 +443,19 @@ Section abelian_is_additive.
     {
       set (r := (isopair
                    (BinProductArrow A (Abelian_BinProducts A Y Y) (identity Y)
-                         (ZeroArrow A (Abelian_Zero A) Y Y) ;; CokernelArrow (Abelian_Zero A)
-                         (Abelian_Cokernel A (DiagonalMap (Abelian_BinProducts A Y Y))))
+                                    (ZeroArrow A (Abelian_Zero A) Y Y)
+                                    ;; CokernelArrow (Abelian_Zero A)
+                                    (Abelian_Cokernel A (DiagonalMap
+                                                           (Abelian_BinProducts
+                                                              A Y Y))))
                    (CokernelOfDiagonal_is_iso (Abelian_BinProducts A Y Y)))).
       cbn. fold r. rewrite assoc. unfold IdZeroMap.
       assert (e3 : BinProductArrow A (Abelian_BinProducts A Y Y) (identity Y)
                                    (ZeroArrow A (Abelian_Zero A) Y Y) ;;
                                    CokernelArrow (Abelian_Zero A)
-                                   (Abelian_Cokernel A (DiagonalMap (Abelian_BinProducts A Y Y)))
+                                   (Abelian_Cokernel A (DiagonalMap
+                                                          (Abelian_BinProducts
+                                                             A Y Y)))
                    = r).
       {
         apply idpath.
@@ -449,8 +464,10 @@ Section abelian_is_additive.
     }
 
     set (ar' := BinProductArrow A (Abelian_BinProducts A Y Y)
-                                (BinProductPr1 A (Abelian_BinProducts A X X) ;; f)
-                                (BinProductPr2 A (Abelian_BinProducts A X X) ;; f)).
+                                (BinProductPr1 A (Abelian_BinProducts A X X)
+                                               ;; f)
+                                (BinProductPr2 A (Abelian_BinProducts A X X)
+                                               ;; f)).
     assert (e3 : IdZeroMap (Abelian_BinProducts A X X) ;; ar'
                  = f ;; IdZeroMap (Abelian_BinProducts A Y Y)).
     {

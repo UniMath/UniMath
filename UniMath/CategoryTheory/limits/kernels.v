@@ -235,7 +235,8 @@ Section kernels_iso.
     apply ZeroArrow_comp_left.
   Qed.
 
-  Definition Kernel_up_to_iso2_isEqualizer {x y z : C} (f1 : x --> y) (f2 : x --> z)
+  Definition Kernel_up_to_iso2_isEqualizer {x y z : C} (f1 : x --> y)
+             (f2 : x --> z)
              (h : iso y z) (H : f1 ;; h = f2)
              (K : Kernel Z f1) :
     isEqualizer f2 (ZeroArrow C Z x z) (KernelArrow Z K)

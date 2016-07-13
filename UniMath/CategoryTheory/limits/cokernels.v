@@ -195,7 +195,8 @@ Section cokernels_iso.
     apply CokernelCompZero.
   Qed.
 
-  Definition Cokernel_up_to_iso_isCoequalizer {x y z : C} (f : x --> y) (g : y --> z)
+  Definition Cokernel_up_to_iso_isCoequalizer {x y z : C} (f : x --> y)
+             (g : y --> z)
              (CK : Cokernel Z f) (h : iso CK z)
              (H : g = (CokernelArrow _ CK) ;; h) :
     isCoequalizer f (ZeroArrow C Z x y) g
@@ -245,7 +246,8 @@ Section cokernels_iso.
   Qed.
 
 
-  Definition Cokernel_up_to_iso2_isCoequalizer {x y z : C} (f1 : x --> z) (f2 : y --> z)
+  Definition Cokernel_up_to_iso2_isCoequalizer {x y z : C} (f1 : x --> z)
+             (f2 : y --> z)
              (h : iso y x) (H : h ;; f1 = f2)
              (CK : Cokernel Z f1) :
     isCoequalizer f2 (ZeroArrow C Z y z) (CokernelArrow Z CK)

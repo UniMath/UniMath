@@ -82,7 +82,8 @@ Section def_equalizers.
     EqualizerArrow E ;; f = EqualizerArrow E ;; g := pr1 (pr2 E).
 
   (** Returns the property isEqualizer from Equalizer. *)
-  Definition isEqualizer_Equalizer {y z : C} {f g : y --> z} (E : Equalizer f g) :
+  Definition isEqualizer_Equalizer {y z : C} {f g : y --> z}
+             (E : Equalizer f g) :
     isEqualizer f g (EqualizerArrow E) (EqualizerEqAr E) := pr2 (pr2 E).
 
   (** Every morphism which satisfy the equalizer equality on morphism factors

@@ -116,7 +116,8 @@ Section def_coequalizers.
 
   Lemma CoequalizerOutsEq {y z: C} {f g : y --> z} (E : Coequalizer f g)
         {w : C} (φ1 φ2: C⟦E, w⟧)
-        (H' : (CoequalizerArrow E) ;; φ1 = (CoequalizerArrow E) ;; φ2) : φ1 = φ2.
+        (H' : (CoequalizerArrow E) ;; φ1 = (CoequalizerArrow E) ;; φ2) :
+    φ1 = φ2.
   Proof.
     apply (isCoequalizerOutsEq (isCoequalizer_Coequalizer E) _ _ H').
   Defined.

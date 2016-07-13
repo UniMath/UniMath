@@ -333,7 +333,7 @@ Section epi_po.
 End epi_po.
 
 
-(** Criteria for existence of pushout. *)
+(** Criteria for existence of pushouts. *)
 Section po_criteria.
 
   Variable C : precategory.
@@ -396,13 +396,15 @@ Section po_criteria.
                                (g ;; (BinCoproductIn2 C BinCoprod))) :
     Pushout f g.
   Proof.
-    use (mk_Pushout f g CEq ((BinCoproductIn1 C BinCoprod) ;; CoequalizerArrow CEq)
+    use (mk_Pushout f g CEq ((BinCoproductIn1 C BinCoprod)
+                               ;; CoequalizerArrow CEq)
                     ((BinCoproductIn2 C BinCoprod) ;; CoequalizerArrow CEq)).
     apply Pushout_from_Coequalizer_BinCoproduct_eq.
     apply Pushout_from_Coequalizer_BinCoproduct_isPushout.
   Defined.
 
-  Definition Pushouts_from_Coequalizers_BinCoproducts (BinCoprods : BinCoproducts C)
+  Definition Pushouts_from_Coequalizers_BinCoproducts
+             (BinCoprods : BinCoproducts C)
              (CEqs : @Coequalizers C) :
     @Pushouts C.
   Proof.

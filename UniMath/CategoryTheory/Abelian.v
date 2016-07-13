@@ -902,10 +902,7 @@ Section abelian_monic_kernels.
 
 
   (** Next, we show that a morphism is monic if its kernel is the
-    arrow from zero *)
-
-  (** We use the following definition to build a cokernel in the following
-    definition.  *)
+    ZeroArrow from zero. *)
   Definition Abelian_KernelZeroMonic_cokernel {x y : A} {f1 f2 : x --> y}
              (e : f1 = f2) (CK : Cokernel (Abelian_Zero A) f1) :
     Cokernel (Abelian_Zero A) f2.
@@ -921,7 +918,7 @@ Section abelian_monic_kernels.
     induction e. apply (isCoequalizer_Coequalizer CK).
   Defined.
 
-  (** The morphism f is monic if its kernel is zero *)
+  (** The morphism f is monic if its kernel is zero. *)
   Definition Abelian_KernelZeroisMonic {x y z : A} (f : y --> z)
              (H : ZeroArrow A (Abelian_Zero A) x y ;; f =
                   ZeroArrow A (Abelian_Zero A) x z )
@@ -965,10 +962,12 @@ Section abelian_monic_kernels.
     set (ar := KernelIn (Abelian_Zero A) ker
                         (AECD_Ob (Abelian_AECD A) _ _ Coeqar_epi)
                         (AECD_Mor (Abelian_AECD A) _ _ Coeqar_epi) e2).
-    set (com1 := KernelCommutes (Abelian_Zero A) ker (AECD_Ob (Abelian_AECD A) _ _ Coeqar_epi)
+    set (com1 := KernelCommutes (Abelian_Zero A) ker
+                                (AECD_Ob (Abelian_AECD A) _ _ Coeqar_epi)
                                 (AECD_Mor (Abelian_AECD A) _ _ Coeqar_epi) e2).
 
-    assert (e3 : KernelArrow (Abelian_Zero A) ker = ZeroArrow A (Abelian_Zero A) _ _ ).
+    assert (e3 : KernelArrow (Abelian_Zero A) ker
+                 = ZeroArrow A (Abelian_Zero A) _ _ ).
     {
       apply idpath.
     }
@@ -982,7 +981,8 @@ Section abelian_monic_kernels.
     assert (e5 : is_iso (CoequalizerArrow Coeq)).
     {
       set (coker2 := Abelian_KernelZeroMonic_cokernel e4 Coeq_coker).
-      set (coker2_iso := CokernelofZeroArrow_iso (Abelian_Zero A) hs _ y coker2).
+      set (coker2_iso := CokernelofZeroArrow_iso (Abelian_Zero A)
+                                                 hs _ y coker2).
       apply (pr2 (coker2_iso)).
     }
 
@@ -1010,11 +1010,9 @@ Section abelian_monic_kernels.
   Defined.
 
 
-  (** We show that if the cokernel of a morphism is the zero to Zero,
+  (** We show that if the cokernel of a morphism is the ZeroArrow to Zero,
    then the morphism is an Epi. *)
 
-  (** We use the following definition to build a cokernel in the following
-    definition.  *)
   Definition Abelian_CokernelZeroEpi_kernel {x y : A} {f1 f2 : x --> y}
              (e : f1 = f2) (K : Kernel (Abelian_Zero A) f1) :
     Kernel (Abelian_Zero A) f2.
@@ -1030,7 +1028,7 @@ Section abelian_monic_kernels.
     induction e. apply (isEqualizer_Equalizer K).
   Defined.
 
-  (** The morphism f is monic if its kernel is zero *)
+  (** The morphism f is monic if its kernel is zero. *)
   Definition Abelian_CokernelZeroisEpi {x y z : A} (f : x --> y)
              (H : f ;; ZeroArrow A (Abelian_Zero A) y z =
                   ZeroArrow A (Abelian_Zero A) x z )
@@ -1076,7 +1074,8 @@ Section abelian_monic_kernels.
                            (AMKD_Mor (Abelian_AMKD A) _ _ Eqar_monic) e2).
     set (com1 := CokernelCommutes (Abelian_Zero A) coker
                                   (AMKD_Ob (Abelian_AMKD A) _ _ Eqar_monic)
-                                  (AMKD_Mor (Abelian_AMKD A) _ _ Eqar_monic) e2).
+                                  (AMKD_Mor (Abelian_AMKD A) _ _ Eqar_monic)
+                                  e2).
 
     assert (e3 : CokernelArrow (Abelian_Zero A) coker
                  = ZeroArrow A (Abelian_Zero A) _ _ ).
@@ -1603,7 +1602,7 @@ Section abelian_kernel_cokernel.
     apply idpath.
   Defined.
 
-  (** This generalizes the above by using any Cokernel. *)
+  (** This generalizes the above by using any Kernel. *)
   Definition Abelian_EpiToCokernel' {x y : A} (E : Epi A x y)
     (K : Kernel (Abelian_Zero A) E) :
     Cokernel (Abelian_Zero A) (KernelArrow _ K)
