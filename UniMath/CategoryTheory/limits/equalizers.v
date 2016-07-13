@@ -179,12 +179,11 @@ Section def_equalizers.
     intros z0 g0 h X.
     apply (EqualizerInsEq E).
     apply X.
-  Defined.
+  Qed.
 
   Lemma EqualizerArrowMonic {y z : C} {f g : y --> z} (E : Equalizer f g ) :
     Monic _ E y.
   Proof.
-    apply (mk_Monic _ (EqualizerArrow E)).
-    apply (EqualizerArrowisMonic E).
+    exact (mk_Monic C (EqualizerArrow E) (EqualizerArrowisMonic E)).
   Defined.
 End def_equalizers.

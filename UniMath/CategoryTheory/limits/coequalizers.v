@@ -183,12 +183,11 @@ Section def_coequalizers.
     intros z0 g0 h X.
     apply (CoequalizerOutsEq E).
     apply X.
-  Defined.
+  Qed.
 
   Lemma CoequalizerArrowEpi {y z : C} {f g : y --> z} (E : Coequalizer f g ) :
     Epi _ z E.
   Proof.
-    apply (mk_Epi _ (CoequalizerArrow E)).
-    apply (CoequalizerArrowisEpi E).
+    exact (mk_Epi C (CoequalizerArrow E) (CoequalizerArrowisEpi E)).
   Defined.
 End def_coequalizers.

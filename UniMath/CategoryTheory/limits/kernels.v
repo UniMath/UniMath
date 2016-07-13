@@ -13,6 +13,7 @@ Section def_kernels.
 
   Context {C : precategory}.
   Hypothesis Z : Zero C.
+  Hypothesis hs : has_homsets C.
 
   (** This rewrite is used to rewrite an equality f ;; g = ZeroArrow to
      f ;; g = f ;; ZeroArrow. This is because Equalizers need the latter
@@ -129,11 +130,11 @@ Section def_kernels.
   Defined.
 
   (** Kernel of the morphism to zero object is given by identity *)
-  Lemma KernelToZero {y : C} (hs : has_homsets C) (f : y --> Z) : Kernel f.
+  Lemma KernelofZeroArrow (x y : C) : Kernel (@ZeroArrow C Z x y).
   Proof.
     use mk_Kernel.
-    apply y. apply (identity y).
-    apply ArrowsToZero.
+    apply x. apply (identity x).
+    apply id_left.
 
     use mk_isEqualizer.
     intros w h H.
@@ -143,6 +144,14 @@ Section def_kernels.
     intros y0. apply hs.
     cbn. intros y0 t. rewrite <- t.
     apply pathsinv0. apply id_right.
+  Defined.
+
+  (** More generally, the KernelArrow of the kernel of the ZeroArrow is an
+    isomorphism. *)
+  Lemma KernelofZeroArrow_iso (x y : C) (K : Kernel (@ZeroArrow C Z x y)) :
+    iso K x.
+  Proof.
+    exact (iso_from_Kernel_to_Kernel K (KernelofZeroArrow x y)).
   Defined.
 
   (** It follows that KernelArrow is monic. *)
@@ -161,14 +170,12 @@ Section kernels_iso.
   Variable hs : has_homsets C.
   Variable Z : Zero C.
 
-  Definition Kernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z)
+
+  Definition Kernel_up_to_iso_eq {x y z : C} (f : x --> y) (g : y --> z)
              (K : Kernel Z g) (h : iso x K)
              (H : f = h ;; (KernelArrow _ K)) :
-    Kernel Z g.
+    f ;; g = ZeroArrow C Z x z.
   Proof.
-    use mk_Kernel.
-    exact x.
-    exact f.
     induction K. induction t. induction p.
     unfold isEqualizer in p.
     rewrite H.
@@ -176,9 +183,16 @@ Section kernels_iso.
     rewrite <- assoc.
     apply cancel_precomposition.
     apply KernelCompZero.
+  Qed.
 
-    (* isEqualizer *)
-    apply mk_isEqualizer.
+
+  Definition Kernel_up_to_iso_isEqualizer {x y z : C} (f : x --> y) (g : y --> z)
+             (K : Kernel Z g) (h : iso x K)
+             (H : f = h ;; (KernelArrow _ K)) :
+    isEqualizer g (ZeroArrow C Z y z) f
+                (KernelEqRw Z (Kernel_up_to_iso_eq f g K h H)).
+  Proof.
+   apply mk_isEqualizer.
     induction K. induction t. induction p.
     unfold isEqualizer in p.
     intros w h0 HH.
@@ -203,5 +217,51 @@ Section kernels_iso.
     rewrite <- tmp. rewrite <- assoc.
     rewrite iso_inv_after_iso.
     apply pathsinv0. apply id_right.
-  Defined.
+  Qed.
+
+  Definition Kernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z)
+             (K : Kernel Z g) (h : iso x K)
+             (H : f = h ;; (KernelArrow _ K)) :
+    Kernel Z g
+    := (mk_Kernel Z f _ (Kernel_up_to_iso_eq f g K h H)
+                  (Kernel_up_to_iso_isEqualizer f g K h H)).
+
+  Definition Kernel_up_to_iso2_eq  {x y z : C} (f1 : x --> y) (f2 : x --> z)
+             (h : iso y z) (H : f1 ;; h = f2)
+             (K : Kernel Z f1) :
+    KernelArrow Z K ;; f2 = ZeroArrow C Z K z.
+  Proof.
+    rewrite <- H. rewrite assoc. rewrite KernelCompZero.
+    apply ZeroArrow_comp_left.
+  Qed.
+
+  Definition Kernel_up_to_iso2_isEqualizer {x y z : C} (f1 : x --> y) (f2 : x --> z)
+             (h : iso y z) (H : f1 ;; h = f2)
+             (K : Kernel Z f1) :
+    isEqualizer f2 (ZeroArrow C Z x z) (KernelArrow Z K)
+                (KernelEqRw Z (Kernel_up_to_iso2_eq f1 f2 h H K)).
+  Proof.
+    use mk_isEqualizer.
+    intros w h0 H'.
+    rewrite <- H in H'. rewrite assoc in H'.
+    rewrite ZeroArrow_comp_right in H'.
+    rewrite <- (ZeroArrow_comp_left C Z _ _ _ h) in H'.
+    apply (maponpaths (fun f : _ => f ;; (inv_from_iso h))) in H'.
+    rewrite <- assoc in H'. rewrite <- (assoc _ _ _ _ _ _ h) in H'.
+    repeat rewrite iso_inv_after_iso in H'.
+    repeat rewrite id_right in H'.
+    apply (unique_exists (KernelIn Z K _ _ H')).
+    apply (KernelCommutes Z K _ _ H').
+    intros y0. apply hs.
+    intros y0 H''. apply KernelInsEq.
+    rewrite H''. apply pathsinv0.
+    apply KernelCommutes.
+  Qed.
+
+  Definition Kernel_up_to_iso2 {x y z : C} (f1 : x --> y) (f2 : x --> z)
+             (h : iso y z) (H : f1 ;; h = f2)
+             (K : Kernel Z f1) :
+    Kernel Z f2
+    := (mk_Kernel Z (KernelArrow Z K) _ (Kernel_up_to_iso2_eq f1 f2 h H K)
+                  (Kernel_up_to_iso2_isEqualizer f1 f2 h H K)).
 End kernels_iso.

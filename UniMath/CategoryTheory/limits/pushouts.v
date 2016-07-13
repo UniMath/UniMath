@@ -6,6 +6,8 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.Epis.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
@@ -329,3 +331,84 @@ Section epi_po.
   Defined.
 
 End epi_po.
+
+
+(** Criteria for existence of pushout. *)
+Section po_criteria.
+
+  Variable C : precategory.
+  Hypothesis hs : has_homsets C.
+
+  Definition Pushout_from_Coequalizer_BinCoproduct_eq (X Y Z : C)
+             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproductCocone C X Y)
+             (CEq : Coequalizer (f ;; (BinCoproductIn1 C BinCoprod))
+                                (g ;; (BinCoproductIn2 C BinCoprod))) :
+    f ;; ((BinCoproductIn1 C BinCoprod) ;; CoequalizerArrow CEq)
+    = g ;; ((BinCoproductIn2 C BinCoprod) ;; CoequalizerArrow CEq).
+  Proof.
+    repeat rewrite assoc. apply CoequalizerEqAr.
+  Qed.
+
+
+  Definition Pushout_from_Coequalizer_BinCoproduct_isPushout (X Y Z : C)
+             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproductCocone C X Y)
+             (CEq : Coequalizer (f ;; (BinCoproductIn1 C BinCoprod))
+                                (g ;; (BinCoproductIn2 C BinCoprod))) :
+    isPushout f g (BinCoproductIn1 C BinCoprod ;; CoequalizerArrow CEq)
+               (BinCoproductIn2 C BinCoprod ;; CoequalizerArrow CEq)
+               (Pushout_from_Coequalizer_BinCoproduct_eq
+                  X Y Z f g BinCoprod CEq).
+  Proof.
+    use mk_isPushout.
+    intros e h k Hk.
+    set (com1 := BinCoproductIn1Commutes C _ _ BinCoprod _ h k).
+    set (com2 := BinCoproductIn2Commutes C _ _ BinCoprod _ h k).
+    apply (maponpaths (fun l : _ => f ;; l)) in com1.
+    apply (maponpaths (fun l : _ => g ;; l)) in com2.
+    rewrite <- com1 in Hk. rewrite <- com2 in Hk.
+    repeat rewrite assoc in Hk.
+    apply (unique_exists (CoequalizerOut CEq _ _ Hk)).
+
+    (* Commutativity *)
+    split.
+    rewrite <- assoc. rewrite (CoequalizerCommutes CEq e _).
+    exact (BinCoproductIn1Commutes C _ _ BinCoprod _ h k).
+    rewrite <- assoc. rewrite (CoequalizerCommutes CEq e _).
+    exact (BinCoproductIn2Commutes C _ _ BinCoprod _ h k).
+
+    (* Equality on equalities of morphisms. *)
+    intros y. apply isapropdirprod. apply hs. apply hs.
+
+    (* Uniqueness *)
+    intros y H. induction H. apply CoequalizerOutsEq.
+    apply BinCoproductArrowsEq.
+    rewrite <- assoc in t. rewrite t.
+    rewrite (CoequalizerCommutes CEq e _). apply pathsinv0.
+    exact (BinCoproductIn1Commutes C _ _ BinCoprod _ h k).
+    rewrite <- assoc in p. rewrite p.
+    rewrite (CoequalizerCommutes CEq e _). apply pathsinv0.
+    exact (BinCoproductIn2Commutes C _ _ BinCoprod _ h k).
+  Qed.
+
+  Definition Pushout_from_Coequalizer_BinCoproduct (X Y Z : C)
+             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproductCocone C X Y)
+             (CEq : Coequalizer (f ;; (BinCoproductIn1 C BinCoprod))
+                               (g ;; (BinCoproductIn2 C BinCoprod))) :
+    Pushout f g.
+  Proof.
+    use (mk_Pushout f g CEq ((BinCoproductIn1 C BinCoprod) ;; CoequalizerArrow CEq)
+                    ((BinCoproductIn2 C BinCoprod) ;; CoequalizerArrow CEq)).
+    apply Pushout_from_Coequalizer_BinCoproduct_eq.
+    apply Pushout_from_Coequalizer_BinCoproduct_isPushout.
+  Defined.
+
+  Definition Pushouts_from_Coequalizers_BinCoproducts (BinCoprods : BinCoproducts C)
+             (CEqs : @Coequalizers C) :
+    @Pushouts C.
+  Proof.
+    intros Z X Y f g.
+    use (Pushout_from_Coequalizer_BinCoproduct X Y Z f g).
+    apply BinCoprods.
+    apply CEqs.
+  Defined.
+End po_criteria.

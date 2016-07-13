@@ -75,6 +75,22 @@ Proof.
   apply (base_paths _ _ H').
 Qed.
 
+Lemma BinCoproductArrowsEq (c d : C) (CC : BinCoproductCocone c d) (x : C)
+      (k1 k2 : BinCoproductObject CC --> x) :
+  BinCoproductIn1 CC ;; k1 = BinCoproductIn1 CC ;; k2 ->
+  BinCoproductIn2 CC ;; k1 = BinCoproductIn2 CC ;; k2 ->
+  k1 = k2.
+Proof.
+  intros H1 H2.
+  set (p1 := BinCoproductIn1 CC ;; k1).
+  set (p2 := BinCoproductIn2 CC ;; k1).
+  rewrite (BinCoproductArrowUnique _ _ CC _ p1 p2 k1).
+  apply pathsinv0.
+  apply BinCoproductArrowUnique.
+  unfold p1. apply pathsinv0. apply H1.
+  unfold p2. apply pathsinv0. apply H2.
+  apply idpath. apply idpath.
+Qed.
 
 Lemma BinCoproductArrowEta (a b : C) (CC : BinCoproductCocone a b) (x : C)
     (f : BinCoproductObject CC --> x) :

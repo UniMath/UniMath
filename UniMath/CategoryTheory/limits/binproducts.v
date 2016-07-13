@@ -71,6 +71,22 @@ Proof.
   apply (base_paths _ _ H').
 Qed.
 
+Lemma BinProductArrowsEq (c d : C) (P : BinProductCone c d) (x : C)
+      (k1 k2 : x --> BinProductObject P) :
+  k1 ;; BinProductPr1 P = k2 ;; BinProductPr1 P ->
+  k1 ;; BinProductPr2 P = k2 ;; BinProductPr2 P ->
+  k1 = k2.
+Proof.
+  intros H1 H2.
+  set (p1 := k1 ;; BinProductPr1 P).
+  set (p2 := k1 ;; BinProductPr2 P).
+  rewrite (BinProductArrowUnique _ _ P _ p1 p2 k1).
+  apply pathsinv0.
+  apply BinProductArrowUnique.
+  unfold p1. apply pathsinv0. apply H1.
+  unfold p2. apply pathsinv0. apply H2.
+  apply idpath. apply idpath.
+Qed.
 
 Definition mk_BinProductCone (a b : C) :
   Π (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
