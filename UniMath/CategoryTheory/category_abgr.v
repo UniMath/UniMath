@@ -29,7 +29,7 @@ Require Import UniMath.CategoryTheory.limits.equalizers.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.kernels.
 Require Import UniMath.CategoryTheory.limits.cokernels.
-
+Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 
 (** In this section we construct the category of abelian groups. *)
 Section ABGR_precategory.
@@ -41,14 +41,16 @@ Section ABGR_precategory.
     tpair (fun ob : UU => ob -> ob -> UU) abgr
           (fun A B : abgr => abgr_fun_space A B).
 
-  Definition idabgrfun (A : abgr) : monoidfun A A.
+  Definition idabgrfun_ismonoidfun (A : abgr) :
+    ismonoidfun (fun a : A => a).
   Proof.
-    use monoidfunconstr. intros a. exact a.
     split.
-    intros a a'.
+    intros a a'. apply idpath.
     apply idpath.
-    apply idpath.
-  Defined.
+  Qed.
+
+  Definition idabgrfun (A : abgr) : monoidfun A A
+    := monoidfunconstr (idabgrfun_ismonoidfun A).
 
   Definition idabgrfun_remove_left (A B : abgr) (f : monoidfun A B) :
     monoidfuncomp (idabgrfun A) f = f.
@@ -56,7 +58,7 @@ Section ABGR_precategory.
     unfold monoidfuncomp. unfold idabgrfun.
     use total2_paths. cbn. unfold funcomp. apply maponpaths.
     apply idpath. apply proofirrelevance. apply isapropismonoidfun.
-  Defined.
+  Qed.
 
   Definition idabgrfun_remove_right (A B : abgr) (f : monoidfun A B) :
     monoidfuncomp f (idabgrfun B) = f.
@@ -64,7 +66,15 @@ Section ABGR_precategory.
     unfold monoidfuncomp, idabgrfun.
     use total2_paths. cbn. unfold funcomp. apply idpath.
     apply proofirrelevance. apply isapropismonoidfun.
-  Defined.
+  Qed.
+
+  Definition abmonoidfuncomp_assoc (A B C D : abmonoid) (f : monoidfun A B)
+             (g : monoidfun B C) (h : monoidfun C D) :
+    monoidfuncomp (monoidfuncomp f g) h = monoidfuncomp f (monoidfuncomp g h).
+  Proof.
+    unfold monoidfuncomp. apply maponpaths.
+    apply isapropismonoidfun.
+  Qed.
 
   Definition abgrfuncomp_assoc (A B C D : abgr) (f : monoidfun A B)
              (g : monoidfun B C) (h : monoidfun C D) :
@@ -72,7 +82,7 @@ Section ABGR_precategory.
   Proof.
     unfold monoidfuncomp. apply maponpaths.
     apply isapropismonoidfun.
-  Defined.
+  Qed.
 
   Definition abgr_precategory_data : precategory_data :=
     precategory_data_pair abgr_precategory_ob_mor
@@ -124,7 +134,7 @@ Section ABGR_category.
       set (T':=toforallpaths _ _ _ T). apply T'.
       intros x0.
       apply isapropismonoidfun.
-  Defined.
+  Qed.
 
   Lemma abgrp_iso_equiv (A B : ob ABGR) :
     iso A B -> monoidiso (abgrtoabmonoid A) (abgrtoabmonoid B).
@@ -230,16 +240,8 @@ End ABGR_category.
  *)
 Section ABGR_zero.
 
-  (** The zero object we use consists of one element, the unit element. *)
-  Definition ABGR_zero : abgr.
-  Proof.
-    use abgrpair.
-    use setwithbinoppair.
-    exact unitset.
-    unfold binop.
-    exact (fun i i': unitset => i).
-
-    (* isabgrop *)
+  Definition ABGR_zero_isabgrop :
+    isabgrop (pr2 (setwithbinoppair unitset (λ i _ : unitset, i))).
     unfold isabgrop. split.
 
     use isgroppair. split.
@@ -259,39 +261,78 @@ Section ABGR_zero.
 
     unfold iscomm. intros x x'. unfold op. cbn.
     apply isconnectedunit.
-  Defined.
+  Qed.
 
-  (** Construction of the morphism to the zero object. *)
-  Definition ABGR_zero_from (A : abgr) : ABGR⟦A, ABGR_zero⟧.
+  (** The zero object we use consists of one element, the unit element. *)
+  Definition ABGR_zero : abgr
+    := abgrpair (setwithbinoppair unitset (fun i i': unitset => i))
+                (ABGR_zero_isabgrop).
+
+  (** The zero object is connected. *)
+  Lemma ABGR_zero_connected : Π x x' : ABGR_zero, x = x'.
   Proof.
-    use monoidfunconstr.
-    exact (fun _ : A => tt).
+    unfold ABGR_zero. cbn. intros x x'.
+    apply isconnectedunit.
+  Qed.
+
+
+  Definition ABGR_zero_from_ismonoid (A : abgr) :
+    @ismonoidfun A ABGR_zero (fun a : A => (unel ABGR_zero)).
+  Proof.
     unfold ismonoidfun. unfold isbinopfun. cbn. split.
     intros x x'. apply idpath.
     apply idpath.
-  Defined.
+  Qed.
 
-  (** Construction of the morphisms from the zero object. *)
-  Definition ABGR_zero_to (A : abgr) : ABGR⟦ABGR_zero, A⟧.
+  (** Construction of the morphism to the zero object. *)
+  Definition ABGR_zero_from (A : abgr) : ABGR⟦A, ABGR_zero⟧
+    := monoidfunconstr (ABGR_zero_from_ismonoid A).
+
+  Definition ABGR_zero_to_ismonoid (A : abgr) :
+    @ismonoidfun ABGR_zero A (fun a : _ => (unel A)).
   Proof.
-    use monoidfunconstr.
-    exact (fun _ : ABGR_zero => unel A).
     unfold ismonoidfun. unfold isbinopfun. cbn. split.
     intros x x'. rewrite (runax A). apply idpath.
     apply idpath.
-  Defined.
+  Qed.
 
-  Definition ABGR_zero_arrow (A B : abgr) : ABGR⟦A, B⟧.
+  (** Construction of the morphisms from the zero object. *)
+  Definition ABGR_zero_to (A : abgr) : ABGR⟦ABGR_zero, A⟧
+    := monoidfunconstr (ABGR_zero_to_ismonoid A).
+
+
+  Definition ABGR_zero_arrow_ismonoid (A B : abgr) :
+    @ismonoidfun A B (fun a : _ => (unel B)).
   Proof.
-    use monoidfunconstr.
-    exact (fun _ : A => unel B).
     unfold ismonoidfun. unfold isbinopfun. cbn. split.
     intros x x'. rewrite (runax B). apply idpath.
     apply idpath.
-  Defined.
+  Qed.
+
+  (** Construction of the zero arrow between two arbitrary objects. *)
+  Definition ABGR_zero_arrow (A B : abgr) : ABGR⟦A, B⟧
+    := monoidfunconstr (ABGR_zero_arrow_ismonoid A B).
+
+  Definition ABGR_has_zero_iszero : isZero ABGR ABGR_zero.
+  Proof.
+    use mk_isZero.
+    intros a. refine (tpair _ (ABGR_zero_to a) _).
+    intros t. use total2_paths. apply funextfun. intros x.
+
+    unfold ABGR_zero_to. cbn.
+    rewrite (isconnectedunit x (unel ABGR_zero)). apply (pr2 (pr2 t)).
+    apply proofirrelevance. apply isapropismonoidfun.
+
+    intros a. refine (tpair _ (ABGR_zero_from a) _).
+    intros t. use total2_paths. apply funextfun. intros x.
+    apply isconnectedunit.
+    apply proofirrelevance. apply isapropismonoidfun.
+  Qed.
 
   (** The following lemma constructs a zero object in ABGR. *)
-  Lemma ABGR_has_zero : Zero ABGR.
+  Definition ABGR_has_zero : Zero ABGR
+    := @mk_Zero ABGR ABGR_zero ABGR_has_zero_iszero.
+  (*
   Proof.
     use mk_Zero.
     exact ABGR_zero.
@@ -299,7 +340,8 @@ Section ABGR_zero.
     intros a. refine (tpair _ (ABGR_zero_to a) _).
     intros t. use total2_paths. apply funextfun. intros x.
 
-    rewrite (isconnectedunit x tt). apply (pr2 (pr2 t)).
+    unfold ABGR_zero_to. cbn.
+    rewrite (isconnectedunit x (unel ABGR_zero)). apply (pr2 (pr2 t)).
     apply proofirrelevance. apply isapropismonoidfun.
 
     intros a. refine (tpair _ (ABGR_zero_from a) _).
@@ -307,7 +349,7 @@ Section ABGR_zero.
     apply isconnectedunit.
     apply proofirrelevance. apply isapropismonoidfun.
   Defined.
-
+   *)
 
   (** The following lemmas verify that the above definition behaves as
     expected. *)
@@ -319,18 +361,21 @@ Section ABGR_zero.
   Lemma ABGR_has_zero_from ( A : abgr ) :
     @ZeroArrowFrom ABGR ABGR_has_zero A = ABGR_zero_to A.
   Proof.
-    apply idpath.
+    apply ArrowsFromZero.
   Qed.
 
   Lemma ABGR_has_zero_to (A : abgr ) :
     @ZeroArrowTo ABGR ABGR_has_zero A = ABGR_zero_from A.
   Proof.
-    apply idpath.
+    apply ArrowsToZero.
   Qed.
 
   Lemma ABGR_has_zero_arrow_eq (A B : abgr) :
     @ZeroArrow ABGR ABGR_has_zero A B = ABGR_zero_arrow A B.
   Proof.
+    unfold ZeroArrow.
+    rewrite ABGR_has_zero_from.
+    rewrite ABGR_has_zero_to.
     use total2_paths. cbn. unfold funcomp. apply idpath.
     apply proofirrelevance. apply isapropismonoidfun.
   Qed.
@@ -356,41 +401,39 @@ Section ABGR_preadditive.
     intros e. induction e. apply idpath.
   Qed.
 
-  (** The binop structure on the category of abelian groups. *)
-  Definition ABGR_hombinop (X Y : ABGR) :
-    ABGR⟦X, Y⟧ -> ABGR⟦X, Y⟧ -> ABGR⟦X, Y⟧.
+
+
+  Definition ABGR_hombinop_ismonoidfun {X Y : ABGR} (f g : ABGR⟦X, Y⟧) :
+    @ismonoidfun (abgrtoabmonoid X) (abgrtoabmonoid Y)
+                 (fun x : pr1 X => (pr1 f x * pr1 g x)%multmonoid).
   Proof.
-    intros f g.
-    use monoidfunconstr.
-    exact (fun x : (abgrtoabmonoid X) =>
-             @op (abgrtoabmonoid Y) ((pr1 f) x) ((pr1 g) x)).
     split.
 
     intros x x'.
     rewrite (pr1 (pr2 f)). rewrite (pr1 (pr2 g)).
     repeat rewrite <- (assocax (abgrtoabmonoid Y)). apply cancel_rop.
     repeat rewrite (assocax (abgrtoabmonoid Y)). apply cancel_lop.
-    apply (pr2 (pr2 Y)).
+    rewrite (commax (abgrtoabmonoid Y)). apply idpath.
 
-    rewrite (pr2 (pr2 f)). rewrite (pr2 (pr2 g)).
+    set (tmp := pr2 (pr2 f)). cbn in tmp.  use (pathscomp0 _ tmp).
+    set (tmp1 := pr2 (pr2 g)). cbn in tmp1.
+    apply (maponpaths (fun h : _ => ((pr1 f 1%multmonoid) * h)%multmonoid))
+      in tmp1.
+    use (pathscomp0 tmp1).
     apply (runax (abgrtoabmonoid Y)).
-  Defined.
+  Qed.
 
-  (** The morphism which maps everything to unit element.
-    This is actually the zero morphism. *)
-  Definition ABGR_hombinop_unel (X Y : ABGR) : ABGR⟦X, Y⟧.
+  (** The binop structure on the category of abelian groups. *)
+  Definition ABGR_hombinop (X Y : ABGR) :
+    ABGR⟦X, Y⟧ -> ABGR⟦X, Y⟧ -> ABGR⟦X, Y⟧.
   Proof.
-    use monoidfunconstr.
-    exact (fun x : (pr1 X) => unel (abgrtoabmonoid Y)).
-    split.
-
-    intros x x'. apply pathsinv0. apply (runax (abgrtoabmonoid Y)).
-    apply idpath.
+    intros f g.
+    exact (monoidfunconstr (ABGR_hombinop_ismonoidfun f g)).
   Defined.
 
   (** Verification of the unit axioms for the above morphism. *)
   Definition ABGR_hombinop_runax (X Y : ABGR) (f : ABGR⟦X, Y⟧) :
-    ABGR_hombinop X Y f (ABGR_hombinop_unel X Y) = f.
+    ABGR_hombinop X Y f (ABGR_zero_arrow X Y) = f.
   Proof.
     use total2_paths. cbn. apply funextfun. intros x.
     rewrite (runax (abgrtoabmonoid Y)). apply idpath.
@@ -400,7 +443,7 @@ Section ABGR_preadditive.
 
 
   Definition ABGR_hombinop_lunax (X Y : ABGR) (f : ABGR⟦X, Y⟧) :
-    ABGR_hombinop X Y (ABGR_hombinop_unel X Y) f = f.
+    ABGR_hombinop X Y (ABGR_zero_arrow X Y) f = f.
   Proof.
     use total2_paths. cbn. apply funextfun. intros x.
     rewrite (lunax (abgrtoabmonoid Y)). apply idpath.
@@ -417,7 +460,7 @@ Section ABGR_preadditive.
     rewrite (pr2 (pr2 Y)). apply idpath.
 
     apply proofirrelevance. apply isapropismonoidfun.
-  Defined.
+  Qed.
 
   (** How operation behaves under the inverse function. *)
   Lemma grinvcomp (Y : gr) :
@@ -431,13 +474,9 @@ Section ABGR_preadditive.
     apply idpath.
   Qed.
 
-
-  (** Construction of the inverse function in the category of abelian groups. *)
-  Definition ABGR_hombinop_inv (X Y : ABGR) : ABGR⟦X, Y⟧ -> ABGR⟦X, Y⟧.
+  Definition ABGR_hombinop_inv_ismonoidfun {X Y : ABGR} (f : ABGR⟦X, Y⟧) :
+    ismonoidfun (fun x : (abgrtoabmonoid X) => grinv (abgrtogr Y) (pr1 f x)).
   Proof.
-    intros f.
-    use monoidfunconstr.
-    exact (fun x : (abgrtoabmonoid X) => grinv (abgrtogr Y) ((pr1 f) x)).
     split.
 
     intros x x'.
@@ -445,14 +484,23 @@ Section ABGR_preadditive.
     rewrite (grinvcomp (abgrtogr Y)).
     apply idpath.
 
-    rewrite (pr2 (pr2 f)).
+    set (tmp := pr2 (pr2 f)). cbn in tmp.
+    apply (maponpaths (fun h : _ => grinv (abgrtogr Y) h)) in tmp.
+    use (pathscomp0 tmp).
     apply (grinvunel (abgrtogr Y)).
+  Qed.
+
+  (** Construction of the inverse function in the category of abelian groups. *)
+  Definition ABGR_hombinop_inv (X Y : ABGR) : ABGR⟦X, Y⟧ -> ABGR⟦X, Y⟧.
+  Proof.
+    intros f.
+    exact (monoidfunconstr (ABGR_hombinop_inv_ismonoidfun f)).
   Defined.
 
   (** Verification that this gives left and right inverse. *)
   Definition ABGR_hombinop_linvax (X Y : ABGR) :
     Π f : ABGR⟦X, Y⟧, ABGR_hombinop X Y (ABGR_hombinop_inv X Y f) f
-                      = ABGR_hombinop_unel X Y.
+                      = ABGR_zero_arrow X Y.
   Proof.
     intros f. use total2_paths. cbn. apply funextfun. intros x.
     apply (grlinvax (abgrtogr Y)).
@@ -463,7 +511,7 @@ Section ABGR_preadditive.
 
   Definition ABGR_hombinop_rinvax (X Y : ABGR) :
     Π f : ABGR⟦X, Y⟧, ABGR_hombinop X Y f (ABGR_hombinop_inv X Y f)
-                      = ABGR_hombinop_unel X Y.
+                      = ABGR_zero_arrow X Y.
   Proof.
     intros f. use total2_paths. cbn. apply funextfun. intros x.
     apply (grrinvax (abgrtogr Y)).
@@ -481,18 +529,19 @@ Section ABGR_preadditive.
     apply idpath.
 
     apply proofirrelevance. apply isapropismonoidfun.
-  Defined.
+  Qed.
 
   (** WithBinOpsData *)
   Definition ABGR_WithBinOpsData : PrecategoryWithBinOpsData ABGR.
   Proof.
-    unfold PrecategoryWithBinOpsData.
     intros X Y.
     exact (ABGR_hombinop X Y).
   Defined.
 
   Definition ABGR_WithBinOps : PrecategoryWithBinOps
     := tpair _ ABGR ABGR_WithBinOpsData.
+
+
 
   (** WithAbgrops *)
   Definition ABGR_WithAbGrops : PrecategoryWithAbgrops.
@@ -510,7 +559,7 @@ Section ABGR_preadditive.
 
     (* Unit *)
     use isunitalpair.
-    apply ABGR_hombinop_unel.
+    apply ABGR_zero_arrow.
     split.
     unfold islunit. intros x. apply (ABGR_hombinop_lunax X Y).
     unfold isrunit. intros x. apply (ABGR_hombinop_runax X Y).
@@ -529,12 +578,8 @@ Section ABGR_preadditive.
     intros f g. apply (ABGR_hombinop_comm X Y f g).
   Defined.
 
-  (** Finally, we prove that the category of abelian groups is preadditive. *)
-  Definition ABGR_PreAdditive : PreAdditive.
+  Definition ABGR_isPreAdditive : isPreAdditive ABGR_WithAbGrops.
   Proof.
-    use mk_PreAdditive.
-    exact (ABGR_WithAbGrops).
-
     use mk_isPreAdditive.
 
     (* First bilinearity. *)
@@ -566,7 +611,11 @@ Section ABGR_preadditive.
     use total2_paths. cbn. apply funextfun.
     intros x. unfold funcomp. apply (pr2 (pr2 f)).
     apply proofirrelevance. apply isapropismonoidfun.
-  Defined.
+  Qed.
+
+  (** Finally, we prove that the category of abelian groups is preadditive. *)
+  Definition ABGR_PreAdditive : PreAdditive
+    := mk_PreAdditive ABGR_WithAbGrops ABGR_isPreAdditive.
 End ABGR_preadditive.
 
 
@@ -577,42 +626,53 @@ End ABGR_preadditive.
 Section ABGR_Additive.
 
   (** Some lemmas useful to direct sums in the category of abelian groups. *)
-  Lemma ABGR_DirectSumPr1 (A B : abgr) : ABGR⟦abgrdirprod A B, A⟧.
-  Proof.
-    use monoidfunconstr. intros X. exact (pr1 X).
-    unfold ismonoidfun. split.
-    unfold isbinopfun. intros x x'. unfold op at 1. cbn. apply idpath.
-    cbn. apply idpath.
-  Defined.
 
-  Lemma ABGR_DirectSumPr2 (A B : abgr) : ABGR⟦abgrdirprod A B, B⟧.
+  Lemma ABGR_DirectSumPr1_ismonoidfun (A B : abgr) :
+    ismonoidfun (fun X : abgrdirprod A B => dirprod_pr1 X).
   Proof.
-    use monoidfunconstr. intros X. exact (pr2 X).
-    unfold ismonoidfun. split.
-    unfold isbinopfun. intros x x'. unfold op at 1. cbn. apply idpath.
-    cbn. apply idpath.
-  Defined.
+    split.
+    intros x x'. unfold op at 1. unfold dirprod_pr1. apply idpath.
+    apply idpath.
+  Qed.
 
-  Lemma ABGR_DirectSumIn1 (A B : abgr) : ABGR⟦A, abgrdirprod A B⟧.
+  Definition ABGR_DirectSumPr1 (A B : abgr) : ABGR⟦abgrdirprod A B, A⟧
+    := monoidfunconstr (ABGR_DirectSumPr1_ismonoidfun A B).
+
+  Lemma ABGR_DirectSumPr2_ismonoidfun (A B : abgr) :
+    ismonoidfun (fun X : abgrdirprod A B => dirprod_pr2 X).
   Proof.
-    use monoidfunconstr. intros a. exact (dirprodpair a (unel B)).
-    unfold ismonoidfun. split.
-    unfold isbinopfun. intros x x'.
-    use dirprodeq. apply idpath. cbn.
+    split.
+    intros x x'. unfold op at 1. unfold dirprod_pr2. apply idpath.
+    apply idpath.
+  Qed.
+
+  Definition ABGR_DirectSumPr2 (A B : abgr) : ABGR⟦abgrdirprod A B, B⟧
+    := monoidfunconstr (ABGR_DirectSumPr2_ismonoidfun A B).
+
+  Lemma ABGR_DirectSumIn1_ismonoidfun (A B : abgr) :
+    @ismonoidfun A (abgrdirprod A B) (fun a : A => dirprodpair a (unel B)).
+  Proof.
+    split.
+    intros x x'. use dirprodeq. apply idpath.
     apply pathsinv0. apply (runax B).
     unfold dirprodpair. use total2_paths; apply idpath.
-  Defined.
+  Qed.
 
-  Lemma ABGR_DirectSumIn2 (A B : abgr) : ABGR⟦B, abgrdirprod A B⟧.
+  Definition ABGR_DirectSumIn1 (A B : abgr) : ABGR⟦A, abgrdirprod A B⟧
+    := monoidfunconstr (ABGR_DirectSumIn1_ismonoidfun A B).
+
+  Lemma ABGR_DirectSumIn2_ismonoidfun (A B : abgr) :
+    @ismonoidfun B (abgrdirprod A B) (fun b : B => dirprodpair (unel A) b).
   Proof.
-    use monoidfunconstr. intros b. exact (dirprodpair (unel A) b).
-    unfold ismonoidfun. split.
-
-    unfold isbinopfun. intros x x'.
-    use dirprodeq. cbn. apply pathsinv0. apply (runax A). apply idpath.
-
+    split.
+    intros x x'. use dirprodeq.
+    apply pathsinv0. apply (runax A).
+    apply idpath.
     unfold dirprodpair. use total2_paths; apply idpath.
-  Defined.
+  Qed.
+
+  Definition ABGR_DirectSumIn2 (A B : abgr) : ABGR⟦B, abgrdirprod A B⟧
+    := monoidfunconstr (ABGR_DirectSumIn2_ismonoidfun A B).
 
   Lemma ABGR_DirectSumIdIn1 (A B : abgr) :
     ABGR_DirectSumIn1 A B ;; ABGR_DirectSumPr1 A B = idabgrfun A.
@@ -631,7 +691,7 @@ Section ABGR_Additive.
   Qed.
 
   Lemma ABGR_DirectSumUnel1 (A B : abgr) :
-    ABGR_DirectSumIn1 A B ;; ABGR_DirectSumPr2 A B = ABGR_hombinop_unel A B.
+    ABGR_DirectSumIn1 A B ;; ABGR_DirectSumPr2 A B = ABGR_zero_arrow A B.
   Proof.
     use total2_paths. cbn. use funextfun. intros x. apply idpath.
 
@@ -639,7 +699,7 @@ Section ABGR_Additive.
   Qed.
 
   Lemma ABGR_DirectSumUnel2 (A B : abgr) :
-    ABGR_DirectSumIn2 A B ;; ABGR_DirectSumPr1 A B = ABGR_hombinop_unel B A.
+    ABGR_DirectSumIn2 A B ;; ABGR_DirectSumPr1 A B = ABGR_zero_arrow B A.
   Proof.
     use total2_paths. cbn. use funextfun. intros x. apply idpath.
 
@@ -658,12 +718,9 @@ Section ABGR_Additive.
   Qed.
 
   (** A proof that the category of abelian groups is an additive category. *)
-  Definition ABGR_Additive : Additive.
+  Definition ABGR_isAdditive : isAdditive ABGR_PreAdditive.
   Proof.
-    use mk_Additive.
-    exact (ABGR_PreAdditive).
-    use mk_isAdditive.
-    apply ABGR_has_zero.
+    use (mk_isAdditive ABGR_PreAdditive ABGR_has_zero).
 
     intros X Y.
     use BinDirectSums.mk_BinDirectSumCone.
@@ -798,7 +855,10 @@ Section ABGR_Additive.
     cbn. apply dirprodeq. cbn. apply (runax (abgrtoabmonoid X)).
     cbn. apply (lunax (abgrtoabmonoid Y)).
     apply proofirrelevance. apply isapropismonoidfun.
-  Defined.
+  Qed.
+
+  Definition ABGR_Additive : Additive
+    := mk_Additive ABGR_PreAdditive ABGR_isAdditive.
 End ABGR_Additive.
 
 
@@ -817,7 +877,7 @@ Section ABGR_kernels.
 
   (** An equality we are going to use. *)
   Definition funeqpaths {X Y : UU} {f g: X -> Y} (e : f = g):
-    forall (x : X), f x = g x.
+    Π (x : X), f x = g x.
   Proof.
     induction e. intros x. apply idpath.
   Qed.
@@ -825,12 +885,11 @@ Section ABGR_kernels.
 
   (*** Kernels *)
 
-  (** Construction of the kernel of f. *)
-  Definition ABGR_kernel_subabgr {A B : abgr} (f : monoidfun A B) : @subabgrs A.
+
+  Definition ABGR_kernel_subabgr_issubgr {A B : abgr} (f : monoidfun A B) :
+    issubgr (ABGR_kernel_hsubtype f).
   Proof.
-    use subgrconstr.
-    exact (@ABGR_kernel_hsubtype A B f).
-    cbn. split.
+    split.
 
     (* issubmonoid *)
     split.
@@ -850,22 +909,36 @@ Section ABGR_kernels.
     cbn in *.
     unfold ishinh_UU in *. intros P X. apply a. intros X1.
     rewrite -> X1 in X. apply X. apply (grinvunel B).
-  Defined.
+  Qed.
+
+
+  (** Construction of the kernel of f. *)
+  Definition ABGR_kernel_subabgr {A B : abgr} (f : monoidfun A B) : @subabgrs A
+    := subgrconstr (@ABGR_kernel_hsubtype A B f)
+                   (ABGR_kernel_subabgr_issubgr f).
+
+
+  Definition ABGR_kernel_monoidfun_ismonoidfun {A B : abgr}
+             (f : monoidfun A B) :
+    @ismonoidfun (ABGR_kernel_subabgr f) A
+                 (inclpair (pr1carrier (ABGR_kernel_hsubtype f))
+                           (isinclpr1carrier (ABGR_kernel_hsubtype f))).
+  Proof.
+    split.
+    intros a a'. apply idpath.
+    apply idpath.
+  Qed.
 
   (** Construction of the morphism from the kernel of A to A. *)
   Definition ABGR_kernel_monoidfun {A B : abgr} (f : monoidfun A B) :
-    ABGR⟦carrierofasubabgr (ABGR_kernel_subabgr f), A⟧.
-  Proof.
-    use monoidincltomonoidfun.
-    use monoidmonopair.
-    use inclpair.
-    unfold ABGR_kernel_subabgr. cbn. apply pr1carrier. apply isinclpr1carrier.
-
-    (* ismonoidfun *)
-    split.
-    cbn. intros a a'. cbn. apply idpath.
-    cbn. apply idpath.
-  Defined.
+    ABGR⟦carrierofasubabgr (ABGR_kernel_subabgr f), A⟧
+    := monoidincltomonoidfun
+         (ABGR_kernel_subabgr f) A
+         (@monoidmonopair (ABGR_kernel_subabgr f) A
+                          (inclpair (pr1carrier (ABGR_kernel_hsubtype f))
+                                    (isinclpr1carrier
+                                       (ABGR_kernel_hsubtype f)))
+                          (ABGR_kernel_monoidfun_ismonoidfun f)).
 
   (** ABGR Equality for kernels. *)
   Definition ABGR_kernel_eq {A B : abgr} (f : monoidfun A B) :
@@ -875,10 +948,11 @@ Section ABGR_kernels.
     use total2_paths. cbn. apply funextfun. unfold funcomp, pr1carrier.
     intros x. induction x. cbn in *. unfold ishinh_UU in p.
     use (squash_to_prop p). apply (pr2 (pr1 (pr1 B))).
-    intros i. apply i.
+    intros i. rewrite ABGR_has_zero_to. rewrite ABGR_has_zero_from. cbn.
+    apply i.
 
     apply proofirrelevance. apply isapropismonoidfun.
-  Defined.
+  Qed.
 
   (** Construction of the unique arrow to the kernel object. *)
   Definition ABGR_KernelArrowIn {A B C : ABGR} (h : C --> A) (f : A --> B)
@@ -905,17 +979,22 @@ Section ABGR_kernels.
     apply proofirrelevance. cbn. apply isapropishinh.
   Defined.
 
-  (** Construction of a kernel of a morphism of abelian groups f. *)
-  Definition ABGR_kernel {A B : abgr} (f : monoidfun A B) :
-    Kernel ABGR_has_zero f.
+
+  Definition ABGR_Kernel_eq' {A B : abgr} (f : monoidfun A B) :
+    ABGR_kernel_monoidfun f ;; f
+    = ZeroArrow ABGR ABGR_has_zero
+                (carrierofasubabgr (ABGR_kernel_subabgr f)) B.
   Proof.
-    induction A. induction B.
-    use mk_Kernel.
-    exact (carrierofasubabgr (ABGR_kernel_subabgr f)).
-    exact (ABGR_kernel_monoidfun f).
     rewrite (ABGR_kernel_eq f).
     apply (ZeroArrow_comp_right ABGR ABGR_has_zero).
+  Qed.
 
+  Definition ABGR_Kernel_isEqualizer {A B : abgr} (f : ABGR⟦A, B⟧) :
+    isEqualizer f (ZeroArrow ABGR ABGR_has_zero A B)
+                (ABGR_kernel_monoidfun f)
+                (KernelEqRw ABGR_has_zero (ABGR_Kernel_eq' f)).
+  Proof.
+    induction A. induction B.
     use mk_isEqualizer.
     intros w h H'. induction w. induction h.
     use unique_exists.
@@ -940,24 +1019,32 @@ Section ABGR_kernels.
 
     apply proofirrelevance. apply isapropishinh.
     apply proofirrelevance. apply isapropismonoidfun.
-  Defined.
+  Qed.
+
+
+  (** Construction of a kernel of a morphism of abelian groups f. *)
+  Definition ABGR_Kernel {A B : abgr} (f : monoidfun A B) :
+    Kernel ABGR_has_zero f
+    := mk_Kernel
+         (ABGR_has_zero)
+         (ABGR_kernel_monoidfun f)
+         f
+         (ABGR_Kernel_eq' f)
+         (ABGR_Kernel_isEqualizer f).
 
   (** As a corollary we get that ABGR has kernels. *)
   Corollary ABGR_kernels : Kernels ABGR_has_zero.
   Proof.
-    intros A B f. apply (ABGR_kernel f).
+    intros A B f. apply (ABGR_Kernel f).
   Defined.
 
 
   (*** Cokernels *)
 
-  (** Construction of the image of f. *)
-  Definition ABGR_image {A B : abgr} (f : monoidfun A B) : @subabgrs B.
+  Definition ABGR_image_issubgr {A B : abgr} (f : monoidfun A B) :
+    issubgr (ABGR_image_hsubtype f).
   Proof.
-    unfold subabgrs.
-    use subgrconstr.
-    exact (@ABGR_image_hsubtype A B f).
-    cbn. split.
+    split.
 
     (* issubmonoid *)
     split.
@@ -980,17 +1067,17 @@ Section ABGR_kernels.
     induction X1. use tpair. apply (grinv A t). cbn.
     set (XXt := monoidfuninvtoinv f t). cbn in XXt.
     rewrite XXt. rewrite p. apply idpath.
-  Defined.
+  Qed.
 
-  (** The eqrel on B used to form the quotient group of the cokernel of f. *)
-  Definition ABGR_cokernel_eqrel {A B : abgr} (f : monoidfun A B) : eqrel B.
+  (** Construction of the image of f. *)
+  Definition ABGR_image {A B : abgr} (f : monoidfun A B) : @subabgrs B
+    := @subgrconstr B (@ABGR_image_hsubtype A B f)
+                    (ABGR_image_issubgr f).
+
+
+  Definition ABGR_cokernel_eqrel_istrans {A B : abgr} (f : monoidfun A B) :
+    istrans (λ b1 b2 : B, ∃ a : A, f a = (b1 * grinv B b2)%multmonoid).
   Proof.
-    use eqrelconstr.
-
-    (* The relation *)
-    exact (fun b1 : B => fun b2 : B => ∃ a : A, (f a) = (op b1 (grinv B b2))).
-
-    (* Transitivity *)
     intros x1 x2 x3 y1 y2.
     unfold ishinh in *. cbn in *. unfold ishinh_UU in *. intros P X.
     apply y1. intros Y1. apply y2. intros Y2. induction Y1, Y2. apply X.
@@ -1001,12 +1088,18 @@ Section ABGR_kernels.
     rewrite (assocax (abgrtoabmonoid B) x1 _ _).
     rewrite (grlinvax B). rewrite (runax B).
     apply idpath.
+  Qed.
 
-    (* Reflexivity *)
+  Definition ABGR_cokernel_eqrel_isrefl {A B : abgr} (f : monoidfun A B) :
+    isrefl (λ b1 b2 : B, ∃ a : A, f a = (b1 * grinv B b2)%multmonoid).
+  Proof.
     intros x1 y1 y2. apply y2. refine (tpair _ (unel A) _).
     rewrite (grrinvax B). rewrite <- (pr2 (pr2 f)). apply idpath.
+  Qed.
 
-    (* Symmetry *)
+  Definition ABGR_cokernel_eqrel_issymm {A B : abgr} (f : monoidfun A B) :
+    issymm (λ b1 b2 : B, ∃ a : A, f a = (b1 * grinv B b2)%multmonoid).
+  Proof.
     intros x1 x2 x3 y1 y2.
     unfold ishinh in *. cbn in *. unfold ishinh_UU in *. apply x3.
     intros X3. apply y2. induction X3. refine (tpair _ (grinv A t) _).
@@ -1014,26 +1107,36 @@ Section ABGR_kernels.
     rewrite XXf. rewrite p.
     set (XXB := grinvcomp B x1 (grinv B x2)). cbn in XXB.
     rewrite XXB. rewrite grinvinv. apply idpath.
-  Defined.
+  Qed.
 
-  (** Construction of the cokernel of f. We need to take the quotient group of
-    B by the image of f. *)
-  Definition ABGR_cokernel_abgr {A B : abgr} (f : monoidfun A B) : abgr.
+  (** The eqrel on B used to form the quotient group of the cokernel of f. *)
+  Definition ABGR_cokernel_eqrel {A B : abgr} (f : monoidfun A B) : eqrel B
+    := @eqrelconstr
+         B
+         (fun b1 : B => fun b2 : B => ∃ a : A, (f a) = (op b1 (grinv B b2)))
+         (ABGR_cokernel_eqrel_istrans f)
+         (ABGR_cokernel_eqrel_isrefl f)
+         (ABGR_cokernel_eqrel_issymm f).
+
+
+  Definition ABGR_cokernel_abgr_isbinoprel {A B : abgr} (f : monoidfun A B) :
+    isbinophrel (λ b1 b2 : pr1 B, ∃ a : pr1 A, pr1 f a
+                                               = (b1 * grinv B b2)%multmonoid).
   Proof.
-    use (@abgrquot B).
-    use binopeqrelpair.
-
-    exact (ABGR_cokernel_eqrel f).
-
-    (* isbinoprel *)
-    cbn. use isbinophrelif. apply (pr2 (pr2 B)).
+    use isbinophrelif. apply (pr2 (pr2 B)).
     intros x1 x2 x3 y1. cbn in *. unfold ishinh_UU in *. intros P X.
     apply y1. intros Y1. induction Y1. apply X.
     refine (tpair _ t _). rewrite p. rewrite ((pr2 (pr2 B)) x3 _).
     rewrite (assocax B). apply cancel_lop. rewrite ((pr2 (pr2 B)) x3 _).
     rewrite grinvcomp. rewrite (assocax B). rewrite (grlinvax B).
     rewrite (runax B). apply idpath.
-  Defined.
+  Qed.
+
+  (** Construction of the cokernel of f. We need to take the quotient group of
+    B by the image of f. *)
+  Definition ABGR_cokernel_abgr {A B : abgr} (f : monoidfun A B) : abgr
+    := @abgrquot B (binopeqrelpair (ABGR_cokernel_eqrel f)
+                                   (ABGR_cokernel_abgr_isbinoprel f)).
 
   (** Construction of the monoidfun from B to the cokernel of f. *)
   Definition ABGR_cokernel_monoidfun {A B : abgr} (f : monoidfun A B) :
@@ -1060,7 +1163,7 @@ Section ABGR_kernels.
     apply maponpaths. apply idpath.
 
     apply proofirrelevance. apply isapropismonoidfun.
-  Defined.
+  Qed.
 
   (** ABGR Equality for cokernels. *)
   Definition ABGR_cokernel_eq {A B : abgr} (f : ABGR⟦A, B⟧) :
@@ -1070,7 +1173,7 @@ Section ABGR_kernels.
     rewrite ZeroArrow_comp_left.
     rewrite ABGR_has_zero_arrow_eq.
     exact (ABGR_cokernel_eq' f).
-  Defined.
+  Qed.
 
   (** The following result is used to show that map from setquot is a
     monoidfun. *)
@@ -1094,16 +1197,18 @@ Section ABGR_kernels.
     unfold funcomp. apply idpath. cbn in X. rewrite X.
 
     rewrite h. unfold funcomp. apply idpath.
-  Defined.
+  Qed.
 
-  (** Construction of the unique arrow out of the cokernel. *)
-  Definition ABGR_CokernelArrowOutUniv {A B C : ABGR} (f : A --> B) (h : B --> C)
+
+  Definition ABGR_CokernelArrowOutUniv_iscomprelfun {A B C : ABGR}
+             (f : A --> B) (h : B --> C)
              (H : (λ x : pr1 A, (pr1 h) (pr1 f x))
-                  = (λ _ : pr1 A, 1%multmonoid)):
-    (ABGR_cokernel_abgr f) -> (pr1 C).
+                  = (λ _ : pr1 A, 1%multmonoid)) :
+    iscomprelfun (λ b1 b2 : pr1 B, ∃ a : pr1 A,
+                      pr1 f a = (b1 * grinv (abgrtogr B) b2)%multmonoid)
+                 (pr1 h).
   Proof.
-    cbn. use setquotuniv. apply (pr1 h).
-    unfold iscomprelfun. intros x x' X.
+    intros x x' X.
     use (squash_to_prop X). apply (pr2 (pr1 (pr1 C))).
     intros X'. induction X'.
     set (Y := funeqpaths H t). cbn in Y.
@@ -1113,18 +1218,33 @@ Section ABGR_kernels.
     cbn in *.
     rewrite <- p. rewrite <- (pr1 (pr2 h)). apply pathsinv0.
     rewrite (grrinvax (abgrtogr B) x'). apply (pr2 (pr2 h)).
-  Defined.
+  Qed.
 
-  (** Construction of a cokernel of a morphism of abelian groups f. *)
-  Definition ABGR_cokernel {A B : abgr} (f : monoidfun A B) :
-    Cokernel ABGR_has_zero f.
+  (** Construction of the unique arrow out of the cokernel. *)
+  Definition ABGR_CokernelArrowOutUniv {A B C : ABGR} (f : A --> B) (h : B --> C)
+             (H : (λ x : pr1 A, (pr1 h) (pr1 f x))
+                  = (λ _ : pr1 A, 1%multmonoid)) :
+    (ABGR_cokernel_abgr f) -> (pr1 C)
+    := setquotuniv
+         (λ b1 b2 : pr1 B, ∃ a : pr1 A,
+              pr1 f a = (b1 * grinv (abgrtogr B) b2)%multmonoid)
+         (pr1 C) (pr1 h) (ABGR_CokernelArrowOutUniv_iscomprelfun f h H).
+
+
+  Definition ABGR_cokernel_eq'' {A B : abgr} (f : ABGR⟦A, B⟧) :
+    f ;; ABGR_cokernel_monoidfun f
+    = ZeroArrow ABGR ABGR_has_zero A (ABGR_cokernel_abgr f).
   Proof.
-    use mk_Cokernel.
-    exact (ABGR_cokernel_abgr f).
-    exact (ABGR_cokernel_monoidfun f).
-    rewrite (ABGR_cokernel_eq f).
-    apply (ZeroArrow_comp_left ABGR ABGR_has_zero).
+    rewrite ABGR_has_zero_arrow_eq.
+    apply ABGR_cokernel_eq'.
+  Qed.
 
+
+  Definition ABGR_isCoequalizer {A B : abgr} (f : ABGR⟦A, B⟧) :
+    isCoequalizer f (ZeroArrow ABGR ABGR_has_zero A B)
+                  (ABGR_cokernel_monoidfun f)
+                  (CokernelEqRw ABGR_has_zero (ABGR_cokernel_eq'' f)).
+  Proof.
     use mk_isCoequalizer.
     intros w h H'.
     use unique_exists.
@@ -1167,11 +1287,465 @@ Section ABGR_kernels.
     unfold funcomp in t0. apply (funeqpaths t0 t1).
 
     apply proofirrelevance. apply isapropismonoidfun.
-  Defined.
+  Qed.
+
+  (** Construction of a cokernel of a morphism of abelian groups f. *)
+  Definition ABGR_Cokernel {A B : abgr} (f : ABGR⟦A, B⟧) :
+    Cokernel ABGR_has_zero f
+    := mk_Cokernel
+         (ABGR_has_zero)
+         (ABGR_cokernel_monoidfun f)
+         f
+         (ABGR_cokernel_eq'' f)
+         (ABGR_isCoequalizer f).
 
   (** As a corollary we get that ABGR has cokernels. *)
   Corollary ABGR_cokernels : Cokernels ABGR_has_zero.
   Proof.
-    intros A B f. apply (ABGR_cokernel f).
+    intros A B f. apply (ABGR_Cokernel f).
   Defined.
 End ABGR_kernels.
+
+
+(*** Monic is an inclusion. *)
+Section ABGR_monics.
+
+  (** First we need to construct a monoidfun from hzaddabgr to A to show that
+    Monics in ABGR are inclusions. Are these functions duplicates? *)
+  Definition ABGR_natset_map {A : abgr} (a : A) :
+    natset -> A.
+  Proof.
+    intros n. induction n.
+    apply (unel A).
+    apply (@op A a IHn).
+  Defined.
+
+
+  Definition ABGR_natset_dirprod_map {A : abgr} (a : A) :
+    natset × natset -> A.
+  Proof.
+    intros n.
+    exact (@op A (ABGR_natset_map a (dirprod_pr1 n))
+               (ABGR_natset_map (grinv A a) (dirprod_pr2 n))).
+  Defined.
+
+  Definition ABGR_natset_map_S {A : abgr} (a : A) (n : nat) :
+    ABGR_natset_map a (S n) = (ABGR_natset_map a n * a)%multmonoid.
+  Proof.
+    induction n. cbn. rewrite (lunax A). apply (runax A).
+    cbn. rewrite (assocax A). apply cancel_lop.
+    apply (commax A).
+  Qed.
+
+  Definition ABGR_natset_map_plus {A : abgr} (a : A) (n m : nat) :
+    ABGR_natset_map a (n + m)
+    = (ABGR_natset_map a n * ABGR_natset_map a m)%multmonoid.
+  Proof.
+    induction n. rewrite (lunax A). apply idpath. cbn.
+    rewrite (assocax A). apply cancel_lop.
+    unfold ABGR_natset_map in *. cbn in IHn.
+    rewrite IHn. apply idpath.
+  Qed.
+
+  Definition ABGR_natset_dirprod_abmonoid_map {A : abgr} (a : A) :
+    (abmonoiddirprod (rigaddabmonoid natcommrig)
+                     (rigaddabmonoid natcommrig)) -> A.
+  Proof.
+    exact (ABGR_natset_dirprod_map a).
+  Defined.
+
+  Definition ABGR_natset_dirprod_map_isbinopfun {A : abgr} (a : A) :
+    isbinopfun (ABGR_natset_dirprod_abmonoid_map a).
+  Proof.
+    unfold ABGR_natset_dirprod_abmonoid_map.
+    set (tmp1 := ABGR_natset_map_plus a).
+    set (tmp2 := ABGR_natset_map_plus (grinv A a)).
+    intros x x'. unfold ABGR_natset_dirprod_map.
+    unfold ABGR_natset_map in *. cbn in *.
+    rewrite tmp1. rewrite tmp2. unfold dirprod_pr1. unfold dirprod_pr2.
+    repeat rewrite (assocax A). apply cancel_lop.
+    repeat rewrite <- (assocax A). apply cancel_rop.
+    apply (commax A).
+  Qed.
+
+  Definition ABGR_natset_dirprod_map_binopfun {A : abgr} (a : A) :
+    binopfun (abmonoiddirprod (rigaddabmonoid natcommrig)
+                              (rigaddabmonoid natcommrig)) A.
+  Proof.
+    use binopfunpair.
+    exact (ABGR_natset_dirprod_map a).
+    exact (ABGR_natset_dirprod_map_isbinopfun a).
+  Defined.
+
+  Definition ABGR_natset_dirprod_map_monoidfun_unel_eq {A : abgr} (a : A) :
+    ABGR_natset_dirprod_map
+      a (unel (abmonoiddirprod (rigaddabmonoid natcommrig)
+                               (rigaddabmonoid natcommrig)))
+    = (unel A).
+  Proof.
+    unfold ABGR_natset_dirprod_map. cbn. apply (runax A).
+  Qed.
+
+  Definition ABGR_natset_dirprod_map_monoidfun {A : abgr} (a : A) :
+    monoidfun (abmonoiddirprod (rigaddabmonoid natcommrig)
+                               (rigaddabmonoid natcommrig)) A.
+  Proof.
+    use monoidfunconstr.
+    exact (ABGR_natset_dirprod_map a).
+    split.
+    exact (ABGR_natset_dirprod_map_isbinopfun a).
+    exact (ABGR_natset_dirprod_map_monoidfun_unel_eq a).
+  Defined.
+
+  (** Construction of the monoidfun from nat × nat to integers. *)
+  Definition ABGR_natset_to_Z_monoidfun :
+    monoidfun (abmonoiddirprod (rigaddabmonoid natcommrig)
+                               (rigaddabmonoid natcommrig))
+              hzaddabgr.
+  Proof.
+    use monoidfunconstr.
+    use setquotpr.
+
+    (* ismonoidfun *)
+    split. split. apply idpath.
+  Defined.
+
+  Definition ABGR_natset_dirprod_map_ind {A : abgr} (a : A) (n m : nat) :
+    ABGR_natset_dirprod_map a (n + m,,m) =
+    ABGR_natset_dirprod_map a (n,, 0).
+  Proof.
+    induction m. rewrite natpluscomm. cbn. apply idpath.
+    rewrite natplusnsm. cbn.
+    unfold ABGR_natset_dirprod_map. cbn.
+    rewrite <- (assocax A).
+    rewrite (commax A _ (grinv A a)).
+    rewrite <- (assocax A).
+    rewrite (grlinvax A). rewrite (lunax A).
+    unfold ABGR_natset_dirprod_map in IHm. cbn in IHm.
+    apply IHm.
+  Qed.
+
+  Definition ABGR_natset_dirprod_map_ind2 {A : abgr} (a : A) (n1 n2 m k : nat) :
+    ABGR_natset_dirprod_map a (n1,,m) =
+    ABGR_natset_dirprod_map a (n2,,k) ->
+    ABGR_natset_dirprod_map a (n1,,S m) =
+    ABGR_natset_dirprod_map a (n2,,S k).
+  Proof.
+    unfold ABGR_natset_dirprod_map. cbn. intros H.
+    rewrite (commax A (grinv A a)). rewrite (commax A (grinv A a)).
+    rewrite <- (assocax A). rewrite <- (assocax A).
+    apply cancel_rop. apply H.
+  Qed.
+
+  Definition ABGR_integer_map_iscomprelfun {A : abgr} (a : A) :
+    iscomprelfun (binopeqrelabgrfrac (rigaddabmonoid natcommrig))
+                 (ABGR_natset_dirprod_map a).
+  Proof.
+    intros x. induction x. induction p.
+
+    intros x'. induction x'. induction p.
+    intros H. cbn in *. use (squash_to_prop H). apply (setproperty A).
+    intros H'. induction H'. repeat rewrite natplusassoc in p. cbn in p.
+    apply natplusrcan in p. rewrite p. apply idpath.
+
+    intros H. cbn in *. use (squash_to_prop H). apply (setproperty A).
+    intros H'. induction H'. rewrite (natplusassoc _ 0) in p0. cbn in p0.
+    apply natplusrcan in p0. rewrite <- p0.
+    rewrite ABGR_natset_dirprod_map_ind. apply idpath.
+
+    intros x'. induction x'. induction p0.
+    intros H. cbn in *. use (squash_to_prop H). apply (setproperty A).
+    intros H'. induction H'. rewrite natplusassoc in p0. cbn in p0.
+    apply natplusrcan in p0. rewrite p0.
+    rewrite ABGR_natset_dirprod_map_ind. apply idpath.
+
+    intros H. cbn in *. use (squash_to_prop H). apply (setproperty A).
+    intros H'. induction H'. apply natplusrcan in p1.
+    repeat rewrite natplusnsm in p1. cbn in p1.
+    apply invmaponpathsS in p1.
+    set (tmp := IHp (t0,,p0)). cbn in tmp.
+
+    assert (tmp1 : ishinh_UU(Σ x0 : nat, t + p0 + x0 = t0 + p + x0)).
+    {
+      unfold ishinh_UU. intros P X. apply X.
+      refine (tpair _ 0 _).
+      rewrite natpluscomm. cbn.
+      rewrite (natpluscomm _ 0). cbn. exact p1.
+    }
+    set (tmp2 := tmp tmp1).
+    apply ABGR_natset_dirprod_map_ind2.
+    exact tmp2.
+  Qed.
+
+  (** Construction of tha map \mathbb{Z} --> A, 1 ↦ a *)
+  Definition ABGR_integer_map {A : abgr} (a : A) :
+    hzaddabgr -> A.
+  Proof.
+    use setquotuniv.
+    exact (ABGR_natset_dirprod_map a).
+    exact (ABGR_integer_map_iscomprelfun a).
+  Defined.
+
+  Definition ABGR_integer_map_ismonoidfun {A : abgr} (a : A) :
+    ismonoidfun (ABGR_integer_map a).
+  Proof.
+    split.
+
+    (* isbinop *)
+    use isbinopfun_2of3.
+    apply (abmonoiddirprod (rigaddabmonoid natcommrig)
+                           (rigaddabmonoid natcommrig)).
+    apply (ABGR_natset_to_Z_monoidfun).
+    apply issurjsetquotpr.
+    unfold funcomp.
+    apply (pr2 (ABGR_natset_dirprod_map_binopfun a)).
+    apply (pr2 (ABGR_natset_to_Z_monoidfun)).
+
+    (* unel *)
+    unfold ABGR_integer_map. cbn.
+    unfold ABGR_natset_dirprod_map. cbn.
+    apply (runax A).
+  Qed.
+
+  (** Construction of the monoidfun \mathbb{Z} --> A, 1 ↦ a *)
+  Definition ABGR_integer_map_monoidfun {A : abgr} (a : A) :
+    monoidfun hzaddabgr A.
+  Proof.
+    use monoidfunconstr.
+    exact (ABGR_integer_map a).
+    exact (ABGR_integer_map_ismonoidfun a).
+  Defined.
+
+  (*** Epis *)
+
+
+  Definition ABGR_cokernel_zero {A B : abgr} (f : ABGR⟦A, B⟧) (b : B)
+             (H : ABGR_cokernel_monoidfun f
+                  = ABGR_zero_arrow B (ABGR_cokernel_abgr f)) :
+    hfiber (pr1 f) b.
+  Proof.
+    unfold ABGR_cokernel_monoidfun in H.
+    unfold ABGR_cokernel_abgr in H.
+  Abort.
+
+
+  Definition ABGR_setquot_iso {A B : abgr} (f : ABGR⟦A, B⟧)
+             (isE : isEpi ABGR f) (b : B)
+             (H : setquotpr (ABGR_cokernel_eqrel f) b
+                  = setquotpr (ABGR_cokernel_eqrel f)
+                              1%multmonoid) :
+    ∥ hfiber (pr1 f) b ∥ .
+  Proof.
+    set (tmp := weqpathsinsetquot (ABGR_cokernel_eqrel f) b (unel _)).
+    set (tmp1 := pr1weq (invweq tmp)).
+    set (tmp2 := tmp1 H).
+    unfold ABGR_cokernel_eqrel in tmp2. cbn in tmp2.
+
+    intros P X. apply tmp2. intros Y. apply X.
+    induction Y.
+    rewrite grinvunel in p.
+    rewrite (runax B) in p.
+    apply (hfiberpair (pr1 f) t p).
+  Qed.
+
+  Definition ABGR_epi_issurjective {A B : abgr} (f : ABGR⟦A, B⟧)
+             (isE : isEpi ABGR f) :
+    issurjective (pr1 f).
+  Proof.
+    unfold isEpi in isE.
+    set (tmp := isE (ABGR_cokernel_abgr f) (ABGR_cokernel_monoidfun f)
+                    (ABGR_zero_arrow B (ABGR_cokernel_abgr f))).
+    assert (H : f ;; ABGR_cokernel_monoidfun f
+                = f ;; ABGR_zero_arrow B (ABGR_cokernel_abgr f)).
+    {
+      rewrite ABGR_cokernel_eq'.
+      rewrite <- ABGR_has_zero_arrow_eq.
+      rewrite <- ABGR_has_zero_arrow_eq.
+      rewrite ZeroArrow_comp_right.
+      apply idpath.
+    }
+    set (tmp1 := tmp H).
+
+    intros x.
+    unfold ABGR_cokernel_monoidfun in tmp1. unfold ABGR_zero_arrow in tmp1.
+    cbn in tmp1. apply base_paths in tmp1. cbn in tmp1.
+    assert (Hunel : unel B = pr1 (pr2 (pr1 (pr1 (pr2 B))))).
+    {
+      apply idpath.
+    }
+    rewrite <- Hunel in tmp1.
+    set (tmp2 := @funeqpaths (pr1 B) (pr1 (ABGR_cokernel_abgr f))).
+    set (tmp3 := tmp2 _ _ tmp1). cbn in tmp3.
+    apply (ABGR_setquot_iso f isE x (tmp3 x)).
+  Qed.
+
+
+  (*** Monics *)
+
+  (** Is this a duplicate? *)
+  Definition ABGR_monoidfun_inv_eq {A B : abgr}
+             (f : monoidfun A B) (a : A) : f (grinv A a) = grinv B (f a).
+  Proof.
+    assert (H : ((f a) * (f (grinv A a)))%multmonoid = 1%multmonoid).
+    {
+      set (tmp := ((pr1 (pr2 f)) a (grinv A a))).
+      cbn in *. apply pathsinv0 in tmp. use (pathscomp0 tmp).
+      rewrite (grrinvax A). apply (pr2 (pr2 f)).
+    }
+
+    apply (grlcan B (f a)). rewrite (grrinvax B).
+    exact H.
+  Qed.
+
+  (** The following equalities are needed to prove that Monics are
+     inclusions. *)
+  Lemma ABGR_natset_dirprod_monoidfun_eq {A B : abgr} (a1 a2 : A)
+        (f : monoidfun A B) (H : f a1 = f a2) :
+    monoidfuncomp (ABGR_natset_dirprod_map_monoidfun a1) f
+    = monoidfuncomp (ABGR_natset_dirprod_map_monoidfun a2) f.
+  Proof.
+    use total2_paths. cbn. unfold funcomp. apply funextfun.
+    intros x. induction x. induction t. induction p.
+    unfold ABGR_natset_dirprod_map. cbn.
+    rewrite (runax A). apply idpath.
+
+    unfold ABGR_natset_dirprod_map. cbn.
+    rewrite (lunax A). rewrite (lunax A).
+    rewrite (pr1 (pr2 f)). rewrite (pr1 (pr2 f)).
+    apply (maponpaths (fun h : _ => grinv B h)) in H.
+    rewrite <- (ABGR_monoidfun_inv_eq f a1) in H.
+    rewrite <- (ABGR_monoidfun_inv_eq f a2) in H.
+    cbn in *. rewrite <- H. apply cancel_lop.
+    unfold ABGR_natset_dirprod_map in IHp. cbn in IHp.
+    rewrite (lunax A) in IHp. rewrite (lunax A) in IHp. apply IHp.
+
+    unfold ABGR_natset_dirprod_map in *.
+    unfold ABGR_natset_map in *. cbn in *.
+    rewrite (assocax A). rewrite (assocax A).
+    set (tmp := (pr1 (pr2 f))). cbn in tmp.
+    rewrite tmp. rewrite (tmp a2). rewrite H.
+    apply cancel_lop. apply IHt.
+
+    apply proofirrelevance. apply isapropismonoidfun.
+  Qed.
+
+  Lemma ABGR_monoidfun_precomp {A :abmonoid} {B C : abgr}
+        (f1 f2 : monoidfun B C) (g : monoidfun A B)
+        (H : issurjective (pr1 g)) :
+    monoidfuncomp g f1 = monoidfuncomp g f2
+    -> f1 = f2.
+  Proof.
+    intros X.
+    use total2_paths. apply funextfun. intros x.
+    apply base_paths in X. cbn in X. unfold funcomp in X.
+    unfold issurjective in H.
+    use (squash_to_prop (H x)). use (setproperty C).
+    intros h. induction h.
+    rewrite <- p.
+    apply (funeqpaths X t).
+
+    apply proofirrelevance. apply isapropismonoidfun.
+  Qed.
+
+  Lemma ABGR_integer_natset_map_comm {A : abgr} (a : A) :
+    monoidfuncomp ABGR_natset_to_Z_monoidfun (ABGR_integer_map_monoidfun a)
+    = ABGR_natset_dirprod_map_monoidfun a.
+  Proof.
+    use total2_paths. cbn. apply funextfun. intros x.
+    unfold funcomp.
+    use setquotunivcomm.
+    apply proofirrelevance. apply isapropismonoidfun.
+  Qed.
+
+
+  Lemma ABGR_integer_map_monoifun_eq {A B : abgr} (a1 a2 : A)
+        (f : monoidfun A B) (H : f a1 = f a2) :
+    monoidfuncomp (ABGR_integer_map_monoidfun a1) f
+    = monoidfuncomp (ABGR_integer_map_monoidfun a2) f.
+  Proof.
+    apply (@ABGR_monoidfun_precomp
+             (abmonoiddirprod (rigaddabmonoid natcommrig)
+                              (rigaddabmonoid natcommrig))
+             hzaddabgr
+             B
+             (monoidfuncomp (ABGR_integer_map_monoidfun a1) f)
+             (monoidfuncomp (ABGR_integer_map_monoidfun a2) f)
+             ABGR_natset_to_Z_monoidfun).
+    use issurjsetquotpr.
+
+    set (tmp := (abmonoidfuncomp_assoc
+                   (abmonoiddirprod (rigaddabmonoid natcommrig)
+                                    (rigaddabmonoid natcommrig))
+                   hzaddabgr A B
+                   ABGR_natset_to_Z_monoidfun
+                   (ABGR_integer_map_monoidfun a1)
+                   f)).
+    apply pathsinv0 in tmp.
+    use (pathscomp0 tmp).
+
+    set (tmp1 := (abmonoidfuncomp_assoc
+                    (abmonoiddirprod (rigaddabmonoid natcommrig)
+                                    (rigaddabmonoid natcommrig))
+                    hzaddabgr A B
+                    ABGR_natset_to_Z_monoidfun
+                    (ABGR_integer_map_monoidfun a2)
+                    f)).
+    use (pathscomp0 _ tmp1).
+
+    set (tmp2 := ABGR_integer_natset_map_comm a1).
+    apply (maponpaths (fun h : _ => monoidfuncomp h f)) in tmp2.
+    use (pathscomp0 tmp2).
+
+    set (tmp3 := ABGR_integer_natset_map_comm a2).
+    apply (maponpaths (fun h : _ => monoidfuncomp h f)) in tmp3.
+    apply pathsinv0 in tmp3.
+    use (pathscomp0 _ tmp3).
+
+    apply ABGR_natset_dirprod_monoidfun_eq.
+    apply H.
+  Qed.
+
+  (** Finally, we are able to show that monics are inclusions. *)
+  Definition ABGR_monic_isincl {A B : abgr} (f : monoidfun A B)
+             (isM : isMonic ABGR f) :
+    isincl f.
+  Proof.
+    intros b h1 h2.
+    use iscontrpair.
+    use total2_paths. unfold isMonic in isM. cbn in *.
+    set (p := pr2 h1). cbn in p.
+    set (p' := pr2 h2). cbn in p'.
+    rewrite <- p' in p.
+    set (tmp := isM hzaddabgr
+                    (ABGR_integer_map_monoidfun (pr1 h1))
+                    (ABGR_integer_map_monoidfun (pr1 h2))
+                    (ABGR_integer_map_monoifun_eq
+                       (pr1 h1) (pr1 h2) f p)).
+    apply base_paths in tmp. cbn in tmp.
+    set (tmp2 := funeqpaths tmp).
+    set (tmp3 := tmp2 (hzone)). cbn in tmp3.
+    unfold rigtorngunel2int in tmp3. cbn in tmp3.
+    unfold ABGR_natset_dirprod_map in tmp3. cbn in tmp3.
+    rewrite <- (runax A). rewrite <- (runax A).
+    use (pathscomp0 _ tmp3).
+    rewrite (runax A). rewrite (runax A). apply idpath.
+
+    apply proofirrelevance. apply (setproperty B).
+
+    intros t1.
+    apply proofirrelevance.
+
+    (* Is there a direct way to do the following? *)
+    assert (Hfiber: isaset (hfiber f b)).
+    {
+      unfold hfiber.
+      apply isaset_total2.
+      apply (setproperty A).
+      intros x.
+      apply isasetaprop.
+      apply (setproperty B).
+    }
+
+    apply Hfiber.
+  Qed.
+End ABGR_monics.
