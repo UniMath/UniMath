@@ -26,20 +26,22 @@ Local Definition hnnq_zero: hnnq_set := hq_to_hnnq_set 0 (isreflhqleh 0).
 Local Definition hnnq_one: hnnq_set := hq_to_hnnq_set 1 (hqlthtoleh 0 1 hq1_gt0).
 Local Definition hnnq_plus: binop hnnq_set :=
   λ x y : hnnq_set, hq_to_hnnq_set (pr1 x + pr1 y) (hq0lehandplus _ _ (pr2 x) (pr2 y)).
-Local Definition hnnq_minus: binop hnnq_set :=
-  λ x y : hnnq_set,
-          match (hqgthorleh (pr1 x) (pr1 y)) with
-          | ii2 _ => hnnq_zero
-          | ii1 H => hq_to_hnnq_set (pr1 x - pr1 y) (hq0leminus _ _ (hqlthtoleh _ _ H))
-          end.
+Local Definition hnnq_minus: binop hnnq_set.
+Proof.
+  intros x y.
+  induction (hqgthorleh (pr1 x) (pr1 y)) as [H | _].
+  exact (hq_to_hnnq_set (pr1 x - pr1 y) (hq0leminus _ _ (hqlthtoleh _ _ H))).
+  exact hnnq_zero.
+Defined.
 Local Definition hnnq_mult: binop hnnq_set :=
   λ x y : hnnq_set, hq_to_hnnq_set (pr1 x * pr1 y) (hqmultgeh0geh0 (pr2 x) (pr2 y)).
-Local Definition hnnq_inv: unop hnnq_set :=
-  λ x : hnnq_set,
-        match (hqlehchoice 0 (pr1 x) (pr2 x)) with
-        | ii1 Hx0 => hq_to_hnnq_set (/ pr1 x) (hqlthtoleh 0 (/ pr1 x) (hqinv_gt0 (pr1 x) Hx0))
-        | ii2 _ => x
-        end.
+Local Definition hnnq_inv: unop hnnq_set.
+Proof.
+  intros x.
+  induction (hqlehchoice 0 (pr1 x) (pr2 x)) as [Hx0 | _].
+  exact (hq_to_hnnq_set (/ pr1 x) (hqlthtoleh 0 (/ pr1 x) (hqinv_gt0 (pr1 x) Hx0))).
+  exact x.
+Defined.
 Local Definition hnnq_div : binop hnnq_set := λ x y : hnnq_set, hnnq_mult x (hnnq_inv y).
 
 (** ** Equality and order on non-negative rational numbers *)
@@ -179,8 +181,8 @@ Proof.
   - apply subtypeEquality_prop.
     apply hqislinvmultinv.
     now apply (hqgth_hqneq (pr1 x) 0), Hx0'.
-  - apply pathsinv0 in Hx0'.
-    apply fromempty ; revert Hx0'.
+  - apply fromempty.
+    generalize (pathsinv0 Hx0').
     apply hqgth_hqneq, Hx0.
 Qed.
 Local Lemma isrinv'_hnnq_inv:
@@ -361,6 +363,7 @@ Proof.
   apply coprod_rect ; [intros Hgt | intros Hle].
   - reflexivity.
   - generalize (isantisymmhqleh _ _ Hle H) ; intros Heq.
+    rewrite coprod_rect_compute_2.
     generalize (hq0leminus (pr1 y) (pr1 x) H).
     rewrite Heq, hqrminus.
     intros H0.
@@ -776,14 +779,16 @@ Proof.
   unfold minusNonnegativeRationals, hnnq_minus.
   generalize (hqgthorleh (pr1 q) (pr1 r)).
   apply coprod_rect ; intros H'.
-  - apply subtypeEquality_prop.
+  - rewrite coprod_rect_compute_1.
+    apply subtypeEquality_prop.
     unfold hqminus.
     pattern r at 4 ;
       rewrite (tppr r).
     generalize (pr1 r) (pr1 q) (pr2 r) (hq0leminus (pr1 r) (pr1 q) (hqlthtoleh (pr1 r) (pr1 q) H')) ; intros r' q' Hr Hrq.
     simpl.
     now rewrite hqplusassoc, hqlminus, hqplusr0.
-  - apply subtypeEquality_prop.
+  - rewrite coprod_rect_compute_2.
+    apply subtypeEquality_prop.
     rewrite (tppr r).
     generalize (isantisymmhqleh _ _ H H').
     generalize (pr1 r) (pr2 r) (pr1 q) ; intros r' Hr' q' Heq.
@@ -1503,19 +1508,20 @@ Qed.
 
 (** ** NQmax *)
 
-Definition NQmax : binop NonnegativeRationals :=
-  λ (x y : NonnegativeRationals),
-  match (isdecrel_leNonnegativeRationals x y) with
-  | ii1 _ => y
-  | ii2 _ => x
-  end.
+Definition NQmax : binop NonnegativeRationals.
+Proof.
+  intros x y.
+  refine (sumofmaps _ _ (isdecrel_leNonnegativeRationals x y)) ; intros _.
+  exact y.
+  exact x.
+Defined.
 Lemma NQmax_eq_zero :
   Π x y : NonnegativeRationals, NQmax x y = 0 -> (x = 0) × (y = 0).
 Proof.
   intros x y.
   unfold NQmax.
   generalize (isdecrel_leNonnegativeRationals x y).
-  apply (coprod_rect (λ _, _ → _)) ; [ intros Hle | intros Hlt] ; intro H ; split.
+  apply (coprod_rect (λ _, _ → _)) ; [ intros Hle | intros Hlt] ; intro H ; simpl in H ; split.
   - apply NonnegativeRationals_eq0_le0.
     apply istrans_leNonnegativeRationals with (1 := Hle).
     now rewrite H ; apply isrefl_leNonnegativeRationals.
@@ -1574,12 +1580,13 @@ Qed.
 
 (** ** NQmin *)
 
-Definition NQmin : binop NonnegativeRationals :=
-  λ (x y : NonnegativeRationals),
-  match (isdecrel_leNonnegativeRationals x y) with
-  | ii1 _ => x
-  | ii2 _ => y
-  end.
+Definition NQmin : binop NonnegativeRationals.
+Proof.
+  intros x y.
+  refine (sumofmaps _ _ (isdecrel_leNonnegativeRationals x y)) ; intros _.
+  exact x.
+  exact y.
+Defined.
 
 (** ** intpart *)
 
