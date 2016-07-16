@@ -300,7 +300,6 @@ Section ABGR_zero.
   Definition ABGR_zero_to (A : abgr) : ABGR⟦ABGR_zero, A⟧
     := monoidfunconstr (ABGR_zero_to_ismonoid A).
 
-
   Definition ABGR_zero_arrow_ismonoid (A B : abgr) :
     @ismonoidfun A B (fun a : _ => (unel B)).
   Proof.
@@ -332,24 +331,6 @@ Section ABGR_zero.
   (** The following lemma constructs a zero object in ABGR. *)
   Definition ABGR_has_zero : Zero ABGR
     := @mk_Zero ABGR ABGR_zero ABGR_has_zero_iszero.
-  (*
-  Proof.
-    use mk_Zero.
-    exact ABGR_zero.
-    use mk_isZero.
-    intros a. refine (tpair _ (ABGR_zero_to a) _).
-    intros t. use total2_paths. apply funextfun. intros x.
-
-    unfold ABGR_zero_to. cbn.
-    rewrite (isconnectedunit x (unel ABGR_zero)). apply (pr2 (pr2 t)).
-    apply proofirrelevance. apply isapropismonoidfun.
-
-    intros a. refine (tpair _ (ABGR_zero_from a) _).
-    intros t. use total2_paths. apply funextfun. intros x.
-    apply isconnectedunit.
-    apply proofirrelevance. apply isapropismonoidfun.
-  Defined.
-   *)
 
   (** The following lemmas verify that the above definition behaves as
     expected. *)
@@ -1749,3 +1730,275 @@ Section ABGR_monics.
     apply Hfiber.
   Qed.
 End ABGR_monics.
+
+
+(** In this section we prove that Monics are kernels in ABGR. *)
+Section ABGR_monic_kernels.
+
+  (** For some reason coq does not fold unel B automatically. Thus I have
+      used the following equality. *)
+  Definition ABGR_monic_kernel_unel_rw (B : abgr) :
+    unel B = pr1 (pr2 (pr1 (pr1 (pr2 B)))).
+  Proof.
+    apply idpath.
+  Qed.
+
+  (** Suppose f is a Monic and h is a morphism to the targe of f so that
+      h composed with the cokernel of f is zero, then for any element in the
+      image of h the hfiber consists of exactly of one term. We use this
+      to define the unique map KernelIn which is needed to show that f is the
+      kernel of its cokernel. *)
+  Definition ABGR_monic_kernel_in_hfiber_iscontr {A B : abgr} (f : ABGR⟦A, B⟧)
+             (isM : isMonic ABGR f) (w : abgr) (h: ABGR⟦w, B⟧)
+             (H : h ;; CokernelArrow ABGR_has_zero (ABGR_Cokernel f) =
+                  h ;; ZeroArrow ABGR ABGR_has_zero B (ABGR_Cokernel f)) :
+    Π x : w, iscontr (hfiber (pr1 f) (pr1 h x)).
+  Proof.
+    (* Remember tmp0 this for later use in the proof. *)
+    set (tmp0 := isweqonpathsincl _ (ABGR_monic_isincl f isM)).
+    unfold isInjective in tmp0. cbn in tmp0.
+
+    intros x.
+
+    (* Construction of hfiber for x *)
+    set (tmp := ABGR_monic_isincl f isM).
+    rewrite ZeroArrow_comp_right in H.
+    rewrite ABGR_has_zero_arrow_eq in H.
+    cbn in H. unfold ABGR_zero_arrow in H.
+    apply base_paths in H. cbn in H.
+    rewrite <- ABGR_monic_kernel_unel_rw in H. unfold funcomp in H.
+    set (tmp3 := (weqpathsinsetquot (ABGR_cokernel_eqrel f)
+                                    (pr1 h x) (unel _))).
+    set (tmp4 := pr1weq (invweq tmp3)).
+    set (tmp5 := tmp4 (funeqpaths H x)).
+    cbn in tmp5.
+    rewrite (grinvunel B) in tmp5.
+    rewrite (runax B) in tmp5.
+
+    use (squash_to_prop tmp5). apply isapropiscontr.
+    intros X.
+    apply (iscontrpair (hfiberpair (pr1 f) _ (pr2 X))).
+    intros t.
+    use total2_paths. cbn.
+    set (tmp6 := tmp0 (pr1 t) (pr1 X)). unfold isweq in tmp6.
+
+    assert (e : pr1 f (pr1 t) = pr1 f (pr1 X)).
+    {
+      cbn in *.
+      rewrite (pr2 X).
+      rewrite (pr2 t).
+      apply idpath.
+    }
+    set (tmp7 := tmp6 e). unfold hfiber in tmp7.
+    exact (pr1 (pr1 tmp7)).
+
+    apply proofirrelevance. apply (setproperty B).
+  Qed.
+
+  (** We construct an hfiber for every element in the image of h. *)
+  Definition ABGR_monic_kernel_in_hfiber {A B : abgr} (f : ABGR⟦A, B⟧)
+             (isM : isMonic ABGR f) (w : abgr) (x : w) (h: ABGR⟦w, B⟧)
+             (H : h ;; CokernelArrow ABGR_has_zero (ABGR_Cokernel f) =
+                  h ;; ZeroArrow ABGR ABGR_has_zero B (ABGR_Cokernel f)) :
+    hfiber (pr1 f) (pr1 h x).
+  Proof.
+    (* Need to remember H for later use *)
+    assert (H'' : h ;; CokernelArrow ABGR_has_zero (ABGR_Cokernel f) =
+                  h ;; ZeroArrow ABGR ABGR_has_zero B (ABGR_Cokernel f)).
+    {
+      apply H.
+    }
+
+    rewrite ZeroArrow_comp_right in H.
+    rewrite ABGR_has_zero_arrow_eq in H.
+    cbn in H. unfold ABGR_zero_arrow in H.
+    apply base_paths in H. cbn in H.
+    rewrite <- ABGR_monic_kernel_unel_rw in H. unfold funcomp in H.
+    set (tmp1 := (weqpathsinsetquot (ABGR_cokernel_eqrel f)
+                                    (pr1 h x) (unel _))).
+    set (tmp2 := pr1weq (invweq tmp1)).
+    set (tmp3 := tmp2 (funeqpaths H x)).
+    cbn in tmp3.
+    rewrite (grinvunel B) in tmp3.
+    rewrite (runax B) in tmp3.
+    use (squash_to_prop tmp3).
+    use isapropifcontr.
+    apply (ABGR_monic_kernel_in_hfiber_iscontr f isM w h H'' x).
+
+    intros X. apply X.
+  Qed.
+
+  (** Hide equality behind Qed. *)
+  Lemma ABGR_monic_kernel_in_hfiber_mult_eq {A B : abgr}
+             (f : ABGR⟦A, B⟧) (w : abgr) (x x' : w) (h : ABGR⟦w, B⟧)
+             (X : hfiber (pr1 f) (pr1 h x))
+             (X0 : hfiber (pr1 f) (pr1 h x')):
+    pr1 f (pr1 X * pr1 X0)%multmonoid = pr1 h (x * x')%multmonoid.
+  Proof.
+    rewrite (pr1 (pr2 f)).
+    rewrite (pr2 X).
+    rewrite (pr2 X0).
+    rewrite (pr1 (pr2 h)).
+    apply idpath.
+  Qed.
+
+  (** This is used to verify that KernelIn is a binopfun. *)
+  Definition ABGR_monic_kernel_in_hfiber_mult {A B : abgr} (f : ABGR⟦A, B⟧)
+             (w : abgr) (x x' : w) (h : ABGR⟦w, B⟧) :
+    hfiber (pr1 f) (pr1 h x) -> hfiber (pr1 f) (pr1 h x')
+    -> hfiber (pr1 f) (pr1 h (x * x')%multmonoid).
+  Proof.
+    intros X X0.
+    exact (hfiberpair (pr1 f)
+                      ((pr1 X) * (pr1 X0))%multmonoid
+                      (ABGR_monic_kernel_in_hfiber_mult_eq f w x x'
+                                                           h X X0)).
+  Defined.
+
+  (** Hide equality behind Qed. *)
+  Lemma ABGR_monic_kernel_in_hfiber_unel_eq {A B : abgr} (f : ABGR⟦A, B⟧)
+        (w : abgr) (h : ABGR⟦w, B⟧) :
+    pr1 f 1%multmonoid = pr1 h 1%multmonoid.
+  Proof.
+    rewrite (pr2 (pr2 h)).
+    apply (pr2 (pr2 f)).
+  Qed.
+
+  (** This is used to vefiry that KernelIn respects unit elements. *)
+  Definition ABGR_monic_kernel_in_hfiber_unel {A B : abgr} (f : ABGR⟦A, B⟧)
+    (w : abgr) (h : ABGR⟦w, B⟧) :
+    hfiber (pr1 f) (pr1 h 1%multmonoid)
+    := hfiberpair (pr1 f)
+                  1%multmonoid
+                  (ABGR_monic_kernel_in_hfiber_unel_eq f w h).
+
+  (** We define the KernelIn as the morphism
+      x : w ↦ pr1 (hfiber (pr1 f) (pr1 h x)) : A . *)
+  Definition ABGR_monic_kernel_in {A B : abgr} (f : ABGR⟦A, B⟧)
+             (isM : isMonic ABGR f) (w : abgr) (h: ABGR⟦w, B⟧)
+             (H : h ;; CokernelArrow ABGR_has_zero (ABGR_Cokernel f) =
+                   h ;; ZeroArrow ABGR ABGR_has_zero B (ABGR_Cokernel f)) :
+    w -> A.
+  Proof.
+    intros x.
+    exact (pr1 (ABGR_monic_kernel_in_hfiber f isM w x h H)).
+  Defined.
+
+  (** Here we show that the KernelIn map is a monoidfun. *)
+  Definition ABGR_monic_kernel_in_monoidfun {A B : abgr} (f : ABGR⟦A, B⟧)
+             (isM : isMonic ABGR f) (w : abgr) (h: ABGR⟦w, B⟧)
+             (H : h ;; CokernelArrow ABGR_has_zero (ABGR_Cokernel f) =
+                   h ;; ZeroArrow ABGR ABGR_has_zero B (ABGR_Cokernel f)) :
+    monoidfun w A.
+  Proof.
+    use monoidfunconstr.
+    apply (ABGR_monic_kernel_in f isM w h H).
+
+    split.
+    intros x x'.
+    unfold ABGR_monic_kernel_in.
+    set (tmp := ABGR_monic_kernel_in_hfiber_mult
+                  f w x x' h
+                  (ABGR_monic_kernel_in_hfiber f isM w x h H)
+                  (ABGR_monic_kernel_in_hfiber f isM w x' h H)).
+    assert (HH : (ABGR_monic_kernel_in_hfiber f isM w (x * x')%multmonoid h H)
+                 = tmp).
+    {
+      set (tmp2 := ABGR_monic_kernel_in_hfiber_iscontr
+                     f isM w h H (x * x')%multmonoid).
+      unfold iscontr in tmp2. cbn in tmp2.
+      set (tmp3 := (pr2 tmp2) tmp).
+      rewrite tmp3.
+      set (tmp4 := (pr2 tmp2) (ABGR_monic_kernel_in_hfiber
+                                 f isM w (x * x')%multmonoid h H)).
+      rewrite tmp4.
+      apply idpath.
+    }
+
+    apply base_paths in HH. use (pathscomp0 HH). unfold tmp.
+    unfold ABGR_monic_kernel_in_hfiber_mult. cbn. apply idpath.
+
+    unfold ABGR_monic_kernel_in.
+    assert (HH : (ABGR_monic_kernel_in_hfiber f isM w 1%multmonoid h H)
+                 = (ABGR_monic_kernel_in_hfiber_unel f w h) ).
+    {
+      set (tmp2 := ABGR_monic_kernel_in_hfiber_iscontr
+                     f isM w h H 1%multmonoid).
+      unfold iscontr in tmp2. cbn in tmp2.
+      set (tmp3 := (pr2 tmp2) (ABGR_monic_kernel_in_hfiber_unel f w h)).
+      rewrite tmp3.
+      set (tmp4 := (pr2 tmp2)
+                     (ABGR_monic_kernel_in_hfiber f isM w 1%multmonoid h H)).
+      rewrite tmp4.
+      apply idpath.
+    }
+
+    apply base_paths in HH. use (pathscomp0 HH). apply idpath.
+  Defined.
+
+  (** ** We are ready to prove that Monics are Kernels. *)
+
+  (** Hide equality behind Qed. *)
+  Definition ABGR_Monic_Kernel_eq {A B : abgr} (f : ABGR⟦A, B⟧)
+             (isM : isMonic ABGR f) :
+    f ;; CokernelArrow ABGR_has_zero (ABGR_Cokernel f) =
+    ZeroArrow ABGR ABGR_has_zero A (ABGR_Cokernel f).
+  Proof.
+    apply CokernelCompZero.
+  Qed.
+
+  (** Hide isEqualizer beind Qed. *)
+  Definition ABGR_Monic_Kernel_isEqualizer {A B : abgr} (f : ABGR⟦A, B⟧)
+             (isM : isMonic ABGR f) :
+    isEqualizer (CokernelArrow ABGR_has_zero (ABGR_Cokernel f))
+                (ZeroArrow ABGR ABGR_has_zero B (ABGR_Cokernel f)) f
+                (KernelEqRw ABGR_has_zero (CokernelCompZero ABGR_has_zero
+                                                            (ABGR_Cokernel f))).
+  Proof.
+    use mk_isEqualizer.
+    intros w h H'.
+    use unique_exists.
+
+    (* KernelIn *)
+    apply (ABGR_monic_kernel_in_monoidfun f isM w h H').
+
+    (* Commutativity *)
+    cbn. use total2_paths. cbn. unfold funcomp. apply funextfun.
+    intros x. cbn. unfold ABGR_monic_kernel_in.
+    set (tmp := pr2 ((ABGR_monic_kernel_in_hfiber f isM w x h H'))).
+    cbn in tmp. apply tmp.
+    apply proofirrelevance. apply isapropismonoidfun.
+
+    (* Equality in equalities of morphisms *)
+    intros y. apply has_homsets_ABGR.
+
+    (* Uniqueness *)
+    intros y H. cbn in H.
+    unfold isMonic in isM. apply isM. cbn. rewrite H.
+    use total2_paths. cbn. apply funextfun. intros x.
+    apply pathsinv0. unfold funcomp. unfold ABGR_monic_kernel_in.
+    apply (pr2 ((ABGR_monic_kernel_in_hfiber f isM w x h H'))).
+
+    apply proofirrelevance. apply isapropismonoidfun.
+  Qed.
+
+  (** We construct a Kernel from the monic f so that the KernelArrow = f. *)
+  Definition ABGR_monic_kernel {A B : abgr} (f : ABGR⟦A, B⟧)
+             (isM : isMonic ABGR f) :
+    Kernel ABGR_has_zero (CokernelArrow ABGR_has_zero (ABGR_Cokernel f))
+    := mk_Kernel
+         ABGR_has_zero
+         f
+         (CokernelArrow ABGR_has_zero (ABGR_Cokernel f))
+         (ABGR_Monic_Kernel_eq f isM)
+         (ABGR_Monic_Kernel_isEqualizer f isM).
+
+  (** Here we verify that f is the KernelArrow of the above Kernel. *)
+  Definition ABGR_monic_kernel_KernelArrow {A B : abgr} (f : ABGR⟦A, B⟧)
+             (isM : isMonic ABGR f) :
+    KernelArrow ABGR_has_zero (ABGR_monic_kernel f isM) = f.
+  Proof.
+    apply idpath.
+  Qed.
+
+End ABGR_monic_kernels.
