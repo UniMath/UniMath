@@ -80,54 +80,29 @@ Local Definition identity_triangle1 {C : prebicategory}
   ;v; (right_unitor _)
     = (identity (identity_1mor a)).
 Proof.
-  rewrite whisker_right_inv.
-  rewrite <- (assoc _ _ _ _ _ _ (inv_from_iso _)).
-  simpl.
+  apply iso_inv_to_right.
+  rewrite id_left.
+  rewrite <- !assoc.
+  apply iso_inv_on_right.
 
-  set (W := iso_inv_of_iso_comp _ _ _ _ (associator
-                                                 (identity_1mor a)
-                                                 (identity_1mor a)
-                                                 (identity_1mor a))
-                                        (whisker_right_iso
-                                                 (left_unitor
-                                                 (identity_1mor a))
-                                                 (identity_1mor a))).
-  set (W' := maponpaths pr1 W).
-  simpl in W'.
-  unfold inv.
-  rewrite <- W'.
-  clear W W'.
-
-  assert (W : (associator (identity_1mor a) (identity_1mor a) (identity_1mor a)
-           ;i; whisker_right_iso (left_unitor (identity_1mor a)) (identity_1mor a)
-             = whisker_left_iso (identity_1mor a) (left_unitor (identity_1mor a)))).
-    apply eq_iso.
+  pathvia (identity (identity_1mor a ;1; identity_1mor a)).
+    rewrite whisker_right_inv.
+    apply iso_inv_on_right.
+    apply iso_inv_on_right.
+    rewrite id_right.
     simpl.
-    apply pathsinv0.
     unfold whisker_left.
     unfold whisker_right.
-    eapply pathscomp0.
-    apply (triangle_axiom (identity_1mor a) (identity_1mor a)).
-    rewrite left_unitor_id_is_right_unitor_id.
+    rewrite <- left_unitor_id_is_right_unitor_id.
+    rewrite (triangle_axiom (identity_1mor a) (identity_1mor a)).
+    rewrite <- left_unitor_id_is_right_unitor_id.
     reflexivity.
-  rewrite W.
-  clear W.
-
-  rewrite <- left_unitor_id_is_right_unitor_id.
-  rewrite <- whisker_left_inv.
-  rewrite <- (assoc _ _ _ _ _ _ _ (whisker_left _ (left_unitor_2mor _))).
-  rewrite <- whisker_left_on_comp.
 
   simpl.
+  apply pathsinv0.
+  rewrite left_unitor_id_is_right_unitor_id.
 
-  set (W := iso_after_iso_inv (left_unitor (identity_1mor a))).
-  simpl in W.
-  rewrite W.
-  fold (identity_2mor (identity_1mor a)).
-  rewrite whisker_left_id_2mor.
-  rewrite id_right.
-  rewrite W.
-  reflexivity.
+  apply (iso_inv_after_iso (right_unitor _)).
 Defined.
 
 Local Definition identity_triangle2 {C : prebicategory}
