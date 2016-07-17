@@ -14,13 +14,6 @@ Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
 (* General lemmas that should probably go somewhere else *)
 
-(* Theorem weqtoforallpaths_of_inverse { T : UU } (P:T -> UU)(f g : forall t:T, P t) (p : f = g): *)
-(*   weqtoforallpaths _ _ _ (!p) = fun t => !(weqtoforallpaths _ _ _ p t). *)
-(* Proof. *)
-(*   induction p. *)
-(*   reflexivity. *)
-(* Defined. *)
-
 Lemma eqweq_twice_is_eqweq_of_comp {A B C : UU}
       (p : A = B) (q : B = C)
   : weqcomp (eqweqmap p) (eqweqmap q)
@@ -84,6 +77,9 @@ Definition is_catiso {A B : precategory_data}
   (F : functor A B)
   := (fully_faithful F) × (isweq (functor_on_objects F)).
 
+Definition catiso (A B : precategory_data)
+  := total2 (fun F : functor A B => is_catiso F).
+
 Lemma isaprop_is_catiso
   {A B : precategory_data}
   {F : functor A B}
@@ -93,9 +89,6 @@ Proof.
   - apply isaprop_fully_faithful.
   - apply isapropisweq.
 Defined.
-
-Definition catiso (A B : precategory_data)
-  := total2 (fun F : functor A B => is_catiso F).
 
 Definition functor_from_catiso (A B : precategory_data)
   (F : catiso A B)
@@ -140,6 +133,17 @@ Defined.
 (******************************************************************************)
 (** * Construction of a map (catiso A B) -> (A = B) *)
 
+(* The path "p : ob A = ob B" is clear. The next task is to construct a path
+   "A a a' = (transportb p B) a a'" for all a, a' : A. We transport backwards
+   because the fully faithfulness of the functor applies more naturally this way  *)
+
+(* Let "w (= eqweqmap) : (X = Y) -> (X -> Y)" be the canonical map *)
+(* The path "A a a' = (transportb p B) a a'" is constructed in three pieces. *)
+(*     a --> a *)
+(*   = F a --> F a' *)
+(*   = w(p) a --> w(p) a' *)
+(*   = (transportb p B) a a' *)
+
 Lemma correct_hom {A B : precategory_data}
   (F : catiso A B)
   : forall a a' : A,
@@ -152,6 +156,7 @@ Proof.
   exact (maponpaths (fun T => (pr1weq T) a --> (pr1weq T) a') W ).
 Defined.
 
+(* w(p) a = F a *)
 Lemma eqweq_ob_path_is_functor_app {A B : precategory_data}
   (F : catiso A B)
   : forall a : A, eqweqmap (catiso_to_precategory_ob_path F) a = F a.
@@ -264,6 +269,8 @@ Definition catiso_to_precategory_ob_mor_path {A B : precategory_data}
   : precategory_ob_mor_from_precategory_data A = precategory_ob_mor_from_precategory_data B
   := total2_paths_b (catiso_to_precategory_ob_path F) (catiso_to_precategory_mor_path_funext F).
 
+(* Remains to show that identity and composition transport correctly. *)
+
 Lemma transport_id {A0 B0 : UU} (p0 : A0 = B0)
   (A1 : A0 -> A0 -> UU) (B1 : B0 -> B0 -> UU) (p1 : A1 = transportb _ p0 B1)
   (idB : forall b : B0, B1 b b)
@@ -303,11 +310,13 @@ Proof.
 
   eapply pathscomp0. apply transport_id.
 
+  (* Cancel funext *)
   unfold catiso_to_precategory_mor_path_funext.
   unfold catiso_to_precategory_mor_path.
   unfold funextsec.
   rewrite !(homotweqinvweq (weqtoforallpaths _ _ _)).
 
+  (* Cancel transport_mor with its inverse *)
   rewrite pathscomp_inv.
   rewrite pathscomp_inv.
   rewrite path_assoc.
@@ -316,6 +325,7 @@ Proof.
   rewrite pathsinv0r.
   simpl.
 
+  (* Get into a form we can apply correct_hom_on_id *)
   apply pathsweq1'.
   rewrite <- pathscomp_inv.
   rewrite eqweq_of_inverse.
@@ -330,7 +340,9 @@ Proof.
   apply correct_hom_on_id.
 Defined.
 
-Lemma transport_comp_thing {A0 B0 : UU} (p0 : A0 = B0)
+(* We want to prove a similar lemma to transport_mor. The following is
+   the type on the RHS of the path. *)
+Lemma transport_comp_target {A0 B0 : UU} (p0 : A0 = B0)
   (A1 : A0 -> A0 -> UU) (B1 : B0 -> B0 -> UU) (p1 : A1 = transportb (fun T => T -> T -> UU) p0 B1)
   : forall a a' a'' : A0,
     ( B1 (eqweqmap p0 a) (eqweqmap p0 a') -> B1 (eqweqmap p0 a') (eqweqmap p0 a'') -> B1 (eqweqmap p0 a) (eqweqmap p0 a''))
@@ -357,7 +369,7 @@ Lemma transport_comp {A0 B0 : UU} (p0 : A0 = B0)
   (compB : forall b b' b'' : B0, B1 b b' -> B1 b' b'' -> B1 b b'')
   : forall a a' a'' : A0,
       (transportb (X := total2 (fun T => T -> T -> UU)) (fun T => forall a b c, (pr2 T) a b -> (pr2 T) b c -> (pr2 T) a c) (total2_paths2_b p0 p1) compB) a a' a''
-    = transport_comp_thing p0 A1 B1 p1 a a' a'' (compB (eqweqmap p0 a) (eqweqmap p0 a') (eqweqmap p0 a'') ).
+    = transport_comp_target p0 A1 B1 p1 a a' a'' (compB (eqweqmap p0 a) (eqweqmap p0 a') (eqweqmap p0 a'') ).
 Proof.
   induction p0.
   rewrite p1.
@@ -394,8 +406,9 @@ Proof.
   apply funextsec. intros f.
   apply funextsec. intros g.
 
-  unfold transport_comp_thing.
+  unfold transport_comp_target.
 
+  (* Cancel funext *)
   unfold catiso_to_precategory_mor_path_funext.
   unfold funextsec.
   rewrite !(homotweqinvweq (weqtoforallpaths _ _ _)).
@@ -420,6 +433,7 @@ Proof.
   rewrite pathscomp0rid.
   rewrite <- pathscomp_inv.
 
+  (* Rearrange to get into a form to apply correct_hom_on_comp *)
   apply pathsweq1'.
   rewrite eqweq_of_inverse.
   rewrite invinv.
