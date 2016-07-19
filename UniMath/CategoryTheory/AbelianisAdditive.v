@@ -1,4 +1,9 @@
-(** We prove that Abelian_precategory is additive. *)
+(** * Abelian_precategory is Additive *)
+(** ** Contents
+- Abelian_precategory is Additive
+ - Preliminaries
+ - Abelian_precategory is Additive
+*)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -32,10 +37,14 @@ Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
 
+
+(** * Abelian_precategory is Additive. *)
 Section abelian_is_additive.
 
   Variable A : Abelian_precategory.
   Hypothesis hs : has_homsets A.
+
+  (** ** Preliminaries *)
 
   (** Some maps we are going to use. *)
   Definition DiagonalMap {X : A} (BinProd : BinProductCone A X X) :
@@ -591,6 +600,8 @@ Section abelian_is_additive.
     unfold Abelian_minus_op. apply idpath.
   Qed.
 
+  (** ** Abelian_precategory is Additive *)
+
   (** The zero element in a homset of A is given by the ZeroArrow. *)
   Definition Abelian_precategory_homset_zero (X Y : A) :
     A⟦X, Y⟧ := ZeroArrow A (Abelian_Zero A) X Y.
@@ -745,7 +756,7 @@ Section abelian_is_additive.
     apply idpath.
   Qed.
 
-  Definition Abelian_precategory_homset_assoc_eq1 {X Y : A} (f g : X --> Y) :
+  Definition Abelian_precategory_homset_inv_minus {X Y : A} (f g : X --> Y) :
     Abelian_op _ _ f (Abelian_precategory_homset_inv g) =
     Abelian_minus_op f g.
   Proof.
@@ -761,11 +772,11 @@ Section abelian_is_additive.
     Abelian_op _ _ f (Abelian_precategory_homset_inv f) =
     Abelian_precategory_homset_zero X Y.
   Proof.
-    rewrite Abelian_precategory_homset_assoc_eq1.
+    rewrite Abelian_precategory_homset_inv_minus.
     apply Abelian_precategory_homset_inv_left'.
   Qed.
 
-  Definition Abelian_precategory_homset_assoc_eq3 {X Y : A} (f g : X --> Y) :
+  Definition Abelian_precategory_homset_assoc_eq1 {X Y : A} (f g : X --> Y) :
     Abelian_minus_op (Abelian_precategory_homset_zero X Y)
                      (Abelian_minus_op f g)
     = Abelian_op _ _
@@ -780,7 +791,7 @@ Section abelian_is_additive.
     apply idpath.
   Qed.
 
-  Definition Abelian_precategory_homset_assoc_eq4 {X Y : A} (f g : X --> Y) :
+  Definition Abelian_precategory_homset_assoc_eq2 {X Y : A} (f g : X --> Y) :
     Abelian_minus_op (Abelian_precategory_homset_zero X Y)
                      (Abelian_op _ _ f g)
     = Abelian_minus_op
@@ -798,7 +809,7 @@ Section abelian_is_additive.
     apply idpath.
   Qed.
 
-  Definition Abelian_precategory_homset_assoc_eq5 {X Y : A} (f g h : X --> Y) :
+  Definition Abelian_precategory_homset_assoc_eq3 {X Y : A} (f g h : X --> Y) :
      Abelian_op _ _ (Abelian_minus_op f g) h
      = Abelian_minus_op f (Abelian_minus_op g h).
   Proof.
@@ -824,11 +835,10 @@ Section abelian_is_additive.
     apply idpath.
   Qed.
 
-  (* TODO: change isPrecategorywithabgrops to PrecategoryWithAbgropsData *)
-  Definition Abelian_precategory_isPrecategoryWithAbgrops :
-    isPrecategoryWithAbgrops Abelian_precategory_PrecategoryWithBinops hs.
+  Definition Abelian_precategory_PrecategoryWithAbgropsData :
+    PrecategoryWithAbgropsData Abelian_precategory_PrecategoryWithBinops hs.
   Proof.
-    unfold isPrecategoryWithAbgrops.
+    unfold PrecategoryWithAbgropsData.
     intros x y.
 
     (* isabgrop *)
@@ -862,14 +872,12 @@ Section abelian_is_additive.
     := mk_PrecategoryWithAbgrops
          Abelian_precategory_PrecategoryWithBinops
          hs
-         Abelian_precategory_isPrecategoryWithAbgrops.
+         Abelian_precategory_PrecategoryWithAbgropsData.
 
-  (** We prove that Abelian_precategories are PreAddtitive. *)
-  Definition Abelian_precategory_PreAdditive :
-    PreAdditive.
+  (** Hide isPreAdditive behind Qed. *)
+  Definition Abelian_precategory_isPreAdditive :
+    isPreAdditive Abelian_precategory_PrecategoryWithAbgrops.
   Proof.
-    use (mk_PreAdditive Abelian_precategory_PrecategoryWithAbgrops).
-
     use mk_isPreAdditive.
 
     (* precomposition ismonoidfun *)
@@ -969,7 +977,14 @@ Section abelian_is_additive.
     unfold PrecategoryWithAbgrops_postmor. cbn.
     unfold Abelian_precategory_homset_zero.
     apply ZeroArrow_comp_left.
-  Defined.
+  Qed.
+
+  (** We prove that Abelian_precategories are PreAddtitive. *)
+  Definition Abelian_precategory_PreAdditive :
+    PreAdditive
+    := mk_PreAdditive
+         Abelian_precategory_PrecategoryWithAbgrops
+         Abelian_precategory_isPreAdditive.
 
   (** Finally, we show that Abelian_precategories are Additive. *)
   Definition Abelian_precategory_Additive :

@@ -1,4 +1,4 @@
-(** Definition of additive categories. *)
+(** * Additive categories. *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -17,6 +17,7 @@ Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 
 
+(** * Definition of additive categories *)
 Section def_additive.
 
   (** A preadditive category is additive if it has a zero object and binary
