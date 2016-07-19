@@ -183,7 +183,7 @@ Lemma nattorig_nattohz :
   Π n : nat, nattorig (X := hz) n = nattohz n.
 Proof.
   induction n.
-  - simpl.
+  - unfold nattorig, nattohz ; simpl.
     reflexivity.
   - rewrite nattorigS, IHn.
     apply pathsinv0, nattohzandS.
@@ -229,36 +229,40 @@ Proof.
   - reflexivity.
   - intros n m k.
     apply istransnatgth.
-  - generalize isarchnat ; intros (H,(H0,H1)).
+  - generalize isarchnat ; intros H.
     repeat split.
     + intros y1 y2 Hy.
       refine (hinhfun _ _).
-      2: apply (H y1 y2).
-      intros (n,Hn).
-      exists n.
+      2: apply ((pr1 H) y1 y2).
+      intros n.
+      exists (pr1 n).
       apply hinhpr.
       exists O.
-      now rewrite !natplusr0.
+      rewrite !natplusr0.
+      apply (pr2 n).
       revert Hy.
       apply hinhuniv.
-      intros (c,x); generalize x; clear x.
+      intros c.
+      generalize (pr2 c).
       apply natgthandplusrinv.
     + intros x.
-      generalize (H0 x).
+      generalize ((pr1 (pr2 H)) x).
       apply hinhfun.
-      intros (n,Hn).
-      exists n.
+      intros n.
+      exists (pr1 n).
       apply hinhpr.
       exists O.
-      now rewrite !natplusr0.
+      rewrite !natplusr0.
+      exact (pr2 n).
     + intros x.
-      generalize (H1 x).
+      generalize ((pr2 (pr2 H)) x).
       apply hinhfun.
-      intros (n,Hn).
-      exists n.
+      intros n.
+      exists (pr1 n).
       apply hinhpr.
       exists O.
-      now rewrite !natplusr0.
+      rewrite !natplusr0.
+      exact (pr2 n).
 Qed.
 
 Lemma isarchhq :
@@ -271,27 +275,3 @@ Proof.
 Qed.
 
 Close Scope hq_scope.
-
-(** ** A new tactic *)
-
-Ltac apply_pr2 T :=
-  first [ refine (pr2 (T) _)
-        | refine (pr2 (T _) _)
-        | refine (pr2 (T _ _) _)
-        | refine (pr2 (T _ _ _) _)
-        | refine (pr2 (T _ _ _ _) _)
-        | refine (pr2 (T _ _ _ _ _) _)
-        | refine (pr2 (T))
-        | refine (pr2 (T _))
-        | refine (pr2 (T _ _))
-        | refine (pr2 (T _ _ _))
-        | refine (pr2 (T _ _ _ _))
-        | refine (pr2 (T _ _ _ _ _)) ].
-
-Ltac apply_pr2_in T H :=
-  first [ apply (pr2 (T)) in H
-        | apply (fun H0 => pr2 (T H0)) in H
-        | apply (fun H0 H1 => pr2 (T H0 H1)) in H
-        | apply (fun H0 H1 H2 => pr2 (T H0 H1 H2)) in H
-        | apply (fun H0 H1 H2 H3 => pr2 (T H0 H1 H2 H3)) in H
-        | apply (fun H0 H1 H2 H3 H4 => pr2 (T H0 H1 H2 H3 H4)) in H ].
