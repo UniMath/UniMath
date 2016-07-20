@@ -948,6 +948,9 @@ Definition category := total2 (fun C : precategory => is_category C).
 Definition precat_from_cat (C : category) : precategory := pr1 C.
 Coercion precat_from_cat : category >-> precategory.
 
+Definition category_has_homsets ( C : category )
+  := pr2 (pr2 C).
+
 Lemma category_has_groupoid_ob (C : category): isofhlevel 3 (ob C).
 Proof.
   change (isofhlevel 3 C) with
