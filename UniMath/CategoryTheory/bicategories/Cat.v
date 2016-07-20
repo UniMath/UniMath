@@ -1,7 +1,7 @@
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 
@@ -15,16 +15,16 @@ Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Definition Catlike_associator ( a b c d : precategory ) (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d) :
    nat_trans
      (functor_composite
-        (product_functor
+        (binproduct_pair_functor
            (functor_identity (functor_precategory a b hsB))
            (functorial_composition b c d hsC hsD))
         (functorial_composition a b d hsB hsD))
      (functor_composite
-        (product_precategory_assoc (functor_precategory a b hsB)
+        (binproduct_precategory_assoc (functor_precategory a b hsB)
            (functor_precategory b c hsC)
            (functor_precategory c d hsD))
         (functor_composite
-           (product_functor
+           (binproduct_pair_functor
               (functorial_composition a b c hsB hsC)
               (functor_identity (functor_precategory c d hsD)))
            (functorial_composition a c d hsC hsD))).
@@ -76,7 +76,7 @@ Defined.
 
 Definition Catlike_associator_is_iso ( a b c d : precategory )
   (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d) :
-  forall f g h, is_iso (Catlike_associator a b c d hsB hsC hsD (prodcatpair f (prodcatpair g h))).
+  forall f g h, is_iso (Catlike_associator a b c d hsB hsC hsD (binprodcatpair f (binprodcatpair g h))).
 Proof.
   intros f g h.
   (* The components are all the identity, so this is easy *)
@@ -88,7 +88,7 @@ Defined.
 Definition Catlike_left_unitor (a b : precategory) (hsA : has_homsets a) (hsB : has_homsets b) :
   nat_trans
      (functor_composite
-        (pair_functor
+        (bindelta_pair_functor
            (functor_composite (unit_functor (functor_precategory a b hsB))
               (ob_as_functor (C:= (functor_precategory a a hsA)) (functor_identity a)))
            (functor_identity (functor_precategory a b hsB)))
@@ -133,7 +133,7 @@ Defined.
 Definition Catlike_right_unitor (a b : precategory) (hsB : has_homsets b) :
   nat_trans
      (functor_composite
-        (pair_functor (functor_identity (functor_precategory a b hsB))
+        (bindelta_pair_functor (functor_identity (functor_precategory a b hsB))
            (functor_composite (unit_functor (functor_precategory a b hsB))
               (ob_as_functor (C:= (functor_precategory b b hsB)) (functor_identity b))))
         (functorial_composition a b b hsB hsB)) (functor_identity (functor_precategory a b hsB)).
@@ -169,20 +169,20 @@ Definition Catlike_pentagon ( a b c d e : precategory )
   (hsE : has_homsets e) :
   forall k h g f,
   (Catlike_associator a b c e _ _ _)
-     (prodcatpair k
-        (prodcatpair h ((functorial_composition c d e hsD _) (dirprodpair g f)))) ;;
+     (binprodcatpair k
+        (binprodcatpair h ((functorial_composition c d e hsD _) (dirprodpair g f)))) ;;
    (Catlike_associator a c d e _ _ _)
-     (prodcatpair ((functorial_composition a b c hsB hsC) (dirprodpair k h))
-        (prodcatpair g f))
+     (binprodcatpair ((functorial_composition a b c hsB hsC) (dirprodpair k h))
+        (binprodcatpair g f))
   = (functor_on_morphisms (functorial_composition a b e hsB hsE)
-      (prodcatmor (identity k)
-         ((Catlike_associator b c d e _ _ _) (prodcatpair h (prodcatpair g f)))) ;;
+      (binprodcatmor (identity k)
+         ((Catlike_associator b c d e _ _ _) (binprodcatpair h (binprodcatpair g f)))) ;;
     (Catlike_associator a b d e _ _ _)
-      (prodcatpair k
-         (prodcatpair ((functorial_composition b c d _ _) (dirprodpair h g)) f))) ;;
+      (binprodcatpair k
+         (binprodcatpair ((functorial_composition b c d _ _) (dirprodpair h g)) f))) ;;
    functor_on_morphisms (functorial_composition a d e _ _)
-     (prodcatmor
-        ((Catlike_associator a b c d _ _ _) (prodcatpair k (prodcatpair h g)))
+     (binprodcatmor
+        ((Catlike_associator a b c d _ _ _) (binprodcatpair k (binprodcatpair h g)))
         (identity f)).
 Proof.
   intros k h g f.
@@ -200,11 +200,11 @@ Defined.
 Definition Catlike_triangle ( a b c : precategory )
   (hsB : has_homsets b) (hsC : has_homsets c) :
    forall f g, functor_on_morphisms (functorial_composition a b c _ _)
-                               (prodcatmor (identity f) (Catlike_left_unitor b c _ hsC g))
+                               (binprodcatmor (identity f) (Catlike_left_unitor b c _ hsC g))
    =
-      (Catlike_associator a b b c hsB _ _ (prodcatpair f (prodcatpair (functor_identity_as_ob b hsB) g)))
+      (Catlike_associator a b b c hsB _ _ (binprodcatpair f (binprodcatpair (functor_identity_as_ob b hsB) g)))
    ;; functor_on_morphisms (functorial_composition a b c _ _)
-                           (prodcatmor (Catlike_right_unitor a b _ f) (identity g)).
+                           (binprodcatmor (Catlike_right_unitor a b _ f) (identity g)).
 Proof.
   intros f g.
   apply nat_trans_eq. exact hsC.

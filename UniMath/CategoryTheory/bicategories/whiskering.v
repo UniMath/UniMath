@@ -1,7 +1,7 @@
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 
@@ -30,7 +30,7 @@ Lemma whisker_left_id_2mor {C : prebicategory} {a b c : C}
   : whisker_left f (identity_2mor g) = identity_2mor (f ;1; g).
 Proof.
   pathvia (functor_on_morphisms (compose_functor a b c)
-                                (identity (prodcatpair f g))).
+                                (identity (binprodcatpair f g))).
   reflexivity.
   apply functor_id.
 Defined.
@@ -49,7 +49,7 @@ Definition whisker_left_iso {C : prebicategory} {a b c : C}
   : iso (f ;1; g) (f ;1; h).
 Proof.
   exists (whisker_left f alpha).
-  apply (functor_on_iso_is_iso _ _ _ _ _ (prodcatiso (identity_iso f) alpha)).
+  apply (functor_on_iso_is_iso _ _ _ _ _ (binprodcatiso (identity_iso f) alpha)).
 Defined.
 
 Lemma whisker_left_inv {C : prebicategory} {a b c : C}
@@ -130,7 +130,7 @@ Lemma whisker_right_id_2mor {C : prebicategory} {a b c : C}
   : whisker_right (identity_2mor f) g = identity_2mor (f ;1; g).
 Proof.
   pathvia (functor_on_morphisms (compose_functor a b c)
-                                (identity (prodcatpair f g))).
+                                (identity (binprodcatpair f g))).
   reflexivity.
   apply functor_id.
 Defined.
@@ -149,7 +149,7 @@ Definition whisker_right_iso {C : prebicategory} {a b c : C}
   : iso (f ;1; h) (g ;1; h).
 Proof.
   exists (whisker_right alpha h).
-  apply (functor_on_iso_is_iso _ _ _ _ _ (prodcatiso alpha (identity_iso h))).
+  apply (functor_on_iso_is_iso _ _ _ _ _ (binprodcatiso alpha (identity_iso h))).
 Defined.
 
 Lemma whisker_right_inv {C : prebicategory} {a b c : C}
@@ -217,7 +217,7 @@ Lemma left_unitor_naturality {C : prebicategory} {a b : C}
 Proof.
   pathvia ((functor_on_morphisms
                  (functor_composite
-                     (pair_functor
+                     (bindelta_pair_functor
                         (functor_composite (unit_functor _) (ob_as_functor (identity_1mor a)))
                         (functor_identity _))
                      (compose_functor a a b))
@@ -238,7 +238,7 @@ Lemma right_unitor_naturality {C : prebicategory} {a b : C}
 Proof.
   pathvia ((functor_on_morphisms
                  (functor_composite
-                    (pair_functor
+                    (bindelta_pair_functor
                        (functor_identity _)
                        (functor_composite (unit_functor _) (ob_as_functor (identity_1mor b))))
                     (compose_functor a b b))
@@ -261,9 +261,9 @@ Lemma associator_naturality {C : prebicategory} { a b c d : C }
 Proof.
   pathvia ((functor_on_morphisms
             (functor_composite
-              (product_functor (functor_identity _) (compose_functor b c d))
+              (binproduct_pair_functor (functor_identity _) (compose_functor b c d))
               (compose_functor a b d))
-           (prodcatmor alpha (prodcatmor beta gamma)))
+           (binprodcatmor alpha (binprodcatmor beta gamma)))
            ;v; associator f' g' h'
           ).
     reflexivity.
@@ -271,12 +271,12 @@ Proof.
   pathvia (associator f g h ;v;
           (functor_on_morphisms
             (functor_composite
-              (product_precategory_assoc _ _ _)
+              (binproduct_precategory_assoc _ _ _)
               (functor_composite
-                (product_functor (compose_functor a b c) (functor_identity _))
+                (binproduct_pair_functor (compose_functor a b c) (functor_identity _))
                 (compose_functor a c d)))
-            (prodcatmor alpha (prodcatmor beta gamma)))).
-    apply (nat_trans_ax (associator_trans a b c d) _ _ (prodcatmor alpha (prodcatmor beta gamma))).
+            (binprodcatmor alpha (binprodcatmor beta gamma)))).
+    apply (nat_trans_ax (associator_trans a b c d) _ _ (binprodcatmor alpha (binprodcatmor beta gamma))).
 
   reflexivity.
 Defined.

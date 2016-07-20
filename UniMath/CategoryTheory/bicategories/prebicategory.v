@@ -1,7 +1,7 @@
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.ProductPrecategory.
+Require Import UniMath.CategoryTheory.BinProductPrecategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 
@@ -28,7 +28,7 @@ Arguments functor_composite {_ _ _} _ _ .
  *)
 
 
-Local Notation "C c× D" := (product_precategory C D) (at level 75, right associativity).
+Local Notation "C c× D" := (binproduct_precategory C D) (at level 75, right associativity).
 
 Local Notation "a -2-> b" := (precategory_morphisms a b)(at level 50).
 (* To keep it straight in my head *)
@@ -84,7 +84,7 @@ Definition compose_2mor_horizontal {C : prebicategory_id_comp} {a b c : C}
   : ( f ;1; g ) -2-> ( f' ;1; g' ).
 Proof.
   apply functor_on_morphisms.
-  exact (prodcatmor alpha beta).
+  exact (binprodcatmor alpha beta).
 Defined.
 
 Local Notation "alpha ;h; beta" := (compose_2mor_horizontal alpha beta) (at level 50, format "alpha ;h; beta").
@@ -96,7 +96,7 @@ Definition compose_2mor_iso_horizontal {C : prebicategory_id_comp} {a b c : C}
   : iso ( f ;1; g ) ( f' ;1; g' ).
 Proof.
   apply functor_on_iso.
-  exact (prodcatiso alpha beta).
+  exact (binprodcatiso alpha beta).
 Defined.
 
 Local Notation "alpha ;hi; beta" := (compose_2mor_iso_horizontal alpha beta) (at level 50, format "alpha ;hi; beta").
@@ -104,18 +104,18 @@ Local Notation "alpha ;hi; beta" := (compose_2mor_iso_horizontal alpha beta) (at
 Definition associator_trans_type { C : prebicategory_id_comp } (a b c d : C) :=
   nat_trans
     (functor_composite
-      (product_functor (functor_identity _) (compose_functor b c d))
+      (binproduct_pair_functor (functor_identity _) (compose_functor b c d))
       (compose_functor a b d))
     (functor_composite
-      (product_precategory_assoc _ _ _)
+      (binproduct_precategory_assoc _ _ _)
       (functor_composite
-        (product_functor (compose_functor a b c) (functor_identity _))
+        (binproduct_pair_functor (compose_functor a b c) (functor_identity _))
         (compose_functor a c d))).
 
 Definition left_unitor_trans_type { C : prebicategory_id_comp } (a b : C) :=
   nat_trans
     (functor_composite
-      (pair_functor
+      (bindelta_pair_functor
         (functor_composite (unit_functor _) (ob_as_functor (identity_1mor a)))
         (functor_identity _))
       (compose_functor a a b))
@@ -124,7 +124,7 @@ Definition left_unitor_trans_type { C : prebicategory_id_comp } (a b : C) :=
 Definition right_unitor_trans_type { C : prebicategory_id_comp } (a b : C) :=
   nat_trans
     (functor_composite
-      (pair_functor
+      (bindelta_pair_functor
         (functor_identity _)
         (functor_composite (unit_functor _) (ob_as_functor (identity_1mor b))))
       (compose_functor a b b))
@@ -161,7 +161,7 @@ Definition associator_2mor {C : prebicategory_data} { a b c d : C }
 Proof.
   set (A := associator_trans a b c d).
   unfold associator_trans_type in A.
-  exact (A (prodcatpair f (prodcatpair g h))).
+  exact (A (binprodcatpair f (binprodcatpair g h))).
 Defined.
 
 Definition left_unitor_trans {C : prebicategory_data} ( a b : C )
@@ -328,7 +328,7 @@ Lemma horizontal_comp_id {C : prebicategory_id_comp} {a b c : C}
 Proof.
   unfold compose_2mor_horizontal.
   pathvia (functor_on_morphisms (compose_functor a b c)
-            (identity (prodcatpair f g))).
+            (identity (binprodcatpair f g))).
     reflexivity.
   apply functor_id.
 Defined.
@@ -340,7 +340,7 @@ Lemma inv_horizontal_comp {C : prebicategory_id_comp} {a b c : C}
   = iso_inv_from_iso (alpha ;hi; beta).
 Proof.
   unfold compose_2mor_iso_horizontal.
-  rewrite prodcatiso_inv.
+  rewrite binprodcatiso_inv.
   apply functor_on_iso_inv.
 Defined.
 
@@ -355,8 +355,8 @@ Lemma interchange {C : prebicategory} {a b c : C}
 Proof.
   unfold compose_2mor_horizontal.
 
-  assert (X : (prodcatmor a1 b1) ;v; (prodcatmor a2 b2)
-            = (prodcatmor (a1;v;a2) (b1;v;b2))) by reflexivity.
+  assert (X : (binprodcatmor a1 b1) ;v; (binprodcatmor a2 b2)
+            = (binprodcatmor (a1;v;a2) (b1;v;b2))) by reflexivity.
   rewrite <- X.
 
   apply functor_comp.
