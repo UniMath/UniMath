@@ -1534,6 +1534,31 @@ Proof.
   apply NRNRtoR_one.
 Qed.
 
+Lemma Rabs_NRNRtoR :
+  Π x y : NonnegativeReals,
+    Rabs (NRNRtoR x y) = MetricSpace.dist (X := MS_NonnegativeReals) x y.
+Proof.
+  intros x y.
+  reflexivity.
+Qed.
+
+Lemma Rabs_pr1RtoNRNR :
+  Π x : Reals,
+    (pr1 (RtoNRNR x) <= Rabs x)%NR.
+Proof.
+  intros x.
+  rewrite <- (NRNRtoR_RtoNRNR x), Rabs_NRNRtoR.
+  apply maxNonnegativeReals_le_l.
+Qed.
+Lemma Rabs_pr2RtoNRNR :
+  Π x : Reals,
+    (pr2 (RtoNRNR x) <= Rabs x)%NR.
+Proof.
+  intros x.
+  rewrite <- (NRNRtoR_RtoNRNR x), Rabs_NRNRtoR.
+  apply maxNonnegativeReals_le_r.
+Qed.
+
 (** ** Theorems about apartness and order *)
 
 Lemma ispositive_Rone : 0 < 1.
@@ -1890,4 +1915,12 @@ Lemma Rabs_Rmult :
   Π x y : Reals, (Rabs (x * y)%R = Rabs x * Rabs y)%NR.
 Proof.
   exact hr_abs_mult.
+Qed.
+
+Lemma Rabs_Ropp :
+  Π x : Reals, (Rabs (- x)%R = Rabs x).
+Proof.
+  intros x.
+  rewrite <- (NRNRtoR_RtoNRNR x).
+  apply iscomm_maxNonnegativeReals.
 Qed.
