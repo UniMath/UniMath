@@ -1556,7 +1556,7 @@ Section ABGR_monics.
   (** ** Epis *)
 
   (** hfiber (pr1 f) b is inhabited. *)
-  Definition ABGR_setquot_iso {A B : abgr} (f : ABGR⟦A, B⟧)
+  Definition ABGR_epi_hfiber_inhabited {A B : abgr} (f : ABGR⟦A, B⟧)
              (isE : isEpi ABGR f) (b : B)
              (H : setquotpr (ABGR_cokernel_eqrel f) b
                   = setquotpr (ABGR_cokernel_eqrel f)
@@ -1597,7 +1597,7 @@ Section ABGR_monics.
     rewrite <- (ABGR_monic_kernel_unel_rw B) in tmp1.
     set (tmp2 := @funeqpaths (pr1 B) (pr1 (ABGR_cokernel_abgr f))).
     set (tmp3 := tmp2 _ _ tmp1). cbn in tmp3.
-    apply (ABGR_setquot_iso f isE x (tmp3 x)).
+    apply (ABGR_epi_hfiber_inhabited f isE x (tmp3 x)).
   Qed.
 
 
