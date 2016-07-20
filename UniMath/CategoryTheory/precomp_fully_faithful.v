@@ -108,12 +108,12 @@ Section preimage.
 (** Fixing a [gamma], we produce its preimage. *)
 
 Variable gamma : nat_trans
-     (functor_composite _ _ _ H F)
-     (functor_composite _ _ _ H G).
+     (functor_composite H F)
+     (functor_composite H G).
 
 Lemma isaprop_aux_space (b : B) :
     isaprop (total2 (fun g : F b --> G b =>
-      forall a : A, forall f : iso (H a) b,
+      Π a : A, Π f : iso (H a) b,
            gamma a = #F f ;; g ;; #G (inv_from_iso f))).
 Proof.
   apply invproofirrelevance.
@@ -176,18 +176,18 @@ Qed.
 
 Lemma iscontr_aux_space (b : B) :
    iscontr (total2 (fun g : F b --> G b =>
-      forall a : A, forall f : iso (H a) b,
+      Π a : A, Π f : iso (H a) b,
            gamma a = #F f ;; g ;; #G (inv_from_iso f)  )).
 Proof.
   set (X := isapropiscontr (total2
      (fun g : F b --> G b =>
-      forall (a : A) (f : iso (H a) b),
+      Π (a : A) (f : iso (H a) b),
       gamma a = (#F f;; g);; #G (inv_from_iso f)))).
   apply (p b (tpair (fun x => isaprop x) _ X)).
   intros [anot h].
   simpl in *.
   set (g := #F (inv_from_iso h) ;; gamma anot ;; #G h).
-  assert (gp : forall (a : A)
+  assert (gp : Π (a : A)
                      (f : iso (H a) b),
                  gamma a = #F f ;; g ;; #G (inv_from_iso f)).
     clear X.
@@ -221,7 +221,7 @@ Proof.
 Defined.
 
 
-Definition pdelta : forall b : B, F b --> G b :=
+Definition pdelta : Π b : B, F b --> G b :=
          fun b => pr1 (pr1 (iscontr_aux_space b)).
 
 Lemma is_nat_trans_pdelta :

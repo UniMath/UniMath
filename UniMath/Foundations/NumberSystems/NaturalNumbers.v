@@ -1591,7 +1591,7 @@ This part is included for illustration purposes only . In practice it is easier 
 
 (** *** A generalization of [ le ] and its properties . *)
 
-Inductive leF { T : UU } ( F : T -> T ) ( t : T ) : T -> UU := leF_O : leF F t t | leF_S : forall t' : T , leF F t t' -> leF F t ( F t' ) .
+Inductive leF { T : UU } ( F : T -> T ) ( t : T ) : T -> UU := leF_O : leF F t t | leF_S : Π t' : T , leF F t t' -> leF F t ( F t' ) .
 
 Lemma leFiter { T : UU } ( F : T -> T ) ( t : T ) ( n : nat ) : leF F t ( iteration F n t ) .
 Proof. intros .   induction n as [ | n IHn ] . apply leF_O . simpl . unfold funcomp . apply leF_S .  assumption .  Defined .
@@ -1609,8 +1609,8 @@ set ( h := fun ne :  total2 ( fun n0 : nat => paths ( iteration F n0 t ) ( itera
 
 Lemma isweqleFtototal2withnat { T : UU } ( F : T -> T ) ( t t' : T ) : isweq ( leFtototal2withnat F t t' ) .
 Proof . intros .  set ( f := leFtototal2withnat F t t' ) . set ( g :=  total2withnattoleF  F t t' ) .
-assert ( egf : forall x : _ , paths ( g ( f x ) ) x ) . intro x .  induction x as [ | y H0 IHH0 ] . apply idpath . simpl . simpl in IHH0 .  destruct (leFtototal2withnat F t y H0 ) as [ m e ] .   destruct e .  simpl .   simpl in IHH0.  apply (  @maponpaths _ _ ( leF_S F t (iteration F m t) ) _ _ IHH0 ) .
-assert ( efg : forall x : _ , paths ( f ( g x ) ) x ) . intro x .  destruct x as [ n e ] .  destruct e . simpl .  apply  leFtototal2withnat_l0 .
+assert ( egf : Π x : _ , paths ( g ( f x ) ) x ) . intro x .  induction x as [ | y H0 IHH0 ] . apply idpath . simpl . simpl in IHH0 .  destruct (leFtototal2withnat F t y H0 ) as [ m e ] .   destruct e .  simpl .   simpl in IHH0.  apply (  @maponpaths _ _ ( leF_S F t (iteration F m t) ) _ _ IHH0 ) .
+assert ( efg : Π x : _ , paths ( f ( g x ) ) x ) . intro x .  destruct x as [ n e ] .  destruct e . simpl .  apply  leFtototal2withnat_l0 .
 apply ( gradth _ _ egf efg ) . Defined.
 
 Definition weqleFtototalwithnat { T : UU } ( F : T -> T ) ( t t' : T ) : weq ( leF F t t' ) (  total2 ( fun n : nat => paths ( iteration F n t ) t' ) ) := weqpair _ ( isweqleFtototal2withnat F t t' ) .

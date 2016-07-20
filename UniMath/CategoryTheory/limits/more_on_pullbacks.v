@@ -240,7 +240,7 @@ Proof.
       * rewrite <- assoc. rewrite <- Hi.
         rewrite assoc. rewrite (pr1 Ht). apply idpath.
       * rewrite <- assoc. apply (pr2 Ht).
-Qed.
+Defined.
 
 End lemmas_on_pullbacks.
 
@@ -276,19 +276,21 @@ Lemma isPullback_preimage_square : isPullback _ _ _ _ H.
 Proof.
   refine (mk_isPullback _ _ _ _ _ _ ).
   intros e x y Hxy.
-  assert (T := maponpaths (#F) Hxy).
-  assert (T' := !functor_comp _ _ _ _ _ _
+  set (T := maponpaths (#F) Hxy).
+  set (T' := !functor_comp _ _ _ _ _ _
                  @
                  T
                  @
                  functor_comp _ _ _ _ _ _ ).
   set (TH := X _ _ _ T').
   set (FxFy := pr1 (pr1 TH)).
-  assert (HFxFy := pr2 (pr1 TH)). simpl in HFxFy.
+  set (HFxFy := pr2 (pr1 TH)). simpl in HFxFy.
   set (xy := fully_faithful_inv_hom Fff _ _ FxFy).
   simple refine (tpair _ _ _ ).
   - exists xy.
-    destruct HFxFy as [t p]; split.
+    set (t := pr1 HFxFy).
+    set (p := pr2 HFxFy).
+    split.
     + refine ( invmaponpathsweq (weqpair _ (Fff _ _ )) _ _ _ ).
       simpl.
       rewrite functor_comp.
@@ -431,7 +433,7 @@ Definition maps_pb_square_to_pb_square
   isPullback _ _ _ _ H -> isPullback _ _ _ _ (functor_on_square H).
 
 Definition maps_pb_squares_to_pb_squares :=
-   ∀ {a b c d : C}
+   Π {a b c d : C}
      {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
      (H : h ;; f = k ;; g),
      maps_pb_square_to_pb_square H.
@@ -464,7 +466,7 @@ Variable Hcomm : c ;; a = d ;; b.
 Arguments mk_Pullback {_ _ _ _ _ _ _ _ _ _ } _ .
 
 Lemma pb_if_pointwise_pb
-  : (∀ x : C, isPullback _ _ _ _ (nat_trans_eq_pointwise Hcomm x)) -> isPullback _ _ _ _ Hcomm.
+  : (Π x : C, isPullback _ _ _ _ (nat_trans_eq_pointwise Hcomm x)) -> isPullback _ _ _ _ Hcomm.
 Proof.
   intro T.
   simple refine (mk_isPullback _ _ _ _ _ _ ).
@@ -477,47 +479,53 @@ Proof.
           simple refine (PullbackArrow (mk_Pullback (T x)) _ _ _ _ ).
           - apply h.
           - apply k.
-          - abstract (apply (nat_trans_eq_pointwise Hhk)).
+          - apply (nat_trans_eq_pointwise Hhk).
         }
-      * cbn. intros x y f.
+      * intros x y f.
         {
-          apply (MorphismsIntoPullbackEqual (T y)).
-          - repeat rewrite <- assoc.
+          abstract (
+          apply (MorphismsIntoPullbackEqual (T y)); [
+          repeat rewrite <- assoc;
             assert (XX:= PullbackArrow_PullbackPr1
-                     (mk_Pullback (T y))). cbn in XX.
-            rewrite XX; clear XX.
-            rewrite (nat_trans_ax c); rewrite assoc.
+                     (mk_Pullback (T y))); cbn in XX;
+            rewrite XX; clear XX;
+            rewrite (nat_trans_ax c); rewrite assoc;
             assert (XX:= PullbackArrow_PullbackPr1
-                     (mk_Pullback (T x))). cbn in XX.
-            rewrite XX; clear XX.
-            apply (nat_trans_ax h).
-          - repeat rewrite <- assoc.
+                     (mk_Pullback (T x))); cbn in XX;
+            rewrite XX; clear XX;
+            apply (nat_trans_ax h) |];
+          repeat rewrite <- assoc;
             assert (XX:= PullbackArrow_PullbackPr2
-                     (mk_Pullback (T y))). cbn in XX.
-            rewrite XX; clear XX.
-            rewrite (nat_trans_ax d); rewrite assoc.
+                     (mk_Pullback (T y))); cbn in XX;
+            rewrite XX; clear XX;
+            rewrite (nat_trans_ax d); rewrite assoc;
             assert (XX:= PullbackArrow_PullbackPr2
-                     (mk_Pullback (T x))). cbn in XX.
-            rewrite XX; clear XX.
-            apply (nat_trans_ax k).
+                     (mk_Pullback (T x))); cbn in XX;
+            rewrite XX; clear XX;
+            apply (nat_trans_ax k)
+            ).
         }
-    + cbn. split;
-       apply nat_trans_eq; try apply hsD ; cbn.
-      * intro.
+    + abstract (
+      split;
+       apply nat_trans_eq; try apply hsD ; cbn;
+       [ intro ;
         assert (XX:= PullbackArrow_PullbackPr1
-                     (mk_Pullback (T x))). cbn in XX.
-        apply XX.
-      * intro.
-        assert (XX:= PullbackArrow_PullbackPr2
-                     (mk_Pullback (T x))). cbn in XX.
-        apply XX.
-  - cbn. intro t; apply subtypeEquality; [intro; apply isapropdirprod ;apply functor_category_has_homsets |].
+                     (mk_Pullback (T x))); cbn in XX;
+        apply XX |];
+      intro;
+      assert (XX:= PullbackArrow_PullbackPr2
+                     (mk_Pullback (T x))); cbn in XX;
+        apply XX
+      ).
+  - abstract (
+    intro t; apply subtypeEquality; [intro; apply isapropdirprod ;apply functor_category_has_homsets |];
     destruct t as [t Ht];
-      apply nat_trans_eq; try assumption; cbn.
-    intro x.
-    apply PullbackArrowUnique.
-    + apply (nat_trans_eq_pointwise (pr1 Ht)).
-    + apply (nat_trans_eq_pointwise (pr2 Ht)).
-Qed.
+      apply nat_trans_eq; try assumption; cbn;
+    intro x;
+    apply PullbackArrowUnique;
+     [ apply (nat_trans_eq_pointwise (pr1 Ht)) |];
+     apply (nat_trans_eq_pointwise (pr2 Ht))
+      ).
+Defined.
 
 End pullbacks_pointwise.

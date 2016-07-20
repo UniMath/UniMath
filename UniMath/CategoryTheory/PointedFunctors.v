@@ -45,7 +45,7 @@ Coercion functor_from_ptd_obj (F : ptd_obj) : functor C C := pr1 F.
 
 Definition ptd_pt (F : ptd_obj) : functor_identity C ⟶ F := pr2 F.
 
-Definition is_ptd_mor {F G : ptd_obj}(α: F ⟶ G) : UU := ∀ c : C, ptd_pt F c ;; α c = ptd_pt G c.
+Definition is_ptd_mor {F G : ptd_obj}(α: F ⟶ G) : UU := Π c : C, ptd_pt F c ;; α c = ptd_pt G c.
 
 Definition ptd_mor (F G : ptd_obj) : UU :=
   Σ α : F ⟶ G, is_ptd_mor α.
@@ -62,7 +62,7 @@ Proof.
 Defined.
 
 Definition ptd_mor_commutes {F G : ptd_obj} (α : ptd_mor F G)
-  : ∀ c : C, ptd_pt F c ;; α c = ptd_pt G c.
+  : Π c : C, ptd_pt F c ;; α c = ptd_pt G c.
 Proof.
   exact (pr2 α).
 Qed.
@@ -119,7 +119,7 @@ Proof.
   exact (nat_trans_id _ ).
 Defined.
 
-Lemma eq_ptd_mor_precat {F G : precategory_Ptd} (a b : F ⇒ G)
+Lemma eq_ptd_mor_precat {F G : precategory_Ptd} (a b : F --> G)
   : a = b ≃ (a : ptd_mor F G) = b.
 Proof.
   simple refine (tpair _ _ _).

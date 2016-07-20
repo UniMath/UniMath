@@ -1,24 +1,21 @@
+(* Direct definition of terminal object *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
-Require Import UniMath.CategoryTheory.colimits.colimits.
-Require Import UniMath.CategoryTheory.limits.limits.
-Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
-Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
-Local Notation "f ;; g" := (compose f g)(at level 50).
 
 Section def_terminal.
 
 Variable C : precategory.
 
-Definition isTerminal (b : C) := forall a : C, iscontr (a --> b).
+Definition isTerminal (b : C) : UU := Π a : C, iscontr (a --> b).
 
-Definition Terminal := total2 (fun a => isTerminal a).
+Definition Terminal : UU := total2 (fun a => isTerminal a).
 
 Definition TerminalObject (T : Terminal) : C := pr1 T.
 Coercion TerminalObject : Terminal >-> ob.
@@ -28,7 +25,7 @@ Proof.
   exists b; exact H.
 Defined.
 
-Definition mk_isTerminal (b : C) (H : ∀ (a : C), iscontr (a --> b)) :
+Definition mk_isTerminal (b : C) (H : Π (a : C), iscontr (a --> b)) :
   isTerminal b.
 Proof.
   exact H.
@@ -97,38 +94,63 @@ Arguments TerminalArrow [C]{T} b.
 Arguments mk_isTerminal {_} _ _ _ .
 Arguments mk_Terminal {_} _ _.
 
-Section Terminal_from_Lims.
 
-Context {C : precategory}.
+Section Terminal_and_EmptyProd.
+  Require Import UniMath.CategoryTheory.limits.products.
 
-Definition empty_graph : graph.
-Proof.
-  exists empty.
-  exact (fun _ _ => empty).
-Defined.
+  (** Construct Terminal from empty arbitrary product. *)
+  Definition terminal_from_empty_product (C : precategory) :
+    ProductCone empty C fromempty -> Terminal C.
+  Proof.
+    intros X.
+    refine (mk_Terminal (ProductObject _ C X) _).
+    refine (mk_isTerminal _ _).
+    intros a.
+    assert (H : Π i : empty, C⟦a, fromempty i⟧) by
+        (intros i; apply (fromempty i)).
+    apply (iscontrpair (ProductArrow _ _ X H)); intros t.
+    apply ProductArrowUnique; intros i; apply (fromempty i).
+  Defined.
+End Terminal_and_EmptyProd.
 
-Definition termDiagram : diagram empty_graph C^op.
-Proof.
-exists fromempty.
-intros u; induction u.
-Defined.
+(* Section Terminal_from_Lims. *)
 
-Definition termCone (c : C) : cone termDiagram c.
-Proof.
-simple refine (mk_cone _ _); intro u; induction u.
-Defined.
+(* Require Import UniMath.CategoryTheory.limits.graphs.colimits. *)
+(* Require Import UniMath.CategoryTheory.limits.graphs.limits. *)
+(* Require Import UniMath.CategoryTheory.opp_precat. *)
 
-Lemma Terminal_from_Lims : Lims C -> Terminal C.
-Proof.
-intros H.
-case (H _ termDiagram); intros cc iscc; destruct cc as [c cc]; simpl in *.
-apply (mk_Terminal c); apply mk_isTerminal; intros b.
-case (iscc _ (termCone b)); intros f Hf; destruct f as [f fcomm].
-apply (tpair _ f); intro g.
-simple refine (let X : Σ x : b --> c,
-                       ∀ v, coconeIn cc v ;; x = coconeIn (termCone b) v := _ in _).
-  { apply (tpair _ g); intro u; induction u. }
-apply (maponpaths pr1 (Hf X)).
-Defined.
+(* Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op"). *)
 
-End Terminal_from_Lims.
+(* Context {C : precategory}. *)
+
+(* Definition empty_graph : graph. *)
+(* Proof. *)
+(*   exists empty. *)
+(*   exact (fun _ _ => empty). *)
+(* Defined. *)
+
+(* Definition termDiagram : diagram empty_graph C^op. *)
+(* Proof. *)
+(* exists fromempty. *)
+(* intros u; induction u. *)
+(* Defined. *)
+
+(* Definition termCone (c : C) : cone termDiagram c. *)
+(* Proof. *)
+(* simple refine (mk_cone _ _); intro u; induction u. *)
+(* Defined. *)
+
+(* Lemma Terminal_from_Lims : Lims C -> Terminal C. *)
+(* Proof. *)
+(* intros H. *)
+(* case (H _ termDiagram); intros cc iscc; destruct cc as [c cc]; simpl in *. *)
+(* apply (mk_Terminal c); apply mk_isTerminal; intros b. *)
+(* case (iscc _ (termCone b)); intros f Hf; destruct f as [f fcomm]. *)
+(* apply (tpair _ f); intro g. *)
+(* simple refine (let X : Σ x : b --> c, *)
+(*                        Π v, coconeIn cc v ;; x = coconeIn (termCone b) v := _ in _). *)
+(*   { apply (tpair _ g); intro u; induction u. } *)
+(* apply (maponpaths pr1 (Hf X)). *)
+(* Defined. *)
+
+(* End Terminal_from_Lims. *)

@@ -11,9 +11,11 @@ endif
 PACKAGES += Foundations
 PACKAGES += CategoryTheory
 PACKAGES += Ktheory
-PACKAGES += Dedekind
+PACKAGES += Topology
+PACKAGES += RealNumbers
 PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
+PACKAGES += Folds
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes
@@ -46,14 +48,14 @@ include build/CoqMakefile.make
 endif
 everything: TAGS all html install
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -indices-matter -type-in-type
+OTHERFLAGS += -indices-matter -type-in-type -w none
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
 ENHANCEDDOCTARGET = enhanced-html
 ENHANCEDDOCSOURCE = util/enhanced-doc
-LATEXTARGET = latex
-COQDOCLATEXOPTIONS := -utf8 -p "\usepackage{textgreek}\usepackage{stmaryrd}\DeclareUnicodeCharacter{10627}{{\(\llparenthesis\)}}\DeclareUnicodeCharacter{10628}{{\(\rrparenthesis\)}}\DeclareUnicodeCharacter{10815}{{\(\amalg\)}}\DeclareUnicodeCharacter{9679}{{\(\bullet\)}}\DeclareUnicodeCharacter{9726}{{\(\blacksquare\)}}\DeclareUnicodeCharacter{9725}{{\(\square\)}}\DeclareUnicodeCharacter{10226}{{\(\circlearrowleft\)}}\DeclareUnicodeCharacter{10227}{{\(\circlearrowright\)}}\DeclareUnicodeCharacter{9645}{{\(\boxdot\)}}"
+LATEXDIR = latex
+COQDOCLATEXOPTIONS := -latex -utf8 --body-only
 COQDEFS := --language=none -r '/^[[:space:]]*\(Local[[:space:]]+\)?\(Axiom\|Theorem\|Class\|Instance\|Let\|Ltac\|Definition\|Identity Coercion\|Lemma\|Record\|Remark\|Structure\|Fixpoint\|Fact\|Corollary\|Let\|Inductive\|Coinductive\|Notation\|Proposition\|Module[[:space:]]+Import\|Module\)[[:space:]]+\([[:alnum:]'\''_]+\)/\3/'
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: $(filter UniMath/$P/%,$(VFILES)); etags -o $$@ $$^))
 $(VFILES:.v=.vo) : $(COQBIN)coqc
@@ -90,11 +92,11 @@ build/CoqMakefile.make: .coq_makefile_input $(COQBIN)coq_makefile
 
 # "clean::" occurs also in build/CoqMakefile.make, hence both colons
 clean::
-	rm -f .coq_makefile_output build/CoqMakefile.make
+	rm -f .coq_makefile_input .coq_makefile_output build/CoqMakefile.make
 	find UniMath \( -name .\*.aux -o -name \*.glob -o -name \*.v.d -o -name \*.vo \) -delete
 	find UniMath -type d -empty -delete
-clean::          ; rm -rf $(ENHANCEDDOCTARGET)
-clean::          ; rm -rf $(LATEXTARGET)
+clean::; rm -rf $(ENHANCEDDOCTARGET)
+latex-clean clean::; cd $(LATEXDIR) ; rm -f *.pdf *.tex *.log *.aux *.out *.blg *.bbl
 
 distclean:: clean
 distclean::          ; - $(MAKE) -C sub/coq distclean
@@ -114,9 +116,11 @@ sub/coq/config/coq_config.ml: sub/coq/configure sub/coq/configure.ml
 	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" $(LABLGTK) -with-doc no -annotate -debug -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
-	$(MAKE) -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
+.PHONY: rebuild-coq
+rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
+	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
 sub/coq/bin/coqide: sub/lablgtk/README sub/coq/config/coq_config.ml
-	$(MAKE) -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
+	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-binaries bin/coqide
 configure-coq: sub/coq/config/coq_config.ml
 # we use sub/lablgtk/src/gSourceView2.cmi as a proxy for all of lablgtk
 # note: under Mac OS X, "homebrew" installs lablgtk without that file, but it's needed for building coqide.  That's why we build lablgtk ourselves.
@@ -137,7 +141,7 @@ doc: $(GLOBFILES) $(VFILES)
 # Jason Gross' coq-tools bug isolator:
 # The isolated bug will appear in this file, in the UniMath directory:
 ISOLATED_BUG_FILE := isolated_bug.v
-# To use it, run something like this command:
+# To use it, run something like this command in an interactive shell:
 #     make isolate-bug BUGGY_FILE=Foundations/Basics/PartB.v
 sub/coq-tools/find-bug.py:
 	git submodule update --init sub/coq-tools
@@ -146,7 +150,7 @@ help-find-bug:
 isolate-bug: sub/coq-tools/find-bug.py
 	cd UniMath && \
 	rm -f $(ISOLATED_BUG_FILE) && \
-	yes | ../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath \
+	../sub/coq-tools/find-bug.py --coqbin ../sub/coq/bin -R . UniMath \
 		--arg " -indices-matter" \
 		--arg " -type-in-type" \
 		$(BUGGY_FILE) $(ISOLATED_BUG_FILE)
@@ -154,23 +158,17 @@ isolate-bug: sub/coq-tools/find-bug.py
 	@ echo "=== the isolated bug has been deposited in the file UniMath/$(ISOLATED_BUG_FILE)"
 	@ echo "==="
 
-world: all html doc pdffiles
+world: all html doc latex-doc
 
-texfiles : $(VFILES:%.v=$(LATEXTARGET)/%.tex)
+latex-doc: $(LATEXDIR)/doc.pdf
 
-$(foreach F, $(VFILES:.v=),								\
-        $(eval $(LATEXTARGET)/$F.tex : $F.glob $F.v ;					\
-		mkdir -p $(shell dirname $(LATEXTARGET)/$F) &&				\
-		$(COQDOC) $(COQDOCLATEXOPTIONS) -latex $F.v -o $$@	\
-                ))
+$(LATEXDIR)/doc.pdf : $(LATEXDIR)/helper.tex
+	cd $(LATEXDIR) && cat latex-preamble.txt helper.tex latex-epilogue.txt > doc.tex
+	cd $(LATEXDIR) && latexmk -pdf doc
 
-pdffiles : $(VFILES:%.v=$(LATEXTARGET)/%.pdf)
+$(LATEXDIR)/coqdoc.sty $(LATEXDIR)/helper.tex : $(VFILES:.v=.glob) $(VFILES)
+	$(COQDOC) -Q UniMath UniMath $(COQDOCLATEXOPTIONS) $(VFILES) -o $@
 
-$(foreach F, $(VFILES:.v=),								\
-	$(eval $(LATEXTARGET)/$F.pdf : $(LATEXTARGET)/$F.tex ;				\
-		cd $(shell dirname $(LATEXTARGET)/$F) &&				\
-		pdflatex $(shell basename $(LATEXTARGET)/$F.tex)			\
-		)) 
 
 #################################
 # targets best used with INCLUDE=no

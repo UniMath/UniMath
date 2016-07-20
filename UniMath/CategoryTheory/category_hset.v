@@ -116,10 +116,10 @@ Lemma hset_equiv_is_iso (A B : hSet)
 Proof.
   apply (is_iso_qinv (C:=HSET) _ (invmap f)).
   split; simpl.
-  - apply funextfunax; intro x; simpl in *.
+  - apply funextfun; intro x; simpl in *.
     unfold compose, identity; simpl.
     apply homotinvweqweq.
-  - apply funextfunax; intro x; simpl in *.
+  - apply funextfun; intro x; simpl in *.
     unfold compose, identity; simpl.
     apply homotweqinvweq.
 Defined.
@@ -172,7 +172,7 @@ Defined.
 (** ** HSET is a category. *)
 
 Definition univalenceweq (X X' : UU) : weq (X = X') (weq X X') :=
-   tpair _ _ (univalenceaxiom X X').
+   tpair _ _ (univalenceAxiom X X').
 
 Definition hset_id_iso_weq (A B : ob HSET) :
   weq (A = B) (iso A B) :=
@@ -190,7 +190,7 @@ Definition hset_id_iso_weq (A B : ob HSET) :
 Lemma hset_id_iso_weq_is (A B : ob HSET):
     @idtoiso _ A B = pr1 (hset_id_iso_weq A B).
 Proof.
-  apply funextfunax.
+  apply funextfun.
   intro p; elim p.
   apply eq_iso; simpl.
   - apply funextfun;

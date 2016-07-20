@@ -1,6 +1,9 @@
+BinSumOfSignatures.v
 SumOfSignatures.v
+BinProductOfSignatures.v
 SubstitutionSystems.v
 Signatures.v
+SignatureExamples.v
 MonadsFromSubstitutionSystems.v
 LiftingInitial.v
 Lam.v
@@ -8,3 +11,9 @@ LamSignature.v
 GenMendlerIteration.v
 Notation.v
 SubstitutionSystems_Summary.v
+LamHSET.v
+SigToMonad.v
+GenSigToMonad.v
+LamFromSig.v
+LamFromGenSig.v
+MLTT79.v

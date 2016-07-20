@@ -1,4 +1,4 @@
-
+(* Direct implementation of pullbacks *)
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -6,6 +6,7 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Monics.
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
@@ -17,7 +18,7 @@ Variable hs: has_homsets C.
 
 Definition isPullback {a b c d : C} (f : b --> a) (g : c --> a)
         (p1 : d --> b) (p2 : d --> c) (H : p1 ;; f = p2;; g) : UU :=
-   forall e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
+   Π e (h : e --> b) (k : e --> c)(H : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : e --> d => dirprod (hk ;; p1 = h)(hk ;; p2 = k))).
 
 Lemma isaprop_isPullback {a b c d : C} (f : b --> a) (g : c --> a)
@@ -47,10 +48,10 @@ Definition Pullback {a b c : C} (f : b --> a)(g : c --> a) :=
          total2 (fun H : pr1 (pr2 pfg) ;; f = pr2 (pr2 pfg) ;; g =>
         isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).
 
-Definition Pullbacks := forall (a b c : C)(f : b --> a)(g : c --> a),
+Definition Pullbacks := Π (a b c : C)(f : b --> a)(g : c --> a),
        Pullback f g.
 
-Definition hasPullbacks := forall (a b c : C) (f : b --> a) (g : c --> a),
+Definition hasPullbacks := Π (a b c : C) (f : b --> a) (g : c --> a),
          ishinh (Pullback f g).
 
 
@@ -113,7 +114,7 @@ Defined.
 
 Definition mk_isPullback {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
            (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 ;; f = p2;; g) :
-  (forall e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
+  (Π e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h ;; f = k ;; g ),
       iscontr (total2 (fun hk : C⟦e,d⟧ => dirprod (hk ;; p1 = h)(hk ;; p2 = k))))
   →
   isPullback f g p1 p2 H.
@@ -314,5 +315,42 @@ Qed.
 End Universal_Unique.
 
 End def_pb.
+
+
+(** In this section we prove that the pullback of a monomorphism is a
+  monomorphism. *)
+Section monic_pb.
+
+  Variable C : precategory.
+
+  (** The pullback of a Monic is isMonic. *)
+  Lemma MonicPullbackisMonic {a b c : C} (M : Monic _ b a) (g : c --> a)
+        (PB : Pullback M g) : isMonic _ (PullbackPr2 PB).
+  Proof.
+    apply mk_isMonic. intros x g0 h X.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback PB) _ _ _ X).
+
+    set (X0 := maponpaths (fun f => f ;; g) X); simpl in X0.
+    rewrite <- assoc in X0. rewrite <- assoc in X0.
+    rewrite <- (PullbackSqrCommutes PB) in X0.
+    rewrite assoc in X0. rewrite assoc in X0.
+    apply (pr2 M _ _ _) in X0. apply X0.
+  Defined.
+
+  (** Same result for the other morphism. *)
+  Lemma MonicPullbackisMonic' {a b c : C} (f : b --> a) (M : Monic _ c a)
+        (PB : Pullback f M) : isMonic _ (PullbackPr1 PB).
+  Proof.
+    apply mk_isMonic. intros x g h X.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback PB) _ _ X).
+
+    set (X0 := maponpaths (fun f' => f' ;; f) X); simpl in X0.
+    rewrite <- assoc in X0. rewrite <- assoc in X0.
+    rewrite (PullbackSqrCommutes PB) in X0.
+    rewrite assoc in X0. rewrite assoc in X0.
+    apply (pr2 M _ _ _) in X0. apply X0.
+  Defined.
+
+End monic_pb.
 
 Arguments glueSquares {_ _ _ _ _ _ _ _ _ _ _ _ _ _ } _ _ .

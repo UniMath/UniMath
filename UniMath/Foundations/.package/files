@@ -1,10 +1,11 @@
 Basics/Preamble.v
 Basics/PartA.v
 Basics/PartB.v
+Basics/UnivalenceAxiom.v
 Basics/PartC.v
 Basics/PartD.v
+Basics/UnivalenceAxiom2.v
 Basics/Tests.v
-Basics/UnivalenceAxiom.v
 Basics/Propositions.v
 Basics/Sets.v
 Algebra/BinaryOperations.v
@@ -14,6 +15,7 @@ Algebra/Domains_and_Fields.v
 Algebra/DivisionRig.v
 Algebra/Apartness.v
 Algebra/ConstructiveStructures.v
+Algebra/Archimedean.v
 NumberSystems/NaturalNumbers.v
 Combinatorics/StandardFiniteSets.v
 Combinatorics/FiniteSets.v

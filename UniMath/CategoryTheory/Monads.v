@@ -31,7 +31,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
-Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
+Local Notation "G □ F" := (functor_composite F G) (at level 35).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -56,11 +56,11 @@ Definition η {C : precategory} (F : Monad_data C)
 Definition Monad_laws {C : precategory} (T : Monad_data C) : UU
   :=
     (
-      (∀ c : C, η T (T c) ;; μ T c = identity (T c))
+      (Π c : C, η T (T c) ;; μ T c = identity (T c))
         ×
-      (∀ c : C, #T (η T c) ;; μ T c = identity (T c)))
+      (Π c : C, #T (η T c) ;; μ T c = identity (T c)))
       ×
-    (∀ c : C, #T (μ T c) ;; μ T c = μ T (T c) ;; μ T c).
+    (Π c : C, #T (μ T c) ;; μ T c = μ T (T c) ;; μ T c).
 
 Lemma isaprop_Monad_laws (C : precategory) (hs : has_homsets C) (T : Monad_data C) :
    isaprop (Monad_laws T).
@@ -76,8 +76,8 @@ Coercion Monad_data_from_Monad (C : precategory) (T : Monad C) : Monad_data C :=
 
 Definition Monad_Mor_laws {C : precategory} {T T' : Monad_data C} (α : T ⟶ T')
   : UU :=
-  (∀ a : C, μ T a ;; α a = α (T a) ;; #T' (α a) ;; μ T' a) ×
-  (∀ a : C, η T a ;; α a = η T' a).
+  (Π a : C, μ T a ;; α a = α (T a) ;; #T' (α a) ;; μ T' a) ×
+  (Π a : C, η T a ;; α a = η T' a).
 
 Lemma isaprop_Monad_Mor_laws (C : precategory) (hs : has_homsets C)
   (T T' : Monad_data C) (α : T ⟶ T')
@@ -94,13 +94,13 @@ Coercion nat_trans_from_monad_mor (C : precategory) (T T' : Monad C) (s : Monad_
   : T ⟶ T' := pr1 s.
 
 Definition Monad_Mor_η {C : precategory} {T T' : Monad C} (α : Monad_Mor T T')
-  : ∀ a : C, η T a ;; α a = η T' a.
+  : Π a : C, η T a ;; α a = η T' a.
 Proof.
   exact (pr2 (pr2 α)).
 Qed.
 
 Definition Monad_Mor_μ {C : precategory} {T T' : Monad C} (α : Monad_Mor T T')
-  : ∀ a : C, μ T a ;; α a = α (T a) ;; #T' (α a) ;; μ T' a.
+  : Π a : C, μ T a ;; α a = α (T a) ;; #T' (α a) ;; μ T' a.
 Proof.
   exact (pr1 (pr2 α)).
 Qed.
