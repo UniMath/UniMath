@@ -454,11 +454,23 @@ Proof.
   - intros x y f. simpl. apply (binprodcatmor (# F f) (# G f)).
 Defined.
 
-Definition bindelta_pair_functor (C : precategory) :
-  functor C (binproduct_precategory C C).
+Definition bindelta_pair_functor {C D E : precategory}
+  (F : functor C D)
+  (G : functor C E) :
+  functor C (binproduct_precategory D E).
 Proof.
-apply (tpair _ (bindelta_functor_data C)).
-abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
+  apply (tpair _ (bindelta_pair_functor_data C D E F G)).
+  split.
+  - intro c.
+    simpl.
+    rewrite functor_id.
+    rewrite functor_id.
+    apply idpath.
+  - intros c c' c'' f g.
+    simpl.
+    rewrite functor_comp.
+    rewrite functor_comp.
+    apply idpath.
 Defined.
 
 End functors.
