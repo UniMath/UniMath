@@ -69,3 +69,10 @@ PreAdditive.v
 limits/BinDirectSums.v
 limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
+catiso.v
+bicategories/prebicategory.v
+bicategories/notations.v
+bicategories/whiskering.v
+bicategories/Cat.v
+bicategories/internal_equivalence.v
+bicategories/bicategory.v
