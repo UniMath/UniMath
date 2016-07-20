@@ -257,9 +257,9 @@ Lemma catiso_to_precategory_mor_path_funext {A B : precategory_data}
   = transportb (fun T => T -> T -> UU) (catiso_to_precategory_ob_path F)
     (precategory_morphisms (C:=B)).
 Proof.
-  apply funextsec.
+  apply (pr1 (weqfunextsec _ _ _)).
   intros a.
-  apply funextsec.
+  apply (pr1 (weqfunextsec _ _ _)).
   intros a'.
   apply (catiso_to_precategory_mor_path F).
 Defined.
@@ -313,7 +313,8 @@ Proof.
   (* Cancel funext *)
   unfold catiso_to_precategory_mor_path_funext.
   unfold catiso_to_precategory_mor_path.
-  unfold funextsec.
+  unfold weqfunextsec.
+  simpl pr1.
   rewrite !(homotweqinvweq (weqtoforallpaths _ _ _)).
 
   (* Cancel transport_mor with its inverse *)
@@ -410,12 +411,25 @@ Proof.
 
   (* Cancel funext *)
   unfold catiso_to_precategory_mor_path_funext.
-  unfold funextsec.
-  rewrite !(homotweqinvweq (weqtoforallpaths _ _ _)).
+  simpl.
 
-  unfold catiso_to_precategory_mor_path.
+  set (W := homotweqinvweq (weqtoforallpaths (λ _ : A, A -> UU)
+                                             precategory_morphisms
+                                             (transportb (fun T => T -> T -> UU) (catiso_to_precategory_ob_path F) precategory_morphisms))).
+  simpl in W. rewrite !W. clear W.
+
+  set (W := homotweqinvweq (weqtoforallpaths (λ _ : A, UU)
+                                             (precategory_morphisms a)
+                                             (transportb (fun T => T -> T -> UU) (catiso_to_precategory_ob_path F) precategory_morphisms a))).
+  simpl in W. rewrite !W. clear W.
+
+  set (W := homotweqinvweq (weqtoforallpaths (λ _ : A, UU)
+                                             (precategory_morphisms a')
+                                             (transportb (fun T => T -> T -> UU) (catiso_to_precategory_ob_path F) precategory_morphisms a'))).
+  simpl in W. rewrite !W. clear W.
 
   (* Cancel as much as possible *)
+  unfold catiso_to_precategory_mor_path.
   rewrite !pathscomp0rid.
   rewrite !pathscomp_inv.
   rewrite !pathsinv0inv0.
@@ -461,6 +475,7 @@ Proof.
     apply (transportb_dirprod _ _ _ _ _ (catiso_to_precategory_ob_mor_path F)).
     apply dirprodeq.
     + apply funextsec.
+      intros a.
       apply (catiso_to_precategory_id_path F).
     + apply funextsec.
       intro.
