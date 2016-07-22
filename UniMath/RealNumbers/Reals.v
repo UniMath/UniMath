@@ -1539,7 +1539,8 @@ Lemma Rabs_pr1RtoNRNR :
     (pr1 (RtoNRNR x) <= Rabs x)%NR.
 Proof.
   intros x.
-  rewrite <- (NRNRtoR_RtoNRNR x), Rabs_NRNRtoR.
+  rewrite <- (NRNRtoR_RtoNRNR x).
+  generalize (pr1 (RtoNRNR x)) (pr2 (RtoNRNR x)) ; clear x ; intros x y ; simpl.
   apply maxNonnegativeReals_le_l.
 Qed.
 Lemma Rabs_pr2RtoNRNR :
@@ -1547,7 +1548,8 @@ Lemma Rabs_pr2RtoNRNR :
     (pr2 (RtoNRNR x) <= Rabs x)%NR.
 Proof.
   intros x.
-  rewrite <- (NRNRtoR_RtoNRNR x), Rabs_NRNRtoR.
+  rewrite <- (NRNRtoR_RtoNRNR x).
+  generalize (pr1 (RtoNRNR x)) (pr2 (RtoNRNR x)) ; clear x ; intros x y ; simpl.
   apply maxNonnegativeReals_le_r.
 Qed.
 
