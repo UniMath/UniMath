@@ -1534,14 +1534,6 @@ Proof.
   apply NRNRtoR_one.
 Qed.
 
-Lemma Rabs_NRNRtoR :
-  Π x y : NonnegativeReals,
-    Rabs (NRNRtoR x y) = MetricSpace.dist (X := MS_NonnegativeReals) x y.
-Proof.
-  intros x y.
-  reflexivity.
-Qed.
-
 Lemma Rabs_pr1RtoNRNR :
   Π x : Reals,
     (pr1 (RtoNRNR x) <= Rabs x)%NR.
