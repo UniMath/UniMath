@@ -229,10 +229,10 @@ Qed.
 
 Lemma finite_intersection_case {X : UU} :
   Π (L : Sequence (X → hProp)),
-    finite_intersection L = match disassembleSequence L with
-                            | ii1 _ => λ _, htrue
-                            | ii2 (A,,B) => (λ x : X, A x ∧ finite_intersection B x)
-                            end.
+  finite_intersection L =
+  sumofmaps (λ _ _, htrue)
+            (λ (AB : (X → hProp) × Sequence (X → hProp)) (x : X), pr1 AB x ∧ finite_intersection (pr2 AB) x)
+            (disassembleSequence L).
 Proof.
   intros X.
   intros L.

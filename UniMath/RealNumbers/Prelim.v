@@ -204,7 +204,7 @@ Proof.
   repeat split.
   - intros y1 y2 Hy.
     apply natlthchoice2 in Hy.
-    destruct Hy as [Hy | <-].
+    induction Hy as [Hy | <-].
     + apply hinhpr.
       exists 1%nat.
       exact Hy.
