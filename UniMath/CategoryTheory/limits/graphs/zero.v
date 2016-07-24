@@ -1,6 +1,10 @@
 (** * Zero Objects
   Zero objects are objects of precategory which are both initial objects and
   terminal object. *)
+(** ** Contents
+- Definition of Zero
+- Coincides with the direct definition
+*)
 
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
@@ -13,7 +17,10 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.initial.
 Require Import UniMath.CategoryTheory.limits.graphs.terminal.
+Require Import UniMath.CategoryTheory.limits.zero.
 
+
+(** * Definition of zero using limits and colimits *)
 Section def_zero.
 
   Context {C : precategory}.
@@ -177,7 +184,95 @@ Section def_zero.
   Proof.
     exact(identity_iso (InitialObject I),,iso_inv_from_iso e).
   Defined.
+
 End def_zero.
+
+(** * Zero coincides with the direct definition *)
+Section zero_coincides.
+
+  Context {C : precategory}.
+
+  (** ** isZero *)
+
+  Lemma equiv_isZero1 (c : C) :
+    limits.zero.isZero C c -> isZero c.
+  Proof.
+    intros X.
+    use mk_isZero.
+    split.
+
+    intros d.
+    apply ((pr1 X) d).
+
+    intros d.
+    apply ((pr2 X) d).
+  Qed.
+
+  Lemma equiv_isZero2 (c : C) :
+    limits.zero.isZero C c <- isZero c.
+  Proof.
+    intros X.
+    set (XZ := mk_Zero c X).
+
+    split.
+    intros b.
+    use tpair.
+    apply (InitialArrow (Zero_to_Initial XZ) b).
+    intros t.
+    use (InitialArrowUnique (Zero_to_Initial XZ) b).
+
+    intros a.
+    use tpair.
+    apply (TerminalArrow (Zero_to_Terminal XZ) a).
+    intros t.
+    use (TerminalArrowUnique (Zero_to_Terminal XZ) a).
+  Qed.
+
+  (** ** Zero **)
+
+  Definition equiv_Zero1 :
+    limits.zero.Zero C -> @Zero C.
+  Proof.
+    intros Z.
+    exact (mk_Zero Z (equiv_isZero1 _ (pr2 Z))).
+  Defined.
+
+  Definition equiv_Zero2 :
+    limits.zero.Zero C <- @Zero C.
+  Proof.
+    intros Z.
+    exact (limits.zero.mk_Zero
+             (ZeroObject Z)
+             (equiv_isZero2
+                _ ((isInitial_Initial (Zero_to_Initial Z))
+                     ,,(isTerminal_Terminal (Zero_to_Terminal Z))))).
+  Defined.
+
+  (** ** Arrows *)
+
+  Lemma equiv_ZeroArrowTo (x : C) (Z : Zero) :
+    @limits.zero.ZeroArrowTo C (equiv_Zero2 Z) x = ZeroArrowTo Z x.
+  Proof.
+    apply ZeroArrowToUnique.
+  Qed.
+
+  Lemma equiv_ZeroArrowFrom (x : C) (Z : Zero) :
+    @limits.zero.ZeroArrowFrom C (equiv_Zero2 Z) x = ZeroArrowFrom Z x.
+  Proof.
+    apply ZeroArrowFromUnique.
+  Qed.
+
+  Lemma equiv_ZeroArrow (x y : C) (Z : Zero) :
+    @limits.zero.ZeroArrow C (equiv_Zero2 Z) x y = ZeroArrow Z x y.
+  Proof.
+    unfold limits.zero.ZeroArrow. unfold ZeroArrow.
+    rewrite equiv_ZeroArrowTo.
+    rewrite equiv_ZeroArrowFrom.
+    apply idpath.
+  Qed.
+
+End zero_coincides.
+
 
 (** Following Initial and Terminal, we clear implicit arguments. *)
 Arguments Zero : clear implicits.
