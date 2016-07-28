@@ -121,9 +121,8 @@ Proof.
   use mk_isInitial.
   intros b.
   use tpair.
-  exact (InitialArrow I b).
-  intros t.
-  use (InitialArrowUnique I).
+  - exact (InitialArrow I b).
+  - intros t. use (InitialArrowUnique I).
 Qed.
 
 
@@ -144,9 +143,8 @@ Proof.
   set (XI := mk_Initial c X).
   intros b.
   use tpair.
-  exact (InitialArrow XI b).
-  intros t.
-  use (InitialArrowUnique XI b).
+  - exact (InitialArrow XI b).
+  - intros t. use (InitialArrowUnique XI b).
 Qed.
 
 Definition equiv_Initial1 (c : C) :
@@ -154,9 +152,9 @@ Definition equiv_Initial1 (c : C) :
 Proof.
   intros I.
   use mk_Initial.
-  exact I.
-  use equiv_isInitial1.
-  exact (pr2 I).
+  - exact I.
+  - use equiv_isInitial1.
+    exact (pr2 I).
 Defined.
 
 Definition equiv_Initial2 (c : C) :
@@ -164,9 +162,9 @@ Definition equiv_Initial2 (c : C) :
 Proof.
   intros I.
   use limits.initial.mk_Initial.
-  exact (InitialObject I).
-  use equiv_isInitial2.
-  use (isInitial_Initial I).
+  - exact (InitialObject I).
+  - use equiv_isInitial2.
+    use (isInitial_Initial I).
 Defined.
 
 End def_initial.

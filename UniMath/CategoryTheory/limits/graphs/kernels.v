@@ -49,18 +49,25 @@ Section def_kernels.
     use limits.equalizers.mk_isEqualizer.
     intros w h H.
     use unique_exists.
-    use limits.kernels.KernelIn.
-    exact h. rewrite precomp_with_ZeroArrow in H.
-    use (pathscomp0 _ (!(equiv_ZeroArrow w b Z))).
-    exact H.
 
-    cbn.
-    use limits.kernels.KernelCommutes.
-    intros y. apply hs.
-    intros y T. cbn in T.
-    use limits.kernels.KernelInsEq. unfold KernelArrow.
-    use (pathscomp0 T). apply pathsinv0.
-    use limits.kernels.KernelCommutes.
+    (* Construction of the morphism *)
+    - use limits.kernels.KernelIn.
+      + exact h.
+      + rewrite precomp_with_ZeroArrow in H.
+        use (pathscomp0 _ (!(equiv_ZeroArrow w b Z))).
+        exact H.
+
+    (* Commutativity *)
+    - use limits.kernels.KernelCommutes.
+
+    (* Equality on equalities of morphisms *)
+    - intros y. apply hs.
+
+    (* Uniqueness *)
+    - intros y T. cbn in T.
+      use limits.kernels.KernelInsEq. unfold KernelArrow.
+      use (pathscomp0 T). apply pathsinv0.
+      use limits.kernels.KernelCommutes.
   Qed.
 
   Definition equiv_Kernel1 {a b : C} (f : C⟦a, b⟧) :
@@ -98,17 +105,24 @@ Section def_kernels.
     use mk_isEqualizer. apply hs.
     intros w h H.
     use unique_exists.
-    use EqualizerIn.
-    exact h. rewrite precomp_with_ZeroArrow.
-    rewrite limits.zero.ZeroArrow_comp_right in H.
-    use (pathscomp0 H).
-    apply (equiv_ZeroArrow w b Z).
 
-    cbn.
-    use EqualizerArrowComm.
-    intros y. apply hs.
-    intros y T. cbn in T.
-    use EqualizerInUnique. exact T.
+    (* Construction of the morphism *)
+    - use EqualizerIn.
+      + exact h.
+      + rewrite precomp_with_ZeroArrow.
+        rewrite limits.zero.ZeroArrow_comp_right in H.
+        use (pathscomp0 H).
+        apply (equiv_ZeroArrow w b Z).
+
+    (* Commutativity *)
+    - use EqualizerArrowComm.
+
+    (* Equality on equalities of morphisms *)
+    - intros y. apply hs.
+
+    (* Uniqueness *)
+    - intros y T. cbn in T.
+      use EqualizerInUnique. exact T.
   Qed.
 
   Definition equiv_Kernel2 {a b : C} (f : C⟦a, b⟧) :

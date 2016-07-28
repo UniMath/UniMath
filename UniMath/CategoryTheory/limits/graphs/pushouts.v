@@ -7,6 +7,8 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 
+Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
+
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -19,28 +21,40 @@ Section def_po.
   Variable C : precategory.
   Variable hs: has_homsets C.
 
-  Inductive three := One | Two | Three.
+  Open Scope stn.
+  Definition One : three := ● 0.
+  Definition Two : three := ● 1.
+  Definition Three : three := ● 2.
 
   Definition pushout_graph : graph.
   Proof.
     exists three.
-    exact (fun a b =>
-             match (a,b) with
-             | (Two ,One) => unit
-             | (Two, Three) => unit
-             | _ => empty
-             end).
+    apply (@three_rec (three -> UU)).
+    - apply three_rec.
+      + apply empty.
+      + apply unit.
+      + apply unit.
+    - apply (fun _ => empty).
+    - apply three_rec.
+      + apply empty.
+      + apply empty.
+      + apply empty.
   Defined.
 
   Definition pushout_diagram {a b c : C} (f : C ⟦a,b⟧) (g : C⟦a,c⟧) :
     diagram pushout_graph C.
   Proof.
-    exists (fun x => match x with
-             | One => b
-             | Two => a
-             | Three => c end).
-    intros u v e.
-    induction u; induction v; simpl; try induction e; assumption.
+    exists (three_rec a b c).
+    use (three_rec_dep); cbn.
+    - use three_rec_dep; cbn.
+      + apply fromempty.
+      + intro; assumption.
+      + intro; assumption.
+    - intro; apply fromempty.
+    - use three_rec_dep; cbn.
+      + apply fromempty.
+      + apply fromempty.
+      + apply fromempty.
   Defined.
 
   Definition PushoutCocone {a b c : C} (f : C ⟦a,b⟧) (g : C⟦a,c⟧)
@@ -49,12 +63,18 @@ Section def_po.
     : cocone (pushout_diagram f g) d.
   Proof.
     simple refine (mk_cocone _ _  ).
-    - intro v; induction v; simpl; try assumption.
+    - use three_rec_dep; cbn; try assumption.
       apply (f ;; f').
-    - intros u v e;
-        induction u; induction v; try induction e; simpl.
-      + apply idpath.
-      + apply (!H).
+    - use three_rec_dep; cbn; use three_rec_dep; cbn.
+      + exact (Empty_set_rect _).
+      + intro. apply idpath.
+      + intro. apply (! H).
+      + exact (Empty_set_rect _).
+      + exact (Empty_set_rect _).
+      + exact (Empty_set_rect _).
+      + exact (Empty_set_rect _).
+      + exact (Empty_set_rect _).
+      + exact (Empty_set_rect _).
   Defined.
 
   Definition isPushout {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
@@ -69,34 +89,32 @@ Section def_po.
     isPushout f g i1 i2 H.
   Proof.
     intros H' x cx; simpl in *.
-    set (H1 := H' x (coconeIn cx One) (coconeIn cx Three)).
-    simple refine (let p : f ;; coconeIn cx One = g ;; coconeIn cx Three
+    set (H1 := H' x (coconeIn cx Two) (coconeIn cx Three)).
+    simple refine (let p : f ;; coconeIn cx Two = g ;; coconeIn cx Three
                        := _ in _ ).
-    - set (H2 := coconeInCommutes cx Two One tt).
+    - set (H2 := coconeInCommutes cx One Two tt).
     eapply pathscomp0. apply H2.
     clear H2.
     apply pathsinv0.
-    apply (coconeInCommutes cx Two Three tt).
+    apply (coconeInCommutes cx One Three tt).
   - set (H2 := H1 p).
     simple refine (tpair _ _ _ ).
     + exists (pr1 (pr1 H2)).
-      intro v; induction v; simpl.
-      * apply (pr1 (pr2 (pr1 H2))).
-      * use (pathscomp0 _ (coconeInCommutes cx Two One tt)).
+      use (three_rec_dep); cbn.
+      * use (pathscomp0 _ (coconeInCommutes cx One Two tt)).
+        cbn. unfold idfun.
         rewrite <- assoc.
-        rewrite (pr1 (pr2 (pr1 H2))).
-        apply cancel_postcomposition.
-        apply idpath.
-      * unfold compose. simpl.
-        set (X := pr2 (pr2 (pr1 H2))). simpl in *. apply X.
-    +  intro t.
+        apply cancel_precomposition.
+        apply (pr1 (pr2 (pr1 H2))).
+      * unfold idfun. apply (pr1 (pr2 (pr1 H2))).
+      * use (pathscomp0 _ (pr2 (pr2 (pr1 H2)))). apply idpath.
+    + intro t.
        apply subtypeEquality.
-       * simpl.
-         intro; apply impred; intro. apply hs.
+       * intro; apply impred; intro. apply hs.
        * destruct t as [t p0]; simpl.
          apply path_to_ctr.
          { split.
-           - apply (p0 One).
+           - apply (p0 Two).
            - apply (p0 Three). }
   Defined.
 
@@ -128,7 +146,7 @@ Section def_po.
   (* Coercion PushoutObject : Pushout >-> ob. *)
 
   Definition PushoutIn1 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
-             (Po : Pushout f g) : C⟦b, colim Po⟧ := colimIn Po One.
+             (Po : Pushout f g) : C⟦b, colim Po⟧ := colimIn Po Two.
 
   Definition PushoutIn2 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
              (Po : Pushout f g) : C⟦c, colim Po⟧ := colimIn Po Three.
@@ -137,8 +155,8 @@ Section def_po.
              (Po : Pushout f g) :
     f ;; PushoutIn1 Po = g ;; PushoutIn2 Po.
   Proof.
-    eapply pathscomp0; [apply (colimInCommutes Po Two One tt) |].
-    apply (!colimInCommutes Po Two Three tt) .
+    eapply pathscomp0; [apply (colimInCommutes Po One Two tt) |].
+    apply (!colimInCommutes Po One Three tt).
   Qed.
 
   Definition PushoutArrow {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
@@ -148,11 +166,18 @@ Section def_po.
   Proof.
     simple refine (colimArrow _ _ _ ).
     simple refine (mk_cocone _ _ ).
-    - intro v; induction v; simpl; try assumption.
-      apply (f ;; h).
-    - intros u v edg; induction u; induction v; try induction edg; simpl.
-      + apply idpath.
-      + apply (!H).
+    - apply three_rec_dep; cbn; try assumption.
+      + apply (f ;; h).
+    - use three_rec_dep; cbn; use three_rec_dep; cbn.
+      + exact (Empty_set_rect _).
+      + intro. apply idpath.
+      + intro. apply (! H).
+      + exact (Empty_set_rect _).
+      + exact (Empty_set_rect _).
+      + exact (Empty_set_rect _).
+      + exact (Empty_set_rect _).
+      + exact (Empty_set_rect _).
+      + exact (Empty_set_rect _).
   Defined.
 
   Lemma PushoutArrow_PushoutIn1 {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧}
@@ -160,7 +185,7 @@ Section def_po.
         (H : f ;; h = g ;; k) :
     PushoutIn1 Po ;; PushoutArrow Po e h k H = h.
   Proof.
-    refine (colimArrowCommutes Po e _ One).
+    refine (colimArrowCommutes Po e _ Two).
   Qed.
 
   Lemma PushoutArrow_PushoutIn2 {a b c : C} {f : C⟦a , b⟧} {g : C⟦a , c⟧}
@@ -180,10 +205,11 @@ Section def_po.
     w = PushoutArrow Po _ h k Hcomm.
   Proof.
     apply path_to_ctr.
-    intro v; induction v; simpl; try assumption.
-    set (X:= colimInCommutes Po Two Three tt). cbn in X.
-    rewrite <- X. rewrite Hcomm. rewrite <- assoc.
-    apply cancel_precomposition. apply H2.
+    use three_rec_dep; cbn; try assumption.
+    set (X := colimInCommutes Po One Two tt).
+    use (pathscomp0 (! (maponpaths (fun h' : _ => h' ;; w) X))).
+    cbn. unfold idfun. rewrite <- assoc. apply cancel_precomposition.
+    apply H1.
   Qed.
 
   Definition isPushout_Pushout {a b c : C} {f : C⟦a, b⟧}{g : C⟦a, c⟧}
@@ -230,10 +256,9 @@ Section def_po.
     w =  (pr1 (pr1 (P e (PushoutCocone f g _ h k Hcomm)))).
   Proof.
     apply path_to_ctr.
-    intro v; induction v; simpl.
-    - assumption.
-    - rewrite <- assoc. apply cancel_precomposition. apply H1.
-    - assumption.
+    use three_rec_dep; cbn; try assumption.
+    unfold idfun. rewrite <- assoc. apply cancel_precomposition.
+    apply H1.
   Qed.
 
   Lemma PushoutEndo_is_identity {a b c : C}{f : C⟦a, b⟧} {g : C⟦a, c⟧}
@@ -243,16 +268,15 @@ Section def_po.
     identity (colim Po) = k.
   Proof.
     apply colim_endo_is_identity.
-    intro u; induction u; simpl.
-    - apply kH1.
-    - unfold colimIn. simpl.
-      assert (T:= coconeInCommutes (colimCocone Po) Two Three tt).
-      rewrite <- T.
-      simpl.
-      rewrite <- assoc.
-      apply cancel_precomposition.
+    use three_rec_dep; cbn.
+    - unfold colimIn.
+      set (T := (coconeInCommutes (colimCocone Po) One Three tt)).
+      use (pathscomp0 (! (maponpaths (fun h' : _ => h' ;; k) T))).
+      use (pathscomp0 _ (coconeInCommutes (colimCocone Po) One Three tt)).
+      rewrite <- assoc. apply cancel_precomposition.
       apply kH2.
-    - assumption.
+    - apply kH1.
+    - apply kH2.
   Qed.
 
   Definition from_Pushout_to_Pushout {a b c : C}{f : C⟦a , b⟧} {g : C⟦a , c⟧}
@@ -328,7 +352,7 @@ Section def_po.
     Proof.
       apply pathsinv0.
       apply inv_iso_unique'.
-      set (T:= are_inverses_from_Pushout_to_Pushout Po Po').
+      set (T := are_inverses_from_Pushout_to_Pushout Po Po').
       apply (pr1 T).
     Qed.
 
@@ -364,23 +388,24 @@ Section pushout_coincide.
     use unique_exists.
 
     use (limits.pushouts.PushoutArrow XR).
-    exact (coconeIn cc One).
+    exact (coconeIn cc Two).
     exact (coconeIn cc Three).
-    use (pathscomp0 ((coconeInCommutes cc Two One tt))).
-    apply (!(coconeInCommutes cc Two Three tt)).
+    use (pathscomp0 ((coconeInCommutes cc One Two tt))).
+    apply (!(coconeInCommutes cc One Three tt)).
 
-    intros v. induction v.
-    apply (limits.pushouts.PushoutArrow_PushoutIn1 XR).
-    cbn. rewrite <- assoc.
+    use three_rec_dep; cbn; unfold idfun.
+    rewrite <- assoc.
     rewrite (limits.pushouts.PushoutArrow_PushoutIn1 XR).
-    apply (coconeInCommutes cc Two One tt).
+    apply (coconeInCommutes cc One Two tt).
+    apply (limits.pushouts.PushoutArrow_PushoutIn1 XR).
 
-    cbn. apply (limits.pushouts.PushoutArrow_PushoutIn2 XR).
+    apply (limits.pushouts.PushoutArrow_PushoutIn2 XR).
+
     intros y. cbn beta. apply impred_isaprop. intros t. apply hs.
 
     intros y T. cbn in T.
     use limits.pushouts.PushoutArrowUnique.
-    apply (T One).
+    apply (T Two).
     apply (T Three).
   Qed.
 

@@ -200,12 +200,8 @@ Section zero_coincides.
     intros X.
     use mk_isZero.
     split.
-
-    intros d.
-    apply ((pr1 X) d).
-
-    intros d.
-    apply ((pr2 X) d).
+    - intros d. apply ((pr1 X) d).
+    - intros d. apply ((pr2 X) d).
   Qed.
 
   Lemma equiv_isZero2 (c : C) :
@@ -215,17 +211,16 @@ Section zero_coincides.
     set (XZ := mk_Zero c X).
 
     split.
-    intros b.
-    use tpair.
-    apply (InitialArrow (Zero_to_Initial XZ) b).
-    intros t.
-    use (InitialArrowUnique (Zero_to_Initial XZ) b).
-
-    intros a.
-    use tpair.
-    apply (TerminalArrow (Zero_to_Terminal XZ) a).
-    intros t.
-    use (TerminalArrowUnique (Zero_to_Terminal XZ) a).
+    - intros b.
+      use tpair.
+      apply (InitialArrow (Zero_to_Initial XZ) b).
+      intros t.
+      use (InitialArrowUnique (Zero_to_Initial XZ) b).
+    - intros a.
+      use tpair.
+      apply (TerminalArrow (Zero_to_Terminal XZ) a).
+      intros t.
+      use (TerminalArrowUnique (Zero_to_Terminal XZ) a).
   Qed.
 
   (** ** Zero **)

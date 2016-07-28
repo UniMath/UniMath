@@ -7,6 +7,8 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 
+Require Import UniMath.Foundations.Combinatorics.StandardFiniteSets.
+
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -20,28 +22,30 @@ Section def_coequalizers.
   Variable C : precategory.
   Variable hs: has_homsets C.
 
-  Inductive two := One | Two .
+  Open Scope stn.
+  Definition One : two := ● 0.
+  Definition Two : two := ● 1.
 
   Definition Coequalizer_graph : graph.
   Proof.
     exists two.
-    exact (fun a b =>
-             match (a, b) with
-             | (One, Two) => unit ⨿ unit
-             | _ => empty
-             end).
+    use (@two_rec (two -> UU)).
+    - apply two_rec.
+      + apply empty.
+      + apply (unit ⨿ unit).
+    - apply (fun _ => empty).
   Defined.
 
   Definition Coequalizer_diagram {a b : C} (f g : C⟦a, b⟧) :
     diagram Coequalizer_graph C.
   Proof.
-    unfold diagram. cbn.
-    use (tpair _ (fun x => match x with
-                        | One => a
-                        | Two => b end) _).
-    intros x y e.
-    induction x; induction y; try induction e.
-    exact f. exact g.
+    exists (two_rec a b).
+    use two_rec_dep; cbn.
+    - use two_rec_dep; cbn.
+      + apply fromempty.
+      + intro x. induction x.
+        exact f. exact g.
+    - intro. apply fromempty.
   Defined.
 
   Definition Coequalizer_cocone {a b : C} (f g : C⟦a, b⟧)
@@ -49,12 +53,16 @@ Section def_coequalizers.
     cocone (Coequalizer_diagram f g) d.
   Proof.
     use mk_cocone.
-    intros v. induction v.
-    exact (f ;; h). exact h.
-
-    intros u v e.
-    induction u; induction v; try induction e.
-    apply idpath. exact (!H).
+    - use two_rec_dep; cbn.
+      + exact (f ;; h).
+      + exact h.
+    - use two_rec_dep; cbn; use two_rec_dep; cbn.
+      + exact (Empty_set_rect _).
+      + intro e. unfold idfun. induction e.
+        * apply idpath.
+        * apply (! H).
+      + exact (Empty_set_rect _).
+      + exact (Empty_set_rect _).
   Defined.
 
   Definition isCoequalizer {a b : C} (f g : C⟦a, b⟧)
@@ -77,22 +85,19 @@ Section def_coequalizers.
       apply idpath.
     }
     set (H2 := (H' x (coconeIn cx Two) H1)).
+
     use tpair.
-    use (tpair _ (pr1 (pr1 H2)) _).
-    intros v. induction v. cbn.
-    use (pathscomp0 _ (coconeInCommutes cx One Two (ii1 tt))). cbn.
-    rewrite <- assoc. apply cancel_precomposition.
-    apply (pr2 (pr1 H2)).
-
-    apply (pr2 (pr1 H2)).
-
-    intro t. apply subtypeEquality.
-    intros y. apply impred. intros t0. apply hs.
-
-    (* Use uniqueness of H2 *)
-    induction t. cbn.
-    apply path_to_ctr.
-    apply (p Two).
+    - use (tpair _ (pr1 (pr1 H2)) _).
+      use two_rec_dep; cbn; unfold idfun.
+      + use (pathscomp0 _ (coconeInCommutes cx One Two (ii1 tt))).
+        rewrite <- assoc. cbn. apply cancel_precomposition.
+        apply (pr2 (pr1 H2)).
+      + apply (pr2 (pr1 H2)).
+    - intro t. apply subtypeEquality.
+      intros y. apply impred. intros t0. apply hs.
+      induction t. cbn.
+      apply path_to_ctr.
+      apply (p Two).
   Defined.
 
   Definition Coequalizer {a b : C} (f g : C⟦a, b⟧) :=
@@ -104,12 +109,12 @@ Section def_coequalizers.
     Coequalizer f g.
   Proof.
     use tpair.
-    use tpair.
-    exact d.
-    use Coequalizer_cocone.
-    exact h.
-    exact H.
-    exact isCEq.
+    - use tpair.
+      + exact d.
+      + use Coequalizer_cocone.
+        * exact h.
+        * exact H.
+    - exact isCEq.
   Defined.
 
   Definition Coequalizers : UU
@@ -140,12 +145,16 @@ Section def_coequalizers.
   Proof.
     use colimArrow.
     use mk_cocone.
-    intros v. induction v.
-
-    exact (f ;; h). exact h.
-    intros u v e'.
-    induction u; induction v; try induction e'.
-    apply idpath. apply (!H).
+    - use two_rec_dep; cbn.
+      + exact (f ;; h).
+      + exact h.
+    - use two_rec_dep; cbn; use two_rec_dep; cbn.
+      + exact (Empty_set_rect _).
+      + intro e0. unfold idfun. induction e0.
+        * apply idpath.
+        * apply (! H).
+      + exact (Empty_set_rect _).
+      + exact (Empty_set_rect _).
   Defined.
 
   Lemma CoequalizerArrowComm {a b : C} {f g : C⟦a, b⟧}
@@ -164,12 +173,13 @@ Section def_coequalizers.
     w = CoequalizerOut E e h H.
   Proof.
     apply path_to_ctr.
-    intros v. induction v; cbn; try assumption.
-    set (X := colimInCommutes E One Two (ii1 tt)).
-    apply (maponpaths (fun h : _ => h ;; w)) in X.
-    use (pathscomp0 (!X)). cbn. rewrite <- assoc.
-    apply cancel_precomposition.
-    apply H'.
+    use two_rec_dep; cbn.
+    - set (X := colimInCommutes E One Two (ii1 tt)).
+      apply (maponpaths (fun h : _ => h ;; w)) in X.
+      use (pathscomp0 (!X)). cbn. rewrite <- assoc.
+      unfold idfun. apply cancel_precomposition.
+      apply H'.
+    - apply H'.
   Qed.
 
   Definition isCoequalizer_Coequalizer {a b : C} {f g : C⟦a, b⟧}
@@ -179,15 +189,18 @@ Section def_coequalizers.
   Proof.
     apply mk_isCoequalizer.
     intros e h H.
-    use unique_exists.
-    exact (CoequalizerOut E e h H).
-    exact (CoequalizerArrowComm E e h H).
+    use (unique_exists (CoequalizerOut E e h H)).
 
-    intros y. apply hs.
+    (* Commutativity *)
+    - exact (CoequalizerArrowComm E e h H).
 
-    intros y t. cbn in t.
-    use CoequalizerOutUnique.
-    exact t.
+    (* Equality on equalities of morphisms *)
+    - intros y. apply hs.
+
+    (* Uniqueness *)
+    - intros y t. cbn in t.
+      use CoequalizerOutUnique.
+      exact t.
   Qed.
 
   (** ** Coequalizers to coequalizers *)
@@ -209,11 +222,13 @@ Section def_coequalizers.
   Proof.
     apply colim_endo_is_identity.
     unfold colimIn.
-    intros u. induction u.
-    rewrite <- (coconeInCommutes (colimCocone E) One Two (ii1 tt)).
-    rewrite <- assoc. cbn. apply cancel_precomposition.
-    apply kH.
-    apply kH.
+    use two_rec_dep; cbn.
+    + set (X := (coconeInCommutes (colimCocone E) One Two (ii1 tt))).
+      use (pathscomp0 (! (maponpaths (fun h' : _ => h' ;; k) X))).
+      use (pathscomp0 _ X).
+      rewrite <- assoc. apply cancel_precomposition.
+      apply kH.
+    + apply kH.
   Qed.
 
   Definition from_Coequalizer_to_Coequalizer {a b : C} {f g : C⟦a, b⟧}
@@ -229,17 +244,16 @@ Section def_coequalizers.
       (from_Coequalizer_to_Coequalizer E1 E2).
   Proof.
     split; apply pathsinv0.
-    apply CoequalizerEndo_is_identity.
-    rewrite assoc.
-    unfold from_Coequalizer_to_Coequalizer.
-    repeat rewrite CoequalizerArrowComm.
-    apply idpath.
-
-    apply CoequalizerEndo_is_identity.
-    rewrite assoc.
-    unfold from_Coequalizer_to_Coequalizer.
-    repeat rewrite CoequalizerArrowComm.
-    apply idpath.
+    - apply CoequalizerEndo_is_identity.
+      rewrite assoc.
+      unfold from_Coequalizer_to_Coequalizer.
+      repeat rewrite CoequalizerArrowComm.
+      apply idpath.
+    - apply CoequalizerEndo_is_identity.
+      rewrite assoc.
+      unfold from_Coequalizer_to_Coequalizer.
+      repeat rewrite CoequalizerArrowComm.
+      apply idpath.
   Qed.
 
   Lemma isiso_from_Coequalizer_to_Coequalizer {a b : C} {f g : C⟦a, b⟧}
@@ -293,18 +307,21 @@ Section coequalizers_coincide.
   Proof.
     intros X.
     set (E := limits.coequalizers.mk_Coequalizer f g h H X).
-    use mk_isCoequalizer.
-    exact hs.
+    use (mk_isCoequalizer C hs).
     intros e' h' H'.
-    use unique_exists.
+    use (unique_exists (limits.coequalizers.CoequalizerOut E e' h' H')).
 
-    exact (limits.coequalizers.CoequalizerOut E e' h' H').
-    exact (limits.coequalizers.CoequalizerCommutes E e' h' H').
-    intros y. apply hs.
-    intros y T. cbn in T.
-    use (limits.coequalizers.CoequalizerOutsEq E).
-    use (pathscomp0 T).
-    exact (!(limits.coequalizers.CoequalizerCommutes E e' h' H')).
+    (* Commutativity *)
+    - exact (limits.coequalizers.CoequalizerCommutes E e' h' H').
+
+    (* Equality on equalities of morphisms *)
+    - intros y. apply hs.
+
+    (* Uniqueness *)
+    - intros y T. cbn in T.
+      use (limits.coequalizers.CoequalizerOutsEq E).
+      use (pathscomp0 T).
+      exact (!(limits.coequalizers.CoequalizerCommutes E e' h' H')).
   Qed.
 
   Lemma equiv_isCoequalizer2 {a b : C} (f g : C⟦a, b⟧)
@@ -314,14 +331,18 @@ Section coequalizers_coincide.
     intros X.
     set (E := mk_Coequalizer C f g e h H X).
     intros e' h' H'.
-    use unique_exists.
+    use (unique_exists (CoequalizerOut C E e' h' H')).
 
-    exact (CoequalizerOut C E e' h' H').
-    exact (CoequalizerArrowComm C E e' h' H').
-    intros y. apply hs.
-    intros y T. cbn in T.
-    use (CoequalizerOutUnique C E).
-    exact T.
+    (* Commutativity *)
+    - exact (CoequalizerArrowComm C E e' h' H').
+
+    (* Equality on equalities of morphisms *)
+    - intros y. apply hs.
+
+    (* Uniqueness *)
+    - intros y T. cbn in T.
+      use (CoequalizerOutUnique C E).
+      exact T.
   Qed.
 
   (** ** Coequalizers *)

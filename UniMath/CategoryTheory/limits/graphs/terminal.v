@@ -122,9 +122,8 @@ Proof.
   use mk_isTerminal.
   intros a.
   use tpair.
-  exact (TerminalArrow T a).
-  intros t.
-  use (TerminalArrowUnique T a).
+  - exact (TerminalArrow T a).
+  - intros t. use (TerminalArrowUnique T a).
 Qed.
 
 
@@ -145,9 +144,8 @@ Proof.
   set (XT := mk_Terminal c X).
   intros b.
   use tpair.
-  exact (TerminalArrow XT b).
-  intros t.
-  use (TerminalArrowUnique XT b).
+  - exact (TerminalArrow XT b).
+  - intros t. use (TerminalArrowUnique XT b).
 Qed.
 
 Definition equiv_Terminal1 :

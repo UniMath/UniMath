@@ -49,18 +49,25 @@ Section def_cokernels.
     use limits.coequalizers.mk_isCoequalizer.
     intros w h H.
     use unique_exists.
-    use limits.cokernels.CokernelOut.
-    exact h. rewrite postcomp_with_ZeroArrow in H.
-    use (pathscomp0 _ (!(equiv_ZeroArrow a w Z))).
-    exact H.
 
-    cbn.
-    use limits.cokernels.CokernelCommutes.
-    intros y. apply hs.
-    intros y T. cbn in T.
-    use limits.cokernels.CokernelOutsEq. unfold CokernelArrow.
-    use (pathscomp0 T). apply pathsinv0.
-    use limits.cokernels.CokernelCommutes.
+    (* Construction of the morphism *)
+    - use limits.cokernels.CokernelOut.
+      + exact h.
+      + rewrite postcomp_with_ZeroArrow in H.
+        use (pathscomp0 _ (!(equiv_ZeroArrow a w Z))).
+        exact H.
+
+    (* Commutativity *)
+    - use limits.cokernels.CokernelCommutes.
+
+    (* Equality on equalities of morphisms *)
+    - intros y. apply hs.
+
+    (* Uniqueness *)
+    - intros y T. cbn in T.
+      use limits.cokernels.CokernelOutsEq. unfold CokernelArrow.
+      use (pathscomp0 T). apply pathsinv0.
+      use limits.cokernels.CokernelCommutes.
   Qed.
 
   Definition equiv_Cokernel1 {a b : C} (f : C⟦a, b⟧) :
@@ -99,17 +106,24 @@ Section def_cokernels.
     use mk_isCoequalizer. apply hs.
     intros w h H.
     use unique_exists.
-    use CoequalizerOut.
-    exact h. rewrite postcomp_with_ZeroArrow.
-    rewrite limits.zero.ZeroArrow_comp_left in H.
-    use (pathscomp0 H).
-    apply (equiv_ZeroArrow a w Z).
 
-    cbn.
-    use CoequalizerArrowComm.
-    intros y. apply hs.
-    intros y T. cbn in T.
-    use CoequalizerOutUnique. exact T.
+    (* Construction of the morphism *)
+    - use CoequalizerOut.
+      + exact h.
+      + rewrite postcomp_with_ZeroArrow.
+        rewrite limits.zero.ZeroArrow_comp_left in H.
+        use (pathscomp0 H).
+        apply (equiv_ZeroArrow a w Z).
+
+    (* Commutativity *)
+    - use CoequalizerArrowComm.
+
+    (* Equality on equalities of morphisms *)
+    - intros y. apply hs.
+
+    (* Uniqueness *)
+    - intros y T. cbn in T.
+      use CoequalizerOutUnique. exact T.
   Qed.
 
   Definition equiv_Cokernel2 {a b : C} (f : C⟦a, b⟧) :
