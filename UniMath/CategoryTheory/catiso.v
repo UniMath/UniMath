@@ -12,63 +12,6 @@ Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 
-(* General lemmas that should probably go somewhere else *)
-
-Lemma eqweq_twice_is_eqweq_of_comp {A B C : UU}
-      (p : A = B) (q : B = C)
-  : weqcomp (eqweqmap p) (eqweqmap q)
-    = eqweqmap (pathscomp0 p q).
-Proof.
-  induction p.
-  eapply total2_paths.
-    apply isapropisweq.
-    Unshelve.
-  reflexivity.
-Defined.
-
-Lemma eqweqfun_twice_is_eqweqfun_of_comp {A B C : UU}
-      (p : A = B) (q : B = C) (a : A)
-  : (eqweqmap q) ((eqweqmap p) a)
-    = eqweqmap (pathscomp0 p q) a.
-Proof.
-  induction p.
-  reflexivity.
-Defined.
-
-Lemma inv_idweq_is_idweq {A : UU} :
-  idweq A = invweq (idweq A).
-Proof.
-  eapply total2_paths.
-  apply isapropisweq.
-  Unshelve.
-  reflexivity.
-Defined.
-
-Lemma eqweq_of_inverse {A B : UU} (p : A = B)
-  : eqweqmap (!p) = invweq (eqweqmap p).
-Proof.
-  induction p.
-  exact inv_idweq_is_idweq.
-Defined.
-
-Lemma total2_paths2_b {A : UU} {B : A -> UU} {a1 : A} {b1 : B a1}
-  {a2 : A} {b2 : B a2} (p : a1 = a2)
-  (q : b1 = transportb B p b2) : a1,,b1 = a2,,b2.
-Proof.
-  intros.
-  apply (@total2_paths_b _ _
-    (tpair (fun x => B x) a1 b1) (tpair (fun x => B x) a2 b2) p q).
-Defined.
-
-Definition transportb_dirprod (A : UU) (B B' : A -> UU)
-  (x x' : Σ a,  B a × B' a)  (p : pr1 x = pr1 x') :
-  transportb (fun a => dirprod (B a) (B' a)) p (pr2 x') =
-    dirprodpair (transportb (fun a => B a) p (pr1 (pr2 x')))
-                (transportb (fun a => B' a) p (pr2 (pr2 x'))).
-Proof.
-  apply transportf_dirprod.
-Defined.
-
 (******************************************************************************)
 (** * Isomorphism of (pre)categories *)
 (* (as defined in the paper) *)
@@ -329,10 +272,10 @@ Proof.
   (* Get into a form we can apply correct_hom_on_id *)
   apply pathsweq1'.
   rewrite <- pathscomp_inv.
-  rewrite eqweq_of_inverse.
+  rewrite eqweqmap_pathsinv0.
   rewrite invinv.
 
-  rewrite <- eqweqfun_twice_is_eqweqfun_of_comp.
+  rewrite <- eqweqmap_pathscomp0.
 
   rewrite (eqweq_fully_faithful_is_functor_app F a a).
   simpl.
@@ -449,10 +392,10 @@ Proof.
 
   (* Rearrange to get into a form to apply correct_hom_on_comp *)
   apply pathsweq1'.
-  rewrite eqweq_of_inverse.
+  rewrite eqweqmap_pathsinv0.
   rewrite invinv.
 
-  rewrite <- !eqweq_twice_is_eqweq_of_comp.
+  rewrite <- !eqweqmap_pathscomp0.
   rewrite !eqweq_fully_faithful_is_functor_app.
   simpl.
   rewrite functor_comp.
