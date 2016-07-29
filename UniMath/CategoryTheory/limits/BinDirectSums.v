@@ -3,6 +3,9 @@ Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
 
+Require Import UniMath.Foundations.Algebra.BinaryOperations.
+Require Import UniMath.Foundations.Algebra.Monoids_and_Groups.
+
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -340,7 +343,8 @@ Section def_bindirectsums.
 
   (** Both of the above morphisms are given by the following formula. *)
   Definition BinDirectSumIndArFormula {a b c d: A}  (f : a --> b) (g : c --> d)
-             (B1 : BinDirectSumCone a c) (B2 : BinDirectSumCone b d) : A⟦B1, B2⟧
+             (B1 : BinDirectSumCone a c) (B2 : BinDirectSumCone b d) :
+    A⟦B1, B2⟧
     := (PrecategoryWithAbgrops_op A B1 B2)
          (BinDirectSumPr1 B1 ;; f ;; BinDirectSumIn1 B2)
          (BinDirectSumPr2 B1 ;; g ;; BinDirectSumIn2 B2).
@@ -382,3 +386,200 @@ Section def_bindirectsums.
   Opaque BinDirectSumIndArEq.
 
 End def_bindirectsums.
+
+
+(** If a PreAdditive category has BinProducts, then it has all direct sums. *)
+Section bindirectsums_criteria.
+
+  Variable A : PreAdditive.
+  Hypothesis hs : has_homsets A.
+  Variable Z : Zero A.
+
+  Definition BinDirectSums_from_binproduct_bincoproducts_eq1
+             {X Y : A} (P : BinProductCone A X Y):
+    BinProductArrow A P (identity X) (ZeroArrow A Z X Y) ;; BinProductPr1 A P
+    = identity _ .
+  Proof.
+    apply BinProductPr1Commutes.
+  Qed.
+
+  Definition BinDirectSums_from_binproduct_bincoproducts_eq2
+             {X Y : A} (P : BinProductCone A X Y):
+    BinProductArrow A P (identity X) (ZeroArrow A Z X Y) ;; BinProductPr2 A P =
+      PrecategoryWithAbgrops_unel A X Y.
+  Proof.
+    rewrite (PreAdditive_unel_zero A Z).
+    apply BinProductPr2Commutes.
+  Qed.
+
+  Definition BinDirectSums_from_binproduct_bincoproducts_eq3
+             {X Y : A} (P : BinProductCone A X Y):
+    BinProductArrow A P (ZeroArrow A Z Y X) (identity _ ) ;; BinProductPr1 A P
+    = PrecategoryWithAbgrops_unel A Y X.
+  Proof.
+    rewrite (PreAdditive_unel_zero A Z).
+    apply BinProductPr1Commutes.
+  Qed.
+
+  Definition BinDirectSums_from_binproduct_bincoproducts_eq4
+             {X Y : A} (P : BinProductCone A X Y):
+    BinProductArrow A P (ZeroArrow A Z Y X) (identity _ ) ;; BinProductPr2 A P
+    = identity _ .
+  Proof.
+    apply BinProductPr2Commutes.
+  Qed.
+
+  Definition BinDirectSums_from_binproduct_bincoproducts_eq5
+             {X Y : A} (P : BinProductCone A X Y) :
+    PrecategoryWithBinOps_binop A (BinProductObject A P) (BinProductObject A P)
+                                (BinProductPr1 A P ;; BinProductArrow A P
+                                               (identity X)
+                                               (ZeroArrow A Z X Y))
+                                (BinProductPr2 A P ;; BinProductArrow A P
+                                               (ZeroArrow A Z Y X)
+                                               (identity Y))
+    = identity _ .
+  Proof.
+    apply BinProductArrowsEq.
+    set (tmp := (PreAdditive_postmor_linear
+                   A _ _ _ (BinProductPr1 A P)
+                   (BinProductPr1 A P ;; BinProductArrow A P
+                                  (identity X) (ZeroArrow A Z X Y))
+                   (BinProductPr2 A P ;; BinProductArrow A P
+                                  (ZeroArrow A Z Y X) (identity Y)))).
+    unfold PrecategoryWithAbgrops_postmor in tmp. cbn in tmp. rewrite tmp.
+    rewrite <- assoc. rewrite <- assoc.
+    rewrite BinProductPr1Commutes. rewrite BinProductPr1Commutes.
+    rewrite id_right. rewrite ZeroArrow_comp_right.
+    rewrite <- PreAdditive_unel_zero.
+    rewrite id_left.
+    apply PrecategoryWithAbgrops_runax.
+
+    set (tmp := (PreAdditive_postmor_linear
+                   A _ _ _ (BinProductPr2 A P)
+                   (BinProductPr1 A P ;; BinProductArrow A P
+                                  (identity X) (ZeroArrow A Z X Y))
+                   (BinProductPr2 A P ;; BinProductArrow A P
+                                  (ZeroArrow A Z Y X) (identity Y)))).
+    unfold PrecategoryWithAbgrops_postmor in tmp. cbn in tmp. rewrite tmp.
+    rewrite <- assoc. rewrite <- assoc.
+    rewrite BinProductPr2Commutes. rewrite BinProductPr2Commutes.
+    rewrite id_right. rewrite ZeroArrow_comp_right.
+    rewrite <- PreAdditive_unel_zero.
+    rewrite id_left.
+    apply PrecategoryWithAbgrops_lunax.
+  Qed.
+
+  Definition BinDirectSums_from_binproduct_bincoproducts_isCoproduct
+             {X Y : A} (P : BinProductCone A X Y) :
+    isBinCoproductCocone A X Y (BinProductObject A P)
+    (BinProductArrow A P (identity X) (ZeroArrow A Z X Y))
+    (BinProductArrow A P (ZeroArrow A Z Y X) (identity Y)).
+  Proof.
+    use mk_isBinCoproductCocone.
+    exact hs.
+    intros c f g.
+    apply (unique_exists
+             (PrecategoryWithAbgrops_op A (BinProductObject A P) c
+                                        (BinProductPr1 A P ;; f)
+                                        (BinProductPr2 A P ;; g))).
+    split.
+    set (tmp := (PreAdditive_premor_linear
+                   A _ _ c (BinProductArrow A P (identity X)
+                                            (ZeroArrow A Z X Y))
+
+                   (BinProductPr1 A P ;; f)
+                   (BinProductPr2 A P ;; g))).
+    unfold PrecategoryWithAbgrops_premor in tmp. cbn in tmp. cbn.
+    rewrite tmp.
+
+    rewrite assoc. rewrite assoc.
+    rewrite BinProductPr1Commutes.
+    rewrite BinProductPr2Commutes.
+    rewrite ZeroArrow_comp_left.
+    rewrite id_left.
+    rewrite <- PreAdditive_unel_zero.
+    apply PrecategoryWithAbgrops_runax.
+
+    set (tmp := (PreAdditive_premor_linear
+                   A _ _ c (BinProductArrow A P (ZeroArrow A Z Y X)
+                           (identity Y))
+                   (BinProductPr1 A P ;; f)
+                   (BinProductPr2 A P ;; g))).
+    unfold PrecategoryWithAbgrops_premor in tmp. cbn in tmp. cbn.
+    rewrite tmp.
+
+    rewrite assoc. rewrite assoc.
+    rewrite BinProductPr1Commutes.
+    rewrite BinProductPr2Commutes.
+    rewrite ZeroArrow_comp_left.
+    rewrite id_left.
+    rewrite <- PreAdditive_unel_zero.
+    apply PrecategoryWithAbgrops_lunax.
+
+    intros y. apply isapropdirprod. apply hs. apply hs.
+
+    intros y H. induction H. rewrite <- t. rewrite <- p.
+    rewrite assoc. rewrite assoc. cbn.
+    set (tmp := (PreAdditive_postmor_linear
+                   A _ _ _ y
+                   (BinProductPr1 A P ;; BinProductArrow A P
+                                  (identity X) (ZeroArrow A Z X Y))
+                   (BinProductPr2 A P ;; BinProductArrow A P
+                                  (ZeroArrow A Z Y X) (identity Y)))).
+    unfold PrecategoryWithAbgrops_postmor in tmp. cbn in tmp.
+    rewrite <- tmp.
+    rewrite (BinDirectSums_from_binproduct_bincoproducts_eq5 P).
+    rewrite id_left. apply idpath.
+  Qed.
+
+  Definition BinDirectSums_from_binproduct_bincoproducts_isProduct
+             {X Y : A} (P : BinProductCone A X Y) :
+    isBinProductCone A X Y (BinProductObject A P) (BinProductPr1 A P)
+                     (BinProductPr2 A P).
+  Proof.
+    use mk_isBinProductCone.
+    exact hs.
+
+    intros c f g.
+    apply (unique_exists (BinProductArrow A P f g)).
+    split.
+    apply BinProductPr1Commutes.
+    apply BinProductPr2Commutes.
+    intros y. apply isapropdirprod. apply hs. apply hs.
+    intros y H. induction H. rewrite <- t. rewrite <- p.
+    rewrite <- precompWithBinProductArrow.
+    apply BinProductArrowsEq.
+    rewrite <- assoc. rewrite BinProductPr1Commutes. apply idpath.
+    rewrite <- assoc. rewrite BinProductPr2Commutes. apply idpath.
+  Qed.
+
+
+  Definition BinDirectSum_from_BinProduct {X Y : A}
+             (P : BinProductCone A X Y) :
+    BinDirectSumCone A X Y
+    := mk_BinDirectSumCone
+         A X Y
+         (BinProductObject A P)
+         (BinProductArrow A P (identity X) (ZeroArrow A Z X Y))
+         (BinProductArrow A P (ZeroArrow A Z Y X) (identity Y))
+         (BinProductPr1 A P)
+         (BinProductPr2 A P)
+         (mk_isBinDirectSumCone
+            _ _ _ _ _ _ _ _
+            (BinDirectSums_from_binproduct_bincoproducts_isCoproduct P)
+            (BinDirectSums_from_binproduct_bincoproducts_isProduct P)
+            (BinDirectSums_from_binproduct_bincoproducts_eq1 P)
+            (BinDirectSums_from_binproduct_bincoproducts_eq4 P)
+            (BinDirectSums_from_binproduct_bincoproducts_eq2 P)
+            (BinDirectSums_from_binproduct_bincoproducts_eq3 P)
+            (BinDirectSums_from_binproduct_bincoproducts_eq5 P)).
+
+  Definition BinDirectSums_from_BinProducts (BinProds : BinProducts A) :
+    BinDirectSums A.
+  Proof.
+    intros X Y.
+    exact (BinDirectSum_from_BinProduct (BinProds X Y)).
+  Defined.
+
+End bindirectsums_criteria.

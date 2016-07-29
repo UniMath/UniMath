@@ -51,15 +51,6 @@ Local Notation "'HSET2'":= [HSET, HSET, has_homsets_HSET].
 
 Section preamble.
 
-Definition three_rec {A : UU} (a b c : A) : stn 3 -> A.
-Proof.
-induction 1 as [n p].
-induction n as [_|n _]; [apply a|].
-induction n as [_|n _]; [apply b|].
-induction n as [_|n _]; [apply c|].
-induction (nopathsfalsetotrue p).
-Defined.
-
 Definition four_rec {A : UU} (a b c d : A) : stn 4 -> A.
 Proof.
 induction 1 as [n p].

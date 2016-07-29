@@ -76,3 +76,8 @@ bicategories/whiskering.v
 bicategories/Cat.v
 bicategories/internal_equivalence.v
 bicategories/bicategory.v
+Additive.v
+Abelian.v
+category_binops.v
+category_abgr.v
+AbelianisAdditive.v

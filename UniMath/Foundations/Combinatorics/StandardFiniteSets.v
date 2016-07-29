@@ -989,3 +989,37 @@ Proof.
   { apply invweq. apply (weqfp _ (stn∘x)). }
   apply weqstnsum1.
 Defined.
+
+
+Definition stn_predicate {n : nat} (P : stn n -> UU)
+           (k : nat) (h h' : k < n) :
+           P (k,,h) -> P (k,,h').
+Proof.
+  intros n P k h h' H.
+  transparent assert (X : (h = h')).
+  { apply propproperty. }
+  exact (transportf (fun x => P (k,,x)) X H).
+Defined.
+
+Definition three := stn 3.
+
+Definition three_rec {A : UU} (a b c : A) : stn 3 -> A.
+Proof.
+  intros A a b c.
+  induction 1 as [n p].
+  induction n as [_|n _]; [apply a|].
+  induction n as [_|n _]; [apply b|].
+  induction n as [_|n _]; [apply c|].
+  induction (nopathsfalsetotrue p).
+Defined.
+
+Definition three_rec_dep (P : three -> UU):
+  P (● 0) -> P (● 1) -> P (● 2) -> Π n, P n.
+Proof.
+  intros P a b c n.
+  induction n as [n p].
+  induction n as [_|n _]. eapply stn_predicate. apply a.
+  induction n as [_|n _]. eapply stn_predicate. apply b.
+  induction n as [_|n _]. eapply stn_predicate. apply c.
+  induction (nopathsfalsetotrue p).
+Defined.

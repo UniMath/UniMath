@@ -4,13 +4,14 @@
 
 Require Export UniMath.Foundations.Basics.Sets
                UniMath.Ktheory.QuotientSet.
-Require Import UniMath.Foundations.Algebra.BinaryOperations.
+Require Import UniMath.Foundations.Algebra.BinaryOperations
+               UniMath.Foundations.Algebra.Apartness.
 
 (** ** Subsets *)
 
 Lemma isaset_hsubtypes {X : hSet} (Hsub : hsubtypes X) : isaset (carrier Hsub).
 Proof.
-  intros.
+  intros X Hsub.
   apply (isasetsubset pr1 (pr2 X) (isinclpr1 (λ x : X, Hsub x) (λ x : X, pr2 (Hsub x)))).
 Qed.
 Definition subset {X : hSet} (Hsub : hsubtypes X) : hSet :=
@@ -45,7 +46,7 @@ End po_pty.
 
 (** ** Strong Order *)
 
-Definition isStrongOrder {X : UU} (R : hrel X) := dirprod ( istrans R ) ( isirrefl R ).
+Definition isStrongOrder {X : UU} (R : hrel X) := istrans R × iscotrans R × isirrefl R.
 Definition StrongOrder (X : UU) := Σ R : hrel X, isStrongOrder R.
 Definition pairStrongOrder {X : UU} (R : hrel X) (is : isStrongOrder R) : StrongOrder X :=
   tpair (fun R : hrel X => isStrongOrder R ) R is.
@@ -59,19 +60,21 @@ Context (R : StrongOrder X).
 
 Definition istrans_StrongOrder : istrans R :=
   pr1 (pr2 R).
+Definition iscotrans_StrongOrder : iscotrans R :=
+  pr1 (pr2 (pr2 R)).
 Definition isirrefl_StrongOrder : isirrefl R :=
-  pr2 (pr2 R).
+  pr2 (pr2 (pr2 R)).
 
 End so_pty.
 
 Definition isStrongOrder_quotrel {X : UU} {R : eqrel X} {L : hrel X} (is : iscomprelrel R L) :
   isStrongOrder L → isStrongOrder (quotrel is).
 Proof.
-  intros X R L is.
-  intros (Htrans,Hirrefl).
-  split.
-  now apply istransquotrel.
-  now apply isirreflquotrel.
+  intros X R L is H.
+  repeat split.
+  - apply istransquotrel, (pr1 H).
+  - apply iscotransquotrel, (pr1 (pr2 H)).
+  - apply isirreflquotrel, (pr2 (pr2 H)).
 Defined.
 
 (** ** Reverse orderse *)
@@ -96,10 +99,10 @@ Qed.
 Lemma ispreorder_reverse {X : UU} (l : hrel X) :
   ispreorder l → ispreorder (hrel_reverse l).
 Proof.
-  intros X l (Ht,Hr).
+  intros X l H.
   split.
-  now apply istrans_reverse.
-  now apply isrefl_reverse.
+  now apply istrans_reverse, (pr1 H).
+  now apply isrefl_reverse, (pr2 H).
 Qed.
 Definition po_reverse {X : UU} (l : po X) :=
   popair (hrel_reverse l) (ispreorder_reverse l (pr2 l)).
@@ -120,10 +123,10 @@ Qed.
 Lemma iseqrel_reverse {X : UU} (l : hrel X) :
   iseqrel l → iseqrel (hrel_reverse l).
 Proof.
-  intros X l (Hpo,Hs).
+  intros X l H.
   split.
-  now apply ispreorder_reverse.
-  now apply issymm_reverse.
+  now apply ispreorder_reverse, (pr1 H).
+  now apply issymm_reverse, (pr2 H).
 Qed.
 Definition eqrel_reverse {X : UU} (l : eqrel X) :=
   eqrelpair (hrel_reverse l) (iseqrel_reverse l (pr2 l)).
@@ -140,14 +143,21 @@ Proof.
   intros X l Hl x.
   now apply Hl.
 Qed.
+Lemma iscotrans_reverse {X : UU} (l : hrel X) :
+  iscotrans l -> iscotrans (hrel_reverse l).
+Proof.
+  intros X l Hl x y z H.
+  now apply islogeqcommhdisj, Hl.
+Qed.
 
 Lemma isStrongOrder_reverse {X : UU} (l : hrel X) :
   isStrongOrder l → isStrongOrder (hrel_reverse l).
 Proof.
-  intros X l (Ht,Hir).
-  split.
-  now apply istrans_reverse.
-  now apply isirrefl_reverse.
+  intros X l H.
+  repeat split.
+  now apply istrans_reverse, (pr1 H).
+  now apply iscotrans_reverse, (pr1 (pr2 H)).
+  now apply isirrefl_reverse, (pr2 (pr2 H)).
 Qed.
 Definition StrongOrder_reverse {X : UU} (l : StrongOrder X) :=
   pairStrongOrder (hrel_reverse l) (isStrongOrder_reverse l (pr2 l)).
@@ -179,14 +189,6 @@ Proof.
   now apply Hl.
 Qed.
 
-Lemma iscotrans_reverse {X : UU} (l : hrel X) :
-  iscotrans l → iscotrans (hrel_reverse l).
-Proof.
-  intros X l Hl x y z H.
-  apply islogeqcommhdisj.
-  now apply Hl.
-Qed.
-
 (** ** Effectively Ordered *)
 (** An alternative of total orders *)
 
@@ -196,9 +198,9 @@ Definition isEffectiveOrder {X : UU} (le lt : hrel X) :=
           × (Π x y z : X, lt x y -> le y z -> lt x z)
           × (Π x y z : X, le x y -> lt y z -> lt x z)).
 Definition EffectiveOrder (X : UU) :=
-  Σ lelt : hrel X * hrel X, isEffectiveOrder (fst lelt) (snd lelt).
+  Σ le lt : hrel X, isEffectiveOrder le lt.
 Definition pairEffectiveOrder {X : UU} (le lt : hrel X) (is : isEffectiveOrder le lt) : EffectiveOrder X :=
-  tpair _ (le,lt) is.
+  (le,,lt,,is).
 
 Definition EffectivelyOrderedSet :=
   Σ X : hSet, EffectiveOrder X.
@@ -209,7 +211,7 @@ Coercion pr1EffectivelyOrderedSet : EffectivelyOrderedSet >-> hSet.
 
 Definition EOle {X : EffectivelyOrderedSet} : po X :=
   let R := pr2 X in
-  popair (fst (pr1 R)) (pr1 (pr1 (pr2 R))).
+  popair (pr1 R) (pr1 (pr1 (pr2 (pr2 R)))).
 Definition EOle_rel {X : EffectivelyOrderedSet} : hrel X :=
   pr1 EOle.
 Arguments EOle_rel {!X} x y: simpl never.
@@ -221,7 +223,7 @@ Arguments EOge_rel {!X} x y: simpl never.
 
 Definition EOlt {X : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
   let R := pr2 X in
-  pairStrongOrder (snd (pr1 R)) (pr2 (pr1 (pr2 R))).
+  pairStrongOrder (pr1 (pr2 R)) (pr2 (pr1 (pr2 (pr2 R)))).
 Definition EOlt_rel {X : EffectivelyOrderedSet} : hrel X :=
   pr1 EOlt.
 Arguments EOlt_rel {!X} x y: simpl never.
@@ -233,7 +235,6 @@ Arguments EOgt_rel {!X} x y: simpl never.
 
 Definition PreorderedSetEffectiveOrder (X : EffectivelyOrderedSet) : PreorderedSet :=
   PreorderedSetPair _ (@EOle X).
-Coercion PreorderedSetEffectiveOrder : EffectivelyOrderedSet >-> PreorderedSet.
 
 Delimit Scope eo_scope with eo.
 
@@ -251,7 +252,7 @@ Open Scope eo_scope.
 Lemma not_EOlt_le :
   Π x y : X, (¬ (x < y)) <-> (y <= x).
 Proof.
-  exact (pr1 (pr2 (pr2 (pr2 X)))).
+  exact (pr1 (pr2 (pr2 (pr2 (pr2 X))))).
 Qed.
 Lemma EOge_le:
   Π x y : X, (x >= y) <-> (y <= x).
@@ -270,6 +271,13 @@ Definition isrefl_EOle:
 Definition istrans_EOle:
   Π x y z : X, x <= y -> y <= z -> x <= z
   := istrans_po EOle.
+
+Definition isirrefl_EOgt:
+  Π x : X, ¬ (x > x)
+  := isirrefl_StrongOrder EOgt.
+Definition istrans_EOgt:
+  Π x y z : X, x > y -> y > z -> x > z
+  := istrans_StrongOrder EOgt.
 
 Definition isirrefl_EOlt:
   Π x : X, ¬ (x < x)
@@ -293,32 +301,44 @@ Qed.
 Lemma istrans_EOlt_le:
   Π x y z : X, x < y -> y <= z -> x < z.
 Proof.
-  exact (pr1 (pr2 (pr2 (pr2 (pr2 X))))).
+  exact (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 X)))))).
 Qed.
 Lemma istrans_EOle_lt:
   Π x y z : X, x <= y -> y < z -> x < z.
 Proof.
-  exact (pr2 (pr2 (pr2 (pr2 (pr2 X))))).
+  exact (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 X)))))).
 Qed.
 
 Lemma EOlt_noteq :
   Π x y : X, x < y -> x != y.
 Proof.
-  intros x y Hlt Heq.
-  rewrite Heq in Hlt.
-  now apply isirrefl_EOlt in Hlt.
+  intros x y Hgt Heq.
+  rewrite Heq in Hgt.
+  now apply isirrefl_EOgt in Hgt.
 Qed.
 Lemma EOgt_noteq :
   Π x y : X, x > y -> x != y.
 Proof.
   intros x y Hgt Heq.
   rewrite Heq in Hgt.
-  now apply isirrefl_EOlt in Hgt.
+  now apply isirrefl_EOgt in Hgt.
 Qed.
 
 Close Scope eo_scope.
 
 End eo_pty.
+
+(** ** Constructive Total Effective Order *)
+
+Definition isConstructiveTotalEffectiveOrder {X : UU} (ap le lt : hrel X) :=
+  istightap ap
+  × isEffectiveOrder le lt
+  × (isantisymm le)
+  × (Π x y : X, ap x y <-> (lt x y) ⨿ (lt y x)).
+Definition ConstructiveTotalEffectiveOrder X :=
+  Σ ap lt le : hrel X, isConstructiveTotalEffectiveOrder ap lt le.
+Definition ConstructiveTotalEffectivellyOrderedSet :=
+  Σ X : hSet, ConstructiveTotalEffectiveOrder X.
 
 (** ** Complete Ordered Space *)
 
@@ -345,8 +365,8 @@ Definition pr1LeastUpperBound {E : hsubtypes X} :
 Lemma isapropLeastUpperBound (E : hsubtypes X) (H : isantisymm (λ x y : X, x <= y)) :
   isaprop (LeastUpperBound E).
 Proof.
-  intros E H (x,Hx) (y,Hy).
-  apply (iscontrweqf (X := x = y)).
+  intros E H x y.
+  apply (iscontrweqf (X := (pr1 x) = (pr1 y))).
   - apply invweq, subtypeInjectivity.
     intro t.
     apply isapropdirprod.
@@ -356,10 +376,10 @@ Proof.
     apply impred_isaprop ; intro.
     apply isapropimpl.
     now apply pr2.
-  - assert (Heq : x = y).
+  - assert (Heq : (pr1 x) = (pr1 y)).
     { apply H.
-      now apply (pr2 Hx), (pr1 Hy).
-      now apply (pr2 Hy), (pr1 Hx). }
+      now apply (pr2 (pr2 x)), (pr1 (pr2 y)).
+      now apply (pr2 (pr2 y)), (pr1 (pr2 x)). }
     rewrite <- Heq.
     apply iscontrloopsifisaset.
     apply pr2.
@@ -390,8 +410,8 @@ Definition pr1GreatestLowerBound {E : hsubtypes X} :
 Lemma isapropGreatestLowerBound (E : hsubtypes X) (H : isantisymm (λ x y : X, x >= y)) :
   isaprop (GreatestLowerBound E).
 Proof.
-  intros E H (x,Hx) (y,Hy).
-  apply (iscontrweqf (X := x = y)).
+  intros E H x y.
+  apply (iscontrweqf (X := (pr1 x) = (pr1 y))).
   - apply invweq, subtypeInjectivity.
     intro t.
     apply isapropdirprod.
@@ -401,10 +421,10 @@ Proof.
     apply impred_isaprop ; intro.
     apply isapropimpl.
     now apply pr2.
-  - assert (Heq : x = y).
+  - assert (Heq : (pr1 x) = (pr1 y)).
     { apply H.
-      now apply (pr2 Hx), (pr1 Hy).
-      now apply (pr2 Hy), (pr1 Hx). }
+      now apply (pr2 (pr2 x)), (pr1 (pr2 y)).
+      now apply (pr2 (pr2 y)), (pr1 (pr2 x)). }
     rewrite <- Heq.
     apply iscontrloopsifisaset.
     apply pr2.
