@@ -37,11 +37,10 @@ Local Notation "G ∙ F" := (functor_composite _ _ _ F G) (at level 35).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
-Definition precategory_binproduct_ob_mor (C D : precategory_ob_mor) : precategory_ob_mor.
-Proof.
-  exists (C × D).
-  exact (λ cd cd', pr1 cd --> pr1 cd' × pr2 cd --> pr2 cd').
-Defined.
+Definition precategory_binproduct_mor (C D : precategory_ob_mor) (cd cd' : C × D) := pr1 cd --> pr1 cd' × pr2 cd --> pr2 cd'.
+
+Definition precategory_binproduct_ob_mor (C D : precategory_ob_mor) : precategory_ob_mor
+  := tpair _ _ (precategory_binproduct_mor C D).
 
 Definition precategory_binproduct_data (C D : precategory_data) : precategory_data.
 Proof.
@@ -93,20 +92,14 @@ Arguments mor2 { _ _ _ _ } _ .
 Local Notation "C × D" := (precategory_binproduct C D) (at level 75, right associativity).
 
 (** Objects and morphisms in the product precategory of two precategories *)
-Definition precatbinprodpair {C D : precategory} (X : C) (Y : D) : precategory_binproduct C D.
-Proof.
-  exists X.
-  exact Y.
-Defined.
+Definition precatbinprodpair {C D : precategory} (X : C) (Y : D) : precategory_binproduct C D
+  := dirprodpair X Y.
 
 Local Notation "A ⊗ B" := (precatbinprodpair A B) (at level 10).
 
 Definition precatbinprodmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X --> X') (β : Z --> Z')
-  : X ⊗ Z --> X' ⊗ Z'.
-Proof.
-  exists α.
-  exact β.
-Defined.
+  : X ⊗ Z --> X' ⊗ Z'
+  := dirprodpair α β.
 
 (** Isos in product precategories *)
 Definition precatbinprodiso {C D : precategory} {X X' : C} {Z Z' : D} (α : iso X X') (β : iso Z Z')
@@ -138,8 +131,6 @@ Defined.
 
 (** Associativity functors *)
 Section assoc.
-
-
 
 Definition precategory_binproduct_assoc_data (C0 C1 C2 : precategory_data)
   : functor_data (precategory_binproduct_data C0 (precategory_binproduct_data C1 C2))
@@ -224,20 +215,15 @@ Variable C D E : precategory.
 Variable F : functor (precategory_binproduct C D) E.
 Variable c : C.
 
-Definition functor_fix_fst_arg_ob (d:D): E := F(tpair _ c d).
-Definition functor_fix_fst_arg_mor (d d':D)(f: d --> d'): functor_fix_fst_arg_ob d --> functor_fix_fst_arg_ob d'.
+Definition functor_fix_fst_arg_ob (d:D) : E := F (tpair _ c d).
+Definition functor_fix_fst_arg_mor (d d' : D) (f : d --> d') : functor_fix_fst_arg_ob d --> functor_fix_fst_arg_ob d'.
 Proof.
   apply (#F).
-  split; simpl.
-  exact (identity c).
-  exact f.
+  exact (dirprodpair (identity c) f).
 Defined.
-Definition functor_fix_fst_arg_data : functor_data D E.
-Proof.
-  red.
-  exists functor_fix_fst_arg_ob.
-  exact functor_fix_fst_arg_mor.
-Defined.
+
+Definition functor_fix_fst_arg_data : functor_data D E
+  := tpair _ functor_fix_fst_arg_ob functor_fix_fst_arg_mor.
 
 Lemma is_functor_functor_fix_fst_arg_data: is_functor functor_fix_fst_arg_data.
 Proof.
@@ -263,11 +249,8 @@ Proof.
     apply idpath.
 Qed.
 
-Definition functor_fix_fst_arg: functor D E.
-Proof.
-  exists functor_fix_fst_arg_data.
-  exact is_functor_functor_fix_fst_arg_data.
-Defined.
+Definition functor_fix_fst_arg : functor D E
+  := tpair _ functor_fix_fst_arg_data is_functor_functor_fix_fst_arg_data.
 
 End functor_fix_fst_arg.
 
@@ -290,11 +273,8 @@ Proof.
   apply nat_trans_ax_inst.
 Qed.
 
-Definition nat_trans_fix_fst_arg: functor_fix_fst_arg C D E F c ⟶ functor_fix_fst_arg C D E F' c.
-Proof.
-  exists nat_trans_fix_fst_arg_data.
-  exact nat_trans_fix_fst_arg_ax.
-Defined.
+Definition nat_trans_fix_fst_arg: functor_fix_fst_arg C D E F c ⟶ functor_fix_fst_arg C D E F' c
+  := tpair _ nat_trans_fix_fst_arg_data nat_trans_fix_fst_arg_ax.
 
 End nat_trans_fix_fst_arg.
 
@@ -308,16 +288,11 @@ Definition functor_fix_snd_arg_ob (c:C): E := F(tpair _ c d).
 Definition functor_fix_snd_arg_mor (c c':C)(f: c --> c'): functor_fix_snd_arg_ob c --> functor_fix_snd_arg_ob c'.
 Proof.
   apply (#F).
-  split; simpl.
-  exact f.
-  exact (identity d).
+  exact (dirprodpair f (identity d)).
 Defined.
-Definition functor_fix_snd_arg_data : functor_data C E.
-Proof.
-  red.
-  exists functor_fix_snd_arg_ob.
-  exact functor_fix_snd_arg_mor.
-Defined.
+
+Definition functor_fix_snd_arg_data : functor_data C E
+  := tpair _ functor_fix_snd_arg_ob functor_fix_snd_arg_mor.
 
 Lemma is_functor_functor_fix_snd_arg_data: is_functor functor_fix_snd_arg_data.
 Proof.
@@ -369,11 +344,8 @@ Proof.
   apply nat_trans_ax_inst.
 Qed.
 
-Definition nat_trans_fix_snd_arg: functor_fix_snd_arg C D E F d ⟶ functor_fix_snd_arg C D E F' d.
-Proof.
-  exists nat_trans_fix_snd_arg_data.
-  exact nat_trans_fix_snd_arg_ax.
-Defined.
+Definition nat_trans_fix_snd_arg: functor_fix_snd_arg C D E F d ⟶ functor_fix_snd_arg C D E F' d
+  := tpair _ nat_trans_fix_snd_arg_data nat_trans_fix_snd_arg_ax.
 
 End nat_trans_fix_snd_arg.
 
