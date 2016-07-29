@@ -84,7 +84,7 @@ Definition compose_2mor_horizontal {C : prebicategory_id_comp} {a b c : C}
   : ( f ;1; g ) -2-> ( f' ;1; g' ).
 Proof.
   apply functor_on_morphisms.
-  exact (binprodcatmor alpha beta).
+  exact (precatbinprodmor alpha beta).
 Defined.
 
 Local Notation "alpha ;h; beta" := (compose_2mor_horizontal alpha beta) (at level 50, format "alpha ;h; beta").
@@ -96,7 +96,7 @@ Definition compose_2mor_iso_horizontal {C : prebicategory_id_comp} {a b c : C}
   : iso ( f ;1; g ) ( f' ;1; g' ).
 Proof.
   apply functor_on_iso.
-  exact (binprodcatiso alpha beta).
+  exact (precatbinprodiso alpha beta).
 Defined.
 
 Local Notation "alpha ;hi; beta" := (compose_2mor_iso_horizontal alpha beta) (at level 50, format "alpha ;hi; beta").
@@ -161,7 +161,7 @@ Definition associator_2mor {C : prebicategory_data} { a b c d : C }
 Proof.
   set (A := associator_trans a b c d).
   unfold associator_trans_type in A.
-  exact (A (binprodcatpair f (binprodcatpair g h))).
+  exact (A (precatbinprodpair f (precatbinprodpair g h))).
 Defined.
 
 Definition left_unitor_trans {C : prebicategory_data} ( a b : C )
@@ -328,7 +328,7 @@ Lemma horizontal_comp_id {C : prebicategory_id_comp} {a b c : C}
 Proof.
   unfold compose_2mor_horizontal.
   pathvia (functor_on_morphisms (compose_functor a b c)
-            (identity (binprodcatpair f g))).
+            (identity (precatbinprodpair f g))).
     reflexivity.
   apply functor_id.
 Defined.
@@ -340,7 +340,7 @@ Lemma inv_horizontal_comp {C : prebicategory_id_comp} {a b c : C}
   = iso_inv_from_iso (alpha ;hi; beta).
 Proof.
   unfold compose_2mor_iso_horizontal.
-  rewrite binprodcatiso_inv.
+  rewrite precatbinprodiso_inv.
   apply functor_on_iso_inv.
 Defined.
 
@@ -355,8 +355,8 @@ Lemma interchange {C : prebicategory} {a b c : C}
 Proof.
   unfold compose_2mor_horizontal.
 
-  assert (X : (binprodcatmor a1 b1) ;v; (binprodcatmor a2 b2)
-            = (binprodcatmor (a1;v;a2) (b1;v;b2))) by reflexivity.
+  assert (X : (precatbinprodmor a1 b1) ;v; (precatbinprodmor a2 b2)
+            = (precatbinprodmor (a1;v;a2) (b1;v;b2))) by reflexivity.
   rewrite <- X.
 
   apply functor_comp.

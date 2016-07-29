@@ -173,7 +173,7 @@ mkpair.
 - intro t.
   simple refine (let X : Σ x0,
            Π v : nat, coconeIn ccab v ;; x0 =
-                      binprodcatmor (pr1 ccx v) (pr2 (pr1 ccab v)) := _ in _).
+                      precatbinprodmor (pr1 ccx v) (pr2 (pr1 ccab v)) := _ in _).
   { mkpair.
     - split; [ apply (pr1 t) | apply (identity _) ].
     - abstract (intro n; rewrite id_right; apply pathsdirprod;
@@ -220,7 +220,7 @@ mkpair.
 - intro t.
   simple refine (let X : Σ x0,
            Π v : nat, coconeIn ccab v ;; x0 =
-                      binprodcatmor (pr1 (pr1 ccab v)) (pr1 ccx v) := _ in _).
+                      precatbinprodmor (pr1 (pr1 ccab v)) (pr1 ccx v) := _ in _).
   { mkpair.
     - split; [ apply (identity _) | apply (pr1 t) ].
     - abstract (intro n; rewrite id_right; apply pathsdirprod;
@@ -258,7 +258,7 @@ destruct (HG _ _ _ (isColimCocone_pr2_functor cAB ml ccml Hccml) _ cGBY) as [[g 
 simpl in *.
 mkpair.
 - apply (tpair _ (f,,g)).
-  abstract (intro n; unfold binprodcatmor, compose; simpl;
+  abstract (intro n; unfold precatbinprodmor, compose; simpl;
             now rewrite hf1, hg1, (paireta (coconeIn ccxy n))).
 - intro t.
   apply subtypeEquality; simpl.

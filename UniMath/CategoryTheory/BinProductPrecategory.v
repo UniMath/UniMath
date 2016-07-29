@@ -93,15 +93,15 @@ Arguments mor2 { _ _ _ _ } _ .
 Local Notation "C × D" := (precategory_binproduct C D) (at level 75, right associativity).
 
 (** Objects and morphisms in the product precategory of two precategories *)
-Definition binprodcatpair {C D : precategory} (X : C) (Y : D) : precategory_binproduct C D.
+Definition precatbinprodpair {C D : precategory} (X : C) (Y : D) : precategory_binproduct C D.
 Proof.
   exists X.
   exact Y.
 Defined.
 
-Local Notation "A ⊗ B" := (binprodcatpair A B) (at level 10).
+Local Notation "A ⊗ B" := (precatbinprodpair A B) (at level 10).
 
-Definition binprodcatmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X --> X') (β : Z --> Z')
+Definition precatbinprodmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X --> X') (β : Z --> Z')
   : X ⊗ Z --> X' ⊗ Z'.
 Proof.
   exists α.
@@ -109,11 +109,11 @@ Proof.
 Defined.
 
 (** Isos in product precategories *)
-Definition binprodcatiso {C D : precategory} {X X' : C} {Z Z' : D} (α : iso X X') (β : iso Z Z')
+Definition precatbinprodiso {C D : precategory} {X X' : C} {Z Z' : D} (α : iso X X') (β : iso Z Z')
   : iso (X ⊗ Z) (X' ⊗ Z').
 Proof.
-  set (f := binprodcatmor α β).
-  set (g := binprodcatmor (iso_inv_from_iso α) (iso_inv_from_iso β)).
+  set (f := precatbinprodmor α β).
+  set (g := precatbinprodmor (iso_inv_from_iso α) (iso_inv_from_iso β)).
   exists f.
   apply (is_iso_qinv f g).
   use tpair.
@@ -125,10 +125,10 @@ Proof.
     apply iso_after_iso_inv.
 Defined.
 
-Definition binprodcatiso_inv {C D : precategory} {X X' : C} {Z Z' : D}
+Definition precatbinprodiso_inv {C D : precategory} {X X' : C} {Z Z' : D}
   (α : iso X X') (β : iso Z Z')
-  : binprodcatiso (iso_inv_from_iso α) (iso_inv_from_iso β)
-  = iso_inv_from_iso (binprodcatiso α β).
+  : precatbinprodiso (iso_inv_from_iso α) (iso_inv_from_iso β)
+  = iso_inv_from_iso (precatbinprodiso α β).
 Proof.
   apply inv_iso_unique.
   apply pathsdirprod.
@@ -385,8 +385,8 @@ Definition binproduct_pair_functor_data {A B C D : precategory}
   functor_data (precategory_binproduct A B) (precategory_binproduct C D).
 Proof.
 mkpair.
-- intro x; apply (binprodcatpair (F (pr1 x)) (G (pr2 x))).
-- intros x y f; simpl; apply (binprodcatmor (# F (pr1 f)) (# G (pr2 f))).
+- intro x; apply (precatbinprodpair (F (pr1 x)) (G (pr2 x))).
+- intros x y f; simpl; apply (precatbinprodmor (# F (pr1 f)) (# G (pr2 f))).
 Defined.
 
 Definition binproduct_pair_functor {A B C D : precategory}
@@ -433,8 +433,8 @@ Definition bindelta_functor_data (C : precategory) :
   functor_data C (precategory_binproduct C C).
 Proof.
 mkpair.
-- intro x; apply (binprodcatpair x x).
-- intros x y f; simpl; apply (binprodcatmor f f).
+- intro x; apply (precatbinprodpair x x).
+- intros x y f; simpl; apply (precatbinprodmor f f).
 Defined.
 
 Definition bindelta_functor (C : precategory) :
@@ -450,8 +450,8 @@ Definition bindelta_pair_functor_data (C D E : precategory)
   functor_data C (precategory_binproduct D E).
 Proof.
   mkpair.
-  - intro c. apply (binprodcatpair (F c) (G c)).
-  - intros x y f. simpl. apply (binprodcatmor (# F f) (# G f)).
+  - intro c. apply (precatbinprodpair (F c) (G c)).
+  - intros x y f. simpl. apply (precatbinprodmor (# F f) (# G f)).
 Defined.
 
 Definition bindelta_pair_functor {C D E : precategory}

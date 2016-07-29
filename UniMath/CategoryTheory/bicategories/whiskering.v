@@ -30,7 +30,7 @@ Lemma whisker_left_id_2mor {C : prebicategory} {a b c : C}
   : whisker_left f (identity_2mor g) = identity_2mor (f ;1; g).
 Proof.
   pathvia (functor_on_morphisms (compose_functor a b c)
-                                (identity (binprodcatpair f g))).
+                                (identity (precatbinprodpair f g))).
   reflexivity.
   apply functor_id.
 Defined.
@@ -49,7 +49,7 @@ Definition whisker_left_iso {C : prebicategory} {a b c : C}
   : iso (f ;1; g) (f ;1; h).
 Proof.
   exists (whisker_left f alpha).
-  apply (functor_on_iso_is_iso _ _ _ _ _ (binprodcatiso (identity_iso f) alpha)).
+  apply (functor_on_iso_is_iso _ _ _ _ _ (precatbinprodiso (identity_iso f) alpha)).
 Defined.
 
 Lemma whisker_left_inv {C : prebicategory} {a b c : C}
@@ -130,7 +130,7 @@ Lemma whisker_right_id_2mor {C : prebicategory} {a b c : C}
   : whisker_right (identity_2mor f) g = identity_2mor (f ;1; g).
 Proof.
   pathvia (functor_on_morphisms (compose_functor a b c)
-                                (identity (binprodcatpair f g))).
+                                (identity (precatbinprodpair f g))).
   reflexivity.
   apply functor_id.
 Defined.
@@ -149,7 +149,7 @@ Definition whisker_right_iso {C : prebicategory} {a b c : C}
   : iso (f ;1; h) (g ;1; h).
 Proof.
   exists (whisker_right alpha h).
-  apply (functor_on_iso_is_iso _ _ _ _ _ (binprodcatiso alpha (identity_iso h))).
+  apply (functor_on_iso_is_iso _ _ _ _ _ (precatbinprodiso alpha (identity_iso h))).
 Defined.
 
 Lemma whisker_right_inv {C : prebicategory} {a b c : C}
@@ -263,7 +263,7 @@ Proof.
             (functor_composite
               (binproduct_pair_functor (functor_identity _) (compose_functor b c d))
               (compose_functor a b d))
-           (binprodcatmor alpha (binprodcatmor beta gamma)))
+           (precatbinprodmor alpha (precatbinprodmor beta gamma)))
            ;v; associator f' g' h'
           ).
     reflexivity.
@@ -275,8 +275,8 @@ Proof.
               (functor_composite
                 (binproduct_pair_functor (compose_functor a b c) (functor_identity _))
                 (compose_functor a c d)))
-            (binprodcatmor alpha (binprodcatmor beta gamma)))).
-    apply (nat_trans_ax (associator_trans a b c d) _ _ (binprodcatmor alpha (binprodcatmor beta gamma))).
+            (precatbinprodmor alpha (precatbinprodmor beta gamma)))).
+    apply (nat_trans_ax (associator_trans a b c d) _ _ (precatbinprodmor alpha (precatbinprodmor beta gamma))).
 
   reflexivity.
 Defined.
